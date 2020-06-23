@@ -161,8 +161,18 @@
         "signature": "730b99e073329e2545bd94b68f401baf6cb3b01cd7f9333e3ddaade40abe87fe",
         "affectsGlobalScope": true
       },
+      "../core/dist/use-frame.d.ts": {
+        "version": "50f7d683239f75279b9aeb06cc3f397d5d7b0d5fc85c7618aab736ccbd8813b4",
+        "signature": "50f7d683239f75279b9aeb06cc3f397d5d7b0d5fc85c7618aab736ccbd8813b4",
+        "affectsGlobalScope": false
+      },
+      "../core/dist/index.d.ts": {
+        "version": "06af2d3b9951d1a449d48d56b7af819ea063752e41fbcd86e55fb5b9dd0a26f0",
+        "signature": "06af2d3b9951d1a449d48d56b7af819ea063752e41fbcd86e55fb5b9dd0a26f0",
+        "affectsGlobalScope": false
+      },
       "./src/hey.tsx": {
-        "version": "edf291f372c8f8d630c2788203fa51d197db4daf005acdbe6b89ab5fa0c1cd6c",
+        "version": "8ce2860875ad7da3064683b78cfb6665f086d410343e1474eabd0a95d5e30e5d",
         "signature": "e609e3b3eb397ffba13f46848a879d7b5b6ba72fd6cd091bb510bd1d724bcd1f",
         "affectsGlobalScope": false
       },
@@ -501,9 +511,14 @@
         "signature": "e6d6a2e677810547ee595e350f08c7b932b8a024d12bfd257b3dbf6cbd93bbb1",
         "affectsGlobalScope": false
       },
+      "./src/stitcher.ts": {
+        "version": "bde6155977955037cc7aff7ffd6fa2533f81a101096efaa540591cede7248d84",
+        "signature": "f393c9be507c3e67c629b3a8a2c51390f6b24e2b1e4f29761a680a54e752bbdd",
+        "affectsGlobalScope": false
+      },
       "./src/index.ts": {
-        "version": "e0a51739c753db3f0431f257b37018aed984e9463d129bc1a9ec9823168c3993",
-        "signature": "eb1a30c55df28738413a8ded1c424c62b98426dd8a2681ba0aca8f395c53e846",
+        "version": "95f38c9b16d51a42695a059e57510b41439454f9961e7f06b8bf94070ed0a020",
+        "signature": "4fa59f0fe0741de2056bcd6ac93a141800c7f2ec5c989afc881d6978b0a276c7",
         "affectsGlobalScope": false
       },
       "./node_modules/@types/anymatch/index.d.ts": {
@@ -537,6 +552,19 @@
       "configFilePath": "./tsconfig.json"
     },
     "referencedMap": {
+      "../core/dist/index.d.ts": [
+        "../core/dist/use-frame.d.ts",
+        "./node_modules/@types/node/fs.d.ts",
+        "./node_modules/@types/node/ts3.2/fs.d.ts",
+        "./node_modules/@types/node/ts3.2/util.d.ts",
+        "./node_modules/@types/node/util.d.ts"
+      ],
+      "../core/dist/use-frame.d.ts": [
+        "./node_modules/@types/node/fs.d.ts",
+        "./node_modules/@types/node/ts3.2/fs.d.ts",
+        "./node_modules/@types/node/ts3.2/util.d.ts",
+        "./node_modules/@types/node/util.d.ts"
+      ],
       "./node_modules/@types/anymatch/index.d.ts": [
         "./node_modules/@types/node/fs.d.ts",
         "./node_modules/@types/node/ts3.2/fs.d.ts",
@@ -1276,6 +1304,7 @@
         "./src/hey.tsx"
       ],
       "./src/hey.tsx": [
+        "../core/dist/index.d.ts",
         "./node_modules/@types/node/fs.d.ts",
         "./node_modules/@types/node/ts3.2/fs.d.ts",
         "./node_modules/@types/node/ts3.2/util.d.ts",
@@ -1284,15 +1313,35 @@
       ],
       "./src/index.ts": [
         "./node_modules/@types/node/fs.d.ts",
-        "./node_modules/@types/node/path.d.ts",
         "./node_modules/@types/node/ts3.2/fs.d.ts",
         "./node_modules/@types/node/ts3.2/util.d.ts",
         "./node_modules/@types/node/util.d.ts",
         "./node_modules/@types/puppeteer/index.d.ts",
-        "./src/bundler.ts"
+        "./src/bundler.ts",
+        "./src/stitcher.ts"
+      ],
+      "./src/stitcher.ts": [
+        "./node_modules/@types/node/fs.d.ts",
+        "./node_modules/@types/node/ts3.2/fs.d.ts",
+        "./node_modules/@types/node/ts3.2/util.d.ts",
+        "./node_modules/@types/node/util.d.ts",
+        "./node_modules/execa/index.d.ts"
       ]
     },
     "exportedModulesMap": {
+      "../core/dist/index.d.ts": [
+        "../core/dist/use-frame.d.ts",
+        "./node_modules/@types/node/fs.d.ts",
+        "./node_modules/@types/node/ts3.2/fs.d.ts",
+        "./node_modules/@types/node/ts3.2/util.d.ts",
+        "./node_modules/@types/node/util.d.ts"
+      ],
+      "../core/dist/use-frame.d.ts": [
+        "./node_modules/@types/node/fs.d.ts",
+        "./node_modules/@types/node/ts3.2/fs.d.ts",
+        "./node_modules/@types/node/ts3.2/util.d.ts",
+        "./node_modules/@types/node/util.d.ts"
+      ],
       "./node_modules/@types/anymatch/index.d.ts": [
         "./node_modules/@types/node/fs.d.ts",
         "./node_modules/@types/node/ts3.2/fs.d.ts",
@@ -2013,10 +2062,14 @@
         "./node_modules/@types/node/util.d.ts"
       ],
       "./src/index.ts": [
-        "./src/bundler.ts"
+        "./node_modules/@types/puppeteer/index.d.ts",
+        "./src/bundler.ts",
+        "./src/stitcher.ts"
       ]
     },
     "semanticDiagnosticsPerFile": [
+      "../core/dist/index.d.ts",
+      "../core/dist/use-frame.d.ts",
       "./node_modules/@types/anymatch/index.d.ts",
       "./node_modules/@types/node/async_hooks.d.ts",
       "./node_modules/@types/node/base.d.ts",
@@ -2119,7 +2172,8 @@
       "./src/bundler.ts",
       "./src/entry.tsx",
       "./src/hey.tsx",
-      "./src/index.ts"
+      "./src/index.ts",
+      "./src/stitcher.ts"
     ]
   },
   "version": "3.9.5"

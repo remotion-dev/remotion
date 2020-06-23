@@ -1,8 +1,8 @@
 {
-  "name": "@jonny/motion-cli",
+  "name": "@jonny/motion-core",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "dist/index.js",
   "scripts": {
     "test": "exit 0",
     "build": "tsc -d",
@@ -14,10 +14,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@jonny/motion-renderer": "^1.0.0-alpha.1",
     "@types/node": "^14.0.13",
-    "execa": "^4.0.2",
-    "typescript": "^3.9.5",
-    "xns": "^2.0.7"
+    "typescript": "^3.9.5"
   }
 }

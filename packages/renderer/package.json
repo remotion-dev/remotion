@@ -14,6 +14,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@jonny/motion-core": "^1.0.0-alpha.1",
     "@types/puppeteer": "^3.0.0",
     "@types/react": "^16.9.38",
     "@types/react-dom": "^16.9.8",

@@ -1,5 +1,4 @@
 import puppeteer from "puppeteer";
-import path from "path";
 
 async function screenshotDOMElement(
   page: puppeteer.Page,
@@ -35,19 +34,27 @@ async function screenshotDOMElement(
   });
 }
 
-export const provideScreenshot = async () => {
+export const openBrowser = async (): Promise<puppeteer.Browser> => {
   const browser = await puppeteer.launch();
-  const page = await browser.newPage();
-  page.setViewport({ width: 1080, height: 1080, deviceScaleFactor: 1 });
+  return browser;
+};
 
-  await page.goto("file://" + path.join(__dirname, "index.html"));
+export const provideScreenshot = async (
+  page: puppeteer.Page,
+  options: {
+    site: string;
+    output: string;
+  }
+) => {
+  page.setViewport({ width: 1080, height: 1080, deviceScaleFactor: 2 });
+
+  await page.goto(options.site);
 
   await screenshotDOMElement(page, {
-    path: "element.png",
+    path: options.output,
     selector: "#canvas",
   });
-
-  await browser.close();
 };
 
 export * from "./bundler";
+export * from "./stitcher";
