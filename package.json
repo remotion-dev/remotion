@@ -1,0 +1,13 @@
+{
+  "version": "1.0.0-alpha.4",
+  "workspaces": [
+    "packages/*"
+  ],
+  "private": true,
+  "scripts": {
+    "build": "lerna run build"
+  },
+  "devDependencies": {
+    "lerna": "^2.2.0"
+  }
+}

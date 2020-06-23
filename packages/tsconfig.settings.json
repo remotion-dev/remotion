@@ -1,0 +1,15 @@
+{
+	"compilerOptions": {
+		"target": "es5",
+		"module": "commonjs",
+		"declaration": true,
+		"declarationMap": true,
+		"sourceMap": true,
+		"composite": true,
+		"lib": ["es2015", "dom"],
+		"jsx": "react",
+		"noEmit": false,
+		"strict": true,
+		"esModuleInterop": true
+	}
+}

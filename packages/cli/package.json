@@ -1,0 +1,20 @@
+{
+  "name": "@jonny/motion-cli",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "exit 0",
+    "build": "tsc -d",
+    "prepare": "npm run build"
+  },
+  "files": [
+    "dist"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@jonny/motion-renderer": "^1.0.0-alpha.1",
+    "xns": "^2.0.7"
+  }
+}
