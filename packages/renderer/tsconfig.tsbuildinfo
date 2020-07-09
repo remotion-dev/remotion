@@ -176,6 +176,41 @@
         "signature": "e609e3b3eb397ffba13f46848a879d7b5b6ba72fd6cd091bb510bd1d724bcd1f",
         "affectsGlobalScope": false
       },
+      "./node_modules/@types/estree/index.d.ts": {
+        "version": "6a38e250306ceccbab257d11b846d5bd12491157d20901fa01afe4050c93c1b5",
+        "signature": "6a38e250306ceccbab257d11b846d5bd12491157d20901fa01afe4050c93c1b5",
+        "affectsGlobalScope": false
+      },
+      "./node_modules/@types/json-schema/index.d.ts": {
+        "version": "ecdf947a5111318568ba99f2a87b8498382d8871207f1bc6271ff3b9536a2448",
+        "signature": "ecdf947a5111318568ba99f2a87b8498382d8871207f1bc6271ff3b9536a2448",
+        "affectsGlobalScope": false
+      },
+      "./node_modules/ajv/lib/ajv.d.ts": {
+        "version": "e1459cac7fec9e92eba10b478c2be25ca0d12a2055dd8c3f872a35301ab60ab5",
+        "signature": "e1459cac7fec9e92eba10b478c2be25ca0d12a2055dd8c3f872a35301ab60ab5",
+        "affectsGlobalScope": false
+      },
+      "./node_modules/schema-utils/declarations/validate.d.ts": {
+        "version": "a754517d4918e3972b4f6c29febe38677283248766d06f52ef70c730d39a1759",
+        "signature": "a754517d4918e3972b4f6c29febe38677283248766d06f52ef70c730d39a1759",
+        "affectsGlobalScope": false
+      },
+      "./node_modules/schema-utils/declarations/validationerror.d.ts": {
+        "version": "327f42ab31ff4539ba868d0374f8825af328b104b5f78d26b2e3ce9cc17b43a0",
+        "signature": "327f42ab31ff4539ba868d0374f8825af328b104b5f78d26b2e3ce9cc17b43a0",
+        "affectsGlobalScope": false
+      },
+      "./node_modules/tapable/tapable.d.ts": {
+        "version": "4f682ef2230965ac5bf9006e5e144830bdb48f507fa6ea53434ec28b16c90abd",
+        "signature": "4f682ef2230965ac5bf9006e5e144830bdb48f507fa6ea53434ec28b16c90abd",
+        "affectsGlobalScope": false
+      },
+      "./node_modules/webpack/types.d.ts": {
+        "version": "449393d4be91a3d42d55fa51a4e9ac13a8e0b2231f46cf4b1c83630f9d85ba04",
+        "signature": "449393d4be91a3d42d55fa51a4e9ac13a8e0b2231f46cf4b1c83630f9d85ba04",
+        "affectsGlobalScope": false
+      },
       "./node_modules/@types/node/globals.d.ts": {
         "version": "2dd7dbacbd70cc156185235140b7b6682c002c1ea678dd87d7a20589d4555fc0",
         "signature": "2dd7dbacbd70cc156185235140b7b6682c002c1ea678dd87d7a20589d4555fc0",
@@ -431,58 +466,13 @@
         "signature": "d522314e80ed71b57e3c2939d3c9594eaae63a4adf028559e6574f6b270b0fee",
         "affectsGlobalScope": false
       },
-      "./node_modules/@types/tapable/index.d.ts": {
-        "version": "d558a0fe921ebcc88d3212c2c42108abf9f0d694d67ebdeba37d7728c044f579",
-        "signature": "d558a0fe921ebcc88d3212c2c42108abf9f0d694d67ebdeba37d7728c044f579",
-        "affectsGlobalScope": false
-      },
-      "./node_modules/@types/uglify-js/node_modules/source-map/source-map.d.ts": {
-        "version": "2887592574fcdfd087647c539dcb0fbe5af2521270dad4a37f9d17c16190d579",
-        "signature": "2887592574fcdfd087647c539dcb0fbe5af2521270dad4a37f9d17c16190d579",
-        "affectsGlobalScope": false
-      },
-      "./node_modules/@types/uglify-js/index.d.ts": {
-        "version": "65940ce496aeee89da612bab18a9ecabef9077ffe7593a3e84ac75d9219df991",
-        "signature": "65940ce496aeee89da612bab18a9ecabef9077ffe7593a3e84ac75d9219df991",
-        "affectsGlobalScope": false
-      },
-      "./node_modules/anymatch/index.d.ts": {
-        "version": "4fb0b7d532aa6fb850b6cd2f1ee4f00802d877b5c66a51903bc1fb0624126349",
-        "signature": "4fb0b7d532aa6fb850b6cd2f1ee4f00802d877b5c66a51903bc1fb0624126349",
-        "affectsGlobalScope": false
-      },
-      "./node_modules/@types/webpack/node_modules/source-map/source-map.d.ts": {
-        "version": "2887592574fcdfd087647c539dcb0fbe5af2521270dad4a37f9d17c16190d579",
-        "signature": "2887592574fcdfd087647c539dcb0fbe5af2521270dad4a37f9d17c16190d579",
-        "affectsGlobalScope": false
-      },
-      "./node_modules/@types/webpack-sources/node_modules/source-map/source-map.d.ts": {
-        "version": "b90c59ac4682368a01c83881b814738eb151de8a58f52eb7edadea2bcffb11b9",
-        "signature": "b90c59ac4682368a01c83881b814738eb151de8a58f52eb7edadea2bcffb11b9",
-        "affectsGlobalScope": false
-      },
-      "./node_modules/@types/source-list-map/index.d.ts": {
-        "version": "67fc055eb86a0632e2e072838f889ffe1754083cb13c8c80a06a7d895d877aae",
-        "signature": "67fc055eb86a0632e2e072838f889ffe1754083cb13c8c80a06a7d895d877aae",
-        "affectsGlobalScope": false
-      },
-      "./node_modules/@types/webpack-sources/index.d.ts": {
-        "version": "8636764b1f9f29c1290bff39be2e55940d6b7f7a071f33f967b72d5eff27b0c6",
-        "signature": "8636764b1f9f29c1290bff39be2e55940d6b7f7a071f33f967b72d5eff27b0c6",
-        "affectsGlobalScope": false
-      },
-      "./node_modules/@types/webpack/index.d.ts": {
-        "version": "dfdccc7162f5a0faf8bb3f95864a490250798ed75c4f84c5ab429065fd9be284",
-        "signature": "dfdccc7162f5a0faf8bb3f95864a490250798ed75c4f84c5ab429065fd9be284",
-        "affectsGlobalScope": false
-      },
       "./node_modules/execa/index.d.ts": {
         "version": "b02b39fb49676079f3d60238c2b47aaa120fc834bb40f51e3c05c3f7a29ad46c",
         "signature": "b02b39fb49676079f3d60238c2b47aaa120fc834bb40f51e3c05c3f7a29ad46c",
         "affectsGlobalScope": false
       },
       "./src/bundler.ts": {
-        "version": "d65025e3ac108745288fc8c8dd20f9bb5a94af2193507f81db8593035a5f26d8",
+        "version": "0a1ff0b7752145cf9b3ffcdebfa3446a07abc21fefaddc130bc87d5d92f79011",
         "signature": "b8ce8c0b304039c97b8942ab2817bf09955001723998371964801eb0cf2095c3",
         "affectsGlobalScope": false
       },
@@ -492,7 +482,7 @@
         "affectsGlobalScope": false
       },
       "./src/entry.tsx": {
-        "version": "b44963eddaf991d9623466b4ea740d50f0b7aa386e97be958c0c8d2a112b5fda",
+        "version": "f9a26662954ee654e5f109168d264730c3bfbfb1f4644f93d1e3fe0a87306767",
         "signature": "8daaf84e30e4324c2fe5ca09685cb8998bb3e3cc02e485668db8e9fc8c096ac6",
         "affectsGlobalScope": false
       },
@@ -524,6 +514,46 @@
       "./node_modules/@types/anymatch/index.d.ts": {
         "version": "48b52264fa193879a074197839dbb4796fa07e86350ff888e5361e06aa46df76",
         "signature": "48b52264fa193879a074197839dbb4796fa07e86350ff888e5361e06aa46df76",
+        "affectsGlobalScope": false
+      },
+      "./node_modules/@types/source-list-map/index.d.ts": {
+        "version": "67fc055eb86a0632e2e072838f889ffe1754083cb13c8c80a06a7d895d877aae",
+        "signature": "67fc055eb86a0632e2e072838f889ffe1754083cb13c8c80a06a7d895d877aae",
+        "affectsGlobalScope": false
+      },
+      "./node_modules/@types/tapable/index.d.ts": {
+        "version": "d558a0fe921ebcc88d3212c2c42108abf9f0d694d67ebdeba37d7728c044f579",
+        "signature": "d558a0fe921ebcc88d3212c2c42108abf9f0d694d67ebdeba37d7728c044f579",
+        "affectsGlobalScope": false
+      },
+      "./node_modules/@types/uglify-js/node_modules/source-map/source-map.d.ts": {
+        "version": "2887592574fcdfd087647c539dcb0fbe5af2521270dad4a37f9d17c16190d579",
+        "signature": "2887592574fcdfd087647c539dcb0fbe5af2521270dad4a37f9d17c16190d579",
+        "affectsGlobalScope": false
+      },
+      "./node_modules/@types/uglify-js/index.d.ts": {
+        "version": "65940ce496aeee89da612bab18a9ecabef9077ffe7593a3e84ac75d9219df991",
+        "signature": "65940ce496aeee89da612bab18a9ecabef9077ffe7593a3e84ac75d9219df991",
+        "affectsGlobalScope": false
+      },
+      "./node_modules/@types/webpack/node_modules/source-map/source-map.d.ts": {
+        "version": "2887592574fcdfd087647c539dcb0fbe5af2521270dad4a37f9d17c16190d579",
+        "signature": "2887592574fcdfd087647c539dcb0fbe5af2521270dad4a37f9d17c16190d579",
+        "affectsGlobalScope": false
+      },
+      "./node_modules/@types/webpack-sources/node_modules/source-map/source-map.d.ts": {
+        "version": "b90c59ac4682368a01c83881b814738eb151de8a58f52eb7edadea2bcffb11b9",
+        "signature": "b90c59ac4682368a01c83881b814738eb151de8a58f52eb7edadea2bcffb11b9",
+        "affectsGlobalScope": false
+      },
+      "./node_modules/@types/webpack-sources/index.d.ts": {
+        "version": "8636764b1f9f29c1290bff39be2e55940d6b7f7a071f33f967b72d5eff27b0c6",
+        "signature": "8636764b1f9f29c1290bff39be2e55940d6b7f7a071f33f967b72d5eff27b0c6",
+        "affectsGlobalScope": false
+      },
+      "./node_modules/@types/webpack/index.d.ts": {
+        "version": "dfdccc7162f5a0faf8bb3f95864a490250798ed75c4f84c5ab429065fd9be284",
+        "signature": "dfdccc7162f5a0faf8bb3f95864a490250798ed75c4f84c5ab429065fd9be284",
         "affectsGlobalScope": false
       },
       "./node_modules/@types/yauzl/index.d.ts": {
@@ -566,6 +596,18 @@
         "./node_modules/@types/node/util.d.ts"
       ],
       "./node_modules/@types/anymatch/index.d.ts": [
+        "./node_modules/@types/node/fs.d.ts",
+        "./node_modules/@types/node/ts3.2/fs.d.ts",
+        "./node_modules/@types/node/ts3.2/util.d.ts",
+        "./node_modules/@types/node/util.d.ts"
+      ],
+      "./node_modules/@types/estree/index.d.ts": [
+        "./node_modules/@types/node/fs.d.ts",
+        "./node_modules/@types/node/ts3.2/fs.d.ts",
+        "./node_modules/@types/node/ts3.2/util.d.ts",
+        "./node_modules/@types/node/util.d.ts"
+      ],
+      "./node_modules/@types/json-schema/index.d.ts": [
         "./node_modules/@types/node/fs.d.ts",
         "./node_modules/@types/node/ts3.2/fs.d.ts",
         "./node_modules/@types/node/ts3.2/util.d.ts",
@@ -1068,17 +1110,17 @@
         "./node_modules/@types/node/util.d.ts"
       ],
       "./node_modules/@types/webpack/index.d.ts": [
+        "./node_modules/@types/anymatch/index.d.ts",
         "./node_modules/@types/node/crypto.d.ts",
         "./node_modules/@types/node/fs.d.ts",
         "./node_modules/@types/node/ts3.2/fs.d.ts",
         "./node_modules/@types/node/ts3.2/util.d.ts",
         "./node_modules/@types/node/ts3.7/index.d.ts",
         "./node_modules/@types/node/util.d.ts",
-        "./node_modules/@types/tapable/index.d.ts",
         "./node_modules/@types/uglify-js/index.d.ts",
         "./node_modules/@types/uglify-js/node_modules/source-map/source-map.d.ts",
         "./node_modules/@types/webpack-sources/index.d.ts",
-        "./node_modules/anymatch/index.d.ts"
+        "./node_modules/tapable/tapable.d.ts"
       ],
       "./node_modules/@types/webpack/node_modules/source-map/source-map.d.ts": [
         "./node_modules/@types/node/fs.d.ts",
@@ -1095,7 +1137,7 @@
         "./node_modules/@types/node/ts3.7/index.d.ts",
         "./node_modules/@types/node/util.d.ts"
       ],
-      "./node_modules/anymatch/index.d.ts": [
+      "./node_modules/ajv/lib/ajv.d.ts": [
         "./node_modules/@types/node/fs.d.ts",
         "./node_modules/@types/node/ts3.2/fs.d.ts",
         "./node_modules/@types/node/ts3.2/util.d.ts",
@@ -1114,6 +1156,30 @@
         "./node_modules/@types/node/ts3.2/fs.d.ts",
         "./node_modules/@types/node/ts3.2/util.d.ts",
         "./node_modules/@types/node/ts3.7/index.d.ts",
+        "./node_modules/@types/node/util.d.ts"
+      ],
+      "./node_modules/schema-utils/declarations/validate.d.ts": [
+        "./node_modules/@types/json-schema/index.d.ts",
+        "./node_modules/@types/node/fs.d.ts",
+        "./node_modules/@types/node/ts3.2/fs.d.ts",
+        "./node_modules/@types/node/ts3.2/util.d.ts",
+        "./node_modules/@types/node/util.d.ts",
+        "./node_modules/ajv/lib/ajv.d.ts",
+        "./node_modules/schema-utils/declarations/validationerror.d.ts"
+      ],
+      "./node_modules/schema-utils/declarations/validationerror.d.ts": [
+        "./node_modules/@types/json-schema/index.d.ts",
+        "./node_modules/@types/node/fs.d.ts",
+        "./node_modules/@types/node/ts3.2/fs.d.ts",
+        "./node_modules/@types/node/ts3.2/util.d.ts",
+        "./node_modules/@types/node/util.d.ts",
+        "./node_modules/ajv/lib/ajv.d.ts",
+        "./node_modules/schema-utils/declarations/validate.d.ts"
+      ],
+      "./node_modules/tapable/tapable.d.ts": [
+        "./node_modules/@types/node/fs.d.ts",
+        "./node_modules/@types/node/ts3.2/fs.d.ts",
+        "./node_modules/@types/node/ts3.2/util.d.ts",
         "./node_modules/@types/node/util.d.ts"
       ],
       "./node_modules/typescript/lib/lib.dom.d.ts": [
@@ -1284,6 +1350,15 @@
         "./node_modules/@types/node/ts3.2/util.d.ts",
         "./node_modules/@types/node/util.d.ts"
       ],
+      "./node_modules/webpack/types.d.ts": [
+        "./node_modules/@types/estree/index.d.ts",
+        "./node_modules/@types/node/fs.d.ts",
+        "./node_modules/@types/node/ts3.2/fs.d.ts",
+        "./node_modules/@types/node/ts3.2/util.d.ts",
+        "./node_modules/@types/node/util.d.ts",
+        "./node_modules/schema-utils/declarations/validationerror.d.ts",
+        "./node_modules/tapable/tapable.d.ts"
+      ],
       "./src/bundler.ts": [
         "./node_modules/@types/node/fs.d.ts",
         "./node_modules/@types/node/os.d.ts",
@@ -1291,8 +1366,8 @@
         "./node_modules/@types/node/ts3.2/fs.d.ts",
         "./node_modules/@types/node/ts3.2/util.d.ts",
         "./node_modules/@types/node/util.d.ts",
-        "./node_modules/@types/webpack/index.d.ts",
-        "./node_modules/execa/index.d.ts"
+        "./node_modules/execa/index.d.ts",
+        "./node_modules/webpack/types.d.ts"
       ],
       "./src/entry.tsx": [
         "./node_modules/@types/node/fs.d.ts",
@@ -1348,6 +1423,18 @@
         "./node_modules/@types/node/ts3.2/util.d.ts",
         "./node_modules/@types/node/util.d.ts"
       ],
+      "./node_modules/@types/estree/index.d.ts": [
+        "./node_modules/@types/node/fs.d.ts",
+        "./node_modules/@types/node/ts3.2/fs.d.ts",
+        "./node_modules/@types/node/ts3.2/util.d.ts",
+        "./node_modules/@types/node/util.d.ts"
+      ],
+      "./node_modules/@types/json-schema/index.d.ts": [
+        "./node_modules/@types/node/fs.d.ts",
+        "./node_modules/@types/node/ts3.2/fs.d.ts",
+        "./node_modules/@types/node/ts3.2/util.d.ts",
+        "./node_modules/@types/node/util.d.ts"
+      ],
       "./node_modules/@types/node/async_hooks.d.ts": [
         "./node_modules/@types/node/fs.d.ts",
         "./node_modules/@types/node/ts3.2/fs.d.ts",
@@ -1872,7 +1959,7 @@
         "./node_modules/@types/node/ts3.7/index.d.ts",
         "./node_modules/@types/node/util.d.ts"
       ],
-      "./node_modules/anymatch/index.d.ts": [
+      "./node_modules/ajv/lib/ajv.d.ts": [
         "./node_modules/@types/node/fs.d.ts",
         "./node_modules/@types/node/ts3.2/fs.d.ts",
         "./node_modules/@types/node/ts3.2/util.d.ts",
@@ -1891,6 +1978,30 @@
         "./node_modules/@types/node/ts3.2/fs.d.ts",
         "./node_modules/@types/node/ts3.2/util.d.ts",
         "./node_modules/@types/node/ts3.7/index.d.ts",
+        "./node_modules/@types/node/util.d.ts"
+      ],
+      "./node_modules/schema-utils/declarations/validate.d.ts": [
+        "./node_modules/@types/json-schema/index.d.ts",
+        "./node_modules/@types/node/fs.d.ts",
+        "./node_modules/@types/node/ts3.2/fs.d.ts",
+        "./node_modules/@types/node/ts3.2/util.d.ts",
+        "./node_modules/@types/node/util.d.ts",
+        "./node_modules/ajv/lib/ajv.d.ts",
+        "./node_modules/schema-utils/declarations/validationerror.d.ts"
+      ],
+      "./node_modules/schema-utils/declarations/validationerror.d.ts": [
+        "./node_modules/@types/json-schema/index.d.ts",
+        "./node_modules/@types/node/fs.d.ts",
+        "./node_modules/@types/node/ts3.2/fs.d.ts",
+        "./node_modules/@types/node/ts3.2/util.d.ts",
+        "./node_modules/@types/node/util.d.ts",
+        "./node_modules/ajv/lib/ajv.d.ts",
+        "./node_modules/schema-utils/declarations/validate.d.ts"
+      ],
+      "./node_modules/tapable/tapable.d.ts": [
+        "./node_modules/@types/node/fs.d.ts",
+        "./node_modules/@types/node/ts3.2/fs.d.ts",
+        "./node_modules/@types/node/ts3.2/util.d.ts",
         "./node_modules/@types/node/util.d.ts"
       ],
       "./node_modules/typescript/lib/lib.dom.d.ts": [
@@ -2061,6 +2172,15 @@
         "./node_modules/@types/node/ts3.2/util.d.ts",
         "./node_modules/@types/node/util.d.ts"
       ],
+      "./node_modules/webpack/types.d.ts": [
+        "./node_modules/@types/estree/index.d.ts",
+        "./node_modules/@types/node/fs.d.ts",
+        "./node_modules/@types/node/ts3.2/fs.d.ts",
+        "./node_modules/@types/node/ts3.2/util.d.ts",
+        "./node_modules/@types/node/util.d.ts",
+        "./node_modules/schema-utils/declarations/validationerror.d.ts",
+        "./node_modules/tapable/tapable.d.ts"
+      ],
       "./src/index.ts": [
         "./node_modules/@types/puppeteer/index.d.ts",
         "./src/bundler.ts",
@@ -2071,6 +2191,8 @@
       "../core/dist/index.d.ts",
       "../core/dist/use-frame.d.ts",
       "./node_modules/@types/anymatch/index.d.ts",
+      "./node_modules/@types/estree/index.d.ts",
+      "./node_modules/@types/json-schema/index.d.ts",
       "./node_modules/@types/node/async_hooks.d.ts",
       "./node_modules/@types/node/base.d.ts",
       "./node_modules/@types/node/buffer.d.ts",
@@ -2135,12 +2257,739 @@
       "./node_modules/@types/uglify-js/node_modules/source-map/source-map.d.ts",
       "./node_modules/@types/webpack-sources/index.d.ts",
       "./node_modules/@types/webpack-sources/node_modules/source-map/source-map.d.ts",
-      "./node_modules/@types/webpack/index.d.ts",
+      [
+        "./node_modules/@types/webpack/index.d.ts",
+        [
+          {
+            "file": "./node_modules/@types/webpack/index.d.ts",
+            "start": 1635,
+            "length": 7,
+            "messageText": "Module '\"../../tapable/tapable\"' has no exported member 'Tapable'.",
+            "category": 1,
+            "code": 2305
+          },
+          {
+            "file": "./node_modules/@types/webpack/index.d.ts",
+            "start": 42228,
+            "length": 17,
+            "messageText": "Generic type 'SyncWaterfallHook<T>' requires 1 type argument(s).",
+            "category": 1,
+            "code": 2314
+          },
+          {
+            "file": "./node_modules/@types/webpack/index.d.ts",
+            "start": 42268,
+            "length": 17,
+            "messageText": "Generic type 'SyncWaterfallHook<T>' requires 1 type argument(s).",
+            "category": 1,
+            "code": 2314
+          },
+          {
+            "file": "./node_modules/@types/webpack/index.d.ts",
+            "start": 42314,
+            "length": 24,
+            "messageText": "Generic type 'AsyncSeriesWaterfallHook<T>' requires 1 type argument(s).",
+            "category": 1,
+            "code": 2314
+          },
+          {
+            "file": "./node_modules/@types/webpack/index.d.ts",
+            "start": 42366,
+            "length": 24,
+            "messageText": "Generic type 'AsyncSeriesWaterfallHook<T>' requires 1 type argument(s).",
+            "category": 1,
+            "code": 2314
+          },
+          {
+            "file": "./node_modules/@types/webpack/index.d.ts",
+            "start": 42418,
+            "length": 12,
+            "messageText": "Generic type 'SyncBailHook<T, R>' requires 2 type argument(s).",
+            "category": 1,
+            "code": 2314
+          },
+          {
+            "file": "./node_modules/@types/webpack/index.d.ts",
+            "start": 42452,
+            "length": 17,
+            "messageText": "Generic type 'SyncWaterfallHook<T>' requires 1 type argument(s).",
+            "category": 1,
+            "code": 2314
+          },
+          {
+            "file": "./node_modules/@types/webpack/index.d.ts",
+            "start": 42497,
+            "length": 7,
+            "messageText": "Generic type 'HookMap<H>' requires 1 type argument(s).",
+            "category": 1,
+            "code": 2314
+          },
+          {
+            "file": "./node_modules/@types/webpack/index.d.ts",
+            "start": 42592,
+            "length": 7,
+            "messageText": "Generic type 'HookMap<H>' requires 1 type argument(s).",
+            "category": 1,
+            "code": 2314
+          },
+          {
+            "file": "./node_modules/@types/webpack/index.d.ts",
+            "start": 42624,
+            "length": 7,
+            "messageText": "Generic type 'HookMap<H>' requires 1 type argument(s).",
+            "category": 1,
+            "code": 2314
+          },
+          {
+            "file": "./node_modules/@types/webpack/index.d.ts",
+            "start": 42860,
+            "length": 7,
+            "messageText": "Generic type 'HookMap<H>' requires 1 type argument(s).",
+            "category": 1,
+            "code": 2314
+          },
+          {
+            "file": "./node_modules/@types/webpack/index.d.ts",
+            "start": 42895,
+            "length": 7,
+            "messageText": "Generic type 'HookMap<H>' requires 1 type argument(s).",
+            "category": 1,
+            "code": 2314
+          },
+          {
+            "file": "./node_modules/@types/webpack/index.d.ts",
+            "start": 42940,
+            "length": 7,
+            "messageText": "Generic type 'HookMap<H>' requires 1 type argument(s).",
+            "category": 1,
+            "code": 2314
+          },
+          {
+            "file": "./node_modules/@types/webpack/index.d.ts",
+            "start": 42992,
+            "length": 7,
+            "messageText": "Generic type 'HookMap<H>' requires 1 type argument(s).",
+            "category": 1,
+            "code": 2314
+          },
+          {
+            "file": "./node_modules/@types/webpack/index.d.ts",
+            "start": 43047,
+            "length": 7,
+            "messageText": "Generic type 'HookMap<H>' requires 1 type argument(s).",
+            "category": 1,
+            "code": 2314
+          },
+          {
+            "file": "./node_modules/@types/webpack/index.d.ts",
+            "start": 43083,
+            "length": 12,
+            "messageText": "Generic type 'SyncBailHook<T, R>' requires 2 type argument(s).",
+            "category": 1,
+            "code": 2314
+          },
+          {
+            "file": "./node_modules/@types/webpack/index.d.ts",
+            "start": 43126,
+            "length": 12,
+            "messageText": "Generic type 'SyncBailHook<T, R>' requires 2 type argument(s).",
+            "category": 1,
+            "code": 2314
+          },
+          {
+            "file": "./node_modules/@types/webpack/index.d.ts",
+            "start": 43163,
+            "length": 7,
+            "messageText": "Generic type 'HookMap<H>' requires 1 type argument(s).",
+            "category": 1,
+            "code": 2314
+          },
+          {
+            "file": "./node_modules/@types/webpack/index.d.ts",
+            "start": 43196,
+            "length": 12,
+            "messageText": "Generic type 'SyncBailHook<T, R>' requires 2 type argument(s).",
+            "category": 1,
+            "code": 2314
+          },
+          {
+            "file": "./node_modules/@types/webpack/index.d.ts",
+            "start": 43243,
+            "length": 12,
+            "messageText": "Generic type 'SyncBailHook<T, R>' requires 2 type argument(s).",
+            "category": 1,
+            "code": 2314
+          },
+          {
+            "file": "./node_modules/@types/webpack/index.d.ts",
+            "start": 43281,
+            "length": 12,
+            "messageText": "Generic type 'SyncBailHook<T, R>' requires 2 type argument(s).",
+            "category": 1,
+            "code": 2314
+          },
+          {
+            "file": "./node_modules/@types/webpack/index.d.ts",
+            "start": 43325,
+            "length": 12,
+            "messageText": "Generic type 'SyncBailHook<T, R>' requires 2 type argument(s).",
+            "category": 1,
+            "code": 2314
+          },
+          {
+            "file": "./node_modules/@types/webpack/index.d.ts",
+            "start": 43374,
+            "length": 12,
+            "messageText": "Generic type 'SyncBailHook<T, R>' requires 2 type argument(s).",
+            "category": 1,
+            "code": 2314
+          },
+          {
+            "file": "./node_modules/@types/webpack/index.d.ts",
+            "start": 43422,
+            "length": 12,
+            "messageText": "Generic type 'SyncBailHook<T, R>' requires 2 type argument(s).",
+            "category": 1,
+            "code": 2314
+          },
+          {
+            "file": "./node_modules/@types/webpack/index.d.ts",
+            "start": 43469,
+            "length": 12,
+            "messageText": "Generic type 'SyncBailHook<T, R>' requires 2 type argument(s).",
+            "category": 1,
+            "code": 2314
+          },
+          {
+            "file": "./node_modules/@types/webpack/index.d.ts",
+            "start": 43522,
+            "length": 12,
+            "messageText": "Generic type 'SyncBailHook<T, R>' requires 2 type argument(s).",
+            "category": 1,
+            "code": 2314
+          },
+          {
+            "file": "./node_modules/@types/webpack/index.d.ts",
+            "start": 43568,
+            "length": 12,
+            "messageText": "Generic type 'SyncBailHook<T, R>' requires 2 type argument(s).",
+            "category": 1,
+            "code": 2314
+          },
+          {
+            "file": "./node_modules/@types/webpack/index.d.ts",
+            "start": 43617,
+            "length": 7,
+            "messageText": "Generic type 'HookMap<H>' requires 1 type argument(s).",
+            "category": 1,
+            "code": 2314
+          },
+          {
+            "file": "./node_modules/@types/webpack/index.d.ts",
+            "start": 43663,
+            "length": 7,
+            "messageText": "Generic type 'HookMap<H>' requires 1 type argument(s).",
+            "category": 1,
+            "code": 2314
+          },
+          {
+            "file": "./node_modules/@types/webpack/index.d.ts",
+            "start": 43707,
+            "length": 7,
+            "messageText": "Generic type 'HookMap<H>' requires 1 type argument(s).",
+            "category": 1,
+            "code": 2314
+          },
+          {
+            "file": "./node_modules/@types/webpack/index.d.ts",
+            "start": 43743,
+            "length": 7,
+            "messageText": "Generic type 'HookMap<H>' requires 1 type argument(s).",
+            "category": 1,
+            "code": 2314
+          },
+          {
+            "file": "./node_modules/@types/webpack/index.d.ts",
+            "start": 43776,
+            "length": 7,
+            "messageText": "Generic type 'HookMap<H>' requires 1 type argument(s).",
+            "category": 1,
+            "code": 2314
+          },
+          {
+            "file": "./node_modules/@types/webpack/index.d.ts",
+            "start": 43811,
+            "length": 7,
+            "messageText": "Generic type 'HookMap<H>' requires 1 type argument(s).",
+            "category": 1,
+            "code": 2314
+          },
+          {
+            "file": "./node_modules/@types/webpack/index.d.ts",
+            "start": 43844,
+            "length": 7,
+            "messageText": "Generic type 'HookMap<H>' requires 1 type argument(s).",
+            "category": 1,
+            "code": 2314
+          },
+          {
+            "file": "./node_modules/@types/webpack/index.d.ts",
+            "start": 43881,
+            "length": 12,
+            "messageText": "Generic type 'SyncBailHook<T, R>' requires 2 type argument(s).",
+            "category": 1,
+            "code": 2314
+          },
+          {
+            "file": "./node_modules/@types/webpack/index.d.ts",
+            "start": 43917,
+            "length": 7,
+            "messageText": "Generic type 'HookMap<H>' requires 1 type argument(s).",
+            "category": 1,
+            "code": 2314
+          },
+          {
+            "file": "./node_modules/@types/webpack/index.d.ts",
+            "start": 43957,
+            "length": 7,
+            "messageText": "Generic type 'HookMap<H>' requires 1 type argument(s).",
+            "category": 1,
+            "code": 2314
+          },
+          {
+            "file": "./node_modules/@types/webpack/index.d.ts",
+            "start": 43987,
+            "length": 7,
+            "messageText": "Generic type 'HookMap<H>' requires 1 type argument(s).",
+            "category": 1,
+            "code": 2314
+          },
+          {
+            "file": "./node_modules/@types/webpack/index.d.ts",
+            "start": 44024,
+            "length": 7,
+            "messageText": "Generic type 'HookMap<H>' requires 1 type argument(s).",
+            "category": 1,
+            "code": 2314
+          },
+          {
+            "file": "./node_modules/@types/webpack/index.d.ts",
+            "start": 44070,
+            "length": 7,
+            "messageText": "Generic type 'HookMap<H>' requires 1 type argument(s).",
+            "category": 1,
+            "code": 2314
+          },
+          {
+            "file": "./node_modules/@types/webpack/index.d.ts",
+            "start": 44126,
+            "length": 12,
+            "messageText": "Generic type 'SyncBailHook<T, R>' requires 2 type argument(s).",
+            "category": 1,
+            "code": 2314
+          },
+          {
+            "file": "./node_modules/@types/webpack/index.d.ts",
+            "start": 44183,
+            "length": 12,
+            "messageText": "Generic type 'SyncBailHook<T, R>' requires 2 type argument(s).",
+            "category": 1,
+            "code": 2314
+          },
+          {
+            "file": "./node_modules/@types/webpack/index.d.ts",
+            "start": 44222,
+            "length": 12,
+            "messageText": "Generic type 'SyncBailHook<T, R>' requires 2 type argument(s).",
+            "category": 1,
+            "code": 2314
+          },
+          {
+            "file": "./node_modules/@types/webpack/index.d.ts",
+            "start": 44428,
+            "length": 24,
+            "messageText": "Generic type 'AsyncSeriesWaterfallHook<T>' requires 1 type argument(s).",
+            "category": 1,
+            "code": 2314
+          },
+          {
+            "file": "./node_modules/@types/webpack/index.d.ts",
+            "start": 44480,
+            "length": 24,
+            "messageText": "Generic type 'AsyncSeriesWaterfallHook<T>' requires 1 type argument(s).",
+            "category": 1,
+            "code": 2314
+          },
+          {
+            "file": "./node_modules/@types/webpack/index.d.ts",
+            "start": 44538,
+            "length": 17,
+            "messageText": "Generic type 'SyncWaterfallHook<T>' requires 1 type argument(s).",
+            "category": 1,
+            "code": 2314
+          },
+          {
+            "file": "./node_modules/@types/webpack/index.d.ts",
+            "start": 44583,
+            "length": 24,
+            "messageText": "Generic type 'AsyncSeriesWaterfallHook<T>' requires 1 type argument(s).",
+            "category": 1,
+            "code": 2314
+          },
+          {
+            "file": "./node_modules/@types/webpack/index.d.ts",
+            "start": 45157,
+            "length": 8,
+            "messageText": "Generic type 'SyncHook<T, R>' requires between 1 and 2 type arguments.",
+            "category": 1,
+            "code": 2707
+          },
+          {
+            "file": "./node_modules/@types/webpack/index.d.ts",
+            "start": 45185,
+            "length": 8,
+            "messageText": "Generic type 'SyncHook<T, R>' requires between 1 and 2 type arguments.",
+            "category": 1,
+            "code": 2707
+          },
+          {
+            "file": "./node_modules/@types/webpack/index.d.ts",
+            "start": 45235,
+            "length": 22,
+            "messageText": "Generic type 'SyncBailHook<T, R>' requires 2 type argument(s).",
+            "category": 1,
+            "code": 2314
+          },
+          {
+            "file": "./node_modules/@types/webpack/index.d.ts",
+            "start": 45293,
+            "length": 22,
+            "messageText": "Generic type 'SyncBailHook<T, R>' requires 2 type argument(s).",
+            "category": 1,
+            "code": 2314
+          },
+          {
+            "file": "./node_modules/@types/webpack/index.d.ts",
+            "start": 45359,
+            "length": 22,
+            "messageText": "Generic type 'SyncBailHook<T, R>' requires 2 type argument(s).",
+            "category": 1,
+            "code": 2314
+          },
+          {
+            "file": "./node_modules/@types/webpack/index.d.ts",
+            "start": 45465,
+            "length": 8,
+            "messageText": "Generic type 'SyncHook<T, R>' requires between 1 and 2 type arguments.",
+            "category": 1,
+            "code": 2707
+          },
+          {
+            "file": "./node_modules/@types/webpack/index.d.ts",
+            "start": 45510,
+            "length": 22,
+            "messageText": "Generic type 'SyncBailHook<T, R>' requires 2 type argument(s).",
+            "category": 1,
+            "code": 2314
+          },
+          {
+            "file": "./node_modules/@types/webpack/index.d.ts",
+            "start": 45563,
+            "length": 22,
+            "messageText": "Generic type 'SyncBailHook<T, R>' requires 2 type argument(s).",
+            "category": 1,
+            "code": 2314
+          },
+          {
+            "file": "./node_modules/@types/webpack/index.d.ts",
+            "start": 45624,
+            "length": 22,
+            "messageText": "Generic type 'SyncBailHook<T, R>' requires 2 type argument(s).",
+            "category": 1,
+            "code": 2314
+          },
+          {
+            "file": "./node_modules/@types/webpack/index.d.ts",
+            "start": 46004,
+            "length": 34,
+            "messageText": "Generic type 'AsyncSeriesHook<T>' requires 1 type argument(s).",
+            "category": 1,
+            "code": 2314
+          },
+          {
+            "file": "./node_modules/@types/webpack/index.d.ts",
+            "start": 46409,
+            "length": 12,
+            "messageText": "Generic type 'SyncBailHook<T, R>' requires 2 type argument(s).",
+            "category": 1,
+            "code": 2314
+          },
+          {
+            "file": "./node_modules/@types/webpack/index.d.ts",
+            "start": 47189,
+            "length": 8,
+            "messageText": "Generic type 'SyncHook<T, R>' requires between 1 and 2 type arguments.",
+            "category": 1,
+            "code": 2707
+          },
+          {
+            "file": "./node_modules/@types/webpack/index.d.ts",
+            "start": 47222,
+            "length": 8,
+            "messageText": "Generic type 'SyncHook<T, R>' requires between 1 and 2 type arguments.",
+            "category": 1,
+            "code": 2707
+          },
+          {
+            "file": "./node_modules/@types/webpack/index.d.ts",
+            "start": 47364,
+            "length": 8,
+            "messageText": "Generic type 'SyncHook<T, R>' requires between 1 and 2 type arguments.",
+            "category": 1,
+            "code": 2707
+          },
+          {
+            "file": "./node_modules/@types/webpack/index.d.ts",
+            "start": 47413,
+            "length": 12,
+            "messageText": "Generic type 'SyncBailHook<T, R>' requires 2 type argument(s).",
+            "category": 1,
+            "code": 2314
+          },
+          {
+            "file": "./node_modules/@types/webpack/index.d.ts",
+            "start": 47458,
+            "length": 8,
+            "messageText": "Generic type 'SyncHook<T, R>' requires between 1 and 2 type arguments.",
+            "category": 1,
+            "code": 2707
+          },
+          {
+            "file": "./node_modules/@types/webpack/index.d.ts",
+            "start": 47608,
+            "length": 15,
+            "messageText": "Generic type 'AsyncSeriesHook<T>' requires 1 type argument(s).",
+            "category": 1,
+            "code": 2314
+          },
+          {
+            "file": "./node_modules/@types/webpack/index.d.ts",
+            "start": 47880,
+            "length": 12,
+            "messageText": "Generic type 'SyncBailHook<T, R>' requires 2 type argument(s).",
+            "category": 1,
+            "code": 2314
+          },
+          {
+            "file": "./node_modules/@types/webpack/index.d.ts",
+            "start": 47917,
+            "length": 15,
+            "messageText": "Generic type 'AsyncSeriesHook<T>' requires 1 type argument(s).",
+            "category": 1,
+            "code": 2314
+          },
+          {
+            "file": "./node_modules/@types/webpack/index.d.ts",
+            "start": 48170,
+            "length": 12,
+            "messageText": "Generic type 'SyncBailHook<T, R>' requires 2 type argument(s).",
+            "category": 1,
+            "code": 2314
+          },
+          {
+            "file": "./node_modules/@types/webpack/index.d.ts",
+            "start": 48211,
+            "length": 8,
+            "messageText": "Generic type 'SyncHook<T, R>' requires between 1 and 2 type arguments.",
+            "category": 1,
+            "code": 2707
+          },
+          {
+            "file": "./node_modules/@types/webpack/index.d.ts",
+            "start": 48320,
+            "length": 21,
+            "messageText": "Generic type 'SyncBailHook<T, R>' requires 2 type argument(s).",
+            "category": 1,
+            "code": 2314
+          },
+          {
+            "file": "./node_modules/@types/webpack/index.d.ts",
+            "start": 48380,
+            "length": 21,
+            "messageText": "Generic type 'SyncBailHook<T, R>' requires 2 type argument(s).",
+            "category": 1,
+            "code": 2314
+          },
+          {
+            "file": "./node_modules/@types/webpack/index.d.ts",
+            "start": 48448,
+            "length": 21,
+            "messageText": "Generic type 'SyncBailHook<T, R>' requires 2 type argument(s).",
+            "category": 1,
+            "code": 2314
+          },
+          {
+            "file": "./node_modules/@types/webpack/index.d.ts",
+            "start": 48799,
+            "length": 40,
+            "messageText": "Generic type 'SyncWaterfallHook<T>' requires 1 type argument(s).",
+            "category": 1,
+            "code": 2314
+          },
+          {
+            "file": "./node_modules/@types/webpack/index.d.ts",
+            "start": 48862,
+            "length": 40,
+            "messageText": "Generic type 'SyncWaterfallHook<T>' requires 1 type argument(s).",
+            "category": 1,
+            "code": 2314
+          },
+          {
+            "file": "./node_modules/@types/webpack/index.d.ts",
+            "start": 48935,
+            "length": 40,
+            "messageText": "Generic type 'SyncWaterfallHook<T>' requires 1 type argument(s).",
+            "category": 1,
+            "code": 2314
+          },
+          {
+            "file": "./node_modules/@types/webpack/index.d.ts",
+            "start": 49004,
+            "length": 40,
+            "messageText": "Generic type 'SyncWaterfallHook<T>' requires 1 type argument(s).",
+            "category": 1,
+            "code": 2314
+          },
+          {
+            "file": "./node_modules/@types/webpack/index.d.ts",
+            "start": 49069,
+            "length": 40,
+            "messageText": "Generic type 'SyncWaterfallHook<T>' requires 1 type argument(s).",
+            "category": 1,
+            "code": 2314
+          },
+          {
+            "file": "./node_modules/@types/webpack/index.d.ts",
+            "start": 49137,
+            "length": 40,
+            "messageText": "Generic type 'SyncWaterfallHook<T>' requires 1 type argument(s).",
+            "category": 1,
+            "code": 2314
+          },
+          {
+            "file": "./node_modules/@types/webpack/index.d.ts",
+            "start": 49790,
+            "length": 17,
+            "messageText": "Generic type 'SyncWaterfallHook<T>' requires 1 type argument(s).",
+            "category": 1,
+            "code": 2314
+          },
+          {
+            "file": "./node_modules/@types/webpack/index.d.ts",
+            "start": 49829,
+            "length": 17,
+            "messageText": "Generic type 'SyncWaterfallHook<T>' requires 1 type argument(s).",
+            "category": 1,
+            "code": 2314
+          },
+          {
+            "file": "./node_modules/@types/webpack/index.d.ts",
+            "start": 49868,
+            "length": 17,
+            "messageText": "Generic type 'SyncWaterfallHook<T>' requires 1 type argument(s).",
+            "category": 1,
+            "code": 2314
+          },
+          {
+            "file": "./node_modules/@types/webpack/index.d.ts",
+            "start": 49908,
+            "length": 17,
+            "messageText": "Generic type 'SyncWaterfallHook<T>' requires 1 type argument(s).",
+            "category": 1,
+            "code": 2314
+          },
+          {
+            "file": "./node_modules/@types/webpack/index.d.ts",
+            "start": 49945,
+            "length": 8,
+            "messageText": "Generic type 'SyncHook<T, R>' requires between 1 and 2 type arguments.",
+            "category": 1,
+            "code": 2707
+          },
+          {
+            "file": "./node_modules/@types/webpack/index.d.ts",
+            "start": 52981,
+            "length": 25,
+            "messageText": "Generic type 'SyncBailHook<T, R>' requires 2 type argument(s).",
+            "category": 1,
+            "code": 2314
+          },
+          {
+            "file": "./node_modules/@types/webpack/index.d.ts",
+            "start": 53078,
+            "length": 15,
+            "messageText": "Generic type 'AsyncSeriesHook<T>' requires 1 type argument(s).",
+            "category": 1,
+            "code": 2314
+          },
+          {
+            "file": "./node_modules/@types/webpack/index.d.ts",
+            "start": 53956,
+            "length": 8,
+            "messageText": "Generic type 'SyncHook<T, R>' requires between 1 and 2 type arguments.",
+            "category": 1,
+            "code": 2707
+          },
+          {
+            "file": "./node_modules/@types/webpack/index.d.ts",
+            "start": 53991,
+            "length": 8,
+            "messageText": "Generic type 'SyncHook<T, R>' requires between 1 and 2 type arguments.",
+            "category": 1,
+            "code": 2707
+          },
+          {
+            "file": "./node_modules/@types/webpack/index.d.ts",
+            "start": 54031,
+            "length": 8,
+            "messageText": "Generic type 'SyncHook<T, R>' requires between 1 and 2 type arguments.",
+            "category": 1,
+            "code": 2707
+          },
+          {
+            "file": "./node_modules/@types/webpack/index.d.ts",
+            "start": 54160,
+            "length": 12,
+            "messageText": "Generic type 'SyncBailHook<T, R>' requires 2 type argument(s).",
+            "category": 1,
+            "code": 2314
+          },
+          {
+            "file": "./node_modules/@types/webpack/index.d.ts",
+            "start": 54473,
+            "length": 8,
+            "messageText": "Generic type 'SyncHook<T, R>' requires between 1 and 2 type arguments.",
+            "category": 1,
+            "code": 2707
+          },
+          {
+            "file": "./node_modules/@types/webpack/index.d.ts",
+            "start": 57222,
+            "length": 37,
+            "messageText": "Generic type 'SyncBailHook<T, R>' requires 2 type argument(s).",
+            "category": 1,
+            "code": 2314
+          }
+        ]
+      ],
       "./node_modules/@types/webpack/node_modules/source-map/source-map.d.ts",
       "./node_modules/@types/yauzl/index.d.ts",
-      "./node_modules/anymatch/index.d.ts",
+      "./node_modules/ajv/lib/ajv.d.ts",
       "./node_modules/csstype/index.d.ts",
       "./node_modules/execa/index.d.ts",
+      "./node_modules/schema-utils/declarations/validate.d.ts",
+      "./node_modules/schema-utils/declarations/validationerror.d.ts",
+      "./node_modules/tapable/tapable.d.ts",
       "./node_modules/typescript/lib/lib.dom.d.ts",
       "./node_modules/typescript/lib/lib.es2015.collection.d.ts",
       "./node_modules/typescript/lib/lib.es2015.core.d.ts",
@@ -2169,6 +3018,7 @@
       "./node_modules/typescript/lib/lib.es2020.bigint.d.ts",
       "./node_modules/typescript/lib/lib.es5.d.ts",
       "./node_modules/typescript/lib/lib.esnext.intl.d.ts",
+      "./node_modules/webpack/types.d.ts",
       "./src/bundler.ts",
       "./src/entry.tsx",
       "./src/hey.tsx",

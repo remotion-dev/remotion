@@ -13,7 +13,7 @@ export const bundle = async () => {
   const tmpDir = await fs.promises.mkdtemp(
     path.join(os.tmpdir(), "react-motion-graphics")
   );
-  const output = (await promisified([
+  const output = await promisified([
     {
       entry,
       mode: "development",
@@ -22,8 +22,11 @@ export const bundle = async () => {
         path: tmpDir,
       },
     },
-  ])) as webpack.Stats;
-  console.log(output.toJson().errors);
+  ]);
+  const errors = output!.toJson().errors;
+  if (errors.length > 0) {
+    throw new Error(errors[0]);
+  }
   await execa("cp", [
     path.join(__dirname, "..", "static", "index.html"),
     tmpDir,

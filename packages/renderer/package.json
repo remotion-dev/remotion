@@ -14,17 +14,18 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@babel/preset-typescript": "^7.10.4",
     "@jonny/motion-core": "^1.0.0-alpha.1",
     "@types/puppeteer": "^3.0.0",
     "@types/react": "^16.9.38",
     "@types/react-dom": "^16.9.8",
-    "@types/webpack": "^4.41.17",
     "execa": "^4.0.2",
     "puppeteer": "^4.0.0",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
+    "react-refresh": "^0.8.3",
     "typescript": "^3.9.5",
-    "webpack": "^4.43.0",
+    "webpack": "^5.0.0-beta.22",
     "xns": "^2.0.7"
   }
 }
