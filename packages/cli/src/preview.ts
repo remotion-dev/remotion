@@ -1,9 +1,4 @@
-import { bundle } from "@jonny/motion-renderer";
+import { startServer } from "@jonny/motion-bundler";
 import path from "path";
-import xns from "xns";
-import execa from "execa";
 
-xns(async () => {
-  const result = await bundle();
-  await execa("open", [path.join(result, "index.html")]);
-});
+startServer(path.resolve(__dirname, "entry.tsx"));

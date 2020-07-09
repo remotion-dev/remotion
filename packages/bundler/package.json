@@ -1,15 +1,16 @@
 {
-  "name": "@jonny/motion-cli",
+  "name": "@jonny/motion-bundler",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "dist/index.js",
   "scripts": {
     "test": "exit 0",
     "build": "tsc -d",
     "prepare": "npm run build"
   },
   "files": [
-    "dist"
+    "dist",
+    "web"
   ],
   "author": "",
   "license": "ISC",
@@ -19,22 +20,23 @@
     "@babel/preset-react": "^7.10.4",
     "@babel/preset-typescript": "^7.10.4",
     "@jonny/motion-core": "^1.0.0-alpha.1",
-    "@jonny/motion-renderer": "^1.0.0-alpha.1",
-    "@jonny/motion-bundler": "^1.0.0-alpha.1",
+    "@types/express": "^4.17.7",
     "@types/node": "^14.0.13",
     "@types/react": "^16.9.41",
     "@types/react-dom": "^16.9.8",
+    "@types/webpack-dev-middleware": "^3.7.1",
+    "@types/webpack-hot-middleware": "^2.25.3",
     "@webhotelier/webpack-fast-refresh": "5.0.1",
     "babel-loader": "^8.1.0",
-    "execa": "^4.0.2",
+    "express": "^4.17.1",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-refresh": "0.8.3",
     "typescript": "^3.9.5",
     "webpack": "^5.0.0-beta.22",
     "webpack-cli": "^3.3.12",
-    "webpack-dev-server": "^3.11.0",
-    "xns": "^2.0.7"
+    "webpack-dev-middleware": "^3.7.2",
+    "webpack-hot-middleware": "^2.25.0"
   },
   "devDependencies": {}
 }

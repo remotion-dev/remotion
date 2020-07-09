@@ -32,7 +32,7 @@ export const Hey = () => {
             fontWeight: "bold",
           }}
         >
-          {frame || "Hello World!"}
+          {frame || "Hello !"}
         </div>
       </div>
     </div>
