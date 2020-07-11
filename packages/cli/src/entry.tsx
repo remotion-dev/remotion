@@ -2,13 +2,14 @@ import React from "react";
 import { render } from "react-dom";
 import "./Hey";
 import { getVideo } from "@jonny/motion-core";
-import { Editor } from "./editor/Editor";
+import { Editor } from "./editor/components/Editor";
+import { RecoilRoot } from "recoil";
 
 const Video = getVideo();
 
 render(
-  <div>
+  <RecoilRoot>
     <Editor />
-  </div>,
+  </RecoilRoot>,
   document.getElementById("container")
 );

@@ -1,6 +1,8 @@
 import React from "react";
+import { VideoConfig } from "./video-config";
 
 let comp: React.FC | null = null;
+let videoConfig: VideoConfig | null = null;
 
 export const getVideo = (): React.FC => {
   if (!comp) {
@@ -9,6 +11,14 @@ export const getVideo = (): React.FC => {
   return comp;
 };
 
-export const registerVideo = (node: React.FC) => {
+export const getVideoConfig = (): VideoConfig => {
+  if (!videoConfig) {
+    throw new Error("No video configuration was specified");
+  }
+  return videoConfig;
+};
+
+export const registerVideo = (node: React.FC, config: VideoConfig) => {
   comp = node;
+  videoConfig = config;
 };

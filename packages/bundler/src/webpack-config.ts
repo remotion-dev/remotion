@@ -47,7 +47,7 @@ export const webpackConfig = (
   module: {
     rules: [
       {
-        test: /\.tsx$/,
+        test: /\.tsx?$/,
         use: [
           {
             loader: "babel-loader",
