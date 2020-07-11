@@ -1,5 +1,13 @@
 import React from "react";
 import { render } from "react-dom";
-import { Hey } from "./Hey";
+import "./Hey";
+import { getVideo } from "@jonny/motion-core";
 
-render(<Hey />, document.getElementById("container"));
+const Video = getVideo();
+
+render(
+  <div>
+    hihi <Video />
+  </div>,
+  document.getElementById("container")
+);

@@ -1,7 +1,7 @@
 import React from "react";
-import { useFrame } from "@jonny/motion-core";
+import { useFrame, registerVideo } from "@jonny/motion-core";
 
-export const Hey = () => {
+export const Hey: React.FC = () => {
   const frame = useFrame();
   return (
     <div
@@ -32,9 +32,11 @@ export const Hey = () => {
             fontWeight: "bold",
           }}
         >
-          {frame || "Hello !"}
+          {frame || "Hi!!"}
         </div>
       </div>
     </div>
   );
 };
+
+registerVideo(Hey);

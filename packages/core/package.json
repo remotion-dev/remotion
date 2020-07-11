@@ -15,6 +15,8 @@
   "license": "ISC",
   "dependencies": {
     "@types/node": "^14.0.13",
+    "@types/react": "^16.9.42",
+    "react": "^16.13.1",
     "typescript": "^3.9.5"
   }
 }
