@@ -43,6 +43,11 @@ export const webpackConfig = (
   },
   resolve: {
     extensions: [".ts", ".tsx", ".js"],
+    alias: {
+      // Only one version of react
+      react: require.resolve("react"),
+      recoil: require.resolve("recoil"),
+    },
   },
   module: {
     rules: [

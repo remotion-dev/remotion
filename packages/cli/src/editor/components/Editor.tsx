@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { getVideo } from "@jonny/motion-core";
 import { SizeSelector } from "./SizeSelector";
 import { TopPanel } from "./TopPanel";
-import { TimelineContainer } from "./Timeline";
+import { Timeline } from "./Timeline";
 
 const Background = styled.div`
   background: #222;
@@ -18,7 +18,7 @@ export const Editor = () => {
   return (
     <Background>
       <TopPanel></TopPanel>
-      <TimelineContainer></TimelineContainer>
+      <Timeline></Timeline>
     </Background>
   );
 };
