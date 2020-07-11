@@ -32,7 +32,7 @@ export const Hey: React.FC = () => {
             fontWeight: "bold",
           }}
         >
-          {frame || "Hi!!"}
+          {frame || "Hi!!!!"}
         </div>
       </div>
     </div>
