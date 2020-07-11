@@ -11,7 +11,7 @@ export const Hey: React.FC = () => {
         width: videoConfig.width,
         height: videoConfig.height,
         display: "flex",
-        background: "linear-gradient(to bottom, blue, #36D27A)",
+        background: "linear-gradient(to bottom, #7AFFB5, #36D27A)",
         padding: 50,
       }}
     >

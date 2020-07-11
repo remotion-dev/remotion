@@ -1,6 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import { SizeSelector } from "./SizeSelector";
+import { PlayPause } from "./PlayPause";
 
 const Container = styled.div`
   display: flex;
@@ -14,6 +15,7 @@ export const PreviewToolbar = () => {
   return (
     <Container>
       <SizeSelector />
+      <PlayPause />
     </Container>
   );
 };
