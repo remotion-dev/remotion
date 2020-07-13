@@ -1,0 +1,27 @@
+import React from 'react';
+import styled from 'styled-components';
+import {useFrame, useVideoConfig} from '@jonny/motion-core';
+
+const Text = styled.div`
+	color: white;
+	font-size: 24px;
+	font-family: Arial, Helvetica, sans-serif;
+`;
+
+const renderFrame = (frame: number, fps: number): string => {
+	const minutes = Math.floor(frame / fps / 60);
+	const remainingSec = frame - minutes * fps * 60;
+	const seconds = Math.floor((frame - remainingSec) / fps);
+	const frameAfterSec = frame % fps;
+	return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(
+		2,
+		'0'
+	)}.${String(frameAfterSec).padStart(2, '0')}`;
+};
+
+export const TimeValue: React.FC = () => {
+	const frame = useFrame();
+	const config = useVideoConfig();
+
+	return <Text>{renderFrame(frame, config.fps)}</Text>;
+};
