@@ -27,7 +27,12 @@ export const VideoPreview: React.FC<{
 	const [previewSize] = useRecoilState(previewSizeState);
 	const config = useVideoConfig();
 
-	const scale = Number(previewSize);
+	const smallestCanvasSide = Math.min(canvasSize.height, canvasSize.width);
+	const smallestVideoSide = Math.min(config.height, config.width);
+	const scale =
+		previewSize === 'auto'
+			? smallestCanvasSide / smallestVideoSide
+			: Number(previewSize);
 	const correction = 0 - (1 - scale) / 2;
 	const xCorrection = correction * config.width;
 	const yCorrection = correction * config.height;
