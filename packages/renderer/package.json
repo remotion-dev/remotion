@@ -4,7 +4,7 @@
   "description": "",
   "main": "dist/index.js",
   "scripts": {
-    "test": "exit 0",
+    "test": "eslint 'src' --ext ts,tsx",
     "build": "tsc -d",
     "prepare": "npm run build"
   },
@@ -15,11 +15,13 @@
   "license": "ISC",
   "dependencies": {
     "@babel/preset-typescript": "^7.10.4",
+    "@jonny/eslint-config": "^2.1.161",
     "@jonny/motion-core": "^1.0.0-alpha.1",
     "@types/puppeteer": "^3.0.0",
     "@types/react": "^16.9.38",
     "@types/react-dom": "^16.9.8",
     "execa": "^4.0.2",
+    "prettier": "^2.0.5",
     "puppeteer": "^4.0.0",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
@@ -27,5 +29,8 @@
     "typescript": "^3.9.5",
     "webpack": "^5.0.0-beta.22",
     "xns": "^2.0.7"
+  },
+  "devDependencies": {
+    "eslint": "^7.4.0"
   }
 }

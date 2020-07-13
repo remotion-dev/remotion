@@ -1,31 +1,31 @@
-import React, { useState, useCallback, useEffect } from "react";
-import { useTimelinePosition, useVideoConfig } from "@jonny/motion-core";
+import React, {useState, useCallback, useEffect} from 'react';
+import {useTimelinePosition, useVideoConfig} from '@jonny/motion-core';
 
-export const PlayPause = () => {
-  const [playing, setPlaying] = useState(false);
-  const [frame, setFrame] = useTimelinePosition();
-  const config = useVideoConfig();
+export const PlayPause: React.FC = () => {
+	const [playing, setPlaying] = useState(false);
+	const [frame, setFrame] = useTimelinePosition();
+	const config = useVideoConfig();
 
-  const toggle = useCallback(() => {
-    setPlaying((p) => !p);
-  }, []);
+	const toggle = useCallback(() => {
+		setPlaying((p) => !p);
+	}, []);
 
-  useEffect(() => {
-    if (playing) {
-      setTimeout(() => {
-        const nextFrame = frame + 1;
-        if (nextFrame >= config.frames) {
-          console.log("resetting", Date.now());
-          return setFrame(0);
-        }
-        setFrame(frame + 1);
-      }, 1000 / config.fps);
-    }
-  }, [frame, playing]);
+	useEffect(() => {
+		if (playing) {
+			setTimeout(() => {
+				const nextFrame = frame + 1;
+				if (nextFrame >= config.frames) {
+					console.log('resetting', Date.now());
+					return setFrame(0);
+				}
+				setFrame(frame + 1);
+			}, 1000 / config.fps);
+		}
+	}, [config.fps, config.frames, frame, playing, setFrame]);
 
-  return (
-    <button type="button" onClick={toggle}>
-      {playing ? "Pause" : "Play"}
-    </button>
-  );
+	return (
+		<button type="button" onClick={toggle}>
+			{playing ? 'Pause' : 'Play'}
+		</button>
+	);
 };

@@ -141,41 +141,6 @@
         "signature": "89bf2b7a601b73ea4311eda9c41f86a58994fec1bee3b87c4a14d68d9adcdcbd",
         "affectsGlobalScope": true
       },
-      "./node_modules/@types/react/global.d.ts": {
-        "version": "ecf78e637f710f340ec08d5d92b3f31b134a46a4fcf2e758690d8c46ce62cba6",
-        "signature": "ecf78e637f710f340ec08d5d92b3f31b134a46a4fcf2e758690d8c46ce62cba6",
-        "affectsGlobalScope": true
-      },
-      "./node_modules/csstype/index.d.ts": {
-        "version": "cd4fba36eeb79a6e2ff14bbe1024cd83ae542c1bd1c2a02ed853ebc251974119",
-        "signature": "cd4fba36eeb79a6e2ff14bbe1024cd83ae542c1bd1c2a02ed853ebc251974119",
-        "affectsGlobalScope": false
-      },
-      "./node_modules/@types/prop-types/index.d.ts": {
-        "version": "a7e32dcb90bf0c1b7a1e4ac89b0f7747cbcba25e7beddc1ebf17be1e161842ad",
-        "signature": "a7e32dcb90bf0c1b7a1e4ac89b0f7747cbcba25e7beddc1ebf17be1e161842ad",
-        "affectsGlobalScope": false
-      },
-      "./node_modules/@types/react/index.d.ts": {
-        "version": "730b99e073329e2545bd94b68f401baf6cb3b01cd7f9333e3ddaade40abe87fe",
-        "signature": "730b99e073329e2545bd94b68f401baf6cb3b01cd7f9333e3ddaade40abe87fe",
-        "affectsGlobalScope": true
-      },
-      "../core/dist/use-frame.d.ts": {
-        "version": "50f7d683239f75279b9aeb06cc3f397d5d7b0d5fc85c7618aab736ccbd8813b4",
-        "signature": "50f7d683239f75279b9aeb06cc3f397d5d7b0d5fc85c7618aab736ccbd8813b4",
-        "affectsGlobalScope": false
-      },
-      "../core/dist/index.d.ts": {
-        "version": "06af2d3b9951d1a449d48d56b7af819ea063752e41fbcd86e55fb5b9dd0a26f0",
-        "signature": "06af2d3b9951d1a449d48d56b7af819ea063752e41fbcd86e55fb5b9dd0a26f0",
-        "affectsGlobalScope": false
-      },
-      "./src/hey.tsx": {
-        "version": "8ce2860875ad7da3064683b78cfb6665f086d410343e1474eabd0a95d5e30e5d",
-        "signature": "e609e3b3eb397ffba13f46848a879d7b5b6ba72fd6cd091bb510bd1d724bcd1f",
-        "affectsGlobalScope": false
-      },
       "./node_modules/@types/estree/index.d.ts": {
         "version": "6a38e250306ceccbab257d11b846d5bd12491157d20901fa01afe4050c93c1b5",
         "signature": "6a38e250306ceccbab257d11b846d5bd12491157d20901fa01afe4050c93c1b5",
@@ -476,16 +441,6 @@
         "signature": "b8ce8c0b304039c97b8942ab2817bf09955001723998371964801eb0cf2095c3",
         "affectsGlobalScope": false
       },
-      "./node_modules/@types/react-dom/index.d.ts": {
-        "version": "8483a29c17f7feb768a1f4333cf12ccf1e7341bd89dadcf407e012d5315228d0",
-        "signature": "8483a29c17f7feb768a1f4333cf12ccf1e7341bd89dadcf407e012d5315228d0",
-        "affectsGlobalScope": false
-      },
-      "./src/entry.tsx": {
-        "version": "f9a26662954ee654e5f109168d264730c3bfbfb1f4644f93d1e3fe0a87306767",
-        "signature": "8daaf84e30e4324c2fe5ca09685cb8998bb3e3cc02e485668db8e9fc8c096ac6",
-        "affectsGlobalScope": false
-      },
       "./node_modules/@types/puppeteer/errors.d.ts": {
         "version": "24074eb89fe21d5d7d8a5ed86e6c56939cf32d533f68bae213b0cdac74e03d3b",
         "signature": "24074eb89fe21d5d7d8a5ed86e6c56939cf32d533f68bae213b0cdac74e03d3b",
@@ -509,6 +464,46 @@
       "./src/index.ts": {
         "version": "95f38c9b16d51a42695a059e57510b41439454f9961e7f06b8bf94070ed0a020",
         "signature": "4fa59f0fe0741de2056bcd6ac93a141800c7f2ec5c989afc881d6978b0a276c7",
+        "affectsGlobalScope": false
+      },
+      "./node_modules/@types/color-name/index.d.ts": {
+        "version": "f0cb4b3ab88193e3e51e9e2622e4c375955003f1f81239d72c5b7a95415dad3e",
+        "signature": "f0cb4b3ab88193e3e51e9e2622e4c375955003f1f81239d72c5b7a95415dad3e",
+        "affectsGlobalScope": false
+      },
+      "./node_modules/@types/eslint-visitor-keys/index.d.ts": {
+        "version": "725d9be2fd48440256f4deb00649adffdbc5ecd282b09e89d4e200663792c34c",
+        "signature": "725d9be2fd48440256f4deb00649adffdbc5ecd282b09e89d4e200663792c34c",
+        "affectsGlobalScope": false
+      },
+      "./node_modules/@types/json5/index.d.ts": {
+        "version": "96d14f21b7652903852eef49379d04dbda28c16ed36468f8c9fa08f7c14c9538",
+        "signature": "96d14f21b7652903852eef49379d04dbda28c16ed36468f8c9fa08f7c14c9538",
+        "affectsGlobalScope": false
+      },
+      "./node_modules/@types/prop-types/index.d.ts": {
+        "version": "a7e32dcb90bf0c1b7a1e4ac89b0f7747cbcba25e7beddc1ebf17be1e161842ad",
+        "signature": "a7e32dcb90bf0c1b7a1e4ac89b0f7747cbcba25e7beddc1ebf17be1e161842ad",
+        "affectsGlobalScope": false
+      },
+      "./node_modules/@types/react/global.d.ts": {
+        "version": "ecf78e637f710f340ec08d5d92b3f31b134a46a4fcf2e758690d8c46ce62cba6",
+        "signature": "ecf78e637f710f340ec08d5d92b3f31b134a46a4fcf2e758690d8c46ce62cba6",
+        "affectsGlobalScope": true
+      },
+      "./node_modules/csstype/index.d.ts": {
+        "version": "cd4fba36eeb79a6e2ff14bbe1024cd83ae542c1bd1c2a02ed853ebc251974119",
+        "signature": "cd4fba36eeb79a6e2ff14bbe1024cd83ae542c1bd1c2a02ed853ebc251974119",
+        "affectsGlobalScope": false
+      },
+      "./node_modules/@types/react/index.d.ts": {
+        "version": "730b99e073329e2545bd94b68f401baf6cb3b01cd7f9333e3ddaade40abe87fe",
+        "signature": "730b99e073329e2545bd94b68f401baf6cb3b01cd7f9333e3ddaade40abe87fe",
+        "affectsGlobalScope": true
+      },
+      "./node_modules/@types/react-dom/index.d.ts": {
+        "version": "8483a29c17f7feb768a1f4333cf12ccf1e7341bd89dadcf407e012d5315228d0",
+        "signature": "8483a29c17f7feb768a1f4333cf12ccf1e7341bd89dadcf407e012d5315228d0",
         "affectsGlobalScope": false
       },
       "./node_modules/@types/yauzl/index.d.ts": {
@@ -537,14 +532,13 @@
       "configFilePath": "./tsconfig.json"
     },
     "referencedMap": {
-      "../core/dist/index.d.ts": [
-        "../core/dist/use-frame.d.ts",
+      "./node_modules/@types/color-name/index.d.ts": [
         "./node_modules/@types/node/fs.d.ts",
         "./node_modules/@types/node/ts3.2/fs.d.ts",
         "./node_modules/@types/node/ts3.2/util.d.ts",
         "./node_modules/@types/node/util.d.ts"
       ],
-      "../core/dist/use-frame.d.ts": [
+      "./node_modules/@types/eslint-visitor-keys/index.d.ts": [
         "./node_modules/@types/node/fs.d.ts",
         "./node_modules/@types/node/ts3.2/fs.d.ts",
         "./node_modules/@types/node/ts3.2/util.d.ts",
@@ -557,6 +551,12 @@
         "./node_modules/@types/node/util.d.ts"
       ],
       "./node_modules/@types/json-schema/index.d.ts": [
+        "./node_modules/@types/node/fs.d.ts",
+        "./node_modules/@types/node/ts3.2/fs.d.ts",
+        "./node_modules/@types/node/ts3.2/util.d.ts",
+        "./node_modules/@types/node/util.d.ts"
+      ],
+      "./node_modules/@types/json5/index.d.ts": [
         "./node_modules/@types/node/fs.d.ts",
         "./node_modules/@types/node/ts3.2/fs.d.ts",
         "./node_modules/@types/node/ts3.2/util.d.ts",
@@ -1258,23 +1258,6 @@
         "./node_modules/execa/index.d.ts",
         "./node_modules/webpack/types.d.ts"
       ],
-      "./src/entry.tsx": [
-        "./node_modules/@types/node/fs.d.ts",
-        "./node_modules/@types/node/ts3.2/fs.d.ts",
-        "./node_modules/@types/node/ts3.2/util.d.ts",
-        "./node_modules/@types/node/util.d.ts",
-        "./node_modules/@types/react-dom/index.d.ts",
-        "./node_modules/@types/react/index.d.ts",
-        "./src/hey.tsx"
-      ],
-      "./src/hey.tsx": [
-        "../core/dist/index.d.ts",
-        "./node_modules/@types/node/fs.d.ts",
-        "./node_modules/@types/node/ts3.2/fs.d.ts",
-        "./node_modules/@types/node/ts3.2/util.d.ts",
-        "./node_modules/@types/node/util.d.ts",
-        "./node_modules/@types/react/index.d.ts"
-      ],
       "./src/index.ts": [
         "./node_modules/@types/node/fs.d.ts",
         "./node_modules/@types/node/ts3.2/fs.d.ts",
@@ -1293,14 +1276,13 @@
       ]
     },
     "exportedModulesMap": {
-      "../core/dist/index.d.ts": [
-        "../core/dist/use-frame.d.ts",
+      "./node_modules/@types/color-name/index.d.ts": [
         "./node_modules/@types/node/fs.d.ts",
         "./node_modules/@types/node/ts3.2/fs.d.ts",
         "./node_modules/@types/node/ts3.2/util.d.ts",
         "./node_modules/@types/node/util.d.ts"
       ],
-      "../core/dist/use-frame.d.ts": [
+      "./node_modules/@types/eslint-visitor-keys/index.d.ts": [
         "./node_modules/@types/node/fs.d.ts",
         "./node_modules/@types/node/ts3.2/fs.d.ts",
         "./node_modules/@types/node/ts3.2/util.d.ts",
@@ -1313,6 +1295,12 @@
         "./node_modules/@types/node/util.d.ts"
       ],
       "./node_modules/@types/json-schema/index.d.ts": [
+        "./node_modules/@types/node/fs.d.ts",
+        "./node_modules/@types/node/ts3.2/fs.d.ts",
+        "./node_modules/@types/node/ts3.2/util.d.ts",
+        "./node_modules/@types/node/util.d.ts"
+      ],
+      "./node_modules/@types/json5/index.d.ts": [
         "./node_modules/@types/node/fs.d.ts",
         "./node_modules/@types/node/ts3.2/fs.d.ts",
         "./node_modules/@types/node/ts3.2/util.d.ts",
@@ -2011,10 +1999,11 @@
       ]
     },
     "semanticDiagnosticsPerFile": [
-      "../core/dist/index.d.ts",
-      "../core/dist/use-frame.d.ts",
+      "./node_modules/@types/color-name/index.d.ts",
+      "./node_modules/@types/eslint-visitor-keys/index.d.ts",
       "./node_modules/@types/estree/index.d.ts",
       "./node_modules/@types/json-schema/index.d.ts",
+      "./node_modules/@types/json5/index.d.ts",
       "./node_modules/@types/node/async_hooks.d.ts",
       "./node_modules/@types/node/base.d.ts",
       "./node_modules/@types/node/buffer.d.ts",
@@ -2110,8 +2099,6 @@
       "./node_modules/typescript/lib/lib.esnext.intl.d.ts",
       "./node_modules/webpack/types.d.ts",
       "./src/bundler.ts",
-      "./src/entry.tsx",
-      "./src/hey.tsx",
       "./src/index.ts",
       "./src/stitcher.ts"
     ]
