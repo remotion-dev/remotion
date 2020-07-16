@@ -1,16 +1,18 @@
-import fs from 'fs';
-import os from 'os';
 import path from 'path';
 import webpack from 'webpack';
 
 const ErrorOverlayPlugin = require('@webhotelier/webpack-fast-refresh/error-overlay');
 const ReactRefreshPlugin = require('@webhotelier/webpack-fast-refresh');
 
-const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'react-motion-graphics'));
-
-export const webpackConfig = (
-	entry: string
-): webpack.Configuration & {
+export const webpackConfig = ({
+	entry,
+	userDefinedComponent,
+	outDir,
+}: {
+	entry: string;
+	userDefinedComponent: string;
+	outDir: string;
+}): webpack.Configuration & {
 	devServer: {
 		contentBase: string;
 		historyApiFallback: {
@@ -27,6 +29,7 @@ export const webpackConfig = (
 			'webpack-hot-middleware/client'
 		),
 		'@webhotelier/webpack-fast-refresh/runtime.js',
+		userDefinedComponent,
 		entry,
 	],
 	mode: 'development',
@@ -38,7 +41,7 @@ export const webpackConfig = (
 	output: {
 		filename: 'bundle.js',
 		publicPath: '/',
-		path: tmpDir,
+		path: outDir,
 	},
 	devServer: {
 		contentBase: path.resolve(__dirname, '..', 'web'),

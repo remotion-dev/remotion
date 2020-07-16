@@ -16,7 +16,7 @@ xns(async () => {
 	const fullPath = path.join(process.cwd(), file);
 	await import(fullPath);
 	const config = getVideoConfig();
-	const result = await bundle();
+	const result = await bundle(fullPath);
 	const browser = await openBrowser();
 	const page = await browser.newPage();
 	const {frames} = config;

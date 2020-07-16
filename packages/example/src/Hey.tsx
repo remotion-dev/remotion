@@ -1,18 +1,15 @@
 import React from 'react';
-import {useFrame, registerVideo, useVideoConfig} from '@jonny/motion-core';
+import {useFrame, registerVideo} from '@jonny/motion-core';
 
 export const Hey: React.FC = () => {
 	const frame = useFrame();
-	const videoConfig = useVideoConfig();
 	return (
 		<div
-			id="canvas"
 			style={{
-				width: videoConfig.width,
-				height: videoConfig.height,
-				display: 'flex',
 				background: 'linear-gradient(to bottom, #7AFFB5, #36D27A)',
 				padding: 50,
+				flex: 1,
+				display: 'flex',
 			}}
 		>
 			<div
@@ -44,5 +41,5 @@ registerVideo(Hey, {
 	fps: 60,
 	height: 1080,
 	width: 1080,
-	frames: 60,
+	frames: 10,
 });

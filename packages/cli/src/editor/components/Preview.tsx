@@ -17,6 +17,8 @@ export const Container = styled.div<{
 	margin-top: ${(props): number => props.yCorrection}px;
 	width: ${(props): number => props.width}px;
 	height: ${(props): number => props.height}px;
+	display: flex;
+	position: absolute;
 `;
 
 const Video = getVideo();
@@ -46,7 +48,7 @@ export const VideoPreview: React.FC<{
 			style={{
 				width: config.width * scale,
 				height: config.height * scale,
-				display: 'block',
+				display: 'flex',
 				position: 'absolute',
 				left: centerX,
 				top: centerY,
