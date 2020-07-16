@@ -6,7 +6,7 @@ import {promisify} from 'util';
 import execa from 'execa';
 import {webpackConfig} from './webpack-config';
 
-const entry = require.resolve('./entry');
+const entry = require.resolve('./renderEntry');
 
 const promisified = promisify(webpack);
 
