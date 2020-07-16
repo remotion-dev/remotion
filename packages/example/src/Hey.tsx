@@ -41,5 +41,5 @@ registerVideo(Hey, {
 	fps: 60,
 	height: 1080,
 	width: 1080,
-	frames: 10,
+	frames: 1000,
 });
