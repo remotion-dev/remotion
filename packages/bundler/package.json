@@ -30,6 +30,7 @@
     "@types/webpack-hot-middleware": "^2.25.3",
     "@webhotelier/webpack-fast-refresh": "5.0.1",
     "babel-loader": "^8.1.0",
+    "execa": "^4.0.3",
     "express": "^4.17.1",
     "prettier": "^2.0.5",
     "react": "^16.13.1",

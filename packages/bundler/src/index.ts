@@ -22,3 +22,5 @@ export const startServer = async (entry: string): Promise<void> => {
 	app.listen(3000);
 	console.log('Server started');
 };
+
+export * from './bundler';

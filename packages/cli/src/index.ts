@@ -3,17 +3,23 @@ import fs from 'fs';
 import path from 'path';
 import os from 'os';
 import {
-	bundle,
 	provideScreenshot,
 	openBrowser,
 	stitchVideos,
 } from '@jonny/motion-renderer';
+import {bundle} from '@jonny/motion-bundler';
+import {getVideoConfig} from '@jonny/motion-core';
 
 xns(async () => {
+	const args = process.argv;
+	const file = args[2];
+	const fullPath = path.join(process.cwd(), file);
+	await import(fullPath);
+	const config = getVideoConfig();
 	const result = await bundle();
 	const browser = await openBrowser();
 	const page = await browser.newPage();
-	const frames = 30;
+	const {frames} = config;
 	const outputDir = await fs.promises.mkdtemp(
 		path.join(os.tmpdir(), 'react-motion-render')
 	);
@@ -28,9 +34,9 @@ xns(async () => {
 	await browser.close();
 	await stitchVideos({
 		dir: outputDir,
-		width: 1080,
-		height: 1080,
-		fps: 60,
+		width: config.width,
+		height: config.height,
+		fps: config.fps,
 	});
 	console.log(path.join(outputDir, 'test.mp4'));
 	return result;

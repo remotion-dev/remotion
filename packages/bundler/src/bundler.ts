@@ -30,9 +30,6 @@ export const bundle = async (): Promise<string> => {
 	if (errors.length > 0) {
 		throw new Error(errors[0]);
 	}
-	await execa('cp', [
-		path.join(__dirname, '..', 'static', 'index.html'),
-		tmpDir,
-	]);
+	await execa('cp', [path.join(__dirname, '..', 'web', 'index.html'), tmpDir]);
 	return tmpDir;
 };

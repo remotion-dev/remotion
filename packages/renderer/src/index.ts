@@ -56,5 +56,4 @@ export const provideScreenshot = async (
 	});
 };
 
-export * from './bundler';
 export * from './stitcher';
