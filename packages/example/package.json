@@ -23,6 +23,7 @@
     "react": "^16.13.1",
     "react-three-fiber": "^4.2.17",
     "styled-components": "^5.1.1",
+    "svg-path-properties": "^1.0.4",
     "three": "^0.118.3",
     "typescript": "^3.9.5"
   },
