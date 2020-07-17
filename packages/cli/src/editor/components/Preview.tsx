@@ -1,9 +1,9 @@
-import React from 'react';
-import styled from 'styled-components';
-import {useRecoilState} from 'recoil';
-import {previewSizeState} from '../state/preview-size';
 import {getVideo, useVideoConfig} from '@jonny/motion-core';
+import React from 'react';
+import {useRecoilState} from 'recoil';
+import styled from 'styled-components';
 import {Size} from '../hooks/get-el-size';
+import {previewSizeState} from '../state/preview-size';
 
 export const Container = styled.div<{
 	scale: number;
@@ -30,12 +30,13 @@ export const VideoPreview: React.FC<{
 	const [previewSize] = useRecoilState(previewSizeState);
 	const config = useVideoConfig();
 
-	const smallestCanvasSide = Math.min(canvasSize.height, canvasSize.width);
-	const smallestVideoSide = Math.min(config.height, config.width);
-	const scale =
-		previewSize === 'auto'
-			? smallestCanvasSide / smallestVideoSide
-			: Number(previewSize);
+	const ratio =
+		canvasSize.height < canvasSize.width
+			? canvasSize.height / config.height
+			: canvasSize.width / config.width;
+
+	console.log({canvasSize, config});
+	const scale = previewSize === 'auto' ? ratio : Number(previewSize);
 	const correction = 0 - (1 - scale) / 2;
 	const xCorrection = correction * config.width;
 	const yCorrection = correction * config.height;
