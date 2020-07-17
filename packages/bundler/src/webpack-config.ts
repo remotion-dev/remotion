@@ -28,7 +28,7 @@ export const webpackConfig = ({
 			'node_modules',
 			'webpack-hot-middleware/client'
 		),
-		'@webhotelier/webpack-fast-refresh/runtime.js',
+		require.resolve('@webhotelier/webpack-fast-refresh/runtime.js'),
 		userDefinedComponent,
 		entry,
 	],
@@ -64,13 +64,13 @@ export const webpackConfig = ({
 				test: /\.tsx?$/,
 				use: [
 					{
-						loader: 'babel-loader',
+						loader: require.resolve('babel-loader'),
 						options: {
 							presets: [
-								'@babel/preset-env',
-								'@babel/preset-react',
+								require.resolve('@babel/preset-env'),
+								require.resolve('@babel/preset-react'),
 								[
-									'@babel/preset-typescript',
+									require.resolve('@babel/preset-typescript'),
 									{
 										runtime: 'automatic',
 										isTSX: true,
@@ -78,10 +78,14 @@ export const webpackConfig = ({
 									},
 								],
 							],
-							plugins: ['react-refresh/babel'],
+							plugins: [require.resolve('react-refresh/babel')],
 						},
 					},
-					{loader: '@webhotelier/webpack-fast-refresh/loader.js'},
+					{
+						loader: require.resolve(
+							'@webhotelier/webpack-fast-refresh/loader.js'
+						),
+					},
 				],
 			},
 		],

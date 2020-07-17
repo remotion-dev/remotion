@@ -9,7 +9,7 @@ xns(async () => {
 	const fullPath = path.join(process.cwd(), file);
 
 	const port = await startServer(
-		path.resolve(__dirname, 'previewEntry.tsx'),
+		path.resolve(__dirname, 'previewEntry.js'),
 		fullPath
 	);
 	betterOpn(`http://localhost:${port}`);

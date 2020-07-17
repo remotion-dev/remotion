@@ -3,9 +3,13 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  "bin": {
+    "remotion-build": "dist/index.js",
+    "remotion-preview": "dist/preview.js"
+  },
   "scripts": {
     "test": "eslint 'src' --ext ts,tsx",
-    "build": "tsc -d",
+    "build": "tsc -d && node add-bin.js",
     "prepare": "npm run build"
   },
   "files": [
