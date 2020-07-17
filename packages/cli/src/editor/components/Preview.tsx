@@ -35,7 +35,6 @@ export const VideoPreview: React.FC<{
 			? canvasSize.height / config.height
 			: canvasSize.width / config.width;
 
-	console.log({canvasSize, config});
 	const scale = previewSize === 'auto' ? ratio : Number(previewSize);
 	const correction = 0 - (1 - scale) / 2;
 	const xCorrection = correction * config.width;
@@ -55,6 +54,7 @@ export const VideoPreview: React.FC<{
 				position: 'absolute',
 				left: centerX,
 				top: centerY,
+				overflow: 'hidden',
 			}}
 		>
 			<Container
