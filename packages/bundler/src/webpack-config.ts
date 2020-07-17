@@ -8,10 +8,12 @@ export const webpackConfig = ({
 	entry,
 	userDefinedComponent,
 	outDir,
+	environment,
 }: {
 	entry: string;
 	userDefinedComponent: string;
 	outDir: string;
+	environment: 'development' | 'production';
 }): webpack.Configuration & {
 	devServer: {
 		contentBase: string;
@@ -28,16 +30,21 @@ export const webpackConfig = ({
 			'node_modules',
 			'webpack-hot-middleware/client'
 		),
-		require.resolve('@webhotelier/webpack-fast-refresh/runtime.js'),
+		environment === 'development'
+			? require.resolve('@webhotelier/webpack-fast-refresh/runtime.js')
+			: null,
 		userDefinedComponent,
 		entry,
-	],
+	].filter(Boolean) as [string, ...string[]],
 	mode: 'development',
-	plugins: [
-		new ReactRefreshPlugin(),
-		new ErrorOverlayPlugin(),
-		new webpack.HotModuleReplacementPlugin(),
-	],
+	plugins:
+		environment === 'development'
+			? [
+					new ReactRefreshPlugin(),
+					new ErrorOverlayPlugin(),
+					new webpack.HotModuleReplacementPlugin(),
+			  ]
+			: [],
 	output: {
 		filename: 'bundle.js',
 		publicPath: '/',

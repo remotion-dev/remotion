@@ -17,7 +17,12 @@ export const startServer = async (
 		path.join(os.tmpdir(), 'react-motion-graphics')
 	);
 
-	const config = webpackConfig({entry, userDefinedComponent, outDir: tmpDir});
+	const config = webpackConfig({
+		entry,
+		userDefinedComponent,
+		outDir: tmpDir,
+		environment: 'development',
+	});
 	const compiler = webpack(config);
 
 	app.use('/', express.static(path.join(__dirname, '..', 'web')));

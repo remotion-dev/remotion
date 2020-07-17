@@ -1,9 +1,9 @@
-import webpack from 'webpack';
-import fs from 'fs';
-import path from 'path';
-import os from 'os';
-import {promisify} from 'util';
 import execa from 'execa';
+import fs from 'fs';
+import os from 'os';
+import path from 'path';
+import {promisify} from 'util';
+import webpack from 'webpack';
 import {webpackConfig} from './webpack-config';
 
 const entry = require.resolve('./renderEntry');
@@ -15,7 +15,12 @@ export const bundle = async (userDefinedComponent: string): Promise<string> => {
 		path.join(os.tmpdir(), 'react-motion-graphics')
 	);
 	const output = await promisified([
-		webpackConfig({entry, userDefinedComponent, outDir: tmpDir}),
+		webpackConfig({
+			entry,
+			userDefinedComponent,
+			outDir: tmpDir,
+			environment: 'production',
+		}),
 	]);
 	if (!output) {
 		throw new Error('Expected webpack output');

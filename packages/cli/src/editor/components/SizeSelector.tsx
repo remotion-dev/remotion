@@ -14,19 +14,11 @@ export const SizeSelector: React.FC = () => {
 
 	return (
 		<div>
-			<select onChange={onChange}>
-				<option selected={value === 'auto'} value="auto">
-					Fit
-				</option>
-				<option selected={value === '0.25'} value="0.25">
-					25%
-				</option>
-				<option selected={value === '0.5'} value="0.5">
-					50%
-				</option>
-				<option selected={value === '1'} value="1">
-					100%
-				</option>
+			<select onChange={onChange} value={value}>
+				<option value="auto">Fit</option>
+				<option value="0.25">25%</option>
+				<option value="0.5">50%</option>
+				<option value="1">100%</option>
 			</select>
 		</div>
 	);
