@@ -4,7 +4,7 @@ import {
 	registerVideo,
 	useCurrentFrame,
 	useVideoConfig,
-} from '@jonny/motion-core';
+} from '@remotion/core';
 import React from 'react';
 import {Arc} from './Arc';
 import {Atom} from './Atom';

@@ -1,4 +1,4 @@
-import {getVideo, getVideoConfig} from '@jonny/motion-core';
+import {getVideo, getVideoConfig} from '@remotion/core';
 import React from 'react';
 import {render} from 'react-dom';
 

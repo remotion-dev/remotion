@@ -1,4 +1,4 @@
-import {useTimelinePosition, useVideoConfig} from '@jonny/motion-core';
+import {useTimelinePosition, useVideoConfig} from '@remotion/core';
 import React, {ChangeEvent, useCallback} from 'react';
 
 export const TimelineSlider: React.FC = () => {

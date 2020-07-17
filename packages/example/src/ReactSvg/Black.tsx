@@ -1,4 +1,4 @@
-import {useVideoConfig} from '@jonny/motion-core';
+import {useVideoConfig} from '@remotion/core';
 import React from 'react';
 
 export const Black: React.FC<{

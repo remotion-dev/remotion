@@ -1,4 +1,4 @@
-import {startServer} from '@jonny/motion-bundler';
+import {startServer} from '@remotion/bundler';
 import betterOpn from 'better-opn';
 import fs from 'fs';
 import path from 'path';

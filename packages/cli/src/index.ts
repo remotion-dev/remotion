@@ -1,10 +1,6 @@
-import {bundle} from '@jonny/motion-bundler';
-import {getVideoConfig} from '@jonny/motion-core';
-import {
-	openBrowser,
-	provideScreenshot,
-	stitchVideos,
-} from '@jonny/motion-renderer';
+import {bundle} from '@remotion/bundler';
+import {getVideoConfig} from '@remotion/core';
+import {openBrowser, provideScreenshot, stitchVideos} from '@remotion/renderer';
 import cliProgress from 'cli-progress';
 import fs from 'fs';
 import os from 'os';

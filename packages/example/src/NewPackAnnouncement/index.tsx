@@ -3,7 +3,7 @@ import {
 	readyToRender,
 	registerVideo,
 	useCurrentFrame,
-} from '@jonny/motion-core';
+} from '@remotion/core';
 import React, {useCallback, useEffect, useState} from 'react';
 import styled from 'styled-components';
 

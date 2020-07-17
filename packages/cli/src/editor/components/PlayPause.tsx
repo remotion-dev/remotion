@@ -1,4 +1,4 @@
-import {useTimelinePosition, useVideoConfig} from '@jonny/motion-core';
+import {useTimelinePosition, useVideoConfig} from '@remotion/core';
 import React, {useCallback, useEffect, useState} from 'react';
 import {Pause} from '../icons/pause';
 import {Play} from '../icons/play';

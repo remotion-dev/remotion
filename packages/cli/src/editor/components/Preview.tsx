@@ -1,4 +1,4 @@
-import {getVideo, useVideoConfig} from '@jonny/motion-core';
+import {getVideo, useVideoConfig} from '@remotion/core';
 import React from 'react';
 import {useRecoilState} from 'recoil';
 import styled from 'styled-components';
