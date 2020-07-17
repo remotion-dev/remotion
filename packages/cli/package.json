@@ -30,6 +30,7 @@
     "@types/styled-components": "^5.1.1",
     "@webhotelier/webpack-fast-refresh": "5.0.1",
     "babel-loader": "^8.1.0",
+    "better-opn": "^2.0.0",
     "cli-progress": "^3.8.2",
     "execa": "^4.0.2",
     "prettier": "^2.0.5",
