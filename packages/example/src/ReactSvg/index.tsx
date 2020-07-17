@@ -8,6 +8,7 @@ import {
 import React from 'react';
 import {Arc} from './Arc';
 import {Atom} from './Atom';
+import {DotGrid} from './DotGrid';
 
 export const ReactSvg: React.FC = () => {
 	const frame = useCurrentFrame();
@@ -50,16 +51,15 @@ export const ReactSvg: React.FC = () => {
 		outputRange: [0, 1],
 		extrapolateLeft: 'clamp',
 		extrapolateRight: 'clamp',
-		easing: Easing.bezier(0.8, 0.22, 0.96, 0.65),
 	});
 
 	const scaleOutStart = 220;
 
 	const scaleOut = interpolate({
 		input: frame,
-		inputRange: [scaleOutStart, videoConfig.durationInFrames],
-		outputRange: [1, 25],
-		easing: Easing.ease,
+		inputRange: [scaleOutStart, scaleOutStart + 50],
+		outputRange: [1, 70],
+		easing: Easing.bezier(0.8, 0.22, 0.96, 0.65),
 		extrapolateLeft: 'clamp',
 		extrapolateRight: 'clamp',
 	});
@@ -75,6 +75,7 @@ export const ReactSvg: React.FC = () => {
 					transform: `scale(${scaleOut})`,
 				}}
 			>
+				<DotGrid />
 				<Arc
 					rotateProgress={rotationDevelopment}
 					progress={development}
