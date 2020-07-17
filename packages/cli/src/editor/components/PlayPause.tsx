@@ -1,5 +1,7 @@
 import {useTimelinePosition, useVideoConfig} from '@jonny/motion-core';
 import React, {useCallback, useEffect, useState} from 'react';
+import {Pause} from '../icons/pause';
+import {Play} from '../icons/play';
 
 const lastFrames: number[] = [];
 
@@ -47,8 +49,24 @@ export const PlayPause: React.FC = () => {
 	}, [config.fps, config.durationInFrames, frame, playing, setFrame]);
 
 	return (
-		<button type="button" onClick={toggle}>
-			{playing ? 'Pause' : 'Play'}
-		</button>
+		<div onClick={toggle} style={{display: 'inline-flex'}}>
+			{playing ? (
+				<Pause
+					style={{
+						height: 14,
+						width: 14,
+						color: 'white',
+					}}
+				/>
+			) : (
+				<Play
+					style={{
+						height: 14,
+						width: 14,
+						color: 'white',
+					}}
+				/>
+			)}
+		</div>
 	);
 };
