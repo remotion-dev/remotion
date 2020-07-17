@@ -44,6 +44,7 @@
     "webpack-hot-middleware": "^2.25.0"
   },
   "devDependencies": {
-    "eslint": "^7.4.0"
+    "eslint": "^7.4.0",
+    "prettier-plugin-organize-imports": "^1.1.1"
   }
 }

@@ -1,6 +1,6 @@
+import {useCurrentFrame, useVideoConfig} from '@jonny/motion-core';
 import React from 'react';
 import styled from 'styled-components';
-import {useFrame, useVideoConfig} from '@jonny/motion-core';
 
 const Text = styled.div`
 	color: white;
@@ -20,7 +20,7 @@ const renderFrame = (frame: number, fps: number): string => {
 };
 
 export const TimeValue: React.FC = () => {
-	const frame = useFrame();
+	const frame = useCurrentFrame();
 	const config = useVideoConfig();
 
 	return <Text>{renderFrame(frame, config.fps)}</Text>;

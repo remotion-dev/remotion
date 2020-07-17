@@ -31,6 +31,7 @@
     "xns": "^2.0.7"
   },
   "devDependencies": {
-    "eslint": "^7.4.0"
+    "eslint": "^7.4.0",
+    "prettier-plugin-organize-imports": "^1.1.1"
   }
 }

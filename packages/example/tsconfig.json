@@ -4,7 +4,8 @@
     "rootDir": "src",
     "outDir": "dist",
     "jsx": "react",
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "resolveJsonModule": true
   }
 }
   

@@ -19,6 +19,7 @@ export const Container = styled.div<{
 	height: ${(props): number => props.height}px;
 	display: flex;
 	position: absolute;
+	background-color: black;
 `;
 
 const Video = getVideo();

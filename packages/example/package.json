@@ -20,10 +20,12 @@
     "@types/react": "^16.9.42",
     "prettier": "^2.0.5",
     "react": "^16.13.1",
+    "react-three-fiber": "^4.2.17",
+    "three": "^0.118.3",
     "typescript": "^3.9.5"
   },
   "devDependencies": {
-    "eslint": "^7.4.0"
+    "eslint": "^7.4.0",
+    "prettier-plugin-organize-imports": "^1.1.1"
   }
 }
-  

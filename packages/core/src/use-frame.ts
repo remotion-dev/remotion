@@ -1,6 +1,6 @@
 import {useTimelinePosition} from './timeline-position-state';
 
-export const useFrame = (): number => {
+export const useCurrentFrame = (): number => {
 	const [timelinePosition] = useTimelinePosition();
 
 	const param = new URLSearchParams(window.location.search).get('frame');
