@@ -1,8 +1,9 @@
 import express from 'express';
-import webpack from 'webpack';
-import os from 'os';
 import fs from 'fs';
+import getPort from 'get-port';
+import os from 'os';
 import path from 'path';
+import webpack from 'webpack';
 import webpackDevMiddleware from 'webpack-dev-middleware';
 import webpackHotMiddleware from 'webpack-hot-middleware';
 import {webpackConfig} from './webpack-config';
@@ -10,7 +11,7 @@ import {webpackConfig} from './webpack-config';
 export const startServer = async (
 	entry: string,
 	userDefinedComponent: string
-): Promise<void> => {
+): Promise<number> => {
 	const app = express();
 	const tmpDir = await fs.promises.mkdtemp(
 		path.join(os.tmpdir(), 'react-motion-graphics')
@@ -28,8 +29,9 @@ export const startServer = async (
 		})
 	);
 
-	app.listen(3000);
-	console.log('Server started');
+	const port = await getPort({port: getPort.makeRange(3000, 3100)});
+	app.listen(port);
+	return port;
 };
 
 export * from './bundler';

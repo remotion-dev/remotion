@@ -9,16 +9,18 @@ import React, {
 	useCallback,
 	useEffect,
 	useMemo,
+	useRef,
 	useState,
 } from 'react';
 import {Canvas, useUpdate} from 'react-three-fiber';
-import {Font, Mesh, Vector3} from 'three';
+import {Font, Group, Mesh, Vector3} from 'three';
 import {bold} from './bold';
 
 deferRender();
 
 const font = new Font(bold);
 const Box: React.FC = () => {
+	const groupRef = useRef<Group>(null);
 	const frame = useCurrentFrame();
 	const [size, setSizeChange] = useState(Date.now());
 
@@ -69,14 +71,14 @@ const Box: React.FC = () => {
 	);
 
 	useEffect(() => {
-		if (!mesh.current) {
+		if (!groupRef.current) {
 			return;
 		}
-		mesh.current.rotation.x = 0.02 * frame;
+		groupRef.current.rotation.x = 0.02 * frame;
 	}, [frame]);
 
 	return (
-		<group scale={[0.1, 0.1, 0.1]} position={[0, 0, 0]}>
+		<group scale={[0.1, 0.1, 0.1]} position={[0, 0, 0]} ref={groupRef}>
 			<mesh ref={mesh}>
 				<textGeometry attach="geometry" args={['REACT', config]} />
 				<meshNormalMaterial attach="material" />
@@ -91,6 +93,7 @@ export const Hey: React.FC = () => {
 			style={{
 				flex: 1,
 				display: 'flex',
+				backgroundColor: 'orange',
 			}}
 		>
 			<Canvas camera={{position: [0, 0, 30], fov: 100}}>
@@ -108,5 +111,5 @@ registerVideo(Hey, {
 	fps: 60,
 	height: 1080,
 	width: 1080,
-	frames: 10,
+	durationInFrames: 100,
 });

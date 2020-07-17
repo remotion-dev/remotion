@@ -1,5 +1,5 @@
-import React, {useCallback, ChangeEvent} from 'react';
 import {useTimelinePosition, useVideoConfig} from '@jonny/motion-core';
+import React, {ChangeEvent, useCallback} from 'react';
 
 export const TimelineSlider: React.FC = () => {
 	const [timelinePosition, setTimelinePosition] = useTimelinePosition();
@@ -17,7 +17,7 @@ export const TimelineSlider: React.FC = () => {
 			type="range"
 			value={timelinePosition}
 			step={1}
-			max={videoConfig.frames - 1}
+			max={videoConfig.durationInFrames - 1}
 			min={0}
 			onChange={onChange}
 		/>

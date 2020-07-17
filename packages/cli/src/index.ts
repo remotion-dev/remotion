@@ -23,7 +23,7 @@ xns(async () => {
 	process.stdout.write('📼 (2/3) Rendering frames...\n');
 	const browser = await openBrowser();
 	const page = await browser.newPage();
-	const {frames} = config;
+	const {durationInFrames: frames} = config;
 	const outputDir = await fs.promises.mkdtemp(
 		path.join(os.tmpdir(), 'react-motion-render')
 	);

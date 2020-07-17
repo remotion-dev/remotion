@@ -1,4 +1,5 @@
 import {startServer} from '@jonny/motion-bundler';
+import betterOpn from 'better-opn';
 import path from 'path';
 import xns from 'xns';
 
@@ -7,6 +8,10 @@ xns(async () => {
 	const file = args[2];
 	const fullPath = path.join(process.cwd(), file);
 
-	startServer(path.resolve(__dirname, 'previewEntry.tsx'), fullPath);
+	const port = await startServer(
+		path.resolve(__dirname, 'previewEntry.tsx'),
+		fullPath
+	);
+	betterOpn(`http://localhost:${port}`);
 	await new Promise(() => void 0);
 });

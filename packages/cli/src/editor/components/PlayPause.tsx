@@ -1,5 +1,5 @@
-import React, {useState, useCallback, useEffect} from 'react';
 import {useTimelinePosition, useVideoConfig} from '@jonny/motion-core';
+import React, {useCallback, useEffect, useState} from 'react';
 
 export const PlayPause: React.FC = () => {
 	const [playing, setPlaying] = useState(false);
@@ -14,14 +14,14 @@ export const PlayPause: React.FC = () => {
 		if (playing) {
 			setTimeout(() => {
 				const nextFrame = frame + 1;
-				if (nextFrame >= config.frames) {
+				if (nextFrame >= config.durationInFrames) {
 					console.log('resetting', Date.now());
 					return setFrame(0);
 				}
 				setFrame(frame + 1);
 			}, 1000 / config.fps);
 		}
-	}, [config.fps, config.frames, frame, playing, setFrame]);
+	}, [config.fps, config.durationInFrames, frame, playing, setFrame]);
 
 	return (
 		<button type="button" onClick={toggle}>
