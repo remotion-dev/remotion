@@ -51,7 +51,7 @@ export const provideScreenshot = async (
 	page.setViewport({
 		width: options.width,
 		height: options.height,
-		deviceScaleFactor: 2,
+		deviceScaleFactor: 1,
 	});
 
 	await page.goto(options.site);

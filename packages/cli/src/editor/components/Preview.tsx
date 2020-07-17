@@ -30,10 +30,10 @@ export const VideoPreview: React.FC<{
 	const [previewSize] = useRecoilState(previewSizeState);
 	const config = useVideoConfig();
 
-	const ratio =
-		canvasSize.height < canvasSize.width
-			? canvasSize.height / config.height
-			: canvasSize.width / config.width;
+	const heightRatio = canvasSize.height / config.height;
+	const widthRatio = canvasSize.width / config.width;
+
+	const ratio = Math.min(heightRatio, widthRatio);
 
 	const scale = previewSize === 'auto' ? ratio : Number(previewSize);
 	const correction = 0 - (1 - scale) / 2;
