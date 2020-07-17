@@ -1,6 +1,6 @@
 {
   "name": "@remotion/core",
-  "version": "1.0.0-alpha.4",
+  "version": "1.0.0-y.0",
   "description": "",
   "main": "dist/index.js",
   "scripts": {
@@ -25,5 +25,8 @@
   "devDependencies": {
     "eslint": "^7.4.0",
     "prettier-plugin-organize-imports": "^1.1.1"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

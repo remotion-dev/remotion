@@ -1,6 +1,6 @@
 {
   "name": "@remotion/example",
-  "version": "1.0.0-alpha.4",
+  "version": "1.0.0-y.0",
   "description": "",
   "main": "dist/index.js",
   "scripts": {
@@ -16,8 +16,8 @@
   "license": "ISC",
   "dependencies": {
     "@jonny/eslint-config": "^2.1.161",
-    "@remotion/cli": "^1.0.0-alpha.4",
-    "@remotion/core": "^1.0.0-alpha.4",
+    "@remotion/cli": "^1.0.0-y.0",
+    "@remotion/core": "^1.0.0-y.0",
     "@types/node": "^14.0.13",
     "@types/react": "^16.9.42",
     "@types/styled-components": "^5.1.1",
@@ -32,5 +32,8 @@
   "devDependencies": {
     "eslint": "^7.4.0",
     "prettier-plugin-organize-imports": "^1.1.1"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
