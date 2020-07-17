@@ -1,6 +1,8 @@
 import {useTimelinePosition, useVideoConfig} from '@jonny/motion-core';
 import React, {useCallback, useEffect, useState} from 'react';
 
+const lastFrames: number[] = [];
+
 export const PlayPause: React.FC = () => {
 	const [playing, setPlaying] = useState(false);
 	const [frame, setFrame] = useTimelinePosition();
@@ -12,14 +14,35 @@ export const PlayPause: React.FC = () => {
 
 	useEffect(() => {
 		if (playing) {
+			// eslint-disable-next-line fp/no-mutating-methods
+			lastFrames.push(Date.now());
+			// eslint-disable-next-line fp/no-mutating-methods
+			const last10Frames = lastFrames.slice().reverse().slice(0, 10).reverse();
+			const timesBetweenFrames: number[] = last10Frames
+				.map((f, i) => {
+					if (i === 0) {
+						return null;
+					}
+					return f - last10Frames[i - 1];
+				})
+				.filter((t) => t !== null) as number[];
+			const averageTimeBetweenFrames =
+				timesBetweenFrames.reduce((a, b) => {
+					return a + b;
+				}, 0) / timesBetweenFrames.length;
+			const expectedTime = 1000 / config.fps;
+			const slowerThanExpected = averageTimeBetweenFrames - expectedTime;
+			const timeout =
+				last10Frames.length === 0
+					? expectedTime
+					: expectedTime - slowerThanExpected;
 			setTimeout(() => {
 				const nextFrame = frame + 1;
 				if (nextFrame >= config.durationInFrames) {
-					console.log('resetting', Date.now());
 					return setFrame(0);
 				}
 				setFrame(frame + 1);
-			}, 1000 / config.fps);
+			}, timeout);
 		}
 	}, [config.fps, config.durationInFrames, frame, playing, setFrame]);
 
