@@ -51,6 +51,7 @@ export const VideoPreview: React.FC<{
 				width: config.width * scale,
 				height: config.height * scale,
 				display: 'flex',
+				flexDirection: 'column',
 				position: 'absolute',
 				left: centerX,
 				top: centerY,

@@ -19,7 +19,6 @@ xns(async () => {
 	await import(fullPath);
 	const config = getVideoConfig();
 	const result = await bundle(fullPath);
-	console.log({result});
 	process.stdout.write('📼 (2/3) Rendering frames...\n');
 	const browser = await openBrowser();
 	const page = await browser.newPage();
