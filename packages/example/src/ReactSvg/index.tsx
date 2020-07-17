@@ -8,6 +8,7 @@ import {
 import React from 'react';
 import {Arc} from './Arc';
 import {Atom} from './Atom';
+import {Black} from './Black';
 import {DotGrid} from './DotGrid';
 
 export const ReactSvg: React.FC = () => {
@@ -54,15 +55,36 @@ export const ReactSvg: React.FC = () => {
 	});
 
 	const scaleOutStart = 220;
+	const scaleOutEnd = scaleOutStart + 50;
+
+	const scaleIn = interpolate({
+		input: frame,
+		inputRange: [0, 30],
+		outputRange: [1.2, 1],
+		easing: Easing.ease,
+		extrapolateLeft: 'clamp',
+		extrapolateRight: 'clamp',
+	});
 
 	const scaleOut = interpolate({
 		input: frame,
-		inputRange: [scaleOutStart, scaleOutStart + 50],
+		inputRange: [scaleOutStart, scaleOutEnd],
 		outputRange: [1, 70],
 		easing: Easing.bezier(0.8, 0.22, 0.96, 0.65),
 		extrapolateLeft: 'clamp',
 		extrapolateRight: 'clamp',
 	});
+
+	const scaleOutBlackDot = interpolate({
+		input: frame,
+		inputRange: [scaleOutStart, scaleOutStart + 10],
+		outputRange: [0, 1],
+		easing: Easing.bezier(0.8, 0.22, 0.96, 0.65),
+		extrapolateLeft: 'clamp',
+		extrapolateRight: 'clamp',
+	});
+
+	const scale = frame < 70 ? scaleIn : scaleOut;
 
 	return (
 		<div style={{flex: 1, backgroundColor: 'white'}}>
@@ -71,8 +93,7 @@ export const ReactSvg: React.FC = () => {
 					position: 'absolute',
 					width: videoConfig.width,
 					height: videoConfig.height,
-					scale: scaleOut,
-					transform: `scale(${scaleOut})`,
+					transform: `scale(${scale})`,
 				}}
 			>
 				<DotGrid />
@@ -98,6 +119,7 @@ export const ReactSvg: React.FC = () => {
 					electronOpacity={electronOpacity}
 				/>
 				<Atom scale={rotationDevelopment} />
+				<Black scale={scaleOutBlackDot} />
 			</div>
 		</div>
 	);
