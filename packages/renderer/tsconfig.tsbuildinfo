@@ -422,7 +422,7 @@
         "affectsGlobalScope": false
       },
       "./src/index.ts": {
-        "version": "f51738ba37108677ed01ada23e7620baae67c30f810ee684c39e25f6f3c1cda2",
+        "version": "021a397b545eab3786bc009f8398658785fdf2ff407c22ac47addfd429ef55f9",
         "signature": "933f1a398a1e44a895a09afd558283480c9a19080d130df482f514faf1b667b8",
         "affectsGlobalScope": false
       },
@@ -497,6 +497,7 @@
       "noEmit": false,
       "strict": true,
       "esModuleInterop": true,
+      "resolveJsonModule": true,
       "rootDir": "./src",
       "outDir": "./dist",
       "configFilePath": "./tsconfig.json"

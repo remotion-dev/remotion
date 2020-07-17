@@ -1,4 +1,9 @@
-import {registerVideo, useCurrentFrame} from '@jonny/motion-core';
+import {
+	deferRender,
+	readyToRender,
+	registerVideo,
+	useCurrentFrame,
+} from '@jonny/motion-core';
 import React, {
 	Suspense,
 	useCallback,
@@ -6,11 +11,14 @@ import React, {
 	useMemo,
 	useState,
 } from 'react';
-import {Canvas, useLoader, useUpdate} from 'react-three-fiber';
-import {FontLoader, Mesh, Vector3} from 'three';
+import {Canvas, useUpdate} from 'react-three-fiber';
+import {Font, Mesh, Vector3} from 'three';
+import {bold} from './bold';
 
+deferRender();
+
+const font = new Font(bold);
 const Box: React.FC = () => {
-	const font = useLoader(FontLoader, '/bold.json');
 	const frame = useCurrentFrame();
 	const [size, setSizeChange] = useState(Date.now());
 
@@ -39,6 +47,10 @@ const Box: React.FC = () => {
 		return () => {
 			window.removeEventListener('resize', onResize);
 		};
+	}, []);
+
+	useEffect(() => {
+		readyToRender();
 	}, []);
 
 	const mesh = useUpdate<Mesh>(
@@ -96,5 +108,5 @@ registerVideo(Hey, {
 	fps: 60,
 	height: 1080,
 	width: 1080,
-	frames: 60,
+	frames: 10,
 });

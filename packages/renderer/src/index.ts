@@ -49,6 +49,7 @@ export const provideScreenshot = async (
 	page.setViewport({width: 1080, height: 1080, deviceScaleFactor: 2});
 
 	await page.goto(options.site);
+	await page.waitForFunction('window.isReady() === true');
 
 	await screenshotDOMElement(page, {
 		path: options.output,

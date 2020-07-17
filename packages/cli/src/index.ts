@@ -1,15 +1,15 @@
-import xns from 'xns';
-import fs from 'fs';
-import path from 'path';
-import os from 'os';
-import cliProgress from 'cli-progress';
-import {
-	provideScreenshot,
-	openBrowser,
-	stitchVideos,
-} from '@jonny/motion-renderer';
 import {bundle} from '@jonny/motion-bundler';
 import {getVideoConfig} from '@jonny/motion-core';
+import {
+	openBrowser,
+	provideScreenshot,
+	stitchVideos,
+} from '@jonny/motion-renderer';
+import cliProgress from 'cli-progress';
+import fs from 'fs';
+import os from 'os';
+import path from 'path';
+import xns from 'xns';
 
 xns(async () => {
 	process.stdout.write('📦 (1/3) Bundling video...\n');
@@ -19,6 +19,7 @@ xns(async () => {
 	await import(fullPath);
 	const config = getVideoConfig();
 	const result = await bundle(fullPath);
+	console.log({result});
 	process.stdout.write('📼 (2/3) Rendering frames...\n');
 	const browser = await openBrowser();
 	const page = await browser.newPage();
