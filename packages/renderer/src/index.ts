@@ -44,9 +44,15 @@ export const provideScreenshot = async (
 	options: {
 		site: string;
 		output: string;
+		width: number;
+		height: number;
 	}
 ): Promise<void> => {
-	page.setViewport({width: 1080, height: 1080, deviceScaleFactor: 2});
+	page.setViewport({
+		width: options.width,
+		height: options.height,
+		deviceScaleFactor: 2,
+	});
 
 	await page.goto(options.site);
 	await page.waitForFunction('window.isReady() === true');

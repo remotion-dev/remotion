@@ -58,9 +58,7 @@ export const Rating: React.FC = () => {
 	}>(null);
 
 	const fetchData = useCallback(async () => {
-		const resource = await fetch(
-			'https://api.anysticker.app/packs/smiley-sticker'
-		);
+		const resource = await fetch('http://localhost:8000/packs/xoloi');
 		const json = await resource.json();
 		setData(json);
 	}, []);
@@ -92,7 +90,7 @@ export const Rating: React.FC = () => {
 				<Title>New Pack available</Title>
 				{data ? (
 					<Subtitle>
-						"{data.data.pack.name}" by {data.data.pack.publisher}
+						{data.data.pack.name} by {data.data.pack.publisher}
 					</Subtitle>
 				) : null}
 				{data

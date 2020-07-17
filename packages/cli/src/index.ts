@@ -36,6 +36,8 @@ xns(async () => {
 		await provideScreenshot(page, {
 			output: path.join(outputDir, `element-${frame}.png`),
 			site: 'file://' + result + '/index.html?frame=' + frame,
+			height: config.height,
+			width: config.width,
 		});
 		bar.update(frame);
 	}
