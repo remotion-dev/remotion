@@ -1,59 +1,60 @@
 {
-  "name": "@remotion/cli",
-  "version": "1.0.0-y.0",
-  "description": "",
-  "main": "index.js",
-  "bin": {
-    "remotion-build": "dist/index.js",
-    "remotion-preview": "dist/preview.js"
-  },
-  "scripts": {
-    "test": "eslint 'src' --ext ts,tsx",
-    "build": "tsc -d && node add-bin.js",
-    "prepare": "npm run build"
-  },
-  "files": [
-    "dist"
-  ],
-  "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "@babel/core": "^7.10.4",
-    "@babel/preset-env": "^7.10.4",
-    "@babel/preset-react": "^7.10.4",
-    "@babel/preset-typescript": "^7.10.4",
-    "@jonny/eslint-config": "^2.1.161",
-    "@remotion/bundler": "^1.0.0-y.0",
-    "@remotion/core": "^1.0.0-y.0",
-    "@remotion/renderer": "^1.0.0-y.0",
-    "@types/cli-progress": "^3.7.0",
-    "@types/node": "^14.0.13",
-    "@types/react": "^16.9.41",
-    "@types/react-dom": "^16.9.8",
-    "@types/recoil": "^0.0.1",
-    "@types/styled-components": "^5.1.1",
-    "@webhotelier/webpack-fast-refresh": "5.0.1",
-    "babel-loader": "^8.1.0",
-    "better-opn": "^2.0.0",
-    "cli-progress": "^3.8.2",
-    "execa": "^4.0.2",
-    "prettier": "^2.0.5",
-    "react": "^16.13.1",
-    "react-dom": "^16.13.1",
-    "react-refresh": "0.8.3",
-    "recoil": "^0.0.10",
-    "styled-components": "^5.1.1",
-    "typescript": "^3.9.5",
-    "webpack": "^5.0.0-beta.22",
-    "webpack-cli": "^3.3.12",
-    "webpack-dev-server": "^3.11.0",
-    "xns": "^2.0.7"
-  },
-  "devDependencies": {
-    "eslint": "^7.4.0",
-    "prettier-plugin-organize-imports": "^1.1.1"
-  },
-  "publishConfig": {
-    "access": "public"
-  }
+	"name": "@remotion/cli",
+	"version": "1.0.0-y.0",
+	"description": "",
+	"main": "index.js",
+	"bin": {
+		"remotion-build": "dist/index.js",
+		"remotion-preview": "dist/preview.js"
+	},
+	"scripts": {
+		"test": "eslint 'src' --ext ts,tsx",
+		"build": "tsc -d && node add-bin.js",
+		"prepare": "npm run build"
+	},
+	"files": [
+		"dist"
+	],
+	"author": "",
+	"license": "ISC",
+	"dependencies": {
+		"@babel/core": "^7.10.4",
+		"@babel/preset-env": "^7.10.4",
+		"@babel/preset-react": "^7.10.4",
+		"@babel/preset-typescript": "^7.10.4",
+		"@jonny/eslint-config": "^2.1.161",
+		"@remotion/bundler": "^1.0.0-y.0",
+		"@remotion/core": "^1.0.0-y.0",
+		"@remotion/renderer": "^1.0.0-y.0",
+		"@types/cli-progress": "^3.7.0",
+		"@types/node": "^14.0.13",
+		"@types/react": "^16.9.41",
+		"@types/react-dom": "^16.9.8",
+		"@types/recoil": "^0.0.1",
+		"@types/styled-components": "^5.1.1",
+		"@webhotelier/webpack-fast-refresh": "5.0.1",
+		"babel-loader": "^8.1.0",
+		"better-opn": "^2.0.0",
+		"cli-progress": "^3.8.2",
+		"execa": "^4.0.2",
+		"file-loader": "^6.0.0",
+		"prettier": "^2.0.5",
+		"react": "^16.13.1",
+		"react-dom": "^16.13.1",
+		"react-refresh": "0.8.3",
+		"recoil": "^0.0.10",
+		"styled-components": "^5.1.1",
+		"typescript": "^3.9.5",
+		"webpack": "^5.0.0-beta.22",
+		"webpack-cli": "^3.3.12",
+		"webpack-dev-server": "^3.11.0",
+		"xns": "^2.0.7"
+	},
+	"devDependencies": {
+		"eslint": "^7.4.0",
+		"prettier-plugin-organize-imports": "^1.1.1"
+	},
+	"publishConfig": {
+		"access": "public"
+	}
 }
