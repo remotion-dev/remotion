@@ -4,9 +4,15 @@ import {useVideoConfig} from './use-video-config';
 
 const {useGlobalState} = createGlobalState({
 	frame: 0,
+	playing: false,
 });
 
-export const useTimelinePosition = (): ReturnType<typeof useGlobalState> => {
+type TimelineReturnType = readonly [
+	number,
+	(u: React.SetStateAction<number>) => void
+];
+
+export const useTimelinePosition = (): TimelineReturnType => {
 	const state = useGlobalState('frame');
 	const videoConfig = useVideoConfig();
 	useEffect(() => {
@@ -18,4 +24,13 @@ export const useTimelinePosition = (): ReturnType<typeof useGlobalState> => {
 		}
 	}, [state, videoConfig.durationInFrames]);
 	return state;
+};
+
+type PlayingReturnType = readonly [
+	boolean,
+	(u: React.SetStateAction<boolean>) => void
+];
+
+export const usePlayingState = (): PlayingReturnType => {
+	return useGlobalState('playing');
 };

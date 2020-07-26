@@ -1,18 +1,22 @@
-import {useTimelinePosition, useVideoConfig} from '@remotion/core';
-import React, {useCallback, useEffect, useState} from 'react';
+import {
+	usePlayingState,
+	useTimelinePosition,
+	useVideoConfig,
+} from '@remotion/core';
+import React, {useCallback, useEffect} from 'react';
 import {Pause} from '../icons/pause';
 import {Play} from '../icons/play';
 
 const lastFrames: number[] = [];
 
 export const PlayPause: React.FC = () => {
-	const [playing, setPlaying] = useState(false);
+	const [playing, setPlaying] = usePlayingState();
 	const [frame, setFrame] = useTimelinePosition();
 	const config = useVideoConfig();
 
 	const toggle = useCallback(() => {
 		setPlaying((p) => !p);
-	}, []);
+	}, [setPlaying]);
 
 	const onKeyPress = useCallback(
 		(e: KeyboardEvent) => {

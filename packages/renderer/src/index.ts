@@ -35,7 +35,7 @@ async function screenshotDOMElement(
 }
 
 export const openBrowser = async (): Promise<puppeteer.Browser> => {
-	const browser = await puppeteer.launch({headless: false});
+	const browser = await puppeteer.launch({});
 	return browser;
 };
 
