@@ -18,6 +18,7 @@ export const PlayPause: React.FC = () => {
 		(e: KeyboardEvent) => {
 			if (e.code === 'Space') {
 				toggle();
+				e.preventDefault();
 			}
 		},
 		[toggle]
