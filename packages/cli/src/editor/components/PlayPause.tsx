@@ -14,6 +14,22 @@ export const PlayPause: React.FC = () => {
 		setPlaying((p) => !p);
 	}, []);
 
+	const onKeyPress = useCallback(
+		(e: KeyboardEvent) => {
+			if (e.code === 'Space') {
+				toggle();
+			}
+		},
+		[toggle]
+	);
+
+	useEffect(() => {
+		window.addEventListener('keypress', onKeyPress);
+		return (): void => {
+			window.removeEventListener('keypress', onKeyPress);
+		};
+	}, [onKeyPress]);
+
 	useEffect(() => {
 		if (playing) {
 			// eslint-disable-next-line fp/no-mutating-methods
