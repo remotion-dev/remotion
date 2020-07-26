@@ -4,6 +4,11 @@ import webpack from 'webpack';
 const ErrorOverlayPlugin = require('@webhotelier/webpack-fast-refresh/error-overlay');
 const ReactRefreshPlugin = require('@webhotelier/webpack-fast-refresh');
 
+type Truthy<T> = T extends false | '' | 0 | null | undefined ? never : T;
+export function truthy<T>(value: T): value is Truthy<T> {
+	return Boolean(value);
+}
+
 export const webpackConfig = ({
 	entry,
 	userDefinedComponent,
@@ -24,19 +29,21 @@ export const webpackConfig = ({
 	};
 } => ({
 	entry: [
-		path.resolve(
-			__dirname,
-			'..',
-			'node_modules',
-			'webpack-hot-middleware/client'
-		),
+		environment === 'development'
+			? path.resolve(
+					__dirname,
+					'..',
+					'node_modules',
+					'webpack-hot-middleware/client'
+			  )
+			: null,
 		environment === 'development'
 			? require.resolve('@webhotelier/webpack-fast-refresh/runtime.js')
 			: null,
 		userDefinedComponent,
 		entry,
 	].filter(Boolean) as [string, ...string[]],
-	mode: 'development',
+	mode: environment,
 	plugins:
 		environment === 'development'
 			? [
@@ -46,6 +53,7 @@ export const webpackConfig = ({
 			  ]
 			: [],
 	output: {
+		globalObject: 'this',
 		filename: 'bundle.js',
 		publicPath: '/',
 		path: outDir,
@@ -85,15 +93,21 @@ export const webpackConfig = ({
 									},
 								],
 							],
-							plugins: [require.resolve('react-refresh/babel')],
+							plugins: [
+								environment === 'development'
+									? require.resolve('react-refresh/babel')
+									: null,
+							].filter(truthy),
 						},
 					},
-					{
-						loader: require.resolve(
-							'@webhotelier/webpack-fast-refresh/loader.js'
-						),
-					},
-				],
+					environment === 'development'
+						? {
+								loader: require.resolve(
+									'@webhotelier/webpack-fast-refresh/loader.js'
+								),
+						  }
+						: null,
+				].filter(truthy),
 			},
 		],
 	},

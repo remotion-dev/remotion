@@ -1,21 +1,21 @@
-let ready = true;
+if (typeof window !== 'undefined') {
+	window.ready = true;
+}
 
 export const deferRender = (): void => {
-	ready = false;
+	if (typeof window !== 'undefined') {
+		window.ready = false;
+	}
 };
 
 export const readyToRender = (): void => {
-	ready = true;
+	if (typeof window !== 'undefined') {
+		window.ready = true;
+	}
 };
 
 declare global {
 	interface Window {
-		isReady: () => boolean;
+		ready: boolean;
 	}
-}
-
-if (typeof window !== 'undefined') {
-	window.isReady = (): boolean => {
-		return ready;
-	};
 }

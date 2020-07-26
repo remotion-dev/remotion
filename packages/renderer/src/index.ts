@@ -35,7 +35,7 @@ async function screenshotDOMElement(
 }
 
 export const openBrowser = async (): Promise<puppeteer.Browser> => {
-	const browser = await puppeteer.launch();
+	const browser = await puppeteer.launch({headless: false});
 	return browser;
 };
 
@@ -55,7 +55,7 @@ export const provideScreenshot = async (
 	});
 
 	await page.goto(options.site);
-	await page.waitForFunction('window.isReady() === true');
+	await page.waitForFunction('window.ready === true');
 
 	await screenshotDOMElement(page, {
 		path: options.output,
