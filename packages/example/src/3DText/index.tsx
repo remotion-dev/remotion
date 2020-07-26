@@ -2,7 +2,9 @@ import {
 	deferRender,
 	readyToRender,
 	registerVideo,
+	spring,
 	useCurrentFrame,
+	useVideoConfig,
 } from '@remotion/core';
 import React, {
 	Suspense,
@@ -22,6 +24,7 @@ const font = new Font(bold);
 const Box: React.FC = () => {
 	const groupRef = useRef<Group>(null);
 	const frame = useCurrentFrame();
+	const videoConfig = useVideoConfig();
 	const [size, setSizeChange] = useState(Date.now());
 
 	const config = useMemo(
@@ -37,7 +40,7 @@ const Box: React.FC = () => {
 			bevelSegments: 8,
 			color: '#fff',
 		}),
-		[font]
+		[]
 	);
 
 	const onResize = useCallback(() => {
@@ -49,7 +52,7 @@ const Box: React.FC = () => {
 		return () => {
 			window.removeEventListener('resize', onResize);
 		};
-	}, []);
+	}, [onResize]);
 
 	useEffect(() => {
 		readyToRender();
@@ -74,8 +77,37 @@ const Box: React.FC = () => {
 		if (!groupRef.current) {
 			return;
 		}
-		groupRef.current.rotation.x = 0.02 * frame;
-	}, [frame]);
+		const springConfig = {
+			damping: 10,
+			mass: 0.8,
+			stiffness: 1000,
+			restSpeedThreshold: 0.00001,
+			restDisplacementThreshold: 0.0001,
+			fps: videoConfig.fps,
+			frame,
+			velocity: 1,
+		};
+		groupRef.current.rotation.x = spring({
+			...springConfig,
+			from: -Math.PI / 2,
+			to: 0,
+		});
+		groupRef.current.rotation.y = spring({
+			...springConfig,
+			velocity: 0,
+			from: 0,
+			to: 0.1,
+		});
+		const scale = spring({
+			...springConfig,
+			velocity: 0,
+			from: 0,
+			to: 0.1,
+		});
+		groupRef.current.scale.x = scale;
+		console.log({scale});
+		groupRef.current.scale.y = scale;
+	}, [frame, videoConfig.fps]);
 
 	return (
 		<group scale={[0.1, 0.1, 0.1]} position={[0, 0, 0]} ref={groupRef}>
@@ -93,7 +125,8 @@ export const Hey: React.FC = () => {
 			style={{
 				flex: 1,
 				display: 'flex',
-				backgroundColor: 'orange',
+				background:
+					'linear-gradient(-90deg, rgb(88, 81, 219), rgb(64, 93, 230))',
 			}}
 		>
 			<Canvas camera={{position: [0, 0, 30], fov: 100}}>
@@ -111,5 +144,5 @@ registerVideo(Hey, {
 	fps: 60,
 	height: 1080,
 	width: 1080,
-	durationInFrames: 100,
+	durationInFrames: 200,
 });

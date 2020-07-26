@@ -8,7 +8,7 @@ export const TimelineContainer = styled.div`
 `;
 const Header = styled.div`
 	display: flex;
-	flex-direction: row;
+	flex-direction: column;
 `;
 
 export const Timeline: React.FC = () => {
