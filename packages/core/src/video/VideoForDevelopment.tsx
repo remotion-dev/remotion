@@ -1,5 +1,7 @@
-import {useCurrentFrame, usePlayingState, useVideoConfig} from '@remotion/core';
 import React, {useEffect, useRef} from 'react';
+import {usePlayingState} from '../timeline-position-state';
+import {useCurrentFrame} from '../use-frame';
+import {useVideoConfig} from '../use-video-config';
 import {AllowedVideoProps} from './props';
 
 export const VideoForDevelopment: React.FC<AllowedVideoProps> = (props) => {

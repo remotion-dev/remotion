@@ -1,5 +1,7 @@
-import {readyToRender, useCurrentFrame, useVideoConfig} from '@remotion/core';
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import {readyToRender} from '../defer-ready';
+import {useCurrentFrame} from '../use-frame';
+import {useVideoConfig} from '../use-video-config';
 import {AllowedVideoProps} from './props';
 
 export const VideoForRendering: React.FC<AllowedVideoProps> = (props) => {
