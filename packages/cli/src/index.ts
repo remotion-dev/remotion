@@ -22,13 +22,13 @@ xns(async () => {
 	const outputDir = await fs.promises.mkdtemp(
 		path.join(os.tmpdir(), 'react-motion-render')
 	);
+	console.log({result});
 	const bar = new cliProgress.Bar(
 		{clearOnComplete: true},
 		cliProgress.Presets.shades_grey
 	);
 	bar.start(frames, 0);
 	for (let frame = 0; frame < frames; frame++) {
-		process.env.MOTION_FRAME = String(frame);
 		await provideScreenshot(page, {
 			output: path.join(outputDir, `element-${frame}.png`),
 			site: 'file://' + result + '/index.html?frame=' + frame,
