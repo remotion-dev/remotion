@@ -15,13 +15,41 @@ import React, {
 	useState,
 } from 'react';
 import {Canvas, useUpdate} from 'react-three-fiber';
-import {Font, Group, Mesh, Vector3} from 'three';
+import {
+	Color,
+	DataTexture,
+	Font,
+	Group,
+	LuminanceFormat,
+	Mesh,
+	NearestFilter,
+	Vector3,
+} from 'three';
 import {bold} from './bold';
 
 deferRender();
 
+const diffuseColor = new Color().setRGB(0.4, 0.4, 0.4);
+
 const font = new Font(bold);
 const Box: React.FC = () => {
+	const colors = new Uint8Array(6);
+	colors[0] = 0xffffff;
+	colors[1] = 0xffffff;
+	colors[2] = 0xffffff;
+	colors[3] = 0x000000;
+	colors[4] = 0x000000;
+	colors[5] = 0x000000;
+
+	const gradientMap = new DataTexture(
+		colors,
+		colors.length,
+		1,
+		LuminanceFormat
+	);
+	gradientMap.minFilter = NearestFilter;
+	gradientMap.magFilter = NearestFilter;
+	gradientMap.generateMipmaps = false;
 	const groupRef = useRef<Group>(null);
 	const frame = useCurrentFrame();
 	const videoConfig = useVideoConfig();
@@ -79,25 +107,20 @@ const Box: React.FC = () => {
 		}
 		const springConfig = {
 			damping: 10,
-			mass: 0.8,
-			stiffness: 1000,
+			mass: 0.1,
+			stiffness: 10,
 			restSpeedThreshold: 0.00001,
 			restDisplacementThreshold: 0.0001,
 			fps: videoConfig.fps,
 			frame,
-			velocity: 1,
+			velocity: 2,
 		};
 		groupRef.current.rotation.x = spring({
 			...springConfig,
-			from: -Math.PI / 2,
+			from: -Math.PI / 5,
 			to: 0,
 		});
-		groupRef.current.rotation.y = spring({
-			...springConfig,
-			velocity: 0,
-			from: 0,
-			to: 0.1,
-		});
+
 		const scale = spring({
 			...springConfig,
 			velocity: 0,
@@ -105,15 +128,25 @@ const Box: React.FC = () => {
 			to: 0.1,
 		});
 		groupRef.current.scale.x = scale;
-		console.log({scale});
 		groupRef.current.scale.y = scale;
 	}, [frame, videoConfig.fps]);
 
 	return (
 		<group scale={[0.1, 0.1, 0.1]} position={[0, 0, 0]} ref={groupRef}>
 			<mesh ref={mesh}>
-				<textGeometry attach="geometry" args={['REACT', config]} />
-				<meshNormalMaterial attach="material" />
+				<ambientLight intensity={2} />
+				<pointLight
+					position={[videoConfig.height / 2, videoConfig.height / 2, 0]}
+				/>
+
+				<textGeometry attach="geometry" args={['REACTYEAH', config]} />
+				<meshToonMaterial
+					attach="material"
+					color={diffuseColor}
+					//emissive={new Color(0xffffff)}
+					gradientMap={gradientMap}
+					flatShading
+				/>
 			</mesh>
 		</group>
 	);
@@ -130,8 +163,6 @@ export const Hey: React.FC = () => {
 			}}
 		>
 			<Canvas camera={{position: [0, 0, 30], fov: 100}}>
-				<ambientLight intensity={2} />
-				<pointLight position={[40, 40, 40]} />
 				<Suspense fallback={null}>
 					<Box />
 				</Suspense>
