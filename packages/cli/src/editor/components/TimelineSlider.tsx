@@ -1,8 +1,13 @@
-import {useTimelinePosition, useVideoConfig} from '@remotion/core';
+import {
+	usePlayingState,
+	useTimelinePosition,
+	useVideoConfig,
+} from '@remotion/core';
 import React, {ChangeEvent, useCallback} from 'react';
 
 export const TimelineSlider: React.FC = () => {
 	const [timelinePosition, setTimelinePosition] = useTimelinePosition();
+	const [playing, setPlaying] = usePlayingState();
 	const videoConfig = useVideoConfig();
 
 	const onChange = useCallback(
@@ -12,11 +17,18 @@ export const TimelineSlider: React.FC = () => {
 		[setTimelinePosition]
 	);
 
+	const onDragStart = useCallback(() => {
+		if (playing) {
+			setPlaying(false);
+		}
+	}, [setPlaying, playing]);
+
 	return (
 		<input
 			type="range"
 			value={timelinePosition}
 			step={1}
+			onDragStart={onDragStart}
 			max={videoConfig.durationInFrames - 1}
 			min={0}
 			onChange={onChange}
