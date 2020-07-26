@@ -76,6 +76,10 @@ export const webpackConfig = ({
 	module: {
 		rules: [
 			{
+				test: /\.(.png|svg|jpg|gif|webm|mp4)$/,
+				use: ['file-loader'],
+			},
+			{
 				test: /\.tsx?$/,
 				use: [
 					{

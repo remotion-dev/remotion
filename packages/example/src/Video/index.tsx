@@ -1,8 +1,7 @@
-import {deferRender, registerVideo} from '@remotion/core';
+import {registerVideo} from '@remotion/core';
 import React from 'react';
 import {Video} from './Video';
-
-deferRender();
+import video from './video.webm';
 
 export const Comp: React.FC = () => {
 	return (
@@ -15,7 +14,7 @@ export const Comp: React.FC = () => {
 				alignItems: 'center',
 			}}
 		>
-			<Video style={{height: 800}} src="video.webm" />
+			<Video style={{height: 800}} src={video} />
 		</div>
 	);
 };
