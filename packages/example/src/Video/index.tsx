@@ -5,27 +5,34 @@ import {
 	useCurrentFrame,
 	useVideoConfig,
 } from '@remotion/core';
-import React, {useCallback, useEffect, useRef, useState} from 'react';
+import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 
 deferRender();
 
 export const Comp: React.FC = () => {
 	const [metadataLoaded, setMetadataLoaded] = useState(false);
 	const [currentFrameSet, setCurrentFrameSet] = useState(false);
+	const [bufferedRanges, setBufferedRanges] = useState<null | TimeRanges>(null);
+	const [timeChanges, setTimeChanged] = useState(false);
 	const [readyState, setReadyState] = useState(-1);
 	const currentFrame = useCurrentFrame();
 	const videoConfig = useVideoConfig();
 	const videoRef = useRef<HTMLVideoElement>(null);
 
+	const frameInSeconds = useMemo(() => currentFrame / videoConfig.fps, [
+		currentFrame,
+		videoConfig.fps,
+	]);
+
 	const setFrame = useCallback(() => {
 		if (!videoRef.current) {
 			return;
 		}
-		videoRef.current.currentTime = currentFrame / videoConfig.fps;
+		videoRef.current.currentTime = frameInSeconds;
 		setInterval(() => {
 			setCurrentFrameSet(true);
 		}, 0);
-	}, [currentFrame, videoConfig.fps]);
+	}, [frameInSeconds]);
 
 	const onMetadataLoad = useCallback(() => {
 		setMetadataLoaded(true);
@@ -38,10 +45,23 @@ export const Comp: React.FC = () => {
 	}, [metadataLoaded, currentFrameSet, setFrame]);
 
 	useEffect(() => {
-		if (currentFrameSet && readyState === 4) {
+		const isBuffered =
+			bufferedRanges &&
+			new Array(bufferedRanges.length).fill(true).some((_, i) => {
+				const start = bufferedRanges.start(i);
+				const end = bufferedRanges.end(i);
+				return start <= frameInSeconds && end >= frameInSeconds;
+			});
+		if (currentFrameSet && readyState === 4 && isBuffered && timeChanges) {
 			readyToRender();
 		}
-	}, [currentFrameSet, readyState]);
+	}, [
+		bufferedRanges,
+		currentFrameSet,
+		frameInSeconds,
+		readyState,
+		timeChanges,
+	]);
 
 	useEffect(() => {
 		if (!videoRef.current) {
@@ -64,7 +84,20 @@ export const Comp: React.FC = () => {
 			throw Error('No vide ref');
 		}
 		setReadyState(videoRef.current.readyState);
+		setBufferedRanges(videoRef.current.buffered);
+	}, [videoRef]);
+
+	const onTimeChanged = useCallback(() => {
+		setTimeChanged(true);
 	}, []);
+
+	useEffect(() => {
+		const {current} = videoRef;
+		current?.addEventListener('timeupdate', onTimeChanged);
+		return (): void => {
+			current?.removeEventListener('timeupdate', onTimeChanged);
+		};
+	}, [onTimeChanged]);
 
 	useEffect(() => {
 		if (!videoRef.current) {
@@ -92,5 +125,5 @@ registerVideo(Comp, {
 	fps: 60,
 	height: 1080,
 	width: 1080,
-	durationInFrames: 10,
+	durationInFrames: 300,
 });
