@@ -30,5 +30,6 @@ export const bundle = async (userDefinedComponent: string): Promise<string> => {
 		throw new Error(errors[0]);
 	}
 	await execa('cp', [path.join(__dirname, '..', 'web', 'index.html'), tmpDir]);
+	await execa('cp', [path.join(__dirname, '..', 'web', 'video.webm'), tmpDir]);
 	return tmpDir;
 };
