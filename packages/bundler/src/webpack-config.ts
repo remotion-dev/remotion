@@ -55,7 +55,6 @@ export const webpackConfig = ({
 	output: {
 		globalObject: 'this',
 		filename: 'bundle.js',
-		publicPath: '/',
 		path: outDir,
 	},
 	devServer: {

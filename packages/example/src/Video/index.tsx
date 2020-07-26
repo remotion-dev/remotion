@@ -6,10 +6,11 @@ import {
 	Video,
 } from '@remotion/core';
 import React from 'react';
-import iphone from './iphone.png';
-import video from './video.webm';
 
 export const Comp: React.FC = () => {
+	// TODO: Tell user to import inside component
+	const iphone = require('./iphone.png').default;
+	const video = require('./stickerifyanything.webm').default;
 	const frame = useCurrentFrame();
 	const videoConfig = useVideoConfig();
 	const scale = spring({
@@ -20,10 +21,11 @@ export const Comp: React.FC = () => {
 		restDisplacementThreshold: 0.0001,
 		fps: videoConfig.fps,
 		frame,
-		velocity: 2,
+		velocity: 0,
 		from: 0.3,
 		to: 1,
 	});
+
 	return (
 		<div
 			style={{
@@ -56,8 +58,8 @@ export const Comp: React.FC = () => {
 };
 
 registerVideo(Comp, {
-	fps: 60,
+	fps: 30,
 	height: 1080,
 	width: 1080,
-	durationInFrames: 300,
+	durationInFrames: 17 * 30,
 });
