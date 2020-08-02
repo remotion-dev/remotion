@@ -27,7 +27,7 @@ export const bundle = async (userDefinedComponent: string): Promise<string> => {
 	}
 	const {errors} = output.toJson();
 	if (errors.length > 0) {
-		throw new Error(errors[0]);
+		throw new Error(errors[0].message + '\n' + errors[0].details);
 	}
 	await execa('cp', [path.join(__dirname, '..', 'web', 'index.html'), tmpDir]);
 	return tmpDir;
