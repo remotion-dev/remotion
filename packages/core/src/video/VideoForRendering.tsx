@@ -7,9 +7,6 @@ import {AllowedVideoProps} from './props';
 export const VideoForRendering: React.FC<AllowedVideoProps> = (props) => {
 	const [metadataLoaded, setMetadataLoaded] = useState(false);
 	const [currentFrameSet, setCurrentFrameSet] = useState(false);
-	const [bufferedRanges, setBufferedRanges] = useState<null | TimeRanges>(null);
-	const [timeChanges, setTimeChanged] = useState(false);
-	const [readyState, setReadyState] = useState(-1);
 	const currentFrame = useCurrentFrame();
 	const videoConfig = useVideoConfig();
 	const videoRef = useRef<HTMLVideoElement>(null);
@@ -24,6 +21,13 @@ export const VideoForRendering: React.FC<AllowedVideoProps> = (props) => {
 			return;
 		}
 		videoRef.current.currentTime = frameInSeconds;
+		videoRef.current.addEventListener(
+			'seeked',
+			() => {
+				readyToRender();
+			},
+			{once: true}
+		);
 		setInterval(() => {
 			setCurrentFrameSet(true);
 		}, 0);
@@ -40,25 +44,6 @@ export const VideoForRendering: React.FC<AllowedVideoProps> = (props) => {
 	}, [metadataLoaded, currentFrameSet, setFrame]);
 
 	useEffect(() => {
-		const isBuffered =
-			bufferedRanges &&
-			new Array(bufferedRanges.length).fill(true).some((_, i) => {
-				const start = bufferedRanges.start(i);
-				const end = bufferedRanges.end(i);
-				return start <= frameInSeconds && end >= frameInSeconds;
-			});
-		if (currentFrameSet && readyState === 4 && isBuffered && timeChanges) {
-			readyToRender();
-		}
-	}, [
-		bufferedRanges,
-		currentFrameSet,
-		frameInSeconds,
-		readyState,
-		timeChanges,
-	]);
-
-	useEffect(() => {
 		if (!videoRef.current) {
 			return;
 		}
@@ -70,7 +55,7 @@ export const VideoForRendering: React.FC<AllowedVideoProps> = (props) => {
 		current.addEventListener('loadedmetadata', onMetadataLoad);
 
 		return (): void => {
-			current?.removeEventListener('loadedmetadata', onMetadataLoad);
+			current.removeEventListener('loadedmetadata', onMetadataLoad);
 		};
 	}, [currentFrame, metadataLoaded, onMetadataLoad, setFrame, videoConfig.fps]);
 
@@ -78,21 +63,10 @@ export const VideoForRendering: React.FC<AllowedVideoProps> = (props) => {
 		if (!videoRef.current) {
 			throw Error('No vide ref');
 		}
-		setReadyState(videoRef.current.readyState);
-		setBufferedRanges(videoRef.current.buffered);
-	}, [videoRef]);
-
-	const onTimeChanged = useCallback(() => {
-		setTimeChanged(true);
-	}, []);
-
-	useEffect(() => {
-		const {current} = videoRef;
-		current?.addEventListener('timeupdate', onTimeChanged);
-		return (): void => {
-			current?.removeEventListener('timeupdate', onTimeChanged);
-		};
-	}, [onTimeChanged]);
+		if (videoRef.current.readyState === 4) {
+			setFrame();
+		}
+	}, [setFrame]);
 
 	useEffect(() => {
 		if (!videoRef.current) {
