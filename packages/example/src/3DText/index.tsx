@@ -29,7 +29,8 @@ import {bold} from './bold';
 
 deferRender();
 
-const diffuseColor = new Color().setRGB(0.4, 0.4, 0.4);
+const diffuseColor = new Color().setRGB(0.2, 0.2, 0.2);
+const diffuseColor2 = new Color().setRGB(0.2, 0, 0.2);
 
 const font = new Font(bold);
 const Box: React.FC = () => {
@@ -70,6 +71,14 @@ const Box: React.FC = () => {
 		}),
 		[]
 	);
+	const config2 = useMemo(
+		() => ({
+			font,
+			size: 80,
+			height: 15,
+		}),
+		[]
+	);
 
 	const onResize = useCallback(() => {
 		setSizeChange(Date.now());
@@ -87,6 +96,20 @@ const Box: React.FC = () => {
 	}, []);
 
 	const mesh = useUpdate<Mesh>(
+		(self) => {
+			const size = new Vector3();
+			self.geometry.computeBoundingBox();
+			if (!self.geometry.boundingBox) {
+				return null;
+			}
+			self.geometry.boundingBox.getSize(size);
+			self.position.x = -size.x / 2;
+			self.position.y = -size.y / 2;
+			self.position.z = -size.z / 2;
+		},
+		[size]
+	);
+	const mesh2 = useUpdate<Mesh>(
 		(self) => {
 			const size = new Vector3();
 			self.geometry.computeBoundingBox();
@@ -145,6 +168,19 @@ const Box: React.FC = () => {
 					color={diffuseColor}
 					//emissive={new Color(0xffffff)}
 					gradientMap={gradientMap}
+					flatShading
+				/>
+			</mesh>
+			<mesh ref={mesh2}>
+				<ambientLight intensity={2} />
+				<pointLight
+					position={[videoConfig.height / 2, videoConfig.height / 2, 0]}
+				/>
+
+				<textGeometry attach="geometry" args={['REACTYEAH', config2]} />
+				<meshToonMaterial
+					attach="material"
+					//emissive={new Color(0xffffff)}
 					flatShading
 				/>
 			</mesh>

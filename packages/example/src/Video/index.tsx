@@ -9,8 +9,9 @@ import React from 'react';
 
 export const Comp: React.FC = () => {
 	// TODO: Tell user to import inside component
-	const iphone = require('./iphone.png').default;
-	const video = require('./stickerifyanything.webm').default;
+	//const iphone = require('./iphone.png').default;
+	const iphone = require('./huawei.png').default;
+	const video = require('./record-20200910-191938.webm').default;
 	const frame = useCurrentFrame();
 	const videoConfig = useVideoConfig();
 	const scale = spring({
@@ -43,15 +44,39 @@ export const Comp: React.FC = () => {
 					transform: `scale(${scale}, ${scale})`,
 				}}
 			>
+				<div
+					style={{
+						height: 1000,
+						width: 100,
+						backgroundColor: 'white',
+						position: 'absolute',
+						marginLeft: -520,
+					}}
+				></div>
+				<div
+					style={{
+						height: 1000,
+						width: 100,
+						backgroundColor: 'white',
+						position: 'absolute',
+						marginLeft: 520,
+					}}
+				></div>
 				<img
 					src={iphone}
 					style={{
 						position: 'absolute',
-						width: 1405 / 2.71,
-						height: 2796 / 2.71,
+						//width: 1405 / 1.5,
+						//height: 2796 / 1.5,
+						width: 637 * 0.7,
+						height: 1379 * 0.7,
 					}}
 				/>
-				<Video style={{height: 900}} src={video} />
+				<Video
+					//style={{height: 1620}}
+					style={{height: 920, marginTop: -10, borderRadius: 20}}
+					src={video}
+				/>
 			</div>
 		</div>
 	);
@@ -61,5 +86,5 @@ registerVideo(Comp, {
 	fps: 30,
 	height: 1080,
 	width: 1080,
-	durationInFrames: 17 * 30,
+	durationInFrames: 30 * 30,
 });
