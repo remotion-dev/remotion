@@ -5,6 +5,7 @@ import {
 	useCurrentFrame,
 	useVideoConfig,
 } from '@remotion/core';
+import {mix} from 'polished';
 import React from 'react';
 import {Orchestra} from './Orchestra';
 
@@ -33,6 +34,13 @@ export const Layout: React.FC = () => {
 		outputRange: [800, 500],
 		inputRange: [0, 1],
 	});
+	const color = interpolate({
+		input: progress,
+		outputRange: [0, 1],
+		inputRange: [0.2, 1],
+		extrapolateLeft: 'clamp',
+	});
+	const backgroundColor = mix(color, '#fff', '#000');
 	return (
 		<div
 			style={{
@@ -40,12 +48,12 @@ export const Layout: React.FC = () => {
 				flex: 1,
 				justifyContent: 'center',
 				alignItems: 'center',
-				backgroundColor: '#fff',
+				backgroundColor: backgroundColor,
 			}}
 		>
 			<Orchestra
 				phoneScale={1.7}
-				layers={4}
+				layers={5}
 				xOffset={xOffset}
 				yOffset={yOffset}
 			/>

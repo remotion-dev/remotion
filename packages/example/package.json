@@ -27,6 +27,7 @@
 		"styled-components": "^5.1.1",
 		"svg-path-properties": "^1.0.4",
 		"three": "^0.118.3",
+		"polished": "^3.6.7",
 		"typescript": "^3.9.5"
 	},
 	"devDependencies": {
