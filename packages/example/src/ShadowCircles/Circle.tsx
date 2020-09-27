@@ -49,8 +49,8 @@ export const Circle: React.FC<{
 		outputRange: [0.5, 1.05],
 	});
 	const radius = videoConfig.width / 2;
-	const left = videoConfig.height / 2 - size / 2;
-	const top = videoConfig.width / 2 - size / 2;
+	const left = videoConfig.width / 2 - size / 2;
+	const top = videoConfig.height / 2 - size / 2;
 	const x = radius * Math.cos(angle) + radius;
 	const y = -radius * Math.sin(angle) + radius;
 	const amountToMove = (videoConfig.width - size) * (1 - progress);
