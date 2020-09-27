@@ -3,9 +3,9 @@ import React from 'react';
 import {Circle} from './Circle';
 
 export const ShadowCircles = () => {
-	const size = 200;
 	return (
 		<div style={{flex: 1, backgroundColor: 'white'}}>
+			<Circle size={2400} />
 			<Circle size={2000} />
 			<Circle size={1800} />
 			<Circle size={1600} />
