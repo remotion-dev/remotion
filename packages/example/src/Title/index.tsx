@@ -1,40 +1,44 @@
 import {
 	registerVideo,
-	spring,
+	spring2,
+	SpringConfig,
 	useCurrentFrame,
 	useVideoConfig,
 } from '@remotion/core';
 import React from 'react';
 
 export const Title = () => {
-	const videoConfig = useVideoConfig();
+	const {fps} = useVideoConfig();
 	const frame = useCurrentFrame();
-	const springConfig = {
+	const springConfig: SpringConfig = {
 		damping: 10,
 		mass: 0.1,
 		stiffness: 100,
 		restSpeedThreshold: 0.00001,
 		restDisplacementThreshold: 0.0001,
-		fps: videoConfig.fps,
-		frame,
+		overshootClamping: false,
 	};
 
-	const firstWord = spring({
-		...springConfig,
+	const firstWord = spring2({
+		config: springConfig,
 		from: 0,
 		to: 1,
+		fps,
+		frame,
 	});
-	const secondWord = spring({
-		...springConfig,
+	const secondWord = spring2({
+		config: springConfig,
 		frame: Math.max(0, frame - 5),
 		from: 0,
 		to: 1,
+		fps,
 	});
-	const thirdWord = spring({
-		...springConfig,
+	const thirdWord = spring2({
+		config: springConfig,
 		frame: Math.max(0, frame - 12),
 		from: 0,
 		to: 1,
+		fps,
 	});
 	return (
 		<div

@@ -1,7 +1,7 @@
 import {
 	interpolate,
 	registerVideo,
-	spring,
+	spring2,
 	useCurrentFrame,
 	useVideoConfig,
 } from '@remotion/core';
@@ -12,15 +12,17 @@ import {Orchestra} from './Orchestra';
 export const Layout: React.FC = () => {
 	const videoConfig = useVideoConfig();
 	const frame = useCurrentFrame();
-	const progress = spring({
-		damping: 10,
-		mass: 0.5,
-		stiffness: 10,
-		restSpeedThreshold: 0.00001,
-		restDisplacementThreshold: 0.0001,
+	const progress = spring2({
+		config: {
+			damping: 10,
+			mass: 1,
+			stiffness: 100,
+			restSpeedThreshold: 0.00001,
+			restDisplacementThreshold: 0.0001,
+			overshootClamping: false,
+		},
 		fps: videoConfig.fps,
 		frame,
-		velocity: 2,
 		from: 0,
 		to: 1,
 	});
@@ -48,7 +50,7 @@ export const Layout: React.FC = () => {
 				flex: 1,
 				justifyContent: 'center',
 				alignItems: 'center',
-				backgroundColor: backgroundColor,
+				backgroundColor,
 			}}
 		>
 			<Orchestra

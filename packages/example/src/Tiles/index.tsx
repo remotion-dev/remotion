@@ -1,6 +1,7 @@
 import {
 	registerVideo,
-	spring,
+	spring2,
+	SpringConfig,
 	useCurrentFrame,
 	useVideoConfig,
 } from '@remotion/core';
@@ -11,34 +12,32 @@ export const Tiles = () => {
 	const videoConfig = useVideoConfig();
 	const frame = useCurrentFrame();
 
-	const springConfig = {
-		damping: 10,
+	const springConfig: SpringConfig = {
+		damping: 50,
 		mass: 0.1,
 		stiffness: 10,
 		restSpeedThreshold: 0.00001,
 		restDisplacementThreshold: 0.0001,
-		fps: videoConfig.fps,
-		frame,
-		velocity: 2,
+		overshootClamping: false,
 	};
 
-	const scale = spring({
-		...springConfig,
-		velocity: 0,
-		damping: 50,
+	const scale = spring2({
+		config: springConfig,
 		from: 1,
 		to: 2.5,
+		fps: videoConfig.fps,
+		frame,
 	});
-	const outerScale = spring({
-		...springConfig,
-		velocity: 0,
+	const outerScale = spring2({
+		config: springConfig,
 		from: 1,
 		frame: Math.max(0, frame - 20),
 		to: 3,
+		fps: videoConfig.fps,
 	});
-	const rotate = spring({
-		...springConfig,
-		velocity: 0,
+	const rotate = spring2({
+		config: springConfig,
+		fps: videoConfig.fps,
 		frame: Math.max(0, frame - 20),
 		from: -100,
 		to: 0,
