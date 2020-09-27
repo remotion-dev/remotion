@@ -1,6 +1,8 @@
 import {
 	registerVideo,
 	spring,
+	spring2,
+	SpringConfig,
 	useCurrentFrame,
 	useVideoConfig,
 } from '@remotion/core';
@@ -30,20 +32,36 @@ export const Comp: React.FC = () => {
 	const frame = useCurrentFrame();
 	const videoConfig = useVideoConfig();
 
-	const springConfig = {
-		damping: 50,
-		mass: 1,
-		stiffness: 300,
+	const springConfig: SpringConfig = {
+		damping: 8,
+		mass: 0.2,
+		stiffness: 100,
 		restSpeedThreshold: 0.00001,
 		restDisplacementThreshold: 0.0001,
-		fps: videoConfig.fps,
-		frame,
-		velocity: 0,
+		overshootClamping: false,
 	};
 
-	const scale = spring({...springConfig, from: 10, to: 1});
-	const logoScale = spring({...springConfig, from: 0, to: 1});
-	const squirclefactor = spring({...springConfig, from: 0.2, to: 1.05});
+	const scale = spring2({
+		config: springConfig,
+		from: 10,
+		to: 1,
+		fps: videoConfig.fps,
+		frame,
+	});
+	const logoScale = spring({
+		...springConfig,
+		from: 0,
+		to: 1,
+		frame,
+		fps: videoConfig.fps,
+	});
+	const squirclefactor = spring2({
+		config: springConfig,
+		from: 0.2,
+		to: 1.05,
+		frame,
+		fps: videoConfig.fps,
+	});
 
 	return (
 		<div

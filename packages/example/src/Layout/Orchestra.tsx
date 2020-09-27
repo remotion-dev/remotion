@@ -1,4 +1,4 @@
-import {spring, useCurrentFrame, useVideoConfig} from '@remotion/core';
+import {spring2, useCurrentFrame, useVideoConfig} from '@remotion/core';
 import React from 'react';
 import {Phone, PhoneHeight, PhoneWidth} from './Phone';
 
@@ -12,12 +12,15 @@ export const Orchestra: React.FC<{
 	const rows = layers * 2 + 1;
 	const columns = 4;
 	const frame = useCurrentFrame();
-	const progress = spring({
-		damping: 10,
-		mass: 0.1,
-		stiffness: 10,
-		restSpeedThreshold: 0.00001,
-		restDisplacementThreshold: 0.0001,
+	const progress = spring2({
+		config: {
+			damping: 100,
+			mass: 0.1,
+			stiffness: 10,
+			restSpeedThreshold: 0.00001,
+			restDisplacementThreshold: 0.0001,
+			overshootClamping: false,
+		},
 		fps: config.fps,
 		frame,
 		from: 2.2,
