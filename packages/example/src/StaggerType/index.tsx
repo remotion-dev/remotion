@@ -30,7 +30,7 @@ const Label = styled.div`
 	margin-left: 30px;
 `;
 export const StaggerType = () => {
-	const types = 8;
+	const types = 9;
 	const frame = useCurrentFrame();
 	const videoConfig = useVideoConfig();
 	const springConfig: SpringConfig = {
@@ -72,7 +72,7 @@ export const StaggerType = () => {
 					.map((i) => {
 						const ratio = i / types;
 						const opacity = frame / videoConfig.durationInFrames > ratio;
-						const color = mix(ratio, '#fff', '#445BE4');
+						const color = mix(ratio, '#fff', '#000');
 						return (
 							<Label
 								style={{
@@ -94,7 +94,7 @@ export const StaggerType = () => {
 
 registerVideo(StaggerType, {
 	width: 1080,
-	height: 1080,
+	height: 1920,
 	fps: 30,
-	durationInFrames: 30,
+	durationInFrames: 30 * 1.5,
 });
