@@ -21,7 +21,7 @@ export const ShadowCircles = () => {
 };
 
 registerVideo(ShadowCircles, {
-	height: 1080,
+	height: 1920,
 	width: 1080,
 	fps: 30,
 	durationInFrames: 2 * 30,
