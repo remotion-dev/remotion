@@ -1,5 +1,4 @@
 import {
-	interpolate,
 	registerVideo,
 	spring2,
 	SpringConfig,
@@ -16,21 +15,16 @@ const Container = styled.div`
 `;
 
 const Label = styled.div`
-	font-size: 130px;
+	font-size: 260px;
 	color: black;
-	font-weight: 900;
-	font-family: 'Helvetica Neue';
+	font-weight: 700;
+	font-family: -apple-system, BlinkMacSystemFont, sans-serif;
 	text-align: center;
 	transform: scaleX(1);
-	letter-spacing: 0.15em;
-	-webkit-text-fill-color: white; /* Will override color (regardless of order) */
-	-webkit-text-stroke-width: 6px;
-	-webkit-text-stroke-color: black;
 	line-height: 1em;
-	margin-left: 30px;
 `;
 export const StaggerType = () => {
-	const types = 9;
+	const types = 4;
 	const frame = useCurrentFrame();
 	const videoConfig = useVideoConfig();
 	const springConfig: SpringConfig = {
@@ -48,12 +42,7 @@ export const StaggerType = () => {
 		to: 1,
 		fps: videoConfig.fps,
 	});
-	const letterSpacing =
-		interpolate({
-			input: progress,
-			inputRange: [0, 1],
-			outputRange: [0.5, 0.15],
-		}) + 'em';
+	const letterSpacing = '0.3em';
 	return (
 		<Container
 			style={{
@@ -71,19 +60,32 @@ export const StaggerType = () => {
 					})
 					.map((i) => {
 						const ratio = i / types;
-						const opacity = frame / videoConfig.durationInFrames > ratio;
+						const isSecondHalf = frame > videoConfig.durationInFrames / 2;
+						const opacity = frame / (videoConfig.durationInFrames / 2) > ratio;
+						const stroking = (() => {
+							if (!isSecondHalf) {
+								return i % 2 === 0;
+							}
+							return Math.ceil(frame / 10) % 2 === i % 2;
+						})();
 						const color = mix(ratio, '#fff', '#000');
 						return (
 							<Label
 								style={{
-									WebkitTextStrokeColor: color,
+									...(stroking
+										? {}
+										: {
+												WebkitTextStrokeColor: color,
+												WebkitTextStrokeWidth: 8,
+												WebkitTextFillColor: 'white',
+										  }),
 									opacity: Number(opacity),
-									letterSpacing,
 									width: 2000,
-									marginLeft: -(2000 - videoConfig.width) / 2 + 15,
+									marginLeft: -(2000 - videoConfig.width) / 2,
+									marginTop: -20,
 								}}
 							>
-								{'ANYSTICKER'}
+								{'beta'}
 							</Label>
 						);
 					})}
@@ -94,7 +96,7 @@ export const StaggerType = () => {
 
 registerVideo(StaggerType, {
 	width: 1080,
-	height: 1920,
+	height: 1080,
 	fps: 30,
 	durationInFrames: 30 * 1.5,
 });

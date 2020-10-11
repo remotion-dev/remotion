@@ -1,4 +1,5 @@
 import {startServer} from '@remotion/bundler';
+// @ts-expect-error
 import betterOpn from 'better-opn';
 import fs from 'fs';
 import path from 'path';
