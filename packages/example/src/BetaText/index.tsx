@@ -1,6 +1,6 @@
 import {
 	registerVideo,
-	spring,
+	spring2,
 	useCurrentFrame,
 	useVideoConfig,
 } from '@remotion/core';
@@ -30,17 +30,19 @@ const Row: React.FC<{
 }> = ({videoWidth, i}) => {
 	const frame = useCurrentFrame();
 	const videoConfig = useVideoConfig();
-	const posX = spring({
+	const posX = spring2({
+		config: {
+			damping: 20,
+			mass: 4,
+			stiffness: 80,
+			restSpeedThreshold: 0.00001,
+			restDisplacementThreshold: 0.0001,
+			overshootClamping: false,
+		},
 		fps: videoConfig.fps,
-		mass: 4,
-		stiffness: 200,
-		damping: 200,
-		velocity: 2,
-		restSpeedThreshold: 0.00001,
-		restDisplacementThreshold: 0.0001,
 		from: 1,
 		to: 0,
-		frame: Math.max(0, frame - i * 2),
+		frame: frame,
 	});
 	const dir = i % 2 === 0 ? -1 : 1;
 	const color = mix(
