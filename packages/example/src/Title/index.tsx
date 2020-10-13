@@ -64,23 +64,13 @@ export const Title = () => {
 						marginRight: 25,
 					}}
 				>
-					More
+					You're
 				</span>
 				<span
 					style={{transform: `scale(${secondWord})`, display: 'inline-block'}}
 				>
 					{' '}
-					sticker{' '}
-				</span>
-				<span
-					style={{
-						transform: `scale(${thirdWord})`,
-
-						display: 'inline-block',
-						marginLeft: 25,
-					}}
-				>
-					types
+					invited
 				</span>
 			</div>
 		</div>
