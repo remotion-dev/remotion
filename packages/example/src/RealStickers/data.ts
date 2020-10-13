@@ -16,7 +16,7 @@ export const output = [
 		source: 'c3e94201-2f93-4851-9973-1d1b7aa86528_Simboloelementobanana.png',
 		emojis: [],
 		stats: {
-			views: 2,
+			views: 3,
 			instagramStories: 0,
 		},
 	},
@@ -27,17 +27,6 @@ export const output = [
 		emojis: [],
 		stats: {
 			views: 1,
-			instagramStories: 0,
-		},
-	},
-	{
-		name: 'Sticker Two',
-		id: 'sticker-2',
-		description: 'Sticker 2',
-		source: 'ff51928c-b61c-4b52-934b-5ba4894f068c_1.jpg',
-		emojis: [],
-		stats: {
-			views: 2,
 			instagramStories: 0,
 		},
 	},
@@ -236,6 +225,207 @@ export const output = [
 		emojis: ['🚂', '🛤️'],
 		stats: {
 			views: 123,
+			instagramStories: 0,
+		},
+	},
+	{
+		name: 'Нет',
+		id: 'sticker-5',
+		description: 'Ну сказал же, нет!',
+		source: '78070519-cd65-4084-8ea9-b09369b1dc93_net.png',
+		stats: {
+			views: 7,
+			instagramStories: 0,
+		},
+	},
+	{
+		name: 'Sticker One',
+		id: 'sticker-1',
+		description: 'Sticker 1',
+		source: '41c27d59-c175-4506-811b-44f0072b4965_2e.png',
+		emojis: [],
+		stats: {
+			views: 15,
+			instagramStories: 0,
+		},
+	},
+	{
+		name: 'Sticker Sixteen',
+		id: 'sticker-16',
+		description: 'Sticker 16',
+		source: '22f11d0e-1740-4375-bc90-7042a9356cfa_ghost_squint_smile.png',
+		emojis: [],
+		stats: {
+			views: 2,
+			instagramStories: 0,
+		},
+	},
+	{
+		name: 'Sticker Twenty Nine',
+		id: 'sticker-29',
+		description: 'Sticker 29',
+		source:
+			'dfabf6b3-672b-42e7-964c-cf1af76c6450_11659168-3CF9-48E0-A925-EF566ED2DB3A.gif',
+		emojis: [],
+		stats: {
+			views: 7,
+			instagramStories: 0,
+		},
+	},
+	{
+		name: 'Sticker Thirty',
+		id: 'sticker-30',
+		description: 'Sticker 30',
+		source:
+			'389a80e7-43cb-4e5a-9252-8d90c807e559_0806B09F-1B25-491A-884B-376A03C795B0.gif',
+		emojis: [],
+		stats: {
+			views: 37,
+			instagramStories: 0,
+		},
+	},
+	{
+		name: 'Sticker Eight',
+		id: 'sticker-8',
+		description: 'Sticker 8',
+		source: '65a0eb7e-8fbe-4143-9a8b-a98ee4d4f2c0_01.png',
+		emojis: [],
+		stats: {
+			views: 14,
+			instagramStories: 0,
+		},
+	},
+	{
+		name: 'Sticker Four',
+		id: 'sticker-4',
+		description: 'Sticker 4',
+		source: '9c5bc393-80c8-4dd1-91e8-c3d649e19a11_Yookidoo-007.gif',
+		emojis: [],
+		stats: {
+			views: 9,
+			instagramStories: 0,
+		},
+	},
+	{
+		name: 'Sticker Two',
+		id: 'sticker-2',
+		description: 'Sticker 2',
+		source: '05f2d8d8-caa5-419e-8e93-a757aac77def_sanitiseremoji.png',
+		emojis: [],
+		stats: {
+			views: 15,
+			instagramStories: 0,
+		},
+	},
+	{
+		name: "Phil's Bio Eistee Logo",
+		id: 'logo',
+		description: 'Logo von Phils Bio Eistee',
+		source:
+			'bb59c5bc-990d-4057-8b41-1880d6a25d02_de499af0-500e-4a7c-9b7c-8a4195fe47cc.png',
+		emojis: [],
+		stats: {
+			views: 25,
+			instagramStories: 0,
+		},
+	},
+	{
+		name: 'Gemini',
+		id: 'sticker-3',
+		description: 'Sticker 3',
+		source:
+			'5aef8ccb-bab7-4cc5-a716-00a13dadec35_5C5DC704-DD97-45E3-AB99-02339FC5811C.png',
+		emojis: [],
+		stats: {
+			views: 21,
+			instagramStories: 0,
+		},
+	},
+	{
+		name: 'Sticker Three',
+		id: 'sticker-3',
+		description: 'Sticker 3',
+		source:
+			'7b1f83cf-dbab-4264-97e3-d8dffc2f1363_4EF6BE11-C869-45E6-BEF5-5B0674557A2E.png',
+		emojis: [],
+		stats: {
+			views: 18,
+			instagramStories: 0,
+		},
+	},
+	{
+		name: 'Sticker Eight',
+		id: 'sticker-8',
+		description: 'Sticker 8',
+		source: '31c62c94-3752-4fc7-a89b-7ca672953bd6_hb_cartoon_08.png',
+		emojis: [],
+		stats: {
+			views: 2,
+			instagramStories: 0,
+		},
+	},
+	{
+		name: 'Sticker One',
+		id: 'sticker-1',
+		description: 'Sticker 1',
+		source: 'dd0bdad9-f9e9-4ef3-94c2-7b54e6b90707_NewProject-4.png',
+		emojis: [],
+		stats: {
+			views: 4,
+			instagramStories: 0,
+		},
+	},
+	{
+		name: 'Sticker Two',
+		id: 'sticker-2',
+		description: 'Sticker 2',
+		source:
+			'83ccc3d5-15db-41cb-abf7-3d8beb5fa4be_86D4CE0D-7A1D-4A04-8144-E548C4B972BA.png',
+		emojis: [],
+		stats: {
+			views: 2,
+			instagramStories: 0,
+		},
+	},
+	{
+		name: 'Sticker Twelve',
+		id: 'sticker-12',
+		source: 'a3ab9ba4-0a6f-41a1-87b3-86105bce23f7_ezgif.com-webp-to-png12.png',
+		emojis: [],
+		stats: {
+			views: 33,
+			instagramStories: 0,
+		},
+	},
+	{
+		name: 'Sticker Three',
+		id: 'sticker-3',
+		source: '9149a86d-2275-47ed-be1e-2ec2ec8c03f1_Tavoladisegno784x.png',
+		emojis: [],
+		stats: {
+			views: 8,
+			instagramStories: 0,
+		},
+	},
+	{
+		name: 'Sticker One',
+		id: 'sticker-1',
+		description: 'Sticker 1',
+		source: '04c5db2d-c882-4e27-b5d3-0c41dd526566_TAGFACE.blue.jpg',
+		emojis: [],
+		stats: {
+			views: 6,
+			instagramStories: 0,
+		},
+	},
+	{
+		name: 'Sticker Three',
+		id: 'sticker-3',
+		description: 'Sticker 3',
+		source: '60e190e7-be8c-4a81-8080-467c454cc74d_Vihi_Sticker.png',
+		emojis: [],
+		stats: {
+			views: 3,
 			instagramStories: 0,
 		},
 	},
