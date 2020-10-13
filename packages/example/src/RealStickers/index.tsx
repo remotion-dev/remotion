@@ -1,7 +1,7 @@
 import {
 	interpolate,
 	registerVideo,
-	spring,
+	spring2,
 	SpringConfig,
 	useCurrentFrame,
 	useVideoConfig,
@@ -26,32 +26,35 @@ export const RealStickers = () => {
 		stiffness: 10,
 		restSpeedThreshold: 0.00001,
 		restDisplacementThreshold: 0.0001,
-		fps: videoConfig.fps,
 		overshootClamping: false,
-		frame,
-		velocity: 2,
 	};
 
-	const baseSpring = spring({
-		...springConfig,
-		velocity: 0,
+	const baseSpring = spring2({
+		config: springConfig,
 		from: 0,
+		frame,
+		fps: videoConfig.fps,
 		to: 1,
 	});
-	const phoneScale = spring({
-		...springConfig,
-		velocity: 0,
+	const phoneScale = spring2({
+		config: springConfig,
+
 		from: 0,
 		to: 1.2,
+		fps: videoConfig.fps,
+		frame,
 	});
-	const phoneSpring = spring({
-		...springConfig,
-		damping: 1000,
-		mass: 1,
-		stiffness: 2,
-		velocity: 0,
+	const phoneSpring = spring2({
+		config: {
+			...springConfig,
+			damping: 1000,
+			mass: 1,
+			stiffness: 2,
+		},
 		from: 0,
 		to: 1,
+		fps: videoConfig.fps,
+		frame,
 	});
 	const scale = interpolate({
 		input: baseSpring,
@@ -62,6 +65,14 @@ export const RealStickers = () => {
 		input: baseSpring,
 		inputRange: [0, 1],
 		outputRange: [0.7, 1],
+	});
+
+	const scaleOut = spring2({
+		config: springConfig,
+		from: 0,
+		to: 1,
+		fps: videoConfig.fps,
+		frame: videoConfig.durationInFrames - frame,
 	});
 	const phoneFrame = Math.floor(
 		interpolate({
@@ -118,7 +129,7 @@ export const RealStickers = () => {
 		>
 			<div
 				style={{
-					transform: `scale(${scale})`,
+					transform: `scale(${scale * scaleOut})`,
 					width: videoConfig.width,
 					height: videoConfig.height,
 				}}
