@@ -17,10 +17,6 @@ const coolStickers: Sticker[] = [
 		stickerId: 'sticker-4',
 	},
 	{
-		packId: 'emotions-sticker-pack',
-		stickerId: 'sticker-2',
-	},
-	{
 		packId: 'grateful-food-puns',
 		stickerId: 'sticker-2',
 	},
@@ -91,6 +87,78 @@ const coolStickers: Sticker[] = [
 	{
 		packId: 'bestande',
 		stickerId: 'sticker-4',
+	},
+	{
+		packId: 'uchidoma',
+		stickerId: 'sticker-5',
+	},
+	{
+		packId: '123haha',
+		stickerId: 'sticker-1',
+	},
+	{
+		packId: 'lol-ghost',
+		stickerId: 'sticker-16',
+	},
+	{
+		packId: 'happy',
+		stickerId: 'sticker-29',
+	},
+	{
+		packId: 'happy',
+		stickerId: 'sticker-30',
+	},
+	{
+		packId: '123yesyeah',
+		stickerId: 'sticker-8',
+	},
+	{
+		packId: 'yookidoo',
+		stickerId: 'sticker-4',
+	},
+	{
+		packId: 'covid-emoji',
+		stickerId: 'sticker-2',
+	},
+	{
+		packId: 'phils-bio-eistee',
+		stickerId: 'logo',
+	},
+	{
+		packId: 'eclectic-virgo',
+		stickerId: 'sticker-3',
+	},
+	{
+		packId: 'coffeeshopsm',
+		stickerId: 'sticker-3',
+	},
+	{
+		packId: 'myhbcartoon',
+		stickerId: 'sticker-8',
+	},
+	{
+		packId: 'zack',
+		stickerId: 'sticker-1',
+	},
+	{
+		packId: 'international-beer-day',
+		stickerId: 'sticker-2',
+	},
+	{
+		packId: 'praypray',
+		stickerId: 'sticker-12',
+	},
+	{
+		packId: 'spesasospesa',
+		stickerId: 'sticker-3',
+	},
+	{
+		packId: 'tagface',
+		stickerId: 'sticker-1',
+	},
+	{
+		packId: 'buddi-characters',
+		stickerId: 'sticker-3',
 	},
 ];
 
