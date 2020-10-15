@@ -7,21 +7,23 @@ import {
 	useVideoConfig,
 } from '@remotion/core';
 import React from 'react';
+import {Title} from '../Title';
 
 export const Up = () => {
 	const frame = useCurrentFrame();
 	const videoConfig = useVideoConfig();
 	const springConfig: SpringConfig = {
 		damping: 200,
-		mass: 2,
+		mass: 0.4,
 		stiffness: 60,
 		restSpeedThreshold: 0.00001,
 		restDisplacementThreshold: 0.0001,
 		overshootClamping: true,
 	};
+	const upFrame = Math.max(0, frame - 24);
 	const progress = spring2({
 		config: {...springConfig, mass: springConfig.mass * 1},
-		frame,
+		frame: upFrame,
 		from: 0,
 		to: 1,
 		fps: videoConfig.fps,
@@ -29,22 +31,27 @@ export const Up = () => {
 	const translate = interpolate({
 		input: progress,
 		inputRange: [0, 1],
-		outputRange: [1, 0],
+		outputRange: [1, -0.08],
+	});
+	const textUpOffset = interpolate({
+		input: progress,
+		inputRange: [0, 1],
+		outputRange: [0, -videoConfig.height],
 	});
 
 	const scale = interpolate({
 		input: progress,
 		inputRange: [0, 1],
-		outputRange: [1.3, 1.3],
+		outputRange: [0.5, 1.3],
 	});
 	const rotateProgress = spring2({
 		config: {...springConfig, mass: springConfig.mass * 1.3},
-		frame,
+		frame: upFrame,
 		from: 0,
 		to: 1,
 		fps: videoConfig.fps,
 	});
-	const frameToPick = Math.round(
+	const frameToPick = Math.floor(
 		interpolate({
 			input: rotateProgress,
 			inputRange: [0.4, 1],
@@ -54,9 +61,20 @@ export const Up = () => {
 	);
 	const f = require('../assets/up/Rotato Frame ' + frameToPick + '.png')
 		.default;
-	console.log(frameToPick);
 	return (
 		<div style={{flex: 1, backgroundColor: 'white'}}>
+			<div
+				style={{
+					position: 'absolute',
+					display: 'flex',
+					top: textUpOffset,
+					left: 0,
+					width: videoConfig.width,
+					height: videoConfig.height,
+				}}
+			>
+				<Title></Title>
+			</div>
 			<img
 				src={f}
 				style={{
@@ -72,7 +90,7 @@ export const Up = () => {
 
 registerVideo(Up, {
 	width: 1080,
-	height: 1920,
-	durationInFrames: 2 * 30,
+	height: 1080,
+	durationInFrames: 4 * 30,
 	fps: 30,
 });

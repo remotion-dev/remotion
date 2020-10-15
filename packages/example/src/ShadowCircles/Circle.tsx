@@ -66,7 +66,7 @@ export const Circle: React.FC<{
 				position: 'absolute',
 				left: left + amountToMove * x * 0.0003,
 				top: top + amountToMove * y * 0.0003,
-				WebkitFilter: 'drop-shadow(0 0 5px rgba(0, 0, 0, 0.2))',
+				WebkitFilter: 'drop-shadow(0 0 5px #5851db)',
 			}}
 		>
 			<path d={makeSquircle(size, size, squircleFactor)} fill={color}></path>

@@ -8,7 +8,6 @@ import {
 } from '@remotion/core';
 import React from 'react';
 import {output} from './data';
-import './source';
 
 const svgPath = require('svg-path-properties');
 

@@ -32,7 +32,7 @@ const Row: React.FC<{
 	const videoConfig = useVideoConfig();
 	const posX = spring2({
 		config: {
-			damping: 20,
+			damping: 20 + i * 10,
 			mass: 4,
 			stiffness: 80,
 			restSpeedThreshold: 0.00001,
