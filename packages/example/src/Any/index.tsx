@@ -34,25 +34,33 @@ const getWordsForFrame = (frame: number, videoLength: number) => {
 	return words[index];
 };
 
-const getTotalLength = (wordsToUse: Word[]) => {
-	return wordsToUse.reduce((a, b) => a + wordLength[b], 0);
+const getTotalLength = (frame: number, duration: number) => {
+	const wordsToUse = getWordsForFrame(frame, duration);
+	return wordsToUse.reduce((a, b, index) => {
+		const actualLength = getActualWordLength(frame, duration, index);
+		return a + actualLength;
+	}, 0);
 };
 
 const leftForWord = ({
 	wordArray,
 	index,
+	duration,
 	compWidth,
+	frame,
 }: {
 	wordArray: Word[];
 	index: number;
+	duration: number;
 	compWidth: number;
+	frame: number;
 }) => {
 	let length = 0;
 	for (let i = 0; i < wordArray.length; i++) {
 		if (i === index) {
-			return (compWidth - getTotalLength(wordArray)) / 2 + length;
+			return (compWidth - getTotalLength(frame, duration)) / 2 + length;
 		}
-		length += wordLength[wordArray[i]];
+		length += getActualWordLength(frame, duration, i);
 	}
 };
 
@@ -108,7 +116,7 @@ const getYForDistance = (
 	currentWords: [Word, Word, Word],
 	index: number
 ) => {
-	return getFactorForDistance(nextChange, currentWords, index) * 30;
+	return getFactorForDistance(nextChange, currentWords, index) * 70;
 };
 
 const getOpacityForDistance = (
@@ -116,9 +124,7 @@ const getOpacityForDistance = (
 	currentWords: [Word, Word, Word],
 	index: number
 ) => {
-	return (
-		1 - getFactorForDistance(nextChange, currentWords, index) / transitionDur
-	);
+	return 1 - getFactorForDistance(nextChange, currentWords, index);
 };
 
 const getWidthChangeForDistance = (
@@ -132,6 +138,16 @@ const getWidthChangeForDistance = (
 	const widthChange =
 		wordLength[nextChange.words[index]] - wordLength[currentWords[index]];
 	return getFactorForDistance(nextChange, currentWords, index) * widthChange;
+};
+
+const getActualWordLength = (frame: number, duration: number, i: number) => {
+	const nextChange = getNextChange(frame, duration);
+	const wordsToUse = getWordsForFrame(frame, duration);
+	const word = wordsToUse[i];
+
+	return (
+		wordLength[word] + getWidthChangeForDistance(nextChange, wordsToUse, i)
+	);
 };
 
 export const Comp = () => {
@@ -155,22 +171,26 @@ export const Comp = () => {
 						wordArray: wordsToUse,
 						index: i,
 						compWidth: videoConfig.width,
+						duration: videoConfig.durationInFrames,
+						frame,
 					});
 					const nextChange = getNextChange(frame, videoConfig.durationInFrames);
 					const previousChange = getPreviousChange(
 						frame,
 						videoConfig.durationInFrames
 					);
-					console.log(getWidthChangeForDistance(nextChange, wordsToUse, i));
 					return (
 						<span
 							key={w}
 							style={{
 								display: 'inline-block',
 								position: 'absolute',
-								width:
-									wordLength[w] +
-									getWidthChangeForDistance(nextChange, wordsToUse, i),
+								textAlign: 'center',
+								width: getActualWordLength(
+									frame,
+									videoConfig.durationInFrames,
+									i
+								),
 								left,
 								marginTop:
 									getYForDistance(previousChange, wordsToUse, i) -
@@ -194,5 +214,5 @@ registerVideo(Comp, {
 	width: 1080,
 	height: 1080,
 	fps: 30,
-	durationInFrames: 3 * 30,
+	durationInFrames: 1.5 * 30,
 });
