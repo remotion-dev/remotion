@@ -12,8 +12,8 @@ export const Devices = () => {
 	const videoConfig = useVideoConfig();
 	const frame = useCurrentFrame();
 	const springConfig: SpringConfig = {
-		damping: 10,
-		mass: 1,
+		damping: 100,
+		mass: 2,
 		stiffness: 100,
 		restSpeedThreshold: 0.00001,
 		restDisplacementThreshold: 0.0001,
@@ -43,7 +43,7 @@ export const Devices = () => {
 	});
 	const awesome = require('../assets/awesome.png').default;
 	const face = require('../assets/face.png').default;
-	const packs = require('../assets/packs.png').default;
+	const home = require('../assets/home.png').default;
 
 	return (
 		<div
@@ -58,7 +58,7 @@ export const Devices = () => {
 				style={{transform: `scale(${smallScale})`, marginLeft: -300 - offset}}
 			></Single>
 			<Single
-				source={packs}
+				source={home}
 				style={{transform: `scale(${smallScale})`, marginLeft: 300 + offset}}
 			></Single>
 			<Single
@@ -71,7 +71,7 @@ export const Devices = () => {
 
 registerVideo(Devices, {
 	fps: 30,
-	height: 1080,
+	height: 1920,
 	width: 1080,
 	durationInFrames: 3 * 30,
 });
