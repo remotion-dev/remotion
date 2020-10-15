@@ -69,7 +69,7 @@ type Change = {
 	words: [Word, Word, Word];
 } | null;
 
-const transitionDur = 4;
+const transitionDur = 6;
 
 const getNextChange = (frame: number, videoLength: number): Change => {
 	const currentWords = getWordsForFrame(frame, videoLength);
