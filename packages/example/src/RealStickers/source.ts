@@ -166,6 +166,8 @@ Promise.all(
 	coolStickers.map(async (c) => {
 		const packRes = await fetch(`https://api.anysticker.app/packs/${c.packId}`);
 		const json = await packRes.json();
-		return json.data.pack.stickers.find((s) => s.id === c.stickerId);
+		return json.data.pack.stickers.find((s: any) => s.id === c.stickerId);
 	})
-).then(console.log);
+)
+	.then(console.log)
+	.catch((err) => console.log(err));

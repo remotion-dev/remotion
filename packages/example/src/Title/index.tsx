@@ -44,7 +44,6 @@ export const Title = () => {
 		<div
 			style={{
 				flex: 1,
-				backgroundColor: 'white',
 				justifyContent: 'center',
 				alignItems: 'center',
 				display: 'flex',
