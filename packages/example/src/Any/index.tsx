@@ -95,58 +95,125 @@ const getPreviousChange = (frame: number, videoLength: number): Change => {
 	return null;
 };
 
-const getFactorForDistance = (
-	nextChange: Change,
+const getFactorForDist = (
+	change: Change,
 	currentWords: [Word, Word, Word],
 	index: number
 ) => {
-	if (nextChange === null) {
+	if (change === null) {
 		return 0;
 	}
-	const nextDiff =
-		Math.max(0, transitionDur - nextChange.distance) / transitionDur;
-	if (currentWords[index] === nextChange.words[index]) {
+	if (currentWords[index] === change.words[index]) {
 		return 0;
 	}
-	return nextDiff;
+	return Math.max(0, transitionDur - change.distance) / transitionDur;
 };
 
-const getYForDistance = (
-	nextChange: Change,
+const getFactorForNextAndPrev = ({
+	nextChange,
+	prevChange,
+	currentWords,
+	index,
+}: {
+	nextChange: Change;
+	prevChange: Change;
+	currentWords: [Word, Word, Word];
+	index: number;
+}) => {
+	const nextDiff = getFactorForDist(nextChange, currentWords, index);
+	const prevDiff = getFactorForDist(prevChange, currentWords, index);
+	return nextDiff - prevDiff;
+};
+
+const getYForDistance = ({
+	nextChange,
+	prevChange,
+	currentWords,
+	index,
+}: {
+	nextChange: Change;
+	prevChange: Change;
+	currentWords: [Word, Word, Word];
+	index: number;
+}) => {
+	return (
+		getFactorForNextAndPrev({nextChange, prevChange, currentWords, index}) * 70
+	);
+};
+
+const getOpacityForDistance = ({
+	nextChange,
+	prevChange,
+	currentWords,
+	index,
+}: {
+	nextChange: Change;
+	prevChange: Change;
+	currentWords: [Word, Word, Word];
+	index: number;
+}) => {
+	return (
+		1 - getFactorForNextAndPrev({nextChange, prevChange, currentWords, index})
+	);
+};
+
+const getWidthChange = (
+	change: Change,
 	currentWords: [Word, Word, Word],
 	index: number
 ) => {
-	return getFactorForDistance(nextChange, currentWords, index) * 70;
-};
-
-const getOpacityForDistance = (
-	nextChange: Change,
-	currentWords: [Word, Word, Word],
-	index: number
-) => {
-	return 1 - getFactorForDistance(nextChange, currentWords, index);
-};
-
-const getWidthChangeForDistance = (
-	nextChange: Change,
-	currentWords: [Word, Word, Word],
-	index: number
-) => {
-	if (!nextChange) {
+	const factor = getFactorForDist(change, currentWords, index);
+	if (factor === 0 || change === null) {
 		return 0;
 	}
 	const widthChange =
-		wordLength[nextChange.words[index]] - wordLength[currentWords[index]];
-	return getFactorForDistance(nextChange, currentWords, index) * widthChange;
+		wordLength[change.words[index]] - wordLength[currentWords[index]];
+	return Math.abs(widthChange);
+};
+
+const getWidthChangeForDistance = ({
+	nextChange,
+	prevChange,
+	currentWords,
+	index,
+}: {
+	nextChange: Change;
+	prevChange: Change;
+	currentWords: [Word, Word, Word];
+	index: number;
+}) => {
+	console.log({
+		next:
+			getWidthChange(nextChange, currentWords, index) *
+			getFactorForDist(nextChange, currentWords, index),
+		prev:
+			getWidthChange(prevChange, currentWords, index) *
+			getFactorForDist(prevChange, currentWords, index),
+	});
+	return (
+		getWidthChange(nextChange, currentWords, index) *
+			getFactorForDist(nextChange, currentWords, index) *
+			0.5 +
+		getWidthChange(prevChange, currentWords, index) *
+			getFactorForDist(prevChange, currentWords, index) *
+			-0.5
+	);
 };
 
 const getActualWordLength = (frame: number, duration: number, i: number) => {
 	const nextChange = getNextChange(frame, duration);
+	const prevChange = getPreviousChange(frame, duration);
 	const wordsToUse = getWordsForFrame(frame, duration);
 	const word = wordsToUse[i];
 
 	return (
-		wordLength[word] + getWidthChangeForDistance(nextChange, wordsToUse, i)
+		wordLength[word] +
+		getWidthChangeForDistance({
+			nextChange,
+			prevChange,
+			currentWords: wordsToUse,
+			index: i,
+		})
 	);
 };
 
@@ -192,13 +259,12 @@ export const Comp = () => {
 									i
 								),
 								left,
-								marginTop:
-									getYForDistance(previousChange, wordsToUse, i) -
-									getYForDistance(nextChange, wordsToUse, i),
-								opacity: Math.min(
-									getOpacityForDistance(nextChange, wordsToUse, i),
-									getOpacityForDistance(previousChange, wordsToUse, i)
-								),
+								marginTop: getYForDistance({
+									nextChange,
+									prevChange: previousChange,
+									currentWords: wordsToUse,
+									index: i,
+								}),
 							}}
 						>
 							{w}
