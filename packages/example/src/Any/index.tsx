@@ -22,6 +22,7 @@ const wordLength = {
 	any: 183.11,
 	body: 254,
 	'Stickerify ': 499.52,
+	' ': 0,
 };
 
 type Word = keyof typeof wordLength;
@@ -30,6 +31,8 @@ const words: [Word, Word, Word][] = [
 	['Stickerify ', 'any', 'body'],
 	['Stickerify ', 'any', 'thing'],
 	['Stickerify ', 'every', 'thing'],
+	['Stickerify ', 'any', 'body'],
+	[' ', 'any', 'body'],
 ];
 
 const getWordsForFrame = (frame: number, videoLength: number) => {
@@ -76,8 +79,6 @@ type Change = {
 	words: [Word, Word, Word];
 } | null;
 
-const transitionDur = 6;
-
 const getNextChange = (frame: number, videoLength: number): Change => {
 	const currentWords = getWordsForFrame(frame, videoLength);
 	let j = 1;
@@ -102,6 +103,8 @@ const getPreviousChange = (frame: number, videoLength: number): Change => {
 	return null;
 };
 
+const transitionDur = 6;
+
 const getFactorForDist = (
 	change: Change,
 	currentWords: [Word, Word, Word],
@@ -118,15 +121,15 @@ const getFactorForDist = (
 		config: {
 			damping: 100,
 			mass: 0.1,
-			stiffness: 10,
+			stiffness: 80,
 			restSpeedThreshold: 0.00001,
 			restDisplacementThreshold: 0.0001,
 			overshootClamping: false,
 		},
 		fps: 30,
-		frame: factor * transitionDur,
-		from: 0,
-		to: 1,
+		frame: change.distance,
+		from: 1,
+		to: 0,
 	});
 
 	return val;
@@ -145,10 +148,10 @@ const getScaleForDistance = ({
 }) => {
 	const next = getFactorForDist(nextChange, currentWords, index);
 	const prev = getFactorForDist(prevChange, currentWords, index);
-	if (next > 0) {
+	if (next > 0.01) {
 		return 1 - next;
 	}
-	if (prev > 0) {
+	if (prev > 0.01) {
 		return 1 - prev;
 	}
 	return 1;
@@ -210,56 +213,62 @@ export const Comp = () => {
 	const videoConfig = useVideoConfig();
 	const wordsToUse = getWordsForFrame(frame, videoConfig.durationInFrames);
 	return (
-		<div
-			style={{
-				flex: 1,
-				backgroundColor: 'white',
-				justifyContent: 'center',
-				alignItems: 'center',
-				display: 'flex',
-				flexDirection: 'column',
-			}}
-		>
-			<Text>
-				{wordsToUse.map((w, i) => {
-					const left = leftForWord({
-						wordArray: wordsToUse,
-						index: i,
-						compWidth: videoConfig.width,
-						duration: videoConfig.durationInFrames,
-						frame,
-					});
-					const nextChange = getNextChange(frame, videoConfig.durationInFrames);
-					const previousChange = getPreviousChange(
-						frame,
-						videoConfig.durationInFrames
-					);
-					return (
-						<span
-							key={w}
-							style={{
-								display: 'inline-block',
-								position: 'absolute',
-								textAlign: 'center',
-								width: getActualWordLength(
-									frame,
-									videoConfig.durationInFrames,
-									i
-								),
-								left,
-								transform: `scale(${getScaleForDistance({
-									nextChange,
-									prevChange: previousChange,
-									currentWords: wordsToUse,
-									index: i,
-								})})`,
-							}}
-						>
-							{w}
-						</span>
-					);
-				})}
-			</Text>
+		<div style={{display: 'flex', backgroundColor: 'white', flex: 1}}>
+			<div
+				style={{
+					flex: 1,
+					backgroundColor: 'white',
+					justifyContent: 'center',
+					alignItems: 'center',
+					display: 'flex',
+					flexDirection: 'column',
+					transform: `scale(0.7)`,
+				}}
+			>
+				<Text>
+					{wordsToUse.map((w, i) => {
+						const left = leftForWord({
+							wordArray: wordsToUse,
+							index: i,
+							compWidth: videoConfig.width,
+							duration: videoConfig.durationInFrames,
+							frame,
+						});
+						const nextChange = getNextChange(
+							frame,
+							videoConfig.durationInFrames
+						);
+						const previousChange = getPreviousChange(
+							frame,
+							videoConfig.durationInFrames
+						);
+						return (
+							<span
+								key={w}
+								style={{
+									display: 'inline-block',
+									position: 'absolute',
+									textAlign: 'center',
+									width: getActualWordLength(
+										frame,
+										videoConfig.durationInFrames,
+										i
+									),
+									left,
+									transform: `scale(${getScaleForDistance({
+										nextChange,
+										prevChange: previousChange,
+										currentWords: wordsToUse,
+										index: i,
+									})})`,
+								}}
+							>
+								{w}
+							</span>
+						);
+					})}
+				</Text>
+			</div>
 		</div>
 	);
 };
