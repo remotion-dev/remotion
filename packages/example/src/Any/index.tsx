@@ -1,4 +1,9 @@
-import {registerVideo, useCurrentFrame, useVideoConfig} from '@remotion/core';
+import {
+	registerVideo,
+	spring2,
+	useCurrentFrame,
+	useVideoConfig,
+} from '@remotion/core';
 import React from 'react';
 import styled from 'styled-components';
 
@@ -7,6 +12,7 @@ const Text = styled.span`
 	font-weight: bold;
 	font-size: 110px;
 	line-height: 110px;
+	height: 110px;
 `;
 
 const wordLength = {
@@ -14,13 +20,14 @@ const wordLength = {
 	thing: 258.41,
 	every: 277.58,
 	any: 183.11,
+	body: 254,
 	'Stickerify ': 499.52,
 };
 
 type Word = keyof typeof wordLength;
 
 const words: [Word, Word, Word][] = [
-	['Stickerify ', 'any', 'one'],
+	['Stickerify ', 'any', 'body'],
 	['Stickerify ', 'any', 'thing'],
 	['Stickerify ', 'every', 'thing'],
 ];
@@ -106,39 +113,23 @@ const getFactorForDist = (
 	if (currentWords[index] === change.words[index]) {
 		return 0;
 	}
-	return Math.max(0, transitionDur - change.distance) / transitionDur;
-};
+	const factor = Math.max(0, transitionDur - change.distance) / transitionDur;
+	const val = spring2({
+		config: {
+			damping: 100,
+			mass: 0.1,
+			stiffness: 10,
+			restSpeedThreshold: 0.00001,
+			restDisplacementThreshold: 0.0001,
+			overshootClamping: false,
+		},
+		fps: 30,
+		frame: factor * transitionDur,
+		from: 0,
+		to: 1,
+	});
 
-const getFactorForNextAndPrev = ({
-	nextChange,
-	prevChange,
-	currentWords,
-	index,
-}: {
-	nextChange: Change;
-	prevChange: Change;
-	currentWords: [Word, Word, Word];
-	index: number;
-}) => {
-	const nextDiff = getFactorForDist(nextChange, currentWords, index);
-	const prevDiff = getFactorForDist(prevChange, currentWords, index);
-	return nextDiff - prevDiff;
-};
-
-const getYForDistance = ({
-	nextChange,
-	prevChange,
-	currentWords,
-	index,
-}: {
-	nextChange: Change;
-	prevChange: Change;
-	currentWords: [Word, Word, Word];
-	index: number;
-}) => {
-	return (
-		getFactorForNextAndPrev({nextChange, prevChange, currentWords, index}) * 70
-	);
+	return val;
 };
 
 const getScaleForDistance = ({
@@ -154,7 +145,6 @@ const getScaleForDistance = ({
 }) => {
 	const next = getFactorForDist(nextChange, currentWords, index);
 	const prev = getFactorForDist(prevChange, currentWords, index);
-	console.log({next, prev});
 	if (next > 0) {
 		return 1 - next;
 	}
@@ -175,7 +165,7 @@ const getWidthChange = (
 	}
 	const widthChange =
 		wordLength[change.words[index]] - wordLength[currentWords[index]];
-	return Math.abs(widthChange);
+	return widthChange;
 };
 
 const getWidthChangeForDistance = ({
@@ -189,14 +179,13 @@ const getWidthChangeForDistance = ({
 	currentWords: [Word, Word, Word];
 	index: number;
 }) => {
-	return (
+	const nextWidth =
 		getWidthChange(nextChange, currentWords, index) *
-			getFactorForDist(nextChange, currentWords, index) *
-			0.5 +
+		getFactorForDist(nextChange, currentWords, index);
+	const prevWidth =
 		getWidthChange(prevChange, currentWords, index) *
-			getFactorForDist(prevChange, currentWords, index) *
-			-0.5
-	);
+		getFactorForDist(prevChange, currentWords, index);
+	return nextWidth * 0.5 + prevWidth * 0.5;
 };
 
 const getActualWordLength = (frame: number, duration: number, i: number) => {
@@ -258,12 +247,6 @@ export const Comp = () => {
 									i
 								),
 								left,
-								marginTop: getYForDistance({
-									nextChange,
-									prevChange: previousChange,
-									currentWords: wordsToUse,
-									index: i,
-								}),
 								transform: `scale(${getScaleForDistance({
 									nextChange,
 									prevChange: previousChange,
