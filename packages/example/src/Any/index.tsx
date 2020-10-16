@@ -141,7 +141,7 @@ const getYForDistance = ({
 	);
 };
 
-const getOpacityForDistance = ({
+const getScaleForDistance = ({
 	nextChange,
 	prevChange,
 	currentWords,
@@ -152,9 +152,16 @@ const getOpacityForDistance = ({
 	currentWords: [Word, Word, Word];
 	index: number;
 }) => {
-	return (
-		1 - getFactorForNextAndPrev({nextChange, prevChange, currentWords, index})
-	);
+	const next = getFactorForDist(nextChange, currentWords, index);
+	const prev = getFactorForDist(prevChange, currentWords, index);
+	console.log({next, prev});
+	if (next > 0) {
+		return 1 - next;
+	}
+	if (prev > 0) {
+		return 1 - prev;
+	}
+	return 1;
 };
 
 const getWidthChange = (
@@ -182,14 +189,6 @@ const getWidthChangeForDistance = ({
 	currentWords: [Word, Word, Word];
 	index: number;
 }) => {
-	console.log({
-		next:
-			getWidthChange(nextChange, currentWords, index) *
-			getFactorForDist(nextChange, currentWords, index),
-		prev:
-			getWidthChange(prevChange, currentWords, index) *
-			getFactorForDist(prevChange, currentWords, index),
-	});
 	return (
 		getWidthChange(nextChange, currentWords, index) *
 			getFactorForDist(nextChange, currentWords, index) *
@@ -265,6 +264,12 @@ export const Comp = () => {
 									currentWords: wordsToUse,
 									index: i,
 								}),
+								transform: `scale(${getScaleForDistance({
+									nextChange,
+									prevChange: previousChange,
+									currentWords: wordsToUse,
+									index: i,
+								})})`,
 							}}
 						>
 							{w}
@@ -280,5 +285,5 @@ registerVideo(Comp, {
 	width: 1080,
 	height: 1080,
 	fps: 30,
-	durationInFrames: 1.5 * 30,
+	durationInFrames: 3 * 30,
 });
