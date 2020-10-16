@@ -2,6 +2,4 @@ node_modules
 dist
 tsconfig.tsbuildinfo
 lerna-debug.log
-packages/example/src/assets
 .DS_Store
-packages/example/src/RealStickers/imgs
