@@ -54,7 +54,7 @@ export const Layout: React.FC = () => {
 			}}
 		>
 			<Orchestra
-				phoneScale={1.7}
+				phoneScale={1.8}
 				layers={7}
 				xOffset={xOffset}
 				yOffset={yOffset}
