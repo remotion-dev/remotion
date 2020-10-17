@@ -246,3 +246,4 @@ packages/example/src/RealStickers/imgs/Rotato[[:space:]]Frame[[:space:]]57.png f
 packages/example/src/RealStickers/imgs/Rotato[[:space:]]Frame[[:space:]]177.png filter=lfs diff=lfs merge=lfs -text
 packages/example/src/RealStickers/imgs/Rotato[[:space:]]Frame[[:space:]]184.png filter=lfs diff=lfs merge=lfs -text
 packages/example/src/RealStickers/imgs/Rotato[[:space:]]Frame[[:space:]]41.png filter=lfs diff=lfs merge=lfs -text
+packages/example/src/BigRotate/assets filter=lfs diff=lfs merge=lfs -text
