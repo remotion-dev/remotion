@@ -14,8 +14,8 @@ export const Layout: React.FC = () => {
 	const frame = useCurrentFrame();
 	const progress = spring2({
 		config: {
-			damping: 10,
-			mass: 1,
+			damping: 30,
+			mass: 0.4,
 			stiffness: 100,
 			restSpeedThreshold: 0.00001,
 			restDisplacementThreshold: 0.0001,
@@ -28,7 +28,7 @@ export const Layout: React.FC = () => {
 	});
 	const yOffset = interpolate({
 		input: progress,
-		outputRange: [350, 180],
+		outputRange: [350, 170],
 		inputRange: [0, 1],
 	});
 	const xOffset = interpolate({
@@ -42,7 +42,7 @@ export const Layout: React.FC = () => {
 		inputRange: [0.2, 1],
 		extrapolateLeft: 'clamp',
 	});
-	const backgroundColor = mix(color, '#fff', '#000');
+	const backgroundColor = mix(color, '#fff', '#fff');
 	return (
 		<div
 			style={{
@@ -55,7 +55,7 @@ export const Layout: React.FC = () => {
 		>
 			<Orchestra
 				phoneScale={1.7}
-				layers={5}
+				layers={7}
 				xOffset={xOffset}
 				yOffset={yOffset}
 			/>
