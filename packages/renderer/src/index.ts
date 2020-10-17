@@ -23,7 +23,9 @@ async function screenshotDOMElement(
 	if (!rect)
 		throw Error(`Could not find element that matches selector: ${selector}.`);
 
+	await page.evaluate(() => (document.body.style.background = 'transparent'));
 	return await page.screenshot({
+		omitBackground: true,
 		path,
 		clip: {
 			x: rect.left,
