@@ -1,4 +1,9 @@
-import {spring2, useCurrentFrame, useVideoConfig} from '@remotion/core';
+import {
+	interpolate,
+	spring2,
+	useCurrentFrame,
+	useVideoConfig,
+} from '@remotion/core';
 import React from 'react';
 import {Phone, PhoneHeight, PhoneWidth} from './Phone';
 
@@ -8,11 +13,27 @@ export const Orchestra: React.FC<{
 	xOffset: number;
 	phoneScale: number;
 }> = ({layers, xOffset, yOffset, phoneScale}) => {
+	const getColumnOffset = (c: number, r: number, f: number) => {
+		return spring2({
+			from: 0,
+			to: (PhoneHeight + yOffset) * (r % 2 === 0 ? 1 : -1),
+			config: {
+				damping: 30,
+				mass: 0.2,
+				stiffness: 10,
+				overshootClamping: true,
+				restDisplacementThreshold: 0.001,
+				restSpeedThreshold: 0.001,
+			},
+			fps: 30,
+			frame: Math.max(0, frame - 4 - c * 8),
+		});
+	};
 	const config = useVideoConfig();
 	const rows = layers * 2 + 1;
 	const columns = 4;
 	const frame = useCurrentFrame();
-	const progress = spring2({
+	const p = spring2({
 		config: {
 			damping: 100,
 			mass: 0.1,
@@ -23,9 +44,22 @@ export const Orchestra: React.FC<{
 		},
 		fps: config.fps,
 		frame,
-		from: 3.2,
-		to: 1.1,
+		from: 0,
+		to: 1,
 	});
+	const progress = interpolate({
+		input: p,
+		inputRange: [0, 1],
+		outputRange: [3, 1.1],
+		extrapolateLeft: 'clamp',
+	});
+	const scale = interpolate({
+		input: p,
+		inputRange: [0.4, 1],
+		outputRange: [0, phoneScale],
+		extrapolateLeft: 'clamp',
+	});
+
 	return (
 		<div
 			style={{
@@ -47,10 +81,13 @@ export const Orchestra: React.FC<{
 								.map((c) => {
 									const offset = r % 2 === 1 ? xOffset : 0;
 									const extraLeft = r % 2 === 1 ? xOffset : 0;
+									const middle = r === 7 && c === 2;
+
 									return (
 										<Phone
-											key={c}
-											phoneScale={phoneScale}
+											className={`c${c}r${r}`}
+											key={[c, r].join(',')}
+											phoneScale={middle ? phoneScale : scale}
 											style={{
 												left:
 													config.width / 2 -
@@ -63,7 +100,8 @@ export const Orchestra: React.FC<{
 													config.height / 2 -
 													PhoneHeight / 2 +
 													r * yOffset -
-													((rows - 1) * yOffset) / 2,
+													((rows - 1) * yOffset) / 2 +
+													getColumnOffset(c, r, frame),
 											}}
 										/>
 									);
