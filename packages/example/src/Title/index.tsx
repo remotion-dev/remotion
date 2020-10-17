@@ -53,7 +53,7 @@ export const Title = () => {
 				style={{
 					fontSize: 110,
 					fontWeight: 'bold',
-					fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif',
+					fontFamily: 'SF Pro Text',
 				}}
 			>
 				<span
