@@ -82,11 +82,68 @@ export const Orchestra: React.FC<{
 									const offset = r % 2 === 1 ? xOffset : 0;
 									const extraLeft = r % 2 === 1 ? xOffset : 0;
 									const middle = r === 7 && c === 2;
-
+									const source = (() => {
+										if (c === 2 && r === 7) {
+											return require('./screens/start.png').default;
+										}
+										if (c === 2 && r === 8) {
+											return require('./screens/tutorial.png').default;
+										}
+										if (c === 2 && r === 9) {
+											return require('./screens/cheesy.png').default;
+										}
+										if (c === 1 && r === 4) {
+											return require('./screens/icons.png').default;
+										}
+										if (c === 2 && r === 4) {
+											return require('./screens/packs.png').default;
+										}
+										if (c === 2 && r === 10) {
+											return require('./screens/createpack.png').default;
+										}
+										if (c === 1 && r === 8) {
+											return require('./screens/collections.png').default;
+										}
+										if (c === 3 && r === 11) {
+											return require('./screens/createpack.png').default;
+										}
+										if (c === 1 && r === 11) {
+											return require('./screens/publish.png').default;
+										}
+										if (c === 1 && r === 6) {
+											return require('./screens/share.png').default;
+										}
+										if (c === 2 && r === 6) {
+											return require('./screens/face.png').default;
+										}
+										if (c === 3 && r === 5) {
+											return require('./screens/debug.png').default;
+										}
+										if (c === 3 && r === 7) {
+											return require('./screens/fruits.png').default;
+										}
+										if (c === 1 && r === 7) {
+											return require('./screens/watermelon.png').default;
+										}
+										if (c === 1 && r === 9) {
+											return require('./screens/pack2.png').default;
+										}
+										if (c === 1 && r === 2) {
+											return require('./screens/settings.png').default;
+										}
+										if (c === 3 && r === 9) {
+											return require('./screens/yes.png').default;
+										}
+										if (c === 2 && r === 2) {
+											return require('./screens/garden.png').default;
+										}
+										return require('../assets/packs.png').default;
+									})();
 									return (
 										<Phone
-											className={`c${c}r${r}`}
+											src={source}
 											key={[c, r].join(',')}
+											className={`c${c}r${r}`}
 											phoneScale={middle ? phoneScale : scale}
 											style={{
 												left:

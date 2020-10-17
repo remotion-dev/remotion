@@ -13,14 +13,14 @@ const Container = styled.div`
 export const Phone: React.FC<
 	HTMLAttributes<HTMLDivElement> & {
 		phoneScale: number;
+		src: any;
 	}
 > = (props) => {
-	const img = require('../assets/packs.png').default;
-	const {phoneScale, ...otherProps} = props;
+	const {phoneScale, src, ...otherProps} = props;
 	return (
 		<Container {...otherProps}>
 			<img
-				src={img}
+				src={src}
 				style={{
 					height: PhoneHeight,
 					width: PhoneHeight,
