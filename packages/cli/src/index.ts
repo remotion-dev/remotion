@@ -22,6 +22,7 @@ xns(async () => {
 	const outputDir = await fs.promises.mkdtemp(
 		path.join(os.tmpdir(), 'react-motion-render')
 	);
+	console.log('Output dir', outputDir);
 	const bar = new cliProgress.Bar(
 		{clearOnComplete: true},
 		cliProgress.Presets.shades_grey
