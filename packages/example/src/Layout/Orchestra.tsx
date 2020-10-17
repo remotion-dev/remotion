@@ -23,8 +23,8 @@ export const Orchestra: React.FC<{
 		},
 		fps: config.fps,
 		frame,
-		from: 2.2,
-		to: 0.9,
+		from: 3.2,
+		to: 1.1,
 	});
 	return (
 		<div
