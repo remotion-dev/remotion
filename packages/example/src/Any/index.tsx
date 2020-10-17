@@ -261,7 +261,7 @@ export const Comp = () => {
 						);
 						return (
 							<span
-								key={w}
+								key={w + i}
 								style={{
 									display: 'inline-block',
 									position: 'absolute',
