@@ -35,6 +35,7 @@ const measureTextNode = (text: string): number => {
 const Text = styled.span``;
 
 const words: [string, string, string, string][] = [
+	['Stickerify', '', '', ''],
 	['Stickerify', ' ', 'any', 'body'],
 	['Stickerify', ' ', 'any', 'thing'],
 	['Stickerify', ' ', 'every', 'thing'],
