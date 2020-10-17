@@ -9,7 +9,7 @@ const style: React.CSSProperties = {
 	width: videoConfig.width,
 	height: videoConfig.height,
 	display: 'flex',
-	backgroundColor: 'black',
+	backgroundColor: 'transparent',
 };
 
 render(
