@@ -422,7 +422,7 @@
         "affectsGlobalScope": false
       },
       "./src/index.ts": {
-        "version": "893504362f372bfecc750802f220ffd0464f9493a679e44af9cef3fd6d772669",
+        "version": "64898abe9ca197b1442fea827d77ae6fbb171abe6e98fbcc3bc2fd74075a9c94",
         "signature": "1e9b68b6a19275331fcda1a7105c6ae5cad7b5cec35f661dce9f00e4568520d1",
         "affectsGlobalScope": false
       },
