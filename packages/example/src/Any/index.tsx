@@ -7,32 +7,37 @@ import {
 import React from 'react';
 import styled from 'styled-components';
 
-const Text = styled.span`
-	font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-	font-weight: bold;
-	font-size: 110px;
-	line-height: 110px;
-	height: 110px;
-`;
-
-const wordLength = {
-	one: 187.45,
-	thing: 258.41,
-	every: 277.58,
-	any: 183.11,
-	body: 254,
-	'Stickerify ': 499.52,
-	' ': 0,
+const textStyle = {
+	fontFamily: 'SF Pro Text',
+	fontWeight: 700,
+	fontSize: '110px',
+	lineHeight: '110px',
+	height: 110,
+	whiteSpace: 'pre',
 };
 
-type Word = keyof typeof wordLength;
+const widths: {[key: string]: number} = {};
 
-const words: [Word, Word, Word][] = [
-	['Stickerify ', 'any', 'body'],
-	['Stickerify ', 'any', 'thing'],
-	['Stickerify ', 'every', 'thing'],
-	['Stickerify ', 'any', 'body'],
-	[' ', 'any', 'body'],
+const measureTextNode = (text: string): number => {
+	if (widths[text]) {
+		return widths[text];
+	}
+	const el = document.createElement('span');
+	Object.assign(el.style, textStyle);
+	el.textContent = text;
+	el.style.position = 'absolute';
+	el.style.top = '-1000px';
+	document.body.appendChild(el);
+	widths[text] = el.offsetWidth;
+	return widths[text];
+};
+
+const Text = styled.span``;
+
+const words: [string, string, string, string][] = [
+	['Stickerify', ' ', 'any', 'body'],
+	['Stickerify', ' ', 'any', 'thing'],
+	['Stickerify', ' ', 'every', 'thing'],
 ];
 
 const getWordsForFrame = (frame: number, videoLength: number) => {
@@ -59,7 +64,7 @@ const leftForWord = ({
 	compWidth,
 	frame,
 }: {
-	wordArray: Word[];
+	wordArray: string[];
 	index: number;
 	duration: number;
 	compWidth: number;
@@ -76,7 +81,7 @@ const leftForWord = ({
 
 type Change = {
 	distance: number;
-	words: [Word, Word, Word];
+	words: [string, string, string, string];
 } | null;
 
 const getNextChange = (frame: number, videoLength: number): Change => {
@@ -103,11 +108,9 @@ const getPreviousChange = (frame: number, videoLength: number): Change => {
 	return null;
 };
 
-const transitionDur = 6;
-
 const getFactorForDist = (
 	change: Change,
-	currentWords: [Word, Word, Word],
+	currentWords: [string, string, string, string],
 	index: number
 ) => {
 	if (change === null) {
@@ -116,7 +119,6 @@ const getFactorForDist = (
 	if (currentWords[index] === change.words[index]) {
 		return 0;
 	}
-	const factor = Math.max(0, transitionDur - change.distance) / transitionDur;
 	const val = spring2({
 		config: {
 			damping: 100,
@@ -143,7 +145,7 @@ const getScaleForDistance = ({
 }: {
 	nextChange: Change;
 	prevChange: Change;
-	currentWords: [Word, Word, Word];
+	currentWords: [string, string, string, string];
 	index: number;
 }) => {
 	const next = getFactorForDist(nextChange, currentWords, index);
@@ -159,7 +161,7 @@ const getScaleForDistance = ({
 
 const getWidthChange = (
 	change: Change,
-	currentWords: [Word, Word, Word],
+	currentWords: [string, string, string, string],
 	index: number
 ) => {
 	const factor = getFactorForDist(change, currentWords, index);
@@ -167,7 +169,7 @@ const getWidthChange = (
 		return 0;
 	}
 	const widthChange =
-		wordLength[change.words[index]] - wordLength[currentWords[index]];
+		measureTextNode(change.words[index]) - measureTextNode(currentWords[index]);
 	return widthChange;
 };
 
@@ -179,7 +181,7 @@ const getWidthChangeForDistance = ({
 }: {
 	nextChange: Change;
 	prevChange: Change;
-	currentWords: [Word, Word, Word];
+	currentWords: [string, string, string, string];
 	index: number;
 }) => {
 	const nextWidth =
@@ -198,7 +200,7 @@ const getActualWordLength = (frame: number, duration: number, i: number) => {
 	const word = wordsToUse[i];
 
 	return (
-		wordLength[word] +
+		measureTextNode(word) +
 		getWidthChangeForDistance({
 			nextChange,
 			prevChange,
@@ -212,20 +214,35 @@ export const Comp = () => {
 	const frame = useCurrentFrame();
 	const videoConfig = useVideoConfig();
 	const wordsToUse = getWordsForFrame(frame, videoConfig.durationInFrames);
+	const scale = spring2({
+		config: {
+			damping: 100,
+			mass: 10,
+			stiffness: 80,
+			restSpeedThreshold: 0.00001,
+			restDisplacementThreshold: 0.0001,
+			overshootClamping: false,
+		},
+		fps: 30,
+		frame,
+		from: 0.8,
+		to: 0.95,
+	});
 	return (
-		<div style={{display: 'flex', backgroundColor: 'white', flex: 1}}>
+		<div style={{display: 'flex', flex: 1, backgroundColor: 'white'}}>
 			<div
 				style={{
 					flex: 1,
-					backgroundColor: 'white',
 					justifyContent: 'center',
 					alignItems: 'center',
 					display: 'flex',
 					flexDirection: 'column',
-					transform: `scale(0.7)`,
+					transform: `scale(${scale})`,
 				}}
 			>
-				<Text>
+				{/**
+				// @ts-ignore */}
+				<Text style={textStyle}>
 					{wordsToUse.map((w, i) => {
 						const left = leftForWord({
 							wordArray: wordsToUse,
@@ -277,5 +294,5 @@ registerVideo(Comp, {
 	width: 1080,
 	height: 1080,
 	fps: 30,
-	durationInFrames: 3 * 30,
+	durationInFrames: 5 * 30,
 });

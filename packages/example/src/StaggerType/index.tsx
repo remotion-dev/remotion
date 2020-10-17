@@ -18,7 +18,7 @@ const Label = styled.div`
 	font-size: 260px;
 	color: black;
 	font-weight: 700;
-	font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+	font-family: 'SF Pro Text';
 	text-align: center;
 	transform: scaleX(1);
 	line-height: 1em;
