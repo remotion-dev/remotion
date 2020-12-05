@@ -19,6 +19,9 @@ const textStyle = {
 const widths: {[key: string]: number} = {};
 
 const measureTextNode = (text: string): number => {
+	if (text === '') {
+		return 0;
+	}
 	if (widths[text]) {
 		return widths[text];
 	}
