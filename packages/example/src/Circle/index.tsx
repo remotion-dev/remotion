@@ -96,7 +96,7 @@ export const Comp: React.FC = () => {
 
 registerVideo(Comp, {
 	fps: 30,
-	height: 1080,
+	height: 1920,
 	width: 1080,
 	durationInFrames: 3 * 30,
 });
