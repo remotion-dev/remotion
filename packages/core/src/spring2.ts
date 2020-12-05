@@ -121,7 +121,8 @@ export function spring2({
 		toValue: to,
 		velocity: 0,
 	};
-	for (let f = 0; f < frame; f++) {
+	const frameClamped = Math.max(0, frame);
+	for (let f = 0; f < frameClamped; f++) {
 		const time = (f / fps) * 1000;
 		animation = advance(animation, time, config);
 	}
