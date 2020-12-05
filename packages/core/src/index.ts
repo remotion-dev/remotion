@@ -1,5 +1,6 @@
 import './asset-types';
 
+export * from './audio';
 export * from './defer-ready';
 export * from './easing';
 export * from './interpolate';
