@@ -3,16 +3,19 @@ import {useRawCurrentFrame} from '../use-frame';
 
 export const SequenceContext = createContext<{
 	from: number;
+	durationInFrames: number;
 } | null>(null);
 
 export const Sequence: React.FC<{
 	from: number;
-}> = ({from, children}) => {
+	durationInFrames: number;
+}> = ({from, durationInFrames: duration, children}) => {
 	const currentFrame = useRawCurrentFrame();
 	return (
 		<SequenceContext.Provider
 			value={{
 				from,
+				durationInFrames: duration,
 			}}
 		>
 			<div
