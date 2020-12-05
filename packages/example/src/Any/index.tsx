@@ -1,4 +1,5 @@
 import {
+	Audio,
 	registerVideo,
 	spring2,
 	useCurrentFrame,
@@ -210,6 +211,8 @@ const getActualWordLength = (frame: number, duration: number, i: number) => {
 };
 
 export const Comp = () => {
+	const audio = require('./audio.mp4').default;
+
 	const frame = useCurrentFrame();
 	const videoConfig = useVideoConfig();
 	const wordsToUse = getWordsForFrame(frame, videoConfig.durationInFrames);
@@ -286,6 +289,7 @@ export const Comp = () => {
 					})}
 				</Text>
 			</div>
+			<Audio src={audio} />
 		</div>
 	);
 };
