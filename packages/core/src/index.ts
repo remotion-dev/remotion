@@ -5,6 +5,7 @@ export * from './defer-ready';
 export * from './easing';
 export * from './interpolate';
 export * from './register-video';
+export * from './sequencing';
 export * from './spring';
 export * from './spring2';
 export * from './timeline-position-state';
