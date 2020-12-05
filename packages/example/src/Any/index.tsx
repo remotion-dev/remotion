@@ -34,11 +34,9 @@ const measureTextNode = (text: string): number => {
 
 const Text = styled.span``;
 
-const words: [string, string, string, string][] = [
-	['Stickerify', '', '', ''],
-	['Stickerify', ' ', 'any', 'body'],
-	['Stickerify', ' ', 'any', 'thing'],
-	['Stickerify', ' ', 'every', 'thing'],
+const words: [string, string, string][] = [
+	['', ' ', ''],
+	['Welcome', ' to\n', ' AnySticker'],
 ];
 
 const getWordsForFrame = (frame: number, videoLength: number) => {
@@ -82,7 +80,7 @@ const leftForWord = ({
 
 type Change = {
 	distance: number;
-	words: [string, string, string, string];
+	words: [string, string, string];
 } | null;
 
 const getNextChange = (frame: number, videoLength: number): Change => {
@@ -111,7 +109,7 @@ const getPreviousChange = (frame: number, videoLength: number): Change => {
 
 const getFactorForDist = (
 	change: Change,
-	currentWords: [string, string, string, string],
+	currentWords: [string, string, string],
 	index: number
 ) => {
 	if (change === null) {
@@ -146,7 +144,7 @@ const getScaleForDistance = ({
 }: {
 	nextChange: Change;
 	prevChange: Change;
-	currentWords: [string, string, string, string];
+	currentWords: [string, string, string];
 	index: number;
 }) => {
 	const next = getFactorForDist(nextChange, currentWords, index);
@@ -162,7 +160,7 @@ const getScaleForDistance = ({
 
 const getWidthChange = (
 	change: Change,
-	currentWords: [string, string, string, string],
+	currentWords: [string, string, string],
 	index: number
 ) => {
 	const factor = getFactorForDist(change, currentWords, index);
@@ -182,7 +180,7 @@ const getWidthChangeForDistance = ({
 }: {
 	nextChange: Change;
 	prevChange: Change;
-	currentWords: [string, string, string, string];
+	currentWords: [string, string, string];
 	index: number;
 }) => {
 	const nextWidth =
@@ -242,7 +240,7 @@ export const Comp = () => {
 				}}
 			>
 				{/**
-				// @ts-ignore */}
+				// @ts-expect-error */}
 				<Text style={textStyle}>
 					{wordsToUse.map((w, i) => {
 						const left = leftForWord({
@@ -262,6 +260,7 @@ export const Comp = () => {
 						);
 						return (
 							<span
+								// eslint-disable-next-line react/no-array-index-key
 								key={w + i}
 								style={{
 									display: 'inline-block',
@@ -293,7 +292,7 @@ export const Comp = () => {
 
 registerVideo(Comp, {
 	width: 1080,
-	height: 1080,
+	height: 1920,
 	fps: 30,
-	durationInFrames: 5 * 30,
+	durationInFrames: 3 * 30,
 });

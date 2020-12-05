@@ -47,6 +47,8 @@ export const Title = () => {
 				justifyContent: 'center',
 				alignItems: 'center',
 				display: 'flex',
+				backgroundColor: 'white',
+				textAlign: 'center',
 			}}
 		>
 			<div
@@ -60,16 +62,15 @@ export const Title = () => {
 					style={{
 						display: 'inline-block',
 						transform: `scale(${firstWord})`,
-						marginRight: 25,
 					}}
 				>
-					You're
+					Welcome to
 				</span>
 				<span
 					style={{transform: `scale(${secondWord})`, display: 'inline-block'}}
 				>
 					{' '}
-					invited
+					AnySticker
 				</span>
 			</div>
 		</div>
@@ -78,7 +79,7 @@ export const Title = () => {
 
 registerVideo(Title, {
 	fps: 30,
-	height: 1080,
+	height: 1920,
 	width: 1080,
 	durationInFrames: 30,
 });
