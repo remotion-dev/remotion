@@ -7,6 +7,7 @@ import {RealStickers} from '../RealStickers';
 import {ScreenShowcase} from '../ScreenShowcase';
 import {Springy} from '../Springy';
 import {Title} from '../Title';
+import {Transition} from '../Transition';
 
 export const Welcome: React.FC = () => {
 	const audio = require('./audio.mp4').default;
@@ -26,57 +27,79 @@ export const Welcome: React.FC = () => {
 		require('./juicy/Untitled Frame ' + (f + 1) + '.png').default;
 
 	return (
-		<div style={{flex: 1, display: 'flex'}}>
+		<div style={{flex: 1, display: 'flex', backgroundColor: 'white'}}>
 			<Sequence from={0} durationInFrames={40}>
 				<BigRotate />
 			</Sequence>
 			<Sequence from={40} durationInFrames={60}>
 				<Title line1="Welcome to" line2="AnySticker" />
 			</Sequence>
-			<Sequence from={100} durationInFrames={70}>
+			<Sequence from={100} durationInFrames={69}>
 				<Layout />
 			</Sequence>
 			<Sequence from={170} durationInFrames={80}>
-				<ScreenShowcase
-					title="Stickerize yourself"
-					getImage={yourselfGetImage}
-					animateIn
-				/>
+				<Transition type="out">
+					<ScreenShowcase
+						title="Stickerize yourself"
+						getImage={yourselfGetImage}
+						animateIn
+					/>
+				</Transition>
 			</Sequence>
 			<Sequence from={250} durationInFrames={70}>
-				<ScreenShowcase
-					title="Stickerize anything"
-					getImage={objectGetImage}
-					animateIn={false}
-				/>
+				<Transition type="in">
+					<Transition type="out">
+						<ScreenShowcase
+							title="Stickerize anything"
+							getImage={objectGetImage}
+							animateIn={false}
+						/>
+					</Transition>
+				</Transition>
 			</Sequence>
 			<Sequence from={320} durationInFrames={60}>
-				<ScreenShowcase
-					title="Explore sticker packs"
-					getImage={objectGetScroll}
-					animateIn={false}
-				/>
+				<Transition type="in">
+					<Transition type="out">
+						<ScreenShowcase
+							title="Explore sticker packs"
+							getImage={objectGetScroll}
+							animateIn={false}
+						/>
+					</Transition>
+				</Transition>
 			</Sequence>
 			<Sequence from={380} durationInFrames={60}>
-				<ScreenShowcase
-					title="Thousands of stickers"
-					getImage={objectGetThousands}
-					animateIn={false}
-				/>
+				<Transition type="in">
+					<Transition type="out">
+						<ScreenShowcase
+							title="Thousands of stickers"
+							getImage={objectGetThousands}
+							animateIn={false}
+						/>
+					</Transition>
+				</Transition>
 			</Sequence>
 			<Sequence from={440} durationInFrames={80}>
-				<ScreenShowcase
-					title="Collect stickers"
-					getImage={objectGetReorder}
-					animateIn={false}
-				/>
+				<Transition type="in">
+					<Transition type="out">
+						<ScreenShowcase
+							title="Collect stickers"
+							getImage={objectGetReorder}
+							animateIn={false}
+						/>
+					</Transition>
+				</Transition>
 			</Sequence>
 			<Sequence from={520} durationInFrames={90}>
-				<ScreenShowcase
-					title="Share anywhere"
-					getImage={objectGetJuicy}
-					animateIn={false}
-				/>
+				<Transition type="in">
+					<Transition type="out">
+						<ScreenShowcase
+							title="Share anywhere"
+							getImage={objectGetJuicy}
+							animateIn={false}
+						/>
+					</Transition>
+				</Transition>
 			</Sequence>
 			<Sequence from={610} durationInFrames={90}>
 				<RealStickers></RealStickers>
