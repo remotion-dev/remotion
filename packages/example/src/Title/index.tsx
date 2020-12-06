@@ -7,7 +7,10 @@ import {
 } from '@remotion/core';
 import React from 'react';
 
-export const Title = () => {
+export const Title: React.FC<{
+	line1: string;
+	line2: string;
+}> = ({line1, line2}) => {
 	const {fps} = useVideoConfig();
 	const frame = useCurrentFrame();
 	const springConfig: SpringConfig = {
@@ -64,13 +67,13 @@ export const Title = () => {
 						transform: `scale(${firstWord})`,
 					}}
 				>
-					Welcome to
+					{line1}
 				</span>
 				<span
 					style={{transform: `scale(${secondWord})`, display: 'inline-block'}}
 				>
 					{' '}
-					AnySticker
+					{line2}
 				</span>
 			</div>
 		</div>

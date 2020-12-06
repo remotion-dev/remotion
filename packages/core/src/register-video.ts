@@ -18,7 +18,10 @@ export const getVideoConfig = (): VideoConfig => {
 	return videoConfig;
 };
 
-export const registerVideo = (node: React.FC, config: VideoConfig): void => {
+export const registerVideo = (
+	node: React.FC<any>,
+	config: VideoConfig
+): void => {
 	comp = node;
 	videoConfig = config;
 };
