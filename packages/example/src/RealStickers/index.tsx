@@ -177,7 +177,11 @@ export const RealStickers = () => {
 				})}
 				<img
 					src={f}
-					style={{position: 'absolute', transform: `scale(${phoneScale})`}}
+					style={{
+						position: 'absolute',
+						transform: `scale(${phoneScale})`,
+						top: videoConfig.height / 2 - 1080 / 2,
+					}}
 				></img>
 			</div>
 		</div>
@@ -186,7 +190,7 @@ export const RealStickers = () => {
 
 registerVideo(RealStickers, {
 	width: 1080,
-	height: 1080,
+	height: 1920,
 	fps: 30,
 	durationInFrames: 30 * 2.2,
 });

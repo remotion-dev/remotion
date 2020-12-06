@@ -122,7 +122,11 @@ export function spring2({
 		velocity: 0,
 	};
 	const frameClamped = Math.max(0, frame);
-	for (let f = 0; f < frameClamped; f++) {
+	const unevenRest = frameClamped % 1;
+	for (let f = 0; f <= Math.floor(frameClamped); f++) {
+		if (f === Math.floor(frameClamped)) {
+			f += unevenRest;
+		}
 		const time = (f / fps) * 1000;
 		animation = advance(animation, time, config);
 	}
