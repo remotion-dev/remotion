@@ -30,7 +30,11 @@ export const Sequence: React.FC<{
 					right: 0,
 				}}
 			>
-				{currentFrame < from ? null : children}
+				{currentFrame < from
+					? null
+					: currentFrame > from + duration
+					? null
+					: children}
 			</div>
 		</SequenceContext.Provider>
 	);
