@@ -1,4 +1,5 @@
 import {
+	interpolate,
 	registerVideo,
 	spring2,
 	useCurrentFrame,
@@ -21,29 +22,38 @@ const Label = styled.span<{
 	line-height: 1em;
 	margin-left: 10px;
 	margin-right: 10px;
+	display: inline-block;
 `;
 
 const lines = 7;
 const Row: React.FC<{
 	videoWidth: number;
 	i: number;
-}> = ({videoWidth, i}) => {
+	text: string;
+	zoom: number;
+}> = ({videoWidth, i, text, zoom}) => {
 	const frame = useCurrentFrame();
 	const videoConfig = useVideoConfig();
-	const posX = spring2({
+	const progress = spring2({
 		config: {
-			damping: 20 + i * 10,
-			mass: 4,
-			stiffness: 80,
+			damping: 30,
+			mass: 1,
+			stiffness: 40,
 			restSpeedThreshold: 0.00001,
 			restDisplacementThreshold: 0.0001,
 			overshootClamping: false,
 		},
 		fps: videoConfig.fps,
-		from: 1,
-		to: 0,
-		frame: frame,
+		from: 0,
+		to: 1,
+		frame,
 	});
+	const posX = interpolate({
+		input: progress,
+		inputRange: [0, 1],
+		outputRange: [1, 0],
+	});
+
 	const dir = i % 2 === 0 ? -1 : 1;
 	const color = mix(
 		Math.min(1, (lines - i - 1) / lines),
@@ -54,21 +64,40 @@ const Row: React.FC<{
 		<div
 			style={{
 				whiteSpace: 'nowrap',
-				width: 7000,
-				marginLeft: -(7000 - videoWidth) / 2 + posX * 1000 * dir,
+				width: 10000,
+				marginLeft: -(10000 - videoWidth) / 2 + posX * 1000 * dir,
 				textAlign: 'center',
 				color,
+				opacity: 1 - zoom,
 			}}
 		>
-			<Label outline>BETA</Label>
-			<Label outline>BETA</Label>
-			<Label outline>BETA</Label>
-			<Label outline>BETA</Label>
-			<Label outline={false}>BETA</Label>
-			<Label outline>BETA</Label>
-			<Label outline>BETA</Label>
-			<Label outline>BETA</Label>
-			<Label outline>BETA</Label>
+			<Label outline style={{transform: `scale(${progress})`}}>
+				{text}
+			</Label>
+			<Label outline style={{transform: `scale(${progress})`}}>
+				{text}
+			</Label>
+			<Label outline style={{transform: `scale(${progress})`}}>
+				{text}
+			</Label>
+			<Label outline style={{transform: `scale(${progress})`}}>
+				{text}
+			</Label>
+			<Label outline={false} style={{transform: `scale(${progress})`}}>
+				{text}
+			</Label>
+			<Label outline style={{transform: `scale(${progress})`}}>
+				{text}
+			</Label>
+			<Label outline style={{transform: `scale(${progress})`}}>
+				{text}
+			</Label>
+			<Label outline style={{transform: `scale(${progress})`}}>
+				{text}
+			</Label>
+			<Label outline style={{transform: `scale(${progress})`}}>
+				{text}
+			</Label>
 		</div>
 	);
 };
@@ -77,19 +106,67 @@ export const BetaText = () => {
 	const videoConfig = useVideoConfig();
 	const frame = useCurrentFrame();
 
+	const progress = spring2({
+		config: {
+			damping: 30,
+			mass: 1,
+			stiffness: 40,
+			restSpeedThreshold: 0.00001,
+			restDisplacementThreshold: 0.0001,
+			overshootClamping: false,
+		},
+		fps: videoConfig.fps,
+		from: 0,
+		to: 1,
+		frame: Math.max(0, frame - 70),
+	});
+	const scale = interpolate({
+		input: progress,
+		inputRange: [0, 0.4],
+		outputRange: [1, 10],
+	});
+	const backgroundColor = mix(1 - progress, '#fff', solidBrand);
+
 	return (
 		<div
 			style={{
-				backgroundColor: 'white',
-				flex: 1,
+				width: videoConfig.width,
+				height: videoConfig.height,
+				display: 'flex',
+				transform: `scale(${scale})`,
 			}}
 		>
-			{new Array(9)
-				.fill(true)
-				.map((_, i) => i)
-				.map((key) => {
-					return <Row i={key} key={key} videoWidth={videoConfig.width}></Row>;
-				})}
+			<div
+				style={{
+					backgroundColor,
+					flex: 1,
+				}}
+			>
+				{new Array(17)
+					.fill(true)
+					.map((_, i) => i)
+					.map((key) => {
+						return (
+							<Row
+								zoom={progress}
+								text={
+									key === 7
+										? 'CET'
+										: key === 5
+										? '5pm'
+										: key === 3
+										? 'TOMORROW'
+										: key === 1
+										? 'ANYSTICKER'
+										: 'BETA'
+								}
+								i={key}
+								key={key}
+								videoWidth={videoConfig.width}
+							></Row>
+						);
+					})}
+			</div>
 		</div>
 	);
 };
@@ -98,5 +175,5 @@ registerVideo(BetaText, {
 	width: 1080,
 	height: 1080,
 	fps: 30,
-	durationInFrames: 30 * 4,
+	durationInFrames: 30 * 3.3,
 });
