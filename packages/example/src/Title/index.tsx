@@ -7,7 +7,10 @@ import {
 } from '@remotion/core';
 import React from 'react';
 
-export const Title = () => {
+export const Title: React.FC<{
+	line1: string;
+	line2: string;
+}> = ({line1, line2}) => {
 	const {fps} = useVideoConfig();
 	const frame = useCurrentFrame();
 	const springConfig: SpringConfig = {
@@ -47,6 +50,8 @@ export const Title = () => {
 				justifyContent: 'center',
 				alignItems: 'center',
 				display: 'flex',
+				backgroundColor: 'white',
+				textAlign: 'center',
 			}}
 		>
 			<div
@@ -60,16 +65,15 @@ export const Title = () => {
 					style={{
 						display: 'inline-block',
 						transform: `scale(${firstWord})`,
-						marginRight: 25,
 					}}
 				>
-					You're
+					{line1}
 				</span>
 				<span
 					style={{transform: `scale(${secondWord})`, display: 'inline-block'}}
 				>
 					{' '}
-					invited
+					{line2}
 				</span>
 			</div>
 		</div>
@@ -78,7 +82,7 @@ export const Title = () => {
 
 registerVideo(Title, {
 	fps: 30,
-	height: 1080,
+	height: 1920,
 	width: 1080,
 	durationInFrames: 30,
 });
