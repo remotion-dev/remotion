@@ -1,4 +1,5 @@
 import {startServer} from '@remotion/bundler';
+// @ts-ignore
 import betterOpn from 'better-opn';
 import fs from 'fs';
 import path from 'path';

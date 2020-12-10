@@ -5,8 +5,12 @@ import {
 	useCurrentFrame,
 	useVideoConfig,
 } from '@remotion/core';
+import {mix} from 'polished';
 import React from 'react';
 import {Tile} from './Tile';
+
+const BRAND_GRADIENT = ['#5851db', '#405de6'];
+const solidBrand = mix(0.5, BRAND_GRADIENT[0], BRAND_GRADIENT[1]);
 
 export const Tiles = () => {
 	const videoConfig = useVideoConfig();
@@ -24,7 +28,7 @@ export const Tiles = () => {
 	const scale = spring2({
 		config: springConfig,
 		from: 1,
-		to: 2.5,
+		to: 3.3,
 		fps: videoConfig.fps,
 		frame,
 	});
@@ -45,8 +49,7 @@ export const Tiles = () => {
 	return (
 		<div
 			style={{
-				backgroundColor:
-					'linear-gradient(-90deg, rgb(88, 81, 219), rgb(64, 93, 230))',
+				backgroundColor: solidBrand,
 				flex: 1,
 			}}
 		>
@@ -78,7 +81,7 @@ export const Tiles = () => {
 
 registerVideo(Tiles, {
 	fps: 30,
-	height: 1080,
+	height: 1920,
 	width: 1080,
 	durationInFrames: 3 * 30,
 });
