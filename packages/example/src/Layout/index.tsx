@@ -51,6 +51,7 @@ export const Layout: React.FC = () => {
 				justifyContent: 'center',
 				alignItems: 'center',
 				backgroundColor,
+				transform: 'scale(1.4)',
 			}}
 		>
 			<Orchestra
@@ -65,7 +66,7 @@ export const Layout: React.FC = () => {
 
 registerVideo(Layout, {
 	width: 1080,
-	height: 1080,
+	height: 1920,
 	durationInFrames: 3 * 30,
 	fps: 30,
 });

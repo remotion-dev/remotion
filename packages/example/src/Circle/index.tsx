@@ -1,6 +1,5 @@
 import {
 	registerVideo,
-	spring,
 	spring2,
 	SpringConfig,
 	useCurrentFrame,
@@ -14,7 +13,7 @@ const Logo = styled.img`
 	position: absolute;
 `;
 
-const squircleSize = 200;
+const squircleSize = 220;
 
 const makeSquircle = (w = 100, h = 100, curvature = 0.5): string => {
 	const curveWidth = (w / 2) * (1 - curvature);
@@ -28,8 +27,9 @@ const makeSquircle = (w = 100, h = 100, curvature = 0.5): string => {
     `;
 };
 
-export const Comp: React.FC = () => {
-	const frame = useCurrentFrame();
+export const EndLogo: React.FC = () => {
+	const f = useCurrentFrame();
+	const frame = f / 2;
 	const videoConfig = useVideoConfig();
 
 	const springConfig: SpringConfig = {
@@ -43,13 +43,13 @@ export const Comp: React.FC = () => {
 
 	const scale = spring2({
 		config: springConfig,
-		from: 10,
+		from: 14,
 		to: 1,
 		fps: videoConfig.fps,
 		frame,
 	});
-	const logoScale = spring({
-		...springConfig,
+	const logoScale = spring2({
+		config: springConfig,
 		from: 0,
 		to: 1,
 		frame,
@@ -57,7 +57,7 @@ export const Comp: React.FC = () => {
 	});
 	const squirclefactor = spring2({
 		config: springConfig,
-		from: 0.2,
+		from: 0.5,
 		to: 1.05,
 		frame,
 		fps: videoConfig.fps,
@@ -94,9 +94,9 @@ export const Comp: React.FC = () => {
 	);
 };
 
-registerVideo(Comp, {
+registerVideo(EndLogo, {
 	fps: 30,
-	height: 1080,
+	height: 1920,
 	width: 1080,
 	durationInFrames: 3 * 30,
 });
