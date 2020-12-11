@@ -2,7 +2,7 @@ import {
 	deferRender,
 	readyToRender,
 	registerVideo,
-	spring2,
+	spring,
 	SpringConfig,
 	useCurrentFrame,
 	useVideoConfig,
@@ -136,7 +136,7 @@ const Box: React.FC = () => {
 			overshootClamping: true,
 		};
 		// @ts-expect-error
-		groupRef.current.rotation.x = spring2({
+		groupRef.current.rotation.x = spring({
 			config: springConfig,
 			frame,
 			fps: videoConfig.fps,
@@ -144,7 +144,7 @@ const Box: React.FC = () => {
 			to: 0,
 		});
 
-		const scale = spring2({
+		const scale = spring({
 			config: springConfig,
 			from: 0,
 			to: 0.1,

@@ -1,6 +1,6 @@
 import {
 	registerVideo,
-	spring2,
+	spring,
 	useCurrentFrame,
 	useVideoConfig,
 } from '@remotion/core';
@@ -121,7 +121,7 @@ const getFactorForDist = (
 	if (currentWords[index] === change.words[index]) {
 		return 0;
 	}
-	const val = spring2({
+	const val = spring({
 		config: {
 			damping: 100,
 			mass: 0.1,
@@ -216,7 +216,7 @@ export const Any = () => {
 	const frame = useCurrentFrame();
 	const videoConfig = useVideoConfig();
 	const wordsToUse = getWordsForFrame(frame, videoConfig.durationInFrames);
-	const scale = spring2({
+	const scale = spring({
 		config: {
 			damping: 100,
 			mass: 10,

@@ -1,6 +1,6 @@
 import {
 	interpolate,
-	spring2,
+	spring,
 	useCurrentFrame,
 	useVideoConfig,
 } from '@remotion/core';
@@ -14,7 +14,7 @@ export const Orchestra: React.FC<{
 	phoneScale: number;
 }> = ({layers, xOffset, yOffset, phoneScale}) => {
 	const getColumnOffset = (c: number, r: number) => {
-		return spring2({
+		return spring({
 			from: 0,
 			to: (PhoneHeight + yOffset) * (r % 2 === 0 ? 1 : -1),
 			config: {
@@ -33,7 +33,7 @@ export const Orchestra: React.FC<{
 	const rows = layers * 2 + 1;
 	const columns = 4;
 	const frame = useCurrentFrame();
-	const p = spring2({
+	const p = spring({
 		config: {
 			damping: 100,
 			mass: 0.1,

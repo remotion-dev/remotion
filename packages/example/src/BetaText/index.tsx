@@ -1,7 +1,7 @@
 import {
 	interpolate,
 	registerVideo,
-	spring2,
+	spring,
 	useCurrentFrame,
 	useVideoConfig,
 } from '@remotion/core';
@@ -34,7 +34,7 @@ const Row: React.FC<{
 }> = ({videoWidth, i, text, zoom}) => {
 	const frame = useCurrentFrame();
 	const videoConfig = useVideoConfig();
-	const progress = spring2({
+	const progress = spring({
 		config: {
 			damping: 30,
 			mass: 1,
@@ -106,7 +106,7 @@ export const BetaText = () => {
 	const videoConfig = useVideoConfig();
 	const frame = useCurrentFrame();
 
-	const progress = spring2({
+	const progress = spring({
 		config: {
 			damping: 30,
 			mass: 1,

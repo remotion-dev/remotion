@@ -1,6 +1,6 @@
 import {
 	interpolate,
-	spring2,
+	spring,
 	useCurrentFrame,
 	useVideoConfig,
 } from '@remotion/core';
@@ -24,7 +24,7 @@ export const Circle: React.FC<{
 }> = ({size}) => {
 	const videoConfig = useVideoConfig();
 	const frame = useCurrentFrame();
-	const progress = spring2({
+	const progress = spring({
 		config: {
 			damping: 1000,
 			mass: 0.7,
