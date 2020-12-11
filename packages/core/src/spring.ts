@@ -14,6 +14,15 @@ export type SpringConfig = {
 	restSpeedThreshold: number;
 };
 
+const defaultSpringConfig: SpringConfig = {
+	damping: 10,
+	mass: 1,
+	stiffness: 100,
+	overshootClamping: false,
+	restDisplacementThreshold: 0.001,
+	restSpeedThreshold: 0.001,
+};
+
 export function advance(
 	animation: AnimationNode,
 	now: number,
@@ -96,24 +105,17 @@ export function advance(
 }
 
 export function spring({
-	from,
-	to,
+	from = 0,
+	to = 1,
 	frame,
 	fps,
-	config = {
-		damping: 10,
-		mass: 1,
-		stiffness: 100,
-		overshootClamping: false,
-		restDisplacementThreshold: 0.001,
-		restSpeedThreshold: 0.001,
-	},
+	config = {},
 }: {
-	from: number;
-	to: number;
+	from?: number;
+	to?: number;
 	frame: number;
 	fps: number;
-	config: SpringConfig;
+	config?: Partial<SpringConfig>;
 }): number {
 	let animation: AnimationNode = {
 		lastTimestamp: 0,
@@ -128,7 +130,10 @@ export function spring({
 			f += unevenRest;
 		}
 		const time = (f / fps) * 1000;
-		animation = advance(animation, time, config);
+		animation = advance(animation, time, {
+			...defaultSpringConfig,
+			...config,
+		});
 	}
 	return animation.current;
 }
