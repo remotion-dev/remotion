@@ -1,4 +1,10 @@
-import {spring, useCurrentFrame, useVideoConfig} from '@remotion/core';
+import {
+	spring,
+	spring2,
+	SpringConfig,
+	useCurrentFrame,
+	useVideoConfig,
+} from '@remotion/core';
 import React from 'react';
 
 const size = 200;
@@ -8,26 +14,26 @@ export const Tile: React.FC<{
 }> = ({index}) => {
 	const videoConfig = useVideoConfig();
 	const frame = useCurrentFrame();
-	const springConfig = {
+	const springConfig: SpringConfig = {
 		damping: 100,
 		mass: 0.5,
 		stiffness: 10,
 		restSpeedThreshold: 0.00001,
 		restDisplacementThreshold: 0.0001,
+		overshootClamping: true,
+	};
+	const scale = spring2({
+		config: springConfig,
 		fps: videoConfig.fps,
 		frame,
-		velocity: 2,
-	};
-	const scale = spring({
-		...springConfig,
-		velocity: 0,
 		from: 0,
 		to: 1,
 	});
-	const rotate = spring({
-		...springConfig,
-		velocity: 0,
+	const rotate = spring2({
+		config: springConfig
+		fps: videoConfig.fps,
 		from: 0,
+		frame,
 		to: 1,
 	});
 	return (
