@@ -1,11 +1,10 @@
 {
-  "extends": "../tsconfig.settings.json",
-  "compilerOptions": {
-    "rootDir": "src",
-    "outDir": "dist",
-    "jsx": "react",
-    "skipLibCheck": true,
-    "allowSyntheticDefaultImports": true
-  }
+	"extends": "../tsconfig.settings.json",
+	"compilerOptions": {
+		"rootDir": "src",
+		"outDir": "dist",
+		"jsx": "react-jsx",
+		"skipLibCheck": true,
+		"allowSyntheticDefaultImports": true
+	}
 }
-  
