@@ -1,10 +1,10 @@
 {
-  "extends": "../tsconfig.settings.json",
-  "compilerOptions": {
-    "composite": true,
-    "rootDir": "src",
-    "outDir": "dist",
-    "skipLibCheck": true
-  }
+	"extends": "../tsconfig.settings.json",
+	"compilerOptions": {
+		"composite": true,
+		"rootDir": "src",
+		"outDir": "dist",
+		"skipLibCheck": true,
+		"jsx": "react-jsx"
+	}
 }
-  
