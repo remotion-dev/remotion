@@ -3,6 +3,7 @@
 	"version": "1.0.0-y.2",
 	"description": "",
 	"main": "dist/index.js",
+	"private": true,
 	"scripts": {
 		"dev": "remotion preview src/ReactSvg/index.tsx",
 		"test": "eslint 'src' --ext ts,tsx",
