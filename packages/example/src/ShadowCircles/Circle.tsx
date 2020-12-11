@@ -69,7 +69,7 @@ export const Circle: React.FC<{
 				WebkitFilter: 'drop-shadow(0 0 5px #5851db)',
 			}}
 		>
-			<path d={makeSquircle(size, size, squircleFactor)} fill={color}></path>
+			<path d={makeSquircle(size, size, squircleFactor)} fill={color} />
 		</svg>
 	);
 };
