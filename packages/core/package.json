@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/core",
-	"version": "1.0.0-y.4",
+	"version": "1.0.0-y.5",
 	"description": "",
 	"main": "dist/index.js",
 	"scripts": {
@@ -18,7 +18,7 @@
 		"@types/node": "^14.0.13",
 		"@types/react": "^16.9.42",
 		"prettier": "^2.0.5",
-		"react": "^16.13.1",
+		"react": "^17.0.1",
 		"react-hooks-global-state": "^1.0.1",
 		"typescript": "^3.9.5"
 	},
