@@ -9,6 +9,7 @@
     "build": "lerna run build"
   },
   "devDependencies": {
+    "@jonny/eslint-config": "^2.1.210",
     "eslint": "^7.15.0",
     "lerna": "^2.11.0",
     "prettier": "^2.2.1",
