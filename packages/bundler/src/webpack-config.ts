@@ -63,6 +63,7 @@ export const webpackConfig = ({
 		extensions: ['.ts', '.tsx', '.js'],
 		alias: {
 			// Only one version of react
+			'react/jsx-runtime': require.resolve('react/jsx-runtime'),
 			react: require.resolve('react'),
 			recoil: require.resolve('recoil'),
 		},
