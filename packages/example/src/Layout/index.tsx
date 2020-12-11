@@ -17,8 +17,6 @@ export const Layout: React.FC = () => {
 			damping: 30,
 			mass: 0.4,
 			stiffness: 100,
-			restSpeedThreshold: 0.00001,
-			restDisplacementThreshold: 0.0001,
 			overshootClamping: false,
 		},
 		fps: videoConfig.fps,

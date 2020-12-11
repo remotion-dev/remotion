@@ -26,8 +26,6 @@ export const Transition: React.FC<{
 		damping: 10,
 		mass: 0.1,
 		stiffness: 100,
-		restSpeedThreshold: 0.00001,
-		restDisplacementThreshold: 0.0001,
 		overshootClamping: true,
 	};
 	const firstFrame = videoConfig.durationInFrames - 4;

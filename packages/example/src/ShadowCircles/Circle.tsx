@@ -29,8 +29,6 @@ export const Circle: React.FC<{
 			damping: 1000,
 			mass: 0.7,
 			stiffness: 10,
-			restSpeedThreshold: 0.00001,
-			restDisplacementThreshold: 0.0001,
 			overshootClamping: false,
 		},
 		fps: videoConfig.fps,

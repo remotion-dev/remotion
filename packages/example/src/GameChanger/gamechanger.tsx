@@ -55,8 +55,6 @@ export const GameChanger = () => {
 				damping: 2,
 				mass: 0.1,
 				stiffness: 10,
-				restSpeedThreshold: 0.00001,
-				restDisplacementThreshold: 0.0001,
 				overshootClamping: false,
 			},
 			fps: videoConfig.fps,

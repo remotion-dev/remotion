@@ -10,8 +10,6 @@ export type SpringConfig = {
 	mass: number;
 	stiffness: number;
 	overshootClamping: boolean;
-	restDisplacementThreshold: number;
-	restSpeedThreshold: number;
 };
 
 const defaultSpringConfig: SpringConfig = {
@@ -19,8 +17,6 @@ const defaultSpringConfig: SpringConfig = {
 	mass: 1,
 	stiffness: 100,
 	overshootClamping: false,
-	restDisplacementThreshold: 0.001,
-	restSpeedThreshold: 0.001,
 };
 
 export function advance(
@@ -72,21 +68,6 @@ export function advance(
 		criticallyDampedEnvelope *
 		(v0 * (t * omega0 - 1) + t * x0 * omega0 * omega0);
 
-	const isOvershooting = (): boolean => {
-		if (config.overshootClamping && config.stiffness !== 0) {
-			return current < toValue
-				? copiedAnimated.current > toValue
-				: copiedAnimated.current < toValue;
-		} else {
-			return false;
-		}
-	};
-
-	const isVelocity = Math.abs(velocity) < config.restSpeedThreshold;
-	const isDisplacement =
-		config.stiffness === 0 ||
-		Math.abs(toValue - current) < config.restDisplacementThreshold;
-
 	if (zeta < 1) {
 		copiedAnimated.current = underDampedPosition;
 		copiedAnimated.velocity = underDampedVelocity;
@@ -95,12 +76,6 @@ export function advance(
 		copiedAnimated.velocity = criticallyDampedVelocity;
 	}
 
-	if (isOvershooting() || (isVelocity && isDisplacement)) {
-		if (config.stiffness !== 0) {
-			copiedAnimated.velocity = 0;
-			copiedAnimated.current = toValue;
-		}
-	}
 	return copiedAnimated;
 }
 
