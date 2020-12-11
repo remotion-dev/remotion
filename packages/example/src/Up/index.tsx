@@ -1,7 +1,7 @@
 import {
 	interpolate,
 	registerVideo,
-	spring2,
+	spring,
 	SpringConfig,
 	useCurrentFrame,
 	useVideoConfig,
@@ -21,7 +21,7 @@ export const Up = () => {
 		overshootClamping: true,
 	};
 	const upFrame = Math.max(0, frame - 24);
-	const progress = spring2({
+	const progress = spring({
 		config: {...springConfig, mass: springConfig.mass * 1},
 		frame: upFrame,
 		from: 0,
@@ -44,7 +44,7 @@ export const Up = () => {
 		inputRange: [0, 1],
 		outputRange: [0.5, 1.3],
 	});
-	const rotateProgress = spring2({
+	const rotateProgress = spring({
 		config: {...springConfig, mass: springConfig.mass * 1.3},
 		frame: upFrame,
 		from: 0,

@@ -1,5 +1,5 @@
 import {
-	spring2,
+	spring,
 	SpringConfig,
 	useCurrentFrame,
 	useVideoConfig,
@@ -18,7 +18,7 @@ export const Logo = () => {
 		overshootClamping: true,
 	};
 
-	const scale = spring2({
+	const scale = spring({
 		fps: videoConfig.fps,
 		frame: Math.max(0, frame - 20),
 		config: springConfig,

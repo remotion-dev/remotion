@@ -1,6 +1,6 @@
 import {
 	registerVideo,
-	spring2,
+	spring,
 	SpringConfig,
 	useCurrentFrame,
 	useVideoConfig,
@@ -20,21 +20,21 @@ export const Devices = () => {
 		overshootClamping: false,
 	};
 
-	const bigScale = spring2({
+	const bigScale = spring({
 		config: springConfig,
 		from: 1.1,
 		fps: videoConfig.fps,
 		frame,
 		to: 0.9,
 	});
-	const smallScale = spring2({
+	const smallScale = spring({
 		config: springConfig,
 		from: 0.5,
 		to: 0.6,
 		frame,
 		fps: videoConfig.fps,
 	});
-	const offset = spring2({
+	const offset = spring({
 		config: springConfig,
 		from: 100,
 		to: 0,

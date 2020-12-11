@@ -1,7 +1,7 @@
 import {
 	interpolate,
 	registerVideo,
-	spring2,
+	spring,
 	useCurrentFrame,
 	useVideoConfig,
 } from '@remotion/core';
@@ -11,7 +11,7 @@ export const CoinAnimation = () => {
 	const frame = useCurrentFrame();
 	const {height, width, fps} = useVideoConfig();
 
-	const progress = spring2({
+	const progress = spring({
 		from: 0,
 		to: 1,
 		frame,
@@ -25,7 +25,7 @@ export const CoinAnimation = () => {
 			overshootClamping: false,
 		},
 	});
-	const coinProgress = spring2({
+	const coinProgress = spring({
 		from: 0,
 		to: 1,
 		frame,

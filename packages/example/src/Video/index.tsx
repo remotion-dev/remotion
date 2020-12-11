@@ -1,6 +1,6 @@
 import {
 	registerVideo,
-	spring2,
+	spring,
 	useCurrentFrame,
 	useVideoConfig,
 	Video,
@@ -14,7 +14,7 @@ export const Comp: React.FC = () => {
 	const video = require('./record-20200910-191938.webm').default;
 	const frame = useCurrentFrame();
 	const videoConfig = useVideoConfig();
-	const scale = spring2({
+	const scale = spring({
 		config: {
 			damping: 10,
 			mass: 0.1,

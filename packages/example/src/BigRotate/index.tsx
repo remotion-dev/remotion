@@ -1,7 +1,7 @@
 import {
 	interpolate,
 	registerVideo,
-	spring2,
+	spring,
 	useCurrentFrame,
 	useVideoConfig,
 } from '@remotion/core';
@@ -10,7 +10,7 @@ import React from 'react';
 export const BigRotate = () => {
 	const frame = useCurrentFrame();
 	const videoConfig = useVideoConfig();
-	const rotatoFrame = spring2({
+	const rotatoFrame = spring({
 		fps: videoConfig.fps,
 		config: {
 			stiffness: 20,
@@ -24,7 +24,7 @@ export const BigRotate = () => {
 		to: 0,
 		frame,
 	});
-	const scale = spring2({
+	const scale = spring({
 		fps: videoConfig.fps,
 		config: {
 			stiffness: 20,
