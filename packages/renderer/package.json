@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/renderer",
-	"version": "1.0.0-y.4",
+	"version": "1.0.0-y.5",
 	"description": "",
 	"main": "dist/index.js",
 	"scripts": {
@@ -16,15 +16,15 @@
 	"dependencies": {
 		"@babel/preset-typescript": "^7.10.4",
 		"@jonny/eslint-config": "^2.1.210",
-		"@remotion/core": "^1.0.0-y.4",
+		"@remotion/core": "^1.0.0-y.5",
 		"@types/puppeteer": "^3.0.0",
 		"@types/react": "^16.9.38",
 		"@types/react-dom": "^16.9.8",
 		"execa": "^4.0.2",
 		"prettier": "^2.0.5",
 		"puppeteer": "^4.0.0",
-		"react": "^16.13.1",
-		"react-dom": "^16.13.1",
+		"react": "^17.0.1",
+		"react-dom": "^17.0.1",
 		"react-refresh": "^0.8.3",
 		"typescript": "^3.9.5",
 		"webpack": "^5.0.0-beta.22",
