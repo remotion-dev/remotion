@@ -56,15 +56,12 @@ export const Devices = () => {
 			<Single
 				source={face}
 				style={{transform: `scale(${smallScale})`, marginLeft: -300 - offset}}
-			></Single>
+			/>
 			<Single
 				source={home}
 				style={{transform: `scale(${smallScale})`, marginLeft: 300 + offset}}
-			></Single>
-			<Single
-				source={awesome}
-				style={{transform: `scale(${bigScale})`}}
-			></Single>
+			/>
+			<Single source={awesome} style={{transform: `scale(${bigScale})`}} />
 		</div>
 	);
 };

@@ -36,13 +36,6 @@ export const Title: React.FC<{
 		to: 1,
 		fps,
 	});
-	const thirdWord = spring2({
-		config: springConfig,
-		frame: Math.max(0, frame - 12),
-		from: 0,
-		to: 1,
-		fps,
-	});
 	return (
 		<div
 			style={{

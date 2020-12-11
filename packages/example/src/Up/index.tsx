@@ -73,7 +73,7 @@ export const Up = () => {
 					height: videoConfig.height,
 				}}
 			>
-				<Title></Title>
+				<Title line1="hi" line2="there" />
 			</div>
 			<img
 				src={f}
@@ -83,7 +83,7 @@ export const Up = () => {
 						(videoConfig.height - videoConfig.width) / 2
 					}px) scale(${scale})`,
 				}}
-			></img>
+			/>
 		</div>
 	);
 };

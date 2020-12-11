@@ -15,9 +15,9 @@ export const Features = () => {
 				display: 'flex',
 			}}
 		>
-			<Video src={tray} style={{height: 400, width: 400}}></Video>
-			<Video src={textstickers} style={{height: 700, width: 700}}></Video>
-			<Video src={watermelon} style={{height: 700, width: 700}}></Video>
+			<Video src={tray} style={{height: 400, width: 400}} />
+			<Video src={textstickers} style={{height: 700, width: 700}} />
+			<Video src={watermelon} style={{height: 700, width: 700}} />
 		</div>
 	);
 };

@@ -29,6 +29,6 @@ export const Logo = () => {
 				height: 150,
 			}}
 			src="https://www.anysticker.app/logo-transparent.png"
-		></img>
+		/>
 	);
 };

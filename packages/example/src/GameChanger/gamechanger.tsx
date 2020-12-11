@@ -28,6 +28,7 @@ const OrangeText = styled.span`
 	}
 `;
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const BlueText = styled.span`
 	background: -webkit-linear-gradient(#0089ff, #02435d);
 	-webkit-background-clip: text;
@@ -70,7 +71,7 @@ export const GameChanger = () => {
 		<div
 			style={{
 				flex: 1,
-				background: `transparent`,
+				background: 'transparent',
 				display: 'flex',
 				justifyContent: 'center',
 				alignItems: 'center',

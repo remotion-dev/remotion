@@ -63,7 +63,7 @@ export const BigRotate = () => {
 				style={{
 					transform: `scale(${scale})`,
 				}}
-			></img>
+			/>
 		</div>
 	);
 };

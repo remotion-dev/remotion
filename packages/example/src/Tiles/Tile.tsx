@@ -49,6 +49,6 @@ export const Tile: React.FC<{
 				alignItems: 'center',
 				display: 'flex',
 			}}
-		></div>
+		/>
 	);
 };
