@@ -1,6 +1,6 @@
 import {
 	registerVideo,
-	spring2,
+	spring,
 	SpringConfig,
 	useCurrentFrame,
 	useVideoConfig,
@@ -22,14 +22,14 @@ export const Title: React.FC<{
 		overshootClamping: false,
 	};
 
-	const firstWord = spring2({
+	const firstWord = spring({
 		config: springConfig,
 		from: 0,
 		to: 1,
 		fps,
 		frame,
 	});
-	const secondWord = spring2({
+	const secondWord = spring({
 		config: springConfig,
 		frame: Math.max(0, frame - 5),
 		from: 0,

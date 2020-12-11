@@ -1,6 +1,6 @@
 import {
 	registerVideo,
-	spring2,
+	spring,
 	SpringConfig,
 	useCurrentFrame,
 	useVideoConfig,
@@ -41,21 +41,21 @@ export const EndLogo: React.FC = () => {
 		overshootClamping: false,
 	};
 
-	const scale = spring2({
+	const scale = spring({
 		config: springConfig,
 		from: 14,
 		to: 1,
 		fps: videoConfig.fps,
 		frame,
 	});
-	const logoScale = spring2({
+	const logoScale = spring({
 		config: springConfig,
 		from: 0,
 		to: 1,
 		frame,
 		fps: videoConfig.fps,
 	});
-	const squirclefactor = spring2({
+	const squirclefactor = spring({
 		config: springConfig,
 		from: 0.5,
 		to: 1.05,

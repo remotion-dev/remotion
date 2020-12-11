@@ -1,6 +1,6 @@
 import {
 	registerVideo,
-	spring2,
+	spring,
 	useCurrentFrame,
 	useVideoConfig,
 } from '@remotion/core';
@@ -53,7 +53,7 @@ export const GameChanger = () => {
 	const size = (videoConfig.height / 3) * 1.6;
 
 	const makeProgressFromFrame = (f: number) =>
-		spring2({
+		spring({
 			config: {
 				damping: 2,
 				mass: 0.1,
