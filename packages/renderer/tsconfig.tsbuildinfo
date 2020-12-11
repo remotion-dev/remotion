@@ -488,7 +488,7 @@
         "lib.es2015.d.ts",
         "lib.dom.d.ts"
       ],
-      "jsx": 2,
+      "jsx": 4,
       "noEmit": false,
       "strict": true,
       "esModuleInterop": true,
