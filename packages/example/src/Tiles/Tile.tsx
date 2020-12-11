@@ -1,5 +1,4 @@
 import {
-	spring,
 	spring2,
 	SpringConfig,
 	useCurrentFrame,
@@ -30,7 +29,7 @@ export const Tile: React.FC<{
 		to: 1,
 	});
 	const rotate = spring2({
-		config: springConfig
+		config: springConfig,
 		fps: videoConfig.fps,
 		from: 0,
 		frame,
