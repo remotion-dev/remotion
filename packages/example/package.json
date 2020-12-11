@@ -7,7 +7,8 @@
 	"scripts": {
 		"dev": "remotion preview src/ReactSvg/index.tsx",
 		"test": "eslint 'src' --ext ts,tsx",
-		"build": "tsc && remotion render dist/ReactSvg/index.js",
+		"build": "tsc -d",
+		"render": "tsc && remotion render dist/ReactSvg/index.js",
 		"prepare": "npm run build"
 	},
 	"files": [
