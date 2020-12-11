@@ -19,7 +19,7 @@
 		"@babel/preset-env": "^7.10.4",
 		"@babel/preset-react": "^7.10.4",
 		"@babel/preset-typescript": "^7.10.4",
-		"@jonny/eslint-config": "^2.1.161",
+		"@jonny/eslint-config": "^2.1.210",
 		"@remotion/core": "^1.0.0-y.1",
 		"@types/express": "^4.17.7",
 		"@types/node": "^14.0.13",

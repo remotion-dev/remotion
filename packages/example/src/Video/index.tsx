@@ -52,7 +52,7 @@ export const Comp: React.FC = () => {
 						position: 'absolute',
 						marginLeft: -520,
 					}}
-				></div>
+				/>
 				<div
 					style={{
 						height: 1000,
@@ -61,7 +61,7 @@ export const Comp: React.FC = () => {
 						position: 'absolute',
 						marginLeft: 520,
 					}}
-				></div>
+				/>
 				<img
 					src={iphone}
 					style={{

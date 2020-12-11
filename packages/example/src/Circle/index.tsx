@@ -84,12 +84,12 @@ export const EndLogo: React.FC = () => {
 				<path
 					d={makeSquircle(squircleSize, squircleSize, squirclefactor)}
 					fill="#5851db"
-				></path>
+				/>
 			</svg>
 			<Logo
 				style={{transform: `scale(${logoScale})`}}
 				src="https://www.anysticker.app/logo-transparent.png"
-			></Logo>
+			/>
 		</div>
 	);
 };
