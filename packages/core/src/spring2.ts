@@ -95,7 +95,7 @@ export function advance(
 	return copiedAnimated;
 }
 
-export function spring2({
+export function spring({
 	from,
 	to,
 	frame,

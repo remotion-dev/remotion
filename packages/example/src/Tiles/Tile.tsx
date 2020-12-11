@@ -1,5 +1,5 @@
 import {
-	spring2,
+	spring,
 	SpringConfig,
 	useCurrentFrame,
 	useVideoConfig,
@@ -21,14 +21,14 @@ export const Tile: React.FC<{
 		restDisplacementThreshold: 0.0001,
 		overshootClamping: true,
 	};
-	const scale = spring2({
+	const scale = spring({
 		config: springConfig,
 		fps: videoConfig.fps,
 		frame,
 		from: 0,
 		to: 1,
 	});
-	const rotate = spring2({
+	const rotate = spring({
 		config: springConfig,
 		fps: videoConfig.fps,
 		from: 0,

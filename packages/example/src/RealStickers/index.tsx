@@ -1,7 +1,7 @@
 import {
 	interpolate,
 	registerVideo,
-	spring2,
+	spring,
 	SpringConfig,
 	useCurrentFrame,
 	useVideoConfig,
@@ -28,14 +28,14 @@ export const RealStickers = () => {
 		overshootClamping: false,
 	};
 
-	const baseSpring = spring2({
+	const baseSpring = spring({
 		config: springConfig,
 		from: 0,
 		frame,
 		fps: videoConfig.fps,
 		to: 1,
 	});
-	const phoneScale = spring2({
+	const phoneScale = spring({
 		config: springConfig,
 
 		from: 0,
@@ -43,7 +43,7 @@ export const RealStickers = () => {
 		fps: videoConfig.fps,
 		frame,
 	});
-	const phoneSpring = spring2({
+	const phoneSpring = spring({
 		config: {
 			...springConfig,
 			damping: 1000,
@@ -66,7 +66,7 @@ export const RealStickers = () => {
 		outputRange: [0.7, 1],
 	});
 
-	const scaleOut = spring2({
+	const scaleOut = spring({
 		config: springConfig,
 		from: 0,
 		to: 1,

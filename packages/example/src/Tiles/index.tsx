@@ -1,6 +1,6 @@
 import {
 	registerVideo,
-	spring2,
+	spring,
 	SpringConfig,
 	useCurrentFrame,
 	useVideoConfig,
@@ -25,21 +25,21 @@ export const Tiles = () => {
 		overshootClamping: false,
 	};
 
-	const scale = spring2({
+	const scale = spring({
 		config: springConfig,
 		from: 1,
 		to: 3.3,
 		fps: videoConfig.fps,
 		frame,
 	});
-	const outerScale = spring2({
+	const outerScale = spring({
 		config: springConfig,
 		from: 1,
 		frame: Math.max(0, frame - 20),
 		to: 3,
 		fps: videoConfig.fps,
 	});
-	const rotate = spring2({
+	const rotate = spring({
 		config: springConfig,
 		fps: videoConfig.fps,
 		frame: Math.max(0, frame - 20),

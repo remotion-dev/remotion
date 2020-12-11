@@ -1,6 +1,6 @@
 import {
 	registerVideo,
-	spring2,
+	spring,
 	useCurrentFrame,
 	useVideoConfig,
 } from '@remotion/core';
@@ -50,7 +50,7 @@ export const GameChanger = () => {
 	const frame = useCurrentFrame();
 
 	const makeProgressFromFrame = (f: number) =>
-		spring2({
+		spring({
 			config: {
 				damping: 2,
 				mass: 0.1,

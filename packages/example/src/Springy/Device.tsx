@@ -1,6 +1,6 @@
 import {
 	interpolate,
-	spring2,
+	spring,
 	SpringConfig,
 	useCurrentFrame,
 	useVideoConfig,
@@ -28,7 +28,7 @@ export const Device: React.FC<{
 		restDisplacementThreshold: 0.0001,
 		overshootClamping: true,
 	};
-	const rotationProgress = spring2({
+	const rotationProgress = spring({
 		config: springConfig,
 		from: 0,
 		to: 1,
@@ -36,7 +36,7 @@ export const Device: React.FC<{
 		frame: frame - Math.floor(rotationAmount * 4) + 15,
 	});
 
-	const translateProgress = spring2({
+	const translateProgress = spring({
 		config: springConfig,
 		from: 0,
 		to: 1,

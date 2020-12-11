@@ -1,7 +1,7 @@
 import {
 	interpolate,
 	registerVideo,
-	spring2,
+	spring,
 	SpringConfig,
 	useCurrentFrame,
 	useVideoConfig,
@@ -36,7 +36,7 @@ export const ScreenShowcase: React.FC<Props> = ({
 	};
 
 	const base = animateIn
-		? spring2({
+		? spring({
 				config: springConfig,
 				from: 0,
 				to: 1,
