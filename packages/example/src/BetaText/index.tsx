@@ -48,11 +48,7 @@ const Row: React.FC<{
 		to: 1,
 		frame,
 	});
-	const posX = interpolate({
-		input: progress,
-		inputRange: [0, 1],
-		outputRange: [1, 0],
-	});
+	const posX = interpolate(progress, [0, 1], [1, 0]);
 
 	const dir = i % 2 === 0 ? -1 : 1;
 	const color = mix(
@@ -120,11 +116,7 @@ export const BetaText = () => {
 		to: 1,
 		frame: Math.max(0, frame - 70),
 	});
-	const scale = interpolate({
-		input: progress,
-		inputRange: [0, 0.4],
-		outputRange: [1, 10],
-	});
+	const scale = interpolate(progress, [0, 0.4], [1, 10]);
 	const backgroundColor = mix(1 - progress, '#fff', solidBrand);
 
 	return (

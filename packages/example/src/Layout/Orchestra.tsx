@@ -47,16 +47,10 @@ export const Orchestra: React.FC<{
 		from: 0,
 		to: 1,
 	});
-	const progress = interpolate({
-		input: p,
-		inputRange: [0, 1],
-		outputRange: [3, 1.1],
+	const progress = interpolate(p, [0, 1], [3, 1.1], {
 		extrapolateLeft: 'clamp',
 	});
-	const scale = interpolate({
-		input: p,
-		inputRange: [0.4, 1],
-		outputRange: [0, phoneScale],
+	const scale = interpolate(p, [0.4, 1], [0, phoneScale], {
 		extrapolateLeft: 'clamp',
 	});
 
