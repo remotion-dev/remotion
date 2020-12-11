@@ -1,32 +1,32 @@
 {
-  "name": "@remotion/core",
-  "version": "1.0.0-y.1",
-  "description": "",
-  "main": "dist/index.js",
-  "scripts": {
-    "test": "eslint 'src' --ext ts,tsx",
-    "build": "tsc -d",
-    "prepare": "npm run build"
-  },
-  "files": [
-    "dist"
-  ],
-  "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "@jonny/eslint-config": "^2.1.161",
-    "@types/node": "^14.0.13",
-    "@types/react": "^16.9.42",
-    "prettier": "^2.0.5",
-    "react": "^16.13.1",
-    "react-hooks-global-state": "^1.0.1",
-    "typescript": "^3.9.5"
-  },
-  "devDependencies": {
-    "eslint": "^7.4.0",
-    "prettier-plugin-organize-imports": "^1.1.1"
-  },
-  "publishConfig": {
-    "access": "public"
-  }
+	"name": "@remotion/core",
+	"version": "1.0.0-y.1",
+	"description": "",
+	"main": "dist/index.js",
+	"scripts": {
+		"test": "eslint 'src' --ext ts,tsx",
+		"build": "tsc -d",
+		"prepare": "npm run build"
+	},
+	"files": [
+		"dist"
+	],
+	"author": "",
+	"license": "ISC",
+	"dependencies": {
+		"@jonny/eslint-config": "^2.1.210",
+		"@types/node": "^14.0.13",
+		"@types/react": "^16.9.42",
+		"prettier": "^2.0.5",
+		"react": "^16.13.1",
+		"react-hooks-global-state": "^1.0.1",
+		"typescript": "^3.9.5"
+	},
+	"devDependencies": {
+		"eslint": "^7.4.0",
+		"prettier-plugin-organize-imports": "^1.1.1"
+	},
+	"publishConfig": {
+		"access": "public"
+	}
 }

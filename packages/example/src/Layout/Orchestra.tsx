@@ -13,7 +13,7 @@ export const Orchestra: React.FC<{
 	xOffset: number;
 	phoneScale: number;
 }> = ({layers, xOffset, yOffset, phoneScale}) => {
-	const getColumnOffset = (c: number, r: number, f: number) => {
+	const getColumnOffset = (c: number, r: number) => {
 		return spring2({
 			from: 0,
 			to: (PhoneHeight + yOffset) * (r % 2 === 0 ? 1 : -1),
@@ -141,8 +141,8 @@ export const Orchestra: React.FC<{
 									})();
 									return (
 										<Phone
-											src={source}
 											key={[c, r].join(',')}
+											src={source}
 											className={`c${c}r${r}`}
 											phoneScale={middle ? phoneScale : scale}
 											style={{
@@ -158,7 +158,7 @@ export const Orchestra: React.FC<{
 													PhoneHeight / 2 +
 													r * yOffset -
 													((rows - 1) * yOffset) / 2 +
-													getColumnOffset(c, r, frame),
+													getColumnOffset(c, r),
 											}}
 										/>
 									);

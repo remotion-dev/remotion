@@ -12,15 +12,13 @@ const Container = styled.div`
 	position: absolute;
 `;
 
-const timeRemap = (frame: number) => {};
-
 export const Device: React.FC<{
 	top: number;
 	rotationAmount: number;
 	fruit: string;
 }> = ({top, rotationAmount, fruit = 'kiwi'}) => {
 	const frame = useCurrentFrame();
-	const {fps, height} = useVideoConfig();
+	const {fps} = useVideoConfig();
 
 	const springConfig: SpringConfig = {
 		damping: 100,
@@ -74,7 +72,7 @@ export const Device: React.FC<{
 				transform: `scale(${scale})`,
 			}}
 		>
-			<img src={src}></img>
+			<img src={src} />
 		</Container>
 	);
 };

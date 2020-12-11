@@ -148,6 +148,7 @@ export const BetaText = () => {
 					.map((key) => {
 						return (
 							<Row
+								key={key}
 								zoom={progress}
 								text={
 									key === 7
@@ -161,9 +162,8 @@ export const BetaText = () => {
 										: 'BETA'
 								}
 								i={key}
-								key={key}
 								videoWidth={videoConfig.width}
-							></Row>
+							/>
 						);
 					})}
 			</div>

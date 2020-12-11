@@ -16,7 +16,7 @@ export const TextStickerShowCase = () => {
 				display: 'flex',
 			}}
 		>
-			<img src={frames[Math.min(49, frame)]} style={{width: 1000}}></img>
+			<img src={frames[Math.min(49, frame)]} style={{width: 1000}} />
 		</div>
 	);
 };

@@ -102,7 +102,7 @@ export const Welcome: React.FC = () => {
 				</Transition>
 			</Sequence>
 			<Sequence from={610} durationInFrames={90}>
-				<RealStickers></RealStickers>
+				<RealStickers />
 			</Sequence>
 			<Sequence from={700} durationInFrames={70}>
 				<Title line1="The power is" line2="in your hands." />

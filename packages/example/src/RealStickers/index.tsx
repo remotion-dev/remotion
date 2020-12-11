@@ -81,7 +81,7 @@ export const RealStickers = () => {
 		})
 	);
 	const _cData = (function () {
-		let data: {
+		const data: {
 			cx: number;
 			cy: number;
 			rx: number;
@@ -172,7 +172,7 @@ export const RealStickers = () => {
 								width: stickerSize,
 								height: stickerSize,
 							}}
-						></img>
+						/>
 					);
 				})}
 				<img
@@ -182,7 +182,7 @@ export const RealStickers = () => {
 						transform: `scale(${phoneScale})`,
 						top: videoConfig.height / 2 - 1080 / 2,
 					}}
-				></img>
+				/>
 			</div>
 		</div>
 	);
