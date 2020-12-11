@@ -41,10 +41,7 @@ export const CoinAnimation = () => {
 	});
 
 	const whichFrame = Math.round(
-		interpolate({
-			input: coinProgress,
-			inputRange: [0, 1],
-			outputRange: [1, 71],
+		interpolate(coinProgress, [0, 1], [1, 71], {
 			extrapolateRight: 'clamp',
 		})
 	);

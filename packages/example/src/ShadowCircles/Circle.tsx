@@ -38,16 +38,8 @@ export const Circle: React.FC<{
 		from: 0,
 		to: 1,
 	});
-	const angle = interpolate({
-		input: progress,
-		inputRange: [0, 1],
-		outputRange: [0, Math.PI * 2],
-	});
-	const squircleFactor = interpolate({
-		input: progress,
-		inputRange: [0, 1],
-		outputRange: [0.5, 1.05],
-	});
+	const angle = interpolate(progress, [0, 1], [0, Math.PI * 2]);
+	const squircleFactor = interpolate(progress, [0, 1], [0.5, 1.05]);
 	const radius = videoConfig.width / 2;
 	const left = videoConfig.width / 2 - size / 2;
 	const top = videoConfig.height / 2 - size / 2;

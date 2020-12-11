@@ -55,16 +55,8 @@ export const RealStickers = () => {
 		fps: videoConfig.fps,
 		frame,
 	});
-	const scale = interpolate({
-		input: baseSpring,
-		inputRange: [0, 1],
-		outputRange: [0, 0.7],
-	});
-	const spaceBetweenCircle = interpolate({
-		input: baseSpring,
-		inputRange: [0, 1],
-		outputRange: [0.7, 1],
-	});
+	const scale = interpolate(baseSpring, [0, 1], [0, 0.7]);
+	const spaceBetweenCircle = interpolate(baseSpring, [0, 1], [0.7, 1]);
 
 	const scaleOut = spring({
 		config: springConfig,
@@ -73,13 +65,7 @@ export const RealStickers = () => {
 		fps: videoConfig.fps,
 		frame: videoConfig.durationInFrames - frame,
 	});
-	const phoneFrame = Math.floor(
-		interpolate({
-			input: phoneSpring,
-			inputRange: [0, 1],
-			outputRange: [1, 160],
-		})
-	);
+	const phoneFrame = Math.floor(interpolate(phoneSpring, [0, 1], [1, 160]));
 	const _cData = (function () {
 		const data: {
 			cx: number;
