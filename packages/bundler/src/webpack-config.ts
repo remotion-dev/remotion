@@ -30,12 +30,7 @@ export const webpackConfig = ({
 } => ({
 	entry: [
 		environment === 'development'
-			? path.resolve(
-					__dirname,
-					'..',
-					'node_modules',
-					'webpack-hot-middleware/client'
-			  )
+			? require.resolve('webpack-hot-middleware/client')
 			: null,
 		environment === 'development'
 			? require.resolve('@webhotelier/webpack-fast-refresh/runtime.js')
