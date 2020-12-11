@@ -1,6 +1,6 @@
 import {
 	registerVideo,
-	spring,
+	spring2,
 	useCurrentFrame,
 	useVideoConfig,
 	Video,
@@ -14,17 +14,19 @@ export const Comp: React.FC = () => {
 	const video = require('./record-20200910-191938.webm').default;
 	const frame = useCurrentFrame();
 	const videoConfig = useVideoConfig();
-	const scale = spring({
-		damping: 10,
-		mass: 0.1,
-		stiffness: 10,
-		restSpeedThreshold: 0.00001,
-		restDisplacementThreshold: 0.0001,
-		fps: videoConfig.fps,
-		frame,
-		velocity: 0,
+	const scale = spring2({
+		config: {
+			damping: 10,
+			mass: 0.1,
+			stiffness: 10,
+			restSpeedThreshold: 0.00001,
+			restDisplacementThreshold: 0.0001,
+			overshootClamping: true,
+		},
 		from: 0.3,
 		to: 1,
+		fps: videoConfig.fps,
+		frame,
 	});
 
 	return (
