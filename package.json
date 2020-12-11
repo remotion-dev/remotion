@@ -9,6 +9,7 @@
     "build": "lerna run build"
   },
   "devDependencies": {
+    "eslint": "^7.15.0",
     "lerna": "^2.11.0"
   }
 }

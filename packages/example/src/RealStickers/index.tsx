@@ -164,6 +164,7 @@ export const RealStickers = () => {
 					);
 					return (
 						<img
+							key={o.source}
 							src={`https://anysticker.imgix.net/${o.source}?w=${stickerSize}&h=${stickerSize}&fm=png&fill=solid&fit=fill&auto=compress`}
 							style={{
 								position: 'absolute',
