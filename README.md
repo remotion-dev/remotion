@@ -1,5 +1,9 @@
 # react-motion-graphics
 
+**Leverage web technologies**: Canvas, SVG, WebGL
+**Leverage programming**: variables, API, variants, physics...
+**Leverage React**: Reusable components, Fast Refresh, Hooks
+
 ## Run the examples
 
 - Need ffmpeg in your PATH
@@ -21,5 +25,5 @@ Render a video:
 
 ```
 cd packages/cli
-npx ts-node --files src/index.ts ../example/src/ReactSvg/index.tsx 
+npx ts-node --files src/index.ts ../example/src/ReactSvg/index.tsx
 ```
