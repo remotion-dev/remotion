@@ -15,7 +15,7 @@
 	"author": "",
 	"license": "ISC",
 	"dependencies": {
-		"@jonny/eslint-config": "^2.1.186",
+		"@jonny/eslint-config": "^2.1.210",
 		"@remotion/cli": "^1.0.0-y.1",
 		"@remotion/core": "^1.0.0-y.1",
 		"@types/node": "^14.0.13",
