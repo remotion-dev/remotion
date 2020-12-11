@@ -2,21 +2,20 @@
 
 type ExtrapolateType = 'extend' | 'identity' | 'clamp';
 
-export function interpolate({
-	input,
-	inputRange,
-	outputRange,
-	easing = (num: number): number => num,
-	extrapolateLeft = 'extend',
-	extrapolateRight = 'extend',
-}: {
-	input: number;
-	inputRange: [number, number];
-	outputRange: [number, number];
-	easing?: (input: number) => number;
-	extrapolateLeft?: ExtrapolateType;
-	extrapolateRight?: ExtrapolateType;
-}): number {
+export function interpolate(
+	input: number,
+	inputRange: [number, number],
+	outputRange: [number, number],
+	options?: {
+		easing?: (input: number) => number;
+		extrapolateLeft?: ExtrapolateType;
+		extrapolateRight?: ExtrapolateType;
+	}
+): number {
+	const extrapolateLeft = options?.extrapolateLeft ?? 'extend';
+	const extrapolateRight = options?.extrapolateRight ?? 'extend';
+	const easing = options?.easing ?? ((num: number): number => num);
+
 	let result = input;
 	const [inputMin, inputMax] = inputRange;
 	const [outputMin, outputMax] = outputRange;

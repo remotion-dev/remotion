@@ -45,11 +45,7 @@ export const ScreenShowcase: React.FC<Props> = ({
 		  })
 		: 1;
 
-	const progress = interpolate({
-		input: base,
-		inputRange: [0, 1],
-		outputRange: [0.8, 1],
-	});
+	const progress = interpolate(base, [0, 1], [0.8, 1]);
 
 	return (
 		<div style={{flex: 1, backgroundColor: 'white'}}>
