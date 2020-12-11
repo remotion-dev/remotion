@@ -14,5 +14,8 @@
     "lerna": "^2.11.0",
     "prettier": "^2.2.1",
     "prettier-plugin-organize-imports": "^1.1.1"
+  },
+  "dependencies": {
+    "typescript": "^4.1.2"
   }
 }
