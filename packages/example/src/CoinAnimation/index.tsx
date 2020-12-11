@@ -20,8 +20,6 @@ export const CoinAnimation = () => {
 			damping: 1,
 			mass: 0.1,
 			stiffness: 10,
-			restSpeedThreshold: 0.00001,
-			restDisplacementThreshold: 0.0001,
 			overshootClamping: false,
 		},
 	});
@@ -34,8 +32,6 @@ export const CoinAnimation = () => {
 			damping: 5,
 			mass: 1,
 			stiffness: 10,
-			restSpeedThreshold: 0.00001,
-			restDisplacementThreshold: 0.0001,
 			overshootClamping: false,
 		},
 	});

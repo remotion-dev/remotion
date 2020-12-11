@@ -16,8 +16,6 @@ export const Up = () => {
 		damping: 200,
 		mass: 0.4,
 		stiffness: 60,
-		restSpeedThreshold: 0.00001,
-		restDisplacementThreshold: 0.0001,
 		overshootClamping: true,
 	};
 	const upFrame = Math.max(0, frame - 24);
