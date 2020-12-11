@@ -1,4 +1,9 @@
-import {SpringConfig, useCurrentFrame, useVideoConfig} from '@remotion/core';
+import {
+	spring,
+	SpringConfig,
+	useCurrentFrame,
+	useVideoConfig,
+} from '@remotion/core';
 import React from 'react';
 import styled from 'styled-components';
 
