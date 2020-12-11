@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/core",
-	"version": "1.0.0-y.5",
+	"version": "1.0.0-y.6",
 	"description": "",
 	"main": "dist/index.js",
 	"scripts": {
