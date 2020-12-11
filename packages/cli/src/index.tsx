@@ -6,9 +6,12 @@ xns(async () => {
 	const args = process.argv;
 	const command = args[2];
 
-	if (command === 'bundle') {
+	if (command === 'render') {
 		await bundleCommand();
 	} else if (command === 'preview') {
 		await previewCommand();
+	} else {
+		console.log(`Command ${command} not found.`);
+		process.exit(1);
 	}
 });
