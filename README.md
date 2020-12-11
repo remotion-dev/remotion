@@ -2,7 +2,9 @@
 
 **Leverage web technologies**: Canvas, SVG, WebGL
 **Leverage programming**: variables, API, variants, physics...
-**Leverage React**: Reusable components, Fast Refresh, Hooks
+**Leverage React**: Reusable components, Powerful composition, Fast Refresh
+
+**Modern Javascript**: Typescript, React 17-based videos with ESLint rules which help you move faster.
 
 ## Run the examples
 
