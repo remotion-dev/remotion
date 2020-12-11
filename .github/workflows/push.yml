@@ -8,9 +8,4 @@ jobs:
       - uses: actions/checkout@main
       - uses: actions/setup-node@main
       - run: npm i
-      - name: Magic
-        uses: JonnyBurger/10x-actions@master
-        with:
-          pod-dir: ios
-          github-token: "${{ secrets.GITHUB_TOKEN }}"
       - run: npm test
