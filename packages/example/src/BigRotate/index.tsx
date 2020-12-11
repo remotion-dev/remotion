@@ -39,11 +39,7 @@ export const BigRotate = () => {
 		frame,
 	});
 	const frameInterpolated = Math.round(
-		interpolate({
-			input: rotatoFrame,
-			inputRange: [0, 1],
-			outputRange: [1, 250],
-		})
+		interpolate(rotatoFrame, [0, 1], [1, 250])
 	);
 	const src = require('./assets/Rotato Frame ' +
 		(frameInterpolated + 1) +

@@ -28,22 +28,10 @@ export const Up = () => {
 		to: 1,
 		fps: videoConfig.fps,
 	});
-	const translate = interpolate({
-		input: progress,
-		inputRange: [0, 1],
-		outputRange: [1, -0.08],
-	});
-	const textUpOffset = interpolate({
-		input: progress,
-		inputRange: [0, 1],
-		outputRange: [0, -videoConfig.height],
-	});
+	const translate = interpolate(progress, [0, 1], [1, -0.08]);
+	const textUpOffset = interpolate(progress, [0, 1], [0, -videoConfig.height]);
 
-	const scale = interpolate({
-		input: progress,
-		inputRange: [0, 1],
-		outputRange: [0.5, 1.3],
-	});
+	const scale = interpolate(progress, [0, 1], [0.5, 1.3]);
 	const rotateProgress = spring({
 		config: {...springConfig, mass: springConfig.mass * 1.3},
 		frame: upFrame,
@@ -52,10 +40,7 @@ export const Up = () => {
 		fps: videoConfig.fps,
 	});
 	const frameToPick = Math.floor(
-		interpolate({
-			input: rotateProgress,
-			inputRange: [0.4, 1],
-			outputRange: [1, 265],
+		interpolate(rotateProgress, [0.4, 1], [1, 265], {
 			extrapolateLeft: 'clamp',
 		})
 	);

@@ -6,6 +6,7 @@ import path from 'path';
 export const previewCommand = async () => {
 	const args = process.argv;
 	const file = args[3];
+	console.log(args);
 	const fullPath = path.join(process.cwd(), file);
 
 	const tsxFile = path.resolve(__dirname, 'previewEntry.tsx');

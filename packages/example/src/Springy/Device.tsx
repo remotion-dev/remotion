@@ -47,10 +47,7 @@ export const Device: React.FC<{
 	const animationFrame = Math.max(
 		1,
 		Math.floor(
-			interpolate({
-				inputRange: [0.3, 1],
-				outputRange: [0, 40],
-				input: rotationProgress,
+			interpolate(rotationProgress, [0.3, 1], [0, 40], {
 				extrapolateLeft: 'clamp',
 			}) * rotationAmount
 		)
