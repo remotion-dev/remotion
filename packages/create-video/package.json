@@ -1,0 +1,26 @@
+{
+	"name": "create-video",
+	"version": "1.0.0",
+	"description": "",
+	"main": "index.js",
+	"bin": {
+		"create-video": "dist/create-video.js"
+	},
+	"scripts": {
+		"build": "tsc -d && node add-bin.js"
+	},
+	"author": "",
+	"license": "ISC",
+	"dependencies": {
+		"execa": "^5.0.0",
+		"xns": "^2.0.7"
+	},
+	"devDependencies": {
+		"@jonny/eslint-config": "^2.1.210",
+		"@types/node": "^14.14.12",
+		"chalk": "^4.1.0",
+		"eslint": "^7.15.0",
+		"ts-node": "^9.1.1",
+		"typescript": "^4.1.2"
+	}
+}
