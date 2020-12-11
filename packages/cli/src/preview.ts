@@ -2,11 +2,10 @@ import {startServer} from '@remotion/bundler';
 import betterOpn from 'better-opn';
 import fs from 'fs';
 import path from 'path';
-import xns from 'xns';
 
-xns(async () => {
+export const previewCommand = async () => {
 	const args = process.argv;
-	const file = args[2];
+	const file = args[3];
 	const fullPath = path.join(process.cwd(), file);
 
 	const tsxFile = path.resolve(__dirname, 'previewEntry.tsx');
@@ -17,4 +16,4 @@ xns(async () => {
 	const port = await startServer(fileChosen, fullPath);
 	betterOpn(`http://localhost:${port}`);
 	await new Promise(() => void 0);
-});
+};

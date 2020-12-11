@@ -4,7 +4,7 @@
 	"description": "",
 	"main": "dist/index.js",
 	"scripts": {
-		"dev": "remotion-preview src/ReactSvg/index.tsx",
+		"dev": "remotion preview src/ReactSvg/index.tsx",
 		"test": "eslint 'src' --ext ts,tsx",
 		"build": "tsc -d",
 		"prepare": "npm run build"
@@ -12,7 +12,7 @@
 	"files": [
 		"dist"
 	],
-	"author": "",
+	"author": "Jonny Burger",
 	"license": "ISC",
 	"dependencies": {
 		"@jonny/eslint-config": "^2.1.210",

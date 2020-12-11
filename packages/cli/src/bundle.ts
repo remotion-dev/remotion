@@ -5,12 +5,11 @@ import cliProgress from 'cli-progress';
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
-import xns from 'xns';
 
-xns(async () => {
+export const bundleCommand = async () => {
 	process.stdout.write('📦 (1/3) Bundling video...\n');
 	const args = process.argv;
-	const file = args[2];
+	const file = args[3];
 	const fullPath = path.join(process.cwd(), file);
 	await import(fullPath);
 	const config = getVideoConfig();
@@ -48,4 +47,4 @@ xns(async () => {
 	});
 	console.log('\n▶️ Your video is ready - hit play!');
 	console.log(path.join(outputDir, 'test.mp4'));
-});
+};
