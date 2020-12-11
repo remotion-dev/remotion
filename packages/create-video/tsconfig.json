@@ -1,8 +1,9 @@
 {
-  "extends": "../tsconfig.settings.json",
-  "compilerOptions": {
-    "composite": true,
-    "rootDir": "src",
-    "outDir": "dist"
-  }
+	"extends": "../tsconfig.settings.json",
+	"compilerOptions": {
+		"composite": true,
+		"rootDir": "src",
+		"outDir": "dist"
+	},
+	"exclude": ["template", "dist"]
 }
