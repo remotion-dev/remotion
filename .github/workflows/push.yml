@@ -3,7 +3,7 @@ name: Install and Test
 jobs:
   build:
     name: Build
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@main
       - uses: actions/setup-node@main
