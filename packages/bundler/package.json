@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/bundler",
-	"version": "1.0.0-y.7",
+	"version": "1.0.0-y.8",
 	"description": "",
 	"main": "dist/index.js",
 	"scripts": {
@@ -15,12 +15,12 @@
 	"author": "",
 	"license": "ISC",
 	"dependencies": {
-		"@babel/core": "^7.10.4",
-		"@babel/preset-env": "^7.10.4",
-		"@babel/preset-react": "^7.10.4",
-		"@babel/preset-typescript": "^7.10.4",
+		"@babel/core": "^7.12.10",
+		"@babel/preset-env": "^7.12.10",
+		"@babel/preset-react": "^7.12.10",
+		"@babel/preset-typescript": "^7.12.7",
 		"@jonny/eslint-config": "^2.1.210",
-		"@remotion/core": "^1.0.0-y.7",
+		"@remotion/core": "^1.0.0-y.8",
 		"@types/express": "^4.17.7",
 		"@types/node": "^14.0.13",
 		"@types/react": "^16.9.41",
