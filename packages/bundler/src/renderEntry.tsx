@@ -1,9 +1,11 @@
 import {
 	CompositionManager,
 	deferRender,
+	getCompositionName,
 	getRoot,
 	readyToRender,
 	RemotionRoot,
+	TComposition,
 	useVideo,
 } from '@remotion/core';
 import React, {useContext, useEffect} from 'react';
@@ -21,11 +23,18 @@ const GetVideo = () => {
 	const video = useVideo();
 	const compositions = useContext(CompositionManager);
 	const Component = video ? video.component : null;
-
+	console.log({
+		Component,
+		c: compositions.compositions,
+		name: getCompositionName(),
+	});
 	useEffect(() => {
 		if (!video && compositions.compositions.length > 0) {
-			// TODO: Take value dynamically
-			compositions.setCurrentComposition(compositions.compositions[0].name);
+			compositions.setCurrentComposition(
+				(compositions.compositions.find(
+					(c) => c.name === getCompositionName()
+				) as TComposition)?.name
+			);
 		}
 	}, [compositions, compositions.compositions, video]);
 

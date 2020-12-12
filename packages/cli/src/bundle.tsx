@@ -9,6 +9,8 @@ import path from 'path';
 
 export const bundleCommand = async () => {
 	process.stdout.write('📦 (1/3) Bundling video...\n');
+	const args = process.argv;
+	const argument = args[3];
 	const fullPath = path.join(
 		process.cwd(),
 		'..',
@@ -17,21 +19,39 @@ export const bundleCommand = async () => {
 		'index.tsx'
 	);
 	await import(fullPath);
-	//	const config = getVideoConfig(getLastKeyShouldRemoveThisMethod());
 	const result = await bundle(fullPath);
 	const Root = getRoot();
 	if (!Root) {
 		return 'Did not specify Root';
 	}
 	const compositions = await evaluateRootForCompositions();
-	const {durationInFrames, fps, height, width} = compositions[0];
+	if (!argument) {
+		console.log('Usage: npm run render <composition-name>.');
+		console.log(
+			`The following composition names are available: ${compositions
+				.map((c) => c.name)
+				.join(', ')}`
+		);
+		return;
+	}
+
+	const composition = compositions.find((c) => c.name === argument);
+	if (!composition) {
+		console.log(`No composition with name ${argument} was found.`);
+		console.log(
+			`Following compositions are available: ${compositions
+				.map((c) => c.name)
+				.join(', ')}`
+		);
+		return;
+	}
+	const {durationInFrames, fps, height, width} = composition;
 	const config: VideoConfig = {
 		durationInFrames,
 		fps,
 		height,
 		width,
 	};
-	console.log(config);
 	process.stdout.write('📼 (2/3) Rendering frames...\n');
 	const browser = await openBrowser();
 	const page = await browser.newPage();
@@ -46,9 +66,10 @@ export const bundleCommand = async () => {
 	);
 	bar.start(frames, 0);
 	for (let frame = 0; frame < frames; frame++) {
+		const site = `file://${result}/index.html?composition=${argument}&frame=${frame}`;
 		await provideScreenshot(page, {
 			output: path.join(outputDir, `element-${frame}.png`),
-			site: 'file://' + result + '/index.html?frame=' + frame,
+			site,
 			height: config.height,
 			width: config.width,
 		});

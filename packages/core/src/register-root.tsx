@@ -41,3 +41,11 @@ export const getShouldStaticallyReturnCompositions = () =>
 export const addStaticComposition = (composition: TComposition) => {
 	staticCompositions.push(composition);
 };
+
+export const getCompositionName = () => {
+	const param = new URLSearchParams(window.location.search).get('composition');
+	if (param !== null) {
+		return String(param);
+	}
+	throw new Error('No comp name specified in URL');
+};
