@@ -152,7 +152,7 @@ const Box: React.FC = () => {
 		groupRef.current.scale.x = scale;
 		// @ts-expect-error
 		groupRef.current.scale.y = scale;
-	}, [frame, videoConfig.fps]);
+	}, [frame, videoConfig]);
 
 	return (
 		<group ref={groupRef} scale={[0.1, 0.1, 0.1]} position={[0, 0, 0]}>

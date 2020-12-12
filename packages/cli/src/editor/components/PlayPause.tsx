@@ -63,13 +63,19 @@ export const PlayPause: React.FC = () => {
 				last10Frames.length === 0
 					? expectedTime
 					: expectedTime - slowerThanExpected;
-			setTimeout(() => {
-				const nextFrame = frame + 1;
-				if (nextFrame >= config.durationInFrames) {
-					return setFrame(0);
-				}
-				setFrame(frame + 1);
+			const t = setTimeout(() => {
+				setFrame((currFrame) => {
+					const nextFrame = currFrame + 1;
+					// TODO: Could be timing unsafe
+					if (nextFrame >= config.durationInFrames) {
+						return 0;
+					}
+					return currFrame + 1;
+				});
 			}, timeout);
+			return () => {
+				clearTimeout(t);
+			};
 		}
 	}, [config, frame, playing, setFrame]);
 
