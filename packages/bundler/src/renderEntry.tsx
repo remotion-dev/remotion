@@ -8,17 +8,6 @@ import {
 } from '@remotion/core';
 import React, {useContext, useEffect} from 'react';
 import {render} from 'react-dom';
-/*
-const Video = getVideo(getLastKeyShouldRemoveThisMethod());
-const videoConfig = getVideoConfig(getLastKeyShouldRemoveThisMethod());
-
-const style: React.CSSProperties = {
-	width: videoConfig.width,
-	height: videoConfig.height,
-	display: 'flex',
-	backgroundColor: 'transparent',
-};
-*/
 
 const Root = getRoot();
 
@@ -46,15 +35,24 @@ const GetVideo = () => {
 		}
 	}, [Component]);
 
-	return Component ? <Component /> : null;
+	const style: React.CSSProperties = {
+		width: video ? video.width : 0,
+		height: video ? video.height : 0,
+		display: 'flex',
+		backgroundColor: 'transparent',
+	};
+
+	return Component ? (
+		<div id="canvas" style={style}>
+			<Component />
+		</div>
+	) : null;
 };
 
 render(
 	<RemotionRoot>
 		<Root />
-		<div id="canvas">
-			<GetVideo />
-		</div>
+		<GetVideo />
 	</RemotionRoot>,
 	document.getElementById('container')
 );
