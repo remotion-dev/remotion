@@ -52,7 +52,7 @@ export const PlayPause: React.FC = () => {
 					}
 					return f - last10Frames[i - 1];
 				})
-				.filter((t) => t !== null) as number[];
+				.filter((_t) => _t !== null) as number[];
 			const averageTimeBetweenFrames =
 				timesBetweenFrames.reduce((a, b) => {
 					return a + b;
