@@ -8,7 +8,7 @@
 		"start": "remotion preview src/index.tsx",
 		"test": "eslint 'src' --ext ts,tsx",
 		"build": "tsc -d",
-		"render": "rm -r dist && cp -r src dist && tsc && remotion render",
+		"render": "ts-node node_modules/@remotion/cli/src/index.tsx render",
 		"prepare": "npm run build"
 	},
 	"files": [
@@ -30,6 +30,7 @@
 		"styled-components": "^5.1.1",
 		"svg-path-properties": "^1.0.4",
 		"three": "^0.118.3",
+		"ts-node": "^9.1.1",
 		"typescript": "^4.1.2"
 	},
 	"devDependencies": {
