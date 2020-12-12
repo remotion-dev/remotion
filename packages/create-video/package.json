@@ -4,11 +4,11 @@
 	"description": "",
 	"main": "index.js",
 	"bin": {
-		"create-video": "dist/src/init.js"
+		"create-video": "dist/init.js"
 	},
 	"files": [
 		"dist",
-		"template"
+		"_template"
 	],
 	"scripts": {
 		"build": "tsc -d && node add-bin.js",
