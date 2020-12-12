@@ -1,6 +1,5 @@
 import {
 	interpolate,
-	registerVideo,
 	spring,
 	SpringConfig,
 	useCurrentFrame,
@@ -72,10 +71,3 @@ export const ScreenShowcase: React.FC<Props> = ({
 		</div>
 	);
 };
-
-registerVideo(ScreenShowcase, {
-	fps: 30,
-	durationInFrames: 100,
-	height: 1920,
-	width: 1080,
-});

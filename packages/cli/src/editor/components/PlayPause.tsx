@@ -15,8 +15,11 @@ export const PlayPause: React.FC = () => {
 	const config = useVideoConfig();
 
 	const toggle = useCallback(() => {
+		if (!config) {
+			return null;
+		}
 		setPlaying((p) => !p);
-	}, [setPlaying]);
+	}, [config, setPlaying]);
 
 	const onKeyPress = useCallback(
 		(e: KeyboardEvent) => {
@@ -36,10 +39,11 @@ export const PlayPause: React.FC = () => {
 	}, [onKeyPress]);
 
 	useEffect(() => {
+		if (!config) {
+			return;
+		}
 		if (playing) {
-			// eslint-disable-next-line fp/no-mutating-methods
 			lastFrames.push(Date.now());
-			// eslint-disable-next-line fp/no-mutating-methods
 			const last10Frames = lastFrames.slice().reverse().slice(0, 10).reverse();
 			const timesBetweenFrames: number[] = last10Frames
 				.map((f, i) => {
@@ -48,7 +52,7 @@ export const PlayPause: React.FC = () => {
 					}
 					return f - last10Frames[i - 1];
 				})
-				.filter((t) => t !== null) as number[];
+				.filter((_t) => _t !== null) as number[];
 			const averageTimeBetweenFrames =
 				timesBetweenFrames.reduce((a, b) => {
 					return a + b;
@@ -59,18 +63,27 @@ export const PlayPause: React.FC = () => {
 				last10Frames.length === 0
 					? expectedTime
 					: expectedTime - slowerThanExpected;
-			setTimeout(() => {
-				const nextFrame = frame + 1;
-				if (nextFrame >= config.durationInFrames) {
-					return setFrame(0);
-				}
-				setFrame(frame + 1);
+			const t = setTimeout(() => {
+				setFrame((currFrame) => {
+					const nextFrame = currFrame + 1;
+					// TODO: Could be timing unsafe
+					if (nextFrame >= config.durationInFrames) {
+						return 0;
+					}
+					return currFrame + 1;
+				});
 			}, timeout);
+			return () => {
+				clearTimeout(t);
+			};
 		}
-	}, [config.fps, config.durationInFrames, frame, playing, setFrame]);
+	}, [config, frame, playing, setFrame]);
 
 	return (
-		<div onClick={toggle} style={{display: 'inline-flex'}}>
+		<div
+			onClick={toggle}
+			style={{display: 'inline-flex', opacity: config ? 1 : 0.5}}
+		>
 			{playing ? (
 				<Pause
 					style={{

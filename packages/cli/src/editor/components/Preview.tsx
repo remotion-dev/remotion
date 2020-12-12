@@ -1,4 +1,4 @@
-import {getVideo, useVideoConfig} from '@remotion/core';
+import {useVideo, useVideoConfig} from '@remotion/core';
 import React from 'react';
 import {useRecoilState} from 'recoil';
 import styled from 'styled-components';
@@ -22,13 +22,16 @@ export const Container = styled.div<{
 	background-color: black;
 `;
 
-const Video = getVideo();
-
 export const VideoPreview: React.FC<{
 	canvasSize: Size;
 }> = ({canvasSize}) => {
+	const video = useVideo();
 	const [previewSize] = useRecoilState(previewSizeState);
 	const config = useVideoConfig();
+
+	if (!config) {
+		throw new Error('Video config not found');
+	}
 
 	const heightRatio = canvasSize.height / config.height;
 	const widthRatio = canvasSize.width / config.width;
@@ -43,6 +46,8 @@ export const VideoPreview: React.FC<{
 	const height = config.height * scale;
 	const centerX = canvasSize.width / 2 - width / 2;
 	const centerY = canvasSize.height / 2 - height / 2;
+
+	const Component = video ? video.component : null;
 
 	return (
 		<div
@@ -66,7 +71,7 @@ export const VideoPreview: React.FC<{
 					height: config.height,
 				}}
 			>
-				<Video />
+				{Component ? <Component /> : null}
 			</Container>
 		</div>
 	);

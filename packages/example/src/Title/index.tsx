@@ -1,5 +1,4 @@
 import {
-	registerVideo,
 	spring,
 	SpringConfig,
 	useCurrentFrame,
@@ -70,10 +69,3 @@ export const Title: React.FC<{
 		</div>
 	);
 };
-
-registerVideo(Title, {
-	fps: 30,
-	height: 1920,
-	width: 1080,
-	durationInFrames: 30,
-});

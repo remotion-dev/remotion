@@ -1,9 +1,4 @@
-import {
-	deferRender,
-	readyToRender,
-	registerVideo,
-	useCurrentFrame,
-} from '@remotion/core';
+import {deferRender, readyToRender, useCurrentFrame} from '@remotion/core';
 import React, {useCallback, useEffect, useState} from 'react';
 import styled from 'styled-components';
 
@@ -120,16 +115,9 @@ export const Rating: React.FC = () => {
 					src="https://www.anysticker.app/logo-transparent.png"
 					style={{height: 200, width: 200, marginRight: 40}}
 				/>
-				<div style={{flex: 1}}></div>
+				<div style={{flex: 1}} />
 				<Link>anysticker.app/{data.data.pack.id}</Link>
 			</div>
 		</div>
 	);
 };
-
-registerVideo(Rating, {
-	fps: 30,
-	height: 1920,
-	width: 1080,
-	durationInFrames: 210,
-});

@@ -40,7 +40,7 @@ export const ReactSvg: React.FC = () => {
 	);
 };
 
-registerVideo(ReactSvg, {
+registerVideo('react-svg', ReactSvg, {
 	width: 1920,
 	height: 1080,
 	durationInFrames: 400,

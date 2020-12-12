@@ -1,7 +1,8 @@
+import {getRoot} from '@remotion/core';
 import React from 'react';
 import styled from 'styled-components';
-import {TopPanel} from './TopPanel';
 import {Timeline} from './Timeline';
+import {TopPanel} from './TopPanel';
 
 const Background = styled.div`
 	background: #222;
@@ -12,9 +13,15 @@ const Background = styled.div`
 	position: absolute;
 `;
 
+const Root = getRoot();
+
 export const Editor: React.FC = () => {
+	if (!Root) {
+		throw new Error('Root has not been registered. ');
+	}
 	return (
 		<Background>
+			<Root />
 			<TopPanel />
 			<Timeline />
 		</Background>
