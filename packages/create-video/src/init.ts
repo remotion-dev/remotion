@@ -41,6 +41,7 @@ xns(async () => {
 	}
 	await turnIntoDot(templateDir);
 	await execa('cp', ['-r', templateDir, selectedDirname]);
+	console.log('');
 	console.log(
 		`Created project at ${chalk.blue(
 			selectedDirname
