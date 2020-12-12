@@ -22,10 +22,13 @@ export const VideoForDevelopment: React.FC<AllowedVideoProps> = (props) => {
 		if (!videoRef.current) {
 			throw new Error('No video ref found');
 		}
+		if (!videoConfig) {
+			throw new Error('No video config found');
+		}
 		if (!playing || currentFrame === 0) {
 			videoRef.current.currentTime = currentFrame / (1000 / videoConfig.fps);
 		}
-	}, [currentFrame, playing, videoConfig.fps]);
+	}, [currentFrame, playing, videoConfig]);
 
 	return <video ref={videoRef} {...props} />;
 };

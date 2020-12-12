@@ -1,17 +1,23 @@
 import {useContext, useMemo} from 'react';
 import {SequenceContext} from '.';
-import {CompositionManager} from './CompositionManager';
+import {useVideo} from './use-video';
 import {VideoConfig} from './video-config';
 
-export const useVideoConfig = (): VideoConfig | null => {
-	const videoContext = useContext(CompositionManager);
+export const useVideoConfig = (): VideoConfig => {
 	const context = useContext(SequenceContext);
+	const video = useVideo();
 
 	return useMemo(() => {
-		if (videoContext.compositions.length === 0) {
-			return null;
+		if (!video) {
+			// TODO: Improve
+			return {
+				height: 0,
+				width: 0,
+				fps: 0,
+				durationInFrames: 0,
+			};
 		}
-		const {durationInFrames, fps, height, width} = videoContext.compositions[0];
+		const {durationInFrames, fps, height, width} = video;
 
 		return {
 			width,
@@ -19,5 +25,5 @@ export const useVideoConfig = (): VideoConfig | null => {
 			fps,
 			durationInFrames: context?.durationInFrames ?? durationInFrames,
 		};
-	}, [context?.durationInFrames, videoContext.compositions]);
+	}, [context?.durationInFrames, video]);
 };

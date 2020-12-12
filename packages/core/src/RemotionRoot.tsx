@@ -1,8 +1,15 @@
 import React, {useCallback, useMemo, useState} from 'react';
-import {CompositionManager, TComposition} from './CompositionManager';
+import {
+	CompositionManager,
+	CompositionManagerContext,
+	TComposition,
+} from './CompositionManager';
 
 export const RemotionRoot: React.FC = ({children}) => {
 	const [compositions, setCompositions] = useState<TComposition[]>([]);
+	const [currentComposition, setCurrentComposition] = useState<string | null>(
+		null
+	);
 
 	const registerComposition = useCallback((comp: TComposition) => {
 		setCompositions((comps) => {
@@ -21,13 +28,20 @@ export const RemotionRoot: React.FC = ({children}) => {
 		});
 	}, []);
 
-	const contextValue = useMemo(() => {
+	const contextValue = useMemo((): CompositionManagerContext => {
 		return {
 			compositions,
 			registerComposition,
 			unregisterComposition,
+			currentComposition,
+			setCurrentComposition,
 		};
-	}, [compositions, registerComposition, unregisterComposition]);
+	}, [
+		compositions,
+		currentComposition,
+		registerComposition,
+		unregisterComposition,
+	]);
 
 	return (
 		<CompositionManager.Provider value={contextValue}>
