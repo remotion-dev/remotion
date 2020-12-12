@@ -15,4 +15,4 @@ export const turnIntoDot = async (dir: string) => {
 	}
 };
 
-export const templateDirName = '_template';
+export const templateFolderName = '_template';
