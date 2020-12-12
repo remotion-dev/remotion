@@ -1,4 +1,6 @@
 import {bundle} from '@remotion/bundler';
+import {evaluateRootForCompositions, getRoot} from '@remotion/core';
+import {VideoConfig} from '@remotion/core/dist/video-config';
 import {openBrowser, provideScreenshot, stitchVideos} from '@remotion/renderer';
 import cliProgress from 'cli-progress';
 import fs from 'fs';
@@ -7,19 +9,29 @@ import path from 'path';
 
 export const bundleCommand = async () => {
 	process.stdout.write('📦 (1/3) Bundling video...\n');
-	const args = process.argv;
-	const file = args[3];
-	const fullPath = path.join(process.cwd(), file);
+	const fullPath = path.join(
+		process.cwd(),
+		'..',
+		'example',
+		'src',
+		'index.tsx'
+	);
 	await import(fullPath);
 	//	const config = getVideoConfig(getLastKeyShouldRemoveThisMethod());
-	const config = {
-		// TODO
-		durationInFrames: 10,
-		height: 1080,
-		width: 1080,
-		fps: 30,
-	};
 	const result = await bundle(fullPath);
+	const Root = getRoot();
+	if (!Root) {
+		return 'Did not specify Root';
+	}
+	const compositions = await evaluateRootForCompositions();
+	const {durationInFrames, fps, height, width} = compositions[0];
+	const config: VideoConfig = {
+		durationInFrames,
+		fps,
+		height,
+		width,
+	};
+	console.log(config);
 	process.stdout.write('📼 (2/3) Rendering frames...\n');
 	const browser = await openBrowser();
 	const page = await browser.newPage();
