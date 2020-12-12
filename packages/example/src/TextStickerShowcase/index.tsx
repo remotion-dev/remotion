@@ -1,4 +1,4 @@
-import {registerVideo, useCurrentFrame} from '@remotion/core';
+import {useCurrentFrame} from '@remotion/core';
 import React from 'react';
 
 export const TextStickerShowCase = () => {
@@ -20,10 +20,3 @@ export const TextStickerShowCase = () => {
 		</div>
 	);
 };
-
-registerVideo(TextStickerShowCase, {
-	fps: 30,
-	height: 1080,
-	width: 1080,
-	durationInFrames: 3 * 30,
-});

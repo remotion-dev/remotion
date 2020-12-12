@@ -1,4 +1,3 @@
-import {registerVideo} from '@remotion/core';
 import React from 'react';
 import styled from 'styled-components';
 import {Device} from './Device';
@@ -21,10 +20,3 @@ export const Springy = () => {
 		</Container>
 	);
 };
-
-registerVideo(Springy, {
-	height: 1920,
-	width: 1080,
-	durationInFrames: 2 * 30,
-	fps: 30,
-});

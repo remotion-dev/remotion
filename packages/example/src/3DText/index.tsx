@@ -1,7 +1,6 @@
 import {
 	deferRender,
 	readyToRender,
-	registerVideo,
 	spring,
 	SpringConfig,
 	useCurrentFrame,
@@ -207,10 +206,3 @@ export const Hey: React.FC = () => {
 		</div>
 	);
 };
-
-registerVideo(Hey, {
-	fps: 60,
-	height: 1080,
-	width: 1080,
-	durationInFrames: 200,
-});

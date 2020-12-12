@@ -1,18 +1,23 @@
-import {useContext} from 'react';
+import {useContext, useMemo} from 'react';
 import {SequenceContext} from '.';
-import {getVideoConfig} from './register-video';
+import {CompositionManager} from './CompositionManager';
 import {VideoConfig} from './video-config';
 
-export const useVideoConfig = (): VideoConfig => {
-	const baseConfig = getVideoConfig();
+export const useVideoConfig = (): VideoConfig | null => {
+	const videoContext = useContext(CompositionManager);
 	const context = useContext(SequenceContext);
 
-	if (context?.durationInFrames) {
-		return {
-			...baseConfig,
-			durationInFrames: context.durationInFrames,
-		};
-	}
+	return useMemo(() => {
+		if (videoContext.compositions.length === 0) {
+			return null;
+		}
+		const {durationInFrames, fps, height, width} = videoContext.compositions[0];
 
-	return baseConfig;
+		return {
+			width,
+			height,
+			fps,
+			durationInFrames: context?.durationInFrames ?? durationInFrames,
+		};
+	}, [context?.durationInFrames, videoContext.compositions]);
 };

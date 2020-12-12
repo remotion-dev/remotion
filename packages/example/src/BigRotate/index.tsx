@@ -1,6 +1,5 @@
 import {
 	interpolate,
-	registerVideo,
 	spring,
 	useCurrentFrame,
 	useVideoConfig,
@@ -59,10 +58,3 @@ export const BigRotate = () => {
 		</div>
 	);
 };
-
-registerVideo(BigRotate, {
-	width: 1080,
-	height: 1080,
-	fps: 60,
-	durationInFrames: 3 * 30,
-});
