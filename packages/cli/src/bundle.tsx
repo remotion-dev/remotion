@@ -1,5 +1,6 @@
 import {bundle} from '@remotion/bundler';
-import {getVideoConfig} from '@remotion/core';
+import {evaluateRootForCompositions, getRoot} from '@remotion/core';
+import {VideoConfig} from '@remotion/core/dist/video-config';
 import {openBrowser, provideScreenshot, stitchVideos} from '@remotion/renderer';
 import cliProgress from 'cli-progress';
 import fs from 'fs';
@@ -9,11 +10,48 @@ import path from 'path';
 export const bundleCommand = async () => {
 	process.stdout.write('📦 (1/3) Bundling video...\n');
 	const args = process.argv;
-	const file = args[3];
-	const fullPath = path.join(process.cwd(), file);
+	const argument = args[3];
+	const fullPath = path.join(
+		process.cwd(),
+		'..',
+		'example',
+		'src',
+		'index.tsx'
+	);
 	await import(fullPath);
-	const config = getVideoConfig();
 	const result = await bundle(fullPath);
+	const Root = getRoot();
+	if (!Root) {
+		return 'Did not specify Root';
+	}
+	const compositions = await evaluateRootForCompositions();
+	if (!argument) {
+		console.log('Usage: npm run render <composition-name>.');
+		console.log(
+			`The following composition names are available: ${compositions
+				.map((c) => c.name)
+				.join(', ')}`
+		);
+		return;
+	}
+
+	const composition = compositions.find((c) => c.name === argument);
+	if (!composition) {
+		console.log(`No composition with name ${argument} was found.`);
+		console.log(
+			`Following compositions are available: ${compositions
+				.map((c) => c.name)
+				.join(', ')}`
+		);
+		return;
+	}
+	const {durationInFrames, fps, height, width} = composition;
+	const config: VideoConfig = {
+		durationInFrames,
+		fps,
+		height,
+		width,
+	};
 	process.stdout.write('📼 (2/3) Rendering frames...\n');
 	const browser = await openBrowser();
 	const page = await browser.newPage();
@@ -28,9 +66,10 @@ export const bundleCommand = async () => {
 	);
 	bar.start(frames, 0);
 	for (let frame = 0; frame < frames; frame++) {
+		const site = `file://${result}/index.html?composition=${argument}&frame=${frame}`;
 		await provideScreenshot(page, {
 			output: path.join(outputDir, `element-${frame}.png`),
-			site: 'file://' + result + '/index.html?frame=' + frame,
+			site,
 			height: config.height,
 			width: config.width,
 		});

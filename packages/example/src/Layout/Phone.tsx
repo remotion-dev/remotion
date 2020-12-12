@@ -28,7 +28,7 @@ export const Phone: React.FC<
 					position: 'absolute',
 					transform: `scale(${phoneScale})`,
 				}}
-			></img>
+			/>
 		</Container>
 	);
 };

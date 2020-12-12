@@ -28,6 +28,9 @@ export const webpackConfig = ({
 		hot: true;
 	};
 } => ({
+	optimization: {
+		minimize: false,
+	},
 	entry: [
 		environment === 'development'
 			? require.resolve('webpack-hot-middleware/client')
