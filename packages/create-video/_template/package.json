@@ -1,0 +1,22 @@
+{
+	"name": "remotion-template",
+	"version": "1.0.0",
+	"description": "",
+	"main": "index.js",
+	"scripts": {
+		"dev": "remotion preview src/index.tsx",
+		"build": "tsc --incremental && remotion render dist/index.js"
+	},
+	"author": "",
+	"license": "ISC",
+	"dependencies": {
+		"@jonny/eslint-config": "^2.1.210",
+		"@remotion/cli": "^1.0.0-y.10",
+		"@remotion/core": "^1.0.0-y.10",
+		"@types/react": "^17.0.0",
+		"eslint": "^7.15.0",
+		"prettier": "^2.2.1",
+		"prettier-plugin-organize-imports": "^1.1.1",
+		"react": "^17.0.1"
+	}
+}
