@@ -39,8 +39,8 @@ xns(async () => {
 		console.log(`Directory ${selectedDirname} already exists. Quitting.`);
 		return;
 	}
-	await execa('cp', ['-r', templateDir, selectedDirname]);
 	await turnIntoDot(templateDir);
+	await execa('cp', ['-r', templateDir, selectedDirname]);
 	console.log(
 		`Created project at ${chalk.blue(
 			selectedDirname
