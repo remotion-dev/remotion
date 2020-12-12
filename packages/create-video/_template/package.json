@@ -4,7 +4,7 @@
 	"description": "",
 	"main": "index.js",
 	"scripts": {
-		"dev": "remotion preview src/index.tsx",
+		"start": "remotion preview src/index.tsx",
 		"build": "tsc --incremental && remotion render dist/index.js"
 	},
 	"author": "",
