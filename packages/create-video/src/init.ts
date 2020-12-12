@@ -4,7 +4,7 @@ import fs from 'fs';
 import path from 'path';
 import readline from 'readline';
 import xns from 'xns';
-import {templateDirName, turnIntoDot} from './dotfiles';
+import {templateFolderName, turnIntoDot} from './dotfiles';
 
 const rl = readline.createInterface({
 	input: process.stdin,
@@ -32,7 +32,7 @@ xns(async () => {
 		}
 	}
 
-	const templateDir = path.join(__dirname, '..', templateDirName);
+	const templateDir = path.join(__dirname, '..', templateFolderName);
 	const outputDir = path.join(process.cwd(), selectedDirname);
 
 	if (fs.existsSync(outputDir)) {
@@ -40,7 +40,7 @@ xns(async () => {
 		return;
 	}
 	await execa('cp', ['-r', templateDir, selectedDirname]);
-	await turnIntoDot(templateDirName);
+	await turnIntoDot(templateDir);
 	console.log(
 		`Created project at ${chalk.blue(
 			selectedDirname
