@@ -40,6 +40,7 @@ xns(async () => {
 		return;
 	}
 	console.log({templateDir});
+	console.log({outputDir});
 	await turnIntoDot(templateDir);
 	await execa('cp', ['-r', templateDir, selectedDirname]);
 	console.log(
