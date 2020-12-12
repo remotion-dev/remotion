@@ -1,4 +1,3 @@
-import {registerVideo} from '@remotion/core';
 import React from 'react';
 
 export const HackerLogo = () => {
@@ -19,10 +18,3 @@ export const HackerLogo = () => {
 		</div>
 	);
 };
-
-registerVideo(HackerLogo, {
-	width: 1024,
-	height: 1024,
-	fps: 1,
-	durationInFrames: 1,
-});

@@ -1,6 +1,5 @@
 import {
 	interpolate,
-	registerVideo,
 	spring,
 	useCurrentFrame,
 	useVideoConfig,
@@ -50,10 +49,3 @@ export const Layout: React.FC = () => {
 		</div>
 	);
 };
-
-registerVideo(Layout, {
-	width: 1080,
-	height: 1920,
-	durationInFrames: 3 * 30,
-	fps: 30,
-});

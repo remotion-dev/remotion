@@ -1,7 +1,6 @@
 import {
 	deferRender,
 	readyToRender,
-	registerVideo,
 	spring,
 	SpringConfig,
 	useCurrentFrame,
@@ -153,7 +152,7 @@ const Box: React.FC = () => {
 		groupRef.current.scale.x = scale;
 		// @ts-expect-error
 		groupRef.current.scale.y = scale;
-	}, [frame, videoConfig.fps]);
+	}, [frame, videoConfig]);
 
 	return (
 		<group ref={groupRef} scale={[0.1, 0.1, 0.1]} position={[0, 0, 0]}>
@@ -207,10 +206,3 @@ export const Hey: React.FC = () => {
 		</div>
 	);
 };
-
-registerVideo(Hey, {
-	fps: 60,
-	height: 1080,
-	width: 1080,
-	durationInFrames: 200,
-});

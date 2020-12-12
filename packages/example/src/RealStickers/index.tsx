@@ -1,6 +1,5 @@
 import {
 	interpolate,
-	registerVideo,
 	spring,
 	SpringConfig,
 	useCurrentFrame,
@@ -172,10 +171,3 @@ export const RealStickers = () => {
 		</div>
 	);
 };
-
-registerVideo(RealStickers, {
-	width: 1080,
-	height: 1920,
-	fps: 30,
-	durationInFrames: 30 * 2.2,
-});

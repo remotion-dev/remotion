@@ -1,9 +1,4 @@
-import {
-	registerVideo,
-	spring,
-	useCurrentFrame,
-	useVideoConfig,
-} from '@remotion/core';
+import {spring, useCurrentFrame, useVideoConfig} from '@remotion/core';
 import React from 'react';
 import styled from 'styled-components';
 
@@ -288,10 +283,3 @@ export const Any = () => {
 		</div>
 	);
 };
-
-registerVideo(Any, {
-	width: 1080,
-	height: 1920,
-	fps: 30,
-	durationInFrames: 3 * 30,
-});

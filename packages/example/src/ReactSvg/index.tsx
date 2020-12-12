@@ -1,7 +1,6 @@
 import {
 	Easing,
 	interpolate,
-	registerVideo,
 	useCurrentFrame,
 	useVideoConfig,
 } from '@remotion/core';
@@ -124,10 +123,3 @@ export const ReactSvg: React.FC = () => {
 		</div>
 	);
 };
-
-registerVideo(ReactSvg, {
-	width: 1920,
-	height: 1080,
-	durationInFrames: 300,
-	fps: 60,
-});
