@@ -1,4 +1,4 @@
-import {registerVideo, useCurrentFrame, useVideoConfig} from '@remotion/core';
+import {useCurrentFrame, useVideoConfig} from '@remotion/core';
 import {mix} from 'polished';
 import React from 'react';
 import styled from 'styled-components';
@@ -72,10 +72,3 @@ export const StaggerType = () => {
 		</Container>
 	);
 };
-
-registerVideo(StaggerType, {
-	width: 1080,
-	height: 1080,
-	fps: 30,
-	durationInFrames: 30 * 1.5,
-});

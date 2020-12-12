@@ -1,4 +1,4 @@
-import {Audio, registerVideo, Sequence} from '@remotion/core';
+import {Audio, Sequence} from '@remotion/core';
 import React from 'react';
 import {BigRotate} from '../BigRotate';
 import {EndLogo} from '../Circle';
@@ -117,10 +117,3 @@ export const Welcome: React.FC = () => {
 		</div>
 	);
 };
-
-registerVideo(Welcome, {
-	height: 1920,
-	width: 1080,
-	durationInFrames: 31 * 30,
-	fps: 30,
-});

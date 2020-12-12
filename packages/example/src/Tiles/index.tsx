@@ -1,5 +1,4 @@
 import {
-	registerVideo,
 	spring,
 	SpringConfig,
 	useCurrentFrame,
@@ -76,10 +75,3 @@ export const Tiles = () => {
 		</div>
 	);
 };
-
-registerVideo(Tiles, {
-	fps: 30,
-	height: 1920,
-	width: 1080,
-	durationInFrames: 3 * 30,
-});

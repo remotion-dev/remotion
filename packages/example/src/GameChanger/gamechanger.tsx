@@ -1,9 +1,4 @@
-import {
-	registerVideo,
-	spring,
-	useCurrentFrame,
-	useVideoConfig,
-} from '@remotion/core';
+import {spring, useCurrentFrame, useVideoConfig} from '@remotion/core';
 import React from 'react';
 import styled from 'styled-components';
 
@@ -45,7 +40,7 @@ const BlueText = styled.span`
 	}
 `;
 
-export const GameChanger = () => {
+export const GameChangerMain = () => {
 	const videoConfig = useVideoConfig();
 	const frame = useCurrentFrame();
 
@@ -95,10 +90,3 @@ export const GameChanger = () => {
 		</div>
 	);
 };
-
-registerVideo(GameChanger, {
-	width: 1920 * 2,
-	height: 1080 * 2,
-	durationInFrames: 60,
-	fps: 30,
-});

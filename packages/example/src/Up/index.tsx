@@ -1,6 +1,5 @@
 import {
 	interpolate,
-	registerVideo,
 	spring,
 	SpringConfig,
 	useCurrentFrame,
@@ -70,10 +69,3 @@ export const Up = () => {
 		</div>
 	);
 };
-
-registerVideo(Up, {
-	width: 1080,
-	height: 1080,
-	durationInFrames: 4 * 30,
-	fps: 30,
-});
