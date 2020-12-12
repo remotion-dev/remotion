@@ -23,7 +23,7 @@ xns(async () => {
 	while (selectedDirname === '') {
 		const answer =
 			(await askQuestion(
-				`What is the name of your project? ${chalk.gray('(my-video)')} `
+				`What's the name of your project? ${chalk.gray('(my-video)')} `
 			)) || 'my-video';
 		if (answer.match(/[a-zA-Z0-9-]+/g)) {
 			selectedDirname = answer;
