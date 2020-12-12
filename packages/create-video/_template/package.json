@@ -4,7 +4,7 @@
 	"description": "",
 	"main": "index.js",
 	"scripts": {
-		"start": "remotion preview src/index.tsx",
+		"dev": "remotion preview src/index.tsx",
 		"build": "tsc --incremental && remotion render dist/index.js"
 	},
 	"author": "",
@@ -17,6 +17,7 @@
 		"eslint": "^7.15.0",
 		"prettier": "^2.2.1",
 		"prettier-plugin-organize-imports": "^1.1.1",
-		"react": "^17.0.1"
+		"react": "^17.0.1",
+		"typescript": "^4.1.3"
 	}
 }
