@@ -1,5 +1,4 @@
 import {
-	registerVideo,
 	spring,
 	SpringConfig,
 	useCurrentFrame,
@@ -63,10 +62,3 @@ export const Devices = () => {
 		</div>
 	);
 };
-
-registerVideo(Devices, {
-	fps: 30,
-	height: 1920,
-	width: 1080,
-	durationInFrames: 3 * 30,
-});

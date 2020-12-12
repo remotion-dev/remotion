@@ -1,9 +1,4 @@
-import {
-	registerVideo,
-	spring,
-	useCurrentFrame,
-	useVideoConfig,
-} from '@remotion/core';
+import {spring, useCurrentFrame, useVideoConfig} from '@remotion/core';
 import {lighten} from 'polished';
 import React, {useMemo} from 'react';
 import styled from 'styled-components';
@@ -182,10 +177,3 @@ export const GameChanger = () => {
 		</div>
 	);
 };
-
-registerVideo(GameChanger, {
-	width: 1920 * 2,
-	height: 1080 * 2,
-	durationInFrames: 60,
-	fps: 30,
-});
