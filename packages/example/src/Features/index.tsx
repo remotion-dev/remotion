@@ -1,4 +1,4 @@
-import {registerVideo, Video} from '@remotion/core';
+import {Video} from '@remotion/core';
 import React from 'react';
 
 export const Features = () => {
@@ -21,10 +21,3 @@ export const Features = () => {
 		</div>
 	);
 };
-
-registerVideo(Features, {
-	width: 1080,
-	height: 1080,
-	fps: 30,
-	durationInFrames: 30 * 4,
-});

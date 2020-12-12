@@ -1,9 +1,8 @@
-import {getVideo, getVideoConfig} from '@remotion/core';
 import React from 'react';
 import {render} from 'react-dom';
-
-const Video = getVideo();
-const videoConfig = getVideoConfig();
+/*
+const Video = getVideo(getLastKeyShouldRemoveThisMethod());
+const videoConfig = getVideoConfig(getLastKeyShouldRemoveThisMethod());
 
 const style: React.CSSProperties = {
 	width: videoConfig.width,
@@ -11,10 +10,6 @@ const style: React.CSSProperties = {
 	display: 'flex',
 	backgroundColor: 'transparent',
 };
+*/
 
-render(
-	<div style={style} id="canvas">
-		<Video />
-	</div>,
-	document.getElementById('container')
-);
+render(<div id="canvas" />, document.getElementById('container'));

@@ -1,5 +1,4 @@
 import {bundle} from '@remotion/bundler';
-import {getVideoConfig} from '@remotion/core';
 import {openBrowser, provideScreenshot, stitchVideos} from '@remotion/renderer';
 import cliProgress from 'cli-progress';
 import fs from 'fs';
@@ -12,7 +11,14 @@ export const bundleCommand = async () => {
 	const file = args[3];
 	const fullPath = path.join(process.cwd(), file);
 	await import(fullPath);
-	const config = getVideoConfig();
+	//	const config = getVideoConfig(getLastKeyShouldRemoveThisMethod());
+	const config = {
+		// TODO
+		durationInFrames: 10,
+		height: 1080,
+		width: 1080,
+		fps: 30,
+	};
 	const result = await bundle(fullPath);
 	process.stdout.write('📼 (2/3) Rendering frames...\n');
 	const browser = await openBrowser();

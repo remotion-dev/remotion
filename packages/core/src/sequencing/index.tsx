@@ -1,5 +1,5 @@
-import React, {createContext} from 'react';
-import {useRawCurrentFrame} from '../use-frame';
+import React, {createContext, useMemo} from 'react';
+import {useAbsoluteCurrentFrame} from '../use-frame';
 
 export const SequenceContext = createContext<{
 	from: number;
@@ -10,14 +10,16 @@ export const Sequence: React.FC<{
 	from: number;
 	durationInFrames: number;
 }> = ({from, durationInFrames: duration, children}) => {
-	const currentFrame = useRawCurrentFrame();
+	const currentFrame = useAbsoluteCurrentFrame();
+
+	const contextValue = useMemo(() => {
+		return {
+			from,
+			durationInFrames: duration,
+		};
+	}, [duration, from]);
 	return (
-		<SequenceContext.Provider
-			value={{
-				from,
-				durationInFrames: duration,
-			}}
-		>
+		<SequenceContext.Provider value={contextValue}>
 			<div
 				style={{
 					position: 'absolute',

@@ -1,5 +1,4 @@
 import {
-	registerVideo,
 	spring,
 	SpringConfig,
 	useCurrentFrame,
@@ -91,10 +90,3 @@ export const EndLogo: React.FC = () => {
 		</div>
 	);
 };
-
-registerVideo(EndLogo, {
-	fps: 30,
-	height: 1920,
-	width: 1080,
-	durationInFrames: 3 * 30,
-});

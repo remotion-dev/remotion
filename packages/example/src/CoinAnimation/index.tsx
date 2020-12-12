@@ -1,6 +1,5 @@
 import {
 	interpolate,
-	registerVideo,
 	spring,
 	useCurrentFrame,
 	useVideoConfig,
@@ -67,10 +66,3 @@ export const CoinAnimation = () => {
 		</div>
 	);
 };
-
-registerVideo(CoinAnimation, {
-	durationInFrames: 70,
-	fps: 50,
-	height: 200,
-	width: 100,
-});

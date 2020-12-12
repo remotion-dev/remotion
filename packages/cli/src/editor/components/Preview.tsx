@@ -1,4 +1,4 @@
-import {getVideo, useVideoConfig} from '@remotion/core';
+import {useVideo, useVideoConfig} from '@remotion/core';
 import React from 'react';
 import {useRecoilState} from 'recoil';
 import styled from 'styled-components';
@@ -22,11 +22,10 @@ export const Container = styled.div<{
 	background-color: black;
 `;
 
-const Video = getVideo();
-
 export const VideoPreview: React.FC<{
 	canvasSize: Size;
 }> = ({canvasSize}) => {
+	const Video = useVideo();
 	const [previewSize] = useRecoilState(previewSizeState);
 	const config = useVideoConfig();
 

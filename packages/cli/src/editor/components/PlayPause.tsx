@@ -15,8 +15,11 @@ export const PlayPause: React.FC = () => {
 	const config = useVideoConfig();
 
 	const toggle = useCallback(() => {
+		if (!config) {
+			return null;
+		}
 		setPlaying((p) => !p);
-	}, [setPlaying]);
+	}, [config, setPlaying]);
 
 	const onKeyPress = useCallback(
 		(e: KeyboardEvent) => {
@@ -36,10 +39,11 @@ export const PlayPause: React.FC = () => {
 	}, [onKeyPress]);
 
 	useEffect(() => {
+		if (!config) {
+			return;
+		}
 		if (playing) {
-			// eslint-disable-next-line fp/no-mutating-methods
 			lastFrames.push(Date.now());
-			// eslint-disable-next-line fp/no-mutating-methods
 			const last10Frames = lastFrames.slice().reverse().slice(0, 10).reverse();
 			const timesBetweenFrames: number[] = last10Frames
 				.map((f, i) => {
@@ -67,10 +71,13 @@ export const PlayPause: React.FC = () => {
 				setFrame(frame + 1);
 			}, timeout);
 		}
-	}, [config.fps, config.durationInFrames, frame, playing, setFrame]);
+	}, [config, frame, playing, setFrame]);
 
 	return (
-		<div onClick={toggle} style={{display: 'inline-flex'}}>
+		<div
+			onClick={toggle}
+			style={{display: 'inline-flex', opacity: config ? 1 : 0.5}}
+		>
 			{playing ? (
 				<Pause
 					style={{
