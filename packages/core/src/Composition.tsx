@@ -1,5 +1,9 @@
 import {useContext, useEffect} from 'react';
 import {CompositionManager} from './CompositionManager';
+import {
+	addStaticComposition,
+	getShouldStaticallyReturnCompositions,
+} from './register-root';
 
 export const Composition: React.FC<{
 	component: React.FC<any>;
@@ -36,6 +40,16 @@ export const Composition: React.FC<{
 		unregisterComposition,
 		width,
 	]);
+	if (getShouldStaticallyReturnCompositions()) {
+		addStaticComposition({
+			component,
+			durationInFrames,
+			fps,
+			height,
+			name,
+			width,
+		});
+	}
 
 	return null;
 };

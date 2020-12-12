@@ -8,7 +8,7 @@
 		"start": "remotion preview src/index.tsx",
 		"test": "eslint 'src' --ext ts,tsx",
 		"build": "tsc -d",
-		"render": "tsc && remotion render dist/ReactSvg/index.js",
+		"render": "rm -r dist && cp -r src dist && tsc && remotion render",
 		"prepare": "npm run build"
 	},
 	"files": [
