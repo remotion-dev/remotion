@@ -21,7 +21,6 @@ import {ScreenShowcase} from './ScreenShowcase';
 import {ShadowCircles} from './ShadowCircles';
 import {Springy} from './Springy';
 import {StaggerType} from './StaggerType';
-import {TextStickerShowCase} from './TextStickerShowcase';
 import {Tiles} from './Tiles';
 import {Title} from './Title';
 import {Up} from './Up';
@@ -198,14 +197,6 @@ export const Index: React.FC = () => {
 				height={1080}
 				fps={30}
 				durationInFrames={45}
-			/>
-			<Composition
-				name="text-sticker-showcase"
-				component={TextStickerShowCase}
-				width={1080}
-				height={1080}
-				fps={30}
-				durationInFrames={90}
 			/>
 			<Composition
 				name="tiles"

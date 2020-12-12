@@ -23,6 +23,10 @@ export const TimelineSlider: React.FC = () => {
 		}
 	}, [setPlaying, playing]);
 
+	if (!videoConfig) {
+		return null;
+	}
+
 	return (
 		<input
 			type="range"
