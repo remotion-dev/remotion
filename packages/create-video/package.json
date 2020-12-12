@@ -6,6 +6,10 @@
 	"bin": {
 		"create-video": "dist/src/init.js"
 	},
+	"files": [
+		"dist",
+		"template"
+	],
 	"scripts": {
 		"build": "tsc -d && node add-bin.js"
 	},
