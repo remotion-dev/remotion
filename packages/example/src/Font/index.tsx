@@ -1,4 +1,3 @@
-import {registerVideo} from '@remotion/core';
 import React from 'react';
 import {TextComp} from './Text';
 
@@ -13,14 +12,7 @@ export const Comp: React.FC = () => {
 				alignItems: 'center',
 			}}
 		>
-			<TextComp></TextComp>
+			<TextComp />
 		</div>
 	);
 };
-
-registerVideo(Comp, {
-	fps: 30,
-	height: 1080,
-	width: 1080,
-	durationInFrames: 30 * 30,
-});

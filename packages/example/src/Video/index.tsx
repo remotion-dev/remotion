@@ -1,13 +1,7 @@
-import {
-	registerVideo,
-	spring,
-	useCurrentFrame,
-	useVideoConfig,
-	Video,
-} from '@remotion/core';
+import {spring, useCurrentFrame, useVideoConfig, Video} from '@remotion/core';
 import React from 'react';
 
-export const Comp: React.FC = () => {
+export const VideoComp: React.FC = () => {
 	// TODO: Tell user to import inside component
 	//const iphone = require('./iphone.png').default;
 	const iphone = require('./huawei.png').default;
@@ -81,10 +75,3 @@ export const Comp: React.FC = () => {
 		</div>
 	);
 };
-
-registerVideo(Comp, {
-	fps: 30,
-	height: 1080,
-	width: 1080,
-	durationInFrames: 30 * 30,
-});

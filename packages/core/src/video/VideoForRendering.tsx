@@ -11,6 +11,10 @@ export const VideoForRendering: React.FC<AllowedVideoProps> = (props) => {
 	const videoConfig = useVideoConfig();
 	const videoRef = useRef<HTMLVideoElement>(null);
 
+	if (!videoConfig) {
+		throw new Error('No video config found');
+	}
+
 	const frameInSeconds = useMemo(() => currentFrame / videoConfig.fps, [
 		currentFrame,
 		videoConfig.fps,

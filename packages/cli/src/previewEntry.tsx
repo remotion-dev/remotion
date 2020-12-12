@@ -1,11 +1,14 @@
+import {RemotionRoot} from '@remotion/core';
 import React from 'react';
 import {render} from 'react-dom';
-import {Editor} from './editor/components/Editor';
 import {RecoilRoot} from 'recoil';
+import {Editor} from './editor/components/Editor';
 
 render(
-	<RecoilRoot>
-		<Editor />
-	</RecoilRoot>,
+	<RemotionRoot>
+		<RecoilRoot>
+			<Editor />
+		</RecoilRoot>
+	</RemotionRoot>,
 	document.getElementById('container')
 );

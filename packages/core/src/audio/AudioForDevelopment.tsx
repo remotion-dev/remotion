@@ -22,10 +22,13 @@ export const AudioForDevelopment: React.FC<AllowedAudioProps> = (props) => {
 		if (!audioRef.current) {
 			throw new Error('No audio ref found');
 		}
+		if (!videoConfig) {
+			throw new Error('No video config found');
+		}
 		if (!playing || currentFrame === 0) {
 			audioRef.current.currentTime = currentFrame / (1000 / videoConfig.fps);
 		}
-	}, [currentFrame, playing, videoConfig.fps]);
+	}, [currentFrame, playing, videoConfig]);
 
 	return <audio ref={audioRef} {...props} />;
 };

@@ -23,6 +23,10 @@ export const TimeValue: React.FC = () => {
 	const frame = useCurrentFrame();
 	const config = useVideoConfig();
 
+	if (!config) {
+		return null;
+	}
+
 	return (
 		<Text>
 			{renderFrame(frame, config.fps)} ({frame})

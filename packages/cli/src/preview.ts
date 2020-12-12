@@ -1,9 +1,12 @@
 import {startServer} from '@remotion/bundler';
+// eslint-disable-next-line @typescript-eslint/prefer-ts-expect-error
+// @ts-ignore
 import betterOpn from 'better-opn';
 import fs from 'fs';
 import path from 'path';
+import xns from 'xns';
 
-export const previewCommand = async () => {
+export const previewCommand = xns(async () => {
 	const args = process.argv;
 	const file = args[3];
 	const fullPath = path.join(process.cwd(), file);
@@ -16,4 +19,4 @@ export const previewCommand = async () => {
 	const port = await startServer(fileChosen, fullPath);
 	betterOpn(`http://localhost:${port}`);
 	await new Promise(() => void 0);
-};
+});
