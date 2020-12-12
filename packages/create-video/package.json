@@ -4,7 +4,7 @@
 	"description": "",
 	"main": "index.js",
 	"bin": {
-		"create-video": "dist/src/create-video.js"
+		"create-video": "dist/src/init.js"
 	},
 	"scripts": {
 		"build": "tsc -d && node add-bin.js"
