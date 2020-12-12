@@ -39,8 +39,6 @@ xns(async () => {
 		console.log(`Directory ${selectedDirname} already exists. Quitting.`);
 		return;
 	}
-	console.log({templateDir});
-	console.log({outputDir});
 	await turnIntoDot(templateDir);
 	await execa('cp', ['-r', templateDir, selectedDirname]);
 	console.log(
