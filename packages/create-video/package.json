@@ -11,7 +11,8 @@
 		"template"
 	],
 	"scripts": {
-		"build": "tsc -d && node add-bin.js"
+		"build": "tsc -d && node add-bin.js",
+		"prepare": "npm run build"
 	},
 	"author": "",
 	"license": "ISC",
