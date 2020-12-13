@@ -121,3 +121,5 @@ export const Rating: React.FC = () => {
 		</div>
 	);
 };
+
+export default Rating;

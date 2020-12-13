@@ -71,3 +71,5 @@ export const ScreenShowcase: React.FC<Props> = ({
 		</div>
 	);
 };
+
+export default ScreenShowcase;

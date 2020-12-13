@@ -90,3 +90,5 @@ export const GameChangerMain = () => {
 		</div>
 	);
 };
+
+export default GameChangerMain;

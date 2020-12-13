@@ -206,3 +206,4 @@ export const Hey: React.FC = () => {
 		</div>
 	);
 };
+export default Hey;

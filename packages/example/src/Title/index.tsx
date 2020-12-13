@@ -69,3 +69,5 @@ export const Title: React.FC<{
 		</div>
 	);
 };
+
+export default Title;

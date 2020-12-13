@@ -69,3 +69,5 @@ export const Up = () => {
 		</div>
 	);
 };
+
+export default Up;
