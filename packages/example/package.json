@@ -9,7 +9,8 @@
 		"test": "eslint 'src' --ext ts,tsx",
 		"build": "tsc -d",
 		"postinstall": "npx patch-package",
-		"render": "ts-node node_modules/@remotion/cli/src/index.tsx render"
+		"render": "ts-node node_modules/@remotion/cli/src/index.tsx render",
+		"prepare": "npm run build"
 	},
 	"files": [
 		"dist"
