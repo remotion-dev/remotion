@@ -2,7 +2,7 @@
 	"name": "@remotion/cli",
 	"version": "1.0.0-y.33",
 	"description": "",
-	"main": "index.js",
+	"main": "dist/index.js",
 	"bin": {
 		"remotion": "dist/index.js"
 	},
