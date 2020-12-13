@@ -5,7 +5,6 @@
 		"rootDir": "src",
 		"outDir": "dist",
 		"jsx": "react-jsx",
-		"skipLibCheck": true,
-		"tsBuildInfoFile": ".tsbuildinfo"
+		"skipLibCheck": true
 	}
 }
