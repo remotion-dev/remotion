@@ -283,3 +283,5 @@ export const Any = () => {
 		</div>
 	);
 };
+
+export default Any;

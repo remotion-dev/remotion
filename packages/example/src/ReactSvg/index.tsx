@@ -123,3 +123,5 @@ export const ReactSvg: React.FC = () => {
 		</div>
 	);
 };
+
+export default ReactSvg;

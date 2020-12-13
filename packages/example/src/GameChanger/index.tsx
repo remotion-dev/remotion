@@ -177,3 +177,5 @@ export const GameChanger = () => {
 		</div>
 	);
 };
+
+export default GameChanger;

@@ -58,3 +58,5 @@ export const BigRotate = () => {
 		</div>
 	);
 };
+
+export default BigRotate;

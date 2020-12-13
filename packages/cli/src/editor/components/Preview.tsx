@@ -1,5 +1,5 @@
 import {useVideo, useVideoConfig} from '@remotion/core';
-import React from 'react';
+import React, {Suspense} from 'react';
 import {useRecoilState} from 'recoil';
 import styled from 'styled-components';
 import {Size} from '../hooks/get-el-size';
@@ -29,10 +29,6 @@ export const VideoPreview: React.FC<{
 	const [previewSize] = useRecoilState(previewSizeState);
 	const config = useVideoConfig();
 
-	if (!config) {
-		throw new Error('Video config not found');
-	}
-
 	const heightRatio = canvasSize.height / config.height;
 	const widthRatio = canvasSize.width / config.width;
 
@@ -50,29 +46,31 @@ export const VideoPreview: React.FC<{
 	const Component = video ? video.component : null;
 
 	return (
-		<div
-			style={{
-				width: config.width * scale,
-				height: config.height * scale,
-				display: 'flex',
-				flexDirection: 'column',
-				position: 'absolute',
-				left: centerX,
-				top: centerY,
-				overflow: 'hidden',
-			}}
-		>
-			<Container
-				{...{
-					scale,
-					xCorrection,
-					yCorrection,
-					width: config.width,
-					height: config.height,
+		<Suspense fallback={<div>loading...</div>}>
+			<div
+				style={{
+					width: config.width * scale,
+					height: config.height * scale,
+					display: 'flex',
+					flexDirection: 'column',
+					position: 'absolute',
+					left: centerX,
+					top: centerY,
+					overflow: 'hidden',
 				}}
 			>
-				{Component ? <Component /> : null}
-			</Container>
-		</div>
+				<Container
+					{...{
+						scale,
+						xCorrection,
+						yCorrection,
+						width: config.width,
+						height: config.height,
+					}}
+				>
+					{Component ? <Component /> : null}
+				</Container>
+			</div>
+		</Suspense>
 	);
 };
