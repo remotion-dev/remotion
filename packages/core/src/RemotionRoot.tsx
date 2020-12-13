@@ -4,6 +4,7 @@ import {
 	CompositionManagerContext,
 	TComposition,
 } from './CompositionManager';
+import {TimelineContext, TimelineContextValue} from './timeline-position-state';
 
 export const RemotionRoot: React.FC = ({children}) => {
 	// Wontfix, expected to have
@@ -12,6 +13,8 @@ export const RemotionRoot: React.FC = ({children}) => {
 	const [currentComposition, setCurrentComposition] = useState<string | null>(
 		null
 	);
+	const [frame, setFrame] = useState<number>(0);
+	const [playing, setPlaying] = useState<boolean>(false);
 
 	const registerComposition = useCallback(<T,>(comp: TComposition<T>) => {
 		setCompositions((comps) => {
@@ -45,9 +48,20 @@ export const RemotionRoot: React.FC = ({children}) => {
 		unregisterComposition,
 	]);
 
+	const timelineContextValue = useMemo((): TimelineContextValue => {
+		return {
+			frame,
+			playing,
+			setFrame,
+			setPlaying,
+		};
+	}, [frame, playing]);
+
 	return (
-		<CompositionManager.Provider value={contextValue}>
-			{children}
-		</CompositionManager.Provider>
+		<TimelineContext.Provider value={timelineContextValue}>
+			<CompositionManager.Provider value={contextValue}>
+				{children}
+			</CompositionManager.Provider>
+		</TimelineContext.Provider>
 	);
 };
