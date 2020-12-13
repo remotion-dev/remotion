@@ -72,3 +72,5 @@ export const StaggerType = () => {
 		</Container>
 	);
 };
+
+export default StaggerType;

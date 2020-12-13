@@ -75,3 +75,5 @@ export const Tiles = () => {
 		</div>
 	);
 };
+
+export default Tiles;

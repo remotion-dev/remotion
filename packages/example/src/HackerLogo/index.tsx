@@ -18,3 +18,5 @@ export const HackerLogo = () => {
 		</div>
 	);
 };
+
+export default HackerLogo;

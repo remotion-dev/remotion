@@ -90,3 +90,5 @@ export const EndLogo: React.FC = () => {
 		</div>
 	);
 };
+
+export default EndLogo;

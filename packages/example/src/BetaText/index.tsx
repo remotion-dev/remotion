@@ -157,3 +157,5 @@ export const BetaText = () => {
 		</div>
 	);
 };
+
+export default BetaText;
