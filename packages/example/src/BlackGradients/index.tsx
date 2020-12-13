@@ -43,3 +43,5 @@ export const BlackGradients = () => {
 		</div>
 	);
 };
+
+export default BlackGradients;

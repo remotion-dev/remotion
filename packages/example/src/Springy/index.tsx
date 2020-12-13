@@ -20,3 +20,5 @@ export const Springy = () => {
 		</Container>
 	);
 };
+
+export default Springy;

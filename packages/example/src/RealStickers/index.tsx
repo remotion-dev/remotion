@@ -171,3 +171,5 @@ export const RealStickers = () => {
 		</div>
 	);
 };
+
+export default RealStickers;

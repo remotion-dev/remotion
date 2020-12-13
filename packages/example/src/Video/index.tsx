@@ -75,3 +75,5 @@ export const VideoComp: React.FC = () => {
 		</div>
 	);
 };
+
+export default VideoComp;

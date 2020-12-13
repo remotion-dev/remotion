@@ -66,3 +66,5 @@ export const CoinAnimation = () => {
 		</div>
 	);
 };
+
+export default CoinAnimation;

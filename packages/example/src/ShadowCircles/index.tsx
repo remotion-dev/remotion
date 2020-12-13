@@ -18,3 +18,5 @@ export const ShadowCircles = () => {
 		</div>
 	);
 };
+
+export default ShadowCircles;
