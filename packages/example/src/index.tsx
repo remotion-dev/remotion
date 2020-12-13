@@ -194,6 +194,10 @@ export const Index: React.FC = () => {
 				width={1080}
 				height={1080}
 				fps={30}
+				props={{
+					line1: 'abc',
+					line2: 'def',
+				}}
 				durationInFrames={120}
 			/>
 			<Composition

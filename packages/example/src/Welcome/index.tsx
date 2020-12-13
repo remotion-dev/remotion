@@ -9,7 +9,9 @@ import {Springy} from '../Springy';
 import {Title} from '../Title';
 import {Transition} from '../Transition';
 
-export const Welcome: React.FC = () => {
+export const Welcome: React.FC<{
+	theme: 'light' | 'dark'
+}> = () => {
 	const audio = require('./audio.mp4').default;
 
 	const yourselfGetImage = (f: number) =>
