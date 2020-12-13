@@ -9,7 +9,7 @@
 		"test": "eslint 'src' --ext ts,tsx",
 		"build": "tsc -d",
 		"postinstall": "npx patch-package",
-		"render": "ts-node node_modules/@remotion/cli/src/index.tsx render"
+		"render": "remotion render"
 	},
 	"files": [
 		"dist"
