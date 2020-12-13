@@ -7,17 +7,10 @@ import fs from 'fs';
 import os from 'os';
 import path from 'path';
 
-export const bundleCommand = async () => {
+export const bundleCommand = async (fullPath: string) => {
 	process.stdout.write('📦 (1/3) Bundling video...\n');
 	const args = process.argv;
 	const argument = args[3];
-	const fullPath = path.join(
-		process.cwd(),
-		'..',
-		'example',
-		'src',
-		'index.tsx'
-	);
 	await import(fullPath);
 	const result = await bundle(fullPath);
 	const Root = getRoot();
