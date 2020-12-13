@@ -1,15 +1,21 @@
 if (typeof window !== 'undefined') {
-	window.ready = true;
+	window.ready = false;
 }
 
-export const deferRender = (): void => {
+let handles: number[] = [];
+
+export const deferRender = (): number => {
+	const handle = Math.random();
+	handles.push(handle);
 	if (typeof window !== 'undefined') {
 		window.ready = false;
 	}
+	return handle;
 };
 
-export const readyToRender = (): void => {
-	if (typeof window !== 'undefined') {
+export const readyToRender = (handle: number): void => {
+	handles = handles.filter((h) => h !== handle);
+	if (handles.length === 0 && typeof window !== 'undefined') {
 		window.ready = true;
 	}
 };
