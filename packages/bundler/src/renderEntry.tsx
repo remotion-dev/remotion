@@ -9,6 +9,7 @@ import {
 	useVideo,
 } from '@remotion/core';
 import React, {
+	ComponentType,
 	Suspense,
 	useCallback,
 	useContext,
@@ -36,7 +37,7 @@ const Fallback: React.FC = () => {
 const GetVideo = () => {
 	const video = useVideo();
 	const compositions = useContext(CompositionManager);
-	const [Component, setComponent] = useState<React.FC | null>(null);
+	const [Component, setComponent] = useState<ComponentType | null>(null);
 
 	useEffect(() => {
 		if (!video && compositions.compositions.length > 0) {
@@ -68,8 +69,6 @@ const GetVideo = () => {
 		}
 	}, [Component]);
 
-	console.log({video});
-
 	return Component ? (
 		<Suspense fallback={<Fallback />}>
 			<div
@@ -81,7 +80,7 @@ const GetVideo = () => {
 					backgroundColor: 'transparent',
 				}}
 			>
-				<Component />
+				<Component {...((video?.props as {}) ?? {})} />
 			</div>
 		</Suspense>
 	) : null;
