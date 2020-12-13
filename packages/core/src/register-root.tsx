@@ -4,7 +4,9 @@ import {RemotionRoot} from './RemotionRoot';
 
 let root: React.FC | null = null;
 let shouldStaticallyReturnCompositions = false;
-const staticCompositions: TComposition[] = [];
+// Ok to have components with various prop types
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const staticCompositions: TComposition<any>[] = [];
 
 export const registerRoot = (comp: React.FC) => {
 	if (root) {
@@ -38,7 +40,7 @@ export const evaluateRootForCompositions = async (): Promise<
 export const getShouldStaticallyReturnCompositions = () =>
 	shouldStaticallyReturnCompositions;
 
-export const addStaticComposition = (composition: TComposition) => {
+export const addStaticComposition = <T,>(composition: TComposition<T>) => {
 	staticCompositions.push(composition);
 };
 

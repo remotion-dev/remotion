@@ -1,18 +1,29 @@
-import {useContext, useEffect} from 'react';
+import {ComponentType, useContext, useEffect} from 'react';
 import {CompositionManager} from './CompositionManager';
 import {
 	addStaticComposition,
 	getShouldStaticallyReturnCompositions,
 } from './register-root';
 
-export const Composition: React.FC<{
-	component: React.FC<any>;
+type Props<T> = {
+	component: ComponentType<T>;
 	width: number;
 	height: number;
 	fps: number;
 	durationInFrames: number;
 	name: string;
-}> = ({component, width, height, fps, durationInFrames, name}) => {
+	props?: T;
+};
+
+export const Composition = <T,>({
+	component,
+	width,
+	height,
+	fps,
+	durationInFrames,
+	name,
+	props,
+}: Props<T>) => {
 	const {registerComposition, unregisterComposition} = useContext(
 		CompositionManager
 	);
@@ -27,13 +38,14 @@ export const Composition: React.FC<{
 				`Composition name can only contain a-z, A-Z, 0-9 and -. You passed ${name}`
 			);
 		}
-		registerComposition({
+		registerComposition<T>({
 			durationInFrames,
 			fps,
 			height,
 			width,
 			name,
 			component,
+			props,
 		});
 
 		return () => {
@@ -45,6 +57,7 @@ export const Composition: React.FC<{
 		fps,
 		height,
 		name,
+		props,
 		registerComposition,
 		unregisterComposition,
 		width,

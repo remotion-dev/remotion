@@ -8,7 +8,10 @@ import {
 import React from 'react';
 import {Title} from '../Title';
 
-export const Up = () => {
+export const Up: React.FC<{
+	line1: string;
+	line2: string;
+}> = ({line1 = 'hi', line2 = 'there'}) => {
 	const frame = useCurrentFrame();
 	const videoConfig = useVideoConfig();
 	const springConfig: SpringConfig = {
@@ -55,7 +58,7 @@ export const Up = () => {
 					height: videoConfig.height,
 				}}
 			>
-				<Title line1="hi" line2="there" />
+				<Title line1={line1} line2={line2} />
 			</div>
 			<img
 				src={f}

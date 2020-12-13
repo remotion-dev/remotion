@@ -1,17 +1,18 @@
-import {createContext} from 'react';
+import {ComponentType, createContext} from 'react';
 
-export type TComposition = {
+export type TComposition<T = unknown> = {
 	width: number;
 	height: number;
 	fps: number;
 	durationInFrames: number;
 	name: string;
-	component: React.FC<any>;
+	component: ComponentType<T>;
+	props?: T;
 };
 
 export type CompositionManagerContext = {
 	compositions: TComposition[];
-	registerComposition: (comp: TComposition) => void;
+	registerComposition: <T>(comp: TComposition<T>) => void;
 	unregisterComposition: (name: string) => void;
 	currentComposition: string | null;
 	setCurrentComposition: (curr: string) => void;

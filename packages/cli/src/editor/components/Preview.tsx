@@ -68,7 +68,9 @@ export const VideoPreview: React.FC<{
 						height: config.height,
 					}}
 				>
-					{Component ? <Component /> : null}
+					{Component ? (
+						<Component {...(((video?.props as unknown) as {}) ?? {})} />
+					) : null}
 				</Container>
 			</div>
 		</Suspense>

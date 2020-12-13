@@ -6,12 +6,14 @@ import {
 } from './CompositionManager';
 
 export const RemotionRoot: React.FC = ({children}) => {
-	const [compositions, setCompositions] = useState<TComposition[]>([]);
+	// Wontfix, expected to have
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	const [compositions, setCompositions] = useState<TComposition<any>[]>([]);
 	const [currentComposition, setCurrentComposition] = useState<string | null>(
 		null
 	);
 
-	const registerComposition = useCallback((comp: TComposition) => {
+	const registerComposition = useCallback(<T,>(comp: TComposition<T>) => {
 		setCompositions((comps) => {
 			if (comps.find((c) => c.name === comp.name)) {
 				throw new Error(
