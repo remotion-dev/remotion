@@ -6,6 +6,7 @@
 	"bin": {
 		"remotion": "dist/index.js"
 	},
+	"module": "true",
 	"scripts": {
 		"test": "eslint 'src' --ext ts,tsx",
 		"build": "tsc -d && node add-bin.js",
