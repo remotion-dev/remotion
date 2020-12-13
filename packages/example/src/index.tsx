@@ -21,6 +21,14 @@ export const Index: React.FC = () => {
 				durationInFrames={3 * 30}
 			/>
 			<Composition
+				name="any3"
+				component={React.lazy(() => import('./Any'))}
+				width={1080}
+				height={1080}
+				fps={30}
+				durationInFrames={3 * 30}
+			/>
+			<Composition
 				name="beta-text"
 				component={React.lazy(() => import('./BetaText'))}
 				width={1080}
