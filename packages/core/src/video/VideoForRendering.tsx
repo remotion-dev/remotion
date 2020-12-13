@@ -1,5 +1,5 @@
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
-import {readyToRender} from '../defer-ready';
+import {deferRender, readyToRender} from '../defer-ready';
 import {useCurrentFrame} from '../use-frame';
 import {useVideoConfig} from '../use-video-config';
 import {AllowedVideoProps} from './props';
@@ -7,6 +7,11 @@ import {AllowedVideoProps} from './props';
 export const VideoForRendering: React.FC<AllowedVideoProps> = (props) => {
 	const [metadataLoaded, setMetadataLoaded] = useState(false);
 	const [currentFrameSet, setCurrentFrameSet] = useState(false);
+
+	const [handle] = useState(() => {
+		return deferRender();
+	});
+
 	const currentFrame = useCurrentFrame();
 	const videoConfig = useVideoConfig();
 	const videoRef = useRef<HTMLVideoElement>(null);
@@ -28,14 +33,14 @@ export const VideoForRendering: React.FC<AllowedVideoProps> = (props) => {
 		videoRef.current.addEventListener(
 			'seeked',
 			() => {
-				readyToRender();
+				readyToRender(handle);
 			},
 			{once: true}
 		);
 		setInterval(() => {
 			setCurrentFrameSet(true);
 		}, 0);
-	}, [frameInSeconds]);
+	}, [frameInSeconds, handle]);
 
 	const onMetadataLoad = useCallback(() => {
 		setMetadataLoaded(true);

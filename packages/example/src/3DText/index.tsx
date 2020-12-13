@@ -26,8 +26,7 @@ import {
 } from 'three';
 import {bold} from './bold';
 
-deferRender();
-
+const handle = deferRender();
 const diffuseColor = new Color().setRGB(0.2, 0.2, 0.2);
 
 const font = new Font(bold);
@@ -90,7 +89,7 @@ const Box: React.FC = () => {
 	}, [onResize]);
 
 	useEffect(() => {
-		readyToRender();
+		readyToRender(handle);
 	}, []);
 
 	const mesh = useUpdate<Mesh>(

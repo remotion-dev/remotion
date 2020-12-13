@@ -8,7 +8,13 @@ import {
 	TComposition,
 	useVideo,
 } from '@remotion/core';
-import React, {useCallback, useContext, useEffect, useState} from 'react';
+import React, {
+	Suspense,
+	useCallback,
+	useContext,
+	useEffect,
+	useState,
+} from 'react';
 import {render} from 'react-dom';
 
 const Root = getRoot();
@@ -17,7 +23,15 @@ if (!Root) {
 	throw new Error('Root has not been registered. ');
 }
 
-deferRender();
+const handle = deferRender();
+
+const Fallback: React.FC = () => {
+	useEffect(() => {
+		const fallback = deferRender();
+		return () => readyToRender(fallback);
+	}, []);
+	return null;
+};
 
 const GetVideo = () => {
 	const video = useVideo();
@@ -50,22 +64,26 @@ const GetVideo = () => {
 
 	useEffect(() => {
 		if (Component) {
-			readyToRender();
+			readyToRender(handle);
 		}
 	}, [Component]);
 
+	console.log({video});
+
 	return Component ? (
-		<div
-			id="canvas"
-			style={{
-				width: video?.width,
-				height: video?.height,
-				display: 'flex',
-				backgroundColor: 'transparent',
-			}}
-		>
-			<Component />
-		</div>
+		<Suspense fallback={<Fallback />}>
+			<div
+				id="canvas"
+				style={{
+					width: video?.width,
+					height: video?.height,
+					display: 'flex',
+					backgroundColor: 'transparent',
+				}}
+			>
+				<Component />
+			</div>
+		</Suspense>
 	) : null;
 };
 
