@@ -1,5 +1,4 @@
 import {bundle} from '@remotion/bundler';
-import {evaluateRootForCompositions, getRoot} from '@remotion/core';
 import {VideoConfig} from '@remotion/core/dist/video-config';
 import {openBrowser, provideScreenshot, stitchVideos} from '@remotion/renderer';
 import cliProgress from 'cli-progress';
@@ -9,41 +8,13 @@ import path from 'path';
 
 export const bundleCommand = async (fullPath: string) => {
 	process.stdout.write('📦 (1/3) Bundling video...\n');
-	const args = process.argv;
-	const argument = args[3];
-	await import(fullPath);
+	const argument = 'HelloWorld';
 	const result = await bundle(fullPath);
-	const Root = getRoot();
-	if (!Root) {
-		return 'Did not specify Root';
-	}
-	const compositions = await evaluateRootForCompositions();
-	if (!argument) {
-		console.log('Usage: npm run render <composition-name>.');
-		console.log(
-			`The following composition names are available: ${compositions
-				.map((c) => c.name)
-				.join(', ')}`
-		);
-		return;
-	}
-
-	const composition = compositions.find((c) => c.name === argument);
-	if (!composition) {
-		console.log(`No composition with name ${argument} was found.`);
-		console.log(
-			`Following compositions are available: ${compositions
-				.map((c) => c.name)
-				.join(', ')}`
-		);
-		return;
-	}
-	const {durationInFrames, fps, height, width} = composition;
 	const config: VideoConfig = {
-		durationInFrames,
-		fps,
-		height,
-		width,
+		durationInFrames: 100,
+		fps: 10,
+		height: 100,
+		width: 100,
 	};
 	process.stdout.write('📼 (2/3) Rendering frames...\n');
 	const browser = await openBrowser();
@@ -60,6 +31,7 @@ export const bundleCommand = async (fullPath: string) => {
 	bar.start(frames, 0);
 	for (let frame = 0; frame < frames; frame++) {
 		const site = `file://${result}/index.html?composition=${argument}&frame=${frame}`;
+		console.log({site});
 		await provideScreenshot(page, {
 			output: path.join(outputDir, `element-${frame}.png`),
 			site,
