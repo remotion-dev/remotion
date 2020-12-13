@@ -5,8 +5,7 @@
 	"main": "dist/index.js",
 	"scripts": {
 		"test": "eslint 'src' --ext ts,tsx",
-		"build": "tsc -d",
-		"prepare": "npm run build"
+		"build": "tsc -d"
 	},
 	"files": [
 		"dist"
