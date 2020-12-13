@@ -2,7 +2,7 @@ import xns from 'xns';
 import {bundleCommand} from './bundle';
 import {previewCommand} from './preview';
 
-xns(async () => {
+export const bundle = xns(async () => {
 	const args = process.argv;
 	const command = args[2];
 
