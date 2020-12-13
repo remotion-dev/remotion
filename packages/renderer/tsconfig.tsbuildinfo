@@ -456,14 +456,29 @@
         "signature": "f0cb4b3ab88193e3e51e9e2622e4c375955003f1f81239d72c5b7a95415dad3e",
         "affectsGlobalScope": false
       },
+      "./node_modules/@types/eslint/helpers.d.ts": {
+        "version": "f345b0888d003fd69cb32bad3a0aa04c615ccafc572019e4bd86a52bd5e49e46",
+        "signature": "f345b0888d003fd69cb32bad3a0aa04c615ccafc572019e4bd86a52bd5e49e46",
+        "affectsGlobalScope": true
+      },
+      "./node_modules/@types/json-schema/index.d.ts": {
+        "version": "ecdf947a5111318568ba99f2a87b8498382d8871207f1bc6271ff3b9536a2448",
+        "signature": "ecdf947a5111318568ba99f2a87b8498382d8871207f1bc6271ff3b9536a2448",
+        "affectsGlobalScope": false
+      },
       "./node_modules/@types/estree/index.d.ts": {
         "version": "6a38e250306ceccbab257d11b846d5bd12491157d20901fa01afe4050c93c1b5",
         "signature": "6a38e250306ceccbab257d11b846d5bd12491157d20901fa01afe4050c93c1b5",
         "affectsGlobalScope": false
       },
-      "./node_modules/@types/json-schema/index.d.ts": {
-        "version": "ecdf947a5111318568ba99f2a87b8498382d8871207f1bc6271ff3b9536a2448",
-        "signature": "ecdf947a5111318568ba99f2a87b8498382d8871207f1bc6271ff3b9536a2448",
+      "./node_modules/@types/eslint/index.d.ts": {
+        "version": "edb3e2f61a2a6e29a5f9043f73adf65951d52b4c1f22e84050381f7ef0d77318",
+        "signature": "edb3e2f61a2a6e29a5f9043f73adf65951d52b4c1f22e84050381f7ef0d77318",
+        "affectsGlobalScope": false
+      },
+      "./node_modules/@types/eslint-scope/index.d.ts": {
+        "version": "274bda283ef15f4205603ca9967313fc013aa77ae89f2cbeab5fbd51439e96ed",
+        "signature": "274bda283ef15f4205603ca9967313fc013aa77ae89f2cbeab5fbd51439e96ed",
         "affectsGlobalScope": false
       },
       "./node_modules/@types/json5/index.d.ts": {
@@ -504,6 +519,29 @@
     },
     "referencedMap": {
       "./node_modules/@types/color-name/index.d.ts": [
+        "./node_modules/@types/node/fs.d.ts",
+        "./node_modules/@types/node/ts3.2/fs.d.ts",
+        "./node_modules/@types/node/ts3.2/util.d.ts",
+        "./node_modules/@types/node/util.d.ts"
+      ],
+      "./node_modules/@types/eslint-scope/index.d.ts": [
+        "./node_modules/@types/eslint/index.d.ts",
+        "./node_modules/@types/estree/index.d.ts",
+        "./node_modules/@types/node/fs.d.ts",
+        "./node_modules/@types/node/ts3.2/fs.d.ts",
+        "./node_modules/@types/node/ts3.2/util.d.ts",
+        "./node_modules/@types/node/util.d.ts"
+      ],
+      "./node_modules/@types/eslint/helpers.d.ts": [
+        "./node_modules/@types/node/fs.d.ts",
+        "./node_modules/@types/node/ts3.2/fs.d.ts",
+        "./node_modules/@types/node/ts3.2/util.d.ts",
+        "./node_modules/@types/node/util.d.ts"
+      ],
+      "./node_modules/@types/eslint/index.d.ts": [
+        "./node_modules/@types/eslint/helpers.d.ts",
+        "./node_modules/@types/estree/index.d.ts",
+        "./node_modules/@types/json-schema/index.d.ts",
         "./node_modules/@types/node/fs.d.ts",
         "./node_modules/@types/node/ts3.2/fs.d.ts",
         "./node_modules/@types/node/ts3.2/util.d.ts",
@@ -1206,6 +1244,29 @@
         "./node_modules/@types/node/ts3.2/util.d.ts",
         "./node_modules/@types/node/util.d.ts"
       ],
+      "./node_modules/@types/eslint-scope/index.d.ts": [
+        "./node_modules/@types/eslint/index.d.ts",
+        "./node_modules/@types/estree/index.d.ts",
+        "./node_modules/@types/node/fs.d.ts",
+        "./node_modules/@types/node/ts3.2/fs.d.ts",
+        "./node_modules/@types/node/ts3.2/util.d.ts",
+        "./node_modules/@types/node/util.d.ts"
+      ],
+      "./node_modules/@types/eslint/helpers.d.ts": [
+        "./node_modules/@types/node/fs.d.ts",
+        "./node_modules/@types/node/ts3.2/fs.d.ts",
+        "./node_modules/@types/node/ts3.2/util.d.ts",
+        "./node_modules/@types/node/util.d.ts"
+      ],
+      "./node_modules/@types/eslint/index.d.ts": [
+        "./node_modules/@types/eslint/helpers.d.ts",
+        "./node_modules/@types/estree/index.d.ts",
+        "./node_modules/@types/json-schema/index.d.ts",
+        "./node_modules/@types/node/fs.d.ts",
+        "./node_modules/@types/node/ts3.2/fs.d.ts",
+        "./node_modules/@types/node/ts3.2/util.d.ts",
+        "./node_modules/@types/node/util.d.ts"
+      ],
       "./node_modules/@types/estree/index.d.ts": [
         "./node_modules/@types/node/fs.d.ts",
         "./node_modules/@types/node/ts3.2/fs.d.ts",
@@ -1885,6 +1946,9 @@
     },
     "semanticDiagnosticsPerFile": [
       "./node_modules/@types/color-name/index.d.ts",
+      "./node_modules/@types/eslint-scope/index.d.ts",
+      "./node_modules/@types/eslint/helpers.d.ts",
+      "./node_modules/@types/eslint/index.d.ts",
       "./node_modules/@types/estree/index.d.ts",
       "./node_modules/@types/json-schema/index.d.ts",
       "./node_modules/@types/json5/index.d.ts",
