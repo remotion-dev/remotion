@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/renderer",
-	"version": "1.0.0-y.29",
+	"version": "1.0.0-y.30",
 	"description": "",
 	"main": "dist/index.js",
 	"scripts": {
@@ -16,7 +16,7 @@
 	"dependencies": {
 		"@babel/preset-typescript": "^7.10.4",
 		"@jonny/eslint-config": "^2.1.210",
-		"@remotion/core": "^1.0.0-y.29",
+		"@remotion/core": "^1.0.0-y.30",
 		"@types/puppeteer": "^3.0.0",
 		"@types/react": "^17.0.0",
 		"@types/react-dom": "^17.0.0",
