@@ -8,7 +8,7 @@
 		"start": "remotion preview src/index.tsx",
 		"test": "eslint 'src' --ext ts,tsx",
 		"build": "tsc -d",
-		"postinstall": "patch-package",
+		"postinstall": "npx patch-package",
 		"render": "ts-node node_modules/@remotion/cli/src/index.tsx render",
 		"prepare": "npm run build"
 	},
@@ -24,6 +24,7 @@
 		"@types/node": "^14.0.13",
 		"@types/react": "^17.0.0",
 		"@types/styled-components": "^5.1.1",
+		"patch-package": "^6.2.2",
 		"polished": "^4.0.5",
 		"prettier": "^2.0.5",
 		"react": "^17.0.1",
