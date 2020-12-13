@@ -18,6 +18,15 @@ export const Composition: React.FC<{
 	);
 
 	useEffect(() => {
+		// Ensure it's a URL safe name
+		if (!name) {
+			throw new Error('No name for composition passed.');
+		}
+		if (!name.match(/^([a-zA-Z0-9-])+$/g)) {
+			throw new Error(
+				`Composition name can only contain a-z, A-Z, 0-9 and -. You passed ${name}`
+			);
+		}
 		registerComposition({
 			durationInFrames,
 			fps,
