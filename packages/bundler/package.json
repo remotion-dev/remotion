@@ -34,6 +34,7 @@
 		"express": "^4.17.1",
 		"file-loader": "^6.0.0",
 		"get-port": "^5.1.1",
+		"patch-package": "^6.2.2",
 		"prettier": "^2.0.5",
 		"react": "^17.0.1",
 		"react-dom": "^17.0.1",
