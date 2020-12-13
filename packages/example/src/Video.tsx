@@ -202,7 +202,7 @@ export const Index: React.FC = () => {
 			/>
 			<Composition
 				name="video"
-				component={React.lazy(() => import('./Video'))}
+				component={React.lazy(() => import('./Vid'))}
 				width={1080}
 				height={1080}
 				fps={30}
