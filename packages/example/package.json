@@ -8,6 +8,7 @@
 		"start": "remotion preview src/index.tsx",
 		"test": "eslint 'src' --ext ts,tsx",
 		"build": "tsc -d",
+		"postinstall": "patch-package",
 		"render": "ts-node node_modules/@remotion/cli/src/index.tsx render",
 		"prepare": "npm run build"
 	},

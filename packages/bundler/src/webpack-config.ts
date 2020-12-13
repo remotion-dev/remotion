@@ -33,7 +33,7 @@ export const webpackConfig = ({
 	},
 	entry: [
 		environment === 'development'
-			? require.resolve('webpack-hot-middleware/client')
+			? require.resolve('webpack-hot-middleware/client') + '?overlay=true'
 			: null,
 		environment === 'development'
 			? require.resolve('@webhotelier/webpack-fast-refresh/runtime.js')
@@ -45,8 +45,8 @@ export const webpackConfig = ({
 	plugins:
 		environment === 'development'
 			? [
-					new ReactRefreshPlugin(),
 					new ErrorOverlayPlugin(),
+					new ReactRefreshPlugin(),
 					new webpack.HotModuleReplacementPlugin(),
 			  ]
 			: [],
