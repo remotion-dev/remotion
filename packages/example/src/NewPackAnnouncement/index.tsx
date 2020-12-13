@@ -2,7 +2,7 @@ import {deferRender, readyToRender, useCurrentFrame} from '@remotion/core';
 import React, {useCallback, useEffect, useState} from 'react';
 import styled from 'styled-components';
 
-deferRender();
+const handle = deferRender();
 
 const Title = styled.div`
 	font-size: 80px;
@@ -59,7 +59,7 @@ export const Rating: React.FC = () => {
 	}, []);
 
 	useEffect(() => {
-		readyToRender();
+		readyToRender(handle);
 	}, [data]);
 
 	useEffect(() => {

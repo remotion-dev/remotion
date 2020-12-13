@@ -207,8 +207,8 @@ export const Index: React.FC = () => {
 			<Composition
 				name="welcome"
 				component={React.lazy(() => import('./Welcome'))}
-				width={1920}
-				height={1080}
+				width={1080}
+				height={1920}
 				fps={30}
 				durationInFrames={31 * 30}
 			/>
