@@ -8,6 +8,5 @@ jobs:
       - uses: actions/checkout@main
       - uses: actions/setup-node@main
       - run: npm i
-      - run: npx lerna link
       - run: npx lerna bootstrap --ci
       - run: npm test
