@@ -1,6 +1,10 @@
 import React, {useMemo, useState} from 'react';
 import {getRoot} from 'remotion';
 import styled from 'styled-components';
+import {
+	CheckerboardContext,
+	loadCheckerboardOption,
+} from '../state/checkerboard';
 import {PreviewSize, PreviewSizeContext} from '../state/preview-size';
 import {Timeline} from './Timeline';
 import {TopPanel} from './TopPanel';
@@ -18,6 +22,7 @@ const Root = getRoot();
 
 export const Editor: React.FC = () => {
 	const [size, setSize] = useState<PreviewSize>('auto');
+	const [checkerboard, setCheckerboard] = useState(loadCheckerboardOption());
 
 	const previewCtx = useMemo(() => {
 		return {
@@ -26,16 +31,25 @@ export const Editor: React.FC = () => {
 		};
 	}, [size]);
 
+	const checkerboardCtx = useMemo(() => {
+		return {
+			checkerboard,
+			setCheckerboard,
+		};
+	}, [checkerboard]);
+
 	if (!Root) {
 		throw new Error('Root has not been registered. ');
 	}
 	return (
-		<PreviewSizeContext.Provider value={previewCtx}>
-			<Background>
-				<Root />
-				<TopPanel />
-				<Timeline />
-			</Background>
-		</PreviewSizeContext.Provider>
+		<CheckerboardContext.Provider value={checkerboardCtx}>
+			<PreviewSizeContext.Provider value={previewCtx}>
+				<Background>
+					<Root />
+					<TopPanel />
+					<Timeline />
+				</Background>
+			</PreviewSizeContext.Provider>
+		</CheckerboardContext.Provider>
 	);
 };
