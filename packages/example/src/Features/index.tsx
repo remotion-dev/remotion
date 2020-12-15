@@ -1,5 +1,5 @@
-import {Video} from '@remotion/core';
 import React from 'react';
+import {Video} from 'remotion';
 
 export const Features = () => {
 	const tray = require('./tray.webm').default;

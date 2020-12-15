@@ -1,10 +1,5 @@
-import {
-	interpolate,
-	spring,
-	useCurrentFrame,
-	useVideoConfig,
-} from '@remotion/core';
 import React from 'react';
+import {interpolate, spring, useCurrentFrame, useVideoConfig} from 'remotion';
 import {Phone, PhoneHeight, PhoneWidth} from './Phone';
 
 export const Orchestra: React.FC<{

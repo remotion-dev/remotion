@@ -1,11 +1,6 @@
-import {
-	interpolate,
-	spring,
-	useCurrentFrame,
-	useVideoConfig,
-} from '@remotion/core';
 import {mix} from 'polished';
 import React from 'react';
+import {interpolate, spring, useCurrentFrame, useVideoConfig} from 'remotion';
 import {Orchestra} from './Orchestra';
 
 export const Layout: React.FC = () => {

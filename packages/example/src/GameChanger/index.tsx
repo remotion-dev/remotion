@@ -1,6 +1,6 @@
-import {spring, useCurrentFrame, useVideoConfig} from '@remotion/core';
 import {lighten} from 'polished';
 import React, {useMemo} from 'react';
+import {spring, useCurrentFrame, useVideoConfig} from 'remotion';
 import styled from 'styled-components';
 
 const Title = styled.div`

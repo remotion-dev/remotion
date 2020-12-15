@@ -1,5 +1,5 @@
-import {Composition} from '@remotion/core';
 import React from 'react';
+import {Composition} from 'remotion';
 import Any from './Any';
 
 export const Index: React.FC = () => {

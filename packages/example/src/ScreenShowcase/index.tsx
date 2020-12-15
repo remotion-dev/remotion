@@ -1,11 +1,11 @@
+import React from 'react';
 import {
 	interpolate,
 	spring,
 	SpringConfig,
 	useCurrentFrame,
 	useVideoConfig,
-} from '@remotion/core';
-import React from 'react';
+} from 'remotion';
 
 type Props = {
 	title: string;

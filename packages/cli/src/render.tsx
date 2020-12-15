@@ -1,10 +1,10 @@
 import {bundle} from '@remotion/bundler';
-import {TComposition, VideoConfig} from '@remotion/core';
 import {openBrowser, provideScreenshot, stitchVideos} from '@remotion/renderer';
 import cliProgress from 'cli-progress';
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
+import {TComposition, VideoConfig} from 'remotion';
 
 export const render = async (fullPath: string, comps: TComposition[]) => {
 	process.stdout.write('📦 (1/3) Bundling video...\n');

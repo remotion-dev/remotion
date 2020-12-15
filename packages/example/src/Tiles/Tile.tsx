@@ -1,10 +1,5 @@
-import {
-	spring,
-	SpringConfig,
-	useCurrentFrame,
-	useVideoConfig,
-} from '@remotion/core';
 import React from 'react';
+import {spring, SpringConfig, useCurrentFrame, useVideoConfig} from 'remotion';
 
 const size = 200;
 

@@ -1,4 +1,5 @@
-import {interpolate, useCurrentFrame} from '@remotion/core';
+import React from 'react';
+import {interpolate, useCurrentFrame} from 'remotion';
 import {COLOR_1} from './config';
 
 export const Subtitle = () => {

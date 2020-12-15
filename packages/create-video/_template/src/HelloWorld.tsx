@@ -1,10 +1,5 @@
-import {
-	interpolate,
-	Sequence,
-	useCurrentFrame,
-	useVideoConfig,
-} from '@remotion/core';
 import React from 'react';
+import {interpolate, Sequence, useCurrentFrame, useVideoConfig} from 'remotion';
 import {DotGrid} from './HelloWorld/DotGrid';
 import {Logo} from './HelloWorld/Logo';
 import {Subtitle} from './HelloWorld/Subtitle';

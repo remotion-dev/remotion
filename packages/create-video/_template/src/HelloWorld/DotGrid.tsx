@@ -1,5 +1,5 @@
-import {useVideoConfig} from '@remotion/core';
 import React from 'react';
+import {useVideoConfig} from 'remotion';
 
 export const DotGrid: React.FC = () => {
 	const videoConfig = useVideoConfig();

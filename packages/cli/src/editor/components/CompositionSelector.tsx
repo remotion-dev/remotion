@@ -1,5 +1,5 @@
-import {CompositionManager, useTimelinePosition} from '@remotion/core';
 import React, {useContext} from 'react';
+import {CompositionManager, useTimelinePosition} from 'remotion';
 import styled from 'styled-components';
 
 const Container = styled.div`
