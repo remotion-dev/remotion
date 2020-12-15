@@ -9,6 +9,7 @@ const Container = styled.div`
 	width: 100%;
 	overflow-y: auto;
 	flex: 1;
+	padding: 8px;
 `;
 
 const Item = styled.a<{
@@ -24,6 +25,8 @@ const Item = styled.a<{
 	font-family: Arial, Helvetica, sans-serif;
 	display: block;
 	text-decoration: none;
+	border-radius: 6px;
+	cursor: default;
 `;
 
 export const CompositionSelector: React.FC = () => {
@@ -39,8 +42,8 @@ export const CompositionSelector: React.FC = () => {
 					<Item
 						key={c.name}
 						selected={currentComposition === c.name}
-						href="#"
 						onClick={() => {
+							window.history.pushState({}, 'Preview', `/${c.name}`);
 							setCurrentFrame(0);
 							setCurrentComposition(c.name);
 						}}
