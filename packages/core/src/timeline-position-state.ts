@@ -3,6 +3,9 @@ import {createContext, useContext} from 'react';
 export type TimelineContextValue = {
 	frame: number;
 	playing: boolean;
+};
+
+export type SetTimelineContextValue = {
 	setFrame: (u: React.SetStateAction<number>) => void;
 	setPlaying: (u: React.SetStateAction<boolean>) => void;
 };
@@ -10,18 +13,23 @@ export type TimelineContextValue = {
 export const TimelineContext = createContext<TimelineContextValue>({
 	frame: 0,
 	playing: false,
+});
+
+export const SetTimelineContext = createContext<SetTimelineContextValue>({
 	setFrame: () => void 0,
 	setPlaying: () => void 0,
 });
 
-type TimelineReturnType = readonly [
-	number,
-	(u: React.SetStateAction<number>) => void
-];
-
-export const useTimelinePosition = (): TimelineReturnType => {
+export const useTimelinePosition = (): number => {
 	const state = useContext(TimelineContext);
-	return [state.frame, state.setFrame];
+	return state.frame;
+};
+
+export const useTimelineSetFrame = (): ((
+	u: React.SetStateAction<number>
+) => void) => {
+	const {setFrame} = useContext(SetTimelineContext);
+	return setFrame;
 };
 
 type PlayingReturnType = readonly [
@@ -30,6 +38,7 @@ type PlayingReturnType = readonly [
 ];
 
 export const usePlayingState = (): PlayingReturnType => {
-	const state = useContext(TimelineContext);
-	return [state.playing, state.setPlaying];
+	const {playing} = useContext(TimelineContext);
+	const {setPlaying} = useContext(SetTimelineContext);
+	return [playing, setPlaying];
 };

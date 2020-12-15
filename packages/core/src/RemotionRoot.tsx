@@ -4,7 +4,12 @@ import {
 	CompositionManagerContext,
 	TComposition,
 } from './CompositionManager';
-import {TimelineContext, TimelineContextValue} from './timeline-position-state';
+import {
+	SetTimelineContext,
+	SetTimelineContextValue,
+	TimelineContext,
+	TimelineContextValue,
+} from './timeline-position-state';
 
 export const RemotionRoot: React.FC = ({children}) => {
 	// Wontfix, expected to have
@@ -52,16 +57,23 @@ export const RemotionRoot: React.FC = ({children}) => {
 		return {
 			frame,
 			playing,
-			setFrame,
-			setPlaying,
 		};
 	}, [frame, playing]);
 
+	const setTimelineContextValue = useMemo((): SetTimelineContextValue => {
+		return {
+			setFrame,
+			setPlaying,
+		};
+	}, []);
+
 	return (
 		<TimelineContext.Provider value={timelineContextValue}>
-			<CompositionManager.Provider value={contextValue}>
-				{children}
-			</CompositionManager.Provider>
+			<SetTimelineContext.Provider value={setTimelineContextValue}>
+				<CompositionManager.Provider value={contextValue}>
+					{children}
+				</CompositionManager.Provider>
+			</SetTimelineContext.Provider>
 		</TimelineContext.Provider>
 	);
 };

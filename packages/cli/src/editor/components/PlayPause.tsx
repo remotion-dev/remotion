@@ -2,6 +2,7 @@ import React, {useCallback, useEffect} from 'react';
 import {
 	usePlayingState,
 	useTimelinePosition,
+	useTimelineSetFrame,
 	useVideo,
 	useVideoConfig,
 } from 'remotion';
@@ -11,7 +12,8 @@ import {getLastFrames, setLastFrames} from '../state/last-frames';
 
 export const PlayPause: React.FC = () => {
 	const [playing, setPlaying] = usePlayingState();
-	const [frame, setFrame] = useTimelinePosition();
+	const frame = useTimelinePosition();
+	const setFrame = useTimelineSetFrame();
 	const video = useVideo();
 	const config = useVideoConfig();
 
