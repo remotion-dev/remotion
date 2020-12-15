@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/example",
-	"version": "1.0.0-y.48",
+	"version": "1.0.0-y.49",
 	"description": "",
 	"main": "dist/index.js",
 	"private": true,
@@ -18,7 +18,7 @@
 	"license": "ISC",
 	"dependencies": {
 		"@jonny/eslint-config": "^2.1.210",
-		"@remotion/cli": "^1.0.0-y.48",
+		"@remotion/cli": "^1.0.0-y.49",
 		"@types/node": "^14.0.13",
 		"@types/react": "^17.0.0",
 		"@types/styled-components": "^5.1.1",
@@ -27,7 +27,7 @@
 		"prettier": "^2.0.5",
 		"react": "^17.0.1",
 		"react-three-fiber": "^4.2.17",
-		"remotion": "^1.0.0-y.48",
+		"remotion": "^1.0.0-y.49",
 		"styled-components": "^5.1.1",
 		"svg-path-properties": "^1.0.4",
 		"three": "^0.118.3",
