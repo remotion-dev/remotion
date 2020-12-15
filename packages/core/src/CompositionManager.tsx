@@ -1,4 +1,4 @@
-import {ComponentType, createContext} from 'react';
+import {createContext} from 'react';
 
 export type TComposition<T = unknown> = {
 	width: number;
@@ -6,7 +6,7 @@ export type TComposition<T = unknown> = {
 	fps: number;
 	durationInFrames: number;
 	name: string;
-	component: ComponentType<T>;
+	component: React.LazyExoticComponent<React.ComponentType<T>>;
 	props?: T;
 };
 

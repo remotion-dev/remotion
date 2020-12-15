@@ -11,7 +11,7 @@ test('It should report invalid component name', () => {
 		() =>
 			render(
 				<Composition
-					component={AnyComp}
+					lazyComponent={() => Promise.resolve({default: AnyComp})}
 					durationInFrames={100}
 					fps={30}
 					height={100}
@@ -27,7 +27,7 @@ test('It should validate the component name', () => {
 	expect(() =>
 		render(
 			<Composition
-				component={AnyComp}
+				lazyComponent={() => Promise.resolve({default: AnyComp})}
 				durationInFrames={100}
 				fps={30}
 				height={100}
@@ -44,7 +44,7 @@ test('It should throw if no name is passed', () => {
 			render(
 				// @ts-expect-error
 				<Composition
-					component={AnyComp}
+					lazyComponent={() => Promise.resolve({default: AnyComp})}
 					durationInFrames={100}
 					fps={30}
 					height={100}
@@ -61,7 +61,7 @@ test('It should throw if multiple components have the same name', () => {
 			render(
 				<RemotionRoot>
 					<Composition
-						component={AnyComp}
+						lazyComponent={() => Promise.resolve({default: AnyComp})}
 						durationInFrames={100}
 						fps={30}
 						height={100}
@@ -69,7 +69,7 @@ test('It should throw if multiple components have the same name', () => {
 						name="name"
 					/>
 					<Composition
-						component={AnyComp}
+						lazyComponent={() => Promise.resolve({default: AnyComp})}
 						durationInFrames={100}
 						fps={30}
 						height={100}
