@@ -1,10 +1,5 @@
-import {
-	spring,
-	SpringConfig,
-	useCurrentFrame,
-	useVideoConfig,
-} from '@remotion/core';
 import React from 'react';
+import {spring, SpringConfig, useCurrentFrame, useVideoConfig} from 'remotion';
 import {Single} from './Single';
 
 export const Devices = () => {

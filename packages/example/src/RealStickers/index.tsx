@@ -1,11 +1,11 @@
+import React from 'react';
 import {
 	interpolate,
 	spring,
 	SpringConfig,
 	useCurrentFrame,
 	useVideoConfig,
-} from '@remotion/core';
-import React from 'react';
+} from 'remotion';
 import {output} from './data';
 
 const svgPath = require('svg-path-properties');

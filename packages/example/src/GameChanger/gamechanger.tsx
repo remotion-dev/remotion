@@ -1,5 +1,5 @@
-import {spring, useCurrentFrame, useVideoConfig} from '@remotion/core';
 import React from 'react';
+import {spring, useCurrentFrame, useVideoConfig} from 'remotion';
 import styled from 'styled-components';
 
 const Title = styled.div`

@@ -1,5 +1,5 @@
-import {useCurrentFrame, useVideoConfig} from '@remotion/core';
 import React from 'react';
+import {useCurrentFrame, useVideoConfig} from 'remotion';
 import styled from 'styled-components';
 
 const Text = styled.div`

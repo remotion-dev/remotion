@@ -1,10 +1,5 @@
-import {
-	Easing,
-	interpolate,
-	useCurrentFrame,
-	useVideoConfig,
-} from '@remotion/core';
 import React from 'react';
+import {Easing, interpolate, useCurrentFrame, useVideoConfig} from 'remotion';
 import {Arc} from './Arc';
 import {Atom} from './Atom';
 import {Black} from './Black';

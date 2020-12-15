@@ -1,6 +1,6 @@
-import {useCurrentFrame, useVideoConfig} from '@remotion/core';
 import {mix} from 'polished';
 import React from 'react';
+import {useCurrentFrame, useVideoConfig} from 'remotion';
 import styled from 'styled-components';
 
 const Container = styled.div`

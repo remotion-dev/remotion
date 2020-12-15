@@ -1,5 +1,5 @@
 {
-	"name": "@remotion/core",
+	"name": "remotion",
 	"version": "1.0.0-y.46",
 	"description": "",
 	"main": "dist/index.js",

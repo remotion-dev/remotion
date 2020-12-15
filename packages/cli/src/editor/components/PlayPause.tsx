@@ -1,9 +1,5 @@
-import {
-	usePlayingState,
-	useTimelinePosition,
-	useVideoConfig,
-} from '@remotion/core';
 import React, {useCallback, useEffect} from 'react';
+import {usePlayingState, useTimelinePosition, useVideoConfig} from 'remotion';
 import {Pause} from '../icons/pause';
 import {Play} from '../icons/play';
 

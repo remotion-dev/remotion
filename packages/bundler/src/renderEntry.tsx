@@ -1,13 +1,3 @@
-import {
-	CompositionManager,
-	deferRender,
-	getCompositionName,
-	getRoot,
-	readyToRender,
-	RemotionRoot,
-	TComposition,
-	useVideo,
-} from '@remotion/core';
 import React, {
 	ComponentType,
 	Suspense,
@@ -17,6 +7,16 @@ import React, {
 	useState,
 } from 'react';
 import {render} from 'react-dom';
+import {
+	CompositionManager,
+	deferRender,
+	getCompositionName,
+	getRoot,
+	readyToRender,
+	RemotionRoot,
+	TComposition,
+	useVideo,
+} from 'remotion';
 
 const Root = getRoot();
 
