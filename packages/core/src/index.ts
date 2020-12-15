@@ -15,3 +15,4 @@ export * from './use-frame';
 export * from './use-video';
 export * from './use-video-config';
 export * from './video';
+export * from './video-config';
