@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/bundler",
-	"version": "1.0.0-y.42",
+	"version": "1.0.0-y.43",
 	"description": "",
 	"main": "dist/index.js",
 	"scripts": {
@@ -19,7 +19,7 @@
 		"@babel/preset-react": "^7.12.10",
 		"@babel/preset-typescript": "^7.12.7",
 		"@jonny/eslint-config": "^2.1.210",
-		"@remotion/core": "^1.0.0-y.42",
+		"@remotion/core": "^1.0.0-y.43",
 		"@types/express": "^4.17.7",
 		"@types/node": "^14.0.13",
 		"@types/react": "^17.0.0",
