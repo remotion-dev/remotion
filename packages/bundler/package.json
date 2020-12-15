@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/bundler",
-	"version": "1.0.0-y.46",
+	"version": "1.0.0-y.47",
 	"description": "",
 	"main": "dist/index.js",
 	"scripts": {
@@ -19,7 +19,6 @@
 		"@babel/preset-react": "^7.12.10",
 		"@babel/preset-typescript": "^7.12.7",
 		"@jonny/eslint-config": "^2.1.210",
-		"remotion": "^1.0.0-y.46",
 		"@types/express": "^4.17.7",
 		"@types/node": "^14.0.13",
 		"@types/react": "^17.0.0",
@@ -39,6 +38,7 @@
 		"react-dom": "^17.0.1",
 		"react-refresh": "0.8.3",
 		"recoil": "^0.0.10",
+		"remotion": "^1.0.0-y.47",
 		"styled-components": "^5.2.1",
 		"typescript": "^4.1.2",
 		"webpack": "5.10.2",
