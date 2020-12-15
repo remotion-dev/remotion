@@ -5,7 +5,7 @@ import {VideoConfig} from './video-config';
 
 export const useVideoConfig = (): VideoConfig => {
 	const context = useContext(SequenceContext);
-	const ctxDuration = context?.durationInFrames ?? 0;
+	const ctxDuration = context?.durationInFrames ?? null;
 	const video = useVideo();
 
 	return useMemo(() => {
