@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/cli",
-	"version": "1.0.0-y.50",
+	"version": "1.0.0-y.51",
 	"description": "",
 	"main": "dist/index.js",
 	"bin": {
@@ -24,8 +24,8 @@
 		"@babel/preset-react": "^7.10.4",
 		"@babel/preset-typescript": "^7.10.4",
 		"@jonny/eslint-config": "^2.1.210",
-		"@remotion/bundler": "^1.0.0-y.50",
-		"@remotion/renderer": "^1.0.0-y.50",
+		"@remotion/bundler": "^1.0.0-y.51",
+		"@remotion/renderer": "^1.0.0-y.51",
 		"@types/cli-progress": "^3.7.0",
 		"@types/node": "^14.0.13",
 		"@types/react": "^17.0.0",
@@ -41,7 +41,7 @@
 		"react": "^17.0.1",
 		"react-dom": "^17.0.1",
 		"react-refresh": "0.8.3",
-		"remotion": "^1.0.0-y.50",
+		"remotion": "^1.0.0-y.51",
 		"styled-components": "^5.1.1",
 		"typescript": "^4.1.2",
 		"webpack": "5.10.2",
