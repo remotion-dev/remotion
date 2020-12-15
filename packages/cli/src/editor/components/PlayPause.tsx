@@ -19,7 +19,12 @@ export const PlayPause: React.FC = () => {
 		if (!video) {
 			return null;
 		}
-		setPlaying((p) => !p);
+		setPlaying((p) => {
+			if (p) {
+				setLastFrames([]);
+			}
+			return !p;
+		});
 	}, [video, setPlaying]);
 
 	const onKeyPress = useCallback(
@@ -43,6 +48,7 @@ export const PlayPause: React.FC = () => {
 		if (!video) {
 			return;
 		}
+
 		if (playing) {
 			setLastFrames([...getLastFrames(), Date.now()]);
 			const last10Frames = getLastFrames();
@@ -64,11 +70,12 @@ export const PlayPause: React.FC = () => {
 				last10Frames.length === 0
 					? expectedTime
 					: expectedTime - slowerThanExpected;
+			const duration = config.durationInFrames;
 			const t = setTimeout(() => {
 				setFrame((currFrame) => {
 					const nextFrame = currFrame + 1;
 					// TODO: Could be timing unsafe
-					if (nextFrame >= config.durationInFrames) {
+					if (nextFrame >= duration) {
 						return 0;
 					}
 					return currFrame + 1;
@@ -78,7 +85,7 @@ export const PlayPause: React.FC = () => {
 				clearTimeout(t);
 			};
 		}
-	}, [config, frame, playing, setFrame]);
+	}, [config, frame, playing, setFrame, video]);
 
 	return (
 		<div
