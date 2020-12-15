@@ -2,7 +2,10 @@ import React, {Suspense, useContext} from 'react';
 import {useVideo, useVideoConfig} from 'remotion';
 import styled from 'styled-components';
 import {Size} from '../hooks/get-el-size';
+import {CheckerboardContext} from '../state/checkerboard';
 import {PreviewSizeContext} from '../state/preview-size';
+
+const checkerboardSize = 64;
 
 export const Container = styled.div<{
 	scale: number;
@@ -10,6 +13,7 @@ export const Container = styled.div<{
 	yCorrection: number;
 	width: number;
 	height: number;
+	checkerboard: boolean;
 }>`
 	transform: scale(${(props): number => props.scale});
 	margin-left: ${(props): number => props.xCorrection}px;
@@ -18,7 +22,24 @@ export const Container = styled.div<{
 	height: ${(props): number => props.height}px;
 	display: flex;
 	position: absolute;
-	background-color: black;
+	background: ${(props) =>
+		props.checkerboard
+			? `
+	 linear-gradient(
+			45deg,
+			rgba(0, 0, 0, 0.4) 25%,
+			transparent 25%
+		),
+		linear-gradient(135deg, rgba(0, 0, 0, 0.4) 25%, transparent 25%),
+		linear-gradient(45deg, transparent 75%, rgba(0, 0, 0, 0.4) 75%),
+		linear-gradient(135deg, transparent 75%, rgba(0, 0, 0, 0.4) 75%);
+	`
+			: 'black'};
+
+	background-size: ${checkerboardSize}px ${checkerboardSize}px; /* Must be a square */
+	background-position: 0 0, ${checkerboardSize / 2}px 0,
+		${checkerboardSize / 2}px -${checkerboardSize / 2}px,
+		0px ${checkerboardSize / 2}px; /* Must be half of one side of the square */
 `;
 
 export const VideoPreview: React.FC<{
@@ -26,6 +47,7 @@ export const VideoPreview: React.FC<{
 }> = ({canvasSize}) => {
 	const video = useVideo();
 	const {size: previewSize} = useContext(PreviewSizeContext);
+	const {checkerboard} = useContext(CheckerboardContext);
 	const config = useVideoConfig();
 
 	if (!video) {
@@ -64,6 +86,7 @@ export const VideoPreview: React.FC<{
 			>
 				<Container
 					{...{
+						checkerboard,
 						scale,
 						xCorrection,
 						yCorrection,
