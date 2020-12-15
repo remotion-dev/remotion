@@ -1,11 +1,6 @@
-import {
-	interpolate,
-	spring,
-	useCurrentFrame,
-	useVideoConfig,
-} from '@remotion/core';
 import {mix} from 'polished';
 import React from 'react';
+import {interpolate, spring, useCurrentFrame, useVideoConfig} from 'remotion';
 import styled from 'styled-components';
 
 const BRAND_GRADIENT = ['#5851db', '#405de6'];

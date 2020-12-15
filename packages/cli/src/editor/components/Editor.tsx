@@ -1,5 +1,5 @@
-import {getRoot} from '@remotion/core';
 import React from 'react';
+import {getRoot} from 'remotion';
 import styled from 'styled-components';
 import {Timeline} from './Timeline';
 import {TopPanel} from './TopPanel';

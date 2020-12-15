@@ -1,5 +1,5 @@
-import {useVideoConfig} from '@remotion/core';
 import React from 'react';
+import {useVideoConfig} from 'remotion';
 
 export const Single: React.FC<{
 	style: React.CSSProperties;

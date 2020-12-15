@@ -1,4 +1,4 @@
-import {Audio, Sequence} from '@remotion/core';
+import {Audio, Sequence} from 'remotion';
 import React from 'react';
 import {BigRotate} from '../BigRotate';
 import {EndLogo} from '../Circle';

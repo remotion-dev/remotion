@@ -1,5 +1,5 @@
-import {spring, useCurrentFrame, useVideoConfig, Video} from '@remotion/core';
 import React from 'react';
+import {spring, useCurrentFrame, useVideoConfig, Video} from 'remotion';
 
 export const VideoComp: React.FC = () => {
 	// TODO: Tell user to import inside component

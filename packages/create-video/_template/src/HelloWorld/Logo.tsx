@@ -1,9 +1,5 @@
-import {
-	interpolate,
-	spring,
-	useCurrentFrame,
-	useVideoConfig,
-} from '@remotion/core';
+import React from 'react';
+import {interpolate, spring, useCurrentFrame, useVideoConfig} from 'remotion';
 import {Arc} from './Arc';
 import {Atom} from './Atom';
 
