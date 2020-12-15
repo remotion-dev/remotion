@@ -1,4 +1,3 @@
-import React from 'react';
 import {useVideoConfig} from 'remotion';
 import {COLOR_1, COLOR_2} from './config';
 
