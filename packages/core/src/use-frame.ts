@@ -3,7 +3,7 @@ import {SequenceContext} from './sequencing';
 import {useTimelinePosition} from './timeline-position-state';
 
 export const useAbsoluteCurrentFrame = (): number => {
-	const [timelinePosition] = useTimelinePosition();
+	const timelinePosition = useTimelinePosition();
 
 	const param = new URLSearchParams(window.location.search).get('frame');
 	if (param !== null) {

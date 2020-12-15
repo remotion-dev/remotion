@@ -1,5 +1,5 @@
 import React, {useContext} from 'react';
-import {CompositionManager, useTimelinePosition} from 'remotion';
+import {CompositionManager, useTimelineSetFrame} from 'remotion';
 import styled from 'styled-components';
 
 const Container = styled.div`
@@ -30,8 +30,7 @@ export const CompositionSelector: React.FC = () => {
 	const {compositions, setCurrentComposition, currentComposition} = useContext(
 		CompositionManager
 	);
-	// TODO Could be bottleneck
-	const [, setCurrentFrame] = useTimelinePosition();
+	const setCurrentFrame = useTimelineSetFrame();
 
 	return (
 		<Container>
