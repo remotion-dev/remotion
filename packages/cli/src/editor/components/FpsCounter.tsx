@@ -1,4 +1,5 @@
 import React, {useEffect, useState} from 'react';
+import {useVideoConfig} from 'remotion';
 import styled from 'styled-components';
 import {getLastFrames} from '../state/last-frames';
 
@@ -9,6 +10,7 @@ const Label = styled.div`
 
 export const FpsCounter: React.FC = () => {
 	const [now, setNow] = useState(0);
+	const videoConfig = useVideoConfig();
 
 	useEffect(() => {
 		const t = setTimeout(() => {
@@ -25,5 +27,9 @@ export const FpsCounter: React.FC = () => {
 	const diff = Math.max(...lastFrames) - Math.min(...lastFrames);
 	const avg = diff / lastFrames.length;
 	const fps = 1000 / avg;
-	return <Label>{String(fps.toFixed(1))} FPS</Label>;
+	return (
+		<Label style={{color: fps < videoConfig.fps * 0.9 ? 'red' : 'white'}}>
+			{String(fps.toFixed(1))} FPS
+		</Label>
+	);
 };
