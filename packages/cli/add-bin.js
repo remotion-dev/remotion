@@ -1,10 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const paths = [
-	path.join(__dirname, 'dist', 'preview.js'),
-	path.join(__dirname, 'dist', 'index.js'),
-];
+const paths = [path.join(__dirname, 'dist', 'index.js')];
 
 const prefix = '#! /usr/bin/env node\n';
 

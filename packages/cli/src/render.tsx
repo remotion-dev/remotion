@@ -1,16 +1,31 @@
 import {bundle} from '@remotion/bundler';
-import {VideoConfig} from '@remotion/core/dist/video-config';
+import {TComposition, VideoConfig} from '@remotion/core';
 import {openBrowser, provideScreenshot, stitchVideos} from '@remotion/renderer';
 import cliProgress from 'cli-progress';
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
 
-export const bundleCommand = async (fullPath: string) => {
+export const render = async (fullPath: string, comps: TComposition[]) => {
 	process.stdout.write('📦 (1/3) Bundling video...\n');
 	const args = process.argv;
-	const argument = args[3];
-	//	await import(fullPath);
+	const videoName = args[2];
+	if (!videoName.trim()) {
+		console.log(
+			'Pass an extra argument <video-name>. The following video names are available:'
+		);
+		console.log(`${comps.map((c) => c.name)}`);
+		process.exit(1);
+	}
+	const comp = comps.find((c) => c.name === videoName);
+
+	if (!comp) {
+		console.log(
+			`Could not find video with the name ${videoName}. The following videos are available: `
+		);
+		console.log(`${comps.map((c) => c.name)}`);
+		process.exit(1);
+	}
 	const result = await bundle(fullPath);
 	const config: VideoConfig = {
 		durationInFrames: 100,
@@ -32,8 +47,7 @@ export const bundleCommand = async (fullPath: string) => {
 	);
 	bar.start(frames, 0);
 	for (let frame = 0; frame < frames; frame++) {
-		const site = `file://${result}/index.html?composition=${argument}&frame=${frame}`;
-		console.log({site});
+		const site = `file://${result}/index.html?composition=${videoName}&frame=${frame}`;
 		await provideScreenshot(page, {
 			output: path.join(outputDir, `element-${frame}.png`),
 			site,
