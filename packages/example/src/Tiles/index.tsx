@@ -1,11 +1,6 @@
-import {
-	spring,
-	SpringConfig,
-	useCurrentFrame,
-	useVideoConfig,
-} from '@remotion/core';
 import {mix} from 'polished';
 import React from 'react';
+import {spring, SpringConfig, useCurrentFrame, useVideoConfig} from 'remotion';
 import {Tile} from './Tile';
 
 const BRAND_GRADIENT = ['#5851db', '#405de6'];

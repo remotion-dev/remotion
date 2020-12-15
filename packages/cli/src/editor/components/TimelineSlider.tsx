@@ -1,9 +1,5 @@
-import {
-	usePlayingState,
-	useTimelinePosition,
-	useVideoConfig,
-} from '@remotion/core';
 import React, {ChangeEvent, useCallback} from 'react';
+import {usePlayingState, useTimelinePosition, useVideoConfig} from 'remotion';
 
 export const TimelineSlider: React.FC = () => {
 	const [timelinePosition, setTimelinePosition] = useTimelinePosition();

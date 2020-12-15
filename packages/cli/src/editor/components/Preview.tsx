@@ -1,6 +1,6 @@
-import {useVideo, useVideoConfig} from '@remotion/core';
 import React, {Suspense} from 'react';
 import {useRecoilState} from 'recoil';
+import {useVideo, useVideoConfig} from 'remotion';
 import styled from 'styled-components';
 import {Size} from '../hooks/get-el-size';
 import {previewSizeState} from '../state/preview-size';

@@ -1,5 +1,5 @@
-import {useVideoConfig} from '@remotion/core';
 import React from 'react';
+import {useVideoConfig} from 'remotion';
 import * as svgPathProperties from 'svg-path-properties';
 import {COLOR_1, COLOR_2} from './config';
 

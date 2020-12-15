@@ -1,11 +1,3 @@
-import {
-	deferRender,
-	readyToRender,
-	spring,
-	SpringConfig,
-	useCurrentFrame,
-	useVideoConfig,
-} from '@remotion/core';
 import React, {
 	Suspense,
 	useCallback,
@@ -15,6 +7,14 @@ import React, {
 	useState,
 } from 'react';
 import {Canvas, useUpdate} from 'react-three-fiber';
+import {
+	deferRender,
+	readyToRender,
+	spring,
+	SpringConfig,
+	useCurrentFrame,
+	useVideoConfig,
+} from 'remotion';
 import {
 	Color,
 	DataTexture,

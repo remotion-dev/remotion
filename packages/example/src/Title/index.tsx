@@ -1,10 +1,5 @@
-import {
-	spring,
-	SpringConfig,
-	useCurrentFrame,
-	useVideoConfig,
-} from '@remotion/core';
 import React from 'react';
+import {spring, SpringConfig, useCurrentFrame, useVideoConfig} from 'remotion';
 
 export const Title: React.FC<{
 	line1: string;

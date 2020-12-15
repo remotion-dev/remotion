@@ -1,5 +1,5 @@
-import {deferRender, readyToRender, useCurrentFrame} from '@remotion/core';
 import React, {useCallback, useEffect, useState} from 'react';
+import {deferRender, readyToRender, useCurrentFrame} from 'remotion';
 import styled from 'styled-components';
 
 const handle = deferRender();
