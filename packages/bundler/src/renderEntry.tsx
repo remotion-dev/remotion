@@ -69,21 +69,25 @@ const GetVideo = () => {
 		}
 	}, [Component]);
 
-	return Component ? (
+	if (!video) {
+		return null;
+	}
+
+	return (
 		<Suspense fallback={<Fallback />}>
 			<div
 				id="canvas"
 				style={{
-					width: video?.width,
-					height: video?.height,
+					width: video.width,
+					height: video.height,
 					display: 'flex',
 					backgroundColor: 'transparent',
 				}}
 			>
-				<Component {...((video?.props as {}) ?? {})} />
+				{Component ? <Component {...((video?.props as {}) ?? {})} /> : null}
 			</div>
 		</Suspense>
-	) : null;
+	);
 };
 
 render(

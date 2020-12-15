@@ -1,20 +1,21 @@
 import {Composition} from '@remotion/core';
 import React from 'react';
+import Any from './Any';
 
 export const Index: React.FC = () => {
 	return (
 		<>
 			<Composition
 				name="hey"
-				component={React.lazy(() => import('./3DText'))}
+				lazyComponent={() => import('./3DText')}
 				durationInFrames={200}
 				fps={60}
 				height={1080}
 				width={1080}
 			/>
 			<Composition
-				name="any2"
-				component={React.lazy(() => import('./Any'))}
+				name="any"
+				component={Any}
 				width={1080}
 				height={1080}
 				fps={30}
@@ -22,7 +23,7 @@ export const Index: React.FC = () => {
 			/>
 			<Composition
 				name="beta-text"
-				component={React.lazy(() => import('./BetaText'))}
+				lazyComponent={() => import('./BetaText')}
 				width={1080}
 				height={1080}
 				fps={30}
@@ -30,7 +31,7 @@ export const Index: React.FC = () => {
 			/>
 			<Composition
 				name="big-rotate"
-				component={React.lazy(() => import('./BigRotate'))}
+				lazyComponent={() => import('./BigRotate')}
 				width={1080}
 				height={1080}
 				fps={60}
@@ -38,7 +39,7 @@ export const Index: React.FC = () => {
 			/>
 			<Composition
 				name="black-gradients"
-				component={React.lazy(() => import('./BlackGradients'))}
+				lazyComponent={() => import('./BlackGradients')}
 				width={1080}
 				height={1080}
 				fps={30}
@@ -46,7 +47,7 @@ export const Index: React.FC = () => {
 			/>
 			<Composition
 				name="end-logo"
-				component={React.lazy(() => import('./Circle'))}
+				lazyComponent={() => import('./Circle')}
 				width={1080}
 				height={1920}
 				fps={30}
@@ -54,7 +55,7 @@ export const Index: React.FC = () => {
 			/>
 			<Composition
 				name="coin-animation"
-				component={React.lazy(() => import('./CoinAnimation'))}
+				lazyComponent={() => import('./CoinAnimation')}
 				width={100}
 				height={200}
 				fps={50}
@@ -62,7 +63,7 @@ export const Index: React.FC = () => {
 			/>
 			<Composition
 				name="devices"
-				component={React.lazy(() => import('./Devices'))}
+				lazyComponent={() => import('./Devices')}
 				width={1080}
 				height={1920}
 				fps={30}
@@ -70,7 +71,7 @@ export const Index: React.FC = () => {
 			/>
 			<Composition
 				name="features"
-				component={React.lazy(() => import('./Features'))}
+				lazyComponent={() => import('./Features')}
 				width={1080}
 				height={1080}
 				fps={30}
@@ -78,7 +79,7 @@ export const Index: React.FC = () => {
 			/>
 			<Composition
 				name="font"
-				component={React.lazy(() => import('./Font'))}
+				lazyComponent={() => import('./Font')}
 				width={1080}
 				height={1080}
 				fps={30}
@@ -86,7 +87,7 @@ export const Index: React.FC = () => {
 			/>
 			<Composition
 				name="game-changer"
-				component={React.lazy(() => import('./GameChanger/gamechanger'))}
+				lazyComponent={() => import('./GameChanger/gamechanger')}
 				width={1920 * 2}
 				height={1080 * 2}
 				fps={30}
@@ -94,7 +95,7 @@ export const Index: React.FC = () => {
 			/>
 			<Composition
 				name="game-changer-2"
-				component={React.lazy(() => import('./GameChanger'))}
+				lazyComponent={() => import('./GameChanger')}
 				width={1920 * 2}
 				height={1080 * 2}
 				fps={30}
@@ -102,7 +103,7 @@ export const Index: React.FC = () => {
 			/>
 			<Composition
 				name="hacker-logo"
-				component={React.lazy(() => import('./HackerLogo'))}
+				lazyComponent={() => import('./HackerLogo')}
 				width={1024}
 				height={1024}
 				fps={1}
@@ -110,7 +111,7 @@ export const Index: React.FC = () => {
 			/>
 			<Composition
 				name="layout"
-				component={React.lazy(() => import('./Layout'))}
+				lazyComponent={() => import('./Layout')}
 				width={1080}
 				height={1920}
 				fps={30}
@@ -118,7 +119,7 @@ export const Index: React.FC = () => {
 			/>
 			<Composition
 				name="rating"
-				component={React.lazy(() => import('./NewPackAnnouncement'))}
+				lazyComponent={() => import('./NewPackAnnouncement')}
 				width={1080}
 				height={1920}
 				fps={30}
@@ -126,7 +127,7 @@ export const Index: React.FC = () => {
 			/>
 			<Composition
 				name="react-svg"
-				component={React.lazy(() => import('./ReactSvg'))}
+				lazyComponent={() => import('./ReactSvg')}
 				width={1920}
 				height={1080}
 				fps={60}
@@ -134,7 +135,7 @@ export const Index: React.FC = () => {
 			/>
 			<Composition
 				name="real-stickers"
-				component={React.lazy(() => import('./RealStickers'))}
+				lazyComponent={() => import('./RealStickers')}
 				width={1080}
 				height={1920}
 				fps={30}
@@ -142,7 +143,7 @@ export const Index: React.FC = () => {
 			/>
 			<Composition
 				name="screen-showcase"
-				component={React.lazy(() => import('./ScreenShowcase'))}
+				lazyComponent={() => import('./ScreenShowcase')}
 				width={1080}
 				height={1920}
 				fps={30}
@@ -150,7 +151,7 @@ export const Index: React.FC = () => {
 			/>
 			<Composition
 				name="shadow-circles"
-				component={React.lazy(() => import('./ShadowCircles'))}
+				lazyComponent={() => import('./ShadowCircles')}
 				width={1080}
 				height={1920}
 				fps={30}
@@ -158,7 +159,7 @@ export const Index: React.FC = () => {
 			/>
 			<Composition
 				name="springy"
-				component={React.lazy(() => import('./Springy'))}
+				lazyComponent={() => import('./Springy')}
 				width={1080}
 				height={1920}
 				fps={30}
@@ -166,7 +167,7 @@ export const Index: React.FC = () => {
 			/>
 			<Composition
 				name="stagger-type"
-				component={React.lazy(() => import('./StaggerType'))}
+				lazyComponent={() => import('./StaggerType')}
 				width={1080}
 				height={1080}
 				fps={30}
@@ -174,7 +175,7 @@ export const Index: React.FC = () => {
 			/>
 			<Composition
 				name="tiles"
-				component={React.lazy(() => import('./Tiles'))}
+				lazyComponent={() => import('./Tiles')}
 				width={1080}
 				height={1920}
 				fps={30}
@@ -182,7 +183,7 @@ export const Index: React.FC = () => {
 			/>
 			<Composition
 				name="title"
-				component={React.lazy(() => import('./Title'))}
+				lazyComponent={() => import('./Title')}
 				width={1080}
 				height={1920}
 				fps={30}
@@ -190,7 +191,7 @@ export const Index: React.FC = () => {
 			/>
 			<Composition
 				name="up"
-				component={React.lazy(() => import('./Up'))}
+				lazyComponent={() => import('./Up')}
 				width={1080}
 				height={1080}
 				fps={30}
@@ -202,7 +203,7 @@ export const Index: React.FC = () => {
 			/>
 			<Composition
 				name="video"
-				component={React.lazy(() => import('./Vid'))}
+				lazyComponent={() => import('./Vid')}
 				width={1080}
 				height={1080}
 				fps={30}
@@ -210,7 +211,7 @@ export const Index: React.FC = () => {
 			/>
 			<Composition
 				name="welcome"
-				component={React.lazy(() => import('./Welcome'))}
+				lazyComponent={() => import('./Welcome')}
 				width={1080}
 				height={1920}
 				fps={30}
