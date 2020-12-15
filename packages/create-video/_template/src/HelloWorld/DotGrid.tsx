@@ -1,4 +1,3 @@
-import React from 'react';
 import {useVideoConfig} from 'remotion';
 
 export const DotGrid: React.FC = () => {
