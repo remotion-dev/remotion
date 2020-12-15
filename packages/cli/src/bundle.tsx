@@ -8,11 +8,13 @@ import path from 'path';
 
 export const bundleCommand = async (fullPath: string) => {
 	process.stdout.write('📦 (1/3) Bundling video...\n');
-	const argument = 'HelloWorld';
+	const args = process.argv;
+	const argument = args[3];
+	//	await import(fullPath);
 	const result = await bundle(fullPath);
 	const config: VideoConfig = {
 		durationInFrames: 100,
-		fps: 10,
+		fps: 30,
 		height: 100,
 		width: 100,
 	};

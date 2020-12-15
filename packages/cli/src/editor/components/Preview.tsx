@@ -29,6 +29,10 @@ export const VideoPreview: React.FC<{
 	const [previewSize] = useRecoilState(previewSizeState);
 	const config = useVideoConfig();
 
+	if (!video) {
+		return null;
+	}
+
 	const heightRatio = canvasSize.height / config.height;
 	const widthRatio = canvasSize.width / config.width;
 

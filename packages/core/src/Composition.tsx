@@ -1,32 +1,51 @@
-import {ComponentType, useContext, useEffect} from 'react';
+import React, {ComponentType, useContext, useEffect, useMemo} from 'react';
 import {CompositionManager} from './CompositionManager';
 import {
 	addStaticComposition,
 	getShouldStaticallyReturnCompositions,
 } from './register-root';
 
+type CompProps<T> =
+	| {
+			lazyComponent: () => Promise<{default: ComponentType<T>}>;
+	  }
+	| {
+			component: ComponentType<T>;
+	  };
+
 type Props<T> = {
-	component: ComponentType<T>;
 	width: number;
 	height: number;
 	fps: number;
 	durationInFrames: number;
 	name: string;
 	props?: T;
-};
+} & CompProps<T>;
 
 export const Composition = <T,>({
-	component,
 	width,
 	height,
 	fps,
 	durationInFrames,
 	name,
 	props,
+	...compProps
 }: Props<T>) => {
 	const {registerComposition, unregisterComposition} = useContext(
 		CompositionManager
 	);
+
+	const lazy = useMemo(() => {
+		if ('lazyComponent' in compProps) {
+			return React.lazy(compProps.lazyComponent);
+		}
+		if ('component' in compProps) {
+			return React.lazy(() => Promise.resolve({default: compProps.component}));
+		}
+		throw new Error("You must pass either 'component' or lazy compoentn");
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+		// @ts-expect-error
+	}, [compProps.lazyComponent, compProps.component]);
 
 	useEffect(() => {
 		// Ensure it's a URL safe name
@@ -44,7 +63,7 @@ export const Composition = <T,>({
 			height,
 			width,
 			name,
-			component,
+			component: lazy,
 			props,
 		});
 
@@ -52,10 +71,10 @@ export const Composition = <T,>({
 			unregisterComposition(name);
 		};
 	}, [
-		component,
 		durationInFrames,
 		fps,
 		height,
+		lazy,
 		name,
 		props,
 		registerComposition,
@@ -64,7 +83,7 @@ export const Composition = <T,>({
 	]);
 	if (getShouldStaticallyReturnCompositions()) {
 		addStaticComposition({
-			component,
+			component: lazy,
 			durationInFrames,
 			fps,
 			height,
