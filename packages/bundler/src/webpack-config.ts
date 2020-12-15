@@ -68,7 +68,6 @@ export const webpackConfig = ({
 			// Only one version of react
 			'react/jsx-runtime': require.resolve('react/jsx-runtime'),
 			react: require.resolve('react'),
-			recoil: require.resolve('recoil'),
 		},
 	},
 	module: {

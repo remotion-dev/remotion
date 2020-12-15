@@ -1,9 +1,8 @@
-import React, {Suspense} from 'react';
-import {useRecoilState} from 'recoil';
+import React, {Suspense, useContext} from 'react';
 import {useVideo, useVideoConfig} from 'remotion';
 import styled from 'styled-components';
 import {Size} from '../hooks/get-el-size';
-import {previewSizeState} from '../state/preview-size';
+import {PreviewSizeContext} from '../state/preview-size';
 
 export const Container = styled.div<{
 	scale: number;
@@ -26,7 +25,7 @@ export const VideoPreview: React.FC<{
 	canvasSize: Size;
 }> = ({canvasSize}) => {
 	const video = useVideo();
-	const [previewSize] = useRecoilState(previewSizeState);
+	const {size: previewSize} = useContext(PreviewSizeContext);
 	const config = useVideoConfig();
 
 	if (!video) {
