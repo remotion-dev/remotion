@@ -1,6 +1,6 @@
 {
 	"name": "create-video",
-	"version": "1.0.0-y.44",
+	"version": "1.0.0-y.45",
 	"description": "",
 	"main": "index.js",
 	"bin": {
