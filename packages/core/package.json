@@ -1,6 +1,6 @@
 {
 	"name": "remotion",
-	"version": "1.0.0-y.46",
+	"version": "1.0.0-y.47",
 	"description": "",
 	"main": "dist/index.js",
 	"scripts": {
