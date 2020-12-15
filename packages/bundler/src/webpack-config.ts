@@ -22,9 +22,7 @@ export const webpackConfig = ({
 }): webpack.Configuration & {
 	devServer: {
 		contentBase: string;
-		historyApiFallback: {
-			index: string;
-		};
+		historyApiFallback: boolean;
 		hot: true;
 	};
 } => ({
@@ -57,9 +55,7 @@ export const webpackConfig = ({
 	},
 	devServer: {
 		contentBase: path.resolve(__dirname, '..', 'web'),
-		historyApiFallback: {
-			index: 'index.html',
-		},
+		historyApiFallback: true,
 		hot: true,
 	},
 	resolve: {
