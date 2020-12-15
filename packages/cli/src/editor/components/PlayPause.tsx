@@ -1,21 +1,26 @@
 import React, {useCallback, useEffect} from 'react';
-import {usePlayingState, useTimelinePosition, useVideoConfig} from 'remotion';
+import {
+	usePlayingState,
+	useTimelinePosition,
+	useVideo,
+	useVideoConfig,
+} from 'remotion';
 import {Pause} from '../icons/pause';
 import {Play} from '../icons/play';
-
-const lastFrames: number[] = [];
+import {getLastFrames, setLastFrames} from '../state/last-frames';
 
 export const PlayPause: React.FC = () => {
 	const [playing, setPlaying] = usePlayingState();
 	const [frame, setFrame] = useTimelinePosition();
+	const video = useVideo();
 	const config = useVideoConfig();
 
 	const toggle = useCallback(() => {
-		if (!config) {
+		if (!video) {
 			return null;
 		}
 		setPlaying((p) => !p);
-	}, [config, setPlaying]);
+	}, [video, setPlaying]);
 
 	const onKeyPress = useCallback(
 		(e: KeyboardEvent) => {
@@ -35,12 +40,12 @@ export const PlayPause: React.FC = () => {
 	}, [onKeyPress]);
 
 	useEffect(() => {
-		if (!config) {
+		if (!video) {
 			return;
 		}
 		if (playing) {
-			lastFrames.push(Date.now());
-			const last10Frames = lastFrames.slice().reverse().slice(0, 10).reverse();
+			setLastFrames([...getLastFrames(), Date.now()]);
+			const last10Frames = getLastFrames();
 			const timesBetweenFrames: number[] = last10Frames
 				.map((f, i) => {
 					if (i === 0) {
@@ -78,7 +83,7 @@ export const PlayPause: React.FC = () => {
 	return (
 		<div
 			onClick={toggle}
-			style={{display: 'inline-flex', opacity: config ? 1 : 0.5}}
+			style={{display: 'inline-flex', opacity: video ? 1 : 0.5}}
 		>
 			{playing ? (
 				<Pause
