@@ -1,15 +1,20 @@
 import React, {useContext} from 'react';
 import {CompositionManager, useTimelineSetFrame} from 'remotion';
 import styled from 'styled-components';
+import {CurrentComposition} from './CurrentComposition';
 
 const Container = styled.div`
 	border-right: 1px solid black;
 	position: absolute;
 	height: 100%;
 	width: 100%;
-	overflow-y: auto;
 	flex: 1;
+`;
+
+const List = styled.div`
 	padding: 8px;
+	height: calc(100% - 100px);
+	overflow-y: auto;
 `;
 
 const Item = styled.a<{
@@ -37,21 +42,24 @@ export const CompositionSelector: React.FC = () => {
 
 	return (
 		<Container>
-			{compositions.map((c) => {
-				return (
-					<Item
-						key={c.name}
-						selected={currentComposition === c.name}
-						onClick={() => {
-							window.history.pushState({}, 'Preview', `/${c.name}`);
-							setCurrentFrame(0);
-							setCurrentComposition(c.name);
-						}}
-					>
-						{c.name}
-					</Item>
-				);
-			})}
+			<CurrentComposition />
+			<List>
+				{compositions.map((c) => {
+					return (
+						<Item
+							key={c.name}
+							selected={currentComposition === c.name}
+							onClick={() => {
+								window.history.pushState({}, 'Preview', `/${c.name}`);
+								setCurrentFrame(0);
+								setCurrentComposition(c.name);
+							}}
+						>
+							{c.name}
+						</Item>
+					);
+				})}
+			</List>
 		</Container>
 	);
 };
