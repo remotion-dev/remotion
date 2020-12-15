@@ -10,11 +10,11 @@ export const render = async (fullPath: string, comps: TComposition[]) => {
 	process.stdout.write('📦 (1/3) Bundling video...\n');
 	const args = process.argv;
 	const videoName = args[2];
-	if (!videoName.trim()) {
+	if (!(videoName || '').trim()) {
 		console.log(
 			'Pass an extra argument <video-name>. The following video names are available:'
 		);
-		console.log(`${comps.map((c) => c.name)}`);
+		console.log(`${comps.map((c) => c.name).join(', ')}`);
 		process.exit(1);
 	}
 	const comp = comps.find((c) => c.name === videoName);
@@ -23,15 +23,15 @@ export const render = async (fullPath: string, comps: TComposition[]) => {
 		console.log(
 			`Could not find video with the name ${videoName}. The following videos are available: `
 		);
-		console.log(`${comps.map((c) => c.name)}`);
+		console.log(`${comps.map((c) => c.name).join(', ')}`);
 		process.exit(1);
 	}
 	const result = await bundle(fullPath);
 	const config: VideoConfig = {
-		durationInFrames: 100,
-		fps: 30,
-		height: 100,
-		width: 100,
+		durationInFrames: comp.durationInFrames,
+		fps: comp.fps,
+		height: comp.height,
+		width: comp.width,
 	};
 	process.stdout.write('📼 (2/3) Rendering frames...\n');
 	const browser = await openBrowser();
