@@ -1,4 +1,11 @@
-import React, {createContext, useMemo} from 'react';
+import React, {
+	createContext,
+	useContext,
+	useEffect,
+	useMemo,
+	useState,
+} from 'react';
+import {CompositionManager} from '../CompositionManager';
 import {useAbsoluteCurrentFrame} from '../use-frame';
 
 export const SequenceContext = createContext<{
@@ -10,7 +17,9 @@ export const Sequence: React.FC<{
 	from: number;
 	durationInFrames: number;
 }> = ({from, durationInFrames: duration, children}) => {
+	const [id] = useState(() => String(Math.random()));
 	const currentFrame = useAbsoluteCurrentFrame();
+	const {registerSequence, unregisterSequence} = useContext(CompositionManager);
 
 	const contextValue = useMemo(() => {
 		return {
@@ -18,6 +27,18 @@ export const Sequence: React.FC<{
 			durationInFrames: duration,
 		};
 	}, [duration, from]);
+
+	useEffect(() => {
+		registerSequence({
+			from,
+			duration,
+			id,
+		});
+		return () => {
+			unregisterSequence(id);
+		};
+	}, [duration, from, id, registerSequence, unregisterSequence]);
+
 	return (
 		<SequenceContext.Provider value={contextValue}>
 			<div
