@@ -10,12 +10,21 @@ export type TComposition<T = unknown> = {
 	props?: T;
 };
 
+export type TSequence = {
+	from: number;
+	duration: number;
+	id: string;
+};
+
 export type CompositionManagerContext = {
 	compositions: TComposition[];
 	registerComposition: <T>(comp: TComposition<T>) => void;
 	unregisterComposition: (name: string) => void;
 	currentComposition: string | null;
 	setCurrentComposition: (curr: string) => void;
+	registerSequence: (seq: TSequence) => void;
+	unregisterSequence: (id: string) => void;
+	sequences: TSequence[];
 };
 
 export const CompositionManager = createContext<CompositionManagerContext>({
@@ -24,4 +33,7 @@ export const CompositionManager = createContext<CompositionManagerContext>({
 	unregisterComposition: () => void 0,
 	currentComposition: null,
 	setCurrentComposition: () => void 0,
+	registerSequence: () => void 0,
+	unregisterSequence: () => void 0,
+	sequences: [],
 });
