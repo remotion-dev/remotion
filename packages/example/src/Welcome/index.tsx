@@ -1,5 +1,5 @@
-import {Audio, Sequence} from 'remotion';
 import React from 'react';
+import {Audio, Sequence} from 'remotion';
 import {BigRotate} from '../BigRotate';
 import {EndLogo} from '../Circle';
 import {Layout} from '../Layout';
@@ -10,7 +10,7 @@ import {Title} from '../Title';
 import {Transition} from '../Transition';
 
 export const Welcome: React.FC<{
-	theme: 'light' | 'dark'
+	theme: 'light' | 'dark';
 }> = () => {
 	const audio = require('./audio.mp4').default;
 
@@ -33,7 +33,7 @@ export const Welcome: React.FC<{
 			<Sequence from={0} durationInFrames={40}>
 				<BigRotate />
 			</Sequence>
-			<Sequence from={40} durationInFrames={60}>
+			<Sequence from={0} durationInFrames={60}>
 				<Title line1="Welcome to" line2="AnySticker" />
 			</Sequence>
 			<Sequence from={100} durationInFrames={69}>

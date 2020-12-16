@@ -1,12 +1,21 @@
 import React from 'react';
 import styled from 'styled-components';
 import {FpsCounter} from './FpsCounter';
+import {TimelineElements} from './TimelineElements';
 import {TimelineSlider} from './TimelineSlider';
 import {TimeValue} from './TimeValue';
 
-export const TimelineContainer = styled.div`
+export const OuterContainer = styled.div`
 	flex: 1;
+	max-height: 300px;
+	overflow-y: auto;
 `;
+
+const TimelineContainer = styled.div`
+	max-height: 300px;
+	overflow-y: auto;
+`;
+
 const Header = styled.div`
 	display: flex;
 	flex-direction: column;
@@ -22,7 +31,7 @@ const Row = styled.div`
 
 export const Timeline: React.FC = () => {
 	return (
-		<TimelineContainer>
+		<OuterContainer>
 			<Header>
 				<Row>
 					<TimeValue />
@@ -30,7 +39,10 @@ export const Timeline: React.FC = () => {
 					<FpsCounter />
 				</Row>
 				<TimelineSlider />
+				<TimelineContainer>
+					<TimelineElements />
+				</TimelineContainer>
 			</Header>
-		</TimelineContainer>
+		</OuterContainer>
 	);
 };
