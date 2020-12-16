@@ -3,6 +3,7 @@ import {
 	CompositionManager,
 	CompositionManagerContext,
 	TComposition,
+	TSequence,
 } from './CompositionManager';
 import {
 	SetTimelineContext,
@@ -18,6 +19,7 @@ export const RemotionRoot: React.FC = ({children}) => {
 	const [currentComposition, setCurrentComposition] = useState<string | null>(
 		window.location.pathname.substr(1)
 	);
+	const [sequences, setSequences] = useState<TSequence[]>([]);
 	const [frame, setFrame] = useState<number>(0);
 	const [playing, setPlaying] = useState<boolean>(false);
 
@@ -32,10 +34,20 @@ export const RemotionRoot: React.FC = ({children}) => {
 		});
 	}, []);
 
+	const registerSequence = useCallback((seq: TSequence) => {
+		setSequences((seqs) => {
+			return [...seqs, seq];
+		});
+	}, []);
+
 	const unregisterComposition = useCallback((name: string) => {
 		setCompositions((comps) => {
 			return comps.filter((c) => c.name !== name);
 		});
+	}, []);
+
+	const unregisterSequence = useCallback((seq: string) => {
+		setSequences((seqs) => seqs.filter((s) => s.id !== seq));
 	}, []);
 
 	const contextValue = useMemo((): CompositionManagerContext => {
@@ -45,12 +57,18 @@ export const RemotionRoot: React.FC = ({children}) => {
 			unregisterComposition,
 			currentComposition,
 			setCurrentComposition,
+			registerSequence,
+			unregisterSequence,
+			sequences,
 		};
 	}, [
 		compositions,
 		currentComposition,
 		registerComposition,
+		registerSequence,
+		sequences,
 		unregisterComposition,
+		unregisterSequence,
 	]);
 
 	const timelineContextValue = useMemo((): TimelineContextValue => {
