@@ -17,7 +17,7 @@ export const RemotionRoot: React.FC = ({children}) => {
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	const [compositions, setCompositions] = useState<TComposition<any>[]>([]);
 	const [currentComposition, setCurrentComposition] = useState<string | null>(
-		window.location.pathname.substr(1)
+		typeof window !== 'undefined' ? window.location.pathname.substr(1) : null
 	);
 	const [sequences, setSequences] = useState<TSequence[]>([]);
 	const [frame, setFrame] = useState<number>(0);
