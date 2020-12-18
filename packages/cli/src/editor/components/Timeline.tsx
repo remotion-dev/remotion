@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import {FpsCounter} from './FpsCounter';
+import {TimelineDragHandler} from './TimelineDragHandler';
 import {TimelineElements} from './TimelineElements';
 import {TimelineSlider} from './TimelineSlider';
 import {TimeValue} from './TimeValue';
@@ -19,7 +20,6 @@ const TimelineContainer = styled.div`
 const Header = styled.div`
 	display: flex;
 	flex-direction: column;
-	padding: 10px;
 `;
 
 const Row = styled.div`
@@ -33,15 +33,17 @@ export const Timeline: React.FC = () => {
 	return (
 		<OuterContainer>
 			<Header>
-				<Row>
+				<Row style={{padding: 10}}>
 					<TimeValue />
 					<div style={{flex: 1}} />
 					<FpsCounter />
 				</Row>
-				<TimelineSlider />
-				<TimelineContainer>
-					<TimelineElements />
-				</TimelineContainer>
+				<TimelineDragHandler>
+					<TimelineContainer>
+						<TimelineElements />
+					</TimelineContainer>
+					<TimelineSlider />
+				</TimelineDragHandler>
 			</Header>
 		</OuterContainer>
 	);
