@@ -1,11 +1,21 @@
 import React, {useContext, useMemo} from 'react';
 import {CompositionManager, useVideoConfig} from 'remotion';
+import styled from 'styled-components';
 import {calculateTimeline} from '../helpers/calculate-timeline';
 import {
 	TIMELINE_LEFT_PADDING,
 	TIMELINE_RIGHT_PADDING,
 } from '../helpers/timeline-layout';
 import {useWindowSize} from '../hooks/use-window-size';
+
+const Pre = styled.pre`
+	color: white;
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 12px;
+	margin-top: 0;
+	margin-bottom: 0;
+	padding: 5px;
+`;
 
 export const TimelineElements: React.FC = () => {
 	const {width} = useWindowSize();
@@ -50,8 +60,12 @@ export const TimelineElements: React.FC = () => {
 										width: `calc(${
 											(s.sequence.duration / videoConfig.durationInFrames) * 100
 										}%)`,
+										color: 'white',
 									}}
-								/>
+									title={s.sequence.displayName}
+								>
+									<Pre>{s.sequence.displayName}</Pre>
+								</div>
 							);
 						})}
 					</div>
