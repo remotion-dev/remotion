@@ -9,7 +9,8 @@ import {useWindowSize} from '../hooks/use-window-size';
 
 const Container = styled.div`
 	position: relative;
-	padding: 10px;
+	padding-left: ${TIMELINE_LEFT_PADDING}px;
+	padding-right: ${TIMELINE_RIGHT_PADDING}px;
 	padding-top: 20px;
 	margin-top: -10px;
 	user-select: none;
