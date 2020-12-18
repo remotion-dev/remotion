@@ -6,6 +6,7 @@ import React, {
 	useState,
 } from 'react';
 import {CompositionManager} from '../CompositionManager';
+import {getTimelineClipName} from '../get-timeline-clip-name';
 import {useAbsoluteCurrentFrame} from '../use-frame';
 
 export const SequenceContext = createContext<{
@@ -16,7 +17,8 @@ export const SequenceContext = createContext<{
 export const Sequence: React.FC<{
 	from: number;
 	durationInFrames: number;
-}> = ({from, durationInFrames: duration, children}) => {
+	name?: string;
+}> = ({from, durationInFrames: duration, children, name}) => {
 	const [id] = useState(() => String(Math.random()));
 	const currentFrame = useAbsoluteCurrentFrame();
 	const {registerSequence, unregisterSequence} = useContext(CompositionManager);
@@ -28,16 +30,29 @@ export const Sequence: React.FC<{
 		};
 	}, [duration, from]);
 
+	const timelineClipName = useMemo(() => {
+		return name ?? getTimelineClipName(children);
+	}, [children, name]);
+
 	useEffect(() => {
 		registerSequence({
 			from,
 			duration,
 			id,
+			displayName: timelineClipName,
 		});
 		return () => {
 			unregisterSequence(id);
 		};
-	}, [duration, from, id, registerSequence, unregisterSequence]);
+	}, [
+		duration,
+		from,
+		id,
+		name,
+		registerSequence,
+		timelineClipName,
+		unregisterSequence,
+	]);
 
 	return (
 		<SequenceContext.Provider value={contextValue}>
