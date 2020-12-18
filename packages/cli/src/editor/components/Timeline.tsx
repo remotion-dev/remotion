@@ -6,14 +6,9 @@ import {TimelineElements} from './TimelineElements';
 import {TimelineSlider} from './TimelineSlider';
 import {TimeValue} from './TimeValue';
 
-export const OuterContainer = styled.div`
-	flex: 1;
-	max-height: 300px;
-	overflow-y: auto;
-`;
+const OuterContainer = styled.div``;
 
 const TimelineContainer = styled.div`
-	max-height: 300px;
 	overflow-y: auto;
 `;
 

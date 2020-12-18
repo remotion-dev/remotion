@@ -14,6 +14,8 @@ const Container = styled.div`
 	padding-top: 20px;
 	margin-top: -10px;
 	user-select: none;
+	overflow-y: auto;
+	height: 300px;
 `;
 
 const getFrameFromX = (
