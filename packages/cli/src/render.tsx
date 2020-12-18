@@ -6,6 +6,10 @@ import os from 'os';
 import path from 'path';
 import {TComposition, VideoConfig} from 'remotion';
 
+const parallelism = 3;
+const busyPages = new Array(parallelism).fill(true).map(() => false);
+const getBusyPages = () => busyPages;
+
 export const render = async (fullPath: string, comps: TComposition[]) => {
 	process.stdout.write('📦 (1/3) Bundling video...\n');
 	const args = process.argv;
@@ -34,30 +38,65 @@ export const render = async (fullPath: string, comps: TComposition[]) => {
 		width: comp.width,
 	};
 	process.stdout.write('📼 (2/3) Rendering frames...\n');
-	const browser = await openBrowser();
-	const page = await browser.newPage();
+	const browsers = await Promise.all(
+		new Array(parallelism).fill(true).map(() => openBrowser())
+	);
+	const pages = await Promise.all(
+		browsers.map((b) => {
+			return b.newPage();
+		})
+	);
+	const getFreePage = () =>
+		new Promise<number>((resolve) => {
+			let interval: number | null = null;
+			const resolveIfFree = () => {
+				const freePage = getBusyPages().findIndex((p) => p === false);
+				if (freePage !== -1) {
+					busyPages[freePage] = true;
+					resolve(freePage);
+					if (interval) {
+						clearInterval(interval);
+					}
+				} else {
+					interval = setTimeout(resolveIfFree, 100);
+				}
+			};
+			resolveIfFree();
+		});
+	const freeUpPage = (index: number) => {
+		busyPages[index] = false;
+	};
 	const {durationInFrames: frames} = config;
 	const outputDir = await fs.promises.mkdtemp(
 		path.join(os.tmpdir(), 'react-motion-render')
 	);
-	console.log('Output dir', outputDir);
 	const bar = new cliProgress.Bar(
 		{clearOnComplete: true},
 		cliProgress.Presets.shades_grey
 	);
 	bar.start(frames, 0);
-	for (let frame = 0; frame < frames; frame++) {
-		const site = `file://${result}/index.html?composition=${videoName}&frame=${frame}`;
-		await provideScreenshot(page, {
-			output: path.join(outputDir, `element-${frame}.png`),
-			site,
-			height: config.height,
-			width: config.width,
-		});
-		bar.update(frame);
-	}
+	let framesRendered = 0;
+	await Promise.all(
+		new Array(frames)
+			.fill(Boolean)
+			.map((x, i) => i)
+			.map(async (f) => {
+				const freePageIdx = await getFreePage();
+				const freePage = pages[freePageIdx];
+				const site = `file://${result}/index.html?composition=${videoName}&frame=${f}`;
+				await provideScreenshot(freePage, {
+					output: path.join(outputDir, `element-${f}.png`),
+					site,
+					height: config.height,
+					width: config.width,
+				});
+				freeUpPage(freePageIdx);
+				framesRendered++;
+				bar.update(framesRendered);
+			})
+	);
 	bar.stop();
-	await browser.close();
+	await Promise.all(browsers.map((browser) => browser.close()));
 	process.stdout.write('🧵 (3/3) Stitching frames together...\n');
 	await stitchVideos({
 		dir: outputDir,
