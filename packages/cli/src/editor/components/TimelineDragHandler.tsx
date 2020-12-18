@@ -10,8 +10,8 @@ import {useWindowSize} from '../hooks/use-window-size';
 const Container = styled.div`
 	position: relative;
 	padding: 10px;
-	padding-top: 30px;
-	margin-top: -15px;
+	padding-top: 20px;
+	margin-top: -10px;
 	user-select: none;
 `;
 
