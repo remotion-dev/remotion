@@ -24,10 +24,10 @@ export const TimelineElements: React.FC = () => {
 				position: 'relative',
 			}}
 		>
-			{timeline.map((track, i) => {
+			{timeline.map((track) => {
 				return (
 					<div
-						key={i}
+						key={track.trackId}
 						style={{
 							height: 82,
 						}}
@@ -38,7 +38,7 @@ export const TimelineElements: React.FC = () => {
 									key={s.sequence.id}
 									style={{
 										background:
-											'linear-gradient(to bottom, #7474BF, #348AC7 60%)',
+											'linear-gradient(to bottom, #3697e1, #348AC7 60%)',
 										border: '1px solid rgba(255, 255, 255, 0.2)',
 										borderRadius: 4,
 										position: 'absolute',
