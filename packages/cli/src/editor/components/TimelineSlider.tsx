@@ -8,12 +8,16 @@ import {
 import {useWindowSize} from '../hooks/use-window-size';
 import {TimelineSliderHandle} from './TimelineSliderHandle';
 
+const Container = styled.div`
+	position: absolute;
+	top: 0;
+`;
+
 const Line = styled.div`
 	height: 400px;
 	width: 1px;
+	position: fixed;
 	background-color: #f02c00;
-	position: absolute;
-	top: 0;
 `;
 
 export const TimelineSlider: React.FC = () => {
@@ -37,12 +41,14 @@ export const TimelineSlider: React.FC = () => {
 	}
 
 	return (
-		<Line
+		<Container
 			style={{
 				left,
 			}}
 		>
-			<TimelineSliderHandle />
-		</Line>
+			<Line>
+				<TimelineSliderHandle />
+			</Line>
+		</Container>
 	);
 };
