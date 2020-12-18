@@ -6,6 +6,7 @@ export type SequenceWithOverlap = {
 };
 
 type Track = {
+	trackId: number;
 	sequences: SequenceWithOverlap[];
 };
 
@@ -48,19 +49,17 @@ export const numberOfOverlapsWithPrevious = (
 
 export const calculateTimeline = (sequences: TSequence[]) => {
 	const sWithOverlays = calculateOverlays(sequences);
-	const tracks: Track[] = [
-		{
-			sequences: [],
-		},
-		{sequences: []},
-		{sequences: []},
-		{sequences: []},
-		{sequences: []},
-	];
+	const tracks: Track[] = [];
 
 	for (let i = 0; i < sWithOverlays.length; i++) {
 		const sequence = sWithOverlays[i];
 		const overlayCount = numberOfOverlapsWithPrevious(sWithOverlays, i);
+		if (!tracks[overlayCount]) {
+			tracks[overlayCount] = {
+				sequences: [],
+				trackId: overlayCount,
+			};
+		}
 		tracks[overlayCount].sequences.push(sequence);
 	}
 	return tracks;

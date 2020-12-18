@@ -4,7 +4,7 @@ import styled from 'styled-components';
 const Container = styled.div`
 	width: 20px;
 	height: 20px;
-	position: absolute;
+	position: fixed;
 `;
 
 export const TimelineSliderHandle: React.FC = () => {
