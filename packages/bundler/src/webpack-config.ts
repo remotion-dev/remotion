@@ -29,6 +29,7 @@ export const webpackConfig = ({
 	optimization: {
 		minimize: false,
 	},
+	devtool: 'cheap-module-source-map',
 	entry: [
 		environment === 'development'
 			? require.resolve('webpack-hot-middleware/client') + '?overlay=true'
