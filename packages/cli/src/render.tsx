@@ -6,11 +6,10 @@ import os from 'os';
 import path from 'path';
 import {TComposition, VideoConfig} from 'remotion';
 
-const parallelism = 3;
-const busyPages = new Array(parallelism).fill(true).map(() => false);
-const getBusyPages = () => busyPages;
-
 export const render = async (fullPath: string, comps: TComposition[]) => {
+	const parallelism = Math.min(8, Math.max(1, os.cpus().length / 2));
+	const busyPages = new Array(parallelism).fill(true).map(() => false);
+	const getBusyPages = () => busyPages;
 	process.stdout.write('📦 (1/3) Bundling video...\n');
 	const args = process.argv;
 	const videoName = args[2];
@@ -37,7 +36,9 @@ export const render = async (fullPath: string, comps: TComposition[]) => {
 		height: comp.height,
 		width: comp.width,
 	};
-	process.stdout.write('📼 (2/3) Rendering frames...\n');
+	process.stdout.write(
+		`📼 (2/3) Rendering frames (${parallelism}x concurrency)...\n`
+	);
 	const browsers = await Promise.all(
 		new Array(parallelism).fill(true).map(() => openBrowser())
 	);
