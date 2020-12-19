@@ -39,9 +39,9 @@ const BlueText = styled.span`
 		text-shadow: 0 0 30px rgba(255, 255, 255, 0.1);
 	}
 `;
+const image = require('./gamechangerbig.png');
 
 export const GameChanger = () => {
-	const image = require('./gamechangerbig.png').default;
 	const videoConfig = useVideoConfig();
 	const frame = useCurrentFrame();
 

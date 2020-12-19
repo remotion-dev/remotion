@@ -37,7 +37,7 @@ export const CoinAnimation = () => {
 	);
 
 	const getFrame = (f: number) =>
-		require(`./frames/0001.png${String(f).padStart(4, '0')}.png`).default;
+		require(`./frames/0001.png${String(f).padStart(4, '0')}.png`);
 
 	return (
 		<div

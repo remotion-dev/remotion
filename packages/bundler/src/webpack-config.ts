@@ -70,7 +70,16 @@ export const webpackConfig = ({
 		rules: [
 			{
 				test: /\.(png|svg|jpg|gif|webm|mp4)$/,
-				use: [require.resolve('file-loader')],
+				use: [
+					{
+						loader: require.resolve('file-loader'),
+						options: {
+							// So you can do require('hi.png')
+							// instead of require('hi.png').default
+							esModule: false,
+						},
+					},
+				],
 			},
 			{
 				test: /\.tsx?$/,

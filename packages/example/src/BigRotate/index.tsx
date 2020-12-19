@@ -33,7 +33,7 @@ export const BigRotate = () => {
 	);
 	const src = require('./assets/Rotato Frame ' +
 		(frameInterpolated + 1) +
-		'.png').default;
+		'.png');
 	return (
 		<div
 			style={{
