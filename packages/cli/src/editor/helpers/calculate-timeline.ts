@@ -53,6 +53,10 @@ export const calculateTimeline = (sequences: TSequence[]) => {
 
 	for (let i = 0; i < sWithOverlays.length; i++) {
 		const sequence = sWithOverlays[i];
+		// Not showing nested sequences
+		if (sequence.sequence.parent) {
+			continue;
+		}
 		const overlayCount = numberOfOverlapsWithPrevious(sWithOverlays, i);
 		if (!tracks[overlayCount]) {
 			tracks[overlayCount] = {
