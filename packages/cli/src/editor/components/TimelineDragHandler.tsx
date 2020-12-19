@@ -1,5 +1,10 @@
 import React, {useCallback, useState} from 'react';
-import {interpolate, useTimelineSetFrame, useVideoConfig} from 'remotion';
+import {
+	interpolate,
+	usePlayingState,
+	useTimelineSetFrame,
+	useVideoConfig,
+} from 'remotion';
 import styled from 'styled-components';
 import {
 	TIMELINE_LEFT_PADDING,
@@ -40,7 +45,18 @@ const getFrameFromX = (
 
 export const TimelineDragHandler: React.FC = ({children}) => {
 	const {width} = useWindowSize();
-	const [dragging, setDragging] = useState(false);
+	const [dragging, setDragging] = useState<
+		| {
+				dragging: false;
+		  }
+		| {
+				dragging: true;
+				wasPlaying: boolean;
+		  }
+	>({
+		dragging: false,
+	});
+	const [playing, setPlaying] = usePlayingState();
 	const setTimelinePosition = useTimelineSetFrame();
 	const videoConfig = useVideoConfig();
 
@@ -52,14 +68,24 @@ export const TimelineDragHandler: React.FC = ({children}) => {
 				width
 			);
 			setTimelinePosition(frame);
-			setDragging(true);
+			setDragging({
+				dragging: true,
+				wasPlaying: playing,
+			});
+			setPlaying(false);
 		},
-		[setTimelinePosition, videoConfig.durationInFrames, width]
+		[
+			playing,
+			setPlaying,
+			setTimelinePosition,
+			videoConfig.durationInFrames,
+			width,
+		]
 	);
 
 	const onPointerMove = useCallback(
 		(e: React.PointerEvent<HTMLDivElement>) => {
-			if (!dragging) {
+			if (!dragging.dragging) {
 				return;
 			}
 			const frame = getFrameFromX(
@@ -73,12 +99,24 @@ export const TimelineDragHandler: React.FC = ({children}) => {
 	);
 
 	const onPointerLeave = useCallback(() => {
-		setDragging(false);
-	}, []);
+		setDragging({
+			dragging: false,
+		});
+		if (!dragging.dragging) {
+			return;
+		}
+		setPlaying(dragging.wasPlaying);
+	}, [dragging, setPlaying]);
 
 	const onPointerUp = useCallback(() => {
-		setDragging(false);
-	}, []);
+		setDragging({
+			dragging: false,
+		});
+		if (!dragging.dragging) {
+			return;
+		}
+		setPlaying(dragging.wasPlaying);
+	}, [dragging, setPlaying]);
 
 	return (
 		<Container
