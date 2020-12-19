@@ -23,8 +23,8 @@ export const TimelineElements: React.FC = () => {
 	const videoConfig = useVideoConfig();
 
 	const timeline = useMemo(() => {
-		return calculateTimeline(sequences);
-	}, [sequences]);
+		return calculateTimeline(sequences, videoConfig.durationInFrames);
+	}, [sequences, videoConfig.durationInFrames]);
 
 	return (
 		<div
