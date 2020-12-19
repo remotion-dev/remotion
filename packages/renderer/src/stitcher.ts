@@ -1,11 +1,13 @@
 import execa from 'execa';
+import {validateFfmpeg} from './validate-ffmpeg';
 
-export const stitchVideos = async (options: {
+export const stitchFramesToVideo = async (options: {
 	dir: string;
 	fps: number;
 	width: number;
 	height: number;
 }): Promise<void> => {
+	await validateFfmpeg();
 	await execa(
 		'ffmpeg',
 		[
