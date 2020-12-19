@@ -33,9 +33,9 @@ export const Devices = () => {
 		fps: videoConfig.fps,
 		frame,
 	});
-	const awesome = require('../assets/awesome.png').default;
-	const face = require('../assets/face.png').default;
-	const home = require('../assets/home.png').default;
+	const awesome = require('../assets/awesome.png');
+	const face = require('../assets/face.png');
+	const home = require('../assets/home.png');
 
 	return (
 		<div
