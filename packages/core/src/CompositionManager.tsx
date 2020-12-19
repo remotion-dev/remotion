@@ -15,6 +15,7 @@ export type TSequence = {
 	duration: number;
 	id: string;
 	displayName: string;
+	parent: string | null;
 };
 
 export type CompositionManagerContext = {
