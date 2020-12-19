@@ -67,3 +67,4 @@ export const provideScreenshot = async (
 
 export * from './render';
 export * from './stitcher';
+export * from './validate-ffmpeg';

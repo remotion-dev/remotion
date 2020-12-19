@@ -532,8 +532,8 @@
         "affectsGlobalScope": false
       },
       "./src/render.ts": {
-        "version": "7d955523048d6c0c53935af3dc4a736b19c723f061cca8f28ca30025c42a5c1c",
-        "signature": "f955f7859a2f8250cf4270bf5ac5a72736c89a21c022defe48982ae3c478315e",
+        "version": "c864a242cba2c6dc865614e8119c5199d51e6348c0011859c82148d935b91892",
+        "signature": "fd44e425d17bd2a4ee55bac10ef9c54cdf3534d062a69788df2fb8ff3538693a",
         "affectsGlobalScope": false
       },
       "./node_modules/execa/index.d.ts": {
@@ -542,18 +542,18 @@
         "affectsGlobalScope": false
       },
       "./src/validate-ffmpeg.ts": {
-        "version": "d894e1ae100568d74e0ebb6eee3ac856e693b72bf0439718ff53805374c63d28",
-        "signature": "e8e663a0a58e9a3c9a7b750cd7fe3960dcf5c7d5db580ddc4532f431006ca32a",
+        "version": "d29a0b9400c1fa4e9a4147b03f1bc468d7c4e18db8a9387e164fe6d42cee0d79",
+        "signature": "0922734ad9c5564e2adfabb083d820d8ee443d8689d2e4dd7c38871a8e49455e",
         "affectsGlobalScope": false
       },
       "./src/stitcher.ts": {
-        "version": "d5fdfbb1b08d2fae920039003cea780f6fc590b0d26c15f0f6e160728765ad82",
-        "signature": "d5853e262e7005b52328eddf54054b287083d3e866c5418006b5bec34c86b223",
+        "version": "05f497efb94516be5206a3e60d3f99a1abb12e500956403d9d30874f6d7ee493",
+        "signature": "6284e00bed9a27222df44cdb52fd4c8cc9643e64e6e40c1e5bce24048ab33f36",
         "affectsGlobalScope": false
       },
       "./src/index.ts": {
-        "version": "8438f4bdefe1f21b9f78ad7b1f935f5ad2a7cf56cad9916ee947d04cc7c42940",
-        "signature": "5d7b528360cfb483ead325571fb5683f2c2631acac154a9397453cd531a1bf64",
+        "version": "fb4bf536fedb54b1e99831188e4a1d4eae535a3e8cfba3e787a2e8098d0c412d",
+        "signature": "43863fd2d857cb0747701238c9d8a8c35ac7e895f638471389f7f261909aa3d5",
         "affectsGlobalScope": false
       },
       "./node_modules/@types/color-name/index.d.ts": {
@@ -892,7 +892,8 @@
       "./src/index.ts": [
         "./node_modules/@types/puppeteer/index.d.ts",
         "./src/render.ts",
-        "./src/stitcher.ts"
+        "./src/stitcher.ts",
+        "./src/validate-ffmpeg.ts"
       ],
       "./src/render.ts": [
         "../bundler/dist/index.d.ts",
@@ -1181,7 +1182,8 @@
       "./src/index.ts": [
         "./node_modules/@types/puppeteer/index.d.ts",
         "./src/render.ts",
-        "./src/stitcher.ts"
+        "./src/stitcher.ts",
+        "./src/validate-ffmpeg.ts"
       ],
       "./src/render.ts": [
         "../core/dist/index.d.ts"
