@@ -34,7 +34,7 @@ export const render = async (fullPath: string, comps: TComposition[]) => {
 			recursive: true,
 		});
 	}
-	const steps = renderMode === 'png-sequence' ? 3 : 2;
+	const steps = renderMode === 'png-sequence' ? 2 : 3;
 	process.stdout.write(`📦 (1/${steps}) Bundling video...\n`);
 	const videoName = getVideoName(comps);
 	const comp = comps.find((c) => c.name === videoName);
