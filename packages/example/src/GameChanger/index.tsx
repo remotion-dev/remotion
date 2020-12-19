@@ -2,6 +2,7 @@ import {lighten} from 'polished';
 import React, {useMemo} from 'react';
 import {spring, useCurrentFrame, useVideoConfig} from 'remotion';
 import styled from 'styled-components';
+import image from './gamechangerbig.png';
 
 const Title = styled.div`
 	font-family: Bangers;
@@ -39,7 +40,6 @@ const BlueText = styled.span`
 		text-shadow: 0 0 30px rgba(255, 255, 255, 0.1);
 	}
 `;
-const image = require('./gamechangerbig.png');
 
 export const GameChanger = () => {
 	const videoConfig = useVideoConfig();
