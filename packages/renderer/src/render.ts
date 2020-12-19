@@ -10,11 +10,13 @@ export const renderFrames = async ({
 	onFrameUpdate,
 	videoName,
 	outputDir,
+	onStart,
 }: {
 	fullPath: string;
 	config: VideoConfig;
 	parallelism: number;
 	onFrameUpdate: (f: number) => void;
+	onStart: () => void;
 	videoName: string;
 	outputDir: string;
 }) => {
@@ -52,6 +54,7 @@ export const renderFrames = async ({
 	};
 	const {durationInFrames: frames} = config;
 	let framesRendered = 0;
+	onStart();
 	await Promise.all(
 		new Array(frames)
 			.fill(Boolean)
