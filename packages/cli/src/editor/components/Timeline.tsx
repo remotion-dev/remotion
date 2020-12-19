@@ -6,8 +6,6 @@ import {TimelineElements} from './TimelineElements';
 import {TimelineSlider} from './TimelineSlider';
 import {TimeValue} from './TimeValue';
 
-const OuterContainer = styled.div``;
-
 const TimelineContainer = styled.div`
 	overflow-y: auto;
 `;
@@ -26,7 +24,7 @@ const Row = styled.div`
 
 export const Timeline: React.FC = () => {
 	return (
-		<OuterContainer>
+		<div>
 			<Header>
 				<Row style={{padding: 10}}>
 					<TimeValue />
@@ -40,6 +38,6 @@ export const Timeline: React.FC = () => {
 					<TimelineSlider />
 				</TimelineDragHandler>
 			</Header>
-		</OuterContainer>
+		</div>
 	);
 };
