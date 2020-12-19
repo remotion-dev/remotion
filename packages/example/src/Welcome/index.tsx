@@ -12,21 +12,20 @@ import {Transition} from '../Transition';
 export const Welcome: React.FC<{
 	theme: 'light' | 'dark';
 }> = () => {
-	const audio = require('./audio.mp4').default;
+	const audio = require('./audio.mp4');
 
 	const yourselfGetImage = (f: number) =>
-		require('./stickerify-yourself/Untitled Frame ' + (f + 20) + '.png')
-			.default;
+		require('./stickerify-yourself/Untitled Frame ' + (f + 20) + '.png');
 	const objectGetImage = (f: number) =>
-		require('./stickerify-object/Untitled Frame ' + (f + 4) + '.png').default;
+		require('./stickerify-object/Untitled Frame ' + (f + 4) + '.png');
 	const objectGetScroll = (f: number) =>
-		require('./scroll-packs/Untitled Frame ' + (f + 1) + '.png').default;
+		require('./scroll-packs/Untitled Frame ' + (f + 1) + '.png');
 	const objectGetThousands = (f: number) =>
-		require('./thousands-packs/Untitled Frame ' + (f + 6) + '.png').default;
+		require('./thousands-packs/Untitled Frame ' + (f + 6) + '.png');
 	const objectGetReorder = (f: number) =>
-		require('./reorder-stickers/Untitled Frame ' + (f + 70) + '.png').default;
+		require('./reorder-stickers/Untitled Frame ' + (f + 70) + '.png');
 	const objectGetJuicy = (f: number) =>
-		require('./juicy/Untitled Frame ' + (f + 1) + '.png').default;
+		require('./juicy/Untitled Frame ' + (f + 1) + '.png');
 
 	return (
 		<div style={{flex: 1, display: 'flex', backgroundColor: 'white'}}>

@@ -44,8 +44,7 @@ export const Up: React.FC<{
 			extrapolateLeft: 'clamp',
 		})
 	);
-	const f = require('../assets/up/Rotato Frame ' + frameToPick + '.png')
-		.default;
+	const f = require('../assets/up/Rotato Frame ' + frameToPick + '.png');
 	return (
 		<div style={{flex: 1, backgroundColor: 'white'}}>
 			<div

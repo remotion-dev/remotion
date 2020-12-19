@@ -2,10 +2,8 @@ import React from 'react';
 import {spring, useCurrentFrame, useVideoConfig, Video} from 'remotion';
 
 export const VideoComp: React.FC = () => {
-	// TODO: Tell user to import inside component
-	//const iphone = require('./iphone.png').default;
-	const iphone = require('./huawei.png').default;
-	const video = require('./record-20200910-191938.webm').default;
+	const iphone = require('./huawei.png');
+	const video = require('./record-20200910-191938.webm');
 	const frame = useCurrentFrame();
 	const videoConfig = useVideoConfig();
 	const scale = spring({
