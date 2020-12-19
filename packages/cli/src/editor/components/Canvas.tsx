@@ -1,14 +1,13 @@
 import React, {useRef} from 'react';
-import styled from 'styled-components';
-import {VideoPreview} from './Preview';
 import {useElementSize} from '../hooks/get-el-size';
+import {VideoPreview} from './Preview';
 
-export const Container = styled.div`
-	flex: 1;
-	display: flex;
-	overflow: hidden;
-	position: relative;
-`;
+const styles: React.CSSProperties = {
+	flex: 1,
+	display: 'flex',
+	overflow: 'hidden',
+	position: 'relative',
+};
 
 export const Canvas: React.FC = () => {
 	const ref = useRef<HTMLDivElement>(null);
@@ -16,8 +15,8 @@ export const Canvas: React.FC = () => {
 	const size = useElementSize(ref);
 
 	return (
-		<Container ref={ref}>
+		<div ref={ref} style={styles}>
 			{size ? <VideoPreview canvasSize={size} /> : null}
-		</Container>
+		</div>
 	);
 };

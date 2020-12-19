@@ -1,6 +1,5 @@
 import React, {useMemo, useState} from 'react';
 import {getRoot} from 'remotion';
-import styled from 'styled-components';
 import {
 	CheckerboardContext,
 	loadCheckerboardOption,
@@ -9,14 +8,14 @@ import {PreviewSize, PreviewSizeContext} from '../state/preview-size';
 import {Timeline} from './Timeline';
 import {TopPanel} from './TopPanel';
 
-const Background = styled.div`
-	background: #222;
-	display: flex;
-	width: 100%;
-	height: 100%;
-	flex-direction: column;
-	position: absolute;
-`;
+const background: React.CSSProperties = {
+	background: '#222',
+	display: 'flex',
+	width: '100%',
+	height: '100%',
+	flexDirection: 'column',
+	position: 'absolute',
+};
 
 const Root = getRoot();
 
@@ -44,11 +43,11 @@ export const Editor: React.FC = () => {
 	return (
 		<CheckerboardContext.Provider value={checkerboardCtx}>
 			<PreviewSizeContext.Provider value={previewCtx}>
-				<Background>
+				<div style={background}>
 					<Root />
 					<TopPanel />
 					<Timeline />
-				</Background>
+				</div>
 			</PreviewSizeContext.Provider>
 		</CheckerboardContext.Provider>
 	);
