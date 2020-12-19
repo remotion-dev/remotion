@@ -495,6 +495,11 @@
         "version": "3845d3b64286c12c60d39fc90ac1cc5e47cbc951530658d2567d578b2faa1f26",
         "signature": "3845d3b64286c12c60d39fc90ac1cc5e47cbc951530658d2567d578b2faa1f26",
         "affectsGlobalScope": false
+      },
+      "../../node_modules/@types/minimist/index.d.ts": {
+        "version": "e437d83044ba17246a861aa9691aa14223ff4a9d6f338ab1269c41c758586a88",
+        "signature": "e437d83044ba17246a861aa9691aa14223ff4a9d6f338ab1269c41c758586a88",
+        "affectsGlobalScope": false
       }
     },
     "options": {
@@ -518,6 +523,12 @@
       "configFilePath": "./tsconfig.json"
     },
     "referencedMap": {
+      "../../node_modules/@types/minimist/index.d.ts": [
+        "./node_modules/@types/node/fs.d.ts",
+        "./node_modules/@types/node/ts3.2/fs.d.ts",
+        "./node_modules/@types/node/ts3.2/util.d.ts",
+        "./node_modules/@types/node/util.d.ts"
+      ],
       "./node_modules/@types/color-name/index.d.ts": [
         "./node_modules/@types/node/fs.d.ts",
         "./node_modules/@types/node/ts3.2/fs.d.ts",
@@ -1238,6 +1249,12 @@
       ]
     },
     "exportedModulesMap": {
+      "../../node_modules/@types/minimist/index.d.ts": [
+        "./node_modules/@types/node/fs.d.ts",
+        "./node_modules/@types/node/ts3.2/fs.d.ts",
+        "./node_modules/@types/node/ts3.2/util.d.ts",
+        "./node_modules/@types/node/util.d.ts"
+      ],
       "./node_modules/@types/color-name/index.d.ts": [
         "./node_modules/@types/node/fs.d.ts",
         "./node_modules/@types/node/ts3.2/fs.d.ts",
@@ -1945,6 +1962,7 @@
       ]
     },
     "semanticDiagnosticsPerFile": [
+      "../../node_modules/@types/minimist/index.d.ts",
       "./node_modules/@types/color-name/index.d.ts",
       "./node_modules/@types/eslint-scope/index.d.ts",
       "./node_modules/@types/eslint/helpers.d.ts",
