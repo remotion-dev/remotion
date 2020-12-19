@@ -25,8 +25,20 @@ export const AudioForDevelopment: React.FC<AllowedAudioProps> = (props) => {
 		if (!videoConfig) {
 			throw new Error('No video config found');
 		}
-		if (!playing || currentFrame === 0) {
-			audioRef.current.currentTime = currentFrame / (1000 / videoConfig.fps);
+		const shouldBeTime = currentFrame / videoConfig.fps;
+		const isTime = audioRef.current.currentTime;
+		const timeShift = Math.abs(shouldBeTime - isTime);
+		if (timeShift > 0.5) {
+			console.log('Time has shifted by', timeShift, 'sec. Fixing...');
+		}
+		if (!playing /**1 */ || timeShift > 0.5 /**2 */) {
+			// If scrubbing around, adjust timing
+			// or if time shift is bigger than 0.2sec
+			audioRef.current.currentTime = currentFrame / videoConfig.fps;
+		}
+		if (currentFrame === 0 && playing) {
+			// If video ended, play it again
+			audioRef.current.play();
 		}
 	}, [currentFrame, playing, videoConfig]);
 
