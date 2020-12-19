@@ -5,9 +5,10 @@ import fs from 'fs';
 import os from 'os';
 import path from 'path';
 import {TComposition, VideoConfig} from 'remotion';
+import {getConcurrency} from './get-concurrency';
 
 export const render = async (fullPath: string, comps: TComposition[]) => {
-	const parallelism = Math.min(8, Math.max(1, os.cpus().length / 2));
+	const parallelism = getConcurrency();
 	const busyPages = new Array(parallelism).fill(true).map(() => false);
 	const getBusyPages = () => busyPages;
 	process.stdout.write('📦 (1/3) Bundling video...\n');
