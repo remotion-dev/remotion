@@ -80,6 +80,10 @@ export const render = async (fullPath: string, comps: TComposition[]) => {
 		outputLocation,
 		force: overwrite,
 	});
+	console.log('Cleaning up...');
+	await fs.promises.rmdir(outputDir, {
+		recursive: true,
+	});
 	console.log('\n▶️ Your video is ready - hit play!');
 	console.log(outputLocation);
 };
