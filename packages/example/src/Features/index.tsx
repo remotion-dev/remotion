@@ -2,9 +2,9 @@ import React from 'react';
 import {Video} from 'remotion';
 
 export const Features = () => {
-	const tray = require('./tray.webm').default;
-	const watermelon = require('./watermelon.webm').default;
-	const textstickers = require('./textstickers.webm').default;
+	const tray = require('./tray.webm');
+	const watermelon = require('./watermelon.webm');
+	const textstickers = require('./textstickers.webm');
 	return (
 		<div
 			style={{

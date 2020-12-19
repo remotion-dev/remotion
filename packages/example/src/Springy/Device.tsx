@@ -55,7 +55,7 @@ export const Device: React.FC<{
 		fruit +
 		'-light/Untitled Frame ' +
 		animationFrame +
-		'.png').default;
+		'.png');
 	const bottomPoint = 1300;
 
 	const scale = rotationAmount * 0.2 + 0.8;

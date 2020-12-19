@@ -100,7 +100,7 @@ export const RealStickers = () => {
 		return data;
 	})();
 
-	const f = require('./imgs/Rotato Frame ' + phoneFrame + '.png').default;
+	const f = require('./imgs/Rotato Frame ' + phoneFrame + '.png');
 	return (
 		<div
 			style={{

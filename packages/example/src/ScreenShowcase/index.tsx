@@ -16,8 +16,9 @@ type Props = {
 export const ScreenShowcase: React.FC<Props> = ({
 	title = 'Hi',
 	getImage = (f) =>
-		require('../Welcome/stickerify-yourself/Untitled Frame ' + (f + 1) + '.png')
-			.default,
+		require('../Welcome/stickerify-yourself/Untitled Frame ' +
+			(f + 1) +
+			'.png'),
 	animateIn = true,
 }) => {
 	const frame = useCurrentFrame();
