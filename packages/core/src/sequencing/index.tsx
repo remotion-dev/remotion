@@ -9,10 +9,13 @@ import {CompositionManager} from '../CompositionManager';
 import {getTimelineClipName} from '../get-timeline-clip-name';
 import {useAbsoluteCurrentFrame} from '../use-frame';
 
-export const SequenceContext = createContext<{
+export type SequenceContextType = {
 	from: number;
 	durationInFrames: number;
-} | null>(null);
+	id: string;
+};
+
+export const SequenceContext = createContext<SequenceContextType | null>(null);
 
 export const Sequence: React.FC<{
 	from: number;
@@ -20,15 +23,18 @@ export const Sequence: React.FC<{
 	name?: string;
 }> = ({from, durationInFrames: duration, children, name}) => {
 	const [id] = useState(() => String(Math.random()));
-	const currentFrame = useAbsoluteCurrentFrame();
+	const absoluteFrame = useAbsoluteCurrentFrame();
+	const parentSequence = useContext(SequenceContext);
+	const actualFrom = (parentSequence?.from ?? 0) + from;
 	const {registerSequence, unregisterSequence} = useContext(CompositionManager);
 
-	const contextValue = useMemo(() => {
+	const contextValue = useMemo((): SequenceContextType => {
 		return {
-			from,
+			from: actualFrom,
 			durationInFrames: duration,
+			id,
 		};
-	}, [duration, from]);
+	}, [actualFrom, duration, id]);
 
 	const timelineClipName = useMemo(() => {
 		return name ?? getTimelineClipName(children);
@@ -36,22 +42,24 @@ export const Sequence: React.FC<{
 
 	useEffect(() => {
 		registerSequence({
-			from,
+			from: actualFrom,
 			duration,
 			id,
 			displayName: timelineClipName,
+			parent: parentSequence?.id ?? null,
 		});
 		return () => {
 			unregisterSequence(id);
 		};
 	}, [
 		duration,
-		from,
+		actualFrom,
 		id,
 		name,
 		registerSequence,
 		timelineClipName,
 		unregisterSequence,
+		parentSequence?.id,
 	]);
 
 	return (
@@ -68,9 +76,9 @@ export const Sequence: React.FC<{
 					right: 0,
 				}}
 			>
-				{currentFrame < from
+				{absoluteFrame < actualFrom
 					? null
-					: currentFrame > from + duration
+					: absoluteFrame > actualFrom + duration
 					? null
 					: children}
 			</div>
