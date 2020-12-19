@@ -447,8 +447,8 @@
         "affectsGlobalScope": false
       },
       "../core/dist/compositionmanager.d.ts": {
-        "version": "0f91ebfc8084348c41f29cbea7a335e02ab514eb1689f8eda8112d2109f442d1",
-        "signature": "0f91ebfc8084348c41f29cbea7a335e02ab514eb1689f8eda8112d2109f442d1",
+        "version": "3076444030928ef9664c917291f3d84786daada74f13b02d406905e3ea237708",
+        "signature": "3076444030928ef9664c917291f3d84786daada74f13b02d406905e3ea237708",
         "affectsGlobalScope": false
       },
       "../core/dist/defer-ready.d.ts": {
@@ -477,8 +477,8 @@
         "affectsGlobalScope": false
       },
       "../core/dist/sequencing/index.d.ts": {
-        "version": "1d6c721a3b67d2184943ef6bf184b107aba0a05fd9aecbde1b7d7013b2b39cb4",
-        "signature": "1d6c721a3b67d2184943ef6bf184b107aba0a05fd9aecbde1b7d7013b2b39cb4",
+        "version": "079fd233bd4f7f257dd62d644130310770c7a2512debab4212d8183bbd52dc3c",
+        "signature": "079fd233bd4f7f257dd62d644130310770c7a2512debab4212d8183bbd52dc3c",
         "affectsGlobalScope": false
       },
       "../core/dist/spring.d.ts": {
@@ -929,8 +929,7 @@
         "../core/node_modules/@types/react/index.d.ts"
       ],
       "../core/dist/compositionmanager.d.ts": [
-        "../core/node_modules/@types/react/index.d.ts",
-        "./node_modules/@types/react/index.d.ts"
+        "../core/node_modules/@types/react/index.d.ts"
       ],
       "../core/dist/index.d.ts": [
         "../core/dist/audio/index.d.ts",

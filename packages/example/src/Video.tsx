@@ -6,6 +6,14 @@ export const Index: React.FC = () => {
 	return (
 		<>
 			<Composition
+				name="nested"
+				lazyComponent={() => import('./NestedSequences')}
+				durationInFrames={200}
+				fps={60}
+				height={1080}
+				width={1080}
+			/>
+			<Composition
 				name="hey"
 				lazyComponent={() => import('./3DText')}
 				durationInFrames={200}
