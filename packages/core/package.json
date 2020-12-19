@@ -14,8 +14,6 @@
 	"license": "ISC",
 	"dependencies": {
 		"@jonny/eslint-config": "^2.1.210",
-		"@types/node": "^14.0.13",
-		"@types/react": "^17.0.0",
 		"prettier": "^2.0.5",
 		"react": "^17.0.1",
 		"react-dom": "^17.0.1",
@@ -24,6 +22,8 @@
 	"devDependencies": {
 		"@testing-library/react": "^11.2.2",
 		"@types/jest": "^26.0.19",
+		"@types/node": "^14.14.14",
+		"@types/react": "^17.0.0",
 		"@types/react-dom": "^17.0.0",
 		"eslint": "^7.4.0",
 		"jest": "^26.6.3",
