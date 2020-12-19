@@ -1,26 +1,25 @@
 import execa from 'execa';
 import os from 'os';
 
-export const isHomebrewInstalled = async (): Promise<boolean> => {
-	const isWin = os.platform().indexOf('win') > -1;
-
-	const where = isWin ? 'where' : 'whereis';
+export const binaryExists = async (name: string) => {
+	const isWin = os.platform() === 'win32';
+	const isOsx = os.platform() === 'darwin';
+	const where = isWin ? 'where' : isOsx ? 'which' : 'whereis';
 	try {
-		await execa(where, ['brew']);
+		await execa(where, [name]);
 		return true;
 	} catch (err) {
 		return false;
 	}
 };
 
-export const validateFfmpeg = async (): Promise<boolean> => {
-	const isWin = os.platform().indexOf('win') > -1;
+export const isHomebrewInstalled = async (): Promise<boolean> => {
+	return binaryExists('brew');
+};
 
-	const where = isWin ? 'where' : 'whereis';
-	try {
-		await execa(where, ['ffmpeg']);
-		return true;
-	} catch (err) {
+export const validateFfmpeg = async (): Promise<void> => {
+	const ffmpegExists = await binaryExists('ffmpeg');
+	if (!ffmpegExists) {
 		throw new Error(
 			[
 				'It looks like FFMPEG is not installed.',

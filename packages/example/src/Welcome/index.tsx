@@ -33,7 +33,6 @@ export const Welcome: React.FC<{
 			<Sequence from={0} durationInFrames={40}>
 				<BigRotate />
 			</Sequence>
-
 			<Sequence from={40} durationInFrames={60}>
 				<Title line1="Welcome to" line2="AnySticker" />
 			</Sequence>
