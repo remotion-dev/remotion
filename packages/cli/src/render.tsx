@@ -29,7 +29,13 @@ export const render = async (fullPath: string, comps: TComposition[]) => {
 	if (renderMode === 'mp4') {
 		await validateFfmpeg();
 	}
-	process.stdout.write('📦 (1/3) Bundling video...\n');
+	if (renderMode === 'png-sequence') {
+		fs.mkdirSync(absoluteOutputFile, {
+			recursive: true,
+		});
+	}
+	const steps = renderMode === 'png-sequence' ? 3 : 2;
+	process.stdout.write(`📦 (1/${steps}) Bundling video...\n`);
 	const videoName = getVideoName(comps);
 	const comp = comps.find((c) => c.name === videoName);
 
@@ -48,9 +54,12 @@ export const render = async (fullPath: string, comps: TComposition[]) => {
 	};
 
 	const {durationInFrames: frames} = config;
-	const outputDir = await fs.promises.mkdtemp(
-		path.join(os.tmpdir(), 'react-motion-render')
-	);
+	const outputDir =
+		renderMode === 'png-sequence'
+			? absoluteOutputFile
+			: await fs.promises.mkdtemp(
+					path.join(os.tmpdir(), 'react-motion-render')
+			  );
 	const bar = new cliProgress.Bar(
 		{clearOnComplete: true},
 		cliProgress.Presets.shades_grey
@@ -64,26 +73,28 @@ export const render = async (fullPath: string, comps: TComposition[]) => {
 		outputDir,
 		onStart: () => {
 			process.stdout.write(
-				`📼 (2/3) Rendering frames (${parallelism}x concurrency)...\n`
+				`📼 (2/${steps}) Rendering frames (${parallelism}x concurrency)...\n`
 			);
 			bar.start(frames, 0);
 		},
 	});
 	bar.stop();
-	process.stdout.write('🧵 (3/3) Stitching frames together...\n');
+	process.stdout.write(`🧵 (3/${steps}) Stitching frames together...\n`);
 	const outputLocation = absoluteOutputFile;
-	await stitchFramesToVideo({
-		dir: outputDir,
-		width: config.width,
-		height: config.height,
-		fps: config.fps,
-		outputLocation,
-		force: overwrite,
-	});
-	console.log('Cleaning up...');
-	await fs.promises.rmdir(outputDir, {
-		recursive: true,
-	});
+	if (renderMode === 'mp4') {
+		await stitchFramesToVideo({
+			dir: outputDir,
+			width: config.width,
+			height: config.height,
+			fps: config.fps,
+			outputLocation,
+			force: overwrite,
+		});
+		console.log('Cleaning up...');
+		await fs.promises.rmdir(outputDir, {
+			recursive: true,
+		});
+	}
 	console.log('\n▶️ Your video is ready - hit play!');
 	console.log(outputLocation);
 };
