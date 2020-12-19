@@ -91,6 +91,7 @@ export const PlayPause: React.FC = () => {
 	return (
 		<div
 			onClick={toggle}
+			title={playing ? 'Pause' : 'Play'}
 			style={{display: 'inline-flex', opacity: video ? 1 : 0.5}}
 		>
 			{playing ? (
