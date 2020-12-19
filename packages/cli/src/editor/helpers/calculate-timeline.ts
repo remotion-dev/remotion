@@ -47,9 +47,32 @@ export const numberOfOverlapsWithPrevious = (
 	}).length;
 };
 
-export const calculateTimeline = (sequences: TSequence[]) => {
+export const calculateTimeline = (
+	sequences: TSequence[],
+	sequenceDuration: number
+): Track[] => {
 	const sWithOverlays = calculateOverlays(sequences);
 	const tracks: Track[] = [];
+
+	if (sWithOverlays.length === 0) {
+		return [
+			{
+				sequences: [
+					{
+						overlaps: [],
+						sequence: {
+							displayName: '',
+							duration: sequenceDuration,
+							from: 0,
+							id: 'seq',
+							parent: null,
+						},
+					},
+				],
+				trackId: 0,
+			},
+		];
+	}
 
 	for (let i = 0; i < sWithOverlays.length; i++) {
 		const sequence = sWithOverlays[i];
