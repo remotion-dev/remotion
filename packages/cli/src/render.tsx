@@ -1,5 +1,4 @@
-import {bundle} from '@remotion/bundler';
-import {openBrowser, provideScreenshot, stitchVideos} from '@remotion/renderer';
+import {renderFrames, stitchFramesToVideo} from '@remotion/renderer';
 import cliProgress from 'cli-progress';
 import fs from 'fs';
 import os from 'os';
@@ -9,8 +8,6 @@ import {getConcurrency} from './get-concurrency';
 
 export const render = async (fullPath: string, comps: TComposition[]) => {
 	const parallelism = getConcurrency();
-	const busyPages = new Array(parallelism).fill(true).map(() => false);
-	const getBusyPages = () => busyPages;
 	process.stdout.write('📦 (1/3) Bundling video...\n');
 	const args = process.argv;
 	const videoName = args[2];
@@ -30,44 +27,17 @@ export const render = async (fullPath: string, comps: TComposition[]) => {
 		console.log(`${comps.map((c) => c.name).join(', ')}`);
 		process.exit(1);
 	}
-	const result = await bundle(fullPath);
 	const config: VideoConfig = {
 		durationInFrames: comp.durationInFrames,
 		fps: comp.fps,
 		height: comp.height,
 		width: comp.width,
 	};
+
 	process.stdout.write(
 		`📼 (2/3) Rendering frames (${parallelism}x concurrency)...\n`
 	);
-	const browsers = await Promise.all(
-		new Array(parallelism).fill(true).map(() => openBrowser())
-	);
-	const pages = await Promise.all(
-		browsers.map((b) => {
-			return b.newPage();
-		})
-	);
-	const getFreePage = () =>
-		new Promise<number>((resolve) => {
-			let interval: number | null = null;
-			const resolveIfFree = () => {
-				const freePage = getBusyPages().findIndex((p) => p === false);
-				if (freePage !== -1) {
-					busyPages[freePage] = true;
-					resolve(freePage);
-					if (interval) {
-						clearInterval(interval);
-					}
-				} else {
-					interval = setTimeout(resolveIfFree, 100);
-				}
-			};
-			resolveIfFree();
-		});
-	const freeUpPage = (index: number) => {
-		busyPages[index] = false;
-	};
+
 	const {durationInFrames: frames} = config;
 	const outputDir = await fs.promises.mkdtemp(
 		path.join(os.tmpdir(), 'react-motion-render')
@@ -77,30 +47,17 @@ export const render = async (fullPath: string, comps: TComposition[]) => {
 		cliProgress.Presets.shades_grey
 	);
 	bar.start(frames, 0);
-	let framesRendered = 0;
-	await Promise.all(
-		new Array(frames)
-			.fill(Boolean)
-			.map((x, i) => i)
-			.map(async (f) => {
-				const freePageIdx = await getFreePage();
-				const freePage = pages[freePageIdx];
-				const site = `file://${result}/index.html?composition=${videoName}&frame=${f}`;
-				await provideScreenshot(freePage, {
-					output: path.join(outputDir, `element-${f}.png`),
-					site,
-					height: config.height,
-					width: config.width,
-				});
-				freeUpPage(freePageIdx);
-				framesRendered++;
-				bar.update(framesRendered);
-			})
-	);
+	await renderFrames({
+		fullPath,
+		config,
+		onFrameUpdate: (f) => bar.update(f),
+		parallelism,
+		videoName,
+		outputDir,
+	});
 	bar.stop();
-	await Promise.all(browsers.map((browser) => browser.close()));
 	process.stdout.write('🧵 (3/3) Stitching frames together...\n');
-	await stitchVideos({
+	await stitchFramesToVideo({
 		dir: outputDir,
 		width: config.width,
 		height: config.height,
