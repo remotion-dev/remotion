@@ -76,7 +76,6 @@ export const PlayPause: React.FC = () => {
 			const t = setTimeout(() => {
 				setFrame((currFrame) => {
 					const nextFrame = currFrame + 1;
-					// TODO: Could be timing unsafe
 					if (nextFrame >= duration) {
 						return 0;
 					}
