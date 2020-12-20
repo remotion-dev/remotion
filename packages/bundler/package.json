@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/bundler",
-	"version": "1.0.0-y.56",
+	"version": "1.0.0-y.57",
 	"description": "Bundler for Remotion",
 	"main": "dist/index.js",
 	"repository": {
@@ -30,8 +30,8 @@
 		"patch-package": "^6.2.2",
 		"react": "^17.0.1",
 		"react-dom": "^17.0.1",
-		"react-refresh": "^0.9.0-rc.2",
-		"remotion": "^1.0.0-y.56",
+		"react-refresh": "^0.8.2",
+		"remotion": "^1.0.0-y.57",
 		"styled-components": "^5.2.1",
 		"typescript": "^4.1.2",
 		"webpack": "5.10.2",
