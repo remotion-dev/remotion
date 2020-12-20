@@ -1,7 +1,7 @@
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {deferRender, readyToRender} from '../defer-ready';
 import {useCurrentFrame} from '../use-frame';
-import {useVideoConfig} from '../use-video-config';
+import {useUnsafeVideoConfig} from '../use-unsafe-video-config';
 import {AllowedVideoProps} from './props';
 
 export const VideoForRendering: React.FC<AllowedVideoProps> = (props) => {
@@ -13,7 +13,7 @@ export const VideoForRendering: React.FC<AllowedVideoProps> = (props) => {
 	});
 
 	const currentFrame = useCurrentFrame();
-	const videoConfig = useVideoConfig();
+	const videoConfig = useUnsafeVideoConfig();
 	const videoRef = useRef<HTMLVideoElement>(null);
 
 	if (!videoConfig) {

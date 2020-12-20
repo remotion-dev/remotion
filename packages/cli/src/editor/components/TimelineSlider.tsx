@@ -1,5 +1,5 @@
 import React, {useMemo} from 'react';
-import {useTimelinePosition, useVideoConfig} from 'remotion';
+import {useTimelinePosition, useUnsafeVideoConfig} from 'remotion';
 import styled from 'styled-components';
 import {
 	TIMELINE_LEFT_PADDING,
@@ -22,11 +22,11 @@ const Line = styled.div`
 
 export const TimelineSlider: React.FC = () => {
 	const timelinePosition = useTimelinePosition();
-	const videoConfig = useVideoConfig();
+	const videoConfig = useUnsafeVideoConfig();
 	const {width} = useWindowSize();
 
 	const left = useMemo(() => {
-		if (!videoConfig.durationInFrames) {
+		if (!videoConfig) {
 			return 0;
 		}
 		return (
@@ -34,7 +34,7 @@ export const TimelineSlider: React.FC = () => {
 				(width - TIMELINE_LEFT_PADDING - TIMELINE_RIGHT_PADDING - 1) +
 			TIMELINE_LEFT_PADDING
 		);
-	}, [timelinePosition, videoConfig.durationInFrames, width]);
+	}, [timelinePosition, videoConfig, width]);
 
 	if (!videoConfig) {
 		return null;
