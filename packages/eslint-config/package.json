@@ -3,10 +3,7 @@
   "version": "1.0.0-y.52",
   "description": "",
   "main": "dist/index.js",
-  "scripts": {
-    "test": "eslint 'src' --ext ts,tsx",
-    "build": "tsc -d"
-  },
+  "scripts": {},
   "files": [
     "index.js",
     "auto-import-rules.js"
