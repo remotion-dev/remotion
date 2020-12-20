@@ -8,6 +8,8 @@ import {
 } from 'remotion';
 import {Pause} from '../icons/pause';
 import {Play} from '../icons/play';
+import {StepBack} from '../icons/step-back';
+import {StepForward} from '../icons/step-forward';
 import {getLastFrames, setLastFrames} from '../state/last-frames';
 
 export const PlayPause: React.FC = () => {
@@ -29,20 +31,59 @@ export const PlayPause: React.FC = () => {
 		});
 	}, [video, setPlaying]);
 
+	const frameBack = useCallback(() => {
+		if (!video) {
+			return null;
+		}
+		if (!playing) {
+			return;
+		}
+		if (frame === 0) {
+			return;
+		}
+
+		setFrame((f) => f - 1);
+	}, [frame, playing, setFrame, video]);
+
+	const isLastFrame = frame === (config?.durationInFrames ?? 1);
+
+	const frameForward = useCallback(() => {
+		if (!video) {
+			return null;
+		}
+		if (!playing) {
+			return;
+		}
+
+		if (isLastFrame) {
+			return;
+		}
+
+		setFrame((f) => f + 1);
+	}, [isLastFrame, setFrame, video]);
+
 	const onKeyPress = useCallback(
 		(e: KeyboardEvent) => {
 			if (e.code === 'Space') {
 				toggle();
 				e.preventDefault();
 			}
+			if (e.code === 'ArrowLeft') {
+				frameBack();
+				e.preventDefault();
+			}
+			if (e.code === 'ArrowRight') {
+				frameForward();
+				e.preventDefault();
+			}
 		},
-		[toggle]
+		[frameBack, frameForward, toggle]
 	);
 
 	useEffect(() => {
-		window.addEventListener('keypress', onKeyPress);
+		window.addEventListener('keydown', onKeyPress);
 		return (): void => {
-			window.removeEventListener('keypress', onKeyPress);
+			window.removeEventListener('keydown', onKeyPress);
 		};
 	}, [onKeyPress]);
 
@@ -89,28 +130,68 @@ export const PlayPause: React.FC = () => {
 	}, [config, frame, playing, setFrame, video]);
 
 	return (
-		<div
-			onClick={toggle}
-			title={playing ? 'Pause' : 'Play'}
-			style={{display: 'inline-flex', opacity: video ? 1 : 0.5}}
-		>
-			{playing ? (
-				<Pause
+		<>
+			<div
+				onClick={frameBack}
+				style={{
+					display: 'inline-flex',
+					opacity: frame === 0 ? 0.5 : 1,
+					userSelect: 'none',
+				}}
+			>
+				<StepBack
 					style={{
-						height: 14,
-						width: 14,
+						height: 16,
+						width: 16,
 						color: 'white',
 					}}
 				/>
-			) : (
-				<Play
+			</div>
+			<div style={{width: 10}} />
+			<div
+				onClick={toggle}
+				title={playing ? 'Pause' : 'Play'}
+				style={{
+					display: 'inline-flex',
+					opacity: video ? 1 : 0.5,
+					userSelect: 'none',
+				}}
+			>
+				{playing ? (
+					<Pause
+						style={{
+							height: 14,
+							width: 14,
+							color: 'white',
+						}}
+					/>
+				) : (
+					<Play
+						style={{
+							height: 14,
+							width: 14,
+							color: 'white',
+						}}
+					/>
+				)}
+			</div>
+			<div style={{width: 10}} />
+			<div
+				onClick={frameForward}
+				style={{
+					display: 'inline-flex',
+					opacity: isLastFrame ? 0.5 : 1,
+					userSelect: 'none',
+				}}
+			>
+				<StepForward
 					style={{
-						height: 14,
-						width: 14,
+						height: 16,
+						width: 16,
 						color: 'white',
 					}}
 				/>
-			)}
-		</div>
+			</div>
+		</>
 	);
 };
