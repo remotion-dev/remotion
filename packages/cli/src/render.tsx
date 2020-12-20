@@ -12,6 +12,7 @@ import {getConcurrency} from './get-concurrency';
 import {getOutputFilename} from './get-filename';
 import {getOverwrite} from './get-overwrite';
 import {getRenderMode} from './get-render-mode';
+import {getUserProps} from './get-user-props';
 import {getVideoName} from './get-video-name';
 
 export const render = async (fullPath: string, comps: TComposition[]) => {
@@ -19,6 +20,8 @@ export const render = async (fullPath: string, comps: TComposition[]) => {
 	const renderMode = getRenderMode();
 	const outputFile = getOutputFilename();
 	const overwrite = getOverwrite();
+	const userProps = getUserProps();
+
 	const absoluteOutputFile = path.resolve(process.cwd(), outputFile);
 	if (fs.existsSync(absoluteOutputFile) && !overwrite) {
 		console.log(
@@ -77,6 +80,7 @@ export const render = async (fullPath: string, comps: TComposition[]) => {
 			);
 			bar.start(frames, 0);
 		},
+		userProps
 	});
 	bar.stop();
 	process.stdout.write(`🧵 (3/${steps}) Stitching frames together...\n`);
