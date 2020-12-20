@@ -39,6 +39,7 @@ module.exports = {
     "react/jsx-key": "off",
     "react/jsx-no-target-blank": "off",
     "react/jsx-tag-spacing": "off",
+    "react/props-types": "off",
     "no-undef": "off",
     "no-shadow": "off",
   },
