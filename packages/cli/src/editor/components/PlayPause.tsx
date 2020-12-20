@@ -60,7 +60,7 @@ export const PlayPause: React.FC = () => {
 		}
 
 		setFrame((f) => f + 1);
-	}, [isLastFrame, setFrame, video]);
+	}, [isLastFrame, playing, setFrame, video]);
 
 	const onKeyPress = useCallback(
 		(e: KeyboardEvent) => {
