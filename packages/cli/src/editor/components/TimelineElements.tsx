@@ -61,10 +61,14 @@ export const TimelineElements: React.FC = () => {
 												marginLeft: `calc(${
 													(s.sequence.from / videoConfig.durationInFrames) * 100
 												}%)`,
-												width: `calc(${
-													(s.sequence.duration / videoConfig.durationInFrames) *
-													100
-												}%)`,
+												width:
+													s.sequence.duration === Infinity
+														? width
+														: `calc(${
+																(s.sequence.duration /
+																	videoConfig.durationInFrames) *
+																100
+														  }%)`,
 												color: 'white',
 											}}
 											title={s.sequence.displayName}
