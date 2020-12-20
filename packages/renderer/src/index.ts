@@ -1,4 +1,5 @@
 import puppeteer from 'puppeteer';
+import {isInsideDockerContainer} from './is-inside-docker-container';
 
 async function screenshotDOMElement(
 	page: puppeteer.Page,
@@ -37,7 +38,10 @@ async function screenshotDOMElement(
 }
 
 export const openBrowser = async (): Promise<puppeteer.Browser> => {
-	const browser = await puppeteer.launch({});
+	const browser = await puppeteer.launch({
+		args: isInsideDockerContainer() ? ['--no-sandbox'] : [],
+		headless: true,
+	});
 	return browser;
 };
 

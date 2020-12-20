@@ -141,6 +141,11 @@
         "signature": "89bf2b7a601b73ea4311eda9c41f86a58994fec1bee3b87c4a14d68d9adcdcbd",
         "affectsGlobalScope": true
       },
+      "./src/get-concurrency.ts": {
+        "version": "3afc6b6bfbf71a222ab1afa49ccbdffdec330b9bab3efd99851ce1ce450dee57",
+        "signature": "9f8ca5df7f218141d384d373e99c9ce3d8f48fddb96f945bb71ad77c98949d4a",
+        "affectsGlobalScope": false
+      },
       "./node_modules/@types/node/globals.d.ts": {
         "version": "215d8d9a2c480fd460127edc048d68d9931d3b27f95132253a6e71975f060bb1",
         "signature": "215d8d9a2c480fd460127edc048d68d9931d3b27f95132253a6e71975f060bb1",
@@ -391,6 +396,11 @@
         "signature": "e6d6a2e677810547ee595e350f08c7b932b8a024d12bfd257b3dbf6cbd93bbb1",
         "affectsGlobalScope": false
       },
+      "./src/is-inside-docker-container.ts": {
+        "version": "a98e83e4fefecef62235667404bbb6962c540e59c2ee8581da1030912ba31da4",
+        "signature": "3234bb275db4eba089e89b76de1c74e0725e9db8e68b50d1089e0b6e45609bf2",
+        "affectsGlobalScope": false
+      },
       "../bundler/dist/bundler.d.ts": {
         "version": "0b103137f547c923e66a5fc86a981bd52a6d91fe6578af38dce336e4bfbb438f",
         "signature": "0b103137f547c923e66a5fc86a981bd52a6d91fe6578af38dce336e4bfbb438f",
@@ -537,8 +547,8 @@
         "affectsGlobalScope": false
       },
       "./src/render.ts": {
-        "version": "bd16c1f3c1a87a75dc846770f329cf5c81c5829f2c0eb3b942c741e4d19606c0",
-        "signature": "ecb8c0527ab44652204715a96c71e4255ed8386f99c21d3492432d864620aed6",
+        "version": "31cb790399e9a173a7febc1c79507acf860427ecfa2158478f3f41203c4a645a",
+        "signature": "72fa406fe57a1fe3d99aa15b68a957096fd57700672a378de67510f093e8b90b",
         "affectsGlobalScope": false
       },
       "./node_modules/execa/index.d.ts": {
@@ -557,8 +567,8 @@
         "affectsGlobalScope": false
       },
       "./src/index.ts": {
-        "version": "fb4bf536fedb54b1e99831188e4a1d4eae535a3e8cfba3e787a2e8098d0c412d",
-        "signature": "43863fd2d857cb0747701238c9d8a8c35ac7e895f638471389f7f261909aa3d5",
+        "version": "de22d6a2fcc36ce75445cac33f271d4546b40d3270deceb3dd2f8ddd1a7ed641",
+        "signature": "cd595a2098ad1887dff932dba610c3370c08fadb4715a5bb2333d6611f0a3581",
         "affectsGlobalScope": false
       },
       "./node_modules/@types/color-name/index.d.ts": {
@@ -898,16 +908,25 @@
         "./node_modules/@types/node/index.d.ts",
         "./node_modules/@types/node/stream.d.ts"
       ],
+      "./src/get-concurrency.ts": [
+        "./node_modules/@types/node/os.d.ts"
+      ],
       "./src/index.ts": [
         "./node_modules/@types/puppeteer/index.d.ts",
+        "./src/get-concurrency.ts",
+        "./src/is-inside-docker-container.ts",
         "./src/render.ts",
         "./src/stitcher.ts",
         "./src/validate-ffmpeg.ts"
+      ],
+      "./src/is-inside-docker-container.ts": [
+        "./node_modules/@types/node/fs.d.ts"
       ],
       "./src/render.ts": [
         "../bundler/dist/index.d.ts",
         "../core/dist/index.d.ts",
         "./node_modules/@types/node/path.d.ts",
+        "./src/get-concurrency.ts",
         "./src/index.ts"
       ],
       "./src/stitcher.ts": [
@@ -1193,6 +1212,7 @@
       ],
       "./src/index.ts": [
         "./node_modules/@types/puppeteer/index.d.ts",
+        "./src/get-concurrency.ts",
         "./src/render.ts",
         "./src/stitcher.ts",
         "./src/validate-ffmpeg.ts"
@@ -1319,7 +1339,9 @@
       "./node_modules/typescript/lib/lib.es2020.bigint.d.ts",
       "./node_modules/typescript/lib/lib.es5.d.ts",
       "./node_modules/typescript/lib/lib.esnext.intl.d.ts",
+      "./src/get-concurrency.ts",
       "./src/index.ts",
+      "./src/is-inside-docker-container.ts",
       "./src/render.ts",
       "./src/stitcher.ts",
       "./src/validate-ffmpeg.ts"
