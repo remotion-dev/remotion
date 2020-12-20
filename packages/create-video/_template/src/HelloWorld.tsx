@@ -4,7 +4,10 @@ import {Logo} from './HelloWorld/Logo';
 import {Subtitle} from './HelloWorld/Subtitle';
 import {Title} from './HelloWorld/Title';
 
-export const HelloWorld: React.FC = () => {
+export const HelloWorld: React.FC<{
+	titleText: string;
+	titleColor: string;
+}> = ({titleText, titleColor}) => {
 	const frame = useCurrentFrame();
 	const videoConfig = useVideoConfig();
 
@@ -23,7 +26,7 @@ export const HelloWorld: React.FC = () => {
 					<Logo transitionStart={transitionStart} />
 				</Sequence>
 				<Sequence from={transitionStart + 10} durationInFrames={Infinity}>
-					<Title />
+					<Title titleText={titleText} titleColor={titleColor} />
 				</Sequence>
 				<Sequence from={transitionStart + 100} durationInFrames={Infinity}>
 					<Subtitle />

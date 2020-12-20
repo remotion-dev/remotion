@@ -1,9 +1,12 @@
 import {spring, useCurrentFrame, useVideoConfig} from 'remotion';
 
-export const Title = () => {
+export const Title: React.FC<{
+	titleText: string;
+	titleColor: string;
+}> = ({titleText, titleColor}) => {
 	const videoConfig = useVideoConfig();
 	const frame = useCurrentFrame();
-	const text = ['Welcome', ' to ', 'Remotion'];
+	const text = titleText.split(' ').map((t) => ` ${t} `);
 	return (
 		<h1
 			style={{
@@ -21,6 +24,7 @@ export const Title = () => {
 					<span
 						key={t}
 						style={{
+							color: titleColor,
 							marginLeft: 10,
 							marginRight: 10,
 							transform: `scale(${spring({
