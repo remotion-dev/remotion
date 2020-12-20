@@ -43,8 +43,8 @@ export const Composition = <T,>({
 			return React.lazy(() => Promise.resolve({default: compProps.component}));
 		}
 		throw new Error("You must pass either 'component' or 'lazyComponent'");
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 		// @ts-expect-error
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [compProps.lazyComponent, compProps.component]);
 
 	useEffect(() => {
