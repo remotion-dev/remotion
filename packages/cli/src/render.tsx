@@ -80,7 +80,7 @@ export const render = async (fullPath: string, comps: TComposition[]) => {
 			);
 			bar.start(frames, 0);
 		},
-		userProps
+		userProps,
 	});
 	bar.stop();
 	process.stdout.write(`🧵 (3/${steps}) Stitching frames together...\n`);

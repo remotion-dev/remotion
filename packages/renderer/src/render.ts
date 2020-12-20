@@ -2,6 +2,7 @@ import {bundle} from '@remotion/bundler';
 import path from 'path';
 import {VideoConfig} from 'remotion';
 import {openBrowser, provideScreenshot} from '.';
+import {getActualConcurrency} from './get-concurrency';
 
 export const renderFrames = async ({
 	fullPath,
@@ -15,19 +16,20 @@ export const renderFrames = async ({
 }: {
 	fullPath: string;
 	config: VideoConfig;
-	parallelism: number;
+	parallelism?: number | null;
 	onFrameUpdate: (f: number) => void;
 	onStart: () => void;
 	videoName: string;
 	outputDir: string;
 	userProps: unknown;
 }) => {
-	const busyPages = new Array(parallelism).fill(true).map(() => false);
+	const actualParallelism = getActualConcurrency(parallelism ?? null);
+	const busyPages = new Array(actualParallelism).fill(true).map(() => false);
 	const getBusyPages = () => busyPages;
 
 	const result = await bundle(fullPath);
 	const browsers = await Promise.all(
-		new Array(parallelism).fill(true).map(() => openBrowser())
+		new Array(actualParallelism).fill(true).map(() => openBrowser())
 	);
 	const pages = await Promise.all(
 		browsers.map((b) => {
