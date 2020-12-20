@@ -1,5 +1,5 @@
-import React, {useContext} from 'react';
-import {CompositionManager, useTimelineSetFrame} from 'remotion';
+import React, {useCallback, useContext, useEffect} from 'react';
+import {CompositionManager, TComposition, useTimelineSetFrame} from 'remotion';
 import styled from 'styled-components';
 import {CurrentComposition} from './CurrentComposition';
 
@@ -40,6 +40,21 @@ export const CompositionSelector: React.FC = () => {
 	);
 	const setCurrentFrame = useTimelineSetFrame();
 
+	const selectComposition = useCallback(
+		(c: TComposition) => {
+			window.history.pushState({}, 'Preview', `/${c.name}`);
+			setCurrentFrame(0);
+			setCurrentComposition(c.name);
+		},
+		[setCurrentComposition, setCurrentFrame]
+	);
+
+	useEffect(() => {
+		if (!currentComposition && compositions.length) {
+			selectComposition(compositions[0]);
+		}
+	}, [compositions, currentComposition, selectComposition]);
+
 	return (
 		<Container>
 			<CurrentComposition />
@@ -50,9 +65,7 @@ export const CompositionSelector: React.FC = () => {
 							key={c.name}
 							selected={currentComposition === c.name}
 							onClick={() => {
-								window.history.pushState({}, 'Preview', `/${c.name}`);
-								setCurrentFrame(0);
-								setCurrentComposition(c.name);
+								selectComposition(c);
 							}}
 						>
 							{c.name}
