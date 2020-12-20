@@ -21,7 +21,7 @@ import {
 const Root = getRoot();
 
 if (!Root) {
-	throw new Error('Root has not been registered. ');
+	throw new Error('Root has not been registered.');
 }
 
 const handle = deferRender();
