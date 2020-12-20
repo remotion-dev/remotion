@@ -43,4 +43,9 @@ module.exports = {
     "no-undef": "off",
     "no-shadow": "off",
   },
+  settings: {
+    react: {
+      version: "17.0.0",
+    },
+  },
 };
