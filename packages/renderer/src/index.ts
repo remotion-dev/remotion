@@ -65,6 +65,7 @@ export const provideScreenshot = async (
 	});
 };
 
+export * from './get-concurrency';
 export * from './render';
 export * from './stitcher';
 export * from './validate-ffmpeg';
