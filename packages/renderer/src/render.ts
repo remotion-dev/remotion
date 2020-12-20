@@ -11,6 +11,7 @@ export const renderFrames = async ({
 	videoName,
 	outputDir,
 	onStart,
+	userProps,
 }: {
 	fullPath: string;
 	config: VideoConfig;
@@ -19,6 +20,7 @@ export const renderFrames = async ({
 	onStart: () => void;
 	videoName: string;
 	outputDir: string;
+	userProps: unknown;
 }) => {
 	const busyPages = new Array(parallelism).fill(true).map(() => false);
 	const getBusyPages = () => busyPages;
@@ -62,7 +64,9 @@ export const renderFrames = async ({
 			.map(async (f) => {
 				const freePageIdx = await getFreePage();
 				const freePage = pages[freePageIdx];
-				const site = `file://${result}/index.html?composition=${videoName}&frame=${f}`;
+				const site = `file://${result}/index.html?composition=${videoName}&frame=${f}&props=${encodeURIComponent(
+					JSON.stringify(userProps)
+				)}`;
 				await provideScreenshot(freePage, {
 					output: path.join(outputDir, `element-${f}.png`),
 					site,
