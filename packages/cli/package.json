@@ -48,7 +48,6 @@
 		"styled-components": "^5.1.1",
 		"typescript": "^4.1.2",
 		"webpack": "5.10.2",
-		"webpack-cli": "^3.3.12",
 		"xns": "^2.0.7"
 	},
 	"devDependencies": {
