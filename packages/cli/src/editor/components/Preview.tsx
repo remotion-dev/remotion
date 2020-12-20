@@ -5,7 +5,7 @@ import {Size} from '../hooks/get-el-size';
 import {CheckerboardContext} from '../state/checkerboard';
 import {PreviewSizeContext} from '../state/preview-size';
 
-const checkerboardSize = 64;
+const checkerboardSize = 49;
 
 export const Container = styled.div<{
 	scale: number;
@@ -27,12 +27,12 @@ export const Container = styled.div<{
 			? `
 	 linear-gradient(
 			45deg,
-			rgba(0, 0, 0, 0.4) 25%,
+			rgba(0, 0, 0, 0.1) 25%,
 			transparent 25%
 		),
-		linear-gradient(135deg, rgba(0, 0, 0, 0.4) 25%, transparent 25%),
-		linear-gradient(45deg, transparent 75%, rgba(0, 0, 0, 0.4) 75%),
-		linear-gradient(135deg, transparent 75%, rgba(0, 0, 0, 0.4) 75%);
+		linear-gradient(135deg, rgba(0, 0, 0, 0.1) 25%, transparent 25%),
+		linear-gradient(45deg, transparent 75%, rgba(0, 0, 0, 0.1) 75%),
+		linear-gradient(135deg, transparent 75%, rgba(0, 0, 0, 0.1) 75%), white;
 	`
 			: 'black'};
 
