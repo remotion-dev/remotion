@@ -5,7 +5,7 @@ export type SequenceWithOverlap = {
 	overlaps: TSequence[];
 };
 
-type Track = {
+export type Track = {
 	trackId: number;
 	sequences: SequenceWithOverlap[];
 };

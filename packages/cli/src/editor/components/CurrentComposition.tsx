@@ -1,5 +1,5 @@
 import React, {useContext} from 'react';
-import {CompositionManager, useVideoConfig} from 'remotion';
+import {CompositionManager, useUnsafeVideoConfig} from 'remotion';
 import styled from 'styled-components';
 import {renderFrame} from '../state/render-frame';
 
@@ -26,8 +26,8 @@ const Subtitle = styled.div`
 
 export const CurrentComposition = () => {
 	const {currentComposition} = useContext(CompositionManager);
-	const videoConfig = useVideoConfig();
-	if (!currentComposition) {
+	const videoConfig = useUnsafeVideoConfig();
+	if (!videoConfig) {
 		return <Container />;
 	}
 	return (
