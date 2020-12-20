@@ -1,6 +1,6 @@
 {
-  "name": "@remotion/renderer",
-  "version": "1.0.0-y.51",
+  "name": "@remotion/eslint-config",
+  "version": "1.0.0-y.52",
   "description": "",
   "main": "dist/index.js",
   "scripts": {
@@ -26,7 +26,6 @@
     "eslint-plugin-react": "^7.21.5",
     "eslint-plugin-react-hooks": "^4.2.0"
   },
-  "devDependencies": {},
   "publishConfig": {
     "access": "public"
   }
