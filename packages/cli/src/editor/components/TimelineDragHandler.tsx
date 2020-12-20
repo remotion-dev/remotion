@@ -3,7 +3,7 @@ import {
 	interpolate,
 	usePlayingState,
 	useTimelineSetFrame,
-	useVideoConfig,
+	useUnsafeVideoConfig,
 } from 'remotion';
 import styled from 'styled-components';
 import {
@@ -58,10 +58,13 @@ export const TimelineDragHandler: React.FC = ({children}) => {
 	});
 	const [playing, setPlaying] = usePlayingState();
 	const setTimelinePosition = useTimelineSetFrame();
-	const videoConfig = useVideoConfig();
+	const videoConfig = useUnsafeVideoConfig();
 
 	const onPointerDown = useCallback(
 		(e: React.PointerEvent<HTMLDivElement>) => {
+			if (!videoConfig) {
+				return;
+			}
 			const frame = getFrameFromX(
 				e.clientX,
 				videoConfig.durationInFrames,
@@ -74,18 +77,15 @@ export const TimelineDragHandler: React.FC = ({children}) => {
 			});
 			setPlaying(false);
 		},
-		[
-			playing,
-			setPlaying,
-			setTimelinePosition,
-			videoConfig.durationInFrames,
-			width,
-		]
+		[playing, setPlaying, setTimelinePosition, videoConfig, width]
 	);
 
 	const onPointerMove = useCallback(
 		(e: React.PointerEvent<HTMLDivElement>) => {
 			if (!dragging.dragging) {
+				return;
+			}
+			if (!videoConfig) {
 				return;
 			}
 			const frame = getFrameFromX(
@@ -95,7 +95,7 @@ export const TimelineDragHandler: React.FC = ({children}) => {
 			);
 			setTimelinePosition(frame);
 		},
-		[dragging, setTimelinePosition, videoConfig.durationInFrames, width]
+		[dragging.dragging, setTimelinePosition, videoConfig, width]
 	);
 
 	const onPointerLeave = useCallback(() => {

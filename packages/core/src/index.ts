@@ -12,6 +12,7 @@ export * from './sequencing';
 export * from './spring';
 export * from './timeline-position-state';
 export * from './use-frame';
+export * from './use-unsafe-video-config';
 export * from './use-video';
 export * from './use-video-config';
 export * from './video';

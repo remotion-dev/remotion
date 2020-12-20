@@ -3,8 +3,8 @@ import {
 	usePlayingState,
 	useTimelinePosition,
 	useTimelineSetFrame,
+	useUnsafeVideoConfig,
 	useVideo,
-	useVideoConfig,
 } from 'remotion';
 import {Pause} from '../icons/pause';
 import {Play} from '../icons/play';
@@ -15,7 +15,7 @@ export const PlayPause: React.FC = () => {
 	const frame = useTimelinePosition();
 	const setFrame = useTimelineSetFrame();
 	const video = useVideo();
-	const config = useVideoConfig();
+	const config = useUnsafeVideoConfig();
 
 	const toggle = useCallback(() => {
 		if (!video) {
@@ -47,7 +47,7 @@ export const PlayPause: React.FC = () => {
 	}, [onKeyPress]);
 
 	useEffect(() => {
-		if (!video) {
+		if (!config) {
 			return;
 		}
 

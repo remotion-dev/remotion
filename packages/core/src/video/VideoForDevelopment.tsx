@@ -1,13 +1,13 @@
 import React, {useEffect, useRef} from 'react';
 import {usePlayingState} from '../timeline-position-state';
 import {useCurrentFrame} from '../use-frame';
-import {useVideoConfig} from '../use-video-config';
+import {useUnsafeVideoConfig} from '../use-unsafe-video-config';
 import {AllowedVideoProps} from './props';
 
 export const VideoForDevelopment: React.FC<AllowedVideoProps> = (props) => {
 	const videoRef = useRef<HTMLVideoElement>(null);
 	const currentFrame = useCurrentFrame();
-	const videoConfig = useVideoConfig();
+	const videoConfig = useUnsafeVideoConfig();
 	const [playing] = usePlayingState();
 
 	useEffect(() => {

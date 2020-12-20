@@ -496,14 +496,19 @@
         "signature": "69f1e646f0811e6cd78647866f6487d4e2998965f9b6a493c3f77099804efb94",
         "affectsGlobalScope": false
       },
-      "../core/dist/use-video.d.ts": {
-        "version": "a1f6a024c6094259a1b61226df0a7b188fc660b312cea9e4d503710d2956df44",
-        "signature": "a1f6a024c6094259a1b61226df0a7b188fc660b312cea9e4d503710d2956df44",
-        "affectsGlobalScope": false
-      },
       "../core/dist/video-config.d.ts": {
         "version": "0fb836d295e998bd1cc59b9607927638d4c75737aaba43bd9847e4bea7ec32ca",
         "signature": "0fb836d295e998bd1cc59b9607927638d4c75737aaba43bd9847e4bea7ec32ca",
+        "affectsGlobalScope": false
+      },
+      "../core/dist/use-unsafe-video-config.d.ts": {
+        "version": "260dd61c58ce8cd4f1297f177e0d7e96a8e32584bdcb3ca134c36542311ebbc2",
+        "signature": "260dd61c58ce8cd4f1297f177e0d7e96a8e32584bdcb3ca134c36542311ebbc2",
+        "affectsGlobalScope": false
+      },
+      "../core/dist/use-video.d.ts": {
+        "version": "a1f6a024c6094259a1b61226df0a7b188fc660b312cea9e4d503710d2956df44",
+        "signature": "a1f6a024c6094259a1b61226df0a7b188fc660b312cea9e4d503710d2956df44",
         "affectsGlobalScope": false
       },
       "../core/dist/use-video-config.d.ts": {
@@ -527,8 +532,8 @@
         "affectsGlobalScope": false
       },
       "../core/dist/index.d.ts": {
-        "version": "66b3208ed42354d78865f14bb842fcdcad63b51a77eadeac04fb954f09820bc4",
-        "signature": "66b3208ed42354d78865f14bb842fcdcad63b51a77eadeac04fb954f09820bc4",
+        "version": "47f9cc0f6ef6f174bf7c6cd5fe68d406c9e902a0f174e45d3dc076202d9807fa",
+        "signature": "47f9cc0f6ef6f174bf7c6cd5fe68d406c9e902a0f174e45d3dc076202d9807fa",
         "affectsGlobalScope": false
       },
       "./src/render.ts": {
@@ -656,6 +661,7 @@
         "../core/dist/spring.d.ts",
         "../core/dist/timeline-position-state.d.ts",
         "../core/dist/use-frame.d.ts",
+        "../core/dist/use-unsafe-video-config.d.ts",
         "../core/dist/use-video-config.d.ts",
         "../core/dist/use-video.d.ts",
         "../core/dist/video-config.d.ts",
@@ -673,6 +679,9 @@
       ],
       "../core/dist/timeline-position-state.d.ts": [
         "../core/node_modules/@types/react/index.d.ts"
+      ],
+      "../core/dist/use-unsafe-video-config.d.ts": [
+        "../core/dist/video-config.d.ts"
       ],
       "../core/dist/use-video-config.d.ts": [
         "../core/dist/video-config.d.ts"
@@ -944,6 +953,7 @@
         "../core/dist/spring.d.ts",
         "../core/dist/timeline-position-state.d.ts",
         "../core/dist/use-frame.d.ts",
+        "../core/dist/use-unsafe-video-config.d.ts",
         "../core/dist/use-video-config.d.ts",
         "../core/dist/use-video.d.ts",
         "../core/dist/video-config.d.ts",
@@ -962,6 +972,9 @@
       "../core/dist/timeline-position-state.d.ts": [
         "../core/node_modules/@types/react/index.d.ts",
         "./node_modules/@types/react/index.d.ts"
+      ],
+      "../core/dist/use-unsafe-video-config.d.ts": [
+        "../core/dist/video-config.d.ts"
       ],
       "../core/dist/use-video-config.d.ts": [
         "../core/dist/video-config.d.ts"
@@ -1208,6 +1221,7 @@
       "../core/dist/spring.d.ts",
       "../core/dist/timeline-position-state.d.ts",
       "../core/dist/use-frame.d.ts",
+      "../core/dist/use-unsafe-video-config.d.ts",
       "../core/dist/use-video-config.d.ts",
       "../core/dist/use-video.d.ts",
       "../core/dist/video-config.d.ts",

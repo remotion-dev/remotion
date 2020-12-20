@@ -1,5 +1,5 @@
 import React, {Suspense, useContext} from 'react';
-import {useVideo, useVideoConfig} from 'remotion';
+import {useUnsafeVideoConfig, useVideo} from 'remotion';
 import styled from 'styled-components';
 import {Size} from '../hooks/get-el-size';
 import {CheckerboardContext} from '../state/checkerboard';
@@ -48,9 +48,9 @@ export const VideoPreview: React.FC<{
 	const video = useVideo();
 	const {size: previewSize} = useContext(PreviewSizeContext);
 	const {checkerboard} = useContext(CheckerboardContext);
-	const config = useVideoConfig();
+	const config = useUnsafeVideoConfig();
 
-	if (!video) {
+	if (!config) {
 		return null;
 	}
 
