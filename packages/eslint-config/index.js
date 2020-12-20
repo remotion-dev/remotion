@@ -39,5 +39,9 @@ module.exports = {
     "react/react-in-jsx-scope": "off",
     "react/jsx-key": "off",
     "react/jsx-no-target-blank": "off",
+    "react/jsx-tag-spacing": "off",
+    "import/no-unresolved": "off",
+    "no-undef": "off",
+    "no-shadow": "off",
   },
 };

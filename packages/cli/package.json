@@ -1,7 +1,7 @@
 {
 	"name": "@remotion/cli",
 	"version": "1.0.0-y.52",
-	"description": "",
+	"description": "CLI for Remotion",
 	"main": "dist/index.js",
 	"bin": {
 		"remotion": "dist/index.js"
@@ -16,14 +16,16 @@
 		"dist",
 		"src"
 	],
-	"author": "",
+	"repository": {
+		"url": "https://github.com/JonnyBurger/remotion"
+	},
+	"author": "Jonny Burger <hi@jonny.io>",
 	"license": "ISC",
 	"dependencies": {
 		"@babel/core": "^7.10.4",
 		"@babel/preset-env": "^7.10.4",
 		"@babel/preset-react": "^7.10.4",
 		"@babel/preset-typescript": "^7.10.4",
-		"@jonny/eslint-config": "^2.1.210",
 		"@remotion/bundler": "^1.0.0-y.52",
 		"@remotion/renderer": "^1.0.0-y.52",
 		"@types/cli-progress": "^3.7.0",
@@ -50,6 +52,7 @@
 		"xns": "^2.0.7"
 	},
 	"devDependencies": {
+		"@jonny/eslint-config": "^2.1.210",
 		"eslint": "^7.4.0",
 		"prettier-plugin-organize-imports": "^1.1.1"
 	},
