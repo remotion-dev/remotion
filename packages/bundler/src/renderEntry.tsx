@@ -34,10 +34,20 @@ const Fallback: React.FC = () => {
 	return null;
 };
 
+const getUserProps = () => {
+	const param = new URLSearchParams(window.location.search).get('props');
+	if (!param) {
+		return {};
+	}
+	const parsed = JSON.parse(decodeURIComponent(param));
+	return parsed;
+};
+
 const GetVideo = () => {
 	const video = useVideo();
 	const compositions = useContext(CompositionManager);
 	const [Component, setComponent] = useState<ComponentType | null>(null);
+	const userProps = getUserProps();
 
 	useEffect(() => {
 		if (!video && compositions.compositions.length > 0) {
@@ -84,7 +94,9 @@ const GetVideo = () => {
 					backgroundColor: 'transparent',
 				}}
 			>
-				{Component ? <Component {...((video?.props as {}) ?? {})} /> : null}
+				{Component ? (
+					<Component {...((video?.props as {}) ?? {})} {...userProps} />
+				) : null}
 			</div>
 		</Suspense>
 	);
