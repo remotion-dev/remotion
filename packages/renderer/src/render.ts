@@ -61,19 +61,24 @@ export const renderFrames = async ({
 			.map((x, i) => i)
 			.map(async (f) => {
 				const freePageIdx = await getFreePage();
-				const freePage = pages[freePageIdx];
-				const site = `file://${result}/index.html?composition=${videoName}&frame=${f}&props=${encodeURIComponent(
-					JSON.stringify(userProps)
-				)}`;
-				await provideScreenshot(freePage, {
-					output: path.join(outputDir, `element-${f}.png`),
-					site,
-					height: config.height,
-					width: config.width,
-				});
-				freeUpPage(freePageIdx);
-				framesRendered++;
-				onFrameUpdate(framesRendered);
+				try {
+					const freePage = pages[freePageIdx];
+					const site = `file://${result}/index.html?composition=${videoName}&frame=${f}&props=${encodeURIComponent(
+						JSON.stringify(userProps)
+					)}`;
+					await provideScreenshot(freePage, {
+						output: path.join(outputDir, `element-${f}.png`),
+						site,
+						height: config.height,
+						width: config.width,
+					});
+				} catch (err) {
+					console.log('Error taking screenshot', err);
+				} finally {
+					freeUpPage(freePageIdx);
+					framesRendered++;
+					onFrameUpdate(framesRendered);
+				}
 			})
 	);
 	await browser.close();
