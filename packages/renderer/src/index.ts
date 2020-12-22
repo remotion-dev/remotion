@@ -37,13 +37,9 @@ async function screenshotDOMElement(
 }
 
 export const openBrowser = async (): Promise<puppeteer.Browser> => {
-	const browser = await puppeteer.launch(
-		process.env.CHROME_BIN
-			? {
-					executablePath: process.env.CHROME_BIN,
-			  }
-			: undefined
-	);
+	const browser = await puppeteer.launch({
+		args: ['--no-sandbox', '--disable-setuid-sandbox'],
+	});
 	return browser;
 };
 
