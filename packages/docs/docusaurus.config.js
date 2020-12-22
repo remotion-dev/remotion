@@ -1,7 +1,7 @@
 module.exports = {
   title: "Remotion",
   tagline: "Create motion graphics in React",
-  url: "https://your-docusaurus-test-site.com",
+  url: "https://remotion.dev",
   baseUrl: "/",
   onBrokenLinks: "throw",
   onBrokenMarkdownLinks: "warn",
