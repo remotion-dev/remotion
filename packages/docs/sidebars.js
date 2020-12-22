@@ -4,7 +4,10 @@ module.exports = {
       "getting-started",
       "the-fundamentals",
       "animating-properties",
+      "sequences",
+      "render",
     ],
     Techniques: ["anti-patterns"],
+    Reference: ["cli"],
   },
 };
