@@ -397,7 +397,7 @@
         "affectsGlobalScope": false
       },
       "./src/is-inside-docker-container.ts": {
-        "version": "a98e83e4fefecef62235667404bbb6962c540e59c2ee8581da1030912ba31da4",
+        "version": "fa5bacd60195bbba71ecd284cd1d3ceb535eb5f11905ffa9277ad43e21acb136",
         "signature": "3234bb275db4eba089e89b76de1c74e0725e9db8e68b50d1089e0b6e45609bf2",
         "affectsGlobalScope": false
       },
@@ -567,8 +567,8 @@
         "affectsGlobalScope": false
       },
       "./src/index.ts": {
-        "version": "de22d6a2fcc36ce75445cac33f271d4546b40d3270deceb3dd2f8ddd1a7ed641",
-        "signature": "cd595a2098ad1887dff932dba610c3370c08fadb4715a5bb2333d6611f0a3581",
+        "version": "e9aeb9bc9e2b0b497876bfac3ec8b9386b9b42609118d7de0f85dcded656654d",
+        "signature": "3bef05502235839cef0218830db1f5e75bfa867ddfb21454a59fd59af7063ad9",
         "affectsGlobalScope": false
       },
       "./node_modules/@types/color-name/index.d.ts": {
@@ -1213,6 +1213,7 @@
       "./src/index.ts": [
         "./node_modules/@types/puppeteer/index.d.ts",
         "./src/get-concurrency.ts",
+        "./src/is-inside-docker-container.ts",
         "./src/render.ts",
         "./src/stitcher.ts",
         "./src/validate-ffmpeg.ts"
