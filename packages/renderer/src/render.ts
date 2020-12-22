@@ -28,13 +28,9 @@ export const renderFrames = async ({
 	const getBusyPages = () => busyPages;
 
 	const result = await bundle(fullPath);
-	const browsers = await Promise.all(
-		new Array(actualParallelism).fill(true).map(() => openBrowser())
-	);
+	const browser = await openBrowser();
 	const pages = await Promise.all(
-		browsers.map((b) => {
-			return b.newPage();
-		})
+		new Array(actualParallelism).fill(true).map(() => browser.newPage())
 	);
 	const getFreePage = () =>
 		new Promise<number>((resolve) => {
@@ -80,5 +76,5 @@ export const renderFrames = async ({
 				onFrameUpdate(framesRendered);
 			})
 	);
-	await Promise.all(browsers.map((browser) => browser.close()));
+	await browser.close();
 };
