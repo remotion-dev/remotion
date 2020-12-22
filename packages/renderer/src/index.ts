@@ -1,5 +1,4 @@
 import puppeteer from 'puppeteer';
-import {isInsideDockerContainer} from './is-inside-docker-container';
 
 async function screenshotDOMElement(
 	page: puppeteer.Page,
@@ -38,10 +37,13 @@ async function screenshotDOMElement(
 }
 
 export const openBrowser = async (): Promise<puppeteer.Browser> => {
-	const browser = await puppeteer.launch({
-		args: isInsideDockerContainer() ? ['--no-sandbox'] : [],
-		headless: true,
-	});
+	const browser = await puppeteer.launch(
+		process.env.CHROME_BIN
+			? {
+					executablePath: process.env.CHROME_BIN,
+			  }
+			: undefined
+	);
 	return browser;
 };
 
@@ -59,6 +61,8 @@ export const provideScreenshot = async (
 		height: options.height,
 		deviceScaleFactor: 1,
 	});
+	page.on('error', console.error);
+	page.on('pageerror', console.error);
 
 	await page.goto(options.site);
 	await page.waitForFunction('window.ready === true');
