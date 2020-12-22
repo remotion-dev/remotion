@@ -3,8 +3,7 @@ import os from 'os';
 
 export const binaryExists = async (name: string) => {
 	const isWin = os.platform() === 'win32';
-	const isOsx = os.platform() === 'darwin';
-	const where = isWin ? 'where' : isOsx ? 'which' : 'whereis';
+	const where = isWin ? 'where' : 'which';
 	try {
 		await execa(where, [name]);
 		return true;
