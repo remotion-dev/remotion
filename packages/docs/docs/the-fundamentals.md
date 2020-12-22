@@ -45,6 +45,8 @@ export const MyVideo = () => {
 };
 ```
 
+A video's first frame is `0` and it's last frame is `durationInFrames - 1`.
+
 ## Defining compositions
 
 Compositions are components with the above mentioned metadata. You can define compositions in `src/Video.tsx` to make them show up in the left sidebar.
