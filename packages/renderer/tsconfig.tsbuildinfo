@@ -396,11 +396,6 @@
         "signature": "e6d6a2e677810547ee595e350f08c7b932b8a024d12bfd257b3dbf6cbd93bbb1",
         "affectsGlobalScope": false
       },
-      "./src/is-inside-docker-container.ts": {
-        "version": "fa5bacd60195bbba71ecd284cd1d3ceb535eb5f11905ffa9277ad43e21acb136",
-        "signature": "3234bb275db4eba089e89b76de1c74e0725e9db8e68b50d1089e0b6e45609bf2",
-        "affectsGlobalScope": false
-      },
       "../bundler/dist/bundler.d.ts": {
         "version": "0b103137f547c923e66a5fc86a981bd52a6d91fe6578af38dce336e4bfbb438f",
         "signature": "0b103137f547c923e66a5fc86a981bd52a6d91fe6578af38dce336e4bfbb438f",
@@ -547,7 +542,7 @@
         "affectsGlobalScope": false
       },
       "./src/render.ts": {
-        "version": "31cb790399e9a173a7febc1c79507acf860427ecfa2158478f3f41203c4a645a",
+        "version": "058301737a11851db67814b0e41c5b268d85aea09fb5c32dff813f0dda01e2fd",
         "signature": "72fa406fe57a1fe3d99aa15b68a957096fd57700672a378de67510f093e8b90b",
         "affectsGlobalScope": false
       },
@@ -567,8 +562,8 @@
         "affectsGlobalScope": false
       },
       "./src/index.ts": {
-        "version": "e9aeb9bc9e2b0b497876bfac3ec8b9386b9b42609118d7de0f85dcded656654d",
-        "signature": "3bef05502235839cef0218830db1f5e75bfa867ddfb21454a59fd59af7063ad9",
+        "version": "501c084e6348d046282383a0878de7ab04a1eff62aef90483df152c20f81a7ea",
+        "signature": "cd595a2098ad1887dff932dba610c3370c08fadb4715a5bb2333d6611f0a3581",
         "affectsGlobalScope": false
       },
       "./node_modules/@types/color-name/index.d.ts": {
@@ -914,13 +909,9 @@
       "./src/index.ts": [
         "./node_modules/@types/puppeteer/index.d.ts",
         "./src/get-concurrency.ts",
-        "./src/is-inside-docker-container.ts",
         "./src/render.ts",
         "./src/stitcher.ts",
         "./src/validate-ffmpeg.ts"
-      ],
-      "./src/is-inside-docker-container.ts": [
-        "./node_modules/@types/node/fs.d.ts"
       ],
       "./src/render.ts": [
         "../bundler/dist/index.d.ts",
@@ -1213,7 +1204,6 @@
       "./src/index.ts": [
         "./node_modules/@types/puppeteer/index.d.ts",
         "./src/get-concurrency.ts",
-        "./src/is-inside-docker-container.ts",
         "./src/render.ts",
         "./src/stitcher.ts",
         "./src/validate-ffmpeg.ts"
@@ -1342,7 +1332,6 @@
       "./node_modules/typescript/lib/lib.esnext.intl.d.ts",
       "./src/get-concurrency.ts",
       "./src/index.ts",
-      "./src/is-inside-docker-container.ts",
       "./src/render.ts",
       "./src/stitcher.ts",
       "./src/validate-ffmpeg.ts"
