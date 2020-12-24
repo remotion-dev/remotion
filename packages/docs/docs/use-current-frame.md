@@ -39,3 +39,7 @@ const MyVideo = () => {
   );
 }
 ```
+
+## See also
+
+- [useVideoConfig()](use-video-config)
