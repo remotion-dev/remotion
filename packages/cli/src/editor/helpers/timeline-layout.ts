@@ -1,0 +1,2 @@
+export const TIMELINE_LEFT_PADDING = 16;
+export const TIMELINE_RIGHT_PADDING = 16;

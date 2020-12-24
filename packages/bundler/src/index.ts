@@ -25,7 +25,7 @@ export const startServer = async (
 	});
 	const compiler = webpack(config);
 
-	app.use('/', express.static(path.join(__dirname, '..', 'web')));
+	app.use(express.static(path.join(__dirname, '..', 'web')));
 	app.use(webpackDevMiddleware(compiler));
 	app.use(
 		webpackHotMiddleware(compiler, {
@@ -33,6 +33,10 @@ export const startServer = async (
 			heartbeat: 10 * 1000,
 		})
 	);
+
+	app.use('*', (req, res) => {
+		res.sendFile(path.join(__dirname, '..', 'web', 'index.html'));
+	});
 
 	const port = await getPort({port: getPort.makeRange(3000, 3100)});
 	app.listen(port);

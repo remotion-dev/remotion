@@ -1,10 +1,5 @@
-import {
-	registerVideo,
-	spring2,
-	useCurrentFrame,
-	useVideoConfig,
-} from '@remotion/core';
 import React from 'react';
+import {spring, useCurrentFrame, useVideoConfig} from 'remotion';
 import styled from 'styled-components';
 
 const textStyle = {
@@ -121,13 +116,11 @@ const getFactorForDist = (
 	if (currentWords[index] === change.words[index]) {
 		return 0;
 	}
-	const val = spring2({
+	const val = spring({
 		config: {
 			damping: 100,
 			mass: 0.1,
 			stiffness: 80,
-			restSpeedThreshold: 0.00001,
-			restDisplacementThreshold: 0.0001,
 			overshootClamping: false,
 		},
 		fps: 30,
@@ -216,13 +209,11 @@ export const Any = () => {
 	const frame = useCurrentFrame();
 	const videoConfig = useVideoConfig();
 	const wordsToUse = getWordsForFrame(frame, videoConfig.durationInFrames);
-	const scale = spring2({
+	const scale = spring({
 		config: {
 			damping: 100,
 			mass: 10,
 			stiffness: 80,
-			restSpeedThreshold: 0.00001,
-			restDisplacementThreshold: 0.0001,
 			overshootClamping: false,
 		},
 		fps: 30,
@@ -293,9 +284,4 @@ export const Any = () => {
 	);
 };
 
-registerVideo(Any, {
-	width: 1080,
-	height: 1920,
-	fps: 30,
-	durationInFrames: 3 * 30,
-});
+export default Any;

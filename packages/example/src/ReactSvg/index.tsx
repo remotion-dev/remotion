@@ -1,11 +1,5 @@
-import {
-	Easing,
-	interpolate,
-	registerVideo,
-	useCurrentFrame,
-	useVideoConfig,
-} from '@remotion/core';
 import React from 'react';
+import {Easing, interpolate, useCurrentFrame, useVideoConfig} from 'remotion';
 import {Arc} from './Arc';
 import {Atom} from './Atom';
 import {Black} from './Black';
@@ -16,73 +10,73 @@ export const ReactSvg: React.FC = () => {
 	const videoConfig = useVideoConfig();
 	const start = 0;
 	const developDuration = 60;
-	const development = interpolate({
-		input: frame,
-		inputRange: [start, developDuration + start],
-		outputRange: [0, 1],
-		easing: Easing.bezier(0.12, 1, 1, 1),
-		extrapolateLeft: 'clamp',
-		extrapolateRight: 'clamp',
-	});
+	const development = interpolate(
+		frame,
+		[start, developDuration + start],
+		[0, 1],
+		{
+			easing: Easing.bezier(0.12, 1, 1, 1),
+			extrapolateLeft: 'clamp',
+			extrapolateRight: 'clamp',
+		}
+	);
 
 	const rotateStart = developDuration + 5;
 	const rotateDuration = 40;
-	const rotationDevelopment = interpolate({
-		input: frame,
-		inputRange: [rotateStart, rotateStart + rotateDuration],
-		outputRange: [0, 1],
-		easing: Easing.bezier(0.12, 1, 1, 1),
-		extrapolateLeft: 'clamp',
-		extrapolateRight: 'clamp',
-	});
+	const rotationDevelopment = interpolate(
+		frame,
+		[rotateStart, rotateStart + rotateDuration],
+		[0, 1],
+		{
+			easing: Easing.bezier(0.12, 1, 1, 1),
+			extrapolateLeft: 'clamp',
+			extrapolateRight: 'clamp',
+		}
+	);
 
 	const electronStart = 0;
 	const electronDuration = 1000;
-	const electronDevelopment = interpolate({
-		input: frame,
-		inputRange: [electronStart, electronStart + electronDuration],
-		outputRange: [0, 10],
-		extrapolateLeft: 'extend',
-		extrapolateRight: 'extend',
-	});
+	const electronDevelopment = interpolate(
+		frame,
+		[electronStart, electronStart + electronDuration],
+		[0, 10]
+	);
 
-	const electronOpacity = interpolate({
-		input: frame,
-		inputRange: [rotateStart, rotateStart + 20],
-		outputRange: [0, 1],
-		extrapolateLeft: 'clamp',
-		extrapolateRight: 'clamp',
-	});
+	const electronOpacity = interpolate(
+		frame,
+		[rotateStart, rotateStart + 20],
+		[0, 1],
+		{
+			extrapolateLeft: 'clamp',
+			extrapolateRight: 'clamp',
+		}
+	);
 
 	const scaleOutStart = 220;
 	const scaleOutEnd = scaleOutStart + 50;
 
-	const scaleIn = interpolate({
-		input: frame,
-		inputRange: [0, 30],
-		outputRange: [1.2, 1],
+	const scaleIn = interpolate(frame, [0, 30], [1.2, 1], {
 		easing: Easing.ease,
 		extrapolateLeft: 'clamp',
 		extrapolateRight: 'clamp',
 	});
 
-	const scaleOut = interpolate({
-		input: frame,
-		inputRange: [scaleOutStart, scaleOutEnd],
-		outputRange: [1, 70],
+	const scaleOut = interpolate(frame, [scaleOutStart, scaleOutEnd], [1, 70], {
 		easing: Easing.bezier(0.8, 0.22, 0.96, 0.65),
 		extrapolateLeft: 'clamp',
 		extrapolateRight: 'clamp',
 	});
 
-	const scaleOutBlackDot = interpolate({
-		input: frame,
-		inputRange: [scaleOutStart, scaleOutStart + 10],
-		outputRange: [0, 1],
-		easing: Easing.bezier(0.8, 0.22, 0.96, 0.65),
-		extrapolateLeft: 'clamp',
-		extrapolateRight: 'clamp',
-	});
+	const scaleOutBlackDot = interpolate(
+		frame,
+		[scaleOutStart, scaleOutStart + 10],
+		[0, 1],
+		{
+			easing: Easing.bezier(0.8, 0.22, 0.96, 0.65),
+			extrapolateLeft: 'clamp',
+			extrapolateRight: 'clamp',
+		}
+	);
 
 	const scale = frame < 70 ? scaleIn : scaleOut;
 
@@ -125,9 +119,4 @@ export const ReactSvg: React.FC = () => {
 	);
 };
 
-registerVideo(ReactSvg, {
-	width: 1920,
-	height: 1080,
-	durationInFrames: 300,
-	fps: 60,
-});
+export default ReactSvg;

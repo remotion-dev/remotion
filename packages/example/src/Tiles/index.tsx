@@ -1,12 +1,6 @@
-import {
-	registerVideo,
-	spring2,
-	SpringConfig,
-	useCurrentFrame,
-	useVideoConfig,
-} from '@remotion/core';
 import {mix} from 'polished';
 import React from 'react';
+import {spring, SpringConfig, useCurrentFrame, useVideoConfig} from 'remotion';
 import {Tile} from './Tile';
 
 const BRAND_GRADIENT = ['#5851db', '#405de6'];
@@ -20,26 +14,24 @@ export const Tiles = () => {
 		damping: 50,
 		mass: 0.1,
 		stiffness: 10,
-		restSpeedThreshold: 0.00001,
-		restDisplacementThreshold: 0.0001,
 		overshootClamping: false,
 	};
 
-	const scale = spring2({
+	const scale = spring({
 		config: springConfig,
 		from: 1,
 		to: 3.3,
 		fps: videoConfig.fps,
 		frame,
 	});
-	const outerScale = spring2({
+	const outerScale = spring({
 		config: springConfig,
 		from: 1,
 		frame: Math.max(0, frame - 20),
 		to: 3,
 		fps: videoConfig.fps,
 	});
-	const rotate = spring2({
+	const rotate = spring({
 		config: springConfig,
 		fps: videoConfig.fps,
 		frame: Math.max(0, frame - 20),
@@ -79,9 +71,4 @@ export const Tiles = () => {
 	);
 };
 
-registerVideo(Tiles, {
-	fps: 30,
-	height: 1920,
-	width: 1080,
-	durationInFrames: 3 * 30,
-});
+export default Tiles;

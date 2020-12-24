@@ -1,0 +1,29 @@
+{
+  "name": "@remotion/eslint-config",
+  "version": "1.0.0-y.79",
+  "description": "",
+  "main": "dist/index.js",
+  "scripts": {},
+  "files": [
+    "index.js",
+    "auto-import-rules.js"
+  ],
+  "bugs": {
+    "url": "https://github.com/JonnyBurger/remotion/issues"
+  },
+  "author": "Jonny Burger <hi@jonny.io>",
+  "license": "ISC",
+  "dependencies": {
+    "@typescript-eslint/eslint-plugin": "^4.10.0",
+    "@typescript-eslint/parser": "^4.10.0",
+    "eslint-config-prettier": "^7.1.0",
+    "eslint-config-xo": "^0.33.1",
+    "eslint-config-xo-react": "^0.23.0",
+    "eslint-plugin-10x": "^1.4.0",
+    "eslint-plugin-react": "^7.21.5",
+    "eslint-plugin-react-hooks": "^4.2.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

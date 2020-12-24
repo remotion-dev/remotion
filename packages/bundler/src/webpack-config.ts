@@ -22,20 +22,17 @@ export const webpackConfig = ({
 }): webpack.Configuration & {
 	devServer: {
 		contentBase: string;
-		historyApiFallback: {
-			index: string;
-		};
+		historyApiFallback: boolean;
 		hot: true;
 	};
 } => ({
+	optimization: {
+		minimize: false,
+	},
+	devtool: 'cheap-module-source-map',
 	entry: [
 		environment === 'development'
-			? path.resolve(
-					__dirname,
-					'..',
-					'node_modules',
-					'webpack-hot-middleware/client'
-			  )
+			? require.resolve('webpack-hot-middleware/client') + '?overlay=true'
 			: null,
 		environment === 'development'
 			? require.resolve('@webhotelier/webpack-fast-refresh/runtime.js')
@@ -47,8 +44,8 @@ export const webpackConfig = ({
 	plugins:
 		environment === 'development'
 			? [
-					new ReactRefreshPlugin(),
 					new ErrorOverlayPlugin(),
+					new ReactRefreshPlugin(),
 					new webpack.HotModuleReplacementPlugin(),
 			  ]
 			: [],
@@ -59,24 +56,33 @@ export const webpackConfig = ({
 	},
 	devServer: {
 		contentBase: path.resolve(__dirname, '..', 'web'),
-		historyApiFallback: {
-			index: 'index.html',
-		},
+		historyApiFallback: true,
 		hot: true,
 	},
 	resolve: {
 		extensions: ['.ts', '.tsx', '.js'],
 		alias: {
 			// Only one version of react
+			'react/jsx-runtime': require.resolve('react/jsx-runtime'),
 			react: require.resolve('react'),
-			recoil: require.resolve('recoil'),
+			remotion: require.resolve('remotion'),
+			'styled-components': require.resolve('styled-components'),
 		},
 	},
 	module: {
 		rules: [
 			{
 				test: /\.(png|svg|jpg|gif|webm|mp4)$/,
-				use: ['file-loader'],
+				use: [
+					{
+						loader: require.resolve('file-loader'),
+						options: {
+							// So you can do require('hi.png')
+							// instead of require('hi.png').default
+							esModule: false,
+						},
+					},
+				],
 			},
 			{
 				test: /\.tsx?$/,
@@ -86,7 +92,12 @@ export const webpackConfig = ({
 						options: {
 							presets: [
 								require.resolve('@babel/preset-env'),
-								require.resolve('@babel/preset-react'),
+								[
+									require.resolve('@babel/preset-react'),
+									{
+										runtime: 'automatic',
+									},
+								],
 								[
 									require.resolve('@babel/preset-typescript'),
 									{
