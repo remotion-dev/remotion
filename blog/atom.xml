@@ -6,7 +6,7 @@
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://remotion.dev/blog"/>
     <subtitle>Remotion Blog</subtitle>
-    <icon>https://remotion.dev/img/favicon.ico</icon>
+    <icon>https://remotion.dev/img/logo-small.png</icon>
     <entry>
         <title type="html"><![CDATA[Welcome]]></title>
         <id>welcome</id>
