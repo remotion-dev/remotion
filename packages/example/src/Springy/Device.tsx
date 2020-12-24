@@ -1,18 +1,16 @@
+import React from 'react';
 import {
 	interpolate,
-	spring2,
+	spring,
 	SpringConfig,
 	useCurrentFrame,
 	useVideoConfig,
-} from '@remotion/core';
-import React from 'react';
+} from 'remotion';
 import styled from 'styled-components';
 
 const Container = styled.div`
 	position: absolute;
 `;
-
-const timeRemap = (frame: number) => {};
 
 export const Device: React.FC<{
 	top: number;
@@ -20,17 +18,15 @@ export const Device: React.FC<{
 	fruit: string;
 }> = ({top, rotationAmount, fruit = 'kiwi'}) => {
 	const frame = useCurrentFrame();
-	const {fps, height} = useVideoConfig();
+	const {fps} = useVideoConfig();
 
 	const springConfig: SpringConfig = {
 		damping: 100,
 		mass: 2.4,
 		stiffness: 10,
-		restSpeedThreshold: 0.00001,
-		restDisplacementThreshold: 0.0001,
 		overshootClamping: true,
 	};
-	const rotationProgress = spring2({
+	const rotationProgress = spring({
 		config: springConfig,
 		from: 0,
 		to: 1,
@@ -38,7 +34,7 @@ export const Device: React.FC<{
 		frame: frame - Math.floor(rotationAmount * 4) + 15,
 	});
 
-	const translateProgress = spring2({
+	const translateProgress = spring({
 		config: springConfig,
 		from: 0,
 		to: 1,
@@ -49,10 +45,7 @@ export const Device: React.FC<{
 	const animationFrame = Math.max(
 		1,
 		Math.floor(
-			interpolate({
-				inputRange: [0.3, 1],
-				outputRange: [0, 40],
-				input: rotationProgress,
+			interpolate(rotationProgress, [0.3, 1], [0, 40], {
 				extrapolateLeft: 'clamp',
 			}) * rotationAmount
 		)
@@ -62,7 +55,7 @@ export const Device: React.FC<{
 		fruit +
 		'-light/Untitled Frame ' +
 		animationFrame +
-		'.png').default;
+		'.png');
 	const bottomPoint = 1300;
 
 	const scale = rotationAmount * 0.2 + 0.8;
@@ -74,7 +67,7 @@ export const Device: React.FC<{
 				transform: `scale(${scale})`,
 			}}
 		>
-			<img src={src}></img>
+			<img src={src} />
 		</Container>
 	);
 };

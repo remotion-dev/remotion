@@ -1,11 +1,15 @@
 import execa from 'execa';
+import {validateFfmpeg} from './validate-ffmpeg';
 
-export const stitchVideos = async (options: {
+export const stitchFramesToVideo = async (options: {
 	dir: string;
 	fps: number;
 	width: number;
 	height: number;
+	outputLocation: string;
+	force: boolean;
 }): Promise<void> => {
+	await validateFfmpeg();
 	await execa(
 		'ffmpeg',
 		[
@@ -21,10 +25,11 @@ export const stitchVideos = async (options: {
 			'libx264',
 			'-crf',
 			'16',
+			options.force ? '-y' : null,
 			'-pix_fmt',
 			'yuv420p',
-			'test.mp4',
-		],
+			options.outputLocation,
+		].filter(Boolean) as string[],
 		{cwd: options.dir}
 	);
 };

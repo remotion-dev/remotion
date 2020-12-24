@@ -1,50 +1,38 @@
+import React from 'react';
 import {
 	interpolate,
-	registerVideo,
-	spring2,
+	spring,
 	SpringConfig,
 	useCurrentFrame,
 	useVideoConfig,
-} from '@remotion/core';
-import React from 'react';
+} from 'remotion';
 import {Title} from '../Title';
 
-export const Up = () => {
+export const Up: React.FC<{
+	line1: string;
+	line2: string;
+}> = ({line1 = 'hi', line2 = 'there'}) => {
 	const frame = useCurrentFrame();
 	const videoConfig = useVideoConfig();
 	const springConfig: SpringConfig = {
 		damping: 200,
 		mass: 0.4,
 		stiffness: 60,
-		restSpeedThreshold: 0.00001,
-		restDisplacementThreshold: 0.0001,
 		overshootClamping: true,
 	};
 	const upFrame = Math.max(0, frame - 24);
-	const progress = spring2({
+	const progress = spring({
 		config: {...springConfig, mass: springConfig.mass * 1},
 		frame: upFrame,
 		from: 0,
 		to: 1,
 		fps: videoConfig.fps,
 	});
-	const translate = interpolate({
-		input: progress,
-		inputRange: [0, 1],
-		outputRange: [1, -0.08],
-	});
-	const textUpOffset = interpolate({
-		input: progress,
-		inputRange: [0, 1],
-		outputRange: [0, -videoConfig.height],
-	});
+	const translate = interpolate(progress, [0, 1], [1, -0.08]);
+	const textUpOffset = interpolate(progress, [0, 1], [0, -videoConfig.height]);
 
-	const scale = interpolate({
-		input: progress,
-		inputRange: [0, 1],
-		outputRange: [0.5, 1.3],
-	});
-	const rotateProgress = spring2({
+	const scale = interpolate(progress, [0, 1], [0.5, 1.3]);
+	const rotateProgress = spring({
 		config: {...springConfig, mass: springConfig.mass * 1.3},
 		frame: upFrame,
 		from: 0,
@@ -52,15 +40,11 @@ export const Up = () => {
 		fps: videoConfig.fps,
 	});
 	const frameToPick = Math.floor(
-		interpolate({
-			input: rotateProgress,
-			inputRange: [0.4, 1],
-			outputRange: [1, 265],
+		interpolate(rotateProgress, [0.4, 1], [1, 265], {
 			extrapolateLeft: 'clamp',
 		})
 	);
-	const f = require('../assets/up/Rotato Frame ' + frameToPick + '.png')
-		.default;
+	const f = require('../assets/up/Rotato Frame ' + frameToPick + '.png');
 	return (
 		<div style={{flex: 1, backgroundColor: 'white'}}>
 			<div
@@ -73,7 +57,7 @@ export const Up = () => {
 					height: videoConfig.height,
 				}}
 			>
-				<Title></Title>
+				<Title line1={line1} line2={line2} />
 			</div>
 			<img
 				src={f}
@@ -83,14 +67,9 @@ export const Up = () => {
 						(videoConfig.height - videoConfig.width) / 2
 					}px) scale(${scale})`,
 				}}
-			></img>
+			/>
 		</div>
 	);
 };
 
-registerVideo(Up, {
-	width: 1080,
-	height: 1080,
-	durationInFrames: 4 * 30,
-	fps: 30,
-});
+export default Up;

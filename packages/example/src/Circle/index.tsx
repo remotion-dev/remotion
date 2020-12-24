@@ -1,11 +1,5 @@
-import {
-	registerVideo,
-	spring2,
-	SpringConfig,
-	useCurrentFrame,
-	useVideoConfig,
-} from '@remotion/core';
 import React from 'react';
+import {spring, SpringConfig, useCurrentFrame, useVideoConfig} from 'remotion';
 import styled from 'styled-components';
 
 const Logo = styled.img`
@@ -36,26 +30,24 @@ export const EndLogo: React.FC = () => {
 		damping: 8,
 		mass: 0.2,
 		stiffness: 100,
-		restSpeedThreshold: 0.00001,
-		restDisplacementThreshold: 0.0001,
 		overshootClamping: false,
 	};
 
-	const scale = spring2({
+	const scale = spring({
 		config: springConfig,
 		from: 14,
 		to: 1,
 		fps: videoConfig.fps,
 		frame,
 	});
-	const logoScale = spring2({
+	const logoScale = spring({
 		config: springConfig,
 		from: 0,
 		to: 1,
 		frame,
 		fps: videoConfig.fps,
 	});
-	const squirclefactor = spring2({
+	const squirclefactor = spring({
 		config: springConfig,
 		from: 0.5,
 		to: 1.05,
@@ -84,19 +76,14 @@ export const EndLogo: React.FC = () => {
 				<path
 					d={makeSquircle(squircleSize, squircleSize, squirclefactor)}
 					fill="#5851db"
-				></path>
+				/>
 			</svg>
 			<Logo
 				style={{transform: `scale(${logoScale})`}}
 				src="https://www.anysticker.app/logo-transparent.png"
-			></Logo>
+			/>
 		</div>
 	);
 };
 
-registerVideo(EndLogo, {
-	fps: 30,
-	height: 1920,
-	width: 1080,
-	durationInFrames: 3 * 30,
-});
+export default EndLogo;

@@ -1,11 +1,5 @@
-import {
-	registerVideo,
-	spring2,
-	SpringConfig,
-	useCurrentFrame,
-	useVideoConfig,
-} from '@remotion/core';
 import React from 'react';
+import {spring, SpringConfig, useCurrentFrame, useVideoConfig} from 'remotion';
 
 export const Title: React.FC<{
 	line1: string;
@@ -17,28 +11,19 @@ export const Title: React.FC<{
 		damping: 10,
 		mass: 0.1,
 		stiffness: 100,
-		restSpeedThreshold: 0.00001,
-		restDisplacementThreshold: 0.0001,
 		overshootClamping: false,
 	};
 
-	const firstWord = spring2({
+	const firstWord = spring({
 		config: springConfig,
 		from: 0,
 		to: 1,
 		fps,
 		frame,
 	});
-	const secondWord = spring2({
+	const secondWord = spring({
 		config: springConfig,
 		frame: Math.max(0, frame - 5),
-		from: 0,
-		to: 1,
-		fps,
-	});
-	const thirdWord = spring2({
-		config: springConfig,
-		frame: Math.max(0, frame - 12),
 		from: 0,
 		to: 1,
 		fps,
@@ -80,9 +65,4 @@ export const Title: React.FC<{
 	);
 };
 
-registerVideo(Title, {
-	fps: 30,
-	height: 1920,
-	width: 1080,
-	durationInFrames: 30,
-});
+export default Title;

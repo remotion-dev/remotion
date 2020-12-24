@@ -1,10 +1,5 @@
-import {
-	spring2,
-	SpringConfig,
-	useCurrentFrame,
-	useVideoConfig,
-} from '@remotion/core';
 import React from 'react';
+import {spring, SpringConfig, useCurrentFrame, useVideoConfig} from 'remotion';
 import styled from 'styled-components';
 
 const Container = styled.div`
@@ -26,12 +21,10 @@ export const Transition: React.FC<{
 		damping: 10,
 		mass: 0.1,
 		stiffness: 100,
-		restSpeedThreshold: 0.00001,
-		restDisplacementThreshold: 0.0001,
 		overshootClamping: true,
 	};
 	const firstFrame = videoConfig.durationInFrames - 4;
-	const progress = spring2({
+	const progress = spring({
 		config: springConfig,
 		from: type === 'in' ? 100 : 0,
 		to: type === 'in' ? 0 : 100,

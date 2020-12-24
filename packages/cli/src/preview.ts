@@ -1,13 +1,14 @@
 import {startServer} from '@remotion/bundler';
+// eslint-disable-next-line @typescript-eslint/prefer-ts-expect-error
 // @ts-ignore
 import betterOpn from 'better-opn';
 import fs from 'fs';
 import path from 'path';
 import xns from 'xns';
 
-xns(async () => {
+export const previewCommand = xns(async () => {
 	const args = process.argv;
-	const file = args[2];
+	const file = args[3];
 	const fullPath = path.join(process.cwd(), file);
 
 	const tsxFile = path.resolve(__dirname, 'previewEntry.tsx');

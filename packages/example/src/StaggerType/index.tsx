@@ -1,12 +1,6 @@
-import {
-	registerVideo,
-	spring2,
-	SpringConfig,
-	useCurrentFrame,
-	useVideoConfig,
-} from '@remotion/core';
 import {mix} from 'polished';
 import React from 'react';
+import {useCurrentFrame, useVideoConfig} from 'remotion';
 import styled from 'styled-components';
 
 const Container = styled.div`
@@ -27,22 +21,6 @@ export const StaggerType = () => {
 	const types = 4;
 	const frame = useCurrentFrame();
 	const videoConfig = useVideoConfig();
-	const springConfig: SpringConfig = {
-		damping: 10,
-		mass: 1.4,
-		stiffness: 100,
-		restSpeedThreshold: 0.00001,
-		restDisplacementThreshold: 0.0001,
-		overshootClamping: false,
-	};
-	const progress = spring2({
-		config: springConfig,
-		frame,
-		from: 0,
-		to: 1,
-		fps: videoConfig.fps,
-	});
-	const letterSpacing = '0.3em';
 	return (
 		<Container
 			style={{
@@ -71,6 +49,7 @@ export const StaggerType = () => {
 						const color = mix(ratio, '#fff', '#000');
 						return (
 							<Label
+								key={i}
 								style={{
 									...(stroking
 										? {}
@@ -94,9 +73,4 @@ export const StaggerType = () => {
 	);
 };
 
-registerVideo(StaggerType, {
-	width: 1080,
-	height: 1080,
-	fps: 30,
-	durationInFrames: 30 * 1.5,
-});
+export default StaggerType;

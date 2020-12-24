@@ -1,7 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
-import {PreviewToolbar} from './PreviewToolbar';
 import {Canvas} from './Canvas';
+import {CompositionSelector} from './CompositionSelector';
+import {PreviewToolbar} from './PreviewToolbar';
 
 export const Container = styled.div`
 	flex: 2;
@@ -10,10 +11,34 @@ export const Container = styled.div`
 	flex-direction: column;
 `;
 
+const Row = styled.div`
+	display: flex;
+	flex-direction: row;
+	flex: 1;
+`;
+
+const CanvasContainer = styled.div`
+	flex: 1;
+	display: flex;
+`;
+
+const LeftContainer = styled.div`
+	width: 300px;
+	display: flex;
+	position: relative;
+`;
+
 export const TopPanel: React.FC = () => {
 	return (
 		<Container>
-			<Canvas />
+			<Row>
+				<LeftContainer>
+					<CompositionSelector />
+				</LeftContainer>
+				<CanvasContainer>
+					<Canvas />
+				</CanvasContainer>
+			</Row>
 			<PreviewToolbar />
 		</Container>
 	);

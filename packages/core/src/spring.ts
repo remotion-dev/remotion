@@ -1,71 +1,114 @@
-// Adapted from https://github.com/Popmotion/popmotion/blob/master/packages/popmotion/src/animations/spring/index.ts
+type AnimationNode = {
+	lastTimestamp: number;
+	toValue: number;
+	current: number;
+	velocity: number;
+};
 
-export type SpringParams = {
-	from: number;
-	to: number;
-	stiffness: number;
+export type SpringConfig = {
 	damping: number;
 	mass: number;
-	restSpeedThreshold: number;
-	restDisplacementThreshold: number;
+	stiffness: number;
+	overshootClamping: boolean;
+};
+
+const defaultSpringConfig: SpringConfig = {
+	damping: 10,
+	mass: 1,
+	stiffness: 100,
+	overshootClamping: false,
+};
+
+export function advance(
+	animation: AnimationNode,
+	now: number,
+	config: SpringConfig
+): AnimationNode {
+	const copiedAnimated = {...animation};
+	const {toValue, lastTimestamp, current, velocity} = copiedAnimated;
+
+	const deltaTime = Math.min(now - lastTimestamp, 64);
+	copiedAnimated.lastTimestamp = now;
+
+	const c = config.damping;
+	const m = config.mass;
+	const k = config.stiffness;
+
+	const v0 = -velocity;
+	const x0 = toValue - current;
+
+	const zeta = c / (2 * Math.sqrt(k * m)); // damping ratio
+	const omega0 = Math.sqrt(k / m); // undamped angular frequency of the oscillator (rad/ms)
+	const omega1 = omega0 * Math.sqrt(1 - zeta ** 2); // exponential decay
+
+	const t = deltaTime / 1000;
+
+	const sin1 = Math.sin(omega1 * t);
+	const cos1 = Math.cos(omega1 * t);
+
+	// under damped
+	const underDampedEnvelope = Math.exp(-zeta * omega0 * t);
+	const underDampedFrag1 =
+		underDampedEnvelope *
+		(sin1 * ((v0 + zeta * omega0 * x0) / omega1) + x0 * cos1);
+
+	const underDampedPosition = toValue - underDampedFrag1;
+	// This looks crazy -- it's actually just the derivative of the oscillation function
+	const underDampedVelocity =
+		zeta * omega0 * underDampedFrag1 -
+		underDampedEnvelope *
+			(cos1 * (v0 + zeta * omega0 * x0) - omega1 * x0 * sin1);
+
+	// critically damped
+	const criticallyDampedEnvelope = Math.exp(-omega0 * t);
+	const criticallyDampedPosition =
+		toValue - criticallyDampedEnvelope * (x0 + (v0 + omega0 * x0) * t);
+
+	const criticallyDampedVelocity =
+		criticallyDampedEnvelope *
+		(v0 * (t * omega0 - 1) + t * x0 * omega0 * omega0);
+
+	if (zeta < 1) {
+		copiedAnimated.current = underDampedPosition;
+		copiedAnimated.velocity = underDampedVelocity;
+	} else {
+		copiedAnimated.current = criticallyDampedPosition;
+		copiedAnimated.velocity = criticallyDampedVelocity;
+	}
+
+	return copiedAnimated;
+}
+
+export function spring({
+	from = 0,
+	to = 1,
+	frame,
+	fps,
+	config = {},
+}: {
+	from?: number;
+	to?: number;
 	frame: number;
 	fps: number;
-	velocity?: number;
-};
-
-const speedPerSecond = (velocity: number, frameDuration: number): number =>
-	frameDuration ? velocity * (1000 / frameDuration) : 0;
-
-export const spring = (params: SpringParams): number => {
-	let {velocity = 0.0} = params;
-	const initialVelocity = velocity ? -(velocity / 1000) : 0.0;
-
-	const {
-		from,
-		to,
-		damping,
-		stiffness,
-		mass,
-		frame,
-		restSpeedThreshold,
-		restDisplacementThreshold,
-		fps,
-	} = params;
-	if (frame === 0) {
-		return from;
+	config?: Partial<SpringConfig>;
+}): number {
+	let animation: AnimationNode = {
+		lastTimestamp: 0,
+		current: from,
+		toValue: to,
+		velocity: 0,
+	};
+	const frameClamped = Math.max(0, frame);
+	const unevenRest = frameClamped % 1;
+	for (let f = 0; f <= Math.floor(frameClamped); f++) {
+		if (f === Math.floor(frameClamped)) {
+			f += unevenRest;
+		}
+		const time = (f / fps) * 1000;
+		animation = advance(animation, time, {
+			...defaultSpringConfig,
+			...config,
+		});
 	}
-	let position = from;
-	const timeDelta = 1000 / fps;
-	const time = frame * timeDelta;
-
-	const delta = to - from;
-	const dampingRatio = damping / (2 * Math.sqrt(stiffness * mass));
-	const angularFreq = Math.sqrt(stiffness / mass) / 1000;
-
-	const prevPosition = spring({...params, frame: frame - 1});
-
-	// Underdamped
-	if (dampingRatio < 1) {
-		const envelope = Math.exp(-dampingRatio * angularFreq * time);
-		const expoDecay = (angularFreq * Math.sqrt(stiffness / mass)) / 1000;
-
-		position =
-			to -
-			envelope *
-				(((initialVelocity + dampingRatio * angularFreq * delta) / expoDecay) *
-					Math.sin(expoDecay * time) +
-					delta * Math.cos(expoDecay * time));
-	} else {
-		const envelope = Math.exp(-angularFreq * time);
-		position =
-			to - envelope * (delta + (initialVelocity + angularFreq * delta) * time);
-	}
-	velocity = speedPerSecond(position - prevPosition, timeDelta);
-	const isBelowVelocityThreshold = Math.abs(velocity) <= restSpeedThreshold;
-	const isBelowDisplacementThreshold =
-		Math.abs(to - position) <= restDisplacementThreshold;
-	if (isBelowVelocityThreshold && isBelowDisplacementThreshold) {
-		return to;
-	}
-	return position;
-};
+	return animation.current;
+}

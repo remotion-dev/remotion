@@ -1,12 +1,8 @@
-import {
-	registerVideo,
-	spring2,
-	useCurrentFrame,
-	useVideoConfig,
-} from '@remotion/core';
 import {lighten} from 'polished';
 import React, {useMemo} from 'react';
+import {spring, useCurrentFrame, useVideoConfig} from 'remotion';
 import styled from 'styled-components';
+import image from './gamechangerbig.png';
 
 const Title = styled.div`
 	font-family: Bangers;
@@ -46,20 +42,17 @@ const BlueText = styled.span`
 `;
 
 export const GameChanger = () => {
-	const image = require('./gamechangerbig.png').default;
 	const videoConfig = useVideoConfig();
 	const frame = useCurrentFrame();
 
 	const size = (videoConfig.height / 3) * 1.6;
 
 	const makeProgressFromFrame = (f: number) =>
-		spring2({
+		spring({
 			config: {
 				damping: 2,
 				mass: 0.1,
 				stiffness: 10,
-				restSpeedThreshold: 0.00001,
-				restDisplacementThreshold: 0.0001,
 				overshootClamping: false,
 			},
 			fps: videoConfig.fps,
@@ -185,9 +178,4 @@ export const GameChanger = () => {
 	);
 };
 
-registerVideo(GameChanger, {
-	width: 1920 * 2,
-	height: 1080 * 2,
-	durationInFrames: 60,
-	fps: 30,
-});
+export default GameChanger;
