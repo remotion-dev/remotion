@@ -30,18 +30,22 @@ export const TextComp = () => {
 					position: 'relative',
 				}}
 			>
-				{new Array(100).fill(true).map((a, i) => {
-					return (
-						<Offset
-							style={{
-								transform: `translateZ(${-i * 3}px) rotateY(80deg)`,
-								transformOrigin: '30% 0%',
-							}}
-						>
-							Text
-						</Offset>
-					);
-				})}
+				{new Array(100)
+					.fill(true)
+					.map((a, i) => i)
+					.map((i) => {
+						return (
+							<Offset
+								key={i}
+								style={{
+									transform: `translateZ(${-i * 3}px) rotateY(80deg)`,
+									transformOrigin: '30% 0%',
+								}}
+							>
+								Text
+							</Offset>
+						);
+					})}
 				<Base style={{transform: 'rotateY(80deg)'}}>Text</Base>
 			</div>
 		</div>

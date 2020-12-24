@@ -1,10 +1,5 @@
-import {
-	registerVideo,
-	spring2,
-	useCurrentFrame,
-	useVideoConfig,
-} from '@remotion/core';
 import React from 'react';
+import {spring, useCurrentFrame, useVideoConfig} from 'remotion';
 import styled from 'styled-components';
 
 const Title = styled.div`
@@ -28,6 +23,7 @@ const OrangeText = styled.span`
 	}
 `;
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const BlueText = styled.span`
 	background: -webkit-linear-gradient(#0089ff, #02435d);
 	-webkit-background-clip: text;
@@ -44,18 +40,16 @@ const BlueText = styled.span`
 	}
 `;
 
-export const GameChanger = () => {
+export const GameChangerMain = () => {
 	const videoConfig = useVideoConfig();
 	const frame = useCurrentFrame();
 
 	const makeProgressFromFrame = (f: number) =>
-		spring2({
+		spring({
 			config: {
 				damping: 2,
 				mass: 0.1,
 				stiffness: 10,
-				restSpeedThreshold: 0.00001,
-				restDisplacementThreshold: 0.0001,
 				overshootClamping: false,
 			},
 			fps: videoConfig.fps,
@@ -70,7 +64,7 @@ export const GameChanger = () => {
 		<div
 			style={{
 				flex: 1,
-				background: `transparent`,
+				background: 'transparent',
 				display: 'flex',
 				justifyContent: 'center',
 				alignItems: 'center',
@@ -97,9 +91,4 @@ export const GameChanger = () => {
 	);
 };
 
-registerVideo(GameChanger, {
-	width: 1920 * 2,
-	height: 1080 * 2,
-	durationInFrames: 60,
-	fps: 30,
-});
+export default GameChangerMain;

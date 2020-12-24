@@ -1,10 +1,5 @@
-import {
-	interpolate,
-	spring2,
-	useCurrentFrame,
-	useVideoConfig,
-} from '@remotion/core';
 import React from 'react';
+import {interpolate, spring, useCurrentFrame, useVideoConfig} from 'remotion';
 import {Phone, PhoneHeight, PhoneWidth} from './Phone';
 
 export const Orchestra: React.FC<{
@@ -13,8 +8,8 @@ export const Orchestra: React.FC<{
 	xOffset: number;
 	phoneScale: number;
 }> = ({layers, xOffset, yOffset, phoneScale}) => {
-	const getColumnOffset = (c: number, r: number, f: number) => {
-		return spring2({
+	const getColumnOffset = (c: number, r: number) => {
+		return spring({
 			from: 0,
 			to: (PhoneHeight + yOffset) * (r % 2 === 0 ? 1 : -1),
 			config: {
@@ -22,8 +17,6 @@ export const Orchestra: React.FC<{
 				mass: 0.2,
 				stiffness: 10,
 				overshootClamping: true,
-				restDisplacementThreshold: 0.001,
-				restSpeedThreshold: 0.001,
 			},
 			fps: 30,
 			frame: Math.max(0, frame - 4 - c * 8),
@@ -33,13 +26,11 @@ export const Orchestra: React.FC<{
 	const rows = layers * 2 + 1;
 	const columns = 4;
 	const frame = useCurrentFrame();
-	const p = spring2({
+	const p = spring({
 		config: {
 			damping: 100,
 			mass: 0.1,
 			stiffness: 10,
-			restSpeedThreshold: 0.00001,
-			restDisplacementThreshold: 0.0001,
 			overshootClamping: false,
 		},
 		fps: config.fps,
@@ -47,16 +38,10 @@ export const Orchestra: React.FC<{
 		from: 0,
 		to: 1,
 	});
-	const progress = interpolate({
-		input: p,
-		inputRange: [0, 1],
-		outputRange: [3, 1.1],
+	const progress = interpolate(p, [0, 1], [3, 1.1], {
 		extrapolateLeft: 'clamp',
 	});
-	const scale = interpolate({
-		input: p,
-		inputRange: [0.4, 1],
-		outputRange: [0, phoneScale],
+	const scale = interpolate(p, [0.4, 1], [0, phoneScale], {
 		extrapolateLeft: 'clamp',
 	});
 
@@ -84,65 +69,65 @@ export const Orchestra: React.FC<{
 									const middle = r === 7 && c === 2;
 									const source = (() => {
 										if (c === 2 && r === 7) {
-											return require('./screens/start.png').default;
+											return require('./screens/start.png');
 										}
 										if (c === 2 && r === 8) {
-											return require('./screens/tutorial.png').default;
+											return require('./screens/tutorial.png');
 										}
 										if (c === 2 && r === 9) {
-											return require('./screens/cheesy.png').default;
+											return require('./screens/cheesy.png');
 										}
 										if (c === 1 && r === 4) {
-											return require('./screens/icons.png').default;
+											return require('./screens/icons.png');
 										}
 										if (c === 2 && r === 4) {
-											return require('./screens/packs.png').default;
+											return require('./screens/packs.png');
 										}
 										if (c === 2 && r === 10) {
-											return require('./screens/createpack.png').default;
+											return require('./screens/createpack.png');
 										}
 										if (c === 1 && r === 8) {
-											return require('./screens/collections.png').default;
+											return require('./screens/collections.png');
 										}
 										if (c === 3 && r === 11) {
-											return require('./screens/createpack.png').default;
+											return require('./screens/createpack.png');
 										}
 										if (c === 1 && r === 11) {
-											return require('./screens/publish.png').default;
+											return require('./screens/publish.png');
 										}
 										if (c === 1 && r === 6) {
-											return require('./screens/share.png').default;
+											return require('./screens/share.png');
 										}
 										if (c === 2 && r === 6) {
-											return require('./screens/face.png').default;
+											return require('./screens/face.png');
 										}
 										if (c === 3 && r === 5) {
-											return require('./screens/debug.png').default;
+											return require('./screens/debug.png');
 										}
 										if (c === 3 && r === 7) {
-											return require('./screens/fruits.png').default;
+											return require('./screens/fruits.png');
 										}
 										if (c === 1 && r === 7) {
-											return require('./screens/watermelon.png').default;
+											return require('./screens/watermelon.png');
 										}
 										if (c === 1 && r === 9) {
-											return require('./screens/pack2.png').default;
+											return require('./screens/pack2.png');
 										}
 										if (c === 1 && r === 2) {
-											return require('./screens/settings.png').default;
+											return require('./screens/settings.png');
 										}
 										if (c === 3 && r === 9) {
-											return require('./screens/yes.png').default;
+											return require('./screens/yes.png');
 										}
 										if (c === 2 && r === 2) {
-											return require('./screens/garden.png').default;
+											return require('./screens/garden.png');
 										}
-										return require('../assets/packs.png').default;
+										return require('../assets/packs.png');
 									})();
 									return (
 										<Phone
-											src={source}
 											key={[c, r].join(',')}
+											src={source}
 											className={`c${c}r${r}`}
 											phoneScale={middle ? phoneScale : scale}
 											style={{
@@ -158,7 +143,7 @@ export const Orchestra: React.FC<{
 													PhoneHeight / 2 +
 													r * yOffset -
 													((rows - 1) * yOffset) / 2 +
-													getColumnOffset(c, r, frame),
+													getColumnOffset(c, r),
 											}}
 										/>
 									);

@@ -1,12 +1,6 @@
-import {
-	interpolate,
-	registerVideo,
-	spring2,
-	useCurrentFrame,
-	useVideoConfig,
-} from '@remotion/core';
 import {mix} from 'polished';
 import React from 'react';
+import {interpolate, spring, useCurrentFrame, useVideoConfig} from 'remotion';
 import styled from 'styled-components';
 
 const BRAND_GRADIENT = ['#5851db', '#405de6'];
@@ -34,13 +28,11 @@ const Row: React.FC<{
 }> = ({videoWidth, i, text, zoom}) => {
 	const frame = useCurrentFrame();
 	const videoConfig = useVideoConfig();
-	const progress = spring2({
+	const progress = spring({
 		config: {
 			damping: 30,
 			mass: 1,
 			stiffness: 40,
-			restSpeedThreshold: 0.00001,
-			restDisplacementThreshold: 0.0001,
 			overshootClamping: false,
 		},
 		fps: videoConfig.fps,
@@ -48,11 +40,7 @@ const Row: React.FC<{
 		to: 1,
 		frame,
 	});
-	const posX = interpolate({
-		input: progress,
-		inputRange: [0, 1],
-		outputRange: [1, 0],
-	});
+	const posX = interpolate(progress, [0, 1], [1, 0]);
 
 	const dir = i % 2 === 0 ? -1 : 1;
 	const color = mix(
@@ -106,13 +94,11 @@ export const BetaText = () => {
 	const videoConfig = useVideoConfig();
 	const frame = useCurrentFrame();
 
-	const progress = spring2({
+	const progress = spring({
 		config: {
 			damping: 30,
 			mass: 1,
 			stiffness: 40,
-			restSpeedThreshold: 0.00001,
-			restDisplacementThreshold: 0.0001,
 			overshootClamping: false,
 		},
 		fps: videoConfig.fps,
@@ -120,11 +106,7 @@ export const BetaText = () => {
 		to: 1,
 		frame: Math.max(0, frame - 70),
 	});
-	const scale = interpolate({
-		input: progress,
-		inputRange: [0, 0.4],
-		outputRange: [1, 10],
-	});
+	const scale = interpolate(progress, [0, 0.4], [1, 10]);
 	const backgroundColor = mix(1 - progress, '#fff', solidBrand);
 
 	return (
@@ -148,6 +130,7 @@ export const BetaText = () => {
 					.map((key) => {
 						return (
 							<Row
+								key={key}
 								zoom={progress}
 								text={
 									key === 7
@@ -161,9 +144,8 @@ export const BetaText = () => {
 										: 'BETA'
 								}
 								i={key}
-								key={key}
 								videoWidth={videoConfig.width}
-							></Row>
+							/>
 						);
 					})}
 			</div>
@@ -171,9 +153,4 @@ export const BetaText = () => {
 	);
 };
 
-registerVideo(BetaText, {
-	width: 1080,
-	height: 1080,
-	fps: 30,
-	durationInFrames: 30 * 3.3,
-});
+export default BetaText;

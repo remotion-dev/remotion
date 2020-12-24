@@ -1,17 +1,11 @@
-import {
-	interpolate,
-	registerVideo,
-	spring2,
-	useCurrentFrame,
-	useVideoConfig,
-} from '@remotion/core';
 import React from 'react';
+import {interpolate, spring, useCurrentFrame, useVideoConfig} from 'remotion';
 
 export const CoinAnimation = () => {
 	const frame = useCurrentFrame();
 	const {height, width, fps} = useVideoConfig();
 
-	const progress = spring2({
+	const progress = spring({
 		from: 0,
 		to: 1,
 		frame,
@@ -20,12 +14,10 @@ export const CoinAnimation = () => {
 			damping: 1,
 			mass: 0.1,
 			stiffness: 10,
-			restSpeedThreshold: 0.00001,
-			restDisplacementThreshold: 0.0001,
 			overshootClamping: false,
 		},
 	});
-	const coinProgress = spring2({
+	const coinProgress = spring({
 		from: 0,
 		to: 1,
 		frame,
@@ -34,23 +26,18 @@ export const CoinAnimation = () => {
 			damping: 5,
 			mass: 1,
 			stiffness: 10,
-			restSpeedThreshold: 0.00001,
-			restDisplacementThreshold: 0.0001,
 			overshootClamping: false,
 		},
 	});
 
 	const whichFrame = Math.round(
-		interpolate({
-			input: coinProgress,
-			inputRange: [0, 1],
-			outputRange: [1, 71],
+		interpolate(coinProgress, [0, 1], [1, 71], {
 			extrapolateRight: 'clamp',
 		})
 	);
 
 	const getFrame = (f: number) =>
-		require(`./frames/0001.png${String(f).padStart(4, '0')}.png`).default;
+		require(`./frames/0001.png${String(f).padStart(4, '0')}.png`);
 
 	return (
 		<div
@@ -75,9 +62,4 @@ export const CoinAnimation = () => {
 	);
 };
 
-registerVideo(CoinAnimation, {
-	durationInFrames: 70,
-	fps: 50,
-	height: 200,
-	width: 100,
-});
+export default CoinAnimation;
