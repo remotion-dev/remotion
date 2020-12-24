@@ -8,6 +8,6 @@ module.exports = {
       "render",
     ],
     Techniques: ["anti-patterns"],
-    Reference: ["cli", "interpolate", "spring"],
+    Reference: ["cli", "interpolate", "use-current-frame", "spring"],
   },
 };
