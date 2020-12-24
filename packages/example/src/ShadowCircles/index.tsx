@@ -1,4 +1,3 @@
-import {registerVideo} from '@remotion/core';
 import React from 'react';
 import {Circle} from './Circle';
 
@@ -20,9 +19,4 @@ export const ShadowCircles = () => {
 	);
 };
 
-registerVideo(ShadowCircles, {
-	height: 1920,
-	width: 1080,
-	fps: 30,
-	durationInFrames: 2 * 30,
-});
+export default ShadowCircles;

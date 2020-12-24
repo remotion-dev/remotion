@@ -1,12 +1,11 @@
+import React from 'react';
 import {
 	interpolate,
-	registerVideo,
-	spring2,
+	spring,
 	SpringConfig,
 	useCurrentFrame,
 	useVideoConfig,
-} from '@remotion/core';
-import React from 'react';
+} from 'remotion';
 import {output} from './data';
 
 const svgPath = require('svg-path-properties');
@@ -23,19 +22,17 @@ export const RealStickers = () => {
 		damping: 20,
 		mass: 0.1,
 		stiffness: 10,
-		restSpeedThreshold: 0.00001,
-		restDisplacementThreshold: 0.0001,
 		overshootClamping: false,
 	};
 
-	const baseSpring = spring2({
+	const baseSpring = spring({
 		config: springConfig,
 		from: 0,
 		frame,
 		fps: videoConfig.fps,
 		to: 1,
 	});
-	const phoneScale = spring2({
+	const phoneScale = spring({
 		config: springConfig,
 
 		from: 0,
@@ -43,7 +40,7 @@ export const RealStickers = () => {
 		fps: videoConfig.fps,
 		frame,
 	});
-	const phoneSpring = spring2({
+	const phoneSpring = spring({
 		config: {
 			...springConfig,
 			damping: 1000,
@@ -55,33 +52,19 @@ export const RealStickers = () => {
 		fps: videoConfig.fps,
 		frame,
 	});
-	const scale = interpolate({
-		input: baseSpring,
-		inputRange: [0, 1],
-		outputRange: [0, 0.7],
-	});
-	const spaceBetweenCircle = interpolate({
-		input: baseSpring,
-		inputRange: [0, 1],
-		outputRange: [0.7, 1],
-	});
+	const scale = interpolate(baseSpring, [0, 1], [0, 0.7]);
+	const spaceBetweenCircle = interpolate(baseSpring, [0, 1], [0.7, 1]);
 
-	const scaleOut = spring2({
+	const scaleOut = spring({
 		config: springConfig,
 		from: 0,
 		to: 1,
 		fps: videoConfig.fps,
 		frame: videoConfig.durationInFrames - frame,
 	});
-	const phoneFrame = Math.floor(
-		interpolate({
-			input: phoneSpring,
-			inputRange: [0, 1],
-			outputRange: [1, 160],
-		})
-	);
+	const phoneFrame = Math.floor(interpolate(phoneSpring, [0, 1], [1, 160]));
 	const _cData = (function () {
-		let data: {
+		const data: {
 			cx: number;
 			cy: number;
 			rx: number;
@@ -117,7 +100,7 @@ export const RealStickers = () => {
 		return data;
 	})();
 
-	const f = require('./imgs/Rotato Frame ' + phoneFrame + '.png').default;
+	const f = require('./imgs/Rotato Frame ' + phoneFrame + '.png');
 	return (
 		<div
 			style={{
@@ -164,6 +147,7 @@ export const RealStickers = () => {
 					);
 					return (
 						<img
+							key={o.source}
 							src={`https://anysticker.imgix.net/${o.source}?w=${stickerSize}&h=${stickerSize}&fm=png&fill=solid&fit=fill&auto=compress`}
 							style={{
 								position: 'absolute',
@@ -172,7 +156,7 @@ export const RealStickers = () => {
 								width: stickerSize,
 								height: stickerSize,
 							}}
-						></img>
+						/>
 					);
 				})}
 				<img
@@ -182,15 +166,10 @@ export const RealStickers = () => {
 						transform: `scale(${phoneScale})`,
 						top: videoConfig.height / 2 - 1080 / 2,
 					}}
-				></img>
+				/>
 			</div>
 		</div>
 	);
 };
 
-registerVideo(RealStickers, {
-	width: 1080,
-	height: 1920,
-	fps: 30,
-	durationInFrames: 30 * 2.2,
-});
+export default RealStickers;

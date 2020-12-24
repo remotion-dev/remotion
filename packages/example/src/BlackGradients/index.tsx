@@ -1,4 +1,3 @@
-import {registerVideo} from '@remotion/core';
 import React from 'react';
 import {SvgBlob} from './Blob';
 
@@ -45,9 +44,4 @@ export const BlackGradients = () => {
 	);
 };
 
-registerVideo(BlackGradients, {
-	height: 1080,
-	width: 1080,
-	fps: 30,
-	durationInFrames: 30,
-});
+export default BlackGradients;

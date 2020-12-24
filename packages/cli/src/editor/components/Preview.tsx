@@ -1,9 +1,11 @@
-import {getVideo, useVideoConfig} from '@remotion/core';
-import React from 'react';
-import {useRecoilState} from 'recoil';
+import React, {Suspense, useContext} from 'react';
+import {useUnsafeVideoConfig, useVideo} from 'remotion';
 import styled from 'styled-components';
 import {Size} from '../hooks/get-el-size';
-import {previewSizeState} from '../state/preview-size';
+import {CheckerboardContext} from '../state/checkerboard';
+import {PreviewSizeContext} from '../state/preview-size';
+
+const checkerboardSize = 49;
 
 export const Container = styled.div<{
 	scale: number;
@@ -11,6 +13,7 @@ export const Container = styled.div<{
 	yCorrection: number;
 	width: number;
 	height: number;
+	checkerboard: boolean;
 }>`
 	transform: scale(${(props): number => props.scale});
 	margin-left: ${(props): number => props.xCorrection}px;
@@ -19,16 +22,37 @@ export const Container = styled.div<{
 	height: ${(props): number => props.height}px;
 	display: flex;
 	position: absolute;
-	background-color: black;
-`;
+	background: ${(props) =>
+		props.checkerboard
+			? `
+	 linear-gradient(
+			45deg,
+			rgba(0, 0, 0, 0.1) 25%,
+			transparent 25%
+		),
+		linear-gradient(135deg, rgba(0, 0, 0, 0.1) 25%, transparent 25%),
+		linear-gradient(45deg, transparent 75%, rgba(0, 0, 0, 0.1) 75%),
+		linear-gradient(135deg, transparent 75%, rgba(0, 0, 0, 0.1) 75%), white;
+	`
+			: 'black'};
 
-const Video = getVideo();
+	background-size: ${checkerboardSize}px ${checkerboardSize}px; /* Must be a square */
+	background-position: 0 0, ${checkerboardSize / 2}px 0,
+		${checkerboardSize / 2}px -${checkerboardSize / 2}px,
+		0px ${checkerboardSize / 2}px; /* Must be half of one side of the square */
+`;
 
 export const VideoPreview: React.FC<{
 	canvasSize: Size;
 }> = ({canvasSize}) => {
-	const [previewSize] = useRecoilState(previewSizeState);
-	const config = useVideoConfig();
+	const video = useVideo();
+	const {size: previewSize} = useContext(PreviewSizeContext);
+	const {checkerboard} = useContext(CheckerboardContext);
+	const config = useUnsafeVideoConfig();
+
+	if (!config) {
+		return null;
+	}
 
 	const heightRatio = canvasSize.height / config.height;
 	const widthRatio = canvasSize.width / config.width;
@@ -44,30 +68,37 @@ export const VideoPreview: React.FC<{
 	const centerX = canvasSize.width / 2 - width / 2;
 	const centerY = canvasSize.height / 2 - height / 2;
 
+	const Component = video ? video.component : null;
+
 	return (
-		<div
-			style={{
-				width: config.width * scale,
-				height: config.height * scale,
-				display: 'flex',
-				flexDirection: 'column',
-				position: 'absolute',
-				left: centerX,
-				top: centerY,
-				overflow: 'hidden',
-			}}
-		>
-			<Container
-				{...{
-					scale,
-					xCorrection,
-					yCorrection,
-					width: config.width,
-					height: config.height,
+		<Suspense fallback={<div>loading...</div>}>
+			<div
+				style={{
+					width: config.width * scale,
+					height: config.height * scale,
+					display: 'flex',
+					flexDirection: 'column',
+					position: 'absolute',
+					left: centerX,
+					top: centerY,
+					overflow: 'hidden',
 				}}
 			>
-				<Video />
-			</Container>
-		</div>
+				<Container
+					{...{
+						checkerboard,
+						scale,
+						xCorrection,
+						yCorrection,
+						width: config.width,
+						height: config.height,
+					}}
+				>
+					{Component ? (
+						<Component {...(((video?.props as unknown) as {}) ?? {})} />
+					) : null}
+				</Container>
+			</div>
+		</Suspense>
 	);
 };

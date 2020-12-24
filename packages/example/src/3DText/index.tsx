@@ -1,11 +1,3 @@
-import {
-	deferRender,
-	readyToRender,
-	registerVideo,
-	spring,
-	useCurrentFrame,
-	useVideoConfig,
-} from '@remotion/core';
 import React, {
 	Suspense,
 	useCallback,
@@ -16,10 +8,17 @@ import React, {
 } from 'react';
 import {Canvas, useUpdate} from 'react-three-fiber';
 import {
+	deferRender,
+	readyToRender,
+	spring,
+	SpringConfig,
+	useCurrentFrame,
+	useVideoConfig,
+} from 'remotion';
+import {
 	Color,
 	DataTexture,
 	Font,
-	Group,
 	LuminanceFormat,
 	Mesh,
 	NearestFilter,
@@ -27,10 +26,8 @@ import {
 } from 'three';
 import {bold} from './bold';
 
-deferRender();
-
+const handle = deferRender();
 const diffuseColor = new Color().setRGB(0.2, 0.2, 0.2);
-const diffuseColor2 = new Color().setRGB(0.2, 0, 0.2);
 
 const font = new Font(bold);
 const Box: React.FC = () => {
@@ -51,7 +48,7 @@ const Box: React.FC = () => {
 	gradientMap.minFilter = NearestFilter;
 	gradientMap.magFilter = NearestFilter;
 	gradientMap.generateMipmaps = false;
-	const groupRef = useRef<Group>(null);
+	const groupRef = useRef<JSX.IntrinsicElements['group']>(null);
 	const frame = useCurrentFrame();
 	const videoConfig = useVideoConfig();
 	const [size, setSizeChange] = useState(Date.now());
@@ -92,34 +89,34 @@ const Box: React.FC = () => {
 	}, [onResize]);
 
 	useEffect(() => {
-		readyToRender();
+		readyToRender(handle);
 	}, []);
 
 	const mesh = useUpdate<Mesh>(
 		(self) => {
-			const size = new Vector3();
+			const s = new Vector3();
 			self.geometry.computeBoundingBox();
 			if (!self.geometry.boundingBox) {
 				return null;
 			}
-			self.geometry.boundingBox.getSize(size);
-			self.position.x = -size.x / 2;
-			self.position.y = -size.y / 2;
-			self.position.z = -size.z / 2;
+			self.geometry.boundingBox.getSize(s);
+			self.position.x = -s.x / 2;
+			self.position.y = -s.y / 2;
+			self.position.z = -s.z / 2;
 		},
 		[size]
 	);
 	const mesh2 = useUpdate<Mesh>(
 		(self) => {
-			const size = new Vector3();
+			const s = new Vector3();
 			self.geometry.computeBoundingBox();
 			if (!self.geometry.boundingBox) {
 				return null;
 			}
-			self.geometry.boundingBox.getSize(size);
-			self.position.x = -size.x / 2;
-			self.position.y = -size.y / 2;
-			self.position.z = -size.z / 2;
+			self.geometry.boundingBox.getSize(s);
+			self.position.x = -s.x / 2;
+			self.position.y = -s.y / 2;
+			self.position.z = -s.z / 2;
 		},
 		[size]
 	);
@@ -128,34 +125,36 @@ const Box: React.FC = () => {
 		if (!groupRef.current) {
 			return;
 		}
-		const springConfig = {
+		const springConfig: SpringConfig = {
 			damping: 10,
 			mass: 0.1,
 			stiffness: 10,
-			restSpeedThreshold: 0.00001,
-			restDisplacementThreshold: 0.0001,
-			fps: videoConfig.fps,
-			frame,
-			velocity: 2,
+			overshootClamping: true,
 		};
+		// @ts-expect-error
 		groupRef.current.rotation.x = spring({
-			...springConfig,
+			config: springConfig,
+			frame,
+			fps: videoConfig.fps,
 			from: -Math.PI / 5,
 			to: 0,
 		});
 
 		const scale = spring({
-			...springConfig,
-			velocity: 0,
+			config: springConfig,
 			from: 0,
 			to: 0.1,
+			fps: videoConfig.fps,
+			frame,
 		});
+		// @ts-expect-error
 		groupRef.current.scale.x = scale;
+		// @ts-expect-error
 		groupRef.current.scale.y = scale;
-	}, [frame, videoConfig.fps]);
+	}, [frame, videoConfig]);
 
 	return (
-		<group scale={[0.1, 0.1, 0.1]} position={[0, 0, 0]} ref={groupRef}>
+		<group ref={groupRef} scale={[0.1, 0.1, 0.1]} position={[0, 0, 0]}>
 			<mesh ref={mesh}>
 				<ambientLight intensity={2} />
 				<pointLight
@@ -206,10 +205,4 @@ export const Hey: React.FC = () => {
 		</div>
 	);
 };
-
-registerVideo(Hey, {
-	fps: 60,
-	height: 1080,
-	width: 1080,
-	durationInFrames: 200,
-});
+export default Hey;

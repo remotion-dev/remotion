@@ -1,11 +1,5 @@
-import {
-	registerVideo,
-	spring2,
-	SpringConfig,
-	useCurrentFrame,
-	useVideoConfig,
-} from '@remotion/core';
 import React from 'react';
+import {spring, SpringConfig, useCurrentFrame, useVideoConfig} from 'remotion';
 import {Single} from './Single';
 
 export const Devices = () => {
@@ -15,35 +9,33 @@ export const Devices = () => {
 		damping: 100,
 		mass: 2,
 		stiffness: 100,
-		restSpeedThreshold: 0.00001,
-		restDisplacementThreshold: 0.0001,
 		overshootClamping: false,
 	};
 
-	const bigScale = spring2({
+	const bigScale = spring({
 		config: springConfig,
 		from: 1.1,
 		fps: videoConfig.fps,
 		frame,
 		to: 0.9,
 	});
-	const smallScale = spring2({
+	const smallScale = spring({
 		config: springConfig,
 		from: 0.5,
 		to: 0.6,
 		frame,
 		fps: videoConfig.fps,
 	});
-	const offset = spring2({
+	const offset = spring({
 		config: springConfig,
 		from: 100,
 		to: 0,
 		fps: videoConfig.fps,
 		frame,
 	});
-	const awesome = require('../assets/awesome.png').default;
-	const face = require('../assets/face.png').default;
-	const home = require('../assets/home.png').default;
+	const awesome = require('../assets/awesome.png');
+	const face = require('../assets/face.png');
+	const home = require('../assets/home.png');
 
 	return (
 		<div
@@ -56,22 +48,14 @@ export const Devices = () => {
 			<Single
 				source={face}
 				style={{transform: `scale(${smallScale})`, marginLeft: -300 - offset}}
-			></Single>
+			/>
 			<Single
 				source={home}
 				style={{transform: `scale(${smallScale})`, marginLeft: 300 + offset}}
-			></Single>
-			<Single
-				source={awesome}
-				style={{transform: `scale(${bigScale})`}}
-			></Single>
+			/>
+			<Single source={awesome} style={{transform: `scale(${bigScale})`}} />
 		</div>
 	);
 };
 
-registerVideo(Devices, {
-	fps: 30,
-	height: 1920,
-	width: 1080,
-	durationInFrames: 3 * 30,
-});
+export default Devices;

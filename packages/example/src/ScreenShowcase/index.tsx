@@ -1,12 +1,11 @@
+import React from 'react';
 import {
 	interpolate,
-	registerVideo,
-	spring2,
+	spring,
 	SpringConfig,
 	useCurrentFrame,
 	useVideoConfig,
-} from '@remotion/core';
-import React from 'react';
+} from 'remotion';
 
 type Props = {
 	title: string;
@@ -17,8 +16,9 @@ type Props = {
 export const ScreenShowcase: React.FC<Props> = ({
 	title = 'Hi',
 	getImage = (f) =>
-		require('../Welcome/stickerify-yourself/Untitled Frame ' + (f + 1) + '.png')
-			.default,
+		require('../Welcome/stickerify-yourself/Untitled Frame ' +
+			(f + 1) +
+			'.png'),
 	animateIn = true,
 }) => {
 	const frame = useCurrentFrame();
@@ -30,13 +30,11 @@ export const ScreenShowcase: React.FC<Props> = ({
 		damping: 100,
 		mass: 0.2,
 		stiffness: 100,
-		restSpeedThreshold: 0.00001,
-		restDisplacementThreshold: 0.0001,
 		overshootClamping: false,
 	};
 
 	const base = animateIn
-		? spring2({
+		? spring({
 				config: springConfig,
 				from: 0,
 				to: 1,
@@ -45,11 +43,7 @@ export const ScreenShowcase: React.FC<Props> = ({
 		  })
 		: 1;
 
-	const progress = interpolate({
-		input: base,
-		inputRange: [0, 1],
-		outputRange: [0.8, 1],
-	});
+	const progress = interpolate(base, [0, 1], [0.8, 1]);
 
 	return (
 		<div style={{flex: 1, backgroundColor: 'white'}}>
@@ -79,9 +73,4 @@ export const ScreenShowcase: React.FC<Props> = ({
 	);
 };
 
-registerVideo(ScreenShowcase, {
-	fps: 30,
-	durationInFrames: 100,
-	height: 1920,
-	width: 1080,
-});
+export default ScreenShowcase;

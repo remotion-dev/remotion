@@ -37,7 +37,13 @@ async function screenshotDOMElement(
 }
 
 export const openBrowser = async (): Promise<puppeteer.Browser> => {
-	const browser = await puppeteer.launch({});
+	const browser = await puppeteer.launch({
+		args: [
+			'--no-sandbox',
+			'--disable-setuid-sandbox',
+			'--disable-dev-shm-usage',
+		],
+	});
 	return browser;
 };
 
@@ -55,6 +61,8 @@ export const provideScreenshot = async (
 		height: options.height,
 		deviceScaleFactor: 1,
 	});
+	page.on('error', console.error);
+	page.on('pageerror', console.error);
 
 	await page.goto(options.site);
 	await page.waitForFunction('window.ready === true');
@@ -65,4 +73,7 @@ export const provideScreenshot = async (
 	});
 };
 
+export * from './get-concurrency';
+export * from './render';
 export * from './stitcher';
+export * from './validate-ffmpeg';
