@@ -4,7 +4,7 @@ module.exports = {
       "getting-started",
       "the-fundamentals",
       "animating-properties",
-      "sequences",
+      "reusability",
       "render",
     ],
     Techniques: ["anti-patterns"],
@@ -16,6 +16,7 @@ module.exports = {
       "spring",
       "use-current-frame",
       "use-video-config",
+      "sequence",
     ],
   },
 };

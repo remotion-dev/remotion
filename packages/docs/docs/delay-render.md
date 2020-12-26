@@ -21,6 +21,8 @@ This method is useful if you for example want to call an API to fetch data befor
 ## Example
 
 ```tsx
+import {useEffect, useState} from 'react';
+import {continueRender, delayRender} from 'remotion';
 
 const handle = delayRender();
 
@@ -45,7 +47,7 @@ export const MyVideo = () => {
         <div>This video has data from an API! {JSON.stringify(data)}</div>
       ) : null}
     </div>
-  )
+  );
 }
 
 ```
