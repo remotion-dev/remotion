@@ -13,6 +13,7 @@ module.exports = {
       "continue-render",
       "delay-render",
       "interpolate",
+      "register-root",
       "spring",
       "use-current-frame",
       "use-video-config",
