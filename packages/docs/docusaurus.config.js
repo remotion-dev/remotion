@@ -16,7 +16,7 @@ module.exports = {
     navbar: {
       title: "Remotion",
       logo: {
-        alt: "My Site Logo",
+        alt: "Remotion logo",
         src: "img/logo-small.png",
       },
       items: [
@@ -28,7 +28,7 @@ module.exports = {
         },
         { to: "blog", label: "Blog", position: "left" },
         {
-          href: "https://github.com/JonnyBurger/docusaurus",
+          href: "https://github.com/JonnyBurger/remotion",
           label: "GitHub",
           position: "right",
         },
@@ -44,6 +44,10 @@ module.exports = {
               label: "Getting started",
               to: "docs/",
             },
+            {
+              label: "API reference",
+              to: "docs/cli",
+            },
           ],
         },
         {
@@ -54,12 +58,8 @@ module.exports = {
               href: "https://twitter.com/JonnyBurger",
             },
             {
-              label: "Discord",
-              href: "https://discordapp.com/invite/docusaurus",
-            },
-            {
-              label: "Twitter",
-              href: "https://twitter.com/docusaurus",
+              label: "Github Issues",
+              href: "https://github.com/JonnyBurger/remotion/issues",
             },
           ],
         },
