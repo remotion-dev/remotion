@@ -9,10 +9,10 @@ import React, {
 import {render} from 'react-dom';
 import {
 	CompositionManager,
-	deferRender,
+	continueRender,
+	delayRender,
 	getCompositionName,
 	getRoot,
-	readyToRender,
 	RemotionRoot,
 	TComposition,
 	useVideo,
@@ -24,12 +24,12 @@ if (!Root) {
 	throw new Error('Root has not been registered.');
 }
 
-const handle = deferRender();
+const handle = delayRender();
 
 const Fallback: React.FC = () => {
 	useEffect(() => {
-		const fallback = deferRender();
-		return () => readyToRender(fallback);
+		const fallback = delayRender();
+		return () => continueRender(fallback);
 	}, []);
 	return null;
 };
@@ -75,7 +75,7 @@ const GetVideo = () => {
 
 	useEffect(() => {
 		if (Component) {
-			readyToRender(handle);
+			continueRender(handle);
 		}
 	}, [Component]);
 

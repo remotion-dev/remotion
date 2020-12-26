@@ -10,10 +10,11 @@ module.exports = {
     Techniques: ["anti-patterns"],
     Reference: [
       "cli",
+      "defer-render",
       "interpolate",
+      "spring",
       "use-current-frame",
       "use-video-config",
-      "spring",
     ],
   },
 };

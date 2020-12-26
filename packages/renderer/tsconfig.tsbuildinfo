@@ -456,11 +456,6 @@
         "signature": "3076444030928ef9664c917291f3d84786daada74f13b02d406905e3ea237708",
         "affectsGlobalScope": false
       },
-      "../core/dist/defer-ready.d.ts": {
-        "version": "f289b76eff6b06bd8392616574e204377f9b8aee52774009dc45eef95293afff",
-        "signature": "f289b76eff6b06bd8392616574e204377f9b8aee52774009dc45eef95293afff",
-        "affectsGlobalScope": true
-      },
       "../core/dist/easing.d.ts": {
         "version": "626ab92734af003a7f6acbc930542e667c842f1c2dd7b71d1478c87b58b27e65",
         "signature": "626ab92734af003a7f6acbc930542e667c842f1c2dd7b71d1478c87b58b27e65",
@@ -470,6 +465,11 @@
         "version": "88523479a574d6d3bd70186c9e1300aeafba633bf01dfcd2564bf908b848362d",
         "signature": "88523479a574d6d3bd70186c9e1300aeafba633bf01dfcd2564bf908b848362d",
         "affectsGlobalScope": false
+      },
+      "../core/dist/ready-manager.d.ts": {
+        "version": "bdf90085d3627fd7102522c599029b4fd59eb4c47ddd0465cea35582f8a8c7a1",
+        "signature": "bdf90085d3627fd7102522c599029b4fd59eb4c47ddd0465cea35582f8a8c7a1",
+        "affectsGlobalScope": true
       },
       "../core/dist/register-root.d.ts": {
         "version": "b43f20086d97744bc5351edad0b1b367fe16fa4deec94aeab786949e3a4cfc6a",
@@ -537,12 +537,12 @@
         "affectsGlobalScope": false
       },
       "../core/dist/index.d.ts": {
-        "version": "47f9cc0f6ef6f174bf7c6cd5fe68d406c9e902a0f174e45d3dc076202d9807fa",
-        "signature": "47f9cc0f6ef6f174bf7c6cd5fe68d406c9e902a0f174e45d3dc076202d9807fa",
+        "version": "04e82c8a697756bff7c2b7165f91d29fa5d043c452363f80606aa623da181f90",
+        "signature": "04e82c8a697756bff7c2b7165f91d29fa5d043c452363f80606aa623da181f90",
         "affectsGlobalScope": false
       },
       "./src/render.ts": {
-        "version": "058301737a11851db67814b0e41c5b268d85aea09fb5c32dff813f0dda01e2fd",
+        "version": "321bce0284b84a13758830905bd2a38187d41ae874ff341f454430b05f4e9aaa",
         "signature": "72fa406fe57a1fe3d99aa15b68a957096fd57700672a378de67510f093e8b90b",
         "affectsGlobalScope": false
       },
@@ -552,7 +552,7 @@
         "affectsGlobalScope": false
       },
       "./src/validate-ffmpeg.ts": {
-        "version": "d29a0b9400c1fa4e9a4147b03f1bc468d7c4e18db8a9387e164fe6d42cee0d79",
+        "version": "a4a8463b5fd8f1b4a08c6098cecd61fbfd8ab39aad2546fdc94ac739669c0fe5",
         "signature": "0922734ad9c5564e2adfabb083d820d8ee443d8689d2e4dd7c38871a8e49455e",
         "affectsGlobalScope": false
       },
@@ -562,7 +562,7 @@
         "affectsGlobalScope": false
       },
       "./src/index.ts": {
-        "version": "501c084e6348d046282383a0878de7ab04a1eff62aef90483df152c20f81a7ea",
+        "version": "ee512d1161f4d7534df4bb358ab2c5e13edb3305ee5a0eb107fdfa4bd7c05384",
         "signature": "cd595a2098ad1887dff932dba610c3370c08fadb4715a5bb2333d6611f0a3581",
         "affectsGlobalScope": false
       },
@@ -657,9 +657,9 @@
         "../core/dist/audio/index.d.ts",
         "../core/dist/composition.d.ts",
         "../core/dist/compositionmanager.d.ts",
-        "../core/dist/defer-ready.d.ts",
         "../core/dist/easing.d.ts",
         "../core/dist/interpolate.d.ts",
+        "../core/dist/ready-manager.d.ts",
         "../core/dist/register-root.d.ts",
         "../core/dist/remotionroot.d.ts",
         "../core/dist/sequencing/index.d.ts",
@@ -954,9 +954,9 @@
         "../core/dist/audio/index.d.ts",
         "../core/dist/composition.d.ts",
         "../core/dist/compositionmanager.d.ts",
-        "../core/dist/defer-ready.d.ts",
         "../core/dist/easing.d.ts",
         "../core/dist/interpolate.d.ts",
+        "../core/dist/ready-manager.d.ts",
         "../core/dist/register-root.d.ts",
         "../core/dist/remotionroot.d.ts",
         "../core/dist/sequencing/index.d.ts",
@@ -1222,10 +1222,10 @@
       "../core/dist/audio/props.d.ts",
       "../core/dist/composition.d.ts",
       "../core/dist/compositionmanager.d.ts",
-      "../core/dist/defer-ready.d.ts",
       "../core/dist/easing.d.ts",
       "../core/dist/index.d.ts",
       "../core/dist/interpolate.d.ts",
+      "../core/dist/ready-manager.d.ts",
       "../core/dist/register-root.d.ts",
       "../core/dist/remotionroot.d.ts",
       "../core/dist/sequencing/index.d.ts",

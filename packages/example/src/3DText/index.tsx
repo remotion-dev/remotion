@@ -8,8 +8,8 @@ import React, {
 } from 'react';
 import {Canvas, useUpdate} from 'react-three-fiber';
 import {
-	deferRender,
-	readyToRender,
+	continueRender,
+	delayRender,
 	spring,
 	SpringConfig,
 	useCurrentFrame,
@@ -26,7 +26,7 @@ import {
 } from 'three';
 import {bold} from './bold';
 
-const handle = deferRender();
+const handle = delayRender();
 const diffuseColor = new Color().setRGB(0.2, 0.2, 0.2);
 
 const font = new Font(bold);
@@ -89,7 +89,7 @@ const Box: React.FC = () => {
 	}, [onResize]);
 
 	useEffect(() => {
-		readyToRender(handle);
+		continueRender(handle);
 	}, []);
 
 	const mesh = useUpdate<Mesh>(
