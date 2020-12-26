@@ -10,7 +10,8 @@ module.exports = {
     Techniques: ["anti-patterns"],
     Reference: [
       "cli",
-      "defer-render",
+      "continue-render",
+      "delay-render",
       "interpolate",
       "spring",
       "use-current-frame",
