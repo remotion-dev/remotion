@@ -20,6 +20,7 @@ module.exports = {
       "audio",
       "composition",
       "sequence",
+      "video",
     ],
   },
 };

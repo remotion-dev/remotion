@@ -15,6 +15,8 @@ Using this component, you can add audio to your video. All audio formats which a
 Use an import or require to load an audio file and pass it to the `src` props of the `<Audio />` component.
 
 ```tsx
+import {Audio} from 'remotion';
+
 export const MyVideo = () => {
   const audio = require('./audio.mp4');
 
@@ -26,3 +28,7 @@ export const MyVideo = () => {
   )
 }
 ```
+
+## See also
+
+- [`<Video />`](video)
