@@ -9,11 +9,11 @@ export const RemotionVideo: React.FC = () => {
 			<Composition
 				name="HelloWorld"
 				component={HelloWorld}
-				durationInFrames={400}
-				fps={60}
+				durationInFrames={150}
+				fps={30}
 				width={1920}
 				height={1080}
-				props={{
+				defaultProp={{
 					titleText: 'Welcome to Remotion',
 					titleColor: 'black',
 				}}
@@ -21,8 +21,8 @@ export const RemotionVideo: React.FC = () => {
 			<Composition
 				name="Logo"
 				component={Logo}
-				durationInFrames={400}
-				fps={60}
+				durationInFrames={200}
+				fps={30}
 				width={1920}
 				height={1080}
 			/>
@@ -30,7 +30,7 @@ export const RemotionVideo: React.FC = () => {
 				name="Title"
 				component={Subtitle}
 				durationInFrames={100}
-				fps={60}
+				fps={30}
 				width={1920}
 				height={1080}
 			/>
