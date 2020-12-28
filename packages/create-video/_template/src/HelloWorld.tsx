@@ -13,10 +13,14 @@ export const HelloWorld: React.FC<{
 
 	const opacity = interpolate(
 		frame,
-		[videoConfig.durationInFrames - 50, videoConfig.durationInFrames - 30],
-		[1, 0]
+		[videoConfig.durationInFrames - 25, videoConfig.durationInFrames - 15],
+		[1, 0],
+		{
+			extrapolateLeft: 'clamp',
+			extrapolateRight: 'clamp',
+		}
 	);
-	const transitionStart = 50;
+	const transitionStart = 25;
 
 	return (
 		<div style={{flex: 1, backgroundColor: 'white'}}>
@@ -28,7 +32,7 @@ export const HelloWorld: React.FC<{
 				<Sequence from={transitionStart + 10} durationInFrames={Infinity}>
 					<Title titleText={titleText} titleColor={titleColor} />
 				</Sequence>
-				<Sequence from={transitionStart + 100} durationInFrames={Infinity}>
+				<Sequence from={transitionStart + 50} durationInFrames={Infinity}>
 					<Subtitle />
 				</Sequence>
 			</div>

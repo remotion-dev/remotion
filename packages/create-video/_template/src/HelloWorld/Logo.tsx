@@ -11,23 +11,26 @@ export const Logo: React.FC<{
 	const development = spring({
 		config: {
 			damping: 100,
+			mass: 0.5,
 		},
 		fps: videoConfig.fps,
 		frame,
 	});
-
-	const rotateStart = 0;
 
 	const rotationDevelopment = spring({
 		config: {
 			damping: 100,
+			mass: 0.5,
 		},
 		fps: videoConfig.fps,
-		frame: frame - rotateStart,
+		frame,
 	});
 
 	const scaleIn = spring({
 		frame,
+		config: {
+			mass: 0.5,
+		},
 		fps: videoConfig.fps,
 	});
 
@@ -37,13 +40,14 @@ export const Logo: React.FC<{
 			fps: videoConfig.fps,
 			config: {
 				damping: 100,
+				mass: 0.5,
 			},
 		}),
 		[0, 1],
 		[0, -150]
 	);
 
-	const scale = frame < 100 ? scaleIn : 1;
+	const scale = frame < 50 ? scaleIn : 1;
 
 	const logoRotation = interpolate(
 		frame,
