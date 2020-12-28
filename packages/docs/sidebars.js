@@ -17,6 +17,7 @@ module.exports = {
       "spring",
       "use-current-frame",
       "use-video-config",
+      "audio",
       "composition",
       "sequence",
     ],
