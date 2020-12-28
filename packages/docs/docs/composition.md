@@ -81,3 +81,4 @@ export const MyVideo = () => {
 
 - [registerRoot()](register-root)
 - [The fundamentals](the-fundamentals)
+- [CLI options](cli)
