@@ -31,6 +31,12 @@ If you use `lazyComponent`, Remotion will use React Suspense to load the compone
 If you use `lazyComponent`, you need to use a default export for your component. This is a restriction of React Suspense.
 :::
 
+- `defaultProps` _optional_: Give your component default props that will be shown in the preview. You can override these props during render using a CLI flag.
+
+:::tip
+Type your components using the `React.FC<{}>` type and the `defaultProps` prop will be typesafe.
+:::
+
 ## Example using `component`
 
 ```tsx
