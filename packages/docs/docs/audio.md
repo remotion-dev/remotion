@@ -26,7 +26,3 @@ export const MyVideo = () => {
   )
 }
 ```
-
-## See also
-
-- [`<Video />`](video)
