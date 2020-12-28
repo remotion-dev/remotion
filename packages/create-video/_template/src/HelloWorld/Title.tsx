@@ -33,6 +33,7 @@ export const Title: React.FC<{
 								config: {
 									damping: 100,
 									stiffness: 200,
+									mass: 0.5,
 								},
 							})})`,
 							display: 'inline-block',
