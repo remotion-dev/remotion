@@ -17,3 +17,7 @@ ts-node render.ts HelloWorld out.mp4
 
 Modify it to select a different video to render, or change it's output location.
 Learn about all the options on the [CLI reference page](cli).
+
+## See also
+
+- [CLI options](cli)

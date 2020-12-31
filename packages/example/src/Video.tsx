@@ -203,7 +203,7 @@ export const Index: React.FC = () => {
 				width={1080}
 				height={1080}
 				fps={30}
-				props={{
+				defaultProps={{
 					line1: 'abc',
 					line2: 'def',
 				}}
