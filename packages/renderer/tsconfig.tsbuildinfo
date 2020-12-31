@@ -542,7 +542,7 @@
         "affectsGlobalScope": false
       },
       "./src/render.ts": {
-        "version": "058301737a11851db67814b0e41c5b268d85aea09fb5c32dff813f0dda01e2fd",
+        "version": "321bce0284b84a13758830905bd2a38187d41ae874ff341f454430b05f4e9aaa",
         "signature": "72fa406fe57a1fe3d99aa15b68a957096fd57700672a378de67510f093e8b90b",
         "affectsGlobalScope": false
       },
@@ -552,7 +552,7 @@
         "affectsGlobalScope": false
       },
       "./src/validate-ffmpeg.ts": {
-        "version": "d29a0b9400c1fa4e9a4147b03f1bc468d7c4e18db8a9387e164fe6d42cee0d79",
+        "version": "a4a8463b5fd8f1b4a08c6098cecd61fbfd8ab39aad2546fdc94ac739669c0fe5",
         "signature": "0922734ad9c5564e2adfabb083d820d8ee443d8689d2e4dd7c38871a8e49455e",
         "affectsGlobalScope": false
       },
@@ -562,7 +562,7 @@
         "affectsGlobalScope": false
       },
       "./src/index.ts": {
-        "version": "501c084e6348d046282383a0878de7ab04a1eff62aef90483df152c20f81a7ea",
+        "version": "ee512d1161f4d7534df4bb358ab2c5e13edb3305ee5a0eb107fdfa4bd7c05384",
         "signature": "cd595a2098ad1887dff932dba610c3370c08fadb4715a5bb2333d6611f0a3581",
         "affectsGlobalScope": false
       },
@@ -1331,10 +1331,7 @@
       "./node_modules/typescript/lib/lib.es5.d.ts",
       "./node_modules/typescript/lib/lib.esnext.intl.d.ts",
       "./src/get-concurrency.ts",
-      "./src/index.ts",
-      "./src/render.ts",
-      "./src/stitcher.ts",
-      "./src/validate-ffmpeg.ts"
+      "./src/stitcher.ts"
     ]
   },
   "version": "4.1.2"
