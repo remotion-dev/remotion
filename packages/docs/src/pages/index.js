@@ -5,11 +5,12 @@ import Link from "@docusaurus/Link";
 import useDocusaurusContext from "@docusaurus/useDocusaurusContext";
 import useBaseUrl from "@docusaurus/useBaseUrl";
 import styles from "./styles.module.css";
+import { StartPageExplainer } from "./start-page-explainer";
 
 const features = [
   {
     title: "Leverage the web",
-    imageUrl: "img/undraw_docusaurus_mountain.svg",
+    imageUrl: "img/wordcloud.png",
     description: (
       <>
         You've see magic being created using CSS, Canvas, SVG and WebGL – why
@@ -19,7 +20,7 @@ const features = [
   },
   {
     title: "Leverage React",
-    imageUrl: "img/undraw_docusaurus_tree.svg",
+    imageUrl: "img/leverage-react.png",
     description: (
       <>
         Instead of copy & paste and undo & redo, use React's powerful
@@ -29,7 +30,7 @@ const features = [
   },
   {
     title: "Programmatic videos",
-    imageUrl: "img/undraw_docusaurus_react.svg",
+    imageUrl: "img/programmatic.png",
     description: (
       <>
         Use programming to create more advanced visualizations.{" "}
@@ -59,20 +60,32 @@ function Home() {
   const context = useDocusaurusContext();
   const { siteConfig = {} } = context;
   return (
-    <Layout
-      title={`Hello from ${siteConfig.title}`}
-      description="Description will go into a meta tag in <head />"
-    >
+    <Layout title={`${siteConfig.title}`} description="Write videos in React">
       <header className={clsx("hero hero--primary", styles.heroBanner)}>
         <div className="container">
-          <h1 className="hero__title">{siteConfig.title}</h1>
-          <p className="hero__subtitle">{siteConfig.tagline}</p>
+          <h1 className="hero__title" style={{ color: "white" }}>
+            {siteConfig.title}
+          </h1>
+          <p className="hero__subtitle" style={{ color: "white" }}>
+            {siteConfig.tagline}
+          </p>
+          <div>
+            <StartPageExplainer
+              img="img/vscode.png"
+              text="Write your videos using React 17 and Typescript."
+            />
+            <StartPageExplainer
+              img="img/editor.png"
+              text="Preview your video in the browser with Fast Refresh and Timeline."
+            />
+          </div>
           <div className={styles.buttons}>
             <Link
               className={clsx(
                 "button button--outline button--secondary button--lg",
                 styles.getStarted
               )}
+              style={{ color: "white" }}
               to={useBaseUrl("docs/")}
             >
               Get Started

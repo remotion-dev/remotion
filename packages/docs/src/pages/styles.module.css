@@ -22,6 +22,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  margin-top: 50px;
 }
 
 .features {
@@ -33,5 +34,9 @@
 
 .featureImage {
   height: 200px;
-  width: 200px;
+  width: 300px;
+}
+
+.container * {
+  color: white;
 }
