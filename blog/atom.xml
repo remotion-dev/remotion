@@ -2,30 +2,16 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://remotion.dev/blog</id>
     <title>Remotion Blog</title>
-    <updated>2019-05-30T00:00:00.000Z</updated>
+    <updated>2021-01-01T00:00:00.000Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://remotion.dev/blog"/>
     <subtitle>Remotion Blog</subtitle>
     <icon>https://remotion.dev/img/logo-small.png</icon>
     <entry>
-        <title type="html"><![CDATA[Welcome]]></title>
-        <id>welcome</id>
-        <link href="https://remotion.dev/blog/welcome"/>
-        <updated>2019-05-30T00:00:00.000Z</updated>
-        <summary type="html"><![CDATA[Blog features are powered by the blog plugin. Simply add files to the blog directory. It supports tags as well!]]></summary>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[Hello]]></title>
-        <id>hello-world</id>
-        <link href="https://remotion.dev/blog/hello-world"/>
-        <updated>2019-05-29T00:00:00.000Z</updated>
-        <summary type="html"><![CDATA[Welcome to this blog. This blog is created with Docusaurus 2 alpha.]]></summary>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[Hola]]></title>
-        <id>hola</id>
-        <link href="https://remotion.dev/blog/hola"/>
-        <updated>2019-05-28T00:00:00.000Z</updated>
-        <summary type="html"><![CDATA[Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque elementum dignissim ultricies. Fusce rhoncus ipsum tempor eros aliquam consequat. Lorem ipsum dolor sit amet]]></summary>
+        <title type="html"><![CDATA[Introducing Remotion]]></title>
+        <id>introducing-remotion</id>
+        <link href="https://remotion.dev/blog/introducing-remotion"/>
+        <updated>2021-01-01T00:00:00.000Z</updated>
+        <summary type="html"><![CDATA[I've been using After Effects for many years, but it's always been a dream of mine to code my videos instead. In the React ecosystem, I am used to being able to take advantage of powerful composition, reusability, to be able to customize the experience for every user. To use scripts, linters and external dependencies to make my life easier as a coder.]]></summary>
     </entry>
 </feed>
