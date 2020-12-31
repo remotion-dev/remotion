@@ -4,7 +4,7 @@ if (typeof window !== 'undefined') {
 
 let handles: number[] = [];
 
-export const deferRender = (): number => {
+export const delayRender = (): number => {
 	const handle = Math.random();
 	handles.push(handle);
 	if (typeof window !== 'undefined') {
@@ -13,7 +13,7 @@ export const deferRender = (): number => {
 	return handle;
 };
 
-export const readyToRender = (handle: number): void => {
+export const continueRender = (handle: number): void => {
 	handles = handles.filter((h) => h !== handle);
 	if (handles.length === 0 && typeof window !== 'undefined') {
 		window.ready = true;

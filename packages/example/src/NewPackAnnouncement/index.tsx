@@ -1,8 +1,8 @@
 import React, {useCallback, useEffect, useState} from 'react';
-import {deferRender, readyToRender, useCurrentFrame} from 'remotion';
+import {continueRender, delayRender, useCurrentFrame} from 'remotion';
 import styled from 'styled-components';
 
-const handle = deferRender();
+const handle = delayRender();
 
 const Title = styled.div`
 	font-size: 80px;
@@ -59,7 +59,7 @@ export const Rating: React.FC = () => {
 	}, []);
 
 	useEffect(() => {
-		readyToRender(handle);
+		continueRender(handle);
 	}, [data]);
 
 	useEffect(() => {
