@@ -1,5 +1,5 @@
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
-import {deferRender, readyToRender} from '../defer-ready';
+import {continueRender, delayRender} from '../ready-manager';
 import {useCurrentFrame} from '../use-frame';
 import {useUnsafeVideoConfig} from '../use-unsafe-video-config';
 import {AllowedVideoProps} from './props';
@@ -9,7 +9,7 @@ export const VideoForRendering: React.FC<AllowedVideoProps> = (props) => {
 	const [currentFrameSet, setCurrentFrameSet] = useState(false);
 
 	const [handle] = useState(() => {
-		return deferRender();
+		return delayRender();
 	});
 
 	const currentFrame = useCurrentFrame();
@@ -33,7 +33,7 @@ export const VideoForRendering: React.FC<AllowedVideoProps> = (props) => {
 		videoRef.current.addEventListener(
 			'seeked',
 			() => {
-				readyToRender(handle);
+				continueRender(handle);
 			},
 			{once: true}
 		);
