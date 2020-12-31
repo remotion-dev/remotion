@@ -34,6 +34,10 @@ export const startServer = async (
 		})
 	);
 
+	app.use('favicon.png', (req, res) => {
+		res.sendFile(path.join(__dirname, '..', 'web', 'favicon.png'));
+	});
+
 	app.use('*', (req, res) => {
 		res.sendFile(path.join(__dirname, '..', 'web', 'index.html'));
 	});
