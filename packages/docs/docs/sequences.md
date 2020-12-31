@@ -1,5 +1,5 @@
 ---
-id: sequences
+id: reusability
 title: Reuse components using Sequences
 sidebar_label: Reuse components
 ---
@@ -59,3 +59,7 @@ export const MyVideo = () => {
 
 You should see two titles appearing after each other. Titles which are not shown during a frame are unmounted.
 This is why the layout did not shift (as it does in HTML) when you added a second title. If you want the titles to overlap in time, use absolute positioning if necessary.
+
+## See also
+
+- [`<Sequence>` component](sequence)

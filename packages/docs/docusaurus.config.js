@@ -5,9 +5,9 @@ module.exports = {
   baseUrl: "/",
   onBrokenLinks: "throw",
   onBrokenMarkdownLinks: "warn",
-  favicon: "img/favicon.ico",
+  favicon: "img/logo-small.png",
   organizationName: "JonnyBurger", // Usually your GitHub org/user name.
-  projectName: "docusaurus", // Usually your repo name.
+  projectName: "remotion", // Usually your repo name.
   themeConfig: {
     prism: {
       theme: require("prism-react-renderer/themes/github"),
@@ -16,8 +16,8 @@ module.exports = {
     navbar: {
       title: "Remotion",
       logo: {
-        alt: "My Site Logo",
-        src: "img/logo.svg",
+        alt: "Remotion logo",
+        src: "img/logo-small.png",
       },
       items: [
         {
@@ -28,7 +28,7 @@ module.exports = {
         },
         { to: "blog", label: "Blog", position: "left" },
         {
-          href: "https://github.com/JonnyBur/docusaurus",
+          href: "https://github.com/JonnyBurger/remotion",
           label: "GitHub",
           position: "right",
         },
@@ -44,22 +44,22 @@ module.exports = {
               label: "Getting started",
               to: "docs/",
             },
+            {
+              label: "API reference",
+              to: "docs/cli",
+            },
           ],
         },
         {
           title: "Community",
           items: [
             {
-              label: "Stack Overflow",
-              href: "https://stackoverflow.com/questions/tagged/docusaurus",
-            },
-            {
-              label: "Discord",
-              href: "https://discordapp.com/invite/docusaurus",
-            },
-            {
               label: "Twitter",
-              href: "https://twitter.com/docusaurus",
+              href: "https://twitter.com/JonnyBurger",
+            },
+            {
+              label: "Github Issues",
+              href: "https://github.com/JonnyBurger/remotion/issues",
             },
           ],
         },
@@ -72,7 +72,7 @@ module.exports = {
             },
             {
               label: "GitHub",
-              href: "https://github.com/facebook/docusaurus",
+              href: "https://github.com/JonnyBurger/remotion",
             },
           ],
         },

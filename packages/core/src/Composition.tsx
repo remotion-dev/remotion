@@ -19,7 +19,7 @@ type Props<T> = {
 	fps: number;
 	durationInFrames: number;
 	name: string;
-	props?: T;
+	defaultProps?: T;
 } & CompProps<T>;
 
 export const Composition = <T,>({
@@ -28,7 +28,7 @@ export const Composition = <T,>({
 	fps,
 	durationInFrames,
 	name,
-	props,
+	defaultProps: props,
 	...compProps
 }: Props<T>) => {
 	const {registerComposition, unregisterComposition} = useContext(
