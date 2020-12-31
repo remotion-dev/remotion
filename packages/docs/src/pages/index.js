@@ -5,7 +5,6 @@ import Link from "@docusaurus/Link";
 import useDocusaurusContext from "@docusaurus/useDocusaurusContext";
 import useBaseUrl from "@docusaurus/useBaseUrl";
 import styles from "./styles.module.css";
-import { StartPageExplainer } from "./start-page-explainer";
 
 const features = [
   {
@@ -107,6 +106,20 @@ function Home() {
         )}
       </main>
     </Layout>
+  );
+}
+
+function StartPageExplainer(props) {
+  return (
+    <div style={{ display: "inline-block", textAlign: "center" }}>
+      <img
+        src={props.img}
+        alt="Screenshot Remotion Player"
+        style={{ maxHeight: 400 }}
+      />
+      <br />
+      <div style={{ color: "white", fontSize: 14 }}>{props.text}</div>
+    </div>
   );
 }
 
