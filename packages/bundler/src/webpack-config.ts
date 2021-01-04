@@ -72,7 +72,7 @@ export const webpackConfig = ({
 	module: {
 		rules: [
 			{
-				test: /\.(png|svg|jpg|gif|webm|mp4)$/,
+				test: /\.(png|svg|jpg|gif|webm|mp4|mp3|wav|aac)$/,
 				use: [
 					{
 						loader: require.resolve('file-loader'),
