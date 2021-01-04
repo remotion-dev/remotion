@@ -1331,10 +1331,7 @@
       "./node_modules/typescript/lib/lib.es5.d.ts",
       "./node_modules/typescript/lib/lib.esnext.intl.d.ts",
       "./src/get-concurrency.ts",
-      "./src/index.ts",
-      "./src/render.ts",
-      "./src/stitcher.ts",
-      "./src/validate-ffmpeg.ts"
+      "./src/stitcher.ts"
     ]
   },
   "version": "4.1.2"
