@@ -30,5 +30,5 @@ export const VideoForDevelopment: React.FC<AllowedVideoProps> = (props) => {
 		}
 	}, [currentFrame, playing, videoConfig]);
 
-	return <video ref={videoRef} {...props} />;
+	return <video ref={videoRef} muted {...props} />;
 };
