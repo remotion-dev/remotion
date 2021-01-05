@@ -25,9 +25,9 @@ export const RemotionRoot: React.FC = ({children}) => {
 
 	const registerComposition = useCallback(<T,>(comp: TComposition<T>) => {
 		setCompositions((comps) => {
-			if (comps.find((c) => c.name === comp.name)) {
+			if (comps.find((c) => c.id === comp.id)) {
 				throw new Error(
-					`Multiple composition with name ${comp.name} are registered.`
+					`Multiple composition with id ${comp.id} are registered.`
 				);
 			}
 			return [...comps, comp];
@@ -40,9 +40,9 @@ export const RemotionRoot: React.FC = ({children}) => {
 		});
 	}, []);
 
-	const unregisterComposition = useCallback((name: string) => {
+	const unregisterComposition = useCallback((id: string) => {
 		setCompositions((comps) => {
-			return comps.filter((c) => c.name !== name);
+			return comps.filter((c) => c.id !== id);
 		});
 	}, []);
 

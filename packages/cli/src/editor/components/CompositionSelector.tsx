@@ -42,9 +42,9 @@ export const CompositionSelector: React.FC = () => {
 
 	const selectComposition = useCallback(
 		(c: TComposition) => {
-			window.history.pushState({}, 'Preview', `/${c.name}`);
+			window.history.pushState({}, 'Preview', `/${c.id}`);
 			setCurrentFrame(0);
-			setCurrentComposition(c.name);
+			setCurrentComposition(c.id);
 		},
 		[setCurrentComposition, setCurrentFrame]
 	);
@@ -62,13 +62,13 @@ export const CompositionSelector: React.FC = () => {
 				{compositions.map((c) => {
 					return (
 						<Item
-							key={c.name}
-							selected={currentComposition === c.name}
+							key={c.id}
+							selected={currentComposition === c.id}
 							onClick={() => {
 								selectComposition(c);
 							}}
 						>
-							{c.name}
+							{c.id}
 						</Item>
 					);
 				})}

@@ -7,7 +7,7 @@ export const RemotionVideo: React.FC = () => {
 	return (
 		<>
 			<Composition
-				name="HelloWorld"
+				id="HelloWorld"
 				component={HelloWorld}
 				durationInFrames={150}
 				fps={30}
@@ -19,7 +19,7 @@ export const RemotionVideo: React.FC = () => {
 				}}
 			/>
 			<Composition
-				name="Logo"
+				id="Logo"
 				component={Logo}
 				durationInFrames={200}
 				fps={30}
@@ -27,7 +27,7 @@ export const RemotionVideo: React.FC = () => {
 				height={1080}
 			/>
 			<Composition
-				name="Title"
+				id="Title"
 				component={Subtitle}
 				durationInFrames={100}
 				fps={30}
