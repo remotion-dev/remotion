@@ -7,7 +7,12 @@ module.exports = {
       "reusability",
       "render",
     ],
-    Techniques: ["data-fetching", "ssr", "anti-patterns"],
+    Techniques: [
+      "data-fetching",
+      "parametrized-rendering",
+      "ssr",
+      "anti-patterns",
+    ],
     Reference: [
       "cli",
       "continue-render",
