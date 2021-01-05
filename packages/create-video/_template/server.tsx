@@ -33,7 +33,7 @@ app.get('/', async (req, res) => {
 		}
 		await import('./src/index');
 		const comps = await evaluateRootForCompositions();
-		const video = comps.find((c) => c.name === videoName);
+		const video = comps.find((c) => c.id === videoName);
 		if (!video) {
 			throw new Error(`No video called ${videoName}`);
 		}
