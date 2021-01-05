@@ -9,7 +9,7 @@ export const getVideoName = (comps: TComposition<unknown>[]) => {
 		console.log(
 			'Pass an extra argument <video-name>. The following video names are available:'
 		);
-		console.log(`${comps.map((c) => c.name).join(', ')}`);
+		console.log(`${comps.map((c) => c.id).join(', ')}`);
 		process.exit(1);
 	}
 	return videoName._[0];

@@ -53,8 +53,8 @@ const GetVideo = () => {
 		if (!video && compositions.compositions.length > 0) {
 			compositions.setCurrentComposition(
 				(compositions.compositions.find(
-					(c) => c.name === getCompositionName()
-				) as TComposition)?.name
+					(c) => c.id === getCompositionName()
+				) as TComposition)?.id
 			);
 		}
 	}, [compositions, compositions.compositions, video]);

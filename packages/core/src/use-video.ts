@@ -5,7 +5,7 @@ export const useVideo = () => {
 	const context = useContext(CompositionManager);
 	return (
 		context.compositions.find((c) => {
-			return c.name === context.currentComposition;
+			return c.id === context.currentComposition;
 		}) ?? null
 	);
 };

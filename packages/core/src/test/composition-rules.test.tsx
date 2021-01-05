@@ -6,7 +6,7 @@ import {expectToThrow} from './expect-to-throw';
 
 const AnyComp: React.FC = () => null;
 
-test('It should report invalid component name', () => {
+test('It should report invalid component id', () => {
 	expectToThrow(
 		() =>
 			render(
@@ -15,7 +15,7 @@ test('It should report invalid component name', () => {
 					durationInFrames={100}
 					fps={30}
 					height={100}
-					name="invalid@name"
+					id="invalid@id"
 					width={100}
 				/>
 			),
@@ -23,7 +23,7 @@ test('It should report invalid component name', () => {
 	);
 });
 
-test('It should validate the component name', () => {
+test('It should validate the component id', () => {
 	expect(() =>
 		render(
 			<Composition
@@ -31,14 +31,14 @@ test('It should validate the component name', () => {
 				durationInFrames={100}
 				fps={30}
 				height={100}
-				name="valid-name"
+				id="valid-id"
 				width={100}
 			/>
 		)
 	).not.toThrow();
 });
 
-test('It should throw if no name is passed', () => {
+test('It should throw if no id is passed', () => {
 	expectToThrow(
 		() =>
 			render(
@@ -51,11 +51,11 @@ test('It should throw if no name is passed', () => {
 					width={100}
 				/>
 			),
-		/No name for composition passed./
+		/No id for composition passed./
 	);
 });
 
-test('It should throw if multiple components have the same name', () => {
+test('It should throw if multiple components have the same id', () => {
 	expectToThrow(
 		() =>
 			render(
@@ -66,7 +66,7 @@ test('It should throw if multiple components have the same name', () => {
 						fps={30}
 						height={100}
 						width={100}
-						name="name"
+						id="id"
 					/>
 					<Composition
 						lazyComponent={() => Promise.resolve({default: AnyComp})}
@@ -74,10 +74,10 @@ test('It should throw if multiple components have the same name', () => {
 						fps={30}
 						height={100}
 						width={100}
-						name="name"
+						id="id"
 					/>
 				</RemotionRoot>
 			),
-		/Multiple composition with name name/
+		/Multiple composition with id id/
 	);
 });

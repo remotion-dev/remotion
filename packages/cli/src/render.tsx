@@ -40,13 +40,13 @@ export const render = async (fullPath: string, comps: TComposition[]) => {
 	const steps = renderMode === 'png-sequence' ? 2 : 3;
 	process.stdout.write(`📦 (1/${steps}) Bundling video...\n`);
 	const videoName = getVideoName(comps);
-	const comp = comps.find((c) => c.name === videoName);
+	const comp = comps.find((c) => c.id === videoName);
 
 	if (!comp) {
 		console.log(
 			`Could not find video with the name ${videoName}. The following videos are available: `
 		);
-		console.log(`${comps.map((c) => c.name).join(', ')}`);
+		console.log(`${comps.map((c) => c.id).join(', ')}`);
 		process.exit(1);
 	}
 	const config: VideoConfig = {
