@@ -6,7 +6,7 @@ export const Index: React.FC = () => {
 	return (
 		<>
 			<Composition
-				name="nested"
+				id="nested"
 				lazyComponent={() => import('./NestedSequences')}
 				durationInFrames={200}
 				fps={60}
@@ -14,7 +14,7 @@ export const Index: React.FC = () => {
 				width={1080}
 			/>
 			<Composition
-				name="hey"
+				id="hey"
 				lazyComponent={() => import('./3DText')}
 				durationInFrames={200}
 				fps={60}
@@ -22,7 +22,7 @@ export const Index: React.FC = () => {
 				width={1080}
 			/>
 			<Composition
-				name="any"
+				id="any"
 				component={Any}
 				width={1080}
 				height={1080}
@@ -30,7 +30,7 @@ export const Index: React.FC = () => {
 				durationInFrames={3 * 30}
 			/>
 			<Composition
-				name="beta-text"
+				id="beta-text"
 				lazyComponent={() => import('./BetaText')}
 				width={1080}
 				height={1080}
@@ -38,7 +38,7 @@ export const Index: React.FC = () => {
 				durationInFrames={3 * 30}
 			/>
 			<Composition
-				name="big-rotate"
+				id="big-rotate"
 				lazyComponent={() => import('./BigRotate')}
 				width={1080}
 				height={1080}
@@ -46,7 +46,7 @@ export const Index: React.FC = () => {
 				durationInFrames={3 * 30}
 			/>
 			<Composition
-				name="black-gradients"
+				id="black-gradients"
 				lazyComponent={() => import('./BlackGradients')}
 				width={1080}
 				height={1080}
@@ -54,7 +54,7 @@ export const Index: React.FC = () => {
 				durationInFrames={30}
 			/>
 			<Composition
-				name="end-logo"
+				id="end-logo"
 				lazyComponent={() => import('./Circle')}
 				width={1080}
 				height={1920}
@@ -62,7 +62,7 @@ export const Index: React.FC = () => {
 				durationInFrames={3 * 30}
 			/>
 			<Composition
-				name="coin-animation"
+				id="coin-animation"
 				lazyComponent={() => import('./CoinAnimation')}
 				width={100}
 				height={200}
@@ -70,7 +70,7 @@ export const Index: React.FC = () => {
 				durationInFrames={70}
 			/>
 			<Composition
-				name="devices"
+				id="devices"
 				lazyComponent={() => import('./Devices')}
 				width={1080}
 				height={1920}
@@ -78,7 +78,7 @@ export const Index: React.FC = () => {
 				durationInFrames={3 * 30}
 			/>
 			<Composition
-				name="features"
+				id="features"
 				lazyComponent={() => import('./Features')}
 				width={1080}
 				height={1080}
@@ -86,7 +86,7 @@ export const Index: React.FC = () => {
 				durationInFrames={4 * 30}
 			/>
 			<Composition
-				name="font"
+				id="font"
 				lazyComponent={() => import('./Font')}
 				width={1080}
 				height={1080}
@@ -94,7 +94,7 @@ export const Index: React.FC = () => {
 				durationInFrames={30 * 30}
 			/>
 			<Composition
-				name="game-changer"
+				id="game-changer"
 				lazyComponent={() => import('./GameChanger/gamechanger')}
 				width={1920 * 2}
 				height={1080 * 2}
@@ -102,7 +102,7 @@ export const Index: React.FC = () => {
 				durationInFrames={2 * 30}
 			/>
 			<Composition
-				name="game-changer-2"
+				id="game-changer-2"
 				lazyComponent={() => import('./GameChanger')}
 				width={1920 * 2}
 				height={1080 * 2}
@@ -110,7 +110,7 @@ export const Index: React.FC = () => {
 				durationInFrames={2 * 30}
 			/>
 			<Composition
-				name="hacker-logo"
+				id="hacker-logo"
 				lazyComponent={() => import('./HackerLogo')}
 				width={1024}
 				height={1024}
@@ -118,7 +118,7 @@ export const Index: React.FC = () => {
 				durationInFrames={1}
 			/>
 			<Composition
-				name="layout"
+				id="layout"
 				lazyComponent={() => import('./Layout')}
 				width={1080}
 				height={1920}
@@ -126,7 +126,7 @@ export const Index: React.FC = () => {
 				durationInFrames={3 * 30}
 			/>
 			<Composition
-				name="rating"
+				id="rating"
 				lazyComponent={() => import('./NewPackAnnouncement')}
 				width={1080}
 				height={1920}
@@ -134,7 +134,7 @@ export const Index: React.FC = () => {
 				durationInFrames={7 * 30}
 			/>
 			<Composition
-				name="react-svg"
+				id="react-svg"
 				lazyComponent={() => import('./ReactSvg')}
 				width={1920}
 				height={1080}
@@ -142,7 +142,7 @@ export const Index: React.FC = () => {
 				durationInFrames={300}
 			/>
 			<Composition
-				name="real-stickers"
+				id="real-stickers"
 				lazyComponent={() => import('./RealStickers')}
 				width={1080}
 				height={1920}
@@ -150,7 +150,7 @@ export const Index: React.FC = () => {
 				durationInFrames={30 * 2.2}
 			/>
 			<Composition
-				name="screen-showcase"
+				id="screen-showcase"
 				lazyComponent={() => import('./ScreenShowcase')}
 				width={1080}
 				height={1920}
@@ -158,7 +158,7 @@ export const Index: React.FC = () => {
 				durationInFrames={100}
 			/>
 			<Composition
-				name="shadow-circles"
+				id="shadow-circles"
 				lazyComponent={() => import('./ShadowCircles')}
 				width={1080}
 				height={1920}
@@ -166,7 +166,7 @@ export const Index: React.FC = () => {
 				durationInFrames={60}
 			/>
 			<Composition
-				name="springy"
+				id="springy"
 				lazyComponent={() => import('./Springy')}
 				width={1080}
 				height={1920}
@@ -174,7 +174,7 @@ export const Index: React.FC = () => {
 				durationInFrames={60}
 			/>
 			<Composition
-				name="stagger-type"
+				id="stagger-type"
 				lazyComponent={() => import('./StaggerType')}
 				width={1080}
 				height={1080}
@@ -182,7 +182,7 @@ export const Index: React.FC = () => {
 				durationInFrames={45}
 			/>
 			<Composition
-				name="tiles"
+				id="tiles"
 				lazyComponent={() => import('./Tiles')}
 				width={1080}
 				height={1920}
@@ -190,7 +190,7 @@ export const Index: React.FC = () => {
 				durationInFrames={90}
 			/>
 			<Composition
-				name="title"
+				id="title"
 				lazyComponent={() => import('./Title')}
 				width={1080}
 				height={1920}
@@ -198,7 +198,7 @@ export const Index: React.FC = () => {
 				durationInFrames={90}
 			/>
 			<Composition
-				name="up"
+				id="up"
 				lazyComponent={() => import('./Up')}
 				width={1080}
 				height={1080}
@@ -210,7 +210,7 @@ export const Index: React.FC = () => {
 				durationInFrames={120}
 			/>
 			<Composition
-				name="video"
+				id="video"
 				lazyComponent={() => import('./Vid')}
 				width={1080}
 				height={1080}
@@ -218,7 +218,7 @@ export const Index: React.FC = () => {
 				durationInFrames={30 * 30}
 			/>
 			<Composition
-				name="welcome"
+				id="welcome"
 				lazyComponent={() => import('./Welcome')}
 				width={1080}
 				height={1920}

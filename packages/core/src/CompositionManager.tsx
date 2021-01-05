@@ -5,7 +5,7 @@ export type TComposition<T = unknown> = {
 	height: number;
 	fps: number;
 	durationInFrames: number;
-	name: string;
+	id: string;
 	component: React.LazyExoticComponent<React.ComponentType<T>>;
 	props?: T;
 };
