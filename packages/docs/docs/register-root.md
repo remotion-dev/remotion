@@ -30,14 +30,14 @@ export const RemotionVideo = () => {
   return (
     <>
       <Composition
-        name="comp"
+        id="comp"
         fps={30}
         height={1080}
         width={1920}
         component={MyComponent}
       />
       <Composition
-        name="anothercomp"
+        id="anothercomp"
         fps={30}
         height={1080}
         width={1920}

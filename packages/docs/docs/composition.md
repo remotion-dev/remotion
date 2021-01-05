@@ -11,7 +11,7 @@ A `<Composition />` should be placed within a fragment of the root component (wh
 
 The component takes the following props:
 
-- `name`: Name, as shown in the sidebar and also the ID of the composition that you need to specify if you want to render it. The name can only contain letters, numbers and `-`.
+- `id`: ID of the composition, as shown in the sidebar and also a unique identifier of the composition that you need to specify if you want to render it. The ID can only contain letters, numbers and `-`.
 
 - `fps`: At how many frames the composition should be rendered.
 
@@ -46,7 +46,7 @@ export const MyVideo = () => {
   return (
     <>
       <Composition
-        name="my-comp"
+        id="my-comp"
         component={MyComp}
         width={1080}
         height={1080}
@@ -65,7 +65,7 @@ export const MyVideo = () => {
   return (
     <>
       <Composition
-        name="my-comp"
+        id="my-comp"
         lazyComponent={() => import('./LazyComponent')}
         width={1080}
         height={1080}
