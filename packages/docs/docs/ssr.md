@@ -86,6 +86,8 @@ const start = async () => {
 start();
 ```
 
+[See also: Passing props in Github Actions](parametrized-rendering#passing-props-in-github-actions)
+
 ## Render using a HTTP server
 
 In the [template](/docs#installation), we added a minimal example of an HTTP server that dynamically returns a video whenever you call the URL.
@@ -120,3 +122,5 @@ under `.github/workflows/render-video.yml`. All you have to do is to adjust the 
 6. After the rendering is finished, you can download the video under 'Artifacts'.
 
 Note that running the workflow may incur costs. However, the workflow will only run if you actively trigger it.
+
+[See also: Passing props in Github Actions](parametrized-rendering#passing-props-in-github-actions)
