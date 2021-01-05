@@ -18,7 +18,7 @@ type Props<T> = {
 	height: number;
 	fps: number;
 	durationInFrames: number;
-	name: string;
+	id: string;
 	defaultProps?: T;
 } & CompProps<T>;
 
@@ -27,7 +27,7 @@ export const Composition = <T,>({
 	height,
 	fps,
 	durationInFrames,
-	name,
+	id,
 	defaultProps: props,
 	...compProps
 }: Props<T>) => {
@@ -48,13 +48,13 @@ export const Composition = <T,>({
 	}, [compProps.lazyComponent, compProps.component]);
 
 	useEffect(() => {
-		// Ensure it's a URL safe name
-		if (!name) {
-			throw new Error('No name for composition passed.');
+		// Ensure it's a URL safe id
+		if (!id) {
+			throw new Error('No id for composition passed.');
 		}
-		if (!name.match(/^([a-zA-Z0-9-])+$/g)) {
+		if (!id.match(/^([a-zA-Z0-9-])+$/g)) {
 			throw new Error(
-				`Composition name can only contain a-z, A-Z, 0-9 and -. You passed ${name}`
+				`Composition id can only contain a-z, A-Z, 0-9 and -. You passed ${name}`
 			);
 		}
 		registerComposition<T>({
@@ -62,20 +62,20 @@ export const Composition = <T,>({
 			fps,
 			height,
 			width,
-			name,
+			id,
 			component: lazy,
 			props,
 		});
 
 		return () => {
-			unregisterComposition(name);
+			unregisterComposition(id);
 		};
 	}, [
 		durationInFrames,
 		fps,
 		height,
 		lazy,
-		name,
+		id,
 		props,
 		registerComposition,
 		unregisterComposition,
@@ -87,7 +87,7 @@ export const Composition = <T,>({
 			durationInFrames,
 			fps,
 			height,
-			name,
+			id,
 			width,
 		});
 	}

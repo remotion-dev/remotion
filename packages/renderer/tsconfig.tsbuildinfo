@@ -447,13 +447,13 @@
         "affectsGlobalScope": false
       },
       "../core/dist/composition.d.ts": {
-        "version": "a1b0c324010c8c74be4a4b39809b12089886231a0b76084d45a5598f9e7896fe",
-        "signature": "a1b0c324010c8c74be4a4b39809b12089886231a0b76084d45a5598f9e7896fe",
+        "version": "2032c075398bb0699098935f8aa966e1328b3258a59a5ea5f01bdf75c0b42cb8",
+        "signature": "2032c075398bb0699098935f8aa966e1328b3258a59a5ea5f01bdf75c0b42cb8",
         "affectsGlobalScope": false
       },
       "../core/dist/compositionmanager.d.ts": {
-        "version": "3076444030928ef9664c917291f3d84786daada74f13b02d406905e3ea237708",
-        "signature": "3076444030928ef9664c917291f3d84786daada74f13b02d406905e3ea237708",
+        "version": "bdb4521842d65cc0dd8747f7b908f48ffd7771928593ca37e78d9d81fad83809",
+        "signature": "bdb4521842d65cc0dd8747f7b908f48ffd7771928593ca37e78d9d81fad83809",
         "affectsGlobalScope": false
       },
       "../core/dist/easing.d.ts": {
@@ -1331,7 +1331,10 @@
       "./node_modules/typescript/lib/lib.es5.d.ts",
       "./node_modules/typescript/lib/lib.esnext.intl.d.ts",
       "./src/get-concurrency.ts",
-      "./src/stitcher.ts"
+      "./src/index.ts",
+      "./src/render.ts",
+      "./src/stitcher.ts",
+      "./src/validate-ffmpeg.ts"
     ]
   },
   "version": "4.1.2"
