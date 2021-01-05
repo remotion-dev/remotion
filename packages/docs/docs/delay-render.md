@@ -55,3 +55,7 @@ export const MyVideo = () => {
 :::info
 We didn't use `useCallback` in this example because performance optimizations like it are, in our opinion, [less useful in Remotion](anti-patterns#following-traditional-react-performance-patterns) than they are in regular React apps.
 :::
+
+## See also
+
+- [Data fetching](data-fetching)
