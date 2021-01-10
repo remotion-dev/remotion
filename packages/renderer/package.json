@@ -18,6 +18,8 @@
 	"dependencies": {
 		"@babel/preset-typescript": "^7.10.4",
 		"@remotion/bundler": "^1.0.0-y.86",
+		"@types/babel__core": "^7.1.12",
+		"@types/babel__template": "^7.4.0",
 		"@types/puppeteer": "^3.0.0",
 		"execa": "^4.0.2",
 		"prettier": "^2.0.5",
