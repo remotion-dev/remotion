@@ -72,6 +72,12 @@ export const webpackConfig = ({
 	module: {
 		rules: [
 			{
+				test: /\.(woff|woff2)$/,
+				use: {
+					loader: 'url-loader',
+				},
+			},
+			{
 				test: /\.css$/i,
 				use: ['style-loader', 'css-loader'],
 			},
