@@ -70,6 +70,7 @@ export const TimelineElements: React.FC = () => {
 																100
 														  }%)`,
 												color: 'white',
+												overflow: 'hidden',
 											}}
 											title={s.sequence.displayName}
 										>
