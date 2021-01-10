@@ -72,6 +72,10 @@ export const webpackConfig = ({
 	module: {
 		rules: [
 			{
+				test: /\.css$/i,
+				use: ['style-loader', 'css-loader'],
+			},
+			{
 				test: /\.(png|svg|jpg|gif|webm|mp4|mp3|wav|aac)$/,
 				use: [
 					{
