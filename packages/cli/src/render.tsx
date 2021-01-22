@@ -1,4 +1,5 @@
 import {
+	getActualConcurrency,
 	renderFrames,
 	stitchFramesToVideo,
 	validateFfmpeg,
@@ -76,7 +77,9 @@ export const render = async (fullPath: string, comps: TComposition[]) => {
 		outputDir,
 		onStart: () => {
 			process.stdout.write(
-				`📼 (2/${steps}) Rendering frames (${parallelism}x concurrency)...\n`
+				`📼 (2/${steps}) Rendering frames (${getActualConcurrency(
+					parallelism
+				)}x concurrency)...\n`
 			);
 			bar.start(frames, 0);
 		},
