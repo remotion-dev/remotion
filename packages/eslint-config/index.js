@@ -42,6 +42,12 @@ module.exports = {
     "react/prop-types": "off",
     "no-undef": "off",
     "no-shadow": "off",
+    "10x/auto-import": [
+      "error",
+      {
+        imports: require("./auto-import-rules"),
+      },
+    ],
   },
   settings: {
     react: {
