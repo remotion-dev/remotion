@@ -3,13 +3,10 @@ export const getTimelineClipName = (children: any, i = 0): string => {
 	const tree = arrays.map((ch) => {
 		// Must be name, not ID
 		const name = ch?.type?.name;
-		if (!name) {
-			return null;
-		}
-		const root = '  '.repeat(i) + name;
+		const root = name ? (('  '.repeat(i) + name) as string) : null;
 		if (ch.props.children) {
 			const chName = getTimelineClipName(children.props.children, i + 1);
-			return [root, chName].join('\n');
+			return [root, chName].filter(Boolean).join('\n');
 		}
 		return root;
 	});
