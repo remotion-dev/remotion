@@ -10,6 +10,11 @@ export type TComposition<T = unknown> = {
 	props?: T;
 };
 
+export type TCompMetadata = Pick<
+	TComposition,
+	'id' | 'height' | 'width' | 'fps' | 'durationInFrames'
+>;
+
 export type TSequence = {
 	from: number;
 	duration: number;

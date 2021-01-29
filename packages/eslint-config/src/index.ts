@@ -49,6 +49,8 @@ export = {
     // In Video.tsx we encourage using fragment for just a single composition
     // since we intend to add more compositions later and you should then use a fragment.
     "react/jsx-no-useless-fragment": "off",
+    // This is generally okay because on every frame, there will be a full rerender anyway!
+    "react/no-array-index-key": "off",
     "10x/auto-import": [
       "error",
       {
@@ -57,6 +59,8 @@ export = {
     ],
     // Enable Remotion specific rules
     "@remotion/no-mp4-import": "warn",
+    // Using `require` is useful for importing PNG sequences: require('frame' + frame + '.png')
+    "@typescript-eslint/no-var-requires": "off",
   },
   settings: {
     react: {

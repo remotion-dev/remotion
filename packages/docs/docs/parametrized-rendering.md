@@ -52,7 +52,7 @@ By using `React.FC`, you can ensure type safety and avoid errors caused by typos
 When rendering (for example using the `npm run build` script defined in `package.json`), you can override some or all default props by passing a CLI flag. It must be valid JSON, pay attention to quote escaping. Using this technique, no type safety can be guaranteed.
 
 ```bash
-ts-node render.ts HelloWorld helloworld.mp4 --props='{"propOne": "Hi", "propTwo": 10}'
+npx remotion render src/index.tsx HelloWorld helloworld.mp4 --props='{"propOne": "Hi", "propTwo": 10}'
 ```
 
 [See also: CLI flags](cli)
@@ -64,7 +64,7 @@ When server-rendering using `renderFrames`, you can pass props using the `userPr
 ```tsx {8-10}
 await renderFrames({
   config: video,
-  fullPath: require.resolve('./src/index'),
+  webpackBundle: bundled,
   onStart: () => void 0,
   onFrameUpdate: (f) => void 0,
   parallelism: null,
@@ -72,7 +72,7 @@ await renderFrames({
   userProps: {
     titleText: 'Hello World'
   },
-  videoName: 'HelloWorld',
+  compositionId: 'HelloWorld',
 });
 ```
 

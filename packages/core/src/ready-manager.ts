@@ -1,3 +1,5 @@
+import {TCompMetadata} from './CompositionManager';
+
 if (typeof window !== 'undefined') {
 	window.ready = false;
 }
@@ -23,5 +25,6 @@ export const continueRender = (handle: number): void => {
 declare global {
 	interface Window {
 		ready: boolean;
+		getStaticCompositions: () => TCompMetadata[];
 	}
 }
