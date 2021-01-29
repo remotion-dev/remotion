@@ -406,11 +406,6 @@
         "signature": "b34c331069f60595874a9d61a5e768d8175ccf234fd745e342f29ef341b184ca",
         "affectsGlobalScope": false
       },
-      "../core/dist/asset-types.d.ts": {
-        "version": "b4164b9ec1694aa151289ce748eb62339e0c34b45e3f62d446f2590f4875cae9",
-        "signature": "b4164b9ec1694aa151289ce748eb62339e0c34b45e3f62d446f2590f4875cae9",
-        "affectsGlobalScope": false
-      },
       "../core/node_modules/@types/react/global.d.ts": {
         "version": "ecf78e637f710f340ec08d5d92b3f31b134a46a4fcf2e758690d8c46ce62cba6",
         "signature": "ecf78e637f710f340ec08d5d92b3f31b134a46a4fcf2e758690d8c46ce62cba6",
@@ -542,8 +537,8 @@
         "affectsGlobalScope": false
       },
       "../core/dist/index.d.ts": {
-        "version": "f2be05fff61dd623c51e8d2a2425700bba758789d216d63fe85424d9c7bc6834",
-        "signature": "f2be05fff61dd623c51e8d2a2425700bba758789d216d63fe85424d9c7bc6834",
+        "version": "37e1871bbcf913465eb23b4dae4c8191fec4b5acf0935654c57c9ba666030ffd",
+        "signature": "37e1871bbcf913465eb23b4dae4c8191fec4b5acf0935654c57c9ba666030ffd",
         "affectsGlobalScope": false
       },
       "./src/render.ts": {
@@ -1300,7 +1295,6 @@
       "../bundler/dist/bundler.d.ts",
       "../bundler/dist/index.d.ts",
       "../core/dist/absolutefill.d.ts",
-      "../core/dist/asset-types.d.ts",
       "../core/dist/audio/audio.d.ts",
       "../core/dist/audio/index.d.ts",
       "../core/dist/audio/props.d.ts",
