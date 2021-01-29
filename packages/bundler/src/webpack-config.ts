@@ -82,7 +82,7 @@ export const webpackConfig = ({
 				use: ['style-loader', 'css-loader'],
 			},
 			{
-				test: /\.(png|svg|jpg|gif|webm|mp4|mp3|wav|aac)$/,
+				test: /\.(png|svg|jpg|jpeg|webp|gif|bmp|webm|mp4|mp3|wav|aac)$/,
 				use: [
 					{
 						loader: require.resolve('file-loader'),
