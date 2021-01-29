@@ -72,7 +72,7 @@ await renderFrames({
   userProps: {
     titleText: 'Hello World'
   },
-  videoName: 'HelloWorld',
+  compositionId: 'HelloWorld',
 });
 ```
 
