@@ -1,5 +1,7 @@
+import {bundle} from '@remotion/bundler';
 import {
 	getActualConcurrency,
+	getCompositions,
 	renderFrames,
 	stitchFramesToVideo,
 	validateFfmpeg,
@@ -8,15 +10,18 @@ import cliProgress from 'cli-progress';
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
-import {TComposition, VideoConfig} from 'remotion';
 import {getConcurrency} from './get-concurrency';
 import {getOutputFilename} from './get-filename';
 import {getOverwrite} from './get-overwrite';
 import {getRenderMode} from './get-render-mode';
 import {getUserProps} from './get-user-props';
-import {getVideoName} from './get-video-name';
+import {getVideoId} from './get-video-name';
 
-export const render = async (fullPath: string, comps: TComposition[]) => {
+export const render = async () => {
+	const args = process.argv;
+	const file = args[3];
+	const fullPath = path.join(process.cwd(), file);
+
 	const parallelism = getConcurrency();
 	const renderMode = getRenderMode();
 	const outputFile = getOutputFilename();
@@ -40,22 +45,15 @@ export const render = async (fullPath: string, comps: TComposition[]) => {
 	}
 	const steps = renderMode === 'png-sequence' ? 2 : 3;
 	process.stdout.write(`📦 (1/${steps}) Bundling video...\n`);
-	const videoName = getVideoName(comps);
-	const comp = comps.find((c) => c.id === videoName);
 
-	if (!comp) {
-		console.log(
-			`Could not find video with the name ${videoName}. The following videos are available: `
-		);
-		console.log(`${comps.map((c) => c.id).join(', ')}`);
-		process.exit(1);
+	const bundled = await bundle(fullPath);
+	const comps = await getCompositions(bundled);
+	const videoId = getVideoId(comps);
+
+	const config = comps.find((c) => c.id === videoId);
+	if (!config) {
+		throw new Error(`Cannot find composition with ID ${videoId}`);
 	}
-	const config: VideoConfig = {
-		durationInFrames: comp.durationInFrames,
-		fps: comp.fps,
-		height: comp.height,
-		width: comp.width,
-	};
 
 	const {durationInFrames: frames} = config;
 	const outputDir =
@@ -69,11 +67,10 @@ export const render = async (fullPath: string, comps: TComposition[]) => {
 		cliProgress.Presets.shades_grey
 	);
 	await renderFrames({
-		fullPath,
 		config,
 		onFrameUpdate: (f) => bar.update(f),
 		parallelism,
-		videoName,
+		videoName: videoId,
 		outputDir,
 		onStart: () => {
 			process.stdout.write(
@@ -84,6 +81,7 @@ export const render = async (fullPath: string, comps: TComposition[]) => {
 			bar.start(frames, 0);
 		},
 		userProps,
+		webpackBundle: bundled,
 	});
 	bar.stop();
 	process.stdout.write(`🧵 (3/${steps}) Stitching frames together...\n`);
