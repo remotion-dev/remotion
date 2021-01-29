@@ -1,6 +1,4 @@
 module.exports = {
-  xns: "import xns from 'xns'",
-  styled: "import styled from 'styled-components'",
   useRef: "import {useRef} from 'react'",
   useEffect: "import {useEffect} from 'react'",
   useState: "import {useState} from 'react'",
@@ -9,8 +7,11 @@ module.exports = {
   useReducer: "import {useReducer} from 'react'",
   useCurrentFrame: "import {useCurrentFrame} from 'remotion'",
   useVideoConfig: "import {useVideoConfig} from 'remotion'",
+  spring: "import {spring} from 'remotion'",
+  AbsoluteFill: "import {AbsoluteFill} from 'remotion'",
   Sequence: "import {Sequence} from 'remotion'",
   Composition: "import {Composition} from 'remotion'",
   Audio: "import {Audio} from 'remotion'",
   Video: "import {Video} from 'remotion'",
+  styled: "import styled from 'styled-components'",
 };
