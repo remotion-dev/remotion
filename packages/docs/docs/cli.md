@@ -6,7 +6,7 @@ id: cli
 The default command in package.json that powers `npm run build` is:
 
 ```bash
-ts-node render.ts <video-name> <output-location>
+npx remotion render <entry-file> <composition-id> <output-location>
 ```
 
 ## Flags

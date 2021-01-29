@@ -1,9 +1,10 @@
+import './asset-types';
+
 export * from './AbsoluteFill';
 export * from './audio';
 export * from './Composition';
 export * from './CompositionManager';
 export * from './easing';
-export * from './import-asset';
 export * from './interpolate';
 export * from './ready-manager';
 export * from './register-root';

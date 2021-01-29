@@ -141,11 +141,6 @@
         "signature": "89bf2b7a601b73ea4311eda9c41f86a58994fec1bee3b87c4a14d68d9adcdcbd",
         "affectsGlobalScope": true
       },
-      "./src/get-concurrency.ts": {
-        "version": "3afc6b6bfbf71a222ab1afa49ccbdffdec330b9bab3efd99851ce1ce450dee57",
-        "signature": "9f8ca5df7f218141d384d373e99c9ce3d8f48fddb96f945bb71ad77c98949d4a",
-        "affectsGlobalScope": false
-      },
       "./node_modules/@types/node/globals.d.ts": {
         "version": "215d8d9a2c480fd460127edc048d68d9931d3b27f95132253a6e71975f060bb1",
         "signature": "215d8d9a2c480fd460127edc048d68d9931d3b27f95132253a6e71975f060bb1",
@@ -396,14 +391,9 @@
         "signature": "e6d6a2e677810547ee595e350f08c7b932b8a024d12bfd257b3dbf6cbd93bbb1",
         "affectsGlobalScope": false
       },
-      "../bundler/dist/bundler.d.ts": {
-        "version": "0b103137f547c923e66a5fc86a981bd52a6d91fe6578af38dce336e4bfbb438f",
-        "signature": "0b103137f547c923e66a5fc86a981bd52a6d91fe6578af38dce336e4bfbb438f",
-        "affectsGlobalScope": false
-      },
-      "../bundler/dist/index.d.ts": {
-        "version": "b34c331069f60595874a9d61a5e768d8175ccf234fd745e342f29ef341b184ca",
-        "signature": "b34c331069f60595874a9d61a5e768d8175ccf234fd745e342f29ef341b184ca",
+      "../core/dist/asset-types.d.ts": {
+        "version": "07828bfe54a4fe6d82aa3d7aeec8f971e00d7185c61ca9518c4d2971cab45b62",
+        "signature": "07828bfe54a4fe6d82aa3d7aeec8f971e00d7185c61ca9518c4d2971cab45b62",
         "affectsGlobalScope": false
       },
       "../core/node_modules/@types/react/global.d.ts": {
@@ -452,8 +442,8 @@
         "affectsGlobalScope": false
       },
       "../core/dist/compositionmanager.d.ts": {
-        "version": "bdb4521842d65cc0dd8747f7b908f48ffd7771928593ca37e78d9d81fad83809",
-        "signature": "bdb4521842d65cc0dd8747f7b908f48ffd7771928593ca37e78d9d81fad83809",
+        "version": "fb8ecd1950335587880aea487e785710b173f11d62cf0bc45f7a70a5c156e364",
+        "signature": "fb8ecd1950335587880aea487e785710b173f11d62cf0bc45f7a70a5c156e364",
         "affectsGlobalScope": false
       },
       "../core/dist/easing.d.ts": {
@@ -467,13 +457,13 @@
         "affectsGlobalScope": false
       },
       "../core/dist/ready-manager.d.ts": {
-        "version": "bdf90085d3627fd7102522c599029b4fd59eb4c47ddd0465cea35582f8a8c7a1",
-        "signature": "bdf90085d3627fd7102522c599029b4fd59eb4c47ddd0465cea35582f8a8c7a1",
+        "version": "72e02305e0a065b54e5e7ac8697f1016afd4bdee57ecefe9a7f08877557e5c1e",
+        "signature": "72e02305e0a065b54e5e7ac8697f1016afd4bdee57ecefe9a7f08877557e5c1e",
         "affectsGlobalScope": true
       },
       "../core/dist/register-root.d.ts": {
-        "version": "b43f20086d97744bc5351edad0b1b367fe16fa4deec94aeab786949e3a4cfc6a",
-        "signature": "b43f20086d97744bc5351edad0b1b367fe16fa4deec94aeab786949e3a4cfc6a",
+        "version": "47bfb584f717b4e958a1f61e54e5df42949308feb35cfe4a418230478df80911",
+        "signature": "47bfb584f717b4e958a1f61e54e5df42949308feb35cfe4a418230478df80911",
         "affectsGlobalScope": false
       },
       "../core/dist/remotionroot.d.ts": {
@@ -537,13 +527,23 @@
         "affectsGlobalScope": false
       },
       "../core/dist/index.d.ts": {
-        "version": "37e1871bbcf913465eb23b4dae4c8191fec4b5acf0935654c57c9ba666030ffd",
-        "signature": "37e1871bbcf913465eb23b4dae4c8191fec4b5acf0935654c57c9ba666030ffd",
+        "version": "f2be05fff61dd623c51e8d2a2425700bba758789d216d63fe85424d9c7bc6834",
+        "signature": "f2be05fff61dd623c51e8d2a2425700bba758789d216d63fe85424d9c7bc6834",
+        "affectsGlobalScope": false
+      },
+      "./src/get-compositions.ts": {
+        "version": "4b77d396f0384e42fcb199107b4cbcd475c06ab9a9862cdd2585484613f93356",
+        "signature": "2b6d3529c3d44993d00dabd9ce6e55ba9c58d2f4fdfc6f4da632c6f9ee5dbdf5",
+        "affectsGlobalScope": false
+      },
+      "./src/get-concurrency.ts": {
+        "version": "3afc6b6bfbf71a222ab1afa49ccbdffdec330b9bab3efd99851ce1ce450dee57",
+        "signature": "9f8ca5df7f218141d384d373e99c9ce3d8f48fddb96f945bb71ad77c98949d4a",
         "affectsGlobalScope": false
       },
       "./src/render.ts": {
-        "version": "321bce0284b84a13758830905bd2a38187d41ae874ff341f454430b05f4e9aaa",
-        "signature": "72fa406fe57a1fe3d99aa15b68a957096fd57700672a378de67510f093e8b90b",
+        "version": "b26b450390bfff409ff5725e01354308ef8357c5926427ed6bc8c37f3907c0ca",
+        "signature": "7b4363beb971873b7212ba72458c02a187dc8440b9935b6c91cdafdc98f2b5a5",
         "affectsGlobalScope": false
       },
       "./node_modules/execa/index.d.ts": {
@@ -562,8 +562,8 @@
         "affectsGlobalScope": false
       },
       "./src/index.ts": {
-        "version": "ee512d1161f4d7534df4bb358ab2c5e13edb3305ee5a0eb107fdfa4bd7c05384",
-        "signature": "cd595a2098ad1887dff932dba610c3370c08fadb4715a5bb2333d6611f0a3581",
+        "version": "2b39e3edf54a8c827ba4c0c95884ffd13982d2ac41928601c084b67def33b767",
+        "signature": "725d1b1d6bcf83c8c9c46d33cf961be44b21ab516568815c202c263025141be4",
         "affectsGlobalScope": false
       },
       "./node_modules/@babel/types/lib/index.d.ts": {
@@ -663,9 +663,6 @@
       "configFilePath": "./tsconfig.json"
     },
     "referencedMap": {
-      "../bundler/dist/index.d.ts": [
-        "../bundler/dist/bundler.d.ts"
-      ],
       "../core/dist/absolutefill.d.ts": [
         "../core/node_modules/@types/react/index.d.ts"
       ],
@@ -705,6 +702,9 @@
         "../core/dist/use-video.d.ts",
         "../core/dist/video-config.d.ts",
         "../core/dist/video/index.d.ts"
+      ],
+      "../core/dist/ready-manager.d.ts": [
+        "../core/dist/compositionmanager.d.ts"
       ],
       "../core/dist/register-root.d.ts": [
         "../core/dist/compositionmanager.d.ts",
@@ -957,18 +957,22 @@
         "./node_modules/@types/node/index.d.ts",
         "./node_modules/@types/node/stream.d.ts"
       ],
+      "./src/get-compositions.ts": [
+        "../core/dist/index.d.ts",
+        "./node_modules/@types/puppeteer/index.d.ts"
+      ],
       "./src/get-concurrency.ts": [
         "./node_modules/@types/node/os.d.ts"
       ],
       "./src/index.ts": [
         "./node_modules/@types/puppeteer/index.d.ts",
+        "./src/get-compositions.ts",
         "./src/get-concurrency.ts",
         "./src/render.ts",
         "./src/stitcher.ts",
         "./src/validate-ffmpeg.ts"
       ],
       "./src/render.ts": [
-        "../bundler/dist/index.d.ts",
         "../core/dist/index.d.ts",
         "./node_modules/@types/node/path.d.ts",
         "./src/get-concurrency.ts",
@@ -984,9 +988,6 @@
       ]
     },
     "exportedModulesMap": {
-      "../bundler/dist/index.d.ts": [
-        "../bundler/dist/bundler.d.ts"
-      ],
       "../core/dist/absolutefill.d.ts": [
         "../core/node_modules/@types/react/index.d.ts"
       ],
@@ -1026,6 +1027,9 @@
         "../core/dist/use-video.d.ts",
         "../core/dist/video-config.d.ts",
         "../core/dist/video/index.d.ts"
+      ],
+      "../core/dist/ready-manager.d.ts": [
+        "../core/dist/compositionmanager.d.ts"
       ],
       "../core/dist/register-root.d.ts": [
         "../core/dist/compositionmanager.d.ts",
@@ -1279,8 +1283,12 @@
         "./node_modules/@types/node/index.d.ts",
         "./node_modules/@types/node/stream.d.ts"
       ],
+      "./src/get-compositions.ts": [
+        "../core/dist/index.d.ts"
+      ],
       "./src/index.ts": [
         "./node_modules/@types/puppeteer/index.d.ts",
+        "./src/get-compositions.ts",
         "./src/get-concurrency.ts",
         "./src/render.ts",
         "./src/stitcher.ts",
@@ -1292,9 +1300,8 @@
     },
     "semanticDiagnosticsPerFile": [
       "../../node_modules/@types/minimist/index.d.ts",
-      "../bundler/dist/bundler.d.ts",
-      "../bundler/dist/index.d.ts",
       "../core/dist/absolutefill.d.ts",
+      "../core/dist/asset-types.d.ts",
       "../core/dist/audio/audio.d.ts",
       "../core/dist/audio/index.d.ts",
       "../core/dist/audio/props.d.ts",
@@ -1414,6 +1421,7 @@
       "./node_modules/typescript/lib/lib.es2020.bigint.d.ts",
       "./node_modules/typescript/lib/lib.es5.d.ts",
       "./node_modules/typescript/lib/lib.esnext.intl.d.ts",
+      "./src/get-compositions.ts",
       "./src/get-concurrency.ts",
       "./src/index.ts",
       "./src/render.ts",
