@@ -61,7 +61,7 @@ app.get('/', async (req, res) => {
 			compositionId,
 		});
 
-		const finalOutput = path.join(tmpDir, 'out.mp4');
+		const finalOutput = path.join(tmpDir, `out.mp4`);
 		await stitchFramesToVideo({
 			dir: tmpDir,
 			force: true,
@@ -86,9 +86,9 @@ app.listen(port);
 console.log(
 	[
 		`The server has started on http://localhost:${port}!`,
-		'You can render a video by passing props as URL parameters.',
+		`You can render a video by passing props as URL parameters.`,
 		'',
-		'If you are running Hello World, try this:',
+		`If you are running Hello World, try this:`,
 		'',
 		`http://localhost:${port}?titleText=Hello,+World!&titleColor=red`,
 		'',
