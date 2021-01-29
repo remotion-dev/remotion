@@ -18,7 +18,7 @@ import path from 'path';
 
 const app = express();
 const port = 8000;
-const videoName = 'HelloWorld';
+const compositionId = 'HelloWorld';
 
 const cache = new Map<string, string>();
 
@@ -37,9 +37,9 @@ app.get('/', async (req, res) => {
 		}
 		const bundled = await bundle(path.join(__dirname, './src/index.tsx'));
 		const comps = await getCompositions(bundled);
-		const video = comps.find((c) => c.id === videoName);
+		const video = comps.find((c) => c.id === compositionId);
 		if (!video) {
-			throw new Error(`No video called ${videoName}`);
+			throw new Error(`No video called ${compositionId}`);
 		}
 		res.set('content-type', 'video/mp4');
 
@@ -58,10 +58,10 @@ app.get('/', async (req, res) => {
 			parallelism: null,
 			outputDir: tmpDir,
 			userProps: req.query,
-			videoName,
+			compositionId,
 		});
 
-		const finalOutput = path.join(tmpDir, `out.mp4`);
+		const finalOutput = path.join(tmpDir, 'out.mp4');
 		await stitchFramesToVideo({
 			dir: tmpDir,
 			force: true,
@@ -86,9 +86,9 @@ app.listen(port);
 console.log(
 	[
 		`The server has started on http://localhost:${port}!`,
-		`You can render a video by passing props as URL parameters.`,
+		'You can render a video by passing props as URL parameters.',
 		'',
-		`If you are running Hello World, try this:`,
+		'If you are running Hello World, try this:',
 		'',
 		`http://localhost:${port}?titleText=Hello,+World!&titleColor=red`,
 		'',

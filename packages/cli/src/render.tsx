@@ -10,12 +10,12 @@ import cliProgress from 'cli-progress';
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
+import {getCompositionId} from './get-composition-id';
 import {getConcurrency} from './get-concurrency';
 import {getOutputFilename} from './get-filename';
 import {getOverwrite} from './get-overwrite';
 import {getRenderMode} from './get-render-mode';
 import {getUserProps} from './get-user-props';
-import {getVideoId} from './get-video-name';
 
 export const render = async () => {
 	const args = process.argv;
@@ -48,11 +48,11 @@ export const render = async () => {
 
 	const bundled = await bundle(fullPath);
 	const comps = await getCompositions(bundled);
-	const videoId = getVideoId(comps);
+	const compositionId = getCompositionId(comps);
 
-	const config = comps.find((c) => c.id === videoId);
+	const config = comps.find((c) => c.id === compositionId);
 	if (!config) {
-		throw new Error(`Cannot find composition with ID ${videoId}`);
+		throw new Error(`Cannot find composition with ID ${compositionId}`);
 	}
 
 	const {durationInFrames: frames} = config;
@@ -70,7 +70,7 @@ export const render = async () => {
 		config,
 		onFrameUpdate: (f) => bar.update(f),
 		parallelism,
-		videoName: videoId,
+		compositionId,
 		outputDir,
 		onStart: () => {
 			process.stdout.write(
