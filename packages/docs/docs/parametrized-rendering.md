@@ -64,7 +64,7 @@ When server-rendering using `renderFrames`, you can pass props using the `userPr
 ```tsx {8-10}
 await renderFrames({
   config: video,
-  fullPath: require.resolve('./src/index'),
+  webpackBundle: bundled,
   onStart: () => void 0,
   onFrameUpdate: (f) => void 0,
   parallelism: null,
