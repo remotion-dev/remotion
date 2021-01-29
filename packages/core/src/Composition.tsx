@@ -2,7 +2,7 @@ import React, {ComponentType, useContext, useEffect, useMemo} from 'react';
 import {CompositionManager} from './CompositionManager';
 import {
 	addStaticComposition,
-	getShouldStaticallyReturnCompositions,
+	getIsEvaluation,
 	removeStaticComposition,
 } from './register-root';
 
@@ -68,7 +68,7 @@ export const Composition = <T,>({
 			props,
 		});
 
-		if (getShouldStaticallyReturnCompositions()) {
+		if (getIsEvaluation()) {
 			addStaticComposition({
 				component: lazy,
 				durationInFrames,

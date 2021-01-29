@@ -1,9 +1,8 @@
 import React from 'react';
 import {TCompMetadata, TComposition} from './CompositionManager';
-import {RemotionRoot} from './RemotionRoot';
 
 let root: React.FC | null = null;
-let shouldStaticallyReturnCompositions = true;
+
 // Ok to have components with various prop types
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 let staticCompositions: TComposition<any>[] = [];
@@ -18,27 +17,6 @@ export const registerRoot = (comp: React.FC) => {
 export const getRoot = () => {
 	return root;
 };
-
-export const evaluateRootForCompositions = async (): Promise<
-	TComposition[]
-> => {
-	shouldStaticallyReturnCompositions = true;
-	const Root = getRoot();
-	if (!Root) {
-		throw new Error('There is no root');
-	}
-	const {renderToStaticMarkup} = await import('react-dom/server');
-	const markup = (
-		<RemotionRoot>
-			<Root />
-		</RemotionRoot>
-	);
-	renderToStaticMarkup(markup);
-	return staticCompositions;
-};
-
-export const getShouldStaticallyReturnCompositions = () =>
-	shouldStaticallyReturnCompositions;
 
 export const addStaticComposition = <T,>(composition: TComposition<T>) => {
 	staticCompositions = [...staticCompositions, composition];
