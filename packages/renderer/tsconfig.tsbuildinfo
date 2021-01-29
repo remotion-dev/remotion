@@ -457,8 +457,8 @@
         "affectsGlobalScope": true
       },
       "../core/dist/register-root.d.ts": {
-        "version": "9c6377a65c40d49d23907ca7120e0b991b5bfd2bee66292faf255b7001abda1c",
-        "signature": "9c6377a65c40d49d23907ca7120e0b991b5bfd2bee66292faf255b7001abda1c",
+        "version": "47bfb584f717b4e958a1f61e54e5df42949308feb35cfe4a418230478df80911",
+        "signature": "47bfb584f717b4e958a1f61e54e5df42949308feb35cfe4a418230478df80911",
         "affectsGlobalScope": false
       },
       "../core/dist/remotionroot.d.ts": {
