@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/renderer",
-	"version": "1.0.0-y.102",
+	"version": "1.0.0-y.103",
 	"description": "Renderer for Remotion",
 	"main": "dist/index.js",
 	"scripts": {
@@ -23,7 +23,7 @@
 		"execa": "^4.0.2",
 		"prettier": "^2.0.5",
 		"puppeteer": "^4.0.0",
-		"remotion": "^1.0.0-y.102",
+		"remotion": "^1.0.0-y.103",
 		"typescript": "^4.1.2",
 		"webpack": "5.10.2",
 		"xns": "^2.0.7"
