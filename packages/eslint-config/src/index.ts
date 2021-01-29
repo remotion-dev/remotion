@@ -2,7 +2,7 @@ import xo = require("eslint-config-xo/esnext");
 import xoReact = require("eslint-config-xo-react");
 import { autoImports } from "./auto-import-rules";
 
-export default {
+export = {
   env: {
     browser: true,
     es6: true,
