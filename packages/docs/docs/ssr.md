@@ -27,7 +27,7 @@ import {
 
 const start = async () => {
   // The composition you want to render
-  const compositionName = 'HelloWorld';
+  const compositionId = 'HelloWorld';
 
   // Create a webpack bundle of the entry file.
   const bundled = await bundle(require.resolve('./src/index'));
@@ -37,7 +37,7 @@ const start = async () => {
   const comps = await getCompositions(bundled);
 
   // Select the composition you want to render.
-  const video = comps.find((c) => c.id === compositionName);
+  const video = comps.find((c) => c.id === compositionId);
 
   // We create a temporary directory for storing the frames
   const framesDir = await fs.promises.mkdtemp(
@@ -66,7 +66,7 @@ const start = async () => {
     userProps: {
       titleText: 'Hello World'
     },
-    videoName: compositionName,
+    compositionId,
   });
 
   // Add this step if you want to make an MP4 out of the rendered frames.

@@ -7,7 +7,7 @@ export const renderFrames = async ({
 	config,
 	parallelism,
 	onFrameUpdate,
-	videoName,
+	compositionId: compositionId,
 	outputDir,
 	onStart,
 	userProps,
@@ -17,7 +17,7 @@ export const renderFrames = async ({
 	parallelism?: number | null;
 	onFrameUpdate: (f: number) => void;
 	onStart: () => void;
-	videoName: string;
+	compositionId: string;
 	outputDir: string;
 	userProps: unknown;
 	webpackBundle: string;
@@ -61,7 +61,7 @@ export const renderFrames = async ({
 				const freePageIdx = await getFreePage();
 				try {
 					const freePage = pages[freePageIdx];
-					const site = `file://${webpackBundle}/index.html?composition=${videoName}&frame=${f}&props=${encodeURIComponent(
+					const site = `file://${webpackBundle}/index.html?composition=${compositionId}&frame=${f}&props=${encodeURIComponent(
 						JSON.stringify(userProps)
 					)}`;
 					await provideScreenshot(freePage, {
