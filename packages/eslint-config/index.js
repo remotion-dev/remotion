@@ -42,6 +42,9 @@ module.exports = {
     "react/prop-types": "off",
     "no-undef": "off",
     "no-shadow": "off",
+    // In Video.tsx we encourage using fragment for just a single composition
+    // since we intend to add more compositions later and you should then use a fragment.
+    "react/jsx-no-useless-fragment": "off",
     "10x/auto-import": [
       "error",
       {
