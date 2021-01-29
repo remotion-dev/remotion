@@ -1,5 +1,3 @@
-import './asset-types';
-
 export * from './AbsoluteFill';
 export * from './audio';
 export * from './Composition';
