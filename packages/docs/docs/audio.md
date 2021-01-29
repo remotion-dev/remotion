@@ -16,10 +16,9 @@ Use an import or require to load an audio file and pass it to the `src` props of
 
 ```tsx
 import {Audio} from 'remotion';
+import audio from './audio.mp4'
 
 export const MyVideo = () => {
-  const audio = require('./audio.mp4');
-
   return (
     <div>
       <div>Hello World!</div>
