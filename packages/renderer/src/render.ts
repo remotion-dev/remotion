@@ -1,11 +1,9 @@
-import {bundle} from '@remotion/bundler';
 import path from 'path';
 import {VideoConfig} from 'remotion';
 import {openBrowser, provideScreenshot} from '.';
 import {getActualConcurrency} from './get-concurrency';
 
 export const renderFrames = async ({
-	fullPath,
 	config,
 	parallelism,
 	onFrameUpdate,
@@ -13,8 +11,8 @@ export const renderFrames = async ({
 	outputDir,
 	onStart,
 	userProps,
+	webpackBundle,
 }: {
-	fullPath: string;
 	config: VideoConfig;
 	parallelism?: number | null;
 	onFrameUpdate: (f: number) => void;
@@ -22,12 +20,12 @@ export const renderFrames = async ({
 	videoName: string;
 	outputDir: string;
 	userProps: unknown;
+	webpackBundle: string;
 }) => {
 	const actualParallelism = getActualConcurrency(parallelism ?? null);
 	const busyPages = new Array(actualParallelism).fill(true).map(() => false);
 	const getBusyPages = () => busyPages;
 
-	const result = await bundle(fullPath);
 	const browser = await openBrowser();
 	const pages = await Promise.all(
 		new Array(actualParallelism).fill(true).map(() => browser.newPage())
@@ -63,7 +61,7 @@ export const renderFrames = async ({
 				const freePageIdx = await getFreePage();
 				try {
 					const freePage = pages[freePageIdx];
-					const site = `file://${result}/index.html?composition=${videoName}&frame=${f}&props=${encodeURIComponent(
+					const site = `file://${webpackBundle}/index.html?composition=${videoName}&frame=${f}&props=${encodeURIComponent(
 						JSON.stringify(userProps)
 					)}`;
 					await provideScreenshot(freePage, {

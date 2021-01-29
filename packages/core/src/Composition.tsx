@@ -3,6 +3,7 @@ import {CompositionManager} from './CompositionManager';
 import {
 	addStaticComposition,
 	getShouldStaticallyReturnCompositions,
+	removeStaticComposition,
 } from './register-root';
 
 type CompProps<T> =
@@ -67,8 +68,20 @@ export const Composition = <T,>({
 			props,
 		});
 
+		if (getShouldStaticallyReturnCompositions()) {
+			addStaticComposition({
+				component: lazy,
+				durationInFrames,
+				fps,
+				height,
+				id,
+				width,
+			});
+		}
+
 		return () => {
 			unregisterComposition(id);
+			removeStaticComposition(id);
 		};
 	}, [
 		durationInFrames,
@@ -81,16 +94,6 @@ export const Composition = <T,>({
 		unregisterComposition,
 		width,
 	]);
-	if (getShouldStaticallyReturnCompositions()) {
-		addStaticComposition({
-			component: lazy,
-			durationInFrames,
-			fps,
-			height,
-			id,
-			width,
-		});
-	}
 
 	return null;
 };
