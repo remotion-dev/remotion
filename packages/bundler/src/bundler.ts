@@ -10,14 +10,14 @@ const entry = require.resolve('./renderEntry');
 
 const promisified = promisify(webpack);
 
-export const bundle = async (userDefinedComponent: string): Promise<string> => {
+export const bundle = async (entryPoint: string): Promise<string> => {
 	const tmpDir = await fs.promises.mkdtemp(
 		path.join(os.tmpdir(), 'react-motion-graphics')
 	);
 	const output = await promisified([
 		webpackConfig({
 			entry,
-			userDefinedComponent,
+			userDefinedComponent: entryPoint,
 			outDir: tmpDir,
 			environment: 'production',
 		}),
