@@ -1,4 +1,4 @@
-module.exports = {
+export const autoImports = {
   useRef: "import {useRef} from 'react'",
   useEffect: "import {useEffect} from 'react'",
   useState: "import {useState} from 'react'",
