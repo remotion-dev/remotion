@@ -11,26 +11,30 @@ On this page, we demonstrate the server-rendering capabilities or Remotion using
 
 ## Render a video programmatically
 
-The NPM package `@remotion/renderer` provides you with an API for rendering the videos programmatically. You can make a video in two steps: rendering the frames, and stitching them together to an MP4. This gives you more independence and allows you to for example skip the stitching process, if you just want a PNG sequence.
+The NPM package `@remotion/renderer` provides you with an API for rendering the videos programmatically. You can make a video in three steps: creating a Webpack bundle, rendering the frames, and stitching them together to an MP4. This gives you more independence and allows you to for example skip the stitching process, if you just want a PNG sequence.
 
 Follow this commented example to see how to render a video:
 
 ```tsx
 import fs from 'fs';
 import {evaluateRootForCompositions} from 'remotion';
-import {renderFrames} from '@remotion/renderer';
+import {bundle} from '@remotion/bundler';
+import {
+	getCompositions,
+	renderFrames,
+	stitchFramesToVideo,
+} from '@remotion/renderer';
 
 const start = async () => {
   // The composition you want to render
   const compositionName = 'HelloWorld';
 
-  // Import the file that calls `registerRoot`.
-  // By default, this is a Typescript file, so
-  // run it using ts-node, unless you want to compile.
-  await import('./src/index');
+  // Create a webpack bundle of the entry file.
+  const bundled = await bundle(require.resolve('./src/index'));
 
-  // This method returns all compositions you defined.
-  const comps = await evaluateRootForCompositions();
+  // Extract all the compositions you have defined in your project
+  // from the webpack bundle.
+  const comps = await getCompositions(bundled);
 
   // Select the composition you want to render.
   const video = comps.find((c) => c.id === compositionName);
@@ -43,8 +47,8 @@ const start = async () => {
   // We create PNGs for all frames
   await renderFrames({
     config: video,
-    // Path of the index file, same as you have imported above
-    fullPath: require.resolve('./src/index'),
+    // Path of the webpack bundle you have created
+    webpackBundle: bundled,
     // Get's called after bundling is finished and the
     // actual rendering starts.
     onStart: () => console.log('Rendering frames...'),
@@ -66,7 +70,6 @@ const start = async () => {
   });
 
   // Add this step if you want to make an MP4 out of the rendered frames.
-  const finalOutput = path.join(tmpDir, `out.mp4`);
   await stitchFramesToVideo({
     // Input directory of the frames
     dir: tmpDir,
@@ -79,7 +82,7 @@ const start = async () => {
     height: video.height,
     width: video.width,
     // Pass in the desired output path of the video. Et voilà!
-    outputLocation: finalOutput,
+    outputLocation: path.join(tmpDir, 'out.mp4'),
   });
 };
 
