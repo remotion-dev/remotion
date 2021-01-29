@@ -12,6 +12,7 @@ import {
 	continueRender,
 	delayRender,
 	getCompositionName,
+	getIsEvaluation,
 	getRoot,
 	RemotionRoot,
 	TComposition,
@@ -50,11 +51,14 @@ const GetVideo = () => {
 	const userProps = getUserProps();
 
 	useEffect(() => {
+		if (getIsEvaluation()) {
+			return;
+		}
 		if (!video && compositions.compositions.length > 0) {
 			compositions.setCurrentComposition(
 				(compositions.compositions.find(
 					(c) => c.id === getCompositionName()
-				) as TComposition)?.id
+				) as TComposition)?.id ?? null
 			);
 		}
 	}, [compositions, compositions.compositions, video]);
@@ -74,7 +78,9 @@ const GetVideo = () => {
 	}, [fetchComponent, video]);
 
 	useEffect(() => {
-		if (Component) {
+		if (getIsEvaluation()) {
+			continueRender(handle);
+		} else if (Component) {
 			continueRender(handle);
 		}
 	}, [Component]);

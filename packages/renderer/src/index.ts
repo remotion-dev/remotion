@@ -73,6 +73,7 @@ export const provideScreenshot = async (
 	});
 };
 
+export * from './get-compositions';
 export * from './get-concurrency';
 export * from './render';
 export * from './stitcher';
