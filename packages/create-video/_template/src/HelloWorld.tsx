@@ -1,5 +1,4 @@
 import {interpolate, Sequence, useCurrentFrame, useVideoConfig} from 'remotion';
-import {DotGrid} from './HelloWorld/DotGrid';
 import {Logo} from './HelloWorld/Logo';
 import {Subtitle} from './HelloWorld/Subtitle';
 import {Title} from './HelloWorld/Title';
@@ -24,7 +23,6 @@ export const HelloWorld: React.FC<{
 
 	return (
 		<div style={{flex: 1, backgroundColor: 'white'}}>
-			<DotGrid />
 			<div style={{opacity}}>
 				<Sequence from={0} durationInFrames={videoConfig.durationInFrames}>
 					<Logo transitionStart={transitionStart} />
