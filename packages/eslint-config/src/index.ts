@@ -1,7 +1,8 @@
-const xo = require("eslint-config-xo/esnext");
-const xoReact = require("eslint-config-xo-react");
+import xo = require("eslint-config-xo/esnext");
+import xoReact = require("eslint-config-xo-react");
+import { autoImports } from "./auto-import-rules";
 
-module.exports = {
+export default {
   env: {
     browser: true,
     es6: true,
@@ -48,7 +49,7 @@ module.exports = {
     "10x/auto-import": [
       "error",
       {
-        imports: require("./auto-import-rules"),
+        imports: autoImports,
       },
     ],
   },
