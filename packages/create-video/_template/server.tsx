@@ -5,16 +5,20 @@
  * delete this file.
  */
 
-import {renderFrames, stitchFramesToVideo} from '@remotion/renderer';
+import {bundle} from '@remotion/bundler';
+import {
+	getCompositions,
+	renderFrames,
+	stitchFramesToVideo,
+} from '@remotion/renderer';
 import express from 'express';
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
-import {evaluateRootForCompositions} from 'remotion';
 
 const app = express();
 const port = 8000;
-const videoName = 'HelloWorld';
+const compositionId = 'HelloWorld';
 
 const cache = new Map<string, string>();
 
@@ -31,11 +35,11 @@ app.get('/', async (req, res) => {
 			sendFile(cache.get(JSON.stringify(req.query)) as string);
 			return;
 		}
-		await import('./src/index');
-		const comps = await evaluateRootForCompositions();
-		const video = comps.find((c) => c.id === videoName);
+		const bundled = await bundle(path.join(__dirname, './src/index.tsx'));
+		const comps = await getCompositions(bundled);
+		const video = comps.find((c) => c.id === compositionId);
 		if (!video) {
-			throw new Error(`No video called ${videoName}`);
+			throw new Error(`No video called ${compositionId}`);
 		}
 		res.set('content-type', 'video/mp4');
 
@@ -44,7 +48,7 @@ app.get('/', async (req, res) => {
 		);
 		await renderFrames({
 			config: video,
-			fullPath: require.resolve('./src/index'),
+			webpackBundle: bundled,
 			onStart: () => console.log('Rendering frames...'),
 			onFrameUpdate: (f) => {
 				if (f % 10 === 0) {
@@ -54,7 +58,7 @@ app.get('/', async (req, res) => {
 			parallelism: null,
 			outputDir: tmpDir,
 			userProps: req.query,
-			videoName,
+			compositionId,
 		});
 
 		const finalOutput = path.join(tmpDir, `out.mp4`);
@@ -68,6 +72,7 @@ app.get('/', async (req, res) => {
 		});
 		cache.set(JSON.stringify(req.query), finalOutput);
 		sendFile(finalOutput);
+		console.log('Video rendered and sent!');
 	} catch (err) {
 		console.error(err);
 		res.json({

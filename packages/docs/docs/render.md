@@ -12,7 +12,7 @@ npm run build
 The underlying command in package.json is defined as followed:
 
 ```bash
-ts-node render.ts HelloWorld out.mp4
+npx remotion render src/index.tsx HelloWorld out.mp4
 ```
 
 Modify it to select a different video to render, or change it's output location.
