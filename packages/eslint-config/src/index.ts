@@ -17,6 +17,7 @@ export = {
     "@typescript-eslint/eslint-plugin",
     "react",
     "10x",
+    "@remotion",
   ],
   extends: [
     "plugin:@typescript-eslint/recommended",
@@ -41,6 +42,8 @@ export = {
     "react/jsx-no-target-blank": "off",
     "react/jsx-tag-spacing": "off",
     "react/prop-types": "off",
+    // The following rules are handled by typescript-eslint
+    "no-unused-vars": "off",
     "no-undef": "off",
     "no-shadow": "off",
     // In Video.tsx we encourage using fragment for just a single composition
@@ -52,6 +55,8 @@ export = {
         imports: autoImports,
       },
     ],
+    // Enable Remotion specific rules
+    "@remotion/no-mp4-import": "warn",
   },
   settings: {
     react: {
