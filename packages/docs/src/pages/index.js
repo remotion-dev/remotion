@@ -60,7 +60,7 @@ function Home() {
   const { siteConfig = {} } = context;
   return (
     <Layout
-      title={`${siteConfig.title}`}
+      title="Write videos in React"
       description="Create MP4 motion graphics in React. Leverage CSS, SVG, WebGL and more technologies to render videos programmatically!"
     >
       <header className={clsx("hero hero--primary", styles.heroBanner)}>
