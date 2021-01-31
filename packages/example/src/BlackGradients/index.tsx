@@ -1,7 +1,7 @@
 import React from 'react';
 import {SvgBlob} from './Blob';
 
-export const BlackGradients = () => {
+const BlackGradients = () => {
 	return (
 		<div
 			style={{flex: 1, background: 'linear-gradient(to right, #222, #2a2a2a)'}}

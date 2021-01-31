@@ -1,7 +1,7 @@
 import React from 'react';
 import {TextComp} from './Text';
 
-export const Comp: React.FC = () => {
+const Comp: React.FC = () => {
 	return (
 		<div
 			style={{

@@ -2,7 +2,7 @@ import React from 'react';
 import {spring, SpringConfig, useCurrentFrame, useVideoConfig} from 'remotion';
 import {Single} from './Single';
 
-export const Devices = () => {
+const Devices = () => {
 	const videoConfig = useVideoConfig();
 	const frame = useCurrentFrame();
 	const springConfig: SpringConfig = {
