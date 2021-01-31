@@ -3,6 +3,7 @@ module.exports = {
   tagline: "Create motion graphics in React",
   url: "https://remotion.dev",
   baseUrl: "/",
+  twitterImage: "img/social-preview.png",
   onBrokenLinks: "throw",
   onBrokenMarkdownLinks: "warn",
   favicon: "img/logo-small.png",
@@ -88,13 +89,13 @@ module.exports = {
           sidebarPath: require.resolve("./sidebars.js"),
           // Please change this to your repo.
           editUrl:
-            "https://github.com/facebook/docusaurus/edit/master/website/",
+            "https://github.com/JonnyBurger/remotion/edit/master/packages/docs/",
         },
         blog: {
           showReadingTime: true,
           // Please change this to your repo.
           editUrl:
-            "https://github.com/facebook/docusaurus/edit/master/website/blog/",
+            "https://github.com/Jonnyburger/remotion/edit/master/packages/docs/blog/",
         },
         theme: {
           customCss: require.resolve("./src/css/custom.css"),
