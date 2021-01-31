@@ -17,6 +17,8 @@ Remotion is a suite of libraries building a fundament for **creating videos prog
 - **Remotion Trailer** [Watch](https://www.youtube.com/watch?v=1UU_GEQuolI) • [Source code](https://github.com/JonnyBurger/remotion-trailer) • The announcement video for Remotion was written in Remotion itself!
 - **AnySticker Welcome Video** [Watch](https://www.youtube.com/watch?v=Y0SNPeTz09w) • [Source code](https://github.com/JonnyBurger/anysticker-tutorials) • An in-app explainer video for my app AnySticker.
 
+Feel free to pull request your creations!
+
 ## Get started
 
 If you already have Yarn and FFMPEG installed, type
@@ -34,3 +36,7 @@ Head to [**remotion.dev**](https://www.remotion.dev) to learn the in and outs of
 ## License
 
 Be aware of that Remotion has a special license and requires obtaining a company license in some cases. Read the [LICENSE](LICENSE.md) documentation for more information.
+
+## Contributing
+
+Please read [CONTRIBUTING.md] to learn about contributing to this project.
