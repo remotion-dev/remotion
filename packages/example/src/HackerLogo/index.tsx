@@ -1,6 +1,6 @@
 import React from 'react';
 
-export const HackerLogo = () => {
+const HackerLogo = () => {
 	return (
 		<div
 			style={{

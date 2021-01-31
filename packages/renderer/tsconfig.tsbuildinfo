@@ -1000,7 +1000,7 @@
         "../core/dist/audio/props.d.ts"
       ],
       "../core/dist/audio/props.d.ts": [
-        "./node_modules/@types/react/index.d.ts"
+        "../core/node_modules/@types/react/index.d.ts"
       ],
       "../core/dist/composition.d.ts": [
         "../core/node_modules/@types/react/index.d.ts"
@@ -1042,8 +1042,7 @@
         "../core/node_modules/@types/react/index.d.ts"
       ],
       "../core/dist/timeline-position-state.d.ts": [
-        "../core/node_modules/@types/react/index.d.ts",
-        "./node_modules/@types/react/index.d.ts"
+        "../core/node_modules/@types/react/index.d.ts"
       ],
       "../core/dist/use-unsafe-video-config.d.ts": [
         "../core/dist/video-config.d.ts"
@@ -1059,16 +1058,16 @@
         "../core/dist/video/video.d.ts"
       ],
       "../core/dist/video/props.d.ts": [
-        "./node_modules/@types/react/index.d.ts"
+        "../core/node_modules/@types/react/index.d.ts"
       ],
       "../core/dist/video/video.d.ts": [
         "../core/dist/video/props.d.ts",
         "../core/node_modules/@types/react/index.d.ts"
       ],
       "../core/node_modules/@types/react/index.d.ts": [
+        "../core/node_modules/@types/prop-types/index.d.ts",
         "../core/node_modules/@types/react/global.d.ts",
-        "./node_modules/@types/prop-types/index.d.ts",
-        "./node_modules/csstype/index.d.ts"
+        "../core/node_modules/csstype/index.d.ts"
       ],
       "./node_modules/@babel/parser/typings/babel-parser.d.ts": [
         "./node_modules/@babel/types/lib/index.d.ts"

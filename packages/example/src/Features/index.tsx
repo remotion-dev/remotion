@@ -1,7 +1,7 @@
 import React from 'react';
 import {Video} from 'remotion';
 
-export const Features = () => {
+const Features = () => {
 	const tray = require('./tray.webm');
 	const watermelon = require('./watermelon.webm');
 	const textstickers = require('./textstickers.webm');
