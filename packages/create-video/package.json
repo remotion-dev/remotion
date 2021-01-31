@@ -1,6 +1,6 @@
 {
 	"name": "create-video",
-	"version": "1.0.0-y.105",
+	"version": "1.0.0-y.106",
 	"description": "",
 	"main": "index.js",
 	"bin": {
@@ -22,6 +22,8 @@
 	},
 	"devDependencies": {
 		"@jonny/eslint-config": "^2.1.210",
+		"@types/babel__core": "^7.1.12",
+		"@types/babel__template": "^7.4.0",
 		"@types/node": "^14.14.12",
 		"eslint": "^7.15.0",
 		"ts-node": "^9.1.1",
