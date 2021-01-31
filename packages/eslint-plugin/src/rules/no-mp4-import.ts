@@ -47,7 +47,7 @@ export default createRule<Options, MessageIds>({
           | string
           | undefined;
         if (!firstArgument) {
-          const sourceCode = context.getSourceCode().lines.join("\n");
+          const sourceCode = context.getSourceCode().getText(node);
           if (sourceCode.includes(".mp4")) {
             context.report({
               messageId: "NoMP4Import",
