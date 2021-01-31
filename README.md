@@ -39,4 +39,4 @@ Be aware of that Remotion has a special license and requires obtaining a company
 
 ## Contributing
 
-Please read [CONTRIBUTING.md] to learn about contributing to this project.
+Please read [CONTRIBUTING.md](CONTRIBUTING.md) to learn about contributing to this project.
