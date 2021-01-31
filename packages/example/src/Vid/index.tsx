@@ -1,7 +1,7 @@
 import React from 'react';
 import {spring, useCurrentFrame, useVideoConfig, Video} from 'remotion';
 
-export const VideoComp: React.FC = () => {
+const VideoComp: React.FC = () => {
 	const iphone = require('./huawei.png');
 	const video = require('./record-20200910-191938.webm');
 	const frame = useCurrentFrame();

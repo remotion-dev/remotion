@@ -1,7 +1,7 @@
 import React from 'react';
 import {interpolate, spring, useCurrentFrame, useVideoConfig} from 'remotion';
 
-export const CoinAnimation = () => {
+const CoinAnimation = () => {
 	const frame = useCurrentFrame();
 	const {height, width, fps} = useVideoConfig();
 

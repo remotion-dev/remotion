@@ -17,7 +17,8 @@ const Label = styled.div`
 	transform: scaleX(1);
 	line-height: 1em;
 `;
-export const StaggerType = () => {
+
+const StaggerType = () => {
 	const types = 4;
 	const frame = useCurrentFrame();
 	const videoConfig = useVideoConfig();

@@ -40,7 +40,7 @@ const BlueText = styled.span`
 	}
 `;
 
-export const GameChangerMain = () => {
+const GameChangerMain = () => {
 	const videoConfig = useVideoConfig();
 	const frame = useCurrentFrame();
 
