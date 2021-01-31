@@ -4,12 +4,13 @@
   </a>
 </p>
 
-**Leverage web technologies**: Use all of CSS, Canvas, SVG, WebGL
-**Leverage programming**: variables, API, variants, physics...
-**Leverage React**: Reusable components, Powerful composition, Fast Refresh
-**Leverage NPM**: Use UI libraries such as styled-components, Tailwind, functional programming libraries like Lodash
+Remotion is a suite of libraries building a fundament for **creating videos programmatically using React.**
 
-**Modern Javascript**: Typescript, React 17-based videos with ESLint rules which help you move faster.
+## Why create videos in React?
+
+- **Leverage web technologies**: Use all of CSS, Canvas, SVG, WebGL, etc.
+- **Leverage programming**: Use variables, functions, APIs, math and algorithms to create new effects
+- **Leverage React**: Reusable components, Powerful composition, Fast Refresh, Package ecosystem
 
 ## Run the examples
 
