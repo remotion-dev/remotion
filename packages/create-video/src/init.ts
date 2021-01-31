@@ -68,5 +68,9 @@ xns(async () => {
 	console.log('To render an MP4 video, run');
 	console.log(chalk.blue('npm run build'));
 	console.log('');
+	console.log(
+		'Read the documentation at',
+		chalk.underline('https://remotion.dev')
+	);
 	console.log('Enjoy Remotion!');
 });
