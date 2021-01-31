@@ -3,14 +3,14 @@ module.exports = {
   tagline: "Create motion graphics in React",
   url: "https://remotion.dev",
   baseUrl: "/",
-  twitterImage: "img/social-preview.png",
-  ogImage: "img/social-preview.png",
   onBrokenLinks: "throw",
   onBrokenMarkdownLinks: "warn",
   favicon: "img/logo-small.png",
   organizationName: "JonnyBurger", // Usually your GitHub org/user name.
   projectName: "remotion", // Usually your repo name.
   themeConfig: {
+    twitterImage: "img/social-preview.png",
+    ogImage: "img/social-preview.png",
     prism: {
       theme: require("prism-react-renderer/themes/github"),
       darkTheme: require("prism-react-renderer/themes/dracula"),
