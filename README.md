@@ -14,13 +14,14 @@ Remotion is a suite of libraries building a fundament for **creating videos prog
 
 ## Example videos
 
-- **remotion-trailer**: ([Watch](https://www.youtube.com/watch?v=1UU_GEQuolI) • [Source code](https://github.com/JonnyBurger/remotion-trailer)) The announcement video for Remotion was written in Remotion itself!
+- **Remotion Trailer**: ([Watch](https://www.youtube.com/watch?v=1UU_GEQuolI) • [Source code](https://github.com/JonnyBurger/remotion-trailer)) The announcement video for Remotion was written in Remotion itself!
+- **AnySticker Welcome Video**: ([Watch](https://www.youtube.com/watch?v=Y0SNPeTz09w) • [Source code](https://github.com/JonnyBurger/anysticker-tutorials)) An in-app explainer video for my app AnySticker.
 
 ## Get started
 
 If you already have Yarn and FFMPEG installed, type
 
-```sh
+```console
 yarn create video
 ```
 
