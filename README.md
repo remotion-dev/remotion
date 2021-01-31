@@ -1,4 +1,8 @@
-# react-motion-graphics
+<p align="center">
+  <a href="https://github.com/JonnyBurger/remotion-logo">
+    <img src="https://github.com/JonnyBurger/remotion-logo/raw/main/withtitle/element-0.png">
+  </a>
+</p>
 
 **Leverage web technologies**: Use all of CSS, Canvas, SVG, WebGL
 **Leverage programming**: variables, API, variants, physics...
