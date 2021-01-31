@@ -4,6 +4,7 @@
     "packages/*"
   ],
   "private": true,
+  "license": "SEE LICENSE IN LICENSE.md",
   "scripts": {
     "test": "lerna run test",
     "build": "lerna run build"
