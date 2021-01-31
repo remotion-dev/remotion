@@ -59,7 +59,10 @@ function Home() {
   const context = useDocusaurusContext();
   const { siteConfig = {} } = context;
   return (
-    <Layout title={`${siteConfig.title}`} description="Write videos in React">
+    <Layout
+      title={`${siteConfig.title}`}
+      description="Create MP4 motion graphics in React. Leverage CSS, SVG, WebGL and more technologies to render videos programmatically!"
+    >
       <header className={clsx("hero hero--primary", styles.heroBanner)}>
         <div className="container">
           <h1 className="hero__title" style={{ color: "white" }}>
