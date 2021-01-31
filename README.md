@@ -12,26 +12,24 @@ Remotion is a suite of libraries building a fundament for **creating videos prog
 - **Leverage programming**: Use variables, functions, APIs, math and algorithms to create new effects
 - **Leverage React**: Reusable components, Powerful composition, Fast Refresh, Package ecosystem
 
-## Run the examples
+## Example videos
 
-- Need ffmpeg in your PATH
+- **remotion-trailer**: ([Watch](https://www.youtube.com/watch?v=1UU_GEQuolI) • [Source code](https://github.com/JonnyBurger/remotion)) The announcement video for Remotion was written in Remotion itself!
 
-Install the repo:
+## Get started
 
-```
-npm i && npx lerna bootstrap
-```
+If you already have Yarn and FFMPEG installed, type
 
-Run an example, for example `ReactSvg`:
-
-```
-cd packages/cli
-npx ts-node --files src/preview.ts ../example/src/ReactSvg/index.tsx
+```sh
+yarn create video
 ```
 
-Render a video:
+to get started. Otherwise, read the [installation page](https://www.remotion.dev/docs/) in the documentation.
 
-```
-cd packages/cli
-npx ts-node --files src/index.ts ../example/src/ReactSvg/index.tsx
-```
+## Documentation
+
+Head to [**remotion.dev**](https://www.remotion.dev) to learn the in and outs of Remotion!
+
+## License
+
+Be aware of that Remotion has a special license and requires obtaining a company license in some cases. Read the [LICENSE](LICENSE.md) documentation for more information.
