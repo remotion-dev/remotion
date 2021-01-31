@@ -4,6 +4,7 @@ module.exports = {
   url: "https://remotion.dev",
   baseUrl: "/",
   twitterImage: "img/social-preview.png",
+  ogImage: "img/social-preview.png",
   onBrokenLinks: "throw",
   onBrokenMarkdownLinks: "warn",
   favicon: "img/logo-small.png",
