@@ -5,7 +5,11 @@ const ruleTester = new ESLintUtils.RuleTester({
 });
 
 ruleTester.run("no-mp4-import", rule, {
-  valid: ['const hi = require("hi")', 'import hi from "hi.mp3"'],
+  valid: [
+    'const hi = require("hi")',
+    'import hi from "hi.mp3"',
+    'const falsePosition = ".mp4"; require("hi"+1+".png") ',
+  ],
   invalid: [
     {
       code: 'const hi = require("hi.mp4")',
