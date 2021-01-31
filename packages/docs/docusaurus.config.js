@@ -8,8 +8,8 @@ module.exports = {
   favicon: "img/logo-small.png",
   organizationName: "JonnyBurger", // Usually your GitHub org/user name.
   projectName: "remotion", // Usually your repo name.
-  image: "img/social-preview.png",
   themeConfig: {
+    image: "img/social-preview.png",
     prism: {
       theme: require("prism-react-renderer/themes/github"),
       darkTheme: require("prism-react-renderer/themes/dracula"),
