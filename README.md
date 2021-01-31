@@ -14,7 +14,7 @@ Remotion is a suite of libraries building a fundament for **creating videos prog
 
 ## Example videos
 
-- **remotion-trailer**: ([Watch](https://www.youtube.com/watch?v=1UU_GEQuolI) • [Source code](https://github.com/JonnyBurger/remotion)) The announcement video for Remotion was written in Remotion itself!
+- **remotion-trailer**: ([Watch](https://www.youtube.com/watch?v=1UU_GEQuolI) • [Source code](https://github.com/JonnyBurger/remotion-trailer)) The announcement video for Remotion was written in Remotion itself!
 
 ## Get started
 
