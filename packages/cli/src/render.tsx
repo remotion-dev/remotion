@@ -84,22 +84,23 @@ export const render = async () => {
 		webpackBundle: bundled,
 	});
 	bar.stop();
-	process.stdout.write(`🧵 (3/${steps}) Stitching frames together...\n`);
-	const outputLocation = absoluteOutputFile;
 	if (renderMode === 'mp4') {
+		process.stdout.write(`🧵 (3/${steps}) Stitching frames together...\n`);
 		await stitchFramesToVideo({
 			dir: outputDir,
 			width: config.width,
 			height: config.height,
 			fps: config.fps,
-			outputLocation,
+			outputLocation: absoluteOutputFile,
 			force: overwrite,
 		});
 		console.log('Cleaning up...');
 		await fs.promises.rmdir(outputDir, {
 			recursive: true,
 		});
+		console.log('\n▶️ Your video is ready - hit play!');
+	} else {
+		console.log('\n▶️ Your PNG sequence is ready!');
 	}
-	console.log('\n▶️ Your video is ready - hit play!');
-	console.log(outputLocation);
+	console.log(absoluteOutputFile);
 };
