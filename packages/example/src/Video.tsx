@@ -1,6 +1,5 @@
 import React from 'react';
 import {Composition} from 'remotion';
-import Any from './Any';
 
 export const Index: React.FC = () => {
 	return (
@@ -14,35 +13,11 @@ export const Index: React.FC = () => {
 				width={1080}
 			/>
 			<Composition
-				id="hey"
-				lazyComponent={() => import('./3DText')}
-				durationInFrames={200}
-				fps={60}
-				height={1080}
-				width={1080}
-			/>
-			<Composition
-				id="any"
-				component={Any}
-				width={1080}
-				height={1080}
-				fps={30}
-				durationInFrames={3 * 30}
-			/>
-			<Composition
 				id="beta-text"
 				lazyComponent={() => import('./BetaText')}
 				width={1080}
 				height={1080}
 				fps={30}
-				durationInFrames={3 * 30}
-			/>
-			<Composition
-				id="big-rotate"
-				lazyComponent={() => import('./BigRotate')}
-				width={1080}
-				height={1080}
-				fps={60}
 				durationInFrames={3 * 30}
 			/>
 			<Composition
@@ -53,14 +28,7 @@ export const Index: React.FC = () => {
 				fps={30}
 				durationInFrames={30}
 			/>
-			<Composition
-				id="end-logo"
-				lazyComponent={() => import('./Circle')}
-				width={1080}
-				height={1920}
-				fps={30}
-				durationInFrames={3 * 30}
-			/>
+
 			<Composition
 				id="coin-animation"
 				lazyComponent={() => import('./CoinAnimation')}
@@ -118,14 +86,6 @@ export const Index: React.FC = () => {
 				durationInFrames={1}
 			/>
 			<Composition
-				id="layout"
-				lazyComponent={() => import('./Layout')}
-				width={1080}
-				height={1920}
-				fps={30}
-				durationInFrames={3 * 30}
-			/>
-			<Composition
 				id="rating"
 				lazyComponent={() => import('./NewPackAnnouncement')}
 				width={1080}
@@ -142,32 +102,8 @@ export const Index: React.FC = () => {
 				durationInFrames={300}
 			/>
 			<Composition
-				id="real-stickers"
-				lazyComponent={() => import('./RealStickers')}
-				width={1080}
-				height={1920}
-				fps={30}
-				durationInFrames={30 * 2.2}
-			/>
-			<Composition
-				id="screen-showcase"
-				lazyComponent={() => import('./ScreenShowcase')}
-				width={1080}
-				height={1920}
-				fps={30}
-				durationInFrames={100}
-			/>
-			<Composition
 				id="shadow-circles"
 				lazyComponent={() => import('./ShadowCircles')}
-				width={1080}
-				height={1920}
-				fps={30}
-				durationInFrames={60}
-			/>
-			<Composition
-				id="springy"
-				lazyComponent={() => import('./Springy')}
 				width={1080}
 				height={1920}
 				fps={30}
@@ -216,14 +152,6 @@ export const Index: React.FC = () => {
 				height={1080}
 				fps={30}
 				durationInFrames={30 * 30}
-			/>
-			<Composition
-				id="welcome"
-				lazyComponent={() => import('./Welcome')}
-				width={1080}
-				height={1920}
-				fps={30}
-				durationInFrames={31 * 30}
 			/>
 		</>
 	);

@@ -8,7 +8,7 @@ import {
 } from 'remotion';
 import {Title} from '../Title';
 
-export const Up: React.FC<{
+const Up: React.FC<{
 	line1: string;
 	line2: string;
 }> = ({line1 = 'hi', line2 = 'there'}) => {

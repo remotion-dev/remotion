@@ -90,7 +90,7 @@ const Row: React.FC<{
 	);
 };
 
-export const BetaText = () => {
+const BetaText = () => {
 	const videoConfig = useVideoConfig();
 	const frame = useCurrentFrame();
 

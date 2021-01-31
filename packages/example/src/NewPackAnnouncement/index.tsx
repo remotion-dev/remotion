@@ -37,7 +37,7 @@ const getStickerScale = (frame: number, index: number): number => {
 	return (frame - start) / duration;
 };
 
-export const Rating: React.FC = () => {
+const Rating: React.FC = () => {
 	const [data, setData] = useState<null | {
 		data: {
 			pack: {

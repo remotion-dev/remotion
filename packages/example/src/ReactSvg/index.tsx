@@ -5,7 +5,7 @@ import {Atom} from './Atom';
 import {Black} from './Black';
 import {DotGrid} from './DotGrid';
 
-export const ReactSvg: React.FC = () => {
+const ReactSvg: React.FC = () => {
 	const frame = useCurrentFrame();
 	const videoConfig = useVideoConfig();
 	const start = 0;
