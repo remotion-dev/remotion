@@ -28,7 +28,6 @@ export const Index: React.FC = () => {
 				fps={30}
 				durationInFrames={30}
 			/>
-
 			<Composition
 				id="coin-animation"
 				lazyComponent={() => import('./CoinAnimation')}
@@ -61,22 +60,7 @@ export const Index: React.FC = () => {
 				fps={30}
 				durationInFrames={30 * 30}
 			/>
-			<Composition
-				id="game-changer"
-				lazyComponent={() => import('./GameChanger/gamechanger')}
-				width={1920 * 2}
-				height={1080 * 2}
-				fps={30}
-				durationInFrames={2 * 30}
-			/>
-			<Composition
-				id="game-changer-2"
-				lazyComponent={() => import('./GameChanger')}
-				width={1920 * 2}
-				height={1080 * 2}
-				fps={30}
-				durationInFrames={2 * 30}
-			/>
+
 			<Composition
 				id="hacker-logo"
 				lazyComponent={() => import('./HackerLogo')}
