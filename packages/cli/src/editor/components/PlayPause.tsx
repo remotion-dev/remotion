@@ -35,7 +35,7 @@ export const PlayPause: React.FC = () => {
 		if (!video) {
 			return null;
 		}
-		if (!playing) {
+		if (playing) {
 			return;
 		}
 		if (frame === 0) {
@@ -51,7 +51,7 @@ export const PlayPause: React.FC = () => {
 		if (!video) {
 			return null;
 		}
-		if (!playing) {
+		if (playing) {
 			return;
 		}
 
