@@ -26,6 +26,7 @@ module.exports = {
       "composition",
       "sequence",
       "video",
+      "absolute-fill",
     ],
   },
 };
