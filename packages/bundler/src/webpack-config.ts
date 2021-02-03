@@ -30,7 +30,9 @@ export const webpackConfig = ({
 		minimize: false,
 	},
 	experiments: {
-		lazyCompilation: true,
+		lazyCompilation: {
+			entries: false,
+		},
 	},
 	devtool: 'cheap-module-source-map',
 	entry: [
