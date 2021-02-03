@@ -26,7 +26,7 @@
 		"puppeteer": "^4.0.0",
 		"remotion": "^1.0.0-y.107",
 		"typescript": "^4.1.2",
-		"webpack": "5.19.0",
+		"webpack": "5.20.1",
 		"xns": "^2.0.7"
 	},
 	"devDependencies": {
