@@ -24,7 +24,7 @@ The component takes the following props:
 - `component` **or** `lazyComponent`: Pass the component in directly **or** pass a function that returns a dynamic import. Passing neither or both of the props is an error.
 
 :::tip
-If you use `lazyComponent`, Remotion will use React Suspense to load the component. This can help bring down the weight of the webpage if you have a lot of compositions. However, these components will still be bundled using Webpack, let us know if you know how to improve this!
+If you use `lazyComponent`, Remotion will use React Suspense to load the component. Components will be compiled by Webpack as they are needed, which will reduce startup time of Remotion.
 :::
 
 :::info

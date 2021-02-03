@@ -29,6 +29,11 @@ export const webpackConfig = ({
 	optimization: {
 		minimize: false,
 	},
+	experiments: {
+		lazyCompilation: {
+			entries: false,
+		},
+	},
 	devtool: 'cheap-module-source-map',
 	entry: [
 		environment === 'development'
