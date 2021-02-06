@@ -14,6 +14,6 @@ export const isUpdateAvailable = async (): Promise<Info> => {
 	return {
 		updateAvailable: semver.lt(version, latest),
 		currentVersion: version,
-		latestVersion: version,
+		latestVersion: latest,
 	};
 };
