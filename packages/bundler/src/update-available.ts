@@ -9,7 +9,7 @@ export type Info = {
 
 export const isUpdateAvailable = async (): Promise<Info> => {
 	const packageJson = require('../package.json');
-	const latest = await latestVersion('remotion');
+	const latest = await latestVersion('@remotion/bundler');
 	const {version} = packageJson;
 	return {
 		updateAvailable: semver.lt(version, latest),
