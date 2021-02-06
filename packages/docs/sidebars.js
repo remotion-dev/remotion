@@ -12,6 +12,7 @@ module.exports = {
       "parametrized-rendering",
       "ssr",
       "anti-patterns",
+      "fonts",
     ],
     Reference: [
       "cli",
