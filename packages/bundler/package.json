@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/bundler",
-	"version": "1.0.0-rc.2",
+	"version": "1.0.0",
 	"description": "Bundler for Remotion",
 	"main": "dist/index.js",
 	"repository": {
@@ -32,7 +32,7 @@
 		"react": "^17.0.1",
 		"react-dom": "^17.0.1",
 		"react-refresh": "^0.8.2",
-		"remotion": "^1.0.0-rc.2",
+		"remotion": "^1.0.0",
 		"semver": "7.3.4",
 		"style-loader": "^2.0.0",
 		"styled-components": "^5.2.1",
@@ -47,9 +47,9 @@
 		"@types/babel__template": "^7.4.0",
 		"@types/express": "^4.17.7",
 		"@types/node": "^14.0.13",
-		"@types/semver": "^7.3.4",
 		"@types/react": "^17.0.0",
 		"@types/react-dom": "^17.0.0",
+		"@types/semver": "^7.3.4",
 		"@types/webpack-dev-middleware": "^3.7.1",
 		"@types/webpack-hot-middleware": "^2.25.3",
 		"eslint": "^7.4.0",
