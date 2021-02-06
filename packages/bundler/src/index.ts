@@ -6,6 +6,7 @@ import path from 'path';
 import webpack from 'webpack';
 import webpackDevMiddleware from 'webpack-dev-middleware';
 import webpackHotMiddleware from 'webpack-hot-middleware';
+import {isUpdateAvailable} from './update-available';
 import {webpackConfig} from './webpack-config';
 
 export const startServer = async (
@@ -33,6 +34,18 @@ export const startServer = async (
 			heartbeat: 10 * 1000,
 		})
 	);
+
+	app.get('/update', (req, res) => {
+		isUpdateAvailable()
+			.then((data) => {
+				res.json(data);
+			})
+			.catch((err) => {
+				res.status(500).json({
+					err: err.message,
+				});
+			});
+	});
 
 	app.use('favicon.png', (req, res) => {
 		res.sendFile(path.join(__dirname, '..', 'web', 'favicon.png'));
