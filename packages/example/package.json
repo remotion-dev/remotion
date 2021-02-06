@@ -5,7 +5,7 @@
 	"main": "dist/index.js",
 	"private": true,
 	"scripts": {
-		"start": "remotion preview src/index.tsx",
+		"start": "npx ts-node ../cli/src/index.tsx preview src/index.tsx",
 		"test": "ts-unused-exports tsconfig.json && eslint 'src' --ext ts,tsx",
 		"build": "tsc -d",
 		"render": "remotion render src/index.tsx up"
