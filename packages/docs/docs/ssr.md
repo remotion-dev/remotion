@@ -109,7 +109,7 @@ We added a Dockerfile that includes FFMPEG and added it to the template. That me
 
 ```bash
 docker build -t my-video .
-docker run -p 8000:8000 my-video
+docker run -p 8000:8000 --privileged my-video
 ```
 
 ## Render using Github Actions
