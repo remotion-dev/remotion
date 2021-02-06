@@ -54,6 +54,8 @@ export const upgrade = async () => {
 		'remotion',
 	].filter((u) => dependencies.includes(u));
 
-	await execa(tool, ['upgrade', ...toUpgrade]);
+	const prom = execa(tool, ['upgrade', ...toUpgrade]);
+	prom.stdout?.pipe(process.stdout);
+	await prom;
 	console.log('⏫ Remotion has been upgraded!');
 };
