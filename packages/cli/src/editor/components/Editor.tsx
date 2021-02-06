@@ -8,6 +8,7 @@ import {
 import {PreviewSize, PreviewSizeContext} from '../state/preview-size';
 import {Timeline} from './Timeline';
 import {TopPanel} from './TopPanel';
+import {UpdateCheck} from './UpdateCheck';
 
 const Background = styled.div`
 	background: #222;
@@ -46,6 +47,7 @@ export const Editor: React.FC = () => {
 			<PreviewSizeContext.Provider value={previewCtx}>
 				<Background>
 					<Root />
+					<UpdateCheck />
 					<TopPanel />
 					<Timeline />
 				</Background>
