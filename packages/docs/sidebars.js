@@ -11,7 +11,7 @@ module.exports = {
       "data-fetching",
       "parametrized-rendering",
       "ssr",
-      "anti-patterns",
+      "assets",
       "fonts",
     ],
     Reference: [
