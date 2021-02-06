@@ -78,7 +78,9 @@ const GetVideo = () => {
 	}, [fetchComponent, video]);
 
 	useEffect(() => {
-		if (Component && !getIsEvaluation()) {
+		if (getIsEvaluation()) {
+			continueRender(handle);
+		} else if (Component) {
 			continueRender(handle);
 		}
 	}, [Component]);
