@@ -5,13 +5,15 @@
 	"main": "dist/index.js",
 	"scripts": {
 		"test": "eslint 'src' --ext ts,tsx && jest",
-		"build": "tsc -d"
+		"build": "tsc -d",
+		"prerelease": "cp ../../README.md ."
 	},
 	"repository": {
 		"url": "https://github.com/JonnyBurger/remotion"
 	},
 	"files": [
-		"dist"
+		"dist",
+		"README.md"
 	],
 	"author": "",
 	"license": "ISC",
