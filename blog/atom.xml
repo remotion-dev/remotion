@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://remotion.dev/blog</id>
     <title>Remotion Blog</title>
-    <updated>2021-01-01T00:00:00.000Z</updated>
+    <updated>2021-02-08T00:00:00.000Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://remotion.dev/blog"/>
     <subtitle>Remotion Blog</subtitle>
@@ -11,7 +11,7 @@
         <title type="html"><![CDATA[Introducing Remotion]]></title>
         <id>introducing-remotion</id>
         <link href="https://remotion.dev/blog/introducing-remotion"/>
-        <updated>2021-01-01T00:00:00.000Z</updated>
+        <updated>2021-02-08T00:00:00.000Z</updated>
         <summary type="html"><![CDATA[I've been using After Effects for many years, but it's always been a dream of mine to code my videos instead. In the React ecosystem, I am used to being able to take advantage of powerful composition, reusability, to be able to customize the experience for every user. To use scripts, linters and external dependencies to make my life easier as a coder.]]></summary>
     </entry>
 </feed>
