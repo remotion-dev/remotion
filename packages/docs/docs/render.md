@@ -9,13 +9,13 @@ Now here comes the magic! Turn your creation into an MP4.
 npm run build
 ```
 
-The underlying command in package.json is defined as followed:
+The underlying command in package.json is defined as follows:
 
 ```bash
 npx remotion render src/index.tsx HelloWorld out.mp4
 ```
 
-Modify it to select a different video to render, or change it's output location.
+Modify it to select a different video to render, or change its output location.
 Learn about all the options on the [CLI reference page](cli).
 
 ## See also
