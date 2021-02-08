@@ -29,6 +29,6 @@ export const bundle = async (entryPoint: string): Promise<string> => {
 	if (errors.length > 0) {
 		throw new Error(errors[0].message + '\n' + errors[0].details);
 	}
-	await execa('cp', [path.join(__dirname, '..', 'web', 'index.html'), tmpDir]);
+	await execa('copy', [path.join(__dirname, '..', 'web', 'index.html'), tmpDir]);
 	return tmpDir;
 };
