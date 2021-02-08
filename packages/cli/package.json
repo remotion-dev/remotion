@@ -20,7 +20,7 @@
 		"url": "https://github.com/JonnyBurger/remotion"
 	},
 	"author": "Jonny Burger <hi@jonny.io>",
-	"license": "ISC",
+	"license": "SEE LICENSE IN LICENSE.md",
 	"dependencies": {
 		"@babel/core": "^7.10.4",
 		"@babel/preset-env": "^7.10.4",
