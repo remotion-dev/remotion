@@ -14,7 +14,7 @@
 		"dist"
 	],
 	"author": "Jonny Burger",
-	"license": "ISC",
+	"license": "SEE LICENSE IN LICENSE.md",
 	"dependencies": {
 		"@jonny/eslint-config": "^2.1.210",
 		"@remotion/cli": "^1.0.4",

@@ -14,7 +14,7 @@
 		"build": "tsc -d && node add-bin.js"
 	},
 	"author": "",
-	"license": "ISC",
+	"license": "SEE LICENSE IN LICENSE.md",
 	"dependencies": {
 		"chalk": "^4.1.0",
 		"execa": "^5.0.0",

@@ -16,7 +16,7 @@
 		"README.md"
 	],
 	"author": "",
-	"license": "ISC",
+	"license": "SEE LICENSE IN LICENSE.md",
 	"dependencies": {
 		"prettier": "^2.0.5",
 		"react": "^17.0.1",
