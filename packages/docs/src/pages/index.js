@@ -12,7 +12,7 @@ const features = [
     imageUrl: "img/wordcloud.png",
     description: (
       <>
-        You've see magic being created using CSS, Canvas, SVG and WebGL – why
+        You've seen magic being created using CSS, Canvas, SVG and WebGL – why
         not use these powerful technologies for making videos?
       </>
     ),
