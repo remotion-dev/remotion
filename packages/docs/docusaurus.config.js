@@ -89,13 +89,13 @@ module.exports = {
           sidebarPath: require.resolve("./sidebars.js"),
           // Please change this to your repo.
           editUrl:
-            "https://github.com/JonnyBurger/remotion/edit/master/packages/docs/",
+            "https://github.com/JonnyBurger/remotion/edit/main/packages/docs/",
         },
         blog: {
           showReadingTime: true,
           // Please change this to your repo.
           editUrl:
-            "https://github.com/Jonnyburger/remotion/edit/master/packages/docs/blog/",
+            "https://github.com/Jonnyburger/remotion/edit/main/packages/docs/blog/",
         },
         theme: {
           customCss: require.resolve("./src/css/custom.css"),
