@@ -1,6 +1,6 @@
-import * as remotion from '@remotion/bundler';
+import {overrideWebpackConfig} from '@remotion/bundler';
 
-remotion.overrideWebpackConfig((currentConfiguration) => {
+overrideWebpackConfig((currentConfiguration) => {
 	return {
 		...currentConfiguration,
 		module: {
