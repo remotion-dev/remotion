@@ -4,13 +4,19 @@ import os from 'os';
 import path from 'path';
 import {promisify} from 'util';
 import webpack from 'webpack';
+import {WebpackOverrideFn} from './override-webpack';
 import {webpackConfig} from './webpack-config';
 
 const entry = require.resolve('./renderEntry');
 
 const promisified = promisify(webpack);
 
-export const bundle = async (entryPoint: string): Promise<string> => {
+export const bundle = async (
+	entryPoint: string,
+	options?: {
+		webpackOverride?: WebpackOverrideFn;
+	}
+): Promise<string> => {
 	const tmpDir = await fs.promises.mkdtemp(
 		path.join(os.tmpdir(), 'react-motion-graphics')
 	);
@@ -20,6 +26,7 @@ export const bundle = async (entryPoint: string): Promise<string> => {
 			userDefinedComponent: entryPoint,
 			outDir: tmpDir,
 			environment: 'production',
+			webpackOverride: options?.webpackOverride ?? undefined,
 		}),
 	]);
 	if (!output) {
@@ -29,6 +36,9 @@ export const bundle = async (entryPoint: string): Promise<string> => {
 	if (errors.length > 0) {
 		throw new Error(errors[0].message + '\n' + errors[0].details);
 	}
-	await execa(process.platform === 'win32' ? 'copy' : 'cp', [path.join(__dirname, '..', 'web', 'index.html'), tmpDir]);
+	await execa(process.platform === 'win32' ? 'copy' : 'cp', [
+		path.join(__dirname, '..', 'web', 'index.html'),
+		tmpDir,
+	]);
 	return tmpDir;
 };

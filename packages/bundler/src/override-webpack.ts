@@ -1,13 +1,16 @@
 import {WebpackConfiguration} from './webpack-config';
 
-type OverrideFn = (configuration: WebpackConfiguration) => WebpackConfiguration;
+export type WebpackOverrideFn = (
+	currentConfiguration: WebpackConfiguration
+) => WebpackConfiguration;
 
-let overrideFn: OverrideFn = (config) => config;
+export const defaultOverrideFunction: WebpackOverrideFn = (config) => config;
+let overrideFn: WebpackOverrideFn = defaultOverrideFunction;
 
 export const getOverrideFn = () => {
 	return overrideFn;
 };
 
-export const overrideWebpackConfig = (fn: OverrideFn) => {
+export const overrideWebpackConfig = (fn: WebpackOverrideFn) => {
 	overrideFn = fn;
 };
