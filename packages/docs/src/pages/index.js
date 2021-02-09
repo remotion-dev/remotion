@@ -81,17 +81,41 @@ function Home() {
               text="Preview your video in the browser with Fast Refresh and Timeline."
             />
           </div>
-          <div className={styles.buttons}>
-            <Link
-              className={clsx(
-                "button button--outline button--secondary button--lg",
-                styles.getStarted
-              )}
-              style={{ color: "white" }}
-              to={useBaseUrl("docs/")}
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "row",
+              justifyContent: "center",
+              alignItems: "center",
+              marginTop: 50,
+            }}
+          >
+            <div className={styles.buttons}>
+              <Link
+                className={clsx(
+                  "button button--outline button--secondary button--lg",
+                  styles.getStarted
+                )}
+                style={{ color: "white" }}
+                to={useBaseUrl("docs/")}
+              >
+                Get Started
+              </Link>
+            </div>
+            <div style={{ width: 8 }}></div>
+            <a
+              href="https://www.producthunt.com/posts/remotion-3?utm_source=badge-featured&utm_medium=badge&utm_souce=badge-remotion-3"
+              target="_blank"
+              style={{ display: "inline-flex" }}
             >
-              Get Started
-            </Link>
+              <img
+                src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=283561&theme=light"
+                alt="Remotion - Create videos programmatically in React | Product Hunt"
+                style={{ width: 250, height: 54, display: "inline-block" }}
+                width="250"
+                height="54"
+              />
+            </a>
           </div>
         </div>
       </header>
