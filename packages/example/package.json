@@ -22,6 +22,8 @@
 		"@jonny/eslint-config": "^2.1.210",
 		"@remotion/bundler": "^1.0.5",
 		"@remotion/cli": "^1.0.5",
+		"@remotion/eslint-config": "^1.0.0",
+		"@remotion/eslint-plugin": "^1.0.0",
 		"@types/node": "^14.0.13",
 		"@types/react": "^17.0.0",
 		"@types/styled-components": "^5.1.1",
