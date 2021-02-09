@@ -22,10 +22,25 @@ export const loadConfigFile = (configFileName: string) => {
 		return;
 	}
 
+	const tsConfig = typescript.readConfigFile(
+		tsconfigJson,
+		typescript.sys.readFile
+	);
+
+	const compilerOptions = typescript.parseJsonConfigFileContent(
+		tsConfig.config,
+		typescript.sys,
+		'./'
+	);
+
 	const output = typescript.transpileModule(
 		fs.readFileSync(configFile, 'utf-8'),
-		JSON.parse(fs.readFileSync(tsconfigJson, 'utf-8'))
+		{
+			compilerOptions: compilerOptions.options,
+		}
 	);
 
 	eval(output.outputText);
+
+	console.log(`Applied configuration from ${configFileName}.`);
 };
