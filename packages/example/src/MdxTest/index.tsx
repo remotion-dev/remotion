@@ -4,7 +4,14 @@ import Hi from './hmm.mdx';
 
 const MdxTest = () => {
 	return (
-		<AbsoluteFill style={{backgroundColor: 'white'}}>
+		<AbsoluteFill
+			style={{
+				backgroundColor: 'white',
+				fontSize: 40,
+				fontFamily: 'Helvetica',
+				padding: 30,
+			}}
+		>
 			<Hi />
 		</AbsoluteFill>
 	);
