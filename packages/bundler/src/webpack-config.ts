@@ -72,7 +72,7 @@ export const webpackConfig = ({
 			react: require.resolve('react'),
 			remotion: require.resolve('remotion'),
 			'styled-components': require.resolve('styled-components'),
-      			'react-native$': 'react-native-web',
+			'react-native$': 'react-native-web',
 		},
 	},
 	module: {
