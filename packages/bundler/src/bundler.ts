@@ -4,7 +4,7 @@ import os from 'os';
 import path from 'path';
 import {promisify} from 'util';
 import webpack from 'webpack';
-import {WebpackOverrideFn} from './override-webpack';
+import {getOverrideFn, WebpackOverrideFn} from './override-webpack';
 import {webpackConfig} from './webpack-config';
 
 const entry = require.resolve('./renderEntry');
@@ -26,7 +26,7 @@ export const bundle = async (
 			userDefinedComponent: entryPoint,
 			outDir: tmpDir,
 			environment: 'production',
-			webpackOverride: options?.webpackOverride ?? undefined,
+			webpackOverride: options?.webpackOverride ?? getOverrideFn(),
 		}),
 	]);
 	if (!output) {
