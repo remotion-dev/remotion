@@ -74,8 +74,11 @@ overrideWebpackConfig((currentConfiguration) => {
     },
   };
 });
-
 ```
+
+:::info
+Create a file which contains `declare module '*.mdx';` in your project to fix a TypeScript error showing up.
+:::
 
 ## Customizing configuration file location
 
