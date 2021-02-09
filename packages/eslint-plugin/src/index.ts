@@ -3,7 +3,7 @@ import warnNativeMediaTag from "./rules/warn-native-media-tag";
 
 const rules = {
   "no-mp4-import": nomp4Import,
-  "warn-native-image-tag": warnNativeMediaTag,
+  "warn-native-media-tag": warnNativeMediaTag,
 };
 
 export = {
