@@ -13,5 +13,7 @@ export const autoImports = {
   Composition: "import {Composition} from 'remotion'",
   Audio: "import {Audio} from 'remotion'",
   Video: "import {Video} from 'remotion'",
+  Img: "import {Img} from 'remotion'",
+  IFrame: "import {IFrame} from 'remotion'",
   styled: "import styled from 'styled-components'",
 };
