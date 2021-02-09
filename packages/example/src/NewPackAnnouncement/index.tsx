@@ -1,5 +1,5 @@
 import React, {useCallback, useEffect, useState} from 'react';
-import {continueRender, delayRender, useCurrentFrame} from 'remotion';
+import {continueRender, delayRender, Img, useCurrentFrame} from 'remotion';
 import styled from 'styled-components';
 
 const handle = delayRender();
@@ -90,7 +90,8 @@ const Rating: React.FC = () => {
 				) : null}
 				{data
 					? data?.data.pack.stickers.slice(0, 12).map((d, i) => (
-							<img
+							// eslint-disable-next-line
+							<Img
 								key={d.id}
 								src={`https://anysticker.imgix.net/${d.source}`}
 								style={{
