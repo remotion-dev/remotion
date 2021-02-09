@@ -12,10 +12,12 @@ import os from 'os';
 import path from 'path';
 import {getCompositionId} from './get-composition-id';
 import {getConcurrency} from './get-concurrency';
+import {getConfigFileName} from './get-config-file-name';
 import {getOutputFilename} from './get-filename';
 import {getOverwrite} from './get-overwrite';
 import {getRenderMode} from './get-render-mode';
 import {getUserProps} from './get-user-props';
+import {loadConfigFile} from './load-config';
 
 export const render = async () => {
 	const args = process.argv;
@@ -27,6 +29,9 @@ export const render = async () => {
 	const outputFile = getOutputFilename();
 	const overwrite = getOverwrite();
 	const userProps = getUserProps();
+	const configFileName = getConfigFileName();
+
+	loadConfigFile(configFileName);
 
 	const absoluteOutputFile = path.resolve(process.cwd(), outputFile);
 	if (fs.existsSync(absoluteOutputFile) && !overwrite) {
