@@ -20,6 +20,7 @@ module.exports = {
         "ssr",
         "assets",
         "fonts",
+        "webpack",
       ],
     },
     {
