@@ -9,6 +9,14 @@ export function truthy<T>(value: T): value is Truthy<T> {
 	return Boolean(value);
 }
 
+export type WebpackConfiguration = webpack.Configuration & {
+	devServer: {
+		contentBase: string;
+		historyApiFallback: boolean;
+		hot: true;
+	};
+};
+
 export const webpackConfig = ({
 	entry,
 	userDefinedComponent,
@@ -19,13 +27,7 @@ export const webpackConfig = ({
 	userDefinedComponent: string;
 	outDir: string;
 	environment: 'development' | 'production';
-}): webpack.Configuration & {
-	devServer: {
-		contentBase: string;
-		historyApiFallback: boolean;
-		hot: true;
-	};
-} => {
+}): WebpackConfiguration => {
 	return {
 		optimization: {
 			minimize: false,
