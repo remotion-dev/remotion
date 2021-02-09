@@ -451,6 +451,16 @@
         "signature": "626ab92734af003a7f6acbc930542e667c842f1c2dd7b71d1478c87b58b27e65",
         "affectsGlobalScope": false
       },
+      "../core/dist/iframe.d.ts": {
+        "version": "21f4391f8f24e541372a5cb067a0889943c23dd3e2276851f16f18c9af1d5c94",
+        "signature": "21f4391f8f24e541372a5cb067a0889943c23dd3e2276851f16f18c9af1d5c94",
+        "affectsGlobalScope": false
+      },
+      "../core/dist/img.d.ts": {
+        "version": "7f5b97b3b496f27cc31deee3fafc5fc0a32ce0fe8e4585bd47cd0252c1f3f871",
+        "signature": "7f5b97b3b496f27cc31deee3fafc5fc0a32ce0fe8e4585bd47cd0252c1f3f871",
+        "affectsGlobalScope": false
+      },
       "../core/dist/interpolate.d.ts": {
         "version": "88523479a574d6d3bd70186c9e1300aeafba633bf01dfcd2564bf908b848362d",
         "signature": "88523479a574d6d3bd70186c9e1300aeafba633bf01dfcd2564bf908b848362d",
@@ -527,8 +537,8 @@
         "affectsGlobalScope": false
       },
       "../core/dist/index.d.ts": {
-        "version": "f2be05fff61dd623c51e8d2a2425700bba758789d216d63fe85424d9c7bc6834",
-        "signature": "f2be05fff61dd623c51e8d2a2425700bba758789d216d63fe85424d9c7bc6834",
+        "version": "72ce02f2b3b457748c38c12d251e1b352c2e1fe205fa7bb62cd02cad860a913d",
+        "signature": "72ce02f2b3b457748c38c12d251e1b352c2e1fe205fa7bb62cd02cad860a913d",
         "affectsGlobalScope": false
       },
       "./src/get-compositions.ts": {
@@ -683,12 +693,20 @@
       "../core/dist/compositionmanager.d.ts": [
         "../core/node_modules/@types/react/index.d.ts"
       ],
+      "../core/dist/iframe.d.ts": [
+        "../core/node_modules/@types/react/index.d.ts"
+      ],
+      "../core/dist/img.d.ts": [
+        "../core/node_modules/@types/react/index.d.ts"
+      ],
       "../core/dist/index.d.ts": [
         "../core/dist/absolutefill.d.ts",
         "../core/dist/audio/index.d.ts",
         "../core/dist/composition.d.ts",
         "../core/dist/compositionmanager.d.ts",
         "../core/dist/easing.d.ts",
+        "../core/dist/iframe.d.ts",
+        "../core/dist/img.d.ts",
         "../core/dist/interpolate.d.ts",
         "../core/dist/ready-manager.d.ts",
         "../core/dist/register-root.d.ts",
@@ -1008,12 +1026,20 @@
       "../core/dist/compositionmanager.d.ts": [
         "../core/node_modules/@types/react/index.d.ts"
       ],
+      "../core/dist/iframe.d.ts": [
+        "../core/node_modules/@types/react/index.d.ts"
+      ],
+      "../core/dist/img.d.ts": [
+        "../core/node_modules/@types/react/index.d.ts"
+      ],
       "../core/dist/index.d.ts": [
         "../core/dist/absolutefill.d.ts",
         "../core/dist/audio/index.d.ts",
         "../core/dist/composition.d.ts",
         "../core/dist/compositionmanager.d.ts",
         "../core/dist/easing.d.ts",
+        "../core/dist/iframe.d.ts",
+        "../core/dist/img.d.ts",
         "../core/dist/interpolate.d.ts",
         "../core/dist/ready-manager.d.ts",
         "../core/dist/register-root.d.ts",
@@ -1307,6 +1333,8 @@
       "../core/dist/composition.d.ts",
       "../core/dist/compositionmanager.d.ts",
       "../core/dist/easing.d.ts",
+      "../core/dist/iframe.d.ts",
+      "../core/dist/img.d.ts",
       "../core/dist/index.d.ts",
       "../core/dist/interpolate.d.ts",
       "../core/dist/ready-manager.d.ts",
