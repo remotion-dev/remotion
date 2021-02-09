@@ -26,7 +26,7 @@ export const MyComp: React.FC = () => {
 
 ## Using image sequences
 
-If you have a series of images, for example exported from another program like After Effects or Rotato, you can use a dynamic `require` statement to import the images are they are needed.
+If you have a series of images, for example exported from another program like After Effects or Rotato, you can use a dynamic `require` statement to import the images as they are needed.
 
 ```tsx
 import {useCurrentFrame} from 'remotion';
