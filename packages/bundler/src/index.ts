@@ -6,12 +6,20 @@ import path from 'path';
 import webpack from 'webpack';
 import webpackDevMiddleware from 'webpack-dev-middleware';
 import webpackHotMiddleware from 'webpack-hot-middleware';
+import {
+	getOverrideFn,
+	overrideWebpackConfig,
+	WebpackOverrideFn,
+} from './override-webpack';
 import {isUpdateAvailable} from './update-available';
 import {webpackConfig} from './webpack-config';
 
 export const startServer = async (
 	entry: string,
-	userDefinedComponent: string
+	userDefinedComponent: string,
+	options?: {
+		webpackOverride?: WebpackOverrideFn;
+	}
 ): Promise<number> => {
 	const app = express();
 	const tmpDir = await fs.promises.mkdtemp(
@@ -23,6 +31,7 @@ export const startServer = async (
 		userDefinedComponent,
 		outDir: tmpDir,
 		environment: 'development',
+		webpackOverride: options?.webpackOverride ?? getOverrideFn(),
 	});
 	const compiler = webpack(config);
 
@@ -61,3 +70,4 @@ export const startServer = async (
 };
 
 export * from './bundler';
+export {overrideWebpackConfig};
