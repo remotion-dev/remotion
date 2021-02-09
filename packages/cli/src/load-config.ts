@@ -1,9 +1,10 @@
 import fs from 'fs';
 import path from 'path';
 import typescript from 'typescript';
+import {isDefaultConfigFile} from './get-config-file-name';
 
 export const loadConfigFile = (configFileName: string) => {
-	const configFile = path.join(process.cwd(), configFileName);
+	const configFile = path.resolve(process.cwd(), configFileName);
 	const tsconfigJson = path.join(process.cwd(), 'tsconfig.json');
 	if (!fs.existsSync(tsconfigJson)) {
 		console.log(
@@ -12,28 +13,19 @@ export const loadConfigFile = (configFileName: string) => {
 		process.exit(1);
 	}
 	if (!fs.existsSync(configFile)) {
+		if (!isDefaultConfigFile(configFileName)) {
+			console.log(
+				`You specified a config file located at ${configFileName}, but no file at ${configFile} could be found.`
+			);
+			process.exit(1);
+		}
 		return;
 	}
+
 	const output = typescript.transpileModule(
 		fs.readFileSync(configFile, 'utf-8'),
 		JSON.parse(fs.readFileSync(tsconfigJson, 'utf-8'))
 	);
-	const errors =
-		output.diagnostics?.filter(
-			(d) => d.category === typescript.DiagnosticCategory.Error
-		) ?? [];
-	if (errors.length > 0) {
-		console.log(`Your ${configFileName} file has Typescript errors:`);
-		for (const error of errors) {
-			console.log(
-				typescript.formatDiagnostic(error, {
-					getCurrentDirectory: () => typescript.sys.getCurrentDirectory(),
-					getCanonicalFileName: (f) => f,
-					getNewLine: () => '\n',
-				})
-			);
-			process.exit(1);
-		}
-	}
+
 	eval(output.outputText);
 };
