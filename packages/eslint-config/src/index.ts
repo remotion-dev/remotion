@@ -59,6 +59,7 @@ export = {
     ],
     // Enable Remotion specific rules
     "@remotion/no-mp4-import": "warn",
+    "@remotion/warn-native-media-tag": "warn",
     // Using `require` is useful for importing PNG sequences: require('frame' + frame + '.png')
     "@typescript-eslint/no-var-requires": "off",
   },
