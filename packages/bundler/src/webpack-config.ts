@@ -1,5 +1,6 @@
 import path from 'path';
 import webpack from 'webpack';
+import {getOverrideFn} from './override-webpack';
 
 const ErrorOverlayPlugin = require('@webhotelier/webpack-fast-refresh/error-overlay');
 const ReactRefreshPlugin = require('@webhotelier/webpack-fast-refresh');
@@ -28,7 +29,7 @@ export const webpackConfig = ({
 	outDir: string;
 	environment: 'development' | 'production';
 }): WebpackConfiguration => {
-	return {
+	return getOverrideFn()({
 		optimization: {
 			minimize: false,
 		},
@@ -144,5 +145,5 @@ export const webpackConfig = ({
 				},
 			],
 		},
-	};
+	});
 };
