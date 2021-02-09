@@ -19,7 +19,6 @@
 		"@babel/plugin-syntax-jsx": "7.12.13",
 		"@babel/preset-env": "7.12.13",
 		"@babel/preset-react": "7.12.13",
-		"@jonny/eslint-config": "^2.1.210",
 		"@remotion/bundler": "^1.0.6-beta.0",
 		"@remotion/cli": "^1.0.6-beta.0",
 		"@remotion/eslint-config": "^1.0.6-beta.0",
