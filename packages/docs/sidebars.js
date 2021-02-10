@@ -21,6 +21,7 @@ module.exports = {
         "assets",
         "fonts",
         "webpack",
+        "use-img-and-iframe",
       ],
     },
     {
@@ -40,6 +41,8 @@ module.exports = {
         "sequence",
         "video",
         "absolute-fill",
+        "img",
+        "iframe",
       ],
     },
     "license",

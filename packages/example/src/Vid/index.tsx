@@ -1,5 +1,5 @@
 import React from 'react';
-import {spring, useCurrentFrame, useVideoConfig, Video} from 'remotion';
+import {Img, spring, useCurrentFrame, useVideoConfig, Video} from 'remotion';
 
 const VideoComp: React.FC = () => {
 	const iphone = require('./huawei.png');
@@ -54,7 +54,7 @@ const VideoComp: React.FC = () => {
 						marginLeft: 520,
 					}}
 				/>
-				<img
+				<Img
 					src={iphone}
 					style={{
 						position: 'absolute',
