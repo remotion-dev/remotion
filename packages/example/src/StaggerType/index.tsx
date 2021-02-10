@@ -18,7 +18,7 @@ const Label = styled.div`
 	line-height: 1em;
 `;
 
-const StaggerType = () => {
+const StaggerType: React.FC = () => {
 	const types = 4;
 	const frame = useCurrentFrame();
 	const videoConfig = useVideoConfig();
@@ -65,7 +65,7 @@ const StaggerType = () => {
 									marginTop: -20,
 								}}
 							>
-								{'beta'}
+								beta
 							</Label>
 						);
 					})}
