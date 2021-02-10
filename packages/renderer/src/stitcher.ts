@@ -20,7 +20,7 @@ export const stitchFramesToVideo = async (options: {
 			'-s',
 			`${options.width}x${options.height}`,
 			'-i',
-			'element-%d.png',
+			'element-%d.jpeg',
 			'-vcodec',
 			'libx264',
 			'-crf',
