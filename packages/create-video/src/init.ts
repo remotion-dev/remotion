@@ -40,7 +40,11 @@ xns(async () => {
 		return;
 	}
 	await turnIntoDot(templateDir);
-	await execa('cp', ['-r', templateDir, selectedDirname]);
+	await execa(process.platform === 'win32' ? 'copy' : 'cp', [
+		'-r',
+		templateDir,
+		selectedDirname,
+	]);
 	console.log('');
 	console.log(
 		`Created project at ${chalk.blue(
