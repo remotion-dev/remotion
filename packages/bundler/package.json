@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/bundler",
-	"version": "1.1.0",
+	"version": "1.1.1",
 	"description": "Bundler for Remotion",
 	"main": "dist/index.js",
 	"repository": {
@@ -32,7 +32,7 @@
 		"react": "^17.0.1",
 		"react-dom": "^17.0.1",
 		"react-refresh": "^0.8.2",
-		"remotion": "^1.1.0",
+		"remotion": "^1.1.1",
 		"semver": "7.3.4",
 		"style-loader": "^2.0.0",
 		"styled-components": "^5.2.1",
