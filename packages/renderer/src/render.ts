@@ -65,7 +65,7 @@ export const renderFrames = async ({
 						JSON.stringify(userProps)
 					)}`;
 					await provideScreenshot(freePage, {
-						output: path.join(outputDir, `element-${f}.png`),
+						output: path.join(outputDir, `element-${f}.jpeg`),
 						site,
 						height: config.height,
 						width: config.width,
