@@ -24,7 +24,7 @@ async function screenshotDOMElement(
 		throw Error(`Could not find element that matches selector: ${selector}.`);
 
 	await page.evaluate(() => (document.body.style.background = 'transparent'));
-	return await page.screenshot({
+	const screen = await page.screenshot({
 		omitBackground: true,
 		path,
 		clip: {
@@ -33,7 +33,9 @@ async function screenshotDOMElement(
 			width: rect.width,
 			height: rect.height,
 		},
+		type: 'jpeg',
 	});
+	return screen;
 }
 
 export const openBrowser = async (): Promise<puppeteer.Browser> => {
@@ -65,6 +67,7 @@ export const provideScreenshot = async (
 	page.on('pageerror', console.error);
 
 	await page.goto(options.site);
+
 	await page.waitForFunction('window.ready === true');
 
 	await screenshotDOMElement(page, {
