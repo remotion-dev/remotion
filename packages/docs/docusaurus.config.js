@@ -62,6 +62,10 @@ module.exports = {
               label: "Github Issues",
               href: "https://github.com/JonnyBurger/remotion/issues",
             },
+            {
+              label: "Discord",
+              href: "https://discord.gg/6VzzNDwUwV",
+            },
           ],
         },
         {
