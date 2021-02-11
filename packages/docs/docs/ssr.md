@@ -67,6 +67,8 @@ const start = async () => {
       titleText: 'Hello World'
     },
     compositionId,
+    // Can be either 'jpeg' or 'png'. JPEG is faster, but has no transparency.
+    imageFormat: 'jpeg'
   });
 
   // Add this step if you want to make an MP4 out of the rendered frames.
@@ -81,6 +83,8 @@ const start = async () => {
     fps: video.fps,
     height: video.height,
     width: video.width,
+    // Must match the value above for the image format
+    imageFormat: 'jpeg',
     // Pass in the desired output path of the video. Et voilà!
     outputLocation: path.join(tmpDir, 'out.mp4'),
   });

@@ -1,12 +1,20 @@
 import puppeteer from 'puppeteer';
+import {ImageFormat} from './image-format';
 
-async function screenshotDOMElement(
-	page: puppeteer.Page,
-	opts: {
+async function screenshotDOMElement({
+	page,
+	imageFormat,
+	quality,
+	opts = {},
+}: {
+	page: puppeteer.Page;
+	imageFormat: ImageFormat;
+	quality: number | undefined;
+	opts?: {
 		path?: string;
 		selector?: string;
-	} = {}
-): Promise<Buffer> {
+	};
+}): Promise<Buffer> {
 	const path = 'path' in opts ? opts.path : null;
 	const {selector} = opts;
 
@@ -24,7 +32,7 @@ async function screenshotDOMElement(
 		throw Error(`Could not find element that matches selector: ${selector}.`);
 
 	await page.evaluate(() => (document.body.style.background = 'transparent'));
-	return await page.screenshot({
+	return page.screenshot({
 		omitBackground: true,
 		path,
 		clip: {
@@ -33,6 +41,8 @@ async function screenshotDOMElement(
 			width: rect.width,
 			height: rect.height,
 		},
+		type: imageFormat,
+		quality,
 	});
 }
 
@@ -47,15 +57,22 @@ export const openBrowser = async (): Promise<puppeteer.Browser> => {
 	return browser;
 };
 
-export const provideScreenshot = async (
-	page: puppeteer.Page,
+export const provideScreenshot = async ({
+	page,
+	imageFormat,
+	options,
+	quality,
+}: {
+	page: puppeteer.Page;
+	imageFormat: ImageFormat;
+	quality: number | undefined;
 	options: {
 		site: string;
 		output: string;
 		width: number;
 		height: number;
-	}
-): Promise<void> => {
+	};
+}): Promise<void> => {
 	page.setViewport({
 		width: options.width,
 		height: options.height,
@@ -67,9 +84,14 @@ export const provideScreenshot = async (
 	await page.goto(options.site);
 	await page.waitForFunction('window.ready === true');
 
-	await screenshotDOMElement(page, {
-		path: options.output,
-		selector: '#canvas',
+	await screenshotDOMElement({
+		page,
+		opts: {
+			path: options.output,
+			selector: '#canvas',
+		},
+		imageFormat,
+		quality,
 	});
 };
 

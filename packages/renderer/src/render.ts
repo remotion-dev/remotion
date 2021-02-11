@@ -2,6 +2,7 @@ import path from 'path';
 import {VideoConfig} from 'remotion';
 import {openBrowser, provideScreenshot} from '.';
 import {getActualConcurrency} from './get-concurrency';
+import {DEFAULT_IMAGE_FORMAT, ImageFormat} from './image-format';
 
 export const renderFrames = async ({
 	config,
@@ -12,6 +13,8 @@ export const renderFrames = async ({
 	onStart,
 	userProps,
 	webpackBundle,
+	quality,
+	imageFormat = DEFAULT_IMAGE_FORMAT,
 }: {
 	config: VideoConfig;
 	parallelism?: number | null;
@@ -21,7 +24,14 @@ export const renderFrames = async ({
 	outputDir: string;
 	userProps: unknown;
 	webpackBundle: string;
+	imageFormat?: ImageFormat;
+	quality?: number;
 }) => {
+	if (quality !== undefined && imageFormat !== 'jpeg') {
+		throw new Error(
+			"You can only pass the `quality` option if `imageFormat` is 'jpeg'."
+		);
+	}
 	const actualParallelism = getActualConcurrency(parallelism ?? null);
 	const busyPages = new Array(actualParallelism).fill(true).map(() => false);
 	const getBusyPages = () => busyPages;
@@ -64,11 +74,16 @@ export const renderFrames = async ({
 					const site = `file://${webpackBundle}/index.html?composition=${compositionId}&frame=${f}&props=${encodeURIComponent(
 						JSON.stringify(userProps)
 					)}`;
-					await provideScreenshot(freePage, {
-						output: path.join(outputDir, `element-${f}.png`),
-						site,
-						height: config.height,
-						width: config.width,
+					await provideScreenshot({
+						page: freePage,
+						options: {
+							output: path.join(outputDir, `element-${f}.${imageFormat}`),
+							site,
+							height: config.height,
+							width: config.width,
+						},
+						imageFormat,
+						quality,
 					});
 				} catch (err) {
 					console.log('Error taking screenshot', err);
