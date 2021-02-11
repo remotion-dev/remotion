@@ -4,8 +4,7 @@
   </a>
 </p>
 
-<a href="https://www.producthunt.com/posts/remotion-3?utm_source=badge-featured&utm_medium=badge&utm_souce=badge-remotion-3" target="_blank"><img src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=283561&theme=light" alt="Remotion - Create videos programmatically in React | Product Hunt" style="width: 250px; height: 54px;" width="250" height="54" /></a>
-
+![Discord Shield](https://discordapp.com/api/guilds/809501355504959528/widget.png?style=shield)
 
 Remotion is a suite of libraries building a fundament for **creating videos programmatically using React.**
 
