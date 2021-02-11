@@ -67,6 +67,8 @@ const start = async () => {
       titleText: 'Hello World'
     },
     compositionId,
+    // Can be either 'jpeg' or 'png'. JPEG is faster, but has no transparency.
+    imageFormat: 'jpeg'
   });
 
   // Add this step if you want to make an MP4 out of the rendered frames.
