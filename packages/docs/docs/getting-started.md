@@ -25,7 +25,7 @@ yarn create video
 or
 
 ```bash
-npx create-video
+npm init video
 ```
 
 That's it! Wait for the installation to be finished and follow the instructions in the terminal.

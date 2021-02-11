@@ -73,6 +73,7 @@ await renderFrames({
     titleText: 'Hello World'
   },
   compositionId: 'HelloWorld',
+  imageFormat: 'jpeg'
 });
 ```
 
