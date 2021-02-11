@@ -74,11 +74,15 @@ export const renderFrames = async ({
 					const site = `file://${webpackBundle}/index.html?composition=${compositionId}&frame=${f}&props=${encodeURIComponent(
 						JSON.stringify(userProps)
 					)}`;
-					await provideScreenshot(freePage, {
-						output: path.join(outputDir, `element-${f}.${imageFormat}`),
-						site,
-						height: config.height,
-						width: config.width,
+					await provideScreenshot({
+						page: freePage,
+						options: {
+							output: path.join(outputDir, `element-${f}.${imageFormat}`),
+							site,
+							height: config.height,
+							width: config.width,
+						},
+						imageFormat,
 					});
 				} catch (err) {
 					console.log('Error taking screenshot', err);

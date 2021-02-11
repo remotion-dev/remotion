@@ -1,12 +1,18 @@
 import puppeteer from 'puppeteer';
+import {ImageFormat} from './image-format';
 
-async function screenshotDOMElement(
-	page: puppeteer.Page,
-	opts: {
+async function screenshotDOMElement({
+	page,
+	imageFormat,
+	opts = {},
+}: {
+	page: puppeteer.Page;
+	imageFormat: ImageFormat;
+	opts?: {
 		path?: string;
 		selector?: string;
-	} = {}
-): Promise<Buffer> {
+	};
+}): Promise<Buffer> {
 	const path = 'path' in opts ? opts.path : null;
 	const {selector} = opts;
 
@@ -33,7 +39,7 @@ async function screenshotDOMElement(
 			width: rect.width,
 			height: rect.height,
 		},
-		type: 'jpeg',
+		type: imageFormat,
 	});
 }
 
@@ -48,15 +54,20 @@ export const openBrowser = async (): Promise<puppeteer.Browser> => {
 	return browser;
 };
 
-export const provideScreenshot = async (
-	page: puppeteer.Page,
+export const provideScreenshot = async ({
+	page,
+	imageFormat,
+	options,
+}: {
+	page: puppeteer.Page;
+	imageFormat: ImageFormat;
 	options: {
 		site: string;
 		output: string;
 		width: number;
 		height: number;
-	}
-): Promise<void> => {
+	};
+}): Promise<void> => {
 	page.setViewport({
 		width: options.width,
 		height: options.height,
@@ -68,9 +79,13 @@ export const provideScreenshot = async (
 	await page.goto(options.site);
 	await page.waitForFunction('window.ready === true');
 
-	await screenshotDOMElement(page, {
-		path: options.output,
-		selector: '#canvas',
+	await screenshotDOMElement({
+		page,
+		opts: {
+			path: options.output,
+			selector: '#canvas',
+		},
+		imageFormat,
 	});
 };
 
