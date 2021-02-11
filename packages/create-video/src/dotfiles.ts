@@ -1,7 +1,7 @@
 import execa from 'execa';
 import path from 'path';
 
-const files = ['gitignore', 'eslintrc', 'prettierrc'];
+const files = ['gitignore', 'eslintrc', 'prettierrc', 'dockerignore'];
 
 export const turnIntoUnderscore = async (dir: string) => {
 	for (const file of files) {
