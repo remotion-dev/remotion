@@ -15,6 +15,7 @@ import {getConcurrency} from './get-concurrency';
 import {getConfigFileName} from './get-config-file-name';
 import {getOutputFilename} from './get-filename';
 import {getOverwrite} from './get-overwrite';
+import {getQuality} from './get-quality';
 import {getUserProps} from './get-user-props';
 import {getImageFormat, getRenderMode} from './image-formats';
 import {loadConfigFile} from './load-config';
@@ -29,6 +30,7 @@ export const render = async () => {
 	const outputFile = getOutputFilename();
 	const overwrite = getOverwrite();
 	const userProps = getUserProps();
+	const quality = getQuality();
 	const configFileName = getConfigFileName();
 
 	loadConfigFile(configFileName);
@@ -88,6 +90,7 @@ export const render = async () => {
 		userProps,
 		webpackBundle: bundled,
 		imageFormat: getImageFormat(renderMode),
+		quality,
 	});
 	bar.stop();
 	if (renderMode === 'mp4') {
