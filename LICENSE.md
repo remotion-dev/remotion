@@ -1,6 +1,6 @@
 # Remotion License
 
-Depending on the type of your legal entity, you are granted permission to use Remotion for your project. Individuals and small companies are allowed to use Remotion create videos for free (even commercial), while a company license is required for for-profit organisations of a certain size. This two-tier system was designed to ensure funding for this project while still allowing it to be open source. Read below for the exact terms of use.
+Depending on the type of your legal entity, you are granted permission to use Remotion for your project. Individuals and small companies are allowed to use Remotion create videos for free (even commercial), while a company license is required for for-profit organisations of a certain size. This two-tier system was designed to ensure funding for this project while still allowing the source code to be available and the program to be free for most. Read below for the exact terms of use.
 
 - [Free license](#free-license)
 - [Company license](#company-license)
