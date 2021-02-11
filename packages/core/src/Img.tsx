@@ -7,7 +7,7 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 		React.ImgHTMLAttributes<HTMLImageElement>,
 		HTMLImageElement
 	>
-> = ({onLoad, ...props}) => {
+> = ({onLoad, ...props}, ref) => {
 	const [handle] = useState(() => delayRender());
 
 	const didLoad = useCallback(
@@ -18,7 +18,7 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 		[handle, onLoad]
 	);
 
-	return <img {...props} onLoad={didLoad} />;
+	return <img {...props} ref={ref} onLoad={didLoad} />;
 };
 
 export const Img = forwardRef(ImgRefForwarding);

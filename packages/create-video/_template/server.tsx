@@ -59,6 +59,7 @@ app.get('/', async (req, res) => {
 			outputDir: tmpDir,
 			userProps: req.query,
 			compositionId,
+			imageFormat: 'jpeg',
 		});
 
 		const finalOutput = path.join(tmpDir, `out.mp4`);
@@ -69,6 +70,7 @@ app.get('/', async (req, res) => {
 			height: video.height,
 			width: video.width,
 			outputLocation: finalOutput,
+			imageFormat: 'jpeg',
 		});
 		cache.set(JSON.stringify(req.query), finalOutput);
 		sendFile(finalOutput);
