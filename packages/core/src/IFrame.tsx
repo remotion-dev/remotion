@@ -7,7 +7,7 @@ const IFrameRefForwarding: React.ForwardRefRenderFunction<
 		React.IframeHTMLAttributes<HTMLIFrameElement>,
 		HTMLIFrameElement
 	>
-> = ({onLoad, ...props}) => {
+> = ({onLoad, ...props}, ref) => {
 	const [handle] = useState(() => delayRender());
 
 	const didLoad = useCallback(
@@ -18,7 +18,7 @@ const IFrameRefForwarding: React.ForwardRefRenderFunction<
 		[handle, onLoad]
 	);
 
-	return <iframe {...props} onLoad={didLoad} />;
+	return <iframe {...props} ref={ref} onLoad={didLoad} />;
 };
 
 export const IFrame = forwardRef(IFrameRefForwarding);
