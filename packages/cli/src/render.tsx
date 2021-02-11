@@ -15,8 +15,9 @@ import {getConcurrency} from './get-concurrency';
 import {getConfigFileName} from './get-config-file-name';
 import {getOutputFilename} from './get-filename';
 import {getOverwrite} from './get-overwrite';
-import {getRenderMode} from './get-render-mode';
+import {getQuality} from './get-quality';
 import {getUserProps} from './get-user-props';
+import {getImageFormat, getRenderMode} from './image-formats';
 import {loadConfigFile} from './load-config';
 
 export const render = async () => {
@@ -29,6 +30,7 @@ export const render = async () => {
 	const outputFile = getOutputFilename();
 	const overwrite = getOverwrite();
 	const userProps = getUserProps();
+	const quality = getQuality();
 	const configFileName = getConfigFileName();
 
 	loadConfigFile(configFileName);
@@ -87,6 +89,8 @@ export const render = async () => {
 		},
 		userProps,
 		webpackBundle: bundled,
+		imageFormat: getImageFormat(renderMode),
+		quality,
 	});
 	bar.stop();
 	if (renderMode === 'mp4') {
@@ -98,6 +102,7 @@ export const render = async () => {
 			fps: config.fps,
 			outputLocation: absoluteOutputFile,
 			force: overwrite,
+			imageFormat: getImageFormat(renderMode),
 		});
 		console.log('Cleaning up...');
 		await fs.promises.rmdir(outputDir, {
