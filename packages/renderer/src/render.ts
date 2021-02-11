@@ -83,6 +83,7 @@ export const renderFrames = async ({
 							width: config.width,
 						},
 						imageFormat,
+						quality,
 					});
 				} catch (err) {
 					console.log('Error taking screenshot', err);
