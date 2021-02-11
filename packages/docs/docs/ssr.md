@@ -83,6 +83,8 @@ const start = async () => {
     fps: video.fps,
     height: video.height,
     width: video.width,
+    // Must match the value above for the image format
+    imageFormat: 'jpeg',
     // Pass in the desired output path of the video. Et voilà!
     outputLocation: path.join(tmpDir, 'out.mp4'),
   });
