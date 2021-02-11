@@ -24,7 +24,7 @@ async function screenshotDOMElement(
 		throw Error(`Could not find element that matches selector: ${selector}.`);
 
 	await page.evaluate(() => (document.body.style.background = 'transparent'));
-	await page.screenshot({
+	return page.screenshot({
 		omitBackground: true,
 		path,
 		clip: {
@@ -66,7 +66,6 @@ export const provideScreenshot = async (
 	page.on('pageerror', console.error);
 
 	await page.goto(options.site);
-
 	await page.waitForFunction('window.ready === true');
 
 	await screenshotDOMElement(page, {
