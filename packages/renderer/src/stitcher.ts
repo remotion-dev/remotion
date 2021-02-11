@@ -1,4 +1,5 @@
 import execa from 'execa';
+import {DEFAULT_IMAGE_FORMAT, ImageFormat} from './image-format';
 import {validateFfmpeg} from './validate-ffmpeg';
 
 export const stitchFramesToVideo = async (options: {
@@ -8,7 +9,9 @@ export const stitchFramesToVideo = async (options: {
 	height: number;
 	outputLocation: string;
 	force: boolean;
+	imageFormat?: ImageFormat;
 }): Promise<void> => {
+	const format = options.imageFormat ?? DEFAULT_IMAGE_FORMAT;
 	await validateFfmpeg();
 	await execa(
 		'ffmpeg',
@@ -20,7 +23,7 @@ export const stitchFramesToVideo = async (options: {
 			'-s',
 			`${options.width}x${options.height}`,
 			'-i',
-			'element-%d.png',
+			`element-%d.${format}`,
 			'-vcodec',
 			'libx264',
 			'-crf',
