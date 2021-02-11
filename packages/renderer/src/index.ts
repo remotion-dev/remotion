@@ -4,10 +4,12 @@ import {ImageFormat} from './image-format';
 async function screenshotDOMElement({
 	page,
 	imageFormat,
+	quality,
 	opts = {},
 }: {
 	page: puppeteer.Page;
 	imageFormat: ImageFormat;
+	quality: number | undefined;
 	opts?: {
 		path?: string;
 		selector?: string;
@@ -40,6 +42,7 @@ async function screenshotDOMElement({
 			height: rect.height,
 		},
 		type: imageFormat,
+		quality,
 	});
 }
 
@@ -58,9 +61,11 @@ export const provideScreenshot = async ({
 	page,
 	imageFormat,
 	options,
+	quality,
 }: {
 	page: puppeteer.Page;
 	imageFormat: ImageFormat;
+	quality: number | undefined;
 	options: {
 		site: string;
 		output: string;
@@ -86,6 +91,7 @@ export const provideScreenshot = async ({
 			selector: '#canvas',
 		},
 		imageFormat,
+		quality,
 	});
 };
 
