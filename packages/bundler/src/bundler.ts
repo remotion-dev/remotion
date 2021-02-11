@@ -36,9 +36,11 @@ export const bundle = async (
 	if (errors.length > 0) {
 		throw new Error(errors[0].message + '\n' + errors[0].details);
 	}
-	await execa(process.platform === 'win32' ? 'copy' : 'cp', [
-		path.join(__dirname, '..', 'web', 'index.html'),
-		tmpDir,
-	]);
+	const indexHtmlDir = path.join(__dirname, '..', 'web', 'index.html');
+	if (process.platform === 'win32') {
+		await execa('copy', [indexHtmlDir, tmpDir]);
+	} else {
+		await execa('cp', [indexHtmlDir, tmpDir]);
+	}
 	return tmpDir;
 };
