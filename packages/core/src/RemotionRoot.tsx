@@ -1,4 +1,4 @@
-import React, {useCallback, useMemo, useState} from 'react';
+import React, {useCallback, useLayoutEffect, useMemo, useState} from 'react';
 import {
 	CompositionManager,
 	CompositionManagerContext,
@@ -11,6 +11,7 @@ import {
 	TimelineContext,
 	TimelineContextValue,
 } from './timeline-position-state';
+import { delayRender, continueRender } from './ready-manager';
 
 export const RemotionRoot: React.FC = ({children}) => {
 	// Wontfix, expected to have
@@ -22,6 +23,16 @@ export const RemotionRoot: React.FC = ({children}) => {
 	const [sequences, setSequences] = useState<TSequence[]>([]);
 	const [frame, setFrame] = useState<number>(0);
 	const [playing, setPlaying] = useState<boolean>(false);
+
+	useLayoutEffect(() => {
+		if (typeof window !== 'undefined') {
+			window.remotion_setFrame = (f: number) => {
+				const id = delayRender()
+				setFrame(f)
+				requestAnimationFrame(() => continueRender(id))
+			}
+		}
+	}, [])
 
 	const registerComposition = useCallback(<T,>(comp: TComposition<T>) => {
 		setCompositions((comps) => {
