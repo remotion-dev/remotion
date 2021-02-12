@@ -67,21 +67,13 @@ export const provideScreenshot = async ({
 	imageFormat: ImageFormat;
 	quality: number | undefined;
 	options: {
-		site: string;
+		frame: number
 		output: string;
-		width: number;
-		height: number;
-	};
+	}
 }): Promise<void> => {
-	page.setViewport({
-		width: options.width,
-		height: options.height,
-		deviceScaleFactor: 1,
-	});
-	page.on('error', console.error);
-	page.on('pageerror', console.error);
-
-	await page.goto(options.site);
+	await page.evaluate((frame) => {
+		window.remotion_setFrame(frame)
+	}, options.frame);
 	await page.waitForFunction('window.ready === true');
 
 	await screenshotDOMElement({
