@@ -18,7 +18,7 @@ Remotion is a suite of libraries building a fundament for **creating videos prog
 
 - **Remotion Trailer** [Watch](https://www.youtube.com/watch?v=gwlDorikqgY) • [Source code](https://github.com/JonnyBurger/remotion-trailer) • The announcement video for Remotion was written in Remotion itself!
 - **AnySticker Welcome Video** [Watch](https://www.youtube.com/watch?v=Y0SNPeTz09w) • [Source code](https://github.com/JonnyBurger/anysticker-tutorials) • An in-app explainer video for my app AnySticker.
-- **Spotify Wrapped Recreated** [Watch](https://www.example.com) • [Tutorial](https://www.youtube.com/watch?v=I-y_5H9-3gk) • [Source code](https://github.com/JonnyBurger/remotion-wrapped) • A recreation of Spotify Wrapped where you can override all text and images via command line.
+- **Spotify Wrapped Recreated** [Watch](https://twitter.com/JNYBGR/status/1360269270526136320) • [Tutorial](https://www.youtube.com/watch?v=I-y_5H9-3gk) • [Source code](https://github.com/JonnyBurger/remotion-wrapped) • A recreation of Spotify Wrapped where you can override all text and images via command line.
 - **"Game changer or no game changer" intro** [Watch](https://youtu.be/ga_xAZo9m7k?t=61) • [Source code](https://github.com/JonnyBurger/remotion-wrapped) • An intro for a quiz show I did with William Candillon.
 
 Feel free to pull request your creations!
