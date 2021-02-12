@@ -4,9 +4,16 @@
         <title>Remotion Blog</title>
         <link>https://remotion.dev/blog</link>
         <description>Remotion Blog</description>
-        <lastBuildDate>Thu, 11 Feb 2021 00:00:00 GMT</lastBuildDate>
+        <lastBuildDate>Sat, 13 Feb 2021 00:00:00 GMT</lastBuildDate>
         <docs>https://validator.w3.org/feed/docs/rss2.html</docs>
         <generator>https://github.com/jpmonette/feed</generator>
+        <item>
+            <title><![CDATA[Remotion 1.2]]></title>
+            <link>https://remotion.dev/blog/1-2</link>
+            <guid>1-2</guid>
+            <pubDate>Sat, 13 Feb 2021 00:00:00 GMT</pubDate>
+            <description><![CDATA[You have tested Remotion and provided an enormous amount of feedback! Thanks to it, this version of Remotion is vastly improved 🎉]]></description>
+        </item>
         <item>
             <title><![CDATA[Remotion 1.1]]></title>
             <link>https://remotion.dev/blog/1-1</link>
