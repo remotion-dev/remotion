@@ -49,7 +49,6 @@ export const _screenshotTask = async (
 ): Promise<Buffer | string> => {
 	const client = (page as any)._client;
 	const target = (page as any)._target;
-	const viewport = (page as any)._viewport;
 
 	const perfTarget = startPerf('activate-target');
 
