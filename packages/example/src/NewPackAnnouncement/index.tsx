@@ -112,7 +112,7 @@ const Rating: React.FC = () => {
 					opacity: frame < 140 ? 0 : frame > 160 ? 1 : (frame - 140) / 20,
 				}}
 			>
-				<img
+				<Img
 					src="https://www.anysticker.app/logo-transparent.png"
 					style={{height: 200, width: 200, marginRight: 40}}
 				/>
