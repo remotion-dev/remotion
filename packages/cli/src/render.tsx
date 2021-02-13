@@ -53,9 +53,20 @@ export const render = async () => {
 	const steps = renderMode === 'png-sequence' ? 2 : 3;
 	process.stdout.write(`📦 (1/${steps}) Bundling video...\n`);
 
-	const bundled = await bundle(fullPath);
+	const bar = new cliProgress.Bar(
+		{clearOnComplete: true},
+		cliProgress.Presets.shades_grey
+	);
+
+	bar.start(100, 0);
+
+	const bundled = await bundle(fullPath, (f) => {
+		bar.update(f);
+	});
 	const comps = await getCompositions(bundled);
 	const compositionId = getCompositionId(comps);
+
+	bar.stop();
 
 	const config = comps.find((c) => c.id === compositionId);
 	if (!config) {
@@ -69,10 +80,6 @@ export const render = async () => {
 			: await fs.promises.mkdtemp(
 					path.join(os.tmpdir(), 'react-motion-render')
 			  );
-	const bar = new cliProgress.Bar(
-		{clearOnComplete: true},
-		cliProgress.Presets.shades_grey
-	);
 	await renderFrames({
 		config,
 		onFrameUpdate: (f) => bar.update(f),
