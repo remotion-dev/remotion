@@ -2,6 +2,8 @@ import xo = require("eslint-config-xo/esnext");
 import xoReact = require("eslint-config-xo-react");
 import { autoImports } from "./auto-import-rules";
 
+const baseExtends = ["eslint:recommended", "prettier"];
+
 export = {
   env: {
     browser: true,
@@ -19,11 +21,7 @@ export = {
     "10x",
     "@remotion",
   ],
-  extends: [
-    "plugin:@typescript-eslint/recommended",
-    "eslint:recommended",
-    "prettier",
-  ].filter(Boolean),
+  extends: baseExtends,
   parser: "@typescript-eslint/parser",
   parserOptions: {
     ecmaVersion: 2020,
@@ -32,6 +30,13 @@ export = {
       jsx: true,
     },
   },
+  overrides: [
+    {
+      files: ["*.{ts,tsx}"],
+      extends: ["plugin:@typescript-eslint/recommended", ...baseExtends],
+      parser: "@typescript-eslint/parser",
+    },
+  ],
   rules: {
     ...xo.rules,
     ...xoReact.rules,
