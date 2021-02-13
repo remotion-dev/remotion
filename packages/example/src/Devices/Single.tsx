@@ -1,5 +1,5 @@
 import React from 'react';
-import {useVideoConfig} from 'remotion';
+import {Img, useVideoConfig} from 'remotion';
 
 export const Single: React.FC<{
 	style: React.CSSProperties;
@@ -7,7 +7,7 @@ export const Single: React.FC<{
 }> = ({style, source}) => {
 	const videoConfig = useVideoConfig();
 	return (
-		<img
+		<Img
 			style={{
 				position: 'absolute',
 				transform: 'scale(0.5)',

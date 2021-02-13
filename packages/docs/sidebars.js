@@ -22,6 +22,7 @@ module.exports = {
         "fonts",
         "webpack",
         "use-img-and-iframe",
+        "javascript",
       ],
     },
     {
