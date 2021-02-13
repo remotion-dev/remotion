@@ -53,9 +53,23 @@ export const render = async () => {
 	const steps = renderMode === 'png-sequence' ? 2 : 3;
 	process.stdout.write(`📦 (1/${steps}) Bundling video...\n`);
 
-	const bundled = await bundle(fullPath);
+	const bundlingProgress = new cliProgress.Bar(
+		{
+			clearOnComplete: true,
+			format: '[{bar}] {percentage}%',
+		},
+		cliProgress.Presets.shades_grey
+	);
+
+	bundlingProgress.start(100, 0);
+
+	const bundled = await bundle(fullPath, (f) => {
+		bundlingProgress.update(f);
+	});
 	const comps = await getCompositions(bundled);
 	const compositionId = getCompositionId(comps);
+
+	bundlingProgress.stop();
 
 	const config = comps.find((c) => c.id === compositionId);
 	if (!config) {
@@ -69,13 +83,18 @@ export const render = async () => {
 			: await fs.promises.mkdtemp(
 					path.join(os.tmpdir(), 'react-motion-render')
 			  );
-	const bar = new cliProgress.Bar(
-		{clearOnComplete: true},
+
+	const renderProgress = new cliProgress.Bar(
+		{
+			clearOnComplete: true,
+			etaBuffer: 50,
+			format: '[{bar}] {percentage}% | ETA: {eta}s | {value}/{total}',
+		},
 		cliProgress.Presets.shades_grey
 	);
 	await renderFrames({
 		config,
-		onFrameUpdate: (f) => bar.update(f),
+		onFrameUpdate: (f) => renderProgress.update(f),
 		parallelism,
 		compositionId,
 		outputDir,
@@ -85,14 +104,14 @@ export const render = async () => {
 					parallelism
 				)}x concurrency)...\n`
 			);
-			bar.start(frames, 0);
+			renderProgress.start(frames, 0);
 		},
 		userProps,
 		webpackBundle: bundled,
 		imageFormat: getImageFormat(renderMode),
 		quality,
 	});
-	bar.stop();
+	renderProgress.stop();
 	if (renderMode === 'mp4') {
 		process.stdout.write(`🧵 (3/${steps}) Stitching frames together...\n`);
 		await stitchFramesToVideo({
