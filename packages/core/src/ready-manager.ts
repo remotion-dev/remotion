@@ -31,5 +31,6 @@ declare global {
 	interface Window {
 		ready: boolean;
 		getStaticCompositions: () => TCompMetadata[];
+		remotion_setFrame: (frame: number) => void
 	}
 }
