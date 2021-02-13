@@ -1,5 +1,5 @@
 import path from 'path';
-import webpack from 'webpack';
+import webpack, {ProgressPlugin} from 'webpack';
 import {defaultOverrideFunction, WebpackOverrideFn} from './override-webpack';
 
 const ErrorOverlayPlugin = require('@webhotelier/webpack-fast-refresh/error-overlay');
@@ -24,12 +24,14 @@ export const webpackConfig = ({
 	outDir,
 	environment,
 	webpackOverride = defaultOverrideFunction,
+	onProgressUpdate,
 }: {
 	entry: string;
 	userDefinedComponent: string;
 	outDir: string;
 	environment: 'development' | 'production';
 	webpackOverride?: WebpackOverrideFn;
+	onProgressUpdate?: (f: number) => void;
 }): WebpackConfiguration => {
 	return webpackOverride({
 		optimization: {
@@ -62,7 +64,13 @@ export const webpackConfig = ({
 						new ReactRefreshPlugin(),
 						new webpack.HotModuleReplacementPlugin(),
 				  ]
-				: [],
+				: [
+						new ProgressPlugin((p) => {
+							if (onProgressUpdate) {
+								onProgressUpdate(Number((p * 100).toFixed(2)));
+							}
+						}),
+				  ],
 		output: {
 			globalObject: 'this',
 			filename: 'bundle.js',
