@@ -74,7 +74,7 @@ export const webpackConfig = ({
 			hot: true,
 		},
 		resolve: {
-			extensions: ['.ts', '.tsx', '.js'],
+			extensions: ['.ts', '.tsx', '.js', '.jsx'],
 			alias: {
 				// Only one version of react
 				'react/jsx-runtime': require.resolve('react/jsx-runtime'),
@@ -147,6 +147,21 @@ export const webpackConfig = ({
 							  }
 							: null,
 					].filter(truthy),
+				},
+				{
+					test: /\.jsx?$/,
+					loader: require.resolve('babel-loader'),
+					options: {
+						presets: [
+							require.resolve('@babel/preset-env'),
+							[
+								require.resolve('@babel/preset-react'),
+								{
+									runtime: 'automatic',
+								},
+							],
+						],
+					},
 				},
 			],
 		},
