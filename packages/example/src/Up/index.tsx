@@ -1,5 +1,6 @@
 import React from 'react';
 import {
+	Img,
 	interpolate,
 	spring,
 	SpringConfig,
@@ -59,7 +60,7 @@ const Up: React.FC<{
 			>
 				<Title line1={line1} line2={line2} />
 			</div>
-			<img
+			<Img
 				src={f}
 				style={{
 					transform: `translateY(${

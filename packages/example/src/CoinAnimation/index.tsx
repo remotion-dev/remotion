@@ -1,5 +1,11 @@
 import React from 'react';
-import {interpolate, spring, useCurrentFrame, useVideoConfig} from 'remotion';
+import {
+	Img,
+	interpolate,
+	spring,
+	useCurrentFrame,
+	useVideoConfig,
+} from 'remotion';
 
 const CoinAnimation = () => {
 	const frame = useCurrentFrame();
@@ -48,7 +54,7 @@ const CoinAnimation = () => {
 				flex: 1,
 			}}
 		>
-			<img
+			<Img
 				src={getFrame(whichFrame)}
 				style={{
 					height: height / 2,
