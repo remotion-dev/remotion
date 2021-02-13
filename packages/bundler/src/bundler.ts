@@ -13,6 +13,7 @@ const promisified = promisify(webpack);
 
 export const bundle = async (
 	entryPoint: string,
+	onProgressUpdate: (f: number) => void,
 	options?: {
 		webpackOverride?: WebpackOverrideFn;
 	}
@@ -27,6 +28,7 @@ export const bundle = async (
 			outDir: tmpDir,
 			environment: 'production',
 			webpackOverride: options?.webpackOverride ?? getOverrideFn(),
+			onProgressUpdate,
 		}),
 	]);
 	if (!output) {
