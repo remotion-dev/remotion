@@ -6,7 +6,7 @@
 	"private": true,
 	"scripts": {
 		"start": "npx ts-node ../cli/src/index.tsx preview src/index.tsx",
-		"test": "ts-unused-exports tsconfig.json && eslint 'src' --ext ts,tsx",
+		"test": "eslint 'src' --ext ts,tsx,js,jsx",
 		"build": "tsc -d",
 		"render": "remotion render src/index.tsx up video.mp4"
 	},
