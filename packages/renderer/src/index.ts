@@ -1,5 +1,6 @@
 import puppeteer from 'puppeteer';
 import {ImageFormat} from './image-format';
+import {screenshot} from './puppeteer-screenshot';
 
 async function screenshotDOMElement({
 	page,
@@ -33,7 +34,7 @@ async function screenshotDOMElement({
 	if (imageFormat === 'png') {
 		await page.evaluate(() => (document.body.style.background = 'transparent'));
 	}
-	return page.screenshot({
+	return screenshot(page, {
 		omitBackground: imageFormat === 'png',
 		path,
 		clip: {
