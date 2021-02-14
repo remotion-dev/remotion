@@ -4,6 +4,7 @@ import {
 	TComposition,
 	TSequence,
 } from './CompositionManager';
+import {getPixelFormat} from './config/pixel-format';
 import * as perf from './perf';
 import {getCompositionName, getIsEvaluation, getRoot} from './register-root';
 import {RemotionRoot} from './RemotionRoot';
@@ -23,6 +24,7 @@ export const Internals = {
 	getRoot,
 	getCompositionName,
 	getIsEvaluation,
+	getPixelFormat,
 };
 
 export type {TComposition, Timeline, TCompMetadata, TSequence};

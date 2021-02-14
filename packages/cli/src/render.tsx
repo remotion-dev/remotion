@@ -20,12 +20,14 @@ import {getQuality} from './get-quality';
 import {getUserProps} from './get-user-props';
 import {getImageFormat, getRenderMode} from './image-formats';
 import {loadConfigFile} from './load-config';
+import {parseCommandLine} from './parse-command-line';
 
 export const render = async () => {
 	const args = process.argv;
 	const file = args[3];
 	const fullPath = path.join(process.cwd(), file);
 
+	parseCommandLine();
 	const parallelism = getConcurrency();
 	const renderMode = getRenderMode();
 	const outputFile = getOutputFilename();
