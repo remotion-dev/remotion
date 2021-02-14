@@ -17,8 +17,6 @@ import {
 	TComposition,
 } from 'remotion';
 
-const {RemotionRoot} = Internals;
-
 const Root = getRoot();
 
 if (!Root) {
