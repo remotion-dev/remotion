@@ -93,7 +93,7 @@ const start = async () => {
 start();
 ```
 
-[See also: Passing props in Github Actions](parametrized-rendering#passing-props-in-github-actions)
+[See also: Passing props in GitHub Actions](parametrized-rendering#passing-props-in-github-actions)
 
 ## Render using a HTTP server
 
@@ -116,13 +116,13 @@ docker build -t my-video .
 docker run -p 8000:8000 --privileged my-video
 ```
 
-## Render using Github Actions
+## Render using GitHub Actions
 
-The template includes a Github Actions workflow file
-under `.github/workflows/render-video.yml`. All you have to do is to adjust the props that your root component accepts in the workflow file and you can render a video right on Github.
+The template includes a GitHub Actions workflow file
+under `.github/workflows/render-video.yml`. All you have to do is to adjust the props that your root component accepts in the workflow file and you can render a video right on GitHub.
 
-1. Commit the template to a Github repository
-2. On Github, click the 'Actions' tab.
+1. Commit the template to a GitHub repository
+2. On GitHub, click the 'Actions' tab.
 3. Select the 'Render video' workflow on the left.
 4. A 'Run workflow' button should appear. Click it
 5. Fill in the props of the root component and click 'Run workflow'.
@@ -130,4 +130,4 @@ under `.github/workflows/render-video.yml`. All you have to do is to adjust the 
 
 Note that running the workflow may incur costs. However, the workflow will only run if you actively trigger it.
 
-[See also: Passing props in Github Actions](parametrized-rendering#passing-props-in-github-actions)
+[See also: Passing props in GitHub Actions](parametrized-rendering#passing-props-in-github-actions)
