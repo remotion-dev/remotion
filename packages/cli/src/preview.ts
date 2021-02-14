@@ -1,6 +1,4 @@
 import {startServer} from '@remotion/bundler';
-// eslint-disable-next-line @typescript-eslint/prefer-ts-expect-error
-// @ts-ignore
 import betterOpn from 'better-opn';
 import fs from 'fs';
 import path from 'path';
