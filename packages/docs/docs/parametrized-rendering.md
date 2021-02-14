@@ -77,11 +77,11 @@ await renderFrames({
 });
 ```
 
-## Passing props in Github Actions
+## Passing props in GitHub Actions
 
-[See: Render using Github Actions](ssr#render-using-github-actions)
+[See: Render using GitHub Actions](ssr#render-using-github-actions)
 
-When using Github Actions, you need to adjust the file at `.github/workflows/render-video.yml` to make the inputs in the `workflow_dispatch` section manually match the shape of the props your root component accepts.
+When using GitHub Actions, you need to adjust the file at `.github/workflows/render-video.yml` to make the inputs in the `workflow_dispatch` section manually match the shape of the props your root component accepts.
 
 ```yml {3,7}
 workflow_dispatch:

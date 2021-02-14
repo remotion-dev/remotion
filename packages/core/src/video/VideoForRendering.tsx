@@ -70,7 +70,7 @@ export const VideoForRendering: React.FC<RemotionVideoProps> = (props) => {
 
 	const onSetReadyState = useCallback(() => {
 		if (!videoRef.current) {
-			throw Error('No vide ref');
+			throw Error('No video ref');
 		}
 		if (videoRef.current.readyState === 4) {
 			setFrame();

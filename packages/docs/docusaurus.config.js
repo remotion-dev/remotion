@@ -63,7 +63,7 @@ module.exports = {
               "data-splitbee-event-target": "Twitter",
             },
             {
-              label: "Github Issues",
+              label: "GitHub Issues",
               href: "https://github.com/JonnyBurger/remotion/issues",
               "data-splitbee-event": "External Link",
               "data-splitbee-event-target": "Github",
