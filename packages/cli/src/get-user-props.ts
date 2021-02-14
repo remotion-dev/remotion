@@ -1,14 +1,11 @@
-import minimist from 'minimist';
+import {parsedCli} from './parse-command-line';
 
 export const getUserProps = (): unknown => {
-	const args = minimist<{
-		props: string;
-	}>(process.argv.slice(2));
-	if (!args.props) {
+	if (!parsedCli.props) {
 		return {};
 	}
 	try {
-		const parsed = JSON.parse(args.props);
+		const parsed = JSON.parse(parsedCli.props);
 		return parsed;
 	} catch (err) {
 		console.log(
