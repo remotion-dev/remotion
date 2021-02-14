@@ -24,6 +24,10 @@ export const parseCommandLine = () => {
 	if (parsedCli.png) {
 		Config.Output.setOutputFormat('png-sequence');
 	}
-	Config.Output.setOverwriteOutput(parsedCli.overwrite);
-	Config.Rendering.setQuality(parsedCli.quality);
+	if (typeof parsedCli.overwrite !== 'undefined') {
+		Config.Output.setOverwriteOutput(parsedCli.overwrite);
+	}
+	if (typeof parsedCli.quality !== 'undefined') {
+		Config.Rendering.setQuality(parsedCli.quality);
+	}
 };
