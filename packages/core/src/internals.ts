@@ -5,6 +5,10 @@ import {
 	TSequence,
 } from './CompositionManager';
 import {getConcurrency} from './config/concurrency';
+import {
+	getWebpackOverrideFn,
+	WebpackOverrideFn,
+} from './config/override-webpack';
 import {getShouldOverwrite} from './config/overwrite';
 import {getPixelFormat} from './config/pixel-format';
 import {getFormat} from './config/render-mode';
@@ -31,6 +35,13 @@ export const Internals = {
 	getConcurrency,
 	getShouldOverwrite,
 	getFormat,
+	getWebpackOverrideFn,
 };
 
-export type {TComposition, Timeline, TCompMetadata, TSequence};
+export type {
+	TComposition,
+	Timeline,
+	TCompMetadata,
+	TSequence,
+	WebpackOverrideFn,
+};
