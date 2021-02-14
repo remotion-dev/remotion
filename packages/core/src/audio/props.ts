@@ -1,4 +1,4 @@
-export type AllowedAudioProps = Omit<
+export type RemotionAudioProps = Omit<
 	React.DetailedHTMLProps<
 		React.AudioHTMLAttributes<HTMLAudioElement>,
 		HTMLAudioElement

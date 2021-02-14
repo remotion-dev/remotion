@@ -1,5 +1,5 @@
 import React, {useMemo, useState} from 'react';
-import {getRoot} from 'remotion';
+import {Internals} from 'remotion';
 import styled from 'styled-components';
 import {
 	CheckerboardContext,
@@ -19,7 +19,7 @@ const Background = styled.div`
 	position: absolute;
 `;
 
-const Root = getRoot();
+const Root = Internals.getRoot();
 
 export const Editor: React.FC = () => {
 	const [size, setSize] = useState<PreviewSize>('auto');

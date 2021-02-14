@@ -10,6 +10,7 @@ import cliProgress from 'cli-progress';
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
+import {Internals} from 'remotion';
 import {getCompositionId} from './get-composition-id';
 import {getConcurrency} from './get-concurrency';
 import {getConfigFileName} from './get-config-file-name';
@@ -112,6 +113,9 @@ export const render = async () => {
 		quality,
 	});
 	renderProgress.stop();
+	if (process.env.DEBUG) {
+		Internals.perf.logPerf();
+	}
 	if (renderMode === 'mp4') {
 		process.stdout.write(`🧵 (3/${steps}) Stitching frames together...\n`);
 		await stitchFramesToVideo({

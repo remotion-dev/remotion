@@ -1,11 +1,5 @@
 import React, {useCallback, useEffect} from 'react';
-import {
-	usePlayingState,
-	useTimelinePosition,
-	useTimelineSetFrame,
-	useUnsafeVideoConfig,
-	useVideo,
-} from 'remotion';
+import {Internals} from 'remotion';
 import {Pause} from '../icons/pause';
 import {Play} from '../icons/play';
 import {StepBack} from '../icons/step-back';
@@ -13,11 +7,11 @@ import {StepForward} from '../icons/step-forward';
 import {getLastFrames, setLastFrames} from '../state/last-frames';
 
 export const PlayPause: React.FC = () => {
-	const [playing, setPlaying] = usePlayingState();
-	const frame = useTimelinePosition();
-	const setFrame = useTimelineSetFrame();
-	const video = useVideo();
-	const config = useUnsafeVideoConfig();
+	const [playing, setPlaying] = Internals.Timeline.usePlayingState();
+	const frame = Internals.Timeline.useTimelinePosition();
+	const setFrame = Internals.Timeline.useTimelineSetFrame();
+	const video = Internals.useVideo();
+	const config = Internals.useUnsafeVideoConfig();
 
 	const toggle = useCallback(() => {
 		if (!video) {

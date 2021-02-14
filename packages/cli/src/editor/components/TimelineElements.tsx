@@ -1,5 +1,5 @@
 import React, {useContext, useMemo} from 'react';
-import {CompositionManager, useUnsafeVideoConfig} from 'remotion';
+import {Internals} from 'remotion';
 import styled from 'styled-components';
 import {calculateTimeline, Track} from '../helpers/calculate-timeline';
 import {
@@ -19,8 +19,8 @@ const Pre = styled.pre`
 
 export const TimelineElements: React.FC = () => {
 	const {width} = useWindowSize();
-	const {sequences} = useContext(CompositionManager);
-	const videoConfig = useUnsafeVideoConfig();
+	const {sequences} = useContext(Internals.CompositionManager);
+	const videoConfig = Internals.useUnsafeVideoConfig();
 
 	const timeline = useMemo((): Track[] => {
 		if (!videoConfig) {
