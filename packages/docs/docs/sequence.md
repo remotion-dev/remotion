@@ -12,7 +12,7 @@ The Sequence component is a high order component and accepts, besides it's child
 
 - `from` _(required)_: At which frame it's children should assume the video starts. When the sequence is at `frame`, it's children are at 0`.
 
-- `durationInFrames` _(required)_: For how man frames the sequence should be displayed. Children are unmounted if they are not within the time range of display. If you don't want to limit the duration of the sequence, you can pass `Infinity`.
+- `durationInFrames` _(required)_: For how many frames the sequence should be displayed. Children are unmounted if they are not within the time range of display. If you don't want to limit the duration of the sequence, you can pass `Infinity`.
 
 - `name` _(optional)_: You can give your sequence a name and it will be shown as the label of the sequence in the timeline of the Remotion preview. This property is purely for helping you keep track of sequences in the timeline.
 
