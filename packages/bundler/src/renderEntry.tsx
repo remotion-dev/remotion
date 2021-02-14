@@ -8,16 +8,16 @@ import React, {
 } from 'react';
 import {render} from 'react-dom';
 import {
-	CompositionManager,
 	continueRender,
 	delayRender,
 	getCompositionName,
 	getIsEvaluation,
 	getRoot,
-	RemotionRoot,
+	Internals,
 	TComposition,
-	useVideo,
 } from 'remotion';
+
+const {RemotionRoot} = Internals;
 
 const Root = getRoot();
 
@@ -45,8 +45,8 @@ const getUserProps = () => {
 };
 
 const GetVideo = () => {
-	const video = useVideo();
-	const compositions = useContext(CompositionManager);
+	const video = Internals.useVideo();
+	const compositions = useContext(Internals.CompositionManager);
 	const [Component, setComponent] = useState<ComponentType | null>(null);
 	const userProps = getUserProps();
 
@@ -109,9 +109,9 @@ const GetVideo = () => {
 };
 
 render(
-	<RemotionRoot>
+	<Internals.RemotionRoot>
 		<Root />
 		<GetVideo />
-	</RemotionRoot>,
+	</Internals.RemotionRoot>,
 	document.getElementById('container')
 );

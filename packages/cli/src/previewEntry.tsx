@@ -1,11 +1,11 @@
 import React from 'react';
 import {render} from 'react-dom';
-import {RemotionRoot} from 'remotion';
+import {Internals} from 'remotion';
 import {Editor} from './editor/components/Editor';
 
 render(
-	<RemotionRoot>
+	<Internals.RemotionRoot>
 		<Editor />
-	</RemotionRoot>,
+	</Internals.RemotionRoot>,
 	document.getElementById('container')
 );

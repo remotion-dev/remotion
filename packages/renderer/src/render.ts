@@ -1,7 +1,6 @@
 import path from 'path';
 import {VideoConfig} from 'remotion';
 import {openBrowser, provideScreenshot} from '.';
-import {logPerf} from './benchmarking';
 import {getActualConcurrency} from './get-concurrency';
 import {DEFAULT_IMAGE_FORMAT, ImageFormat} from './image-format';
 import {Pool} from './pool';
@@ -85,7 +84,4 @@ export const renderFrames = async ({
 			})
 	);
 	await browser.close();
-	setTimeout(() => {
-		logPerf();
-	}, 300);
 };
