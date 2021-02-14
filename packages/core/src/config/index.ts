@@ -6,6 +6,7 @@ import {
 } from './override-webpack';
 import {setOverwriteOutput} from './overwrite';
 import {PixelFormat, setPixelFormat} from './pixel-format';
+import {setQuality} from './quality';
 import {OutputFormat, setOutputFormat} from './render-mode';
 
 export const Config = {
@@ -23,6 +24,13 @@ export const Config = {
 		 * Default: `null`, meaning half of the threads available on your CPU.
 		 */
 		setConcurrency,
+		/**
+		 * Set the JPEG quality for the frames.
+		 * Must be between 0 and 100.
+		 * Must be between 0 and 100.
+		 * Default: 80
+		 */
+		setQuality,
 	},
 	Output: {
 		/**
