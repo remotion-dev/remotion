@@ -22,27 +22,12 @@ async function screenshotDOMElement({
 	if (!selector) throw Error('Please provide a selector.');
 	if (!path) throw Error('Please provide a path.');
 
-	const rect = await page.evaluate((sel) => {
-		const element = document.querySelector(sel);
-		if (!element) return null;
-		const {x, y, width, height} = element.getBoundingClientRect();
-		return {left: x, top: y, width, height, id: element.id};
-	}, selector);
-
-	if (!rect)
-		throw Error(`Could not find element that matches selector: ${selector}.`);
 	if (imageFormat === 'png') {
 		await page.evaluate(() => (document.body.style.background = 'transparent'));
 	}
 	return screenshot(page, {
 		omitBackground: imageFormat === 'png',
 		path,
-		clip: {
-			x: rect.left,
-			y: rect.top,
-			width: rect.width,
-			height: rect.height,
-		},
 		type: imageFormat,
 		quality,
 	}) as Promise<Buffer>;
