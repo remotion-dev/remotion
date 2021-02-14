@@ -56,6 +56,7 @@ export const renderFrames = async ({
 	const pool = new Pool(await Promise.all(pages));
 
 	const {durationInFrames: frames} = config;
+	const filePadLength = String(frames).length;
 	let framesRendered = 0;
 	onStart();
 	await Promise.all(
@@ -64,6 +65,7 @@ export const renderFrames = async ({
 			.map((x, i) => i)
 			.map(async (f) => {
 				const freePage = await pool.acquire();
+				const paddedIndex = String(f).padStart(filePadLength, '0');
 				try {
 					await provideScreenshot({
 						page: freePage,
@@ -71,7 +73,7 @@ export const renderFrames = async ({
 						quality,
 						options: {
 							frame: f,
-							output: path.join(outputDir, `element-${f}.${imageFormat}`),
+							output: path.join(outputDir, `element-${paddedIndex}.${imageFormat}`),
 						},
 					});
 				} catch (err) {

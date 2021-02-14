@@ -6,7 +6,7 @@
     "declarationMap": true,
     "sourceMap": true,
     "composite": true,
-    "lib": ["es2015", "dom"],
+    "lib": ["es2018", "dom"],
     "jsx": "react-jsx",
     "noEmit": false,
     "strict": true,
