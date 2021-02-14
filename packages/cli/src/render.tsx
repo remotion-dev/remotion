@@ -24,6 +24,8 @@ export const render = async () => {
 	const file = args[3];
 	const fullPath = path.join(process.cwd(), file);
 
+	const configFileName = getConfigFileName();
+	loadConfigFile(configFileName);
 	parseCommandLine();
 	const parallelism = Internals.getConcurrency();
 	const renderMode = Internals.getFormat();
@@ -31,9 +33,6 @@ export const render = async () => {
 	const overwrite = Internals.getShouldOverwrite();
 	const userProps = getUserProps();
 	const quality = Internals.getQuality();
-	const configFileName = getConfigFileName();
-
-	loadConfigFile(configFileName);
 
 	const absoluteOutputFile = path.resolve(process.cwd(), outputFile);
 	if (fs.existsSync(absoluteOutputFile) && !overwrite) {
