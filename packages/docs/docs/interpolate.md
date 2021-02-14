@@ -52,4 +52,19 @@ interpolate(1.5, [0, 1], [0, 2], {extrapolateRight: 'identity'}) // 1.5
 _Default_: `(x) => x`
 
 Function which allows you to customize the input, for example to apply a certain easing function.
-By default, the input is left unmodified, resulting in a pure linear interpolation.
+By default, the input is left unmodified, resulting in a pure linear interpolation. [Read the documentation for the built-in easing functions](easing).
+
+```tsx
+import {interpolate, Easing} from 'remotion';
+
+interpolate(frame, [0, 100], {
+  easing: Easing.bezier(0.8, 0.22, 0.96, 0.65),
+  extrapolateLeft: 'clamp',
+  extrapolateRight: 'clamp',
+})
+```
+
+## See also
+
+- [Easing](easing)
+- [spring()](spring)
