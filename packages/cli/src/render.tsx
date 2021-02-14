@@ -16,7 +16,7 @@ import {getConfigFileName} from './get-config-file-name';
 import {getOutputFilename} from './get-filename';
 import {getQuality} from './get-quality';
 import {getUserProps} from './get-user-props';
-import {getImageFormat, getRenderMode} from './image-formats';
+import {getFrameFormat} from './image-formats';
 import {loadConfigFile} from './load-config';
 import {parseCommandLine} from './parse-command-line';
 
@@ -27,7 +27,7 @@ export const render = async () => {
 
 	parseCommandLine();
 	const parallelism = Internals.getConcurrency();
-	const renderMode = getRenderMode();
+	const renderMode = Internals.getFormat();
 	const outputFile = getOutputFilename();
 	const overwrite = Internals.getShouldOverwrite();
 	const userProps = getUserProps();
@@ -109,7 +109,7 @@ export const render = async () => {
 		},
 		userProps,
 		webpackBundle: bundled,
-		imageFormat: getImageFormat(renderMode),
+		imageFormat: getFrameFormat(renderMode),
 		quality,
 	});
 	renderProgress.stop();
@@ -125,7 +125,8 @@ export const render = async () => {
 			fps: config.fps,
 			outputLocation: absoluteOutputFile,
 			force: overwrite,
-			imageFormat: getImageFormat(renderMode),
+			imageFormat: getFrameFormat(renderMode),
+			pixelFormat: Internals.getPixelFormat(),
 		});
 		console.log('Cleaning up...');
 		await fs.promises.rmdir(outputDir, {

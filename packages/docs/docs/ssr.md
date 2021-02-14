@@ -87,6 +87,8 @@ const start = async () => {
     imageFormat: 'jpeg',
     // Pass in the desired output path of the video. Et voilà!
     outputLocation: path.join(tmpDir, 'out.mp4'),
+    // FFMPEG pixel format
+    pixelFormat: 'yuv420p'
   });
 };
 
