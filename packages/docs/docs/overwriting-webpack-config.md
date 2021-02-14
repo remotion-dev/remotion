@@ -11,7 +11,7 @@ Create a config file called `remotion.config.ts` in the root of your project. As
 
 Get familiar with the default Webpack configuration which can be [found here](https://github.com/JonnyBurger/remotion/blob/main/packages/bundler/src/webpack-config.ts).
 
-In your `remotion.config.ts` file, you can call `overrideWebpackConfig` from `@remotion/bundler`.
+In your `remotion.config.ts` file, you can call `Config.Bundler.overrideWebpackConfig` from `remotion`.
 
 Overriding the Webpack config uses the reducer pattern - pass in a function that takes as it's argument a Webpack configuration and return a new Webpack configuration.
 
@@ -83,3 +83,7 @@ Create a file which contains `declare module '*.mdx';` in your project to fix a 
 ## Customizing configuration file location
 
 You can pass a `--config` option to the command line to specify a custom location for your configuration file.
+
+## See also
+
+- [Configuration file](config)
