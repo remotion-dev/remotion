@@ -133,6 +133,7 @@ export const webpackConfig = ({
 									],
 								],
 								plugins: [
+									require.resolve('@babel/plugin-proposal-class-properties'),
 									environment === 'development'
 										? require.resolve('react-refresh/babel')
 										: null,
@@ -160,6 +161,9 @@ export const webpackConfig = ({
 									runtime: 'automatic',
 								},
 							],
+						],
+						plugins: [
+							require.resolve('@babel/plugin-proposal-class-properties'),
 						],
 					},
 				},
