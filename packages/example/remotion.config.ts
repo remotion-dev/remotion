@@ -1,11 +1,10 @@
-import {overrideWebpackConfig} from '@remotion/bundler';
 import {Config} from 'remotion';
 
 Config.Rendering.setConcurrency(16);
 Config.Output.setOverwriteOutput(true);
 Config.Output.setPixelFormat('yuv420p');
 
-overrideWebpackConfig((currentConfiguration) => {
+Config.Bundling.overrideWebpackConfig((currentConfiguration) => {
 	return {
 		...currentConfiguration,
 		module: {
