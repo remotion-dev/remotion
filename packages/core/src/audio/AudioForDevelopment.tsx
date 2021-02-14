@@ -2,9 +2,9 @@ import React, {useEffect, useRef} from 'react';
 import {usePlayingState} from '../timeline-position-state';
 import {useCurrentFrame} from '../use-frame';
 import {useUnsafeVideoConfig} from '../use-unsafe-video-config';
-import {AllowedAudioProps} from './props';
+import {RemotionAudioProps} from './props';
 
-export const AudioForDevelopment: React.FC<AllowedAudioProps> = (props) => {
+export const AudioForDevelopment: React.FC<RemotionAudioProps> = (props) => {
 	const audioRef = useRef<HTMLAudioElement>(null);
 	const currentFrame = useCurrentFrame();
 	const videoConfig = useUnsafeVideoConfig();

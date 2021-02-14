@@ -1,5 +1,5 @@
 import React, {useCallback, useContext, useEffect} from 'react';
-import {CompositionManager, TComposition, useTimelineSetFrame} from 'remotion';
+import {Internals, TComposition} from 'remotion';
 import styled from 'styled-components';
 import {CurrentComposition} from './CurrentComposition';
 
@@ -36,9 +36,9 @@ const Item = styled.a<{
 
 export const CompositionSelector: React.FC = () => {
 	const {compositions, setCurrentComposition, currentComposition} = useContext(
-		CompositionManager
+		Internals.CompositionManager
 	);
-	const setCurrentFrame = useTimelineSetFrame();
+	const setCurrentFrame = Internals.Timeline.useTimelineSetFrame();
 
 	const selectComposition = useCallback(
 		(c: TComposition) => {

@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {useUnsafeVideoConfig} from 'remotion';
+import {Internals} from 'remotion';
 import styled from 'styled-components';
 import {getLastFrames} from '../state/last-frames';
 
@@ -10,7 +10,7 @@ const Label = styled.div`
 
 export const FpsCounter: React.FC = () => {
 	const [now, setNow] = useState(0);
-	const videoConfig = useUnsafeVideoConfig();
+	const videoConfig = Internals.useUnsafeVideoConfig();
 
 	useEffect(() => {
 		const t = setTimeout(() => {
