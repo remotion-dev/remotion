@@ -4,7 +4,10 @@ import Layout from "@theme/Layout";
 import Link from "@docusaurus/Link";
 import useDocusaurusContext from "@docusaurus/useDocusaurusContext";
 import useBaseUrl from "@docusaurus/useBaseUrl";
+import splitbee from "@splitbee/web";
 import styles from "./styles.module.css";
+
+splitbee.init();
 
 const features = [
   {
@@ -104,6 +107,8 @@ function Home() {
             </div>
             <div style={{ width: 8 }}></div>
             <a
+              data-splitbee-event="External Link"
+              data-splitbee-event-target="Product Hunt"
               href="https://www.producthunt.com/posts/remotion-3?utm_source=badge-featured&utm_medium=badge&utm_souce=badge-remotion-3"
               target="_blank"
               style={{ display: "inline-flex" }}
