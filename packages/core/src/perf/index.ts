@@ -32,11 +32,10 @@ export const stopPerfMeasure = (id: number) => {
 };
 
 export const logPerf = () => {
+	console.log('Render performance:');
 	(Object.keys(perf) as PerfId[]).forEach((p) => {
-		console.log('\n');
-		console.log('\n');
 		console.log(
-			`${p} => ${perf[p].reduce((a, b) => a + b, 0) / perf[p].length} (n = ${
+			`  ${p} => ${perf[p].reduce((a, b) => a + b, 0) / perf[p].length} (n = ${
 				perf[p].length
 			})`
 		);
