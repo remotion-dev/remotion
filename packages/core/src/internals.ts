@@ -4,6 +4,8 @@ import {
 	TComposition,
 	TSequence,
 } from './CompositionManager';
+import {getConcurrency} from './config/concurrency';
+import {getShouldOverwrite} from './config/overwrite';
 import {getPixelFormat} from './config/pixel-format';
 import * as perf from './perf';
 import {getCompositionName, getIsEvaluation, getRoot} from './register-root';
@@ -25,6 +27,8 @@ export const Internals = {
 	getCompositionName,
 	getIsEvaluation,
 	getPixelFormat,
+	getConcurrency,
+	getShouldOverwrite,
 };
 
 export type {TComposition, Timeline, TCompMetadata, TSequence};

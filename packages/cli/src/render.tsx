@@ -12,10 +12,8 @@ import os from 'os';
 import path from 'path';
 import {Internals} from 'remotion';
 import {getCompositionId} from './get-composition-id';
-import {getConcurrency} from './get-concurrency';
 import {getConfigFileName} from './get-config-file-name';
 import {getOutputFilename} from './get-filename';
-import {getOverwrite} from './get-overwrite';
 import {getQuality} from './get-quality';
 import {getUserProps} from './get-user-props';
 import {getImageFormat, getRenderMode} from './image-formats';
@@ -28,10 +26,10 @@ export const render = async () => {
 	const fullPath = path.join(process.cwd(), file);
 
 	parseCommandLine();
-	const parallelism = getConcurrency();
+	const parallelism = Internals.getConcurrency();
 	const renderMode = getRenderMode();
 	const outputFile = getOutputFilename();
-	const overwrite = getOverwrite();
+	const overwrite = Internals.getShouldOverwrite();
 	const userProps = getUserProps();
 	const quality = getQuality();
 	const configFileName = getConfigFileName();
