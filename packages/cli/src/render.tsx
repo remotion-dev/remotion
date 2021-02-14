@@ -14,7 +14,6 @@ import {Internals} from 'remotion';
 import {getCompositionId} from './get-composition-id';
 import {getConfigFileName} from './get-config-file-name';
 import {getOutputFilename} from './get-filename';
-import {getQuality} from './get-quality';
 import {getUserProps} from './get-user-props';
 import {getFrameFormat} from './image-formats';
 import {loadConfigFile} from './load-config';
@@ -31,7 +30,7 @@ export const render = async () => {
 	const outputFile = getOutputFilename();
 	const overwrite = Internals.getShouldOverwrite();
 	const userProps = getUserProps();
-	const quality = getQuality();
+	const quality = Internals.getQuality();
 	const configFileName = getConfigFileName();
 
 	loadConfigFile(configFileName);
