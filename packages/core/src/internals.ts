@@ -7,6 +7,7 @@ import {
 import {getConcurrency} from './config/concurrency';
 import {getShouldOverwrite} from './config/overwrite';
 import {getPixelFormat} from './config/pixel-format';
+import {getFormat} from './config/render-mode';
 import * as perf from './perf';
 import {getCompositionName, getIsEvaluation, getRoot} from './register-root';
 import {RemotionRoot} from './RemotionRoot';
@@ -29,6 +30,7 @@ export const Internals = {
 	getPixelFormat,
 	getConcurrency,
 	getShouldOverwrite,
+	getFormat,
 };
 
 export type {TComposition, Timeline, TCompMetadata, TSequence};
