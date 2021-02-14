@@ -1,8 +1,8 @@
-import {Format} from 'remotion';
+import {OutputFormat} from 'remotion';
 
 export type FrameFormat = 'png' | 'jpeg';
 
-export const getFrameFormat = (format: Format): FrameFormat => {
+export const getFrameFormat = (format: OutputFormat): FrameFormat => {
 	if (format === 'mp4') {
 		return 'jpeg';
 	}
