@@ -59,7 +59,7 @@ module.exports = {
               href: "https://twitter.com/JNYBGR",
             },
             {
-              label: "Github Issues",
+              label: "GitHub Issues",
               href: "https://github.com/JonnyBurger/remotion/issues",
             },
             {
