@@ -39,13 +39,13 @@ const Title: React.FC<{title: string;}> = ({title}) => {
     const opacity = interpolate(frame, [0, 20], [0, 1], {extrapolateRight: 'clamp'});
 
     return (
-      <div style={{opacity}} >{title}</div>
+      <div style={{opacity, fontSize: 80}} >{title}</div>
     )
 }
 
 export const MyVideo = () => {
   return (
-    <div style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+    <div style={{flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'white'}}>
       <Sequence from={0} durationInFrames={40}>
         <Title title="Hello"/>
       </Sequence>
