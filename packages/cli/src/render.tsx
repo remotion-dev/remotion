@@ -12,29 +12,27 @@ import os from 'os';
 import path from 'path';
 import {Internals} from 'remotion';
 import {getCompositionId} from './get-composition-id';
-import {getConcurrency} from './get-concurrency';
 import {getConfigFileName} from './get-config-file-name';
 import {getOutputFilename} from './get-filename';
-import {getOverwrite} from './get-overwrite';
-import {getQuality} from './get-quality';
 import {getUserProps} from './get-user-props';
-import {getImageFormat, getRenderMode} from './image-formats';
+import {getFrameFormat} from './image-formats';
 import {loadConfigFile} from './load-config';
+import {parseCommandLine} from './parse-command-line';
 
 export const render = async () => {
 	const args = process.argv;
 	const file = args[3];
 	const fullPath = path.join(process.cwd(), file);
 
-	const parallelism = getConcurrency();
-	const renderMode = getRenderMode();
-	const outputFile = getOutputFilename();
-	const overwrite = getOverwrite();
-	const userProps = getUserProps();
-	const quality = getQuality();
 	const configFileName = getConfigFileName();
-
 	loadConfigFile(configFileName);
+	parseCommandLine();
+	const parallelism = Internals.getConcurrency();
+	const renderMode = Internals.getFormat();
+	const outputFile = getOutputFilename();
+	const overwrite = Internals.getShouldOverwrite();
+	const userProps = getUserProps();
+	const quality = Internals.getQuality();
 
 	const absoluteOutputFile = path.resolve(process.cwd(), outputFile);
 	if (fs.existsSync(absoluteOutputFile) && !overwrite) {
@@ -109,7 +107,7 @@ export const render = async () => {
 		},
 		userProps,
 		webpackBundle: bundled,
-		imageFormat: getImageFormat(renderMode),
+		imageFormat: getFrameFormat(renderMode),
 		quality,
 	});
 	renderProgress.stop();
@@ -125,7 +123,8 @@ export const render = async () => {
 			fps: config.fps,
 			outputLocation: absoluteOutputFile,
 			force: overwrite,
-			imageFormat: getImageFormat(renderMode),
+			imageFormat: getFrameFormat(renderMode),
+			pixelFormat: Internals.getPixelFormat(),
 		});
 		console.log('Cleaning up...');
 		await fs.promises.rmdir(outputDir, {

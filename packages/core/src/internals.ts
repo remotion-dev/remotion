@@ -4,6 +4,15 @@ import {
 	TComposition,
 	TSequence,
 } from './CompositionManager';
+import {getConcurrency} from './config/concurrency';
+import {
+	getWebpackOverrideFn,
+	WebpackOverrideFn,
+} from './config/override-webpack';
+import {getShouldOverwrite} from './config/overwrite';
+import {getPixelFormat} from './config/pixel-format';
+import {getQuality} from './config/quality';
+import {getFormat} from './config/render-mode';
 import * as perf from './perf';
 import {getCompositionName, getIsEvaluation, getRoot} from './register-root';
 import {RemotionRoot} from './RemotionRoot';
@@ -23,6 +32,18 @@ export const Internals = {
 	getRoot,
 	getCompositionName,
 	getIsEvaluation,
+	getPixelFormat,
+	getConcurrency,
+	getShouldOverwrite,
+	getFormat,
+	getWebpackOverrideFn,
+	getQuality,
 };
 
-export type {TComposition, Timeline, TCompMetadata, TSequence};
+export type {
+	TComposition,
+	Timeline,
+	TCompMetadata,
+	TSequence,
+	WebpackOverrideFn,
+};
