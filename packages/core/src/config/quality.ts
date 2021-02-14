@@ -1,5 +1,5 @@
-const defaultValue = 80;
-let quality = defaultValue;
+const defaultValue = undefined;
+let quality: number | undefined = defaultValue;
 
 export const setQuality = (q: number | undefined) => {
 	if (typeof q !== 'undefined' && typeof q !== 'number') {
