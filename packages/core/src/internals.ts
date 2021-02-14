@@ -5,6 +5,7 @@ import {
 	TSequence,
 } from './CompositionManager';
 import * as perf from './perf';
+import {getCompositionName, getIsEvaluation, getRoot} from './register-root';
 import {RemotionRoot} from './RemotionRoot';
 import * as Timeline from './timeline-position-state';
 import {useUnsafeVideoConfig} from './use-unsafe-video-config';
@@ -19,6 +20,9 @@ export const Internals = {
 	CompositionManager,
 	RemotionRoot,
 	useVideo,
+	getRoot,
+	getCompositionName,
+	getIsEvaluation,
 };
 
 export type {TComposition, Timeline, TCompMetadata, TSequence};

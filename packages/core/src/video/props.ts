@@ -1,4 +1,4 @@
-export type AllowedVideoProps = Omit<
+export type RemotionVideoProps = Omit<
 	React.DetailedHTMLProps<
 		React.VideoHTMLAttributes<HTMLVideoElement>,
 		HTMLVideoElement

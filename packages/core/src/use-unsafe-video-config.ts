@@ -1,5 +1,5 @@
 import {useContext, useMemo} from 'react';
-import {SequenceContext} from '.';
+import {SequenceContext} from './sequencing';
 import {useVideo} from './use-video';
 import {VideoConfig} from './video-config';
 

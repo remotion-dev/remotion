@@ -2,9 +2,9 @@ import React, {useEffect, useRef} from 'react';
 import {usePlayingState} from '../timeline-position-state';
 import {useCurrentFrame} from '../use-frame';
 import {useUnsafeVideoConfig} from '../use-unsafe-video-config';
-import {AllowedVideoProps} from './props';
+import {RemotionVideoProps} from './props';
 
-export const VideoForDevelopment: React.FC<AllowedVideoProps> = (props) => {
+export const VideoForDevelopment: React.FC<RemotionVideoProps> = (props) => {
 	const videoRef = useRef<HTMLVideoElement>(null);
 	const currentFrame = useCurrentFrame();
 	const videoConfig = useUnsafeVideoConfig();
