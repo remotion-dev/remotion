@@ -77,3 +77,7 @@ Watch: **[The perfect spring animation](https://www.youtube.com/watch?v=GE8ZqrKq
 ## Credit
 
 This function was taken from [Reanimated 2](https://github.com/software-mansion/react-native-reanimated), which in itself was a huge inspiration for Remotion.
+
+## See also
+
+- [interpolate](interpolate)
