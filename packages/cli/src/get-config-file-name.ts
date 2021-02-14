@@ -1,12 +1,9 @@
-import minimist from 'minimist';
+import {parsedCli} from './parse-command-line';
 
 const defaultConfigFile = 'remotion.config.ts';
 
 export const getConfigFileName = (): string => {
-	const arg = minimist<{
-		config: string;
-	}>(process.argv.slice(2));
-	return arg.config ?? defaultConfigFile;
+	return parsedCli.config ?? defaultConfigFile;
 };
 
 export const isDefaultConfigFile = (fileName: string) => {
