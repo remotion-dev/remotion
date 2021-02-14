@@ -1,46 +1,6 @@
 import fs from 'fs';
-import {Page, ScreenshotClip, ScreenshotOptions} from 'puppeteer';
+import {Page, ScreenshotOptions} from 'puppeteer';
 import {Internals} from 'remotion';
-
-function processClip(clip: ScreenshotClip): ScreenshotClip & {scale: number} {
-	const x = Math.round(clip.x);
-	const y = Math.round(clip.y);
-	const width = Math.round(clip.width + clip.x - x);
-	const height = Math.round(clip.height + clip.y - y);
-	return {x, y, width, height, scale: 1};
-}
-
-export interface Viewport {
-	/**
-	 * The page width in pixels.
-	 */
-	width: number;
-	/**
-	 * The page height in pixels.
-	 */
-	height: number;
-	/**
-	 * Specify device scale factor.
-	 * See {@link https://developer.mozilla.org/en-US/docs/Web/API/Window/devicePixelRatio | devicePixelRatio} for more info.
-	 * @defaultValue 1
-	 */
-	deviceScaleFactor?: number;
-	/**
-	 * Whether the `meta viewport` tag is taken into account.
-	 * @defaultValue false
-	 */
-	isMobile?: boolean;
-	/**
-	 * Specifies if the viewport is in landscape mode.
-	 * @defaultValue false
-	 */
-	isLandscape?: boolean;
-	/**
-	 * Specify if the viewport supports touch events.
-	 * @defaultValue false
-	 */
-	hasTouch?: boolean;
-}
 
 export const _screenshotTask = async (
 	page: Page,
@@ -56,7 +16,6 @@ export const _screenshotTask = async (
 		targetId: target._targetId,
 	});
 	Internals.perf.stopPerfMeasure(perfTarget);
-	const clip = options.clip ? processClip(options.clip) : undefined;
 
 	const shouldSetDefaultBackground = options.omitBackground && format === 'png';
 	if (shouldSetDefaultBackground)
@@ -68,7 +27,7 @@ export const _screenshotTask = async (
 	const result = await client.send('Page.captureScreenshot', {
 		format,
 		quality: options.quality,
-		clip,
+		clip: undefined,
 		captureBeyondViewport: true,
 	});
 	Internals.perf.stopPerfMeasure(cap);

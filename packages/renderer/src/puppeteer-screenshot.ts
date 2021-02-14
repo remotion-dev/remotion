@@ -88,7 +88,8 @@ export const screenshot = async (
 			'Expected options.clip.height not to be 0.'
 		);
 	}
-	return (page as any)._screenshotTaskQueue.postTask(() =>
-		_screenshotTask(page, screenshotType!, options)
+	// @ts-expect-error
+	return (page as Page)._screenshotTaskQueue.postTask(() =>
+		_screenshotTask(page, screenshotType as 'png' | 'jpeg', options)
 	);
 };
