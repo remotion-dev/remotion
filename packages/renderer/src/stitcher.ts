@@ -1,4 +1,5 @@
 import execa from 'execa';
+import {Internals} from 'remotion';
 import {DEFAULT_IMAGE_FORMAT, ImageFormat} from './image-format';
 import {validateFfmpeg} from './validate-ffmpeg';
 
@@ -30,7 +31,7 @@ export const stitchFramesToVideo = async (options: {
 			'16',
 			options.force ? '-y' : null,
 			'-pix_fmt',
-			'yuv420p',
+			Internals.getPixelFormat(),
 			options.outputLocation,
 		].filter(Boolean) as string[],
 		{cwd: options.dir}

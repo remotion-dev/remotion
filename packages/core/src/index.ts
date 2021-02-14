@@ -3,6 +3,7 @@ import './asset-types';
 export * from './AbsoluteFill';
 export * from './audio';
 export * from './Composition';
+export * from './config';
 export * from './easing';
 export * from './IFrame';
 export * from './Img';
