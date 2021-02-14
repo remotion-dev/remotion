@@ -1,6 +1,6 @@
 import path from 'path';
+import {WebpackConfiguration, WebpackOverrideFn} from 'remotion';
 import webpack, {ProgressPlugin} from 'webpack';
-import {defaultOverrideFunction, WebpackOverrideFn} from './override-webpack';
 
 const ErrorOverlayPlugin = require('@webhotelier/webpack-fast-refresh/error-overlay');
 const ReactRefreshPlugin = require('@webhotelier/webpack-fast-refresh');
@@ -10,20 +10,12 @@ export function truthy<T>(value: T): value is Truthy<T> {
 	return Boolean(value);
 }
 
-export type WebpackConfiguration = webpack.Configuration & {
-	devServer: {
-		contentBase: string;
-		historyApiFallback: boolean;
-		hot: true;
-	};
-};
-
 export const webpackConfig = ({
 	entry,
 	userDefinedComponent,
 	outDir,
 	environment,
-	webpackOverride = defaultOverrideFunction,
+	webpackOverride = (f) => f,
 	onProgressUpdate,
 }: {
 	entry: string;

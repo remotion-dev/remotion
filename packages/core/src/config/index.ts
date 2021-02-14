@@ -1,9 +1,22 @@
 import {Concurrency, setConcurrency} from './concurrency';
+import {
+	overrideWebpackConfig,
+	WebpackConfiguration,
+	WebpackOverrideFn,
+} from './override-webpack';
 import {setOverwriteOutput} from './overwrite';
 import {PixelFormat, setPixelFormat} from './pixel-format';
 import {OutputFormat, setOutputFormat} from './render-mode';
 
 export const Config = {
+	Bundling: {
+		/**
+		 * Pass in a function which takes the current Webpack config
+		 * and return a modified Webpack configuration.
+		 * Docs: http://remotion.dev/docs/webpack
+		 */
+		overrideWebpackConfig,
+	},
 	Rendering: {
 		/**
 		 * Sets how many Puppeteer instances will work on rendering your video in parallel.
@@ -31,4 +44,10 @@ export const Config = {
 	},
 } as const;
 
-export type {PixelFormat, Concurrency, OutputFormat as Format};
+export type {
+	PixelFormat,
+	Concurrency,
+	OutputFormat,
+	WebpackConfiguration,
+	WebpackOverrideFn,
+};
