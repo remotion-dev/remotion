@@ -1,9 +1,9 @@
 import React from 'react';
-import {AllowedVideoProps} from './props';
+import {RemotionVideoProps} from './props';
 import {VideoForDevelopment} from './VideoForDevelopment';
 import {VideoForRendering} from './VideoForRendering';
 
-export const Video: React.FC<AllowedVideoProps> = (props) => {
+export const Video: React.FC<RemotionVideoProps> = (props) => {
 	if (process.env.NODE_ENV === 'development') {
 		return <VideoForDevelopment {...props} />;
 	}
