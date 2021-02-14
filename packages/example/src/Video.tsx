@@ -29,22 +29,6 @@ export const Index: React.FC = () => {
 				durationInFrames={30}
 			/>
 			<Composition
-				id="coin-animation"
-				lazyComponent={() => import('./CoinAnimation')}
-				width={100}
-				height={200}
-				fps={50}
-				durationInFrames={70}
-			/>
-			<Composition
-				id="devices"
-				lazyComponent={() => import('./Devices')}
-				width={1080}
-				height={1920}
-				fps={30}
-				durationInFrames={3 * 30}
-			/>
-			<Composition
 				id="features"
 				lazyComponent={() => import('./Features')}
 				width={1080}
@@ -116,26 +100,6 @@ export const Index: React.FC = () => {
 				height={1920}
 				fps={30}
 				durationInFrames={90}
-			/>
-			<Composition
-				id="up"
-				lazyComponent={() => import('./Up')}
-				width={1080}
-				height={1080}
-				fps={30}
-				defaultProps={{
-					line1: 'abc',
-					line2: 'def',
-				}}
-				durationInFrames={120}
-			/>
-			<Composition
-				id="video"
-				lazyComponent={() => import('./Vid')}
-				width={1080}
-				height={1080}
-				fps={30}
-				durationInFrames={30 * 30}
 			/>
 			<Composition
 				id="mdx-test"
