@@ -1,6 +1,6 @@
 import fs from 'fs';
 import {Page, ScreenshotClip, ScreenshotOptions} from 'puppeteer';
-import {startPerf, stopPer} from './benchmarking';
+import {Internals} from 'remotion';
 
 function processClip(clip: ScreenshotClip): ScreenshotClip & {scale: number} {
 	const x = Math.round(clip.x);
@@ -50,12 +50,12 @@ export const _screenshotTask = async (
 	const client = (page as any)._client;
 	const target = (page as any)._target;
 
-	const perfTarget = startPerf('activate-target');
+	const perfTarget = Internals.perf.startPerfMeasure('activate-target');
 
 	await client.send('Target.activateTarget', {
 		targetId: target._targetId,
 	});
-	stopPer(perfTarget);
+	Internals.perf.stopPerfMeasure(perfTarget);
 	const clip = options.clip ? processClip(options.clip) : undefined;
 
 	const shouldSetDefaultBackground = options.omitBackground && format === 'png';
@@ -64,24 +64,24 @@ export const _screenshotTask = async (
 			color: {r: 0, g: 0, b: 0, a: 0},
 		});
 
-	const cap = startPerf('capture');
+	const cap = Internals.perf.startPerfMeasure('capture');
 	const result = await client.send('Page.captureScreenshot', {
 		format,
 		quality: options.quality,
 		clip,
 		captureBeyondViewport: true,
 	});
-	stopPer(cap);
+	Internals.perf.stopPerfMeasure(cap);
 	if (shouldSetDefaultBackground)
 		await client.send('Emulation.setDefaultBackgroundColorOverride');
 
-	const saveMarker = startPerf('save');
+	const saveMarker = Internals.perf.startPerfMeasure('save');
 	const buffer =
 		options.encoding === 'base64'
 			? result.data
 			: Buffer.from(result.data, 'base64');
 
 	if (options.path) await fs.promises.writeFile(options.path, buffer);
-	stopPer(saveMarker);
+	Internals.perf.stopPerfMeasure(saveMarker);
 	return buffer;
 };

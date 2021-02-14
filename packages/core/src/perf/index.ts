@@ -14,7 +14,7 @@ const map: {
 	};
 } = {};
 
-export const startPerf = (marker: PerfId) => {
+export const startPerfMeasure = (marker: PerfId) => {
 	const id = Math.random();
 	map[id] = {
 		id,
@@ -24,7 +24,7 @@ export const startPerf = (marker: PerfId) => {
 	return id;
 };
 
-export const stopPer = (id: number) => {
+export const stopPerfMeasure = (id: number) => {
 	const now = Date.now();
 	const diff = now - map[id].start;
 	perf[map[id].marker].push(diff);
@@ -33,6 +33,8 @@ export const stopPer = (id: number) => {
 
 export const logPerf = () => {
 	(Object.keys(perf) as PerfId[]).forEach((p) => {
+		console.log('\n');
+		console.log('\n');
 		console.log(
 			`${p} => ${perf[p].reduce((a, b) => a + b, 0) / perf[p].length} (n = ${
 				perf[p].length
