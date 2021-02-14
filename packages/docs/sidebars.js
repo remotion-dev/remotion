@@ -45,6 +45,7 @@ module.exports = {
         "absolute-fill",
         "img",
         "iframe",
+        "easing",
       ],
     },
     "license",
