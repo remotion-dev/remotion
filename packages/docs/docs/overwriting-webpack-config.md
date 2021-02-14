@@ -16,9 +16,9 @@ In your `remotion.config.ts` file, you can call `overrideWebpackConfig` from `@r
 Overriding the Webpack config uses the reducer pattern - pass in a function that takes as it's argument a Webpack configuration and return a new Webpack configuration.
 
 ```tsx
-import {overrideWebpackConfig} from '@remotion/bundler';
+import {Config} from 'remotion';
 
-overrideWebpackConfig((currentConfiguration) => {
+Config.Bundling.overrideWebpackConfig((currentConfiguration) => {
   return {
     ...currentConfiguration,
     module: {
