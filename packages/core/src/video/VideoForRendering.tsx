@@ -2,9 +2,9 @@ import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {continueRender, delayRender} from '../ready-manager';
 import {useCurrentFrame} from '../use-frame';
 import {useUnsafeVideoConfig} from '../use-unsafe-video-config';
-import {AllowedVideoProps} from './props';
+import {RemotionVideoProps} from './props';
 
-export const VideoForRendering: React.FC<AllowedVideoProps> = (props) => {
+export const VideoForRendering: React.FC<RemotionVideoProps> = (props) => {
 	const [metadataLoaded, setMetadataLoaded] = useState(false);
 	const [currentFrameSet, setCurrentFrameSet] = useState(false);
 

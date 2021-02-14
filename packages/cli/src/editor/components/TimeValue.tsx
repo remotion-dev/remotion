@@ -1,5 +1,5 @@
 import React from 'react';
-import {useCurrentFrame, useUnsafeVideoConfig} from 'remotion';
+import {Internals, useCurrentFrame} from 'remotion';
 import styled from 'styled-components';
 import {renderFrame} from '../state/render-frame';
 
@@ -11,7 +11,7 @@ const Text = styled.div`
 
 export const TimeValue: React.FC = () => {
 	const frame = useCurrentFrame();
-	const config = useUnsafeVideoConfig();
+	const config = Internals.useUnsafeVideoConfig();
 
 	if (!config) {
 		return null;

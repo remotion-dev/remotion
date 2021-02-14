@@ -9,7 +9,7 @@ import {CompositionManager} from '../CompositionManager';
 import {getTimelineClipName} from '../get-timeline-clip-name';
 import {useAbsoluteCurrentFrame} from '../use-frame';
 
-export type SequenceContextType = {
+type SequenceContextType = {
 	from: number;
 	durationInFrames: number;
 	id: string;

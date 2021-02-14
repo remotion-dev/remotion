@@ -1,10 +1,5 @@
 import React, {useCallback, useState} from 'react';
-import {
-	interpolate,
-	usePlayingState,
-	useTimelineSetFrame,
-	useUnsafeVideoConfig,
-} from 'remotion';
+import {Internals, interpolate} from 'remotion';
 import styled from 'styled-components';
 import {
 	TIMELINE_LEFT_PADDING,
@@ -56,9 +51,9 @@ export const TimelineDragHandler: React.FC = ({children}) => {
 	>({
 		dragging: false,
 	});
-	const [playing, setPlaying] = usePlayingState();
-	const setTimelinePosition = useTimelineSetFrame();
-	const videoConfig = useUnsafeVideoConfig();
+	const [playing, setPlaying] = Internals.Timeline.usePlayingState();
+	const setTimelinePosition = Internals.Timeline.useTimelineSetFrame();
+	const videoConfig = Internals.useUnsafeVideoConfig();
 
 	const onPointerDown = useCallback(
 		(e: React.PointerEvent<HTMLDivElement>) => {

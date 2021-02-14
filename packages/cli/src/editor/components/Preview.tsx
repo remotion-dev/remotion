@@ -1,5 +1,5 @@
 import React, {Suspense, useContext} from 'react';
-import {useUnsafeVideoConfig, useVideo} from 'remotion';
+import {Internals} from 'remotion';
 import styled from 'styled-components';
 import {Size} from '../hooks/get-el-size';
 import {CheckerboardContext} from '../state/checkerboard';
@@ -45,10 +45,10 @@ export const Container = styled.div<{
 export const VideoPreview: React.FC<{
 	canvasSize: Size;
 }> = ({canvasSize}) => {
-	const video = useVideo();
+	const video = Internals.useVideo();
 	const {size: previewSize} = useContext(PreviewSizeContext);
 	const {checkerboard} = useContext(CheckerboardContext);
-	const config = useUnsafeVideoConfig();
+	const config = Internals.useUnsafeVideoConfig();
 
 	if (!config) {
 		return null;

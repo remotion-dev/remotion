@@ -1,5 +1,6 @@
 import puppeteer from 'puppeteer';
 import {ImageFormat} from './image-format';
+import {screenshot} from './puppeteer-screenshot';
 
 async function screenshotDOMElement({
 	page,
@@ -21,29 +22,15 @@ async function screenshotDOMElement({
 	if (!selector) throw Error('Please provide a selector.');
 	if (!path) throw Error('Please provide a path.');
 
-	const rect = await page.evaluate((sel) => {
-		const element = document.querySelector(sel);
-		if (!element) return null;
-		const {x, y, width, height} = element.getBoundingClientRect();
-		return {left: x, top: y, width, height, id: element.id};
-	}, selector);
-
-	if (!rect)
-		throw Error(`Could not find element that matches selector: ${selector}.`);
-
-	await page.evaluate(() => (document.body.style.background = 'transparent'));
-	return page.screenshot({
-		omitBackground: true,
+	if (imageFormat === 'png') {
+		await page.evaluate(() => (document.body.style.background = 'transparent'));
+	}
+	return screenshot(page, {
+		omitBackground: imageFormat === 'png',
 		path,
-		clip: {
-			x: rect.left,
-			y: rect.top,
-			width: rect.width,
-			height: rect.height,
-		},
 		type: imageFormat,
 		quality,
-	});
+	}) as Promise<Buffer>;
 }
 
 export const openBrowser = async (): Promise<puppeteer.Browser> => {
@@ -67,12 +54,12 @@ export const provideScreenshot = async ({
 	imageFormat: ImageFormat;
 	quality: number | undefined;
 	options: {
-		frame: number
+		frame: number;
 		output: string;
-	}
+	};
 }): Promise<void> => {
 	await page.evaluate((frame) => {
-		window.remotion_setFrame(frame)
+		window.remotion_setFrame(frame);
 	}, options.frame);
 	await page.waitForFunction('window.ready === true');
 

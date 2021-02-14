@@ -7,19 +7,9 @@ import React, {
 	useState,
 } from 'react';
 import {render} from 'react-dom';
-import {
-	CompositionManager,
-	continueRender,
-	delayRender,
-	getCompositionName,
-	getIsEvaluation,
-	getRoot,
-	RemotionRoot,
-	TComposition,
-	useVideo,
-} from 'remotion';
+import {continueRender, delayRender, Internals, TComposition} from 'remotion';
 
-const Root = getRoot();
+const Root = Internals.getRoot();
 
 if (!Root) {
 	throw new Error('Root has not been registered.');
@@ -45,19 +35,19 @@ const getUserProps = () => {
 };
 
 const GetVideo = () => {
-	const video = useVideo();
-	const compositions = useContext(CompositionManager);
+	const video = Internals.useVideo();
+	const compositions = useContext(Internals.CompositionManager);
 	const [Component, setComponent] = useState<ComponentType | null>(null);
 	const userProps = getUserProps();
 
 	useEffect(() => {
-		if (getIsEvaluation()) {
+		if (Internals.getIsEvaluation()) {
 			return;
 		}
 		if (!video && compositions.compositions.length > 0) {
 			compositions.setCurrentComposition(
 				(compositions.compositions.find(
-					(c) => c.id === getCompositionName()
+					(c) => c.id === Internals.getCompositionName()
 				) as TComposition)?.id ?? null
 			);
 		}
@@ -78,7 +68,7 @@ const GetVideo = () => {
 	}, [fetchComponent, video]);
 
 	useEffect(() => {
-		if (getIsEvaluation()) {
+		if (Internals.getIsEvaluation()) {
 			continueRender(handle);
 		} else if (Component) {
 			continueRender(handle);
@@ -109,9 +99,9 @@ const GetVideo = () => {
 };
 
 render(
-	<RemotionRoot>
+	<Internals.RemotionRoot>
 		<Root />
 		<GetVideo />
-	</RemotionRoot>,
+	</Internals.RemotionRoot>,
 	document.getElementById('container')
 );
