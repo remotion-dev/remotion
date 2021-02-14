@@ -19,13 +19,16 @@ export const isHomebrewInstalled = async (): Promise<boolean> => {
 export const validateFfmpeg = async (): Promise<void> => {
 	const ffmpegExists = await binaryExists('ffmpeg');
 	if (!ffmpegExists) {
-		throw new Error(
-			[
-				'It looks like FFMPEG is not installed.',
-				os.platform() === 'darwin' && (await isHomebrewInstalled())
-					? 'Run `brew install ffmpeg` to install ffmpeg'
-					: 'See https://github.com/adaptlearning/adapt_authoring/wiki/Installing-FFmpeg on how to install FFMPEG.',
-			].join('\n')
-		);
+		console.error('It looks like FFMPEG is not installed');
+		if (os.platform() === 'darwin' && (await isHomebrewInstalled())) {
+			console.error('Run `brew install ffmpeg` to install ffmpeg');
+		} else if (os.platform() === 'win32') {
+			console.log('Windows error message');
+		} else {
+			console.error(
+				'See https://github.com/adaptlearning/adapt_authoring/wiki/Installing-FFmpeg on how to install FFMPEG.'
+			);
+		}
+		process.exit(1)
 	}
 };
