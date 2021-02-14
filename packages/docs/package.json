@@ -15,6 +15,7 @@
     "@docusaurus/core": "2.0.0-alpha.70",
     "@docusaurus/preset-classic": "2.0.0-alpha.70",
     "@mdx-js/react": "^1.6.21",
+    "@splitbee/web": "^0.2.4",
     "clsx": "^1.1.1",
     "prism-react-renderer": "^1.1.1",
     "react": "^16.8.4",
