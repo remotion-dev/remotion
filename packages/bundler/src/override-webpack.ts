@@ -1,16 +1,14 @@
-import {WebpackConfiguration} from './webpack-config';
+import {Config, WebpackOverrideFn} from 'remotion';
 
-export type WebpackOverrideFn = (
-	currentConfiguration: WebpackConfiguration
-) => WebpackConfiguration;
-
-export const defaultOverrideFunction: WebpackOverrideFn = (config) => config;
-let overrideFn: WebpackOverrideFn = defaultOverrideFunction;
-
-export const getOverrideFn = () => {
-	return overrideFn;
-};
-
+/**
+ * Please use Config.Bundling.overrideWebpack() from now on.
+ * See: https://www.remotion.dev/docs/webpack/
+ * @deprecated
+ */
 export const overrideWebpackConfig = (fn: WebpackOverrideFn) => {
-	overrideFn = fn;
+	console.warn('bundler.overrideWebpackConfig has been deprecated.');
+	console.warn('Please migrate to Config.Bundling.overrideWebpack().');
+	console.warn('See: https://www.remotion.dev/docs/webpack/');
+
+	Config.Bundling.overrideWebpackConfig(fn);
 };

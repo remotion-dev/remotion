@@ -30,6 +30,7 @@ module.exports = {
       label: "Reference",
       items: [
         "cli",
+        "config",
         "continue-render",
         "delay-render",
         "interpolate",

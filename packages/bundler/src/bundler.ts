@@ -2,9 +2,9 @@ import execa from 'execa';
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
+import {Internals, WebpackOverrideFn} from 'remotion';
 import {promisify} from 'util';
 import webpack from 'webpack';
-import {getOverrideFn, WebpackOverrideFn} from './override-webpack';
 import {webpackConfig} from './webpack-config';
 
 const entry = require.resolve('./renderEntry');
@@ -27,7 +27,8 @@ export const bundle = async (
 			userDefinedComponent: entryPoint,
 			outDir: tmpDir,
 			environment: 'production',
-			webpackOverride: options?.webpackOverride ?? getOverrideFn(),
+			webpackOverride:
+				options?.webpackOverride ?? Internals.getWebpackOverrideFn(),
 			onProgressUpdate,
 		}),
 	]);
@@ -35,7 +36,7 @@ export const bundle = async (
 		throw new Error('Expected webpack output');
 	}
 	const {errors} = output.toJson();
-	if (errors.length > 0) {
+	if (errors !== undefined && errors.length > 0) {
 		throw new Error(errors[0].message + '\n' + errors[0].details);
 	}
 	const indexHtmlDir = path.join(__dirname, '..', 'web', 'index.html');
