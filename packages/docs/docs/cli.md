@@ -20,6 +20,7 @@ Besides choosing a video and output location with the command line arguments, th
 - `--config`: Specify a location for the Remotion config file.
 - `--quality`: [Value between 0 and 100 for JPEG rendering quality](config#setquality). Doesn't work when `--png` is set.
 - `--overwrite`: [Write to output even if file already exists.](config#setoverwriteoutput)
+- `--format`: [Either `mp4` or `png-sequence` or `webm-v8` or `webm-v9`](config#setoutputformat). It will override `--png` flag. Use `--format png-sequence` instead of `--png` flag.
 
 :::info
 If you don't feel like passing command line flags every time, consider creating a `remotion.config.ts` [config file](config).
