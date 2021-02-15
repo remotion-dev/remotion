@@ -1,5 +1,5 @@
 import execa from 'execa';
-import {PixelFormat} from 'remotion';
+import {OutputFormat, PixelFormat} from 'remotion';
 import {DEFAULT_IMAGE_FORMAT, ImageFormat} from './image-format';
 import {validateFfmpeg} from './validate-ffmpeg';
 
@@ -12,6 +12,7 @@ export const stitchFramesToVideo = async (options: {
 	force: boolean;
 	imageFormat?: ImageFormat;
 	pixelFormat?: PixelFormat;
+	outputFormat?: OutputFormat;
 }): Promise<void> => {
 	const format = options.imageFormat ?? DEFAULT_IMAGE_FORMAT;
 	await validateFfmpeg();
@@ -28,8 +29,12 @@ export const stitchFramesToVideo = async (options: {
 			'glob',
 			'-i',
 			`element-*.${format}`,
-			'-vcodec',
-			'libx264',
+			options.outputFormat === 'mp4' ? '-vcodec' : '-c:v',
+			options.outputFormat === 'mp4'
+				? 'libx264'
+				: options.outputFormat === 'webm-v8'
+				? 'libvpx'
+				: 'libvpx-vp9',
 			'-crf',
 			'16',
 			options.force ? '-y' : null,
