@@ -2,11 +2,18 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://remotion.dev/blog</id>
     <title>Remotion Blog</title>
-    <updated>2021-02-13T00:00:00.000Z</updated>
+    <updated>2021-02-15T00:00:00.000Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://remotion.dev/blog"/>
     <subtitle>Remotion Blog</subtitle>
     <icon>https://remotion.dev/img/logo-small.png</icon>
+    <entry>
+        <title type="html"><![CDATA[Remotion 1.3]]></title>
+        <id>1-3</id>
+        <link href="https://remotion.dev/blog/1-3"/>
+        <updated>2021-02-15T00:00:00.000Z</updated>
+        <summary type="html"><![CDATA[Only 1 week after the initial launch, here is Remotion 1.3! In just 7 days, we have merged over 40 pull requests - just amazing! Let's go over the changes in this release.]]></summary>
+    </entry>
     <entry>
         <title type="html"><![CDATA[Remotion 1.2]]></title>
         <id>1-2</id>
