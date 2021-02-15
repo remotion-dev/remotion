@@ -1,10 +1,10 @@
-const validRenderModes = ['png-sequence', 'mp4'] as const;
+const validRenderModes = ['png-sequence', 'mp4', 'webm-v8', 'webm-v9'] as const;
 
 export type OutputFormat = typeof validRenderModes[number];
 
 let format: OutputFormat = 'mp4';
 
-export const getFormat = (): OutputFormat => {
+export const getOutputFormat = (): OutputFormat => {
 	return format;
 };
 

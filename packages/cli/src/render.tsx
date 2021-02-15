@@ -28,20 +28,33 @@ export const render = async () => {
 	loadConfigFile(configFileName);
 	parseCommandLine();
 	const parallelism = Internals.getConcurrency();
-	const renderMode = Internals.getFormat();
+	const renderMode = Internals.getOutputFormat();
 	const outputFile = getOutputFilename();
 	const overwrite = Internals.getShouldOverwrite();
 	const userProps = getUserProps();
 	const quality = Internals.getQuality();
 
 	const absoluteOutputFile = path.resolve(process.cwd(), outputFile);
+	const absoluteOutputFileWithExtension = (): string => {
+		if (renderMode === 'mp4') {
+			return absoluteOutputFile + '.mp4';
+		}
+		if (renderMode === 'webm-v8' || renderMode === 'webm-v9') {
+			return absoluteOutputFile + '.webm';
+		}
+		return absoluteOutputFile;
+	};
 	if (fs.existsSync(absoluteOutputFile) && !overwrite) {
 		console.log(
 			`File at ${absoluteOutputFile} already exists. Use --overwrite to overwrite.`
 		);
 		process.exit(1);
 	}
-	if (renderMode === 'mp4') {
+	if (
+		renderMode === 'mp4' ||
+		renderMode === 'webm-v8' ||
+		renderMode === 'webm-v9'
+	) {
 		await validateFfmpeg();
 	}
 	if (renderMode === 'png-sequence') {
@@ -114,17 +127,22 @@ export const render = async () => {
 	if (process.env.DEBUG) {
 		Internals.perf.logPerf();
 	}
-	if (renderMode === 'mp4') {
+	if (
+		renderMode === 'mp4' ||
+		renderMode === 'webm-v8' ||
+		renderMode === 'webm-v9'
+	) {
 		process.stdout.write(`🧵 (3/${steps}) Stitching frames together...\n`);
 		await stitchFramesToVideo({
 			dir: outputDir,
 			width: config.width,
 			height: config.height,
 			fps: config.fps,
-			outputLocation: absoluteOutputFile,
+			outputLocation: absoluteOutputFileWithExtension(),
 			force: overwrite,
 			imageFormat: getFrameFormat(renderMode),
 			pixelFormat: Internals.getPixelFormat(),
+			outputFormat: Internals.getOutputFormat(),
 		});
 		console.log('Cleaning up...');
 		await fs.promises.rmdir(outputDir, {

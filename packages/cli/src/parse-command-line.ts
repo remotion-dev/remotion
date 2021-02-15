@@ -1,5 +1,5 @@
 import minimist from 'minimist';
-import {Config, PixelFormat} from 'remotion';
+import {Config, OutputFormat, PixelFormat} from 'remotion';
 
 export type CommandLineOptions = {
 	pixelFormat: PixelFormat;
@@ -9,6 +9,7 @@ export type CommandLineOptions = {
 	png: boolean;
 	quality: number | undefined;
 	force: boolean;
+	format: OutputFormat;
 	props: string;
 };
 
@@ -23,6 +24,9 @@ export const parseCommandLine = () => {
 	}
 	if (parsedCli.png) {
 		Config.Output.setOutputFormat('png-sequence');
+	}
+	if (parsedCli.format && !parsedCli.png) {
+		Config.Output.setOutputFormat(parsedCli.format);
 	}
 	if (typeof parsedCli.overwrite !== 'undefined') {
 		Config.Output.setOverwriteOutput(parsedCli.overwrite);
