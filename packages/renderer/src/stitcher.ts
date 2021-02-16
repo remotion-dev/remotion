@@ -1,4 +1,5 @@
 import execa from 'execa';
+import fs from 'fs';
 import {OutputFormat, PixelFormat} from 'remotion';
 import {DEFAULT_IMAGE_FORMAT, ImageFormat} from './image-format';
 import {validateFfmpeg} from './validate-ffmpeg';
@@ -16,6 +17,17 @@ export const stitchFramesToVideo = async (options: {
 }): Promise<void> => {
 	const format = options.imageFormat ?? DEFAULT_IMAGE_FORMAT;
 	await validateFfmpeg();
+	const files = await fs.promises.readdir(options.dir);
+	const biggestNumber = Math.max(
+		...files
+			.filter((f) => f.match(/element-([0-9]+)/))
+			.map((f) => {
+				return f.match(/element-([0-9]+)/)?.[1] as string;
+			})
+			.map((f) => Number(f))
+	);
+	const numberLength = String(biggestNumber).length;
+
 	await execa(
 		'ffmpeg',
 		[
@@ -25,10 +37,8 @@ export const stitchFramesToVideo = async (options: {
 			'image2',
 			'-s',
 			`${options.width}x${options.height}`,
-			'-pattern_type',
-			'glob',
 			'-i',
-			`element-*.${format}`,
+			`element-%0${numberLength}d.${format}`,
 			options.outputFormat === 'mp4' ? '-vcodec' : '-c:v',
 			options.outputFormat === 'mp4'
 				? 'libx264'
