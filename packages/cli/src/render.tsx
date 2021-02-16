@@ -29,21 +29,12 @@ export const render = async () => {
 	parseCommandLine();
 	const parallelism = Internals.getConcurrency();
 	const renderMode = Internals.getOutputFormat();
-	const outputFile = getOutputFilename();
+	const outputFile = getOutputFilename(renderMode);
 	const overwrite = Internals.getShouldOverwrite();
 	const userProps = getUserProps();
 	const quality = Internals.getQuality();
 
 	const absoluteOutputFile = path.resolve(process.cwd(), outputFile);
-	const absoluteOutputFileWithExtension = (): string => {
-		if (renderMode === 'mp4') {
-			return absoluteOutputFile + '.mp4';
-		}
-		if (renderMode === 'webm-v8' || renderMode === 'webm-v9') {
-			return absoluteOutputFile + '.webm';
-		}
-		return absoluteOutputFile;
-	};
 	if (fs.existsSync(absoluteOutputFile) && !overwrite) {
 		console.log(
 			`File at ${absoluteOutputFile} already exists. Use --overwrite to overwrite.`
@@ -138,7 +129,7 @@ export const render = async () => {
 			width: config.width,
 			height: config.height,
 			fps: config.fps,
-			outputLocation: absoluteOutputFileWithExtension(),
+			outputLocation: absoluteOutputFile,
 			force: overwrite,
 			imageFormat: getFrameFormat(renderMode),
 			pixelFormat: Internals.getPixelFormat(),
@@ -152,5 +143,5 @@ export const render = async () => {
 	} else {
 		console.log('\n▶️ Your PNG sequence is ready!');
 	}
-	console.log(absoluteOutputFileWithExtension());
+	console.log(absoluteOutputFile);
 };
