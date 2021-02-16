@@ -23,9 +23,10 @@ export const parseCommandLine = () => {
 		Config.Rendering.setConcurrency(parsedCli.concurrency);
 	}
 	if (parsedCli.png) {
-		Config.Output.setOutputFormat('png-sequence');
+		Config.Output.setOutputFormat('png');
+		console.log('--png has been deprecated, use --format=png from now on');
 	}
-	if (parsedCli.format && !parsedCli.png) {
+	if (parsedCli.format) {
 		Config.Output.setOutputFormat(parsedCli.format);
 	}
 	if (typeof parsedCli.overwrite !== 'undefined') {
