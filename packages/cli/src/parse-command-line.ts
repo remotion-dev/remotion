@@ -24,7 +24,7 @@ export const parseCommandLine = () => {
 	}
 	if (parsedCli.png) {
 		Config.Output.setOutputFormat('png');
-		console.log('--png has been deprecated, use --format=png from now on');
+		console.warn('--png has been deprecated, use --format=png from now on');
 	}
 	if (parsedCli.format) {
 		Config.Output.setOutputFormat(parsedCli.format);
