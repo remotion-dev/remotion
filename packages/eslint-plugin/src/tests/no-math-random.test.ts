@@ -4,7 +4,7 @@ const ruleTester = new ESLintUtils.RuleTester({
   parser: "@typescript-eslint/parser",
 });
 
-ruleTester.run("determinstic-randomness", rule, {
+ruleTester.run("deterministic-randomness", rule, {
   valid: ['import {random} from "remotion";\nconst hi = random(null)'],
   invalid: [
     {

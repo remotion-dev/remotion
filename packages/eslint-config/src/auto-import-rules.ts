@@ -8,6 +8,7 @@ export const autoImports = {
   useCurrentFrame: "import {useCurrentFrame} from 'remotion'",
   useVideoConfig: "import {useVideoConfig} from 'remotion'",
   spring: "import {spring} from 'remotion'",
+  random: "import {random} from 'remotion'",
   AbsoluteFill: "import {AbsoluteFill} from 'remotion'",
   Sequence: "import {Sequence} from 'remotion'",
   Composition: "import {Composition} from 'remotion'",
