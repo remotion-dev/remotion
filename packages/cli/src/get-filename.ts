@@ -9,7 +9,9 @@ export const getOutputFilename = (renderMode: OutputFormat): string => {
 	}
 	let filename = args._[3];
 	const filenameArr = filename.split('.');
+	const hasExtension = filenameArr.length >= 2;
 	const filenameArrLength = filenameArr.length;
+	const extension = hasExtension ? filenameArr[filenameArrLength - 1] : null;
 	if (filenameArrLength === 1 && renderMode !== 'png') {
 		console.info(
 			'User has given a file without extension , adding the extension automatically.'
@@ -21,42 +23,30 @@ export const getOutputFilename = (renderMode: OutputFormat): string => {
 			filename += '.webm';
 		}
 	}
-	if (filenameArrLength >= 2 && filenameArr[filenameArrLength - 1] === 'webm') {
+	if (extension === 'webm') {
 		if (renderMode === 'mp4') {
 			console.info(
-				'User has given WebM extension, encoding it using the default VP8 codec. To use VP9 codec use --format=webm-v9 flag.'
+				'You have specified a .webm extension, encoding it using the default VP8 codec. To use VP9 codec use --format=webm-v9 flag.'
 			);
 			Config.Output.setOutputFormat('webm-v8');
 			renderMode = 'webm-v8';
 		}
 	}
 	if (renderMode === 'mp4') {
-		if (
-			filenameArrLength >= 2 &&
-			filenameArr[filenameArrLength - 1] !== 'mp4'
-		) {
-			console.error(
-				'User has selected MP4 format , the output extension must be .mp4'
-			);
+		if (hasExtension && extension !== 'mp4') {
+			console.error('The output filename must end in .mp4.');
 			process.exit(1);
 		}
 	}
 	if (renderMode === 'webm-v8' || renderMode === 'webm-v9') {
-		if (
-			filenameArrLength >= 2 &&
-			filenameArr[filenameArrLength - 1] !== 'webm'
-		) {
-			console.error(
-				'User has selected WebM format , the output extension must be .webm'
-			);
+		if (hasExtension && extension !== 'webm') {
+			console.error('The output filename must end in .webm.');
 			process.exit(1);
 		}
 	}
 	if (renderMode === 'png') {
-		if (filenameArrLength >= 2) {
-			console.error(
-				'User has selected PNG format , there can not be an extension'
-			);
+		if (hasExtension) {
+			console.error('The output directory cannot have an extension.');
 			process.exit(1);
 		}
 	}
