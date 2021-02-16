@@ -57,12 +57,12 @@ export const render = async () => {
 	) {
 		await validateFfmpeg();
 	}
-	if (renderMode === 'png-sequence') {
+	if (renderMode === 'png') {
 		fs.mkdirSync(absoluteOutputFile, {
 			recursive: true,
 		});
 	}
-	const steps = renderMode === 'png-sequence' ? 2 : 3;
+	const steps = renderMode === 'png' ? 2 : 3;
 	process.stdout.write(`📦 (1/${steps}) Bundling video...\n`);
 
 	const bundlingProgress = new cliProgress.Bar(
@@ -90,7 +90,7 @@ export const render = async () => {
 
 	const {durationInFrames: frames} = config;
 	const outputDir =
-		renderMode === 'png-sequence'
+		renderMode === 'png'
 			? absoluteOutputFile
 			: await fs.promises.mkdtemp(
 					path.join(os.tmpdir(), 'react-motion-render')
@@ -152,5 +152,5 @@ export const render = async () => {
 	} else {
 		console.log('\n▶️ Your PNG sequence is ready!');
 	}
-	console.log(absoluteOutputFile);
+	console.log(absoluteOutputFileWithExtension());
 };

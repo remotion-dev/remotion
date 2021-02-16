@@ -45,7 +45,7 @@ export const Config = {
 		 */
 		setPixelFormat,
 		/**
-		 * Specify what kind of output you, want, either 'mp4' or 'png-sequence'.
+		 * Specify what kind of output you, want, either 'mp4' or 'png'.
 		 * Default: 'mp4'
 		 */
 		setOutputFormat,

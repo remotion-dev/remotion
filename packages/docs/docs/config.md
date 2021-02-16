@@ -67,10 +67,10 @@ The [command line flag](cli) `--pixel-format` will take precedene over this opti
 
 ### setOutputFormat()
 
-Either `'mp4'` or `'png-sequence'` or `'webm-v8'` or `'webm-v9'`. Use the PNG sequence option if you want transparency in your output.
+Either `'mp4'` or `'png'` or `'webm-v8'` or `'webm-v9'`. Use the PNG sequence option if you want transparency in your output.
 
 ```tsx
-Config.output.setOutputFormat('png-sequence');
+Config.output.setOutputFormat('png');
 ```
 
 The [command line flag](cli) `--png` and `--format` will take precedence over this option.
