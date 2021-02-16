@@ -5,7 +5,7 @@ import warnNativeMediaTag from "./rules/warn-native-media-tag";
 const rules = {
   "no-mp4-import": nomp4Import,
   "warn-native-media-tag": warnNativeMediaTag,
-  "determistic-randomess": deterministicRandomness,
+  "deterministic-randomness": deterministicRandomness,
 };
 
 export = {

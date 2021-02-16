@@ -18,18 +18,23 @@ function hashCode(str: string) {
 	return hash;
 }
 
-export const random = (input: number | string | null, dummy?: unknown) => {
+/**
+ * A deterministic pseudo-random number generator.
+ * Pass in the same seed and get the same pseudorandom number.
+ * See: https://remotion.dev/docs/random
+ */
+export const random = (seed: number | string | null, dummy?: unknown) => {
 	if (dummy !== undefined) {
 		throw new TypeError('random() takes only one argument');
 	}
-	if (input === null) {
+	if (seed === null) {
 		return Math.random();
 	}
-	if (typeof input === 'string') {
-		return mulberry32(hashCode(input));
+	if (typeof seed === 'string') {
+		return mulberry32(hashCode(seed));
 	}
-	if (typeof input === 'number') {
-		return mulberry32(input * 10000000000);
+	if (typeof seed === 'number') {
+		return mulberry32(seed * 10000000000);
 	}
 	throw new Error('random() argument must be a number or a string');
 };

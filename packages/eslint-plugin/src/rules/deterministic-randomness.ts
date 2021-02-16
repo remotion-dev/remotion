@@ -12,10 +12,11 @@ const DeterministicRandomness = [
   "The result of Math.random() will change between frames while rendering because multiple threads are used.",
   "Use the `random()` API from Remotion to get a deterministic pseudorandom value.",
   "If you are sure you want a true random value, use `random(null)` to hide this warning.",
+  "See: https://remotion.dev/docs/using-randomness",
 ].join("\n");
 
 export default createRule<Options, MessageIds>({
-  name: "determinstic-randomness",
+  name: "deterministic-randomness",
   meta: {
     type: "problem",
     docs: {
