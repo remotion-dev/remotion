@@ -4,6 +4,7 @@ test('Random should be deterministic', () => {
 	expect(random(1)).toBe(random(1));
 	expect(random(2)).toBe(random(2));
 	expect(random(2)).not.toBe(random(1));
+	expect(random(null)).not.toBe(random(null));
 });
 
 test('Random should be uniform', () => {
