@@ -18,9 +18,12 @@ function hashCode(str: string) {
 	return hash;
 }
 
-export const random = (input: number | string, dummy?: unknown) => {
+export const random = (input: number | string | null, dummy?: unknown) => {
 	if (dummy !== undefined) {
 		throw new TypeError('random() takes only one argument');
+	}
+	if (input === null) {
+		return Math.random();
 	}
 	if (typeof input === 'string') {
 		return mulberry32(hashCode(input));
