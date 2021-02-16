@@ -8,7 +8,6 @@ let handles: number[] = [];
 
 export const delayRender = (): number => {
 	const handle = Math.random();
-
 	handles.push(handle);
 	if (typeof window !== 'undefined') {
 		window.ready = false;
