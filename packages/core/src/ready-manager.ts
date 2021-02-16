@@ -1,5 +1,4 @@
 import {TCompMetadata} from './CompositionManager';
-import {getIsEvaluation} from './register-root';
 
 if (typeof window !== 'undefined') {
 	window.ready = false;
@@ -9,10 +8,7 @@ let handles: number[] = [];
 
 export const delayRender = (): number => {
 	const handle = Math.random();
-	if (getIsEvaluation()) {
-		// Don't wait while statically determining the composition list
-		return handle;
-	}
+
 	handles.push(handle);
 	if (typeof window !== 'undefined') {
 		window.ready = false;
@@ -31,6 +27,6 @@ declare global {
 	interface Window {
 		ready: boolean;
 		getStaticCompositions: () => TCompMetadata[];
-		remotion_setFrame: (frame: number) => void
+		remotion_setFrame: (frame: number) => void;
 	}
 }
