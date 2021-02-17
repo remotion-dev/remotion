@@ -1,7 +1,7 @@
 const semver = require('semver');
 
 const current = process.version;
-const supported = require('../package.json').engines.node;
+const supported = '>=12.10.0';
 
 export const checkNodeVersion = () => {
 	if (!semver.satisfies(current, supported)) {

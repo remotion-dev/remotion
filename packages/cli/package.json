@@ -7,9 +7,6 @@
 		"remotion": "dist/index.js"
 	},
 	"module": "true",
-	"engines": {
-		"node": ">=12.10.0"
-	},
 	"scripts": {
 		"test": "eslint 'src' --ext ts,tsx",
 		"build": "tsc -d && node add-bin.js",
