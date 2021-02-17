@@ -5,14 +5,9 @@
   ],
   "private": true,
   "license": "SEE LICENSE IN LICENSE.md",
-  "engines": {
-    "node": ">=12.10.0"
-  },
   "scripts": {
-    "requirements-check": "node check-version.js",
-    "postinstall": "npm run requirements-check",
-    "test": "npm run requirements-check && lerna run test",
-    "build": "npm run requirements-check && lerna run build"
+    "test": "lerna run test",
+    "build": "lerna run build"
   },
   "devDependencies": {
     "@jonny/eslint-config": "^2.1.210",
@@ -23,7 +18,6 @@
     "typescript": "^4.1.2"
   },
   "dependencies": {
-    "@types/minimist": "^1.2.1",
-    "semver": "^7.3.4"
+    "@types/minimist": "^1.2.1"
   }
 }
