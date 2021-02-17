@@ -23,6 +23,7 @@ module.exports = {
         "webpack",
         "use-img-and-iframe",
         "javascript",
+        "using-randomness",
       ],
     },
     {
@@ -34,6 +35,7 @@ module.exports = {
         "continue-render",
         "delay-render",
         "interpolate",
+        "random",
         "register-root",
         "spring",
         "use-current-frame",

@@ -9,6 +9,7 @@ export * from './IFrame';
 export * from './Img';
 export * from './internals';
 export * from './interpolate';
+export * from './random';
 export * from './ready-manager';
 export {registerRoot} from './register-root';
 export {Sequence} from './sequencing';
