@@ -2,8 +2,6 @@ import React, {useCallback, useEffect, useState} from 'react';
 import {continueRender, delayRender, Img, useCurrentFrame} from 'remotion';
 import styled from 'styled-components';
 
-const handle = delayRender();
-
 const Title = styled.div`
 	font-size: 80px;
 	font-family: 'Roboto';
@@ -38,6 +36,7 @@ const getStickerScale = (frame: number, index: number): number => {
 };
 
 const Rating: React.FC = () => {
+	const [handle] = useState(() => delayRender());
 	const [data, setData] = useState<null | {
 		data: {
 			pack: {
@@ -60,7 +59,7 @@ const Rating: React.FC = () => {
 
 	useEffect(() => {
 		continueRender(handle);
-	}, [data]);
+	}, [data, handle]);
 
 	useEffect(() => {
 		fetchData();
