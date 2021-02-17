@@ -55,7 +55,7 @@ export const Composition = <T,>({
 		}
 		if (!id.match(/^([a-zA-Z0-9-])+$/g)) {
 			throw new Error(
-				`Composition id can only contain a-z, A-Z, 0-9 and -. You passed ${name}`
+				`Composition id can only contain a-z, A-Z, 0-9 and -. You passed ${id}`
 			);
 		}
 		registerComposition<T>({
