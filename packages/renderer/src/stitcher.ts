@@ -47,6 +47,8 @@ export const stitchFramesToVideo = async (options: {
 				: 'libvpx-vp9',
 			'-crf',
 			'16',
+			'-b:v',
+			'1M',
 			options.force ? '-y' : null,
 			'-pix_fmt',
 			options.pixelFormat ?? 'yuv420p',

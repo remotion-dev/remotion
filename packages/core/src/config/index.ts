@@ -45,7 +45,7 @@ export const Config = {
 		 */
 		setPixelFormat,
 		/**
-		 * Specify what kind of output you, want, either 'mp4' or 'png'.
+		 * Specify what kind of output you, want, either 'mp4' or 'png' or 'webm-v8' or 'webm-v8'.
 		 * Default: 'mp4'
 		 */
 		setOutputFormat,
