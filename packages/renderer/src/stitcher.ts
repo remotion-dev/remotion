@@ -39,7 +39,7 @@ export const stitchFramesToVideo = async (options: {
 			`${options.width}x${options.height}`,
 			'-i',
 			`element-%0${numberLength}d.${format}`,
-			options.outputFormat === 'mp4' ? '-vcodec' : '-c:v',
+			'-c:v',
 			options.outputFormat === 'mp4'
 				? 'libx264'
 				: options.outputFormat === 'webm-v8'
