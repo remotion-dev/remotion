@@ -3,6 +3,7 @@ import {
 	CheckerboardContext,
 	persistCheckerboardOption,
 } from '../state/checkerboard';
+import {ControlButton} from './ControlButton';
 
 export const CheckboardToggle: React.FC = () => {
 	const {checkerboard, setCheckerboard} = useContext(CheckerboardContext);
@@ -15,15 +16,9 @@ export const CheckboardToggle: React.FC = () => {
 	}, [setCheckerboard]);
 
 	return (
-		<div
-			role="button"
-			title="Show transparency as checkerboard"
+		<ControlButton
+			aria-label="Show transparency as checkerboard"
 			onClick={onClick}
-			style={{
-				userSelect: 'none',
-				display: 'inline',
-				height: 16,
-			}}
 		>
 			<svg
 				aria-hidden="true"
@@ -41,6 +36,6 @@ export const CheckboardToggle: React.FC = () => {
 					d="M480 0H32A32 32 0 0 0 0 32v448a32 32 0 0 0 32 32h448a32 32 0 0 0 32-32V32a32 32 0 0 0-32-32zm-32 256H256v192H64V256h192V64h192z"
 				/>
 			</svg>
-		</div>
+		</ControlButton>
 	);
 };
