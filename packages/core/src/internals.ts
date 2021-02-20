@@ -6,6 +6,7 @@ import {
 } from './CompositionManager';
 import {getOutputCodecOrUndefined} from './config/codec';
 import {getConcurrency} from './config/concurrency';
+import {getShouldOutputImageSequence} from './config/image-sequence';
 import {
 	getWebpackOverrideFn,
 	WebpackOverrideFn,
@@ -38,6 +39,7 @@ export const Internals = {
 	getOutputCodecOrUndefined,
 	getWebpackOverrideFn,
 	getQuality,
+	getShouldOutputImageSequence,
 };
 
 export type {

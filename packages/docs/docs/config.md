@@ -78,9 +78,17 @@ Choose one of the supported codecs: `h264` _(default)_, `h265`, `vp8`, `vp9`.
 Config.Output.setCodec('h265');
 ```
 
+### setImageSequence()
+
+Set to true if you want to output an image sequence instead of a video.
+
+```tsx
+Config.Output.setImageSequence(true);
+```
+
 ### setOutputFormat()
 
-_Deprecated_. Use `setCodec()` instead.
+_Deprecated_. Use `setCodec()` and `setImageSequence()` instead.
 
 Either `'mp4'` or `'png-sequence'`.
 

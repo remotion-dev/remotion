@@ -1,4 +1,4 @@
-const validRenderModes = ['png', 'h264', 'h265', 'vp8', 'vp9'] as const;
+const validRenderModes = ['h264', 'h265', 'vp8', 'vp9'] as const;
 
 export type Codec = typeof validRenderModes[number];
 export type CodecOrUndefined = Codec | undefined;

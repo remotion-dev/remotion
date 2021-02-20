@@ -1,5 +1,6 @@
 import {setCodec, setOutputFormat} from './codec';
 import {Concurrency, setConcurrency} from './concurrency';
+import {setImageSequence} from './image-sequence';
 import {
 	overrideWebpackConfig,
 	WebpackConfiguration,
@@ -45,7 +46,7 @@ export const Config = {
 		 */
 		setPixelFormat,
 		/**
-		 * @deprecated Use setCodec() instead.
+		 * @deprecated Use setCodec() and setImageSequence() instead.
 		 * Specify what kind of output you, either `mp4` or `png-sequence`.
 		 */
 		setOutputFormat,
@@ -54,6 +55,10 @@ export const Config = {
 		 * Can be `h264` (default), `h265`, `vp8` or `vp9`
 		 */
 		setCodec,
+		/**
+		 * Set to true if don't want a video but an image sequence as the output.
+		 */
+		setImageSequence,
 	},
 } as const;
 
