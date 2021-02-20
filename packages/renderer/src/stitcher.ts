@@ -4,6 +4,17 @@ import {OutputFormat, PixelFormat} from 'remotion';
 import {DEFAULT_IMAGE_FORMAT, ImageFormat} from './image-format';
 import {validateFfmpeg} from './validate-ffmpeg';
 
+const getCodecName = (outputFormat: OutputFormat): string => {
+	if (outputFormat === 'mp4' || outputFormat === 'mp4-h264') {
+		return 'libx264';
+	}
+	if (outputFormat === 'mp4-h265') {
+		return 'libx265';
+	}
+
+	return outputFormat === 'webm-v8' ? 'libvpx' : 'libvpx-vp9';
+};
+
 export const stitchFramesToVideo = async (options: {
 	dir: string;
 	fps: number;
@@ -13,7 +24,7 @@ export const stitchFramesToVideo = async (options: {
 	force: boolean;
 	imageFormat?: ImageFormat;
 	pixelFormat?: PixelFormat;
-	outputFormat?: OutputFormat;
+	outputFormat: OutputFormat;
 }): Promise<void> => {
 	const format = options.imageFormat ?? DEFAULT_IMAGE_FORMAT;
 	await validateFfmpeg();
@@ -40,11 +51,7 @@ export const stitchFramesToVideo = async (options: {
 			'-i',
 			`element-%0${numberLength}d.${format}`,
 			'-c:v',
-			options.outputFormat === 'mp4'
-				? 'libx264'
-				: options.outputFormat === 'webm-v8'
-				? 'libvpx'
-				: 'libvpx-vp9',
+			getCodecName(options.outputFormat),
 			'-crf',
 			'16',
 			'-b:v',

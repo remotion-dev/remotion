@@ -1,4 +1,11 @@
-const validRenderModes = ['png', 'mp4', 'webm-v8', 'webm-v9'] as const;
+const validRenderModes = [
+	'png',
+	'mp4',
+	'mp4-h264',
+	'mp4-h265',
+	'webm-v8',
+	'webm-v9',
+] as const;
 
 export type OutputFormat = typeof validRenderModes[number];
 
