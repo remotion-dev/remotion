@@ -65,15 +65,30 @@ Config.Output.setPixelFormat('yuv420p')
 
 The [command line flag](cli) `--pixel-format` will take precedene over this option.
 
-### setOutputFormat()
+### setCodec()
 
-Either `'h264'` or `'h265'` `or` 'vp8'`or`'vp9'`.
+Choose one of the supported codecs: `h264` _(default)_, `h265`, `vp8`, `vp9`.
+
+- `h264` is the classic MP4 file as you know it.
+- `h265` is the successor of H264, with smaller file sizes. Also known as HEVC. Poor browser compatibility.
+- `vp8` is the codec for WebM.
+- `vp9` is the next-generation codec for WebM. Lower file size, longer compression time.
 
 ```tsx
-Config.output.setOutputFormat('h265');
+Config.Output.setCodec('h265');
 ```
 
-The [command line flag](cli) `--png` and `--codec` will take precedence over this option.
+### setOutputFormat()
+
+_Deprecated_. Use `setCodec()` instead.
+
+Either `'mp4'` or `'png-sequence'`.
+
+```tsx
+Config.Output.setOutputFormat('h265');
+```
+
+The [command line flags](cli) `--png` and `--codec` will take precedence over this option.
 
 ### setQuality()
 
