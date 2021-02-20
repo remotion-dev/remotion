@@ -8,6 +8,7 @@ export type CommandLineOptions = {
 	overwrite: boolean;
 	config: string;
 	png: boolean;
+	sequence: boolean;
 	quality: number | undefined;
 	force: boolean;
 	codec: CodecOrUndefined;
@@ -24,7 +25,11 @@ export const parseCommandLine = () => {
 		Config.Rendering.setConcurrency(parsedCli.concurrency);
 	}
 	if (parsedCli.png) {
-		Config.Output.setImageSequence(true);
+		console.warn('The --png flag has been renamed to --sequence.');
+		Config.Output.setImageSequence(parsedCli.png);
+	}
+	if (parsedCli.sequence) {
+		Config.Output.setImageSequence(parsedCli.sequence);
 	}
 	if (parsedCli.codec) {
 		Config.Output.setCodec(parsedCli.codec);
