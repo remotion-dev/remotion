@@ -10,6 +10,16 @@ export const getOutputFilename = (
 ): string => {
 	let filename = getUserPassedOutputLocation();
 	let extension = getUserPassedFileExtension();
+	if (imageSequence && extension !== null) {
+		if (extension !== null) {
+			console.error(
+				'The output directory of the image sequence cannot have an extension. Got: ' +
+					extension
+			);
+			process.exit(1);
+		}
+		return filename;
+	}
 	if (extension === null && !imageSequence) {
 		if (codec === 'h264' || codec === 'h265') {
 			console.info('No file extension specified, adding .mp4 automatically.');
@@ -40,9 +50,6 @@ export const getOutputFilename = (
 			process.exit(1);
 		}
 	}
-	if (imageSequence && extension !== null) {
-		console.error('The output directory cannot have an extension.');
-		process.exit(1);
-	}
+
 	return filename;
 };

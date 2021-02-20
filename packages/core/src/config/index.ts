@@ -1,5 +1,6 @@
 import {setCodec, setOutputFormat} from './codec';
 import {Concurrency, setConcurrency} from './concurrency';
+import {setCrf} from './crf';
 import {setImageSequence} from './image-sequence';
 import {
 	overrideWebpackConfig,
@@ -56,11 +57,17 @@ export const Config = {
 		 */
 		setCodec,
 		/**
+		 * Set the Constant Rate Factor to pass to FFMPEG.
+		 * Lower values mean better quality, but be aware that the ranges of
+		 * possible values greatly differs between codecs.
+		 */
+		setCrf,
+		/**
 		 * Set to true if don't want a video but an image sequence as the output.
 		 */
 		setImageSequence,
 	},
 } as const;
 
-export {Codec, getFinalOutputCodec} from './codec';
+export type {Codec} from './codec';
 export type {PixelFormat, Concurrency, WebpackConfiguration, WebpackOverrideFn};
