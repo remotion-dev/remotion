@@ -2,6 +2,8 @@ const validRenderModes = ['png', 'h264', 'h265', 'vp8', 'vp9'] as const;
 
 export type Codec = typeof validRenderModes[number];
 export type CodecOrUndefined = Codec | undefined;
+const validLegacyFormats = ['mp4', 'png-sequence'] as const;
+type LegacyFormat = typeof validLegacyFormats[number];
 
 let codec: CodecOrUndefined = undefined;
 
@@ -37,17 +39,39 @@ export const getFinalOutputCodec = ({
 	return inputCodec ?? 'h264';
 };
 
-export const setOutputFormat = (newRenderMode: CodecOrUndefined) => {
-	if (newRenderMode === undefined) {
+export const setOutputFormat = (newLegacyFormat: LegacyFormat) => {
+	if (newLegacyFormat === undefined) {
 		codec = undefined;
 		return;
 	}
-	if (!validRenderModes.includes(newRenderMode)) {
+	if (!validLegacyFormats.includes(newLegacyFormat)) {
+		throw new Error(
+			`Render mode must be one of the following: ${validLegacyFormats.join(
+				', '
+			)}, but got ${newLegacyFormat}`
+		);
+	}
+	if (newLegacyFormat === 'mp4') {
+		codec = 'h264';
+		return;
+	}
+	if (newLegacyFormat === 'png-sequences') {
+		codec = undefined;
+		return;
+	}
+};
+
+export const setCodec = (newCodec: CodecOrUndefined) => {
+	if (newCodec === undefined) {
+		codec = undefined;
+		return;
+	}
+	if (!validRenderModes.includes(newCodec)) {
 		throw new Error(
 			`Render mode must be one of the following: ${validRenderModes.join(
 				', '
-			)}, but got ${newRenderMode}`
+			)}, but got ${newCodec}`
 		);
 	}
-	codec = newRenderMode;
+	codec = newCodec;
 };
