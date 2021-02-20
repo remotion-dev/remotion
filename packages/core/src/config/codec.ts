@@ -55,7 +55,7 @@ export const setOutputFormat = (newLegacyFormat: LegacyFormat) => {
 		codec = 'h264';
 		return;
 	}
-	if (newLegacyFormat === 'png-sequences') {
+	if (newLegacyFormat === 'png-sequence') {
 		codec = undefined;
 		return;
 	}
