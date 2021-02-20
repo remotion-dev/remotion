@@ -45,7 +45,7 @@ export const render = async () => {
 		renderMode === 'mp4' ||
 		renderMode === 'h264' ||
 		renderMode === 'h265' ||
-		renderMode === 'webm-v8' ||
+		renderMode === 'vp8' ||
 		renderMode === 'webm-v9'
 	) {
 		await validateFfmpeg();
@@ -124,7 +124,7 @@ export const render = async () => {
 		renderMode === 'mp4' ||
 		renderMode === 'h264' ||
 		renderMode === 'h265' ||
-		renderMode === 'webm-v8' ||
+		renderMode === 'vp8' ||
 		renderMode === 'webm-v9'
 	) {
 		process.stdout.write(`🧵 (3/${steps}) Stitching frames together...\n`);
