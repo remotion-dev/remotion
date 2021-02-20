@@ -23,7 +23,7 @@ export const getOutputFilename = (renderMode: OutputFormat): string => {
 		) {
 			filename += '.mp4';
 		}
-		if (renderMode === 'vp8' || renderMode === 'webm-v9') {
+		if (renderMode === 'vp8' || renderMode === 'vp9') {
 			filename += '.webm';
 		}
 	}
@@ -37,7 +37,7 @@ export const getOutputFilename = (renderMode: OutputFormat): string => {
 	if (extension === 'webm') {
 		if (renderMode === 'mp4') {
 			console.info(
-				'You have specified a .webm extension, encoding it using the default VP8 codec. To use VP9 codec use --format=webm-v9 flag.'
+				'You have specified a .webm extension, encoding it using the default VP8 codec. To use VP9 codec use --format=vp9 flag.'
 			);
 			Config.Output.setOutputFormat('vp8');
 			renderMode = 'vp8';
@@ -49,7 +49,7 @@ export const getOutputFilename = (renderMode: OutputFormat): string => {
 			process.exit(1);
 		}
 	}
-	if (renderMode === 'vp8' || renderMode === 'webm-v9') {
+	if (renderMode === 'vp8' || renderMode === 'vp9') {
 		if (hasExtension && extension !== 'webm') {
 			console.error('The output filename must end in .webm.');
 			process.exit(1);
