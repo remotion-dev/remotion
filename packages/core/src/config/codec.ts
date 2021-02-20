@@ -51,6 +51,9 @@ export const setOutputFormat = (newLegacyFormat: LegacyFormat) => {
 			)}, but got ${newLegacyFormat}`
 		);
 	}
+	console.warn(
+		'setOutputFormat() is deprecated. Use the more powerful setCodec() instead.'
+	);
 	if (newLegacyFormat === 'mp4') {
 		codec = 'h264';
 		return;
