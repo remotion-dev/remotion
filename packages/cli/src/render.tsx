@@ -11,6 +11,7 @@ import fs from 'fs';
 import os from 'os';
 import path from 'path';
 import {Internals} from 'remotion';
+import {getFinalOutputCodec} from 'remotion/dist/config/codec';
 import {getCompositionId} from './get-composition-id';
 import {getConfigFileName} from './get-config-file-name';
 import {getOutputFilename} from './get-filename';
@@ -18,6 +19,7 @@ import {getUserProps} from './get-user-props';
 import {getFrameFormat} from './image-formats';
 import {loadConfigFile} from './load-config';
 import {parseCommandLine} from './parse-command-line';
+import {getUserPassedFileExtension} from './user-passed-output-location';
 
 export const render = async () => {
 	const args = process.argv;
@@ -28,8 +30,12 @@ export const render = async () => {
 	loadConfigFile(configFileName);
 	parseCommandLine();
 	const parallelism = Internals.getConcurrency();
-	const renderMode = Internals.getOutputFormat();
-	const outputFile = getOutputFilename(renderMode);
+	const codec = getFinalOutputCodec({
+		codec: Internals.getOutputCodecOrUndefined(),
+		fileExtension: getUserPassedFileExtension(),
+		emitWarning: true,
+	});
+	const outputFile = getOutputFilename(codec);
 	const overwrite = Internals.getShouldOverwrite();
 	const userProps = getUserProps();
 	const quality = Internals.getQuality();
@@ -42,20 +48,19 @@ export const render = async () => {
 		process.exit(1);
 	}
 	if (
-		renderMode === 'mp4' ||
-		renderMode === 'h264' ||
-		renderMode === 'h265' ||
-		renderMode === 'vp8' ||
-		renderMode === 'vp9'
+		codec === 'h264' ||
+		codec === 'h265' ||
+		codec === 'vp8' ||
+		codec === 'vp9'
 	) {
 		await validateFfmpeg();
 	}
-	if (renderMode === 'png') {
+	if (codec === 'png') {
 		fs.mkdirSync(absoluteOutputFile, {
 			recursive: true,
 		});
 	}
-	const steps = renderMode === 'png' ? 2 : 3;
+	const steps = codec === 'png' ? 2 : 3;
 	process.stdout.write(`📦 (1/${steps}) Bundling video...\n`);
 
 	const bundlingProgress = new cliProgress.Bar(
@@ -83,7 +88,7 @@ export const render = async () => {
 
 	const {durationInFrames: frames} = config;
 	const outputDir =
-		renderMode === 'png'
+		codec === 'png'
 			? absoluteOutputFile
 			: await fs.promises.mkdtemp(
 					path.join(os.tmpdir(), 'react-motion-render')
@@ -113,7 +118,7 @@ export const render = async () => {
 		},
 		userProps,
 		webpackBundle: bundled,
-		imageFormat: getFrameFormat(renderMode),
+		imageFormat: getFrameFormat(codec),
 		quality,
 	});
 	renderProgress.stop();
@@ -121,11 +126,10 @@ export const render = async () => {
 		Internals.perf.logPerf();
 	}
 	if (
-		renderMode === 'mp4' ||
-		renderMode === 'h264' ||
-		renderMode === 'h265' ||
-		renderMode === 'vp8' ||
-		renderMode === 'vp9'
+		codec === 'h264' ||
+		codec === 'h265' ||
+		codec === 'vp8' ||
+		codec === 'vp9'
 	) {
 		process.stdout.write(`🧵 (3/${steps}) Stitching frames together...\n`);
 		await stitchFramesToVideo({
@@ -135,9 +139,9 @@ export const render = async () => {
 			fps: config.fps,
 			outputLocation: absoluteOutputFile,
 			force: overwrite,
-			imageFormat: getFrameFormat(renderMode),
+			imageFormat: getFrameFormat(codec),
 			pixelFormat: Internals.getPixelFormat(),
-			outputFormat: Internals.getOutputFormat(),
+			outputFormat: codec,
 		});
 		console.log('Cleaning up...');
 		await fs.promises.rmdir(outputDir, {

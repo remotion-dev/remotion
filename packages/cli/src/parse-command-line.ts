@@ -1,5 +1,6 @@
 import minimist from 'minimist';
-import {Config, OutputFormat, PixelFormat} from 'remotion';
+import {Config, PixelFormat} from 'remotion';
+import {CodecOrUndefined} from 'remotion/dist/config/codec';
 
 export type CommandLineOptions = {
 	pixelFormat: PixelFormat;
@@ -9,7 +10,7 @@ export type CommandLineOptions = {
 	png: boolean;
 	quality: number | undefined;
 	force: boolean;
-	format: OutputFormat;
+	format: CodecOrUndefined;
 	props: string;
 };
 
