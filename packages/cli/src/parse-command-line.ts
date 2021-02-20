@@ -25,11 +25,10 @@ export const parseCommandLine = () => {
 	}
 	if (parsedCli.png) {
 		// TODO: Make this a separate flag
-		Config.Output.setOutputFormat('png');
-		console.warn('--png has been deprecated. Use --codec=png instead.');
+		Config.Output.setOutputFormat('png-sequence');
 	}
 	if (parsedCli.codec) {
-		Config.Output.setOutputFormat(parsedCli.codec);
+		Config.Output.setCodec(parsedCli.codec);
 	}
 	if (typeof parsedCli.overwrite !== 'undefined') {
 		Config.Output.setOverwriteOutput(parsedCli.overwrite);
