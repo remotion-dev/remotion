@@ -1,4 +1,4 @@
-import {setOutputFormat} from './codec';
+import {setCodec, setOutputFormat} from './codec';
 import {Concurrency, setConcurrency} from './concurrency';
 import {
 	overrideWebpackConfig,
@@ -45,10 +45,15 @@ export const Config = {
 		 */
 		setPixelFormat,
 		/**
-		 * Specify what kind of output you, want, either 'mp4' (is an alias for 'h264') or 'h265' or 'png' or 'vp8' or 'vp8'.
-		 * Default: 'mp4' (uses the default h264 codec)
+		 * @deprecated Use setCodec() instead.
+		 * Specify what kind of output you, either `mp4` or `png-sequence`.
 		 */
 		setOutputFormat,
+		/**
+		 * Specify the codec for stitching the frames into a video.
+		 * Can be `h264` (default), `h265`, `vp8` or `vp9`
+		 */
+		setCodec,
 	},
 } as const;
 
