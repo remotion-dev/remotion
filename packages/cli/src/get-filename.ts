@@ -16,11 +16,22 @@ export const getOutputFilename = (renderMode: OutputFormat): string => {
 		console.info(
 			'User has given a file without extension , adding the extension automatically.'
 		);
-		if (renderMode === 'mp4') {
+		if (
+			renderMode === 'mp4' ||
+			renderMode === 'mp4-h264' ||
+			renderMode === 'mp4-h265'
+		) {
 			filename += '.mp4';
 		}
 		if (renderMode === 'webm-v8' || renderMode === 'webm-v9') {
 			filename += '.webm';
+		}
+	}
+	if (extension === 'mp4') {
+		if (renderMode === 'mp4') {
+			console.info(
+				'You have specified a .mp4 extension, encoding it using the default H264 codec. To use H265 codec use --format=mp4-h265 flag.'
+			);
 		}
 	}
 	if (extension === 'webm') {
@@ -32,7 +43,11 @@ export const getOutputFilename = (renderMode: OutputFormat): string => {
 			renderMode = 'webm-v8';
 		}
 	}
-	if (renderMode === 'mp4') {
+	if (
+		renderMode === 'mp4' ||
+		renderMode === 'mp4-h264' ||
+		renderMode === 'mp4-h265'
+	) {
 		if (hasExtension && extension !== 'mp4') {
 			console.error('The output filename must end in .mp4.');
 			process.exit(1);
