@@ -43,7 +43,7 @@ export const render = async () => {
 	}
 	if (
 		renderMode === 'mp4' ||
-		renderMode === 'mp4-h264' ||
+		renderMode === 'h264' ||
 		renderMode === 'mp4-h265' ||
 		renderMode === 'webm-v8' ||
 		renderMode === 'webm-v9'
@@ -122,7 +122,7 @@ export const render = async () => {
 	}
 	if (
 		renderMode === 'mp4' ||
-		renderMode === 'mp4-h264' ||
+		renderMode === 'h264' ||
 		renderMode === 'mp4-h265' ||
 		renderMode === 'webm-v8' ||
 		renderMode === 'webm-v9'

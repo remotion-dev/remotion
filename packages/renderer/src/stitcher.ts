@@ -5,7 +5,7 @@ import {DEFAULT_IMAGE_FORMAT, ImageFormat} from './image-format';
 import {validateFfmpeg} from './validate-ffmpeg';
 
 const getCodecName = (outputFormat: OutputFormat): string => {
-	if (outputFormat === 'mp4' || outputFormat === 'mp4-h264') {
+	if (outputFormat === 'mp4' || outputFormat === 'h264') {
 		return 'libx264';
 	}
 	if (outputFormat === 'mp4-h265') {
