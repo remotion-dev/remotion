@@ -1,6 +1,5 @@
 import minimist from 'minimist';
-import {Config, PixelFormat} from 'remotion';
-import {CodecOrUndefined} from 'remotion/dist/config/codec';
+import {Codec, Config, PixelFormat} from 'remotion';
 
 export type CommandLineOptions = {
 	pixelFormat: PixelFormat;
@@ -9,9 +8,9 @@ export type CommandLineOptions = {
 	config: string;
 	png: boolean;
 	sequence: boolean;
-	quality: number | undefined;
+	quality: number;
 	force: boolean;
-	codec: CodecOrUndefined;
+	codec: Codec;
 	props: string;
 };
 
@@ -26,10 +25,10 @@ export const parseCommandLine = () => {
 	}
 	if (parsedCli.png) {
 		console.warn('The --png flag has been renamed to --sequence.');
-		Config.Output.setImageSequence(parsedCli.png);
+		Config.Output.setImageSequence(true);
 	}
 	if (parsedCli.sequence) {
-		Config.Output.setImageSequence(parsedCli.sequence);
+		Config.Output.setImageSequence(true);
 	}
 	if (parsedCli.codec) {
 		Config.Output.setCodec(parsedCli.codec);
