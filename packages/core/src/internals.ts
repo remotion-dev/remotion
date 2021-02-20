@@ -4,8 +4,17 @@ import {
 	TComposition,
 	TSequence,
 } from './CompositionManager';
-import {getOutputCodecOrUndefined} from './config/codec';
+import {
+	DEFAULT_CODEC,
+	getFinalOutputCodec,
+	getOutputCodecOrUndefined,
+} from './config/codec';
 import {getConcurrency} from './config/concurrency';
+import {
+	getActualCrf,
+	getDefaultCrfForCodec,
+	validateSelectedCrf,
+} from './config/crf';
 import {getShouldOutputImageSequence} from './config/image-sequence';
 import {
 	getWebpackOverrideFn,
@@ -40,6 +49,11 @@ export const Internals = {
 	getWebpackOverrideFn,
 	getQuality,
 	getShouldOutputImageSequence,
+	validateSelectedCrf,
+	getFinalOutputCodec,
+	DEFAULT_CODEC,
+	getDefaultCrfForCodec,
+	getActualCrf,
 };
 
 export type {

@@ -30,12 +30,23 @@ export const render = async () => {
 	loadConfigFile(configFileName);
 	parseCommandLine();
 	const parallelism = Internals.getConcurrency();
+	const shouldOutputImageSequence = Internals.getShouldOutputImageSequence();
+	const userCodec = Internals.getOutputCodecOrUndefined();
+	if (shouldOutputImageSequence && userCodec) {
+		console.error(
+			'Detected both --codec and --sequence (formerly --png) flag.'
+		);
+		console.error(
+			'This is an error - no video codec can be used for image sequences.'
+		);
+		console.error('Remove one of the two flags and try again.');
+		process.exit(1);
+	}
 	const codec = getFinalOutputCodec({
-		codec: Internals.getOutputCodecOrUndefined(),
+		codec: userCodec,
 		fileExtension: getUserPassedFileExtension(),
 		emitWarning: true,
 	});
-	const shouldOutputImageSequence = Internals.getShouldOutputImageSequence();
 	const outputFile = getOutputFilename(codec, shouldOutputImageSequence);
 	const overwrite = Internals.getShouldOverwrite();
 	const userProps = getUserProps();
@@ -48,13 +59,12 @@ export const render = async () => {
 		);
 		process.exit(1);
 	}
-	if (
-		codec === 'h264' ||
-		codec === 'h265' ||
-		codec === 'vp8' ||
-		codec === 'vp9'
-	) {
+	if (shouldOutputImageSequence) {
 		await validateFfmpeg();
+	}
+	const crf = shouldOutputImageSequence ? null : Internals.getActualCrf(codec);
+	if (crf !== null) {
+		Internals.validateSelectedCrf(crf, codec);
 	}
 	if (shouldOutputImageSequence) {
 		fs.mkdirSync(absoluteOutputFile, {
@@ -126,6 +136,9 @@ export const render = async () => {
 	}
 	if (!shouldOutputImageSequence) {
 		process.stdout.write(`🧵 (3/${steps}) Stitching frames together...\n`);
+		if (typeof crf !== 'number') {
+			throw TypeError('CRF is unexpectedly not a number');
+		}
 		await stitchFramesToVideo({
 			dir: outputDir,
 			width: config.width,
@@ -135,7 +148,8 @@ export const render = async () => {
 			force: overwrite,
 			imageFormat,
 			pixelFormat: Internals.getPixelFormat(),
-			outputFormat: codec,
+			codec,
+			crf,
 		});
 		console.log('Cleaning up...');
 		await fs.promises.rmdir(outputDir, {
@@ -143,7 +157,7 @@ export const render = async () => {
 		});
 		console.log('\n▶️ Your video is ready - hit play!');
 	} else {
-		console.log('\n▶️ Your PNG sequence is ready!');
+		console.log('\n▶️ Your image sequence is ready!');
 	}
 	console.log(absoluteOutputFile);
 };

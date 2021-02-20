@@ -11,6 +11,8 @@ export const getOutputCodecOrUndefined = (): CodecOrUndefined => {
 	return codec;
 };
 
+export const DEFAULT_CODEC: Codec = 'h264';
+
 export const getFinalOutputCodec = ({
 	codec: inputCodec,
 	fileExtension,
@@ -36,7 +38,7 @@ export const getFinalOutputCodec = ({
 		}
 		return 'h265';
 	}
-	return inputCodec ?? 'h264';
+	return inputCodec ?? DEFAULT_CODEC;
 };
 
 export const setOutputFormat = (newLegacyFormat: LegacyFormat) => {
