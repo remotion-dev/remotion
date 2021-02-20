@@ -18,7 +18,7 @@ export const getOutputFilename = (renderMode: OutputFormat): string => {
 		);
 		if (
 			renderMode === 'mp4' ||
-			renderMode === 'mp4-h264' ||
+			renderMode === 'h264' ||
 			renderMode === 'mp4-h265'
 		) {
 			filename += '.mp4';
@@ -45,7 +45,7 @@ export const getOutputFilename = (renderMode: OutputFormat): string => {
 	}
 	if (
 		renderMode === 'mp4' ||
-		renderMode === 'mp4-h264' ||
+		renderMode === 'h264' ||
 		renderMode === 'mp4-h265'
 	) {
 		if (hasExtension && extension !== 'mp4') {
