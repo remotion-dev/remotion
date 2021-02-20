@@ -2,7 +2,7 @@ const validRenderModes = [
 	'png',
 	'mp4',
 	'h264',
-	'mp4-h265',
+	'h265',
 	'webm-v8',
 	'webm-v9',
 ] as const;
