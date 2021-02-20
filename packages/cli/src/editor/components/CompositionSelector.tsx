@@ -63,8 +63,10 @@ export const CompositionSelector: React.FC = () => {
 					return (
 						<Item
 							key={c.id}
+							href={c.id}
 							selected={currentComposition === c.id}
-							onClick={() => {
+							onClick={(evt) => {
+								evt.preventDefault();
 								selectComposition(c);
 							}}
 						>
