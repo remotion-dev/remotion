@@ -8,7 +8,7 @@ const getCodecName = (outputFormat: OutputFormat): string => {
 	if (outputFormat === 'mp4' || outputFormat === 'h264') {
 		return 'libx264';
 	}
-	if (outputFormat === 'mp4-h265') {
+	if (outputFormat === 'h265') {
 		return 'libx265';
 	}
 

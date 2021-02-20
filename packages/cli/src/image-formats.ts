@@ -6,7 +6,7 @@ export const getFrameFormat = (format: OutputFormat): FrameFormat => {
 	if (
 		format === 'mp4' ||
 		format === 'h264' ||
-		format === 'mp4-h265' ||
+		format === 'h265' ||
 		format === 'webm-v8' ||
 		format === 'webm-v9'
 	) {
