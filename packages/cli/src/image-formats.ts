@@ -7,7 +7,7 @@ export const getFrameFormat = (format: OutputFormat): FrameFormat => {
 		format === 'mp4' ||
 		format === 'h264' ||
 		format === 'h265' ||
-		format === 'webm-v8' ||
+		format === 'vp8' ||
 		format === 'webm-v9'
 	) {
 		return 'jpeg';

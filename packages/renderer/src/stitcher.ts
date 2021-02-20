@@ -12,7 +12,7 @@ const getCodecName = (outputFormat: OutputFormat): string => {
 		return 'libx265';
 	}
 
-	return outputFormat === 'webm-v8' ? 'libvpx' : 'libvpx-vp9';
+	return outputFormat === 'vp8' ? 'libvpx' : 'libvpx-vp9';
 };
 
 export const stitchFramesToVideo = async (options: {
