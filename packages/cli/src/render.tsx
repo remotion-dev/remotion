@@ -35,7 +35,8 @@ export const render = async () => {
 		fileExtension: getUserPassedFileExtension(),
 		emitWarning: true,
 	});
-	const outputFile = getOutputFilename(codec);
+	const shouldOutputImageSequence = Internals.getShouldOutputImageSequence();
+	const outputFile = getOutputFilename(codec, shouldOutputImageSequence);
 	const overwrite = Internals.getShouldOverwrite();
 	const userProps = getUserProps();
 	const quality = Internals.getQuality();
@@ -55,12 +56,12 @@ export const render = async () => {
 	) {
 		await validateFfmpeg();
 	}
-	if (codec === 'png') {
+	if (shouldOutputImageSequence) {
 		fs.mkdirSync(absoluteOutputFile, {
 			recursive: true,
 		});
 	}
-	const steps = codec === 'png' ? 2 : 3;
+	const steps = shouldOutputImageSequence ? 2 : 3;
 	process.stdout.write(`📦 (1/${steps}) Bundling video...\n`);
 
 	const bundlingProgress = new cliProgress.Bar(
@@ -87,12 +88,9 @@ export const render = async () => {
 	}
 
 	const {durationInFrames: frames} = config;
-	const outputDir =
-		codec === 'png'
-			? absoluteOutputFile
-			: await fs.promises.mkdtemp(
-					path.join(os.tmpdir(), 'react-motion-render')
-			  );
+	const outputDir = shouldOutputImageSequence
+		? absoluteOutputFile
+		: await fs.promises.mkdtemp(path.join(os.tmpdir(), 'react-motion-render'));
 
 	const renderProgress = new cliProgress.Bar(
 		{
@@ -125,12 +123,7 @@ export const render = async () => {
 	if (process.env.DEBUG) {
 		Internals.perf.logPerf();
 	}
-	if (
-		codec === 'h264' ||
-		codec === 'h265' ||
-		codec === 'vp8' ||
-		codec === 'vp9'
-	) {
+	if (!shouldOutputImageSequence) {
 		process.stdout.write(`🧵 (3/${steps}) Stitching frames together...\n`);
 		await stitchFramesToVideo({
 			dir: outputDir,

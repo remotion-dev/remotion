@@ -17,7 +17,7 @@ Besides choosing a video and output location with the command line arguments, th
 - `--concurrency`: [How many CPU threads to use.](config#setconcurrency) Minimum 1. The maximum is the amount of threads you have.
 - `--pixel-format`: [Set a custom pixel format. See here for available values.](config#setpixelformat)
 - `--config`: Specify a location for the Remotion config file.
-- `--quality`: [Value between 0 and 100 for JPEG rendering quality](config#setquality). Doesn't work when `--png` is set.
+- `--quality`: [Value between 0 and 100 for JPEG rendering quality](config#setquality). Doesn't work when PNG frames are rendered.
 - `--overwrite`: [Write to output even if file already exists.](config#setoverwriteoutput)
 - `--codec`: ['h264' or 'h265' or `png` or `vp8` or `vp9`](config#setoutputformat). If you don't supply `--codec`, it will use the H.264 encoder.
 

@@ -24,8 +24,7 @@ export const parseCommandLine = () => {
 		Config.Rendering.setConcurrency(parsedCli.concurrency);
 	}
 	if (parsedCli.png) {
-		// TODO: Make this a separate flag
-		Config.Output.setOutputFormat('png-sequence');
+		Config.Output.setImageSequence(true);
 	}
 	if (parsedCli.codec) {
 		Config.Output.setCodec(parsedCli.codec);
