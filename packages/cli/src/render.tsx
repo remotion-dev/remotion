@@ -84,8 +84,8 @@ export const render = async () => {
 
 	bundlingProgress.start(100, 0);
 
-	const bundled = await bundle(fullPath, (f) => {
-		bundlingProgress.update(f);
+	const bundled = await bundle(fullPath, (progress) => {
+		bundlingProgress.update(progress);
 	});
 	const comps = await getCompositions(bundled);
 	const compositionId = getCompositionId(comps);
@@ -113,7 +113,7 @@ export const render = async () => {
 	const imageFormat = getImageFormat(codec);
 	await renderFrames({
 		config,
-		onFrameUpdate: (f) => renderProgress.update(f),
+		onFrameUpdate: (frame) => renderProgress.update(frame),
 		parallelism,
 		compositionId,
 		outputDir,
@@ -139,6 +139,15 @@ export const render = async () => {
 		if (typeof crf !== 'number') {
 			throw TypeError('CRF is unexpectedly not a number');
 		}
+		const stitchingProgress = new cliProgress.Bar(
+			{
+				clearOnComplete: true,
+				etaBuffer: 50,
+				format: '[{bar}] {percentage}% | ETA: {eta}s | {value}/{total}',
+			},
+			cliProgress.Presets.shades_grey
+		);
+		stitchingProgress.start(frames, 0);
 		await stitchFramesToVideo({
 			dir: outputDir,
 			width: config.width,
@@ -150,8 +159,13 @@ export const render = async () => {
 			pixelFormat: Internals.getPixelFormat(),
 			codec,
 			crf,
+			onProgress: (frame) => {
+				stitchingProgress.update(frame);
+			},
 		});
-		console.log('Cleaning up...');
+		renderProgress.stop();
+
+		console.log('\nCleaning up...');
 		await fs.promises.rmdir(outputDir, {
 			recursive: true,
 		});
