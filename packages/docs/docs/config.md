@@ -67,13 +67,13 @@ The [command line flag](cli) `--pixel-format` will take precedene over this opti
 
 ### setOutputFormat()
 
-Either `'mp4'` or `'h264'` or `'h265'` or `'png'` or `'vp8'` or `'vp9'`. Use the PNG sequence option if you want transparency in your output.
+Either `'h264'` or `'h265'` `or` 'vp8'`or`'vp9'`.
 
 ```tsx
-Config.output.setOutputFormat('png');
+Config.output.setOutputFormat('h265');
 ```
 
-The [command line flag](cli) `--png` and `--format` will take precedence over this option.
+The [command line flag](cli) `--png` and `--codec` will take precedence over this option.
 
 ### setQuality()
 

@@ -19,11 +19,8 @@ Besides choosing a video and output location with the command line arguments, th
 - `--config`: Specify a location for the Remotion config file.
 - `--quality`: [Value between 0 and 100 for JPEG rendering quality](config#setquality). Doesn't work when `--png` is set.
 - `--overwrite`: [Write to output even if file already exists.](config#setoverwriteoutput)
-- `--format`: [Either `mp4`(is an alias for 'h264') or 'h264' or 'h265' or `png` or `vp8` or `vp9`](config#setoutputformat). If you don't supply `--format` flag `--format=mp4` is the default behaviour which uses the default h264 codec.
+- `--codec`: ['h264' or 'h265' or `png` or `vp8` or `vp9`](config#setoutputformat). If you don't supply `--codec`, it will use the H.264 encoder.
 
-:::info
-If you supply `--png` and `--format` flag both, `--format` flag will take precedence over `--png` flag.
-:::
 :::info
 If you don't feel like passing command line flags every time, consider creating a `remotion.config.ts` [config file](config).
 :::

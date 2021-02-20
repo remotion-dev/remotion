@@ -10,7 +10,7 @@ export type CommandLineOptions = {
 	png: boolean;
 	quality: number | undefined;
 	force: boolean;
-	format: CodecOrUndefined;
+	codec: CodecOrUndefined;
 	props: string;
 };
 
@@ -24,11 +24,12 @@ export const parseCommandLine = () => {
 		Config.Rendering.setConcurrency(parsedCli.concurrency);
 	}
 	if (parsedCli.png) {
+		// TODO: Make this a separate flag
 		Config.Output.setOutputFormat('png');
-		console.warn('--png has been deprecated. Use --format=png instead.');
+		console.warn('--png has been deprecated. Use --codec=png instead.');
 	}
-	if (parsedCli.format) {
-		Config.Output.setOutputFormat(parsedCli.format);
+	if (parsedCli.codec) {
+		Config.Output.setOutputFormat(parsedCli.codec);
 	}
 	if (typeof parsedCli.overwrite !== 'undefined') {
 		Config.Output.setOverwriteOutput(parsedCli.overwrite);
