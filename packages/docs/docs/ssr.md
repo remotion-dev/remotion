@@ -88,7 +88,9 @@ const start = async () => {
     // Pass in the desired output path of the video. Et voilà!
     outputLocation: path.join(tmpDir, 'out.mp4'),
     // FFMPEG pixel format
-    pixelFormat: 'yuv420p'
+    pixelFormat: 'yuv420p',
+    // Hook into the FFMPEG progress
+    onProgress: (frame) => void 0
   });
 };
 
