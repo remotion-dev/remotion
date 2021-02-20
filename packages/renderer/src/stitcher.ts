@@ -2,6 +2,7 @@ import execa from 'execa';
 import fs from 'fs';
 import {Codec, Internals, PixelFormat} from 'remotion';
 import {DEFAULT_IMAGE_FORMAT, ImageFormat} from './image-format';
+import {parseFfmpegProgress} from './parse-ffmpeg-progress';
 import {validateFfmpeg} from './validate-ffmpeg';
 
 const getCodecName = (codec: Codec): string => {
@@ -31,6 +32,7 @@ export const stitchFramesToVideo = async (options: {
 	pixelFormat?: PixelFormat;
 	codec?: Codec;
 	crf?: number;
+	onProgress?: (num: number) => void;
 }): Promise<void> => {
 	const codec = options.codec ?? Internals.DEFAULT_CODEC;
 	const crf = options.crf ?? Internals.getDefaultCrfForCodec(codec);
@@ -51,7 +53,7 @@ export const stitchFramesToVideo = async (options: {
 	const encoderName = getCodecName(codec);
 	Internals.validateSelectedCrf(crf, codec);
 
-	await execa(
+	const task = execa(
 		'ffmpeg',
 		[
 			'-r',
@@ -74,4 +76,14 @@ export const stitchFramesToVideo = async (options: {
 		].filter(Boolean) as string[],
 		{cwd: options.dir}
 	);
+
+	task.stderr?.on('data', (data: Buffer) => {
+		if (options.onProgress) {
+			const parsed = parseFfmpegProgress(data.toString());
+			if (parsed !== undefined) {
+				options.onProgress(parsed);
+			}
+		}
+	});
+	await task;
 };
