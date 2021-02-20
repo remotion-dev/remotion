@@ -96,7 +96,7 @@ Either `'mp4'` or `'png-sequence'`.
 Config.Output.setOutputFormat('h265');
 ```
 
-The [command line flags](cli) `--png` and `--codec` will take precedence over this option.
+The [command line flags](cli) `--sequence` and `--codec` will take precedence over this option.
 
 ### setQuality()
 
