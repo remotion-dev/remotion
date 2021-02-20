@@ -2,17 +2,17 @@ import {Codec} from 'remotion';
 
 export type ImageFormat = 'png' | 'jpeg';
 
-export const getImageFormat = (format: Codec): ImageFormat => {
+export const getImageFormat = (codec: Codec): ImageFormat => {
 	if (
-		format === 'h264' ||
-		format === 'h265' ||
-		format === 'vp8' ||
-		format === 'vp9'
+		codec === 'h264' ||
+		codec === 'h265' ||
+		codec === 'vp8' ||
+		codec === 'vp9'
 	) {
 		return 'jpeg';
 	}
-	if (format === 'png') {
+	if (codec === 'png') {
 		return 'png';
 	}
-	throw new Error('Unrecognized render mode ' + format);
+	throw new Error('Unrecognized codec ' + codec);
 };
