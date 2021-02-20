@@ -1,8 +1,8 @@
 import {Codec} from 'remotion';
 
-export type FrameFormat = 'png' | 'jpeg';
+export type ImageFormat = 'png' | 'jpeg';
 
-export const getFrameFormat = (format: Codec): FrameFormat => {
+export const getImageFormat = (format: Codec): ImageFormat => {
 	if (
 		format === 'h264' ||
 		format === 'h265' ||

@@ -17,7 +17,7 @@ export const getOutputFilename = (
 			extension = 'mp4';
 		}
 		if (codec === 'vp8' || codec === 'vp9') {
-			console.info('No file extension specified, adding .webm automatically');
+			console.info('No file extension specified, adding .webm automatically.');
 			filename += '.webm';
 			extension = 'webm';
 		}
@@ -30,7 +30,7 @@ export const getOutputFilename = (
 	}
 	if (codec === 'h265') {
 		if (extension !== 'mp4' && extension !== 'hevc') {
-			console.error('The output filename must end in .mp4 or .hevc');
+			console.error('The output filename must end in .mp4 or .hevc.');
 			process.exit(1);
 		}
 	}

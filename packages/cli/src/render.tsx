@@ -16,7 +16,7 @@ import {getCompositionId} from './get-composition-id';
 import {getConfigFileName} from './get-config-file-name';
 import {getOutputFilename} from './get-filename';
 import {getUserProps} from './get-user-props';
-import {getFrameFormat} from './image-formats';
+import {getImageFormat} from './image-formats';
 import {loadConfigFile} from './load-config';
 import {parseCommandLine} from './parse-command-line';
 import {getUserPassedFileExtension} from './user-passed-output-location';
@@ -100,6 +100,7 @@ export const render = async () => {
 		},
 		cliProgress.Presets.shades_grey
 	);
+	const imageFormat = getImageFormat(codec);
 	await renderFrames({
 		config,
 		onFrameUpdate: (f) => renderProgress.update(f),
@@ -116,7 +117,7 @@ export const render = async () => {
 		},
 		userProps,
 		webpackBundle: bundled,
-		imageFormat: getFrameFormat(codec),
+		imageFormat,
 		quality,
 	});
 	renderProgress.stop();
@@ -132,7 +133,7 @@ export const render = async () => {
 			fps: config.fps,
 			outputLocation: absoluteOutputFile,
 			force: overwrite,
-			imageFormat: getFrameFormat(codec),
+			imageFormat,
 			pixelFormat: Internals.getPixelFormat(),
 			outputFormat: codec,
 		});
