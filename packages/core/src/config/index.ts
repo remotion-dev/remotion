@@ -1,3 +1,4 @@
+import {setOutputFormat} from './codec';
 import {Concurrency, setConcurrency} from './concurrency';
 import {
 	overrideWebpackConfig,
@@ -7,7 +8,6 @@ import {
 import {setOverwriteOutput} from './overwrite';
 import {PixelFormat, setPixelFormat} from './pixel-format';
 import {setQuality} from './quality';
-import {OutputFormat, setOutputFormat} from './render-mode';
 
 export const Config = {
 	Bundling: {
@@ -52,10 +52,5 @@ export const Config = {
 	},
 } as const;
 
-export type {
-	PixelFormat,
-	Concurrency,
-	OutputFormat,
-	WebpackConfiguration,
-	WebpackOverrideFn,
-};
+export {Codec, getFinalOutputCodec} from './codec';
+export type {PixelFormat, Concurrency, WebpackConfiguration, WebpackOverrideFn};

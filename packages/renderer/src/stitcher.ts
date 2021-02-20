@@ -1,18 +1,23 @@
 import execa from 'execa';
 import fs from 'fs';
-import {OutputFormat, PixelFormat} from 'remotion';
+import {Codec, PixelFormat} from 'remotion';
 import {DEFAULT_IMAGE_FORMAT, ImageFormat} from './image-format';
 import {validateFfmpeg} from './validate-ffmpeg';
 
-const getCodecName = (outputFormat: OutputFormat): string => {
-	if (outputFormat === 'mp4' || outputFormat === 'h264') {
+const getCodecName = (codec: Codec): string => {
+	if (codec === 'h264') {
 		return 'libx264';
 	}
-	if (outputFormat === 'h265') {
+	if (codec === 'h265') {
 		return 'libx265';
 	}
-
-	return outputFormat === 'vp8' ? 'libvpx' : 'libvpx-vp9';
+	if (codec === 'vp8') {
+		return 'libvpx';
+	}
+	if (codec === 'vp9') {
+		return 'libvpx-vp9';
+	}
+	throw new TypeError(`Cannot find FFMPEG codec for ${codec}`);
 };
 
 export const stitchFramesToVideo = async (options: {
@@ -24,7 +29,7 @@ export const stitchFramesToVideo = async (options: {
 	force: boolean;
 	imageFormat?: ImageFormat;
 	pixelFormat?: PixelFormat;
-	outputFormat: OutputFormat;
+	outputFormat: Codec;
 }): Promise<void> => {
 	const format = options.imageFormat ?? DEFAULT_IMAGE_FORMAT;
 	await validateFfmpeg();
