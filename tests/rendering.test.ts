@@ -73,7 +73,7 @@ test("Should fail to render out of range CRF", async () => {
       // Range of VP8 values is 4-63
       "--crf",
       "3",
-      outputPath,
+      outputPath.replace("mp4", "webm"),
     ],
     {
       cwd: "packages/example",
