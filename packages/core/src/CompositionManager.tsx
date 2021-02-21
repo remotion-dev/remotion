@@ -23,6 +23,11 @@ export type TSequence = {
 	parent: string | null;
 };
 
+export type TAsset = {
+	type: 'audio';
+	src: string;
+};
+
 export type CompositionManagerContext = {
 	compositions: TComposition[];
 	registerComposition: <T>(comp: TComposition<T>) => void;
@@ -31,7 +36,9 @@ export type CompositionManagerContext = {
 	setCurrentComposition: (curr: string) => void;
 	registerSequence: (seq: TSequence) => void;
 	unregisterSequence: (id: string) => void;
+	registerAsset: (asset: TAsset) => void;
 	sequences: TSequence[];
+	assets: TAsset[];
 };
 
 export const CompositionManager = createContext<CompositionManagerContext>({
@@ -42,5 +49,7 @@ export const CompositionManager = createContext<CompositionManagerContext>({
 	setCurrentComposition: () => void 0,
 	registerSequence: () => void 0,
 	unregisterSequence: () => void 0,
+	registerAsset: () => void 0,
 	sequences: [],
+	assets: [],
 });

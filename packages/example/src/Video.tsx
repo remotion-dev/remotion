@@ -125,6 +125,14 @@ export const Index: React.FC = () => {
 				fps={30}
 				durationInFrames={10}
 			/>
+			<Composition
+				id="sound"
+				lazyComponent={() => import('./Sound')}
+				width={1080}
+				height={1080}
+				fps={30}
+				durationInFrames={300}
+			/>
 		</>
 	);
 };
