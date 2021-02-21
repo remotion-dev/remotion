@@ -1,6 +1,7 @@
 import path from 'path';
 import {VideoConfig} from 'remotion';
 import {openBrowser, provideScreenshot} from '.';
+import {calculateAssetsPosition} from './assets';
 import {getActualConcurrency} from './get-concurrency';
 import {DEFAULT_IMAGE_FORMAT, ImageFormat} from './image-format';
 import {Pool} from './pool';
@@ -59,7 +60,7 @@ export const renderFrames = async ({
 	const filePadLength = String(frames).length;
 	let framesRendered = 0;
 	onStart();
-	const allAssets = await Promise.all(
+	const assetsFrames = await Promise.all(
 		new Array(frames)
 			.fill(Boolean)
 			.map((x, i) => i)
@@ -95,7 +96,8 @@ export const renderFrames = async ({
 			})
 	);
 
-	console.log(allAssets);
+	const assets = calculateAssetsPosition(assetsFrames);
+	console.log(assets);
 
 	await browser.close();
 };
