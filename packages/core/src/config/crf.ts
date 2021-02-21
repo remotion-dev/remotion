@@ -49,7 +49,7 @@ export const getValidCrfRanges = (codec: Codec): [number, number] => {
 
 export const validateSelectedCrf = (crf: number, codec: Codec) => {
 	const range = getValidCrfRanges(codec);
-	if (crf < range[0] && crf > range[1]) {
+	if (crf < range[0] || crf > range[1]) {
 		throw new TypeError(
 			`CRF must be between ${range[0]} and ${range[1]} for codec ${codec}. Passed: ${crf}`
 		);
