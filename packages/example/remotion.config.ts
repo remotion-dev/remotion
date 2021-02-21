@@ -10,7 +10,7 @@ Config.Bundling.overrideWebpackConfig((currentConfiguration) => {
 		module: {
 			...currentConfiguration.module,
 			rules: [
-				...currentConfiguration.module.rules,
+				...(currentConfiguration.module?.rules ?? []),
 				{
 					test: /\.mdx?$/,
 					use: [
