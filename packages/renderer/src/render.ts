@@ -59,7 +59,7 @@ export const renderFrames = async ({
 	const filePadLength = String(frames).length;
 	let framesRendered = 0;
 	onStart();
-	await Promise.all(
+	const allAssets = await Promise.all(
 		new Array(frames)
 			.fill(Boolean)
 			.map((x, i) => i)
@@ -73,11 +73,20 @@ export const renderFrames = async ({
 						quality,
 						options: {
 							frame: f,
-							output: path.join(outputDir, `element-${paddedIndex}.${imageFormat}`),
+							output: path.join(
+								outputDir,
+								`element-${paddedIndex}.${imageFormat}`
+							),
 						},
+					});
+
+					return await freePage.evaluate(() => {
+						return window.remotion_collectAssets();
 					});
 				} catch (err) {
 					console.log('Error taking screenshot', err);
+
+					return [];
 				} finally {
 					pool.release(freePage);
 					framesRendered++;
@@ -85,5 +94,8 @@ export const renderFrames = async ({
 				}
 			})
 	);
+
+	console.log(allAssets);
+
 	await browser.close();
 };
