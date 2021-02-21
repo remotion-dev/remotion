@@ -10,4 +10,5 @@ jobs:
       - run: npm i
       - run: npx lerna bootstrap --ci
       - run: npm run build
+      - run: npx lerna bootstrap --ci
       - run: npm test
