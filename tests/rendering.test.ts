@@ -60,3 +60,26 @@ test("Should fail to render conflicting --sequence and --codec settings", async 
   expect(task.exitCode).toBe(process.platform === "win32" ? 0 : 1);
   expect(task.stderr).toContain("Detected both --codec");
 });
+test("Should fail to render out of range CRF", async () => {
+  const task = await execa(
+    "npx",
+    [
+      "remotion",
+      "render",
+      "src/index.tsx",
+      "shadow-circles",
+      "--codec",
+      "vp8",
+      // Range of VP8 values is 4-63
+      "--crf",
+      "3",
+      outputPath,
+    ],
+    {
+      cwd: "packages/example",
+      reject: false,
+    }
+  );
+  expect(task.exitCode).toBe(process.platform === "win32" ? 0 : 1);
+  expect(task.stderr).toContain("CRF must be between ");
+});
