@@ -103,31 +103,34 @@ The [command line flags](cli) `--sequence` and `--codec` will take precedence ov
 The JPEG quality of each frame. Must be a number between 0 and 100. [Default: 80](https://github.com/chromium/chromium/blob/99314be8152e688bafbbf9a615536bdbb289ea87/headless/lib/browser/protocol/headless_handler.cc#L32).
 
 ```tsx
-Config.output.setQuality(90);
+Config.Output.setQuality(90);
 ```
 
 The [command line flag](cli) `--quality` will take precedence over this option.
 
 ### setCrf()
 
-To set Constant Rate Factor (CRF) of the output. Use this rate control mode if you want to keep the best quality and care less about the file size.
-This is the recommended rate control mode for most uses.
+To set Constant Rate Factor (CRF) of the output. [Use this setting to choose how to make the tradeoff between size and quality.](encoding#controlling-quality-using-the-crf-setting)
 
-Ranges for CRF scale, by codec:-
+Ranges for CRF scale, by codec:
 
 - `h264` crf range is 0-51 where crf 18 is _default_.
 - `h265` crf range is 0-51 where crf 23 is _default_.
 - `vp8` crf range is 4-63 where crf 9 is _default_.
-- `vp9` crf range is 0-63 where crf 28 is _default_. 
+- `vp9` crf range is 0-63 where crf 28 is _default_.
 
-Where 0 is lossless, 23 is the default for `h264`, and 51 is worst quality possible for `h264` and `h265` codec. A lower value generally leads to higher quality.
+Where the lowest value is lossless, and the highest is the worst quality possible. A lower value generally leads to higher quality.
 
 The range is exponential, so increasing the CRF value +6 results in roughly half the bitrate / file size, while -6 leads to roughly twice the bitrate.
 
 Choose the highest CRF value that still provides an acceptable quality. If the output looks good, then try a higher value. If it looks bad, choose a lower value.
 
 ```tsx
-Config.output.setCrf(16);
+Config.Output.setCrf(16);
 ```
 
 The [command line flag](cli) `--crf` will take precedence over this option.
+
+## See also
+
+- [Encoding guide](encoding)
