@@ -7,7 +7,7 @@
 		"url": "https://github.com/JonnyBurger/remotion"
 	},
 	"scripts": {
-		"test": "eslint 'src' --ext ts,tsx",
+		"test": "eslint src --ext ts,tsx",
 		"build": "tsc -d"
 	},
 	"files": [
