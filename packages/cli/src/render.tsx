@@ -130,6 +130,9 @@ export const render = async () => {
 		await fs.promises.rmdir(outputDir, {
 			recursive: true,
 		});
+		await fs.promises.rmdir(bundled, {
+			recursive: true,
+		});
 		console.log('\n▶️ Your video is ready - hit play!');
 	} else {
 		console.log('\n▶️ Your PNG sequence is ready!');
