@@ -8,8 +8,6 @@ jobs:
       - uses: actions/checkout@main
       - uses: actions/setup-node@main
       - uses: FedericoCarboni/setup-ffmpeg@v1
-      - run: sudo apt update
-      - run: sudo apt install ffmpeg
       - run: npm i
       - run: npx lerna bootstrap --ci
       - run: npm run build
