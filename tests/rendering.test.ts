@@ -2,11 +2,15 @@ import execa from "execa";
 import fs from "fs";
 import path from "path";
 
-test("Should be able to render video", async () => {
-  const outputPath = path.join(process.cwd(), "packages/example/out.mp4");
+const outputPath = path.join(process.cwd(), "packages/example/out.mp4");
+
+beforeEach(() => {
   if (fs.existsSync(outputPath)) {
     fs.unlinkSync(outputPath);
   }
+});
+
+test("Should be able to render video", async () => {
   const task = execa(
     "npx",
     [
@@ -33,4 +37,26 @@ test("Should be able to render video", async () => {
   expect(data).toContain("yuv420p");
   expect(data).toContain("1080x1920");
   expect(data).toContain("30 fps");
+});
+
+test("Should fail to render conflicting --sequence and --codec settings", async () => {
+  const task = await execa(
+    "npx",
+    [
+      "remotion",
+      "render",
+      "src/index.tsx",
+      "shadow-circles",
+      "--codec",
+      "h264",
+      "--sequence",
+      outputPath,
+    ],
+    {
+      cwd: "packages/example",
+      reject: false,
+    }
+  );
+  expect(task.exitCode).toBe(1);
+  expect(task.stderr).toContain("Detected both --codec");
 });
