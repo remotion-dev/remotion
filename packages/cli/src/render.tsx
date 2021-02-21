@@ -1,5 +1,6 @@
 import {bundle} from '@remotion/bundler';
 import {
+	ffmpegHasFeature,
 	getActualConcurrency,
 	getCompositions,
 	renderFrames,
@@ -47,6 +48,31 @@ export const render = async () => {
 		fileExtension: getUserPassedFileExtension(),
 		emitWarning: true,
 	});
+	if (codec === 'vp8' && !ffmpegHasFeature('enable-libvpx')) {
+		console.log(
+			"The Vp8 codec has been selected, but your FFMPEG binary wasn't compiled with the --enable-lipvpx flag."
+		);
+		console.log(
+			'This does not work, please switch out your FFMPEG binary or choose a different codec.'
+		);
+	}
+	if (codec === 'h265' && !ffmpegHasFeature('enable-gpl')) {
+		console.log(
+			"The H265 codec has been selected, but your FFMPEG binary wasn't compiled with the --enable-gpl flag."
+		);
+		console.log(
+			'This does not work, please recompile your FFMPEG binary with --enable-gpl --enable-libx265 or choose a different codec.'
+		);
+	}
+	if (codec === 'h265' && !ffmpegHasFeature('enable-libx265')) {
+		console.log(
+			"The H265 codec has been selected, but your FFMPEG binary wasn't compiled with the --enable-libx265 flag."
+		);
+		console.log(
+			'This does not work, please recompile your FFMPEG binary with --enable-gpl --enable-libx265 or choose a different codec.'
+		);
+	}
+
 	const outputFile = getOutputFilename(codec, shouldOutputImageSequence);
 	const overwrite = Internals.getShouldOverwrite();
 	const userProps = getUserProps();
