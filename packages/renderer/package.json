@@ -4,7 +4,7 @@
 	"description": "Renderer for Remotion",
 	"main": "dist/index.js",
 	"scripts": {
-		"test": "eslint 'src' --ext ts,tsx && jest",
+		"test": "eslint src --ext ts,tsx && jest",
 		"build": "tsc -d"
 	},
 	"files": [
