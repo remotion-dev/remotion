@@ -3,17 +3,19 @@ type AssetMetadata = {
 	src: string;
 };
 
-type Asset = AssetMetadata & {
+export type Asset = AssetMetadata & {
 	from: number;
 	duration?: number;
 };
+
+export type Assets = Asset[];
 
 const areEqual = (a: AssetMetadata, b: AssetMetadata) => {
 	return a.type === b.type && a.src === b.src;
 };
 
 export const calculateAssetsPosition = (frames: AssetMetadata[][]) => {
-	const assets: Asset[] = [];
+	const assets: Assets = [];
 
 	for (let frame = 0; frame < frames.length; frame++) {
 		const prev = (frames[frame - 1] ?? []).slice();

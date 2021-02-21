@@ -96,8 +96,7 @@ export const renderFrames = async ({
 			})
 	);
 
-	const assets = calculateAssetsPosition(assetsFrames);
-	console.log(assets);
-
 	await browser.close();
+
+	return calculateAssetsPosition(assetsFrames);
 };
