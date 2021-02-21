@@ -57,6 +57,6 @@ test("Should fail to render conflicting --sequence and --codec settings", async 
       reject: false,
     }
   );
-  expect(task.exitCode).toBe(1);
+  expect(task.exitCode).toBe(process.platform === "win32" ? 0 : 1);
   expect(task.stderr).toContain("Detected both --codec");
 });
