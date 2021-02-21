@@ -5,6 +5,7 @@ import {Play} from '../icons/play';
 import {StepBack} from '../icons/step-back';
 import {StepForward} from '../icons/step-forward';
 import {getLastFrames, setLastFrames} from '../state/last-frames';
+import {ControlButton} from './ControlButton';
 
 export const PlayPause: React.FC = () => {
 	const [playing, setPlaying] = Internals.Timeline.usePlayingState();
@@ -125,13 +126,10 @@ export const PlayPause: React.FC = () => {
 
 	return (
 		<>
-			<div
+			<ControlButton
+				aria-label="Step back one frame"
+				disabled={frame === 0}
 				onClick={frameBack}
-				style={{
-					display: 'inline-flex',
-					opacity: frame === 0 ? 0.5 : 1,
-					userSelect: 'none',
-				}}
 			>
 				<StepBack
 					style={{
@@ -140,16 +138,12 @@ export const PlayPause: React.FC = () => {
 						color: 'white',
 					}}
 				/>
-			</div>
+			</ControlButton>
 			<div style={{width: 10}} />
-			<div
+			<ControlButton
+				aria-label={playing ? 'Pause' : 'Play'}
+				disabled={Boolean(video)}
 				onClick={toggle}
-				title={playing ? 'Pause' : 'Play'}
-				style={{
-					display: 'inline-flex',
-					opacity: video ? 1 : 0.5,
-					userSelect: 'none',
-				}}
 			>
 				{playing ? (
 					<Pause
@@ -168,15 +162,12 @@ export const PlayPause: React.FC = () => {
 						}}
 					/>
 				)}
-			</div>
+			</ControlButton>
 			<div style={{width: 10}} />
-			<div
+			<ControlButton
+				aria-label="Step forward one frame"
+				disabled={isLastFrame}
 				onClick={frameForward}
-				style={{
-					display: 'inline-flex',
-					opacity: isLastFrame ? 0.5 : 1,
-					userSelect: 'none',
-				}}
 			>
 				<StepForward
 					style={{
@@ -185,7 +176,7 @@ export const PlayPause: React.FC = () => {
 						color: 'white',
 					}}
 				/>
-			</div>
+			</ControlButton>
 		</>
 	);
 };

@@ -8,7 +8,7 @@ export class Pool<T> {
   }
 
   acquire(): Promise<T> {
-    const resource = this.resources.pop();
+    const resource = this.resources.shift();
     if (resource !== undefined) {
       return Promise.resolve(resource);
     } else {
@@ -21,7 +21,7 @@ export class Pool<T> {
   }
 
   release(resource: T): void {
-    const waiter = this.waiters.pop();
+    const waiter = this.waiters.shift();
     if (waiter !== undefined) {
       waiter(resource);
     } else {
