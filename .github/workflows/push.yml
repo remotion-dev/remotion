@@ -12,7 +12,7 @@ jobs:
       - uses: actions/setup-node@main
       - uses: FedericoCarboni/setup-ffmpeg@v1
         with:
-        token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
       - run: npm i
       - run: npx lerna bootstrap --ci
       - run: npm run build
