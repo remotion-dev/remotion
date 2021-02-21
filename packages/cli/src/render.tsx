@@ -85,7 +85,7 @@ export const render = async () => {
 		);
 		process.exit(1);
 	}
-	if (shouldOutputImageSequence) {
+	if (!shouldOutputImageSequence) {
 		await validateFfmpeg();
 	}
 	const crf = shouldOutputImageSequence ? null : Internals.getActualCrf(codec);
