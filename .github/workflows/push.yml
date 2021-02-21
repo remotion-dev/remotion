@@ -3,7 +3,12 @@ name: Install and Test
 jobs:
   build-ubuntu:
     name: Build
-    runs-on: [ubuntu-latest, macos-latest, window-latest]
+    runs-on: ${{ matrix.os }}
+    matrix:
+        include:
+          os: macos-latest
+          os: ubuntu-latest
+          os: windows-latest
     steps:
       - uses: actions/checkout@main
       - uses: actions/setup-node@main
