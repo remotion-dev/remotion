@@ -163,9 +163,9 @@ export const render = async () => {
 				stitchingProgress.update(frame);
 			},
 		});
-		renderProgress.stop();
+		stitchingProgress.stop();
 
-		console.log('\nCleaning up...');
+		console.log('Cleaning up...');
 		await fs.promises.rmdir(outputDir, {
 			recursive: true,
 		});
