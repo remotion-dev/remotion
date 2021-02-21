@@ -19,8 +19,10 @@ Besides choosing a video and output location with the command line arguments, th
 - `--config`: Specify a location for the Remotion config file.
 - `--quality`: [Value between 0 and 100 for JPEG rendering quality](config#setquality). Doesn't work when PNG frames are rendered.
 - `--overwrite`: [Write to output even if file already exists.](config#setoverwriteoutput)
-- `--sequence`: [Pass this flag if you want an image sequence as the output instead of a video.](config#setImageSequence)
-- `--codec`: ['h264' or 'h265' or `png` or `vp8` or `vp9`](config#setoutputformat). If you don't supply `--codec`, it will use the H.264 encoder.
+- `--sequence`: [Pass this flag if you want an image sequence as the output instead of a video.](config#setimagesequence)
+- `--codec`: [`h264` or `h265` or `png` or `vp8` or `vp9`](config#setoutputformat). If you don't supply `--codec`, it will use the H.264 encoder.
+- `--crf`: [To set Constant Rate Factor (CRF) of the output](config#setcrf). Minimum 0. Use this rate control mode if you want to keep the best quality and care less about the file size.
+
 
 :::info
 If you don't feel like passing command line flags every time, consider creating a `remotion.config.ts` [config file](config).
