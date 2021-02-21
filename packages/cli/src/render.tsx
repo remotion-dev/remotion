@@ -91,7 +91,7 @@ export const render = async () => {
 		},
 		cliProgress.Presets.shades_grey
 	);
-	await renderFrames({
+	const assets = await renderFrames({
 		config,
 		onFrameUpdate: (f) => renderProgress.update(f),
 		parallelism,
@@ -125,6 +125,7 @@ export const render = async () => {
 			force: overwrite,
 			imageFormat: getFrameFormat(renderMode),
 			pixelFormat: Internals.getPixelFormat(),
+			assets,
 		});
 		console.log('Cleaning up...');
 		await fs.promises.rmdir(outputDir, {
