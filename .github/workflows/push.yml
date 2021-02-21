@@ -4,7 +4,8 @@ jobs:
   build-ubuntu:
     name: Build
     runs-on: ${{ matrix.os }}
-    matrix:
+    strategy:
+      matrix:
         include:
           os: macos-latest
           os: ubuntu-latest
