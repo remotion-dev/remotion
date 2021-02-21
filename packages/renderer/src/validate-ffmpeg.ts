@@ -4,7 +4,7 @@ import os from 'os';
 const existsMap: {[key: string]: boolean} = {};
 
 export const binaryExists = async (name: 'ffmpeg' | 'brew') => {
-	if (typeof existsMap[name] !== undefined) {
+	if (typeof existsMap[name] !== 'undefined') {
 		return existsMap[name];
 	}
 	const isWin = os.platform() === 'win32';
