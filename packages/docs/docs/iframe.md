@@ -13,7 +13,7 @@ import {IFrame} from 'remotion';
 
 export const MyComp: React.FC = () => {
   return (
-    <IFrame src="https://remotion.dev />
+    <IFrame src="https://remotion.dev" />
   )
 }
 

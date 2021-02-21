@@ -13,7 +13,11 @@ export const SizeSelector: React.FC = () => {
 
 	return (
 		<div>
-			<select onChange={onChange} value={size}>
+			<select
+				aria-label="Select the size of the preview"
+				onChange={onChange}
+				value={size}
+			>
 				<option value="auto">Fit</option>
 				<option value="0.25">25%</option>
 				<option value="0.5">50%</option>
