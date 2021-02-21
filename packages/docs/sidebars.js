@@ -24,6 +24,7 @@ module.exports = {
         "use-img-and-iframe",
         "javascript",
         "using-randomness",
+        "encoding",
       ],
     },
     {
