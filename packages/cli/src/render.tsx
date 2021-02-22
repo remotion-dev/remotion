@@ -127,12 +127,14 @@ export const render = async () => {
 			pixelFormat: Internals.getPixelFormat(),
 		});
 		console.log('Cleaning up...');
-		await fs.promises.rmdir(outputDir, {
-			recursive: true,
-		});
-		await fs.promises.rmdir(bundled, {
-			recursive: true,
-		});
+		await Promise.all([
+			fs.promises.rmdir(outputDir, {
+				recursive: true,
+			}),
+			fs.promises.rmdir(bundled, {
+				recursive: true,
+			}),
+		]);
 		console.log('\n▶️ Your video is ready - hit play!');
 	} else {
 		console.log('\n▶️ Your PNG sequence is ready!');
