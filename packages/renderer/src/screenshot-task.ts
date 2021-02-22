@@ -1,5 +1,5 @@
 import fs from 'fs';
-import {Page, ScreenshotOptions} from 'puppeteer';
+import {Page, ScreenshotOptions} from 'puppeteer-core';
 import {Internals} from 'remotion';
 
 export const _screenshotTask = async (
