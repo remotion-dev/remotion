@@ -1,11 +1,15 @@
 import puppeteer from 'puppeteer-core';
 import {TCompMetadata} from 'remotion';
+import {getLocalChromiumExecutable} from './get-local-chromium-executable';
 
 export const getCompositions = async (
 	webpackBundle: string
 ): Promise<TCompMetadata[]> => {
+	const executablePath = await getLocalChromiumExecutable();
+	console.log(executablePath);
 	const browser = await puppeteer.launch({
-		executablePath: '/usr/bin/google-chrome-stable',
+		executablePath,
+		args: ['--no-sandbox', '--disable-setuid-sandbox'],
 	});
 	const page = await browser.newPage();
 
