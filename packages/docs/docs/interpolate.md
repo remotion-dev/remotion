@@ -66,5 +66,5 @@ interpolate(frame, [0, 100], {
 
 ## See also
 
-- [Easing](easing)
-- [spring()](spring)
+- [Easing](/docs/easing)
+- [spring()](/docs/spring)
