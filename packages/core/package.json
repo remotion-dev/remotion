@@ -4,7 +4,7 @@
 	"description": "Render videos in React",
 	"main": "dist/index.js",
 	"scripts": {
-		"test": "eslint 'src' --ext ts,tsx && jest",
+		"test": "eslint src --ext ts,tsx && jest",
 		"build": "tsc -d",
 		"prerelease": "cp ../../README.md ."
 	},
