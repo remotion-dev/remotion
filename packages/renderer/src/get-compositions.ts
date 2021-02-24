@@ -6,7 +6,6 @@ export const getCompositions = async (
 	webpackBundle: string
 ): Promise<TCompMetadata[]> => {
 	const executablePath = await getLocalChromiumExecutable();
-	console.log(executablePath);
 	const browser = await puppeteer.launch({
 		executablePath,
 		args: ['--no-sandbox', '--disable-setuid-sandbox'],
