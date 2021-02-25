@@ -1,5 +1,6 @@
 import React from 'react';
 import {Composition} from 'remotion';
+import {MissingImg} from './MissingImg';
 
 export const Index: React.FC = () => {
 	return (
@@ -123,6 +124,14 @@ export const Index: React.FC = () => {
 			<Composition
 				id="iframe"
 				lazyComponent={() => import('./IframeTest')}
+				width={1080}
+				height={1080}
+				fps={30}
+				durationInFrames={10}
+			/>
+			<Composition
+				id="missing-img"
+				component={MissingImg}
 				width={1080}
 				height={1080}
 				fps={30}
