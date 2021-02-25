@@ -9,7 +9,11 @@ export const getCompositions = async (
 	try {
 		const browser = await puppeteer.launch({
 			executablePath,
-			args: ['--no-sandbox', '--disable-setuid-sandbox'],
+			args: [
+				'--no-sandbox',
+				'--disable-setuid-sandbox',
+				'--disable-dev-shm-usage',
+			],
 		});
 		const page = await browser.newPage();
 		await page.goto(`file://${webpackBundle}/index.html?evaluation=true`);
