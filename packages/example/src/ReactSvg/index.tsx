@@ -5,7 +5,9 @@ import {Atom} from './Atom';
 import {Black} from './Black';
 import {DotGrid} from './DotGrid';
 
-const ReactSvg: React.FC = () => {
+const ReactSvg: React.FC<{
+	transparent: boolean;
+}> = ({transparent}) => {
 	const frame = useCurrentFrame();
 	const videoConfig = useVideoConfig();
 	const start = 0;
@@ -81,7 +83,7 @@ const ReactSvg: React.FC = () => {
 	const scale = frame < 70 ? scaleIn : scaleOut;
 
 	return (
-		<div style={{flex: 1, backgroundColor: 'white'}}>
+		<div style={{flex: 1, backgroundColor: transparent ? undefined : 'white'}}>
 			<div
 				style={{
 					position: 'absolute',
@@ -90,7 +92,7 @@ const ReactSvg: React.FC = () => {
 					transform: `scale(${scale})`,
 				}}
 			>
-				<DotGrid />
+				{transparent ? null : <DotGrid />}
 				<Arc
 					rotateProgress={rotationDevelopment}
 					progress={development}

@@ -8,7 +8,7 @@
 		"start": "npx ts-node ../cli/src/index.tsx preview src/index.tsx",
 		"test": "eslint src --ext ts,tsx,js,jsx",
 		"build": "tsc -d",
-		"render": "remotion render src/index.tsx react-svg video.mp4"
+		"render": "remotion render src/index.tsx react-svg video.webm"
 	},
 	"files": [
 		"dist"
