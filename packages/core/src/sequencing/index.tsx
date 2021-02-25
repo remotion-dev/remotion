@@ -21,20 +21,27 @@ export const Sequence: React.FC<{
 	from: number;
 	durationInFrames: number;
 	name?: string;
-}> = ({from, durationInFrames: duration, children, name}) => {
+	layout?: 'absolute-fill' | 'none';
+}> = ({from, durationInFrames, children, name, layout = 'absolute-fill'}) => {
 	const [id] = useState(() => String(Math.random()));
 	const absoluteFrame = useAbsoluteCurrentFrame();
 	const parentSequence = useContext(SequenceContext);
 	const actualFrom = (parentSequence?.from ?? 0) + from;
 	const {registerSequence, unregisterSequence} = useContext(CompositionManager);
 
+	if (layout !== 'absolute-fill' && layout !== 'none') {
+		throw new TypeError(
+			`The layout prop of <Composition /> expects either "absolute-fill" or "none", but you passed: ${layout}`
+		);
+	}
+
 	const contextValue = useMemo((): SequenceContextType => {
 		return {
 			from: actualFrom,
-			durationInFrames: duration,
+			durationInFrames,
 			id,
 		};
-	}, [actualFrom, duration, id]);
+	}, [actualFrom, durationInFrames, id]);
 
 	const timelineClipName = useMemo(() => {
 		return name ?? getTimelineClipName(children);
@@ -43,7 +50,7 @@ export const Sequence: React.FC<{
 	useEffect(() => {
 		registerSequence({
 			from: actualFrom,
-			duration,
+			duration: durationInFrames,
 			id,
 			displayName: timelineClipName,
 			parent: parentSequence?.id ?? null,
@@ -52,7 +59,7 @@ export const Sequence: React.FC<{
 			unregisterSequence(id);
 		};
 	}, [
-		duration,
+		durationInFrames,
 		actualFrom,
 		id,
 		name,
@@ -62,26 +69,33 @@ export const Sequence: React.FC<{
 		parentSequence?.id,
 	]);
 
+	const content =
+		absoluteFrame < actualFrom
+			? null
+			: absoluteFrame > actualFrom + durationInFrames
+			? null
+			: children;
+
 	return (
 		<SequenceContext.Provider value={contextValue}>
-			<div
-				style={{
-					position: 'absolute',
-					display: 'flex',
-					width: '100%',
-					height: '100%',
-					top: 0,
-					bottom: 0,
-					left: 0,
-					right: 0,
-				}}
-			>
-				{absoluteFrame < actualFrom
-					? null
-					: absoluteFrame > actualFrom + duration
-					? null
-					: children}
-			</div>
+			{layout === 'absolute-fill' ? (
+				<div
+					style={{
+						position: 'absolute',
+						display: 'flex',
+						width: '100%',
+						height: '100%',
+						top: 0,
+						bottom: 0,
+						left: 0,
+						right: 0,
+					}}
+				>
+					{content}
+				</div>
+			) : (
+				content
+			)}
 		</SequenceContext.Provider>
 	);
 };
