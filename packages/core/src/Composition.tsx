@@ -58,6 +58,46 @@ export const Composition = <T,>({
 				`Composition id can only contain a-z, A-Z, 0-9 and -. You passed ${id}`
 			);
 		}
+		if (typeof width !== 'number') {
+			throw new Error(
+				`The "width" of a composition must be a number, but you passed a ${typeof width}`
+			);
+		}
+		if (width <= 0) {
+			throw new TypeError(
+				`The "width" of a composition must be positive, but got ${width}.`
+			);
+		}
+		if (typeof height !== 'number') {
+			throw new Error(
+				`The "height" of a composition must be a number, but you passed a ${typeof height}`
+			);
+		}
+		if (height <= 0) {
+			throw new TypeError(
+				`The "height" of a composition must be positive, but got ${height}.`
+			);
+		}
+		if (typeof durationInFrames !== 'number') {
+			throw new Error(
+				`The "durationInFrames" of a composition must be a number, but you passed a ${typeof durationInFrames}`
+			);
+		}
+		if (durationInFrames <= 0) {
+			throw new TypeError(
+				`The "durationInFrames" of a composition must be positive, but got ${durationInFrames}.`
+			);
+		}
+		if (typeof fps !== 'number') {
+			throw new Error(
+				`The "fps" of a composition must be a number, but you passed a ${typeof fps}`
+			);
+		}
+		if (fps <= 0) {
+			throw new TypeError(
+				`The "fps" of a composition must be positive, but got ${fps}.`
+			);
+		}
 		registerComposition<T>({
 			durationInFrames,
 			fps,
