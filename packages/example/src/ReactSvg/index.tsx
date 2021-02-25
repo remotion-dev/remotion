@@ -115,7 +115,7 @@ const ReactSvg: React.FC<{
 					electronOpacity={electronOpacity}
 				/>
 				<Atom scale={rotationDevelopment} />
-				<Black scale={scaleOutBlackDot} />
+				{transparent ? null : <Black scale={scaleOutBlackDot} />}
 			</div>
 		</div>
 	);
