@@ -23,10 +23,15 @@ Besides choosing a video and output location with the command line arguments, th
 - `--codec`: [`h264` or `h265` or `png` or `vp8` or `vp9`](config#setoutputformat). If you don't supply `--codec`, it will use the H.264 encoder.
 - `--crf`: [To set Constant Rate Factor (CRF) of the output](config#setcrf). Minimum 0. Use this rate control mode if you want to keep the best quality and care less about the file size.
 
-
 :::info
 If you don't feel like passing command line flags every time, consider creating a `remotion.config.ts` [config file](config).
 :::
+
+## Example command
+
+```
+npx remotion render --overwrite --codec=vp8 src/index.tsx HelloWorld video.mp4
+```
 
 ## See also
 

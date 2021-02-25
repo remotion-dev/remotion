@@ -51,11 +51,11 @@ Remotion supports 4 codecs: `h264` (_default_), `h265`, `vp8` and `vp9`. The fir
 Click on a browser compatibility link to see exactly which browsers are supported on caniuse.com.
 :::
 
-You can set a config using [`Config.Output.setCodec()` in the config file](config#setcodec) or the [`--codec`](cli) CLi flag.
+You can set a config using [`Config.Output.setCodec()` in the config file](config#setcodec) or the [`--codec`](cli) CLI flag.
 
 ## Controlling quality using the CRF setting
 
-No matter which codec to use, you have to choose a tradeoff between file size and video quality. You can control it by setting the so called CRF (Constant Rate Factor). The **lower the number, the better the quality** is, the higher the number, the smaller the file is - of course at the cost of quality.
+No matter which codec you end up using, there's always a tradeoff between file size and video quality. You can control it by setting the so called CRF (Constant Rate Factor). The **lower the number, the better the quality**, the higher the number, the smaller the file is – of course at the cost of quality.
 
 Be cautious: Every codec has it's own range of acceptable values and a different default. So while `23` will look very good on a H264 video, it will look terrible on a WebM video. Use this chart to determine which CRF value to use:
 
@@ -133,3 +133,8 @@ You can [set a CRF in the config file using the `Config.Output.setCrf()`](config
 ## What other settings do you need?
 
 Which of the dozens of options that FFMPEG supports would you like to see exposed in Remotion? Let us know by opening an [issue on our issue tracker!](https://github.com/JonnyBurger/remotion/issues)
+
+## See also
+
+- [CLI Options](/docs/cli)
+- [Configuration file](/docs/config)
