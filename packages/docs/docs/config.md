@@ -42,6 +42,26 @@ The [command line flag](cli) `--concurrency` will take precedence over this opti
 Try to set your concurrency to `os.cpus().length` to all the threads available on your CPU for faster rendering. The drawback is that other parts of your system might slow down.
 :::
 
+### setImageFormat()
+
+_Available from Version 1.4._
+
+Determines which in which image format to render the frames. Either `jpeg` _(default since v1.1)_ or `png`. PNG is considerably slower, but supports transparency.
+
+```tsx
+Config.Rendering.setImageFormat('png')
+```
+
+The [command line flag](cli) `--image-format` will take precedence over this option.
+
+### setQuality()
+
+The JPEG quality of each frame. Must be a number between 0 and 100. Will not work if you render PNG frames. [Default: 80](https://github.com/chromium/chromium/blob/99314be8152e688bafbbf9a615536bdbb289ea87/headless/lib/browser/protocol/headless_handler.cc#L32).
+
+```tsx
+Config.Rendering.setQuality(90);
+```
+
 ## Output
 
 ### setOverwriteOutput()
@@ -56,7 +76,7 @@ The [command line flag](cli) `--overwrite` will take precedence over this option
 
 ### setPixelFormat()
 
-Controls the pixel format in FFMPEG. [Read more about it here.](https://trac.ffmpeg.org/wiki/Chroma%20Subsampling0) Acceptable values: `yuv420p`, `yuv422p`, `yuv444p`, `yuv420p10le`, `yuv422p10le`, `yuv444p10le`.
+Controls the pixel format in FFMPEG. [Read more about it here.](https://trac.ffmpeg.org/wiki/Chroma%20Subsampling0) Acceptable values: `yuv420p`, `yuv422p`, `yuv444p`, `yuv420p10le`, `yuv422p10le`, `yuv444p10le`. Since v1.4, `yuva420p` is also supported for transparent WebM videos.
 Default value: `yuv420p`
 
 ```tsx
@@ -64,18 +84,6 @@ Config.Output.setPixelFormat('yuv420p')
 ```
 
 The [command line flag](cli) `--pixel-format` will take precedence over this option.
-
-### setImageFormat()
-
-_Available from Version 1.4._
-
-Determines which in which image format to render the frames. Either `jpeg` _(default since v1.1)_ or `png`. PNG is considerably slower, but supports transparency.
-
-```tsx
-Config.Output.setImageFormat('png')
-```
-
-The [command line flag](cli) `--image-format` will take precedence over this option.
 
 ### setCodec()
 
@@ -113,14 +121,6 @@ Config.Output.setOutputFormat('mp4');
 ```
 
 The [command line flags](cli) `--sequence` and `--codec` will take precedence over this option.
-
-### setQuality()
-
-The JPEG quality of each frame. Must be a number between 0 and 100. Will not work if you render PNG frames. [Default: 80](https://github.com/chromium/chromium/blob/99314be8152e688bafbbf9a615536bdbb289ea87/headless/lib/browser/protocol/headless_handler.cc#L32).
-
-```tsx
-Config.Output.setQuality(90);
-```
 
 The [command line flag](cli) `--quality` will take precedence over this option.
 
