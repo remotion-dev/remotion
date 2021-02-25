@@ -25,6 +25,7 @@ module.exports = {
         "javascript",
         "using-randomness",
         "encoding",
+        "transparent-videos",
       ],
     },
     {
