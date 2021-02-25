@@ -1,6 +1,7 @@
 import {setCodec, setOutputFormat} from './codec';
 import {Concurrency, setConcurrency} from './concurrency';
 import {setCrf} from './crf';
+import {ImageFormat} from './image-format';
 import {setImageSequence} from './image-sequence';
 import {
 	overrideWebpackConfig,
@@ -70,4 +71,10 @@ export const Config = {
 } as const;
 
 export type {Codec} from './codec';
-export type {PixelFormat, Concurrency, WebpackConfiguration, WebpackOverrideFn};
+export type {
+	PixelFormat,
+	Concurrency,
+	WebpackConfiguration,
+	WebpackOverrideFn,
+	ImageFormat,
+};
