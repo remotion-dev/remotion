@@ -77,6 +77,7 @@ export const provideScreenshot = async ({
 	});
 };
 
+export * from './ffmpeg-flags';
 export * from './get-compositions';
 export * from './get-concurrency';
 export * from './render';

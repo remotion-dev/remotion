@@ -1,5 +1,9 @@
 import {ChromiumExecutable, setChromiumExecutable} from './chromium-executable';
+import {Codec, setCodec, setOutputFormat} from './codec';
 import {Concurrency, setConcurrency} from './concurrency';
+import {setCrf} from './crf';
+import {ImageFormat, setImageFormat} from './image-format';
+import {setImageSequence} from './image-sequence';
 import {
 	overrideWebpackConfig,
 	WebpackConfiguration,
@@ -8,7 +12,6 @@ import {
 import {setOverwriteOutput} from './overwrite';
 import {PixelFormat, setPixelFormat} from './pixel-format';
 import {setQuality} from './quality';
-import {OutputFormat, setOutputFormat} from './render-mode';
 
 export const Config = {
 	Bundling: {
@@ -37,6 +40,10 @@ export const Config = {
 		 * Default: 'null
 		 */
 		setChromiumExecutable,
+		/** Decide in which image format to render. Can be either 'jpeg' or 'png'.
+		 * PNG is slower, but supports transparency.
+		 */
+		setImageFormat,
 	},
 	Output: {
 		/**
@@ -51,18 +58,34 @@ export const Config = {
 		 */
 		setPixelFormat,
 		/**
-		 * Specify what kind of output you, want, either 'mp4' or 'png-sequence'.
-		 * Default: 'mp4'
+		 * @deprecated Use setCodec() and setImageSequence() instead.
+		 * Specify what kind of output you, either `mp4` or `png-sequence`.
 		 */
 		setOutputFormat,
+		/**
+		 * Specify the codec for stitching the frames into a video.
+		 * Can be `h264` (default), `h265`, `vp8` or `vp9`
+		 */
+		setCodec,
+		/**
+		 * Set the Constant Rate Factor to pass to FFMPEG.
+		 * Lower values mean better quality, but be aware that the ranges of
+		 * possible values greatly differs between codecs.
+		 */
+		setCrf,
+		/**
+		 * Set to true if don't want a video but an image sequence as the output.
+		 */
+		setImageSequence,
 	},
 } as const;
 
 export type {
 	PixelFormat,
 	Concurrency,
-	OutputFormat,
 	WebpackConfiguration,
 	WebpackOverrideFn,
 	ChromiumExecutable,
+	ImageFormat,
+	Codec,
 };

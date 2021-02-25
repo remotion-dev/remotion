@@ -1,13 +1,20 @@
 on: push
 name: Install and Test
 jobs:
-  build:
+  build-ubuntu:
     name: Build
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [macos-latest, ubuntu-latest, windows-latest]
     steps:
       - uses: actions/checkout@main
       - uses: actions/setup-node@main
+      - uses: FedericoCarboni/setup-ffmpeg@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
       - run: npm i
       - run: npx lerna bootstrap --ci
       - run: npm run build
+      - run: npx lerna bootstrap --ci
       - run: npm test
