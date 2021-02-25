@@ -18,7 +18,7 @@ Besides choosing a video and output location with the command line arguments, th
 - `--pixel-format`: [Set a custom pixel format. See here for available values.](config#setpixelformat)
 - `--image-format`: [`jpeg` or `png` - JPEG is faster, but supports transparency.](config#setimageformat) The default image format is `jpeg` since v1.1. Flag available since v1.4.
 - `--config`: Specify a location for the Remotion config file. Available in v1.2 and later.
-- `--quality`: [Value between 0 and 100 for JPEG rendering quality](config#setquality). Doesn't work when PNG frames are rendered.
+- `--quality`: [Value between 0 and 100 for JPEG rendering quality](config#setquality). Doesn't work when PNG frames are rendered. Available since v1.4.
 - `--overwrite`: [Write to output even if file already exists.](config#setoverwriteoutput)
 - `--sequence`: [Pass this flag if you want an image sequence as the output instead of a video.](config#setimagesequence) Available since v1.4.
 - `--codec`: [`h264` or `h265` or `png` or `vp8` or `vp9`](config#setoutputformat). If you don't supply `--codec`, it will use the H.264 encoder. Available since v1.4.
