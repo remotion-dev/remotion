@@ -100,7 +100,7 @@ The [command line flags](cli) `--sequence` and `--codec` will take precedence ov
 
 ### setQuality()
 
-The JPEG quality of each frame. Must be a number between 0 and 100. [Default: 80](https://github.com/chromium/chromium/blob/99314be8152e688bafbbf9a615536bdbb289ea87/headless/lib/browser/protocol/headless_handler.cc#L32).
+The JPEG quality of each frame. Must be a number between 0 and 100. Will not work if you render PNG frames. [Default: 80](https://github.com/chromium/chromium/blob/99314be8152e688bafbbf9a615536bdbb289ea87/headless/lib/browser/protocol/headless_handler.cc#L32).
 
 ```tsx
 Config.Output.setQuality(90);
@@ -110,7 +110,7 @@ The [command line flag](cli) `--quality` will take precedence over this option.
 
 ### setCrf()
 
-To set Constant Rate Factor (CRF) of the output. [Use this setting to choose how to make the tradeoff between size and quality.](encoding#controlling-quality-using-the-crf-setting)
+The "Constant Rate Factor" (CRF) of the output. [Use this setting to tell FFMPEG how to trade off size and quality.](encoding#controlling-quality-using-the-crf-setting)
 
 Ranges for CRF scale, by codec:
 
@@ -119,7 +119,7 @@ Ranges for CRF scale, by codec:
 - `vp8` crf range is 4-63 where crf 9 is _default_.
 - `vp9` crf range is 0-63 where crf 28 is _default_.
 
-Where the lowest value is lossless, and the highest is the worst quality possible. A lower value generally leads to higher quality.
+The lowest value is lossless, and the highest value is the worst quality possible. Higher values decrease the filesize at the cost of quality.
 
 The range is exponential, so increasing the CRF value +6 results in roughly half the bitrate / file size, while -6 leads to roughly twice the bitrate.
 
