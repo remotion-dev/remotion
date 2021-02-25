@@ -1,13 +1,20 @@
 import execa from 'execa';
 import os from 'os';
 
-export const binaryExists = async (name: string) => {
+const existsMap: {[key: string]: boolean} = {};
+
+export const binaryExists = async (name: 'ffmpeg' | 'brew') => {
+	if (typeof existsMap[name] !== 'undefined') {
+		return existsMap[name];
+	}
 	const isWin = os.platform() === 'win32';
 	const where = isWin ? 'where' : 'which';
 	try {
 		await execa(where, [name]);
+		existsMap[name] = true;
 		return true;
 	} catch (err) {
+		existsMap[name] = false;
 		return false;
 	}
 };

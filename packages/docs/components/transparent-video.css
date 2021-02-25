@@ -1,0 +1,16 @@
+.transparent {
+  background: linear-gradient(45deg, rgba(0, 0, 0, 0.1) 25%, transparent 25%),
+    linear-gradient(135deg, rgba(0, 0, 0, 0.1) 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, rgba(0, 0, 0, 0.1) 75%),
+    linear-gradient(135deg, transparent 75%, rgba(0, 0, 0, 0.1) 75%), white;
+  background-size: 49px 49px;
+  background-position: 0 0, 24.5px 0, 24.5px -24.5px, 0px 24.5px;
+}
+
+video {
+  max-width: 100%;
+}
+
+p.tr-centered {
+  text-align: center;
+}
