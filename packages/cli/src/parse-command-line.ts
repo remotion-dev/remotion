@@ -2,8 +2,8 @@ import minimist from 'minimist';
 import {Codec, Config, ImageFormat, PixelFormat} from 'remotion';
 
 export type CommandLineOptions = {
-	pixelFormat: PixelFormat;
-	imageFormat: ImageFormat;
+	['pixel-format']: PixelFormat;
+	['image-format']: ImageFormat;
 	concurrency: number;
 	overwrite: boolean;
 	config: string;
@@ -19,10 +19,11 @@ export type CommandLineOptions = {
 export const parsedCli = minimist<CommandLineOptions>(process.argv.slice(2));
 
 export const parseCommandLine = () => {
-	if (parsedCli.pixelFormat) {
+	console.log(parsedCli);
+	if (parsedCli['pixel-format']) {
 		Config.Output.setPixelFormat(parsedCli.pixelFormat);
 	}
-	if (parsedCli.imageFormat) {
+	if (parsedCli['image-format']) {
 		Config.Rendering.setImageFormat(parsedCli.imageFormat);
 	}
 	if (parsedCli.concurrency) {
