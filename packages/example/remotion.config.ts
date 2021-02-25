@@ -1,9 +1,8 @@
 import os from 'os';
 import {Config} from 'remotion';
 
-Config.Rendering.setConcurrency(os.cpus().length));
+Config.Rendering.setConcurrency(os.cpus().length);
 Config.Output.setOverwriteOutput(true);
-Config.Output.setPixelFormat('yuv420p');
 
 Config.Bundling.overrideWebpackConfig((currentConfiguration) => {
 	return {

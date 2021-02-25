@@ -10,7 +10,9 @@ You can control several behaviors of Remotion here.
 ```tsx
 import {Config} from 'remotion';
 
+Config.Rendering.Concurrency(8);
 Config.Output.setPixelFormat('yuv444p');
+Config.Output.setCodec('h265');
 ```
 
 ## Bundling
@@ -42,6 +44,26 @@ The [command line flag](cli) `--concurrency` will take precedence over this opti
 Try to set your concurrency to `os.cpus().length` to all the threads available on your CPU for faster rendering. The drawback is that other parts of your system might slow down.
 :::
 
+### setImageFormat()
+
+_Available from Version 1.4._
+
+Determines which in which image format to render the frames. Either `jpeg` _(default since v1.1)_ or `png`. PNG is considerably slower, but supports transparency.
+
+```tsx
+Config.Rendering.setImageFormat('png')
+```
+
+The [command line flag](cli) `--image-format` will take precedence over this option.
+
+### setQuality()
+
+The JPEG quality of each frame. Must be a number between 0 and 100. Will not work if you render PNG frames. [Default: 80](https://github.com/chromium/chromium/blob/99314be8152e688bafbbf9a615536bdbb289ea87/headless/lib/browser/protocol/headless_handler.cc#L32).
+
+```tsx
+Config.Rendering.setQuality(90);
+```
+
 ## Output
 
 ### setOverwriteOutput()
@@ -56,31 +78,79 @@ The [command line flag](cli) `--overwrite` will take precedence over this option
 
 ### setPixelFormat()
 
-Controls the pixel format in FFMPEG. [Read more about it here.](https://trac.ffmpeg.org/wiki/Chroma%20Subsampling0) Acceptable values: `yuv420p`, `yuv422p`, `yuv444p`, `yuv420p10le`, `yuv422p10le`, `yuv444p10le`.
+Controls the pixel format in FFMPEG. [Read more about it here.](https://trac.ffmpeg.org/wiki/Chroma%20Subsampling0) Acceptable values: `yuv420p`, `yuv422p`, `yuv444p`, `yuv420p10le`, `yuv422p10le`, `yuv444p10le`. Since v1.4, `yuva420p` is also supported for transparent WebM videos.
 Default value: `yuv420p`
 
 ```tsx
 Config.Output.setPixelFormat('yuv420p')
 ```
 
-The [command line flag](cli) `--pixel-format` will take precedene over this option.
+The [command line flag](cli) `--pixel-format` will take precedence over this option.
 
-### setOutputFormat()
+### setCodec()
 
-Either `'mp4'` or `'png-sequence'`. Use the PNG sequence option if you want transparency in your output.
+_Available from Version 1.4._
 
-```tsx
-Config.output.setOutputFormat('png-sequence');
-```
+Choose one of the supported codecs: `h264` _(default)_, `h265`, `vp8`, `vp9`.
 
-The [command line flag](cli) `--png` will take precedence over this option.
-
-### setQuality()
-
-The JPEG quality of each frame. Must be a number between 0 and 100. [Default: 80](https://github.com/chromium/chromium/blob/99314be8152e688bafbbf9a615536bdbb289ea87/headless/lib/browser/protocol/headless_handler.cc#L32).
+- `h264` is the classic MP4 file as you know it.
+- `h265` is the successor of H264, with smaller file sizes. Also known as HEVC. Poor browser compatibility.
+- `vp8` is the codec for WebM.
+- `vp9` is the next-generation codec for WebM. Lower file size, longer compression time.
 
 ```tsx
-Config.output.setQuality(90);
+Config.Output.setCodec('h265');
 ```
+
+### setImageSequence()
+
+_Available from Version 1.4._
+
+Set to true if you want to output an image sequence instead of a video.
+
+```tsx
+Config.Output.setImageSequence(true);
+```
+
+### ~~setOutputFormat()~~
+
+_Deprecated_. Use `setCodec()` and `setImageSequence()` instead.
+
+Either `'mp4'` or `'png-sequence'`.
+
+```tsx
+Config.Output.setOutputFormat('mp4');
+```
+
+The [command line flags](cli) `--sequence` and `--codec` will take precedence over this option.
 
 The [command line flag](cli) `--quality` will take precedence over this option.
+
+### setCrf()
+
+_Available from Version 1.4._
+
+The "Constant Rate Factor" (CRF) of the output. [Use this setting to tell FFMPEG how to trade off size and quality.](encoding#controlling-quality-using-the-crf-setting)
+
+Ranges for CRF scale, by codec:
+
+- `h264` crf range is 0-51 where crf 18 is _default_.
+- `h265` crf range is 0-51 where crf 23 is _default_.
+- `vp8` crf range is 4-63 where crf 9 is _default_.
+- `vp9` crf range is 0-63 where crf 28 is _default_.
+
+The lowest value is lossless, and the highest value is the worst quality possible. Higher values decrease the filesize at the cost of quality.
+
+The range is exponential, so increasing the CRF value +6 results in roughly half the bitrate / file size, while -6 leads to roughly twice the bitrate.
+
+Choose the highest CRF value that still provides an acceptable quality. If the output looks good, then try a higher value. If it looks bad, choose a lower value.
+
+```tsx
+Config.Output.setCrf(16);
+```
+
+The [command line flag](cli) `--crf` will take precedence over this option.
+
+## See also
+
+- [Encoding guide](encoding)
