@@ -90,8 +90,16 @@ export const render = async () => {
 	}
 	const crf = shouldOutputImageSequence ? null : Internals.getActualCrf(codec);
 	if (crf !== null) {
-		Internals.validateSelectedCrf(crf, codec);
+		Internals.validateSelectedCrfAndCodecCombination(crf, codec);
 	}
+	const pixelFormat = Internals.getPixelFormat();
+	const imageFormat = getImageFormat(codec);
+
+	Internals.validateSelectedPixelFormatAndCodecCombination(pixelFormat, codec);
+	Internals.validateSelectedPixelFormatAndImageFormatCombination(
+		pixelFormat,
+		imageFormat
+	);
 	if (shouldOutputImageSequence) {
 		fs.mkdirSync(absoluteOutputFile, {
 			recursive: true,
@@ -136,7 +144,6 @@ export const render = async () => {
 		},
 		cliProgress.Presets.shades_grey
 	);
-	const imageFormat = getImageFormat(codec);
 	await renderFrames({
 		config,
 		onFrameUpdate: (frame) => renderProgress.update(frame),
@@ -182,7 +189,7 @@ export const render = async () => {
 			outputLocation: absoluteOutputFile,
 			force: overwrite,
 			imageFormat,
-			pixelFormat: Internals.getPixelFormat(),
+			pixelFormat,
 			codec,
 			crf,
 			onProgress: (frame) => {

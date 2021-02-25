@@ -1,3 +1,5 @@
+import {PixelFormat} from '.';
+
 const validOptions = ['png', 'jpeg'] as const;
 
 export type ImageFormat = typeof validOptions[number];
@@ -17,4 +19,18 @@ export const setImageFormat = (format: ImageFormat) => {
 
 export const getUserPreferredImageFormat = () => {
 	return currentImageFormat;
+};
+
+export const validateSelectedPixelFormatAndImageFormatCombination = (
+	pixelFormat: PixelFormat,
+	imageFormat: ImageFormat
+) => {
+	if (pixelFormat !== 'yuva420p') {
+		return;
+	}
+	if (imageFormat !== 'png') {
+		throw new TypeError(
+			"Pixel format was set to 'yuva420p' but the image format is not PNG. To render transparent videos, you need to set PNG as the image format."
+		);
+	}
 };
