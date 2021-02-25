@@ -86,6 +86,48 @@ Don't be surprised if the new codecs which have been added are much slower than 
 
 ![stitching-progress.png](/img/stitching-progress.png)
 
+## Asynchronously determining composition metadata
+
+There's a small breaking change in this release - `delayRender` works during the 'evaluation' phase. This is the phase where Remotion analyzses your project and determines all compositions and does some validation. Watch out for `delayRender()` calls outside components, as they might block the evaluation phase since no components are being rendered during that phase.
+
+The benefit is that now your compositions can take in data that has been asynchronously fetched. For example the following is now possible:
+
+```tsx
+export const RemotionVideo: React.FC = () => {
+  const [videoLength, setVideoLength] = useState(null)
+
+  useEffect(() => {
+    const handle = delayRender();
+
+    determineVideoLength()
+    .then((duration) => {
+      setVideoLength(duration)
+      continueRender(handle)
+    })
+    .catch(err => /**/)
+  }, [])
+
+  if (videoLength === null) {
+    return null;
+  }
+
+  return (
+    <>
+      <Composition
+        id="HelloWorld"
+        component={HelloWorld}
+        durationInFrames={videoLength}
+        fps={30}
+        width={1920}
+        height={1080}
+      />
+    </>
+  )
+}
+```
+
+Stay tuned for a new API in the future that will allow you to measure video and audio duration!
+
 ## End to End tests for Windows, macOS and Ubuntu
 
 While Remotion is primarily developed on macOS, other operating systems shouldn't have a sub-par experience or get bugs. While it does not replace manual testing, it helps that [there are now some end-to-end tests for rendering videos](https://github.com/JonnyBurger/remotion/blob/main/tests/rendering.test.ts) and the test suite now runs on all 3 operating systems. Going forward, I will add more tests and contributors are also encouraged to do so.
