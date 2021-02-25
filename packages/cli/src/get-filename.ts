@@ -10,7 +10,7 @@ export const getOutputFilename = (
 ): string => {
 	let filename = getUserPassedOutputLocation();
 	let extension = getUserPassedFileExtension();
-	if (imageSequence && extension !== null) {
+	if (imageSequence) {
 		if (extension !== null) {
 			console.error(
 				'The output directory of the image sequence cannot have an extension. Got: ' +

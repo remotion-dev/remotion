@@ -29,8 +29,11 @@ export const parseCommandLine = () => {
 		Config.Rendering.setConcurrency(parsedCli.concurrency);
 	}
 	if (parsedCli.png) {
-		console.warn('The --png flag has been renamed to --sequence.');
+		console.warn(
+			'The --png flag has been deprecrated. Use --sequence --image-format=png from now on.'
+		);
 		Config.Output.setImageSequence(true);
+		Config.Rendering.setImageFormat('png');
 	}
 	if (parsedCli.sequence) {
 		Config.Output.setImageSequence(true);
