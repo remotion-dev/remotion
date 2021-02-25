@@ -1,3 +1,4 @@
+import {ChromiumExecutable, setChromiumExecutable} from './chromium-executable';
 import {Concurrency, setConcurrency} from './concurrency';
 import {
 	overrideWebpackConfig,
@@ -31,6 +32,11 @@ export const Config = {
 		 * Default: 80
 		 */
 		setQuality,
+		/**
+		 * Specify executable path to chrome or chromium.
+		 * Default: 'null
+		 */
+		setChromiumExecutable,
 	},
 	Output: {
 		/**
@@ -58,4 +64,5 @@ export type {
 	OutputFormat,
 	WebpackConfiguration,
 	WebpackOverrideFn,
+	ChromiumExecutable,
 };
