@@ -2,6 +2,7 @@ import puppeteer from 'puppeteer-core';
 import puppeteer_node from 'puppeteer-core/lib/cjs/puppeteer/node';
 import {downloadBrowser} from 'puppeteer-core/lib/cjs/puppeteer/node/install';
 import {PUPPETEER_REVISIONS} from 'puppeteer-core/lib/cjs/puppeteer/revisions';
+import {Internals} from 'remotion';
 
 const getLocalRevision = (): puppeteer.BrowserFetcherRevisionInfo => {
 	const productName = 'chrome';
@@ -17,12 +18,17 @@ const getLocalRevision = (): puppeteer.BrowserFetcherRevisionInfo => {
 };
 
 export const getLocalChromiumExecutable = async (): Promise<string> => {
-	const localRevision = getLocalRevision();
-	if (localRevision.local) {
-		return localRevision.executablePath;
+	const chromiumExecutablePath = Internals.getChromiumExecutable();
+	if (chromiumExecutablePath) {
+		return chromiumExecutablePath;
 	} else {
-		await downloadBrowser();
-		const downloadedLocalRevision = getLocalRevision();
-		return downloadedLocalRevision.executablePath;
+		const localRevision = getLocalRevision();
+		if (localRevision.local) {
+			return localRevision.executablePath;
+		} else {
+			await downloadBrowser();
+			const downloadedLocalRevision = getLocalRevision();
+			return downloadedLocalRevision.executablePath;
+		}
 	}
 };

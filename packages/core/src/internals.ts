@@ -4,6 +4,7 @@ import {
 	TComposition,
 	TSequence,
 } from './CompositionManager';
+import {getChromiumExecutable} from './config/chromium-executable';
 import {getConcurrency} from './config/concurrency';
 import {
 	getWebpackOverrideFn,
@@ -30,6 +31,7 @@ export const Internals = {
 	RemotionRoot,
 	useVideo,
 	getRoot,
+	getChromiumExecutable,
 	getCompositionName,
 	getIsEvaluation,
 	getPixelFormat,
