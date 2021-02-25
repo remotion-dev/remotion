@@ -65,5 +65,21 @@ export const Re = () => {
         },
       ],
     },
+    {
+      code: `
+import {Audio} from 'remotion';
+
+export const Re = () => {
+  return (
+    <Audio src="hithere" />
+  );
+}
+      `,
+      errors: [
+        {
+          messageId: "NoStringAssets",
+        },
+      ],
+    },
   ],
 });

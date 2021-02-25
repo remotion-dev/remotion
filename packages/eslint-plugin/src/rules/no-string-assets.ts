@@ -57,7 +57,15 @@ export default createRule<Options, MessageIds>({
         if (name.type !== "JSXIdentifier") {
           return;
         }
-        if (name.name === "Img" || name.name === "img") {
+        if (
+          name.name === "Img" ||
+          name.name === "img" ||
+          name.name === "Audio" ||
+          name.name === "audio" ||
+          name.name === "Video" ||
+          name.name === "video" ||
+          name.name === "source"
+        ) {
           // Network and inline URLs are okay
           if (stringValue.startsWith("http://")) {
             return;
