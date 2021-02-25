@@ -63,9 +63,23 @@ Default value: `yuv420p`
 Config.Output.setPixelFormat('yuv420p')
 ```
 
-The [command line flag](cli) `--pixel-format` will take precedene over this option.
+The [command line flag](cli) `--pixel-format` will take precedence over this option.
+
+### setImageFormat()
+
+_Available from Version 1.4._
+
+Determines which in which image format to render the frames. Either `jpeg` _(default since v1.1)_ or `png`. PNG is considerably slower, but supports transparency.
+
+```tsx
+Config.Output.setImageFormat('png')
+```
+
+The [command line flag](cli) `--image-format` will take precedence over this option.
 
 ### setCodec()
+
+_Available from Version 1.4._
 
 Choose one of the supported codecs: `h264` _(default)_, `h265`, `vp8`, `vp9`.
 
@@ -80,13 +94,15 @@ Config.Output.setCodec('h265');
 
 ### setImageSequence()
 
+_Available from Version 1.4._
+
 Set to true if you want to output an image sequence instead of a video.
 
 ```tsx
 Config.Output.setImageSequence(true);
 ```
 
-### setOutputFormat()
+### ~~setOutputFormat()~~
 
 _Deprecated_. Use `setCodec()` and `setImageSequence()` instead.
 
@@ -109,6 +125,8 @@ Config.Output.setQuality(90);
 The [command line flag](cli) `--quality` will take precedence over this option.
 
 ### setCrf()
+
+_Available from Version 1.4._
 
 The "Constant Rate Factor" (CRF) of the output. [Use this setting to tell FFMPEG how to trade off size and quality.](encoding#controlling-quality-using-the-crf-setting)
 

@@ -15,6 +15,7 @@ import {
 	getDefaultCrfForCodec,
 	validateSelectedCrf,
 } from './config/crf';
+import {getUserPreferredImageFormat} from './config/image-format';
 import {getShouldOutputImageSequence} from './config/image-sequence';
 import {
 	getWebpackOverrideFn,
@@ -54,6 +55,7 @@ export const Internals = {
 	DEFAULT_CODEC,
 	getDefaultCrfForCodec,
 	getActualCrf,
+	getUserPreferredImageFormat,
 };
 
 export type {
