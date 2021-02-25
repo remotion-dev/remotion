@@ -102,6 +102,8 @@ Choose one of the supported codecs: `h264` _(default)_, `h265`, `vp8`, `vp9`.
 Config.Output.setCodec('h265');
 ```
 
+**See also**: [Encoding guide](/docs/encoding)
+
 ### setImageSequence()
 
 _Available from Version 1.4._
