@@ -36,8 +36,8 @@ export const stitchFramesToVideo = async (options: {
 }): Promise<void> => {
 	const codec = options.codec ?? Internals.DEFAULT_CODEC;
 	const crf = options.crf ?? Internals.getDefaultCrfForCodec(codec);
-	const format = options.imageFormat ?? DEFAULT_IMAGE_FORMAT;
-	Internals.validateSelectedCrf(crf, codec);
+	const imageFormat = options.imageFormat ?? DEFAULT_IMAGE_FORMAT;
+	const pixelFormat = options.pixelFormat ?? Internals.DEFAULT_PIXEL_FORMAT;
 	await validateFfmpeg();
 	const files = await fs.promises.readdir(options.dir);
 	const biggestNumber = Math.max(
@@ -51,7 +51,12 @@ export const stitchFramesToVideo = async (options: {
 	const numberLength = String(biggestNumber).length;
 
 	const encoderName = getCodecName(codec);
-	Internals.validateSelectedCrf(crf, codec);
+	Internals.validateSelectedCrfAndCodecCombination(crf, codec);
+	Internals.validateSelectedPixelFormatAndImageFormatCombination(
+		pixelFormat,
+		imageFormat
+	);
+	Internals.validateSelectedPixelFormatAndCodecCombination(pixelFormat, codec);
 
 	const task = execa(
 		'ffmpeg',
@@ -63,7 +68,7 @@ export const stitchFramesToVideo = async (options: {
 			'-s',
 			`${options.width}x${options.height}`,
 			'-i',
-			`element-%0${numberLength}d.${format}`,
+			`element-%0${numberLength}d.${imageFormat}`,
 			'-c:v',
 			encoderName,
 			'-crf',
@@ -72,7 +77,7 @@ export const stitchFramesToVideo = async (options: {
 			'1M',
 			options.force ? '-y' : null,
 			'-pix_fmt',
-			options.pixelFormat ?? 'yuv420p',
+			pixelFormat,
 			options.outputLocation,
 		].filter(Boolean) as string[],
 		{cwd: options.dir}

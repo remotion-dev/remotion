@@ -10,7 +10,9 @@ You can control several behaviors of Remotion here.
 ```tsx
 import {Config} from 'remotion';
 
+Config.Rendering.Concurrency(8);
 Config.Output.setPixelFormat('yuv444p');
+Config.Output.setCodec('h265');
 ```
 
 ## Bundling

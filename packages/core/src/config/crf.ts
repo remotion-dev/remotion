@@ -47,7 +47,10 @@ export const getValidCrfRanges = (codec: Codec): [number, number] => {
 	throw new TypeError(`Got unexpected codec "${codec}"`);
 };
 
-export const validateSelectedCrf = (crf: number, codec: Codec) => {
+export const validateSelectedCrfAndCodecCombination = (
+	crf: number,
+	codec: Codec
+) => {
 	const range = getValidCrfRanges(codec);
 	if (crf < range[0] || crf > range[1]) {
 		throw new TypeError(

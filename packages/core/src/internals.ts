@@ -13,16 +13,23 @@ import {getConcurrency} from './config/concurrency';
 import {
 	getActualCrf,
 	getDefaultCrfForCodec,
-	validateSelectedCrf,
+	validateSelectedCrfAndCodecCombination,
 } from './config/crf';
-import {getUserPreferredImageFormat} from './config/image-format';
+import {
+	getUserPreferredImageFormat,
+	validateSelectedPixelFormatAndImageFormatCombination,
+} from './config/image-format';
 import {getShouldOutputImageSequence} from './config/image-sequence';
 import {
 	getWebpackOverrideFn,
 	WebpackOverrideFn,
 } from './config/override-webpack';
 import {getShouldOverwrite} from './config/overwrite';
-import {getPixelFormat} from './config/pixel-format';
+import {
+	DEFAULT_PIXEL_FORMAT,
+	getPixelFormat,
+	validateSelectedPixelFormatAndCodecCombination,
+} from './config/pixel-format';
 import {getQuality} from './config/quality';
 import * as perf from './perf';
 import {getCompositionName, getIsEvaluation, getRoot} from './register-root';
@@ -50,12 +57,15 @@ export const Internals = {
 	getWebpackOverrideFn,
 	getQuality,
 	getShouldOutputImageSequence,
-	validateSelectedCrf,
+	validateSelectedCrfAndCodecCombination,
 	getFinalOutputCodec,
 	DEFAULT_CODEC,
+	DEFAULT_PIXEL_FORMAT,
 	getDefaultCrfForCodec,
 	getActualCrf,
 	getUserPreferredImageFormat,
+	validateSelectedPixelFormatAndImageFormatCombination,
+	validateSelectedPixelFormatAndCodecCombination,
 };
 
 export type {
