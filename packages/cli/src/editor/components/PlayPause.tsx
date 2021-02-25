@@ -142,7 +142,7 @@ export const PlayPause: React.FC = () => {
 			<div style={{width: 10}} />
 			<ControlButton
 				aria-label={playing ? 'Pause' : 'Play'}
-				disabled={Boolean(video)}
+				disabled={!video}
 				onClick={toggle}
 			>
 				{playing ? (

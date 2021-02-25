@@ -7,7 +7,7 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 		React.ImgHTMLAttributes<HTMLImageElement>,
 		HTMLImageElement
 	>
-> = ({onLoad, ...props}, ref) => {
+> = ({onLoad, onError, ...props}, ref) => {
 	const [handle] = useState(() => delayRender());
 
 	const didLoad = useCallback(
@@ -18,7 +18,23 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 		[handle, onLoad]
 	);
 
-	return <img {...props} ref={ref} onLoad={didLoad} />;
+	const didGetError = useCallback(
+		(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+			continueRender(handle);
+			if (onError) {
+				onError(e);
+			} else {
+				console.error(
+					'Error loading image:',
+					e,
+					'Handle the event using the onError() prop to make this message disappear.'
+				);
+			}
+		},
+		[handle, onError]
+	);
+
+	return <img {...props} ref={ref} onLoad={didLoad} onError={didGetError} />;
 };
 
 export const Img = forwardRef(ImgRefForwarding);

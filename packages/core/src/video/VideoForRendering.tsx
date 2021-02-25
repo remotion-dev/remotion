@@ -4,7 +4,10 @@ import {useCurrentFrame} from '../use-frame';
 import {useUnsafeVideoConfig} from '../use-unsafe-video-config';
 import {RemotionVideoProps} from './props';
 
-export const VideoForRendering: React.FC<RemotionVideoProps> = (props) => {
+export const VideoForRendering: React.FC<RemotionVideoProps> = ({
+	onError,
+	...props
+}) => {
 	const frame = useCurrentFrame();
 	const videoConfig = useUnsafeVideoConfig();
 	const videoRef = useRef<HTMLVideoElement>(null);
@@ -33,6 +36,14 @@ export const VideoForRendering: React.FC<RemotionVideoProps> = (props) => {
 		videoRef.current.addEventListener(
 			'seeked',
 			() => {
+				continueRender(handle);
+			},
+			{once: true}
+		);
+		videoRef.current.addEventListener(
+			'error',
+			(err) => {
+				console.error('Error occurred in video', err);
 				continueRender(handle);
 			},
 			{once: true}
