@@ -68,6 +68,9 @@ export const Index: React.FC = () => {
 				height={1080}
 				fps={60}
 				durationInFrames={300}
+				defaultProps={{
+					transparent: true,
+				}}
 			/>
 			<Composition
 				id="shadow-circles"

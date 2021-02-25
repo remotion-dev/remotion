@@ -6,15 +6,20 @@
   "private": true,
   "license": "SEE LICENSE IN LICENSE.md",
   "scripts": {
-    "test": "lerna run test",
+    "test": "lerna run test && npx jest --runInBand",
     "build": "lerna run build"
   },
   "devDependencies": {
     "@jonny/eslint-config": "^2.1.210",
+    "@types/jest": "^26.0.20",
+    "@types/node": "^14.14.31",
     "eslint": "^7.15.0",
+    "execa": "^5.0.0",
+    "jest": "^26.6.3",
     "lerna": "^2.11.0",
     "prettier": "^2.2.1",
     "prettier-plugin-organize-imports": "^1.1.1",
+    "ts-jest": "^26.5.1",
     "typescript": "^4.1.2"
   },
   "dependencies": {

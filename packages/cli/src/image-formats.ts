@@ -1,13 +1,23 @@
-import {OutputFormat} from 'remotion';
+import {ImageFormat, Internals} from 'remotion';
 
-export type FrameFormat = 'png' | 'jpeg';
+export const getImageFormat = (
+	codec: ReturnType<typeof Internals.getOutputCodecOrUndefined>
+): ImageFormat => {
+	const userPreferred = Internals.getUserPreferredImageFormat();
 
-export const getFrameFormat = (format: OutputFormat): FrameFormat => {
-	if (format === 'mp4') {
+	if (typeof userPreferred !== 'undefined') {
+		return userPreferred;
+	}
+	if (
+		codec === 'h264' ||
+		codec === 'h265' ||
+		codec === 'vp8' ||
+		codec === 'vp9'
+	) {
 		return 'jpeg';
 	}
-	if (format === 'png-sequence') {
+	if (codec === undefined) {
 		return 'png';
 	}
-	throw new Error('Unrecognized render mode ' + format);
+	throw new Error('Unrecognized codec ' + codec);
 };
