@@ -1,6 +1,4 @@
-import {Codec} from 'remotion';
-
-export type ImageFormat = 'png' | 'jpeg';
+import {Codec, ImageFormat} from 'remotion';
 
 export const getImageFormat = (codec: Codec): ImageFormat => {
 	if (
