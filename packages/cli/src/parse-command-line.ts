@@ -19,12 +19,11 @@ export type CommandLineOptions = {
 export const parsedCli = minimist<CommandLineOptions>(process.argv.slice(2));
 
 export const parseCommandLine = () => {
-	console.log(parsedCli);
 	if (parsedCli['pixel-format']) {
-		Config.Output.setPixelFormat(parsedCli.pixelFormat);
+		Config.Output.setPixelFormat(parsedCli['pixel-format']);
 	}
 	if (parsedCli['image-format']) {
-		Config.Rendering.setImageFormat(parsedCli.imageFormat);
+		Config.Rendering.setImageFormat(parsedCli['image-format']);
 	}
 	if (parsedCli.concurrency) {
 		Config.Rendering.setConcurrency(parsedCli.concurrency);

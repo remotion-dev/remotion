@@ -58,30 +58,32 @@ export const stitchFramesToVideo = async (options: {
 	);
 	Internals.validateSelectedPixelFormatAndCodecCombination(pixelFormat, codec);
 
-	const task = execa(
-		'ffmpeg',
-		[
-			'-r',
-			String(options.fps),
-			'-f',
-			'image2',
-			'-s',
-			`${options.width}x${options.height}`,
-			'-i',
-			`element-%0${numberLength}d.${imageFormat}`,
-			'-c:v',
-			encoderName,
-			'-crf',
-			crf,
-			'-b:v',
-			'1M',
-			options.force ? '-y' : null,
-			'-pix_fmt',
-			pixelFormat,
-			options.outputLocation,
-		].filter(Boolean) as string[],
-		{cwd: options.dir}
-	);
+	const ffmpegArgs = [
+		'-r',
+		String(options.fps),
+		'-f',
+		'image2',
+		'-s',
+		`${options.width}x${options.height}`,
+		'-i',
+		`element-%0${numberLength}d.${imageFormat}`,
+		'-c:v',
+		encoderName,
+		'-crf',
+		crf,
+		'-b:v',
+		'1M',
+		options.force ? '-y' : null,
+		'-pix_fmt',
+		pixelFormat,
+		// Without explicitly disabling auto-alt-ref,
+		// transparent WebM generation doesn't work
+		pixelFormat === 'yuva420p' ? '-auto-alt-ref' : null,
+		pixelFormat === 'yuva420p' ? '0' : null,
+		options.outputLocation,
+	].filter(Boolean) as string[];
+
+	const task = execa('ffmpeg', ffmpegArgs, {cwd: options.dir});
 
 	task.stderr?.on('data', (data: Buffer) => {
 		if (options.onProgress) {
