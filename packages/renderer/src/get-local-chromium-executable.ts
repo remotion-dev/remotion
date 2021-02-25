@@ -1,6 +1,7 @@
 import puppeteer from 'puppeteer-core';
 import puppeteer_node from 'puppeteer-core/lib/cjs/puppeteer/node';
 import {downloadBrowser} from 'puppeteer-core/lib/cjs/puppeteer/node/install';
+import {PUPPETEER_REVISIONS} from 'puppeteer-core/lib/cjs/puppeteer/revisions';
 
 const getLocalRevision = (): puppeteer.BrowserFetcherRevisionInfo => {
 	const productName = 'chrome';
@@ -8,7 +9,9 @@ const getLocalRevision = (): puppeteer.BrowserFetcherRevisionInfo => {
 		product: productName,
 		host: 'https://storage.googleapis.com',
 	});
-	const revisionInfo = browserFetcher.revisionInfo('848005');
+	const revisionInfo = browserFetcher.revisionInfo(
+		PUPPETEER_REVISIONS.chromium
+	);
 
 	return revisionInfo;
 };
