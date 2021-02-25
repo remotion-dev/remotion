@@ -13,7 +13,7 @@ let currentPixelFormat: PixelFormat = 'yuv420p';
 
 export const setPixelFormat = (format: PixelFormat) => {
 	if (!validOptions.includes(format)) {
-		throw new Error(`Value ${format} is not valid as a pixel format.`);
+		throw new TypeError(`Value ${format} is not valid as a pixel format.`);
 	}
 	currentPixelFormat = format;
 };

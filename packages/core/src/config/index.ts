@@ -1,7 +1,7 @@
 import {setCodec, setOutputFormat} from './codec';
 import {Concurrency, setConcurrency} from './concurrency';
 import {setCrf} from './crf';
-import {ImageFormat} from './image-format';
+import {ImageFormat, setImageFormat} from './image-format';
 import {setImageSequence} from './image-sequence';
 import {
 	overrideWebpackConfig,
@@ -34,6 +34,11 @@ export const Config = {
 		 * Default: 80
 		 */
 		setQuality,
+		/**
+		 * Decide in which image format to render. Can be either 'jpeg' or 'png'.
+		 * PNG is slower, but supports transparency.
+		 */
+		setImageFormat,
 	},
 	Output: {
 		/**
