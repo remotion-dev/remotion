@@ -86,6 +86,10 @@ Don't be surprised if the new codecs which have been added are much slower than 
 
 ![stitching-progress.png](/img/stitching-progress.png)
 
+## New `layout` prop for `<Sequence>`
+
+Few people have rightly pointed out that the `<Sequence>` component will absolutely position it's children and there is no way to opt out of it. While we cannot change this now because of backwards-compatibility, you can now pass `layout="none"` as a prop to opt out of any layout influence that `<Sequence>` has.
+
 ## Asynchronously determining composition metadata
 
 There's a small breaking change in this release - `delayRender` works during the 'evaluation' phase. This is the phase where Remotion analyzses your project and determines all compositions and does some validation. Watch out for `delayRender()` calls outside components, as they might block the evaluation phase since no components are being rendered during that phase.
