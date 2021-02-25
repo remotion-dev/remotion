@@ -18,6 +18,7 @@ type SequenceContextType = {
 export const SequenceContext = createContext<SequenceContextType | null>(null);
 
 export const Sequence: React.FC<{
+	children: React.ReactNode;
 	from: number;
 	durationInFrames: number;
 	name?: string;
@@ -32,6 +33,22 @@ export const Sequence: React.FC<{
 	if (layout !== 'absolute-fill' && layout !== 'none') {
 		throw new TypeError(
 			`The layout prop of <Composition /> expects either "absolute-fill" or "none", but you passed: ${layout}`
+		);
+	}
+
+	if (typeof durationInFrames !== 'number') {
+		throw new TypeError(
+			`You passed to durationInFrames an argument of type ${typeof durationInFrames}, but it must be a number.`
+		);
+	}
+	if (durationInFrames <= 0) {
+		throw new TypeError(
+			`durationInFrames must be positive, but got ${durationInFrames}`
+		);
+	}
+	if (typeof from !== 'number') {
+		throw new TypeError(
+			`You passed to the "from" props of your <Sequence> an argument of type ${typeof from}, but it must be a number.`
 		);
 	}
 
