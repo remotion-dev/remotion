@@ -93,7 +93,9 @@ export const render = async () => {
 		Internals.validateSelectedCrfAndCodecCombination(crf, codec);
 	}
 	const pixelFormat = Internals.getPixelFormat();
-	const imageFormat = getImageFormat(codec);
+	const imageFormat = getImageFormat(
+		shouldOutputImageSequence ? undefined : codec
+	);
 
 	Internals.validateSelectedPixelFormatAndCodecCombination(pixelFormat, codec);
 	Internals.validateSelectedPixelFormatAndImageFormatCombination(

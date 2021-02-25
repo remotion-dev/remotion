@@ -1,6 +1,8 @@
-import {Codec, ImageFormat, Internals} from 'remotion';
+import {ImageFormat, Internals} from 'remotion';
 
-export const getImageFormat = (codec: Codec): ImageFormat => {
+export const getImageFormat = (
+	codec: ReturnType<typeof Internals.getOutputCodecOrUndefined>
+): ImageFormat => {
 	const userPreferred = Internals.getUserPreferredImageFormat();
 
 	if (typeof userPreferred !== 'undefined') {
@@ -14,7 +16,7 @@ export const getImageFormat = (codec: Codec): ImageFormat => {
 	) {
 		return 'jpeg';
 	}
-	if (codec === 'png') {
+	if (codec === undefined) {
 		return 'png';
 	}
 	throw new Error('Unrecognized codec ' + codec);
