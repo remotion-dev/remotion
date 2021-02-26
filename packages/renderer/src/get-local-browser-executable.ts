@@ -44,19 +44,6 @@ const getBrowserRevision = (
 			: PUPPETEER_REVISIONS.chromium
 	);
 
-	if (product === 'firefox') {
-		return {
-			revision: 'latest',
-			executablePath:
-				'/Users/jonnyburger/remotion/packages/renderer/node_modules/puppeteer-core/.local-firefox/mac-88.0a1/Firefox Nightly.app/Contents/MacOS/firefox',
-			folderPath:
-				'/Users/jonnyburger/remotion/packages/renderer/node_modules/puppeteer-core/.local-firefox/mac-88.0a1',
-			local: false,
-			url:
-				'https://archive.mozilla.org/pub/firefox/nightly/latest-mozilla-central/firefox-latest.en-US.mac.dmg',
-			product: 'firefox',
-		};
-	}
 	return revisionInfo;
 };
 
