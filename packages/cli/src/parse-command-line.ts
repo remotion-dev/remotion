@@ -1,28 +1,48 @@
 import minimist from 'minimist';
-import {Config, PixelFormat} from 'remotion';
+import {Codec, Config, ImageFormat, PixelFormat} from 'remotion';
 
 export type CommandLineOptions = {
-	pixelFormat: PixelFormat;
+	['pixel-format']: PixelFormat;
+	['image-format']: ImageFormat;
 	concurrency: number;
 	overwrite: boolean;
 	config: string;
 	png: boolean;
-	quality: number | undefined;
+	sequence: boolean;
+	quality: number;
 	force: boolean;
+	codec: Codec;
 	props: string;
+	crf: number;
 };
 
 export const parsedCli = minimist<CommandLineOptions>(process.argv.slice(2));
 
 export const parseCommandLine = () => {
-	if (parsedCli.pixelFormat) {
-		Config.Output.setPixelFormat(parsedCli.pixelFormat);
+	if (parsedCli['pixel-format']) {
+		Config.Output.setPixelFormat(parsedCli['pixel-format']);
+	}
+	if (parsedCli['image-format']) {
+		Config.Rendering.setImageFormat(parsedCli['image-format']);
 	}
 	if (parsedCli.concurrency) {
 		Config.Rendering.setConcurrency(parsedCli.concurrency);
 	}
 	if (parsedCli.png) {
-		Config.Output.setOutputFormat('png-sequence');
+		console.warn(
+			'The --png flag has been deprecrated. Use --sequence --image-format=png from now on.'
+		);
+		Config.Output.setImageSequence(true);
+		Config.Rendering.setImageFormat('png');
+	}
+	if (parsedCli.sequence) {
+		Config.Output.setImageSequence(true);
+	}
+	if (typeof parsedCli.crf !== 'undefined') {
+		Config.Output.setCrf(parsedCli.crf);
+	}
+	if (parsedCli.codec) {
+		Config.Output.setCodec(parsedCli.codec);
 	}
 	if (typeof parsedCli.overwrite !== 'undefined') {
 		Config.Output.setOverwriteOutput(parsedCli.overwrite);

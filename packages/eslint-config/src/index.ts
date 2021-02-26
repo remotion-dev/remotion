@@ -40,6 +40,7 @@ const getRules = (typescript: boolean) => {
     "@remotion/no-mp4-import": "warn",
     "@remotion/warn-native-media-tag": "warn",
     "@remotion/deterministic-randomness": "warn",
+    "@remotion/no-string-assets": "warn",
   };
 };
 

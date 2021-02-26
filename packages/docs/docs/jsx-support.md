@@ -14,8 +14,8 @@ You may import `.js` and `.jsx` files as normal. If you would like to completely
 If you upgrade from Remotion 1.2 or older, consider changing the `npm test` command to also include JavaScript files, and to remove the `tsc` command:
 
 ```diff
--  "test": "eslint 'src' --ext ts,tsx && tsc"
-+  "test": "eslint 'src' --ext ts,tsx,js,jsx"
+-  "test": "eslint src --ext ts,tsx && tsc"
++  "test": "eslint src --ext ts,tsx,js,jsx"
 ```
 
 ## See also
