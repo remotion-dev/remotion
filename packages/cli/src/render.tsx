@@ -1,5 +1,6 @@
 import {bundle} from '@remotion/bundler';
 import {
+	ensureLocalBrowser,
 	ffmpegHasFeature,
 	getActualConcurrency,
 	getCompositions,
@@ -102,6 +103,13 @@ export const render = async () => {
 		pixelFormat,
 		imageFormat
 	);
+	try {
+		await ensureLocalBrowser();
+	} catch (err) {
+		console.error('Could not download a browser for rendering frames.');
+		console.error(err);
+		process.exit(1);
+	}
 	if (shouldOutputImageSequence) {
 		fs.mkdirSync(absoluteOutputFile, {
 			recursive: true,
