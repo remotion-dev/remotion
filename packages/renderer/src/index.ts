@@ -80,6 +80,7 @@ export const provideScreenshot = async ({
 export * from './ffmpeg-flags';
 export * from './get-compositions';
 export * from './get-concurrency';
+export {ensureLocalBrowser} from './get-local-chromium-executable';
 export * from './render';
 export * from './stitcher';
 export * from './validate-ffmpeg';

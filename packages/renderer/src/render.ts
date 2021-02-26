@@ -2,6 +2,7 @@ import path from 'path';
 import {VideoConfig} from 'remotion';
 import {openBrowser, provideScreenshot} from '.';
 import {getActualConcurrency} from './get-concurrency';
+import {ensureLocalBrowser} from './get-local-chromium-executable';
 import {DEFAULT_IMAGE_FORMAT, ImageFormat} from './image-format';
 import {Pool} from './pool';
 
@@ -34,7 +35,7 @@ export const renderFrames = async ({
 		);
 	}
 	const actualParallelism = getActualConcurrency(parallelism ?? null);
-
+	await ensureLocalBrowser();
 	const browser = await openBrowser();
 	const pages = new Array(actualParallelism).fill(true).map(async () => {
 		const page = await browser.newPage();
