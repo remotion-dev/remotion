@@ -78,12 +78,15 @@ export const stitchFramesToVideo = async (options: {
 		encoderName,
 		'-crf',
 		crf,
+		'-pix_fmt',
+		// Without explicitly disabling auto-alt-ref,
+		// transparent WebM generation doesn't work
+		pixelFormat === 'yuva420p' ? '-auto-alt-ref' : null,
+		pixelFormat === 'yuva420p' ? '0' : null,
 		'-b:v',
 		'1M',
 		'-c:a',
 		'aac',
-		options.force ? '-y' : null,
-		'-pix_fmt',
 		'-filter_complex',
 		[
 			...options.assets.map((asset, i) => {
@@ -102,11 +105,7 @@ export const stitchFramesToVideo = async (options: {
 				options.assets.length
 			},dynaudnorm`,
 		].join(';'),
-		pixelFormat,
-		// Without explicitly disabling auto-alt-ref,
-		// transparent WebM generation doesn't work
-		pixelFormat === 'yuva420p' ? '-auto-alt-ref' : null,
-		pixelFormat === 'yuva420p' ? '0' : null,
+		options.force ? '-y' : null,
 		options.outputLocation,
 	].filter(Boolean) as string[];
 
