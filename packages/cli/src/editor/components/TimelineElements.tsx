@@ -63,7 +63,7 @@ export const TimelineElements: React.FC = () => {
 													track.trackType === 'sequence'
 														? SEQUENCE_GRADIENT
 														: AUDIO_GRADIENT,
-												border: '1px solid rgba(255, 255, 255, 0.2)',
+												border: '1px solid rgba(255, 255, 255, 0.4)',
 												borderRadius: 4,
 												position: 'absolute',
 												height: track.trackType === 'sequence' ? 80 : 60,
