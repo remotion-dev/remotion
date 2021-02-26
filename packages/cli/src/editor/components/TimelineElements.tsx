@@ -17,17 +17,24 @@ const Pre = styled.pre`
 	padding: 5px;
 `;
 
+const SEQUENCE_GRADIENT = 'linear-gradient(to bottom, #3697e1, #348AC7 60%)';
+const AUDIO_GRADIENT = 'linear-gradient(rgb(16 171 58), rgb(43 165 63) 60%)';
+
 export const TimelineElements: React.FC = () => {
 	const {width} = useWindowSize();
-	const {sequences} = useContext(Internals.CompositionManager);
+	const {sequences, assets} = useContext(Internals.CompositionManager);
 	const videoConfig = Internals.useUnsafeVideoConfig();
 
 	const timeline = useMemo((): Track[] => {
 		if (!videoConfig) {
 			return [];
 		}
-		return calculateTimeline(sequences, videoConfig.durationInFrames);
-	}, [sequences, videoConfig]);
+		return calculateTimeline({
+			assets,
+			sequences,
+			sequenceDuration: videoConfig.durationInFrames,
+		});
+	}, [assets, sequences, videoConfig]);
 
 	return (
 		<div
@@ -52,11 +59,13 @@ export const TimelineElements: React.FC = () => {
 											key={s.sequence.id}
 											style={{
 												background:
-													'linear-gradient(to bottom, #3697e1, #348AC7 60%)',
+													track.trackType === 'sequence'
+														? SEQUENCE_GRADIENT
+														: AUDIO_GRADIENT,
 												border: '1px solid rgba(255, 255, 255, 0.2)',
 												borderRadius: 4,
 												position: 'absolute',
-												height: 80,
+												height: track.trackType === 'sequence' ? 80 : 60,
 												marginTop: 1,
 												marginLeft: `calc(${
 													(s.sequence.from / videoConfig.durationInFrames) * 100

@@ -1,4 +1,6 @@
-import React, {useEffect, useRef} from 'react';
+import React, {useContext, useEffect, useRef, useState} from 'react';
+import {CompositionManager} from '../CompositionManager';
+import {SequenceContext} from '../sequencing';
 import {usePlayingState} from '../timeline-position-state';
 import {useCurrentFrame} from '../use-frame';
 import {useUnsafeVideoConfig} from '../use-unsafe-video-config';
@@ -7,8 +9,14 @@ import {RemotionAudioProps} from './props';
 export const AudioForDevelopment: React.FC<RemotionAudioProps> = (props) => {
 	const audioRef = useRef<HTMLAudioElement>(null);
 	const currentFrame = useCurrentFrame();
+
 	const videoConfig = useUnsafeVideoConfig();
 	const [playing] = usePlayingState();
+	const parentSequence = useContext(SequenceContext);
+
+	const {registerAsset, unregisterAsset} = useContext(CompositionManager);
+
+	const [id] = useState(() => String(Math.random()));
 
 	useEffect(() => {
 		if (playing) {
@@ -17,6 +25,32 @@ export const AudioForDevelopment: React.FC<RemotionAudioProps> = (props) => {
 			audioRef.current?.pause();
 		}
 	}, [playing]);
+
+	useEffect(() => {
+		if (!props.src) {
+			throw new Error('No src passed');
+		}
+		// Currently we only show audio in the timeline
+		// that is **not inside a sequence**.
+		if (parentSequence) {
+			return;
+		}
+
+		registerAsset({
+			type: 'audio',
+			src: props.src,
+			id,
+			sequenceFrame: currentFrame,
+		});
+		return () => unregisterAsset(id);
+	}, [
+		props.src,
+		registerAsset,
+		id,
+		unregisterAsset,
+		currentFrame,
+		parentSequence,
+	]);
 
 	useEffect(() => {
 		if (!audioRef.current) {
