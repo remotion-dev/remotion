@@ -1,14 +1,15 @@
 {
 	"name": "@remotion/example",
-	"version": "1.3.0",
+	"version": "1.4.0",
 	"description": "",
 	"main": "dist/index.js",
 	"private": true,
 	"scripts": {
 		"start": "npx ts-node ../cli/src/index.tsx preview src/index.tsx",
-		"test": "eslint 'src' --ext ts,tsx,js,jsx",
+		"test": "eslint src --ext ts,tsx,js,jsx",
 		"build": "tsc -d",
-		"render": "remotion render src/index.tsx react-svg video.mp4"
+		"render": "remotion render src/index.tsx react-svg video.mp4",
+		"render-transparent": "remotion render src/index.tsx --image-format=png --pixel-format=yuva420p --codec=vp8 react-svg video.webm"
 	},
 	"files": [
 		"dist"
@@ -19,10 +20,10 @@
 		"@babel/plugin-syntax-jsx": "7.12.13",
 		"@babel/preset-env": "7.12.13",
 		"@babel/preset-react": "7.12.13",
-		"@remotion/bundler": "^1.3.0",
-		"@remotion/cli": "^1.3.0",
-		"@remotion/eslint-config": "^1.3.0",
-		"@remotion/eslint-plugin": "^1.1.1",
+		"@remotion/bundler": "^1.4.0",
+		"@remotion/cli": "^1.4.0",
+		"@remotion/eslint-config": "^1.4.0",
+		"@remotion/eslint-plugin": "^1.4.0",
 		"@types/node": "^14.0.13",
 		"@types/react": "^17.0.0",
 		"@types/styled-components": "^5.1.1",
@@ -34,7 +35,7 @@
 		"react-dom": "17.0.1",
 		"react-native": "0.63.4",
 		"react-native-web": "0.14.13",
-		"remotion": "^1.3.0",
+		"remotion": "^1.4.0",
 		"styled-components": "^5.1.1",
 		"svg-path-properties": "^1.0.4",
 		"three": "^0.118.3",

@@ -1,5 +1,6 @@
 import {bundle} from '@remotion/bundler';
 import {
+	ffmpegHasFeature,
 	getActualConcurrency,
 	getCompositions,
 	renderFrames,
@@ -11,13 +12,15 @@ import fs from 'fs';
 import os from 'os';
 import path from 'path';
 import {Internals} from 'remotion';
+import {getFinalOutputCodec} from 'remotion/dist/config/codec';
 import {getCompositionId} from './get-composition-id';
 import {getConfigFileName} from './get-config-file-name';
 import {getOutputFilename} from './get-filename';
 import {getUserProps} from './get-user-props';
-import {getFrameFormat} from './image-formats';
+import {getImageFormat} from './image-formats';
 import {loadConfigFile} from './load-config';
 import {parseCommandLine} from './parse-command-line';
+import {getUserPassedFileExtension} from './user-passed-output-location';
 
 export const render = async () => {
 	const args = process.argv;
@@ -28,8 +31,49 @@ export const render = async () => {
 	loadConfigFile(configFileName);
 	parseCommandLine();
 	const parallelism = Internals.getConcurrency();
-	const renderMode = Internals.getFormat();
-	const outputFile = getOutputFilename();
+	const shouldOutputImageSequence = Internals.getShouldOutputImageSequence();
+	const userCodec = Internals.getOutputCodecOrUndefined();
+	if (shouldOutputImageSequence && userCodec) {
+		console.error(
+			'Detected both --codec and --sequence (formerly --png) flag.'
+		);
+		console.error(
+			'This is an error - no video codec can be used for image sequences.'
+		);
+		console.error('Remove one of the two flags and try again.');
+		process.exit(1);
+	}
+	const codec = getFinalOutputCodec({
+		codec: userCodec,
+		fileExtension: getUserPassedFileExtension(),
+		emitWarning: true,
+	});
+	if (codec === 'vp8' && !ffmpegHasFeature('enable-libvpx')) {
+		console.log(
+			"The Vp8 codec has been selected, but your FFMPEG binary wasn't compiled with the --enable-lipvpx flag."
+		);
+		console.log(
+			'This does not work, please switch out your FFMPEG binary or choose a different codec.'
+		);
+	}
+	if (codec === 'h265' && !ffmpegHasFeature('enable-gpl')) {
+		console.log(
+			"The H265 codec has been selected, but your FFMPEG binary wasn't compiled with the --enable-gpl flag."
+		);
+		console.log(
+			'This does not work, please recompile your FFMPEG binary with --enable-gpl --enable-libx265 or choose a different codec.'
+		);
+	}
+	if (codec === 'h265' && !ffmpegHasFeature('enable-libx265')) {
+		console.log(
+			"The H265 codec has been selected, but your FFMPEG binary wasn't compiled with the --enable-libx265 flag."
+		);
+		console.log(
+			'This does not work, please recompile your FFMPEG binary with --enable-gpl --enable-libx265 or choose a different codec.'
+		);
+	}
+
+	const outputFile = getOutputFilename(codec, shouldOutputImageSequence);
 	const overwrite = Internals.getShouldOverwrite();
 	const userProps = getUserProps();
 	const quality = Internals.getQuality();
@@ -41,15 +85,29 @@ export const render = async () => {
 		);
 		process.exit(1);
 	}
-	if (renderMode === 'mp4') {
+	if (!shouldOutputImageSequence) {
 		await validateFfmpeg();
 	}
-	if (renderMode === 'png-sequence') {
+	const crf = shouldOutputImageSequence ? null : Internals.getActualCrf(codec);
+	if (crf !== null) {
+		Internals.validateSelectedCrfAndCodecCombination(crf, codec);
+	}
+	const pixelFormat = Internals.getPixelFormat();
+	const imageFormat = getImageFormat(
+		shouldOutputImageSequence ? undefined : codec
+	);
+
+	Internals.validateSelectedPixelFormatAndCodecCombination(pixelFormat, codec);
+	Internals.validateSelectedPixelFormatAndImageFormatCombination(
+		pixelFormat,
+		imageFormat
+	);
+	if (shouldOutputImageSequence) {
 		fs.mkdirSync(absoluteOutputFile, {
 			recursive: true,
 		});
 	}
-	const steps = renderMode === 'png-sequence' ? 2 : 3;
+	const steps = shouldOutputImageSequence ? 2 : 3;
 	process.stdout.write(`📦 (1/${steps}) Bundling video...\n`);
 
 	const bundlingProgress = new cliProgress.Bar(
@@ -62,8 +120,8 @@ export const render = async () => {
 
 	bundlingProgress.start(100, 0);
 
-	const bundled = await bundle(fullPath, (f) => {
-		bundlingProgress.update(f);
+	const bundled = await bundle(fullPath, (progress) => {
+		bundlingProgress.update(progress);
 	});
 	const comps = await getCompositions(bundled);
 	const compositionId = getCompositionId(comps);
@@ -76,12 +134,9 @@ export const render = async () => {
 	}
 
 	const {durationInFrames: frames} = config;
-	const outputDir =
-		renderMode === 'png-sequence'
-			? absoluteOutputFile
-			: await fs.promises.mkdtemp(
-					path.join(os.tmpdir(), 'react-motion-render')
-			  );
+	const outputDir = shouldOutputImageSequence
+		? absoluteOutputFile
+		: await fs.promises.mkdtemp(path.join(os.tmpdir(), 'react-motion-render'));
 
 	const renderProgress = new cliProgress.Bar(
 		{
@@ -93,7 +148,7 @@ export const render = async () => {
 	);
 	const assets = await renderFrames({
 		config,
-		onFrameUpdate: (f) => renderProgress.update(f),
+		onFrameUpdate: (frame) => renderProgress.update(frame),
 		parallelism,
 		compositionId,
 		outputDir,
@@ -107,15 +162,27 @@ export const render = async () => {
 		},
 		userProps,
 		webpackBundle: bundled,
-		imageFormat: getFrameFormat(renderMode),
+		imageFormat,
 		quality,
 	});
 	renderProgress.stop();
 	if (process.env.DEBUG) {
 		Internals.perf.logPerf();
 	}
-	if (renderMode === 'mp4') {
+	if (!shouldOutputImageSequence) {
 		process.stdout.write(`🧵 (3/${steps}) Stitching frames together...\n`);
+		if (typeof crf !== 'number') {
+			throw TypeError('CRF is unexpectedly not a number');
+		}
+		const stitchingProgress = new cliProgress.Bar(
+			{
+				clearOnComplete: true,
+				etaBuffer: 50,
+				format: '[{bar}] {percentage}% | ETA: {eta}s | {value}/{total}',
+			},
+			cliProgress.Presets.shades_grey
+		);
+		stitchingProgress.start(frames, 0);
 		await stitchFramesToVideo({
 			dir: outputDir,
 			width: config.width,
@@ -123,17 +190,29 @@ export const render = async () => {
 			fps: config.fps,
 			outputLocation: absoluteOutputFile,
 			force: overwrite,
-			imageFormat: getFrameFormat(renderMode),
-			pixelFormat: Internals.getPixelFormat(),
+			imageFormat,
+			pixelFormat,
+			codec,
+			crf,
 			assets,
+			onProgress: (frame) => {
+				stitchingProgress.update(frame);
+			},
 		});
+		stitchingProgress.stop();
+
 		console.log('Cleaning up...');
-		await fs.promises.rmdir(outputDir, {
-			recursive: true,
-		});
+		await Promise.all([
+			fs.promises.rmdir(outputDir, {
+				recursive: true,
+			}),
+			fs.promises.rmdir(bundled, {
+				recursive: true,
+			}),
+		]);
 		console.log('\n▶️ Your video is ready - hit play!');
 	} else {
-		console.log('\n▶️ Your PNG sequence is ready!');
+		console.log('\n▶️ Your image sequence is ready!');
 	}
 	console.log(absoluteOutputFile);
 };

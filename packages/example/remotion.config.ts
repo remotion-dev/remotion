@@ -1,8 +1,8 @@
+import os from 'os';
 import {Config} from 'remotion';
 
-// Config.Rendering.setConcurrency(16);
+Config.Rendering.setConcurrency(os.cpus().length);
 Config.Output.setOverwriteOutput(true);
-Config.Output.setPixelFormat('yuv420p');
 
 Config.Bundling.overrideWebpackConfig((currentConfiguration) => {
 	return {
@@ -10,7 +10,7 @@ Config.Bundling.overrideWebpackConfig((currentConfiguration) => {
 		module: {
 			...currentConfiguration.module,
 			rules: [
-				...currentConfiguration.module.rules,
+				...(currentConfiguration.module?.rules ?? []),
 				{
 					test: /\.mdx?$/,
 					use: [

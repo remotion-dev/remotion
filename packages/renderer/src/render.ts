@@ -57,7 +57,9 @@ export const renderFrames = async ({
 	const pool = new Pool(await Promise.all(pages));
 
 	const {durationInFrames: frames} = config;
-	const filePadLength = String(frames).length;
+	// Substract one because 100 frames will be 00-99
+	// --> 2 digits
+	const filePadLength = String(frames - 1).length;
 	let framesRendered = 0;
 	onStart();
 	const assetsFrames = await Promise.all(
