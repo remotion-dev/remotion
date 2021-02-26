@@ -1,4 +1,5 @@
-import React, {useEffect, useRef} from 'react';
+import React, {useContext, useEffect, useRef, useState} from 'react';
+import {CompositionManager} from '../CompositionManager';
 import {continueRender, delayRender} from '../ready-manager';
 import {useCurrentFrame} from '../use-frame';
 import {useUnsafeVideoConfig} from '../use-unsafe-video-config';
@@ -11,10 +12,27 @@ export const VideoForRendering: React.FC<RemotionVideoProps> = ({
 	const frame = useCurrentFrame();
 	const videoConfig = useUnsafeVideoConfig();
 	const videoRef = useRef<HTMLVideoElement>(null);
+	const {registerAsset, unregisterAsset} = useContext(CompositionManager);
+
+	const [id] = useState(() => String(Math.random()));
 
 	if (!videoConfig) {
 		throw new Error('No video config found');
 	}
+
+	useEffect(() => {
+		if (!props.src) {
+			throw new Error('No src passed');
+		}
+
+		registerAsset({
+			type: 'video',
+			src: props.src,
+			id,
+			sequenceFrame: frame,
+		});
+		return () => unregisterAsset(id);
+	}, [props.src, registerAsset, id, unregisterAsset, frame]);
 
 	useEffect(() => {
 		if (!videoRef.current) {

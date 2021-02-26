@@ -24,7 +24,7 @@ export type TSequence = {
 };
 
 export type TAsset = {
-	type: 'audio';
+	type: 'audio' | 'video';
 	src: string;
 	id: string;
 	sequenceFrame: number;
