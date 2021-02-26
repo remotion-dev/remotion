@@ -7,6 +7,7 @@ import {
 	TIMELINE_RIGHT_PADDING,
 } from '../helpers/timeline-layout';
 import {useWindowSize} from '../hooks/use-window-size';
+import {AudioWaveform} from './AudioWaveform';
 
 const Pre = styled.pre`
 	color: white;
@@ -83,6 +84,9 @@ export const TimelineElements: React.FC = () => {
 											}}
 											title={s.sequence.displayName}
 										>
+											{track.trackType === 'audio' ? (
+												<AudioWaveform src={track.audioForWaveform} />
+											) : null}
 											<Pre>{s.sequence.displayName}</Pre>
 										</div>
 									);
