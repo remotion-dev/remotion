@@ -1,3 +1,4 @@
+import {Browser, setBrowser} from './browser';
 import {BrowserExecutable, setBrowserExecutable} from './browser-executable';
 import {Codec, setCodec, setOutputFormat} from './codec';
 import {Concurrency, setConcurrency} from './concurrency';
@@ -28,6 +29,11 @@ export const Config = {
 		 * Default: null, which will make Remotion find or download a version of said browser.
 		 */
 		setBrowserExecutable,
+		/**
+		 * Specify which browser to use for rendering frames. Either 'chrome' or 'firefox'.
+		 * Default: 'chrome'
+		 */
+		setBrowser,
 	},
 	Rendering: {
 		/**
@@ -90,4 +96,5 @@ export type {
 	BrowserExecutable,
 	ImageFormat,
 	Codec,
+	Browser,
 };

@@ -1,4 +1,5 @@
 import puppeteer from 'puppeteer-core';
+import {Browser} from 'remotion';
 import {getLocalBrowserExecutable} from './get-local-chromium-executable';
 import {ImageFormat} from './image-format';
 import {screenshot} from './puppeteer-screenshot';
@@ -34,17 +35,20 @@ async function screenshotDOMElement({
 	}) as Promise<Buffer>;
 }
 
-export const openBrowser = async (): Promise<puppeteer.Browser> => {
-	const executablePath = await getLocalBrowserExecutable();
-	const browser = await puppeteer.launch({
+export const openBrowser = async (
+	browser: Browser
+): Promise<puppeteer.Browser> => {
+	const executablePath = await getLocalBrowserExecutable(browser);
+	const browserInstance = await puppeteer.launch({
 		executablePath,
+		product: browser,
 		args: [
 			'--no-sandbox',
 			'--disable-setuid-sandbox',
 			'--disable-dev-shm-usage',
 		],
 	});
-	return browser;
+	return browserInstance;
 };
 
 export const provideScreenshot = async ({

@@ -3,16 +3,38 @@ import {platform} from 'os';
 import puppeteer, {PuppeteerNode} from 'puppeteer-core';
 import {downloadBrowser} from 'puppeteer-core/lib/cjs/puppeteer/node/install';
 import {PUPPETEER_REVISIONS} from 'puppeteer-core/lib/cjs/puppeteer/revisions';
-import {Internals} from 'remotion';
+import {Browser, Internals} from 'remotion';
 
-const searchPaths = [
-	platform() === 'darwin'
-		? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
-		: null,
-].filter(Boolean) as string[];
+const getSearchPathsForProduct = (product: puppeteer.Product) => {
+	if (product === 'chrome') {
+		return [
+			platform() === 'darwin'
+				? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
+				: null,
+		].filter(Boolean) as string[];
+	}
+	if (product === 'firefox') {
+		return [
+			platform() === 'darwin'
+				? '/Applications/Firefox.app/Contents/MacOS/firefox'
+				: null,
+		].filter(Boolean) as string[];
+	}
+	throw new TypeError(`Unknown browser product: ${product}`);
+};
 
-const getLocalBrowser = () => {
-	for (const p of searchPaths) {
+const getProduct = (): puppeteer.Product => {
+	const userPref = Internals.getBrowser();
+	if (userPref !== null) {
+		return userPref;
+	}
+	return 'chrome';
+};
+
+const mapBrowserToProduct = (browser: Browser): puppeteer.Product => browser;
+
+const getLocalBrowser = (product: puppeteer.Product) => {
+	for (const p of getSearchPathsForProduct(product)) {
 		if (fs.existsSync(p)) {
 			return p;
 		}
@@ -20,17 +42,18 @@ const getLocalBrowser = () => {
 	return null;
 };
 
-const productName: puppeteer.Product = 'chrome';
-
 const getChromiumRevision = (): puppeteer.BrowserFetcherRevisionInfo => {
+	const product = getProduct();
 	const browserFetcher = ((puppeteer as unknown) as PuppeteerNode).createBrowserFetcher(
 		{
-			product: productName,
+			product,
 			host: 'https://storage.googleapis.com',
 		}
 	);
 	const revisionInfo = browserFetcher.revisionInfo(
-		PUPPETEER_REVISIONS.chromium
+		product === 'firefox'
+			? PUPPETEER_REVISIONS.firefox
+			: PUPPETEER_REVISIONS.chromium
 	);
 
 	return revisionInfo;
@@ -53,12 +76,12 @@ type BrowserStatus =
 			type: 'no-browser';
 	  };
 
-const getBrowserStatus = (): BrowserStatus => {
+const getBrowserStatus = (product: puppeteer.Product): BrowserStatus => {
 	const browserExecutablePath = Internals.getBrowserExecutable();
 	if (browserExecutablePath) {
 		return {path: browserExecutablePath, type: 'user-defined-path'};
 	}
-	const localBrowser = getLocalBrowser();
+	const localBrowser = getLocalBrowser(product);
 	if (localBrowser !== null) {
 		return {path: localBrowser, type: 'local-browser'};
 	}
@@ -69,8 +92,8 @@ const getBrowserStatus = (): BrowserStatus => {
 	return {type: 'no-browser'};
 };
 
-export const ensureLocalBrowser = async () => {
-	const status = getBrowserStatus();
+export const ensureLocalBrowser = async (browser: Browser) => {
+	const status = getBrowserStatus(mapBrowserToProduct(browser));
 	if (status.type === 'no-browser') {
 		console.log(
 			'No local browser could be found. Downloading one from the internet...'
@@ -79,8 +102,10 @@ export const ensureLocalBrowser = async () => {
 	}
 };
 
-export const getLocalBrowserExecutable = async (): Promise<string> => {
-	const status = getBrowserStatus();
+export const getLocalBrowserExecutable = async (
+	browser: Browser
+): Promise<string> => {
+	const status = getBrowserStatus(mapBrowserToProduct(browser));
 	if (status.type === 'no-browser') {
 		throw new TypeError(
 			'No browser found for rendering frames! Please open a Github issue and describe ' +
