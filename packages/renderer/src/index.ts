@@ -1,5 +1,5 @@
 import puppeteer from 'puppeteer-core';
-import {getLocalChromiumExecutable} from './get-local-chromium-executable';
+import {getLocalBrowserExecutable} from './get-local-chromium-executable';
 import {ImageFormat} from './image-format';
 import {screenshot} from './puppeteer-screenshot';
 
@@ -35,7 +35,7 @@ async function screenshotDOMElement({
 }
 
 export const openBrowser = async (): Promise<puppeteer.Browser> => {
-	const executablePath = await getLocalChromiumExecutable();
+	const executablePath = await getLocalBrowserExecutable();
 	const browser = await puppeteer.launch({
 		executablePath,
 		args: [

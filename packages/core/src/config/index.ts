@@ -1,4 +1,4 @@
-import {ChromiumExecutable, setChromiumExecutable} from './chromium-executable';
+import {BrowserExecutable, setBrowserExecutable} from './browser-executable';
 import {Codec, setCodec, setOutputFormat} from './codec';
 import {Concurrency, setConcurrency} from './concurrency';
 import {setCrf} from './crf';
@@ -22,6 +22,13 @@ export const Config = {
 		 */
 		overrideWebpackConfig,
 	},
+	Puppeteer: {
+		/**
+		 * Specify executable path for the browser to use.
+		 * Default: null, which will make Remotion find or download a version of said browser.
+		 */
+		setBrowserExecutable,
+	},
 	Rendering: {
 		/**
 		 * Sets how many Puppeteer instances will work on rendering your video in parallel.
@@ -35,11 +42,6 @@ export const Config = {
 		 * Default: 80
 		 */
 		setQuality,
-		/**
-		 * Specify executable path to chrome or chromium.
-		 * Default: 'null
-		 */
-		setChromiumExecutable,
 		/** Decide in which image format to render. Can be either 'jpeg' or 'png'.
 		 * PNG is slower, but supports transparency.
 		 */
@@ -85,7 +87,7 @@ export type {
 	Concurrency,
 	WebpackConfiguration,
 	WebpackOverrideFn,
-	ChromiumExecutable,
+	BrowserExecutable,
 	ImageFormat,
 	Codec,
 };

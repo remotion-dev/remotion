@@ -54,9 +54,9 @@ type BrowserStatus =
 	  };
 
 const getBrowserStatus = (): BrowserStatus => {
-	const chromiumExecutablePath = Internals.getChromiumExecutable();
-	if (chromiumExecutablePath) {
-		return {path: chromiumExecutablePath, type: 'user-defined-path'};
+	const browserExecutablePath = Internals.getBrowserExecutable();
+	if (browserExecutablePath) {
+		return {path: browserExecutablePath, type: 'user-defined-path'};
 	}
 	const localBrowser = getLocalBrowser();
 	if (localBrowser !== null) {
@@ -79,7 +79,7 @@ export const ensureLocalBrowser = async () => {
 	}
 };
 
-export const getLocalChromiumExecutable = async (): Promise<string> => {
+export const getLocalBrowserExecutable = async (): Promise<string> => {
 	const status = getBrowserStatus();
 	if (status.type === 'no-browser') {
 		throw new TypeError(

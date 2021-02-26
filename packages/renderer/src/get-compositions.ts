@@ -2,14 +2,14 @@ import puppeteer from 'puppeteer-core';
 import {TCompMetadata} from 'remotion';
 import {
 	ensureLocalBrowser,
-	getLocalChromiumExecutable,
+	getLocalBrowserExecutable,
 } from './get-local-chromium-executable';
 
 export const getCompositions = async (
 	webpackBundle: string
 ): Promise<TCompMetadata[]> => {
 	await ensureLocalBrowser();
-	const executablePath = await getLocalChromiumExecutable();
+	const executablePath = await getLocalBrowserExecutable();
 	try {
 		const browser = await puppeteer.launch({
 			executablePath,
