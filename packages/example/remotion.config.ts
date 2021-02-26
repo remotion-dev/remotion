@@ -3,7 +3,6 @@ import {Config} from 'remotion';
 
 Config.Rendering.setConcurrency(os.cpus().length);
 Config.Output.setOverwriteOutput(true);
-Config.Puppeteer.setBrowser('firefox');
 
 Config.Bundling.overrideWebpackConfig((currentConfiguration) => {
 	return {

@@ -4,7 +4,11 @@ import {
 	TComposition,
 	TSequence,
 } from './CompositionManager';
-import {DEFAULT_BROWSER, getBrowser} from './config/browser';
+import {
+	DEFAULT_BROWSER,
+	FEATURE_FLAG_FIREFOX_SUPPORT,
+	getBrowser,
+} from './config/browser';
 import {getBrowserExecutable} from './config/browser-executable';
 import {
 	DEFAULT_CODEC,
@@ -64,6 +68,7 @@ export const Internals = {
 	getFinalOutputCodec,
 	DEFAULT_CODEC,
 	DEFAULT_PIXEL_FORMAT,
+	FEATURE_FLAG_FIREFOX_SUPPORT,
 	getBrowser,
 	DEFAULT_BROWSER,
 	getDefaultCrfForCodec,

@@ -1,6 +1,9 @@
 import puppeteer from 'puppeteer-core';
-import {Browser} from 'remotion';
-import {getLocalBrowserExecutable} from './get-local-browser-executable';
+import {Browser, Internals} from 'remotion';
+import {
+	ensureLocalBrowser,
+	getLocalBrowserExecutable,
+} from './get-local-browser-executable';
 import {ImageFormat} from './image-format';
 import {screenshot} from './puppeteer-screenshot';
 
@@ -38,6 +41,13 @@ async function screenshotDOMElement({
 export const openBrowser = async (
 	browser: Browser
 ): Promise<puppeteer.Browser> => {
+	if (browser === 'firefox' && !Internals.FEATURE_FLAG_FIREFOX_SUPPORT) {
+		throw new TypeError(
+			'Firefox supported is not yet turned on. Stay tuned for the future.'
+		);
+	}
+	await ensureLocalBrowser(browser);
+
 	const executablePath = await getLocalBrowserExecutable(browser);
 	const browserInstance = await puppeteer.launch({
 		executablePath,
