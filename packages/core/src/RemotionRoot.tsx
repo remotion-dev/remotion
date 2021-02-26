@@ -77,6 +77,11 @@ export const RemotionRoot: React.FC = ({children}) => {
 			return [...assts, asset];
 		});
 	}, []);
+	const unregisterAsset = useCallback((id: string) => {
+		setAssets((assts) => {
+			return assts.filter((a) => a.id !== id);
+		});
+	}, []);
 
 	const contextValue = useMemo((): CompositionManagerContext => {
 		return {
@@ -88,6 +93,7 @@ export const RemotionRoot: React.FC = ({children}) => {
 			registerSequence,
 			unregisterSequence,
 			registerAsset,
+			unregisterAsset,
 			sequences,
 			assets,
 		};
@@ -99,6 +105,7 @@ export const RemotionRoot: React.FC = ({children}) => {
 		unregisterComposition,
 		unregisterSequence,
 		registerAsset,
+		unregisterAsset,
 		sequences,
 		assets,
 	]);

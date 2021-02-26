@@ -1,11 +1,13 @@
-import React, {useContext, useEffect} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import {CompositionManager} from '../CompositionManager';
 import {useAbsoluteCurrentFrame} from '../use-frame';
 import {RemotionAudioProps} from './props';
 
 export const AudioForRendering: React.FC<RemotionAudioProps> = (props) => {
 	const absoluteFrame = useAbsoluteCurrentFrame();
-	const {registerAsset} = useContext(CompositionManager);
+	const {registerAsset, unregisterAsset} = useContext(CompositionManager);
+
+	const [id] = useState(() => String(Math.random()));
 
 	useEffect(() => {
 		if (!props.src) {
@@ -15,8 +17,10 @@ export const AudioForRendering: React.FC<RemotionAudioProps> = (props) => {
 		registerAsset({
 			type: 'audio',
 			src: props.src,
+			id,
 		});
-	}, [props.src, registerAsset, absoluteFrame]);
+		return () => unregisterAsset(id);
+	}, [props.src, registerAsset, absoluteFrame, id, unregisterAsset]);
 
 	return null;
 };
