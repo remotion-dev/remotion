@@ -86,7 +86,7 @@ export const stitchFramesToVideo = async (options: {
 					return [
 						`[${i + 1}:a]`,
 						duration ? `atrim=0:${duration},` : '',
-						`adelay=${from}`,
+						`adelay=delays=${from}:all=1`,
 						`[a${i + 1}]`,
 					].join('');
 				}),
