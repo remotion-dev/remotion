@@ -1,10 +1,27 @@
+import fs from 'fs';
+import {platform} from 'os';
 import puppeteer from 'puppeteer-core';
 import puppeteer_node from 'puppeteer-core/lib/cjs/puppeteer/node';
 import {downloadBrowser} from 'puppeteer-core/lib/cjs/puppeteer/node/install';
 import {PUPPETEER_REVISIONS} from 'puppeteer-core/lib/cjs/puppeteer/revisions';
 import {Internals} from 'remotion';
 
-const getLocalRevision = (): puppeteer.BrowserFetcherRevisionInfo => {
+const searchPaths = [
+	platform() === 'darwin'
+		? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
+		: null,
+].filter(Boolean) as string[];
+
+const getLocalBrowser = () => {
+	for (const path of searchPaths) {
+		if (fs.existsSync(path)) {
+			return path;
+		}
+	}
+	return null;
+};
+
+const getChromiumRevision = (): puppeteer.BrowserFetcherRevisionInfo => {
 	const productName = 'chrome';
 	const browserFetcher = puppeteer_node.createBrowserFetcher({
 		product: productName,
@@ -21,14 +38,16 @@ export const getLocalChromiumExecutable = async (): Promise<string> => {
 	const chromiumExecutablePath = Internals.getChromiumExecutable();
 	if (chromiumExecutablePath) {
 		return chromiumExecutablePath;
-	} else {
-		const localRevision = getLocalRevision();
-		if (localRevision.local) {
-			return localRevision.executablePath;
-		} else {
-			await downloadBrowser();
-			const downloadedLocalRevision = getLocalRevision();
-			return downloadedLocalRevision.executablePath;
-		}
 	}
+	const localBrowser = getLocalBrowser();
+	if (localBrowser) {
+		return localBrowser;
+	}
+	const revision = getChromiumRevision();
+	if (revision.local) {
+		return revision.executablePath;
+	}
+	await downloadBrowser();
+	const downloaded = getChromiumRevision();
+	return downloaded.executablePath;
 };
