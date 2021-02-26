@@ -10,7 +10,7 @@ const AudioTesting: React.FC = () => {
 	const {durationInFrames} = useVideoConfig();
 	return (
 		<div>
-			<Sequence from={0} durationInFrames={durationInFrames / 3}>
+			<Sequence from={0 - 2000} durationInFrames={durationInFrames / 3 + 2000}>
 				<Audio src={music} />
 			</Sequence>
 			<Sequence

@@ -27,6 +27,7 @@ export type TAsset = {
 	type: 'audio';
 	src: string;
 	id: string;
+	sequenceFrame: number;
 };
 
 export type CompositionManagerContext = {
