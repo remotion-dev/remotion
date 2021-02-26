@@ -132,13 +132,12 @@ export const render = async () => {
 	const bundled = await bundle(fullPath, (progress) => {
 		bundlingProgress.update(progress);
 	});
+	bundlingProgress.stop();
 	const comps = await getCompositions(
 		bundled,
 		Internals.getBrowser() ?? Internals.DEFAULT_BROWSER
 	);
 	const compositionId = getCompositionId(comps);
-
-	bundlingProgress.stop();
 
 	const config = comps.find((c) => c.id === compositionId);
 	if (!config) {

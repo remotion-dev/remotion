@@ -3,7 +3,7 @@ import {Browser, Internals, TCompMetadata} from 'remotion';
 import {
 	ensureLocalBrowser,
 	getLocalBrowserExecutable,
-} from './get-local-chromium-executable';
+} from './get-local-browser-executable';
 
 export const getCompositions = async (
 	webpackBundle: string,

@@ -1,6 +1,6 @@
 import puppeteer from 'puppeteer-core';
 import {Browser} from 'remotion';
-import {getLocalBrowserExecutable} from './get-local-chromium-executable';
+import {getLocalBrowserExecutable} from './get-local-browser-executable';
 import {ImageFormat} from './image-format';
 import {screenshot} from './puppeteer-screenshot';
 
@@ -84,7 +84,7 @@ export const provideScreenshot = async ({
 export * from './ffmpeg-flags';
 export * from './get-compositions';
 export * from './get-concurrency';
-export {ensureLocalBrowser} from './get-local-chromium-executable';
+export {ensureLocalBrowser} from './get-local-browser-executable';
 export * from './render';
 export * from './stitcher';
 export * from './validate-ffmpeg';

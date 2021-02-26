@@ -1,6 +1,6 @@
 import fs from 'fs';
 import {platform} from 'os';
-import puppeteer, {PuppeteerNode} from 'puppeteer-core';
+import puppeteer, {Product, PuppeteerNode} from 'puppeteer-core';
 import {downloadBrowser} from 'puppeteer-core/lib/cjs/puppeteer/node/install';
 import {PUPPETEER_REVISIONS} from 'puppeteer-core/lib/cjs/puppeteer/revisions';
 import {Browser, Internals} from 'remotion';
@@ -14,11 +14,7 @@ const getSearchPathsForProduct = (product: puppeteer.Product) => {
 		].filter(Boolean) as string[];
 	}
 	if (product === 'firefox') {
-		return [
-			platform() === 'darwin'
-				? '/Applications/Firefox.app/Contents/MacOS/firefox'
-				: null,
-		].filter(Boolean) as string[];
+		return [].filter(Boolean) as string[];
 	}
 	throw new TypeError(`Unknown browser product: ${product}`);
 };
@@ -42,12 +38,12 @@ const getLocalBrowser = (product: puppeteer.Product) => {
 	return null;
 };
 
-const getChromiumRevision = (): puppeteer.BrowserFetcherRevisionInfo => {
-	const product = getProduct();
+const getBrowserRevision = (
+	product: Product
+): puppeteer.BrowserFetcherRevisionInfo => {
 	const browserFetcher = ((puppeteer as unknown) as PuppeteerNode).createBrowserFetcher(
 		{
 			product,
-			host: 'https://storage.googleapis.com',
 		}
 	);
 	const revisionInfo = browserFetcher.revisionInfo(
@@ -56,6 +52,19 @@ const getChromiumRevision = (): puppeteer.BrowserFetcherRevisionInfo => {
 			: PUPPETEER_REVISIONS.chromium
 	);
 
+	if (product === 'firefox') {
+		return {
+			revision: 'latest',
+			executablePath:
+				'/Users/jonnyburger/remotion/packages/renderer/node_modules/puppeteer-core/.local-firefox/mac-88.0a1/Firefox Nightly.app/Contents/MacOS/firefox',
+			folderPath:
+				'/Users/jonnyburger/remotion/packages/renderer/node_modules/puppeteer-core/.local-firefox/mac-88.0a1',
+			local: false,
+			url:
+				'https://archive.mozilla.org/pub/firefox/nightly/latest-mozilla-central/firefox-latest.en-US.mac.dmg',
+			product: 'firefox',
+		};
+	}
 	return revisionInfo;
 };
 
@@ -85,7 +94,7 @@ const getBrowserStatus = (product: puppeteer.Product): BrowserStatus => {
 	if (localBrowser !== null) {
 		return {path: localBrowser, type: 'local-browser'};
 	}
-	const revision = getChromiumRevision();
+	const revision = getBrowserRevision(product);
 	if (revision.local !== null && fs.existsSync(revision.executablePath)) {
 		return {path: revision.executablePath, type: 'local-puppeteer-browser'};
 	}
