@@ -21,6 +21,7 @@ const normalizeData = (filteredData: number[]) => {
 	return filteredData.map((n) => n * multiplier);
 };
 
+// TODO: Show metadata such as stereo, duration, bitrate
 export const AudioWaveform: React.FC<{
 	src: string;
 }> = ({src}) => {
