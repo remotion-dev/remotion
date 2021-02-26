@@ -1,5 +1,6 @@
 import {
 	CompositionManager,
+	TAsset,
 	TCompMetadata,
 	TComposition,
 	TSequence,
@@ -74,4 +75,5 @@ export type {
 	TCompMetadata,
 	TSequence,
 	WebpackOverrideFn,
+	TAsset,
 };

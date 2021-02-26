@@ -79,14 +79,21 @@ export const stitchFramesToVideo = async (options: {
 			'-filter_complex',
 			[
 				...options.assets.map((asset, i) => {
-					const duration = asset.duration
-						? (asset.duration / options.fps).toFixed(3)
-						: undefined; // in secounds with millisecounds level precision
-					const from = ((asset.from / options.fps) * 1000).toFixed(); // in milliseconds
+					const duration = (asset.duration / options.fps).toFixed(3); // in secounds with millisecounds level precision
+					const assetTrimLeft = (asset.sequenceFrame / options.fps).toFixed(3);
+					const assetTrimRight = (
+						(asset.sequenceFrame + asset.duration) /
+						options.fps
+					).toFixed(3);
+					const startInVideo = (
+						(asset.startInVideo / options.fps) *
+						1000
+					).toFixed(); // in milliseconds
+
 					return [
 						`[${i + 1}:a]`,
-						duration ? `atrim=0:${duration},` : '',
-						`adelay=delays=${from}:all=1`,
+						duration ? `atrim=${assetTrimLeft}:${assetTrimRight},` : '',
+						`adelay=${startInVideo}`,
 						`[a${i + 1}]`,
 					].join('');
 				}),
