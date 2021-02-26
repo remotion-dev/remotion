@@ -2,7 +2,7 @@ import path from 'path';
 import {Browser, Internals, VideoConfig} from 'remotion';
 import {openBrowser, provideScreenshot} from '.';
 import {getActualConcurrency} from './get-concurrency';
-import {ensureLocalBrowser} from './get-local-chromium-executable';
+import {ensureLocalBrowser} from './get-local-browser-executable';
 import {DEFAULT_IMAGE_FORMAT, ImageFormat} from './image-format';
 import {Pool} from './pool';
 
