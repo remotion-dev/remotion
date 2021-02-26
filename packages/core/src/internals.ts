@@ -4,6 +4,7 @@ import {
 	TComposition,
 	TSequence,
 } from './CompositionManager';
+import {DEFAULT_BROWSER, getBrowser} from './config/browser';
 import {getBrowserExecutable} from './config/browser-executable';
 import {
 	DEFAULT_CODEC,
@@ -63,6 +64,8 @@ export const Internals = {
 	getFinalOutputCodec,
 	DEFAULT_CODEC,
 	DEFAULT_PIXEL_FORMAT,
+	getBrowser,
+	DEFAULT_BROWSER,
 	getDefaultCrfForCodec,
 	getActualCrf,
 	getUserPreferredImageFormat,

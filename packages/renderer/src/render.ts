@@ -1,5 +1,5 @@
 import path from 'path';
-import {VideoConfig} from 'remotion';
+import {Browser, Internals, VideoConfig} from 'remotion';
 import {openBrowser, provideScreenshot} from '.';
 import {getActualConcurrency} from './get-concurrency';
 import {ensureLocalBrowser} from './get-local-chromium-executable';
@@ -17,6 +17,7 @@ export const renderFrames = async ({
 	webpackBundle,
 	quality,
 	imageFormat = DEFAULT_IMAGE_FORMAT,
+	browser,
 }: {
 	config: VideoConfig;
 	parallelism?: number | null;
@@ -28,6 +29,7 @@ export const renderFrames = async ({
 	webpackBundle: string;
 	imageFormat?: ImageFormat;
 	quality?: number;
+	browser?: Browser;
 }) => {
 	if (quality !== undefined && imageFormat !== 'jpeg') {
 		throw new Error(
@@ -35,10 +37,12 @@ export const renderFrames = async ({
 		);
 	}
 	const actualParallelism = getActualConcurrency(parallelism ?? null);
-	await ensureLocalBrowser();
-	const browser = await openBrowser();
+	await ensureLocalBrowser(browser ?? Internals.DEFAULT_BROWSER);
+	const browserInstance = await openBrowser(
+		browser ?? Internals.DEFAULT_BROWSER
+	);
 	const pages = new Array(actualParallelism).fill(true).map(async () => {
-		const page = await browser.newPage();
+		const page = await browserInstance.newPage();
 		page.setViewport({
 			width: config.width,
 			height: config.height,
@@ -91,5 +95,5 @@ export const renderFrames = async ({
 				}
 			})
 	);
-	await browser.close();
+	await browserInstance.close();
 };

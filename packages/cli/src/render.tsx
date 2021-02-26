@@ -78,6 +78,7 @@ export const render = async () => {
 	const overwrite = Internals.getShouldOverwrite();
 	const userProps = getUserProps();
 	const quality = Internals.getQuality();
+	const browser = Internals.getBrowser() ?? Internals.DEFAULT_BROWSER;
 
 	const absoluteOutputFile = path.resolve(process.cwd(), outputFile);
 	if (fs.existsSync(absoluteOutputFile) && !overwrite) {
@@ -104,7 +105,7 @@ export const render = async () => {
 		imageFormat
 	);
 	try {
-		await ensureLocalBrowser();
+		await ensureLocalBrowser(browser);
 	} catch (err) {
 		console.error('Could not download a browser for rendering frames.');
 		console.error(err);
@@ -131,7 +132,10 @@ export const render = async () => {
 	const bundled = await bundle(fullPath, (progress) => {
 		bundlingProgress.update(progress);
 	});
-	const comps = await getCompositions(bundled);
+	const comps = await getCompositions(
+		bundled,
+		Internals.getBrowser() ?? Internals.DEFAULT_BROWSER
+	);
 	const compositionId = getCompositionId(comps);
 
 	bundlingProgress.stop();
@@ -172,6 +176,7 @@ export const render = async () => {
 		webpackBundle: bundled,
 		imageFormat,
 		quality,
+		browser,
 	});
 	renderProgress.stop();
 	if (process.env.DEBUG) {
