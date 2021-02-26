@@ -4,7 +4,7 @@ import {
 	TComposition,
 	TSequence,
 } from './CompositionManager';
-import {getChromiumExecutable} from './config/chromium-executable';
+import {getBrowserExecutable} from './config/browser-executable';
 import {
 	DEFAULT_CODEC,
 	getFinalOutputCodec,
@@ -49,7 +49,7 @@ export const Internals = {
 	RemotionRoot,
 	useVideo,
 	getRoot,
-	getChromiumExecutable,
+	getBrowserExecutable,
 	getCompositionName,
 	getIsEvaluation,
 	getPixelFormat,
