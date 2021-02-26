@@ -5,11 +5,20 @@ export type SequenceWithOverlap = {
 	overlaps: TSequence[];
 };
 
+type DynamicTrackAttributes =
+	| {
+			trackType: 'audio';
+			audioForWaveform: string;
+	  }
+	| {
+			trackType: 'sequence';
+	  };
+
 export type Track = {
 	trackId: string;
 	sequences: SequenceWithOverlap[];
-	trackType: 'sequence' | 'audio';
-};
+	audioForWaveform: string | null;
+} & DynamicTrackAttributes;
 
 export const calculateOverlays = (
 	sequences: TSequence[]
@@ -71,6 +80,7 @@ const getAudioTracks = (
 				],
 				trackId: `audio-${i}`,
 				trackType: 'audio',
+				audioForWaveform: a.src,
 			};
 		}
 	);
@@ -105,6 +115,7 @@ export const calculateTimeline = ({
 				],
 				trackId: '0',
 				trackType: 'sequence',
+				audioForWaveform: null,
 			},
 			...getAudioTracks(assets, sequenceDuration),
 		];
@@ -122,6 +133,7 @@ export const calculateTimeline = ({
 				sequences: [],
 				trackId: String(overlayCount),
 				trackType: 'sequence',
+				audioForWaveform: null,
 			};
 		}
 		tracks[overlayCount].sequences.push(sequence);
