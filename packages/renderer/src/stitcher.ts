@@ -75,33 +75,37 @@ export const stitchFramesToVideo = async (options: {
 		pixelFormat === 'yuva420p' ? ['-auto-alt-ref', '0'] : null,
 		['-b:v', '1M'],
 		['-c:a', 'aac'],
-		[
-			'-filter_complex',
-			[
-				...options.assets.map((asset, i) => {
-					const duration = (asset.duration / options.fps).toFixed(3); // in secounds with millisecounds level precision
-					const assetTrimLeft = (asset.sequenceFrame / options.fps).toFixed(3);
-					const assetTrimRight = (
-						(asset.sequenceFrame + asset.duration) /
-						options.fps
-					).toFixed(3);
-					const startInVideo = (
-						(asset.startInVideo / options.fps) *
-						1000
-					).toFixed(); // in milliseconds
+		!options.assets.length
+			? null
+			: [
+					'-filter_complex',
+					[
+						...options.assets.map((asset, i) => {
+							const duration = (asset.duration / options.fps).toFixed(3); // in secounds with millisecounds level precision
+							const assetTrimLeft = (asset.sequenceFrame / options.fps).toFixed(
+								3
+							);
+							const assetTrimRight = (
+								(asset.sequenceFrame + asset.duration) /
+								options.fps
+							).toFixed(3);
+							const startInVideo = (
+								(asset.startInVideo / options.fps) *
+								1000
+							).toFixed(); // in milliseconds
 
-					return [
-						`[${i + 1}:a]`,
-						duration ? `atrim=${assetTrimLeft}:${assetTrimRight},` : '',
-						`adelay=${startInVideo}`,
-						`[a${i + 1}]`,
-					].join('');
-				}),
-				`${options.assets.map((asset, i) => `[a${i + 1}]`).join('')}amix=${
-					options.assets.length
-				},dynaudnorm`,
-			].join(';'),
-		],
+							return [
+								`[${i + 1}:a]`,
+								duration ? `atrim=${assetTrimLeft}:${assetTrimRight},` : '',
+								`adelay=${startInVideo}`,
+								`[a${i + 1}]`,
+							].join('');
+						}),
+						`${options.assets.map((asset, i) => `[a${i + 1}]`).join('')}amix=${
+							options.assets.length
+						},dynaudnorm`,
+					].join(';'),
+			  ],
 		options.force ? '-y' : null,
 		options.outputLocation,
 	]
