@@ -79,6 +79,7 @@ export const stitchFramesToVideo = async (options: {
 		'-crf',
 		crf,
 		'-pix_fmt',
+		pixelFormat,
 		// Without explicitly disabling auto-alt-ref,
 		// transparent WebM generation doesn't work
 		pixelFormat === 'yuva420p' ? '-auto-alt-ref' : null,
