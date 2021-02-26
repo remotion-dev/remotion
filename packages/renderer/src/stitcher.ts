@@ -62,53 +62,44 @@ export const stitchFramesToVideo = async (options: {
 	Internals.validateSelectedPixelFormatAndCodecCombination(pixelFormat, codec);
 
 	const ffmpegArgs = [
-		'-r',
-		String(options.fps),
-		'-f',
-		'image2',
-		'-s',
-		`${options.width}x${options.height}`,
-		'-i',
-		`element-%0${numberLength}d.${imageFormat}`,
-		...options.assets.reduce<string[]>(
-			(acc, asset) => [...acc, '-i', url.fileURLToPath(asset.src)],
-			[]
-		),
-		'-c:v',
-		encoderName,
-		'-crf',
-		crf,
-		'-pix_fmt',
-		pixelFormat,
+		['-r', String(options.fps)],
+		['-f', 'image2'],
+		['-s', `${options.width}x${options.height}`],
+		['-i', `element-%0${numberLength}d.${imageFormat}`],
+		...options.assets.map((asset) => ['-i', url.fileURLToPath(asset.src)]),
+		['-c:v', encoderName],
+		['-crf', String(crf)],
+		['-pix_fmt', pixelFormat],
 		// Without explicitly disabling auto-alt-ref,
 		// transparent WebM generation doesn't work
-		pixelFormat === 'yuva420p' ? '-auto-alt-ref' : null,
-		pixelFormat === 'yuva420p' ? '0' : null,
-		'-b:v',
-		'1M',
-		'-c:a',
-		'aac',
-		'-filter_complex',
+		pixelFormat === 'yuva420p' ? ['-auto-alt-ref', '0'] : null,
+		['-b:v', '1M'],
+		['-c:a', 'aac'],
 		[
-			...options.assets.map((asset, i) => {
-				const duration = asset.duration
-					? (asset.duration / options.fps).toFixed(3)
-					: undefined; // in secounds with millisecounds level precision
-				const from = ((asset.from / options.fps) * 1000).toFixed(); // in milliseconds
-				return [
-					`[${i + 1}:a]`,
-					duration ? `atrim=0:${duration},` : '',
-					`adelay=${from}`,
-					`[a${i + 1}]`,
-				].join('');
-			}),
-			`${options.assets.map((asset, i) => `[a${i + 1}]`).join('')}amix=${
-				options.assets.length
-			},dynaudnorm`,
-		].join(';'),
+			'-filter_complex',
+			[
+				...options.assets.map((asset, i) => {
+					const duration = asset.duration
+						? (asset.duration / options.fps).toFixed(3)
+						: undefined; // in secounds with millisecounds level precision
+					const from = ((asset.from / options.fps) * 1000).toFixed(); // in milliseconds
+					return [
+						`[${i + 1}:a]`,
+						duration ? `atrim=0:${duration},` : '',
+						`adelay=${from}`,
+						`[a${i + 1}]`,
+					].join('');
+				}),
+				`${options.assets.map((asset, i) => `[a${i + 1}]`).join('')}amix=${
+					options.assets.length
+				},dynaudnorm`,
+			].join(';'),
+		],
 		options.force ? '-y' : null,
 		options.outputLocation,
-	].filter(Boolean) as string[];
+	]
+		.reduce<(string | null)[]>((acc, val) => acc.concat(val), [])
+		.filter(Boolean) as string[];
 
 	const task = execa('ffmpeg', ffmpegArgs, {cwd: options.dir});
 
