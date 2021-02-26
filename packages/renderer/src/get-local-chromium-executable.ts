@@ -63,7 +63,7 @@ const getBrowserStatus = (): BrowserStatus => {
 		return {path: localBrowser, type: 'local-browser'};
 	}
 	const revision = getChromiumRevision();
-	if (revision.local !== null) {
+	if (revision.local !== null && fs.existsSync(revision.executablePath)) {
 		return {path: revision.executablePath, type: 'local-puppeteer-browser'};
 	}
 	return {type: 'no-browser'};
