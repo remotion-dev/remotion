@@ -10,21 +10,17 @@ export const getCompositions = async (
 ): Promise<TCompMetadata[]> => {
 	await ensureLocalBrowser();
 	const executablePath = await getLocalBrowserExecutable();
-	try {
-		const browser = await puppeteer.launch({
-			executablePath,
-			args: [
-				'--no-sandbox',
-				'--disable-setuid-sandbox',
-				'--disable-dev-shm-usage',
-			],
-		});
-		const page = await browser.newPage();
-		await page.goto(`file://${webpackBundle}/index.html?evaluation=true`);
-		await page.waitForFunction('window.ready === true');
-		const result = await page.evaluate('window.getStaticCompositions()');
-		return result as TCompMetadata[];
-	} catch (err) {
-		throw new Error('Chrome or Chromium executable path is not working.');
-	}
+	const browser = await puppeteer.launch({
+		executablePath,
+		args: [
+			'--no-sandbox',
+			'--disable-setuid-sandbox',
+			'--disable-dev-shm-usage',
+		],
+	});
+	const page = await browser.newPage();
+	await page.goto(`file://${webpackBundle}/index.html?evaluation=true`);
+	await page.waitForFunction('window.ready === true');
+	const result = await page.evaluate('window.getStaticCompositions()');
+	return result as TCompMetadata[];
 };
