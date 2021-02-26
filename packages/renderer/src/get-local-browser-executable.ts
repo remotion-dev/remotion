@@ -19,14 +19,6 @@ const getSearchPathsForProduct = (product: puppeteer.Product) => {
 	throw new TypeError(`Unknown browser product: ${product}`);
 };
 
-const getProduct = (): puppeteer.Product => {
-	const userPref = Internals.getBrowser();
-	if (userPref !== null) {
-		return userPref;
-	}
-	return 'chrome';
-};
-
 const mapBrowserToProduct = (browser: Browser): puppeteer.Product => browser;
 
 const getLocalBrowser = (product: puppeteer.Product) => {
