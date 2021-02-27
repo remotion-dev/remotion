@@ -4,6 +4,7 @@ import {openBrowser, provideScreenshot} from '.';
 import {getActualConcurrency} from './get-concurrency';
 import {DEFAULT_IMAGE_FORMAT, ImageFormat} from './image-format';
 import {Pool} from './pool';
+import {serveStatic} from './serve-static';
 
 export const renderFrames = async ({
 	config,
@@ -35,7 +36,10 @@ export const renderFrames = async ({
 	}
 	const actualParallelism = getActualConcurrency(parallelism ?? null);
 
-	const browser = await openBrowser();
+	const [{port, server}, browser] = await Promise.all([
+		serveStatic(webpackBundle),
+		openBrowser(),
+	]);
 	const pages = new Array(actualParallelism).fill(true).map(async () => {
 		const page = await browser.newPage();
 		page.setViewport({
@@ -46,7 +50,7 @@ export const renderFrames = async ({
 		page.on('error', console.error);
 		page.on('pageerror', console.error);
 
-		const site = `file://${webpackBundle}/index.html?composition=${compositionId}&props=${encodeURIComponent(
+		const site = `http://localhost:${port}/index.html?composition=${compositionId}&props=${encodeURIComponent(
 			JSON.stringify(userProps)
 		)}`;
 		await page.goto(site);
@@ -90,5 +94,5 @@ export const renderFrames = async ({
 				}
 			})
 	);
-	await browser.close();
+	await Promise.all([browser.close(), server.close()]);
 };
