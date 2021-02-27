@@ -19,7 +19,6 @@
 		"@babel/preset-typescript": "^7.10.4",
 		"@remotion/bundler": "^1.4.1",
 		"execa": "^4.0.2",
-		"get-port": "5.1.1",
 		"node-static": "^0.7.11",
 		"prettier": "^2.0.5",
 		"puppeteer": "^7.1.0",
