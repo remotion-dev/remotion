@@ -27,6 +27,19 @@ Config.Bundling.overrideWebpackConfig((currentConfiguration) => {
 });
 ```
 
+## Puppeteer
+
+### setBrowserExecutable()
+
+Sets puppeteer-core to use custom chrome or chromium browser executable. If you provide path of chrome executable it will help render H.264 video (the codec of MP4 videos) in your output video. To find chrome executable [for linux use this guide](https://askubuntu.com/questions/1046848/how-to-find-the-path-of-a-specific-application-google-chrome), [for windows use this guide](https://stackoverflow.com/a/20752358/8737200) and by default it searches for custom chrome executable in macos.
+
+```ts
+//for linux
+Config.Puppeteer.setBrowserExecutable('/usr/bin/google-chrome-stable')
+```
+
+The [command line flag](cli) `--browser-executable` will take precedence over this option.
+
 ## Rendering
 
 ### setConcurrency()
