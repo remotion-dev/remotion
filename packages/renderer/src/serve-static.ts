@@ -1,9 +1,9 @@
-import getPort from 'get-port';
 import http from 'http';
 import nodeStatic from 'node-static';
+import {getPort} from './get-port';
 
 export const serveStatic = async (path: string) => {
-	const port = await getPort({port: getPort.makeRange(3000, 3100)});
+	const port = await getPort(3000, 3100);
 	const fileServer = new nodeStatic.Server(path);
 
 	const server = http
@@ -15,5 +15,15 @@ export const serveStatic = async (path: string) => {
 				.resume();
 		})
 		.listen(port);
-	return {port, server};
+	const close = () =>
+		new Promise<void>((resolve, reject) => {
+			server.close((err) => {
+				if (err) {
+					reject(err);
+				} else {
+					resolve();
+				}
+			});
+		});
+	return {port, close};
 };
