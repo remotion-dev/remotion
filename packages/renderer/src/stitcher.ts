@@ -106,6 +106,7 @@ export const stitchFramesToVideo = async (options: {
 						},dynaudnorm`,
 					].join(';'),
 			  ],
+		'-shortest',
 		options.force ? '-y' : null,
 		options.outputLocation,
 	]
