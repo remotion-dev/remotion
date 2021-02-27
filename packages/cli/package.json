@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/cli",
-	"version": "1.4.1",
+	"version": "1.4.2",
 	"description": "CLI for Remotion",
 	"main": "dist/index.js",
 	"bin": {
@@ -26,8 +26,8 @@
 		"@babel/preset-env": "^7.10.4",
 		"@babel/preset-react": "^7.10.4",
 		"@babel/preset-typescript": "^7.10.4",
-		"@remotion/bundler": "^1.4.1",
-		"@remotion/renderer": "^1.4.1",
+		"@remotion/bundler": "^1.4.2",
+		"@remotion/renderer": "^1.4.2",
 		"@types/cli-progress": "^3.7.0",
 		"@types/node": "^14.0.13",
 		"@types/react": "^17.0.0",
