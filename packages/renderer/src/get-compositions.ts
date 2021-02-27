@@ -1,5 +1,6 @@
 import puppeteer from 'puppeteer';
 import {TCompMetadata} from 'remotion';
+import {serveStatic} from './serve-static';
 
 export const getCompositions = async (
 	webpackBundle: string
@@ -12,9 +13,11 @@ export const getCompositions = async (
 		],
 	});
 	const page = await browser.newPage();
+	const {port, server} = await serveStatic(webpackBundle);
 
-	await page.goto(`file://${webpackBundle}/index.html?evaluation=true`);
+	await page.goto(`http://localhost:${port}/index.html?evaluation=true`);
 	await page.waitForFunction('window.ready === true');
 	const result = await page.evaluate('window.getStaticCompositions()');
+	server.close();
 	return result as TCompMetadata[];
 };
