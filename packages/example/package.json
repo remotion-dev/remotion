@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/example",
-	"version": "1.4.1",
+	"version": "1.4.2",
 	"description": "",
 	"main": "dist/index.js",
 	"private": true,
@@ -20,8 +20,8 @@
 		"@babel/plugin-syntax-jsx": "7.12.13",
 		"@babel/preset-env": "7.12.13",
 		"@babel/preset-react": "7.12.13",
-		"@remotion/bundler": "^1.4.1",
-		"@remotion/cli": "^1.4.1",
+		"@remotion/bundler": "^1.4.2",
+		"@remotion/cli": "^1.4.2",
 		"@remotion/eslint-config": "^1.4.0",
 		"@remotion/eslint-plugin": "^1.4.0",
 		"@types/node": "^14.0.13",
