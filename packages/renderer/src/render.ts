@@ -36,7 +36,7 @@ export const renderFrames = async ({
 	}
 	const actualParallelism = getActualConcurrency(parallelism ?? null);
 
-	const [{port, server}, browser] = await Promise.all([
+	const [{port, close}, browser] = await Promise.all([
 		serveStatic(webpackBundle),
 		openBrowser(),
 	]);
@@ -94,5 +94,5 @@ export const renderFrames = async ({
 				}
 			})
 	);
-	await Promise.all([browser.close(), server.close()]);
+	await Promise.all([browser.close(), close()]);
 };

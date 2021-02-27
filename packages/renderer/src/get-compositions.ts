@@ -13,11 +13,11 @@ export const getCompositions = async (
 		],
 	});
 	const page = await browser.newPage();
-	const {port, server} = await serveStatic(webpackBundle);
+	const {port, close} = await serveStatic(webpackBundle);
 
 	await page.goto(`http://localhost:${port}/index.html?evaluation=true`);
 	await page.waitForFunction('window.ready === true');
 	const result = await page.evaluate('window.getStaticCompositions()');
-	server.close();
+	await close();
 	return result as TCompMetadata[];
 };
