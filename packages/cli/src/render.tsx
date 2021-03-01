@@ -5,6 +5,7 @@ import {
 	getActualConcurrency,
 	getCompositions,
 	renderFrames,
+	RenderFramesOutput,
 	stitchFramesToVideo,
 	validateFfmpeg,
 } from '@remotion/renderer';
@@ -27,6 +28,16 @@ export const render = async () => {
 	const args = process.argv;
 	const file = args[3];
 	const fullPath = path.join(process.cwd(), file);
+
+	const cwd = process.cwd();
+	const BUNDLE_DIST =
+		process.env.BUNDLE_DIST && path.resolve(cwd, process.env.BUNDLE_DIST);
+	const RENDER_DIST =
+		process.env.RENDER_DIST && path.resolve(cwd, process.env.RENDER_DIST);
+	const RENDER_FROM =
+		process.env.RENDER_FROM && path.resolve(cwd, process.env.RENDER_FROM);
+	const STITCH_FROM =
+		process.env.STITCH_FROM && path.resolve(cwd, process.env.STITCH_FROM);
 
 	const configFileName = getConfigFileName();
 	loadConfigFile(configFileName);
@@ -142,9 +153,15 @@ export const render = async () => {
 
 	bundlingProgress.start(100, 0);
 
-	const bundled = await bundle(fullPath, (progress) => {
-		bundlingProgress.update(progress);
-	});
+	const bundled =
+		RENDER_FROM ||
+		(await bundle(
+			fullPath,
+			(progress) => {
+				bundlingProgress.update(progress);
+			},
+			{outDir: BUNDLE_DIST}
+		));
 	bundlingProgress.stop();
 	const comps = await getCompositions(
 		bundled,
@@ -159,38 +176,42 @@ export const render = async () => {
 
 	const outputDir = shouldOutputImageSequence
 		? absoluteOutputFile
-		: await fs.promises.mkdtemp(path.join(os.tmpdir(), 'react-motion-render'));
+		: STITCH_FROM || (await prepareOutDir(RENDER_DIST));
 
-	const renderProgress = new cliProgress.Bar(
-		{
-			clearOnComplete: true,
-			etaBuffer: 50,
-			format: '[{bar}] {percentage}% | ETA: {eta}s | {value}/{total}',
-		},
-		cliProgress.Presets.shades_grey
-	);
-	const rendered = await renderFrames({
-		config,
-		onFrameUpdate: (frame) => renderProgress.update(frame),
-		parallelism,
-		compositionId,
-		outputDir,
-		onStart: ({frameCount}) => {
-			process.stdout.write(
-				`📼 (2/${steps}) Rendering frames (${getActualConcurrency(
-					parallelism
-				)}x concurrency)...\n`
-			);
-			renderProgress.start(frameCount, 0);
-		},
-		userProps,
-		webpackBundle: bundled,
-		imageFormat,
-		quality,
-		browser,
-		frameRange: frameRange ?? null,
-	});
-	renderProgress.stop();
+	let rendered: RenderFramesOutput | null = null;
+
+	if (!STITCH_FROM) {
+		const renderProgress = new cliProgress.Bar(
+			{
+				clearOnComplete: true,
+				etaBuffer: 50,
+				format: '[{bar}] {percentage}% | ETA: {eta}s | {value}/{total}',
+			},
+			cliProgress.Presets.shades_grey
+		);
+		rendered = await renderFrames({
+			config,
+			onFrameUpdate: (frame) => renderProgress.update(frame),
+			parallelism,
+			compositionId,
+			outputDir,
+			onStart: ({frameCount}) => {
+				process.stdout.write(
+					`📼 (2/${steps}) Rendering frames (${getActualConcurrency(
+						parallelism
+					)}x concurrency)...\n`
+				);
+				renderProgress.start(frameCount, 0);
+			},
+			userProps,
+			webpackBundle: bundled,
+			imageFormat,
+			quality,
+			browser,
+			frameRange: frameRange ?? null,
+		});
+		renderProgress.stop();
+	}
 	if (process.env.DEBUG) {
 		Internals.perf.logPerf();
 	}
@@ -207,7 +228,7 @@ export const render = async () => {
 			},
 			cliProgress.Presets.shades_grey
 		);
-		stitchingProgress.start(rendered.frameCount, 0);
+		stitchingProgress.start(rendered?.frameCount ?? config.durationInFrames, 0);
 		await stitchFramesToVideo({
 			dir: outputDir,
 			width: config.width,
@@ -227,14 +248,18 @@ export const render = async () => {
 
 		console.log('Cleaning up...');
 		try {
-			await Promise.all([
-				fs.promises.rmdir(outputDir, {
-					recursive: true,
-				}),
-				fs.promises.rmdir(bundled, {
-					recursive: true,
-				}),
-			]);
+			await Promise.all(
+				[
+					!STITCH_FROM &&
+						fs.promises.rmdir(outputDir, {
+							recursive: true,
+						}),
+					!RENDER_FROM &&
+						fs.promises.rmdir(bundled, {
+							recursive: true,
+						}),
+				].filter(Boolean) as Promise<void>[]
+			);
 		} catch (err) {
 			console.error('Could not clean up directory.');
 			console.error(err);
@@ -246,4 +271,15 @@ export const render = async () => {
 		console.log('\n▶️ Your image sequence is ready!');
 	}
 	console.log(absoluteOutputFile);
+};
+
+const prepareOutDir = async (specified?: string) => {
+	if (specified) {
+		await fs.promises.mkdir(specified, {recursive: true});
+		return specified;
+	} else {
+		return await fs.promises.mkdtemp(
+			path.join(os.tmpdir(), 'react-motion-render')
+		);
+	}
 };
