@@ -5,5 +5,9 @@
 		"rootDir": "src",
 		"outDir": "dist"
 	},
-	"include": ["src"]
+	"include": ["src"],
+	"references": [
+		{ "path": "../core" },
+		{ "path": "../bundler" }
+	]
 }

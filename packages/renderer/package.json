@@ -5,6 +5,7 @@
 	"main": "dist/index.js",
 	"scripts": {
 		"test": "eslint src --ext ts,tsx",
+		"watch": "tsc -b -w",
 		"build": "tsc -d"
 	},
 	"files": [
