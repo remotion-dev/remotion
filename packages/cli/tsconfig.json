@@ -5,5 +5,10 @@
 		"outDir": "dist",
 		"jsx": "react-jsx",
 		"skipLibCheck": true
-	}
+	},
+	"references": [
+		{ "path": "../core" },
+		{ "path": "../bundler" },
+		{ "path": "../renderer" }
+	]
 }
