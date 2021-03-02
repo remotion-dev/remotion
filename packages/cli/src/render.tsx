@@ -1,5 +1,6 @@
 import {bundle} from '@remotion/bundler';
 import {
+	ensureLocalBrowser,
 	ffmpegHasFeature,
 	getActualConcurrency,
 	getCompositions,
@@ -77,6 +78,7 @@ export const render = async () => {
 	const overwrite = Internals.getShouldOverwrite();
 	const userProps = getUserProps();
 	const quality = Internals.getQuality();
+	const browser = Internals.getBrowser() ?? Internals.DEFAULT_BROWSER;
 
 	const absoluteOutputFile = path.resolve(process.cwd(), outputFile);
 	if (fs.existsSync(absoluteOutputFile) && !overwrite) {
@@ -102,6 +104,13 @@ export const render = async () => {
 		pixelFormat,
 		imageFormat
 	);
+	try {
+		await ensureLocalBrowser(browser);
+	} catch (err) {
+		console.error('Could not download a browser for rendering frames.');
+		console.error(err);
+		process.exit(1);
+	}
 	if (shouldOutputImageSequence) {
 		fs.mkdirSync(absoluteOutputFile, {
 			recursive: true,
@@ -123,10 +132,12 @@ export const render = async () => {
 	const bundled = await bundle(fullPath, (progress) => {
 		bundlingProgress.update(progress);
 	});
-	const comps = await getCompositions(bundled);
-	const compositionId = getCompositionId(comps);
-
 	bundlingProgress.stop();
+	const comps = await getCompositions(
+		bundled,
+		Internals.getBrowser() ?? Internals.DEFAULT_BROWSER
+	);
+	const compositionId = getCompositionId(comps);
 
 	const config = comps.find((c) => c.id === compositionId);
 	if (!config) {
@@ -164,6 +175,7 @@ export const render = async () => {
 		webpackBundle: bundled,
 		imageFormat,
 		quality,
+		browser,
 	});
 	renderProgress.stop();
 	if (process.env.DEBUG) {
@@ -201,14 +213,21 @@ export const render = async () => {
 		stitchingProgress.stop();
 
 		console.log('Cleaning up...');
-		await Promise.all([
-			fs.promises.rmdir(outputDir, {
-				recursive: true,
-			}),
-			fs.promises.rmdir(bundled, {
-				recursive: true,
-			}),
-		]);
+		try {
+			await Promise.all([
+				fs.promises.rmdir(outputDir, {
+					recursive: true,
+				}),
+				fs.promises.rmdir(bundled, {
+					recursive: true,
+				}),
+			]);
+		} catch (err) {
+			console.error('Could not clean up directory.');
+			console.error(err);
+			console.log('Do you have minimum required Node.js version?');
+			process.exit(1);
+		}
 		console.log('\n▶️ Your video is ready - hit play!');
 	} else {
 		console.log('\n▶️ Your image sequence is ready!');

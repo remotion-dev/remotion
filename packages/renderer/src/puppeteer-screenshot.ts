@@ -1,5 +1,5 @@
 import * as assert from 'assert';
-import {Page, ScreenshotOptions} from 'puppeteer';
+import {Page, ScreenshotOptions} from 'puppeteer-core';
 import {_screenshotTask} from './screenshot-task';
 
 export const screenshot = async (
