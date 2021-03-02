@@ -10,7 +10,7 @@ export const TransparentVideoDemo: React.FC = () => {
     <div>
       <video
         ref={ref}
-        src="/static/img/transparent-video.webm"
+        src="/img/transparent-video.webm"
         controls
         autoPlay
         loop

@@ -1,5 +1,6 @@
 import {Browser, Internals, TCompMetadata} from 'remotion';
 import {openBrowser} from '.';
+import {serveStatic} from './serve-static';
 
 export const getCompositions = async (
 	webpackBundle: string,
@@ -7,8 +8,12 @@ export const getCompositions = async (
 ): Promise<TCompMetadata[]> => {
 	const browserInstance = await openBrowser(browser);
 	const page = await browserInstance.newPage();
-	await page.goto(`file://${webpackBundle}/index.html?evaluation=true`);
+
+	const {port, close} = await serveStatic(webpackBundle);
+
+	await page.goto(`http://localhost:${port}/index.html?evaluation=true`);
 	await page.waitForFunction('window.ready === true');
 	const result = await page.evaluate('window.getStaticCompositions()');
+	await close();
 	return result as TCompMetadata[];
 };
