@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect} from 'react';
+import React, {useCallback, useEffect, useRef} from 'react';
 import {Internals} from 'remotion';
 import {Pause} from '../icons/pause';
 import {Play} from '../icons/play';
@@ -82,47 +82,40 @@ export const PlayPause: React.FC = () => {
 		};
 	}, [onKeyPress]);
 
+	const frameRef = useRef(frame);
+	frameRef.current = frame;
 	useEffect(() => {
 		if (!config) {
 			return;
 		}
-
-		if (playing) {
-			setLastFrames([...getLastFrames(), Date.now()]);
-			const last10Frames = getLastFrames();
-			const timesBetweenFrames: number[] = last10Frames
-				.map((f, i) => {
-					if (i === 0) {
-						return null;
-					}
-					return f - last10Frames[i - 1];
-				})
-				.filter((_t) => _t !== null) as number[];
-			const averageTimeBetweenFrames =
-				timesBetweenFrames.reduce((a, b) => {
-					return a + b;
-				}, 0) / timesBetweenFrames.length;
-			const expectedTime = 1000 / config.fps;
-			const slowerThanExpected = averageTimeBetweenFrames - expectedTime;
-			const timeout =
-				last10Frames.length === 0
-					? expectedTime
-					: expectedTime - slowerThanExpected;
-			const duration = config.durationInFrames;
-			const t = setTimeout(() => {
-				setFrame((currFrame) => {
-					const nextFrame = currFrame + 1;
-					if (nextFrame >= duration) {
-						return 0;
-					}
-					return currFrame + 1;
-				});
-			}, timeout);
-			return () => {
-				clearTimeout(t);
-			};
+		if (!playing) {
+			return;
 		}
-	}, [config, frame, playing, setFrame, video]);
+
+		let reqAnimFrameCall: number | null = null;
+		const startedTime = performance.now();
+		const startedFrame = frameRef.current;
+
+		const callback = () => {
+			const time = performance.now() - startedTime;
+			const calculatedFrame =
+				(Math.round(time / (1000 / config.fps)) + startedFrame) %
+				config.durationInFrames;
+			if (calculatedFrame !== frameRef.current) {
+				setLastFrames([...getLastFrames(), Date.now()]);
+				setFrame(calculatedFrame);
+			}
+			reqAnimFrameCall = requestAnimationFrame(callback);
+		};
+
+		reqAnimFrameCall = requestAnimationFrame(callback);
+
+		return () => {
+			if (reqAnimFrameCall !== null) {
+				cancelAnimationFrame(reqAnimFrameCall);
+			}
+		};
+	}, [config, setFrame, playing]);
 
 	return (
 		<>
