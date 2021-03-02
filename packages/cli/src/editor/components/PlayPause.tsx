@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useRef, useState} from 'react';
+import React, {useCallback, useEffect, useRef} from 'react';
 import {Internals} from 'remotion';
 import {Pause} from '../icons/pause';
 import {Play} from '../icons/play';
@@ -82,85 +82,40 @@ export const PlayPause: React.FC = () => {
 		};
 	}, [onKeyPress]);
 
-	const [isUsingRAF, toggleRAF] = useState(false);
-
-	useEffect(() => {
-		if (isUsingRAF) return;
-
-		if (!config) {
-			return;
-		}
-
-		if (playing) {
-			setLastFrames([...getLastFrames(), Date.now()]);
-			const last15Frames = getLastFrames();
-			const timesBetweenFrames: number[] = last15Frames
-				.map((f, i) => {
-					if (i === 0) {
-						return null;
-					}
-					return f - last15Frames[i - 1];
-				})
-				.filter((_t) => _t !== null) as number[];
-			const averageTimeBetweenFrames =
-				timesBetweenFrames.reduce((a, b) => {
-					return a + b;
-				}, 0) / timesBetweenFrames.length;
-			const expectedTime = 1000 / config.fps;
-			const slowerThanExpected = averageTimeBetweenFrames - expectedTime;
-			const timeout =
-				last15Frames.length === 0
-					? expectedTime
-					: expectedTime - slowerThanExpected;
-			const duration = config.durationInFrames;
-			const t = setTimeout(() => {
-				setFrame((currFrame) => {
-					const nextFrame = currFrame + 1;
-					if (nextFrame >= duration) {
-						return 0;
-					}
-					return nextFrame;
-				});
-			}, timeout * 5);
-			return () => {
-				clearTimeout(t);
-			};
-		}
-	}, [isUsingRAF, config, frame, playing, setFrame, video]);
-
 	const frameRef = useRef(frame);
 	frameRef.current = frame;
 	useEffect(() => {
-		if (!isUsingRAF) return;
-
 		if (!config) {
 			return;
 		}
 
 		if (playing) {
-			let req: number | null = null;
+			let reqAnimFrameCall: number | null = null;
 			const startedTime = performance.now();
 			const startedFrame = frameRef.current;
 
 			const step = () => {
-				setLastFrames([...getLastFrames(), Date.now()]);
 				const time = performance.now() - startedTime;
-				const calcuratedFrame =
+				const calculatedFrame =
 					(Math.round(time / (1000 / config.fps)) + startedFrame) %
 					config.durationInFrames;
-				if (calcuratedFrame !== frameRef.current) setFrame(calcuratedFrame);
-				req = requestAnimationFrame(step);
+				if (calculatedFrame !== frameRef.current) {
+					setLastFrames([...getLastFrames(), Date.now()]);
+					setFrame(calculatedFrame);
+				}
+				reqAnimFrameCall = requestAnimationFrame(step);
 			};
 
-			req = requestAnimationFrame(step);
+			reqAnimFrameCall = requestAnimationFrame(step);
 
 			return () => {
-				if (req !== null) {
-					cancelAnimationFrame(req);
+				if (reqAnimFrameCall !== null) {
+					console.log('can');
+					cancelAnimationFrame(reqAnimFrameCall);
 				}
 			};
 		}
-	}, [isUsingRAF, config, setFrame, playing]);
+	}, [config, setFrame, playing]);
 
 	return (
 		<>
@@ -216,20 +171,6 @@ export const PlayPause: React.FC = () => {
 				/>
 			</ControlButton>
 			<div style={{width: 10}} />
-			<ControlButton
-				aria-label="Step forward one frame"
-				disabled={isLastFrame}
-				onClick={() => toggleRAF((s) => !s)}
-			>
-				<span
-					style={{
-						height: 16,
-						color: 'white',
-					}}
-				>
-					{isUsingRAF ? 'requestAnimationFrame' : 'setTimeout'}
-				</span>
-			</ControlButton>
 		</>
 	);
 };
