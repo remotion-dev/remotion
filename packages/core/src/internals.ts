@@ -5,6 +5,12 @@ import {
 	TSequence,
 } from './CompositionManager';
 import {
+	DEFAULT_BROWSER,
+	FEATURE_FLAG_FIREFOX_SUPPORT,
+	getBrowser,
+} from './config/browser';
+import {getBrowserExecutable} from './config/browser-executable';
+import {
 	DEFAULT_CODEC,
 	getFinalOutputCodec,
 	getOutputCodecOrUndefined,
@@ -48,6 +54,7 @@ export const Internals = {
 	RemotionRoot,
 	useVideo,
 	getRoot,
+	getBrowserExecutable,
 	getCompositionName,
 	getIsEvaluation,
 	getPixelFormat,
@@ -61,6 +68,9 @@ export const Internals = {
 	getFinalOutputCodec,
 	DEFAULT_CODEC,
 	DEFAULT_PIXEL_FORMAT,
+	FEATURE_FLAG_FIREFOX_SUPPORT,
+	getBrowser,
+	DEFAULT_BROWSER,
 	getDefaultCrfForCodec,
 	getActualCrf,
 	getUserPreferredImageFormat,

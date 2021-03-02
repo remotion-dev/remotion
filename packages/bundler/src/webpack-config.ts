@@ -116,7 +116,14 @@ export const webpackConfig = ({
 							loader: require.resolve('babel-loader'),
 							options: {
 								presets: [
-									require.resolve('@babel/preset-env'),
+									[
+										require.resolve('@babel/preset-env'),
+										{
+											targets: {
+												chrome: '85',
+											},
+										},
+									],
 									[
 										require.resolve('@babel/preset-react'),
 										{

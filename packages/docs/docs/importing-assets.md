@@ -6,7 +6,7 @@ title: Importing assets
 Remotion allows you to include several types of files in your project:
 
 - Images (`.png`, `.svg`, `.jpg`, `.jpeg`, `.webp`, `.gif`, `.bmp`)
-- Videos (`.webm`, `.mp4`), with constraints
+- Videos (`.webm`, `.mp4`)
 - Audio (`.mp3`, `.wav`, `.aac`), preview only
 - [Fonts (`.woff` and `.woff2`) - read the separate page for fonts](fonts)
 
@@ -69,9 +69,7 @@ export const MyComp: React.FC = () => {
 }
 ```
 
-:::info
-Since Puppeteer doesn't include the proprietary codec to read MP4 videos, you must convert your videos to WebM before rendering.
-:::
+Be aware that if you are rendering using Chromium (as opposed to Chrome), the codec for MP4 videos is not included. Read the section on the [`<Video/ >`](/docs/video#codec-support) page for more information.
 
 ## Using Audio
 
