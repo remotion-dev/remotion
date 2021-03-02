@@ -74,26 +74,21 @@ export const renderFrames = async ({
 			.map(async (f) => {
 				const freePage = await pool.acquire();
 				const paddedIndex = String(f).padStart(filePadLength, '0');
-				try {
-					await provideScreenshot({
-						page: freePage,
-						imageFormat,
-						quality,
-						options: {
-							frame: f,
-							output: path.join(
-								outputDir,
-								`element-${paddedIndex}.${imageFormat}`
-							),
-						},
-					});
-				} catch (err) {
-					console.log('Error taking screenshot', err);
-				} finally {
-					pool.release(freePage);
-					framesRendered++;
-					onFrameUpdate(framesRendered);
-				}
+				await provideScreenshot({
+					page: freePage,
+					imageFormat,
+					quality,
+					options: {
+						frame: f,
+						output: path.join(
+							outputDir,
+							`element-${paddedIndex}.${imageFormat}`
+						),
+					},
+				});
+				pool.release(freePage);
+				framesRendered++;
+				onFrameUpdate(framesRendered);
 			})
 	);
 	await Promise.all([browserInstance.close(), close()]);
