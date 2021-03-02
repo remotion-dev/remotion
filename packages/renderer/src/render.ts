@@ -74,22 +74,20 @@ export const renderFrames = async ({
 	await Promise.all(
 		new Array(frames)
 			.fill(Boolean)
-			.map((x, i) => {
-				if (frameRange) {
-					return i + frameRange[0] - 1;
-				}
-				return i;
-			})
+			.map((x, i) => i)
 			.map(async (f) => {
+				let frame = f;
 				const freePage = await pool.acquire();
 				const paddedIndex = String(f).padStart(filePadLength, '0');
-				console.log(f);
+				if (frameRange) {
+					frame = f + frameRange[0] - 1;
+				}
 				await provideScreenshot({
 					page: freePage,
 					imageFormat,
 					quality,
 					options: {
-						frame: f,
+						frame,
 						output: path.join(
 							outputDir,
 							`element-${paddedIndex}.${imageFormat}`
