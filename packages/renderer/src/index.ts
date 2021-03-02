@@ -1,4 +1,9 @@
-import puppeteer from 'puppeteer';
+import puppeteer from 'puppeteer-core';
+import {Browser, Internals} from 'remotion';
+import {
+	ensureLocalBrowser,
+	getLocalBrowserExecutable,
+} from './get-local-browser-executable';
 import {ImageFormat} from './image-format';
 import {screenshot} from './puppeteer-screenshot';
 
@@ -33,15 +38,28 @@ async function screenshotDOMElement({
 	}) as Promise<Buffer>;
 }
 
-export const openBrowser = async (): Promise<puppeteer.Browser> => {
-	const browser = await puppeteer.launch({
+export const openBrowser = async (
+	browser: Browser
+): Promise<puppeteer.Browser> => {
+	if (browser === 'firefox' && !Internals.FEATURE_FLAG_FIREFOX_SUPPORT) {
+		throw new TypeError(
+			'Firefox supported is not yet turned on. Stay tuned for the future.'
+		);
+	}
+	await ensureLocalBrowser(browser);
+
+	const executablePath = await getLocalBrowserExecutable(browser);
+	const browserInstance = await puppeteer.launch({
+		executablePath,
+		product: browser,
 		args: [
 			'--no-sandbox',
 			'--disable-setuid-sandbox',
 			'--disable-dev-shm-usage',
-		],
+			process.platform === 'linux' ? '--single-process' : null,
+		].filter(Boolean) as string[],
 	});
-	return browser;
+	return browserInstance;
 };
 
 export const provideScreenshot = async ({
@@ -77,6 +95,7 @@ export const provideScreenshot = async ({
 export * from './ffmpeg-flags';
 export * from './get-compositions';
 export * from './get-concurrency';
+export {ensureLocalBrowser} from './get-local-browser-executable';
 export * from './render';
 export * from './stitcher';
 export * from './validate-ffmpeg';

@@ -1,7 +1,14 @@
 import minimist from 'minimist';
-import {Codec, Config, ImageFormat, PixelFormat} from 'remotion';
+import {
+	BrowserExecutable,
+	Codec,
+	Config,
+	ImageFormat,
+	PixelFormat,
+} from 'remotion';
 
 export type CommandLineOptions = {
+	['browser-executable']: BrowserExecutable;
 	['pixel-format']: PixelFormat;
 	['image-format']: ImageFormat;
 	concurrency: number;
@@ -24,6 +31,9 @@ export const parseCommandLine = () => {
 	}
 	if (parsedCli['image-format']) {
 		Config.Rendering.setImageFormat(parsedCli['image-format']);
+	}
+	if (parsedCli['browser-executable']) {
+		Config.Puppeteer.setBrowserExecutable(parsedCli['browser-executable']);
 	}
 	if (parsedCli.concurrency) {
 		Config.Rendering.setConcurrency(parsedCli.concurrency);

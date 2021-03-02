@@ -1,20 +1,19 @@
-import puppeteer from 'puppeteer';
-import {TCompMetadata} from 'remotion';
+import {Browser, Internals, TCompMetadata} from 'remotion';
+import {openBrowser} from '.';
+import {serveStatic} from './serve-static';
 
 export const getCompositions = async (
-	webpackBundle: string
+	webpackBundle: string,
+	browser: Browser = Internals.DEFAULT_BROWSER
 ): Promise<TCompMetadata[]> => {
-	const browser = await puppeteer.launch({
-		args: [
-			'--no-sandbox',
-			'--disable-setuid-sandbox',
-			'--disable-dev-shm-usage',
-		],
-	});
-	const page = await browser.newPage();
+	const browserInstance = await openBrowser(browser);
+	const page = await browserInstance.newPage();
 
-	await page.goto(`file://${webpackBundle}/index.html?evaluation=true`);
+	const {port, close} = await serveStatic(webpackBundle);
+
+	await page.goto(`http://localhost:${port}/index.html?evaluation=true`);
 	await page.waitForFunction('window.ready === true');
 	const result = await page.evaluate('window.getStaticCompositions()');
+	await close();
 	return result as TCompMetadata[];
 };

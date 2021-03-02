@@ -1,9 +1,10 @@
 import path from 'path';
-import {VideoConfig} from 'remotion';
+import {Browser, Internals, VideoConfig} from 'remotion';
 import {openBrowser, provideScreenshot} from '.';
 import {getActualConcurrency} from './get-concurrency';
 import {DEFAULT_IMAGE_FORMAT, ImageFormat} from './image-format';
 import {Pool} from './pool';
+import {serveStatic} from './serve-static';
 
 export const renderFrames = async ({
 	config,
@@ -16,6 +17,7 @@ export const renderFrames = async ({
 	webpackBundle,
 	quality,
 	imageFormat = DEFAULT_IMAGE_FORMAT,
+	browser = Internals.DEFAULT_BROWSER,
 }: {
 	config: VideoConfig;
 	parallelism?: number | null;
@@ -27,6 +29,7 @@ export const renderFrames = async ({
 	webpackBundle: string;
 	imageFormat?: ImageFormat;
 	quality?: number;
+	browser?: Browser;
 }) => {
 	if (quality !== undefined && imageFormat !== 'jpeg') {
 		throw new Error(
@@ -35,9 +38,12 @@ export const renderFrames = async ({
 	}
 	const actualParallelism = getActualConcurrency(parallelism ?? null);
 
-	const browser = await openBrowser();
+	const [{port, close}, browserInstance] = await Promise.all([
+		serveStatic(webpackBundle),
+		openBrowser(browser),
+	]);
 	const pages = new Array(actualParallelism).fill(true).map(async () => {
-		const page = await browser.newPage();
+		const page = await browserInstance.newPage();
 		page.setViewport({
 			width: config.width,
 			height: config.height,
@@ -46,7 +52,7 @@ export const renderFrames = async ({
 		page.on('error', console.error);
 		page.on('pageerror', console.error);
 
-		const site = `file://${webpackBundle}/index.html?composition=${compositionId}&props=${encodeURIComponent(
+		const site = `http://localhost:${port}/index.html?composition=${compositionId}&props=${encodeURIComponent(
 			JSON.stringify(userProps)
 		)}`;
 		await page.goto(site);
@@ -68,27 +74,22 @@ export const renderFrames = async ({
 			.map(async (f) => {
 				const freePage = await pool.acquire();
 				const paddedIndex = String(f).padStart(filePadLength, '0');
-				try {
-					await provideScreenshot({
-						page: freePage,
-						imageFormat,
-						quality,
-						options: {
-							frame: f,
-							output: path.join(
-								outputDir,
-								`element-${paddedIndex}.${imageFormat}`
-							),
-						},
-					});
-				} catch (err) {
-					console.log('Error taking screenshot', err);
-				} finally {
-					pool.release(freePage);
-					framesRendered++;
-					onFrameUpdate(framesRendered);
-				}
+				await provideScreenshot({
+					page: freePage,
+					imageFormat,
+					quality,
+					options: {
+						frame: f,
+						output: path.join(
+							outputDir,
+							`element-${paddedIndex}.${imageFormat}`
+						),
+					},
+				});
+				pool.release(freePage);
+				framesRendered++;
+				onFrameUpdate(framesRendered);
 			})
 	);
-	await browser.close();
+	await Promise.all([browserInstance.close(), close()]);
 };

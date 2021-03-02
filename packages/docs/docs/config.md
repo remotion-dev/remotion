@@ -27,6 +27,18 @@ Config.Bundling.overrideWebpackConfig((currentConfiguration) => {
 });
 ```
 
+## Puppeteer
+
+### setBrowserExecutable()
+
+Set a custom Chrome or Chromium executable path. By default Remotion will try to find an existing version of Chrome on your system and if not found, it will download one. This flag is useful if you don't have Chrome installed in a standard location and you want to prevent downloading an additional browser or need [support for the H264 codec](/docs/video#codec-support).
+
+```ts
+Config.Puppeteer.setBrowserExecutable('/usr/bin/google-chrome-stable')
+```
+
+The [command line flag](cli) `--browser-executable` will take precedence over this option.
+
 ## Rendering
 
 ### setConcurrency()

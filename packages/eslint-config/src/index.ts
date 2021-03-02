@@ -37,7 +37,7 @@ const getRules = (typescript: boolean) => {
       },
     ],
     // Enable Remotion specific rules
-    "@remotion/no-mp4-import": "warn",
+    "@remotion/no-mp4-import": "off",
     "@remotion/warn-native-media-tag": "warn",
     "@remotion/deterministic-randomness": "warn",
     "@remotion/no-string-assets": "warn",
