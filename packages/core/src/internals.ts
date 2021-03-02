@@ -37,6 +37,7 @@ import {
 	validateSelectedPixelFormatAndCodecCombination,
 } from './config/pixel-format';
 import {getQuality} from './config/quality';
+import {getFrameRange} from './config/range';
 import * as perf from './perf';
 import {getCompositionName, getIsEvaluation, getRoot} from './register-root';
 import {RemotionRoot} from './RemotionRoot';
@@ -59,6 +60,7 @@ export const Internals = {
 	getIsEvaluation,
 	getPixelFormat,
 	getConcurrency,
+	getFrameRange,
 	getShouldOverwrite,
 	getOutputCodecOrUndefined,
 	getWebpackOverrideFn,

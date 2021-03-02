@@ -1,5 +1,5 @@
 import path from 'path';
-import {Browser, Internals, VideoConfig} from 'remotion';
+import {Browser, FrameRange, Internals, VideoConfig} from 'remotion';
 import {openBrowser, provideScreenshot} from '.';
 import {getActualConcurrency} from './get-concurrency';
 import {DEFAULT_IMAGE_FORMAT, ImageFormat} from './image-format';
@@ -30,6 +30,7 @@ export const renderFrames = async ({
 	imageFormat?: ImageFormat;
 	quality?: number;
 	browser?: Browser;
+	frameRange?: FrameRange;
 }) => {
 	if (quality !== undefined && imageFormat !== 'jpeg') {
 		throw new Error(
