@@ -70,6 +70,11 @@ type BrowserStatus =
 const getBrowserStatus = (product: puppeteer.Product): BrowserStatus => {
 	const browserExecutablePath = Internals.getBrowserExecutable();
 	if (browserExecutablePath) {
+		if (!fs.existsSync(browserExecutablePath)) {
+			console.warn(
+				`Browser executable was specified as '${browserExecutablePath}' but the path doesn't exist.`
+			);
+		}
 		return {path: browserExecutablePath, type: 'user-defined-path'};
 	}
 	const localBrowser = getLocalBrowser(product);
