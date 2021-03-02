@@ -56,7 +56,8 @@ export const openBrowser = async (
 			'--no-sandbox',
 			'--disable-setuid-sandbox',
 			'--disable-dev-shm-usage',
-		],
+			process.platform === 'linux' ? '--single-process' : null,
+		].filter(Boolean) as string[],
 	});
 	return browserInstance;
 };
