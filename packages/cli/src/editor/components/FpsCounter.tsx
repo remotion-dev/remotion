@@ -29,8 +29,8 @@ export const FpsCounter: React.FC = () => {
 	}
 
 	const diff = Math.max(...lastFrames) - Math.min(...lastFrames);
-	const avg = diff / lastFrames.length;
-	const fps = 1000 / avg;
+	const averageDistanceBetween = diff / (lastFrames.length - 1);
+	const fps = 1000 / averageDistanceBetween;
 	return (
 		<Label style={{color: fps < videoConfig.fps * 0.9 ? 'red' : 'white'}}>
 			{String(fps.toFixed(1))} FPS
