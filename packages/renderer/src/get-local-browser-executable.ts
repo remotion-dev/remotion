@@ -1,5 +1,4 @@
 import fs from 'fs';
-import {platform} from 'os';
 import puppeteer, {Product, PuppeteerNode} from 'puppeteer-core';
 import {downloadBrowser} from 'puppeteer-core/lib/cjs/puppeteer/node/install';
 import {PUPPETEER_REVISIONS} from 'puppeteer-core/lib/cjs/puppeteer/revisions';
@@ -8,8 +7,12 @@ import {Browser, Internals} from 'remotion';
 const getSearchPathsForProduct = (product: puppeteer.Product) => {
 	if (product === 'chrome') {
 		return [
-			platform() === 'darwin'
+			process.platform === 'darwin'
 				? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
+				: null,
+			process.platform === 'linux' ? '/usr/bin/google-chrome' : null,
+			process.platform === 'win32'
+				? 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe'
 				: null,
 		].filter(Boolean) as string[];
 	}
