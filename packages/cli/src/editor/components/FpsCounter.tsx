@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useMemo, useState} from 'react';
 import {Internals} from 'remotion';
 import styled from 'styled-components';
 import {getLastFrames} from '../state/last-frames';
@@ -21,19 +21,24 @@ export const FpsCounter: React.FC = () => {
 
 	const lastFrames = getLastFrames();
 
+	const diff = Math.max(...lastFrames) - Math.min(...lastFrames);
+	const averageDistanceBetween = diff / (lastFrames.length - 1);
+	const fps = 1000 / averageDistanceBetween;
+
+	const style = useMemo((): React.CSSProperties => {
+		if (!videoConfig) {
+			return {};
+		}
+		return {color: fps < videoConfig.fps * 0.9 ? 'red' : 'white'};
+	}, [fps, videoConfig]);
+
 	if (lastFrames.length === 0) {
 		return null;
 	}
+
 	if (videoConfig === null) {
 		return null;
 	}
 
-	const diff = Math.max(...lastFrames) - Math.min(...lastFrames);
-	const averageDistanceBetween = diff / (lastFrames.length - 1);
-	const fps = 1000 / averageDistanceBetween;
-	return (
-		<Label style={{color: fps < videoConfig.fps * 0.9 ? 'red' : 'white'}}>
-			{String(fps.toFixed(1))} FPS
-		</Label>
-	);
+	return <Label style={style}>{String(fps.toFixed(1))} FPS</Label>;
 };
