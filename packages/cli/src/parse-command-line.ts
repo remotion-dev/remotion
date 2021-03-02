@@ -11,16 +11,17 @@ export type CommandLineOptions = {
 	['browser-executable']: BrowserExecutable;
 	['pixel-format']: PixelFormat;
 	['image-format']: ImageFormat;
-	concurrency: number;
-	overwrite: boolean;
-	config: string;
-	png: boolean;
-	sequence: boolean;
-	quality: number;
-	force: boolean;
 	codec: Codec;
-	props: string;
+	concurrency: number;
+	config: string;
 	crf: number;
+	force: boolean;
+	overwrite: boolean;
+	png: boolean;
+	props: string;
+	quality: number;
+	range: string;
+	sequence: boolean;
 };
 
 export const parsedCli = minimist<CommandLineOptions>(process.argv.slice(2));
@@ -37,6 +38,9 @@ export const parseCommandLine = () => {
 	}
 	if (parsedCli.concurrency) {
 		Config.Rendering.setConcurrency(parsedCli.concurrency);
+	}
+	if (parsedCli.range) {
+		console.log(parsedCli.range);
 	}
 	if (parsedCli.png) {
 		console.warn(
