@@ -20,7 +20,7 @@ export type CommandLineOptions = {
 	png: boolean;
 	props: string;
 	quality: number;
-	range: string;
+	range: string | number;
 	sequence: boolean;
 };
 
