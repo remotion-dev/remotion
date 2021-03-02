@@ -34,7 +34,7 @@ export const render = async () => {
 	const parallelism = Internals.getConcurrency();
 	const shouldOutputImageSequence = Internals.getShouldOutputImageSequence();
 	const userCodec = Internals.getOutputCodecOrUndefined();
-	const range = Internals.getFrameRange();
+	const frameRange = Internals.getFrameRange();
 	if (shouldOutputImageSequence && userCodec) {
 		console.error(
 			'Detected both --codec and --sequence (formerly --png) flag.'
@@ -145,7 +145,15 @@ export const render = async () => {
 		throw new Error(`Cannot find composition with ID ${compositionId}`);
 	}
 
-	const {durationInFrames: frames} = config;
+	let {durationInFrames: frames} = config;
+	if (frameRange) {
+		if (frameRange.length === 1) {
+			frames = 1;
+		}
+		if (frameRange.length === 2) {
+			frames = frameRange[1] - frameRange[0] + 1;
+		}
+	}
 	const outputDir = shouldOutputImageSequence
 		? absoluteOutputFile
 		: await fs.promises.mkdtemp(path.join(os.tmpdir(), 'react-motion-render'));
@@ -177,6 +185,8 @@ export const render = async () => {
 		imageFormat,
 		quality,
 		browser,
+		frameRange,
+		frames,
 	});
 	renderProgress.stop();
 	if (process.env.DEBUG) {
