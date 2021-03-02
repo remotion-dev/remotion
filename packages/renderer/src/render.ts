@@ -2,9 +2,9 @@ import path from 'path';
 import {Browser, Internals, VideoConfig} from 'remotion';
 import {openBrowser, provideScreenshot} from '.';
 import {getActualConcurrency} from './get-concurrency';
-import {ensureLocalBrowser} from './get-local-browser-executable';
 import {DEFAULT_IMAGE_FORMAT, ImageFormat} from './image-format';
 import {Pool} from './pool';
+import {serveStatic} from './serve-static';
 
 export const renderFrames = async ({
 	config,
@@ -17,7 +17,7 @@ export const renderFrames = async ({
 	webpackBundle,
 	quality,
 	imageFormat = DEFAULT_IMAGE_FORMAT,
-	browser,
+	browser = Internals.DEFAULT_BROWSER,
 }: {
 	config: VideoConfig;
 	parallelism?: number | null;
@@ -37,10 +37,11 @@ export const renderFrames = async ({
 		);
 	}
 	const actualParallelism = getActualConcurrency(parallelism ?? null);
-	await ensureLocalBrowser(browser ?? Internals.DEFAULT_BROWSER);
-	const browserInstance = await openBrowser(
-		browser ?? Internals.DEFAULT_BROWSER
-	);
+
+	const [{port, close}, browserInstance] = await Promise.all([
+		serveStatic(webpackBundle),
+		openBrowser(browser),
+	]);
 	const pages = new Array(actualParallelism).fill(true).map(async () => {
 		const page = await browserInstance.newPage();
 		page.setViewport({
@@ -51,7 +52,7 @@ export const renderFrames = async ({
 		page.on('error', console.error);
 		page.on('pageerror', console.error);
 
-		const site = `file://${webpackBundle}/index.html?composition=${compositionId}&props=${encodeURIComponent(
+		const site = `http://localhost:${port}/index.html?composition=${compositionId}&props=${encodeURIComponent(
 			JSON.stringify(userProps)
 		)}`;
 		await page.goto(site);
@@ -95,5 +96,5 @@ export const renderFrames = async ({
 				}
 			})
 	);
-	await browserInstance.close();
+	await Promise.all([browserInstance.close(), close()]);
 };
