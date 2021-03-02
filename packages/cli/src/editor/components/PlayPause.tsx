@@ -88,33 +88,33 @@ export const PlayPause: React.FC = () => {
 		if (!config) {
 			return;
 		}
-
-		if (playing) {
-			let reqAnimFrameCall: number | null = null;
-			const startedTime = performance.now();
-			const startedFrame = frameRef.current;
-
-			const step = () => {
-				const time = performance.now() - startedTime;
-				const calculatedFrame =
-					(Math.round(time / (1000 / config.fps)) + startedFrame) %
-					config.durationInFrames;
-				if (calculatedFrame !== frameRef.current) {
-					setLastFrames([...getLastFrames(), Date.now()]);
-					setFrame(calculatedFrame);
-				}
-				reqAnimFrameCall = requestAnimationFrame(step);
-			};
-
-			reqAnimFrameCall = requestAnimationFrame(step);
-
-			return () => {
-				if (reqAnimFrameCall !== null) {
-					console.log('can');
-					cancelAnimationFrame(reqAnimFrameCall);
-				}
-			};
+		if (!playing) {
+			return;
 		}
+
+		let reqAnimFrameCall: number | null = null;
+		const startedTime = performance.now();
+		const startedFrame = frameRef.current;
+
+		const callback = () => {
+			const time = performance.now() - startedTime;
+			const calculatedFrame =
+				(Math.round(time / (1000 / config.fps)) + startedFrame) %
+				config.durationInFrames;
+			if (calculatedFrame !== frameRef.current) {
+				setLastFrames([...getLastFrames(), Date.now()]);
+				setFrame(calculatedFrame);
+			}
+			reqAnimFrameCall = requestAnimationFrame(callback);
+		};
+
+		reqAnimFrameCall = requestAnimationFrame(callback);
+
+		return () => {
+			if (reqAnimFrameCall !== null) {
+				cancelAnimationFrame(reqAnimFrameCall);
+			}
+		};
 	}, [config, setFrame, playing]);
 
 	return (
@@ -170,7 +170,6 @@ export const PlayPause: React.FC = () => {
 					}}
 				/>
 			</ControlButton>
-			<div style={{width: 10}} />
 		</>
 	);
 };
