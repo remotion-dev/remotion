@@ -213,14 +213,21 @@ export const render = async () => {
 		stitchingProgress.stop();
 
 		console.log('Cleaning up...');
-		await Promise.all([
-			fs.promises.rmdir(outputDir, {
-				recursive: true,
-			}),
-			fs.promises.rmdir(bundled, {
-				recursive: true,
-			}),
-		]);
+		try {
+			await Promise.all([
+				fs.promises.rmdir(outputDir, {
+					recursive: true,
+				}),
+				fs.promises.rmdir(bundled, {
+					recursive: true,
+				}),
+			]);
+		} catch (err) {
+			console.error('Could not clean up directory.');
+			console.error(err);
+			console.log('Do you have minimum required Node.js version?');
+			process.exit(1);
+		}
 		console.log('\n▶️ Your video is ready - hit play!');
 	} else {
 		console.log('\n▶️ Your image sequence is ready!');
