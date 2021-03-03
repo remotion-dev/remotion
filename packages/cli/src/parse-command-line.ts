@@ -40,7 +40,7 @@ export const parseCommandLine = () => {
 		Config.Rendering.setConcurrency(parsedCli.concurrency);
 	}
 	if (parsedCli.range) {
-		Config.Rendering.setFrameRange(parsedCli.range);
+		Config.Rendering.setRange(parsedCli.range);
 	}
 	if (parsedCli.png) {
 		console.warn(

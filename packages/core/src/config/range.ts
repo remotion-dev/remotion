@@ -2,7 +2,7 @@ export type FrameRange = number[] | null;
 
 let range: FrameRange = null;
 
-export const setFrameRange = (newFrameRange: string | number) => {
+export const setRange = (newFrameRange: string | number) => {
 	if (typeof newFrameRange === 'number') {
 		range = [newFrameRange];
 	}
@@ -31,4 +31,4 @@ export const setFrameRange = (newFrameRange: string | number) => {
 	}
 };
 
-export const getFrameRange = () => range;
+export const getRange = () => range;
