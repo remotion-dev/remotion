@@ -32,8 +32,8 @@ export const renderFrames = async ({
 	imageFormat?: ImageFormat;
 	quality?: number;
 	browser?: Browser;
-	frameRange: FrameRange;
-	frames: number;
+	frameRange?: FrameRange;
+	frames?: number;
 }) => {
 	if (quality !== undefined && imageFormat !== 'jpeg') {
 		throw new Error(
@@ -68,7 +68,10 @@ export const renderFrames = async ({
 	// const {durationInFrames: frames} = config;
 	// Substract one because 100 frames will be 00-99
 	// --> 2 digits
-	const filePadLength = String(frames - 1).length;
+	let filePadLength = 0;
+	if (frames) {
+		filePadLength = String(frames - 1).length;
+	}
 	let framesRendered = 0;
 	onStart();
 	await Promise.all(
