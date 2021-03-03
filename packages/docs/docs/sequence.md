@@ -52,4 +52,4 @@ const MyVideo = () => {
 
 ## See also
 
-- [Reuse components using Sequences](reusability)
+- [Reuse components using Sequences](/docs/reusability)
