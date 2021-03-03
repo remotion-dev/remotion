@@ -34,7 +34,7 @@ export const render = async () => {
 	const parallelism = Internals.getConcurrency();
 	const shouldOutputImageSequence = Internals.getShouldOutputImageSequence();
 	const userCodec = Internals.getOutputCodecOrUndefined();
-	const frameRange = Internals.getFrameRange();
+	const frameRange = Internals.getRange();
 	if (shouldOutputImageSequence && userCodec) {
 		console.error(
 			'Detected both --codec and --sequence (formerly --png) flag.'

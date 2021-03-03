@@ -13,7 +13,7 @@ import {
 import {setOverwriteOutput} from './overwrite';
 import {PixelFormat, setPixelFormat} from './pixel-format';
 import {setQuality} from './quality';
-import {FrameRange, setFrameRange} from './range';
+import {FrameRange, setRange} from './range';
 
 export const Config = {
 	Bundling: {
@@ -48,7 +48,7 @@ export const Config = {
 		 * PNG is slower, but supports transparency.
 		 */
 		setImageFormat,
-		setFrameRange,
+		setRange,
 	},
 	Output: {
 		/**
