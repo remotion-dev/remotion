@@ -16,8 +16,8 @@ npx remotion render src/index.tsx HelloWorld out.mp4
 ```
 
 Modify it to select a different video to render, or change its output location.
-Learn about all the options on the [CLI reference page](cli).
+Learn about all the options on the [CLI reference page](/docs/cli).
 
 ## See also
 
-- [CLI options](cli)
+- [/docs/CLI options](/docs/cli)

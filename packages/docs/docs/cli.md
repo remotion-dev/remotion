@@ -14,9 +14,9 @@ npx remotion render <entry-file> <composition-id> <output-location>
 Besides choosing a video and output location with the command line arguments, the following flags are supported:
 
 - `--props`: React Props to pass to the root component of your video. Must be a serialized JSON string.
-- `--concurrency`: [How many CPU threads to use.](config#setconcurrency) Minimum 1. The maximum is the amount of threads you have.
-- `--pixel-format`: [Set a custom pixel format. See here for available values.](config#setpixelformat)
-- `--image-format`: [`jpeg` or `png` - JPEG is faster, but supports transparency.](config#setimageformat) The default image format is `jpeg` since v1.1. Flag available since v1.4.
+- `--concurrency`: [How many CPU threads to use.](/docs/config#setconcurrency) Minimum 1. The maximum is the amount of threads you have.
+- `--pixel-format`: [Set a custom pixel format. See here for available values.](/docs/config#setpixelformat)
+- `--image-format`: [`jpeg` or `png` - JPEG is faster, but supports transparency.](/docs/config#setimageformat) The default image format is `jpeg` since v1.1. Flag available since v1.4.
 - `--config`: Specify a location for the Remotion config file. Available in v1.2 and later.
 - `--quality`: [Value between 0 and 100 for JPEG rendering quality](config#setquality). Doesn't work when PNG frames are rendered. Available since v1.4.
 - `--overwrite`: [Write to output even if file already exists.](config#setoverwriteoutput)
@@ -27,7 +27,7 @@ Besides choosing a video and output location with the command line arguments, th
 - `--range`: [To select frame range](config#setrange).`--range=1-10` (To select frame from 1 to 10) or <br/>`--range=50` (To select only 50th frame).
 
 :::info
-If you don't feel like passing command line flags every time, consider creating a `remotion.config.ts` [config file](config).
+If you don't feel like passing command line flags every time, consider creating a `remotion.config.ts` [config file](/docs/config).
 :::
 
 ## Example command
@@ -38,5 +38,5 @@ npx remotion render --overwrite --codec=vp8 src/index.tsx HelloWorld video.mp4
 
 ## See also
 
-- [Render your video](render)
-- [Configuration file](config)
+- [Render your video](/docs/render)
+- [Configuration file](/docs/config)

@@ -50,5 +50,5 @@ export const RemotionVideo = () => {
 
 ## See also
 
-- [`<Composition />` component](composition)
-- [The fundamentals](the-fundamentals)
+- [`<Composition />` component](/docs/composition)
+- [The fundamentals](/docs/the-fundamentals)

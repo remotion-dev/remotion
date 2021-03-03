@@ -10,6 +10,15 @@ export function truthy<T>(value: T): value is Truthy<T> {
 	return Boolean(value);
 }
 
+const envPreset = [
+	require.resolve('@babel/preset-env'),
+	{
+		targets: {
+			chrome: '85',
+		},
+	},
+] as const;
+
 export const webpackConfig = ({
 	entry,
 	userDefinedComponent,
@@ -116,14 +125,7 @@ export const webpackConfig = ({
 							loader: require.resolve('babel-loader'),
 							options: {
 								presets: [
-									[
-										require.resolve('@babel/preset-env'),
-										{
-											targets: {
-												chrome: '85',
-											},
-										},
-									],
+									envPreset,
 									[
 										require.resolve('@babel/preset-react'),
 										{
@@ -161,7 +163,7 @@ export const webpackConfig = ({
 					loader: require.resolve('babel-loader'),
 					options: {
 						presets: [
-							require.resolve('@babel/preset-env'),
+							envPreset,
 							[
 								require.resolve('@babel/preset-react'),
 								{

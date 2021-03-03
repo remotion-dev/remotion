@@ -20,4 +20,4 @@ If you upgrade from Remotion 1.2 or older, consider changing the `npm test` comm
 
 ## See also
 
-- [Custom Webpack config](webpack) for more advanced tweaking
+- [Custom Webpack config](/docs/webpack) for more advanced tweaking
