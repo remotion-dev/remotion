@@ -92,6 +92,7 @@ export const PlayPause: React.FC = () => {
 			return;
 		}
 
+		let hasBeenStopped = false;
 		let reqAnimFrameCall: number | null = null;
 		const startedTime = performance.now();
 		const startedFrame = frameRef.current;
@@ -105,12 +106,15 @@ export const PlayPause: React.FC = () => {
 				setLastFrames([...getLastFrames(), Date.now()]);
 				setFrame(calculatedFrame);
 			}
-			reqAnimFrameCall = requestAnimationFrame(callback);
+			if (!hasBeenStopped) {
+				reqAnimFrameCall = requestAnimationFrame(callback);
+			}
 		};
 
 		reqAnimFrameCall = requestAnimationFrame(callback);
 
 		return () => {
+			hasBeenStopped = true;
 			if (reqAnimFrameCall !== null) {
 				cancelAnimationFrame(reqAnimFrameCall);
 			}

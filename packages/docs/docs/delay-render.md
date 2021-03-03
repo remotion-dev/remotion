@@ -54,4 +54,4 @@ export const MyVideo = () => {
 
 ## See also
 
-- [Data fetching](data-fetching)
+- [Data fetching](/docs/data-fetching)

@@ -8,7 +8,7 @@ Remotion allows you to include several types of files in your project:
 - Images (`.png`, `.svg`, `.jpg`, `.jpeg`, `.webp`, `.gif`, `.bmp`)
 - Videos (`.webm`, `.mp4`)
 - Audio (`.mp3`, `.wav`, `.aac`), preview only
-- [Fonts (`.woff` and `.woff2`) - read the separate page for fonts](fonts)
+- [Fonts (`.woff` and `.woff2`) - read the separate page for fonts](/docs/fonts)
 
 ## Using images
 
@@ -56,7 +56,7 @@ Avoid writing a require statement that requires a file that doesn't exist. If yo
 
 ## Using videos
 
-Import your files using an import statement. Use the [`<Video />`](video) component to keep the timeline and your video in sync.
+Import your files using an import statement. Use the [`<Video />`/docs/video) component to keep the timeline and your video in sync.
 
 ```tsx
 import {Video} from 'remotion';
@@ -73,7 +73,7 @@ Be aware that if you are rendering using Chromium (as opposed to Chrome), the co
 
 ## Using Audio
 
-Import your audio using an `@import` statement and pass it to the [`<Audio/ >`](audio) component.
+Import your audio using an `@import` statement and pass it to the [`<Audio/ >`](/docs/audio) component.
 
 ```tsx
 import {Audio} from 'remotion';
@@ -92,4 +92,4 @@ Audio is experimental and is currently only playing in the preview, not in the f
 
 ## Using fonts
 
-See the [dedicated page about fonts](fonts).
+See the [dedicated page about fonts](/docs/fonts).
