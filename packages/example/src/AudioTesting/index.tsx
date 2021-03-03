@@ -1,6 +1,6 @@
 import {Sequence, useVideoConfig, Video} from 'remotion';
 // FIXME: commit sample movie
-import movie from './movie.webm';
+import movie from '../resources/movie.webm';
 
 const AudioTesting: React.FC = () => {
 	const {durationInFrames} = useVideoConfig();
