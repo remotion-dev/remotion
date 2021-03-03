@@ -21,4 +21,4 @@ export const MyComp: React.FC = () => {
 
 ## See also
 
-- [Use `<Img>` and `<IFrame>` tags](use-img-and-iframe)
+- [Use `<Img>` and `<IFrame>` tags](/docs/use-img-and-iframe)

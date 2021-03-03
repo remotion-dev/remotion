@@ -86,4 +86,4 @@ You can pass a `--config` option to the command line to specify a custom locatio
 
 ## See also
 
-- [Configuration file](config)
+- [Configuration file](/docs/config)
