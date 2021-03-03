@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/bundler",
-	"version": "1.5.0",
+	"version": "1.5.2",
 	"description": "Bundler for Remotion",
 	"main": "dist/index.js",
 	"repository": {
