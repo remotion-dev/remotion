@@ -97,7 +97,7 @@ const start = async () => {
 start();
 ```
 
-[See also: Passing props in GitHub Actions](parametrized-rendering#passing-props-in-github-actions)
+[See also: Passing props in GitHub Actions](/docs/parametrized-rendering#passing-props-in-github-actions)
 
 ## Render using a HTTP server
 
@@ -134,4 +134,4 @@ under `.github/workflows/render-video.yml`. All you have to do is to adjust the 
 
 Note that running the workflow may incur costs. However, the workflow will only run if you actively trigger it.
 
-[See also: Passing props in GitHub Actions](parametrized-rendering#passing-props-in-github-actions)
+[See also: Passing props in GitHub Actions](/docs/parametrized-rendering#passing-props-in-github-actions)

@@ -80,4 +80,4 @@ This function was taken from [Reanimated 2](https://github.com/software-mansion/
 
 ## See also
 
-- [interpolate](interpolate)
+- [interpolate](/docs/interpolate)

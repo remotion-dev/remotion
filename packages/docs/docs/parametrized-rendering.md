@@ -55,7 +55,7 @@ When rendering (for example using the `npm run build` script defined in `package
 npx remotion render src/index.tsx HelloWorld helloworld.mp4 --props='{"propOne": "Hi", "propTwo": 10}'
 ```
 
-[See also: CLI flags](cli)
+[See also: CLI flags](/docs/cli)
 
 ## Passing props when server rendering
 
@@ -79,7 +79,7 @@ await renderFrames({
 
 ## Passing props in GitHub Actions
 
-[See: Render using GitHub Actions](ssr#render-using-github-actions)
+[See: Render using GitHub Actions](/docs/ssr#render-using-github-actions)
 
 When using GitHub Actions, you need to adjust the file at `.github/workflows/render-video.yml` to make the inputs in the `workflow_dispatch` section manually match the shape of the props your root component accepts.
 

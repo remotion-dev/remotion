@@ -7,7 +7,7 @@ title: Easing
 The Easing API is the exact same as the one from [React Native](https://reactnative.dev/docs/easing) and the documentation has been copied over. Credit goes to them for this excellent API.
 :::
 
-The `Easing` module implements common easing functions. You can use it with the [`interpolate()`](interpolate) API.
+The `Easing` module implements common easing functions. You can use it with the [`interpolate()`](/docs/interpolate) API.
 
 You can find a visualization of some common easing functions at http://easings.net/
 
@@ -15,35 +15,35 @@ You can find a visualization of some common easing functions at http://easings.n
 
 The `Easing` module provides several predefined animations through the following methods:
 
-- [`back`](easing#back) provides a basic animation where the object goes slightly back before moving forward
-- [`bounce`](easing#bounce) provides a bouncing animation
-- [`ease`](easing#ease) provides a basic inertial animation
-- [`elastic`](easing#elastic) provides a basic spring interaction
+- [`back`](/docs/easing#back) provides a basic animation where the object goes slightly back before moving forward
+- [`bounce`](/docs/easing#bounce) provides a bouncing animation
+- [`ease`](/docs/easing#ease) provides a basic inertial animation
+- [`elastic`](/docs/easing#elastic) provides a basic spring interaction
 
 ### Standard functions
 
 Three standard easing functions are provided:
 
-- [`linear`](easing#linear)
-- [`quad`](easing#quad)
-- [`cubic`](easing#cubic)
+- [`linear`](/docs/easing#linear)
+- [`quad`](/docs/easing#quad)
+- [`cubic`](/docs/easing#cubic)
 
-The [`poly`](easing#poly) function can be used to implement quartic, quintic, and other higher power functions.
+The [`poly`](/docs/easing#poly) function can be used to implement quartic, quintic, and other higher power functions.
 
 ### Additional functions
 
 Additional mathematical functions are provided by the following methods:
 
-- [`bezier`](easing#bezier) provides a cubic bezier curve
-- [`circle`](easing#circle) provides a circular function
-- [`sin`](easing#sin) provides a sinusoidal function
-- [`exp`](easing#exp) provides an exponential function
+- [`bezier`](/docs/easing#bezier) provides a cubic bezier curve
+- [`circle`](/docs/easing#circle) provides a circular function
+- [`sin`](/docs/easing#sin) provides a sinusoidal function
+- [`exp`](/docs/easing#exp) provides an exponential function
 
 The following helpers are used to modify other easing functions.
 
-- [`in`](easing#in) runs an easing function forwards
-- [`inOut`](easing#inout) makes any easing function symmetrical
-- [`out`](easing#out) runs an easing function backwards
+- [`in`](/docs/easing#in) runs an easing function forwards
+- [`inOut`](/docs/easing#inout) makes any easing function symmetrical
+- [`out`](/docs/easing#out) runs an easing function backwards
 
 ## Example
 
