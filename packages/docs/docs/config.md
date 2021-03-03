@@ -68,6 +68,19 @@ Config.Rendering.setImageFormat('png')
 
 The [command line flag](cli) `--image-format` will take precedence over this option.
 
+### setFrameRange()
+
+To render a still frame or a range of frames. Which can be helpful to generate humbnails and stills.
+
+```tsx
+Config.Rendering.setFrameRange(90); //to select only 90th frame
+```
+or
+
+```tsx
+Config.Rendering.setFrameRange('10-20'); //To select frames from 10 to 20
+```
+
 ### setQuality()
 
 The JPEG quality of each frame. Must be a number between 0 and 100. Will not work if you render PNG frames. [Default: 80](https://github.com/chromium/chromium/blob/99314be8152e688bafbbf9a615536bdbb289ea87/headless/lib/browser/protocol/headless_handler.cc#L32).
