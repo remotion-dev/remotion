@@ -15,6 +15,10 @@ export const AudioForRendering: React.FC<RemotionAudioProps> = (props) => {
 			throw new Error('No src passed');
 		}
 
+		if (props.muted) {
+			return;
+		}
+
 		registerAsset({
 			type: 'audio',
 			src: props.src,
@@ -23,6 +27,7 @@ export const AudioForRendering: React.FC<RemotionAudioProps> = (props) => {
 		});
 		return () => unregisterAsset(id);
 	}, [
+		props.muted,
 		props.src,
 		registerAsset,
 		absoluteFrame,

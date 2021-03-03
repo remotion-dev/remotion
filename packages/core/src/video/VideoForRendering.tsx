@@ -25,14 +25,19 @@ export const VideoForRendering: React.FC<RemotionVideoProps> = ({
 			throw new Error('No src passed');
 		}
 
+		if (props.muted) {
+			return;
+		}
+
 		registerAsset({
 			type: 'video',
 			src: props.src,
 			id,
 			sequenceFrame: frame,
 		});
+
 		return () => unregisterAsset(id);
-	}, [props.src, registerAsset, id, unregisterAsset, frame]);
+	}, [props.muted, props.src, registerAsset, id, unregisterAsset, frame]);
 
 	useEffect(() => {
 		if (!videoRef.current) {

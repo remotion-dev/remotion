@@ -81,7 +81,7 @@ export const stitchFramesToVideo = async (options: {
 					'-filter_complex',
 					[
 						...options.assets.map((asset, i) => {
-							const duration = (asset.duration / options.fps).toFixed(3); // in secounds with millisecounds level precision
+							const duration = (asset.duration / options.fps).toFixed(3); // in seconds with milliseconds level precision
 							const assetTrimLeft = (asset.sequenceFrame / options.fps).toFixed(
 								3
 							);
@@ -93,11 +93,11 @@ export const stitchFramesToVideo = async (options: {
 								(asset.startInVideo / options.fps) *
 								1000
 							).toFixed(); // in milliseconds
-
+				
 							return [
 								`[${i + 1}:a]`,
 								duration ? `atrim=${assetTrimLeft}:${assetTrimRight},` : '',
-								`adelay=${startInVideo}`,
+								`adelay=delays=${startInVideo}:all=1`,
 								`[a${i + 1}]`,
 							].join('');
 						}),
