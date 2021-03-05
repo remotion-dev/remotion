@@ -116,7 +116,7 @@ test("Should fail to render out of range frame when range is a string", async ()
       "render",
       "src/index.tsx",
       "ten-frame-tester",
-      "--frames=2-12",
+      "--frames=2-10",
       outputPath,
     ],
     {
@@ -125,7 +125,7 @@ test("Should fail to render out of range frame when range is a string", async ()
     }
   );
   expect(task.exitCode).toBe(process.platform === "win32" ? 0 : 1);
-  expect(task.stderr).toContain("is not in between");
+  expect(task.stderr).toContain("Frame range 2-10 is not in between 0-9");
 });
 
 test("Should render a still image if single frame specified", async () => {
