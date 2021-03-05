@@ -2,36 +2,33 @@ export type FrameRange = number | [number, number];
 
 let range: FrameRange | null = null;
 
-export const setFrameRange = (newFrameRange: FrameRange | null) => {
-	if (newFrameRange === null) {
-		range = null;
+export const validateFrameRange = (frameRange: FrameRange | null) => {
+	if (frameRange === null) {
 		return;
 	}
-	if (typeof newFrameRange === 'number') {
-		if (newFrameRange < 0) {
+	if (typeof frameRange === 'number') {
+		if (frameRange < 0) {
 			throw new TypeError(
-				'Frame must be a non-negative number, got ' + newFrameRange
+				'Frame must be a non-negative number, got ' + frameRange
 			);
 		}
-		if (!Number.isFinite(newFrameRange)) {
-			throw new TypeError(
-				'Frame must be a finite number, got ' + newFrameRange
-			);
+		if (!Number.isFinite(frameRange)) {
+			throw new TypeError('Frame must be a finite number, got ' + frameRange);
 		}
-		if (!Number.isInteger(newFrameRange)) {
+		if (!Number.isInteger(frameRange)) {
 			throw new Error(
-				`Frame must be an integer, but got a float (${newFrameRange})`
+				`Frame must be an integer, but got a float (${frameRange})`
 			);
 		}
 	}
-	if (Array.isArray(newFrameRange)) {
-		if (newFrameRange.length !== 2) {
+	if (Array.isArray(frameRange)) {
+		if (frameRange.length !== 2) {
 			throw new TypeError(
 				'Frame range must be a tuple, got an array with length ' +
-					newFrameRange.length
+					frameRange.length
 			);
 		}
-		for (const value of newFrameRange) {
+		for (const value of frameRange) {
 			if (typeof value !== 'number') {
 				throw new Error(
 					`Each value of frame range must be a number, but got ${typeof value} (${JSON.stringify(
@@ -55,20 +52,24 @@ export const setFrameRange = (newFrameRange: FrameRange | null) => {
 				);
 			}
 		}
-		const [first, second] = newFrameRange;
+		const [first, second] = frameRange;
 		if (second < first) {
 			throw new Error(
 				'The second value of frame range must be not smaller than the first one, but got ' +
-					newFrameRange.join('-')
+					frameRange.join('-')
 			);
 		}
-		range = newFrameRange;
 		return;
 	}
 	throw new TypeError(
 		'Frame range must be a number or a tuple of numbers, but got object of type ' +
-			typeof newFrameRange
+			typeof frameRange
 	);
+};
+
+export const setFrameRange = (newFrameRange: FrameRange | null) => {
+	validateFrameRange(newFrameRange);
+	range = newFrameRange;
 };
 
 export const setFrameRangeFromCli = (newFrameRange: string | number) => {
