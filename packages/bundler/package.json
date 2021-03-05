@@ -9,7 +9,7 @@
 	"scripts": {
 		"test": "eslint src --ext ts,tsx",
 		"build": "tsc -d",
-		"watch": "tsc -b -w"
+		"watch": "tsc -w"
 	},
 	"files": [
 		"dist",
