@@ -3,6 +3,7 @@ import {Browser, FrameRange, Internals, VideoConfig} from 'remotion';
 import {openBrowser, provideScreenshot} from '.';
 import {getActualConcurrency} from './get-concurrency';
 import {getFrameCount} from './get-frame-range';
+import {getFrameToRender} from './get-frame-to-render';
 import {DEFAULT_IMAGE_FORMAT, ImageFormat} from './image-format';
 import {Pool} from './pool';
 import {serveStatic} from './serve-static';
@@ -87,13 +88,11 @@ export const renderFrames = async ({
 		new Array(frameCount)
 			.fill(Boolean)
 			.map((x, i) => i)
-			.map(async (f) => {
-				let frame = f;
+			.map(async (index) => {
+				const frame = getFrameToRender(frameRange ?? null, index);
 				const freePage = await pool.acquire();
-				const paddedIndex = String(f).padStart(filePadLength, '0');
-				if (frameRange) {
-					frame = f + frameRange[0] - 1;
-				}
+				const paddedIndex = String(index).padStart(filePadLength, '0');
+
 				await provideScreenshot({
 					page: freePage,
 					imageFormat,
