@@ -40,14 +40,14 @@ export const stitchFramesToVideo = async (options: {
 	const pixelFormat = options.pixelFormat ?? Internals.DEFAULT_PIXEL_FORMAT;
 	await validateFfmpeg();
 	const files = await fs.promises.readdir(options.dir);
-	const biggestNumber = Math.max(
-		...files
-			.filter((f) => f.match(/element-([0-9]+)/))
-			.map((f) => {
-				return f.match(/element-([0-9]+)/)?.[1] as string;
-			})
-			.map((f) => Number(f))
-	);
+	const numbers = files
+		.filter((f) => f.match(/element-([0-9]+)/))
+		.map((f) => {
+			return f.match(/element-([0-9]+)/)?.[1] as string;
+		})
+		.map((f) => Number(f));
+	const biggestNumber = Math.max(...numbers);
+	const smallestNumber = Math.min(...numbers);
 	const numberLength = String(biggestNumber).length;
 
 	const encoderName = getCodecName(codec);
@@ -65,6 +65,8 @@ export const stitchFramesToVideo = async (options: {
 		'image2',
 		'-s',
 		`${options.width}x${options.height}`,
+		'-start_number',
+		smallestNumber,
 		'-i',
 		`element-%0${numberLength}d.${imageFormat}`,
 		'-c:v',
