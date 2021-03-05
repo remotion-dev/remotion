@@ -1,4 +1,7 @@
+import execa from 'execa';
 import {TAsset} from 'remotion';
+import pLimit from 'p-limit';
+import { getActualConcurrency } from './get-concurrency';
 
 type UnsafeAsset = TAsset & {
 	startInVideo: number;
@@ -8,6 +11,10 @@ type UnsafeAsset = TAsset & {
 type MediaAsset = Omit<UnsafeAsset, 'duration'> & {
 	duration: number;
 };
+
+type AssetAudioDetails = {
+	channels: number;
+}
 
 export type Assets = MediaAsset[];
 
@@ -59,3 +66,39 @@ export const calculateAssetsPosition = (frames: TAsset[][]): Assets => {
 	}
 	return assets as MediaAsset[];
 };
+
+export async function getAudioChannels(path: string, cwd: string) {
+	const args = [
+		['-v', 'error'],
+		['-show_entries', 'stream=channels'],
+		['-of', 'default=nw=1'],
+		[path]
+	]
+	.reduce<(string | null)[]>((acc, val) => acc.concat(val), [])
+	.filter(Boolean) as string[];
+
+	try {
+		const task = await execa('ffprobe', args, { cwd });
+		return parseInt(task.stdout.replace('channels=', ''), 10);
+	} catch (ex) {
+		throw ex;
+	}
+}
+
+export async function getAssetAudioDetails(options: {
+	assetPaths: string[], 
+	cwd: string,
+	parallelism?: number | null;
+}): Promise<Map<string, AssetAudioDetails>> {
+	const uniqueAssets = [...new Set(options.assetPaths)];
+	const actualParallelism = getActualConcurrency(options.parallelism ?? null);
+	const parallelLimit = pLimit(actualParallelism);
+	const audioChannelTasks = uniqueAssets.map((path) => parallelLimit(() => getAudioChannels(path, options.cwd)));
+	const result = await Promise.all(audioChannelTasks);
+	
+	const mappedResults: [string, AssetAudioDetails][] = result.map((channels, index) => {
+		return [uniqueAssets[index], { channels }];
+	});
+
+	return new Map<string, AssetAudioDetails>(mappedResults);
+}

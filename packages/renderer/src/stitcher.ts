@@ -2,7 +2,7 @@ import execa from 'execa';
 import fs from 'fs';
 import {Codec, Internals, PixelFormat} from 'remotion';
 import url from 'url';
-import {Assets} from './assets';
+import {Assets, getAssetAudioDetails} from './assets';
 import {DEFAULT_IMAGE_FORMAT, ImageFormat} from './image-format';
 import {parseFfmpegProgress} from './parse-ffmpeg-progress';
 import {validateFfmpeg} from './validate-ffmpeg';
@@ -35,6 +35,7 @@ export const stitchFramesToVideo = async (options: {
 	codec?: Codec;
 	crf?: number;
 	assets: Assets;
+	parallelism?: number | null;
 	onProgress?: (num: number) => void;
 }): Promise<void> => {
 	const codec = options.codec ?? Internals.DEFAULT_CODEC;
@@ -61,12 +62,19 @@ export const stitchFramesToVideo = async (options: {
 	);
 	Internals.validateSelectedPixelFormatAndCodecCombination(pixelFormat, codec);
 
+	const assetPaths = options.assets.map((asset) => url.fileURLToPath(asset.src));
+	const assetAudioDetails = await getAssetAudioDetails({
+		assetPaths,
+		cwd: options.dir,
+		parallelism: options.parallelism,
+	});
+	
 	const ffmpegArgs = [
 		['-r', String(options.fps)],
 		['-f', 'image2'],
 		['-s', `${options.width}x${options.height}`],
 		['-i', `element-%0${numberLength}d.${imageFormat}`],
-		...options.assets.map((asset) => ['-i', url.fileURLToPath(asset.src)]),
+		...assetPaths.map((path) => ['-i', path]),
 		['-c:v', encoderName],
 		['-crf', String(crf)],
 		['-pix_fmt', pixelFormat],
@@ -93,11 +101,12 @@ export const stitchFramesToVideo = async (options: {
 								(asset.startInVideo / options.fps) *
 								1000
 							).toFixed(); // in milliseconds
+							const audioDetails = assetAudioDetails.get(url.fileURLToPath(asset.src));
 				
 							return [
 								`[${i + 1}:a]`,
 								duration ? `atrim=${assetTrimLeft}:${assetTrimRight},` : '',
-								`adelay=delays=${startInVideo}:all=1`,
+								`adelay=${new Array(audioDetails!.channels).fill(startInVideo).join('|')}`,
 								`[a${i + 1}]`,
 							].join('');
 						}),
@@ -110,8 +119,8 @@ export const stitchFramesToVideo = async (options: {
 		options.force ? '-y' : null,
 		options.outputLocation,
 	]
-		.reduce<(string | null)[]>((acc, val) => acc.concat(val), [])
-		.filter(Boolean) as string[];
+	.reduce<(string | null)[]>((acc, val) => acc.concat(val), [])
+	.filter(Boolean) as string[];
 
 	const task = execa('ffmpeg', ffmpegArgs, {cwd: options.dir});
 

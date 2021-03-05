@@ -195,6 +195,7 @@ export const render = async () => {
 			codec,
 			crf,
 			assets,
+			parallelism,
 			onProgress: (frame) => {
 				stitchingProgress.update(frame);
 			},
