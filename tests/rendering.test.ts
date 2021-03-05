@@ -17,7 +17,7 @@ test("Should be able to render video", async () => {
       "remotion",
       "render",
       "src/index.tsx",
-      "shadow-circles",
+      "ten-frame-tester",
       "--codec",
       "h264",
       outputPath,
@@ -35,7 +35,7 @@ test("Should be able to render video", async () => {
   const data = info.stderr;
   expect(data).toContain("Video: h264");
   expect(data).toContain("yuv420p");
-  expect(data).toContain("1080x1920");
+  expect(data).toContain("1080x1080");
   expect(data).toContain("30 fps");
 });
 
@@ -46,7 +46,7 @@ test("Should fail to render conflicting --sequence and --codec settings", async 
       "remotion",
       "render",
       "src/index.tsx",
-      "shadow-circles",
+      "ten-frame-tester",
       "--codec",
       "h264",
       "--sequence",
@@ -68,7 +68,7 @@ test("Should fail to render out of range CRF", async () => {
       "remotion",
       "render",
       "src/index.tsx",
-      "shadow-circles",
+      "ten-frame-tester",
       "--codec",
       "vp8",
       // Range of VP8 values is 4-63
@@ -92,10 +92,10 @@ test("Should fail to render out of range frame when range is a number", async ()
       "remotion",
       "render",
       "src/index.tsx",
-      "react-svg",
+      "ten-frame-tester",
       "--sequence",
-      "--frames=301",
-      outputPath.replace("mp4", ""),
+      "--frames=10",
+      outputPath.replace(".mp4", ""),
     ],
     {
       cwd: "packages/example",
@@ -103,7 +103,9 @@ test("Should fail to render out of range frame when range is a number", async ()
     }
   );
   expect(task.exitCode).toBe(process.platform === "win32" ? 0 : 1);
-  expect(task.stderr).toContain("is greater than actual");
+  expect(task.stderr).toContain(
+    "Frame number is out of range, must be between 0 and 9"
+  );
 });
 
 test("Should fail to render out of range frame when range is a string", async () => {
@@ -113,8 +115,8 @@ test("Should fail to render out of range frame when range is a string", async ()
       "remotion",
       "render",
       "src/index.tsx",
-      "react-svg",
-      "--frames=45-301",
+      "ten-frame-tester",
+      "--frames=2-12",
       outputPath,
     ],
     {
