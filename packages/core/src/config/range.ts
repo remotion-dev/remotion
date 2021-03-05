@@ -1,33 +1,32 @@
-export type FrameRange = number[] | null;
+export type FrameRange = number | [number, number] | null;
 
 let range: FrameRange = null;
 
 export const setRange = (newFrameRange: string | number) => {
 	if (typeof newFrameRange === 'number') {
-		range = [newFrameRange];
+		range = newFrameRange;
+		return;
 	}
 	if (typeof newFrameRange === 'string') {
-		const frameRange: FrameRange = newFrameRange
-			.split('-')
-			.map((f) => Number(f));
-		if (frameRange.length > 2 || frameRange.length <= 0) {
+		const parsed = newFrameRange.split('-').map((f) => Number(f)) as number[];
+		if (parsed.length > 2 || parsed.length <= 0) {
 			throw new Error(
-				`--range flag must be a number or 2 numbers separate by '-', instead got ${frameRange.length} numbers`
+				`--range flag must be a number or 2 numbers separate by '-', instead got ${parsed.length} numbers`
 			);
 		}
-		if (frameRange.length === 2 && frameRange[1] < frameRange[0]) {
+		if (parsed.length === 2 && parsed[1] < parsed[0]) {
 			throw new Error(
 				'in --range flag second number should be greater than first number'
 			);
 		}
-		for (const key in frameRange) {
-			if (typeof frameRange[key] !== 'number') {
+		for (const value of parsed) {
+			if (typeof value !== 'number') {
 				throw new Error(
 					'--range flag must be a number or 2 numbers separate by `-`'
 				);
 			}
 		}
-		range = frameRange;
+		range = parsed as [number, number];
 	}
 };
 
