@@ -20,6 +20,7 @@ export const validateFrameRange = (frameRange: FrameRange | null) => {
 				`Frame must be an integer, but got a float (${frameRange})`
 			);
 		}
+		return;
 	}
 	if (Array.isArray(frameRange)) {
 		if (frameRange.length !== 2) {
