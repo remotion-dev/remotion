@@ -5,6 +5,7 @@ import {
 	getActualConcurrency,
 	getCompositions,
 	renderFrames,
+	RenderFramesOutput,
 	stitchFramesToVideo,
 	validateFfmpeg,
 } from '@remotion/renderer';
@@ -177,6 +178,8 @@ export const render = async () => {
 		? absoluteOutputFile
 		: STITCH_FROM || (await prepareDistDir(RENDER_DIST));
 
+	let rendered: RenderFramesOutput | null = null;
+
 	if (!STITCH_FROM) {
 		const renderProgress = new cliProgress.Bar(
 			{
@@ -186,7 +189,7 @@ export const render = async () => {
 			},
 			cliProgress.Presets.shades_grey
 		);
-		const rendered = await renderFrames({
+		rendered = await renderFrames({
 			config,
 			onFrameUpdate: (frame) => renderProgress.update(frame),
 			parallelism,
@@ -226,7 +229,7 @@ export const render = async () => {
 			},
 			cliProgress.Presets.shades_grey
 		);
-		stitchingProgress.start(rendered.frameCount, 0);
+		stitchingProgress.start(rendered?.frameCount ?? config.durationInFrames, 0);
 		await stitchFramesToVideo({
 			dir: outputDir,
 			width: config.width,
