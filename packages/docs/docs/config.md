@@ -70,17 +70,18 @@ Config.Rendering.setImageFormat('png')
 
 The [command line flag](/docs/cli) `--image-format` will take precedence over this option.
 
-### setRange()
+### setFrameRange()
 
 To render a still frame or a range of frames. Which can be helpful to generate humbnails and stills.
 
 ```tsx
-Config.Rendering.setRange(90); //to select only 90th frame
+Config.Rendering.setFrameRange(90); //to select only 90th frame
 ```
+
 or
 
 ```tsx
-Config.Rendering.setRange('10-20'); //To select frames from 10 to 20
+Config.Rendering.setFrameRange('10-20'); //To select frames from 10 to 20
 ```
 
 ### setQuality()
