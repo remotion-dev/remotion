@@ -2,7 +2,7 @@ import {FrameRange} from 'remotion';
 
 export const getFrameCount = (
 	totalDuration: number,
-	frameRange: FrameRange
+	frameRange: FrameRange | null
 ): number => {
 	const frames = totalDuration;
 

@@ -41,7 +41,7 @@ export const renderFrames = async ({
 	imageFormat?: ImageFormat;
 	quality?: number;
 	browser?: Browser;
-	frameRange?: FrameRange;
+	frameRange?: FrameRange | null;
 }): Promise<RenderFramesOutput> => {
 	if (quality !== undefined && imageFormat !== 'jpeg') {
 		throw new Error(
