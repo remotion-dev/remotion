@@ -11,15 +11,12 @@ const entry = require.resolve('./renderEntry');
 
 const promisified = promisify(webpack);
 
-const prepareDistDir = async (specified?: string) => {
+const prepareDistDir = async (specified: string | null) => {
 	if (specified) {
 		await fs.promises.mkdir(specified, {recursive: true});
 		return specified;
-	} else {
-		return await fs.promises.mkdtemp(
-			path.join(os.tmpdir(), 'react-motion-graphics')
-		);
 	}
+	return fs.promises.mkdtemp(path.join(os.tmpdir(), 'react-motion-graphics'));
 };
 
 export const bundle = async (
@@ -27,15 +24,15 @@ export const bundle = async (
 	onProgressUpdate?: (f: number) => void,
 	options?: {
 		webpackOverride?: WebpackOverrideFn;
-		distDir?: string;
+		outDir?: string;
 	}
 ): Promise<string> => {
-	const distDir = await prepareDistDir(options?.distDir);
+	const outDir = await prepareDistDir(options?.outDir ?? null);
 	const output = await promisified([
 		webpackConfig({
 			entry,
 			userDefinedComponent: entryPoint,
-			outDir: distDir,
+			outDir,
 			environment: 'production',
 			webpackOverride:
 				options?.webpackOverride ?? Internals.getWebpackOverrideFn(),
@@ -51,9 +48,9 @@ export const bundle = async (
 	}
 	const indexHtmlDir = path.join(__dirname, '..', 'web', 'index.html');
 	if (process.platform === 'win32') {
-		await execa('copy', [indexHtmlDir, distDir]);
+		await execa('copy', [indexHtmlDir, outDir]);
 	} else {
-		await execa('cp', [indexHtmlDir, distDir]);
+		await execa('cp', [indexHtmlDir, outDir]);
 	}
-	return distDir;
+	return outDir;
 };
