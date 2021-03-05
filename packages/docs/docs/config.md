@@ -72,16 +72,18 @@ The [command line flag](/docs/cli) `--image-format` will take precedence over th
 
 ### setFrameRange()
 
-To render a still frame or a range of frames. Which can be helpful to generate humbnails and stills.
+_Available from Version 2.0._
+
+Pass a number to render a still frame or a tuple to render a subset of a video. The frame sequence is zero-indexed.
 
 ```tsx
-Config.Rendering.setFrameRange(90); //to select only 90th frame
+Config.Rendering.setFrameRange(90); // To render only the 91st frame
 ```
 
 or
 
 ```tsx
-Config.Rendering.setFrameRange('10-20'); //To select frames from 10 to 20
+Config.Rendering.setFrameRange([0, 20]); // Render a video only containing the first 21 frames
 ```
 
 ### setQuality()

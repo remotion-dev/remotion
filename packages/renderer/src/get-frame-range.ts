@@ -12,7 +12,7 @@ export const getFrameCount = (
 
 	if (typeof frameRange === 'number') {
 		if (frameRange < 0) {
-			throw new Error('Frame number must be positive, got ' + frameRange);
+			throw new Error('Frame number must be non-negative, got ' + frameRange);
 		}
 		if (frameRange >= frames) {
 			throw new Error(
@@ -25,11 +25,9 @@ export const getFrameCount = (
 	if (frameRange.length !== 2) {
 		throw new Error('Frame range must be between 1 and 2 numbers');
 	}
-	if (frameRange[1] > frames || frameRange[0] < 0) {
+	if (frameRange[1] >= frames || frameRange[0] < 0) {
 		throw new Error(
-			`Frame range ${
-				frameRange[0] - frameRange[1]
-			} is not in between 0-${frames}`
+			`Frame range ${frameRange.join('-')} is not in between 0-${frames - 1}`
 		);
 	}
 	return frameRange[1] - frameRange[0] + 1;
