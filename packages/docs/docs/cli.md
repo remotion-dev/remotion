@@ -18,13 +18,13 @@ Besides choosing a video and output location with the command line arguments, th
 - `--pixel-format`: [Set a custom pixel format. See here for available values.](/docs/config#setpixelformat)
 - `--image-format`: [`jpeg` or `png` - JPEG is faster, but supports transparency.](/docs/config#setimageformat) The default image format is `jpeg` since v1.1. Flag available since v1.4.
 - `--config`: Specify a location for the Remotion config file. Available in v1.2 and later.
-- `--quality`: [Value between 0 and 100 for JPEG rendering quality](config#setquality). Doesn't work when PNG frames are rendered. Available since v1.4.
-- `--overwrite`: [Write to output even if file already exists.](config#setoverwriteoutput)
-- `--sequence`: [Pass this flag if you want an image sequence as the output instead of a video.](config#setimagesequence) Available since v1.4.
-- `--codec`: [`h264` or `h265` or `png` or `vp8` or `vp9`](config#setoutputformat). If you don't supply `--codec`, it will use the H.264 encoder. Available since v1.4.
-- `--crf`: [To set Constant Rate Factor (CRF) of the output](config#setcrf). Minimum 0. Use this rate control mode if you want to keep the best quality and care less about the file size. Available since v1.4.
-- `--browser-executable`: [Path to a Chrome executable](config#setbrowserexecutable). If not specified and Remotion cannot find one, it will download one during rendering. Available since v1.5.
-- `--frames`: [Render a still frame or a subset of a video](config#setframerange). Example: `--frames=0-9` (To select the first 10 frames) or <br/> `--frames=50` (To render a still of the 51st frame).
+- `--quality`: [Value between 0 and 100 for JPEG rendering quality](/docs/config#setquality). Doesn't work when PNG frames are rendered. Available since v1.4.
+- `--overwrite`: [Write to output even if file already exists.](/docs/config#setoverwriteoutput)
+- `--sequence`: [Pass this flag if you want an image sequence as the output instead of a video.](/docs/config#setimagesequence) Available since v1.4.
+- `--codec`: [`h264` or `h265` or `png` or `vp8` or `vp9`](/docs/config#setoutputformat). If you don't supply `--codec`, it will use the H.264 encoder. Available since v1.4.
+- `--crf`: [To set Constant Rate Factor (CRF) of the output](/docs/config#setcrf). Minimum 0. Use this rate control mode if you want to keep the best quality and care less about the file size. Available since v1.4.
+- `--browser-executable`: [Path to a Chrome executable](/docs/config#setbrowserexecutable). If not specified and Remotion cannot find one, it will download one during rendering. Available since v1.5.
+- `--frames`: [Render a still frame or a subset of a video](/docs/config#setframerange). Example: `--frames=0-9` (To select the first 10 frames) or <br/> `--frames=50` (To render a still of the 51st frame).
 
 :::info
 If you don't feel like passing command line flags every time, consider creating a `remotion.config.ts` [config file](/docs/config).
