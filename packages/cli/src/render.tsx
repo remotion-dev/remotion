@@ -160,7 +160,7 @@ export const render = async () => {
 			(progress) => {
 				bundlingProgress.update(progress);
 			},
-			{distDir: BUNDLE_DIST}
+			{outDir: BUNDLE_DIST}
 		));
 	bundlingProgress.stop();
 	const comps = await getCompositions(
