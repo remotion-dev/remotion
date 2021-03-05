@@ -17,7 +17,6 @@ import {getFinalOutputCodec} from 'remotion/dist/config/codec';
 import {getCompositionId} from './get-composition-id';
 import {getConfigFileName} from './get-config-file-name';
 import {getOutputFilename} from './get-filename';
-import {getFrameRange} from './get-frame-range';
 import {getUserProps} from './get-user-props';
 import {getImageFormat} from './image-formats';
 import {loadConfigFile} from './load-config';
@@ -146,8 +145,6 @@ export const render = async () => {
 		throw new Error(`Cannot find composition with ID ${compositionId}`);
 	}
 
-	const frames = getFrameRange(config.durationInFrames, frameRange);
-
 	const outputDir = shouldOutputImageSequence
 		? absoluteOutputFile
 		: await fs.promises.mkdtemp(path.join(os.tmpdir(), 'react-motion-render'));
@@ -160,19 +157,19 @@ export const render = async () => {
 		},
 		cliProgress.Presets.shades_grey
 	);
-	await renderFrames({
+	const rendered = await renderFrames({
 		config,
 		onFrameUpdate: (frame) => renderProgress.update(frame),
 		parallelism,
 		compositionId,
 		outputDir,
-		onStart: () => {
+		onStart: ({frameCount}) => {
 			process.stdout.write(
 				`📼 (2/${steps}) Rendering frames (${getActualConcurrency(
 					parallelism
 				)}x concurrency)...\n`
 			);
-			renderProgress.start(frames, 0);
+			renderProgress.start(frameCount, 0);
 		},
 		userProps,
 		webpackBundle: bundled,
@@ -180,7 +177,6 @@ export const render = async () => {
 		quality,
 		browser,
 		frameRange,
-		frames,
 	});
 	renderProgress.stop();
 	if (process.env.DEBUG) {
@@ -199,7 +195,7 @@ export const render = async () => {
 			},
 			cliProgress.Presets.shades_grey
 		);
-		stitchingProgress.start(frames, 0);
+		stitchingProgress.start(rendered.frameCount, 0);
 		await stitchFramesToVideo({
 			dir: outputDir,
 			width: config.width,
