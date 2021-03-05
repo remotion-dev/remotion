@@ -17,6 +17,7 @@ import {getFinalOutputCodec} from 'remotion/dist/config/codec';
 import {getCompositionId} from './get-composition-id';
 import {getConfigFileName} from './get-config-file-name';
 import {getOutputFilename} from './get-filename';
+import {getFrameRange} from './get-frame-range';
 import {getUserProps} from './get-user-props';
 import {getImageFormat} from './image-formats';
 import {loadConfigFile} from './load-config';
@@ -145,28 +146,7 @@ export const render = async () => {
 		throw new Error(`Cannot find composition with ID ${compositionId}`);
 	}
 
-	let {durationInFrames: frames} = config;
-
-	if (frameRange) {
-		if (frameRange.length === 1) {
-			if (frameRange[0] > frames) {
-				throw new Error(
-					`Frame range ${frameRange[0]} is greater than actual ${frames}`
-				);
-			}
-			frames = 1;
-		}
-		if (frameRange.length === 2) {
-			if (frameRange[1] > frames || frameRange[0] < 0) {
-				throw new Error(
-					`Frame range ${
-						frameRange[0] - frameRange[1]
-					} is not in between 0-${frames}`
-				);
-			}
-			frames = frameRange[1] - frameRange[0] + 1;
-		}
-	}
+	const frames = getFrameRange(config.durationInFrames, frameRange);
 
 	const outputDir = shouldOutputImageSequence
 		? absoluteOutputFile
