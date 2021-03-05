@@ -21,7 +21,11 @@ import {
 	getDefaultCrfForCodec,
 	validateSelectedCrfAndCodecCombination,
 } from './config/crf';
-import {getRange, setFrameRangeFromCli} from './config/frame-range';
+import {
+	getRange,
+	setFrameRangeFromCli,
+	validateFrameRange,
+} from './config/frame-range';
 import {
 	getUserPreferredImageFormat,
 	validateSelectedPixelFormatAndImageFormatCombination,
@@ -79,6 +83,7 @@ export const Internals = {
 	getUserPreferredImageFormat,
 	validateSelectedPixelFormatAndImageFormatCombination,
 	validateSelectedPixelFormatAndCodecCombination,
+	validateFrameRange,
 };
 
 export type {
