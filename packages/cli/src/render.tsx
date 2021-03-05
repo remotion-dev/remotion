@@ -234,11 +234,11 @@ export const render = async () => {
 		try {
 			await Promise.all(
 				[
-					!STITCH_FROM &&
+					!(STITCH_FROM || RENDER_DIST) &&
 						fs.promises.rmdir(outputDir, {
 							recursive: true,
 						}),
-					!RENDER_FROM &&
+					!(RENDER_FROM || BUNDLE_DIST) &&
 						fs.promises.rmdir(bundled, {
 							recursive: true,
 						}),
