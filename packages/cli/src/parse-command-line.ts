@@ -4,6 +4,7 @@ import {
 	Codec,
 	Config,
 	ImageFormat,
+	Internals,
 	PixelFormat,
 } from 'remotion';
 
@@ -40,7 +41,7 @@ export const parseCommandLine = () => {
 		Config.Rendering.setConcurrency(parsedCli.concurrency);
 	}
 	if (parsedCli.frames) {
-		Config.Rendering.setFrameRange(parsedCli.frames);
+		Internals.setFrameRangeFromCli(parsedCli.frames);
 	}
 	if (parsedCli.png) {
 		console.warn(

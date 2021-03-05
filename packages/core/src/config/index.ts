@@ -48,6 +48,11 @@ export const Config = {
 		 * PNG is slower, but supports transparency.
 		 */
 		setImageFormat,
+		/**
+		 * Render only a subset of a video.
+		 * Pass in a tuple [20, 30] to only render frames 20-30 into a video.
+		 * Pass in a single number `20` to only render a single frame as an image.
+		 */
 		setFrameRange,
 	},
 	Output: {

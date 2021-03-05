@@ -1,9 +1,14 @@
-export type FrameRange = number | [number, number] | null;
+export type FrameRange = number | [number, number];
 
-let range: FrameRange = null;
+let range: FrameRange | null = null;
 
-export const setFrameRange = (newFrameRange: string | number) => {
+export const setFrameRange = (newFrameRange: FrameRange | null) => {
+	range = newFrameRange;
+};
+
+export const setFrameRangeFromCli = (newFrameRange: string | number) => {
 	if (typeof newFrameRange === 'number') {
+		setFrameRange(newFrameRange);
 		range = newFrameRange;
 		return;
 	}
@@ -11,22 +16,22 @@ export const setFrameRange = (newFrameRange: string | number) => {
 		const parsed = newFrameRange.split('-').map((f) => Number(f)) as number[];
 		if (parsed.length > 2 || parsed.length <= 0) {
 			throw new Error(
-				`--frames flag must be a number or 2 numbers separate by '-', instead got ${parsed.length} numbers`
+				`--frames flag must be a number or 2 numbers separated by '-', instead got ${parsed.length} numbers`
 			);
 		}
 		if (parsed.length === 2 && parsed[1] < parsed[0]) {
 			throw new Error(
-				'in --frames flag second number should be greater than first number'
+				'The second number of the --frames flag number should be greater or equal than first number'
 			);
 		}
 		for (const value of parsed) {
 			if (typeof value !== 'number') {
 				throw new Error(
-					'--frames flag must be a number or 2 numbers separate by `-`'
+					'--frames flag must be a single number, or 2 numbers separated by `-`'
 				);
 			}
 		}
-		range = parsed as [number, number];
+		setFrameRange(parsed as [number, number]);
 	}
 };
 

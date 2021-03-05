@@ -188,7 +188,7 @@ export const render = async () => {
 		imageFormat,
 		quality,
 		browser,
-		frameRange,
+		frameRange: frameRange ?? null,
 	});
 	renderProgress.stop();
 	if (process.env.DEBUG) {
