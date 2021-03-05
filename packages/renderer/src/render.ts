@@ -91,7 +91,7 @@ export const renderFrames = async ({
 			.map(async (index) => {
 				const frame = getFrameToRender(frameRange ?? null, index);
 				const freePage = await pool.acquire();
-				const paddedIndex = String(index).padStart(filePadLength, '0');
+				const paddedIndex = String(frame).padStart(filePadLength, '0');
 
 				await provideScreenshot({
 					page: freePage,
