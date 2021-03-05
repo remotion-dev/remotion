@@ -12,7 +12,7 @@ import cliProgress from 'cli-progress';
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
-import {Internals} from 'remotion';
+import {Config, Internals} from 'remotion';
 import {getFinalOutputCodec} from 'remotion/dist/config/codec';
 import {getCompositionId} from './get-composition-id';
 import {getConfigFileName} from './get-config-file-name';
@@ -32,9 +32,21 @@ export const render = async () => {
 	loadConfigFile(configFileName);
 	parseCommandLine();
 	const parallelism = Internals.getConcurrency();
+	const frameRange = Internals.getRange();
+	if (typeof frameRange === 'number') {
+		console.warn(
+			'Selected a single frame. Assuming you want to output an image.'
+		);
+		console.warn(
+			`If you want to render a video, pass a range:  '--frames=${frameRange}-${frameRange}'.`
+		);
+		console.warn(
+			"To dismiss this message, add the '--sequence' flag explicitly."
+		);
+		Config.Output.setImageSequence(true);
+	}
 	const shouldOutputImageSequence = Internals.getShouldOutputImageSequence();
 	const userCodec = Internals.getOutputCodecOrUndefined();
-	const frameRange = Internals.getRange();
 	if (shouldOutputImageSequence && userCodec) {
 		console.error(
 			'Detected both --codec and --sequence (formerly --png) flag.'
