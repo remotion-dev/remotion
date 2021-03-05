@@ -127,3 +127,30 @@ test("Should fail to render out of range frame when range is a string", async ()
   expect(task.exitCode).toBe(process.platform === "win32" ? 0 : 1);
   expect(task.stderr).toContain("is not in between");
 });
+
+test("Should render a still image if single frame specified", async () => {
+  const outDir = outputPath.replace(".mp4", "");
+  const outImg = path.join(outDir, "element-2.png");
+  const task = await execa(
+    "npx",
+    [
+      "remotion",
+      "render",
+      "src/index.tsx",
+      "ten-frame-tester",
+      "--frames=2",
+      outDir,
+    ],
+    {
+      cwd: "packages/example",
+      reject: false,
+    }
+  );
+  expect(task.exitCode).toBe(0);
+  expect(fs.existsSync(outImg)).toBe(true);
+
+  const info = await execa("ffprobe", [outImg]);
+  const data = info.stderr;
+  expect(data).toContain("Video: png");
+  expect(data).toContain("png_pipe");
+});
