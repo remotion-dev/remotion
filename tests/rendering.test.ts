@@ -93,7 +93,7 @@ test("Should fail to render out of range frame when range is a number", async ()
       "render",
       "src/index.tsx",
       "react-svg",
-      '--range=301',
+      "--frames=301",
       outputPath,
     ],
     {
@@ -113,7 +113,7 @@ test("Should fail to render out of range frame when range is a string", async ()
       "render",
       "src/index.tsx",
       "react-svg",
-      '--range=45-301',
+      "--frames=45-301",
       outputPath,
     ],
     {
