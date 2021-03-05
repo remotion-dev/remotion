@@ -16,7 +16,4 @@ jobs:
       - run: npm i
       - run: npx lerna bootstrap --ci
       - run: npm run build
-      # We need to call bootstrap again to link the CLI
-      # binary to allow `npx remotion`
-      - run: npx lerna bootstrap --ci
       - run: npm test
