@@ -70,6 +70,22 @@ Config.Rendering.setImageFormat('png')
 
 The [command line flag](/docs/cli) `--image-format` will take precedence over this option.
 
+### setFrameRange()
+
+_Available from Version 2.0._
+
+Pass a number to render a still frame or a tuple to render a subset of a video. The frame sequence is zero-indexed.
+
+```tsx
+Config.Rendering.setFrameRange(90); // To render only the 91st frame
+```
+
+or
+
+```tsx
+Config.Rendering.setFrameRange([0, 20]); // Render a video only containing the first 21 frames
+```
+
 ### setQuality()
 
 The JPEG quality of each frame. Must be a number between 0 and 100. Will not work if you render PNG frames. [Default: 80](https://github.com/chromium/chromium/blob/99314be8152e688bafbbf9a615536bdbb289ea87/headless/lib/browser/protocol/headless_handler.cc#L32).

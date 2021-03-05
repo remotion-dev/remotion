@@ -12,7 +12,7 @@ import cliProgress from 'cli-progress';
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
-import {Internals} from 'remotion';
+import {Config, Internals} from 'remotion';
 import {getFinalOutputCodec} from 'remotion/dist/config/codec';
 import {getCompositionId} from './get-composition-id';
 import {getConfigFileName} from './get-config-file-name';
@@ -42,6 +42,19 @@ export const render = async () => {
 	loadConfigFile(configFileName);
 	parseCommandLine();
 	const parallelism = Internals.getConcurrency();
+	const frameRange = Internals.getRange();
+	if (typeof frameRange === 'number') {
+		console.warn(
+			'Selected a single frame. Assuming you want to output an image.'
+		);
+		console.warn(
+			`If you want to render a video, pass a range:  '--frames=${frameRange}-${frameRange}'.`
+		);
+		console.warn(
+			"To dismiss this message, add the '--sequence' flag explicitly."
+		);
+		Config.Output.setImageSequence(true);
+	}
 	const shouldOutputImageSequence = Internals.getShouldOutputImageSequence();
 	const userCodec = Internals.getOutputCodecOrUndefined();
 	if (shouldOutputImageSequence && userCodec) {
@@ -160,7 +173,6 @@ export const render = async () => {
 		throw new Error(`Cannot find composition with ID ${compositionId}`);
 	}
 
-	const {durationInFrames: frames} = config;
 	const outputDir = shouldOutputImageSequence
 		? absoluteOutputFile
 		: STITCH_FROM || (await prepareDistDir(RENDER_DIST));
@@ -174,28 +186,30 @@ export const render = async () => {
 			},
 			cliProgress.Presets.shades_grey
 		);
-		await renderFrames({
+		const rendered = await renderFrames({
 			config,
 			onFrameUpdate: (frame) => renderProgress.update(frame),
 			parallelism,
 			compositionId,
 			outputDir,
-			onStart: () => {
+			onStart: ({frameCount}) => {
 				process.stdout.write(
 					`📼 (2/${steps}) Rendering frames (${getActualConcurrency(
 						parallelism
 					)}x concurrency)...\n`
 				);
-				renderProgress.start(frames, 0);
+				renderProgress.start(frameCount, 0);
 			},
 			userProps,
 			webpackBundle: bundled,
 			imageFormat,
 			quality,
 			browser,
+			frameRange: frameRange ?? null,
 		});
 		renderProgress.stop();
 	}
+
 	if (process.env.DEBUG) {
 		Internals.perf.logPerf();
 	}
@@ -212,7 +226,7 @@ export const render = async () => {
 			},
 			cliProgress.Presets.shades_grey
 		);
-		stitchingProgress.start(frames, 0);
+		stitchingProgress.start(rendered.frameCount, 0);
 		await stitchFramesToVideo({
 			dir: outputDir,
 			width: config.width,

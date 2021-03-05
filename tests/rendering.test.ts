@@ -17,7 +17,7 @@ test("Should be able to render video", async () => {
       "remotion",
       "render",
       "src/index.tsx",
-      "shadow-circles",
+      "ten-frame-tester",
       "--codec",
       "h264",
       outputPath,
@@ -35,7 +35,7 @@ test("Should be able to render video", async () => {
   const data = info.stderr;
   expect(data).toContain("Video: h264");
   expect(data).toContain("yuv420p");
-  expect(data).toContain("1080x1920");
+  expect(data).toContain("1080x1080");
   expect(data).toContain("30 fps");
 });
 
@@ -46,7 +46,7 @@ test("Should fail to render conflicting --sequence and --codec settings", async 
       "remotion",
       "render",
       "src/index.tsx",
-      "shadow-circles",
+      "ten-frame-tester",
       "--codec",
       "h264",
       "--sequence",
@@ -60,6 +60,7 @@ test("Should fail to render conflicting --sequence and --codec settings", async 
   expect(task.exitCode).toBe(process.platform === "win32" ? 0 : 1);
   expect(task.stderr).toContain("Detected both --codec");
 });
+
 test("Should fail to render out of range CRF", async () => {
   const task = await execa(
     "npx",
@@ -67,7 +68,7 @@ test("Should fail to render out of range CRF", async () => {
       "remotion",
       "render",
       "src/index.tsx",
-      "shadow-circles",
+      "ten-frame-tester",
       "--codec",
       "vp8",
       // Range of VP8 values is 4-63
@@ -82,4 +83,74 @@ test("Should fail to render out of range CRF", async () => {
   );
   expect(task.exitCode).toBe(process.platform === "win32" ? 0 : 1);
   expect(task.stderr).toContain("CRF must be between ");
+});
+
+test("Should fail to render out of range frame when range is a number", async () => {
+  const task = await execa(
+    "npx",
+    [
+      "remotion",
+      "render",
+      "src/index.tsx",
+      "ten-frame-tester",
+      "--sequence",
+      "--frames=10",
+      outputPath.replace(".mp4", ""),
+    ],
+    {
+      cwd: "packages/example",
+      reject: false,
+    }
+  );
+  expect(task.exitCode).toBe(process.platform === "win32" ? 0 : 1);
+  expect(task.stderr).toContain(
+    "Frame number is out of range, must be between 0 and 9"
+  );
+});
+
+test("Should fail to render out of range frame when range is a string", async () => {
+  const task = await execa(
+    "npx",
+    [
+      "remotion",
+      "render",
+      "src/index.tsx",
+      "ten-frame-tester",
+      "--frames=2-10",
+      outputPath,
+    ],
+    {
+      cwd: "packages/example",
+      reject: false,
+    }
+  );
+  expect(task.exitCode).toBe(process.platform === "win32" ? 0 : 1);
+  expect(task.stderr).toContain("Frame range 2-10 is not in between 0-9");
+});
+
+test("Should render a still image if single frame specified", async () => {
+  const outDir = outputPath.replace(".mp4", "");
+  const outImg = path.join(outDir, "element-2.png");
+  const task = await execa(
+    "npx",
+    [
+      "remotion",
+      "render",
+      "src/index.tsx",
+      "ten-frame-tester",
+      "--frames=2",
+      outDir,
+    ],
+    {
+      cwd: "packages/example",
+      reject: false,
+    }
+  );
+  expect(task.exitCode).toBe(0);
+  expect(fs.existsSync(outImg)).toBe(true);
+
+  const info = await execa("ffprobe", [outImg]);
+  const data = info.stderr;
+  expect(data).toContain("Video: png");
+  expect(data).toContain("png_pipe");
 });
