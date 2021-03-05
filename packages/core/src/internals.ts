@@ -22,6 +22,11 @@ import {
 	validateSelectedCrfAndCodecCombination,
 } from './config/crf';
 import {
+	getRange,
+	setFrameRangeFromCli,
+	validateFrameRange,
+} from './config/frame-range';
+import {
 	getUserPreferredImageFormat,
 	validateSelectedPixelFormatAndImageFormatCombination,
 } from './config/image-format';
@@ -59,6 +64,7 @@ export const Internals = {
 	getIsEvaluation,
 	getPixelFormat,
 	getConcurrency,
+	getRange,
 	getShouldOverwrite,
 	getOutputCodecOrUndefined,
 	getWebpackOverrideFn,
@@ -73,9 +79,11 @@ export const Internals = {
 	DEFAULT_BROWSER,
 	getDefaultCrfForCodec,
 	getActualCrf,
+	setFrameRangeFromCli,
 	getUserPreferredImageFormat,
 	validateSelectedPixelFormatAndImageFormatCombination,
 	validateSelectedPixelFormatAndCodecCombination,
+	validateFrameRange,
 };
 
 export type {
