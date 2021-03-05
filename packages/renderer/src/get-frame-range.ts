@@ -11,6 +11,14 @@ export const getFrameCount = (
 	}
 
 	if (typeof frameRange === 'number') {
+		if (frameRange < 0) {
+			throw new Error('Frame number must be positive, got ' + frameRange);
+		}
+		if (frameRange >= frames) {
+			throw new Error(
+				`Frame number is out of range, must be between 0 and ${frames - 1}`
+			);
+		}
 		return 1;
 	}
 

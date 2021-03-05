@@ -66,7 +66,7 @@ export const stitchFramesToVideo = async (options: {
 		'-s',
 		`${options.width}x${options.height}`,
 		'-start_number',
-		smallestNumber,
+		String(smallestNumber),
 		'-i',
 		`element-%0${numberLength}d.${imageFormat}`,
 		'-c:v',

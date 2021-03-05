@@ -3,6 +3,7 @@ import {BrowserExecutable, setBrowserExecutable} from './browser-executable';
 import {Codec, setCodec, setOutputFormat} from './codec';
 import {Concurrency, setConcurrency} from './concurrency';
 import {setCrf} from './crf';
+import {FrameRange, setFrameRange} from './frame-range';
 import {ImageFormat, setImageFormat} from './image-format';
 import {setImageSequence} from './image-sequence';
 import {
@@ -13,7 +14,6 @@ import {
 import {setOverwriteOutput} from './overwrite';
 import {PixelFormat, setPixelFormat} from './pixel-format';
 import {setQuality} from './quality';
-import {FrameRange, setFrameRange} from './range';
 
 export const Config = {
 	Bundling: {
