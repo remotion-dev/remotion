@@ -11,18 +11,18 @@ export const setRange = (newFrameRange: string | number) => {
 		const parsed = newFrameRange.split('-').map((f) => Number(f)) as number[];
 		if (parsed.length > 2 || parsed.length <= 0) {
 			throw new Error(
-				`--range flag must be a number or 2 numbers separate by '-', instead got ${parsed.length} numbers`
+				`--frames flag must be a number or 2 numbers separate by '-', instead got ${parsed.length} numbers`
 			);
 		}
 		if (parsed.length === 2 && parsed[1] < parsed[0]) {
 			throw new Error(
-				'in --range flag second number should be greater than first number'
+				'in --frames flag second number should be greater than first number'
 			);
 		}
 		for (const value of parsed) {
 			if (typeof value !== 'number') {
 				throw new Error(
-					'--range flag must be a number or 2 numbers separate by `-`'
+					'--frames flag must be a number or 2 numbers separate by `-`'
 				);
 			}
 		}

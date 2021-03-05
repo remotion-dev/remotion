@@ -20,7 +20,7 @@ export type CommandLineOptions = {
 	png: boolean;
 	props: string;
 	quality: number;
-	range: string | number;
+	frames: string | number;
 	sequence: boolean;
 };
 
@@ -39,8 +39,8 @@ export const parseCommandLine = () => {
 	if (parsedCli.concurrency) {
 		Config.Rendering.setConcurrency(parsedCli.concurrency);
 	}
-	if (parsedCli.range) {
-		Config.Rendering.setRange(parsedCli.range);
+	if (parsedCli.frames) {
+		Config.Rendering.setRange(parsedCli.frames);
 	}
 	if (parsedCli.png) {
 		console.warn(
