@@ -93,8 +93,9 @@ test("Should fail to render out of range frame when range is a number", async ()
       "render",
       "src/index.tsx",
       "react-svg",
+      "--sequence",
       "--frames=301",
-      outputPath,
+      outputPath.replace("mp4", ""),
     ],
     {
       cwd: "packages/example",
