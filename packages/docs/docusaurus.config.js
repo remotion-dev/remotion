@@ -29,6 +29,13 @@ module.exports = {
         },
         { to: "blog", label: "Blog", position: "left" },
         {
+          href: "https://discord.gg/6VzzNDwUwV",
+          label: "Discord",
+          position: "right",
+          "data-splitbee-event": "External Link",
+          "data-splitbee-event-target": "Discord",
+        },
+        {
           href: "https://github.com/JonnyBurger/remotion",
           label: "GitHub",
           position: "right",
