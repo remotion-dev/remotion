@@ -19,6 +19,8 @@ Config.Output.setCodec('h265');
 
 ### overrideWebpackConfig()
 
+_Available from Version 1.1._
+
 Allows you to insert your custom Webpack config. [See the page about custom Webpack configs](/docs/webpack) for more information.
 
 ```tsx
@@ -26,6 +28,18 @@ Config.Bundling.overrideWebpackConfig((currentConfiguration) => {
   // Return a new Webpack configuration
 });
 ```
+
+### setCachingEnabled()
+
+_Available from Version 2.0._
+
+Enable or disable webpack caching. Default is `true` which will make the Webpack step in the first run a bit slower but will massively speed up subsequent runs. We recommend to keep this option always true and encourage to report issues on Github.
+
+```tsx
+Config.Bundling.setCachingEnabled(false);
+```
+
+The [command line flag](/docs/cli) `--bundle-cache` will take precedence over this option.
 
 ## Puppeteer
 
