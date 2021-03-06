@@ -2,7 +2,7 @@
 
 type ExtrapolateType = 'extend' | 'identity' | 'clamp';
 
-export function interpolate(
+function interpolateFunction(
 	input: number,
 	inputRange: [number, number],
 	outputRange: [number, number],
@@ -71,4 +71,89 @@ export function interpolate(
 	}
 
 	return result;
+}
+
+function findRange(input: number, inputRange: number[]) {
+	let i;
+	for (i = 1; i < inputRange.length - 1; ++i) {
+		if (inputRange[i] >= input) {
+			break;
+		}
+	}
+	return i - 1;
+}
+
+function checkValidInputRange(arr: number[]) {
+	if (arr.length < 2) {
+		throw new Error('inputRange must have at least 2 elements');
+	}
+	for (let i = 1; i < arr.length; ++i) {
+		if (!(arr[i] >= arr[i - 1])) {
+			throw new Error('inputRange must be monotonically non-decreasing ' + arr);
+		}
+	}
+}
+
+function checkInfiniteRange(name: string, arr: number[]) {
+	if (arr.length < 2) {
+		throw new Error(name + ' must have at least 2 elements');
+	}
+	if (!(arr.length !== 2 || arr[0] !== -Infinity || arr[1] !== Infinity)) {
+		throw new Error(name + 'cannot be ]-infinity;+infinity[ ' + arr);
+	}
+}
+
+export function interpolate(
+	input: number,
+	inputRange: number[],
+	outputRange: number[],
+	options?: {
+		easing?: (input: number) => number;
+		extrapolateLeft?: ExtrapolateType;
+		extrapolateRight?: ExtrapolateType;
+	}
+): number {
+	const newOutputRange: number[] = outputRange;
+	checkInfiniteRange('outputRange', newOutputRange);
+
+	const newInputRange = inputRange;
+	checkInfiniteRange('inputRange', newInputRange);
+	checkValidInputRange(newInputRange);
+
+	if (newInputRange.length !== newOutputRange.length) {
+		throw new Error(
+			'inputRange (' +
+				inputRange.length +
+				') and outputRange (' +
+				outputRange.length +
+				') must have the same length'
+		);
+	}
+
+	const easing = options?.easing ?? ((num: number): number => num);
+
+	let extrapolateLeft: ExtrapolateType = 'extend';
+	if (options?.extrapolateLeft !== undefined) {
+		extrapolateLeft = options.extrapolateLeft;
+	}
+
+	let extrapolateRight: ExtrapolateType = 'extend';
+	if (options?.extrapolateRight !== undefined) {
+		extrapolateRight = options.extrapolateRight;
+	}
+
+	if (typeof input !== 'number') {
+		throw new TypeError('Cannot interpolation an input which is not a number');
+	}
+	const range = findRange(input, inputRange);
+	return interpolateFunction(
+		input,
+		[newInputRange[range], newInputRange[range + 1]],
+		[newOutputRange[range], newOutputRange[range + 1]],
+		{
+			easing,
+			extrapolateLeft,
+			extrapolateRight,
+		}
+	);
 }
