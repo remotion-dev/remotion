@@ -143,8 +143,9 @@ export const render = async () => {
 	const shouldCache = Internals.getWebpackCaching();
 	const cacheExistedBefore = cacheExists('production');
 	if (cacheExistedBefore && !shouldCache) {
+		process.stdout.write('🧹 Cache disabled but found. Deleting... ');
 		await clearCache('production');
-		console.log('🧹 Cache disabled but found. Deleting...');
+		process.stdout.write('done. \n');
 	}
 	bundlingProgress.start(100, 0);
 	const bundled = await bundle(
