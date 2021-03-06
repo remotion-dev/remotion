@@ -40,21 +40,21 @@ test('Output range can be monotonically decreasing', () => {
 test('Cannot have Infinity in output Range', () => {
 	expectToThrow(
 		() => interpolate(1, [0, 1], [Infinity, 2]),
-		/outputRange must contain only finite numbers, but got [Infinity,2]/
+		/outputRange must contain only finite numbers, but got \[Infinity,2\]/
 	);
 });
 
 test('Should throw if passing 2x infinity', () => {
 	expectToThrow(
 		() => interpolate(1, [Infinity, Infinity], [0, 2]),
-		/inputRange must contain only finite numbers, but got [Infinity,Infinity]/
+		/inputRange must contain only finite numbers, but got \[Infinity,Infinity\]/
 	);
 });
 
 test('Should throw on Infinity as third argument', () => {
 	expectToThrow(
 		() => interpolate(1, [0, 1, Infinity], [0, 2, 3]),
-		/inputRange must contain only finite numbers, but got [0,1,Infinity]/
+		/inputRange must contain only finite numbers, but got \[0,1,Infinity\]/
 	);
 });
 
@@ -123,15 +123,27 @@ test('Zig-zag test', () => {
 
 test('Handle bad types', () => {
 	// @ts-expect-error
-	expect(interpolate()).toThrowError(/add some errro/);
+	expect(() => interpolate()).toThrowError(
+		/input or inputRange or outputRange can not be undefined/
+	);
 	// @ts-expect-error
-	expect(interpolate(1)).toThrowError(/add some errro/);
+	expect(() => interpolate(1)).toThrowError(
+		/input or inputRange or outputRange can not be undefined/
+	);
 	// @ts-expect-error
-	expect(interpolate(1, 'string', 'string')).toThrowError(/add some errro/);
+	expect(() => interpolate(1, 'string', 'string')).toThrowError(
+		/inputRange must contain only numbers/
+	);
 	// @ts-expect-error
-	expect(interpolate(1, undefined, 'string')).toThrowError(/add some errro/);
+	expect(() => interpolate(1, [1, 2, 3], 'str')).toThrowError(
+		/outputRange must contain only numbers/
+	);
 	// @ts-expect-error
-	expect(interpolate([1, 2], undefined, 'string')).toThrowError(
-		/add some errro/
+	expect(() => interpolate(1, undefined, 'string')).toThrowError(
+		/input or inputRange or outputRange can not be undefined/
+	);
+	// @ts-expect-error
+	expect(() => interpolate([1, 2], undefined, 'string')).toThrowError(
+		/input or inputRange or outputRange can not be undefined/
 	);
 });

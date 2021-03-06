@@ -6,15 +6,13 @@ function interpolateFunction(
 	input: number,
 	inputRange: [number, number],
 	outputRange: [number, number],
-	options?: {
-		easing?: (input: number) => number;
-		extrapolateLeft?: ExtrapolateType;
-		extrapolateRight?: ExtrapolateType;
+	options: {
+		easing: (input: number) => number;
+		extrapolateLeft: ExtrapolateType;
+		extrapolateRight: ExtrapolateType;
 	}
 ): number {
-	const extrapolateLeft = options?.extrapolateLeft ?? 'extend';
-	const extrapolateRight = options?.extrapolateRight ?? 'extend';
-	const easing = options?.easing ?? ((num: number): number => num);
+	const {extrapolateLeft, extrapolateRight, easing} = options;
 
 	let result = input;
 	const [inputMin, inputMax] = inputRange;
@@ -107,6 +105,16 @@ function checkInfiniteRange(name: string, arr: number[]) {
 			`${name} must contain only finite numbers, but got [${arr.join(',')}]`
 		);
 	}
+	for (const index in arr) {
+		if (typeof arr[index] !== 'number') {
+			throw new Error(`${name} must contain only numbers`);
+		}
+		if (arr[index] === -Infinity || arr[index] === Infinity) {
+			throw new Error(
+				`${name} must contain only finite numbers, but got [${arr.join(',')}]`
+			);
+		}
+	}
 }
 
 export function interpolate(
@@ -119,6 +127,14 @@ export function interpolate(
 		extrapolateRight?: ExtrapolateType;
 	}
 ): number {
+	if (
+		typeof input === 'undefined' ||
+		typeof inputRange === 'undefined' ||
+		typeof outputRange === 'undefined'
+	) {
+		throw new Error('input or inputRange or outputRange can not be undefined');
+	}
+
 	if (inputRange.length !== outputRange.length) {
 		throw new Error(
 			'inputRange (' +
