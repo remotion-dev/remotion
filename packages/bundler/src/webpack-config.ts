@@ -1,6 +1,7 @@
 import path from 'path';
 import {WebpackConfiguration, WebpackOverrideFn} from 'remotion';
 import webpack, {ProgressPlugin} from 'webpack';
+import {getWebpackCacheName} from './webpack-cache';
 
 const ErrorOverlayPlugin = require('@webhotelier/webpack-fast-refresh/error-overlay');
 const ReactRefreshPlugin = require('@webhotelier/webpack-fast-refresh');
@@ -26,6 +27,7 @@ export const webpackConfig = ({
 	environment,
 	webpackOverride = (f) => f,
 	onProgressUpdate,
+	enableCaching = true,
 }: {
 	entry: string;
 	userDefinedComponent: string;
@@ -33,6 +35,7 @@ export const webpackConfig = ({
 	environment: 'development' | 'production';
 	webpackOverride?: WebpackOverrideFn;
 	onProgressUpdate?: (f: number) => void;
+	enableCaching?: boolean;
 }): WebpackConfiguration => {
 	return webpackOverride({
 		optimization: {
@@ -46,6 +49,12 @@ export const webpackConfig = ({
 							entries: false,
 					  },
 		},
+		cache: enableCaching
+			? {
+					type: 'filesystem',
+					name: getWebpackCacheName(environment),
+			  }
+			: false,
 		devtool: 'cheap-module-source-map',
 		entry: [
 			environment === 'development'

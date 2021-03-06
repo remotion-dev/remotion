@@ -68,4 +68,5 @@ export const startServer = async (
 };
 
 export * from './bundler';
+export {cacheExists} from './webpack-cache';
 export {overrideWebpackConfig};
