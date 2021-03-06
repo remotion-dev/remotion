@@ -107,3 +107,16 @@ test('Clamp left test', () => {
 		})
 	).toEqual(Math.PI);
 });
+
+test('Zig-zag test', () => {
+	expect(interpolate(3.5, [1, 2, 3, 4, 5], [0, 1000, 0, -1000, 1000])).toBe(
+		-500
+	);
+	expect(interpolate(4, [1, 2, 3, 4, 5], [0, 1000, 0, -1000, 1000])).toBe(
+		-1000
+	);
+	expect(interpolate(6, [1, 2, 3, 4, 5], [0, 1000, 0, -1000, 1000])).toBe(3000);
+	expect(interpolate(-0.1, [1, 2, 3, 4, 5], [0, 1000, 0, -1000, 1000])).toBe(
+		-1100
+	);
+});
