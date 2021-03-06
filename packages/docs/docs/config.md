@@ -33,7 +33,7 @@ Config.Bundling.overrideWebpackConfig((currentConfiguration) => {
 
 _Available from Version 2.0._
 
-Enable or disable webpack caching. Default is `true` which will make the Webpack step in the first run a bit slower but will massively speed up subsequent runs. We recommend to keep this option always true and encourage to report issues on Github.
+Enable or disable webpack caching. Default is `true` which will make the Webpack step in the first run a bit slower but will massively speed up subsequent runs. We recommend to keep this option enabled in all cases and encourage to report issues on Github if you encounter some.
 
 ```tsx
 Config.Bundling.setCachingEnabled(false);
