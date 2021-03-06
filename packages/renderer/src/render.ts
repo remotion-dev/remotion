@@ -8,7 +8,7 @@ import {DEFAULT_IMAGE_FORMAT, ImageFormat} from './image-format';
 import {Pool} from './pool';
 import {serveStatic} from './serve-static';
 
-type RenderFramesOutput = {
+export type RenderFramesOutput = {
 	frameCount: number;
 };
 

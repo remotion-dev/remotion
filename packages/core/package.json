@@ -6,6 +6,7 @@
 	"scripts": {
 		"test": "eslint src --ext ts,tsx && jest",
 		"build": "tsc -d",
+		"watch": "tsc -w",
 		"prerelease": "cp ../../README.md ."
 	},
 	"repository": {

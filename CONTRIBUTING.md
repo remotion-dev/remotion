@@ -27,4 +27,12 @@ npm run build
 
 from the root.
 
-To test your changes, run `npm start` from the `example` folder.
+We recommend keeping a terminal open with the command
+
+```console
+npm run watch
+```
+
+running to keep the monorepos building and synchronized.
+
+As a testbed, you can use the `example` folder. Run `npm start` to trigger the preview and `npm run render` to trigger the render process.
