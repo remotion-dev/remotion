@@ -120,3 +120,18 @@ test('Zig-zag test', () => {
 		-1100
 	);
 });
+
+test('Handle bad types', () => {
+	// @ts-expect-error
+	expect(interpolate()).toThrowError(/add some errro/);
+	// @ts-expect-error
+	expect(interpolate(1)).toThrowError(/add some errro/);
+	// @ts-expect-error
+	expect(interpolate(1, 'string', 'string')).toThrowError(/add some errro/);
+	// @ts-expect-error
+	expect(interpolate(1, undefined, 'string')).toThrowError(/add some errro/);
+	// @ts-expect-error
+	expect(interpolate([1, 2], undefined, 'string')).toThrowError(
+		/add some errro/
+	);
+});
