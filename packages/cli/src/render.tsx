@@ -1,4 +1,4 @@
-import {bundle} from '@remotion/bundler';
+import {bundle, cacheExists} from '@remotion/bundler';
 import {
 	ensureLocalBrowser,
 	ffmpegHasFeature,
@@ -140,12 +140,16 @@ export const render = async () => {
 		cliProgress.Presets.shades_grey
 	);
 
+	const cacheExistedBefore = cacheExists('production');
 	bundlingProgress.start(100, 0);
-
 	const bundled = await bundle(fullPath, (progress) => {
 		bundlingProgress.update(progress);
 	});
 	bundlingProgress.stop();
+	const cacheExistedAfter = cacheExists('production');
+	if (cacheExistedAfter && !cacheExistedBefore) {
+		console.log('⚡️ Cached bundle. Subsequent builds will be faster.');
+	}
 	const comps = await getCompositions(
 		bundled,
 		Internals.getBrowser() ?? Internals.DEFAULT_BROWSER
