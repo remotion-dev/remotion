@@ -11,7 +11,7 @@ const entry = require.resolve('./renderEntry');
 
 const promisified = promisify(webpack);
 
-const prepareDistDir = async (specified: string | null) => {
+const prepareOutDir = async (specified: string | null) => {
 	if (specified) {
 		await fs.promises.mkdir(specified, {recursive: true});
 		return specified;
@@ -27,7 +27,7 @@ export const bundle = async (
 		outDir?: string;
 	}
 ): Promise<string> => {
-	const outDir = await prepareDistDir(options?.outDir ?? null);
+	const outDir = await prepareOutDir(options?.outDir ?? null);
 	const output = await promisified([
 		webpackConfig({
 			entry,
