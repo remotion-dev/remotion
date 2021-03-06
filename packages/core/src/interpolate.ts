@@ -89,7 +89,11 @@ function checkValidInputRange(arr: number[]) {
 	}
 	for (let i = 1; i < arr.length; ++i) {
 		if (!(arr[i] >= arr[i - 1])) {
-			throw new Error('inputRange must be monotonically non-decreasing ' + arr);
+			throw new Error(
+				`inputRange must be monotonically non-decreasing but got [${arr.join(
+					','
+				)}]`
+			);
 		}
 	}
 }
@@ -99,7 +103,9 @@ function checkInfiniteRange(name: string, arr: number[]) {
 		throw new Error(name + ' must have at least 2 elements');
 	}
 	if (!(arr.length !== 2 || arr[0] !== -Infinity || arr[1] !== Infinity)) {
-		throw new Error(name + 'cannot be ]-infinity;+infinity[ ' + arr);
+		throw new Error(
+			`${name} must contain only finite numbers, but got [${arr.join(',')}]`
+		);
 	}
 }
 
@@ -113,14 +119,7 @@ export function interpolate(
 		extrapolateRight?: ExtrapolateType;
 	}
 ): number {
-	const newOutputRange: number[] = outputRange;
-	checkInfiniteRange('outputRange', newOutputRange);
-
-	const newInputRange = inputRange;
-	checkInfiniteRange('inputRange', newInputRange);
-	checkValidInputRange(newInputRange);
-
-	if (newInputRange.length !== newOutputRange.length) {
+	if (inputRange.length !== outputRange.length) {
 		throw new Error(
 			'inputRange (' +
 				inputRange.length +
@@ -129,6 +128,11 @@ export function interpolate(
 				') must have the same length'
 		);
 	}
+
+	checkInfiniteRange('inputRange', inputRange);
+	checkValidInputRange(inputRange);
+
+	checkInfiniteRange('outputRange', outputRange);
 
 	const easing = options?.easing ?? ((num: number): number => num);
 
@@ -148,8 +152,8 @@ export function interpolate(
 	const range = findRange(input, inputRange);
 	return interpolateFunction(
 		input,
-		[newInputRange[range], newInputRange[range + 1]],
-		[newOutputRange[range], newOutputRange[range + 1]],
+		[inputRange[range], inputRange[range + 1]],
+		[outputRange[range], outputRange[range + 1]],
 		{
 			easing,
 			extrapolateLeft,
