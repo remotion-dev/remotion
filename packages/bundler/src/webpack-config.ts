@@ -1,5 +1,5 @@
 import path from 'path';
-import {WebpackConfiguration, WebpackOverrideFn} from 'remotion';
+import {Internals, WebpackConfiguration, WebpackOverrideFn} from 'remotion';
 import webpack, {ProgressPlugin} from 'webpack';
 import {getWebpackCacheName} from './webpack-cache';
 
@@ -27,7 +27,7 @@ export const webpackConfig = ({
 	environment,
 	webpackOverride = (f) => f,
 	onProgressUpdate,
-	enableCaching = true,
+	enableCaching = Internals.DEFAULT_WEBPACK_CACHE_ENABLED,
 }: {
 	entry: string;
 	userDefinedComponent: string;

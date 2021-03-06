@@ -42,6 +42,10 @@ import {
 	validateSelectedPixelFormatAndCodecCombination,
 } from './config/pixel-format';
 import {getQuality} from './config/quality';
+import {
+	DEFAULT_WEBPACK_CACHE_ENABLED,
+	getWebpackCaching,
+} from './config/webpack-caching';
 import * as perf from './perf';
 import {getCompositionName, getIsEvaluation, getRoot} from './register-root';
 import {RemotionRoot} from './RemotionRoot';
@@ -75,6 +79,7 @@ export const Internals = {
 	DEFAULT_CODEC,
 	DEFAULT_PIXEL_FORMAT,
 	FEATURE_FLAG_FIREFOX_SUPPORT,
+	DEFAULT_WEBPACK_CACHE_ENABLED,
 	getBrowser,
 	DEFAULT_BROWSER,
 	getDefaultCrfForCodec,
@@ -84,6 +89,7 @@ export const Internals = {
 	validateSelectedPixelFormatAndImageFormatCombination,
 	validateSelectedPixelFormatAndCodecCombination,
 	validateFrameRange,
+	getWebpackCaching,
 };
 
 export type {

@@ -1,4 +1,4 @@
-import {bundle, cacheExists} from '@remotion/bundler';
+import {bundle, cacheExists, clearCache} from '@remotion/bundler';
 import {
 	ensureLocalBrowser,
 	ffmpegHasFeature,
@@ -140,11 +140,22 @@ export const render = async () => {
 		cliProgress.Presets.shades_grey
 	);
 
+	const shouldCache = Internals.getWebpackCaching();
 	const cacheExistedBefore = cacheExists('production');
+	if (cacheExistedBefore && !shouldCache) {
+		await clearCache('production');
+		console.log('🧹 Cache disabled but found. Deleting...');
+	}
 	bundlingProgress.start(100, 0);
-	const bundled = await bundle(fullPath, (progress) => {
-		bundlingProgress.update(progress);
-	});
+	const bundled = await bundle(
+		fullPath,
+		(progress) => {
+			bundlingProgress.update(progress);
+		},
+		{
+			enableCaching: shouldCache,
+		}
+	);
 	bundlingProgress.stop();
 	const cacheExistedAfter = cacheExists('production');
 	if (cacheExistedAfter && !cacheExistedBefore) {

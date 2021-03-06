@@ -25,6 +25,7 @@ export const bundle = async (
 	options?: {
 		webpackOverride?: WebpackOverrideFn;
 		outDir?: string;
+		enableCaching?: boolean;
 	}
 ): Promise<string> => {
 	const outDir = await prepareOutDir(options?.outDir ?? null);
@@ -37,6 +38,8 @@ export const bundle = async (
 			webpackOverride:
 				options?.webpackOverride ?? Internals.getWebpackOverrideFn(),
 			onProgressUpdate,
+			enableCaching:
+				options?.enableCaching ?? Internals.DEFAULT_WEBPACK_CACHE_ENABLED,
 		}),
 	]);
 	if (!output) {

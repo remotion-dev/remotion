@@ -40,12 +40,20 @@ export const getWebpackCacheDir = () => {
 	}
 };
 
+const remotionCacheLocation = (environment: Environment) => {
+	return path.join(getWebpackCacheDir(), getWebpackCacheName(environment));
+};
+
+export const clearCache = (environment: Environment) => {
+	return fs.promises.rmdir(remotionCacheLocation(environment), {
+		recursive: true,
+	});
+};
+
 export const getWebpackCacheName = (environment: Environment) => {
 	return `remotion-${environment}`;
 };
 
 export const cacheExists = (environment: Environment) => {
-	return fs.existsSync(
-		path.join(getWebpackCacheDir(), getWebpackCacheName(environment))
-	);
+	return fs.existsSync(remotionCacheLocation(environment));
 };
