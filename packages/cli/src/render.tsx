@@ -188,6 +188,7 @@ export const render = async () => {
 		imageFormat,
 		quality,
 		browser,
+		frameRange: frameRange ?? null,
 	});
 	renderProgress.stop();
 	if (process.env.DEBUG) {
@@ -206,7 +207,7 @@ export const render = async () => {
 			},
 			cliProgress.Presets.shades_grey
 		);
-		stitchingProgress.start(rendered?.frameCount ?? config.durationInFrames, 0);
+		stitchingProgress.start(rendered.frameCount, 0);
 		await stitchFramesToVideo({
 			dir: outputDir,
 			width: config.width,
