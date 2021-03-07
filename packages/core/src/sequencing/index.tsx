@@ -89,7 +89,7 @@ export const Sequence: React.FC<{
 	const content =
 		absoluteFrame < actualFrom
 			? null
-			: absoluteFrame > actualFrom + durationInFrames
+			: absoluteFrame > actualFrom + durationInFrames - 1
 			? null
 			: children;
 
