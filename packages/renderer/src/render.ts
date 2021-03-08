@@ -50,11 +50,13 @@ export const renderFrames = async ({
 	}
 	const actualParallelism = getActualConcurrency(parallelism ?? null);
 
-	const [{port, close}, browserInstance] = await Promise.all([
-		serveStatic(webpackBundle),
-		openBrowser(browser),
-	]);
-	const pages = new Array(actualParallelism).fill(true).map(async () => {
+	const {port, close} = await serveStatic(webpackBundle);
+ 
+	const browserInstances = await Promise.all(
+		new Array(actualParallelism).fill(true).map(() => openBrowser(browser))
+	);
+ 
+	const pages = browserInstances.map(async browserInstance => {
 		const page = await browserInstance.newPage();
 		page.setViewport({
 			width: config.width,
@@ -110,7 +112,12 @@ export const renderFrames = async ({
 				onFrameUpdate(framesRendered);
 			})
 	);
-	await Promise.all([browserInstance.close(), close()]);
+	
+	await Promise.all([
+		...browserInstances.map(browserInstance => browserInstance.close()),
+		close()
+	]);
+
 	return {
 		frameCount,
 	};
