@@ -27,23 +27,24 @@ Good to know: You can nest sequences within each other and they will cascade. Fo
 In the below example, you can see that the component which is wrapped inside a `<Sequence>` has gets time-shifted by 10 frames. This way you can first create the animation within `<SubComponent />` and worry about the timing of it's entrance later.
 
 ```tsx
-import {useCurrentFrame} from 'remotion';
+import {Sequence, useCurrentFrame} from 'remotion';
 
 const SubComponent = () => {
   const frame = useCurrentFrame(); // 15
 
   return (
-    <div>{frame}</div>
+    <div>sequence frame: {frame}</div>
   );
 }
 
 const MyVideo = () => {
-  const frame = useCurrentFrame() // 25
+  const frame = useCurrentFrame(); // 25
 
   return (
     <div>
       <Sequence from={10} durationInFrames={100} name="MySequence">
-        <SubSequence />
+        <div>global frame: {frame}</div>
+        <SubComponent />
       </Sequence>
     </div>
   );
