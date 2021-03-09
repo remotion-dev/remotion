@@ -1,7 +1,6 @@
-import React from 'react';
 import {Video} from 'remotion';
 
-const Features = () => {
+const Features: React.FC = () => {
 	const tray = require('./tray.webm');
 	const watermelon = require('./watermelon.webm');
 	const textstickers = require('./textstickers.webm');
