@@ -1,4 +1,4 @@
-import React, {forwardRef, useCallback, useState} from 'react';
+import React, {forwardRef, useCallback, useEffect, useState} from 'react';
 import {continueRender, delayRender} from './ready-manager';
 
 const ImgRefForwarding: React.ForwardRefRenderFunction<
@@ -9,6 +9,15 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 	>
 > = ({onLoad, onError, ...props}, ref) => {
 	const [handle] = useState(() => delayRender());
+
+	useEffect(() => {
+		if (
+			ref &&
+			(ref as React.MutableRefObject<HTMLImageElement>).current.complete
+		) {
+			continueRender(handle);
+		}
+	}, [handle, ref]);
 
 	const didLoad = useCallback(
 		(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
