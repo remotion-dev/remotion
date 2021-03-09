@@ -32,9 +32,9 @@ export const VideoForDevelopment: React.FC<RemotionVideoProps> = (props) => {
 			return;
 		}
 
-		if (currentFrame === 0 && playing) {
-			videoRef.current.currentTime = 0;
-			videoRef.current?.play();
+		if (videoRef.current.paused) {
+			videoRef.current.currentTime = currentFrame / (1000 / videoConfig.fps);
+			videoRef.current.play();
 		}
 	}, [currentFrame, playing, videoConfig]);
 
