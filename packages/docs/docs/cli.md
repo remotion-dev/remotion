@@ -24,7 +24,8 @@ Besides choosing a video and output location with the command line arguments, th
 - `--codec`: [`h264` or `h265` or `png` or `vp8` or `vp9`](/docs/config#setoutputformat). If you don't supply `--codec`, it will use the H.264 encoder. Available since v1.4.
 - `--crf`: [To set Constant Rate Factor (CRF) of the output](/docs/config#setcrf). Minimum 0. Use this rate control mode if you want to keep the best quality and care less about the file size. Available since v1.4.
 - `--browser-executable`: [Path to a Chrome executable](/docs/config#setbrowserexecutable). If not specified and Remotion cannot find one, it will download one during rendering. Available since v1.5.
-- `--frames`: [Render a still frame or a subset of a video](/docs/config#setframerange). Example: `--frames=0-9` (To select the first 10 frames) or <br/> `--frames=50` (To render a still of the 51st frame).
+- `--frames`: [Render a still frame or a subset of a video](/docs/config#setframerange). Example: `--frames=0-9` (To select the first 10 frames) or `--frames=50` (To render a still of the 51st frame). Available since v2.0.
+- `--bundle-cache`: [Enable or disable Webpack caching](/docs/config#setcachingenabled). This flag is enabled by default, use `--bundle-cache=false` to disable caching. Available since v2.0.
 
 :::info
 If you don't feel like passing command line flags every time, consider creating a `remotion.config.ts` [config file](/docs/config).

@@ -12,6 +12,7 @@ export type CommandLineOptions = {
 	['browser-executable']: BrowserExecutable;
 	['pixel-format']: PixelFormat;
 	['image-format']: ImageFormat;
+	['bundle-cache']: string;
 	codec: Codec;
 	concurrency: number;
 	config: string;
@@ -36,6 +37,11 @@ export const parseCommandLine = () => {
 	}
 	if (parsedCli['browser-executable']) {
 		Config.Puppeteer.setBrowserExecutable(parsedCli['browser-executable']);
+	}
+	if (typeof parsedCli['bundle-cache'] !== 'undefined') {
+		Config.Bundling.setCachingEnabled(
+			parsedCli['bundle-cache'] === 'false' ? false : true
+		);
 	}
 	if (parsedCli.concurrency) {
 		Config.Rendering.setConcurrency(parsedCli.concurrency);
