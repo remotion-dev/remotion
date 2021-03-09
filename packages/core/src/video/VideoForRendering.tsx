@@ -23,6 +23,10 @@ export const VideoForRendering: React.FC<RemotionVideoProps> = ({
 		const frameInSeconds = frame / videoConfig.fps;
 		const handle = delayRender();
 		if (videoRef.current.currentTime === frameInSeconds) {
+			if (videoRef.current.readyState >= 2) {
+				continueRender(handle);
+				return;
+			}
 			videoRef.current.addEventListener(
 				'loadeddata',
 				() => {
