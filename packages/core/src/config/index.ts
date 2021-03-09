@@ -14,6 +14,7 @@ import {
 import {setOverwriteOutput} from './overwrite';
 import {PixelFormat, setPixelFormat} from './pixel-format';
 import {setQuality} from './quality';
+import {setWebpackCaching} from './webpack-caching';
 
 export const Config = {
 	Bundling: {
@@ -23,6 +24,11 @@ export const Config = {
 		 * Docs: http://remotion.dev/docs/webpack
 		 */
 		overrideWebpackConfig,
+		/**
+		 * Whether Webpack bundles should be cached to make
+		 * subsequent renders faster. Default: true
+		 */
+		setCachingEnabled: setWebpackCaching,
 	},
 	Puppeteer: {
 		/**
