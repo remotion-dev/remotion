@@ -1,12 +1,13 @@
 import React, {useEffect, useRef} from 'react';
 import {usePlayingState} from '../timeline-position-state';
-import {useCurrentFrame} from '../use-frame';
+import {useAbsoluteCurrentFrame, useCurrentFrame} from '../use-frame';
 import {useUnsafeVideoConfig} from '../use-unsafe-video-config';
 import {RemotionVideoProps} from './props';
 
 export const VideoForDevelopment: React.FC<RemotionVideoProps> = (props) => {
 	const videoRef = useRef<HTMLVideoElement>(null);
 	const currentFrame = useCurrentFrame();
+	const absoluteFrame = useAbsoluteCurrentFrame();
 	const videoConfig = useUnsafeVideoConfig();
 	const [playing] = usePlayingState();
 
@@ -25,10 +26,10 @@ export const VideoForDevelopment: React.FC<RemotionVideoProps> = (props) => {
 		if (!videoConfig) {
 			throw new Error('No video config found');
 		}
-		if (!playing || currentFrame === 0) {
+		if (!playing || currentFrame === 0 || absoluteFrame === 0) {
 			videoRef.current.currentTime = currentFrame / (1000 / videoConfig.fps);
 		}
-	}, [currentFrame, playing, videoConfig]);
+	}, [currentFrame, playing, videoConfig, absoluteFrame]);
 
 	return <video ref={videoRef} muted {...props} />;
 };
