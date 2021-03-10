@@ -68,7 +68,7 @@ export const stitchFramesToVideo = async (options: {
 		cwd: options.dir,
 		parallelism: options.parallelism,
 	});
-	
+
 	const ffmpegArgs = [
 		['-r', String(options.fps)],
 		['-f', 'image2'],
@@ -102,7 +102,7 @@ export const stitchFramesToVideo = async (options: {
 								1000
 							).toFixed(); // in milliseconds
 							const audioDetails = assetAudioDetails.get(url.fileURLToPath(asset.src));
-				
+
 							return [
 								`[${i + 1}:a]`,
 								duration ? `atrim=${assetTrimLeft}:${assetTrimRight},` : '',
@@ -116,6 +116,7 @@ export const stitchFramesToVideo = async (options: {
 					].join(';'),
 			  ],
 		'-shortest',
+		['-map', '0:v'],
 		options.force ? '-y' : null,
 		options.outputLocation,
 	]
