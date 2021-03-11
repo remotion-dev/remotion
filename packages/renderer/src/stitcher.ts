@@ -62,7 +62,7 @@ export const stitchFramesToVideo = async (options: {
 	);
 	Internals.validateSelectedPixelFormatAndCodecCombination(pixelFormat, codec);
 
-	const assetPaths = options.assets.map((asset) => url.fileURLToPath(asset.src));
+	const assetPaths = options.assets.map((asset) => resolveAssetSrc(asset.src));
 	const assetAudioDetails = await getAssetAudioDetails({
 		assetPaths,
 		cwd: options.dir,
@@ -101,7 +101,9 @@ export const stitchFramesToVideo = async (options: {
 								(asset.startInVideo / options.fps) *
 								1000
 							).toFixed(); // in milliseconds
-							const audioDetails = assetAudioDetails.get(url.fileURLToPath(asset.src));
+							const audioDetails = assetAudioDetails.get(
+								resolveAssetSrc(asset.src)
+							);
 
 							return [
 								`[${i + 1}:a]`,
@@ -134,4 +136,12 @@ export const stitchFramesToVideo = async (options: {
 		}
 	});
 	await task;
+};
+
+const resolveAssetSrc = (src: string) => {
+	const {protocol} = new URL(src);
+
+	if (protocol === 'file:') return url.fileURLToPath(src);
+
+	return src;
 };
