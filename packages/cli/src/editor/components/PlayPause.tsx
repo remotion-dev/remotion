@@ -131,7 +131,7 @@ export const PlayPause: React.FC = () => {
 					}}
 				/>
 			</ControlButton>
-			<div style={{width: 10}} />
+			
 			<ControlButton
 				aria-label={playing ? 'Pause' : 'Play'}
 				disabled={!video}
@@ -155,7 +155,7 @@ export const PlayPause: React.FC = () => {
 					/>
 				)}
 			</ControlButton>
-			<div style={{width: 10}} />
+
 			<ControlButton
 				aria-label="Step forward one frame"
 				disabled={isLastFrame}
