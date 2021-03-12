@@ -51,12 +51,14 @@ export const FpsCounter: React.FC = () => {
 	}, [frame]);
 
 	useEffect(() => {
-		const t = setTimeout(() => {
-			rerender({});
-			setFps(fpsRef.current);
-		}, 1000);
-		return () => clearTimeout(t);
-	}, [marker]);
+		if (playing) {
+			const t = setTimeout(() => {
+				rerender({});
+				setFps(fpsRef.current);
+			}, 1000);
+			return () => clearTimeout(t);
+		}
+	}, [marker, playing]);
 
 	if (fps === 0) {
 		return null;
