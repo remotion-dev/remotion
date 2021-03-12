@@ -5,5 +5,5 @@ export const ControlButton = styled.button`
 	display: inline-flex;
 	background: none;
 	border: none;
-	padding: 0;
+	padding: 6px;
 `;

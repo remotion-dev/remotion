@@ -12,7 +12,7 @@ export const SizeSelector: React.FC = () => {
 	);
 
 	return (
-		<div>
+		<div style={{padding: 6}}>
 			<select
 				aria-label="Select the size of the preview"
 				onChange={onChange}
