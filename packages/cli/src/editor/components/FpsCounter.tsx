@@ -7,7 +7,11 @@ const Label = styled.div`
 	font-family: Arial, Helvetica, sans-serif;
 `;
 
-const pushWithMaxSize = (arr: number[], value: number, maxSize: number): number[] => {
+const pushWithMaxSize = (
+	arr: number[],
+	value: number,
+	maxSize: number
+): number[] => {
 	arr.push(value);
 	return arr.slice(-maxSize);
 };
@@ -48,6 +52,7 @@ export const FpsCounter: React.FC = () => {
 		fpsRef.current = 1000 / averageDistanceBetween;
 
 		if (previousUpdates.current.length == 2) setFps(fpsRef.current);
+		/* This effect should depends only on frame, otherwise it will push extra updates to ref and fps will be wrong */
 	}, [frame]);
 
 	useEffect(() => {
