@@ -1,5 +1,6 @@
-import React, {useCallback, useContext} from 'react';
+import React, {useCallback, useContext, useMemo} from 'react';
 import {PreviewSize, PreviewSizeContext} from '../state/preview-size';
+import {CONTROL_BUTTON_PADDING} from './ControlButton';
 
 export const SizeSelector: React.FC = () => {
 	const {size, setSize} = useContext(PreviewSizeContext);
@@ -11,8 +12,14 @@ export const SizeSelector: React.FC = () => {
 		[setSize]
 	);
 
+	const style = useMemo(() => {
+		return {
+			padding: CONTROL_BUTTON_PADDING,
+		};
+	}, []);
+
 	return (
-		<div style={{padding: 6}}>
+		<div style={style}>
 			<select
 				aria-label="Select the size of the preview"
 				onChange={onChange}
