@@ -60,5 +60,11 @@ export const validateSelectedCrfAndCodecCombination = (
 };
 
 export const getActualCrf = (codec: Codec) => {
-	return getCrfOrUndefined() ?? getDefaultCrfForCodec(codec);
+	try {
+		const crf = getCrfOrUndefined() ?? getDefaultCrfForCodec(codec);
+		validateSelectedCrfAndCodecCombination(crf, codec);
+		return crf;
+	} catch (e) {
+		return getDefaultCrfForCodec(codec);
+	}
 };
