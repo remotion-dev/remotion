@@ -1,4 +1,5 @@
 import {
+	CodecOrUndefined,
 	getFinalOutputCodec,
 	getOutputCodecOrUndefined,
 	setCodec,
@@ -8,18 +9,12 @@ import {
 // getFinalOutputCodec
 
 test('Codec tests valid codec input', () => {
-	expect(
-		getFinalOutputCodec({codec: 'h264', emitWarning: true, fileExtension: ''})
-	).toEqual('h264');
-	expect(
-		getFinalOutputCodec({codec: 'h265', emitWarning: true, fileExtension: ''})
-	).toEqual('h265');
-	expect(
-		getFinalOutputCodec({codec: 'vp8', emitWarning: true, fileExtension: ''})
-	).toEqual('vp8');
-	expect(
-		getFinalOutputCodec({codec: 'vp9', emitWarning: true, fileExtension: ''})
-	).toEqual('vp9');
+	const values: CodecOrUndefined[] = ['h264', 'h265', 'vp8', 'vp9'];
+	values.forEach((entry) =>
+		expect(
+			getFinalOutputCodec({codec: entry, emitWarning: true, fileExtension: ''})
+		).toEqual(entry)
+	);
 });
 
 test('Codec tests undefined codec input with known extension', () => {
@@ -69,15 +64,9 @@ test('Codec tests setOutputFormat', () => {
 // setCodec
 
 test('Codec tests setOutputFormat', () => {
-	expect(getOutputCodecOrUndefined()).toEqual(undefined);
-	setCodec('h264');
-	expect(getOutputCodecOrUndefined()).toEqual('h264');
-	setCodec('h265');
-	expect(getOutputCodecOrUndefined()).toEqual('h265');
-	setCodec('vp8');
-	expect(getOutputCodecOrUndefined()).toEqual('vp8');
-	setCodec('vp9');
-	expect(getOutputCodecOrUndefined()).toEqual('vp9');
-	setCodec(undefined);
-	expect(getOutputCodecOrUndefined()).toEqual(undefined);
+	const values: CodecOrUndefined[] = ['h264', 'h265', 'vp8', 'vp9', undefined];
+	values.forEach((entry) => {
+		setCodec(entry);
+		expect(getOutputCodecOrUndefined()).toEqual(entry);
+	});
 });
