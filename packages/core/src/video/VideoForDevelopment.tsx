@@ -1,4 +1,5 @@
 import React, {useEffect, useRef} from 'react';
+import {FEATURE_FLAG_V2_BREAKING_CHANGES} from '../feature-flags';
 import {usePlayingState} from '../timeline-position-state';
 import {useAbsoluteCurrentFrame, useCurrentFrame} from '../use-frame';
 import {useUnsafeVideoConfig} from '../use-unsafe-video-config';
@@ -27,14 +28,21 @@ export const VideoForDevelopment: React.FC<RemotionVideoProps> = (props) => {
 		if (!videoConfig) {
 			throw new Error('No video config found');
 		}
-		const currentTime = (currentFrame + 1) / videoConfig.fps;
+		const currentTime = (() => {
+			if (FEATURE_FLAG_V2_BREAKING_CHANGES) {
+				// In Chrome, if 30fps, the first frame is still displayed at 0.033333
+				// even though after that it increases by 0.033333333 each.
+				// So frame = 0 in Remotion is like frame = 1 for the browser
+				return (currentFrame + 1) / videoConfig.fps;
+			}
+			return currentFrame / (1000 / videoConfig.fps);
+		})();
 
 		if (!playing || absoluteFrame === 0) {
 			videoRef.current.currentTime = currentTime;
-			return;
 		}
 
-		if (videoRef.current.paused && !videoRef.current.ended) {
+		if (videoRef.current.paused && !videoRef.current.ended && playing) {
 			videoRef.current.currentTime = currentTime;
 			videoRef.current.play();
 		}
