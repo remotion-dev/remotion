@@ -4,11 +4,7 @@ import {
 	TComposition,
 	TSequence,
 } from './CompositionManager';
-import {
-	DEFAULT_BROWSER,
-	FEATURE_FLAG_FIREFOX_SUPPORT,
-	getBrowser,
-} from './config/browser';
+import {DEFAULT_BROWSER, getBrowser} from './config/browser';
 import {getBrowserExecutable} from './config/browser-executable';
 import {
 	DEFAULT_CODEC,
@@ -46,6 +42,7 @@ import {
 	DEFAULT_WEBPACK_CACHE_ENABLED,
 	getWebpackCaching,
 } from './config/webpack-caching';
+import {FEATURE_FLAG_FIREFOX_SUPPORT} from './feature-flags';
 import * as perf from './perf';
 import {getCompositionName, getIsEvaluation, getRoot} from './register-root';
 import {RemotionRoot} from './RemotionRoot';
