@@ -52,7 +52,9 @@ export const TimelineElements: React.FC = () => {
 							>
 								{track.sequences.map((s) => {
 									// If a duration is 1, it is essentially a still and it should have width 0
-									const spatialDuration = s.sequence.duration - 1;
+									const spatialDuration = Internals.FEATURE_FLAG_V2_BREAKING_CHANGES
+										? s.sequence.duration - 1
+										: s.sequence.duration;
 									return (
 										<div
 											key={s.sequence.id}
