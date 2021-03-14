@@ -8,12 +8,9 @@ import {
 import {useWindowSize} from '../hooks/use-window-size';
 import {TimelineSliderHandle} from './TimelineSliderHandle';
 
-const Container = styled.div<{
-	leftAmount: number;
-}>`
+const Container = styled.div`
 	position: absolute;
 	top: 0;
-	left: ${(props) => props.leftAmount}px;
 `;
 
 const Line = styled.div`
@@ -38,7 +35,7 @@ export const TimelineSlider: React.FC = () => {
 		TIMELINE_LEFT_PADDING;
 
 	return (
-		<Container leftAmount={left}>
+		<Container style={{transform: `translateX(${left}px)`}}>
 			<Line>
 				<TimelineSliderHandle />
 			</Line>

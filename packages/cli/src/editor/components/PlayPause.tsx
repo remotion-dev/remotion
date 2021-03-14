@@ -4,7 +4,6 @@ import {Pause} from '../icons/pause';
 import {Play} from '../icons/play';
 import {StepBack} from '../icons/step-back';
 import {StepForward} from '../icons/step-forward';
-import {getLastFrames, setLastFrames} from '../state/last-frames';
 import {ControlButton} from './ControlButton';
 
 export const PlayPause: React.FC = () => {
@@ -19,9 +18,6 @@ export const PlayPause: React.FC = () => {
 			return null;
 		}
 		setPlaying((p) => {
-			if (p) {
-				setLastFrames([]);
-			}
 			return !p;
 		});
 	}, [video, setPlaying]);
@@ -103,7 +99,6 @@ export const PlayPause: React.FC = () => {
 				(Math.round(time / (1000 / config.fps)) + startedFrame) %
 				config.durationInFrames;
 			if (calculatedFrame !== frameRef.current) {
-				setLastFrames([...getLastFrames(), Date.now()]);
 				setFrame(calculatedFrame);
 			}
 			if (!hasBeenStopped) {
@@ -136,7 +131,7 @@ export const PlayPause: React.FC = () => {
 					}}
 				/>
 			</ControlButton>
-			<div style={{width: 10}} />
+			
 			<ControlButton
 				aria-label={playing ? 'Pause' : 'Play'}
 				disabled={!video}
@@ -160,7 +155,7 @@ export const PlayPause: React.FC = () => {
 					/>
 				)}
 			</ControlButton>
-			<div style={{width: 10}} />
+
 			<ControlButton
 				aria-label="Step forward one frame"
 				disabled={isLastFrame}
