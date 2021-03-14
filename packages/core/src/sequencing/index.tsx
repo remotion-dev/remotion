@@ -6,6 +6,7 @@ import React, {
 	useState,
 } from 'react';
 import {CompositionManager} from '../CompositionManager';
+import {FEATURE_FLAG_V2_BREAKING_CHANGES} from '../feature-flags';
 import {getTimelineClipName} from '../get-timeline-clip-name';
 import {useAbsoluteCurrentFrame} from '../use-frame';
 
@@ -86,12 +87,15 @@ export const Sequence: React.FC<{
 		parentSequence?.id,
 	]);
 
+	const endThreshold = (() => {
+		if (FEATURE_FLAG_V2_BREAKING_CHANGES) {
+			return absoluteFrame > actualFrom + durationInFrames - 1;
+		}
+		return absoluteFrame > actualFrom + durationInFrames;
+	})();
+
 	const content =
-		absoluteFrame < actualFrom
-			? null
-			: absoluteFrame > actualFrom + durationInFrames - 1
-			? null
-			: children;
+		absoluteFrame < actualFrom ? null : endThreshold ? null : children;
 
 	return (
 		<SequenceContext.Provider value={contextValue}>
