@@ -89,13 +89,17 @@ export const Sequence: React.FC<{
 
 	const endThreshold = (() => {
 		if (FEATURE_FLAG_V2_BREAKING_CHANGES) {
-			return absoluteFrame > actualFrom + durationInFrames - 1;
+			return actualFrom + durationInFrames - 1;
 		}
-		return absoluteFrame > actualFrom + durationInFrames;
+		return actualFrom + durationInFrames;
 	})();
 
 	const content =
-		absoluteFrame < actualFrom ? null : endThreshold ? null : children;
+		absoluteFrame < actualFrom
+			? null
+			: absoluteFrame > endThreshold
+			? null
+			: children;
 
 	return (
 		<SequenceContext.Provider value={contextValue}>

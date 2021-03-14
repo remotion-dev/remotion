@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useEffect, useRef} from 'react';
 import {usePlayingState} from '../timeline-position-state';
 import {useAbsoluteCurrentFrame, useCurrentFrame} from '../use-frame';
 import {useUnsafeVideoConfig} from '../use-unsafe-video-config';
@@ -10,8 +10,6 @@ export const VideoForDevelopment: React.FC<RemotionVideoProps> = (props) => {
 	const absoluteFrame = useAbsoluteCurrentFrame();
 	const videoConfig = useUnsafeVideoConfig();
 	const [playing] = usePlayingState();
-
-	const [videoDuration, setVideoDuration] = useState(0);
 
 	useEffect(() => {
 		if (playing) {
