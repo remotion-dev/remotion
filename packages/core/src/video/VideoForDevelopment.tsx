@@ -27,14 +27,16 @@ export const VideoForDevelopment: React.FC<RemotionVideoProps> = (props) => {
 		if (!videoConfig) {
 			throw new Error('No video config found');
 		}
+		const currentTime = currentFrame / videoConfig.fps;
+		console.log(currentFrame, currentTime);
 
 		if (!playing || absoluteFrame === 0) {
-			videoRef.current.currentTime = currentFrame / (1000 / videoConfig.fps);
+			videoRef.current.currentTime = currentTime;
 			return;
 		}
 
 		if (videoRef.current.paused) {
-			videoRef.current.currentTime = currentFrame / (1000 / videoConfig.fps);
+			videoRef.current.currentTime = currentTime;
 			videoRef.current.play();
 		}
 	}, [currentFrame, playing, videoConfig, absoluteFrame]);
