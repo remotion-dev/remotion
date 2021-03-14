@@ -31,8 +31,7 @@ export const TimelineSlider: React.FC = () => {
 
 	const left =
 		(timelinePosition / (videoConfig.durationInFrames - 1)) *
-			(width - TIMELINE_LEFT_PADDING - TIMELINE_RIGHT_PADDING - 1) +
-		TIMELINE_LEFT_PADDING;
+		(width - TIMELINE_LEFT_PADDING - TIMELINE_RIGHT_PADDING - 1);
 
 	return (
 		<Container style={{transform: `translateX(${left}px)`}}>
