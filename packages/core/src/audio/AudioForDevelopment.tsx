@@ -33,8 +33,6 @@ export const AudioForDevelopment: React.FC<RemotionAudioProps> = (props) => {
 		const timeShift = Math.abs(shouldBeTime - isTime);
 		if (timeShift > 0.5) {
 			console.log('Time has shifted by', timeShift, 'sec. Fixing...');
-		}
-		if (timeShift > 0.5) {
 			// If scrubbing around, adjust timing
 			// or if time shift is bigger than 0.2sec
 			audioRef.current.currentTime = shouldBeTime;
