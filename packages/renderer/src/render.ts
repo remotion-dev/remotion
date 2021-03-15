@@ -1,10 +1,22 @@
 import path from 'path';
-import {VideoConfig} from 'remotion';
+import {Browser, FrameRange, Internals, VideoConfig} from 'remotion';
 import {openBrowser, provideScreenshot} from '.';
-import {calculateAssetsPosition} from './assets';
+import {Assets, calculateAssetsPosition} from './assets';
 import {getActualConcurrency} from './get-concurrency';
+import {getFrameCount} from './get-frame-range';
+import {getFrameToRender} from './get-frame-to-render';
 import {DEFAULT_IMAGE_FORMAT, ImageFormat} from './image-format';
 import {Pool} from './pool';
+import {serveStatic} from './serve-static';
+
+export type RenderFramesOutput = {
+	frameCount: number;
+	assetPositions: Assets;
+};
+
+type OnStartData = {
+	frameCount: number;
+};
 
 export const renderFrames = async ({
 	config,
@@ -17,18 +29,22 @@ export const renderFrames = async ({
 	webpackBundle,
 	quality,
 	imageFormat = DEFAULT_IMAGE_FORMAT,
+	browser = Internals.DEFAULT_BROWSER,
+	frameRange,
 }: {
 	config: VideoConfig;
 	parallelism?: number | null;
 	onFrameUpdate: (f: number) => void;
-	onStart: () => void;
+	onStart: (data: OnStartData) => void;
 	compositionId: string;
 	outputDir: string;
 	userProps: unknown;
 	webpackBundle: string;
 	imageFormat?: ImageFormat;
 	quality?: number;
-}) => {
+	browser?: Browser;
+	frameRange?: FrameRange | null;
+}): Promise<RenderFramesOutput> => {
 	if (quality !== undefined && imageFormat !== 'jpeg') {
 		throw new Error(
 			"You can only pass the `quality` option if `imageFormat` is 'jpeg'."
@@ -36,9 +52,12 @@ export const renderFrames = async ({
 	}
 	const actualParallelism = getActualConcurrency(parallelism ?? null);
 
-	const browser = await openBrowser();
+	const [{port, close}, browserInstance] = await Promise.all([
+		serveStatic(webpackBundle),
+		openBrowser(browser),
+	]);
 	const pages = new Array(actualParallelism).fill(true).map(async () => {
-		const page = await browser.newPage();
+		const page = await browserInstance.newPage();
 		page.setViewport({
 			width: config.width,
 			height: config.height,
@@ -47,7 +66,7 @@ export const renderFrames = async ({
 		page.on('error', console.error);
 		page.on('pageerror', console.error);
 
-		const site = `file://${webpackBundle}/index.html?composition=${compositionId}&props=${encodeURIComponent(
+		const site = `http://localhost:${port}/index.html?composition=${compositionId}&props=${encodeURIComponent(
 			JSON.stringify(userProps)
 		)}`;
 		await page.goto(site);
@@ -56,49 +75,52 @@ export const renderFrames = async ({
 
 	const pool = new Pool(await Promise.all(pages));
 
-	const {durationInFrames: frames} = config;
+	const frameCount = getFrameCount(config.durationInFrames, frameRange ?? null);
 	// Substract one because 100 frames will be 00-99
 	// --> 2 digits
-	const filePadLength = String(frames - 1).length;
+	let filePadLength = 0;
+	if (frameCount) {
+		filePadLength = String(frameCount - 1).length;
+	}
 	let framesRendered = 0;
-	onStart();
+
+	onStart({
+		frameCount,
+	});
 	const assetsFrames = await Promise.all(
-		new Array(frames)
+		new Array(frameCount)
 			.fill(Boolean)
 			.map((x, i) => i)
-			.map(async (f) => {
+			.map(async (index) => {
+				const frame = getFrameToRender(frameRange ?? null, index);
 				const freePage = await pool.acquire();
-				const paddedIndex = String(f).padStart(filePadLength, '0');
-				try {
-					await provideScreenshot({
-						page: freePage,
-						imageFormat,
-						quality,
-						options: {
-							frame: f,
-							output: path.join(
-								outputDir,
-								`element-${paddedIndex}.${imageFormat}`
-							),
-						},
-					});
+				const paddedIndex = String(frame).padStart(filePadLength, '0');
 
-					return await freePage.evaluate(() => {
-						return window.remotion_collectAssets();
-					});
-				} catch (err) {
-					console.log('Error taking screenshot', err);
-
-					return [];
-				} finally {
-					pool.release(freePage);
-					framesRendered++;
-					onFrameUpdate(framesRendered);
-				}
+				const screenshot = await provideScreenshot({
+					page: freePage,
+					imageFormat,
+					quality,
+					options: {
+						frame,
+						output: path.join(
+							outputDir,
+							`element-${paddedIndex}.${imageFormat}`
+						),
+					},
+				});
+				pool.release(freePage);
+				framesRendered++;
+				onFrameUpdate(framesRendered);
+				return await freePage.evaluate(() => {
+					return window.remotion_collectAssets();
+				});
 			})
 	);
+	await Promise.all([browserInstance.close(), close()]);
+	const assetPositions = calculateAssetsPosition(assetsFrames);
 
-	await browser.close();
-
-	return calculateAssetsPosition(assetsFrames);
+	return {
+		assetPositions,
+		frameCount,
+	};
 };

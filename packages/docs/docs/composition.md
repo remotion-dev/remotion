@@ -7,7 +7,7 @@ This is the component to use to register a video to make it renderable and make 
 
 ## API
 
-A `<Composition />` should be placed within a fragment of the root component (which is registered using [`registerRoot()`](register-root)).
+A `<Composition />` should be placed within a fragment of the root component (which is registered using [`registerRoot()`](/docs/register-root)).
 
 The component takes the following props:
 
@@ -79,6 +79,6 @@ export const MyVideo = () => {
 
 ## See also
 
-- [registerRoot()](register-root)
-- [The fundamentals](the-fundamentals)
-- [CLI options](cli)
+- [registerRoot()](/docs/register-root)
+- [The fundamentals](/docs/the-fundamentals)
+- [CLI options](/docs/cli)

@@ -6,11 +6,7 @@ id: video
 This component allows you to include a video file in your Remtotion project. While in the preview, the video will just play in a HTML5 `<video>` tag, during render, the exact frame needed will be extracted.
 
 :::warning
-Please note that while H.264 video (the codec of MP4 videos) will show up during Preview, it will not work during render. This is because Puppeteer with Chromium is used during rendering, which does not ship with H.264 codecs. Convert your videos to a Chromium compatible format such as WebM instead.
-:::
-
-:::warning
-Videos with audio are not supported - audio will be muted in the final render.
+Videos with audio are not supported - yet! Audio will be muted in the final render.
 :::
 
 ## API / Example
@@ -34,6 +30,17 @@ export const MyVideo = () => {
 }
 ```
 
+## Codec support
+
+Pay attention to the codec of the video that you are importing. During the render process, Chrome needs to support playing the video that you are embedding. If Remotion cannot find a preinstalled version of Chrome, it will download a Chromium executable which does not support the playback of H264 (common codec for MP4 videos). To work around this problem, you have multiple options:
+
+- Tell Remotion which path for Chrome to use by using the command line flag `--browser-executable` or [configure](/docs/config#setbrowserexecutable) `Config.Puppeteer.setBrowserExecutable()` in a config file.
+- Convert your videos to WebM before embedding them.
+
+Prior to Remotion 1.5, Remotion will always use an internal Puppeteer binary and MP4 videos are therefore not supported.
+
+If you would like Remotion to warn you when you import an MP4 video, you can turn on the `@remotion/no-mp4-import` ESLint rule.
+
 ## See also
 
-- [`<Audio />`](audio)
+- [`<Audio />`](/docs/audio)

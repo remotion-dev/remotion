@@ -23,7 +23,7 @@ While this will work during preview, it will break while rendering. The reason i
 
 ## Fixing the problem
 
-Use the [`random()`](random) API from Remotion to get deterministic pseudorandom values. Pass in a seed (number or string) and as long as the seed is the same, the return value will be the same.
+Use the [`random()`](/docs/random) API from Remotion to get deterministic pseudorandom values. Pass in a seed (number or string) and as long as the seed is the same, the return value will be the same.
 
 ```tsx {7,8}
 import {random} from 'remotion';
@@ -47,4 +47,4 @@ Did you get an ESLint warning when using `Math.random()`, but you are fully awar
 
 ## See also
 
-- [random()](random)
+- [random()](/docs/random)

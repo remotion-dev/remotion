@@ -37,6 +37,10 @@ export const TimelineElements: React.FC = () => {
 		});
 	}, [assets, sequences, videoConfig]);
 
+	// If a composition is 100 frames long, the last frame is 99
+	// and therefore frame 99 should be at the right
+	const lastFrame = (videoConfig?.durationInFrames ?? 1) - 1;
+
 	return (
 		<div
 			style={{
@@ -55,6 +59,10 @@ export const TimelineElements: React.FC = () => {
 								}}
 							>
 								{track.sequences.map((s) => {
+									// If a duration is 1, it is essentially a still and it should have width 0
+									const spatialDuration = Internals.FEATURE_FLAG_V2_BREAKING_CHANGES
+										? s.sequence.duration - 1
+										: s.sequence.duration;
 									return (
 										<div
 											key={s.sequence.id}
@@ -69,16 +77,12 @@ export const TimelineElements: React.FC = () => {
 												height: track.trackType === 'sequence' ? 80 : 60,
 												marginTop: 1,
 												marginLeft: `calc(${
-													(s.sequence.from / videoConfig.durationInFrames) * 100
+													(s.sequence.from / lastFrame) * 100
 												}%)`,
 												width:
 													s.sequence.duration === Infinity
 														? width
-														: `calc(${
-																(s.sequence.duration /
-																	videoConfig.durationInFrames) *
-																100
-														  }%)`,
+														: `calc(${(spatialDuration / lastFrame) * 100}%)`,
 												color: 'white',
 												overflow: 'hidden',
 											}}

@@ -31,12 +31,15 @@ export const validateSelectedPixelFormatAndCodecCombination = (
 	pixelFormat: PixelFormat,
 	codec: Codec
 ) => {
+	if (!validOptions.includes(pixelFormat)) {
+		throw new TypeError(`Value ${pixelFormat} is not valid as a pixel format.`);
+	}
 	if (pixelFormat !== 'yuva420p') {
 		return;
 	}
 	if (codec !== 'vp8' && codec !== 'vp9') {
 		throw new TypeError(
-			"Pixel format was set to 'yuva420p' but codec is not 'vp8' or 'vp8'. To render videos with alpha channel, you must choose a codec that supports it."
+			"Pixel format was set to 'yuva420p' but codec is not 'vp8' or 'vp9'. To render videos with alpha channel, you must choose a codec that supports it."
 		);
 	}
 };

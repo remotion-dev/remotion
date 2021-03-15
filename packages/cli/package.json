@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/cli",
-	"version": "1.4.0",
+	"version": "1.5.2",
 	"description": "CLI for Remotion",
 	"main": "dist/index.js",
 	"bin": {
@@ -9,8 +9,9 @@
 	"module": "true",
 	"scripts": {
 		"test": "eslint src --ext ts,tsx",
-		"build": "tsc -d && node add-bin.js",
-		"dev": "ts-node src/preview.ts x ../example/index.tsx"
+		"build": "tsc -d",
+		"watch": "tsc -w",
+		"dev": "ts-node src/preview.ts x ../example/src/index.tsx"
 	},
 	"files": [
 		"dist",
@@ -26,8 +27,8 @@
 		"@babel/preset-env": "^7.10.4",
 		"@babel/preset-react": "^7.10.4",
 		"@babel/preset-typescript": "^7.10.4",
-		"@remotion/bundler": "^1.4.0",
-		"@remotion/renderer": "^1.4.0",
+		"@remotion/bundler": "^1.5.2",
+		"@remotion/renderer": "^1.5.2",
 		"@types/cli-progress": "^3.7.0",
 		"@types/node": "^14.0.13",
 		"@types/react": "^17.0.0",
@@ -42,7 +43,7 @@
 		"prettier": "^2.0.5",
 		"react": "^17.0.1",
 		"react-dom": "^17.0.1",
-		"remotion": "^1.4.0",
+		"remotion": "^1.5.0",
 		"semver": "^7.3.4",
 		"styled-components": "^5.1.1",
 		"typescript": "^4.1.2",
