@@ -1,7 +1,7 @@
 import execa from 'execa';
 import pLimit from 'p-limit';
 import {TAsset} from 'remotion';
-import {getActualConcurrency} from './get-concurrency';
+import {getActualConcurrency} from '../get-concurrency';
 
 type UnsafeAsset = TAsset & {
 	startInVideo: number;
