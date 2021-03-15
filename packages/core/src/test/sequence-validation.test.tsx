@@ -21,10 +21,12 @@ test('It should allow null as children', () => {
 	).not.toThrow();
 });
 
-test('It should not allow no children at all', () => {
-	expectToThrow(
-		// @ts-expect-error
-		() => render(<Sequence from={0} />),
-		/You passed to durationInFrames an argument of type undefined, but it must be a number./
-	);
+test('It should allow undefined as children', () => {
+	expect(() =>
+		render(
+			<Sequence durationInFrames={100} from={0}>
+				{undefined}
+			</Sequence>
+		)
+	).not.toThrow();
 });

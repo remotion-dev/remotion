@@ -25,6 +25,11 @@ export const validateSelectedPixelFormatAndImageFormatCombination = (
 	pixelFormat: PixelFormat,
 	imageFormat: ImageFormat
 ) => {
+	if (!validOptions.includes(imageFormat)) {
+		throw new TypeError(
+			`Value ${imageFormat} is not valid as an image format.`
+		);
+	}
 	if (pixelFormat !== 'yuva420p') {
 		return;
 	}
