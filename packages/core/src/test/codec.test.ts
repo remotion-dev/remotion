@@ -3,7 +3,6 @@ import {
 	getFinalOutputCodec,
 	getOutputCodecOrUndefined,
 	setCodec,
-	setOutputFormat,
 } from '../config/codec';
 
 // getFinalOutputCodec
@@ -38,27 +37,17 @@ test('Codec tests undefined codec input with unknown extension', () => {
 	expect(
 		getFinalOutputCodec({
 			codec: undefined,
-			emitWarning: true,
+			emitWarning: false,
 			fileExtension: '',
 		})
 	).toEqual('h264');
 	expect(
 		getFinalOutputCodec({
 			codec: undefined,
-			emitWarning: true,
+			emitWarning: false,
 			fileExtension: 'abc',
 		})
 	).toEqual('h264');
-});
-
-// setOutputFormat
-
-test('Codec tests setOutputFormat', () => {
-	expect(getOutputCodecOrUndefined()).toEqual(undefined);
-	setOutputFormat('mp4');
-	expect(getOutputCodecOrUndefined()).toEqual('h264');
-	setOutputFormat('png-sequence');
-	expect(getOutputCodecOrUndefined()).toEqual(undefined);
 });
 
 // setCodec
