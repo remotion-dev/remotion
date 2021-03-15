@@ -1,3 +1,4 @@
+import {Codec} from '../config';
 import {
 	getActualCrf,
 	getDefaultCrfForCodec,
@@ -9,14 +10,13 @@ import {expectToThrow} from './expect-to-throw';
 
 test('crf tests getDefaultCrfForCodec', () => {
 	// input codec, output
-	const valuesA = [
+	const valuesA: [Codec, number][] = [
 		['h264', 18],
 		['h265', 23],
 		['vp8', 9],
 		['vp9', 28],
 	];
 	valuesA.forEach((entry) =>
-		// @ts-expect-error
 		expect(getDefaultCrfForCodec(entry[0])).toEqual(entry[1])
 	);
 
@@ -33,14 +33,13 @@ test('crf tests getDefaultCrfForCodec', () => {
 
 test('crf tests getValidCrfRanges', () => {
 	// input crf, input codec, valid range
-	const valuesA = [
+	const valuesA: [Codec, [number, number]][] = [
 		['h264', [0, 51]],
 		['h265', [0, 51]],
 		['vp8', [4, 63]],
 		['vp9', [0, 63]],
 	];
 	valuesA.forEach((entry) =>
-		// @ts-expect-error
 		expect(getValidCrfRanges(entry[0])).toEqual(entry[1])
 	);
 
@@ -57,7 +56,7 @@ test('crf tests getValidCrfRanges', () => {
 
 test('validateSelectedCrfAndCodecCombination', () => {
 	// input crf, input codec
-	const valuesA = [
+	const valuesA: [number, Codec][] = [
 		[20, 'h264'],
 		[0, 'h264'],
 		[51, 'h264'],
@@ -72,14 +71,13 @@ test('validateSelectedCrfAndCodecCombination', () => {
 		[63, 'vp9'],
 	];
 	valuesA.forEach((entry) =>
-		expect(
-			// @ts-expect-error
-			() => validateSelectedCrfAndCodecCombination(entry[0], entry[1])
+		expect(() =>
+			validateSelectedCrfAndCodecCombination(entry[0], entry[1])
 		).not.toThrow()
 	);
 
 	// input crf, input codec, valid range
-	const valuesB = [
+	const valuesB: [number, Codec, [number, number]][] = [
 		[80, 'h264', [0, 51]],
 		[-1, 'h264', [0, 51]],
 		[52, 'h264', [0, 51]],
@@ -95,10 +93,8 @@ test('validateSelectedCrfAndCodecCombination', () => {
 	];
 	valuesB.forEach((entry) =>
 		expectToThrow(
-			// @ts-expect-error
 			() => validateSelectedCrfAndCodecCombination(entry[0], entry[1]),
 			new RegExp(
-				// @ts-expect-error
 				`CRF must be between ${entry[2][0]} and ${entry[2][1]} for codec ${entry[1]}. Passed: ${entry[0]}`
 			)
 		)
@@ -107,7 +103,7 @@ test('validateSelectedCrfAndCodecCombination', () => {
 
 test('get crf', () => {
 	// input crf, input codec, output crf
-	const valuesA = [
+	const valuesA: [number | undefined, Codec, number][] = [
 		[20, 'h264', 20],
 		[undefined, 'h264', 18],
 		[20, 'h265', 20],
@@ -118,29 +114,22 @@ test('get crf', () => {
 		[undefined, 'vp9', 28],
 	];
 	valuesA.forEach((entry) => {
-		// @ts-expect-error
 		setCrf(entry[0]);
-		expect(
-			// @ts-expect-error
-			getActualCrf(entry[1])
-		).toEqual(entry[2]);
+		expect(getActualCrf(entry[1])).toEqual(entry[2]);
 	});
 
 	// input crf, input codec, valid range
-	const valuesB = [
+	const valuesB: [number, Codec, [number, number]][] = [
 		[80, 'h264', [0, 51]],
 		[80, 'h265', [0, 51]],
 		[80, 'vp8', [4, 63]],
 		[80, 'vp9', [0, 63]],
 	];
 	valuesB.forEach((entry) => {
-		// @ts-expect-error
 		setCrf(entry[0]);
 		expectToThrow(
-			// @ts-expect-error
 			() => getActualCrf(entry[1]),
 			new RegExp(
-				// @ts-expect-error
 				`CRF must be between ${entry[2][0]} and ${entry[2][1]} for codec ${entry[1]}. Passed: ${entry[0]}`
 			)
 		);
