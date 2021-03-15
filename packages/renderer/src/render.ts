@@ -1,7 +1,8 @@
 import path from 'path';
 import {Browser, FrameRange, Internals, VideoConfig} from 'remotion';
 import {openBrowser, provideScreenshot} from '.';
-import {Assets, calculateAssetsPosition} from './assets';
+import {Assets, calculateAssetsPosition} from './assets/assets';
+import {mapLocalhostAssetToFile} from './assets/map-localhost-to-file';
 import {getActualConcurrency} from './get-concurrency';
 import {getFrameCount} from './get-frame-range';
 import {getFrameToRender} from './get-frame-to-render';
@@ -96,7 +97,7 @@ export const renderFrames = async ({
 				const freePage = await pool.acquire();
 				const paddedIndex = String(frame).padStart(filePadLength, '0');
 
-				const screenshot = await provideScreenshot({
+				await provideScreenshot({
 					page: freePage,
 					imageFormat,
 					quality,
@@ -111,8 +112,14 @@ export const renderFrames = async ({
 				pool.release(freePage);
 				framesRendered++;
 				onFrameUpdate(framesRendered);
-				return await freePage.evaluate(() => {
+				const assets = await freePage.evaluate(() => {
 					return window.remotion_collectAssets();
+				});
+				return assets.map((a) => {
+					return mapLocalhostAssetToFile({
+						localhostAsset: a,
+						webpackBundle,
+					});
 				});
 			})
 	);
