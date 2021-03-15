@@ -12,7 +12,7 @@ type MediaAsset = Omit<UnsafeAsset, 'duration'> & {
 	duration: number;
 };
 
-type AssetAudioDetails = {
+export type AssetAudioDetails = {
 	channels: number;
 };
 
@@ -78,7 +78,13 @@ export async function getAudioChannels(path: string, cwd: string) {
 		.filter(Boolean) as string[];
 
 	const task = await execa('ffprobe', args, {cwd});
-	return parseInt(task.stdout.replace('channels=', ''), 10);
+	const parsed = parseInt(task.stdout.replace('channels=', ''), 10);
+	// TODO: How to determine the amount of channels for video?
+	// Is it even necessary?
+	if (isNaN(parsed)) {
+		return 0;
+	}
+	return parsed;
 }
 
 export async function getAssetAudioDetails(options: {

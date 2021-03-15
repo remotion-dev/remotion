@@ -2,7 +2,7 @@ import execa from 'execa';
 import fs from 'fs';
 import {Codec, Internals, PixelFormat} from 'remotion';
 import url from 'url';
-import {Assets, getAssetAudioDetails} from './assets/assets';
+import {AssetAudioDetails, Assets, getAssetAudioDetails} from './assets/assets';
 import {DEFAULT_IMAGE_FORMAT, ImageFormat} from './image-format';
 import {parseFfmpegProgress} from './parse-ffmpeg-progress';
 import {validateFfmpeg} from './validate-ffmpeg';
@@ -69,6 +69,40 @@ export const stitchFramesToVideo = async (options: {
 		parallelism: options.parallelism,
 	});
 
+	const filters = options.assets
+		.map((asset, i) => {
+			const duration = (asset.duration / options.fps).toFixed(3); // in seconds with milliseconds level precision
+			const assetTrimLeft = (asset.sequenceFrame / options.fps).toFixed(3);
+			const assetTrimRight = (
+				(asset.sequenceFrame + asset.duration) /
+				options.fps
+			).toFixed(3);
+			const startInVideo = (
+				(asset.startInVideo / options.fps) *
+				1000
+			).toFixed(); // in milliseconds
+			const audioDetails = assetAudioDetails.get(
+				resolveAssetSrc(asset.src)
+			) as AssetAudioDetails;
+
+			if (audioDetails.channels === 0) {
+				return null;
+			}
+			const streamIndex = i + 1;
+			return {
+				filter: [
+					`[${streamIndex}:a]`,
+					duration ? `atrim=${assetTrimLeft}:${assetTrimRight},` : '',
+					`adelay=${new Array(audioDetails.channels)
+						.fill(startInVideo)
+						.join('|')}`,
+					`[a${streamIndex}]`,
+				].join(''),
+				streamIndex,
+			};
+		})
+		.filter(Internals.truthy);
+
 	const ffmpegArgs = [
 		['-r', String(options.fps)],
 		['-f', 'image2'],
@@ -90,36 +124,13 @@ export const stitchFramesToVideo = async (options: {
 			: [
 					'-filter_complex',
 					[
-						...options.assets.map((asset, i) => {
-							const duration = (asset.duration / options.fps).toFixed(3); // in seconds with milliseconds level precision
-							const assetTrimLeft = (asset.sequenceFrame / options.fps).toFixed(
-								3
-							);
-							const assetTrimRight = (
-								(asset.sequenceFrame + asset.duration) /
-								options.fps
-							).toFixed(3);
-							const startInVideo = (
-								(asset.startInVideo / options.fps) *
-								1000
-							).toFixed(); // in milliseconds
-							const audioDetails = assetAudioDetails.get(
-								resolveAssetSrc(asset.src)
-							);
-
-							return [
-								`[${i + 1}:a]`,
-								duration ? `atrim=${assetTrimLeft}:${assetTrimRight},` : '',
-								`adelay=${new Array(audioDetails!.channels)
-									.fill(startInVideo)
-									.join('|')}`,
-								`[a${i + 1}]`,
-							].join('');
-						}),
-						`${options.assets.map((asset, i) => `[a${i + 1}]`).join('')}amix=${
-							options.assets.length
-						},dynaudnorm`,
-					].join(';'),
+						...filters.map((f) => f.filter),
+						`${filters
+							.map((asset) => `[a${asset.streamIndex}]`)
+							.join('')}amix=${filters.length},dynaudnorm`,
+					]
+						.filter(Boolean)
+						.join(';'),
 			  ],
 		'-shortest',
 		['-map', '0:v'],
@@ -143,9 +154,12 @@ export const stitchFramesToVideo = async (options: {
 };
 
 const resolveAssetSrc = (src: string) => {
+	if (!src.startsWith('file:')) {
+		return src;
+	}
 	const {protocol} = new URL(src);
 
 	if (protocol === 'file:') return url.fileURLToPath(src);
 
-	return src;
+	throw new TypeError(`Unexpected src ${src}`);
 };
