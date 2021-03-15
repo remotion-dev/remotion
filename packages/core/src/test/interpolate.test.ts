@@ -32,7 +32,7 @@ test('Input range must be strictly monotonically non-decreasing', () => {
 	}, /inputRange must be strictly monotonically non-decreasing/);
 });
 
-test('Output range strictly monotonically decreasing', () => {
+test('Output range can be non-monotonic', () => {
 	expect(interpolate(0.75, [0, 0.5, 1], [0, 2, 0])).toEqual(1);
 });
 
