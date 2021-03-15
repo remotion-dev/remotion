@@ -1,7 +1,7 @@
 import execa from 'execa';
-import {TAsset} from 'remotion';
 import pLimit from 'p-limit';
-import { getActualConcurrency } from './get-concurrency';
+import {TAsset} from 'remotion';
+import {getActualConcurrency} from './get-concurrency';
 
 type UnsafeAsset = TAsset & {
 	startInVideo: number;
@@ -14,7 +14,7 @@ type MediaAsset = Omit<UnsafeAsset, 'duration'> & {
 
 type AssetAudioDetails = {
 	channels: number;
-}
+};
 
 export type Assets = MediaAsset[];
 
@@ -72,33 +72,33 @@ export async function getAudioChannels(path: string, cwd: string) {
 		['-v', 'error'],
 		['-show_entries', 'stream=channels'],
 		['-of', 'default=nw=1'],
-		[path]
+		[path],
 	]
-	.reduce<(string | null)[]>((acc, val) => acc.concat(val), [])
-	.filter(Boolean) as string[];
+		.reduce<(string | null)[]>((acc, val) => acc.concat(val), [])
+		.filter(Boolean) as string[];
 
-	try {
-		const task = await execa('ffprobe', args, { cwd });
-		return parseInt(task.stdout.replace('channels=', ''), 10);
-	} catch (ex) {
-		throw ex;
-	}
+	const task = await execa('ffprobe', args, {cwd});
+	return parseInt(task.stdout.replace('channels=', ''), 10);
 }
 
 export async function getAssetAudioDetails(options: {
-	assetPaths: string[], 
-	cwd: string,
+	assetPaths: string[];
+	cwd: string;
 	parallelism?: number | null;
 }): Promise<Map<string, AssetAudioDetails>> {
 	const uniqueAssets = [...new Set(options.assetPaths)];
 	const actualParallelism = getActualConcurrency(options.parallelism ?? null);
 	const parallelLimit = pLimit(actualParallelism);
-	const audioChannelTasks = uniqueAssets.map((path) => parallelLimit(() => getAudioChannels(path, options.cwd)));
+	const audioChannelTasks = uniqueAssets.map((path) =>
+		parallelLimit(() => getAudioChannels(path, options.cwd))
+	);
 	const result = await Promise.all(audioChannelTasks);
-	
-	const mappedResults: [string, AssetAudioDetails][] = result.map((channels, index) => {
-		return [uniqueAssets[index], { channels }];
-	});
+
+	const mappedResults: [string, AssetAudioDetails][] = result.map(
+		(channels, index) => {
+			return [uniqueAssets[index], {channels}];
+		}
+	);
 
 	return new Map<string, AssetAudioDetails>(mappedResults);
 }
