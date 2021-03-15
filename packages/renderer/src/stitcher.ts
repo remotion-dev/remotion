@@ -2,7 +2,7 @@ import execa from 'execa';
 import fs from 'fs';
 import {Codec, Internals, PixelFormat} from 'remotion';
 import url from 'url';
-import {Assets, getAssetAudioDetails} from './assets';
+import {Assets, getAssetAudioDetails} from './assets/assets';
 import {DEFAULT_IMAGE_FORMAT, ImageFormat} from './image-format';
 import {parseFfmpegProgress} from './parse-ffmpeg-progress';
 import {validateFfmpeg} from './validate-ffmpeg';
@@ -73,8 +73,7 @@ export const stitchFramesToVideo = async (options: {
 		['-r', String(options.fps)],
 		['-f', 'image2'],
 		['-s', `${options.width}x${options.height}`],
-		['-start_number',
-		String(smallestNumber)],
+		['-start_number', String(smallestNumber)],
 		['-i', `element-%0${numberLength}d.${imageFormat}`],
 		...assetPaths.map((path) => ['-i', path]),
 		['-c:v', encoderName],
@@ -111,7 +110,9 @@ export const stitchFramesToVideo = async (options: {
 							return [
 								`[${i + 1}:a]`,
 								duration ? `atrim=${assetTrimLeft}:${assetTrimRight},` : '',
-								`adelay=${new Array(audioDetails!.channels).fill(startInVideo).join('|')}`,
+								`adelay=${new Array(audioDetails!.channels)
+									.fill(startInVideo)
+									.join('|')}`,
 								`[a${i + 1}]`,
 							].join('');
 						}),
@@ -125,8 +126,8 @@ export const stitchFramesToVideo = async (options: {
 		options.force ? '-y' : null,
 		options.outputLocation,
 	]
-	.reduce<(string | null)[]>((acc, val) => acc.concat(val), [])
-	.filter(Boolean) as string[];
+		.reduce<(string | null)[]>((acc, val) => acc.concat(val), [])
+		.filter(Boolean) as string[];
 
 	const task = execa('ffmpeg', ffmpegArgs, {cwd: options.dir});
 
