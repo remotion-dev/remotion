@@ -1,19 +1,29 @@
 import minimist from 'minimist';
-import {Codec, Config, ImageFormat, PixelFormat} from 'remotion';
+import {
+	BrowserExecutable,
+	Codec,
+	Config,
+	ImageFormat,
+	Internals,
+	PixelFormat,
+} from 'remotion';
 
 export type CommandLineOptions = {
+	['browser-executable']: BrowserExecutable;
 	['pixel-format']: PixelFormat;
 	['image-format']: ImageFormat;
-	concurrency: number;
-	overwrite: boolean;
-	config: string;
-	png: boolean;
-	sequence: boolean;
-	quality: number;
-	force: boolean;
+	['bundle-cache']: string;
 	codec: Codec;
-	props: string;
+	concurrency: number;
+	config: string;
 	crf: number;
+	force: boolean;
+	overwrite: boolean;
+	png: boolean;
+	props: string;
+	quality: number;
+	frames: string | number;
+	sequence: boolean;
 };
 
 export const parsedCli = minimist<CommandLineOptions>(process.argv.slice(2));
@@ -25,8 +35,19 @@ export const parseCommandLine = () => {
 	if (parsedCli['image-format']) {
 		Config.Rendering.setImageFormat(parsedCli['image-format']);
 	}
+	if (parsedCli['browser-executable']) {
+		Config.Puppeteer.setBrowserExecutable(parsedCli['browser-executable']);
+	}
+	if (typeof parsedCli['bundle-cache'] !== 'undefined') {
+		Config.Bundling.setCachingEnabled(
+			parsedCli['bundle-cache'] === 'false' ? false : true
+		);
+	}
 	if (parsedCli.concurrency) {
 		Config.Rendering.setConcurrency(parsedCli.concurrency);
+	}
+	if (parsedCli.frames) {
+		Internals.setFrameRangeFromCli(parsedCli.frames);
 	}
 	if (parsedCli.png) {
 		console.warn(

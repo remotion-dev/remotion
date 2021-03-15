@@ -1,4 +1,4 @@
-import React, {useMemo} from 'react';
+import React from 'react';
 import {Internals} from 'remotion';
 import styled from 'styled-components';
 import {
@@ -25,27 +25,16 @@ export const TimelineSlider: React.FC = () => {
 	const videoConfig = Internals.useUnsafeVideoConfig();
 	const {width} = useWindowSize();
 
-	const left = useMemo(() => {
-		if (!videoConfig) {
-			return 0;
-		}
-		return (
-			(timelinePosition / videoConfig.durationInFrames) *
-				(width - TIMELINE_LEFT_PADDING - TIMELINE_RIGHT_PADDING - 1) +
-			TIMELINE_LEFT_PADDING
-		);
-	}, [timelinePosition, videoConfig, width]);
-
 	if (!videoConfig) {
 		return null;
 	}
 
+	const left =
+		(timelinePosition / (videoConfig.durationInFrames - 1)) *
+		(width - TIMELINE_LEFT_PADDING - TIMELINE_RIGHT_PADDING - 1);
+
 	return (
-		<Container
-			style={{
-				left,
-			}}
-		>
+		<Container style={{transform: `translateX(${left}px)`}}>
 			<Line>
 				<TimelineSliderHandle />
 			</Line>

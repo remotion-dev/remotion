@@ -19,13 +19,41 @@ Config.Output.setCodec('h265');
 
 ### overrideWebpackConfig()
 
-Allows you to insert your custom Webpack config. [See the page about custom Webpack configs](webpack) for more information.
+_Available from Version 1.1._
+
+Allows you to insert your custom Webpack config. [See the page about custom Webpack configs](/docs/webpack) for more information.
 
 ```tsx
 Config.Bundling.overrideWebpackConfig((currentConfiguration) => {
   // Return a new Webpack configuration
 });
 ```
+
+### setCachingEnabled()
+
+_Available from Version 2.0._
+
+Enable or disable webpack caching. Default is `true` which will make the Webpack step in the first run a bit slower but will massively speed up subsequent runs. We recommend to keep this option enabled in all cases and encourage to report issues on Github if you encounter some.
+
+```tsx
+Config.Bundling.setCachingEnabled(false);
+```
+
+The [command line flag](/docs/cli) `--bundle-cache` will take precedence over this option.
+
+## Puppeteer
+
+### setBrowserExecutable()
+
+_Available from Version 1.5._
+
+Set a custom Chrome or Chromium executable path. By default Remotion will try to find an existing version of Chrome on your system and if not found, it will download one. This flag is useful if you don't have Chrome installed in a standard location and you want to prevent downloading an additional browser or need [support for the H264 codec](/docs/video#codec-support).
+
+```ts
+Config.Puppeteer.setBrowserExecutable('/usr/bin/google-chrome-stable')
+```
+
+The [command line flag](/docs/cli) `--browser-executable` will take precedence over this option.
 
 ## Rendering
 
@@ -38,7 +66,7 @@ Default: `null`, meaning **half of the threads** available on your CPU.
 Config.Rendering.setConcurrency(8)
 ```
 
-The [command line flag](cli) `--concurrency` will take precedence over this option.
+The [command line flag](/docs/cli) `--concurrency` will take precedence over this option.
 
 :::tip
 Try to set your concurrency to `os.cpus().length` to all the threads available on your CPU for faster rendering. The drawback is that other parts of your system might slow down.
@@ -54,7 +82,23 @@ Determines which in which image format to render the frames. Either `jpeg` _(def
 Config.Rendering.setImageFormat('png')
 ```
 
-The [command line flag](cli) `--image-format` will take precedence over this option.
+The [command line flag](/docs/cli) `--image-format` will take precedence over this option.
+
+### setFrameRange()
+
+_Available from Version 2.0._
+
+Pass a number to render a still frame or a tuple to render a subset of a video. The frame sequence is zero-indexed.
+
+```tsx
+Config.Rendering.setFrameRange(90); // To render only the 91st frame
+```
+
+or
+
+```tsx
+Config.Rendering.setFrameRange([0, 20]); // Render a video only containing the first 21 frames
+```
 
 ### setQuality()
 
@@ -74,7 +118,7 @@ Set this to `true` to always overwrite Remotion outputs without asking.
 Config.Output.setOverwriteOutput(true)
 ```
 
-The [command line flag](cli) `--overwrite` will take precedence over this option.
+The [command line flag](/docs/cli) `--overwrite` will take precedence over this option.
 
 ### setPixelFormat()
 
@@ -85,7 +129,7 @@ Default value: `yuv420p`
 Config.Output.setPixelFormat('yuv420p')
 ```
 
-The [command line flag](cli) `--pixel-format` will take precedence over this option.
+The [command line flag](/docs/cli) `--pixel-format` will take precedence over this option.
 
 ### setCodec()
 
@@ -124,9 +168,9 @@ Either `'mp4'` or `'png-sequence'`.
 Config.Output.setOutputFormat('mp4');
 ```
 
-The [command line flags](cli) `--sequence` and `--codec` will take precedence over this option.
+The [command line flags](/docs/cli) `--sequence` and `--codec` will take precedence over this option.
 
-The [command line flag](cli) `--quality` will take precedence over this option.
+The [command line flag](/docs/cli) `--quality` will take precedence over this option.
 
 ### setCrf()
 
@@ -151,8 +195,8 @@ Choose the highest CRF value that still provides an acceptable quality. If the o
 Config.Output.setCrf(16);
 ```
 
-The [command line flag](cli) `--crf` will take precedence over this option.
+The [command line flag](/docs/cli) `--crf` will take precedence over this option.
 
 ## See also
 
-- [Encoding guide](encoding)
+- [Encoding guide](/docs/encoding)

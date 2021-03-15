@@ -35,4 +35,4 @@ random(null) === random(null) // false
 
 ## See also
 
-- [Using randomness](using-randomness)
+- [Using randomness](/docs/using-randomness)

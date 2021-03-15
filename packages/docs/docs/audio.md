@@ -30,4 +30,4 @@ export const MyVideo = () => {
 
 ## See also
 
-- [`<Video />`](video)
+- [`<Video />`](/docs/video)

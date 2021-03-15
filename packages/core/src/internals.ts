@@ -5,6 +5,8 @@ import {
 	TComposition,
 	TSequence,
 } from './CompositionManager';
+import {DEFAULT_BROWSER, getBrowser} from './config/browser';
+import {getBrowserExecutable} from './config/browser-executable';
 import {
 	DEFAULT_CODEC,
 	getFinalOutputCodec,
@@ -16,6 +18,11 @@ import {
 	getDefaultCrfForCodec,
 	validateSelectedCrfAndCodecCombination,
 } from './config/crf';
+import {
+	getRange,
+	setFrameRangeFromCli,
+	validateFrameRange,
+} from './config/frame-range';
 import {
 	getUserPreferredImageFormat,
 	validateSelectedPixelFormatAndImageFormatCombination,
@@ -32,6 +39,14 @@ import {
 	validateSelectedPixelFormatAndCodecCombination,
 } from './config/pixel-format';
 import {getQuality} from './config/quality';
+import {
+	DEFAULT_WEBPACK_CACHE_ENABLED,
+	getWebpackCaching,
+} from './config/webpack-caching';
+import {
+	FEATURE_FLAG_FIREFOX_SUPPORT,
+	FEATURE_FLAG_V2_BREAKING_CHANGES,
+} from './feature-flags';
 import * as perf from './perf';
 import {getCompositionName, getIsEvaluation, getRoot} from './register-root';
 import {RemotionRoot} from './RemotionRoot';
@@ -49,10 +64,12 @@ export const Internals = {
 	RemotionRoot,
 	useVideo,
 	getRoot,
+	getBrowserExecutable,
 	getCompositionName,
 	getIsEvaluation,
 	getPixelFormat,
 	getConcurrency,
+	getRange,
 	getShouldOverwrite,
 	getOutputCodecOrUndefined,
 	getWebpackOverrideFn,
@@ -62,11 +79,19 @@ export const Internals = {
 	getFinalOutputCodec,
 	DEFAULT_CODEC,
 	DEFAULT_PIXEL_FORMAT,
+	FEATURE_FLAG_FIREFOX_SUPPORT,
+	DEFAULT_WEBPACK_CACHE_ENABLED,
+	FEATURE_FLAG_V2_BREAKING_CHANGES,
+	getBrowser,
+	DEFAULT_BROWSER,
 	getDefaultCrfForCodec,
 	getActualCrf,
+	setFrameRangeFromCli,
 	getUserPreferredImageFormat,
 	validateSelectedPixelFormatAndImageFormatCombination,
 	validateSelectedPixelFormatAndCodecCombination,
+	validateFrameRange,
+	getWebpackCaching,
 };
 
 export type {

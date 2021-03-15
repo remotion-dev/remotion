@@ -1,5 +1,6 @@
-import {bundle} from '@remotion/bundler';
+import {bundle, cacheExists, clearCache} from '@remotion/bundler';
 import {
+	ensureLocalBrowser,
 	ffmpegHasFeature,
 	getActualConcurrency,
 	getCompositions,
@@ -11,7 +12,7 @@ import cliProgress from 'cli-progress';
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
-import {Internals} from 'remotion';
+import {Config, Internals} from 'remotion';
 import {getFinalOutputCodec} from 'remotion/dist/config/codec';
 import {getCompositionId} from './get-composition-id';
 import {getConfigFileName} from './get-config-file-name';
@@ -31,6 +32,19 @@ export const render = async () => {
 	loadConfigFile(configFileName);
 	parseCommandLine();
 	const parallelism = Internals.getConcurrency();
+	const frameRange = Internals.getRange();
+	if (typeof frameRange === 'number') {
+		console.warn(
+			'Selected a single frame. Assuming you want to output an image.'
+		);
+		console.warn(
+			`If you want to render a video, pass a range:  '--frames=${frameRange}-${frameRange}'.`
+		);
+		console.warn(
+			"To dismiss this message, add the '--sequence' flag explicitly."
+		);
+		Config.Output.setImageSequence(true);
+	}
 	const shouldOutputImageSequence = Internals.getShouldOutputImageSequence();
 	const userCodec = Internals.getOutputCodecOrUndefined();
 	if (shouldOutputImageSequence && userCodec) {
@@ -48,7 +62,7 @@ export const render = async () => {
 		fileExtension: getUserPassedFileExtension(),
 		emitWarning: true,
 	});
-	if (codec === 'vp8' && !ffmpegHasFeature('enable-libvpx')) {
+	if (codec === 'vp8' && !(await ffmpegHasFeature('enable-libvpx'))) {
 		console.log(
 			"The Vp8 codec has been selected, but your FFMPEG binary wasn't compiled with the --enable-lipvpx flag."
 		);
@@ -56,7 +70,7 @@ export const render = async () => {
 			'This does not work, please switch out your FFMPEG binary or choose a different codec.'
 		);
 	}
-	if (codec === 'h265' && !ffmpegHasFeature('enable-gpl')) {
+	if (codec === 'h265' && !(await ffmpegHasFeature('enable-gpl'))) {
 		console.log(
 			"The H265 codec has been selected, but your FFMPEG binary wasn't compiled with the --enable-gpl flag."
 		);
@@ -64,7 +78,7 @@ export const render = async () => {
 			'This does not work, please recompile your FFMPEG binary with --enable-gpl --enable-libx265 or choose a different codec.'
 		);
 	}
-	if (codec === 'h265' && !ffmpegHasFeature('enable-libx265')) {
+	if (codec === 'h265' && !(await ffmpegHasFeature('enable-libx265'))) {
 		console.log(
 			"The H265 codec has been selected, but your FFMPEG binary wasn't compiled with the --enable-libx265 flag."
 		);
@@ -77,6 +91,7 @@ export const render = async () => {
 	const overwrite = Internals.getShouldOverwrite();
 	const userProps = getUserProps();
 	const quality = Internals.getQuality();
+	const browser = Internals.getBrowser() ?? Internals.DEFAULT_BROWSER;
 
 	const absoluteOutputFile = path.resolve(process.cwd(), outputFile);
 	if (fs.existsSync(absoluteOutputFile) && !overwrite) {
@@ -102,6 +117,13 @@ export const render = async () => {
 		pixelFormat,
 		imageFormat
 	);
+	try {
+		await ensureLocalBrowser(browser);
+	} catch (err) {
+		console.error('Could not download a browser for rendering frames.');
+		console.error(err);
+		process.exit(1);
+	}
 	if (shouldOutputImageSequence) {
 		fs.mkdirSync(absoluteOutputFile, {
 			recursive: true,
@@ -118,22 +140,39 @@ export const render = async () => {
 		cliProgress.Presets.shades_grey
 	);
 
+	const shouldCache = Internals.getWebpackCaching();
+	const cacheExistedBefore = cacheExists('production');
+	if (cacheExistedBefore && !shouldCache) {
+		process.stdout.write('🧹 Cache disabled but found. Deleting... ');
+		await clearCache('production');
+		process.stdout.write('done. \n');
+	}
 	bundlingProgress.start(100, 0);
-
-	const bundled = await bundle(fullPath, (progress) => {
-		bundlingProgress.update(progress);
-	});
-	const comps = await getCompositions(bundled);
-	const compositionId = getCompositionId(comps);
-
+	const bundled = await bundle(
+		fullPath,
+		(progress) => {
+			bundlingProgress.update(progress);
+		},
+		{
+			enableCaching: shouldCache,
+		}
+	);
 	bundlingProgress.stop();
+	const cacheExistedAfter = cacheExists('production');
+	if (cacheExistedAfter && !cacheExistedBefore) {
+		console.log('⚡️ Cached bundle. Subsequent builds will be faster.');
+	}
+	const comps = await getCompositions(
+		bundled,
+		Internals.getBrowser() ?? Internals.DEFAULT_BROWSER
+	);
+	const compositionId = getCompositionId(comps);
 
 	const config = comps.find((c) => c.id === compositionId);
 	if (!config) {
 		throw new Error(`Cannot find composition with ID ${compositionId}`);
 	}
 
-	const {durationInFrames: frames} = config;
 	const outputDir = shouldOutputImageSequence
 		? absoluteOutputFile
 		: await fs.promises.mkdtemp(path.join(os.tmpdir(), 'react-motion-render'));
@@ -146,24 +185,26 @@ export const render = async () => {
 		},
 		cliProgress.Presets.shades_grey
 	);
-	const assets = await renderFrames({
+	const {assetPositions, frameCount} = await renderFrames({
 		config,
 		onFrameUpdate: (frame) => renderProgress.update(frame),
 		parallelism,
 		compositionId,
 		outputDir,
-		onStart: () => {
+		onStart: ({frameCount: fc}) => {
 			process.stdout.write(
 				`📼 (2/${steps}) Rendering frames (${getActualConcurrency(
 					parallelism
 				)}x concurrency)...\n`
 			);
-			renderProgress.start(frames, 0);
+			renderProgress.start(fc, 0);
 		},
 		userProps,
 		webpackBundle: bundled,
 		imageFormat,
 		quality,
+		browser,
+		frameRange: frameRange ?? null,
 	});
 	renderProgress.stop();
 	if (process.env.DEBUG) {
@@ -182,7 +223,7 @@ export const render = async () => {
 			},
 			cliProgress.Presets.shades_grey
 		);
-		stitchingProgress.start(frames, 0);
+		stitchingProgress.start(frameCount, 0);
 		await stitchFramesToVideo({
 			dir: outputDir,
 			width: config.width,
@@ -194,7 +235,7 @@ export const render = async () => {
 			pixelFormat,
 			codec,
 			crf,
-			assets,
+			assets: assetPositions,
 			parallelism,
 			onProgress: (frame) => {
 				stitchingProgress.update(frame);
@@ -203,14 +244,21 @@ export const render = async () => {
 		stitchingProgress.stop();
 
 		console.log('Cleaning up...');
-		await Promise.all([
-			fs.promises.rmdir(outputDir, {
-				recursive: true,
-			}),
-			fs.promises.rmdir(bundled, {
-				recursive: true,
-			}),
-		]);
+		try {
+			await Promise.all([
+				fs.promises.rmdir(outputDir, {
+					recursive: true,
+				}),
+				fs.promises.rmdir(bundled, {
+					recursive: true,
+				}),
+			]);
+		} catch (err) {
+			console.error('Could not clean up directory.');
+			console.error(err);
+			console.log('Do you have minimum required Node.js version?');
+			process.exit(1);
+		}
 		console.log('\n▶️ Your video is ready - hit play!');
 	} else {
 		console.log('\n▶️ Your image sequence is ready!');

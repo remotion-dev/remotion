@@ -62,4 +62,4 @@ This is why the layout did not shift (as it does in HTML) when you added a secon
 
 ## See also
 
-- [`<Sequence>` component](sequence)
+- [`<Sequence>` component](/docs/sequence)

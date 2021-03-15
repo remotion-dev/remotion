@@ -1,6 +1,7 @@
 import path from 'path';
-import {WebpackConfiguration, WebpackOverrideFn} from 'remotion';
+import {Internals, WebpackConfiguration, WebpackOverrideFn} from 'remotion';
 import webpack, {ProgressPlugin} from 'webpack';
+import {getWebpackCacheName} from './webpack-cache';
 
 const ErrorOverlayPlugin = require('@webhotelier/webpack-fast-refresh/error-overlay');
 const ReactRefreshPlugin = require('@webhotelier/webpack-fast-refresh');
@@ -10,6 +11,15 @@ export function truthy<T>(value: T): value is Truthy<T> {
 	return Boolean(value);
 }
 
+const envPreset = [
+	require.resolve('@babel/preset-env'),
+	{
+		targets: {
+			chrome: '85',
+		},
+	},
+] as const;
+
 export const webpackConfig = ({
 	entry,
 	userDefinedComponent,
@@ -17,6 +27,7 @@ export const webpackConfig = ({
 	environment,
 	webpackOverride = (f) => f,
 	onProgressUpdate,
+	enableCaching = Internals.DEFAULT_WEBPACK_CACHE_ENABLED,
 }: {
 	entry: string;
 	userDefinedComponent: string;
@@ -24,6 +35,7 @@ export const webpackConfig = ({
 	environment: 'development' | 'production';
 	webpackOverride?: WebpackOverrideFn;
 	onProgressUpdate?: (f: number) => void;
+	enableCaching?: boolean;
 }): WebpackConfiguration => {
 	return webpackOverride({
 		optimization: {
@@ -37,6 +49,12 @@ export const webpackConfig = ({
 							entries: false,
 					  },
 		},
+		cache: enableCaching
+			? {
+					type: 'filesystem',
+					name: getWebpackCacheName(environment),
+			  }
+			: false,
 		devtool: 'cheap-module-source-map',
 		entry: [
 			environment === 'development'
@@ -125,7 +143,7 @@ export const webpackConfig = ({
 							loader: require.resolve('babel-loader'),
 							options: {
 								presets: [
-									require.resolve('@babel/preset-env'),
+									envPreset,
 									[
 										require.resolve('@babel/preset-react'),
 										{
@@ -163,7 +181,7 @@ export const webpackConfig = ({
 					loader: require.resolve('babel-loader'),
 					options: {
 						presets: [
-							require.resolve('@babel/preset-env'),
+							envPreset,
 							[
 								require.resolve('@babel/preset-react'),
 								{
