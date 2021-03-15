@@ -13,4 +13,4 @@ We got rid of the "Contact us for pricing" policy and have announced the pricing
 
 This is a new platform where you can directly buy a Remotion license, get invoices, upgrade/downgrade or cancel without having to get in touch with us.
 
-Needless to say, you can still [email us](mailto:remotion@jonny.io) if you need a consultation!
+Needless to say, you can still [email us](mailto:remotion@jonny.io) if you like a consultation!
