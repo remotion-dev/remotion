@@ -46,12 +46,6 @@ export const VideoForRendering: React.FC<RemotionVideoProps> = ({
 		const frameInSeconds = frame / videoConfig.fps;
 		const handle = delayRender();
 		if (videoRef.current.currentTime === frameInSeconds) {
-			// Still render if the first frame is already the end
-			// For example if delaying using <Sequence />
-			if (videoRef.current.ended) {
-				continueRender(handle);
-				return;
-			}
 			if (videoRef.current.readyState >= 2) {
 				continueRender(handle);
 				return;
@@ -65,9 +59,17 @@ export const VideoForRendering: React.FC<RemotionVideoProps> = ({
 			);
 			return;
 		}
+
 		videoRef.current.currentTime = frameInSeconds;
 		videoRef.current.addEventListener(
 			'seeked',
+			() => {
+				continueRender(handle);
+			},
+			{once: true}
+		);
+		videoRef.current.addEventListener(
+			'ended',
 			() => {
 				continueRender(handle);
 			},
