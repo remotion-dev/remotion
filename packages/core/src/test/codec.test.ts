@@ -11,7 +11,7 @@ test('Codec tests valid codec input', () => {
 	const values: CodecOrUndefined[] = ['h264', 'h265', 'vp8', 'vp9'];
 	values.forEach((entry) =>
 		expect(
-			getFinalOutputCodec({codec: entry, emitWarning: true, fileExtension: ''})
+			getFinalOutputCodec({codec: entry, emitWarning: false, fileExtension: ''})
 		).toEqual(entry)
 	);
 });
@@ -20,14 +20,14 @@ test('Codec tests undefined codec input with known extension', () => {
 	expect(
 		getFinalOutputCodec({
 			codec: undefined,
-			emitWarning: true,
+			emitWarning: false,
 			fileExtension: 'webm',
 		})
 	).toEqual('vp8');
 	expect(
 		getFinalOutputCodec({
 			codec: undefined,
-			emitWarning: true,
+			emitWarning: false,
 			fileExtension: 'hevc',
 		})
 	).toEqual('h265');
