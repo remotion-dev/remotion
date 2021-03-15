@@ -36,16 +36,6 @@ Support is provided on a best-we-can-do basis via Github Issues.
 
 ## Company license
 
-You are required to obtain a company license to use Remotion if you are not within the group of entities eligible for a free license. This license will enable you to use Remotion for the allowed use cases specified in the free license.
+You are required to obtain a company license to use Remotion if you are not within the group of entities eligible for a free license. This license will enable you to use Remotion for the allowed use cases specified in the free license, and give you access to prioritized support.
 
-### Prioritized support
-
-Buying a company license enables you to email support and get a response within 48 hours.
-
-### Acquisition
-
-You can inquire a company license by emailing [hi@jonny.io](mailto:hi@jonny.io).
-
-### Pricing
-
-We will do our best to find a fair price based on the size, location and stage of the company.
+Visit [companies.remotion.dev](https://companies.remotion.dev) for pricing and to buy a license.
