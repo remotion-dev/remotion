@@ -13,7 +13,7 @@ export const VideoForDevelopment: React.FC<RemotionVideoProps> = (props) => {
 	const [playing] = usePlayingState();
 
 	useEffect(() => {
-		if (playing) {
+		if (playing && !videoRef.current?.ended) {
 			videoRef.current?.play();
 		} else {
 			videoRef.current?.pause();
