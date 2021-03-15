@@ -1,7 +1,9 @@
 import React from 'react';
 import {Composition} from 'remotion';
+import {Framer} from './Framer';
 import {MissingImg} from './MissingImg';
 import {TenFrameTester} from './TenFrameTester';
+import {VideoTesting} from './VideoTesting';
 
 export const Index: React.FC = () => {
 	return (
@@ -145,6 +147,22 @@ export const Index: React.FC = () => {
 				height={1080}
 				fps={30}
 				durationInFrames={10}
+			/>
+			<Composition
+				id="video-testing"
+				component={VideoTesting}
+				width={1080}
+				height={1080}
+				fps={30}
+				durationInFrames={100}
+			/>
+			<Composition
+				id="framer"
+				component={Framer}
+				width={1080}
+				height={1080}
+				fps={30}
+				durationInFrames={100}
 			/>
 		</>
 	);

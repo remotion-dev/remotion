@@ -36,7 +36,7 @@ export const PlayPause: React.FC = () => {
 		setFrame((f) => f - 1);
 	}, [frame, playing, setFrame, video]);
 
-	const isLastFrame = frame === (config?.durationInFrames ?? 1);
+	const isLastFrame = frame === (config?.durationInFrames ?? 1) - 1;
 
 	const frameForward = useCallback(() => {
 		if (!video) {
