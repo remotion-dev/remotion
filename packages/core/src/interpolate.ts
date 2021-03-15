@@ -86,9 +86,9 @@ function checkValidInputRange(arr: number[]) {
 		throw new Error('inputRange must have at least 2 elements');
 	}
 	for (let i = 1; i < arr.length; ++i) {
-		if (!(arr[i] >= arr[i - 1])) {
+		if (!(arr[i] > arr[i - 1])) {
 			throw new Error(
-				`inputRange must be monotonically non-decreasing but got [${arr.join(
+				`inputRange must be strictly monotonically non-decreasing but got [${arr.join(
 					','
 				)}]`
 			);

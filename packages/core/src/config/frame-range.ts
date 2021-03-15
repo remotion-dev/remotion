@@ -92,7 +92,7 @@ export const setFrameRangeFromCli = (newFrameRange: string | number) => {
 			);
 		}
 		for (const value of parsed) {
-			if (typeof value !== 'number') {
+			if (isNaN(value)) {
 				throw new Error(
 					'--frames flag must be a single number, or 2 numbers separated by `-`'
 				);
