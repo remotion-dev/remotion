@@ -1,4 +1,4 @@
-import {setFrameRange} from '../config/frame-range';
+import {setFrameRange, setFrameRangeFromCli} from '../config/frame-range';
 import {Internals} from '../internals';
 import {expectToThrow} from './expect-to-throw';
 
@@ -49,4 +49,30 @@ test('Frame range tests', () => {
 	expect(Internals.getRange()).toEqual(null);
 	setFrameRange([10, 20]);
 	expect(Internals.getRange()).toEqual([10, 20]);
+	setFrameRange(10);
+	expect(Internals.getRange()).toBe(10);
+	setFrameRange(0);
+	expect(Internals.getRange()).toBe(0);
+});
+
+test('Frame range CLI tests', () => {
+	expectToThrow(
+		() => setFrameRangeFromCli('1-2-3'),
+		/--frames flag must be a number or 2 numbers separated by '-', instead got 3 numbers/
+	);
+	expectToThrow(
+		() => setFrameRangeFromCli('2-1'),
+		/The second number of the --frames flag number should be greater or equal than first number/
+	);
+	expectToThrow(
+		() => setFrameRangeFromCli('one-two'),
+		/--frames flag must be a single number, or 2 numbers separated by `-`/
+	);
+	setFrameRange(null);
+	setFrameRangeFromCli(0);
+	expect(Internals.getRange()).toEqual(0);
+	setFrameRangeFromCli(10);
+	expect(Internals.getRange()).toEqual(10);
+	setFrameRangeFromCli('1-10');
+	expect(Internals.getRange()).toEqual([1, 10]);
 });
