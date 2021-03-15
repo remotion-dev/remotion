@@ -1,3 +1,4 @@
+import {Codec} from '../config';
 import {
 	getActualCrf,
 	getDefaultCrfForCodec,
@@ -14,9 +15,8 @@ test('crf tests getDefaultCrfForCodec', () => {
 		['h265', 23],
 		['vp8', 9],
 		['vp9', 28],
-	];
+	] as [Codec, number][];
 	valuesA.forEach((entry) =>
-		// @ts-expect-error
 		expect(getDefaultCrfForCodec(entry[0])).toEqual(entry[1])
 	);
 
@@ -38,9 +38,8 @@ test('crf tests getValidCrfRanges', () => {
 		['h265', [0, 51]],
 		['vp8', [4, 63]],
 		['vp9', [0, 63]],
-	];
+	] as [Codec, [number, number]][];
 	valuesA.forEach((entry) =>
-		// @ts-expect-error
 		expect(getValidCrfRanges(entry[0])).toEqual(entry[1])
 	);
 
@@ -70,11 +69,10 @@ test('validateSelectedCrfAndCodecCombination', () => {
 		[20, 'vp9'],
 		[0, 'vp9'],
 		[63, 'vp9'],
-	];
+	] as [number, Codec][];
 	valuesA.forEach((entry) =>
-		expect(
-			// @ts-expect-error
-			() => validateSelectedCrfAndCodecCombination(entry[0], entry[1])
+		expect(() =>
+			validateSelectedCrfAndCodecCombination(entry[0], entry[1])
 		).not.toThrow()
 	);
 
@@ -92,13 +90,11 @@ test('validateSelectedCrfAndCodecCombination', () => {
 		[80, 'vp9', [0, 63]],
 		[-1, 'vp9', [0, 63]],
 		[64, 'vp9', [0, 63]],
-	];
+	] as [number, Codec, [number, number]][];
 	valuesB.forEach((entry) =>
 		expectToThrow(
-			// @ts-expect-error
 			() => validateSelectedCrfAndCodecCombination(entry[0], entry[1]),
 			new RegExp(
-				// @ts-expect-error
 				`CRF must be between ${entry[2][0]} and ${entry[2][1]} for codec ${entry[1]}. Passed: ${entry[0]}`
 			)
 		)
@@ -116,14 +112,10 @@ test('get crf', () => {
 		[undefined, 'vp8', 9],
 		[20, 'vp9', 20],
 		[undefined, 'vp9', 28],
-	];
+	] as [number | undefined, Codec, number][];
 	valuesA.forEach((entry) => {
-		// @ts-expect-error
 		setCrf(entry[0]);
-		expect(
-			// @ts-expect-error
-			getActualCrf(entry[1])
-		).toEqual(entry[2]);
+		expect(getActualCrf(entry[1])).toEqual(entry[2]);
 	});
 
 	// input crf, input codec, valid range
@@ -132,15 +124,12 @@ test('get crf', () => {
 		[80, 'h265', [0, 51]],
 		[80, 'vp8', [4, 63]],
 		[80, 'vp9', [0, 63]],
-	];
+	] as [number, Codec, [number, number]][];
 	valuesB.forEach((entry) => {
-		// @ts-expect-error
 		setCrf(entry[0]);
 		expectToThrow(
-			// @ts-expect-error
 			() => getActualCrf(entry[1]),
 			new RegExp(
-				// @ts-expect-error
 				`CRF must be between ${entry[2][0]} and ${entry[2][1]} for codec ${entry[1]}. Passed: ${entry[0]}`
 			)
 		);
