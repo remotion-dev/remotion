@@ -1,13 +1,13 @@
 import {Easing} from '../easing';
 
-const numbersToTest = [0, 0.2, 0.5, 0.7, 1];
+const numbersToTest = [0, 0.4, 0.5, 0.7, 1];
 
 test('Easing linear', () => {
 	const easingIn = Easing.in(Easing.linear);
 	numbersToTest.forEach((n) => expect(easingIn(n)).toBe(n));
 
 	const easingOut = Easing.out(Easing.linear);
-	numbersToTest.forEach((n) => expect(easingOut(n)).toBeCloseTo(n));
+	numbersToTest.forEach((n) => expect(easingOut(n)).toBe(n));
 
 	const easingInOut = Easing.inOut(Easing.linear);
 	numbersToTest.forEach((n) => expect(easingInOut(n)).toBe(n));
