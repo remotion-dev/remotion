@@ -12,6 +12,6 @@ export const mapLocalhostAssetToFile = ({
 	const newSrc = path.join(webpackBundle, pathname);
 	return {
 		...localhostAsset,
-		src: 'file://' + newSrc,
+		src: newSrc,
 	};
 };

@@ -51,6 +51,7 @@ import * as perf from './perf';
 import {getCompositionName, getIsEvaluation, getRoot} from './register-root';
 import {RemotionRoot} from './RemotionRoot';
 import * as Timeline from './timeline-position-state';
+import {truthy} from './truthy';
 import {useUnsafeVideoConfig} from './use-unsafe-video-config';
 import {useVideo} from './use-video';
 
@@ -92,6 +93,7 @@ export const Internals = {
 	validateSelectedPixelFormatAndCodecCombination,
 	validateFrameRange,
 	getWebpackCaching,
+	truthy,
 };
 
 export type {
