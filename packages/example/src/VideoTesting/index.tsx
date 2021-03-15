@@ -1,5 +1,5 @@
 import {Sequence, useVideoConfig, Video} from 'remotion';
-import video from './framer.mp4';
+import video from '../resources/framer.mp4';
 
 export const VideoTesting: React.FC = () => {
 	const {durationInFrames} = useVideoConfig();
