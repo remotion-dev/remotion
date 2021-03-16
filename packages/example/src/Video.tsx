@@ -2,6 +2,7 @@ import React from 'react';
 import {Composition} from 'remotion';
 import {Framer} from './Framer';
 import {MissingImg} from './MissingImg';
+import RemoteVideo from './RemoteVideo';
 import {TenFrameTester} from './TenFrameTester';
 import {VideoTesting} from './VideoTesting';
 
@@ -179,6 +180,14 @@ export const Index: React.FC = () => {
 				height={1080}
 				fps={30}
 				durationInFrames={100}
+			/>
+			<Composition
+				id="remote-video"
+				component={RemoteVideo}
+				width={1920}
+				height={1080}
+				fps={30}
+				durationInFrames={30}
 			/>
 		</>
 	);
