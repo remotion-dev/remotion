@@ -78,13 +78,14 @@ export async function getAudioChannels(path: string) {
 		.filter(Boolean) as string[];
 
 	const task = await execa('ffprobe', args);
-	const parsed = parseInt(task.stdout.replace('channels=', ''), 10);
-	// TODO: How to determine the amount of channels for video?
-	// Is it even necessary?
-	if (isNaN(parsed)) {
+	if (!task.stdout.includes('channels=')) {
 		return 0;
 	}
-	return parsed;
+	const channels = parseInt(task.stdout.replace('channels=', ''), 10);
+	if (isNaN(channels)) {
+		throw new TypeError('Unexpected result from ffprobe for channel probing: ');
+	}
+	return channels;
 }
 
 export async function getAssetAudioDetails(options: {
