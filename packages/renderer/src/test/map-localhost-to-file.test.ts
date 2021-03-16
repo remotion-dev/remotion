@@ -1,8 +1,8 @@
-import {mapLocalhostAssetToFile} from '../assets/map-localhost-to-file';
+import {downloadAndMapAssetsToFileUrl} from '../assets/download-and-map-assets-to-file';
 
 test('Should correctly map a localhost URL to an asset', () => {
 	expect(
-		mapLocalhostAssetToFile({
+		downloadAndMapAssetsToFileUrl({
 			localhostAsset: {
 				type: 'video',
 				src: 'http://localhost:3000/5f25ba62771d1f8195f858ec5ff8e8d6.mp4',

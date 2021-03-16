@@ -1,9 +1,6 @@
 import path from 'path';
-import {Browser, FrameRange, Internals, VideoConfig} from 'remotion';
+import {Browser, FrameRange, Internals, TAsset, VideoConfig} from 'remotion';
 import {openBrowser, provideScreenshot} from '.';
-import {calculateAssetPositions} from './assets/calculate-asset-positions';
-import {mapLocalhostAssetToFile} from './assets/map-localhost-to-file';
-import {Assets} from './assets/types';
 import {getActualConcurrency} from './get-concurrency';
 import {getFrameCount} from './get-frame-range';
 import {getFrameToRender} from './get-frame-to-render';
@@ -13,7 +10,7 @@ import {serveStatic} from './serve-static';
 
 export type RenderFramesOutput = {
 	frameCount: number;
-	assetPositions: Assets;
+	assets: TAsset[][];
 };
 
 type OnStartData = {
@@ -89,7 +86,7 @@ export const renderFrames = async ({
 	onStart({
 		frameCount,
 	});
-	const assetsFrames = await Promise.all(
+	const assets = await Promise.all(
 		new Array(frameCount)
 			.fill(Boolean)
 			.map((x, i) => i)
@@ -113,22 +110,15 @@ export const renderFrames = async ({
 				pool.release(freePage);
 				framesRendered++;
 				onFrameUpdate(framesRendered);
-				const assets = await freePage.evaluate(() => {
+				return freePage.evaluate(() => {
 					return window.remotion_collectAssets();
-				});
-				return assets.map((a) => {
-					return mapLocalhostAssetToFile({
-						localhostAsset: a,
-						webpackBundle,
-					});
 				});
 			})
 	);
 	await Promise.all([browserInstance.close(), close()]);
-	const assetPositions = calculateAssetPositions(assetsFrames);
 
 	return {
-		assetPositions,
+		assets,
 		frameCount,
 	};
 };

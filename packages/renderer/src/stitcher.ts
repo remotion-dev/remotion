@@ -1,9 +1,11 @@
 import execa from 'execa';
 import fs from 'fs';
-import {Codec, Internals, PixelFormat} from 'remotion';
+import {Codec, Internals, PixelFormat, TAsset} from 'remotion';
 import url from 'url';
+import {calculateAssetPositions} from './assets/calculate-asset-positions';
+import {convertAssetsToFileUrls} from './assets/convert-assets-to-file-urls';
 import {getAssetAudioDetails} from './assets/get-asset-audio-details';
-import {AssetAudioDetails, Assets} from './assets/types';
+import {AssetAudioDetails} from './assets/types';
 import {DEFAULT_IMAGE_FORMAT, ImageFormat} from './image-format';
 import {parseFfmpegProgress} from './parse-ffmpeg-progress';
 import {validateFfmpeg} from './validate-ffmpeg';
@@ -35,7 +37,7 @@ export const stitchFramesToVideo = async (options: {
 	pixelFormat?: PixelFormat;
 	codec?: Codec;
 	crf?: number;
-	assets: Assets;
+	assets: TAsset[][];
 	parallelism?: number | null;
 	onProgress?: (num: number) => void;
 }): Promise<void> => {
@@ -63,13 +65,19 @@ export const stitchFramesToVideo = async (options: {
 	);
 	Internals.validateSelectedPixelFormatAndCodecCombination(pixelFormat, codec);
 
-	const assetPaths = options.assets.map((asset) => resolveAssetSrc(asset.src));
+	const fileUrlAssets = await convertAssetsToFileUrls({
+		assets: options.assets,
+		dir: options.dir,
+	});
+	const assetPositions = calculateAssetPositions(fileUrlAssets);
+
+	const assetPaths = assetPositions.map((asset) => resolveAssetSrc(asset.src));
 	const assetAudioDetails = await getAssetAudioDetails({
 		assetPaths,
 		parallelism: options.parallelism,
 	});
 
-	const filters = options.assets
+	const filters = assetPositions
 		.map((asset, i) => {
 			const duration = (asset.duration / options.fps).toFixed(3); // in seconds with milliseconds level precision
 			const assetTrimLeft = (asset.sequenceFrame / options.fps).toFixed(3);
@@ -119,7 +127,7 @@ export const stitchFramesToVideo = async (options: {
 		pixelFormat === 'yuva420p' ? ['-auto-alt-ref', '0'] : null,
 		['-b:v', '1M'],
 		['-c:a', 'aac'],
-		!options.assets.length
+		!filters.length
 			? null
 			: [
 					'-filter_complex',

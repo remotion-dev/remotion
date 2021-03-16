@@ -184,10 +184,10 @@ export const Index: React.FC = () => {
 			<Composition
 				id="remote-video"
 				component={RemoteVideo}
-				width={1920}
-				height={1080}
+				width={1280}
+				height={720}
 				fps={30}
-				durationInFrames={30}
+				durationInFrames={600}
 			/>
 		</>
 	);
