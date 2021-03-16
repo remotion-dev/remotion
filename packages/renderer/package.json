@@ -20,6 +20,7 @@
 		"@babel/preset-typescript": "^7.10.4",
 		"@remotion/bundler": "^1.5.2",
 		"execa": "^4.0.2",
+		"got": "11.8.2",
 		"p-limit": "^3.1.0",
 		"node-static": "^0.7.11",
 		"prettier": "^2.0.5",
