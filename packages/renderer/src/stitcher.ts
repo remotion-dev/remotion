@@ -65,7 +65,6 @@ export const stitchFramesToVideo = async (options: {
 	const assetPaths = options.assets.map((asset) => resolveAssetSrc(asset.src));
 	const assetAudioDetails = await getAssetAudioDetails({
 		assetPaths,
-		cwd: options.dir,
 		parallelism: options.parallelism,
 	});
 

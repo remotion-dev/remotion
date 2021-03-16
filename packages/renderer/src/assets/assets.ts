@@ -67,7 +67,7 @@ export const calculateAssetsPosition = (frames: TAsset[][]): Assets => {
 	return assets as MediaAsset[];
 };
 
-export async function getAudioChannels(path: string, cwd: string) {
+export async function getAudioChannels(path: string) {
 	const args = [
 		['-v', 'error'],
 		['-show_entries', 'stream=channels'],
@@ -77,7 +77,7 @@ export async function getAudioChannels(path: string, cwd: string) {
 		.reduce<(string | null)[]>((acc, val) => acc.concat(val), [])
 		.filter(Boolean) as string[];
 
-	const task = await execa('ffprobe', args, {cwd});
+	const task = await execa('ffprobe', args);
 	const parsed = parseInt(task.stdout.replace('channels=', ''), 10);
 	// TODO: How to determine the amount of channels for video?
 	// Is it even necessary?
@@ -89,14 +89,13 @@ export async function getAudioChannels(path: string, cwd: string) {
 
 export async function getAssetAudioDetails(options: {
 	assetPaths: string[];
-	cwd: string;
 	parallelism?: number | null;
 }): Promise<Map<string, AssetAudioDetails>> {
 	const uniqueAssets = [...new Set(options.assetPaths)];
 	const actualParallelism = getActualConcurrency(options.parallelism ?? null);
 	const parallelLimit = pLimit(actualParallelism);
 	const audioChannelTasks = uniqueAssets.map((path) =>
-		parallelLimit(() => getAudioChannels(path, options.cwd))
+		parallelLimit(() => getAudioChannels(path))
 	);
 	const result = await Promise.all(audioChannelTasks);
 
