@@ -1,8 +1,10 @@
-import {Canvas, useWorkerParser} from '@react-gifs/tools';
 import React, {useState} from 'react';
-import {RemotionGifProps, GifState} from './props';
-import { useCurrentGifIndex } from './useCurrentGifIndex';
+import {LRUMap} from 'lru_map';
+import {Canvas, useWorkerParser} from '@react-gifs/tools';
+import {GifState, RemotionGifProps} from './props';
+import {useCurrentGifIndex} from './useCurrentGifIndex';
 
+const cache = new LRUMap<string, GifState>(30);
 
 export const GifForDevelopment = ({
 	src,
@@ -11,14 +13,26 @@ export const GifForDevelopment = ({
 	fit = 'fill',
 	...props
 }: RemotionGifProps) => {
-	const [state, update] = useState<GifState>({
-		delays: [],
-		frames: [],
-		width: 0,
-		height: 0,
+	const [state, update] = useState<GifState>(() => {
+		const parcedGif = cache.get(src);
+
+		if (parcedGif == null) {
+			return {
+				delays: [],
+				frames: [],
+				width: 0,
+				height: 0,
+			};
+		}
+
+		return parcedGif;
 	});
 
-	useWorkerParser(src, (info) => update(info));
+  // skip loading if frames exist
+	useWorkerParser(!!state.frames.length || src, (info) => {
+		cache.set(src, info);
+		update(info);
+	});
 
 	const index = useCurrentGifIndex(state.delays);
 
