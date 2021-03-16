@@ -30,6 +30,11 @@ export type TAsset = {
 	sequenceFrame: number;
 };
 
+export type RenderAssetInfo = {
+	assets: TAsset[][];
+	bundleDir: string;
+};
+
 export type CompositionManagerContext = {
 	compositions: TComposition[];
 	registerComposition: <T>(comp: TComposition<T>) => void;

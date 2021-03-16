@@ -1,5 +1,6 @@
 import {
 	CompositionManager,
+	RenderAssetInfo,
 	TAsset,
 	TCompMetadata,
 	TComposition,
@@ -103,4 +104,5 @@ export type {
 	TSequence,
 	WebpackOverrideFn,
 	TAsset,
+	RenderAssetInfo,
 };

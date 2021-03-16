@@ -1,5 +1,11 @@
 import path from 'path';
-import {Browser, FrameRange, Internals, TAsset, VideoConfig} from 'remotion';
+import {
+	Browser,
+	FrameRange,
+	Internals,
+	RenderAssetInfo,
+	VideoConfig,
+} from 'remotion';
 import {openBrowser, provideScreenshot} from '.';
 import {getActualConcurrency} from './get-concurrency';
 import {getFrameCount} from './get-frame-range';
@@ -10,7 +16,7 @@ import {serveStatic} from './serve-static';
 
 export type RenderFramesOutput = {
 	frameCount: number;
-	assets: TAsset[][];
+	assetsInfo: RenderAssetInfo;
 };
 
 type OnStartData = {
@@ -118,7 +124,10 @@ export const renderFrames = async ({
 	await Promise.all([browserInstance.close(), close()]);
 
 	return {
-		assets,
+		assetsInfo: {
+			assets,
+			bundleDir: webpackBundle,
+		},
 		frameCount,
 	};
 };

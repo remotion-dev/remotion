@@ -1,6 +1,6 @@
 import execa from 'execa';
 import fs from 'fs';
-import {Codec, Internals, PixelFormat, TAsset} from 'remotion';
+import {Codec, Internals, PixelFormat, RenderAssetInfo} from 'remotion';
 import url from 'url';
 import {calculateAssetPositions} from './assets/calculate-asset-positions';
 import {convertAssetsToFileUrls} from './assets/convert-assets-to-file-urls';
@@ -37,7 +37,7 @@ export const stitchFramesToVideo = async (options: {
 	pixelFormat?: PixelFormat;
 	codec?: Codec;
 	crf?: number;
-	assets: TAsset[][];
+	assetsInfo: RenderAssetInfo;
 	parallelism?: number | null;
 	onProgress?: (num: number) => void;
 }): Promise<void> => {
@@ -66,8 +66,8 @@ export const stitchFramesToVideo = async (options: {
 	Internals.validateSelectedPixelFormatAndCodecCombination(pixelFormat, codec);
 
 	const fileUrlAssets = await convertAssetsToFileUrls({
-		assets: options.assets,
-		dir: options.dir,
+		assets: options.assetsInfo.assets,
+		dir: options.assetsInfo.bundleDir,
 	});
 	const assetPositions = calculateAssetPositions(fileUrlAssets);
 
