@@ -1,8 +1,9 @@
 import path from 'path';
 import {Browser, FrameRange, Internals, VideoConfig} from 'remotion';
 import {openBrowser, provideScreenshot} from '.';
-import {Assets, calculateAssetsPosition} from './assets/assets';
+import {calculateAssetPositions} from './assets/calculate-asset-positions';
 import {mapLocalhostAssetToFile} from './assets/map-localhost-to-file';
+import {Assets} from './assets/types';
 import {getActualConcurrency} from './get-concurrency';
 import {getFrameCount} from './get-frame-range';
 import {getFrameToRender} from './get-frame-to-render';
@@ -124,7 +125,7 @@ export const renderFrames = async ({
 			})
 	);
 	await Promise.all([browserInstance.close(), close()]);
-	const assetPositions = calculateAssetsPosition(assetsFrames);
+	const assetPositions = calculateAssetPositions(assetsFrames);
 
 	return {
 		assetPositions,

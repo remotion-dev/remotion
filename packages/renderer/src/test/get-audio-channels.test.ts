@@ -1,6 +1,6 @@
 import {existsSync} from 'fs';
 import path from 'path';
-import {getAudioChannels} from '../assets/assets';
+import {getAudioChannels} from '../assets/get-audio-channels';
 
 test('Get audio channels for video', async () => {
 	const videoWithoutAudio = path.join(
