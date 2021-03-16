@@ -9,7 +9,7 @@ const isDownloadingMap: {[key: string]: boolean} = {};
 const hasBeenDownloadedMap: {[key: string]: boolean} = {};
 const listeners: {[key: string]: (() => void)[]} = {};
 
-const isRemoteAsset = (asset: string) => asset.startsWith('http');
+const isRemoteAsset = (asset: string) => !asset.startsWith('http://localhost');
 
 const pipeline = promisify(stream.pipeline);
 
