@@ -31,8 +31,6 @@
 		"file-loader": "^6.0.0",
 		"get-port": "^5.1.1",
 		"latest-version": "^5.1.0",
-		"react": "^17.0.1",
-		"react-dom": "^17.0.1",
 		"react-refresh": "^0.8.2",
 		"remotion": "^1.5.0",
 		"semver": "7.3.4",
@@ -43,14 +41,16 @@
 		"webpack-dev-middleware": "^3.7.2",
 		"webpack-hot-middleware": "^2.25.0"
 	},
+	"peerDependencies": {
+		"react": "^17.0.1",
+		"react-dom": "^17.0.1"
+	},
 	"devDependencies": {
 		"@jonny/eslint-config": "^2.1.210",
 		"@types/babel__core": "^7.1.12",
 		"@types/babel__template": "^7.4.0",
 		"@types/express": "^4.17.7",
 		"@types/node": "^14.0.13",
-		"@types/react": "^17.0.0",
-		"@types/react-dom": "^17.0.0",
 		"@types/semver": "^7.3.4",
 		"@types/webpack-dev-middleware": "^3.7.1",
 		"@types/webpack-hot-middleware": "^2.25.3",
