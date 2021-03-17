@@ -1,6 +1,6 @@
 export type RemotionMainVideoProps = {
 	startAt?: number;
-	endTo?: number;
+	endAt?: number;
 };
 
 export type RemotionVideoProps = Omit<

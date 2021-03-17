@@ -6,16 +6,16 @@ import {VideoForRendering} from './VideoForRendering';
 
 export const Video: React.FC<RemotionVideoProps & RemotionMainVideoProps> = ({
 	startAt,
-	endTo,
+	endAt,
 	...props
 }) => {
 	const startAtFrameNo = startAt ? startAt : 0;
-	const endToFrameNO = endTo ? endTo : Infinity;
+	const endAtFrameNO = endAt ? endAt : Infinity;
 	if (process.env.NODE_ENV === 'development') {
 		return (
 			<Sequence
 				from={0 - startAtFrameNo}
-				durationInFrames={endToFrameNO - startAtFrameNo}
+				durationInFrames={endAtFrameNO - startAtFrameNo}
 			>
 				<VideoForDevelopment {...props} />;
 			</Sequence>
@@ -24,7 +24,7 @@ export const Video: React.FC<RemotionVideoProps & RemotionMainVideoProps> = ({
 	return (
 		<Sequence
 			from={0 - startAtFrameNo}
-			durationInFrames={endToFrameNO - startAtFrameNo}
+			durationInFrames={endAtFrameNO - startAtFrameNo}
 		>
 			<VideoForRendering {...props} />;
 		</Sequence>
