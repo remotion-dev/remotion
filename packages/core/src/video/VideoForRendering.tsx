@@ -1,4 +1,5 @@
 import React, {useEffect, useRef} from 'react';
+import {FEATURE_FLAG_V2_BREAKING_CHANGES} from '../feature-flags';
 import {continueRender, delayRender} from '../ready-manager';
 import {useCurrentFrame} from '../use-frame';
 import {useUnsafeVideoConfig} from '../use-unsafe-video-config';
@@ -20,7 +21,9 @@ export const VideoForRendering: React.FC<RemotionVideoProps> = ({
 		if (!videoRef.current) {
 			return;
 		}
-		const frameInSeconds = frame / videoConfig.fps;
+		const frameInSeconds = FEATURE_FLAG_V2_BREAKING_CHANGES
+			? (frame + 1) / videoConfig.fps
+			: frame / videoConfig.fps;
 		const handle = delayRender();
 		if (videoRef.current.currentTime === frameInSeconds) {
 			if (videoRef.current.readyState >= 2) {
