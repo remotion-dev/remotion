@@ -11,7 +11,7 @@ Videos with audio are not supported - yet! Audio will be muted in the final rend
 
 ## API / Example
 
-Use an import or require to load an audio file and pass it as the `src` prop. All the props that the native `<video>` element accepts (except `autoplay` and `controls`) will be forwarded (but of course not all are useful for Remotion). This means you can use all CSS to style the video.
+Use an import or require to load an video file and pass it as the `src` prop. All the props that the native `<video>` element accepts, `startAt` (optional) and `endTo` (optional) props (except `autoplay` and `controls`) will be forwarded (but of course not all are useful for Remotion). This means you can use all CSS to style the video.
 
 ```tsx
 import {Video} from 'remotion';
@@ -23,6 +23,8 @@ export const MyVideo = () => {
       <div>Hello World!</div>
       <Video
         src={video}
+        startAt={60} // if video is 30fps, then it will start at 2s
+        endTo={120} // if video is 30fps, then it will end at 4s
         style={{height: 1080 / 2, width: 1920 / 2}}
       />
     </div>
