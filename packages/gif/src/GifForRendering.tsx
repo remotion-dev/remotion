@@ -1,6 +1,6 @@
-import {Canvas, useParser} from '@react-gifs/tools';
 import React, {useState} from 'react';
-import {continueRender, delayRender} from '../ready-manager';
+import {Canvas, useParser} from '@react-gifs/tools';
+import {continueRender, delayRender} from 'remotion';
 import {GifState, RemotionGifProps} from './props';
 import {useCurrentGifIndex} from './useCurrentGifIndex';
 
