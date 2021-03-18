@@ -1,10 +1,11 @@
 import {useMemo} from 'react';
-import {useCurrentFrame} from '../use-frame';
-import {useUnsafeVideoConfig} from '../use-unsafe-video-config';
+import {useCurrentFrame, Internals} from 'remotion';
+
 
 function useCurrentGifIndex(delays: number[]): number {
 	const currentFrame = useCurrentFrame();
-	const videoConfig = useUnsafeVideoConfig();
+	const videoConfig = Internals.useUnsafeVideoConfig();
+	
 	const duration = useMemo(() => {
 		if (delays.length !== 0) {
 			return delays.reduce((sum: number, delay: number) => sum + delay, 0);
