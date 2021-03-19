@@ -1,3 +1,5 @@
+import fs from 'fs';
+import path from 'path';
 import {parsedCli} from './parse-command-line';
 
 export const getUserProps = (): unknown => {
@@ -5,7 +7,9 @@ export const getUserProps = (): unknown => {
 		return {};
 	}
 	try {
-		const parsed = JSON.parse(parsedCli.props);
+		const jsonFile = path.resolve(process.cwd(), parsedCli.props);
+		const rawJsonData = fs.readFileSync(jsonFile, 'utf-8');
+		const parsed = JSON.parse(rawJsonData);
 		return parsed;
 	} catch (err) {
 		console.log(
