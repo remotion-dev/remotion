@@ -98,9 +98,11 @@ const GetVideo = () => {
 	);
 };
 
+const userProps = getUserProps();
+
 render(
 	<Internals.RemotionRoot>
-		<Root />
+		<Root {...userProps} />
 		<GetVideo />
 	</Internals.RemotionRoot>,
 	document.getElementById('container')

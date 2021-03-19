@@ -5,28 +5,17 @@ import {MissingImg} from './MissingImg';
 import {TenFrameTester} from './TenFrameTester';
 import {VideoTesting} from './VideoTesting';
 
-const getUserProps = () => {
-	const param = new URLSearchParams(window.location.search).get('props');
-	if (!param) {
-		return {};
-	}
-	const parsed = JSON.parse(decodeURIComponent(param));
-	return parsed;
-};
-
-export const Index: React.FC = () => {
-	const props = getUserProps();
-
+export const Index: React.FC<{[key: string]: unknown}> = ({duration}) => {
 	return (
 		<>
-			{props?.duration ? (
+			{duration ? (
 				<Composition
 					id="dinamically-duration"
 					component={VideoTesting}
 					width={1080}
 					height={1080}
 					fps={30}
-					durationInFrames={props.duration}
+					durationInFrames={duration as number}
 				/>
 			) : null}
 			<Composition
