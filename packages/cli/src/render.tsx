@@ -164,7 +164,8 @@ export const render = async () => {
 	}
 	const comps = await getCompositions(
 		bundled,
-		Internals.getBrowser() ?? Internals.DEFAULT_BROWSER
+		Internals.getBrowser() ?? Internals.DEFAULT_BROWSER,
+		userProps
 	);
 	const compositionId = getCompositionId(comps);
 
