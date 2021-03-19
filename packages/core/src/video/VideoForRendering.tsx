@@ -1,5 +1,6 @@
 import React, {useContext, useEffect, useRef, useState} from 'react';
 import {CompositionManager} from '../CompositionManager';
+import {FEATURE_FLAG_V2_BREAKING_CHANGES} from '../feature-flags';
 import {continueRender, delayRender} from '../ready-manager';
 import {useCurrentFrame} from '../use-frame';
 import {useUnsafeVideoConfig} from '../use-unsafe-video-config';
@@ -43,9 +44,18 @@ export const VideoForRendering: React.FC<RemotionVideoProps> = ({
 		if (!videoRef.current) {
 			return;
 		}
-		const frameInSeconds = frame / videoConfig.fps;
+
+		const currentTime = (() => {
+			if (FEATURE_FLAG_V2_BREAKING_CHANGES) {
+				// In Chrome, if 30fps, the first frame is still displayed at 0.033333
+				// even though after that it increases by 0.033333333 each.
+				// So frame = 0 in Remotion is like frame = 1 for the browser
+				return (frame + 1) / videoConfig.fps;
+			}
+			return frame / (1000 / videoConfig.fps);
+		})();
 		const handle = delayRender();
-		if (videoRef.current.currentTime === frameInSeconds) {
+		if (videoRef.current.currentTime === currentTime) {
 			if (videoRef.current.readyState >= 2) {
 				continueRender(handle);
 				return;
@@ -59,8 +69,8 @@ export const VideoForRendering: React.FC<RemotionVideoProps> = ({
 			);
 			return;
 		}
+		videoRef.current.currentTime = currentTime;
 
-		videoRef.current.currentTime = frameInSeconds;
 		videoRef.current.addEventListener(
 			'seeked',
 			() => {
