@@ -8,7 +8,7 @@
 		"start": "remotion preview src/index.tsx",
 		"test": "eslint src --ext ts,tsx,js,jsx",
 		"build": "tsc -d",
-		"render": "remotion render src/index.tsx react-svg video.mp4",
+		"render": "remotion render src/index.tsx dinamically-duration video.mp4 --props='{\"duration\":300}'",
 		"render-transparent": "remotion render src/index.tsx --image-format=png --pixel-format=yuva420p --codec=vp8 react-svg video.webm"
 	},
 	"files": [
