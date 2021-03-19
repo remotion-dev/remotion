@@ -6,6 +6,9 @@ import {useCurrentFrame} from '../use-frame';
 import {useUnsafeVideoConfig} from '../use-unsafe-video-config';
 import {RemotionVideoProps} from './props';
 
+const isTheSame = (num1: number, num2: number) => {
+	return Math.abs(num1 - num2) < FLOATING_POINT_ERROR_THRESHOLD;
+};
 export const VideoForRendering: React.FC<RemotionVideoProps> = ({
 	onError,
 	...props
@@ -55,7 +58,7 @@ export const VideoForRendering: React.FC<RemotionVideoProps> = ({
 			return frame / (1000 / videoConfig.fps);
 		})();
 		const handle = delayRender();
-		if (videoRef.current.currentTime === currentTime) {
+		if (isTheSame(videoRef.current.currentTime, currentTime)) {
 			if (videoRef.current.readyState >= 2) {
 				continueRender(handle);
 				return;
