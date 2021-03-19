@@ -74,6 +74,7 @@ function Home() {
           <p className="hero__subtitle" style={{ color: "white" }}>
             {siteConfig.tagline}
           </p>
+          <iframe style={{ width:560, height:315, maxWidth: '100%',maxHeight:400 }} src="https://www.youtube.com/embed/gwlDorikqgY" title="Remotion - Create videos programmatically in React" frameborder="0" allow="autoplay" allowfullscreen />            
           <div>
             <StartPageExplainer
               img="img/vscode.png"
