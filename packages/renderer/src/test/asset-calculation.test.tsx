@@ -1,5 +1,5 @@
 import React from 'react';
-import {Audio, useCurrentFrame, Video} from 'remotion';
+import {Audio, Sequence, useCurrentFrame, Video} from 'remotion';
 import {calculateAssetPositions} from '../assets/calculate-asset-positions';
 import {MediaAsset} from '../assets/types';
 import {getAssetsForMarkup} from './get-assets-for-markup';
@@ -32,6 +32,7 @@ test('Should be able to collect assets', async () => {
 			'https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/1080/Big_Buck_Bunny_1080_10s_1MB.mp4',
 		duration: 60,
 		startInVideo: 0,
+		trimLeft: 0,
 	});
 });
 
@@ -49,6 +50,7 @@ test('Should get multiple assets', async () => {
 			'https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/1080/Big_Buck_Bunny_1080_10s_1MB.mp4',
 		duration: 60,
 		startInVideo: 0,
+		trimLeft: 0,
 	});
 	expect(withoutId(assetPositions[1])).toEqual({
 		type: 'audio',
@@ -56,6 +58,7 @@ test('Should get multiple assets', async () => {
 			'https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/1080/Big_Buck_Bunny_1080_10s_1MB.mp3',
 		duration: 60,
 		startInVideo: 0,
+		trimLeft: 0,
 	});
 });
 
@@ -77,6 +80,7 @@ test('Should handle jumps inbetween', async () => {
 			'https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/1080/Big_Buck_Bunny_1080_10s_1MB.mp4',
 		duration: 20,
 		startInVideo: 0,
+		trimLeft: 0,
 	});
 	expect(withoutId(assetPositions[1])).toEqual({
 		type: 'video',
@@ -84,5 +88,25 @@ test('Should handle jumps inbetween', async () => {
 			'https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/1080/Big_Buck_Bunny_1080_10s_1MB.mp4',
 		duration: 39,
 		startInVideo: 21,
+		trimLeft: 21,
+	});
+});
+
+test('Should support sequencing', async () => {
+	const assetPositions = await getPositions(() => {
+		return (
+			<Sequence durationInFrames={30} from={-20}>
+				<Video src="https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/1080/Big_Buck_Bunny_1080_10s_1MB.mp4" />
+			</Sequence>
+		);
+	});
+	expect(assetPositions.length).toBe(1);
+	expect(withoutId(assetPositions[0])).toEqual({
+		type: 'video',
+		src:
+			'https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/1080/Big_Buck_Bunny_1080_10s_1MB.mp4',
+		duration: 10,
+		startInVideo: 0,
+		trimLeft: 20,
 	});
 });
