@@ -1,19 +1,14 @@
 import React, {useCallback, useState} from 'react';
 import {Internals, interpolate} from 'remotion';
 import styled from 'styled-components';
-import {
-	TIMELINE_LEFT_PADDING,
-	TIMELINE_RIGHT_PADDING,
-} from '../helpers/timeline-layout';
 import {useWindowSize} from '../hooks/use-window-size';
+
+const PADDING = 16;
 
 const Container = styled.div`
 	flex: 1;
 	position: relative;
-	padding-left: ${TIMELINE_LEFT_PADDING}px;
-	padding-right: ${TIMELINE_RIGHT_PADDING}px;
-	padding-top: 20px;
-	margin-top: -10px;
+	padding: ${PADDING}px;
 	user-select: none;
 	overflow-y: auto;
 `;
@@ -23,17 +18,12 @@ const getFrameFromX = (
 	durationInFrames: number,
 	width: number
 ) => {
-	const pos = clientX - TIMELINE_LEFT_PADDING;
+	const pos = clientX - PADDING;
 	const frame = Math.round(
-		interpolate(
-			pos,
-			[0, width - TIMELINE_LEFT_PADDING - TIMELINE_RIGHT_PADDING],
-			[0, durationInFrames - 1 ?? 0],
-			{
-				extrapolateLeft: 'clamp',
-				extrapolateRight: 'clamp',
-			}
-		)
+		interpolate(pos, [0, width - PADDING * 2], [0, durationInFrames - 1 ?? 0], {
+			extrapolateLeft: 'clamp',
+			extrapolateRight: 'clamp',
+		})
 	);
 	return frame;
 };
