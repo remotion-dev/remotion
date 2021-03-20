@@ -7,7 +7,7 @@ const Container = styled.div`
 	height: 100%;
 	display: grid;
 	grid-gap: 2px;
-	grid-template-rows: repeat(auto-fit, minmax(25px, 1fr));
+	grid-auto-rows: minmax(25px, 80px);
 `;
 
 const Pre = styled.pre`
