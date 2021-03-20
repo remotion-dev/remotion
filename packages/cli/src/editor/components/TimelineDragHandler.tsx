@@ -8,6 +8,7 @@ import {
 import {useWindowSize} from '../hooks/use-window-size';
 
 const Container = styled.div`
+	flex: 1;
 	position: relative;
 	padding-left: ${TIMELINE_LEFT_PADDING}px;
 	padding-right: ${TIMELINE_RIGHT_PADDING}px;
@@ -15,7 +16,6 @@ const Container = styled.div`
 	margin-top: -10px;
 	user-select: none;
 	overflow-y: auto;
-	height: 300px;
 `;
 
 const getFrameFromX = (

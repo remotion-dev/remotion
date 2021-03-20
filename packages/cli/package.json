@@ -43,6 +43,7 @@
 		"prettier": "^2.0.5",
 		"react": "^17.0.1",
 		"react-dom": "^17.0.1",
+		"react-reflex": "^4.0.0",
 		"remotion": "^1.5.0",
 		"semver": "^7.3.4",
 		"styled-components": "^5.1.1",
