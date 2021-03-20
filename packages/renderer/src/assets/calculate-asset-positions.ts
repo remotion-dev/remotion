@@ -31,6 +31,7 @@ export const calculateAssetPositions = (frames: TAsset[][]): Assets => {
 					type: asset.type,
 					duration: null,
 					startInVideo: frame,
+					trimLeft: asset.sequenceFrame,
 				});
 			}
 

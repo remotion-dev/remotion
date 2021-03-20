@@ -3,6 +3,7 @@ import {TAsset} from 'remotion';
 export type UnsafeAsset = Omit<TAsset, 'sequenceFrame'> & {
 	startInVideo: number;
 	duration: number | null;
+	trimLeft: number;
 };
 
 export type MediaAsset = Omit<UnsafeAsset, 'duration'> & {
