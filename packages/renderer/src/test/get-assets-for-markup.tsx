@@ -5,7 +5,29 @@ import {Internals, TAsset} from 'remotion';
 
 let collectAssets = (): TAsset[] => [];
 
-export const getAssetsForMarkup = (Markup: React.FC) => {
+const waitForWindowToBeReady = () => {
+	return new Promise<void>((resolve) => {
+		let interval: null | number | NodeJS.Timeout = null;
+		const check = () => {
+			if (window.ready) {
+				clearInterval(interval as number);
+				resolve();
+			}
+		};
+		interval = setInterval(check, 10);
+	});
+};
+
+export const getAssetsForMarkup = async (
+	Markup: React.FC,
+	config: {
+		durationInFrames: number;
+		width: number;
+		height: number;
+		fps: number;
+	}
+) => {
+	const collectedAssets: TAsset[][] = [];
 	const Wrapped = () => {
 		const [assets, setAssets] = useState<TAsset[]>([]);
 
@@ -41,10 +63,7 @@ export const getAssetsForMarkup = (Markup: React.FC) => {
 						unregisterAsset,
 						compositions: [
 							{
-								durationInFrames: 60,
-								fps: 30,
-								height: 1080,
-								width: 1080,
+								...config,
 								id: 'markup',
 								component: React.lazy(() =>
 									Promise.resolve({
@@ -63,5 +82,16 @@ export const getAssetsForMarkup = (Markup: React.FC) => {
 	};
 
 	render(<Wrapped />);
-	return collectAssets();
+	for (
+		let currentFrame = 0;
+		currentFrame < config.durationInFrames;
+		currentFrame++
+	) {
+		act(() => {
+			window.remotion_setFrame(currentFrame);
+		});
+		await waitForWindowToBeReady();
+		collectedAssets.push(collectAssets());
+	}
+	return collectedAssets;
 };

@@ -60,6 +60,10 @@ export const VideoForRendering: React.FC<RemotionVideoProps> = ({
 			return frame / (1000 / videoConfig.fps);
 		})();
 		const handle = delayRender();
+		if (process.env.NODE_ENV === 'test') {
+			continueRender(handle);
+			return;
+		}
 		if (isTheSame(videoRef.current.currentTime, currentTime)) {
 			if (videoRef.current.readyState >= 2) {
 				continueRender(handle);

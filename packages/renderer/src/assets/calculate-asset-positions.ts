@@ -37,7 +37,10 @@ export const calculateAssetPositions = (frames: TAsset[][]): Assets => {
 					(a) => a.duration === null && areEqual(a, asset)
 				);
 				if (!found) throw new Error('something wrong');
-				found.duration = frame - found.startInVideo - 1;
+				// Duration calculation:
+				// start 0, range 0-59:
+				// 59 - 0 + 1 ==> 60 frames duration
+				found.duration = frame - found.startInVideo + 1;
 			}
 		}
 	}
