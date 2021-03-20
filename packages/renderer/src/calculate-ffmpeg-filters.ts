@@ -28,14 +28,17 @@ export const calculateFfmpegFilters = ({
 			}
 			const streamIndex = i + 1;
 			return {
-				filter: [
-					`[${streamIndex}:a]`,
-					duration ? `atrim=${assetTrimLeft}:${assetTrimRight},` : '',
-					`adelay=${new Array(audioDetails.channels)
-						.fill(startInVideo)
-						.join('|')}`,
+				filter:
+					`[${streamIndex}:a]` +
+					[
+						duration ? `atrim=${assetTrimLeft}:${assetTrimRight}` : '',
+						`adelay=${new Array(audioDetails.channels)
+							.fill(startInVideo)
+							.join('|')}`,
+					]
+						.filter(Internals.truthy)
+						.join(',') +
 					`[a${streamIndex}]`,
-				].join(''),
 				streamIndex,
 			};
 		})
