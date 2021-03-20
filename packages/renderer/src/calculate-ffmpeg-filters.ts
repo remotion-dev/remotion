@@ -1,6 +1,7 @@
 import {Internals} from 'remotion';
 import {AssetAudioDetails, Assets} from './assets/types';
 import {resolveAssetSrc} from './resolve-asset-src';
+import {stringifyFfmpegFilter} from './stringify-ffmpeg-filter';
 
 export const calculateFfmpegFilters = ({
 	assetPositions,
@@ -12,8 +13,13 @@ export const calculateFfmpegFilters = ({
 	fps: number;
 }) => {
 	return assetPositions
+		.filter((pos) => {
+			return (
+				(assetAudioDetails.get(resolveAssetSrc(pos.src)) as AssetAudioDetails)
+					.channels > 0
+			);
+		})
 		.map((asset, i) => {
-			const duration = (asset.duration / fps).toFixed(3); // in seconds with milliseconds level precision
 			const assetTrimLeft = (asset.trimLeft / fps).toFixed(3);
 			const assetTrimRight = ((asset.trimLeft + asset.duration) / fps).toFixed(
 				3
@@ -23,22 +29,16 @@ export const calculateFfmpegFilters = ({
 				resolveAssetSrc(asset.src)
 			) as AssetAudioDetails;
 
-			if (audioDetails.channels === 0) {
-				return null;
-			}
 			const streamIndex = i + 1;
 			return {
-				filter:
-					`[${streamIndex}:a]` +
-					[
-						duration ? `atrim=${assetTrimLeft}:${assetTrimRight}` : '',
-						`adelay=${new Array(audioDetails.channels)
-							.fill(startInVideo)
-							.join('|')}`,
-					]
-						.filter(Internals.truthy)
-						.join(',') +
-					`[a${streamIndex}]`,
+				filter: stringifyFfmpegFilter({
+					streamIndex: i + 1,
+					channels: audioDetails.channels,
+					startInVideo,
+					trimLeft: assetTrimLeft,
+					trimRight: assetTrimRight,
+					volume: 1,
+				}),
 				streamIndex,
 			};
 		})
