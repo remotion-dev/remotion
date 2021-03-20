@@ -12,7 +12,7 @@
 		"dist"
 	],
 	"scripts": {
-		"test": "eslint src --ext ts,tsx && jest",
+		"test": "eslint src --ext ts,tsx ",
 		"build": "tsc -d",
 		"watch": "tsc -w"
 	},
@@ -22,7 +22,7 @@
 		"remotion": "^1.5.3"
 	},
 	"devDependencies": {
-		"@jonny/eslint-config": "^2.1.210",
+		"@jonny/eslint-config": "^2.1.225",
 		"@testing-library/react": "^11.2.2",
 		"@types/jest": "^26.0.19",
 		"@types/node": "^14.14.14",
