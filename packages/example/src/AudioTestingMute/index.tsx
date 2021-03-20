@@ -11,7 +11,7 @@ import movie from '../resources/framer-music.mp4';
 import music from '../resources/sound1.mp3';
 
 const AudioTestingMute: React.FC = () => {
-	const sequenceFrame = useCurrentFrame();
+	const frame = useCurrentFrame();
 	const {durationInFrames, fps} = useVideoConfig();
 
 	/**
@@ -25,11 +25,11 @@ const AudioTestingMute: React.FC = () => {
 				{start: 4 * fps, end: 5 * fps},
 			];
 			const toMute = muteParts.some(
-				(mp) => sequenceFrame >= mp.start && sequenceFrame <= mp.end
+				(mp) => frame >= mp.start && frame <= mp.end
 			);
 			return type == 'movie' ? toMute : !toMute;
 		},
-		[fps, sequenceFrame]
+		[fps, frame]
 	);
 
 	return (

@@ -80,9 +80,9 @@ export const stitchFramesToVideo = async (options: {
 	const filters = assetPositions
 		.map((asset, i) => {
 			const duration = (asset.duration / options.fps).toFixed(3); // in seconds with milliseconds level precision
-			const assetTrimLeft = (asset.sequenceFrame / options.fps).toFixed(3);
+			const assetTrimLeft = (asset.startInVideo / options.fps).toFixed(3);
 			const assetTrimRight = (
-				(asset.sequenceFrame + asset.duration) /
+				(asset.startInVideo + asset.duration) /
 				options.fps
 			).toFixed(3);
 			const startInVideo = (
