@@ -5,6 +5,7 @@ import {calculateAssetPositions} from './assets/calculate-asset-positions';
 import {convertAssetsToFileUrls} from './assets/convert-assets-to-file-urls';
 import {getAssetAudioDetails} from './assets/get-asset-audio-details';
 import {calculateFfmpegFilters} from './calculate-ffmpeg-filters';
+import {createFfmpegComplexFilter} from './create-ffmpeg-complex-filter';
 import {DEFAULT_IMAGE_FORMAT, ImageFormat} from './image-format';
 import {parseFfmpegProgress} from './parse-ffmpeg-progress';
 import {resolveAssetSrc} from './resolve-asset-src';
@@ -99,19 +100,7 @@ export const stitchFramesToVideo = async (options: {
 		pixelFormat === 'yuva420p' ? ['-auto-alt-ref', '0'] : null,
 		['-b:v', '1M'],
 		['-c:a', 'aac'],
-		!filters.length
-			? null
-			: [
-					'-filter_complex',
-					[
-						...filters.map((f) => f.filter),
-						`${filters
-							.map((asset) => `[a${asset.streamIndex}]`)
-							.join('')}amix=${filters.length},dynaudnorm`,
-					]
-						.filter(Boolean)
-						.join(';'),
-			  ],
+		createFfmpegComplexFilter(filters),
 		'-shortest',
 		['-map', '0:v'],
 		options.force ? '-y' : null,
