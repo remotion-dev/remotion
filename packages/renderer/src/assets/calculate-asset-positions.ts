@@ -1,4 +1,5 @@
 import {TAsset} from 'remotion';
+import {splitAssetsIntoSegments} from './split-assets-into-segments';
 import {Assets, MediaAsset, UnsafeAsset} from './types';
 
 const areEqual = (a: TAsset | UnsafeAsset, b: TAsset | UnsafeAsset) => {
@@ -53,5 +54,8 @@ export const calculateAssetPositions = (frames: TAsset[][]): Assets => {
 			throw new Error('duration is unexpectedly null');
 		}
 	}
-	return assets as MediaAsset[];
+	return splitAssetsIntoSegments({
+		assets: assets as MediaAsset[],
+		duration: frames.length,
+	});
 };
