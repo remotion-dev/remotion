@@ -1,3 +1,4 @@
+import {getSimultaneousAssets} from './assets/get-simulatenous-assets';
 import {AssetAudioDetails, Assets} from './assets/types';
 import {resolveAssetSrc} from './resolve-asset-src';
 import {stringifyFfmpegFilter} from './stringify-ffmpeg-filter';
@@ -32,6 +33,7 @@ export const calculateFfmpegFilters = ({
 			const audioDetails = assetAudioDetails.get(
 				resolveAssetSrc(asset.src)
 			) as AssetAudioDetails;
+			const simultaneousAssets = getSimultaneousAssets(assetPositions, asset);
 
 			const streamIndex = i + 1;
 			return {
@@ -41,7 +43,7 @@ export const calculateFfmpegFilters = ({
 					startInVideo,
 					trimLeft: assetTrimLeft,
 					trimRight: assetTrimRight,
-					volume: 1,
+					volume: simultaneousAssets.length,
 				}),
 				streamIndex,
 			};
