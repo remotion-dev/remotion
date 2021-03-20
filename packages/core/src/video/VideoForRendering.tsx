@@ -6,6 +6,8 @@ import {useCurrentFrame} from '../use-frame';
 import {useUnsafeVideoConfig} from '../use-unsafe-video-config';
 import {RemotionVideoProps} from './props';
 
+const FLOATING_POINT_ERROR_THRESHOLD = 0.00001;
+
 const isTheSame = (num1: number, num2: number) => {
 	return Math.abs(num1 - num2) < FLOATING_POINT_ERROR_THRESHOLD;
 };
@@ -77,7 +79,11 @@ export const VideoForRendering: React.FC<RemotionVideoProps> = ({
 		videoRef.current.addEventListener(
 			'seeked',
 			() => {
-				continueRender(handle);
+				// Improve me: This is ensures frame perfectness but slows down render.
+				// Please see this issue for context: https://github.com/JonnyBurger/remotion/issues/200
+				setTimeout(() => {
+					continueRender(handle);
+				}, 300);
 			},
 			{once: true}
 		);
