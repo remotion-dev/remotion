@@ -5,7 +5,6 @@ test('Should give true is asset is used at time', () => {
 		assetIsUsedAtTime(
 			{
 				duration: 2,
-				id: 'hi',
 				src: 'hi.mp4',
 				startInVideo: 0,
 				trimLeft: 2,
@@ -18,7 +17,6 @@ test('Should give true is asset is used at time', () => {
 		assetIsUsedAtTime(
 			{
 				duration: 2,
-				id: 'hi',
 				src: 'hi.mp4',
 				startInVideo: 1,
 				trimLeft: 0,
@@ -34,7 +32,6 @@ test('Should give false if asset is not used at time', () => {
 		assetIsUsedAtTime(
 			{
 				duration: 2,
-				id: 'hi',
 				src: 'hi.mp4',
 				startInVideo: 1,
 				trimLeft: 0,
@@ -47,7 +44,6 @@ test('Should give false if asset is not used at time', () => {
 		assetIsUsedAtTime(
 			{
 				duration: 2,
-				id: 'hi',
 				src: 'hi.mp4',
 				startInVideo: 1,
 				trimLeft: 0,

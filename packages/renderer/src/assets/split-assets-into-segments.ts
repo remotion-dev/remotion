@@ -22,7 +22,7 @@ export const splitAssetsIntoSegments = ({
 		const sourcesAtThisTime = assets.filter((a) => {
 			return assetIsUsedAtTime(a, frame);
 		});
-		return sourcesAtThisTime.map((s) => s.id).join(',');
+		return sourcesAtThisTime.map((s) => s.src).join(',');
 	});
 	const framesAtWhichToCut = [
 		0,
