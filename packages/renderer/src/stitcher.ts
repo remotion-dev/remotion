@@ -1,13 +1,13 @@
 import execa from 'execa';
 import fs from 'fs';
 import {Codec, Internals, PixelFormat, RenderAssetInfo} from 'remotion';
-import url from 'url';
 import {calculateAssetPositions} from './assets/calculate-asset-positions';
 import {convertAssetsToFileUrls} from './assets/convert-assets-to-file-urls';
 import {getAssetAudioDetails} from './assets/get-asset-audio-details';
-import {AssetAudioDetails} from './assets/types';
+import {calculateFfmpegFilters} from './calculate-ffmpeg-filters';
 import {DEFAULT_IMAGE_FORMAT, ImageFormat} from './image-format';
 import {parseFfmpegProgress} from './parse-ffmpeg-progress';
+import {resolveAssetSrc} from './resolve-asset-src';
 import {validateFfmpeg} from './validate-ffmpeg';
 
 const getCodecName = (codec: Codec): string => {
@@ -77,39 +77,11 @@ export const stitchFramesToVideo = async (options: {
 		parallelism: options.parallelism,
 	});
 
-	const filters = assetPositions
-		.map((asset, i) => {
-			const duration = (asset.duration / options.fps).toFixed(3); // in seconds with milliseconds level precision
-			const assetTrimLeft = (asset.trimLeft / options.fps).toFixed(3);
-			const assetTrimRight = (
-				(asset.trimLeft + asset.duration) /
-				options.fps
-			).toFixed(3);
-			const startInVideo = (
-				(asset.startInVideo / options.fps) *
-				1000
-			).toFixed(); // in milliseconds
-			const audioDetails = assetAudioDetails.get(
-				resolveAssetSrc(asset.src)
-			) as AssetAudioDetails;
-
-			if (audioDetails.channels === 0) {
-				return null;
-			}
-			const streamIndex = i + 1;
-			return {
-				filter: [
-					`[${streamIndex}:a]`,
-					duration ? `atrim=${assetTrimLeft}:${assetTrimRight},` : '',
-					`adelay=${new Array(audioDetails.channels)
-						.fill(startInVideo)
-						.join('|')}`,
-					`[a${streamIndex}]`,
-				].join(''),
-				streamIndex,
-			};
-		})
-		.filter(Internals.truthy);
+	const filters = calculateFfmpegFilters({
+		assetAudioDetails,
+		assetPositions,
+		fps: options.fps,
+	});
 
 	const ffmpegArgs = [
 		['-r', String(options.fps)],
@@ -159,15 +131,4 @@ export const stitchFramesToVideo = async (options: {
 		}
 	});
 	await task;
-};
-
-const resolveAssetSrc = (src: string) => {
-	if (!src.startsWith('file:')) {
-		return src;
-	}
-	const {protocol} = new URL(src);
-
-	if (protocol === 'file:') return url.fileURLToPath(src);
-
-	throw new TypeError(`Unexpected src ${src}`);
 };
