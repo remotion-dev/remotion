@@ -6,7 +6,6 @@ test('Should create segments of audio clips correctly', () => {
 		// Clip from 0-10 seconds
 		{
 			duration: 300,
-			id: '0.1',
 			src: 'asset1.mp4',
 			startInVideo: 0,
 			trimLeft: 0,
@@ -15,7 +14,6 @@ test('Should create segments of audio clips correctly', () => {
 		// Clip from 5-15 seconds
 		{
 			duration: 300,
-			id: '0.2',
 			src: 'asset2.mp4',
 			startInVideo: 150,
 			trimLeft: 0,
@@ -25,7 +23,6 @@ test('Should create segments of audio clips correctly', () => {
 	expect(splitAssetsIntoSegments({assets, duration: 450})).toEqual([
 		{
 			duration: 150,
-			id: '0.1',
 			src: 'asset1.mp4',
 			startInVideo: 0,
 			trimLeft: 0,
@@ -33,7 +30,6 @@ test('Should create segments of audio clips correctly', () => {
 		},
 		{
 			duration: 150,
-			id: '0.1',
 			src: 'asset1.mp4',
 			startInVideo: 150,
 			trimLeft: 150,
@@ -41,7 +37,6 @@ test('Should create segments of audio clips correctly', () => {
 		},
 		{
 			duration: 150,
-			id: '0.2',
 			src: 'asset2.mp4',
 			startInVideo: 150,
 			trimLeft: 0,
@@ -49,7 +44,6 @@ test('Should create segments of audio clips correctly', () => {
 		},
 		{
 			duration: 150,
-			id: '0.2',
 			src: 'asset2.mp4',
 			startInVideo: 300,
 			trimLeft: 150,
@@ -63,7 +57,6 @@ test('Should leave single clip untouched', () => {
 		// Clip from 0-10 seconds
 		{
 			duration: 300,
-			id: '0.1',
 			src: 'asset1.mp4',
 			startInVideo: 0,
 			trimLeft: 0,
@@ -73,7 +66,6 @@ test('Should leave single clip untouched', () => {
 	expect(splitAssetsIntoSegments({assets, duration: 450})).toEqual([
 		{
 			duration: 300,
-			id: '0.1',
 			src: 'asset1.mp4',
 			startInVideo: 0,
 			trimLeft: 0,
@@ -87,7 +79,6 @@ test('Should leave two identical clips the same', () => {
 		// Clip from 0-10 seconds
 		{
 			duration: 300,
-			id: '0.1',
 			src: 'asset1.mp4',
 			startInVideo: 0,
 			trimLeft: 0,
@@ -95,7 +86,6 @@ test('Should leave two identical clips the same', () => {
 		},
 		{
 			duration: 300,
-			id: '0.2',
 			src: 'asset2.mp4',
 			startInVideo: 0,
 			trimLeft: 0,
@@ -105,7 +95,6 @@ test('Should leave two identical clips the same', () => {
 	expect(splitAssetsIntoSegments({assets, duration: 450})).toEqual([
 		{
 			duration: 300,
-			id: '0.1',
 			src: 'asset1.mp4',
 			startInVideo: 0,
 			trimLeft: 0,
@@ -113,7 +102,6 @@ test('Should leave two identical clips the same', () => {
 		},
 		{
 			duration: 300,
-			id: '0.2',
 			src: 'asset2.mp4',
 			startInVideo: 0,
 			trimLeft: 0,
@@ -127,7 +115,6 @@ test('Should not have one-off errors', () => {
 		// Clip from 0-10 seconds
 		{
 			duration: 2,
-			id: '0.1',
 			src: 'asset1.mp4',
 			startInVideo: 0,
 			trimLeft: 0,
@@ -135,7 +122,6 @@ test('Should not have one-off errors', () => {
 		},
 		{
 			duration: 2,
-			id: '0.2',
 			src: 'asset2.mp4',
 			startInVideo: 1,
 			trimLeft: 0,
@@ -143,7 +129,6 @@ test('Should not have one-off errors', () => {
 		},
 		{
 			duration: 2,
-			id: '0.3',
 			src: 'asset3.mp4',
 			startInVideo: 2,
 			trimLeft: 0,
@@ -153,7 +138,6 @@ test('Should not have one-off errors', () => {
 	expect(splitAssetsIntoSegments({assets, duration: 450})).toEqual([
 		{
 			duration: 1,
-			id: '0.1',
 			src: 'asset1.mp4',
 			startInVideo: 0,
 			trimLeft: 0,
@@ -161,7 +145,6 @@ test('Should not have one-off errors', () => {
 		},
 		{
 			duration: 1,
-			id: '0.1',
 			src: 'asset1.mp4',
 			startInVideo: 1,
 			trimLeft: 1,
@@ -169,7 +152,6 @@ test('Should not have one-off errors', () => {
 		},
 		{
 			duration: 1,
-			id: '0.2',
 			src: 'asset2.mp4',
 			startInVideo: 1,
 			trimLeft: 0,
@@ -177,7 +159,6 @@ test('Should not have one-off errors', () => {
 		},
 		{
 			duration: 1,
-			id: '0.2',
 			src: 'asset2.mp4',
 			startInVideo: 2,
 			trimLeft: 1,
@@ -185,7 +166,6 @@ test('Should not have one-off errors', () => {
 		},
 		{
 			duration: 1,
-			id: '0.3',
 			src: 'asset3.mp4',
 			startInVideo: 2,
 			trimLeft: 0,
@@ -193,7 +173,6 @@ test('Should not have one-off errors', () => {
 		},
 		{
 			duration: 1,
-			id: '0.3',
 			src: 'asset3.mp4',
 			startInVideo: 3,
 			trimLeft: 1,

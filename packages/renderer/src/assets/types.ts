@@ -1,6 +1,6 @@
 import {TAsset} from 'remotion';
 
-export type UnsafeAsset = Omit<TAsset, 'sequenceFrame'> & {
+export type UnsafeAsset = Omit<TAsset, 'sequenceFrame' | 'id'> & {
 	startInVideo: number;
 	duration: number | null;
 	trimLeft: number;
