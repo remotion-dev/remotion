@@ -4,4 +4,6 @@ export type RemotionVideoProps = Omit<
 		HTMLVideoElement
 	>,
 	'autoplay' | 'controls'
->;
+> & {
+	volume?: number;
+};

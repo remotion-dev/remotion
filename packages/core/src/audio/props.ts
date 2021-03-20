@@ -4,4 +4,6 @@ export type RemotionAudioProps = Omit<
 		HTMLAudioElement
 	>,
 	'autoplay' | 'controls'
->;
+> & {
+	volume?: number;
+};

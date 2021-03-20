@@ -28,6 +28,7 @@ export type TAsset = {
 	src: string;
 	id: string;
 	sequenceFrame: number;
+	volume: number;
 };
 
 export type RenderAssetInfo = {

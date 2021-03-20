@@ -1,16 +1,12 @@
 import React, {useContext, useEffect, useRef, useState} from 'react';
 import {CompositionManager} from '../CompositionManager';
 import {FEATURE_FLAG_V2_BREAKING_CHANGES} from '../feature-flags';
+import {isApproximatelyTheSame} from '../is-approximately-the-same';
 import {continueRender, delayRender} from '../ready-manager';
 import {useCurrentFrame} from '../use-frame';
 import {useUnsafeVideoConfig} from '../use-unsafe-video-config';
 import {RemotionVideoProps} from './props';
 
-const FLOATING_POINT_ERROR_THRESHOLD = 0.00001;
-
-const isTheSame = (num1: number, num2: number) => {
-	return Math.abs(num1 - num2) < FLOATING_POINT_ERROR_THRESHOLD;
-};
 export const VideoForRendering: React.FC<RemotionVideoProps> = ({
 	onError,
 	...props
@@ -40,10 +36,19 @@ export const VideoForRendering: React.FC<RemotionVideoProps> = ({
 			src: props.src,
 			id,
 			sequenceFrame: frame,
+			volume: props.volume ?? 1,
 		});
 
 		return () => unregisterAsset(id);
-	}, [props.muted, props.src, registerAsset, id, unregisterAsset, frame]);
+	}, [
+		props.muted,
+		props.src,
+		registerAsset,
+		id,
+		unregisterAsset,
+		frame,
+		props.volume,
+	]);
 
 	useEffect(() => {
 		if (!videoRef.current) {
@@ -64,7 +69,7 @@ export const VideoForRendering: React.FC<RemotionVideoProps> = ({
 			continueRender(handle);
 			return;
 		}
-		if (isTheSame(videoRef.current.currentTime, currentTime)) {
+		if (isApproximatelyTheSame(videoRef.current.currentTime, currentTime)) {
 			if (videoRef.current.readyState >= 2) {
 				continueRender(handle);
 				return;
