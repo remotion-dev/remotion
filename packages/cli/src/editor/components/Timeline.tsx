@@ -13,31 +13,27 @@ const TimelineContainer = styled.div`
 const Header = styled.div`
 	display: flex;
 	flex-direction: column;
+	height: 100%;
 `;
 
 const Row = styled.div`
-	flex-direction: row;
+	padding: 16px;
 	display: flex;
+	justify-content: space-between;
 	align-items: center;
-	flex: 1;
 `;
 
-export const Timeline: React.FC = () => {
-	return (
-		<div>
-			<Header>
-				<Row style={{padding: 10}}>
-					<TimeValue />
-					<div style={{flex: 1}} />
-					<FpsCounter />
-				</Row>
-				<TimelineDragHandler>
-					<TimelineContainer>
-						<TimelineElements />
-					</TimelineContainer>
-					<TimelineSlider />
-				</TimelineDragHandler>
-			</Header>
-		</div>
-	);
-};
+export const Timeline: React.FC = () => (
+	<Header>
+		<Row>
+			<TimeValue />
+			<FpsCounter />
+		</Row>
+		<TimelineDragHandler>
+			<TimelineContainer>
+				<TimelineElements />
+			</TimelineContainer>
+			<TimelineSlider />
+		</TimelineDragHandler>
+	</Header>
+);

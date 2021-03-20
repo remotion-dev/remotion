@@ -1,4 +1,5 @@
 import React, {useMemo, useState} from 'react';
+import {ReflexContainer, ReflexElement, ReflexSplitter} from 'react-reflex';
 import {Internals} from 'remotion';
 import styled from 'styled-components';
 import {
@@ -48,8 +49,15 @@ export const Editor: React.FC = () => {
 				<Background>
 					<Root />
 					<UpdateCheck />
-					<TopPanel />
-					<Timeline />
+					<ReflexContainer orientation="horizontal">
+						<ReflexElement>
+							<TopPanel />
+						</ReflexElement>
+						<ReflexSplitter />
+						<ReflexElement flex={0.25} minSize={200}>
+							<Timeline />
+						</ReflexElement>
+					</ReflexContainer>
 				</Background>
 			</PreviewSizeContext.Provider>
 		</CheckerboardContext.Provider>

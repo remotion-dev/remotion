@@ -5,8 +5,7 @@ import {CompositionSelector} from './CompositionSelector';
 import {PreviewToolbar} from './PreviewToolbar';
 
 export const Container = styled.div`
-	flex: 2;
-	border-bottom: 3px solid black;
+	height: 100%;
 	display: flex;
 	flex-direction: column;
 `;
