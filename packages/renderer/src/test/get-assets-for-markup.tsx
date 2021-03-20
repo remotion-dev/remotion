@@ -14,7 +14,7 @@ const waitForWindowToBeReady = () => {
 				resolve();
 			}
 		};
-		interval = setInterval(check, 10);
+		interval = setInterval(check, 5);
 	});
 };
 
