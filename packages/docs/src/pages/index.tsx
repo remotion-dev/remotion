@@ -1,11 +1,10 @@
 import Link from "@docusaurus/Link";
 import useBaseUrl from "@docusaurus/useBaseUrl";
-import useDocusaurusContext from "@docusaurus/useDocusaurusContext";
 import splitbee from "@splitbee/web";
 import Layout from "@theme/Layout";
 import clsx from "clsx";
 import React from "react";
-import { PageHeader } from "./PageHeader";
+import headerStyles from "./header.module.css";
 import styles from "./styles.module.css";
 
 setTimeout(() => {
@@ -65,8 +64,35 @@ const Feature: React.FC<{
   );
 };
 
+const PageHeader: React.FC = () => {
+  return (
+    <div className={headerStyles.row}>
+      <div style={{ flex: 1 }}>
+        <h1 className={headerStyles.title}>
+          Write videos programmatically in React
+        </h1>
+        <p>
+          Use your React knowledge to create real MP4 videos. Render videos
+          dynamically using server-side rendering and parametrization.
+        </p>
+      </div>
+      <iframe
+        style={{
+          width: 560,
+          height: 315,
+          maxWidth: "100%",
+        }}
+        src="https://www.youtube.com/embed/gwlDorikqgY"
+        title="Remotion - Create videos programmatically in React"
+        frameBorder="0"
+        allow="autoplay"
+        allowFullScreen
+      />
+    </div>
+  );
+};
+
 function Home() {
-  const context = useDocusaurusContext();
   return (
     <Layout
       title="Write videos in React"
@@ -74,7 +100,7 @@ function Home() {
     >
       <header className={clsx("hero ", styles.heroBanner)}>
         <div className="container">
-          <PageHeader></PageHeader>
+          <PageHeader />
           <br />
           <br />
           <br />
