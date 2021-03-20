@@ -26,7 +26,9 @@ export const calculateAssetPositions = (frames: TAsset[][]): Assets => {
 		for (const asset of current) {
 			if (!findFrom(prev, asset)) {
 				assets.push({
-					...asset,
+					id: asset.id,
+					src: asset.src,
+					type: asset.type,
 					duration: null,
 					startInVideo: frame,
 				});
