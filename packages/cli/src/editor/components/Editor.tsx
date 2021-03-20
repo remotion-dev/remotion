@@ -24,7 +24,7 @@ const Root = Internals.getRoot();
 
 export const Editor: React.FC = () => {
 	const [size, setSize] = useState<PreviewSize>('auto');
-	const [checkerboard, setCheckerboard] = useState(loadCheckerboardOption());
+	const [checkerboard, setCheckerboard] = useState(loadCheckerboardOption);
 
 	const previewCtx = useMemo(() => {
 		return {
@@ -43,6 +43,7 @@ export const Editor: React.FC = () => {
 	if (!Root) {
 		throw new Error('Root has not been registered. ');
 	}
+
 	return (
 		<CheckerboardContext.Provider value={checkerboardCtx}>
 			<PreviewSizeContext.Provider value={previewCtx}>
@@ -54,7 +55,7 @@ export const Editor: React.FC = () => {
 							<TopPanel />
 						</ReflexElement>
 						<ReflexSplitter />
-						<ReflexElement flex={0.25} minSize={200}>
+						<ReflexElement flex={0.2} minSize={200}>
 							<Timeline />
 						</ReflexElement>
 					</ReflexContainer>
