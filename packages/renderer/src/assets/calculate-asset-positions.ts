@@ -1,7 +1,7 @@
 import {TAsset} from 'remotion';
 import {Assets, MediaAsset, UnsafeAsset} from './types';
 
-const areEqual = (a: TAsset, b: TAsset) => {
+const areEqual = (a: TAsset | UnsafeAsset, b: TAsset | UnsafeAsset) => {
 	return a.type === b.type && a.src === b.src;
 };
 
