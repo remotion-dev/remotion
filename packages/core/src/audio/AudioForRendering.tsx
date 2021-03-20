@@ -24,6 +24,7 @@ export const AudioForRendering: React.FC<RemotionAudioProps> = (props) => {
 			src: props.src,
 			id,
 			sequenceFrame,
+			volume: props.volume ?? 1,
 		});
 		return () => unregisterAsset(id);
 	}, [
@@ -34,6 +35,7 @@ export const AudioForRendering: React.FC<RemotionAudioProps> = (props) => {
 		id,
 		unregisterAsset,
 		sequenceFrame,
+		props.volume,
 	]);
 
 	return null;

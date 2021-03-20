@@ -12,6 +12,7 @@ export const VideoForDevelopment: React.FC<RemotionVideoProps> = (props) => {
 	const videoConfig = useUnsafeVideoConfig();
 	const [playing] = usePlayingState();
 
+	// TODO: Register as an asset
 	useEffect(() => {
 		if (playing && !videoRef.current?.ended) {
 			videoRef.current?.play();
