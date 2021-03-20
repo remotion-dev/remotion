@@ -1,7 +1,11 @@
-import {Internals} from 'remotion';
 import {AssetAudioDetails, Assets} from './assets/types';
 import {resolveAssetSrc} from './resolve-asset-src';
 import {stringifyFfmpegFilter} from './stringify-ffmpeg-filter';
+
+export type FfmpegFilterCalculation = {
+	filter: string;
+	streamIndex: number;
+};
 
 export const calculateFfmpegFilters = ({
 	assetPositions,
@@ -11,7 +15,7 @@ export const calculateFfmpegFilters = ({
 	assetPositions: Assets;
 	assetAudioDetails: Map<string, AssetAudioDetails>;
 	fps: number;
-}) => {
+}): FfmpegFilterCalculation[] => {
 	return assetPositions
 		.filter((pos) => {
 			return (
@@ -32,7 +36,7 @@ export const calculateFfmpegFilters = ({
 			const streamIndex = i + 1;
 			return {
 				filter: stringifyFfmpegFilter({
-					streamIndex: i + 1,
+					streamIndex,
 					channels: audioDetails.channels,
 					startInVideo,
 					trimLeft: assetTrimLeft,
@@ -41,6 +45,5 @@ export const calculateFfmpegFilters = ({
 				}),
 				streamIndex,
 			};
-		})
-		.filter(Internals.truthy);
+		});
 };
