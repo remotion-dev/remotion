@@ -76,6 +76,7 @@ export const provideScreenshot = async ({
 		output: string;
 	};
 }): Promise<void> => {
+	await page.waitForFunction('window.ready === true');
 	await page.evaluate((frame) => {
 		window.remotion_setFrame(frame);
 	}, options.frame);
