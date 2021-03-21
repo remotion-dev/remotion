@@ -8,21 +8,11 @@ import {
 } from '../helpers/checkerboard-background';
 import {CheckerboardContext} from '../state/checkerboard';
 
-const targetHeight = 60;
-const targetWidth = (targetHeight * 16) / 9;
-
-const container: React.CSSProperties = {
-	width: targetWidth,
-	height: targetHeight,
-	backgroundColor: 'rgba(0, 0, 0, 0.4)',
-	display: 'flex',
-	justifyContent: 'center',
-	alignItems: 'center',
-};
-
 export const Thumbnail: React.FC<{
 	composition: TComposition<unknown>;
-}> = ({composition}) => {
+	targetHeight: number;
+	targetWidth: number;
+}> = ({composition, targetHeight, targetWidth}) => {
 	const {height, width, durationInFrames} = composition;
 	const heightRatio = targetHeight / height;
 	const widthRatio = targetWidth / width;
@@ -35,6 +25,17 @@ export const Thumbnail: React.FC<{
 	const yCorrection = correction * height;
 
 	const {checkerboard} = useContext(CheckerboardContext);
+
+	const container: React.CSSProperties = useMemo(() => {
+		return {
+			width: targetWidth,
+			height: targetHeight,
+			backgroundColor: 'rgba(0, 0, 0, 0.4)',
+			display: 'flex',
+			justifyContent: 'center',
+			alignItems: 'center',
+		};
+	}, [targetHeight, targetWidth]);
 
 	const outer: React.CSSProperties = useMemo(() => {
 		return {
