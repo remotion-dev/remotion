@@ -77,6 +77,7 @@ test('Should leave single clip untouched', () => {
 			startInVideo: 0,
 			trimLeft: 0,
 			type: 'video',
+			volume: 1,
 		},
 	]);
 });
@@ -108,6 +109,7 @@ test('Should leave two identical clips the same', () => {
 			startInVideo: 0,
 			trimLeft: 0,
 			type: 'video',
+			volume: 1,
 		},
 		{
 			duration: 300,
@@ -115,6 +117,7 @@ test('Should leave two identical clips the same', () => {
 			startInVideo: 0,
 			trimLeft: 0,
 			type: 'video',
+			volume: 1,
 		},
 	]);
 });

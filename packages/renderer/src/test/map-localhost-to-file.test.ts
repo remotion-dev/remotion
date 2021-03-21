@@ -21,5 +21,6 @@ test('Should correctly map a localhost URL to an asset', async () => {
 		),
 		id: '0.8331499681195862',
 		sequenceFrame: 2045,
+		volume: 1,
 	});
 });
