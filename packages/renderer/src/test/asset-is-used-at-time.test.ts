@@ -9,6 +9,7 @@ test('Should give true is asset is used at time', () => {
 				startInVideo: 0,
 				trimLeft: 2,
 				type: 'audio',
+				volume: 1,
 			},
 			1
 		)
@@ -21,6 +22,7 @@ test('Should give true is asset is used at time', () => {
 				startInVideo: 1,
 				trimLeft: 0,
 				type: 'audio',
+				volume: 1,
 			},
 			1
 		)
@@ -36,6 +38,7 @@ test('Should give false if asset is not used at time', () => {
 				startInVideo: 1,
 				trimLeft: 0,
 				type: 'audio',
+				volume: 1,
 			},
 			0
 		)
@@ -48,6 +51,7 @@ test('Should give false if asset is not used at time', () => {
 				startInVideo: 1,
 				trimLeft: 0,
 				type: 'audio',
+				volume: 1,
 			},
 			3
 		)
