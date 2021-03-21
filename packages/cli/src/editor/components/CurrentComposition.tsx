@@ -34,6 +34,9 @@ const Space = styled.div`
 	width: 12px;
 `;
 
+const targetHeight = 60;
+const targetWidth = (targetHeight * 16) / 9;
+
 export const CurrentComposition = () => {
 	const video = Internals.useVideo();
 	if (!video) {
@@ -42,7 +45,11 @@ export const CurrentComposition = () => {
 	return (
 		<Container>
 			<Row>
-				<Thumbnail composition={video} />
+				<Thumbnail
+					composition={video}
+					targetHeight={targetHeight}
+					targetWidth={targetWidth}
+				/>
 				<Space />
 				<div>
 					<Title>{video.id}</Title>
