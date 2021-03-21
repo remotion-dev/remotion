@@ -13,6 +13,8 @@ export const VideoForDevelopment: React.FC<RemotionVideoProps> = (props) => {
 	const videoConfig = useUnsafeVideoConfig();
 	const [playing] = usePlayingState();
 
+	const {volume, ...nativeProps} = props;
+
 	validateMediaProps(props, 'Video');
 
 	// TODO: Register as an asset
@@ -23,6 +25,13 @@ export const VideoForDevelopment: React.FC<RemotionVideoProps> = (props) => {
 			videoRef.current?.pause();
 		}
 	}, [playing]);
+
+	useEffect(() => {
+		if (!videoRef.current) {
+			return;
+		}
+		videoRef.current.volume = volume ?? 1;
+	}, [volume]);
 
 	useEffect(() => {
 		if (!videoRef.current) {
@@ -52,5 +61,5 @@ export const VideoForDevelopment: React.FC<RemotionVideoProps> = (props) => {
 		}
 	}, [currentFrame, playing, videoConfig, absoluteFrame]);
 
-	return <video ref={videoRef} {...props} />;
+	return <video ref={videoRef} {...nativeProps} />;
 };

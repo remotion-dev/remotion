@@ -24,6 +24,15 @@ export const AudioForDevelopment: React.FC<RemotionAudioProps> = (props) => {
 
 	validateMediaProps(props, 'Audio');
 
+	const {volume, ...nativeProps} = props;
+
+	useEffect(() => {
+		if (!audioRef.current) {
+			return;
+		}
+		audioRef.current.volume = volume ?? 1;
+	}, [volume]);
+
 	useEffect(() => {
 		const ref = audioRef.current;
 		if (!ref) {
@@ -120,5 +129,5 @@ export const AudioForDevelopment: React.FC<RemotionAudioProps> = (props) => {
 		}
 	}, [absoluteFrame, currentFrame, playing, videoConfig]);
 
-	return <audio ref={audioRef} {...props} />;
+	return <audio ref={audioRef} {...nativeProps} />;
 };
