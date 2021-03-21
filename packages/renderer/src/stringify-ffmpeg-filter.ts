@@ -1,4 +1,5 @@
 import {Internals} from 'remotion';
+import {AssetVolume} from './assets/types';
 
 export const stringifyFfmpegFilter = ({
 	streamIndex,
@@ -6,6 +7,7 @@ export const stringifyFfmpegFilter = ({
 	trimRight,
 	channels,
 	startInVideo,
+	simulatenousAssets,
 	volume,
 }: {
 	streamIndex: number;
@@ -13,14 +15,15 @@ export const stringifyFfmpegFilter = ({
 	trimRight: string;
 	channels: number;
 	startInVideo: string;
-	volume: number;
+	simulatenousAssets: number;
+	volume: AssetVolume;
 }) => {
 	return (
 		`[${streamIndex}:a]` +
 		[
 			`atrim=${trimLeft}:${trimRight}`,
 			`adelay=${new Array(channels).fill(startInVideo).join('|')}`,
-			'volume=' + volume,
+			'volume=' + simulatenousAssets,
 		]
 			.filter(Internals.truthy)
 			.join(',') +
