@@ -3,6 +3,7 @@
 
 // If once, ffmpeg evaluates volume expression once.
 // If frame, it evaluates it for each frame
+import {roundVolumeToAvoidStackOverflow} from './round-volume-to-avoid-stack-overflow';
 import {AssetVolume} from './types';
 
 type FfmpegEval = 'once' | 'frame';
@@ -54,7 +55,7 @@ export const ffmpegVolumeExpression = (
 	if (typeof volume === 'number') {
 		return {
 			eval: 'once',
-			value: String(volume * multiplier),
+			value: String(Math.min(1, volume) * multiplier),
 		};
 	}
 
@@ -65,7 +66,8 @@ export const ffmpegVolumeExpression = (
 	const volumeMap: {[volume: string]: number[]} = {};
 	volume.forEach((baseVolume, frame) => {
 		// Adjust volume based on how many other tracks have not yet finished
-		const actualVolume = baseVolume * multiplier;
+		const actualVolume =
+			roundVolumeToAvoidStackOverflow(Math.min(1, baseVolume)) * multiplier;
 		if (!volumeMap[actualVolume]) {
 			volumeMap[actualVolume] = [];
 		}
