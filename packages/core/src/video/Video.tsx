@@ -4,29 +4,25 @@ import {RemotionMainVideoProps, RemotionVideoProps} from './props';
 import {VideoForDevelopment} from './VideoForDevelopment';
 import {VideoForRendering} from './VideoForRendering';
 
-export const Video: React.FC<RemotionVideoProps & RemotionMainVideoProps> = ({
-	startAt,
-	endAt,
-	...props
-}) => {
+export const Video: React.FC<RemotionVideoProps & RemotionMainVideoProps> = (
+	props
+) => {
+	const {startAt, endAt, ...otherProps} = props;
 	const startAtFrameNo = startAt ? startAt : 0;
 	const endAtFrameNO = endAt ? endAt : Infinity;
-	if (process.env.NODE_ENV === 'development') {
+	if (startAt || endAt) {
 		return (
 			<Sequence
 				from={0 - startAtFrameNo}
 				durationInFrames={endAtFrameNO - startAtFrameNo}
 			>
-				<VideoForDevelopment {...props} />;
+				<Video {...otherProps} />
 			</Sequence>
 		);
 	}
-	return (
-		<Sequence
-			from={0 - startAtFrameNo}
-			durationInFrames={endAtFrameNO - startAtFrameNo}
-		>
-			<VideoForRendering {...props} />;
-		</Sequence>
-	);
+
+	if (process.env.NODE_ENV === 'development') {
+		return <VideoForDevelopment {...props} />;
+	}
+	return <VideoForRendering {...props} />;
 };
