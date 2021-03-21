@@ -27,6 +27,7 @@ test('Should be able to collect assets', async () => {
 		duration: 60,
 		startInVideo: 0,
 		trimLeft: 0,
+		volume: 1,
 	});
 });
 
@@ -45,6 +46,7 @@ test('Should get multiple assets', async () => {
 		duration: 60,
 		startInVideo: 0,
 		trimLeft: 0,
+		volume: 1,
 	});
 	expect(assetPositions[1]).toEqual({
 		type: 'audio',
@@ -53,6 +55,7 @@ test('Should get multiple assets', async () => {
 		duration: 60,
 		startInVideo: 0,
 		trimLeft: 0,
+		volume: 1,
 	});
 });
 
@@ -75,6 +78,7 @@ test('Should handle jumps inbetween', async () => {
 		duration: 20,
 		startInVideo: 0,
 		trimLeft: 0,
+		volume: 1,
 	});
 	expect(assetPositions[1]).toEqual({
 		type: 'video',
@@ -83,6 +87,7 @@ test('Should handle jumps inbetween', async () => {
 		duration: 39,
 		startInVideo: 21,
 		trimLeft: 21,
+		volume: 1,
 	});
 });
 
@@ -102,5 +107,6 @@ test('Should support sequencing', async () => {
 		duration: 10,
 		startInVideo: 0,
 		trimLeft: 20,
+		volume: 1,
 	});
 });
