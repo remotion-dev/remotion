@@ -25,6 +25,6 @@ test('Should calculate FFMPEG volume expression', () => {
 		ffmpegVolumeExpression([0, 0.25, 0.5, 1, 1, 1, 1, 2, 2, 2, 2], 1)
 	).toEqual({
 		eval: 'frame',
-		value: expectedExpression,
+		value: `'${expectedExpression}'`,
 	});
 });

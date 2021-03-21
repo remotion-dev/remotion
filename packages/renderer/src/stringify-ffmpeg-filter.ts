@@ -1,4 +1,5 @@
 import {Internals} from 'remotion';
+import {ffmpegVolumeExpression} from './assets/ffmpeg-volume-expression';
 import {AssetVolume} from './assets/types';
 
 export const stringifyFfmpegFilter = ({
@@ -18,12 +19,13 @@ export const stringifyFfmpegFilter = ({
 	simulatenousAssets: number;
 	volume: AssetVolume;
 }) => {
+	const volumeFilter = ffmpegVolumeExpression(volume, simulatenousAssets);
 	return (
 		`[${streamIndex}:a]` +
 		[
 			`atrim=${trimLeft}:${trimRight}`,
 			`adelay=${new Array(channels).fill(startInVideo).join('|')}`,
-			'volume=' + simulatenousAssets,
+			`volume=${volumeFilter.value}:eval=${volumeFilter.eval}`,
 		]
 			.filter(Internals.truthy)
 			.join(',') +

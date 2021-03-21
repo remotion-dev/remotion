@@ -74,6 +74,6 @@ export const ffmpegVolumeExpression = (
 	const expression = ffmpegBuildVolumeExpression(volumeArray);
 	return {
 		eval: 'frame',
-		value: expression,
+		value: `'${expression}'`,
 	};
 };
