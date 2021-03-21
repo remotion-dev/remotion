@@ -12,6 +12,7 @@ const asset: MediaAsset = {
 	startInVideo: 0,
 	trimLeft: 0,
 	volume: 1,
+	id: '1',
 };
 
 test('Should create a basic filter correctly', () => {

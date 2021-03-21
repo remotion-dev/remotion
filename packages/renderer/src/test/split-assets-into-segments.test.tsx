@@ -11,6 +11,7 @@ test('Should create segments of audio clips correctly', () => {
 			trimLeft: 0,
 			type: 'video',
 			volume: 1,
+			id: '1',
 		},
 		// Clip from 5-15 seconds
 		{
@@ -20,6 +21,7 @@ test('Should create segments of audio clips correctly', () => {
 			trimLeft: 0,
 			type: 'video',
 			volume: 1,
+			id: '2',
 		},
 	];
 	expect(splitAssetsIntoSegments({assets, duration: 450})).toEqual([
@@ -30,6 +32,7 @@ test('Should create segments of audio clips correctly', () => {
 			trimLeft: 0,
 			type: 'video',
 			volume: 1,
+			id: '1',
 		},
 		{
 			duration: 150,
@@ -38,6 +41,7 @@ test('Should create segments of audio clips correctly', () => {
 			trimLeft: 150,
 			type: 'video',
 			volume: 1,
+			id: '1',
 		},
 		{
 			duration: 150,
@@ -46,6 +50,7 @@ test('Should create segments of audio clips correctly', () => {
 			trimLeft: 0,
 			type: 'video',
 			volume: 1,
+			id: '2',
 		},
 		{
 			duration: 150,
@@ -54,6 +59,7 @@ test('Should create segments of audio clips correctly', () => {
 			trimLeft: 150,
 			type: 'video',
 			volume: 1,
+			id: '2',
 		},
 	]);
 });
@@ -68,6 +74,7 @@ test('Should leave single clip untouched', () => {
 			trimLeft: 0,
 			type: 'video',
 			volume: 1,
+			id: '1',
 		},
 	];
 	expect(splitAssetsIntoSegments({assets, duration: 450})).toEqual([
@@ -78,6 +85,7 @@ test('Should leave single clip untouched', () => {
 			trimLeft: 0,
 			type: 'video',
 			volume: 1,
+			id: '1',
 		},
 	]);
 });
@@ -92,6 +100,7 @@ test('Should leave two identical clips the same', () => {
 			trimLeft: 0,
 			type: 'video',
 			volume: 1,
+			id: '1',
 		},
 		{
 			duration: 300,
@@ -100,6 +109,7 @@ test('Should leave two identical clips the same', () => {
 			trimLeft: 0,
 			type: 'video',
 			volume: 1,
+			id: '2',
 		},
 	];
 	expect(splitAssetsIntoSegments({assets, duration: 450})).toEqual([
@@ -110,6 +120,7 @@ test('Should leave two identical clips the same', () => {
 			trimLeft: 0,
 			type: 'video',
 			volume: 1,
+			id: '1',
 		},
 		{
 			duration: 300,
@@ -118,6 +129,7 @@ test('Should leave two identical clips the same', () => {
 			trimLeft: 0,
 			type: 'video',
 			volume: 1,
+			id: '2',
 		},
 	]);
 });
@@ -132,6 +144,7 @@ test('Should not have one-off errors', () => {
 			trimLeft: 0,
 			type: 'video',
 			volume: 1,
+			id: '1',
 		},
 		{
 			duration: 2,
@@ -140,6 +153,7 @@ test('Should not have one-off errors', () => {
 			trimLeft: 0,
 			type: 'video',
 			volume: 1,
+			id: '2',
 		},
 		{
 			duration: 2,
@@ -148,6 +162,7 @@ test('Should not have one-off errors', () => {
 			trimLeft: 0,
 			type: 'video',
 			volume: 1,
+			id: '3',
 		},
 	];
 	expect(splitAssetsIntoSegments({assets, duration: 450})).toEqual([
@@ -158,6 +173,7 @@ test('Should not have one-off errors', () => {
 			trimLeft: 0,
 			type: 'video',
 			volume: 1,
+			id: '1',
 		},
 		{
 			duration: 1,
@@ -166,6 +182,7 @@ test('Should not have one-off errors', () => {
 			trimLeft: 1,
 			type: 'video',
 			volume: 1,
+			id: '1',
 		},
 		{
 			duration: 1,
@@ -174,6 +191,7 @@ test('Should not have one-off errors', () => {
 			trimLeft: 0,
 			type: 'video',
 			volume: 1,
+			id: '2',
 		},
 		{
 			duration: 1,
@@ -182,6 +200,7 @@ test('Should not have one-off errors', () => {
 			trimLeft: 1,
 			type: 'video',
 			volume: 1,
+			id: '2',
 		},
 		{
 			duration: 1,
@@ -190,6 +209,7 @@ test('Should not have one-off errors', () => {
 			trimLeft: 0,
 			type: 'video',
 			volume: 1,
+			id: '3',
 		},
 		{
 			duration: 1,
@@ -198,6 +218,7 @@ test('Should not have one-off errors', () => {
 			trimLeft: 1,
 			type: 'video',
 			volume: 1,
+			id: '3',
 		},
 	]);
 });
