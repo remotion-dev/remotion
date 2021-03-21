@@ -11,6 +11,7 @@ const asset: MediaAsset = {
 	duration: 20,
 	startInVideo: 0,
 	trimLeft: 0,
+	volume: 1,
 };
 
 test('Should create a basic filter correctly', () => {
