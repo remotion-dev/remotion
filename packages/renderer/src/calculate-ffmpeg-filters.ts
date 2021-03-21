@@ -43,7 +43,8 @@ export const calculateFfmpegFilters = ({
 					startInVideo,
 					trimLeft: assetTrimLeft,
 					trimRight: assetTrimRight,
-					volume: simultaneousAssets.length,
+					simulatenousAssets: simultaneousAssets.length,
+					volume: asset.volume,
 				}),
 				streamIndex,
 			};
