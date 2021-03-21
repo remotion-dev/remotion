@@ -1,5 +1,5 @@
-import React, {Suspense, useContext} from 'react';
-import {Internals} from 'remotion';
+import React, {Suspense, useContext, useMemo} from 'react';
+import {Internals, useVideoConfig} from 'remotion';
 import styled from 'styled-components';
 import {Size} from '../hooks/get-el-size';
 import {CheckerboardContext} from '../state/checkerboard';
@@ -42,20 +42,16 @@ export const Container = styled.div<{
 		0px ${checkerboardSize / 2}px; /* Must be half of one side of the square */
 `;
 
-export const VideoPreview: React.FC<{
+const Inner: React.FC<{
 	canvasSize: Size;
 }> = ({canvasSize}) => {
-	const video = Internals.useVideo();
 	const {size: previewSize} = useContext(PreviewSizeContext);
-	const {checkerboard} = useContext(CheckerboardContext);
-	const config = Internals.useUnsafeVideoConfig();
+	const video = Internals.useVideo();
 
-	if (!config) {
-		return null;
-	}
-
+	const config = useVideoConfig();
 	const heightRatio = canvasSize.height / config.height;
 	const widthRatio = canvasSize.width / config.width;
+	const {checkerboard} = useContext(CheckerboardContext);
 
 	const ratio = Math.min(heightRatio, widthRatio);
 
@@ -68,22 +64,24 @@ export const VideoPreview: React.FC<{
 	const centerX = canvasSize.width / 2 - width / 2;
 	const centerY = canvasSize.height / 2 - height / 2;
 
+	const outer: React.CSSProperties = useMemo(() => {
+		return {
+			width: config.width * scale,
+			height: config.height * scale,
+			display: 'flex',
+			flexDirection: 'column',
+			position: 'absolute',
+			left: centerX,
+			top: centerY,
+			overflow: 'hidden',
+		};
+	}, [centerX, centerY, config.height, config.width, scale]);
+
 	const Component = video ? video.component : null;
 
 	return (
 		<Suspense fallback={<div>loading...</div>}>
-			<div
-				style={{
-					width: config.width * scale,
-					height: config.height * scale,
-					display: 'flex',
-					flexDirection: 'column',
-					position: 'absolute',
-					left: centerX,
-					top: centerY,
-					overflow: 'hidden',
-				}}
-			>
+			<div style={outer}>
 				<Container
 					{...{
 						checkerboard,
@@ -101,4 +99,15 @@ export const VideoPreview: React.FC<{
 			</div>
 		</Suspense>
 	);
+};
+
+export const VideoPreview: React.FC<{
+	canvasSize: Size;
+}> = ({canvasSize}) => {
+	const config = Internals.useUnsafeVideoConfig();
+
+	if (!config) {
+		return null;
+	}
+	return <Inner canvasSize={canvasSize} />;
 };
