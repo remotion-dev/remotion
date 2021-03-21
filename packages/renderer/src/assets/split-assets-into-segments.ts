@@ -3,6 +3,7 @@
 
 import {Internals} from 'remotion';
 import {assetIsUsedAtTime} from './asset-is-used-at-time';
+import {convertAssetToFlattenedVolume} from './flatten-volume-array';
 import {MediaAsset} from './types';
 
 // If there is a track from 0-10 seconds and one from 5-15 seconds
@@ -50,7 +51,7 @@ export const splitAssetsIntoSegments = ({
 					return {
 						...a,
 						duration: cutEnd - a.startInVideo,
-					};
+					} as MediaAsset;
 				}
 				// Video starts before cut
 				if (assetStart < cutStart && assetEnd > cutStart) {
@@ -60,7 +61,7 @@ export const splitAssetsIntoSegments = ({
 						startInVideo: cutStart,
 						duration: a.duration - amountOfFramesThatGetCut,
 						trimLeft: a.trimLeft + amountOfFramesThatGetCut,
-					};
+					} as MediaAsset;
 				}
 
 				// Video is inside cut, leave
@@ -78,6 +79,7 @@ export const splitAssetsIntoSegments = ({
 				throw new Error('Unhandled');
 			});
 		})
-		.flat(Infinity)
-		.filter(Internals.truthy) as MediaAsset[];
+		.flat(2)
+		.filter(Internals.truthy)
+		.map((a) => convertAssetToFlattenedVolume(a));
 };
