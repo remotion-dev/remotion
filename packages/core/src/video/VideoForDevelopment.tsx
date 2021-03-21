@@ -13,6 +13,14 @@ export const VideoForDevelopment: React.FC<RemotionVideoProps> = (props) => {
 	const [playing] = usePlayingState();
 
 	useEffect(() => {
+		if (playing) {
+			videoRef.current?.play();
+		} else {
+			videoRef.current?.pause();
+		}
+	}, [playing]);
+
+	useEffect(() => {
 		if (!videoRef.current) {
 			throw new Error('No video ref found');
 		}
@@ -32,7 +40,6 @@ export const VideoForDevelopment: React.FC<RemotionVideoProps> = (props) => {
 
 		if (!playing || absoluteFrame === 0) {
 			videoRef.current.currentTime = currentTime;
-			videoRef.current.pause();
 		}
 
 		if (videoRef.current.paused && !videoRef.current.ended && playing) {
