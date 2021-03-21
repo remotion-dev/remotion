@@ -1,6 +1,5 @@
 import React, {useContext, useMemo} from 'react';
 import {Internals} from 'remotion';
-import styled from 'styled-components';
 import {calculateTimeline, Track} from '../helpers/calculate-timeline';
 import {
 	TIMELINE_LEFT_PADDING,
@@ -8,15 +7,6 @@ import {
 } from '../helpers/timeline-layout';
 import {useWindowSize} from '../hooks/use-window-size';
 import {TimelineSequence} from './TimelineSequence';
-
-const Pre = styled.pre`
-	color: white;
-	font-family: Arial, Helvetica, sans-serif;
-	font-size: 12px;
-	margin-top: 0;
-	margin-bottom: 0;
-	padding: 5px;
-`;
 
 export const TimelineElements: React.FC = () => {
 	const {width} = useWindowSize();
