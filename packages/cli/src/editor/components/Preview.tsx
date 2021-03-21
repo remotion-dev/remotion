@@ -1,6 +1,12 @@
 import React, {Suspense, useContext, useMemo} from 'react';
 import {Internals, useVideoConfig} from 'remotion';
 import styled from 'styled-components';
+import {
+	checkerboardBackgroundColor,
+	checkerboardBackgroundImage,
+	CHECKERBOARD_BACKGROUND_POS,
+	CHECKERBOARD_BACKGROUND_SIZE,
+} from '../helpers/checkerboard-background';
 import {Size} from '../hooks/get-el-size';
 import {CheckerboardContext} from '../state/checkerboard';
 import {PreviewSizeContext} from '../state/preview-size';
@@ -22,24 +28,16 @@ export const Container = styled.div<{
 	height: ${(props): number => props.height}px;
 	display: flex;
 	position: absolute;
-	background: ${(props) =>
-		props.checkerboard
-			? `
-	 linear-gradient(
-			45deg,
-			rgba(0, 0, 0, 0.1) 25%,
-			transparent 25%
-		),
-		linear-gradient(135deg, rgba(0, 0, 0, 0.1) 25%, transparent 25%),
-		linear-gradient(45deg, transparent 75%, rgba(0, 0, 0, 0.1) 75%),
-		linear-gradient(135deg, transparent 75%, rgba(0, 0, 0, 0.1) 75%), white;
-	`
-			: 'black'};
-
-	background-size: ${checkerboardSize}px ${checkerboardSize}px; /* Must be a square */
-	background-position: 0 0, ${checkerboardSize / 2}px 0,
-		${checkerboardSize / 2}px -${checkerboardSize / 2}px,
-		0px ${checkerboardSize / 2}px; /* Must be half of one side of the square */
+	background-color: ${(props) =>
+		checkerboardBackgroundColor(props.checkerboard)};
+	background-image: ${(props) =>
+		checkerboardBackgroundImage(props.checkerboard)};
+	background-size: ${CHECKERBOARD_BACKGROUND_SIZE(
+		checkerboardSize
+	)}; /* Must be a square */
+	background-position: ${CHECKERBOARD_BACKGROUND_POS(
+		checkerboardSize
+	)}; /* Must be half of one side of the square */
 `;
 
 const Inner: React.FC<{
