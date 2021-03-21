@@ -32,7 +32,7 @@ export const calculateAssetPositions = (frames: TAsset[][]): Assets => {
 					duration: null,
 					startInVideo: frame,
 					trimLeft: asset.sequenceFrame,
-					volume: asset.volume,
+					volume: [asset.volume],
 				});
 			}
 
@@ -45,6 +45,7 @@ export const calculateAssetPositions = (frames: TAsset[][]): Assets => {
 				// start 0, range 0-59:
 				// 59 - 0 + 1 ==> 60 frames duration
 				found.duration = frame - found.startInVideo + 1;
+				found.volume = [...found.volume, asset.volume];
 			}
 		}
 	}
