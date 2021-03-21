@@ -26,7 +26,7 @@ test('Should create a basic filter correctly', () => {
 			assetPositions: [asset],
 			assetAudioDetails,
 		})[0].filter
-	).toBe('[1:a]atrim=0.000:0.667,adelay=0,volume=1[a1]');
+	).toBe('[1:a]atrim=0.000:0.667,adelay=0,volume=1:eval=once[a1]');
 });
 
 test('Should handle trim correctly', () => {
@@ -45,7 +45,7 @@ test('Should handle trim correctly', () => {
 			],
 			assetAudioDetails,
 		})[0].filter
-	).toBe('[1:a]atrim=0.333:1.000,adelay=0,volume=1[a1]');
+	).toBe('[1:a]atrim=0.333:1.000,adelay=0,volume=1:eval=once[a1]');
 });
 
 test('Should handle delay correctly', () => {
@@ -65,7 +65,7 @@ test('Should handle delay correctly', () => {
 			],
 			assetAudioDetails,
 		})[0].filter
-	).toBe('[1:a]atrim=0.333:1.000,adelay=2667,volume=1[a1]');
+	).toBe('[1:a]atrim=0.333:1.000,adelay=2667,volume=1:eval=once[a1]');
 });
 
 test('Should offset multiple channels', () => {
@@ -85,5 +85,5 @@ test('Should offset multiple channels', () => {
 			],
 			assetAudioDetails,
 		})[0].filter
-	).toBe('[1:a]atrim=0.333:1.000,adelay=2667|2667|2667,volume=1[a1]');
+	).toBe('[1:a]atrim=0.333:1.000,adelay=2667|2667|2667,volume=1:eval=once[a1]');
 });
