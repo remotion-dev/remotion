@@ -8,9 +8,10 @@ export const Video: React.FC<RemotionVideoProps & RemotionMainVideoProps> = (
 	props
 ) => {
 	const {startAt, endAt, ...otherProps} = props;
-	const startAtFrameNo = startAt ? startAt : 0;
-	const endAtFrameNO = endAt ? endAt : Infinity;
-	if (startAt || endAt) {
+	if (typeof startAt !== 'undefined' || typeof endAt !== 'undefined') {
+		const startAtFrameNo = startAt ? startAt : 0;
+		const endAtFrameNO = endAt ? endAt : Infinity;
+		console.log(0 - startAtFrameNo, endAtFrameNO - startAtFrameNo, 'wow');
 		return (
 			<Sequence
 				from={0 - startAtFrameNo}
