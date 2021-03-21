@@ -10,7 +10,8 @@ export const MAX_FFMPEG_STACK_DEPTH = 99;
 export const roundVolumeToAvoidStackOverflow = (volume: number): number => {
 	return Number(
 		(
-			Math.round(volume * MAX_FFMPEG_STACK_DEPTH) / MAX_FFMPEG_STACK_DEPTH
+			Math.round(volume * (MAX_FFMPEG_STACK_DEPTH - 1)) /
+			(MAX_FFMPEG_STACK_DEPTH - 1)
 		).toFixed(3)
 	);
 };
