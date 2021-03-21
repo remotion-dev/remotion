@@ -7,6 +7,7 @@ import {
 	TIMELINE_RIGHT_PADDING,
 } from '../helpers/timeline-layout';
 import {useWindowSize} from '../hooks/use-window-size';
+import {TimelineSequence} from './TimelineSequence';
 
 const Pre = styled.pre`
 	color: white;
@@ -29,58 +30,28 @@ export const TimelineElements: React.FC = () => {
 		return calculateTimeline(sequences, videoConfig.durationInFrames);
 	}, [sequences, videoConfig]);
 
-	// If a composition is 100 frames long, the last frame is 99
-	// and therefore frame 99 should be at the right
-	const lastFrame = (videoConfig?.durationInFrames ?? 1) - 1;
+	const outer: React.CSSProperties = useMemo(() => {
+		return {
+			width: width - TIMELINE_LEFT_PADDING - TIMELINE_RIGHT_PADDING,
+			overflow: 'hidden',
+			position: 'relative',
+		};
+	}, [width]);
+
+	const inner: React.CSSProperties = useMemo(() => {
+		return {
+			height: 82,
+		};
+	}, []);
 
 	return (
-		<div
-			style={{
-				width: width - TIMELINE_LEFT_PADDING - TIMELINE_RIGHT_PADDING,
-				overflow: 'hidden',
-				position: 'relative',
-			}}
-		>
+		<div style={outer}>
 			{videoConfig
 				? timeline.map((track) => {
 						return (
-							<div
-								key={track.trackId}
-								style={{
-									height: 82,
-								}}
-							>
+							<div key={track.trackId} style={inner}>
 								{track.sequences.map((s) => {
-									// If a duration is 1, it is essentially a still and it should have width 0
-									const spatialDuration = Internals.FEATURE_FLAG_V2_BREAKING_CHANGES
-										? s.sequence.duration - 1
-										: s.sequence.duration;
-									return (
-										<div
-											key={s.sequence.id}
-											style={{
-												background:
-													'linear-gradient(to bottom, #3697e1, #348AC7 60%)',
-												border: '1px solid rgba(255, 255, 255, 0.2)',
-												borderRadius: 4,
-												position: 'absolute',
-												height: 80,
-												marginTop: 1,
-												marginLeft: `calc(${
-													(s.sequence.from / lastFrame) * 100
-												}%)`,
-												width:
-													s.sequence.duration === Infinity
-														? width
-														: `calc(${(spatialDuration / lastFrame) * 100}%)`,
-												color: 'white',
-												overflow: 'hidden',
-											}}
-											title={s.sequence.displayName}
-										>
-											<Pre>{s.sequence.displayName}</Pre>
-										</div>
-									);
+									return <TimelineSequence key={s.sequence.id} s={s} />;
 								})}
 							</div>
 						);
