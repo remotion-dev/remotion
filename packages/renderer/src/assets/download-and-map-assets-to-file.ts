@@ -40,6 +40,7 @@ const downloadAsset = async (src: string, to: string) => {
 	}
 	isDownloadingMap[src] = true;
 	// TODO: Leave logging to CLI
+	console.log('\n');
 	console.log('Downloading asset...', src);
 	mkdirSync(path.resolve(to, '..'), {
 		recursive: true,
