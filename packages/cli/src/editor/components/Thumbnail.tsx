@@ -12,8 +12,9 @@ export const Thumbnail: React.FC<{
 	composition: TComposition<unknown>;
 	targetHeight: number;
 	targetWidth: number;
-}> = ({composition, targetHeight, targetWidth}) => {
-	const {height, width, durationInFrames} = composition;
+	frameToDisplay: number;
+}> = ({composition, targetHeight, targetWidth, frameToDisplay}) => {
+	const {height, width} = composition;
 	const heightRatio = targetHeight / height;
 	const widthRatio = targetWidth / width;
 	const ratio = Math.min(heightRatio, widthRatio);
@@ -64,9 +65,10 @@ export const Thumbnail: React.FC<{
 	const timelineState: TimelineContextValue = useMemo(() => {
 		return {
 			playing: false,
-			frame: Math.floor(durationInFrames / 2),
+			frame: frameToDisplay,
+			shouldRegisterSequences: false,
 		};
-	}, [durationInFrames]);
+	}, [frameToDisplay]);
 
 	const props = useMemo(() => {
 		return ((composition.props as unknown) as {}) ?? {};

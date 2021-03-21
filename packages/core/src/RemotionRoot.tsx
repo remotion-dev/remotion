@@ -5,13 +5,13 @@ import {
 	TComposition,
 	TSequence,
 } from './CompositionManager';
+import {continueRender, delayRender} from './ready-manager';
 import {
 	SetTimelineContext,
 	SetTimelineContextValue,
 	TimelineContext,
 	TimelineContextValue,
 } from './timeline-position-state';
-import { delayRender, continueRender } from './ready-manager';
 
 export const RemotionRoot: React.FC = ({children}) => {
 	// Wontfix, expected to have
@@ -27,12 +27,12 @@ export const RemotionRoot: React.FC = ({children}) => {
 	useLayoutEffect(() => {
 		if (typeof window !== 'undefined') {
 			window.remotion_setFrame = (f: number) => {
-				const id = delayRender()
-				setFrame(f)
-				requestAnimationFrame(() => continueRender(id))
-			}
+				const id = delayRender();
+				setFrame(f);
+				requestAnimationFrame(() => continueRender(id));
+			};
 		}
-	}, [])
+	}, []);
 
 	const registerComposition = useCallback(<T,>(comp: TComposition<T>) => {
 		setCompositions((comps) => {
@@ -86,6 +86,7 @@ export const RemotionRoot: React.FC = ({children}) => {
 		return {
 			frame,
 			playing,
+			shouldRegisterSequences: true,
 		};
 	}, [frame, playing]);
 

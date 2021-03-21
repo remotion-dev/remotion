@@ -42,6 +42,8 @@ export const CurrentComposition = () => {
 	if (!video) {
 		return <Container />;
 	}
+
+	const frameToDisplay = Math.floor(video.durationInFrames / 2);
 	return (
 		<Container>
 			<Row>
@@ -49,6 +51,7 @@ export const CurrentComposition = () => {
 					composition={video}
 					targetHeight={targetHeight}
 					targetWidth={targetWidth}
+					frameToDisplay={frameToDisplay}
 				/>
 				<Space />
 				<div>
