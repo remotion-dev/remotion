@@ -1,7 +1,8 @@
-import React, {useContext, useEffect, useRef, useState} from 'react';
+import React, {useContext, useEffect, useMemo, useRef} from 'react';
 import {CompositionManager} from '../CompositionManager';
 import {FEATURE_FLAG_V2_BREAKING_CHANGES} from '../feature-flags';
 import {isApproximatelyTheSame} from '../is-approximately-the-same';
+import {random} from '../random';
 import {continueRender, delayRender} from '../ready-manager';
 import {useCurrentFrame} from '../use-frame';
 import {useUnsafeVideoConfig} from '../use-unsafe-video-config';
@@ -16,7 +17,12 @@ export const VideoForRendering: React.FC<RemotionVideoProps> = ({
 	const videoRef = useRef<HTMLVideoElement>(null);
 	const {registerAsset, unregisterAsset} = useContext(CompositionManager);
 
-	const [id] = useState(() => String(Math.random()));
+	// Generate a string that's as unique as possible for this asset
+	// but at the same time the same on all threads
+	const id = useMemo(
+		() => `audio-${random(props.src ?? '')}-muted:${props.muted}`,
+		[props.muted, props.src]
+	);
 
 	if (!videoConfig) {
 		throw new Error('No video config found');
