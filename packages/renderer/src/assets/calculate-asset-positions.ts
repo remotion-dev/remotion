@@ -2,8 +2,8 @@ import {TAsset} from 'remotion';
 import {splitAssetsIntoSegments} from './split-assets-into-segments';
 import {Assets, MediaAsset, UnsafeAsset} from './types';
 
-const areEqual = (a: TAsset | UnsafeAsset, b: TAsset | UnsafeAsset) => {
-	return a.type === b.type && a.src === b.src;
+const areEqual = (a: TAsset | UnsafeAsset, b: TAsset) => {
+	return a.id === b.id;
 };
 
 const findFrom = (target: TAsset[], asset: TAsset) => {
@@ -30,23 +30,24 @@ export const calculateAssetPositions = (frames: TAsset[][]): Assets => {
 					src: asset.src,
 					type: asset.type,
 					duration: null,
+					id: asset.id,
 					startInVideo: frame,
 					trimLeft: asset.sequenceFrame,
-					volume: [asset.volume],
+					volume: [],
 				});
 			}
 
+			const found = assets.find(
+				(a) => a.duration === null && areEqual(a, asset)
+			);
+			if (!found) throw new Error('something wrong');
 			if (!findFrom(next, asset)) {
-				const found = assets.find(
-					(a) => a.duration === null && areEqual(a, asset)
-				);
-				if (!found) throw new Error('something wrong');
 				// Duration calculation:
 				// start 0, range 0-59:
 				// 59 - 0 + 1 ==> 60 frames duration
 				found.duration = frame - found.startInVideo + 1;
-				found.volume = [...found.volume, asset.volume];
 			}
+			found.volume = [...found.volume, asset.volume];
 		}
 	}
 

@@ -8,6 +8,7 @@ export type UnsafeAsset = Omit<TAsset, 'sequenceFrame' | 'id' | 'volume'> & {
 	duration: number | null;
 	trimLeft: number;
 	volume: number[];
+	id: string;
 };
 
 // Volume can either be static, for all frames the same,
