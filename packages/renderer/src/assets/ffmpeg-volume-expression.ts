@@ -49,6 +49,8 @@ export const ffmpegVolumeExpression = (
 	volume: AssetVolume,
 	multiplier: number
 ): FfmpegVolumeExpression => {
+	// If it's a static volume, we return it and tell
+	// FFMPEG it only has to evaluate it once
 	if (typeof volume === 'number') {
 		return {
 			eval: 'once',
@@ -56,9 +58,13 @@ export const ffmpegVolumeExpression = (
 		};
 	}
 
+	// Otherwise, we construct an FFMPEG expression. First step:
 	// Make a map of all possible volumes
+	// {possibleVolume1} => [frame1, frame2]
+	// {possibleVolume2} => [frame3, frame4]
 	const volumeMap: {[volume: string]: number[]} = {};
 	volume.forEach((baseVolume, frame) => {
+		// Adjust volume based on how many other tracks have not yet finished
 		const actualVolume = baseVolume * multiplier;
 		if (!volumeMap[actualVolume]) {
 			volumeMap[actualVolume] = [];
@@ -66,11 +72,13 @@ export const ffmpegVolumeExpression = (
 		volumeMap[actualVolume].push(frame);
 	});
 
-	// Sort the map so that the most common volume is last, this is going to be the else statement
+	// Sort the map so that the most common volume is last
+	// this is going to be the else statement so the expression is short
 	const volumeArray: VolumeArray = Object.keys(volumeMap)
 		.map((key): [number, number[]] => [Number(key), volumeMap[key]])
 		.sort((a, b) => a[1].length - b[1].length);
 
+	// Construct and tell FFMPEG it has to evaluate expression on each frame
 	const expression = ffmpegBuildVolumeExpression(volumeArray);
 	return {
 		eval: 'frame',
