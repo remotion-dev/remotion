@@ -46,6 +46,7 @@ type FfmpegVolumeExpression = {
 	value: string;
 };
 
+// TODO: Should remove irrelevant frames
 export const ffmpegVolumeExpression = (
 	volume: AssetVolume,
 	multiplier: number
