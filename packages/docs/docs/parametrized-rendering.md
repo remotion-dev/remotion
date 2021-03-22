@@ -66,6 +66,11 @@ make sure `defaultProps.json` is in your root folder.
   "propTwo": 10
 }
 ```
+### Or for inline json
+
+```bash
+npx remotion render src/index.tsx HelloWorld helloworld.mp4 --props='{"propOne": "Hi", "propTwo": 10}'
+```
 
 [See also: CLI flags](/docs/cli)
 
