@@ -8,9 +8,15 @@ export const getUserProps = (): unknown => {
 	}
 	const jsonFile = path.resolve(process.cwd(), parsedCli.props);
 	try {
-		const rawJsonData = fs.readFileSync(jsonFile, 'utf-8');
-		const parsed = JSON.parse(rawJsonData);
-		return parsed;
+		const splitProps = parsedCli.props.split('.');
+		if (splitProps[splitProps.length - 1] === 'json') {
+			const rawJsonData = fs.readFileSync(jsonFile, 'utf-8');
+			const parsed = JSON.parse(rawJsonData);
+			return parsed;
+		} else {
+			const parsed = JSON.parse(parsedCli.props);
+			return parsed;
+		}
 	} catch (err) {
 		if (err.code === 'ENOENT') {
 			console.log(err.message);
