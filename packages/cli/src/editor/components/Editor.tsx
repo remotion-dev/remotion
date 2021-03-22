@@ -7,6 +7,7 @@ import {
 	loadCheckerboardOption,
 } from '../state/checkerboard';
 import {PreviewSize, PreviewSizeContext} from '../state/preview-size';
+import {useTimelineFlex} from '../state/timeline';
 import {Timeline} from './Timeline';
 import {TopPanel} from './TopPanel';
 import {UpdateCheck} from './UpdateCheck';
@@ -25,6 +26,7 @@ const Root = Internals.getRoot();
 export const Editor: React.FC = () => {
 	const [size, setSize] = useState<PreviewSize>('auto');
 	const [checkerboard, setCheckerboard] = useState(loadCheckerboardOption);
+	const [timelineFlex, setTimelineFlex] = useTimelineFlex();
 
 	const previewCtx = useMemo(() => {
 		return {
@@ -55,7 +57,13 @@ export const Editor: React.FC = () => {
 							<TopPanel />
 						</ReflexElement>
 						<ReflexSplitter />
-						<ReflexElement flex={0.2} minSize={200}>
+						<ReflexElement
+							flex={timelineFlex}
+							minSize={200}
+							onStopResize={({component}) => {
+								setTimelineFlex(component.props.flex);
+							}}
+						>
 							<Timeline />
 						</ReflexElement>
 					</ReflexContainer>
