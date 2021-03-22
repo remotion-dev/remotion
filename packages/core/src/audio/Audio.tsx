@@ -35,7 +35,7 @@ export const Audio: React.FC<RemotionAudioProps & RemotionMainAudioProps> = (
 				);
 			}
 			if (isNaN(endAt)) {
-				throw new TypeError('startAt propcan not be NaN.');
+				throw new TypeError('endAt prop can not be NaN.');
 			}
 		}
 		if (typeof startAt !== 'undefined' && typeof endAt !== 'undefined') {
