@@ -162,11 +162,10 @@ export const render = async () => {
 	if (cacheExistedAfter && !cacheExistedBefore) {
 		console.log('⚡️ Cached bundle. Subsequent builds will be faster.');
 	}
-	const comps = await getCompositions(
-		bundled,
-		Internals.getBrowser() ?? Internals.DEFAULT_BROWSER,
-		userProps
-	);
+	const comps = await getCompositions(bundled, {
+		browser: Internals.getBrowser() || Internals.DEFAULT_BROWSER,
+		userProps,
+	});
 	const compositionId = getCompositionId(comps);
 
 	const config = comps.find((c) => c.id === compositionId);
