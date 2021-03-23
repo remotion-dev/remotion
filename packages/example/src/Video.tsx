@@ -10,7 +10,7 @@ export const Index: React.FC = () => {
 	return (
 		<>
 			<Composition
-				id="dinamically-duration"
+				id="dynamic-duration"
 				component={VideoTesting}
 				width={1080}
 				height={1080}
