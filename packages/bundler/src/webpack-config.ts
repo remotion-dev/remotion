@@ -37,7 +37,7 @@ export const webpackConfig = ({
 	webpackOverride?: WebpackOverrideFn;
 	onProgressUpdate?: (f: number) => void;
 	enableCaching?: boolean;
-	inputProps?: object | null;
+	inputProps?: object;
 }): WebpackConfiguration => {
 	return webpackOverride({
 		optimization: {
@@ -54,7 +54,7 @@ export const webpackConfig = ({
 		cache: enableCaching
 			? {
 					type: 'filesystem',
-					name: getWebpackCacheName(environment, inputProps ?? null),
+					name: getWebpackCacheName(environment, inputProps ?? {}),
 			  }
 			: false,
 		devtool: 'cheap-module-source-map',
@@ -76,7 +76,7 @@ export const webpackConfig = ({
 						new ReactRefreshPlugin(),
 						new webpack.HotModuleReplacementPlugin(),
 						new webpack.DefinePlugin({
-							'process.env.INPUT_PROPS': JSON.stringify(inputProps ?? null),
+							'process.env.INPUT_PROPS': JSON.stringify(inputProps ?? {}),
 						}),
 				  ]
 				: [
