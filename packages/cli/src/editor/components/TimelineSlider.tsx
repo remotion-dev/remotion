@@ -6,7 +6,6 @@ import {useWindowSize} from '../hooks/use-window-size';
 import {TimelineSliderHandle} from './TimelineSliderHandle';
 
 const Container = styled.div`
-	cursor: grab;
 	position: absolute;
 	bottom: 0;
 	top: 0;
