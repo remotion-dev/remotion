@@ -8,23 +8,18 @@ export const getUserProps = (): unknown => {
 	}
 	const jsonFile = path.resolve(process.cwd(), parsedCli.props);
 	try {
-		const splitProps = parsedCli.props.split('.');
-		if (splitProps[splitProps.length - 1] === 'json') {
+		if (fs.existsSync(jsonFile)) {
 			const rawJsonData = fs.readFileSync(jsonFile, 'utf-8');
-			const parsed = JSON.parse(rawJsonData);
-			return parsed;
-		} else {
-			const parsed = JSON.parse(parsedCli.props);
-			return parsed;
+			return JSON.parse(rawJsonData);
 		}
+		return JSON.parse(parsedCli.props);
 	} catch (err) {
-		if (err.code === 'ENOENT') {
-			console.log(err.message);
-		} else {
-			console.log(
-				'You passed --props but it was not valid JSON and could not be parsed.'
-			);
-		}
+		console.log(
+			'You passed --props but it was neither valid JSON nor a file path to a valid JSON file.'
+		);
+		console.log(
+			'Check that your input is parseable using `JSON-parse` and try again.'
+		);
 		process.exit(1);
 	}
 };
