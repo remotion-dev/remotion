@@ -16,10 +16,12 @@
     "@docusaurus/preset-classic": "2.0.0-alpha.70",
     "@mdx-js/react": "^1.6.21",
     "@splitbee/web": "^0.2.4",
+    "chalk": "^4.1.0",
     "clsx": "^1.1.1",
     "prism-react-renderer": "^1.1.1",
     "react": "^16.8.4",
-    "react-dom": "^16.8.4"
+    "react-dom": "^16.8.4",
+    "react-player": "^2.9.0"
   },
   "browserslist": {
     "production": [

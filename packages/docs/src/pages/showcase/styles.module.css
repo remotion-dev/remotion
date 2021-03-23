@@ -18,22 +18,14 @@
   }
 }
 
-.buttons {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
 .videos {
   display: flex;
   align-items: center;
   padding: 2rem 0;
   width: 100%;
 }
-
-.featureImage {
-  height: 200px;
-  width: 300px;
+.videoTitle {
+  margin-top: 1rem;
 }
 
 .container * {

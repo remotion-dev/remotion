@@ -1,4 +1,7 @@
 {
+  "compilerOptions": {
+      "jsx": "react"
+  },
   "extends": "@tsconfig/docusaurus/tsconfig.json",
   "include": ["src/"]
 }

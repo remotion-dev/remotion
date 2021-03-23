@@ -93,6 +93,10 @@ module.exports = {
               to: "blog",
             },
             {
+              label: "Showcase",
+              to: "showcase",
+            },
+            {
               label: "GitHub",
               href: "https://github.com/JonnyBurger/remotion",
             },
