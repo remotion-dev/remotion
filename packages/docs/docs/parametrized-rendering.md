@@ -49,27 +49,18 @@ By using `React.FC`, you can ensure type safety and avoid errors caused by typos
 
 ## Passing props in the CLI
 
-When rendering (for example using the `npm run build` script defined in `package.json`), you can override some or all default props by passing a CLI flag. It must be valid JSON, pay attention to quote escaping. Using this technique, no type safety can be guaranteed.
+When rendering (for example using the `npm run build` script defined in `package.json`), you can override some or all default props by passing a CLI flag. It must be either valid JSON or a path to a file that contains valid JSON. Using this technique, type safety cannot be guaranteed.
 
-```bash
-npx remotion render src/index.tsx HelloWorld helloworld.mp4 --props=defaultProps.json
-```
-
-:::tip
-make sure `defaultProps.json` is in your root folder.
-:::
-
-```json
-//defaultProps.json
-{
-  "propOne": "Hi",
-  "propTwo": 10
-}
-```
-### Or for inline json
+**Using inline JSON**
 
 ```bash
 npx remotion render src/index.tsx HelloWorld helloworld.mp4 --props='{"propOne": "Hi", "propTwo": 10}'
+```
+
+**Using a file path:**
+
+```bash
+npx remotion render src/index.tsx HelloWorld helloworld.mp4 --props=./path/to/props.json
 ```
 
 [See also: CLI flags](/docs/cli)
