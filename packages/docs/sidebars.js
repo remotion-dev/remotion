@@ -26,6 +26,7 @@ module.exports = {
         "using-randomness",
         "encoding",
         "transparent-videos",
+        "dynamic-metadata",
       ],
     },
     {
