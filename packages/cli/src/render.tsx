@@ -17,7 +17,7 @@ import {getFinalOutputCodec} from 'remotion/dist/config/codec';
 import {getCompositionId} from './get-composition-id';
 import {getConfigFileName} from './get-config-file-name';
 import {getOutputFilename} from './get-filename';
-import {getUserProps} from './get-user-props';
+import {getInputProps} from './get-input-props';
 import {getImageFormat} from './image-formats';
 import {loadConfigFile} from './load-config';
 import {parseCommandLine, parsedCli} from './parse-command-line';
@@ -88,7 +88,7 @@ export const render = async () => {
 
 	const outputFile = getOutputFilename(codec, shouldOutputImageSequence);
 	const overwrite = Internals.getShouldOverwrite();
-	const userProps = getUserProps();
+	const inputProps = getInputProps();
 	const quality = Internals.getQuality();
 	const browser = Internals.getBrowser() ?? Internals.DEFAULT_BROWSER;
 
@@ -163,7 +163,7 @@ export const render = async () => {
 	}
 	const comps = await getCompositions(bundled, {
 		browser: Internals.getBrowser() || Internals.DEFAULT_BROWSER,
-		userProps,
+		inputProps,
 	});
 	const compositionId = getCompositionId(comps);
 
@@ -198,7 +198,7 @@ export const render = async () => {
 			);
 			renderProgress.start(frameCount, 0);
 		},
-		userProps,
+		inputProps,
 		webpackBundle: bundled,
 		imageFormat,
 		quality,

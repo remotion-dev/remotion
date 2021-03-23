@@ -1,6 +1,6 @@
 import {parsedCli} from './parse-command-line';
 
-export const getUserProps = (): object => {
+export const getInputProps = (): object => {
 	if (!parsedCli.props) {
 		return {};
 	}
