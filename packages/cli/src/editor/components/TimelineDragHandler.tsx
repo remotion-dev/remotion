@@ -1,4 +1,4 @@
-import React, {useCallback, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {Internals, interpolate} from 'remotion';
 import styled from 'styled-components';
 import {TIMELINE_PADDING} from '../helpers/timeline-layout';
@@ -70,7 +70,7 @@ export const TimelineDragHandler: React.FC = ({children}) => {
 	);
 
 	const onPointerMove = useCallback(
-		(e: React.PointerEvent<HTMLDivElement>) => {
+		(e: PointerEvent) => {
 			if (!dragging.dragging) {
 				return;
 			}
@@ -87,16 +87,6 @@ export const TimelineDragHandler: React.FC = ({children}) => {
 		[dragging.dragging, setTimelinePosition, videoConfig, width]
 	);
 
-	const onPointerLeave = useCallback(() => {
-		setDragging({
-			dragging: false,
-		});
-		if (!dragging.dragging) {
-			return;
-		}
-		setPlaying(dragging.wasPlaying);
-	}, [dragging, setPlaying]);
-
 	const onPointerUp = useCallback(() => {
 		setDragging({
 			dragging: false,
@@ -107,13 +97,20 @@ export const TimelineDragHandler: React.FC = ({children}) => {
 		setPlaying(dragging.wasPlaying);
 	}, [dragging, setPlaying]);
 
+	useEffect(() => {
+		if (!dragging.dragging) {
+			return;
+		}
+		window.addEventListener('pointermove', onPointerMove);
+		window.addEventListener('pointerup', onPointerUp);
+		return () => {
+			window.removeEventListener('pointermove', onPointerMove);
+			window.removeEventListener('pointerup', onPointerUp);
+		};
+	}, [dragging.dragging, onPointerMove, onPointerUp]);
+
 	return (
-		<Container
-			onPointerDown={onPointerDown}
-			onPointerMove={onPointerMove}
-			onPointerLeave={onPointerLeave}
-			onPointerUp={onPointerUp}
-		>
+		<Container onPointerDown={onPointerDown} onPointerUp={onPointerUp}>
 			{children}
 		</Container>
 	);
