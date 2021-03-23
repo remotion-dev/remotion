@@ -98,7 +98,7 @@ const GetVideo = () => {
 
 render(
 	<Internals.RemotionRoot>
-		<Root {...inputProps} />
+		<Root />
 		<GetVideo />
 	</Internals.RemotionRoot>,
 	document.getElementById('container')
