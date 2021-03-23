@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import {parsedCli} from './parse-command-line';
 
-export const getUserProps = (): unknown => {
+export const getInputProps = (): object => {
 	if (!parsedCli.props) {
 		return {};
 	}

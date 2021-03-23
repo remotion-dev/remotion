@@ -28,6 +28,7 @@ export const webpackConfig = ({
 	webpackOverride = (f) => f,
 	onProgressUpdate,
 	enableCaching = Internals.DEFAULT_WEBPACK_CACHE_ENABLED,
+	inputProps,
 }: {
 	entry: string;
 	userDefinedComponent: string;
@@ -36,6 +37,7 @@ export const webpackConfig = ({
 	webpackOverride?: WebpackOverrideFn;
 	onProgressUpdate?: (f: number) => void;
 	enableCaching?: boolean;
+	inputProps?: object;
 }): WebpackConfiguration => {
 	return webpackOverride({
 		optimization: {
@@ -52,7 +54,7 @@ export const webpackConfig = ({
 		cache: enableCaching
 			? {
 					type: 'filesystem',
-					name: getWebpackCacheName(environment),
+					name: getWebpackCacheName(environment, inputProps ?? {}),
 			  }
 			: false,
 		devtool: 'cheap-module-source-map',
@@ -73,6 +75,9 @@ export const webpackConfig = ({
 						new ErrorOverlayPlugin(),
 						new ReactRefreshPlugin(),
 						new webpack.HotModuleReplacementPlugin(),
+						new webpack.DefinePlugin({
+							'process.env.INPUT_PROPS': JSON.stringify(inputProps ?? {}),
+						}),
 				  ]
 				: [
 						new ProgressPlugin((p) => {

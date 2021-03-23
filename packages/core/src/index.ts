@@ -4,6 +4,7 @@ export * from './AbsoluteFill';
 export * from './audio';
 export * from './Composition';
 export * from './config';
+export {getInputProps} from './config/input-props';
 export * from './easing';
 export * from './IFrame';
 export * from './Img';
