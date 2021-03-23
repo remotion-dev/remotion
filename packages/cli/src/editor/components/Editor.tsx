@@ -56,7 +56,7 @@ export const Editor: React.FC = () => {
 					<UpdateCheck />
 					<SplitterContainer
 						orientation="horizontal"
-						id="top-bottom"
+						id="top-to-bottom"
 						maxFlex={0.8}
 						minFlex={0.2}
 						defaultFlex={0.75}

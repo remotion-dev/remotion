@@ -9,6 +9,8 @@ export const SplitterElement: React.FC<{
 	const style: React.CSSProperties = useMemo(() => {
 		return {
 			flex: type === 'flexer' ? context.flexValue : 1 - context.flexValue,
+			display: 'flex',
+			position: 'relative',
 		};
 	}, [context.flexValue, type]);
 
