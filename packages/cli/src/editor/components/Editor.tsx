@@ -1,5 +1,4 @@
 import React, {useMemo, useState} from 'react';
-import {ReflexContainer, ReflexElement, ReflexSplitter} from 'react-reflex';
 import {Internals} from 'remotion';
 import styled from 'styled-components';
 import {
@@ -7,7 +6,9 @@ import {
 	loadCheckerboardOption,
 } from '../state/checkerboard';
 import {PreviewSize, PreviewSizeContext} from '../state/preview-size';
-import {useTimelineFlex} from '../state/timeline';
+import {SplitterContainer} from './Splitter/SplitterContainer';
+import {SplitterElement} from './Splitter/SplitterElement';
+import {SplitterHandle} from './Splitter/SplitterHandle';
 import {Timeline} from './Timeline';
 import {TopPanel} from './TopPanel';
 import {UpdateCheck} from './UpdateCheck';
@@ -28,7 +29,6 @@ export const Editor: React.FC = () => {
 	const [checkerboard, setCheckerboard] = useState(() =>
 		loadCheckerboardOption()
 	);
-	const [timelineFlex, setTimelineFlex] = useTimelineFlex();
 
 	const previewCtx = useMemo(() => {
 		return {
@@ -54,21 +54,21 @@ export const Editor: React.FC = () => {
 				<Background>
 					<Root />
 					<UpdateCheck />
-					<ReflexContainer orientation="horizontal">
-						<ReflexElement>
+					<SplitterContainer
+						orientation="horizontal"
+						id="top-bottom"
+						maxFlex={0.8}
+						minFlex={0.2}
+						defaultFlex={0.75}
+					>
+						<SplitterElement type="flexer">
 							<TopPanel />
-						</ReflexElement>
-						<ReflexSplitter />
-						<ReflexElement
-							flex={timelineFlex}
-							minSize={200}
-							onStopResize={({component}) => {
-								setTimelineFlex(component.props.flex);
-							}}
-						>
+						</SplitterElement>
+						<SplitterHandle />
+						<SplitterElement type="anti-flexer">
 							<Timeline />
-						</ReflexElement>
-					</ReflexContainer>
+						</SplitterElement>
+					</SplitterContainer>
 				</Background>
 			</PreviewSizeContext.Provider>
 		</CheckerboardContext.Provider>
