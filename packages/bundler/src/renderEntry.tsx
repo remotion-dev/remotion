@@ -7,7 +7,13 @@ import React, {
 	useState,
 } from 'react';
 import {render} from 'react-dom';
-import {continueRender, delayRender, Internals, TComposition} from 'remotion';
+import {
+	continueRender,
+	delayRender,
+	getInputProps,
+	Internals,
+	TComposition,
+} from 'remotion';
 
 const Root = Internals.getRoot();
 
@@ -25,20 +31,12 @@ const Fallback: React.FC = () => {
 	return null;
 };
 
-const getUserProps = () => {
-	const param = new URLSearchParams(window.location.search).get('props');
-	if (!param) {
-		return {};
-	}
-	const parsed = JSON.parse(decodeURIComponent(param));
-	return parsed;
-};
+const inputProps = getInputProps();
 
 const GetVideo = () => {
 	const video = Internals.useVideo();
 	const compositions = useContext(Internals.CompositionManager);
 	const [Component, setComponent] = useState<ComponentType | null>(null);
-	const userProps = getUserProps();
 
 	useEffect(() => {
 		if (Internals.getIsEvaluation()) {
@@ -91,7 +89,7 @@ const GetVideo = () => {
 				}}
 			>
 				{Component ? (
-					<Component {...((video?.props as {}) ?? {})} {...userProps} />
+					<Component {...((video?.props as {}) ?? {})} {...inputProps} />
 				) : null}
 			</div>
 		</Suspense>
