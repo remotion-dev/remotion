@@ -1,3 +1,7 @@
+html {
+	--blue: #4290f5;
+}
+
 body {
 	overscroll-behavior-y: none;
 	overscroll-behavior-x: none;
@@ -59,7 +63,7 @@ body.reflex-row-resize {
 
 .reflex-container > .reflex-splitter.active,
 .reflex-container > .reflex-splitter:hover {
-	background-color: #4290f5;
+	background-color: var(--blue);
 }
 
 .horizontal > .reflex-splitter {
@@ -80,8 +84,8 @@ body.reflex-row-resize {
 
 .reflex-container.horizontal > .reflex-splitter:hover,
 .reflex-container.horizontal > .reflex-splitter.active {
-	border-bottom: 1px solid #4290f5;
-	border-top: 1px solid #4290f5;
+	border-bottom: 1px solid var(--blue);
+	border-top: 1px solid var(--blue);
 }
 
 .reflex-container.vertical > .reflex-splitter {
