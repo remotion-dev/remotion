@@ -107,7 +107,7 @@ export const webpackConfig = ({
 				{
 					test: /\.(woff|woff2)$/,
 					use: {
-						loader: 'url-loader',
+						loader: require.resolve('url-loader'),
 					},
 				},
 				{
