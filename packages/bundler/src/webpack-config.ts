@@ -11,15 +11,6 @@ export function truthy<T>(value: T): value is Truthy<T> {
 	return Boolean(value);
 }
 
-const envPreset = [
-	require.resolve('@babel/preset-env'),
-	{
-		targets: {
-			chrome: '85',
-		},
-	},
-] as const;
-
 export const webpackConfig = ({
 	entry,
 	userDefinedComponent,
@@ -66,6 +57,7 @@ export const webpackConfig = ({
 				? require.resolve('@webhotelier/webpack-fast-refresh/runtime.js')
 				: null,
 			userDefinedComponent,
+			require.resolve('../react-shim.js'),
 			entry,
 		].filter(Boolean) as [string, ...string[]],
 		mode: environment,
@@ -136,31 +128,10 @@ export const webpackConfig = ({
 					test: /\.tsx?$/,
 					use: [
 						{
-							loader: require.resolve('babel-loader'),
+							loader: require.resolve('esbuild-loader'),
 							options: {
-								presets: [
-									envPreset,
-									[
-										require.resolve('@babel/preset-react'),
-										{
-											runtime: 'automatic',
-										},
-									],
-									[
-										require.resolve('@babel/preset-typescript'),
-										{
-											runtime: 'automatic',
-											isTSX: true,
-											allExtensions: true,
-										},
-									],
-								],
-								plugins: [
-									require.resolve('@babel/plugin-proposal-class-properties'),
-									environment === 'development'
-										? require.resolve('react-refresh/babel')
-										: null,
-								].filter(truthy),
+								loader: 'tsx',
+								target: 'chrome85',
 							},
 						},
 						environment === 'development'
@@ -174,20 +145,10 @@ export const webpackConfig = ({
 				},
 				{
 					test: /\.jsx?$/,
-					loader: require.resolve('babel-loader'),
+					loader: require.resolve('esbuild-loader'),
 					options: {
-						presets: [
-							envPreset,
-							[
-								require.resolve('@babel/preset-react'),
-								{
-									runtime: 'automatic',
-								},
-							],
-						],
-						plugins: [
-							require.resolve('@babel/plugin-proposal-class-properties'),
-						],
+						loader: 'jsx',
+						target: 'chrome85',
 					},
 				},
 			],
