@@ -16,6 +16,7 @@ export const startServer = async (
 	userDefinedComponent: string,
 	options?: {
 		webpackOverride?: WebpackOverrideFn;
+		inputProps?: object;
 	}
 ): Promise<number> => {
 	const app = express();
@@ -30,6 +31,7 @@ export const startServer = async (
 		environment: 'development',
 		webpackOverride:
 			options?.webpackOverride ?? Internals.getWebpackOverrideFn(),
+		inputProps: options?.inputProps ?? null,
 	});
 	const compiler = webpack(config);
 

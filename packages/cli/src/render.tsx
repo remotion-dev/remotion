@@ -20,12 +20,11 @@ import {getOutputFilename} from './get-filename';
 import {getUserProps} from './get-user-props';
 import {getImageFormat} from './image-formats';
 import {loadConfigFile} from './load-config';
-import {parseCommandLine} from './parse-command-line';
+import {parseCommandLine, parsedCli} from './parse-command-line';
 import {getUserPassedFileExtension} from './user-passed-output-location';
 
 export const render = async () => {
-	const args = process.argv;
-	const file = args[3];
+	const file = parsedCli._[1];
 	const fullPath = path.join(process.cwd(), file);
 
 	const configFileName = getConfigFileName();
@@ -141,10 +140,10 @@ export const render = async () => {
 	);
 
 	const shouldCache = Internals.getWebpackCaching();
-	const cacheExistedBefore = cacheExists('production');
+	const cacheExistedBefore = cacheExists('production', null);
 	if (cacheExistedBefore && !shouldCache) {
 		process.stdout.write('🧹 Cache disabled but found. Deleting... ');
-		await clearCache('production');
+		await clearCache('production', null);
 		process.stdout.write('done. \n');
 	}
 	bundlingProgress.start(100, 0);
@@ -158,7 +157,7 @@ export const render = async () => {
 		}
 	);
 	bundlingProgress.stop();
-	const cacheExistedAfter = cacheExists('production');
+	const cacheExistedAfter = cacheExists('production', null);
 	if (cacheExistedAfter && !cacheExistedBefore) {
 		console.log('⚡️ Cached bundle. Subsequent builds will be faster.');
 	}
