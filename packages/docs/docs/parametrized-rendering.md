@@ -5,7 +5,7 @@ title: Parametrized rendering
 
 Parametrized rendering is the idea of creating a video template once and then render as many videos as you want with different parameters. Just like in regular React, we use props to reuse and customize components!
 
-## Defining accepted props and default values
+## Defining accepted props
 
 To define which props your video accepts, simply give your component the `React.FC` type and pass in a generic argument describing the shape of the props you want to accept.
 
@@ -19,6 +19,8 @@ export const MyComponent: React.FC<{
   );
 }
 ```
+
+## Define default props
 
 When registering the component as a sequence, you can define the default props:
 
@@ -47,7 +49,11 @@ export const Root = () => {
 
 By using `React.FC`, you can ensure type safety and avoid errors caused by typos.
 
-## Passing props in the CLI
+## Input props
+
+Input props are props that are passed in externally while rendering that can replace or override the default props
+
+### Passing input props in the CLI
 
 When rendering (for example using the `npm run build` script defined in `package.json`), you can override some or all default props by passing a CLI flag. It must be valid JSON, pay attention to quote escaping. Using this technique, no type safety can be guaranteed.
 
@@ -57,9 +63,9 @@ npx remotion render src/index.tsx HelloWorld helloworld.mp4 --props='{"propOne":
 
 [See also: CLI flags](/docs/cli)
 
-## Passing props when server rendering
+### Passing input props when server rendering
 
-When server-rendering using `renderFrames`, you can pass props using the `userProps` option:
+When server-rendering using `renderFrames`, you can pass props using the `inputProps` option:
 
 ```tsx {8-10}
 await renderFrames({
@@ -69,7 +75,7 @@ await renderFrames({
   onFrameUpdate: (f) => void 0,
   parallelism: null,
   outputDir: framesDir,
-  userProps: {
+  inputProps: {
     titleText: 'Hello World'
   },
   compositionId: 'HelloWorld',
@@ -77,7 +83,7 @@ await renderFrames({
 });
 ```
 
-## Passing props in GitHub Actions
+### Passing input props in GitHub Actions
 
 [See: Render using GitHub Actions](/docs/ssr#render-using-github-actions)
 
@@ -95,6 +101,12 @@ workflow_dispatch:
       required: true
       default: "black"
 ```
+
+### Retrieve input props
+
+Input props are passed to the component of your composition directly and you can access as regular React component props.
+
+_Available since v2.0._: You can also use the `getInputProps()` function to retrieve props that you have given as an input. This is useful if you need to retrieve the props in a position where you are not inside your component, such as when determining the video duration, dimensions or frame rate.
 
 ## You can still use components as normal
 
