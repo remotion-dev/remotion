@@ -1,23 +1,22 @@
 import React from 'react';
-import {Composition} from 'remotion';
+import {Composition, getInputProps} from 'remotion';
 import {Framer} from './Framer';
 import {MissingImg} from './MissingImg';
 import {TenFrameTester} from './TenFrameTester';
 import {VideoTesting} from './VideoTesting';
 
-export const Index: React.FC<{[key: string]: unknown}> = ({duration}) => {
+export const Index: React.FC = () => {
+	const inputProps = getInputProps();
 	return (
 		<>
-			{duration ? (
-				<Composition
-					id="dinamically-duration"
-					component={VideoTesting}
-					width={1080}
-					height={1080}
-					fps={30}
-					durationInFrames={duration as number}
-				/>
-			) : null}
+			<Composition
+				id="dinamically-duration"
+				component={VideoTesting}
+				width={1080}
+				height={1080}
+				fps={30}
+				durationInFrames={inputProps.duration ?? 20}
+			/>
 			<Composition
 				id="nested"
 				lazyComponent={() => import('./NestedSequences')}
@@ -33,6 +32,9 @@ export const Index: React.FC<{[key: string]: unknown}> = ({duration}) => {
 				height={1080}
 				fps={30}
 				durationInFrames={3 * 30}
+				defaultProps={{
+					word1: getInputProps().word1,
+				}}
 			/>
 			<Composition
 				id="black-gradients"
