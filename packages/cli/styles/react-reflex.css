@@ -1,3 +1,8 @@
+body {
+	overscroll-behavior-y: none;
+	overscroll-behavior-x: none;
+}
+
 body.reflex-col-resize {
 	cursor: col-resize;
 }
@@ -8,14 +13,8 @@ body.reflex-row-resize {
 
 .reflex-container {
 	justify-content: flex-start;
-	/* align items in Main Axis */
 	align-items: stretch;
-	/* align items in Cross Axis */
 	align-content: stretch;
-	/* OLD - iOS 6-, Safari 3.1-6 */
-	/* OLD - Firefox 19- (buggy but mostly works) */
-	/* TWEENER - IE 10 */
-	/* NEW - Chrome */
 	display: flex;
 	position: relative;
 	height: 100%;
@@ -53,19 +52,19 @@ body.reflex-row-resize {
 }
 
 .reflex-container > .reflex-splitter {
-	background-color: #eeeeee;
+	background-color: #222;
 	z-index: 100;
+	transition: border-bottom-color 0.3s ease, border-top-color 0.3s ease;
 }
 
 .reflex-container > .reflex-splitter.active,
 .reflex-container > .reflex-splitter:hover {
-	background-color: #c6c6c6;
-	transition: all 1s ease;
+	background-color: #4290f5;
 }
 
 .horizontal > .reflex-splitter {
-	border-bottom: 1px solid #c6c6c6;
-	border-top: 1px solid #c6c6c6;
+	border-bottom: 1px solid #000;
+	border-top: 1px solid #000;
 	cursor: row-resize;
 	width: 100%;
 	height: 2px;
@@ -81,8 +80,8 @@ body.reflex-row-resize {
 
 .reflex-container.horizontal > .reflex-splitter:hover,
 .reflex-container.horizontal > .reflex-splitter.active {
-	border-bottom: 1px solid #eeeeee;
-	border-top: 1px solid #eeeeee;
+	border-bottom: 1px solid #4290f5;
+	border-top: 1px solid #4290f5;
 }
 
 .reflex-container.vertical > .reflex-splitter {
@@ -120,7 +119,6 @@ body.reflex-row-resize {
 	> .reflex-splitter.reflex-thin.active
 	.reflex-container
 	> .reflex-splitter.reflex-thin:hover {
-	transition: all 1.5s ease;
 	opacity: 0.5;
 }
 
