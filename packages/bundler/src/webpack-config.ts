@@ -107,12 +107,12 @@ export const webpackConfig = ({
 				{
 					test: /\.(woff|woff2)$/,
 					use: {
-						loader: 'url-loader',
+						loader: require.resolve('url-loader'),
 					},
 				},
 				{
 					test: /\.css$/i,
-					use: ['style-loader', 'css-loader'],
+					use: [require.resolve('style-loader'), require.resolve('css-loader')],
 				},
 				{
 					test: /\.(png|svg|jpg|jpeg|webp|gif|bmp|webm|mp4|mp3|wav|aac)$/,

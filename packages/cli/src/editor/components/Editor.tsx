@@ -6,6 +6,9 @@ import {
 	loadCheckerboardOption,
 } from '../state/checkerboard';
 import {PreviewSize, PreviewSizeContext} from '../state/preview-size';
+import {SplitterContainer} from './Splitter/SplitterContainer';
+import {SplitterElement} from './Splitter/SplitterElement';
+import {SplitterHandle} from './Splitter/SplitterHandle';
 import {Timeline} from './Timeline';
 import {TopPanel} from './TopPanel';
 import {UpdateCheck} from './UpdateCheck';
@@ -23,7 +26,9 @@ const Root = Internals.getRoot();
 
 export const Editor: React.FC = () => {
 	const [size, setSize] = useState<PreviewSize>('auto');
-	const [checkerboard, setCheckerboard] = useState(loadCheckerboardOption());
+	const [checkerboard, setCheckerboard] = useState(() =>
+		loadCheckerboardOption()
+	);
 
 	const previewCtx = useMemo(() => {
 		return {
@@ -42,14 +47,28 @@ export const Editor: React.FC = () => {
 	if (!Root) {
 		throw new Error('Root has not been registered. ');
 	}
+
 	return (
 		<CheckerboardContext.Provider value={checkerboardCtx}>
 			<PreviewSizeContext.Provider value={previewCtx}>
 				<Background>
 					<Root />
 					<UpdateCheck />
-					<TopPanel />
-					<Timeline />
+					<SplitterContainer
+						orientation="horizontal"
+						id="top-to-bottom"
+						maxFlex={0.8}
+						minFlex={0.2}
+						defaultFlex={0.75}
+					>
+						<SplitterElement type="flexer">
+							<TopPanel />
+						</SplitterElement>
+						<SplitterHandle />
+						<SplitterElement type="anti-flexer">
+							<Timeline />
+						</SplitterElement>
+					</SplitterContainer>
 				</Background>
 			</PreviewSizeContext.Provider>
 		</CheckerboardContext.Provider>
