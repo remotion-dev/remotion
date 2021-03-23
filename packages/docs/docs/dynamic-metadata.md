@@ -83,3 +83,7 @@ export const Index: React.FC = () => {
   )
 }
 ```
+
+## See also
+
+- [`getInputProps()`](get-input-props)

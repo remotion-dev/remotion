@@ -38,6 +38,7 @@ module.exports = {
         "continue-render",
         "delay-render",
         "interpolate",
+        "get-input-props",
         "random",
         "register-root",
         "spring",
