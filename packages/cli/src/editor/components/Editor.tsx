@@ -25,7 +25,9 @@ const Root = Internals.getRoot();
 
 export const Editor: React.FC = () => {
 	const [size, setSize] = useState<PreviewSize>('auto');
-	const [checkerboard, setCheckerboard] = useState(loadCheckerboardOption);
+	const [checkerboard, setCheckerboard] = useState(() =>
+		loadCheckerboardOption()
+	);
 	const [timelineFlex, setTimelineFlex] = useTimelineFlex();
 
 	const previewCtx = useMemo(() => {
