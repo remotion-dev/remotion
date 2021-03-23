@@ -31,7 +31,7 @@ export const startServer = async (
 		environment: 'development',
 		webpackOverride:
 			options?.webpackOverride ?? Internals.getWebpackOverrideFn(),
-		inputProps: options?.inputProps ?? null,
+		inputProps: options?.inputProps ?? {},
 	});
 	const compiler = webpack(config);
 
