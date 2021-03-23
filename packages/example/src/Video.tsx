@@ -15,7 +15,8 @@ export const Index: React.FC = () => {
 				width={1080}
 				height={1080}
 				fps={30}
-				durationInFrames={inputProps.duration ?? 20}
+				// Change the duration of the video dynamically by passing `--props='{"duration": 100}'`
+				durationInFrames={inputProps?.duration ?? 20}
 			/>
 			<Composition
 				id="nested"
