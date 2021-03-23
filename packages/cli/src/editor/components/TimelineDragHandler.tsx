@@ -9,7 +9,11 @@ const Container = styled.div`
 	position: relative;
 	padding: ${TIMELINE_PADDING}px;
 	user-select: none;
+`;
+
+const Inner = styled.div`
 	overflow-y: auto;
+	overflow-x: hidden;
 `;
 
 const getFrameFromX = (
@@ -111,7 +115,7 @@ export const TimelineDragHandler: React.FC = ({children}) => {
 
 	return (
 		<Container onPointerDown={onPointerDown} onPointerUp={onPointerUp}>
-			{children}
+			<Inner>{children}</Inner>
 		</Container>
 	);
 };
