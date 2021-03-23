@@ -4,7 +4,7 @@ import {serveStatic} from './serve-static';
 
 export const getCompositions = async (
 	webpackBundle: string,
-	config?: {browser?: Browser; userProps?: unknown}
+	config?: {browser?: Browser; userProps?: object | null}
 ): Promise<TCompMetadata[]> => {
 	const browserInstance = await openBrowser(
 		config?.browser || Internals.DEFAULT_BROWSER
@@ -13,7 +13,11 @@ export const getCompositions = async (
 
 	const {port, close} = await serveStatic(webpackBundle);
 
-	await page.goto(`http://localhost:${port}/index.html?evaluation=true`);
+	await page.goto(
+		`http://localhost:${port}/index.html?evaluation=true&props=${encodeURIComponent(
+			JSON.stringify(config?.userProps ?? null)
+		)}`
+	);
 	await page.waitForFunction('window.ready === true');
 	const result = await page.evaluate('window.getStaticCompositions()');
 	await close();
