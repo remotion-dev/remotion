@@ -7,5 +7,6 @@
 		"skipLibCheck": true,
 		"allowSyntheticDefaultImports": true
 	},
-	"include": ["src"]
+	"include": ["src"],
+	"references": [{"path": "../core"}, {"path": "../babel-loader"}]
 }
