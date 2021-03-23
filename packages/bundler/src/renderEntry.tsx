@@ -31,7 +31,7 @@ const Fallback: React.FC = () => {
 	return null;
 };
 
-const userProps = getInputProps();
+const inputProps = getInputProps();
 
 const GetVideo = () => {
 	const video = Internals.useVideo();
@@ -89,7 +89,7 @@ const GetVideo = () => {
 				}}
 			>
 				{Component ? (
-					<Component {...((video?.props as {}) ?? {})} {...userProps} />
+					<Component {...((video?.props as {}) ?? {})} {...inputProps} />
 				) : null}
 			</div>
 		</Suspense>
@@ -98,7 +98,7 @@ const GetVideo = () => {
 
 render(
 	<Internals.RemotionRoot>
-		<Root {...userProps} />
+		<Root {...inputProps} />
 		<GetVideo />
 	</Internals.RemotionRoot>,
 	document.getElementById('container')

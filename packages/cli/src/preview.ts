@@ -5,7 +5,7 @@ import betterOpn from 'better-opn';
 import path from 'path';
 import xns from 'xns';
 import {getConfigFileName} from './get-config-file-name';
-import {getUserProps} from './get-user-props';
+import {getInputProps} from './get-input-props';
 import {loadConfigFile} from './load-config';
 import {parsedCli} from './parse-command-line';
 
@@ -15,7 +15,7 @@ export const previewCommand = xns(async () => {
 
 	loadConfigFile(getConfigFileName());
 
-	const inputProps = getUserProps();
+	const inputProps = getInputProps();
 
 	const port = await startServer(
 		path.resolve(__dirname, 'previewEntry.js'),
