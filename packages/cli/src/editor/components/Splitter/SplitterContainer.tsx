@@ -25,7 +25,7 @@ export const SplitterContainer: React.FC<{
 	id: string;
 	defaultFlex: number;
 }> = ({orientation, children, defaultFlex, maxFlex, minFlex, id}) => {
-	const [initialTimelineFlex, persistFlex] = useTimelineFlex();
+	const [initialTimelineFlex, persistFlex] = useTimelineFlex(id);
 	const [flexValue, setFlexValue] = useState(
 		initialTimelineFlex ?? defaultFlex
 	);

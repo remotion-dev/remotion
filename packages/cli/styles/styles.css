@@ -10,6 +10,7 @@ body {
 .remotion-splitter {
 	background-color: black;
 	transition: background-color 0.2s ease;
+	user-select: none;
 }
 
 .remotion-splitter:hover,

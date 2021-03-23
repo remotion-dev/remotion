@@ -1,12 +1,16 @@
 import React, {useContext, useEffect, useRef, useState} from 'react';
 import {SplitterContext} from './SplitterContext';
 
-export const SPLITTER_HANDLE_SIZE = 2;
+export const SPLITTER_HANDLE_SIZE = 3;
 
-const container: React.CSSProperties = {
+const containerRow: React.CSSProperties = {
 	height: SPLITTER_HANDLE_SIZE,
 	cursor: 'row-resize',
-	userSelect: 'none',
+};
+
+const containerColumn: React.CSSProperties = {
+	width: SPLITTER_HANDLE_SIZE,
+	cursor: 'col-resize',
 };
 
 export const SplitterHandle: React.FC = () => {
@@ -30,10 +34,26 @@ export const SplitterHandle: React.FC = () => {
 		}
 
 		const getNewValue = (e: PointerEvent) => {
-			const height = context.domRect?.height ?? 0;
-			const change =
-				(e.clientY - context.isDragging.current.y) /
-				(height - SPLITTER_HANDLE_SIZE);
+			if (!context.isDragging.current) {
+				throw new Error('cannot get value if not dragging');
+			}
+			if (!context.domRect) {
+				throw new Error('domRect is not mounted');
+			}
+			const {width, height} = context.domRect;
+			const change = (() => {
+				if (context.orientation === 'vertical') {
+					return (
+						(e.clientX - context.isDragging.current.x) /
+						(width - SPLITTER_HANDLE_SIZE)
+					);
+				}
+				return (
+					(e.clientY - context.isDragging.current.y) /
+					(height - SPLITTER_HANDLE_SIZE)
+				);
+			})();
+
 			const newFlex = context.flexValue + change;
 			return Math.min(context.maxFlex, Math.max(context.minFlex, newFlex));
 		};
@@ -80,5 +100,13 @@ export const SplitterHandle: React.FC = () => {
 		};
 	}, [context, context.domRect, context.flexValue, lastPointerUp]);
 
-	return <div ref={ref} className="remotion-splitter" style={container} />;
+	return (
+		<div
+			ref={ref}
+			className="remotion-splitter"
+			style={
+				context.orientation === 'horizontal' ? containerRow : containerColumn
+			}
+		/>
+	);
 };
