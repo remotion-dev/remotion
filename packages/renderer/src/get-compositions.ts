@@ -13,11 +13,7 @@ export const getCompositions = async (
 
 	const {port, close} = await serveStatic(webpackBundle);
 
-	await page.goto(
-		`http://localhost:${port}/index.html?evaluation=true&props=${encodeURIComponent(
-			JSON.stringify(config?.userProps || {})
-		)}`
-	);
+	await page.goto(`http://localhost:${port}/index.html?evaluation=true`);
 	await page.waitForFunction('window.ready === true');
 	const result = await page.evaluate('window.getStaticCompositions()');
 	await close();
