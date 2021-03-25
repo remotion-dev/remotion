@@ -1,4 +1,4 @@
-import {TAsset, TSequence} from 'remotion';
+import {TSequence} from 'remotion';
 
 export type SequenceWithOverlap = {
 	sequence: TSequence;
@@ -7,124 +7,45 @@ export type SequenceWithOverlap = {
 
 export type Track = {
 	trackId: string;
-	sequences: SequenceWithOverlap[];
-};
-
-export const calculateOverlays = (
-	sequences: TSequence[]
-): SequenceWithOverlap[] => {
-	return sequences.map((s) => {
-		const overlaps = sequences
-			.filter((otherS) => s.id !== otherS.id)
-			.filter((otherS) => {
-				const otherStart = otherS.from;
-				const otherEnd = otherS.duration + otherStart;
-				const thisStart = s.from;
-				const thisEnd = s.duration + thisStart;
-				if (otherStart < thisEnd && otherEnd > thisStart) {
-					return true;
-				}
-				if (thisStart < otherEnd && thisEnd > otherStart) {
-					return true;
-				}
-				return false;
-			});
-		return {
-			sequence: s,
-			overlaps,
-		};
-	});
-};
-
-export const numberOfOverlapsWithPrevious = (
-	sequences: SequenceWithOverlap[],
-	index: number
-) => {
-	const sequencesBefore = sequences.slice(0, index);
-	const sequence = sequences[index];
-	return sequence.overlaps.filter((overlap) => {
-		return sequencesBefore.find((sb) => sb.sequence.id === overlap.id);
-	}).length;
-};
-
-const getAudioTracks = (
-	assets: TAsset[],
-	sequenceDuration: number
-): Track[] => {
-	return assets.map(
-		(a, i): Track => {
-			const fileNameSegments = a.src.split('/');
-			return {
-				sequences: [
-					{
-						overlaps: [],
-						sequence: {
-							displayName: fileNameSegments[fileNameSegments.length - 1],
-							// TODO: WRONG
-							duration: sequenceDuration,
-							from: 0,
-							id: `audio-${i}`,
-							parent: null,
-							type: 'audio',
-							src: a.src,
-						},
-					},
-				],
-				trackId: `audio-${i}`,
-			};
-		}
-	);
+	sequences: TSequence[];
 };
 
 export const calculateTimeline = ({
-	assets,
 	sequences,
 	sequenceDuration,
 }: {
-	assets: TAsset[];
 	sequences: TSequence[];
 	sequenceDuration: number;
 }): Track[] => {
-	const sWithOverlays = calculateOverlays(sequences);
 	const tracks: Track[] = [];
 
-	if (sWithOverlays.length === 0) {
+	if (sequences.length === 0) {
 		return [
 			{
 				sequences: [
 					{
-						overlaps: [],
-						sequence: {
-							displayName: '',
-							duration: sequenceDuration,
-							from: 0,
-							id: 'seq',
-							parent: null,
-							type: 'sequence',
-						},
+						displayName: '',
+						duration: sequenceDuration,
+						from: 0,
+						id: 'seq',
+						parent: null,
+						type: 'sequence',
 					},
 				],
 				trackId: '0',
 			},
-			...getAudioTracks(assets, sequenceDuration),
 		];
 	}
 
-	for (let i = 0; i < sWithOverlays.length; i++) {
-		const sequence = sWithOverlays[i];
-		// Not showing nested sequences
-		if (sequence.sequence.parent) {
-			continue;
-		}
-		const overlayCount = numberOfOverlapsWithPrevious(sWithOverlays, i);
-		if (!tracks[overlayCount]) {
-			tracks[overlayCount] = {
+	for (let i = 0; i < sequences.length; i++) {
+		const sequence = sequences[i];
+		if (!tracks[i]) {
+			tracks[i] = {
 				sequences: [],
-				trackId: String(overlayCount),
+				trackId: String(i),
 			};
 		}
-		tracks[overlayCount].sequences.push(sequence);
+		tracks[i].sequences.push(sequence);
 	}
-	tracks.push(...getAudioTracks(assets, sequenceDuration));
 	return tracks;
 };

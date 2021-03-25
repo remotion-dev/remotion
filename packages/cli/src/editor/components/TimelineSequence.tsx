@@ -1,7 +1,6 @@
 import React, {useMemo} from 'react';
-import {Internals} from 'remotion';
+import {Internals, TSequence} from 'remotion';
 import styled from 'styled-components';
-import {SequenceWithOverlap} from '../helpers/calculate-timeline';
 import {TIMELINE_PADDING} from '../helpers/timeline-layout';
 import {useWindowSize} from '../hooks/use-window-size';
 import {AudioWaveform} from './AudioWaveform';
@@ -20,14 +19,14 @@ const Pre = styled.pre`
 export const TIMELINE_LAYER_HEIGHT = 80;
 
 export const TimelineSequence: React.FC<{
-	s: SequenceWithOverlap;
+	s: TSequence;
 }> = ({s}) => {
 	const {width} = useWindowSize();
 
 	// If a duration is 1, it is essentially a still and it should have width 0
 	const spatialDuration = Internals.FEATURE_FLAG_V2_BREAKING_CHANGES
-		? s.sequence.duration - 1
-		: s.sequence.duration;
+		? s.duration - 1
+		: s.duration;
 	const video = Internals.useVideo();
 
 	if (!video) {
@@ -44,15 +43,15 @@ export const TimelineSequence: React.FC<{
 			position: 'absolute',
 			height: TIMELINE_LAYER_HEIGHT,
 			marginTop: 1,
-			marginLeft: `calc(${(s.sequence.from / lastFrame) * 100}%)`,
+			marginLeft: `calc(${(s.from / lastFrame) * 100}%)`,
 			width:
-				s.sequence.duration === Infinity
+				s.duration === Infinity
 					? width - TIMELINE_PADDING * 2
 					: (spatialDuration / lastFrame) * width - TIMELINE_PADDING * 2,
 			color: 'white',
 			overflow: 'hidden',
 		};
-	}, [lastFrame, s.sequence.duration, s.sequence.from, spatialDuration, width]);
+	}, [lastFrame, s.duration, s.from, spatialDuration, width]);
 
 	const row: React.CSSProperties = useMemo(() => {
 		return {
@@ -68,7 +67,7 @@ export const TimelineSequence: React.FC<{
 	const thumbnailFit = Math.ceil(width / thumbnailWidth);
 
 	return (
-		<div key={s.sequence.id} style={style} title={s.sequence.displayName}>
+		<div key={s.id} style={style} title={s.displayName}>
 			<div style={row}>
 				{Internals.FEATURE_FLAG_RICH_PREVIEWS
 					? new Array(thumbnailFit).fill(true).map((_, i) => {
@@ -87,10 +86,8 @@ export const TimelineSequence: React.FC<{
 					  })
 					: null}
 			</div>
-			{s.sequence.type === 'audio' ? (
-				<AudioWaveform src={s.sequence.src} />
-			) : null}
-			<Pre>{s.sequence.displayName}</Pre>
+			{s.type === 'audio' ? <AudioWaveform src={s.src} /> : null}
+			<Pre>{s.displayName}</Pre>
 		</div>
 	);
 };
