@@ -1,5 +1,8 @@
 import React, {useEffect, useMemo, useState} from 'react';
-import {getAudioMetadata} from '../helpers/get-audio-metadata';
+import {
+	AudioContextMetadata,
+	getAudioMetadata,
+} from '../helpers/get-audio-metadata';
 import {getWaveformSamples} from '../helpers/reduce-waveform';
 import {TIMELINE_LAYER_HEIGHT} from '../helpers/timeline-layout';
 import {AudioWaveformBar} from './AudioWaveformBar';
@@ -22,12 +25,11 @@ export const AudioWaveform: React.FC<{
 }> = ({src, fps, startFrom, duration}) => {
 	// TODO: Resize to timeline length so it aligns with cursor
 
-	const [waveform, setWaveform] = useState<Float32Array | null>(null);
+	const [metadata, setMetadata] = useState<AudioContextMetadata | null>(null);
 	useEffect(() => {
 		getAudioMetadata(src)
 			.then((data) => {
-				console.log(data);
-				setWaveform(data.waveform);
+				setMetadata(data);
 			})
 			.catch((err) => {
 				console.error(`Could not load waveform for ${src}`, err);
@@ -35,18 +37,18 @@ export const AudioWaveform: React.FC<{
 	}, [src]);
 
 	const normalized = useMemo(() => {
-		if (!waveform) {
+		if (!metadata || metadata.numberOfChannels === 0) {
 			return [];
 		}
-		return getWaveformSamples(waveform, 200).map((w, i) => {
+		return getWaveformSamples(metadata.channelWaveforms[0], 200).map((w, i) => {
 			return {
 				index: i,
 				amplitude: w,
 			};
 		});
-	}, [waveform]);
+	}, [metadata]);
 
-	if (!waveform) {
+	if (!metadata) {
 		return null;
 	}
 	return (
