@@ -114,6 +114,7 @@ export const RemotionRoot: React.FC = ({children}) => {
 		return {
 			frame,
 			playing,
+			shouldRegisterSequences: true,
 		};
 	}, [frame, playing]);
 
