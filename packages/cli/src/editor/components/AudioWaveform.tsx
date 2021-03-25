@@ -1,5 +1,5 @@
 import React, {useEffect, useMemo, useState} from 'react';
-import {getWaveform} from '../helpers/get-waveform';
+import {getAudioMetadata} from '../helpers/get-audio-metadata';
 import {getWaveformSamples} from '../helpers/reduce-waveform';
 import {TIMELINE_LAYER_HEIGHT} from '../helpers/timeline-layout';
 import {AudioWaveformBar} from './AudioWaveformBar';
@@ -24,8 +24,11 @@ export const AudioWaveform: React.FC<{
 
 	const [waveform, setWaveform] = useState<Float32Array | null>(null);
 	useEffect(() => {
-		getWaveform(src)
-			.then((wave) => setWaveform(wave))
+		getAudioMetadata(src)
+			.then((data) => {
+				console.log(data);
+				setWaveform(data.waveform);
+			})
 			.catch((err) => {
 				console.error(`Could not load waveform for ${src}`, err);
 			});
