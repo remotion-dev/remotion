@@ -5,6 +5,7 @@ export * from './audio';
 export * from './Composition';
 export {TAsset} from './CompositionManager';
 export * from './config';
+export {getInputProps} from './config/input-props';
 export * from './easing';
 export * from './IFrame';
 export * from './Img';
