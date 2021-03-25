@@ -64,7 +64,6 @@ export const VideoPlayerContent: React.FC<{ video: ShowcaseVideo }> = ({
         // Some browers (safari and ie edge) support HLS natively
         current.src = vidUrl;
       } else if (Hls.isSupported()) {
-        console.log("hi");
         // This will run in all other modern browsers
         hls = new Hls();
         hls.loadSource(vidUrl);
