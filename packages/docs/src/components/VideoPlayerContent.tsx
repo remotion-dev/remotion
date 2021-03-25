@@ -1,5 +1,6 @@
 import useBaseUrl from "@docusaurus/useBaseUrl";
-import React, { useRef } from "react";
+import Hls from "hls.js";
+import React, { useEffect, useRef } from "react";
 import styled from "styled-components";
 import { ShowcaseVideo } from "../data/showcase-videos";
 import { useElementSize } from "../helpers/use-el-size";
@@ -23,11 +24,22 @@ const Sidebar = styled.div`
   width: ${RESERVED_FOR_SIDEBAR}px;
 `;
 
+const getVideoToPlayUrl = (video: ShowcaseVideo, vidUrl: string) => {
+  if (video.type === "mux_video") {
+    return `https://stream.mux.com/${video.muxId}.m3u8`;
+  }
+  return vidUrl;
+};
+
 export const VideoPlayerContent: React.FC<{ video: ShowcaseVideo }> = ({
   video,
 }) => {
+  const videoRef = useRef<HTMLVideoElement>(null);
   const container = useRef<HTMLDivElement>(null);
-  const vidUrl = useBaseUrl(video.videoUrl);
+  const baseVidUrl = useBaseUrl(
+    video.type === "video_url" ? video.videoUrl : undefined
+  );
+  const vidUrl = getVideoToPlayUrl(video, baseVidUrl);
 
   const containerSize = useElementSize(document.body);
 
@@ -42,9 +54,36 @@ export const VideoPlayerContent: React.FC<{ video: ShowcaseVideo }> = ({
   const height = ratio * video.height;
   const width = ratio * video.width;
 
+  useEffect(() => {
+    let hls;
+    if (videoRef.current) {
+      const current = videoRef.current;
+      if (video.type === "video_url") {
+        current.src = video.videoUrl;
+      } else if (current.canPlayType("application/vnd.apple.mpegurl")) {
+        // Some browers (safari and ie edge) support HLS natively
+        current.src = vidUrl;
+      } else if (Hls.isSupported()) {
+        console.log("hi");
+        // This will run in all other modern browsers
+        hls = new Hls();
+        hls.loadSource(vidUrl);
+        hls.attachMedia(current);
+      } else {
+        console.error("This is a legacy browser that doesn't support MSE");
+      }
+    }
+
+    return () => {
+      if (hls) {
+        hls.destroy();
+      }
+    };
+  }, [videoRef]);
+
   return (
     <Container ref={container}>
-      <Video src={vidUrl} height={height} width={width} autoPlay></Video>
+      <Video ref={videoRef} height={height} width={width} autoPlay></Video>
       <Sidebar>
         <VideoSidebar video={video}></VideoSidebar>
       </Sidebar>
