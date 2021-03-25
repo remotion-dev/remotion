@@ -1,4 +1,5 @@
 import React, {useEffect, useMemo, useState} from 'react';
+import {getWaveform} from '../helpers/get-waveform';
 
 const filterData = (audioBuffer: Float32Array) => {
 	const samples = 200; // Number of samples we want to have in our final data set
@@ -28,12 +29,8 @@ export const AudioWaveform: React.FC<{
 
 	const [waveform, setWaveform] = useState<Float32Array | null>(null);
 	useEffect(() => {
-		const audioContext = new AudioContext();
-
-		fetch(src)
-			.then((response) => response.arrayBuffer())
-			.then((arrayBuffer) => audioContext.decodeAudioData(arrayBuffer))
-			.then((wave) => setWaveform(wave.getChannelData(0)))
+		getWaveform(src)
+			.then((wave) => setWaveform(wave))
 			.catch((err) => {
 				// TODO: Error handling
 				console.log(err);
