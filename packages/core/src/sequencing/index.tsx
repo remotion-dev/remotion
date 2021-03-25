@@ -8,6 +8,7 @@ import React, {
 import {CompositionManager} from '../CompositionManager';
 import {FEATURE_FLAG_V2_BREAKING_CHANGES} from '../feature-flags';
 import {getTimelineClipName} from '../get-timeline-clip-name';
+import {TimelineContext} from '../timeline-position-state';
 import {useAbsoluteCurrentFrame} from '../use-frame';
 
 type SequenceContextType = {
@@ -28,6 +29,7 @@ export const Sequence: React.FC<{
 	const [id] = useState(() => String(Math.random()));
 	const absoluteFrame = useAbsoluteCurrentFrame();
 	const parentSequence = useContext(SequenceContext);
+	const {shouldRegisterSequences} = useContext(TimelineContext);
 	const actualFrom = (parentSequence?.from ?? 0) + from;
 	const {registerSequence, unregisterSequence} = useContext(CompositionManager);
 
@@ -66,6 +68,9 @@ export const Sequence: React.FC<{
 	}, [children, name]);
 
 	useEffect(() => {
+		if (!shouldRegisterSequences) {
+			return;
+		}
 		registerSequence({
 			from: actualFrom,
 			duration: durationInFrames,
@@ -86,6 +91,7 @@ export const Sequence: React.FC<{
 		timelineClipName,
 		unregisterSequence,
 		parentSequence?.id,
+		shouldRegisterSequences,
 	]);
 
 	const endThreshold = (() => {
