@@ -47,13 +47,17 @@ export const CurrentComposition = () => {
 	return (
 		<Container>
 			<Row>
-				<Thumbnail
-					composition={video}
-					targetHeight={targetHeight}
-					targetWidth={targetWidth}
-					frameToDisplay={frameToDisplay}
-				/>
-				<Space />
+				{Internals.FEATURE_FLAG_RICH_PREVIEWS ? (
+					<>
+						<Thumbnail
+							composition={video}
+							targetHeight={targetHeight}
+							targetWidth={targetWidth}
+							frameToDisplay={frameToDisplay}
+						/>
+						<Space />
+					</>
+				) : null}
 				<div>
 					<Title>{video.id}</Title>
 					<Subtitle>

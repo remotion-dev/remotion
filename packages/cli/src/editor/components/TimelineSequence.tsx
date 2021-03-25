@@ -69,20 +69,22 @@ export const TimelineSequence: React.FC<{
 	return (
 		<div key={s.sequence.id} style={style} title={s.sequence.displayName}>
 			<div style={row}>
-				{new Array(thumbnailFit).fill(true).map((_, i) => {
-					const frameToDisplay = Math.floor(
-						(i / thumbnailFit) * video.durationInFrames
-					);
-					return (
-						<Thumbnail
-							key={frameToDisplay}
-							targetHeight={TIMELINE_LAYER_HEIGHT}
-							targetWidth={thumbnailWidth}
-							composition={video}
-							frameToDisplay={frameToDisplay}
-						/>
-					);
-				})}
+				{Internals.FEATURE_FLAG_RICH_PREVIEWS
+					? new Array(thumbnailFit).fill(true).map((_, i) => {
+							const frameToDisplay = Math.floor(
+								(i / thumbnailFit) * video.durationInFrames
+							);
+							return (
+								<Thumbnail
+									key={frameToDisplay}
+									targetHeight={TIMELINE_LAYER_HEIGHT}
+									targetWidth={thumbnailWidth}
+									composition={video}
+									frameToDisplay={frameToDisplay}
+								/>
+							);
+					  })
+					: null}
 			</div>
 			<Pre>{s.sequence.displayName}</Pre>
 		</div>
