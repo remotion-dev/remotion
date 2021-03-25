@@ -43,7 +43,7 @@ export const TimelineSequence: React.FC<{
 	const width =
 		s.duration === Infinity
 			? windowWidth - TIMELINE_PADDING * 2
-			: (spatialDuration / lastFrame) * windowWidth - TIMELINE_PADDING * 2;
+			: (spatialDuration / lastFrame) * (windowWidth - TIMELINE_PADDING * 2);
 
 	const style: React.CSSProperties = useMemo(() => {
 		return {
