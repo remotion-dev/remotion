@@ -1,5 +1,6 @@
 import React, {useEffect, useMemo, useState} from 'react';
 import {getWaveform} from '../helpers/get-waveform';
+import {TIMELINE_LAYER_HEIGHT} from '../helpers/timeline-layout';
 
 const filterData = (audioBuffer: Float32Array) => {
 	const samples = 200; // Number of samples we want to have in our final data set
@@ -54,7 +55,7 @@ export const AudioWaveform: React.FC<{
 				flexDirection: 'row',
 				alignItems: 'center',
 				position: 'absolute',
-				height: 80,
+				height: TIMELINE_LAYER_HEIGHT,
 			}}
 		>
 			{normalized.map((w, i) => {
@@ -63,7 +64,7 @@ export const AudioWaveform: React.FC<{
 						// eslint-disable-next-line react/no-array-index-key
 						key={i}
 						style={{
-							height: 40 * w,
+							height: (TIMELINE_LAYER_HEIGHT / 2) * w,
 							width: 4,
 							backgroundColor: 'rgba(255, 255, 255, 0.2)',
 							marginLeft: 2,
