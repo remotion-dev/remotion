@@ -39,7 +39,9 @@ export const VideoForDevelopment: React.FC<RemotionVideoProps> = (props) => {
 		}
 
 		if (!videoConfig) {
-			throw new Error('No video config found');
+			throw new Error(
+				'No video config found. <Video> must be placed inside a composition.'
+			);
 		}
 		const currentTime = (() => {
 			if (FEATURE_FLAG_V2_BREAKING_CHANGES) {

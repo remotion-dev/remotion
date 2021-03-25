@@ -2,6 +2,7 @@ import React, {useContext, useMemo} from 'react';
 import {Internals} from 'remotion';
 import styled from 'styled-components';
 import {calculateTimeline, Track} from '../helpers/calculate-timeline';
+import {AudioWaveform} from './AudioWaveform';
 
 const Container = styled.div`
 	height: 100%;
@@ -60,12 +61,12 @@ export const TimelineElements: React.FC = () => {
 								key={s.sequence.id}
 								style={{
 									background:
-										track.trackType === 'sequence'
+										s.sequence.type === 'sequence'
 											? SEQUENCE_GRADIENT
 											: AUDIO_GRADIENT,
 									border: '1px solid rgba(255, 255, 255, 0.2)',
 									borderRadius: 4,
-									height: track.trackType === 'sequence' ? 80 : 60,
+									height: s.sequence.type === 'sequence' ? 80 : 60,
 									marginTop: 1,
 									marginLeft: `calc(${(s.sequence.from / lastFrame) * 100}%)`,
 									width:
@@ -77,6 +78,9 @@ export const TimelineElements: React.FC = () => {
 								}}
 								title={s.sequence.displayName}
 							>
+								{s.sequence.type === 'audio' ? (
+									<AudioWaveform src={s.sequence.src} />
+								) : null}
 								<Pre>{s.sequence.displayName}</Pre>
 							</div>
 						);

@@ -72,6 +72,7 @@ export const Sequence: React.FC<{
 			id,
 			displayName: timelineClipName,
 			parent: parentSequence?.id ?? null,
+			type: 'sequence',
 		});
 		return () => {
 			unregisterSequence(id);
