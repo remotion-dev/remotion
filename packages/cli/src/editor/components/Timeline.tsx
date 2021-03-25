@@ -1,9 +1,9 @@
 import React from 'react';
 import styled from 'styled-components';
 import {FpsCounter} from './FpsCounter';
-import {TimelineDragHandler} from './TimelineDragHandler';
-import {TimelineElements} from './TimelineElements';
-import {TimelineSlider} from './TimelineSlider';
+import {TimelineDragHandler} from './Timeline/TimelineDragHandler';
+import {TimelineElements} from './Timeline/TimelineElements';
+import {TimelineSlider} from './Timeline/TimelineSlider';
 import {TimeValue} from './TimeValue';
 
 const Container = styled.div`

@@ -1,10 +1,10 @@
 import React, {useMemo} from 'react';
 import {Internals, TSequence} from 'remotion';
 import styled from 'styled-components';
-import {TIMELINE_PADDING} from '../helpers/timeline-layout';
-import {useWindowSize} from '../hooks/use-window-size';
-import {AudioWaveform} from './AudioWaveform';
-import {Thumbnail} from './Thumbnail';
+import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
+import {useWindowSize} from '../../hooks/use-window-size';
+import {AudioWaveform} from '../AudioWaveform';
+import {Thumbnail} from '../Thumbnail';
 
 const Pre = styled.pre`
 	color: white;
@@ -17,6 +17,9 @@ const Pre = styled.pre`
 `;
 
 export const TIMELINE_LAYER_HEIGHT = 80;
+
+const SEQUENCE_GRADIENT = 'linear-gradient(to bottom, #3697e1, #348AC7 60%)';
+const AUDIO_GRADIENT = 'linear-gradient(rgb(16 171 58), rgb(43 165 63) 60%)';
 
 export const TimelineSequence: React.FC<{
 	s: TSequence;
@@ -37,7 +40,7 @@ export const TimelineSequence: React.FC<{
 
 	const style: React.CSSProperties = useMemo(() => {
 		return {
-			background: 'linear-gradient(to bottom, #3697e1, #348AC7 60%)',
+			background: s.type === 'audio' ? AUDIO_GRADIENT : SEQUENCE_GRADIENT,
 			border: '1px solid rgba(255, 255, 255, 0.2)',
 			borderRadius: 4,
 			position: 'absolute',

@@ -1,7 +1,7 @@
 import React, {useContext, useMemo} from 'react';
 import {Internals} from 'remotion';
 import styled from 'styled-components';
-import {calculateTimeline, Track} from '../helpers/calculate-timeline';
+import {calculateTimeline, Track} from '../../helpers/calculate-timeline';
 import {TimelineSequence} from './TimelineSequence';
 
 const Container = styled.div`
