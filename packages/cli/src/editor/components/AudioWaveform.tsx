@@ -1,6 +1,15 @@
 import React, {useEffect, useMemo, useState} from 'react';
 import {getWaveform} from '../helpers/get-waveform';
 import {TIMELINE_LAYER_HEIGHT} from '../helpers/timeline-layout';
+import {AudioWaveformBar} from './AudioWaveformBar';
+
+const container: React.CSSProperties = {
+	display: 'flex',
+	flexDirection: 'row',
+	alignItems: 'center',
+	position: 'absolute',
+	height: TIMELINE_LAYER_HEIGHT,
+};
 
 const filterData = (audioBuffer: Float32Array) => {
 	const samples = 200; // Number of samples we want to have in our final data set
@@ -33,8 +42,7 @@ export const AudioWaveform: React.FC<{
 		getWaveform(src)
 			.then((wave) => setWaveform(wave))
 			.catch((err) => {
-				// TODO: Error handling
-				console.log(err);
+				console.error(`Could not load waveform for ${src}`, err);
 			});
 	}, [src]);
 
@@ -42,36 +50,21 @@ export const AudioWaveform: React.FC<{
 		if (!waveform) {
 			return [];
 		}
-		return normalizeData(filterData(waveform));
+		return normalizeData(filterData(waveform)).map((w, i) => {
+			return {
+				index: i,
+				amplitude: w,
+			};
+		});
 	}, [waveform]);
 
 	if (!waveform) {
 		return null;
 	}
 	return (
-		<div
-			style={{
-				display: 'flex',
-				flexDirection: 'row',
-				alignItems: 'center',
-				position: 'absolute',
-				height: TIMELINE_LAYER_HEIGHT,
-			}}
-		>
-			{normalized.map((w, i) => {
-				return (
-					<div
-						// eslint-disable-next-line react/no-array-index-key
-						key={i}
-						style={{
-							height: (TIMELINE_LAYER_HEIGHT / 2) * w,
-							width: 4,
-							backgroundColor: 'rgba(255, 255, 255, 0.2)',
-							marginLeft: 2,
-							borderRadius: 2,
-						}}
-					/>
-				);
+		<div style={container}>
+			{normalized.map((w) => {
+				return <AudioWaveformBar key={w.index} amplitude={w.amplitude} />;
 			})}
 		</div>
 	);
