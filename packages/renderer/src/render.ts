@@ -30,7 +30,7 @@ export const renderFrames = async ({
 	compositionId: compositionId,
 	outputDir,
 	onStart,
-	userProps,
+	inputProps,
 	webpackBundle,
 	quality,
 	imageFormat = DEFAULT_IMAGE_FORMAT,
@@ -43,7 +43,7 @@ export const renderFrames = async ({
 	onStart: (data: OnStartData) => void;
 	compositionId: string;
 	outputDir: string;
-	userProps: unknown;
+	inputProps: unknown;
 	webpackBundle: string;
 	imageFormat?: ImageFormat;
 	quality?: number;
@@ -72,7 +72,7 @@ export const renderFrames = async ({
 		page.on('pageerror', console.error);
 
 		const site = `http://localhost:${port}/index.html?composition=${compositionId}&props=${encodeURIComponent(
-			JSON.stringify(userProps)
+			JSON.stringify(inputProps)
 		)}`;
 		await page.goto(site);
 		return page;

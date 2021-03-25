@@ -53,6 +53,12 @@ It is important to know that in the render process, data fetching works on a per
 
 You need to clear all handles created by `delayRender` within 30 seconds after the page is opened. This limit is imposed by Puppeteer, but makes a lot of sense as going over this limit would make the rendering process massively slow.
 
+## Using `delayRender()` to calculate video metadata
+
+You can also customize duration, frame rate and dimensions based on asynchronous data fetching:
+
+- **See: [Dynamic duration, FPS & dimensions](dynamic-metadata)**
+
 ## See also
 
 - [delayRender()](/docs/delay-render)

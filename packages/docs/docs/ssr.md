@@ -63,7 +63,7 @@ const start = async () => {
     parallelism: null,
     outputDir: framesDir,
     // React props passed to the root component of the sequence. Will be merged with the `defaultProps` of a video.
-    userProps: {
+    inputProps: {
       titleText: 'Hello World'
     },
     compositionId,
