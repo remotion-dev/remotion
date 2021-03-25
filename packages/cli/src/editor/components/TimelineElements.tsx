@@ -12,7 +12,7 @@ const Container = styled.div`
 `;
 
 export const TimelineElements: React.FC = () => {
-	const {sequences, assets} = useContext(Internals.CompositionManager);
+	const {sequences} = useContext(Internals.CompositionManager);
 	const videoConfig = Internals.useUnsafeVideoConfig();
 
 	const timeline = useMemo((): Track[] => {
@@ -20,11 +20,10 @@ export const TimelineElements: React.FC = () => {
 			return [];
 		}
 		return calculateTimeline({
-			assets,
 			sequences,
 			sequenceDuration: videoConfig.durationInFrames,
 		});
-	}, [assets, sequences, videoConfig]);
+	}, [sequences, videoConfig]);
 
 	const inner: React.CSSProperties = useMemo(() => {
 		return {
@@ -41,7 +40,7 @@ export const TimelineElements: React.FC = () => {
 			{timeline.map((track) => (
 				<div key={track.trackId} style={inner}>
 					{track.sequences.map((s) => {
-						return <TimelineSequence key={s.sequence.id} s={s} />;
+						return <TimelineSequence key={s.id} s={s} />;
 					})}
 				</div>
 			))}

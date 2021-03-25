@@ -57,7 +57,7 @@ export const AudioWaveform: React.FC<{
 				flexDirection: 'row',
 				alignItems: 'center',
 				position: 'absolute',
-				height: 60,
+				height: 80,
 			}}
 		>
 			{normalized.map((w, i) => {
