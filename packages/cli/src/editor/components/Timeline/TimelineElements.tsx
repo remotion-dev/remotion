@@ -41,7 +41,7 @@ export const TimelineElements: React.FC = () => {
 			{timeline.map((track) => (
 				<div key={track.trackId} style={inner}>
 					{track.sequences.map((s) => {
-						return <TimelineSequence key={s.id} s={s} />;
+						return <TimelineSequence key={s.id} fps={videoConfig.fps} s={s} />;
 					})}
 				</div>
 			))}

@@ -24,8 +24,9 @@ const AUDIO_GRADIENT = 'linear-gradient(rgb(16 171 58), rgb(43 165 63) 60%)';
 
 export const TimelineSequence: React.FC<{
 	s: TSequence;
-}> = ({s}) => {
-	const {width} = useWindowSize();
+	fps: number;
+}> = ({s, fps}) => {
+	const {width: windowWidth} = useWindowSize();
 
 	// If a duration is 1, it is essentially a still and it should have width 0
 	const spatialDuration = Internals.FEATURE_FLAG_V2_BREAKING_CHANGES
@@ -39,6 +40,11 @@ export const TimelineSequence: React.FC<{
 
 	const lastFrame = (video.durationInFrames ?? 1) - 1;
 
+	const width =
+		s.duration === Infinity
+			? windowWidth - TIMELINE_PADDING * 2
+			: (spatialDuration / lastFrame) * windowWidth - TIMELINE_PADDING * 2;
+
 	const style: React.CSSProperties = useMemo(() => {
 		return {
 			background: s.type === 'audio' ? AUDIO_GRADIENT : SEQUENCE_GRADIENT,
@@ -48,14 +54,11 @@ export const TimelineSequence: React.FC<{
 			height: TIMELINE_LAYER_HEIGHT,
 			marginTop: 1,
 			marginLeft: `calc(${(s.from / lastFrame) * 100}%)`,
-			width:
-				s.duration === Infinity
-					? width - TIMELINE_PADDING * 2
-					: (spatialDuration / lastFrame) * width - TIMELINE_PADDING * 2,
+			width,
 			color: 'white',
 			overflow: 'hidden',
 		};
-	}, [lastFrame, s.duration, s.from, s.type, spatialDuration, width]);
+	}, [lastFrame, s.from, s.type, width]);
 
 	const row: React.CSSProperties = useMemo(() => {
 		return {
@@ -90,7 +93,15 @@ export const TimelineSequence: React.FC<{
 					  })
 					: null}
 			</div>
-			{s.type === 'audio' ? <AudioWaveform src={s.src} /> : null}
+			{s.type === 'audio' ? (
+				<AudioWaveform
+					src={s.src}
+					visualizationWidth={width}
+					startFrom={s.from}
+					duration={s.duration}
+					fps={fps}
+				/>
+			) : null}
 			<Pre>{s.displayName}</Pre>
 		</div>
 	);
