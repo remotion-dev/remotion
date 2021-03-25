@@ -1,15 +1,17 @@
 import React, {useContext, useMemo} from 'react';
 import {Internals} from 'remotion';
+import styled from 'styled-components';
 import {calculateTimeline, Track} from '../helpers/calculate-timeline';
-import {
-	TIMELINE_LEFT_PADDING,
-	TIMELINE_RIGHT_PADDING,
-} from '../helpers/timeline-layout';
-import {useWindowSize} from '../hooks/use-window-size';
 import {TimelineSequence} from './TimelineSequence';
 
+const Container = styled.div`
+	height: 100%;
+	display: grid;
+	grid-gap: 2px;
+	grid-auto-rows: minmax(25px, 80px);
+`;
+
 export const TimelineElements: React.FC = () => {
-	const {width} = useWindowSize();
 	const {sequences} = useContext(Internals.CompositionManager);
 	const videoConfig = Internals.useUnsafeVideoConfig();
 
@@ -20,33 +22,25 @@ export const TimelineElements: React.FC = () => {
 		return calculateTimeline(sequences, videoConfig.durationInFrames);
 	}, [sequences, videoConfig]);
 
-	const outer: React.CSSProperties = useMemo(() => {
-		return {
-			width: width - TIMELINE_LEFT_PADDING - TIMELINE_RIGHT_PADDING,
-			overflow: 'hidden',
-			position: 'relative',
-		};
-	}, [width]);
-
 	const inner: React.CSSProperties = useMemo(() => {
 		return {
 			height: 82,
 		};
 	}, []);
 
+	if (!videoConfig) {
+		return null;
+	}
+
 	return (
-		<div style={outer}>
-			{videoConfig
-				? timeline.map((track) => {
-						return (
-							<div key={track.trackId} style={inner}>
-								{track.sequences.map((s) => {
-									return <TimelineSequence key={s.sequence.id} s={s} />;
-								})}
-							</div>
-						);
-				  })
-				: null}
-		</div>
+		<Container>
+			{timeline.map((track) => (
+				<div key={track.trackId} style={inner}>
+					{track.sequences.map((s) => {
+						return <TimelineSequence key={s.sequence.id} s={s} />;
+					})}
+				</div>
+			))}
+		</Container>
 	);
 };

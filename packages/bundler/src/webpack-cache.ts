@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import {random} from 'remotion';
 
 type Environment = 'development' | 'production';
 
@@ -40,20 +41,43 @@ export const getWebpackCacheDir = () => {
 	}
 };
 
-const remotionCacheLocation = (environment: Environment) => {
-	return path.join(getWebpackCacheDir(), getWebpackCacheName(environment));
+const remotionCacheLocation = (
+	environment: Environment,
+	inputProps: object | null
+) => {
+	return path.join(
+		getWebpackCacheDir(),
+		getWebpackCacheName(environment, inputProps)
+	);
 };
 
-export const clearCache = (environment: Environment) => {
-	return fs.promises.rmdir(remotionCacheLocation(environment), {
+export const clearCache = (
+	environment: Environment,
+	inputProps: object | null
+) => {
+	return fs.promises.rmdir(remotionCacheLocation(environment, inputProps), {
 		recursive: true,
 	});
 };
 
-export const getWebpackCacheName = (environment: Environment) => {
+export const getWebpackCacheName = (
+	environment: Environment,
+	inputProps: object | null
+) => {
+	// In development, let's reset the cache when input props
+	// are changing, because they are injected using Webpack and if changed,
+	// it will get the cached version
+	if (environment === 'development') {
+		return `remotion-${environment}-${random(JSON.stringify(inputProps))}`;
+	}
+	// In production, the cache is independent from input props because
+	// they are passed over URL params. Speed is mostly important in production.
 	return `remotion-${environment}`;
 };
 
-export const cacheExists = (environment: Environment) => {
-	return fs.existsSync(remotionCacheLocation(environment));
+export const cacheExists = (
+	environment: Environment,
+	inputProps: object | null
+) => {
+	return fs.existsSync(remotionCacheLocation(environment, inputProps));
 };

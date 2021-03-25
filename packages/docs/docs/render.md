@@ -20,4 +20,4 @@ Learn about all the options on the [CLI reference page](/docs/cli).
 
 ## See also
 
-- [/docs/CLI options](/docs/cli)
+- [CLI options](/docs/cli)
