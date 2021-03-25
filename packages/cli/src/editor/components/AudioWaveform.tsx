@@ -1,11 +1,16 @@
 import React, {useEffect, useMemo, useState} from 'react';
+import {interpolate} from 'remotion';
 import {
 	AudioContextMetadata,
 	getAudioMetadata,
 } from '../helpers/get-audio-metadata';
 import {getWaveformSamples} from '../helpers/reduce-waveform';
 import {TIMELINE_LAYER_HEIGHT} from '../helpers/timeline-layout';
-import {AudioWaveformBar} from './AudioWaveformBar';
+import {
+	AudioWaveformBar,
+	WAVEFORM_BAR_LENGTH,
+	WAVEFORM_BAR_MARGIN,
+} from './AudioWaveformBar';
 
 const container: React.CSSProperties = {
 	display: 'flex',
@@ -22,9 +27,7 @@ export const AudioWaveform: React.FC<{
 	fps: number;
 	startFrom: number;
 	duration: number;
-}> = ({src, fps, startFrom, duration}) => {
-	// TODO: Resize to timeline length so it aligns with cursor
-
+}> = ({src, fps, startFrom, duration, visualizationWidth}) => {
 	const [metadata, setMetadata] = useState<AudioContextMetadata | null>(null);
 	useEffect(() => {
 		getAudioMetadata(src)
@@ -40,13 +43,33 @@ export const AudioWaveform: React.FC<{
 		if (!metadata || metadata.numberOfChannels === 0) {
 			return [];
 		}
-		return getWaveformSamples(metadata.channelWaveforms[0], 200).map((w, i) => {
+		const startSample = Math.floor(
+			interpolate(
+				startFrom,
+				[0, metadata.duration * fps],
+				[0, metadata.channelWaveforms[0].length]
+			)
+		);
+		const endSample = Math.floor(
+			interpolate(
+				startFrom + duration,
+				[0, metadata.duration * fps],
+				[0, metadata.channelWaveforms[0].length]
+			)
+		);
+		const numberOfSamples = Math.floor(
+			visualizationWidth / (WAVEFORM_BAR_LENGTH + WAVEFORM_BAR_MARGIN)
+		);
+		return getWaveformSamples(
+			metadata.channelWaveforms[0].slice(startSample, endSample),
+			numberOfSamples
+		).map((w, i) => {
 			return {
 				index: i,
 				amplitude: w,
 			};
 		});
-	}, [metadata]);
+	}, [duration, fps, metadata, startFrom, visualizationWidth]);
 
 	if (!metadata) {
 		return null;

@@ -11,6 +11,7 @@ const Container = styled.div`
 	flex-direction: column;
 	height: 100%;
 	flex: 1;
+	min-height: 200px;
 `;
 
 const Details = styled.div`
