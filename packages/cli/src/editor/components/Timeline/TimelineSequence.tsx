@@ -1,7 +1,10 @@
 import React, {useMemo} from 'react';
 import {Internals, TSequence} from 'remotion';
 import styled from 'styled-components';
-import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
+import {
+	TIMELINE_LAYER_HEIGHT,
+	TIMELINE_PADDING,
+} from '../../helpers/timeline-layout';
 import {useWindowSize} from '../../hooks/use-window-size';
 import {AudioWaveform} from '../AudioWaveform';
 import {Thumbnail} from '../Thumbnail';
@@ -15,8 +18,6 @@ const Pre = styled.pre`
 	padding: 5px;
 	position: absolute;
 `;
-
-export const TIMELINE_LAYER_HEIGHT = 80;
 
 const SEQUENCE_GRADIENT = 'linear-gradient(to bottom, #3697e1, #348AC7 60%)';
 const AUDIO_GRADIENT = 'linear-gradient(rgb(16 171 58), rgb(43 165 63) 60%)';
@@ -54,7 +55,7 @@ export const TimelineSequence: React.FC<{
 			color: 'white',
 			overflow: 'hidden',
 		};
-	}, [lastFrame, s.duration, s.from, spatialDuration, width]);
+	}, [lastFrame, s.duration, s.from, s.type, spatialDuration, width]);
 
 	const row: React.CSSProperties = useMemo(() => {
 		return {
