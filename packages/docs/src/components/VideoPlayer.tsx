@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from "react";
 import { ShowcaseVideo } from "../data/showcase-videos";
 import { VideoPlayerContent } from "./VideoPlayerContent";
+
 const container: React.CSSProperties = {
   position: "fixed",
   top: 0,
