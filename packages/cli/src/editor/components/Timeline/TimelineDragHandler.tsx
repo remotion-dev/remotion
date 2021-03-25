@@ -1,8 +1,8 @@
 import React, {useCallback, useEffect, useState} from 'react';
 import {Internals, interpolate} from 'remotion';
 import styled from 'styled-components';
-import {TIMELINE_PADDING} from '../helpers/timeline-layout';
-import {useWindowSize} from '../hooks/use-window-size';
+import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
+import {useWindowSize} from '../../hooks/use-window-size';
 
 const Container = styled.div`
 	flex: 1;
