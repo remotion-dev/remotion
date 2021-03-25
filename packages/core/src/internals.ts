@@ -44,12 +44,14 @@ import {
 } from './config/webpack-caching';
 import {
 	FEATURE_FLAG_FIREFOX_SUPPORT,
+	FEATURE_FLAG_RICH_PREVIEWS,
 	FEATURE_FLAG_V2_BREAKING_CHANGES,
 } from './feature-flags';
 import * as perf from './perf';
 import {getCompositionName, getIsEvaluation, getRoot} from './register-root';
 import {RemotionRoot} from './RemotionRoot';
 import * as Timeline from './timeline-position-state';
+import {TimelineContextValue} from './timeline-position-state';
 import {useUnsafeVideoConfig} from './use-unsafe-video-config';
 import {useVideo} from './use-video';
 
@@ -81,6 +83,7 @@ export const Internals = {
 	FEATURE_FLAG_FIREFOX_SUPPORT,
 	DEFAULT_WEBPACK_CACHE_ENABLED,
 	FEATURE_FLAG_V2_BREAKING_CHANGES,
+	FEATURE_FLAG_RICH_PREVIEWS,
 	getBrowser,
 	DEFAULT_BROWSER,
 	getDefaultCrfForCodec,
@@ -99,4 +102,5 @@ export type {
 	TCompMetadata,
 	TSequence,
 	WebpackOverrideFn,
+	TimelineContextValue,
 };
