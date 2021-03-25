@@ -15,13 +15,26 @@ export type TCompMetadata = Pick<
 	'id' | 'height' | 'width' | 'fps' | 'durationInFrames'
 >;
 
+type EnhancedTSequenceData =
+	| {
+			type: 'sequence';
+	  }
+	| {
+			type: 'audio';
+			src: string;
+	  }
+	| {
+			type: 'video';
+			src: string;
+	  };
+
 export type TSequence = {
 	from: number;
 	duration: number;
 	id: string;
 	displayName: string;
 	parent: string | null;
-};
+} & EnhancedTSequenceData;
 
 export type TAsset = {
 	type: 'audio' | 'video';

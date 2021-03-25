@@ -1,5 +1,6 @@
 import React, {useContext, useEffect, useRef, useState} from 'react';
 import {CompositionManager} from '../CompositionManager';
+import {getAssetFileName} from '../get-asset-file-name';
 import {isApproximatelyTheSame} from '../is-approximately-the-same';
 import {SequenceContext} from '../sequencing';
 import {usePlayingState} from '../timeline-position-state';
@@ -17,8 +18,9 @@ export const AudioForDevelopment: React.FC<RemotionAudioProps> = (props) => {
 	const videoConfig = useUnsafeVideoConfig();
 	const [playing] = usePlayingState();
 	const parentSequence = useContext(SequenceContext);
+	const actualFrom = parentSequence?.from ?? 0;
 
-	const {registerAsset, unregisterAsset} = useContext(CompositionManager);
+	const {registerSequence, unregisterSequence} = useContext(CompositionManager);
 
 	const [id] = useState(() => String(Math.random()));
 
@@ -72,32 +74,35 @@ export const AudioForDevelopment: React.FC<RemotionAudioProps> = (props) => {
 		if (!audioRef.current) {
 			return;
 		}
+		if (!videoConfig) {
+			return;
+		}
 		if (!props.src) {
 			throw new Error('No src passed');
 		}
-		// Currently we only show audio in the timeline
-		// that is **not inside a sequence**.
-		if (parentSequence) {
-			return;
-		}
 
-		registerAsset({
+		registerSequence({
 			type: 'audio',
 			src: props.src,
 			id,
-			sequenceFrame: currentFrame,
-			volume: userPreferredVolume,
+			// TODO: Cap to audio duration
+			duration: videoConfig.durationInFrames,
+			from: actualFrom,
+			parent: parentSequence?.id ?? null,
+			displayName: getAssetFileName(props.src),
 		});
-		return () => unregisterAsset(id);
+		return () => unregisterSequence(id);
 	}, [
 		props.src,
-		registerAsset,
 		id,
-		unregisterAsset,
 		currentFrame,
 		parentSequence,
 		actualVolume,
 		userPreferredVolume,
+		registerSequence,
+		unregisterSequence,
+		videoConfig,
+		actualFrom,
 	]);
 
 	useEffect(() => {
@@ -105,7 +110,9 @@ export const AudioForDevelopment: React.FC<RemotionAudioProps> = (props) => {
 			throw new Error('No audio ref found');
 		}
 		if (!videoConfig) {
-			throw new Error('No video config found');
+			throw new Error(
+				'No video config found. <Audio> must be placed inside a composition.'
+			);
 		}
 		const shouldBeTime = currentFrame / videoConfig.fps;
 
