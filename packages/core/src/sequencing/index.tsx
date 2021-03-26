@@ -1,7 +1,7 @@
 import React, {
 	createContext,
 	useContext,
-	useEffect,
+	useLayoutEffect,
 	useMemo,
 	useState,
 } from 'react';
@@ -73,7 +73,8 @@ export const Sequence: React.FC<{
 		return name ?? getTimelineClipName(children);
 	}, [children, name]);
 
-	useEffect(() => {
+	// using useEffect will lead to reordering problems when fast refreshing
+	useLayoutEffect(() => {
 		registerSequence({
 			from: actualFrom,
 			duration: actualDurationInFrames,
