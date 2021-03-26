@@ -64,10 +64,10 @@ export const Sequence: React.FC<{
 	const contextValue = useMemo((): SequenceContextType => {
 		return {
 			from: actualFrom,
-			durationInFrames,
+			durationInFrames: actualDurationInFrames,
 			id,
 		};
-	}, [actualFrom, durationInFrames, id]);
+	}, [actualDurationInFrames, actualFrom, id]);
 
 	const timelineClipName = useMemo(() => {
 		return name ?? getTimelineClipName(children);

@@ -13,6 +13,7 @@ export const AudioForDevelopment: React.FC<RemotionAudioProps> = (props) => {
 	const audioRef = useRef<HTMLAudioElement>(null);
 	const currentFrame = useCurrentFrame();
 	const absoluteFrame = useAbsoluteCurrentFrame();
+	const startsAt = absoluteFrame - currentFrame;
 	const [actualVolume, setActualVolume] = useState(1);
 
 	const videoConfig = useUnsafeVideoConfig();
@@ -84,12 +85,16 @@ export const AudioForDevelopment: React.FC<RemotionAudioProps> = (props) => {
 			throw new Error('No src passed');
 		}
 
+		const duration = parentSequence
+			? Math.min(parentSequence.durationInFrames, videoConfig.durationInFrames)
+			: videoConfig.durationInFrames;
+
 		registerSequence({
 			type: 'audio',
 			src: props.src,
 			id,
 			// TODO: Cap to audio duration
-			duration: videoConfig.durationInFrames,
+			duration,
 			from: actualFrom,
 			parent: parentSequence?.id ?? null,
 			displayName: getAssetFileName(props.src),
@@ -108,6 +113,7 @@ export const AudioForDevelopment: React.FC<RemotionAudioProps> = (props) => {
 		videoConfig,
 		actualFrom,
 		isThumbnail,
+		startsAt,
 	]);
 
 	useEffect(() => {
