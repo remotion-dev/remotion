@@ -1,4 +1,5 @@
 import {TSequence} from 'remotion';
+import {getTimelineNestedLevel} from './get-timeline-nestedness';
 import {getTimelineSequenceHash} from './get-timeline-sequence-hash';
 
 export type SequenceWithOverlap = {
@@ -7,8 +8,8 @@ export type SequenceWithOverlap = {
 };
 
 export type Track = {
-	trackId: string;
-	sequences: TSequence[];
+	sequence: TSequence;
+	depth: number;
 };
 
 export const calculateTimeline = ({
@@ -23,19 +24,17 @@ export const calculateTimeline = ({
 	if (sequences.length === 0) {
 		return [
 			{
-				sequences: [
-					{
-						displayName: '',
-						duration: sequenceDuration,
-						from: 0,
-						id: 'seq',
-						parent: null,
-						type: 'sequence',
-						isThumbnail: false,
-						rootId: 'hi',
-					},
-				],
-				trackId: '0',
+				sequence: {
+					displayName: '',
+					duration: sequenceDuration,
+					from: 0,
+					id: 'seq',
+					parent: null,
+					type: 'sequence',
+					isThumbnail: false,
+					rootId: 'hi',
+				},
+				depth: 0,
 			},
 		];
 	}
@@ -48,6 +47,7 @@ export const calculateTimeline = ({
 			hashesUsedInRoot[sequence.rootId] = [];
 		}
 		const baseHash = getTimelineSequenceHash(sequence, sequences);
+		const depth = getTimelineNestedLevel(sequence, sequences, 0);
 		const actualHash =
 			baseHash +
 			hashesUsedInRoot[sequence.rootId].filter((h) => h === baseHash).length;
@@ -59,13 +59,7 @@ export const calculateTimeline = ({
 		hashesUsedInRoot[sequence.rootId].push(baseHash);
 		hashesUsed.push(actualHash);
 
-		if (!tracks[i]) {
-			tracks[i] = {
-				sequences: [],
-				trackId: String(i),
-			};
-		}
-		tracks[i].sequences.push(sequence);
+		tracks.push({sequence, depth});
 	}
 	return tracks;
 };
