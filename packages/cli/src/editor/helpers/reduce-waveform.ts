@@ -1,5 +1,8 @@
 const filterData = (audioBuffer: Float32Array, samples: number) => {
 	const blockSize = Math.floor(audioBuffer.length / samples); // the number of samples in each subdivision
+	if (blockSize === 0) {
+		return [];
+	}
 	const filteredData = [];
 	for (let i = 0; i < samples; i++) {
 		const blockStart = blockSize * i; // the location of the first sample in the block

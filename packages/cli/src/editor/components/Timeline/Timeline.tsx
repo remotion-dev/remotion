@@ -39,6 +39,7 @@ export const Timeline: React.FC = () => {
 			display: 'flex',
 			flex: 1,
 			minHeight: '100%',
+			overflowX: 'hidden',
 		};
 	}, [timeline.length]);
 
