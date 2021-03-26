@@ -36,7 +36,9 @@ const AudioTestingMute: React.FC = () => {
 		<div>
 			<Video src={movie} muted={getMuteState('movie')} />
 			<Sequence from={20} durationInFrames={100}>
-				<Audio src={music} muted={getMuteState('music')} />
+				<Sequence from={20} durationInFrames={100}>
+					<Audio src={music} muted={getMuteState('music')} />
+				</Sequence>
 			</Sequence>
 		</div>
 	);
