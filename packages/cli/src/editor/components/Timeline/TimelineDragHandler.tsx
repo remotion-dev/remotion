@@ -8,9 +8,11 @@ import {sliderAreaRef} from './timeline-refs';
 const Container = styled.div`
 	flex: 1;
 	position: relative;
-	padding: ${TIMELINE_PADDING}px;
+	padding-left: ${TIMELINE_PADDING}px;
+	padding-right: ${TIMELINE_PADDING}px;
 	user-select: none;
 	overflow: hidden;
+	background-color: #111111;
 `;
 
 const Inner = styled.div`

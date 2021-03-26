@@ -15,7 +15,6 @@ export const useElementSize = (
 		() =>
 			new ResizeObserver((entries) => {
 				const newSize = entries[0].target.getClientRects();
-				console.log(newSize);
 				setSize({
 					width: newSize[0].width,
 					height: newSize[0].height,

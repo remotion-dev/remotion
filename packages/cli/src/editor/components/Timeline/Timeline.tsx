@@ -7,6 +7,7 @@ import {SplitterContainer} from '../Splitter/SplitterContainer';
 import {SplitterElement} from '../Splitter/SplitterElement';
 import {SplitterHandle} from '../Splitter/SplitterHandle';
 import {TimelineDragHandler} from './TimelineDragHandler';
+import {TimelineList} from './TimelineList';
 import {TimelineSequence} from './TimelineSequence';
 import {TimelineSlider} from './TimelineSlider';
 
@@ -49,7 +50,9 @@ export const Timeline: React.FC = () => {
 				maxFlex={0.5}
 				minFlex={0.15}
 			>
-				<SplitterElement type="flexer" />
+				<SplitterElement type="flexer">
+					<TimelineList timeline={timeline} />
+				</SplitterElement>
 				<SplitterHandle />
 				<SplitterElement type="anti-flexer">
 					<TimelineDragHandler>
