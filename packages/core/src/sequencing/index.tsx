@@ -29,7 +29,7 @@ export const Sequence: React.FC<{
 	const [id] = useState(() => String(Math.random()));
 	const absoluteFrame = useAbsoluteCurrentFrame();
 	const parentSequence = useContext(SequenceContext);
-	const {isThumbnail} = useContext(TimelineContext);
+	const {isThumbnail, rootId} = useContext(TimelineContext);
 	const actualFrom = (parentSequence?.from ?? 0) + from;
 	const actualDurationInFrames = parentSequence
 		? Math.min(
@@ -82,6 +82,7 @@ export const Sequence: React.FC<{
 			parent: parentSequence?.id ?? null,
 			type: 'sequence',
 			isThumbnail,
+			rootId,
 		});
 		return () => {
 			unregisterSequence(id);
@@ -97,6 +98,7 @@ export const Sequence: React.FC<{
 		parentSequence?.id,
 		isThumbnail,
 		actualDurationInFrames,
+		rootId,
 	]);
 
 	const endThreshold = (() => {

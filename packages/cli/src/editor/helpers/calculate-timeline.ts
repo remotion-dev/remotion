@@ -32,6 +32,7 @@ export const calculateTimeline = ({
 						parent: null,
 						type: 'sequence',
 						isThumbnail: false,
+						rootId: 'hi',
 					},
 				],
 				trackId: '0',
@@ -39,14 +40,25 @@ export const calculateTimeline = ({
 		];
 	}
 
+	const hashesUsedInRoot: {[rootId: string]: string[]} = {};
 	const hashesUsed: string[] = [];
 	for (let i = 0; i < sequences.length; i++) {
 		const sequence = sequences[i];
-		const hash = getTimelineSequenceHash(sequence, sequences);
-		if (hashesUsed.includes(hash)) {
+		if (!hashesUsedInRoot[sequence.rootId]) {
+			hashesUsedInRoot[sequence.rootId] = [];
+		}
+		const baseHash = getTimelineSequenceHash(sequence, sequences);
+		const actualHash =
+			baseHash +
+			hashesUsedInRoot[sequence.rootId].filter((h) => h === baseHash).length;
+
+		if (hashesUsed.includes(actualHash)) {
 			continue;
 		}
-		hashesUsed.push(hash);
+
+		hashesUsedInRoot[sequence.rootId].push(baseHash);
+		hashesUsed.push(actualHash);
+
 		if (!tracks[i]) {
 			tracks[i] = {
 				sequences: [],
