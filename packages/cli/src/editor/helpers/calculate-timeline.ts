@@ -1,4 +1,5 @@
 import {TSequence} from 'remotion';
+import {getTimelineSequenceHash} from './get-timeline-sequence-hash';
 
 export type SequenceWithOverlap = {
 	sequence: TSequence;
@@ -38,11 +39,14 @@ export const calculateTimeline = ({
 		];
 	}
 
+	const hashesUsed: string[] = [];
 	for (let i = 0; i < sequences.length; i++) {
 		const sequence = sequences[i];
-		if (sequence.isThumbnail) {
+		const hash = getTimelineSequenceHash(sequence, sequences);
+		if (hashesUsed.includes(hash)) {
 			continue;
 		}
+		hashesUsed.push(hash);
 		if (!tracks[i]) {
 			tracks[i] = {
 				sequences: [],
