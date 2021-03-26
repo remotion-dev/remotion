@@ -16,7 +16,7 @@ const outer: React.CSSProperties = {
 	display: 'flex',
 	flexDirection: 'row',
 	alignItems: 'center',
-	fontSize: 14,
+	fontSize: 13,
 	paddingLeft: TIMELINE_PADDING,
 };
 
