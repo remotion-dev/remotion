@@ -3,20 +3,20 @@ import {Internals} from 'remotion';
 import styled from 'styled-components';
 import {calculateTimeline, Track} from '../../helpers/calculate-timeline';
 import {TIMELINE_LAYER_HEIGHT} from '../../helpers/timeline-layout';
-import {FpsCounter} from '../FpsCounter';
 import {SplitterContainer} from '../Splitter/SplitterContainer';
 import {SplitterElement} from '../Splitter/SplitterElement';
 import {SplitterHandle} from '../Splitter/SplitterHandle';
-import {TimeValue} from '../TimeValue';
 import {TimelineDragHandler} from './TimelineDragHandler';
 import {TimelineSequence} from './TimelineSequence';
 import {TimelineSlider} from './TimelineSlider';
 
 const Container = styled.div`
 	min-height: 100%;
+	flex: 1;
+	display: flex;
 `;
 
-export const TimelineElements: React.FC = () => {
+export const Timeline: React.FC = () => {
 	const {sequences} = useContext(Internals.CompositionManager);
 	const videoConfig = Internals.useUnsafeVideoConfig();
 
@@ -49,10 +49,7 @@ export const TimelineElements: React.FC = () => {
 				maxFlex={0.5}
 				minFlex={0.15}
 			>
-				<SplitterElement type="flexer">
-					<TimeValue />
-					<FpsCounter />
-				</SplitterElement>
+				<SplitterElement type="flexer" />
 				<SplitterHandle />
 				<SplitterElement type="anti-flexer">
 					<TimelineDragHandler>
