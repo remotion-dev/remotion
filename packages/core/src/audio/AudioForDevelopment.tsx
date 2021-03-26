@@ -1,4 +1,10 @@
-import React, {useContext, useEffect, useRef, useState} from 'react';
+import React, {
+	useContext,
+	useEffect,
+	useLayoutEffect,
+	useRef,
+	useState,
+} from 'react';
 import {CompositionManager} from '../CompositionManager';
 import {getAssetFileName} from '../get-asset-file-name';
 import {isApproximatelyTheSame} from '../is-approximately-the-same';
@@ -73,7 +79,8 @@ export const AudioForDevelopment: React.FC<RemotionAudioProps> = (props) => {
 		}
 	}, [playing]);
 
-	useEffect(() => {
+	// using useEffect will lead to reordering problems when fast refreshing
+	useLayoutEffect(() => {
 		if (!audioRef.current) {
 			return;
 		}
