@@ -6,6 +6,7 @@ import {
 	TComposition,
 	TSequence,
 } from './CompositionManager';
+import {random} from './random';
 import {continueRender, delayRender} from './ready-manager';
 import {
 	SetTimelineContext,
@@ -21,6 +22,7 @@ export const RemotionRoot: React.FC = ({children}) => {
 	const [currentComposition, setCurrentComposition] = useState<string | null>(
 		typeof window !== 'undefined' ? window.location.pathname.substr(1) : null
 	);
+	const [remotionRootId] = useState(() => String(random(null)));
 	const [sequences, setSequences] = useState<TSequence[]>([]);
 	const [assets, setAssets] = useState<TAsset[]>([]);
 	const [frame, setFrame] = useState<number>(0);
@@ -115,8 +117,9 @@ export const RemotionRoot: React.FC = ({children}) => {
 			frame,
 			playing,
 			isThumbnail: false,
+			rootId: remotionRootId,
 		};
-	}, [frame, playing]);
+	}, [frame, playing, remotionRootId]);
 
 	const setTimelineContextValue = useMemo((): SetTimelineContextValue => {
 		return {

@@ -18,7 +18,7 @@ export const AudioForDevelopment: React.FC<RemotionAudioProps> = (props) => {
 
 	const videoConfig = useUnsafeVideoConfig();
 	const [playing] = usePlayingState();
-	const {isThumbnail} = useContext(TimelineContext);
+	const {isThumbnail, rootId} = useContext(TimelineContext);
 
 	const parentSequence = useContext(SequenceContext);
 	const actualFrom = parentSequence?.from ?? 0;
@@ -99,6 +99,7 @@ export const AudioForDevelopment: React.FC<RemotionAudioProps> = (props) => {
 			parent: parentSequence?.id ?? null,
 			displayName: getAssetFileName(props.src),
 			isThumbnail,
+			rootId,
 		});
 		return () => unregisterSequence(id);
 	}, [
@@ -114,6 +115,7 @@ export const AudioForDevelopment: React.FC<RemotionAudioProps> = (props) => {
 		actualFrom,
 		isThumbnail,
 		startsAt,
+		rootId,
 	]);
 
 	useEffect(() => {

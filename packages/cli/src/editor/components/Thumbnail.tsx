@@ -1,5 +1,5 @@
-import React, {Suspense, useContext, useMemo} from 'react';
-import {Internals, TComposition, TimelineContextValue} from 'remotion';
+import React, {Suspense, useContext, useMemo, useState} from 'react';
+import {Internals, random, TComposition, TimelineContextValue} from 'remotion';
 import {
 	checkerboardBackgroundColor,
 	checkerboardBackgroundImage,
@@ -24,6 +24,8 @@ export const Thumbnail: React.FC<{
 	const correction = 0 - (1 - scale) / 2;
 	const xCorrection = correction * width;
 	const yCorrection = correction * height;
+
+	const [thumbnailId] = useState(() => String(random(null)));
 
 	const {checkerboard} = useContext(CheckerboardContext);
 
@@ -67,8 +69,9 @@ export const Thumbnail: React.FC<{
 			playing: false,
 			frame: frameToDisplay,
 			isThumbnail: true,
+			rootId: thumbnailId,
 		};
-	}, [frameToDisplay]);
+	}, [frameToDisplay, thumbnailId]);
 
 	const props = useMemo(() => {
 		return ((composition.props as unknown) as {}) ?? {};
