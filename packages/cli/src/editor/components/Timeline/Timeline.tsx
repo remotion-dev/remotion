@@ -57,12 +57,8 @@ export const Timeline: React.FC = () => {
 				<SplitterElement type="anti-flexer">
 					<TimelineDragHandler>
 						{timeline.map((track) => (
-							<div key={track.trackId} style={inner}>
-								{track.sequences.map((s) => {
-									return (
-										<TimelineSequence key={s.id} fps={videoConfig.fps} s={s} />
-									);
-								})}
+							<div key={track.sequence.id} style={inner}>
+								<TimelineSequence fps={videoConfig.fps} s={track.sequence} />
 							</div>
 						))}
 					</TimelineDragHandler>

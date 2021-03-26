@@ -13,12 +13,16 @@ export const TimelineList: React.FC<{
 }> = ({timeline}) => {
 	return (
 		<div style={container}>
-			{timeline.map((track) => {
+			{timeline.map((track, i) => {
+				const beforeDepth = i === 0 ? 0 : timeline[i - 1].depth;
 				return (
-					<div key={track.trackId}>
-						{track.sequences.map((s) => {
-							return <TimelineListItem key={s.id} sequence={s} />;
-						})}
+					<div key={track.sequence.id}>
+						<TimelineListItem
+							key={track.sequence.id}
+							nestedDepth={track.depth}
+							sequence={track.sequence}
+							beforeDepth={beforeDepth}
+						/>
 					</div>
 				);
 			})}

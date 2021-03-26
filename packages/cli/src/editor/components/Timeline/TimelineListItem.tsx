@@ -5,7 +5,9 @@ import {
 	TIMELINE_PADDING,
 } from '../../helpers/timeline-layout';
 
-const BORDER_BOTTOM_LEFT_RADIUS = 7;
+const HOOK_WIDTH = 7;
+const BORDER_BOTTOM_LEFT_RADIUS = 2;
+const SPACING = 5;
 
 const outer: React.CSSProperties = {
 	height: TIMELINE_LAYER_HEIGHT,
@@ -20,44 +22,60 @@ const outer: React.CSSProperties = {
 
 const hookContainer: React.CSSProperties = {
 	height: TIMELINE_LAYER_HEIGHT,
-	width: 10,
+	width: HOOK_WIDTH,
 	position: 'relative',
 };
 
 const hook: React.CSSProperties = {
-	borderLeft: '1px solid white',
-	borderBottom: '1px solid white',
+	borderLeft: '1px solid #555',
+	borderBottom: '1px solid #555',
 	borderBottomLeftRadius: BORDER_BOTTOM_LEFT_RADIUS,
-	height: TIMELINE_LAYER_HEIGHT + BORDER_BOTTOM_LEFT_RADIUS / 2 + 2,
-	width: 10,
+	width: HOOK_WIDTH,
 	position: 'absolute',
 	bottom: TIMELINE_LAYER_HEIGHT / 2 - 1,
 };
 
 const space: React.CSSProperties = {
-	width: 5,
+	width: SPACING,
+};
+const smallSpace: React.CSSProperties = {
+	width: SPACING * 0.5,
 };
 
 export const TimelineListItem: React.FC<{
 	sequence: TSequence;
-}> = ({sequence}) => {
-	const leftOffset = sequence.parent ? 7 : 0;
+	nestedDepth: number;
+	beforeDepth: number;
+}> = ({nestedDepth, sequence, beforeDepth}) => {
+	const leftOffset = HOOK_WIDTH + SPACING * 1.5;
+	const hookStyle = useMemo(() => {
+		return {
+			...hook,
+			height:
+				TIMELINE_LAYER_HEIGHT +
+				BORDER_BOTTOM_LEFT_RADIUS / 2 -
+				(beforeDepth === nestedDepth ? 2 : 12),
+		};
+	}, [beforeDepth, nestedDepth]);
 
 	const padder = useMemo((): React.CSSProperties => {
 		return {
-			width: leftOffset,
+			width: leftOffset * (nestedDepth - 1),
 		};
-	}, [leftOffset]);
+	}, [leftOffset, nestedDepth]);
 
 	return (
 		<div style={outer}>
 			<div style={padder} />
 			{sequence.parent ? (
-				<div style={hookContainer}>
-					<div style={hook} />
-				</div>
+				<>
+					<div style={smallSpace} />
+					<div style={hookContainer}>
+						<div style={hookStyle} />
+					</div>
+					<div style={space} />
+				</>
 			) : null}
-			<div style={space} />
 			{sequence.displayName}
 		</div>
 	);
