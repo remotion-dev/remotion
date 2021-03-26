@@ -6,13 +6,11 @@ import {useElementSize} from '../../hooks/get-el-size';
 import {sliderAreaRef} from './timeline-refs';
 
 const Container = styled.div`
-	flex: 1;
-	position: relative;
-	padding-left: ${TIMELINE_PADDING}px;
-	padding-right: ${TIMELINE_PADDING}px;
 	user-select: none;
 	overflow: hidden;
-	background-color: #111111;
+	position: absolute;
+	width: 100%;
+	height: 100%;
 `;
 
 const Inner = styled.div`
