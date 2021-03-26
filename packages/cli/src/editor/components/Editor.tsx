@@ -9,7 +9,7 @@ import {PreviewSize, PreviewSizeContext} from '../state/preview-size';
 import {SplitterContainer} from './Splitter/SplitterContainer';
 import {SplitterElement} from './Splitter/SplitterElement';
 import {SplitterHandle} from './Splitter/SplitterHandle';
-import {Timeline} from './Timeline';
+import {Timeline} from './Timeline/Timeline';
 import {TopPanel} from './TopPanel';
 import {UpdateCheck} from './UpdateCheck';
 
