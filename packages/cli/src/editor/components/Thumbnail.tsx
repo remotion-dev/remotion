@@ -66,7 +66,7 @@ export const Thumbnail: React.FC<{
 		return {
 			playing: false,
 			frame: frameToDisplay,
-			isThumbnail: false,
+			isThumbnail: true,
 		};
 	}, [frameToDisplay]);
 

@@ -68,9 +68,6 @@ export const Sequence: React.FC<{
 	}, [children, name]);
 
 	useEffect(() => {
-		if (!isThumbnail) {
-			return;
-		}
 		registerSequence({
 			from: actualFrom,
 			duration: durationInFrames,
@@ -78,6 +75,7 @@ export const Sequence: React.FC<{
 			displayName: timelineClipName,
 			parent: parentSequence?.id ?? null,
 			type: 'sequence',
+			isThumbnail,
 		});
 		return () => {
 			unregisterSequence(id);
