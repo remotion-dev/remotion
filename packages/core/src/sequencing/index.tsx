@@ -29,7 +29,7 @@ export const Sequence: React.FC<{
 	const [id] = useState(() => String(Math.random()));
 	const absoluteFrame = useAbsoluteCurrentFrame();
 	const parentSequence = useContext(SequenceContext);
-	const {shouldRegisterSequences} = useContext(TimelineContext);
+	const {isThumbnail} = useContext(TimelineContext);
 	const actualFrom = (parentSequence?.from ?? 0) + from;
 	const {registerSequence, unregisterSequence} = useContext(CompositionManager);
 
@@ -68,7 +68,7 @@ export const Sequence: React.FC<{
 	}, [children, name]);
 
 	useEffect(() => {
-		if (!shouldRegisterSequences) {
+		if (!isThumbnail) {
 			return;
 		}
 		registerSequence({
@@ -91,7 +91,7 @@ export const Sequence: React.FC<{
 		timelineClipName,
 		unregisterSequence,
 		parentSequence?.id,
-		shouldRegisterSequences,
+		isThumbnail,
 	]);
 
 	const endThreshold = (() => {
