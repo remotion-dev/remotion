@@ -33,7 +33,7 @@ export const Sequence: React.FC<{
 	const actualFrom = (parentSequence?.from ?? 0) + from;
 	const actualDurationInFrames = parentSequence
 		? Math.min(
-				parentSequence.durationInFrames - parentSequence.from,
+				parentSequence.durationInFrames + parentSequence.from - actualFrom,
 				durationInFrames
 		  )
 		: durationInFrames;

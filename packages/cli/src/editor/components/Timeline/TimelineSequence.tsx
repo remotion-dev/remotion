@@ -110,7 +110,6 @@ export const TimelineSequence: React.FC<{
 					fps={fps}
 				/>
 			) : null}
-			<Pre>{s.displayName}</Pre>
 		</div>
 	);
 };
