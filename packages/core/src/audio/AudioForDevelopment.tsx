@@ -51,7 +51,7 @@ export const AudioForDevelopment: React.FC<RemotionAudioProps> = (props) => {
 			setActualVolume(ref.volume);
 		};
 		ref.addEventListener('volumechange', onChange);
-		return () => ref.addEventListener('volumechange', onChange);
+		return () => ref.removeEventListener('volumechange', onChange);
 	}, [actualVolume]);
 
 	const userPreferredVolume = props.volume ?? 1;
