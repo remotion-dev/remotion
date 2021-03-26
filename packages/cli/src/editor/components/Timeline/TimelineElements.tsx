@@ -3,13 +3,17 @@ import {Internals} from 'remotion';
 import styled from 'styled-components';
 import {calculateTimeline, Track} from '../../helpers/calculate-timeline';
 import {TIMELINE_LAYER_HEIGHT} from '../../helpers/timeline-layout';
+import {FpsCounter} from '../FpsCounter';
+import {SplitterContainer} from '../Splitter/SplitterContainer';
+import {SplitterElement} from '../Splitter/SplitterElement';
+import {SplitterHandle} from '../Splitter/SplitterHandle';
+import {TimeValue} from '../TimeValue';
+import {TimelineDragHandler} from './TimelineDragHandler';
 import {TimelineSequence} from './TimelineSequence';
+import {TimelineSlider} from './TimelineSlider';
 
 const Container = styled.div`
-	height: 100%;
-	display: grid;
-	grid-gap: 2px;
-	grid-auto-rows: minmax(25px, ${TIMELINE_LAYER_HEIGHT}px);
+	min-height: 100%;
 `;
 
 export const TimelineElements: React.FC = () => {
@@ -38,13 +42,33 @@ export const TimelineElements: React.FC = () => {
 
 	return (
 		<Container>
-			{timeline.map((track) => (
-				<div key={track.trackId} style={inner}>
-					{track.sequences.map((s) => {
-						return <TimelineSequence key={s.id} fps={videoConfig.fps} s={s} />;
-					})}
-				</div>
-			))}
+			<SplitterContainer
+				orientation="vertical"
+				defaultFlex={0.2}
+				id="names-to-timeline"
+				maxFlex={0.5}
+				minFlex={0.15}
+			>
+				<SplitterElement type="flexer">
+					<TimeValue />
+					<FpsCounter />
+				</SplitterElement>
+				<SplitterHandle />
+				<SplitterElement type="anti-flexer">
+					<TimelineDragHandler>
+						{timeline.map((track) => (
+							<div key={track.trackId} style={inner}>
+								{track.sequences.map((s) => {
+									return (
+										<TimelineSequence key={s.id} fps={videoConfig.fps} s={s} />
+									);
+								})}
+							</div>
+						))}
+					</TimelineDragHandler>
+					<TimelineSlider />
+				</SplitterElement>
+			</SplitterContainer>
 		</Container>
 	);
 };

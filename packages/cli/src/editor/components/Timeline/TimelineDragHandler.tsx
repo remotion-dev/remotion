@@ -2,13 +2,15 @@ import React, {useCallback, useEffect, useState} from 'react';
 import {Internals, interpolate} from 'remotion';
 import styled from 'styled-components';
 import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
-import {useWindowSize} from '../../hooks/use-window-size';
+import {useElementSize} from '../../hooks/get-el-size';
+import {sliderAreaRef} from './timeline-refs';
 
 const Container = styled.div`
 	flex: 1;
 	position: relative;
 	padding: ${TIMELINE_PADDING}px;
 	user-select: none;
+	overflow: hidden;
 `;
 
 const Inner = styled.div`
@@ -37,7 +39,8 @@ const getFrameFromX = (
 };
 
 export const TimelineDragHandler: React.FC = ({children}) => {
-	const {width} = useWindowSize();
+	const size = useElementSize(sliderAreaRef);
+	const width = size?.width ?? 0;
 	const [dragging, setDragging] = useState<
 		| {
 				dragging: false;
@@ -59,7 +62,7 @@ export const TimelineDragHandler: React.FC = ({children}) => {
 				return;
 			}
 			const frame = getFrameFromX(
-				e.clientX,
+				e.clientX - (size?.left ?? 0),
 				videoConfig.durationInFrames,
 				width
 			);
@@ -70,7 +73,7 @@ export const TimelineDragHandler: React.FC = ({children}) => {
 			});
 			setPlaying(false);
 		},
-		[playing, setPlaying, setTimelinePosition, videoConfig, width]
+		[playing, setPlaying, setTimelinePosition, size, videoConfig, width]
 	);
 
 	const onPointerMove = useCallback(
@@ -82,13 +85,13 @@ export const TimelineDragHandler: React.FC = ({children}) => {
 				return;
 			}
 			const frame = getFrameFromX(
-				e.clientX,
+				e.clientX - (size?.left ?? 0),
 				videoConfig.durationInFrames,
 				width
 			);
 			setTimelinePosition(frame);
 		},
-		[dragging.dragging, setTimelinePosition, videoConfig, width]
+		[dragging.dragging, setTimelinePosition, size?.left, videoConfig, width]
 	);
 
 	const onPointerUp = useCallback(() => {
@@ -114,7 +117,11 @@ export const TimelineDragHandler: React.FC = ({children}) => {
 	}, [dragging.dragging, onPointerMove, onPointerUp]);
 
 	return (
-		<Container onPointerDown={onPointerDown} onPointerUp={onPointerUp}>
+		<Container
+			ref={sliderAreaRef}
+			onPointerDown={onPointerDown}
+			onPointerUp={onPointerUp}
+		>
 			<Inner>{children}</Inner>
 		</Container>
 	);
