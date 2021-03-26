@@ -31,6 +31,12 @@ export const Sequence: React.FC<{
 	const parentSequence = useContext(SequenceContext);
 	const {isThumbnail} = useContext(TimelineContext);
 	const actualFrom = (parentSequence?.from ?? 0) + from;
+	const actualDurationInFrames = parentSequence
+		? Math.min(
+				parentSequence.durationInFrames - parentSequence.from,
+				durationInFrames
+		  )
+		: durationInFrames;
 	const {registerSequence, unregisterSequence} = useContext(CompositionManager);
 
 	if (layout !== 'absolute-fill' && layout !== 'none') {
@@ -70,7 +76,7 @@ export const Sequence: React.FC<{
 	useEffect(() => {
 		registerSequence({
 			from: actualFrom,
-			duration: durationInFrames,
+			duration: actualDurationInFrames,
 			id,
 			displayName: timelineClipName,
 			parent: parentSequence?.id ?? null,
@@ -90,6 +96,7 @@ export const Sequence: React.FC<{
 		unregisterSequence,
 		parentSequence?.id,
 		isThumbnail,
+		actualDurationInFrames,
 	]);
 
 	const endThreshold = (() => {

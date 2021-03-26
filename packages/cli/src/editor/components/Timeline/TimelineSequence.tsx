@@ -45,8 +45,9 @@ export const TimelineSequence: React.FC<{
 		(s.duration === Infinity
 			? windowWidth - TIMELINE_PADDING * 2
 			: (spatialDuration / lastFrame) * (windowWidth - TIMELINE_PADDING * 2)) -
-		border * 2;
-	const marginLeft = (s.from / lastFrame) * windowWidth;
+		border;
+	const marginLeft =
+		(s.from / lastFrame) * (windowWidth - TIMELINE_PADDING * 2);
 
 	const style: React.CSSProperties = useMemo(() => {
 		return {
