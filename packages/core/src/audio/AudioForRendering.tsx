@@ -1,6 +1,7 @@
 import React, {useContext, useEffect, useMemo} from 'react';
 import {CompositionManager} from '../CompositionManager';
 import {random} from '../random';
+import {SequenceContext} from '../sequencing';
 import {useAbsoluteCurrentFrame, useCurrentFrame} from '../use-frame';
 import {validateMediaProps} from '../validate-media-props';
 import {RemotionAudioProps} from './props';
@@ -8,6 +9,7 @@ import {RemotionAudioProps} from './props';
 export const AudioForRendering: React.FC<RemotionAudioProps> = (props) => {
 	const absoluteFrame = useAbsoluteCurrentFrame();
 	const sequenceFrame = useCurrentFrame();
+	const sequenceContext = useContext(SequenceContext);
 	const {registerAsset, unregisterAsset} = useContext(CompositionManager);
 
 	validateMediaProps(props, 'Audio');
@@ -15,8 +17,11 @@ export const AudioForRendering: React.FC<RemotionAudioProps> = (props) => {
 	// Generate a string that's as unique as possible for this asset
 	// but at the same time the same on all threads
 	const id = useMemo(
-		() => `audio-${random(props.src ?? '')}-muted:${props.muted}`,
-		[props.muted, props.src]
+		() =>
+			`audio-${random(props.src ?? '')}-${sequenceContext?.from}-${
+				sequenceContext?.durationInFrames
+			}-muted:${props.muted}`,
+		[props.muted, props.src, sequenceContext]
 	);
 
 	useEffect(() => {

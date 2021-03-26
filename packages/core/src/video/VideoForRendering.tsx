@@ -4,6 +4,7 @@ import {FEATURE_FLAG_V2_BREAKING_CHANGES} from '../feature-flags';
 import {isApproximatelyTheSame} from '../is-approximately-the-same';
 import {random} from '../random';
 import {continueRender, delayRender} from '../ready-manager';
+import {SequenceContext} from '../sequencing';
 import {useCurrentFrame} from '../use-frame';
 import {useUnsafeVideoConfig} from '../use-unsafe-video-config';
 import {validateMediaProps} from '../validate-media-props';
@@ -16,6 +17,8 @@ export const VideoForRendering: React.FC<RemotionVideoProps> = ({
 	const frame = useCurrentFrame();
 	const videoConfig = useUnsafeVideoConfig();
 	const videoRef = useRef<HTMLVideoElement>(null);
+	const sequenceContext = useContext(SequenceContext);
+
 	const {registerAsset, unregisterAsset} = useContext(CompositionManager);
 
 	validateMediaProps(props, 'Video');
@@ -23,8 +26,16 @@ export const VideoForRendering: React.FC<RemotionVideoProps> = ({
 	// Generate a string that's as unique as possible for this asset
 	// but at the same time the same on all threads
 	const id = useMemo(
-		() => `audio-${random(props.src ?? '')}-muted:${props.muted}`,
-		[props.muted, props.src]
+		() =>
+			`audio-${random(props.src ?? '')}-${sequenceContext?.from}-${
+				sequenceContext?.durationInFrames
+			}-muted:${props.muted}`,
+		[
+			props.muted,
+			props.src,
+			sequenceContext?.durationInFrames,
+			sequenceContext?.from,
+		]
 	);
 
 	if (!videoConfig) {

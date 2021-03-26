@@ -1,6 +1,5 @@
 import React, {useMemo} from 'react';
 import {Internals, TSequence} from 'remotion';
-import styled from 'styled-components';
 import {
 	TIMELINE_LAYER_HEIGHT,
 	TIMELINE_PADDING,
@@ -9,16 +8,6 @@ import {useElementSize} from '../../hooks/get-el-size';
 import {AudioWaveform} from '../AudioWaveform';
 import {Thumbnail} from '../Thumbnail';
 import {sliderAreaRef} from './timeline-refs';
-
-const Pre = styled.pre`
-	color: white;
-	font-family: Arial, Helvetica, sans-serif;
-	font-size: 12px;
-	margin-top: 0;
-	margin-bottom: 0;
-	padding: 5px;
-	position: absolute;
-`;
 
 const SEQUENCE_GRADIENT = 'linear-gradient(to bottom, #3697e1, #348AC7 60%)';
 const AUDIO_GRADIENT = 'linear-gradient(rgb(16 171 58), rgb(43 165 63) 60%)';
@@ -43,15 +32,18 @@ export const TimelineSequence: React.FC<{
 	const lastFrame = (video.durationInFrames ?? 1) - 1;
 
 	const border = 1;
-	const width =
-		(s.duration === Infinity || lastFrame === 0
-			? windowWidth - TIMELINE_PADDING * 2
-			: (spatialDuration / lastFrame) * (windowWidth - TIMELINE_PADDING * 2)) -
-		border;
 	const marginLeft =
 		lastFrame === 0
 			? 0
 			: (s.from / lastFrame) * (windowWidth - TIMELINE_PADDING * 2);
+	const negativeLeftMargin = Math.min(0, marginLeft);
+	const width =
+		(s.duration === Infinity || lastFrame === 0
+			? windowWidth - TIMELINE_PADDING * 2
+			: (spatialDuration / lastFrame) * (windowWidth - TIMELINE_PADDING * 2)) -
+		border +
+		negativeLeftMargin;
+
 	const style: React.CSSProperties = useMemo(() => {
 		return {
 			background: s.type === 'audio' ? AUDIO_GRADIENT : SEQUENCE_GRADIENT,
@@ -60,7 +52,7 @@ export const TimelineSequence: React.FC<{
 			position: 'absolute',
 			height: TIMELINE_LAYER_HEIGHT,
 			marginTop: 1,
-			marginLeft,
+			marginLeft: Math.max(0, marginLeft),
 			width,
 			color: 'white',
 			overflow: 'hidden',
