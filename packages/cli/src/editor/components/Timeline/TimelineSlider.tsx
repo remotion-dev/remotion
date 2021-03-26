@@ -2,7 +2,8 @@ import React from 'react';
 import {Internals} from 'remotion';
 import styled from 'styled-components';
 import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
-import {useWindowSize} from '../../hooks/use-window-size';
+import {useElementSize} from '../../hooks/get-el-size';
+import {sliderAreaRef} from './timeline-refs';
 import {TimelineSliderHandle} from './TimelineSliderHandle';
 
 const Container = styled.div`
@@ -21,7 +22,8 @@ const Line = styled.div`
 export const TimelineSlider: React.FC = () => {
 	const timelinePosition = Internals.Timeline.useTimelinePosition();
 	const videoConfig = Internals.useUnsafeVideoConfig();
-	const {width} = useWindowSize();
+	const size = useElementSize(sliderAreaRef);
+	const width = size?.width ?? 0;
 
 	if (!videoConfig) {
 		return null;
@@ -29,7 +31,8 @@ export const TimelineSlider: React.FC = () => {
 
 	const left =
 		(timelinePosition / (videoConfig.durationInFrames - 1)) *
-		(width - TIMELINE_PADDING * 2);
+			(width - TIMELINE_PADDING * 2) +
+		TIMELINE_PADDING;
 
 	return (
 		<Container style={{transform: `translateX(${left}px)`}}>

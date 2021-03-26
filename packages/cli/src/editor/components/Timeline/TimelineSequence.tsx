@@ -5,9 +5,10 @@ import {
 	TIMELINE_LAYER_HEIGHT,
 	TIMELINE_PADDING,
 } from '../../helpers/timeline-layout';
-import {useWindowSize} from '../../hooks/use-window-size';
+import {useElementSize} from '../../hooks/get-el-size';
 import {AudioWaveform} from '../AudioWaveform';
 import {Thumbnail} from '../Thumbnail';
+import {sliderAreaRef} from './timeline-refs';
 
 const Pre = styled.pre`
 	color: white;
@@ -26,8 +27,9 @@ export const TimelineSequence: React.FC<{
 	s: TSequence;
 	fps: number;
 }> = ({s, fps}) => {
-	const {width: windowWidth} = useWindowSize();
+	const size = useElementSize(sliderAreaRef);
 
+	const windowWidth = size?.width ?? 0;
 	// If a duration is 1, it is essentially a still and it should have width 0
 	const spatialDuration = Internals.FEATURE_FLAG_V2_BREAKING_CHANGES
 		? s.duration - 1
@@ -42,13 +44,14 @@ export const TimelineSequence: React.FC<{
 
 	const border = 1;
 	const width =
-		(s.duration === Infinity
+		(s.duration === Infinity || lastFrame === 0
 			? windowWidth - TIMELINE_PADDING * 2
 			: (spatialDuration / lastFrame) * (windowWidth - TIMELINE_PADDING * 2)) -
 		border;
 	const marginLeft =
-		(s.from / lastFrame) * (windowWidth - TIMELINE_PADDING * 2);
-
+		lastFrame === 0
+			? 0
+			: (s.from / lastFrame) * (windowWidth - TIMELINE_PADDING * 2);
 	const style: React.CSSProperties = useMemo(() => {
 		return {
 			background: s.type === 'audio' ? AUDIO_GRADIENT : SEQUENCE_GRADIENT,
