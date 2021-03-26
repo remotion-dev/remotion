@@ -32,7 +32,7 @@ export const calculateTimeline = ({
 					parent: null,
 					type: 'sequence',
 					isThumbnail: false,
-					rootId: 'hi',
+					rootId: '-',
 				},
 				depth: 0,
 			},

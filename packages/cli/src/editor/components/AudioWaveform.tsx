@@ -4,6 +4,7 @@ import {
 	AudioContextMetadata,
 	getAudioMetadata,
 } from '../helpers/get-audio-metadata';
+import {getAudioRangeFromStartFromAndDuration} from '../helpers/get-audio-range-from-start-from';
 import {getWaveformSamples} from '../helpers/reduce-waveform';
 import {TIMELINE_LAYER_HEIGHT} from '../helpers/timeline-layout';
 import {
@@ -27,8 +28,20 @@ export const AudioWaveform: React.FC<{
 	fps: number;
 	startFrom: number;
 	duration: number;
-}> = ({src, fps, startFrom, duration, visualizationWidth}) => {
+}> = ({
+	src,
+	fps,
+	startFrom: baseStartFrom,
+	duration: baseDuration,
+	visualizationWidth,
+}) => {
 	const [metadata, setMetadata] = useState<AudioContextMetadata | null>(null);
+
+	const {startFrom, durationInFrames} = getAudioRangeFromStartFromAndDuration({
+		startFrom: baseStartFrom,
+		durationInFrames: baseDuration,
+	});
+
 	useEffect(() => {
 		getAudioMetadata(src)
 			.then((data) => {
@@ -52,7 +65,7 @@ export const AudioWaveform: React.FC<{
 		);
 		const endSample = Math.floor(
 			interpolate(
-				startFrom + duration,
+				startFrom + durationInFrames,
 				[0, metadata.duration * fps],
 				[0, metadata.channelWaveforms[0].length]
 			)
@@ -69,7 +82,7 @@ export const AudioWaveform: React.FC<{
 				amplitude: w,
 			};
 		});
-	}, [duration, fps, metadata, startFrom, visualizationWidth]);
+	}, [durationInFrames, fps, metadata, startFrom, visualizationWidth]);
 
 	if (!metadata) {
 		return null;
