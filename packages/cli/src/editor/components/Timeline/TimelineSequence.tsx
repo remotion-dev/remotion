@@ -40,25 +40,28 @@ export const TimelineSequence: React.FC<{
 
 	const lastFrame = (video.durationInFrames ?? 1) - 1;
 
+	const border = 1;
 	const width =
-		s.duration === Infinity
+		(s.duration === Infinity
 			? windowWidth - TIMELINE_PADDING * 2
-			: (spatialDuration / lastFrame) * (windowWidth - TIMELINE_PADDING * 2);
+			: (spatialDuration / lastFrame) * (windowWidth - TIMELINE_PADDING * 2)) -
+		border * 2;
+	const marginLeft = (s.from / lastFrame) * windowWidth;
 
 	const style: React.CSSProperties = useMemo(() => {
 		return {
 			background: s.type === 'audio' ? AUDIO_GRADIENT : SEQUENCE_GRADIENT,
-			border: '1px solid rgba(255, 255, 255, 0.2)',
+			border: border + 'px solid rgba(255, 255, 255, 0.2)',
 			borderRadius: 4,
 			position: 'absolute',
 			height: TIMELINE_LAYER_HEIGHT,
 			marginTop: 1,
-			marginLeft: `calc(${(s.from / lastFrame) * 100}%)`,
+			marginLeft,
 			width,
 			color: 'white',
 			overflow: 'hidden',
 		};
-	}, [lastFrame, s.from, s.type, width]);
+	}, [marginLeft, s.type, width]);
 
 	const row: React.CSSProperties = useMemo(() => {
 		return {
