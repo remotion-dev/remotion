@@ -38,6 +38,7 @@ export const Timeline: React.FC = () => {
 			height: timeline.length * (TIMELINE_LAYER_HEIGHT + 2),
 			display: 'flex',
 			flex: 1,
+			minHeight: '100%',
 		};
 	}, [timeline.length]);
 
