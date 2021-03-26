@@ -71,27 +71,28 @@ export const TimelineSequence: React.FC<{
 
 	const thumbnailWidth = TIMELINE_LAYER_HEIGHT * (video.width / video.height);
 
-	const thumbnailFit = Math.ceil(width / thumbnailWidth);
+	const thumbnailFit = !Internals.FEATURE_FLAG_RICH_PREVIEWS
+		? 1
+		: Math.ceil(width / thumbnailWidth);
 
 	return (
 		<div key={s.id} style={style} title={s.displayName}>
 			<div style={row}>
-				{Internals.FEATURE_FLAG_RICH_PREVIEWS
-					? new Array(thumbnailFit).fill(true).map((_, i) => {
-							const frameToDisplay = Math.floor(
-								(i / thumbnailFit) * video.durationInFrames
-							);
-							return (
-								<Thumbnail
-									key={frameToDisplay}
-									targetHeight={TIMELINE_LAYER_HEIGHT}
-									targetWidth={thumbnailWidth}
-									composition={video}
-									frameToDisplay={frameToDisplay}
-								/>
-							);
-					  })
-					: null}
+				{s.type === 'sequence' &&
+					new Array(thumbnailFit).fill(true).map((_, i) => {
+						const frameToDisplay = Internals.FEATURE_FLAG_RICH_PREVIEWS
+							? Math.floor((i / thumbnailFit) * video.durationInFrames)
+							: s.from;
+						return (
+							<Thumbnail
+								key={frameToDisplay}
+								targetHeight={TIMELINE_LAYER_HEIGHT}
+								targetWidth={thumbnailWidth}
+								composition={video}
+								frameToDisplay={frameToDisplay}
+							/>
+						);
+					})}
 			</div>
 			{s.type === 'audio' ? (
 				<AudioWaveform
