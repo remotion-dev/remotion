@@ -34,6 +34,7 @@ export type TSequence = {
 	id: string;
 	displayName: string;
 	parent: string | null;
+	isThumbnail: boolean;
 } & EnhancedTSequenceData;
 
 export type TAsset = {

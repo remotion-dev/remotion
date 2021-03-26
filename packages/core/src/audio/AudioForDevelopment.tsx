@@ -79,9 +79,7 @@ export const AudioForDevelopment: React.FC<RemotionAudioProps> = (props) => {
 		if (!videoConfig) {
 			return;
 		}
-		if (!isThumbnail) {
-			return;
-		}
+
 		if (!props.src) {
 			throw new Error('No src passed');
 		}
@@ -95,6 +93,7 @@ export const AudioForDevelopment: React.FC<RemotionAudioProps> = (props) => {
 			from: actualFrom,
 			parent: parentSequence?.id ?? null,
 			displayName: getAssetFileName(props.src),
+			isThumbnail,
 		});
 		return () => unregisterSequence(id);
 	}, [

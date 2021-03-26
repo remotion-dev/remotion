@@ -30,7 +30,7 @@ test('It should calculate the correct offset in nested sequences', () => {
 			value={{
 				frame: 40,
 				playing: false,
-				isThumbnail: true,
+				isThumbnail: false,
 			}}
 		>
 			<Sequence from={20} durationInFrames={100}>

@@ -30,6 +30,7 @@ export const calculateTimeline = ({
 						id: 'seq',
 						parent: null,
 						type: 'sequence',
+						isThumbnail: false,
 					},
 				],
 				trackId: '0',
@@ -39,6 +40,9 @@ export const calculateTimeline = ({
 
 	for (let i = 0; i < sequences.length; i++) {
 		const sequence = sequences[i];
+		if (sequence.isThumbnail) {
+			continue;
+		}
 		if (!tracks[i]) {
 			tracks[i] = {
 				sequences: [],
