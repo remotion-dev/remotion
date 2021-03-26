@@ -3,7 +3,7 @@ import {CompositionManager} from '../CompositionManager';
 import {getAssetFileName} from '../get-asset-file-name';
 import {isApproximatelyTheSame} from '../is-approximately-the-same';
 import {SequenceContext} from '../sequencing';
-import {usePlayingState} from '../timeline-position-state';
+import {TimelineContext, usePlayingState} from '../timeline-position-state';
 import {useAbsoluteCurrentFrame, useCurrentFrame} from '../use-frame';
 import {useUnsafeVideoConfig} from '../use-unsafe-video-config';
 import {validateMediaProps} from '../validate-media-props';
@@ -17,6 +17,8 @@ export const AudioForDevelopment: React.FC<RemotionAudioProps> = (props) => {
 
 	const videoConfig = useUnsafeVideoConfig();
 	const [playing] = usePlayingState();
+	const {shouldRegisterSequences} = useContext(TimelineContext);
+
 	const parentSequence = useContext(SequenceContext);
 	const actualFrom = parentSequence?.from ?? 0;
 
@@ -77,6 +79,9 @@ export const AudioForDevelopment: React.FC<RemotionAudioProps> = (props) => {
 		if (!videoConfig) {
 			return;
 		}
+		if (!shouldRegisterSequences) {
+			return;
+		}
 		if (!props.src) {
 			throw new Error('No src passed');
 		}
@@ -103,6 +108,7 @@ export const AudioForDevelopment: React.FC<RemotionAudioProps> = (props) => {
 		unregisterSequence,
 		videoConfig,
 		actualFrom,
+		shouldRegisterSequences,
 	]);
 
 	useEffect(() => {
