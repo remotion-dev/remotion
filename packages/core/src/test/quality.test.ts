@@ -1,7 +1,7 @@
 import {getQuality, setQuality} from '../config/quality';
 import {expectToThrow} from './expect-to-throw';
 
-test('set quality tests', () => {
+test('set quality tests valid input', () => {
 	// input quality
 	const valuesA = [50, undefined, 100, 1];
 	valuesA.forEach((entry) => {
@@ -15,7 +15,9 @@ test('set quality tests', () => {
 		setQuality(entry[0]);
 		expect(getQuality()).toEqual(entry[1]);
 	});
+});
 
+test('set quality tests invalid input', () => {
 	// input quality
 	const valuesC = ['abc', null];
 	valuesC.forEach((entry) =>

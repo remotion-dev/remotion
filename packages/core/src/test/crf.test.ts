@@ -8,7 +8,7 @@ import {
 } from '../config/crf';
 import {expectToThrow} from './expect-to-throw';
 
-test('crf tests getDefaultCrfForCodec', () => {
+test('crf tests getDefaultCrfForCodec valid input', () => {
 	// input codec, output
 	const valuesA: [Codec, number][] = [
 		['h264', 18],
@@ -19,7 +19,9 @@ test('crf tests getDefaultCrfForCodec', () => {
 	valuesA.forEach((entry) =>
 		expect(getDefaultCrfForCodec(entry[0])).toEqual(entry[1])
 	);
+});
 
+test('crf tests getDefaultCrfForCodec invalid input', () => {
 	// input codec
 	const valuesB = ['abc', '', 3, undefined];
 	valuesB.forEach((entry) =>
@@ -31,7 +33,7 @@ test('crf tests getDefaultCrfForCodec', () => {
 	);
 });
 
-test('crf tests getValidCrfRanges', () => {
+test('crf tests getValidCrfRanges valid input', () => {
 	// input crf, input codec, valid range
 	const valuesA: [Codec, [number, number]][] = [
 		['h264', [0, 51]],
@@ -42,7 +44,9 @@ test('crf tests getValidCrfRanges', () => {
 	valuesA.forEach((entry) =>
 		expect(getValidCrfRanges(entry[0])).toEqual(entry[1])
 	);
+});
 
+test('crf tests getValidCrfRanges invalid input', () => {
 	// input codec
 	const valuesB = ['abc', '', 3, undefined];
 	valuesB.forEach((entry) =>
@@ -54,7 +58,7 @@ test('crf tests getValidCrfRanges', () => {
 	);
 });
 
-test('validateSelectedCrfAndCodecCombination', () => {
+test('validateSelectedCrfAndCodecCombination valid input', () => {
 	// input crf, input codec
 	const valuesA: [number, Codec][] = [
 		[20, 'h264'],
@@ -75,7 +79,9 @@ test('validateSelectedCrfAndCodecCombination', () => {
 			validateSelectedCrfAndCodecCombination(entry[0], entry[1])
 		).not.toThrow()
 	);
+});
 
+test('validateSelectedCrfAndCodecCombination invalid input', () => {
 	// input crf, input codec, valid range
 	const valuesB: [number, Codec, [number, number]][] = [
 		[80, 'h264', [0, 51]],
@@ -101,7 +107,7 @@ test('validateSelectedCrfAndCodecCombination', () => {
 	);
 });
 
-test('get crf', () => {
+test('get crf valid input', () => {
 	// input crf, input codec, output crf
 	const valuesA: [number | undefined, Codec, number][] = [
 		[20, 'h264', 20],
@@ -117,7 +123,9 @@ test('get crf', () => {
 		setCrf(entry[0]);
 		expect(getActualCrf(entry[1])).toEqual(entry[2]);
 	});
+});
 
+test('get crf invalid input', () => {
 	// input crf, input codec, valid range
 	const valuesB: [number, Codec, [number, number]][] = [
 		[80, 'h264', [0, 51]],
