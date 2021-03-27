@@ -1,10 +1,4 @@
-import React, {
-	useContext,
-	useEffect,
-	useLayoutEffect,
-	useRef,
-	useState,
-} from 'react';
+import React, {useContext, useEffect, useRef, useState} from 'react';
 import {CompositionManager} from '../CompositionManager';
 import {getAssetFileName} from '../get-asset-file-name';
 import {isApproximatelyTheSame} from '../is-approximately-the-same';
@@ -19,7 +13,6 @@ export const AudioForDevelopment: React.FC<RemotionAudioProps> = (props) => {
 	const audioRef = useRef<HTMLAudioElement>(null);
 	const currentFrame = useCurrentFrame();
 	const absoluteFrame = useAbsoluteCurrentFrame();
-	const startsAt = absoluteFrame - currentFrame;
 	const [actualVolume, setActualVolume] = useState(1);
 
 	const videoConfig = useUnsafeVideoConfig();
@@ -79,8 +72,7 @@ export const AudioForDevelopment: React.FC<RemotionAudioProps> = (props) => {
 		}
 	}, [playing]);
 
-	// using useEffect will lead to reordering problems when fast refreshing
-	useLayoutEffect(() => {
+	useEffect(() => {
 		if (!audioRef.current) {
 			return;
 		}
@@ -110,19 +102,15 @@ export const AudioForDevelopment: React.FC<RemotionAudioProps> = (props) => {
 		});
 		return () => unregisterSequence(id);
 	}, [
-		props.src,
+		actualFrom,
 		id,
-		currentFrame,
+		isThumbnail,
 		parentSequence,
-		actualVolume,
-		userPreferredVolume,
+		props.src,
 		registerSequence,
+		rootId,
 		unregisterSequence,
 		videoConfig,
-		actualFrom,
-		isThumbnail,
-		startsAt,
-		rootId,
 	]);
 
 	useEffect(() => {
@@ -138,7 +126,11 @@ export const AudioForDevelopment: React.FC<RemotionAudioProps> = (props) => {
 
 		const isTime = audioRef.current.currentTime;
 		const timeShift = Math.abs(shouldBeTime - isTime);
-		if (timeShift > 0.5) {
+		if (
+			timeShift > 0.5 &&
+			!audioRef.current.ended &&
+			shouldBeTime <= audioRef.current.currentTime
+		) {
 			console.log('Time has shifted by', timeShift, 'sec. Fixing...');
 			// If scrubbing around, adjust timing
 			// or if time shift is bigger than 0.2sec
@@ -151,7 +143,7 @@ export const AudioForDevelopment: React.FC<RemotionAudioProps> = (props) => {
 			audioRef.current.currentTime = shouldBeTime;
 		}
 		if (audioRef.current.paused && !audioRef.current.ended && playing) {
-			// Play video
+			// Play audio
 			audioRef.current.play();
 		}
 	}, [absoluteFrame, currentFrame, playing, videoConfig]);

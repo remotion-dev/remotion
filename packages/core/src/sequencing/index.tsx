@@ -1,7 +1,7 @@
 import React, {
 	createContext,
 	useContext,
-	useLayoutEffect,
+	useEffect,
 	useMemo,
 	useState,
 } from 'react';
@@ -10,6 +10,7 @@ import {FEATURE_FLAG_V2_BREAKING_CHANGES} from '../feature-flags';
 import {getTimelineClipName} from '../get-timeline-clip-name';
 import {TimelineContext} from '../timeline-position-state';
 import {useAbsoluteCurrentFrame} from '../use-frame';
+import {useVideoConfig} from '../use-video-config';
 
 type SequenceContextType = {
 	from: number;
@@ -31,12 +32,16 @@ export const Sequence: React.FC<{
 	const parentSequence = useContext(SequenceContext);
 	const {isThumbnail, rootId} = useContext(TimelineContext);
 	const actualFrom = (parentSequence?.from ?? 0) + from;
-	const actualDurationInFrames = parentSequence
-		? Math.min(
-				parentSequence.durationInFrames + parentSequence.from - actualFrom,
-				durationInFrames
-		  )
-		: durationInFrames;
+	const {durationInFrames: compositionDuration} = useVideoConfig();
+	const actualDurationInFrames = Math.min(
+		compositionDuration - from,
+		parentSequence
+			? Math.min(
+					parentSequence.durationInFrames + parentSequence.from - actualFrom,
+					durationInFrames
+			  )
+			: durationInFrames
+	);
 	const {registerSequence, unregisterSequence} = useContext(CompositionManager);
 
 	if (layout !== 'absolute-fill' && layout !== 'none') {
@@ -73,8 +78,7 @@ export const Sequence: React.FC<{
 		return name ?? getTimelineClipName(children);
 	}, [children, name]);
 
-	// using useEffect will lead to reordering problems when fast refreshing
-	useLayoutEffect(() => {
+	useEffect(() => {
 		registerSequence({
 			from: actualFrom,
 			duration: actualDurationInFrames,

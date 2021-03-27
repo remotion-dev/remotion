@@ -1,17 +1,12 @@
 import React, {useEffect, useMemo, useState} from 'react';
-import {interpolate} from 'remotion';
 import {
 	AudioContextMetadata,
 	getAudioMetadata,
 } from '../helpers/get-audio-metadata';
 import {getAudioRangeFromStartFromAndDuration} from '../helpers/get-audio-range-from-start-from';
-import {getWaveformSamples} from '../helpers/reduce-waveform';
+import {getWaveformPortion} from '../helpers/get-waveform-portion';
 import {TIMELINE_LAYER_HEIGHT} from '../helpers/timeline-layout';
-import {
-	AudioWaveformBar,
-	WAVEFORM_BAR_LENGTH,
-	WAVEFORM_BAR_MARGIN,
-} from './AudioWaveformBar';
+import {AudioWaveformBar} from './AudioWaveformBar';
 
 const container: React.CSSProperties = {
 	display: 'flex',
@@ -21,19 +16,20 @@ const container: React.CSSProperties = {
 	height: TIMELINE_LAYER_HEIGHT,
 };
 
-// TODO: Show metadata such as stereo, duration, bitrate
 export const AudioWaveform: React.FC<{
 	src: string;
 	visualizationWidth: number;
 	fps: number;
 	startFrom: number;
 	duration: number;
+	setMaxMediaDuration: React.Dispatch<React.SetStateAction<number>>;
 }> = ({
 	src,
 	fps,
 	startFrom: baseStartFrom,
 	duration: baseDuration,
 	visualizationWidth,
+	setMaxMediaDuration,
 }) => {
 	const [metadata, setMetadata] = useState<AudioContextMetadata | null>(null);
 
@@ -45,42 +41,25 @@ export const AudioWaveform: React.FC<{
 	useEffect(() => {
 		getAudioMetadata(src)
 			.then((data) => {
+				setMaxMediaDuration(Math.floor(data.duration * fps));
 				setMetadata(data);
 			})
 			.catch((err) => {
 				console.error(`Could not load waveform for ${src}`, err);
 			});
-	}, [src]);
+	}, [fps, setMaxMediaDuration, src]);
 
 	const normalized = useMemo(() => {
 		if (!metadata || metadata.numberOfChannels === 0) {
 			return [];
 		}
-		const startSample = Math.floor(
-			interpolate(
-				startFrom,
-				[0, metadata.duration * fps],
-				[0, metadata.channelWaveforms[0].length]
-			)
-		);
-		const endSample = Math.floor(
-			interpolate(
-				startFrom + durationInFrames,
-				[0, metadata.duration * fps],
-				[0, metadata.channelWaveforms[0].length]
-			)
-		);
-		const numberOfSamples = Math.floor(
-			visualizationWidth / (WAVEFORM_BAR_LENGTH + WAVEFORM_BAR_MARGIN)
-		);
-		return getWaveformSamples(
-			metadata.channelWaveforms[0].slice(startSample, endSample),
-			numberOfSamples
-		).map((w, i) => {
-			return {
-				index: i,
-				amplitude: w,
-			};
+
+		return getWaveformPortion({
+			metadata,
+			startFrom,
+			fps,
+			durationInFrames,
+			visualizationWidth,
 		});
 	}, [durationInFrames, fps, metadata, startFrom, visualizationWidth]);
 
