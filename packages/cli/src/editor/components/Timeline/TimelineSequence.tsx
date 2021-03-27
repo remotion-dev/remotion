@@ -1,9 +1,10 @@
-import React, {useMemo} from 'react';
+import React, {useMemo, useState} from 'react';
 import {Internals, TSequence} from 'remotion';
 import {
-	TIMELINE_LAYER_HEIGHT,
-	TIMELINE_PADDING,
-} from '../../helpers/timeline-layout';
+	getTimelineSequenceLayout,
+	SEQUENCE_BORDER_WIDTH,
+} from '../../helpers/get-timeline-sequence-layout';
+import {TIMELINE_LAYER_HEIGHT} from '../../helpers/timeline-layout';
 import {useElementSize} from '../../hooks/get-el-size';
 import {AudioWaveform} from '../AudioWaveform';
 import {Thumbnail} from '../Thumbnail';
@@ -20,39 +21,33 @@ export const TimelineSequence: React.FC<{
 
 	const windowWidth = size?.width ?? 0;
 	// If a duration is 1, it is essentially a still and it should have width 0
-	const spatialDuration = Internals.FEATURE_FLAG_V2_BREAKING_CHANGES
-		? s.duration - 1
-		: s.duration;
+	// Some compositions may not be longer than their media duration,
+	// if that is the case, it needs to be asynchronously determined
+	const [maxMediaDuration, setMaxMediaDuration] = useState(Infinity);
+
 	const video = Internals.useVideo();
 
 	if (!video) {
 		throw new TypeError('Expected video config');
 	}
 
-	const lastFrame = (video.durationInFrames ?? 1) - 1;
-
-	const border = 1;
-	const marginLeft =
-		lastFrame === 0
-			? 0
-			: (s.from / lastFrame) * (windowWidth - TIMELINE_PADDING * 2);
-	const negativeLeftMargin = Math.min(0, marginLeft);
-	const width =
-		(s.duration === Infinity || lastFrame === 0
-			? windowWidth - TIMELINE_PADDING * 2
-			: (spatialDuration / lastFrame) * (windowWidth - TIMELINE_PADDING * 2)) -
-		border +
-		negativeLeftMargin;
+	const {marginLeft, width} = getTimelineSequenceLayout({
+		durationInFrames: s.duration,
+		startFrom: s.from,
+		maxMediaDuration,
+		video,
+		windowWidth,
+	});
 
 	const style: React.CSSProperties = useMemo(() => {
 		return {
 			background: s.type === 'audio' ? AUDIO_GRADIENT : SEQUENCE_GRADIENT,
-			border: border + 'px solid rgba(255, 255, 255, 0.2)',
+			border: SEQUENCE_BORDER_WIDTH + 'px solid rgba(255, 255, 255, 0.2)',
 			borderRadius: 4,
 			position: 'absolute',
 			height: TIMELINE_LAYER_HEIGHT,
 			marginTop: 1,
-			marginLeft: Math.max(0, marginLeft),
+			marginLeft,
 			width,
 			color: 'white',
 			overflow: 'hidden',
@@ -100,6 +95,7 @@ export const TimelineSequence: React.FC<{
 					startFrom={s.from}
 					duration={s.duration}
 					fps={fps}
+					setMaxMediaDuration={setMaxMediaDuration}
 				/>
 			) : null}
 		</div>
