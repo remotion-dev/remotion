@@ -4,7 +4,7 @@
 	"description": "Remotion Player",
 	"main": "dist/index.js",
 	"scripts": {
-		"test": "eslint src --ext ts,tsx && jest",
+		"test": "jest",
 		"build": "tsc -d",
 		"watch": "tsc -w",
 		"prerelease": "cp ../../README.md ."
