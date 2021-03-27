@@ -28,6 +28,7 @@
 		"@babel/preset-typescript": "^7.10.4",
 		"@remotion/bundler": "^1.5.2",
 		"@remotion/renderer": "^1.5.2",
+		"@remotion/player": "^1.5.2",
 		"@types/cli-progress": "^3.7.0",
 		"@types/node": "^14.0.13",
 		"@types/react": "^17.0.0",
