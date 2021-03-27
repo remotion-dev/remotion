@@ -14,7 +14,8 @@
 	},
 	"files": [
 		"dist",
-		"src"
+		"src",
+		"styles"
 	],
 	"repository": {
 		"url": "https://github.com/JonnyBurger/remotion"
