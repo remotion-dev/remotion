@@ -65,9 +65,7 @@ export const TimelineSequence: React.FC<{
 
 	const thumbnailWidth = TIMELINE_LAYER_HEIGHT * (video.width / video.height);
 
-	const thumbnailFit = !Internals.FEATURE_FLAG_RICH_PREVIEWS
-		? 1
-		: Math.ceil(width / thumbnailWidth);
+	const thumbnailFit = !Internals.FEATURE_FLAG_RICH_PREVIEWS ? 0 : 1;
 
 	return (
 		<div key={s.id} style={style} title={s.displayName}>
