@@ -28,6 +28,7 @@ test('It should calculate the correct offset in nested sequences', () => {
 	const {queryByText} = render(
 		<TimelineContext.Provider
 			value={{
+				rootId: 'hi',
 				frame: 40,
 				playing: false,
 				isThumbnail: false,
