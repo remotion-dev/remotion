@@ -24,6 +24,7 @@ type OnStartData = {
 	frameCount: number;
 };
 
+// TODO: Figure out better way for local port
 export const renderFrames = async ({
 	config,
 	parallelism,
