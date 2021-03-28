@@ -184,7 +184,7 @@ export const render = async () => {
 		},
 		cliProgress.Presets.shades_grey
 	);
-	const {assetsInfo, frameCount} = await renderFrames({
+	const {assetsInfo, frameCount, localPort} = await renderFrames({
 		config,
 		onFrameUpdate: (frame) => renderProgress.update(frame),
 		parallelism,
@@ -239,6 +239,7 @@ export const render = async () => {
 			onProgress: (frame) => {
 				stitchingProgress.update(frame);
 			},
+			localPort,
 		});
 		stitchingProgress.stop();
 
