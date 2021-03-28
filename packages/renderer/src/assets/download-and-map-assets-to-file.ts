@@ -9,7 +9,8 @@ const isDownloadingMap: {[key: string]: boolean} = {};
 const hasBeenDownloadedMap: {[key: string]: boolean} = {};
 const listeners: {[key: string]: (() => void)[]} = {};
 
-const isRemoteAsset = (asset: string) => !asset.startsWith('http://localhost');
+const isRemoteAsset = (asset: string, localPort: number) =>
+	!asset.startsWith(`http://localhost:${localPort}`);
 
 const pipeline = promisify(stream.pipeline);
 
@@ -52,13 +53,15 @@ const downloadAsset = async (src: string, to: string) => {
 export const downloadAndMapAssetsToFileUrl = async ({
 	localhostAsset,
 	webpackBundle,
+	localPort,
 }: {
 	localhostAsset: TAsset;
 	webpackBundle: string;
+	localPort: number;
 }): Promise<TAsset> => {
 	const {pathname} = new URL(localhostAsset.src);
 	const newSrc = path.join(webpackBundle, pathname);
-	if (isRemoteAsset(localhostAsset.src)) {
+	if (isRemoteAsset(localhostAsset.src, localPort)) {
 		await downloadAsset(localhostAsset.src, newSrc);
 	}
 	return {
