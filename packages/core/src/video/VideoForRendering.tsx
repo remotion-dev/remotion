@@ -20,7 +20,12 @@ export const VideoForRendering: React.FC<RemotionVideoProps> = ({
 		if (!videoRef.current) {
 			return;
 		}
-		const frameInSeconds = frame / videoConfig.fps;
+
+		// target middle of frame to reduce risk of rounding errors (which can cause the wrong frame to be shown)
+		const msPerFrame = 1000 / videoConfig.fps;
+		const msShift = msPerFrame / 2;
+		const frameInSeconds = (frame * msPerFrame + msShift) / 1000;
+
 		const handle = delayRender();
 		if (videoRef.current.currentTime === frameInSeconds) {
 			if (videoRef.current.readyState >= 2) {
