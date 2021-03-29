@@ -35,7 +35,11 @@ export const VideoForDevelopment: React.FC<RemotionVideoProps> = (props) => {
 				// So frame = 0 in Remotion is like frame = 1 for the browser
 				return (currentFrame + 1) / videoConfig.fps;
 			}
-			return currentFrame / (1000 / videoConfig.fps);
+
+			// target middle of frame to reduce risk of rounding errors (which can cause the wrong frame to be shown)
+			const msPerFrame = 1000 / videoConfig.fps;
+			const msShift = msPerFrame / 2;
+			return (currentFrame * msPerFrame + msShift) / 1000;
 		})();
 
 		if (!playing || absoluteFrame === 0) {
