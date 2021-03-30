@@ -6,38 +6,29 @@ import {TimelineElements} from './TimelineElements';
 import {TimelineSlider} from './TimelineSlider';
 import {TimeValue} from './TimeValue';
 
-const TimelineContainer = styled.div`
-	overflow-y: auto;
-`;
-
-const Header = styled.div`
+const Container = styled.div`
 	display: flex;
 	flex-direction: column;
-`;
-
-const Row = styled.div`
-	flex-direction: row;
-	display: flex;
-	align-items: center;
+	height: 100%;
 	flex: 1;
 `;
 
-export const Timeline: React.FC = () => {
-	return (
-		<div>
-			<Header>
-				<Row style={{padding: 10}}>
-					<TimeValue />
-					<div style={{flex: 1}} />
-					<FpsCounter />
-				</Row>
-				<TimelineDragHandler>
-					<TimelineContainer>
-						<TimelineElements />
-					</TimelineContainer>
-					<TimelineSlider />
-				</TimelineDragHandler>
-			</Header>
-		</div>
-	);
-};
+const Details = styled.div`
+	padding: 12px 16px;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+`;
+
+export const Timeline: React.FC = () => (
+	<Container>
+		<Details>
+			<TimeValue />
+			<FpsCounter />
+		</Details>
+		<TimelineDragHandler>
+			<TimelineElements />
+			<TimelineSlider />
+		</TimelineDragHandler>
+	</Container>
+);

@@ -90,7 +90,9 @@ const Row: React.FC<{
 	);
 };
 
-const BetaText = () => {
+const BetaText: React.FC<{
+	word1: string;
+}> = ({word1}) => {
 	const videoConfig = useVideoConfig();
 	const frame = useCurrentFrame();
 
@@ -138,7 +140,7 @@ const BetaText = () => {
 										: key === 5
 										? '5pm'
 										: key === 3
-										? 'TOMORROW'
+										? word1 ?? 'TOMORROW'
 										: key === 1
 										? 'ANYSTICKER'
 										: 'BETA'

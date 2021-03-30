@@ -8,3 +8,6 @@ export const FEATURE_FLAG_FIREFOX_SUPPORT = false;
 // See here https://github.com/JonnyBurger/remotion/issues/185 what
 // the breaking changes are
 export const FEATURE_FLAG_V2_BREAKING_CHANGES = true;
+
+// Mount extra instances of the video to allow for richer video preview
+export const FEATURE_FLAG_RICH_PREVIEWS = false;
