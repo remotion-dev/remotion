@@ -70,7 +70,7 @@ test('It should not allow an audio element to have a wrong type', () => {
 					<Audio src="hi" volume="wrong" />
 				</Wrapper>
 			),
-		/You have passed a volume of type string to your <Audio \/> component. Volume must be a number or undefined./
+		/You have passed a volume of type string to your <Audio \/> component. Volume must be a number or a function/
 	);
 });
 
@@ -85,7 +85,7 @@ test('It should not allow an video element to have a wrong type', () => {
 					<Video src="hi" volume="wrong" />
 				</Wrapper>
 			),
-		/You have passed a volume of type string to your <Video \/> component. Volume must be a number or undefined./
+		/You have passed a volume of type string to your <Video \/> component. Volume must be a number or a function/
 	);
 });
 

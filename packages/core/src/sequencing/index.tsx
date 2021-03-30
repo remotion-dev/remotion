@@ -10,7 +10,7 @@ import {FEATURE_FLAG_V2_BREAKING_CHANGES} from '../feature-flags';
 import {getTimelineClipName} from '../get-timeline-clip-name';
 import {TimelineContext} from '../timeline-position-state';
 import {useAbsoluteCurrentFrame} from '../use-frame';
-import {useVideoConfig} from '../use-video-config';
+import {useUnsafeVideoConfig} from '../use-unsafe-video-config';
 
 type SequenceContextType = {
 	from: number;
@@ -28,21 +28,9 @@ export const Sequence: React.FC<{
 	layout?: 'absolute-fill' | 'none';
 }> = ({from, durationInFrames, children, name, layout = 'absolute-fill'}) => {
 	const [id] = useState(() => String(Math.random()));
-	const absoluteFrame = useAbsoluteCurrentFrame();
 	const parentSequence = useContext(SequenceContext);
 	const {isThumbnail, rootId} = useContext(TimelineContext);
 	const actualFrom = (parentSequence?.from ?? 0) + from;
-	const {durationInFrames: compositionDuration} = useVideoConfig();
-	const actualDurationInFrames = Math.min(
-		compositionDuration - from,
-		parentSequence
-			? Math.min(
-					parentSequence.durationInFrames + parentSequence.from - actualFrom,
-					durationInFrames
-			  )
-			: durationInFrames
-	);
-	const {registerSequence, unregisterSequence} = useContext(CompositionManager);
 
 	if (layout !== 'absolute-fill' && layout !== 'none') {
 		throw new TypeError(
@@ -65,6 +53,22 @@ export const Sequence: React.FC<{
 			`You passed to the "from" props of your <Sequence> an argument of type ${typeof from}, but it must be a number.`
 		);
 	}
+
+	const absoluteFrame = useAbsoluteCurrentFrame();
+	const unsafeVideoConfig = useUnsafeVideoConfig();
+	const compositionDuration = unsafeVideoConfig
+		? unsafeVideoConfig.durationInFrames
+		: 0;
+	const actualDurationInFrames = Math.min(
+		compositionDuration - from,
+		parentSequence
+			? Math.min(
+					parentSequence.durationInFrames + parentSequence.from - actualFrom,
+					durationInFrames
+			  )
+			: durationInFrames
+	);
+	const {registerSequence, unregisterSequence} = useContext(CompositionManager);
 
 	const contextValue = useMemo((): SequenceContextType => {
 		return {
