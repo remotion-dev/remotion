@@ -1,6 +1,7 @@
-import React, {useContext, useEffect, useRef, useState} from 'react';
+import React, {useContext, useEffect, useMemo, useRef, useState} from 'react';
 import {CompositionManager} from '../CompositionManager';
 import {getAssetFileName} from '../get-asset-file-name';
+import {getAudioRangeFromStartFromAndDuration} from '../get-audio-visualization-layout';
 import {isApproximatelyTheSame} from '../is-approximately-the-same';
 import {SequenceContext} from '../sequencing';
 import {TimelineContext, usePlayingState} from '../timeline-position-state';
@@ -65,6 +66,31 @@ export const AudioForDevelopment: React.FC<RemotionAudioProps> = (props) => {
 		}
 	}, [playing]);
 
+	const duration = !videoConfig
+		? 0
+		: parentSequence
+		? Math.min(parentSequence.durationInFrames, videoConfig.durationInFrames)
+		: videoConfig.durationInFrames;
+
+	const volumes: string | number = useMemo(() => {
+		if (typeof props.volume === 'number') {
+			return props.volume;
+		}
+		const visualizationRange = getAudioRangeFromStartFromAndDuration({
+			startFrom: actualFrom,
+			durationInFrames: duration,
+		});
+		return new Array(visualizationRange.durationInFrames)
+			.fill(true)
+			.map((_, i) => {
+				return evaluateVolume({
+					frame: i + visualizationRange.startFrom,
+					volume,
+				});
+			})
+			.join(',');
+	}, [actualFrom, duration, props.volume, volume]);
+
 	useEffect(() => {
 		if (!audioRef.current) {
 			return;
@@ -77,10 +103,6 @@ export const AudioForDevelopment: React.FC<RemotionAudioProps> = (props) => {
 			throw new Error('No src passed');
 		}
 
-		const duration = parentSequence
-			? Math.min(parentSequence.durationInFrames, videoConfig.durationInFrames)
-			: videoConfig.durationInFrames;
-
 		registerSequence({
 			type: 'audio',
 			src: props.src,
@@ -92,10 +114,12 @@ export const AudioForDevelopment: React.FC<RemotionAudioProps> = (props) => {
 			displayName: getAssetFileName(props.src),
 			isThumbnail,
 			rootId,
+			volume: volumes,
 		});
 		return () => unregisterSequence(id);
 	}, [
 		actualFrom,
+		duration,
 		id,
 		isThumbnail,
 		parentSequence,
@@ -104,6 +128,7 @@ export const AudioForDevelopment: React.FC<RemotionAudioProps> = (props) => {
 		rootId,
 		unregisterSequence,
 		videoConfig,
+		volumes,
 	]);
 
 	useEffect(() => {
