@@ -58,17 +58,11 @@ export const AudioForDevelopment: React.FC<RemotionAudioProps> = (props) => {
 	}, [actualVolume, frame, props.volume, volume]);
 
 	useEffect(() => {
-		const exec = async () => {
-			if (playing) {
-				console.log('play bitcj');
-				const palying = await audioRef.current?.play();
-				console.log(palying);
-			} else {
-				console.log('pause');
-				audioRef.current?.pause();
-			}
-		};
-		exec();
+		if (playing) {
+			audioRef.current?.play();
+		} else {
+			audioRef.current?.pause();
+		}
 	}, [playing]);
 
 	useEffect(() => {
