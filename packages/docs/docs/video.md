@@ -13,7 +13,7 @@ Videos with audio are not supported - yet! Audio will be muted in the final rend
 
 Use an import or require to load an video file and pass it as the `src` prop. All the props that the native `<video>` element accepts (except `autoplay` and `controls`) will be forwarded (but of course not all are useful for Remotion). This means you can use all CSS to style the video.
 
-`<Video>` has two more helper props `startAt` (start frame no) and `endAt` (end frame no) both are optional and does not get forwarded to the native `<video>` element but helps Remotion understand about which portion of the video needs to be rendered. 
+`<Video>` has two more helper props: `startAt` and `endAt` to define when the video should start and end. Both are optional and do not get forwarded to the native `<video>` element but tell Remotion which portion of the video to use.
 
 ```tsx
 import {Video} from 'remotion';
@@ -25,7 +25,7 @@ export const MyVideo = () => {
       <div>Hello World!</div>
       <Video
         src={video}
-        startAt={60} // if video is 30fps, then it will start at 2s
+        startAt={59} // if video is 30fps, then it will start at 2s
         endAt={120} // if video is 30fps, then it will end at 4s
         style={{height: 1080 / 2, width: 1920 / 2}}
       />
