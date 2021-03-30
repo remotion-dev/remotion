@@ -11,31 +11,31 @@ export const Audio: React.FC<RemotionAudioProps & RemotionMainAudioProps> = (
 		if (typeof startAt !== 'undefined') {
 			if (typeof startAt !== 'number') {
 				throw new TypeError(
-					`type of startAt prop is a number, instead got type ${typeof startAt}.`
+					`type of startAt prop must be a number, instead got type ${typeof startAt}.`
 				);
+			}
+			if (isNaN(startAt) || startAt === Infinity) {
+				throw new TypeError('startAt prop can not be NaN or Infinity.');
 			}
 			if (startAt < 0) {
 				throw new TypeError(
 					`startAt must be greater than equal to 0 instead got ${startAt}.`
 				);
 			}
-			if (isNaN(startAt) || startAt === Infinity) {
-				throw new TypeError('startAt prop can not be NaN or Infinity.');
-			}
 		}
 		if (typeof endAt !== 'undefined') {
 			if (typeof endAt !== 'number') {
 				throw new TypeError(
-					`type of endAt prop is a number, instead got type ${typeof endAt}.`
+					`type of endAt prop must be a number, instead got type ${typeof endAt}.`
 				);
+			}
+			if (isNaN(endAt)) {
+				throw new TypeError('endAt prop can not be NaN.');
 			}
 			if (endAt <= 0) {
 				throw new TypeError(
 					`endAt must be a positive number, instead got ${endAt}.`
 				);
-			}
-			if (isNaN(endAt)) {
-				throw new TypeError('endAt prop can not be NaN.');
 			}
 		}
 		if (typeof startAt !== 'undefined' && typeof endAt !== 'undefined') {
@@ -44,9 +44,9 @@ export const Audio: React.FC<RemotionAudioProps & RemotionMainAudioProps> = (
 			}
 		}
 		const startAtFrameNo = startAt ? startAt : 0;
-		const endAtFrameNO = endAt ? endAt : Infinity;
+		const endAtFrameNo = endAt ? endAt : Infinity;
 		return (
-			<Sequence from={0 - startAtFrameNo} durationInFrames={endAtFrameNO}>
+			<Sequence from={0 - startAtFrameNo} durationInFrames={endAtFrameNo}>
 				<Audio {...otherProps} />
 			</Sequence>
 		);
