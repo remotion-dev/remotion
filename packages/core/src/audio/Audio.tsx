@@ -43,8 +43,8 @@ export const Audio: React.FC<RemotionAudioProps & RemotionMainAudioProps> = (
 				throw new TypeError('endAt prop must be greater than startAt prop');
 			}
 		}
-		const startAtFrameNo = startAt ? startAt : 0;
-		const endAtFrameNo = endAt ? endAt : Infinity;
+		const startAtFrameNo = startAt ?? 0;
+		const endAtFrameNo = endAt ?? Infinity;
 		return (
 			<Sequence from={0 - startAtFrameNo} durationInFrames={endAtFrameNo}>
 				<Audio {...otherProps} />
