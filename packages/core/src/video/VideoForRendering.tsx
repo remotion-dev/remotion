@@ -8,6 +8,7 @@ import {continueRender, delayRender} from '../ready-manager';
 import {SequenceContext} from '../sequencing';
 import {useCurrentFrame} from '../use-frame';
 import {useUnsafeVideoConfig} from '../use-unsafe-video-config';
+import {evaluateVolume} from '../volume-prop';
 import {RemotionVideoProps} from './props';
 
 export const VideoForRendering: React.FC<RemotionVideoProps> = ({
@@ -54,7 +55,10 @@ export const VideoForRendering: React.FC<RemotionVideoProps> = ({
 			src: props.src,
 			id,
 			sequenceFrame: frame,
-			volume: props.volume ?? 1,
+			volume: evaluateVolume({
+				volume: props.volume,
+				frame,
+			}),
 			isRemote: isRemoteAsset(props.src),
 		});
 

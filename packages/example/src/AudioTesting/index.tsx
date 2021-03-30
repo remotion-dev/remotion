@@ -1,12 +1,14 @@
-import {Audio, Sequence, useVideoConfig} from 'remotion';
+import {Audio, interpolate, Sequence} from 'remotion';
 import music from './music.mp3';
 
 const AudioTesting: React.FC = () => {
-	const {durationInFrames} = useVideoConfig();
 	return (
 		<div>
 			<Sequence from={-200} durationInFrames={300}>
-				<Audio src={music} />
+				<Audio
+					src={music}
+					volume={(f) => interpolate(f, [0, 200, 290, 300], [0, 1, 1, 0])}
+				/>
 			</Sequence>
 		</div>
 	);
