@@ -6,11 +6,12 @@ import {SequenceContext} from '../sequencing';
 import {TimelineContext, usePlayingState} from '../timeline-position-state';
 import {useAbsoluteCurrentFrame, useCurrentFrame} from '../use-frame';
 import {useUnsafeVideoConfig} from '../use-unsafe-video-config';
+import {evaluateVolume} from '../volume-prop';
 import {RemotionAudioProps} from './props';
 
 export const AudioForDevelopment: React.FC<RemotionAudioProps> = (props) => {
 	const audioRef = useRef<HTMLAudioElement>(null);
-	const currentFrame = useCurrentFrame();
+	const frame = useCurrentFrame();
 	const absoluteFrame = useAbsoluteCurrentFrame();
 	const [actualVolume, setActualVolume] = useState(1);
 
@@ -28,13 +29,6 @@ export const AudioForDevelopment: React.FC<RemotionAudioProps> = (props) => {
 	const {volume, ...nativeProps} = props;
 
 	useEffect(() => {
-		if (!audioRef.current) {
-			return;
-		}
-		audioRef.current.volume = volume ?? 1;
-	}, [volume]);
-
-	useEffect(() => {
 		const ref = audioRef.current;
 		if (!ref) {
 			return;
@@ -50,23 +44,31 @@ export const AudioForDevelopment: React.FC<RemotionAudioProps> = (props) => {
 		return () => ref.removeEventListener('volumechange', onChange);
 	}, [actualVolume]);
 
-	const userPreferredVolume = props.volume ?? 1;
-
 	useEffect(() => {
+		const userPreferredVolume = evaluateVolume({
+			frame,
+			volume,
+		});
 		if (
 			!isApproximatelyTheSame(userPreferredVolume, actualVolume) &&
 			audioRef.current
 		) {
 			audioRef.current.volume = userPreferredVolume;
 		}
-	}, [actualVolume, props.volume, userPreferredVolume]);
+	}, [actualVolume, frame, props.volume, volume]);
 
 	useEffect(() => {
-		if (playing) {
-			audioRef.current?.play();
-		} else {
-			audioRef.current?.pause();
-		}
+		const exec = async () => {
+			if (playing) {
+				console.log('play bitcj');
+				const palying = await audioRef.current?.play();
+				console.log(palying);
+			} else {
+				console.log('pause');
+				audioRef.current?.pause();
+			}
+		};
+		exec();
 	}, [playing]);
 
 	useEffect(() => {
@@ -119,7 +121,7 @@ export const AudioForDevelopment: React.FC<RemotionAudioProps> = (props) => {
 				'No video config found. <Audio> must be placed inside a composition.'
 			);
 		}
-		const shouldBeTime = currentFrame / videoConfig.fps;
+		const shouldBeTime = frame / videoConfig.fps;
 
 		const isTime = audioRef.current.currentTime;
 		const timeShift = Math.abs(shouldBeTime - isTime);
@@ -143,7 +145,7 @@ export const AudioForDevelopment: React.FC<RemotionAudioProps> = (props) => {
 			// Play audio
 			audioRef.current.play();
 		}
-	}, [absoluteFrame, currentFrame, playing, videoConfig]);
+	}, [absoluteFrame, frame, playing, videoConfig]);
 
 	return <audio ref={audioRef} {...nativeProps} />;
 };

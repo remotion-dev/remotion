@@ -5,9 +5,13 @@ export const validateMediaProps = (
 	props: RemotionVideoProps | RemotionAudioProps,
 	component: 'Video' | 'Audio'
 ) => {
-	if (typeof props.volume !== 'number' && typeof props.volume !== 'undefined') {
+	if (
+		typeof props.volume !== 'number' &&
+		typeof props.volume !== 'function' &&
+		typeof props.volume !== 'function'
+	) {
 		throw new TypeError(
-			`You have passed a volume of type ${typeof props.volume} to your <${component} /> component. Volume must be a number or undefined.`
+			`You have passed a volume of type ${typeof props.volume} to your <${component} /> component. Volume must be a number or a function with the signature '(frame: number) => number' undefined.`
 		);
 	}
 	if (typeof props.volume === 'number' && props.volume < 0) {

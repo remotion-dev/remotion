@@ -1,3 +1,5 @@
+import {VolumeProp} from '../volume-prop';
+
 export type RemotionMainVideoProps = {
 	startAt?: number;
 	endAt?: number;
@@ -10,5 +12,5 @@ export type RemotionVideoProps = Omit<
 	>,
 	'autoplay' | 'controls'
 > & {
-	volume?: number;
+	volume?: VolumeProp;
 };

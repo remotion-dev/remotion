@@ -1,8 +1,10 @@
-import React, {useEffect, useRef} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {FEATURE_FLAG_V2_BREAKING_CHANGES} from '../feature-flags';
+import {isApproximatelyTheSame} from '../is-approximately-the-same';
 import {usePlayingState} from '../timeline-position-state';
 import {useAbsoluteCurrentFrame, useCurrentFrame} from '../use-frame';
 import {useUnsafeVideoConfig} from '../use-unsafe-video-config';
+import {evaluateVolume} from '../volume-prop';
 import {RemotionVideoProps} from './props';
 
 export const VideoForDevelopment: React.FC<RemotionVideoProps> = (props) => {
@@ -11,6 +13,7 @@ export const VideoForDevelopment: React.FC<RemotionVideoProps> = (props) => {
 	const absoluteFrame = useAbsoluteCurrentFrame();
 	const videoConfig = useUnsafeVideoConfig();
 	const [playing] = usePlayingState();
+	const [actualVolume, setActualVolume] = useState(1);
 
 	const {volume, ...nativeProps} = props;
 
@@ -24,11 +27,33 @@ export const VideoForDevelopment: React.FC<RemotionVideoProps> = (props) => {
 	}, [playing]);
 
 	useEffect(() => {
-		if (!videoRef.current) {
+		const ref = videoRef.current;
+		if (!ref) {
 			return;
 		}
-		videoRef.current.volume = volume ?? 1;
-	}, [volume]);
+		if (ref.volume !== actualVolume) {
+			setActualVolume(ref.volume);
+			return;
+		}
+		const onChange = () => {
+			setActualVolume(ref.volume);
+		};
+		ref.addEventListener('volumechange', onChange);
+		return () => ref.removeEventListener('volumechange', onChange);
+	}, [actualVolume]);
+
+	useEffect(() => {
+		const userPreferredVolume = evaluateVolume({
+			frame: currentFrame,
+			volume,
+		});
+		if (
+			!isApproximatelyTheSame(userPreferredVolume, actualVolume) &&
+			videoRef.current
+		) {
+			videoRef.current.volume = userPreferredVolume;
+		}
+	}, [actualVolume, currentFrame, props.volume, volume]);
 
 	useEffect(() => {
 		if (!videoRef.current) {

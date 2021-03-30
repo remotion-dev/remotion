@@ -4,6 +4,7 @@ import {isRemoteAsset} from '../is-remote-asset';
 import {random} from '../random';
 import {SequenceContext} from '../sequencing';
 import {useAbsoluteCurrentFrame, useCurrentFrame} from '../use-frame';
+import {evaluateVolume} from '../volume-prop';
 import {RemotionAudioProps} from './props';
 
 export const AudioForRendering: React.FC<RemotionAudioProps> = (props) => {
@@ -36,7 +37,10 @@ export const AudioForRendering: React.FC<RemotionAudioProps> = (props) => {
 			src: props.src,
 			id,
 			sequenceFrame,
-			volume: props.volume ?? 1,
+			volume: evaluateVolume({
+				volume: props.volume,
+				frame: sequenceFrame,
+			}),
 			isRemote: isRemoteAsset(props.src),
 		});
 		return () => unregisterAsset(id);
