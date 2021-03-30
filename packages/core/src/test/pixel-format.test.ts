@@ -9,7 +9,7 @@ import {expectToThrow} from './expect-to-throw';
 
 test('pixel-format tests setPixelFormat', () => {
 	// input format
-	const valuesA: PixelFormat[] = [
+	const validPixelFormats: PixelFormat[] = [
 		'yuv420p',
 		'yuva420p',
 		'yuv422p',
@@ -18,14 +18,14 @@ test('pixel-format tests setPixelFormat', () => {
 		'yuv422p10le',
 		'yuv444p10le',
 	];
-	valuesA.forEach((entry) => {
+	validPixelFormats.forEach((entry) => {
 		setPixelFormat(entry);
 		expect(getPixelFormat()).toEqual(entry);
 	});
 
 	// input format
-	const valuesB = ['abc', '', 3, undefined];
-	valuesB.forEach((entry) =>
+	const invalidPixelFormats = ['abc', '', 3, undefined];
+	invalidPixelFormats.forEach((entry) =>
 		expectToThrow(
 			// @ts-expect-error
 			() => setPixelFormat(entry),

@@ -2,7 +2,7 @@ import {setFrameRange, setFrameRangeFromCli} from '../config/frame-range';
 import {Internals} from '../internals';
 import {expectToThrow} from './expect-to-throw';
 
-test('Frame range tests', () => {
+test('Frame range should throw exception with invalid inputs', () => {
 	expectToThrow(() => setFrameRange(-1), /non-negative/);
 	expectToThrow(
 		() => setFrameRange(1.111),
@@ -45,6 +45,8 @@ test('Frame range tests', () => {
 		() => setFrameRange('10'),
 		/Frame range must be a number or a tuple of numbers, but got object of type string/
 	);
+});
+test('Frame range tests with valid inputs', () => {
 	setFrameRange(null);
 	expect(Internals.getRange()).toEqual(null);
 	setFrameRange([10, 20]);
@@ -55,7 +57,7 @@ test('Frame range tests', () => {
 	expect(Internals.getRange()).toBe(0);
 });
 
-test('Frame range CLI tests', () => {
+test('Frame range CLI should throw exception with invalid inputs', () => {
 	expectToThrow(
 		() => setFrameRangeFromCli('1-2-3'),
 		/--frames flag must be a number or 2 numbers separated by '-', instead got 3 numbers/
@@ -68,6 +70,8 @@ test('Frame range CLI tests', () => {
 		() => setFrameRangeFromCli('one-two'),
 		/--frames flag must be a single number, or 2 numbers separated by `-`/
 	);
+});
+test('Frame range CLI tests with valid inputs', () => {
 	setFrameRange(null);
 	setFrameRangeFromCli(0);
 	expect(Internals.getRange()).toEqual(0);
