@@ -10,8 +10,8 @@ test('Should correctly map a localhost URL to an asset', async () => {
 				id: '0.8331499681195862',
 				sequenceFrame: 2045,
 				volume: 1,
+				isRemote: false,
 			},
-			localPort: 3000,
 			webpackBundle:
 				'/var/folders/hl/p8pg9kw15dbg3l7dbpn0scc80000gn/T/react-motion-graphicstoSTC7',
 		})
