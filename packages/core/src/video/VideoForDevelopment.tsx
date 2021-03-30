@@ -3,7 +3,6 @@ import {FEATURE_FLAG_V2_BREAKING_CHANGES} from '../feature-flags';
 import {usePlayingState} from '../timeline-position-state';
 import {useAbsoluteCurrentFrame, useCurrentFrame} from '../use-frame';
 import {useUnsafeVideoConfig} from '../use-unsafe-video-config';
-import {validateMediaProps} from '../validate-media-props';
 import {RemotionVideoProps} from './props';
 
 export const VideoForDevelopment: React.FC<RemotionVideoProps> = (props) => {
@@ -14,8 +13,6 @@ export const VideoForDevelopment: React.FC<RemotionVideoProps> = (props) => {
 	const [playing] = usePlayingState();
 
 	const {volume, ...nativeProps} = props;
-
-	validateMediaProps(props, 'Video');
 
 	// TODO: Register as an asset
 	useEffect(() => {
