@@ -3,7 +3,7 @@ title: <Video />
 id: video
 ---
 
-This component allows you to include a video file in your Remtotion project. While in the preview, the video will just play in a HTML5 `<video>` tag, during render, the exact frame needed will be extracted.
+This component allows you to include a video file in your Remotion project. While in the preview, the video will just play in a HTML5 `<video>` tag, during render, the exact frame needed will be extracted.
 
 :::warning
 Videos with audio are not supported - yet! Audio will be muted in the final render.
