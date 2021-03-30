@@ -30,7 +30,14 @@ const ffmpegBuildVolumeExpression = (arr: VolumeArray): string => {
 		throw new Error('Volume array expression should never have length 0');
 	}
 	if (arr.length === 1) {
-		return String(arr[0][0]);
+		// FFMpeg tends to request volume for frames outside the range
+		// where the audio actually plays.
+		// If this is the case, we just return volume 0 to clip it.
+		return ffmpegIfOrElse(
+			ffmpegIsOneOfFrames(arr[0][1]),
+			String(arr[0][0]),
+			String(0)
+		);
 	}
 	const [first, ...rest] = arr;
 	const [volume, frames] = first;
