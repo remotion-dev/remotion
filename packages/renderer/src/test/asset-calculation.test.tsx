@@ -54,6 +54,7 @@ test('Should get multiple assets', async () => {
 		startInVideo: 0,
 		trimLeft: 0,
 		volume: 1,
+		isRemote: true,
 	});
 	expect(withoutId(assetPositions[1])).toEqual({
 		type: 'audio',
@@ -63,6 +64,7 @@ test('Should get multiple assets', async () => {
 		startInVideo: 0,
 		trimLeft: 0,
 		volume: 1,
+		isRemote: true,
 	});
 });
 
@@ -86,6 +88,7 @@ test('Should handle jumps inbetween', async () => {
 		startInVideo: 0,
 		trimLeft: 0,
 		volume: 1,
+		isRemote: true,
 	});
 	expect(withoutId(assetPositions[1])).toEqual({
 		type: 'video',
@@ -95,6 +98,7 @@ test('Should handle jumps inbetween', async () => {
 		startInVideo: 21,
 		trimLeft: 21,
 		volume: 1,
+		isRemote: true,
 	});
 });
 
@@ -115,17 +119,19 @@ test('Should support sequencing', async () => {
 		startInVideo: 0,
 		trimLeft: 20,
 		volume: 1,
+		isRemote: true,
 	});
 });
 
 test('Should calculate volumes correctly', async () => {
 	const assetPositions = await getPositions(() => {
-		const frame = useCurrentFrame();
 		return (
 			<Video
-				volume={interpolate(frame, [0, 4], [0, 1], {
-					extrapolateRight: 'clamp',
-				})}
+				volume={(f) =>
+					interpolate(f, [0, 4], [0, 1], {
+						extrapolateRight: 'clamp',
+					})
+				}
 				src="https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/1080/Big_Buck_Bunny_1080_10s_1MB.mp4"
 			/>
 		);
@@ -138,6 +144,7 @@ test('Should calculate volumes correctly', async () => {
 		duration: 60,
 		startInVideo: 0,
 		trimLeft: 0,
+		isRemote: true,
 		volume: new Array(60)
 			.fill(true)
 			.map((_, i) =>
