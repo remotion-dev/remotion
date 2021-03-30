@@ -13,6 +13,7 @@ const asset: MediaAsset = {
 	trimLeft: 0,
 	volume: 1,
 	id: '1',
+	isRemote: false,
 };
 
 test('Should create a basic filter correctly', () => {

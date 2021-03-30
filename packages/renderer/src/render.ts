@@ -17,7 +17,6 @@ import {serveStatic} from './serve-static';
 export type RenderFramesOutput = {
 	frameCount: number;
 	assetsInfo: RenderAssetInfo;
-	localPort: number;
 };
 
 type OnStartData = {
@@ -131,6 +130,5 @@ export const renderFrames = async ({
 			bundleDir: webpackBundle,
 		},
 		frameCount,
-		localPort: port,
 	};
 };

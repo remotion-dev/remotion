@@ -1,5 +1,6 @@
 import React, {useContext, useEffect, useMemo} from 'react';
 import {CompositionManager} from '../CompositionManager';
+import {isRemoteAsset} from '../is-remote-asset';
 import {random} from '../random';
 import {SequenceContext} from '../sequencing';
 import {useAbsoluteCurrentFrame, useCurrentFrame} from '../use-frame';
@@ -36,6 +37,7 @@ export const AudioForRendering: React.FC<RemotionAudioProps> = (props) => {
 			id,
 			sequenceFrame,
 			volume: props.volume ?? 1,
+			isRemote: isRemoteAsset(props.src),
 		});
 		return () => unregisterAsset(id);
 	}, [

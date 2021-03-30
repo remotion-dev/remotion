@@ -44,6 +44,7 @@ export type TAsset = {
 	id: string;
 	sequenceFrame: number;
 	volume: number;
+	isRemote: boolean;
 };
 
 export type RenderAssetInfo = {

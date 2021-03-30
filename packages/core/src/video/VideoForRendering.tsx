@@ -2,6 +2,7 @@ import React, {useContext, useEffect, useMemo, useRef} from 'react';
 import {CompositionManager} from '../CompositionManager';
 import {FEATURE_FLAG_V2_BREAKING_CHANGES} from '../feature-flags';
 import {isApproximatelyTheSame} from '../is-approximately-the-same';
+import {isRemoteAsset} from '../is-remote-asset';
 import {random} from '../random';
 import {continueRender, delayRender} from '../ready-manager';
 import {SequenceContext} from '../sequencing';
@@ -54,6 +55,7 @@ export const VideoForRendering: React.FC<RemotionVideoProps> = ({
 			id,
 			sequenceFrame: frame,
 			volume: props.volume ?? 1,
+			isRemote: isRemoteAsset(props.src),
 		});
 
 		return () => unregisterAsset(id);
