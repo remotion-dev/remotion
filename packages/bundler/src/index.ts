@@ -8,7 +8,7 @@ import webpack from 'webpack';
 import webpackDevMiddleware from 'webpack-dev-middleware';
 import webpackHotMiddleware from 'webpack-hot-middleware';
 import {overrideWebpackConfig} from './override-webpack';
-import {isUpdateAvailable} from './update-available';
+import {isUpdateAvailableWithTimeout} from './update-available';
 import {webpackConfig} from './webpack-config';
 
 export const startServer = async (
@@ -45,7 +45,7 @@ export const startServer = async (
 	);
 
 	app.get('/update', (req, res) => {
-		isUpdateAvailable()
+		isUpdateAvailableWithTimeout()
 			.then((data) => {
 				res.json(data);
 			})
