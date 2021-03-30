@@ -15,8 +15,13 @@ export const Audio: React.FC<RemotionAudioProps & RemotionMainAudioProps> = (
 		const startAtFrameNo = startAt ?? 0;
 		const endAtFrameNo = endAt ?? Infinity;
 		return (
-			<Sequence from={0 - startAtFrameNo} durationInFrames={endAtFrameNo}>
-				<Audio {...otherProps} />
+			<Sequence
+				from={startAtFrameNo}
+				durationInFrames={endAtFrameNo - startAtFrameNo}
+			>
+				<Sequence from={0 - startAtFrameNo} durationInFrames={Infinity}>
+					<Audio {...otherProps} />
+				</Sequence>
 			</Sequence>
 		);
 	}
