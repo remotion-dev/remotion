@@ -28,7 +28,7 @@ test('It should throw if endAt is not a number', () => {
 	expectToThrow(
 		//@ts-expect-error
 		() => render(<Audio endAt={'hey'} />),
-		/type of endAt prop is a number, instead got type string./
+		/type of endAt prop must be a number, instead got type string./
 	);
 });
 
@@ -36,7 +36,7 @@ test('It should throw if startAt is not a number', () => {
 	expectToThrow(
 		//@ts-expect-error
 		() => render(<Audio startAt={'hey'} />),
-		/type of startAt prop is a number, instead got type string./
+		/type of startAt prop must be a number, instead got type string./
 	);
 });
 
