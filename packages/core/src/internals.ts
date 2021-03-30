@@ -49,6 +49,7 @@ import {
 	FEATURE_FLAG_RICH_PREVIEWS,
 	FEATURE_FLAG_V2_BREAKING_CHANGES,
 } from './feature-flags';
+import {getAudioRangeFromStartFromAndDuration} from './get-audio-visualization-layout';
 import * as perf from './perf';
 import {getCompositionName, getIsEvaluation, getRoot} from './register-root';
 import {RemotionRoot} from './RemotionRoot';
@@ -98,6 +99,7 @@ export const Internals = {
 	validateFrameRange,
 	getWebpackCaching,
 	truthy,
+	getAudioRangeFromStartFromAndDuration,
 };
 
 export type {

@@ -8,7 +8,7 @@ export const evaluateVolume = ({
 	volume: VolumeProp | undefined;
 }): number => {
 	if (typeof volume === 'number') {
-		return volume;
+		return Math.min(1, volume);
 	}
 	if (typeof volume === 'undefined') {
 		return 1;
@@ -29,5 +29,5 @@ export const evaluateVolume = ({
 			`You passed in a function to the volume prop but it returned a non-finite number for frame ${frame}.`
 		);
 	}
-	return evaluated;
+	return Math.min(1, evaluated);
 };

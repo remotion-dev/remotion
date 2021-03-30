@@ -1,14 +1,17 @@
-import {Audio, interpolate, Sequence} from 'remotion';
+import {Audio, Sequence} from 'remotion';
 import music from './music.mp3';
 
 const AudioTesting: React.FC = () => {
 	return (
 		<div>
-			<Sequence from={-200} durationInFrames={290}>
-				<Audio
-					src={music}
-					volume={(f) => interpolate(f, [200, 250, 300], [0, 1, 0])}
-				/>
+			<Audio
+				startAt={100}
+				endAt={200}
+				src={music}
+				volume={(f) => (Math.sin(f / 3) + 1) / 2}
+			/>
+			<Sequence from={0} durationInFrames={100}>
+				<Audio src={music} volume={(f) => f / 100} />
 			</Sequence>
 		</div>
 	);

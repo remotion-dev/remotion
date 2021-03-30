@@ -22,6 +22,11 @@ type EnhancedTSequenceData =
 	| {
 			type: 'audio';
 			src: string;
+			// Volume is represented as a comma separated list - if it's a string
+			// React can more efficiently update and will not rerender if anonymous functions
+			// are passed.
+			// If not a function was passed, a number is being used
+			volume: string | number;
 	  }
 	| {
 			type: 'video';

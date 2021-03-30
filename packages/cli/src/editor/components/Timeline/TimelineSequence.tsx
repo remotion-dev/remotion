@@ -93,6 +93,7 @@ export const TimelineSequence: React.FC<{
 					startFrom={s.from}
 					duration={s.duration}
 					fps={fps}
+					volume={s.volume ?? 1}
 					setMaxMediaDuration={setMaxMediaDuration}
 				/>
 			) : null}
