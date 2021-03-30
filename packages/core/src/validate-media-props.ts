@@ -8,7 +8,7 @@ export const validateMediaProps = (
 	if (
 		typeof props.volume !== 'number' &&
 		typeof props.volume !== 'function' &&
-		typeof props.volume !== 'function'
+		typeof props.volume !== 'undefined'
 	) {
 		throw new TypeError(
 			`You have passed a volume of type ${typeof props.volume} to your <${component} /> component. Volume must be a number or a function with the signature '(frame: number) => number' undefined.`

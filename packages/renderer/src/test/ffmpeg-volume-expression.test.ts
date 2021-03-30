@@ -18,7 +18,7 @@ test('Simple expression with volume multiplier', () => {
 test('Complex expression with volume multiplier', () => {
 	expect(ffmpegVolumeExpression([0, 1], 2)).toEqual({
 		eval: 'frame',
-		value: "'if(eq(n,0),0,2)'",
+		value: "'if(eq(n,0),0,if(eq(n,1),2,0))'",
 	});
 });
 
@@ -36,7 +36,11 @@ test('Really complex volume expression', () => {
           if (
             eq(n, 3)+eq(n, 4)+eq(n, 5)+eq(n, 6),
             ${roundVolumeToAvoidStackOverflow(0.99)},
-            1
+            if(
+							eq(n, 7)+eq(n,8)+eq(n,9)+eq(n,10)+eq(n,11),
+							1,
+							0
+						)
           )
         )
       )
@@ -54,10 +58,10 @@ test('Really complex volume expression', () => {
 	});
 });
 
-test('Should use the most common volume as else statement', () => {
+test('Should use 0 as else statement', () => {
 	expect(ffmpegVolumeExpression([0, 0, 0, 1, 1], 1)).toEqual({
 		eval: 'frame',
-		value: "'if(eq(n,3)+eq(n,4),1,0)'",
+		value: "'if(eq(n,3)+eq(n,4),1,if(eq(n,0)+eq(n,1)+eq(n,2),0,0))'",
 	});
 });
 
@@ -69,8 +73,8 @@ test('Simple expression - should not be higher than 1', () => {
 });
 
 test('Complex expression - should not be higher than 1', () => {
-	expect(ffmpegVolumeExpression([2, 2], 1)).toEqual({
+	expect(ffmpegVolumeExpression([0.5, 2], 1)).toEqual({
 		eval: 'frame',
-		value: "'1'",
+		value: "'if(eq(n,1),1,if(eq(n,0),0.5,0))'",
 	});
 });
