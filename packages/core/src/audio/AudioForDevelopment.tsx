@@ -6,7 +6,6 @@ import {SequenceContext} from '../sequencing';
 import {TimelineContext, usePlayingState} from '../timeline-position-state';
 import {useAbsoluteCurrentFrame, useCurrentFrame} from '../use-frame';
 import {useUnsafeVideoConfig} from '../use-unsafe-video-config';
-import {validateMediaProps} from '../validate-media-props';
 import {RemotionAudioProps} from './props';
 
 export const AudioForDevelopment: React.FC<RemotionAudioProps> = (props) => {
@@ -25,8 +24,6 @@ export const AudioForDevelopment: React.FC<RemotionAudioProps> = (props) => {
 	const {registerSequence, unregisterSequence} = useContext(CompositionManager);
 
 	const [id] = useState(() => String(Math.random()));
-
-	validateMediaProps(props, 'Audio');
 
 	const {volume, ...nativeProps} = props;
 

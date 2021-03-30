@@ -7,7 +7,6 @@ import {continueRender, delayRender} from '../ready-manager';
 import {SequenceContext} from '../sequencing';
 import {useCurrentFrame} from '../use-frame';
 import {useUnsafeVideoConfig} from '../use-unsafe-video-config';
-import {validateMediaProps} from '../validate-media-props';
 import {RemotionVideoProps} from './props';
 
 export const VideoForRendering: React.FC<RemotionVideoProps> = ({
@@ -20,8 +19,6 @@ export const VideoForRendering: React.FC<RemotionVideoProps> = ({
 	const sequenceContext = useContext(SequenceContext);
 
 	const {registerAsset, unregisterAsset} = useContext(CompositionManager);
-
-	validateMediaProps(props, 'Video');
 
 	// Generate a string that's as unique as possible for this asset
 	// but at the same time the same on all threads

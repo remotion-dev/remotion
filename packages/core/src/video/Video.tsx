@@ -1,5 +1,6 @@
 import React from 'react';
 import {Sequence} from '../sequencing';
+import {validateMediaProps} from '../validate-media-props';
 import {validateStartFromProps} from '../validate-start-from-props';
 import {RemotionMainVideoProps, RemotionVideoProps} from './props';
 import {VideoForDevelopment} from './VideoForDevelopment';
@@ -20,6 +21,7 @@ export const Video: React.FC<RemotionVideoProps & RemotionMainVideoProps> = (
 			</Sequence>
 		);
 	}
+	validateMediaProps(props, 'Video');
 
 	if (process.env.NODE_ENV === 'development') {
 		return <VideoForDevelopment {...props} />;

@@ -3,7 +3,6 @@ import {CompositionManager} from '../CompositionManager';
 import {random} from '../random';
 import {SequenceContext} from '../sequencing';
 import {useAbsoluteCurrentFrame, useCurrentFrame} from '../use-frame';
-import {validateMediaProps} from '../validate-media-props';
 import {RemotionAudioProps} from './props';
 
 export const AudioForRendering: React.FC<RemotionAudioProps> = (props) => {
@@ -11,8 +10,6 @@ export const AudioForRendering: React.FC<RemotionAudioProps> = (props) => {
 	const sequenceFrame = useCurrentFrame();
 	const sequenceContext = useContext(SequenceContext);
 	const {registerAsset, unregisterAsset} = useContext(CompositionManager);
-
-	validateMediaProps(props, 'Audio');
 
 	// Generate a string that's as unique as possible for this asset
 	// but at the same time the same on all threads

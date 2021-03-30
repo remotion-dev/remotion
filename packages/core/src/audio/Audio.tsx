@@ -1,5 +1,6 @@
 import React from 'react';
 import {Sequence} from '../sequencing';
+import {validateMediaProps} from '../validate-media-props';
 import {validateStartFromProps} from '../validate-start-from-props';
 import {AudioForDevelopment} from './AudioForDevelopment';
 import {AudioForRendering} from './AudioForRendering';
@@ -19,6 +20,8 @@ export const Audio: React.FC<RemotionAudioProps & RemotionMainAudioProps> = (
 			</Sequence>
 		);
 	}
+	validateMediaProps(props, 'Audio');
+
 	if (process.env.NODE_ENV === 'development') {
 		return <AudioForDevelopment {...props} />;
 	}
