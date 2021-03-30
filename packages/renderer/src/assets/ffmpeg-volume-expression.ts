@@ -66,6 +66,9 @@ export const ffmpegVolumeExpression = (
 			value: String(Math.min(1, volume) * multiplier),
 		};
 	}
+	if ([...new Set(volume)].length === 1) {
+		return ffmpegVolumeExpression(volume[0], multiplier);
+	}
 
 	// Otherwise, we construct an FFMPEG expression. First step:
 	// Make a map of all possible volumes

@@ -34,6 +34,7 @@ test('Should be able to collect assets', async () => {
 		startInVideo: 0,
 		trimLeft: 0,
 		volume: 1,
+		isRemote: true,
 	});
 });
 
