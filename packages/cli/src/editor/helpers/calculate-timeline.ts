@@ -36,6 +36,7 @@ export const calculateTimeline = ({
 					parent: null,
 					type: 'sequence',
 					rootId: '-',
+					showInTimeline: true,
 				},
 				depth: 0,
 			},
@@ -48,6 +49,9 @@ export const calculateTimeline = ({
 		const sequence = sequences[i];
 		if (!hashesUsedInRoot[sequence.rootId]) {
 			hashesUsedInRoot[sequence.rootId] = [];
+		}
+		if (!sequence.showInTimeline) {
+			continue;
 		}
 		const baseHash = getTimelineSequenceHash(sequence, sequences);
 		const depth = getTimelineNestedLevel(sequence, sequences, 0);

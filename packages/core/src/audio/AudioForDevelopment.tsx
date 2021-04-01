@@ -118,6 +118,7 @@ export const AudioForDevelopment: React.FC<RemotionAudioProps> = (props) => {
 			displayName: getAssetFileName(props.src),
 			rootId,
 			volume: volumes,
+			showInTimeline: true,
 		});
 		return () => unregisterSequence(id);
 	}, [

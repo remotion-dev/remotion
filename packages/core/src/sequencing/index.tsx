@@ -28,7 +28,15 @@ export const Sequence: React.FC<{
 	durationInFrames: number;
 	name?: string;
 	layout?: 'absolute-fill' | 'none';
-}> = ({from, durationInFrames, children, name, layout = 'absolute-fill'}) => {
+	showInTimeline?: boolean;
+}> = ({
+	from,
+	durationInFrames,
+	children,
+	name,
+	layout = 'absolute-fill',
+	showInTimeline = true,
+}) => {
 	const [id] = useState(() => String(Math.random()));
 	const parentSequence = useContext(SequenceContext);
 	const {rootId} = useContext(TimelineContext);
@@ -106,6 +114,7 @@ export const Sequence: React.FC<{
 			parent: parentSequence?.id ?? null,
 			type: 'sequence',
 			rootId,
+			showInTimeline,
 		});
 		return () => {
 			unregisterSequence(id);
@@ -122,6 +131,7 @@ export const Sequence: React.FC<{
 		actualDurationInFrames,
 		rootId,
 		from,
+		showInTimeline,
 	]);
 
 	const endThreshold = (() => {
