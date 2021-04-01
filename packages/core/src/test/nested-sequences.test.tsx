@@ -40,3 +40,28 @@ test('It should calculate the correct offset in nested sequences', () => {
 	);
 	expect(queryByText(/^frame9$/i)).not.toBe(null);
 });
+
+test('Negative offset test', () => {
+	const NestedChild = () => {
+		const frame = useCurrentFrame();
+		return <div>{'frame' + frame}</div>;
+	};
+
+	const {queryByText} = render(
+		<TimelineContext.Provider
+			value={{
+				frame: 40,
+				playing: false,
+				shouldRegisterSequences: true,
+			}}
+		>
+			<Sequence from={-200} durationInFrames={300}>
+				<Sequence from={10} durationInFrames={300}>
+					<NestedChild />
+				</Sequence>
+			</Sequence>
+		</TimelineContext.Provider>
+	);
+	const result = queryByText(/^frame230/i);
+	expect(result).not.toBe(null);
+});
