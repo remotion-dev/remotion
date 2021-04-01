@@ -3,7 +3,6 @@ import {createContext, useContext} from 'react';
 export type TimelineContextValue = {
 	frame: number;
 	playing: boolean;
-	isThumbnail: boolean;
 	rootId: string;
 };
 
@@ -15,7 +14,6 @@ export type SetTimelineContextValue = {
 export const TimelineContext = createContext<TimelineContextValue>({
 	frame: 0,
 	playing: false,
-	isThumbnail: true,
 	rootId: '',
 });
 

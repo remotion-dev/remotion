@@ -116,7 +116,6 @@ export const RemotionRoot: React.FC = ({children}) => {
 		return {
 			frame,
 			playing,
-			isThumbnail: false,
 			rootId: remotionRootId,
 		};
 	}, [frame, playing, remotionRootId]);

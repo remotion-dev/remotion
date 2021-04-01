@@ -68,7 +68,6 @@ export const Thumbnail: React.FC<{
 		return {
 			playing: false,
 			frame: frameToDisplay,
-			isThumbnail: true,
 			rootId: thumbnailId,
 		};
 	}, [frameToDisplay, thumbnailId]);

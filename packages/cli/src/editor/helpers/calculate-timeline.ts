@@ -35,7 +35,6 @@ export const calculateTimeline = ({
 					id: 'seq',
 					parent: null,
 					type: 'sequence',
-					isThumbnail: false,
 					rootId: '-',
 				},
 				depth: 0,
