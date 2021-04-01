@@ -17,9 +17,9 @@ export const AudioForRendering: React.FC<RemotionAudioProps> = (props) => {
 	// but at the same time the same on all threads
 	const id = useMemo(
 		() =>
-			`audio-${random(props.src ?? '')}-${sequenceContext?.absoluteFrom}-${
-				sequenceContext?.durationInFrames
-			}-muted:${props.muted}`,
+			`audio-${random(props.src ?? '')}-${sequenceContext?.relativeFrom}-${
+				sequenceContext?.cumulatedFrom
+			}-${sequenceContext?.durationInFrames}-muted:${props.muted}`,
 		[props.muted, props.src, sequenceContext]
 	);
 

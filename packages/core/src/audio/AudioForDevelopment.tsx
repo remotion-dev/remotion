@@ -20,7 +20,9 @@ export const AudioForDevelopment: React.FC<RemotionAudioProps> = (props) => {
 	const {isThumbnail, rootId} = useContext(TimelineContext);
 
 	const parentSequence = useContext(SequenceContext);
-	const actualFrom = parentSequence?.absoluteFrom ?? 0;
+	const actualFrom = parentSequence
+		? parentSequence.relativeFrom + parentSequence.cumulatedFrom
+		: 0;
 
 	const startsAt = Math.min(0, parentSequence?.relativeFrom ?? 0);
 
@@ -81,16 +83,17 @@ export const AudioForDevelopment: React.FC<RemotionAudioProps> = (props) => {
 			return props.volume;
 		}
 
-		return new Array(duration + startsAt + actualFrom)
+		const negativeShift = Math.min(0, parentSequence?.parentFrom ?? 0);
+		return new Array(duration + startsAt + negativeShift)
 			.fill(true)
 			.map((_, i) => {
 				return evaluateVolume({
-					frame: i - actualFrom,
+					frame: i - negativeShift,
 					volume,
 				});
 			})
 			.join(',');
-	}, [actualFrom, duration, props.volume, startsAt, volume]);
+	}, [duration, parentSequence, props.volume, startsAt, volume]);
 
 	useEffect(() => {
 		if (!audioRef.current) {
@@ -145,11 +148,7 @@ export const AudioForDevelopment: React.FC<RemotionAudioProps> = (props) => {
 
 		const isTime = audioRef.current.currentTime;
 		const timeShift = Math.abs(shouldBeTime - isTime);
-		if (
-			timeShift > 0.5 &&
-			!audioRef.current.ended &&
-			shouldBeTime <= audioRef.current.currentTime
-		) {
+		if (timeShift > 0.2 && !audioRef.current.ended) {
 			console.log('Time has shifted by', timeShift, 'sec. Fixing...');
 			// If scrubbing around, adjust timing
 			// or if time shift is bigger than 0.2sec
