@@ -31,7 +31,6 @@ test('It should calculate the correct offset in nested sequences', () => {
 				rootId: 'hi',
 				frame: 40,
 				playing: false,
-				isThumbnail: false,
 			}}
 		>
 			<Sequence from={20} durationInFrames={100}>
@@ -53,7 +52,6 @@ test('Negative offset test', () => {
 			value={{
 				frame: 40,
 				playing: false,
-				isThumbnail: false,
 				rootId: 'hi',
 			}}
 		>
@@ -91,7 +89,6 @@ test('Nested negative offset test', () => {
 				value={{
 					frame,
 					playing: false,
-					isThumbnail: false,
 					rootId: 'hi',
 				}}
 			>
@@ -132,7 +129,6 @@ test('Negative offset edge case', () => {
 				value={{
 					frame,
 					playing: false,
-					isThumbnail: false,
 					rootId: 'hi',
 				}}
 			>

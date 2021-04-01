@@ -39,7 +39,6 @@ export type TSequence = {
 	id: string;
 	displayName: string;
 	parent: string | null;
-	isThumbnail: boolean;
 	rootId: string;
 } & EnhancedTSequenceData;
 

@@ -31,7 +31,7 @@ export const Sequence: React.FC<{
 }> = ({from, durationInFrames, children, name, layout = 'absolute-fill'}) => {
 	const [id] = useState(() => String(Math.random()));
 	const parentSequence = useContext(SequenceContext);
-	const {isThumbnail, rootId} = useContext(TimelineContext);
+	const {rootId} = useContext(TimelineContext);
 	const cumulatedFrom = parentSequence
 		? parentSequence.cumulatedFrom + parentSequence.relativeFrom
 		: 0;
@@ -105,7 +105,6 @@ export const Sequence: React.FC<{
 			displayName: timelineClipName,
 			parent: parentSequence?.id ?? null,
 			type: 'sequence',
-			isThumbnail,
 			rootId,
 		});
 		return () => {
@@ -120,7 +119,6 @@ export const Sequence: React.FC<{
 		timelineClipName,
 		unregisterSequence,
 		parentSequence?.id,
-		isThumbnail,
 		actualDurationInFrames,
 		rootId,
 		from,
