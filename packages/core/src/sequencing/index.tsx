@@ -30,7 +30,7 @@ export const Sequence: React.FC<{
 	const [id] = useState(() => String(Math.random()));
 	const parentSequence = useContext(SequenceContext);
 	const {isThumbnail, rootId} = useContext(TimelineContext);
-	const actualFrom = (parentSequence?.from ?? 0) + Math.max(0, from);
+	const actualFrom = (parentSequence?.from ?? 0) + from;
 
 	if (layout !== 'absolute-fill' && layout !== 'none') {
 		throw new TypeError(
