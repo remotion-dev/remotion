@@ -40,6 +40,7 @@ export type TSequence = {
 	displayName: string;
 	parent: string | null;
 	rootId: string;
+	showInTimeline: boolean;
 } & EnhancedTSequenceData;
 
 export type TAsset = {

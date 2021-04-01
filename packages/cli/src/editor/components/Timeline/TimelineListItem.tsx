@@ -67,7 +67,7 @@ export const TimelineListItem: React.FC<{
 	return (
 		<div style={outer}>
 			<div style={padder} />
-			{sequence.parent ? (
+			{sequence.parent && nestedDepth > 0 ? (
 				<>
 					<div style={smallSpace} />
 					<div style={hookContainer}>
