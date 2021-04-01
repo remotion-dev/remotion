@@ -16,13 +16,8 @@ export const Video: React.FC<RemotionVideoProps & RemotionMainVideoProps> = (
 		const startAtFrameNo = startAt ?? 0;
 		const endAtFrameNo = endAt ?? Infinity;
 		return (
-			<Sequence
-				from={startAtFrameNo}
-				durationInFrames={endAtFrameNo - startAtFrameNo}
-			>
-				<Sequence from={0 - startAtFrameNo} durationInFrames={Infinity}>
-					<Video {...otherProps} />
-				</Sequence>
+			<Sequence from={0 - startAtFrameNo} durationInFrames={endAtFrameNo}>
+				<Video {...otherProps} />
 			</Sequence>
 		);
 	}
