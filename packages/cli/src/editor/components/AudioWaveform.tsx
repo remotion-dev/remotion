@@ -1,5 +1,4 @@
 import React, {useEffect, useMemo, useRef, useState} from 'react';
-import {Internals} from 'remotion';
 import {
 	AudioContextMetadata,
 	getAudioMetadata,
@@ -25,27 +24,20 @@ export const AudioWaveform: React.FC<{
 	visualizationWidth: number;
 	fps: number;
 	startFrom: number;
-	duration: number;
+	durationInFrames: number;
 	setMaxMediaDuration: React.Dispatch<React.SetStateAction<number>>;
 	volume: string | number;
 }> = ({
 	src,
 	fps,
-	startFrom: baseStartFrom,
-	duration: baseDuration,
+	startFrom,
+	durationInFrames,
 	visualizationWidth,
 	setMaxMediaDuration,
 	volume,
 }) => {
 	const [metadata, setMetadata] = useState<AudioContextMetadata | null>(null);
 
-	const {
-		startFrom,
-		durationInFrames,
-	} = Internals.getAudioRangeFromStartFromAndDuration({
-		startFrom: baseStartFrom,
-		durationInFrames: baseDuration,
-	});
 	const canvas = useRef<HTMLCanvasElement>(null);
 
 	useEffect(() => {
@@ -78,7 +70,7 @@ export const AudioWaveform: React.FC<{
 		});
 		context.strokeStyle = 'rgba(255, 255, 255, 0.7)';
 		context.stroke();
-	}, [visualizationWidth, metadata, durationInFrames, startFrom, volume]);
+	}, [visualizationWidth, metadata, startFrom, volume]);
 
 	useEffect(() => {
 		getAudioMetadata(src)

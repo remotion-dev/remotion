@@ -1,7 +1,6 @@
 import React, {useContext, useEffect, useMemo, useRef, useState} from 'react';
 import {CompositionManager} from '../CompositionManager';
 import {getAssetFileName} from '../get-asset-file-name';
-import {getAudioRangeFromStartFromAndDuration} from '../get-audio-visualization-layout';
 import {isApproximatelyTheSame} from '../is-approximately-the-same';
 import {SequenceContext} from '../sequencing';
 import {TimelineContext, usePlayingState} from '../timeline-position-state';
@@ -21,7 +20,9 @@ export const AudioForDevelopment: React.FC<RemotionAudioProps> = (props) => {
 	const {isThumbnail, rootId} = useContext(TimelineContext);
 
 	const parentSequence = useContext(SequenceContext);
-	const actualFrom = parentSequence?.from ?? 0;
+	const actualFrom = parentSequence?.absoluteFrom ?? 0;
+
+	const startsAt = Math.min(0, parentSequence?.relativeFrom ?? 0);
 
 	const {registerSequence, unregisterSequence} = useContext(CompositionManager);
 
@@ -47,7 +48,7 @@ export const AudioForDevelopment: React.FC<RemotionAudioProps> = (props) => {
 
 	useEffect(() => {
 		const userPreferredVolume = evaluateVolume({
-			frame,
+			frame: frame + startsAt,
 			volume,
 		});
 		if (
@@ -56,7 +57,7 @@ export const AudioForDevelopment: React.FC<RemotionAudioProps> = (props) => {
 		) {
 			audioRef.current.volume = userPreferredVolume;
 		}
-	}, [actualVolume, frame, props.volume, volume]);
+	}, [actualVolume, frame, props.volume, startsAt, volume]);
 
 	useEffect(() => {
 		if (playing) {
@@ -66,30 +67,30 @@ export const AudioForDevelopment: React.FC<RemotionAudioProps> = (props) => {
 		}
 	}, [playing]);
 
-	const duration = !videoConfig
-		? 0
-		: parentSequence
-		? Math.min(parentSequence.durationInFrames, videoConfig.durationInFrames)
-		: videoConfig.durationInFrames;
+	const duration = (() => {
+		if (!videoConfig) {
+			return 0;
+		}
+		return parentSequence
+			? Math.min(parentSequence.durationInFrames, videoConfig.durationInFrames)
+			: videoConfig.durationInFrames;
+	})();
 
 	const volumes: string | number = useMemo(() => {
 		if (typeof props.volume === 'number') {
 			return props.volume;
 		}
-		const visualizationRange = getAudioRangeFromStartFromAndDuration({
-			startFrom: actualFrom,
-			durationInFrames: duration,
-		});
-		return new Array(visualizationRange.durationInFrames)
+
+		return new Array(duration + startsAt + actualFrom)
 			.fill(true)
 			.map((_, i) => {
 				return evaluateVolume({
-					frame: i + visualizationRange.startFrom,
+					frame: i - actualFrom,
 					volume,
 				});
 			})
 			.join(',');
-	}, [actualFrom, duration, props.volume, volume]);
+	}, [actualFrom, duration, props.volume, startsAt, volume]);
 
 	useEffect(() => {
 		if (!audioRef.current) {
@@ -109,7 +110,7 @@ export const AudioForDevelopment: React.FC<RemotionAudioProps> = (props) => {
 			id,
 			// TODO: Cap to audio duration
 			duration,
-			from: actualFrom,
+			from: 0,
 			parent: parentSequence?.id ?? null,
 			displayName: getAssetFileName(props.src),
 			isThumbnail,

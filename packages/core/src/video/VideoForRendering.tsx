@@ -26,14 +26,14 @@ export const VideoForRendering: React.FC<RemotionVideoProps> = ({
 	// but at the same time the same on all threads
 	const id = useMemo(
 		() =>
-			`audio-${random(props.src ?? '')}-${sequenceContext?.from}-${
+			`audio-${random(props.src ?? '')}-${sequenceContext?.absoluteFrom}-${
 				sequenceContext?.durationInFrames
 			}-muted:${props.muted}`,
 		[
 			props.muted,
 			props.src,
 			sequenceContext?.durationInFrames,
-			sequenceContext?.from,
+			sequenceContext?.absoluteFrom,
 		]
 	);
 

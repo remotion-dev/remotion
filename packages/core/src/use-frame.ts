@@ -12,7 +12,7 @@ export const useCurrentFrame = (): number => {
 	const frame = useAbsoluteCurrentFrame();
 	const context = useContext(SequenceContext);
 
-	const contextOffset = context ? context.from : 0;
+	const contextOffset = context?.absoluteFrom ?? 0;
 
 	return frame - contextOffset;
 };

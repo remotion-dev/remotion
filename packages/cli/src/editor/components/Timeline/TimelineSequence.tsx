@@ -91,7 +91,7 @@ export const TimelineSequence: React.FC<{
 					src={s.src}
 					visualizationWidth={width}
 					startFrom={s.from}
-					duration={s.duration}
+					durationInFrames={s.duration}
 					fps={fps}
 					volume={s.volume ?? 1}
 					setMaxMediaDuration={setMaxMediaDuration}
