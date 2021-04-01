@@ -1,4 +1,8 @@
 import {TSequence} from 'remotion';
+import {
+	getTimelineVisibleDuration,
+	getTimelineVisibleStart,
+} from './get-sequence-visible-range';
 import {getTimelineNestedLevel} from './get-timeline-nestedness';
 import {getTimelineSequenceHash} from './get-timeline-sequence-hash';
 
@@ -48,6 +52,8 @@ export const calculateTimeline = ({
 		}
 		const baseHash = getTimelineSequenceHash(sequence, sequences);
 		const depth = getTimelineNestedLevel(sequence, sequences, 0);
+		const visibleStart = getTimelineVisibleStart(sequence, sequences);
+		const visibleDuration = getTimelineVisibleDuration(sequence, sequences);
 		const actualHash =
 			baseHash +
 			hashesUsedInRoot[sequence.rootId].filter((h) => h === baseHash).length;
@@ -59,7 +65,14 @@ export const calculateTimeline = ({
 		hashesUsedInRoot[sequence.rootId].push(baseHash);
 		hashesUsed.push(actualHash);
 
-		tracks.push({sequence, depth});
+		tracks.push({
+			sequence: {
+				...sequence,
+				from: visibleStart,
+				duration: visibleDuration,
+			},
+			depth,
+		});
 	}
 	return tracks;
 };

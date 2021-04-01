@@ -13,7 +13,8 @@ import {useAbsoluteCurrentFrame} from '../use-frame';
 import {useUnsafeVideoConfig} from '../use-unsafe-video-config';
 
 type SequenceContextType = {
-	from: number;
+	absoluteFrom: number;
+	relativeFrom: number;
 	durationInFrames: number;
 	id: string;
 };
@@ -30,7 +31,7 @@ export const Sequence: React.FC<{
 	const [id] = useState(() => String(Math.random()));
 	const parentSequence = useContext(SequenceContext);
 	const {isThumbnail, rootId} = useContext(TimelineContext);
-	const actualFrom = (parentSequence?.from ?? 0) + from;
+	const actualFrom = (parentSequence?.absoluteFrom ?? 0) + from;
 
 	if (layout !== 'absolute-fill' && layout !== 'none') {
 		throw new TypeError(
@@ -63,7 +64,9 @@ export const Sequence: React.FC<{
 		compositionDuration - from,
 		parentSequence
 			? Math.min(
-					parentSequence.durationInFrames + parentSequence.from - actualFrom,
+					parentSequence.durationInFrames +
+						parentSequence.absoluteFrom -
+						actualFrom,
 					durationInFrames
 			  )
 			: durationInFrames
@@ -72,11 +75,12 @@ export const Sequence: React.FC<{
 
 	const contextValue = useMemo((): SequenceContextType => {
 		return {
-			from: actualFrom,
+			absoluteFrom: actualFrom,
+			relativeFrom: from,
 			durationInFrames: actualDurationInFrames,
 			id,
 		};
-	}, [actualDurationInFrames, actualFrom, id]);
+	}, [actualDurationInFrames, actualFrom, from, id]);
 
 	const timelineClipName = useMemo(() => {
 		return name ?? getTimelineClipName(children);
@@ -84,7 +88,7 @@ export const Sequence: React.FC<{
 
 	useEffect(() => {
 		registerSequence({
-			from: actualFrom,
+			from,
 			duration: actualDurationInFrames,
 			id,
 			displayName: timelineClipName,
@@ -108,6 +112,7 @@ export const Sequence: React.FC<{
 		isThumbnail,
 		actualDurationInFrames,
 		rootId,
+		from,
 	]);
 
 	const endThreshold = (() => {

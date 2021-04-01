@@ -53,7 +53,8 @@ test('Negative offset test', () => {
 			value={{
 				frame: 40,
 				playing: false,
-				shouldRegisterSequences: true,
+				isThumbnail: false,
+				rootId: 'hi',
 			}}
 		>
 			<Sequence from={-200} durationInFrames={300}>
@@ -90,7 +91,8 @@ test('Nested negative offset test', () => {
 				value={{
 					frame,
 					playing: false,
-					shouldRegisterSequences: true,
+					isThumbnail: false,
+					rootId: 'hi',
 				}}
 			>
 				{content}
@@ -130,7 +132,8 @@ test('Negative offset edge case', () => {
 				value={{
 					frame,
 					playing: false,
-					shouldRegisterSequences: true,
+					isThumbnail: false,
+					rootId: 'hi',
 				}}
 			>
 				{content}
