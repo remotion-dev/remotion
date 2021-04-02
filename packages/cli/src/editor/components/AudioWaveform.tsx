@@ -4,7 +4,10 @@ import {
 	getAudioMetadata,
 } from '../helpers/get-audio-metadata';
 import {getWaveformPortion} from '../helpers/get-waveform-portion';
-import {TIMELINE_LAYER_HEIGHT} from '../helpers/timeline-layout';
+import {
+	TIMELINE_BORDER,
+	TIMELINE_LAYER_HEIGHT,
+} from '../helpers/timeline-layout';
 import {AudioWaveformBar} from './AudioWaveformBar';
 
 const container: React.CSSProperties = {
@@ -61,7 +64,7 @@ export const AudioWaveform: React.FC<{
 		context.moveTo(0, TIMELINE_LAYER_HEIGHT);
 		volumes.forEach((v, index) => {
 			const x = (index / (volumes.length - 1)) * visualizationWidth;
-			const y = (1 - v) * (TIMELINE_LAYER_HEIGHT - 2);
+			const y = (1 - v) * (TIMELINE_LAYER_HEIGHT - TIMELINE_BORDER * 2) + 1;
 			if (index === 0) {
 				context.moveTo(x, y);
 			} else {

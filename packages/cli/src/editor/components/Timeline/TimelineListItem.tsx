@@ -1,6 +1,7 @@
 import React, {useMemo} from 'react';
 import {TSequence} from 'remotion';
 import {
+	TIMELINE_BORDER,
 	TIMELINE_LAYER_HEIGHT,
 	TIMELINE_PADDING,
 } from '../../helpers/timeline-layout';
@@ -10,7 +11,7 @@ const BORDER_BOTTOM_LEFT_RADIUS = 2;
 const SPACING = 5;
 
 const outer: React.CSSProperties = {
-	height: TIMELINE_LAYER_HEIGHT,
+	height: TIMELINE_LAYER_HEIGHT + TIMELINE_BORDER * 2,
 	color: 'white',
 	fontFamily: 'Arial, Helvetica, sans-serif',
 	display: 'flex',

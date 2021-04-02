@@ -2,7 +2,10 @@ import React, {useContext, useMemo} from 'react';
 import {Internals} from 'remotion';
 import styled from 'styled-components';
 import {calculateTimeline, Track} from '../../helpers/calculate-timeline';
-import {TIMELINE_LAYER_HEIGHT} from '../../helpers/timeline-layout';
+import {
+	TIMELINE_BORDER,
+	TIMELINE_LAYER_HEIGHT,
+} from '../../helpers/timeline-layout';
 import {SplitterContainer} from '../Splitter/SplitterContainer';
 import {SplitterElement} from '../Splitter/SplitterElement';
 import {SplitterHandle} from '../Splitter/SplitterHandle';
@@ -35,7 +38,7 @@ export const Timeline: React.FC = () => {
 
 	const inner: React.CSSProperties = useMemo(() => {
 		return {
-			height: timeline.length * (TIMELINE_LAYER_HEIGHT + 2),
+			height: timeline.length * (TIMELINE_LAYER_HEIGHT + TIMELINE_BORDER * 2),
 			display: 'flex',
 			flex: 1,
 			minHeight: '100%',
