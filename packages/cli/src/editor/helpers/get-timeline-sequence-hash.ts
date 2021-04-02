@@ -11,12 +11,12 @@ export const getTimelineSequenceHash = (
 ): string => {
 	const parent = allSequences.find((a) => a.id === sequence.parent);
 	return [
+		parent ? getTimelineSequenceHash(parent, allSequences) : null,
 		sequence.displayName,
 		sequence.duration,
 		sequence.from,
 		sequence.type,
 		sequence.type === 'audio' ? sequence.src : null,
 		sequence.type === 'video' ? sequence.src : null,
-		parent ? getTimelineSequenceHash(parent, allSequences) : null,
 	].join('-');
 };
