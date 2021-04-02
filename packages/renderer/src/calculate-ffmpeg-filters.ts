@@ -12,10 +12,12 @@ export const calculateFfmpegFilters = ({
 	assetPositions,
 	assetAudioDetails,
 	fps,
+	videoTrackCount,
 }: {
 	assetPositions: Assets;
 	assetAudioDetails: Map<string, AssetAudioDetails>;
 	fps: number;
+	videoTrackCount: number;
 }): FfmpegFilterCalculation[] => {
 	return assetPositions
 		.filter((pos) => {
@@ -35,7 +37,7 @@ export const calculateFfmpegFilters = ({
 			) as AssetAudioDetails;
 			const simultaneousAssets = getSimultaneousAssets(assetPositions, asset);
 
-			const streamIndex = i + 1;
+			const streamIndex = i + videoTrackCount;
 			return {
 				filter: stringifyFfmpegFilter({
 					streamIndex,
