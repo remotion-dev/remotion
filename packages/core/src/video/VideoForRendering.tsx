@@ -119,7 +119,9 @@ export const VideoForRendering: React.FC<RemotionVideoProps> = ({
 			() => {
 				// Improve me: This is ensures frame perfectness but slows down render.
 				// Please see this issue for context: https://github.com/JonnyBurger/remotion/issues/200
-				continueRender(handle);
+				setTimeout(() => {
+					continueRender(handle);
+				}, 100);
 			},
 			{once: true}
 		);
