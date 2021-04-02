@@ -16,13 +16,13 @@
   "license": "ISC",
   "dependencies": {
     "@remotion/eslint-plugin": "^1.4.0",
-    "@typescript-eslint/eslint-plugin": "^4.10.0",
-    "@typescript-eslint/parser": "^4.10.0",
-    "eslint-config-prettier": "^7.1.0",
-    "eslint-config-xo": "^0.33.1",
-    "eslint-config-xo-react": "^0.23.0",
-    "eslint-plugin-10x": "^1.4.0",
-    "eslint-plugin-react": "^7.21.5",
+    "@typescript-eslint/eslint-plugin": "^4.20.0",
+    "@typescript-eslint/parser": "^4.20.0",
+    "eslint-config-prettier": "^8.1.0",
+    "eslint-config-xo": "^0.35.0",
+    "eslint-config-xo-react": "^0.24.0",
+    "eslint-plugin-10x": "^1.5.0",
+    "eslint-plugin-react": "^7.23.1",
     "eslint-plugin-react-hooks": "^4.2.0"
   },
   "devDependencies": {
