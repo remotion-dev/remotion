@@ -162,18 +162,10 @@ test("Should render a still image if single frame specified", async () => {
 });
 
 test("Should be able to render a WAV audio file", async () => {
-  const out = outputPath.replace("mp4", "webm");
+  const out = outputPath.replace("mp4", "wav");
   const task = execa(
     "npx",
-    [
-      "remotion",
-      "render",
-      "src/index.tsx",
-      "audio-testing",
-      "--codec",
-      "h264",
-      out,
-    ],
+    ["remotion", "render", "src/index.tsx", "audio-testing", out],
     {
       cwd: "packages/example",
     }
@@ -189,6 +181,59 @@ test("Should be able to render a WAV audio file", async () => {
   expect(data).toContain("2 channels");
   expect(data).toContain("Kevin MacLeod");
   expect(data).toContain("bitrate: 1411 kb/s");
+  expect(data).toContain("Stream #0");
+  expect(data).not.toContain("Stream #1");
+  fs.unlinkSync(out);
+});
+
+test("Should be able to render a MP3 audio file", async () => {
+  const out = outputPath.replace("mp4", "mp3");
+  const task = execa(
+    "npx",
+    ["remotion", "render", "src/index.tsx", "audio-testing", out],
+    {
+      cwd: "packages/example",
+    }
+  );
+  task.stderr?.pipe(process.stderr);
+  await task;
+  const exists = fs.existsSync(outputPath);
+  expect(exists).toBe(true);
+
+  const info = await execa("ffprobe", [outputPath]);
+  const data = info.stderr;
+  expect(data).toContain("mp3");
+  expect(data).toContain("stereo");
+  expect(data).toContain("fltp");
+  expect(data).toContain("Kevin MacLeod");
+  expect(data).toContain("128 kb/s");
+  expect(data).toContain("Stream #0");
+  expect(data).not.toContain("Stream #1");
+  fs.unlinkSync(out);
+});
+
+test("Should be able to render a AAC audio file", async () => {
+  const out = outputPath.replace("mp4", "aac");
+  const task = execa(
+    "npx",
+    ["remotion", "render", "src/index.tsx", "audio-testing", out],
+    {
+      cwd: "packages/example",
+    }
+  );
+  task.stderr?.pipe(process.stderr);
+  await task;
+  const exists = fs.existsSync(outputPath);
+  expect(exists).toBe(true);
+
+  const info = await execa("ffprobe", [outputPath]);
+  const data = info.stderr;
+  expect(data).toContain("aac");
+  expect(data).not.toContain("mp3");
+  expect(data).toContain("stereo");
+  expect(data).toContain("fltp");
+  expect(data).not.toContain("Kevin MacLeod");
+  expect(data).toContain("4 kb/s");
   expect(data).toContain("Stream #0");
   expect(data).not.toContain("Stream #1");
   fs.unlinkSync(out);
