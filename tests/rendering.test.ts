@@ -86,6 +86,8 @@ test("Should fail to render out of range CRF", async () => {
 });
 
 test("Should fail to render out of range frame when range is a number", async () => {
+  const out = outputPath.replace(".mp4", "");
+
   const task = await execa(
     "npx",
     [
@@ -95,7 +97,7 @@ test("Should fail to render out of range frame when range is a number", async ()
       "ten-frame-tester",
       "--sequence",
       "--frames=10",
-      outputPath.replace(".mp4", ""),
+      out,
     ],
     {
       cwd: "packages/example",
@@ -106,6 +108,7 @@ test("Should fail to render out of range frame when range is a number", async ()
   expect(task.stderr).toContain(
     "Frame number is out of range, must be between 0 and 9"
   );
+  fs.unlinkSync(out);
 });
 
 test("Should fail to render out of range frame when range is a string", async () => {
@@ -156,4 +159,37 @@ test("Should render a still image if single frame specified", async () => {
   fs.rmdirSync(outDir, {
     recursive: true,
   });
+});
+
+test("Should be able to render a WAV audio file", async () => {
+  const out = outputPath.replace("mp4", "webm");
+  const task = execa(
+    "npx",
+    [
+      "remotion",
+      "render",
+      "src/index.tsx",
+      "audio-testing",
+      "--codec",
+      "h264",
+      out,
+    ],
+    {
+      cwd: "packages/example",
+    }
+  );
+  task.stderr?.pipe(process.stderr);
+  await task;
+  const exists = fs.existsSync(outputPath);
+  expect(exists).toBe(true);
+
+  const info = await execa("ffprobe", [outputPath]);
+  const data = info.stderr;
+  expect(data).toContain("pcm_s16le");
+  expect(data).toContain("2 channels");
+  expect(data).toContain("Kevin MacLeod");
+  expect(data).toContain("bitrate: 1411 kb/s");
+  expect(data).toContain("Stream #0");
+  expect(data).not.toContain("Stream #1");
+  fs.unlinkSync(out);
 });
