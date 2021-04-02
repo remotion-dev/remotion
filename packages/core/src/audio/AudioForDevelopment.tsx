@@ -8,6 +8,7 @@ import {useAbsoluteCurrentFrame, useCurrentFrame} from '../use-frame';
 import {useUnsafeVideoConfig} from '../use-unsafe-video-config';
 import {evaluateVolume} from '../volume-prop';
 import {RemotionAudioProps} from './props';
+import {useAudioFrame} from './use-audio-frame';
 
 export const AudioForDevelopment: React.FC<RemotionAudioProps> = (props) => {
 	const audioRef = useRef<HTMLAudioElement>(null);
@@ -15,6 +16,7 @@ export const AudioForDevelopment: React.FC<RemotionAudioProps> = (props) => {
 	const absoluteFrame = useAbsoluteCurrentFrame();
 	const [actualVolume, setActualVolume] = useState(1);
 
+	const audioFrame = useAudioFrame();
 	const videoConfig = useUnsafeVideoConfig();
 	const [playing] = usePlayingState();
 	const {rootId} = useContext(TimelineContext);
@@ -50,7 +52,7 @@ export const AudioForDevelopment: React.FC<RemotionAudioProps> = (props) => {
 
 	useEffect(() => {
 		const userPreferredVolume = evaluateVolume({
-			frame: frame + startsAt,
+			frame: audioFrame,
 			volume,
 		});
 		if (
@@ -59,7 +61,7 @@ export const AudioForDevelopment: React.FC<RemotionAudioProps> = (props) => {
 		) {
 			audioRef.current.volume = userPreferredVolume;
 		}
-	}, [actualVolume, frame, props.volume, startsAt, volume]);
+	}, [actualVolume, audioFrame, frame, props.volume, volume]);
 
 	useEffect(() => {
 		if (playing) {

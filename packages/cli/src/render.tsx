@@ -204,6 +204,7 @@ export const render = async () => {
 		quality,
 		browser,
 		frameRange: frameRange ?? null,
+		assetsOnly: Internals.isAudioCodec(codec),
 	});
 	renderProgress.stop();
 	if (process.env.DEBUG) {

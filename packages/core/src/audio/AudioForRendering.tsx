@@ -6,10 +6,12 @@ import {SequenceContext} from '../sequencing';
 import {useAbsoluteCurrentFrame, useCurrentFrame} from '../use-frame';
 import {evaluateVolume} from '../volume-prop';
 import {RemotionAudioProps} from './props';
+import {useAudioFrame} from './use-audio-frame';
 
 export const AudioForRendering: React.FC<RemotionAudioProps> = (props) => {
 	const absoluteFrame = useAbsoluteCurrentFrame();
 	const sequenceFrame = useCurrentFrame();
+	const audioFrame = useAudioFrame();
 	const sequenceContext = useContext(SequenceContext);
 	const {registerAsset, unregisterAsset} = useContext(CompositionManager);
 
@@ -25,7 +27,7 @@ export const AudioForRendering: React.FC<RemotionAudioProps> = (props) => {
 
 	const volume = evaluateVolume({
 		volume: props.volume,
-		frame: sequenceFrame,
+		frame: audioFrame,
 	});
 
 	useEffect(() => {

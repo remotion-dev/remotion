@@ -2,15 +2,16 @@ import path from 'path';
 import {
 	Browser,
 	FrameRange,
+	ImageFormat,
 	Internals,
 	RenderAssetInfo,
 	VideoConfig,
 } from 'remotion';
-import {openBrowser, provideScreenshot} from '.';
+import {openBrowser, provideScreenshot, seekToFrame} from '.';
 import {getActualConcurrency} from './get-concurrency';
 import {getFrameCount} from './get-frame-range';
 import {getFrameToRender} from './get-frame-to-render';
-import {DEFAULT_IMAGE_FORMAT, ImageFormat} from './image-format';
+import {DEFAULT_IMAGE_FORMAT} from './image-format';
 import {Pool} from './pool';
 import {serveStatic} from './serve-static';
 
@@ -36,7 +37,6 @@ export const renderFrames = async ({
 	imageFormat = DEFAULT_IMAGE_FORMAT,
 	browser = Internals.DEFAULT_BROWSER,
 	frameRange,
-	assetsOnly = false,
 }: {
 	config: VideoConfig;
 	parallelism?: number | null;
@@ -46,7 +46,7 @@ export const renderFrames = async ({
 	outputDir: string;
 	inputProps: unknown;
 	webpackBundle: string;
-	imageFormat?: ImageFormat;
+	imageFormat: ImageFormat;
 	quality?: number;
 	browser?: Browser;
 	frameRange?: FrameRange | null;
@@ -103,7 +103,8 @@ export const renderFrames = async ({
 				const freePage = await pool.acquire();
 				const paddedIndex = String(frame).padStart(filePadLength, '0');
 
-				if (!assetsOnly) {
+				await seekToFrame({frame, page: freePage});
+				if (imageFormat !== 'none') {
 					await provideScreenshot({
 						page: freePage,
 						imageFormat,
