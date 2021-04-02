@@ -9,6 +9,7 @@ import {SequenceContext} from '../sequencing';
 import {useCurrentFrame} from '../use-frame';
 import {useUnsafeVideoConfig} from '../use-unsafe-video-config';
 import {evaluateVolume} from '../volume-prop';
+import {getCurrentTime} from './get-current-time';
 import {RemotionVideoProps} from './props';
 
 export const VideoForRendering: React.FC<RemotionVideoProps> = ({
@@ -84,10 +85,11 @@ export const VideoForRendering: React.FC<RemotionVideoProps> = ({
 
 		const currentTime = (() => {
 			if (FEATURE_FLAG_V2_BREAKING_CHANGES) {
-				// In Chrome, if 30fps, the first frame is still displayed at 0.033333
-				// even though after that it increases by 0.033333333 each.
-				// So frame = 0 in Remotion is like frame = 1 for the browser
-				return (frame + 1) / videoConfig.fps;
+				return getCurrentTime({
+					fps: videoConfig.fps,
+					frame,
+					src: props.src as string,
+				});
 			}
 			return frame / (1000 / videoConfig.fps);
 		})();
