@@ -121,7 +121,7 @@ export const VideoForRendering: React.FC<RemotionVideoProps> = ({
 				// Please see this issue for context: https://github.com/JonnyBurger/remotion/issues/200
 				setTimeout(() => {
 					continueRender(handle);
-				}, 300);
+				}, 100);
 			},
 			{once: true}
 		);
