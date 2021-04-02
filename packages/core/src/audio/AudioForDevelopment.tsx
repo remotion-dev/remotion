@@ -8,7 +8,7 @@ import {useAbsoluteCurrentFrame, useCurrentFrame} from '../use-frame';
 import {useUnsafeVideoConfig} from '../use-unsafe-video-config';
 import {evaluateVolume} from '../volume-prop';
 import {RemotionAudioProps} from './props';
-import {useAudioFrame} from './use-audio-frame';
+import {useAudioFrame, useAudioStartsAt} from './use-audio-frame';
 
 export const AudioForDevelopment: React.FC<RemotionAudioProps> = (props) => {
 	const audioRef = useRef<HTMLAudioElement>(null);
@@ -26,7 +26,7 @@ export const AudioForDevelopment: React.FC<RemotionAudioProps> = (props) => {
 		? parentSequence.relativeFrom + parentSequence.cumulatedFrom
 		: 0;
 
-	const startsAt = Math.min(0, parentSequence?.relativeFrom ?? 0);
+	const startsAt = useAudioStartsAt();
 
 	const {registerSequence, unregisterSequence} = useContext(CompositionManager);
 

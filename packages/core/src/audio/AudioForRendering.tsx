@@ -10,8 +10,8 @@ import {useAudioFrame} from './use-audio-frame';
 
 export const AudioForRendering: React.FC<RemotionAudioProps> = (props) => {
 	const absoluteFrame = useAbsoluteCurrentFrame();
-	const sequenceFrame = useCurrentFrame();
 	const audioFrame = useAudioFrame();
+	const frame = useCurrentFrame();
 	const sequenceContext = useContext(SequenceContext);
 	const {registerAsset, unregisterAsset} = useContext(CompositionManager);
 
@@ -43,9 +43,10 @@ export const AudioForRendering: React.FC<RemotionAudioProps> = (props) => {
 			type: 'audio',
 			src: props.src,
 			id,
-			sequenceFrame,
+			frame: absoluteFrame,
 			volume,
 			isRemote: isRemoteAsset(props.src),
+			mediaFrame: frame,
 		});
 		return () => unregisterAsset(id);
 	}, [
@@ -55,8 +56,9 @@ export const AudioForRendering: React.FC<RemotionAudioProps> = (props) => {
 		absoluteFrame,
 		id,
 		unregisterAsset,
-		sequenceFrame,
 		volume,
+		audioFrame,
+		frame,
 	]);
 
 	return null;

@@ -10,21 +10,29 @@ export const stringifyFfmpegFilter = ({
 	startInVideo,
 	simulatenousAssets,
 	volume,
+	fps,
 }: {
 	streamIndex: number;
 	trimLeft: string;
 	trimRight: string;
 	channels: number;
-	startInVideo: string;
+	startInVideo: number;
 	simulatenousAssets: number;
 	volume: AssetVolume;
+	fps: number;
 }) => {
-	const volumeFilter = ffmpegVolumeExpression(volume, simulatenousAssets);
+	const startInVideoSeconds = ((startInVideo / fps) * 1000).toFixed(); // in milliseconds
+
+	const volumeFilter = ffmpegVolumeExpression({
+		volume,
+		multiplier: simulatenousAssets,
+		startInVideo,
+	});
 	return (
 		`[${streamIndex}:a]` +
 		[
 			`atrim=${trimLeft}:${trimRight}`,
-			`adelay=${new Array(channels).fill(startInVideo).join('|')}`,
+			`adelay=${new Array(channels).fill(startInVideoSeconds).join('|')}`,
 			`volume=${volumeFilter.value}:eval=${volumeFilter.eval}`,
 		]
 			.filter(Internals.truthy)

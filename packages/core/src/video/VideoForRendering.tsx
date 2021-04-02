@@ -1,4 +1,5 @@
 import React, {useContext, useEffect, useMemo, useRef} from 'react';
+import {useAudioFrame} from '../audio/use-audio-frame';
 import {CompositionManager} from '../CompositionManager';
 import {FEATURE_FLAG_V2_BREAKING_CHANGES} from '../feature-flags';
 import {isApproximatelyTheSame} from '../is-approximately-the-same';
@@ -6,7 +7,7 @@ import {isRemoteAsset} from '../is-remote-asset';
 import {random} from '../random';
 import {continueRender, delayRender} from '../ready-manager';
 import {SequenceContext} from '../sequencing';
-import {useCurrentFrame} from '../use-frame';
+import {useAbsoluteCurrentFrame, useCurrentFrame} from '../use-frame';
 import {useUnsafeVideoConfig} from '../use-unsafe-video-config';
 import {evaluateVolume} from '../volume-prop';
 import {getCurrentTime} from './get-current-time';
@@ -17,7 +18,10 @@ export const VideoForRendering: React.FC<RemotionVideoProps> = ({
 	volume: volumeProp,
 	...props
 }) => {
+	const absoluteFrame = useAbsoluteCurrentFrame();
+
 	const frame = useCurrentFrame();
+	const audioFrame = useAudioFrame();
 	const videoConfig = useUnsafeVideoConfig();
 	const videoRef = useRef<HTMLVideoElement>(null);
 	const sequenceContext = useContext(SequenceContext);
@@ -46,7 +50,7 @@ export const VideoForRendering: React.FC<RemotionVideoProps> = ({
 
 	const volume = evaluateVolume({
 		volume: volumeProp,
-		frame,
+		frame: audioFrame,
 	});
 
 	useEffect(() => {
@@ -62,9 +66,10 @@ export const VideoForRendering: React.FC<RemotionVideoProps> = ({
 			type: 'video',
 			src: props.src,
 			id,
-			sequenceFrame: frame,
+			frame: absoluteFrame,
 			volume,
 			isRemote: isRemoteAsset(props.src),
+			mediaFrame: frame,
 		});
 
 		return () => unregisterAsset(id);
@@ -74,8 +79,9 @@ export const VideoForRendering: React.FC<RemotionVideoProps> = ({
 		registerAsset,
 		id,
 		unregisterAsset,
-		frame,
 		volume,
+		frame,
+		absoluteFrame,
 	]);
 
 	useEffect(() => {
@@ -87,11 +93,11 @@ export const VideoForRendering: React.FC<RemotionVideoProps> = ({
 			if (FEATURE_FLAG_V2_BREAKING_CHANGES) {
 				return getCurrentTime({
 					fps: videoConfig.fps,
-					frame,
+					frame: audioFrame,
 					src: props.src as string,
 				});
 			}
-			return frame / (1000 / videoConfig.fps);
+			return audioFrame / (1000 / videoConfig.fps);
 		})();
 		const handle = delayRender();
 		if (process.env.NODE_ENV === 'test') {
@@ -140,7 +146,7 @@ export const VideoForRendering: React.FC<RemotionVideoProps> = ({
 			},
 			{once: true}
 		);
-	}, [frame, props.src, videoConfig.fps]);
+	}, [audioFrame, props.src, videoConfig.fps]);
 
 	return <video ref={videoRef} {...props} />;
 };

@@ -31,7 +31,6 @@ export const calculateFfmpegFilters = ({
 			const assetTrimRight = ((asset.trimLeft + asset.duration) / fps).toFixed(
 				3
 			);
-			const startInVideo = ((asset.startInVideo / fps) * 1000).toFixed(); // in milliseconds
 			const audioDetails = assetAudioDetails.get(
 				resolveAssetSrc(asset.src)
 			) as AssetAudioDetails;
@@ -42,11 +41,12 @@ export const calculateFfmpegFilters = ({
 				filter: stringifyFfmpegFilter({
 					streamIndex,
 					channels: audioDetails.channels,
-					startInVideo,
+					startInVideo: asset.startInVideo,
 					trimLeft: assetTrimLeft,
 					trimRight: assetTrimRight,
 					simulatenousAssets: simultaneousAssets.length,
 					volume: asset.volume,
+					fps,
 				}),
 				streamIndex,
 			};
