@@ -34,7 +34,7 @@ export const Thumbnail: React.FC<{
 			width: targetWidth,
 			height: targetHeight,
 			backgroundColor: 'rgba(0, 0, 0, 0.4)',
-			display: 'flex',
+			display: 'none',
 			justifyContent: 'center',
 			alignItems: 'center',
 		};
