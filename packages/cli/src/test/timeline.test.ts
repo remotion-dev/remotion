@@ -34,6 +34,7 @@ test('Should calculate a basic timline', () => {
 				rootId: '0.1',
 				showInTimeline: true,
 				type: 'sequence',
+				nonce: 0,
 			},
 		],
 		sequenceDuration: 100,
@@ -67,6 +68,7 @@ test('Should follow order of nesting', () => {
 				rootId: '0.1',
 				showInTimeline: true,
 				type: 'sequence',
+				nonce: 0,
 			},
 			{
 				displayName: 'Audio',
@@ -77,6 +79,7 @@ test('Should follow order of nesting', () => {
 				rootId: '0.1',
 				showInTimeline: true,
 				type: 'sequence',
+				nonce: 0,
 			},
 		],
 		sequenceDuration: 100,

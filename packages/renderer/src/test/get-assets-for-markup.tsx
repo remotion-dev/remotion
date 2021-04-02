@@ -74,6 +74,7 @@ export const getAssetsForMarkup = async (
 								default: Markup as React.ComponentType<unknown>,
 							})
 						),
+						nonce: 0,
 					},
 				],
 				currentComposition: 'markup',

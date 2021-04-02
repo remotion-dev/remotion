@@ -8,6 +8,7 @@ export type TComposition<T = unknown> = {
 	id: string;
 	component: React.LazyExoticComponent<React.ComponentType<T>>;
 	props?: T;
+	nonce: number;
 };
 
 export type TCompMetadata = Pick<
@@ -41,6 +42,7 @@ export type TSequence = {
 	parent: string | null;
 	rootId: string;
 	showInTimeline: boolean;
+	nonce: number;
 } & EnhancedTSequenceData;
 
 export type TAsset = {

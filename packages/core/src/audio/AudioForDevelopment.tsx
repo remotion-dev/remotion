@@ -2,6 +2,7 @@ import React, {useContext, useEffect, useMemo, useRef, useState} from 'react';
 import {CompositionManager} from '../CompositionManager';
 import {getAssetFileName} from '../get-asset-file-name';
 import {isApproximatelyTheSame} from '../is-approximately-the-same';
+import {useNonce} from '../nonce';
 import {SequenceContext} from '../sequencing';
 import {TimelineContext, usePlayingState} from '../timeline-position-state';
 import {useAbsoluteCurrentFrame, useCurrentFrame} from '../use-frame';
@@ -15,6 +16,7 @@ export const AudioForDevelopment: React.FC<RemotionAudioProps> = (props) => {
 	const frame = useCurrentFrame();
 	const absoluteFrame = useAbsoluteCurrentFrame();
 	const [actualVolume, setActualVolume] = useState(1);
+	const nonce = useNonce();
 
 	const audioFrame = useAudioFrame();
 	const videoConfig = useUnsafeVideoConfig();
@@ -121,6 +123,7 @@ export const AudioForDevelopment: React.FC<RemotionAudioProps> = (props) => {
 			rootId,
 			volume: volumes,
 			showInTimeline: true,
+			nonce,
 		});
 		return () => unregisterSequence(id);
 	}, [
@@ -134,6 +137,7 @@ export const AudioForDevelopment: React.FC<RemotionAudioProps> = (props) => {
 		unregisterSequence,
 		videoConfig,
 		volumes,
+		nonce,
 	]);
 
 	useEffect(() => {
