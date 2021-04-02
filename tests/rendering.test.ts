@@ -172,7 +172,7 @@ test("Should be able to render a WAV audio file", async () => {
   );
   task.stderr?.pipe(process.stderr);
   await task;
-  const exists = fs.existsSync(outputPath);
+  const exists = fs.existsSync(out);
   expect(exists).toBe(true);
 
   const info = await execa("ffprobe", [out]);
@@ -197,7 +197,7 @@ test("Should be able to render a MP3 audio file", async () => {
   );
   task.stderr?.pipe(process.stderr);
   await task;
-  const exists = fs.existsSync(outputPath);
+  const exists = fs.existsSync(out);
   expect(exists).toBe(true);
 
   const info = await execa("ffprobe", [out]);
@@ -223,7 +223,7 @@ test("Should be able to render a AAC audio file", async () => {
   );
   task.stderr?.pipe(process.stderr);
   await task;
-  const exists = fs.existsSync(outputPath);
+  const exists = fs.existsSync(out);
   expect(exists).toBe(true);
 
   const info = await execa("ffprobe", [out]);
