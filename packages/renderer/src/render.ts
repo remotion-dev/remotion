@@ -36,6 +36,7 @@ export const renderFrames = async ({
 	imageFormat = DEFAULT_IMAGE_FORMAT,
 	browser = Internals.DEFAULT_BROWSER,
 	frameRange,
+	assetsOnly = false,
 }: {
 	config: VideoConfig;
 	parallelism?: number | null;
@@ -49,6 +50,7 @@ export const renderFrames = async ({
 	quality?: number;
 	browser?: Browser;
 	frameRange?: FrameRange | null;
+	assetsOnly?: boolean;
 }): Promise<RenderFramesOutput> => {
 	if (quality !== undefined && imageFormat !== 'jpeg') {
 		throw new Error(
@@ -101,24 +103,27 @@ export const renderFrames = async ({
 				const freePage = await pool.acquire();
 				const paddedIndex = String(frame).padStart(filePadLength, '0');
 
-				await provideScreenshot({
-					page: freePage,
-					imageFormat,
-					quality,
-					options: {
-						frame,
-						output: path.join(
-							outputDir,
-							`element-${paddedIndex}.${imageFormat}`
-						),
-					},
+				if (!assetsOnly) {
+					await provideScreenshot({
+						page: freePage,
+						imageFormat,
+						quality,
+						options: {
+							frame,
+							output: path.join(
+								outputDir,
+								`element-${paddedIndex}.${imageFormat}`
+							),
+						},
+					});
+				}
+				const collectedAssets = await freePage.evaluate(() => {
+					return window.remotion_collectAssets();
 				});
 				pool.release(freePage);
 				framesRendered++;
 				onFrameUpdate(framesRendered);
-				return freePage.evaluate(() => {
-					return window.remotion_collectAssets();
-				});
+				return collectedAssets;
 			})
 	);
 	await Promise.all([browserInstance.close(), close()]);
