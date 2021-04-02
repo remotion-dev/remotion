@@ -4,6 +4,7 @@ import {TIMELINE_PADDING} from '../helpers/timeline-layout';
 import {CheckboardToggle} from './CheckboardToggle';
 import {FpsCounter} from './FpsCounter';
 import {PlayPause} from './PlayPause';
+import {RichTimelineToggle} from './RichTimelineToggle';
 import {SizeSelector} from './SizeSelector';
 import {TimeValue} from './TimeValue';
 
@@ -44,6 +45,7 @@ export const PreviewToolbar: React.FC = () => {
 			<SizeSelector />
 			<PlayPause />
 			<CheckboardToggle />
+			<RichTimelineToggle />
 			<Flex />
 			<SideContainer>
 				<Flex />
