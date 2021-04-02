@@ -46,7 +46,6 @@ import {
 } from './config/webpack-caching';
 import {
 	FEATURE_FLAG_FIREFOX_SUPPORT,
-	FEATURE_FLAG_RICH_PREVIEWS,
 	FEATURE_FLAG_V2_BREAKING_CHANGES,
 } from './feature-flags';
 import {isAudioCodec} from './is-audio-codec';
@@ -87,7 +86,6 @@ export const Internals = {
 	FEATURE_FLAG_FIREFOX_SUPPORT,
 	DEFAULT_WEBPACK_CACHE_ENABLED,
 	FEATURE_FLAG_V2_BREAKING_CHANGES,
-	FEATURE_FLAG_RICH_PREVIEWS,
 	getBrowser,
 	DEFAULT_BROWSER,
 	getDefaultCrfForCodec,

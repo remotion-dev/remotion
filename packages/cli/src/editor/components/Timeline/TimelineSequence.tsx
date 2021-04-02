@@ -1,4 +1,4 @@
-import React, {useMemo, useState} from 'react';
+import React, {useContext, useMemo, useState} from 'react';
 import {Internals, TSequence} from 'remotion';
 import {
 	getTimelineSequenceLayout,
@@ -6,6 +6,7 @@ import {
 } from '../../helpers/get-timeline-sequence-layout';
 import {TIMELINE_LAYER_HEIGHT} from '../../helpers/timeline-layout';
 import {useElementSize} from '../../hooks/get-el-size';
+import {RichTimelineContext} from '../../state/rich-timeline';
 import {AudioWaveform} from '../AudioWaveform';
 import {Thumbnail} from '../Thumbnail';
 import {sliderAreaRef} from './timeline-refs';
@@ -18,6 +19,7 @@ export const TimelineSequence: React.FC<{
 	fps: number;
 }> = ({s, fps}) => {
 	const size = useElementSize(sliderAreaRef);
+	const {richTimeline} = useContext(RichTimelineContext);
 
 	const windowWidth = size?.width ?? 0;
 	// If a duration is 1, it is essentially a still and it should have width 0
@@ -65,16 +67,17 @@ export const TimelineSequence: React.FC<{
 
 	const thumbnailWidth = TIMELINE_LAYER_HEIGHT * (video.width / video.height);
 
-	const thumbnailFit = !Internals.FEATURE_FLAG_RICH_PREVIEWS ? 0 : 1;
+	const thumbnailsToShow = richTimeline ? 1 : 0;
 
 	return (
 		<div key={s.id} style={style} title={s.displayName}>
 			<div style={row}>
 				{s.type === 'sequence' &&
-					new Array(thumbnailFit).fill(true).map((_, i) => {
-						const frameToDisplay = Internals.FEATURE_FLAG_RICH_PREVIEWS
-							? Math.floor((i / thumbnailFit) * video.durationInFrames)
-							: s.from;
+					new Array(thumbnailsToShow).fill(true).map((_, i) => {
+						const frameToDisplay = Math.floor(
+							(i / thumbnailsToShow) * video.durationInFrames
+						);
+
 						return (
 							<Thumbnail
 								key={frameToDisplay}
