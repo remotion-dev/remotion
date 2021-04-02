@@ -59,10 +59,6 @@ export const calculateTimeline = ({
 		if (!sequence.showInTimeline) {
 			continue;
 		}
-		const parent = sequences.find((a) => a.id === sequence.parent);
-		const parentHash = parent
-			? getTimelineSequenceHash(parent, sequences)
-			: null;
 
 		const baseHash = getTimelineSequenceHash(sequence, sequences);
 		const depth = getTimelineNestedLevel(sequence, sequences, 0);
