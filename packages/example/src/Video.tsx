@@ -179,12 +179,26 @@ export const Index: React.FC = () => {
 				durationInFrames={10}
 			/>
 			<Composition
-				id="video-testing"
+				id="video-testing-mp4"
 				component={VideoTesting}
 				width={1080}
 				height={1080}
 				fps={30}
 				durationInFrames={100}
+				defaultProps={{
+					codec: 'mp4',
+				}}
+			/>
+			<Composition
+				id="video-testing-webm"
+				component={VideoTesting}
+				width={1080}
+				height={1080}
+				fps={30}
+				durationInFrames={100}
+				defaultProps={{
+					codec: 'webm',
+				}}
 			/>
 			<Composition
 				id="framer"
