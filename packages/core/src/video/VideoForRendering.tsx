@@ -13,6 +13,7 @@ import {RemotionVideoProps} from './props';
 
 export const VideoForRendering: React.FC<RemotionVideoProps> = ({
 	onError,
+	volume: volumeProp,
 	...props
 }) => {
 	const frame = useCurrentFrame();
@@ -42,6 +43,11 @@ export const VideoForRendering: React.FC<RemotionVideoProps> = ({
 		throw new Error('No video config found');
 	}
 
+	const volume = evaluateVolume({
+		volume: volumeProp,
+		frame,
+	});
+
 	useEffect(() => {
 		if (!props.src) {
 			throw new Error('No src passed');
@@ -56,10 +62,7 @@ export const VideoForRendering: React.FC<RemotionVideoProps> = ({
 			src: props.src,
 			id,
 			sequenceFrame: frame,
-			volume: evaluateVolume({
-				volume: props.volume,
-				frame,
-			}),
+			volume,
 			isRemote: isRemoteAsset(props.src),
 		});
 
@@ -71,7 +74,7 @@ export const VideoForRendering: React.FC<RemotionVideoProps> = ({
 		id,
 		unregisterAsset,
 		frame,
-		props.volume,
+		volume,
 	]);
 
 	useEffect(() => {

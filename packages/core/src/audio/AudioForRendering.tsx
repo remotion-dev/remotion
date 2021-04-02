@@ -23,6 +23,11 @@ export const AudioForRendering: React.FC<RemotionAudioProps> = (props) => {
 		[props.muted, props.src, sequenceContext]
 	);
 
+	const volume = evaluateVolume({
+		volume: props.volume,
+		frame: sequenceFrame,
+	});
+
 	useEffect(() => {
 		if (!props.src) {
 			throw new Error('No src passed');
@@ -37,10 +42,7 @@ export const AudioForRendering: React.FC<RemotionAudioProps> = (props) => {
 			src: props.src,
 			id,
 			sequenceFrame,
-			volume: evaluateVolume({
-				volume: props.volume,
-				frame: sequenceFrame,
-			}),
+			volume,
 			isRemote: isRemoteAsset(props.src),
 		});
 		return () => unregisterAsset(id);
@@ -52,7 +54,7 @@ export const AudioForRendering: React.FC<RemotionAudioProps> = (props) => {
 		id,
 		unregisterAsset,
 		sequenceFrame,
-		props.volume,
+		volume,
 	]);
 
 	return null;
