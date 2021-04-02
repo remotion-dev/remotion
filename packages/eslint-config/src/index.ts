@@ -8,6 +8,7 @@ const getRules = (typescript: boolean) => {
   return {
     ...xo.rules,
     ...xoReact.rules,
+    "react/jsx-curly-newline": "off",
     "no-console": "off",
     "10x/react-in-scope": "off",
     "react/react-in-jsx-scope": "off",
