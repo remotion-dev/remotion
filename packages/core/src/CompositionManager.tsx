@@ -47,9 +47,10 @@ export type TAsset = {
 	type: 'audio' | 'video';
 	src: string;
 	id: string;
-	sequenceFrame: number;
+	frame: number;
 	volume: number;
 	isRemote: boolean;
+	mediaFrame: number;
 };
 
 export type RenderAssetInfo = {

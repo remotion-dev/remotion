@@ -4,7 +4,7 @@ import music from './music.mp3';
 const AudioTesting: React.FC = () => {
 	return (
 		<div>
-			<Sequence from={100} durationInFrames={Infinity}>
+			<Sequence from={100} durationInFrames={100}>
 				<Audio
 					startAt={100}
 					endAt={200}

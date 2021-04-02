@@ -54,10 +54,15 @@ type FfmpegVolumeExpression = {
 };
 
 // TODO: Should remove irrelevant frames
-export const ffmpegVolumeExpression = (
-	volume: AssetVolume,
-	multiplier: number
-): FfmpegVolumeExpression => {
+export const ffmpegVolumeExpression = ({
+	volume,
+	multiplier,
+	startInVideo,
+}: {
+	volume: AssetVolume;
+	multiplier: number;
+	startInVideo: number;
+}): FfmpegVolumeExpression => {
 	// If it's a static volume, we return it and tell
 	// FFMPEG it only has to evaluate it once
 	if (typeof volume === 'number') {
@@ -67,7 +72,11 @@ export const ffmpegVolumeExpression = (
 		};
 	}
 	if ([...new Set(volume)].length === 1) {
-		return ffmpegVolumeExpression(volume[0], multiplier);
+		return ffmpegVolumeExpression({
+			volume: volume[0],
+			multiplier,
+			startInVideo,
+		});
 	}
 
 	// Otherwise, we construct an FFMPEG expression. First step:
@@ -82,7 +91,7 @@ export const ffmpegVolumeExpression = (
 		if (!volumeMap[actualVolume]) {
 			volumeMap[actualVolume] = [];
 		}
-		volumeMap[actualVolume].push(frame);
+		volumeMap[actualVolume].push(frame + startInVideo);
 	});
 
 	// Sort the map so that the most common volume is last
