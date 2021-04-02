@@ -2,6 +2,7 @@ import React, {useMemo} from 'react';
 import styled from 'styled-components';
 import {Track} from '../../helpers/calculate-timeline';
 import {
+	TIMELINE_BORDER,
 	TIMELINE_LAYER_HEIGHT,
 	TIMELINE_PADDING,
 } from '../../helpers/timeline-layout';
@@ -21,7 +22,7 @@ export const TimelineTracks: React.FC<{
 }> = ({timeline, fps}) => {
 	const inner: React.CSSProperties = useMemo(() => {
 		return {
-			height: TIMELINE_LAYER_HEIGHT + 2,
+			height: TIMELINE_LAYER_HEIGHT + TIMELINE_BORDER * 2,
 		};
 	}, []);
 	return (
