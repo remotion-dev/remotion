@@ -175,7 +175,7 @@ test("Should be able to render a WAV audio file", async () => {
   const exists = fs.existsSync(outputPath);
   expect(exists).toBe(true);
 
-  const info = await execa("ffprobe", [outputPath]);
+  const info = await execa("ffprobe", [out]);
   const data = info.stderr;
   expect(data).toContain("pcm_s16le");
   expect(data).toContain("2 channels");
@@ -200,7 +200,7 @@ test("Should be able to render a MP3 audio file", async () => {
   const exists = fs.existsSync(outputPath);
   expect(exists).toBe(true);
 
-  const info = await execa("ffprobe", [outputPath]);
+  const info = await execa("ffprobe", [out]);
   const data = info.stderr;
   expect(data).toContain("mp3");
   expect(data).toContain("stereo");
@@ -226,7 +226,7 @@ test("Should be able to render a AAC audio file", async () => {
   const exists = fs.existsSync(outputPath);
   expect(exists).toBe(true);
 
-  const info = await execa("ffprobe", [outputPath]);
+  const info = await execa("ffprobe", [out]);
   const data = info.stderr;
   expect(data).toContain("aac");
   expect(data).not.toContain("mp3");
