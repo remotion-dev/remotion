@@ -1,5 +1,11 @@
 import {render} from '@testing-library/react';
-import React, {useCallback, useContext, useLayoutEffect, useState} from 'react';
+import React, {
+	useCallback,
+	useContext,
+	useLayoutEffect,
+	useMemo,
+	useState,
+} from 'react';
 import {act} from 'react-dom/test-utils';
 import {Internals, TAsset} from 'remotion';
 
@@ -53,28 +59,30 @@ export const getAssetsForMarkup = async (
 		}, [assets]);
 		const compositions = useContext(Internals.CompositionManager);
 
+		const value = useMemo(() => {
+			return {
+				...compositions,
+				assets,
+				registerAsset,
+				unregisterAsset,
+				compositions: [
+					{
+						...config,
+						id: 'markup',
+						component: React.lazy(() =>
+							Promise.resolve({
+								default: Markup as React.ComponentType<unknown>,
+							})
+						),
+					},
+				],
+				currentComposition: 'markup',
+			};
+		}, [assets, compositions, registerAsset, unregisterAsset]);
+
 		return (
 			<Internals.RemotionRoot>
-				<Internals.CompositionManager.Provider
-					value={{
-						...compositions,
-						assets,
-						registerAsset,
-						unregisterAsset,
-						compositions: [
-							{
-								...config,
-								id: 'markup',
-								component: React.lazy(() =>
-									Promise.resolve({
-										default: Markup as React.ComponentType<unknown>,
-									})
-								),
-							},
-						],
-						currentComposition: 'markup',
-					}}
-				>
+				<Internals.CompositionManager.Provider value={value}>
 					<Markup />
 				</Internals.CompositionManager.Provider>
 			</Internals.RemotionRoot>
