@@ -16,6 +16,10 @@ export type Track = {
 	depth: number;
 };
 
+type TrackWithHash = Track & {
+	hash: string;
+};
+
 export const calculateTimeline = ({
 	sequences,
 	sequenceDuration,
@@ -23,7 +27,7 @@ export const calculateTimeline = ({
 	sequences: TSequence[];
 	sequenceDuration: number;
 }): Track[] => {
-	const tracks: Track[] = [];
+	const tracks: TrackWithHash[] = [];
 
 	if (sequences.length === 0) {
 		return [
@@ -75,7 +79,15 @@ export const calculateTimeline = ({
 				duration: visibleDuration,
 			},
 			depth,
+			hash: baseHash,
 		});
 	}
-	return tracks;
+	return tracks
+		.sort((a, b) => {
+			return ('' + a.hash).localeCompare(b.hash);
+		})
+		.map((t) => {
+			const {hash, ...other} = t;
+			return other;
+		});
 };
