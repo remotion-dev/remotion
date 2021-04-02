@@ -1,4 +1,12 @@
-const validCodecs = ['h264', 'h265', 'vp8', 'vp9'] as const;
+const validCodecs = [
+	'h264',
+	'h265',
+	'vp8',
+	'vp9',
+	'mp3',
+	'aac',
+	'wav',
+] as const;
 
 export type Codec = typeof validCodecs[number];
 export type CodecOrUndefined = Codec | undefined;
