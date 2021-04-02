@@ -8,6 +8,7 @@ import React, {
 import {CompositionManager} from '../CompositionManager';
 import {FEATURE_FLAG_V2_BREAKING_CHANGES} from '../feature-flags';
 import {getTimelineClipName} from '../get-timeline-clip-name';
+import {useNonce} from '../nonce';
 import {TimelineContext} from '../timeline-position-state';
 import {useAbsoluteCurrentFrame} from '../use-frame';
 import {useUnsafeVideoConfig} from '../use-unsafe-video-config';
@@ -44,6 +45,7 @@ export const Sequence: React.FC<{
 		? parentSequence.cumulatedFrom + parentSequence.relativeFrom
 		: 0;
 	const actualFrom = cumulatedFrom + from;
+	const nonce = useNonce();
 
 	if (layout !== 'absolute-fill' && layout !== 'none') {
 		throw new TypeError(
@@ -115,6 +117,7 @@ export const Sequence: React.FC<{
 			type: 'sequence',
 			rootId,
 			showInTimeline,
+			nonce,
 		});
 		return () => {
 			unregisterSequence(id);
@@ -132,6 +135,7 @@ export const Sequence: React.FC<{
 		rootId,
 		from,
 		showInTimeline,
+		nonce,
 	]);
 
 	const endThreshold = (() => {

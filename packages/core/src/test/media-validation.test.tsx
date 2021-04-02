@@ -19,6 +19,7 @@ const Wrapper: React.FC = ({children}) => {
 							fps: 30,
 							durationInFrames: 30,
 							id: 'markup',
+							nonce: 0,
 							component: React.lazy(() =>
 								Promise.resolve({
 									default: (() => null) as React.ComponentType<unknown>,

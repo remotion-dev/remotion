@@ -31,6 +31,7 @@
 		"@testing-library/react": "^11.2.2",
 		"@types/jest": "^26.0.19",
 		"@types/node": "^14.14.14",
+		"@types/webpack-env": "^1.16.0",
 		"eslint": "^7.4.0",
 		"jest": "^26.6.3",
 		"prettier-plugin-organize-imports": "^1.1.1",

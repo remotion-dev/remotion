@@ -41,6 +41,7 @@ export const calculateTimeline = ({
 					type: 'sequence',
 					rootId: '-',
 					showInTimeline: true,
+					nonce: 0,
 				},
 				depth: 0,
 			},
@@ -84,7 +85,7 @@ export const calculateTimeline = ({
 	}
 	return tracks
 		.sort((a, b) => {
-			return ('' + a.hash).localeCompare(b.hash);
+			return a.sequence.nonce - b.sequence.nonce;
 		})
 		.map((t) => {
 			const {hash, ...other} = t;

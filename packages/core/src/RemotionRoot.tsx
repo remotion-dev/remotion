@@ -1,4 +1,10 @@
-import React, {useCallback, useLayoutEffect, useMemo, useState} from 'react';
+import React, {
+	useCallback,
+	useEffect,
+	useLayoutEffect,
+	useMemo,
+	useState,
+} from 'react';
 import {
 	CompositionManager,
 	CompositionManagerContext,
@@ -6,6 +12,7 @@ import {
 	TComposition,
 	TSequence,
 } from './CompositionManager';
+import {NonceContext, TNonceContext} from './nonce';
 import {random} from './random';
 import {continueRender, delayRender} from './ready-manager';
 import {
@@ -27,6 +34,7 @@ export const RemotionRoot: React.FC = ({children}) => {
 	const [assets, setAssets] = useState<TAsset[]>([]);
 	const [frame, setFrame] = useState<number>(0);
 	const [playing, setPlaying] = useState<boolean>(false);
+	const [fastRefreshes, setFastRefreshes] = useState(0);
 
 	useLayoutEffect(() => {
 		if (typeof window !== 'undefined') {
@@ -54,7 +62,7 @@ export const RemotionRoot: React.FC = ({children}) => {
 					`Multiple composition with id ${comp.id} are registered.`
 				);
 			}
-			return [...comps, comp];
+			return [...comps, comp].slice().sort((a, b) => a.nonce - b.nonce);
 		});
 	}, []);
 
@@ -127,13 +135,33 @@ export const RemotionRoot: React.FC = ({children}) => {
 		};
 	}, []);
 
+	const nonceContext = useMemo((): TNonceContext => {
+		let counter = 0;
+		return {
+			getNonce: () => counter++,
+			fastRefreshes,
+		};
+	}, [fastRefreshes]);
+
+	useEffect(() => {
+		if (module.hot) {
+			module.hot.addStatusHandler((status) => {
+				if (status === 'idle') {
+					setFastRefreshes((i) => i + 1);
+				}
+			});
+		}
+	}, []);
+
 	return (
-		<TimelineContext.Provider value={timelineContextValue}>
-			<SetTimelineContext.Provider value={setTimelineContextValue}>
-				<CompositionManager.Provider value={contextValue}>
-					{children}
-				</CompositionManager.Provider>
-			</SetTimelineContext.Provider>
-		</TimelineContext.Provider>
+		<NonceContext.Provider value={nonceContext}>
+			<TimelineContext.Provider value={timelineContextValue}>
+				<SetTimelineContext.Provider value={setTimelineContextValue}>
+					<CompositionManager.Provider value={contextValue}>
+						{children}
+					</CompositionManager.Provider>
+				</SetTimelineContext.Provider>
+			</TimelineContext.Provider>
+		</NonceContext.Provider>
 	);
 };
