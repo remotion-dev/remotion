@@ -17,6 +17,7 @@ export const getTimelineSequenceHash = (
 		sequence.from,
 		sequence.type,
 		sequence.type === 'audio' ? sequence.src : null,
+		sequence.type === 'audio' ? sequence.volume : null,
 		sequence.type === 'video' ? sequence.src : null,
 	].join('-');
 };

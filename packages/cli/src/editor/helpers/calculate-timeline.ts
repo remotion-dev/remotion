@@ -5,6 +5,7 @@ import {
 } from './get-sequence-visible-range';
 import {getTimelineNestedLevel} from './get-timeline-nestedness';
 import {getTimelineSequenceHash} from './get-timeline-sequence-hash';
+import {getTimelineSequenceSequenceSortKey} from './get-timeline-sequence-sort-key';
 
 export type SequenceWithOverlap = {
 	sequence: TSequence;
@@ -17,7 +18,7 @@ export type Track = {
 };
 
 type TrackWithHash = Track & {
-	hash: string;
+	sortKey: string;
 };
 
 export const calculateTimeline = ({
@@ -58,6 +59,11 @@ export const calculateTimeline = ({
 		if (!sequence.showInTimeline) {
 			continue;
 		}
+		const parent = sequences.find((a) => a.id === sequence.parent);
+		const parentHash = parent
+			? getTimelineSequenceHash(parent, sequences)
+			: null;
+
 		const baseHash = getTimelineSequenceHash(sequence, sequences);
 		const depth = getTimelineNestedLevel(sequence, sequences, 0);
 		const visibleStart = getTimelineVisibleStart(sequence, sequences);
@@ -80,15 +86,16 @@ export const calculateTimeline = ({
 				duration: visibleDuration,
 			},
 			depth,
-			hash: baseHash,
+			sortKey: getTimelineSequenceSequenceSortKey(sequence, sequences),
 		});
 	}
+
 	return tracks
 		.sort((a, b) => {
-			return a.sequence.nonce - b.sequence.nonce;
+			return a.sortKey.localeCompare(b.sortKey);
 		})
 		.map((t) => {
-			const {hash, ...other} = t;
+			const {sortKey, ...other} = t;
 			return other;
 		});
 };
