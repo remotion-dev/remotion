@@ -1,14 +1,17 @@
 import {useCallback, useEffect, useState} from 'react';
 import {continueRender, delayRender} from 'remotion';
-import {getAudioMetadata} from '.';
-import {AudioContextMetadata} from './types';
+import {getAudioData} from '.';
+import {AudioData} from './types';
 
-export const useAudioMetadata = (src: string): AudioContextMetadata | null => {
-	const [metadata, setMetadata] = useState<AudioContextMetadata | null>(null);
+export const useAudioData = (src: string): AudioData | null => {
+	if (!src) {
+		throw new TypeError("useAudioMetadata requires a 'src' parameter");
+	}
+	const [metadata, setMetadata] = useState<AudioData | null>(null);
 
 	const fetchMetadata = useCallback(async () => {
 		const handle = delayRender();
-		const data = await getAudioMetadata(src);
+		const data = await getAudioData(src);
 		setMetadata(data);
 		continueRender(handle);
 	}, [src]);

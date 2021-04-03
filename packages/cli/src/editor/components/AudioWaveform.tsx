@@ -1,6 +1,6 @@
 import {
-	AudioContextMetadata,
-	getAudioMetadata,
+	AudioData,
+	getAudioData,
 	getWaveformPortion,
 } from '@remotion/media-utils';
 import React, {useEffect, useMemo, useRef, useState} from 'react';
@@ -43,7 +43,7 @@ export const AudioWaveform: React.FC<{
 	setMaxMediaDuration,
 	volume,
 }) => {
-	const [metadata, setMetadata] = useState<AudioContextMetadata | null>(null);
+	const [metadata, setMetadata] = useState<AudioData | null>(null);
 
 	const canvas = useRef<HTMLCanvasElement>(null);
 
@@ -80,7 +80,7 @@ export const AudioWaveform: React.FC<{
 	}, [visualizationWidth, metadata, startFrom, volume]);
 
 	useEffect(() => {
-		getAudioMetadata(src)
+		getAudioData(src)
 			.then((data) => {
 				setMaxMediaDuration(Math.floor(data.duration * fps));
 				setMetadata(data);

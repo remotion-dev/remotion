@@ -1,6 +1,6 @@
 import {getVisualization} from './fft/get-visualization';
 import {getMaxPossibleMagnitude} from './fft/max-value-cached';
-import {AudioContextMetadata} from './types';
+import {AudioData} from './types';
 
 export const visualizeAudio = ({
 	metadata,
@@ -8,7 +8,7 @@ export const visualizeAudio = ({
 	fps,
 	numberOfSamples,
 }: {
-	metadata: AudioContextMetadata;
+	metadata: AudioData;
 	frame: number;
 	fps: number;
 	numberOfSamples: number;

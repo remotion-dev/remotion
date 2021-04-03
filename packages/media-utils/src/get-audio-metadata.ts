@@ -1,10 +1,8 @@
-import {AudioContextMetadata} from './types';
+import {AudioData} from './types';
 
-const metadataCache: {[key: string]: AudioContextMetadata} = {};
+const metadataCache: {[key: string]: AudioData} = {};
 
-export const getAudioMetadata = async (
-	src: string
-): Promise<AudioContextMetadata> => {
+export const getAudioData = async (src: string): Promise<AudioData> => {
 	if (metadataCache[src]) {
 		return metadataCache[src];
 	}
@@ -21,7 +19,7 @@ export const getAudioMetadata = async (
 			return wave.getChannelData(channel);
 		});
 
-	const metadata: AudioContextMetadata = {
+	const metadata: AudioData = {
 		channelWaveforms,
 		sampleRate: audioContext.sampleRate,
 		duration: wave.duration,
