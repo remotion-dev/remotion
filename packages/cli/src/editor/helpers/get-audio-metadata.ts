@@ -6,6 +6,7 @@ export type AudioContextMetadata = {
 };
 const metadataCache: {[key: string]: AudioContextMetadata} = {};
 
+// TODO: unused
 export const getWaveform = async (
 	arrayBuffer: ArrayBuffer
 ): Promise<Float32Array> => {
