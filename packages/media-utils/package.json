@@ -4,7 +4,7 @@
 	"description": "Utility functions for audio and video",
 	"main": "dist/index.js",
 	"scripts": {
-		"test": "eslint src --ext ts,tsx && jest",
+		"test": "eslint src --ext ts,tsx",
 		"watch": "tsc -w",
 		"build": "tsc -d"
 	},
