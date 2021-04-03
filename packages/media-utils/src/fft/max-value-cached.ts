@@ -1,4 +1,4 @@
-import {AudioContextMetadata} from '..';
+import {AudioData} from '..';
 import {toInt16} from './to-int-16';
 
 const getMax = (array: Float32Array) => {
@@ -16,7 +16,7 @@ const cache: {
 	[key: string]: number;
 } = {};
 
-export const getMaxPossibleMagnitude = (metadata: AudioContextMetadata) => {
+export const getMaxPossibleMagnitude = (metadata: AudioData) => {
 	if (cache[metadata.resultId]) {
 		return cache[metadata.resultId];
 	}

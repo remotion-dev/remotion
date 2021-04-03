@@ -1,5 +1,5 @@
 import {getWaveformSamples} from './get-wave-form-samples';
-import {AudioContextMetadata} from './types';
+import {AudioData} from './types';
 
 type Bar = {
 	index: number;
@@ -13,7 +13,7 @@ export const getWaveformPortion = ({
 	durationInFrames,
 	numberOfSamples,
 }: {
-	metadata: AudioContextMetadata;
+	metadata: AudioData;
 	startFrom: number;
 	fps: number;
 	durationInFrames: number;
