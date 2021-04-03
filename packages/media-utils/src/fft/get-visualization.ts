@@ -24,7 +24,7 @@ export const getVisualization = ({
 			`The argument "bars" must be a power of two. For example: 64, 128. Got instead: ${sampleSize}`
 		);
 	}
-	if (fps) {
+	if (!fps) {
 		throw new TypeError('The argument "fps" was not provided');
 	}
 	const start = Math.floor((frame / fps) * sampleRate);
