@@ -1,48 +1,40 @@
 import {fft} from './fft';
 import {fftMag} from './mag';
 import {smoothen} from './smoothing';
-
-const toInt16 = (x: number) => (x > 0 ? x * 0x7fff : x * 0x8000);
-
-const getMax = (array: Float32Array) => {
-	let max = 0;
-	for (let i = 0; i < array.length; i++) {
-		const val = array[i];
-		if (val > max) {
-			max = val;
-		}
-	}
-	return max;
-};
+import {toInt16} from './to-int-16';
 
 export const getVisualization = ({
-	bars,
+	sampleSize,
 	data,
 	sampleRate,
 	frame,
 	fps,
+	maxInt,
 }: {
-	bars: number;
+	sampleSize: number;
 	data: Float32Array;
 	frame: number;
 	sampleRate: number;
 	fps: number;
+	maxInt: number;
 }): number[] => {
-	const isPowerOfTwo = bars > 0 && (bars & (bars - 1)) === 0;
+	const isPowerOfTwo = sampleSize > 0 && (sampleSize & (sampleSize - 1)) === 0;
 	if (!isPowerOfTwo) {
 		throw new TypeError(
-			`The argument "bars" must be a power of two. For example: 256, 512. Got instead: ${bars}`
+			`The argument "bars" must be a power of two. For example: 64, 128. Got instead: ${sampleSize}`
 		);
+	}
+	if (fps) {
+		throw new TypeError('The argument "fps" was not provided');
 	}
 	const start = Math.floor((frame / fps) * sampleRate);
 
-	const actualStart = Math.max(0, start - bars / 2);
+	const actualStart = Math.max(0, start - sampleSize / 2);
 	const ints = Int16Array.from(
-		data.subarray(actualStart, actualStart + bars).map((x) => toInt16(x))
+		data.subarray(actualStart, actualStart + sampleSize).map((x) => toInt16(x))
 	);
-	const maxInt = toInt16(getMax(data));
 	const phasors = fft(ints);
 	const magnitudes = fftMag(phasors).map((p) => p);
 
-	return smoothen(magnitudes).map((m) => m / (bars / 2) / maxInt);
+	return smoothen(magnitudes).map((m) => m / (sampleSize / 2) / maxInt);
 };

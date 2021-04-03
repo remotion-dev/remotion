@@ -26,6 +26,7 @@ export const getAudioMetadata = async (
 		sampleRate: audioContext.sampleRate,
 		duration: wave.duration,
 		numberOfChannels: wave.numberOfChannels,
+		resultId: String(Math.random()),
 	};
 	metadataCache[src] = metadata;
 	return metadata;
