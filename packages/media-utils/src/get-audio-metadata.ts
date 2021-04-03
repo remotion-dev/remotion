@@ -8,11 +8,7 @@ export const getAudioMetadata = async (
 	if (metadataCache[src]) {
 		return metadataCache[src];
 	}
-	const audioContext = new OfflineAudioContext({
-		length: 1,
-		sampleRate: 3000,
-		numberOfChannels: 1,
-	});
+	const audioContext = new AudioContext();
 
 	const response = await fetch(src);
 	const arrayBuffer = await response.arrayBuffer();
