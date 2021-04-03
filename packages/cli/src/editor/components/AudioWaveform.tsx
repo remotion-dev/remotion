@@ -1,14 +1,18 @@
-import React, {useEffect, useMemo, useRef, useState} from 'react';
 import {
 	AudioContextMetadata,
 	getAudioMetadata,
-} from '../helpers/get-audio-metadata';
-import {getWaveformPortion} from '../helpers/get-waveform-portion';
+	getWaveformPortion,
+} from '@remotion/media-utils';
+import React, {useEffect, useMemo, useRef, useState} from 'react';
 import {
 	TIMELINE_BORDER,
 	TIMELINE_LAYER_HEIGHT,
 } from '../helpers/timeline-layout';
-import {AudioWaveformBar} from './AudioWaveformBar';
+import {
+	AudioWaveformBar,
+	WAVEFORM_BAR_LENGTH,
+	WAVEFORM_BAR_MARGIN,
+} from './AudioWaveformBar';
 
 const container: React.CSSProperties = {
 	display: 'flex',
@@ -90,13 +94,16 @@ export const AudioWaveform: React.FC<{
 		if (!metadata || metadata.numberOfChannels === 0) {
 			return [];
 		}
+		const numberOfSamples = Math.floor(
+			visualizationWidth / (WAVEFORM_BAR_LENGTH + WAVEFORM_BAR_MARGIN)
+		);
 
 		return getWaveformPortion({
 			metadata,
 			startFrom,
 			fps,
 			durationInFrames,
-			visualizationWidth,
+			numberOfSamples,
 		});
 	}, [durationInFrames, fps, metadata, startFrom, visualizationWidth]);
 
