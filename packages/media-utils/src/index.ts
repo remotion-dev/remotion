@@ -1,3 +1,4 @@
+export {getVisualization} from './fft/get-visualization';
 export {getAudioDuration} from './get-audio-duration';
 export {getAudioMetadata} from './get-audio-metadata';
 export {getWaveformSamples} from './get-wave-form-samples';
