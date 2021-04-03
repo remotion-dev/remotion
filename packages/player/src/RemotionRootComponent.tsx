@@ -1,36 +1,30 @@
-import {usePlaybackTime} from '@remotion/player';
 import React, {Suspense, useContext, useEffect} from 'react';
 import {Internals} from 'remotion';
-
-export type Props = {
-	slides: {
-		imageUrl: string;
-		caption: string;
-		transition: string;
-	}[];
-};
+import {usePlaybackTime} from './PlayPause';
 
 const Loading: React.FC = () => <h1>Loading…</h1>;
 
-const VideoPreview: React.FC<Props> = ({slides}) => {
+const RemotionRootComponent: React.FC<{id: string}> = ({id}) => {
 	const {setCurrentComposition, currentComposition} = useContext(
 		Internals.CompositionManager
 	);
 	const config = Internals.useUnsafeVideoConfig();
+	const [toggle] = usePlaybackTime();
+	const [playing] = Internals.Timeline.usePlayingState();
 	const video = Internals.useVideo();
 	const VideoComponent = video ? video.component : null;
-	const [playing] = Internals.Timeline.usePlayingState();
-	const [toggle] = usePlaybackTime();
 
 	useEffect(() => {
 		if (!currentComposition) {
-			setCurrentComposition('car-slideshow');
+			setCurrentComposition(id);
 		}
 
 		if (!config) {
 			return;
 		}
 	}, [config, currentComposition, setCurrentComposition]);
+
+	console.log(currentComposition, 'video');
 
 	return (
 		<Suspense fallback={Loading}>
@@ -62,4 +56,4 @@ const VideoPreview: React.FC<Props> = ({slides}) => {
 	);
 };
 
-export default VideoPreview;
+export default RemotionRootComponent;
