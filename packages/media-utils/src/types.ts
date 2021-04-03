@@ -3,4 +3,5 @@ export type AudioContextMetadata = {
 	sampleRate: number;
 	duration: number;
 	numberOfChannels: number;
+	resultId: string;
 };
