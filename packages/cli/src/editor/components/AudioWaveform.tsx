@@ -44,8 +44,17 @@ export const AudioWaveform: React.FC<{
 	volume,
 }) => {
 	const [metadata, setMetadata] = useState<AudioData | null>(null);
+	const mountState = useRef({isMounted: true});
 
 	const canvas = useRef<HTMLCanvasElement>(null);
+
+	useEffect(() => {
+		const {current} = mountState;
+		current.isMounted = true;
+		return () => {
+			current.isMounted = false;
+		};
+	}, []);
 
 	useEffect(() => {
 		if (!canvas.current) {
@@ -82,8 +91,10 @@ export const AudioWaveform: React.FC<{
 	useEffect(() => {
 		getAudioData(src)
 			.then((data) => {
-				setMaxMediaDuration(Math.floor(data.duration * fps));
-				setMetadata(data);
+				if (mountState.current.isMounted) {
+					setMaxMediaDuration(Math.floor(data.duration * fps));
+					setMetadata(data);
+				}
 			})
 			.catch((err) => {
 				console.error(`Could not load waveform for ${src}`, err);
