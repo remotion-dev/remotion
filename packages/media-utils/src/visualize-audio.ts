@@ -2,6 +2,8 @@ import {getVisualization} from './fft/get-visualization';
 import {getMaxPossibleMagnitude} from './fft/max-value-cached';
 import {AudioData} from './types';
 
+const cache: {[key: string]: number[]} = {};
+
 export const visualizeAudio = ({
 	metadata,
 	frame,
@@ -13,6 +15,11 @@ export const visualizeAudio = ({
 	fps: number;
 	numberOfSamples: number;
 }) => {
+	const cacheKey = metadata.resultId + frame + fps + numberOfSamples;
+	if (cache[cacheKey]) {
+		return cache[cacheKey];
+	}
+
 	const maxInt = getMaxPossibleMagnitude(metadata);
 
 	return getVisualization({
