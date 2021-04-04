@@ -17,7 +17,7 @@ import os from 'os';
 import path from 'path';
 
 const app = express();
-const port = 8000;
+const port = process.env.PORT || 8000;
 const compositionId = 'HelloWorld';
 
 const cache = new Map<string, string>();
