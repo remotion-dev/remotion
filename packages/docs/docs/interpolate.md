@@ -57,7 +57,7 @@ By default, the input is left unmodified, resulting in a pure linear interpolati
 ```tsx
 import {interpolate, Easing} from 'remotion';
 
-interpolate(frame, [0, 100], {
+interpolate(frame, [0, 100], [0, 1], {
   easing: Easing.bezier(0.8, 0.22, 0.96, 0.65),
   extrapolateLeft: 'clamp',
   extrapolateRight: 'clamp',

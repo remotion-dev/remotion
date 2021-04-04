@@ -1,13 +1,15 @@
-import React from "react";
-import clsx from "clsx";
-import Layout from "@theme/Layout";
 import Link from "@docusaurus/Link";
-import useDocusaurusContext from "@docusaurus/useDocusaurusContext";
 import useBaseUrl from "@docusaurus/useBaseUrl";
 import splitbee from "@splitbee/web";
+import Layout from "@theme/Layout";
+import clsx from "clsx";
+import React from "react";
+import headerStyles from "./header.module.css";
 import styles from "./styles.module.css";
 
-splitbee.init();
+setTimeout(() => {
+  splitbee.init();
+}, 100);
 
 const features = [
   {
@@ -43,7 +45,11 @@ const features = [
   },
 ];
 
-function Feature({ imageUrl, title, description }) {
+const Feature: React.FC<{
+  imageUrl: string;
+  title: string;
+  description: JSX.Element;
+}> = ({ imageUrl, title, description }) => {
   const imgUrl = useBaseUrl(imageUrl);
   return (
     <div className={clsx("col col--4", styles.feature)}>
@@ -56,24 +62,49 @@ function Feature({ imageUrl, title, description }) {
       <p>{description}</p>
     </div>
   );
-}
+};
+
+const PageHeader: React.FC = () => {
+  return (
+    <div className={headerStyles.row}>
+      <div style={{ flex: 1 }}>
+        <h1 className={headerStyles.title}>
+          Write videos programmatically in React
+        </h1>
+        <p>
+          Use your React knowledge to create real MP4 videos. Render videos
+          dynamically using server-side rendering and parametrization.
+        </p>
+      </div>
+      <iframe
+        style={{
+          width: 560,
+          height: 315,
+          maxWidth: "100%",
+        }}
+        src="https://www.youtube.com/embed/gwlDorikqgY"
+        title="Remotion - Create videos programmatically in React"
+        frameBorder="0"
+        allow="autoplay"
+        allowFullScreen
+      />
+    </div>
+  );
+};
 
 function Home() {
-  const context = useDocusaurusContext();
-  const { siteConfig = {} } = context;
   return (
     <Layout
       title="Write videos in React"
       description="Create MP4 motion graphics in React. Leverage CSS, SVG, WebGL and more technologies to render videos programmatically!"
     >
-      <header className={clsx("hero hero--primary", styles.heroBanner)}>
+      <header className={clsx("hero ", styles.heroBanner)}>
         <div className="container">
-          <h1 className="hero__title" style={{ color: "white" }}>
-            {siteConfig.title}
-          </h1>
-          <p className="hero__subtitle" style={{ color: "white" }}>
-            {siteConfig.tagline}
-          </p>
+          <PageHeader />
+          <br />
+          <br />
+          <br />
+          <br />
           <div>
             <StartPageExplainer
               img="img/vscode.png"
@@ -99,28 +130,12 @@ function Home() {
                   "button button--outline button--secondary button--lg",
                   styles.getStarted
                 )}
-                style={{ color: "white" }}
                 to={useBaseUrl("docs/")}
               >
                 Get Started
               </Link>
             </div>
             <div style={{ width: 8 }}></div>
-            <a
-              data-splitbee-event="External Link"
-              data-splitbee-event-target="Product Hunt"
-              href="https://www.producthunt.com/posts/remotion-3?utm_source=badge-featured&utm_medium=badge&utm_souce=badge-remotion-3"
-              target="_blank"
-              style={{ display: "inline-flex" }}
-            >
-              <img
-                src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=283561&theme=light"
-                alt="Remotion - Create videos programmatically in React | Product Hunt"
-                style={{ width: 250, height: 54, display: "inline-block" }}
-                width="250"
-                height="54"
-              />
-            </a>
           </div>
         </div>
       </header>
@@ -150,7 +165,7 @@ function StartPageExplainer(props) {
         style={{ maxHeight: 400 }}
       />
       <br />
-      <div style={{ color: "white", fontSize: 14 }}>{props.text}</div>
+      <div style={{ fontSize: 14 }}>{props.text}</div>
     </div>
   );
 }

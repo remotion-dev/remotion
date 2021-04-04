@@ -57,7 +57,7 @@ app.get('/', async (req, res) => {
 			},
 			parallelism: null,
 			outputDir: tmpDir,
-			userProps: req.query,
+			inputProps: req.query,
 			compositionId,
 			imageFormat: 'jpeg',
 		});

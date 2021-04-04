@@ -1,3 +1,5 @@
+#! /usr/bin/env node
+
 import chalk from 'chalk';
 import execa from 'execa';
 import fs from 'fs';

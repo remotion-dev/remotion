@@ -26,6 +26,7 @@ module.exports = {
         "using-randomness",
         "encoding",
         "transparent-videos",
+        "dynamic-metadata",
       ],
     },
     {
@@ -37,6 +38,7 @@ module.exports = {
         "continue-render",
         "delay-render",
         "interpolate",
+        "get-input-props",
         "random",
         "register-root",
         "spring",

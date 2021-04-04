@@ -11,7 +11,7 @@
 		"_template"
 	],
 	"scripts": {
-		"build": "tsc -d && node add-bin.js"
+		"build": "tsc -d"
 	},
 	"author": "",
 	"license": "SEE LICENSE IN LICENSE.md",
