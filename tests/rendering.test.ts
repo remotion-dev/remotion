@@ -157,3 +157,24 @@ test("Should render a still image if single frame specified", async () => {
     recursive: true,
   });
 });
+
+test("Should render a video with GIFs", async () => {
+  const task = await execa(
+    "npx",
+    ["remotion", "render", "src/index.tsx", "gif", "--frames=0-47", outputPath],
+    {
+      cwd: "packages/example",
+      reject: false,
+    }
+  );
+  expect(task.exitCode).toBe(0);
+  expect(fs.existsSync(outputPath)).toBe(true);
+
+  const info = await execa("ffprobe", [outputPath]);
+  const data = info.stderr;
+  expect(data).toContain("Video: h264");
+  expect(data).toContain("Duration: 00:00:01.57");
+  fs.rmdirSync(outputPath, {
+    recursive: true,
+  });
+});
