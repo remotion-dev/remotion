@@ -1,13 +1,7 @@
 import {usePlaybackTime} from '../index';
 
-test('It should throw an error', () => {
+test('It should throw an error if not being used inside a RemotionRoot', () => {
 	expect(() => {
-		const [
-			toggle,
-			frameBack,
-			frameForward,
-			onKeyPress,
-			isLastFrame,
-		] = usePlaybackTime();
+		usePlaybackTime();
 	}).toThrow();
 });
