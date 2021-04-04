@@ -147,6 +147,14 @@ export const Index: React.FC = () => {
 				durationInFrames={10}
 			/>
 			<Composition
+				id="gif"
+				lazyComponent={() => import('./GifTest')}
+				width={1080}
+				height={1080}
+				fps={30}
+				durationInFrames={150}
+			/>
+			<Composition
 				id="missing-img"
 				component={MissingImg}
 				width={1080}

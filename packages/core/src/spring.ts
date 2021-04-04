@@ -19,7 +19,7 @@ const defaultSpringConfig: SpringConfig = {
 	overshootClamping: false,
 };
 
-export function advance(
+function advance(
 	animation: AnimationNode,
 	now: number,
 	config: SpringConfig
