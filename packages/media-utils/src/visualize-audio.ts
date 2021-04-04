@@ -4,17 +4,19 @@ import {AudioData} from './types';
 
 const cache: {[key: string]: number[]} = {};
 
-export const visualizeAudio = ({
-	metadata,
-	frame,
-	fps,
-	numberOfSamples,
-}: {
+type FnParameters = {
 	metadata: AudioData;
 	frame: number;
 	fps: number;
 	numberOfSamples: number;
-}) => {
+};
+
+export const visualizeAudioFrame = ({
+	metadata,
+	frame,
+	fps,
+	numberOfSamples,
+}: FnParameters) => {
 	const cacheKey = metadata.resultId + frame + fps + numberOfSamples;
 	if (cache[cacheKey]) {
 		return cache[cacheKey];
@@ -29,5 +31,34 @@ export const visualizeAudio = ({
 		fps,
 		sampleRate: metadata.sampleRate,
 		maxInt,
+	});
+};
+
+export const visualizeAudio = ({
+	smoothing = true,
+	...parameters
+}: FnParameters & {
+	smoothing?: boolean;
+}) => {
+	if (!smoothing) {
+		return visualizeAudioFrame(parameters);
+	}
+	const toSmooth = [
+		parameters.frame - 1,
+		parameters.frame,
+		parameters.frame + 1,
+	];
+	const all = toSmooth.map((s) => {
+		return visualizeAudioFrame({...parameters, frame: s});
+	});
+	return new Array(parameters.numberOfSamples).fill(true).map((x, i) => {
+		return (
+			new Array(toSmooth.length)
+				.fill(true)
+				.map((_, j) => {
+					return all[j][i];
+				})
+				.reduce((a, b) => a + b, 0) / toSmooth.length
+		);
 	});
 };
