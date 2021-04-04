@@ -1,7 +1,9 @@
 import {Player} from '@remotion/player';
+import {useState} from 'react';
 import CarSlideshow from './CarSlideshow';
 
 export default function App() {
+	const [title, setTitle] = useState('This is my title');
 	return (
 		<div>
 			<Player
@@ -12,7 +14,14 @@ export default function App() {
 				component={CarSlideshow}
 				controls
 				props={{
-					title: 'This is my title',
+					title,
+				}}
+			/>
+			<input
+				type="text"
+				value={title}
+				onChange={(e) => {
+					setTitle(e.target.value);
 				}}
 			/>
 		</div>
