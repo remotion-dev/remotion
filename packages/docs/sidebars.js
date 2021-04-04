@@ -62,6 +62,7 @@ module.exports = {
       items: [
         "get-audio-data",
         "get-audio-duration",
+        "get-video-duration",
         "get-waveform-portion",
         "use-audio-data",
         "visualize-audio",
