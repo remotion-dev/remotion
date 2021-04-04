@@ -1,6 +1,6 @@
 ---
 id: gif
-sidebar_label: Reference - @remotion/gif
+sidebar_label: API - @remotion/gif
 title: "@remotion/gif"
 ---
 

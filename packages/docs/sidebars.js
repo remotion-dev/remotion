@@ -32,7 +32,7 @@ module.exports = {
     },
     {
       type: "category",
-      label: "Reference - Core API",
+      label: "API - Core",
       items: [
         "cli",
         "config",
@@ -56,6 +56,17 @@ module.exports = {
       ],
     },
     "gif",
+    {
+      type: "category",
+      label: "API - @remotion/media-utils",
+      items: [
+        "get-audio-data",
+        "get-audio-duration",
+        "get-waveform-portion",
+        "use-audio-data",
+        "visualize-audio",
+      ],
+    },
     "license",
   ],
 };
