@@ -1,12 +1,13 @@
-import React, {ComponentType, useContext, useEffect, useMemo} from 'react';
+import {ComponentType, useContext, useEffect} from 'react';
 import {CompositionManager} from './CompositionManager';
 import {
 	addStaticComposition,
 	getIsEvaluation,
 	removeStaticComposition,
 } from './register-root';
+import {useLazyComponent} from './use-lazy-component';
 
-type CompProps<T> =
+export type CompProps<T> =
 	| {
 			lazyComponent: () => Promise<{default: ComponentType<T>}>;
 	  }
@@ -36,17 +37,7 @@ export const Composition = <T,>({
 		CompositionManager
 	);
 
-	const lazy = useMemo(() => {
-		if ('lazyComponent' in compProps) {
-			return React.lazy(compProps.lazyComponent);
-		}
-		if ('component' in compProps) {
-			return React.lazy(() => Promise.resolve({default: compProps.component}));
-		}
-		throw new Error("You must pass either 'component' or 'lazyComponent'");
-		// @ts-expect-error
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [compProps.lazyComponent, compProps.component]);
+	const lazy = useLazyComponent(compProps);
 
 	useEffect(() => {
 		// Ensure it's a URL safe id

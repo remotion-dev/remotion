@@ -1,33 +1,16 @@
-import React, {Suspense, useContext, useEffect} from 'react';
+import React, {Suspense} from 'react';
 import {Internals} from 'remotion';
 import {usePlaybackTime} from './PlayPause';
 
-const Loading: React.FC = () => <h1>Loading…</h1>;
-
-const RemotionRootComponent: React.FC<{id: string}> = ({id}) => {
-	const {setCurrentComposition, currentComposition} = useContext(
-		Internals.CompositionManager
-	);
+const RootComponent: React.FC = () => {
 	const config = Internals.useUnsafeVideoConfig();
 	const [toggle] = usePlaybackTime();
 	const [playing] = Internals.Timeline.usePlayingState();
 	const video = Internals.useVideo();
 	const VideoComponent = video ? video.component : null;
 
-	useEffect(() => {
-		if (!currentComposition) {
-			setCurrentComposition(id);
-		}
-
-		if (!config) {
-			return;
-		}
-	}, [config, currentComposition, setCurrentComposition]);
-
-	console.log(currentComposition, 'video');
-
 	return (
-		<Suspense fallback={Loading}>
+		<Suspense fallback={<h1>Loading...</h1>}>
 			<h1>Remotion Video Player</h1>
 			<div
 				style={{
@@ -38,6 +21,7 @@ const RemotionRootComponent: React.FC<{id: string}> = ({id}) => {
 				}}
 			>
 				<button
+					type="button"
 					style={{
 						position: 'absolute',
 						left: '10px',
@@ -56,4 +40,4 @@ const RemotionRootComponent: React.FC<{id: string}> = ({id}) => {
 	);
 };
 
-export default RemotionRootComponent;
+export default RootComponent;

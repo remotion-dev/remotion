@@ -1,5 +1,7 @@
+import {CompProps} from './Composition';
 import {
 	CompositionManager,
+	CompositionManagerContext,
 	TCompMetadata,
 	TComposition,
 	TSequence,
@@ -52,6 +54,7 @@ import {getCompositionName, getIsEvaluation, getRoot} from './register-root';
 import {RemotionRoot} from './RemotionRoot';
 import * as Timeline from './timeline-position-state';
 import {TimelineContextValue} from './timeline-position-state';
+import {useLazyComponent} from './use-lazy-component';
 import {useUnsafeVideoConfig} from './use-unsafe-video-config';
 import {useVideo} from './use-video';
 
@@ -94,6 +97,7 @@ export const Internals = {
 	validateSelectedPixelFormatAndCodecCombination,
 	validateFrameRange,
 	getWebpackCaching,
+	useLazyComponent,
 };
 
 export type {
@@ -103,4 +107,6 @@ export type {
 	TSequence,
 	WebpackOverrideFn,
 	TimelineContextValue,
+	CompProps,
+	CompositionManagerContext,
 };
