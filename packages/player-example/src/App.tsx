@@ -1,9 +1,10 @@
-import {Player} from '@remotion/player';
+import {usePlayer} from '@remotion/player';
 import {useState} from 'react';
 import CarSlideshow from './CarSlideshow';
 
 export default function App() {
 	const [title, setTitle] = useState('This is my title');
+	const {Player} = usePlayer();
 	return (
 		<div>
 			<Player
