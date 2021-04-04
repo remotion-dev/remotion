@@ -35,7 +35,7 @@ export const Sequence: React.FC<{
 
 	if (layout !== 'absolute-fill' && layout !== 'none') {
 		throw new TypeError(
-			`The layout prop of <Composition /> expects either "absolute-fill" or "none", but you passed: ${layout}`
+			`The layout prop of <Sequence /> expects either "absolute-fill" or "none", but you passed: ${layout}`
 		);
 	}
 
