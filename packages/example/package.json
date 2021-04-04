@@ -1,9 +1,14 @@
 {
 	"name": "@remotion/example",
+	"private": true,
 	"version": "1.5.4",
 	"description": "",
+	"license": "SEE LICENSE IN LICENSE.md",
+	"author": "Jonny Burger",
 	"main": "dist/index.js",
-	"private": true,
+	"files": [
+		"dist"
+	],
 	"scripts": {
 		"start": "remotion preview src/index.tsx",
 		"test": "eslint src --ext ts,tsx,js,jsx",
@@ -11,11 +16,6 @@
 		"render": "remotion render src/index.tsx react-svg video.mp4",
 		"render-transparent": "remotion render src/index.tsx --image-format=png --pixel-format=yuva420p --codec=vp8 react-svg video.webm"
 	},
-	"files": [
-		"dist"
-	],
-	"author": "Jonny Burger",
-	"license": "SEE LICENSE IN LICENSE.md",
 	"dependencies": {
 		"@babel/plugin-syntax-jsx": "7.12.13",
 		"@babel/preset-env": "7.12.13",
@@ -24,6 +24,7 @@
 		"@remotion/cli": "1.5.4",
 		"@remotion/eslint-config": "1.5.4",
 		"@remotion/eslint-plugin": "1.5.4",
+		"@remotion/gif": "^1.5.0",
 		"@types/node": "^14.0.13",
 		"@types/react": "^17.0.0",
 		"@types/styled-components": "^5.1.1",
