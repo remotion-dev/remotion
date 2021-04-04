@@ -6,7 +6,9 @@ import React, {
 	useState,
 } from 'react';
 import {CompositionManager} from '../CompositionManager';
+import {FEATURE_FLAG_V2_BREAKING_CHANGES} from '../feature-flags';
 import {getTimelineClipName} from '../get-timeline-clip-name';
+import {TimelineContext} from '../timeline-position-state';
 import {useAbsoluteCurrentFrame} from '../use-frame';
 
 type SequenceContextType = {
@@ -27,12 +29,13 @@ export const Sequence: React.FC<{
 	const [id] = useState(() => String(Math.random()));
 	const absoluteFrame = useAbsoluteCurrentFrame();
 	const parentSequence = useContext(SequenceContext);
+	const {shouldRegisterSequences} = useContext(TimelineContext);
 	const actualFrom = (parentSequence?.from ?? 0) + from;
 	const {registerSequence, unregisterSequence} = useContext(CompositionManager);
 
 	if (layout !== 'absolute-fill' && layout !== 'none') {
 		throw new TypeError(
-			`The layout prop of <Composition /> expects either "absolute-fill" or "none", but you passed: ${layout}`
+			`The layout prop of <Sequence /> expects either "absolute-fill" or "none", but you passed: ${layout}`
 		);
 	}
 
@@ -65,6 +68,9 @@ export const Sequence: React.FC<{
 	}, [children, name]);
 
 	useEffect(() => {
+		if (!shouldRegisterSequences) {
+			return;
+		}
 		registerSequence({
 			from: actualFrom,
 			duration: durationInFrames,
@@ -84,12 +90,20 @@ export const Sequence: React.FC<{
 		timelineClipName,
 		unregisterSequence,
 		parentSequence?.id,
+		shouldRegisterSequences,
 	]);
+
+	const endThreshold = (() => {
+		if (FEATURE_FLAG_V2_BREAKING_CHANGES) {
+			return actualFrom + durationInFrames - 1;
+		}
+		return actualFrom + durationInFrames;
+	})();
 
 	const content =
 		absoluteFrame < actualFrom
 			? null
-			: absoluteFrame > actualFrom + durationInFrames
+			: absoluteFrame > endThreshold
 			? null
 			: children;
 

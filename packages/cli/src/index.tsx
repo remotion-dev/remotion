@@ -1,3 +1,5 @@
+#! /usr/bin/env node
+
 import xns from 'xns';
 import {checkNodeVersion} from './check-version';
 import {previewCommand} from './preview';

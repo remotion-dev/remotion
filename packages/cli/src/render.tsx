@@ -1,4 +1,4 @@
-import {bundle} from '@remotion/bundler';
+import {bundle, cacheExists, clearCache} from '@remotion/bundler';
 import {
 	ensureLocalBrowser,
 	ffmpegHasFeature,
@@ -12,26 +12,38 @@ import cliProgress from 'cli-progress';
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
-import {Internals} from 'remotion';
+import {Config, Internals} from 'remotion';
 import {getFinalOutputCodec} from 'remotion/dist/config/codec';
 import {getCompositionId} from './get-composition-id';
 import {getConfigFileName} from './get-config-file-name';
 import {getOutputFilename} from './get-filename';
-import {getUserProps} from './get-user-props';
+import {getInputProps} from './get-input-props';
 import {getImageFormat} from './image-formats';
 import {loadConfigFile} from './load-config';
-import {parseCommandLine} from './parse-command-line';
+import {parseCommandLine, parsedCli} from './parse-command-line';
 import {getUserPassedFileExtension} from './user-passed-output-location';
 
 export const render = async () => {
-	const args = process.argv;
-	const file = args[3];
+	const file = parsedCli._[1];
 	const fullPath = path.join(process.cwd(), file);
 
 	const configFileName = getConfigFileName();
 	loadConfigFile(configFileName);
 	parseCommandLine();
 	const parallelism = Internals.getConcurrency();
+	const frameRange = Internals.getRange();
+	if (typeof frameRange === 'number') {
+		console.warn(
+			'Selected a single frame. Assuming you want to output an image.'
+		);
+		console.warn(
+			`If you want to render a video, pass a range:  '--frames=${frameRange}-${frameRange}'.`
+		);
+		console.warn(
+			"To dismiss this message, add the '--sequence' flag explicitly."
+		);
+		Config.Output.setImageSequence(true);
+	}
 	const shouldOutputImageSequence = Internals.getShouldOutputImageSequence();
 	const userCodec = Internals.getOutputCodecOrUndefined();
 	if (shouldOutputImageSequence && userCodec) {
@@ -76,7 +88,7 @@ export const render = async () => {
 
 	const outputFile = getOutputFilename(codec, shouldOutputImageSequence);
 	const overwrite = Internals.getShouldOverwrite();
-	const userProps = getUserProps();
+	const inputProps = getInputProps();
 	const quality = Internals.getQuality();
 	const browser = Internals.getBrowser() ?? Internals.DEFAULT_BROWSER;
 
@@ -127,16 +139,32 @@ export const render = async () => {
 		cliProgress.Presets.shades_grey
 	);
 
+	const shouldCache = Internals.getWebpackCaching();
+	const cacheExistedBefore = cacheExists('production', null);
+	if (cacheExistedBefore && !shouldCache) {
+		process.stdout.write('🧹 Cache disabled but found. Deleting... ');
+		await clearCache('production', null);
+		process.stdout.write('done. \n');
+	}
 	bundlingProgress.start(100, 0);
-
-	const bundled = await bundle(fullPath, (progress) => {
-		bundlingProgress.update(progress);
-	});
-	bundlingProgress.stop();
-	const comps = await getCompositions(
-		bundled,
-		Internals.getBrowser() ?? Internals.DEFAULT_BROWSER
+	const bundled = await bundle(
+		fullPath,
+		(progress) => {
+			bundlingProgress.update(progress);
+		},
+		{
+			enableCaching: shouldCache,
+		}
 	);
+	bundlingProgress.stop();
+	const cacheExistedAfter = cacheExists('production', null);
+	if (cacheExistedAfter && !cacheExistedBefore) {
+		console.log('⚡️ Cached bundle. Subsequent builds will be faster.');
+	}
+	const comps = await getCompositions(bundled, {
+		browser: Internals.getBrowser() || Internals.DEFAULT_BROWSER,
+		inputProps,
+	});
 	const compositionId = getCompositionId(comps);
 
 	const config = comps.find((c) => c.id === compositionId);
@@ -144,7 +172,6 @@ export const render = async () => {
 		throw new Error(`Cannot find composition with ID ${compositionId}`);
 	}
 
-	const {durationInFrames: frames} = config;
 	const outputDir = shouldOutputImageSequence
 		? absoluteOutputFile
 		: await fs.promises.mkdtemp(path.join(os.tmpdir(), 'react-motion-render'));
@@ -157,25 +184,26 @@ export const render = async () => {
 		},
 		cliProgress.Presets.shades_grey
 	);
-	await renderFrames({
+	const rendered = await renderFrames({
 		config,
 		onFrameUpdate: (frame) => renderProgress.update(frame),
 		parallelism,
 		compositionId,
 		outputDir,
-		onStart: () => {
+		onStart: ({frameCount}) => {
 			process.stdout.write(
 				`📼 (2/${steps}) Rendering frames (${getActualConcurrency(
 					parallelism
 				)}x concurrency)...\n`
 			);
-			renderProgress.start(frames, 0);
+			renderProgress.start(frameCount, 0);
 		},
-		userProps,
+		inputProps,
 		webpackBundle: bundled,
 		imageFormat,
 		quality,
 		browser,
+		frameRange: frameRange ?? null,
 	});
 	renderProgress.stop();
 	if (process.env.DEBUG) {
@@ -194,7 +222,7 @@ export const render = async () => {
 			},
 			cliProgress.Presets.shades_grey
 		);
-		stitchingProgress.start(frames, 0);
+		stitchingProgress.start(rendered.frameCount, 0);
 		await stitchFramesToVideo({
 			dir: outputDir,
 			width: config.width,

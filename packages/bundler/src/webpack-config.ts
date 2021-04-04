@@ -1,6 +1,7 @@
 import path from 'path';
-import {WebpackConfiguration, WebpackOverrideFn} from 'remotion';
+import {Internals, WebpackConfiguration, WebpackOverrideFn} from 'remotion';
 import webpack, {ProgressPlugin} from 'webpack';
+import {getWebpackCacheName} from './webpack-cache';
 
 const ErrorOverlayPlugin = require('@webhotelier/webpack-fast-refresh/error-overlay');
 const ReactRefreshPlugin = require('@webhotelier/webpack-fast-refresh');
@@ -26,6 +27,8 @@ export const webpackConfig = ({
 	environment,
 	webpackOverride = (f) => f,
 	onProgressUpdate,
+	enableCaching = Internals.DEFAULT_WEBPACK_CACHE_ENABLED,
+	inputProps,
 }: {
 	entry: string;
 	userDefinedComponent: string;
@@ -33,6 +36,8 @@ export const webpackConfig = ({
 	environment: 'development' | 'production';
 	webpackOverride?: WebpackOverrideFn;
 	onProgressUpdate?: (f: number) => void;
+	enableCaching?: boolean;
+	inputProps?: object;
 }): WebpackConfiguration => {
 	return webpackOverride({
 		optimization: {
@@ -46,6 +51,12 @@ export const webpackConfig = ({
 							entries: false,
 					  },
 		},
+		cache: enableCaching
+			? {
+					type: 'filesystem',
+					name: getWebpackCacheName(environment, inputProps ?? {}),
+			  }
+			: false,
 		devtool: 'cheap-module-source-map',
 		entry: [
 			environment === 'development'
@@ -64,6 +75,9 @@ export const webpackConfig = ({
 						new ErrorOverlayPlugin(),
 						new ReactRefreshPlugin(),
 						new webpack.HotModuleReplacementPlugin(),
+						new webpack.DefinePlugin({
+							'process.env.INPUT_PROPS': JSON.stringify(inputProps ?? {}),
+						}),
 				  ]
 				: [
 						new ProgressPlugin((p) => {
@@ -98,12 +112,12 @@ export const webpackConfig = ({
 				{
 					test: /\.(woff|woff2)$/,
 					use: {
-						loader: 'url-loader',
+						loader: require.resolve('url-loader'),
 					},
 				},
 				{
 					test: /\.css$/i,
-					use: ['style-loader', 'css-loader'],
+					use: [require.resolve('style-loader'), require.resolve('css-loader')],
 				},
 				{
 					test: /\.(png|svg|jpg|jpeg|webp|gif|bmp|webm|mp4|mp3|wav|aac)$/,

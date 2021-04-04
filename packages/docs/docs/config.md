@@ -19,6 +19,8 @@ Config.Output.setCodec('h265');
 
 ### overrideWebpackConfig()
 
+_Available from Version 1.1._
+
 Allows you to insert your custom Webpack config. [See the page about custom Webpack configs](/docs/webpack) for more information.
 
 ```tsx
@@ -26,6 +28,18 @@ Config.Bundling.overrideWebpackConfig((currentConfiguration) => {
   // Return a new Webpack configuration
 });
 ```
+
+### setCachingEnabled()
+
+_Available from Version 2.0._
+
+Enable or disable webpack caching. Default is `true` which will make the Webpack step in the first run a bit slower but will massively speed up subsequent runs. We recommend to keep this option enabled in all cases and encourage to report issues on Github if you encounter some.
+
+```tsx
+Config.Bundling.setCachingEnabled(false);
+```
+
+The [command line flag](/docs/cli) `--bundle-cache` will take precedence over this option.
 
 ## Puppeteer
 
@@ -69,6 +83,22 @@ Config.Rendering.setImageFormat('png')
 ```
 
 The [command line flag](/docs/cli) `--image-format` will take precedence over this option.
+
+### setFrameRange()
+
+_Available from Version 2.0._
+
+Pass a number to render a still frame or a tuple to render a subset of a video. The frame sequence is zero-indexed.
+
+```tsx
+Config.Rendering.setFrameRange(90); // To render only the 91st frame
+```
+
+or
+
+```tsx
+Config.Rendering.setFrameRange([0, 20]); // Render a video only containing the first 21 frames
+```
 
 ### setQuality()
 

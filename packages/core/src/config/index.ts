@@ -3,6 +3,7 @@ import {BrowserExecutable, setBrowserExecutable} from './browser-executable';
 import {Codec, setCodec, setOutputFormat} from './codec';
 import {Concurrency, setConcurrency} from './concurrency';
 import {setCrf} from './crf';
+import {FrameRange, setFrameRange} from './frame-range';
 import {ImageFormat, setImageFormat} from './image-format';
 import {setImageSequence} from './image-sequence';
 import {
@@ -13,6 +14,7 @@ import {
 import {setOverwriteOutput} from './overwrite';
 import {PixelFormat, setPixelFormat} from './pixel-format';
 import {setQuality} from './quality';
+import {setWebpackCaching} from './webpack-caching';
 
 export const Config = {
 	Bundling: {
@@ -22,6 +24,11 @@ export const Config = {
 		 * Docs: http://remotion.dev/docs/webpack
 		 */
 		overrideWebpackConfig,
+		/**
+		 * Whether Webpack bundles should be cached to make
+		 * subsequent renders faster. Default: true
+		 */
+		setCachingEnabled: setWebpackCaching,
 	},
 	Puppeteer: {
 		/**
@@ -47,6 +54,13 @@ export const Config = {
 		 * PNG is slower, but supports transparency.
 		 */
 		setImageFormat,
+		/**
+		 * Render only a subset of a video.
+		 * Pass in a tuple [20, 30] to only render frames 20-30 into a video.
+		 * Pass in a single number `20` to only render a single frame as an image.
+		 * The frame count starts at 0.
+		 */
+		setFrameRange,
 	},
 	Output: {
 		/**
@@ -92,4 +106,5 @@ export type {
 	ImageFormat,
 	Codec,
 	Browser,
+	FrameRange,
 };
