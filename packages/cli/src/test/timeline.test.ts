@@ -17,6 +17,7 @@ test('Should calculate timeline with no sequences', () => {
 				rootId: '-',
 				showInTimeline: true,
 				type: 'sequence',
+				nonce: 0,
 			},
 		},
 	]);
@@ -51,6 +52,7 @@ test('Should calculate a basic timline', () => {
 				rootId: '0.1',
 				showInTimeline: true,
 				type: 'sequence',
+				nonce: 0,
 			},
 		},
 	]);
@@ -96,6 +98,7 @@ test('Should follow order of nesting', () => {
 				rootId: '0.1',
 				showInTimeline: true,
 				type: 'sequence',
+				nonce: 0,
 			},
 		},
 		{
@@ -109,6 +112,7 @@ test('Should follow order of nesting', () => {
 				rootId: '0.1',
 				showInTimeline: true,
 				type: 'sequence',
+				nonce: 0,
 			},
 		},
 	]);
