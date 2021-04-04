@@ -53,7 +53,10 @@ import * as perf from './perf';
 import {getCompositionName, getIsEvaluation, getRoot} from './register-root';
 import {RemotionRoot} from './RemotionRoot';
 import * as Timeline from './timeline-position-state';
-import {TimelineContextValue} from './timeline-position-state';
+import {
+	SetTimelineContextValue,
+	TimelineContextValue,
+} from './timeline-position-state';
 import {useLazyComponent} from './use-lazy-component';
 import {useUnsafeVideoConfig} from './use-unsafe-video-config';
 import {useVideo} from './use-video';
@@ -107,6 +110,7 @@ export type {
 	TSequence,
 	WebpackOverrideFn,
 	TimelineContextValue,
+	SetTimelineContextValue,
 	CompProps,
 	CompositionManagerContext,
 };
