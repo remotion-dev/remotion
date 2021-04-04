@@ -7,6 +7,7 @@ type Props<T> = {
 	width: number;
 	height: number;
 	fps: number;
+	controls?: boolean;
 	props?: T;
 } & CompProps<T>;
 
@@ -16,6 +17,7 @@ export const Player = <T,>({
 	width,
 	fps,
 	props,
+	controls,
 	...componentProps
 }: Props<T>) => {
 	const component = Internals.useLazyComponent(componentProps);
@@ -46,7 +48,7 @@ export const Player = <T,>({
 	return (
 		<Internals.RemotionRoot>
 			<Internals.CompositionManager.Provider value={compositionManagerContext}>
-				<RootComponent />
+				<RootComponent controls={Boolean(controls)} />
 			</Internals.CompositionManager.Provider>
 		</Internals.RemotionRoot>
 	);

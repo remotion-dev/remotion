@@ -2,7 +2,9 @@ import React, {Suspense} from 'react';
 import {Internals} from 'remotion';
 import {usePlaybackTime} from './PlayPause';
 
-const RootComponent: React.FC = () => {
+const RootComponent: React.FC<{
+	controls: boolean;
+}> = ({controls}) => {
 	const config = Internals.useUnsafeVideoConfig();
 	const [toggle] = usePlaybackTime();
 	const [playing] = Internals.Timeline.usePlayingState();
@@ -11,7 +13,6 @@ const RootComponent: React.FC = () => {
 
 	return (
 		<Suspense fallback={<h1>Loading...</h1>}>
-			<h1>Remotion Video Player</h1>
 			<div
 				style={{
 					position: 'relative',
@@ -20,18 +21,20 @@ const RootComponent: React.FC = () => {
 					overflow: 'hidden',
 				}}
 			>
-				<button
-					type="button"
-					style={{
-						position: 'absolute',
-						left: '10px',
-						top: '10px',
-						zIndex: 100,
-					}}
-					onClick={toggle}
-				>
-					{playing ? 'pause' : 'play'}
-				</button>
+				{controls ? (
+					<button
+						type="button"
+						style={{
+							position: 'absolute',
+							left: '10px',
+							top: '10px',
+							zIndex: 100,
+						}}
+						onClick={toggle}
+					>
+						{playing ? 'pause' : 'play'}
+					</button>
+				) : null}
 				{VideoComponent ? (
 					<VideoComponent {...(((video?.props as unknown) as {}) ?? {})} />
 				) : null}
