@@ -229,7 +229,6 @@ test("Should be able to render a AAC audio file", async () => {
   const info = await execa("ffprobe", [out]);
   const data = info.stderr;
   expect(data).toContain("aac");
-  expect(data).not.toContain("mp3");
   expect(data).toContain("stereo");
   expect(data).toContain("fltp");
   expect(data).not.toContain("Kevin MacLeod");
