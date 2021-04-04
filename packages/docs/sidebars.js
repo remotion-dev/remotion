@@ -27,6 +27,7 @@ module.exports = {
         "encoding",
         "transparent-videos",
         "dynamic-metadata",
+        "legacy-babel",
       ],
     },
     {
