@@ -1,2 +1,2 @@
+export {Player} from './Player';
 export * from './PlayPause';
-export {Player} from './RemotionPlayer';
