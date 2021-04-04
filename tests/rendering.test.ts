@@ -108,7 +108,6 @@ test("Should fail to render out of range frame when range is a number", async ()
   expect(task.stderr).toContain(
     "Frame number is out of range, must be between 0 and 9"
   );
-  fs.unlinkSync(out);
 });
 
 test("Should fail to render out of range frame when range is a string", async () => {
