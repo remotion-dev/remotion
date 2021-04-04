@@ -1,7 +1,7 @@
 export {getAudioData} from './get-audio-data';
 export {getAudioDuration} from './get-audio-duration';
-export {getVideoDuration} from './get-video-duration';
+export {getVideoMetadata} from './get-video-metadata';
 export {getWaveformPortion} from './get-waveform-portion';
-export type {AudioData} from './types';
+export type {AudioData, VideoData} from './types';
 export {useAudioData} from './use-audio-metadata';
 export {visualizeAudio} from './visualize-audio';
