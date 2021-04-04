@@ -8,5 +8,9 @@
 		"allowSyntheticDefaultImports": true
 	},
 	"include": ["src"],
-	"references": [{"path": "../core"}, {"path": "../media-utils"}]
+	"references": [
+		{"path": "../core"},
+		{"path": "../media-utils"},
+		{"path": "../babel-loader"}
+	]
 }

@@ -27,11 +27,12 @@ module.exports = {
         "encoding",
         "transparent-videos",
         "dynamic-metadata",
+        "legacy-babel",
       ],
     },
     {
       type: "category",
-      label: "Reference",
+      label: "Reference - Core API",
       items: [
         "cli",
         "config",
@@ -54,6 +55,7 @@ module.exports = {
         "easing",
       ],
     },
+    "gif",
     "license",
   ],
 };
