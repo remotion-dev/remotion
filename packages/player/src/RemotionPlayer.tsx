@@ -1,30 +1,53 @@
-import React, {useEffect, useRef, useState} from 'react';
-import {Internals} from 'remotion';
-import RemotionRootComponent from './RemotionRootComponent';
+import React, {useMemo} from 'react';
+import {CompositionManagerContext, CompProps, Internals} from 'remotion';
+import RootComponent from './RootComponent';
 
-type Props = {
-	id: string;
-};
+type Props<T> = {
+	durationInFrames: number;
+	width: number;
+	height: number;
+	fps: number;
+	props?: T;
+} & CompProps<T>;
 
-const Loading: React.FC = () => <h1>Loading…</h1>;
+export const Player = <T,>({
+	durationInFrames,
+	height,
+	width,
+	fps,
+	props,
+	...componentProps
+}: Props<T>) => {
+	const component = Internals.useLazyComponent(componentProps);
 
-export const RemotionPlayer: React.FC<Props> = ({id}) => {
-	const rootRef = useRef<React.FC | null>(null);
-	const Root = rootRef.current;
-	const [isInitialized, setIsInitialized] = useState(false);
+	const compositionManagerContext: CompositionManagerContext = useMemo(() => {
+		return {
+			compositions: [
+				{
+					component,
+					durationInFrames,
+					height,
+					width,
+					fps,
+					id: 'player-comp',
+					props,
+				},
+			],
+			currentComposition: 'player-comp',
+			registerComposition: () => void 0,
+			registerSequence: () => void 0,
+			sequences: [],
+			setCurrentComposition: () => void 0,
+			unregisterComposition: () => void 0,
+			unregisterSequence: () => void 0,
+		};
+	}, [component, props, durationInFrames, fps, height, width]);
 
-	useEffect(() => {
-		const Root = Internals.getRoot();
-		rootRef.current = Root;
-		setIsInitialized(true);
-	}, []);
-
-	return Root && isInitialized ? (
+	return (
 		<Internals.RemotionRoot>
-			<Root />
-			<div className="App">
-				<RemotionRootComponent id={id} />
-			</div>
+			<Internals.CompositionManager.Provider value={compositionManagerContext}>
+				<RootComponent />
+			</Internals.CompositionManager.Provider>
 		</Internals.RemotionRoot>
-	) : null;
+	);
 };
