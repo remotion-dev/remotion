@@ -1,6 +1,6 @@
 ---
-title: getVideoDuration()
-id: get-video-duration
+title: getVideoMetadata()
+id: get-video-metadata
 ---
 
 :::warning

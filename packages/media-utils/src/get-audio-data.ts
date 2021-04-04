@@ -1,3 +1,4 @@
+import {isRemoteAsset} from './is-remote-asset';
 import {AudioData} from './types';
 
 const metadataCache: {[key: string]: AudioData} = {};
@@ -25,6 +26,7 @@ export const getAudioData = async (src: string): Promise<AudioData> => {
 		duration: wave.duration,
 		numberOfChannels: wave.numberOfChannels,
 		resultId: String(Math.random()),
+		isRemote: isRemoteAsset(src),
 	};
 	metadataCache[src] = metadata;
 	return metadata;
