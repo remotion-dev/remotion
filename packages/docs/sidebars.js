@@ -71,6 +71,7 @@ module.exports = {
         "visualize-audio",
       ],
     },
+    "2-0-migration",
     "license",
   ],
 };
