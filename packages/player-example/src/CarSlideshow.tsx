@@ -1,7 +1,9 @@
-import React, {FunctionComponent} from 'react';
+import React from 'react';
 import {interpolate, useCurrentFrame, useVideoConfig} from 'remotion';
 
-const CarSlideshow: FunctionComponent = () => {
+const CarSlideshow: React.FC<{
+	title: string;
+}> = ({title}) => {
 	const frame = useCurrentFrame();
 	const {width, height, durationInFrames} = useVideoConfig();
 	const left = interpolate(frame, [0, durationInFrames], [width, width * -1]);
@@ -27,7 +29,7 @@ const CarSlideshow: FunctionComponent = () => {
 					whiteSpace: 'nowrap',
 				}}
 			>
-				OMG BUY THIS AWESOME CAR!!1!
+				{title}
 			</h1>
 		</div>
 	);
