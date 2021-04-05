@@ -84,15 +84,15 @@ const Text: React.FC<{
 const AudioVisualization: React.FC = () => {
 	const frame = useCurrentFrame();
 	const {width, height, fps} = useVideoConfig();
-	const metadata = useAudioData(music);
+	const audioData = useAudioData(music);
 
-	if (!metadata) {
+	if (!audioData) {
 		return null;
 	}
 	const visualization = visualizeAudio({
 		fps,
 		frame,
-		metadata,
+		audioData,
 		numberOfSamples: 32,
 	});
 
