@@ -7,7 +7,7 @@ export type AudioData = {
 	isRemote: boolean;
 };
 
-export type VideoData = {
+export type VideoMetadata = {
 	durationInSeconds: number;
 	width: number;
 	height: number;
