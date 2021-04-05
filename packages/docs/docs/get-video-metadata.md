@@ -49,6 +49,11 @@ await getVideoMetadata('https://example.com/remote-audio.webm'); /* {
 } */
 ```
 
+## Caching behavior
+
+This function is memoizing the results it returns.
+If you pass in the same argument to `src` multiple times, it will return a cached version from the second time on, regardless of if the file has changed. To clear the cache, you have to reload the page.
+
 ## See also
 
 - [Using videos](/docs/assets#using-videos)
