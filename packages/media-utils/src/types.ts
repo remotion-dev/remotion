@@ -1,7 +1,7 @@
 export type AudioData = {
 	channelWaveforms: Float32Array[];
 	sampleRate: number;
-	duration: number;
+	durationInSeconds: number;
 	numberOfChannels: number;
 	resultId: string;
 	isRemote: boolean;

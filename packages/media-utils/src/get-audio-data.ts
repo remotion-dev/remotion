@@ -23,7 +23,7 @@ export const getAudioData = async (src: string): Promise<AudioData> => {
 	const metadata: AudioData = {
 		channelWaveforms,
 		sampleRate: audioContext.sampleRate,
-		duration: wave.duration,
+		durationInSeconds: wave.duration,
 		numberOfChannels: wave.numberOfChannels,
 		resultId: String(Math.random()),
 		isRemote: isRemoteAsset(src),
