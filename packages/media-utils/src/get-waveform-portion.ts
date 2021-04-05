@@ -20,11 +20,11 @@ export const getWaveformPortion = ({
 	numberOfSamples: number;
 }): Bar[] => {
 	const startSample = Math.floor(
-		(startFrom / (metadata.duration / fps)) *
+		(startFrom / (metadata.durationInSeconds / fps)) *
 			metadata.channelWaveforms[0].length
 	);
 	const endSample = Math.floor(
-		((startFrom + durationInFrames) / (metadata.duration * fps)) *
+		((startFrom + durationInFrames) / (metadata.durationInSeconds * fps)) *
 			metadata.channelWaveforms[0].length
 	);
 
