@@ -92,7 +92,7 @@ export const AudioWaveform: React.FC<{
 		getAudioData(src)
 			.then((data) => {
 				if (mountState.current.isMounted) {
-					setMaxMediaDuration(Math.floor(data.duration * fps));
+					setMaxMediaDuration(Math.floor(data.durationInSeconds * fps));
 					setMetadata(data);
 				}
 			})
