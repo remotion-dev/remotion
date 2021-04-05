@@ -12,14 +12,15 @@ Remotion allows you to include several types of files in your project:
 
 ## Using images
 
-Require images using an `import` statement
+Require images using an `import` statement and pass them to the [`<Img/>`](/docs/img) tag.
 
 ```tsx
+import {Img} from 'remotion';
 import logo from './logo.png'
 
 export const MyComp: React.FC = () => {
   return (
-    <img src={logo} />
+    <Img src={logo} />
   )
 }
 ```
@@ -73,7 +74,7 @@ Be aware that if you are rendering using Chromium (as opposed to Chrome), the co
 
 ## Using Audio
 
-Import your audio using an `@import` statement and pass it to the [`<Audio/ >`](/docs/audio) component.
+Import your audio using an `import` statement and pass it to the [`<Audio/ >`](/docs/audio) component.
 
 ```tsx
 import {Audio} from 'remotion';
@@ -86,9 +87,7 @@ export const MyComp: React.FC = () => {
 }
 ```
 
-:::info
-Audio is experimental and is currently only playing in the preview, not in the final video.
-:::
+See the [audio guide](/docs/using-audio) for guidance on including audio.
 
 ## Using fonts
 
