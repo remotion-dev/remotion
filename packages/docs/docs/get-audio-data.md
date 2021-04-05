@@ -68,3 +68,4 @@ Use the [`useAudioData()`](use-audio-data) helper hook to not have to do state m
 - [Using audio](/docs/using-audio)
 - [Audio visualization](/docs/audio-visualization)
 - [`<Audio/>`](/docs/audio)
+- [`visualizeAudio()`](/docs/visualize-audio)

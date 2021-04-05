@@ -5,14 +5,14 @@ import {AudioData} from './types';
 const cache: {[key: string]: number[]} = {};
 
 type FnParameters = {
-	metadata: AudioData;
+	audioData: AudioData;
 	frame: number;
 	fps: number;
 	numberOfSamples: number;
 };
 
-export const visualizeAudioFrame = ({
-	metadata,
+const visualizeAudioFrame = ({
+	audioData: metadata,
 	frame,
 	fps,
 	numberOfSamples,
