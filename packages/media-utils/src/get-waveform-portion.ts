@@ -7,29 +7,27 @@ type Bar = {
 };
 
 export const getWaveformPortion = ({
-	metadata,
-	startFrom,
-	fps,
-	durationInFrames,
+	audioData,
+	startTimeInSeconds,
+	durationInSeconds,
 	numberOfSamples,
 }: {
-	metadata: AudioData;
-	startFrom: number;
-	fps: number;
-	durationInFrames: number;
+	audioData: AudioData;
+	startTimeInSeconds: number;
+	durationInSeconds: number;
 	numberOfSamples: number;
 }): Bar[] => {
 	const startSample = Math.floor(
-		(startFrom / (metadata.durationInSeconds / fps)) *
-			metadata.channelWaveforms[0].length
+		(startTimeInSeconds / audioData.durationInSeconds) *
+			audioData.channelWaveforms[0].length
 	);
 	const endSample = Math.floor(
-		((startFrom + durationInFrames) / (metadata.durationInSeconds * fps)) *
-			metadata.channelWaveforms[0].length
+		((startTimeInSeconds + durationInSeconds) / audioData.durationInSeconds) *
+			audioData.channelWaveforms[0].length
 	);
 
 	return getWaveformSamples(
-		metadata.channelWaveforms[0].slice(startSample, endSample),
+		audioData.channelWaveforms[0].slice(startSample, endSample),
 		numberOfSamples
 	).map((w, i) => {
 		return {
