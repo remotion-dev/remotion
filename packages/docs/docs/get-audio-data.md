@@ -24,7 +24,7 @@ A string pointing to an audio asset.
 - `channelWaveforms`: `Float32Array[]` an array with waveform information for each channel.
 - `sampleRate`: `number` How many samples per second each waveform contains.
 - `durationInSeconds`: `number` The duration of the audio in seconds.
-- `numberOfChannels`: `number` The number of channels contained in the audio files. This corresponds to the length of the `channelWaveforms` array.
+- `numberOfChannels`: `number` The number of channels contained in the audio file. This corresponds to the length of the `channelWaveforms` array.
 - `resultId`: `string` Unique identifier of this audio data fetching call. Other functions can cache expensive operations if they get called with the same resultId multiple times.
 - `isRemote`: Whether the audio was imported locally or from a different origin.
 
