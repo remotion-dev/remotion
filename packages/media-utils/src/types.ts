@@ -8,7 +8,7 @@ export type AudioData = {
 };
 
 export type VideoData = {
-	duration: number;
+	durationInSeconds: number;
 	width: number;
 	height: number;
 	aspectRatio: number;

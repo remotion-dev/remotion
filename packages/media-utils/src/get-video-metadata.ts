@@ -11,7 +11,7 @@ export const getVideoMetadata = async (src: string): Promise<VideoData> => {
 		};
 		const onLoadedMetadata = () => {
 			resolve({
-				duration: video.duration,
+				durationInSeconds: video.duration,
 				width: video.videoWidth,
 				height: video.videoHeight,
 				aspectRatio: video.videoWidth / video.videoHeight,
