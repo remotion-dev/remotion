@@ -1,5 +1,6 @@
 import {RefObject, useEffect} from 'react';
 import {usePlayingState} from './timeline-position-state';
+import {useAbsoluteCurrentFrame, useCurrentFrame} from './use-frame';
 import {VideoConfig} from './video-config';
 import {getCurrentTime} from './video/get-current-time';
 
@@ -7,18 +8,15 @@ export const useMediaPlayback = ({
 	mediaRef,
 	src,
 	videoConfig,
-	frame,
-	absoluteFrame,
 	mediaType,
 }: {
 	mediaRef: RefObject<HTMLVideoElement | HTMLAudioElement>;
 	src: string | undefined;
 	videoConfig: VideoConfig | null;
-	frame: number;
-
-	absoluteFrame: number;
 	mediaType: 'audio' | 'video';
 }) => {
+	const frame = useCurrentFrame();
+	const absoluteFrame = useAbsoluteCurrentFrame();
 	const [playing] = usePlayingState();
 
 	useEffect(() => {
