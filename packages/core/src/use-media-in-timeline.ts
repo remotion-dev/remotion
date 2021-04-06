@@ -5,22 +5,21 @@ import {getAssetFileName} from './get-asset-file-name';
 import {useNonce} from './nonce';
 import {SequenceContext} from './sequencing';
 import {TimelineContext} from './timeline-position-state';
-import {VideoConfig} from './video-config';
+import {useVideoConfig} from './use-video-config';
 import {evaluateVolume, VolumeProp} from './volume-prop';
 
 export const useMediaInTimeline = ({
-	videoConfig,
 	volume,
 	mediaRef,
 	src,
 	mediaType,
 }: {
-	videoConfig: VideoConfig | null;
 	volume: VolumeProp | undefined;
 	mediaRef: RefObject<HTMLAudioElement | HTMLVideoElement>;
 	src: string | undefined;
 	mediaType: 'audio' | 'video';
 }) => {
+	const videoConfig = useVideoConfig();
 	const {rootId} = useContext(TimelineContext);
 	const parentSequence = useContext(SequenceContext);
 	const actualFrom = parentSequence
@@ -32,9 +31,6 @@ export const useMediaInTimeline = ({
 	const nonce = useNonce();
 
 	const duration = (() => {
-		if (!videoConfig) {
-			return 0;
-		}
 		return parentSequence
 			? Math.min(parentSequence.durationInFrames, videoConfig.durationInFrames)
 			: videoConfig.durationInFrames;
@@ -59,9 +55,6 @@ export const useMediaInTimeline = ({
 
 	useEffect(() => {
 		if (!mediaRef.current) {
-			return;
-		}
-		if (!videoConfig) {
 			return;
 		}
 

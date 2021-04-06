@@ -3,7 +3,6 @@ import {useMediaInTimeline} from '../use-media-in-timeline';
 import {useMediaPlayback} from '../use-media-playback';
 import {useMediaTagVolume} from '../use-media-tag-volume';
 import {useSyncVolumeWithMediaTag} from '../use-sync-volume-with-media-tag';
-import {useUnsafeVideoConfig} from '../use-unsafe-video-config';
 import {RemotionAudioProps} from './props';
 import {useAudioFrame} from './use-audio-frame';
 
@@ -11,7 +10,6 @@ export const AudioForDevelopment: React.FC<RemotionAudioProps> = (props) => {
 	const audioRef = useRef<HTMLAudioElement>(null);
 
 	const audioFrame = useAudioFrame();
-	const videoConfig = useUnsafeVideoConfig();
 
 	const {volume, ...nativeProps} = props;
 
@@ -25,7 +23,6 @@ export const AudioForDevelopment: React.FC<RemotionAudioProps> = (props) => {
 	});
 
 	useMediaInTimeline({
-		videoConfig,
 		volume,
 		mediaRef: audioRef,
 		src: nativeProps.src,
@@ -34,7 +31,6 @@ export const AudioForDevelopment: React.FC<RemotionAudioProps> = (props) => {
 
 	useMediaPlayback({
 		mediaRef: audioRef,
-		videoConfig,
 		src: nativeProps.src,
 		mediaType: 'audio',
 	});
