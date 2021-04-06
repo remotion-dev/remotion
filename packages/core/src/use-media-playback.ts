@@ -1,23 +1,22 @@
 import {RefObject, useEffect} from 'react';
 import {usePlayingState} from './timeline-position-state';
 import {useAbsoluteCurrentFrame, useCurrentFrame} from './use-frame';
-import {VideoConfig} from './video-config';
+import {useVideoConfig} from './use-video-config';
 import {getCurrentTime} from './video/get-current-time';
 
 export const useMediaPlayback = ({
 	mediaRef,
 	src,
-	videoConfig,
 	mediaType,
 }: {
 	mediaRef: RefObject<HTMLVideoElement | HTMLAudioElement>;
 	src: string | undefined;
-	videoConfig: VideoConfig | null;
 	mediaType: 'audio' | 'video';
 }) => {
 	const frame = useCurrentFrame();
 	const absoluteFrame = useAbsoluteCurrentFrame();
 	const [playing] = usePlayingState();
+	const {fps} = useVideoConfig();
 
 	useEffect(() => {
 		// TODO: Investigate if this is correct
@@ -33,18 +32,13 @@ export const useMediaPlayback = ({
 		if (!mediaRef.current) {
 			throw new Error(`No ${mediaType} ref found`);
 		}
-		if (!videoConfig) {
-			throw new Error(
-				`No video config found. ${tagName} must be placed inside a composition.`
-			);
-		}
 		if (!src) {
 			throw new Error(
 				`No 'src' attribute was passed to the ${tagName} element.`
 			);
 		}
 		const shouldBeTime = getCurrentTime({
-			fps: videoConfig.fps,
+			fps,
 			frame,
 			src,
 		});
@@ -65,5 +59,5 @@ export const useMediaPlayback = ({
 			mediaRef.current.currentTime = shouldBeTime;
 			mediaRef.current.play();
 		}
-	}, [absoluteFrame, frame, mediaRef, mediaType, playing, src, videoConfig]);
+	}, [absoluteFrame, fps, frame, mediaRef, mediaType, playing, src]);
 };
