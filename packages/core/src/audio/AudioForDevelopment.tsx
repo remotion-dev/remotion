@@ -4,19 +4,19 @@ import {useMediaPlayback} from '../use-media-playback';
 import {useMediaTagVolume} from '../use-media-tag-volume';
 import {useSyncVolumeWithMediaTag} from '../use-sync-volume-with-media-tag';
 import {RemotionAudioProps} from './props';
-import {useAudioFrame} from './use-audio-frame';
+import {useFrameForVolumeProp} from './use-audio-frame';
 
 export const AudioForDevelopment: React.FC<RemotionAudioProps> = (props) => {
 	const audioRef = useRef<HTMLAudioElement>(null);
 
-	const audioFrame = useAudioFrame();
+	const volumePropFrame = useFrameForVolumeProp();
 
 	const {volume, ...nativeProps} = props;
 
 	const actualVolume = useMediaTagVolume(audioRef);
 
 	useSyncVolumeWithMediaTag({
-		audioFrame,
+		volumePropFrame,
 		actualVolume,
 		volume,
 		mediaRef: audioRef,
