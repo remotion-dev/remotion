@@ -12,6 +12,9 @@ import {useCurrentFrame, interpolate} from 'remotion'
 
 const frame = useCurrentFrame() // 10
 const opacity = interpolate(input, [0, 20], [0, 1]) // 0.5
+
+//this is Remotion2.0 feature
+const opacity = interpolate(input, [0, 10, 20], [0, 0.7, 1]) //0.7
 ```
 
 ## Params
@@ -58,6 +61,13 @@ By default, the input is left unmodified, resulting in a pure linear interpolati
 import {interpolate, Easing} from 'remotion';
 
 interpolate(frame, [0, 100], [0, 1], {
+  easing: Easing.bezier(0.8, 0.22, 0.96, 0.65),
+  extrapolateLeft: 'clamp',
+  extrapolateRight: 'clamp',
+})
+
+//this is Remotion2.0 feature
+interpolate(frame, [0, 10, 40, 100], [0, 0.2, 0.6, 1], {
   easing: Easing.bezier(0.8, 0.22, 0.96, 0.65),
   extrapolateLeft: 'clamp',
   extrapolateRight: 'clamp',
