@@ -1,4 +1,4 @@
-import {Internals, TComposition} from 'remotion';
+import {TComposition} from 'remotion';
 import {TIMELINE_PADDING} from './timeline-layout';
 
 export const SEQUENCE_BORDER_WIDTH = 1;
@@ -19,9 +19,7 @@ export const getTimelineSequenceLayout = ({
 	const maxMediaSequenceDuration = maxMediaDuration - startFrom;
 	const spatialDuration = Math.min(
 		maxMediaSequenceDuration,
-		Internals.FEATURE_FLAG_V2_BREAKING_CHANGES
-			? durationInFrames - 1
-			: durationInFrames
+		durationInFrames - 1
 	);
 
 	const lastFrame = (video.durationInFrames ?? 1) - 1;

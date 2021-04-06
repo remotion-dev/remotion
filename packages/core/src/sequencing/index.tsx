@@ -6,7 +6,6 @@ import React, {
 	useState,
 } from 'react';
 import {CompositionManager} from '../CompositionManager';
-import {FEATURE_FLAG_V2_BREAKING_CHANGES} from '../feature-flags';
 import {getTimelineClipName} from '../get-timeline-clip-name';
 import {useNonce} from '../nonce';
 import {TimelineContext} from '../timeline-position-state';
@@ -139,10 +138,7 @@ export const Sequence: React.FC<{
 	]);
 
 	const endThreshold = (() => {
-		if (FEATURE_FLAG_V2_BREAKING_CHANGES) {
-			return actualFrom + durationInFrames - 1;
-		}
-		return actualFrom + durationInFrames;
+		return actualFrom + durationInFrames - 1;
 	})();
 
 	const content =
