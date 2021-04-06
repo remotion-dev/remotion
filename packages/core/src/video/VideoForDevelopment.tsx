@@ -1,6 +1,7 @@
-import React, {useEffect, useRef} from 'react';
-import {usePlayingState} from '../timeline-position-state';
+import React, {useRef} from 'react';
+import {useAudioFrame} from '../audio/use-audio-frame';
 import {useAbsoluteCurrentFrame, useCurrentFrame} from '../use-frame';
+import {useMediaInTimeline} from '../use-media-in-timeline';
 import {useMediaPlayback} from '../use-media-playback';
 import {useMediaTagVolume} from '../use-media-tag-volume';
 import {useSyncVolumeWithMediaTag} from '../use-sync-volume-with-media-tag';
@@ -12,25 +13,23 @@ export const VideoForDevelopment: React.FC<RemotionVideoProps> = (props) => {
 	const frame = useCurrentFrame();
 	const absoluteFrame = useAbsoluteCurrentFrame();
 
+	const audioFrame = useAudioFrame();
 	const videoConfig = useUnsafeVideoConfig();
-	const [playing] = usePlayingState();
 
 	const {volume, ...nativeProps} = props;
 
-	// TODO: Register as an asset
-	useEffect(() => {
-		if (playing && !videoRef.current?.ended) {
-			videoRef.current?.play();
-		} else {
-			videoRef.current?.pause();
-		}
-	}, [playing]);
-
 	const actualVolume = useMediaTagVolume(videoRef);
 
+	useMediaInTimeline({
+		videoConfig,
+		mediaRef: videoRef,
+		volume,
+		mediaType: 'video',
+		src: nativeProps.src,
+	});
+
 	useSyncVolumeWithMediaTag({
-		// TODO Switch to audioFrame
-		audioFrame: frame,
+		audioFrame,
 		actualVolume,
 		volume,
 		mediaRef: videoRef,
@@ -40,7 +39,6 @@ export const VideoForDevelopment: React.FC<RemotionVideoProps> = (props) => {
 		mediaRef: videoRef,
 		absoluteFrame,
 		frame,
-		playing,
 		src: nativeProps.src,
 		videoConfig,
 		mediaType: 'video',
