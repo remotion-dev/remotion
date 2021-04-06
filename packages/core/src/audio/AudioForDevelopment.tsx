@@ -1,12 +1,13 @@
 import React, {useContext, useEffect, useMemo, useRef, useState} from 'react';
 import {CompositionManager} from '../CompositionManager';
 import {getAssetFileName} from '../get-asset-file-name';
-import {isApproximatelyTheSame} from '../is-approximately-the-same';
 import {useNonce} from '../nonce';
 import {SequenceContext} from '../sequencing';
-import {useMediaTagVolume} from '../sync-actual-volume';
 import {TimelineContext, usePlayingState} from '../timeline-position-state';
 import {useAbsoluteCurrentFrame, useCurrentFrame} from '../use-frame';
+import {useMediaPlayback} from '../use-media-playback';
+import {useMediaTagVolume} from '../use-media-tag-volume';
+import {useSyncVolumeWithMediaTag} from '../use-sync-volume-with-media-tag';
 import {useUnsafeVideoConfig} from '../use-unsafe-video-config';
 import {evaluateVolume} from '../volume-prop';
 import {RemotionAudioProps} from './props';
@@ -38,18 +39,12 @@ export const AudioForDevelopment: React.FC<RemotionAudioProps> = (props) => {
 
 	const actualVolume = useMediaTagVolume(audioRef);
 
-	useEffect(() => {
-		const userPreferredVolume = evaluateVolume({
-			frame: audioFrame,
-			volume,
-		});
-		if (
-			!isApproximatelyTheSame(userPreferredVolume, actualVolume) &&
-			audioRef.current
-		) {
-			audioRef.current.volume = userPreferredVolume;
-		}
-	}, [actualVolume, audioFrame, frame, props.volume, volume]);
+	useSyncVolumeWithMediaTag({
+		audioFrame,
+		actualVolume,
+		volume,
+		mediaRef: audioRef,
+	});
 
 	useEffect(() => {
 		if (playing) {
@@ -126,36 +121,14 @@ export const AudioForDevelopment: React.FC<RemotionAudioProps> = (props) => {
 		nonce,
 	]);
 
-	useEffect(() => {
-		if (!audioRef.current) {
-			throw new Error('No audio ref found');
-		}
-		if (!videoConfig) {
-			throw new Error(
-				'No video config found. <Audio> must be placed inside a composition.'
-			);
-		}
-		const shouldBeTime = frame / videoConfig.fps;
-
-		const isTime = audioRef.current.currentTime;
-		const timeShift = Math.abs(shouldBeTime - isTime);
-		if (timeShift > 0.2 && !audioRef.current.ended) {
-			console.log('Time has shifted by', timeShift, 'sec. Fixing...');
-			// If scrubbing around, adjust timing
-			// or if time shift is bigger than 0.2sec
-			audioRef.current.currentTime = shouldBeTime;
-		}
-
-		if (!playing || absoluteFrame === 0) {
-			// If scrubbing around, adjust timing
-			// or if time shift is bigger than 0.2sec
-			audioRef.current.currentTime = shouldBeTime;
-		}
-		if (audioRef.current.paused && !audioRef.current.ended && playing) {
-			// Play audio
-			audioRef.current.play();
-		}
-	}, [absoluteFrame, frame, playing, videoConfig]);
+	useMediaPlayback({
+		mediaRef: audioRef,
+		absoluteFrame,
+		frame,
+		playing,
+		videoConfig,
+		src: nativeProps.src,
+	});
 
 	return <audio ref={audioRef} {...nativeProps} />;
 };

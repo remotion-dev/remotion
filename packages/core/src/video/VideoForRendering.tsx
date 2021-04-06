@@ -1,7 +1,6 @@
 import React, {useContext, useEffect, useMemo, useRef} from 'react';
 import {useAudioFrame} from '../audio/use-audio-frame';
 import {CompositionManager} from '../CompositionManager';
-import {FEATURE_FLAG_V2_BREAKING_CHANGES} from '../feature-flags';
 import {isApproximatelyTheSame} from '../is-approximately-the-same';
 import {isRemoteAsset} from '../is-remote-asset';
 import {random} from '../random';
@@ -90,14 +89,11 @@ export const VideoForRendering: React.FC<RemotionVideoProps> = ({
 		}
 
 		const currentTime = (() => {
-			if (FEATURE_FLAG_V2_BREAKING_CHANGES) {
-				return getCurrentTime({
-					fps: videoConfig.fps,
-					frame: audioFrame,
-					src: props.src as string,
-				});
-			}
-			return audioFrame / (1000 / videoConfig.fps);
+			return getCurrentTime({
+				fps: videoConfig.fps,
+				frame: audioFrame,
+				src: props.src as string,
+			});
 		})();
 		const handle = delayRender();
 		if (process.env.NODE_ENV === 'test') {

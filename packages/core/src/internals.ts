@@ -44,10 +44,7 @@ import {
 	DEFAULT_WEBPACK_CACHE_ENABLED,
 	getWebpackCaching,
 } from './config/webpack-caching';
-import {
-	FEATURE_FLAG_FIREFOX_SUPPORT,
-	FEATURE_FLAG_V2_BREAKING_CHANGES,
-} from './feature-flags';
+import {FEATURE_FLAG_FIREFOX_SUPPORT} from './feature-flags';
 import {isAudioCodec} from './is-audio-codec';
 import * as perf from './perf';
 import {getCompositionName, getIsEvaluation, getRoot} from './register-root';
@@ -85,7 +82,6 @@ export const Internals = {
 	DEFAULT_PIXEL_FORMAT,
 	FEATURE_FLAG_FIREFOX_SUPPORT,
 	DEFAULT_WEBPACK_CACHE_ENABLED,
-	FEATURE_FLAG_V2_BREAKING_CHANGES,
 	getBrowser,
 	DEFAULT_BROWSER,
 	getDefaultCrfForCodec,
