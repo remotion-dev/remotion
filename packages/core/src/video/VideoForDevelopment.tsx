@@ -1,5 +1,5 @@
 import React, {useRef} from 'react';
-import {useAudioFrame} from '../audio/use-audio-frame';
+import {useFrameForVolumeProp} from '../audio/use-audio-frame';
 import {useMediaInTimeline} from '../use-media-in-timeline';
 import {useMediaPlayback} from '../use-media-playback';
 import {useMediaTagVolume} from '../use-media-tag-volume';
@@ -9,7 +9,7 @@ import {RemotionVideoProps} from './props';
 export const VideoForDevelopment: React.FC<RemotionVideoProps> = (props) => {
 	const videoRef = useRef<HTMLVideoElement>(null);
 
-	const audioFrame = useAudioFrame();
+	const volumePropFrame = useFrameForVolumeProp();
 
 	const {volume, ...nativeProps} = props;
 
@@ -23,7 +23,7 @@ export const VideoForDevelopment: React.FC<RemotionVideoProps> = (props) => {
 	});
 
 	useSyncVolumeWithMediaTag({
-		audioFrame,
+		volumePropFrame,
 		actualVolume,
 		volume,
 		mediaRef: videoRef,

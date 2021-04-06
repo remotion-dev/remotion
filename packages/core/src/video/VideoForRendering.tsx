@@ -1,5 +1,5 @@
 import React, {useContext, useEffect, useMemo, useRef} from 'react';
-import {useAudioFrame} from '../audio/use-audio-frame';
+import {useFrameForVolumeProp} from '../audio/use-audio-frame';
 import {CompositionManager} from '../CompositionManager';
 import {isApproximatelyTheSame} from '../is-approximately-the-same';
 import {isRemoteAsset} from '../is-remote-asset';
@@ -20,7 +20,7 @@ export const VideoForRendering: React.FC<RemotionVideoProps> = ({
 	const absoluteFrame = useAbsoluteCurrentFrame();
 
 	const frame = useCurrentFrame();
-	const audioFrame = useAudioFrame();
+	const volumePropsFrame = useFrameForVolumeProp();
 	const videoConfig = useUnsafeVideoConfig();
 	const videoRef = useRef<HTMLVideoElement>(null);
 	const sequenceContext = useContext(SequenceContext);
@@ -49,7 +49,7 @@ export const VideoForRendering: React.FC<RemotionVideoProps> = ({
 
 	const volume = evaluateVolume({
 		volume: volumeProp,
-		frame: audioFrame,
+		frame: volumePropsFrame,
 	});
 
 	useEffect(() => {
@@ -91,7 +91,7 @@ export const VideoForRendering: React.FC<RemotionVideoProps> = ({
 		const currentTime = (() => {
 			return getCurrentTime({
 				fps: videoConfig.fps,
-				frame: audioFrame,
+				frame,
 				src: props.src as string,
 			});
 		})();
@@ -142,7 +142,7 @@ export const VideoForRendering: React.FC<RemotionVideoProps> = ({
 			},
 			{once: true}
 		);
-	}, [audioFrame, props.src, videoConfig.fps]);
+	}, [volumePropsFrame, props.src, videoConfig.fps]);
 
 	return <video ref={videoRef} {...props} />;
 };

@@ -8,7 +8,11 @@ export const useAudioStartsAt = () => {
 	return startsAt;
 };
 
-export const useAudioFrame = () => {
+/**
+ * When passing a function as the prop for `volume`,
+ * we calculate the way more intuitive value for currentFrame
+ */
+export const useFrameForVolumeProp = () => {
 	const frame = useCurrentFrame();
 	const startsAt = useAudioStartsAt();
 	return frame + startsAt;

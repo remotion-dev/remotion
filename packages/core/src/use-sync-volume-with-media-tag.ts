@@ -3,19 +3,19 @@ import {isApproximatelyTheSame} from './is-approximately-the-same';
 import {evaluateVolume, VolumeProp} from './volume-prop';
 
 export const useSyncVolumeWithMediaTag = ({
-	audioFrame,
+	volumePropFrame,
 	actualVolume,
 	volume,
 	mediaRef,
 }: {
-	audioFrame: number;
+	volumePropFrame: number;
 	actualVolume: number;
 	volume?: VolumeProp;
 	mediaRef: RefObject<HTMLVideoElement | HTMLAudioElement>;
 }) => {
 	useEffect(() => {
 		const userPreferredVolume = evaluateVolume({
-			frame: audioFrame,
+			frame: volumePropFrame,
 			volume,
 		});
 		if (
@@ -24,5 +24,5 @@ export const useSyncVolumeWithMediaTag = ({
 		) {
 			mediaRef.current.volume = userPreferredVolume;
 		}
-	}, [actualVolume, audioFrame, mediaRef, volume]);
+	}, [actualVolume, volumePropFrame, mediaRef, volume]);
 };
