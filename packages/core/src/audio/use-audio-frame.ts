@@ -2,7 +2,7 @@ import {useContext} from 'react';
 import {SequenceContext} from '../sequencing';
 import {useCurrentFrame} from '../use-frame';
 
-export const useAudioStartsAt = () => {
+export const useMediaStartsAt = () => {
 	const parentSequence = useContext(SequenceContext);
 	const startsAt = Math.min(0, parentSequence?.relativeFrom ?? 0);
 	return startsAt;
@@ -14,6 +14,6 @@ export const useAudioStartsAt = () => {
  */
 export const useFrameForVolumeProp = () => {
 	const frame = useCurrentFrame();
-	const startsAt = useAudioStartsAt();
+	const startsAt = useMediaStartsAt();
 	return frame + startsAt;
 };

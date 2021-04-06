@@ -28,11 +28,13 @@ type EnhancedTSequenceData =
 			// are passed.
 			// If not a function was passed, a number is being used
 			volume: string | number;
+			startMediaFrom: number;
 	  }
 	| {
 			type: 'video';
 			src: string;
 			volume: string | number;
+			startMediaFrom: number;
 	  };
 
 export type TSequence = {

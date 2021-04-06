@@ -100,7 +100,7 @@ export const TimelineSequence: React.FC<{
 				<AudioWaveform
 					src={s.src}
 					visualizationWidth={width}
-					startFrom={s.from}
+					startFrom={s.startMediaFrom}
 					durationInFrames={s.duration}
 					fps={fps}
 					volume={s.volume ?? 1}

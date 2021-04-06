@@ -112,8 +112,8 @@ export const AudioWaveform: React.FC<{
 
 		return getWaveformPortion({
 			audioData: metadata,
-			startTimeInSeconds: startFrom * fps,
-			durationInSeconds: durationInFrames * fps,
+			startTimeInSeconds: startFrom / fps,
+			durationInSeconds: durationInFrames / fps,
 			numberOfSamples,
 		});
 	}, [durationInFrames, fps, metadata, startFrom, visualizationWidth]);
