@@ -12,6 +12,7 @@ export const Audio: React.FC<RemotionAudioProps & RemotionMainAudioProps> = (
 	const {startAt, endAt, ...otherProps} = props;
 	if (typeof startAt !== 'undefined' || typeof endAt !== 'undefined') {
 		validateStartFromProps(startAt, endAt);
+
 		const startAtFrameNo = startAt ?? 0;
 		const endAtFrameNo = endAt ?? Infinity;
 		return (

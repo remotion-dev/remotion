@@ -4,6 +4,7 @@ import {getAssetFileName} from '../get-asset-file-name';
 import {isApproximatelyTheSame} from '../is-approximately-the-same';
 import {useNonce} from '../nonce';
 import {SequenceContext} from '../sequencing';
+import {useMediaTagVolume} from '../sync-actual-volume';
 import {TimelineContext, usePlayingState} from '../timeline-position-state';
 import {useAbsoluteCurrentFrame, useCurrentFrame} from '../use-frame';
 import {useUnsafeVideoConfig} from '../use-unsafe-video-config';
@@ -15,7 +16,6 @@ export const AudioForDevelopment: React.FC<RemotionAudioProps> = (props) => {
 	const audioRef = useRef<HTMLAudioElement>(null);
 	const frame = useCurrentFrame();
 	const absoluteFrame = useAbsoluteCurrentFrame();
-	const [actualVolume, setActualVolume] = useState(1);
 	const nonce = useNonce();
 
 	const audioFrame = useAudioFrame();
@@ -36,21 +36,7 @@ export const AudioForDevelopment: React.FC<RemotionAudioProps> = (props) => {
 
 	const {volume, ...nativeProps} = props;
 
-	useEffect(() => {
-		const ref = audioRef.current;
-		if (!ref) {
-			return;
-		}
-		if (ref.volume !== actualVolume) {
-			setActualVolume(ref.volume);
-			return;
-		}
-		const onChange = () => {
-			setActualVolume(ref.volume);
-		};
-		ref.addEventListener('volumechange', onChange);
-		return () => ref.removeEventListener('volumechange', onChange);
-	}, [actualVolume]);
+	const actualVolume = useMediaTagVolume(audioRef);
 
 	useEffect(() => {
 		const userPreferredVolume = evaluateVolume({
