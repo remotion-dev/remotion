@@ -5,6 +5,12 @@ id: interpolate
 
 Allows you to map a value to another using a concise syntax.
 
+`interpolate()` now supports number array (array length >= 2) in input and outpur range. Make sure the length or input and output array length is same.
+
+:::warning
+This component is part of Remotion 2.0 which is not yet released. The information on this page might not yet accurately reflect the current state of Remotions API.
+:::warning
+
 ## Example
 
 ```tsx
