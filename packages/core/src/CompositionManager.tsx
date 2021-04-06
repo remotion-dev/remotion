@@ -32,6 +32,7 @@ type EnhancedTSequenceData =
 	| {
 			type: 'video';
 			src: string;
+			volume: string | number;
 	  };
 
 export type TSequence = {
