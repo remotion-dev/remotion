@@ -65,7 +65,8 @@ export const AudioWaveform: React.FC<{
 			return;
 		}
 		context.clearRect(0, 0, visualizationWidth, TIMELINE_LAYER_HEIGHT);
-		if (typeof volume === 'number') {
+		// TODO: "1,1,1,1,1,1,1,"
+		if (typeof volume === 'number' || typeof volume === 'undefined') {
 			// The volume is a number, meaning it could change on each frame-
 			// User did not use the (f: number) => number syntax, so we can't draw
 			// a visualization.
