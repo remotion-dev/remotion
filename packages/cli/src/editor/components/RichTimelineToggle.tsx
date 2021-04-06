@@ -7,7 +7,7 @@ import {
 import {ControlButton} from './ControlButton';
 
 const tooltip =
-	'Enable rich timeline. Go to remotion.dev/docs/rich-timeline for more information.';
+	'Enable rich timeline. Go to remotion.dev/docs/timeline for more information.';
 export const RichTimelineToggle: React.FC = () => {
 	const {richTimeline, setRichTimeline} = useContext(RichTimelineContext);
 
