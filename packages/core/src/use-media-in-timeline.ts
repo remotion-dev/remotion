@@ -1,5 +1,5 @@
 import {RefObject, useContext, useEffect, useMemo, useState} from 'react';
-import {useAudioStartsAt} from './audio/use-audio-frame';
+import {useMediaStartsAt} from './audio/use-audio-frame';
 import {CompositionManager} from './CompositionManager';
 import {getAssetFileName} from './get-asset-file-name';
 import {useNonce} from './nonce';
@@ -25,7 +25,7 @@ export const useMediaInTimeline = ({
 	const actualFrom = parentSequence
 		? parentSequence.relativeFrom + parentSequence.cumulatedFrom
 		: 0;
-	const startsAt = useAudioStartsAt();
+	const startsAt = useMediaStartsAt();
 	const {registerSequence, unregisterSequence} = useContext(CompositionManager);
 	const [id] = useState(() => String(Math.random()));
 	const nonce = useNonce();
@@ -75,6 +75,7 @@ export const useMediaInTimeline = ({
 			volume: volumes,
 			showInTimeline: true,
 			nonce,
+			startMediaFrom: startsAt,
 		});
 		return () => unregisterSequence(id);
 	}, [
@@ -91,5 +92,6 @@ export const useMediaInTimeline = ({
 		nonce,
 		mediaRef,
 		mediaType,
+		startsAt,
 	]);
 };
