@@ -22,20 +22,24 @@ export const AudioForDevelopment: React.FC<RemotionAudioProps> = (props) => {
 	const audioFrame = useAudioFrame();
 	const videoConfig = useUnsafeVideoConfig();
 	const [playing] = usePlayingState();
-	const {rootId} = useContext(TimelineContext);
 
+	const {rootId} = useContext(TimelineContext);
 	const parentSequence = useContext(SequenceContext);
 	const actualFrom = parentSequence
 		? parentSequence.relativeFrom + parentSequence.cumulatedFrom
 		: 0;
-
 	const startsAt = useAudioStartsAt();
-
 	const {registerSequence, unregisterSequence} = useContext(CompositionManager);
-
 	const [id] = useState(() => String(Math.random()));
-
 	const {volume, ...nativeProps} = props;
+
+	useEffect(() => {
+		if (playing) {
+			audioRef.current?.play();
+		} else {
+			audioRef.current?.pause();
+		}
+	}, [playing]);
 
 	const actualVolume = useMediaTagVolume(audioRef);
 
@@ -45,14 +49,6 @@ export const AudioForDevelopment: React.FC<RemotionAudioProps> = (props) => {
 		volume,
 		mediaRef: audioRef,
 	});
-
-	useEffect(() => {
-		if (playing) {
-			audioRef.current?.play();
-		} else {
-			audioRef.current?.pause();
-		}
-	}, [playing]);
 
 	const duration = (() => {
 		if (!videoConfig) {
@@ -128,6 +124,7 @@ export const AudioForDevelopment: React.FC<RemotionAudioProps> = (props) => {
 		playing,
 		videoConfig,
 		src: nativeProps.src,
+		mediaType: 'audio',
 	});
 
 	return <audio ref={audioRef} {...nativeProps} />;

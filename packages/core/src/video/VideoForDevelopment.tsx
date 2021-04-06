@@ -43,6 +43,7 @@ export const VideoForDevelopment: React.FC<RemotionVideoProps> = (props) => {
 		playing,
 		src: nativeProps.src,
 		videoConfig,
+		mediaType: 'video',
 	});
 
 	return <video ref={videoRef} {...nativeProps} />;
