@@ -17,8 +17,8 @@ export const Video: React.FC<RemotionVideoProps & RemotionMainVideoProps> = (
 		const endAtFrameNo = endAt ?? Infinity;
 		return (
 			<Sequence
-				showInTimeline={false}
 				from={0 - startAtFrameNo}
+				showInTimeline={false}
 				durationInFrames={endAtFrameNo}
 			>
 				<Video {...otherProps} />

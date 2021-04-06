@@ -1,6 +1,7 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useEffect, useRef} from 'react';
 import {FEATURE_FLAG_V2_BREAKING_CHANGES} from '../feature-flags';
 import {isApproximatelyTheSame} from '../is-approximately-the-same';
+import {useMediaTagVolume} from '../sync-actual-volume';
 import {usePlayingState} from '../timeline-position-state';
 import {useAbsoluteCurrentFrame, useCurrentFrame} from '../use-frame';
 import {useUnsafeVideoConfig} from '../use-unsafe-video-config';
@@ -10,11 +11,11 @@ import {RemotionVideoProps} from './props';
 
 export const VideoForDevelopment: React.FC<RemotionVideoProps> = (props) => {
 	const videoRef = useRef<HTMLVideoElement>(null);
-	const currentFrame = useCurrentFrame();
+	const frame = useCurrentFrame();
 	const absoluteFrame = useAbsoluteCurrentFrame();
+
 	const videoConfig = useUnsafeVideoConfig();
 	const [playing] = usePlayingState();
-	const [actualVolume, setActualVolume] = useState(1);
 
 	const {volume, ...nativeProps} = props;
 
@@ -27,25 +28,11 @@ export const VideoForDevelopment: React.FC<RemotionVideoProps> = (props) => {
 		}
 	}, [playing]);
 
-	useEffect(() => {
-		const ref = videoRef.current;
-		if (!ref) {
-			return;
-		}
-		if (ref.volume !== actualVolume) {
-			setActualVolume(ref.volume);
-			return;
-		}
-		const onChange = () => {
-			setActualVolume(ref.volume);
-		};
-		ref.addEventListener('volumechange', onChange);
-		return () => ref.removeEventListener('volumechange', onChange);
-	}, [actualVolume]);
+	const actualVolume = useMediaTagVolume(videoRef);
 
 	useEffect(() => {
 		const userPreferredVolume = evaluateVolume({
-			frame: currentFrame,
+			frame,
 			volume,
 		});
 		if (
@@ -54,7 +41,7 @@ export const VideoForDevelopment: React.FC<RemotionVideoProps> = (props) => {
 		) {
 			videoRef.current.volume = userPreferredVolume;
 		}
-	}, [actualVolume, currentFrame, props.volume, volume]);
+	}, [actualVolume, frame, props.volume, volume]);
 
 	useEffect(() => {
 		if (!videoRef.current) {
@@ -70,11 +57,11 @@ export const VideoForDevelopment: React.FC<RemotionVideoProps> = (props) => {
 			if (FEATURE_FLAG_V2_BREAKING_CHANGES) {
 				return getCurrentTime({
 					fps: videoConfig.fps,
-					frame: currentFrame,
+					frame,
 					src: props.src as string,
 				});
 			}
-			return currentFrame / (1000 / videoConfig.fps);
+			return frame / (1000 / videoConfig.fps);
 		})();
 
 		if (!playing || absoluteFrame === 0) {
@@ -85,7 +72,7 @@ export const VideoForDevelopment: React.FC<RemotionVideoProps> = (props) => {
 			videoRef.current.currentTime = currentTime;
 			videoRef.current.play();
 		}
-	}, [currentFrame, playing, videoConfig, absoluteFrame, props.src]);
+	}, [frame, playing, videoConfig, absoluteFrame, props.src]);
 
 	return <video ref={videoRef} {...nativeProps} />;
 };
