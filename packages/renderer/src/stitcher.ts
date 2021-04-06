@@ -97,6 +97,11 @@ export const stitchFramesToVideo = async (options: {
 	const assetPositions = calculateAssetPositions(fileUrlAssets);
 
 	const assetPaths = assetPositions.map((asset) => resolveAssetSrc(asset.src));
+	if (isAudioOnly && assetPaths.length === 0) {
+		throw new Error(
+			`Cannot render - you are trying to generate an audio file (${codec}) but your composition doesn't contain any audio.`
+		);
+	}
 	const assetAudioDetails = await getAssetAudioDetails({
 		assetPaths,
 		parallelism: options.parallelism,

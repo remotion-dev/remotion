@@ -257,3 +257,19 @@ test("Should render a video with GIFs", async () => {
     recursive: true,
   });
 });
+
+test("Should fail to render an audio file that doesn't have any audio inputs", async () => {
+  const out = outputPath.replace(".mp4", ".mp3");
+  const task = await execa(
+    "npx",
+    ["remotion", "render", "src/index.tsx", "ten-frame-tester", out],
+    {
+      cwd: "packages/example",
+      reject: false,
+    }
+  );
+  expect(task.exitCode).toBe(process.platform === "win32" ? 0 : 1);
+  expect(task.stderr).toContain(
+    "Cannot render - you are trying to generate an audio file (mp3) but your composition doesn't contain any audio."
+  );
+});
