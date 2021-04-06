@@ -1,5 +1,4 @@
 import React, {useRef} from 'react';
-import {useAbsoluteCurrentFrame, useCurrentFrame} from '../use-frame';
 import {useMediaInTimeline} from '../use-media-in-timeline';
 import {useMediaPlayback} from '../use-media-playback';
 import {useMediaTagVolume} from '../use-media-tag-volume';
@@ -10,8 +9,6 @@ import {useAudioFrame} from './use-audio-frame';
 
 export const AudioForDevelopment: React.FC<RemotionAudioProps> = (props) => {
 	const audioRef = useRef<HTMLAudioElement>(null);
-	const frame = useCurrentFrame();
-	const absoluteFrame = useAbsoluteCurrentFrame();
 
 	const audioFrame = useAudioFrame();
 	const videoConfig = useUnsafeVideoConfig();
@@ -37,8 +34,6 @@ export const AudioForDevelopment: React.FC<RemotionAudioProps> = (props) => {
 
 	useMediaPlayback({
 		mediaRef: audioRef,
-		absoluteFrame,
-		frame,
 		videoConfig,
 		src: nativeProps.src,
 		mediaType: 'audio',
