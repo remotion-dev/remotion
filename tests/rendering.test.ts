@@ -1,6 +1,7 @@
 import execa from "execa";
 import fs from "fs";
 import path from "path";
+import { interpolate } from "../packages/cli/node_modules/remotion/src";
 
 const outputPath = path.join(process.cwd(), "packages/example/out.mp4");
 
@@ -180,6 +181,9 @@ test("Should render a video with GIFs", async () => {
 });
 
 test("Dynamic duration should work", async () => {
+  const randomDuration = Math.round(
+    interpolate(Math.random(), [0, 1], [2, 20])
+  );
   const task = await execa(
     "npx",
     [
@@ -188,7 +192,7 @@ test("Dynamic duration should work", async () => {
       "src/index.tsx",
       "dynamic-duration",
       `--props`,
-      `{"duration": 5}`,
+      `{"duration": ${randomDuration}}`,
       outputPath,
     ],
     {
@@ -203,7 +207,7 @@ test("Dynamic duration should work", async () => {
   const info = await execa("ffprobe", [outputPath]);
   const data = info.stderr;
   expect(data).toContain("Video: h264");
-  const expectedDuration = (5 / 30).toFixed(2);
+  const expectedDuration = (randomDuration / 30).toFixed(2);
   expect(data).toContain(`Duration: 00:00:0${expectedDuration}`);
   fs.rmdirSync(outputPath, {
     recursive: true,
