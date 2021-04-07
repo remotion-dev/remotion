@@ -7,7 +7,6 @@ import {VideoTesting} from './VideoTesting';
 
 export const Index: React.FC = () => {
 	const inputProps = getInputProps();
-	console.log('props', JSON.stringify(inputProps));
 	return (
 		<>
 			<Composition
