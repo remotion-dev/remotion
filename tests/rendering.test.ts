@@ -1,7 +1,7 @@
 import execa from "execa";
 import fs from "fs";
 import path from "path";
-import { interpolate } from "../packages/cli/node_modules/remotion/src";
+import { interpolate } from "../packages/core/src";
 
 const outputPath = path.join(process.cwd(), "packages/example/out.mp4");
 
