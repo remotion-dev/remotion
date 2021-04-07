@@ -25,7 +25,6 @@ const NUMBER = '[-+]?\\d*\\.?\\d+';
 const PERCENTAGE = NUMBER + '%';
 
 function call(...args: unknown[]): string {
-	'worklet';
 	return '\\(\\s*(' + args.join(')\\s*,\\s*(') + ')\\s*\\)';
 }
 
@@ -44,7 +43,6 @@ type Matchers = {
 	hex8: MatcherType;
 };
 function getMatchers(): Matchers {
-	'worklet';
 	const cachedMatchers: Matchers = {
 		rgb: undefined,
 		rgba: undefined,
@@ -76,7 +74,6 @@ function getMatchers(): Matchers {
 }
 
 function hue2rgb(p: number, q: number, t: number): number {
-	'worklet';
 	if (t < 0) {
 		t += 1;
 	}
@@ -96,7 +93,6 @@ function hue2rgb(p: number, q: number, t: number): number {
 }
 
 function hslToRgb(h: number, s: number, l: number): number {
-	'worklet';
 	const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
 	const p = 2 * l - q;
 	const r = hue2rgb(p, q, h + 1 / 3);
@@ -111,7 +107,6 @@ function hslToRgb(h: number, s: number, l: number): number {
 }
 
 function parse255(str: string): number {
-	'worklet';
 	const int = Number.parseInt(str, 10);
 	if (int < 0) {
 		return 0;
@@ -123,13 +118,11 @@ function parse255(str: string): number {
 }
 
 function parse360(str: string): number {
-	'worklet';
 	const int = Number.parseFloat(str);
 	return (((int % 360) + 360) % 360) / 360;
 }
 
 function parse1(str: string): number {
-	'worklet';
 	const num = Number.parseFloat(str);
 	if (num < 0) {
 		return 0;
@@ -141,7 +134,6 @@ function parse1(str: string): number {
 }
 
 function parsePercentage(str: string): number {
-	'worklet';
 	// parseFloat conveniently ignores the final %
 	const int = Number.parseFloat(str);
 	if (int < 0) {
@@ -309,8 +301,6 @@ const names: any = {
 };
 
 function normalizeColor(color: unknown): number | null {
-	'worklet';
-
 	if (typeof color === 'number') {
 		if (color >>> 0 === color && color >= 0 && color <= 0xffffffff) {
 			return color;
@@ -436,22 +426,18 @@ function normalizeColor(color: unknown): number | null {
 }
 
 export const opacity = (c: number): number => {
-	'worklet';
 	return ((c >> 24) & 255) / 255;
 };
 
 export const red = (c: number): number => {
-	'worklet';
 	return (c >> 16) & 255;
 };
 
 export const green = (c: number): number => {
-	'worklet';
 	return (c >> 8) & 255;
 };
 
 export const blue = (c: number): number => {
-	'worklet';
 	return c & 255;
 };
 
@@ -580,7 +566,6 @@ export const hsvToColor = (
 	s: number,
 	v: number
 ): number | string => {
-	'worklet';
 	const {r, g, b} = HSVtoRGB(h, s, v);
 	return rgbaColor(r, g, b);
 };
@@ -588,7 +573,6 @@ export const hsvToColor = (
 export function processColorInitially(
 	color: unknown
 ): number | null | undefined {
-	'worklet';
 	if (color === null || color === undefined || typeof color === 'number') {
 		return color;
 	}
@@ -608,7 +592,6 @@ export function processColorInitially(
 }
 
 export function isColor(value: unknown): boolean {
-	'worklet';
 	if (typeof value !== 'string') {
 		return false;
 	}
@@ -616,7 +599,6 @@ export function isColor(value: unknown): boolean {
 }
 
 export function processColor(color: unknown): number | null | undefined {
-	'worklet';
 	const normalizedColor = processColorInitially(color);
 	if (normalizedColor === null || normalizedColor === undefined) {
 		return undefined;
@@ -632,7 +614,6 @@ export function processColor(color: unknown): number | null | undefined {
 export function convertToHSVA(
 	color: unknown
 ): [number, number, number, number] {
-	'worklet';
 	const processedColor = processColorInitially(color)!; // argb;
 	const a = (processedColor >>> 24) / 255;
 	const r = (processedColor << 8) >>> 24;
@@ -643,7 +624,6 @@ export function convertToHSVA(
 }
 
 export function toRGBA(HSVA: [number, number, number, number]): string {
-	'worklet';
 	const {r, g, b} = HSVtoRGB(HSVA[0], HSVA[1], HSVA[2]);
 	return `rgba(${r}, ${g}, ${b}, ${HSVA[3]})`;
 }
@@ -653,7 +633,6 @@ const interpolateColorsHSV = (
 	inputRange: readonly number[],
 	colors: readonly number[]
 ) => {
-	'worklet';
 	const colorsAsHSV = colors.map((c) => RGBtoHSV(c as any));
 	const h = interpolate(
 		value,
@@ -690,7 +669,6 @@ const interpolateColorsRGB = (
 	inputRange: readonly number[],
 	colors: readonly number[]
 ) => {
-	'worklet';
 	const r = Math.round(
 		interpolate(
 			value,
@@ -742,7 +720,6 @@ export const interpolateColor = (
 	outputRange: readonly (string | number)[],
 	colorSpace: 'RGB' | 'HSV' = 'RGB'
 ): string | number => {
-	'worklet';
 	const processedOutputRange = outputRange.map((c) => processColor(c)!);
 	if (colorSpace === 'HSV') {
 		return interpolateColorsHSV(value, inputRange, processedOutputRange);
