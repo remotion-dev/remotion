@@ -178,3 +178,34 @@ test("Should render a video with GIFs", async () => {
     recursive: true,
   });
 });
+
+test("Dynamic duration should work", async () => {
+  const task = await execa(
+    "npx",
+    [
+      "remotion",
+      "render",
+      "src/index.tsx",
+      "dynamic-duration",
+      `--props`,
+      `{"duration": 5}`,
+      outputPath,
+    ],
+    {
+      cwd: "packages/example",
+      reject: false,
+    }
+  );
+
+  expect(task.exitCode).toBe(0);
+  expect(fs.existsSync(outputPath)).toBe(true);
+
+  const info = await execa("ffprobe", [outputPath]);
+  const data = info.stderr;
+  expect(data).toContain("Video: h264");
+  const expectedDuration = (5 / 30).toFixed(2);
+  expect(data).toContain(`Duration: 00:00:0${expectedDuration}`);
+  fs.rmdirSync(outputPath, {
+    recursive: true,
+  });
+});
