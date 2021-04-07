@@ -714,7 +714,7 @@ const interpolateColorsRGB = (
 	return rgbaColor(r, g, b, a);
 };
 
-export const interpolateColor = (
+export const interpolateColors = (
 	value: number,
 	inputRange: readonly number[],
 	outputRange: readonly (string | number)[],
