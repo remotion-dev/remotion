@@ -71,7 +71,7 @@ function interpolateFunction(
 	return result;
 }
 
-function findRange(input: number, inputRange: number[]) {
+function findRange(input: number, inputRange: readonly number[]) {
 	let i;
 	for (i = 1; i < inputRange.length - 1; ++i) {
 		if (inputRange[i] >= input) {
@@ -81,7 +81,7 @@ function findRange(input: number, inputRange: number[]) {
 	return i - 1;
 }
 
-function checkValidInputRange(arr: number[]) {
+function checkValidInputRange(arr: readonly number[]) {
 	if (arr.length < 2) {
 		throw new Error('inputRange must have at least 2 elements');
 	}
@@ -96,7 +96,7 @@ function checkValidInputRange(arr: number[]) {
 	}
 }
 
-function checkInfiniteRange(name: string, arr: number[]) {
+function checkInfiniteRange(name: string, arr: readonly number[]) {
 	if (arr.length < 2) {
 		throw new Error(name + ' must have at least 2 elements');
 	}
@@ -119,8 +119,8 @@ function checkInfiniteRange(name: string, arr: number[]) {
 
 export function interpolate(
 	input: number,
-	inputRange: number[],
-	outputRange: number[],
+	inputRange: readonly number[],
+	outputRange: readonly number[],
 	options?: {
 		easing?: (input: number) => number;
 		extrapolateLeft?: ExtrapolateType;
