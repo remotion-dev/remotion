@@ -142,7 +142,7 @@ export const VideoForRendering: React.FC<RemotionVideoProps> = ({
 			},
 			{once: true}
 		);
-	}, [volumePropsFrame, props.src, videoConfig.fps]);
+	}, [volumePropsFrame, props.src, videoConfig.fps, frame]);
 
 	return <video ref={videoRef} {...props} />;
 };
