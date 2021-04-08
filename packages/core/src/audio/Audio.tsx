@@ -17,6 +17,7 @@ export const Audio: React.FC<RemotionAudioProps & RemotionMainAudioProps> = (
 		const endAtFrameNo = endAt ?? Infinity;
 		return (
 			<Sequence
+				layout="none"
 				from={0 - startAtFrameNo}
 				showInTimeline={false}
 				durationInFrames={endAtFrameNo}
