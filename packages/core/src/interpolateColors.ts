@@ -447,14 +447,7 @@ export const rgbaColor = (
 	b: number,
 	alpha = 1
 ): number | string => {
-	const a = Math.round(alpha * 255);
-	const c =
-		a * (1 << 24) +
-		Math.round(r) * (1 << 16) +
-		Math.round(g) * (1 << 8) +
-		Math.round(b);
-
-	return c;
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 };
 
 /* accepts parameters
