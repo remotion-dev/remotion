@@ -446,8 +446,8 @@ export const rgbaColor = (
 	g: number,
 	b: number,
 	alpha = 1
-): number | string => {
-  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+): string => {
+	return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 };
 
 /* accepts parameters
@@ -554,11 +554,7 @@ function HSVtoRGB(h: any, s?: any, v?: any) {
 	/* eslint-enable */
 }
 
-export const hsvToColor = (
-	h: number,
-	s: number,
-	v: number
-): number | string => {
+export const hsvToColor = (h: number, s: number, v: number): string => {
 	const {r, g, b} = HSVtoRGB(h, s, v);
 	return rgbaColor(r, g, b);
 };
@@ -712,7 +708,7 @@ export const interpolateColors = (
 	inputRange: readonly number[],
 	outputRange: readonly (string | number)[],
 	colorSpace: 'RGB' | 'HSV' = 'RGB'
-): string | number => {
+): string => {
 	const processedOutputRange = outputRange.map((c) => processColor(c)!);
 	if (colorSpace === 'HSV') {
 		return interpolateColorsHSV(value, inputRange, processedOutputRange);
