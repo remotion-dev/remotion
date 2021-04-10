@@ -24,10 +24,10 @@ This method is useful if you for example want to call an API to fetch data befor
 import {useEffect, useState} from 'react';
 import {continueRender, delayRender} from 'remotion';
 
-const handle = delayRender();
 
 export const MyVideo = () => {
   const [data, setData] = useState(null);
+  const [handle] = useState(() => delayRender());
 
   const fetchData = async () => {
     const response = await fetch('http://example.com/api');
