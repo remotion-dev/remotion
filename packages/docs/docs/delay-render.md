@@ -24,7 +24,6 @@ This method is useful if you for example want to call an API to fetch data befor
 import {useEffect, useState} from 'react';
 import {continueRender, delayRender} from 'remotion';
 
-
 export const MyVideo = () => {
   const [data, setData] = useState(null);
   const [handle] = useState(() => delayRender());
