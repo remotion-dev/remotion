@@ -4,8 +4,10 @@
 // this means we can have a maximum of 99 different volumes.
 // Therefore we round the volumes (which can only be between 0 and 1)
 // so that there are only 99 possible values.
+// We then subtract 1 again because FFMPEG is not precise and queries out of range
+// values, for which we have to provide a default
 
-export const MAX_FFMPEG_STACK_DEPTH = 99;
+export const MAX_FFMPEG_STACK_DEPTH = 98;
 
 export const roundVolumeToAvoidStackOverflow = (volume: number): number => {
 	return Number(
