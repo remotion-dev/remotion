@@ -704,17 +704,35 @@ const interpolateColorsRGB = (
 };
 
 export const interpolateColors = (
-	value: number,
+	input: number,
 	inputRange: readonly number[],
 	outputRange: readonly (string | number)[],
 	colorSpace: 'RGB' | 'HSV' = 'RGB'
 ): string => {
+	if (
+		typeof input === 'undefined' ||
+		typeof inputRange === 'undefined' ||
+		typeof outputRange === 'undefined'
+	) {
+		throw new Error('input or inputRange or outputRange can not be undefined');
+	}
+
+	if (inputRange.length !== outputRange.length) {
+		throw new Error(
+			'inputRange (' +
+				inputRange.length +
+				') and outputRange (' +
+				outputRange.length +
+				') must have the same length'
+		);
+	}
+
 	const processedOutputRange = outputRange.map((c) => processColor(c)!);
 	if (colorSpace === 'HSV') {
-		return interpolateColorsHSV(value, inputRange, processedOutputRange);
+		return interpolateColorsHSV(input, inputRange, processedOutputRange);
 	}
 	if (colorSpace === 'RGB') {
-		return interpolateColorsRGB(value, inputRange, processedOutputRange);
+		return interpolateColorsRGB(input, inputRange, processedOutputRange);
 	}
 	throw new Error(
 		`invalid color space provided: ${colorSpace}. Supported values are: ['RGB', 'HSV']`
