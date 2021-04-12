@@ -10,7 +10,8 @@ type FfmpegEval = 'once' | 'frame';
 
 type VolumeArray = [number, number[]][];
 
-// In FFMPEG expressions, the current frame is represented by 'n'
+// In FFMPEG expressions, the current time is represented by 't'
+// the `n` for the timestamp variable is buggy
 const FFMPEG_TIME_VARIABLE = 't';
 
 const ffmpegIfOrElse = (condition: string, then: string, elseDo: string) => {
