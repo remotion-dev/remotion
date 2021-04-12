@@ -1,7 +1,8 @@
 import React, {useContext, useMemo} from 'react';
 import {Internals} from 'remotion';
 import styled from 'styled-components';
-import {calculateTimeline, Track} from '../../helpers/calculate-timeline';
+import {calculateTimeline} from '../../helpers/calculate-timeline';
+import {Track} from '../../helpers/get-timeline-sequence-sort-key';
 import {
 	TIMELINE_BORDER,
 	TIMELINE_LAYER_HEIGHT,
