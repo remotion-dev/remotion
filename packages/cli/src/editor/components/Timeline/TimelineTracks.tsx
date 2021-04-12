@@ -1,6 +1,6 @@
 import React, {useMemo} from 'react';
 import styled from 'styled-components';
-import {Track} from '../../helpers/calculate-timeline';
+import {Track} from '../../helpers/get-timeline-sequence-sort-key';
 import {
 	TIMELINE_BORDER,
 	TIMELINE_LAYER_HEIGHT,

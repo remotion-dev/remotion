@@ -1,5 +1,5 @@
 import React from 'react';
-import {Track} from '../../helpers/calculate-timeline';
+import {Track} from '../../helpers/get-timeline-sequence-sort-key';
 import {TimelineListItem} from './TimelineListItem';
 
 const container: React.CSSProperties = {
