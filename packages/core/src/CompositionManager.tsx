@@ -28,6 +28,7 @@ type EnhancedTSequenceData =
 			// are passed.
 			// If not a function was passed, a number is being used
 			volume: string | number;
+			doesVolumeChange: boolean;
 			startMediaFrom: number;
 	  }
 	| {
@@ -35,6 +36,7 @@ type EnhancedTSequenceData =
 			src: string;
 			volume: string | number;
 			startMediaFrom: number;
+			doesVolumeChange: boolean;
 	  };
 
 export type TSequence = {

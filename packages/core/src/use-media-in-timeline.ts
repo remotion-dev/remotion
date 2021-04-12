@@ -36,6 +36,8 @@ export const useMediaInTimeline = ({
 			: videoConfig.durationInFrames;
 	})();
 
+	const doesVolumeChange = typeof volume === 'function';
+
 	const volumes: string | number = useMemo(() => {
 		if (typeof volume === 'number') {
 			return volume;
@@ -76,6 +78,7 @@ export const useMediaInTimeline = ({
 			showInTimeline: true,
 			nonce,
 			startMediaFrom: 0 - startsAt,
+			doesVolumeChange,
 		});
 		return () => unregisterSequence(id);
 	}, [
@@ -89,6 +92,7 @@ export const useMediaInTimeline = ({
 		unregisterSequence,
 		videoConfig,
 		volumes,
+		doesVolumeChange,
 		nonce,
 		mediaRef,
 		mediaType,
