@@ -77,7 +77,7 @@ export const TimelineSequence: React.FC<{
 	return (
 		<div key={s.id} style={style} title={s.displayName}>
 			<div style={row}>
-				{s.type === 'sequence' ? (
+				{richTimeline && s.type === 'sequence' ? (
 					<Thumbnail
 						targetHeight={TIMELINE_LAYER_HEIGHT}
 						targetWidth={thumbnailWidth}
