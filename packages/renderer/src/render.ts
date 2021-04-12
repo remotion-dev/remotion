@@ -64,9 +64,18 @@ export const renderFrames = async ({
 		page.on('error', console.error);
 		page.on('pageerror', console.error);
 
-		const site = `http://localhost:${port}/index.html?composition=${compositionId}&props=${encodeURIComponent(
-			JSON.stringify(inputProps)
-		)}`;
+		if (inputProps) {
+			await page.goto(`http://localhost:${port}/index.html`);
+
+			await page.evaluate(
+				(key, input) => {
+					window.localStorage.setItem(key, input);
+				},
+				Internals.INPUT_PROPS_KEY,
+				JSON.stringify(inputProps)
+			);
+		}
+		const site = `http://localhost:${port}/index.html?composition=${compositionId}`;
 		await page.goto(site);
 		return page;
 	});
