@@ -74,27 +74,17 @@ export const TimelineSequence: React.FC<{
 
 	const thumbnailWidth = TIMELINE_LAYER_HEIGHT * (video.width / video.height);
 
-	const thumbnailsToShow = richTimeline ? 1 : 0;
-
 	return (
 		<div key={s.id} style={style} title={s.displayName}>
 			<div style={row}>
-				{s.type === 'sequence' &&
-					new Array(thumbnailsToShow).fill(true).map((_, i) => {
-						const frameToDisplay = Math.floor(
-							(i / thumbnailsToShow) * video.durationInFrames
-						);
-
-						return (
-							<Thumbnail
-								key={frameToDisplay}
-								targetHeight={TIMELINE_LAYER_HEIGHT}
-								targetWidth={thumbnailWidth}
-								composition={video}
-								frameToDisplay={frameToDisplay}
-							/>
-						);
-					})}
+				{s.type === 'sequence' ? (
+					<Thumbnail
+						targetHeight={TIMELINE_LAYER_HEIGHT}
+						targetWidth={thumbnailWidth}
+						composition={video}
+						frameToDisplay={Math.floor(s.from + s.duration / 2)}
+					/>
+				) : null}
 			</div>
 			{s.type === 'audio' ? (
 				<AudioWaveform
