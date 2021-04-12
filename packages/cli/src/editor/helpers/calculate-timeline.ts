@@ -89,8 +89,16 @@ export const calculateTimeline = ({
 	}
 
 	return uniqueTracks.sort((a, b) => {
-		const sortKeyA = getTimelineSequenceSequenceSortKey(a, tracks, sameHashes);
-		const sortKeyB = getTimelineSequenceSequenceSortKey(b, tracks, sameHashes);
+		const sortKeyA = getTimelineSequenceSequenceSortKey(
+			a,
+			uniqueTracks,
+			sameHashes
+		);
+		const sortKeyB = getTimelineSequenceSequenceSortKey(
+			b,
+			uniqueTracks,
+			sameHashes
+		);
 		if (sortKeyA.startsWith(sortKeyB)) {
 			return -1;
 		}
