@@ -7,16 +7,19 @@ export const getTimelineSequenceLayout = ({
 	durationInFrames,
 	startFrom,
 	maxMediaDuration,
+	startFromMedia,
 	video,
 	windowWidth,
 }: {
 	durationInFrames: number;
 	startFrom: number;
+	startFromMedia: number;
 	maxMediaDuration: number | null;
 	video: TComposition<unknown>;
 	windowWidth: number;
 }) => {
-	const maxMediaSequenceDuration = (maxMediaDuration ?? Infinity) - startFrom;
+	const maxMediaSequenceDuration =
+		(maxMediaDuration ?? Infinity) - startFromMedia;
 	const spatialDuration = Math.min(
 		maxMediaSequenceDuration,
 		durationInFrames - 1
