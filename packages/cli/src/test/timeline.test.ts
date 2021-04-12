@@ -54,6 +54,7 @@ test('Should calculate a basic timline', () => {
 				type: 'sequence',
 				nonce: 0,
 			},
+			hash: '-Audio-100-0-sequence----0',
 		},
 	]);
 });
@@ -89,6 +90,7 @@ test('Should follow order of nesting', () => {
 	expect(calculated).toEqual([
 		{
 			depth: 0,
+			hash: '-Audio-100-0-sequence----0',
 			sequence: {
 				displayName: 'Audio',
 				duration: 100,
@@ -103,6 +105,7 @@ test('Should follow order of nesting', () => {
 		},
 		{
 			depth: 1,
+			hash: '-Audio-100-0-sequence-----Audio-100-0-sequence----0',
 			sequence: {
 				displayName: 'Audio',
 				duration: 100,

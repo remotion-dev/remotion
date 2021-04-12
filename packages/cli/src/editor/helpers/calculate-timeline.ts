@@ -5,20 +5,15 @@ import {
 } from './get-sequence-visible-range';
 import {getTimelineNestedLevel} from './get-timeline-nestedness';
 import {getTimelineSequenceHash} from './get-timeline-sequence-hash';
-import {getTimelineSequenceSequenceSortKey} from './get-timeline-sequence-sort-key';
+import {
+	getTimelineSequenceSequenceSortKey,
+	Track,
+	TrackWithHash,
+} from './get-timeline-sequence-sort-key';
 
 export type SequenceWithOverlap = {
 	sequence: TSequence;
 	overlaps: TSequence[];
-};
-
-export type Track = {
-	sequence: TSequence;
-	depth: number;
-};
-
-type TrackWithHash = Track & {
-	sortKey: string;
 };
 
 export const calculateTimeline = ({
@@ -49,8 +44,9 @@ export const calculateTimeline = ({
 		];
 	}
 
+	const sameHashes: {[hash: string]: string[]} = {};
+
 	const hashesUsedInRoot: {[rootId: string]: string[]} = {};
-	const hashesUsed: string[] = [];
 	for (let i = 0; i < sequences.length; i++) {
 		const sequence = sequences[i];
 		if (!hashesUsedInRoot[sequence.rootId]) {
@@ -61,19 +57,18 @@ export const calculateTimeline = ({
 		}
 
 		const baseHash = getTimelineSequenceHash(sequence, sequences);
-		const depth = getTimelineNestedLevel(sequence, sequences, 0);
-		const visibleStart = getTimelineVisibleStart(sequence, sequences);
-		const visibleDuration = getTimelineVisibleDuration(sequence, sequences);
 		const actualHash =
 			baseHash +
 			hashesUsedInRoot[sequence.rootId].filter((h) => h === baseHash).length;
 
-		if (hashesUsed.includes(actualHash)) {
-			continue;
+		if (!sameHashes[actualHash]) {
+			sameHashes[actualHash] = [];
 		}
-
+		sameHashes[actualHash].push(sequence.id);
 		hashesUsedInRoot[sequence.rootId].push(baseHash);
-		hashesUsed.push(actualHash);
+
+		const visibleStart = getTimelineVisibleStart(sequence, sequences);
+		const visibleDuration = getTimelineVisibleDuration(sequence, sequences);
 
 		tracks.push({
 			sequence: {
@@ -81,17 +76,24 @@ export const calculateTimeline = ({
 				from: visibleStart,
 				duration: visibleDuration,
 			},
-			depth,
-			sortKey: getTimelineSequenceSequenceSortKey(sequence, sequences),
+			depth: getTimelineNestedLevel(sequence, sequences, 0),
+			hash: actualHash,
 		});
 	}
 
-	return tracks
-		.sort((a, b) => {
-			return a.sortKey.localeCompare(b.sortKey);
-		})
-		.map((t) => {
-			const {sortKey, ...other} = t;
-			return other;
-		});
+	const uniqueTracks: TrackWithHash[] = [];
+	for (const track of tracks) {
+		if (!uniqueTracks.find((t) => t.hash === track.hash)) {
+			uniqueTracks.push(track);
+		}
+	}
+
+	return uniqueTracks.sort((a, b) => {
+		const sortKeyA = getTimelineSequenceSequenceSortKey(a, tracks, sameHashes);
+		const sortKeyB = getTimelineSequenceSequenceSortKey(b, tracks, sameHashes);
+		if (sortKeyA.startsWith(sortKeyB)) {
+			return -1;
+		}
+		return sortKeyA.localeCompare(sortKeyB);
+	});
 };
