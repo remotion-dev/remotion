@@ -38,6 +38,7 @@ export const TimelineSequence: React.FC<{
 	const {marginLeft, width} = getTimelineSequenceLayout({
 		durationInFrames: s.duration,
 		startFrom: s.from,
+		startFromMedia: s.type === 'sequence' ? 0 : s.startMediaFrom,
 		maxMediaDuration,
 		video,
 		windowWidth,
