@@ -1,6 +1,7 @@
 import execa from "execa";
 import fs from "fs";
 import path from "path";
+import { interpolate } from "../packages/core/src";
 
 const outputPath = path.join(process.cwd(), "packages/example/out.mp4");
 
@@ -177,4 +178,42 @@ test("Should render a video with GIFs", async () => {
   fs.rmdirSync(outputPath, {
     recursive: true,
   });
+});
+
+test("Dynamic duration should work", async () => {
+  const randomDuration = Math.round(
+    interpolate(Math.random(), [0, 1], [2, 20])
+  );
+  const task = await execa(
+    "npx",
+    [
+      "remotion",
+      "render",
+      "src/index.tsx",
+      "dynamic-duration",
+      `--props`,
+      `{"duration": ${randomDuration}}`,
+      outputPath,
+    ],
+    {
+      cwd: "packages/example",
+      reject: false,
+    }
+  );
+
+  expect(task.exitCode).toBe(0);
+  // FIXME: --props don't work well on windows, this is an edge case for example
+  // In this case we should warn the user about it that they should pass a file path instead
+  expect(fs.existsSync(outputPath)).toBe(process.platform !== "win32");
+
+  if (process.platform !== "win32") {
+    const info = await execa("ffprobe", [outputPath]);
+    const data = info.stderr;
+    expect(data).toContain("Video: h264");
+    const expectedDuration = (randomDuration / 30).toFixed(2);
+    expect(data).toContain(`Duration: 00:00:0${expectedDuration}`);
+    fs.rmdirSync(outputPath, {
+      recursive: true,
+    });
+  }
 });
