@@ -3,7 +3,12 @@ import {roundVolumeToAvoidStackOverflow} from '../assets/round-volume-to-avoid-s
 
 test('Simple expression', () => {
 	expect(
-		ffmpegVolumeExpression({volume: 0.5, multiplier: 1, startInVideo: 0})
+		ffmpegVolumeExpression({
+			volume: 0.5,
+			multiplier: 1,
+			startInVideo: 0,
+			fps: 30,
+		})
 	).toEqual({
 		eval: 'once',
 		value: '0.5',
@@ -12,7 +17,12 @@ test('Simple expression', () => {
 
 test('Simple expression with volume multiplier', () => {
 	expect(
-		ffmpegVolumeExpression({volume: 0.5, multiplier: 2, startInVideo: 0})
+		ffmpegVolumeExpression({
+			volume: 0.5,
+			multiplier: 2,
+			startInVideo: 0,
+			fps: 30,
+		})
 	).toEqual({
 		eval: 'once',
 		value: '1',
@@ -21,7 +31,12 @@ test('Simple expression with volume multiplier', () => {
 
 test('Complex expression with volume multiplier', () => {
 	expect(
-		ffmpegVolumeExpression({volume: [0, 1], multiplier: 2, startInVideo: 0})
+		ffmpegVolumeExpression({
+			volume: [0, 1],
+			multiplier: 2,
+			startInVideo: 0,
+			fps: 30,
+		})
 	).toEqual({
 		eval: 'frame',
 		value: "'if(eq(n,0),0,if(eq(n,1),2,0))'",
@@ -58,6 +73,7 @@ test('Really complex volume expression', () => {
 			volume: [0, 0.25, 0.5, 0.99, 0.99, 0.99, 0.99, 1, 1, 1, 1, 1],
 			multiplier: 1,
 			startInVideo: 0,
+			fps: 30,
 		})
 	).toEqual({
 		eval: 'frame',
@@ -71,6 +87,7 @@ test('Should use 0 as else statement', () => {
 			volume: [0, 0, 0, 1, 1],
 			multiplier: 1,
 			startInVideo: 0,
+			fps: 30,
 		})
 	).toEqual({
 		eval: 'frame',
@@ -80,7 +97,7 @@ test('Should use 0 as else statement', () => {
 
 test('Simple expression - should not be higher than 1', () => {
 	expect(
-		ffmpegVolumeExpression({volume: 2, multiplier: 1, startInVideo: 0})
+		ffmpegVolumeExpression({volume: 2, multiplier: 1, startInVideo: 0, fps: 30})
 	).toEqual({
 		eval: 'once',
 		value: '1',
@@ -89,7 +106,12 @@ test('Simple expression - should not be higher than 1', () => {
 
 test('Complex expression - should not be higher than 1', () => {
 	expect(
-		ffmpegVolumeExpression({volume: [0.5, 2], multiplier: 1, startInVideo: 0})
+		ffmpegVolumeExpression({
+			volume: [0.5, 2],
+			multiplier: 1,
+			startInVideo: 0,
+			fps: 30,
+		})
 	).toEqual({
 		eval: 'frame',
 		value: "'if(eq(n,1),1,if(eq(n,0),0.5,0))'",

@@ -27,6 +27,7 @@ export const stringifyFfmpegFilter = ({
 		volume,
 		multiplier: simulatenousAssets,
 		startInVideo,
+		fps,
 	});
 	return (
 		`[${streamIndex}:a]` +

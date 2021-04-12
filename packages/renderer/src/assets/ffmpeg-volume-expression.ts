@@ -11,21 +11,25 @@ type FfmpegEval = 'once' | 'frame';
 type VolumeArray = [number, number[]][];
 
 // In FFMPEG expressions, the current frame is represented by 'n'
-const FFMPEG_FRAME_VARIABLE = 'n';
+const FFMPEG_TIME_VARIABLE = 't';
 
 const ffmpegIfOrElse = (condition: string, then: string, elseDo: string) => {
 	return `if(${condition},${then},${elseDo})`;
 };
 
-const ffmpegIsOneOfFrames = (frames: number[]) => {
+const ffmpegIsOneOfFrames = (frames: number[], fps: number) => {
 	return frames
 		.map((f) => {
-			return `eq(${FFMPEG_FRAME_VARIABLE},${f})`;
+			const before = (f - 0.5) / fps;
+			const after = (f + 0.5) / fps;
+			return `between(${FFMPEG_TIME_VARIABLE},${before.toFixed(
+				4
+			)},${after.toFixed(4)})`;
 		})
 		.join('+');
 };
 
-const ffmpegBuildVolumeExpression = (arr: VolumeArray): string => {
+const ffmpegBuildVolumeExpression = (arr: VolumeArray, fps: number): string => {
 	if (arr.length === 0) {
 		throw new Error('Volume array expression should never have length 0');
 	}
@@ -34,7 +38,7 @@ const ffmpegBuildVolumeExpression = (arr: VolumeArray): string => {
 		// where the audio actually plays.
 		// If this is the case, we just return volume 0 to clip it.
 		return ffmpegIfOrElse(
-			ffmpegIsOneOfFrames(arr[0][1]),
+			ffmpegIsOneOfFrames(arr[0][1], fps),
 			String(arr[0][0]),
 			String(0)
 		);
@@ -42,9 +46,9 @@ const ffmpegBuildVolumeExpression = (arr: VolumeArray): string => {
 	const [first, ...rest] = arr;
 	const [volume, frames] = first;
 	return ffmpegIfOrElse(
-		ffmpegIsOneOfFrames(frames),
+		ffmpegIsOneOfFrames(frames, fps),
 		String(volume),
-		ffmpegBuildVolumeExpression(rest)
+		ffmpegBuildVolumeExpression(rest, fps)
 	);
 };
 
@@ -58,10 +62,12 @@ export const ffmpegVolumeExpression = ({
 	volume,
 	multiplier,
 	startInVideo,
+	fps,
 }: {
 	volume: AssetVolume;
 	multiplier: number;
 	startInVideo: number;
+	fps: number;
 }): FfmpegVolumeExpression => {
 	// If it's a static volume, we return it and tell
 	// FFMPEG it only has to evaluate it once
@@ -76,6 +82,7 @@ export const ffmpegVolumeExpression = ({
 			volume: volume[0],
 			multiplier,
 			startInVideo,
+			fps,
 		});
 	}
 
@@ -101,7 +108,7 @@ export const ffmpegVolumeExpression = ({
 		.sort((a, b) => a[1].length - b[1].length);
 
 	// Construct and tell FFMPEG it has to evaluate expression on each frame
-	const expression = ffmpegBuildVolumeExpression(volumeArray);
+	const expression = ffmpegBuildVolumeExpression(volumeArray, fps);
 	return {
 		eval: 'frame',
 		value: `'${expression}'`,
