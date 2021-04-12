@@ -14,7 +14,12 @@ export const getTimelineSequenceSequenceSortKey = (
 	tracks: TrackWithHash[],
 	sameHashes: {[hash: string]: string[]} = {}
 ): string => {
-	const id = String(track.sequence.nonce).padStart(6, '0');
+	const firstSequenceWithSameHash = tracks.find((t) =>
+		sameHashes[track.hash].includes(t.sequence.id)
+	);
+	const id = String(
+		(firstSequenceWithSameHash as TrackWithHash).sequence.nonce
+	).padStart(6, '0');
 	const firstParentWithSameHash = tracks.find((a) => {
 		return sameHashes[track.hash].includes(a.sequence.parent as string);
 	});
