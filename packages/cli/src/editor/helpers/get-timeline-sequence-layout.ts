@@ -12,11 +12,11 @@ export const getTimelineSequenceLayout = ({
 }: {
 	durationInFrames: number;
 	startFrom: number;
-	maxMediaDuration: number;
+	maxMediaDuration: number | null;
 	video: TComposition<unknown>;
 	windowWidth: number;
 }) => {
-	const maxMediaSequenceDuration = maxMediaDuration - startFrom;
+	const maxMediaSequenceDuration = (maxMediaDuration ?? Infinity) - startFrom;
 	const spatialDuration = Math.min(
 		maxMediaSequenceDuration,
 		durationInFrames - 1
@@ -37,5 +37,8 @@ export const getTimelineSequenceLayout = ({
 			: (spatialDuration / lastFrame) * (windowWidth - TIMELINE_PADDING * 2)) -
 		SEQUENCE_BORDER_WIDTH +
 		negativeMarginLeft;
-	return {marginLeft: Math.max(marginLeft, 0), width};
+	return {
+		marginLeft: Math.round(Math.max(marginLeft, 0)),
+		width: Math.round(width),
+	};
 };
