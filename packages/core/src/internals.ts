@@ -29,6 +29,7 @@ import {
 	validateSelectedPixelFormatAndImageFormatCombination,
 } from './config/image-format';
 import {getShouldOutputImageSequence} from './config/image-sequence';
+import {INPUT_PROPS_KEY} from './config/input-props';
 import {
 	getWebpackOverrideFn,
 	WebpackOverrideFn,
@@ -94,6 +95,7 @@ export const Internals = {
 	getWebpackCaching,
 	truthy,
 	isAudioCodec,
+	INPUT_PROPS_KEY,
 };
 
 export type {
