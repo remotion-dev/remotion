@@ -75,7 +75,7 @@ export const useMediaInTimeline = ({
 			volume: volumes,
 			showInTimeline: true,
 			nonce,
-			startMediaFrom: startsAt,
+			startMediaFrom: 0 - startsAt,
 		});
 		return () => unregisterSequence(id);
 	}, [
