@@ -1,5 +1,4 @@
 import {ffmpegVolumeExpression} from '../assets/ffmpeg-volume-expression';
-import {roundVolumeToAvoidStackOverflow} from '../assets/round-volume-to-avoid-stack-overflow';
 
 test('Simple expression', () => {
 	expect(
@@ -39,34 +38,13 @@ test('Complex expression with volume multiplier', () => {
 		})
 	).toEqual({
 		eval: 'frame',
-		value: "'if(eq(n,0),0,if(eq(n,1),2,0))'",
+		value: "'if(between(t,-0.0167,0.0167),0,if(between(t,0.0167,0.0500),2,0))'",
 	});
 });
 
 test('Really complex volume expression', () => {
-	const expectedExpression = `
-    if (
-      eq(n,0),
-      0,
-      if (
-        eq(n, 1),
-        ${roundVolumeToAvoidStackOverflow(0.25)},
-        if (
-          eq(n, 2),
-          ${roundVolumeToAvoidStackOverflow(0.5)},
-          if (
-            eq(n, 3)+eq(n, 4)+eq(n, 5)+eq(n, 6),
-            ${roundVolumeToAvoidStackOverflow(0.99)},
-            if(
-							eq(n, 7)+eq(n,8)+eq(n,9)+eq(n,10)+eq(n,11),
-							1,
-							0
-						)
-          )
-        )
-      )
-    )
-  `.replace(/\s/g, '');
+	const expectedExpression =
+		"'if(between(t,-0.0167,0.0167),0,if(between(t,0.0167,0.0500),0.247,if(between(t,0.0500,0.0833),0.505,if(between(t,0.0833,0.1167)+between(t,0.1167,0.1500)+between(t,0.1500,0.1833)+between(t,0.1833,0.2167),0.99,if(between(t,0.2167,0.2500)+between(t,0.2500,0.2833)+between(t,0.2833,0.3167)+between(t,0.3167,0.3500)+between(t,0.3500,0.3833),1,0)))))'";
 
 	expect(
 		ffmpegVolumeExpression({
@@ -77,7 +55,7 @@ test('Really complex volume expression', () => {
 		})
 	).toEqual({
 		eval: 'frame',
-		value: `'${expectedExpression}'`,
+		value: expectedExpression,
 	});
 });
 
@@ -91,7 +69,8 @@ test('Should use 0 as else statement', () => {
 		})
 	).toEqual({
 		eval: 'frame',
-		value: "'if(eq(n,3)+eq(n,4),1,if(eq(n,0)+eq(n,1)+eq(n,2),0,0))'",
+		value:
+			"'if(between(t,0.0833,0.1167)+between(t,0.1167,0.1500),1,if(between(t,-0.0167,0.0167)+between(t,0.0167,0.0500)+between(t,0.0500,0.0833),0,0))'",
 	});
 });
 
@@ -114,6 +93,7 @@ test('Complex expression - should not be higher than 1', () => {
 		})
 	).toEqual({
 		eval: 'frame',
-		value: "'if(eq(n,1),1,if(eq(n,0),0.5,0))'",
+		value:
+			"'if(between(t,0.0167,0.0500),1,if(between(t,-0.0167,0.0167),0.505,0))'",
 	});
 });
