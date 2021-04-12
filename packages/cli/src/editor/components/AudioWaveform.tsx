@@ -34,6 +34,7 @@ export const AudioWaveform: React.FC<{
 	durationInFrames: number;
 	setMaxMediaDuration: React.Dispatch<React.SetStateAction<number>>;
 	volume: string | number;
+	doesVolumeChange: boolean;
 }> = ({
 	src,
 	fps,
@@ -42,6 +43,7 @@ export const AudioWaveform: React.FC<{
 	visualizationWidth,
 	setMaxMediaDuration,
 	volume,
+	doesVolumeChange,
 }) => {
 	const [metadata, setMetadata] = useState<AudioData | null>(null);
 	const mountState = useRef({isMounted: true});
@@ -65,8 +67,7 @@ export const AudioWaveform: React.FC<{
 			return;
 		}
 		context.clearRect(0, 0, visualizationWidth, TIMELINE_LAYER_HEIGHT);
-		// TODO: "1,1,1,1,1,1,1,"
-		if (typeof volume === 'number' || typeof volume === 'undefined') {
+		if (!doesVolumeChange || typeof volume === 'number') {
 			// The volume is a number, meaning it could change on each frame-
 			// User did not use the (f: number) => number syntax, so we can't draw
 			// a visualization.
@@ -87,7 +88,7 @@ export const AudioWaveform: React.FC<{
 		});
 		context.strokeStyle = 'rgba(255, 255, 255, 0.7)';
 		context.stroke();
-	}, [visualizationWidth, metadata, startFrom, volume]);
+	}, [visualizationWidth, metadata, startFrom, volume, doesVolumeChange]);
 
 	useEffect(() => {
 		getAudioData(src)

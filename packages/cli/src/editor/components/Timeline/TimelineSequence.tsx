@@ -90,11 +90,12 @@ export const TimelineSequence: React.FC<{
 			{s.type === 'audio' ? (
 				<AudioWaveform
 					src={s.src}
+					doesVolumeChange={s.doesVolumeChange}
 					visualizationWidth={width}
 					startFrom={s.startMediaFrom}
 					durationInFrames={s.duration}
 					fps={fps}
-					volume={s.volume ?? 1}
+					volume={s.volume}
 					setMaxMediaDuration={setMaxMediaDuration}
 				/>
 			) : null}
