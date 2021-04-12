@@ -39,6 +39,6 @@ export const getTimelineSequenceLayout = ({
 		negativeMarginLeft;
 	return {
 		marginLeft: Math.round(Math.max(marginLeft, 0)),
-		width: Math.round(width),
+		width: Math.floor(width),
 	};
 };
