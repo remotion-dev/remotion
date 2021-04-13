@@ -44,8 +44,8 @@ import {
   useAudioData,
   visualizeAudio,
   Audio
-}
-import music from '../music.mp3';
+} from 'remotion';
+import music from './music.mp3';
 
 export const MyComponent: React.FC = () => {
   const frame = useCurrentFrame();
