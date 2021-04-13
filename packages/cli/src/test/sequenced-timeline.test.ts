@@ -43,22 +43,6 @@ test('Should calculate sequences correctly', () => {
 			sequence: {
 				from: 0,
 				duration: 486,
-				id: '0.3568245565495358',
-				displayName: 'Video',
-				parent: '0.9202813365252485',
-				type: 'sequence',
-				rootId: '0.4858689834081513',
-				showInTimeline: true,
-				nonce: 211,
-			},
-			depth: 2,
-			hash:
-				'-Sequence-486-0-sequence----0-SynchronizedCode-22736--22250-sequence----0-Video-12000-0-sequence----0',
-		},
-		{
-			sequence: {
-				from: 0,
-				duration: 486,
 				id: '0.08739205010419449',
 				displayName: 'Video',
 				parent: '0.9202813365252485',

@@ -9,6 +9,12 @@ export type TrackWithHash = Track & {
 	hash: string;
 };
 
+export type TrackWithHashAndOriginalTimings = TrackWithHash & {
+	hash: string;
+	cascadedStart: number;
+	cascadedDuration: number;
+};
+
 export const getTimelineSequenceSequenceSortKey = (
 	track: TrackWithHash,
 	tracks: TrackWithHash[],
