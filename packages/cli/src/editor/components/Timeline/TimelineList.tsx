@@ -1,6 +1,6 @@
 import React from 'react';
 import {TrackWithHash} from '../../helpers/get-timeline-sequence-sort-key';
-import {isTrackCollapsed, isTrackHidden} from './is-collapsed';
+import {isTrackCollapsed} from './is-collapsed';
 import {TimelineActionState, TimelineViewState} from './timeline-state-reducer';
 import {TimelineListItem} from './TimelineListItem';
 
@@ -10,23 +10,15 @@ const container: React.CSSProperties = {
 	flexDirection: 'column',
 };
 
-const canCollapse = (track: TrackWithHash, allTracks: TrackWithHash[]) => {
-	return !!allTracks.find((t) => t.sequence.parent === track.sequence.id);
-};
-
 export const TimelineList: React.FC<{
 	timeline: TrackWithHash[];
 	viewState: TimelineViewState;
 	dispatchStateChange: React.Dispatch<TimelineActionState>;
 }> = ({timeline, viewState, dispatchStateChange}) => {
-	console.log(viewState);
 	return (
 		<div style={container}>
 			{timeline.map((track, i) => {
 				const beforeDepth = i === 0 ? 0 : timeline[i - 1].depth;
-				if (isTrackHidden(track, timeline, viewState)) {
-					return null;
-				}
 
 				return (
 					<div key={track.sequence.id}>
@@ -38,7 +30,7 @@ export const TimelineList: React.FC<{
 							nestedDepth={track.depth}
 							sequence={track.sequence}
 							beforeDepth={beforeDepth}
-							canCollapse={canCollapse(track, timeline)}
+							canCollapse={track.canCollapse}
 						/>
 					</div>
 				);

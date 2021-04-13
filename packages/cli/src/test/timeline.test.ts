@@ -7,6 +7,8 @@ test('Should calculate timeline with no sequences', () => {
 	});
 	expect(calculated).toEqual([
 		{
+			canCollapse: false,
+			hash: '-',
 			depth: 0,
 			sequence: {
 				displayName: '',
@@ -42,6 +44,7 @@ test('Should calculate a basic timline', () => {
 	});
 	expect(calculated).toEqual([
 		{
+			canCollapse: false,
 			depth: 0,
 			sequence: {
 				displayName: 'Audio',
@@ -89,6 +92,7 @@ test('Should follow order of nesting', () => {
 	});
 	expect(calculated).toEqual([
 		{
+			canCollapse: true,
 			depth: 0,
 			hash: '-Audio-100-0-sequence----0',
 			sequence: {
@@ -104,6 +108,7 @@ test('Should follow order of nesting', () => {
 			},
 		},
 		{
+			canCollapse: false,
 			depth: 1,
 			hash: '-Audio-100-0-sequence----0-Audio-100-0-sequence----0',
 			sequence: {
