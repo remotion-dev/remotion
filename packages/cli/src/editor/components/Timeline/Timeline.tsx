@@ -1,4 +1,4 @@
-import React, {useContext, useMemo} from 'react';
+import React, {useContext, useMemo, useReducer} from 'react';
 import {Internals} from 'remotion';
 import styled from 'styled-components';
 import {calculateTimeline} from '../../helpers/calculate-timeline';
@@ -10,6 +10,7 @@ import {
 import {SplitterContainer} from '../Splitter/SplitterContainer';
 import {SplitterElement} from '../Splitter/SplitterElement';
 import {SplitterHandle} from '../Splitter/SplitterHandle';
+import {timelineStateReducer} from './timeline-state-reducer';
 import {TimelineDragHandler} from './TimelineDragHandler';
 import {TimelineList} from './TimelineList';
 import {TimelineSlider} from './TimelineSlider';
@@ -26,6 +27,10 @@ const Container = styled.div`
 export const Timeline: React.FC = () => {
 	const {sequences} = useContext(Internals.CompositionManager);
 	const videoConfig = Internals.useUnsafeVideoConfig();
+
+	const [state, dispatch] = useReducer(timelineStateReducer, {
+		collapsed: {},
+	});
 
 	const timeline = useMemo((): Track[] => {
 		if (!videoConfig) {
@@ -62,7 +67,11 @@ export const Timeline: React.FC = () => {
 					minFlex={0.15}
 				>
 					<SplitterElement type="flexer">
-						<TimelineList timeline={timeline} />
+						<TimelineList
+							dispatchStateChange={dispatch}
+							viewState={state}
+							timeline={timeline}
+						/>
 					</SplitterElement>
 					<SplitterHandle />
 					<SplitterElement type="anti-flexer">

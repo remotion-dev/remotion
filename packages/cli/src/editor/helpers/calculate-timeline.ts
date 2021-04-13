@@ -8,7 +8,6 @@ import {getTimelineNestedLevel} from './get-timeline-nestedness';
 import {getTimelineSequenceHash} from './get-timeline-sequence-hash';
 import {
 	getTimelineSequenceSequenceSortKey,
-	Track,
 	TrackWithHash,
 	TrackWithHashAndOriginalTimings,
 } from './get-timeline-sequence-sort-key';
@@ -31,7 +30,7 @@ export const calculateTimeline = ({
 }: {
 	sequences: TSequence[];
 	sequenceDuration: number;
-}): Track[] => {
+}): TrackWithHash[] => {
 	const tracks: TrackWithHashAndOriginalTimings[] = [];
 
 	if (sequences.length === 0) {
@@ -49,6 +48,7 @@ export const calculateTimeline = ({
 					nonce: 0,
 				},
 				depth: 0,
+				hash: '-',
 			},
 		];
 	}
