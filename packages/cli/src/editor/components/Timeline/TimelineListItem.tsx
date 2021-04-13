@@ -52,6 +52,12 @@ const collapser: React.CSSProperties = {
 	marginRight: 10,
 };
 
+const collapserButton: React.CSSProperties = {
+	...collapser,
+	border: 'none',
+	background: 'none',
+};
+
 export const TimelineListItem: React.FC<{
 	sequence: TSequence;
 	nestedDepth: number;
@@ -104,9 +110,9 @@ export const TimelineListItem: React.FC<{
 		<div style={outer}>
 			<div style={padder} />
 			{canCollapse ? (
-				<div style={collapser} onClick={toggleCollapse}>
+				<button type="button" style={collapserButton} onClick={toggleCollapse}>
 					<TimelineCollapseToggle collapsed={collapsed} />
-				</div>
+				</button>
 			) : (
 				<div style={collapser} />
 			)}
