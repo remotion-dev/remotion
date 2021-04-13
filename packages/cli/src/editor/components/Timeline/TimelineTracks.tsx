@@ -1,11 +1,12 @@
 import React, {useMemo} from 'react';
 import styled from 'styled-components';
-import {Track} from '../../helpers/get-timeline-sequence-sort-key';
 import {
 	TIMELINE_BORDER,
 	TIMELINE_LAYER_HEIGHT,
 	TIMELINE_PADDING,
 } from '../../helpers/timeline-layout';
+import {isCollapsed} from './is-collapsed';
+import {TimelineViewState} from './timeline-state-reducer';
 import {TimelineSequence} from './TimelineSequence';
 
 const TimelineContent = styled.div`
@@ -17,9 +18,10 @@ const TimelineContent = styled.div`
 `;
 
 export const TimelineTracks: React.FC<{
-	timeline: Track[];
+	timeline: TrackWithHash[];
 	fps: number;
-}> = ({timeline, fps}) => {
+	viewState: TimelineViewState;
+}> = ({timeline, fps, viewState}) => {
 	const inner: React.CSSProperties = useMemo(() => {
 		return {
 			height: TIMELINE_LAYER_HEIGHT + TIMELINE_BORDER * 2,
@@ -27,11 +29,16 @@ export const TimelineTracks: React.FC<{
 	}, []);
 	return (
 		<TimelineContent>
-			{timeline.map((track) => (
-				<div key={track.sequence.id} style={inner}>
-					<TimelineSequence fps={fps} s={track.sequence} />
-				</div>
-			))}
+			{timeline.map((track) => {
+				if (isCollapsed(track, timeline, viewState)) {
+					return null;
+				}
+				return (
+					<div key={track.sequence.id} style={inner}>
+						<TimelineSequence fps={fps} s={track.sequence} />
+					</div>
+				);
+			})}
 		</TimelineContent>
 	);
 };
