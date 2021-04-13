@@ -34,7 +34,7 @@ If you don't feel like passing command line flags every time, consider creating 
 ## Example command
 
 ```
-npx remotion render --overwrite --codec=vp8 src/index.tsx HelloWorld video.mp4
+npx remotion render --codec=vp8 src/index.tsx HelloWorld video.mp4
 ```
 
 ## See also
