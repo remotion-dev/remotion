@@ -17,7 +17,7 @@ const Container = styled.div`
 export const MaxTimelineTracksReached: React.FC = () => {
 	return (
 		<Container>
-			Limited display to {MAX_TIMELINE_TRACKS} tracks to sustain performance.{' '}
+			Limited display to {MAX_TIMELINE_TRACKS} tracks to sustain performance.
 		</Container>
 	);
 };
