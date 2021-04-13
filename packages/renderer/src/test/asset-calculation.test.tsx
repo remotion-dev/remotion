@@ -153,12 +153,12 @@ test('Should calculate volumes correctly', async () => {
 	});
 });
 
-test('Should calculate startAt correctly', async () => {
+test('Should calculate startFrom correctly', async () => {
 	const assetPositions = await getPositions(() => {
 		return (
 			<Sequence from={1} durationInFrames={Infinity}>
 				<Audio
-					startAt={100}
+					startFrom={100}
 					endAt={200}
 					src={
 						'https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/1080/Big_Buck_Bunny_1080_10s_1MB.mp4'

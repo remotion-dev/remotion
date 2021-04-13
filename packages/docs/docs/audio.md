@@ -14,7 +14,7 @@ Using this component, you can add audio to your video. All audio formats which a
 
 Use an import or require to load an audio file and pass it to the `src` props of the `<Audio />` component.
 
-`<Audio>` has two more helper props: `startAt` and `endAt` for defining the start frame and end frame. Both are optional and do not get forwarded to the native `<audio>` element but tell Remotion which portion of the audio should be included.
+`<Audio>` has two more helper props: `startFrom` and `endAt` for defining the start frame and end frame. Both are optional and do not get forwarded to the native `<audio>` element but tell Remotion which portion of the audio should be included.
 
 ```tsx
 import {Audio} from 'remotion';
@@ -26,7 +26,7 @@ export const MyVideo = () => {
       <div>Hello World!</div>
       <Audio
         src={audio}
-        startAt={59} // if composition is 30fps, then it will start at 2s
+        startFrom={59} // if composition is 30fps, then it will start at 2s
         endAt={120} // if composition is 30fps, then it will end at 4s
       />
     </div>
