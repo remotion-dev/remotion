@@ -7,6 +7,7 @@ export type Track = {
 
 export type TrackWithHash = Track & {
 	hash: string;
+	canCollapse: boolean;
 };
 
 export type TrackWithHashAndOriginalTimings = TrackWithHash & {
