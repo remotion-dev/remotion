@@ -1,18 +1,33 @@
 import {TSequence} from 'remotion';
 
-export const getTimelineVisibleStart = (
+export const getCascadedStart = (
 	sequence: TSequence,
 	sequences: TSequence[]
 ): number => {
-	const start = Math.max(0, sequence.from);
 	if (!sequence.parent) {
-		return start;
+		return sequence.from;
 	}
 	const parent = sequences.find((s) => s.id === sequence.parent);
 	if (!parent) {
 		throw new TypeError('Parent not found for sequence ' + sequence.id);
 	}
-	return getTimelineVisibleStart(parent, sequences) + Math.max(0, start);
+	return getCascadedStart(parent, sequences) + sequence.from;
+};
+
+export const getTimelineVisibleStart = (
+	sequence: TSequence,
+	sequences: TSequence[]
+): number => {
+	const cascadedStart = Math.max(0, getCascadedStart(sequence, sequences));
+	if (!sequence.parent) {
+		return cascadedStart;
+	}
+	const parent = sequences.find((s) => s.id === sequence.parent);
+	if (!parent) {
+		throw new TypeError('Parent not found for sequence ' + sequence.id);
+	}
+	const timelineVisibleStart = getTimelineVisibleStart(parent, sequences);
+	return Math.max(timelineVisibleStart, cascadedStart);
 };
 
 export const getTimelineVisibleDuration = (
