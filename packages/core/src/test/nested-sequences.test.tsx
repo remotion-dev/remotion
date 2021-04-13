@@ -74,11 +74,11 @@ test('Nested negative offset test', () => {
 		return <div>{'frame' + frame}</div>;
 	};
 
-	const startAt = 40;
+	const startFrom = 40;
 	const endAt = 90;
 
 	const content = (
-		<Sequence from={0 - startAt} durationInFrames={endAt}>
+		<Sequence from={0 - startFrom} durationInFrames={endAt}>
 			<NestedChild />
 		</Sequence>
 	);
@@ -112,12 +112,12 @@ test('Negative offset edge case', () => {
 		return <div>{'frame' + frame}</div>;
 	};
 
-	const startAt = 40;
+	const startFrom = 40;
 	const endAt = 90;
 
 	const content = (
 		<Sequence from={40} durationInFrames={Infinity}>
-			<Sequence from={0 - startAt} durationInFrames={endAt}>
+			<Sequence from={0 - startFrom} durationInFrames={endAt}>
 				<NestedChild />
 			</Sequence>
 		</Sequence>

@@ -9,16 +9,16 @@ import {RemotionAudioProps, RemotionMainAudioProps} from './props';
 export const Audio: React.FC<RemotionAudioProps & RemotionMainAudioProps> = (
 	props
 ) => {
-	const {startAt, endAt, ...otherProps} = props;
-	if (typeof startAt !== 'undefined' || typeof endAt !== 'undefined') {
-		validateStartFromProps(startAt, endAt);
+	const {startFrom, endAt, ...otherProps} = props;
+	if (typeof startFrom !== 'undefined' || typeof endAt !== 'undefined') {
+		validateStartFromProps(startFrom, endAt);
 
-		const startAtFrameNo = startAt ?? 0;
+		const startFromFrameNo = startFrom ?? 0;
 		const endAtFrameNo = endAt ?? Infinity;
 		return (
 			<Sequence
 				layout="none"
-				from={0 - startAtFrameNo}
+				from={0 - startFromFrameNo}
 				showInTimeline={false}
 				durationInFrames={endAtFrameNo}
 			>
