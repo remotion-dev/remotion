@@ -240,6 +240,10 @@ export const render = async () => {
 			onProgress: (frame) => {
 				stitchingProgress.update(frame);
 			},
+			onDownload: (src) => {
+				console.log('\n');
+				console.log('Downloading asset... ', src);
+			},
 		});
 		stitchingProgress.stop();
 

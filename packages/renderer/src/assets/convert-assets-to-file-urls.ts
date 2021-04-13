@@ -4,9 +4,11 @@ import {downloadAndMapAssetsToFileUrl} from './download-and-map-assets-to-file';
 export const convertAssetsToFileUrls = ({
 	assets,
 	dir,
+	onDownload,
 }: {
 	assets: TAsset[][];
 	dir: string;
+	onDownload: (src: string) => void;
 }): Promise<TAsset[][]> => {
 	return Promise.all(
 		assets.map((assetsForFrame) => {
@@ -15,6 +17,7 @@ export const convertAssetsToFileUrls = ({
 					return downloadAndMapAssetsToFileUrl({
 						localhostAsset: a,
 						webpackBundle: dir,
+						onDownload,
 					});
 				})
 			);
