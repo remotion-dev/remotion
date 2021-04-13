@@ -2,7 +2,7 @@ import React, {useContext, useMemo, useReducer} from 'react';
 import {Internals} from 'remotion';
 import styled from 'styled-components';
 import {calculateTimeline} from '../../helpers/calculate-timeline';
-import {Track} from '../../helpers/get-timeline-sequence-sort-key';
+import {TrackWithHash} from '../../helpers/get-timeline-sequence-sort-key';
 import {
 	TIMELINE_BORDER,
 	TIMELINE_LAYER_HEIGHT,
@@ -32,7 +32,7 @@ export const Timeline: React.FC = () => {
 		collapsed: {},
 	});
 
-	const timeline = useMemo((): Track[] => {
+	const timeline = useMemo((): TrackWithHash[] => {
 		if (!videoConfig) {
 			return [];
 		}
@@ -75,7 +75,11 @@ export const Timeline: React.FC = () => {
 					</SplitterElement>
 					<SplitterHandle />
 					<SplitterElement type="anti-flexer">
-						<TimelineTracks timeline={timeline} fps={videoConfig.fps} />
+						<TimelineTracks
+							viewState={state}
+							timeline={timeline}
+							fps={videoConfig.fps}
+						/>
 						<TimelineSlider />
 						<TimelineDragHandler />
 					</SplitterElement>

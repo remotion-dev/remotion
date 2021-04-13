@@ -56,6 +56,7 @@ export const TimelineListItem: React.FC<{
 	collapsed: boolean;
 	dispatchStateChange: React.Dispatch<TimelineActionState>;
 	hash: string;
+	canCollapse: boolean;
 }> = ({
 	nestedDepth,
 	sequence,
@@ -63,6 +64,7 @@ export const TimelineListItem: React.FC<{
 	beforeDepth,
 	dispatchStateChange,
 	hash,
+	canCollapse,
 }) => {
 	const leftOffset = HOOK_WIDTH + SPACING * 1.5;
 	const hookStyle = useMemo(() => {
@@ -97,9 +99,13 @@ export const TimelineListItem: React.FC<{
 
 	return (
 		<div style={outer}>
-			<div style={collapser} onClick={toggleCollapse}>
-				{collapsed ? '+' : '-'}
-			</div>
+			{canCollapse ? (
+				<div style={collapser} onClick={toggleCollapse}>
+					{collapsed ? '+' : '-'}
+				</div>
+			) : (
+				<div style={collapser} />
+			)}
 			<div style={padder} />
 			{sequence.parent && nestedDepth > 0 ? (
 				<>

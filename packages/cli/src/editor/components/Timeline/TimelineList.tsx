@@ -1,5 +1,6 @@
 import React from 'react';
 import {TrackWithHash} from '../../helpers/get-timeline-sequence-sort-key';
+import {isCollapsed} from './is-collapsed';
 import {TimelineActionState, TimelineViewState} from './timeline-state-reducer';
 import {TimelineListItem} from './TimelineListItem';
 
@@ -9,22 +10,8 @@ const container: React.CSSProperties = {
 	flexDirection: 'column',
 };
 
-const isCollapsed = (
-	track: TrackWithHash,
-	allTracks: TrackWithHash[],
-	viewState: TimelineViewState
-): boolean => {
-	if (!track.sequence.parent) {
-		return false;
-	}
-	const parent = allTracks.find((t) => t.sequence.id === track.sequence.parent);
-	if (!parent) {
-		throw new Error('did not find parent');
-	}
-	if (viewState.collapsed[parent.hash]) {
-		return true;
-	}
-	return isCollapsed(parent, allTracks, viewState);
+const canCollapse = (track: TrackWithHash, allTracks: TrackWithHash[]) => {
+	return !!allTracks.find((t) => t.sequence.parent === track.sequence.id);
 };
 
 export const TimelineList: React.FC<{
@@ -49,6 +36,7 @@ export const TimelineList: React.FC<{
 							nestedDepth={track.depth}
 							sequence={track.sequence}
 							beforeDepth={beforeDepth}
+							canCollapse={canCollapse(track, timeline)}
 						/>
 					</div>
 				);
