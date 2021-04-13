@@ -6,7 +6,7 @@ import {
 	TIMELINE_PADDING,
 	TrackWithHash,
 } from '../../helpers/timeline-layout';
-import {isCollapsed} from './is-collapsed';
+import {isTrackHidden} from './is-collapsed';
 import {TimelineViewState} from './timeline-state-reducer';
 import {TimelineSequence} from './TimelineSequence';
 
@@ -31,7 +31,7 @@ export const TimelineTracks: React.FC<{
 	return (
 		<TimelineContent>
 			{timeline.map((track) => {
-				if (isCollapsed(track, timeline, viewState)) {
+				if (isTrackHidden(track, timeline, viewState)) {
 					return null;
 				}
 				return (

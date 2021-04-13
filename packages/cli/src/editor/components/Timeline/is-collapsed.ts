@@ -1,7 +1,14 @@
 import {TrackWithHash} from '../../helpers/get-timeline-sequence-sort-key';
 import {TimelineViewState} from './timeline-state-reducer';
 
-export const isCollapsed = (
+export const isTrackCollapsed = (
+	hash: string,
+	viewState: TimelineViewState
+) => {
+	return viewState.collapsed[hash] !== false;
+};
+
+export const isTrackHidden = (
 	track: TrackWithHash,
 	allTracks: TrackWithHash[],
 	viewState: TimelineViewState
@@ -14,8 +21,8 @@ export const isCollapsed = (
 		// TODO: Tighten up, when toggling rich timeline this case can happen right now
 		return false;
 	}
-	if (viewState.collapsed[parent.hash]) {
+	if (isTrackCollapsed(parent.hash, viewState)) {
 		return true;
 	}
-	return isCollapsed(parent, allTracks, viewState);
+	return isTrackHidden(parent, allTracks, viewState);
 };
