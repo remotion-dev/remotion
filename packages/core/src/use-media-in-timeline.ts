@@ -43,17 +43,16 @@ export const useMediaInTimeline = ({
 			return volume;
 		}
 
-		const negativeShift = Math.min(0, parentSequence?.parentFrom ?? 0);
-		return new Array(duration + startsAt + negativeShift)
+		return new Array(Math.max(0, duration + startsAt))
 			.fill(true)
 			.map((_, i) => {
 				return evaluateVolume({
-					frame: i - negativeShift,
+					frame: i + startsAt,
 					volume,
 				});
 			})
 			.join(',');
-	}, [duration, parentSequence, startsAt, volume]);
+	}, [duration, startsAt, volume]);
 
 	useEffect(() => {
 		if (!mediaRef.current) {
