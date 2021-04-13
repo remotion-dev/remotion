@@ -11,6 +11,7 @@ import {SplitterContainer} from '../Splitter/SplitterContainer';
 import {SplitterElement} from '../Splitter/SplitterElement';
 import {SplitterHandle} from '../Splitter/SplitterHandle';
 import {isTrackHidden} from './is-collapsed';
+import {MAX_TIMELINE_TRACKS} from './MaxTimelineTracks';
 import {timelineStateReducer} from './timeline-state-reducer';
 import {TimelineDragHandler} from './TimelineDragHandler';
 import {TimelineList} from './TimelineList';
@@ -47,16 +48,17 @@ export const Timeline: React.FC = () => {
 		return timeline.filter((t) => !isTrackHidden(t, timeline, state));
 	}, [state, timeline]);
 
+	const shown = withoutHidden.slice(0, MAX_TIMELINE_TRACKS);
+
 	const inner: React.CSSProperties = useMemo(() => {
 		return {
-			height:
-				withoutHidden.length * (TIMELINE_LAYER_HEIGHT + TIMELINE_BORDER * 2),
+			height: shown.length * (TIMELINE_LAYER_HEIGHT + TIMELINE_BORDER * 2),
 			display: 'flex',
 			flex: 1,
 			minHeight: '100%',
 			overflowX: 'hidden',
 		};
-	}, [withoutHidden.length]);
+	}, [shown.length]);
 
 	if (!videoConfig) {
 		return null;
@@ -76,15 +78,16 @@ export const Timeline: React.FC = () => {
 						<TimelineList
 							dispatchStateChange={dispatch}
 							viewState={state}
-							timeline={withoutHidden}
+							timeline={shown}
 						/>
 					</SplitterElement>
 					<SplitterHandle />
 					<SplitterElement type="anti-flexer">
 						<TimelineTracks
 							viewState={state}
-							timeline={withoutHidden}
+							timeline={shown}
 							fps={videoConfig.fps}
+							hasBeenCut={withoutHidden.length > shown.length}
 						/>
 						<TimelineSlider />
 						<TimelineDragHandler />
