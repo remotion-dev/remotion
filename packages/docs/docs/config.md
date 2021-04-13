@@ -112,13 +112,17 @@ Config.Rendering.setQuality(90);
 
 ### setOverwriteOutput()
 
-Set this to `true` to always overwrite Remotion outputs without asking.
+Set this to `false` to prevent overwriting Remotion outputs when they already exists.
 
 ```tsx
-Config.Output.setOverwriteOutput(true)
+Config.Output.setOverwriteOutput(false)
 ```
 
 The [command line flag](/docs/cli) `--overwrite` will take precedence over this option.
+
+:::info
+In version 1.x, the default behavior was inverse - Remotion would not override by default.
+:::
 
 ### setPixelFormat()
 
