@@ -1,7 +1,6 @@
 import execa from "execa";
 import fs from "fs";
 import path from "path";
-import { interpolate } from "../packages/core/src";
 
 const outputPath = path.join(process.cwd(), "packages/example/out.mp4");
 
@@ -276,9 +275,7 @@ test("Should fail to render an audio file that doesn't have any audio inputs", a
 });
 
 test("Dynamic duration should work", async () => {
-  const randomDuration = Math.round(
-    interpolate(Math.random(), [0, 1], [2, 20])
-  );
+  const randomDuration = Math.round(Math.random() * 18 + 2);
   const task = await execa(
     "npx",
     [
