@@ -20,11 +20,18 @@ export const getTimelineSequenceSequenceSortKey = (
 	const id = String(
 		(firstSequenceWithSameHash as TrackWithHash).sequence.nonce
 	).padStart(6, '0');
+	if (!track.sequence.parent) {
+		return id;
+	}
+	const parent = tracks.find((t) => t.sequence.id === track.sequence.parent);
+	if (!parent) {
+		throw new Error('Cannot find parent');
+	}
 	const firstParentWithSameHash = tracks.find((a) => {
-		return sameHashes[track.hash].includes(a.sequence.parent as string);
+		return sameHashes[parent.hash].includes(a.sequence.id as string);
 	});
 	if (!firstParentWithSameHash) {
-		return id;
+		throw new Error('could not find parent: ' + track.sequence.parent);
 	}
 	return `${getTimelineSequenceSequenceSortKey(
 		firstParentWithSameHash,

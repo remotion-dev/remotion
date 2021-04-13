@@ -7,11 +7,20 @@ import {TSequence} from 'remotion';
 // differ as a hash.
 export const getTimelineSequenceHash = (
 	sequence: TSequence,
-	allSequences: TSequence[]
+	allSequences: TSequence[],
+	hashesUsedInRoot: {
+		[rootId: string]: string[];
+	},
+	cache: {[sequenceId: string]: string}
 ): string => {
+	if (cache[sequence.id]) {
+		return cache[sequence.id];
+	}
 	const parent = allSequences.find((a) => a.id === sequence.parent);
-	return [
-		parent ? getTimelineSequenceHash(parent, allSequences) : null,
+	const baseHash = [
+		parent
+			? getTimelineSequenceHash(parent, allSequences, hashesUsedInRoot, cache)
+			: null,
 		sequence.displayName,
 		sequence.duration,
 		sequence.from,
@@ -21,4 +30,10 @@ export const getTimelineSequenceHash = (
 		sequence.type === 'video' ? sequence.src : null,
 		sequence.type === 'video' ? sequence.volume : null,
 	].join('-');
+	const actualHash =
+		baseHash +
+		hashesUsedInRoot[sequence.rootId].filter((h) => h === baseHash).length;
+	hashesUsedInRoot[sequence.rootId].push(baseHash);
+	cache[sequence.id] = actualHash;
+	return actualHash;
 };
