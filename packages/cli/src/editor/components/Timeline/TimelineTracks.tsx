@@ -1,10 +1,10 @@
 import React, {useMemo} from 'react';
 import styled from 'styled-components';
+import {TrackWithHash} from '../../helpers/get-timeline-sequence-sort-key';
 import {
 	TIMELINE_BORDER,
 	TIMELINE_LAYER_HEIGHT,
 	TIMELINE_PADDING,
-	TrackWithHash,
 } from '../../helpers/timeline-layout';
 import {isTrackHidden} from './is-collapsed';
 import {TimelineViewState} from './timeline-state-reducer';
