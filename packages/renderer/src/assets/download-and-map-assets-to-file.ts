@@ -29,7 +29,11 @@ const notifyAssetIsDownloaded = (src: string) => {
 	hasBeenDownloadedMap[src] = true;
 };
 
-const downloadAsset = async (src: string, to: string) => {
+const downloadAsset = async (
+	src: string,
+	to: string,
+	onDownload: (src: string) => void
+) => {
 	if (hasBeenDownloadedMap[src]) {
 		return;
 	}
@@ -37,9 +41,7 @@ const downloadAsset = async (src: string, to: string) => {
 		return waitForAssetToBeDownloaded(src);
 	}
 	isDownloadingMap[src] = true;
-	// TODO: Leave logging to CLI
-	console.log('\n');
-	console.log('Downloading asset...', src);
+	onDownload(src);
 	mkdirSync(path.resolve(to, '..'), {
 		recursive: true,
 	});
@@ -50,14 +52,16 @@ const downloadAsset = async (src: string, to: string) => {
 export const downloadAndMapAssetsToFileUrl = async ({
 	localhostAsset,
 	webpackBundle,
+	onDownload,
 }: {
 	localhostAsset: TAsset;
 	webpackBundle: string;
+	onDownload: (src: string) => void;
 }): Promise<TAsset> => {
 	const {pathname} = new URL(localhostAsset.src);
 	const newSrc = path.join(webpackBundle, pathname);
 	if (localhostAsset.isRemote) {
-		await downloadAsset(localhostAsset.src, newSrc);
+		await downloadAsset(localhostAsset.src, newSrc, onDownload);
 	}
 	return {
 		...localhostAsset,
