@@ -11,7 +11,8 @@ export const isCollapsed = (
 	}
 	const parent = allTracks.find((t) => t.sequence.id === track.sequence.parent);
 	if (!parent) {
-		throw new Error('did not find parent');
+		// TODO: Tighten up, when toggling rich timeline this case can happen right now
+		return false;
 	}
 	if (viewState.collapsed[parent.hash]) {
 		return true;

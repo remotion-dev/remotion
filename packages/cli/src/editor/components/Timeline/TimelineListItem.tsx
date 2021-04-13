@@ -6,6 +6,7 @@ import {
 	TIMELINE_PADDING,
 } from '../../helpers/timeline-layout';
 import {TimelineActionState} from './timeline-state-reducer';
+import {TimelineCollapseToggle} from './TimelineCollapseToggle';
 
 const HOOK_WIDTH = 7;
 const BORDER_BOTTOM_LEFT_RADIUS = 2;
@@ -46,7 +47,9 @@ const smallSpace: React.CSSProperties = {
 };
 
 const collapser: React.CSSProperties = {
-	width: 20,
+	width: 8,
+	userSelect: 'none',
+	marginRight: 10,
 };
 
 export const TimelineListItem: React.FC<{
@@ -79,7 +82,7 @@ export const TimelineListItem: React.FC<{
 
 	const padder = useMemo((): React.CSSProperties => {
 		return {
-			width: leftOffset * (nestedDepth - 1),
+			width: leftOffset * nestedDepth,
 		};
 	}, [leftOffset, nestedDepth]);
 
@@ -99,14 +102,14 @@ export const TimelineListItem: React.FC<{
 
 	return (
 		<div style={outer}>
+			<div style={padder} />
 			{canCollapse ? (
 				<div style={collapser} onClick={toggleCollapse}>
-					{collapsed ? '+' : '-'}
+					<TimelineCollapseToggle collapsed={collapsed} />
 				</div>
 			) : (
 				<div style={collapser} />
 			)}
-			<div style={padder} />
 			{sequence.parent && nestedDepth > 0 ? (
 				<>
 					<div style={smallSpace} />
