@@ -1,5 +1,6 @@
 import {TSequence} from 'remotion';
 import {
+	getCascadedStart,
 	getTimelineVisibleDuration,
 	getTimelineVisibleStart,
 } from './get-sequence-visible-range';
@@ -9,11 +10,19 @@ import {
 	getTimelineSequenceSequenceSortKey,
 	Track,
 	TrackWithHash,
+	TrackWithHashAndOriginalTimings,
 } from './get-timeline-sequence-sort-key';
 
 export type SequenceWithOverlap = {
 	sequence: TSequence;
 	overlaps: TSequence[];
+};
+
+const isTrackWithinParentBounds = (track: TrackWithHashAndOriginalTimings) => {
+	return [
+		track.cascadedStart + track.cascadedDuration >= track.sequence.from,
+		track.cascadedStart <= track.sequence.from + track.sequence.duration,
+	].every(Boolean);
 };
 
 export const calculateTimeline = ({
@@ -23,7 +32,7 @@ export const calculateTimeline = ({
 	sequences: TSequence[];
 	sequenceDuration: number;
 }): Track[] => {
-	const tracks: TrackWithHash[] = [];
+	const tracks: TrackWithHashAndOriginalTimings[] = [];
 
 	if (sequences.length === 0) {
 		return [
@@ -67,6 +76,8 @@ export const calculateTimeline = ({
 		}
 		sameHashes[actualHash].push(sequence.id);
 
+		const cascadedStart = getCascadedStart(sequence, sequences);
+
 		const visibleStart = getTimelineVisibleStart(sequence, sequences);
 		const visibleDuration = getTimelineVisibleDuration(sequence, sequences);
 
@@ -78,6 +89,8 @@ export const calculateTimeline = ({
 			},
 			depth: getTimelineNestedLevel(sequence, sequences, 0),
 			hash: actualHash,
+			cascadedStart,
+			cascadedDuration: sequence.duration,
 		});
 	}
 
@@ -85,9 +98,11 @@ export const calculateTimeline = ({
 	for (const track of tracks) {
 		if (
 			!uniqueTracks.find((t) => t.hash === track.hash) &&
-			track.sequence.showInTimeline
+			track.sequence.showInTimeline &&
+			isTrackWithinParentBounds(track)
 		) {
-			uniqueTracks.push(track);
+			const {cascadedDuration, cascadedStart, ...cleanTrack} = track;
+			uniqueTracks.push(cleanTrack);
 		}
 	}
 
