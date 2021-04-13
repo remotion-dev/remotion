@@ -4,6 +4,7 @@ import {
 	TIMELINE_BORDER,
 	TIMELINE_LAYER_HEIGHT,
 	TIMELINE_PADDING,
+	TrackWithHash,
 } from '../../helpers/timeline-layout';
 import {isCollapsed} from './is-collapsed';
 import {TimelineViewState} from './timeline-state-reducer';
