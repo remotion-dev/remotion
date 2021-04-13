@@ -105,7 +105,7 @@ test('Should follow order of nesting', () => {
 		},
 		{
 			depth: 1,
-			hash: '-Audio-100-0-sequence-----Audio-100-0-sequence----0',
+			hash: '-Audio-100-0-sequence----0-Audio-100-0-sequence----0',
 			sequence: {
 				displayName: 'Audio',
 				duration: 100,

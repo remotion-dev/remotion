@@ -47,25 +47,25 @@ export const calculateTimeline = ({
 	const sameHashes: {[hash: string]: string[]} = {};
 
 	const hashesUsedInRoot: {[rootId: string]: string[]} = {};
+	const cache: {[sequenceId: string]: string} = {};
+
 	for (let i = 0; i < sequences.length; i++) {
 		const sequence = sequences[i];
 		if (!hashesUsedInRoot[sequence.rootId]) {
 			hashesUsedInRoot[sequence.rootId] = [];
 		}
-		if (!sequence.showInTimeline) {
-			continue;
-		}
 
-		const baseHash = getTimelineSequenceHash(sequence, sequences);
-		const actualHash =
-			baseHash +
-			hashesUsedInRoot[sequence.rootId].filter((h) => h === baseHash).length;
+		const actualHash = getTimelineSequenceHash(
+			sequence,
+			sequences,
+			hashesUsedInRoot,
+			cache
+		);
 
 		if (!sameHashes[actualHash]) {
 			sameHashes[actualHash] = [];
 		}
 		sameHashes[actualHash].push(sequence.id);
-		hashesUsedInRoot[sequence.rootId].push(baseHash);
 
 		const visibleStart = getTimelineVisibleStart(sequence, sequences);
 		const visibleDuration = getTimelineVisibleDuration(sequence, sequences);
@@ -83,10 +83,20 @@ export const calculateTimeline = ({
 
 	const uniqueTracks: TrackWithHash[] = [];
 	for (const track of tracks) {
-		if (!uniqueTracks.find((t) => t.hash === track.hash)) {
+		if (
+			!uniqueTracks.find((t) => t.hash === track.hash) &&
+			track.sequence.showInTimeline
+		) {
 			uniqueTracks.push(track);
 		}
 	}
+
+	console.log(
+		'sortKeys',
+		uniqueTracks.map((t) =>
+			getTimelineSequenceSequenceSortKey(t, tracks, sameHashes)
+		)
+	);
 
 	return uniqueTracks.sort((a, b) => {
 		const sortKeyA = getTimelineSequenceSequenceSortKey(a, tracks, sameHashes);
