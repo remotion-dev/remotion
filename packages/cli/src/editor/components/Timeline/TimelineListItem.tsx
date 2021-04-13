@@ -1,10 +1,11 @@
-import React, {useMemo} from 'react';
+import React, {useCallback, useMemo} from 'react';
 import {TSequence} from 'remotion';
 import {
 	TIMELINE_BORDER,
 	TIMELINE_LAYER_HEIGHT,
 	TIMELINE_PADDING,
 } from '../../helpers/timeline-layout';
+import {TimelineActionState} from './timeline-state-reducer';
 
 const HOOK_WIDTH = 7;
 const BORDER_BOTTOM_LEFT_RADIUS = 2;
@@ -39,15 +40,30 @@ const hook: React.CSSProperties = {
 const space: React.CSSProperties = {
 	width: SPACING,
 };
+
 const smallSpace: React.CSSProperties = {
 	width: SPACING * 0.5,
+};
+
+const collapser: React.CSSProperties = {
+	width: 20,
 };
 
 export const TimelineListItem: React.FC<{
 	sequence: TSequence;
 	nestedDepth: number;
 	beforeDepth: number;
-}> = ({nestedDepth, sequence, beforeDepth}) => {
+	collapsed: boolean;
+	dispatchStateChange: React.Dispatch<TimelineActionState>;
+	hash: string;
+}> = ({
+	nestedDepth,
+	sequence,
+	collapsed,
+	beforeDepth,
+	dispatchStateChange,
+	hash,
+}) => {
 	const leftOffset = HOOK_WIDTH + SPACING * 1.5;
 	const hookStyle = useMemo(() => {
 		return {
@@ -65,8 +81,25 @@ export const TimelineListItem: React.FC<{
 		};
 	}, [leftOffset, nestedDepth]);
 
+	const toggleCollapse = useCallback(() => {
+		if (collapsed) {
+			dispatchStateChange({
+				type: 'expand',
+				hash,
+			});
+		} else {
+			dispatchStateChange({
+				type: 'collapse',
+				hash,
+			});
+		}
+	}, [collapsed, dispatchStateChange, hash]);
+
 	return (
 		<div style={outer}>
+			<div style={collapser} onClick={toggleCollapse}>
+				{collapsed ? '+' : '-'}
+			</div>
 			<div style={padder} />
 			{sequence.parent && nestedDepth > 0 ? (
 				<>
