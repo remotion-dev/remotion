@@ -91,19 +91,9 @@ export const calculateTimeline = ({
 		}
 	}
 
-	console.log(
-		'sortKeys',
-		uniqueTracks.map((t) =>
-			getTimelineSequenceSequenceSortKey(t, tracks, sameHashes)
-		)
-	);
-
 	return uniqueTracks.sort((a, b) => {
 		const sortKeyA = getTimelineSequenceSequenceSortKey(a, tracks, sameHashes);
 		const sortKeyB = getTimelineSequenceSequenceSortKey(b, tracks, sameHashes);
-		if (sortKeyA.startsWith(sortKeyB)) {
-			return -1;
-		}
 		return sortKeyA.localeCompare(sortKeyB);
 	});
 };
