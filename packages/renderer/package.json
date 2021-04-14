@@ -31,8 +31,8 @@
 		"xns": "^2.0.7"
 	},
 	"peerDependencies": {
-		"react": "17.0.1",
-		"react-dom": "17.0.1"
+		"react": "^17.0.1",
+		"react-dom": "^17.0.1"
 	},
 	"devDependencies": {
 		"@babel/preset-typescript": "^7.10.4",
