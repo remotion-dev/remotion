@@ -1,3 +1,6 @@
+// Adapted from node-fft project by Joshua Wong and Ben Bryan
+// https://github.com/vail-systems/node-fft
+
 export const complexAdd = function (
 	a: [number, number],
 	b: [number, number]

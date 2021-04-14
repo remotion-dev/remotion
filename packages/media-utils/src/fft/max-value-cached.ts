@@ -1,3 +1,6 @@
+// Adapted from node-fft project by Joshua Wong and Ben Bryan
+// https://github.com/vail-systems/node-fft
+
 import {AudioData} from '..';
 import {toInt16} from './to-int-16';
 

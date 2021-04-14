@@ -1,3 +1,6 @@
+// Adapted from node-fft project by Joshua Wong and Ben Bryan
+// https://github.com/vail-systems/node-fft
+
 const smoothingPasses = 3;
 const smoothingPoints = 3;
 

@@ -1,3 +1,6 @@
+// Adapted from node-fft project by Joshua Wong and Ben Bryan
+// https://github.com/vail-systems/node-fft
+
 import {fft} from './fft';
 import {fftMag} from './mag';
 import {smoothen} from './smoothing';
