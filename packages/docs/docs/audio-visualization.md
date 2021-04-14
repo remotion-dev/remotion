@@ -3,10 +3,6 @@ title: Audio visualization
 id: audio-visualization
 ---
 
-:::warning
-This function is part of Remotion 2.0 which is not yet released. The information on this page might not yet accurately reflect the current state of Remotions API.
-:::warning
-
 Using the audio visualization APIs in Remotion 2.0, you can create animations based on the frequency of the audio. This is often used to make graphics react to the volume or sound spectrum of the music.
 
 ## Import audio

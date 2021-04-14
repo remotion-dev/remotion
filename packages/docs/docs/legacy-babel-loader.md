@@ -3,10 +3,6 @@ title: Using legacy Babel transpilation
 id: legacy-babel
 ---
 
-:::warning
-This component is part of Remotion 2.0 which is not yet released. The information on this page might not yet accurately reflect the current state of Remotions API.
-:::warning
-
 In Remotion 2.0, the traditional transpilation of Javascript and Typescript using the `babel-loader` has been replaced by the faster `esbuild-loader` by default.
 
 If you for some reason need to go back to the previous behavior, you may [override the Webpack configuration](webpack). Remember that overriding the Webpack configuration works reducer-style, where you get the default configuration in a function argument and you return the modified version of your config.

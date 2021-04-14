@@ -4,10 +4,6 @@ sidebar_title: v2.0 Migration
 title: v2.0 Breaking changes
 ---
 
-:::warning
-This function is part of Remotion 2.0 which is not yet released. The information on this page might not yet accurately reflect the current state of Remotions API.
-:::warning
-
 The following is a list of breaking changes in Remotion 2.0, as a reference for projects wanting to upgrade.
 
 ## Sequences are 1 frame shorter
