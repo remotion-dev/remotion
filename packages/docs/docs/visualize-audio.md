@@ -3,10 +3,6 @@ title: visualizeAudio()
 id: visualize-audio
 ---
 
-:::warning
-This function is part of Remotion 2.0 which is not yet released. The information on this page might not yet accurately reflect the current state of Remotions API.
-:::warning
-
 _Part of the `@remotion/media-utils`_ package of helper functions.
 
 This function takes in `AudioData` (preferrably fetched by the [`useAudioData()`](use-audio-data) hook) and processes it in a way that makes visualizing the audio that is playing at the current frame easy.

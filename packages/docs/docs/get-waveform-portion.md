@@ -3,10 +3,6 @@ title: getWaveformPortion()
 id: get-waveform-portion
 ---
 
-:::warning
-This function is part of Remotion 2.0 which is not yet released. The information on this page might not yet accurately reflect the current state of Remotions API.
-:::warning
-
 _Part of the `@remotion/media-utils`_ package of helper functions.
 
 Takes bulky waveform data (for example fetched by [`getAudioData()`](get-audio-data)) and returns a trimmed and simplified version of it, for simpler visualization. This function is suitable if you only need volume data, if you need more detailed data about each frequency range, use [`visualizeAudio()`](visualize-audio).
