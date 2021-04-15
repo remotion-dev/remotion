@@ -65,7 +65,7 @@ export const Config = {
 	Output: {
 		/**
 		 * If the video file already exists, should Remotion overwrite
-		 * the output? Default: false
+		 * the output? Default: true
 		 */
 		setOverwriteOutput,
 		/**

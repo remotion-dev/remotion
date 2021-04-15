@@ -1,12 +1,8 @@
 ---
 id: gif
-sidebar_label: Reference - @remotion/gif
+sidebar_label: API - @remotion/gif
 title: "@remotion/gif"
 ---
-
-:::warning
-This component is part of Remotion 2.0 which is not yet released. The information on this page might not yet accurately reflect the current state of Remotions API.
-:::warning
 
 You can install this package from NPM to get a component for displaying GIFs that synchronize with Remotions [`useCurrentFrame()`](use-current-frame).
 
