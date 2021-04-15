@@ -4,9 +4,16 @@
         <title>Remotion Blog</title>
         <link>https://remotion.dev/blog</link>
         <description>Remotion Blog</description>
-        <lastBuildDate>Mon, 15 Mar 2021 00:00:00 GMT</lastBuildDate>
+        <lastBuildDate>Thu, 15 Apr 2021 00:00:00 GMT</lastBuildDate>
         <docs>https://validator.w3.org/feed/docs/rss2.html</docs>
         <generator>https://github.com/jpmonette/feed</generator>
+        <item>
+            <title><![CDATA[Remotion 2.0]]></title>
+            <link>https://remotion.dev/blog/2-0</link>
+            <guid>2-0</guid>
+            <pubDate>Thu, 15 Apr 2021 00:00:00 GMT</pubDate>
+            <description><![CDATA[This is our biggest and best release so far - today we are unloading a lot of awesome, highly requested features!]]></description>
+        </item>
         <item>
             <title><![CDATA[Announcing pricing for company licenses]]></title>
             <link>https://remotion.dev/blog/company-licenses</link>
