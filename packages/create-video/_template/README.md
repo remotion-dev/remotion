@@ -46,4 +46,4 @@ Found an issue with Remotion? [File an issue here](https://github.com/JonnyBurge
 
 ## License
 
-Notice that a company license is needed. Read [the terms here](https://github.com/JonnyBurger/remotion/blob/main/LICENSE.md).
+Notice that for some entities a company license is needed. Read [the terms here](https://github.com/JonnyBurger/remotion/blob/main/LICENSE.md).
