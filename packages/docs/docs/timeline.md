@@ -4,7 +4,7 @@ id: timeline
 ---
 
 At the bottom of the Remotion preview player, you will see a timeline.
-Remotions timeline has two modes: **Simple timeline** and **Rich timeline** (_default_).
+Remotions timeline has two modes: **Simple timeline** (_default_) and **Rich timeline** (experimental, will become default in the future).
 
 <img src="/img/timeline.png"></img>
 
@@ -29,4 +29,6 @@ Generally, the rich timeline mode will provide you with a more accurate timeline
 
 More renders also mean slower rendering. If you are suffering from slow playback and timeline scrubbing performance, consider disabling the rich timeline mode.
 
-If you are opting out of rich timeline mode, please leave feedback by [opening an issue on our Github repo](https://github.com/JonnyBurger/remotion/issues/new).
+The rich timline will become the default in the future, but right now it is disabled by default.
+
+We encourage you to try out the rich timeline mode and [letting us know about any issues you will face.](https://github.com/JonnyBurger/remotion/issues/new).
