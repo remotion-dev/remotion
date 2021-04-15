@@ -9,6 +9,7 @@ export const serveStatic = async (path: string) => {
 		.createServer((request, response) => {
 			handler(request, response, {
 				public: path,
+				directoryListing: false,
 			}).catch(() => {
 				response.statusCode = 500;
 				response.end('Error serving file');
