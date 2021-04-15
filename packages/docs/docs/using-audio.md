@@ -96,7 +96,7 @@ export const MyVideo = () => {
 }
 ```
 
-You can also **change volume over time**, in this example we are using the [interpolate()](/docs/interpolate) function. Note that because values below 0 are not allowed, therefore we need to set the `extrapolateLeft: 'clamp'` option to ensure no negative values.
+You can also **change volume over time**, in this example we are using the [interpolate()](/docs/interpolate) function. Note that because values below 0 are not allowed, we need to set the `extrapolateLeft: 'clamp'` option to ensure no negative values.
 
 ```tsx {10}
 import {Audio, interpolate, useCurrentFrame} from 'remotion';

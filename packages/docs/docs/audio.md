@@ -6,7 +6,7 @@ id: audio
 Using this component, you can add audio to your video. All audio formats which are supported by Chromium are supported by the component.
 
 :::info
-Version 1.x doesn't render audio to it's output. Make sure to upgrade to [Remotion 2.0](/docs/2-0-migration) to render audio
+Version 1.x doesn't render audio to an output. Make sure to upgrade to [Remotion 2.0](/docs/2-0-migration) to render audio.
 :::
 
 ## API / Example
