@@ -10,6 +10,7 @@ export const serveStatic = async (path: string) => {
 			handler(request, response, {
 				public: path,
 				directoryListing: false,
+				cleanUrls: false,
 			}).catch(() => {
 				response.statusCode = 500;
 				response.end('Error serving file');
