@@ -1,5 +1,6 @@
 import React, {ComponentType, useContext, useEffect, useMemo} from 'react';
 import {CompositionManager} from './CompositionManager';
+import {useNonce} from './nonce';
 import {
 	addStaticComposition,
 	getIsEvaluation,
@@ -35,6 +36,8 @@ export const Composition = <T,>({
 	const {registerComposition, unregisterComposition} = useContext(
 		CompositionManager
 	);
+
+	const nonce = useNonce();
 
 	const lazy = useMemo(() => {
 		if ('lazyComponent' in compProps) {
@@ -106,6 +109,7 @@ export const Composition = <T,>({
 			id,
 			component: lazy,
 			props,
+			nonce,
 		});
 
 		if (getIsEvaluation()) {
@@ -116,6 +120,7 @@ export const Composition = <T,>({
 				height,
 				id,
 				width,
+				nonce,
 			});
 		}
 
@@ -133,6 +138,7 @@ export const Composition = <T,>({
 		registerComposition,
 		unregisterComposition,
 		width,
+		nonce,
 	]);
 
 	return null;

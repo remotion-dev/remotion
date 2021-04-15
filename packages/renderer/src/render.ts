@@ -1,15 +1,23 @@
 import path from 'path';
-import {Browser, FrameRange, Internals, VideoConfig} from 'remotion';
-import {openBrowser, provideScreenshot} from '.';
+import {
+	Browser,
+	FrameRange,
+	ImageFormat,
+	Internals,
+	RenderAssetInfo,
+	VideoConfig,
+} from 'remotion';
+import {openBrowser, provideScreenshot, seekToFrame} from '.';
 import {getActualConcurrency} from './get-concurrency';
 import {getFrameCount} from './get-frame-range';
 import {getFrameToRender} from './get-frame-to-render';
-import {DEFAULT_IMAGE_FORMAT, ImageFormat} from './image-format';
+import {DEFAULT_IMAGE_FORMAT} from './image-format';
 import {Pool} from './pool';
 import {serveStatic} from './serve-static';
 
 export type RenderFramesOutput = {
 	frameCount: number;
+	assetsInfo: RenderAssetInfo;
 };
 
 type OnStartData = {
@@ -38,10 +46,11 @@ export const renderFrames = async ({
 	outputDir: string;
 	inputProps: unknown;
 	webpackBundle: string;
-	imageFormat?: ImageFormat;
+	imageFormat: ImageFormat;
 	quality?: number;
 	browser?: Browser;
 	frameRange?: FrameRange | null;
+	assetsOnly?: boolean;
 }): Promise<RenderFramesOutput> => {
 	if (quality !== undefined && imageFormat !== 'jpeg') {
 		throw new Error(
@@ -90,10 +99,11 @@ export const renderFrames = async ({
 		filePadLength = String(frameCount - 1).length;
 	}
 	let framesRendered = 0;
+
 	onStart({
 		frameCount,
 	});
-	await Promise.all(
+	const assets = await Promise.all(
 		new Array(frameCount)
 			.fill(Boolean)
 			.map((x, i) => i)
@@ -102,25 +112,37 @@ export const renderFrames = async ({
 				const freePage = await pool.acquire();
 				const paddedIndex = String(frame).padStart(filePadLength, '0');
 
-				await provideScreenshot({
-					page: freePage,
-					imageFormat,
-					quality,
-					options: {
-						frame,
-						output: path.join(
-							outputDir,
-							`element-${paddedIndex}.${imageFormat}`
-						),
-					},
+				await seekToFrame({frame, page: freePage});
+				if (imageFormat !== 'none') {
+					await provideScreenshot({
+						page: freePage,
+						imageFormat,
+						quality,
+						options: {
+							frame,
+							output: path.join(
+								outputDir,
+								`element-${paddedIndex}.${imageFormat}`
+							),
+						},
+					});
+				}
+				const collectedAssets = await freePage.evaluate(() => {
+					return window.remotion_collectAssets();
 				});
 				pool.release(freePage);
 				framesRendered++;
 				onFrameUpdate(framesRendered);
+				return collectedAssets;
 			})
 	);
 	await Promise.all([browserInstance.close(), close()]);
+
 	return {
+		assetsInfo: {
+			assets,
+			bundleDir: webpackBundle,
+		},
 		frameCount,
 	};
 };

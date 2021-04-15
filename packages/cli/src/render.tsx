@@ -184,19 +184,19 @@ export const render = async () => {
 		},
 		cliProgress.Presets.shades_grey
 	);
-	const rendered = await renderFrames({
+	const {assetsInfo, frameCount} = await renderFrames({
 		config,
 		onFrameUpdate: (frame) => renderProgress.update(frame),
 		parallelism,
 		compositionId,
 		outputDir,
-		onStart: ({frameCount}) => {
+		onStart: ({frameCount: fc}) => {
 			process.stdout.write(
 				`📼 (2/${steps}) Rendering frames (${getActualConcurrency(
 					parallelism
 				)}x concurrency)...\n`
 			);
-			renderProgress.start(frameCount, 0);
+			renderProgress.start(fc, 0);
 		},
 		inputProps,
 		webpackBundle: bundled,
@@ -204,6 +204,7 @@ export const render = async () => {
 		quality,
 		browser,
 		frameRange: frameRange ?? null,
+		assetsOnly: Internals.isAudioCodec(codec),
 	});
 	renderProgress.stop();
 	if (process.env.DEBUG) {
@@ -222,7 +223,7 @@ export const render = async () => {
 			},
 			cliProgress.Presets.shades_grey
 		);
-		stitchingProgress.start(rendered.frameCount, 0);
+		stitchingProgress.start(frameCount, 0);
 		await stitchFramesToVideo({
 			dir: outputDir,
 			width: config.width,
@@ -234,8 +235,14 @@ export const render = async () => {
 			pixelFormat,
 			codec,
 			crf,
+			assetsInfo,
+			parallelism,
 			onProgress: (frame) => {
 				stitchingProgress.update(frame);
+			},
+			onDownload: (src) => {
+				console.log('\n');
+				console.log('Downloading asset... ', src);
 			},
 		});
 		stitchingProgress.stop();

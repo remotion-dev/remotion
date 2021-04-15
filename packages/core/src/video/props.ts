@@ -1,5 +1,7 @@
+import {VolumeProp} from '../volume-prop';
+
 export type RemotionMainVideoProps = {
-	startAt?: number;
+	startFrom?: number;
 	endAt?: number;
 };
 
@@ -9,4 +11,6 @@ export type RemotionVideoProps = Omit<
 		HTMLVideoElement
 	>,
 	'autoplay' | 'controls'
->;
+> & {
+	volume?: VolumeProp;
+};
