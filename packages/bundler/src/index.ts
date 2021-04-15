@@ -1,3 +1,5 @@
+// @ts-expect-error
+import webpackDevMiddleware from '@jonny/webpack-dev-middleware';
 import express from 'express';
 import fs from 'fs';
 import getPort from 'get-port';
@@ -5,7 +7,6 @@ import os from 'os';
 import path from 'path';
 import {Internals, WebpackOverrideFn} from 'remotion';
 import webpack from 'webpack';
-import webpackDevMiddleware from 'webpack-dev-middleware';
 import webpackHotMiddleware from 'webpack-hot-middleware';
 import {overrideWebpackConfig} from './override-webpack';
 import {isUpdateAvailableWithTimeout} from './update-available';
