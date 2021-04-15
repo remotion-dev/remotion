@@ -34,7 +34,7 @@
 		"styled-components": "^5.2.1",
 		"url-loader": "^4.1.1",
 		"webpack": "5.27.2",
-		"@jonny/webpack-dev-middleware": "^4.1.0",
+		"@jonny/webpack-dev-middleware": "^4.1.1",
 		"webpack-hot-middleware": "^2.25.0"
 	},
 	"peerDependencies": {
