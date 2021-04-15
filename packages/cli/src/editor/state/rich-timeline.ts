@@ -11,7 +11,7 @@ export const persistRichTimelineOption = (option: boolean) => {
 
 export const loadRichTimelineOption = (): boolean => {
 	const item = localStorage.getItem('richTimeline');
-	return item === 'false' ? false : true;
+	return item === 'true';
 };
 
 export const RichTimelineContext = createContext<State>({
