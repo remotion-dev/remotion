@@ -1,6 +1,7 @@
 import execa from 'execa';
 import fs from 'fs';
 import path from 'path';
+import {Log} from './log';
 
 const npmOrYarn = (): 'npm' | 'yarn' => {
 	const packageLockJsonFilePath = path.join(process.cwd(), 'package-lock.json');
@@ -16,26 +17,26 @@ const npmOrYarn = (): 'npm' | 'yarn' => {
 		return 'yarn';
 	}
 	if (npmExists && yarnExists) {
-		console.log(
+		Log.Error(
 			'Found both a package-lock.json and a yarn.lock file in your project.'
 		);
-		console.log(
+		Log.Error(
 			'This can lead to bugs, delete one of the two files and settle on 1 package manager.'
 		);
-		console.log('Afterwards, run this command again.');
+		Log.Error('Afterwards, run this command again.');
 		process.exit(1);
 	}
-	console.log('Did not find a package-lock.json or yarn.lock file.');
-	console.log('Cannot determine how to update dependencies.');
-	console.log('Did you run `npm install` yet?');
-	console.log('Make sure either file exists and run this command again.');
+	Log.Error('Did not find a package-lock.json or yarn.lock file.');
+	Log.Error('Cannot determine how to update dependencies.');
+	Log.Error('Did you run `npm install` yet?');
+	Log.Error('Make sure either file exists and run this command again.');
 	process.exit(1);
 };
 
 export const upgrade = async () => {
 	const packageJsonFilePath = path.join(process.cwd(), 'package.json');
 	if (!fs.existsSync(packageJsonFilePath)) {
-		console.log(
+		Log.Error(
 			'Could not upgrade because no package.json could be found in your project.'
 		);
 		process.exit(1);
@@ -57,5 +58,5 @@ export const upgrade = async () => {
 	const prom = execa(tool, ['upgrade', ...toUpgrade]);
 	prom.stdout?.pipe(process.stdout);
 	await prom;
-	console.log('⏫ Remotion has been upgraded!');
+	Log.Info('⏫ Remotion has been upgraded!');
 };
