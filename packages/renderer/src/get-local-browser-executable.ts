@@ -16,6 +16,9 @@ const getSearchPathsForProduct = (product: puppeteer.Product) => {
 			process.platform === 'win32'
 				? 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe'
 				: null,
+			process.platform === 'win32'
+				? 'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe'
+				: null,
 		].filter(Boolean) as string[];
 	}
 	if (product === 'firefox') {
