@@ -41,7 +41,10 @@ async function screenshotDOMElement({
 }
 
 export const openBrowser = async (
-	browser: Browser
+	browser: Browser,
+	options?: {
+		shouldDumpIo?: boolean;
+	}
 ): Promise<puppeteer.Browser> => {
 	if (browser === 'firefox' && !Internals.FEATURE_FLAG_FIREFOX_SUPPORT) {
 		throw new TypeError(
@@ -54,6 +57,7 @@ export const openBrowser = async (
 	const browserInstance = await puppeteer.launch({
 		executablePath,
 		product: browser,
+		dumpio: options?.shouldDumpIo ?? false,
 		args: [
 			'--no-sandbox',
 			'--disable-setuid-sandbox',
