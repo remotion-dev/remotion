@@ -5,9 +5,10 @@ import {
 	Config,
 	ImageFormat,
 	Internals,
+	LogLevel,
 	PixelFormat,
 } from 'remotion';
-import {isValidLogLevel, Log, LogLevel, logLevels, setLogLevel} from './log';
+import {Log} from './log';
 
 export type CommandLineOptions = {
 	['browser-executable']: BrowserExecutable;
@@ -46,14 +47,16 @@ export const parseCommandLine = () => {
 		);
 	}
 	if (parsedCli.log) {
-		if (!isValidLogLevel(parsedCli.log)) {
+		if (!Internals.Logging.isValidLogLevel(parsedCli.log)) {
 			Log.Error('Invalid `--log` value passed.');
 			Log.Error(
-				`Accepted values: ${logLevels.map((l) => `'${l}'`).join(', ')}.`
+				`Accepted values: ${Internals.Logging.logLevels
+					.map((l) => `'${l}'`)
+					.join(', ')}.`
 			);
 			process.exit(1);
 		}
-		setLogLevel(parsedCli.log as LogLevel);
+		Internals.Logging.setLogLevel(parsedCli.log as LogLevel);
 	}
 	if (parsedCli.concurrency) {
 		Config.Rendering.setConcurrency(parsedCli.concurrency);

@@ -30,6 +30,7 @@ import {
 } from './config/image-format';
 import {getShouldOutputImageSequence} from './config/image-sequence';
 import {INPUT_PROPS_KEY} from './config/input-props';
+import * as Logging from './config/log';
 import {
 	getWebpackOverrideFn,
 	WebpackOverrideFn,
@@ -96,6 +97,7 @@ export const Internals = {
 	truthy,
 	isAudioCodec,
 	INPUT_PROPS_KEY,
+	Logging,
 };
 
 export type {
