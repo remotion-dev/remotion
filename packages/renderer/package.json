@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/renderer",
-	"version": "2.0.0",
+	"version": "2.0.1",
 	"description": "Renderer for Remotion",
 	"main": "dist/index.js",
 	"scripts": {
@@ -18,13 +18,13 @@
 	},
 	"dependencies": {
 		"@babel/preset-typescript": "^7.10.4",
-		"@remotion/bundler": "^2.0.0",
+		"@remotion/bundler": "^2.0.1",
 		"execa": "^4.0.2",
 		"got": "11.8.2",
 		"p-limit": "^3.1.0",
 		"prettier": "^2.0.5",
 		"puppeteer-core": "^8.0.0",
-		"remotion": "^2.0.0",
+		"remotion": "^2.0.1",
 		"serve-handler": "^6.1.3",
 		"typescript": "^4.1.2",
 		"webpack": "^5.27.2",
