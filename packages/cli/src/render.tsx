@@ -20,7 +20,7 @@ import {getOutputFilename} from './get-filename';
 import {getInputProps} from './get-input-props';
 import {getImageFormat} from './image-formats';
 import {loadConfigFile} from './load-config';
-import {Log} from './log';
+import {isEqualOrBelowLogLevel, Log} from './log';
 import {parseCommandLine, parsedCli} from './parse-command-line';
 import {getUserPassedFileExtension} from './user-passed-output-location';
 
@@ -192,6 +192,7 @@ export const render = async () => {
 		browser,
 		frameRange: frameRange ?? null,
 		assetsOnly: Internals.isAudioCodec(codec),
+		dumpBrowserLogs: isEqualOrBelowLogLevel('verbose'),
 	});
 	renderProgress.stop();
 	if (process.env.DEBUG) {
