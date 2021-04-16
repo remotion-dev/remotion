@@ -39,6 +39,28 @@ test("Should be able to render video", async () => {
   expect(data).toContain("30 fps");
 });
 
+test("Should fail to render conflicting --sequence and --codec settings", async () => {
+  const task = await execa(
+    "npx",
+    [
+      "remotion",
+      "render",
+      "src/index.tsx",
+      "ten-frame-tester",
+      "--codec",
+      "h264",
+      "--sequence",
+      outputPath,
+    ],
+    {
+      cwd: "packages/example",
+      reject: false,
+    }
+  );
+  expect(task.exitCode).toBe(process.platform === "win32" ? 0 : 1);
+  expect(task.stderr).toContain("Detected both --codec");
+});
+
 test("Should fail to render out of range CRF", async () => {
   const task = await execa(
     "npx",
