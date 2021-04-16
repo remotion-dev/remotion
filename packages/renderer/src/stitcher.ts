@@ -64,6 +64,7 @@ export const stitchFramesToVideo = async (options: {
 	parallelism?: number | null;
 	onProgress?: (num: number) => void;
 	onDownload?: (src: string) => void;
+	verbose?: boolean;
 }): Promise<void> => {
 	const codec = options.codec ?? Internals.DEFAULT_CODEC;
 	const crf = options.crf ?? Internals.getDefaultCrfForCodec(codec);
@@ -84,6 +85,18 @@ export const stitchFramesToVideo = async (options: {
 	const encoderName = getCodecName(codec);
 	const audioCodecName = getAudioCodecName(codec);
 	const isAudioOnly = encoderName === null;
+
+	if (options.verbose) {
+		console.log('[verbose] encoder', encoderName);
+		console.log('[verbose] audioCodec', audioCodecName);
+		console.log('[verbose] pixelFormat', pixelFormat);
+		console.log('[verbose] files', JSON.stringify(files));
+		console.log('[verbose] imageFormat', imageFormat);
+		console.log('[verbose] crf', crf);
+		console.log('[verbose] codec', codec);
+		console.log('[verbose] isAudioOnly', isAudioOnly);
+	}
+
 	Internals.validateSelectedCrfAndCodecCombination(crf, codec);
 	Internals.validateSelectedPixelFormatAndImageFormatCombination(
 		pixelFormat,
@@ -115,7 +128,6 @@ export const stitchFramesToVideo = async (options: {
 		fps: options.fps,
 		videoTrackCount: isAudioOnly ? 0 : 1,
 	});
-
 	const ffmpegArgs = [
 		['-r', String(options.fps)],
 		isAudioOnly ? null : ['-f', 'image2'],
@@ -142,11 +154,18 @@ export const stitchFramesToVideo = async (options: {
 		isAudioOnly ? null : ['-map', '0:v'],
 		options.force ? '-y' : null,
 		options.outputLocation,
-	]
+	];
+
+	if (options.verbose) {
+		console.log('Generated FFMPEG command:');
+		console.log(ffmpegArgs);
+	}
+
+	const ffmpegString = ffmpegArgs
 		.reduce<(string | null)[]>((acc, val) => acc.concat(val), [])
 		.filter(Boolean) as string[];
 
-	const task = execa('ffmpeg', ffmpegArgs, {cwd: options.dir});
+	const task = execa('ffmpeg', ffmpegString, {cwd: options.dir});
 
 	task.stderr?.on('data', (data: Buffer) => {
 		if (options.onProgress) {
