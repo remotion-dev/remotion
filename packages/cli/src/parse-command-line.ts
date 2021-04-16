@@ -7,7 +7,7 @@ import {
 	Internals,
 	PixelFormat,
 } from 'remotion';
-import {Log} from './log';
+import {isValidLogLevel, Log, LogLevel, logLevels, setLogLevel} from './log';
 
 export type CommandLineOptions = {
 	['browser-executable']: BrowserExecutable;
@@ -25,6 +25,7 @@ export type CommandLineOptions = {
 	quality: number;
 	frames: string | number;
 	sequence: boolean;
+	log: string;
 };
 
 export const parsedCli = minimist<CommandLineOptions>(process.argv.slice(2));
@@ -43,6 +44,16 @@ export const parseCommandLine = () => {
 		Config.Bundling.setCachingEnabled(
 			parsedCli['bundle-cache'] === 'false' ? false : true
 		);
+	}
+	if (parsedCli.log) {
+		if (!isValidLogLevel(parsedCli.log)) {
+			Log.Error('Invalid `--log` value passed.');
+			Log.Error(
+				`Accepted values: ${logLevels.map((l) => `'${l}'`).join(', ')}.`
+			);
+			process.exit(1);
+		}
+		setLogLevel(parsedCli.log as LogLevel);
 	}
 	if (parsedCli.concurrency) {
 		Config.Rendering.setConcurrency(parsedCli.concurrency);
