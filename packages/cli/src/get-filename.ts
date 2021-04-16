@@ -56,6 +56,31 @@ export const getOutputFilename = (
 			process.exit(1);
 		}
 	}
+	if (codec === 'mp3') {
+		if (extension !== 'mp3') {
+			console.error("When using the 'mp3' codec, the output must end in .mp3");
+			process.exit(1);
+		}
+	}
+	if (codec === 'aac') {
+		const allowedAacExtensions = ['aac', '3gp', 'm4a', 'm4b', 'mpg', 'mpeg'];
+		if (!extension || !allowedAacExtensions.includes(extension)) {
+			console.error(
+				`When using the 'aac' codec, the output must end in one of those extensions: ${allowedAacExtensions
+					.map((a) => `.${a}`)
+					.join(', ')}`
+			);
+			process.exit(1);
+		}
+	}
+	if (codec === 'wav') {
+		if (extension !== 'wav') {
+			console.error(
+				"When using the 'wav' codec, the output locatio must end in .wav."
+			);
+			process.exit(1);
+		}
+	}
 
 	return filename;
 };

@@ -28,9 +28,9 @@ test('It should calculate the correct offset in nested sequences', () => {
 	const {queryByText} = render(
 		<TimelineContext.Provider
 			value={{
+				rootId: 'hi',
 				frame: 40,
 				playing: false,
-				shouldRegisterSequences: true,
 			}}
 		>
 			<Sequence from={20} durationInFrames={100}>
@@ -52,7 +52,7 @@ test('Negative offset test', () => {
 			value={{
 				frame: 40,
 				playing: false,
-				shouldRegisterSequences: true,
+				rootId: 'hi',
 			}}
 		>
 			<Sequence from={-200} durationInFrames={300}>
@@ -74,11 +74,11 @@ test('Nested negative offset test', () => {
 		return <div>{'frame' + frame}</div>;
 	};
 
-	const startAt = 40;
+	const startFrom = 40;
 	const endAt = 90;
 
 	const content = (
-		<Sequence from={0 - startAt} durationInFrames={endAt}>
+		<Sequence from={0 - startFrom} durationInFrames={endAt}>
 			<NestedChild />
 		</Sequence>
 	);
@@ -89,7 +89,7 @@ test('Nested negative offset test', () => {
 				value={{
 					frame,
 					playing: false,
-					shouldRegisterSequences: true,
+					rootId: 'hi',
 				}}
 			>
 				{content}
@@ -112,12 +112,12 @@ test('Negative offset edge case', () => {
 		return <div>{'frame' + frame}</div>;
 	};
 
-	const startAt = 40;
+	const startFrom = 40;
 	const endAt = 90;
 
 	const content = (
 		<Sequence from={40} durationInFrames={Infinity}>
-			<Sequence from={0 - startAt} durationInFrames={endAt}>
+			<Sequence from={0 - startFrom} durationInFrames={endAt}>
 				<NestedChild />
 			</Sequence>
 		</Sequence>
@@ -129,7 +129,7 @@ test('Negative offset edge case', () => {
 				value={{
 					frame,
 					playing: false,
-					shouldRegisterSequences: true,
+					rootId: 'hi',
 				}}
 			>
 				{content}

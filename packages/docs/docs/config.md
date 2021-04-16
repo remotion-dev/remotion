@@ -112,13 +112,17 @@ Config.Rendering.setQuality(90);
 
 ### setOverwriteOutput()
 
-Set this to `true` to always overwrite Remotion outputs without asking.
+Set this to `false` to prevent overwriting Remotion outputs when they already exists.
 
 ```tsx
-Config.Output.setOverwriteOutput(true)
+Config.Output.setOverwriteOutput(false)
 ```
 
 The [command line flag](/docs/cli) `--overwrite` will take precedence over this option.
+
+:::info
+In version 1.x, the default behavior was inverse - Remotion would not override by default.
+:::
 
 ### setPixelFormat()
 
@@ -141,6 +145,9 @@ Choose one of the supported codecs: `h264` _(default)_, `h265`, `vp8`, `vp9`.
 - `h265` is the successor of H264, with smaller file sizes. Also known as HEVC. Poor browser compatibility.
 - `vp8` is the codec for WebM.
 - `vp9` is the next-generation codec for WebM. Lower file size, longer compression time.
+- `mp3` will export audio only as an MP3 file.
+- `wav` will export audio only as an WAV file.
+- `aac` will export audio only as an AAC file.
 
 ```tsx
 Config.Output.setCodec('h265');

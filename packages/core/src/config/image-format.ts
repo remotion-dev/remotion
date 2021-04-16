@@ -1,6 +1,6 @@
 import {PixelFormat} from '.';
 
-const validOptions = ['png', 'jpeg'] as const;
+const validOptions = ['png', 'jpeg', 'none'] as const;
 
 export type ImageFormat = typeof validOptions[number];
 
@@ -25,6 +25,9 @@ export const validateSelectedPixelFormatAndImageFormatCombination = (
 	pixelFormat: PixelFormat,
 	imageFormat: ImageFormat
 ) => {
+	if (imageFormat === 'none') {
+		return;
+	}
 	if (!validOptions.includes(imageFormat)) {
 		throw new TypeError(
 			`Value ${imageFormat} is not valid as an image format.`

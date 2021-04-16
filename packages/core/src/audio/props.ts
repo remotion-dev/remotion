@@ -1,5 +1,7 @@
+import {VolumeProp} from '../volume-prop';
+
 export type RemotionMainAudioProps = {
-	startAt?: number;
+	startFrom?: number;
 	endAt?: number;
 };
 
@@ -9,4 +11,6 @@ export type RemotionAudioProps = Omit<
 		HTMLAudioElement
 	>,
 	'autoplay' | 'controls'
->;
+> & {
+	volume?: VolumeProp;
+};

@@ -1,3 +1,4 @@
+import {isAudioCodec} from '../is-audio-codec';
 import {Codec} from './codec';
 
 type Crf = number | undefined;
@@ -16,6 +17,9 @@ export const getCrfOrUndefined = () => {
 };
 
 export const getDefaultCrfForCodec = (codec: Codec): number => {
+	if (isAudioCodec(codec)) {
+		return 0;
+	}
 	if (codec === 'h264') {
 		return 18; // FFMPEG default 23
 	}
@@ -32,6 +36,9 @@ export const getDefaultCrfForCodec = (codec: Codec): number => {
 };
 
 export const getValidCrfRanges = (codec: Codec): [number, number] => {
+	if (isAudioCodec(codec)) {
+		return [0, 0];
+	}
 	if (codec === 'h264') {
 		return [0, 51];
 	}

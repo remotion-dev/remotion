@@ -1,7 +1,8 @@
-import React from 'react';
+import React, {useContext} from 'react';
 import {Internals} from 'remotion';
 import styled from 'styled-components';
 import {renderFrame} from '../state/render-frame';
+import {RichTimelineContext} from '../state/rich-timeline';
 import {Thumbnail} from './Thumbnail';
 
 const Container = styled.div`
@@ -38,6 +39,7 @@ const targetHeight = 60;
 const targetWidth = (targetHeight * 16) / 9;
 
 export const CurrentComposition = () => {
+	const richTimelineContext = useContext(RichTimelineContext);
 	const video = Internals.useVideo();
 	if (!video) {
 		return <Container />;
@@ -47,7 +49,7 @@ export const CurrentComposition = () => {
 	return (
 		<Container>
 			<Row>
-				{Internals.FEATURE_FLAG_RICH_PREVIEWS ? (
+				{richTimelineContext.richTimeline ? (
 					<>
 						<Thumbnail
 							composition={video}
