@@ -26,3 +26,9 @@ test('Basic interpolate Colors', () => {
 		'rgba(250, 191, 223, 1)'
 	);
 });
+
+test('Color shorthands', () => {
+	expect(interpolateColors(1, [0, 1], ['#fad', '#fabfdf'])).toBe(
+		'rgba(250, 191, 223, 1)'
+	);
+});
