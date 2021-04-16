@@ -16,12 +16,12 @@ export const Log = {
 	},
 	Warn: (...args: Parameters<typeof console.log>) => {
 		if (Internals.Logging.isEqualOrBelowLogLevel('warn')) {
-			return console.log(chalk.yellow(...args));
+			return console.warn(chalk.yellow(...args));
 		}
 	},
 	Error: (...args: Parameters<typeof console.log>) => {
 		if (Internals.Logging.isEqualOrBelowLogLevel('error')) {
-			return console.log(chalk.red(...args));
+			return console.error(chalk.red(...args));
 		}
 	},
 };
