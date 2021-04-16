@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/gif",
-	"version": "1.5.0",
+	"version": "2.0.0",
 	"description": "Gif component for remotion",
 	"repository": {
 		"url": "https://github.com/JonnyBurger/remotion"
@@ -19,7 +19,7 @@
 	"dependencies": {
 		"@react-gifs/tools": "^0.1.1",
 		"lru_map": "^0.4.1",
-		"remotion": "^1.5.3"
+		"remotion": "^2.0.0"
 	},
 	"devDependencies": {
 		"@jonny/eslint-config": "^2.1.225",

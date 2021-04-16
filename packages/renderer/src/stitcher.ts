@@ -1,11 +1,26 @@
 import execa from 'execa';
 import fs from 'fs';
-import {Codec, Internals, PixelFormat} from 'remotion';
-import {DEFAULT_IMAGE_FORMAT, ImageFormat} from './image-format';
+import {
+	Codec,
+	ImageFormat,
+	Internals,
+	PixelFormat,
+	RenderAssetInfo,
+} from 'remotion';
+import {calculateAssetPositions} from './assets/calculate-asset-positions';
+import {convertAssetsToFileUrls} from './assets/convert-assets-to-file-urls';
+import {getAssetAudioDetails} from './assets/get-asset-audio-details';
+import {calculateFfmpegFilters} from './calculate-ffmpeg-filters';
+import {createFfmpegComplexFilter} from './create-ffmpeg-complex-filter';
+import {DEFAULT_IMAGE_FORMAT} from './image-format';
 import {parseFfmpegProgress} from './parse-ffmpeg-progress';
+import {resolveAssetSrc} from './resolve-asset-src';
 import {validateFfmpeg} from './validate-ffmpeg';
 
-const getCodecName = (codec: Codec): string => {
+const getCodecName = (codec: Codec): string | null => {
+	if (Internals.isAudioCodec(codec)) {
+		return null;
+	}
 	if (codec === 'h264') {
 		return 'libx264';
 	}
@@ -21,6 +36,19 @@ const getCodecName = (codec: Codec): string => {
 	throw new TypeError(`Cannot find FFMPEG codec for ${codec}`);
 };
 
+const getAudioCodecName = (codec: Codec): string | null => {
+	if (!Internals.isAudioCodec(codec)) {
+		return 'aac';
+	}
+	if (codec === 'aac') {
+		return 'aac';
+	}
+	if (codec === 'mp3') {
+		return 'libmp3lame';
+	}
+	return null;
+};
+
 export const stitchFramesToVideo = async (options: {
 	dir: string;
 	fps: number;
@@ -32,7 +60,10 @@ export const stitchFramesToVideo = async (options: {
 	pixelFormat?: PixelFormat;
 	codec?: Codec;
 	crf?: number;
+	assetsInfo: RenderAssetInfo;
+	parallelism?: number | null;
 	onProgress?: (num: number) => void;
+	onDownload?: (src: string) => void;
 }): Promise<void> => {
 	const codec = options.codec ?? Internals.DEFAULT_CODEC;
 	const crf = options.crf ?? Internals.getDefaultCrfForCodec(codec);
@@ -51,6 +82,8 @@ export const stitchFramesToVideo = async (options: {
 	const numberLength = String(biggestNumber).length;
 
 	const encoderName = getCodecName(codec);
+	const audioCodecName = getAudioCodecName(codec);
+	const isAudioOnly = encoderName === null;
 	Internals.validateSelectedCrfAndCodecCombination(crf, codec);
 	Internals.validateSelectedPixelFormatAndImageFormatCombination(
 		pixelFormat,
@@ -58,32 +91,61 @@ export const stitchFramesToVideo = async (options: {
 	);
 	Internals.validateSelectedPixelFormatAndCodecCombination(pixelFormat, codec);
 
+	const fileUrlAssets = await convertAssetsToFileUrls({
+		assets: options.assetsInfo.assets,
+		dir: options.assetsInfo.bundleDir,
+		onDownload: options.onDownload ?? (() => void 0),
+	});
+	const assetPositions = calculateAssetPositions(fileUrlAssets);
+
+	const assetPaths = assetPositions.map((asset) => resolveAssetSrc(asset.src));
+	if (isAudioOnly && assetPaths.length === 0) {
+		throw new Error(
+			`Cannot render - you are trying to generate an audio file (${codec}) but your composition doesn't contain any audio.`
+		);
+	}
+	const assetAudioDetails = await getAssetAudioDetails({
+		assetPaths,
+		parallelism: options.parallelism,
+	});
+
+	const filters = calculateFfmpegFilters({
+		assetAudioDetails,
+		assetPositions,
+		fps: options.fps,
+		videoTrackCount: isAudioOnly ? 0 : 1,
+	});
+
 	const ffmpegArgs = [
-		'-r',
-		String(options.fps),
-		'-f',
-		'image2',
-		'-s',
-		`${options.width}x${options.height}`,
-		'-start_number',
-		String(smallestNumber),
-		'-i',
-		`element-%0${numberLength}d.${imageFormat}`,
-		'-c:v',
-		encoderName,
-		'-crf',
-		crf,
-		'-b:v',
-		'1M',
-		options.force ? '-y' : null,
-		'-pix_fmt',
-		pixelFormat,
+		['-r', String(options.fps)],
+		isAudioOnly ? null : ['-f', 'image2'],
+		isAudioOnly ? null : ['-s', `${options.width}x${options.height}`],
+		isAudioOnly ? null : ['-start_number', String(smallestNumber)],
+		isAudioOnly ? null : ['-i', `element-%0${numberLength}d.${imageFormat}`],
+		...assetPaths.map((path) => ['-i', path]),
+		encoderName
+			? // -c:v is the same as -vcodec as -codec:video
+			  // and specified the video codec.
+			  ['-c:v', encoderName]
+			: // If only exporting audio, we drop the video explicitly
+			  ['-vn'],
+		isAudioOnly ? null : ['-crf', String(crf)],
+		isAudioOnly ? null : ['-pix_fmt', pixelFormat],
+
 		// Without explicitly disabling auto-alt-ref,
 		// transparent WebM generation doesn't work
-		pixelFormat === 'yuva420p' ? '-auto-alt-ref' : null,
-		pixelFormat === 'yuva420p' ? '0' : null,
+		pixelFormat === 'yuva420p' ? ['-auto-alt-ref', '0'] : null,
+		isAudioOnly ? null : ['-b:v', '1M'],
+		audioCodecName ? ['-c:a', audioCodecName] : null,
+		createFfmpegComplexFilter(filters),
+		'-shortest',
+		// Ignore audio from image sequence
+		isAudioOnly ? null : ['-map', '0:v'],
+		options.force ? '-y' : null,
 		options.outputLocation,
-	].filter(Boolean) as string[];
+	]
+		.reduce<(string | null)[]>((acc, val) => acc.concat(val), [])
+		.filter(Boolean) as string[];
 
 	const task = execa('ffmpeg', ffmpegArgs, {cwd: options.dir});
 
