@@ -4,7 +4,7 @@ import typescript from 'typescript';
 import {isDefaultConfigFile} from './get-config-file-name';
 import {Log} from './log';
 
-export const loadConfigFile = (configFileName: string) => {
+export const loadConfigFile = (configFileName: string): string | null => {
 	const configFile = path.resolve(process.cwd(), configFileName);
 	const tsconfigJson = path.join(process.cwd(), 'tsconfig.json');
 	if (!fs.existsSync(tsconfigJson)) {
@@ -20,7 +20,7 @@ export const loadConfigFile = (configFileName: string) => {
 			);
 			process.exit(1);
 		}
-		return;
+		return null;
 	}
 
 	const tsConfig = typescript.readConfigFile(
@@ -43,5 +43,5 @@ export const loadConfigFile = (configFileName: string) => {
 
 	eval(output.outputText);
 
-	Log.Verbose(`Applied configuration from ${configFileName}.`);
+	return configFileName;
 };
