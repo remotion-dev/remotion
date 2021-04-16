@@ -6,6 +6,7 @@ import {setCrf} from './crf';
 import {FrameRange, setFrameRange} from './frame-range';
 import {ImageFormat, setImageFormat} from './image-format';
 import {setImageSequence} from './image-sequence';
+import {LogLevel} from './log';
 import {
 	overrideWebpackConfig,
 	WebpackConfiguration,
@@ -107,4 +108,5 @@ export type {
 	Codec,
 	Browser,
 	FrameRange,
+	LogLevel,
 };
