@@ -7,6 +7,7 @@ import {
 	Internals,
 	PixelFormat,
 } from 'remotion';
+import {Log} from './log';
 
 export type CommandLineOptions = {
 	['browser-executable']: BrowserExecutable;
@@ -50,7 +51,7 @@ export const parseCommandLine = () => {
 		Internals.setFrameRangeFromCli(parsedCli.frames);
 	}
 	if (parsedCli.png) {
-		console.warn(
+		Log.Warn(
 			'The --png flag has been deprecrated. Use --sequence --image-format=png from now on.'
 		);
 		Config.Output.setImageSequence(true);
