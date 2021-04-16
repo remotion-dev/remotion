@@ -138,7 +138,6 @@ export const stitchFramesToVideo = async (options: {
 		isAudioOnly ? null : ['-b:v', '1M'],
 		audioCodecName ? ['-c:a', audioCodecName] : null,
 		createFfmpegComplexFilter(filters),
-		'-shortest',
 		// Ignore audio from image sequence
 		isAudioOnly ? null : ['-map', '0:v'],
 		options.force ? '-y' : null,
