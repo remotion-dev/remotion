@@ -46,16 +46,6 @@ export const render = async () => {
 	}
 	const shouldOutputImageSequence = Internals.getShouldOutputImageSequence();
 	const userCodec = Internals.getOutputCodecOrUndefined();
-	if (shouldOutputImageSequence && userCodec) {
-		console.error(
-			'Detected both --codec and --sequence (formerly --png) flag.'
-		);
-		console.error(
-			'This is an error - no video codec can be used for image sequences.'
-		);
-		console.error('Remove one of the two flags and try again.');
-		process.exit(1);
-	}
 	const codec = getFinalOutputCodec({
 		codec: userCodec,
 		fileExtension: getUserPassedFileExtension(),
