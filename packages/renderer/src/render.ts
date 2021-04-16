@@ -37,6 +37,7 @@ export const renderFrames = async ({
 	imageFormat = DEFAULT_IMAGE_FORMAT,
 	browser = Internals.DEFAULT_BROWSER,
 	frameRange,
+	dumpBrowserLogs = false,
 }: {
 	config: VideoConfig;
 	parallelism?: number | null;
@@ -51,6 +52,7 @@ export const renderFrames = async ({
 	browser?: Browser;
 	frameRange?: FrameRange | null;
 	assetsOnly?: boolean;
+	dumpBrowserLogs?: boolean;
 }): Promise<RenderFramesOutput> => {
 	if (quality !== undefined && imageFormat !== 'jpeg') {
 		throw new Error(
@@ -61,7 +63,9 @@ export const renderFrames = async ({
 
 	const [{port, close}, browserInstance] = await Promise.all([
 		serveStatic(webpackBundle),
-		openBrowser(browser),
+		openBrowser(browser, {
+			shouldDumpIo: dumpBrowserLogs,
+		}),
 	]);
 	const pages = new Array(actualParallelism).fill(true).map(async () => {
 		const page = await browserInstance.newPage();

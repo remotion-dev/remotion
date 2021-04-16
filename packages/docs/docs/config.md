@@ -41,6 +41,26 @@ Config.Bundling.setCachingEnabled(false);
 
 The [command line flag](/docs/cli) `--bundle-cache` will take precedence over this option.
 
+## Log
+
+### setLevel()
+
+_Available from Version 2.0.1_
+
+Increase or decrease the amount of log messages in the CLI.
+Acceptable values:
+
+- `error`: Silent except error messages.
+- `warning`: Only showing errors and warnings.
+- `info` (_default_): Default output - besides errors and warnings, prints progress and output location.
+- `verbose`: All of the above, plus browser logs and other debug info.
+
+```tsx
+Config.Log.setLevel('verbose');
+```
+
+The [command line flag](/docs/cli) `--log` will take precedence over this option.
+
 ## Puppeteer
 
 ### setBrowserExecutable()
