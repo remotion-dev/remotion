@@ -29,8 +29,11 @@ export const render = async () => {
 	const fullPath = path.join(process.cwd(), file);
 
 	const configFileName = getConfigFileName();
-	loadConfigFile(configFileName);
+	const appliedName = loadConfigFile(configFileName);
 	parseCommandLine();
+	if (appliedName) {
+		Log.Verbose(`Applied configuration from ${appliedName}.`);
+	}
 	const parallelism = Internals.getConcurrency();
 	const frameRange = Internals.getRange();
 	if (typeof frameRange === 'number') {
@@ -152,6 +155,7 @@ export const render = async () => {
 		}
 	);
 	bundlingProgress.stop();
+	Log.Verbose('Bundled under', bundled);
 	const cacheExistedAfter = cacheExists('production', null);
 	if (cacheExistedAfter && !cacheExistedBefore) {
 		Log.Info('⚡️ Cached bundle. Subsequent builds will be faster.');
@@ -170,6 +174,8 @@ export const render = async () => {
 	const outputDir = shouldOutputImageSequence
 		? absoluteOutputFile
 		: await fs.promises.mkdtemp(path.join(os.tmpdir(), 'react-motion-render'));
+
+	Log.Verbose('Output dir', outputDir);
 
 	const renderProgress = new cliProgress.Bar(
 		{
@@ -200,6 +206,7 @@ export const render = async () => {
 		browser,
 		frameRange: frameRange ?? null,
 		assetsOnly: Internals.isAudioCodec(codec),
+		dumpBrowserLogs: Internals.Logging.isEqualOrBelowLogLevel('verbose'),
 	});
 	renderProgress.stop();
 	if (process.env.DEBUG) {
@@ -239,6 +246,7 @@ export const render = async () => {
 				Log.Info('\n');
 				Log.Info('Downloading asset... ', src);
 			},
+			verbose: Internals.Logging.isEqualOrBelowLogLevel('verbose'),
 		});
 		stitchingProgress.stop();
 
