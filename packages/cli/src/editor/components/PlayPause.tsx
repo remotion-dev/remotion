@@ -1,5 +1,5 @@
 import {usePlaybackTime} from '@remotion/player';
-import React, {useEffect} from 'react';
+import React, {useCallback, useEffect} from 'react';
 import {Internals} from 'remotion';
 import {Pause} from '../icons/pause';
 import {Play} from '../icons/play';
@@ -12,13 +12,25 @@ export const PlayPause: React.FC = () => {
 	const frame = Internals.Timeline.useTimelinePosition();
 	const video = Internals.useVideo();
 
-	const [
-		toggle,
-		frameBack,
-		frameForward,
-		onKeyPress,
-		isLastFrame,
-	] = usePlaybackTime();
+	const {toggle, frameBack, frameForward, isLastFrame} = usePlaybackTime();
+
+	const onKeyPress = useCallback(
+		(e: KeyboardEvent) => {
+			if (e.code === 'Space') {
+				toggle();
+				e.preventDefault();
+			}
+			if (e.code === 'ArrowLeft') {
+				frameBack();
+				e.preventDefault();
+			}
+			if (e.code === 'ArrowRight') {
+				frameForward();
+				e.preventDefault();
+			}
+		},
+		[frameBack, frameForward, toggle]
+	);
 
 	useEffect(() => {
 		window.addEventListener('keydown', onKeyPress);
