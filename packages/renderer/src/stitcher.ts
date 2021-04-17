@@ -129,7 +129,7 @@ export const stitchFramesToVideo = async (options: {
 	});
 	if (options.verbose) {
 		console.log('asset positions', assetPositions);
-
+	}
 	if (options.verbose) {
 		console.log('filters', filters);
 	}
