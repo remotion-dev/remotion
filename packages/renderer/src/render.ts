@@ -145,15 +145,22 @@ export const renderFrames = async ({
 				return collectedAssets;
 			})
 	);
-	await Promise.all<unknown>([
-		// If browser instance was passed in, we close all the pages
-		// we opened.
-		// If new browser was opened, then closing the browser as a cleanup.
-		puppeteerInstance
-			? Promise.all(puppeteerPages.map((p) => p.close()))
-			: browserInstance.close(),
-		close(),
-	]);
+	close().catch((err) => {
+		console.log('Unable to close web server', err);
+	});
+	// If browser instance was passed in, we close all the pages
+	// we opened.
+	// If new browser was opened, then closing the browser as a cleanup.
+
+	if (puppeteerInstance) {
+		await Promise.all(puppeteerPages.map((p) => p.close())).catch((err) => {
+			console.log('Unable to close browser tab', err);
+		});
+	} else {
+		browserInstance.close().catch((err) => {
+			console.log('Unable to close browser', err);
+		});
+	}
 
 	return {
 		assetsInfo: {
