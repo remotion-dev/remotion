@@ -42,11 +42,15 @@ export const createFfmpegComplexFilter = async (
 	return {
 		complexFilterFlag: ['-filter_complex_script', filterFile],
 		cleanup: () => {
-			fs.promises.rmdir(tempPath).catch((err) => {
-				console.error('Could not delete a temp file');
-				console.error(err);
-				console.error('Do you have the minimum Node.JS installed?');
-			});
+			fs.promises
+				.rmdir(tempPath, {
+					recursive: true,
+				})
+				.catch((err) => {
+					console.error('Could not delete a temp file');
+					console.error(err);
+					console.error('Do you have the minimum Node.JS installed?');
+				});
 		},
 	};
 };
