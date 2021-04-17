@@ -1,13 +1,12 @@
 import {useCallback, useEffect, useRef} from 'react';
 import {Internals} from 'remotion';
 
-export const usePlaybackTime = (): [
-	() => null | undefined,
-	() => null | undefined,
-	() => null | undefined,
-	(e: KeyboardEvent) => void,
-	boolean
-] => {
+export const usePlaybackTime = (): {
+	toggle: () => void;
+	frameBack: () => void;
+	frameForward: () => void;
+	isLastFrame: boolean;
+} => {
 	const [playing, setPlaying] = Internals.Timeline.usePlayingState();
 	const frame = Internals.Timeline.useTimelinePosition();
 	const setFrame = Internals.Timeline.useTimelineSetFrame();
@@ -54,24 +53,6 @@ export const usePlaybackTime = (): [
 		setFrame((f) => f + 1);
 	}, [isLastFrame, playing, setFrame, video]);
 
-	const onKeyPress = useCallback(
-		(e: KeyboardEvent) => {
-			if (e.code === 'Space') {
-				toggle();
-				e.preventDefault();
-			}
-			if (e.code === 'ArrowLeft') {
-				frameBack();
-				e.preventDefault();
-			}
-			if (e.code === 'ArrowRight') {
-				frameForward();
-				e.preventDefault();
-			}
-		},
-		[frameBack, frameForward, toggle]
-	);
-
 	const frameRef = useRef(frame);
 	frameRef.current = frame;
 
@@ -111,5 +92,5 @@ export const usePlaybackTime = (): [
 		};
 	}, [config, setFrame, playing]);
 
-	return [toggle, frameBack, frameForward, onKeyPress, isLastFrame];
+	return {toggle, frameBack, frameForward, isLastFrame};
 };
