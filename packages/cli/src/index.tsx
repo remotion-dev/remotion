@@ -3,13 +3,20 @@
 import xns from 'xns';
 import {checkNodeVersion} from './check-version';
 import {Log} from './log';
+import {parsedCli} from './parse-command-line';
 import {previewCommand} from './preview';
+import {printHelp} from './print-help';
 import {render} from './render';
 import {upgrade} from './upgrade';
 
 export const cli = xns(async () => {
 	const args = process.argv;
 	const command = args[2];
+
+	if (parsedCli.help) {
+		printHelp();
+		process.exit(0);
+	}
 	//To check node version and to warn if node version is <12.10.0
 	checkNodeVersion();
 
@@ -21,10 +28,7 @@ export const cli = xns(async () => {
 		await upgrade();
 	} else {
 		Log.Error(`Command ${command} not found.`);
-		Log.Info('Available commands:');
-		Log.Info('  preview');
-		Log.Info('  render');
-		Log.Info('  upgrade');
+		printHelp();
 		process.exit(1);
 	}
 });
