@@ -10,7 +10,7 @@ export type RemotionAudioProps = Omit<
 		React.AudioHTMLAttributes<HTMLAudioElement>,
 		HTMLAudioElement
 	>,
-	'autoplay' | 'controls'
+	'autoplay' | 'controls' | 'loop'
 > & {
 	volume?: VolumeProp;
 };
