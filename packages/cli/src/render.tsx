@@ -5,6 +5,7 @@ import {
 	getActualConcurrency,
 	getCompositions,
 	getFfmpegVersion,
+	openBrowser,
 	renderFrames,
 	stitchFramesToVideo,
 	validateFfmpeg,
@@ -54,6 +55,7 @@ export const render = async () => {
 		fileExtension: getUserPassedFileExtension(),
 		emitWarning: true,
 	});
+
 	const ffmpegVersion = await getFfmpegVersion();
 	Log.Verbose(
 		'Your FFMPEG version:',
@@ -90,6 +92,7 @@ export const render = async () => {
 	const inputProps = getInputProps();
 	const quality = Internals.getQuality();
 	const browser = Internals.getBrowser() ?? Internals.DEFAULT_BROWSER;
+	const browserInstance = openBrowser(browser);
 
 	const absoluteOutputFile = path.resolve(process.cwd(), outputFile);
 	if (fs.existsSync(absoluteOutputFile) && !overwrite) {
@@ -161,9 +164,11 @@ export const render = async () => {
 	if (cacheExistedAfter && !cacheExistedBefore) {
 		Log.Info('⚡️ Cached bundle. Subsequent builds will be faster.');
 	}
+	const openedBrowser = await browserInstance;
 	const comps = await getCompositions(bundled, {
 		browser: Internals.getBrowser() || Internals.DEFAULT_BROWSER,
 		inputProps,
+		browserInstance: openedBrowser,
 	});
 	const compositionId = getCompositionId(comps);
 
@@ -208,7 +213,10 @@ export const render = async () => {
 		frameRange: frameRange ?? null,
 		assetsOnly: Internals.isAudioCodec(codec),
 		dumpBrowserLogs: Internals.Logging.isEqualOrBelowLogLevel('verbose'),
+		puppeteerInstance: openedBrowser,
 	});
+
+	const closeBrowserPromise = openedBrowser.close();
 	renderProgress.stop();
 	if (process.env.DEBUG) {
 		Internals.perf.logPerf();
@@ -272,4 +280,5 @@ export const render = async () => {
 		Log.Info('\n▶️ Your image sequence is ready!');
 	}
 	Log.Info(absoluteOutputFile);
+	await closeBrowserPromise;
 };
