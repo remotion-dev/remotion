@@ -21,3 +21,13 @@ export const ffmpegHasFeature = async (
 	const config = await getFfmpegBuildInfo();
 	return config.includes(feature);
 };
+
+export const parseFfmpegVersion = (
+	buildconf: string
+): [number, number, number] | null => {
+	const match = buildconf.match(/ffmpeg version ([0-9]+).([0-9]+).([0-9]+)/);
+	if (!match) {
+		return null;
+	}
+	return [Number(match[1]), Number(match[2]), Number(match[3])];
+};
