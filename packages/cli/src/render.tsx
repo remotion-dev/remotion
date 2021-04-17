@@ -62,7 +62,10 @@ export const render = async () => {
 		emitWarning: true,
 	});
 	const ffmpegVersion = await getFfmpegVersion();
-	Log.Verbose('Your FFMPEG version: ', ffmpegVersion);
+	Log.Verbose(
+		'Your FFMPEG version:',
+		ffmpegVersion ? ffmpegVersion.join('.') : 'Built from source'
+	);
 	warnAboutFfmpegVersion(ffmpegVersion);
 	if (codec === 'vp8' && !(await ffmpegHasFeature('enable-libvpx'))) {
 		Log.Error(
