@@ -1,5 +1,4 @@
-import {getVideoMetadata} from '@remotion/media-utils';
-import {VideoMetadata} from '@remotion/media-utils/src/types';
+import {getVideoMetadata, VideoMetadata} from '@remotion/media-utils';
 import React, {useEffect, useRef, useState} from 'react';
 import {TIMELINE_LAYER_HEIGHT} from '../../helpers/timeline-layout';
 

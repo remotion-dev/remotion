@@ -90,7 +90,6 @@ export const stitchFramesToVideo = async (options: {
 		console.log('[verbose] encoder', encoderName);
 		console.log('[verbose] audioCodec', audioCodecName);
 		console.log('[verbose] pixelFormat', pixelFormat);
-		console.log('[verbose] files', JSON.stringify(files));
 		console.log('[verbose] imageFormat', imageFormat);
 		console.log('[verbose] crf', crf);
 		console.log('[verbose] codec', codec);
@@ -128,6 +127,12 @@ export const stitchFramesToVideo = async (options: {
 		fps: options.fps,
 		videoTrackCount: isAudioOnly ? 0 : 1,
 	});
+	if (options.verbose) {
+		console.log('asset positions', assetPositions);
+	}
+	if (options.verbose) {
+		console.log('filters', filters);
+	}
 	const ffmpegArgs = [
 		['-r', String(options.fps)],
 		isAudioOnly ? null : ['-f', 'image2'],

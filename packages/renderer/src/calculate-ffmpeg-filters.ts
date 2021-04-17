@@ -19,36 +19,36 @@ export const calculateFfmpegFilters = ({
 	fps: number;
 	videoTrackCount: number;
 }): FfmpegFilterCalculation[] => {
-	return assetPositions
-		.filter((pos) => {
-			return (
-				(assetAudioDetails.get(resolveAssetSrc(pos.src)) as AssetAudioDetails)
-					.channels > 0
-			);
-		})
-		.map((asset, i) => {
-			const assetTrimLeft = (asset.trimLeft / fps).toFixed(3);
-			const assetTrimRight = ((asset.trimLeft + asset.duration) / fps).toFixed(
-				3
-			);
-			const audioDetails = assetAudioDetails.get(
-				resolveAssetSrc(asset.src)
-			) as AssetAudioDetails;
-			const simultaneousAssets = getSimultaneousAssets(assetPositions, asset);
+	const withMoreThan1Channel = assetPositions.filter((pos) => {
+		return (
+			(assetAudioDetails.get(resolveAssetSrc(pos.src)) as AssetAudioDetails)
+				.channels > 0
+		);
+	});
+	return withMoreThan1Channel.map((asset, i) => {
+		const assetTrimLeft = (asset.trimLeft / fps).toFixed(3);
+		const assetTrimRight = ((asset.trimLeft + asset.duration) / fps).toFixed(3);
+		const audioDetails = assetAudioDetails.get(
+			resolveAssetSrc(asset.src)
+		) as AssetAudioDetails;
+		const simultaneousAssets = getSimultaneousAssets(
+			withMoreThan1Channel,
+			asset
+		);
 
-			const streamIndex = i + videoTrackCount;
-			return {
-				filter: stringifyFfmpegFilter({
-					streamIndex,
-					channels: audioDetails.channels,
-					startInVideo: asset.startInVideo,
-					trimLeft: assetTrimLeft,
-					trimRight: assetTrimRight,
-					simulatenousAssets: simultaneousAssets.length,
-					volume: asset.volume,
-					fps,
-				}),
+		const streamIndex = i + videoTrackCount;
+		return {
+			filter: stringifyFfmpegFilter({
 				streamIndex,
-			};
-		});
+				channels: audioDetails.channels,
+				startInVideo: asset.startInVideo,
+				trimLeft: assetTrimLeft,
+				trimRight: assetTrimRight,
+				simulatenousAssets: simultaneousAssets.length,
+				volume: asset.volume,
+				fps,
+			}),
+			streamIndex,
+		};
+	});
 };
