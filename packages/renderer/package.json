@@ -3,6 +3,7 @@
 	"version": "2.0.1",
 	"description": "Renderer for Remotion",
 	"main": "dist/index.js",
+	"sideEffects": false,
 	"scripts": {
 		"test": "eslint src --ext ts,tsx && jest",
 		"watch": "tsc -w",
