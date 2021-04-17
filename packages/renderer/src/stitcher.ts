@@ -162,8 +162,6 @@ export const stitchFramesToVideo = async (options: {
 		options.outputLocation,
 	];
 
-	cleanup();
-
 	if (options.verbose) {
 		console.log('Generated FFMPEG command:');
 		console.log(ffmpegArgs);
@@ -184,4 +182,5 @@ export const stitchFramesToVideo = async (options: {
 		}
 	});
 	await task;
+	cleanup();
 };
