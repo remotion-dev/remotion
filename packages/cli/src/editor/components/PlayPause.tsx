@@ -16,21 +16,32 @@ export const PlayPause: React.FC = () => {
 
 	const onKeyPress = useCallback(
 		(e: KeyboardEvent) => {
+			if (!video) {
+				return;
+			}
 			if (e.code === 'Space') {
 				toggle();
 				e.preventDefault();
 			}
 			if (e.code === 'ArrowLeft') {
-				frameBack();
+				frameBack(e.shiftKey ? video.fps : 1);
 				e.preventDefault();
 			}
 			if (e.code === 'ArrowRight') {
-				frameForward();
+				frameForward(e.shiftKey ? video.fps : 1);
 				e.preventDefault();
 			}
 		},
-		[frameBack, frameForward, toggle]
+		[frameBack, frameForward, toggle, video]
 	);
+
+	const oneFrameBack = useCallback(() => {
+		frameBack(1);
+	}, [frameBack]);
+
+	const oneFrameForward = useCallback(() => {
+		frameForward(1);
+	}, [frameForward]);
 
 	useEffect(() => {
 		window.addEventListener('keydown', onKeyPress);
@@ -44,7 +55,7 @@ export const PlayPause: React.FC = () => {
 			<ControlButton
 				aria-label="Step back one frame"
 				disabled={frame === 0}
-				onClick={frameBack}
+				onClick={oneFrameBack}
 			>
 				<StepBack
 					style={{
@@ -82,7 +93,7 @@ export const PlayPause: React.FC = () => {
 			<ControlButton
 				aria-label="Step forward one frame"
 				disabled={isLastFrame}
-				onClick={frameForward}
+				onClick={oneFrameForward}
 			>
 				<StepForward
 					style={{
