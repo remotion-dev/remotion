@@ -92,7 +92,9 @@ export const render = async () => {
 	const inputProps = getInputProps();
 	const quality = Internals.getQuality();
 	const browser = Internals.getBrowser() ?? Internals.DEFAULT_BROWSER;
-	const browserInstance = openBrowser(browser);
+	const browserInstance = openBrowser(browser, {
+		shouldDumpIo: Internals.Logging.isEqualOrBelowLogLevel('verbose'),
+	});
 
 	const absoluteOutputFile = path.resolve(process.cwd(), outputFile);
 	if (fs.existsSync(absoluteOutputFile) && !overwrite) {
