@@ -3,6 +3,7 @@
 	"version": "2.0.1",
 	"description": "Utility functions for audio and video",
 	"main": "dist/index.js",
+	"sideEffects": false,
 	"scripts": {
 		"test": "eslint src --ext ts,tsx",
 		"watch": "tsc -w",
