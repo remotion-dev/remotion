@@ -3,6 +3,7 @@
 	"version": "2.0.1",
 	"description": "Bundler for Remotion",
 	"main": "dist/index.js",
+	"sideEffects": false,
 	"repository": {
 		"url": "https://github.com/JonnyBurger/remotion"
 	},
