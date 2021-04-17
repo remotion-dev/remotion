@@ -90,7 +90,6 @@ export const stitchFramesToVideo = async (options: {
 		console.log('[verbose] encoder', encoderName);
 		console.log('[verbose] audioCodec', audioCodecName);
 		console.log('[verbose] pixelFormat', pixelFormat);
-		console.log('[verbose] files', JSON.stringify(files));
 		console.log('[verbose] imageFormat', imageFormat);
 		console.log('[verbose] crf', crf);
 		console.log('[verbose] codec', codec);
