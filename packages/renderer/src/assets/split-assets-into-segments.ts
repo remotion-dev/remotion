@@ -48,9 +48,13 @@ export const splitAssetsIntoSegments = ({
 				const assetEnd = a.startInVideo + a.duration;
 				// Video goes beyond cut
 				if (assetStart < cutEnd && assetEnd > cutEnd) {
+					const amountOfFramesThatGetCut = cutStart - assetStart;
+
 					return {
 						...a,
-						duration: cutEnd - a.startInVideo,
+						startInVideo: cutStart,
+						duration: cutEnd - cutStart,
+						trimLeft: a.trimLeft + amountOfFramesThatGetCut,
 					} as MediaAsset;
 				}
 				// Video starts before cut
