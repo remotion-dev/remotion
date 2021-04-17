@@ -4,6 +4,7 @@ import {
 	ffmpegHasFeature,
 	getActualConcurrency,
 	getCompositions,
+	getFfmpegVersion,
 	renderFrames,
 	stitchFramesToVideo,
 	validateFfmpeg,
@@ -23,6 +24,7 @@ import {loadConfigFile} from './load-config';
 import {Log} from './log';
 import {parseCommandLine, parsedCli} from './parse-command-line';
 import {getUserPassedFileExtension} from './user-passed-output-location';
+import {warnAboutFfmpegVersion} from './warn-about-ffmpeg-version';
 
 export const render = async () => {
 	const file = parsedCli._[1];
@@ -59,6 +61,9 @@ export const render = async () => {
 		fileExtension: getUserPassedFileExtension(),
 		emitWarning: true,
 	});
+	const ffmpegVersion = await getFfmpegVersion();
+	Log.Verbose('Your FFMPEG version: ', ffmpegVersion);
+	warnAboutFfmpegVersion(ffmpegVersion);
 	if (codec === 'vp8' && !(await ffmpegHasFeature('enable-libvpx'))) {
 		Log.Error(
 			"The Vp8 codec has been selected, but your FFMPEG binary wasn't compiled with the --enable-lipvpx flag."
