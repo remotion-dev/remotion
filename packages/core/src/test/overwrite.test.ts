@@ -21,10 +21,10 @@ test('setOverwriteOutput should throw if overwrite is not a boolean value', () =
 test('setOverwriteOutput should NOT throw if image format is a boolean value', () => {
 	expect(() => setOverwriteOutput(true)).not.toThrow();
 });
-test('getShouldOverwrite should return false by default', () => {
-	expect(getShouldOverwrite()).toEqual(false);
+test('getShouldOverwrite should return true by default', () => {
+	expect(getShouldOverwrite()).toEqual(true);
 });
 test('setOverwriteOutput should return a boolean value', () => {
-	setOverwriteOutput(true);
-	expect(getShouldOverwrite()).toEqual(true);
+	setOverwriteOutput(false);
+	expect(getShouldOverwrite()).toEqual(false);
 });

@@ -10,6 +10,7 @@
 		{"path": "../core"},
 		{"path": "../bundler"},
 		{"path": "../renderer"},
-		{"path": "../player"}
+		{"path": "../player"},
+		{"path": "../media-utils"}
 	]
 }

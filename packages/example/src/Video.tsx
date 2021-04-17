@@ -2,6 +2,7 @@ import React from 'react';
 import {Composition, getInputProps} from 'remotion';
 import {Framer} from './Framer';
 import {MissingImg} from './MissingImg';
+import RemoteVideo from './RemoteVideo';
 import {TenFrameTester} from './TenFrameTester';
 import {VideoTesting} from './VideoTesting';
 
@@ -162,6 +163,38 @@ export const Index: React.FC = () => {
 				durationInFrames={10}
 			/>
 			<Composition
+				id="audio-testing"
+				lazyComponent={() => import('./AudioTesting')}
+				width={1080}
+				height={1080}
+				fps={30}
+				durationInFrames={300}
+			/>
+			<Composition
+				id="audio-visualization"
+				lazyComponent={() => import('./AudioVisualization')}
+				width={1080}
+				height={1080}
+				fps={30}
+				durationInFrames={180 * 30}
+			/>
+			<Composition
+				id="drop-dots"
+				lazyComponent={() => import('./DropDots/DropDots')}
+				width={1080}
+				height={1080}
+				fps={30}
+				durationInFrames={180 * 30}
+			/>
+			<Composition
+				id="audio-testing-mute"
+				lazyComponent={() => import('./AudioTestingMute')}
+				width={1080}
+				height={1080}
+				fps={30}
+				durationInFrames={300}
+			/>
+			<Composition
 				id="ten-frame-tester"
 				component={TenFrameTester}
 				width={1080}
@@ -170,12 +203,26 @@ export const Index: React.FC = () => {
 				durationInFrames={10}
 			/>
 			<Composition
-				id="video-testing"
+				id="video-testing-mp4"
 				component={VideoTesting}
 				width={1080}
 				height={1080}
 				fps={30}
 				durationInFrames={100}
+				defaultProps={{
+					codec: 'mp4',
+				}}
+			/>
+			<Composition
+				id="video-testing-webm"
+				component={VideoTesting}
+				width={1080}
+				height={1080}
+				fps={30}
+				durationInFrames={100}
+				defaultProps={{
+					codec: 'webm',
+				}}
 			/>
 			<Composition
 				id="framer"
@@ -184,6 +231,14 @@ export const Index: React.FC = () => {
 				height={1080}
 				fps={30}
 				durationInFrames={100}
+			/>
+			<Composition
+				id="remote-video"
+				component={RemoteVideo}
+				width={1280}
+				height={720}
+				fps={30}
+				durationInFrames={600}
 			/>
 		</>
 	);

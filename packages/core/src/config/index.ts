@@ -6,6 +6,7 @@ import {setCrf} from './crf';
 import {FrameRange, setFrameRange} from './frame-range';
 import {ImageFormat, setImageFormat} from './image-format';
 import {setImageSequence} from './image-sequence';
+import {LogLevel, setLogLevel} from './log';
 import {
 	overrideWebpackConfig,
 	WebpackConfiguration,
@@ -29,6 +30,16 @@ export const Config = {
 		 * subsequent renders faster. Default: true
 		 */
 		setCachingEnabled: setWebpackCaching,
+	},
+	Log: {
+		/**
+		 * Set the log level.
+		 * Acceptable values: 'error' | 'warning' | 'info' | 'verbose'
+		 * Default value: 'info'
+		 *
+		 * Set this to 'verbose' to get browser logs and other IO.
+		 */
+		setLevel: setLogLevel,
 	},
 	Puppeteer: {
 		/**
@@ -65,7 +76,7 @@ export const Config = {
 	Output: {
 		/**
 		 * If the video file already exists, should Remotion overwrite
-		 * the output? Default: false
+		 * the output? Default: true
 		 */
 		setOverwriteOutput,
 		/**
@@ -107,4 +118,5 @@ export type {
 	Codec,
 	Browser,
 	FrameRange,
+	LogLevel,
 };

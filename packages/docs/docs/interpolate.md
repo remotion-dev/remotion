@@ -3,27 +3,107 @@ title: interpolate()
 id: interpolate
 ---
 
-Allows you to map a value to another using a concise syntax.
+Allows you to map a range of values to another using a concise syntax.
 
-## Example
+## Example: Fade-in effect
+
+In this example, we are fading in some content by calculating the opacity for a certain point of time.
+At frame 0 (the start of the video), we want the opacity to be 0.
+At frame 20, we want the opacity to be 1.
+
+Using the following snippet, we can calculate the current opacity for any frame:
 
 ```tsx
 import {useCurrentFrame, interpolate} from 'remotion'
 
-const frame = useCurrentFrame() // 10
-const opacity = interpolate(input, [0, 20], [0, 1]) // 0.5
+const frame = useCurrentFrame(); // 10
+const opacity = interpolate(input,
+  [0, 20],
+  [0, 1]
+); // 0.5
 ```
 
-## Params
+## Example: Fade in and out
+
+We keep our fade in effect but add a fade out effect at the end.
+20 frames before the video ends, the opacity should still be 1.
+At the end, the opacity should be 0.
+
+We can interpolate over multiple points in one go and use [`useVideoConfig()`](/docs/use-video-config) to determine the duration of the composition.
+
+```tsx
+import {useCurrentFrame, interpolate} from 'remotion'
+
+const frame = useCurrentFrame();
+const {durationInFrames} = useVideoConfig();
+const opacity = interpolate(
+  input,
+  [0, 20, durationInFrames - 20, durationInFrames],
+// v--v---v----------------------v
+  [0, 1,  1,                     0]
+)
+```
+
+## Example: interpolate a spring animation
+
+We don't necessarily have to interpolate over time - we can use any value to drive an animation.
+Let's assume we want to animate an object on the X axis from 0 to 200 pixels and use a spring animation for it.
+
+Let's create a spring:
+
+```tsx
+import {useCurrentFrame, interpolate, spring} from 'remotion';
+
+const frame = useCurrentFrame();
+const {fps} = useVideoConfig();
+const driver = spring({
+  frame,
+  fps
+});
+```
+
+A [`spring()`](/docs/spring) animation will always animate from 0 to 1.
+Given that knowledge, we can interpolate the spring value to go from 0 to 200.
+
+```tsx
+const marginLeft = interpolate(driver, [0, 1], [0, 200])
+```
+
+We can then apply it to an HTML element.
+
+```tsx
+<div style={{marginLeft}}></div>
+```
+
+## Example: Prevent the output from going outside the output range
+
+Consider the following interpolation which is supposed to animate the scale over 20 frames:
+
+```tsx
+const scale = interpolate(frame, [0, 20], [0, 1])
+```
+
+This works, but after 20 frames, the value keeps growing. For example, at frame 40, the scale will be `2`.
+To prevent this, this we can use the `extrapolateLeft` and `extrapolateRight` options and set them to `'clamp'` to prevent the result going outside the output range.
+
+```tsx
+const scale = interpolate(frame, [0, 20], [0, 1], {
+  extrapolateRight: 'clamp'
+});
+```
+
+## Reference
+
+### Params
 
 1. The input value.
 2. The range of values that you expect the input to assume.
 3. The range of output values that you want the input to map to.
 4. Options object.
 
-## Options
+### Options
 
-### extrapolateLeft
+#### extrapolateLeft
 
 _Default_: `extend`
 
@@ -33,7 +113,7 @@ What should happen if the input value is outside left the input range:
 - `clamp`: Return the closest value inside the range instead
 - `identity`: Return the input value instead.
 
-### extrapolateRight
+#### extrapolateRight
 
 _Default_: `extend`
 
@@ -47,7 +127,7 @@ interpolate(1.5, [0, 1], [0, 2], {extrapolateRight: 'clamp'}) // 2
 interpolate(1.5, [0, 1], [0, 2], {extrapolateRight: 'identity'}) // 1.5
 ```
 
-### easing
+#### easing
 
 _Default_: `(x) => x`
 
@@ -58,6 +138,13 @@ By default, the input is left unmodified, resulting in a pure linear interpolati
 import {interpolate, Easing} from 'remotion';
 
 interpolate(frame, [0, 100], [0, 1], {
+  easing: Easing.bezier(0.8, 0.22, 0.96, 0.65),
+  extrapolateLeft: 'clamp',
+  extrapolateRight: 'clamp',
+})
+
+//this is Remotion2.0 feature
+interpolate(frame, [0, 10, 40, 100], [0, 0.2, 0.6, 1], {
   easing: Easing.bezier(0.8, 0.22, 0.96, 0.65),
   extrapolateLeft: 'clamp',
   extrapolateRight: 'clamp',

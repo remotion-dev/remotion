@@ -229,6 +229,24 @@ test('It should throw if durationInFrames=0 of a composition is boundary off-poi
 		/The "durationInFrames" of a composition must be positive, but got 0./
 	);
 });
+test('It should throw if durationInFrames of a composition is not an integer', () => {
+	expectToThrow(
+		() =>
+			render(
+				<RemotionRoot>
+					<Composition
+						lazyComponent={() => Promise.resolve({default: AnyComp})}
+						durationInFrames={0.11}
+						fps={30}
+						height={100}
+						width={100}
+						id="id"
+					/>
+				</RemotionRoot>
+			),
+		/The "durationInFrames" of a composition must be an integer, but got 0.11./
+	);
+});
 test('It should not throw if durationInFrames=1 of a composition is boundary on-point', () => {
 	expect(() =>
 		render(

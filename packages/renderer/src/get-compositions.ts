@@ -13,6 +13,17 @@ export const getCompositions = async (
 
 	const {port, close} = await serveStatic(webpackBundle);
 
+	if (config?.inputProps) {
+		await page.goto(`http://localhost:${port}/index.html`);
+		await page.evaluate(
+			(key, input) => {
+				window.localStorage.setItem(key, input);
+			},
+			Internals.INPUT_PROPS_KEY,
+			JSON.stringify(config.inputProps)
+		);
+	}
+
 	await page.goto(
 		`http://localhost:${port}/index.html?evaluation=true&props=${encodeURIComponent(
 			JSON.stringify(config?.inputProps ?? null)
