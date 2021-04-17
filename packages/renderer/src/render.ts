@@ -1,4 +1,5 @@
 import path from 'path';
+import {Browser as PuppeteerBrowser} from 'puppeteer-core';
 import {
 	Browser,
 	FrameRange,
@@ -38,6 +39,7 @@ export const renderFrames = async ({
 	browser = Internals.DEFAULT_BROWSER,
 	frameRange,
 	dumpBrowserLogs = false,
+	puppeteerInstance,
 }: {
 	config: VideoConfig;
 	parallelism?: number | null;
@@ -53,6 +55,7 @@ export const renderFrames = async ({
 	frameRange?: FrameRange | null;
 	assetsOnly?: boolean;
 	dumpBrowserLogs?: boolean;
+	puppeteerInstance?: PuppeteerBrowser;
 }): Promise<RenderFramesOutput> => {
 	if (quality !== undefined && imageFormat !== 'jpeg') {
 		throw new Error(
@@ -63,9 +66,10 @@ export const renderFrames = async ({
 
 	const [{port, close}, browserInstance] = await Promise.all([
 		serveStatic(webpackBundle),
-		openBrowser(browser, {
-			shouldDumpIo: dumpBrowserLogs,
-		}),
+		puppeteerInstance ??
+			openBrowser(browser, {
+				shouldDumpIo: dumpBrowserLogs,
+			}),
 	]);
 	const pages = new Array(actualParallelism).fill(true).map(async () => {
 		const page = await browserInstance.newPage();
@@ -93,7 +97,8 @@ export const renderFrames = async ({
 		return page;
 	});
 
-	const pool = new Pool(await Promise.all(pages));
+	const puppeteerPages = await Promise.all(pages);
+	const pool = new Pool(puppeteerPages);
 
 	const frameCount = getFrameCount(config.durationInFrames, frameRange ?? null);
 	// Substract one because 100 frames will be 00-99
@@ -140,7 +145,22 @@ export const renderFrames = async ({
 				return collectedAssets;
 			})
 	);
-	await Promise.all([browserInstance.close(), close()]);
+	close().catch((err) => {
+		console.log('Unable to close web server', err);
+	});
+	// If browser instance was passed in, we close all the pages
+	// we opened.
+	// If new browser was opened, then closing the browser as a cleanup.
+
+	if (puppeteerInstance) {
+		await Promise.all(puppeteerPages.map((p) => p.close())).catch((err) => {
+			console.log('Unable to close browser tab', err);
+		});
+	} else {
+		browserInstance.close().catch((err) => {
+			console.log('Unable to close browser', err);
+		});
+	}
 
 	return {
 		assetsInfo: {
