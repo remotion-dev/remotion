@@ -27,6 +27,7 @@ export type CommandLineOptions = {
 	frames: string | number;
 	sequence: boolean;
 	log: string;
+	help: boolean;
 };
 
 export const parsedCli = minimist<CommandLineOptions>(process.argv.slice(2));
