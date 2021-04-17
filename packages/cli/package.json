@@ -12,11 +12,6 @@
 		"build": "tsc -d",
 		"watch": "tsc -w"
 	},
-	"files": [
-		"dist",
-		"src",
-		"styles"
-	],
 	"repository": {
 		"url": "https://github.com/JonnyBurger/remotion"
 	},

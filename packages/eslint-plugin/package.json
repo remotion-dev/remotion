@@ -6,9 +6,6 @@
     "build": "tsc -d",
     "test": "jest"
   },
-  "files": [
-    "dist"
-  ],
   "main": "dist/index.js",
   "bugs": {
     "url": "https://github.com/JonnyBurger/remotion/issues"
