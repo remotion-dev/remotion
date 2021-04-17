@@ -112,3 +112,19 @@ test('Should simplify an expression', () => {
 			"'if(between(t,-0.0167,0.0167)+between(t,0.1167,0.1500),0,if(between(t,0.0167,0.1167)+between(t,0.1500,0.1833),1,0))'",
 	});
 });
+
+test('Should stay under half 8000 windows character limit', () => {
+	const expression = ffmpegVolumeExpression({
+		volume: new Array(600).fill(1).map((_, i) => {
+			if (i < 500) {
+				return 0;
+			}
+			return (i - 500) / 100;
+		}),
+		multiplier: 1,
+		startInVideo: 0,
+		fps: 30,
+	});
+
+	expect(expression.value.length).toBeLessThan(4000);
+});
