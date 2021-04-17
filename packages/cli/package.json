@@ -3,6 +3,7 @@
 	"version": "2.0.1",
 	"description": "CLI for Remotion",
 	"main": "dist/index.js",
+	"sideEffects": false,
 	"bin": {
 		"remotion": "dist/index.js"
 	},

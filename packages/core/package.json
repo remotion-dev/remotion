@@ -3,6 +3,7 @@
 	"version": "2.0.1",
 	"description": "Render videos in React",
 	"main": "dist/index.js",
+	"sideEffects": false,
 	"scripts": {
 		"test": "eslint src --ext ts,tsx && jest",
 		"build": "tsc -d",
