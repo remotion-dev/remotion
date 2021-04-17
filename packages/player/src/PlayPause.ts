@@ -3,8 +3,8 @@ import {Internals} from 'remotion';
 
 export const usePlaybackTime = (): {
 	toggle: () => void;
-	frameBack: () => void;
-	frameForward: () => void;
+	frameBack: (frames: number) => void;
+	frameForward: (frames: number) => void;
 	isLastFrame: boolean;
 } => {
 	const [playing, setPlaying] = Internals.Timeline.usePlayingState();
@@ -22,36 +22,43 @@ export const usePlaybackTime = (): {
 		});
 	}, [video, setPlaying]);
 
-	const frameBack = useCallback(() => {
-		if (!video) {
-			return null;
-		}
-		if (playing) {
-			return;
-		}
-		if (frame === 0) {
-			return;
-		}
+	const frameBack = useCallback(
+		(frames: number) => {
+			if (!video) {
+				return null;
+			}
+			if (playing) {
+				return;
+			}
+			if (frame === 0) {
+				return;
+			}
 
-		setFrame((f) => f - 1);
-	}, [frame, playing, setFrame, video]);
+			setFrame((f) => Math.max(0, f - frames));
+		},
+		[frame, playing, setFrame, video]
+	);
 
-	const isLastFrame = frame === (config?.durationInFrames ?? 1) - 1;
+	const lastFrame = (config?.durationInFrames ?? 1) - 1;
+	const isLastFrame = frame === lastFrame;
 
-	const frameForward = useCallback(() => {
-		if (!video) {
-			return null;
-		}
-		if (playing) {
-			return;
-		}
+	const frameForward = useCallback(
+		(frames: number) => {
+			if (!video) {
+				return null;
+			}
+			if (playing) {
+				return;
+			}
 
-		if (isLastFrame) {
-			return;
-		}
+			if (isLastFrame) {
+				return;
+			}
 
-		setFrame((f) => f + 1);
-	}, [isLastFrame, playing, setFrame, video]);
+			setFrame((f) => Math.min(lastFrame, f + frames));
+		},
+		[isLastFrame, lastFrame, playing, setFrame, video]
+	);
 
 	const frameRef = useRef(frame);
 	frameRef.current = frame;
