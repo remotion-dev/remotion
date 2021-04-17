@@ -12,10 +12,6 @@
 	"repository": {
 		"url": "https://github.com/JonnyBurger/remotion"
 	},
-	"files": [
-		"dist",
-		"README.md"
-	],
 	"author": "",
 	"license": "SEE LICENSE IN LICENSE.md",
 	"dependencies": {
