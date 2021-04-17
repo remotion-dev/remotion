@@ -1,3 +1,6 @@
+import fs from 'fs';
+import os from 'os';
+import path from 'path';
 import {FfmpegFilterCalculation} from './calculate-ffmpeg-filters';
 
 const createMix = (filters: FfmpegFilterCalculation[]) => {
@@ -17,15 +20,37 @@ const createMix = (filters: FfmpegFilterCalculation[]) => {
 	return `${baseFilter}amix=${options.join(':')}`;
 };
 
-export const createFfmpegComplexFilter = (
+export const createFfmpegComplexFilter = async (
 	filters: FfmpegFilterCalculation[]
-): [string, string] | null => {
+): Promise<{
+	complexFilterFlag: [string, string] | null;
+	cleanup: () => void;
+}> => {
 	if (!filters.length) {
-		return null;
+		return {complexFilterFlag: null, cleanup: () => void 0};
 	}
 	const complexFilter = [
 		...filters.map((f) => f.filter),
 		createMix(filters),
 	].join(';');
-	return ['-filter_complex', complexFilter];
+	const tempPath = await fs.promises.mkdtemp(
+		path.join(os.tmpdir(), 'remotion-complex-filter')
+	);
+	const filterFile = path.join(tempPath, 'complex-filter.txt');
+	await fs.promises.writeFile(filterFile, complexFilter);
+
+	return {
+		complexFilterFlag: ['-filter_complex_script', filterFile],
+		cleanup: () => {
+			fs.promises
+				.rmdir(tempPath, {
+					recursive: true,
+				})
+				.catch((err) => {
+					console.error('Could not delete a temp file');
+					console.error(err);
+					console.error('Do you have the minimum Node.JS installed?');
+				});
+		},
+	};
 };
