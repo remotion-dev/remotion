@@ -133,6 +133,7 @@ export const stitchFramesToVideo = async (options: {
 	if (options.verbose) {
 		console.log('filters', filters);
 	}
+	const {complexFilterFlag, cleanup} = await createFfmpegComplexFilter(filters);
 	const ffmpegArgs = [
 		['-r', String(options.fps)],
 		isAudioOnly ? null : ['-f', 'image2'],
@@ -154,12 +155,14 @@ export const stitchFramesToVideo = async (options: {
 		pixelFormat === 'yuva420p' ? ['-auto-alt-ref', '0'] : null,
 		isAudioOnly ? null : ['-b:v', '1M'],
 		audioCodecName ? ['-c:a', audioCodecName] : null,
-		createFfmpegComplexFilter(filters),
+		complexFilterFlag,
 		// Ignore audio from image sequence
 		isAudioOnly ? null : ['-map', '0:v'],
 		options.force ? '-y' : null,
 		options.outputLocation,
 	];
+
+	cleanup();
 
 	if (options.verbose) {
 		console.log('Generated FFMPEG command:');
