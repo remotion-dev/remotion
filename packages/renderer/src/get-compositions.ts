@@ -36,6 +36,15 @@ export const getCompositions = async (
 	);
 	await page.waitForFunction('window.ready === true');
 	const result = await page.evaluate('window.getStaticCompositions()');
-	await Promise.all([close(), page.close()]);
+
+	// Close web server and don't wait for it to finish,
+	// it is slow.
+	close().catch((err) => {
+		console.error('Was not able to close web server', err);
+	});
+	// Close puppeteer page and don't wait for it to finish.
+	page.close().catch((err) => {
+		console.error('Was not able to close puppeteer page', err);
+	});
 	return result as TCompMetadata[];
 };
