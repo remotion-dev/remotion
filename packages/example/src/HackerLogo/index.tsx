@@ -1,6 +1,4 @@
-import React from 'react';
-
-const HackerLogo = () => {
+const HackerLogo: React.FC = () => {
 	return (
 		<div
 			style={{

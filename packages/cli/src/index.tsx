@@ -2,6 +2,7 @@
 
 import xns from 'xns';
 import {checkNodeVersion} from './check-version';
+import {Log} from './log';
 import {previewCommand} from './preview';
 import {render} from './render';
 import {upgrade} from './upgrade';
@@ -19,11 +20,11 @@ export const cli = xns(async () => {
 	} else if (command === 'upgrade') {
 		await upgrade();
 	} else {
-		console.log(`Command ${command} not found.`);
-		console.log('Available commands:');
-		console.log('  preview');
-		console.log('  render');
-		console.log('  upgrade');
+		Log.Error(`Command ${command} not found.`);
+		Log.Info('Available commands:');
+		Log.Info('  preview');
+		Log.Info('  render');
+		Log.Info('  upgrade');
 		process.exit(1);
 	}
 });

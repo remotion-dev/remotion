@@ -3,10 +3,10 @@ import React from 'react';
 import {Video} from '../video';
 import {expectToThrow} from './expect-to-throw';
 
-test('It should throw if startAt prop is negative', () => {
+test('It should throw if startFrom prop is negative', () => {
 	expectToThrow(
-		() => render(<Video startAt={-40} />),
-		/startAt must be greater than equal to 0 instead got -40./
+		() => render(<Video startFrom={-40} />),
+		/startFrom must be greater than equal to 0 instead got -40./
 	);
 });
 
@@ -17,10 +17,10 @@ test('It should throw if endAt prop is negative', () => {
 	);
 });
 
-test('It should throw if endAt is less than startAt', () => {
+test('It should throw if endAt is less than startFrom', () => {
 	expectToThrow(
-		() => render(<Video startAt={10} endAt={1} />),
-		/endAt prop must be greater than startAt prop/
+		() => render(<Video startFrom={10} endAt={1} />),
+		/endAt prop must be greater than startFrom prop/
 	);
 });
 
@@ -32,11 +32,11 @@ test('It should throw if endAt is not a number', () => {
 	);
 });
 
-test('It should throw if startAt is not a number', () => {
+test('It should throw if startFrom is not a number', () => {
 	expectToThrow(
 		//@ts-expect-error
-		() => render(<Video startAt={'hey'} />),
-		/type of startAt prop must be a number, instead got type string./
+		() => render(<Video startFrom={'hey'} />),
+		/type of startFrom prop must be a number, instead got type string./
 	);
 });
 
@@ -47,13 +47,13 @@ test('It should throw if endAt is NaN', () => {
 	);
 });
 
-test('It should throw if startAt is NaN or Infinity', () => {
+test('It should throw if startFrom is NaN or Infinity', () => {
 	expectToThrow(
-		() => render(<Video startAt={NaN} />),
-		/startAt prop can not be NaN or Infinity./
+		() => render(<Video startFrom={NaN} />),
+		/startFrom prop can not be NaN or Infinity./
 	);
 	expectToThrow(
-		() => render(<Video startAt={Infinity} />),
-		/startAt prop can not be NaN or Infinity./
+		() => render(<Video startFrom={Infinity} />),
+		/startFrom prop can not be NaN or Infinity./
 	);
 });
