@@ -8,9 +8,6 @@
 		"watch": "tsc -w",
 		"build": "tsc -d"
 	},
-	"files": [
-		"dist"
-	],
 	"author": "",
 	"license": "MIT",
 	"repository": {
