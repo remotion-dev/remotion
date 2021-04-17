@@ -128,6 +128,9 @@ export const stitchFramesToVideo = async (options: {
 		fps: options.fps,
 		videoTrackCount: isAudioOnly ? 0 : 1,
 	});
+	if (options.verbose) {
+		console.log('asset positions', assetPositions);
+	}
 	const ffmpegArgs = [
 		['-r', String(options.fps)],
 		isAudioOnly ? null : ['-f', 'image2'],
