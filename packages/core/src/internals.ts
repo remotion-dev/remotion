@@ -51,6 +51,7 @@ import {isAudioCodec} from './is-audio-codec';
 import * as perf from './perf';
 import {getCompositionName, getIsEvaluation, getRoot} from './register-root';
 import {RemotionRoot} from './RemotionRoot';
+import {SequenceContext} from './sequencing';
 import * as Timeline from './timeline-position-state';
 import {TimelineContextValue} from './timeline-position-state';
 import {truthy} from './truthy';
@@ -98,6 +99,7 @@ export const Internals = {
 	isAudioCodec,
 	INPUT_PROPS_KEY,
 	Logging,
+	SequenceContext,
 };
 
 export type {
