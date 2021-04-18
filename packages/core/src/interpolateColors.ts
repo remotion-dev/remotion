@@ -300,18 +300,7 @@ const names: any = {
 	yellowgreen: 0x9acd32ff,
 };
 
-function normalizeColor(color: unknown): number | null {
-	if (typeof color === 'number') {
-		if (color >>> 0 === color && color >= 0 && color <= 0xffffffff) {
-			return color;
-		}
-		return null;
-	}
-
-	if (typeof color !== 'string') {
-		return null;
-	}
-
+function normalizeColor(color: string): number {
 	const matchers = getMatchers();
 
 	let match: RegExpExecArray | null;
@@ -422,7 +411,7 @@ function normalizeColor(color: unknown): number | null {
 		}
 	}
 
-	return null;
+	throw new Error(`invalid color string ${color} provided`);
 }
 
 export const opacity = (c: number): number => {
@@ -559,22 +548,8 @@ export const hsvToColor = (h: number, s: number, v: number): string => {
 	return rgbaColor(r, g, b);
 };
 
-export function processColorInitially(
-	color: unknown
-): number | null | undefined {
-	if (color === null || color === undefined || typeof color === 'number') {
-		return color;
-	}
-
+export function processColorInitially(color: string): number {
 	let normalizedColor = normalizeColor(color);
-
-	if (normalizedColor === null || normalizedColor === undefined) {
-		return undefined;
-	}
-
-	if (typeof normalizedColor !== 'number') {
-		return null;
-	}
 
 	normalizedColor = ((normalizedColor << 24) | (normalizedColor >>> 8)) >>> 0; // argb
 	return normalizedColor;
@@ -587,23 +562,13 @@ export function isColor(value: unknown): boolean {
 	return processColorInitially(value) != null;
 }
 
-export function processColor(color: unknown): number | null | undefined {
+export function processColor(color: string): number {
 	const normalizedColor = processColorInitially(color);
-	if (normalizedColor === null || normalizedColor === undefined) {
-		return undefined;
-	}
-
-	if (typeof normalizedColor !== 'number') {
-		return null;
-	}
-
 	return normalizedColor;
 }
 
-export function convertToHSVA(
-	color: unknown
-): [number, number, number, number] {
-	const processedColor = processColorInitially(color)!; // argb;
+export function convertToHSVA(color: string): [number, number, number, number] {
+	const processedColor = processColorInitially(color); // argb;
 	const a = (processedColor >>> 24) / 255;
 	const r = (processedColor << 8) >>> 24;
 	const g = (processedColor << 16) >>> 24;
@@ -706,7 +671,7 @@ const interpolateColorsRGB = (
 export const interpolateColors = (
 	input: number,
 	inputRange: readonly number[],
-	outputRange: readonly (string | number)[],
+	outputRange: readonly string[],
 	colorSpace: 'RGB' | 'HSV' = 'RGB'
 ): string => {
 	if (
@@ -727,7 +692,7 @@ export const interpolateColors = (
 		);
 	}
 
-	const processedOutputRange = outputRange.map((c) => processColor(c)!);
+	const processedOutputRange = outputRange.map((c) => processColor(c));
 	if (colorSpace === 'HSV') {
 		return interpolateColorsHSV(input, inputRange, processedOutputRange);
 	}
