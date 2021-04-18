@@ -4,8 +4,14 @@ import {expectToThrow} from './expect-to-throw';
 test('Throws if color space is not right', () => {
 	expectToThrow(() => {
 		//@ts-expect-error
-		interpolateColors(1, [0, 1], ['#ffaadd', '#fabgdf'], 'GFR');
+		interpolateColors(1, [0, 1], ['#ffaadd', '#fabedf'], 'GFR');
 	}, /invalid color space provided: GFR. Supported values are: \['RGB', 'HSV'\]/);
+});
+
+test('Throws if color string is not right', () => {
+	expectToThrow(() => {
+		interpolateColors(1, [0, 1], ['#ffaadd', '#fabgdf'], 'HSV');
+	}, /invalid color string #fabgdf provided/);
 });
 
 test('Throws error if input, inputRange or outputRange is undefined', () => {
