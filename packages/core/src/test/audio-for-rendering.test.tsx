@@ -1,10 +1,8 @@
 import {render} from '@testing-library/react';
 import React from 'react';
 import {AudioForRendering} from '../audio/AudioForRendering';
-import {
-	CompositionManager,
-	CompositionManagerContext,
-} from '../CompositionManager';
+import {CompositionManagerContext} from '../CompositionManager';
+import {Internals} from '../internals';
 import {expectToThrow} from './expect-to-throw';
 
 interface MockCompositionManagerContext {
@@ -19,7 +17,7 @@ describe('Register and unregister asset', () => {
 		const unregisterAsset = jest.fn();
 		const MockProvider: React.FC = ({children}) => {
 			return (
-				<CompositionManager.Provider
+				<Internals.CompositionManager.Provider
 					value={
 						({
 							registerAsset,
@@ -28,7 +26,7 @@ describe('Register and unregister asset', () => {
 					}
 				>
 					{children}
-				</CompositionManager.Provider>
+				</Internals.CompositionManager.Provider>
 			);
 		};
 		return {
