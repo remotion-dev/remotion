@@ -57,6 +57,10 @@ import {TimelineContextValue} from './timeline-position-state';
 import {truthy} from './truthy';
 import {useUnsafeVideoConfig} from './use-unsafe-video-config';
 import {useVideo} from './use-video';
+import {
+	RemotionContextProvider,
+	useRemotionContexts,
+} from './wrap-remotion-context';
 
 // Mark them as Internals so use don't assume this is public
 // API and are less likely to use it
@@ -100,6 +104,8 @@ export const Internals = {
 	INPUT_PROPS_KEY,
 	Logging,
 	SequenceContext,
+	useRemotionContexts,
+	RemotionContextProvider,
 };
 
 export type {
