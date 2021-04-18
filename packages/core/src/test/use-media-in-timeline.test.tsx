@@ -19,7 +19,7 @@ afterAll(() => {
 	jest.spyOn(useVideoConfigModule, 'useVideoConfig').mockClear();
 });
 
-test('useMediaInTimeline registers new sequence', () => {
+test('useMediaInTimeline registers and unregisters new sequence', () => {
 	const registerSequence = jest.fn();
 	const unregisterSequence = jest.fn();
 	const wrapper: React.FC = ({children}) => (
@@ -39,7 +39,7 @@ test('useMediaInTimeline registers new sequence', () => {
 		current: {volume: 0.5},
 	} as unknown) as RefObject<HTMLAudioElement>;
 
-	renderHook(
+	const {unmount} = renderHook(
 		() =>
 			useMediaInTimeline({
 				volume: 1,
@@ -52,4 +52,6 @@ test('useMediaInTimeline registers new sequence', () => {
 		}
 	);
 	expect(registerSequence).toHaveBeenCalled();
+	unmount();
+	expect(unregisterSequence).toHaveBeenCalled();
 });
