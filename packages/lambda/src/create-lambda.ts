@@ -1,5 +1,7 @@
 import {CreateFunctionCommand, LambdaClient} from '@aws-sdk/client-lambda';
+import xns from 'xns';
 import {bundleLambda} from './bundle-lambda';
+import {bundleRemotion} from './bundle-remotion';
 
 const client = new LambdaClient({
 	region: 'eu-central-1',
@@ -19,7 +21,8 @@ const params = {
 	Description: 'Renders a Remotion video.',
 };
 
-const run = async () => {
+xns(async () => {
+	await bundleRemotion();
 	await bundleLambda();
 	try {
 		const data = await client.send(new CreateFunctionCommand(params));
@@ -27,6 +30,4 @@ const run = async () => {
 	} catch (err) {
 		console.log('Error', err); // an error occurred
 	}
-};
-
-run();
+});
