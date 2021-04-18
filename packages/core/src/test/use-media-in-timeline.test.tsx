@@ -1,9 +1,7 @@
 import {renderHook} from '@testing-library/react-hooks';
 import React, {RefObject} from 'react';
-import {
-	CompositionManager,
-	CompositionManagerContext,
-} from '../CompositionManager';
+import {CompositionManagerContext} from '../CompositionManager';
+import {Internals} from '../internals';
 import {useMediaInTimeline} from '../use-media-in-timeline';
 import * as useVideoConfigModule from '../use-video-config';
 
@@ -23,7 +21,7 @@ test('useMediaInTimeline registers and unregisters new sequence', () => {
 	const registerSequence = jest.fn();
 	const unregisterSequence = jest.fn();
 	const wrapper: React.FC = ({children}) => (
-		<CompositionManager.Provider
+		<Internals.CompositionManager.Provider
 			value={
 				({
 					registerSequence,
@@ -32,7 +30,7 @@ test('useMediaInTimeline registers and unregisters new sequence', () => {
 			}
 		>
 			{children}
-		</CompositionManager.Provider>
+		</Internals.CompositionManager.Provider>
 	);
 
 	const audioRef = ({
