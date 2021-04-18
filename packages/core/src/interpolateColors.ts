@@ -6,18 +6,6 @@
 /* eslint no-bitwise: 0 */
 import {interpolate} from './interpolate';
 
-interface RBG {
-	r: number;
-	g: number;
-	b: number;
-}
-
-interface HSV {
-	h: number;
-	s: number;
-	v: number;
-}
-
 type MatcherType = RegExp | undefined;
 
 // var INTEGER = '[-+]?\\d+';
@@ -145,7 +133,7 @@ function parsePercentage(str: string): number {
 	return int / 100;
 }
 
-const names: any = {
+const names: {[key: string]: number} = {
 	transparent: 0x00000000,
 
 	// http://www.w3.org/TR/css3-color/#svg-color
@@ -439,115 +427,6 @@ export const rgbaColor = (
 	return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 };
 
-/* accepts parameters
- * r  Object = {r:x, g:y, b:z}
- * OR
- * r, g, b
- * 0 <= r, g, b <= 255
- * returns 0 <= h, s, v <= 1
- */
-
-/* eslint no-redeclare: 0 */
-function RGBtoHSV(rgb: RBG): HSV;
-function RGBtoHSV(r: number, g: number, b: number): HSV;
-function RGBtoHSV(r: any, g?: any, b?: any): HSV {
-	/* eslint-disable */
-	if (arguments.length === 1) {
-		g = r.g;
-		b = r.b;
-		r = r.r;
-	}
-	const max = Math.max(r, g, b);
-	const min = Math.min(r, g, b);
-	const d = max - min;
-	const s = max === 0 ? 0 : d / max;
-	const v = max / 255;
-
-	let h;
-
-	switch (max) {
-		default:
-		/* fallthrough */
-		case min:
-			h = 0;
-			break;
-		case r:
-			h = g - b + d * (g < b ? 6 : 0);
-			h /= 6 * d;
-			break;
-		case g:
-			h = b - r + d * 2;
-			h /= 6 * d;
-			break;
-		case b:
-			h = r - g + d * 4;
-			h /= 6 * d;
-			break;
-	}
-
-	return {
-		h: h,
-		s: s,
-		v: v,
-	};
-	/* eslint-enable */
-}
-
-/* accepts parameters
- * h  Object = {h:x, s:y, v:z}
- * OR
- * h, s, v
- * 0 <= h, s, v <= 1
- * returns 0 <= r, g, b <= 255
- */
-function HSVtoRGB(hsv: HSV): RBG;
-function HSVtoRGB(h: number, s: number, v: number): RBG;
-function HSVtoRGB(h: any, s?: any, v?: any) {
-	/* eslint-disable */
-	var r, g, b, i, f, p, q, t;
-	if (arguments.length === 1) {
-		s = h.s;
-		v = h.v;
-		h = h.h;
-	}
-	i = Math.floor(h * 6);
-	f = h * 6 - i;
-	p = v * (1 - s);
-	q = v * (1 - f * s);
-	t = v * (1 - (1 - f) * s);
-	switch (i % 6) {
-		case 0:
-			(r = v), (g = t), (b = p);
-			break;
-		case 1:
-			(r = q), (g = v), (b = p);
-			break;
-		case 2:
-			(r = p), (g = v), (b = t);
-			break;
-		case 3:
-			(r = p), (g = q), (b = v);
-			break;
-		case 4:
-			(r = t), (g = p), (b = v);
-			break;
-		case 5:
-			(r = v), (g = p), (b = q);
-			break;
-	}
-	return {
-		r: Math.round(r * 255),
-		g: Math.round(g * 255),
-		b: Math.round(b * 255),
-	};
-	/* eslint-enable */
-}
-
-export const hsvToColor = (h: number, s: number, v: number): string => {
-	const {r, g, b} = HSVtoRGB(h, s, v);
-	return rgbaColor(r, g, b);
-};
-
 export function processColorInitially(color: string): number {
 	let normalizedColor = normalizeColor(color);
 
@@ -566,57 +445,6 @@ export function processColor(color: string): number {
 	const normalizedColor = processColorInitially(color);
 	return normalizedColor;
 }
-
-export function convertToHSVA(color: string): [number, number, number, number] {
-	const processedColor = processColorInitially(color); // argb;
-	const a = (processedColor >>> 24) / 255;
-	const r = (processedColor << 8) >>> 24;
-	const g = (processedColor << 16) >>> 24;
-	const b = (processedColor << 24) >>> 24;
-	const {h, s, v} = RGBtoHSV(r, g, b);
-	return [h, s, v, a];
-}
-
-export function toRGBA(HSVA: [number, number, number, number]): string {
-	const {r, g, b} = HSVtoRGB(HSVA[0], HSVA[1], HSVA[2]);
-	return `rgba(${r}, ${g}, ${b}, ${HSVA[3]})`;
-}
-
-const interpolateColorsHSV = (
-	value: number,
-	inputRange: readonly number[],
-	colors: readonly number[]
-) => {
-	const colorsAsHSV = colors.map((c) => RGBtoHSV(c as any));
-	const h = interpolate(
-		value,
-		inputRange,
-		colorsAsHSV.map((c) => c.h),
-		{
-			extrapolateLeft: 'clamp',
-			extrapolateRight: 'clamp',
-		}
-	);
-	const s = interpolate(
-		value,
-		inputRange,
-		colorsAsHSV.map((c) => c.s),
-		{
-			extrapolateLeft: 'clamp',
-			extrapolateRight: 'clamp',
-		}
-	);
-	const v = interpolate(
-		value,
-		inputRange,
-		colorsAsHSV.map((c) => c.v),
-		{
-			extrapolateLeft: 'clamp',
-			extrapolateRight: 'clamp',
-		}
-	);
-	return hsvToColor(h, s, v);
-};
 
 const interpolateColorsRGB = (
 	value: number,
@@ -672,7 +500,7 @@ export const interpolateColors = (
 	input: number,
 	inputRange: readonly number[],
 	outputRange: readonly string[],
-	colorSpace: 'RGB' | 'HSV' = 'RGB'
+	colorSpace: 'RGB' = 'RGB'
 ): string => {
 	if (
 		typeof input === 'undefined' ||
@@ -693,9 +521,7 @@ export const interpolateColors = (
 	}
 
 	const processedOutputRange = outputRange.map((c) => processColor(c));
-	if (colorSpace === 'HSV') {
-		return interpolateColorsHSV(input, inputRange, processedOutputRange);
-	}
+
 	if (colorSpace === 'RGB') {
 		return interpolateColorsRGB(input, inputRange, processedOutputRange);
 	}

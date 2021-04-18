@@ -10,7 +10,7 @@ test('Throws if color space is not right', () => {
 
 test('Throws if color string is not right', () => {
 	expectToThrow(() => {
-		interpolateColors(1, [0, 1], ['#ffaadd', '#fabgdf'], 'HSV');
+		interpolateColors(1, [0, 1], ['#fabgdf', '#ffaabb']);
 	}, /invalid color string #fabgdf provided/);
 });
 
