@@ -1,4 +1,5 @@
 import {CreateFunctionCommand, LambdaClient} from '@aws-sdk/client-lambda';
+import {bundleLambda} from './bundle-lambda';
 
 const client = new LambdaClient({
 	region: 'eu-central-1',
@@ -19,6 +20,7 @@ const params = {
 };
 
 const run = async () => {
+	await bundleLambda();
 	try {
 		const data = await client.send(new CreateFunctionCommand(params));
 		console.log('Success', data); // successful response
