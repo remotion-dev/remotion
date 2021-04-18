@@ -26,7 +26,7 @@ describe('EvaluateVolume does not throw', () => {
 	});
 });
 
-describe('EvaluateVolume throws exception', () => {
+describe('evaluateVolume throws exception', () => {
 	test('It should throw if volume prop is neither number nor undefined', () => {
 		const toEvaluate = {frame: 10, volume: 'NaN'};
 		expectToThrow(() => {
