@@ -5,8 +5,10 @@ import {
 	Config,
 	ImageFormat,
 	Internals,
+	LogLevel,
 	PixelFormat,
 } from 'remotion';
+import {Log} from './log';
 
 export type CommandLineOptions = {
 	['browser-executable']: BrowserExecutable;
@@ -24,6 +26,8 @@ export type CommandLineOptions = {
 	quality: number;
 	frames: string | number;
 	sequence: boolean;
+	log: string;
+	help: boolean;
 };
 
 export const parsedCli = minimist<CommandLineOptions>(process.argv.slice(2));
@@ -43,6 +47,18 @@ export const parseCommandLine = () => {
 			parsedCli['bundle-cache'] === 'false' ? false : true
 		);
 	}
+	if (parsedCli.log) {
+		if (!Internals.Logging.isValidLogLevel(parsedCli.log)) {
+			Log.Error('Invalid `--log` value passed.');
+			Log.Error(
+				`Accepted values: ${Internals.Logging.logLevels
+					.map((l) => `'${l}'`)
+					.join(', ')}.`
+			);
+			process.exit(1);
+		}
+		Internals.Logging.setLogLevel(parsedCli.log as LogLevel);
+	}
 	if (parsedCli.concurrency) {
 		Config.Rendering.setConcurrency(parsedCli.concurrency);
 	}
@@ -50,7 +66,7 @@ export const parseCommandLine = () => {
 		Internals.setFrameRangeFromCli(parsedCli.frames);
 	}
 	if (parsedCli.png) {
-		console.warn(
+		Log.Warn(
 			'The --png flag has been deprecrated. Use --sequence --image-format=png from now on.'
 		);
 		Config.Output.setImageSequence(true);

@@ -130,6 +130,10 @@ VP9
 
 You can [set a CRF in the config file using the `Config.Output.setCrf()`](config#setcrf) function or use the [`--crf`](/docs/cli#flags) command line flag.
 
+## Audio-only export
+
+You can pass `mp3`, `wav` or `aac` as a codec. If you do it, an audio file will be output in the corresponding format. Quality settings will be ignored.
+
 ## What other settings do you need?
 
 Which of the dozens of options that FFMPEG supports would you like to see exposed in Remotion? Let us know by opening an [issue on our issue tracker!](https://github.com/JonnyBurger/remotion/issues)

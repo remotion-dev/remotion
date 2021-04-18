@@ -1,4 +1,12 @@
-const validCodecs = ['h264', 'h265', 'vp8', 'vp9'] as const;
+const validCodecs = [
+	'h264',
+	'h265',
+	'vp8',
+	'vp9',
+	'mp3',
+	'aac',
+	'wav',
+] as const;
 
 export type Codec = typeof validCodecs[number];
 export type CodecOrUndefined = Codec | undefined;
@@ -33,10 +41,42 @@ export const getFinalOutputCodec = ({
 	if (inputCodec === undefined && fileExtension === 'hevc') {
 		if (emitWarning) {
 			console.info(
-				'You have specified a .hevc extension, using it using H265 encoder.'
+				'You have specified a .hevc extension, using the H265 encoder.'
 			);
 		}
 		return 'h265';
+	}
+	if (inputCodec === undefined && fileExtension === 'mp3') {
+		if (emitWarning) {
+			console.info(
+				'You have specified a .mp3 extension, using the MP3 encoder.'
+			);
+		}
+		return 'mp3';
+	}
+	if (inputCodec === undefined && fileExtension === 'wav') {
+		if (emitWarning) {
+			console.info(
+				'You have specified a .wav extension, using the WAV encoder.'
+			);
+		}
+		return 'wav';
+	}
+	if (inputCodec === undefined && fileExtension === 'aac') {
+		if (emitWarning) {
+			console.info(
+				'You have specified a .aac extension, using the AAC encoder.'
+			);
+		}
+		return 'aac';
+	}
+	if (inputCodec === undefined && fileExtension === 'm4a') {
+		if (emitWarning) {
+			console.info(
+				'You have specified a .m4a extension, using the AAC encoder.'
+			);
+		}
+		return 'aac';
 	}
 	return inputCodec ?? DEFAULT_CODEC;
 };

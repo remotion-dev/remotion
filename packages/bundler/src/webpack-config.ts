@@ -120,6 +120,15 @@ export const webpackConfig = ({
 								// So you can do require('hi.png')
 								// instead of require('hi.png').default
 								esModule: false,
+								name: () => {
+									// Don't rename files in development
+									// so we can show the filename in the timeline
+									if (environment === 'development') {
+										return '[path][name].[ext]';
+									}
+
+									return '[contenthash].[ext]';
+								},
 							},
 						},
 					],
