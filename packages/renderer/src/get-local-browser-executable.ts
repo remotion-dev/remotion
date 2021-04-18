@@ -72,8 +72,12 @@ type BrowserStatus =
 			type: 'no-browser';
 	  };
 
-const getBrowserStatus = (product: puppeteer.Product): BrowserStatus => {
-	const browserExecutablePath = Internals.getBrowserExecutable();
+const getBrowserStatus = (
+	product: puppeteer.Product,
+	customBrowser: string | null
+): BrowserStatus => {
+	const browserExecutablePath =
+		customBrowser ?? Internals.getBrowserExecutable();
 	if (browserExecutablePath) {
 		if (!fs.existsSync(browserExecutablePath)) {
 			console.warn(
@@ -93,8 +97,14 @@ const getBrowserStatus = (product: puppeteer.Product): BrowserStatus => {
 	return {type: 'no-browser'};
 };
 
-export const ensureLocalBrowser = async (browser: Browser) => {
-	const status = getBrowserStatus(mapBrowserToProduct(browser));
+export const ensureLocalBrowser = async (
+	browser: Browser,
+	customExecutable: string | null
+) => {
+	const status = getBrowserStatus(
+		mapBrowserToProduct(browser),
+		customExecutable
+	);
 	if (status.type === 'no-browser') {
 		console.log(
 			'No local browser could be found. Downloading one from the internet...'
@@ -104,9 +114,13 @@ export const ensureLocalBrowser = async (browser: Browser) => {
 };
 
 export const getLocalBrowserExecutable = async (
-	browser: Browser
+	browser: Browser,
+	customExecutable: string | null
 ): Promise<string> => {
-	const status = getBrowserStatus(mapBrowserToProduct(browser));
+	const status = getBrowserStatus(
+		mapBrowserToProduct(browser),
+		customExecutable
+	);
 	if (status.type === 'no-browser') {
 		throw new TypeError(
 			'No browser found for rendering frames! Please open a Github issue and describe ' +

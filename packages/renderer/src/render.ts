@@ -40,6 +40,7 @@ export const renderFrames = async ({
 	frameRange,
 	dumpBrowserLogs = false,
 	puppeteerInstance,
+	customExecutable,
 }: {
 	config: VideoConfig;
 	parallelism?: number | null;
@@ -56,6 +57,7 @@ export const renderFrames = async ({
 	assetsOnly?: boolean;
 	dumpBrowserLogs?: boolean;
 	puppeteerInstance?: PuppeteerBrowser;
+	customExecutable?: string;
 }): Promise<RenderFramesOutput> => {
 	if (quality !== undefined && imageFormat !== 'jpeg') {
 		throw new Error(
@@ -69,6 +71,7 @@ export const renderFrames = async ({
 		puppeteerInstance ??
 			openBrowser(browser, {
 				shouldDumpIo: dumpBrowserLogs,
+				customExecutable: customExecutable ?? null,
 			}),
 	]);
 	const pages = new Array(actualParallelism).fill(true).map(async () => {

@@ -19,6 +19,7 @@
 		"@aws-sdk/client-s3": "^3.13.0",
 		"@remotion/bundler": "^2.0.2",
 		"@remotion/renderer": "^2.0.2",
+		"chrome-aws-lambda": "^8.0.2",
 		"esbuild": "^0.11.12",
 		"remotion": "^2.0.2",
 		"ts-node": "^9.1.1",
