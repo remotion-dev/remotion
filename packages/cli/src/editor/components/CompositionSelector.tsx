@@ -24,13 +24,13 @@ const Item = styled.a<{
 	color: ${(props) => (props.selected ? 'black' : 'white')};
 	padding-left: 8px;
 	padding-right: 8px;
-	padding-top: 4px;
-	padding-bottom: 4px;
+	padding-top: 6px;
+	padding-bottom: 6px;
 	font-size: 13px;
 	font-family: Arial, Helvetica, sans-serif;
 	display: block;
+	border-radius: 2px;
 	text-decoration: none;
-	border-radius: 6px;
 	cursor: default;
 `;
 

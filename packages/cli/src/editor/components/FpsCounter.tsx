@@ -4,6 +4,7 @@ import styled from 'styled-components';
 
 const Label = styled.div`
 	color: white;
+	font-size: 15px;
 	font-family: Arial, Helvetica, sans-serif;
 `;
 

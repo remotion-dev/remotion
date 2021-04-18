@@ -3,6 +3,8 @@ import {binaryExists} from './validate-ffmpeg';
 
 let buildConfig: string | null = null;
 
+export type FfmpegVersion = [number, number, number] | null;
+
 const getFfmpegBuildInfo = async () => {
 	if (buildConfig !== null) {
 		return buildConfig;
@@ -20,4 +22,17 @@ export const ffmpegHasFeature = async (
 	}
 	const config = await getFfmpegBuildInfo();
 	return config.includes(feature);
+};
+
+export const parseFfmpegVersion = (buildconf: string): FfmpegVersion => {
+	const match = buildconf.match(/ffmpeg version ([0-9]+).([0-9]+).([0-9]+)/);
+	if (!match) {
+		return null;
+	}
+	return [Number(match[1]), Number(match[2]), Number(match[3])];
+};
+
+export const getFfmpegVersion = async (): Promise<FfmpegVersion> => {
+	const buildInfo = await getFfmpegBuildInfo();
+	return parseFfmpegVersion(buildInfo);
 };

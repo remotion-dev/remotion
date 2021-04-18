@@ -1,6 +1,6 @@
-import webpack from 'webpack';
+import {Configuration} from 'webpack';
 
-export type WebpackConfiguration = webpack.Configuration & {
+export type WebpackConfiguration = Configuration & {
 	devServer: {
 		contentBase: string;
 		historyApiFallback: boolean;

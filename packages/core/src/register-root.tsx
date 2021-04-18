@@ -33,7 +33,7 @@ export const getCompositionName = () => {
 	if (param !== null) {
 		return String(param);
 	}
-	throw new Error('No comp name specified in URL');
+	return null;
 };
 
 export const getIsEvaluation = () => {

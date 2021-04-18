@@ -3,10 +3,6 @@ title: getInputProps()
 id: get-input-props
 ---
 
-:::warning
-This component is part of Remotion 2.0 which is not yet released. The information on this page might not yet accurately reflect the current state of Remotions API.
-:::warning
-
 _Available from v2.0_.
 
 Using this method, you can retrieve inputs that you pass in from the command line using [`--props`](/docs/cli), or the [`inputProps`](/docs/ssr#render-a-video-programmatically) parameter if you are using the Node.JS API.

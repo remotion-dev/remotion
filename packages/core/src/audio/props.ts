@@ -1,5 +1,7 @@
+import {VolumeProp} from '../volume-prop';
+
 export type RemotionMainAudioProps = {
-	startAt?: number;
+	startFrom?: number;
 	endAt?: number;
 };
 
@@ -8,5 +10,7 @@ export type RemotionAudioProps = Omit<
 		React.AudioHTMLAttributes<HTMLAudioElement>,
 		HTMLAudioElement
 	>,
-	'autoplay' | 'controls'
->;
+	'autoplay' | 'controls' | 'loop'
+> & {
+	volume?: VolumeProp;
+};
