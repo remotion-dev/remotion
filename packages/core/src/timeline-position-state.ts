@@ -3,7 +3,7 @@ import {createContext, useContext} from 'react';
 export type TimelineContextValue = {
 	frame: number;
 	playing: boolean;
-	shouldRegisterSequences: boolean;
+	rootId: string;
 };
 
 export type SetTimelineContextValue = {
@@ -14,7 +14,7 @@ export type SetTimelineContextValue = {
 export const TimelineContext = createContext<TimelineContextValue>({
 	frame: 0,
 	playing: false,
-	shouldRegisterSequences: true,
+	rootId: '',
 });
 
 export const SetTimelineContext = createContext<SetTimelineContextValue>({

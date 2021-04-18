@@ -6,7 +6,7 @@ import {Tile} from './Tile';
 const BRAND_GRADIENT = ['#5851db', '#405de6'];
 const solidBrand = mix(0.5, BRAND_GRADIENT[0], BRAND_GRADIENT[1]);
 
-const Tiles = () => {
+const Tiles: React.FC = () => {
 	const videoConfig = useVideoConfig();
 	const frame = useCurrentFrame();
 
