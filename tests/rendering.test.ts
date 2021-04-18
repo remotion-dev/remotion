@@ -1,7 +1,6 @@
 import execa from "execa";
 import fs from "fs";
 import path from "path";
-import { interpolate } from "../packages/core/src";
 
 const outputPath = path.join(process.cwd(), "packages/example/out.mp4");
 
@@ -40,28 +39,6 @@ test("Should be able to render video", async () => {
   expect(data).toContain("30 fps");
 });
 
-test("Should fail to render conflicting --sequence and --codec settings", async () => {
-  const task = await execa(
-    "npx",
-    [
-      "remotion",
-      "render",
-      "src/index.tsx",
-      "ten-frame-tester",
-      "--codec",
-      "h264",
-      "--sequence",
-      outputPath,
-    ],
-    {
-      cwd: "packages/example",
-      reject: false,
-    }
-  );
-  expect(task.exitCode).toBe(process.platform === "win32" ? 0 : 1);
-  expect(task.stderr).toContain("Detected both --codec");
-});
-
 test("Should fail to render out of range CRF", async () => {
   const task = await execa(
     "npx",
@@ -87,6 +64,8 @@ test("Should fail to render out of range CRF", async () => {
 });
 
 test("Should fail to render out of range frame when range is a number", async () => {
+  const out = outputPath.replace(".mp4", "");
+
   const task = await execa(
     "npx",
     [
@@ -96,7 +75,7 @@ test("Should fail to render out of range frame when range is a number", async ()
       "ten-frame-tester",
       "--sequence",
       "--frames=10",
-      outputPath.replace(".mp4", ""),
+      out,
     ],
     {
       cwd: "packages/example",
@@ -159,6 +138,83 @@ test("Should render a still image if single frame specified", async () => {
   });
 });
 
+test("Should be able to render a WAV audio file", async () => {
+  const out = outputPath.replace("mp4", "wav");
+  const task = execa(
+    "npx",
+    ["remotion", "render", "src/index.tsx", "audio-testing", out],
+    {
+      cwd: "packages/example",
+    }
+  );
+  task.stderr?.pipe(process.stderr);
+  await task;
+  const exists = fs.existsSync(out);
+  expect(exists).toBe(true);
+
+  const info = await execa("ffprobe", [out]);
+  const data = info.stderr;
+  expect(data).toContain("pcm_s16le");
+  expect(data).toContain("2 channels");
+  expect(data).toContain("Kevin MacLeod");
+  expect(data).toContain("bitrate: 1411 kb/s");
+  expect(data).toContain("Stream #0");
+  expect(data).not.toContain("Stream #1");
+  fs.unlinkSync(out);
+});
+
+test("Should be able to render a MP3 audio file", async () => {
+  const out = outputPath.replace("mp4", "mp3");
+  const task = execa(
+    "npx",
+    ["remotion", "render", "src/index.tsx", "audio-testing", out],
+    {
+      cwd: "packages/example",
+    }
+  );
+  task.stderr?.pipe(process.stderr);
+  await task;
+  const exists = fs.existsSync(out);
+  expect(exists).toBe(true);
+
+  const info = await execa("ffprobe", [out]);
+  const data = info.stderr;
+  expect(data).toContain("mp3");
+  expect(data).toContain("stereo");
+  expect(data).toContain("fltp");
+  expect(data).toContain("Kevin MacLeod");
+  expect(data).toContain("128 kb/s");
+  expect(data).toContain("Stream #0");
+  expect(data).not.toContain("Stream #1");
+  fs.unlinkSync(out);
+});
+
+test("Should be able to render a AAC audio file", async () => {
+  const out = outputPath.replace("mp4", "aac");
+  const task = execa(
+    "npx",
+    ["remotion", "render", "src/index.tsx", "audio-testing", out],
+    {
+      cwd: "packages/example",
+    }
+  );
+  task.stderr?.pipe(process.stderr);
+  await task;
+  const exists = fs.existsSync(out);
+  expect(exists).toBe(true);
+
+  const info = await execa("ffprobe", [out]);
+  const data = info.stderr;
+  expect(data).toContain("aac");
+  expect(data).toContain("stereo");
+  expect(data).toContain("fltp");
+  expect(data).not.toContain("Kevin MacLeod");
+  expect(data).toContain("4 kb/s");
+  expect(data).toContain("Stream #0");
+  expect(data).not.toContain("Stream #1");
+  fs.unlinkSync(out);
+});
+
 test("Should render a video with GIFs", async () => {
   const task = await execa(
     "npx",
@@ -180,10 +236,24 @@ test("Should render a video with GIFs", async () => {
   });
 });
 
-test("Dynamic duration should work", async () => {
-  const randomDuration = Math.round(
-    interpolate(Math.random(), [0, 1], [2, 20])
+test("Should fail to render an audio file that doesn't have any audio inputs", async () => {
+  const out = outputPath.replace(".mp4", ".mp3");
+  const task = await execa(
+    "npx",
+    ["remotion", "render", "src/index.tsx", "ten-frame-tester", out],
+    {
+      cwd: "packages/example",
+      reject: false,
+    }
   );
+  expect(task.exitCode).toBe(process.platform === "win32" ? 0 : 1);
+  expect(task.stderr).toContain(
+    "Cannot render - you are trying to generate an audio file (mp3) but your composition doesn't contain any audio."
+  );
+});
+
+test("Dynamic duration should work", async () => {
+  const randomDuration = Math.round(Math.random() * 18 + 2);
   const task = await execa(
     "npx",
     [

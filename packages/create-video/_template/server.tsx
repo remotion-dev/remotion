@@ -46,7 +46,7 @@ app.get('/', async (req, res) => {
 		const tmpDir = await fs.promises.mkdtemp(
 			path.join(os.tmpdir(), 'remotion-')
 		);
-		await renderFrames({
+		const {assetsInfo} = await renderFrames({
 			config: video,
 			webpackBundle: bundled,
 			onStart: () => console.log('Rendering frames...'),
@@ -71,6 +71,7 @@ app.get('/', async (req, res) => {
 			width: video.width,
 			outputLocation: finalOutput,
 			imageFormat: 'jpeg',
+			assetsInfo,
 		});
 		cache.set(JSON.stringify(req.query), finalOutput);
 		sendFile(finalOutput);

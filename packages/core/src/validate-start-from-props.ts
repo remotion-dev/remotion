@@ -1,19 +1,19 @@
 export const validateStartFromProps = (
-	startAt: number | undefined,
+	startFrom: number | undefined,
 	endAt: number | undefined
 ) => {
-	if (typeof startAt !== 'undefined') {
-		if (typeof startAt !== 'number') {
+	if (typeof startFrom !== 'undefined') {
+		if (typeof startFrom !== 'number') {
 			throw new TypeError(
-				`type of startAt prop must be a number, instead got type ${typeof startAt}.`
+				`type of startFrom prop must be a number, instead got type ${typeof startFrom}.`
 			);
 		}
-		if (isNaN(startAt) || startAt === Infinity) {
-			throw new TypeError('startAt prop can not be NaN or Infinity.');
+		if (isNaN(startFrom) || startFrom === Infinity) {
+			throw new TypeError('startFrom prop can not be NaN or Infinity.');
 		}
-		if (startAt < 0) {
+		if (startFrom < 0) {
 			throw new TypeError(
-				`startAt must be greater than equal to 0 instead got ${startAt}.`
+				`startFrom must be greater than equal to 0 instead got ${startFrom}.`
 			);
 		}
 	}
@@ -32,7 +32,7 @@ export const validateStartFromProps = (
 			);
 		}
 	}
-	if ((endAt as number) < (startAt as number)) {
-		throw new TypeError('endAt prop must be greater than startAt prop');
+	if ((endAt as number) < (startFrom as number)) {
+		throw new TypeError('endAt prop must be greater than startFrom prop');
 	}
 };
