@@ -42,6 +42,7 @@ module.exports = {
         "continue-render",
         "delay-render",
         "interpolate",
+        "interpolate-colors",
         "get-input-props",
         "random",
         "register-root",
