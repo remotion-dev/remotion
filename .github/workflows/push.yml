@@ -10,7 +10,7 @@ jobs:
     steps:
       - uses: actions/checkout@main
       - uses: actions/setup-node@main
-      - uses: FedericoCarboni/setup-ffmpeg@v1
+      - uses: Iamshankhadeep/setup-ffmpeg@v1-beta
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
       - run: npm i
