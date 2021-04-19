@@ -29,7 +29,7 @@ export const Video: React.FC<RemotionVideoProps & RemotionMainVideoProps> = (
 	validateMediaProps(props, 'Video');
 
 	if (process.env.NODE_ENV === 'development') {
-		return <VideoForDevelopment {...props} />;
+		return <VideoForDevelopment {...otherProps} />;
 	}
-	return <VideoForRendering {...props} />;
+	return <VideoForRendering {...otherProps} />;
 };

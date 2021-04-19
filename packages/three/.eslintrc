@@ -1,0 +1,9 @@
+{
+	"extends": "@remotion/eslint-config",
+	"parserOptions": {
+		"project": "./tsconfig.json"
+	},
+	"rules": {
+		"ts-exports/unused-exports": "off"
+	}
+}

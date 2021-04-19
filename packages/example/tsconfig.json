@@ -11,6 +11,7 @@
 	"references": [
 		{"path": "../core"},
 		{"path": "../media-utils"},
-		{"path": "../babel-loader"}
+		{"path": "../babel-loader"},
+		{"path": "../three"}
 	]
 }
