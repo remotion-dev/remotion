@@ -1,5 +1,8 @@
 import {isHomebrewInstalled, renderFrames} from '@remotion/renderer';
+import lambdafs from 'lambdafs';
 import path from 'path';
+
+const chromium = require('chrome-aws-lambda');
 
 declare global {
 	const REMOTION_BUNDLE: string;
@@ -10,6 +13,14 @@ export const handler = async (event, context, callback) => {
 	console.log(process.env.PUPPETEER_DOWNLOAD_PATH);
 	console.log('Remotion is running', await isHomebrewInstalled());
 
+	await lambdafs.inflate(
+		path.join(process.cwd(), 'node_modules', 'bin', 'swiftshader.tar.br')
+	);
+	await lambdafs.inflate(
+		path.join(process.cwd(), 'node_modules', 'bin', 'aws.tar.br')
+	);
+
+	console.log('inflated');
 	const outputDir = '/tmp/' + 'remotion-render-' + Math.random();
 	await renderFrames({
 		compositionId: 'my-video',
@@ -29,11 +40,8 @@ export const handler = async (event, context, callback) => {
 		},
 		outputDir,
 		webpackBundle: REMOTION_BUNDLE,
-		customExecutable: path.join(
-			__dirname,
-			'node_modules',
-			'bin',
-			'chromium.br'
+		customExecutable: await lambdafs.inflate(
+			path.join(process.cwd(), 'node_modules', 'bin', 'chromium.br')
 		),
 	});
 	console.log('Done rendering!', outputDir);
