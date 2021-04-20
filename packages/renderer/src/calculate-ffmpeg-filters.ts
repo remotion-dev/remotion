@@ -36,7 +36,7 @@ export const calculateFfmpegFilters = ({
 			asset
 		);
 
-		const streamIndex = i + videoTrackCount;
+		const streamIndex = assetPositions.indexOf(asset) + videoTrackCount;
 		return {
 			filter: stringifyFfmpegFilter({
 				streamIndex,
