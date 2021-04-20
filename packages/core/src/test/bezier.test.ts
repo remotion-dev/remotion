@@ -1,6 +1,6 @@
 import {bezier} from '../bezier';
 
-const identity = (x: any) => {
+const identity = (x: number) => {
 	return x;
 };
 
@@ -20,7 +20,7 @@ const allEquals = (
 };
 
 function repeat(n: number) {
-	return function (f: any) {
+	return function (f: Function) {
 		for (let i = 0; i < n; ++i) {
 			f();
 		}
