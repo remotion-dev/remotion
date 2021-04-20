@@ -33,6 +33,6 @@ export const validateStartFromProps = (
 		}
 	}
 	if ((endAt as number) < (startFrom as number)) {
-		throw new TypeError('endAt prop must be greater than startFrom prop');
+		throw new TypeError('endAt prop must be greater than startFrom prop.');
 	}
 };
