@@ -154,11 +154,22 @@ export const webpackConfig = ({
 				},
 				{
 					test: /\.jsx?$/,
-					loader: require.resolve('esbuild-loader'),
-					options: {
-						loader: 'jsx',
-						target: 'chrome85',
-					},
+					use: [
+						{
+							loader: require.resolve('esbuild-loader'),
+							options: {
+								loader: 'jsx',
+								target: 'chrome85',
+							},
+						},
+						environment === 'development'
+							? {
+									loader: require.resolve(
+										'@webhotelier/webpack-fast-refresh/loader.js'
+									),
+							  }
+							: null,
+					].filter(truthy),
 				},
 			],
 		},
