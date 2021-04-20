@@ -1,6 +1,9 @@
 import {renderHook} from '@testing-library/react-hooks';
 import {RefObject} from 'react';
-import {useSyncVolumeWithMediaTag} from '../use-sync-volume-with-media-tag';
+import {
+	useSyncVolumeWithMediaTag,
+	UseSyncVolumeWithMediaTagOptions,
+} from '../use-sync-volume-with-media-tag';
 import {VolumeProp} from '../volume-prop';
 
 test('has the volume been adapted', async () => {
@@ -13,7 +16,7 @@ test('has the volume been adapted', async () => {
 	const volumePropFrame = 1;
 	const actualVolume = 0.4;
 
-	const initialProps = {
+	const initialProps: UseSyncVolumeWithMediaTagOptions = {
 		volumePropFrame,
 		actualVolume,
 		volume,
@@ -28,8 +31,10 @@ test('has the volume been adapted', async () => {
 	);
 	expect(audioRef.current?.volume).toEqual(initialProps.volume);
 	const newVolume = 0.5;
-	initialProps.volume = newVolume;
-	rerender(initialProps);
+	rerender({
+		...initialProps,
+		volume: newVolume,
+	});
 	expect(audioRef.current?.volume).toEqual(newVolume);
 });
 
