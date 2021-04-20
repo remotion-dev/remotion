@@ -7,13 +7,10 @@ jobs:
     strategy:
       matrix:
         os: [macos-latest, ubuntu-latest, windows-latest]
-        # Test with both FFMPEG 4.4 and FFMPEG 4.1
-        ffmpeg:
-          ["FedericoCarboni/setup-ffmpeg@v1", "Iamshankhadeep/setup-ffmpeg@v1"]
     steps:
       - uses: actions/checkout@main
       - uses: actions/setup-node@main
-      - uses: ${{ matrix.ffmpeg }}
+      - uses: Iamshankhadeep/setup-ffmpeg@v1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
       - run: npm i
