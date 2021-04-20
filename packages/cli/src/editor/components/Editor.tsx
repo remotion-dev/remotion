@@ -5,7 +5,10 @@ import {
 	CheckerboardContext,
 	loadCheckerboardOption,
 } from '../state/checkerboard';
-import {PreviewSize, PreviewSizeContext} from '../state/preview-size';
+import {
+	PreviewSizeContext,
+	loadPreviewSizeOption,
+} from '../state/preview-size';
 import {
 	loadRichTimelineOption,
 	RichTimelineContext,
@@ -29,7 +32,9 @@ const Background = styled.div`
 const Root = Internals.getRoot();
 
 export const Editor: React.FC = () => {
-	const [size, setSize] = useState<PreviewSize>('auto');
+	const [size, setSize] = useState(() => 
+		loadPreviewSizeOption()
+	);
 	const [checkerboard, setCheckerboard] = useState(() =>
 		loadCheckerboardOption()
 	);
@@ -37,13 +42,12 @@ export const Editor: React.FC = () => {
 		loadRichTimelineOption()
 	);
 
-	const previewCtx = useMemo(() => {
+	const previewSizeCtx = useMemo(() => {
 		return {
 			size,
 			setSize,
 		};
 	}, [size]);
-
 	const checkerboardCtx = useMemo(() => {
 		return {
 			checkerboard,
@@ -64,7 +68,7 @@ export const Editor: React.FC = () => {
 	return (
 		<RichTimelineContext.Provider value={richTimelineCtx}>
 			<CheckerboardContext.Provider value={checkerboardCtx}>
-				<PreviewSizeContext.Provider value={previewCtx}>
+				<PreviewSizeContext.Provider value={previewSizeCtx}>
 					<Background>
 						<Root />
 						<UpdateCheck />
