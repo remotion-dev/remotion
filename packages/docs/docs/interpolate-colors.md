@@ -3,6 +3,8 @@ title: interpolateColors()
 id: interpolate-colors
 ---
 
+_Available from v2.0.3_
+
 Allows you to map a range of values to colors using a concise syntax.
 
 ## Reference
