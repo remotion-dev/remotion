@@ -16,9 +16,8 @@ describe('EvaluateVolume does not throw', () => {
 		expect(evaluateVolume(toEvaluate)).toBe(1);
 	});
 	test('evaluated volume from frame that is smaller than one', () => {
-		const smallFrame = 0.5;
-		const toEvaluate = {frame: smallFrame, volume: (frame: number) => frame};
-		expect(evaluateVolume(toEvaluate)).toBe(smallFrame);
+		const toEvaluate = {frame: 1, volume: (frame: number) => frame * 0.5};
+		expect(evaluateVolume(toEvaluate)).toBe(0.5);
 	});
 	test('evaluated volume from frame that is bigger than one', () => {
 		const toEvaluate = {frame: 10, volume: (frame: number) => frame};
