@@ -1,13 +1,18 @@
 import React from 'react';
 import { useCurrentFrame } from 'remotion';
-import { RemotionThreeCanvas, ThreeVideo } from '@remotion/three';
+import { RemotionThreeCanvas, SwirlEffect, ThreeVideo } from '@remotion/three';
+import { EffectComposer, Vignette, Scanline } from '@react-three/postprocessing';
 
 const videoSrc = 'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4';
 
-const ThreeBasic = (): React.ReactElement => {
+const ThreePostprocessing = (): React.ReactElement => {
 	const frame = useCurrentFrame();
+	const [enableEffects, setEnableEffects] = React.useState(true); // eslint-disable-line @typescript-eslint/no-unused-vars
 	return (
-		<div style={{ display: 'flex', width: '100%' }}>
+		<div
+			style={{ display: 'flex', width: '100%' }}
+			// onClick={() => setEnableEffects(x => !x)}
+		>
 			<RemotionThreeCanvas
 				orthographic={false}
 				camera={{ fov: 75, position: [0, 0, 470] }}
@@ -16,16 +21,6 @@ const ThreeBasic = (): React.ReactElement => {
 				<pointLight args={[undefined, 0.4]} position={[200, 200, 0]} />
 
 				<ThreeVideo ignoreDepth fullViewport src={videoSrc} startFrom={460} />
-
-				{/* TODO: Using Sequence directly here still crashes for some reason */}
-				{/* <Sequence
-					layout='none'
-					from={-460}
-					showInTimeline={false}
-					durationInFrames={Number.POSITIVE_INFINITY}
-				>
-					<ThreeVideo ignoreDepth src={videoSrc} />
-				</Sequence> */}
 
 				<mesh
 					position={[-300, -200, 0]}
@@ -48,9 +43,34 @@ const ThreeBasic = (): React.ReactElement => {
 					<cylinderGeometry args={[50, 50, 180, 24]} />
 					<meshStandardMaterial color='red' />
 				</mesh>
+
+				{enableEffects && (
+					<EffectComposer
+						multisampling={0} // TODO: Remove with three.js v128
+					>
+						{/* <Bloom
+							kernelSize={4}
+							intensity={1.1}
+							luminanceSmoothing={0.04}
+							luminanceThreshold={0.7}
+						/> */}
+						{/* <DotScreen scale={0.5} /> */}
+						{/* <Sepia intensity={1} /> */}
+						<SwirlEffect
+							radius={400}
+							offset={[
+								Math.sin(frame * 0.1) * 200,
+								Math.cos(frame * 0.1) * 200
+							]}
+							angle={Math.cos(frame * 0.013) * 0.6}
+						/>
+						<Scanline density={0.9} opacity={0.2} />
+						<Vignette darkness={0.55} />
+					</EffectComposer>
+				)}
 			</RemotionThreeCanvas>
 		</div>
 	);
 };
 
-export default ThreeBasic;
+export default ThreePostprocessing;
