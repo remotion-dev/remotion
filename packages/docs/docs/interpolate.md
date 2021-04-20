@@ -155,3 +155,4 @@ interpolate(frame, [0, 10, 40, 100], [0, 0.2, 0.6, 1], {
 
 - [Easing](/docs/easing)
 - [spring()](/docs/spring)
+- [interpolateColors()](/docs/interpolate-colors)
