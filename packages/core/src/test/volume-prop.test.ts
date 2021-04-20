@@ -39,6 +39,6 @@ describe('evaluateVolume throws exception', () => {
 		expectToThrow(() => {
 			// @ts-expect-error
 			evaluateVolume(toEvaluate);
-		}, new RegExp(`You passed in a a function to the volume prop but it did not return a number but a vaue of type ${typeof invalidFrame} for frame ${invalidFrame}`));
+		}, new RegExp(`You passed in a a function to the volume prop but it did not return a number but a value of type ${typeof invalidFrame} for frame ${invalidFrame}`));
 	});
 });
