@@ -12,15 +12,21 @@ export const useMediaTagVolume = (
 		if (!ref) {
 			return;
 		}
-		if (ref.volume !== actualVolume) {
-			setActualVolume(ref.volume);
-			return;
-		}
 		const onChange = () => {
 			setActualVolume(ref.volume);
 		};
 		ref.addEventListener('volumechange', onChange);
 		return () => ref.removeEventListener('volumechange', onChange);
+	}, [mediaRef]);
+
+	useEffect(() => {
+		const ref = mediaRef.current;
+		if (!ref) {
+			return;
+		}
+		if (ref.volume !== actualVolume) {
+			setActualVolume(ref.volume);
+		}
 	}, [actualVolume, mediaRef]);
 
 	return actualVolume;

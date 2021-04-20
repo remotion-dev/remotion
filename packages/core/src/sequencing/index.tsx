@@ -12,7 +12,7 @@ import {TimelineContext} from '../timeline-position-state';
 import {useAbsoluteCurrentFrame} from '../use-frame';
 import {useUnsafeVideoConfig} from '../use-unsafe-video-config';
 
-type SequenceContextType = {
+export type SequenceContextType = {
 	cumulatedFrom: number;
 	relativeFrom: number;
 	parentFrom: number;

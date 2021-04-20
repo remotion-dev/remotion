@@ -12,21 +12,13 @@
   text-align: left;
 }
 
-.code {
-  width: fit-content;
-  background-color: #303846;
-  color: #fff;
-  font-family: monospace;
-  padding: 0.75rem 1rem;
-  border-radius: 0.35rem;
-}
-
-.codeArrow {
-  padding-right: 0.5rem;
+.youtubeIframe{
+  align-self: center;
 }
 
 @media screen and (max-width: 1200px) {
   .row {
     flex-direction: column;
+    text-align: center;
   }
 }

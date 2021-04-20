@@ -8,7 +8,8 @@
 		"test": "eslint src --ext ts,tsx && jest",
 		"build": "tsc -d",
 		"watch": "tsc -w",
-		"prerelease": "cp ../../README.md ."
+		"prerelease": "cp ../../README.md .",
+		"postinstall": "rm -rf node_modules/@types/react"
 	},
 	"repository": {
 		"url": "https://github.com/JonnyBurger/remotion"
@@ -22,6 +23,7 @@
 	"devDependencies": {
 		"@jonny/eslint-config": "^2.1.210",
 		"@testing-library/react": "^11.2.2",
+		"@testing-library/react-hooks": "^5.1.1",
 		"@types/jest": "^26.0.19",
 		"@types/node": "^14.14.14",
 		"@types/webpack-env": "^1.16.0",
