@@ -73,8 +73,13 @@ const PageHeader: React.FC = () => {
         </h1>
         <p>
           Use your React knowledge to create real MP4 videos. Render videos
-          dynamically using server-side rendering and parametrization.
-        </p>
+          dynamically using server-side rendering and parametrization. <br />
+					Get started now by running:
+				</p>
+				<p className={headerStyles.code}>
+					<span className={headerStyles.codeArrow}>$</span> yarn
+					create video
+				</p>
       </div>
       <iframe
         style={{
