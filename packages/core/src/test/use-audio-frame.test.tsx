@@ -5,7 +5,7 @@ import {
 	useFrameForVolumeProp,
 	useMediaStartsAt,
 } from '../audio/use-audio-frame';
-import {SequenceContext} from '../sequencing';
+import {SequenceContext, SequenceContextType} from '../sequencing';
 import * as useFrameModule from '../use-frame';
 
 test('Media starts at 0 if it is outside a sequence', () => {
@@ -17,7 +17,7 @@ test('Media starts at 0 if it is outside a sequence', () => {
 });
 
 test('Media start is shifted back based on sequence', () => {
-	const mockSequence = {
+	const mockSequence: SequenceContextType = {
 		cumulatedFrom: 0,
 		relativeFrom: -100,
 		parentFrom: 0,
