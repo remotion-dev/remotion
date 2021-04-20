@@ -13,7 +13,12 @@ test('has the volume been adapted', async () => {
 	const volumePropFrame = 1;
 	const actualVolume = 0.4;
 
-	const initialProps =  {volumePropFrame, actualVolume, volume, mediaRef: audioRef};
+	const initialProps = {
+		volumePropFrame,
+		actualVolume,
+		volume,
+		mediaRef: audioRef,
+	};
 
 	const {rerender} = renderHook(
 		(hookProps) => useSyncVolumeWithMediaTag(hookProps),
@@ -21,10 +26,11 @@ test('has the volume been adapted', async () => {
 			initialProps,
 		}
 	);
-	expect(audioRef.current?.volume).toEqual(initialProps.volume)
-    initialProps.volume = 0.5
-    rerender(initialProps)
-    expect(audioRef.current?.volume).toEqual(initialProps.volume)
+	expect(audioRef.current?.volume).toEqual(initialProps.volume);
+	const newVolume = 0.5;
+	initialProps.volume = newVolume;
+	rerender(initialProps);
+	expect(audioRef.current?.volume).toEqual(newVolume);
 });
 
 test('volume should not be adapted', async () => {
@@ -37,13 +43,15 @@ test('volume should not be adapted', async () => {
 	const volumePropFrame = 1;
 	const actualVolume = 0.4;
 
-	const initialProps =  {volumePropFrame, actualVolume, volume, mediaRef: audioRef};
+	const initialProps = {
+		volumePropFrame,
+		actualVolume,
+		volume,
+		mediaRef: audioRef,
+	};
 
-	renderHook(
-		(hookProps) => useSyncVolumeWithMediaTag(hookProps),
-		{
-			initialProps,
-		}
-	);
-	expect(audioRef.current?.volume).toEqual(initialProps.volume)
+	renderHook((hookProps) => useSyncVolumeWithMediaTag(hookProps), {
+		initialProps,
+	});
+	expect(audioRef.current?.volume).toEqual(initialProps.volume);
 });
