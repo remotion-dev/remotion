@@ -64,6 +64,19 @@ const Feature: React.FC<{
   );
 };
 
+const Snippet: React.FC<{
+  snippetValue: string
+}> = ({snippetValue}) => {
+  return (
+    <div className={styles.snippet}>
+      <div className={styles.snippetValue}>$ {snippetValue}</div>
+      <div className={styles.copySnippet} onClick={() => {navigator.clipboard.writeText(snippetValue)}}>
+        copy 
+      </div>
+    </div>
+  );
+};
+
 const PageHeader: React.FC = () => {
   return (
     <div className={headerStyles.row}>
@@ -73,13 +86,8 @@ const PageHeader: React.FC = () => {
         </h1>
         <p>
           Use your React knowledge to create real MP4 videos. Render videos
-          dynamically using server-side rendering and parametrization. <br />
-					Get started now by running:
-				</p>
-				<p className={headerStyles.code}>
-					<span className={headerStyles.codeArrow}>$</span> yarn
-					create video
-				</p>
+          dynamically using server-side rendering and parametrization.
+        </p>
       </div>
       <iframe
         style={{
@@ -87,6 +95,7 @@ const PageHeader: React.FC = () => {
           height: 315,
           maxWidth: "100%",
         }}
+        className={headerStyles.youtubeIframe}
         src="https://www.youtube.com/embed/gwlDorikqgY"
         title="Remotion - Create videos programmatically in React"
         frameBorder="0"
@@ -107,8 +116,12 @@ function Home() {
         <div className="container">
           <PageHeader />
           <br />
-          <br />
-          <br />
+          <div className={styles.snippets}>
+            <div className={styles.snippetsTitle}>Get Started in seconds with :</div>
+            <Snippet snippetValue={"npm init video"} />
+            or
+            <Snippet snippetValue={"yarn create video"} />
+          </div>
           <br />
           <div>
             <StartPageExplainer
