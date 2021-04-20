@@ -22,13 +22,13 @@ Please read these guides to install them in case you haven't yet.
 You can initialize a new Remotion video using
 
 <Tabs
-  defaultValue="npm"
-  values={[
-    { label: 'npm', value: 'npm', },
-    { label: 'Yarn', value: 'yarn', },
-  ]
+defaultValue="npm"
+values={[
+{ label: 'npm', value: 'npm', },
+{ label: 'yarn', value: 'yarn', },
+]
 }>
-  <TabItem value="npm">
+<TabItem value="npm">
 
 ```bash
 npm init video
