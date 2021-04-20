@@ -439,7 +439,7 @@ const interpolateColorsRGB = (
 	inputRange: readonly number[],
 	colors: readonly number[]
 ) => {
-	const [r, g, b, a] = [red, green, blue, opacity].map((f, i) => {
+	const [r, g, b, a] = [red, green, blue, opacity].map((f) => {
 		const unrounded = interpolate(
 			value,
 			inputRange,
