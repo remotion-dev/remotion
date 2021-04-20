@@ -2,7 +2,7 @@ import {renderHook} from '@testing-library/react-hooks';
 import React, {RefObject} from 'react';
 import {useMediaTagVolume} from '../use-media-tag-volume';
 
-describe('setState test', () => {
+describe('Should update state when volume changes', () => {
 	const setState = jest.fn();
 	const useStateSpy = jest.spyOn(React, 'useState');
 	beforeEach(() => {
@@ -33,7 +33,7 @@ describe('setState test', () => {
 	});
 });
 
-test('has the event listener been added', () => {
+test('Should listen for volume changes', () => {
 	const addEventListener = jest.fn();
 	const removeEventListener = jest.fn();
 	const audioRef = ({
