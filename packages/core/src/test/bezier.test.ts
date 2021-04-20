@@ -1,22 +1,26 @@
 import {bezier} from '../bezier';
 
-const identity = (x: any) => {
+const identity = (x: number) => {
 	return x;
-}
+};
 
 const assertClose = (a: number, b: number, precision = 3) => {
 	expect(a).toBeCloseTo(b, precision);
-}
+};
 
-const allEquals = (be1: (x: number) => number, be2: (x: number) => number, samples: number) => {
+const allEquals = (
+	be1: (x: number) => number,
+	be2: (x: number) => number,
+	samples: number
+) => {
 	for (let i = 0; i <= samples; ++i) {
 		const x = i / samples;
 		assertClose(be1(x), be2(x));
 	}
-}
+};
 
 function repeat(n: number) {
-	return function(f: any) {
+	return function (f: Function) {
 		for (let i = 0; i < n; ++i) {
 			f();
 		}
@@ -43,7 +47,7 @@ test('bezier - fail with wrong params', () => {
 test('bezier - linear curves', () => {
 	allEquals(bezier(0, 0, 1, 1), bezier(1, 1, 0, 0), 100);
 	allEquals(bezier(0, 0, 1, 1), identity, 100);
-})
+});
 
 test('bezier - right value at extremes', () => {
 	repeat(10)(() => {
@@ -55,4 +59,4 @@ test('bezier - right value at extremes', () => {
 		expect(easing(0)).toBe(0);
 		expect(easing(1)).toBe(1);
 	});
-})
+});
