@@ -402,46 +402,34 @@ function normalizeColor(color: string): number {
 	throw new Error(`invalid color string ${color} provided`);
 }
 
-export const opacity = (c: number): number => {
+const opacity = (c: number): number => {
 	return ((c >> 24) & 255) / 255;
 };
 
-export const red = (c: number): number => {
+const red = (c: number): number => {
 	return (c >> 16) & 255;
 };
 
-export const green = (c: number): number => {
+const green = (c: number): number => {
 	return (c >> 8) & 255;
 };
 
-export const blue = (c: number): number => {
+const blue = (c: number): number => {
 	return c & 255;
 };
 
-export const rgbaColor = (
-	r: number,
-	g: number,
-	b: number,
-	alpha = 1
-): string => {
+const rgbaColor = (r: number, g: number, b: number, alpha: number): string => {
 	return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 };
 
-export function processColorInitially(color: string): number {
+function processColorInitially(color: string): number {
 	let normalizedColor = normalizeColor(color);
 
 	normalizedColor = ((normalizedColor << 24) | (normalizedColor >>> 8)) >>> 0; // argb
 	return normalizedColor;
 }
 
-export function isColor(value: unknown): boolean {
-	if (typeof value !== 'string') {
-		return false;
-	}
-	return processColorInitially(value) != null;
-}
-
-export function processColor(color: string): number {
+function processColor(color: string): number {
 	const normalizedColor = processColorInitially(color);
 	return normalizedColor;
 }
@@ -451,81 +439,50 @@ const interpolateColorsRGB = (
 	inputRange: readonly number[],
 	colors: readonly number[]
 ) => {
-	const r = Math.round(
-		interpolate(
+	const [r, g, b, a] = [red, green, blue, opacity].map((f, i) => {
+		const unrounded = interpolate(
 			value,
 			inputRange,
-			colors.map((c) => red(c)),
+			colors.map((c) => f(c)),
 			{
 				extrapolateLeft: 'clamp',
 				extrapolateRight: 'clamp',
 			}
-		)
-	);
-	const g = Math.round(
-		interpolate(
-			value,
-			inputRange,
-			colors.map((c) => green(c)),
-			{
-				extrapolateLeft: 'clamp',
-				extrapolateRight: 'clamp',
-			}
-		)
-	);
-	const b = Math.round(
-		interpolate(
-			value,
-			inputRange,
-			colors.map((c) => blue(c)),
-			{
-				extrapolateLeft: 'clamp',
-				extrapolateRight: 'clamp',
-			}
-		)
-	);
-	const a = interpolate(
-		value,
-		inputRange,
-		colors.map((c) => opacity(c)),
-		{
-			extrapolateLeft: 'clamp',
-			extrapolateRight: 'clamp',
+		);
+		if (f === opacity) {
+			return Number(unrounded.toFixed(3));
 		}
-	);
+		return Math.round(unrounded);
+	});
 	return rgbaColor(r, g, b, a);
 };
 
 export const interpolateColors = (
 	input: number,
 	inputRange: readonly number[],
-	outputRange: readonly string[],
-	colorSpace: 'RGB' = 'RGB'
+	outputRange: readonly string[]
 ): string => {
-	if (
-		typeof input === 'undefined' ||
-		typeof inputRange === 'undefined' ||
-		typeof outputRange === 'undefined'
-	) {
-		throw new Error('input or inputRange or outputRange can not be undefined');
+	if (typeof input === 'undefined') {
+		throw new TypeError('input can not be undefined');
+	}
+	if (typeof inputRange === 'undefined') {
+		throw new TypeError('inputRange can not be undefined');
+	}
+	if (typeof outputRange === 'undefined') {
+		throw new TypeError('outputRange can not be undefined');
 	}
 
 	if (inputRange.length !== outputRange.length) {
-		throw new Error(
+		throw new TypeError(
 			'inputRange (' +
 				inputRange.length +
-				') and outputRange (' +
+				' values provided) and outputRange (' +
 				outputRange.length +
-				') must have the same length'
+				' values provided) must have the same length'
 		);
 	}
 
 	const processedOutputRange = outputRange.map((c) => processColor(c));
 
-	if (colorSpace === 'RGB') {
-		return interpolateColorsRGB(input, inputRange, processedOutputRange);
-	}
-	throw new Error(
-		`invalid color space provided: ${colorSpace}. Supported values are: ['RGB', 'HSV']`
-	);
+	return interpolateColorsRGB(input, inputRange, processedOutputRange);
 };
