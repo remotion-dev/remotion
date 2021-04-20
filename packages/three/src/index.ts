@@ -12,3 +12,6 @@ export { default as useVideoTexture } from './useVideoTexture';
 
 export * from './effects/SwirlEffect';
 export { default as SwirlEffect } from './effects/SwirlEffect';
+
+export * from './utils/TexturedShaderMaterial';
+export { default as TexturedShaderMaterial } from './utils/TexturedShaderMaterial';
