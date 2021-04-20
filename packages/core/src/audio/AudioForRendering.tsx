@@ -1,4 +1,5 @@
 import React, {useContext, useEffect, useMemo} from 'react';
+import {getAbsoluteSrc} from '../absolute-src';
 import {CompositionManager} from '../CompositionManager';
 import {isRemoteAsset} from '../is-remote-asset';
 import {random} from '../random';
@@ -41,11 +42,11 @@ export const AudioForRendering: React.FC<RemotionAudioProps> = (props) => {
 
 		registerAsset({
 			type: 'audio',
-			src: props.src,
+			src: getAbsoluteSrc(props.src),
 			id,
 			frame: absoluteFrame,
 			volume,
-			isRemote: isRemoteAsset(props.src),
+			isRemote: isRemoteAsset(getAbsoluteSrc(props.src)),
 			mediaFrame: frame,
 		});
 		return () => unregisterAsset(id);

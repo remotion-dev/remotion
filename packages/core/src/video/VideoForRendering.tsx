@@ -1,4 +1,5 @@
 import React, {useContext, useEffect, useMemo, useRef} from 'react';
+import {getAbsoluteSrc} from '../absolute-src';
 import {useFrameForVolumeProp} from '../audio/use-audio-frame';
 import {CompositionManager} from '../CompositionManager';
 import {isApproximatelyTheSame} from '../is-approximately-the-same';
@@ -63,11 +64,11 @@ export const VideoForRendering: React.FC<RemotionVideoProps> = ({
 
 		registerAsset({
 			type: 'video',
-			src: props.src,
+			src: getAbsoluteSrc(props.src),
 			id,
 			frame: absoluteFrame,
 			volume,
-			isRemote: isRemoteAsset(props.src),
+			isRemote: isRemoteAsset(getAbsoluteSrc(props.src)),
 			mediaFrame: frame,
 		});
 
