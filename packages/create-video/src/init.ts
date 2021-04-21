@@ -19,9 +19,17 @@ const askQuestion = (question: string) => {
 	});
 };
 
+const shouldUseYarn = (binaryPath: string): boolean => {
+	if (binaryPath.match(/.yarn/g)) {
+		return true;
+	}
+	return false;
+};
+
 xns(async () => {
 	const arg = process.argv[2];
 	let selectedDirname = arg?.match(/[a-zA-Z0-9-]+/g) ? arg : '';
+	const createVideoBinaryPath = process.argv[1];
 	while (selectedDirname === '') {
 		const answer =
 			(await askQuestion(
@@ -61,13 +69,23 @@ xns(async () => {
 		)}. Installing dependencies...`
 	);
 	console.log('');
-	console.log('> npm install');
-	const promise = execa('npm', ['install'], {
-		cwd: outputDir,
-	});
-	promise.stderr?.pipe(process.stderr);
-	promise.stdout?.pipe(process.stdout);
-	await promise;
+	if (shouldUseYarn(createVideoBinaryPath)) {
+		console.log('> yarn');
+		const promise = execa('yarn', [''], {
+			cwd: outputDir,
+		});
+		promise.stderr?.pipe(process.stderr);
+		promise.stdout?.pipe(process.stdout);
+		await promise;
+	} else {
+		console.log('> npm install');
+		const promise = execa('npm', ['install'], {
+			cwd: outputDir,
+		});
+		promise.stderr?.pipe(process.stderr);
+		promise.stdout?.pipe(process.stdout);
+		await promise;
+	}
 
 	console.log(`Welcome to ${chalk.blue('Remotion')}!`);
 	console.log(
@@ -76,10 +94,18 @@ xns(async () => {
 
 	console.log('Get started by running');
 	console.log(chalk.blue(`cd ${selectedDirname}`));
-	console.log(chalk.blue('npm start'));
+	console.log(
+		chalk.blue(
+			shouldUseYarn(createVideoBinaryPath) ? 'yarn start' : 'npm start'
+		)
+	);
 	console.log('');
 	console.log('To render an MP4 video, run');
-	console.log(chalk.blue('npm run build'));
+	console.log(
+		chalk.blue(
+			shouldUseYarn(createVideoBinaryPath) ? 'yarn build' : 'npm run build'
+		)
+	);
 	console.log('');
 	console.log(
 		'Read the documentation at',
