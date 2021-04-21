@@ -70,8 +70,8 @@ xns(async () => {
 	);
 	console.log('');
 	if (shouldUseYarn(createVideoBinaryPath)) {
-		console.log('> yarn');
-		const promise = execa('yarn', [''], {
+		console.log('> yarn install');
+		const promise = execa('yarn', ['install'], {
 			cwd: outputDir,
 		});
 		promise.stderr?.pipe(process.stderr);
