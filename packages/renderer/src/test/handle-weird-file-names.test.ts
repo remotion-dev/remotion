@@ -17,7 +17,7 @@ test('Should sanitize weird file names when downloading', async () => {
 	});
 	expect(newAsset.src).toBe(
 		process.platform === 'win32'
-			? '\\\\var\\\\tmp\\\\gtts-api.miniggiodev.frIci+Japon+Corp'
+			? '\\var\\tmp\\gtts-api.miniggiodev.frIci+Japon+Corp'
 			: '/var/tmp/gtts-api.miniggiodev.frIci+Japon+Corp'
 	);
 });
