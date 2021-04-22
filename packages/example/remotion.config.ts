@@ -9,6 +9,10 @@ type Bundler = 'webpack' | 'esbuild';
 
 const WEBPACK_OR_ESBUILD = 'esbuild' as Bundler;
 
+Config.Puppeteer.setBrowserExecutable(
+	'/Users/jonnyburger/chromium/src/out/Default/Chromium.app/Contents/MacOS/Chromium'
+);
+
 Config.Bundling.overrideWebpackConfig((currentConfiguration) => {
 	const {replaceLoadersWithBabel} = require(path.join(
 		__dirname,

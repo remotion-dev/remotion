@@ -25,7 +25,7 @@ export const _screenshotTask = async (
 
 	const cap = Internals.perf.startPerfMeasure('capture');
 	const result = await client.send('Page.captureScreenshot', {
-		format,
+		format: 'bmp',
 		quality: options.quality,
 		clip: undefined,
 		captureBeyondViewport: true,
