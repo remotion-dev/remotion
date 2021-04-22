@@ -19,14 +19,16 @@ const askQuestion = (question: string) => {
 	});
 };
 
-const shouldUseYarn = (binaryPath: string): boolean => {
-	return Boolean(binaryPath.match(/.yarn/g));
+const shouldUseYarn = (): boolean => {
+	return Boolean(
+		process.env.npm_execpath?.includes('yarn.js') ||
+			process.env.npm_config_user_agent?.includes('yarn')
+	);
 };
 
 xns(async () => {
 	const arg = process.argv[2];
 	let selectedDirname = arg?.match(/[a-zA-Z0-9-]+/g) ? arg : '';
-	const createVideoBinaryPath = process.argv[1];
 	while (selectedDirname === '') {
 		const answer =
 			(await askQuestion(
@@ -66,7 +68,7 @@ xns(async () => {
 		)}. Installing dependencies...`
 	);
 	console.log('');
-	if (shouldUseYarn(createVideoBinaryPath)) {
+	if (shouldUseYarn()) {
 		console.log('> yarn');
 		const promise = execa('yarn', [], {
 			cwd: outputDir,
@@ -91,18 +93,10 @@ xns(async () => {
 
 	console.log('Get started by running');
 	console.log(chalk.blue(`cd ${selectedDirname}`));
-	console.log(
-		chalk.blue(
-			shouldUseYarn(createVideoBinaryPath) ? 'yarn start' : 'npm start'
-		)
-	);
+	console.log(chalk.blue(shouldUseYarn() ? 'yarn start' : 'npm start'));
 	console.log('');
 	console.log('To render an MP4 video, run');
-	console.log(
-		chalk.blue(
-			shouldUseYarn(createVideoBinaryPath) ? 'yarn build' : 'npm run build'
-		)
-	);
+	console.log(chalk.blue(shouldUseYarn() ? 'yarn build' : 'npm run build'));
 	console.log('');
 	console.log(
 		'Read the documentation at',
