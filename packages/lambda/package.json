@@ -22,6 +22,7 @@
 		"chrome-aws-lambda": "^8.0.2",
 		"esbuild": "^0.11.12",
 		"lambdafs": "^2.0.3",
+		"patch-package": "^6.4.7",
 		"remotion": "^2.0.2",
 		"ts-node": "^9.1.1",
 		"xns": "^2.0.7",
