@@ -1,4 +1,4 @@
-import React, {useRef} from 'react';
+import React, {forwardRef, useImperativeHandle, useRef} from 'react';
 import {useFrameForVolumeProp} from '../audio/use-audio-frame';
 import {useMediaInTimeline} from '../use-media-in-timeline';
 import {useMediaPlayback} from '../use-media-playback';
@@ -6,7 +6,10 @@ import {useMediaTagVolume} from '../use-media-tag-volume';
 import {useSyncVolumeWithMediaTag} from '../use-sync-volume-with-media-tag';
 import {RemotionVideoProps} from './props';
 
-export const VideoForDevelopment: React.FC<RemotionVideoProps> = (props) => {
+const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
+	HTMLVideoElement,
+	RemotionVideoProps
+> = (props, ref) => {
 	const videoRef = useRef<HTMLVideoElement>(null);
 
 	const volumePropFrame = useFrameForVolumeProp();
@@ -35,5 +38,13 @@ export const VideoForDevelopment: React.FC<RemotionVideoProps> = (props) => {
 		mediaType: 'video',
 	});
 
+	useImperativeHandle(ref, () => {
+		return videoRef.current as HTMLVideoElement;
+	});
+
 	return <video ref={videoRef} {...nativeProps} />;
 };
+
+export const VideoForDevelopment = forwardRef(
+	VideoForDevelopmentRefForwardingFunction
+);
