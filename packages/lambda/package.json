@@ -7,7 +7,8 @@
 	"scripts": {
 		"test": "eslint src --ext ts,tsx",
 		"watch": "tsc -w",
-		"build": "tsc -d"
+		"build": "tsc -d",
+		"prepare": "patch-package"
 	},
 	"author": "",
 	"license": "MIT",
