@@ -42,7 +42,7 @@ export const renderFrames = async ({
 }: {
 	config: VideoConfig;
 	parallelism?: number | null;
-	onFrameUpdate: (f: number) => void;
+	onFrameUpdate: (f: number, frame: string) => void;
 	onStart: (data: OnStartData) => void;
 	compositionId: string;
 	outputDir: string;
@@ -115,6 +115,10 @@ export const renderFrames = async ({
 				const paddedIndex = String(frame).padStart(filePadLength, '0');
 
 				await seekToFrame({frame, page: freePage});
+				const output = path.join(
+					outputDir,
+					`element-${paddedIndex}.${imageFormat}`
+				);
 				if (imageFormat !== 'none') {
 					await provideScreenshot({
 						page: freePage,
@@ -122,10 +126,7 @@ export const renderFrames = async ({
 						quality,
 						options: {
 							frame,
-							output: path.join(
-								outputDir,
-								`element-${paddedIndex}.${imageFormat}`
-							),
+							output,
 						},
 					});
 				}
@@ -134,7 +135,7 @@ export const renderFrames = async ({
 				});
 				pool.release(freePage);
 				framesRendered++;
-				onFrameUpdate(framesRendered);
+				onFrameUpdate(framesRendered, output);
 				return collectedAssets;
 			})
 	);

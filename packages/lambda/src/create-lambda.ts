@@ -19,6 +19,8 @@ const lambdaClient = new LambdaClient({
 
 const s3Client = new S3Client({region});
 
+const ENABLE_EFS = false;
+
 xns(async () => {
 	const bucketName = 'remotion-bucket-' + Math.random();
 	const id = String(Math.random());
@@ -66,7 +68,7 @@ xns(async () => {
 	);
 
 	// TODO: Do it with HTTPS, but wait for certificate
-	const url = `http://${bucketName}.s3.${region}.amazonaws.com/index.html`;
+	const url = `http://${bucketName}.s3.${region}.amazonaws.com`;
 	console.log(url);
 	await lambdaClient.send(
 		new CreateFunctionCommand({
@@ -80,7 +82,26 @@ xns(async () => {
 			Runtime: 'nodejs12.x',
 			Description: 'Renders a Remotion video.',
 			MemorySize: 1769 * 2,
-			Timeout: 60 * 10,
+			Timeout: 60,
+			VpcConfig: ENABLE_EFS
+				? {
+						SubnetIds: [
+							'subnet-0c7d7756beb9cdc4d',
+							'subnet-076ce2be687a13ee1',
+							'subnet-015ae228c978f9b83',
+						],
+						SecurityGroupIds: ['sg-0840e6025b19e429d'],
+				  }
+				: undefined,
+			FileSystemConfigs: ENABLE_EFS
+				? [
+						{
+							Arn:
+								'arn:aws:elasticfilesystem:eu-central-1:976210361945:access-point/fsap-04d592e24b3ae3074',
+							LocalMountPath: '/mnt/remotion-efs',
+						},
+				  ]
+				: undefined,
 		})
 	);
 

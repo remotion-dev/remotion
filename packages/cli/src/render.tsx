@@ -214,7 +214,6 @@ export const render = async () => {
 			renderProgress.start(fc, 0);
 		},
 		inputProps,
-		webpackBundle: bundled,
 		imageFormat,
 		quality,
 		browser,
