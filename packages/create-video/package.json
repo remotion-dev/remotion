@@ -12,6 +12,8 @@
 	],
 	"scripts": {
 		"build": "tsc -d"
+		"build": "tsc -d",
+		"watch": "tsc -w"
 	},
 	"author": "",
 	"license": "SEE LICENSE IN LICENSE.md",
