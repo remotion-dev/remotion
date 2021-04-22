@@ -1,4 +1,11 @@
-import React, {useContext, useEffect, useMemo} from 'react';
+import React, {
+	forwardRef,
+	useContext,
+	useEffect,
+	useImperativeHandle,
+	useMemo,
+	useRef,
+} from 'react';
 import {getAbsoluteSrc} from '../absolute-src';
 import {CompositionManager} from '../CompositionManager';
 import {isRemoteAsset} from '../is-remote-asset';
@@ -9,7 +16,12 @@ import {evaluateVolume} from '../volume-prop';
 import {RemotionAudioProps} from './props';
 import {useFrameForVolumeProp} from './use-audio-frame';
 
-export const AudioForRendering: React.FC<RemotionAudioProps> = (props) => {
+const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
+	HTMLAudioElement,
+	RemotionAudioProps
+> = (props, ref) => {
+	const audioRef = useRef<HTMLAudioElement>(null);
+
 	const absoluteFrame = useAbsoluteCurrentFrame();
 	const volumePropFrame = useFrameForVolumeProp();
 	const frame = useCurrentFrame();
@@ -26,9 +38,15 @@ export const AudioForRendering: React.FC<RemotionAudioProps> = (props) => {
 		[props.muted, props.src, sequenceContext]
 	);
 
+	const {volume: volumeProp, ...nativeProps} = props;
+
 	const volume = evaluateVolume({
-		volume: props.volume,
+		volume: volumeProp,
 		frame: volumePropFrame,
+	});
+
+	useImperativeHandle(ref, () => {
+		return audioRef.current as HTMLVideoElement;
 	});
 
 	useEffect(() => {
@@ -62,5 +80,9 @@ export const AudioForRendering: React.FC<RemotionAudioProps> = (props) => {
 		frame,
 	]);
 
-	return null;
+	return <audio ref={audioRef} {...nativeProps} />;
 };
+
+export const AudioForRendering = forwardRef(
+	AudioForRenderingRefForwardingFunction
+);
