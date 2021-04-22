@@ -17,7 +17,7 @@ import os from 'os';
 import path from 'path';
 
 const app = express();
-const port = 8000;
+const port = process.env.PORT || 8000;
 const compositionId = 'HelloWorld';
 
 const cache = new Map<string, string>();
@@ -46,7 +46,7 @@ app.get('/', async (req, res) => {
 		const tmpDir = await fs.promises.mkdtemp(
 			path.join(os.tmpdir(), 'remotion-')
 		);
-		await renderFrames({
+		const {assetsInfo} = await renderFrames({
 			config: video,
 			webpackBundle: bundled,
 			onStart: () => console.log('Rendering frames...'),
@@ -57,7 +57,7 @@ app.get('/', async (req, res) => {
 			},
 			parallelism: null,
 			outputDir: tmpDir,
-			userProps: req.query,
+			inputProps: req.query,
 			compositionId,
 			imageFormat: 'jpeg',
 		});
@@ -71,6 +71,7 @@ app.get('/', async (req, res) => {
 			width: video.width,
 			outputLocation: finalOutput,
 			imageFormat: 'jpeg',
+			assetsInfo,
 		});
 		cache.set(JSON.stringify(req.query), finalOutput);
 		sendFile(finalOutput);

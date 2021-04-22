@@ -1,0 +1,9 @@
+{
+	"extends": "@jonny",
+	"parserOptions": {
+		"project": "./tsconfig.json"
+	},
+	"rules": {
+		"ts-exports/unused-exports": "off"
+	}
+}

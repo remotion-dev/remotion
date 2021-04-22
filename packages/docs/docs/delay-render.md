@@ -8,7 +8,7 @@ By calling `delayRender`, you are signaling that a frame should not be immediate
 
 This method is useful if you for example want to call an API to fetch data before you before you render.
 
-`delayRender` returns an identifier. Once you have fetched data or finished the asynchronous task, you should call `continueRender(identifier)` to let Remotion know that you are now ready to render..
+`delayRender` returns an identifier. Once you have fetched data or finished the asynchronous task, you should call `continueRender(identifier)` to let Remotion know that you are now ready to render.
 
 ## Useful to know
 
@@ -18,16 +18,17 @@ This method is useful if you for example want to call an API to fetch data befor
 
 - You can call `delayRender` multiple times. The render will be blocked for as long as at least one blocking handle exists and that has not been cleared by `continueRender()`.
 
+- You should put `delayRender()` calls inside your components rather than placing them as a top-level statement, to avoid blocking a render if a different composition is rendered. Also, in the example below the call is wrapped in a `useState()` to avoid creating multiple blocking calls when the component rerenders.
+
 ## Example
 
 ```tsx
 import {useEffect, useState} from 'react';
 import {continueRender, delayRender} from 'remotion';
 
-const handle = delayRender();
-
 export const MyVideo = () => {
   const [data, setData] = useState(null);
+  const [handle] = useState(() => delayRender());
 
   const fetchData = async () => {
     const response = await fetch('http://example.com/api');

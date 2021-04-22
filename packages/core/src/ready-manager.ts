@@ -1,4 +1,4 @@
-import {TCompMetadata} from './CompositionManager';
+import {TAsset, TCompMetadata} from './CompositionManager';
 
 if (typeof window !== 'undefined') {
 	window.ready = false;
@@ -27,5 +27,6 @@ declare global {
 		ready: boolean;
 		getStaticCompositions: () => TCompMetadata[];
 		remotion_setFrame: (frame: number) => void;
+		remotion_collectAssets: () => TAsset[];
 	}
 }

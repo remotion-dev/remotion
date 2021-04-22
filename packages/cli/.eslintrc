@@ -1,3 +1,14 @@
 {
-    "extends": "@jonny"
+	"extends": "@jonny",
+	"rules": {
+		"no-console": "error"
+	},
+	"overrides": [
+		{
+			"files": "./src/editor/**",
+			"rules": {
+				"no-console": "off"
+			}
+		}
+	]
 }

@@ -1,3 +1,5 @@
+// @ts-expect-error
+import webpackDevMiddleware from '@jonny/webpack-dev-middleware';
 import express from 'express';
 import fs from 'fs';
 import getPort from 'get-port';
@@ -5,10 +7,9 @@ import os from 'os';
 import path from 'path';
 import {Internals, WebpackOverrideFn} from 'remotion';
 import webpack from 'webpack';
-import webpackDevMiddleware from 'webpack-dev-middleware';
 import webpackHotMiddleware from 'webpack-hot-middleware';
 import {overrideWebpackConfig} from './override-webpack';
-import {isUpdateAvailable} from './update-available';
+import {isUpdateAvailableWithTimeout} from './update-available';
 import {webpackConfig} from './webpack-config';
 
 export const startServer = async (
@@ -16,6 +17,7 @@ export const startServer = async (
 	userDefinedComponent: string,
 	options?: {
 		webpackOverride?: WebpackOverrideFn;
+		inputProps?: object;
 	}
 ): Promise<number> => {
 	const app = express();
@@ -30,6 +32,7 @@ export const startServer = async (
 		environment: 'development',
 		webpackOverride:
 			options?.webpackOverride ?? Internals.getWebpackOverrideFn(),
+		inputProps: options?.inputProps ?? {},
 	});
 	const compiler = webpack(config);
 
@@ -43,7 +46,7 @@ export const startServer = async (
 	);
 
 	app.get('/update', (req, res) => {
-		isUpdateAvailable()
+		isUpdateAvailableWithTimeout()
 			.then((data) => {
 				res.json(data);
 			})

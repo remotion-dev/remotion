@@ -4,6 +4,8 @@ import {
 	ffmpegHasFeature,
 	getActualConcurrency,
 	getCompositions,
+	getFfmpegVersion,
+	openBrowser,
 	renderFrames,
 	stitchFramesToVideo,
 	validateFfmpeg,
@@ -17,85 +19,86 @@ import {getFinalOutputCodec} from 'remotion/dist/config/codec';
 import {getCompositionId} from './get-composition-id';
 import {getConfigFileName} from './get-config-file-name';
 import {getOutputFilename} from './get-filename';
-import {getUserProps} from './get-user-props';
+import {getInputProps} from './get-input-props';
 import {getImageFormat} from './image-formats';
 import {loadConfigFile} from './load-config';
-import {parseCommandLine} from './parse-command-line';
+import {Log} from './log';
+import {parseCommandLine, parsedCli} from './parse-command-line';
 import {getUserPassedFileExtension} from './user-passed-output-location';
+import {warnAboutFfmpegVersion} from './warn-about-ffmpeg-version';
 
 export const render = async () => {
-	const args = process.argv;
-	const file = args[3];
+	const file = parsedCli._[1];
 	const fullPath = path.join(process.cwd(), file);
 
 	const configFileName = getConfigFileName();
-	loadConfigFile(configFileName);
+	const appliedName = loadConfigFile(configFileName);
 	parseCommandLine();
+	if (appliedName) {
+		Log.Verbose(`Applied configuration from ${appliedName}.`);
+	}
 	const parallelism = Internals.getConcurrency();
 	const frameRange = Internals.getRange();
 	if (typeof frameRange === 'number') {
-		console.warn(
-			'Selected a single frame. Assuming you want to output an image.'
-		);
-		console.warn(
+		Log.Warn('Selected a single frame. Assuming you want to output an image.');
+		Log.Warn(
 			`If you want to render a video, pass a range:  '--frames=${frameRange}-${frameRange}'.`
 		);
-		console.warn(
-			"To dismiss this message, add the '--sequence' flag explicitly."
-		);
+		Log.Warn("To dismiss this message, add the '--sequence' flag explicitly.");
 		Config.Output.setImageSequence(true);
 	}
 	const shouldOutputImageSequence = Internals.getShouldOutputImageSequence();
 	const userCodec = Internals.getOutputCodecOrUndefined();
-	if (shouldOutputImageSequence && userCodec) {
-		console.error(
-			'Detected both --codec and --sequence (formerly --png) flag.'
-		);
-		console.error(
-			'This is an error - no video codec can be used for image sequences.'
-		);
-		console.error('Remove one of the two flags and try again.');
-		process.exit(1);
-	}
+
 	const codec = getFinalOutputCodec({
 		codec: userCodec,
 		fileExtension: getUserPassedFileExtension(),
 		emitWarning: true,
 	});
+
+	const ffmpegVersion = await getFfmpegVersion();
+	Log.Verbose(
+		'Your FFMPEG version:',
+		ffmpegVersion ? ffmpegVersion.join('.') : 'Built from source'
+	);
+	warnAboutFfmpegVersion(ffmpegVersion);
 	if (codec === 'vp8' && !(await ffmpegHasFeature('enable-libvpx'))) {
-		console.log(
+		Log.Error(
 			"The Vp8 codec has been selected, but your FFMPEG binary wasn't compiled with the --enable-lipvpx flag."
 		);
-		console.log(
+		Log.Error(
 			'This does not work, please switch out your FFMPEG binary or choose a different codec.'
 		);
 	}
 	if (codec === 'h265' && !(await ffmpegHasFeature('enable-gpl'))) {
-		console.log(
+		Log.Error(
 			"The H265 codec has been selected, but your FFMPEG binary wasn't compiled with the --enable-gpl flag."
 		);
-		console.log(
+		Log.Error(
 			'This does not work, please recompile your FFMPEG binary with --enable-gpl --enable-libx265 or choose a different codec.'
 		);
 	}
 	if (codec === 'h265' && !(await ffmpegHasFeature('enable-libx265'))) {
-		console.log(
+		Log.Error(
 			"The H265 codec has been selected, but your FFMPEG binary wasn't compiled with the --enable-libx265 flag."
 		);
-		console.log(
+		Log.Error(
 			'This does not work, please recompile your FFMPEG binary with --enable-gpl --enable-libx265 or choose a different codec.'
 		);
 	}
 
 	const outputFile = getOutputFilename(codec, shouldOutputImageSequence);
 	const overwrite = Internals.getShouldOverwrite();
-	const userProps = getUserProps();
+	const inputProps = getInputProps();
 	const quality = Internals.getQuality();
 	const browser = Internals.getBrowser() ?? Internals.DEFAULT_BROWSER;
+	const browserInstance = openBrowser(browser, {
+		shouldDumpIo: Internals.Logging.isEqualOrBelowLogLevel('verbose'),
+	});
 
 	const absoluteOutputFile = path.resolve(process.cwd(), outputFile);
 	if (fs.existsSync(absoluteOutputFile) && !overwrite) {
-		console.log(
+		Log.Error(
 			`File at ${absoluteOutputFile} already exists. Use --overwrite to overwrite.`
 		);
 		process.exit(1);
@@ -120,8 +123,8 @@ export const render = async () => {
 	try {
 		await ensureLocalBrowser(browser);
 	} catch (err) {
-		console.error('Could not download a browser for rendering frames.');
-		console.error(err);
+		Log.Error('Could not download a browser for rendering frames.');
+		Log.Error(err);
 		process.exit(1);
 	}
 	if (shouldOutputImageSequence) {
@@ -141,10 +144,10 @@ export const render = async () => {
 	);
 
 	const shouldCache = Internals.getWebpackCaching();
-	const cacheExistedBefore = cacheExists('production');
+	const cacheExistedBefore = cacheExists('production', null);
 	if (cacheExistedBefore && !shouldCache) {
 		process.stdout.write('🧹 Cache disabled but found. Deleting... ');
-		await clearCache('production');
+		await clearCache('production', null);
 		process.stdout.write('done. \n');
 	}
 	bundlingProgress.start(100, 0);
@@ -158,14 +161,17 @@ export const render = async () => {
 		}
 	);
 	bundlingProgress.stop();
-	const cacheExistedAfter = cacheExists('production');
+	Log.Verbose('Bundled under', bundled);
+	const cacheExistedAfter = cacheExists('production', null);
 	if (cacheExistedAfter && !cacheExistedBefore) {
-		console.log('⚡️ Cached bundle. Subsequent builds will be faster.');
+		Log.Info('⚡️ Cached bundle. Subsequent builds will be faster.');
 	}
-	const comps = await getCompositions(
-		bundled,
-		Internals.getBrowser() ?? Internals.DEFAULT_BROWSER
-	);
+	const openedBrowser = await browserInstance;
+	const comps = await getCompositions(bundled, {
+		browser: Internals.getBrowser() || Internals.DEFAULT_BROWSER,
+		inputProps,
+		browserInstance: openedBrowser,
+	});
 	const compositionId = getCompositionId(comps);
 
 	const config = comps.find((c) => c.id === compositionId);
@@ -177,6 +183,8 @@ export const render = async () => {
 		? absoluteOutputFile
 		: await fs.promises.mkdtemp(path.join(os.tmpdir(), 'react-motion-render'));
 
+	Log.Verbose('Output dir', outputDir);
+
 	const renderProgress = new cliProgress.Bar(
 		{
 			clearOnComplete: true,
@@ -185,27 +193,32 @@ export const render = async () => {
 		},
 		cliProgress.Presets.shades_grey
 	);
-	const rendered = await renderFrames({
+	const {assetsInfo, frameCount} = await renderFrames({
 		config,
 		onFrameUpdate: (frame) => renderProgress.update(frame),
 		parallelism,
 		compositionId,
 		outputDir,
-		onStart: ({frameCount}) => {
+		onStart: ({frameCount: fc}) => {
 			process.stdout.write(
 				`📼 (2/${steps}) Rendering frames (${getActualConcurrency(
 					parallelism
 				)}x concurrency)...\n`
 			);
-			renderProgress.start(frameCount, 0);
+			renderProgress.start(fc, 0);
 		},
-		userProps,
+		inputProps,
 		webpackBundle: bundled,
 		imageFormat,
 		quality,
 		browser,
 		frameRange: frameRange ?? null,
+		assetsOnly: Internals.isAudioCodec(codec),
+		dumpBrowserLogs: Internals.Logging.isEqualOrBelowLogLevel('verbose'),
+		puppeteerInstance: openedBrowser,
 	});
+
+	const closeBrowserPromise = openedBrowser.close();
 	renderProgress.stop();
 	if (process.env.DEBUG) {
 		Internals.perf.logPerf();
@@ -223,7 +236,7 @@ export const render = async () => {
 			},
 			cliProgress.Presets.shades_grey
 		);
-		stitchingProgress.start(rendered.frameCount, 0);
+		stitchingProgress.start(frameCount, 0);
 		await stitchFramesToVideo({
 			dir: outputDir,
 			width: config.width,
@@ -235,13 +248,20 @@ export const render = async () => {
 			pixelFormat,
 			codec,
 			crf,
+			assetsInfo,
+			parallelism,
 			onProgress: (frame) => {
 				stitchingProgress.update(frame);
 			},
+			onDownload: (src) => {
+				Log.Info('\n');
+				Log.Info('Downloading asset... ', src);
+			},
+			verbose: Internals.Logging.isEqualOrBelowLogLevel('verbose'),
 		});
 		stitchingProgress.stop();
 
-		console.log('Cleaning up...');
+		Log.Info('Cleaning up...');
 		try {
 			await Promise.all([
 				fs.promises.rmdir(outputDir, {
@@ -252,14 +272,15 @@ export const render = async () => {
 				}),
 			]);
 		} catch (err) {
-			console.error('Could not clean up directory.');
-			console.error(err);
-			console.log('Do you have minimum required Node.js version?');
+			Log.Error('Could not clean up directory.');
+			Log.Error(err);
+			Log.Error('Do you have minimum required Node.js version?');
 			process.exit(1);
 		}
-		console.log('\n▶️ Your video is ready - hit play!');
+		Log.Info('\n▶️ Your video is ready - hit play!');
 	} else {
-		console.log('\n▶️ Your image sequence is ready!');
+		Log.Info('\n▶️ Your image sequence is ready!');
 	}
-	console.log(absoluteOutputFile);
+	Log.Info(absoluteOutputFile);
+	await closeBrowserPromise;
 };

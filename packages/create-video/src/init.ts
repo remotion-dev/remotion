@@ -19,6 +19,13 @@ const askQuestion = (question: string) => {
 	});
 };
 
+const shouldUseYarn = (): boolean => {
+	return Boolean(
+		process.env.npm_execpath?.includes('yarn.js') ||
+			process.env.npm_config_user_agent?.includes('yarn')
+	);
+};
+
 xns(async () => {
 	const arg = process.argv[2];
 	let selectedDirname = arg?.match(/[a-zA-Z0-9-]+/g) ? arg : '';
@@ -61,13 +68,23 @@ xns(async () => {
 		)}. Installing dependencies...`
 	);
 	console.log('');
-	console.log('> npm install');
-	const promise = execa('npm', ['install'], {
-		cwd: outputDir,
-	});
-	promise.stderr?.pipe(process.stderr);
-	promise.stdout?.pipe(process.stdout);
-	await promise;
+	if (shouldUseYarn()) {
+		console.log('> yarn');
+		const promise = execa('yarn', [], {
+			cwd: outputDir,
+		});
+		promise.stderr?.pipe(process.stderr);
+		promise.stdout?.pipe(process.stdout);
+		await promise;
+	} else {
+		console.log('> npm install');
+		const promise = execa('npm', ['install'], {
+			cwd: outputDir,
+		});
+		promise.stderr?.pipe(process.stderr);
+		promise.stdout?.pipe(process.stdout);
+		await promise;
+	}
 
 	console.log(`Welcome to ${chalk.blue('Remotion')}!`);
 	console.log(
@@ -76,10 +93,10 @@ xns(async () => {
 
 	console.log('Get started by running');
 	console.log(chalk.blue(`cd ${selectedDirname}`));
-	console.log(chalk.blue('npm start'));
+	console.log(chalk.blue(shouldUseYarn() ? 'yarn start' : 'npm start'));
 	console.log('');
 	console.log('To render an MP4 video, run');
-	console.log(chalk.blue('npm run build'));
+	console.log(chalk.blue(shouldUseYarn() ? 'yarn build' : 'npm run build'));
 	console.log('');
 	console.log(
 		'Read the documentation at',

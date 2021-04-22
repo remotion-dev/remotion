@@ -1,15 +1,24 @@
 import path from 'path';
-import {Browser, FrameRange, Internals, VideoConfig} from 'remotion';
-import {openBrowser, provideScreenshot} from '.';
+import {Browser as PuppeteerBrowser} from 'puppeteer-core';
+import {
+	Browser,
+	FrameRange,
+	ImageFormat,
+	Internals,
+	RenderAssetInfo,
+	VideoConfig,
+} from 'remotion';
+import {openBrowser, provideScreenshot, seekToFrame} from '.';
 import {getActualConcurrency} from './get-concurrency';
 import {getFrameCount} from './get-frame-range';
 import {getFrameToRender} from './get-frame-to-render';
-import {DEFAULT_IMAGE_FORMAT, ImageFormat} from './image-format';
+import {DEFAULT_IMAGE_FORMAT} from './image-format';
 import {Pool} from './pool';
 import {serveStatic} from './serve-static';
 
 export type RenderFramesOutput = {
 	frameCount: number;
+	assetsInfo: RenderAssetInfo;
 };
 
 type OnStartData = {
@@ -23,12 +32,14 @@ export const renderFrames = async ({
 	compositionId: compositionId,
 	outputDir,
 	onStart,
-	userProps,
+	inputProps,
 	webpackBundle,
 	quality,
 	imageFormat = DEFAULT_IMAGE_FORMAT,
 	browser = Internals.DEFAULT_BROWSER,
 	frameRange,
+	dumpBrowserLogs = false,
+	puppeteerInstance,
 }: {
 	config: VideoConfig;
 	parallelism?: number | null;
@@ -36,12 +47,15 @@ export const renderFrames = async ({
 	onStart: (data: OnStartData) => void;
 	compositionId: string;
 	outputDir: string;
-	userProps: unknown;
+	inputProps: unknown;
 	webpackBundle: string;
-	imageFormat?: ImageFormat;
+	imageFormat: ImageFormat;
 	quality?: number;
 	browser?: Browser;
 	frameRange?: FrameRange | null;
+	assetsOnly?: boolean;
+	dumpBrowserLogs?: boolean;
+	puppeteerInstance?: PuppeteerBrowser;
 }): Promise<RenderFramesOutput> => {
 	if (quality !== undefined && imageFormat !== 'jpeg') {
 		throw new Error(
@@ -52,7 +66,10 @@ export const renderFrames = async ({
 
 	const [{port, close}, browserInstance] = await Promise.all([
 		serveStatic(webpackBundle),
-		openBrowser(browser),
+		puppeteerInstance ??
+			openBrowser(browser, {
+				shouldDumpIo: dumpBrowserLogs,
+			}),
 	]);
 	const pages = new Array(actualParallelism).fill(true).map(async () => {
 		const page = await browserInstance.newPage();
@@ -64,14 +81,24 @@ export const renderFrames = async ({
 		page.on('error', console.error);
 		page.on('pageerror', console.error);
 
-		const site = `http://localhost:${port}/index.html?composition=${compositionId}&props=${encodeURIComponent(
-			JSON.stringify(userProps)
-		)}`;
+		if (inputProps) {
+			await page.goto(`http://localhost:${port}/index.html`);
+
+			await page.evaluate(
+				(key, input) => {
+					window.localStorage.setItem(key, input);
+				},
+				Internals.INPUT_PROPS_KEY,
+				JSON.stringify(inputProps)
+			);
+		}
+		const site = `http://localhost:${port}/index.html?composition=${compositionId}`;
 		await page.goto(site);
 		return page;
 	});
 
-	const pool = new Pool(await Promise.all(pages));
+	const puppeteerPages = await Promise.all(pages);
+	const pool = new Pool(puppeteerPages);
 
 	const frameCount = getFrameCount(config.durationInFrames, frameRange ?? null);
 	// Substract one because 100 frames will be 00-99
@@ -81,10 +108,11 @@ export const renderFrames = async ({
 		filePadLength = String(frameCount - 1).length;
 	}
 	let framesRendered = 0;
+
 	onStart({
 		frameCount,
 	});
-	await Promise.all(
+	const assets = await Promise.all(
 		new Array(frameCount)
 			.fill(Boolean)
 			.map((x, i) => i)
@@ -93,25 +121,52 @@ export const renderFrames = async ({
 				const freePage = await pool.acquire();
 				const paddedIndex = String(frame).padStart(filePadLength, '0');
 
-				await provideScreenshot({
-					page: freePage,
-					imageFormat,
-					quality,
-					options: {
-						frame,
-						output: path.join(
-							outputDir,
-							`element-${paddedIndex}.${imageFormat}`
-						),
-					},
+				await seekToFrame({frame, page: freePage});
+				if (imageFormat !== 'none') {
+					await provideScreenshot({
+						page: freePage,
+						imageFormat,
+						quality,
+						options: {
+							frame,
+							output: path.join(
+								outputDir,
+								`element-${paddedIndex}.${imageFormat}`
+							),
+						},
+					});
+				}
+				const collectedAssets = await freePage.evaluate(() => {
+					return window.remotion_collectAssets();
 				});
 				pool.release(freePage);
 				framesRendered++;
 				onFrameUpdate(framesRendered);
+				return collectedAssets;
 			})
 	);
-	await Promise.all([browserInstance.close(), close()]);
+	close().catch((err) => {
+		console.log('Unable to close web server', err);
+	});
+	// If browser instance was passed in, we close all the pages
+	// we opened.
+	// If new browser was opened, then closing the browser as a cleanup.
+
+	if (puppeteerInstance) {
+		await Promise.all(puppeteerPages.map((p) => p.close())).catch((err) => {
+			console.log('Unable to close browser tab', err);
+		});
+	} else {
+		browserInstance.close().catch((err) => {
+			console.log('Unable to close browser', err);
+		});
+	}
+
 	return {
+		assetsInfo: {
+			assets,
+			bundleDir: webpackBundle,
+		},
 		frameCount,
 	};
 };
