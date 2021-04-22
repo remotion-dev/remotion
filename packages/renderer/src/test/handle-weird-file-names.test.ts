@@ -15,5 +15,9 @@ test('Should sanitize weird file names when downloading', async () => {
 		webpackBundle: '/var/tmp',
 		onDownload: () => void 0,
 	});
-	expect(newAsset.src).toBe('/var/tmp/gtts-api.miniggiodev.frIci+Japon+Corp');
+	expect(newAsset.src).toBe(
+		process.platform === 'win32'
+			? '\\\\var\\\\tmp\\\\gtts-api.miniggiodev.frIci+Japon+Corp'
+			: '/var/tmp/gtts-api.miniggiodev.frIci+Japon+Corp'
+	);
 });
