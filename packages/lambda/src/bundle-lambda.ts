@@ -23,7 +23,7 @@ const copyDir = function (src: string, dest: string): void {
 	}
 };
 
-export const bundleLambda = async (bundleLocation: string) => {
+export const bundleLambda = async () => {
 	const outdir = path.join(__dirname, '..', 'build');
 	fs.mkdirSync(outdir, {
 		recursive: true,
@@ -35,7 +35,7 @@ export const bundleLambda = async (bundleLocation: string) => {
 	fs.mkdirSync(path.join(outdir, 'node_modules'), {recursive: true});
 	copyDir(
 		path.join(process.cwd(), 'node_modules/chrome-aws-lambda/'),
-		path.join(__dirname, '..', 'build', 'node_modules')
+		path.join(__dirname, '..', 'build', 'node_modules/chrome-aws-lambda')
 	);
 	const template = path.join(__dirname, '..', 'template', 'render.ts');
 
@@ -44,14 +44,6 @@ export const bundleLambda = async (bundleLocation: string) => {
 		bundle: true,
 		outfile,
 		entryPoints: [template],
-		banner: {
-			js: `
-			process.env.PUPPETEER_DOWNLOAD_HOST = 'https://storage.googleapis.com';
-			process.env.PUPPETEER_DOWNLOAD_PATH =
-				'/tmp/.local-chromium/';
-			global.REMOTION_BUNDLE = "${bundleLocation}";
-			`,
-		},
 	});
 
 	const out = path.join(process.cwd(), 'function.zip');

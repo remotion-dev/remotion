@@ -8,13 +8,12 @@ import {
 	RenderAssetInfo,
 	VideoConfig,
 } from 'remotion';
-import {openBrowser, provideScreenshot, seekToFrame} from '.';
+import {provideScreenshot, seekToFrame} from '.';
 import {getActualConcurrency} from './get-concurrency';
 import {getFrameCount} from './get-frame-range';
 import {getFrameToRender} from './get-frame-to-render';
 import {DEFAULT_IMAGE_FORMAT} from './image-format';
 import {Pool} from './pool';
-import {serveStatic} from './serve-static';
 
 export type RenderFramesOutput = {
 	frameCount: number;
@@ -33,14 +32,13 @@ export const renderFrames = async ({
 	outputDir,
 	onStart,
 	inputProps,
-	webpackBundle,
 	quality,
 	imageFormat = DEFAULT_IMAGE_FORMAT,
 	browser = Internals.DEFAULT_BROWSER,
 	frameRange,
 	dumpBrowserLogs = false,
 	puppeteerInstance,
-	customExecutable,
+	serveUrl,
 }: {
 	config: VideoConfig;
 	parallelism?: number | null;
@@ -49,15 +47,14 @@ export const renderFrames = async ({
 	compositionId: string;
 	outputDir: string;
 	inputProps: unknown;
-	webpackBundle: string;
 	imageFormat: ImageFormat;
 	quality?: number;
 	browser?: Browser;
 	frameRange?: FrameRange | null;
 	assetsOnly?: boolean;
 	dumpBrowserLogs?: boolean;
-	puppeteerInstance?: PuppeteerBrowser;
-	customExecutable?: string;
+	puppeteerInstance: PuppeteerBrowser;
+	serveUrl: string;
 }): Promise<RenderFramesOutput> => {
 	if (quality !== undefined && imageFormat !== 'jpeg') {
 		throw new Error(
@@ -66,16 +63,8 @@ export const renderFrames = async ({
 	}
 	const actualParallelism = getActualConcurrency(parallelism ?? null);
 
-	const [{port, close}, browserInstance] = await Promise.all([
-		serveStatic(webpackBundle),
-		puppeteerInstance ??
-			openBrowser(browser, {
-				shouldDumpIo: dumpBrowserLogs,
-				customExecutable: customExecutable ?? null,
-			}),
-	]);
 	const pages = new Array(actualParallelism).fill(true).map(async () => {
-		const page = await browserInstance.newPage();
+		const page = await puppeteerInstance.newPage();
 		page.setViewport({
 			width: config.width,
 			height: config.height,
@@ -85,7 +74,7 @@ export const renderFrames = async ({
 		page.on('pageerror', console.error);
 
 		if (inputProps) {
-			await page.goto(`http://localhost:${port}/index.html`);
+			await page.goto(`${serveUrl}/index.html`);
 
 			await page.evaluate(
 				(key, input) => {
@@ -95,7 +84,8 @@ export const renderFrames = async ({
 				JSON.stringify(inputProps)
 			);
 		}
-		const site = `http://localhost:${port}/index.html?composition=${compositionId}`;
+		const site = `${serveUrl}/index.html?composition=${compositionId}`;
+		console.log('going to ', site);
 		await page.goto(site);
 		return page;
 	});
@@ -148,27 +138,12 @@ export const renderFrames = async ({
 				return collectedAssets;
 			})
 	);
-	close().catch((err) => {
-		console.log('Unable to close web server', err);
-	});
-	// If browser instance was passed in, we close all the pages
-	// we opened.
-	// If new browser was opened, then closing the browser as a cleanup.
-
-	if (puppeteerInstance) {
-		await Promise.all(puppeteerPages.map((p) => p.close())).catch((err) => {
-			console.log('Unable to close browser tab', err);
-		});
-	} else {
-		browserInstance.close().catch((err) => {
-			console.log('Unable to close browser', err);
-		});
-	}
 
 	return {
 		assetsInfo: {
 			assets,
-			bundleDir: webpackBundle,
+			// TODO: Will break stuff
+			bundleDir: '',
 		},
 		frameCount,
 	};

@@ -10,6 +10,7 @@ import {
 	stitchFramesToVideo,
 	validateFfmpeg,
 } from '@remotion/renderer';
+import {serveStatic} from '@remotion/renderer/src/serve-static';
 import cliProgress from 'cli-progress';
 import fs from 'fs';
 import os from 'os';
@@ -121,7 +122,7 @@ export const render = async () => {
 		imageFormat
 	);
 	try {
-		await ensureLocalBrowser(browser);
+		await ensureLocalBrowser(browser, Internals.getBrowserExecutable() ?? null);
 	} catch (err) {
 		Log.Error('Could not download a browser for rendering frames.');
 		Log.Error(err);
@@ -166,11 +167,16 @@ export const render = async () => {
 	if (cacheExistedAfter && !cacheExistedBefore) {
 		Log.Info('⚡️ Cached bundle. Subsequent builds will be faster.');
 	}
+	const {port, close} = await serveStatic(bundled);
+
+	const serveUrl = `http://localhost:${port}`;
+
 	const openedBrowser = await browserInstance;
-	const comps = await getCompositions(bundled, {
+	const comps = await getCompositions({
 		browser: Internals.getBrowser() || Internals.DEFAULT_BROWSER,
 		inputProps,
 		browserInstance: openedBrowser,
+		serveUrl,
 	});
 	const compositionId = getCompositionId(comps);
 
@@ -216,6 +222,7 @@ export const render = async () => {
 		assetsOnly: Internals.isAudioCodec(codec),
 		dumpBrowserLogs: Internals.Logging.isEqualOrBelowLogLevel('verbose'),
 		puppeteerInstance: openedBrowser,
+		serveUrl,
 	});
 
 	const closeBrowserPromise = openedBrowser.close();
@@ -262,6 +269,11 @@ export const render = async () => {
 		stitchingProgress.stop();
 
 		Log.Info('Cleaning up...');
+		// Close web server and don't wait for it to finish,
+		// it is slow.
+		close().catch((err) => {
+			Log.Error('Was not able to close web server', err);
+		});
 		try {
 			await Promise.all([
 				fs.promises.rmdir(outputDir, {
