@@ -20,10 +20,7 @@ const askQuestion = (question: string) => {
 };
 
 const shouldUseYarn = (binaryPath: string): boolean => {
-	if (binaryPath.match(/.yarn/g)) {
-		return true;
-	}
-	return false;
+	return Boolean(binaryPath.match(/.yarn/g));
 };
 
 xns(async () => {
@@ -70,8 +67,8 @@ xns(async () => {
 	);
 	console.log('');
 	if (shouldUseYarn(createVideoBinaryPath)) {
-		console.log('> yarn install');
-		const promise = execa('yarn', ['install'], {
+		console.log('> yarn');
+		const promise = execa('yarn', [], {
 			cwd: outputDir,
 		});
 		promise.stderr?.pipe(process.stderr);
