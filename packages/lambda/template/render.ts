@@ -1,35 +1,89 @@
+import {
+	CreateBucketCommand,
+	PutObjectCommand,
+	S3Client,
+} from '@aws-sdk/client-s3';
 import {openBrowser, renderFrames} from '@remotion/renderer';
-import fs from 'fs';
+import fs, {createReadStream} from 'fs';
+import path from 'path';
+
+// TODO: redundant
+const region = 'eu-central-1';
+
+const s3Client = new S3Client({region});
 
 const chromium = require('chrome-aws-lambda');
+
+type Await<T> = T extends PromiseLike<infer U> ? U : T;
+
+let browserInstance: Await<ReturnType<typeof openBrowser>> | null;
+
+const getBrowserInstance = async () => {
+	if (browserInstance) {
+		return browserInstance;
+	}
+	browserInstance = await openBrowser('chrome', {
+		customExecutable: await chromium.executablePath,
+	});
+	return browserInstance;
+};
 
 export const handler = async (params: {serveUrl: string}) => {
 	console.log('CONTEXT', params);
 	const outputDir = '/tmp/' + 'remotion-render-' + Math.random();
 	fs.mkdirSync(outputDir);
-	const browserInstance = await openBrowser('chrome', {
-		customExecutable: await chromium.executablePath,
+	const bucketName = 'remotion-renders-' + Math.random();
+	let framesUploaded = 0;
+
+	await s3Client.send(
+		new CreateBucketCommand({
+			Bucket: bucketName,
+			ACL: 'public-read',
+		})
+	);
+	const totalFrames = 20;
+	const instance = await getBrowserInstance();
+	await new Promise<void>((resolve) => {
+		renderFrames({
+			compositionId: 'my-video',
+			config: {
+				durationInFrames: totalFrames,
+				fps: 30,
+				height: 1080,
+				width: 1080,
+			},
+			imageFormat: 'jpeg',
+			inputProps: {},
+			onFrameUpdate: (i: number, output: string) => {
+				console.log('Rendered frames', i, output);
+				s3Client
+					.send(
+						new PutObjectCommand({
+							Bucket: bucketName,
+							Body: createReadStream(output),
+							Key: path.basename(output),
+							ACL: 'public-read',
+						})
+					)
+					.then(() => {
+						framesUploaded++;
+						if (framesUploaded === totalFrames) {
+							resolve();
+						}
+					})
+					.catch((err) => {
+						console.log(err);
+						// TODO: Need to cancel serverless function
+					});
+			},
+			onStart: () => {
+				console.log('Starting');
+			},
+			outputDir,
+			puppeteerInstance: instance,
+			serveUrl: params.serveUrl,
+		});
 	});
 
-	await renderFrames({
-		compositionId: 'my-video',
-		config: {
-			durationInFrames: 20,
-			fps: 30,
-			height: 1080,
-			width: 1080,
-		},
-		imageFormat: 'jpeg',
-		inputProps: {},
-		onFrameUpdate: (i: number) => {
-			console.log('Rendered frames', i);
-		},
-		onStart: () => {
-			console.log('Starting');
-		},
-		outputDir,
-		puppeteerInstance: browserInstance,
-		serveUrl: params.serveUrl,
-	});
-	console.log('Done rendering!', outputDir);
+	console.log('Done rendering!', outputDir, bucketName);
 };
