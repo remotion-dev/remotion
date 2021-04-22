@@ -1,10 +1,9 @@
 import puppeteer from 'puppeteer-core';
-import {Browser, Internals} from 'remotion';
+import {Browser, ImageFormat, Internals} from 'remotion';
 import {
 	ensureLocalBrowser,
 	getLocalBrowserExecutable,
 } from './get-local-browser-executable';
-import {ImageFormat} from './image-format';
 import {screenshot} from './puppeteer-screenshot';
 
 async function screenshotDOMElement({
@@ -30,6 +29,9 @@ async function screenshotDOMElement({
 	if (imageFormat === 'png') {
 		await page.evaluate(() => (document.body.style.background = 'transparent'));
 	}
+	if (imageFormat === 'none') {
+		throw TypeError('Tried to make a screenshot with format "none"');
+	}
 	return screenshot(page, {
 		omitBackground: imageFormat === 'png',
 		path,
@@ -39,7 +41,10 @@ async function screenshotDOMElement({
 }
 
 export const openBrowser = async (
-	browser: Browser
+	browser: Browser,
+	options?: {
+		shouldDumpIo?: boolean;
+	}
 ): Promise<puppeteer.Browser> => {
 	if (browser === 'firefox' && !Internals.FEATURE_FLAG_FIREFOX_SUPPORT) {
 		throw new TypeError(
@@ -52,6 +57,7 @@ export const openBrowser = async (
 	const browserInstance = await puppeteer.launch({
 		executablePath,
 		product: browser,
+		dumpio: options?.shouldDumpIo ?? false,
 		args: [
 			'--no-sandbox',
 			'--disable-setuid-sandbox',
@@ -60,6 +66,20 @@ export const openBrowser = async (
 		].filter(Boolean) as string[],
 	});
 	return browserInstance;
+};
+
+export const seekToFrame = async ({
+	frame,
+	page,
+}: {
+	frame: number;
+	page: puppeteer.Page;
+}) => {
+	await page.waitForFunction('window.ready === true');
+	await page.evaluate((f) => {
+		window.remotion_setFrame(f);
+	}, frame);
+	await page.waitForFunction('window.ready === true');
 };
 
 export const provideScreenshot = async ({
@@ -76,11 +96,6 @@ export const provideScreenshot = async ({
 		output: string;
 	};
 }): Promise<void> => {
-	await page.evaluate((frame) => {
-		window.remotion_setFrame(frame);
-	}, options.frame);
-	await page.waitForFunction('window.ready === true');
-
 	await screenshotDOMElement({
 		page,
 		opts: {

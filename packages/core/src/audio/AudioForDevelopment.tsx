@@ -1,53 +1,50 @@
-import React, {useEffect, useRef} from 'react';
-import {usePlayingState} from '../timeline-position-state';
-import {useAbsoluteCurrentFrame, useCurrentFrame} from '../use-frame';
-import {useUnsafeVideoConfig} from '../use-unsafe-video-config';
+import React, {forwardRef, useImperativeHandle, useRef} from 'react';
+import {useMediaInTimeline} from '../use-media-in-timeline';
+import {useMediaPlayback} from '../use-media-playback';
+import {useMediaTagVolume} from '../use-media-tag-volume';
+import {useSyncVolumeWithMediaTag} from '../use-sync-volume-with-media-tag';
 import {RemotionAudioProps} from './props';
+import {useFrameForVolumeProp} from './use-audio-frame';
 
-export const AudioForDevelopment: React.FC<RemotionAudioProps> = (props) => {
+const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
+	HTMLAudioElement,
+	RemotionAudioProps
+> = (props, ref) => {
 	const audioRef = useRef<HTMLAudioElement>(null);
-	const currentFrame = useCurrentFrame();
-	const absoluteFrame = useAbsoluteCurrentFrame();
 
-	const videoConfig = useUnsafeVideoConfig();
-	const [playing] = usePlayingState();
+	const volumePropFrame = useFrameForVolumeProp();
 
-	useEffect(() => {
-		if (playing) {
-			audioRef.current?.play();
-		} else {
-			audioRef.current?.pause();
-		}
-	}, [playing]);
+	const {volume, ...nativeProps} = props;
 
-	useEffect(() => {
-		if (!audioRef.current) {
-			throw new Error('No audio ref found');
-		}
-		if (!videoConfig) {
-			throw new Error('No video config found');
-		}
-		const shouldBeTime = currentFrame / videoConfig.fps;
+	const actualVolume = useMediaTagVolume(audioRef);
 
-		const isTime = audioRef.current.currentTime;
-		const timeShift = Math.abs(shouldBeTime - isTime);
-		if (timeShift > 0.5) {
-			console.log('Time has shifted by', timeShift, 'sec. Fixing...');
-			// If scrubbing around, adjust timing
-			// or if time shift is bigger than 0.2sec
-			audioRef.current.currentTime = shouldBeTime;
-		}
+	useSyncVolumeWithMediaTag({
+		volumePropFrame,
+		actualVolume,
+		volume,
+		mediaRef: audioRef,
+	});
 
-		if (!playing || absoluteFrame === 0) {
-			// If scrubbing around, adjust timing
-			// or if time shift is bigger than 0.2sec
-			audioRef.current.currentTime = shouldBeTime;
-		}
-		if (audioRef.current.paused && !audioRef.current.ended && playing) {
-			// Play video
-			audioRef.current.play();
-		}
-	}, [absoluteFrame, currentFrame, playing, videoConfig]);
+	useMediaInTimeline({
+		volume,
+		mediaRef: audioRef,
+		src: nativeProps.src,
+		mediaType: 'audio',
+	});
 
-	return <audio ref={audioRef} {...props} />;
+	useMediaPlayback({
+		mediaRef: audioRef,
+		src: nativeProps.src,
+		mediaType: 'audio',
+	});
+
+	useImperativeHandle(ref, () => {
+		return audioRef.current as HTMLVideoElement;
+	});
+
+	return <audio ref={audioRef} {...nativeProps} />;
 };
+
+export const AudioForDevelopment = forwardRef(
+	AudioForDevelopmentForwardRefFunction
+);

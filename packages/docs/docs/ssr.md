@@ -44,8 +44,8 @@ const start = async () => {
     path.join(os.tmpdir(), 'remotion-')
   );
 
-  // We create PNGs for all frames
-  await renderFrames({
+  // We create JPEGs for all frames
+  const {assetsInfo} = await renderFrames({
     config: video,
     // Path of the webpack bundle you have created
     webpackBundle: bundled,
@@ -63,7 +63,7 @@ const start = async () => {
     parallelism: null,
     outputDir: framesDir,
     // React props passed to the root component of the sequence. Will be merged with the `defaultProps` of a video.
-    userProps: {
+    inputProps: {
       titleText: 'Hello World'
     },
     compositionId,
@@ -89,6 +89,8 @@ const start = async () => {
     outputLocation: path.join(tmpDir, 'out.mp4'),
     // FFMPEG pixel format
     pixelFormat: 'yuv420p',
+    // Information needed to construct audio correctly.
+    assetsInfo,
     // Hook into the FFMPEG progress
     onProgress: (frame) => void 0
   });

@@ -7,18 +7,9 @@ const ErrorOverlayPlugin = require('@webhotelier/webpack-fast-refresh/error-over
 const ReactRefreshPlugin = require('@webhotelier/webpack-fast-refresh');
 
 type Truthy<T> = T extends false | '' | 0 | null | undefined ? never : T;
-export function truthy<T>(value: T): value is Truthy<T> {
+function truthy<T>(value: T): value is Truthy<T> {
 	return Boolean(value);
 }
-
-const envPreset = [
-	require.resolve('@babel/preset-env'),
-	{
-		targets: {
-			chrome: '85',
-		},
-	},
-] as const;
 
 export const webpackConfig = ({
 	entry,
@@ -28,6 +19,7 @@ export const webpackConfig = ({
 	webpackOverride = (f) => f,
 	onProgressUpdate,
 	enableCaching = Internals.DEFAULT_WEBPACK_CACHE_ENABLED,
+	inputProps,
 }: {
 	entry: string;
 	userDefinedComponent: string;
@@ -36,6 +28,7 @@ export const webpackConfig = ({
 	webpackOverride?: WebpackOverrideFn;
 	onProgressUpdate?: (f: number) => void;
 	enableCaching?: boolean;
+	inputProps?: object;
 }): WebpackConfiguration => {
 	return webpackOverride({
 		optimization: {
@@ -52,7 +45,7 @@ export const webpackConfig = ({
 		cache: enableCaching
 			? {
 					type: 'filesystem',
-					name: getWebpackCacheName(environment),
+					name: getWebpackCacheName(environment, inputProps ?? {}),
 			  }
 			: false,
 		devtool: 'cheap-module-source-map',
@@ -64,6 +57,7 @@ export const webpackConfig = ({
 				? require.resolve('@webhotelier/webpack-fast-refresh/runtime.js')
 				: null,
 			userDefinedComponent,
+			require.resolve('../react-shim.js'),
 			entry,
 		].filter(Boolean) as [string, ...string[]],
 		mode: environment,
@@ -73,6 +67,9 @@ export const webpackConfig = ({
 						new ErrorOverlayPlugin(),
 						new ReactRefreshPlugin(),
 						new webpack.HotModuleReplacementPlugin(),
+						new webpack.DefinePlugin({
+							'process.env.INPUT_PROPS': JSON.stringify(inputProps ?? {}),
+						}),
 				  ]
 				: [
 						new ProgressPlugin((p) => {
@@ -107,12 +104,12 @@ export const webpackConfig = ({
 				{
 					test: /\.(woff|woff2)$/,
 					use: {
-						loader: 'url-loader',
+						loader: require.resolve('url-loader'),
 					},
 				},
 				{
 					test: /\.css$/i,
-					use: ['style-loader', 'css-loader'],
+					use: [require.resolve('style-loader'), require.resolve('css-loader')],
 				},
 				{
 					test: /\.(png|svg|jpg|jpeg|webp|gif|bmp|webm|mp4|mp3|wav|aac)$/,
@@ -123,6 +120,15 @@ export const webpackConfig = ({
 								// So you can do require('hi.png')
 								// instead of require('hi.png').default
 								esModule: false,
+								name: () => {
+									// Don't rename files in development
+									// so we can show the filename in the timeline
+									if (environment === 'development') {
+										return '[path][name].[ext]';
+									}
+
+									return '[contenthash].[ext]';
+								},
 							},
 						},
 					],
@@ -131,31 +137,10 @@ export const webpackConfig = ({
 					test: /\.tsx?$/,
 					use: [
 						{
-							loader: require.resolve('babel-loader'),
+							loader: require.resolve('esbuild-loader'),
 							options: {
-								presets: [
-									envPreset,
-									[
-										require.resolve('@babel/preset-react'),
-										{
-											runtime: 'automatic',
-										},
-									],
-									[
-										require.resolve('@babel/preset-typescript'),
-										{
-											runtime: 'automatic',
-											isTSX: true,
-											allExtensions: true,
-										},
-									],
-								],
-								plugins: [
-									require.resolve('@babel/plugin-proposal-class-properties'),
-									environment === 'development'
-										? require.resolve('react-refresh/babel')
-										: null,
-								].filter(truthy),
+								loader: 'tsx',
+								target: 'chrome85',
 							},
 						},
 						environment === 'development'
@@ -169,21 +154,15 @@ export const webpackConfig = ({
 				},
 				{
 					test: /\.jsx?$/,
-					loader: require.resolve('babel-loader'),
-					options: {
-						presets: [
-							envPreset,
-							[
-								require.resolve('@babel/preset-react'),
-								{
-									runtime: 'automatic',
-								},
-							],
-						],
-						plugins: [
-							require.resolve('@babel/plugin-proposal-class-properties'),
-						],
-					},
+					use: [
+						{
+							loader: require.resolve('esbuild-loader'),
+							options: {
+								loader: 'jsx',
+								target: 'chrome85',
+							},
+						},
+					].filter(truthy),
 				},
 			],
 		},

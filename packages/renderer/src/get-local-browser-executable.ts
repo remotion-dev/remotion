@@ -7,12 +7,17 @@ import {Browser, Internals} from 'remotion';
 const getSearchPathsForProduct = (product: puppeteer.Product) => {
 	if (product === 'chrome') {
 		return [
+			process.env.PUPPETEER_EXECUTABLE_PATH ?? null,
 			process.platform === 'darwin'
 				? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
 				: null,
 			process.platform === 'linux' ? '/usr/bin/google-chrome' : null,
+			process.platform === 'linux' ? '/usr/bin/chromium-browser' : null,
 			process.platform === 'win32'
 				? 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe'
+				: null,
+			process.platform === 'win32'
+				? 'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe'
 				: null,
 		].filter(Boolean) as string[];
 	}

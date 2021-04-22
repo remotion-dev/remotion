@@ -8,6 +8,9 @@ export const getImageFormat = (
 	if (typeof userPreferred !== 'undefined') {
 		return userPreferred;
 	}
+	if (Internals.isAudioCodec(codec)) {
+		return 'none';
+	}
 	if (
 		codec === 'h264' ||
 		codec === 'h265' ||
