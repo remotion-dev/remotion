@@ -60,6 +60,7 @@
 }
 
 .snippet {
+  max-width: 400px;
   padding: 12px 12px 10px 20px;
   background-color: #111111;
   margin-bottom: 10px;
@@ -88,4 +89,23 @@
 .copySnippet:hover {
   cursor: pointer;
   background-color: rgba(255, 255, 255, 0.15);
+}
+
+@media screen and (max-width: 1200px) {
+  .snippet {
+    margin: 0 auto;
+    margin-bottom: 3rem;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .heroBanner {
+    padding: 1rem;
+  }
+  .snippetValue {
+    font-size: 1.25em;
+  }
+  .copySnippet {
+    font-size: 0.75em;
+  }
 }
