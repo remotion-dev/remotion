@@ -97,6 +97,7 @@ const PageHeader: React.FC = () => {
           dynamically using server-side rendering and parametrization.
         </p>
         <Tabs
+          className={headerStyles.tabContainer}
           defaultValue="npm"
           values={[
             { label: "NPM", value: "npm" },
