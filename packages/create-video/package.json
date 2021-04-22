@@ -11,7 +11,6 @@
 		"_template"
 	],
 	"scripts": {
-		"build": "tsc -d"
 		"build": "tsc -d",
 		"watch": "tsc -w"
 	},
