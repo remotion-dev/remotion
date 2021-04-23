@@ -7,8 +7,7 @@ import {
 
 const runtimes: string[] = ['nodejs14.x', 'nodejs12.x', 'nodejs10.x'];
 
-const FFMPEG_LAYER_NAME = 'remotion-ffmpeg-binaries';
-const CHROMIUM_LAYER_NAME = 'remotion-chromium-binaries';
+const LAYER_NAME = 'remotion-binaries';
 
 export const createLayer = (
 	lambdaClient: LambdaClient,
@@ -42,42 +41,20 @@ const hasLayer = (name: string, layers: LayersListItem[]) => {
 	return layers.find((l) => l.LayerName === name);
 };
 
-export const ensureFffmpegLayer = async (
+export const ensureLayer = async (
 	layers: LayersListItem[],
 	lambdaClient: LambdaClient
 ): Promise<string> => {
-	const existingLayer = hasLayer(FFMPEG_LAYER_NAME, layers);
+	const existingLayer = hasLayer(LAYER_NAME, layers);
 	if (existingLayer) {
 		return existingLayer.LatestMatchingVersion?.LayerVersionArn as string;
 	}
-	const layer = await createLayer(
-		lambdaClient,
-		FFMPEG_LAYER_NAME,
-		'ffmpeg.zip'
-	);
+	const layer = await createLayer(lambdaClient, LAYER_NAME, 'ffmpeg.zip');
 	return layer.LayerVersionArn as string;
 };
-
-export const ensurePuppeteerLayer = async (
-	layers: LayersListItem[],
-	lambdaClient: LambdaClient
-): Promise<string> => {
-	const existingLayer = hasLayer(CHROMIUM_LAYER_NAME, layers);
-	if (existingLayer) {
-		return existingLayer.LatestMatchingVersion?.LayerVersionArn as string;
-	}
-	const layer = await createLayer(
-		lambdaClient,
-		CHROMIUM_LAYER_NAME,
-		'chromium.zip'
-	);
-	return layer.LayerVersionArn as string;
-};
-
 export const ensureLayers = async (lambdaClient: LambdaClient) => {
 	const layers = await getLayers(lambdaClient);
-	const ffmpegArn = await ensureFffmpegLayer(layers, lambdaClient);
+	const layerArn = await ensureLayer(layers, lambdaClient);
 
-	const chromeArn = await ensurePuppeteerLayer(layers, lambdaClient);
-	return {ffmpegArn, chromeArn};
+	return {layerArn};
 };

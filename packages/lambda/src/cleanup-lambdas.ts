@@ -13,24 +13,27 @@ export const cleanupLambdas = xns(
 		})
 	) => {
 		// TODO: Pagination
-		const lambdas = await lambdaClient.send(new ListFunctionsCommand({}));
+		// eslint-disable-next-line no-constant-condition
+		while (true) {
+			const lambdas = await lambdaClient.send(new ListFunctionsCommand({}));
 
-		if (!lambdas.Functions) {
-			return;
-		}
-		const remotionLambdas = lambdas.Functions.filter(
-			(f) =>
-				f.FunctionName?.startsWith(RENDER_FN_PREFIX) ||
-				f.FunctionName?.startsWith(RENDER_STITCHER_PREFIX)
-		);
-		for (const lambda of remotionLambdas) {
-			console.log('Deleting lambda', lambda.FunctionName);
-			await lambdaClient.send(
-				new DeleteFunctionCommand({
-					FunctionName: lambda.FunctionName,
-				})
+			const remotionLambdas = (lambdas.Functions || []).filter(
+				(f) =>
+					f.FunctionName?.startsWith(RENDER_FN_PREFIX) ||
+					f.FunctionName?.startsWith(RENDER_STITCHER_PREFIX) ||
+					f.FunctionName?.startsWith('remotion-test-')
 			);
+			if (remotionLambdas.length === 0) {
+				break;
+			}
+			for (const lambda of remotionLambdas) {
+				console.log('Deleting lambda', lambda.FunctionName);
+				await lambdaClient.send(
+					new DeleteFunctionCommand({
+						FunctionName: lambda.FunctionName,
+					})
+				);
+			}
 		}
-		console.log('Done!');
 	}
 );

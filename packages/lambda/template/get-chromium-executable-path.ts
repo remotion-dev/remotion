@@ -1,4 +1,3 @@
-import {readdirSync} from 'fs';
 import LambdaFS from 'lambdafs';
 
 if (
@@ -19,11 +18,6 @@ if (
 }
 
 export const executablePath = async (): Promise<string> => {
-	console.log('/var/lang/bin', readdirSync('/var/lang/bin'));
-	console.log('/usr/local/bin', readdirSync('/usr/local/bin'));
-	console.log('/usr/bin', readdirSync('/usr/bin'));
-	console.log('/bin', readdirSync('/bin'));
-	console.log('/opt/bin', readdirSync('/opt/bin'));
 	const promises = [
 		LambdaFS.inflate('/opt/bin/chromium.br'),
 		LambdaFS.inflate('/opt/bin/swiftshader.tar.br'),
