@@ -1,3 +1,7 @@
-build
+build-render
+build-stitcher
 node_modules
 function.zip
+function-render.zip
+function-stitcher.zip
+ffmpeg

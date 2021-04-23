@@ -56,6 +56,7 @@ export const handler = async (params: {serveUrl: string}) => {
 			inputProps: {},
 			onFrameUpdate: (i: number, output: string) => {
 				console.log('Rendered frames', i, output);
+				const start = Date.now();
 				s3Client
 					.send(
 						new PutObjectCommand({
@@ -67,6 +68,7 @@ export const handler = async (params: {serveUrl: string}) => {
 					)
 					.then(() => {
 						framesUploaded++;
+						console.log('Uploaded frame in ' + (Date.now() - start) + 'ms');
 						if (framesUploaded === totalFrames) {
 							resolve();
 						}
