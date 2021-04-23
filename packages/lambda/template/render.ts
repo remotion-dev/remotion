@@ -6,12 +6,10 @@ import {
 import {openBrowser, renderFrames} from '@remotion/renderer';
 import fs, {createReadStream} from 'fs';
 import path from 'path';
+import {REGION, RENDERS_BUCKET_PREFIX} from '../src/constants';
 import {executablePath} from './get-chromium-executable-path';
 
-// TODO: redundant
-const region = 'eu-central-1';
-
-const s3Client = new S3Client({region});
+const s3Client = new S3Client({region: REGION});
 
 type Await<T> = T extends PromiseLike<infer U> ? U : T;
 
@@ -31,7 +29,7 @@ export const handler = async (params: {serveUrl: string}) => {
 	console.log('CONTEXT', params);
 	const outputDir = '/tmp/' + 'remotion-render-' + Math.random();
 	fs.mkdirSync(outputDir);
-	const bucketName = 'remotion-renders-' + Math.random();
+	const bucketName = RENDERS_BUCKET_PREFIX + Math.random();
 	let framesUploaded = 0;
 
 	await s3Client.send(
