@@ -13,4 +13,5 @@ export type RemotionVideoProps = Omit<
 	'autoplay' | 'controls' | 'loop'
 > & {
 	volume?: VolumeProp;
+	playbackRate?: number;
 };

@@ -104,6 +104,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 				fps: videoConfig.fps,
 				frame,
 				src: props.src as string,
+				playbackRate: props.playbackRate || 1,
 			});
 		})();
 		const handle = delayRender();
@@ -153,7 +154,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 			},
 			{once: true}
 		);
-	}, [volumePropsFrame, props.src, videoConfig.fps, frame]);
+	}, [volumePropsFrame, props.src, props.playbackRate, videoConfig.fps, frame]);
 
 	return <video ref={videoRef} {...props} />;
 };
