@@ -6,7 +6,15 @@ export const REMOTION_STITCHER_FN_ZIP = 'remotion-stitcher-function-';
 export const RENDER_FN_PREFIX = 'remotion-render-test-';
 export const RENDER_STITCHER_PREFIX = 'remotion-stitcher-test-';
 
-export type LambdaPayload = {
-	type: 'init' | 'renderer';
-	serveUrl: string;
-};
+export type LambdaPayload =
+	| {
+			type: 'init';
+			serveUrl: string;
+	  }
+	| {
+			type: 'renderer';
+			serveUrl: string;
+			frameRange: [number, number];
+			chunk: number;
+			bucketName: string;
+	  };

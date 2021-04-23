@@ -49,7 +49,7 @@ export const ensureLayer = async (
 	if (existingLayer) {
 		return existingLayer.LatestMatchingVersion?.LayerVersionArn as string;
 	}
-	const layer = await createLayer(lambdaClient, LAYER_NAME, 'ffmpeg.zip');
+	const layer = await createLayer(lambdaClient, LAYER_NAME, 'remotion.zip');
 	return layer.LayerVersionArn as string;
 };
 export const ensureLayers = async (lambdaClient: LambdaClient) => {

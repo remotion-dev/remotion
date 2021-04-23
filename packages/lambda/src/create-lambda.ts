@@ -13,7 +13,6 @@ import {
 	LAMBDA_BUCKET_PREFIX,
 	REGION,
 	REMOTION_RENDER_FN_ZIP,
-	REMOTION_STITCHER_FN_ZIP,
 	RENDER_FN_PREFIX,
 } from './constants';
 import {ensureLayers} from './lambda-layers';
@@ -33,13 +32,11 @@ xns(async () => {
 	const bucketName = LAMBDA_BUCKET_PREFIX + Math.random();
 	const id = String(Math.random());
 	const s3KeyRender = `${REMOTION_RENDER_FN_ZIP}${id}.zip`;
-	const s3KeyStitcher = `${REMOTION_STITCHER_FN_ZIP}${id}.zip`;
 	const fnNameRender =
 		RENDER_FN_PREFIX + String(Math.random()).replace('0.', '');
-	const [remBundle, renderOut, stitcherOut] = await Promise.all([
+	const [remBundle, renderOut] = await Promise.all([
 		bundleRemotion(),
 		bundleLambda('render'),
-		bundleLambda('stitcher'),
 	]);
 	console.log('done Bundling');
 
@@ -69,28 +66,18 @@ xns(async () => {
 		client: s3Client,
 		dir: remBundle,
 	});
-	// Potentially big, set
+	// TODO: Potentially big, should show progress bar
 	console.log('bundle uploaded');
 
 	// Upload lambda
-	await Promise.all([
-		s3Client.send(
-			new PutObjectCommand({
-				Bucket: bucketName,
-				Body: createReadStream(renderOut),
-				Key: s3KeyRender,
-				ACL: 'public-read',
-			})
-		),
-		s3Client.send(
-			new PutObjectCommand({
-				Bucket: bucketName,
-				Body: createReadStream(stitcherOut),
-				Key: s3KeyStitcher,
-				ACL: 'public-read',
-			})
-		),
-	]);
+	await s3Client.send(
+		new PutObjectCommand({
+			Bucket: bucketName,
+			Body: createReadStream(renderOut),
+			Key: s3KeyRender,
+			ACL: 'public-read',
+		})
+	);
 	console.log('lambdas uploaded');
 
 	// TODO: Do it with HTTPS, but wait for certificate

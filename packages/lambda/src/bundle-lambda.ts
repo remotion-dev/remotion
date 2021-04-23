@@ -23,7 +23,7 @@ const copyDir = function (src: string, dest: string): void {
 	}
 };
 
-export const bundleLambda = async (type: 'render' | 'stitcher') => {
+export const bundleLambda = async (type: 'render') => {
 	const outdir = path.join(__dirname, '..', `build-${type}`);
 	fs.mkdirSync(outdir, {
 		recursive: true,
@@ -32,12 +32,7 @@ export const bundleLambda = async (type: 'render' | 'stitcher') => {
 
 	fs.rmdirSync(outdir, {recursive: true});
 	fs.mkdirSync(outdir, {recursive: true});
-	const template = path.join(
-		__dirname,
-		'..',
-		'template',
-		type === 'render' ? 'render.ts' : 'stitcher.ts'
-	);
+	const template = path.join(__dirname, '..', 'template', 'render.ts');
 
 	await esbuild.build({
 		platform: 'node',
