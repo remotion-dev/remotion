@@ -44,6 +44,7 @@ export const PlayerFn = <T,>(
 
 	const [frame, setFrame] = useState<number>(0);
 	const [playing, setPlaying] = useState<boolean>(false);
+	const [rootId] = useState<string>('player-comp');
 
 	useImperativeHandle(ref, () => {
 		return {
@@ -52,13 +53,16 @@ export const PlayerFn = <T,>(
 		};
 	});
 
-	const timelineContextValue = useMemo((): TimelineContextValue => {
+	const timelineContextValue = useMemo((): TimelineContextValue & {
+		shouldRegisterSequences: boolean;
+	} => {
 		return {
 			frame,
 			playing,
+			rootId,
 			shouldRegisterSequences: true,
 		};
-	}, [frame, playing]);
+	}, [frame, playing, rootId]);
 
 	const setTimelineContextValue = useMemo((): SetTimelineContextValue => {
 		return {
@@ -77,6 +81,7 @@ export const PlayerFn = <T,>(
 					fps,
 					id: 'player-comp',
 					props,
+					nonce: 777,
 				},
 			],
 			currentComposition: 'player-comp',
@@ -86,6 +91,9 @@ export const PlayerFn = <T,>(
 			setCurrentComposition: () => void 0,
 			unregisterComposition: () => void 0,
 			unregisterSequence: () => void 0,
+			registerAsset: () => void 0,
+			unregisterAsset: () => void 0,
+			assets: [],
 		};
 	}, [component, props, durationInFrames, fps, height, width]);
 
