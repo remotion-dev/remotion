@@ -2,11 +2,12 @@ import Link from "@docusaurus/Link";
 import useBaseUrl from "@docusaurus/useBaseUrl";
 import splitbee from "@splitbee/web";
 import Layout from "@theme/Layout";
+import TabItem from "@theme/TabItem";
+import Tabs from "@theme/Tabs";
 import clsx from "clsx";
-import React from "react";
+import React, { useState } from "react";
 import headerStyles from "./header.module.css";
 import styles from "./styles.module.css";
-
 setTimeout(() => {
   splitbee.init();
 }, 100);
@@ -64,6 +65,26 @@ const Feature: React.FC<{
   );
 };
 
+const Snippet: React.FC<{
+  snippetValue: string;
+}> = ({ snippetValue }) => {
+  const [copied, setCopied] = useState(false);
+  return (
+    <div className={styles.snippet}>
+      <div className={styles.snippetValue}>$ {snippetValue}</div>
+      <div
+        className={styles.copySnippet}
+        onClick={() => {
+          navigator.clipboard.writeText(snippetValue);
+          setCopied(true);
+        }}
+      >
+        {copied ? "Copied!" : "Copy"}
+      </div>
+    </div>
+  );
+};
+
 const PageHeader: React.FC = () => {
   return (
     <div className={headerStyles.row}>
@@ -71,17 +92,35 @@ const PageHeader: React.FC = () => {
         <h1 className={headerStyles.title}>
           Write videos programmatically in React
         </h1>
-        <p>
+        <p style={{ marginBottom: 0 }}>
           Use your React knowledge to create real MP4 videos. Render videos
           dynamically using server-side rendering and parametrization.
         </p>
+        <Tabs
+          className={headerStyles.tabContainer}
+          defaultValue="npm"
+          values={[
+            { label: "NPM", value: "npm" },
+            { label: "Yarn", value: "yarn" },
+          ]}
+        >
+          <TabItem value="npm">
+            <Snippet snippetValue={"npm init video"} />
+          </TabItem>
+
+          <TabItem value="yarn">
+            <Snippet snippetValue={"yarn create video"} />
+          </TabItem>
+        </Tabs>
       </div>
+      <div style={{ width: 20 }}></div>
       <iframe
         style={{
           width: 560,
           height: 315,
           maxWidth: "100%",
         }}
+        className={headerStyles.youtubeIframe}
         src="https://www.youtube.com/embed/gwlDorikqgY"
         title="Remotion - Create videos programmatically in React"
         frameBorder="0"
@@ -101,9 +140,7 @@ function Home() {
       <header className={clsx("hero ", styles.heroBanner)}>
         <div className="container">
           <PageHeader />
-          <br />
-          <br />
-          <br />
+
           <br />
           <div>
             <StartPageExplainer

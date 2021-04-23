@@ -8,7 +8,7 @@ import {
 } from '../config/crf';
 import {expectToThrow} from './expect-to-throw';
 
-test('crf tests getDefaultCrfForCodec valid input', () => {
+describe('crf tests getDefaultCrfForCodec valid input', () => {
 	// input codec, output
 	const validCodecIOs: [Codec, number][] = [
 		['h264', 18],
@@ -17,23 +17,25 @@ test('crf tests getDefaultCrfForCodec valid input', () => {
 		['vp9', 28],
 	] as [Codec, number][];
 	validCodecIOs.forEach((entry) =>
-		expect(getDefaultCrfForCodec(entry[0])).toEqual(entry[1])
+		test(`default for ${entry[0]} should be ${entry[1]}`, () =>
+			expect(getDefaultCrfForCodec(entry[0])).toEqual(entry[1]))
 	);
 });
 
-test('crf tests getDefaultCrfForCodec invalid input', () => {
+describe('crf tests getDefaultCrfForCodec invalid input', () => {
 	// input codec
 	const invalidCodecs = ['abc', '', 3, undefined];
 	invalidCodecs.forEach((entry) =>
-		expectToThrow(
-			// @ts-expect-error
-			() => getDefaultCrfForCodec(entry),
-			new RegExp(`Got unexpected codec "${entry}"`)
-		)
+		test(`testing with ${entry}`, () =>
+			expectToThrow(
+				// @ts-expect-error
+				() => getDefaultCrfForCodec(entry),
+				new RegExp(`Got unexpected codec "${entry}"`)
+			))
 	);
 });
 
-test('crf tests getValidCrfRanges valid input', () => {
+describe('crf tests getValidCrfRanges valid input', () => {
 	// input crf, input codec, valid range
 	const validInputs: [Codec, [number, number]][] = [
 		['h264', [0, 51]],
@@ -42,23 +44,25 @@ test('crf tests getValidCrfRanges valid input', () => {
 		['vp9', [0, 63]],
 	] as [Codec, [number, number]][];
 	validInputs.forEach((entry) =>
-		expect(getValidCrfRanges(entry[0])).toEqual(entry[1])
+		test(`valid range for ${entry[0]} should be [${entry[1]}]`, () =>
+			expect(getValidCrfRanges(entry[0])).toEqual(entry[1]))
 	);
 });
 
-test('crf tests getValidCrfRanges invalid input', () => {
+describe('crf tests getValidCrfRanges invalid input', () => {
 	// input codec
 	const invalidInputs = ['abc', '', 3, undefined];
 	invalidInputs.forEach((entry) =>
-		expectToThrow(
-			// @ts-expect-error
-			() => getValidCrfRanges(entry),
-			new RegExp(`Got unexpected codec "${entry}"`)
-		)
+		test(`testing with "${entry}"`, () =>
+			expectToThrow(
+				// @ts-expect-error
+				() => getValidCrfRanges(entry),
+				new RegExp(`Got unexpected codec "${entry}"`)
+			))
 	);
 });
 
-test('validateSelectedCrfAndCodecCombination valid input', () => {
+describe('validateSelectedCrfAndCodecCombination valid input', () => {
 	// input crf, input codec
 	const validInputs: [number, Codec][] = [
 		[20, 'h264'],
@@ -75,13 +79,14 @@ test('validateSelectedCrfAndCodecCombination valid input', () => {
 		[63, 'vp9'],
 	] as [number, Codec][];
 	validInputs.forEach((entry) =>
-		expect(() =>
-			validateSelectedCrfAndCodecCombination(entry[0], entry[1])
-		).not.toThrow()
+		test(`validate with crf ${entry[0]} and codec ${entry[1]}`, () =>
+			expect(() =>
+				validateSelectedCrfAndCodecCombination(entry[0], entry[1])
+			).not.toThrow())
 	);
 });
 
-test('validateSelectedCrfAndCodecCombination invalid input', () => {
+describe('validateSelectedCrfAndCodecCombination invalid input', () => {
 	// input crf, input codec, valid range
 	const invalidInputs: [number, Codec, [number, number]][] = [
 		[80, 'h264', [0, 51]],
@@ -98,16 +103,17 @@ test('validateSelectedCrfAndCodecCombination invalid input', () => {
 		[64, 'vp9', [0, 63]],
 	] as [number, Codec, [number, number]][];
 	invalidInputs.forEach((entry) =>
-		expectToThrow(
-			() => validateSelectedCrfAndCodecCombination(entry[0], entry[1]),
-			new RegExp(
-				`CRF must be between ${entry[2][0]} and ${entry[2][1]} for codec ${entry[1]}. Passed: ${entry[0]}`
-			)
-		)
+		test(`validate with crf ${entry[0]} and codec ${entry[1]}`, () =>
+			expectToThrow(
+				() => validateSelectedCrfAndCodecCombination(entry[0], entry[1]),
+				new RegExp(
+					`CRF must be between ${entry[2][0]} and ${entry[2][1]} for codec ${entry[1]}. Passed: ${entry[0]}`
+				)
+			))
 	);
 });
 
-test('get crf valid input', () => {
+describe('get crf valid input', () => {
 	// input crf, input codec, output crf
 	const validInputs: [number | undefined, Codec, number][] = [
 		[20, 'h264', 20],
@@ -119,10 +125,12 @@ test('get crf valid input', () => {
 		[20, 'vp9', 20],
 		[undefined, 'vp9', 28],
 	] as [number | undefined, Codec, number][];
-	validInputs.forEach((entry) => {
-		setCrf(entry[0]);
-		expect(getActualCrf(entry[1])).toEqual(entry[2]);
-	});
+	validInputs.forEach((entry) =>
+		test(`test with crf ${entry[0]} and codec ${entry[1]}`, () => {
+			setCrf(entry[0]);
+			expect(getActualCrf(entry[1])).toEqual(entry[2]);
+		})
+	);
 });
 
 test('get crf invalid input', () => {
