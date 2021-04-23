@@ -13,5 +13,4 @@ export type RemotionAudioProps = Omit<
 	'autoplay' | 'controls' | 'loop'
 > & {
 	volume?: VolumeProp;
-	playbackRate?: number;
 };
