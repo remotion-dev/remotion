@@ -15,7 +15,6 @@ import {
 	REMOTION_RENDER_FN_ZIP,
 	REMOTION_STITCHER_FN_ZIP,
 	RENDER_FN_PREFIX,
-	RENDER_STITCHER_PREFIX,
 } from './constants';
 import {ensureLayers} from './lambda-layers';
 import {uploadDir} from './upload-dir';
@@ -29,7 +28,7 @@ const s3Client = new S3Client({region: REGION});
 const ENABLE_EFS = false;
 
 xns(async () => {
-	const {ffmpegArn, chromeArn} = await ensureLayers(lambdaClient);
+	const {layerArn} = await ensureLayers(lambdaClient);
 	console.log('Done creating layers');
 	const bucketName = LAMBDA_BUCKET_PREFIX + Math.random();
 	const id = String(Math.random());
@@ -37,13 +36,12 @@ xns(async () => {
 	const s3KeyStitcher = `${REMOTION_STITCHER_FN_ZIP}${id}.zip`;
 	const fnNameRender =
 		RENDER_FN_PREFIX + String(Math.random()).replace('0.', '');
-	const fnNameStitcher =
-		RENDER_STITCHER_PREFIX + String(Math.random()).replace('0.', '');
 	const [remBundle, renderOut, stitcherOut] = await Promise.all([
 		bundleRemotion(),
 		bundleLambda('render'),
 		bundleLambda('stitcher'),
 	]);
+	console.log('done Bundling');
 
 	await s3Client.send(
 		new CreateBucketCommand({
@@ -51,6 +49,7 @@ xns(async () => {
 			ACL: 'public-read',
 		})
 	);
+	console.log('created bucket', bucketName);
 
 	await s3Client.send(
 		new PutBucketWebsiteCommand({
@@ -62,6 +61,7 @@ xns(async () => {
 			},
 		})
 	);
+	console.log('enabled web hosting for bucket', bucketName);
 
 	// Upload bundle
 	await uploadDir({
@@ -69,6 +69,7 @@ xns(async () => {
 		client: s3Client,
 		dir: remBundle,
 	});
+	// Potentially big, set
 	console.log('bundle uploaded');
 
 	// Upload lambda
@@ -95,22 +96,7 @@ xns(async () => {
 	// TODO: Do it with HTTPS, but wait for certificate
 	const url = `http://${bucketName}.s3.${REGION}.amazonaws.com`;
 	console.log(url);
-	await lambdaClient.send(
-		new CreateFunctionCommand({
-			Code: {
-				S3Bucket: bucketName,
-				S3Key: s3KeyStitcher,
-			},
-			FunctionName: fnNameStitcher,
-			Handler: 'index.handler',
-			Role: 'arn:aws:iam::976210361945:role/lambda-admin', // IAM_ROLE_ARN; e.g., arn:aws:iam::650138640062:role/v3-lambda-tutorial-lambda-role
-			Runtime: 'nodejs12.x',
-			Description: 'Encodes a Remotion video.',
-			MemorySize: 1769 * 2,
-			Timeout: 60,
-			Layers: [ffmpegArn],
-		})
-	);
+
 	await lambdaClient.send(
 		new CreateFunctionCommand({
 			Code: {
@@ -124,7 +110,7 @@ xns(async () => {
 			Description: 'Renders a Remotion video.',
 			MemorySize: 1769 * 2,
 			Timeout: 60,
-			Layers: [chromeArn],
+			Layers: [layerArn],
 			VpcConfig: ENABLE_EFS
 				? {
 						SubnetIds: [

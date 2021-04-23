@@ -24,7 +24,6 @@ export const uploadDir = async ({
 
 	const files = (await getFiles(dir)) as string[];
 	const uploads = files.map((filePath) => {
-		console.log(path.relative(dir, filePath));
 		return client.send(
 			new PutObjectCommand({
 				Key: path.relative(dir, filePath),
