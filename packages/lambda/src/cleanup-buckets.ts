@@ -32,17 +32,16 @@ export const cleanUpBuckets = xns(
 					Bucket: bucket,
 				})
 			);
-			if (!list.Contents) {
-				continue;
-			}
-			for (const object of list.Contents) {
-				await s3client.send(
-					new DeleteObjectCommand({
-						Bucket: bucket,
-						Key: object.Key,
-					})
-				);
-				console.log('Deleted', `${bucket}/${object.Key}`);
+			if (list.Contents) {
+				for (const object of list.Contents) {
+					await s3client.send(
+						new DeleteObjectCommand({
+							Bucket: bucket,
+							Key: object.Key,
+						})
+					);
+					console.log('Deleted', `${bucket}/${object.Key}`);
+				}
 			}
 			await s3client.send(
 				new DeleteBucketCommand({
