@@ -4,6 +4,7 @@
     Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
   font-weight: 700;
   line-height: 1.2;
+  word-break: break-word;
 }
 
 .row {
@@ -20,5 +21,10 @@
   .row {
     flex-direction: column;
     text-align: center;
+  }
+
+  .tabContainer {
+    margin-top: 1rem;
+    justify-content: center;
   }
 }
