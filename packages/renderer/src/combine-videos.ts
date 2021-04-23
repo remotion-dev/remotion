@@ -1,13 +1,14 @@
 // Combine multiple video chunks, useful for decentralized rendering
 
 import execa from 'execa';
-import {mkdtempSync, unlinkSync, writeFileSync} from 'fs';
+import {mkdtempSync, rmdirSync, writeFileSync} from 'fs';
 import {join} from 'path';
 
 export const combineVideos = async (files: string[], output: string) => {
 	const fileList = files.map((p) => `file '${p}'`).join('\n');
 
-	const fileListTxt = join(mkdtempSync('remotion-filelist'), 'files.txt');
+	const filelistDir = mkdtempSync('remotion-filelist');
+	const fileListTxt = join(filelistDir, 'files.txt');
 	writeFileSync(fileListTxt, fileList);
 
 	try {
@@ -20,11 +21,12 @@ export const combineVideos = async (files: string[], output: string) => {
 			fileListTxt,
 			'-c',
 			'copy',
+			'-y',
 			output,
 		]);
-		unlinkSync(fileListTxt);
+		rmdirSync(filelistDir, {recursive: true});
 	} catch (err) {
-		unlinkSync(fileListTxt);
+		rmdirSync(filelistDir, {recursive: true});
 		throw err;
 	}
 };
