@@ -9,7 +9,7 @@ import {createReadStream} from 'fs';
 import xns from 'xns';
 import {bundleLambda} from './bundle-lambda';
 import {bundleRemotion} from './bundle-remotion';
-import {createLayer} from './create-layer';
+import {ensureLayers} from './lambda-layers';
 import {uploadDir} from './upload-dir';
 
 const region = 'eu-central-1';
@@ -23,17 +23,8 @@ const s3Client = new S3Client({region});
 const ENABLE_EFS = false;
 
 xns(async () => {
-	// TODO: Only create layer if doesn't exist
-	const layer = await createLayer(
-		lambdaClient,
-		'remotion-ffmpeg-binaries',
-		'ffmpeg.zip'
-	);
-	const awsLayer = await createLayer(
-		lambdaClient,
-		'remotion-chromium-binaries',
-		'chromium.zip'
-	);
+	const {ffmpegArn, chromeArn} = await ensureLayers(lambdaClient);
+	console.log('Done creating layers');
 	const bucketName = 'remotion-bucket-' + Math.random();
 	const id = String(Math.random());
 	const s3KeyRender = `remotion-render-function-${id}.zip`;
@@ -93,6 +84,7 @@ xns(async () => {
 			})
 		),
 	]);
+	console.log('lambdas uploaded');
 
 	// TODO: Do it with HTTPS, but wait for certificate
 	const url = `http://${bucketName}.s3.${region}.amazonaws.com`;
@@ -110,7 +102,7 @@ xns(async () => {
 			Description: 'Encodes a Remotion video.',
 			MemorySize: 1769 * 2,
 			Timeout: 60,
-			Layers: [layer.LayerVersionArn as string],
+			Layers: [ffmpegArn],
 		})
 	);
 	await lambdaClient.send(
@@ -126,7 +118,7 @@ xns(async () => {
 			Description: 'Renders a Remotion video.',
 			MemorySize: 1769 * 2,
 			Timeout: 60,
-			Layers: [awsLayer.LayerVersionArn as string],
+			Layers: [chromeArn],
 			VpcConfig: ENABLE_EFS
 				? {
 						SubnetIds: [
@@ -148,6 +140,7 @@ xns(async () => {
 				: undefined,
 		})
 	);
+	console.log('lambdas created');
 
 	return fnNameRender;
 });
