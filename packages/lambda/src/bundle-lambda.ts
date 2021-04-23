@@ -23,8 +23,8 @@ const copyDir = function (src: string, dest: string): void {
 	}
 };
 
-export const bundleLambda = async () => {
-	const outdir = path.join(__dirname, '..', 'build');
+export const bundleLambda = async (type: 'render' | 'stitcher') => {
+	const outdir = path.join(__dirname, '..', `build-${type}`);
 	fs.mkdirSync(outdir, {
 		recursive: true,
 	});
@@ -32,12 +32,19 @@ export const bundleLambda = async () => {
 
 	fs.rmdirSync(outdir, {recursive: true});
 	fs.mkdirSync(outdir, {recursive: true});
-	fs.mkdirSync(path.join(outdir, 'node_modules'), {recursive: true});
-	copyDir(
-		path.join(process.cwd(), 'node_modules/chrome-aws-lambda/'),
-		path.join(__dirname, '..', 'build', 'node_modules/chrome-aws-lambda')
+	if (type === 'render') {
+		fs.mkdirSync(path.join(outdir, 'node_modules'), {recursive: true});
+		copyDir(
+			path.join(process.cwd(), 'node_modules/chrome-aws-lambda/'),
+			path.join(outdir, 'node_modules/chrome-aws-lambda')
+		);
+	}
+	const template = path.join(
+		__dirname,
+		'..',
+		'template',
+		type === 'render' ? 'render.ts' : 'stitcher.ts'
 	);
-	const template = path.join(__dirname, '..', 'template', 'render.ts');
 
 	await esbuild.build({
 		platform: 'node',
@@ -46,7 +53,7 @@ export const bundleLambda = async () => {
 		entryPoints: [template],
 	});
 
-	const out = path.join(process.cwd(), 'function.zip');
+	const out = path.join(process.cwd(), `function-${type}.zip`);
 	await zl.archiveFolder(outdir, out);
 	return out;
 };

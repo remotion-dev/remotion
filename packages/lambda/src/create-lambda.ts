@@ -9,6 +9,7 @@ import {createReadStream} from 'fs';
 import xns from 'xns';
 import {bundleLambda} from './bundle-lambda';
 import {bundleRemotion} from './bundle-remotion';
+import {createLayer} from './create-layer';
 import {uploadDir} from './upload-dir';
 
 const region = 'eu-central-1';
@@ -22,13 +23,20 @@ const s3Client = new S3Client({region});
 const ENABLE_EFS = false;
 
 xns(async () => {
+	// TODO: Only create layer if doesn't exist
+	const layer = await createLayer(lambdaClient);
 	const bucketName = 'remotion-bucket-' + Math.random();
 	const id = String(Math.random());
-	const s3Key = `remotion-function-${id}.zip`;
-	const fnName = 'remotion-test-' + String(Math.random()).replace('0.', '');
-	const [remBundle, out] = await Promise.all([
+	const s3KeyRender = `remotion-render-function-${id}.zip`;
+	const s3KeyStitcher = `remotion-stitcher-function-${id}.zip`;
+	const fnNameRender =
+		'remotion-render-test-' + String(Math.random()).replace('0.', '');
+	const fnNameStitcher =
+		'remotion-stitcher-test-' + String(Math.random()).replace('0.', '');
+	const [remBundle, renderOut, stitcherOut] = await Promise.all([
 		bundleRemotion(),
-		bundleLambda(),
+		bundleLambda('render'),
+		bundleLambda('stitcher'),
 	]);
 
 	await s3Client.send(
@@ -58,14 +66,24 @@ xns(async () => {
 	console.log('bundle uploaded');
 
 	// Upload lambda
-	await s3Client.send(
-		new PutObjectCommand({
-			Bucket: bucketName,
-			Body: createReadStream(out),
-			Key: s3Key,
-			ACL: 'public-read',
-		})
-	);
+	await Promise.all([
+		s3Client.send(
+			new PutObjectCommand({
+				Bucket: bucketName,
+				Body: createReadStream(renderOut),
+				Key: s3KeyRender,
+				ACL: 'public-read',
+			})
+		),
+		s3Client.send(
+			new PutObjectCommand({
+				Bucket: bucketName,
+				Body: createReadStream(stitcherOut),
+				Key: s3KeyStitcher,
+				ACL: 'public-read',
+			})
+		),
+	]);
 
 	// TODO: Do it with HTTPS, but wait for certificate
 	const url = `http://${bucketName}.s3.${region}.amazonaws.com`;
@@ -74,9 +92,25 @@ xns(async () => {
 		new CreateFunctionCommand({
 			Code: {
 				S3Bucket: bucketName,
-				S3Key: s3Key,
+				S3Key: s3KeyStitcher,
 			},
-			FunctionName: fnName,
+			FunctionName: fnNameStitcher,
+			Handler: 'index.handler',
+			Role: 'arn:aws:iam::976210361945:role/lambda-admin', // IAM_ROLE_ARN; e.g., arn:aws:iam::650138640062:role/v3-lambda-tutorial-lambda-role
+			Runtime: 'nodejs12.x',
+			Description: 'Encodes a Remotion video.',
+			MemorySize: 1769 * 2,
+			Timeout: 60,
+			Layers: [layer.LayerVersionArn as string],
+		})
+	);
+	await lambdaClient.send(
+		new CreateFunctionCommand({
+			Code: {
+				S3Bucket: bucketName,
+				S3Key: s3KeyRender,
+			},
+			FunctionName: fnNameRender,
 			Handler: 'index.handler',
 			Role: 'arn:aws:iam::976210361945:role/lambda-admin', // IAM_ROLE_ARN; e.g., arn:aws:iam::650138640062:role/v3-lambda-tutorial-lambda-role
 			Runtime: 'nodejs12.x',
@@ -105,5 +139,5 @@ xns(async () => {
 		})
 	);
 
-	return fnName;
+	return fnNameRender;
 });
