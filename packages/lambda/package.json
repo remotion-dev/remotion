@@ -7,8 +7,7 @@
 	"scripts": {
 		"test": "eslint src --ext ts,tsx",
 		"watch": "tsc -w",
-		"build": "tsc -d",
-		"prepare": "patch-package"
+		"build": "tsc -d"
 	},
 	"author": "",
 	"license": "MIT",
@@ -20,10 +19,8 @@
 		"@aws-sdk/client-s3": "^3.13.0",
 		"@remotion/bundler": "^2.0.2",
 		"@remotion/renderer": "^2.0.2",
-		"chrome-aws-lambda": "^8.0.2",
 		"esbuild": "^0.11.12",
 		"lambdafs": "^2.0.3",
-		"patch-package": "^6.4.7",
 		"remotion": "^2.0.2",
 		"ts-node": "^9.1.1",
 		"xns": "^2.0.7",

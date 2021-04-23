@@ -32,13 +32,6 @@ export const bundleLambda = async (type: 'render' | 'stitcher') => {
 
 	fs.rmdirSync(outdir, {recursive: true});
 	fs.mkdirSync(outdir, {recursive: true});
-	if (type === 'render') {
-		fs.mkdirSync(path.join(outdir, 'node_modules'), {recursive: true});
-		copyDir(
-			path.join(process.cwd(), 'node_modules/chrome-aws-lambda/'),
-			path.join(outdir, 'node_modules/chrome-aws-lambda')
-		);
-	}
 	const template = path.join(
 		__dirname,
 		'..',

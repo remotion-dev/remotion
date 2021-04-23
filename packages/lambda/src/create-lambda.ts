@@ -24,7 +24,16 @@ const ENABLE_EFS = false;
 
 xns(async () => {
 	// TODO: Only create layer if doesn't exist
-	const layer = await createLayer(lambdaClient);
+	const layer = await createLayer(
+		lambdaClient,
+		'remotion-ffmpeg-binaries',
+		'ffmpeg.zip'
+	);
+	const awsLayer = await createLayer(
+		lambdaClient,
+		'remotion-chromium-binaries',
+		'chromium.zip'
+	);
 	const bucketName = 'remotion-bucket-' + Math.random();
 	const id = String(Math.random());
 	const s3KeyRender = `remotion-render-function-${id}.zip`;
@@ -117,6 +126,7 @@ xns(async () => {
 			Description: 'Renders a Remotion video.',
 			MemorySize: 1769 * 2,
 			Timeout: 60,
+			Layers: [awsLayer.LayerVersionArn as string],
 			VpcConfig: ENABLE_EFS
 				? {
 						SubnetIds: [
