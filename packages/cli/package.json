@@ -22,6 +22,7 @@
 		"@remotion/bundler": "^2.0.5",
 		"@remotion/media-utils": "^2.0.5",
 		"@remotion/renderer": "^2.0.5",
+		"@remotion/player": "^1.5.2",
 		"better-opn": "^2.1.1",
 		"chalk": "^4.1.0",
 		"cli-progress": "^3.8.2",
