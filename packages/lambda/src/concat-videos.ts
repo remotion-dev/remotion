@@ -59,7 +59,7 @@ const getAllFiles = async ({
 				Bucket: bucket,
 			})
 		);
-		lsTimer();
+		lsTimer.end();
 		return (files.Contents || []).map((_) => _.Key as string);
 	};
 
@@ -79,12 +79,14 @@ const getAllFiles = async ({
 				}
 				alreadyDownloading[content] = true;
 				try {
+					const downloadTimer = timer('Downloading ' + content);
 					await downloadS3File({
 						bucket,
 						content,
 						outdir,
 						s3Client,
 					});
+					downloadTimer.end();
 					downloaded[content] = true;
 					checkFinish();
 				} catch (err) {
@@ -97,7 +99,7 @@ const getAllFiles = async ({
 			if (!areAllFilesDownloading) {
 				setTimeout(() => {
 					loop();
-				}, 300);
+				}, 100);
 			}
 		};
 
@@ -129,11 +131,11 @@ export const concatVideos = xns(
 			filelistDir,
 			output: outfile,
 		});
-		combine();
+		combine.end();
 
 		rmdirSync(outdir, {
 			recursive: true,
 		});
-		console.log(outfile);
+		return outfile;
 	}
 );
