@@ -6,13 +6,12 @@ import {
 import {openBrowser, renderFrames} from '@remotion/renderer';
 import fs, {createReadStream} from 'fs';
 import path from 'path';
+import {executablePath} from './get-chromium-executable-path';
 
 // TODO: redundant
 const region = 'eu-central-1';
 
 const s3Client = new S3Client({region});
-
-const chromium = require('chrome-aws-lambda');
 
 type Await<T> = T extends PromiseLike<infer U> ? U : T;
 
@@ -23,7 +22,7 @@ const getBrowserInstance = async () => {
 		return browserInstance;
 	}
 	browserInstance = await openBrowser('chrome', {
-		customExecutable: await chromium.executablePath,
+		customExecutable: await executablePath(),
 	});
 	return browserInstance;
 };
