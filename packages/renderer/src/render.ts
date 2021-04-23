@@ -94,12 +94,10 @@ export const renderFrames = async ({
 	const pool = new Pool(puppeteerPages);
 
 	const frameCount = getFrameCount(config.durationInFrames, frameRange ?? null);
+	const lastFrameIndex = getFrameToRender(frameRange ?? null, frameCount - 1);
 	// Substract one because 100 frames will be 00-99
 	// --> 2 digits
-	let filePadLength = 0;
-	if (frameCount) {
-		filePadLength = String(frameCount - 1).length;
-	}
+	const filePadLength = String(lastFrameIndex).length;
 	let framesRendered = 0;
 
 	onStart({

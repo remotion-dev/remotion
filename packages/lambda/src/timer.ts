@@ -12,12 +12,13 @@ const formatTime = (time: number) => {
 
 export const timer = (label: string) => {
 	const start = Date.now();
-	process.stdout.write(label + '...');
 
-	return () => {
-		const end = Date.now();
-		const time = end - start;
+	return {
+		end: () => {
+			const end = Date.now();
+			const time = end - start;
 
-		process.stdout.write(` ${formatTime(time)}\n`);
+			process.stdout.write(`${label} - ${formatTime(time)}\n`);
+		},
 	};
 };

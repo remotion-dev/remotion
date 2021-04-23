@@ -9,10 +9,11 @@ import {
 	renderFrames,
 	stitchFramesToVideo,
 } from '@remotion/renderer';
-import fs from 'fs';
+import fs, {unlinkSync} from 'fs';
 import path from 'path';
 import {concatVideos} from '../src/concat-videos';
 import {LambdaPayload, REGION, RENDERS_BUCKET_PREFIX} from '../src/constants';
+import {timer} from '../src/timer';
 import {executablePath} from './get-chromium-executable-path';
 
 const s3Client = new S3Client({region: REGION});
@@ -33,7 +34,9 @@ const getBrowserInstance = async () => {
 	return browserInstance;
 };
 
-const totalFrames = 1000;
+const chunkCount = 300;
+const chunkSize = 20;
+const totalFrames = chunkCount * chunkSize;
 
 export const handler = async (params: LambdaPayload) => {
 	console.log('CONTEXT', params);
@@ -45,18 +48,19 @@ export const handler = async (params: LambdaPayload) => {
 
 	if (params.type === 'init') {
 		const bucketName = RENDERS_BUCKET_PREFIX + Math.random();
+		const bucketTimer = timer('Creating bucket');
 		await s3Client.send(
 			new CreateBucketCommand({
 				Bucket: bucketName,
 				ACL: 'public-read',
 			})
 		);
-		const chunkCount = 20;
+		bucketTimer.end();
 		const chunks = new Array(chunkCount).fill(1).map((_, i) => {
-			return [i * 50, (i + 1) * 50 - 1] as [number, number];
+			return [i * chunkSize, (i + 1) * chunkSize - 1] as [number, number];
 		});
 		await Promise.all(
-			chunks.map((chunk) => {
+			chunks.map(async (chunk) => {
 				const payload: LambdaPayload = {
 					type: 'renderer',
 					frameRange: chunk,
@@ -64,17 +68,31 @@ export const handler = async (params: LambdaPayload) => {
 					chunk: chunks.indexOf(chunk),
 					bucketName,
 				};
-				return lambdaClient.send(
+				const callingLambdaTimer = timer('Calling lambda');
+				await lambdaClient.send(
 					new InvokeCommand({
 						FunctionName: process.env.AWS_LAMBDA_FUNCTION_NAME,
 						// @ts-expect-error
 						Payload: JSON.stringify(payload),
+						InvocationType: 'Event',
 					})
 				);
+				callingLambdaTimer.end();
 			})
 		);
-		console.log('invoked x. watch out at ', bucketName);
-		await concatVideos(s3Client, bucketName, chunkCount);
+		const out = await concatVideos(s3Client, bucketName, chunkCount);
+		const outName = 'out.mp4';
+		await s3Client.send(
+			new PutObjectCommand({
+				Bucket: bucketName,
+				Key: 'out.mp4',
+				Body: fs.createReadStream(out),
+				ACL: 'public-read',
+			})
+		);
+		console.log(
+			'Done! ' + `https://s3.${REGION}.amazonaws.com/${bucketName}/${outName}`
+		);
 	} else if (params.type === 'renderer') {
 		if (typeof params.chunk !== 'number') {
 			throw new Error('must pass chunk');
@@ -90,7 +108,7 @@ export const handler = async (params: LambdaPayload) => {
 				durationInFrames: totalFrames,
 				fps: 30,
 				height: 1080,
-				width: 1080,
+				width: 1920,
 			},
 			imageFormat: 'jpeg',
 			inputProps: {},
@@ -137,6 +155,7 @@ export const handler = async (params: LambdaPayload) => {
 				Body: fs.createReadStream(outputLocation),
 			})
 		);
+		unlinkSync(outputLocation);
 		console.log('Done rendering!', outputDir, params.bucketName);
 	} else {
 		throw new Error('Command not found');
