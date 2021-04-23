@@ -14,6 +14,7 @@ export const cleanUpBuckets = xns(
 			region: REGION,
 		})
 	) => {
+		// TODO: pagination
 		const {Buckets} = await s3client.send(new ListBucketsCommand({}));
 		if (!Buckets) {
 			console.log('No buckets available.');
