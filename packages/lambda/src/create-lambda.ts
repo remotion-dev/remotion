@@ -9,7 +9,14 @@ import {createReadStream} from 'fs';
 import xns from 'xns';
 import {bundleLambda} from './bundle-lambda';
 import {bundleRemotion} from './bundle-remotion';
-import {LAMBDA_BUCKET_PREFIX, REGION} from './constants';
+import {
+	LAMBDA_BUCKET_PREFIX,
+	REGION,
+	REMOTION_RENDER_FN_ZIP,
+	REMOTION_STITCHER_FN_ZIP,
+	RENDER_FN_PREFIX,
+	RENDER_STITCHER_PREFIX,
+} from './constants';
 import {ensureLayers} from './lambda-layers';
 import {uploadDir} from './upload-dir';
 
@@ -26,12 +33,12 @@ xns(async () => {
 	console.log('Done creating layers');
 	const bucketName = LAMBDA_BUCKET_PREFIX + Math.random();
 	const id = String(Math.random());
-	const s3KeyRender = `remotion-render-function-${id}.zip`;
-	const s3KeyStitcher = `remotion-stitcher-function-${id}.zip`;
+	const s3KeyRender = `${REMOTION_RENDER_FN_ZIP}${id}.zip`;
+	const s3KeyStitcher = `${REMOTION_STITCHER_FN_ZIP}${id}.zip`;
 	const fnNameRender =
-		'remotion-render-test-' + String(Math.random()).replace('0.', '');
+		RENDER_FN_PREFIX + String(Math.random()).replace('0.', '');
 	const fnNameStitcher =
-		'remotion-stitcher-test-' + String(Math.random()).replace('0.', '');
+		RENDER_STITCHER_PREFIX + String(Math.random()).replace('0.', '');
 	const [remBundle, renderOut, stitcherOut] = await Promise.all([
 		bundleRemotion(),
 		bundleLambda('render'),
@@ -86,7 +93,7 @@ xns(async () => {
 	console.log('lambdas uploaded');
 
 	// TODO: Do it with HTTPS, but wait for certificate
-	const url = `http://${bucketName}.s3.${region}.amazonaws.com`;
+	const url = `http://${bucketName}.s3.${REGION}.amazonaws.com`;
 	console.log(url);
 	await lambdaClient.send(
 		new CreateFunctionCommand({
