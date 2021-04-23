@@ -8,10 +8,12 @@ export const useMediaPlayback = ({
 	mediaRef,
 	src,
 	mediaType,
+	playbackRate,
 }: {
 	mediaRef: RefObject<HTMLVideoElement | HTMLAudioElement>;
 	src: string | undefined;
 	mediaType: 'audio' | 'video';
+	playbackRate: number;
 }) => {
 	const frame = useCurrentFrame();
 	const absoluteFrame = useAbsoluteCurrentFrame();
@@ -39,10 +41,12 @@ export const useMediaPlayback = ({
 			);
 		}
 
+		mediaRef.current.playbackRate = playbackRate;
 		const shouldBeTime = getCurrentTime({
 			fps,
 			frame,
 			src,
+			playbackRate,
 		});
 
 		const isTime = mediaRef.current.currentTime;
@@ -62,5 +66,14 @@ export const useMediaPlayback = ({
 			mediaRef.current.currentTime = shouldBeTime;
 			mediaRef.current.play();
 		}
-	}, [absoluteFrame, fps, frame, mediaRef, mediaType, playing, src]);
+	}, [
+		absoluteFrame,
+		fps,
+		playbackRate,
+		frame,
+		mediaRef,
+		mediaType,
+		playing,
+		src,
+	]);
 };

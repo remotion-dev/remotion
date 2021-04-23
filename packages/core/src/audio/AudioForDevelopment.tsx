@@ -36,6 +36,7 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		mediaRef: audioRef,
 		src: nativeProps.src,
 		mediaType: 'audio',
+		playbackRate: 1,
 	});
 
 	useImperativeHandle(ref, () => {

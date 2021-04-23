@@ -36,6 +36,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		mediaRef: videoRef,
 		src: nativeProps.src,
 		mediaType: 'video',
+		playbackRate: props.playbackRate || 1,
 	});
 
 	useImperativeHandle(ref, () => {
