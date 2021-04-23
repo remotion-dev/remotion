@@ -10,6 +10,7 @@ import {Readable} from 'stream';
 import xns from 'xns';
 import {REGION} from './constants';
 import {timer} from './timer';
+import {tmpDir} from './tmpdir';
 
 const downloadS3File = async ({
 	s3Client,
@@ -37,21 +38,19 @@ const downloadS3File = async ({
 	});
 };
 
-const getAllFiles = async (
-	s3Client: S3Client,
-	bucket: string,
-	expectedFiles: number
-): Promise<string[]> => {
+const getAllFiles = async ({
+	s3Client,
+	bucket,
+	expectedFiles,
+	outdir,
+}: {
+	s3Client: S3Client;
+	bucket: string;
+	expectedFiles: number;
+	outdir: string;
+}): Promise<string[]> => {
 	const alreadyDownloading: {[key: string]: true} = {};
 	const downloaded: {[key: string]: true} = {};
-
-	const outdir = join(process.cwd(), 'bucket');
-	if (existsSync(outdir)) {
-		rmdirSync(outdir, {
-			recursive: true,
-		});
-	}
-	mkdirSync(outdir);
 
 	const getFiles = async () => {
 		const lsTimer = timer('Listing files');
@@ -75,6 +74,9 @@ const getAllFiles = async (
 				}
 			};
 			filesInBucket.forEach(async (content) => {
+				if (alreadyDownloading[content]) {
+					return;
+				}
 				alreadyDownloading[content] = true;
 				try {
 					await downloadS3File({
@@ -109,13 +111,29 @@ export const concatVideos = xns(
 		bucket = 'remotion-renders-0.7182592846197402',
 		expectedFiles = 20
 	) => {
-		const files = await getAllFiles(s3Client, bucket, expectedFiles);
+		const outdir = join(tmpDir('remotion-concat'), 'bucket');
+		if (existsSync(outdir)) {
+			rmdirSync(outdir, {
+				recursive: true,
+			});
+		}
+		mkdirSync(outdir);
 
-		const outfile = join(__dirname, 'concat.mp4');
+		const files = await getAllFiles({s3Client, bucket, expectedFiles, outdir});
+
+		const outfile = join(tmpDir('remotion-concated'), 'concat.mp4');
 		const combine = timer('Combine videos');
-		await combineVideos(files, outfile);
+		const filelistDir = tmpDir('remotion-filelist');
+		await combineVideos({
+			files,
+			filelistDir,
+			output: outfile,
+		});
 		combine();
 
+		rmdirSync(outdir, {
+			recursive: true,
+		});
 		console.log(outfile);
 	}
 );
