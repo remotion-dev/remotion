@@ -53,6 +53,7 @@ import {isAudioCodec} from './is-audio-codec';
 import * as perf from './perf';
 import {getCompositionName, getIsEvaluation, getRoot} from './register-root';
 import {RemotionRoot} from './RemotionRoot';
+import {SequenceContext} from './sequencing';
 import * as Timeline from './timeline-position-state';
 import {
 	SetTimelineContextValue,
@@ -62,6 +63,10 @@ import {truthy} from './truthy';
 import {useLazyComponent} from './use-lazy-component';
 import {useUnsafeVideoConfig} from './use-unsafe-video-config';
 import {useVideo} from './use-video';
+import {
+	RemotionContextProvider,
+	useRemotionContexts,
+} from './wrap-remotion-context';
 
 // Mark them as Internals so use don't assume this is public
 // API and are less likely to use it
@@ -105,6 +110,9 @@ export const Internals = {
 	isAudioCodec,
 	INPUT_PROPS_KEY,
 	Logging,
+	SequenceContext,
+	useRemotionContexts,
+	RemotionContextProvider,
 };
 
 export type {

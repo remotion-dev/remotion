@@ -2,6 +2,7 @@ import {createWriteStream, mkdirSync} from 'fs';
 import got from 'got';
 import path from 'path';
 import {TAsset} from 'remotion';
+import sanitizeFilename from 'sanitize-filename';
 import stream from 'stream';
 import {promisify} from 'util';
 
@@ -59,7 +60,7 @@ export const downloadAndMapAssetsToFileUrl = async ({
 	onDownload: (src: string) => void;
 }): Promise<TAsset> => {
 	const {pathname} = new URL(localhostAsset.src);
-	const newSrc = path.join(webpackBundle, pathname);
+	const newSrc = path.join(webpackBundle, sanitizeFilename(pathname));
 	if (localhostAsset.isRemote) {
 		await downloadAsset(localhostAsset.src, newSrc, onDownload);
 	}

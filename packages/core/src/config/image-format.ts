@@ -7,7 +7,7 @@ export type ImageFormat = typeof validOptions[number];
 let currentImageFormat: ImageFormat | undefined = undefined;
 
 export const setImageFormat = (format: ImageFormat) => {
-	if (typeof format === undefined) {
+	if (typeof format === 'undefined') {
 		currentImageFormat = undefined;
 		return;
 	}

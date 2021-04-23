@@ -19,10 +19,21 @@ const ffmpegIfOrElse = (condition: string, then: string, elseDo: string) => {
 };
 
 const ffmpegIsOneOfFrames = (frames: number[], fps: number) => {
-	return frames
+	const consecutiveArrays: number[][] = [];
+	for (let i = 0; i < frames.length; i++) {
+		const previousFrame = frames[i - 1];
+		const frame = frames[i];
+		if (!previousFrame || frame !== previousFrame + 1) {
+			consecutiveArrays.push([]);
+		}
+		consecutiveArrays[consecutiveArrays.length - 1].push(frame);
+	}
+	return consecutiveArrays
 		.map((f) => {
-			const before = (f - 0.5) / fps;
-			const after = (f + 0.5) / fps;
+			const firstFrame = f[0];
+			const lastFrame = f[f.length - 1];
+			const before = (firstFrame - 0.5) / fps;
+			const after = (lastFrame + 0.5) / fps;
 			return `between(${FFMPEG_TIME_VARIABLE},${before.toFixed(
 				4
 			)},${after.toFixed(4)})`;

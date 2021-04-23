@@ -10,6 +10,7 @@ export const autoImports = {
   spring: "import {spring} from 'remotion'",
   random: "import {random} from 'remotion'",
   interpolate: "import {interpolate} from 'remotion'",
+  interpolateColors: "import {interpolateColors} from 'remotion'",
   Easing: "import {Easing} from 'remotion'",
   getInputProps: "import {getInputProps} from 'remotion'",
   continueRender: "import {continueRender} from 'remotion'",
