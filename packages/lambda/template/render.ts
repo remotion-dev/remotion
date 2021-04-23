@@ -11,6 +11,7 @@ import {
 } from '@remotion/renderer';
 import fs from 'fs';
 import path from 'path';
+import {concatVideos} from '../src/concat-videos';
 import {LambdaPayload, REGION, RENDERS_BUCKET_PREFIX} from '../src/constants';
 import {executablePath} from './get-chromium-executable-path';
 
@@ -50,7 +51,8 @@ export const handler = async (params: LambdaPayload) => {
 				ACL: 'public-read',
 			})
 		);
-		const chunks = new Array(20).fill(1).map((_, i) => {
+		const chunkCount = 20;
+		const chunks = new Array(chunkCount).fill(1).map((_, i) => {
 			return [i * 50, (i + 1) * 50 - 1] as [number, number];
 		});
 		await Promise.all(
@@ -72,6 +74,7 @@ export const handler = async (params: LambdaPayload) => {
 			})
 		);
 		console.log('invoked x. watch out at ', bucketName);
+		await concatVideos(s3Client, bucketName, chunkCount);
 	} else if (params.type === 'renderer') {
 		if (typeof params.chunk !== 'number') {
 			throw new Error('must pass chunk');
@@ -120,7 +123,7 @@ export const handler = async (params: LambdaPayload) => {
 			// TODO
 			height: 1080,
 			//TODO,
-			width: 1080,
+			width: 1920,
 			outputLocation,
 			// TODO
 			codec: 'h264',
