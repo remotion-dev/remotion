@@ -111,6 +111,7 @@ export const provideScreenshot = async ({
 	});
 };
 
+export {combineVideos} from './combine-videos';
 export * from './ffmpeg-flags';
 export * from './get-compositions';
 export * from './get-concurrency';
