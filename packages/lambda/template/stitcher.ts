@@ -8,11 +8,9 @@ import {stitchFramesToVideo} from '@remotion/renderer';
 import fs from 'fs';
 import path from 'path';
 import {Readable} from 'stream';
+import {REGION} from '../src/constants';
 
-// TODO: redundant
-const region = 'eu-central-1';
-
-const s3Client = new S3Client({region});
+const s3Client = new S3Client({region: REGION});
 
 const BIN_DIR = '/tmp/bin';
 
@@ -26,7 +24,6 @@ export const handler = async (params: {bucket: string}) => {
 	fs.mkdirSync(dir);
 	fs.mkdirSync(outdir);
 	const outputLocation = path.join(outdir, 'out.mp4');
-	console.log('ready!');
 	if (!params.bucket) {
 		throw new Error('Did not pass `bucket` param');
 	}
@@ -51,7 +48,6 @@ export const handler = async (params: {bucket: string}) => {
 				.on('close', () => resolve());
 		});
 	}
-	console.log(fs.readdirSync(dir));
 	await stitchFramesToVideo({
 		assetsInfo: {
 			// TODO

@@ -9,23 +9,22 @@ import {createReadStream} from 'fs';
 import xns from 'xns';
 import {bundleLambda} from './bundle-lambda';
 import {bundleRemotion} from './bundle-remotion';
+import {LAMBDA_BUCKET_PREFIX, REGION} from './constants';
 import {ensureLayers} from './lambda-layers';
 import {uploadDir} from './upload-dir';
 
-const region = 'eu-central-1';
-
 const lambdaClient = new LambdaClient({
-	region,
+	region: REGION,
 });
 
-const s3Client = new S3Client({region});
+const s3Client = new S3Client({region: REGION});
 
 const ENABLE_EFS = false;
 
 xns(async () => {
 	const {ffmpegArn, chromeArn} = await ensureLayers(lambdaClient);
 	console.log('Done creating layers');
-	const bucketName = 'remotion-bucket-' + Math.random();
+	const bucketName = LAMBDA_BUCKET_PREFIX + Math.random();
 	const id = String(Math.random());
 	const s3KeyRender = `remotion-render-function-${id}.zip`;
 	const s3KeyStitcher = `remotion-stitcher-function-${id}.zip`;
