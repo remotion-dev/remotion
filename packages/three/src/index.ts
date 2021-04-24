@@ -1,5 +1,5 @@
-export { ThreeCanvas } from './RemotionThreeCanvas';
-export { useRemotionThreeDomNode } from './RemotionThreeContext';
+export { ThreeCanvas } from './ThreeCanvas';
+export { useRemotionThreeDomNode } from './ThreeContext';
 export { ThreeVideo, ThreeVideoProps } from './ThreeVideo';
 export { useVideoTexture, UseVideoTextureOptions } from './useVideoTexture';
 export {
