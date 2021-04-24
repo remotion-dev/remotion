@@ -4,6 +4,10 @@ import ReactDOM from 'react-dom';
 import { Internals } from 'remotion';
 import { RemotionThreeContext, RemotionThreeContextType } from './ThreeContext';
 
+const block: React.CSSProperties = {
+	display: 'block',
+};
+
 export const ThreeCanvas = ({
 	children,
 	tabIndex,
@@ -71,7 +75,7 @@ export const ThreeCanvas = ({
 				...style,
 			}}
 		>
-			<canvas ref={canvasRef} style={{ display: 'block' }} />
+			<canvas ref={canvasRef} style={block} />
 			{threeDomNodesWrapper}
 		</div>
 	);
@@ -92,9 +96,9 @@ function useCreateRemotionThreeContext() {
 		useDomNode: (node) => {
 			const _remotionContexts = Internals.useRemotionContexts();
 
-			const containerNode = React.useState(() =>
+			const [containerNode] = React.useState(() =>
 				document.createElement('div')
-			)[0];
+			);
 			React.useEffect(() => {
 				if (!portalRef.current) {
 					return;
@@ -104,7 +108,7 @@ function useCreateRemotionThreeContext() {
 					ReactDOM.unmountComponentAtNode(containerNode);
 					containerNode.remove();
 				};
-			}, []); // eslint-disable-line react-hooks/exhaustive-deps
+			}, [containerNode]);
 
 			React.useEffect(() => {
 				// Updating threeDomNodes has to happen outside the react-three render loop, so use a timeout
