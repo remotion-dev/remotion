@@ -87,7 +87,7 @@ export const handler = async (params: LambdaPayload) => {
 		);
 		bucketTimer.end();
 		// TODO: Not hardcoded frame count
-		const chunkSize = 20;
+		const chunkSize = 12;
 		const chunkCount = Math.ceil(comp.durationInFrames / chunkSize);
 
 		const chunks = new Array(chunkCount).fill(1).map((_, i) => {
@@ -144,7 +144,7 @@ export const handler = async (params: LambdaPayload) => {
 			throw new Error('must pass framerange');
 		}
 
-		const instance = await getBrowser();
+		const instance = await getBrowser;
 
 		await renderFrames({
 			compositionId: params.composition,
@@ -160,6 +160,7 @@ export const handler = async (params: LambdaPayload) => {
 			onFrameUpdate: (i: number, output: string) => {
 				console.log('Rendered frames', i, output);
 			},
+			parallelism: 2,
 			onStart: () => {
 				console.log('Starting');
 			},
