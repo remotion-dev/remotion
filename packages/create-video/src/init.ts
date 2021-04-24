@@ -6,7 +6,7 @@ import fs from 'fs';
 import path from 'path';
 import readline from 'readline';
 import xns from 'xns';
-import {templateFolderName, turnIntoDot} from './dotfiles';
+import {deleteLockFile, templateFolderName, turnIntoDot} from './dotfiles';
 
 const rl = readline.createInterface({
 	input: process.stdin,
@@ -43,12 +43,14 @@ xns(async () => {
 
 	const templateDir = path.join(__dirname, '..', templateFolderName);
 	const outputDir = path.join(process.cwd(), selectedDirname);
+	const useYarn = shouldUseYarn();
 
 	if (fs.existsSync(outputDir)) {
 		console.log(`Directory ${selectedDirname} already exists. Quitting.`);
 		return;
 	}
 	await turnIntoDot(templateDir);
+	await deleteLockFile(templateDir, useYarn);
 	if (process.platform === 'win32') {
 		await execa('xcopy', [
 			templateDir,
@@ -68,23 +70,18 @@ xns(async () => {
 		)}. Installing dependencies...`
 	);
 	console.log('');
-	if (shouldUseYarn()) {
-		console.log('> yarn');
-		const promise = execa('yarn', [], {
-			cwd: outputDir,
-		});
-		promise.stderr?.pipe(process.stderr);
-		promise.stdout?.pipe(process.stdout);
-		await promise;
-	} else {
-		console.log('> npm install');
-		const promise = execa('npm', ['install'], {
-			cwd: outputDir,
-		});
-		promise.stderr?.pipe(process.stderr);
-		promise.stdout?.pipe(process.stdout);
-		await promise;
-	}
+
+	const logInstallCommand = useYarn ? '> yarn' : 'npm install';
+	const installArgs: [string, string[]] = useYarn
+		? ['yarn', []]
+		: ['npm', ['install']];
+
+	console.log(logInstallCommand);
+	const promise = execa(...installArgs, {cwd: outputDir});
+
+	promise.stderr?.pipe(process.stderr);
+	promise.stdout?.pipe(process.stdout);
+	await promise;
 
 	console.log(`Welcome to ${chalk.blue('Remotion')}!`);
 	console.log(
