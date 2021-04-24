@@ -1,8 +1,12 @@
-import { MeshProps, useThree } from '@react-three/fiber';
+import { MaterialNode, MeshProps, useThree } from '@react-three/fiber';
 import React from 'react';
 import { ShaderLib } from 'three';
 import { useVideoTexture, UseVideoTextureOptions } from './useVideoTexture';
 import './utils/TexturedShaderMaterial';
+import {
+	TexturedShaderMaterial,
+	TexturedShaderMaterialParameters,
+} from './utils/TexturedShaderMaterial';
 
 const vShaderFullViewport = ShaderLib.basic.vertexShader.replace(
 	'#include <project_vertex>',
@@ -15,6 +19,18 @@ mvPosition = modelViewMatrix * mvPosition;
 gl_Position = vec4(position * 2.0, 1.0);
 `
 );
+
+declare global {
+	// eslint-disable-next-line @typescript-eslint/no-namespace
+	namespace JSX {
+		interface IntrinsicElements {
+			texturedShaderMaterial: MaterialNode<
+				TexturedShaderMaterial,
+				[TexturedShaderMaterialParameters]
+			>;
+		}
+	}
+}
 
 export interface ThreeVideoProps
 	extends MeshProps,
