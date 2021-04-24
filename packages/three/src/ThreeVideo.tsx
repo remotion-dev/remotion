@@ -1,7 +1,7 @@
 import { MeshProps, useThree } from '@react-three/fiber';
 import React from 'react';
 import { ShaderLib } from 'three';
-import useVideoTexture, { UseVideoTextureOptions } from './useVideoTexture';
+import { useVideoTexture, UseVideoTextureOptions } from './useVideoTexture';
 import './utils/TexturedShaderMaterial';
 
 const vShaderFullViewport = ShaderLib.basic.vertexShader.replace(
@@ -24,7 +24,7 @@ export interface ThreeVideoProps
 	videoProps?: UseVideoTextureOptions;
 }
 
-const ThreeVideo = React.forwardRef(
+export const ThreeVideo = React.forwardRef(
 	(
 		props: ThreeVideoProps,
 		ref: React.ForwardedRef<React.ComponentType<'mesh'>>
