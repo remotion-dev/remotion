@@ -40,7 +40,7 @@ export const UpdateCheck = () => {
 		fetch('/update')
 			.then((res) => res.json())
 			.then((d) => setInfo(d))
-			.catch((err) => {
+      .catch((err) => {
 				console.log('Could not check for updates', err);
 			});
 	}, []);
@@ -61,6 +61,15 @@ export const UpdateCheck = () => {
 		checkForUpdates();
 	}, [checkForUpdates]);
 
+  const copyCmd = (cmd: string) => {
+    const permissionName = "clipboard-write" as PermissionName;
+    navigator.permissions.query({name: permissionName}).then(result => {
+      if (result.state == "granted" || result.state == "prompt") {
+        navigator.clipboard.writeText(cmd)
+      }
+    });
+  }
+
 	if (!info) {
 		return null;
 	}
@@ -77,7 +86,7 @@ export const UpdateCheck = () => {
 		<Container>
 			A new version of Remotion is available! {info.currentVersion} ➡️{' '}
 			<span style={{width: 8, display: 'inline-block'}} />
-			{info.latestVersion}. Run <code>npm run upgrade</code> to get it. <br />
+			{info.latestVersion}. Run <code onClick={()=>copyCmd('npm run upgrade')} style={{cursor: 'pointer'}}>npm run upgrade</code> or <code onClick={()=>copyCmd('yarn upgrade')} style={{cursor: 'pointer'}}>yarn upgrade</code> to get it. <br />
 			<a
 				href="https://github.com/JonnyBurger/remotion/releases"
 				target="_blank"
