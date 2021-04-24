@@ -1,6 +1,8 @@
+/// <reference path="./postprocessing.d.ts" />
+
+import { BlendFunction, Effect } from 'postprocessing';
 import React, { forwardRef, useMemo } from 'react';
 import { Uniform, Vector2, WebGLRenderer, WebGLRenderTarget } from 'three';
-import { BlendFunction, Effect } from 'postprocessing';
 
 const fragmentShader = `
 uniform vec2 offset;
@@ -23,44 +25,44 @@ void mainUv(inout vec2 uv) {
 `;
 
 export interface SwirlEffectOptions {
-    offset?: Vector2 | [number, number];
-    angle?: number;
-    radius?: number;
+	offset?: Vector2 | [number, number];
+	angle?: number;
+	radius?: number;
 }
 
 /** Creates a swirl effect on the screen */
 export class SwirlEffectImpl extends Effect {
+	constructor(private readonly options: SwirlEffectOptions = {}) {
+		super('SwirlEffect', fragmentShader, {
+			blendFunction: BlendFunction.NORMAL,
+			uniforms: new Map<keyof SwirlEffectOptions, Uniform>([
+				['offset', new Uniform(new Vector2())],
+				['angle', new Uniform(0)],
+				['radius', new Uniform(0)],
+			]),
+		});
+	}
 
-    constructor(private readonly options: SwirlEffectOptions = {}) {
-        super('SwirlEffect', fragmentShader, {
-            blendFunction: BlendFunction.NORMAL,
-            uniforms: new Map<keyof SwirlEffectOptions, Uniform>([
-                ['offset', new Uniform(new Vector2())],
-                ['angle', new Uniform(0)],
-                ['radius', new Uniform(0)],
-            ]),
-        });
-    }
-
-    public update(renderer: WebGLRenderer, inputBuffer: WebGLRenderTarget, deltaTime?: number) {
-        this.uniforms.get('offset')!.value = this.options.offset || new Vector2();
-        this.uniforms.get('angle')!.value = this.options.angle || 0;
-        this.uniforms.get('radius')!.value = this.options.radius ?? 100;
-    }
-
+	public update(
+		renderer: WebGLRenderer,
+		inputBuffer: WebGLRenderTarget,
+		deltaTime?: number
+	) {
+		this.uniforms.get('offset')!.value = this.options.offset || new Vector2();
+		this.uniforms.get('angle')!.value = this.options.angle || 0;
+		this.uniforms.get('radius')!.value = this.options.radius ?? 100;
+	}
 }
 
-const SwirlEffect = forwardRef(({ offset, angle, radius }: SwirlEffectOptions, ref: React.ForwardedRef<'primitive'>) => {
-    const effect = useMemo(() => (
-        new SwirlEffectImpl({ offset, angle, radius })
-    ), [offset, angle, radius]);
-    return (
-        <primitive
-            ref={ref}
-            object={effect}
-            dispose={null}
-        />
-    );
-});
-
-export default SwirlEffect;
+export const SwirlEffect = forwardRef(
+	(
+		{ offset, angle, radius }: SwirlEffectOptions,
+		ref: React.ForwardedRef<'primitive'>
+	) => {
+		const effect = useMemo(
+			() => new SwirlEffectImpl({ offset, angle, radius }),
+			[offset, angle, radius]
+		);
+		return <primitive ref={ref} object={effect} dispose={null} />;
+	}
+);
