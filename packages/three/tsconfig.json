@@ -6,8 +6,9 @@
 		"outDir": "dist",
 		"skipLibCheck": true
 	},
-	"include": ["src"],
-	"references": [{
-		"path": "../core"}
+	"references": [
+		{
+			"path": "../core"
+		}
 	]
 }
