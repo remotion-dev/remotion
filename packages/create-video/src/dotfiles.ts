@@ -21,4 +21,11 @@ export const turnIntoDot = async (dir: string) => {
 	}
 };
 
+export const deleteLockFile = async (dir: string, useYarn: boolean) => {
+	const lockFileName = useYarn ? 'package-lock.json' : 'yarn.lock';
+	await execa(process.platform === 'win32' ? 'del' : 'rm', [
+		path.join(dir, lockFileName),
+	]);
+};
+
 export const templateFolderName = '_template';
