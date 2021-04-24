@@ -90,10 +90,10 @@ xns(async () => {
 
 	console.log('Get started by running');
 	console.log(chalk.blue(`cd ${selectedDirname}`));
-	console.log(chalk.blue(shouldUseYarn() ? 'yarn start' : 'npm start'));
+	console.log(chalk.blue(useYarn ? 'yarn start' : 'npm start'));
 	console.log('');
 	console.log('To render an MP4 video, run');
-	console.log(chalk.blue(shouldUseYarn() ? 'yarn build' : 'npm run build'));
+	console.log(chalk.blue(useYarn ? 'yarn build' : 'npm run build'));
 	console.log('');
 	console.log(
 		'Read the documentation at',
