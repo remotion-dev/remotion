@@ -16,8 +16,9 @@ const ThreeBasic = (): React.ReactElement => {
 				<ambientLight intensity={0.15} />
 				<pointLight args={[undefined, 0.4]} position={[200, 200, 0]} />
 
-				<ThreeVideo ignoreDepth fullViewport src={videoSrc} startFrom={460} />
-
+				{/**
+				 * // TODO: Cannot find parent of sequence
+				 */}
 				<Sequence layout="none" from={-460} durationInFrames={Infinity}>
 					<ThreeVideo ignoreDepth src={videoSrc} />
 				</Sequence>

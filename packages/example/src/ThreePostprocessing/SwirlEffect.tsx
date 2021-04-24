@@ -1,8 +1,6 @@
-/// <reference path="./postprocessing.d.ts" />
-
-import { BlendFunction, Effect } from 'postprocessing';
-import React, { forwardRef, useMemo } from 'react';
-import { Uniform, Vector2, WebGLRenderer, WebGLRenderTarget } from 'three';
+import {BlendFunction, Effect} from 'postprocessing';
+import React, {forwardRef, useMemo} from 'react';
+import {Uniform, Vector2} from 'three';
 
 const fragmentShader = `
 uniform vec2 offset;
@@ -43,26 +41,24 @@ export class SwirlEffectImpl extends Effect {
 		});
 	}
 
-	public update(
-		renderer: WebGLRenderer,
-		inputBuffer: WebGLRenderTarget,
-		deltaTime?: number
-	) {
-		this.uniforms.get('offset')!.value = this.options.offset || new Vector2();
-		this.uniforms.get('angle')!.value = this.options.angle || 0;
-		this.uniforms.get('radius')!.value = this.options.radius ?? 100;
+	public update(): void {
+		(this.uniforms.get('offset') as Uniform).value =
+			this.options.offset || new Vector2();
+		(this.uniforms.get('angle') as Uniform).value = this.options.angle || 0;
+		(this.uniforms.get('radius') as Uniform).value = this.options.radius ?? 100;
 	}
 }
 
 export const SwirlEffect = forwardRef(
 	(
-		{ offset, angle, radius }: SwirlEffectOptions,
+		{offset, angle, radius}: SwirlEffectOptions,
 		ref: React.ForwardedRef<'primitive'>
 	) => {
-		const effect = useMemo(
-			() => new SwirlEffectImpl({ offset, angle, radius }),
-			[offset, angle, radius]
-		);
+		const effect = useMemo(() => new SwirlEffectImpl({offset, angle, radius}), [
+			offset,
+			angle,
+			radius,
+		]);
 		return <primitive ref={ref} object={effect} dispose={null} />;
 	}
 );
