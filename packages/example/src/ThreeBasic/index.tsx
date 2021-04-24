@@ -18,12 +18,7 @@ const ThreeBasic = (): React.ReactElement => {
 
 				<ThreeVideo ignoreDepth fullViewport src={videoSrc} startFrom={460} />
 
-				<Sequence
-					showInTimeline={false}
-					layout="none"
-					from={-460}
-					durationInFrames={Infinity}
-				>
+				<Sequence layout="none" from={-460} durationInFrames={Infinity}>
 					<ThreeVideo ignoreDepth src={videoSrc} />
 				</Sequence>
 
