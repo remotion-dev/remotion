@@ -10,6 +10,7 @@ export type LambdaPayload =
 	| {
 			type: 'init';
 			serveUrl: string;
+			composition: string;
 	  }
 	| {
 			type: 'renderer';
@@ -17,4 +18,9 @@ export type LambdaPayload =
 			frameRange: [number, number];
 			chunk: number;
 			bucketName: string;
+			composition: string;
+			fps: number;
+			height: number;
+			width: number;
+			durationInFrames: number;
 	  };
