@@ -1,10 +1,10 @@
 import React from 'react';
 
-interface RemotionThreeContextType {
+export interface RemotionThreeContextType {
 	useDomNode: (node: React.ReactElement) => void;
 }
 
-const RemotionThreeContext = React.createContext<
+export const RemotionThreeContext = React.createContext<
 	RemotionThreeContextType | undefined
 >(undefined);
 
