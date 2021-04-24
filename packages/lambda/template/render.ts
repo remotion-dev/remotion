@@ -75,6 +75,11 @@ export const handler = async (params: LambdaPayload) => {
 		const bucketName = RENDERS_BUCKET_PREFIX + Math.random();
 		const bucketTimer = timer('Creating bucket');
 
+		// TODO: Better validation
+		if (!params.chunkSize) {
+			throw new Error('Pass chunkSize');
+		}
+
 		const comp = await validateComposition({
 			serveUrl: params.serveUrl,
 			composition: params.composition,
@@ -86,8 +91,7 @@ export const handler = async (params: LambdaPayload) => {
 			})
 		);
 		bucketTimer.end();
-		// TODO: Not hardcoded frame count
-		const chunkSize = 12;
+		const {chunkSize} = params;
 		const chunkCount = Math.ceil(comp.durationInFrames / chunkSize);
 
 		const chunks = new Array(chunkCount).fill(1).map((_, i) => {
@@ -199,6 +203,7 @@ export const handler = async (params: LambdaPayload) => {
 		);
 		unlinkSync(outputLocation);
 		console.log('Done rendering!', outputDir, params.bucketName);
+		return params.bucketName;
 	} else {
 		throw new Error('Command not found');
 	}
