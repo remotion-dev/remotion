@@ -1,6 +1,5 @@
 import React, {useCallback, useEffect, useState} from 'react';
 import styled from 'styled-components';
-import {ClipboardIcon} from './ClipboardIcon';
 
 export const Container = styled.div`
 	background: linear-gradient(to right, #4290f5, #42e9f5);
@@ -105,14 +104,7 @@ export const UpdateCheck = () => {
 			A new version of Remotion is available! {info.currentVersion} ➡️{' '}
 			<span style={{width: 8, display: 'inline-block'}} />
 			{info.latestVersion}. Run{' '}
-			{info.packageManager === 'npm' ? (
-				<code
-					onClick={() => copyCmd('npm run upgrade')}
-					style={{cursor: 'pointer'}}
-				>
-					npm run upgrade <ClipboardIcon />
-				</code>
-			) : info.packageManager === 'yarn' ? (
+			{info.packageManager === 'yarn' ? (
 				<code
 					onClick={() => copyCmd('yarn upgrade')}
 					style={{cursor: 'pointer'}}
@@ -121,7 +113,7 @@ export const UpdateCheck = () => {
 				</code>
 			) : (
 				<code
-					onClick={() => copyCmd('npm run  upgrade')}
+					onClick={() => copyCmd('npm run upgrade')}
 					style={{cursor: 'pointer'}}
 				>
 					npm run upgrade
