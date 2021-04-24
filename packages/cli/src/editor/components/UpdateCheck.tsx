@@ -1,5 +1,6 @@
 import React, {useCallback, useEffect, useState} from 'react';
 import styled from 'styled-components';
+import {ClipboardIcon} from './ClipboardIcon';
 
 export const Container = styled.div`
 	background: linear-gradient(to right, #4290f5, #42e9f5);
@@ -15,12 +16,24 @@ export const Container = styled.div`
 		text-decoration: underline;
 		cursor: pointer;
 	}
+	code {
+		background-color: rgba(255, 255, 255, 0.3);
+		border-radius: 4px;
+		padding: 3px 8px;
+		&:active {
+			color: black;
+		}
+	}
 `;
+
+type PackageManager = 'npm' | 'yarn' | 'unknown';
 
 type Info = {
 	currentVersion: string;
 	latestVersion: string;
 	updateAvailable: boolean;
+	timedOut: boolean;
+	packageManager: PackageManager;
 };
 
 const makeLocalStorageKey = (version: string) => `update-dismiss-${version}`;
@@ -40,7 +53,7 @@ export const UpdateCheck = () => {
 		fetch('/update')
 			.then((res) => res.json())
 			.then((d) => setInfo(d))
-      .catch((err) => {
+			.catch((err) => {
 				console.log('Could not check for updates', err);
 			});
 	}, []);
@@ -61,14 +74,19 @@ export const UpdateCheck = () => {
 		checkForUpdates();
 	}, [checkForUpdates]);
 
-  const copyCmd = (cmd: string) => {
-    const permissionName = "clipboard-write" as PermissionName;
-    navigator.permissions.query({name: permissionName}).then(result => {
-      if (result.state == "granted" || result.state == "prompt") {
-        navigator.clipboard.writeText(cmd)
-      }
-    });
-  }
+	const copyCmd = (cmd: string) => {
+		const permissionName = 'clipboard-write' as PermissionName;
+		navigator.permissions
+			.query({name: permissionName})
+			.then((result) => {
+				if (result.state == 'granted' || result.state == 'prompt') {
+					navigator.clipboard.writeText(cmd);
+				}
+			})
+			.catch((err) => {
+				console.log('Could not copy command', err);
+			});
+	};
 
 	if (!info) {
 		return null;
@@ -86,7 +104,30 @@ export const UpdateCheck = () => {
 		<Container>
 			A new version of Remotion is available! {info.currentVersion} ➡️{' '}
 			<span style={{width: 8, display: 'inline-block'}} />
-			{info.latestVersion}. Run <code onClick={()=>copyCmd('npm run upgrade')} style={{cursor: 'pointer'}}>npm run upgrade</code> or <code onClick={()=>copyCmd('yarn upgrade')} style={{cursor: 'pointer'}}>yarn upgrade</code> to get it. <br />
+			{info.latestVersion}. Run{' '}
+			{info.packageManager === 'npm' ? (
+				<code
+					onClick={() => copyCmd('npm run upgrade')}
+					style={{cursor: 'pointer'}}
+				>
+					npm run upgrade <ClipboardIcon />
+				</code>
+			) : info.packageManager === 'yarn' ? (
+				<code
+					onClick={() => copyCmd('yarn upgrade')}
+					style={{cursor: 'pointer'}}
+				>
+					yarn upgrade
+				</code>
+			) : (
+				<code
+					onClick={() => copyCmd('npm run  upgrade')}
+					style={{cursor: 'pointer'}}
+				>
+					npm run upgrade
+				</code>
+			)}{' '}
+			to get it. <br />
 			<a
 				href="https://github.com/JonnyBurger/remotion/releases"
 				target="_blank"
