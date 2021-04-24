@@ -11,6 +11,7 @@ export type LambdaPayload =
 			type: 'init';
 			serveUrl: string;
 			composition: string;
+			chunkSize: number;
 	  }
 	| {
 			type: 'renderer';

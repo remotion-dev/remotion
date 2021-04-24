@@ -9,7 +9,7 @@ export const RemotionRoot: React.FC = () => {
 			durationInFrames={1000}
 			component={MyVideo}
 			height={1080}
-			width={1080}
+			width={1920}
 			id="my-video"
 		/>
 	);
