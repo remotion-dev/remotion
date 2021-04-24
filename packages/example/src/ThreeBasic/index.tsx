@@ -1,14 +1,11 @@
-import {ThreeCanvas, ThreeVideo} from '@remotion/three';
+import {ThreeCanvas} from '@remotion/three';
 import React from 'react';
-import {Sequence, useCurrentFrame} from 'remotion';
+import {interpolate, useCurrentFrame} from 'remotion';
 
-const videoSrc =
-	'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4';
-
-const ThreeBasic = (): React.ReactElement => {
+const ThreeBasic: React.FC = () => {
 	const frame = useCurrentFrame();
 	return (
-		<div style={{display: 'flex', width: '100%'}}>
+		<div style={{display: 'flex', width: '100%', backgroundColor: 'white'}}>
 			<ThreeCanvas
 				orthographic={false}
 				camera={{fov: 75, position: [0, 0, 470]}}
@@ -16,20 +13,14 @@ const ThreeBasic = (): React.ReactElement => {
 				<ambientLight intensity={0.15} />
 				<pointLight args={[undefined, 0.4]} position={[200, 200, 0]} />
 
-				{/**
-				 * // TODO: Cannot find parent of sequence
-				 */}
-				<Sequence layout="none" from={-460} durationInFrames={Infinity}>
-					<ThreeVideo ignoreDepth src={videoSrc} />
-				</Sequence>
-
 				<mesh
-					position={[-300, -200, 0]}
+					position={[0, 0, 0]}
 					rotation={[
 						frame * 0.06 * 0.5,
 						frame * 0.07 * 0.5,
 						frame * 0.08 * 0.5,
 					]}
+					scale={interpolate(Math.sin(frame / 10), [-1, 1], [0.8, 1.2])}
 				>
 					<boxGeometry args={[100, 100, 100]} />
 					<meshStandardMaterial
@@ -39,18 +30,6 @@ const ThreeBasic = (): React.ReactElement => {
 							Math.sin(frame * 0.08) * 0.5 + 0.5,
 						]}
 					/>
-				</mesh>
-
-				<mesh
-					position={[300, -200, 0]}
-					rotation={[
-						frame * 0.06 * 0.5,
-						frame * 0.07 * 0.5,
-						frame * 0.08 * 0.5,
-					]}
-				>
-					<cylinderGeometry args={[50, 50, 180, 24]} />
-					<meshStandardMaterial color="red" />
 				</mesh>
 			</ThreeCanvas>
 		</div>

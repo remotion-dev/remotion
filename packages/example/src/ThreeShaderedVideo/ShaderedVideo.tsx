@@ -1,25 +1,8 @@
-import {MaterialNode, MeshProps, useThree} from '@react-three/fiber';
-import {
-	TexturedShaderMaterial,
-	TexturedShaderMaterialParameters,
-	useVideoTexture,
-	UseVideoTextureOptions,
-} from '@remotion/three';
+import {MeshProps, useThree} from '@react-three/fiber';
+import {useVideoTexture, UseVideoTextureOptions} from '@remotion/three';
 import React from 'react';
 import {useCurrentFrame} from 'remotion';
 import {ShaderChunk, ShaderLib} from 'three';
-
-declare global {
-	// eslint-disable-next-line @typescript-eslint/no-namespace
-	namespace JSX {
-		interface IntrinsicElements {
-			texturedShaderMaterial: MaterialNode<
-				TexturedShaderMaterial,
-				[TexturedShaderMaterialParameters]
-			>;
-		}
-	}
-}
 
 const vShaderFullViewport = ShaderLib.basic.vertexShader.replace(
 	'#include <project_vertex>',
