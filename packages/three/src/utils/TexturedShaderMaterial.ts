@@ -1,14 +1,5 @@
-import { extend, MaterialNode } from '@react-three/fiber';
+import { extend } from '@react-three/fiber';
 import { ShaderMaterial, ShaderMaterialParameters, Texture } from 'three';
-
-declare global {
-	interface IntrinsicElements {
-		texturedShaderMaterial: MaterialNode<
-			TexturedShaderMaterial,
-			[TexturedShaderMaterialParameters]
-		>;
-	}
-}
 
 export interface TexturedShaderMaterialParameters
 	extends ShaderMaterialParameters {
