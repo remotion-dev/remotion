@@ -71,7 +71,7 @@ xns(async () => {
 	);
 	console.log('');
 
-	const logInstallCommand = useYarn ? '> yarn' : 'npm install';
+	const logInstallCommand = useYarn ? '> yarn' : '> npm install';
 	const installArgs: [string, string[]] = useYarn
 		? ['yarn', []]
 		: ['npm', ['install']];
