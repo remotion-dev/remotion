@@ -5,6 +5,7 @@ import {
 	S3Client,
 } from '@aws-sdk/client-s3';
 import {
+	getCompositions,
 	openBrowser,
 	renderFrames,
 	stitchFramesToVideo,
@@ -37,9 +38,30 @@ const getBrowserInstance = async () => {
 // Warm up lambda function by starting chrome
 getBrowserInstance();
 
-const chunkCount = 300;
-const chunkSize = 20;
-const totalFrames = chunkCount * chunkSize;
+const validateComposition = async ({
+	serveUrl,
+	composition,
+}: {
+	serveUrl: string;
+	composition: string;
+}) => {
+	const browserInstance = await getBrowserInstance();
+
+	// TODO: Support input props
+	const compositions = await getCompositions({
+		serveUrl,
+		browserInstance,
+	});
+	const found = compositions.find((c) => c.id === composition);
+	if (!found) {
+		throw new Error(
+			`No composition with ID ${composition} found. Available compositions: ${compositions
+				.map((c) => c.id)
+				.join(', ')}`
+		);
+	}
+	return found;
+};
 
 export const handler = async (params: LambdaPayload) => {
 	console.log('CONTEXT', params);
@@ -52,6 +74,11 @@ export const handler = async (params: LambdaPayload) => {
 	if (params.type === 'init') {
 		const bucketName = RENDERS_BUCKET_PREFIX + Math.random();
 		const bucketTimer = timer('Creating bucket');
+
+		const comp = await validateComposition({
+			serveUrl: params.serveUrl,
+			composition: params.composition,
+		});
 		await s3Client.send(
 			new CreateBucketCommand({
 				Bucket: bucketName,
@@ -59,8 +86,15 @@ export const handler = async (params: LambdaPayload) => {
 			})
 		);
 		bucketTimer.end();
+		// TODO: Not hardcoded frame count
+		const chunkSize = 20;
+		const chunkCount = Math.ceil(comp.durationInFrames / chunkSize);
+
 		const chunks = new Array(chunkCount).fill(1).map((_, i) => {
-			return [i * chunkSize, (i + 1) * chunkSize - 1] as [number, number];
+			return [
+				i * chunkSize,
+				Math.min(comp.durationInFrames, (i + 1) * chunkSize) - 1,
+			] as [number, number];
 		});
 		await Promise.all(
 			chunks.map(async (chunk) => {
@@ -70,6 +104,11 @@ export const handler = async (params: LambdaPayload) => {
 					serveUrl: params.serveUrl,
 					chunk: chunks.indexOf(chunk),
 					bucketName,
+					composition: params.composition,
+					fps: comp.fps,
+					height: comp.height,
+					width: comp.width,
+					durationInFrames: comp.durationInFrames,
 				};
 				const callingLambdaTimer = timer('Calling lambda');
 				await lambdaClient.send(
@@ -105,13 +144,14 @@ export const handler = async (params: LambdaPayload) => {
 		}
 
 		const instance = await getBrowserInstance();
+
 		await renderFrames({
-			compositionId: 'my-video',
+			compositionId: params.composition,
 			config: {
-				durationInFrames: totalFrames,
-				fps: 30,
-				height: 1080,
-				width: 1920,
+				durationInFrames: params.durationInFrames,
+				fps: params.fps,
+				height: params.height,
+				width: params.width,
 			},
 			imageFormat: 'jpeg',
 			inputProps: {},
@@ -139,12 +179,9 @@ export const handler = async (params: LambdaPayload) => {
 			},
 			dir: outputDir,
 			force: true,
-			// TODO
-			fps: 30,
-			// TODO
-			height: 1080,
-			//TODO,
-			width: 1920,
+			fps: params.fps,
+			height: params.height,
+			width: params.width,
 			outputLocation,
 			// TODO
 			codec: 'h264',
