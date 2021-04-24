@@ -2,7 +2,7 @@ import { useThree } from '@react-three/fiber';
 import React, { useCallback } from 'react';
 import { continueRender, delayRender, useCurrentFrame, Video } from 'remotion';
 import { VideoTexture } from 'three';
-import { useRemotionThreeDomNode } from './RemotionThreeContext';
+import { useRemotionThreeDomNode } from './ThreeContext';
 
 declare global {
 	interface HTMLVideoElement {

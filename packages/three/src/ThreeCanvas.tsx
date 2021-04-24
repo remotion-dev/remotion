@@ -2,10 +2,7 @@ import { Canvas, render, unmountComponentAtNode } from '@react-three/fiber';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { Internals } from 'remotion';
-import {
-	RemotionThreeContext,
-	RemotionThreeContextType,
-} from './RemotionThreeContext';
+import { RemotionThreeContext, RemotionThreeContextType } from './ThreeContext';
 
 export const ThreeCanvas = ({
 	children,
