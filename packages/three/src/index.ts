@@ -1,6 +1,4 @@
-export * from './effects/SwirlEffect';
-export { default as SwirlEffect } from './effects/SwirlEffect';
-export * from './RemotionThreeCanvas';
+export { SwirlEffect, SwirlEffectOptions } from './effects/SwirlEffect';
 export { RemotionThreeCanvas } from './RemotionThreeCanvas';
 export { useRemotionThreeDomNode } from './RemotionThreeContext';
 export * from './ThreeVideo';
