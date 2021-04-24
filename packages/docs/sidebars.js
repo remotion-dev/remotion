@@ -72,6 +72,11 @@ module.exports = {
         "visualize-audio",
       ],
     },
+    {
+      type: "category",
+      label: "API - @remotion/three",
+      items: ["three-overview", "three-canvas"],
+    },
     "2-0-migration",
     "license",
   ],
