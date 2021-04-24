@@ -1,4 +1,4 @@
-import {RemotionThreeCanvas, ThreeVideo} from '@remotion/three';
+import {ThreeCanvas, ThreeVideo} from '@remotion/three';
 import React from 'react';
 import {Sequence, useCurrentFrame} from 'remotion';
 
@@ -9,7 +9,7 @@ const ThreeBasic = (): React.ReactElement => {
 	const frame = useCurrentFrame();
 	return (
 		<div style={{display: 'flex', width: '100%'}}>
-			<RemotionThreeCanvas
+			<ThreeCanvas
 				orthographic={false}
 				camera={{fov: 75, position: [0, 0, 470]}}
 			>
@@ -51,7 +51,7 @@ const ThreeBasic = (): React.ReactElement => {
 					<cylinderGeometry args={[50, 50, 180, 24]} />
 					<meshStandardMaterial color="red" />
 				</mesh>
-			</RemotionThreeCanvas>
+			</ThreeCanvas>
 		</div>
 	);
 };
