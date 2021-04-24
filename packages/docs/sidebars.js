@@ -75,7 +75,7 @@ module.exports = {
     {
       type: "category",
       label: "API - @remotion/three",
-      items: ["three-overview", "three-canvas"],
+      items: ["three", "three-canvas", "three-video"],
     },
     "2-0-migration",
     "license",
