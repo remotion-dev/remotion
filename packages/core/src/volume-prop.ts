@@ -16,7 +16,7 @@ export const evaluateVolume = ({
 	const evaluated = volume(frame);
 	if (typeof evaluated !== 'number') {
 		throw new TypeError(
-			`You passed in a a function to the volume prop but it did not return a number but a vaue of type ${typeof evaluated} for frame ${frame}`
+			`You passed in a a function to the volume prop but it did not return a number but a value of type ${typeof evaluated} for frame ${frame}`
 		);
 	}
 	if (Number.isNaN(evaluated)) {
