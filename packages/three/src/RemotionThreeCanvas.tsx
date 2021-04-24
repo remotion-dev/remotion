@@ -7,7 +7,7 @@ import {
 	RemotionThreeContextType,
 } from './RemotionThreeContext';
 
-export const RemotionThreeCanvas = ({
+export const ThreeCanvas = ({
 	children,
 	tabIndex,
 	resize,
@@ -162,7 +162,7 @@ function useCreateRemotionThreeContext() {
 //             React.useEffect(() => {
 //                 // Updating threeDomNodes has to happen outside the react-three render loop, so use a timeout
 //                 setTimeout(() => {
-//                     // Only perform update, if the RemotionThreeCanvas is still mounted
+//                     // Only perform update, if the ThreeCanvas is still mounted
 //                     if (isMountedRef.current) {
 //                         const finalNode = (
 //                             <Internals.RemotionContextProvider key={key} contexts={_remotionContexts}>
@@ -177,7 +177,7 @@ function useCreateRemotionThreeContext() {
 
 //             React.useEffect(() => () => {
 //                 setTimeout(() => {
-//                     // Only perform unmount, if the RemotionThreeCanvas is still mounted
+//                     // Only perform unmount, if the ThreeCanvas is still mounted
 //                     if (isMountedRef.current) {
 //                         // Remove from nodes array
 //                         setThreeDomNodes(sn => sn.filter(x => x.key !== key));
