@@ -36,7 +36,7 @@ const getBrowserInstance = async () => {
 };
 
 // Warm up lambda function by starting chrome
-getBrowserInstance();
+const getBrowser = getBrowserInstance();
 
 const validateComposition = async ({
 	serveUrl,
@@ -45,7 +45,7 @@ const validateComposition = async ({
 	serveUrl: string;
 	composition: string;
 }) => {
-	const browserInstance = await getBrowserInstance();
+	const browserInstance = await getBrowser;
 
 	// TODO: Support input props
 	const compositions = await getCompositions({
@@ -96,6 +96,7 @@ export const handler = async (params: LambdaPayload) => {
 				Math.min(comp.durationInFrames, (i + 1) * chunkSize) - 1,
 			] as [number, number];
 		});
+		console.log(chunks);
 		await Promise.all(
 			chunks.map(async (chunk) => {
 				const payload: LambdaPayload = {
@@ -143,7 +144,7 @@ export const handler = async (params: LambdaPayload) => {
 			throw new Error('must pass framerange');
 		}
 
-		const instance = await getBrowserInstance();
+		const instance = await getBrowser();
 
 		await renderFrames({
 			compositionId: params.composition,
