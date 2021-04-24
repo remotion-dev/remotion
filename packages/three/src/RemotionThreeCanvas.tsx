@@ -99,6 +99,9 @@ function useCreateRemotionThreeContext() {
 				document.createElement('div')
 			)[0];
 			React.useEffect(() => {
+				if (!portalRef.current) {
+					return;
+				}
 				(portalRef.current as HTMLDivElement).appendChild(containerNode);
 				return () => {
 					ReactDOM.unmountComponentAtNode(containerNode);
