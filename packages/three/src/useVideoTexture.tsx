@@ -1,5 +1,5 @@
 import { useThree } from '@react-three/fiber';
-import React from 'react';
+import React, { useCallback } from 'react';
 import { continueRender, delayRender, useCurrentFrame, Video } from 'remotion';
 import { VideoTexture } from 'three';
 import { useRemotionThreeDomNode } from './RemotionThreeContext';
@@ -20,23 +20,17 @@ export const useVideoTexture = (videoProps: UseVideoTextureOptions) => {
 		null
 	);
 
-	const videoWrapperRef = React.useCallback(
-		(wrapper: HTMLDivElement | null) => {
-			if (wrapper) {
-				const video = (videoRef.current = wrapper.firstChild as HTMLVideoElement);
-				video.addEventListener('loadeddata', () => {
-					const vt = new VideoTexture(video);
-					video.width = video.videoWidth;
-					video.height = video.videoHeight;
-					vt.needsUpdate = true;
-					setVideoTexture(vt);
-				});
-			} else {
-				videoRef.current = null;
-			}
-		},
-		[]
-	);
+	const onLoadedData = useCallback(() => {
+		const { current } = videoRef;
+		if (!current) {
+			throw new Error('No video ref found');
+		}
+		const vt = new VideoTexture(current);
+		current.width = current.videoWidth;
+		current.height = current.videoHeight;
+		vt.needsUpdate = true;
+		setVideoTexture(vt);
+	}, []);
 
 	const frame = useCurrentFrame();
 	React.useEffect(() => {
@@ -57,17 +51,16 @@ export const useVideoTexture = (videoProps: UseVideoTextureOptions) => {
 			// Allow remotion to continue
 			continueRender(handle);
 		});
-	}, [frame]);
+	}, [frame, render, videoTexture]);
 
 	useRemotionThreeDomNode(
-		// TODO: Remove wrapper once Video supports ref
-		<div ref={videoWrapperRef}>
-			<Video
-				crossOrigin="anonymous"
-				{...videoProps}
-				style={{ width: 800, height: 500 }}
-			/>
-		</div>
+		<Video
+			{...videoProps}
+			ref={videoRef}
+			onLoadedData={onLoadedData}
+			crossOrigin="anonymous"
+			style={{ width: 800, height: 500 }}
+		/>
 	);
 
 	return videoTexture;
