@@ -6,7 +6,8 @@
 		"jsx": "react-jsx",
 		"skipLibCheck": true,
 		"allowSyntheticDefaultImports": true,
-		"typeRoots": ["node_modules", "src/ThreePostProcessing/types"]
+		"types": ["node"],
+		"typeRoots": ["./node_modules/types", "src/ThreePostProcessing/types"]
 	},
 	"include": ["src"],
 	"references": [
