@@ -21,18 +21,21 @@ const lambdaClient = new LambdaClient({region: REGION});
 
 type Await<T> = T extends PromiseLike<infer U> ? U : T;
 
-let browserInstance: Await<ReturnType<typeof openBrowser>> | null;
+let _browserInstance: Await<ReturnType<typeof openBrowser>> | null;
 
 const getBrowserInstance = async () => {
-	if (browserInstance) {
-		return browserInstance;
+	if (_browserInstance) {
+		return _browserInstance;
 	}
 	const execPath = await executablePath();
-	browserInstance = await openBrowser('chrome', {
+	_browserInstance = await openBrowser('chrome', {
 		customExecutable: execPath,
 	});
-	return browserInstance;
+	return _browserInstance;
 };
+
+// Warm up lambda function by starting chrome
+getBrowserInstance();
 
 const chunkCount = 300;
 const chunkSize = 20;
