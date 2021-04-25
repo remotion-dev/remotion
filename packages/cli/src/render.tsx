@@ -28,6 +28,7 @@ import {getUserPassedFileExtension} from './user-passed-output-location';
 import {warnAboutFfmpegVersion} from './warn-about-ffmpeg-version';
 
 export const render = async () => {
+  const startTime = new Date().getTime();
 	const file = parsedCli._[1];
 	const fullPath = path.join(process.cwd(), file);
 
@@ -277,10 +278,12 @@ export const render = async () => {
 			Log.Error('Do you have minimum required Node.js version?');
 			process.exit(1);
 		}
-		Log.Info('\n▶️ Your video is ready - hit play!');
+		Log.Green('\n✅ Well done, Your video is ready!');
 	} else {
-		Log.Info('\n▶️ Your image sequence is ready!');
+		Log.Green('\n✅ Well done, Your image sequence is ready!');
 	}
-	Log.Info(absoluteOutputFile);
+  Log.Info('\n- Total render time :', Math.round((new Date().getTime() - startTime)/1000), 'second(s)');
+  Log.Info('-', outputFile, 'can be found in :');
+  Log.Cyan('  ▶️', absoluteOutputFile, '\n')
 	await closeBrowserPromise;
 };
