@@ -9,6 +9,7 @@ import {
 	renderFrames,
 	stitchFramesToVideo,
 	validateFfmpeg,
+  OnStartData,
 } from '@remotion/renderer';
 import cliProgress from 'cli-progress';
 import fs from 'fs';
@@ -196,11 +197,11 @@ export const render = async () => {
 	);
 	const {assetsInfo, frameCount} = await renderFrames({
 		config,
-		onFrameUpdate: (frame) => renderProgress.update(frame),
+		onFrameUpdate: (frame: number) => renderProgress.update(frame),
 		parallelism,
 		compositionId,
 		outputDir,
-		onStart: ({frameCount: fc}) => {
+		onStart: ({frameCount: fc}: OnStartData) => {
 			process.stdout.write(
 				`📼 (2/${steps}) Rendering frames (${getActualConcurrency(
 					parallelism
@@ -251,10 +252,10 @@ export const render = async () => {
 			crf,
 			assetsInfo,
 			parallelism,
-			onProgress: (frame) => {
+			onProgress: (frame: number) => {
 				stitchingProgress.update(frame);
 			},
-			onDownload: (src) => {
+			onDownload: (src: string) => {
 				Log.Info('\n');
 				Log.Info('Downloading asset... ', src);
 			},

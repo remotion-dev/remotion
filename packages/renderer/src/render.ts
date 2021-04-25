@@ -21,7 +21,7 @@ export type RenderFramesOutput = {
 	assetsInfo: RenderAssetInfo;
 };
 
-type OnStartData = {
+export type OnStartData = {
 	frameCount: number;
 };
 
