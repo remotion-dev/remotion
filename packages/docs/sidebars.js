@@ -59,6 +59,7 @@ module.exports = {
       ],
     },
     "gif",
+    "lambda",
     {
       type: "category",
       label: "API - @remotion/media-utils",
