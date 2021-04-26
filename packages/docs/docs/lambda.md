@@ -16,8 +16,8 @@ create user role with this access `AmazonS3FullAccess` `AmazonElasticFileSystemF
 - go to efs [home](https://eu-central-1.console.aws.amazon.com/efs/home)
 - click on create file system
 - give a name and use default vpc
-- `Availability and Durability` is one zone
-- `Availability Zone` is eu-central-1a
+- `Availability and Durability` is ``one zone`
+- `Availability Zone` is `eu-central-1a`
 
 ### Create access point for efs
 
@@ -60,3 +60,4 @@ FileSystemConfigs: ENABLE_EFS
 - use default VPC and policy `Full Access` and click on `Create Endpoint`
 - Now you should have 2 endpoints one for `s3` and one for `lambda`
 
+Pretty much done, and you should be done with it.
