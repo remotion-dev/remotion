@@ -24,6 +24,7 @@ type Await<T> = T extends PromiseLike<infer U> ? U : T;
 
 let _browserInstance: Await<ReturnType<typeof openBrowser>> | null;
 
+// TODO Potential race condition
 const getBrowserInstance = async () => {
 	if (_browserInstance) {
 		return _browserInstance;
@@ -35,18 +36,15 @@ const getBrowserInstance = async () => {
 	return _browserInstance;
 };
 
-// Warm up lambda function by starting chrome
-const getBrowser = getBrowserInstance();
-
 const validateComposition = async ({
 	serveUrl,
 	composition,
+	browserInstance,
 }: {
 	serveUrl: string;
 	composition: string;
+	browserInstance: Await<ReturnType<typeof openBrowser>>;
 }) => {
-	const browserInstance = await getBrowser;
-
 	// TODO: Support input props
 	const compositions = await getCompositions({
 		serveUrl,
@@ -71,6 +69,8 @@ export const handler = async (params: LambdaPayload) => {
 	}
 	fs.mkdirSync(outputDir);
 
+	const browserInstance = await getBrowserInstance();
+
 	if (params.type === 'init') {
 		const bucketName = RENDERS_BUCKET_PREFIX + Math.random();
 		const bucketTimer = timer('Creating bucket');
@@ -83,6 +83,7 @@ export const handler = async (params: LambdaPayload) => {
 		const comp = await validateComposition({
 			serveUrl: params.serveUrl,
 			composition: params.composition,
+			browserInstance,
 		});
 		await s3Client.send(
 			new CreateBucketCommand({
@@ -148,8 +149,6 @@ export const handler = async (params: LambdaPayload) => {
 			throw new Error('must pass framerange');
 		}
 
-		const instance = await getBrowser;
-
 		await renderFrames({
 			compositionId: params.composition,
 			config: {
@@ -169,7 +168,7 @@ export const handler = async (params: LambdaPayload) => {
 				console.log('Starting');
 			},
 			outputDir,
-			puppeteerInstance: instance,
+			puppeteerInstance: browserInstance,
 			serveUrl: params.serveUrl,
 		});
 		const outdir = `/tmp/${Math.random()}`;
@@ -203,7 +202,6 @@ export const handler = async (params: LambdaPayload) => {
 		);
 		unlinkSync(outputLocation);
 		console.log('Done rendering!', outputDir, params.bucketName);
-		return params.bucketName;
 	} else {
 		throw new Error('Command not found');
 	}
