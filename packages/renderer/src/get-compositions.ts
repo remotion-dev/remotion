@@ -19,21 +19,18 @@ export const getCompositions = async (
 	const {port, close} = await serveStatic(webpackBundle);
 
 	if (config?.inputProps) {
-		await page.goto(`http://localhost:${port}/index.html`);
-		await page.evaluate(
-			(key, input) => {
-				window.localStorage.setItem(key, input);
-			},
-			Internals.INPUT_PROPS_KEY,
-			JSON.stringify(config.inputProps)
-		);
+		browserInstance.on('targetchanged', async (target) => {
+			const targetPage = await target.page();
+			const client = await targetPage.target().createCDPSession();
+			await client.send('Runtime.evaluate', {
+				expression: `window.localStorage.setItem('${
+					Internals.INPUT_PROPS_KEY
+				}', '${JSON.stringify(config.inputProps)}')`,
+			});
+		});
 	}
 
-	await page.goto(
-		`http://localhost:${port}/index.html?evaluation=true&props=${encodeURIComponent(
-			JSON.stringify(config?.inputProps ?? null)
-		)}`
-	);
+	await page.goto(`http://localhost:${port}/index.html?evaluation=true`);
 	await page.waitForFunction('window.ready === true');
 	const result = await page.evaluate('window.getStaticCompositions()');
 

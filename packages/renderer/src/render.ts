@@ -82,15 +82,15 @@ export const renderFrames = async ({
 		page.on('pageerror', console.error);
 
 		if (inputProps) {
-			await page.goto(`http://localhost:${port}/index.html`);
-
-			await page.evaluate(
-				(key, input) => {
-					window.localStorage.setItem(key, input);
-				},
-				Internals.INPUT_PROPS_KEY,
-				JSON.stringify(inputProps)
-			);
+			browserInstance.on('targetchanged', async (target) => {
+				const targetPage = await target.page();
+				const client = await targetPage.target().createCDPSession();
+				await client.send('Runtime.evaluate', {
+					expression: `window.localStorage.setItem('${
+						Internals.INPUT_PROPS_KEY
+					}', '${JSON.stringify(inputProps)}')`,
+				});
+			});
 		}
 		const site = `http://localhost:${port}/index.html?composition=${compositionId}`;
 		await page.goto(site);
