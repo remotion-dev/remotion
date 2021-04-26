@@ -6,7 +6,7 @@ const lambdaClient = new LambdaClient({
 	region: REGION,
 });
 
-const toTest = [12, 10, 15, 20, 100];
+const toTest = [12, 15, 20, 100];
 const runs = [1, 2, 3, 4, 5];
 
 export const benchmark = xns(async () => {
@@ -16,11 +16,11 @@ export const benchmark = xns(async () => {
 			console.time(id);
 			const res = await lambdaClient.send(
 				new InvokeCommand({
-					FunctionName: 'remotion-render-test-13590610360717514',
+					FunctionName: 'remotion-render-test-5455111895707452',
 					// @ts-expect-error
 					Payload: JSON.stringify({
 						serveUrl:
-							'http://remotion-bucket-0.7941138461348309.s3.eu-central-1.amazonaws.com',
+							'http://remotion-bucket-0.0469902062423555.s3.eu-central-1.amazonaws.com',
 						type: 'init',
 						composition: 'my-video',
 						chunkSize,
@@ -28,7 +28,8 @@ export const benchmark = xns(async () => {
 				})
 			);
 			console.timeEnd(id);
-			console.log(res.LogResult);
+			const string = Buffer.from(res.Payload as Uint8Array).toString();
+			console.log(string);
 		}
 	}
 });
