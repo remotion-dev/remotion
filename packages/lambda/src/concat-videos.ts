@@ -42,64 +42,13 @@ const getAllFiles = async ({
 	expectedFiles: number;
 	efsRemotionVideoRenderDone: string;
 }): Promise<string[]> => {
-	// const alreadyDownloading: {[key: string]: true} = {};
-	// const downloaded: {[key: string]: true} = {};
-
-	// const getFiles = async () => {
-	// 	const lsTimer = timer('Listing files');
-	// 	const files = await s3Client.send(
-	// 		new ListObjectsCommand({
-	// 			Bucket: bucket,
-	// 		})
-	// 	);
-	// 	lsTimer.end();
-	// 	return (files.Contents || []).map((_) => _.Key as string);
-	// };
-
 	return new Promise<string[]>((resolve) => {
 		const loop = async () => {
-			// const filesInBucket = await getFiles();
-			// const checkFinish = () => {
-			// 	const areAllFilesDownloaded =
-			// 		Object.keys(downloaded).length === expectedFiles;
-			// 	if (areAllFilesDownloaded) {
-			// 		resolve(filesInBucket.map((file) => join(outdir, file)));
-			// 	}
-			// };
-			// filesInBucket.forEach(async (content) => {
-			// 	if (alreadyDownloading[content]) {
-			// 		return;
-			// 	}
-			// 	alreadyDownloading[content] = true;
-			// 	try {
-			// 		const downloadTimer = timer('Downloading ' + content);
-			// 		await downloadS3File({
-			// 			bucket,
-			// 			content,
-			// 			outdir,
-			// 			s3Client,
-			// 		});
-			// 		downloadTimer.end();
-			// 		downloaded[content] = true;
-			// 		checkFinish();
-			// 	} catch (err) {
-			// 		reject(err);
-			// 	}
-			// });
 			const files = readdirSync(efsRemotionVideoPath);
 			const txtFiles = readdirSync(efsRemotionVideoRenderDone);
 			const areAllFilesDownloading = Boolean(
 				files.length === expectedFiles && txtFiles.length === expectedFiles
 			);
-
-			// console.log(
-			// 	readdirSync(efsRemotionVideoPath),
-			// 	'all files in getAllFiles',
-			// 	expectedFiles,
-			// 	files.length,
-			// 	'expected files',
-			// 	areAllFilesDownloading
-			// );
 
 			if (!areAllFilesDownloading) {
 				setTimeout(() => {
@@ -121,31 +70,11 @@ export const concatVideos = xns(
 		efsRemotionVideoRenderDone,
 		expectedFiles = 20
 	) => {
-		// const outdir = join(tmpDir('remotion-concat'), 'bucket');
-		// console.log('outpur dir ', outdir);
-		// if (existsSync(outdir)) {
-		// 	rmdirSync(outdir, {
-		// 		recursive: true,
-		// 	});
-		// }
-		// mkdirSync(outdir);
-
 		const files = await getAllFiles({
 			efsRemotionVideoPath,
 			expectedFiles,
 			efsRemotionVideoRenderDone,
 		});
-
-		// while (expectedFiles !== readdirSync(efsRemotionVideoPath).length) {
-		// 	console.log(
-		// 		'files in concat',
-		// 		readdirSync(efsRemotionVideoPath),
-		// 		readdirSync(efsRemotionVideoPath).length
-		// 	);
-		// 	await awaitTimer(100);
-		// }
-		// const files = readdirSync(efsRemotionVideoPath);
-		// console.log(files, 'all files in remotion-video');
 
 		const outfile = join(tmpDir('remotion-concated'), 'concat.mp4');
 		const combine = timer('Combine videos');

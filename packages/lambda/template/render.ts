@@ -226,14 +226,6 @@ export const handler = async (params: LambdaPayload) => {
 			// TODO
 			imageFormat: 'jpeg',
 		});
-		// await s3Client.send(
-		// 	new PutObjectCommand({
-		// 		Bucket: params.bucketName,
-		// 		Key: `chunk-${String(params.chunk).padStart(8, '0')}.mp4`,
-		// 		Body: fs.createReadStream(outputLocation),
-		// 	})
-		// );
-		// unlinkSync(outputLocation);
 		writeFileSync(outputFileLocation, 'true');
 		console.log('Done rendering!', outputDir, outputLocation);
 		console.log(
