@@ -6,10 +6,10 @@ id: get-compositions
 Gets the compositions defined in a Remotion project based on a webpack bundle. Spins up a browser with Puppeteer and evaluates the Remotion root.
 
 ```ts
-const getCompositions: (bundle: string, {
+const getCompositions: (bundle: string, options: {
   inputProps?: object | null;
   browserInstance?: puppeteer.Browser;
-}) => void
+}) => Promise<TComposition[]>
 ```
 
 ## Arguments
@@ -30,8 +30,30 @@ Define custom props that can be retrieved using [`getInputProps()`](/docs/get-in
 
 #### `browserInstance`
 
-An already open Puppeteer [`Browser`](https://pptr.dev/#?product=Puppeteer&version=main&show=api-class-browser) instance. Reusing a browser across multiple function calls can speed up the rendering process. You are responsible for opening and closing the browser yourself.
+An already open Puppeteer [`Browser`](https://pptr.dev/#?product=Puppeteer&version=main&show=api-class-browser) instance. Reusing a browser across multiple function calls can speed up the rendering process. You are responsible for opening and closing the browser yourself. If you don't specify this option, a new browser will be opened and closed at the end.
+
+## Return value
+
+Returns a promise that resolves to an array of available compositions. Example value:
+
+```json
+[
+  {
+    "id": "HelloWorld",
+    "width": 1920,
+    "height": 1080,
+    "fps": 30
+  },
+  {
+    "id": "Title",
+    "width": 1080,
+    "height": 1080,
+    "fps": 30
+  }
+]
+```
 
 ## See also
 
 - [Server-Side rendering](/docs/ssr)
+- [renderFrames()](/docs/render-frames)

@@ -42,18 +42,17 @@ export const renderFrames = async ({
 	puppeteerInstance,
 }: {
 	config: VideoConfig;
-	parallelism?: number | null;
-	onFrameUpdate: (f: number) => void;
-	onStart: (data: OnStartData) => void;
 	compositionId: string;
+	onStart: (data: OnStartData) => void;
+	onFrameUpdate: (f: number) => void;
 	outputDir: string;
 	inputProps: unknown;
 	webpackBundle: string;
 	imageFormat: ImageFormat;
+	parallelism?: number | null;
 	quality?: number;
 	browser?: Browser;
 	frameRange?: FrameRange | null;
-	assetsOnly?: boolean;
 	dumpBrowserLogs?: boolean;
 	puppeteerInstance?: PuppeteerBrowser;
 }): Promise<RenderFramesOutput> => {
