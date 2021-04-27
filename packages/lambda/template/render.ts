@@ -177,7 +177,7 @@ export const handler = async (params: LambdaPayload) => {
 			puppeteerInstance: browserInstance,
 			serveUrl: params.serveUrl,
 		});
-		const outdir = `tmp/${Math.random()}`;
+		const outdir = `/tmp/${Math.random()}`;
 		fs.mkdirSync(outdir);
 
 		const outputLocation = path.join(outdir, 'out.mp4');

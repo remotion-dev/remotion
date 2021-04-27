@@ -5,7 +5,7 @@ export const MyVideo: React.FC = () => {
 	const frame = useCurrentFrame();
 	return (
 		<div>
-			{new Array(30)
+			{new Array(100)
 				.fill(1)
 				.map((_, k) => k)
 				.map((k) => {

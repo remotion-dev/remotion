@@ -97,7 +97,7 @@ xns(async () => {
 			Runtime: 'nodejs12.x',
 			Description: 'Renders a Remotion video.',
 			MemorySize: 1769 * 2,
-			Timeout: 60,
+			Timeout: 300,
 			Layers: [layerArn],
 			VpcConfig: ENABLE_EFS
 				? {
