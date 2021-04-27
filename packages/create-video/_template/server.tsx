@@ -36,7 +36,7 @@ app.get('/', async (req, res) => {
 			return;
 		}
 		const bundled = await bundle(path.join(__dirname, './src/index.tsx'));
-		const comps = await getCompositions(bundled);
+		const comps = await getCompositions(bundled, {inputProps: req.query});
 		const video = comps.find((c) => c.id === compositionId);
 		if (!video) {
 			throw new Error(`No video called ${compositionId}`);
