@@ -10,10 +10,15 @@ import {
 	renderFrames,
 	stitchFramesToVideo,
 } from '@remotion/renderer';
-import fs, {unlinkSync} from 'fs';
+import fs, {readdirSync, writeFileSync} from 'fs';
 import path from 'path';
 import {concatVideos} from '../src/concat-videos';
-import {LambdaPayload, REGION, RENDERS_BUCKET_PREFIX} from '../src/constants';
+import {
+	EFS_MOUNT_PATH,
+	LambdaPayload,
+	REGION,
+	RENDERS_BUCKET_PREFIX,
+} from '../src/constants';
 import {timer} from '../src/timer';
 import {executablePath} from './get-chromium-executable-path';
 
@@ -64,6 +69,7 @@ const validateComposition = async ({
 export const handler = async (params: LambdaPayload) => {
 	console.log('CONTEXT', params);
 	const outputDir = '/tmp/' + 'remotion-render-' + Math.random();
+	const efsRemotionVideoRenderDone = EFS_MOUNT_PATH + '/render-done';
 	if (fs.existsSync(outputDir)) {
 		fs.rmdirSync(outputDir);
 	}
@@ -73,7 +79,16 @@ export const handler = async (params: LambdaPayload) => {
 
 	if (params.type === 'init') {
 		const bucketName = RENDERS_BUCKET_PREFIX + Math.random();
-		const bucketTimer = timer('Creating bucket');
+		const efsRemotionVideoPath = EFS_MOUNT_PATH + '/remotion-video';
+		if (fs.existsSync(efsRemotionVideoPath)) {
+			fs.rmdirSync(efsRemotionVideoPath, {recursive: true});
+		}
+		fs.mkdirSync(efsRemotionVideoPath);
+		if (fs.existsSync(efsRemotionVideoRenderDone)) {
+			fs.rmdirSync(efsRemotionVideoRenderDone, {recursive: true});
+		}
+		fs.mkdirSync(efsRemotionVideoRenderDone);
+		// const bucketTimer = timer('Creating bucket');
 
 		// TODO: Better validation
 		if (!params.chunkSize) {
@@ -87,7 +102,7 @@ export const handler = async (params: LambdaPayload) => {
 			browserInstance,
 		});
 		console.log(comp);
-
+		const bucketTimer = timer('creating bucket');
 		await s3Client.send(
 			new CreateBucketCommand({
 				Bucket: bucketName,
@@ -112,7 +127,7 @@ export const handler = async (params: LambdaPayload) => {
 					frameRange: chunk,
 					serveUrl: params.serveUrl,
 					chunk: chunks.indexOf(chunk),
-					bucketName,
+					efsRemotionVideoPath,
 					composition: params.composition,
 					fps: comp.fps,
 					height: comp.height,
@@ -132,7 +147,11 @@ export const handler = async (params: LambdaPayload) => {
 				callingLambdaTimer.end();
 			})
 		);
-		const out = await concatVideos(s3Client, bucketName, chunkCount);
+		const out = await concatVideos(
+			efsRemotionVideoPath,
+			efsRemotionVideoRenderDone,
+			chunkCount
+		);
 		const outName = 'out.mp4';
 		await s3Client.send(
 			new PutObjectCommand({
@@ -180,7 +199,14 @@ export const handler = async (params: LambdaPayload) => {
 		const outdir = `/tmp/${Math.random()}`;
 		fs.mkdirSync(outdir);
 
-		const outputLocation = path.join(outdir, 'out.mp4');
+		const outputLocation = path.join(
+			params.efsRemotionVideoPath,
+			`chunk-${String(params.chunk).padStart(8, '0')}.mp4`
+		);
+		const outputFileLocation = path.join(
+			efsRemotionVideoRenderDone,
+			`chunk-${String(params.chunk).padStart(8, '0')}.txt`
+		);
 		console.log(outputLocation);
 
 		await stitchFramesToVideo({
@@ -200,15 +226,20 @@ export const handler = async (params: LambdaPayload) => {
 			// TODO
 			imageFormat: 'jpeg',
 		});
-		await s3Client.send(
-			new PutObjectCommand({
-				Bucket: params.bucketName,
-				Key: `chunk-${String(params.chunk).padStart(8, '0')}.mp4`,
-				Body: fs.createReadStream(outputLocation),
-			})
+		// await s3Client.send(
+		// 	new PutObjectCommand({
+		// 		Bucket: params.bucketName,
+		// 		Key: `chunk-${String(params.chunk).padStart(8, '0')}.mp4`,
+		// 		Body: fs.createReadStream(outputLocation),
+		// 	})
+		// );
+		// unlinkSync(outputLocation);
+		writeFileSync(outputFileLocation, 'true');
+		console.log('Done rendering!', outputDir, outputLocation);
+		console.log(
+			'all in render 226 files',
+			readdirSync(params.efsRemotionVideoPath)
 		);
-		unlinkSync(outputLocation);
-		console.log('Done rendering!', outputDir, params.bucketName);
 	} else {
 		throw new Error('Command not found');
 	}
