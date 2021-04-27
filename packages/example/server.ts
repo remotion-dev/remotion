@@ -15,10 +15,11 @@ import express from 'express';
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
+import {webpackOverride} from './remotion.config';
 
 const app = express();
 const port = process.env.PORT || 8000;
-const compositionId = 'HelloWorld';
+const compositionId = 'dynamic-duration';
 
 const cache = new Map<string, string>();
 
@@ -35,8 +36,20 @@ app.get('/', async (req, res) => {
 			sendFile(cache.get(JSON.stringify(req.query)) as string);
 			return;
 		}
-		const bundled = await bundle(path.join(__dirname, './src/index.tsx'));
-		const comps = await getCompositions(bundled, {inputProps: req.query});
+		const bundled = await bundle(
+			path.join(__dirname, './src/index.tsx'),
+			(progress) => {
+				console.log('bundle progress', progress);
+			},
+			{
+				webpackOverride,
+			}
+		);
+		const comps = await getCompositions(bundled, {
+			inputProps: {
+				duration: 10,
+			},
+		});
 		const video = comps.find((c) => c.id === compositionId);
 		if (!video) {
 			throw new Error(`No video called ${compositionId}`);
@@ -57,7 +70,9 @@ app.get('/', async (req, res) => {
 			},
 			parallelism: null,
 			outputDir: tmpDir,
-			inputProps: req.query,
+			inputProps: {
+				duration: 100,
+			},
 			compositionId,
 			imageFormat: 'jpeg',
 		});
