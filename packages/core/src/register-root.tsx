@@ -28,6 +28,12 @@ export const removeStaticComposition = (id: string) => {
 	});
 };
 
+// Is a plain index.html file with neither ?evalution nor ?composition URL.
+// Useful for just setting localStorage values.
+export const isPlainIndex = () => {
+	return !getIsEvaluation() && getCompositionName() === null;
+};
+
 export const getCompositionName = () => {
 	const param = new URLSearchParams(window.location.search).get('composition');
 	if (param !== null) {
