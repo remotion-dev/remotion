@@ -81,13 +81,13 @@ A `string` which must be either `png`, `jpeg` or `none`.
 - Choose `png` if you want your image sequence to have an alpha channel (for transparency).
 - Choose `none` if you only want to render audio.
 
-### `parallelism`
+### `parallelism?`
 
 _optional_
 
 A `number` specifying how many frames should be rendered in parallel or `null` to let Remotion decide based on the CPU of the host machine. Default is half of the CPU threads available.
 
-### `quality`
+### `quality?`
 
 _optional_
 
@@ -95,19 +95,19 @@ Sets the quality of the generated JPEG images. Must be an integer between 0 and 
 
 Only applies if `imageFormat` is `'jpeg'`, otherwise this option is invalid.
 
-### `frameRange`
+### `frameRange?`
 
 _optional_
 
 Specify a single frame (passing a `number`) or a range of frames (passsing a tuple `[number, number]`) to be rendered. By passing `null` (default) all frames of a composition get rendered.
 
-### `dumpBrowserLogs`
+### `dumpBrowserLogs?`
 
 _optional_
 
 Passes the `dumpio` flag to Puppeteer which will log all browser logs to the console. Useful for debugging. `boolean` flag, default is `false`.
 
-### `puppeteerInstance`
+### `puppeteerInstance?`
 
 _optional_
 
@@ -124,3 +124,4 @@ A promise resolving to an object containing the following properties:
 
 - [Server-Side rendering](/docs/ssr)
 - [getCompositions()](/docs/get-compositions)
+- [stitchFramesToVideo()](/docs/stitch-frames-to-video)

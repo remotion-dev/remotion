@@ -56,13 +56,15 @@ export const stitchFramesToVideo = async (options: {
 	height: number;
 	outputLocation: string;
 	force: boolean;
+	assetsInfo: RenderAssetInfo;
+	// TODO: Let's make this parameter mandatory in the next major release
 	imageFormat?: ImageFormat;
 	pixelFormat?: PixelFormat;
 	codec?: Codec;
 	crf?: number;
-	assetsInfo: RenderAssetInfo;
+	// TODO: Do we want a parallelism flag for stitcher?
 	parallelism?: number | null;
-	onProgress?: (num: number) => void;
+	onProgress?: (progress: number) => void;
 	onDownload?: (src: string) => void;
 	verbose?: boolean;
 }): Promise<void> => {

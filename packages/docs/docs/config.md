@@ -5,6 +5,8 @@ title: Configuration file
 
 To configure Remotion, create a `remotion.config.ts` file in the root of your Remotion project.
 
+These options will apply to CLI commands such as `npm start` and `npm run build`, but have no effect in the Node.JS API.
+
 You can control several behaviors of Remotion here.
 
 ```tsx
@@ -96,7 +98,11 @@ Try to set your concurrency to `os.cpus().length` to all the threads available o
 
 _Available from Version 1.4._
 
-Determines which in which image format to render the frames. Either `jpeg` _(default since v1.1)_ or `png`. PNG is considerably slower, but supports transparency.
+Determines which in which image format to render the frames. Either:
+
+- `jpeg` - the fastest option (default from v1.1)
+- `png` - slower, but supports transparency
+- `none` - don't render images, just calculate audio information (available from v2.0)
 
 ```tsx
 Config.Rendering.setImageFormat('png')
