@@ -29,11 +29,7 @@ export const getCompositions = async (
 		);
 	}
 
-	await page.goto(
-		`http://localhost:${port}/index.html?evaluation=true&props=${encodeURIComponent(
-			JSON.stringify(config?.inputProps ?? null)
-		)}`
-	);
+	await page.goto(`http://localhost:${port}/index.html?evaluation=true`);
 	await page.waitForFunction('window.ready === true');
 	const result = await page.evaluate('window.getStaticCompositions()');
 
