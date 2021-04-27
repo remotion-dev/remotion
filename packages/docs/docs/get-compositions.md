@@ -3,6 +3,8 @@ title: getCompositions()
 id: get-compositions
 ---
 
+_Part of the `@remotion/renderer` package._
+
 Gets the compositions defined in a Remotion project based on a webpack bundle. Spins up a browser with Puppeteer and evaluates the Remotion root.
 
 ```ts
@@ -60,5 +62,6 @@ Returns a promise that resolves to an array of available compositions. Example v
 ## See also
 
 - [Server-Side rendering](/docs/ssr)
+- [bundle()](/docs/bundle)
 - [renderFrames()](/docs/render-frames)
 - [stitchFramesToVideo()](/docs/stitch-frames-to-video)

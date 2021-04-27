@@ -3,6 +3,8 @@ id: render-frames
 title: renderFrames()
 ---
 
+_Part of the `@remotion/renderer` package._
+
 Renders a series of images using Puppeteer and computes information for mixing audio.
 
 ```ts
@@ -122,6 +124,7 @@ A promise resolving to an object containing the following properties:
 
 ## See also
 
+- [bundle()](/docs/bundle)
 - [Server-Side rendering](/docs/ssr)
 - [getCompositions()](/docs/get-compositions)
 - [stitchFramesToVideo()](/docs/stitch-frames-to-video)
