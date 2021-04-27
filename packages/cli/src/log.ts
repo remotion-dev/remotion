@@ -24,10 +24,4 @@ export const Log = {
 			return console.error(chalk.red(...args));
 		}
 	},
-  Green: (...args: Parameters<typeof console.log>) => {
-    return console.log(chalk.green(...args));
-  },
-  Cyan: (...args: Parameters<typeof console.log>) => {
-    return console.log(chalk.cyan(...args));
-  },
 };
