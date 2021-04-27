@@ -2,7 +2,7 @@ import {Composition} from 'remotion';
 import {HelloWorld} from './HelloWorld';
 import {Logo} from './HelloWorld/Logo';
 import {Subtitle} from './HelloWorld/Subtitle';
-import { Title } from './HelloWorld/Title';
+import {Title} from './HelloWorld/Title';
 
 export const RemotionVideo: React.FC = () => {
 	return (
