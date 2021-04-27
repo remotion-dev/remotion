@@ -1,6 +1,6 @@
 import {Browser as PuppeteerBrowser} from 'puppeteer-core';
 import {Browser, Internals, TCompMetadata} from 'remotion';
-import {openBrowser} from '.';
+import {openBrowser} from './open-browser';
 import {serveStatic} from './serve-static';
 
 export const getCompositions = async (
