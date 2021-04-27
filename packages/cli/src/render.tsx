@@ -5,12 +5,13 @@ import {
 	getActualConcurrency,
 	getCompositions,
 	getFfmpegVersion,
+	OnStartData,
 	openBrowser,
 	renderFrames,
 	stitchFramesToVideo,
 	validateFfmpeg,
-  OnStartData,
 } from '@remotion/renderer';
+import chalk from 'chalk';
 import cliProgress from 'cli-progress';
 import fs from 'fs';
 import os from 'os';
@@ -29,7 +30,7 @@ import {getUserPassedFileExtension} from './user-passed-output-location';
 import {warnAboutFfmpegVersion} from './warn-about-ffmpeg-version';
 
 export const render = async () => {
-  const startTime = new Date().getTime();
+	const startTime = Date.now();
 	const file = parsedCli._[1];
 	const fullPath = path.join(process.cwd(), file);
 
@@ -279,12 +280,18 @@ export const render = async () => {
 			Log.Error('Do you have minimum required Node.js version?');
 			process.exit(1);
 		}
-		Log.Green('\n✅ Well done, Your video is ready!');
+		Log.Info(chalk.green('\n✅ Your video is ready!'));
 	} else {
-		Log.Green('\n✅ Well done, Your image sequence is ready!');
+		Log.Info(chalk.green('\n✅ Your image sequence is ready!'));
 	}
-  Log.Info('\n- Total render time :', Math.round((new Date().getTime() - startTime)/1000), 'second(s)');
-  Log.Info('-', outputFile, 'can be found in :');
-  Log.Cyan('  ▶️', absoluteOutputFile, '\n')
+	Log.Info(
+		[
+			'\n- Total render time:',
+			Math.round((Date.now() - startTime) / 1000),
+			'second(s)',
+		].join(' ')
+	);
+	Log.Info('-', outputFile, 'can be found in:');
+	Log.Info(chalk.cyan(`  ▶️ ${absoluteOutputFile}`));
 	await closeBrowserPromise;
 };
