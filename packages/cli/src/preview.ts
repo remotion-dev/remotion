@@ -1,6 +1,6 @@
-import {startServer} from '@remotion/bundler';
 // eslint-disable-next-line @typescript-eslint/prefer-ts-expect-error
 // @ts-ignore
+import {BundlerInternals} from '@remotion/bundler';
 import betterOpn from 'better-opn';
 import path from 'path';
 import xns from 'xns';
@@ -17,7 +17,7 @@ export const previewCommand = xns(async () => {
 
 	const inputProps = getInputProps();
 
-	const port = await startServer(
+	const port = await BundlerInternals.startServer(
 		path.resolve(__dirname, 'previewEntry.js'),
 		fullPath,
 		{

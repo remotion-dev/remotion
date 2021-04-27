@@ -1,4 +1,4 @@
-import {bundle, cacheExists, clearCache} from '@remotion/bundler';
+import {bundle, BundlerInternals} from '@remotion/bundler';
 import {
 	getCompositions,
 	renderFrames,
@@ -148,10 +148,10 @@ export const render = async () => {
 	);
 
 	const shouldCache = Internals.getWebpackCaching();
-	const cacheExistedBefore = cacheExists('production', null);
+	const cacheExistedBefore = BundlerInternals.cacheExists('production', null);
 	if (cacheExistedBefore && !shouldCache) {
 		process.stdout.write('🧹 Cache disabled but found. Deleting... ');
-		await clearCache('production', null);
+		await BundlerInternals.clearCache('production', null);
 		process.stdout.write('done. \n');
 	}
 	bundlingProgress.start(100, 0);
@@ -166,7 +166,7 @@ export const render = async () => {
 	);
 	bundlingProgress.stop();
 	Log.Verbose('Bundled under', bundled);
-	const cacheExistedAfter = cacheExists('production', null);
+	const cacheExistedAfter = BundlerInternals.cacheExists('production', null);
 	if (cacheExistedAfter && !cacheExistedBefore) {
 		Log.Info('⚡️ Cached bundle. Subsequent builds will be faster.');
 	}
