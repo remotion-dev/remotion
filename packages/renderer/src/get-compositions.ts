@@ -17,6 +17,8 @@ export const getCompositions = async (
 	const page = await browserInstance.newPage();
 
 	const {port, close} = await serveStatic(webpackBundle);
+	page.on('error', console.error);
+	page.on('pageerror', console.error);
 
 	if (config?.inputProps) {
 		await page.goto(`http://localhost:${port}/index.html`);
