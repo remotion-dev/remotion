@@ -1,4 +1,5 @@
 import {AbsoluteFill, Sequence, useCurrentFrame, Video} from 'remotion';
+import video from './video.webm';
 
 export const MyVideo: React.FC = () => {
 	const frame = useCurrentFrame();
@@ -14,7 +15,7 @@ export const MyVideo: React.FC = () => {
 								style={{
 									transform: `scale(${(Math.sin(frame / 30) + 1) / 2})`,
 								}}
-								src="https://test-videos.co.uk/vids/bigbuckbunny/webm/vp8/1080/Big_Buck_Bunny_1080_10s_2MB.webm"
+								src={video}
 							/>
 						</Sequence>
 					);

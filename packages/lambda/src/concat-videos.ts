@@ -114,6 +114,7 @@ export const concatVideos = xns(
 		expectedFiles = 20
 	) => {
 		const outdir = join(tmpDir('remotion-concat'), 'bucket');
+		console.log('outpur dir ', outdir);
 		if (existsSync(outdir)) {
 			rmdirSync(outdir, {
 				recursive: true,
@@ -126,6 +127,7 @@ export const concatVideos = xns(
 		const outfile = join(tmpDir('remotion-concated'), 'concat.mp4');
 		const combine = timer('Combine videos');
 		const filelistDir = tmpDir('remotion-filelist');
+		console.log('all path name', outfile, combine, filelistDir);
 		await combineVideos({
 			files,
 			filelistDir,
