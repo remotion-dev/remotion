@@ -33,12 +33,12 @@ module.exports = {
         "legacy-babel",
       ],
     },
+    "cli",
+    "config",
     {
       type: "category",
       label: "API - Core",
       items: [
-        "cli",
-        "config",
         "continue-render",
         "delay-render",
         "interpolate",
@@ -75,7 +75,7 @@ module.exports = {
     {
       type: "category",
       label: "API - @remotion/renderer",
-      items: ["get-compositions", "render-frames"],
+      items: ["get-compositions", "render-frames", "stitch-frames-to-video"],
     },
     "2-0-migration",
     "license",
