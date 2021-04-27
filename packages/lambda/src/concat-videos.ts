@@ -1,14 +1,9 @@
-import {
-	GetObjectCommand,
-	ListObjectsCommand,
-	S3Client,
-} from '@aws-sdk/client-s3';
+import {GetObjectCommand, S3Client} from '@aws-sdk/client-s3';
 import {combineVideos} from '@remotion/renderer';
-import {createWriteStream, existsSync, mkdirSync, rmdirSync} from 'fs';
+import {createWriteStream, readdirSync, rmdirSync} from 'fs';
 import {join} from 'path';
 import {Readable} from 'stream';
 import xns from 'xns';
-import {REGION} from './constants';
 import {timer} from './timer';
 import {tmpDir} from './tmpdir';
 
@@ -39,67 +34,80 @@ const downloadS3File = async ({
 };
 
 const getAllFiles = async ({
-	s3Client,
-	bucket,
+	efsRemotionVideoPath,
 	expectedFiles,
-	outdir,
+	efsRemotionVideoRenderDone,
 }: {
-	s3Client: S3Client;
-	bucket: string;
+	efsRemotionVideoPath: string;
 	expectedFiles: number;
-	outdir: string;
+	efsRemotionVideoRenderDone: string;
 }): Promise<string[]> => {
-	const alreadyDownloading: {[key: string]: true} = {};
-	const downloaded: {[key: string]: true} = {};
+	// const alreadyDownloading: {[key: string]: true} = {};
+	// const downloaded: {[key: string]: true} = {};
 
-	const getFiles = async () => {
-		const lsTimer = timer('Listing files');
-		const files = await s3Client.send(
-			new ListObjectsCommand({
-				Bucket: bucket,
-			})
-		);
-		lsTimer.end();
-		return (files.Contents || []).map((_) => _.Key as string);
-	};
+	// const getFiles = async () => {
+	// 	const lsTimer = timer('Listing files');
+	// 	const files = await s3Client.send(
+	// 		new ListObjectsCommand({
+	// 			Bucket: bucket,
+	// 		})
+	// 	);
+	// 	lsTimer.end();
+	// 	return (files.Contents || []).map((_) => _.Key as string);
+	// };
 
-	return new Promise<string[]>((resolve, reject) => {
+	return new Promise<string[]>((resolve) => {
 		const loop = async () => {
-			const filesInBucket = await getFiles();
-			const checkFinish = () => {
-				const areAllFilesDownloaded =
-					Object.keys(downloaded).length === expectedFiles;
-				if (areAllFilesDownloaded) {
-					resolve(filesInBucket.map((file) => join(outdir, file)));
-				}
-			};
-			filesInBucket.forEach(async (content) => {
-				if (alreadyDownloading[content]) {
-					return;
-				}
-				alreadyDownloading[content] = true;
-				try {
-					const downloadTimer = timer('Downloading ' + content);
-					await downloadS3File({
-						bucket,
-						content,
-						outdir,
-						s3Client,
-					});
-					downloadTimer.end();
-					downloaded[content] = true;
-					checkFinish();
-				} catch (err) {
-					reject(err);
-				}
-			});
+			// const filesInBucket = await getFiles();
+			// const checkFinish = () => {
+			// 	const areAllFilesDownloaded =
+			// 		Object.keys(downloaded).length === expectedFiles;
+			// 	if (areAllFilesDownloaded) {
+			// 		resolve(filesInBucket.map((file) => join(outdir, file)));
+			// 	}
+			// };
+			// filesInBucket.forEach(async (content) => {
+			// 	if (alreadyDownloading[content]) {
+			// 		return;
+			// 	}
+			// 	alreadyDownloading[content] = true;
+			// 	try {
+			// 		const downloadTimer = timer('Downloading ' + content);
+			// 		await downloadS3File({
+			// 			bucket,
+			// 			content,
+			// 			outdir,
+			// 			s3Client,
+			// 		});
+			// 		downloadTimer.end();
+			// 		downloaded[content] = true;
+			// 		checkFinish();
+			// 	} catch (err) {
+			// 		reject(err);
+			// 	}
+			// });
+			const files = readdirSync(efsRemotionVideoPath);
+			const txtFiles = readdirSync(efsRemotionVideoRenderDone);
+			const areAllFilesDownloading = Boolean(
+				files.length === expectedFiles && txtFiles.length === expectedFiles
+			);
 
-			const areAllFilesDownloading =
-				Object.keys(alreadyDownloading).length === expectedFiles;
+			// console.log(
+			// 	readdirSync(efsRemotionVideoPath),
+			// 	'all files in getAllFiles',
+			// 	expectedFiles,
+			// 	files.length,
+			// 	'expected files',
+			// 	areAllFilesDownloading
+			// );
+
 			if (!areAllFilesDownloading) {
 				setTimeout(() => {
 					loop();
 				}, 100);
+			}
+			if (areAllFilesDownloading) {
+				resolve(files.map((file) => join(efsRemotionVideoPath, file)));
 			}
 		};
 
@@ -109,25 +117,40 @@ const getAllFiles = async ({
 
 export const concatVideos = xns(
 	async (
-		s3Client: S3Client = new S3Client({region: REGION}),
-		bucket = 'remotion-renders-0.7182592846197402',
+		efsRemotionVideoPath,
+		efsRemotionVideoRenderDone,
 		expectedFiles = 20
 	) => {
-		const outdir = join(tmpDir('remotion-concat'), 'bucket');
-		console.log('outpur dir ', outdir);
-		if (existsSync(outdir)) {
-			rmdirSync(outdir, {
-				recursive: true,
-			});
-		}
-		mkdirSync(outdir);
+		// const outdir = join(tmpDir('remotion-concat'), 'bucket');
+		// console.log('outpur dir ', outdir);
+		// if (existsSync(outdir)) {
+		// 	rmdirSync(outdir, {
+		// 		recursive: true,
+		// 	});
+		// }
+		// mkdirSync(outdir);
 
-		const files = await getAllFiles({s3Client, bucket, expectedFiles, outdir});
+		const files = await getAllFiles({
+			efsRemotionVideoPath,
+			expectedFiles,
+			efsRemotionVideoRenderDone,
+		});
+
+		// while (expectedFiles !== readdirSync(efsRemotionVideoPath).length) {
+		// 	console.log(
+		// 		'files in concat',
+		// 		readdirSync(efsRemotionVideoPath),
+		// 		readdirSync(efsRemotionVideoPath).length
+		// 	);
+		// 	await awaitTimer(100);
+		// }
+		// const files = readdirSync(efsRemotionVideoPath);
+		// console.log(files, 'all files in remotion-video');
 
 		const outfile = join(tmpDir('remotion-concated'), 'concat.mp4');
 		const combine = timer('Combine videos');
 		const filelistDir = tmpDir('remotion-filelist');
-		console.log('all path name', outfile, combine, filelistDir);
+		console.log('all path name', outfile, combine, efsRemotionVideoPath);
 		await combineVideos({
 			files,
 			filelistDir,
@@ -135,7 +158,7 @@ export const concatVideos = xns(
 		});
 		combine.end();
 
-		rmdirSync(outdir, {
+		rmdirSync(efsRemotionVideoPath, {
 			recursive: true,
 		});
 		return outfile;
