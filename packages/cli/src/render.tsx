@@ -1,14 +1,9 @@
 import {bundle, cacheExists, clearCache} from '@remotion/bundler';
 import {
-	ensureLocalBrowser,
-	ffmpegHasFeature,
-	getActualConcurrency,
 	getCompositions,
-	getFfmpegVersion,
-	openBrowser,
 	renderFrames,
+	RenderInternals,
 	stitchFramesToVideo,
-	validateFfmpeg,
 } from '@remotion/renderer';
 import cliProgress from 'cli-progress';
 import fs from 'fs';
@@ -56,13 +51,16 @@ export const render = async () => {
 		emitWarning: true,
 	});
 
-	const ffmpegVersion = await getFfmpegVersion();
+	const ffmpegVersion = await RenderInternals.getFfmpegVersion();
 	Log.Verbose(
 		'Your FFMPEG version:',
 		ffmpegVersion ? ffmpegVersion.join('.') : 'Built from source'
 	);
 	warnAboutFfmpegVersion(ffmpegVersion);
-	if (codec === 'vp8' && !(await ffmpegHasFeature('enable-libvpx'))) {
+	if (
+		codec === 'vp8' &&
+		!(await RenderInternals.ffmpegHasFeature('enable-libvpx'))
+	) {
 		Log.Error(
 			"The Vp8 codec has been selected, but your FFMPEG binary wasn't compiled with the --enable-lipvpx flag."
 		);
@@ -70,7 +68,10 @@ export const render = async () => {
 			'This does not work, please switch out your FFMPEG binary or choose a different codec.'
 		);
 	}
-	if (codec === 'h265' && !(await ffmpegHasFeature('enable-gpl'))) {
+	if (
+		codec === 'h265' &&
+		!(await RenderInternals.ffmpegHasFeature('enable-gpl'))
+	) {
 		Log.Error(
 			"The H265 codec has been selected, but your FFMPEG binary wasn't compiled with the --enable-gpl flag."
 		);
@@ -78,7 +79,10 @@ export const render = async () => {
 			'This does not work, please recompile your FFMPEG binary with --enable-gpl --enable-libx265 or choose a different codec.'
 		);
 	}
-	if (codec === 'h265' && !(await ffmpegHasFeature('enable-libx265'))) {
+	if (
+		codec === 'h265' &&
+		!(await RenderInternals.ffmpegHasFeature('enable-libx265'))
+	) {
 		Log.Error(
 			"The H265 codec has been selected, but your FFMPEG binary wasn't compiled with the --enable-libx265 flag."
 		);
@@ -92,7 +96,7 @@ export const render = async () => {
 	const inputProps = getInputProps();
 	const quality = Internals.getQuality();
 	const browser = Internals.getBrowser() ?? Internals.DEFAULT_BROWSER;
-	const browserInstance = openBrowser(browser, {
+	const browserInstance = RenderInternals.openBrowser(browser, {
 		shouldDumpIo: Internals.Logging.isEqualOrBelowLogLevel('verbose'),
 	});
 
@@ -104,7 +108,7 @@ export const render = async () => {
 		process.exit(1);
 	}
 	if (!shouldOutputImageSequence) {
-		await validateFfmpeg();
+		await RenderInternals.validateFfmpeg();
 	}
 	const crf = shouldOutputImageSequence ? null : Internals.getActualCrf(codec);
 	if (crf !== null) {
@@ -121,7 +125,7 @@ export const render = async () => {
 		imageFormat
 	);
 	try {
-		await ensureLocalBrowser(browser);
+		await RenderInternals.ensureLocalBrowser(browser);
 	} catch (err) {
 		Log.Error('Could not download a browser for rendering frames.');
 		Log.Error(err);
@@ -201,7 +205,7 @@ export const render = async () => {
 		outputDir,
 		onStart: ({frameCount: fc}) => {
 			process.stdout.write(
-				`📼 (2/${steps}) Rendering frames (${getActualConcurrency(
+				`📼 (2/${steps}) Rendering frames (${RenderInternals.getActualConcurrency(
 					parallelism
 				)}x concurrency)...\n`
 			);

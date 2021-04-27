@@ -8,12 +8,14 @@ import {
 	RenderAssetInfo,
 	VideoConfig,
 } from 'remotion';
-import {openBrowser, provideScreenshot, seekToFrame} from '.';
 import {getActualConcurrency} from './get-concurrency';
 import {getFrameCount} from './get-frame-range';
 import {getFrameToRender} from './get-frame-to-render';
 import {DEFAULT_IMAGE_FORMAT} from './image-format';
+import {openBrowser} from './open-browser';
 import {Pool} from './pool';
+import {provideScreenshot} from './provide-screenshot';
+import {seekToFrame} from './seek-to-frame';
 import {serveStatic} from './serve-static';
 
 export type RenderFramesOutput = {

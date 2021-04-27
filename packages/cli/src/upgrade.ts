@@ -52,6 +52,9 @@ export const upgrade = async () => {
 		'@remotion/cli',
 		'@remotion/eslint-config',
 		'@remotion/renderer',
+		'@remotion/media-utils',
+		'@remotion/babel-loader',
+		'@remotion/gif',
 		'remotion',
 	].filter((u) => dependencies.includes(u));
 
