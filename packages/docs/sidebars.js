@@ -75,7 +75,7 @@ module.exports = {
     {
       type: "category",
       label: "API - @remotion/renderer",
-      items: ["get-compositions"],
+      items: ["get-compositions", "render-frames"],
     },
     "2-0-migration",
     "license",

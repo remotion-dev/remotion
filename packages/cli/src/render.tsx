@@ -213,7 +213,6 @@ export const render = async () => {
 		quality,
 		browser,
 		frameRange: frameRange ?? null,
-		assetsOnly: Internals.isAudioCodec(codec),
 		dumpBrowserLogs: Internals.Logging.isEqualOrBelowLogLevel('verbose'),
 		puppeteerInstance: openedBrowser,
 	});
