@@ -6,7 +6,7 @@ import {binaryExists, validateFfmpeg} from './validate-ffmpeg';
 
 export {FfmpegVersion} from './ffmpeg-flags';
 export {getCompositions} from './get-compositions';
-export {renderFrames, RenderFramesOutput} from './render';
+export {OnStartData, renderFrames, RenderFramesOutput} from './render';
 export {stitchFramesToVideo} from './stitcher';
 export const RenderInternals = {
 	ensureLocalBrowser,
