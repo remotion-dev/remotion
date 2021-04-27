@@ -72,6 +72,11 @@ module.exports = {
         "visualize-audio",
       ],
     },
+    {
+      type: "category",
+      label: "API - @remotion/renderer",
+      items: ["get-compositions"],
+    },
     "2-0-migration",
     "license",
   ],
