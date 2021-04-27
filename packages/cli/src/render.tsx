@@ -1,10 +1,12 @@
 import {bundle, BundlerInternals} from '@remotion/bundler';
 import {
 	getCompositions,
+	OnStartData,
 	renderFrames,
 	RenderInternals,
 	stitchFramesToVideo,
 } from '@remotion/renderer';
+import chalk from 'chalk';
 import cliProgress from 'cli-progress';
 import fs from 'fs';
 import os from 'os';
@@ -23,6 +25,7 @@ import {getUserPassedFileExtension} from './user-passed-output-location';
 import {warnAboutFfmpegVersion} from './warn-about-ffmpeg-version';
 
 export const render = async () => {
+	const startTime = Date.now();
 	const file = parsedCli._[1];
 	const fullPath = path.join(process.cwd(), file);
 
@@ -199,11 +202,11 @@ export const render = async () => {
 	);
 	const {assetsInfo, frameCount} = await renderFrames({
 		config,
-		onFrameUpdate: (frame) => renderProgress.update(frame),
+		onFrameUpdate: (frame: number) => renderProgress.update(frame),
 		parallelism,
 		compositionId,
 		outputDir,
-		onStart: ({frameCount: fc}) => {
+		onStart: ({frameCount: fc}: OnStartData) => {
 			process.stdout.write(
 				`📼 (2/${steps}) Rendering frames (${RenderInternals.getActualConcurrency(
 					parallelism
@@ -253,10 +256,10 @@ export const render = async () => {
 			crf,
 			assetsInfo,
 			parallelism,
-			onProgress: (frame) => {
+			onProgress: (frame: number) => {
 				stitchingProgress.update(frame);
 			},
-			onDownload: (src) => {
+			onDownload: (src: string) => {
 				Log.Info('\n');
 				Log.Info('Downloading asset... ', src);
 			},
@@ -280,10 +283,19 @@ export const render = async () => {
 			Log.Error('Do you have minimum required Node.js version?');
 			process.exit(1);
 		}
-		Log.Info('\n▶️ Your video is ready - hit play!');
+		Log.Info(chalk.green('\n✅ Your video is ready!'));
 	} else {
-		Log.Info('\n▶️ Your image sequence is ready!');
+		Log.Info(chalk.green('\n✅ Your image sequence is ready!'));
 	}
-	Log.Info(absoluteOutputFile);
+	const seconds = Math.round((Date.now() - startTime) / 1000);
+	Log.Info(
+		[
+			'\n- Total render time:',
+			seconds,
+			seconds === 1 ? 'second' : 'seconds',
+		].join(' ')
+	);
+	Log.Info('-', outputFile, 'can be found in:');
+	Log.Info(chalk.cyan(`▶️ ${absoluteOutputFile}`));
 	await closeBrowserPromise;
 };
