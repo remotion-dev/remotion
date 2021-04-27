@@ -287,14 +287,15 @@ export const render = async () => {
 	} else {
 		Log.Info(chalk.green('\n✅ Your image sequence is ready!'));
 	}
+	const seconds = Math.round((Date.now() - startTime) / 1000);
 	Log.Info(
 		[
 			'\n- Total render time:',
-			Math.round((Date.now() - startTime) / 1000),
-			'second(s)',
+			seconds,
+			seconds === 1 ? 'second' : 'seconds',
 		].join(' ')
 	);
 	Log.Info('-', outputFile, 'can be found in:');
-	Log.Info(chalk.cyan(`  ▶️ ${absoluteOutputFile}`));
+	Log.Info(chalk.cyan(`▶️ ${absoluteOutputFile}`));
 	await closeBrowserPromise;
 };
