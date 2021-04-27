@@ -11,15 +11,15 @@ const WEBPACK_OR_ESBUILD = 'esbuild' as Bundler;
 
 export const webpackOverride: WebpackOverrideFn = (currentConfiguration) => {
 	const replaced = (() => {
-		const {replaceLoadersWithBabel} = require(path.join(
-			__dirname,
-			'..',
-			'..',
-			'example',
-			'node_modules',
-			'@remotion/babel-loader'
-		));
 		if (WEBPACK_OR_ESBUILD === 'webpack') {
+			const {replaceLoadersWithBabel} = require(path.join(
+				__dirname,
+				'..',
+				'..',
+				'example',
+				'node_modules',
+				'@remotion/babel-loader'
+			));
 			return replaceLoadersWithBabel(currentConfiguration);
 		}
 		return currentConfiguration;
