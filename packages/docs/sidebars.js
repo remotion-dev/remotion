@@ -59,6 +59,11 @@ module.exports = {
         "easing",
       ],
     },
+    {
+      type: "category",
+      label: "API - @remotion/bundler",
+      items: ["bundle"],
+    },
     "gif",
     {
       type: "category",
