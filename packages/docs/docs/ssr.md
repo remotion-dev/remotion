@@ -148,3 +148,13 @@ under `.github/workflows/render-video.yml`. All you have to do is to adjust the 
 Note that running the workflow may incur costs. However, the workflow will only run if you actively trigger it.
 
 [See also: Passing props in GitHub Actions](/docs/parametrized-rendering#passing-props-in-github-actions)
+
+## Rendering a video using serverless
+
+We are working on a library which will help you render videos using AWS Lambda. Contact us if you are interested in testing an early version.
+
+## API reference
+
+- [getCompositions()](/docs/get-compositions)
+- [renderFrames()](/docs/render-frames)
+- [stitchFramesToVideo()](/docs/stitch-frames-to-video)
