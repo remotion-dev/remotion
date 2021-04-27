@@ -79,12 +79,15 @@ export const handler = async (params: LambdaPayload) => {
 		if (!params.chunkSize) {
 			throw new Error('Pass chunkSize');
 		}
+		console.log('browser instanse', browserInstance);
 
 		const comp = await validateComposition({
 			serveUrl: params.serveUrl,
 			composition: params.composition,
 			browserInstance,
 		});
+		console.log(comp);
+
 		await s3Client.send(
 			new CreateBucketCommand({
 				Bucket: bucketName,
@@ -117,6 +120,7 @@ export const handler = async (params: LambdaPayload) => {
 					durationInFrames: comp.durationInFrames,
 				};
 				const callingLambdaTimer = timer('Calling lambda');
+				console.log(`calling lambda ${chunk}`);
 				await lambdaClient.send(
 					new InvokeCommand({
 						FunctionName: process.env.AWS_LAMBDA_FUNCTION_NAME,
@@ -148,7 +152,9 @@ export const handler = async (params: LambdaPayload) => {
 		if (!params.frameRange) {
 			throw new Error('must pass framerange');
 		}
-
+		console.log(
+			`Started rendering ${params.chunk}, frame ${params.frameRange}`
+		);
 		await renderFrames({
 			compositionId: params.composition,
 			config: {
@@ -171,10 +177,11 @@ export const handler = async (params: LambdaPayload) => {
 			puppeteerInstance: browserInstance,
 			serveUrl: params.serveUrl,
 		});
-		const outdir = `/tmp/${Math.random()}`;
+		const outdir = `tmp/${Math.random()}`;
 		fs.mkdirSync(outdir);
 
 		const outputLocation = path.join(outdir, 'out.mp4');
+		console.log(outputLocation);
 
 		await stitchFramesToVideo({
 			assetsInfo: {

@@ -10,6 +10,7 @@ import xns from 'xns';
 import {bundleLambda} from './bundle-lambda';
 import {bundleRemotion} from './bundle-remotion';
 import {
+	EFS_MOUNT_PATH,
 	LAMBDA_BUCKET_PREFIX,
 	REGION,
 	REMOTION_RENDER_FN_ZIP,
@@ -24,7 +25,7 @@ const lambdaClient = new LambdaClient({
 
 const s3Client = new S3Client({region: REGION});
 
-const ENABLE_EFS = false;
+const ENABLE_EFS = true;
 
 xns(async () => {
 	const {layerArn} = await ensureLayers(lambdaClient);
@@ -92,7 +93,7 @@ xns(async () => {
 			},
 			FunctionName: fnNameRender,
 			Handler: 'index.handler',
-			Role: 'arn:aws:iam::976210361945:role/lambda-admin', // IAM_ROLE_ARN; e.g., arn:aws:iam::650138640062:role/v3-lambda-tutorial-lambda-role
+			Role: 'arn:aws:iam::363307378317:role/awesomeLambda', // IAM_ROLE_ARN; e.g., arn:aws:iam::650138640062:role/v3-lambda-tutorial-lambda-role
 			Runtime: 'nodejs12.x',
 			Description: 'Renders a Remotion video.',
 			MemorySize: 1769 * 2,
@@ -100,20 +101,16 @@ xns(async () => {
 			Layers: [layerArn],
 			VpcConfig: ENABLE_EFS
 				? {
-						SubnetIds: [
-							'subnet-0c7d7756beb9cdc4d',
-							'subnet-076ce2be687a13ee1',
-							'subnet-015ae228c978f9b83',
-						],
-						SecurityGroupIds: ['sg-0840e6025b19e429d'],
+						SubnetIds: ['subnet-be85fcd4'],
+						SecurityGroupIds: ['sg-8f2391fc'],
 				  }
 				: undefined,
 			FileSystemConfigs: ENABLE_EFS
 				? [
 						{
 							Arn:
-								'arn:aws:elasticfilesystem:eu-central-1:976210361945:access-point/fsap-04d592e24b3ae3074',
-							LocalMountPath: '/mnt/remotion-efs',
+								'arn:aws:elasticfilesystem:eu-central-1:363307378317:access-point/fsap-05a31f7aad4e47581',
+							LocalMountPath: EFS_MOUNT_PATH,
 						},
 				  ]
 				: undefined,
