@@ -86,7 +86,7 @@ module.exports = {
     {
       type: "category",
       label: "Troubleshooting",
-      items: ["performance"],
+      items: ["timeout", "performance"],
     },
     "2-0-migration",
     "license",
