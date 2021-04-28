@@ -29,7 +29,7 @@ export const makeBundlingProgress = ({
 		'📦',
 		`(1/${steps})`,
 		makeProgressBar(progress),
-		`${doneIn ? 'Bundled' : 'Bundling'} video`,
+		`${doneIn ? 'Bundled' : 'Bundling'} code`,
 		doneIn !== null
 			? chalk.gray(`${doneIn}ms`)
 			: (progress * 100).toFixed(0) + '%',

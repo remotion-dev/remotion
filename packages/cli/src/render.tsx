@@ -328,7 +328,7 @@ export const render = async () => {
 			seconds === 1 ? 'second' : 'seconds',
 		].join(' ')
 	);
-	Log.Info('-', outputFile, 'can be found in:');
+	Log.Info('-', 'Output can be found at:');
 	Log.Info(chalk.cyan(`▶️ ${absoluteOutputFile}`));
 	await closeBrowserPromise;
 };
