@@ -3,6 +3,8 @@ type AnimationNode = {
 	toValue: number;
 	current: number;
 	velocity: number;
+  isFinished?: boolean;
+  prevPosition?: number;
 };
 
 export type SpringConfig = {
@@ -68,6 +70,27 @@ function advance(
 		criticallyDampedEnvelope *
 		(v0 * (t * omega0 - 1) + t * x0 * omega0 * omega0);
 
+
+  let isOvershooting
+  if(config.overshootClamping && config.stiffness != 0){
+    if(animation.prevPosition != null && animation.prevPosition < toValue){
+      isOvershooting = current > toValue
+    }else{
+      isOvershooting = current < toValue
+    }
+  }else{
+    isOvershooting = false
+  }
+
+  const isVelocity = Math.abs(animation.velocity) < 0.001;
+
+  const isDisplacement = (config.stiffness == 0) || (Math.abs(toValue - current) < 0.001);
+
+  if(isOvershooting == true || (isVelocity && isDisplacement)){
+    copiedAnimated.isFinished = true
+  }
+
+  copiedAnimated.prevPosition = current
 	if (zeta < 1) {
 		copiedAnimated.current = underDampedPosition;
 		copiedAnimated.velocity = underDampedVelocity;
@@ -77,6 +100,44 @@ function advance(
 	}
 
 	return copiedAnimated;
+}
+
+function springCalculation({
+	from = 0,
+	to = 1,
+	frame,
+	fps,
+	config = {},
+  prevPosition = 0,
+}: {
+	from?: number;
+	to?: number;
+	frame: number;
+	fps: number;
+	config?: Partial<SpringConfig>;
+  prevPosition ?: number;
+}): AnimationNode {
+	let animation: AnimationNode = {
+		lastTimestamp: 0,
+		current: from,
+		toValue: to,
+		velocity: 0,
+    isFinished: false,
+    prevPosition
+	};
+	const frameClamped = Math.max(0, frame);
+	const unevenRest = frameClamped % 1;
+	for (let f = 0; f <= Math.floor(frameClamped); f++) {
+		if (f === Math.floor(frameClamped)) {
+			f += unevenRest;
+		}
+		const time = (f / fps) * 1000;
+		animation = advance(animation, time, {
+			...defaultSpringConfig,
+			...config,
+		});
+	}
+	return animation;
 }
 
 export function spring({
@@ -92,23 +153,25 @@ export function spring({
 	fps: number;
 	config?: Partial<SpringConfig>;
 }): number {
-	let animation: AnimationNode = {
-		lastTimestamp: 0,
-		current: from,
-		toValue: to,
-		velocity: 0,
-	};
-	const frameClamped = Math.max(0, frame);
-	const unevenRest = frameClamped % 1;
-	for (let f = 0; f <= Math.floor(frameClamped); f++) {
-		if (f === Math.floor(frameClamped)) {
-			f += unevenRest;
-		}
-		const time = (f / fps) * 1000;
-		animation = advance(animation, time, {
-			...defaultSpringConfig,
-			...config,
-		});
-	}
-	return animation.current;
+  return springCalculation({fps, frame, config, from, to}).current
+}
+
+export function measureSpring({
+	from = 0,
+	to = 1,
+	fps,
+	config = {},
+}: {
+	from?: number;
+	to?: number;
+	fps: number;
+	config?: Partial<SpringConfig>;
+}): number {
+ let iteration = 0;
+ let animation = springCalculation({prevPosition: 0, fps, frame: iteration, config, from, to})
+ while(!animation.isFinished){
+  animation = springCalculation({prevPosition: animation.prevPosition, fps, frame: iteration++, config, from, to})
+ }
+ //minus 1 because the last calculate animation was finished
+ return iteration - 1;
 }
