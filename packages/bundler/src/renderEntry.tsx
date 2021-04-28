@@ -96,10 +96,12 @@ const GetVideo = () => {
 	);
 };
 
-render(
-	<Internals.RemotionRoot>
-		<Root />
-		<GetVideo />
-	</Internals.RemotionRoot>,
-	document.getElementById('container')
-);
+if (!Internals.isPlainIndex()) {
+	render(
+		<Internals.RemotionRoot>
+			<Root />
+			<GetVideo />
+		</Internals.RemotionRoot>,
+		document.getElementById('container')
+	);
+}
