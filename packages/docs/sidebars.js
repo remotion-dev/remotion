@@ -31,9 +31,9 @@ module.exports = {
         "ssr",
         "webpack",
         "legacy-babel",
-        "performance-tips",
       ],
     },
+
     "cli",
     "config",
     {
@@ -82,6 +82,11 @@ module.exports = {
       type: "category",
       label: "API - @remotion/renderer",
       items: ["get-compositions", "render-frames", "stitch-frames-to-video"],
+    },
+    {
+      type: "category",
+      label: "Troubleshooting",
+      items: ["performance"],
     },
     "2-0-migration",
     "license",
