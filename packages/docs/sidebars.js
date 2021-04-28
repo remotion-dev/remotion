@@ -34,12 +34,12 @@ module.exports = {
         "performance-tips",
       ],
     },
+    "cli",
+    "config",
     {
       type: "category",
       label: "API - Core",
       items: [
-        "cli",
-        "config",
         "continue-render",
         "delay-render",
         "interpolate",
@@ -60,6 +60,11 @@ module.exports = {
         "easing",
       ],
     },
+    {
+      type: "category",
+      label: "API - @remotion/bundler",
+      items: ["bundle"],
+    },
     "gif",
     {
       type: "category",
@@ -72,6 +77,11 @@ module.exports = {
         "use-audio-data",
         "visualize-audio",
       ],
+    },
+    {
+      type: "category",
+      label: "API - @remotion/renderer",
+      items: ["get-compositions", "render-frames", "stitch-frames-to-video"],
     },
     "2-0-migration",
     "license",

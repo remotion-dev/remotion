@@ -1,6 +1,6 @@
 import {Browser as PuppeteerBrowser} from 'puppeteer-core';
 import {Browser, Internals, TCompMetadata} from 'remotion';
-import {openBrowser} from '.';
+import {openBrowser} from './open-browser';
 import {serveStatic} from './serve-static';
 
 export const getCompositions = async (
@@ -17,6 +17,8 @@ export const getCompositions = async (
 	const page = await browserInstance.newPage();
 
 	const {port, close} = await serveStatic(webpackBundle);
+	page.on('error', console.error);
+	page.on('pageerror', console.error);
 
 	if (config?.inputProps) {
 		await page.goto(`http://localhost:${port}/index.html`);
@@ -29,11 +31,7 @@ export const getCompositions = async (
 		);
 	}
 
-	await page.goto(
-		`http://localhost:${port}/index.html?evaluation=true&props=${encodeURIComponent(
-			JSON.stringify(config?.inputProps ?? null)
-		)}`
-	);
+	await page.goto(`http://localhost:${port}/index.html?evaluation=true`);
 	await page.waitForFunction('window.ready === true');
 	const result = await page.evaluate('window.getStaticCompositions()');
 

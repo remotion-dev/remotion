@@ -1,15 +1,12 @@
-import {bundle, cacheExists, clearCache} from '@remotion/bundler';
+import {bundle, BundlerInternals} from '@remotion/bundler';
 import {
-	ensureLocalBrowser,
-	ffmpegHasFeature,
-	getActualConcurrency,
 	getCompositions,
-	getFfmpegVersion,
-	openBrowser,
+	OnStartData,
 	renderFrames,
+	RenderInternals,
 	stitchFramesToVideo,
-	validateFfmpeg,
 } from '@remotion/renderer';
+import chalk from 'chalk';
 import cliProgress from 'cli-progress';
 import fs from 'fs';
 import os from 'os';
@@ -28,6 +25,7 @@ import {getUserPassedFileExtension} from './user-passed-output-location';
 import {warnAboutFfmpegVersion} from './warn-about-ffmpeg-version';
 
 export const render = async () => {
+	const startTime = Date.now();
 	const file = parsedCli._[1];
 	const fullPath = path.join(process.cwd(), file);
 
@@ -56,13 +54,16 @@ export const render = async () => {
 		emitWarning: true,
 	});
 
-	const ffmpegVersion = await getFfmpegVersion();
+	const ffmpegVersion = await RenderInternals.getFfmpegVersion();
 	Log.Verbose(
 		'Your FFMPEG version:',
 		ffmpegVersion ? ffmpegVersion.join('.') : 'Built from source'
 	);
 	warnAboutFfmpegVersion(ffmpegVersion);
-	if (codec === 'vp8' && !(await ffmpegHasFeature('enable-libvpx'))) {
+	if (
+		codec === 'vp8' &&
+		!(await RenderInternals.ffmpegHasFeature('enable-libvpx'))
+	) {
 		Log.Error(
 			"The Vp8 codec has been selected, but your FFMPEG binary wasn't compiled with the --enable-lipvpx flag."
 		);
@@ -70,7 +71,10 @@ export const render = async () => {
 			'This does not work, please switch out your FFMPEG binary or choose a different codec.'
 		);
 	}
-	if (codec === 'h265' && !(await ffmpegHasFeature('enable-gpl'))) {
+	if (
+		codec === 'h265' &&
+		!(await RenderInternals.ffmpegHasFeature('enable-gpl'))
+	) {
 		Log.Error(
 			"The H265 codec has been selected, but your FFMPEG binary wasn't compiled with the --enable-gpl flag."
 		);
@@ -78,7 +82,10 @@ export const render = async () => {
 			'This does not work, please recompile your FFMPEG binary with --enable-gpl --enable-libx265 or choose a different codec.'
 		);
 	}
-	if (codec === 'h265' && !(await ffmpegHasFeature('enable-libx265'))) {
+	if (
+		codec === 'h265' &&
+		!(await RenderInternals.ffmpegHasFeature('enable-libx265'))
+	) {
 		Log.Error(
 			"The H265 codec has been selected, but your FFMPEG binary wasn't compiled with the --enable-libx265 flag."
 		);
@@ -92,7 +99,7 @@ export const render = async () => {
 	const inputProps = getInputProps();
 	const quality = Internals.getQuality();
 	const browser = Internals.getBrowser() ?? Internals.DEFAULT_BROWSER;
-	const browserInstance = openBrowser(browser, {
+	const browserInstance = RenderInternals.openBrowser(browser, {
 		shouldDumpIo: Internals.Logging.isEqualOrBelowLogLevel('verbose'),
 	});
 
@@ -104,7 +111,7 @@ export const render = async () => {
 		process.exit(1);
 	}
 	if (!shouldOutputImageSequence) {
-		await validateFfmpeg();
+		await RenderInternals.validateFfmpeg();
 	}
 	const crf = shouldOutputImageSequence ? null : Internals.getActualCrf(codec);
 	if (crf !== null) {
@@ -121,7 +128,7 @@ export const render = async () => {
 		imageFormat
 	);
 	try {
-		await ensureLocalBrowser(browser);
+		await RenderInternals.ensureLocalBrowser(browser);
 	} catch (err) {
 		Log.Error('Could not download a browser for rendering frames.');
 		Log.Error(err);
@@ -144,10 +151,10 @@ export const render = async () => {
 	);
 
 	const shouldCache = Internals.getWebpackCaching();
-	const cacheExistedBefore = cacheExists('production', null);
+	const cacheExistedBefore = BundlerInternals.cacheExists('production', null);
 	if (cacheExistedBefore && !shouldCache) {
 		process.stdout.write('🧹 Cache disabled but found. Deleting... ');
-		await clearCache('production', null);
+		await BundlerInternals.clearCache('production', null);
 		process.stdout.write('done. \n');
 	}
 	bundlingProgress.start(100, 0);
@@ -162,7 +169,7 @@ export const render = async () => {
 	);
 	bundlingProgress.stop();
 	Log.Verbose('Bundled under', bundled);
-	const cacheExistedAfter = cacheExists('production', null);
+	const cacheExistedAfter = BundlerInternals.cacheExists('production', null);
 	if (cacheExistedAfter && !cacheExistedBefore) {
 		Log.Info('⚡️ Cached bundle. Subsequent builds will be faster.');
 	}
@@ -195,13 +202,13 @@ export const render = async () => {
 	);
 	const {assetsInfo, frameCount} = await renderFrames({
 		config,
-		onFrameUpdate: (frame) => renderProgress.update(frame),
+		onFrameUpdate: (frame: number) => renderProgress.update(frame),
 		parallelism,
 		compositionId,
 		outputDir,
-		onStart: ({frameCount: fc}) => {
+		onStart: ({frameCount: fc}: OnStartData) => {
 			process.stdout.write(
-				`📼 (2/${steps}) Rendering frames (${getActualConcurrency(
+				`📼 (2/${steps}) Rendering frames (${RenderInternals.getActualConcurrency(
 					parallelism
 				)}x concurrency)...\n`
 			);
@@ -213,7 +220,6 @@ export const render = async () => {
 		quality,
 		browser,
 		frameRange: frameRange ?? null,
-		assetsOnly: Internals.isAudioCodec(codec),
 		dumpBrowserLogs: Internals.Logging.isEqualOrBelowLogLevel('verbose'),
 		puppeteerInstance: openedBrowser,
 	});
@@ -250,10 +256,10 @@ export const render = async () => {
 			crf,
 			assetsInfo,
 			parallelism,
-			onProgress: (frame) => {
+			onProgress: (frame: number) => {
 				stitchingProgress.update(frame);
 			},
-			onDownload: (src) => {
+			onDownload: (src: string) => {
 				Log.Info('\n');
 				Log.Info('Downloading asset... ', src);
 			},
@@ -277,10 +283,19 @@ export const render = async () => {
 			Log.Error('Do you have minimum required Node.js version?');
 			process.exit(1);
 		}
-		Log.Info('\n▶️ Your video is ready - hit play!');
+		Log.Info(chalk.green('\n✅ Your video is ready!'));
 	} else {
-		Log.Info('\n▶️ Your image sequence is ready!');
+		Log.Info(chalk.green('\n✅ Your image sequence is ready!'));
 	}
-	Log.Info(absoluteOutputFile);
+	const seconds = Math.round((Date.now() - startTime) / 1000);
+	Log.Info(
+		[
+			'\n- Total render time:',
+			seconds,
+			seconds === 1 ? 'second' : 'seconds',
+		].join(' ')
+	);
+	Log.Info('-', outputFile, 'can be found in:');
+	Log.Info(chalk.cyan(`▶️ ${absoluteOutputFile}`));
 	await closeBrowserPromise;
 };

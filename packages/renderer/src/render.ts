@@ -8,12 +8,14 @@ import {
 	RenderAssetInfo,
 	VideoConfig,
 } from 'remotion';
-import {openBrowser, provideScreenshot, seekToFrame} from '.';
 import {getActualConcurrency} from './get-concurrency';
 import {getFrameCount} from './get-frame-range';
 import {getFrameToRender} from './get-frame-to-render';
 import {DEFAULT_IMAGE_FORMAT} from './image-format';
+import {openBrowser} from './open-browser';
 import {Pool} from './pool';
+import {provideScreenshot} from './provide-screenshot';
+import {seekToFrame} from './seek-to-frame';
 import {serveStatic} from './serve-static';
 
 export type RenderFramesOutput = {
@@ -21,7 +23,7 @@ export type RenderFramesOutput = {
 	assetsInfo: RenderAssetInfo;
 };
 
-type OnStartData = {
+export type OnStartData = {
 	frameCount: number;
 };
 
@@ -42,18 +44,17 @@ export const renderFrames = async ({
 	puppeteerInstance,
 }: {
 	config: VideoConfig;
-	parallelism?: number | null;
-	onFrameUpdate: (f: number) => void;
-	onStart: (data: OnStartData) => void;
 	compositionId: string;
+	onStart: (data: OnStartData) => void;
+	onFrameUpdate: (f: number) => void;
 	outputDir: string;
 	inputProps: unknown;
 	webpackBundle: string;
 	imageFormat: ImageFormat;
+	parallelism?: number | null;
 	quality?: number;
 	browser?: Browser;
 	frameRange?: FrameRange | null;
-	assetsOnly?: boolean;
 	dumpBrowserLogs?: boolean;
 	puppeteerInstance?: PuppeteerBrowser;
 }): Promise<RenderFramesOutput> => {
