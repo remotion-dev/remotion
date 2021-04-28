@@ -1,7 +1,7 @@
 import {RenderInternals} from '@remotion/renderer';
 import fs from 'fs';
 import path from 'path';
-import {Codec, Config, Internals, PixelFormat} from 'remotion';
+import {Codec, FrameRange, Internals, PixelFormat} from 'remotion';
 import {getOutputFilename} from './get-filename';
 import {getInputProps} from './get-input-props';
 import {getImageFormat} from './image-formats';
@@ -16,7 +16,6 @@ const getAndValidateFrameRange = () => {
 			`If you want to render a video, pass a range:  '--frames=${frameRange}-${frameRange}'.`
 		);
 		Log.Warn("To dismiss this message, add the '--sequence' flag explicitly.");
-		Config.Output.setImageSequence(true);
 	}
 	return frameRange;
 };
@@ -83,8 +82,12 @@ const getAndValidateAbsoluteOutputFile = (
 	return absoluteOutputFile;
 };
 
-const getAndValidateShouldOutputImageSequence = async () => {
-	const shouldOutputImageSequence = Internals.getShouldOutputImageSequence();
+const getAndValidateShouldOutputImageSequence = async (
+	frameRange: FrameRange | null
+) => {
+	const shouldOutputImageSequence = Internals.getShouldOutputImageSequence(
+		frameRange
+	);
 	if (!shouldOutputImageSequence) {
 		await RenderInternals.validateFfmpeg();
 	}
@@ -141,7 +144,10 @@ const getAndValidateBrowser = async () => {
 };
 
 export const getCliOptions = async () => {
-	const shouldOutputImageSequence = await getAndValidateShouldOutputImageSequence();
+	const frameRange = getAndValidateFrameRange();
+	const shouldOutputImageSequence = await getAndValidateShouldOutputImageSequence(
+		frameRange
+	);
 	const codec = await getFinalCodec();
 	const outputFile = getOutputFilename(codec, shouldOutputImageSequence);
 	const overwrite = Internals.getShouldOverwrite();
@@ -155,7 +161,7 @@ export const getCliOptions = async () => {
 
 	return {
 		parallelism: Internals.getConcurrency(),
-		frameRange: getAndValidateFrameRange(),
+		frameRange,
 		shouldOutputImageSequence,
 		codec,
 		overwrite: Internals.getShouldOverwrite(),
