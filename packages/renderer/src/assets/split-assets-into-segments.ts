@@ -46,24 +46,39 @@ export const splitAssetsIntoSegments = ({
 				const cutStart = i === 0 ? 0 : framesAtWhichToCut[i - 1];
 				const assetStart = a.startInVideo;
 				const assetEnd = a.startInVideo + a.duration;
+				const amountOfFramesThatGetCut = cutStart - assetStart;
 				// Video goes beyond cut
 				if (assetStart < cutEnd && assetEnd > cutEnd) {
-					const amountOfFramesThatGetCut = cutStart - assetStart;
+					const newDuration = cutEnd - cutStart;
 
 					return {
 						...a,
 						startInVideo: cutStart,
+						volume:
+							typeof a.volume === 'number'
+								? a.volume
+								: a.volume.slice(
+										amountOfFramesThatGetCut,
+										newDuration + amountOfFramesThatGetCut
+								  ),
 						duration: cutEnd - cutStart,
 						trimLeft: a.trimLeft + amountOfFramesThatGetCut,
 					} as MediaAsset;
 				}
 				// Video starts before cut
 				if (assetStart < cutStart && assetEnd > cutStart) {
-					const amountOfFramesThatGetCut = cutStart - assetStart;
+					const newDuration = a.duration - amountOfFramesThatGetCut;
 					return {
 						...a,
 						startInVideo: cutStart,
-						duration: a.duration - amountOfFramesThatGetCut,
+						volume:
+							typeof a.volume === 'number'
+								? a.volume
+								: a.volume.slice(
+										amountOfFramesThatGetCut,
+										newDuration + amountOfFramesThatGetCut
+								  ),
+						duration: newDuration,
 						trimLeft: a.trimLeft + amountOfFramesThatGetCut,
 					} as MediaAsset;
 				}
