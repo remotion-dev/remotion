@@ -1,8 +1,9 @@
 import {RenderInternals} from '@remotion/renderer';
 import fs from 'fs';
 import path from 'path';
-import {Codec, Config, getInputProps, Internals, PixelFormat} from 'remotion';
+import {Codec, Config, Internals, PixelFormat} from 'remotion';
 import {getOutputFilename} from './get-filename';
+import {getInputProps} from './get-input-props';
 import {getImageFormat} from './image-formats';
 import {Log} from './log';
 import {getUserPassedFileExtension} from './user-passed-output-location';
