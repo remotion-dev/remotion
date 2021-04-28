@@ -20,7 +20,7 @@ export type PlayerProps<T> = {
 	height: number;
 	fps: number;
 	controls?: boolean;
-	style?: React.CSSProperties;
+	style?: Omit<React.CSSProperties, 'height' | 'width'>;
 	props?: T;
 } & CompProps<T>;
 
