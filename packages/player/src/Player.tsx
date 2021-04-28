@@ -20,12 +20,14 @@ export type PlayerProps<T> = {
 	height: number;
 	fps: number;
 	controls?: boolean;
+	style?: React.CSSProperties;
 	props?: T;
 } & CompProps<T>;
 
 export type PlayerMethods = {
 	play: () => void;
 	pause: () => void;
+	toggle: () => void;
 };
 
 export const PlayerFn = <T,>(
@@ -36,6 +38,7 @@ export const PlayerFn = <T,>(
 		fps,
 		props,
 		controls,
+		style,
 		...componentProps
 	}: PlayerProps<T>,
 	ref: MutableRefObject<PlayerMethods>
@@ -50,6 +53,7 @@ export const PlayerFn = <T,>(
 		return {
 			play: () => setPlaying(true),
 			pause: () => setPlaying(false),
+			toggle: () => setPlaying(!playing),
 		};
 	});
 
@@ -105,7 +109,7 @@ export const PlayerFn = <T,>(
 				<Internals.CompositionManager.Provider
 					value={compositionManagerContext}
 				>
-					<RootComponent controls={Boolean(controls)} />
+					<RootComponent controls={Boolean(controls)} style={style} />
 				</Internals.CompositionManager.Provider>
 			</Internals.Timeline.SetTimelineContext.Provider>
 		</Internals.Timeline.TimelineContext.Provider>
