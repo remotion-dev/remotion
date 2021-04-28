@@ -4,7 +4,7 @@ import {usePlaybackTime} from './PlayPause';
 
 const RootComponent: React.FC<{
 	controls: boolean;
-	style?: React.CSSProperties;
+	style?: Omit<React.CSSProperties, 'width' | 'height'>;
 }> = ({controls, style}) => {
 	const config = Internals.useUnsafeVideoConfig();
 	const [toggle] = usePlaybackTime();
@@ -15,25 +15,23 @@ const RootComponent: React.FC<{
 	return (
 		<Suspense fallback={<h1>Loading...</h1>}>
 			<div
-				style={
-					style
-						? style
-						: {
-								position: 'relative',
-								width: config?.width,
-								height: config?.height,
-								overflow: 'hidden',
-						  }
-				}
+				style={{
+					position: 'relative',
+					width: config?.width,
+					height: config?.height,
+					overflow: 'hidden',
+					...style,
+				}}
 			>
 				{controls ? (
 					<button
 						type="button"
 						style={{
 							position: 'absolute',
-							left: '10px',
-							top: '10px',
+							left: '50%',
+							bottom: '10px',
 							zIndex: 100,
+							transform: 'translateX(-50%)',
 						}}
 						onClick={toggle}
 					>
