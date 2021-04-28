@@ -33,6 +33,7 @@ module.exports = {
         "legacy-babel",
       ],
     },
+
     "cli",
     "config",
     {
@@ -81,6 +82,11 @@ module.exports = {
       type: "category",
       label: "API - @remotion/renderer",
       items: ["get-compositions", "render-frames", "stitch-frames-to-video"],
+    },
+    {
+      type: "category",
+      label: "Troubleshooting",
+      items: ["performance"],
     },
     "2-0-migration",
     "license",
