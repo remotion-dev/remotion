@@ -7,12 +7,10 @@ import {
 	stitchFramesToVideo,
 } from '@remotion/renderer';
 import chalk from 'chalk';
-import cliProgress from 'cli-progress';
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
 import {Config, Internals} from 'remotion';
-import {getFinalOutputCodec} from 'remotion/dist/config/codec';
 import {getCompositionId} from './get-composition-id';
 import {getConfigFileName} from './get-config-file-name';
 import {getOutputFilename} from './get-filename';
@@ -21,6 +19,12 @@ import {getImageFormat} from './image-formats';
 import {loadConfigFile} from './load-config';
 import {Log} from './log';
 import {parseCommandLine, parsedCli} from './parse-command-line';
+import {
+	createProgressBar,
+	makeBundlingProgress,
+	makeRenderingProgress,
+	makeStitchingProgres,
+} from './progress-bar';
 import {getUserPassedFileExtension} from './user-passed-output-location';
 import {warnAboutFfmpegVersion} from './warn-about-ffmpeg-version';
 
@@ -48,7 +52,7 @@ export const render = async () => {
 	const shouldOutputImageSequence = Internals.getShouldOutputImageSequence();
 	const userCodec = Internals.getOutputCodecOrUndefined();
 
-	const codec = getFinalOutputCodec({
+	const codec = Internals.getFinalOutputCodec({
 		codec: userCodec,
 		fileExtension: getUserPassedFileExtension(),
 		emitWarning: true,
@@ -140,15 +144,6 @@ export const render = async () => {
 		});
 	}
 	const steps = shouldOutputImageSequence ? 2 : 3;
-	process.stdout.write(`📦 (1/${steps}) Bundling video...\n`);
-
-	const bundlingProgress = new cliProgress.Bar(
-		{
-			clearOnComplete: true,
-			format: '[{bar}] {percentage}%',
-		},
-		cliProgress.Presets.shades_grey
-	);
 
 	const shouldCache = Internals.getWebpackCaching();
 	const cacheExistedBefore = BundlerInternals.cacheExists('production', null);
@@ -157,17 +152,26 @@ export const render = async () => {
 		await BundlerInternals.clearCache('production', null);
 		process.stdout.write('done. \n');
 	}
-	bundlingProgress.start(100, 0);
+	const bundleStartTime = Date.now();
+	const bundlingProgress = createProgressBar('');
 	const bundled = await bundle(
 		fullPath,
 		(progress) => {
-			bundlingProgress.update(progress);
+			bundlingProgress.update(
+				makeBundlingProgress({progress: progress / 100, steps, doneIn: null})
+			);
 		},
 		{
 			enableCaching: shouldCache,
 		}
 	);
-	bundlingProgress.stop();
+	bundlingProgress.update(
+		makeBundlingProgress({
+			progress: 1,
+			steps,
+			doneIn: Date.now() - bundleStartTime,
+		}) + '\n'
+	);
 	Log.Verbose('Bundled under', bundled);
 	const cacheExistedAfter = BundlerInternals.cacheExists('production', null);
 	if (cacheExistedAfter && !cacheExistedBefore) {
@@ -192,27 +196,36 @@ export const render = async () => {
 
 	Log.Verbose('Output dir', outputDir);
 
-	const renderProgress = new cliProgress.Bar(
-		{
-			clearOnComplete: true,
-			etaBuffer: 50,
-			format: '[{bar}] {percentage}% | ETA: {eta}s | {value}/{total}',
-		},
-		cliProgress.Presets.shades_grey
-	);
-	const {assetsInfo, frameCount} = await renderFrames({
+	const renderProgress = createProgressBar('');
+	let totalFrames = 0;
+	const renderStart = Date.now();
+	const {assetsInfo} = await renderFrames({
 		config,
-		onFrameUpdate: (frame: number) => renderProgress.update(frame),
+		onFrameUpdate: (frame: number) => {
+			renderProgress.update(
+				makeRenderingProgress({
+					frames: frame,
+					totalFrames,
+					concurrency: RenderInternals.getActualConcurrency(parallelism),
+					doneIn: null,
+					steps,
+				})
+			);
+		},
 		parallelism,
 		compositionId,
 		outputDir,
 		onStart: ({frameCount: fc}: OnStartData) => {
-			process.stdout.write(
-				`📼 (2/${steps}) Rendering frames (${RenderInternals.getActualConcurrency(
-					parallelism
-				)}x concurrency)...\n`
+			renderProgress.update(
+				makeRenderingProgress({
+					frames: 0,
+					totalFrames: fc,
+					concurrency: RenderInternals.getActualConcurrency(parallelism),
+					doneIn: null,
+					steps,
+				})
 			);
-			renderProgress.start(fc, 0);
+			totalFrames = fc;
 		},
 		inputProps,
 		webpackBundle: bundled,
@@ -225,24 +238,31 @@ export const render = async () => {
 	});
 
 	const closeBrowserPromise = openedBrowser.close();
-	renderProgress.stop();
+	renderProgress.update(
+		makeRenderingProgress({
+			frames: totalFrames,
+			totalFrames,
+			steps,
+			concurrency: RenderInternals.getActualConcurrency(parallelism),
+			doneIn: Date.now() - renderStart,
+		}) + '\n'
+	);
 	if (process.env.DEBUG) {
 		Internals.perf.logPerf();
 	}
 	if (!shouldOutputImageSequence) {
-		process.stdout.write(`🧵 (3/${steps}) Stitching frames together...\n`);
 		if (typeof crf !== 'number') {
 			throw TypeError('CRF is unexpectedly not a number');
 		}
-		const stitchingProgress = new cliProgress.Bar(
-			{
-				clearOnComplete: true,
-				etaBuffer: 50,
-				format: '[{bar}] {percentage}% | ETA: {eta}s | {value}/{total}',
-			},
-			cliProgress.Presets.shades_grey
+		const stitchingProgress = createProgressBar(
+			makeStitchingProgres({
+				doneIn: null,
+				frames: 0,
+				steps,
+				totalFrames,
+			})
 		);
-		stitchingProgress.start(frameCount, 0);
+		const stitchStart = Date.now();
 		await stitchFramesToVideo({
 			dir: outputDir,
 			width: config.width,
@@ -257,17 +277,30 @@ export const render = async () => {
 			assetsInfo,
 			parallelism,
 			onProgress: (frame: number) => {
-				stitchingProgress.update(frame);
+				stitchingProgress.update(
+					makeStitchingProgres({
+						doneIn: null,
+						frames: frame,
+						steps,
+						totalFrames,
+					})
+				);
 			},
 			onDownload: (src: string) => {
-				Log.Info('\n');
 				Log.Info('Downloading asset... ', src);
 			},
 			verbose: Internals.Logging.isEqualOrBelowLogLevel('verbose'),
 		});
-		stitchingProgress.stop();
+		stitchingProgress.update(
+			makeStitchingProgres({
+				doneIn: Date.now() - stitchStart,
+				frames: totalFrames,
+				steps,
+				totalFrames,
+			}) + '\n'
+		);
 
-		Log.Info('Cleaning up...');
+		Log.Verbose('Cleaning up...');
 		try {
 			await Promise.all([
 				fs.promises.rmdir(outputDir, {
@@ -290,7 +323,7 @@ export const render = async () => {
 	const seconds = Math.round((Date.now() - startTime) / 1000);
 	Log.Info(
 		[
-			'\n- Total render time:',
+			'- Total render time:',
 			seconds,
 			seconds === 1 ? 'second' : 'seconds',
 		].join(' ')
