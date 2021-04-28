@@ -28,6 +28,7 @@ export type PlayerMethods = {
 	play: () => void;
 	pause: () => void;
 	toggle: () => void;
+	seekTo: (frame: number) => void;
 };
 
 export const PlayerFn = <T,>(
@@ -54,6 +55,7 @@ export const PlayerFn = <T,>(
 			play: () => setPlaying(true),
 			pause: () => setPlaying(false),
 			toggle: () => setPlaying(!playing),
+			seekTo: (f) => setFrame(f),
 		};
 	});
 

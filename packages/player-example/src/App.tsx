@@ -3,7 +3,7 @@ import {useRef, useState} from 'react';
 import CarSlideshow from './CarSlideshow';
 
 export default function App() {
-	const [title, setTitle] = useState('This is my title');
+	const [title, setTitle] = useState(0);
 
 	const ref = useRef<PlayerMethods>(null);
 
@@ -26,10 +26,10 @@ export default function App() {
 				}}
 			/>
 			<input
-				type="text"
+				type="number"
 				value={title}
 				onChange={(e) => {
-					setTitle(e.target.value);
+					setTitle(Number(e.target.value) as number);
 				}}
 			/>
 			<button type="button" onClick={() => ref.current?.play()}>
@@ -40,6 +40,9 @@ export default function App() {
 			</button>
 			<button type="button" onClick={() => ref.current?.toggle()}>
 				toggle
+			</button>
+			<button type="button" onClick={() => ref.current?.seekTo(title)}>
+				seekTo
 			</button>
 		</div>
 	);
