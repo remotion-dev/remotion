@@ -316,9 +316,9 @@ export const render = async () => {
 			Log.Error('Do you have minimum required Node.js version?');
 			process.exit(1);
 		}
-		Log.Info(chalk.green('\n✅ Your video is ready!'));
+		Log.Info(chalk.green('\nYour video is ready!'));
 	} else {
-		Log.Info(chalk.green('\n✅ Your image sequence is ready!'));
+		Log.Info(chalk.green('\nYour image sequence is ready!'));
 	}
 	const seconds = Math.round((Date.now() - startTime) / 1000);
 	Log.Info(
