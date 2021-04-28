@@ -10,5 +10,5 @@ export const setImageSequence = (newImageSequence: boolean) => {
 };
 
 export const getShouldOutputImageSequence = (frameRange: FrameRange | null) => {
-	return imageSequence ?? typeof frameRange === 'number';
+	return imageSequence || typeof frameRange === 'number';
 };
