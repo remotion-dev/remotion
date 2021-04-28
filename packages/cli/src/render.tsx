@@ -153,7 +153,7 @@ export const render = async () => {
 		process.stdout.write('done. \n');
 	}
 	const bundleStartTime = Date.now();
-	const bundlingProgress = createProgressBar('');
+	const bundlingProgress = createProgressBar();
 	const bundled = await bundle(
 		fullPath,
 		(progress) => {
@@ -196,7 +196,7 @@ export const render = async () => {
 
 	Log.Verbose('Output dir', outputDir);
 
-	const renderProgress = createProgressBar('');
+	const renderProgress = createProgressBar();
 	let totalFrames = 0;
 	const renderStart = Date.now();
 	const {assetsInfo} = await renderFrames({
@@ -254,7 +254,9 @@ export const render = async () => {
 		if (typeof crf !== 'number') {
 			throw TypeError('CRF is unexpectedly not a number');
 		}
-		const stitchingProgress = createProgressBar(
+		const stitchingProgress = createProgressBar();
+
+		stitchingProgress.update(
 			makeStitchingProgres({
 				doneIn: null,
 				frames: 0,
