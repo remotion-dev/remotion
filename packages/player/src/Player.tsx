@@ -118,9 +118,14 @@ export const PlayerFn = <T,>(
 	);
 };
 
-export type PlayerInstance<T> = React.ForwardRefExoticComponent<
-	PlayerProps<T> & React.RefAttributes<PlayerMethods>
->;
+declare module 'react' {
+	// eslint-disable-next-line @typescript-eslint/no-shadow
+	function forwardRef<T, P = {}>(
+		render: (
+			props: P,
+			ref: React.MutableRefObject<T>
+		) => React.ReactElement | null
+	): (props: P & React.RefAttributes<T>) => React.ReactElement | null;
+}
 
-// @ts-expect-error
-export const Player = forwardRef(PlayerFn) as PlayerInstance;
+export const Player = forwardRef(PlayerFn);
