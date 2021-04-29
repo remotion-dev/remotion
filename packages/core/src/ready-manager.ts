@@ -1,5 +1,3 @@
-import {TAsset, TCompMetadata} from './CompositionManager';
-
 if (typeof window !== 'undefined') {
 	window.ready = false;
 }
@@ -21,12 +19,3 @@ export const continueRender = (handle: number): void => {
 		window.ready = true;
 	}
 };
-
-declare global {
-	interface Window {
-		ready: boolean;
-		getStaticCompositions: () => TCompMetadata[];
-		remotion_setFrame: (frame: number) => void;
-		remotion_collectAssets: () => TAsset[];
-	}
-}
