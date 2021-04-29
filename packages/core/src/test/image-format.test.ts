@@ -1,8 +1,26 @@
 import {
+	getUserPreferredImageFormat,
+	ImageFormat,
 	setImageFormat,
 	validateSelectedPixelFormatAndImageFormatCombination,
 } from '../config/image-format';
 import {expectToThrow} from './expect-to-throw';
+
+describe('SetImageFormat with valid inputs', () => {
+	const formatInputs: (ImageFormat | undefined)[] = [
+		'png',
+		'jpeg',
+		'none',
+		undefined,
+	];
+	formatInputs.forEach((entry) =>
+		test(`testing with format "${entry}"`, () => {
+			// @ts-expect-error
+			setImageFormat(entry);
+			expect(getUserPreferredImageFormat()).toEqual(entry);
+		})
+	);
+});
 
 test('SetImageFormat should throw if image format is not valid', () => {
 	expectToThrow(
@@ -46,5 +64,10 @@ test('Valid combination with pixel and image format ("png") should not throw', (
 test('Valid combination with pixel and image format ("jpeg") should not throw', () => {
 	expect(() =>
 		validateSelectedPixelFormatAndImageFormatCombination('yuv420p', 'jpeg')
+	).not.toThrow();
+});
+test('"none" as image format should not throw', () => {
+	expect(() =>
+		validateSelectedPixelFormatAndImageFormatCombination('yuv420p', 'none')
 	).not.toThrow();
 });

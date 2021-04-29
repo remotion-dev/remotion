@@ -154,11 +154,15 @@ export const webpackConfig = ({
 				},
 				{
 					test: /\.jsx?$/,
-					loader: require.resolve('esbuild-loader'),
-					options: {
-						loader: 'jsx',
-						target: 'chrome85',
-					},
+					use: [
+						{
+							loader: require.resolve('esbuild-loader'),
+							options: {
+								loader: 'jsx',
+								target: 'chrome85',
+							},
+						},
+					].filter(truthy),
 				},
 			],
 		},

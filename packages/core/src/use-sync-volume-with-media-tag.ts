@@ -2,17 +2,19 @@ import {RefObject, useEffect} from 'react';
 import {isApproximatelyTheSame} from './is-approximately-the-same';
 import {evaluateVolume, VolumeProp} from './volume-prop';
 
+export type UseSyncVolumeWithMediaTagOptions = {
+	volumePropFrame: number;
+	actualVolume: number;
+	volume?: VolumeProp;
+	mediaRef: RefObject<HTMLVideoElement | HTMLAudioElement>;
+};
+
 export const useSyncVolumeWithMediaTag = ({
 	volumePropFrame,
 	actualVolume,
 	volume,
 	mediaRef,
-}: {
-	volumePropFrame: number;
-	actualVolume: number;
-	volume?: VolumeProp;
-	mediaRef: RefObject<HTMLVideoElement | HTMLAudioElement>;
-}) => {
+}: UseSyncVolumeWithMediaTagOptions) => {
 	useEffect(() => {
 		const userPreferredVolume = evaluateVolume({
 			frame: volumePropFrame,

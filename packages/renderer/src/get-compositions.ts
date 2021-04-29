@@ -21,11 +21,7 @@ export const getCompositions = async (config: {
 		);
 	}
 
-	await page.goto(
-		`${config.serveUrl}/index.html?evaluation=true&props=${encodeURIComponent(
-			JSON.stringify(config?.inputProps ?? null)
-		)}`
-	);
+	await page.goto(`${config.serveUrl}/index.html?evaluation=true`);
 	await page.waitForFunction('window.ready === true');
 	const result = await page.evaluate('window.getStaticCompositions()');
 

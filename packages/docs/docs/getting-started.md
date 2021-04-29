@@ -5,28 +5,45 @@ sidebar_label: Installation
 slug: /
 ---
 
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
 ## Prerequisites
 
 The only dependencies for Remotion are FFMPEG and Node.js.
 
 Please read these guides to install them in case you haven't yet.
 
-- [Installing FFMPEG](https://github.com/adaptlearning/adapt_authoring/wiki/Installing-FFmpeg)
-- [Installing Node.js](https://nodejs.org/en/download/)
+- [Installing FFMPEG](https://github.com/adaptlearning/adapt_authoring/wiki/Installing-FFmpeg) - Minimum: Version 4.1.0
+- [Installing Node.js](https://nodejs.org/en/download/) - Minimum: Version 12.10.0
 
 ## Installation
 
 You can initialize a new Remotion video using
 
-```bash
-yarn create video
-```
-
-or
+<Tabs
+defaultValue="npm"
+values={[
+{ label: 'npm', value: 'npm', },
+{ label: 'yarn', value: 'yarn', },
+]
+}>
+<TabItem value="npm">
 
 ```bash
 npm init video
 ```
+
+  </TabItem>
+
+  <TabItem value="yarn">
+
+```bash
+yarn create video
+```
+
+  </TabItem>
+</Tabs>
 
 That's it! Wait for the installation to be finished and follow the instructions in the terminal.
 

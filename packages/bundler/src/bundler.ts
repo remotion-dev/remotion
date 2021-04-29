@@ -21,7 +21,7 @@ const prepareOutDir = async (specified: string | null) => {
 
 export const bundle = async (
 	entryPoint: string,
-	onProgressUpdate?: (f: number) => void,
+	onProgressUpdate?: (progress: number) => void,
 	options?: {
 		webpackOverride?: WebpackOverrideFn;
 		outDir?: string;

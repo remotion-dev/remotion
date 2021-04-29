@@ -8,7 +8,7 @@ const invalidImageSequence: String = 'invalidImageSequence';
 let defaultImageSequence: boolean;
 
 beforeAll(() => {
-	defaultImageSequence = getShouldOutputImageSequence();
+	defaultImageSequence = getShouldOutputImageSequence(null);
 });
 afterEach(() => {
 	setImageSequence(defaultImageSequence);
@@ -25,9 +25,9 @@ test('setImageSequence should NOT throw if image sequence is a boolean value', (
 	expect(() => setImageSequence(true)).not.toThrow();
 });
 test('getShouldOutputImageSequence should return false by default', () => {
-	expect(getShouldOutputImageSequence()).toEqual(false);
+	expect(getShouldOutputImageSequence(null)).toEqual(false);
 });
 test('getShouldOutputImageSequence should return true', () => {
 	setImageSequence(true);
-	expect(getShouldOutputImageSequence()).toEqual(true);
+	expect(getShouldOutputImageSequence(null)).toEqual(true);
 });

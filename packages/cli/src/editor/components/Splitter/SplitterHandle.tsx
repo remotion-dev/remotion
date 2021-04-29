@@ -69,6 +69,7 @@ export const SplitterHandle: React.FC = () => {
 				(ev: PointerEvent) => {
 					context.persistFlex(getNewValue(ev));
 					cleanup();
+					setLastPointerUp(Date.now());
 				},
 				{once: true}
 			);
@@ -88,7 +89,6 @@ export const SplitterHandle: React.FC = () => {
 
 			current.removeEventListener('pointerdown', onPointerDown);
 			window.removeEventListener('pointermove', onPointerMove);
-			setLastPointerUp(Date.now());
 		};
 
 		current.addEventListener('pointerdown', onPointerDown);
