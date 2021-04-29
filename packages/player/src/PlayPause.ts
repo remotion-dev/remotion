@@ -1,12 +1,12 @@
 import {useCallback, useEffect, useRef} from 'react';
 import {Internals} from 'remotion';
 
-export const usePlaybackTime = (): [
-	toggle: () => void,
-	frameBack: (frames: number) => void,
-	frameForward: (frames: number) => void,
-	isLastFrame: boolean
-] => {
+export const usePlaybackTime = (): {
+	toggle: () => void;
+	frameBack: (frames: number) => void;
+	frameForward: (frames: number) => void;
+	isLastFrame: boolean;
+} => {
 	const [playing, setPlaying] = Internals.Timeline.usePlayingState();
 	const frame = Internals.Timeline.useTimelinePosition();
 	const setFrame = Internals.Timeline.useTimelineSetFrame();
@@ -99,5 +99,5 @@ export const usePlaybackTime = (): [
 		};
 	}, [config, setFrame, playing]);
 
-	return [toggle, frameBack, frameForward, isLastFrame];
+	return {toggle, frameBack, frameForward, isLastFrame};
 };
