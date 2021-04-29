@@ -45,6 +45,7 @@ module.exports = {
         "interpolate",
         "interpolate-colors",
         "get-input-props",
+        "measure-spring",
         "random",
         "register-root",
         "spring",
