@@ -7,6 +7,7 @@ import {
 import {getActualConcurrency} from './get-concurrency';
 import {ensureLocalBrowser} from './get-local-browser-executable';
 import {openBrowser} from './open-browser';
+import {serveStatic} from './serve-static';
 import {binaryExists, validateFfmpeg} from './validate-ffmpeg';
 
 declare global {
@@ -33,4 +34,5 @@ export const RenderInternals = {
 	validateFfmpeg,
 	binaryExists,
 	getFfmpegBuildInfo,
+	serveStatic,
 };

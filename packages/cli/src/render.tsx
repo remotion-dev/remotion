@@ -95,12 +95,12 @@ export const render = async () => {
 	if (cacheExistedAfter && !cacheExistedBefore) {
 		Log.Info('⚡️ Cached bundle. Subsequent builds will be faster.');
 	}
-	const {port, close} = await serveStatic(bundled);
+	const {port, close} = await RenderInternals.serveStatic(bundled);
 
 	const serveUrl = `http://localhost:${port}`;
 
 	const openedBrowser = await browserInstance;
-	const comps = await getCompositions(bundled, {
+	const comps = await getCompositions({
 		browser,
 		inputProps,
 		browserInstance: openedBrowser,
@@ -155,7 +155,6 @@ export const render = async () => {
 		quality,
 		browser,
 		frameRange: frameRange ?? null,
-		dumpBrowserLogs: Internals.Logging.isEqualOrBelowLogLevel('verbose'),
 		puppeteerInstance: openedBrowser,
 		serveUrl,
 	});
