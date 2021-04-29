@@ -33,17 +33,19 @@ module.exports = {
         "legacy-babel",
       ],
     },
+
+    "cli",
+    "config",
     {
       type: "category",
       label: "API - Core",
       items: [
-        "cli",
-        "config",
         "continue-render",
         "delay-render",
         "interpolate",
         "interpolate-colors",
         "get-input-props",
+        "measure-spring",
         "random",
         "register-root",
         "spring",
@@ -59,6 +61,11 @@ module.exports = {
         "easing",
       ],
     },
+    {
+      type: "category",
+      label: "API - @remotion/bundler",
+      items: ["bundle"],
+    },
     "gif",
     {
       type: "category",
@@ -71,6 +78,16 @@ module.exports = {
         "use-audio-data",
         "visualize-audio",
       ],
+    },
+    {
+      type: "category",
+      label: "API - @remotion/renderer",
+      items: ["get-compositions", "render-frames", "stitch-frames-to-video"],
+    },
+    {
+      type: "category",
+      label: "Troubleshooting",
+      items: ["timeout", "performance"],
     },
     "2-0-migration",
     "license",

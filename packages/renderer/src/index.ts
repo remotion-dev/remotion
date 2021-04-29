@@ -1,116 +1,29 @@
-import puppeteer from 'puppeteer-core';
-import {Browser, ImageFormat, Internals} from 'remotion';
-import {
-	ensureLocalBrowser,
-	getLocalBrowserExecutable,
-} from './get-local-browser-executable';
-import {screenshot} from './puppeteer-screenshot';
+import {TAsset, TCompMetadata} from 'remotion';
+import {ffmpegHasFeature, getFfmpegVersion} from './ffmpeg-flags';
+import {getActualConcurrency} from './get-concurrency';
+import {ensureLocalBrowser} from './get-local-browser-executable';
+import {openBrowser} from './open-browser';
+import {binaryExists, validateFfmpeg} from './validate-ffmpeg';
 
-async function screenshotDOMElement({
-	page,
-	imageFormat,
-	quality,
-	opts = {},
-}: {
-	page: puppeteer.Page;
-	imageFormat: ImageFormat;
-	quality: number | undefined;
-	opts?: {
-		path?: string;
-		selector?: string;
-	};
-}): Promise<Buffer> {
-	const path = 'path' in opts ? opts.path : null;
-	const {selector} = opts;
-
-	if (!selector) throw Error('Please provide a selector.');
-	if (!path) throw Error('Please provide a path.');
-
-	if (imageFormat === 'png') {
-		await page.evaluate(() => (document.body.style.background = 'transparent'));
+declare global {
+	interface Window {
+		ready: boolean;
+		getStaticCompositions: () => TCompMetadata[];
+		remotion_setFrame: (frame: number) => void;
+		remotion_collectAssets: () => TAsset[];
 	}
-	if (imageFormat === 'none') {
-		throw TypeError('Tried to make a screenshot with format "none"');
-	}
-	return screenshot(page, {
-		omitBackground: imageFormat === 'png',
-		path,
-		type: imageFormat,
-		quality,
-	}) as Promise<Buffer>;
 }
 
-export const openBrowser = async (
-	browser: Browser,
-	options?: {
-		shouldDumpIo?: boolean;
-	}
-): Promise<puppeteer.Browser> => {
-	if (browser === 'firefox' && !Internals.FEATURE_FLAG_FIREFOX_SUPPORT) {
-		throw new TypeError(
-			'Firefox supported is not yet turned on. Stay tuned for the future.'
-		);
-	}
-	await ensureLocalBrowser(browser);
-
-	const executablePath = await getLocalBrowserExecutable(browser);
-	const browserInstance = await puppeteer.launch({
-		executablePath,
-		product: browser,
-		dumpio: options?.shouldDumpIo ?? false,
-		args: [
-			'--no-sandbox',
-			'--disable-setuid-sandbox',
-			'--disable-dev-shm-usage',
-			process.platform === 'linux' ? '--single-process' : null,
-		].filter(Boolean) as string[],
-	});
-	return browserInstance;
+export {FfmpegVersion} from './ffmpeg-flags';
+export {getCompositions} from './get-compositions';
+export {OnStartData, renderFrames, RenderFramesOutput} from './render';
+export {stitchFramesToVideo} from './stitcher';
+export const RenderInternals = {
+	ensureLocalBrowser,
+	ffmpegHasFeature,
+	getActualConcurrency,
+	getFfmpegVersion,
+	openBrowser,
+	validateFfmpeg,
+	binaryExists,
 };
-
-export const seekToFrame = async ({
-	frame,
-	page,
-}: {
-	frame: number;
-	page: puppeteer.Page;
-}) => {
-	await page.waitForFunction('window.ready === true');
-	await page.evaluate((f) => {
-		window.remotion_setFrame(f);
-	}, frame);
-	await page.waitForFunction('window.ready === true');
-};
-
-export const provideScreenshot = async ({
-	page,
-	imageFormat,
-	options,
-	quality,
-}: {
-	page: puppeteer.Page;
-	imageFormat: ImageFormat;
-	quality: number | undefined;
-	options: {
-		frame: number;
-		output: string;
-	};
-}): Promise<void> => {
-	await screenshotDOMElement({
-		page,
-		opts: {
-			path: options.output,
-			selector: '#canvas',
-		},
-		imageFormat,
-		quality,
-	});
-};
-
-export * from './ffmpeg-flags';
-export * from './get-compositions';
-export * from './get-concurrency';
-export {ensureLocalBrowser} from './get-local-browser-executable';
-export * from './render';
-export * from './stitcher';
-export * from './validate-ffmpeg';
