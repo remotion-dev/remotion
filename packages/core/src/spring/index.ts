@@ -1,11 +1,11 @@
 import {springCalculation, SpringConfig} from './spring-utils';
 
 export function spring({
-	from = 0,
-	to = 1,
 	frame,
 	fps,
 	config = {},
+	from = 0,
+	to = 1,
 }: {
 	frame: number;
 	fps: number;
