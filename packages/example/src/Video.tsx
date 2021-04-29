@@ -1,5 +1,6 @@
 import React from 'react';
 import {Composition, getInputProps} from 'remotion';
+import {ColorInterpolation} from './ColorInterpolation';
 import {Framer} from './Framer';
 import {MissingImg} from './MissingImg';
 import RemoteVideo from './RemoteVideo';
@@ -239,6 +240,14 @@ export const Index: React.FC = () => {
 				height={720}
 				fps={30}
 				durationInFrames={600}
+			/>
+			<Composition
+				id="color-interpolation"
+				component={ColorInterpolation}
+				width={1280}
+				height={720}
+				fps={30}
+				durationInFrames={100}
 			/>
 		</>
 	);

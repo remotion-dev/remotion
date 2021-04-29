@@ -12,7 +12,7 @@ import {TimelineContext} from '../timeline-position-state';
 import {useAbsoluteCurrentFrame} from '../use-frame';
 import {useUnsafeVideoConfig} from '../use-unsafe-video-config';
 
-type SequenceContextType = {
+export type SequenceContextType = {
 	cumulatedFrom: number;
 	relativeFrom: number;
 	parentFrom: number;
@@ -62,9 +62,20 @@ export const Sequence: React.FC<{
 			`durationInFrames must be positive, but got ${durationInFrames}`
 		);
 	}
+	// Infinity is non-integer but allowed!
+	if (durationInFrames % 1 !== 0 && Number.isFinite(durationInFrames)) {
+		throw new TypeError(
+			`The "durationInFrames" of a sequence must be an integer, but got ${durationInFrames}.`
+		);
+	}
 	if (typeof from !== 'number') {
 		throw new TypeError(
 			`You passed to the "from" props of your <Sequence> an argument of type ${typeof from}, but it must be a number.`
+		);
+	}
+	if (from % 1 !== 0) {
+		throw new TypeError(
+			`The "from" prop of a sequence must be an integer, but got ${from}.`
 		);
 	}
 

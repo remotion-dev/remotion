@@ -26,7 +26,7 @@ Using the following snippet, we can calculate the current opacity for any frame:
 import {useCurrentFrame, interpolate} from 'remotion'
 
 const frame = useCurrentFrame(); // 10
-const opacity = interpolate(input,
+const opacity = interpolate(frame,
   [0, 20],
   [0, 1]
 ); // 0.5
@@ -46,7 +46,7 @@ import {useCurrentFrame, interpolate} from 'remotion'
 const frame = useCurrentFrame();
 const {durationInFrames} = useVideoConfig();
 const opacity = interpolate(
-  input,
+  frame,
   [0, 20, durationInFrames - 20, durationInFrames],
 // v--v---v----------------------v
   [0, 1,  1,                     0]
@@ -164,3 +164,4 @@ interpolate(frame, [0, 10, 40, 100], [0, 0.2, 0.6, 1], {
 
 - [Easing](/docs/easing)
 - [spring()](/docs/spring)
+- [interpolateColors()](/docs/interpolate-colors)

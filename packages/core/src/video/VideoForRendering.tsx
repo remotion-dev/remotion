@@ -1,4 +1,12 @@
-import React, {useContext, useEffect, useMemo, useRef} from 'react';
+import React, {
+	forwardRef,
+	useContext,
+	useEffect,
+	useImperativeHandle,
+	useMemo,
+	useRef,
+} from 'react';
+import {getAbsoluteSrc} from '../absolute-src';
 import {useFrameForVolumeProp} from '../audio/use-audio-frame';
 import {CompositionManager} from '../CompositionManager';
 import {isApproximatelyTheSame} from '../is-approximately-the-same';
@@ -12,11 +20,10 @@ import {evaluateVolume} from '../volume-prop';
 import {getCurrentTime} from './get-current-time';
 import {RemotionVideoProps} from './props';
 
-export const VideoForRendering: React.FC<RemotionVideoProps> = ({
-	onError,
-	volume: volumeProp,
-	...props
-}) => {
+const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
+	HTMLVideoElement,
+	RemotionVideoProps
+> = ({onError, volume: volumeProp, ...props}, ref) => {
 	const absoluteFrame = useAbsoluteCurrentFrame();
 
 	const frame = useCurrentFrame();
@@ -63,11 +70,11 @@ export const VideoForRendering: React.FC<RemotionVideoProps> = ({
 
 		registerAsset({
 			type: 'video',
-			src: props.src,
+			src: getAbsoluteSrc(props.src),
 			id,
 			frame: absoluteFrame,
 			volume,
-			isRemote: isRemoteAsset(props.src),
+			isRemote: isRemoteAsset(getAbsoluteSrc(props.src)),
 			mediaFrame: frame,
 		});
 
@@ -82,6 +89,10 @@ export const VideoForRendering: React.FC<RemotionVideoProps> = ({
 		frame,
 		absoluteFrame,
 	]);
+
+	useImperativeHandle(ref, () => {
+		return videoRef.current as HTMLVideoElement;
+	});
 
 	useEffect(() => {
 		if (!videoRef.current) {
@@ -146,3 +157,5 @@ export const VideoForRendering: React.FC<RemotionVideoProps> = ({
 
 	return <video ref={videoRef} {...props} />;
 };
+
+export const VideoForRendering = forwardRef(VideoForRenderingForwardFunction);

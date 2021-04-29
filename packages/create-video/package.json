@@ -1,6 +1,6 @@
 {
 	"name": "create-video",
-	"version": "2.0.0",
+	"version": "2.0.7",
 	"description": "",
 	"main": "index.js",
 	"bin": {
@@ -11,7 +11,8 @@
 		"_template"
 	],
 	"scripts": {
-		"build": "tsc -d"
+		"build": "tsc -d",
+		"watch": "tsc -w"
 	},
 	"author": "",
 	"license": "SEE LICENSE IN LICENSE.md",

@@ -8,19 +8,20 @@ import {
 	RenderAssetInfo,
 	VideoConfig,
 } from 'remotion';
-import {provideScreenshot, seekToFrame} from '.';
 import {getActualConcurrency} from './get-concurrency';
 import {getFrameCount} from './get-frame-range';
 import {getFrameToRender} from './get-frame-to-render';
 import {DEFAULT_IMAGE_FORMAT} from './image-format';
 import {Pool} from './pool';
+import {provideScreenshot} from './provide-screenshot';
+import {seekToFrame} from './seek-to-frame';
 
 export type RenderFramesOutput = {
 	frameCount: number;
 	assetsInfo: RenderAssetInfo;
 };
 
-type OnStartData = {
+export type OnStartData = {
 	frameCount: number;
 };
 
@@ -34,25 +35,21 @@ export const renderFrames = async ({
 	inputProps,
 	quality,
 	imageFormat = DEFAULT_IMAGE_FORMAT,
-	browser = Internals.DEFAULT_BROWSER,
 	frameRange,
-	dumpBrowserLogs = false,
 	puppeteerInstance,
 	serveUrl,
 }: {
 	config: VideoConfig;
-	parallelism?: number | null;
-	onFrameUpdate: (f: number, frame: string) => void;
-	onStart: (data: OnStartData) => void;
 	compositionId: string;
+	onStart: (data: OnStartData) => void;
+	onFrameUpdate: (f: number, src: string) => void;
 	outputDir: string;
 	inputProps: unknown;
 	imageFormat: ImageFormat;
+	parallelism?: number | null;
 	quality?: number;
 	browser?: Browser;
 	frameRange?: FrameRange | null;
-	assetsOnly?: boolean;
-	dumpBrowserLogs?: boolean;
 	puppeteerInstance: PuppeteerBrowser;
 	serveUrl: string;
 }): Promise<RenderFramesOutput> => {

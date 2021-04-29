@@ -25,7 +25,7 @@ export const calculateFfmpegFilters = ({
 				.channels > 0
 		);
 	});
-	return withMoreThan1Channel.map((asset, i) => {
+	return withMoreThan1Channel.map((asset) => {
 		const assetTrimLeft = (asset.trimLeft / fps).toFixed(3);
 		const assetTrimRight = ((asset.trimLeft + asset.duration) / fps).toFixed(3);
 		const audioDetails = assetAudioDetails.get(
@@ -36,7 +36,7 @@ export const calculateFfmpegFilters = ({
 			asset
 		);
 
-		const streamIndex = i + videoTrackCount;
+		const streamIndex = assetPositions.indexOf(asset) + videoTrackCount;
 		return {
 			filter: stringifyFfmpegFilter({
 				streamIndex,

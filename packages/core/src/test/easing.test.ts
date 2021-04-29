@@ -1,6 +1,54 @@
 import {Easing} from '../easing';
 
-const numbersToTest = [0, 0.4, 0.5, 0.7, 1];
+const numbersToTest = [-0.5, 0, 0.4, 0.5, 0.7, 1, 1.5];
+
+describe('Easing step0', () => {
+	const step0 = (n: number) => {
+		return n > 0 ? 1 : 0;
+	};
+	const out = (n: number) => 1 - step0(1 - n);
+	const inOut = (n: number) => {
+		if (n >= 0.5) {
+			return 1 - step0((1 - n) * 2) / 2;
+		} else return step0(n * 2) / 2;
+	};
+	test('Easing In', () => {
+		const easingIn = Easing.in(Easing.step0);
+		numbersToTest.forEach((n) => expect(easingIn(n)).toBe(step0(n)));
+	});
+	test('Easing Out', () => {
+		const easingOut = Easing.out(Easing.step0);
+		numbersToTest.forEach((n) => expect(easingOut(n)).toBe(out(n)));
+	});
+	test('Easing In Out', () => {
+		const easingInOut = Easing.inOut(Easing.step0);
+		numbersToTest.forEach((n) => expect(easingInOut(n)).toBe(inOut(n)));
+	});
+});
+
+describe('Easing step1', () => {
+	const step1 = (n: number) => {
+		return n >= 1 ? 1 : 0;
+	};
+	const out = (n: number) => 1 - step1(1 - n);
+	const inOut = (n: number) => {
+		if (n >= 0.5) {
+			return 1 - step1((1 - n) * 2) / 2;
+		} else return step1(n * 2) / 2;
+	};
+	test('Easing In', () => {
+		const easingIn = Easing.in(Easing.step1);
+		numbersToTest.forEach((n) => expect(easingIn(n)).toBe(step1(n)));
+	});
+	test('Easing Out', () => {
+		const easingOut = Easing.out(Easing.step1);
+		numbersToTest.forEach((n) => expect(easingOut(n)).toBe(out(n)));
+	});
+	test('Easing In Out', () => {
+		const easingInOut = Easing.inOut(Easing.step1);
+		numbersToTest.forEach((n) => expect(easingInOut(n)).toBe(inOut(n)));
+	});
+});
 
 describe('Easing linear', () => {
 	test('Easing In', () => {

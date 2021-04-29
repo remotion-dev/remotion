@@ -7,12 +7,14 @@ jobs:
     strategy:
       matrix:
         os: [macos-latest, ubuntu-latest, windows-latest]
+        version: ['4.1','4.4']
     steps:
       - uses: actions/checkout@main
       - uses: actions/setup-node@main
-      - uses: FedericoCarboni/setup-ffmpeg@v1
+      - uses: Iamshankhadeep/setup-ffmpeg@v1.1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+          version: ${{ matrix.version }}
       - run: npm i
       - run: npx lerna bootstrap --ci
       - run: npm run build
