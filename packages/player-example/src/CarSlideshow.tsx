@@ -1,4 +1,3 @@
-import React from 'react';
 import {interpolate, useCurrentFrame, useVideoConfig} from 'remotion';
 
 type Props = {
@@ -27,7 +26,7 @@ const CarSlideshow = ({title}: Props) => {
 					position: 'absolute',
 					top: height / 2 - 100,
 					left,
-					color: 'white',
+					color: 'black',
 					whiteSpace: 'nowrap',
 				}}
 			>
