@@ -12,7 +12,7 @@ export const PlayPause: React.FC = () => {
 	const frame = Internals.Timeline.useTimelinePosition();
 	const video = Internals.useVideo();
 
-	const [toggle, frameBack, frameForward, isLastFrame] = usePlaybackTime();
+	const {toggle, frameBack, frameForward, isLastFrame} = usePlaybackTime();
 
 	const onKeyPress = useCallback(
 		(e: KeyboardEvent) => {

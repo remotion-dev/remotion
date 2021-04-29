@@ -1,45 +1,43 @@
-import React, {Suspense} from 'react';
+import React, {Suspense, useMemo} from 'react';
 import {Internals} from 'remotion';
-import {usePlaybackTime} from './PlayPause';
+import {Controls} from './PlayerControls';
 
 const RootComponent: React.FC<{
 	controls: boolean;
 	style?: Omit<React.CSSProperties, 'width' | 'height'>;
 }> = ({controls, style}) => {
 	const config = Internals.useUnsafeVideoConfig();
-	const [toggle] = usePlaybackTime();
-	const [playing] = Internals.Timeline.usePlayingState();
 	const video = Internals.useVideo();
 	const VideoComponent = video ? video.component : null;
 
+	const containerStyle: React.CSSProperties = useMemo(() => {
+		if (!config) {
+			return {};
+		}
+		return {
+			position: 'relative',
+			width: config.width,
+			height: config.height,
+			overflow: 'hidden',
+			...style,
+		};
+	}, [config, style]);
+
+	if (!config) {
+		return null;
+	}
+
 	return (
 		<Suspense fallback={<h1>Loading...</h1>}>
-			<div
-				style={{
-					position: 'relative',
-					width: config?.width,
-					height: config?.height,
-					overflow: 'hidden',
-					...style,
-				}}
-			>
-				{controls ? (
-					<button
-						type="button"
-						style={{
-							position: 'absolute',
-							left: '50%',
-							bottom: '10px',
-							zIndex: 100,
-							transform: 'translateX(-50%)',
-						}}
-						onClick={toggle}
-					>
-						{playing ? 'pause' : 'play'}
-					</button>
-				) : null}
+			<div style={containerStyle}>
 				{VideoComponent ? (
 					<VideoComponent {...(((video?.props as unknown) as {}) ?? {})} />
+				) : null}
+				{controls ? (
+					<Controls
+						fps={config.fps}
+						durationInFrames={config.durationInFrames}
+					/>
 				) : null}
 			</div>
 		</Suspense>
