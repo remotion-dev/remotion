@@ -1,9 +1,11 @@
 import React from 'react';
 import {interpolate, useCurrentFrame, useVideoConfig} from 'remotion';
 
-const CarSlideshow: React.FC<{
+type Props = {
 	title: string;
-}> = ({title}) => {
+};
+
+const CarSlideshow = ({title}: Props) => {
 	const frame = useCurrentFrame();
 	const {width, height, durationInFrames} = useVideoConfig();
 	const left = interpolate(frame, [0, durationInFrames], [width, width * -1]);
