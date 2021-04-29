@@ -34,5 +34,5 @@ test('Spring should go to 1', () => {
 			fps: 30,
 			frame: 100,
 		})
-	).toBe(1);
+	).toBeCloseTo(1);
 });

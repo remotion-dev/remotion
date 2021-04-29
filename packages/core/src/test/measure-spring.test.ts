@@ -4,13 +4,13 @@ test('Measure spring should work', () => {
 	const duration = measureSpring({
 		fps: 30,
 	});
-	expect(duration).toBe(54);
+	expect(duration).toBe(28);
 	expect(
 		spring({
 			fps: 30,
 			frame: duration,
 		})
-	).toBe(1);
+	).toBeCloseTo(1);
 	expect(
 		spring({
 			fps: 30,
