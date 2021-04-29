@@ -51,7 +51,7 @@ export const render = async () => {
 		imageFormat,
 	} = await getCliOptions();
 
-	checkAndValidateFfmpegVersion();
+	await checkAndValidateFfmpegVersion();
 
 	const browserInstance = RenderInternals.openBrowser(browser, {
 		shouldDumpIo: Internals.Logging.isEqualOrBelowLogLevel('verbose'),

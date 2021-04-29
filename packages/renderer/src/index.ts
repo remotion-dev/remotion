@@ -1,5 +1,9 @@
 import {TAsset, TCompMetadata} from 'remotion';
-import {ffmpegHasFeature, getFfmpegVersion} from './ffmpeg-flags';
+import {
+	ffmpegHasFeature,
+	getFfmpegBuildInfo,
+	getFfmpegVersion,
+} from './ffmpeg-flags';
 import {getActualConcurrency} from './get-concurrency';
 import {ensureLocalBrowser} from './get-local-browser-executable';
 import {openBrowser} from './open-browser';
@@ -26,4 +30,5 @@ export const RenderInternals = {
 	openBrowser,
 	validateFfmpeg,
 	binaryExists,
+	getFfmpegBuildInfo,
 };
