@@ -1,6 +1,7 @@
 import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {Internals, interpolate} from 'remotion';
 import {useElementSize} from './use-element-size';
+import {useHoverState} from './use-hover-state';
 
 const getFrameFromX = (
 	clientX: number,
@@ -25,6 +26,7 @@ const containerStyle: React.CSSProperties = {
 	userSelect: 'none',
 	paddingTop: VERTICAL_PADDING,
 	paddingBottom: VERTICAL_PADDING,
+	boxSizing: 'border-box',
 	cursor: 'pointer',
 	position: 'relative',
 };
@@ -39,8 +41,9 @@ const barBackground: React.CSSProperties = {
 export const PlayerSeekBar: React.FC<{
 	durationInFrames: number;
 }> = ({durationInFrames}) => {
-	const sliderAreaRef = useRef<HTMLDivElement>(null);
-	const size = useElementSize(sliderAreaRef);
+	const containerRef = useRef<HTMLDivElement>(null);
+	const barHovered = useHoverState(containerRef);
+	const size = useElementSize(containerRef);
 	const frame = Internals.Timeline.useTimelinePosition();
 	const setTimelinePosition = Internals.Timeline.useTimelineSetFrame();
 
@@ -128,8 +131,9 @@ export const PlayerSeekBar: React.FC<{
 			backgroundColor: 'white',
 			left: (frame / durationInFrames) * ((size?.width ?? 0) - KNOB_SIZE),
 			boxShadow: '0 0 2px black',
+			opacity: Number(barHovered),
 		};
-	}, [durationInFrames, frame, size?.width]);
+	}, [barHovered, durationInFrames, frame, size?.width]);
 
 	const fillStyle: React.CSSProperties = useMemo(() => {
 		return {
@@ -142,7 +146,7 @@ export const PlayerSeekBar: React.FC<{
 
 	return (
 		<div
-			ref={sliderAreaRef}
+			ref={containerRef}
 			onPointerDown={onPointerDown}
 			onPointerUp={onPointerUp}
 			style={containerStyle}
