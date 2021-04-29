@@ -14,6 +14,14 @@ import {
 } from 'remotion';
 import RootComponent from './RootComponent';
 
+type PropsIfHasProps<Props> = {} extends Props
+	? {
+			props?: Props;
+	  }
+	: {
+			props: Props;
+	  };
+
 export type PlayerProps<T> = {
 	durationInFrames: number;
 	width: number;
@@ -21,8 +29,8 @@ export type PlayerProps<T> = {
 	fps: number;
 	controls?: boolean;
 	style?: Omit<React.CSSProperties, 'height' | 'width'>;
-	props?: T;
-} & CompProps<T>;
+} & PropsIfHasProps<T> &
+	CompProps<T>;
 
 export type PlayerMethods = {
 	play: () => void;
