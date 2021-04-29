@@ -49,7 +49,12 @@ import {
 import {FEATURE_FLAG_FIREFOX_SUPPORT} from './feature-flags';
 import {isAudioCodec} from './is-audio-codec';
 import * as perf from './perf';
-import {getCompositionName, getIsEvaluation, getRoot} from './register-root';
+import {
+	getCompositionName,
+	getIsEvaluation,
+	getRoot,
+	isPlainIndex,
+} from './register-root';
 import {RemotionRoot} from './RemotionRoot';
 import {SequenceContext} from './sequencing';
 import * as Timeline from './timeline-position-state';
@@ -106,6 +111,7 @@ export const Internals = {
 	SequenceContext,
 	useRemotionContexts,
 	RemotionContextProvider,
+	isPlainIndex,
 };
 
 export type {

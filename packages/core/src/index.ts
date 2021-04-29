@@ -1,4 +1,14 @@
 import './asset-types';
+import {TAsset, TCompMetadata} from './CompositionManager';
+
+declare global {
+	interface Window {
+		ready: boolean;
+		getStaticCompositions: () => TCompMetadata[];
+		remotion_setFrame: (frame: number) => void;
+		remotion_collectAssets: () => TAsset[];
+	}
+}
 
 export * from './AbsoluteFill';
 export * from './audio';
@@ -11,6 +21,7 @@ export * from './IFrame';
 export * from './Img';
 export * from './internals';
 export * from './interpolate';
+export {interpolateColors} from './interpolateColors';
 export * from './random';
 export * from './ready-manager';
 export {registerRoot} from './register-root';

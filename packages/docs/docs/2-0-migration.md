@@ -33,14 +33,20 @@ Hopefully you will not notice a difference besides it being much faster. There i
 
 **Upgrade path**: Do nothing - should something break, use the legacy Babel plugin and file an issue.
 
+## `react-dom` is a peer dependency
+
+`react-dom` is not anymore pre-installed, so you need to install manually if you upgrade.
+
 ## Upgrade to version 2.0
 
 Upgrade **all** dependencies containing "remotion" in your package.json to version `^2.0.0`.
 
 ```diff
+-"@remotion/bundler": "^1.5.4",
 -"@remotion/cli": "^1.5.4",
 -"@remotion/eslint-config": "^1.5.4",
 -"@remotion/renderer": "^1.5.4",
++"@remotion/bundler": "^2.0.0",
 +"@remotion/cli": "^2.0.0",
 +"@remotion/eslint-config": "2.0.0",
 +"@remotion/renderer": "^2.0.0",
@@ -51,7 +57,7 @@ Upgrade **all** dependencies containing "remotion" in your package.json to versi
 "prettier": "^2.2.1",
 "prettier-plugin-organize-imports": "^1.1.1",
 "react": "^17.0.2",
-"react-dom": "^17.0.2",
++"react-dom": "^17.0.2",
 -"remotion": "^1.5.4",
 +"remotion": "^2.0.0",
 ```

@@ -5,7 +5,7 @@ let buildConfig: string | null = null;
 
 export type FfmpegVersion = [number, number, number] | null;
 
-const getFfmpegBuildInfo = async () => {
+export const getFfmpegBuildInfo = async () => {
 	if (buildConfig !== null) {
 		return buildConfig;
 	}
