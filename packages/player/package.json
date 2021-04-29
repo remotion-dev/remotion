@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/player",
-	"version": "1.5.2",
+	"version": "2.0.7",
 	"description": "Remotion Player",
 	"main": "dist/index.js",
 	"sideEffects": false,
