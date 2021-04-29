@@ -99,6 +99,10 @@ function advance(
 		copiedAnimated.velocity = criticallyDampedVelocity;
 	}
 
+	if (copiedAnimated.isFinished) {
+		copiedAnimated.current = toValue;
+	}
+
 	return copiedAnimated;
 }
 
