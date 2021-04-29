@@ -173,11 +173,11 @@ export function spring({
 	fps,
 	config = {},
 }: {
-	from?: number;
-	to?: number;
 	frame: number;
 	fps: number;
 	config?: Partial<SpringConfig>;
+	from?: number;
+	to?: number;
 }): number {
 	return springCalculation({
 		fps,
@@ -198,36 +198,30 @@ export function measureSpring({
 	restDisplacementThreshold = DEFAULT_REST_DISPLACEMENT_THRESHOLD,
 	restSpeedThreshold = DEFAULT_REST_SPEED_THRESHOLD,
 }: {
-	from?: number;
-	to?: number;
 	fps: number;
 	config?: Partial<SpringConfig>;
 	restDisplacementThreshold?: number;
 	restSpeedThreshold?: number;
+	from?: number;
+	to?: number;
 }): number {
 	let frame = 0;
-	let animation = springCalculation({
-		prevPosition: 0,
-		fps,
-		frame,
-		config,
-		from,
-		to,
-		restDisplacementThreshold,
-		restSpeedThreshold,
-	});
-	while (!animation.isFinished) {
-		animation = springCalculation({
-			prevPosition: animation.prevPosition,
+	const calc = () => {
+		return springCalculation({
+			prevPosition: 0,
 			fps,
-			frame: frame++,
+			frame,
 			config,
 			from,
 			to,
 			restDisplacementThreshold,
 			restSpeedThreshold,
 		});
+	};
+	let animation = calc();
+	while (!animation.isFinished) {
+		frame++;
+		animation = calc();
 	}
-	//minus 1 because the last calculate animation was finished
-	return frame - 1;
+	return frame;
 }
