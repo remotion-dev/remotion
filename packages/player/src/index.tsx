@@ -1,3 +1,2 @@
-export {Player, PlayerInstance, PlayerMethods} from './Player';
-export * from './PlayPause';
+export {Player, PlayerMethods} from './Player';
 export {usePlaybackTime} from './PlayPause';

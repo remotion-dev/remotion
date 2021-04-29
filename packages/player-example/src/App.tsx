@@ -22,7 +22,7 @@ export default function App() {
 					overflow: 'hidden',
 				}}
 				props={{
-					title,
+					title: String(title),
 				}}
 			/>
 			<input
