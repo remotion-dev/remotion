@@ -171,11 +171,11 @@ export function measureSpring({
 	fps: number;
 	config?: Partial<SpringConfig>;
 }): number {
-	let iteration = 0;
+	let frame = 0;
 	let animation = springCalculation({
 		prevPosition: 0,
 		fps,
-		frame: iteration,
+		frame,
 		config,
 		from,
 		to,
@@ -184,12 +184,12 @@ export function measureSpring({
 		animation = springCalculation({
 			prevPosition: animation.prevPosition,
 			fps,
-			frame: iteration++,
+			frame: frame++,
 			config,
 			from,
 			to,
 		});
 	}
 	//minus 1 because the last calculate animation was finished
-	return iteration - 1;
+	return frame - 1;
 }
