@@ -296,7 +296,7 @@ test('It should throw if fps is of a composition is negative', () => {
 					/>
 				</RemotionRoot>
 			),
-		/The "fps" of a composition must be positive, but got -30./
+		/"fps" must be positive, but got -30./
 	);
 });
 test('It should throw if fps=0 of a composition is boundary off-point', () => {
@@ -314,7 +314,7 @@ test('It should throw if fps=0 of a composition is boundary off-point', () => {
 					/>
 				</RemotionRoot>
 			),
-		/The "fps" of a composition must be positive, but got 0./
+		/"fps" must be positive, but got 0./
 	);
 });
 test('It should not throw if fps=1 of a composition is boundary on-point', () => {
@@ -347,6 +347,6 @@ test('It should throw if fps of a composition is not a number', () => {
 					/>
 				</RemotionRoot>
 			),
-		/The "fps" of a composition must be a number, but you passed a string/
+		/"fps" must be a number, but you passed a string/
 	);
 });
