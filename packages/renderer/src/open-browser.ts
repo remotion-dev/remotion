@@ -8,6 +8,7 @@ import {
 export const openBrowser = async (
 	browser: Browser,
 	options?: {
+		customExecutable?: string | null;
 		shouldDumpIo?: boolean;
 	}
 ): Promise<puppeteer.Browser> => {
@@ -16,9 +17,12 @@ export const openBrowser = async (
 			'Firefox supported is not yet turned on. Stay tuned for the future.'
 		);
 	}
-	await ensureLocalBrowser(browser);
+	await ensureLocalBrowser(browser, options?.customExecutable ?? null);
 
-	const executablePath = await getLocalBrowserExecutable(browser);
+	const executablePath = await getLocalBrowserExecutable(
+		browser,
+		options?.customExecutable ?? null
+	);
 	const browserInstance = await puppeteer.launch({
 		executablePath,
 		product: browser,

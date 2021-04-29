@@ -134,7 +134,10 @@ const getAndValidateImageFormat = ({
 const getAndValidateBrowser = async () => {
 	const browser = getBrowser();
 	try {
-		await RenderInternals.ensureLocalBrowser(browser);
+		await RenderInternals.ensureLocalBrowser(
+			browser,
+			Internals.getBrowserExecutable()
+		);
 	} catch (err) {
 		Log.Error('Could not download a browser for rendering frames.');
 		Log.Error(err);
