@@ -1,6 +1,7 @@
 import React, {
 	forwardRef,
 	MutableRefObject,
+	useEffect,
 	useImperativeHandle,
 	useMemo,
 	useState,
@@ -56,6 +57,7 @@ export const PlayerFn = <T,>(
 
 	const [frame, setFrame] = useState<number>(0);
 	const [playing, setPlaying] = useState<boolean>(false);
+	const [hasPausedToResume, setHasPausedToResume] = useState(false);
 	const [rootId] = useState<string>('player-comp');
 
 	useImperativeHandle(ref, () => {
@@ -63,9 +65,20 @@ export const PlayerFn = <T,>(
 			play: () => setPlaying(true),
 			pause: () => setPlaying(false),
 			toggle: () => setPlaying(!playing),
-			seekTo: (f) => setFrame(f),
+			seekTo: (f) => {
+				setHasPausedToResume(true);
+				setPlaying(false);
+				setFrame(f);
+			},
 		};
 	});
+
+	useEffect(() => {
+		if (hasPausedToResume && !playing) {
+			setHasPausedToResume(false);
+			setPlaying(true);
+		}
+	}, [hasPausedToResume, playing]);
 
 	const timelineContextValue = useMemo((): TimelineContextValue & {
 		shouldRegisterSequences: boolean;
