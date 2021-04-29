@@ -3,78 +3,65 @@ title: measureSpring()
 id: measure-spring
 ---
 
-Based on a spring configuration and the FPS, return how long in frame it takes for the spring to settle.
-
-
-:::caution
-
-Warning! The longer the animation, the more important the calculation.
-Having a long animation and using `measureSpring()` may cause slowdowns
-
-:::
+Based on a spring configuration and the frame rate, return how long it takes for a spring animation to settle.
 
 ```tsx
-import {measureSpring, useCurrentFrame} from 'remotion';
+import {
+  measureSpring,
+  SpringConfig
+} from 'remotion';
 
-const videoConfig = useVideoConfig();
-  
-const config = {
-  damping: 10,
-  mass: 0.7,
-  stiffness: 40,
-  overshootClamping: false,
+
+const config: SpringConfig = {
+  damping: 200,
 }
 
 measureSpring({
-  config,
-	fps: videoConfig.fps,
-	from: 0,
-	to: 1,
-}); // 73
+  fps: 30,
+  config: {
+    damping: 200
+  }
+}); // => 23
 ```
 
-## Parameters
+:::info
+Theoretically, a spring animation never ends. There is always a miniscule amount or energy left in the spring that causes tiny movements. Instead, we set a threshold to define when the spring animation is considered done.
+:::
 
-### from
+## Arguments
+
+An object with these keys:
+
+### `fps`
+
+The frame rate on which the spring animation is based on.
+
+### `threshold`
+
+_optional - default: `0.005`_
+
+Defines when the animation should be considered finished. `0.01` means that the animation is finished when it always stays within 1% of the `to` value. For example an animation that goes from 0 to 1 is considered finished when the value never leaves the range [0.99, 1.01] after the end point.
+
+Lower values mean the spring duration is longer, higher values result in the spring duration being shorter.
+
+### `config?`
+
+_optional_
+
+The spring configuration that you pass to [spring()](/docs/spring#config).
+
+### `from?`
+
+_optional - default: `1`_
 
 The initial value of the animation.
 
-### to
+### `to?`
+
+_optional - default: `1`_
 
 The end value of the animation. Note that depending on the parameters, spring animations may overshoot the target a bit, before they bounce back to their final target.
 
-### fps
-
-For how many frames per second the spring animation should be calculated. Better using the `fps` property of the return value of `useVideoConfig()` or the same value.
-
-### config
-
-An optional object that allows you to customize the physical properties of the animation.
-
-#### mass
-
-_Default:_ `1`
-
-The weight of the spring. If you reduce the mass, the animation becomes faster!
-
-#### Damping
-
-_Default_: `10`
-
-How hard the animation decelerates.
-
-#### Stiffness
-
-_Default_: `100`
-
-Spring stiffness coefficient. Play with this one and it will affect how bouncy your animation is.
-
-#### overshootClamping
-
-_Default_: `false`
-
-Determines whether the animation can shoot over the `to` value. If set to true, if the animation goes over `to`, it will just return the value of `to`.
-
 ## See also
 
-- [useVideoConfig()](/docs/use-video-config)
+- [spring()](/docs/spring)
