@@ -19,6 +19,41 @@ test('It should throw if Sequence has missing duration', () => {
 	);
 });
 
+test('It should throw if Sequence has non-integer durationInFrames', () => {
+	expectToThrow(
+		() =>
+			render(
+				<Sequence from={0} durationInFrames={1.1}>
+					hi
+				</Sequence>
+			),
+		/The "durationInFrames" of a sequence must be an integer, but got 1.1./
+	);
+});
+test('It should throw if Sequence has non-integer from', () => {
+	expectToThrow(
+		() =>
+			render(
+				<Sequence from={0.1} durationInFrames={1}>
+					hi
+				</Sequence>
+			),
+		/The "from" prop of a sequence must be an integer, but got 0.1./
+	);
+});
+
+test('It should throw if Sequence has missing duration', () => {
+	expectToThrow(
+		() =>
+			render(
+				<Sequence from={0} durationInFrames={1.1}>
+					hi
+				</Sequence>
+			),
+		/The "durationInFrames" of a sequence must be an integer, but got 1.1./
+	);
+});
+
 test('It should throw if Sequence has negative duration', () => {
 	expectToThrow(
 		// @ts-expect-error

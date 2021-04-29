@@ -34,13 +34,8 @@ Usually the values on left side of the array can become much larger than the val
 In this example, we render a bar chart visualizing the audio spectrum of an audio file we imported using [`useAudioData()`](use-audio-data) and `visualizeAudio()`.
 
 ```tsx
-import {
-  useCurrentFrame,
-  useVideoConfig,
-  useAudioData,
-  visualizeAudio,
-  Audio
-} from 'remotion';
+import {Audio, useCurrentFrame, useVideoConfig} from 'remotion';
+import {useAudioData, visualizeAudio} from '@remotion/media-utils';
 import music from './music.mp3';
 
 export const MyComponent: React.FC = () => {

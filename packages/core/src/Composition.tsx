@@ -6,6 +6,8 @@ import {
 	getIsEvaluation,
 	removeStaticComposition,
 } from './register-root';
+import {validateDurationInFrames} from './validation/validate-duration-in-frames';
+import {validateFps} from './validation/validate-fps';
 
 type CompProps<T> =
 	| {
@@ -81,31 +83,8 @@ export const Composition = <T,>({
 				`The "height" of a composition must be positive, but got ${height}.`
 			);
 		}
-		if (typeof durationInFrames !== 'number') {
-			throw new Error(
-				`The "durationInFrames" of a composition must be a number, but you passed a ${typeof durationInFrames}`
-			);
-		}
-		if (durationInFrames <= 0) {
-			throw new TypeError(
-				`The "durationInFrames" of a composition must be positive, but got ${durationInFrames}.`
-			);
-		}
-		if (durationInFrames % 1 !== 0) {
-			throw new TypeError(
-				`The "durationInFrames" of a composition must be an integer, but got ${durationInFrames}.`
-			);
-		}
-		if (typeof fps !== 'number') {
-			throw new Error(
-				`The "fps" of a composition must be a number, but you passed a ${typeof fps}`
-			);
-		}
-		if (fps <= 0) {
-			throw new TypeError(
-				`The "fps" of a composition must be positive, but got ${fps}.`
-			);
-		}
+		validateDurationInFrames(durationInFrames);
+		validateFps(fps);
 		registerComposition<T>({
 			durationInFrames,
 			fps,

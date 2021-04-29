@@ -4,6 +4,7 @@
     Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
   font-weight: 700;
   line-height: 1.2;
+  word-break: break-word;
 }
 
 .row {
@@ -12,8 +13,18 @@
   text-align: left;
 }
 
+.youtubeIframe{
+  align-self: center;
+}
+
 @media screen and (max-width: 1200px) {
   .row {
     flex-direction: column;
+    text-align: center;
+  }
+
+  .tabContainer {
+    margin-top: 1rem;
+    justify-content: center;
   }
 }

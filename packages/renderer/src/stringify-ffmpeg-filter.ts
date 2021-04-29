@@ -33,7 +33,13 @@ export const stringifyFfmpegFilter = ({
 		`[${streamIndex}:a]` +
 		[
 			`atrim=${trimLeft}:${trimRight}`,
-			`adelay=${new Array(channels).fill(startInVideoSeconds).join('|')}`,
+			// For n channels, we delay n + 1 channels.
+			// This is because `ffprobe` for some audio files reports the wrong amount
+			// of channels.
+			// This should be fine because FFMPEG documentation states:
+			// "Unused delays will be silently ignored."
+			// https://ffmpeg.org/ffmpeg-filters.html#adelay
+			`adelay=${new Array(channels + 1).fill(startInVideoSeconds).join('|')}`,
 			`volume=${volumeFilter.value}:eval=${volumeFilter.eval}`,
 		]
 			.filter(Internals.truthy)
