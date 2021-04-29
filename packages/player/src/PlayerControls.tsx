@@ -125,6 +125,7 @@ export const Controls: React.FC<{
 					flexDirection: 'row',
 					width: '100%',
 					alignItems: 'center',
+					userSelect: 'none',
 				}}
 			>
 				<button type="button" onClick={toggle}>
@@ -147,7 +148,13 @@ export const Controls: React.FC<{
 				ref={sliderAreaRef}
 				onPointerDown={onPointerDown}
 				onPointerUp={onPointerUp}
-				style={{paddingTop: 4, paddingBottom: 4, cursor: 'pointer'}}
+				style={{
+					userSelect: 'none',
+					paddingTop: 4,
+					paddingBottom: 4,
+					cursor: 'pointer',
+					position: 'relative',
+				}}
 			>
 				<div
 					style={{
@@ -166,6 +173,19 @@ export const Controls: React.FC<{
 						}}
 					/>
 				</div>
+				<div
+					style={{
+						height: 12,
+						width: 12,
+						borderRadius: 6,
+						position: 'absolute',
+						top: 4 - 12 / 2 + 5 / 2,
+						backgroundColor: 'white',
+						left: (frame / durationInFrames) * ((size?.width ?? 0) - 12),
+
+						boxShadow: '0 0 2px black',
+					}}
+				/>
 			</div>
 		</div>
 	);
