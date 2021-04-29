@@ -1,11 +1,12 @@
+import {validateFps} from '../validation/validate-fps';
 import {springCalculation, SpringConfig} from './spring-utils';
 
 export function measureSpring({
-	from = 0,
-	to = 1,
 	fps,
 	config = {},
 	threshold = 0.005,
+	from = 0,
+	to = 1,
 }: {
 	fps: number;
 	config?: Partial<SpringConfig>;
@@ -18,6 +19,12 @@ export function measureSpring({
 			`threshold must be a number, got ${threshold} of type ${typeof threshold}`
 		);
 	}
+	if (threshold === 0) {
+		return Infinity;
+	}
+	if (threshold === 1) {
+		return 0;
+	}
 	if (isNaN(threshold)) {
 		throw new TypeError('Threshold is NaN');
 	}
@@ -27,9 +34,8 @@ export function measureSpring({
 	if (threshold < 0) {
 		throw new TypeError('Threshold is below 0');
 	}
-	if (threshold > 1) {
-		throw new TypeError('Threshold is above 1');
-	}
+
+	validateFps(fps);
 
 	const range = Math.abs(from - to);
 	let frame = 0;
@@ -51,7 +57,7 @@ export function measureSpring({
 		);
 	};
 	let difference = calcDifference();
-	while (difference > threshold) {
+	while (difference >= threshold) {
 		frame++;
 		animation = calc();
 		difference = calcDifference();
@@ -64,7 +70,7 @@ export function measureSpring({
 		frame++;
 		animation = calc();
 		difference = calcDifference();
-		if (difference > threshold) {
+		if (difference >= threshold) {
 			i = 0;
 			finishedFrame = frame + 1;
 		}
