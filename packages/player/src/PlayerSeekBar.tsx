@@ -17,6 +17,8 @@ const getFrameFromX = (
 	return frame;
 };
 
+const BAR_HEIGHT = 5;
+const KNOB_SIZE = 12;
 const VERTICAL_PADDING = 4;
 
 const containerStyle: React.CSSProperties = {
@@ -28,13 +30,11 @@ const containerStyle: React.CSSProperties = {
 };
 
 const barBackground: React.CSSProperties = {
-	height: 5,
+	height: BAR_HEIGHT,
 	backgroundColor: 'rgba(255, 255, 255, 0.5)',
 	width: '100%',
-	borderRadius: 3,
+	borderRadius: BAR_HEIGHT / 2,
 };
-
-const KNOB_SIZE = 12;
 
 export const PlayerSeekBar: React.FC<{
 	durationInFrames: number;
@@ -133,10 +133,10 @@ export const PlayerSeekBar: React.FC<{
 
 	const fillStyle: React.CSSProperties = useMemo(() => {
 		return {
-			height: 5,
+			height: BAR_HEIGHT,
 			backgroundColor: 'rgba(255, 255, 255, 1)',
 			width: (frame / durationInFrames) * 100 + '%',
-			borderRadius: 3,
+			borderRadius: BAR_HEIGHT / 2,
 		};
 	}, [durationInFrames, frame]);
 

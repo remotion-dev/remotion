@@ -16,7 +16,7 @@ export default function App() {
 				fps={30}
 				durationInFrames={500}
 				component={CarSlideshow}
-				controls={true}
+				controls
 				props={{
 					title: String(title),
 				}}

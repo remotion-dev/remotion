@@ -6,10 +6,14 @@ import {usePlaybackTime} from './PlayPause';
 export const Controls: React.FC<{
 	fps: number;
 	durationInFrames: number;
-}> = ({durationInFrames, fps}) => {
+	hovered: boolean;
+}> = ({durationInFrames, hovered, fps}) => {
 	const {toggle} = usePlaybackTime();
 	const [playing] = Internals.Timeline.usePlayingState();
 	const frame = Internals.Timeline.useTimelinePosition();
+
+	// Hide if playing and mouse outside
+	const shouldShow = hovered || !playing;
 
 	return (
 		<div
@@ -25,6 +29,8 @@ export const Controls: React.FC<{
 				paddingRight: 12,
 				paddingLeft: 12,
 				flexDirection: 'column',
+				transition: 'opacity 0.3s',
+				opacity: Number(shouldShow),
 			}}
 		>
 			<div
@@ -52,7 +58,7 @@ export const Controls: React.FC<{
 				<div style={{flex: 1}} />
 			</div>
 			<div style={{height: 8}} />
-			<PlayerSeekBar durationInFrames={durationInFrames} fps={fps} />
+			<PlayerSeekBar durationInFrames={durationInFrames} />
 		</div>
 	);
 };
