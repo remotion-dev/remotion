@@ -21,11 +21,19 @@ const defaultSpringConfig: SpringConfig = {
 	overshootClamping: false,
 };
 
-function advance(
-	animation: AnimationNode,
-	now: number,
-	config: SpringConfig
-): AnimationNode {
+function advance({
+	animation,
+	now,
+	config,
+	restDisplacementThreshold,
+	restSpeedThreshold,
+}: {
+	animation: AnimationNode;
+	now: number;
+	config: SpringConfig;
+	restDisplacementThreshold: number;
+	restSpeedThreshold: number;
+}): AnimationNode {
 	const copiedAnimated = {...animation};
 	const {toValue, lastTimestamp, current, velocity} = copiedAnimated;
 
@@ -81,10 +89,11 @@ function advance(
 		isOvershooting = false;
 	}
 
-	const isVelocity = Math.abs(animation.velocity) < 0.001;
+	const isVelocity = Math.abs(animation.velocity) < restSpeedThreshold;
 
 	const isDisplacement =
-		config.stiffness == 0 || Math.abs(toValue - current) < 0.001;
+		config.stiffness == 0 ||
+		Math.abs(toValue - current) < restDisplacementThreshold;
 
 	if (isOvershooting == true || (isVelocity && isDisplacement)) {
 		copiedAnimated.isFinished = true;
@@ -136,9 +145,15 @@ function springCalculation({
 			f += unevenRest;
 		}
 		const time = (f / fps) * 1000;
-		animation = advance(animation, time, {
-			...defaultSpringConfig,
-			...config,
+		animation = advance({
+			animation,
+			now: time,
+			config: {
+				...defaultSpringConfig,
+				...config,
+			},
+			restDisplacementThreshold: 0.001,
+			restSpeedThreshold: 0.001,
 		});
 	}
 	return animation;
