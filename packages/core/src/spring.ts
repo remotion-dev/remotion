@@ -21,6 +21,9 @@ const defaultSpringConfig: SpringConfig = {
 	overshootClamping: false,
 };
 
+const DEFAULT_REST_SPEED_THRESHOLD = 0.001;
+const DEFAULT_REST_DISPLACEMENT_THRESHOLD = 0.001;
+
 function advance({
 	animation,
 	now,
@@ -122,6 +125,8 @@ function springCalculation({
 	fps,
 	config = {},
 	prevPosition = 0,
+	restDisplacementThreshold,
+	restSpeedThreshold,
 }: {
 	from?: number;
 	to?: number;
@@ -129,6 +134,8 @@ function springCalculation({
 	fps: number;
 	config?: Partial<SpringConfig>;
 	prevPosition?: number;
+	restDisplacementThreshold: number;
+	restSpeedThreshold: number;
 }): AnimationNode {
 	let animation: AnimationNode = {
 		lastTimestamp: 0,
@@ -152,8 +159,8 @@ function springCalculation({
 				...defaultSpringConfig,
 				...config,
 			},
-			restDisplacementThreshold: 0.001,
-			restSpeedThreshold: 0.001,
+			restDisplacementThreshold,
+			restSpeedThreshold,
 		});
 	}
 	return animation;
@@ -172,7 +179,15 @@ export function spring({
 	fps: number;
 	config?: Partial<SpringConfig>;
 }): number {
-	return springCalculation({fps, frame, config, from, to}).current;
+	return springCalculation({
+		fps,
+		frame,
+		config,
+		from,
+		to,
+		restDisplacementThreshold: DEFAULT_REST_DISPLACEMENT_THRESHOLD,
+		restSpeedThreshold: DEFAULT_REST_SPEED_THRESHOLD,
+	}).current;
 }
 
 export function measureSpring({
@@ -180,11 +195,15 @@ export function measureSpring({
 	to = 1,
 	fps,
 	config = {},
+	restDisplacementThreshold = DEFAULT_REST_DISPLACEMENT_THRESHOLD,
+	restSpeedThreshold = DEFAULT_REST_SPEED_THRESHOLD,
 }: {
 	from?: number;
 	to?: number;
 	fps: number;
 	config?: Partial<SpringConfig>;
+	restDisplacementThreshold?: number;
+	restSpeedThreshold?: number;
 }): number {
 	let frame = 0;
 	let animation = springCalculation({
@@ -194,6 +213,8 @@ export function measureSpring({
 		config,
 		from,
 		to,
+		restDisplacementThreshold,
+		restSpeedThreshold,
 	});
 	while (!animation.isFinished) {
 		animation = springCalculation({
@@ -203,6 +224,8 @@ export function measureSpring({
 			config,
 			from,
 			to,
+			restDisplacementThreshold,
+			restSpeedThreshold,
 		});
 	}
 	//minus 1 because the last calculate animation was finished
