@@ -3,7 +3,7 @@ title: measureSpring()
 id: measure-spring
 ---
 
-Based on a spring configuration and the frame rate, return how long it takes for a spring animation to settle.
+Based on a [spring()](/docs/spring) configuration and the frame rate, return how long it takes for a spring animation to settle.
 
 ```tsx
 import {
