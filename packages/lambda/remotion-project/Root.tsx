@@ -1,12 +1,13 @@
 import React from 'react';
-import {Composition} from 'remotion';
+import {Composition, getInputProps} from 'remotion';
 import {MyVideo} from './MyVideo';
 
 export const RemotionRoot: React.FC = () => {
+	const inputProps = getInputProps();
 	return (
 		<Composition
 			fps={30}
-			durationInFrames={20000}
+			durationInFrames={inputProps.duration ?? 200}
 			component={MyVideo}
 			height={1080}
 			width={1920}

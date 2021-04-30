@@ -6,11 +6,11 @@ import {
 } from '@aws-sdk/client-s3';
 import {
 	getCompositions,
-	openBrowser,
 	renderFrames,
+	RenderInternals,
 	stitchFramesToVideo,
 } from '@remotion/renderer';
-import fs, {readdirSync, writeFileSync} from 'fs';
+import fs, {copyFileSync, writeFileSync} from 'fs';
 import path from 'path';
 import {concatVideos} from '../src/concat-videos';
 import {
@@ -27,7 +27,9 @@ const lambdaClient = new LambdaClient({region: REGION});
 
 type Await<T> = T extends PromiseLike<infer U> ? U : T;
 
-let _browserInstance: Await<ReturnType<typeof openBrowser>> | null;
+let _browserInstance: Await<
+	ReturnType<typeof RenderInternals.openBrowser>
+> | null;
 
 // TODO Potential race condition
 const getBrowserInstance = async () => {
@@ -35,7 +37,7 @@ const getBrowserInstance = async () => {
 		return _browserInstance;
 	}
 	const execPath = await executablePath();
-	_browserInstance = await openBrowser('chrome', {
+	_browserInstance = await RenderInternals.openBrowser('chrome', {
 		customExecutable: execPath,
 	});
 	return _browserInstance;
@@ -48,7 +50,7 @@ const validateComposition = async ({
 }: {
 	serveUrl: string;
 	composition: string;
-	browserInstance: Await<ReturnType<typeof openBrowser>>;
+	browserInstance: Await<ReturnType<typeof RenderInternals.openBrowser>>;
 }) => {
 	// TODO: Support input props
 	const compositions = await getCompositions({
@@ -94,7 +96,10 @@ export const handler = async (params: LambdaPayload) => {
 		if (!params.chunkSize) {
 			throw new Error('Pass chunkSize');
 		}
-		console.log('browser instanse', browserInstance);
+		// TODO: Better validation
+		if (!params.durationInFrames) {
+			throw new Error('Pass durationInFrames');
+		}
 
 		const comp = await validateComposition({
 			serveUrl: params.serveUrl,
@@ -111,15 +116,15 @@ export const handler = async (params: LambdaPayload) => {
 		);
 		bucketTimer.end();
 		const {chunkSize} = params;
-		const chunkCount = Math.ceil(comp.durationInFrames / chunkSize);
+		const chunkCount = Math.ceil(params.durationInFrames / chunkSize);
 
 		const chunks = new Array(chunkCount).fill(1).map((_, i) => {
 			return [
 				i * chunkSize,
-				Math.min(comp.durationInFrames, (i + 1) * chunkSize) - 1,
+				Math.min(params.durationInFrames, (i + 1) * chunkSize) - 1,
 			] as [number, number];
 		});
-		console.log(chunks);
+		const reqSend = timer('sending off requests');
 		await Promise.all(
 			chunks.map(async (chunk) => {
 				const payload: LambdaPayload = {
@@ -132,10 +137,11 @@ export const handler = async (params: LambdaPayload) => {
 					fps: comp.fps,
 					height: comp.height,
 					width: comp.width,
-					durationInFrames: comp.durationInFrames,
+					durationInFrames: params.durationInFrames,
 				};
-				const callingLambdaTimer = timer('Calling lambda');
-				console.log(`calling lambda ${chunk}`);
+				const callingLambdaTimer = timer(
+					'Calling lambda ' + chunks.indexOf(chunk)
+				);
 				await lambdaClient.send(
 					new InvokeCommand({
 						FunctionName: process.env.AWS_LAMBDA_FUNCTION_NAME,
@@ -147,6 +153,7 @@ export const handler = async (params: LambdaPayload) => {
 				callingLambdaTimer.end();
 			})
 		);
+		reqSend.end();
 		const out = await concatVideos(
 			efsRemotionVideoPath,
 			efsRemotionVideoRenderDone,
@@ -170,6 +177,12 @@ export const handler = async (params: LambdaPayload) => {
 		}
 		if (!params.frameRange) {
 			throw new Error('must pass framerange');
+		}
+		if (!fs.existsSync(params.efsRemotionVideoPath)) {
+			fs.mkdirSync(params.efsRemotionVideoPath);
+		}
+		if (!fs.existsSync(efsRemotionVideoRenderDone)) {
+			fs.mkdirSync(efsRemotionVideoRenderDone);
 		}
 		console.log(
 			`Started rendering ${params.chunk}, frame ${params.frameRange}`
@@ -203,12 +216,17 @@ export const handler = async (params: LambdaPayload) => {
 			params.efsRemotionVideoPath,
 			`chunk-${String(params.chunk).padStart(8, '0')}.mp4`
 		);
+		const intermediary = path.join(
+			outdir,
+			`chunk-${String(params.chunk).padStart(8, '0')}.mp4`
+		);
 		const outputFileLocation = path.join(
 			efsRemotionVideoRenderDone,
 			`chunk-${String(params.chunk).padStart(8, '0')}.txt`
 		);
 		console.log(outputLocation);
 
+		const stitchLabel = timer('stitcher');
 		await stitchFramesToVideo({
 			assetsInfo: {
 				// TODO
@@ -220,18 +238,21 @@ export const handler = async (params: LambdaPayload) => {
 			fps: params.fps,
 			height: params.height,
 			width: params.width,
-			outputLocation,
+			outputLocation: intermediary,
 			// TODO
 			codec: 'h264',
 			// TODO
 			imageFormat: 'jpeg',
 		});
+		stitchLabel.end();
+		const copying = timer('copying');
+		copyFileSync(intermediary, outputLocation);
+		copying.end();
+
+		const flag = timer('writing flag');
 		writeFileSync(outputFileLocation, 'true');
+		flag.end();
 		console.log('Done rendering!', outputDir, outputLocation);
-		console.log(
-			'all in render 226 files',
-			readdirSync(params.efsRemotionVideoPath)
-		);
 	} else {
 		throw new Error('Command not found');
 	}

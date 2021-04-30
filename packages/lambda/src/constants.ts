@@ -13,6 +13,8 @@ export type LambdaPayload =
 			serveUrl: string;
 			composition: string;
 			chunkSize: number;
+			// Just for debugging
+			durationInFrames: number;
 	  }
 	| {
 			type: 'renderer';
