@@ -2,9 +2,9 @@ import {PutObjectCommand} from '@aws-sdk/client-s3';
 import {renderFrames, stitchFramesToVideo} from '@remotion/renderer';
 import fs, {copyFileSync, writeFileSync} from 'fs';
 import path from 'path';
+import {s3Client} from '../src/aws-clients';
 import {EFS_MOUNT_PATH, ENABLE_EFS, LambdaPayload} from '../src/constants';
 import {timer} from '../src/timer';
-import {s3Client} from './aws-clients';
 import {getBrowserInstance} from './get-browser-instance';
 
 export const rendererHandler = async (params: LambdaPayload) => {
