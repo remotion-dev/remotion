@@ -38,15 +38,23 @@ describe('Codec tests undefined codec input with known extension', () => {
 		['aac', 'aac'],
 		['aac', 'm4a'],
 	];
-	codecExtensionCombination.forEach((entry) =>
-		test(`${entry[1]} should be recognized as ${entry[0]}`, () =>
-			expect(
-				getFinalOutputCodec({
-					codec: undefined,
-					emitWarning: false,
-					fileExtension: entry[1],
-				})
-			).toEqual(entry[0]))
+	const inputCodecs: CodecOrUndefined[] = ['h264', undefined];
+	inputCodecs.forEach((codec) =>
+		codecExtensionCombination.forEach((entry) =>
+			test(
+				codec
+					? `should not look for extension ${entry[1]}`
+					: `${entry[1]} should be recognized as ${entry[0]}`,
+				() =>
+					expect(
+						getFinalOutputCodec({
+							codec,
+							emitWarning: false,
+							fileExtension: entry[1],
+						})
+					).toEqual(codec ?? entry[0])
+			)
+		)
 	);
 });
 
