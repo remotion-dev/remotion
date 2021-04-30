@@ -21,6 +21,14 @@
 		"react": "^17.0.1",
 		"react-dom": "^17.0.1"
 	},
+	"peerDependenciesMeta": {
+		"react": {
+			"autoinstall": false
+		},
+		"react-dom": {
+			"autoinstall": false
+		}
+	},
 	"devDependencies": {
 		"@jonny/eslint-config": "^2.1.210",
 		"@types/node": "^14.14.14",

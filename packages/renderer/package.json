@@ -29,6 +29,14 @@
 		"react": "^17.0.1",
 		"react-dom": "^17.0.1"
 	},
+  "peerDependenciesMeta": {
+    "react":{
+      "autoinstall":false
+    },
+    "react-dom":{
+      "autoinstall":false
+    }
+  },
 	"devDependencies": {
 		"@jonny/eslint-config": "^2.1.210",
 		"@testing-library/react": "^11.2.5",
