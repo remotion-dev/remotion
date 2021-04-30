@@ -19,6 +19,7 @@ export const startServer = async (
 		webpackOverride?: WebpackOverrideFn;
 		inputProps?: object;
 		envVariables?: Record<string, string>;
+		previewServerPort?: number;
 	}
 ): Promise<number> => {
 	const app = express();
@@ -67,7 +68,12 @@ export const startServer = async (
 		res.sendFile(path.join(__dirname, '..', 'web', 'index.html'));
 	});
 
-	const port = await getPort({port: getPort.makeRange(3000, 3100)});
+	const port = await getPort({
+		port:
+			Internals.getPreviewServerPort() ||
+			options?.previewServerPort ||
+			getPort.makeRange(3000, 3100),
+	});
 	app.listen(port);
 	return port;
 };
