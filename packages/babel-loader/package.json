@@ -24,7 +24,7 @@
 		"@babel/preset-typescript": "^7.12.7",
 		"@webhotelier/webpack-fast-refresh": "^5.1.0",
 		"babel-loader": "^8.1.0",
-		"react-refresh": "0.8.2",
+		"react-refresh": "^0.9.0-rc.2",
 		"webpack": "5.33.2"
 	},
 	"devDependencies": {
