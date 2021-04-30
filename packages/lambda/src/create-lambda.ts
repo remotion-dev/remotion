@@ -30,7 +30,7 @@ const s3Client = new S3Client({region: REGION});
 type Developer = 'jonny' | 'shankhadeep';
 const developer: Developer = 'jonny' as Developer;
 
-xns(async () => {
+export const createLambda = xns(async () => {
 	const {layerArn} = await ensureLayers(lambdaClient);
 	console.log('Done creating layers');
 	const bucketName = LAMBDA_BUCKET_PREFIX + Math.random();
@@ -139,5 +139,9 @@ xns(async () => {
 		throw new Error('Lambda was created but has no name');
 	}
 	await waitForLambdaReady(created.FunctionName);
-	return fnNameRender;
+	return {
+		functionName: created.FunctionName,
+		bucketName,
+		bucketUrl: url,
+	};
 });

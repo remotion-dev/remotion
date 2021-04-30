@@ -7,11 +7,11 @@ export const handler = async (params: LambdaPayload) => {
 	console.log('CONTEXT', params);
 
 	if (params.type === 'init') {
-		await initHandler(params);
+		return initHandler(params);
 	} else if (params.type === 'fire') {
-		await fireHandler(params);
+		return fireHandler(params);
 	} else if (params.type === 'renderer') {
-		await rendererHandler(params);
+		return rendererHandler(params);
 	} else {
 		throw new Error('Command not found');
 	}
