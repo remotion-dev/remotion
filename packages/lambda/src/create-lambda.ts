@@ -11,6 +11,7 @@ import {bundleLambda} from './bundle-lambda';
 import {bundleRemotion} from './bundle-remotion';
 import {
 	EFS_MOUNT_PATH,
+	ENABLE_EFS,
 	LAMBDA_BUCKET_PREFIX,
 	REGION,
 	REMOTION_RENDER_FN_ZIP,
@@ -25,7 +26,6 @@ const lambdaClient = new LambdaClient({
 
 const s3Client = new S3Client({region: REGION});
 
-const ENABLE_EFS = true;
 type Developer = 'jonny' | 'shankhadeep';
 const developer: Developer = 'jonny' as Developer;
 
@@ -108,7 +108,7 @@ xns(async () => {
 			VpcConfig: ENABLE_EFS
 				? {
 						SubnetIds: [
-							developer === 'jonny'
+							developer === 'shankhadeep'
 								? 'subnet-be85fcd4'
 								: 'subnet-00e3aa99745996ff7',
 						],

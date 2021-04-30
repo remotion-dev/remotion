@@ -12,9 +12,10 @@ import {
 } from '@remotion/renderer';
 import fs, {copyFileSync, writeFileSync} from 'fs';
 import path from 'path';
-import {concatVideos} from '../src/concat-videos';
+import {concatVideos, concatVideosS3} from '../src/concat-videos';
 import {
 	EFS_MOUNT_PATH,
+	ENABLE_EFS,
 	LambdaPayload,
 	REGION,
 	RENDERS_BUCKET_PREFIX,
@@ -82,14 +83,16 @@ export const handler = async (params: LambdaPayload) => {
 	if (params.type === 'init') {
 		const bucketName = RENDERS_BUCKET_PREFIX + Math.random();
 		const efsRemotionVideoPath = EFS_MOUNT_PATH + '/remotion-video';
-		if (fs.existsSync(efsRemotionVideoPath)) {
-			fs.rmdirSync(efsRemotionVideoPath, {recursive: true});
+		if (ENABLE_EFS) {
+			if (fs.existsSync(efsRemotionVideoPath)) {
+				fs.rmdirSync(efsRemotionVideoPath, {recursive: true});
+			}
+			fs.mkdirSync(efsRemotionVideoPath);
+			if (fs.existsSync(efsRemotionVideoRenderDone)) {
+				fs.rmdirSync(efsRemotionVideoRenderDone, {recursive: true});
+			}
+			fs.mkdirSync(efsRemotionVideoRenderDone);
 		}
-		fs.mkdirSync(efsRemotionVideoPath);
-		if (fs.existsSync(efsRemotionVideoRenderDone)) {
-			fs.rmdirSync(efsRemotionVideoRenderDone, {recursive: true});
-		}
-		fs.mkdirSync(efsRemotionVideoRenderDone);
 		// const bucketTimer = timer('Creating bucket');
 
 		// TODO: Better validation
@@ -138,6 +141,7 @@ export const handler = async (params: LambdaPayload) => {
 					height: comp.height,
 					width: comp.width,
 					durationInFrames: params.durationInFrames,
+					bucketName,
 				};
 				const callingLambdaTimer = timer(
 					'Calling lambda ' + chunks.indexOf(chunk)
@@ -148,17 +152,20 @@ export const handler = async (params: LambdaPayload) => {
 						// @ts-expect-error
 						Payload: JSON.stringify(payload),
 						InvocationType: 'Event',
-					})
+					}),
+					{}
 				);
 				callingLambdaTimer.end();
 			})
 		);
 		reqSend.end();
-		const out = await concatVideos(
-			efsRemotionVideoPath,
-			efsRemotionVideoRenderDone,
-			chunkCount
-		);
+		const out = ENABLE_EFS
+			? await concatVideos(
+					efsRemotionVideoPath,
+					efsRemotionVideoRenderDone,
+					chunkCount
+			  )
+			: await concatVideosS3(s3Client, bucketName);
 		const outName = 'out.mp4';
 		await s3Client.send(
 			new PutObjectCommand({
@@ -178,11 +185,13 @@ export const handler = async (params: LambdaPayload) => {
 		if (!params.frameRange) {
 			throw new Error('must pass framerange');
 		}
-		if (!fs.existsSync(params.efsRemotionVideoPath)) {
-			fs.mkdirSync(params.efsRemotionVideoPath);
-		}
-		if (!fs.existsSync(efsRemotionVideoRenderDone)) {
-			fs.mkdirSync(efsRemotionVideoRenderDone);
+		if (ENABLE_EFS) {
+			if (!fs.existsSync(params.efsRemotionVideoPath)) {
+				fs.mkdirSync(params.efsRemotionVideoPath);
+			}
+			if (!fs.existsSync(efsRemotionVideoRenderDone)) {
+				fs.mkdirSync(efsRemotionVideoRenderDone);
+			}
 		}
 		console.log(
 			`Started rendering ${params.chunk}, frame ${params.frameRange}`
@@ -212,19 +221,16 @@ export const handler = async (params: LambdaPayload) => {
 		const outdir = `/tmp/${Math.random()}`;
 		fs.mkdirSync(outdir);
 
-		const outputLocation = path.join(
-			params.efsRemotionVideoPath,
-			`chunk-${String(params.chunk).padStart(8, '0')}.mp4`
-		);
-		const intermediary = path.join(
-			outdir,
-			`chunk-${String(params.chunk).padStart(8, '0')}.mp4`
-		);
+		const outputLocation = ENABLE_EFS
+			? path.join(
+					params.efsRemotionVideoPath,
+					`chunk-${String(params.chunk).padStart(8, '0')}.mp4`
+			  )
+			: path.join(outdir, `chunk-${String(params.chunk).padStart(8, '0')}.mp4`);
 		const outputFileLocation = path.join(
 			efsRemotionVideoRenderDone,
 			`chunk-${String(params.chunk).padStart(8, '0')}.txt`
 		);
-		console.log(outputLocation);
 
 		const stitchLabel = timer('stitcher');
 		await stitchFramesToVideo({
@@ -238,21 +244,34 @@ export const handler = async (params: LambdaPayload) => {
 			fps: params.fps,
 			height: params.height,
 			width: params.width,
-			outputLocation: intermediary,
+			outputLocation,
 			// TODO
 			codec: 'h264',
 			// TODO
 			imageFormat: 'jpeg',
 		});
 		stitchLabel.end();
-		const copying = timer('copying');
-		copyFileSync(intermediary, outputLocation);
-		copying.end();
+		if (ENABLE_EFS) {
+			const copying = timer('copying');
+			copyFileSync(outputLocation, outputLocation);
+			copying.end();
 
-		const flag = timer('writing flag');
-		writeFileSync(outputFileLocation, 'true');
-		flag.end();
-		console.log('Done rendering!', outputDir, outputLocation);
+			const flag = timer('writing flag');
+			writeFileSync(outputFileLocation, 'true');
+			flag.end();
+			console.log('Done rendering!', outputDir, outputLocation);
+		} else {
+			const uploading = timer('uploading');
+			await s3Client.send(
+				new PutObjectCommand({
+					Bucket: params.bucketName,
+					Key: `chunk-${String(params.chunk).padStart(8, '0')}.mp4`,
+					Body: fs.createReadStream(outputLocation),
+				})
+			);
+			uploading.end();
+			console.log('Done rendering!', outputDir, outputLocation);
+		}
 	} else {
 		throw new Error('Command not found');
 	}
