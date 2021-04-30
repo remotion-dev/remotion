@@ -101,8 +101,8 @@ xns(async () => {
 					: 'arn:aws:iam::976210361945:role/lambda-admin', // IAM_ROLE_ARN; e.g., arn:aws:iam::650138640062:role/v3-lambda-tutorial-lambda-role
 			Runtime: 'nodejs12.x',
 			Description: 'Renders a Remotion video.',
-			MemorySize: 1769,
-			Timeout: 60,
+			MemorySize: 1769 * 2,
+			Timeout: 120,
 			Layers: [layerArn],
 
 			VpcConfig: ENABLE_EFS

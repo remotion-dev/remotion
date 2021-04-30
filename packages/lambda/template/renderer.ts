@@ -1,7 +1,6 @@
 import {PutObjectCommand} from '@aws-sdk/client-s3';
 import {renderFrames, stitchFramesToVideo} from '@remotion/renderer';
-import fs from 'fs';
-import {copyFileSync, writeFileSync} from 'node:fs';
+import fs, {copyFileSync, writeFileSync} from 'fs';
 import path from 'path';
 import {EFS_MOUNT_PATH, ENABLE_EFS, LambdaPayload} from '../src/constants';
 import {timer} from '../src/timer';
@@ -49,7 +48,7 @@ export const rendererHandler = async (params: LambdaPayload) => {
 		onFrameUpdate: (i: number, output: string) => {
 			console.log('Rendered frames', i, output);
 		},
-		parallelism: 2,
+		parallelism: 1,
 		onStart: () => {
 			console.log('Starting');
 		},

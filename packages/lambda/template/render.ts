@@ -1,4 +1,5 @@
 import {LambdaPayload} from '../src/constants';
+import {fireHandler} from './fire';
 import {initHandler} from './init';
 import {rendererHandler} from './renderer';
 
@@ -7,6 +8,8 @@ export const handler = async (params: LambdaPayload) => {
 
 	if (params.type === 'init') {
 		await initHandler(params);
+	} else if (params.type === 'fire') {
+		await fireHandler(params);
 	} else if (params.type === 'renderer') {
 		await rendererHandler(params);
 	} else {
