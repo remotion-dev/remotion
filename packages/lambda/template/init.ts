@@ -123,7 +123,6 @@ export const initHandler = async (params: LambdaPayload) => {
 			ACL: 'public-read',
 		})
 	);
-	console.log(
-		'Done! ' + `https://s3.${REGION}.amazonaws.com/${bucketName}/${outName}`
-	);
+	const url = `https://s3.${REGION}.amazonaws.com/${bucketName}/${outName}`;
+	return {url};
 };
