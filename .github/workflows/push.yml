@@ -1,13 +1,13 @@
 on: push
 name: Install and Test
 jobs:
-  build-ubuntu:
+  build:
     name: Build Node ${{ matrix.node_version }} - ffmpeg ${{ matrix.ffmpeg_version }} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         os: [macos-latest, ubuntu-latest, windows-latest]
-        node_version: ['12.10','14','16']
+        node_version: ['16']
         ffmpeg_version: ['4.1','4.4']
     steps:
       - uses: actions/checkout@main
