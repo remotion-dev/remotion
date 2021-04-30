@@ -15,6 +15,7 @@ import {
 } from './override-webpack';
 import {setOverwriteOutput} from './overwrite';
 import {PixelFormat, setPixelFormat} from './pixel-format';
+import {setPreviewServerPort} from './preview-server';
 import {setQuality} from './quality';
 import {setWebpackCaching} from './webpack-caching';
 
@@ -31,6 +32,10 @@ export const Config = {
 		 * subsequent renders faster. Default: true
 		 */
 		setCachingEnabled: setWebpackCaching,
+		/**
+		 * Set a custom preview server port
+		 */
+		setPreviewServerPort,
 	},
 	Log: {
 		/**
