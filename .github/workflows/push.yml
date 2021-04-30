@@ -7,7 +7,7 @@ jobs:
     strategy:
       matrix:
         os: [macos-latest, ubuntu-latest, windows-latest]
-        node_version: ['16']
+        node_version: ['14','16']
         ffmpeg_version: ['4.1','4.4']
     steps:
       - uses: actions/checkout@main
