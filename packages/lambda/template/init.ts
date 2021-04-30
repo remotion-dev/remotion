@@ -11,6 +11,7 @@ import {
 } from '../src/constants';
 import {timer} from '../src/timer';
 import {lambdaClient, s3Client} from './aws-clients';
+import {chunk} from './chunk';
 import {getBrowserInstance} from './get-browser-instance';
 import {validateComposition} from './validate-composition';
 
@@ -68,29 +69,36 @@ export const initHandler = async (params: LambdaPayload) => {
 		] as [number, number];
 	});
 	const reqSend = timer('sending off requests');
+	const lambdaPayloads = chunks.map((chunkPayload) => {
+		const payload: LambdaPayload = {
+			type: 'renderer',
+			frameRange: chunkPayload,
+			serveUrl: params.serveUrl,
+			chunk: chunks.indexOf(chunkPayload),
+			efsRemotionVideoPath,
+			composition: params.composition,
+			fps: comp.fps,
+			height: comp.height,
+			width: comp.width,
+			durationInFrames: params.durationInFrames,
+			bucketName,
+		};
+		return payload;
+	});
+	const invokers = Math.round(Math.sqrt(lambdaPayloads.length));
+	const payloadChunks = chunk(lambdaPayloads, invokers);
 	await Promise.all(
-		chunks.map(async (chunk) => {
-			const payload: LambdaPayload = {
-				type: 'renderer',
-				frameRange: chunk,
-				serveUrl: params.serveUrl,
-				chunk: chunks.indexOf(chunk),
-				efsRemotionVideoPath,
-				composition: params.composition,
-				fps: comp.fps,
-				height: comp.height,
-				width: comp.width,
-				durationInFrames: params.durationInFrames,
-				bucketName,
+		payloadChunks.map(async (payloads, index) => {
+			const callingLambdaTimer = timer('Calling chunk ' + index);
+			const firePayload: LambdaPayload = {
+				type: 'fire',
+				payloads,
 			};
-			const callingLambdaTimer = timer(
-				'Calling lambda ' + chunks.indexOf(chunk)
-			);
 			await lambdaClient.send(
 				new InvokeCommand({
 					FunctionName: process.env.AWS_LAMBDA_FUNCTION_NAME,
 					// @ts-expect-error
-					Payload: JSON.stringify(payload),
+					Payload: JSON.stringify(firePayload),
 					InvocationType: 'Event',
 				}),
 				{}
@@ -105,12 +113,12 @@ export const initHandler = async (params: LambdaPayload) => {
 				efsRemotionVideoRenderDone,
 				chunkCount
 		  )
-		: await concatVideosS3(s3Client, bucketName);
+		: await concatVideosS3(s3Client, bucketName, lambdaPayloads.length);
 	const outName = 'out.mp4';
 	await s3Client.send(
 		new PutObjectCommand({
 			Bucket: bucketName,
-			Key: 'out.mp4',
+			Key: outName,
 			Body: fs.createReadStream(out),
 			ACL: 'public-read',
 		})

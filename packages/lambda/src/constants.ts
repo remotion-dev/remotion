@@ -6,7 +6,7 @@ export const REMOTION_STITCHER_FN_ZIP = 'remotion-stitcher-function-';
 export const RENDER_FN_PREFIX = 'remotion-render-test-';
 export const RENDER_STITCHER_PREFIX = 'remotion-stitcher-test-';
 export const EFS_MOUNT_PATH = '/mnt/efs';
-export const ENABLE_EFS = false;
+export const ENABLE_EFS = true;
 
 export type LambdaPayload =
 	| {
@@ -16,6 +16,10 @@ export type LambdaPayload =
 			chunkSize: number;
 			// Just for debugging
 			durationInFrames: number;
+	  }
+	| {
+			type: 'fire';
+			payloads: unknown[];
 	  }
 	| {
 			type: 'renderer';
