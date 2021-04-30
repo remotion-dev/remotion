@@ -1,22 +1,23 @@
 import {InvokeCommand} from '@aws-sdk/client-lambda';
 import {CreateBucketCommand, PutObjectCommand} from '@aws-sdk/client-s3';
 import fs from 'fs';
-import {lambdaClient, s3Client} from '../src/aws-clients';
-import {concatVideos, concatVideosS3} from '../src/concat-videos';
+import {lambdaClient, s3Client} from './aws-clients';
+import {chunk} from './chunk';
+import {concatVideos, concatVideosS3} from './concat-videos';
 import {
 	EFS_MOUNT_PATH,
 	ENABLE_EFS,
 	LambdaPayload,
+	LambdaRoutines,
 	REGION,
 	RENDERS_BUCKET_PREFIX,
-} from '../src/constants';
-import {timer} from '../src/timer';
-import {chunk} from './chunk';
+} from './constants';
 import {getBrowserInstance} from './get-browser-instance';
+import {timer} from './timer';
 import {validateComposition} from './validate-composition';
 
-export const initHandler = async (params: LambdaPayload) => {
-	if (params.type !== 'init') {
+export const launchHandler = async (params: LambdaPayload) => {
+	if (params.type !== 'launch') {
 		return;
 	}
 	const efsRemotionVideoRenderDone = EFS_MOUNT_PATH + '/render-done';
@@ -71,7 +72,7 @@ export const initHandler = async (params: LambdaPayload) => {
 	const reqSend = timer('sending off requests');
 	const lambdaPayloads = chunks.map((chunkPayload) => {
 		const payload: LambdaPayload = {
-			type: 'renderer',
+			type: LambdaRoutines.renderer,
 			frameRange: chunkPayload,
 			serveUrl: params.serveUrl,
 			chunk: chunks.indexOf(chunkPayload),
@@ -91,7 +92,7 @@ export const initHandler = async (params: LambdaPayload) => {
 		payloadChunks.map(async (payloads, index) => {
 			const callingLambdaTimer = timer('Calling chunk ' + index);
 			const firePayload: LambdaPayload = {
-				type: 'fire',
+				type: LambdaRoutines.fire,
 				payloads,
 			};
 			await lambdaClient.send(

@@ -21,7 +21,7 @@ export const benchmark = xns(async () => {
 					Payload: JSON.stringify({
 						serveUrl:
 							'http://remotion-bucket-0.0469902062423555.s3.eu-central-1.amazonaws.com',
-						type: 'init',
+						type: 'launch',
 						composition: 'my-video',
 						chunkSize,
 					}),

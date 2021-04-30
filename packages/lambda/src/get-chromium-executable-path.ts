@@ -1,8 +1,9 @@
 import LambdaFS from 'lambdafs';
 
 if (
-	/^AWS_Lambda_nodejs(?:10|12|14)[.]x$/.test(process.env.AWS_EXECUTION_ENV) ===
-	true
+	/^AWS_Lambda_nodejs(?:10|12|14)[.]x$/.test(
+		process.env.AWS_EXECUTION_ENV ?? ''
+	) === true
 ) {
 	if (process.env.FONTCONFIG_PATH === undefined) {
 		process.env.FONTCONFIG_PATH = '/tmp/aws';
@@ -25,5 +26,5 @@ export const executablePath = async (): Promise<string> => {
 	];
 
 	const result = await Promise.all(promises);
-	return result.shift();
+	return result[result.length - 1];
 };

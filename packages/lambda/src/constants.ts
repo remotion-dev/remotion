@@ -8,9 +8,17 @@ export const RENDER_STITCHER_PREFIX = 'remotion-stitcher-test-';
 export const EFS_MOUNT_PATH = '/mnt/efs';
 export const ENABLE_EFS = false;
 
+export enum LambdaRoutines {
+	start = 'start',
+	launch = 'launch',
+	status = 'status',
+	fire = 'fire',
+	renderer = 'renderer',
+}
+
 export type LambdaPayload =
 	| {
-			type: 'init';
+			type: LambdaRoutines.start;
 			serveUrl: string;
 			composition: string;
 			chunkSize: number;
@@ -18,11 +26,23 @@ export type LambdaPayload =
 			durationInFrames: number;
 	  }
 	| {
-			type: 'fire';
+			type: LambdaRoutines.launch;
+			serveUrl: string;
+			composition: string;
+			chunkSize: number;
+			// Just for debugging
+			durationInFrames: number;
+	  }
+	| {
+			type: LambdaRoutines.status;
+			bucketName: string;
+	  }
+	| {
+			type: LambdaRoutines.fire;
 			payloads: unknown[];
 	  }
 	| {
-			type: 'renderer';
+			type: LambdaRoutines.renderer;
 			serveUrl: string;
 			frameRange: [number, number];
 			chunk: number;

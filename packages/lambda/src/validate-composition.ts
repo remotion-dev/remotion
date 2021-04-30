@@ -1,4 +1,5 @@
 import {getCompositions, RenderInternals} from '@remotion/renderer';
+import {TCompMetadata} from 'remotion';
 
 // TODO: redundant
 type Await<T> = T extends PromiseLike<infer U> ? U : T;
@@ -11,7 +12,7 @@ export const validateComposition = async ({
 	serveUrl: string;
 	composition: string;
 	browserInstance: Await<ReturnType<typeof RenderInternals.openBrowser>>;
-}) => {
+}): Promise<TCompMetadata> => {
 	// TODO: Support input props
 	const compositions = await getCompositions({
 		serveUrl,
