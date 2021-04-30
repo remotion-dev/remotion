@@ -1,5 +1,6 @@
 import {GetFunctionCommand} from '@aws-sdk/client-lambda';
 import {lambdaClient} from './aws-clients';
+import {sleep} from './sleep';
 
 type FunctionState = 'Pending' | 'Active' | 'Inactive' | 'Failed' | 'Unknown';
 
@@ -20,7 +21,7 @@ export const waitForLambdaReady = async (functionName: string) => {
 		console.log(
 			`Waiting for function to become active. Currently is ${state}...`
 		);
-		await new Promise((resolve) => setTimeout(resolve, 1000));
+		await sleep(1000);
 		state = await getState(functionName);
 	}
 };

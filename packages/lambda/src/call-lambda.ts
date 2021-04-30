@@ -1,6 +1,7 @@
 import {InvokeCommand} from '@aws-sdk/client-lambda';
 import {lambdaClient} from './aws-clients';
 import {LambdaPayload} from './constants';
+import {LambdaReturnValues} from './return-values';
 
 export const callLambda = async (
 	functionName: string,
@@ -15,5 +16,5 @@ export const callLambda = async (
 	);
 	const string = Buffer.from(res.Payload as Uint8Array).toString();
 
-	return string;
+	return JSON.parse(string) as LambdaReturnValues[typeof payload.type];
 };

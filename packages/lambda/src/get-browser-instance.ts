@@ -8,7 +8,9 @@ let _browserInstance: Await<
 > | null;
 
 // TODO Potential race condition
-export const getBrowserInstance = async () => {
+export const getBrowserInstance = async (): Promise<
+	ReturnType<typeof RenderInternals.openBrowser>
+> => {
 	if (_browserInstance) {
 		return _browserInstance;
 	}
