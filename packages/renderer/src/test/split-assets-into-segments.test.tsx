@@ -243,3 +243,64 @@ test('Should not have one-off errors', () => {
 		},
 	]);
 });
+
+test('Should have correct volume arrays', () => {
+	expect(
+		splitAssetsIntoSegments({
+			assets: [
+				{
+					duration: 100,
+					src: 'asset1.mp4',
+					startInVideo: 0,
+					trimLeft: 0,
+					type: 'video',
+					volume: new Array(100).fill(1).map((_, i) => (i === 0 ? 0 : 1)),
+					id: '1',
+					isRemote: false,
+				},
+				{
+					duration: 50,
+					src: 'asset2.mp4',
+					startInVideo: 50,
+					trimLeft: 0,
+					type: 'video',
+					volume: new Array(100).fill(1).map((_, i) => (i === 0 ? 0 : 1)),
+					id: 'breaker',
+					isRemote: false,
+				},
+			],
+			duration: 100,
+		})
+	).toEqual([
+		{
+			duration: 50,
+			src: 'asset1.mp4',
+			startInVideo: 0,
+			trimLeft: 0,
+			type: 'video',
+			volume: new Array(50).fill(1).map((_, i) => (i === 0 ? 0 : 1)),
+			id: '1',
+			isRemote: false,
+		},
+		{
+			duration: 50,
+			src: 'asset1.mp4',
+			startInVideo: 50,
+			trimLeft: 50,
+			type: 'video',
+			volume: 1,
+			id: '1',
+			isRemote: false,
+		},
+		{
+			duration: 50,
+			src: 'asset2.mp4',
+			startInVideo: 50,
+			trimLeft: 0,
+			type: 'video',
+			volume: new Array(100).fill(1).map((_, i) => (i === 0 ? 0 : 1)),
+			id: 'breaker',
+			isRemote: false,
+		},
+	]);
+});
