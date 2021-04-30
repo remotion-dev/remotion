@@ -1,6 +1,7 @@
 import {InvokeCommand} from '@aws-sdk/client-lambda';
 import {CreateBucketCommand, PutObjectCommand} from '@aws-sdk/client-s3';
 import fs from 'fs';
+import {lambdaClient, s3Client} from '../src/aws-clients';
 import {concatVideos, concatVideosS3} from '../src/concat-videos';
 import {
 	EFS_MOUNT_PATH,
@@ -10,7 +11,6 @@ import {
 	RENDERS_BUCKET_PREFIX,
 } from '../src/constants';
 import {timer} from '../src/timer';
-import {lambdaClient, s3Client} from './aws-clients';
 import {chunk} from './chunk';
 import {getBrowserInstance} from './get-browser-instance';
 import {validateComposition} from './validate-composition';

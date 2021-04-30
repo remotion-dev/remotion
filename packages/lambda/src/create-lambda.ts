@@ -19,6 +19,7 @@ import {
 } from './constants';
 import {ensureLayers} from './lambda-layers';
 import {uploadDir} from './upload-dir';
+import {waitForLambdaReady} from './wait-for-lambda-ready';
 
 const lambdaClient = new LambdaClient({
 	region: REGION,
@@ -87,7 +88,7 @@ xns(async () => {
 	const url = `http://${bucketName}.s3.${REGION}.amazonaws.com`;
 	console.log(url);
 
-	await lambdaClient.send(
+	const created = await lambdaClient.send(
 		new CreateFunctionCommand({
 			Code: {
 				S3Bucket: bucketName,
@@ -134,5 +135,9 @@ xns(async () => {
 	);
 	console.log('lambdas created');
 
+	if (!created.FunctionName) {
+		throw new Error('Lambda was created but has no name');
+	}
+	await waitForLambdaReady(created.FunctionName);
 	return fnNameRender;
 });
