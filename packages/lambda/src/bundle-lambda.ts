@@ -36,6 +36,7 @@ export const bundleLambda = async (type: 'render') => {
 
 	await esbuild.build({
 		platform: 'node',
+		target: 'node12',
 		bundle: true,
 		outfile,
 		entryPoints: [template],

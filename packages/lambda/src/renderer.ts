@@ -3,7 +3,12 @@ import {renderFrames, stitchFramesToVideo} from '@remotion/renderer';
 import fs, {copyFileSync, writeFileSync} from 'fs';
 import path from 'path';
 import {s3Client} from './aws-clients';
-import {EFS_MOUNT_PATH, ENABLE_EFS, LambdaPayload} from './constants';
+import {
+	EFS_MOUNT_PATH,
+	ENABLE_EFS,
+	LambdaPayload,
+	LambdaRoutines,
+} from './constants';
 import {getBrowserInstance} from './get-browser-instance';
 import {timer} from './timer';
 
@@ -16,7 +21,7 @@ export const rendererHandler = async (params: LambdaPayload) => {
 	}
 	fs.mkdirSync(outputDir);
 
-	if (params.type !== 'renderer') {
+	if (params.type !== LambdaRoutines.renderer) {
 		throw new Error('Params must be renderer');
 	}
 	if (typeof params.chunk !== 'number') {

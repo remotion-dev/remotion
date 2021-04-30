@@ -9,8 +9,8 @@ import {
 import {timer} from './timer';
 
 export const startHandler = async (params: LambdaPayload) => {
-	if (params.type !== 'launch') {
-		throw new TypeError('Expected type launch');
+	if (params.type !== LambdaRoutines.start) {
+		throw new TypeError('Expected type start');
 	}
 	const bucketName = RENDERS_BUCKET_PREFIX + Math.random();
 	const bucketTimer = timer('creating bucket');
@@ -26,8 +26,9 @@ export const startHandler = async (params: LambdaPayload) => {
 		composition: params.composition,
 		durationInFrames: params.durationInFrames,
 		serveUrl: params.serveUrl,
+		bucketName,
 	};
-	await lambdaClient.send(
+	const launchEvent = await lambdaClient.send(
 		new InvokeCommand({
 			FunctionName: process.env.AWS_LAMBDA_FUNCTION_NAME,
 			// @ts-expect-error
@@ -38,5 +39,6 @@ export const startHandler = async (params: LambdaPayload) => {
 	bucketTimer.end();
 	return {
 		bucketName,
+		launchEvent,
 	};
 };

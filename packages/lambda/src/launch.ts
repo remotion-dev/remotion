@@ -1,5 +1,5 @@
 import {InvokeCommand} from '@aws-sdk/client-lambda';
-import {CreateBucketCommand, PutObjectCommand} from '@aws-sdk/client-s3';
+import {PutObjectCommand} from '@aws-sdk/client-s3';
 import fs from 'fs';
 import {lambdaClient, s3Client} from './aws-clients';
 import {chunk} from './chunk';
@@ -10,19 +10,17 @@ import {
 	LambdaPayload,
 	LambdaRoutines,
 	REGION,
-	RENDERS_BUCKET_PREFIX,
 } from './constants';
 import {getBrowserInstance} from './get-browser-instance';
 import {timer} from './timer';
 import {validateComposition} from './validate-composition';
 
 export const launchHandler = async (params: LambdaPayload) => {
-	if (params.type !== 'launch') {
-		return;
+	if (params.type !== LambdaRoutines.launch) {
+		throw new Error('Expected launch type');
 	}
 	const efsRemotionVideoRenderDone = EFS_MOUNT_PATH + '/render-done';
 
-	const bucketName = RENDERS_BUCKET_PREFIX + Math.random();
 	const efsRemotionVideoPath = EFS_MOUNT_PATH + '/remotion-video';
 	if (ENABLE_EFS) {
 		if (fs.existsSync(efsRemotionVideoPath)) {
@@ -52,14 +50,6 @@ export const launchHandler = async (params: LambdaPayload) => {
 		browserInstance,
 	});
 	console.log(comp);
-	const bucketTimer = timer('creating bucket');
-	await s3Client.send(
-		new CreateBucketCommand({
-			Bucket: bucketName,
-			ACL: 'public-read',
-		})
-	);
-	bucketTimer.end();
 	const {chunkSize} = params;
 	const chunkCount = Math.ceil(params.durationInFrames / chunkSize);
 
@@ -82,7 +72,7 @@ export const launchHandler = async (params: LambdaPayload) => {
 			height: comp.height,
 			width: comp.width,
 			durationInFrames: params.durationInFrames,
-			bucketName,
+			bucketName: params.bucketName,
 		};
 		return payload;
 	});
@@ -114,16 +104,16 @@ export const launchHandler = async (params: LambdaPayload) => {
 				efsRemotionVideoRenderDone,
 				chunkCount
 		  )
-		: await concatVideosS3(s3Client, bucketName, lambdaPayloads.length);
+		: await concatVideosS3(s3Client, params.bucketName, lambdaPayloads.length);
 	const outName = 'out.mp4';
 	await s3Client.send(
 		new PutObjectCommand({
-			Bucket: bucketName,
+			Bucket: params.bucketName,
 			Key: outName,
 			Body: fs.createReadStream(out),
 			ACL: 'public-read',
 		})
 	);
-	const url = `https://s3.${REGION}.amazonaws.com/${bucketName}/${outName}`;
+	const url = `https://s3.${REGION}.amazonaws.com/${params.bucketName}/${outName}`;
 	return {url};
 };

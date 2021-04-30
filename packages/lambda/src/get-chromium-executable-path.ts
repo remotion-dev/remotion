@@ -26,5 +26,5 @@ export const executablePath = async (): Promise<string> => {
 	];
 
 	const result = await Promise.all(promises);
-	return result[result.length - 1];
+	return result[0];
 };
