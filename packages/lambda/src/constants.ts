@@ -16,41 +16,45 @@ export enum LambdaRoutines {
 	renderer = 'renderer',
 }
 
-export type LambdaPayload =
-	| {
-			type: LambdaRoutines.start;
-			serveUrl: string;
-			composition: string;
-			chunkSize: number;
-			// Just for debugging
-			durationInFrames: number;
-	  }
-	| {
-			type: LambdaRoutines.launch;
-			serveUrl: string;
-			composition: string;
-			chunkSize: number;
-			// Just for debugging
-			durationInFrames: number;
-	  }
-	| {
-			type: LambdaRoutines.status;
-			bucketName: string;
-	  }
-	| {
-			type: LambdaRoutines.fire;
-			payloads: unknown[];
-	  }
-	| {
-			type: LambdaRoutines.renderer;
-			serveUrl: string;
-			frameRange: [number, number];
-			chunk: number;
-			efsRemotionVideoPath: string;
-			bucketName: string;
-			composition: string;
-			fps: number;
-			height: number;
-			width: number;
-			durationInFrames: number;
-	  };
+export type LambdaPayloads = {
+	start: {
+		type: LambdaRoutines.start;
+		serveUrl: string;
+		composition: string;
+		chunkSize: number;
+		// Just for debugging
+		durationInFrames: number;
+	};
+	launch: {
+		type: LambdaRoutines.launch;
+		serveUrl: string;
+		composition: string;
+		chunkSize: number;
+		// Just for debugging
+		durationInFrames: number;
+		bucketName: string;
+	};
+	fire: {
+		type: LambdaRoutines.fire;
+		payloads: unknown[];
+	};
+	status: {
+		type: LambdaRoutines.status;
+		bucketName: string;
+	};
+	renderer: {
+		type: LambdaRoutines.renderer;
+		serveUrl: string;
+		frameRange: [number, number];
+		chunk: number;
+		efsRemotionVideoPath: string;
+		bucketName: string;
+		composition: string;
+		fps: number;
+		height: number;
+		width: number;
+		durationInFrames: number;
+	};
+};
+
+export type LambdaPayload = LambdaPayloads[LambdaRoutines];

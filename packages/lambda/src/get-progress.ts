@@ -1,9 +1,9 @@
 import {ListObjectsV2Command} from '@aws-sdk/client-s3';
 import {s3Client} from './aws-clients';
-import {LambdaPayload} from './constants';
+import {LambdaPayload, LambdaRoutines} from './constants';
 
 export const progressHandler = async (lambdaParams: LambdaPayload) => {
-	if (lambdaParams.type !== 'status') {
+	if (lambdaParams.type !== LambdaRoutines.status) {
 		throw new TypeError('Expected status type');
 	}
 	const list = await s3Client.send(
@@ -17,8 +17,10 @@ export const progressHandler = async (lambdaParams: LambdaPayload) => {
 	}
 
 	const chunks = contents.filter((c) => c.Key?.match(/chunk(.*).mp4/));
-
+	// TODO: out.mp4 is hardcodec
+	const output = contents.find((c) => c.Key?.includes('out.mp4'));
 	return {
 		chunks: chunks.length,
+		done: Boolean(output),
 	};
 };

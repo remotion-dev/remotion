@@ -5,8 +5,11 @@ export const checkLambdaStatus = async (
 	functionName: string,
 	bucketName: string
 ) => {
-	return callLambda(functionName, {
+	return callLambda({
+		functionName,
 		type: LambdaRoutines.status,
-		bucketName,
+		payload: {
+			bucketName,
+		},
 	});
 };
