@@ -1,6 +1,7 @@
 import {renderHook} from '@testing-library/react-hooks';
 import React, {RefObject} from 'react';
 import {useMediaTagVolume} from '../use-media-tag-volume';
+import anything = jasmine.anything;
 
 describe('Should update state when volume changes', () => {
 	const setState = jest.fn();
@@ -30,6 +31,8 @@ describe('Should update state when volume changes', () => {
 		} as RefObject<HTMLAudioElement>;
 		rerender({mediaRef: audioRef});
 		expect(setState).toHaveBeenCalledWith(0.75);
+		expect(addEventListener).toHaveBeenCalledWith('volumechange', anything());
+		expect(removeEventListener).toHaveBeenCalledWith('volumechange', anything());
 	});
 });
 
