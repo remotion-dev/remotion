@@ -26,6 +26,8 @@ const lambdaClient = new LambdaClient({
 const s3Client = new S3Client({region: REGION});
 
 const ENABLE_EFS = true;
+type Developer = 'jonny' | 'shankhadeep';
+const developer: Developer = 'jonny' as Developer;
 
 xns(async () => {
 	const {layerArn} = await ensureLayers(lambdaClient);
@@ -93,23 +95,37 @@ xns(async () => {
 			},
 			FunctionName: fnNameRender,
 			Handler: 'index.handler',
-			Role: 'arn:aws:iam::363307378317:role/awesomeLambda', // IAM_ROLE_ARN; e.g., arn:aws:iam::650138640062:role/v3-lambda-tutorial-lambda-role
+			Role:
+				developer === 'shankhadeep'
+					? 'arn:aws:iam::363307378317:role/awesomeLambda'
+					: 'arn:aws:iam::976210361945:role/lambda-admin', // IAM_ROLE_ARN; e.g., arn:aws:iam::650138640062:role/v3-lambda-tutorial-lambda-role
 			Runtime: 'nodejs12.x',
 			Description: 'Renders a Remotion video.',
-			MemorySize: 1769 * 2,
-			Timeout: 300,
+			MemorySize: 1769,
+			Timeout: 60,
 			Layers: [layerArn],
+
 			VpcConfig: ENABLE_EFS
 				? {
-						SubnetIds: ['subnet-be85fcd4'],
-						SecurityGroupIds: ['sg-8f2391fc'],
+						SubnetIds: [
+							developer === 'jonny'
+								? 'subnet-be85fcd4'
+								: 'subnet-00e3aa99745996ff7',
+						],
+						SecurityGroupIds: [
+							developer === 'shankhadeep'
+								? 'sg-8f2391fc'
+								: 'sg-0251b3f6fa6af4577',
+						],
 				  }
 				: undefined,
 			FileSystemConfigs: ENABLE_EFS
 				? [
 						{
 							Arn:
-								'arn:aws:elasticfilesystem:eu-central-1:363307378317:access-point/fsap-05a31f7aad4e47581',
+								developer === 'shankhadeep'
+									? 'arn:aws:elasticfilesystem:eu-central-1:363307378317:access-point/fsap-05a31f7aad4e47581'
+									: 'arn:aws:elasticfilesystem:eu-central-1:976210361945:access-point/fsap-0e697d03f5bf221a7',
 							LocalMountPath: EFS_MOUNT_PATH,
 						},
 				  ]

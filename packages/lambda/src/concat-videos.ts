@@ -45,6 +45,7 @@ const getAllFiles = async ({
 	return new Promise<string[]>((resolve) => {
 		const loop = async () => {
 			const files = readdirSync(efsRemotionVideoPath);
+			console.log(files);
 			const txtFiles = readdirSync(efsRemotionVideoRenderDone);
 			const areAllFilesDownloading = Boolean(
 				files.length === expectedFiles && txtFiles.length === expectedFiles
@@ -70,16 +71,17 @@ export const concatVideos = xns(
 		efsRemotionVideoRenderDone,
 		expectedFiles = 20
 	) => {
+		const getAllTimes = timer('get all files');
 		const files = await getAllFiles({
 			efsRemotionVideoPath,
 			expectedFiles,
 			efsRemotionVideoRenderDone,
 		});
+		getAllTimes.end();
 
 		const outfile = join(tmpDir('remotion-concated'), 'concat.mp4');
 		const combine = timer('Combine videos');
 		const filelistDir = tmpDir('remotion-filelist');
-		console.log('all path name', outfile, combine, efsRemotionVideoPath);
 		await combineVideos({
 			files,
 			filelistDir,
