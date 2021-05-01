@@ -9,6 +9,7 @@ export const getFfmpegBuildInfo = async () => {
 	if (buildConfig !== null) {
 		return buildConfig;
 	}
+
 	const data = await execa('ffmpeg', ['-buildconf']);
 	buildConfig = data.stderr;
 	return buildConfig;
@@ -20,6 +21,7 @@ export const ffmpegHasFeature = async (
 	if (!binaryExists('ffmpeg')) {
 		return false;
 	}
+
 	const config = await getFfmpegBuildInfo();
 	return config.includes(feature);
 };
@@ -29,6 +31,7 @@ export const parseFfmpegVersion = (buildconf: string): FfmpegVersion => {
 	if (!match) {
 		return null;
 	}
+
 	return [Number(match[1]), Number(match[2]), Number(match[3])];
 };
 

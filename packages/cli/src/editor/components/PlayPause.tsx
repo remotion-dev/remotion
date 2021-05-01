@@ -17,6 +17,7 @@ export const PlayPause: React.FC = () => {
 		if (!video) {
 			return null;
 		}
+
 		setPlaying((p) => {
 			return !p;
 		});
@@ -26,9 +27,11 @@ export const PlayPause: React.FC = () => {
 		if (!video) {
 			return null;
 		}
+
 		if (playing) {
 			return;
 		}
+
 		if (frame === 0) {
 			return;
 		}
@@ -42,6 +45,7 @@ export const PlayPause: React.FC = () => {
 		if (!video) {
 			return null;
 		}
+
 		if (playing) {
 			return;
 		}
@@ -59,10 +63,12 @@ export const PlayPause: React.FC = () => {
 				toggle();
 				e.preventDefault();
 			}
+
 			if (e.code === 'ArrowLeft') {
 				frameBack();
 				e.preventDefault();
 			}
+
 			if (e.code === 'ArrowRight') {
 				frameForward();
 				e.preventDefault();
@@ -84,6 +90,7 @@ export const PlayPause: React.FC = () => {
 		if (!config) {
 			return;
 		}
+
 		if (!playing) {
 			return;
 		}
@@ -101,6 +108,7 @@ export const PlayPause: React.FC = () => {
 			if (calculatedFrame !== frameRef.current) {
 				setFrame(calculatedFrame);
 			}
+
 			if (!hasBeenStopped) {
 				reqAnimFrameCall = requestAnimationFrame(callback);
 			}
@@ -131,7 +139,7 @@ export const PlayPause: React.FC = () => {
 					}}
 				/>
 			</ControlButton>
-			
+
 			<ControlButton
 				aria-label={playing ? 'Pause' : 'Play'}
 				disabled={!video}

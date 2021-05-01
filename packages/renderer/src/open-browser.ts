@@ -16,6 +16,7 @@ export const openBrowser = async (
 			'Firefox supported is not yet turned on. Stay tuned for the future.'
 		);
 	}
+
 	await ensureLocalBrowser(browser);
 
 	const executablePath = await getLocalBrowserExecutable(browser);

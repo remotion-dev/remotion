@@ -1,11 +1,8 @@
-#! /usr/bin/env node
-
 import chalk from 'chalk';
 import execa from 'execa';
 import fs from 'fs';
 import path from 'path';
 import readline from 'readline';
-import xns from 'xns';
 import {templateFolderName, turnIntoDot} from './dotfiles';
 
 const rl = readline.createInterface({
@@ -26,7 +23,7 @@ const shouldUseYarn = (): boolean => {
 	);
 };
 
-xns(async () => {
+export const init = async () => {
 	const arg = process.argv[2];
 	let selectedDirname = arg?.match(/[a-zA-Z0-9-]+/g) ? arg : '';
 	while (selectedDirname === '') {
@@ -103,4 +100,4 @@ xns(async () => {
 		chalk.underline('https://remotion.dev')
 	);
 	console.log('Enjoy Remotion!');
-});
+};

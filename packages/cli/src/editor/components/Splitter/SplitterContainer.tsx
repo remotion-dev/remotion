@@ -49,6 +49,7 @@ export const SplitterContainer: React.FC<{
 		if (!current) {
 			return;
 		}
+
 		resizeObserver.observe(current);
 		return () => resizeObserver.unobserve(current);
 	}, [resizeObserver]);

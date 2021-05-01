@@ -4,6 +4,7 @@ export const resolveAssetSrc = (src: string) => {
 	if (!src.startsWith('file:')) {
 		return src;
 	}
+
 	const {protocol} = new URL(src);
 
 	if (protocol === 'file:') return url.fileURLToPath(src);

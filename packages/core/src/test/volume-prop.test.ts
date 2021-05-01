@@ -46,6 +46,6 @@ describe('evaluateVolume throws exception', () => {
 		const toEvaluate = {frame: 1, volume: () => invalidVolume};
 		expectToThrow(() => {
 			evaluateVolume(toEvaluate);
-		}, new RegExp('You passed in a function to the volume prop but it returned NaN for frame 1'));
+		}, /You passed in a function to the volume prop but it returned NaN for frame 1/);
 	});
 });

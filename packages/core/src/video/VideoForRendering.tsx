@@ -111,11 +111,13 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 			continueRender(handle);
 			return;
 		}
+
 		if (isApproximatelyTheSame(videoRef.current.currentTime, currentTime)) {
 			if (videoRef.current.readyState >= 2) {
 				continueRender(handle);
 				return;
 			}
+
 			videoRef.current.addEventListener(
 				'loadeddata',
 				() => {
@@ -125,6 +127,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 			);
 			return;
 		}
+
 		videoRef.current.currentTime = currentTime;
 
 		videoRef.current.addEventListener(
@@ -147,7 +150,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 		);
 		videoRef.current.addEventListener(
 			'error',
-			(err) => {
+			err => {
 				console.error('Error occurred in video', err);
 				continueRender(handle);
 			},

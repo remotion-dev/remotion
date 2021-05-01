@@ -8,6 +8,7 @@ export const setOverwriteOutput = (newOverwrite: boolean) => {
 			)})`
 		);
 	}
+
 	shouldOverwrite = newOverwrite;
 };
 

@@ -57,22 +57,26 @@ export const Sequence: React.FC<{
 			`You passed to durationInFrames an argument of type ${typeof durationInFrames}, but it must be a number.`
 		);
 	}
+
 	if (durationInFrames <= 0) {
 		throw new TypeError(
 			`durationInFrames must be positive, but got ${durationInFrames}`
 		);
 	}
+
 	// Infinity is non-integer but allowed!
 	if (durationInFrames % 1 !== 0 && Number.isFinite(durationInFrames)) {
 		throw new TypeError(
 			`The "durationInFrames" of a sequence must be an integer, but got ${durationInFrames}.`
 		);
 	}
+
 	if (typeof from !== 'number') {
 		throw new TypeError(
 			`You passed to the "from" props of your <Sequence> an argument of type ${typeof from}, but it must be a number.`
 		);
 	}
+
 	if (from % 1 !== 0) {
 		throw new TypeError(
 			`The "from" prop of a sequence must be an integer, but got ${from}.`
@@ -88,10 +92,10 @@ export const Sequence: React.FC<{
 		compositionDuration - from,
 		parentSequence
 			? Math.min(
-					parentSequence.durationInFrames +
+				parentSequence.durationInFrames +
 						(parentSequence.cumulatedFrom + parentSequence.relativeFrom) -
 						actualFrom,
-					durationInFrames
+				durationInFrames
 			  )
 			: durationInFrames
 	);
@@ -156,8 +160,8 @@ export const Sequence: React.FC<{
 		absoluteFrame < actualFrom
 			? null
 			: absoluteFrame > endThreshold
-			? null
-			: children;
+				? null
+				: children;
 
 	return (
 		<SequenceContext.Provider value={contextValue}>
