@@ -45,7 +45,7 @@
 	"devDependencies": {
 		"@jonny/eslint-config": "^2.1.233",
 		"@types/express": "^4.17.7",
-		"@types/node": "^14.0.13",
+		"@types/node": "^15.0.1",
 		"@types/semver": "^7.3.4",
 		"eslint": "^7.25.0",
 		"patch-package": "^6.2.2",

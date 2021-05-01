@@ -231,10 +231,10 @@ export const render = async () => {
 		Log.verbose('Cleaning up...');
 		try {
 			await Promise.all([
-				fs.promises.rmdir(outputDir, {
+				fs.promises.rm(outputDir, {
 					recursive: true,
 				}),
-				fs.promises.rmdir(bundled, {
+				fs.promises.rm(bundled, {
 					recursive: true,
 				}),
 			]);

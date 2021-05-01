@@ -133,7 +133,7 @@ test("Should render a still image if single frame specified", async () => {
   const data = info.stderr;
   expect(data).toContain("Video: png");
   expect(data).toContain("png_pipe");
-  fs.rmdirSync(outDir, {
+  await fs.promises.rm(outDir, {
     recursive: true,
   });
 });
@@ -231,7 +231,7 @@ test("Should render a video with GIFs", async () => {
   const data = info.stderr;
   expect(data).toContain("Video: h264");
   expect(data).toContain("Duration: 00:00:01.57");
-  fs.rmdirSync(outputPath, {
+  await fs.promises.rm(outputPath, {
     recursive: true,
   });
 });
@@ -282,7 +282,7 @@ test("Dynamic duration should work", async () => {
     expect(data).toContain("Video: h264");
     const expectedDuration = (randomDuration / 30).toFixed(2);
     expect(data).toContain(`Duration: 00:00:0${expectedDuration}`);
-    fs.rmdirSync(outputPath, {
+    await fs.promises.rm(outputPath, {
       recursive: true,
     });
   }
