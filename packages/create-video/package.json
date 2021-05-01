@@ -4,7 +4,7 @@
 	"description": "",
 	"main": "index.js",
 	"bin": {
-		"create-video": "dist/init.js"
+		"create-video": "bin.js"
 	},
 	"files": [
 		"dist",
