@@ -48,7 +48,7 @@
 	"devDependencies": {
 		"@types/babel__core": "^7.1.12",
 		"@types/babel__template": "^7.4.0",
-		"eslint": "^7.4.0",
+		"eslint": "^7.25.0",
 		"prettier-plugin-organize-imports": "^1.1.1"
 	},
 	"publishConfig": {

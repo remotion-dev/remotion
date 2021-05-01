@@ -18,7 +18,7 @@
     "@types/react": "^17.0.0",
     "@types/react-dom": "^17.0.0",
     "@types/sharp": "^0.27.2",
-    "eslint": "^7.20.0",
+    "eslint": "^7.25.0",
     "execa": "^5.0.0",
     "jest": "^26.6.3",
     "lerna": "^2.11.0",
