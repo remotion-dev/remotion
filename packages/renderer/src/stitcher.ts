@@ -21,18 +21,23 @@ const getCodecName = (codec: Codec): string | null => {
 	if (Internals.isAudioCodec(codec)) {
 		return null;
 	}
+
 	if (codec === 'h264') {
 		return 'libx264';
 	}
+
 	if (codec === 'h265') {
 		return 'libx265';
 	}
+
 	if (codec === 'vp8') {
 		return 'libvpx';
 	}
+
 	if (codec === 'vp9') {
 		return 'libvpx-vp9';
 	}
+
 	throw new TypeError(`Cannot find FFMPEG codec for ${codec}`);
 };
 
@@ -40,12 +45,15 @@ const getAudioCodecName = (codec: Codec): string | null => {
 	if (!Internals.isAudioCodec(codec)) {
 		return 'aac';
 	}
+
 	if (codec === 'aac') {
 		return 'aac';
 	}
+
 	if (codec === 'mp3') {
 		return 'libmp3lame';
 	}
+
 	return null;
 };
 
@@ -56,13 +64,15 @@ export const stitchFramesToVideo = async (options: {
 	height: number;
 	outputLocation: string;
 	force: boolean;
+	assetsInfo: RenderAssetInfo;
+	// TODO: Let's make this parameter mandatory in the next major release
 	imageFormat?: ImageFormat;
 	pixelFormat?: PixelFormat;
 	codec?: Codec;
 	crf?: number;
-	assetsInfo: RenderAssetInfo;
+	// TODO: Do we want a parallelism flag for stitcher?
 	parallelism?: number | null;
-	onProgress?: (num: number) => void;
+	onProgress?: (progress: number) => void;
 	onDownload?: (src: string) => void;
 	verbose?: boolean;
 }): Promise<void> => {
@@ -106,7 +116,7 @@ export const stitchFramesToVideo = async (options: {
 	const fileUrlAssets = await convertAssetsToFileUrls({
 		assets: options.assetsInfo.assets,
 		dir: options.assetsInfo.bundleDir,
-		onDownload: options.onDownload ?? (() => void 0),
+		onDownload: options.onDownload ?? (() => undefined),
 	});
 	const assetPositions = calculateAssetPositions(fileUrlAssets);
 
@@ -116,6 +126,7 @@ export const stitchFramesToVideo = async (options: {
 			`Cannot render - you are trying to generate an audio file (${codec}) but your composition doesn't contain any audio.`
 		);
 	}
+
 	const assetAudioDetails = await getAssetAudioDetails({
 		assetPaths,
 		parallelism: options.parallelism,
@@ -130,9 +141,11 @@ export const stitchFramesToVideo = async (options: {
 	if (options.verbose) {
 		console.log('asset positions', assetPositions);
 	}
+
 	if (options.verbose) {
 		console.log('filters', filters);
 	}
+
 	const {complexFilterFlag, cleanup} = await createFfmpegComplexFilter(filters);
 	const ffmpegArgs = [
 		['-r', String(options.fps)],

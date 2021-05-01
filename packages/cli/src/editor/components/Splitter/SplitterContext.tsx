@@ -26,12 +26,12 @@ export type TSplitterContext = {
 export const SplitterContext = React.createContext<TSplitterContext>({
 	flexValue: 1,
 	domRect: null,
-	setFlexValue: () => void 0,
+	setFlexValue: () => undefined,
 	isDragging: {current: false},
 	orientation: 'horizontal',
 	maxFlex: 1,
 	minFlex: 1,
 	defaultFlex: 1,
 	id: '--',
-	persistFlex: () => void 0,
+	persistFlex: () => undefined,
 });

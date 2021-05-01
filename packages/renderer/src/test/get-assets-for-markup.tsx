@@ -20,6 +20,7 @@ const waitForWindowToBeReady = () => {
 				resolve();
 			}
 		};
+
 		interval = setInterval(check, 5);
 	});
 };
@@ -102,5 +103,6 @@ export const getAssetsForMarkup = async (
 		await waitForWindowToBeReady();
 		collectedAssets.push(collectAssets());
 	}
+
 	return collectedAssets;
 };

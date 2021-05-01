@@ -1,4 +1,14 @@
 import './asset-types';
+import {TAsset, TCompMetadata} from './CompositionManager';
+
+declare global {
+	interface Window {
+		ready: boolean;
+		getStaticCompositions: () => TCompMetadata[];
+		remotion_setFrame: (frame: number) => void;
+		remotion_collectAssets: () => TAsset[];
+	}
+}
 
 export * from './AbsoluteFill';
 export * from './audio';

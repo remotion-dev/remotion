@@ -58,6 +58,7 @@ function getMatchers(): Matchers {
 		cachedMatchers.hex6 = /^#([0-9a-fA-F]{6})$/;
 		cachedMatchers.hex8 = /^#([0-9a-fA-F]{8})$/;
 	}
+
 	return cachedMatchers;
 }
 
@@ -65,18 +66,23 @@ function hue2rgb(p: number, q: number, t: number): number {
 	if (t < 0) {
 		t += 1;
 	}
+
 	if (t > 1) {
 		t -= 1;
 	}
+
 	if (t < 1 / 6) {
 		return p + (q - p) * 6 * t;
 	}
+
 	if (t < 1 / 2) {
 		return q;
 	}
+
 	if (t < 2 / 3) {
 		return p + (q - p) * (2 / 3 - t) * 6;
 	}
+
 	return p;
 }
 
@@ -99,9 +105,11 @@ function parse255(str: string): number {
 	if (int < 0) {
 		return 0;
 	}
+
 	if (int > 255) {
 		return 255;
 	}
+
 	return int;
 }
 
@@ -115,9 +123,11 @@ function parse1(str: string): number {
 	if (num < 0) {
 		return 0;
 	}
+
 	if (num > 1) {
 		return 255;
 	}
+
 	return Math.round(num * 255);
 }
 
@@ -127,9 +137,11 @@ function parsePercentage(str: string): number {
 	if (int < 0) {
 		return 0;
 	}
+
 	if (int > 100) {
 		return 1;
 	}
+
 	return int / 100;
 }
 
@@ -303,6 +315,7 @@ function normalizeColor(color: string): number {
 	if (names[color] !== undefined) {
 		return names[color];
 	}
+
 	if (matchers.rgb) {
 		if ((match = matchers.rgb.exec(color))) {
 			return (
@@ -439,11 +452,11 @@ const interpolateColorsRGB = (
 	inputRange: readonly number[],
 	colors: readonly number[]
 ) => {
-	const [r, g, b, a] = [red, green, blue, opacity].map((f) => {
+	const [r, g, b, a] = [red, green, blue, opacity].map(f => {
 		const unrounded = interpolate(
 			value,
 			inputRange,
-			colors.map((c) => f(c)),
+			colors.map(c => f(c)),
 			{
 				extrapolateLeft: 'clamp',
 				extrapolateRight: 'clamp',
@@ -452,6 +465,7 @@ const interpolateColorsRGB = (
 		if (f === opacity) {
 			return Number(unrounded.toFixed(3));
 		}
+
 		return Math.round(unrounded);
 	});
 	return rgbaColor(r, g, b, a);
@@ -465,9 +479,11 @@ export const interpolateColors = (
 	if (typeof input === 'undefined') {
 		throw new TypeError('input can not be undefined');
 	}
+
 	if (typeof inputRange === 'undefined') {
 		throw new TypeError('inputRange can not be undefined');
 	}
+
 	if (typeof outputRange === 'undefined') {
 		throw new TypeError('outputRange can not be undefined');
 	}
@@ -482,7 +498,7 @@ export const interpolateColors = (
 		);
 	}
 
-	const processedOutputRange = outputRange.map((c) => processColor(c));
+	const processedOutputRange = outputRange.map(c => processColor(c));
 
 	return interpolateColorsRGB(input, inputRange, processedOutputRange);
 };

@@ -9,14 +9,11 @@ const cache = new LRUMap<string, GifState>(30);
 export const GifForDevelopment = forwardRef<
 	HTMLCanvasElement,
 	RemotionGifProps
->(function Gif(
-	{src, width, height, onError, onLoad, fit = 'fill', ...props},
-	ref
-) {
+>(({src, width, height, onError, onLoad, fit = 'fill', ...props}, ref) => {
 	const [state, update] = useState<GifState>(() => {
-		const parcedGif = cache.get(src);
+		const parsedGif = cache.get(src);
 
-		if (parcedGif == null) {
+		if (parsedGif === null) {
 			return {
 				delays: [],
 				frames: [],
@@ -25,11 +22,11 @@ export const GifForDevelopment = forwardRef<
 			};
 		}
 
-		return parcedGif;
+		return parsedGif as GifState;
 	});
 
 	// skip loading if frames exist
-	useWorkerParser(!!state.frames.length || src, (info) => {
+	useWorkerParser(Boolean(state.frames.length) || src, (info) => {
 		if ('error' in info) {
 			if (onError) {
 				onError(info.error);

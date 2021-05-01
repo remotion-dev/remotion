@@ -43,6 +43,7 @@ export const visualizeAudio = ({
 	if (!smoothing) {
 		return visualizeAudioFrame(parameters);
 	}
+
 	const toSmooth = [
 		parameters.frame - 1,
 		parameters.frame,

@@ -10,10 +10,10 @@ const findFrom = (target: TAsset[], asset: TAsset) => {
 	const index = target.findIndex((a) => areEqual(a, asset));
 	if (index === -1) {
 		return false;
-	} else {
-		target.splice(index, 1);
-		return true;
 	}
+
+	target.splice(index, 1);
+	return true;
 };
 
 export const calculateAssetPositions = (frames: TAsset[][]): Assets => {
@@ -48,6 +48,7 @@ export const calculateAssetPositions = (frames: TAsset[][]): Assets => {
 				// 59 - 0 + 1 ==> 60 frames duration
 				found.duration = frame - found.startInVideo + 1;
 			}
+
 			found.volume = [...found.volume, asset.volume];
 		}
 	}
@@ -57,6 +58,7 @@ export const calculateAssetPositions = (frames: TAsset[][]): Assets => {
 			throw new Error('duration is unexpectedly null');
 		}
 	}
+
 	return splitAssetsIntoSegments({
 		assets: assets as MediaAsset[],
 		duration: frames.length,

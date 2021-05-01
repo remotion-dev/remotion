@@ -25,6 +25,7 @@ export const timelineStateReducer = (
 			},
 		};
 	}
+
 	if (action.type === 'expand') {
 		return {
 			...state,
@@ -34,5 +35,6 @@ export const timelineStateReducer = (
 			},
 		};
 	}
+
 	return state;
 };
