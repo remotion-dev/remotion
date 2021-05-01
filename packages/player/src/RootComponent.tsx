@@ -55,8 +55,11 @@ const RootComponent: React.ForwardRefRenderFunction<
 			toggle,
 			getCurrentFrame: player.getCurrentFrame,
 			seekTo: (f) => {
-				setHasPausedToResume(true);
-				player.pause();
+				if (player.playing) {
+					setHasPausedToResume(true);
+					player.pause();
+				}
+
 				player.seek(f);
 			},
 		};
