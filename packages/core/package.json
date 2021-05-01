@@ -27,7 +27,7 @@
 		"@types/jest": "^26.0.19",
 		"@types/node": "^14.14.14",
 		"@types/webpack-env": "^1.16.0",
-		"eslint": "^7.4.0",
+		"eslint": "^7.25.0",
 		"jest": "^26.6.3",
 		"prettier": "^2.0.5",
 		"prettier-plugin-organize-imports": "^1.1.1",
