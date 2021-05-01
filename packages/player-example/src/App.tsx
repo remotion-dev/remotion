@@ -23,6 +23,9 @@ export default function App() {
 		ref.current?.addEventListener('ended', (e) => {
 			setLogs((l) => [...l, 'ended ' + Date.now()]);
 		});
+		ref.current?.addEventListener('error', (e) => {
+			setLogs((l) => [...l, 'error ' + Date.now()]);
+		});
 	}, []);
 
 	return (
@@ -72,7 +75,7 @@ export default function App() {
 				.slice(0, 10)
 				.reverse()
 				.map((l) => {
-					return <div>{l}</div>;
+					return <div key={l}>{l}</div>;
 				})}
 		</div>
 	);
