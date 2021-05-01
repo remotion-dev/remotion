@@ -18,6 +18,7 @@ export const getFrameCount = (
 				} but got ${frameRange}`
 			);
 		}
+
 		return 1;
 	}
 
@@ -30,5 +31,6 @@ export const getFrameCount = (
 			}`
 		);
 	}
+
 	return end - start + 1;
 };

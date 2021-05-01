@@ -12,7 +12,7 @@ test('It should throw if multiple components have the same id', () => {
 			render(
 				<RemotionRoot>
 					{/**
-           // @ts-expect-error*/}
+           // @ts-expect-error */}
 					<Composition
 						lazyComponent={() => Promise.resolve({default: AnyComp})}
 						durationInFrames={100}

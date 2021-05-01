@@ -14,6 +14,7 @@ export const validateMediaProps = (
 			`You have passed a volume of type ${typeof props.volume} to your <${component} /> component. Volume must be a number or a function with the signature '(frame: number) => number' undefined.`
 		);
 	}
+
 	if (typeof props.volume === 'number' && props.volume < 0) {
 		throw new TypeError(
 			`You have passed a volume below 0 to your <${component} /> component. Volume must be between 0 and 1`

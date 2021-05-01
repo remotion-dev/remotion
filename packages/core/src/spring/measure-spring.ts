@@ -19,18 +19,23 @@ export function measureSpring({
 			`threshold must be a number, got ${threshold} of type ${typeof threshold}`
 		);
 	}
+
 	if (threshold === 0) {
 		return Infinity;
 	}
+
 	if (threshold === 1) {
 		return 0;
 	}
+
 	if (isNaN(threshold)) {
 		throw new TypeError('Threshold is NaN');
 	}
+
 	if (!Number.isFinite(threshold)) {
 		throw new TypeError('Threshold is not finite');
 	}
+
 	if (threshold < 0) {
 		throw new TypeError('Threshold is below 0');
 	}
@@ -49,6 +54,7 @@ export function measureSpring({
 			to,
 		});
 	};
+
 	let animation = calc();
 	const calcDifference = () => {
 		return (
@@ -56,12 +62,14 @@ export function measureSpring({
 			(range === 0 ? 1 : range)
 		);
 	};
+
 	let difference = calcDifference();
 	while (difference >= threshold) {
 		frame++;
 		animation = calc();
 		difference = calcDifference();
 	}
+
 	// Since spring is bouncy, just because it's under the threshold we
 	// cannot be sure it's done. We need to animate further until it stays in the
 	// threshold for, say, 20 frames.
@@ -75,5 +83,6 @@ export function measureSpring({
 			finishedFrame = frame + 1;
 		}
 	}
+
 	return finishedFrame;
 }

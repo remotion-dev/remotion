@@ -9,6 +9,8 @@ import {getInputProps} from './get-input-props';
 import {loadConfigFile} from './load-config';
 import {parsedCli} from './parse-command-line';
 
+const noop = () => undefined;
+
 export const previewCommand = xns(async () => {
 	const file = parsedCli._[1];
 	const fullPath = path.join(process.cwd(), file);
@@ -25,5 +27,5 @@ export const previewCommand = xns(async () => {
 		}
 	);
 	betterOpn(`http://localhost:${port}`);
-	await new Promise(() => void 0);
+	await new Promise(noop);
 });
