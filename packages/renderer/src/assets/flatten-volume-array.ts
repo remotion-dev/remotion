@@ -8,12 +8,15 @@ export const flattenVolumeArray = (volume: AssetVolume): AssetVolume => {
 	if (typeof volume === 'number') {
 		return volume;
 	}
+
 	if (volume.length === 0) {
 		throw new TypeError('Volume array must have at least 1 number');
 	}
+
 	if (new Set(volume).size === 1) {
 		return volume[0];
 	}
+
 	return volume;
 };
 

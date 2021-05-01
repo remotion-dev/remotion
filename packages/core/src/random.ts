@@ -15,6 +15,7 @@ function hashCode(str: string) {
 		hash = (hash << 5) - hash + chr;
 		hash |= 0; // Convert to 32bit integer
 	}
+
 	return hash;
 }
 
@@ -27,14 +28,18 @@ export const random = (seed: number | string | null, dummy?: unknown) => {
 	if (dummy !== undefined) {
 		throw new TypeError('random() takes only one argument');
 	}
+
 	if (seed === null) {
 		return Math.random();
 	}
+
 	if (typeof seed === 'string') {
 		return mulberry32(hashCode(seed));
 	}
+
 	if (typeof seed === 'number') {
 		return mulberry32(seed * 10000000000);
 	}
+
 	throw new Error('random() argument must be a number or a string');
 };

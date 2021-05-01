@@ -6,6 +6,8 @@ import {
 	getIsEvaluation,
 	removeStaticComposition,
 } from './register-root';
+import {validateDurationInFrames} from './validation/validate-duration-in-frames';
+import {validateFps} from './validation/validate-fps';
 
 type CompProps<T> =
 	| {
@@ -24,7 +26,7 @@ type Props<T> = {
 	defaultProps?: T;
 } & CompProps<T>;
 
-export const Composition = <T,>({
+export const Composition = <T, >({
 	width,
 	height,
 	fps,
@@ -43,9 +45,11 @@ export const Composition = <T,>({
 		if ('lazyComponent' in compProps) {
 			return React.lazy(compProps.lazyComponent);
 		}
+
 		if ('component' in compProps) {
 			return React.lazy(() => Promise.resolve({default: compProps.component}));
 		}
+
 		throw new Error("You must pass either 'component' or 'lazyComponent'");
 		// @ts-expect-error
 		// eslint-disable-next-line react-hooks/exhaustive-deps
@@ -56,56 +60,39 @@ export const Composition = <T,>({
 		if (!id) {
 			throw new Error('No id for composition passed.');
 		}
+
 		if (!id.match(/^([a-zA-Z0-9-])+$/g)) {
 			throw new Error(
 				`Composition id can only contain a-z, A-Z, 0-9 and -. You passed ${id}`
 			);
 		}
+
 		if (typeof width !== 'number') {
 			throw new Error(
 				`The "width" of a composition must be a number, but you passed a ${typeof width}`
 			);
 		}
+
 		if (width <= 0) {
 			throw new TypeError(
 				`The "width" of a composition must be positive, but got ${width}.`
 			);
 		}
+
 		if (typeof height !== 'number') {
 			throw new Error(
 				`The "height" of a composition must be a number, but you passed a ${typeof height}`
 			);
 		}
+
 		if (height <= 0) {
 			throw new TypeError(
 				`The "height" of a composition must be positive, but got ${height}.`
 			);
 		}
-		if (typeof durationInFrames !== 'number') {
-			throw new Error(
-				`The "durationInFrames" of a composition must be a number, but you passed a ${typeof durationInFrames}`
-			);
-		}
-		if (durationInFrames <= 0) {
-			throw new TypeError(
-				`The "durationInFrames" of a composition must be positive, but got ${durationInFrames}.`
-			);
-		}
-		if (durationInFrames % 1 !== 0) {
-			throw new TypeError(
-				`The "durationInFrames" of a composition must be an integer, but got ${durationInFrames}.`
-			);
-		}
-		if (typeof fps !== 'number') {
-			throw new Error(
-				`The "fps" of a composition must be a number, but you passed a ${typeof fps}`
-			);
-		}
-		if (fps <= 0) {
-			throw new TypeError(
-				`The "fps" of a composition must be positive, but got ${fps}.`
-			);
-		}
+
+		validateDurationInFrames(durationInFrames);
+		validateFps(fps);
 		registerComposition<T>({
 			durationInFrames,
 			fps,

@@ -80,4 +80,5 @@ This function was taken from [Reanimated 2](https://github.com/software-mansion/
 
 ## See also
 
-- [interpolate](/docs/interpolate)
+- [interpolate()](/docs/interpolate)
+- [measureSpring()](/docs/measure-spring)

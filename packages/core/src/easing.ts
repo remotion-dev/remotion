@@ -28,7 +28,7 @@ export class Easing {
 	}
 
 	static poly(n: number): (t: number) => number {
-		return (t: number): number => Math.pow(t, n);
+		return (t: number): number => t ** n;
 	}
 
 	static sin(t: number): number {
@@ -40,13 +40,13 @@ export class Easing {
 	}
 
 	static exp(t: number): number {
-		return Math.pow(2, 10 * (t - 1));
+		return 2 ** (10 * (t - 1));
 	}
 
 	static elastic(bounciness = 1): (t: number) => number {
 		const p = bounciness * Math.PI;
 		return (t): number =>
-			1 - Math.pow(Math.cos((t * Math.PI) / 2), 3) * Math.cos(t * p);
+			1 - Math.cos((t * Math.PI) / 2) ** 3 * Math.cos(t * p);
 	}
 
 	static back(s = 1.70158): (t: number) => number {
@@ -94,6 +94,7 @@ export class Easing {
 			if (t < 0.5) {
 				return easing(t * 2) / 2;
 			}
+
 			return 1 - easing((1 - t) * 2) / 2;
 		};
 	}

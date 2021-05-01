@@ -3,6 +3,7 @@ type AnimationNode = {
 	toValue: number;
 	current: number;
 	velocity: number;
+	prevPosition?: number;
 };
 
 export type SpringConfig = {
@@ -19,20 +20,38 @@ const defaultSpringConfig: SpringConfig = {
 	overshootClamping: false,
 };
 
-function advance(
-	animation: AnimationNode,
-	now: number,
-	config: SpringConfig
-): AnimationNode {
-	const copiedAnimated = {...animation};
-	const {toValue, lastTimestamp, current, velocity} = copiedAnimated;
+const advanceCache: {[key: string]: AnimationNode} = {};
+
+function advance({
+	animation,
+	now,
+	config,
+}: {
+	animation: AnimationNode;
+	now: number;
+	config: SpringConfig;
+}): AnimationNode {
+	const {toValue, lastTimestamp, current, velocity} = animation;
 
 	const deltaTime = Math.min(now - lastTimestamp, 64);
-	copiedAnimated.lastTimestamp = now;
 
 	const c = config.damping;
 	const m = config.mass;
 	const k = config.stiffness;
+
+	const cacheKey = [
+		toValue,
+		lastTimestamp,
+		current,
+		velocity,
+		c,
+		m,
+		k,
+		now,
+	].join('-');
+	if (advanceCache[cacheKey]) {
+		return advanceCache[cacheKey];
+	}
 
 	const v0 = -velocity;
 	const x0 = toValue - current;
@@ -68,18 +87,20 @@ function advance(
 		criticallyDampedEnvelope *
 		(v0 * (t * omega0 - 1) + t * x0 * omega0 * omega0);
 
-	if (zeta < 1) {
-		copiedAnimated.current = underDampedPosition;
-		copiedAnimated.velocity = underDampedVelocity;
-	} else {
-		copiedAnimated.current = criticallyDampedPosition;
-		copiedAnimated.velocity = criticallyDampedVelocity;
-	}
-
-	return copiedAnimated;
+	const animationNode: AnimationNode = {
+		toValue,
+		prevPosition: current,
+		lastTimestamp: now,
+		current: zeta < 1 ? underDampedPosition : criticallyDampedPosition,
+		velocity: zeta < 1 ? underDampedVelocity : criticallyDampedVelocity,
+	};
+	advanceCache[cacheKey] = animationNode;
+	return animationNode;
 }
 
-export function spring({
+const calculationCache: {[key: string]: AnimationNode} = {};
+
+export function springCalculation({
 	from = 0,
 	to = 1,
 	frame,
@@ -91,12 +112,27 @@ export function spring({
 	frame: number;
 	fps: number;
 	config?: Partial<SpringConfig>;
-}): number {
+}): AnimationNode {
+	const cacheKey = [
+		from,
+		to,
+		frame,
+		fps,
+		config.damping,
+		config.mass,
+		config.overshootClamping,
+		config.stiffness,
+	].join('-');
+	if (calculationCache[cacheKey]) {
+		return calculationCache[cacheKey];
+	}
+
 	let animation: AnimationNode = {
 		lastTimestamp: 0,
 		current: from,
 		toValue: to,
 		velocity: 0,
+		prevPosition: 0,
 	};
 	const frameClamped = Math.max(0, frame);
 	const unevenRest = frameClamped % 1;
@@ -104,11 +140,18 @@ export function spring({
 		if (f === Math.floor(frameClamped)) {
 			f += unevenRest;
 		}
+
 		const time = (f / fps) * 1000;
-		animation = advance(animation, time, {
-			...defaultSpringConfig,
-			...config,
+		animation = advance({
+			animation,
+			now: time,
+			config: {
+				...defaultSpringConfig,
+				...config,
+			},
 		});
 	}
-	return animation.current;
+
+	calculationCache[cacheKey] = animation;
+	return animation;
 }

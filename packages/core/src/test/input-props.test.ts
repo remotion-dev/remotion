@@ -34,9 +34,11 @@ describe('input props', () => {
 
 		expect(getInputProps()).toEqual(inputProps);
 
-		if (previousInputProps)
+		if (previousInputProps) {
 			localStorage.setItem(INPUT_PROPS_KEY, previousInputProps);
-		else localStorage.removeItem(INPUT_PROPS_KEY);
+		} else {
+			localStorage.removeItem(INPUT_PROPS_KEY);
+		}
 	});
 
 	test('input props in production env - empty localstorage', () => {
