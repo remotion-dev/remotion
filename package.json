@@ -14,7 +14,7 @@
     "@jonny/eslint-config": "^2.1.233",
     "@types/jest": "^26.0.20",
     "@types/minimist": "^1.2.1",
-    "@types/node": "^14.14.31",
+    "@types/node": "^15.0.1",
     "@types/react": "^17.0.0",
     "@types/react-dom": "^17.0.0",
     "@types/sharp": "^0.27.2",

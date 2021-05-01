@@ -33,7 +33,7 @@
 		"@jonny/eslint-config": "^2.1.233",
 		"@testing-library/react": "^11.2.5",
 		"@types/jest": "^26.0.20",
-		"@types/node": "^14.14.14",
+		"@types/node": "^15.0.1",
 		"@types/serve-handler": "^6.1.0",
 		"eslint": "^7.25.0",
 		"jest": "26.6.3",
