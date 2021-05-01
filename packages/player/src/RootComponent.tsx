@@ -11,22 +11,25 @@ import React, {
 import {Internals} from 'remotion';
 import {PlayerMethods, PlayerRef} from './player-methods';
 import {Controls} from './PlayerControls';
-import {usePlayback} from './PlayPause';
 import {useHoverState} from './use-hover-state';
+import {usePlayback} from './use-playback';
+import {usePlayer} from './use-player';
 
 const RootComponent: React.ForwardRefRenderFunction<
 	PlayerRef,
 	{
 		controls: boolean;
+		loop: boolean;
 		style?: Omit<React.CSSProperties, 'width' | 'height'>;
 	}
-> = ({controls, style}, ref) => {
+> = ({controls, style, loop}, ref) => {
 	const config = Internals.useUnsafeVideoConfig();
 	const video = Internals.useVideo();
 	const container = useRef<HTMLDivElement>(null);
 	const hovered = useHoverState(container);
 	const [hasPausedToResume, setHasPausedToResume] = useState(false);
-	const player = usePlayback();
+	usePlayback({loop});
+	const player = usePlayer();
 
 	useEffect(() => {
 		if (hasPausedToResume && !player.playing) {

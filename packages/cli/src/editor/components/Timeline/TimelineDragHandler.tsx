@@ -1,4 +1,4 @@
-import {usePlayback} from '@remotion/player';
+import {PlayerInternals} from '@remotion/player';
 import React, {useCallback, useEffect, useState} from 'react';
 import {Internals, interpolate} from 'remotion';
 import styled from 'styled-components';
@@ -53,7 +53,7 @@ export const TimelineDragHandler: React.FC = ({children}) => {
 	>({
 		dragging: false,
 	});
-	const {playing, play, pause, seek} = usePlayback();
+	const {playing, play, pause, seek} = PlayerInternals.usePlayer();
 	const videoConfig = Internals.useUnsafeVideoConfig();
 
 	const onPointerDown = useCallback(

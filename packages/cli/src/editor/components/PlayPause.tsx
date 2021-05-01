@@ -1,4 +1,4 @@
-import {usePlayback} from '@remotion/player';
+import {PlayerInternals} from '@remotion/player';
 import React, {useCallback, useEffect} from 'react';
 import {Internals} from 'remotion';
 import {Pause} from '../icons/pause';
@@ -10,6 +10,7 @@ import {ControlButton} from './ControlButton';
 export const PlayPause: React.FC = () => {
 	const frame = Internals.Timeline.useTimelinePosition();
 	const video = Internals.useVideo();
+	PlayerInternals.usePlayback({loop: true});
 
 	const {
 		playing,
@@ -18,7 +19,7 @@ export const PlayPause: React.FC = () => {
 		frameBack,
 		frameForward,
 		isLastFrame,
-	} = usePlayback();
+	} = PlayerInternals.usePlayer();
 
 	const onKeyPress = useCallback(
 		(e: KeyboardEvent) => {

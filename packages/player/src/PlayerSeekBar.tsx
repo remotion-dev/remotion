@@ -1,8 +1,8 @@
 import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {Internals, interpolate} from 'remotion';
-import {usePlayback} from './PlayPause';
 import {useElementSize} from './use-element-size';
 import {useHoverState} from './use-hover-state';
+import {usePlayer} from './use-player';
 
 const getFrameFromX = (
 	clientX: number,
@@ -45,7 +45,7 @@ export const PlayerSeekBar: React.FC<{
 	const containerRef = useRef<HTMLDivElement>(null);
 	const barHovered = useHoverState(containerRef);
 	const size = useElementSize(containerRef);
-	const {seek, play, pause, playing} = usePlayback();
+	const {seek, play, pause, playing} = usePlayer();
 	const frame = Internals.Timeline.useTimelinePosition();
 
 	const [dragging, setDragging] = useState<
