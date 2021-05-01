@@ -44,7 +44,7 @@ export const createFfmpegComplexFilter = async (
 		complexFilterFlag: ['-filter_complex_script', filterFile],
 		cleanup: () => {
 			fs.promises
-				.rm(tempPath, {
+				.rmdir(tempPath, {
 					recursive: true,
 				})
 				.catch((err) => {
