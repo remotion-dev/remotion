@@ -12,7 +12,6 @@ export default function App() {
 	useEffect(() => {
 		ref.current?.addEventListener('play', () => {
 			setLogs((l) => [...l, 'playing ' + Date.now()]);
-			console.log('playing');
 		});
 		ref.current?.addEventListener('pause', () => {
 			setLogs((l) => [...l, 'pausing ' + Date.now()]);

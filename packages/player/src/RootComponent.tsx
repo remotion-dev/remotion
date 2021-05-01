@@ -10,11 +10,17 @@ import React, {
 } from 'react';
 import {Internals} from 'remotion';
 import {ErrorBoundary} from './error-boundary';
+import {PLAYER_CSS_CLASSNAME} from './player-css-classname';
 import {PlayerMethods, PlayerRef} from './player-methods';
 import {Controls} from './PlayerControls';
 import {useHoverState} from './use-hover-state';
 import {usePlayback} from './use-playback';
 import {usePlayer} from './use-player';
+
+const outerStyle: React.CSSProperties = {
+	position: 'relative',
+	overflow: 'hidden',
+};
 
 const RootComponent: React.ForwardRefRenderFunction<
 	PlayerRef,
@@ -92,12 +98,14 @@ const RootComponent: React.ForwardRefRenderFunction<
 
 	return (
 		<Suspense fallback={<h1>Loading...</h1>}>
-			<div ref={container} style={containerStyle}>
-				{VideoComponent ? (
-					<ErrorBoundary onError={onError}>
-						<VideoComponent {...(((video?.props as unknown) as {}) ?? {})} />
-					</ErrorBoundary>
-				) : null}
+			<div ref={container} style={outerStyle}>
+				<div style={containerStyle} className={PLAYER_CSS_CLASSNAME}>
+					{VideoComponent ? (
+						<ErrorBoundary onError={onError}>
+							<VideoComponent {...(((video?.props as unknown) as {}) ?? {})} />
+						</ErrorBoundary>
+					) : null}
+				</div>
 				{controls ? (
 					<Controls
 						fps={config.fps}

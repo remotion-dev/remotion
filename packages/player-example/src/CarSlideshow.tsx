@@ -8,9 +8,6 @@ const CarSlideshow = ({title}: Props) => {
 	const frame = useCurrentFrame();
 	const {width, height, durationInFrames} = useVideoConfig();
 	const left = interpolate(frame, [0, durationInFrames], [width, width * -1]);
-	if (frame === 200) {
-		throw new Error('crash');
-	}
 	return (
 		<div
 			style={{
