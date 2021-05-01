@@ -64,7 +64,7 @@ export const clearCache = (
 	environment: Environment,
 	inputProps: object | null
 ) => {
-	return fs.promises.rm(remotionCacheLocation(environment, inputProps), {
+	return fs.promises.rmdir(remotionCacheLocation(environment, inputProps), {
 		recursive: true,
 	});
 };
