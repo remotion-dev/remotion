@@ -61,6 +61,7 @@ export const TimelineDragHandler: React.FC = ({children}) => {
 			if (!videoConfig) {
 				return;
 			}
+
 			const frame = getFrameFromX(
 				e.clientX - (size?.left ?? 0),
 				videoConfig.durationInFrames,
@@ -81,9 +82,11 @@ export const TimelineDragHandler: React.FC = ({children}) => {
 			if (!dragging.dragging) {
 				return;
 			}
+
 			if (!videoConfig) {
 				return;
 			}
+
 			const frame = getFrameFromX(
 				e.clientX - (size?.left ?? 0),
 				videoConfig.durationInFrames,
@@ -101,6 +104,7 @@ export const TimelineDragHandler: React.FC = ({children}) => {
 		if (!dragging.dragging) {
 			return;
 		}
+
 		setPlaying(dragging.wasPlaying);
 	}, [dragging, setPlaying]);
 
@@ -108,6 +112,7 @@ export const TimelineDragHandler: React.FC = ({children}) => {
 		if (!dragging.dragging) {
 			return;
 		}
+
 		window.addEventListener('pointermove', onPointerMove);
 		window.addEventListener('pointerup', onPointerUp);
 		return () => {

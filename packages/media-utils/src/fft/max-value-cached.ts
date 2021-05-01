@@ -12,6 +12,7 @@ const getMax = (array: Float32Array) => {
 			max = val;
 		}
 	}
+
 	return max;
 };
 
@@ -23,6 +24,7 @@ export const getMaxPossibleMagnitude = (metadata: AudioData) => {
 	if (cache[metadata.resultId]) {
 		return cache[metadata.resultId];
 	}
+
 	const result = toInt16(getMax(metadata.channelWaveforms[0]));
 	cache[metadata.resultId] = result;
 	return result;

@@ -34,12 +34,15 @@ export const useMediaPlayback = ({
 		if (!mediaRef.current) {
 			throw new Error(`No ${mediaType} ref found`);
 		}
+
 		if (!src) {
 			throw new Error(
 				`No 'src' attribute was passed to the ${tagName} element.`
 			);
 		}
+
 		mediaRef.current.playbackRate = playbackRate;
+
 		const shouldBeTime = getCurrentTime({
 			fps,
 			frame,
@@ -59,6 +62,7 @@ export const useMediaPlayback = ({
 		if (!playing || absoluteFrame === 0) {
 			mediaRef.current.currentTime = shouldBeTime;
 		}
+
 		if (mediaRef.current.paused && !mediaRef.current.ended && playing) {
 			mediaRef.current.currentTime = shouldBeTime;
 			mediaRef.current.play();

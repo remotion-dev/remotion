@@ -16,5 +16,5 @@ export const loadCheckerboardOption = (): boolean => {
 
 export const CheckerboardContext = createContext<State>({
 	checkerboard: loadCheckerboardOption(),
-	setCheckerboard: () => void 0,
+	setCheckerboard: () => undefined,
 });

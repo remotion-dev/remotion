@@ -84,6 +84,29 @@ export const Index: React.FC = () => {
 }
 ```
 
+## Change metadata in server-side rendering
+
+Both `getCompositions()` and `renderFrames()` functions accept an `inputProps` object as a parameter.
+
+```tsx
+getCompositions(bundled, {
+  inputProps: {
+    custom: 'data'
+  }
+})
+```
+
+```tsx
+renderFrames({
+  // ...
+  inputProps: {
+    custom: 'data'
+  }
+})
+```
+
+Make sure to pass the parameter to both of these functions, so the input props are available to `getInputProps` during the composition fetching and rendering stage.
+
 ## See also
 
 - [`getInputProps()`](get-input-props)

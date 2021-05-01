@@ -27,11 +27,13 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 			</Sequence>
 		);
 	}
+
 	validateMediaProps(props, 'Audio');
 
 	if (process.env.NODE_ENV === 'development') {
 		return <AudioForDevelopment {...props} ref={ref} />;
 	}
+
 	return <AudioForRendering {...props} ref={ref} />;
 };
 

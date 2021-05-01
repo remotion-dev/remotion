@@ -14,9 +14,11 @@ export async function getAudioChannels(path: string) {
 	if (!task.stdout.includes('channels=')) {
 		return 0;
 	}
+
 	const channels = parseInt(task.stdout.replace('channels=', ''), 10);
 	if (isNaN(channels)) {
 		throw new TypeError('Unexpected result from ffprobe for channel probing: ');
 	}
+
 	return channels;
 }
