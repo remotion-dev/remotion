@@ -17,19 +17,21 @@ import {useHoverState} from './use-hover-state';
 import {usePlayback} from './use-playback';
 import {usePlayer} from './use-player';
 
-const RootComponent: React.ForwardRefRenderFunction<
+const PlayerUI: React.ForwardRefRenderFunction<
 	PlayerRef,
 	{
 		controls: boolean;
 		loop: boolean;
+		autoPlay: boolean;
 		style?: Omit<React.CSSProperties, 'width' | 'height'>;
 	}
-> = ({controls, style, loop}, ref) => {
+> = ({controls, style, loop, autoPlay}, ref) => {
 	const config = Internals.useUnsafeVideoConfig();
 	const video = Internals.useVideo();
 	const container = useRef<HTMLDivElement>(null);
 	const hovered = useHoverState(container);
 	const [hasPausedToResume, setHasPausedToResume] = useState(false);
+	const [shouldAutoplay, setShouldAutoPlay] = useState(autoPlay);
 	usePlayback({loop});
 	const player = usePlayer();
 
@@ -103,6 +105,14 @@ const RootComponent: React.ForwardRefRenderFunction<
 		},
 		[player]
 	);
+
+	useEffect(() => {
+		if (shouldAutoplay) {
+			player.play();
+			setShouldAutoPlay(false);
+		}
+	}, [shouldAutoplay, player]);
+
 	if (!config) {
 		return null;
 	}
@@ -130,4 +140,4 @@ const RootComponent: React.ForwardRefRenderFunction<
 	);
 };
 
-export default forwardRef(RootComponent);
+export default forwardRef(PlayerUI);
