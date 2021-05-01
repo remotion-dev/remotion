@@ -1,5 +1,6 @@
 import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {Internals, interpolate} from 'remotion';
+import {usePlayback} from './PlayPause';
 import {useElementSize} from './use-element-size';
 import {useHoverState} from './use-hover-state';
 
@@ -44,10 +45,8 @@ export const PlayerSeekBar: React.FC<{
 	const containerRef = useRef<HTMLDivElement>(null);
 	const barHovered = useHoverState(containerRef);
 	const size = useElementSize(containerRef);
+	const {seek, play, pause, playing} = usePlayback();
 	const frame = Internals.Timeline.useTimelinePosition();
-	const setTimelinePosition = Internals.Timeline.useTimelineSetFrame();
-
-	const [playing, setPlaying] = Internals.Timeline.usePlayingState();
 
 	const [dragging, setDragging] = useState<
 		| {
@@ -71,14 +70,14 @@ export const PlayerSeekBar: React.FC<{
 				durationInFrames,
 				size.width
 			);
-			setTimelinePosition(_frame);
+			pause();
+			seek(_frame);
 			setDragging({
 				dragging: true,
 				wasPlaying: playing,
 			});
-			setPlaying(false);
 		},
-		[durationInFrames, playing, setPlaying, setTimelinePosition, size]
+		[size, durationInFrames, pause, seek, playing]
 	);
 
 	const onPointerMove = useCallback(
@@ -94,9 +93,9 @@ export const PlayerSeekBar: React.FC<{
 				durationInFrames,
 				size.width
 			);
-			setTimelinePosition(_frame);
+			seek(_frame);
 		},
-		[dragging.dragging, durationInFrames, setTimelinePosition, size]
+		[dragging.dragging, durationInFrames, seek, size]
 	);
 
 	const onPointerUp = useCallback(() => {
@@ -106,8 +105,12 @@ export const PlayerSeekBar: React.FC<{
 		if (!dragging.dragging) {
 			return;
 		}
-		setPlaying(dragging.wasPlaying);
-	}, [dragging, setPlaying]);
+		if (dragging.wasPlaying) {
+			play();
+		} else {
+			pause();
+		}
+	}, [dragging, pause, play]);
 
 	useEffect(() => {
 		if (!dragging.dragging) {

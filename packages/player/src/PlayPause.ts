@@ -1,26 +1,55 @@
-import {useCallback, useEffect, useRef} from 'react';
+import {useCallback, useContext, useEffect, useRef} from 'react';
 import {Internals} from 'remotion';
+import {PlayerEventEmitterContext} from './emitter-context';
+import {PlayerEmitter} from './event-emitter';
 
-export const usePlaybackTime = (): {
-	toggle: () => void;
+export const usePlayback = (): {
 	frameBack: (frames: number) => void;
 	frameForward: (frames: number) => void;
 	isLastFrame: boolean;
+	emitter: PlayerEmitter;
+	playing: boolean;
+	play: () => void;
+	pause: () => void;
+	seek: (newFrame: number) => void;
 } => {
 	const [playing, setPlaying] = Internals.Timeline.usePlayingState();
 	const frame = Internals.Timeline.useTimelinePosition();
 	const setFrame = Internals.Timeline.useTimelineSetFrame();
+	const setTimelinePosition = Internals.Timeline.useTimelineSetFrame();
+
 	const video = Internals.useVideo();
 	const config = Internals.useUnsafeVideoConfig();
+	const emitter = useContext(PlayerEventEmitterContext);
 
-	const toggle = useCallback(() => {
-		if (!video) {
-			return null;
+	if (!emitter) {
+		throw new TypeError('Expected Player event emitter context');
+	}
+
+	const frameRef = useRef(frame);
+	frameRef.current = frame;
+
+	const play = useCallback(() => {
+		if (!playing) {
+			setPlaying(true);
+			emitter.dispatchPlay();
 		}
-		setPlaying((p) => {
-			return !p;
-		});
-	}, [video, setPlaying]);
+	}, [emitter, setPlaying, playing]);
+
+	const pause = useCallback(() => {
+		if (playing) {
+			setPlaying(false);
+			emitter.dispatchPause();
+		}
+	}, [emitter, playing, setPlaying]);
+
+	const seek = useCallback(
+		(newFrame: number) => {
+			setTimelinePosition(newFrame);
+			emitter.dispatchSeek(newFrame);
+		},
+		[emitter, setTimelinePosition]
+	);
 
 	const frameBack = useCallback(
 		(frames: number) => {
@@ -60,9 +89,6 @@ export const usePlaybackTime = (): {
 		[isLastFrame, lastFrame, playing, setFrame, video]
 	);
 
-	const frameRef = useRef(frame);
-	frameRef.current = frame;
-
 	useEffect(() => {
 		if (!config) {
 			return;
@@ -99,5 +125,14 @@ export const usePlaybackTime = (): {
 		};
 	}, [config, setFrame, playing]);
 
-	return {toggle, frameBack, frameForward, isLastFrame};
+	return {
+		frameBack,
+		frameForward,
+		isLastFrame,
+		emitter,
+		playing,
+		play,
+		pause,
+		seek,
+	};
 };

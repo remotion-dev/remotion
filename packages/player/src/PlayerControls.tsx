@@ -3,7 +3,7 @@ import {Internals} from 'remotion';
 import {formatTime} from './format-time';
 import {PauseIcon, PlayIcon} from './icons';
 import {PlayerSeekBar} from './PlayerSeekBar';
-import {usePlaybackTime} from './PlayPause';
+import {usePlayback} from './PlayPause';
 
 const containerStyle: React.CSSProperties = {
 	boxSizing: 'border-box',
@@ -57,19 +57,18 @@ export const Controls: React.FC<{
 	fps: number;
 	durationInFrames: number;
 	hovered: boolean;
-}> = ({durationInFrames, hovered, fps}) => {
-	const {toggle} = usePlaybackTime();
-	const [playing] = Internals.Timeline.usePlayingState();
+	player: ReturnType<typeof usePlayback>;
+}> = ({durationInFrames, hovered, fps, player}) => {
 	const frame = Internals.Timeline.useTimelinePosition();
 
 	const containerCss: React.CSSProperties = useMemo(() => {
 		// Hide if playing and mouse outside
-		const shouldShow = hovered || !playing;
+		const shouldShow = hovered || !player.playing;
 		return {
 			...containerStyle,
 			opacity: Number(shouldShow),
 		};
-	}, [hovered, playing]);
+	}, [hovered, player.playing]);
 
 	return (
 		<div style={containerCss}>
@@ -77,11 +76,11 @@ export const Controls: React.FC<{
 				<button
 					type="button"
 					style={buttonStyle}
-					onClick={toggle}
-					aria-label={playing ? 'Pause video' : 'Play video'}
-					title={playing ? 'Pause video' : 'Play video'}
+					onClick={player.playing ? player.pause : player.play}
+					aria-label={player.playing ? 'Pause video' : 'Play video'}
+					title={player.playing ? 'Pause video' : 'Play video'}
 				>
-					{playing ? <PauseIcon /> : <PlayIcon />}
+					{player.playing ? <PauseIcon /> : <PlayIcon />}
 				</button>
 				<div style={xSpacer} />
 				<div style={timeLabel}>

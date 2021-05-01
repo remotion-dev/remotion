@@ -1,4 +1,4 @@
-import {usePlaybackTime} from '@remotion/player';
+import {usePlayback} from '@remotion/player';
 import React, {useCallback, useEffect} from 'react';
 import {Internals} from 'remotion';
 import {Pause} from '../icons/pause';
@@ -8,11 +8,17 @@ import {StepForward} from '../icons/step-forward';
 import {ControlButton} from './ControlButton';
 
 export const PlayPause: React.FC = () => {
-	const [playing] = Internals.Timeline.usePlayingState();
 	const frame = Internals.Timeline.useTimelinePosition();
 	const video = Internals.useVideo();
 
-	const {toggle, frameBack, frameForward, isLastFrame} = usePlaybackTime();
+	const {
+		playing,
+		play,
+		pause,
+		frameBack,
+		frameForward,
+		isLastFrame,
+	} = usePlayback();
 
 	const onKeyPress = useCallback(
 		(e: KeyboardEvent) => {
@@ -20,7 +26,11 @@ export const PlayPause: React.FC = () => {
 				return;
 			}
 			if (e.code === 'Space') {
-				toggle();
+				if (playing) {
+					pause();
+				} else {
+					play();
+				}
 				e.preventDefault();
 			}
 			if (e.code === 'ArrowLeft') {
@@ -32,7 +42,7 @@ export const PlayPause: React.FC = () => {
 				e.preventDefault();
 			}
 		},
-		[frameBack, frameForward, toggle, video]
+		[frameBack, frameForward, pause, play, playing, video]
 	);
 
 	const oneFrameBack = useCallback(() => {
@@ -69,7 +79,7 @@ export const PlayPause: React.FC = () => {
 			<ControlButton
 				aria-label={playing ? 'Pause' : 'Play'}
 				disabled={!video}
-				onClick={toggle}
+				onClick={playing ? pause : play}
 			>
 				{playing ? (
 					<Pause
