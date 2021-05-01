@@ -156,7 +156,6 @@ export const PlayerSeekBar: React.FC<{
 		<div
 			ref={containerRef}
 			onPointerDown={onPointerDown}
-			onPointerUp={onPointerUp}
 			style={containerStyle}
 		>
 			<div style={barBackground}>

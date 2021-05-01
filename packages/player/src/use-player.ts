@@ -38,14 +38,16 @@ export const usePlayer = (): {
 	);
 
 	const play = useCallback(() => {
-		if (!playing) {
-			if (isLastFrame) {
-				seek(0);
-			}
-
-			setPlaying(true);
-			emitter.dispatchPlay();
+		if (playing) {
+			return;
 		}
+
+		if (isLastFrame) {
+			seek(0);
+		}
+
+		setPlaying(true);
+		emitter.dispatchPlay();
 	}, [playing, isLastFrame, setPlaying, emitter, seek]);
 
 	const pause = useCallback(() => {
