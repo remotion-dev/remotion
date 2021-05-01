@@ -7,6 +7,7 @@ import os from 'os';
 import path from 'path';
 import {Internals, WebpackOverrideFn} from 'remotion';
 import webpack from 'webpack';
+// @ts-expect-error
 import webpackHotMiddleware from 'webpack-hot-middleware';
 import {isUpdateAvailableWithTimeout} from './update-available';
 import {webpackConfig} from './webpack-config';
