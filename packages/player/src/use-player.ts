@@ -1,9 +1,9 @@
-import {useCallback, useContext, useEffect, useRef} from 'react';
+import {useCallback, useContext, useMemo} from 'react';
 import {Internals} from 'remotion';
 import {PlayerEventEmitterContext} from './emitter-context';
 import {PlayerEmitter} from './event-emitter';
 
-export const usePlayback = (): {
+export const usePlayer = (): {
 	frameBack: (frames: number) => void;
 	frameForward: (frames: number) => void;
 	isLastFrame: boolean;
@@ -22,26 +22,12 @@ export const usePlayback = (): {
 	const config = Internals.useUnsafeVideoConfig();
 	const emitter = useContext(PlayerEventEmitterContext);
 
+	const lastFrame = (config?.durationInFrames ?? 1) - 1;
+	const isLastFrame = frame === lastFrame;
+
 	if (!emitter) {
 		throw new TypeError('Expected Player event emitter context');
 	}
-
-	const frameRef = useRef(frame);
-	frameRef.current = frame;
-
-	const play = useCallback(() => {
-		if (!playing) {
-			setPlaying(true);
-			emitter.dispatchPlay();
-		}
-	}, [emitter, setPlaying, playing]);
-
-	const pause = useCallback(() => {
-		if (playing) {
-			setPlaying(false);
-			emitter.dispatchPause();
-		}
-	}, [emitter, playing, setPlaying]);
 
 	const seek = useCallback(
 		(newFrame: number) => {
@@ -50,6 +36,24 @@ export const usePlayback = (): {
 		},
 		[emitter, setTimelinePosition]
 	);
+
+	const play = useCallback(() => {
+		if (!playing) {
+			if (isLastFrame) {
+				seek(0);
+			}
+
+			setPlaying(true);
+			emitter.dispatchPlay();
+		}
+	}, [playing, isLastFrame, setPlaying, emitter, seek]);
+
+	const pause = useCallback(() => {
+		if (playing) {
+			setPlaying(false);
+			emitter.dispatchPause();
+		}
+	}, [emitter, playing, setPlaying]);
 
 	const frameBack = useCallback(
 		(frames: number) => {
@@ -70,9 +74,6 @@ export const usePlayback = (): {
 		[frame, playing, setFrame, video]
 	);
 
-	const lastFrame = (config?.durationInFrames ?? 1) - 1;
-	const isLastFrame = frame === lastFrame;
-
 	const frameForward = useCallback(
 		(frames: number) => {
 			if (!video) {
@@ -92,52 +93,27 @@ export const usePlayback = (): {
 		[isLastFrame, lastFrame, playing, setFrame, video]
 	);
 
-	useEffect(() => {
-		if (!config) {
-			return;
-		}
-
-		if (!playing) {
-			return;
-		}
-
-		let hasBeenStopped = false;
-		let reqAnimFrameCall: number | null = null;
-		const startedTime = performance.now();
-		const startedFrame = frameRef.current;
-
-		const callback = () => {
-			const time = performance.now() - startedTime;
-			const calculatedFrame =
-				(Math.round(time / (1000 / config.fps)) + startedFrame) %
-				config.durationInFrames;
-			if (calculatedFrame !== frameRef.current) {
-				setFrame(calculatedFrame);
-			}
-
-			if (!hasBeenStopped) {
-				reqAnimFrameCall = requestAnimationFrame(callback);
-			}
+	const returnValue = useMemo(() => {
+		return {
+			frameBack,
+			frameForward,
+			isLastFrame,
+			emitter,
+			playing,
+			play,
+			pause,
+			seek,
 		};
-
-		reqAnimFrameCall = requestAnimationFrame(callback);
-
-		return () => {
-			hasBeenStopped = true;
-			if (reqAnimFrameCall !== null) {
-				cancelAnimationFrame(reqAnimFrameCall);
-			}
-		};
-	}, [config, setFrame, playing]);
-
-	return {
+	}, [
+		emitter,
 		frameBack,
 		frameForward,
 		isLastFrame,
-		emitter,
-		playing,
-		play,
 		pause,
+		play,
+		playing,
 		seek,
-	};
+	]);
+
+	return returnValue;
 };

@@ -33,6 +33,7 @@ export type PlayerProps<T> = {
 	fps: number;
 	controls?: boolean;
 	style?: Omit<React.CSSProperties, 'height' | 'width'>;
+	loop?: boolean;
 } & PropsIfHasProps<T> &
 	CompProps<T>;
 
@@ -45,6 +46,7 @@ export const PlayerFn = <T,>(
 		props,
 		controls,
 		style,
+		loop,
 		...componentProps
 	}: PlayerProps<T>,
 	ref: MutableRefObject<PlayerRef>
@@ -113,6 +115,7 @@ export const PlayerFn = <T,>(
 					<PlayerEventEmitterContext.Provider value={emitter}>
 						<RootComponent
 							ref={rootRef}
+							loop={Boolean(loop)}
 							controls={Boolean(controls)}
 							style={style}
 						/>

@@ -3,7 +3,7 @@ import {Internals} from 'remotion';
 import {formatTime} from './format-time';
 import {PauseIcon, PlayIcon} from './icons';
 import {PlayerSeekBar} from './PlayerSeekBar';
-import {usePlayback} from './PlayPause';
+import {usePlayer} from './use-player';
 
 const containerStyle: React.CSSProperties = {
 	boxSizing: 'border-box',
@@ -57,7 +57,7 @@ export const Controls: React.FC<{
 	fps: number;
 	durationInFrames: number;
 	hovered: boolean;
-	player: ReturnType<typeof usePlayback>;
+	player: ReturnType<typeof usePlayer>;
 }> = ({durationInFrames, hovered, fps, player}) => {
 	const frame = Internals.Timeline.useTimelinePosition();
 

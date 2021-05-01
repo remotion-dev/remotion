@@ -4,6 +4,7 @@ import CarSlideshow from './CarSlideshow';
 
 export default function App() {
 	const [title, setTitle] = useState('Hello World');
+	const [loop, setLoop] = useState(false);
 	const [logs, setLogs] = useState<string[]>(() => []);
 
 	const ref = useRef<PlayerRef>(null);
@@ -34,6 +35,7 @@ export default function App() {
 				durationInFrames={500}
 				component={CarSlideshow}
 				controls
+				loop={loop}
 				props={{
 					title: String(title),
 				}}
@@ -58,6 +60,9 @@ export default function App() {
 			</button>
 			<button type="button" onClick={() => ref.current?.seekTo(10)}>
 				seekTo 10
+			</button>
+			<button type="button" onClick={() => setLoop((l) => !l)}>
+				loop = {String(loop)}
 			</button>
 			<br />
 			<br />
