@@ -5,6 +5,7 @@ export type PlayerMethods = {
 	pause: () => void;
 	toggle: () => void;
 	seekTo: (frame: number) => void;
+	getCurrentFrame: () => number;
 };
 
 export type PlayerRef = PlayerEventTarget & PlayerMethods;
