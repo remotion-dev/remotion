@@ -16,6 +16,7 @@ const prepareOutDir = async (specified: string | null) => {
 		await fs.promises.mkdir(specified, {recursive: true});
 		return specified;
 	}
+
 	return fs.promises.mkdtemp(path.join(os.tmpdir(), 'react-motion-graphics'));
 };
 
@@ -45,15 +46,18 @@ export const bundle = async (
 	if (!output) {
 		throw new Error('Expected webpack output');
 	}
+
 	const {errors} = output.toJson();
 	if (errors !== undefined && errors.length > 0) {
 		throw new Error(errors[0].message + '\n' + errors[0].details);
 	}
+
 	const indexHtmlDir = path.join(__dirname, '..', 'web', 'index.html');
 	if (process.platform === 'win32') {
 		await execa('copy', [indexHtmlDir, outDir]);
 	} else {
 		await execa('cp', [indexHtmlDir, outDir]);
 	}
+
 	return outDir;
 };

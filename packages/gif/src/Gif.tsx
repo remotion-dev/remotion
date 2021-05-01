@@ -7,5 +7,6 @@ export const Gif = (props: RemotionGifProps) => {
 	if (process.env.NODE_ENV === 'development') {
 		return <GifForDevelopment {...props} />;
 	}
+
 	return <GifForRendering {...props} />;
 };

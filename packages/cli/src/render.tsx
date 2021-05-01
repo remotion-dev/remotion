@@ -34,8 +34,9 @@ export const render = async () => {
 	const appliedName = loadConfigFile(configFileName);
 	parseCommandLine();
 	if (appliedName) {
-		Log.Verbose(`Applied configuration from ${appliedName}.`);
+		Log.verbose(`Applied configuration from ${appliedName}.`);
 	}
+
 	const {
 		codec,
 		parallelism,
@@ -61,6 +62,7 @@ export const render = async () => {
 			recursive: true,
 		});
 	}
+
 	const steps = shouldOutputImageSequence ? 2 : 3;
 
 	const shouldCache = Internals.getWebpackCaching();
@@ -70,6 +72,7 @@ export const render = async () => {
 		await BundlerInternals.clearCache('production', null);
 		process.stdout.write('done. \n');
 	}
+
 	const bundleStartTime = Date.now();
 	const bundlingProgress = createProgressBar();
 	const bundled = await bundle(
@@ -90,11 +93,12 @@ export const render = async () => {
 			doneIn: Date.now() - bundleStartTime,
 		}) + '\n'
 	);
-	Log.Verbose('Bundled under', bundled);
+	Log.verbose('Bundled under', bundled);
 	const cacheExistedAfter = BundlerInternals.cacheExists('production', null);
 	if (cacheExistedAfter && !cacheExistedBefore) {
-		Log.Info('⚡️ Cached bundle. Subsequent builds will be faster.');
+		Log.info('⚡️ Cached bundle. Subsequent builds will be faster.');
 	}
+
 	const openedBrowser = await browserInstance;
 	const comps = await getCompositions(bundled, {
 		browser,
@@ -112,7 +116,7 @@ export const render = async () => {
 		? absoluteOutputFile
 		: await fs.promises.mkdtemp(path.join(os.tmpdir(), 'react-motion-render'));
 
-	Log.Verbose('Output dir', outputDir);
+	Log.verbose('Output dir', outputDir);
 
 	const renderProgress = createProgressBar();
 	let totalFrames = 0;
@@ -168,10 +172,14 @@ export const render = async () => {
 	if (process.env.DEBUG) {
 		Internals.perf.logPerf();
 	}
-	if (!shouldOutputImageSequence) {
+
+	if (shouldOutputImageSequence) {
+		Log.info(chalk.green('\nYour image sequence is ready!'));
+	} else {
 		if (typeof crf !== 'number') {
-			throw TypeError('CRF is unexpectedly not a number');
+			throw new TypeError('CRF is unexpectedly not a number');
 		}
+
 		const stitchingProgress = createProgressBar();
 
 		stitchingProgress.update(
@@ -207,7 +215,7 @@ export const render = async () => {
 				);
 			},
 			onDownload: (src: string) => {
-				Log.Info('Downloading asset... ', src);
+				Log.info('Downloading asset... ', src);
 			},
 			verbose: Internals.Logging.isEqualOrBelowLogLevel('verbose'),
 		});
@@ -220,7 +228,7 @@ export const render = async () => {
 			}) + '\n'
 		);
 
-		Log.Verbose('Cleaning up...');
+		Log.verbose('Cleaning up...');
 		try {
 			await Promise.all([
 				fs.promises.rmdir(outputDir, {
@@ -231,24 +239,24 @@ export const render = async () => {
 				}),
 			]);
 		} catch (err) {
-			Log.Error('Could not clean up directory.');
-			Log.Error(err);
-			Log.Error('Do you have minimum required Node.js version?');
+			Log.error('Could not clean up directory.');
+			Log.error(err);
+			Log.error('Do you have minimum required Node.js version?');
 			process.exit(1);
 		}
-		Log.Info(chalk.green('\nYour video is ready!'));
-	} else {
-		Log.Info(chalk.green('\nYour image sequence is ready!'));
+
+		Log.info(chalk.green('\nYour video is ready!'));
 	}
+
 	const seconds = Math.round((Date.now() - startTime) / 1000);
-	Log.Info(
+	Log.info(
 		[
 			'- Total render time:',
 			seconds,
 			seconds === 1 ? 'second' : 'seconds',
 		].join(' ')
 	);
-	Log.Info('-', 'Output can be found at:');
-	Log.Info(chalk.cyan(`▶️ ${absoluteOutputFile}`));
+	Log.info('-', 'Output can be found at:');
+	Log.info(chalk.cyan(`▶️ ${absoluteOutputFile}`));
 	await closeBrowserPromise;
 };

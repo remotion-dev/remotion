@@ -26,8 +26,10 @@ const ffmpegIsOneOfFrames = (frames: number[], fps: number) => {
 		if (!previousFrame || frame !== previousFrame + 1) {
 			consecutiveArrays.push([]);
 		}
+
 		consecutiveArrays[consecutiveArrays.length - 1].push(frame);
 	}
+
 	return consecutiveArrays
 		.map((f) => {
 			const firstFrame = f[0];
@@ -45,6 +47,7 @@ const ffmpegBuildVolumeExpression = (arr: VolumeArray, fps: number): string => {
 	if (arr.length === 0) {
 		throw new Error('Volume array expression should never have length 0');
 	}
+
 	if (arr.length === 1) {
 		// FFMpeg tends to request volume for frames outside the range
 		// where the audio actually plays.
@@ -55,6 +58,7 @@ const ffmpegBuildVolumeExpression = (arr: VolumeArray, fps: number): string => {
 			String(0)
 		);
 	}
+
 	const [first, ...rest] = arr;
 	const [volume, frames] = first;
 	return ffmpegIfOrElse(
@@ -89,6 +93,7 @@ export const ffmpegVolumeExpression = ({
 			value: String(Math.min(1, volume) * multiplier),
 		};
 	}
+
 	if ([...new Set(volume)].length === 1) {
 		return ffmpegVolumeExpression({
 			volume: volume[0],
@@ -110,6 +115,7 @@ export const ffmpegVolumeExpression = ({
 		if (!volumeMap[actualVolume]) {
 			volumeMap[actualVolume] = [];
 		}
+
 		volumeMap[actualVolume].push(frame + startInVideo);
 	});
 

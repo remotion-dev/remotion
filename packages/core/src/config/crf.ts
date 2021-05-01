@@ -3,12 +3,13 @@ import {Codec} from './codec';
 
 type Crf = number | undefined;
 
-let currentCrf: Crf = undefined;
+let currentCrf: Crf;
 
 export const setCrf = (newCrf: Crf) => {
 	if (typeof newCrf !== 'number' && newCrf !== undefined) {
 		throw new TypeError('The CRF must be a number or undefined.');
 	}
+
 	currentCrf = newCrf;
 };
 
@@ -20,18 +21,23 @@ export const getDefaultCrfForCodec = (codec: Codec): number => {
 	if (isAudioCodec(codec)) {
 		return 0;
 	}
+
 	if (codec === 'h264') {
 		return 18; // FFMPEG default 23
 	}
+
 	if (codec === 'h265') {
 		return 23; // FFMPEG default 28
 	}
+
 	if (codec === 'vp8') {
 		return 9; // FFMPEG default 10
 	}
+
 	if (codec === 'vp9') {
 		return 28; // FFMPEG recommendation 31
 	}
+
 	throw new TypeError(`Got unexpected codec "${codec}"`);
 };
 
@@ -39,18 +45,23 @@ export const getValidCrfRanges = (codec: Codec): [number, number] => {
 	if (isAudioCodec(codec)) {
 		return [0, 0];
 	}
+
 	if (codec === 'h264') {
 		return [0, 51];
 	}
+
 	if (codec === 'h265') {
 		return [0, 51];
 	}
+
 	if (codec === 'vp8') {
 		return [4, 63];
 	}
+
 	if (codec === 'vp9') {
 		return [0, 63];
 	}
+
 	throw new TypeError(`Got unexpected codec "${codec}"`);
 };
 

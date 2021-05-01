@@ -79,8 +79,8 @@ When server-rendering using `renderFrames`, you can pass props using the `inputP
 await renderFrames({
   config: video,
   webpackBundle: bundled,
-  onStart: () => void 0,
-  onFrameUpdate: (f) => void 0,
+  onStart: () => undefined,
+  onFrameUpdate: (f) => undefined,
   parallelism: null,
   outputDir: framesDir,
   inputProps: {

@@ -43,7 +43,7 @@
 		"react-dom": "^17.0.1"
 	},
 	"devDependencies": {
-		"@jonny/eslint-config": "^2.1.231",
+		"@jonny/eslint-config": "^2.1.233",
 		"@types/express": "^4.17.7",
 		"@types/node": "^14.0.13",
 		"@types/semver": "^7.3.4",

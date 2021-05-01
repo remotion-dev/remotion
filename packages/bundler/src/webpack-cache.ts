@@ -20,25 +20,34 @@ export const getWebpackCacheDir = () => {
 	let dir: string | undefined = cwd;
 	for (;;) {
 		try {
-			if (fs.statSync(path.join(dir, 'package.json')).isFile()) break;
+			if (fs.statSync(path.join(dir, 'package.json')).isFile()) {
+				break;
+			}
 			// eslint-disable-next-line no-empty
 		} catch (e) {}
+
 		const parent = path.dirname(dir);
 		if (dir === parent) {
 			dir = undefined;
 			break;
 		}
+
 		dir = parent;
 	}
+
 	if (!dir) {
 		return path.resolve(cwd, '.cache/webpack');
-	} else if (process.versions.pnp === '1') {
-		return path.resolve(dir, '.pnp/.cache/webpack');
-	} else if (process.versions.pnp === '3') {
-		return path.resolve(dir, '.yarn/.cache/webpack');
-	} else {
-		return path.resolve(dir, 'node_modules/.cache/webpack');
 	}
+
+	if (process.versions.pnp === '1') {
+		return path.resolve(dir, '.pnp/.cache/webpack');
+	}
+
+	if (process.versions.pnp === '3') {
+		return path.resolve(dir, '.yarn/.cache/webpack');
+	}
+
+	return path.resolve(dir, 'node_modules/.cache/webpack');
 };
 
 const remotionCacheLocation = (
@@ -70,6 +79,7 @@ export const getWebpackCacheName = (
 	if (environment === 'development') {
 		return `remotion-${environment}-${random(JSON.stringify(inputProps))}`;
 	}
+
 	// In production, the cache is independent from input props because
 	// they are passed over URL params. Speed is mostly important in production.
 	return `remotion-${environment}`;

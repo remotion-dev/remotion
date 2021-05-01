@@ -27,8 +27,9 @@ export const createFfmpegComplexFilter = async (
 	cleanup: () => void;
 }> => {
 	if (!filters.length) {
-		return {complexFilterFlag: null, cleanup: () => void 0};
+		return {complexFilterFlag: null, cleanup: () => undefined};
 	}
+
 	const complexFilter = [
 		...filters.map((f) => f.filter),
 		createMix(filters),
