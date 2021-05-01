@@ -63,6 +63,7 @@ const RootComponent: React.ForwardRefRenderFunction<
 		if (!config) {
 			return {};
 		}
+
 		return {
 			position: 'relative',
 			width: config.width,

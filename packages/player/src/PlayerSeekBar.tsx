@@ -65,6 +65,7 @@ export const PlayerSeekBar: React.FC<{
 			if (!size) {
 				throw new Error('Player has no size');
 			}
+
 			const _frame = getFrameFromX(
 				e.clientX - size.left,
 				durationInFrames,
@@ -85,9 +86,11 @@ export const PlayerSeekBar: React.FC<{
 			if (!size) {
 				throw new Error('Player has no size');
 			}
+
 			if (!dragging.dragging) {
 				return;
 			}
+
 			const _frame = getFrameFromX(
 				e.clientX - (size?.left ?? 0),
 				durationInFrames,
@@ -105,6 +108,7 @@ export const PlayerSeekBar: React.FC<{
 		if (!dragging.dragging) {
 			return;
 		}
+
 		if (dragging.wasPlaying) {
 			play();
 		} else {
@@ -116,6 +120,7 @@ export const PlayerSeekBar: React.FC<{
 		if (!dragging.dragging) {
 			return;
 		}
+
 		window.addEventListener('pointermove', onPointerMove);
 		window.addEventListener('pointerup', onPointerUp);
 		return () => {

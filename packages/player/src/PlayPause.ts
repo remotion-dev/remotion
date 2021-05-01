@@ -56,9 +56,11 @@ export const usePlayback = (): {
 			if (!video) {
 				return null;
 			}
+
 			if (playing) {
 				return;
 			}
+
 			if (frame === 0) {
 				return;
 			}
@@ -76,6 +78,7 @@ export const usePlayback = (): {
 			if (!video) {
 				return null;
 			}
+
 			if (playing) {
 				return;
 			}
@@ -93,6 +96,7 @@ export const usePlayback = (): {
 		if (!config) {
 			return;
 		}
+
 		if (!playing) {
 			return;
 		}
@@ -110,6 +114,7 @@ export const usePlayback = (): {
 			if (calculatedFrame !== frameRef.current) {
 				setFrame(calculatedFrame);
 			}
+
 			if (!hasBeenStopped) {
 				reqAnimFrameCall = requestAnimationFrame(callback);
 			}

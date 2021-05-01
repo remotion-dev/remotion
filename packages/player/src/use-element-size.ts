@@ -28,10 +28,12 @@ export const useElementSize = (
 		if (!ref.current) {
 			return;
 		}
+
 		const rect = ref.current.getClientRects();
 		if (!rect[0]) {
 			return;
 		}
+
 		setSize({
 			width: rect[0].width as number,
 			height: rect[0].height as number,
@@ -46,6 +48,7 @@ export const useElementSize = (
 		if (ref.current) {
 			observer.observe(ref.current);
 		}
+
 		return (): void => {
 			if (current) {
 				observer.unobserve(current);

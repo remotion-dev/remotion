@@ -19,6 +19,9 @@ export default function App() {
 		ref.current?.addEventListener('seeked', (e) => {
 			setLogs((l) => [...l, 'seeked to ' + e.detail.frame + ' ' + Date.now()]);
 		});
+		ref.current?.addEventListener('ended', (e) => {
+			setLogs((l) => [...l, 'ended ' + Date.now()]);
+		});
 	}, []);
 
 	return (

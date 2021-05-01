@@ -8,9 +8,11 @@ export const useHoverState = (ref: React.RefObject<HTMLDivElement>) => {
 		if (!current) {
 			return;
 		}
+
 		const onHover = () => {
 			stetHovered(true);
 		};
+
 		const onLeave = () => {
 			stetHovered(false);
 		};
