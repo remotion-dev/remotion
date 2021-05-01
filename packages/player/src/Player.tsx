@@ -17,7 +17,7 @@ import {PlayerEventEmitterContext} from './emitter-context';
 import {PlayerEmitter} from './event-emitter';
 import {PLAYER_CSS_CLASSNAME} from './player-css-classname';
 import {PlayerRef} from './player-methods';
-import RootComponent from './RootComponent';
+import PlayerUI from './PlayerUI';
 
 type PropsIfHasProps<Props> = {} extends Props
 	? {
@@ -35,6 +35,7 @@ export type PlayerProps<T> = {
 	controls?: boolean;
 	style?: Omit<React.CSSProperties, 'height' | 'width'>;
 	loop?: boolean;
+	autoPlay?: boolean;
 } & PropsIfHasProps<T> &
 	CompProps<T>;
 
@@ -52,6 +53,7 @@ export const PlayerFn = <T,>(
 		controls,
 		style,
 		loop,
+		autoPlay,
 		...componentProps
 	}: PlayerProps<T>,
 	ref: MutableRefObject<PlayerRef>
@@ -118,8 +120,9 @@ export const PlayerFn = <T,>(
 					value={compositionManagerContext}
 				>
 					<PlayerEventEmitterContext.Provider value={emitter}>
-						<RootComponent
+						<PlayerUI
 							ref={rootRef}
+							autoPlay={Boolean(autoPlay)}
 							loop={Boolean(loop)}
 							controls={Boolean(controls)}
 							style={style}

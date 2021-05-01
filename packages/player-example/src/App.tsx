@@ -30,6 +30,7 @@ export default function App() {
 	return (
 		<div>
 			<Player
+				autoPlay
 				ref={ref}
 				width={500}
 				height={432}
