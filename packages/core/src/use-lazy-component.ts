@@ -8,9 +8,11 @@ export const useLazyComponent = (compProps: CompProps<any>) => {
 		if ('lazyComponent' in compProps) {
 			return React.lazy(compProps.lazyComponent);
 		}
+
 		if ('component' in compProps) {
 			return React.lazy(() => Promise.resolve({default: compProps.component}));
 		}
+
 		throw new Error("You must pass either 'component' or 'lazyComponent'");
 		// @ts-expect-error
 		// eslint-disable-next-line react-hooks/exhaustive-deps

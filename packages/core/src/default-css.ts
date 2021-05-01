@@ -4,6 +4,7 @@ export const injectCSS = (css: string) => {
 	if (injected[css]) {
 		return;
 	}
+
 	const head = document.head || document.getElementsByTagName('head')[0];
 	const style = document.createElement('style');
 
@@ -24,6 +25,7 @@ export const makeDefaultCSS = (scope: string | null) => {
     }
     `;
 	}
+
 	return `
     ${scope} * {
       box-sizing: border-box;
