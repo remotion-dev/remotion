@@ -46,34 +46,14 @@ function interpolateFunction(
 		return outputMin;
 	}
 
-	if (inputMin === inputMax) {
-		if (input <= inputMin) {
-			return outputMin;
-		}
-
-		return outputMax;
-	}
-
 	// Input Range
-	if (inputMin === -Infinity) {
-		result = -result;
-	} else if (inputMax === Infinity) {
-		result -= inputMin;
-	} else {
-		result = (result - inputMin) / (inputMax - inputMin);
-	}
+	result = (result - inputMin) / (inputMax - inputMin);
 
 	// Easing
 	result = easing(result);
 
 	// Output Range
-	if (outputMin === -Infinity) {
-		result = -result;
-	} else if (outputMax === Infinity) {
-		result += outputMin;
-	} else {
-		result = result * (outputMax - outputMin) + outputMin;
-	}
+	result = result * (outputMax - outputMin) + outputMin;
 
 	return result;
 }
@@ -90,10 +70,6 @@ function findRange(input: number, inputRange: readonly number[]) {
 }
 
 function checkValidInputRange(arr: readonly number[]) {
-	if (arr.length < 2) {
-		throw new Error('inputRange must have at least 2 elements');
-	}
-
 	for (let i = 1; i < arr.length; ++i) {
 		if (!(arr[i] > arr[i - 1])) {
 			throw new Error(
@@ -108,12 +84,6 @@ function checkValidInputRange(arr: readonly number[]) {
 function checkInfiniteRange(name: string, arr: readonly number[]) {
 	if (arr.length < 2) {
 		throw new Error(name + ' must have at least 2 elements');
-	}
-
-	if (!(arr.length !== 2 || arr[0] !== -Infinity || arr[1] !== Infinity)) {
-		throw new Error(
-			`${name} must contain only finite numbers, but got [${arr.join(',')}]`
-		);
 	}
 
 	for (const index in arr) {
@@ -158,9 +128,9 @@ export function interpolate(
 	}
 
 	checkInfiniteRange('inputRange', inputRange);
-	checkValidInputRange(inputRange);
-
 	checkInfiniteRange('outputRange', outputRange);
+
+	checkValidInputRange(inputRange);
 
 	const easing = options?.easing ?? ((num: number): number => num);
 
