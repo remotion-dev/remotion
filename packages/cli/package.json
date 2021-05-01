@@ -45,7 +45,7 @@
 		}
 	},
 	"devDependencies": {
-		"@jonny/eslint-config": "^2.1.230",
+		"@jonny/eslint-config": "^2.1.231",
 		"@types/babel__core": "^7.1.12",
 		"@types/babel__template": "^7.4.0",
 		"@types/cli-progress": "^3.7.0",
