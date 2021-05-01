@@ -1,7 +1,7 @@
-import {usePlaybackTime} from '../index';
+import {usePlayback} from '../index';
 
 test('It should throw an error if not being used inside a RemotionRoot', () => {
 	expect(() => {
-		usePlaybackTime();
+		usePlayback();
 	}).toThrow();
 });

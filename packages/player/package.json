@@ -5,7 +5,7 @@
 	"main": "dist/index.js",
 	"sideEffects": false,
 	"scripts": {
-		"test": "jest",
+		"test": "eslint src --ext ts,tsx && jest",
 		"build": "tsc -d",
 		"watch": "tsc -w",
 		"prerelease": "cp ../../README.md ."

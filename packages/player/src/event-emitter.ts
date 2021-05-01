@@ -4,9 +4,9 @@ type SeekPayload = {
 
 interface StateEventMap {
 	seeked: CustomEvent<SeekPayload>;
-	pause: CustomEvent;
-	play: CustomEvent;
-	ended: CustomEvent;
+	pause: CustomEvent<undefined>;
+	play: CustomEvent<undefined>;
+	ended: CustomEvent<undefined>;
 }
 
 export interface PlayerEventTarget extends EventTarget {
@@ -37,12 +37,15 @@ export class PlayerEmitter extends PlayerEventEmitter {
 			})
 		);
 	}
+
 	dispatchPause() {
 		this.dispatchEvent(new CustomEvent('pause'));
 	}
+
 	dispatchPlay() {
 		this.dispatchEvent(new CustomEvent('play'));
 	}
+
 	dispatchEnded() {
 		this.dispatchEvent(new CustomEvent('ended'));
 	}
