@@ -2,11 +2,16 @@ type SeekPayload = {
 	frame: number;
 };
 
+type ErrorPayload = {
+	error: Error;
+};
+
 interface StateEventMap {
 	seeked: CustomEvent<SeekPayload>;
 	pause: CustomEvent<undefined>;
 	play: CustomEvent<undefined>;
 	ended: CustomEvent<undefined>;
+	error: CustomEvent<ErrorPayload>;
 }
 
 export interface PlayerEventTarget extends EventTarget {
@@ -48,5 +53,15 @@ export class PlayerEmitter extends PlayerEventEmitter {
 
 	dispatchEnded() {
 		this.dispatchEvent(new CustomEvent('ended'));
+	}
+
+	dispatchError(error: Error) {
+		this.dispatchEvent(
+			new CustomEvent<ErrorPayload>('error', {
+				detail: {
+					error,
+				},
+			})
+		);
 	}
 }

@@ -9,6 +9,7 @@ import React, {
 	useState,
 } from 'react';
 import {Internals} from 'remotion';
+import {ErrorBoundary} from './error-boundary';
 import {PlayerMethods, PlayerRef} from './player-methods';
 import {Controls} from './PlayerControls';
 import {useHoverState} from './use-hover-state';
@@ -76,6 +77,14 @@ const RootComponent: React.ForwardRefRenderFunction<
 		};
 	}, [config, style]);
 
+	const onError = useCallback(
+		(error: Error) => {
+			player.pause();
+			// Pay attention to `this context`
+			player.emitter.dispatchError(error);
+		},
+		[player]
+	);
 	if (!config) {
 		return null;
 	}
@@ -84,7 +93,9 @@ const RootComponent: React.ForwardRefRenderFunction<
 		<Suspense fallback={<h1>Loading...</h1>}>
 			<div ref={container} style={containerStyle}>
 				{VideoComponent ? (
-					<VideoComponent {...(((video?.props as unknown) as {}) ?? {})} />
+					<ErrorBoundary onError={onError}>
+						<VideoComponent {...(((video?.props as unknown) as {}) ?? {})} />
+					</ErrorBoundary>
 				) : null}
 				{controls ? (
 					<Controls
