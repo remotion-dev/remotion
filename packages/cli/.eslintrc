@@ -1,7 +1,8 @@
 {
 	"extends": "@jonny",
 	"rules": {
-		"no-console": "error"
+		"no-console": "error",
+		"ts-exports/unused-exports": "off"
 	},
 	"overrides": [
 		{

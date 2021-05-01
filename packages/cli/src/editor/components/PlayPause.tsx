@@ -34,10 +34,12 @@ export const PlayPause: React.FC = () => {
 				}
 				e.preventDefault();
 			}
+
 			if (e.code === 'ArrowLeft') {
 				frameBack(e.shiftKey ? video.fps : 1);
 				e.preventDefault();
 			}
+
 			if (e.code === 'ArrowRight') {
 				frameForward(e.shiftKey ? video.fps : 1);
 				e.preventDefault();

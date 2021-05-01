@@ -52,7 +52,7 @@ export const FpsCounter: React.FC = () => {
 		const averageDistanceBetween = diff / (previousUpdates.current.length - 1);
 		fpsRef.current = 1000 / averageDistanceBetween;
 
-		if (previousUpdates.current.length == 2) setFps(fpsRef.current);
+		if (previousUpdates.current.length === 2) setFps(fpsRef.current);
 		/* This effect should depends only on frame, otherwise it will push extra updates to ref and fps will be wrong */
 	}, [frame]);
 

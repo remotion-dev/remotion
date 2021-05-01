@@ -13,7 +13,7 @@ describe('SetImageFormat with valid inputs', () => {
 		'none',
 		undefined,
 	];
-	formatInputs.forEach((entry) =>
+	formatInputs.forEach(entry =>
 		test(`testing with format "${entry}"`, () => {
 			// @ts-expect-error
 			setImageFormat(entry);

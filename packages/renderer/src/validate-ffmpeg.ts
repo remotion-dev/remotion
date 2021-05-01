@@ -7,6 +7,7 @@ export const binaryExists = async (name: 'ffmpeg' | 'brew') => {
 	if (typeof existsMap[name] !== 'undefined') {
 		return existsMap[name];
 	}
+
 	const isWin = os.platform() === 'win32';
 	const where = isWin ? 'where' : 'which';
 	try {
@@ -52,6 +53,7 @@ export const validateFfmpeg = async (): Promise<void> => {
 				'See https://github.com/adaptlearning/adapt_authoring/wiki/Installing-FFmpeg on how to install FFMPEG.'
 			);
 		}
+
 		process.exit(1);
 	}
 };

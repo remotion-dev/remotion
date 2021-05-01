@@ -15,6 +15,7 @@ export const getVideoMetadata = async (src: string): Promise<VideoMetadata> => {
 			reject(ev.error);
 			cleanup();
 		};
+
 		const onLoadedMetadata = () => {
 			const metadata: VideoMetadata = {
 				durationInSeconds: video.duration,
@@ -28,10 +29,12 @@ export const getVideoMetadata = async (src: string): Promise<VideoMetadata> => {
 
 			cleanup();
 		};
+
 		const cleanup = () => {
 			video.removeEventListener('loadedmetadata', onLoadedMetadata);
 			video.removeEventListener('error', onError);
 		};
+
 		video.addEventListener('loadedmetadata', onLoadedMetadata, {once: true});
 		video.addEventListener('error', onError, {once: true});
 	});

@@ -4,8 +4,8 @@ import styled from 'styled-components';
 import {
 	checkerboardBackgroundColor,
 	checkerboardBackgroundImage,
-	CHECKERBOARD_BACKGROUND_POS,
-	CHECKERBOARD_BACKGROUND_SIZE,
+	getCheckerboardBackgroundPos,
+	getCheckerboardBackgroundSize,
 } from '../helpers/checkerboard-background';
 import {Size} from '../hooks/get-el-size';
 import {CheckerboardContext} from '../state/checkerboard';
@@ -32,10 +32,10 @@ export const Container = styled.div<{
 		checkerboardBackgroundColor(props.checkerboard)};
 	background-image: ${(props) =>
 		checkerboardBackgroundImage(props.checkerboard)};
-	background-size: ${CHECKERBOARD_BACKGROUND_SIZE(
+	background-size: ${getCheckerboardBackgroundSize(
 		checkerboardSize
 	)}; /* Must be a square */
-	background-position: ${CHECKERBOARD_BACKGROUND_POS(
+	background-position: ${getCheckerboardBackgroundPos(
 		checkerboardSize
 	)}; /* Must be half of one side of the square */
 `;
@@ -107,5 +107,6 @@ export const VideoPreview: React.FC<{
 	if (!config) {
 		return null;
 	}
+
 	return <Inner canvasSize={canvasSize} />;
 };

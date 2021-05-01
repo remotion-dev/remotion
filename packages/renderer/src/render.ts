@@ -31,7 +31,7 @@ export const renderFrames = async ({
 	config,
 	parallelism,
 	onFrameUpdate,
-	compositionId: compositionId,
+	compositionId,
 	outputDir,
 	onStart,
 	inputProps,
@@ -63,6 +63,7 @@ export const renderFrames = async ({
 			"You can only pass the `quality` option if `imageFormat` is 'jpeg'."
 		);
 	}
+
 	const actualParallelism = getActualConcurrency(parallelism ?? null);
 
 	const [{port, close}, browserInstance] = await Promise.all([
@@ -93,6 +94,7 @@ export const renderFrames = async ({
 				JSON.stringify(inputProps)
 			);
 		}
+
 		const site = `http://localhost:${port}/index.html?composition=${compositionId}`;
 		await page.goto(site);
 		return page;
@@ -108,6 +110,7 @@ export const renderFrames = async ({
 	if (frameCount) {
 		filePadLength = String(frameCount - 1).length;
 	}
+
 	let framesRendered = 0;
 
 	onStart({
@@ -137,6 +140,7 @@ export const renderFrames = async ({
 						},
 					});
 				}
+
 				const collectedAssets = await freePage.evaluate(() => {
 					return window.remotion_collectAssets();
 				});

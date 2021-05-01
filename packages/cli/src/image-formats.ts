@@ -8,9 +8,11 @@ export const getImageFormat = (
 	if (typeof userPreferred !== 'undefined') {
 		return userPreferred;
 	}
+
 	if (Internals.isAudioCodec(codec)) {
 		return 'none';
 	}
+
 	if (
 		codec === 'h264' ||
 		codec === 'h265' ||
@@ -19,8 +21,10 @@ export const getImageFormat = (
 	) {
 		return 'jpeg';
 	}
+
 	if (codec === undefined) {
 		return 'png';
 	}
+
 	throw new Error('Unrecognized codec ' + codec);
 };
