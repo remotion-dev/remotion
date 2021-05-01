@@ -34,7 +34,14 @@ const start = async () => {
 
   // Extract all the compositions you have defined in your project
   // from the webpack bundle.
-  const comps = await getCompositions(bundled);
+  const comps = await getCompositions(bundled, {
+    // You can pass custom input props that you can retrieve using getInputProps()
+    // in the composition list. Use this if you want to dynamically set the duration or
+    // dimensions of the video.
+    inputProps: {
+      custom: 'data'
+    }
+  });
 
   // Select the composition you want to render.
   const video = comps.find((c) => c.id === compositionId);
@@ -44,8 +51,8 @@ const start = async () => {
     path.join(os.tmpdir(), 'remotion-')
   );
 
-  // We create PNGs for all frames
-  await renderFrames({
+  // We create JPEGs for all frames
+  const {assetsInfo} = await renderFrames({
     config: video,
     // Path of the webpack bundle you have created
     webpackBundle: bundled,
@@ -63,7 +70,7 @@ const start = async () => {
     parallelism: null,
     outputDir: framesDir,
     // React props passed to the root component of the sequence. Will be merged with the `defaultProps` of a video.
-    userProps: {
+    inputProps: {
       titleText: 'Hello World'
     },
     compositionId,
@@ -89,13 +96,19 @@ const start = async () => {
     outputLocation: path.join(tmpDir, 'out.mp4'),
     // FFMPEG pixel format
     pixelFormat: 'yuv420p',
+    // Information needed to construct audio correctly.
+    assetsInfo,
     // Hook into the FFMPEG progress
-    onProgress: (frame) => void 0
+    onProgress: (frame) => undefined
   });
 };
 
 start();
 ```
+
+:::warning
+Many projects created before April 27th are missing the extra parameter for `getCompositions()`. Make sure to add it if you want to use input props to control duration or dimensions of the video.
+:::
 
 [See also: Passing props in GitHub Actions](/docs/parametrized-rendering#passing-props-in-github-actions)
 
@@ -135,3 +148,14 @@ under `.github/workflows/render-video.yml`. All you have to do is to adjust the 
 Note that running the workflow may incur costs. However, the workflow will only run if you actively trigger it.
 
 [See also: Passing props in GitHub Actions](/docs/parametrized-rendering#passing-props-in-github-actions)
+
+## Rendering a video using serverless
+
+We are working on a library which will help you render videos using AWS Lambda. Contact us if you are interested in testing an early version.
+
+## API reference
+
+- [bundle()](/docs/bundle)
+- [getCompositions()](/docs/get-compositions)
+- [renderFrames()](/docs/render-frames)
+- [stitchFramesToVideo()](/docs/stitch-frames-to-video)

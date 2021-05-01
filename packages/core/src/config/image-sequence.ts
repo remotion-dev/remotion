@@ -1,12 +1,15 @@
+import {FrameRange} from './frame-range';
+
 let imageSequence = false;
 
 export const setImageSequence = (newImageSequence: boolean) => {
 	if (typeof newImageSequence !== 'boolean') {
 		throw new TypeError('setImageSequence accepts a Boolean Value');
 	}
+
 	imageSequence = newImageSequence;
 };
 
-export const getShouldOutputImageSequence = () => {
-	return imageSequence;
+export const getShouldOutputImageSequence = (frameRange: FrameRange | null) => {
+	return imageSequence || typeof frameRange === 'number';
 };

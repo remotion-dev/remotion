@@ -1,42 +1,50 @@
-import React, {useEffect, useRef} from 'react';
-import {usePlayingState} from '../timeline-position-state';
-import {useCurrentFrame} from '../use-frame';
-import {useUnsafeVideoConfig} from '../use-unsafe-video-config';
+import React, {forwardRef, useImperativeHandle, useRef} from 'react';
+import {useFrameForVolumeProp} from '../audio/use-audio-frame';
+import {useMediaInTimeline} from '../use-media-in-timeline';
+import {useMediaPlayback} from '../use-media-playback';
+import {useMediaTagVolume} from '../use-media-tag-volume';
+import {useSyncVolumeWithMediaTag} from '../use-sync-volume-with-media-tag';
 import {RemotionVideoProps} from './props';
 
-export const VideoForDevelopment: React.FC<RemotionVideoProps> = (props) => {
+const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
+	HTMLVideoElement,
+	RemotionVideoProps
+> = (props, ref) => {
 	const videoRef = useRef<HTMLVideoElement>(null);
-	const currentFrame = useCurrentFrame();
-	const videoConfig = useUnsafeVideoConfig();
-	const [playing] = usePlayingState();
 
-	useEffect(() => {
-		if (playing) {
-			videoRef.current?.play();
-		} else {
-			videoRef.current?.pause();
-		}
-	}, [playing]);
+	const volumePropFrame = useFrameForVolumeProp();
 
-	useEffect(() => {
-		if (!videoRef.current) {
-			throw new Error('No video ref found');
-		}
+	const {volume, ...nativeProps} = props;
 
-		if (!videoConfig) {
-			throw new Error('No video config found');
-		}
+	const actualVolume = useMediaTagVolume(videoRef);
 
-		if (!playing) {
-			videoRef.current.currentTime = currentFrame / (1000 / videoConfig.fps);
-			return;
-		}
+	useMediaInTimeline({
+		mediaRef: videoRef,
+		volume,
+		mediaType: 'video',
+		src: nativeProps.src,
+	});
 
-		if (videoRef.current.paused) {
-			videoRef.current.currentTime = currentFrame / (1000 / videoConfig.fps);
-			videoRef.current.play();
-		}
-	}, [currentFrame, playing, videoConfig]);
+	useSyncVolumeWithMediaTag({
+		volumePropFrame,
+		actualVolume,
+		volume,
+		mediaRef: videoRef,
+	});
 
-	return <video ref={videoRef} muted {...props} />;
+	useMediaPlayback({
+		mediaRef: videoRef,
+		src: nativeProps.src,
+		mediaType: 'video',
+	});
+
+	useImperativeHandle(ref, () => {
+		return videoRef.current as HTMLVideoElement;
+	});
+
+	return <video ref={videoRef} {...nativeProps} />;
 };
+
+export const VideoForDevelopment = forwardRef(
+	VideoForDevelopmentRefForwardingFunction
+);

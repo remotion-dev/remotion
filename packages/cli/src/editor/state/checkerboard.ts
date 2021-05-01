@@ -11,10 +11,10 @@ export const persistCheckerboardOption = (option: boolean) => {
 
 export const loadCheckerboardOption = (): boolean => {
 	const item = localStorage.getItem('option');
-	return item === 'true' ? true : false;
+	return item !== 'false';
 };
 
 export const CheckerboardContext = createContext<State>({
 	checkerboard: loadCheckerboardOption(),
-	setCheckerboard: () => void 0,
+	setCheckerboard: () => undefined,
 });

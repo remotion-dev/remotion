@@ -2,6 +2,8 @@ import React, {useContext} from 'react';
 import {Internals} from 'remotion';
 import styled from 'styled-components';
 import {renderFrame} from '../state/render-frame';
+import {RichTimelineContext} from '../state/rich-timeline';
+import {Thumbnail} from './Thumbnail';
 
 const Container = styled.div`
 	min-height: 100px;
@@ -24,22 +26,50 @@ const Subtitle = styled.div`
 	opacity: 0.8;
 `;
 
+const Row = styled.div`
+	display: flex;
+	flex-direction: row;
+`;
+
+const Space = styled.div`
+	width: 12px;
+`;
+
+const targetHeight = 60;
+const targetWidth = (targetHeight * 16) / 9;
+
 export const CurrentComposition = () => {
-	const {currentComposition} = useContext(Internals.CompositionManager);
-	const videoConfig = Internals.useUnsafeVideoConfig();
-	if (!videoConfig) {
+	const richTimelineContext = useContext(RichTimelineContext);
+	const video = Internals.useVideo();
+	if (!video) {
 		return <Container />;
 	}
+
+	const frameToDisplay = Math.floor(video.durationInFrames / 2);
 	return (
 		<Container>
-			<Title>{currentComposition}</Title>
-			<Subtitle>
-				{videoConfig.width}x{videoConfig.height}
-			</Subtitle>
-			<Subtitle>
-				Duration {renderFrame(videoConfig.durationInFrames, videoConfig.fps)},{' '}
-				{videoConfig.fps} FPS
-			</Subtitle>
+			<Row>
+				{richTimelineContext.richTimeline ? (
+					<>
+						<Thumbnail
+							composition={video}
+							targetHeight={targetHeight}
+							targetWidth={targetWidth}
+							frameToDisplay={frameToDisplay}
+						/>
+						<Space />
+					</>
+				) : null}
+				<div>
+					<Title>{video.id}</Title>
+					<Subtitle>
+						{video.width}x{video.height}, {video.fps} FPS
+					</Subtitle>
+					<Subtitle>
+						Duration {renderFrame(video.durationInFrames, video.fps)}
+					</Subtitle>
+				</div>
+			</Row>
 		</Container>
 	);
 };

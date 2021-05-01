@@ -1,11 +1,25 @@
 import React from 'react';
-import {Composition} from 'remotion';
+import {Composition, getInputProps} from 'remotion';
+import {ColorInterpolation} from './ColorInterpolation';
+import {Framer} from './Framer';
 import {MissingImg} from './MissingImg';
+import RemoteVideo from './RemoteVideo';
 import {TenFrameTester} from './TenFrameTester';
+import {VideoTesting} from './VideoTesting';
 
 export const Index: React.FC = () => {
+	const inputProps = getInputProps();
 	return (
 		<>
+			<Composition
+				id="dynamic-duration"
+				component={VideoTesting}
+				width={1080}
+				height={1080}
+				fps={30}
+				// Change the duration of the video dynamically by passing `--props='{"duration": 100}'`
+				durationInFrames={inputProps?.duration ?? 20}
+			/>
 			<Composition
 				id="nested"
 				lazyComponent={() => import('./NestedSequences')}
@@ -21,6 +35,9 @@ export const Index: React.FC = () => {
 				height={1080}
 				fps={30}
 				durationInFrames={3 * 30}
+				defaultProps={{
+					word1: getInputProps().word1,
+				}}
 			/>
 			<Composition
 				id="black-gradients"
@@ -115,20 +132,20 @@ export const Index: React.FC = () => {
 				durationInFrames={30 * 30}
 			/>
 			<Composition
-				id="react-native-web"
-				lazyComponent={() => import('./ReactNativeWeb')}
-				width={1080}
-				height={1080}
-				fps={30}
-				durationInFrames={30 * 30}
-			/>
-			<Composition
 				id="iframe"
 				lazyComponent={() => import('./IframeTest')}
 				width={1080}
 				height={1080}
 				fps={30}
 				durationInFrames={10}
+			/>
+			<Composition
+				id="gif"
+				lazyComponent={() => import('./GifTest')}
+				width={1080}
+				height={1080}
+				fps={30}
+				durationInFrames={150}
 			/>
 			<Composition
 				id="missing-img"
@@ -139,12 +156,90 @@ export const Index: React.FC = () => {
 				durationInFrames={10}
 			/>
 			<Composition
+				id="audio-testing"
+				lazyComponent={() => import('./AudioTesting')}
+				width={1080}
+				height={1080}
+				fps={30}
+				durationInFrames={300}
+			/>
+			<Composition
+				id="audio-visualization"
+				lazyComponent={() => import('./AudioVisualization')}
+				width={1080}
+				height={1080}
+				fps={30}
+				durationInFrames={180 * 30}
+			/>
+			<Composition
+				id="drop-dots"
+				lazyComponent={() => import('./DropDots/DropDots')}
+				width={1080}
+				height={1080}
+				fps={30}
+				durationInFrames={180 * 30}
+			/>
+			<Composition
+				id="audio-testing-mute"
+				lazyComponent={() => import('./AudioTestingMute')}
+				width={1080}
+				height={1080}
+				fps={30}
+				durationInFrames={300}
+			/>
+			<Composition
 				id="ten-frame-tester"
 				component={TenFrameTester}
 				width={1080}
 				height={1080}
 				fps={30}
 				durationInFrames={10}
+			/>
+			<Composition
+				id="video-testing-mp4"
+				component={VideoTesting}
+				width={1080}
+				height={1080}
+				fps={30}
+				durationInFrames={100}
+				defaultProps={{
+					codec: 'mp4',
+				}}
+			/>
+			<Composition
+				id="video-testing-webm"
+				component={VideoTesting}
+				width={1080}
+				height={1080}
+				fps={30}
+				durationInFrames={100}
+				defaultProps={{
+					codec: 'webm',
+				}}
+			/>
+			<Composition
+				id="framer"
+				component={Framer}
+				width={1080}
+				height={1080}
+				fps={30}
+				durationInFrames={100}
+			/>
+			<Composition
+				id="remote-video"
+				component={RemoteVideo}
+				width={1280}
+				height={720}
+				fps={30}
+				durationInFrames={600}
+			/>
+			<Composition
+				id="color-interpolation"
+				component={ColorInterpolation}
+				width={1280}
+				height={720}
+				fps={30}
+				durationInFrames={100}
 			/>
 		</>
 	);

@@ -4,7 +4,6 @@ import {Pause} from '../icons/pause';
 import {Play} from '../icons/play';
 import {StepBack} from '../icons/step-back';
 import {StepForward} from '../icons/step-forward';
-import {getLastFrames, setLastFrames} from '../state/last-frames';
 import {ControlButton} from './ControlButton';
 
 export const PlayPause: React.FC = () => {
@@ -18,10 +17,8 @@ export const PlayPause: React.FC = () => {
 		if (!video) {
 			return null;
 		}
+
 		setPlaying((p) => {
-			if (p) {
-				setLastFrames([]);
-			}
 			return !p;
 		});
 	}, [video, setPlaying]);
@@ -30,9 +27,11 @@ export const PlayPause: React.FC = () => {
 		if (!video) {
 			return null;
 		}
+
 		if (playing) {
 			return;
 		}
+
 		if (frame === 0) {
 			return;
 		}
@@ -40,12 +39,13 @@ export const PlayPause: React.FC = () => {
 		setFrame((f) => f - 1);
 	}, [frame, playing, setFrame, video]);
 
-	const isLastFrame = frame === (config?.durationInFrames ?? 1);
+	const isLastFrame = frame === (config?.durationInFrames ?? 1) - 1;
 
 	const frameForward = useCallback(() => {
 		if (!video) {
 			return null;
 		}
+
 		if (playing) {
 			return;
 		}
@@ -63,10 +63,12 @@ export const PlayPause: React.FC = () => {
 				toggle();
 				e.preventDefault();
 			}
+
 			if (e.code === 'ArrowLeft') {
 				frameBack();
 				e.preventDefault();
 			}
+
 			if (e.code === 'ArrowRight') {
 				frameForward();
 				e.preventDefault();
@@ -88,6 +90,7 @@ export const PlayPause: React.FC = () => {
 		if (!config) {
 			return;
 		}
+
 		if (!playing) {
 			return;
 		}
@@ -103,9 +106,9 @@ export const PlayPause: React.FC = () => {
 				(Math.round(time / (1000 / config.fps)) + startedFrame) %
 				config.durationInFrames;
 			if (calculatedFrame !== frameRef.current) {
-				setLastFrames([...getLastFrames(), Date.now()]);
 				setFrame(calculatedFrame);
 			}
+
 			if (!hasBeenStopped) {
 				reqAnimFrameCall = requestAnimationFrame(callback);
 			}
@@ -136,7 +139,7 @@ export const PlayPause: React.FC = () => {
 					}}
 				/>
 			</ControlButton>
-			<div style={{width: 10}} />
+
 			<ControlButton
 				aria-label={playing ? 'Pause' : 'Play'}
 				disabled={!video}
@@ -160,7 +163,7 @@ export const PlayPause: React.FC = () => {
 					/>
 				)}
 			</ControlButton>
-			<div style={{width: 10}} />
+
 			<ControlButton
 				aria-label="Step forward one frame"
 				disabled={isLastFrame}

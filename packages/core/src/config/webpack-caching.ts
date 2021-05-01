@@ -6,6 +6,7 @@ export const setWebpackCaching = (flag: boolean) => {
 	if (typeof flag !== 'boolean') {
 		throw new TypeError('Caching flag must be a boolean.');
 	}
+
 	webpackCaching = flag;
 };
 

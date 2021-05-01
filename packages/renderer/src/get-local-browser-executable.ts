@@ -7,18 +7,25 @@ import {Browser, Internals} from 'remotion';
 const getSearchPathsForProduct = (product: puppeteer.Product) => {
 	if (product === 'chrome') {
 		return [
+			process.env.PUPPETEER_EXECUTABLE_PATH ?? null,
 			process.platform === 'darwin'
 				? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
 				: null,
 			process.platform === 'linux' ? '/usr/bin/google-chrome' : null,
+			process.platform === 'linux' ? '/usr/bin/chromium-browser' : null,
 			process.platform === 'win32'
 				? 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe'
 				: null,
+			process.platform === 'win32'
+				? 'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe'
+				: null,
 		].filter(Boolean) as string[];
 	}
+
 	if (product === 'firefox') {
 		return [].filter(Boolean) as string[];
 	}
+
 	throw new TypeError(`Unknown browser product: ${product}`);
 };
 
@@ -30,6 +37,7 @@ const getLocalBrowser = (product: puppeteer.Product) => {
 			return p;
 		}
 	}
+
 	return null;
 };
 
@@ -75,16 +83,20 @@ const getBrowserStatus = (product: puppeteer.Product): BrowserStatus => {
 				`Browser executable was specified as '${browserExecutablePath}' but the path doesn't exist.`
 			);
 		}
+
 		return {path: browserExecutablePath, type: 'user-defined-path'};
 	}
+
 	const localBrowser = getLocalBrowser(product);
 	if (localBrowser !== null) {
 		return {path: localBrowser, type: 'local-browser'};
 	}
+
 	const revision = getBrowserRevision(product);
 	if (revision.local !== null && fs.existsSync(revision.executablePath)) {
 		return {path: revision.executablePath, type: 'local-puppeteer-browser'};
 	}
+
 	return {type: 'no-browser'};
 };
 
@@ -108,5 +120,6 @@ export const getLocalBrowserExecutable = async (
 				'how you reached this error: https://github.com/JonnyBurger/remotion/issues'
 		);
 	}
+
 	return status.path;
 };

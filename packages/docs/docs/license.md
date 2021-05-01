@@ -3,7 +3,14 @@ id: license
 title: License & Pricing
 ---
 
-Remotion ships with a separate license for individuals and companies.
-While Remotion is free to use for the former, for some teams a company license is required. Unlike many projects on Github, it is not allowed to clone or fork Remotions code for the purpose of creating a competitor.
+Remotion is **free to use** if you are:
 
-Please read the [LICENSE file](https://github.com/JonnyBurger/remotion/blob/main/LICENSE.md) before using Remotion and [contact the author](mailto:hi@jonny.io) for pricing of the company license.
+- an individual
+- a for-profit organisation with up to 3 employees
+- a non-profit or not-for-profit organisation
+- evaluating whether Remotion is a good fit, and are not yet using it in a commercial way
+
+If you don't qualify for any of the above, you need to acquire a company license. Visit [companies.remotion.dev](https://companies.remotion.dev) for pricing and buying a license.
+
+
+When in doubt, read the [LICENSE file](https://github.com/JonnyBurger/remotion/blob/main/LICENSE.md) and the [Company License FAQ](https://companies.remotion.dev/faq) before using Remotion. You can contact [the author](mailto:hi@jonny.io) if you need clarification whether you can use Remotion in your project for free.

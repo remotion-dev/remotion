@@ -5,6 +5,8 @@ title: Configuration file
 
 To configure Remotion, create a `remotion.config.ts` file in the root of your Remotion project.
 
+These options will apply to CLI commands such as `npm start` and `npm run build`, but have no effect in the Node.JS API.
+
 You can control several behaviors of Remotion here.
 
 ```tsx
@@ -41,6 +43,26 @@ Config.Bundling.setCachingEnabled(false);
 
 The [command line flag](/docs/cli) `--bundle-cache` will take precedence over this option.
 
+## Log
+
+### setLevel()
+
+_Available from Version 2.0.1_
+
+Increase or decrease the amount of log messages in the CLI.
+Acceptable values:
+
+- `error`: Silent except error messages.
+- `warning`: Only showing errors and warnings.
+- `info` (_default_): Default output - besides errors and warnings, prints progress and output location.
+- `verbose`: All of the above, plus browser logs and other debug info.
+
+```tsx
+Config.Log.setLevel('verbose');
+```
+
+The [command line flag](/docs/cli) `--log` will take precedence over this option.
+
 ## Puppeteer
 
 ### setBrowserExecutable()
@@ -76,7 +98,11 @@ Try to set your concurrency to `os.cpus().length` to all the threads available o
 
 _Available from Version 1.4._
 
-Determines which in which image format to render the frames. Either `jpeg` _(default since v1.1)_ or `png`. PNG is considerably slower, but supports transparency.
+Determines which in which image format to render the frames. Either:
+
+- `jpeg` - the fastest option (default from v1.1)
+- `png` - slower, but supports transparency
+- `none` - don't render images, just calculate audio information (available from v2.0)
 
 ```tsx
 Config.Rendering.setImageFormat('png')
@@ -112,13 +138,17 @@ Config.Rendering.setQuality(90);
 
 ### setOverwriteOutput()
 
-Set this to `true` to always overwrite Remotion outputs without asking.
+Set this to `false` to prevent overwriting Remotion outputs when they already exists.
 
 ```tsx
-Config.Output.setOverwriteOutput(true)
+Config.Output.setOverwriteOutput(false)
 ```
 
 The [command line flag](/docs/cli) `--overwrite` will take precedence over this option.
+
+:::info
+In version 1.x, the default behavior was inverse - Remotion would not override by default.
+:::
 
 ### setPixelFormat()
 
@@ -141,6 +171,9 @@ Choose one of the supported codecs: `h264` _(default)_, `h265`, `vp8`, `vp9`.
 - `h265` is the successor of H264, with smaller file sizes. Also known as HEVC. Poor browser compatibility.
 - `vp8` is the codec for WebM.
 - `vp9` is the next-generation codec for WebM. Lower file size, longer compression time.
+- `mp3` will export audio only as an MP3 file.
+- `wav` will export audio only as an WAV file.
+- `aac` will export audio only as an AAC file.
 
 ```tsx
 Config.Output.setCodec('h265');

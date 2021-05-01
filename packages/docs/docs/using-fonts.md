@@ -1,5 +1,5 @@
 ---
-title: Using Fonts
+title: Using fonts
 id: fonts
 ---
 

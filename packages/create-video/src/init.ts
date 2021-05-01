@@ -1,11 +1,8 @@
-#! /usr/bin/env node
-
 import chalk from 'chalk';
 import execa from 'execa';
 import fs from 'fs';
 import path from 'path';
 import readline from 'readline';
-import xns from 'xns';
 import {templateFolderName, turnIntoDot} from './dotfiles';
 
 const rl = readline.createInterface({
@@ -19,7 +16,14 @@ const askQuestion = (question: string) => {
 	});
 };
 
-xns(async () => {
+const shouldUseYarn = (): boolean => {
+	return Boolean(
+		process.env.npm_execpath?.includes('yarn.js') ||
+			process.env.npm_config_user_agent?.includes('yarn')
+	);
+};
+
+export const init = async () => {
 	const arg = process.argv[2];
 	let selectedDirname = arg?.match(/[a-zA-Z0-9-]+/g) ? arg : '';
 	while (selectedDirname === '') {
@@ -61,13 +65,23 @@ xns(async () => {
 		)}. Installing dependencies...`
 	);
 	console.log('');
-	console.log('> npm install');
-	const promise = execa('npm', ['install'], {
-		cwd: outputDir,
-	});
-	promise.stderr?.pipe(process.stderr);
-	promise.stdout?.pipe(process.stdout);
-	await promise;
+	if (shouldUseYarn()) {
+		console.log('> yarn');
+		const promise = execa('yarn', [], {
+			cwd: outputDir,
+		});
+		promise.stderr?.pipe(process.stderr);
+		promise.stdout?.pipe(process.stdout);
+		await promise;
+	} else {
+		console.log('> npm install');
+		const promise = execa('npm', ['install'], {
+			cwd: outputDir,
+		});
+		promise.stderr?.pipe(process.stderr);
+		promise.stdout?.pipe(process.stdout);
+		await promise;
+	}
 
 	console.log(`Welcome to ${chalk.blue('Remotion')}!`);
 	console.log(
@@ -76,14 +90,14 @@ xns(async () => {
 
 	console.log('Get started by running');
 	console.log(chalk.blue(`cd ${selectedDirname}`));
-	console.log(chalk.blue('npm start'));
+	console.log(chalk.blue(shouldUseYarn() ? 'yarn start' : 'npm start'));
 	console.log('');
 	console.log('To render an MP4 video, run');
-	console.log(chalk.blue('npm run build'));
+	console.log(chalk.blue(shouldUseYarn() ? 'yarn build' : 'npm run build'));
 	console.log('');
 	console.log(
 		'Read the documentation at',
 		chalk.underline('https://remotion.dev')
 	);
 	console.log('Enjoy Remotion!');
-});
+};

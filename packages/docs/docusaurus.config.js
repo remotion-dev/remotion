@@ -28,6 +28,7 @@ module.exports = {
           position: "left",
         },
         { to: "blog", label: "Blog", position: "left" },
+        { to: "/docs/license", label: "Licensing", position: "left" },
         {
           href: "https://discord.gg/6VzzNDwUwV",
           label: "Discord",

@@ -1,6 +1,6 @@
 {
   "name": "docs",
-  "version": "1.5.2",
+  "version": "2.0.7",
   "private": true,
   "scripts": {
     "docusaurus": "docusaurus",
@@ -12,10 +12,11 @@
     "clear": "docusaurus clear"
   },
   "dependencies": {
-    "@docusaurus/core": "2.0.0-alpha.70",
-    "@docusaurus/preset-classic": "2.0.0-alpha.70",
+    "@docusaurus/core": "2.0.0-alpha.75",
+    "@docusaurus/preset-classic": "2.0.0-alpha.75",
     "@mdx-js/react": "^1.6.21",
     "@splitbee/web": "^0.2.4",
+    "@types/react": "^17.0.4",
     "clsx": "^1.1.1",
     "prism-react-renderer": "^1.1.1",
     "react": "^16.8.4",

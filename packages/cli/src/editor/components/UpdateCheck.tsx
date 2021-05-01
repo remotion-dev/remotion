@@ -15,12 +15,24 @@ export const Container = styled.div`
 		text-decoration: underline;
 		cursor: pointer;
 	}
+	code {
+		background-color: rgba(255, 255, 255, 0.3);
+		border-radius: 4px;
+		padding: 3px 8px;
+		&:active {
+			color: black;
+		}
+	}
 `;
+
+type PackageManager = 'npm' | 'yarn' | 'unknown';
 
 type Info = {
 	currentVersion: string;
 	latestVersion: string;
 	updateAvailable: boolean;
+	timedOut: boolean;
+	packageManager: PackageManager;
 };
 
 const makeLocalStorageKey = (version: string) => `update-dismiss-${version}`;
@@ -49,6 +61,7 @@ export const UpdateCheck = () => {
 		if (info === null) {
 			return;
 		}
+
 		dismissVersion(info.latestVersion);
 		setInfo(null);
 	}, [info]);
@@ -60,6 +73,20 @@ export const UpdateCheck = () => {
 	useEffect(() => {
 		checkForUpdates();
 	}, [checkForUpdates]);
+
+	const copyCmd = (cmd: string) => {
+		const permissionName = 'clipboard-write' as PermissionName;
+		navigator.permissions
+			.query({name: permissionName})
+			.then((result) => {
+				if (result.state === 'granted' || result.state === 'prompt') {
+					navigator.clipboard.writeText(cmd);
+				}
+			})
+			.catch((err) => {
+				console.log('Could not copy command', err);
+			});
+	};
 
 	if (!info) {
 		return null;
@@ -77,7 +104,23 @@ export const UpdateCheck = () => {
 		<Container>
 			A new version of Remotion is available! {info.currentVersion} ➡️{' '}
 			<span style={{width: 8, display: 'inline-block'}} />
-			{info.latestVersion}. Run <code>npm run upgrade</code> to get it. <br />
+			{info.latestVersion}. Run{' '}
+			{info.packageManager === 'yarn' ? (
+				<code
+					onClick={() => copyCmd('yarn upgrade')}
+					style={{cursor: 'pointer'}}
+				>
+					yarn upgrade
+				</code>
+			) : (
+				<code
+					onClick={() => copyCmd('npm run upgrade')}
+					style={{cursor: 'pointer'}}
+				>
+					npm run upgrade
+				</code>
+			)}{' '}
+			to get it. <br />
 			<a
 				href="https://github.com/JonnyBurger/remotion/releases"
 				target="_blank"

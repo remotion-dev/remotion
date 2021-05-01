@@ -1,7 +1,7 @@
 import React from 'react';
 import {Sequence, useCurrentFrame} from 'remotion';
 
-const NestedSequences = () => {
+const NestedSequences: React.FC = () => {
 	return (
 		<Sequence from={20} durationInFrames={40}>
 			<NestedTwo />
