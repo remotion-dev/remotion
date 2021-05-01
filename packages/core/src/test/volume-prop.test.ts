@@ -48,4 +48,11 @@ describe('evaluateVolume throws exception', () => {
 			evaluateVolume(toEvaluate);
 		}, new RegExp('You passed in a function to the volume prop but it returned NaN for frame 1'));
 	});
+	test('It should throw if volume returns non finite number', () => {
+		const invalidVolume = Infinity;
+		const toEvaluate = {frame: 1, volume: () => invalidVolume};
+		expectToThrow(() => {
+			evaluateVolume(toEvaluate);
+		}, new RegExp('You passed in a function to the volume prop but it returned a non-finite number for frame 1'));
+	});
 });
