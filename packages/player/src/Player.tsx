@@ -15,6 +15,7 @@ import {
 } from 'remotion';
 import {PlayerEventEmitterContext} from './emitter-context';
 import {PlayerEmitter} from './event-emitter';
+import {PLAYER_CSS_CLASSNAME} from './player-css-classname';
 import {PlayerRef} from './player-methods';
 import RootComponent from './RootComponent';
 
@@ -36,6 +37,10 @@ export type PlayerProps<T> = {
 	loop?: boolean;
 } & PropsIfHasProps<T> &
 	CompProps<T>;
+
+Internals.CSSUtils.injectCSS(
+	Internals.CSSUtils.makeDefaultCSS(`.${PLAYER_CSS_CLASSNAME}`)
+);
 
 export const PlayerFn = <T,>(
 	{

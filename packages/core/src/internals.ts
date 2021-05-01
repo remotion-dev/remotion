@@ -48,6 +48,7 @@ import {
 	DEFAULT_WEBPACK_CACHE_ENABLED,
 	getWebpackCaching,
 } from './config/webpack-caching';
+import * as CSSUtils from './default-css';
 import {FEATURE_FLAG_FIREFOX_SUPPORT} from './feature-flags';
 import {isAudioCodec} from './is-audio-codec';
 import * as perf from './perf';
@@ -119,6 +120,7 @@ export const Internals = {
 	useRemotionContexts,
 	RemotionContextProvider,
 	isPlainIndex,
+	CSSUtils,
 };
 
 export type {
