@@ -5,7 +5,7 @@
 	"main": "dist/index.js",
 	"sideEffects": false,
 	"bin": {
-		"remotion": "dist/index.js"
+		"remotion": "remotion-cli.js"
 	},
 	"module": "true",
 	"scripts": {
