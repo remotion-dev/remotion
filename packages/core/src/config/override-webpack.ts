@@ -1,6 +1,6 @@
-import webpack from 'webpack';
+import {Configuration} from 'webpack';
 
-export type WebpackConfiguration = webpack.Configuration & {
+export type WebpackConfiguration = Configuration & {
 	devServer: {
 		contentBase: string;
 		historyApiFallback: boolean;
@@ -12,7 +12,7 @@ export type WebpackOverrideFn = (
 	currentConfiguration: WebpackConfiguration
 ) => WebpackConfiguration;
 
-export const defaultOverrideFunction: WebpackOverrideFn = (config) => config;
+export const defaultOverrideFunction: WebpackOverrideFn = config => config;
 let overrideFn: WebpackOverrideFn = defaultOverrideFunction;
 
 export const getWebpackOverrideFn = () => {

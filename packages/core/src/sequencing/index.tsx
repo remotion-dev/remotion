@@ -6,12 +6,16 @@ import React, {
 	useState,
 } from 'react';
 import {CompositionManager} from '../CompositionManager';
-import {FEATURE_FLAG_V2_BREAKING_CHANGES} from '../feature-flags';
 import {getTimelineClipName} from '../get-timeline-clip-name';
+import {useNonce} from '../nonce';
+import {TimelineContext} from '../timeline-position-state';
 import {useAbsoluteCurrentFrame} from '../use-frame';
+import {useUnsafeVideoConfig} from '../use-unsafe-video-config';
 
-type SequenceContextType = {
-	from: number;
+export type SequenceContextType = {
+	cumulatedFrom: number;
+	relativeFrom: number;
+	parentFrom: number;
 	durationInFrames: number;
 	id: string;
 };
@@ -24,16 +28,27 @@ export const Sequence: React.FC<{
 	durationInFrames: number;
 	name?: string;
 	layout?: 'absolute-fill' | 'none';
-}> = ({from, durationInFrames, children, name, layout = 'absolute-fill'}) => {
+	showInTimeline?: boolean;
+}> = ({
+	from,
+	durationInFrames,
+	children,
+	name,
+	layout = 'absolute-fill',
+	showInTimeline = true,
+}) => {
 	const [id] = useState(() => String(Math.random()));
-	const absoluteFrame = useAbsoluteCurrentFrame();
 	const parentSequence = useContext(SequenceContext);
-	const actualFrom = (parentSequence?.from ?? 0) + from;
-	const {registerSequence, unregisterSequence} = useContext(CompositionManager);
+	const {rootId} = useContext(TimelineContext);
+	const cumulatedFrom = parentSequence
+		? parentSequence.cumulatedFrom + parentSequence.relativeFrom
+		: 0;
+	const actualFrom = cumulatedFrom + from;
+	const nonce = useNonce();
 
 	if (layout !== 'absolute-fill' && layout !== 'none') {
 		throw new TypeError(
-			`The layout prop of <Composition /> expects either "absolute-fill" or "none", but you passed: ${layout}`
+			`The layout prop of <Sequence /> expects either "absolute-fill" or "none", but you passed: ${layout}`
 		);
 	}
 
@@ -42,24 +57,65 @@ export const Sequence: React.FC<{
 			`You passed to durationInFrames an argument of type ${typeof durationInFrames}, but it must be a number.`
 		);
 	}
+
 	if (durationInFrames <= 0) {
 		throw new TypeError(
 			`durationInFrames must be positive, but got ${durationInFrames}`
 		);
 	}
+
+	// Infinity is non-integer but allowed!
+	if (durationInFrames % 1 !== 0 && Number.isFinite(durationInFrames)) {
+		throw new TypeError(
+			`The "durationInFrames" of a sequence must be an integer, but got ${durationInFrames}.`
+		);
+	}
+
 	if (typeof from !== 'number') {
 		throw new TypeError(
 			`You passed to the "from" props of your <Sequence> an argument of type ${typeof from}, but it must be a number.`
 		);
 	}
 
+	if (from % 1 !== 0) {
+		throw new TypeError(
+			`The "from" prop of a sequence must be an integer, but got ${from}.`
+		);
+	}
+
+	const absoluteFrame = useAbsoluteCurrentFrame();
+	const unsafeVideoConfig = useUnsafeVideoConfig();
+	const compositionDuration = unsafeVideoConfig
+		? unsafeVideoConfig.durationInFrames
+		: 0;
+	const actualDurationInFrames = Math.min(
+		compositionDuration - from,
+		parentSequence
+			? Math.min(
+				parentSequence.durationInFrames +
+						(parentSequence.cumulatedFrom + parentSequence.relativeFrom) -
+						actualFrom,
+				durationInFrames
+			  )
+			: durationInFrames
+	);
+	const {registerSequence, unregisterSequence} = useContext(CompositionManager);
+
 	const contextValue = useMemo((): SequenceContextType => {
 		return {
-			from: actualFrom,
-			durationInFrames,
+			cumulatedFrom,
+			relativeFrom: from,
+			durationInFrames: actualDurationInFrames,
+			parentFrom: parentSequence?.relativeFrom ?? 0,
 			id,
 		};
-	}, [actualFrom, durationInFrames, id]);
+	}, [
+		cumulatedFrom,
+		from,
+		actualDurationInFrames,
+		parentSequence?.relativeFrom,
+		id,
+	]);
 
 	const timelineClipName = useMemo(() => {
 		return name ?? getTimelineClipName(children);
@@ -67,11 +123,15 @@ export const Sequence: React.FC<{
 
 	useEffect(() => {
 		registerSequence({
-			from: actualFrom,
-			duration: durationInFrames,
+			from,
+			duration: actualDurationInFrames,
 			id,
 			displayName: timelineClipName,
 			parent: parentSequence?.id ?? null,
+			type: 'sequence',
+			rootId,
+			showInTimeline,
+			nonce,
 		});
 		return () => {
 			unregisterSequence(id);
@@ -85,21 +145,23 @@ export const Sequence: React.FC<{
 		timelineClipName,
 		unregisterSequence,
 		parentSequence?.id,
+		actualDurationInFrames,
+		rootId,
+		from,
+		showInTimeline,
+		nonce,
 	]);
 
 	const endThreshold = (() => {
-		if (FEATURE_FLAG_V2_BREAKING_CHANGES) {
-			return actualFrom + durationInFrames - 1;
-		}
-		return actualFrom + durationInFrames;
+		return actualFrom + durationInFrames - 1;
 	})();
 
 	const content =
 		absoluteFrame < actualFrom
 			? null
 			: absoluteFrame > endThreshold
-			? null
-			: children;
+				? null
+				: children;
 
 	return (
 		<SequenceContext.Provider value={contextValue}>

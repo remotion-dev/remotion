@@ -1,12 +1,13 @@
-import minimist from 'minimist';
+import {Log} from './log';
+import {parsedCli} from './parse-command-line';
 
 export const getUserPassedOutputLocation = () => {
-	const args = minimist(process.argv.slice(2));
-	if (!args._[3]) {
-		console.log('Pass an extra argument <output-filename>.');
+	if (!parsedCli._[3]) {
+		Log.error('Pass an extra argument <output-filename>.');
 		process.exit(1);
 	}
-	const filename = args._[3];
+
+	const filename = parsedCli._[3];
 	return filename;
 };
 

@@ -5,7 +5,7 @@
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
-    "lib": ["es2018", "dom"],
+    "lib": ["es2019", "dom"],
     "jsx": "react-jsx",
     "noEmit": false,
     "strict": true,

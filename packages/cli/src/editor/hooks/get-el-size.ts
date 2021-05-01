@@ -1,8 +1,10 @@
-import {useEffect, useState, useCallback, useMemo} from 'react';
+import {useCallback, useEffect, useMemo, useState} from 'react';
 
 export type Size = {
 	width: number;
 	height: number;
+	left: number;
+	top: number;
 };
 
 export const useElementSize = (
@@ -12,9 +14,12 @@ export const useElementSize = (
 	const observer = useMemo(
 		() =>
 			new ResizeObserver((entries) => {
+				const newSize = entries[0].target.getClientRects();
 				setSize({
-					width: entries[0].contentRect.width,
-					height: entries[0].contentRect.height,
+					width: newSize[0].width,
+					height: newSize[0].height,
+					left: newSize[0].x,
+					top: newSize[0].y,
 				});
 			}),
 		[]
@@ -23,10 +28,13 @@ export const useElementSize = (
 		if (!ref.current) {
 			return;
 		}
+
 		const rect = ref.current.getClientRects();
 		setSize({
 			width: rect[0].width as number,
 			height: rect[0].height as number,
+			left: rect[0].x as number,
+			top: rect[0].y as number,
 		});
 	}, [ref]);
 
@@ -36,6 +44,7 @@ export const useElementSize = (
 		if (ref.current) {
 			observer.observe(ref.current);
 		}
+
 		return (): void => {
 			if (current) {
 				observer.unobserve(current);

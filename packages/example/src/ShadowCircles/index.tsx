@@ -1,7 +1,7 @@
 import React from 'react';
 import {Circle} from './Circle';
 
-const ShadowCircles = () => {
+const ShadowCircles: React.FC = () => {
 	return (
 		<div style={{flex: 1, backgroundColor: 'white'}}>
 			<Circle size={2400} />

@@ -1,5 +1,7 @@
 import {
 	CompositionManager,
+	RenderAssetInfo,
+	TAsset,
 	TCompMetadata,
 	TComposition,
 	TSequence,
@@ -27,6 +29,8 @@ import {
 	validateSelectedPixelFormatAndImageFormatCombination,
 } from './config/image-format';
 import {getShouldOutputImageSequence} from './config/image-sequence';
+import {INPUT_PROPS_KEY} from './config/input-props';
+import * as Logging from './config/log';
 import {
 	getWebpackOverrideFn,
 	WebpackOverrideFn,
@@ -42,16 +46,26 @@ import {
 	DEFAULT_WEBPACK_CACHE_ENABLED,
 	getWebpackCaching,
 } from './config/webpack-caching';
-import {
-	FEATURE_FLAG_FIREFOX_SUPPORT,
-	FEATURE_FLAG_V2_BREAKING_CHANGES,
-} from './feature-flags';
+import {FEATURE_FLAG_FIREFOX_SUPPORT} from './feature-flags';
+import {isAudioCodec} from './is-audio-codec';
 import * as perf from './perf';
-import {getCompositionName, getIsEvaluation, getRoot} from './register-root';
+import {
+	getCompositionName,
+	getIsEvaluation,
+	getRoot,
+	isPlainIndex,
+} from './register-root';
 import {RemotionRoot} from './RemotionRoot';
+import {SequenceContext} from './sequencing';
 import * as Timeline from './timeline-position-state';
+import {TimelineContextValue} from './timeline-position-state';
+import {truthy} from './truthy';
 import {useUnsafeVideoConfig} from './use-unsafe-video-config';
 import {useVideo} from './use-video';
+import {
+	RemotionContextProvider,
+	useRemotionContexts,
+} from './wrap-remotion-context';
 
 // Mark them as Internals so use don't assume this is public
 // API and are less likely to use it
@@ -80,7 +94,6 @@ export const Internals = {
 	DEFAULT_PIXEL_FORMAT,
 	FEATURE_FLAG_FIREFOX_SUPPORT,
 	DEFAULT_WEBPACK_CACHE_ENABLED,
-	FEATURE_FLAG_V2_BREAKING_CHANGES,
 	getBrowser,
 	DEFAULT_BROWSER,
 	getDefaultCrfForCodec,
@@ -91,6 +104,14 @@ export const Internals = {
 	validateSelectedPixelFormatAndCodecCombination,
 	validateFrameRange,
 	getWebpackCaching,
+	truthy,
+	isAudioCodec,
+	INPUT_PROPS_KEY,
+	Logging,
+	SequenceContext,
+	useRemotionContexts,
+	RemotionContextProvider,
+	isPlainIndex,
 };
 
 export type {
@@ -99,4 +120,7 @@ export type {
 	TCompMetadata,
 	TSequence,
 	WebpackOverrideFn,
+	TAsset,
+	RenderAssetInfo,
+	TimelineContextValue,
 };

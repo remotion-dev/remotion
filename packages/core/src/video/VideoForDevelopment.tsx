@@ -1,52 +1,50 @@
-import React, {useEffect, useRef} from 'react';
-import {FEATURE_FLAG_V2_BREAKING_CHANGES} from '../feature-flags';
-import {usePlayingState} from '../timeline-position-state';
-import {useAbsoluteCurrentFrame, useCurrentFrame} from '../use-frame';
-import {useUnsafeVideoConfig} from '../use-unsafe-video-config';
+import React, {forwardRef, useImperativeHandle, useRef} from 'react';
+import {useFrameForVolumeProp} from '../audio/use-audio-frame';
+import {useMediaInTimeline} from '../use-media-in-timeline';
+import {useMediaPlayback} from '../use-media-playback';
+import {useMediaTagVolume} from '../use-media-tag-volume';
+import {useSyncVolumeWithMediaTag} from '../use-sync-volume-with-media-tag';
 import {RemotionVideoProps} from './props';
 
-export const VideoForDevelopment: React.FC<RemotionVideoProps> = (props) => {
+const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
+	HTMLVideoElement,
+	RemotionVideoProps
+> = (props, ref) => {
 	const videoRef = useRef<HTMLVideoElement>(null);
-	const currentFrame = useCurrentFrame();
-	const absoluteFrame = useAbsoluteCurrentFrame();
-	const videoConfig = useUnsafeVideoConfig();
-	const [playing] = usePlayingState();
 
-	useEffect(() => {
-		if (playing) {
-			videoRef.current?.play();
-		} else {
-			videoRef.current?.pause();
-		}
-	}, [playing]);
+	const volumePropFrame = useFrameForVolumeProp();
 
-	useEffect(() => {
-		if (!videoRef.current) {
-			throw new Error('No video ref found');
-		}
+	const {volume, ...nativeProps} = props;
 
-		if (!videoConfig) {
-			throw new Error('No video config found');
-		}
-		const currentTime = (() => {
-			if (FEATURE_FLAG_V2_BREAKING_CHANGES) {
-				// In Chrome, if 30fps, the first frame is still displayed at 0.033333
-				// even though after that it increases by 0.033333333 each.
-				// So frame = 0 in Remotion is like frame = 1 for the browser
-				return (currentFrame + 1) / videoConfig.fps;
-			}
-			return currentFrame / (1000 / videoConfig.fps);
-		})();
+	const actualVolume = useMediaTagVolume(videoRef);
 
-		if (!playing || absoluteFrame === 0) {
-			videoRef.current.currentTime = currentTime;
-		}
+	useMediaInTimeline({
+		mediaRef: videoRef,
+		volume,
+		mediaType: 'video',
+		src: nativeProps.src,
+	});
 
-		if (videoRef.current.paused && !videoRef.current.ended && playing) {
-			videoRef.current.currentTime = currentTime;
-			videoRef.current.play();
-		}
-	}, [currentFrame, playing, videoConfig, absoluteFrame]);
+	useSyncVolumeWithMediaTag({
+		volumePropFrame,
+		actualVolume,
+		volume,
+		mediaRef: videoRef,
+	});
 
-	return <video ref={videoRef} muted {...props} />;
+	useMediaPlayback({
+		mediaRef: videoRef,
+		src: nativeProps.src,
+		mediaType: 'video',
+	});
+
+	useImperativeHandle(ref, () => {
+		return videoRef.current as HTMLVideoElement;
+	});
+
+	return <video ref={videoRef} {...nativeProps} />;
 };
+
+export const VideoForDevelopment = forwardRef(
+	VideoForDevelopmentRefForwardingFunction
+);

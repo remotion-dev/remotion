@@ -1,11 +1,12 @@
 import React, {useState} from 'react';
+import {random} from 'remotion';
 
 export const SvgBlob: React.FC<{
 	style?: React.SVGProps<HTMLOrSVGElement>['style'];
 	gradient: [string, string];
 	d: string;
 }> = ({style, gradient, d}) => {
-	const [id] = useState(Math.random());
+	const [id] = useState(() => random(null));
 	return (
 		<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" style={style}>
 			<defs>

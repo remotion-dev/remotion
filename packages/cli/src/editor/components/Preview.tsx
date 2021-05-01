@@ -1,6 +1,12 @@
-import React, {Suspense, useContext} from 'react';
-import {Internals} from 'remotion';
+import React, {Suspense, useContext, useMemo} from 'react';
+import {Internals, useVideoConfig} from 'remotion';
 import styled from 'styled-components';
+import {
+	checkerboardBackgroundColor,
+	checkerboardBackgroundImage,
+	getCheckerboardBackgroundPos,
+	getCheckerboardBackgroundSize,
+} from '../helpers/checkerboard-background';
 import {Size} from '../hooks/get-el-size';
 import {CheckerboardContext} from '../state/checkerboard';
 import {PreviewSizeContext} from '../state/preview-size';
@@ -22,40 +28,28 @@ export const Container = styled.div<{
 	height: ${(props): number => props.height}px;
 	display: flex;
 	position: absolute;
-	background: ${(props) =>
-		props.checkerboard
-			? `
-	 linear-gradient(
-			45deg,
-			rgba(0, 0, 0, 0.1) 25%,
-			transparent 25%
-		),
-		linear-gradient(135deg, rgba(0, 0, 0, 0.1) 25%, transparent 25%),
-		linear-gradient(45deg, transparent 75%, rgba(0, 0, 0, 0.1) 75%),
-		linear-gradient(135deg, transparent 75%, rgba(0, 0, 0, 0.1) 75%), white;
-	`
-			: 'black'};
-
-	background-size: ${checkerboardSize}px ${checkerboardSize}px; /* Must be a square */
-	background-position: 0 0, ${checkerboardSize / 2}px 0,
-		${checkerboardSize / 2}px -${checkerboardSize / 2}px,
-		0px ${checkerboardSize / 2}px; /* Must be half of one side of the square */
+	background-color: ${(props) =>
+		checkerboardBackgroundColor(props.checkerboard)};
+	background-image: ${(props) =>
+		checkerboardBackgroundImage(props.checkerboard)};
+	background-size: ${getCheckerboardBackgroundSize(
+		checkerboardSize
+	)}; /* Must be a square */
+	background-position: ${getCheckerboardBackgroundPos(
+		checkerboardSize
+	)}; /* Must be half of one side of the square */
 `;
 
-export const VideoPreview: React.FC<{
+const Inner: React.FC<{
 	canvasSize: Size;
 }> = ({canvasSize}) => {
-	const video = Internals.useVideo();
 	const {size: previewSize} = useContext(PreviewSizeContext);
-	const {checkerboard} = useContext(CheckerboardContext);
-	const config = Internals.useUnsafeVideoConfig();
+	const video = Internals.useVideo();
 
-	if (!config) {
-		return null;
-	}
-
+	const config = useVideoConfig();
 	const heightRatio = canvasSize.height / config.height;
 	const widthRatio = canvasSize.width / config.width;
+	const {checkerboard} = useContext(CheckerboardContext);
 
 	const ratio = Math.min(heightRatio, widthRatio);
 
@@ -68,22 +62,24 @@ export const VideoPreview: React.FC<{
 	const centerX = canvasSize.width / 2 - width / 2;
 	const centerY = canvasSize.height / 2 - height / 2;
 
+	const outer: React.CSSProperties = useMemo(() => {
+		return {
+			width: config.width * scale,
+			height: config.height * scale,
+			display: 'flex',
+			flexDirection: 'column',
+			position: 'absolute',
+			left: centerX,
+			top: centerY,
+			overflow: 'hidden',
+		};
+	}, [centerX, centerY, config.height, config.width, scale]);
+
 	const Component = video ? video.component : null;
 
 	return (
 		<Suspense fallback={<div>loading...</div>}>
-			<div
-				style={{
-					width: config.width * scale,
-					height: config.height * scale,
-					display: 'flex',
-					flexDirection: 'column',
-					position: 'absolute',
-					left: centerX,
-					top: centerY,
-					overflow: 'hidden',
-				}}
-			>
+			<div style={outer}>
 				<Container
 					{...{
 						checkerboard,
@@ -101,4 +97,16 @@ export const VideoPreview: React.FC<{
 			</div>
 		</Suspense>
 	);
+};
+
+export const VideoPreview: React.FC<{
+	canvasSize: Size;
+}> = ({canvasSize}) => {
+	const config = Internals.useUnsafeVideoConfig();
+
+	if (!config) {
+		return null;
+	}
+
+	return <Inner canvasSize={canvasSize} />;
 };

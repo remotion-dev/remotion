@@ -1,39 +1,47 @@
 import {getQuality, setQuality} from '../config/quality';
 import {expectToThrow} from './expect-to-throw';
 
-test('set quality tests', () => {
-	// input quality
-	const valuesA = [50, undefined, 100, 1];
-	valuesA.forEach((entry) => {
-		setQuality(entry);
-		expect(getQuality()).toEqual(entry);
+describe('Test valid setQuality inputs', () => {
+	test('Integers within accepted range', () => {
+		const validInputes = [1, 50, 100];
+		validInputes.forEach(entry => {
+			setQuality(entry);
+			expect(getQuality()).toEqual(entry);
+		});
 	});
 
-	// input quality, output quality
-	const valuesB = [[0, undefined]];
-	valuesB.forEach((entry) => {
-		setQuality(entry[0]);
-		expect(getQuality()).toEqual(entry[1]);
+	test('Undefined input', () => {
+		setQuality(undefined);
+		expect(getQuality()).toEqual(undefined);
 	});
 
-	// input quality
-	const valuesC = ['abc', null];
-	valuesC.forEach((entry) =>
-		expectToThrow(
-			// @ts-expect-error
-			() => setQuality(entry),
-			new RegExp(
-				`Quality option must be a number or undefined. Got ${typeof entry}`
+	test('0 input', () => {
+		setQuality(0);
+		expect(getQuality()).toEqual(undefined);
+	});
+});
+
+describe('Test invalid setQuality inputs ', () => {
+	test('invalid input type', () => {
+		const invalidInputQuality = ['abc', null];
+		invalidInputQuality.forEach(entry =>
+			expectToThrow(
+				// @ts-expect-error
+				() => setQuality(entry),
+				new RegExp(
+					`Quality option must be a number or undefined. Got ${typeof entry}`
+				)
 			)
-		)
-	);
+		);
+	});
 
-	// input quality
-	const valuesD = [-1, 101, 150];
-	valuesD.forEach((entry) =>
-		expectToThrow(
-			() => setQuality(entry),
-			/Quality option must be between 1 and 100./
-		)
-	);
+	test('out of range inputs', () => {
+		const outOfRangeInput = [-1, 101, 150];
+		outOfRangeInput.forEach(entry =>
+			expectToThrow(
+				() => setQuality(entry),
+				/Quality option must be between 1 and 100./
+			)
+		);
+	});
 });

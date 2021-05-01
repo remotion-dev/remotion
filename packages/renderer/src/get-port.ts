@@ -1,7 +1,7 @@
 import net from 'net';
 
 const getAvailablePort = (portToTry: number) =>
-	new Promise((resolve, reject) => {
+	new Promise<number>((resolve, reject) => {
 		const server = net.createServer();
 		server.unref();
 		server.on('error', reject);

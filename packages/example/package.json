@@ -1,9 +1,14 @@
 {
 	"name": "@remotion/example",
-	"version": "1.5.2",
-	"description": "",
-	"main": "dist/index.js",
 	"private": true,
+	"version": "2.0.7",
+	"description": "",
+	"license": "SEE LICENSE IN LICENSE.md",
+	"author": "Jonny Burger",
+	"main": "dist/index.js",
+	"files": [
+		"dist"
+	],
 	"scripts": {
 		"start": "remotion preview src/index.tsx",
 		"test": "eslint src --ext ts,tsx,js,jsx",
@@ -11,34 +16,31 @@
 		"render": "remotion render src/index.tsx react-svg video.mp4",
 		"render-transparent": "remotion render src/index.tsx --image-format=png --pixel-format=yuva420p --codec=vp8 react-svg video.webm"
 	},
-	"files": [
-		"dist"
-	],
-	"author": "Jonny Burger",
-	"license": "SEE LICENSE IN LICENSE.md",
 	"dependencies": {
 		"@babel/plugin-syntax-jsx": "7.12.13",
 		"@babel/preset-env": "7.12.13",
 		"@babel/preset-react": "7.12.13",
-		"@remotion/bundler": "^1.5.2",
-		"@remotion/cli": "^1.5.2",
-		"@remotion/eslint-config": "^1.5.0",
-		"@remotion/eslint-plugin": "^1.4.0",
-		"@types/node": "^14.0.13",
-		"@types/react": "^17.0.0",
+		"@remotion/babel-loader": "^2.0.7",
+		"@remotion/bundler": "^2.0.7",
+		"@remotion/cli": "^2.0.7",
+		"@remotion/eslint-config": "^2.0.7",
+		"@remotion/eslint-plugin": "^2.0.7",
+		"@remotion/gif": "^2.0.7",
+		"@remotion/media-utils": "^2.0.7",
+		"@remotion/renderer": "^2.0.7",
+		"@types/express": "^4.17.11",
+		"@types/node": "^15.0.1",
 		"@types/styled-components": "^5.1.1",
 		"babel-loader": "^8.2.2",
+		"express": "^4.17.1",
 		"mdx-loader": "3.0.2",
 		"polished": "^4.0.5",
 		"prettier": "^2.0.5",
-		"react": "^17.0.1",
-		"react-dom": "17.0.1",
-		"react-native": "0.63.4",
-		"react-native-web": "0.14.13",
-		"remotion": "^1.5.0",
+		"remotion": "^2.0.7",
 		"styled-components": "^5.1.1",
 		"svg-path-properties": "^1.0.4",
 		"three": "^0.125.0",
+		"ts-node": "^9.1.1",
 		"ts-unused-exports": "^7.0.1",
 		"typescript": "^4.1.2",
 		"xns": "^2.0.7"
@@ -46,7 +48,7 @@
 	"devDependencies": {
 		"@types/babel__core": "^7.1.12",
 		"@types/babel__template": "^7.4.0",
-		"eslint": "^7.4.0",
+		"eslint": "^7.25.0",
 		"prettier-plugin-organize-imports": "^1.1.1"
 	},
 	"publishConfig": {

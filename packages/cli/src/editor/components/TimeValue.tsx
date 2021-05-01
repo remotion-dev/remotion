@@ -5,8 +5,23 @@ import {renderFrame} from '../state/render-frame';
 
 const Text = styled.div`
 	color: white;
-	font-size: 24px;
-	font-family: Arial, Helvetica, sans-serif;
+	font-size: 16px;
+	font-family: Helvetica, Arial, sans-serif;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	font-variant-numeric: tabular-nums;
+	line-height: 1;
+`;
+
+const Time = styled.div`
+	display: inline-block;
+`;
+
+const Frame = styled.span`
+	color: #ccc;
+	font-size: 10px;
+	font-weight: 500;
 `;
 
 export const TimeValue: React.FC = () => {
@@ -19,7 +34,10 @@ export const TimeValue: React.FC = () => {
 
 	return (
 		<Text>
-			{renderFrame(frame, config.fps)} ({frame})
+			<Time> {renderFrame(frame, config.fps)}</Time>{' '}
+			<Frame>
+				{frame} <span>({config.fps} fps)</span>
+			</Frame>
 		</Text>
 	);
 };

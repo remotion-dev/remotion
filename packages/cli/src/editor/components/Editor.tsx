@@ -5,8 +5,18 @@ import {
 	CheckerboardContext,
 	loadCheckerboardOption,
 } from '../state/checkerboard';
-import {PreviewSize, PreviewSizeContext} from '../state/preview-size';
-import {Timeline} from './Timeline';
+import {
+	PreviewSizeContext,
+	loadPreviewSizeOption,
+} from '../state/preview-size';
+import {
+	loadRichTimelineOption,
+	RichTimelineContext,
+} from '../state/rich-timeline';
+import {SplitterContainer} from './Splitter/SplitterContainer';
+import {SplitterElement} from './Splitter/SplitterElement';
+import {SplitterHandle} from './Splitter/SplitterHandle';
+import {Timeline} from './Timeline/Timeline';
 import {TopPanel} from './TopPanel';
 import {UpdateCheck} from './UpdateCheck';
 
@@ -22,36 +32,64 @@ const Background = styled.div`
 const Root = Internals.getRoot();
 
 export const Editor: React.FC = () => {
-	const [size, setSize] = useState<PreviewSize>('auto');
-	const [checkerboard, setCheckerboard] = useState(loadCheckerboardOption());
+	const [size, setSize] = useState(() => 
+		loadPreviewSizeOption()
+	);
+	const [checkerboard, setCheckerboard] = useState(() =>
+		loadCheckerboardOption()
+	);
+	const [richTimeline, setRichTimeline] = useState(() =>
+		loadRichTimelineOption()
+	);
 
-	const previewCtx = useMemo(() => {
+	const previewSizeCtx = useMemo(() => {
 		return {
 			size,
 			setSize,
 		};
 	}, [size]);
-
 	const checkerboardCtx = useMemo(() => {
 		return {
 			checkerboard,
 			setCheckerboard,
 		};
 	}, [checkerboard]);
+	const richTimelineCtx = useMemo(() => {
+		return {
+			richTimeline,
+			setRichTimeline,
+		};
+	}, [richTimeline]);
 
 	if (!Root) {
 		throw new Error('Root has not been registered. ');
 	}
+
 	return (
-		<CheckerboardContext.Provider value={checkerboardCtx}>
-			<PreviewSizeContext.Provider value={previewCtx}>
-				<Background>
-					<Root />
-					<UpdateCheck />
-					<TopPanel />
-					<Timeline />
-				</Background>
-			</PreviewSizeContext.Provider>
-		</CheckerboardContext.Provider>
+		<RichTimelineContext.Provider value={richTimelineCtx}>
+			<CheckerboardContext.Provider value={checkerboardCtx}>
+				<PreviewSizeContext.Provider value={previewSizeCtx}>
+					<Background>
+						<Root />
+						<UpdateCheck />
+						<SplitterContainer
+							orientation="horizontal"
+							id="top-to-bottom"
+							maxFlex={0.9}
+							minFlex={0.2}
+							defaultFlex={0.75}
+						>
+							<SplitterElement type="flexer">
+								<TopPanel />
+							</SplitterElement>
+							<SplitterHandle />
+							<SplitterElement type="anti-flexer">
+								<Timeline />
+							</SplitterElement>
+						</SplitterContainer>
+					</Background>
+				</PreviewSizeContext.Provider>
+			</CheckerboardContext.Provider>
+		</RichTimelineContext.Provider>
 	);
 };

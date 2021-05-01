@@ -1,0 +1,19 @@
+html {
+	--blue: #4290f5;
+}
+
+body {
+	overscroll-behavior-y: none;
+	overscroll-behavior-x: none;
+}
+
+.remotion-splitter {
+	background-color: black;
+	transition: background-color 0.2s ease;
+	user-select: none;
+}
+
+.remotion-splitter:hover,
+.remotion-splitter-active {
+	background-color: var(--blue);
+}

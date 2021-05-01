@@ -1,25 +1,31 @@
-import {startServer} from '@remotion/bundler';
 // eslint-disable-next-line @typescript-eslint/prefer-ts-expect-error
 // @ts-ignore
+import {BundlerInternals} from '@remotion/bundler';
 import betterOpn from 'better-opn';
-import fs from 'fs';
 import path from 'path';
 import xns from 'xns';
 import {getConfigFileName} from './get-config-file-name';
+import {getInputProps} from './get-input-props';
 import {loadConfigFile} from './load-config';
+import {parsedCli} from './parse-command-line';
+
+const noop = () => undefined;
 
 export const previewCommand = xns(async () => {
-	const args = process.argv;
-	const file = args[3];
+	const file = parsedCli._[1];
 	const fullPath = path.join(process.cwd(), file);
 
-	const tsxFile = path.resolve(__dirname, 'previewEntry.tsx');
-	const jsFile = path.resolve(__dirname, 'previewEntry.js');
 	loadConfigFile(getConfigFileName());
 
-	const fileChosen = fs.existsSync(tsxFile) ? tsxFile : jsFile;
+	const inputProps = getInputProps();
 
-	const port = await startServer(fileChosen, fullPath);
+	const port = await BundlerInternals.startServer(
+		path.resolve(__dirname, 'previewEntry.js'),
+		fullPath,
+		{
+			inputProps,
+		}
+	);
 	betterOpn(`http://localhost:${port}`);
-	await new Promise(() => void 0);
+	await new Promise(noop);
 });

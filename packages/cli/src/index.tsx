@@ -1,15 +1,21 @@
-#! /usr/bin/env node
-
-import xns from 'xns';
 import {checkNodeVersion} from './check-version';
+import {Log} from './log';
+import {parsedCli} from './parse-command-line';
 import {previewCommand} from './preview';
+import {printHelp} from './print-help';
 import {render} from './render';
 import {upgrade} from './upgrade';
 
-export const cli = xns(async () => {
+export const cli = async () => {
 	const args = process.argv;
 	const command = args[2];
-	//To check node version and to warn if node version is <12.10.0
+
+	if (parsedCli.help) {
+		printHelp();
+		process.exit(0);
+	}
+
+	// To check node version and to warn if node version is <12.10.0
 	checkNodeVersion();
 
 	if (command === 'preview') {
@@ -19,13 +25,10 @@ export const cli = xns(async () => {
 	} else if (command === 'upgrade') {
 		await upgrade();
 	} else {
-		console.log(`Command ${command} not found.`);
-		console.log('Available commands:');
-		console.log('  preview');
-		console.log('  render');
-		console.log('  upgrade');
+		Log.error(`Command ${command} not found.`);
+		printHelp();
 		process.exit(1);
 	}
-});
+};
 
 export * from './render';
