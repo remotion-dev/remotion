@@ -239,10 +239,9 @@ export const render = async () => {
 				}),
 			]);
 		} catch (err) {
-			Log.error('Could not clean up directory.');
-			Log.error(err);
-			Log.error('Do you have minimum required Node.js version?');
-			process.exit(1);
+			Log.warn('Could not clean up directory.');
+			Log.warn(err);
+			Log.warn('Do you have minimum required Node.js version?');
 		}
 
 		Log.info(chalk.green('\nYour video is ready!'));
