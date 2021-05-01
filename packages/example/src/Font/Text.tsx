@@ -18,7 +18,7 @@ const Offset = styled.div`
 	top: 0;
 `;
 
-export const TextComp = () => {
+export const TextComp: React.FC = () => {
 	return (
 		<div
 			style={{

@@ -1,18 +1,20 @@
 import http from 'http';
-import nodeStatic from 'node-static';
+import handler from 'serve-handler';
 import {getPort} from './get-port';
 
 export const serveStatic = async (path: string) => {
 	const port = await getPort(3000, 3100);
-	const fileServer = new nodeStatic.Server(path);
 
 	const server = http
 		.createServer((request, response) => {
-			request
-				.addListener('end', () => {
-					fileServer.serve(request, response);
-				})
-				.resume();
+			handler(request, response, {
+				public: path,
+				directoryListing: false,
+				cleanUrls: false,
+			}).catch(() => {
+				response.statusCode = 500;
+				response.end('Error serving file');
+			});
 		})
 		.listen(port);
 	const close = () =>

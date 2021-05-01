@@ -1,4 +1,4 @@
-let shouldOverwrite = false;
+let shouldOverwrite = true;
 
 export const setOverwriteOutput = (newOverwrite: boolean) => {
 	if (typeof newOverwrite !== 'boolean') {
@@ -8,6 +8,7 @@ export const setOverwriteOutput = (newOverwrite: boolean) => {
 			)})`
 		);
 	}
+
 	shouldOverwrite = newOverwrite;
 };
 

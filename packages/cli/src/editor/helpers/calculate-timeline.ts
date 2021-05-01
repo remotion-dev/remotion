@@ -1,93 +1,121 @@
 import {TSequence} from 'remotion';
+import {
+	getCascadedStart,
+	getTimelineVisibleDuration,
+	getTimelineVisibleStart,
+} from './get-sequence-visible-range';
+import {getTimelineNestedLevel} from './get-timeline-nestedness';
+import {getTimelineSequenceHash} from './get-timeline-sequence-hash';
+import {
+	getTimelineSequenceSequenceSortKey,
+	TrackWithHash,
+	TrackWithHashAndOriginalTimings,
+} from './get-timeline-sequence-sort-key';
 
 export type SequenceWithOverlap = {
 	sequence: TSequence;
 	overlaps: TSequence[];
 };
 
-export type Track = {
-	trackId: number;
-	sequences: SequenceWithOverlap[];
+const isTrackWithinParentBounds = (track: TrackWithHashAndOriginalTimings) => {
+	return [
+		track.cascadedStart + track.cascadedDuration >= track.sequence.from,
+		track.cascadedStart <= track.sequence.from + track.sequence.duration,
+	].every(Boolean);
 };
 
-export const calculateOverlays = (
-	sequences: TSequence[]
-): SequenceWithOverlap[] => {
-	return sequences.map((s) => {
-		const overlaps = sequences
-			.filter((otherS) => s.id !== otherS.id)
-			.filter((otherS) => {
-				const otherStart = otherS.from;
-				const otherEnd = otherS.duration + otherStart;
-				const thisStart = s.from;
-				const thisEnd = s.duration + thisStart;
-				if (otherStart < thisEnd && otherEnd > thisStart) {
-					return true;
-				}
-				if (thisStart < otherEnd && thisEnd > otherStart) {
-					return true;
-				}
-				return false;
-			});
-		return {
-			sequence: s,
-			overlaps,
-		};
-	});
+const canCollapse = (track: TSequence, allTracks: TSequence[]) => {
+	return Boolean(allTracks.find((t) => t.parent === track.id));
 };
 
-export const numberOfOverlapsWithPrevious = (
-	sequences: SequenceWithOverlap[],
-	index: number
-) => {
-	const sequencesBefore = sequences.slice(0, index);
-	const sequence = sequences[index];
-	return sequence.overlaps.filter((overlap) => {
-		return sequencesBefore.find((sb) => sb.sequence.id === overlap.id);
-	}).length;
-};
+export const calculateTimeline = ({
+	sequences,
+	sequenceDuration,
+}: {
+	sequences: TSequence[];
+	sequenceDuration: number;
+}): TrackWithHash[] => {
+	const tracks: TrackWithHashAndOriginalTimings[] = [];
 
-export const calculateTimeline = (
-	sequences: TSequence[],
-	sequenceDuration: number
-): Track[] => {
-	const sWithOverlays = calculateOverlays(sequences);
-	const tracks: Track[] = [];
-
-	if (sWithOverlays.length === 0) {
+	if (sequences.length === 0) {
 		return [
 			{
-				sequences: [
-					{
-						overlaps: [],
-						sequence: {
-							displayName: '',
-							duration: sequenceDuration,
-							from: 0,
-							id: 'seq',
-							parent: null,
-						},
-					},
-				],
-				trackId: 0,
+				sequence: {
+					displayName: '',
+					duration: sequenceDuration,
+					from: 0,
+					id: 'seq',
+					parent: null,
+					type: 'sequence',
+					rootId: '-',
+					showInTimeline: true,
+					nonce: 0,
+				},
+				depth: 0,
+				hash: '-',
+				canCollapse: false,
 			},
 		];
 	}
 
-	for (let i = 0; i < sWithOverlays.length; i++) {
-		const sequence = sWithOverlays[i];
-		// Not showing nested sequences
-		if (sequence.sequence.parent) {
-			continue;
+	const sameHashes: {[hash: string]: string[]} = {};
+
+	const hashesUsedInRoot: {[rootId: string]: string[]} = {};
+	const cache: {[sequenceId: string]: string} = {};
+
+	for (let i = 0; i < sequences.length; i++) {
+		const sequence = sequences[i];
+		if (!hashesUsedInRoot[sequence.rootId]) {
+			hashesUsedInRoot[sequence.rootId] = [];
 		}
-		const overlayCount = numberOfOverlapsWithPrevious(sWithOverlays, i);
-		if (!tracks[overlayCount]) {
-			tracks[overlayCount] = {
-				sequences: [],
-				trackId: overlayCount,
-			};
+
+		const actualHash = getTimelineSequenceHash(
+			sequence,
+			sequences,
+			hashesUsedInRoot,
+			cache
+		);
+
+		if (!sameHashes[actualHash]) {
+			sameHashes[actualHash] = [];
 		}
-		tracks[overlayCount].sequences.push(sequence);
+
+		sameHashes[actualHash].push(sequence.id);
+
+		const cascadedStart = getCascadedStart(sequence, sequences);
+
+		const visibleStart = getTimelineVisibleStart(sequence, sequences);
+		const visibleDuration = getTimelineVisibleDuration(sequence, sequences);
+
+		tracks.push({
+			sequence: {
+				...sequence,
+				from: visibleStart,
+				duration: visibleDuration,
+			},
+			depth: getTimelineNestedLevel(sequence, sequences, 0),
+			hash: actualHash,
+			cascadedStart,
+			cascadedDuration: sequence.duration,
+			canCollapse: canCollapse(sequence, sequences),
+		});
 	}
-	return tracks;
+
+	const uniqueTracks: TrackWithHash[] = [];
+	for (const track of tracks) {
+		if (
+			!uniqueTracks.find((t) => t.hash === track.hash) &&
+			track.sequence.showInTimeline &&
+			isTrackWithinParentBounds(track)
+		) {
+			const {cascadedDuration, cascadedStart, ...cleanTrack} = track;
+			uniqueTracks.push(cleanTrack);
+		}
+	}
+
+	return uniqueTracks.sort((a, b) => {
+		const sortKeyA = getTimelineSequenceSequenceSortKey(a, tracks, sameHashes);
+		const sortKeyB = getTimelineSequenceSequenceSortKey(b, tracks, sameHashes);
+		return sortKeyA.localeCompare(sortKeyB);
+	});
 };

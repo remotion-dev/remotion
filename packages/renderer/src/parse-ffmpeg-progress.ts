@@ -3,5 +3,6 @@ export const parseFfmpegProgress = (input: string): number | undefined => {
 	if (!match) {
 		return undefined;
 	}
+
 	return Number(match[1]);
 };

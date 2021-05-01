@@ -36,49 +36,97 @@ Config.Bundling.overrideWebpackConfig((currentConfiguration) => {
 Using the reducer pattern will help with type safety, give you auto-complete, ensure forwards-compatibility and keep it completely flexible - you can override just one property or pass in a completely new Webpack configuration.
 :::
 
-## Enabling MDX support
+## Snippets
+
+### Enabling MDX support
 
 The following `remotion.config.ts` file shows how to enable support for MDX. Installation of `mdx-loader babel-loader @babel/preset-env @babel/preset-react` is required.
 
 ```ts
-import {overrideWebpackConfig} from '@remotion/bundler';
-
-overrideWebpackConfig((currentConfiguration) => {
-  return {
-    ...currentConfiguration,
-    module: {
-      ...currentConfiguration.module,
-      rules: [
-        ...currentConfiguration.module.rules,
-        {
-          test: /\.mdx?$/,
-          use: [
-            {
-              loader: 'babel-loader',
-              options: {
-                presets: [
-                  '@babel/preset-env',
-                  [
-                    '@babel/preset-react',
-                    {
-                      runtime: 'automatic',
-                    },
-                  ],
-                ],
-              },
-            },
-            'mdx-loader',
-          ],
-        },
-      ],
-    },
-  };
+Config.Bundling.overrideWebpackConfig((currentConfiguration) => {
+	return {
+		...currentConfiguration,
+		module: {
+			...currentConfiguration.module,
+			rules: [
+				...(currentConfiguration.module?.rules
+					? currentConfiguration.module.rules
+					: []),
+				{
+					test: /\.mdx?$/,
+					use: [
+						{
+							loader: 'babel-loader',
+							options: {
+								presets: [
+									'@babel/preset-env',
+									[
+										'@babel/preset-react',
+										{
+											runtime: 'automatic',
+										},
+									],
+								],
+							},
+						},
+						'mdx-loader',
+					],
+				},
+			],
+		},
+	};
 });
+
 ```
 
 :::info
 Create a file which contains `declare module '*.mdx';` in your project to fix a TypeScript error showing up.
 :::
+
+### Enable SASS/SCSS support
+
+```tsx
+import {Config} from 'remotion';
+
+Config.Bundling.overrideWebpackConfig((currentConfiguration) => {
+	return {
+		...currentConfiguration,
+		module: {
+			...currentConfiguration.module,
+			rules: [
+				...(currentConfiguration.module?.rules
+					? currentConfiguration.module.rules
+					: []),
+				// Add more loaders here
+				{
+					// look for .css or .scss files
+					test: /\.(css|scss)$/,
+					// in the `src` directory
+					include: [resolveApp('src')],
+					use: [
+						{
+							loader: 'style-loader',
+						},
+						{
+							loader: 'css-loader',
+						},
+						{
+							loader: 'sass-loader',
+							options: {
+								sourceMap: true,
+							},
+						},
+					],
+				},
+			],
+		},
+	};
+});
+```
+
+### Use legacy babel loader
+
+See [Using legacy Babel transpilation](legacy-babel).
 
 ## Customizing configuration file location
 

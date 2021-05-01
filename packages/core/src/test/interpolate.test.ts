@@ -90,34 +90,43 @@ test('Easing test', () => {
 });
 
 test('Extrapolation left test', () => {
-	expect(
-		interpolate(-3, [0, 1, 2], [0, 0.5, 1], {
-			extrapolateRight: 'extend',
-		})
-	).toEqual(-1.5);
-	expect(interpolate(-3, [0, 1, 2], [0, 0.5, 1])).toEqual(-1.5);
+	const testValues: ('extend' | undefined)[] = ['extend', undefined];
+	testValues.forEach(entry => {
+		expect(
+			interpolate(-3, [0, 1, 2], [0, 0.5, 1], {
+				extrapolateRight: entry,
+			})
+		).toEqual(-1.5);
+	});
 });
 
 test('Extrapolation right test', () => {
-	expect(
-		interpolate(3, [0, 1, 2], [0, 0.5, 1], {
-			extrapolateRight: 'extend',
-		})
-	).toEqual(1.5);
-	expect(interpolate(3, [0, 1, 2], [0, 0.5, 1])).toEqual(1.5);
+	const testValues: ('extend' | undefined)[] = ['extend', undefined];
+	testValues.forEach(entry => {
+		expect(
+			interpolate(3, [0, 1, 2], [0, 0.5, 1], {
+				extrapolateRight: entry,
+			})
+		).toEqual(1.5);
+	});
 });
 
 test('Extrapolation identity', () => {
-	expect(
-		interpolate(1000, [0, 1, 2], [0, 2, 4], {
-			extrapolateRight: 'identity',
-		})
-	).toBe(1000);
-	expect(
-		interpolate(-1000, [0, 1, 2], [0, 2, 4], {
-			extrapolateLeft: 'identity',
-		})
-	).toBe(-1000);
+	const testValues: [
+		number,
+		{
+			extrapolateRight?: 'identity' | undefined;
+			extrapolateLeft?: 'identity' | undefined;
+		}
+	][] = [
+		[1000, {extrapolateRight: 'identity'}],
+		[-1000, {extrapolateLeft: 'identity'}],
+	];
+	testValues.forEach(entry => {
+		expect(interpolate(entry[0], [0, 1, 2], [0, 2, 4], entry[1])).toBe(
+			entry[0]
+		);
+	});
 });
 
 test('Clamp right test', () => {
@@ -137,16 +146,18 @@ test('Clamp left test', () => {
 });
 
 test('Zig-zag test', () => {
-	expect(interpolate(3.5, [1, 2, 3, 4, 5], [0, 1000, 0, -1000, 1000])).toBe(
-		-500
-	);
-	expect(interpolate(4, [1, 2, 3, 4, 5], [0, 1000, 0, -1000, 1000])).toBe(
-		-1000
-	);
-	expect(interpolate(6, [1, 2, 3, 4, 5], [0, 1000, 0, -1000, 1000])).toBe(3000);
-	expect(interpolate(-0.1, [1, 2, 3, 4, 5], [0, 1000, 0, -1000, 1000])).toBe(
-		-1100
-	);
+	const testValues: [number, number][] = [
+		[3.5, -500],
+		[4, -1000],
+		[6, 3000],
+		[-0.1, -1100],
+	];
+
+	testValues.forEach(entry => {
+		expect(
+			interpolate(entry[0], [1, 2, 3, 4, 5], [0, 1000, 0, -1000, 1000])
+		).toBe(entry[1]);
+	});
 });
 
 test('Handle bad types', () => {

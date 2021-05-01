@@ -12,7 +12,7 @@ test('It should throw if multiple components have the same id', () => {
 			render(
 				<RemotionRoot>
 					{/**
-           // @ts-expect-error*/}
+           // @ts-expect-error */}
 					<Composition
 						lazyComponent={() => Promise.resolve({default: AnyComp})}
 						durationInFrames={100}
@@ -229,6 +229,24 @@ test('It should throw if durationInFrames=0 of a composition is boundary off-poi
 		/The "durationInFrames" of a composition must be positive, but got 0./
 	);
 });
+test('It should throw if durationInFrames of a composition is not an integer', () => {
+	expectToThrow(
+		() =>
+			render(
+				<RemotionRoot>
+					<Composition
+						lazyComponent={() => Promise.resolve({default: AnyComp})}
+						durationInFrames={0.11}
+						fps={30}
+						height={100}
+						width={100}
+						id="id"
+					/>
+				</RemotionRoot>
+			),
+		/The "durationInFrames" of a composition must be an integer, but got 0.11./
+	);
+});
 test('It should not throw if durationInFrames=1 of a composition is boundary on-point', () => {
 	expect(() =>
 		render(
@@ -278,7 +296,7 @@ test('It should throw if fps is of a composition is negative', () => {
 					/>
 				</RemotionRoot>
 			),
-		/The "fps" of a composition must be positive, but got -30./
+		/"fps" must be positive, but got -30./
 	);
 });
 test('It should throw if fps=0 of a composition is boundary off-point', () => {
@@ -296,7 +314,7 @@ test('It should throw if fps=0 of a composition is boundary off-point', () => {
 					/>
 				</RemotionRoot>
 			),
-		/The "fps" of a composition must be positive, but got 0./
+		/"fps" must be positive, but got 0./
 	);
 });
 test('It should not throw if fps=1 of a composition is boundary on-point', () => {
@@ -329,6 +347,6 @@ test('It should throw if fps of a composition is not a number', () => {
 					/>
 				</RemotionRoot>
 			),
-		/The "fps" of a composition must be a number, but you passed a string/
+		/"fps" must be a number, but you passed a string/
 	);
 });

@@ -1,18 +1,39 @@
 on: push
 name: Install and Test
 jobs:
-  build-ubuntu:
-    name: Build
+  build:
+    name: Build Node ${{ matrix.node_version }} - ffmpeg ${{ matrix.ffmpeg_version }} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [macos-latest, ubuntu-latest, windows-latest]
+        include:
+          - os: ubuntu-latest
+            node_version: 14
+            ffmpeg_version: 4.4
+          - os: windows-latest
+            node_version: 14
+            ffmpeg_version: 4.4
+          - os: macos-latest
+            node_version: 14
+            ffmpeg_version: 4.4
+          - os: ubuntu-latest
+            node_version: 12
+            ffmpeg_version: 4.4
+          - os: ubuntu-latest
+            node_version: 16
+            ffmpeg_version: 4.4
+          - os: ubuntu-latest
+            node_version: 14
+            ffmpeg_version: 4.1
     steps:
       - uses: actions/checkout@main
-      - uses: actions/setup-node@main
-      - uses: FedericoCarboni/setup-ffmpeg@v1
+      - uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node_version }}
+      - uses: Iamshankhadeep/setup-ffmpeg@v1.1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+          version: ${{ matrix.versionffmpeg_version }}
       - run: npm i
       - run: npx lerna bootstrap --ci
       - run: npm run build
