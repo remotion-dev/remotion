@@ -49,6 +49,7 @@ export default function App() {
 					setTitle(e.target.value);
 				}}
 			/>
+			<br />
 			<button type="button" onClick={() => ref.current?.play()}>
 				Play
 			</button>
@@ -66,6 +67,17 @@ export default function App() {
 			</button>
 			<button type="button" onClick={() => setLoop((l) => !l)}>
 				loop = {String(loop)}
+			</button>
+			<button
+				type="button"
+				onClick={() =>
+					setLogs((l) => [
+						...l,
+						`currentFrame = ${ref.current?.getCurrentFrame()}`,
+					])
+				}
+			>
+				log currentFrame
 			</button>
 			<br />
 			<br />

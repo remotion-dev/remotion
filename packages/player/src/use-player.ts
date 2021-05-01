@@ -1,4 +1,4 @@
-import {useCallback, useContext, useMemo} from 'react';
+import {useCallback, useContext, useMemo, useRef} from 'react';
 import {Internals} from 'remotion';
 import {PlayerEventEmitterContext} from './emitter-context';
 import {PlayerEmitter} from './event-emitter';
@@ -12,12 +12,15 @@ export const usePlayer = (): {
 	play: () => void;
 	pause: () => void;
 	seek: (newFrame: number) => void;
+	getCurrentFrame: () => number;
 } => {
 	const [playing, setPlaying] = Internals.Timeline.usePlayingState();
 	const frame = Internals.Timeline.useTimelinePosition();
 	const setFrame = Internals.Timeline.useTimelineSetFrame();
 	const setTimelinePosition = Internals.Timeline.useTimelineSetFrame();
 
+	const frameRef = useRef<number>();
+	frameRef.current = frame;
 	const video = Internals.useVideo();
 	const config = Internals.useUnsafeVideoConfig();
 	const emitter = useContext(PlayerEventEmitterContext);
@@ -105,6 +108,7 @@ export const usePlayer = (): {
 			play,
 			pause,
 			seek,
+			getCurrentFrame: () => frameRef.current as number,
 		};
 	}, [
 		emitter,
