@@ -1,9 +1,9 @@
 import React, {
 	forwardRef,
 	MutableRefObject,
-	useEffect,
 	useImperativeHandle,
 	useMemo,
+	useRef,
 	useState,
 } from 'react';
 import {
@@ -13,6 +13,9 @@ import {
 	SetTimelineContextValue,
 	TimelineContextValue,
 } from 'remotion';
+import {PlayerEventEmitterContext} from './emitter-context';
+import {PlayerEmitter} from './event-emitter';
+import {PlayerRef} from './player-methods';
 import RootComponent from './RootComponent';
 
 type PropsIfHasProps<Props> = {} extends Props
@@ -33,13 +36,6 @@ export type PlayerProps<T> = {
 } & PropsIfHasProps<T> &
 	CompProps<T>;
 
-export type PlayerMethods = {
-	play: () => void;
-	pause: () => void;
-	toggle: () => void;
-	seekTo: (frame: number) => void;
-};
-
 export const PlayerFn = <T,>(
 	{
 		durationInFrames,
@@ -51,34 +47,16 @@ export const PlayerFn = <T,>(
 		style,
 		...componentProps
 	}: PlayerProps<T>,
-	ref: MutableRefObject<PlayerMethods>
+	ref: MutableRefObject<PlayerRef>
 ) => {
 	const component = Internals.useLazyComponent(componentProps);
-
-	const [frame, setFrame] = useState<number>(0);
+	const [frame, setFrame] = useState(0);
 	const [playing, setPlaying] = useState<boolean>(false);
-	const [hasPausedToResume, setHasPausedToResume] = useState(false);
 	const [rootId] = useState<string>('player-comp');
+	const [emitter] = useState(() => new PlayerEmitter());
+	const rootRef = useRef<PlayerRef>(null);
 
-	useImperativeHandle(ref, () => {
-		return {
-			play: () => setPlaying(true),
-			pause: () => setPlaying(false),
-			toggle: () => setPlaying(!playing),
-			seekTo: (f) => {
-				setHasPausedToResume(true);
-				setPlaying(false);
-				setFrame(f);
-			},
-		};
-	});
-
-	useEffect(() => {
-		if (hasPausedToResume && !playing) {
-			setHasPausedToResume(false);
-			setPlaying(true);
-		}
-	}, [hasPausedToResume, playing]);
+	useImperativeHandle(ref, () => rootRef.current as PlayerRef);
 
 	const timelineContextValue = useMemo((): TimelineContextValue & {
 		shouldRegisterSequences: boolean;
@@ -87,7 +65,7 @@ export const PlayerFn = <T,>(
 			frame,
 			playing,
 			rootId,
-			shouldRegisterSequences: true,
+			shouldRegisterSequences: false,
 		};
 	}, [frame, playing, rootId]);
 
@@ -96,7 +74,7 @@ export const PlayerFn = <T,>(
 			setFrame,
 			setPlaying,
 		};
-	}, []);
+	}, [setFrame]);
 	const compositionManagerContext: CompositionManagerContext = useMemo(() => {
 		return {
 			compositions: [
@@ -132,7 +110,13 @@ export const PlayerFn = <T,>(
 				<Internals.CompositionManager.Provider
 					value={compositionManagerContext}
 				>
-					<RootComponent controls={Boolean(controls)} style={style} />
+					<PlayerEventEmitterContext.Provider value={emitter}>
+						<RootComponent
+							ref={rootRef}
+							controls={Boolean(controls)}
+							style={style}
+						/>
+					</PlayerEventEmitterContext.Provider>
 				</Internals.CompositionManager.Provider>
 			</Internals.Timeline.SetTimelineContext.Provider>
 		</Internals.Timeline.TimelineContext.Provider>

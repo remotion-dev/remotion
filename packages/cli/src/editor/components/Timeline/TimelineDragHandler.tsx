@@ -1,3 +1,4 @@
+import {usePlayback} from '@remotion/player';
 import React, {useCallback, useEffect, useState} from 'react';
 import {Internals, interpolate} from 'remotion';
 import styled from 'styled-components';
@@ -52,8 +53,7 @@ export const TimelineDragHandler: React.FC = ({children}) => {
 	>({
 		dragging: false,
 	});
-	const [playing, setPlaying] = Internals.Timeline.usePlayingState();
-	const setTimelinePosition = Internals.Timeline.useTimelineSetFrame();
+	const {playing, play, pause, seek} = usePlayback();
 	const videoConfig = Internals.useUnsafeVideoConfig();
 
 	const onPointerDown = useCallback(
@@ -66,14 +66,14 @@ export const TimelineDragHandler: React.FC = ({children}) => {
 				videoConfig.durationInFrames,
 				width
 			);
-			setTimelinePosition(frame);
+			seek(frame);
 			setDragging({
 				dragging: true,
 				wasPlaying: playing,
 			});
-			setPlaying(false);
+			pause();
 		},
-		[playing, setPlaying, setTimelinePosition, size, videoConfig, width]
+		[pause, playing, seek, size?.left, videoConfig, width]
 	);
 
 	const onPointerMove = useCallback(
@@ -89,9 +89,9 @@ export const TimelineDragHandler: React.FC = ({children}) => {
 				videoConfig.durationInFrames,
 				width
 			);
-			setTimelinePosition(frame);
+			seek(frame);
 		},
-		[dragging.dragging, setTimelinePosition, size?.left, videoConfig, width]
+		[dragging.dragging, seek, size?.left, videoConfig, width]
 	);
 
 	const onPointerUp = useCallback(() => {
@@ -101,8 +101,10 @@ export const TimelineDragHandler: React.FC = ({children}) => {
 		if (!dragging.dragging) {
 			return;
 		}
-		setPlaying(dragging.wasPlaying);
-	}, [dragging, setPlaying]);
+		if (dragging.wasPlaying) {
+			play();
+		}
+	}, [dragging, play]);
 
 	useEffect(() => {
 		if (!dragging.dragging) {

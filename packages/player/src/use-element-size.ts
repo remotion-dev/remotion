@@ -29,7 +29,6 @@ export const useElementSize = (
 			return;
 		}
 		const rect = ref.current.getClientRects();
-		console.log(rect, ref.current);
 		if (!rect[0]) {
 			return;
 		}

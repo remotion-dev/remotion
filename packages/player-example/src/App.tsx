@@ -1,11 +1,25 @@
-import {Player, PlayerMethods} from '@remotion/player';
-import {useRef, useState} from 'react';
+import {Player, PlayerRef} from '@remotion/player';
+import {useEffect, useRef, useState} from 'react';
 import CarSlideshow from './CarSlideshow';
 
 export default function App() {
 	const [title, setTitle] = useState('Hello World');
+	const [logs, setLogs] = useState<string[]>(() => []);
 
-	const ref = useRef<PlayerMethods>(null);
+	const ref = useRef<PlayerRef>(null);
+
+	useEffect(() => {
+		ref.current?.addEventListener('play', () => {
+			setLogs((l) => [...l, 'playing ' + Date.now()]);
+			console.log('playing');
+		});
+		ref.current?.addEventListener('pause', () => {
+			setLogs((l) => [...l, 'pausing ' + Date.now()]);
+		});
+		ref.current?.addEventListener('seeked', (e) => {
+			setLogs((l) => [...l, 'seeked to ' + e.detail.frame + ' ' + Date.now()]);
+		});
+	}, []);
 
 	return (
 		<div>
@@ -42,6 +56,16 @@ export default function App() {
 			<button type="button" onClick={() => ref.current?.seekTo(10)}>
 				seekTo 10
 			</button>
+			<br />
+			<br />
+			{logs
+				.slice(0)
+				.reverse()
+				.slice(0, 10)
+				.reverse()
+				.map((l) => {
+					return <div>{l}</div>;
+				})}
 		</div>
 	);
 }
