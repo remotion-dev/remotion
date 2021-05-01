@@ -31,7 +31,6 @@ describe('Random should be uniform', () => {
 	const stepInterval = 0.1;
 	let currentStep = 0;
 	while (currentStep < 0.999999) {
-		console.log(currentStep);
 		const items = mapped.filter(
 			(m) => m >= currentStep && m <= currentStep + stepInterval
 		);
