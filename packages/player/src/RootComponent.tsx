@@ -17,11 +17,6 @@ import {useHoverState} from './use-hover-state';
 import {usePlayback} from './use-playback';
 import {usePlayer} from './use-player';
 
-const outerStyle: React.CSSProperties = {
-	position: 'relative',
-	overflow: 'hidden',
-};
-
 const RootComponent: React.ForwardRefRenderFunction<
 	PlayerRef,
 	{
@@ -69,6 +64,19 @@ const RootComponent: React.ForwardRefRenderFunction<
 	});
 
 	const VideoComponent = video ? video.component : null;
+
+	const outerStyle: React.CSSProperties = useMemo(() => {
+		if (!config) {
+			return {};
+		}
+
+		return {
+			position: 'relative',
+			overflow: 'hidden',
+			width: config.width,
+			height: config.height,
+		};
+	}, [config]);
 
 	const containerStyle: React.CSSProperties = useMemo(() => {
 		if (!config) {
