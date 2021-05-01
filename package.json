@@ -11,7 +11,7 @@
     "watch": "lerna run watch --stream --parallel"
   },
   "devDependencies": {
-    "@jonny/eslint-config": "^2.1.228",
+    "@jonny/eslint-config": "^2.1.230",
     "@types/jest": "^26.0.20",
     "@types/minimist": "^1.2.1",
     "@types/node": "^14.14.31",
