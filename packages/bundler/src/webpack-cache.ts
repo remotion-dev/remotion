@@ -64,9 +64,12 @@ export const clearCache = (
 	environment: Environment,
 	inputProps: object | null
 ) => {
-	return fs.promises.rmdir(remotionCacheLocation(environment, inputProps), {
-		recursive: true,
-	});
+	return (fs.promises.rm ?? fs.promises.rmdir)(
+		remotionCacheLocation(environment, inputProps),
+		{
+			recursive: true,
+		}
+	);
 };
 
 export const getWebpackCacheName = (
