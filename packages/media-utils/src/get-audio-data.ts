@@ -7,6 +7,7 @@ export const getAudioData = async (src: string): Promise<AudioData> => {
 	if (metadataCache[src]) {
 		return metadataCache[src];
 	}
+
 	const audioContext = new AudioContext();
 
 	const response = await fetch(src);

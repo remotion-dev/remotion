@@ -61,6 +61,7 @@ export const UpdateCheck = () => {
 		if (info === null) {
 			return;
 		}
+
 		dismissVersion(info.latestVersion);
 		setInfo(null);
 	}, [info]);
@@ -78,7 +79,7 @@ export const UpdateCheck = () => {
 		navigator.permissions
 			.query({name: permissionName})
 			.then((result) => {
-				if (result.state == 'granted' || result.state == 'prompt') {
+				if (result.state === 'granted' || result.state === 'prompt') {
 					navigator.clipboard.writeText(cmd);
 				}
 			})

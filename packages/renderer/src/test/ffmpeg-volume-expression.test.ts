@@ -119,6 +119,7 @@ test('Should stay under half 8000 windows character limit', () => {
 			if (i < 500) {
 				return 0;
 			}
+
 			return (i - 500) / 100;
 		}),
 		multiplier: 1,

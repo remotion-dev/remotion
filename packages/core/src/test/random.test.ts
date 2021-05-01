@@ -21,9 +21,9 @@ test('Random should be uniform', () => {
 
 	const average = mapped.reduce((a, b) => a + b, 0) / mapped.length;
 
-	const tenthPercentile = mapped.filter((m) => m <= 0.1);
-	const twentiethPercentile = mapped.filter((m) => m <= 0.2 && m >= 0.1);
-	const ninetiethPercentile = mapped.filter((m) => m <= 0.9 && m >= 0.8);
+	const tenthPercentile = mapped.filter(m => m <= 0.1);
+	const twentiethPercentile = mapped.filter(m => m <= 0.2 && m >= 0.1);
+	const ninetiethPercentile = mapped.filter(m => m <= 0.9 && m >= 0.8);
 	expect(average).toBeLessThan(0.51);
 	expect(average).toBeGreaterThan(0.49);
 	expect(tenthPercentile.length).toBeLessThan(ITEM_COUNT * 0.105);
@@ -38,9 +38,10 @@ test('Random should be uniform', () => {
 			if (i === 0) {
 				return null;
 			}
+
 			return Math.abs(mapped[i] - mapped[i - 1]);
 		})
-		.filter((f) => f !== null) as number[];
+		.filter(f => f !== null) as number[];
 	const averageDistance =
 		distances.reduce((a, b) => a + b, 0) / distances.length;
 	expect(averageDistance).toBeGreaterThan(0.3);

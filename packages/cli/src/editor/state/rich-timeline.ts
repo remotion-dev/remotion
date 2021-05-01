@@ -16,5 +16,5 @@ export const loadRichTimelineOption = (): boolean => {
 
 export const RichTimelineContext = createContext<State>({
 	richTimeline: loadRichTimelineOption(),
-	setRichTimeline: () => void 0,
+	setRichTimeline: () => undefined,
 });

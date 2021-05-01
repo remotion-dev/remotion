@@ -11,11 +11,11 @@ export const fft = function (vector: Int16Array): [number, number][] {
 	// Base case is X = x + 0i since our input is assumed to be real only.
 	if (N === 1) {
 		if (Array.isArray(vector[0])) {
-			//If input vector contains complex numbers
+			// If input vector contains complex numbers
 			return [[vector[0][0], vector[0][1]]];
-		} else {
-			return [[vector[0], 0]];
 		}
+
+		return [[vector[0], 0]];
 	}
 
 	// Recurse: all even samples

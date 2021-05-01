@@ -7,9 +7,9 @@ const supported = '>=12.10.0';
 
 export const checkNodeVersion = () => {
 	if (!semver.satisfies(current, supported)) {
-		Log.Warn(
+		Log.warn(
 			`Required node version ${supported} not satisfied with current version ${current}.`
 		);
-		Log.Warn(`Update your node version to ${supported}`);
+		Log.warn(`Update your node version to ${supported}`);
 	}
 };

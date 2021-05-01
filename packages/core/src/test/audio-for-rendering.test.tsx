@@ -20,6 +20,7 @@ describe('Register and unregister asset', () => {
 			return (
 				<Internals.CompositionManager.Provider
 					value={
+						// eslint-disable-next-line react/jsx-no-constructed-context-values
 						({
 							registerAsset,
 							unregisterAsset,
@@ -30,12 +31,14 @@ describe('Register and unregister asset', () => {
 				</Internals.CompositionManager.Provider>
 			);
 		};
+
 		return {
 			MockProvider,
 			registerAsset,
 			unregisterAsset,
 		};
 	}
+
 	beforeEach(() => {
 		mockContext = createMockContext();
 	});
