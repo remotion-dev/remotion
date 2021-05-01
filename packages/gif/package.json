@@ -23,7 +23,7 @@
 		"remotion": "^2.0.7"
 	},
 	"devDependencies": {
-		"@jonny/eslint-config": "^2.1.230",
+		"@jonny/eslint-config": "^2.1.231",
 		"@testing-library/react": "^11.2.2",
 		"@types/jest": "^26.0.19",
 		"@types/node": "^14.14.14",

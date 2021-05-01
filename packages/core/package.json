@@ -29,7 +29,7 @@
 		}
 	},
 	"devDependencies": {
-		"@jonny/eslint-config": "^2.1.230",
+		"@jonny/eslint-config": "^2.1.231",
 		"@testing-library/react": "^11.2.2",
 		"@testing-library/react-hooks": "^5.1.1",
 		"@types/jest": "^26.0.19",
