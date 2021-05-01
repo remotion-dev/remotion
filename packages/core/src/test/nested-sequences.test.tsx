@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-no-constructed-context-values */
 import {render} from '@testing-library/react';
 import React from 'react';
 import {Sequence} from '../sequencing';
@@ -17,6 +18,7 @@ test('It should calculate the correct offset in nested sequences', () => {
 			</Sequence>
 		);
 	};
+
 	const Child2 = () => {
 		return (
 			<Sequence from={1} durationInFrames={50}>

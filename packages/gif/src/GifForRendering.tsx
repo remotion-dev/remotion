@@ -5,10 +5,7 @@ import {GifState, RemotionGifProps} from './props';
 import {useCurrentGifIndex} from './useCurrentGifIndex';
 
 export const GifForRendering = forwardRef<HTMLCanvasElement, RemotionGifProps>(
-	function Gif(
-		{src, width, height, onLoad, onError, fit = 'fill', ...props},
-		ref
-	) {
+	({src, width, height, onLoad, onError, fit = 'fill', ...props}, ref) => {
 		const [state, update] = useState<GifState>({
 			delays: [],
 			frames: [],

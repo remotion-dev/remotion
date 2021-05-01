@@ -23,11 +23,15 @@ export const screenshotDOMElement = async ({
 	if (!path) throw Error('Please provide a path.');
 
 	if (imageFormat === 'png') {
-		await page.evaluate(() => (document.body.style.background = 'transparent'));
+		await page.evaluate(() => {
+			document.body.style.background = 'transparent';
+		});
 	}
+
 	if (imageFormat === 'none') {
-		throw TypeError('Tried to make a screenshot with format "none"');
+		throw new TypeError('Tried to make a screenshot with format "none"');
 	}
+
 	return screenshot(page, {
 		omitBackground: imageFormat === 'png',
 		path,

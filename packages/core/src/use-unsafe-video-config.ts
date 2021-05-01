@@ -12,6 +12,7 @@ export const useUnsafeVideoConfig = (): VideoConfig | null => {
 		if (!video) {
 			return null;
 		}
+
 		const {durationInFrames, fps, height, width} = video;
 
 		return {

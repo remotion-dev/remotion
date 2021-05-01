@@ -3,8 +3,7 @@ import {Internals, random, TComposition, TimelineContextValue} from 'remotion';
 import {
 	checkerboardBackgroundColor,
 	checkerboardBackgroundImage,
-	CHECKERBOARD_BACKGROUND_POS,
-	CHECKERBOARD_BACKGROUND_SIZE,
+	getCheckerboardBackgroundPos,
 } from '../helpers/checkerboard-background';
 import {CheckerboardContext} from '../state/checkerboard';
 
@@ -46,8 +45,8 @@ export const Thumbnail: React.FC<{
 			height: actualHeight,
 			backgroundColor: checkerboardBackgroundColor(checkerboard),
 			backgroundImage: checkerboardBackgroundImage(checkerboard),
-			backgroundPosition: CHECKERBOARD_BACKGROUND_POS(25),
-			backgroundSize: CHECKERBOARD_BACKGROUND_SIZE(25),
+			backgroundPosition: getCheckerboardBackgroundPos(25),
+			backgroundSize: getCheckerboardBackgroundPos(25),
 		};
 	}, [actualHeight, actualWidth, checkerboard]);
 

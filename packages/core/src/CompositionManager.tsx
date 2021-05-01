@@ -81,14 +81,14 @@ export type CompositionManagerContext = {
 
 export const CompositionManager = createContext<CompositionManagerContext>({
 	compositions: [],
-	registerComposition: () => void 0,
-	unregisterComposition: () => void 0,
+	registerComposition: () => undefined,
+	unregisterComposition: () => undefined,
 	currentComposition: null,
-	setCurrentComposition: () => void 0,
-	registerSequence: () => void 0,
-	unregisterSequence: () => void 0,
-	registerAsset: () => void 0,
-	unregisterAsset: () => void 0,
+	setCurrentComposition: () => undefined,
+	registerSequence: () => undefined,
+	unregisterSequence: () => undefined,
+	registerAsset: () => undefined,
+	unregisterAsset: () => undefined,
 	sequences: [],
 	assets: [],
 });
