@@ -42,16 +42,16 @@
 		"react": "^17.0.1",
 		"react-dom": "^17.0.1"
 	},
-  "peerDependenciesMeta": {
-    "react":{
-      "autoinstall":false
-    },
-    "react-dom":{
-      "autoinstall":false
-    }
-  },
+	"peerDependenciesMeta": {
+		"react": {
+			"autoinstall": false
+		},
+		"react-dom": {
+			"autoinstall": false
+		}
+	},
 	"devDependencies": {
-		"@jonny/eslint-config": "^2.1.210",
+		"@jonny/eslint-config": "^2.1.228",
 		"@types/express": "^4.17.7",
 		"@types/node": "^14.0.13",
 		"@types/semver": "^7.3.4",
