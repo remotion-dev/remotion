@@ -32,5 +32,17 @@ test('It should not allow a video element to have a wrong type', () => {
 });
 
 test('It should allow a valid volume', () => {
+	expect(() => validateMediaProps({volume: 0}, 'Video')).not.toThrow();
+});
+test('It should allow a valid volume', () => {
 	expect(() => validateMediaProps({volume: 1}, 'Video')).not.toThrow();
+});
+test('It should allow a valid volume', () => {
+	expect(() => validateMediaProps({volume: undefined}, 'Video')).not.toThrow();
+});
+test('It should allow a valid volume', () => {
+	expect(() => validateMediaProps({volume: () => 1}, 'Video')).not.toThrow();
+});
+test('It should allow a valid volume', () => {
+	expect(() => validateMediaProps({volume: () => -1}, 'Video')).not.toThrow();
 });
