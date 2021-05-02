@@ -104,6 +104,7 @@ export const TimelineDragHandler: React.FC = ({children}) => {
 		if (!dragging.dragging) {
 			return;
 		}
+
 		if (dragging.wasPlaying) {
 			play();
 		}

@@ -26,12 +26,14 @@ export const PlayPause: React.FC = () => {
 			if (!video) {
 				return;
 			}
+
 			if (e.code === 'Space') {
 				if (playing) {
 					pause();
 				} else {
 					play();
 				}
+
 				e.preventDefault();
 			}
 
