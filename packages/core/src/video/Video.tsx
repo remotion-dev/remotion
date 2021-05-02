@@ -1,4 +1,5 @@
 import React, {forwardRef} from 'react';
+import {UnsupportedCodecError} from '../custom-errors';
 import {Sequence} from '../sequencing';
 import {validateMediaProps} from '../validate-media-props';
 import {validateStartFromProps} from '../validate-start-from-props';
@@ -15,6 +16,12 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 	if (typeof ref === 'string') {
 		throw new Error('string refs are not supported');
 	}
+
+	const onError = () => {
+		throw new UnsupportedCodecError(
+			'Unsupported video codec found. Make sure your browser supports the codec or use chrome.'
+		);
+	};
 
 	if (typeof startFrom !== 'undefined' || typeof endAt !== 'undefined') {
 		validateStartFromProps(startFrom, endAt);
@@ -36,10 +43,10 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 	validateMediaProps(props, 'Video');
 
 	if (process.env.NODE_ENV === 'development') {
-		return <VideoForDevelopment {...props} ref={ref} />;
+		return <VideoForDevelopment {...props} ref={ref} onError={onError} />;
 	}
 
-	return <VideoForRendering {...props} ref={ref} />;
+	return <VideoForRendering {...props} ref={ref} onError={onError} />;
 };
 
 export const Video = forwardRef(VideoForwardingFunction);
