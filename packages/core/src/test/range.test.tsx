@@ -45,6 +45,7 @@ describe('Frame range tests with valid inputs', () => {
 	const testValues: (number | [number, number] | null)[] = [
 		null,
 		[10, 20],
+		[10, 10],
 		10,
 		0,
 	];
@@ -70,6 +71,8 @@ describe('Frame range CLI should throw exception with invalid inputs', () => {
 			'one-two',
 			/--frames flag must be a single number, or 2 numbers separated by `-`/,
 		],
+		[' ', /Frame range must be a tuple, got an array with length 1/],
+		['', /Frame range must be a tuple, got an array with length 1/],
 	];
 	testValues.forEach((entry) =>
 		test(`test with input ${entry[0]}`, () =>
@@ -83,6 +86,8 @@ describe('Frame range CLI tests with valid inputs', () => {
 		[0, 0],
 		[10, 10],
 		['1-10', [1, 10]],
+		['10-10', [10, 10]],
+		['-', [0, 0]],
 	];
 	testValues.forEach((entry) =>
 		test(`test with input ${entry[0]}`, () => {
