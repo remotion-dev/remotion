@@ -150,7 +150,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 		);
 		videoRef.current.addEventListener(
 			'error',
-			err => {
+			(err) => {
 				console.error('Error occurred in video', err);
 				continueRender(handle);
 			},
@@ -158,7 +158,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 		);
 	}, [volumePropsFrame, props.src, videoConfig.fps, frame]);
 
-	return <video ref={videoRef} {...props} />;
+	return <video ref={videoRef} {...props} onError={onError} />;
 };
 
 export const VideoForRendering = forwardRef(VideoForRenderingForwardFunction);

@@ -25,6 +25,16 @@ import {
 } from './progress-bar';
 import {checkAndValidateFfmpegVersion} from './validate-ffmpeg-version';
 
+const onPageError = async (err: {name: string; message: string}) => {
+	if (String(err.message).match(/Unsupported video codec/g)) {
+		Log.error(
+			'\nUnsupportedCodecError: Unsupported video codec found. Make sure your browser supports the codec or use chrome.'
+		);
+	}
+
+	process.exit(1);
+};
+
 export const render = async () => {
 	const startTime = Date.now();
 	const file = parsedCli._[1];
@@ -137,6 +147,7 @@ export const render = async () => {
 		parallelism,
 		compositionId,
 		outputDir,
+		onPageError,
 		onStart: ({frameCount: fc}: OnStartData) => {
 			renderProgress.update(
 				makeRenderingProgress({
