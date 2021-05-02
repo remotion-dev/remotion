@@ -79,6 +79,7 @@ module.exports = {
         "visualize-audio",
       ],
     },
+    "player",
     {
       type: "category",
       label: "API - @remotion/renderer",

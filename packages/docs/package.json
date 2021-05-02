@@ -15,12 +15,11 @@
     "@docusaurus/core": "2.0.0-alpha.75",
     "@docusaurus/preset-classic": "2.0.0-alpha.75",
     "@mdx-js/react": "^1.6.21",
+    "@remotion/player": "^2.0.7",
     "@splitbee/web": "^0.2.4",
     "@types/react": "^17.0.4",
     "clsx": "^1.1.1",
-    "prism-react-renderer": "^1.1.1",
-    "react": "^16.8.4",
-    "react-dom": "^16.8.4"
+    "prism-react-renderer": "^1.1.1"
   },
   "browserslist": {
     "production": [
