@@ -8,9 +8,11 @@ export const setBrowser = (browser: Browser) => {
 	if (browser === 'chrome') {
 		process.env.PUPPETEER_PRODUCT = 'chrome';
 	}
+
 	if (browser === 'firefox') {
 		process.env.PUPPETEER_PRODUCT = 'firefox';
 	}
+
 	currentBrowser = browser;
 };
 

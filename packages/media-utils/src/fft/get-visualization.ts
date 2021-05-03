@@ -27,14 +27,17 @@ export const getVisualization = ({
 			`The argument "bars" must be a power of two. For example: 64, 128. Got instead: ${sampleSize}`
 		);
 	}
+
 	if (!fps) {
 		throw new TypeError('The argument "fps" was not provided');
 	}
+
 	if (data.length < sampleSize) {
 		throw new TypeError(
 			'Audio data is not big enough to provide ' + sampleSize + ' bars.'
 		);
 	}
+
 	const start = Math.floor((frame / fps) * sampleRate);
 
 	const actualStart = Math.max(0, start - sampleSize / 2);

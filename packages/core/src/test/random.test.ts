@@ -37,6 +37,7 @@ describe('Random should be uniform', () => {
 		tenPercentSections.push(items);
 		currentStep += stepInterval;
 	}
+
 	const ACCURACY = 0.005;
 	tenPercentSections.forEach((entries, index) =>
 		test(`section ${index} should contain around ${
@@ -57,6 +58,7 @@ describe('Random should be uniform', () => {
 				if (i === 0) {
 					return null;
 				}
+
 				return Math.abs(mapped[i] - mapped[i - 1]);
 			})
 			.filter((f) => f !== null) as number[];

@@ -25,7 +25,7 @@ const isTrackWithinParentBounds = (track: TrackWithHashAndOriginalTimings) => {
 };
 
 const canCollapse = (track: TSequence, allTracks: TSequence[]) => {
-	return !!allTracks.find((t) => t.parent === track.id);
+	return Boolean(allTracks.find((t) => t.parent === track.id));
 };
 
 export const calculateTimeline = ({
@@ -79,6 +79,7 @@ export const calculateTimeline = ({
 		if (!sameHashes[actualHash]) {
 			sameHashes[actualHash] = [];
 		}
+
 		sameHashes[actualHash].push(sequence.id);
 
 		const cascadedStart = getCascadedStart(sequence, sequences);

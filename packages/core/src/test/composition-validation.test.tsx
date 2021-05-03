@@ -13,7 +13,7 @@ describe('Composition-validation render should throw with invalid props', () => 
 				render(
 					<RemotionRoot>
 						{/**
-						 // @ts-expect-error*/}
+						 // @ts-expect-error */}
 						<Composition
 							lazyComponent={() => Promise.resolve({default: AnyComp})}
 							durationInFrames={100}

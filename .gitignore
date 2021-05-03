@@ -3,3 +3,5 @@ dist
 tsconfig.tsbuildinfo
 lerna-debug.log
 .DS_Store
+.idea
+coverage

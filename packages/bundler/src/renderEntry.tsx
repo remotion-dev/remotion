@@ -42,6 +42,7 @@ const GetVideo = () => {
 		if (Internals.getIsEvaluation()) {
 			return;
 		}
+
 		if (!video && compositions.compositions.length > 0) {
 			compositions.setCurrentComposition(
 				(compositions.compositions.find(
@@ -55,6 +56,7 @@ const GetVideo = () => {
 		if (!video) {
 			throw new Error('Expected to have video');
 		}
+
 		const Comp = video.component;
 		setComponent(Comp);
 	}, [video]);

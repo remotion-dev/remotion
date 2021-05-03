@@ -11,7 +11,7 @@ describe('ValidateStartFrom props should throw', () => {
 		});
 		test('It should throw if startFrom is not a number', () => {
 			expectToThrow(
-				//@ts-expect-error
+				// @ts-expect-error
 				() => validateStartFromProps('10', 20),
 				/type of startFrom prop must be a number, instead got type string./
 			);
@@ -47,7 +47,7 @@ describe('ValidateStartFrom props should throw', () => {
 
 		test('It should throw if endAt is not a number', () => {
 			expectToThrow(
-				//@ts-expect-error
+				// @ts-expect-error
 				() => validateStartFromProps(10, '20'),
 				/type of endAt prop must be a number, instead got type string./
 			);

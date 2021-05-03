@@ -2,13 +2,24 @@ import {Easing} from '../easing';
 import {interpolate} from '../interpolate';
 import {expectToThrow} from './expect-to-throw';
 
-test('Basic interpolations', () => {
-	expect(interpolate(1, [0, 1], [0, 2])).toEqual(2);
-	expect(interpolate(Math.PI, [0, 1, 4, 9], [0, 2, 1000, -1000])).toEqual(
-		714.4364894275378
-	);
-	expect(interpolate(Infinity, [0, 1], [0, 2])).toEqual(Infinity);
-	expect(interpolate(Infinity, [0, 1], [1, 0])).toEqual(-Infinity);
+describe('Basic interpolations', () => {
+	test('Input and output range strictly monotonically increasing', () => {
+		expect(interpolate(1, [0, 1], [0, 2])).toEqual(2);
+	});
+	test('Input range strictly monotonically increasing, Output range non-increasing', () => {
+		expect(interpolate(1, [0, 1], [2, 2])).toEqual(2);
+	});
+	test('Interpolate with 4 values, output non-increasing', () => {
+		expect(interpolate(Math.PI, [0, 1, 4, 9], [0, 2, 1000, -1000])).toEqual(
+			714.4364894275378
+		);
+	});
+	test('Interpolate Infinity: output range increasing', () => {
+		expect(interpolate(Infinity, [0, 1], [0, 2])).toEqual(Infinity);
+	});
+	test('Interpolate Infinity: output range decreasing', () => {
+		expect(interpolate(Infinity, [0, 1], [1, 0])).toEqual(-Infinity);
+	});
 });
 
 test('Must be the same length', () => {
@@ -91,7 +102,7 @@ test('Easing test', () => {
 
 test('Extrapolation left test', () => {
 	const testValues: ('extend' | undefined)[] = ['extend', undefined];
-	testValues.forEach((entry) => {
+	testValues.forEach(entry => {
 		expect(
 			interpolate(-3, [0, 1, 2], [0, 0.5, 1], {
 				extrapolateRight: entry,
@@ -102,7 +113,7 @@ test('Extrapolation left test', () => {
 
 test('Extrapolation right test', () => {
 	const testValues: ('extend' | undefined)[] = ['extend', undefined];
-	testValues.forEach((entry) => {
+	testValues.forEach(entry => {
 		expect(
 			interpolate(3, [0, 1, 2], [0, 0.5, 1], {
 				extrapolateRight: entry,
@@ -122,7 +133,7 @@ test('Extrapolation identity', () => {
 		[1000, {extrapolateRight: 'identity'}],
 		[-1000, {extrapolateLeft: 'identity'}],
 	];
-	testValues.forEach((entry) => {
+	testValues.forEach(entry => {
 		expect(interpolate(entry[0], [0, 1, 2], [0, 2, 4], entry[1])).toBe(
 			entry[0]
 		);
@@ -153,7 +164,7 @@ test('Zig-zag test', () => {
 		[-0.1, -1100],
 	];
 
-	testValues.forEach((entry) => {
+	testValues.forEach(entry => {
 		expect(
 			interpolate(entry[0], [1, 2, 3, 4, 5], [0, 1000, 0, -1000, 1000])
 		).toBe(entry[1]);
@@ -162,7 +173,15 @@ test('Zig-zag test', () => {
 
 test('Handle bad types', () => {
 	// @ts-expect-error
-	expect(() => interpolate()).toThrowError(
+	expect(() => interpolate(undefined, [0, 1], [1, 0])).toThrowError(
+		/input or inputRange or outputRange can not be undefined/
+	);
+	// @ts-expect-error
+	expect(() => interpolate(1, undefined, [1, 0])).toThrowError(
+		/input or inputRange or outputRange can not be undefined/
+	);
+	// @ts-expect-error
+	expect(() => interpolate(1, [1, 0], undefined)).toThrowError(
 		/input or inputRange or outputRange can not be undefined/
 	);
 	// @ts-expect-error

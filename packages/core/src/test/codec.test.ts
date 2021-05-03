@@ -17,7 +17,7 @@ describe('Codec tests valid codec input', () => {
 		'aac',
 		'wav',
 	];
-	validCodecInput.forEach((entry) =>
+	validCodecInput.forEach(entry =>
 		test(`codec ${entry}`, () =>
 			expect(
 				getFinalOutputCodec({
@@ -60,7 +60,7 @@ describe('Codec tests undefined codec input with known extension', () => {
 
 describe('Codec tests undefined codec input with unknown extension', () => {
 	const unknownExtensions = ['', 'abc'];
-	unknownExtensions.forEach((entry) =>
+	unknownExtensions.forEach(entry =>
 		test(`testing with "${entry}" as extension`, () =>
 			expect(
 				getFinalOutputCodec({
@@ -82,7 +82,7 @@ describe('Codec tests setOutputFormat', () => {
 		'vp9',
 		undefined,
 	];
-	validCodecInputs.forEach((entry) =>
+	validCodecInputs.forEach(entry =>
 		test(`testing with ${entry}`, () => {
 			setCodec(entry);
 			expect(getOutputCodecOrUndefined()).toEqual(entry);
