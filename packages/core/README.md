@@ -4,7 +4,9 @@
   </a>
 </p>
 
-![Statements](https://img.shields.io/badge/Coverage-81.05%25-yellow.svg) ![Branches](https://img.shields.io/badge/Coverage-77.03%25-red.svg) ![Functions](https://img.shields.io/badge/Coverage-65.33%25-red.svg) ![Lines](https://img.shields.io/badge/Coverage-80.29%25-yellow.svg)
+| Statements                  | Branches                | Functions                 | Lines                |
+| --------------------------- | ----------------------- | ------------------------- | -------------------- |
+| ![Statements](https://img.shields.io/badge/Coverage-81.47%25-yellow.svg) | ![Branches](https://img.shields.io/badge/Coverage-77.62%25-red.svg) | ![Functions](https://img.shields.io/badge/Coverage-65.33%25-red.svg) | ![Lines](https://img.shields.io/badge/Coverage-80.67%25-yellow.svg)    |
 
 Remotion is a suite of libraries building a fundament for **creating videos programmatically using React.**
 
