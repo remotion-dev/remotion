@@ -2,5 +2,5 @@ module.exports = {
 	preset: 'ts-jest',
 	testEnvironment: 'jsdom',
 	testPathIgnorePatterns: ['dist'],
-	coverageReporters: ['json-summary', 'html'],
+	coverageReporters: ['json-summary'],
 };
