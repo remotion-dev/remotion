@@ -25,6 +25,7 @@ export const replaceLoadersWithBabel = (
 				if (rule === '...') {
 					return rule;
 				}
+
 				if (rule.test?.toString().includes('.tsx')) {
 					return {
 						test: /\.tsx?$/,
@@ -67,6 +68,7 @@ export const replaceLoadersWithBabel = (
 						].filter(truthy),
 					};
 				}
+
 				if (rule.test?.toString().includes('.jsx')) {
 					return {
 						test: /\.jsx?$/,
@@ -87,6 +89,7 @@ export const replaceLoadersWithBabel = (
 						},
 					};
 				}
+
 				return rule;
 			}),
 		},

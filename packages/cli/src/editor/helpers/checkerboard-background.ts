@@ -1,12 +1,13 @@
-export const CHECKERBOARD_BACKGROUND_SIZE = (size: number) =>
+export const getCheckerboardBackgroundSize = (size: number) =>
 	`${size}px ${size}px`;
-export const CHECKERBOARD_BACKGROUND_POS = (size: number) =>
+export const getCheckerboardBackgroundPos = (size: number) =>
 	`0 0, ${size / 2}px 0, ${size / 2}px -${size / 2}px, 0px ${size / 2}px`;
 
 export const checkerboardBackgroundColor = (checkerboard: boolean) => {
 	if (checkerboard) {
 		return 'white';
 	}
+
 	return 'black';
 };
 
@@ -23,5 +24,6 @@ export const checkerboardBackgroundImage = (checkerboard: boolean) => {
       linear-gradient(135deg, transparent 75%, rgba(0, 0, 0, 0.1) 75%)
     `;
 	}
+
 	return undefined;
 };

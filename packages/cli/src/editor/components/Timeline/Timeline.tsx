@@ -38,6 +38,7 @@ export const Timeline: React.FC = () => {
 		if (!videoConfig) {
 			return [];
 		}
+
 		return calculateTimeline({
 			sequences,
 			sequenceDuration: videoConfig.durationInFrames,

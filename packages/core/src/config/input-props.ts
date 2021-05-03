@@ -6,8 +6,10 @@ export const getInputProps = () => {
 		if (!param) {
 			return {};
 		}
+
 		const parsed = JSON.parse(param);
 		return parsed;
 	}
+
 	return (process.env.INPUT_PROPS as unknown) as object | null;
 };

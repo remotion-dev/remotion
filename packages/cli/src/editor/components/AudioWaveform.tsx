@@ -62,10 +62,12 @@ export const AudioWaveform: React.FC<{
 		if (!canvas.current) {
 			return;
 		}
+
 		const context = canvas.current.getContext('2d');
 		if (!context) {
 			return;
 		}
+
 		context.clearRect(0, 0, visualizationWidth, TIMELINE_LAYER_HEIGHT);
 		if (!doesVolumeChange || typeof volume === 'number') {
 			// The volume is a number, meaning it could change on each frame-
@@ -107,6 +109,7 @@ export const AudioWaveform: React.FC<{
 		if (!metadata || metadata.numberOfChannels === 0) {
 			return [];
 		}
+
 		const numberOfSamples = Math.floor(
 			visualizationWidth / (WAVEFORM_BAR_LENGTH + WAVEFORM_BAR_MARGIN)
 		);
@@ -122,6 +125,7 @@ export const AudioWaveform: React.FC<{
 	if (!metadata) {
 		return null;
 	}
+
 	return (
 		<div style={container}>
 			{normalized.map((w) => {

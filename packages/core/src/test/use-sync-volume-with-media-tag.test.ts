@@ -24,7 +24,7 @@ test('has the volume been adapted', async () => {
 	};
 
 	const {rerender} = renderHook(
-		(hookProps) => useSyncVolumeWithMediaTag(hookProps),
+		hookProps => useSyncVolumeWithMediaTag(hookProps),
 		{
 			initialProps,
 		}
@@ -55,7 +55,7 @@ test('volume should not be adapted', async () => {
 		mediaRef: audioRef,
 	};
 
-	renderHook((hookProps) => useSyncVolumeWithMediaTag(hookProps), {
+	renderHook(hookProps => useSyncVolumeWithMediaTag(hookProps), {
 		initialProps,
 	});
 	expect(audioRef.current?.volume).toEqual(initialProps.volume);

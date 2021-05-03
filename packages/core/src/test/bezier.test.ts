@@ -39,7 +39,7 @@ test('bezier - fail with wrong params', () => {
 		[2, 0.5, 0.5, 0.5],
 	];
 
-	valuesToTest.forEach((entry) => {
+	valuesToTest.forEach(entry => {
 		expect(() => bezier(entry[0], entry[1], entry[2], entry[3])).toThrow();
 	});
 });
@@ -51,10 +51,10 @@ test('bezier - linear curves', () => {
 
 test('bezier - right value at extremes', () => {
 	repeat(10)(() => {
-		const a = Math.random(),
-			b = 2 * Math.random() - 0.5,
-			c = Math.random(),
-			d = 2 * Math.random() - 0.5;
+		const a = Math.random();
+		const b = 2 * Math.random() - 0.5;
+		const c = Math.random();
+		const d = 2 * Math.random() - 0.5;
 		const easing = bezier(a, b, c, d);
 		expect(easing(0)).toBe(0);
 		expect(easing(1)).toBe(1);
