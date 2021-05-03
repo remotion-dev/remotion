@@ -11,12 +11,13 @@ import {getUserPassedFileExtension} from './user-passed-output-location';
 const getAndValidateFrameRange = () => {
 	const frameRange = Internals.getRange();
 	if (typeof frameRange === 'number') {
-		Log.Warn('Selected a single frame. Assuming you want to output an image.');
-		Log.Warn(
+		Log.warn('Selected a single frame. Assuming you want to output an image.');
+		Log.warn(
 			`If you want to render a video, pass a range:  '--frames=${frameRange}-${frameRange}'.`
 		);
-		Log.Warn("To dismiss this message, add the '--sequence' flag explicitly.");
+		Log.warn("To dismiss this message, add the '--sequence' flag explicitly.");
 	}
+
 	return frameRange;
 };
 
@@ -32,35 +33,38 @@ const getFinalCodec = async () => {
 		codec === 'vp8' &&
 		!(await RenderInternals.ffmpegHasFeature('enable-libvpx'))
 	) {
-		Log.Error(
+		Log.error(
 			"The Vp8 codec has been selected, but your FFMPEG binary wasn't compiled with the --enable-lipvpx flag."
 		);
-		Log.Error(
+		Log.error(
 			'This does not work, please switch out your FFMPEG binary or choose a different codec.'
 		);
 	}
+
 	if (
 		codec === 'h265' &&
 		!(await RenderInternals.ffmpegHasFeature('enable-gpl'))
 	) {
-		Log.Error(
+		Log.error(
 			"The H265 codec has been selected, but your FFMPEG binary wasn't compiled with the --enable-gpl flag."
 		);
-		Log.Error(
+		Log.error(
 			'This does not work, please recompile your FFMPEG binary with --enable-gpl --enable-libx265 or choose a different codec.'
 		);
 	}
+
 	if (
 		codec === 'h265' &&
 		!(await RenderInternals.ffmpegHasFeature('enable-libx265'))
 	) {
-		Log.Error(
+		Log.error(
 			"The H265 codec has been selected, but your FFMPEG binary wasn't compiled with the --enable-libx265 flag."
 		);
-		Log.Error(
+		Log.error(
 			'This does not work, please recompile your FFMPEG binary with --enable-gpl --enable-libx265 or choose a different codec.'
 		);
 	}
+
 	return codec;
 };
 
@@ -74,11 +78,12 @@ const getAndValidateAbsoluteOutputFile = (
 ) => {
 	const absoluteOutputFile = path.resolve(process.cwd(), outputFile);
 	if (fs.existsSync(absoluteOutputFile) && !overwrite) {
-		Log.Error(
+		Log.error(
 			`File at ${absoluteOutputFile} already exists. Use --overwrite to overwrite.`
 		);
 		process.exit(1);
 	}
+
 	return absoluteOutputFile;
 };
 
@@ -91,6 +96,7 @@ const getAndValidateShouldOutputImageSequence = async (
 	if (!shouldOutputImageSequence) {
 		await RenderInternals.validateFfmpeg();
 	}
+
 	return shouldOutputImageSequence;
 };
 
@@ -102,6 +108,7 @@ const getAndValidateCrf = (
 	if (crf !== null) {
 		Internals.validateSelectedCrfAndCodecCombination(crf, codec);
 	}
+
 	return crf;
 };
 
@@ -136,10 +143,11 @@ const getAndValidateBrowser = async () => {
 	try {
 		await RenderInternals.ensureLocalBrowser(browser);
 	} catch (err) {
-		Log.Error('Could not download a browser for rendering frames.');
-		Log.Error(err);
+		Log.error('Could not download a browser for rendering frames.');
+		Log.error(err);
 		process.exit(1);
 	}
+
 	return browser;
 };
 

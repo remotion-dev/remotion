@@ -30,9 +30,9 @@ export const makeBundlingProgress = ({
 		`(1/${steps})`,
 		makeProgressBar(progress),
 		`${doneIn ? 'Bundled' : 'Bundling'} code`,
-		doneIn !== null
-			? chalk.gray(`${doneIn}ms`)
-			: (progress * 100).toFixed(0) + '%',
+		doneIn === null
+			? (progress * 100).toFixed(0) + '%'
+			: chalk.gray(`${doneIn}ms`),
 	].join(' ');
 
 export const makeRenderingProgress = ({
@@ -54,9 +54,10 @@ export const makeRenderingProgress = ({
 		`(2/${steps})`,
 		makeProgressBar(progress),
 		`${doneIn ? 'Rendered' : 'Rendering'} frames (${concurrency}x)`,
-		doneIn !== null ? chalk.gray(`${doneIn}ms`) : `${frames}/${totalFrames}`,
+		doneIn === null ? `${frames}/${totalFrames}` : chalk.gray(`${doneIn}ms`),
 	].join(' ');
 };
+
 export const makeStitchingProgres = ({
 	frames,
 	totalFrames,
@@ -74,6 +75,6 @@ export const makeStitchingProgres = ({
 		`(3/${steps})`,
 		makeProgressBar(progress),
 		`${doneIn ? 'Encoded' : 'Encoding'} video`,
-		doneIn !== null ? chalk.gray(`${doneIn}ms`) : `${frames}/${totalFrames}`,
+		doneIn === null ? `${frames}/${totalFrames}` : chalk.gray(`${doneIn}ms`),
 	].join(' ');
 };

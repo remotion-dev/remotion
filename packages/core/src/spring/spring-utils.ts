@@ -126,6 +126,7 @@ export function springCalculation({
 	if (calculationCache[cacheKey]) {
 		return calculationCache[cacheKey];
 	}
+
 	let animation: AnimationNode = {
 		lastTimestamp: 0,
 		current: from,
@@ -139,6 +140,7 @@ export function springCalculation({
 		if (f === Math.floor(frameClamped)) {
 			f += unevenRest;
 		}
+
 		const time = (f / fps) * 1000;
 		animation = advance({
 			animation,
@@ -149,6 +151,7 @@ export function springCalculation({
 			},
 		});
 	}
+
 	calculationCache[cacheKey] = animation;
 	return animation;
 }

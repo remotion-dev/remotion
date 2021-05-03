@@ -23,9 +23,11 @@ export function spring({
 	if (!config.overshootClamping) {
 		return spr.current;
 	}
+
 	if (to >= from) {
 		return Math.min(spr.current, to);
 	}
+
 	return Math.max(spr.current, to);
 }
 

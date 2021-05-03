@@ -4,12 +4,13 @@ import {parsedCli} from './parse-command-line';
 
 export const getCompositionId = (comps: TCompMetadata[]) => {
 	if (!parsedCli._[2]) {
-		Log.Error('Composition ID not passed.');
-		Log.Error(
+		Log.error('Composition ID not passed.');
+		Log.error(
 			'Pass an extra argument <composition-id>. The following video names are available:'
 		);
-		Log.Error(`${comps.map((c) => c.id).join(', ')}`);
+		Log.error(`${comps.map((c) => c.id).join(', ')}`);
 		process.exit(1);
 	}
+
 	return parsedCli._[2];
 };

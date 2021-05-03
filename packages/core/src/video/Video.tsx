@@ -32,11 +32,13 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 			</Sequence>
 		);
 	}
+
 	validateMediaProps(props, 'Video');
 
 	if (process.env.NODE_ENV === 'development') {
 		return <VideoForDevelopment {...props} ref={ref} />;
 	}
+
 	return <VideoForRendering {...props} ref={ref} />;
 };
 

@@ -6,14 +6,17 @@ export const getAudioDuration = (src: string): Promise<number> => {
 			reject(ev.error);
 			cleanup();
 		};
+
 		const onLoadedMetadata = () => {
 			resolve(audio.duration);
 			cleanup();
 		};
+
 		const cleanup = () => {
 			audio.removeEventListener('loadedmetadata', onLoadedMetadata);
 			audio.removeEventListener('error', onError);
 		};
+
 		audio.addEventListener('loadedmetadata', onLoadedMetadata, {once: true});
 		audio.addEventListener('error', onError, {once: true});
 	});

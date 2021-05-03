@@ -40,6 +40,7 @@ export const TimelineTracks: React.FC<{
 					if (isTrackHidden(track, timeline, viewState)) {
 						return null;
 					}
+
 					return (
 						<div key={track.sequence.id} style={inner}>
 							<TimelineSequence fps={fps} s={track.sequence} />

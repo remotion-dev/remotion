@@ -54,6 +54,7 @@ export const screenshot = async (
 				options.quality
 		);
 	}
+
 	assert.ok(
 		!options.clip || !options.fullPage,
 		'options.clip and options.fullPage are exclusive'
@@ -88,6 +89,7 @@ export const screenshot = async (
 			'Expected options.clip.height not to be 0.'
 		);
 	}
+
 	// @ts-expect-error
 	return (page as Page)._screenshotTaskQueue.postTask(() =>
 		_screenshotTask(page, screenshotType as 'png' | 'jpeg', options)

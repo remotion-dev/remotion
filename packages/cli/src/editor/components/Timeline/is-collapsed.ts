@@ -16,13 +16,16 @@ export const isTrackHidden = (
 	if (!track.sequence.parent) {
 		return false;
 	}
+
 	const parent = allTracks.find((t) => t.sequence.id === track.sequence.parent);
 	if (!parent) {
 		// TODO: Tighten up, when toggling rich timeline this case can happen right now
 		return false;
 	}
+
 	if (isTrackCollapsed(parent.hash, viewState)) {
 		return true;
 	}
+
 	return isTrackHidden(parent, allTracks, viewState);
 };

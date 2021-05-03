@@ -11,7 +11,7 @@ test('getWebpackCaching - default value', () => {
 
 test('webpack caching - setter - valid input', () => {
 	const valuesToTest = [true, false];
-	valuesToTest.forEach((entry) => {
+	valuesToTest.forEach(entry => {
 		setWebpackCaching(entry);
 		expect(getWebpackCaching()).toEqual(entry);
 	});
@@ -19,7 +19,7 @@ test('webpack caching - setter - valid input', () => {
 
 test('webpack caching - setter - invalid input', () => {
 	const valuesToTest = [undefined, 'true', 'false'];
-	valuesToTest.forEach((entry) => {
+	valuesToTest.forEach(entry => {
 		expectToThrow(() => {
 			// @ts-expect-error
 			setWebpackCaching(entry);

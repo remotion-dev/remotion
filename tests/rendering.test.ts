@@ -231,9 +231,7 @@ test("Should render a video with GIFs", async () => {
   const data = info.stderr;
   expect(data).toContain("Video: h264");
   expect(data).toContain("Duration: 00:00:01.57");
-  fs.rmdirSync(outputPath, {
-    recursive: true,
-  });
+  fs.unlinkSync(outputPath);
 });
 
 test("Should fail to render an audio file that doesn't have any audio inputs", async () => {
@@ -282,8 +280,6 @@ test("Dynamic duration should work", async () => {
     expect(data).toContain("Video: h264");
     const expectedDuration = (randomDuration / 30).toFixed(2);
     expect(data).toContain(`Duration: 00:00:0${expectedDuration}`);
-    fs.rmdirSync(outputPath, {
-      recursive: true,
-    });
+    fs.unlinkSync(outputPath);
   }
 });

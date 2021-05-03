@@ -6,8 +6,8 @@ describe('Should update state when volume changes', () => {
 	const setState = jest.fn();
 	const useStateSpy = jest.spyOn(React, 'useState');
 	beforeEach(() => {
-		//@ts-expect-error
-		useStateSpy.mockImplementation((init) => [init, setState]);
+		// @ts-expect-error
+		useStateSpy.mockImplementation(init => [init, setState]);
 	});
 	afterEach(() => {
 		useStateSpy.mockRestore();

@@ -13,7 +13,7 @@ test('Should sanitize weird file names when downloading', async () => {
 			volume: 1,
 		},
 		webpackBundle: '/var/tmp',
-		onDownload: () => void 0,
+		onDownload: () => undefined,
 	});
 	expect(newAsset.src).toBe(
 		process.platform === 'win32'
