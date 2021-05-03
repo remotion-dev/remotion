@@ -18,6 +18,7 @@ export const SplitterHandle: React.FC = () => {
 	if (!context) {
 		throw new Error('Cannot find splitter context');
 	}
+
 	const [lastPointerUp, setLastPointerUp] = useState(() => Date.now());
 	const ref = useRef<HTMLDivElement>(null);
 
@@ -25,9 +26,11 @@ export const SplitterHandle: React.FC = () => {
 		if (context.isDragging.current) {
 			return;
 		}
+
 		if (!context.domRect) {
 			return;
 		}
+
 		const {current} = ref;
 		if (!current) {
 			return;
@@ -37,9 +40,11 @@ export const SplitterHandle: React.FC = () => {
 			if (!context.isDragging.current) {
 				throw new Error('cannot get value if not dragging');
 			}
+
 			if (!context.domRect) {
 				throw new Error('domRect is not mounted');
 			}
+
 			const {width, height} = context.domRect;
 			const change = (() => {
 				if (context.orientation === 'vertical') {
@@ -48,6 +53,7 @@ export const SplitterHandle: React.FC = () => {
 						(width - SPLITTER_HANDLE_SIZE)
 					);
 				}
+
 				return (
 					(e.clientY - context.isDragging.current.y) /
 					(height - SPLITTER_HANDLE_SIZE)

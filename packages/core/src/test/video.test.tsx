@@ -9,6 +9,7 @@ const Wrapper: React.FC = ({children}) => {
 	return (
 		<Internals.RemotionRoot>
 			<Internals.CompositionManager.Provider
+				// eslint-disable-next-line react/jsx-no-constructed-context-values
 				value={{
 					...compositions,
 					compositions: [

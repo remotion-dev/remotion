@@ -16,6 +16,7 @@ export const getTimelineSequenceHash = (
 	if (cache[sequence.id]) {
 		return cache[sequence.id];
 	}
+
 	const parent = allSequences.find((a) => a.id === sequence.parent);
 	const baseHash = [
 		parent
