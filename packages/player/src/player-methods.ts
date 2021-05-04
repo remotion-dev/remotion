@@ -6,6 +6,9 @@ export type PlayerMethods = {
 	toggle: () => void;
 	seekTo: (frame: number) => void;
 	getCurrentFrame: () => number;
+	requestFullscreen: () => void;
+	exitFullscreen: () => void;
+	isFullscreen: () => void;
 };
 
 export type PlayerRef = PlayerEventTarget & PlayerMethods;

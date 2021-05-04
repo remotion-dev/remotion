@@ -88,6 +88,9 @@ const PlayerUI: React.ForwardRefRenderFunction<
 
 				player.seek(f);
 			},
+			isFullscreen: () => isFullscreen,
+			requestFullscreen: () => requestFullScreenAccess(),
+			exitFullscreen: () => document.exitFullscreen(),
 		};
 		return Object.assign(player.emitter, methods);
 	});

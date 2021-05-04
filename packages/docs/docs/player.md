@@ -1,6 +1,6 @@
 ---
 id: player
-title: <Player />
+title: API - @remotion/player
 ---
 
 import Tabs from '@theme/Tabs';
@@ -144,6 +144,20 @@ Gets the current postition expressed as the current frame. Divide by the `fps` y
 - `frame`: `number`
 
 Move the position in the video to the frame that you specify. If the video is playing, it will pause for a brief moment, then start playing again after the seek is completed.
+
+### `isFullscreen()`
+
+Returns a boolean whether the video is currently playing in fullscreen.
+
+_To observe the fullscreen state and react to changes, listen to the [`fullscreenchange`](https://developer.mozilla.org/en-US/docs/Web/API/Document/fullscreenchange_event) event on the global document._
+
+### `requestFullscreen()`
+
+Requests the video to go to fullscreen. This method throws if the `allowFullscreen` prop is false or the browser doesn't support allow the player to go into fullscreen.
+
+### `exitFullscreen()`
+
+Exit fullscreen mode.
 
 ### `addEventListener()`
 
