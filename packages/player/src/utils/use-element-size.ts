@@ -11,24 +11,26 @@ export const useElementSize = (
 	ref: React.RefObject<HTMLDivElement>
 ): Size | null => {
 	const [size, setSize] = useState<Size | null>(null);
-	const observer = useMemo(
-		() =>
-			new ResizeObserver((entries) => {
-				const newSize = entries[0].target.getClientRects();
-				if (!newSize) {
-					setSize(null);
-					return;
-				}
+	const observer = useMemo(() => {
+		if (typeof ResizeObserver === 'undefined') {
+			return null;
+		}
 
-				setSize({
-					width: newSize[0].width,
-					height: newSize[0].height,
-					left: newSize[0].x,
-					top: newSize[0].y,
-				});
-			}),
-		[]
-	);
+		return new ResizeObserver((entries) => {
+			const newSize = entries[0].target.getClientRects();
+			if (!newSize) {
+				setSize(null);
+				return;
+			}
+
+			setSize({
+				width: newSize[0].width,
+				height: newSize[0].height,
+				left: newSize[0].x,
+				top: newSize[0].y,
+			});
+		});
+	}, []);
 	const updateSize = useCallback(() => {
 		if (!ref.current) {
 			return;
@@ -49,6 +51,10 @@ export const useElementSize = (
 	}, [ref]);
 
 	useEffect(() => {
+		if (!observer) {
+			return;
+		}
+
 		updateSize();
 		const {current} = ref;
 		if (ref.current) {
