@@ -3,7 +3,6 @@ import React, {useCallback, useEffect, useState} from 'react';
 import {Internals, interpolate} from 'remotion';
 import styled from 'styled-components';
 import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
-import {useElementSize} from '../../hooks/get-el-size';
 import {sliderAreaRef} from './timeline-refs';
 
 const Container = styled.div`
@@ -40,7 +39,7 @@ const getFrameFromX = (
 };
 
 export const TimelineDragHandler: React.FC = ({children}) => {
-	const size = useElementSize(sliderAreaRef);
+	const size = PlayerInternals.useElementSize(sliderAreaRef);
 	const width = size?.width ?? 0;
 	const [dragging, setDragging] = useState<
 		| {

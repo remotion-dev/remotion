@@ -16,6 +16,7 @@ import {Controls} from './PlayerControls';
 import {useHoverState} from './use-hover-state';
 import {usePlayback} from './use-playback';
 import {usePlayer} from './use-player';
+import {useElementSize} from './utils/use-element-size';
 
 const PlayerUI: React.ForwardRefRenderFunction<
 	PlayerRef,
@@ -23,7 +24,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		controls: boolean;
 		loop: boolean;
 		autoPlay: boolean;
-		style?: Omit<React.CSSProperties, 'width' | 'height'>;
+		style?: React.CSSProperties;
 		id: string;
 	}
 > = ({controls, style, loop, autoPlay, id}, ref) => {
@@ -31,6 +32,8 @@ const PlayerUI: React.ForwardRefRenderFunction<
 	const video = Internals.useVideo();
 	const container = useRef<HTMLDivElement>(null);
 	const hovered = useHoverState(container);
+	const canvasSize = useElementSize(container);
+
 	const [hasPausedToResume, setHasPausedToResume] = useState(false);
 	const [shouldAutoplay, setShouldAutoPlay] = useState(autoPlay);
 	usePlayback({loop});
