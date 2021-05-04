@@ -24,7 +24,7 @@ const renderFrames: (options: {
   frameRange?: number | [number, number] | null;
   dumpBrowserLogs?: boolean;
   puppeteerInstance?: puppeteer.Browser;
-  onPageError?: (err: Error) => void;
+  onPageError?: (info: {error: Error; frame: number | null}) => void;
 }): Promise<RenderFramesOutput>;
 ```
 
@@ -120,11 +120,17 @@ An already open Puppeteer [`Browser`](https://pptr.dev/#?product=Puppeteer&versi
 
 _optional - Available since v2.0.8_
 
-Allows you to react to an exception thrown in your React code.
+Allows you to react to an exception thrown in your React code. The callback has an argument which is an object containing `error` and `frame` properties.
+The `frame` property tells you at which frame the error was thrown. If the error was thrown at startup, `frame` is null.
 
 ```tsx
 renderFrames({
-  onPageError: (err) => {
+  onPageError: (info) => {
+    if (info.frame === null) {
+      console.log('Got error while initalizing video rendering', info.error)
+    } else {
+      console.log('Got error at frame ', info.frame, info.error)
+    }
     // Handle error here
   }
 })
