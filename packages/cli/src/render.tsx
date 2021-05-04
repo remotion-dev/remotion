@@ -34,14 +34,15 @@ const onPageError = async (info: OnPageErrorInfo) => {
 		);
 	} else {
 		Log.error(
-			`The following error occurred when trying to render frame ${info.frame}`
+			`The following error occurred when trying to render frame ${info.frame}:`
 		);
 	}
 
 	Log.error(info.error);
-	if (String(info.error.message).match(/Could not play video with/g)) {
-		Log.error(
-			'\nUnsupportedCodecError: Unsupported video codec found. Make sure your browser supports the codec or use chrome.'
+	if (info.error.message.includes('Could not play video with')) {
+		Log.info();
+		Log.info(
+			'💡 Get help for this issue at https://remotion.dev/docs/media-playback-error.'
 		);
 	}
 
