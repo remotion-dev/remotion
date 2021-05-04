@@ -82,7 +82,15 @@ _optional_
 
 Whether the video should display a seek bar and a play/pause button. Default `false.`
 
+### `allowFullscreen`
+
+_optional_
+
+Whether the video can go fullscreen. By default true.
+
 ### `style`
+
+_optional_
 
 A regular `style` prop for a div element. You can pass a different height and width if you would like to choose different dimensions than the original composition dimensions.
 
@@ -227,5 +235,6 @@ Before we mark the player as stable, we are looking to improve in the following 
 - Implement keyboard controls.
 - Better props validation
 - Customize error UI
+- Volume slider
 
 <PlayerExample />

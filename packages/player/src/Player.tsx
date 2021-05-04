@@ -36,6 +36,7 @@ export type PlayerProps<T> = {
 	style?: React.CSSProperties;
 	loop?: boolean;
 	autoPlay?: boolean;
+	allowFullscreen?: boolean;
 } & PropsIfHasProps<T> &
 	CompProps<T>;
 
@@ -54,6 +55,7 @@ export const PlayerFn = <T,>(
 		style,
 		loop,
 		autoPlay,
+		allowFullscreen = true,
 		...componentProps
 	}: PlayerProps<T>,
 	ref: MutableRefObject<PlayerRef>
@@ -64,7 +66,6 @@ export const PlayerFn = <T,>(
 	const [rootId] = useState<string>('player-comp');
 	const [emitter] = useState(() => new PlayerEmitter());
 	const rootRef = useRef<PlayerRef>(null);
-	const [divId] = useState<string>(`remotion-player-${Math.random()}`);
 
 	useImperativeHandle(ref, () => rootRef.current as PlayerRef);
 
@@ -127,6 +128,7 @@ export const PlayerFn = <T,>(
 							loop={Boolean(loop)}
 							controls={Boolean(controls)}
 							style={style}
+							allowFullscreen={Boolean(allowFullscreen)}
 						/>
 					</PlayerEventEmitterContext.Provider>
 				</Internals.CompositionManager.Provider>

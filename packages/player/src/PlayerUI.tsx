@@ -25,9 +25,10 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		controls: boolean;
 		loop: boolean;
 		autoPlay: boolean;
+		allowFullscreen: boolean;
 		style?: React.CSSProperties;
 	}
-> = ({controls, style, loop, autoPlay}, ref) => {
+> = ({controls, style, loop, autoPlay, allowFullscreen}, ref) => {
 	const config = Internals.useUnsafeVideoConfig();
 	const video = Internals.useVideo();
 	const container = useRef<HTMLDivElement>(null);
@@ -173,12 +174,20 @@ const PlayerUI: React.ForwardRefRenderFunction<
 	);
 
 	const requestFullScreenAccess = useCallback(() => {
+		if (!allowFullscreen) {
+			throw new Error('allowFullscreen is false');
+		}
+
+		if (!document.fullscreenEnabled) {
+			throw new Error('Browser doesnt support fullscreen');
+		}
+
 		if (!container.current) {
-			return;
+			throw new Error('No player ref found');
 		}
 
 		container.current.requestFullscreen();
-	}, []);
+	}, [allowFullscreen]);
 
 	useEffect(() => {
 		if (shouldAutoplay) {
@@ -213,6 +222,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 						player={player}
 						requestFullScreenAccess={requestFullScreenAccess}
 						isFullscreen={isFullscreen}
+						allowFullscreen={allowFullscreen}
 					/>
 				) : null}
 			</div>
