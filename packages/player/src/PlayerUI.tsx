@@ -153,7 +153,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		[player]
 	);
 
-	const requestFullScreenAccess = useMemo(() => {
+	const requestFullScreenAccess = useCallback(() => {
 		if (!container.current) {
 			return;
 		}
