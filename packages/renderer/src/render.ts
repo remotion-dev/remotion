@@ -27,7 +27,7 @@ export type OnStartData = {
 	frameCount: number;
 };
 
-export type OnPageErrorInfo = {error: Error; frame: number | null};
+export type OnErrorInfo = {error: Error; frame: number | null};
 
 export const renderFrames = async ({
 	config,
@@ -44,7 +44,7 @@ export const renderFrames = async ({
 	frameRange,
 	dumpBrowserLogs = false,
 	puppeteerInstance,
-	onPageError,
+	onError,
 }: {
 	config: VideoConfig;
 	compositionId: string;
@@ -60,7 +60,7 @@ export const renderFrames = async ({
 	frameRange?: FrameRange | null;
 	dumpBrowserLogs?: boolean;
 	puppeteerInstance?: PuppeteerBrowser;
-	onPageError?: (info: OnPageErrorInfo) => void;
+	onError?: (info: OnErrorInfo) => void;
 }): Promise<RenderFramesOutput> => {
 	if (quality !== undefined && imageFormat !== 'jpeg') {
 		throw new Error(
@@ -85,7 +85,7 @@ export const renderFrames = async ({
 			deviceScaleFactor: 1,
 		});
 		const errorCallback = (err: Error) => {
-			onPageError?.({error: err, frame: null});
+			onError?.({error: err, frame: null});
 		};
 
 		page.on('pageerror', errorCallback);
@@ -134,7 +134,7 @@ export const renderFrames = async ({
 				const paddedIndex = String(frame).padStart(filePadLength, '0');
 
 				const errorCallback = (err: Error) => {
-					onPageError?.({error: err, frame});
+					onError?.({error: err, frame});
 				};
 
 				freePage.on('pageerror', errorCallback);

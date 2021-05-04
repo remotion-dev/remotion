@@ -1,7 +1,7 @@
 import {bundle, BundlerInternals} from '@remotion/bundler';
 import {
 	getCompositions,
-	OnPageErrorInfo,
+	OnErrorInfo,
 	OnStartData,
 	renderFrames,
 	RenderInternals,
@@ -26,7 +26,7 @@ import {
 } from './progress-bar';
 import {checkAndValidateFfmpegVersion} from './validate-ffmpeg-version';
 
-const onPageError = async (info: OnPageErrorInfo) => {
+const onError = async (info: OnErrorInfo) => {
 	Log.error();
 	if (info.frame === null) {
 		Log.error(
@@ -161,7 +161,7 @@ export const render = async () => {
 		parallelism,
 		compositionId,
 		outputDir,
-		onPageError,
+		onError,
 		onStart: ({frameCount: fc}: OnStartData) => {
 			renderProgress.update(
 				makeRenderingProgress({
