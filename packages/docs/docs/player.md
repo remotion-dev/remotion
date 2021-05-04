@@ -59,7 +59,7 @@ The duration of the video in frames. Must be an integer and greater than 0.
 
 ### `fps`
 
-The frame rate of the video.
+The frame rate of the video. Must be a number.
 
 ### `compositionWidth`
 
