@@ -3,7 +3,7 @@ if (typeof window !== 'undefined') {
 }
 
 let handles: number[] = [];
-const timeouts: {[key: string]: NodeJS.Timeout} = {};
+const timeouts: {[key: string]: NodeJS.Timeout | number} = {};
 
 export const delayRender = (): number => {
 	const handle = Math.random();
