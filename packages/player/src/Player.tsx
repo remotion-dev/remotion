@@ -29,8 +29,8 @@ type PropsIfHasProps<Props> = {} extends Props
 
 export type PlayerProps<T> = {
 	durationInFrames: number;
-	width: number;
-	height: number;
+	compositionWidth: number;
+	compositionHeight: number;
 	fps: number;
 	controls?: boolean;
 	style?: React.CSSProperties;
@@ -46,8 +46,8 @@ Internals.CSSUtils.injectCSS(
 export const PlayerFn = <T,>(
 	{
 		durationInFrames,
-		height,
-		width,
+		compositionHeight: height,
+		compositionWidth: width,
 		fps,
 		props,
 		controls,

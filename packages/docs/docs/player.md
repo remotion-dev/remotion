@@ -56,11 +56,11 @@ The duration of the video in frames. Must be an integer and greater than 0.
 
 The frame rate of the video.
 
-### `width`
+### `compositionWidth`
 
 The width of the composition in pixels.
 
-### `height`
+### `compositionHeight`
 
 The height of the composition in pixels.
 
@@ -81,6 +81,10 @@ Whether the video should start immediately after loaded. Default `false`.
 _optional_
 
 Whether the video should display a seek bar and a play/pause button. Default `false.`
+
+### `style`
+
+A regular `style` prop for a div element. You can pass a different height and width if you would like to choose different dimensions than the original composition dimensions.
 
 ## `PlayerRef`
 
@@ -219,10 +223,8 @@ This feature is implemented using an [error boundary](https://reactjs.org/docs/e
 
 Before we mark the player as stable, we are looking to improve in the following areas:
 
-- Allow the player size to be a different size than the composition size.
 - Better loading state than the current "Loading..." text.
 - Implement keyboard controls.
-- Fullscreen support.
 - Better props validation
 - Customize error UI
 

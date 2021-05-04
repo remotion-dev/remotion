@@ -32,8 +32,8 @@ export default function App() {
 			<Player
 				autoPlay
 				ref={ref}
-				width={500}
-				height={432}
+				compositionWidth={500}
+				compositionHeight={432}
 				fps={30}
 				durationInFrames={500}
 				component={CarSlideshow}
