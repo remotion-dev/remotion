@@ -127,7 +127,6 @@ export const PlayerFn = <T,>(
 							loop={Boolean(loop)}
 							controls={Boolean(controls)}
 							style={style}
-							id={divId}
 						/>
 					</PlayerEventEmitterContext.Provider>
 				</Internals.CompositionManager.Provider>

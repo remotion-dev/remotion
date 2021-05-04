@@ -9,6 +9,7 @@ import React, {
 	useState,
 } from 'react';
 import {Internals} from 'remotion';
+import {calculateScale} from './calculate-scale';
 import {ErrorBoundary} from './error-boundary';
 import {PLAYER_CSS_CLASSNAME} from './player-css-classname';
 import {PlayerMethods, PlayerRef} from './player-methods';
@@ -25,9 +26,8 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		loop: boolean;
 		autoPlay: boolean;
 		style?: React.CSSProperties;
-		id: string;
 	}
-> = ({controls, style, loop, autoPlay, id}, ref) => {
+> = ({controls, style, loop, autoPlay}, ref) => {
 	const config = Internals.useUnsafeVideoConfig();
 	const video = Internals.useVideo();
 	const container = useRef<HTMLDivElement>(null);
@@ -88,18 +88,61 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		};
 	}, [config, style]);
 
-	const containerStyle: React.CSSProperties = useMemo(() => {
-		if (!config) {
+	const layout = useMemo(() => {
+		if (!config || !canvasSize) {
+			return null;
+		}
+
+		return calculateScale({
+			canvasSize,
+			compositionHeight: config.height,
+			compositionWidth: config.width,
+			previewSize: 'auto',
+		});
+	}, [canvasSize, config]);
+
+	const outer: React.CSSProperties = useMemo(() => {
+		if (!layout || !config) {
 			return {};
 		}
 
+		const {centerX, centerY, scale} = layout;
+
 		return {
-			position: 'relative',
-			width: '100%',
-			height: '100%',
+			width: config.width * scale,
+			height: config.height * scale,
+			display: 'flex',
+			flexDirection: 'column',
+			position: 'absolute',
+			left: centerX,
+			top: centerY,
 			overflow: 'hidden',
 		};
-	}, [config]);
+	}, [config, layout]);
+
+	const containerStyle: React.CSSProperties = useMemo(() => {
+		if (!config || !canvasSize) {
+			return {};
+		}
+
+		const {scale, xCorrection, yCorrection} = calculateScale({
+			canvasSize,
+			compositionHeight: config.height,
+			compositionWidth: config.width,
+			previewSize: 'auto',
+		});
+
+		return {
+			position: 'absolute',
+			width: config.width,
+			height: config.height,
+			display: 'flex',
+			transform: `scale(${scale})`,
+			marginLeft: xCorrection,
+			marginTop: yCorrection,
+			overflow: 'hidden',
+		};
+	}, [canvasSize, config]);
 
 	const onError = useCallback(
 		(error: Error) => {
@@ -110,12 +153,13 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		[player]
 	);
 
-	const requestFullScreenAccess = () => {
-		const divElement = document.getElementById(id);
-		if (divElement) {
-			divElement.requestFullscreen();
+	const requestFullScreenAccess = useMemo(() => {
+		if (!container.current) {
+			return;
 		}
-	};
+
+		container.current.requestFullscreen();
+	}, []);
 
 	useEffect(() => {
 		if (shouldAutoplay) {
@@ -130,13 +174,17 @@ const PlayerUI: React.ForwardRefRenderFunction<
 
 	return (
 		<Suspense fallback={<h1>Loading...</h1>}>
-			<div ref={container} id={id} style={outerStyle}>
-				<div style={containerStyle} id={id} className={PLAYER_CSS_CLASSNAME}>
-					{VideoComponent ? (
-						<ErrorBoundary onError={onError}>
-							<VideoComponent {...(((video?.props as unknown) as {}) ?? {})} />
-						</ErrorBoundary>
-					) : null}
+			<div ref={container} style={outerStyle}>
+				<div style={outer}>
+					<div style={containerStyle} className={PLAYER_CSS_CLASSNAME}>
+						{VideoComponent ? (
+							<ErrorBoundary onError={onError}>
+								<VideoComponent
+									{...(((video?.props as unknown) as {}) ?? {})}
+								/>
+							</ErrorBoundary>
+						) : null}
+					</div>
 				</div>
 				{controls ? (
 					<Controls
