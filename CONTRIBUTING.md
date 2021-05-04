@@ -40,3 +40,5 @@ running to keep the monorepos building and synchronized.
 
 As a testbed, you can use the `example` folder. Run `npm start` to trigger the preview and `npm run render` to trigger the render process.
 
+### Testing
+For information about testing, please consult [TESTING.md](./TESTING.md).
