@@ -1,7 +1,7 @@
 import React, {useMemo} from 'react';
 import {Internals} from 'remotion';
 import {formatTime} from './format-time';
-import {PauseIcon, PlayIcon} from './icons';
+import {FullscreenIcon, PauseIcon, PlayIcon} from './icons';
 import {PlayerSeekBar} from './PlayerSeekBar';
 import {usePlayer} from './use-player';
 
@@ -36,7 +36,15 @@ const controlsRow: React.CSSProperties = {
 	flexDirection: 'row',
 	width: '100%',
 	alignItems: 'center',
+	justifyContent: 'space-between',
 	userSelect: 'none',
+};
+
+const leftPartStyle: React.CSSProperties = {
+	display: 'flex',
+	flexDirection: 'row',
+	userSelect: 'none',
+	alignItems: 'center',
 };
 
 const xSpacer: React.CSSProperties = {
@@ -45,6 +53,10 @@ const xSpacer: React.CSSProperties = {
 
 const ySpacer: React.CSSProperties = {
 	height: 8,
+};
+
+const fullscreen: React.CSSProperties = {
+	justifyItems: 'flex-end',
 };
 
 const timeLabel: React.CSSProperties = {
@@ -58,7 +70,8 @@ export const Controls: React.FC<{
 	durationInFrames: number;
 	hovered: boolean;
 	player: ReturnType<typeof usePlayer>;
-}> = ({durationInFrames, hovered, fps, player}) => {
+	requestFullScreenAccess: () => void;
+}> = ({durationInFrames, hovered, fps, player, requestFullScreenAccess}) => {
 	const frame = Internals.Timeline.useTimelinePosition();
 
 	const containerCss: React.CSSProperties = useMemo(() => {
@@ -73,18 +86,33 @@ export const Controls: React.FC<{
 	return (
 		<div style={containerCss}>
 			<div style={controlsRow}>
-				<button
-					type="button"
-					style={buttonStyle}
-					onClick={player.playing ? player.pause : player.play}
-					aria-label={player.playing ? 'Pause video' : 'Play video'}
-					title={player.playing ? 'Pause video' : 'Play video'}
-				>
-					{player.playing ? <PauseIcon /> : <PlayIcon />}
-				</button>
-				<div style={xSpacer} />
-				<div style={timeLabel}>
-					{formatTime(frame / fps)} / {formatTime(durationInFrames / fps)}
+				<div style={leftPartStyle}>
+					<button
+						type="button"
+						style={buttonStyle}
+						onClick={player.playing ? player.pause : player.play}
+						aria-label={player.playing ? 'Pause video' : 'Play video'}
+						title={player.playing ? 'Pause video' : 'Play video'}
+					>
+						{player.playing ? <PauseIcon /> : <PlayIcon />}
+					</button>
+					<div style={xSpacer} />
+					<div style={timeLabel}>
+						{formatTime(frame / fps)} / {formatTime(durationInFrames / fps)}
+					</div>
+				</div>
+				<div style={fullscreen}>
+					<button
+						type="button"
+						aria-label={'Fullscreen'}
+						title={'Fullscreen'}
+						style={buttonStyle}
+						onClick={() => {
+							requestFullScreenAccess();
+						}}
+					>
+						<FullscreenIcon />
+					</button>
 				</div>
 			</div>
 			<div style={ySpacer} />

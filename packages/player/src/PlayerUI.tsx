@@ -24,8 +24,9 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		loop: boolean;
 		autoPlay: boolean;
 		style?: Omit<React.CSSProperties, 'width' | 'height'>;
+		id: string;
 	}
-> = ({controls, style, loop, autoPlay}, ref) => {
+> = ({controls, style, loop, autoPlay, id}, ref) => {
 	const config = Internals.useUnsafeVideoConfig();
 	const video = Internals.useVideo();
 	const container = useRef<HTMLDivElement>(null);
@@ -90,8 +91,8 @@ const PlayerUI: React.ForwardRefRenderFunction<
 
 		return {
 			position: 'relative',
-			width: config.width,
-			height: config.height,
+			width: '100%',
+			height: '100%',
 			overflow: 'hidden',
 			...style,
 		};
@@ -106,6 +107,13 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		[player]
 	);
 
+	const requestFullScreenAccess = () => {
+		const divElement = document.getElementById(id);
+		if (divElement) {
+			divElement.requestFullscreen();
+		}
+	};
+
 	useEffect(() => {
 		if (shouldAutoplay) {
 			player.play();
@@ -119,8 +127,8 @@ const PlayerUI: React.ForwardRefRenderFunction<
 
 	return (
 		<Suspense fallback={<h1>Loading...</h1>}>
-			<div ref={container} style={outerStyle}>
-				<div style={containerStyle} className={PLAYER_CSS_CLASSNAME}>
+			<div ref={container} id={id} style={outerStyle}>
+				<div style={containerStyle} id={id} className={PLAYER_CSS_CLASSNAME}>
 					{VideoComponent ? (
 						<ErrorBoundary onError={onError}>
 							<VideoComponent {...(((video?.props as unknown) as {}) ?? {})} />
@@ -133,6 +141,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 						durationInFrames={config.durationInFrames}
 						hovered={hovered}
 						player={player}
+						requestFullScreenAccess={requestFullScreenAccess}
 					/>
 				) : null}
 			</div>
