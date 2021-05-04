@@ -37,6 +37,7 @@ export type PlayerProps<T> = {
 	loop?: boolean;
 	autoPlay?: boolean;
 	allowFullscreen?: boolean;
+	inputProps?: unknown;
 } & PropsIfHasProps<T> &
 	CompProps<T>;
 
@@ -56,6 +57,7 @@ export const PlayerFn = <T,>(
 		loop,
 		autoPlay,
 		allowFullscreen = true,
+		inputProps,
 		...componentProps
 	}: PlayerProps<T>,
 	ref: MutableRefObject<PlayerRef>
@@ -128,6 +130,7 @@ export const PlayerFn = <T,>(
 							loop={Boolean(loop)}
 							controls={Boolean(controls)}
 							style={style}
+							inputProps={inputProps ?? {}}
 							allowFullscreen={Boolean(allowFullscreen)}
 						/>
 					</PlayerEventEmitterContext.Provider>

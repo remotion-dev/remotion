@@ -27,9 +27,10 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		loop: boolean;
 		autoPlay: boolean;
 		allowFullscreen: boolean;
+		inputProps: unknown;
 		style?: React.CSSProperties;
 	}
-> = ({controls, style, loop, autoPlay, allowFullscreen}, ref) => {
+> = ({controls, style, loop, autoPlay, allowFullscreen, inputProps}, ref) => {
 	const config = Internals.useUnsafeVideoConfig();
 	const video = Internals.useVideo();
 	const container = useRef<HTMLDivElement>(null);
@@ -41,6 +42,8 @@ const PlayerUI: React.ForwardRefRenderFunction<
 	const [isFullscreen, setIsFullscreen] = useState(() => false);
 	usePlayback({loop});
 	const player = usePlayer();
+
+	console.log({inputProps});
 
 	useEffect(() => {
 		if (hasPausedToResume && !player.playing) {
@@ -213,7 +216,10 @@ const PlayerUI: React.ForwardRefRenderFunction<
 				<div style={containerStyle} className={PLAYER_CSS_CLASSNAME}>
 					{VideoComponent ? (
 						<ErrorBoundary onError={onError}>
-							<VideoComponent {...(((video?.props as unknown) as {}) ?? {})} />
+							<VideoComponent
+								{...(((video?.props as unknown) as {}) ?? {})}
+								{...(((inputProps as unknown) as {}) ?? {})}
+							/>
 						</ErrorBoundary>
 					) : null}
 				</div>
