@@ -115,7 +115,7 @@ export const Controls: React.FC<{
 						{formatTime(frame / fps)} / {formatTime(durationInFrames / fps)}
 					</div>
 				</div>
-				{allowFullscreen ? (
+				{document.fullscreenEnabled && allowFullscreen ? (
 					<div style={fullscreen}>
 						<button
 							type="button"
