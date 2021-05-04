@@ -72,6 +72,7 @@ export const Controls: React.FC<{
 	player: ReturnType<typeof usePlayer>;
 	requestFullScreenAccess: () => void;
 	isFullscreen: boolean;
+	allowFullscreen: boolean;
 }> = ({
 	durationInFrames,
 	hovered,
@@ -79,6 +80,7 @@ export const Controls: React.FC<{
 	fps,
 	player,
 	requestFullScreenAccess,
+	allowFullscreen,
 }) => {
 	const frame = Internals.Timeline.useTimelinePosition();
 
@@ -113,17 +115,19 @@ export const Controls: React.FC<{
 						{formatTime(frame / fps)} / {formatTime(durationInFrames / fps)}
 					</div>
 				</div>
-				<div style={fullscreen}>
-					<button
-						type="button"
-						aria-label={'Fullscreen'}
-						title={'Fullscreen'}
-						style={buttonStyle}
-						onClick={isFullscreen ? exitFullscreen : requestFullScreenAccess}
-					>
-						<FullscreenIcon />
-					</button>
-				</div>
+				{allowFullscreen ? (
+					<div style={fullscreen}>
+						<button
+							type="button"
+							aria-label={isFullscreen ? 'Exit fullscreen' : 'Enter Fullscreen'}
+							title={isFullscreen ? 'Exit fullscreen' : 'Enter Fullscreen'}
+							style={buttonStyle}
+							onClick={isFullscreen ? exitFullscreen : requestFullScreenAccess}
+						>
+							<FullscreenIcon />
+						</button>
+					</div>
+				) : null}
 			</div>
 			<div style={ySpacer} />
 			<PlayerSeekBar durationInFrames={durationInFrames} />
