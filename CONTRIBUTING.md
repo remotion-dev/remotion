@@ -40,6 +40,10 @@ running to keep the monorepos building and synchronized.
 
 As a testbed, you can use the `example` folder. Run `npm start` to trigger the preview and `npm run render` to trigger the render process.
 
+### Running tests
+
+There are tests in each package as well as end-to-end tests in the root of the monorepo. Run `npm test` in a package, or in the root to run all tests. Run `npx jest` to only run unit tests and skip linting.
+
 ### Mutation Testing
 
 In case you want to check the quality of your test code while contributing, you can use mutation testing with the help of the [Stryker Mutator](https://stryker-mutator.io/).
