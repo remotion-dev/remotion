@@ -97,7 +97,7 @@ Whether the video can go fullscreen. By default true.
 
 _optional_
 
-A regular `style` prop for a div element. You can pass a different height and width if you would like to choose different dimensions than the original composition dimensions.
+A regular `style` prop for a HTMLDivElement. You can pass a different height and width if you would like different dimensions for the player than the original composition dimensions.
 
 ## `PlayerRef`
 
@@ -128,7 +128,7 @@ The following methods are available on the player ref:
 
 ### `pause()`
 
-Pause the video. Nothing happens if the video is already not playing.
+Pause the video. Nothing happens if the video is already paused.
 
 ### `play()`
 
@@ -148,7 +148,7 @@ Gets the current postition expressed as the current frame. Divide by the `fps` y
 
 - `frame`: `number`
 
-Move the position in the video to the frame that you specify. If the video is playing, it will pause for a brief moment, then start playing again after the seek is completed.
+Move the position in the video to a specific frame. If the video is playing, it will pause for a brief moment, then start playing again after the seek is completed.
 
 ### `isFullscreen()`
 
@@ -177,25 +177,25 @@ Stop listening to an event. See the [Events](#events) section to see the functio
 Using a [player ref](#playerref), you can bind event listeners to get notified of certain events of the player.
 
 ```tsx
-const ref = useRef<PlayerRef>(null);
+const playerRef = useRef<PlayerRef>(null);
 
 useEffect(() => {
-  if (!ref.current) {
+  if (!playerRef.current) {
     return null;
   }
-  ref.current.addEventListener('play', () => {
+  playerRef.current.addEventListener('play', () => {
     console.log('playing');
   });
-  ref.current.addEventListener('pause', () => {
+  playerRef.current.addEventListener('pause', () => {
     console.log('pausing');
   });
-  ref.current.addEventListener('seeked', (e) => {
+  playerRef.current.addEventListener('seeked', (e) => {
     console.log('seeked to ' + e.detail.frame);
   });
-  ref.current.addEventListener('ended', (e) => {
+  playerRef.current.addEventListener('ended', (e) => {
     console.log('ended');
   });
-  ref.current.addEventListener('error', (e) => {
+  playerRef.current.addEventListener('error', (e) => {
     console.log('error', e.detail.error);
   });
 }, []);
@@ -206,12 +206,12 @@ useEffect(() => {
 Fired when the time position changes. You may get the current frame by reading it from `e.detail.frame`.
 
 ```tsx
-ref.current.addEventListener('seeked', (e) => {
+playerRef.current.addEventListener('seeked', (e) => {
   console.log('seeked to ' + e.detail.frame); // seeked to 120
 });
 ```
 
-This event fires on every single frame. If you link it to a state update, you may want to throttle the updates to avoid over-rendering.
+This event fires on every single frame update. If you link it to a state update, you may want to throttle the updates to avoid expensive rendering operations.
 
 ### `ended`
 
@@ -241,7 +241,7 @@ ref.current.addEventListener('error', (e) => {
 
 Since videos are written in React, they are prone to crashing.
 When a video throws an exception, you may handle the error using the [`error` event](#error).
-The video will unmount and show an error UI, but not the whole app website will crash.
+The video will unmount and show an error UI, but the host application (The React app which is embedding the player) will not crash.
 It is up to you to handle the error and to re-mount the video (for example by changing the `key` prop in React).
 
 This feature is implemented using an [error boundary](https://reactjs.org/docs/error-boundaries.html), so only errors in the render function will be caught. Errors in event handlers and asynchronous code will not be reported and will not cause the video to unmount.
