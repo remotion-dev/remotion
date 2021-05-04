@@ -1,6 +1,7 @@
 import {bundle, BundlerInternals} from '@remotion/bundler';
 import {
 	getCompositions,
+	OnPageErrorInfo,
 	OnStartData,
 	renderFrames,
 	RenderInternals,
@@ -25,8 +26,20 @@ import {
 } from './progress-bar';
 import {checkAndValidateFfmpegVersion} from './validate-ffmpeg-version';
 
-const onPageError = async (err: {name: string; message: string}) => {
-	if (String(err.message).match(/Unsupported video codec/g)) {
+const onPageError = async (info: OnPageErrorInfo) => {
+	Log.error();
+	if (info.frame === null) {
+		Log.error(
+			'The following error occured when trying to initialize the video rendering:'
+		);
+	} else {
+		Log.error(
+			`The following error occurred when trying to render frame ${info.frame}`
+		);
+	}
+
+	Log.error(info.error);
+	if (String(info.error.message).match(/Could not play video with/g)) {
 		Log.error(
 			'\nUnsupportedCodecError: Unsupported video codec found. Make sure your browser supports the codec or use chrome.'
 		);
