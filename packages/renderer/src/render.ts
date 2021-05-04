@@ -27,6 +27,8 @@ export type OnStartData = {
 	frameCount: number;
 };
 
+export type OnPageErrorInfo = {error: Error; frame: number | null};
+
 export const renderFrames = async ({
 	config,
 	parallelism,
@@ -58,7 +60,7 @@ export const renderFrames = async ({
 	frameRange?: FrameRange | null;
 	dumpBrowserLogs?: boolean;
 	puppeteerInstance?: PuppeteerBrowser;
-	onPageError?: (err: Error) => void;
+	onPageError?: (info: OnPageErrorInfo) => void;
 }): Promise<RenderFramesOutput> => {
 	if (quality !== undefined && imageFormat !== 'jpeg') {
 		throw new Error(
@@ -82,10 +84,11 @@ export const renderFrames = async ({
 			height: config.height,
 			deviceScaleFactor: 1,
 		});
-		page.on('error', console.error);
-		page.on('pageerror', (err: Error) => {
-			onPageError?.(err);
-		});
+		const errorCallback = (err: Error) => {
+			onPageError?.({error: err, frame: null});
+		};
+
+		page.on('pageerror', errorCallback);
 
 		if (inputProps) {
 			await page.goto(`http://localhost:${port}/index.html`);
@@ -101,6 +104,7 @@ export const renderFrames = async ({
 
 		const site = `http://localhost:${port}/index.html?composition=${compositionId}`;
 		await page.goto(site);
+		page.off('pageerror', errorCallback);
 		return page;
 	});
 
@@ -129,6 +133,11 @@ export const renderFrames = async ({
 				const freePage = await pool.acquire();
 				const paddedIndex = String(frame).padStart(filePadLength, '0');
 
+				const errorCallback = (err: Error) => {
+					onPageError?.({error: err, frame});
+				};
+
+				freePage.on('pageerror', errorCallback);
 				await seekToFrame({frame, page: freePage});
 				if (imageFormat !== 'none') {
 					await provideScreenshot({
@@ -151,6 +160,7 @@ export const renderFrames = async ({
 				pool.release(freePage);
 				framesRendered++;
 				onFrameUpdate(framesRendered);
+				freePage.off('pageerror', errorCallback);
 				return collectedAssets;
 			})
 	);
