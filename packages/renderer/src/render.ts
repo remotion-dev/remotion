@@ -58,7 +58,7 @@ export const renderFrames = async ({
 	frameRange?: FrameRange | null;
 	dumpBrowserLogs?: boolean;
 	puppeteerInstance?: PuppeteerBrowser;
-	onPageError: (err: {name: string; message: string}) => void;
+	onPageError: (err: Error) => void;
 }): Promise<RenderFramesOutput> => {
 	if (quality !== undefined && imageFormat !== 'jpeg') {
 		throw new Error(
@@ -83,9 +83,8 @@ export const renderFrames = async ({
 			deviceScaleFactor: 1,
 		});
 		page.on('error', console.error);
-		page.on('pageerror', async (err: {name: string; message: string}) => {
-			await close();
-			await onPageError(err);
+		page.on('pageerror', (err: Error) => {
+			onPageError(err);
 		});
 
 		if (inputProps) {
