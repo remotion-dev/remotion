@@ -33,7 +33,6 @@ module.exports = {
         "legacy-babel",
       ],
     },
-
     "cli",
     "config",
     {
@@ -88,7 +87,7 @@ module.exports = {
     {
       type: "category",
       label: "Troubleshooting",
-      items: ["timeout", "performance"],
+      items: ["timeout", "media-playback-error", "performance"],
     },
     "2-0-migration",
     "license",

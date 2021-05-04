@@ -1,4 +1,4 @@
-import React, {forwardRef} from 'react';
+import React, {forwardRef, useCallback} from 'react';
 import {Sequence} from '../sequencing';
 import {validateMediaProps} from '../validate-media-props';
 import {validateStartFromProps} from '../validate-start-from-props';
@@ -11,6 +11,11 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 	RemotionAudioProps & RemotionMainAudioProps
 > = (props, ref) => {
 	const {startFrom, endAt, ...otherProps} = props;
+
+	const onError = useCallback(() => {
+		throw new Error(`Could not play video with src ${otherProps.src}`);
+	}, [otherProps.src]);
+
 	if (typeof startFrom !== 'undefined' || typeof endAt !== 'undefined') {
 		validateStartFromProps(startFrom, endAt);
 
@@ -31,10 +36,10 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 	validateMediaProps(props, 'Audio');
 
 	if (process.env.NODE_ENV === 'development') {
-		return <AudioForDevelopment {...props} ref={ref} />;
+		return <AudioForDevelopment {...props} ref={ref} onError={onError} />;
 	}
 
-	return <AudioForRendering {...props} ref={ref} />;
+	return <AudioForRendering {...props} ref={ref} onError={onError} />;
 };
 
 export const Audio = forwardRef(AudioRefForwardingFunction);
