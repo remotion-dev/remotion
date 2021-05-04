@@ -1,6 +1,7 @@
 import { Player } from "@remotion/player";
 import React from "react";
 import { useCurrentFrame } from "remotion";
+import { Main } from "./ColorDemo/Main";
 
 const Comp: React.FC = () => {
   const frame = useCurrentFrame();
@@ -10,12 +11,16 @@ const Comp: React.FC = () => {
 export const PlayerExample: React.FC = () => {
   return (
     <Player
-      component={Comp}
+      component={Main}
       compositionWidth={1280}
       compositionHeight={720}
       controls
-      durationInFrames={100}
+      durationInFrames={350}
       fps={30}
+      inputProps={{
+        name: "Jonny",
+        color: "#d4afdf",
+      }}
       style={{
         aspectRatio: "16 / 9",
         height: undefined,
