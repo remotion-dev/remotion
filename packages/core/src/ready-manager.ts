@@ -3,7 +3,7 @@ if (typeof window !== 'undefined') {
 }
 
 let handles: number[] = [];
-const timeouts: {[key: string]: NodeJS.Timeout | number} = {};
+const timeouts: {[key: string]: number | NodeJS.Timeout} = {};
 
 export const delayRender = (): number => {
 	const handle = Math.random();
@@ -30,7 +30,7 @@ export const continueRender = (handle: number): void => {
 	handles = handles.filter((h) => {
 		if (h === handle) {
 			if (process.env.NODE_ENV === 'production') {
-				clearTimeout(timeouts[handle]);
+				clearTimeout(timeouts[handle] as number);
 			}
 
 			return false;
