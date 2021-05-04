@@ -118,7 +118,7 @@ An already open Puppeteer [`Browser`](https://pptr.dev/#?product=Puppeteer&versi
 
 ### `onError`
 
-_optional - Available since v2.0.8_
+_optional - Available since v2.1.0_
 
 Allows you to react to an exception thrown in your React code. The callback has an argument which is an object containing `error` and `frame` properties.
 The `frame` property tells you at which frame the error was thrown. If the error was thrown at startup, `frame` is null.
