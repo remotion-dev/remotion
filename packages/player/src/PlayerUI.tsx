@@ -17,6 +17,7 @@ import {Controls} from './PlayerControls';
 import {useHoverState} from './use-hover-state';
 import {usePlayback} from './use-playback';
 import {usePlayer} from './use-player';
+import {IS_NODE} from './utils/is-node';
 import {useElementSize} from './utils/use-element-size';
 
 const PlayerUI: React.ForwardRefRenderFunction<
@@ -37,8 +38,8 @@ const PlayerUI: React.ForwardRefRenderFunction<
 
 	const [hasPausedToResume, setHasPausedToResume] = useState(false);
 	const [shouldAutoplay, setShouldAutoPlay] = useState(autoPlay);
-	const [isFullscreen, setIsFullscreen] = useState(
-		() => document.fullscreenElement !== null
+	const [isFullscreen, setIsFullscreen] = useState(() =>
+		IS_NODE ? false : document.fullscreenElement !== null
 	);
 	usePlayback({loop});
 	const player = usePlayer();
@@ -52,6 +53,11 @@ const PlayerUI: React.ForwardRefRenderFunction<
 
 	useEffect(() => {
 		const {current} = container;
+
+		if (IS_NODE) {
+			return;
+		}
+
 		if (!current) {
 			return;
 		}

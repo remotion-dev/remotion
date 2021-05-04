@@ -1,3 +1,5 @@
+import {IS_NODE} from './utils/is-node';
+
 type SeekPayload = {
 	frame: number;
 };
@@ -27,7 +29,7 @@ export interface PlayerEventTarget extends EventTarget {
 	): void;
 }
 
-export const PlayerEventEmitter = EventTarget as {
+const PlayerEventEmitter = (IS_NODE ? require('events') : EventTarget) as {
 	new (): PlayerEventTarget;
 	prototype: PlayerEventTarget;
 };

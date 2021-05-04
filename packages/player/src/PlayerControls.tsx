@@ -4,6 +4,7 @@ import {formatTime} from './format-time';
 import {FullscreenIcon, PauseIcon, PlayIcon} from './icons';
 import {PlayerSeekBar} from './PlayerSeekBar';
 import {usePlayer} from './use-player';
+import {IS_NODE} from './utils/is-node';
 
 const containerStyle: React.CSSProperties = {
 	boxSizing: 'border-box',
@@ -115,7 +116,7 @@ export const Controls: React.FC<{
 						{formatTime(frame / fps)} / {formatTime(durationInFrames / fps)}
 					</div>
 				</div>
-				{document.fullscreenEnabled && allowFullscreen ? (
+				{(IS_NODE || document.fullscreenEnabled) && allowFullscreen ? (
 					<div style={fullscreen}>
 						<button
 							type="button"
