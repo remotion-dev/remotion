@@ -138,7 +138,25 @@ export const renderFrames = async ({
 				};
 
 				freePage.on('pageerror', errorCallback);
-				await seekToFrame({frame, page: freePage});
+				try {
+					await seekToFrame({frame, page: freePage});
+				} catch (err) {
+					if (
+						err.message.includes('timeout') &&
+						err.message.includes('exceeded')
+					) {
+						errorCallback(
+							new Error(
+								`The rendering timed out. See https://www.remotion.dev/docs/timeout/ for possible reasons.`
+							)
+						);
+					} else {
+						errorCallback(err);
+					}
+
+					throw err;
+				}
+
 				if (imageFormat !== 'none') {
 					await provideScreenshot({
 						page: freePage,
