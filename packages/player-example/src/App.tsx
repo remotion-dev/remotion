@@ -38,10 +38,6 @@ export default function App() {
 				durationInFrames={500}
 				component={CarSlideshow}
 				controls
-				style={{
-					height: 200,
-					width: 200,
-				}}
 				loop={loop}
 				props={{
 					title: String(title),

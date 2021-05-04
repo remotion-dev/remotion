@@ -107,9 +107,7 @@ export const Controls: React.FC<{
 						aria-label={'Fullscreen'}
 						title={'Fullscreen'}
 						style={buttonStyle}
-						onClick={() => {
-							requestFullScreenAccess();
-						}}
+						onClick={requestFullScreenAccess}
 					>
 						<FullscreenIcon />
 					</button>
