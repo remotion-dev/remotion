@@ -20,7 +20,7 @@ This error happens when you are trying to embed a `<Video/>` or `<Audio/>` tag i
 
 ## Codec not supported by Chromium
 
-Unlike Google Chrome, the Chromium Browser does not include proprietary codecs. This means you cannot play MP4/H.264 videos and not play MP3/AAC audio files (more codecs may not be supported).
+Unlike Google Chrome, the Chromium Browser does not include proprietary codecs. This means you cannot play MP4/H.264 videos and some audio codecs (more codecs may not be supported).
 
 **Workaround**: Convert videos to WebM or [use Chrome instead of Chromium](/docs/config#setbrowserexecutable).
 
