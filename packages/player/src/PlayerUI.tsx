@@ -36,6 +36,9 @@ const PlayerUI: React.ForwardRefRenderFunction<
 
 	const [hasPausedToResume, setHasPausedToResume] = useState(false);
 	const [shouldAutoplay, setShouldAutoPlay] = useState(autoPlay);
+	const [isFullscreen, setIsFullscreen] = useState(
+		() => document.fullscreenElement !== null
+	);
 	usePlayback({loop});
 	const player = usePlayer();
 
@@ -45,6 +48,22 @@ const PlayerUI: React.ForwardRefRenderFunction<
 			player.play();
 		}
 	}, [hasPausedToResume, player]);
+
+	useEffect(() => {
+		const {current} = container;
+		if (!current) {
+			return;
+		}
+
+		const onFullscreenChange = () => {
+			setIsFullscreen(document.fullscreenElement === current);
+		};
+
+		document.addEventListener('fullscreenchange', onFullscreenChange);
+		return () => {
+			document.removeEventListener('fullscreenchange', onFullscreenChange);
+		};
+	}, []);
 
 	const toggle = useCallback(() => {
 		if (player.playing) {
@@ -193,6 +212,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 						hovered={hovered}
 						player={player}
 						requestFullScreenAccess={requestFullScreenAccess}
+						isFullscreen={isFullscreen}
 					/>
 				) : null}
 			</div>

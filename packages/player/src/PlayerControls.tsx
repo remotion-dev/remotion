@@ -1,4 +1,4 @@
-import React, {useMemo} from 'react';
+import React, {useCallback, useMemo} from 'react';
 import {Internals} from 'remotion';
 import {formatTime} from './format-time';
 import {FullscreenIcon, PauseIcon, PlayIcon} from './icons';
@@ -71,7 +71,15 @@ export const Controls: React.FC<{
 	hovered: boolean;
 	player: ReturnType<typeof usePlayer>;
 	requestFullScreenAccess: () => void;
-}> = ({durationInFrames, hovered, fps, player, requestFullScreenAccess}) => {
+	isFullscreen: boolean;
+}> = ({
+	durationInFrames,
+	hovered,
+	isFullscreen,
+	fps,
+	player,
+	requestFullScreenAccess,
+}) => {
 	const frame = Internals.Timeline.useTimelinePosition();
 
 	const containerCss: React.CSSProperties = useMemo(() => {
@@ -82,6 +90,10 @@ export const Controls: React.FC<{
 			opacity: Number(shouldShow),
 		};
 	}, [hovered, player.playing]);
+
+	const exitFullscreen = useCallback(() => {
+		document.exitFullscreen();
+	}, []);
 
 	return (
 		<div style={containerCss}>
@@ -107,7 +119,7 @@ export const Controls: React.FC<{
 						aria-label={'Fullscreen'}
 						title={'Fullscreen'}
 						style={buttonStyle}
-						onClick={requestFullScreenAccess}
+						onClick={isFullscreen ? exitFullscreen : requestFullScreenAccess}
 					>
 						<FullscreenIcon />
 					</button>
