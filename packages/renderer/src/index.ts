@@ -21,7 +21,7 @@ declare global {
 export {FfmpegVersion} from './ffmpeg-flags';
 export {getCompositions} from './get-compositions';
 export {
-	OnPageErrorInfo,
+	OnErrorInfo,
 	OnStartData,
 	renderFrames,
 	RenderFramesOutput,

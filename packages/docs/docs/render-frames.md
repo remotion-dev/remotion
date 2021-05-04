@@ -24,7 +24,7 @@ const renderFrames: (options: {
   frameRange?: number | [number, number] | null;
   dumpBrowserLogs?: boolean;
   puppeteerInstance?: puppeteer.Browser;
-  onPageError?: (info: {error: Error; frame: number | null}) => void;
+  onError?: (info: {error: Error; frame: number | null}) => void;
 }): Promise<RenderFramesOutput>;
 ```
 
@@ -116,7 +116,7 @@ _optional_
 
 An already open Puppeteer [`Browser`](https://pptr.dev/#?product=Puppeteer&version=main&show=api-class-browser) instance. Reusing a browser across multiple function calls can speed up the rendering process. You are responsible for opening and closing the browser yourself. If you don't specify this option, a new browser will be opened and closed at the end.
 
-### `onPageError`
+### `onError`
 
 _optional - Available since v2.0.8_
 
@@ -125,7 +125,7 @@ The `frame` property tells you at which frame the error was thrown. If the error
 
 ```tsx
 renderFrames({
-  onPageError: (info) => {
+  onError: (info) => {
     if (info.frame === null) {
       console.log('Got error while initalizing video rendering', info.error)
     } else {
