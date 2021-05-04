@@ -1,6 +1,7 @@
 import {bundle, BundlerInternals} from '@remotion/bundler';
 import {
 	getCompositions,
+	OnErrorInfo,
 	OnStartData,
 	renderFrames,
 	RenderInternals,
@@ -24,6 +25,36 @@ import {
 	makeStitchingProgres,
 } from './progress-bar';
 import {checkAndValidateFfmpegVersion} from './validate-ffmpeg-version';
+
+const onError = async (info: OnErrorInfo) => {
+	Log.error();
+	if (info.frame === null) {
+		Log.error(
+			'The following error occured when trying to initialize the video rendering:'
+		);
+	} else {
+		Log.error(
+			`The following error occurred when trying to render frame ${info.frame}:`
+		);
+	}
+
+	Log.error(info.error.message);
+	if (info.error.message.includes('Could not play video with')) {
+		Log.info();
+		Log.info(
+			'💡 Get help for this issue at https://remotion.dev/docs/media-playback-error.'
+		);
+	}
+
+	if (info.error.message.includes('A delayRender was called')) {
+		Log.info();
+		Log.info(
+			'💡 Get help for this issue at https://remotion.dev/docs/timeout.'
+		);
+	}
+
+	process.exit(1);
+};
 
 export const render = async () => {
 	const startTime = Date.now();
@@ -137,6 +168,7 @@ export const render = async () => {
 		parallelism,
 		compositionId,
 		outputDir,
+		onError,
 		onStart: ({frameCount: fc}: OnStartData) => {
 			renderProgress.update(
 				makeRenderingProgress({
@@ -239,10 +271,9 @@ export const render = async () => {
 				}),
 			]);
 		} catch (err) {
-			Log.error('Could not clean up directory.');
-			Log.error(err);
-			Log.error('Do you have minimum required Node.js version?');
-			process.exit(1);
+			Log.warn('Could not clean up directory.');
+			Log.warn(err);
+			Log.warn('Do you have minimum required Node.js version?');
 		}
 
 		Log.info(chalk.green('\nYour video is ready!'));
