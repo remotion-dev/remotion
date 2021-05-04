@@ -1,6 +1,11 @@
 const injected: {[key: string]: boolean} = {};
 
 export const injectCSS = (css: string) => {
+	// Skip in node
+	if (typeof document === 'undefined') {
+		return;
+	}
+
 	if (injected[css]) {
 		return;
 	}
