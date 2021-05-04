@@ -81,8 +81,9 @@ const PlayerUI: React.ForwardRefRenderFunction<
 			overflow: 'hidden',
 			width: config.width,
 			height: config.height,
+			...style,
 		};
-	}, [config]);
+	}, [config, style]);
 
 	const containerStyle: React.CSSProperties = useMemo(() => {
 		if (!config) {
@@ -94,9 +95,8 @@ const PlayerUI: React.ForwardRefRenderFunction<
 			width: '100%',
 			height: '100%',
 			overflow: 'hidden',
-			...style,
 		};
-	}, [config, style]);
+	}, [config]);
 
 	const onError = useCallback(
 		(error: Error) => {
