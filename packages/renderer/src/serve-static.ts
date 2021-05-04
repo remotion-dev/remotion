@@ -17,8 +17,8 @@ export const serveStatic = async (path: string) => {
 			});
 		})
 		.listen(port);
-	const close = () =>
-		new Promise<void>((resolve, reject) => {
+	const close = () => {
+		return new Promise<void>((resolve, reject) => {
 			server.close((err) => {
 				if (err) {
 					reject(err);
@@ -27,5 +27,7 @@ export const serveStatic = async (path: string) => {
 				}
 			});
 		});
+	};
+
 	return {port, close};
 };
