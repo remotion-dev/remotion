@@ -10,7 +10,11 @@ import { ExperimentalBadge } from "../components/Experimental.tsx";
 
 <ExperimentalBadge/>
 
-Using the Remotion Player you can embed Remotion videos in any React app and customize the video content at runtime. Play the video, then tweak the parameters below the video.
+Using the Remotion Player you can embed Remotion videos in any React app and customize the video content at runtime.
+
+## Demo
+
+Play the video, then tweak the parameters below the video.
 <PlayerExample />
 
 ## Installation
@@ -43,7 +47,7 @@ yarn add @remotion/player
 
 ## `<Player />`
 
-A react component which takes the following props
+A React component which takes the following props
 
 ### `component` or `lazyComponent`
 
