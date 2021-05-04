@@ -38,9 +38,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 
 	const [hasPausedToResume, setHasPausedToResume] = useState(false);
 	const [shouldAutoplay, setShouldAutoPlay] = useState(autoPlay);
-	const [isFullscreen, setIsFullscreen] = useState(() =>
-		IS_NODE ? false : document.fullscreenElement !== null
-	);
+	const [isFullscreen, setIsFullscreen] = useState(() => false);
 	usePlayback({loop});
 	const player = usePlayer();
 
@@ -209,34 +207,36 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		return null;
 	}
 
-	return (
-		<Suspense fallback={<h1>Loading...</h1>}>
-			<div ref={container} style={outerStyle}>
-				<div style={outer}>
-					<div style={containerStyle} className={PLAYER_CSS_CLASSNAME}>
-						{VideoComponent ? (
-							<ErrorBoundary onError={onError}>
-								<VideoComponent
-									{...(((video?.props as unknown) as {}) ?? {})}
-								/>
-							</ErrorBoundary>
-						) : null}
-					</div>
+	const content = (
+		<div ref={container} style={outerStyle}>
+			<div style={outer}>
+				<div style={containerStyle} className={PLAYER_CSS_CLASSNAME}>
+					{VideoComponent ? (
+						<ErrorBoundary onError={onError}>
+							<VideoComponent {...(((video?.props as unknown) as {}) ?? {})} />
+						</ErrorBoundary>
+					) : null}
 				</div>
-				{controls ? (
-					<Controls
-						fps={config.fps}
-						durationInFrames={config.durationInFrames}
-						hovered={hovered}
-						player={player}
-						requestFullScreenAccess={requestFullScreenAccess}
-						isFullscreen={isFullscreen}
-						allowFullscreen={allowFullscreen}
-					/>
-				) : null}
 			</div>
-		</Suspense>
+			{controls ? (
+				<Controls
+					fps={config.fps}
+					durationInFrames={config.durationInFrames}
+					hovered={hovered}
+					player={player}
+					requestFullScreenAccess={requestFullScreenAccess}
+					isFullscreen={isFullscreen}
+					allowFullscreen={allowFullscreen}
+				/>
+			) : null}
+		</div>
 	);
+	// Don't render suspense on
+	if (IS_NODE) {
+		return content;
+	}
+
+	return <Suspense fallback={<h1>Loading...</h1>}>{content}</Suspense>;
 };
 
 export default forwardRef(PlayerUI);

@@ -10,6 +10,8 @@ import { ExperimentalBadge } from "../components/Experimental.tsx";
 
 <ExperimentalBadge/>
 
+<PlayerExample />
+
 Using the Remotion Player you can embed Remotion videos in any React app and customize the video content at runtime.
 
 ## Installation
@@ -250,5 +252,4 @@ Before we mark the player as stable, we are looking to improve in the following 
 - Better props validation
 - Customize error UI
 - Volume slider
-
-<PlayerExample />
+- Automatically adapt correct aspect ratio if passing styles like "width: 100%".
