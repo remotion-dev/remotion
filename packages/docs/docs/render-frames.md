@@ -23,7 +23,8 @@ const renderFrames: (options: {
   quality?: number;
   frameRange?: number | [number, number] | null;
   dumpBrowserLogs?: boolean;
-  puppeteerInstance?: puppeteer.Browser
+  puppeteerInstance?: puppeteer.Browser;
+  onPageError?: (err: Error) => void;
 }): Promise<RenderFramesOutput>;
 ```
 
@@ -114,6 +115,20 @@ Passes the `dumpio` flag to Puppeteer which will log all browser logs to the con
 _optional_
 
 An already open Puppeteer [`Browser`](https://pptr.dev/#?product=Puppeteer&version=main&show=api-class-browser) instance. Reusing a browser across multiple function calls can speed up the rendering process. You are responsible for opening and closing the browser yourself. If you don't specify this option, a new browser will be opened and closed at the end.
+
+### `onPageError`
+
+_optional - Available since v2.0.8_
+
+Allows you to react to an exception thrown in your React code.
+
+```tsx
+renderFrames({
+  onPageError: (err) => {
+    // Handle error here
+  }
+})
+```
 
 ## Return value
 
