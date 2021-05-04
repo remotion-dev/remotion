@@ -33,7 +33,7 @@ export type PlayerProps<T> = {
 	height: number;
 	fps: number;
 	controls?: boolean;
-	style?: Omit<React.CSSProperties, 'height' | 'width'>;
+	style?: React.CSSProperties;
 	loop?: boolean;
 	autoPlay?: boolean;
 } & PropsIfHasProps<T> &
