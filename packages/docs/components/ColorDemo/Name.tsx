@@ -35,6 +35,7 @@ export const Name: React.FC<{
         flex: 1,
         fontSize: 100,
         backgroundColor: "white",
+        color: "black",
       }}
     >
       <div>
@@ -49,7 +50,7 @@ export const Name: React.FC<{
             lineHeight: 1.1,
           }}
         >
-          Hi {name}!
+          Hi {name || "there"}!
         </span>
         <span
           style={{
