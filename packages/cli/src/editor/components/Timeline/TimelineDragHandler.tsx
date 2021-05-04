@@ -41,6 +41,7 @@ const getFrameFromX = (
 export const TimelineDragHandler: React.FC = ({children}) => {
 	const size = PlayerInternals.useElementSize(sliderAreaRef);
 	const width = size?.width ?? 0;
+	const left = size?.left ?? 0;
 	const [dragging, setDragging] = useState<
 		| {
 				dragging: false;
@@ -62,7 +63,7 @@ export const TimelineDragHandler: React.FC = ({children}) => {
 			}
 
 			const frame = getFrameFromX(
-				e.clientX - (size?.left ?? 0),
+				e.clientX - left,
 				videoConfig.durationInFrames,
 				width
 			);
@@ -73,7 +74,7 @@ export const TimelineDragHandler: React.FC = ({children}) => {
 			});
 			pause();
 		},
-		[pause, playing, seek, size?.left, videoConfig, width]
+		[pause, playing, seek, left, videoConfig, width]
 	);
 
 	const onPointerMove = useCallback(
@@ -87,13 +88,13 @@ export const TimelineDragHandler: React.FC = ({children}) => {
 			}
 
 			const frame = getFrameFromX(
-				e.clientX - (size?.left ?? 0),
+				e.clientX - left,
 				videoConfig.durationInFrames,
 				width
 			);
 			seek(frame);
 		},
-		[dragging.dragging, seek, size?.left, videoConfig, width]
+		[dragging.dragging, seek, left, videoConfig, width]
 	);
 
 	const onPointerUp = useCallback(() => {

@@ -62,7 +62,6 @@ export const Editor: React.FC = () => {
 		throw new Error('Root has not been registered. ');
 	}
 
-	console.log({emitter});
 	return (
 		<RichTimelineContext.Provider value={richTimelineCtx}>
 			<CheckerboardContext.Provider value={checkerboardCtx}>
