@@ -71,7 +71,7 @@ export const webpackConfig = ({
 						new webpack.HotModuleReplacementPlugin(),
 						new webpack.DefinePlugin({
 							'process.env.INPUT_PROPS': JSON.stringify(inputProps ?? {}),
-							'window.remotion_envRaw': JSON.stringify(env ?? {}),
+							'window.remotion_webpackDefinedEnv': JSON.stringify(env ?? {}),
 						}),
 				  ]
 				: [

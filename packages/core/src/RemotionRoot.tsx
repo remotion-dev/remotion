@@ -39,7 +39,7 @@ export const RemotionRoot: React.FC = ({children}) => {
 	useEffect(() => {
 		if (typeof window.remotion_env === 'undefined') {
 			// move the object injected by webpack into a global variable
-			window.remotion_env = window.remotion_envRaw ?? {};
+			window.remotion_env = window.remotion_webpackDefinedEnv ?? {};
 		}
 	});
 
