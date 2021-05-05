@@ -29,8 +29,12 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		allowFullscreen: boolean;
 		inputProps: unknown;
 		style?: React.CSSProperties;
+		interactive: boolean;
 	}
-> = ({controls, style, loop, autoPlay, allowFullscreen, inputProps}, ref) => {
+> = (
+	{controls, style, loop, autoPlay, allowFullscreen, inputProps, interactive},
+	ref
+) => {
 	const config = Internals.useUnsafeVideoConfig();
 	const video = Internals.useVideo();
 	const container = useRef<HTMLDivElement>(null);
@@ -203,13 +207,17 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		document.exitFullscreen();
 	}, []);
 
-	const onDoubleClick = () => {
+	const onDoubleClick = useCallback(() => {
 		if (isFullscreen) {
 			exitFullscreen();
 		} else {
 			requestFullScreenAccess();
 		}
-	};
+	}, [isFullscreen, exitFullscreen, requestFullScreenAccess]);
+
+	const onSingleClick = useCallback(() => {
+		toggle();
+	}, [toggle]);
 
 	useEffect(() => {
 		if (shouldAutoplay) {
@@ -223,7 +231,12 @@ const PlayerUI: React.ForwardRefRenderFunction<
 	}
 
 	const content = (
-		<div ref={container} style={outerStyle} onDoubleClick={onDoubleClick}>
+		<div
+			ref={container}
+			style={outerStyle}
+			onClick={controls && !interactive ? onSingleClick : undefined}
+			onDoubleClick={controls && !interactive ? onDoubleClick : undefined}
+		>
 			<div style={outer}>
 				<div style={containerStyle} className={PLAYER_CSS_CLASSNAME}>
 					{VideoComponent ? (
