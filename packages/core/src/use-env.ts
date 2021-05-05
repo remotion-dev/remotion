@@ -1,3 +1,3 @@
 export const useEnv = () => {
-    return window.remotion_env;
+    return typeof window.remotion_env === 'object' ? {...window.remotion_env} : {};
 };
