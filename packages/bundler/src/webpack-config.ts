@@ -20,6 +20,7 @@ export const webpackConfig = ({
 	onProgressUpdate,
 	enableCaching = Internals.DEFAULT_WEBPACK_CACHE_ENABLED,
 	inputProps,
+	env,
 }: {
 	entry: string;
 	userDefinedComponent: string;
@@ -29,6 +30,7 @@ export const webpackConfig = ({
 	onProgressUpdate?: (f: number) => void;
 	enableCaching?: boolean;
 	inputProps?: object;
+	env?: object;
 }): WebpackConfiguration => {
 	return webpackOverride({
 		optimization: {
@@ -69,6 +71,7 @@ export const webpackConfig = ({
 						new webpack.HotModuleReplacementPlugin(),
 						new webpack.DefinePlugin({
 							'process.env.INPUT_PROPS': JSON.stringify(inputProps ?? {}),
+							'window.remotion_envRaw': JSON.stringify(env ?? {}),
 						}),
 				  ]
 				: [

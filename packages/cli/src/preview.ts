@@ -8,6 +8,7 @@ import {getConfigFileName} from './get-config-file-name';
 import {getInputProps} from './get-input-props';
 import {loadConfigFile} from './load-config';
 import {parsedCli} from './parse-command-line';
+import {getEnv} from "./get-env";
 
 const noop = () => undefined;
 
@@ -18,12 +19,14 @@ export const previewCommand = xns(async () => {
 	loadConfigFile(getConfigFileName());
 
 	const inputProps = getInputProps();
+	const env = getEnv();
 
 	const port = await BundlerInternals.startServer(
 		path.resolve(__dirname, 'previewEntry.js'),
 		fullPath,
 		{
 			inputProps,
+			env,
 		}
 	);
 	betterOpn(`http://localhost:${port}`);
