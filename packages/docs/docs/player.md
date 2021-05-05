@@ -93,6 +93,12 @@ _optional_
 
 Whether the video can go fullscreen. By default true.
 
+### `interactive`
+
+_optional_
+
+To make the remotion-video interactive, meaning if there is a link inside `<Player />` you can click and interact with it. By default false.
+
 ### `style`
 
 _optional_
