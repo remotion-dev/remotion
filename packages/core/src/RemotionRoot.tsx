@@ -36,6 +36,13 @@ export const RemotionRoot: React.FC = ({children}) => {
 	const [playing, setPlaying] = useState<boolean>(false);
 	const [fastRefreshes, setFastRefreshes] = useState(0);
 
+	useEffect(() => {
+		if (typeof window.remotion_env === 'undefined') {
+			// move the object injected by webpack into a global variable
+			window.remotion_env = window.remotion_envRaw ?? {};
+		}
+	});
+
 	useLayoutEffect(() => {
 		if (typeof window !== 'undefined') {
 			window.remotion_setFrame = (f: number) => {

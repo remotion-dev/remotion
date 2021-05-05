@@ -7,6 +7,8 @@ declare global {
 		getStaticCompositions: () => TCompMetadata[];
 		remotion_setFrame: (frame: number) => void;
 		remotion_collectAssets: () => TAsset[];
+		remotion_envRaw?: object,
+		remotion_env: object,
 	}
 }
 
@@ -27,6 +29,7 @@ export * from './ready-manager';
 export {registerRoot} from './register-root';
 export {Sequence} from './sequencing';
 export * from './spring';
+export * from './use-env';
 export * from './use-frame';
 export * from './use-video-config';
 export * from './video';

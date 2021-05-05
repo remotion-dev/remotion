@@ -7,6 +7,7 @@ import {getInputProps} from './get-input-props';
 import {getImageFormat} from './image-formats';
 import {Log} from './log';
 import {getUserPassedFileExtension} from './user-passed-output-location';
+import {getEnv} from "./get-env";
 
 const getAndValidateFrameRange = () => {
 	const frameRange = Internals.getRange();
@@ -174,6 +175,7 @@ export const getCliOptions = async () => {
 		codec,
 		overwrite: Internals.getShouldOverwrite(),
 		inputProps: getInputProps(),
+		env: getEnv(),
 		quality: Internals.getQuality(),
 		browser: await getAndValidateBrowser(),
 		absoluteOutputFile: getAndValidateAbsoluteOutputFile(outputFile, overwrite),

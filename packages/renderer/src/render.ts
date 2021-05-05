@@ -35,6 +35,7 @@ export const renderFrames = async ({
 	outputDir,
 	onStart,
 	inputProps,
+	env = {},
 	webpackBundle,
 	quality,
 	imageFormat = DEFAULT_IMAGE_FORMAT,
@@ -49,6 +50,7 @@ export const renderFrames = async ({
 	onFrameUpdate: (f: number) => void;
 	outputDir: string;
 	inputProps: unknown;
+	env?: object,
 	webpackBundle: string;
 	imageFormat: ImageFormat;
 	parallelism?: number | null;
@@ -82,6 +84,10 @@ export const renderFrames = async ({
 		});
 		page.on('error', console.error);
 		page.on('pageerror', console.error);
+
+		await page.evaluateOnNewDocument((parsedEnv: object) => {
+			window.remotion_env = parsedEnv;
+		}, env || {});
 
 		if (inputProps) {
 			await page.goto(`http://localhost:${port}/index.html`);
