@@ -7,7 +7,7 @@ declare global {
 		getStaticCompositions: () => TCompMetadata[];
 		remotion_setFrame: (frame: number) => void;
 		remotion_collectAssets: () => TAsset[];
-		remotion_envRaw?: object,
+		remotion_webpackDefinedEnv?: object,
 		remotion_env: object,
 	}
 }
