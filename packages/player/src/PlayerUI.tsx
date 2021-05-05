@@ -199,6 +199,18 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		container.current.requestFullscreen();
 	}, [allowFullscreen]);
 
+	const exitFullscreen = useCallback(() => {
+		document.exitFullscreen();
+	}, []);
+
+	const onDoubleClick = () => {
+		if (isFullscreen) {
+			exitFullscreen();
+		} else {
+			requestFullScreenAccess();
+		}
+	};
+
 	useEffect(() => {
 		if (shouldAutoplay) {
 			player.play();
@@ -211,7 +223,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 	}
 
 	const content = (
-		<div ref={container} style={outerStyle}>
+		<div ref={container} style={outerStyle} onDoubleClick={onDoubleClick}>
 			<div style={outer}>
 				<div style={containerStyle} className={PLAYER_CSS_CLASSNAME}>
 					{VideoComponent ? (
@@ -233,6 +245,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 					requestFullScreenAccess={requestFullScreenAccess}
 					isFullscreen={isFullscreen}
 					allowFullscreen={allowFullscreen}
+					exitFullscreen={exitFullscreen}
 				/>
 			) : null}
 		</div>
