@@ -33,7 +33,6 @@ module.exports = {
         "legacy-babel",
       ],
     },
-
     "cli",
     "config",
     {
@@ -79,6 +78,7 @@ module.exports = {
         "visualize-audio",
       ],
     },
+    "player",
     {
       type: "category",
       label: "API - @remotion/renderer",
@@ -87,7 +87,7 @@ module.exports = {
     {
       type: "category",
       label: "Troubleshooting",
-      items: ["timeout", "performance"],
+      items: ["timeout", "media-playback-error", "performance"],
     },
     "2-0-migration",
     "license",

@@ -1,5 +1,7 @@
+import {CompProps} from './Composition';
 import {
 	CompositionManager,
+	CompositionManagerContext,
 	RenderAssetInfo,
 	TAsset,
 	TCompMetadata,
@@ -46,6 +48,7 @@ import {
 	DEFAULT_WEBPACK_CACHE_ENABLED,
 	getWebpackCaching,
 } from './config/webpack-caching';
+import * as CSSUtils from './default-css';
 import {FEATURE_FLAG_FIREFOX_SUPPORT} from './feature-flags';
 import {isAudioCodec} from './is-audio-codec';
 import * as perf from './perf';
@@ -58,8 +61,12 @@ import {
 import {RemotionRoot} from './RemotionRoot';
 import {SequenceContext} from './sequencing';
 import * as Timeline from './timeline-position-state';
-import {TimelineContextValue} from './timeline-position-state';
+import {
+	SetTimelineContextValue,
+	TimelineContextValue,
+} from './timeline-position-state';
 import {truthy} from './truthy';
+import {useLazyComponent} from './use-lazy-component';
 import {useUnsafeVideoConfig} from './use-unsafe-video-config';
 import {useVideo} from './use-video';
 import {
@@ -104,6 +111,7 @@ export const Internals = {
 	validateSelectedPixelFormatAndCodecCombination,
 	validateFrameRange,
 	getWebpackCaching,
+	useLazyComponent,
 	truthy,
 	isAudioCodec,
 	INPUT_PROPS_KEY,
@@ -112,6 +120,7 @@ export const Internals = {
 	useRemotionContexts,
 	RemotionContextProvider,
 	isPlainIndex,
+	CSSUtils,
 };
 
 export type {
@@ -123,4 +132,7 @@ export type {
 	TAsset,
 	RenderAssetInfo,
 	TimelineContextValue,
+	SetTimelineContextValue,
+	CompProps,
+	CompositionManagerContext,
 };

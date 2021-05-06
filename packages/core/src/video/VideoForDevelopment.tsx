@@ -42,7 +42,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		return videoRef.current as HTMLVideoElement;
 	});
 
-	return <video ref={videoRef} {...nativeProps} />;
+	return <video ref={videoRef} playsInline {...nativeProps} />;
 };
 
 export const VideoForDevelopment = forwardRef(
