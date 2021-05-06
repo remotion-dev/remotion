@@ -141,7 +141,7 @@ export const PlayerSeekBar: React.FC<{
 			boxShadow: '0 0 2px black',
 			opacity: Number(barHovered),
 		};
-	}, [barHovered, durationInFrames, frame, size?.width]);
+	}, [barHovered, durationInFrames, frame, size]);
 
 	const fillStyle: React.CSSProperties = useMemo(() => {
 		return {
