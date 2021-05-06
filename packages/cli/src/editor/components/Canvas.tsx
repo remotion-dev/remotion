@@ -1,7 +1,7 @@
+import {PlayerInternals} from '@remotion/player';
 import React, {useRef} from 'react';
 import styled from 'styled-components';
 import {VideoPreview} from './Preview';
-import {useElementSize} from '../hooks/get-el-size';
 
 export const Container = styled.div`
 	flex: 1;
@@ -13,7 +13,7 @@ export const Container = styled.div`
 export const Canvas: React.FC = () => {
 	const ref = useRef<HTMLDivElement>(null);
 
-	const size = useElementSize(ref);
+	const size = PlayerInternals.useElementSize(ref);
 
 	return (
 		<Container ref={ref}>

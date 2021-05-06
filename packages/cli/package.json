@@ -19,6 +19,7 @@
 	"author": "Jonny Burger <hi@jonny.io>",
 	"license": "SEE LICENSE IN LICENSE.md",
 	"dependencies": {
+		"@remotion/player": "^2.0.8",
 		"@remotion/bundler": "^2.0.8",
 		"@remotion/media-utils": "^2.0.8",
 		"@remotion/renderer": "^2.0.8",
