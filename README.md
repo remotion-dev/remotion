@@ -22,6 +22,7 @@ Remotion is a suite of libraries building a fundament for **creating videos prog
 - **"Game changer or no game changer" intro** [Watch](https://youtu.be/ga_xAZo9m7k?t=61) • [Source code](https://github.com/JonnyBurger/gamechanger-or-no-gamechanger-intro) • An intro for a quiz show I did with William Candillon.
 - **"The X in MDX" talk** [Watch](https://twitter.com/pomber/status/1359556846688886789) • [Source code](https://github.com/pomber/record-talk-with-remotion) • A re-recording of [this talk](https://www.youtube.com/watch?v=xEu3t-KJVVg) using Remotion.
 - **Redesigning the Scatterplot** [Watch](https://twitter.com/BrooksLybrand/status/1371547875109445635) • [Source code](https://github.com/brookslybrand/redesigning-scatterplots) • An animated section of Edward R. Tufte's book [The Visual Display of Quantitative Information](https://www.amazon.com/Visual-Display-Quantitative-Information/dp/0961392142/ref=sr_1_1?crid=3HQZSBUUROV09&dchild=1&keywords=the+visual+display+of+quantitative+information&qid=1615907320&sprefix=the+visual+disp%2Caps%2C190&sr=8-1).
+- **News Podcast Maker** [Watch](https://www.youtube.com/watch?v=Mwo5iNlWryg) • [Source code](https://github.com/FelippeChemello/podcast-maker/) • A fully automated News Podcast Maker.
 
 Feel free to pull request your creations!
 

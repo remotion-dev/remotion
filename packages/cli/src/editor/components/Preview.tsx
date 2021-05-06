@@ -1,3 +1,4 @@
+import {PlayerInternals, Size} from '@remotion/player';
 import React, {Suspense, useContext, useMemo} from 'react';
 import {Internals, useVideoConfig} from 'remotion';
 import styled from 'styled-components';
@@ -7,7 +8,6 @@ import {
 	getCheckerboardBackgroundPos,
 	getCheckerboardBackgroundSize,
 } from '../helpers/checkerboard-background';
-import {Size} from '../hooks/get-el-size';
 import {CheckerboardContext} from '../state/checkerboard';
 import {PreviewSizeContext} from '../state/preview-size';
 
@@ -47,20 +47,20 @@ const Inner: React.FC<{
 	const video = Internals.useVideo();
 
 	const config = useVideoConfig();
-	const heightRatio = canvasSize.height / config.height;
-	const widthRatio = canvasSize.width / config.width;
 	const {checkerboard} = useContext(CheckerboardContext);
 
-	const ratio = Math.min(heightRatio, widthRatio);
-
-	const scale = previewSize === 'auto' ? ratio : Number(previewSize);
-	const correction = 0 - (1 - scale) / 2;
-	const xCorrection = correction * config.width;
-	const yCorrection = correction * config.height;
-	const width = config.width * scale;
-	const height = config.height * scale;
-	const centerX = canvasSize.width / 2 - width / 2;
-	const centerY = canvasSize.height / 2 - height / 2;
+	const {
+		centerX,
+		centerY,
+		yCorrection,
+		xCorrection,
+		scale,
+	} = PlayerInternals.calculateScale({
+		canvasSize,
+		compositionHeight: config.height,
+		compositionWidth: config.width,
+		previewSize,
+	});
 
 	const outer: React.CSSProperties = useMemo(() => {
 		return {

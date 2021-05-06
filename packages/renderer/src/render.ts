@@ -27,6 +27,8 @@ export type OnStartData = {
 	frameCount: number;
 };
 
+export type OnErrorInfo = {error: Error; frame: number | null};
+
 export const renderFrames = async ({
 	config,
 	parallelism,
@@ -43,6 +45,7 @@ export const renderFrames = async ({
 	frameRange,
 	dumpBrowserLogs = false,
 	puppeteerInstance,
+	onError,
 }: {
 	config: VideoConfig;
 	compositionId: string;
@@ -59,6 +62,7 @@ export const renderFrames = async ({
 	frameRange?: FrameRange | null;
 	dumpBrowserLogs?: boolean;
 	puppeteerInstance?: PuppeteerBrowser;
+	onError?: (info: OnErrorInfo) => void;
 }): Promise<RenderFramesOutput> => {
 	if (quality !== undefined && imageFormat !== 'jpeg') {
 		throw new Error(
@@ -82,8 +86,11 @@ export const renderFrames = async ({
 			height: config.height,
 			deviceScaleFactor: 1,
 		});
-		page.on('error', console.error);
-		page.on('pageerror', console.error);
+		const errorCallback = (err: Error) => {
+			onError?.({error: err, frame: null});
+		};
+
+		page.on('pageerror', errorCallback);
 
 		await page.evaluateOnNewDocument((parsedEnv: object) => {
 			window.remotion_env = parsedEnv;
@@ -103,6 +110,7 @@ export const renderFrames = async ({
 
 		const site = `http://localhost:${port}/index.html?composition=${compositionId}`;
 		await page.goto(site);
+		page.off('pageerror', errorCallback);
 		return page;
 	});
 
@@ -131,7 +139,30 @@ export const renderFrames = async ({
 				const freePage = await pool.acquire();
 				const paddedIndex = String(frame).padStart(filePadLength, '0');
 
-				await seekToFrame({frame, page: freePage});
+				const errorCallback = (err: Error) => {
+					onError?.({error: err, frame});
+				};
+
+				freePage.on('pageerror', errorCallback);
+				try {
+					await seekToFrame({frame, page: freePage});
+				} catch (err) {
+					if (
+						err.message.includes('timeout') &&
+						err.message.includes('exceeded')
+					) {
+						errorCallback(
+							new Error(
+								`The rendering timed out. See https://www.remotion.dev/docs/timeout/ for possible reasons.`
+							)
+						);
+					} else {
+						errorCallback(err);
+					}
+
+					throw err;
+				}
+
 				if (imageFormat !== 'none') {
 					await provideScreenshot({
 						page: freePage,
@@ -153,6 +184,7 @@ export const renderFrames = async ({
 				pool.release(freePage);
 				framesRendered++;
 				onFrameUpdate(framesRendered);
+				freePage.off('pageerror', errorCallback);
 				return collectedAssets;
 			})
 	);

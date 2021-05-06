@@ -15,6 +15,8 @@ import {
 	TComposition,
 } from 'remotion';
 
+Internals.CSSUtils.injectCSS(Internals.CSSUtils.makeDefaultCSS(null));
+
 const Root = Internals.getRoot();
 
 if (!Root) {

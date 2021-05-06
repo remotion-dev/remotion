@@ -1,3 +1,4 @@
+import {PlayerInternals} from '@remotion/player';
 import React, {useContext, useMemo, useState} from 'react';
 import {Internals, TSequence} from 'remotion';
 import {
@@ -5,7 +6,6 @@ import {
 	SEQUENCE_BORDER_WIDTH,
 } from '../../helpers/get-timeline-sequence-layout';
 import {TIMELINE_LAYER_HEIGHT} from '../../helpers/timeline-layout';
-import {useElementSize} from '../../hooks/get-el-size';
 import {RichTimelineContext} from '../../state/rich-timeline';
 import {AudioWaveform} from '../AudioWaveform';
 import {Thumbnail} from '../Thumbnail';
@@ -20,7 +20,7 @@ export const TimelineSequence: React.FC<{
 	s: TSequence;
 	fps: number;
 }> = ({s, fps}) => {
-	const size = useElementSize(sliderAreaRef);
+	const size = PlayerInternals.useElementSize(sliderAreaRef);
 	const {richTimeline} = useContext(RichTimelineContext);
 
 	const windowWidth = size?.width ?? 0;

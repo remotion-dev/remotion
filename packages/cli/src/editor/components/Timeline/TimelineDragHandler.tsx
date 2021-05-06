@@ -1,8 +1,8 @@
+import {PlayerInternals} from '@remotion/player';
 import React, {useCallback, useEffect, useState} from 'react';
 import {Internals, interpolate} from 'remotion';
 import styled from 'styled-components';
 import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
-import {useElementSize} from '../../hooks/get-el-size';
 import {sliderAreaRef} from './timeline-refs';
 
 const Container = styled.div`
@@ -39,8 +39,9 @@ const getFrameFromX = (
 };
 
 export const TimelineDragHandler: React.FC = ({children}) => {
-	const size = useElementSize(sliderAreaRef);
+	const size = PlayerInternals.useElementSize(sliderAreaRef);
 	const width = size?.width ?? 0;
+	const left = size?.left ?? 0;
 	const [dragging, setDragging] = useState<
 		| {
 				dragging: false;
@@ -52,8 +53,7 @@ export const TimelineDragHandler: React.FC = ({children}) => {
 	>({
 		dragging: false,
 	});
-	const [playing, setPlaying] = Internals.Timeline.usePlayingState();
-	const setTimelinePosition = Internals.Timeline.useTimelineSetFrame();
+	const {playing, play, pause, seek} = PlayerInternals.usePlayer();
 	const videoConfig = Internals.useUnsafeVideoConfig();
 
 	const onPointerDown = useCallback(
@@ -63,18 +63,18 @@ export const TimelineDragHandler: React.FC = ({children}) => {
 			}
 
 			const frame = getFrameFromX(
-				e.clientX - (size?.left ?? 0),
+				e.clientX - left,
 				videoConfig.durationInFrames,
 				width
 			);
-			setTimelinePosition(frame);
+			seek(frame);
 			setDragging({
 				dragging: true,
 				wasPlaying: playing,
 			});
-			setPlaying(false);
+			pause();
 		},
-		[playing, setPlaying, setTimelinePosition, size, videoConfig, width]
+		[pause, playing, seek, left, videoConfig, width]
 	);
 
 	const onPointerMove = useCallback(
@@ -88,13 +88,13 @@ export const TimelineDragHandler: React.FC = ({children}) => {
 			}
 
 			const frame = getFrameFromX(
-				e.clientX - (size?.left ?? 0),
+				e.clientX - left,
 				videoConfig.durationInFrames,
 				width
 			);
-			setTimelinePosition(frame);
+			seek(frame);
 		},
-		[dragging.dragging, setTimelinePosition, size?.left, videoConfig, width]
+		[dragging.dragging, seek, left, videoConfig, width]
 	);
 
 	const onPointerUp = useCallback(() => {
@@ -105,8 +105,10 @@ export const TimelineDragHandler: React.FC = ({children}) => {
 			return;
 		}
 
-		setPlaying(dragging.wasPlaying);
-	}, [dragging, setPlaying]);
+		if (dragging.wasPlaying) {
+			play();
+		}
+	}, [dragging, play]);
 
 	useEffect(() => {
 		if (!dragging.dragging) {
