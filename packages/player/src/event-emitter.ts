@@ -1,3 +1,4 @@
+import './event-target-polyfill';
 type SeekPayload = {
 	frame: number;
 };
