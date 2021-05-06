@@ -1,6 +1,7 @@
 import path from 'path';
 import {Internals, WebpackConfiguration, WebpackOverrideFn} from 'remotion';
 import webpack, {ProgressPlugin} from 'webpack';
+import {convertEnvToProcessEnv} from './convert-env-to-process-env';
 import {getWebpackCacheName} from './webpack-cache';
 
 const ErrorOverlayPlugin = require('@webhotelier/webpack-fast-refresh/error-overlay');
@@ -30,7 +31,7 @@ export const webpackConfig = ({
 	onProgressUpdate?: (f: number) => void;
 	enableCaching?: boolean;
 	inputProps?: object;
-	env?: object;
+	env?: {[key: string]: string};
 }): WebpackConfiguration => {
 	return webpackOverride({
 		optimization: {
@@ -71,7 +72,7 @@ export const webpackConfig = ({
 						new webpack.HotModuleReplacementPlugin(),
 						new webpack.DefinePlugin({
 							'process.env.INPUT_PROPS': JSON.stringify(inputProps ?? {}),
-							'window.remotion_webpackDefinedEnv': JSON.stringify(env ?? {}),
+							...convertEnvToProcessEnv(env ?? {}),
 						}),
 				  ]
 				: [
