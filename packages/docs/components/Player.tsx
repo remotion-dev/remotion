@@ -1,13 +1,7 @@
 import { Player } from "@remotion/player";
 import React, { useState } from "react";
-import { useCurrentFrame } from "remotion";
 import { Main } from "./ColorDemo/Main";
 import "./player.css";
-
-const Comp: React.FC = () => {
-  const frame = useCurrentFrame();
-  return <div style={{ fontSize: 200 }}>{frame}</div>;
-};
 
 export const PlayerExample: React.FC = () => {
   const [name, setName] = useState("");
@@ -27,8 +21,6 @@ export const PlayerExample: React.FC = () => {
           color,
         }}
         style={{
-          aspectRatio: "16 / 9",
-          height: undefined,
           width: "100%",
         }}
         loop
