@@ -12,6 +12,7 @@
     "clear": "docusaurus clear"
   },
   "dependencies": {
+    "@babel/plugin-transform-modules-commonjs": "^7.14.0",
     "@docusaurus/core": "2.0.0-alpha.75",
     "@docusaurus/preset-classic": "2.0.0-alpha.75",
     "@mdx-js/react": "^1.6.21",
