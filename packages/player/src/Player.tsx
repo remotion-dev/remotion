@@ -52,7 +52,6 @@ export const PlayerFn = <T,>(
 		compositionHeight: height,
 		compositionWidth: width,
 		fps,
-		props,
 		controls,
 		style,
 		loop,
@@ -100,7 +99,7 @@ export const PlayerFn = <T,>(
 					width,
 					fps,
 					id: 'player-comp',
-					props,
+					props: inputProps,
 					nonce: 777,
 				},
 			],
@@ -115,7 +114,7 @@ export const PlayerFn = <T,>(
 			unregisterAsset: () => undefined,
 			assets: [],
 		};
-	}, [component, props, durationInFrames, fps, height, width]);
+	}, [component, durationInFrames, height, width, fps, inputProps]);
 
 	return (
 		<Internals.Timeline.TimelineContext.Provider value={timelineContextValue}>

@@ -1,3 +1,4 @@
+import {StandardLonghandProperties} from 'csstype';
 import React, {
 	forwardRef,
 	Suspense,
@@ -17,6 +18,7 @@ import {Controls} from './PlayerControls';
 import {useHoverState} from './use-hover-state';
 import {usePlayback} from './use-playback';
 import {usePlayer} from './use-player';
+import {calculatePlayerSize} from './utils/calculate-player-size';
 import {IS_NODE} from './utils/is-node';
 import {useElementSize} from './utils/use-element-size';
 
@@ -46,8 +48,6 @@ const PlayerUI: React.ForwardRefRenderFunction<
 	const [isFullscreen, setIsFullscreen] = useState(() => false);
 	usePlayback({loop});
 	const player = usePlayer();
-
-	console.log({inputProps});
 
 	useEffect(() => {
 		if (hasPausedToResume && !player.playing) {
@@ -116,11 +116,16 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		return {
 			position: 'relative',
 			overflow: 'hidden',
-			width: config.width,
-			height: config.height,
+			...calculatePlayerSize({
+				compositionHeight: config.height,
+				compositionWidth: config.width,
+				currentSize: canvasSize,
+				height: style?.height as StandardLonghandProperties['width'],
+				width: style?.width as StandardLonghandProperties['height'],
+			}),
 			...style,
 		};
-	}, [config, style]);
+	}, [canvasSize, config, style]);
 
 	const layout = useMemo(() => {
 		if (!config || !canvasSize) {

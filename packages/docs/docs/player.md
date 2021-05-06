@@ -261,5 +261,4 @@ Before we mark the player as stable, we are looking to improve in the following 
 - Better props validation
 - Customize error UI
 - Volume slider
-- Automatically adapt correct aspect ratio if passing styles like "width: 100%".
 - Fix the fullscreen icon - it should inverse when the player is already in fullscreen.
