@@ -18,6 +18,7 @@ import {Controls} from './PlayerControls';
 import {useHoverState} from './use-hover-state';
 import {usePlayback} from './use-playback';
 import {usePlayer} from './use-player';
+import {browserSupportsFullscreen} from './utils/browser-supports-fullscreen';
 import {calculatePlayerSize} from './utils/calculate-player-size';
 import {IS_NODE} from './utils/is-node';
 import {useElementSize} from './utils/use-element-size';
@@ -68,12 +69,20 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		}
 
 		const onFullscreenChange = () => {
-			setIsFullscreen(document.fullscreenElement === current);
+			setIsFullscreen(
+				document.fullscreenElement === current ||
+					document.webkitFullscreenElement === current
+			);
 		};
 
 		document.addEventListener('fullscreenchange', onFullscreenChange);
+		document.addEventListener('webkitfullscreenchange', onFullscreenChange);
 		return () => {
 			document.removeEventListener('fullscreenchange', onFullscreenChange);
+			document.removeEventListener(
+				'webkitfullscreenchange',
+				onFullscreenChange
+			);
 		};
 	}, []);
 
@@ -101,7 +110,13 @@ const PlayerUI: React.ForwardRefRenderFunction<
 			},
 			isFullscreen: () => isFullscreen,
 			requestFullscreen: () => requestFullScreenAccess(),
-			exitFullscreen: () => document.exitFullscreen(),
+			exitFullscreen: () => {
+				if (document.webkitExitFullscreen) {
+					document.webkitExitFullscreen();
+				} else {
+					document.exitFullscreen();
+				}
+			},
 		};
 		return Object.assign(player.emitter, methods);
 	});
@@ -192,24 +207,38 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		[player]
 	);
 
-	const requestFullScreenAccess = useCallback(() => {
-		if (!allowFullscreen) {
-			throw new Error('allowFullscreen is false');
+	const requestFullScreenAccess = useCallback(
+		(e: Event) => {
+			if (!allowFullscreen) {
+				throw new Error('allowFullscreen is false');
+			}
+
+			if (!browserSupportsFullscreen) {
+				throw new Error('Browser doesnt support fullscreen');
+			}
+
+			if (!container.current) {
+				throw new Error('No player ref found');
+			}
+
+			e.stopPropagation();
+
+			if (container.current.webkitRequestFullScreen) {
+				container.current.webkitRequestFullScreen();
+			} else {
+				container.current.requestFullscreen();
+			}
+		},
+		[allowFullscreen]
+	);
+
+	const exitFullscreen = useCallback((e: Event) => {
+		e.stopPropagation();
+		if (document.webkitExitFullscreen) {
+			document.webkitExitFullscreen();
+		} else {
+			document.exitFullscreen();
 		}
-
-		if (!document.fullscreenEnabled) {
-			throw new Error('Browser doesnt support fullscreen');
-		}
-
-		if (!container.current) {
-			throw new Error('No player ref found');
-		}
-
-		container.current.requestFullscreen();
-	}, [allowFullscreen]);
-
-	const exitFullscreen = useCallback(() => {
-		document.exitFullscreen();
 	}, []);
 
 	const onSingleClick = useCallback(() => {

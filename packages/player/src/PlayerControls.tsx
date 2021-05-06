@@ -4,7 +4,7 @@ import {formatTime} from './format-time';
 import {FullscreenIcon, PauseIcon, PlayIcon} from './icons';
 import {PlayerSeekBar} from './PlayerSeekBar';
 import {usePlayer} from './use-player';
-import {IS_NODE} from './utils/is-node';
+import {browserSupportsFullscreen} from './utils/browser-supports-fullscreen';
 
 const containerStyle: React.CSSProperties = {
 	boxSizing: 'border-box',
@@ -66,16 +66,6 @@ const timeLabel: React.CSSProperties = {
 	fontSize: 14,
 };
 
-declare global {
-	interface Document {
-		webkitFullscreenEnabled?: boolean;
-	}
-}
-
-const browserSupportsFullscreen = IS_NODE
-	? false
-	: document.fullscreenEnabled || document.webkitFullscreenEnabled;
-
 export const Controls: React.FC<{
 	fps: number;
 	durationInFrames: number;
@@ -84,7 +74,7 @@ export const Controls: React.FC<{
 	requestFullScreenAccess: () => void;
 	isFullscreen: boolean;
 	allowFullscreen: boolean;
-	exitFullscreen: () => void;
+	exitFullscreen: (e: Event) => void;
 }> = ({
 	durationInFrames,
 	hovered,
