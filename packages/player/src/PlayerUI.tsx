@@ -1,6 +1,7 @@
 import {StandardLonghandProperties} from 'csstype';
 import React, {
 	forwardRef,
+	MouseEventHandler,
 	Suspense,
 	useCallback,
 	useEffect,
@@ -94,6 +95,34 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		}
 	}, [player]);
 
+	const requestFullscreen = useCallback(() => {
+		if (!allowFullscreen) {
+			throw new Error('allowFullscreen is false');
+		}
+
+		if (!browserSupportsFullscreen) {
+			throw new Error('Browser doesnt support fullscreen');
+		}
+
+		if (!container.current) {
+			throw new Error('No player ref found');
+		}
+
+		if (container.current.webkitRequestFullScreen) {
+			container.current.webkitRequestFullScreen();
+		} else {
+			container.current.requestFullscreen();
+		}
+	}, [allowFullscreen]);
+
+	const exitFullscreen = useCallback(() => {
+		if (document.webkitExitFullscreen) {
+			document.webkitExitFullscreen();
+		} else {
+			document.exitFullscreen();
+		}
+	}, []);
+
 	useImperativeHandle(ref, () => {
 		const methods: PlayerMethods = {
 			play: player.play,
@@ -109,14 +138,8 @@ const PlayerUI: React.ForwardRefRenderFunction<
 				player.seek(f);
 			},
 			isFullscreen: () => isFullscreen,
-			requestFullscreen: () => requestFullScreenAccess(),
-			exitFullscreen: () => {
-				if (document.webkitExitFullscreen) {
-					document.webkitExitFullscreen();
-				} else {
-					document.exitFullscreen();
-				}
-			},
+			requestFullscreen,
+			exitFullscreen,
 		};
 		return Object.assign(player.emitter, methods);
 	});
@@ -207,39 +230,21 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		[player]
 	);
 
-	const requestFullScreenAccess = useCallback(
-		(e: Event) => {
-			if (!allowFullscreen) {
-				throw new Error('allowFullscreen is false');
-			}
-
-			if (!browserSupportsFullscreen) {
-				throw new Error('Browser doesnt support fullscreen');
-			}
-
-			if (!container.current) {
-				throw new Error('No player ref found');
-			}
-
+	const onFullscreenButtonClick: MouseEventHandler<HTMLButtonElement> = useCallback(
+		(e) => {
 			e.stopPropagation();
-
-			if (container.current.webkitRequestFullScreen) {
-				container.current.webkitRequestFullScreen();
-			} else {
-				container.current.requestFullscreen();
-			}
+			requestFullscreen();
 		},
-		[allowFullscreen]
+		[requestFullscreen]
 	);
 
-	const exitFullscreen = useCallback((e: Event) => {
-		e.stopPropagation();
-		if (document.webkitExitFullscreen) {
-			document.webkitExitFullscreen();
-		} else {
-			document.exitFullscreen();
-		}
-	}, []);
+	const onExitFullscreenButtonClick: MouseEventHandler<HTMLButtonElement> = useCallback(
+		(e) => {
+			e.stopPropagation();
+			exitFullscreen();
+		},
+		[exitFullscreen]
+	);
 
 	const onSingleClick = useCallback(() => {
 		toggle();
@@ -280,10 +285,10 @@ const PlayerUI: React.ForwardRefRenderFunction<
 					durationInFrames={config.durationInFrames}
 					hovered={hovered}
 					player={player}
-					requestFullScreenAccess={requestFullScreenAccess}
+					onFullscreenButtonClick={onFullscreenButtonClick}
 					isFullscreen={isFullscreen}
 					allowFullscreen={allowFullscreen}
-					exitFullscreen={exitFullscreen}
+					onExitFullscreenButtonClick={onExitFullscreenButtonClick}
 				/>
 			) : null}
 		</div>
