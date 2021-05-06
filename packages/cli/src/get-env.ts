@@ -4,45 +4,45 @@ import path from 'path';
 import {Log} from './log';
 import {parsedCli} from './parse-command-line';
 
-function getProcessEnv(): object {
-    const env: Record<string, string> = {};
+function getProcessEnv(): Record<string, string> {
+	const env: Record<string, string> = {};
 
-    const validKeys = Object.keys(process.env).filter(key => key.startsWith("REMOTION_"));
+	const validKeys = Object.keys(process.env).filter((key) =>
+		key.startsWith('REMOTION_')
+	);
 
-    for (const key of validKeys) {
-        env[key] = process.env[key] as string;
-    }
+	for (const key of validKeys) {
+		env[key] = process.env[key] as string;
+	}
 
-    return env;
+	return env;
 }
 
-export const getEnv = (): object => {
-    const processEnv = getProcessEnv();
+export const getEnv = (): Record<string, string> => {
+	const processEnv = getProcessEnv();
 
-    if (!parsedCli['env-file']) {
-        return processEnv;
-    }
+	if (!parsedCli['env-file']) {
+		return processEnv;
+	}
 
-    const envFile = path.resolve(process.cwd(), parsedCli['env-file']);
+	const envFile = path.resolve(process.cwd(), parsedCli['env-file']);
 
-    try {
-        if (fs.existsSync(envFile)) {
-            const envFileData = fs.readFileSync(envFile);
-            return {
-                ...processEnv,
-                ...dotenv.parse(envFileData),
-            };
-        }
-    } catch (err) {
-        // fall through
-    }
+	try {
+		if (fs.existsSync(envFile)) {
+			const envFileData = fs.readFileSync(envFile);
+			return {
+				...processEnv,
+				...dotenv.parse(envFileData),
+			};
+		}
+	} catch (err) {
+		// fall through
+	}
 
-    Log.error(
-        'You passed --env-file but it was not a file path to a valid environment file.'
-    );
-    Log.info('Got the following value:', parsedCli['env-file']);
-    Log.error(
-        'Check that your input is parseable using `dotenv` and try again.'
-    );
-    process.exit(1);
+	Log.error(
+		'You passed --env-file but it was not a file path to a valid environment file.'
+	);
+	Log.info('Got the following value:', parsedCli['env-file']);
+	Log.error('Check that your input is parseable using `dotenv` and try again.');
+	process.exit(1);
 };
