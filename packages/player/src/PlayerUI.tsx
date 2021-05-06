@@ -31,10 +31,10 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		allowFullscreen: boolean;
 		inputProps: unknown;
 		style?: React.CSSProperties;
-		interactive: boolean;
+		clickToPlay: boolean;
 	}
 > = (
-	{controls, style, loop, autoPlay, allowFullscreen, inputProps, interactive},
+	{controls, style, loop, autoPlay, allowFullscreen, inputProps, clickToPlay},
 	ref
 ) => {
 	const config = Internals.useUnsafeVideoConfig();
@@ -212,14 +212,6 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		document.exitFullscreen();
 	}, []);
 
-	const onDoubleClick = useCallback(() => {
-		if (isFullscreen) {
-			exitFullscreen();
-		} else {
-			requestFullScreenAccess();
-		}
-	}, [isFullscreen, exitFullscreen, requestFullScreenAccess]);
-
 	const onSingleClick = useCallback(() => {
 		toggle();
 	}, [toggle]);
@@ -239,8 +231,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		<div
 			ref={container}
 			style={outerStyle}
-			onClick={controls && !interactive ? onSingleClick : undefined}
-			onDoubleClick={controls && !interactive ? onDoubleClick : undefined}
+			onClick={clickToPlay ? onSingleClick : undefined}
 		>
 			<div style={outer}>
 				<div style={containerStyle} className={PLAYER_CSS_CLASSNAME}>
