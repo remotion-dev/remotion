@@ -25,8 +25,8 @@ export const ExperimentalBadge: React.FC = () => {
         EXPERIMENTAL
       </div>
       <div>
-        This component may change in minor version updates. Watch this
-        documentation to see breaking changes when upgrading.
+        This component may change in minor version updates. Monitor the
+        documentation page to see breaking changes when upgrading.
       </div>
     </div>
   );
