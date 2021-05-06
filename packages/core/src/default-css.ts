@@ -35,5 +35,9 @@ export const makeDefaultCSS = (scope: string | null) => {
     ${scope} * {
       box-sizing: border-box;
     }
+    ${scope} *:-webkit-full-screen {
+      width: 100%;
+      height: 100%;
+    }
   `;
 };
