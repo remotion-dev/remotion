@@ -14,6 +14,7 @@ jobs:
 
       - run: npm i
       - run: npx lerna bootstrap --ci
+      - run: npm run build
       - name: Install and Build 🔧
         run: |
           cd packages/docs && npm run build
