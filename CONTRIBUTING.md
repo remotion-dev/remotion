@@ -15,10 +15,15 @@ Please note that this project is released with a [Contributor Code of Conduct](C
 Clone the repo and run
 
 ```console
+
 npm i
+
 npx lerna bootstrap
+
 npm run build
+
 npx lerna bootstrap
+
 ```
 
 to set up the project. Make sure to run `npx lerna bootstrap` twice - the reason is that during the build phase new CLI binaries are being created so another symlink is necessary. You only have to do this once.
@@ -26,9 +31,14 @@ to set up the project. Make sure to run `npx lerna bootstrap` twice - the reason
 We recommend keeping a terminal open with the command
 
 ```console
+
 npm run watch
+
 ```
 
 running to keep the monorepos building and synchronized.
 
 As a testbed, you can use the `example` folder. Run `npm start` to trigger the preview and `npm run render` to trigger the render process.
+
+### Testing
+For information about testing, please consult [TESTING.md](./TESTING.md).
