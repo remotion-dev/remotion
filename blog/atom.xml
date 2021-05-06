@@ -2,11 +2,18 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://remotion.dev/blog</id>
     <title>Remotion Blog</title>
-    <updated>2021-04-15T00:00:00.000Z</updated>
+    <updated>2021-05-06T00:00:00.000Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://remotion.dev/blog"/>
     <subtitle>Remotion Blog</subtitle>
     <icon>https://remotion.dev/img/logo-small.png</icon>
+    <entry>
+        <title type="html"><![CDATA[Remotion 2.1]]></title>
+        <id>2-1</id>
+        <link href="https://remotion.dev/blog/2-1"/>
+        <updated>2021-05-06T00:00:00.000Z</updated>
+        <summary type="html"><![CDATA[This releases features new utility functions, improved developer experience and an experimental release of the Remotion Player!]]></summary>
+    </entry>
     <entry>
         <title type="html"><![CDATA[Remotion 2.0]]></title>
         <id>2-0</id>

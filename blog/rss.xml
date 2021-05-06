@@ -4,9 +4,16 @@
         <title>Remotion Blog</title>
         <link>https://remotion.dev/blog</link>
         <description>Remotion Blog</description>
-        <lastBuildDate>Thu, 15 Apr 2021 00:00:00 GMT</lastBuildDate>
+        <lastBuildDate>Thu, 06 May 2021 00:00:00 GMT</lastBuildDate>
         <docs>https://validator.w3.org/feed/docs/rss2.html</docs>
         <generator>https://github.com/jpmonette/feed</generator>
+        <item>
+            <title><![CDATA[Remotion 2.1]]></title>
+            <link>https://remotion.dev/blog/2-1</link>
+            <guid>2-1</guid>
+            <pubDate>Thu, 06 May 2021 00:00:00 GMT</pubDate>
+            <description><![CDATA[This releases features new utility functions, improved developer experience and an experimental release of the Remotion Player!]]></description>
+        </item>
         <item>
             <title><![CDATA[Remotion 2.0]]></title>
             <link>https://remotion.dev/blog/2-0</link>
