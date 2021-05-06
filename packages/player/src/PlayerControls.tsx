@@ -66,6 +66,16 @@ const timeLabel: React.CSSProperties = {
 	fontSize: 14,
 };
 
+declare global {
+	interface Document {
+		webkitFullscreenEnabled?: boolean;
+	}
+}
+
+const browserSupportsFullscreen = IS_NODE
+	? false
+	: document.fullscreenEnabled || document.webkitFullscreenEnabled;
+
 export const Controls: React.FC<{
 	fps: number;
 	durationInFrames: number;
@@ -114,7 +124,7 @@ export const Controls: React.FC<{
 						{formatTime(frame / fps)} / {formatTime(durationInFrames / fps)}
 					</div>
 				</div>
-				{(IS_NODE || document.fullscreenEnabled) && allowFullscreen ? (
+				{browserSupportsFullscreen && allowFullscreen ? (
 					<div style={fullscreen}>
 						<button
 							type="button"

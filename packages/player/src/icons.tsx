@@ -2,14 +2,13 @@ import React from 'react';
 
 const size = 25;
 
+const rotate: React.CSSProperties = {
+	transform: `rotate(90deg)`,
+};
+
 export const PlayIcon: React.FC = () => {
 	return (
-		<svg
-			width={size}
-			height={size}
-			viewBox="-100 -100 400 400"
-			transform="rotate(90)"
-		>
+		<svg width={size} height={size} viewBox="-100 -100 400 400" style={rotate}>
 			<g stroke="#fff" strokeWidth="100" strokeLinejoin="round">
 				<path
 					fill="#fff"
