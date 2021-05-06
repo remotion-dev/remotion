@@ -93,11 +93,11 @@ _optional_
 
 Whether the video can go fullscreen. By default true.
 
-### `interactive`
+### `clickToPlay`
 
 _optional_
 
-To make the remotion-video interactive, meaning if there is a link inside `<Player />` you can click and interact with it. By default false.
+A boolean property defining whether you can play, pause or resume the video with a single click into the player. Default true.
 
 ### `style`
 
@@ -262,3 +262,4 @@ Before we mark the player as stable, we are looking to improve in the following 
 - Customize error UI
 - Volume slider
 - Fix the fullscreen icon - it should inverse when the player is already in fullscreen.
+- Implement double click to fullscreen.
