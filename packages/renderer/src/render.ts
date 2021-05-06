@@ -53,7 +53,7 @@ export const renderFrames = async ({
 	onFrameUpdate: (f: number) => void;
 	outputDir: string;
 	inputProps: unknown;
-	env?: object,
+	env?: object;
 	webpackBundle: string;
 	imageFormat: ImageFormat;
 	parallelism?: number | null;
