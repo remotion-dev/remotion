@@ -21,10 +21,10 @@ import PlayerUI from './PlayerUI';
 
 type PropsIfHasProps<Props> = {} extends Props
 	? {
-			props?: Props;
+			inputProps?: Props;
 	  }
 	: {
-			props: Props;
+			inputProps: Props;
 	  };
 
 export type PlayerProps<T> = {
