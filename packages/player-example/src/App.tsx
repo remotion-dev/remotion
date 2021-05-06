@@ -39,7 +39,7 @@ export default function App() {
 				component={CarSlideshow}
 				controls
 				loop={loop}
-				props={{
+				inputProps={{
 					title: String(title),
 				}}
 			/>
