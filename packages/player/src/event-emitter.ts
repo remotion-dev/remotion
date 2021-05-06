@@ -1,5 +1,3 @@
-import {IS_NODE} from './utils/is-node';
-
 type SeekPayload = {
 	frame: number;
 };
@@ -29,38 +27,36 @@ export interface PlayerEventTarget extends EventTarget {
 	): void;
 }
 
-export const PlayerEmitter = IS_NODE
-	? class {}
-	: class extends EventTarget {
-			dispatchSeek(frame: number) {
-				this.dispatchEvent(
-					new CustomEvent<SeekPayload>('seeked', {
-						detail: {
-							frame,
-						},
-					})
-				);
-			}
+export class PlayerEmitter extends EventTarget {
+	dispatchSeek(frame: number) {
+		this.dispatchEvent(
+			new CustomEvent<SeekPayload>('seeked', {
+				detail: {
+					frame,
+				},
+			})
+		);
+	}
 
-			dispatchPause() {
-				this.dispatchEvent(new CustomEvent('pause'));
-			}
+	dispatchPause() {
+		this.dispatchEvent(new CustomEvent('pause'));
+	}
 
-			dispatchPlay() {
-				this.dispatchEvent(new CustomEvent('play'));
-			}
+	dispatchPlay() {
+		this.dispatchEvent(new CustomEvent('play'));
+	}
 
-			dispatchEnded() {
-				this.dispatchEvent(new CustomEvent('ended'));
-			}
+	dispatchEnded() {
+		this.dispatchEvent(new CustomEvent('ended'));
+	}
 
-			dispatchError(error: Error) {
-				this.dispatchEvent(
-					new CustomEvent<ErrorPayload>('error', {
-						detail: {
-							error,
-						},
-					})
-				);
-			}
-	  };
+	dispatchError(error: Error) {
+		this.dispatchEvent(
+			new CustomEvent<ErrorPayload>('error', {
+				detail: {
+					error,
+				},
+			})
+		);
+	}
+}
