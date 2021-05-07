@@ -17,6 +17,7 @@ import {Pool} from './pool';
 import {provideScreenshot} from './provide-screenshot';
 import {seekToFrame} from './seek-to-frame';
 import {serveStatic} from './serve-static';
+import {setPropsAndEnv} from './set-props-and-env';
 
 export type RenderFramesOutput = {
 	frameCount: number;
@@ -37,7 +38,7 @@ export const renderFrames = async ({
 	outputDir,
 	onStart,
 	inputProps,
-	env = {},
+	envVariables: envVariables = {},
 	webpackBundle,
 	quality,
 	imageFormat = DEFAULT_IMAGE_FORMAT,
@@ -53,7 +54,7 @@ export const renderFrames = async ({
 	onFrameUpdate: (f: number) => void;
 	outputDir: string;
 	inputProps: unknown;
-	env?: object;
+	envVariables?: Record<string, string>;
 	webpackBundle: string;
 	imageFormat: ImageFormat;
 	parallelism?: number | null;
@@ -92,21 +93,7 @@ export const renderFrames = async ({
 
 		page.on('pageerror', errorCallback);
 
-		await page.evaluateOnNewDocument((parsedEnv: object) => {
-			window.remotion_env = parsedEnv;
-		}, env || {});
-
-		if (inputProps) {
-			await page.goto(`http://localhost:${port}/index.html`);
-
-			await page.evaluate(
-				(key, input) => {
-					window.localStorage.setItem(key, input);
-				},
-				Internals.INPUT_PROPS_KEY,
-				JSON.stringify(inputProps)
-			);
-		}
+		await setPropsAndEnv({inputProps, envVariables, page, port});
 
 		const site = `http://localhost:${port}/index.html?composition=${compositionId}`;
 		await page.goto(site);
@@ -153,7 +140,7 @@ export const renderFrames = async ({
 					) {
 						errorCallback(
 							new Error(
-								`The rendering timed out. See https://www.remotion.dev/docs/timeout/ for possible reasons.`
+								'The rendering timed out. See https://www.remotion.dev/docs/timeout/ for possible reasons.'
 							)
 						);
 					} else {
