@@ -1,5 +1,5 @@
 export const ENV_VARIABLES_LOCAL_STORAGE_KEY = 'remotion.envVariables';
-export const ENV_VARIABLES_ENV_NAME = 'ENV_VARIABLES';
+export const ENV_VARIABLES_ENV_NAME = 'ENV_VARIABLES' as const;
 
 const getEnvVariables = (): Record<string, string> => {
 	if (process.env.NODE_ENV === 'production') {
@@ -8,12 +8,14 @@ const getEnvVariables = (): Record<string, string> => {
 			return {};
 		}
 
-		return JSON.parse(param);
+		return {...JSON.parse(param), NODE_ENV: 'production'};
 	}
-	return (process.env[ENV_VARIABLES_ENV_NAME] as unknown) as Record<
-		string,
-		string
-	>;
+	// Webpack will convert this to an object at compile time.
+	// Don't convert this syntax to a computed property.
+	return {
+		...((process.env.ENV_VARIABLES as unknown) as Record<string, string>),
+		NODE_ENV: 'development',
+	};
 };
 
 export const setupEnvVariables = () => {
