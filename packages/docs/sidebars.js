@@ -31,6 +31,7 @@ module.exports = {
         "ssr",
         "webpack",
         "legacy-babel",
+        "env-variables",
       ],
     },
     "cli",
