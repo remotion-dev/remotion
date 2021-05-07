@@ -1,6 +1,7 @@
 import dotenv from 'dotenv';
 import fs from 'fs';
 import path from 'path';
+import {Internals} from 'remotion';
 import {Log} from './log';
 import {parsedCli} from './parse-command-line';
 
@@ -18,25 +19,10 @@ function getProcessEnv(): Record<string, string> {
 	return env;
 }
 
-export const getEnvironmentVariables = async (): Promise<
-	Record<string, string>
-> => {
-	const processEnv = getProcessEnv();
-
-	const envFile = path.resolve(process.cwd(), parsedCli['env-file'] ?? '.env');
-	if (parsedCli['env-file'] && !fs.existsSync(envFile)) {
-		Log.error(
-			'You passed --env-file but it was not a file path to a valid environment file.'
-		);
-		Log.info('We looked for the file at:', envFile);
-		Log.error('Check that your path is correct and try again.');
-		process.exit(1);
-	}
-
-	if (!fs.existsSync(envFile)) {
-		return processEnv;
-	}
-
+const getEnvForEnvFile = async (
+	processEnv: ReturnType<typeof getProcessEnv>,
+	envFile: string
+) => {
 	try {
 		const envFileData = await fs.promises.readFile(envFile);
 		return {
@@ -45,6 +31,45 @@ export const getEnvironmentVariables = async (): Promise<
 		};
 	} catch (err) {
 		Log.error(`Your .env file at ${envFile} could not not be parsed.`);
+		Log.error(err);
 		process.exit(1);
 	}
+};
+
+export const getEnvironmentVariables = async (): Promise<
+	Record<string, string>
+> => {
+	const processEnv = getProcessEnv();
+
+	if (parsedCli['env-file']) {
+		const envFile = path.resolve(process.cwd(), parsedCli['env-file']);
+		if (!fs.existsSync(envFile)) {
+			Log.error('You passed a --env-file but it could not be found.');
+			Log.error('We looked for the file at:', envFile);
+			Log.error('Check that your path is correct and try again.');
+			process.exit(1);
+		}
+		return getEnvForEnvFile(processEnv, envFile);
+	}
+
+	const configFileSetting = Internals.getDotEnvLocation();
+	if (configFileSetting) {
+		const envFile = path.resolve(process.cwd(), configFileSetting);
+		if (!fs.existsSync(envFile)) {
+			Log.error(
+				'You specifed a custom .env file using `Config.Rendering.setDotEnvLocation()` in the config file but it could not be found'
+			);
+			Log.error('We looked for the file at:', envFile);
+			Log.error('Check that your path is correct and try again.');
+			process.exit(1);
+		}
+		return getEnvForEnvFile(processEnv, envFile);
+	}
+
+	const envFile = path.resolve(process.cwd(), '.env');
+	if (!fs.existsSync(envFile)) {
+		return processEnv;
+	}
+
+	return getEnvForEnvFile(processEnv, envFile);
 };
