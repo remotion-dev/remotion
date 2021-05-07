@@ -24,6 +24,7 @@ export const setPropsAndEnv = async ({
 				JSON.stringify(inputProps)
 			);
 		}
+
 		if (envVariables) {
 			await page.evaluate(
 				(key, input) => {
