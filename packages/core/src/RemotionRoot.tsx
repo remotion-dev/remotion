@@ -36,13 +36,6 @@ export const RemotionRoot: React.FC = ({children}) => {
 	const [playing, setPlaying] = useState<boolean>(false);
 	const [fastRefreshes, setFastRefreshes] = useState(0);
 
-	useEffect(() => {
-		if (typeof window.remotion_env === 'undefined') {
-			// move the object injected by webpack into a global variable
-			window.remotion_env = window.remotion_webpackDefinedEnv ?? {};
-		}
-	});
-
 	useLayoutEffect(() => {
 		if (typeof window !== 'undefined') {
 			window.remotion_setFrame = (f: number) => {
@@ -62,9 +55,9 @@ export const RemotionRoot: React.FC = ({children}) => {
 		}
 	}, [assets]);
 
-	const registerComposition = useCallback(<T, >(comp: TComposition<T>) => {
-		setCompositions(comps => {
-			if (comps.find(c => c.id === comp.id)) {
+	const registerComposition = useCallback(<T,>(comp: TComposition<T>) => {
+		setCompositions((comps) => {
+			if (comps.find((c) => c.id === comp.id)) {
 				throw new Error(
 					`Multiple composition with id ${comp.id} are registered.`
 				);
@@ -75,29 +68,29 @@ export const RemotionRoot: React.FC = ({children}) => {
 	}, []);
 
 	const registerSequence = useCallback((seq: TSequence) => {
-		setSequences(seqs => {
+		setSequences((seqs) => {
 			return [...seqs, seq];
 		});
 	}, []);
 
 	const unregisterComposition = useCallback((id: string) => {
-		setCompositions(comps => {
-			return comps.filter(c => c.id !== id);
+		setCompositions((comps) => {
+			return comps.filter((c) => c.id !== id);
 		});
 	}, []);
 
 	const unregisterSequence = useCallback((seq: string) => {
-		setSequences(seqs => seqs.filter(s => s.id !== seq));
+		setSequences((seqs) => seqs.filter((s) => s.id !== seq));
 	}, []);
 
 	const registerAsset = useCallback((asset: TAsset) => {
-		setAssets(assts => {
+		setAssets((assts) => {
 			return [...assts, asset];
 		});
 	}, []);
 	const unregisterAsset = useCallback((id: string) => {
-		setAssets(assts => {
-			return assts.filter(a => a.id !== id);
+		setAssets((assts) => {
+			return assts.filter((a) => a.id !== id);
 		});
 	}, []);
 
@@ -153,9 +146,9 @@ export const RemotionRoot: React.FC = ({children}) => {
 
 	useEffect(() => {
 		if (module.hot) {
-			module.hot.addStatusHandler(status => {
+			module.hot.addStatusHandler((status) => {
 				if (status === 'idle') {
-					setFastRefreshes(i => i + 1);
+					setFastRefreshes((i) => i + 1);
 				}
 			});
 		}
