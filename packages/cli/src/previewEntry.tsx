@@ -5,6 +5,7 @@ import '../styles/styles.css';
 import {Editor} from './editor/components/Editor';
 
 Internals.CSSUtils.injectCSS(Internals.CSSUtils.makeDefaultCSS(null));
+Internals.setupEnvVariables();
 
 render(
 	<Internals.RemotionRoot>
