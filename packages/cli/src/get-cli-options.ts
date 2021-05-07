@@ -175,7 +175,7 @@ export const getCliOptions = async () => {
 		codec,
 		overwrite: Internals.getShouldOverwrite(),
 		inputProps: getInputProps(),
-		env: await getEnvironmentVariables(),
+		envVariables: await getEnvironmentVariables(),
 		quality: Internals.getQuality(),
 		browser: await getAndValidateBrowser(),
 		absoluteOutputFile: getAndValidateAbsoluteOutputFile(outputFile, overwrite),
