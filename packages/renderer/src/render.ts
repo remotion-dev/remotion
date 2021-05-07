@@ -38,7 +38,7 @@ export const renderFrames = async ({
 	outputDir,
 	onStart,
 	inputProps,
-	envVariables: envVariables = {},
+	envVariables = {},
 	webpackBundle,
 	quality,
 	imageFormat = DEFAULT_IMAGE_FORMAT,
