@@ -18,6 +18,7 @@ Besides choosing a video and output location with the command line arguments, th
 - `--pixel-format`: [Set a custom pixel format. See here for available values.](/docs/config#setpixelformat)
 - `--image-format`: [`jpeg` or `png` - JPEG is faster, but supports transparency.](/docs/config#setimageformat) The default image format is `jpeg` since v1.1. Flag available since v1.4.
 - `--config`: Specify a location for the Remotion config file. Available in v1.2 and later.
+- `--env-file`: Specify a location for a dotenv file. Default `.env`. Available in v2.2 and later.
 - `--quality`: [Value between 0 and 100 for JPEG rendering quality](/docs/config#setquality). Doesn't work when PNG frames are rendered. Available since v1.4.
 - `--overwrite`: [Write to output even if file already exists.](/docs/config#setoverwriteoutput)
 - `--sequence`: [Pass this flag if you want an image sequence as the output instead of a video.](/docs/config#setimagesequence) Available since v1.4.
