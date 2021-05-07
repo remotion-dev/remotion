@@ -18,6 +18,7 @@ export const startServer = async (
 	options?: {
 		webpackOverride?: WebpackOverrideFn;
 		inputProps?: object;
+		envVariables?: Record<string, string>;
 	}
 ): Promise<number> => {
 	const app = express();
@@ -33,6 +34,7 @@ export const startServer = async (
 		webpackOverride:
 			options?.webpackOverride ?? Internals.getWebpackOverrideFn(),
 		inputProps: options?.inputProps ?? {},
+		envVariables: options?.envVariables ?? {},
 	});
 	const compiler = webpack(config);
 

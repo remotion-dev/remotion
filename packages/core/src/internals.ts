@@ -21,6 +21,7 @@ import {
 	getDefaultCrfForCodec,
 	validateSelectedCrfAndCodecCombination,
 } from './config/crf';
+import {getDotEnvLocation} from './config/env-file';
 import {
 	getRange,
 	setFrameRangeFromCli,
@@ -60,6 +61,11 @@ import {
 } from './register-root';
 import {RemotionRoot} from './RemotionRoot';
 import {SequenceContext} from './sequencing';
+import {
+	ENV_VARIABLES_ENV_NAME,
+	ENV_VARIABLES_LOCAL_STORAGE_KEY,
+	setupEnvVariables,
+} from './setup-env-variables';
 import * as Timeline from './timeline-position-state';
 import {
 	SetTimelineContextValue,
@@ -121,6 +127,10 @@ export const Internals = {
 	RemotionContextProvider,
 	isPlainIndex,
 	CSSUtils,
+	setupEnvVariables,
+	ENV_VARIABLES_ENV_NAME,
+	ENV_VARIABLES_LOCAL_STORAGE_KEY,
+	getDotEnvLocation,
 };
 
 export type {

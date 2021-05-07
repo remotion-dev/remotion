@@ -16,6 +16,7 @@ import {
 } from 'remotion';
 
 Internals.CSSUtils.injectCSS(Internals.CSSUtils.makeDefaultCSS(null));
+Internals.setupEnvVariables();
 
 const Root = Internals.getRoot();
 

@@ -3,6 +3,7 @@ import {BrowserExecutable, setBrowserExecutable} from './browser-executable';
 import {Codec, setCodec, setOutputFormat} from './codec';
 import {Concurrency, setConcurrency} from './concurrency';
 import {setCrf} from './crf';
+import {setDotEnvLocation} from './env-file';
 import {FrameRange, setFrameRange} from './frame-range';
 import {ImageFormat, setImageFormat} from './image-format';
 import {setImageSequence} from './image-sequence';
@@ -49,6 +50,11 @@ export const Config = {
 		setBrowserExecutable,
 	},
 	Rendering: {
+		/**
+		 * Set a custom location for a .env file.
+		 * Default: `.env`
+		 */
+		setDotEnvLocation,
 		/**
 		 * Sets how many Puppeteer instances will work on rendering your video in parallel.
 		 * Default: `null`, meaning half of the threads available on your CPU.
