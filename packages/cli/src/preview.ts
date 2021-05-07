@@ -19,14 +19,14 @@ export const previewCommand = xns(async () => {
 	loadConfigFile(getConfigFileName());
 
 	const inputProps = getInputProps();
-	const env = getEnvironmentVariables();
+	const envVariables = await getEnvironmentVariables();
 
 	const port = await BundlerInternals.startServer(
 		path.resolve(__dirname, 'previewEntry.js'),
 		fullPath,
 		{
 			inputProps,
-			env,
+			envVariables,
 		}
 	);
 	betterOpn(`http://localhost:${port}`);

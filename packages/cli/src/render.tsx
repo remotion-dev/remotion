@@ -76,7 +76,7 @@ export const render = async () => {
 		absoluteOutputFile,
 		overwrite,
 		inputProps,
-		env,
+		envVariables,
 		quality,
 		browser,
 		crf,
@@ -183,7 +183,7 @@ export const render = async () => {
 			totalFrames = fc;
 		},
 		inputProps,
-		envVariables: env,
+		envVariables: envVariables,
 		webpackBundle: bundled,
 		imageFormat,
 		quality,
