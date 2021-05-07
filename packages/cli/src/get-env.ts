@@ -18,31 +18,33 @@ function getProcessEnv(): Record<string, string> {
 	return env;
 }
 
-export const getEnv = (): Record<string, string> => {
+export const getEnvironmentVariables = async (): Promise<
+	Record<string, string>
+> => {
 	const processEnv = getProcessEnv();
 
-	if (!parsedCli['env-file']) {
+	const envFile = path.resolve(process.cwd(), parsedCli['env-file'] ?? '.env');
+	if (parsedCli['env-file'] && !fs.existsSync(envFile)) {
+		Log.error(
+			'You passed --env-file but it was not a file path to a valid environment file.'
+		);
+		Log.info('We looked for the file at:', envFile);
+		Log.error('Check that your path is correct and try again.');
+		process.exit(1);
+	}
+
+	if (!fs.existsSync(envFile)) {
 		return processEnv;
 	}
 
-	const envFile = path.resolve(process.cwd(), parsedCli['env-file']);
-
 	try {
-		if (fs.existsSync(envFile)) {
-			const envFileData = fs.readFileSync(envFile);
-			return {
-				...processEnv,
-				...dotenv.parse(envFileData),
-			};
-		}
+		const envFileData = await fs.promises.readFile(envFile);
+		return {
+			...processEnv,
+			...dotenv.parse(envFileData),
+		};
 	} catch (err) {
-		// fall through
+		Log.error(`Your .env file at ${envFile} could not not be parsed.`);
+		process.exit(1);
 	}
-
-	Log.error(
-		'You passed --env-file but it was not a file path to a valid environment file.'
-	);
-	Log.info('Got the following value:', parsedCli['env-file']);
-	Log.error('Check that your input is parseable using `dotenv` and try again.');
-	process.exit(1);
 };
