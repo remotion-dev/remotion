@@ -21,6 +21,7 @@ import {
 	getDefaultCrfForCodec,
 	validateSelectedCrfAndCodecCombination,
 } from './config/crf';
+import {getDotEnvLocation} from './config/env-file';
 import {
 	getRange,
 	setFrameRangeFromCli,
@@ -129,6 +130,7 @@ export const Internals = {
 	setupEnvVariables,
 	ENV_VARIABLES_ENV_NAME,
 	ENV_VARIABLES_LOCAL_STORAGE_KEY,
+	getDotEnvLocation,
 };
 
 export type {
