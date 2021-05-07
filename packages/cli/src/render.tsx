@@ -183,7 +183,7 @@ export const render = async () => {
 			totalFrames = fc;
 		},
 		inputProps,
-		envVariables: envVariables,
+		envVariables,
 		webpackBundle: bundled,
 		imageFormat,
 		quality,

@@ -49,6 +49,7 @@ export const getEnvironmentVariables = async (): Promise<
 			Log.error('Check that your path is correct and try again.');
 			process.exit(1);
 		}
+
 		return getEnvForEnvFile(processEnv, envFile);
 	}
 
@@ -63,13 +64,14 @@ export const getEnvironmentVariables = async (): Promise<
 			Log.error('Check that your path is correct and try again.');
 			process.exit(1);
 		}
+
 		return getEnvForEnvFile(processEnv, envFile);
 	}
 
-	const envFile = path.resolve(process.cwd(), '.env');
-	if (!fs.existsSync(envFile)) {
+	const defaultEnvFile = path.resolve(process.cwd(), '.env');
+	if (!fs.existsSync(defaultEnvFile)) {
 		return processEnv;
 	}
 
-	return getEnvForEnvFile(processEnv, envFile);
+	return getEnvForEnvFile(processEnv, defaultEnvFile);
 };
