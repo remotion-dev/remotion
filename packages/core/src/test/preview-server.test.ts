@@ -19,6 +19,7 @@ describe('setting preview server port', () => {
 			`Preview server port should be a number between 1 and 65535. Got 999999`,
 		],
 	])('throw error on invalid ports %s', (port, errorPattern) => {
+		// @ts-expect-error
 		expectToThrow(() => setPreviewServerPort(port), new RegExp(errorPattern));
 	});
 });
