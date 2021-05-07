@@ -10,6 +10,7 @@ const getEnvVariables = (): Record<string, string> => {
 
 		return {...JSON.parse(param), NODE_ENV: 'production'};
 	}
+
 	// Webpack will convert this to an object at compile time.
 	// Don't convert this syntax to a computed property.
 	return {
@@ -23,10 +24,12 @@ export const setupEnvVariables = () => {
 	if (!window.process) {
 		window.process = {} as NodeJS.Process;
 	}
+
 	if (!window.process.env) {
 		window.process.env = {};
 	}
-	Object.keys(env).map((key) => {
+
+	Object.keys(env).forEach((key) => {
 		window.process.env[key] = env[key];
 	});
 };
