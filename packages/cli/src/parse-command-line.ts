@@ -15,6 +15,7 @@ export type CommandLineOptions = {
 	['pixel-format']: PixelFormat;
 	['image-format']: ImageFormat;
 	['bundle-cache']: string;
+	['env-file']: string;
 	codec: Codec;
 	concurrency: number;
 	config: string;
