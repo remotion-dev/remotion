@@ -29,7 +29,7 @@ export const showcaseVideos: ShowcaseVideo[] = [
   {
     title: "Spotify Wrapped",
     type: "mux_video",
-    muxId: "U5LZfw102AUygXZIH02VOvhvCks9L00j014yIvE6qZ01vdDo",
+    muxId: "V5Dpfui9NmUSons5P5VQRbyX5m5011LsRA01f0129CLbHo",
     imageUrl: "img/showcase/1.png",
     description: (
       <>
@@ -53,8 +53,8 @@ export const showcaseVideos: ShowcaseVideo[] = [
   },
   {
     title: "AnySticker In App Assets",
-    type: "video_url",
-    videoUrl: "vid/showcase/2.mp4",
+    type: "mux_video",
+    muxId: "HL4G1x01aX8lizSXFGuQG8do6LLKcI1mup6WjIz6OEFE",
     imageUrl: "img/showcase/2.png",
     description: (
       <>This video will welcome users in the newest version of AnySticker.</>
@@ -71,9 +71,8 @@ export const showcaseVideos: ShowcaseVideo[] = [
   },
   {
     title: "Remotion Trailer",
-    type: "video_url",
-
-    videoUrl: "vid/showcase/3.mp4",
+    type: "mux_video",
+    muxId: "nJ2JnX2a02JiDvirVoNrz02lJ01q8DuvIZoKKq8q1uPdKA",
     imageUrl: "img/showcase/3.png",
     description: <>This video Welcome you to Remotion project.</>,
     width: 1920,
