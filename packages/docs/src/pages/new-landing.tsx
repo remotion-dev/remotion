@@ -2,6 +2,7 @@ import Layout from "@theme/Layout";
 import React from "react";
 import styled from "styled-components";
 import { IfYouKnowReact } from "../../components/LandingPage/if-you-know-react";
+import { RealMP4Videos } from "../../components/LandingPage/real-mp4-videos";
 
 const Title = styled.h1`
   font-size: 5em;
@@ -41,6 +42,12 @@ const NewLanding: React.FC = () => {
         <br />
         <br />
         <IfYouKnowReact></IfYouKnowReact>
+        <br />
+        <br />
+        <br />
+        <br />
+        <br />
+        <RealMP4Videos></RealMP4Videos>
       </Content>
     </Layout>
   );
