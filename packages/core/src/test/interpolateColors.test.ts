@@ -7,19 +7,25 @@ test('Throws if color string is not right', () => {
 	}, /invalid color string #fabgdf provided/);
 });
 
-test('Throws error if input, inputRange or outputRange is undefined', () => {
-	expectToThrow(() => {
-		// @ts-expect-error
-		interpolateColors(undefined, ['#aaa', '#bbb'], ['#fff', '#000']);
-	}, /input can not be undefined/);
-	expectToThrow(() => {
-		// @ts-expect-error
-		interpolateColors(1, undefined, ['#fff', '#000']);
-	}, /inputRange can not be undefined/);
-	expectToThrow(() => {
-		// @ts-expect-error
-		interpolateColors(1, ['#fff', '#000'], undefined);
-	}, /outputRange can not be undefined/);
+describe('Throws error for undefined parameters', () => {
+	test('Undefined input', () => {
+		expectToThrow(() => {
+			// @ts-expect-error
+			interpolateColors(undefined, ['#aaa', '#bbb'], ['#fff', '#000']);
+		}, /input can not be undefined/);
+	});
+	test('Undefined inputRange', () => {
+		expectToThrow(() => {
+			// @ts-expect-error
+			interpolateColors(1, undefined, ['#fff', '#000']);
+		}, /inputRange can not be undefined/);
+	});
+	test('Undefined outputRange', () => {
+		expectToThrow(() => {
+			// @ts-expect-error
+			interpolateColors(1, ['#fff', '#000'], undefined);
+		}, /outputRange can not be undefined/);
+	});
 });
 
 test('inputRange and outputRange must be of same length', () => {

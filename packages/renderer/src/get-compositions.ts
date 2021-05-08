@@ -2,12 +2,14 @@ import {Browser as PuppeteerBrowser} from 'puppeteer-core';
 import {Browser, Internals, TCompMetadata} from 'remotion';
 import {openBrowser} from './open-browser';
 import {serveStatic} from './serve-static';
+import {setPropsAndEnv} from './set-props-and-env';
 
 export const getCompositions = async (
 	webpackBundle: string,
 	config?: {
 		browser?: Browser;
 		inputProps?: object | null;
+		envVariables?: Record<string, string>;
 		browserInstance?: PuppeteerBrowser;
 	}
 ): Promise<TCompMetadata[]> => {
@@ -20,16 +22,12 @@ export const getCompositions = async (
 	page.on('error', console.error);
 	page.on('pageerror', console.error);
 
-	if (config?.inputProps) {
-		await page.goto(`http://localhost:${port}/index.html`);
-		await page.evaluate(
-			(key, input) => {
-				window.localStorage.setItem(key, input);
-			},
-			Internals.INPUT_PROPS_KEY,
-			JSON.stringify(config.inputProps)
-		);
-	}
+	await setPropsAndEnv({
+		inputProps: config?.inputProps,
+		envVariables: config?.envVariables,
+		page,
+		port,
+	});
 
 	await page.goto(`http://localhost:${port}/index.html?evaluation=true`);
 	await page.waitForFunction('window.ready === true');

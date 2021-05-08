@@ -134,6 +134,16 @@ The JPEG quality of each frame. Must be a number between 0 and 100. Will not wor
 Config.Rendering.setQuality(90);
 ```
 
+### setDotEnvLocation()
+
+Set a custom location for a [`.env`](https://www.npmjs.com/package/dotenv) file. You can specify an absolute path or a relative path in which case it gets resolved based on the current working directory.
+
+```tsx
+Config.Rendering.setDotEnvLocation('.my-env')
+```
+
+The [command line flag](/docs/cli) `--env-file` will take precedence over this option.
+
 ## Output
 
 ### setOverwriteOutput()
