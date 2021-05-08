@@ -1,11 +1,13 @@
 import React from "react";
 import styled from "styled-components";
+import { CodeExample } from "./CodeExample";
 
 const Row = styled.div`
   display: flex;
   flex-direction: row;
   justify-content: flex-end;
   text-align: right;
+  align-items: center;
 `;
 
 const Title = styled.h2`
@@ -35,14 +37,16 @@ const Button = styled.div`
 export const IfYouKnowReact: React.FC = () => {
   return (
     <Row>
+      <CodeExample></CodeExample>
+      <div style={{ width: 80 }}></div>
       <div>
         <Title>
           If you know <Rea>React</Rea> <br />
           you can make videos.
         </Title>
         <p>
-          Remotion is a small set of utilities for video creation in React.{" "}
-          <br /> The rules of React stay the same. <br />
+          Remotion is a set of utilities for video creation in React. <br /> The
+          rules of React stay the same. <br />
           Learn the fundamentals in just a few minutes:
         </p>
         <Button>Learn Remotion</Button>
