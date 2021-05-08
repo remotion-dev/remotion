@@ -89,4 +89,24 @@ export const showcaseVideos: ShowcaseVideo[] = [
       },
     ],
   },
+  {
+    title: "VFB Crowdfunding Campain",
+    type: "mux_video",
+    muxId: "L7DYDk9o701zxfWUhcFb1Z1mGGzYoIuxddwNVI3tcemQ",
+    imageUrl: "img/showcase/4.png",
+    description: <>It fetchs the actual raised amount and generate an animation with instagram story specifications.</>,
+    width: 1080,
+    height: 1920,
+    submittedOn: new Date("25-03-2021"),
+    links: [
+      {
+        type: "source_code",
+        url: "https://github.com/florentpergoud/vfb-crowdfunding-campain",
+      },
+      {
+        type: "video",
+        url: "https://twitter.com/FlorentPergoud/status/1371874105281159178?s=20",
+      },
+    ],
+  },
 ];
