@@ -93,13 +93,15 @@ export const PlayerFn = <T,>(
 		return {
 			compositions: [
 				{
-					component,
+					component: component as React.LazyExoticComponent<
+						React.ComponentType<unknown>
+					>,
 					durationInFrames,
 					height,
 					width,
 					fps,
 					id: 'player-comp',
-					props: inputProps,
+					props: inputProps as unknown,
 					nonce: 777,
 				},
 			],

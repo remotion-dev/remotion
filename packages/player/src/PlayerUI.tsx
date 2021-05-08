@@ -289,7 +289,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 			) : null}
 		</div>
 	);
-	// Don't render suspense on
+	// Don't render suspense on Node.js
 	if (IS_NODE) {
 		return content;
 	}
