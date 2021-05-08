@@ -61,10 +61,6 @@ const PlayerUI: React.ForwardRefRenderFunction<
 	useEffect(() => {
 		const {current} = container;
 
-		if (IS_NODE) {
-			return;
-		}
-
 		if (!current) {
 			return;
 		}
