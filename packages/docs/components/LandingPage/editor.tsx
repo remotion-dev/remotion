@@ -77,7 +77,7 @@ export const LightningFastEditor: React.FC = () => {
           playsInline
           playing={isIntersecting}
           loop
-          style={{ width: 500, borderRadius: 4, overflow: "hidden" }}
+          style={{ width: 500, borderRadius: 7, overflow: "hidden" }}
         ></Video>
       </div>
       <div style={{ flex: 1 }}>

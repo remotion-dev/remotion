@@ -17,6 +17,7 @@ const Demo: React.FC = () => {
         justifyContent: "center",
         alignItems: "center",
         flex: 1,
+        backgroundColor: "black",
       }}
     >
       <img
