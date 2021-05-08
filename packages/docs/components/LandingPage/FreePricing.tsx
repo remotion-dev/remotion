@@ -16,11 +16,19 @@ const Title = styled.h2`
   line-height: 1.1;
 `;
 
+const Mp4 = styled.span`
+  background: linear-gradient(to right, rgb(66, 144, 245), rgb(66, 233, 245));
+  -webkit-text-fill-color: transparent;
+  -webkit-background-clip: text;
+`;
+
 export const FreePricing: React.FC = () => {
   return (
     <Row>
       <div>
-        <Title>Funded by companies</Title>
+        <Title>
+          <Mp4>Free</Mp4> for individuals <br /> Funded by companies
+        </Title>
         <p>
           Remotion is free for individuals - you can even build a business on
           it! <br />
