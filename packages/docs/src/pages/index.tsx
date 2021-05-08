@@ -8,6 +8,7 @@ import clsx from "clsx";
 import React, { useState } from "react";
 import headerStyles from "./header.module.css";
 import styles from "./styles.module.css";
+
 setTimeout(() => {
   splitbee.init();
 }, 100);
