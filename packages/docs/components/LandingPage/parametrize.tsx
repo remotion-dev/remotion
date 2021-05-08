@@ -16,12 +16,18 @@ const Title = styled.h2`
   text-align: left;
 `;
 
+const Mp4 = styled.span`
+  background: linear-gradient(to right, rgb(66, 144, 245), rgb(66, 233, 245));
+  -webkit-text-fill-color: transparent;
+  -webkit-background-clip: text;
+`;
+
 export const Parametrize: React.FC = () => {
   return (
     <Row>
       <div>
         <Title>
-          Programmatic content <br />
+          <Mp4>Programmatic</Mp4> content <br />
           and rendering
         </Title>
         <p>
