@@ -31,7 +31,7 @@ values={[
 <TabItem value="npm">
 
 ```bash
-npm i @remotion/player
+npm i remotion @remotion/player
 ```
 
   </TabItem>
