@@ -17,6 +17,15 @@
   --ifm-code-font-size: 95%;
 }
 
+[data-theme="light"] {
+  --text-color: #000;
+  --light-text-color: #444;
+}
+[data-theme="dark"] {
+  --text-color: #fff;
+  --light-text-color: #aaa;
+}
+
 [data-theme="light"] .docusaurus-highlight-code-line {
   background-color: rgb(232, 232, 232);
   display: block;

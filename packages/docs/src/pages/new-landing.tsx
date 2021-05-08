@@ -1,7 +1,10 @@
 import Layout from "@theme/Layout";
 import React from "react";
 import styled from "styled-components";
+import { LightningFastEditor } from "../../components/LandingPage/editor";
+import { FreePricing } from "../../components/LandingPage/FreePricing";
 import { IfYouKnowReact } from "../../components/LandingPage/if-you-know-react";
+import { Parametrize } from "../../components/LandingPage/parametrize";
 import { RealMP4Videos } from "../../components/LandingPage/real-mp4-videos";
 
 const Title = styled.h1`
@@ -11,7 +14,11 @@ const Title = styled.h1`
   font-weight: 700;
   line-height: 1;
   -webkit-text-fill-color: transparent;
-  background: linear-gradient(to right, #000, #444);
+  background: linear-gradient(
+    to right,
+    var(--text-color),
+    var(--light-text-color)
+  );
   -webkit-background-clip: text;
   width: 500px;
 `;
@@ -48,6 +55,21 @@ const NewLanding: React.FC = () => {
         <br />
         <br />
         <RealMP4Videos></RealMP4Videos>
+        <br />
+        <br />
+        <br />
+        <br />
+        <LightningFastEditor></LightningFastEditor>
+        <br />
+        <br />
+        <br />
+        <br />
+        <Parametrize></Parametrize>
+        <br />
+        <br />
+        <br />
+        <br />
+        <FreePricing></FreePricing>
       </Content>
     </Layout>
   );
