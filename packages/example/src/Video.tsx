@@ -2,6 +2,7 @@ import React from 'react';
 import {Composition, getInputProps} from 'remotion';
 import {ColorInterpolation} from './ColorInterpolation';
 import {Framer} from './Framer';
+import {GithubDemo} from './GithubDemo';
 import {MissingImg} from './MissingImg';
 import RemoteVideo from './RemoteVideo';
 import {TenFrameTester} from './TenFrameTester';
@@ -236,6 +237,14 @@ export const Index: React.FC = () => {
 			<Composition
 				id="color-interpolation"
 				component={ColorInterpolation}
+				width={1280}
+				height={720}
+				fps={30}
+				durationInFrames={100}
+			/>
+			<Composition
+				id="github-demo"
+				component={GithubDemo}
 				width={1280}
 				height={720}
 				fps={30}
