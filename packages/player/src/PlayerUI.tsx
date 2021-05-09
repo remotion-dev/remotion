@@ -258,12 +258,8 @@ const PlayerUI: React.ForwardRefRenderFunction<
 	}
 
 	const content = (
-		<div
-			ref={container}
-			style={outerStyle}
-			onClick={clickToPlay ? onSingleClick : undefined}
-		>
-			<div style={outer}>
+		<div ref={container} style={outerStyle}>
+			<div style={outer} onClick={clickToPlay ? onSingleClick : undefined}>
 				<div style={containerStyle} className={PLAYER_CSS_CLASSNAME}>
 					{VideoComponent ? (
 						<ErrorBoundary onError={onError}>
