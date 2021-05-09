@@ -1,10 +1,8 @@
-import TabItem from "@theme/TabItem";
-import Tabs from "@theme/Tabs";
 import React, { useState } from "react";
 import styled from "styled-components";
-import headerStyles from "../../src/pages/header.module.css";
 import styles from "../../src/pages/styles.module.css";
 import { mobile } from "../layout/layout";
+import { GetStarted } from "./GetStartedStrip";
 import { PlayerPreview } from "./PlayerPreview";
 
 const Row = styled.div`
@@ -69,22 +67,8 @@ export const WriteInReact: React.FC = () => {
           Use your React knowledge to create real MP4 videos. <br /> Scale your
           video production using server-side rendering and parametrization.
         </p>
-        <Tabs
-          className={headerStyles.tabContainer}
-          defaultValue="npm"
-          values={[
-            { label: "NPM", value: "npm" },
-            { label: "Yarn", value: "yarn" },
-          ]}
-        >
-          <TabItem value="npm">
-            <Snippet snippetValue={"npm init video"} />
-          </TabItem>
 
-          <TabItem value="yarn">
-            <Snippet snippetValue={"yarn create video"} />
-          </TabItem>
-        </Tabs>
+        <GetStarted></GetStarted>
       </div>
       <Right>
         <PlayerPreview />
