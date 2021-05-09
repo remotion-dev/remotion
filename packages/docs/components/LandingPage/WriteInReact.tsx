@@ -1,6 +1,5 @@
-import React, { useState } from "react";
+import React from "react";
 import styled from "styled-components";
-import styles from "../../src/pages/styles.module.css";
 import { mobile } from "../layout/layout";
 import { GetStarted } from "./GetStartedStrip";
 import { PlayerPreview } from "./PlayerPreview";
@@ -28,26 +27,6 @@ const Title = styled.h1`
   -webkit-background-clip: text;
   width: 500px;
 `;
-
-const Snippet: React.FC<{
-  snippetValue: string;
-}> = ({ snippetValue }) => {
-  const [copied, setCopied] = useState(false);
-  return (
-    <div className={styles.snippet}>
-      <div className={styles.snippetValue}>$ {snippetValue}</div>
-      <div
-        className={styles.copySnippet}
-        onClick={() => {
-          navigator.clipboard.writeText(snippetValue);
-          setCopied(true);
-        }}
-      >
-        {copied ? "Copied!" : "Copy"}
-      </div>
-    </div>
-  );
-};
 
 const Right = styled.div`
   flex: 1;
