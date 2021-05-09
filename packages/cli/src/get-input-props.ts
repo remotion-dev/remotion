@@ -1,4 +1,5 @@
 import fs from 'fs';
+import os from 'os';
 import path from 'path';
 import {Log} from './log';
 import {parsedCli} from './parse-command-line';
@@ -24,6 +25,18 @@ export const getInputProps = (): object => {
 		Log.error(
 			'Check that your input is parseable using `JSON.parse` and try again.'
 		);
+		if (os.platform() === 'win32') {
+			Log.warn(
+				'Note: Windows handles escaping of quotes very weirdly in the command line.'
+			);
+			Log.warn('This might have led to you having this problem.');
+			Log.warn(
+				'Consider using the alternative API for --props which is to pass'
+			);
+			Log.warn('a path to a JSON file:');
+			Log.warn('  --props=path/to/props.json');
+		}
+
 		process.exit(1);
 	}
 };

@@ -39,6 +39,8 @@ export const printHelp = () => {
 		['--frames', 'Render a portion or a still of a video'],
 		['--bundle-cache', 'Cache webpack bundle, boolean, default true'],
 		['--log', 'Log level, "error", "warning", "verbose", "info" (default)'],
+		['--port', 'Custom port to use for the HTTP server'],
+		['--env-file', 'Specify a location for a dotenv file'],
 	]);
 	Log.info();
 	Log.info('remotion upgrade');
