@@ -43,6 +43,18 @@ Config.Bundling.setCachingEnabled(false);
 
 The [command line flag](/docs/cli) `--bundle-cache` will take precedence over this option.
 
+### setPort()
+
+Define on which port Remotion should start it's HTTP servers during preview and rendering.
+By default, Remotion will try to find a free port.
+If you specify a port, but it's not available, Remotion will throw an error.
+
+```tsx
+Config.Bundling.setPort(3003);
+```
+
+The [command line flag](/docs/cli) `--port` will take precedence over this option.
+
 ## Log
 
 ### setLevel()
