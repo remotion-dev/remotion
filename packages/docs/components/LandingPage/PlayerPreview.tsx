@@ -6,15 +6,21 @@ const Container = styled.div`
   flex: 1;
   cursor: pointer;
   position: relative;
+  &:hover {
+    transform: scale(1.015);
+  }
+  transition: transform 0.3s;
 `;
+
+const A = styled.a``;
 
 export const PlayerPreview: React.FC = () => {
   return (
-    <a href="https://www.youtube.com/watch?v=gwlDorikqgY" target="_blank">
+    <A href="https://www.youtube.com/watch?v=gwlDorikqgY" target="_blank">
       <Container>
         <img
           style={{
-            boxShadow: "0 0 8px rgba(0, 0, 0, 0.2)",
+            boxShadow: "var(--box-shadow)",
           }}
           src="http://i3.ytimg.com/vi/gwlDorikqgY/maxresdefault.jpg"
         ></img>
@@ -31,6 +37,6 @@ export const PlayerPreview: React.FC = () => {
           Watch 2 min video
         </div>
       </Container>
-    </a>
+    </A>
   );
 };

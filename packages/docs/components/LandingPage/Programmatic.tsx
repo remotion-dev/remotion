@@ -48,7 +48,7 @@ export const ProgrammaticContent: React.FC<{ data: GithubResponse | null }> = ({
     if (isIntersecting) {
       playerRef.current?.play();
     }
-  }, [data]);
+  }, [data, isIntersecting]);
 
   return (
     <MobilePlayer ref={containerRef}>

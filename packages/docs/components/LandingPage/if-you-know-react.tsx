@@ -1,5 +1,6 @@
 import React from "react";
 import styled from "styled-components";
+import { BlueButton } from "../layout/Button";
 import { mobile } from "../layout/layout";
 import { CodeExample } from "./CodeExample";
 
@@ -35,24 +36,22 @@ const Rea = styled.span`
   -webkit-background-clip: text;
 `;
 
-const Button = styled.div`
-  padding: 10px 16px;
-  background-color: rgb(66, 144, 245);
+const A = styled.a`
   display: inline-block;
-  border-radius: 3px;
-  color: white;
-  font-weight: bold;
   ${mobile`
   
   margin-bottom: 80px;
-  `}
+  `};
+  &:hover  {
+    text-decoration: none;
+  }
 `;
 
 export const IfYouKnowReact: React.FC = () => {
   return (
     <Row>
       <CodeExample></CodeExample>
-      <div style={{ width: 80 }}></div>
+      <div style={{ width: 40 }}></div>
       <div>
         <Title>
           If you know <Rea>React</Rea> <br />
@@ -63,9 +62,11 @@ export const IfYouKnowReact: React.FC = () => {
           rules of React stay the same. <br />
           Learn the fundamentals in just a few minutes:
         </p>
-        <a href="/docs/the-fundamentals">
-          <Button>Learn Remotion</Button>
-        </a>
+        <A href="/docs/the-fundamentals">
+          <BlueButton size="sm" fullWidth={false} loading={false}>
+            Learn Remotion
+          </BlueButton>
+        </A>
       </div>
     </Row>
   );

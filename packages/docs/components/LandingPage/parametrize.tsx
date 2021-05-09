@@ -1,5 +1,6 @@
 import React, { useEffect, useReducer, useRef, useState } from "react";
 import styled from "styled-components";
+import { BlueButton } from "../layout/Button";
 import { mobile } from "../layout/layout";
 import { GithubResponse } from "./GithubDemo";
 import { ProgrammaticContent } from "./Programmatic";
@@ -152,8 +153,13 @@ export const Parametrize: React.FC = () => {
           <form
             onSubmit={(e) => {
               e.preventDefault();
+              if (!ref.current?.value) {
+                return;
+              }
+
               setUsername(ref.current?.value as string);
             }}
+            style={{ display: "flex", flexDirection: "row" }}
           >
             <Input
               autoFocus
@@ -162,13 +168,19 @@ export const Parametrize: React.FC = () => {
               placeholder="Your Github username"
             ></Input>{" "}
             <div style={{ width: 8, display: "inline-block" }}></div>
-            <SubmitButton
-              disabled={state.type === "loading"}
-              style={{ opacity: state.type === "loading" ? 0.5 : 1 }}
-              onClick={() => setUsername(ref.current?.value as string)}
+            <BlueButton
+              loading={state.type === "loading"}
+              fullWidth={false}
+              size="sm"
+              onClick={() => {
+                if (!ref.current?.value) {
+                  return;
+                }
+                setUsername(ref.current?.value as string);
+              }}
             >
               Show video
-            </SubmitButton>
+            </BlueButton>
           </form>
         </div>
         {state.type === "error" ? (
