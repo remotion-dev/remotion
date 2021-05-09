@@ -21,8 +21,8 @@ const PricingRow = styled.div`
 `;
 
 const Panel = styled.div`
-  background-color: white;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+  background-color: var(--ifm-background-color);
+  box-shadow: var(--box-shadow);
   padding: 10px;
   border-radius: 15px;
   flex: 1;
@@ -41,7 +41,7 @@ const Panel = styled.div`
     margin-top: 12px;
     margin-bottom: 12px;
     display: flex;
-    color: #222;
+    color: var(--text-color);
     font-size: 0.95em;
   }
 `;
@@ -91,7 +91,7 @@ const Portion = styled.div`
 `;
 
 const TargetTitle = styled.div`
-  border-bottom: 1px solid black;
+  border-bottom: 1px solid var(--text-color);
   font-weight: 600;
   margin-bottom: 20px;
 `;
