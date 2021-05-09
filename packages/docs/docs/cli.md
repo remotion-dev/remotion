@@ -28,6 +28,7 @@ Besides choosing a video and output location with the command line arguments, th
 - `--frames`: [Render a still frame or a subset of a video](/docs/config#setframerange). Example: `--frames=0-9` (To select the first 10 frames) or `--frames=50` (To render a still of the 51st frame). Available since v2.0.
 - `--bundle-cache`: [Enable or disable Webpack caching](/docs/config#setcachingenabled). This flag is enabled by default, use `--bundle-cache=false` to disable caching. Available since v2.0.
 - `--log`: [Set the log level](/docs/config#setlevel). Increase or decrease the amount of output. Acceptable values: `error`, `warning`, `info` (_default_), `verbose`
+- `--port`: [Set a custom HTTP server port](/docs/config#setPort). If not defined, Remotion will try to find a free port.
 
 :::info
 If you don't feel like passing command line flags every time, consider creating a `remotion.config.ts` [config file](/docs/config).
