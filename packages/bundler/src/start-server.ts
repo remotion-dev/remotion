@@ -2,13 +2,13 @@
 import webpackDevMiddleware from '@jonny/webpack-dev-middleware';
 import express from 'express';
 import fs from 'fs';
-import getPort from 'get-port';
 import os from 'os';
 import path from 'path';
 import {Internals, WebpackOverrideFn} from 'remotion';
 import webpack from 'webpack';
 // @ts-expect-error
 import webpackHotMiddleware from 'webpack-hot-middleware';
+import {getDesiredPort} from './get-port';
 import {isUpdateAvailableWithTimeout} from './update-available';
 import {webpackConfig} from './webpack-config';
 
@@ -19,6 +19,7 @@ export const startServer = async (
 		webpackOverride?: WebpackOverrideFn;
 		inputProps?: object;
 		envVariables?: Record<string, string>;
+		port?: number;
 	}
 ): Promise<number> => {
 	const app = express();
@@ -67,7 +68,10 @@ export const startServer = async (
 		res.sendFile(path.join(__dirname, '..', 'web', 'index.html'));
 	});
 
-	const port = await getPort({port: getPort.makeRange(3000, 3100)});
+	const desiredPort = options?.port ?? Internals.getServerPort();
+
+	const port = await getDesiredPort(desiredPort, 3000, 3100);
+
 	app.listen(port);
 	return port;
 };
