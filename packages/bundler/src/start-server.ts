@@ -2,13 +2,13 @@
 import webpackDevMiddleware from '@jonny/webpack-dev-middleware';
 import express from 'express';
 import fs from 'fs';
-import getPort from 'get-port';
 import os from 'os';
 import path from 'path';
 import {Internals, WebpackOverrideFn} from 'remotion';
 import webpack from 'webpack';
 // @ts-expect-error
 import webpackHotMiddleware from 'webpack-hot-middleware';
+import {getDesiredPort} from './get-port';
 import {isUpdateAvailableWithTimeout} from './update-available';
 import {webpackConfig} from './webpack-config';
 
@@ -71,16 +71,7 @@ export const startServer = async (
 	const desiredPort =
 		options?.previewServerPort ?? Internals.getPreviewServerPort();
 
-	const port = await getPort({
-		port: desiredPort ?? getPort.makeRange(3000, 3100),
-	});
-
-	// If did specify a port but did not get that one, fail hard.
-	if (desiredPort && desiredPort !== port) {
-		throw new Error(
-			`You specified port ${desiredPort} to be used for the preview server, but it is not available. Choose a different port or remove the setting to let Remotion automatically select a free port.`
-		);
-	}
+	const port = await getDesiredPort(desiredPort, 3000, 3100);
 
 	app.listen(port);
 	return port;
