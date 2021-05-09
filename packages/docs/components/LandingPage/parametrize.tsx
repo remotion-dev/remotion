@@ -144,23 +144,32 @@ export const Parametrize: React.FC = () => {
         </span>
         <div style={{ height: 10 }}></div>
         <div>
-          <Input
-            autoFocus
-            ref={ref}
-            type="text"
-            placeholder="Your Github username"
-          ></Input>{" "}
-          <div style={{ width: 8, display: "inline-block" }}></div>
-          <SubmitButton
-            disabled={state.type === "loading"}
-            style={{ opacity: state.type === "loading" ? 0.5 : 1 }}
-            onClick={() => setUsername(ref.current?.value as string)}
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              setUsername(ref.current?.value as string);
+            }}
           >
-            Show video
-          </SubmitButton>
+            <Input
+              autoFocus
+              ref={ref}
+              type="text"
+              placeholder="Your Github username"
+            ></Input>{" "}
+            <div style={{ width: 8, display: "inline-block" }}></div>
+            <SubmitButton
+              disabled={state.type === "loading"}
+              style={{ opacity: state.type === "loading" ? 0.5 : 1 }}
+              onClick={() => setUsername(ref.current?.value as string)}
+            >
+              Show video
+            </SubmitButton>
+          </form>
         </div>
         {state.type === "error" ? (
-          <div style={{ color: "red" }}>{state.type}</div>
+          <div style={{ color: "red", fontSize: 13 }}>
+            Error: {state.error.message}
+          </div>
         ) : null}
       </div>
       <ProgrammaticContent
