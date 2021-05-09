@@ -70,8 +70,8 @@ export const startServer = async (
 
 	const port = await getPort({
 		port:
-			Internals.getPreviewServerPort() ||
 			options?.previewServerPort ||
+			Internals.getPreviewServerPort() ||
 			getPort.makeRange(3000, 3100),
 	});
 	app.listen(port);
