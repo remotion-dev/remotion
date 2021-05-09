@@ -81,6 +81,10 @@ Specify a location for a dotenv file. Default `.env`. Available in v2.2 and late
 If you don't feel like passing command line flags every time, consider creating a `remotion.config.ts` [config file](/docs/config).
 :::
 
+### `--port`
+
+[Set a custom HTTP server port](/docs/config#setPort). If not defined, Remotion will try to find a free port.
+
 ### `--help`
 
 Print the list of available CLI commands and flags.
