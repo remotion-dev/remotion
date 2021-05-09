@@ -68,12 +68,20 @@ export const startServer = async (
 		res.sendFile(path.join(__dirname, '..', 'web', 'index.html'));
 	});
 
+	const desiredPort =
+		options?.previewServerPort ?? Internals.getPreviewServerPort();
+
 	const port = await getPort({
-		port:
-			options?.previewServerPort ||
-			Internals.getPreviewServerPort() ||
-			getPort.makeRange(3000, 3100),
+		port: desiredPort ?? getPort.makeRange(3000, 3100),
 	});
+
+	// If did specify a port but did not get that one, fail hard.
+	if (desiredPort && desiredPort !== port) {
+		throw new Error(
+			`You specified port ${desiredPort} to be used for the preview server, but it is not available. Choose a different port or remove the setting to let Remotion automatically select a free port.`
+		);
+	}
+
 	app.listen(port);
 	return port;
 };
