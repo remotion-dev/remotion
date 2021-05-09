@@ -1,11 +1,11 @@
 import React from "react";
 import styled from "styled-components";
+import { PricingTable } from "./PricingTable";
 
 const Row = styled.div`
   display: flex;
   flex-direction: row;
-  justify-content: flex-end;
-  text-align: right;
+  text-align: center;
 `;
 
 const Title = styled.h2`
@@ -24,8 +24,8 @@ const Mp4 = styled.span`
 
 export const FreePricing: React.FC = () => {
   return (
-    <Row>
-      <div>
+    <>
+      <div style={{ textAlign: "center" }}>
         <Title>
           <Mp4>Free</Mp4> for individuals <br /> Funded by companies
         </Title>
@@ -36,6 +36,7 @@ export const FreePricing: React.FC = () => {
           keep improving the Remotion experience.
         </p>
       </div>
-    </Row>
+      <PricingTable></PricingTable>
+    </>
   );
 };
