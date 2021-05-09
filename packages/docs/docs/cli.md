@@ -13,7 +13,7 @@ npx remotion render <entry-file> <composition-id> <output-location>
 
 Besides choosing a video and output location with the command line arguments, the following flags are supported:
 
-- `--props`: React Props to pass to the root component of your video. Must be a serialized JSON string (`--props='{"hello": "world"}'`) or a path to a JSON file (`./path/to/props.json`).
+- `--props`: React Props to pass to the root component of your video. Must be a serialized JSON string (`--props='{"hello": "world"}'`) or a path to a JSON file (`./path/to/props.json`). Inline JSON string isn't supported on Windows because it removes the `"` character, use a temporary file instead.
 - `--concurrency`: [How many CPU threads to use.](/docs/config#setconcurrency) Minimum 1. The maximum is the amount of threads you have.
 - `--pixel-format`: [Set a custom pixel format. See here for available values.](/docs/config#setpixelformat)
 - `--image-format`: [`jpeg` or `png` - JPEG is faster, but supports transparency.](/docs/config#setimageformat) The default image format is `jpeg` since v1.1. Flag available since v1.4.
