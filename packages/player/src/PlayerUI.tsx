@@ -290,7 +290,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		return content;
 	}
 
-	return <Suspense fallback={<div style={outerStyle} />}>{content}</Suspense>;
+	return <Suspense fallback={<h1>Loading...</h1>}>{content}</Suspense>;
 };
 
 export default forwardRef(PlayerUI);
