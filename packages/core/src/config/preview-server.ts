@@ -1,6 +1,6 @@
-let previewServerPort: number | undefined;
+let serverPort: number | undefined;
 
-export const setPreviewServerPort = (port: number | undefined) => {
+export const setPort = (port: number | undefined) => {
 	if (!['number', 'undefined'].includes(typeof port)) {
 		throw new Error(
 			`Preview server port should be a number. Got ${typeof port} (${JSON.stringify(
@@ -10,7 +10,7 @@ export const setPreviewServerPort = (port: number | undefined) => {
 	}
 
 	if (port === undefined) {
-		previewServerPort = undefined;
+		serverPort = undefined;
 		return;
 	}
 
@@ -20,7 +20,7 @@ export const setPreviewServerPort = (port: number | undefined) => {
 		);
 	}
 
-	previewServerPort = port;
+	serverPort = port;
 };
 
-export const getPreviewServerPort = () => previewServerPort;
+export const getServerPort = () => serverPort;

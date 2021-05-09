@@ -10,7 +10,7 @@ export const serveStatic = async (
 	}
 ) => {
 	const port = await getDesiredPort(
-		options?.port ?? Internals.getPreviewServerPort() ?? undefined,
+		options?.port ?? Internals.getServerPort() ?? undefined,
 		3000,
 		3100
 	);

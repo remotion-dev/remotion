@@ -29,7 +29,7 @@ export type CommandLineOptions = {
 	sequence: boolean;
 	log: string;
 	help: boolean;
-	['preview-server-port']: number;
+	port: number;
 };
 
 export const parsedCli = minimist<CommandLineOptions>(process.argv.slice(2));

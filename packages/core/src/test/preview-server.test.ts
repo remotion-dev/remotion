@@ -1,13 +1,10 @@
-import {
-	getPreviewServerPort,
-	setPreviewServerPort,
-} from '../config/preview-server';
+import {getServerPort, setPort} from '../config/preview-server';
 import {expectToThrow} from './expect-to-throw';
 
 describe('setting preview server port', () => {
 	test.each<number>([2, 3, 3450, 8700])('accept only valid port %s', (port) => {
-		setPreviewServerPort(port);
-		expect(getPreviewServerPort()).toBe(port);
+		setPort(port);
+		expect(getServerPort()).toBe(port);
 	});
 
 	test.each<[number | string, string]>([
@@ -20,6 +17,6 @@ describe('setting preview server port', () => {
 		],
 	])('throw error on invalid ports %s', (port, errorPattern) => {
 		// @ts-expect-error
-		expectToThrow(() => setPreviewServerPort(port), new RegExp(errorPattern));
+		expectToThrow(() => setPort(port), new RegExp(errorPattern));
 	});
 });
