@@ -1,9 +1,19 @@
 import http from 'http';
+import {Internals} from 'remotion';
 import handler from 'serve-handler';
-import {getPort} from './get-port';
+import {getDesiredPort} from './get-port';
 
-export const serveStatic = async (path: string) => {
-	const port = await getPort(3000, 3100);
+export const serveStatic = async (
+	path: string,
+	options?: {
+		port?: number;
+	}
+) => {
+	const port = await getDesiredPort(
+		options?.port ?? Internals.getPreviewServerPort() ?? undefined,
+		3000,
+		3100
+	);
 
 	const server = http
 		.createServer((request, response) => {
