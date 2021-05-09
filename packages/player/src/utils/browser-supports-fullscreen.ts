@@ -1,5 +1,3 @@
-import {IS_NODE} from './is-node';
-
 declare global {
 	interface Document {
 		webkitFullscreenEnabled?: boolean;
@@ -11,6 +9,6 @@ declare global {
 	}
 }
 
-export const browserSupportsFullscreen = IS_NODE
-	? false
-	: document.fullscreenEnabled || document.webkitFullscreenEnabled;
+export const browserSupportsFullscreen =
+	typeof document !== 'undefined' &&
+	(document.fullscreenEnabled || document.webkitFullscreenEnabled);

@@ -3,7 +3,7 @@ id: env-variables
 title: Environment variables
 ---
 
-_Available from v2.2._
+_Available from v2.1.2._
 
 Remotion supports environment variables being passed directly from the CLI, using a `.env` file and from the [`renderFrames()`](/docs/render-frames) function.
 
