@@ -1,13 +1,20 @@
 import React from "react";
 import styled from "styled-components";
+import { mobile } from "../layout/layout";
 import { CodeExample } from "./CodeExample";
 
 const Row = styled.div`
   display: flex;
   flex-direction: row;
-  justify-content: flex-end;
   text-align: right;
+  justify-content: flex-end;
   align-items: center;
+  ${mobile`
+    flex-direction: column-reverse;
+    text-align: left;
+    justify-content: flex-start;
+    align-items: flex-start;
+  `}
 `;
 
 const Title = styled.h2`
@@ -17,6 +24,9 @@ const Title = styled.h2`
     Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
   line-height: 1.1;
   text-align: right;
+  ${mobile`
+    text-align: left;
+  `}
 `;
 
 const Rea = styled.span`
@@ -32,6 +42,10 @@ const Button = styled.div`
   border-radius: 3px;
   color: white;
   font-weight: bold;
+  ${mobile`
+  
+  margin-bottom: 80px;
+  `}
 `;
 
 export const IfYouKnowReact: React.FC = () => {
@@ -49,7 +63,9 @@ export const IfYouKnowReact: React.FC = () => {
           rules of React stay the same. <br />
           Learn the fundamentals in just a few minutes:
         </p>
-        <Button>Learn Remotion</Button>
+        <a href="/docs/the-fundamentals">
+          <Button>Learn Remotion</Button>
+        </a>
       </div>
     </Row>
   );
