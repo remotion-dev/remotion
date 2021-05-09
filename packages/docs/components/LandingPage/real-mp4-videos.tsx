@@ -1,9 +1,13 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import styled, { keyframes } from "styled-components";
+import { mobile } from "../layout/layout";
 
 const Row = styled.div`
   display: flex;
   flex-direction: row;
+  ${mobile`
+    flex-direction: column-reverse;
+  `}
 `;
 
 const Title = styled.h2`
@@ -31,11 +35,25 @@ const animation = keyframes`
   }
 `;
 
+const Mp4Container = styled.div`
+  flex: 1;
+  justify-content: flex-end;
+  ${mobile`
+    justify-content: flex-start;
+  `}
+  align-items: center;
+  display: flex;
+`;
+
 const Icon = styled.img<{
   playing: boolean;
 }>`
   animation: ${animation} 0.6s;
   animation-play-state: ${(props) => (props.playing ? "running" : "paused")};
+  ${mobile`
+    animation: none;
+    margin-bottom: 30px;
+  `}
 `;
 
 export const RealMP4Videos: React.FC = () => {
@@ -72,20 +90,13 @@ export const RealMP4Videos: React.FC = () => {
           also supported.
         </p>
       </div>
-      <div
-        style={{
-          flex: 1,
-          justifyContent: "flex-end",
-          alignItems: "center",
-          display: "flex",
-        }}
-      >
+      <Mp4Container>
         <Icon
           playing={isIntersecting}
           src="/img/mp4.png"
-          style={{ width: 140 }}
+          style={{ width: 110 }}
         ></Icon>
-      </div>
+      </Mp4Container>
     </Row>
   );
 };

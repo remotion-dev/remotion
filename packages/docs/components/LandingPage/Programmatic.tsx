@@ -1,6 +1,16 @@
 import { Player, PlayerRef } from "@remotion/player";
 import React, { useCallback, useEffect, useRef, useState } from "react";
+import styled from "styled-components";
+import { mobile } from "../layout/layout";
 import { GithubDemo, GithubResponse } from "./GithubDemo";
+
+const MobilePlayer = styled.div`
+  width: 500px;
+  position: relative;
+  ${mobile`
+  width: 100%;
+  `}
+`;
 
 export const ProgrammaticContent: React.FC<{ data: GithubResponse | null }> = ({
   data,
@@ -41,7 +51,7 @@ export const ProgrammaticContent: React.FC<{ data: GithubResponse | null }> = ({
   }, [data]);
 
   return (
-    <div ref={containerRef}>
+    <MobilePlayer ref={containerRef}>
       <Player
         ref={playerRef}
         component={GithubDemo}
@@ -50,9 +60,9 @@ export const ProgrammaticContent: React.FC<{ data: GithubResponse | null }> = ({
         durationInFrames={100}
         fps={30}
         controls
-        style={{ width: 500 }}
+        style={{ width: "100%" }}
         inputProps={{ data }}
-      ></Player>
-    </div>
+      />
+    </MobilePlayer>
   );
 };

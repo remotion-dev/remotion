@@ -1,5 +1,6 @@
 import React from "react";
 import styled from "styled-components";
+import { mobile } from "../layout/layout";
 import { PricingTable } from "./PricingTable";
 
 const Row = styled.div`
@@ -22,10 +23,17 @@ const Mp4 = styled.span`
   -webkit-background-clip: text;
 `;
 
+const Container = styled.div`
+  text-align: center;
+  ${mobile`
+    text-align: left;
+  `}
+`;
+
 export const FreePricing: React.FC = () => {
   return (
     <>
-      <div style={{ textAlign: "center" }}>
+      <Container>
         <Title>
           <Mp4>Free</Mp4> for individuals <br /> Funded by companies
         </Title>
@@ -35,7 +43,7 @@ export const FreePricing: React.FC = () => {
           As a company, you need a license to use Remotion. <br /> Thanks to
           your support, we keep improving Remotion for everyone.
         </p>
-      </div>
+      </Container>
       <PricingTable></PricingTable>
       <br />
       <br />

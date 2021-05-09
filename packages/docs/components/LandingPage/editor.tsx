@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import styled, { keyframes } from "styled-components";
+import { mobile } from "../layout/layout";
 
 const Row = styled.div`
   display: flex;
@@ -7,6 +8,12 @@ const Row = styled.div`
   justify-content: flex-end;
   text-align: right;
   align-items: center;
+  ${mobile`
+    flex-direction: column-reverse;
+    text-align: left;
+    align-items: flex-start;
+    justify-content: flex-start;
+  `}
 `;
 
 const Title = styled.h2`
@@ -16,6 +23,9 @@ const Title = styled.h2`
     Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
   line-height: 1.1;
   text-align: right;
+  ${mobile`
+    text-align: left;
+  `}
 `;
 
 const Mp4 = styled.span`

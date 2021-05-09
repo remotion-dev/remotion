@@ -111,6 +111,13 @@ const Bullet: React.FC<{ color: string }> = ({ color }) => {
   );
 };
 
+const A = styled.a`
+  &:hover {
+    text-decoration: none;
+  }
+  color: inherit;
+`;
+
 export const PricingTable: React.FC<{}> = () => {
   const [period, setPeriod] = useState(Period.Monthly);
   return (
@@ -177,13 +184,13 @@ export const PricingTable: React.FC<{}> = () => {
                 </li>
               </ul>
               <div style={{ flex: 1 }} />
-              <a href="https://companies.remotion.dev">
+              <A href="https://companies.remotion.dev" target="_blank">
                 <div>
                   <BlueButton fullWidth loading={false} size="bg">
                     Buy a license
                   </BlueButton>
                 </div>
-              </a>
+              </A>
             </Panel>
             <Spacer />
             <Spacer />
@@ -212,13 +219,13 @@ export const PricingTable: React.FC<{}> = () => {
                 </li>
               </ul>
               <div style={{ flex: 1 }} />
-              <a href="https://companies.remotion.dev">
+              <A href="https://companies.remotion.dev" target="_blank">
                 <div>
                   <BlueButton fullWidth loading={false} size="bg">
                     Buy a license
                   </BlueButton>
                 </div>
-              </a>
+              </A>
             </Panel>
           </PricingRow>
         </Portion>

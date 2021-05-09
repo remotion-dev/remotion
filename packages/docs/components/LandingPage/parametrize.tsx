@@ -1,5 +1,6 @@
 import React, { useEffect, useReducer, useRef, useState } from "react";
 import styled from "styled-components";
+import { mobile } from "../layout/layout";
 import { GithubResponse } from "./GithubDemo";
 import { ProgrammaticContent } from "./Programmatic";
 
@@ -8,6 +9,10 @@ const Row = styled.div`
   flex-direction: row;
   text-align: left;
   align-items: center;
+  ${mobile`
+    flex-direction: column;
+    align-items: flex-start;
+  `}
 `;
 
 const Title = styled.h2`
