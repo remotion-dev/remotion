@@ -40,8 +40,8 @@ export const FreePricing: React.FC = () => {
         <p>
           Remotion is free for individuals - you can even build a business on
           it! <br />
-          As a company, you need a license to use Remotion. <br /> Thanks to
-          your support, we keep improving Remotion for everyone.
+          As a company, you need a license to use Remotion. <br /> With your
+          support, we constantly improve Remotion for everyone.
         </p>
       </Container>
       <PricingTable></PricingTable>
