@@ -5,6 +5,7 @@ import styled from "styled-components";
 import headerStyles from "../../src/pages/header.module.css";
 import styles from "../../src/pages/styles.module.css";
 import { mobile } from "../layout/layout";
+import { PlayerPreview } from "./PlayerPreview";
 
 const Row = styled.div`
   flex-direction: row;
@@ -86,12 +87,7 @@ export const WriteInReact: React.FC = () => {
         </Tabs>
       </div>
       <Right>
-        <img
-          style={{
-            boxShadow: "0 0 8px rgba(0, 0, 0, 0.2)",
-          }}
-          src="http://i3.ytimg.com/vi/gwlDorikqgY/maxresdefault.jpg"
-        ></img>
+        <PlayerPreview />
       </Right>
     </Row>
   );
