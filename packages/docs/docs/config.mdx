@@ -41,7 +41,7 @@ Enable or disable webpack caching. Default is `true` which will make the Webpack
 Config.Bundling.setCachingEnabled(false);
 ```
 
-The [command line flag](/docs/cli) `--bundle-cache` will take precedence over this option.
+The [command line flag](/docs/cli#--bundle-cache) `--bundle-cache` will take precedence over this option.
 
 ## Log
 
@@ -61,7 +61,7 @@ Acceptable values:
 Config.Log.setLevel('verbose');
 ```
 
-The [command line flag](/docs/cli) `--log` will take precedence over this option.
+The [command line flag](/docs/cli#--log) `--log` will take precedence over this option.
 
 ## Puppeteer
 
@@ -75,7 +75,7 @@ Set a custom Chrome or Chromium executable path. By default Remotion will try to
 Config.Puppeteer.setBrowserExecutable('/usr/bin/google-chrome-stable')
 ```
 
-The [command line flag](/docs/cli) `--browser-executable` will take precedence over this option.
+The [command line flag](/docs/cli#--browser-executable) `--browser-executable` will take precedence over this option.
 
 ## Rendering
 
@@ -88,7 +88,7 @@ Default: `null`, meaning **half of the threads** available on your CPU.
 Config.Rendering.setConcurrency(8)
 ```
 
-The [command line flag](/docs/cli) `--concurrency` will take precedence over this option.
+The [command line flag](/docs/cli#--concurrency) `--concurrency` will take precedence over this option.
 
 :::tip
 Try to set your concurrency to `os.cpus().length` to all the threads available on your CPU for faster rendering. The drawback is that other parts of your system might slow down.
@@ -108,7 +108,7 @@ Determines which in which image format to render the frames. Either:
 Config.Rendering.setImageFormat('png')
 ```
 
-The [command line flag](/docs/cli) `--image-format` will take precedence over this option.
+The [command line flag](/docs/cli#--image-format) `--image-format` will take precedence over this option.
 
 ### setFrameRange()
 
@@ -126,6 +126,8 @@ or
 Config.Rendering.setFrameRange([0, 20]); // Render a video only containing the first 21 frames
 ```
 
+The [command line flag](/docs/cli#--frames) `--frames` will take precedence over this option.
+
 ### setQuality()
 
 The JPEG quality of each frame. Must be a number between 0 and 100. Will not work if you render PNG frames. [Default: 80](https://github.com/chromium/chromium/blob/99314be8152e688bafbbf9a615536bdbb289ea87/headless/lib/browser/protocol/headless_handler.cc#L32).
@@ -133,6 +135,8 @@ The JPEG quality of each frame. Must be a number between 0 and 100. Will not wor
 ```tsx
 Config.Rendering.setQuality(90);
 ```
+
+The [command line flag](/docs/cli#--quality) `--quality` will take precedence over this option.
 
 ### setDotEnvLocation()
 
@@ -142,7 +146,7 @@ Set a custom location for a [`.env`](https://www.npmjs.com/package/dotenv) file.
 Config.Rendering.setDotEnvLocation('.my-env')
 ```
 
-The [command line flag](/docs/cli) `--env-file` will take precedence over this option.
+The [command line flag](/docs/cli#--env-file) `--env-file` will take precedence over this option.
 
 ## Output
 
@@ -154,7 +158,7 @@ Set this to `false` to prevent overwriting Remotion outputs when they already ex
 Config.Output.setOverwriteOutput(false)
 ```
 
-The [command line flag](/docs/cli) `--overwrite` will take precedence over this option.
+The [command line flag](/docs/cli#--overwrite) `--overwrite` will take precedence over this option.
 
 :::info
 In version 1.x, the default behavior was inverse - Remotion would not override by default.
@@ -169,7 +173,7 @@ Default value: `yuv420p`
 Config.Output.setPixelFormat('yuv420p')
 ```
 
-The [command line flag](/docs/cli) `--pixel-format` will take precedence over this option.
+The [command line flag](/docs/cli#--pixel-format) `--pixel-format` will take precedence over this option.
 
 ### setCodec()
 
@@ -189,6 +193,8 @@ Choose one of the supported codecs: `h264` _(default)_, `h265`, `vp8`, `vp9`.
 Config.Output.setCodec('h265');
 ```
 
+The [command line flag](/docs/cli#--codec) `--codec` will take precedence over this option.
+
 **See also**: [Encoding guide](/docs/encoding)
 
 ### setImageSequence()
@@ -200,6 +206,8 @@ Set to true if you want to output an image sequence instead of a video.
 ```tsx
 Config.Output.setImageSequence(true);
 ```
+
+The [command line flag](/docs/cli#--sequence) `--sequence` will take precedence over this option.
 
 ### ~~setOutputFormat()~~
 
@@ -238,7 +246,7 @@ Choose the highest CRF value that still provides an acceptable quality. If the o
 Config.Output.setCrf(16);
 ```
 
-The [command line flag](/docs/cli) `--crf` will take precedence over this option.
+The [command line flag](/docs/cli#--crf) `--crf` will take precedence over this option.
 
 ## See also
 
