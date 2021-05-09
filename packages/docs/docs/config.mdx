@@ -43,15 +43,17 @@ Config.Bundling.setCachingEnabled(false);
 
 The [command line flag](/docs/cli) `--bundle-cache` will take precedence over this option.
 
-### setPreviewServerPort()
+### setPort()
 
-Set a custom port for preview server. 
+Define on which port Remotion should start it's HTTP servers during preview and rendering.
+By default, Remotion will try to find a free port.
+If you specify a port, but it's not available, Remotion will throw an error.
 
 ```tsx
-Config.Bundling.setPreviewServerPort(3003);
+Config.Bundling.setPort(3003);
 ```
 
-The [command line flag](/docs/cli) `--preview-server-port` will take precedence over this option.
+The [command line flag](/docs/cli) `--port` will take precedence over this option.
 
 ## Log
 

@@ -14,7 +14,7 @@ const noop = () => undefined;
 
 export const previewCommand = xns(async () => {
 	const file = parsedCli._[1];
-	const {'preview-server-port': previewServerPort} = parsedCli;
+	const {port: desiredPort} = parsedCli;
 	const fullPath = path.join(process.cwd(), file);
 
 	loadConfigFile(getConfigFileName());
@@ -28,7 +28,7 @@ export const previewCommand = xns(async () => {
 		{
 			inputProps,
 			envVariables,
-			previewServerPort,
+			port: desiredPort,
 		}
 	);
 	betterOpn(`http://localhost:${port}`);

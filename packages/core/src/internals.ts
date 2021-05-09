@@ -44,7 +44,7 @@ import {
 	getPixelFormat,
 	validateSelectedPixelFormatAndCodecCombination,
 } from './config/pixel-format';
-import {getPreviewServerPort} from './config/preview-server';
+import {getServerPort} from './config/preview-server';
 import {getQuality} from './config/quality';
 import {
 	DEFAULT_WEBPACK_CACHE_ENABLED,
@@ -132,7 +132,7 @@ export const Internals = {
 	ENV_VARIABLES_ENV_NAME,
 	ENV_VARIABLES_LOCAL_STORAGE_KEY,
 	getDotEnvLocation,
-	getPreviewServerPort,
+	getServerPort,
 };
 
 export type {

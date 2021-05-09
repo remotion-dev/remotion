@@ -15,7 +15,7 @@ import {
 } from './override-webpack';
 import {setOverwriteOutput} from './overwrite';
 import {PixelFormat, setPixelFormat} from './pixel-format';
-import {setPreviewServerPort} from './preview-server';
+import {setPort} from './preview-server';
 import {setQuality} from './quality';
 import {setWebpackCaching} from './webpack-caching';
 
@@ -33,9 +33,11 @@ export const Config = {
 		 */
 		setCachingEnabled: setWebpackCaching,
 		/**
-		 * Set a custom preview server port
+		 * Define on which port Remotion should start it's HTTP servers during preview and rendering.
+		 * By default, Remotion will try to find a free port.
+		 * If you specify a port, but it's not available, Remotion will throw an error.
 		 */
-		setPreviewServerPort,
+		setPort,
 	},
 	Log: {
 		/**
