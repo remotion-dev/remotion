@@ -2,7 +2,7 @@ import { opacify } from "polished";
 import React, { ComponentProps } from "react";
 import styled from "styled-components";
 import { ButtonSpinner } from "./ButtonSpinner";
-import { BLUE_TEXT, RED, UNDERLAY_BLUE, UNDERLAY_RED } from "./colors";
+import { RED, UNDERLAY_RED } from "./colors";
 
 type ExtraProps = {
   size: Size;
@@ -56,9 +56,9 @@ export const BlueButton: React.FC<PrestyledProps> = (props) => {
   return (
     <Button
       {...props}
-      background={UNDERLAY_BLUE}
-      hoverColor={opacify(0.1, UNDERLAY_BLUE)}
-      color={BLUE_TEXT}
+      background="var(--blue-underlay)"
+      hoverColor="var(--blue-underlay-hover)"
+      color="var(--blue-button-color)"
     />
   );
 };
@@ -79,8 +79,8 @@ export const ClearButton: React.FC<PrestyledProps> = (props) => {
     <Button
       {...props}
       background="transparent"
-      color="black"
-      hoverColor="rgba(0, 0, 0, 0.04)"
+      color="var(--text-color)"
+      hoverColor="var(--clear-hover)"
     />
   );
 };
