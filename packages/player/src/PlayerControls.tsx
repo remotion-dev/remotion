@@ -1,7 +1,7 @@
 import React, {MouseEventHandler, useMemo} from 'react';
 import {Internals} from 'remotion';
 import {formatTime} from './format-time';
-import {FullscreenIcon, PauseIcon, PlayIcon} from './icons';
+import {FullscreenExitIcon, FullscreenIcon, PauseIcon, PlayIcon} from './icons';
 import {PlayerSeekBar} from './PlayerSeekBar';
 import {usePlayer} from './use-player';
 import {browserSupportsFullscreen} from './utils/browser-supports-fullscreen';
@@ -127,7 +127,7 @@ export const Controls: React.FC<{
 									: onFullscreenButtonClick
 							}
 						>
-							<FullscreenIcon />
+							{isFullscreen ? <FullscreenExitIcon /> : <FullscreenIcon />}
 						</button>
 					</div>
 				) : null}
