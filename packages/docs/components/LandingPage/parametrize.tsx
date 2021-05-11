@@ -1,4 +1,5 @@
 import React, { useEffect, useReducer, useRef, useState } from "react";
+import "../input-fields.css";
 import { BlueButton } from "../layout/Button";
 import { GithubResponse } from "./GithubDemo";
 import styles from "./parametrize.module.css";
