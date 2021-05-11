@@ -13,6 +13,7 @@ import {
 import {getBrowserInstance} from '../get-browser-instance';
 import {lambdaWriteFile} from '../io';
 import {timer} from '../timer';
+import {tmpDir} from '../tmpdir';
 
 const renderHandler = async (params: LambdaPayload) => {
 	if (params.type !== LambdaRoutines.renderer) {
@@ -34,16 +35,6 @@ const renderHandler = async (params: LambdaPayload) => {
 
 	if (!params.frameRange) {
 		throw new Error('must pass framerange');
-	}
-
-	if (ENABLE_EFS) {
-		if (!fs.existsSync(params.efsRemotionVideoPath)) {
-			fs.mkdirSync(params.efsRemotionVideoPath);
-		}
-
-		if (!fs.existsSync(efsRemotionVideoRenderDone)) {
-			fs.mkdirSync(efsRemotionVideoRenderDone);
-		}
 	}
 
 	console.log(`Started rendering ${params.chunk}, frame ${params.frameRange}`);
@@ -69,15 +60,13 @@ const renderHandler = async (params: LambdaPayload) => {
 		puppeteerInstance: browserInstance,
 		serveUrl: params.serveUrl,
 	});
-	const outdir = `/tmp/${Math.random()}`;
+	const outdir = tmpDir(String(Math.random()));
 	fs.mkdirSync(outdir);
 
-	const outputLocation = ENABLE_EFS
-		? path.join(
-				params.efsRemotionVideoPath,
-				`chunk-${String(params.chunk).padStart(8, '0')}.mp4`
-		  )
-		: path.join(outdir, `chunk-${String(params.chunk).padStart(8, '0')}.mp4`);
+	const outputLocation = path.join(
+		outdir,
+		`chunk-${String(params.chunk).padStart(8, '0')}.mp4`
+	);
 	const outputFileLocation = path.join(
 		efsRemotionVideoRenderDone,
 		`chunk-${String(params.chunk).padStart(8, '0')}.txt`

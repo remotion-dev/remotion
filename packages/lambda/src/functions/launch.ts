@@ -4,7 +4,6 @@ import {lambdaClient, s3Client} from '../aws-clients';
 import {chunk} from '../chunk';
 import {concatVideosS3} from '../concat-videos';
 import {
-	EFS_MOUNT_PATH,
 	EncodingProgress,
 	ENCODING_PROGRESS_KEY,
 	LambdaPayload,
@@ -24,9 +23,6 @@ const innerLaunchHandler = async (params: LambdaPayload) => {
 		throw new Error('Expected launch type');
 	}
 
-	const efsRemotionVideoRenderDone = EFS_MOUNT_PATH + '/render-done';
-
-	const efsRemotionVideoPath = EFS_MOUNT_PATH + '/remotion-video';
 	// TODO: Cleanup EFS after render, it is not ephemereal
 
 	// TODO: Better validation
@@ -65,7 +61,6 @@ const innerLaunchHandler = async (params: LambdaPayload) => {
 			frameRange: chunkPayload,
 			serveUrl: params.serveUrl,
 			chunk: chunks.indexOf(chunkPayload),
-			efsRemotionVideoPath,
 			composition: params.composition,
 			fps: comp.fps,
 			height: comp.height,
