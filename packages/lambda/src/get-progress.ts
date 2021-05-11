@@ -6,6 +6,8 @@ import {
 	ENCODING_PROGRESS_KEY,
 	LambdaPayload,
 	LambdaRoutines,
+	RenderMetadata,
+	RENDER_METADATA_KEY,
 } from './constants';
 import {streamToString} from './stream-to-string';
 
@@ -36,6 +38,16 @@ export const progressHandler = async (lambdaParams: LambdaPayload) => {
 				})
 		  )
 		: null;
+	const renderMetadataExists = contents.find(
+		(c) => c.Key === RENDER_METADATA_KEY
+	)
+		? await s3Client.send(
+				new GetObjectCommand({
+					Bucket: lambdaParams.bucketName,
+					Key: RENDER_METADATA_KEY,
+				})
+		  )
+		: null;
 
 	const frameResponse = framesExists
 		? (JSON.parse(
@@ -43,9 +55,16 @@ export const progressHandler = async (lambdaParams: LambdaPayload) => {
 		  ) as EncodingProgress)
 		: null;
 
+	const renderMetadataResponse = renderMetadataExists
+		? (JSON.parse(
+				await streamToString(renderMetadataExists.Body as Readable)
+		  ) as RenderMetadata)
+		: null;
+
 	return {
 		chunks: chunks.length,
 		done: Boolean(output),
 		frameResponse,
+		renderMetadata: renderMetadataResponse,
 	};
 };

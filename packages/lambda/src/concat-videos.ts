@@ -55,7 +55,6 @@ const getAllFiles = async ({
 	return new Promise<string[]>((resolve) => {
 		const loop = async () => {
 			const files = readdirSync(efsRemotionVideoPath);
-			console.log(files);
 			const txtFiles = readdirSync(efsRemotionVideoRenderDone);
 			const areAllFilesDownloading = Boolean(
 				files.length === expectedFiles && txtFiles.length === expectedFiles
