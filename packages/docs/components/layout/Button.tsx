@@ -1,6 +1,6 @@
 import { opacify } from "polished";
-import React, { ComponentProps } from "react";
-import styled from "styled-components";
+import React, { ButtonHTMLAttributes, DetailedHTMLProps } from "react";
+import styles from "./button.module.css";
 import { RED, UNDERLAY_RED } from "./colors";
 
 type ExtraProps = {
@@ -12,42 +12,50 @@ type ExtraProps = {
   loading: boolean;
 };
 
-const Container = styled.button<ExtraProps>`
-  padding: ${(props) => (props.size === "sm" ? "10px 16px" : "16px 22px")};
-  border-radius: 8px;
-  font-weight: bold;
-  background-color: ${(props) => props.background};
-  color: ${(props) => props.color};
-  cursor: ${(props) => (props.disabled ? "default" : "pointer")};
-  appearance: none;
-  border: none;
-  font: inherit;
-  font-weight: bold;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  transition: background-color 0.1s;
-  ${(props) => (props.fullWidth ? "width: 100%;" : "")};
-  opacity: ${(props) => (props.disabled ? 0.7 : 1)};
-  &:not([disabled]):hover {
-    background-color: ${(props) => props.hoverColor};
-  }
-`;
-
 type Size = "sm" | "bg";
 
-type Props = ComponentProps<typeof Container> & ExtraProps;
+type Props = DetailedHTMLProps<
+  ButtonHTMLAttributes<HTMLButtonElement>,
+  HTMLButtonElement
+> &
+  ExtraProps;
 type MandatoryProps = Omit<ExtraProps, "background" | "color" | "hoverColor">;
-type PrestyledProps = ComponentProps<typeof Container> & MandatoryProps;
+type PrestyledProps = DetailedHTMLProps<
+  ButtonHTMLAttributes<HTMLButtonElement>,
+  HTMLButtonElement
+> &
+  MandatoryProps;
 
 export const Button: React.FC<Props> = (props) => {
-  const { children, loading, ...other } = props;
+  const {
+    children,
+    loading,
+    hoverColor,
+    fullWidth,
+    color,
+    size,
+    ...other
+  } = props;
   const actualDisabled = other.disabled || loading;
+
   return (
-    <Container {...other} disabled={actualDisabled}>
+    <button
+      className={styles.buttoncontainer}
+      disabled={actualDisabled}
+      {...other}
+      style={{
+        ...(props.style ?? {}),
+        padding: props.size === "sm" ? "10px 16px" : "16px 22px",
+        color: props.color,
+        cursor: props.disabled ? "default" : "pointer",
+        backgroundColor: props.background,
+        "--hover-color": props.hoverColor,
+        ...(props.fullWidth ? { width: "100%" } : {}),
+        opacity: props.disabled ? 0.7 : 1,
+      }}
+    >
       {children}
-    </Container>
+    </button>
   );
 };
 
