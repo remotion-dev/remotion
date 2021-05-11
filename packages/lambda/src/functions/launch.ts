@@ -1,6 +1,6 @@
 import {InvokeCommand} from '@aws-sdk/client-lambda';
 import fs from 'fs';
-import {lambdaClient, s3Client} from '../aws-clients';
+import {lambdaClient} from '../aws-clients';
 import {chunk} from '../chunk';
 import {concatVideosS3} from '../concat-videos';
 import {
@@ -88,6 +88,7 @@ const innerLaunchHandler = async (params: LambdaPayload) => {
 		bucketName: params.bucketName,
 		key: RENDER_METADATA_KEY,
 		body: JSON.stringify(renderMetadata),
+		forceS3: false,
 	});
 
 	const payloadChunks = chunk(lambdaPayloads, invokers);
@@ -120,19 +121,21 @@ const innerLaunchHandler = async (params: LambdaPayload) => {
 			bucketName: params.bucketName,
 			key: ENCODING_PROGRESS_KEY,
 			body: JSON.stringify(encodingProgress),
+			forceS3: false,
 		});
 	};
 
 	const out = await concatVideosS3({
-		s3Client,
 		bucket: params.bucketName,
 		expectedFiles: chunkCount,
 		onProgress,
+		numberOfFrames: params.durationInFrames,
 	});
 	await lambdaWriteFile({
 		bucketName: params.bucketName,
 		key: OUT_NAME,
 		body: fs.createReadStream(out),
+		forceS3: true,
 	});
 	const url = `https://s3.${REGION}.amazonaws.com/${params.bucketName}/${OUT_NAME}`;
 	return {url};
@@ -153,6 +156,7 @@ export const launchHandler = async (params: LambdaPayload) => {
 			body: JSON.stringify({
 				error: err.message,
 			}),
+			forceS3: false,
 		});
 	}
 };

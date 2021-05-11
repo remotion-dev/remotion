@@ -56,7 +56,7 @@ const getAllFilesS3 = async ({
 
 	const getFiles = async () => {
 		const lsTimer = timer('Listing files');
-		const contents = await lambdaLs(bucket);
+		const contents = await lambdaLs(bucket, false);
 		lsTimer.end();
 		return (
 			contents
@@ -123,10 +123,12 @@ export const concatVideosS3 = async ({
 	bucket,
 	expectedFiles,
 	onProgress,
+	numberOfFrames,
 }: {
 	bucket: string;
 	expectedFiles: number;
 	onProgress: (frames: number) => void;
+	numberOfFrames: number;
 }) => {
 	const outdir = join(tmpDir('remotion-concat'), 'bucket');
 	if (existsSync(outdir)) {
@@ -150,6 +152,7 @@ export const concatVideosS3 = async ({
 		filelistDir,
 		output: outfile,
 		onProgress,
+		numberOfFrames,
 	});
 	combine.end();
 
