@@ -14,7 +14,6 @@ import {
 import {join} from 'path';
 import {Readable} from 'stream';
 import xns from 'xns';
-import {REGION} from './constants';
 import {timer} from './timer';
 import {tmpDir} from './tmpdir';
 
@@ -148,11 +147,52 @@ const getAllFilesS3 = async ({
 	});
 };
 
-export const concatVideosS3 = async (
-	s3Client: S3Client = new S3Client({region: REGION}),
-	bucket = 'remotion-renders-0.7182592846197402',
-	expectedFiles = 20
-) => {
+export const concatVideos = async ({
+	efsRemotionVideoPath,
+	efsRemotionVideoRenderDone,
+	expectedFiles,
+}: {
+	efsRemotionVideoPath: string;
+	efsRemotionVideoRenderDone: string;
+	expectedFiles: number;
+	onProgress: (progress: number) => void;
+}) => {
+	const getAllTimes = timer('get all files');
+	const files = await getAllFiles({
+		efsRemotionVideoPath,
+		expectedFiles,
+		efsRemotionVideoRenderDone,
+	});
+	getAllTimes.end();
+
+	const outfile = join(tmpDir('remotion-concated'), 'concat.mp4');
+	const combine = timer('Combine videos');
+	const filelistDir = tmpDir('remotion-filelist');
+	await combineVideos({
+		files,
+		filelistDir,
+		output: outfile,
+		onProgress,
+	});
+	combine.end();
+
+	rmdirSync(efsRemotionVideoPath, {
+		recursive: true,
+	});
+	return outfile;
+};
+
+export const concatVideosS3 = async ({
+	s3Client,
+	bucket,
+	expectedFiles,
+	onProgress,
+}: {
+	s3Client: S3Client;
+	bucket: string;
+	expectedFiles: number;
+	onProgress: (frames: number) => void;
+}) => {
 	const outdir = join(tmpDir('remotion-concat'), 'bucket');
 	if (existsSync(outdir)) {
 		rmdirSync(outdir, {
@@ -175,39 +215,11 @@ export const concatVideosS3 = async (
 		files,
 		filelistDir,
 		output: outfile,
+		onProgress,
 	});
 	combine.end();
 
 	rmdirSync(outdir, {
-		recursive: true,
-	});
-	return outfile;
-};
-
-export const concatVideos = async (
-	efsRemotionVideoPath: string,
-	efsRemotionVideoRenderDone: string,
-	expectedFiles = 20
-) => {
-	const getAllTimes = timer('get all files');
-	const files = await getAllFiles({
-		efsRemotionVideoPath,
-		expectedFiles,
-		efsRemotionVideoRenderDone,
-	});
-	getAllTimes.end();
-
-	const outfile = join(tmpDir('remotion-concated'), 'concat.mp4');
-	const combine = timer('Combine videos');
-	const filelistDir = tmpDir('remotion-filelist');
-	await combineVideos({
-		files,
-		filelistDir,
-		output: outfile,
-	});
-	combine.end();
-
-	rmdirSync(efsRemotionVideoPath, {
 		recursive: true,
 	});
 	return outfile;

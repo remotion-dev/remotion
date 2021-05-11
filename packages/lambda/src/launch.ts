@@ -7,6 +7,8 @@ import {concatVideos, concatVideosS3} from './concat-videos';
 import {
 	EFS_MOUNT_PATH,
 	ENABLE_EFS,
+	EncodingProgress,
+	ENCODING_PROGRESS_KEY,
 	LambdaPayload,
 	LambdaRoutines,
 	REGION,
@@ -19,6 +21,7 @@ export const launchHandler = async (params: LambdaPayload) => {
 	if (params.type !== LambdaRoutines.launch) {
 		throw new Error('Expected launch type');
 	}
+
 	const efsRemotionVideoRenderDone = EFS_MOUNT_PATH + '/render-done';
 
 	const efsRemotionVideoPath = EFS_MOUNT_PATH + '/remotion-video';
@@ -26,10 +29,12 @@ export const launchHandler = async (params: LambdaPayload) => {
 		if (fs.existsSync(efsRemotionVideoPath)) {
 			fs.rmdirSync(efsRemotionVideoPath, {recursive: true});
 		}
+
 		fs.mkdirSync(efsRemotionVideoPath);
 		if (fs.existsSync(efsRemotionVideoRenderDone)) {
 			fs.rmdirSync(efsRemotionVideoRenderDone, {recursive: true});
 		}
+
 		fs.mkdirSync(efsRemotionVideoRenderDone);
 	}
 	// const bucketTimer = timer('Creating bucket');
@@ -38,10 +43,12 @@ export const launchHandler = async (params: LambdaPayload) => {
 	if (!params.chunkSize) {
 		throw new Error('Pass chunkSize');
 	}
+
 	// TODO: Better validation
 	if (!params.durationInFrames) {
 		throw new Error('Pass durationInFrames');
 	}
+
 	const browserInstance = await getBrowserInstance();
 
 	const comp = await validateComposition({
@@ -98,13 +105,33 @@ export const launchHandler = async (params: LambdaPayload) => {
 		})
 	);
 	reqSend.end();
+
+	const onProgress = (framesRendered: number) => {
+		const encodingProgress: EncodingProgress = {
+			framesRendered,
+		};
+		s3Client.send(
+			new PutObjectCommand({
+				Bucket: params.bucketName,
+				Key: ENCODING_PROGRESS_KEY,
+				Body: JSON.stringify(encodingProgress),
+			})
+		);
+	};
+
 	const out = ENABLE_EFS
-		? await concatVideos(
+		? await concatVideos({
 				efsRemotionVideoPath,
 				efsRemotionVideoRenderDone,
-				chunkCount
-		  )
-		: await concatVideosS3(s3Client, params.bucketName, lambdaPayloads.length);
+				expectedFiles: chunkCount,
+				onProgress,
+		  })
+		: await concatVideosS3({
+				s3Client,
+				bucket: params.bucketName,
+				expectedFiles: lambdaPayloads.length,
+				onProgress,
+		  });
 	const outName = 'out.mp4';
 	await s3Client.send(
 		new PutObjectCommand({

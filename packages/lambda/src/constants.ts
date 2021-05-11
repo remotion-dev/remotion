@@ -7,6 +7,7 @@ export const RENDER_FN_PREFIX = 'remotion-render-test-';
 export const RENDER_STITCHER_PREFIX = 'remotion-stitcher-test-';
 export const EFS_MOUNT_PATH = '/mnt/efs';
 export const ENABLE_EFS = false;
+export const ENCODING_PROGRESS_KEY = 'encoding-progress.json';
 
 export enum LambdaRoutines {
 	start = 'start',
@@ -58,3 +59,7 @@ export type LambdaPayloads = {
 };
 
 export type LambdaPayload = LambdaPayloads[LambdaRoutines];
+
+export type EncodingProgress = {
+	framesRendered: number;
+};
