@@ -97,7 +97,12 @@ const getAllFilesS3 = async ({
 			})
 		);
 		lsTimer.end();
-		return (files.Contents || []).map((_) => _.Key as string);
+		return (
+			(files.Contents || [])
+				// TODO make prefix generic
+				.filter((c) => c.Key?.startsWith('chunk-'))
+				.map((_) => _.Key as string)
+		);
 	};
 
 	return new Promise<string[]>((resolve, reject) => {
@@ -150,6 +155,7 @@ export const concatVideos = async ({
 	efsRemotionVideoPath,
 	efsRemotionVideoRenderDone,
 	expectedFiles,
+	onProgress,
 }: {
 	efsRemotionVideoPath: string;
 	efsRemotionVideoRenderDone: string;

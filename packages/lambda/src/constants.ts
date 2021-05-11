@@ -57,6 +57,7 @@ export type LambdaPayloads = {
 		height: number;
 		width: number;
 		durationInFrames: number;
+		retriesLeft: number;
 	};
 };
 
