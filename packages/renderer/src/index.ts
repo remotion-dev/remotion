@@ -22,7 +22,12 @@ declare global {
 export {combineVideos} from './combine-videos';
 export {FfmpegVersion} from './ffmpeg-flags';
 export {getCompositions} from './get-compositions';
-export {OnStartData, renderFrames, RenderFramesOutput} from './render';
+export {
+	OnErrorInfo,
+	OnStartData,
+	renderFrames,
+	RenderFramesOutput,
+} from './render';
 export {stitchFramesToVideo} from './stitcher';
 
 export const RenderInternals = {

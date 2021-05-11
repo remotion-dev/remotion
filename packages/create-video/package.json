@@ -1,10 +1,10 @@
 {
 	"name": "create-video",
-	"version": "2.0.7",
+	"version": "2.1.1",
 	"description": "",
 	"main": "index.js",
 	"bin": {
-		"create-video": "dist/init.js"
+		"create-video": "bin.js"
 	},
 	"files": [
 		"dist",
@@ -22,13 +22,10 @@
 		"xns": "^2.0.7"
 	},
 	"devDependencies": {
-		"@jonny/eslint-config": "^2.1.210",
-		"@types/babel__core": "^7.1.12",
-		"@types/babel__template": "^7.4.0",
-		"@types/node": "^14.14.12",
+		"@jonny/eslint-config": "^2.1.233",
+		"@types/node": "^15.0.1",
 		"eslint": "^7.15.0",
 		"ts-node": "^9.1.1",
 		"typescript": "^4.1.2"
-	},
-	"gitHead": "b80f3a6b408930f801a51ee0c815503c060fba64"
+	}
 }

@@ -1,11 +1,11 @@
 {
 	"name": "@remotion/cli",
-	"version": "2.0.7",
+	"version": "2.1.2",
 	"description": "CLI for Remotion",
 	"main": "dist/index.js",
 	"sideEffects": false,
 	"bin": {
-		"remotion": "dist/index.js"
+		"remotion": "remotion-cli.js"
 	},
 	"module": "true",
 	"scripts": {
@@ -19,15 +19,17 @@
 	"author": "Jonny Burger <hi@jonny.io>",
 	"license": "SEE LICENSE IN LICENSE.md",
 	"dependencies": {
-		"@remotion/bundler": "^2.0.7",
-		"@remotion/media-utils": "^2.0.7",
-		"@remotion/renderer": "^2.0.7",
+		"@remotion/bundler": "^2.1.2",
+		"@remotion/media-utils": "^2.1.2",
+		"@remotion/player": "^2.1.2",
+		"@remotion/renderer": "^2.1.2",
 		"ansi-diff": "^1.1.1",
 		"better-opn": "^2.1.1",
 		"chalk": "^4.1.0",
+		"dotenv": "^9.0.0",
 		"execa": "^4.0.2",
 		"minimist": "^1.2.5",
-		"remotion": "^2.0.7",
+		"remotion": "^2.1.2",
 		"semver": "^7.3.4",
 		"webpack": "5.33.2",
 		"xns": "^2.0.7"
@@ -37,16 +39,13 @@
 		"react-dom": "^17.0.1"
 	},
 	"devDependencies": {
-		"@jonny/eslint-config": "^2.1.210",
-		"@types/babel__core": "^7.1.12",
-		"@types/babel__template": "^7.4.0",
-		"@types/cli-progress": "^3.7.0",
+		"@jonny/eslint-config": "^2.1.233",
 		"@types/jest": "^26.0.22",
-		"@types/node": "^14.0.13",
+		"@types/node": "^15.0.1",
 		"@types/react": "^17.0.0",
 		"@types/react-dom": "^17.0.0",
 		"@types/styled-components": "^5.1.1",
-		"eslint": "^7.4.0",
+		"eslint": "^7.25.0",
 		"jest": "^26.6.3",
 		"prettier": "^2.0.5",
 		"prettier-plugin-organize-imports": "^1.1.1",

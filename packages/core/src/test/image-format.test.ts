@@ -13,7 +13,7 @@ describe('SetImageFormat with valid inputs', () => {
 		'none',
 		undefined,
 	];
-	formatInputs.forEach((entry) =>
+	formatInputs.forEach(entry =>
 		test(`testing with format "${entry}"`, () => {
 			// @ts-expect-error
 			setImageFormat(entry);
@@ -51,23 +51,23 @@ test('Special case - invalid combination with pixel ("yuva420p") and image forma
 	);
 });
 test('Special case - valid combination with pixel ("yuva420p") and image format ("png") should not throw', () => {
-	expect(() =>
+	expect(
 		validateSelectedPixelFormatAndImageFormatCombination('yuva420p', 'png')
-	).not.toThrow();
+	).toEqual('valid');
 });
 
 test('Valid combination with pixel and image format ("png") should not throw', () => {
-	expect(() =>
+	expect(
 		validateSelectedPixelFormatAndImageFormatCombination('yuv420p', 'png')
-	).not.toThrow();
+	).toEqual('valid');
 });
 test('Valid combination with pixel and image format ("jpeg") should not throw', () => {
-	expect(() =>
+	expect(
 		validateSelectedPixelFormatAndImageFormatCombination('yuv420p', 'jpeg')
-	).not.toThrow();
+	).toEqual('valid');
 });
 test('"none" as image format should not throw', () => {
-	expect(() =>
+	expect(
 		validateSelectedPixelFormatAndImageFormatCombination('yuv420p', 'none')
-	).not.toThrow();
+	).toEqual('none');
 });

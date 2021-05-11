@@ -13,7 +13,7 @@ export type CodecOrUndefined = Codec | undefined;
 const validLegacyFormats = ['mp4', 'png-sequence'] as const;
 type LegacyFormat = typeof validLegacyFormats[number];
 
-let codec: CodecOrUndefined = undefined;
+let codec: CodecOrUndefined;
 
 export const getOutputCodecOrUndefined = (): CodecOrUndefined => {
 	return codec;
@@ -36,48 +36,60 @@ export const getFinalOutputCodec = ({
 				'You have specified a .webm extension, using the VP8 encoder. Use --codec=vp9 to use the Vp9 encoder.'
 			);
 		}
+
 		return 'vp8';
 	}
+
 	if (inputCodec === undefined && fileExtension === 'hevc') {
 		if (emitWarning) {
 			console.info(
 				'You have specified a .hevc extension, using the H265 encoder.'
 			);
 		}
+
 		return 'h265';
 	}
+
 	if (inputCodec === undefined && fileExtension === 'mp3') {
 		if (emitWarning) {
 			console.info(
 				'You have specified a .mp3 extension, using the MP3 encoder.'
 			);
 		}
+
 		return 'mp3';
 	}
+
 	if (inputCodec === undefined && fileExtension === 'wav') {
 		if (emitWarning) {
 			console.info(
 				'You have specified a .wav extension, using the WAV encoder.'
 			);
 		}
+
 		return 'wav';
 	}
+
 	if (inputCodec === undefined && fileExtension === 'aac') {
 		if (emitWarning) {
 			console.info(
 				'You have specified a .aac extension, using the AAC encoder.'
 			);
 		}
+
 		return 'aac';
 	}
+
 	if (inputCodec === undefined && fileExtension === 'm4a') {
 		if (emitWarning) {
 			console.info(
 				'You have specified a .m4a extension, using the AAC encoder.'
 			);
 		}
+
 		return 'aac';
 	}
+
 	return inputCodec ?? DEFAULT_CODEC;
 };
 
@@ -86,6 +98,7 @@ export const setOutputFormat = (newLegacyFormat: LegacyFormat) => {
 		codec = undefined;
 		return;
 	}
+
 	if (!validLegacyFormats.includes(newLegacyFormat)) {
 		throw new Error(
 			`Output format must be one of the following: ${validLegacyFormats.join(
@@ -93,6 +106,7 @@ export const setOutputFormat = (newLegacyFormat: LegacyFormat) => {
 			)}, but got ${newLegacyFormat}`
 		);
 	}
+
 	console.warn(
 		'setOutputFormat() is deprecated. Use the setCodec() and setImageSequence() instead.'
 	);
@@ -100,9 +114,9 @@ export const setOutputFormat = (newLegacyFormat: LegacyFormat) => {
 		codec = 'h264';
 		return;
 	}
+
 	if (newLegacyFormat === 'png-sequence') {
 		codec = undefined;
-		return;
 	}
 };
 
@@ -111,6 +125,7 @@ export const setCodec = (newCodec: CodecOrUndefined) => {
 		codec = undefined;
 		return;
 	}
+
 	if (!validCodecs.includes(newCodec)) {
 		throw new Error(
 			`Codec must be one of the following: ${validCodecs.join(
@@ -118,5 +133,6 @@ export const setCodec = (newCodec: CodecOrUndefined) => {
 			)}, but got ${newCodec}`
 		);
 	}
+
 	codec = newCodec;
 };

@@ -21,7 +21,7 @@ export const TimelineCollapseToggle: React.FC<{
 	collapsed: boolean;
 }> = ({collapsed}) => {
 	return (
-		<Container style={!collapsed ? {transform: 'rotate(90deg)'} : {}}>
+		<Container style={collapsed ? {} : {transform: 'rotate(90deg)'}}>
 			<Icon />
 		</Container>
 	);

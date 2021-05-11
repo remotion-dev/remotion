@@ -1,13 +1,13 @@
+import {PlayerInternals, Size} from '@remotion/player';
 import React, {Suspense, useContext, useMemo} from 'react';
 import {Internals, useVideoConfig} from 'remotion';
 import styled from 'styled-components';
 import {
 	checkerboardBackgroundColor,
 	checkerboardBackgroundImage,
-	CHECKERBOARD_BACKGROUND_POS,
-	CHECKERBOARD_BACKGROUND_SIZE,
+	getCheckerboardBackgroundPos,
+	getCheckerboardBackgroundSize,
 } from '../helpers/checkerboard-background';
-import {Size} from '../hooks/get-el-size';
 import {CheckerboardContext} from '../state/checkerboard';
 import {PreviewSizeContext} from '../state/preview-size';
 
@@ -32,10 +32,10 @@ export const Container = styled.div<{
 		checkerboardBackgroundColor(props.checkerboard)};
 	background-image: ${(props) =>
 		checkerboardBackgroundImage(props.checkerboard)};
-	background-size: ${CHECKERBOARD_BACKGROUND_SIZE(
+	background-size: ${getCheckerboardBackgroundSize(
 		checkerboardSize
 	)}; /* Must be a square */
-	background-position: ${CHECKERBOARD_BACKGROUND_POS(
+	background-position: ${getCheckerboardBackgroundPos(
 		checkerboardSize
 	)}; /* Must be half of one side of the square */
 `;
@@ -47,20 +47,20 @@ const Inner: React.FC<{
 	const video = Internals.useVideo();
 
 	const config = useVideoConfig();
-	const heightRatio = canvasSize.height / config.height;
-	const widthRatio = canvasSize.width / config.width;
 	const {checkerboard} = useContext(CheckerboardContext);
 
-	const ratio = Math.min(heightRatio, widthRatio);
-
-	const scale = previewSize === 'auto' ? ratio : Number(previewSize);
-	const correction = 0 - (1 - scale) / 2;
-	const xCorrection = correction * config.width;
-	const yCorrection = correction * config.height;
-	const width = config.width * scale;
-	const height = config.height * scale;
-	const centerX = canvasSize.width / 2 - width / 2;
-	const centerY = canvasSize.height / 2 - height / 2;
+	const {
+		centerX,
+		centerY,
+		yCorrection,
+		xCorrection,
+		scale,
+	} = PlayerInternals.calculateScale({
+		canvasSize,
+		compositionHeight: config.height,
+		compositionWidth: config.width,
+		previewSize,
+	});
 
 	const outer: React.CSSProperties = useMemo(() => {
 		return {
@@ -107,5 +107,6 @@ export const VideoPreview: React.FC<{
 	if (!config) {
 		return null;
 	}
+
 	return <Inner canvasSize={canvasSize} />;
 };

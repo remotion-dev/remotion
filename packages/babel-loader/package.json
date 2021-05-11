@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/babel-loader",
-	"version": "2.0.7",
+	"version": "2.1.2",
 	"description": "babel-loader polyfill for Remotion",
 	"main": "dist/index.js",
 	"scripts": {
@@ -24,16 +24,16 @@
 		"@babel/preset-typescript": "^7.12.7",
 		"@webhotelier/webpack-fast-refresh": "^5.1.0",
 		"babel-loader": "^8.1.0",
-		"react-refresh": "0.8.2",
+		"react-refresh": "^0.9.0-rc.2",
 		"webpack": "5.33.2"
 	},
 	"devDependencies": {
-		"@jonny/eslint-config": "^2.1.210",
-		"@types/node": "^14.14.14",
-		"eslint": "^7.4.0",
+		"@jonny/eslint-config": "^2.1.233",
+		"@types/node": "^15.0.1",
+		"eslint": "^7.25.0",
 		"prettier": "^2.0.5",
 		"prettier-plugin-organize-imports": "^1.1.1",
-		"remotion": "^2.0.7",
+		"remotion": "^2.1.2",
 		"typescript": "^4.1.2"
 	},
 	"publishConfig": {

@@ -15,6 +15,9 @@ describe('crf tests getDefaultCrfForCodec valid input', () => {
 		['h265', 23],
 		['vp8', 9],
 		['vp9', 28],
+		['mp3', 0],
+		['aac', 0],
+		['wav', 0],
 	] as [Codec, number][];
 	validCodecIOs.forEach((entry) =>
 		test(`default for ${entry[0]} should be ${entry[1]}`, () =>
@@ -42,6 +45,9 @@ describe('crf tests getValidCrfRanges valid input', () => {
 		['h265', [0, 51]],
 		['vp8', [4, 63]],
 		['vp9', [0, 63]],
+		['mp3', [0, 0]],
+		['aac', [0, 0]],
+		['wav', [0, 0]],
 	] as [Codec, [number, number]][];
 	validInputs.forEach((entry) =>
 		test(`valid range for ${entry[0]} should be [${entry[1]}]`, () =>
@@ -133,7 +139,7 @@ describe('get crf valid input', () => {
 	);
 });
 
-test('get crf invalid input', () => {
+describe('get crf invalid input', () => {
 	// input crf, input codec, valid range
 	const invalidInputs: [number, Codec, [number, number]][] = [
 		[80, 'h264', [0, 51]],
@@ -141,13 +147,27 @@ test('get crf invalid input', () => {
 		[80, 'vp8', [4, 63]],
 		[80, 'vp9', [0, 63]],
 	] as [number, Codec, [number, number]][];
-	invalidInputs.forEach((entry) => {
-		setCrf(entry[0]);
-		expectToThrow(
-			() => getActualCrf(entry[1]),
-			new RegExp(
-				`CRF must be between ${entry[2][0]} and ${entry[2][1]} for codec ${entry[1]}. Passed: ${entry[0]}`
-			)
-		);
-	});
+	invalidInputs.forEach((entry) =>
+		test(`test for ${entry[1]}`, () => {
+			setCrf(entry[0]);
+			expectToThrow(
+				() => getActualCrf(entry[1]),
+				new RegExp(
+					`CRF must be between ${entry[2][0]} and ${entry[2][1]} for codec ${entry[1]}. Passed: ${entry[0]}`
+				)
+			);
+		})
+	);
+});
+
+describe('set crf invalid input', () => {
+	const invalidInputs = [null, 'abc'];
+	invalidInputs.forEach((entry) =>
+		test(`test for ${entry}`, () =>
+			expectToThrow(
+				// @ts-expect-error
+				() => setCrf(entry),
+				/The CRF must be a number or undefined/
+			))
+	);
 });

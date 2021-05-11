@@ -8,10 +8,12 @@ export const binaryExists = async (name: 'ffmpeg' | 'brew') => {
 	if (typeof existsMap[name] !== 'undefined') {
 		return existsMap[name];
 	}
+
 	// On AWS lambda, look for a specific path
 	if (name === 'ffmpeg' && process.env.LAMBDA_TASK_ROOT) {
 		return fs.existsSync('/opt/bin/ffmpeg');
 	}
+
 	const isWin = os.platform() === 'win32';
 	const where = isWin ? 'where' : 'which';
 	try {
@@ -57,6 +59,7 @@ export const validateFfmpeg = async (): Promise<void> => {
 				'See https://github.com/adaptlearning/adapt_authoring/wiki/Installing-FFmpeg on how to install FFMPEG.'
 			);
 		}
+
 		process.exit(1);
 	}
 };
