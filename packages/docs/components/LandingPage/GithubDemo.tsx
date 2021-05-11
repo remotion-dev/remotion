@@ -8,28 +8,7 @@ import {
   useCurrentFrame,
   useVideoConfig,
 } from "remotion";
-import styled from "styled-components";
-
-const Title = styled.h1`
-  font-size: 5em;
-  color: var(--text-color);
-  margin-bottom: 0;
-  margin-top: 0;
-  line-height: 1.4;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
-    Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
-`;
-
-const Description = styled.p`
-  font-size: 3em;
-  margin-bottom: 0;
-  margin-top: 0;
-  line-height: 1.4;
-  color: var(--text-color);
-
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
-    Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
-`;
+import styles from "./githubdemo.module.css";
 
 export type GithubResponse = {
   login: string;
@@ -84,12 +63,18 @@ export const GithubDemo: React.FC<{
         />
         <div style={{ width: 60 }} />
         <div>
-          <Title style={{ transform: `translateY(${titleTranslation}px)` }}>
+          <h1
+            className={styles.githubdemotitle}
+            style={{ transform: `translateY(${titleTranslation}px)` }}
+          >
             Hi {data.login}!
-          </Title>
-          <Description style={{ opacity: subtitleOpacity }}>
+          </h1>
+          <p
+            className={styles.githubdemodescription}
+            style={{ opacity: subtitleOpacity }}
+          >
             You have {data.followers} followers.
-          </Description>
+          </p>
         </div>
       </div>
     </AbsoluteFill>

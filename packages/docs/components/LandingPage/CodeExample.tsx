@@ -1,7 +1,6 @@
 import { Player } from "@remotion/player";
 import React, { useState } from "react";
 import { interpolate, useCurrentFrame } from "remotion";
-import styled from "styled-components";
 
 const IMG_WIDTH = 1120;
 const IMG_HEIGHT = 760;
@@ -48,17 +47,14 @@ const Preview: React.FC = () => {
   );
 };
 
-const Tab = styled.button<{
-  active: boolean;
-}>`
-  appearance: none;
-  background-color: transparent;
-  font-family: inherit;
-  border: none;
-  cursor: pointer;
-  color: var(--text-color);
-  opacity: ${(props) => (props.active ? 1 : 0.5)};
-`;
+const tabStyle = {
+  appearance: "none",
+  backgroundColor: "transparent",
+  fontFamily: "inherit",
+  border: "none",
+  cursor: "pointer",
+  color: "var(--text-color)",
+} as const;
 
 type Tab = "code" | "preview";
 
@@ -66,13 +62,19 @@ export const CodeExample: React.FC = () => {
   const [tab, setTab] = useState<Tab>("code");
   return (
     <div style={{ flex: 1, textAlign: "left", width: 500 }}>
-      <Tab active={tab === "code"} onClick={() => setTab("code")}>
+      <button
+        style={{ ...tabStyle, opacity: tab === "code" ? 1 : 0.5 }}
+        onClick={() => setTab("code")}
+      >
         Code
-      </Tab>
+      </button>
       |
-      <Tab active={tab === "preview"} onClick={() => setTab("preview")}>
+      <button
+        style={{ ...tabStyle, opacity: tab === "preview" ? 1 : 0.5 }}
+        onClick={() => setTab("preview")}
+      >
         Preview
-      </Tab>
+      </button>
       <div>
         {tab === "code" && (
           <div style={container}>

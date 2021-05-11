@@ -1,16 +1,10 @@
 import React from "react";
-import styled from "styled-components";
 import { BlueButton, ClearButton } from "./layout/Button";
 
 enum Period {
   Monthly = "monthly",
   Yearly = "yearly",
 }
-const PeriodSwitcher = styled.div`
-  display: flex;
-  justify-content: center;
-  margin-bottom: 30px;
-`;
 
 export const PeriodSelector: React.FC<{
   period: Period;
@@ -20,7 +14,9 @@ export const PeriodSelector: React.FC<{
   const YearlyComponent = period !== Period.Monthly ? BlueButton : ClearButton;
 
   return (
-    <PeriodSwitcher>
+    <div
+      style={{ display: "flex", justifyContent: "center", marginBottom: 30 }}
+    >
       <MonthlyComponent
         loading={false}
         size="sm"
@@ -37,6 +33,6 @@ export const PeriodSelector: React.FC<{
       >
         Yearly
       </YearlyComponent>
-    </PeriodSwitcher>
+    </div>
   );
 };

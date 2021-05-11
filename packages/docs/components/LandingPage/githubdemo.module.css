@@ -1,0 +1,20 @@
+.githubdemotitle {
+  font-size: 5em;
+  color: var(--text-color);
+  margin-bottom: 0;
+  margin-top: 0;
+  line-height: 1.4;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+    Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+}
+
+.githubdemodescription {
+  font-size: 3em;
+  margin-bottom: 0;
+  margin-top: 0;
+  line-height: 1.4;
+  color: var(--text-color);
+
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+    Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+}
