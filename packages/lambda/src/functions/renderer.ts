@@ -2,15 +2,15 @@ import {PutObjectCommand} from '@aws-sdk/client-s3';
 import {renderFrames, stitchFramesToVideo} from '@remotion/renderer';
 import fs, {copyFileSync, writeFileSync} from 'fs';
 import path from 'path';
-import {s3Client} from './aws-clients';
+import {s3Client} from '../aws-clients';
 import {
 	EFS_MOUNT_PATH,
 	ENABLE_EFS,
 	LambdaPayload,
 	LambdaRoutines,
-} from './constants';
-import {getBrowserInstance} from './get-browser-instance';
-import {timer} from './timer';
+} from '../constants';
+import {getBrowserInstance} from '../get-browser-instance';
+import {timer} from '../timer';
 
 export const rendererHandler = async (params: LambdaPayload) => {
 	const efsRemotionVideoRenderDone = EFS_MOUNT_PATH + '/render-done';

@@ -1,6 +1,6 @@
 import {GetObjectCommand, ListObjectsV2Command} from '@aws-sdk/client-s3';
 import {Readable} from 'stream';
-import {s3Client} from './aws-clients';
+import {s3Client} from '../aws-clients';
 import {
 	EncodingProgress,
 	ENCODING_PROGRESS_KEY,
@@ -10,8 +10,8 @@ import {
 	REGION,
 	RenderMetadata,
 	RENDER_METADATA_KEY,
-} from './constants';
-import {streamToString} from './stream-to-string';
+} from '../constants';
+import {streamToString} from '../stream-to-string';
 
 const getFinalEncodingStatus = ({
 	encodingStatus: encodingProgress,
