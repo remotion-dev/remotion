@@ -1,7 +1,13 @@
 import React, {MouseEventHandler, useMemo} from 'react';
 import {Internals} from 'remotion';
 import {formatTime} from './format-time';
-import {FullscreenIcon, PauseIcon, PlayIcon} from './icons';
+import {
+	FullscreenIcon,
+	PauseIcon,
+	PlayIcon,
+	VolumeOffIcon,
+	VolumeOnIcon,
+} from './icons';
 import {PlayerSeekBar} from './PlayerSeekBar';
 import {usePlayer} from './use-player';
 import {browserSupportsFullscreen} from './utils/browser-supports-fullscreen';
@@ -111,6 +117,16 @@ export const Controls: React.FC<{
 						title={player.playing ? 'Pause video' : 'Play video'}
 					>
 						{player.playing ? <PauseIcon /> : <PlayIcon />}
+					</button>
+					<div style={xSpacer} />
+					<button
+						type="button"
+						style={buttonStyle}
+						onClick={undefined}
+						aria-label={player.playing ? 'Mute video' : 'Play video'}
+						title={player.playing ? 'Pause video' : 'Play video'}
+					>
+						{player.playing ? <VolumeOffIcon /> : <VolumeOnIcon />}
 					</button>
 					<div style={xSpacer} />
 					<div style={timeLabel}>
