@@ -14,8 +14,7 @@ export const validateComposition = async ({
 	browserInstance: Await<ReturnType<typeof RenderInternals.openBrowser>>;
 }): Promise<TCompMetadata> => {
 	// TODO: Support input props
-	const compositions = await getCompositions({
-		serveUrl,
+	const compositions = await getCompositions(serveUrl, {
 		browserInstance,
 	});
 	const found = compositions.find((c) => c.id === composition);
@@ -26,5 +25,6 @@ export const validateComposition = async ({
 				.join(', ')}`
 		);
 	}
+
 	return found;
 };
