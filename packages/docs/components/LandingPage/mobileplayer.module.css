@@ -1,0 +1,10 @@
+.mobileplayer {
+  width: 500px;
+  position: relative;
+}
+
+@media screen and (max-width: 900px) {
+  .mobileplayer {
+    width: 100%;
+  }
+}
