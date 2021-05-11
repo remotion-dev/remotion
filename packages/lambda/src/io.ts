@@ -4,7 +4,13 @@ import {
 	PutObjectCommand,
 	_Object,
 } from '@aws-sdk/client-s3';
-import {createWriteStream, existsSync, promises, ReadStream} from 'fs';
+import {
+	createWriteStream,
+	existsSync,
+	mkdirSync,
+	promises,
+	ReadStream,
+} from 'fs';
 import {Readable} from 'stream';
 import {s3Client} from './aws-clients';
 import {EFS_MOUNT_PATH, ENABLE_EFS} from './constants';
@@ -12,7 +18,7 @@ import {EFS_MOUNT_PATH, ENABLE_EFS} from './constants';
 const ensureDir = async ({bucketName}: {bucketName: string}) => {
 	if (ENABLE_EFS) {
 		if (!existsSync(EFS_MOUNT_PATH + '/' + bucketName)) {
-			await promises.mkdir(EFS_MOUNT_PATH + '/' + bucketName);
+			mkdirSync(EFS_MOUNT_PATH + '/' + bucketName);
 		}
 	}
 };

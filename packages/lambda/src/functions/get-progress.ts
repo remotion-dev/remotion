@@ -1,6 +1,5 @@
 import {_Object} from '@aws-sdk/client-s3';
 import {Internals} from 'remotion';
-import {s3Client} from '../aws-clients';
 import {
 	EncodingProgress,
 	ENCODING_PROGRESS_KEY,
@@ -141,7 +140,7 @@ export const progressHandler = async (lambdaParams: LambdaPayload) => {
 				exists: Boolean(contents.find((c) => c.Key === RENDER_METADATA_KEY)),
 				bucketName: lambdaParams.bucketName,
 			}),
-			inspectErrors({errs: errors, s3Client, bucket: lambdaParams.bucketName}),
+			inspectErrors({errs: errors, bucket: lambdaParams.bucketName}),
 		]
 	);
 

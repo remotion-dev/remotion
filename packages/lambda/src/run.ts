@@ -16,7 +16,7 @@ xns(async () => {
 		functionName,
 		type: LambdaRoutines.start,
 		payload: {
-			chunkSize: 20,
+			chunkSize: 60,
 			composition: 'my-video',
 			durationInFrames: 240,
 			serveUrl: bucketUrl,

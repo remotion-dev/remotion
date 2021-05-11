@@ -1,15 +1,9 @@
 import {InvokeCommand} from '@aws-sdk/client-lambda';
 import {renderFrames, stitchFramesToVideo} from '@remotion/renderer';
-import fs, {copyFileSync, writeFileSync} from 'fs';
+import fs from 'fs';
 import path from 'path';
 import {lambdaClient} from '../aws-clients';
-import {
-	EFS_MOUNT_PATH,
-	ENABLE_EFS,
-	LambdaPayload,
-	LambdaPayloads,
-	LambdaRoutines,
-} from '../constants';
+import {LambdaPayload, LambdaPayloads, LambdaRoutines} from '../constants';
 import {getBrowserInstance} from '../get-browser-instance';
 import {lambdaWriteFile} from '../io';
 import {timer} from '../timer';
@@ -20,7 +14,6 @@ const renderHandler = async (params: LambdaPayload) => {
 		throw new Error('Params must be renderer');
 	}
 
-	const efsRemotionVideoRenderDone = EFS_MOUNT_PATH + '/render-done';
 	const browserInstance = await getBrowserInstance();
 	const outputDir = '/tmp/remotion-render-' + Math.random();
 	if (fs.existsSync(outputDir)) {
@@ -60,16 +53,11 @@ const renderHandler = async (params: LambdaPayload) => {
 		puppeteerInstance: browserInstance,
 		serveUrl: params.serveUrl,
 	});
-	const outdir = tmpDir(String(Math.random()));
-	fs.mkdirSync(outdir);
+	const outdir = tmpDir('bucket');
 
 	const outputLocation = path.join(
 		outdir,
 		`chunk-${String(params.chunk).padStart(8, '0')}.mp4`
-	);
-	const outputFileLocation = path.join(
-		efsRemotionVideoRenderDone,
-		`chunk-${String(params.chunk).padStart(8, '0')}.txt`
 	);
 
 	const stitchLabel = timer('stitcher');
@@ -91,25 +79,15 @@ const renderHandler = async (params: LambdaPayload) => {
 		imageFormat: 'jpeg',
 	});
 	stitchLabel.end();
-	if (ENABLE_EFS) {
-		const copying = timer('copying');
-		copyFileSync(outputLocation, outputLocation);
-		copying.end();
 
-		const flag = timer('writing flag');
-		writeFileSync(outputFileLocation, 'true');
-		flag.end();
-		console.log('Done rendering!', outputDir, outputLocation);
-	} else {
-		const uploading = timer('uploading');
-		await lambdaWriteFile({
-			bucketName: params.bucketName,
-			key: `chunk-${String(params.chunk).padStart(8, '0')}.mp4`,
-			body: fs.createReadStream(outputLocation),
-		});
-		uploading.end();
-		console.log('Done rendering!', outputDir, outputLocation);
-	}
+	const uploading = timer('uploading');
+	await lambdaWriteFile({
+		bucketName: params.bucketName,
+		key: `chunk-${String(params.chunk).padStart(8, '0')}.mp4`,
+		body: fs.createReadStream(outputLocation),
+	});
+	uploading.end();
+	console.log('Done rendering!', outputDir, outputLocation);
 };
 
 export const rendererHandler = async (params: LambdaPayload) => {
@@ -145,7 +123,7 @@ export const rendererHandler = async (params: LambdaPayload) => {
 			bucketName: params.bucketName,
 			key: `error-chunk-${params.chunk}-${Date.now()}.txt`,
 			body: JSON.stringify({
-				error: err.message,
+				error: err.stack,
 			}),
 		});
 	}
