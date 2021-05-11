@@ -1,0 +1,47 @@
+.row {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  text-align: right;
+  align-items: center;
+}
+
+.title {
+  font-size: 2.5em;
+  font-weight: 700;
+  font-family: --apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+    Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+  line-height: 1.1;
+  text-align: right;
+}
+
+.mp4 {
+  background: linear-gradient(to right, rgb(66, 144, 245), rgb(66, 233, 245));
+  -webkit-text-fill-color: transparent;
+  -webkit-background-clip: text;
+}
+
+@keyframes opacity {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.video {
+  animation: opacity 0.6s;
+}
+
+@media (max-width: 900px) {
+  .row {
+    flex-direction: column-reverse;
+    text-align: left;
+    align-items: flex-start;
+    justify-content: flex-start;
+  }
+  .title {
+    text-align: left;
+  }
+}
