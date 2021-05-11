@@ -71,4 +71,5 @@ export type RenderMetadata = {
 	totalFrames: number;
 	startedDate: number;
 	totalChunks: number;
+	estimatedLambdaInvokations: number;
 };

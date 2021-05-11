@@ -1,6 +1,10 @@
 import {Readable} from 'stream';
 
-export function streamToString(stream: Readable) {
+export function streamToString(stream: Readable | Buffer) {
+	if (Buffer.isBuffer(stream)) {
+		return stream.toString('utf-8');
+	}
+
 	const chunks: Buffer[] = [];
 	return new Promise<string>((resolve, reject) => {
 		stream.on('data', (chunk) => chunks.push(Buffer.from(chunk)));

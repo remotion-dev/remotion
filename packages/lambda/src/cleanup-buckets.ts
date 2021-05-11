@@ -5,8 +5,40 @@ import {
 	ListObjectsCommand,
 	S3Client,
 } from '@aws-sdk/client-s3';
+import {Internals} from 'remotion';
 import xns from 'xns';
 import {LAMBDA_BUCKET_PREFIX, REGION, RENDERS_BUCKET_PREFIX} from './constants';
+
+const cleanItems = async (s3client: S3Client, bucket: string) => {
+	const list = await s3client.send(
+		new ListObjectsCommand({
+			Bucket: bucket,
+		})
+	);
+	if (list.Contents && list.Contents.length > 0) {
+		for (const object of list.Contents) {
+			await s3client.send(
+				new DeleteObjectCommand({
+					Bucket: bucket,
+					Key: object.Key,
+				})
+			);
+			console.log('Deleted', `${bucket}/${object.Key}`);
+		}
+
+		await cleanItems(s3client, bucket);
+	}
+};
+
+const cleanBucket = async (s3client: S3Client, bucket: string) => {
+	await cleanItems(s3client, bucket);
+
+	await s3client.send(
+		new DeleteBucketCommand({
+			Bucket: bucket,
+		})
+	);
+};
 
 export const cleanUpBuckets = xns(
 	async (
@@ -20,35 +52,15 @@ export const cleanUpBuckets = xns(
 			console.log('No buckets available.');
 			return;
 		}
+
 		const remotionBuckets = Buckets.filter(
 			(b) =>
 				b.Name?.startsWith(RENDERS_BUCKET_PREFIX) ||
 				b.Name?.startsWith(LAMBDA_BUCKET_PREFIX)
 		);
-		const names = remotionBuckets.map((b) => b.Name);
+		const names = remotionBuckets.map((b) => b.Name).filter(Internals.truthy);
 		for (const bucket of names) {
-			const list = await s3client.send(
-				new ListObjectsCommand({
-					Bucket: bucket,
-				})
-			);
-			if (list.Contents) {
-				for (const object of list.Contents) {
-					await s3client.send(
-						new DeleteObjectCommand({
-							Bucket: bucket,
-							Key: object.Key,
-						})
-					);
-					console.log('Deleted', `${bucket}/${object.Key}`);
-				}
-			}
-			await s3client.send(
-				new DeleteBucketCommand({
-					Bucket: bucket,
-				})
-			);
-			console.log('Deleted', `${bucket}`);
+			await cleanBucket(s3client, bucket);
 		}
 	}
 );
