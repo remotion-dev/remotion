@@ -50,7 +50,6 @@ export type LambdaPayloads = {
 		serveUrl: string;
 		frameRange: [number, number];
 		chunk: number;
-		efsRemotionVideoPath: string;
 		bucketName: string;
 		composition: string;
 		fps: number;
