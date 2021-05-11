@@ -5,8 +5,8 @@ import { PricingTable } from "./PricingTable";
 export const FreePricing: React.FC = () => {
   return (
     <>
-      <div className={styles.container}>
-        <h2 className={styles.title}>
+      <div className={styles.pricingcontainer}>
+        <h2 className={styles.pricingtitle}>
           <span className={styles.mp4}>Free</span> for individuals <br /> Funded
           by companies
         </h2>

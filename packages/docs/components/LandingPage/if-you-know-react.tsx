@@ -21,7 +21,7 @@ export const IfYouKnowReact: React.FC = () => {
         Learn the fundamentals in just a few minutes.
         <Spacer></Spacer>
         <Spacer></Spacer>
-        <a className={styles.a} href="/docs/the-fundamentals">
+        <a className={styles.aknow} href="/docs/the-fundamentals">
           <BlueButton size="sm" fullWidth={false} loading={false}>
             Learn Remotion
           </BlueButton>

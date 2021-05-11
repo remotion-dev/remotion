@@ -1,51 +1,8 @@
 import React, { useEffect, useReducer, useRef, useState } from "react";
-import styled from "styled-components";
 import { BlueButton } from "../layout/Button";
-import { mobile } from "../layout/layout";
 import { GithubResponse } from "./GithubDemo";
+import styles from "./parametrize.module.css";
 import { ProgrammaticContent } from "./Programmatic";
-
-const Row = styled.div`
-  display: flex;
-  flex-direction: row;
-  text-align: left;
-  align-items: center;
-  ${mobile`
-    flex-direction: column;
-    align-items: flex-start;
-  `}
-`;
-
-const Title = styled.h2`
-  font-size: 2.5em;
-  font-weight: 700;
-  font-family: --apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
-    Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
-  line-height: 1.1;
-  text-align: left;
-`;
-
-const Mp4 = styled.span`
-  background: linear-gradient(to right, rgb(66, 144, 245), rgb(66, 233, 245));
-  -webkit-text-fill-color: transparent;
-  -webkit-background-clip: text;
-`;
-
-const SubmitButton = styled.button`
-  appearance: none;
-  padding: 14px 16px;
-  background-color: rgb(66, 144, 245);
-  color: white;
-  border: none;
-  font-weight: bold;
-  border-radius: 3px;
-  font-size: 14px;
-  cursor: pointer;
-`;
-
-const Input = styled.input`
-  color: var(--text-color);
-`;
 
 const cache: { [key: string]: GithubResponse } = {};
 
@@ -135,12 +92,13 @@ export const Parametrize: React.FC = () => {
   }, [username]);
 
   return (
-    <Row>
+    <div className={styles.parametrizerow}>
       <div style={{ flex: 1 }}>
-        <Title>
-          <Mp4>Programmatic</Mp4> content <br />
+        <h2 className={styles.parametrizetitle}>
+          <span className={styles.parametrizegradient}>Programmatic</span>{" "}
+          content <br />
           and rendering
-        </Title>
+        </h2>
         <p>
           Fetch data from an API and use it as the content. <br />
           Render videos programmatically using our server-side APIs.
@@ -161,12 +119,13 @@ export const Parametrize: React.FC = () => {
             }}
             style={{ display: "flex", flexDirection: "row" }}
           >
-            <Input
+            <input
+              className={styles.parametrizeinput}
               autoFocus
               ref={ref}
               type="text"
               placeholder="Your Github username"
-            ></Input>{" "}
+            ></input>{" "}
             <div style={{ width: 8, display: "inline-block" }}></div>
             <BlueButton
               loading={state.type === "loading"}
@@ -192,6 +151,6 @@ export const Parametrize: React.FC = () => {
       <ProgrammaticContent
         data={state.type === "loaded" ? state.response : null}
       />
-    </Row>
+    </div>
   );
 };

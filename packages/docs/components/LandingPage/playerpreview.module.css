@@ -1,0 +1,11 @@
+.playerpreview {
+  display: flex;
+  flex: 1;
+  cursor: pointer;
+  position: relative;
+  transition: transform 0.3s;
+}
+
+.playerpreview:hover {
+  transform: scale(1.015);
+}

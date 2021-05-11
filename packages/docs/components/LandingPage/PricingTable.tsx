@@ -1,135 +1,39 @@
 import React, { useState } from "react";
-import styled, { css } from "styled-components";
 import { BlueButton } from "../layout/Button";
-import { mobile } from "../layout/layout";
 import { Spacer } from "../layout/Spacer";
 import { PeriodSelector } from "../PeriodSelector";
 import { Triangle } from "../Triangle";
+import styles from "./pricing.module.css";
 
 enum Period {
   Monthly = "monthly",
   Yearly = "yearly",
 }
 
-const PricingRow = styled.div`
-  display: flex;
-  flex-direction: row;
-  ${mobile`
-		flex-direction: column;
-		align-items: center;
-	`}
-`;
-
-const Panel = styled.div`
-  background-color: var(--ifm-background-color);
-  box-shadow: var(--box-shadow);
-  padding: 10px;
-  border-radius: 15px;
-  flex: 1;
-  text-align: center;
-  padding-top: 30px;
-  padding-bottom: 10px;
-  min-height: 500px;
-  display: flex;
-  flex-direction: column;
-  ul {
-    text-align: left;
-    list-style-type: none;
-    padding-left: 0;
-  }
-  li {
-    margin-top: 12px;
-    margin-bottom: 12px;
-    display: flex;
-    color: var(--text-color);
-    font-size: 0.95em;
-  }
-`;
-
-const PerPeriod = styled.div`
-  font-weight: 500;
-  margin-top: -7px;
-  font-size: 0.9em;
-`;
-
-const gradient = css`
-  -webkit-background-clip: text;
-  -moz-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  -moz-text-fill-color: transparent;
-  text-fill-color: transparent;
-`;
-
-const Price = styled.div`
-  font-size: 60px;
-  font-weight: 700;
-  margin-top: -5px;
-`;
-
-const FreePrice = styled(Price)`
-  background: linear-gradient(to right, #4290f5, #42e9f5);
-  ${gradient};
-`;
-
-const GradientPrice = styled(Price)`
-  background: linear-gradient(to right, #e01d67, #79367a);
-  ${gradient};
-`;
-
-const OrangePrice = styled(Price)`
-  background: linear-gradient(to right, #f5ad43, #fd764a);
-  ${gradient};
-`;
-
-const Portion = styled.div`
-  flex: 1;
-  ${mobile`	
-	max-width: 500px;
-	width: 100%;
-	`}
-`;
-
-const TargetTitle = styled.div`
-  border-bottom: 1px solid var(--text-color);
-  font-weight: 600;
-  margin-bottom: 20px;
-`;
-
-const BulletContainer = styled.div`
-  margin-right: 8px;
-  display: inline-flex;
-  justify-content: center;
-  margin-top: 5px;
-`;
-
 const Bullet: React.FC<{ color: string }> = ({ color }) => {
   return (
-    <BulletContainer>
+    <div className={styles.bulletcontainer}>
       <Triangle size={15} opacity={1} color1={color} />
-    </BulletContainer>
+    </div>
   );
 };
-
-const A = styled.a`
-  &:hover {
-    text-decoration: none;
-  }
-  color: inherit;
-`;
 
 export const PricingTable: React.FC<{}> = () => {
   const [period, setPeriod] = useState(Period.Monthly);
   return (
     <div>
       <PeriodSelector period={period} setPeriod={setPeriod} />
-      <PricingRow>
-        <Portion>
-          <TargetTitle>Individuals &amp; Small teams</TargetTitle>
-          <Panel>
+      <div className={styles.pricingrow}>
+        <div className={styles.portion}>
+          <div className={styles.targettitle}>
+            Individuals &amp; Small teams
+          </div>
+          <div className={styles.panel}>
             <strong>Completely</strong>
-            <FreePrice>Free</FreePrice>
-            <PerPeriod>forever!</PerPeriod>
+            <div className={[styles.tableprice, styles.freeprice].join(" ")}>
+              Free
+            </div>
+            <div className={styles.perperiod}>forever!</div>
             <ul>
               <li>
                 <Bullet color="#4290f5" />
@@ -148,22 +52,24 @@ export const PricingTable: React.FC<{}> = () => {
             <BlueButton fullWidth disabled loading={false} size="bg">
               No signup required
             </BlueButton>
-          </Panel>
-        </Portion>
+          </div>
+        </div>
         <Spacer />
         <Spacer />
         <Spacer />
-        <Portion style={{ flex: 2 }}>
-          <TargetTitle>Companies</TargetTitle>
-          <PricingRow>
-            <Panel>
+        <div className={styles.portion} style={{ flex: 2 }}>
+          <div className={styles.targettitle}>Companies</div>
+          <div className={styles.pricingrow}>
+            <div className={styles.panel}>
               <strong>Developer seat</strong>
-              <GradientPrice>
+              <div
+                className={[styles.tableprice, styles.gradientprice].join(" ")}
+              >
                 {period === Period.Monthly ? "$15" : "$150"}
-              </GradientPrice>
-              <PerPeriod>
+              </div>
+              <div className={styles.perperiod}>
                 per {period === Period.Monthly ? "month" : "year"}
-              </PerPeriod>
+              </div>
               <ul>
                 <li>
                   <Bullet color="#79367a" />
@@ -184,25 +90,31 @@ export const PricingTable: React.FC<{}> = () => {
                 </li>
               </ul>
               <div style={{ flex: 1 }} />
-              <A href="https://companies.remotion.dev" target="_blank">
+              <a
+                className={styles.pricinga}
+                href="https://companies.remotion.dev"
+                target="_blank"
+              >
                 <div>
                   <BlueButton fullWidth loading={false} size="bg">
                     Buy a license
                   </BlueButton>
                 </div>
-              </A>
-            </Panel>
+              </a>
+            </div>
             <Spacer />
             <Spacer />
             <Spacer />
-            <Panel>
+            <div className={styles.panel}>
               <strong>Cloud rendering seat</strong>
-              <OrangePrice>
+              <div
+                className={[styles.tableprice, styles.orangeprice].join(" ")}
+              >
                 {period === Period.Monthly ? "$10" : "$100"}
-              </OrangePrice>
-              <PerPeriod>
+              </div>
+              <div className={styles.perperiod}>
                 per {period === Period.Monthly ? "month" : "year"}
-              </PerPeriod>
+              </div>
               <ul>
                 <li>
                   <Bullet color="#f5ad43" />
@@ -219,17 +131,21 @@ export const PricingTable: React.FC<{}> = () => {
                 </li>
               </ul>
               <div style={{ flex: 1 }} />
-              <A href="https://companies.remotion.dev" target="_blank">
+              <a
+                className={styles.pricinga}
+                href="https://companies.remotion.dev"
+                target="_blank"
+              >
                 <div>
                   <BlueButton fullWidth loading={false} size="bg">
                     Buy a license
                   </BlueButton>
                 </div>
-              </A>
-            </Panel>
-          </PricingRow>
-        </Portion>
-      </PricingRow>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
