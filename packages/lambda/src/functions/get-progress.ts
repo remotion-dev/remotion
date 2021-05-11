@@ -1,9 +1,5 @@
-import {
-	GetObjectCommand,
-	ListObjectsV2Command,
-	_Object,
-} from '@aws-sdk/client-s3';
-import {Readable} from 'stream';
+import {_Object} from '@aws-sdk/client-s3';
+import {Internals} from 'remotion';
 import {s3Client} from '../aws-clients';
 import {
 	EncodingProgress,
@@ -15,6 +11,8 @@ import {
 	RenderMetadata,
 	RENDER_METADATA_KEY,
 } from '../constants';
+import {inspectErrors} from '../inspect-errors';
+import {lambdaLs, lambdaReadFile} from '../io';
 import {streamToString} from '../stream-to-string';
 
 const getFinalEncodingStatus = ({
@@ -50,15 +48,13 @@ const getEncodingMetadata = async ({
 		return null;
 	}
 
-	const response = await s3Client.send(
-		new GetObjectCommand({
-			Bucket: bucketName,
-			Key: ENCODING_PROGRESS_KEY,
-		})
-	);
+	const Body = await lambdaReadFile({
+		bucketName,
+		key: ENCODING_PROGRESS_KEY,
+	});
 
 	const encodingProgress = JSON.parse(
-		await streamToString(response.Body as Readable)
+		await streamToString(Body)
 	) as EncodingProgress;
 
 	return encodingProgress;
@@ -75,15 +71,13 @@ const getRenderMetadata = async ({
 		return null;
 	}
 
-	const response = await s3Client.send(
-		new GetObjectCommand({
-			Bucket: bucketName,
-			Key: RENDER_METADATA_KEY,
-		})
-	);
+	const Body = await lambdaReadFile({
+		bucketName,
+		key: RENDER_METADATA_KEY,
+	});
 
 	const renderMetadataResponse = JSON.parse(
-		await streamToString(response.Body as Readable)
+		await streamToString(Body)
 	) as RenderMetadata;
 
 	return renderMetadataResponse;
@@ -116,32 +110,40 @@ export const progressHandler = async (lambdaParams: LambdaPayload) => {
 		throw new TypeError('Expected status type');
 	}
 
-	const list = await s3Client.send(
-		new ListObjectsV2Command({
-			Bucket: lambdaParams.bucketName,
-		})
-	);
-	const contents = list.Contents ?? [];
+	const contents = await lambdaLs(lambdaParams.bucketName);
+
 	if (!contents) {
 		throw new Error('Could not get list contents');
 	}
 
+	const bucketSize = contents
+		.map((c) => c.Size ?? 0)
+		.reduce((a, b) => a + b, 0);
+
 	const chunks = contents.filter((c) => c.Key?.match(/chunk(.*).mp4/));
 	const output = contents.find((c) => c.Key?.includes(OUT_NAME)) ?? null;
 	const errors = contents
-		.filter((c) => c.Key?.startsWith('error-chunk'))
-		.map((c) => c.Key);
+		// TODO: unhardcode
+		.filter(
+			(c) =>
+				c.Key?.startsWith('error-chunk') || c.Key?.startsWith('error-stitcher')
+		)
+		.map((c) => c.Key)
+		.filter(Internals.truthy);
 
-	const [encodingStatus, renderMetadata] = await Promise.all([
-		getEncodingMetadata({
-			exists: Boolean(contents.find((c) => c.Key === ENCODING_PROGRESS_KEY)),
-			bucketName: lambdaParams.bucketName,
-		}),
-		getRenderMetadata({
-			exists: Boolean(contents.find((c) => c.Key === RENDER_METADATA_KEY)),
-			bucketName: lambdaParams.bucketName,
-		}),
-	]);
+	const [encodingStatus, renderMetadata, errorExplanations] = await Promise.all(
+		[
+			getEncodingMetadata({
+				exists: Boolean(contents.find((c) => c.Key === ENCODING_PROGRESS_KEY)),
+				bucketName: lambdaParams.bucketName,
+			}),
+			getRenderMetadata({
+				exists: Boolean(contents.find((c) => c.Key === RENDER_METADATA_KEY)),
+				bucketName: lambdaParams.bucketName,
+			}),
+			inspectErrors({errs: errors, s3Client, bucket: lambdaParams.bucketName}),
+		]
+	);
 
 	return {
 		chunks: chunks.length,
@@ -160,6 +162,8 @@ export const progressHandler = async (lambdaParams: LambdaPayload) => {
 			renderMetadata,
 		}),
 		errors,
+		errorExplanations,
 		currentTime: Date.now(),
+		bucketSize,
 	};
 };

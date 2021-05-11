@@ -16,13 +16,12 @@ xns(async () => {
 		functionName,
 		type: LambdaRoutines.start,
 		payload: {
-			chunkSize: 200,
+			chunkSize: 20,
 			composition: 'my-video',
-			durationInFrames: 24000,
+			durationInFrames: 240,
 			serveUrl: bucketUrl,
 		},
 	});
-	console.log(res);
 	for (let i = 0; i < 300; i++) {
 		await sleep(1000);
 		const status = await checkLambdaStatus(functionName, res.bucketName);

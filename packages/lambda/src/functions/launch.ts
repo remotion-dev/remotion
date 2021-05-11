@@ -1,5 +1,4 @@
 import {InvokeCommand} from '@aws-sdk/client-lambda';
-import {PutObjectCommand} from '@aws-sdk/client-s3';
 import fs from 'fs';
 import {lambdaClient, s3Client} from '../aws-clients';
 import {chunk} from '../chunk';
@@ -17,10 +16,11 @@ import {
 	RENDER_METADATA_KEY,
 } from '../constants';
 import {getBrowserInstance} from '../get-browser-instance';
+import {lambdaWriteFile} from '../io';
 import {timer} from '../timer';
 import {validateComposition} from '../validate-composition';
 
-export const launchHandler = async (params: LambdaPayload) => {
+const innerLaunchHandler = async (params: LambdaPayload) => {
 	if (params.type !== LambdaRoutines.launch) {
 		throw new Error('Expected launch type');
 	}
@@ -69,6 +69,8 @@ export const launchHandler = async (params: LambdaPayload) => {
 			Math.min(params.durationInFrames, (i + 1) * chunkSize) - 1,
 		] as [number, number];
 	});
+	const invokers = Math.round(Math.sqrt(chunks.length));
+
 	const reqSend = timer('sending off requests');
 	const lambdaPayloads = chunks.map((chunkPayload) => {
 		const payload: LambdaPayload = {
@@ -91,17 +93,21 @@ export const launchHandler = async (params: LambdaPayload) => {
 		startedDate: Date.now(),
 		totalFrames: params.durationInFrames,
 		totalChunks: chunks.length,
+		estimatedLambdaInvokations: [
+			// Direct invokations
+			chunks.length,
+			// Parent invokers
+			invokers,
+			// This function
+		].reduce((a, b) => a + b, 0),
 	};
 
-	s3Client.send(
-		new PutObjectCommand({
-			Bucket: params.bucketName,
-			Key: RENDER_METADATA_KEY,
-			Body: JSON.stringify(renderMetadata),
-		})
-	);
+	await lambdaWriteFile({
+		bucketName: params.bucketName,
+		key: RENDER_METADATA_KEY,
+		body: JSON.stringify(renderMetadata),
+	});
 
-	const invokers = Math.round(Math.sqrt(lambdaPayloads.length));
 	const payloadChunks = chunk(lambdaPayloads, invokers);
 	await Promise.all(
 		payloadChunks.map(async (payloads, index) => {
@@ -128,13 +134,11 @@ export const launchHandler = async (params: LambdaPayload) => {
 		const encodingProgress: EncodingProgress = {
 			framesRendered,
 		};
-		s3Client.send(
-			new PutObjectCommand({
-				Bucket: params.bucketName,
-				Key: ENCODING_PROGRESS_KEY,
-				Body: JSON.stringify(encodingProgress),
-			})
-		);
+		lambdaWriteFile({
+			bucketName: params.bucketName,
+			key: ENCODING_PROGRESS_KEY,
+			body: JSON.stringify(encodingProgress),
+		});
 	};
 
 	const out = ENABLE_EFS
@@ -150,14 +154,30 @@ export const launchHandler = async (params: LambdaPayload) => {
 				expectedFiles: chunkCount,
 				onProgress,
 		  });
-	await s3Client.send(
-		new PutObjectCommand({
-			Bucket: params.bucketName,
-			Key: OUT_NAME,
-			Body: fs.createReadStream(out),
-			ACL: 'public-read',
-		})
-	);
+	await lambdaWriteFile({
+		bucketName: params.bucketName,
+		key: OUT_NAME,
+		body: fs.createReadStream(out),
+	});
 	const url = `https://s3.${REGION}.amazonaws.com/${params.bucketName}/${OUT_NAME}`;
 	return {url};
+};
+
+export const launchHandler = async (params: LambdaPayload) => {
+	if (params.type !== LambdaRoutines.launch) {
+		throw new Error('Expected launch type');
+	}
+
+	try {
+		await innerLaunchHandler(params);
+	} catch (err) {
+		console.log('Error occurred', err);
+		await lambdaWriteFile({
+			bucketName: params.bucketName,
+			key: `error-stitcher-${Date.now()}.txt`,
+			body: JSON.stringify({
+				error: err.message,
+			}),
+		});
+	}
 };

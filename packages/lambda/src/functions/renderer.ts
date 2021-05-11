@@ -1,9 +1,8 @@
 import {InvokeCommand} from '@aws-sdk/client-lambda';
-import {PutObjectCommand} from '@aws-sdk/client-s3';
 import {renderFrames, stitchFramesToVideo} from '@remotion/renderer';
 import fs, {copyFileSync, writeFileSync} from 'fs';
 import path from 'path';
-import {lambdaClient, s3Client} from '../aws-clients';
+import {lambdaClient} from '../aws-clients';
 import {
 	EFS_MOUNT_PATH,
 	ENABLE_EFS,
@@ -12,6 +11,7 @@ import {
 	LambdaRoutines,
 } from '../constants';
 import {getBrowserInstance} from '../get-browser-instance';
+import {lambdaWriteFile} from '../io';
 import {timer} from '../timer';
 
 const renderHandler = async (params: LambdaPayload) => {
@@ -113,13 +113,11 @@ const renderHandler = async (params: LambdaPayload) => {
 		console.log('Done rendering!', outputDir, outputLocation);
 	} else {
 		const uploading = timer('uploading');
-		await s3Client.send(
-			new PutObjectCommand({
-				Bucket: params.bucketName,
-				Key: `chunk-${String(params.chunk).padStart(8, '0')}.mp4`,
-				Body: fs.createReadStream(outputLocation),
-			})
-		);
+		await lambdaWriteFile({
+			bucketName: params.bucketName,
+			key: `chunk-${String(params.chunk).padStart(8, '0')}.mp4`,
+			body: fs.createReadStream(outputLocation),
+		});
 		uploading.end();
 		console.log('Done rendering!', outputDir, outputLocation);
 	}
@@ -154,15 +152,12 @@ export const rendererHandler = async (params: LambdaPayload) => {
 		}
 
 		console.log('Error occurred', err);
-		await s3Client.send(
-			new PutObjectCommand({
-				Bucket: params.bucketName,
-				Key: `error-chunk-${params.chunk}-${Date.now()}.txt`,
-				Body: JSON.stringify({
-					error: err.message,
-				}),
-				ACL: 'public-read',
-			})
-		);
+		await lambdaWriteFile({
+			bucketName: params.bucketName,
+			key: `error-chunk-${params.chunk}-${Date.now()}.txt`,
+			body: JSON.stringify({
+				error: err.message,
+			}),
+		});
 	}
 };

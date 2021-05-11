@@ -1,19 +1,16 @@
-import {
-	GetObjectCommand,
-	ListObjectsCommand,
-	S3Client,
-} from '@aws-sdk/client-s3';
+import {ListObjectsCommand, S3Client} from '@aws-sdk/client-s3';
 import {combineVideos} from '@remotion/renderer';
 import {
 	createWriteStream,
 	existsSync,
 	mkdirSync,
+	promises,
 	readdirSync,
 	rmdirSync,
 } from 'fs';
 import {join} from 'path';
-import {Readable} from 'stream';
 import xns from 'xns';
+import {lambdaReadFile} from './io';
 import {timer} from './timer';
 import {tmpDir} from './tmpdir';
 
@@ -28,16 +25,17 @@ const downloadS3File = async ({
 	content: string;
 	outdir: string;
 }) => {
-	const {Body} = await s3Client.send(
-		new GetObjectCommand({
-			Bucket: bucket,
-			Key: content,
-		})
-	);
+	const Body = await lambdaReadFile({
+		bucketName: bucket,
+		key: content,
+	});
 	const outpath = join(outdir, content);
+	if (Buffer.isBuffer(Body)) {
+		return promises.writeFile(outpath, Body);
+	}
+
 	return new Promise<void>((resolve, reject) => {
-		(Body as Readable)
-			.pipe(createWriteStream(outpath))
+		Body.pipe(createWriteStream(outpath))
 			.on('error', (err) => reject(err))
 			.on('close', () => resolve());
 	});
