@@ -1,4 +1,3 @@
-import {S3Client} from '@aws-sdk/client-s3';
 import {combineVideos} from '@remotion/renderer';
 import {
 	createWriteStream,
@@ -7,23 +6,26 @@ import {
 	promises,
 	rmdirSync,
 } from 'fs';
-import {join} from 'path';
+import path, {join} from 'path';
 import xns from 'xns';
+import {EFS_MOUNT_PATH, ENABLE_EFS} from './constants';
 import {lambdaLs, lambdaReadFile} from './io';
 import {timer} from './timer';
 import {tmpDir} from './tmpdir';
 
 const downloadS3File = async ({
-	s3Client,
 	bucket,
 	content,
 	outdir,
 }: {
-	s3Client: S3Client;
 	bucket: string;
 	content: string;
 	outdir: string;
 }) => {
+	if (ENABLE_EFS) {
+		return Promise.resolve();
+	}
+
 	const Body = await lambdaReadFile({
 		bucketName: bucket,
 		key: content,
@@ -41,12 +43,10 @@ const downloadS3File = async ({
 };
 
 const getAllFilesS3 = async ({
-	s3Client,
 	bucket,
 	expectedFiles,
 	outdir,
 }: {
-	s3Client: S3Client;
 	bucket: string;
 	expectedFiles: number;
 	outdir: string;
@@ -73,7 +73,15 @@ const getAllFilesS3 = async ({
 				const areAllFilesDownloaded =
 					Object.keys(downloaded).length === expectedFiles;
 				if (areAllFilesDownloaded) {
-					resolve(filesInBucket.map((file) => join(outdir, file)));
+					if (ENABLE_EFS) {
+						resolve(
+							filesInBucket.map((file) =>
+								path.join(EFS_MOUNT_PATH + '/' + bucket, file)
+							)
+						);
+					} else {
+						resolve(filesInBucket.map((file) => join(outdir, file)));
+					}
 				}
 			};
 
@@ -89,7 +97,6 @@ const getAllFilesS3 = async ({
 						bucket,
 						content,
 						outdir,
-						s3Client,
 					});
 					downloadTimer.end();
 					downloaded[content] = true;
@@ -113,12 +120,10 @@ const getAllFilesS3 = async ({
 };
 
 export const concatVideosS3 = async ({
-	s3Client,
 	bucket,
 	expectedFiles,
 	onProgress,
 }: {
-	s3Client: S3Client;
 	bucket: string;
 	expectedFiles: number;
 	onProgress: (frames: number) => void;
@@ -132,7 +137,6 @@ export const concatVideosS3 = async ({
 
 	mkdirSync(outdir);
 	const files = await getAllFilesS3({
-		s3Client,
 		bucket,
 		expectedFiles,
 		outdir,
