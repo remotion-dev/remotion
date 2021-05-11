@@ -1,18 +1,5 @@
 import React, { useEffect, useState } from "react";
-import styled from "styled-components";
-
-const Container = styled.div`
-  display: flex;
-  flex-direction: row;
-  font-weight: bold;
-  justify-content: center;
-  align-items: center;
-`;
-
-const Stars = styled.div`
-  font-size: 0.75em;
-  margin-top: 2.5px;
-`;
+import styles from "./github.module.css";
 
 const GithubIcon: React.FC = () => {
   return (
@@ -42,9 +29,10 @@ export const GithubButton: React.FC = () => {
   }, []);
 
   return (
-    <Container>
+    <div className={styles.container}>
       <GithubIcon></GithubIcon> <div>Github</div>{" "}
-      <div style={{ width: 8 }}></div> <Stars>{stars ? stars : null}</Stars>
-    </Container>
+      <div style={{ width: 8 }}></div>{" "}
+      <div className={styles.stars}>{stars ? stars : null}</div>
+    </div>
   );
 };

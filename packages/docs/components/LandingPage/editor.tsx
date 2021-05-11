@@ -1,53 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import styled, { keyframes } from "styled-components";
-import { mobile } from "../layout/layout";
-
-const Row = styled.div`
-  display: flex;
-  flex-direction: row;
-  justify-content: flex-end;
-  text-align: right;
-  align-items: center;
-  ${mobile`
-    flex-direction: column-reverse;
-    text-align: left;
-    align-items: flex-start;
-    justify-content: flex-start;
-  `}
-`;
-
-const Title = styled.h2`
-  font-size: 2.5em;
-  font-weight: 700;
-  font-family: --apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
-    Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
-  line-height: 1.1;
-  text-align: right;
-  ${mobile`
-    text-align: left;
-  `}
-`;
-
-const Mp4 = styled.span`
-  background: linear-gradient(to right, rgb(66, 144, 245), rgb(66, 233, 245));
-  -webkit-text-fill-color: transparent;
-  -webkit-background-clip: text;
-`;
-
-const animation = keyframes`
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-`;
-const Video = styled.video<{
-  playing: boolean;
-}>`
-  animation: ${animation} 0.6s;
-  animation-play-state: ${(props) => (props.playing ? "running" : "paused")};
-`;
+import styles from "./editor.module.css";
 
 export const LightningFastEditor: React.FC = () => {
   const ref = useRef<HTMLDivElement>(null);
@@ -78,28 +30,33 @@ export const LightningFastEditor: React.FC = () => {
     return () => observer.unobserve(current);
   }, []);
   return (
-    <Row ref={ref}>
+    <div className={styles.row} ref={ref}>
       <div>
-        <Video
+        <video
           src="/img/player-demo.mp4"
           autoPlay
+          className={styles.video}
           muted
           playsInline
-          playing={isIntersecting}
           loop
-          style={{ width: 500, borderRadius: 7, overflow: "hidden" }}
-        ></Video>
+          style={{
+            animationPlayState: isIntersecting ? "running" : "paused",
+            width: 500,
+            borderRadius: 7,
+            overflow: "hidden",
+          }}
+        ></video>
       </div>
       <div style={{ flex: 1 }}>
-        <Title>
-          Fast and <br /> <Mp4>delightful</Mp4> editing
-        </Title>
+        <h2 className={styles.title}>
+          Fast and <br /> <span className={styles.mp4}>delightful</span> editing
+        </h2>
         <p>
           Preview your video in the browser. <br />
           Fast refresh while the video is playing. <br />
           Scrub through the timeline to get every frame perfect.
         </p>
       </div>
-    </Row>
+    </div>
   );
 };

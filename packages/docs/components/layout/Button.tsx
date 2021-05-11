@@ -1,7 +1,6 @@
 import { opacify } from "polished";
 import React, { ComponentProps } from "react";
 import styled from "styled-components";
-import { ButtonSpinner } from "./ButtonSpinner";
 import { RED, UNDERLAY_RED } from "./colors";
 
 type ExtraProps = {
@@ -47,7 +46,7 @@ export const Button: React.FC<Props> = (props) => {
   const actualDisabled = other.disabled || loading;
   return (
     <Container {...other} disabled={actualDisabled}>
-      {children} {loading ? <ButtonSpinner /> : null}
+      {children}
     </Container>
   );
 };
