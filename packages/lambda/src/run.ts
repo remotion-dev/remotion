@@ -25,6 +25,11 @@ xns(async () => {
 	console.log(res);
 	for (let i = 0; i < 30; i++) {
 		await sleep(1000);
-		console.log(await checkLambdaStatus(functionName, res.bucketName));
+		const status = await checkLambdaStatus(functionName, res.bucketName);
+		console.log('');
+		if (status.done) {
+			console.log('Done! ' + res.bucketName);
+			process.exit(0);
+		}
 	}
 });
