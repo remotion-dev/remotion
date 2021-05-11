@@ -2,10 +2,9 @@ import {InvokeCommand} from '@aws-sdk/client-lambda';
 import fs from 'fs';
 import {lambdaClient, s3Client} from '../aws-clients';
 import {chunk} from '../chunk';
-import {concatVideos, concatVideosS3} from '../concat-videos';
+import {concatVideosS3} from '../concat-videos';
 import {
 	EFS_MOUNT_PATH,
-	ENABLE_EFS,
 	EncodingProgress,
 	ENCODING_PROGRESS_KEY,
 	LambdaPayload,
@@ -28,19 +27,7 @@ const innerLaunchHandler = async (params: LambdaPayload) => {
 	const efsRemotionVideoRenderDone = EFS_MOUNT_PATH + '/render-done';
 
 	const efsRemotionVideoPath = EFS_MOUNT_PATH + '/remotion-video';
-	if (ENABLE_EFS) {
-		if (fs.existsSync(efsRemotionVideoPath)) {
-			fs.rmdirSync(efsRemotionVideoPath, {recursive: true});
-		}
-
-		fs.mkdirSync(efsRemotionVideoPath);
-		if (fs.existsSync(efsRemotionVideoRenderDone)) {
-			fs.rmdirSync(efsRemotionVideoRenderDone, {recursive: true});
-		}
-
-		fs.mkdirSync(efsRemotionVideoRenderDone);
-	}
-	// const bucketTimer = timer('Creating bucket');
+	// TODO: Cleanup EFS after render, it is not ephemereal
 
 	// TODO: Better validation
 	if (!params.chunkSize) {
@@ -141,19 +128,12 @@ const innerLaunchHandler = async (params: LambdaPayload) => {
 		});
 	};
 
-	const out = ENABLE_EFS
-		? await concatVideos({
-				efsRemotionVideoPath,
-				efsRemotionVideoRenderDone,
-				expectedFiles: chunkCount,
-				onProgress,
-		  })
-		: await concatVideosS3({
-				s3Client,
-				bucket: params.bucketName,
-				expectedFiles: chunkCount,
-				onProgress,
-		  });
+	const out = await concatVideosS3({
+		s3Client,
+		bucket: params.bucketName,
+		expectedFiles: chunkCount,
+		onProgress,
+	});
 	await lambdaWriteFile({
 		bucketName: params.bucketName,
 		key: OUT_NAME,

@@ -5,7 +5,6 @@ import {
 	existsSync,
 	mkdirSync,
 	promises,
-	readdirSync,
 	rmdirSync,
 } from 'fs';
 import {join} from 'path';
@@ -38,38 +37,6 @@ const downloadS3File = async ({
 		Body.pipe(createWriteStream(outpath))
 			.on('error', (err) => reject(err))
 			.on('close', () => resolve());
-	});
-};
-
-const getAllFiles = async ({
-	efsRemotionVideoPath,
-	expectedFiles,
-	efsRemotionVideoRenderDone,
-}: {
-	efsRemotionVideoPath: string;
-	expectedFiles: number;
-	efsRemotionVideoRenderDone: string;
-}): Promise<string[]> => {
-	return new Promise<string[]>((resolve) => {
-		const loop = async () => {
-			const files = readdirSync(efsRemotionVideoPath);
-			const txtFiles = readdirSync(efsRemotionVideoRenderDone);
-			const areAllFilesDownloading = Boolean(
-				files.length === expectedFiles && txtFiles.length === expectedFiles
-			);
-
-			if (!areAllFilesDownloading) {
-				setTimeout(() => {
-					loop();
-				}, 100);
-			}
-
-			if (areAllFilesDownloading) {
-				resolve(files.map((file) => join(efsRemotionVideoPath, file)));
-			}
-		};
-
-		loop();
 	});
 };
 
@@ -147,42 +114,6 @@ const getAllFilesS3 = async ({
 
 		loop();
 	});
-};
-
-export const concatVideos = async ({
-	efsRemotionVideoPath,
-	efsRemotionVideoRenderDone,
-	expectedFiles,
-	onProgress,
-}: {
-	efsRemotionVideoPath: string;
-	efsRemotionVideoRenderDone: string;
-	expectedFiles: number;
-	onProgress: (progress: number) => void;
-}) => {
-	const getAllTimes = timer('get all files');
-	const files = await getAllFiles({
-		efsRemotionVideoPath,
-		expectedFiles,
-		efsRemotionVideoRenderDone,
-	});
-	getAllTimes.end();
-
-	const outfile = join(tmpDir('remotion-concated'), 'concat.mp4');
-	const combine = timer('Combine videos');
-	const filelistDir = tmpDir('remotion-filelist');
-	await combineVideos({
-		files,
-		filelistDir,
-		output: outfile,
-		onProgress,
-	});
-	combine.end();
-
-	rmdirSync(efsRemotionVideoPath, {
-		recursive: true,
-	});
-	return outfile;
 };
 
 export const concatVideosS3 = async ({
