@@ -136,11 +136,10 @@ export const render = async () => {
 	const serveUrl = `http://localhost:${port}`;
 
 	const openedBrowser = await browserInstance;
-	const comps = await getCompositions({
+	const comps = await getCompositions(serveUrl, {
 		browser,
 		inputProps,
 		browserInstance: openedBrowser,
-		serveUrl,
 	});
 	const compositionId = getCompositionId(comps);
 
