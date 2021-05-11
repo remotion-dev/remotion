@@ -2,6 +2,7 @@ import React from "react";
 import styled from "styled-components";
 import { BlueButton } from "../layout/Button";
 import { mobile } from "../layout/layout";
+import { Spacer } from "../layout/Spacer";
 import { CodeExample } from "./CodeExample";
 
 const Row = styled.div`
@@ -58,15 +59,18 @@ export const IfYouKnowReact: React.FC = () => {
           you can make videos.
         </Title>
         <p>
-          Remotion is a set of utilities for video creation in React. <br /> The
-          rules of React stay the same. <br />
-          Learn the fundamentals in just a few minutes:
+          Remotion gives you the tools for video creation, <br /> but the rules
+          of React stay the same. <br />
+          <br />
+          Learn the fundamentals in just a few minutes.
+          <Spacer></Spacer>
+          <Spacer></Spacer>
+          <A href="/docs/the-fundamentals">
+            <BlueButton size="sm" fullWidth={false} loading={false}>
+              Learn Remotion
+            </BlueButton>
+          </A>
         </p>
-        <A href="/docs/the-fundamentals">
-          <BlueButton size="sm" fullWidth={false} loading={false}>
-            Learn Remotion
-          </BlueButton>
-        </A>
       </div>
     </Row>
   );
