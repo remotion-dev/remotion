@@ -12,6 +12,8 @@ import {
 	LambdaPayload,
 	LambdaRoutines,
 	REGION,
+	RenderMetadata,
+	RENDER_METADATA_KEY,
 } from './constants';
 import {getBrowserInstance} from './get-browser-instance';
 import {timer} from './timer';
@@ -83,6 +85,19 @@ export const launchHandler = async (params: LambdaPayload) => {
 		};
 		return payload;
 	});
+	const renderMetadata: RenderMetadata = {
+		startedDate: Date.now(),
+		totalFrames: params.durationInFrames,
+	};
+
+	s3Client.send(
+		new PutObjectCommand({
+			Bucket: params.bucketName,
+			Key: RENDER_METADATA_KEY,
+			Body: JSON.stringify(renderMetadata),
+		})
+	);
+
 	const invokers = Math.round(Math.sqrt(lambdaPayloads.length));
 	const payloadChunks = chunk(lambdaPayloads, invokers);
 	await Promise.all(
