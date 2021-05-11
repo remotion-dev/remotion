@@ -1,4 +1,8 @@
-import {GetObjectCommand, ListObjectsV2Command} from '@aws-sdk/client-s3';
+import {
+	GetObjectCommand,
+	ListObjectsV2Command,
+	_Object,
+} from '@aws-sdk/client-s3';
 import {Readable} from 'stream';
 import {s3Client} from '../aws-clients';
 import {
@@ -85,6 +89,28 @@ const getRenderMetadata = async ({
 	return renderMetadataResponse;
 };
 
+const getTimeToFinish = ({
+	renderMetadata,
+	output,
+}: {
+	renderMetadata: RenderMetadata | null;
+	output: _Object | null;
+}) => {
+	if (!output) {
+		return null;
+	}
+
+	if (!output.LastModified) {
+		return null;
+	}
+
+	if (!renderMetadata) {
+		return null;
+	}
+
+	return output.LastModified.getTime() - renderMetadata.startedDate;
+};
+
 export const progressHandler = async (lambdaParams: LambdaPayload) => {
 	if (lambdaParams.type !== LambdaRoutines.status) {
 		throw new TypeError('Expected status type');
@@ -101,7 +127,7 @@ export const progressHandler = async (lambdaParams: LambdaPayload) => {
 	}
 
 	const chunks = contents.filter((c) => c.Key?.match(/chunk(.*).mp4/));
-	const output = contents.find((c) => c.Key?.includes(OUT_NAME));
+	const output = contents.find((c) => c.Key?.includes(OUT_NAME)) ?? null;
 
 	const [encodingStatus, renderMetadata] = await Promise.all([
 		getEncodingMetadata({
@@ -126,5 +152,9 @@ export const progressHandler = async (lambdaParams: LambdaPayload) => {
 		outputFile: output
 			? `https://s3.${REGION}.amazonaws.com/${lambdaParams.bucketName}/${OUT_NAME}`
 			: null,
+		timeToFinish: getTimeToFinish({
+			output,
+			renderMetadata,
+		}),
 	};
 };
