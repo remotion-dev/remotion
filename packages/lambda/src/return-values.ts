@@ -1,9 +1,9 @@
 import {LambdaRoutines} from './constants';
-import {fireHandler} from './fire';
-import {progressHandler} from './get-progress';
-import {launchHandler} from './launch';
-import {rendererHandler} from './renderer';
-import {startHandler} from './start';
+import {fireHandler} from './functions/fire';
+import {progressHandler} from './functions/get-progress';
+import {launchHandler} from './functions/launch';
+import {rendererHandler} from './functions/renderer';
+import {startHandler} from './functions/start';
 
 export interface LambdaReturnValues {
 	[LambdaRoutines.start]: ReturnType<typeof startHandler>;

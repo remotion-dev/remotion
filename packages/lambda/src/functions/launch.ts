@@ -1,9 +1,9 @@
 import {InvokeCommand} from '@aws-sdk/client-lambda';
 import {PutObjectCommand} from '@aws-sdk/client-s3';
 import fs from 'fs';
-import {lambdaClient, s3Client} from './aws-clients';
-import {chunk} from './chunk';
-import {concatVideos, concatVideosS3} from './concat-videos';
+import {lambdaClient, s3Client} from '../aws-clients';
+import {chunk} from '../chunk';
+import {concatVideos, concatVideosS3} from '../concat-videos';
 import {
 	EFS_MOUNT_PATH,
 	ENABLE_EFS,
@@ -15,10 +15,10 @@ import {
 	REGION,
 	RenderMetadata,
 	RENDER_METADATA_KEY,
-} from './constants';
-import {getBrowserInstance} from './get-browser-instance';
-import {timer} from './timer';
-import {validateComposition} from './validate-composition';
+} from '../constants';
+import {getBrowserInstance} from '../get-browser-instance';
+import {timer} from '../timer';
+import {validateComposition} from '../validate-composition';
 
 export const launchHandler = async (params: LambdaPayload) => {
 	if (params.type !== LambdaRoutines.launch) {
