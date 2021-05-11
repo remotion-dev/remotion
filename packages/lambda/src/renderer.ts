@@ -19,25 +19,31 @@ export const rendererHandler = async (params: LambdaPayload) => {
 	if (fs.existsSync(outputDir)) {
 		fs.rmdirSync(outputDir);
 	}
+
 	fs.mkdirSync(outputDir);
 
 	if (params.type !== LambdaRoutines.renderer) {
 		throw new Error('Params must be renderer');
 	}
+
 	if (typeof params.chunk !== 'number') {
 		throw new Error('must pass chunk');
 	}
+
 	if (!params.frameRange) {
 		throw new Error('must pass framerange');
 	}
+
 	if (ENABLE_EFS) {
 		if (!fs.existsSync(params.efsRemotionVideoPath)) {
 			fs.mkdirSync(params.efsRemotionVideoPath);
 		}
+
 		if (!fs.existsSync(efsRemotionVideoRenderDone)) {
 			fs.mkdirSync(efsRemotionVideoRenderDone);
 		}
 	}
+
 	console.log(`Started rendering ${params.chunk}, frame ${params.frameRange}`);
 	await renderFrames({
 		compositionId: params.composition,

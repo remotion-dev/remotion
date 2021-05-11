@@ -67,6 +67,7 @@ const getAllFiles = async ({
 					loop();
 				}, 100);
 			}
+
 			if (areAllFilesDownloading) {
 				resolve(files.map((file) => join(efsRemotionVideoPath, file)));
 			}
@@ -111,10 +112,12 @@ const getAllFilesS3 = async ({
 					resolve(filesInBucket.map((file) => join(outdir, file)));
 				}
 			};
+
 			filesInBucket.forEach(async (content) => {
 				if (alreadyDownloading[content]) {
 					return;
 				}
+
 				alreadyDownloading[content] = true;
 				try {
 					const downloadTimer = timer('Downloading ' + content);
@@ -156,6 +159,7 @@ export const concatVideosS3 = async (
 			recursive: true,
 		});
 	}
+
 	mkdirSync(outdir);
 	const files = await getAllFilesS3({
 		s3Client,
