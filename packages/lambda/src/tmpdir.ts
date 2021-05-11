@@ -9,6 +9,7 @@ export const tmpDir = (str: string) => {
 			? EFS_MOUNT_PATH + '/' + str + Math.random()
 			: '/tmp/' + str + Math.random();
 		mkdirSync(dir);
+
 		return dir;
 	}
 

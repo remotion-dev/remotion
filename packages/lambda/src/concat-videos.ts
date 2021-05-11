@@ -1,4 +1,4 @@
-import {ListObjectsCommand, S3Client} from '@aws-sdk/client-s3';
+import {S3Client} from '@aws-sdk/client-s3';
 import {combineVideos} from '@remotion/renderer';
 import {
 	createWriteStream,
@@ -9,7 +9,7 @@ import {
 } from 'fs';
 import {join} from 'path';
 import xns from 'xns';
-import {lambdaReadFile} from './io';
+import {lambdaLs, lambdaReadFile} from './io';
 import {timer} from './timer';
 import {tmpDir} from './tmpdir';
 
@@ -56,14 +56,10 @@ const getAllFilesS3 = async ({
 
 	const getFiles = async () => {
 		const lsTimer = timer('Listing files');
-		const files = await s3Client.send(
-			new ListObjectsCommand({
-				Bucket: bucket,
-			})
-		);
+		const contents = await lambdaLs(bucket);
 		lsTimer.end();
 		return (
-			(files.Contents || [])
+			contents
 				// TODO make prefix generic
 				.filter((c) => c.Key?.startsWith('chunk-'))
 				.map((_) => _.Key as string)
