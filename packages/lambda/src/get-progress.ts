@@ -6,10 +6,84 @@ import {
 	ENCODING_PROGRESS_KEY,
 	LambdaPayload,
 	LambdaRoutines,
+	OUT_NAME,
+	REGION,
 	RenderMetadata,
 	RENDER_METADATA_KEY,
 } from './constants';
 import {streamToString} from './stream-to-string';
+
+const getFinalEncodingStatus = ({
+	encodingStatus: encodingProgress,
+	renderMetadata,
+	outputFileExists,
+}: {
+	encodingStatus: EncodingProgress | null;
+	renderMetadata: RenderMetadata | null;
+	outputFileExists: boolean;
+}): EncodingProgress | null => {
+	if (!renderMetadata) {
+		return null;
+	}
+
+	if (outputFileExists) {
+		return {
+			framesRendered: renderMetadata.totalFrames,
+		};
+	}
+
+	return encodingProgress;
+};
+
+const getEncodingMetadata = async ({
+	exists,
+	bucketName,
+}: {
+	exists: boolean;
+	bucketName: string;
+}): Promise<EncodingProgress | null> => {
+	if (!exists) {
+		return null;
+	}
+
+	const response = await s3Client.send(
+		new GetObjectCommand({
+			Bucket: bucketName,
+			Key: ENCODING_PROGRESS_KEY,
+		})
+	);
+
+	const encodingProgress = JSON.parse(
+		await streamToString(response.Body as Readable)
+	) as EncodingProgress;
+
+	return encodingProgress;
+};
+
+const getRenderMetadata = async ({
+	exists,
+	bucketName,
+}: {
+	exists: boolean;
+	bucketName: string;
+}) => {
+	if (!exists) {
+		return null;
+	}
+
+	const response = await s3Client.send(
+		new GetObjectCommand({
+			Bucket: bucketName,
+			Key: RENDER_METADATA_KEY,
+		})
+	);
+
+	const renderMetadataResponse = JSON.parse(
+		await streamToString(response.Body as Readable)
+	) as RenderMetadata;
+
+	return renderMetadataResponse;
+};
 
 export const progressHandler = async (lambdaParams: LambdaPayload) => {
 	if (lambdaParams.type !== LambdaRoutines.status) {
@@ -27,44 +101,30 @@ export const progressHandler = async (lambdaParams: LambdaPayload) => {
 	}
 
 	const chunks = contents.filter((c) => c.Key?.match(/chunk(.*).mp4/));
-	// TODO: out.mp4 is hardcodec
-	const output = contents.find((c) => c.Key?.includes('out.mp4'));
+	const output = contents.find((c) => c.Key?.includes(OUT_NAME));
 
-	const framesExists = contents.find((c) => c.Key === ENCODING_PROGRESS_KEY)
-		? await s3Client.send(
-				new GetObjectCommand({
-					Bucket: lambdaParams.bucketName,
-					Key: ENCODING_PROGRESS_KEY,
-				})
-		  )
-		: null;
-	const renderMetadataExists = contents.find(
-		(c) => c.Key === RENDER_METADATA_KEY
-	)
-		? await s3Client.send(
-				new GetObjectCommand({
-					Bucket: lambdaParams.bucketName,
-					Key: RENDER_METADATA_KEY,
-				})
-		  )
-		: null;
-
-	const frameResponse = framesExists
-		? (JSON.parse(
-				await streamToString(framesExists.Body as Readable)
-		  ) as EncodingProgress)
-		: null;
-
-	const renderMetadataResponse = renderMetadataExists
-		? (JSON.parse(
-				await streamToString(renderMetadataExists.Body as Readable)
-		  ) as RenderMetadata)
-		: null;
+	const [encodingStatus, renderMetadata] = await Promise.all([
+		getEncodingMetadata({
+			exists: Boolean(contents.find((c) => c.Key === ENCODING_PROGRESS_KEY)),
+			bucketName: lambdaParams.bucketName,
+		}),
+		getRenderMetadata({
+			exists: Boolean(contents.find((c) => c.Key === RENDER_METADATA_KEY)),
+			bucketName: lambdaParams.bucketName,
+		}),
+	]);
 
 	return {
 		chunks: chunks.length,
 		done: Boolean(output),
-		frameResponse,
-		renderMetadata: renderMetadataResponse,
+		encodingStatus: getFinalEncodingStatus({
+			encodingStatus,
+			outputFileExists: Boolean(output),
+			renderMetadata,
+		}),
+		renderMetadata,
+		outputFile: output
+			? `https://s3.${REGION}.amazonaws.com/${lambdaParams.bucketName}/${OUT_NAME}`
+			: null,
 	};
 };

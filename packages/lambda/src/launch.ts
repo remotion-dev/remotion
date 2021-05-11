@@ -11,6 +11,7 @@ import {
 	ENCODING_PROGRESS_KEY,
 	LambdaPayload,
 	LambdaRoutines,
+	OUT_NAME,
 	REGION,
 	RenderMetadata,
 	RENDER_METADATA_KEY,
@@ -88,6 +89,7 @@ export const launchHandler = async (params: LambdaPayload) => {
 	const renderMetadata: RenderMetadata = {
 		startedDate: Date.now(),
 		totalFrames: params.durationInFrames,
+		totalChunks: chunks.length,
 	};
 
 	s3Client.send(
@@ -147,15 +149,14 @@ export const launchHandler = async (params: LambdaPayload) => {
 				expectedFiles: lambdaPayloads.length,
 				onProgress,
 		  });
-	const outName = 'out.mp4';
 	await s3Client.send(
 		new PutObjectCommand({
 			Bucket: params.bucketName,
-			Key: outName,
+			Key: OUT_NAME,
 			Body: fs.createReadStream(out),
 			ACL: 'public-read',
 		})
 	);
-	const url = `https://s3.${REGION}.amazonaws.com/${params.bucketName}/${outName}`;
+	const url = `https://s3.${REGION}.amazonaws.com/${params.bucketName}/${OUT_NAME}`;
 	return {url};
 };
