@@ -274,6 +274,7 @@ export const render = async () => {
 				(fs.promises.rm ?? fs.promises.rmdir)(bundled, {
 					recursive: true,
 				}),
+				close(),
 			]);
 		} catch (err) {
 			Log.warn('Could not clean up directory.');
