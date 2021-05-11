@@ -16,6 +16,7 @@ const waitForAssetToBeDownloaded = (src: string) => {
 	if (!listeners[src]) {
 		listeners[src] = [];
 	}
+
 	return new Promise<void>((resolve) => {
 		listeners[src].push(() => resolve());
 	});
@@ -25,6 +26,7 @@ const notifyAssetIsDownloaded = (src: string) => {
 	if (!listeners[src]) {
 		listeners[src] = [];
 	}
+
 	listeners[src].forEach((fn) => fn());
 	isDownloadingMap[src] = false;
 	hasBeenDownloadedMap[src] = true;
@@ -38,9 +40,11 @@ const downloadAsset = async (
 	if (hasBeenDownloadedMap[src]) {
 		return;
 	}
+
 	if (isDownloadingMap[src]) {
 		return waitForAssetToBeDownloaded(src);
 	}
+
 	isDownloadingMap[src] = true;
 	onDownload(src);
 	mkdirSync(path.resolve(to, '..'), {
@@ -64,6 +68,7 @@ export const downloadAndMapAssetsToFileUrl = async ({
 	if (localhostAsset.isRemote) {
 		await downloadAsset(localhostAsset.src, newSrc, onDownload);
 	}
+
 	return {
 		...localhostAsset,
 		src: newSrc,

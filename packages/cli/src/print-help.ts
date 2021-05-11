@@ -5,25 +5,25 @@ const packagejson = require('../package.json');
 
 const printFlags = (flags: [string, string][]) => {
 	flags.forEach(([flag, description]) => {
-		Log.Info(chalk.blue(`${flag.padEnd(22, ' ')} ${description}`));
+		Log.info(chalk.blue(`${flag.padEnd(22, ' ')} ${description}`));
 	});
 };
 
 export const printHelp = () => {
-	Log.Info(
+	Log.info(
 		`@remotion/cli ${
 			packagejson.version
 		} © ${new Date().getFullYear()} Jonny Burger`
 	);
-	Log.Info();
-	Log.Info('Available commands:');
-	Log.Info('');
-	Log.Info('remotion preview <index-file.ts>');
-	Log.Info(chalk.gray('Start the preview server.'));
+	Log.info();
+	Log.info('Available commands:');
+	Log.info('');
+	Log.info('remotion preview <index-file.ts>');
+	Log.info(chalk.gray('Start the preview server.'));
 	printFlags([['--props', 'Pass input props as filename or as JSON']]);
-	Log.Info();
-	Log.Info('remotion render <index-file.ts> <comp-name> <output-file.mp4>');
-	Log.Info(chalk.gray('Render video, audio or an image sequence.'));
+	Log.info();
+	Log.info('remotion render <index-file.ts> <comp-name> <output-file.mp4>');
+	Log.info(chalk.gray('Render video, audio or an image sequence.'));
 	printFlags([
 		['--props', 'Pass input props as filename or as JSON'],
 		['--concurrency', 'How many frames to render in parallel'],
@@ -39,12 +39,14 @@ export const printHelp = () => {
 		['--frames', 'Render a portion or a still of a video'],
 		['--bundle-cache', 'Cache webpack bundle, boolean, default true'],
 		['--log', 'Log level, "error", "warning", "verbose", "info" (default)'],
+		['--port', 'Custom port to use for the HTTP server'],
+		['--env-file', 'Specify a location for a dotenv file'],
 	]);
-	Log.Info();
-	Log.Info('remotion upgrade');
-	Log.Info(chalk.gray('Ensure Remotion is on the newest version.'));
-	Log.Info();
-	Log.Info(
+	Log.info();
+	Log.info('remotion upgrade');
+	Log.info(chalk.gray('Ensure Remotion is on the newest version.'));
+	Log.info();
+	Log.info(
 		'Visit https://www.remotion.dev/docs/cli for browsable CLI documentation.'
 	);
 };

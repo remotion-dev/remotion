@@ -23,6 +23,7 @@ test('useMediaInTimeline registers and unregisters new sequence', () => {
 	const wrapper: React.FC = ({children}) => (
 		<Internals.CompositionManager.Provider
 			value={
+				// eslint-disable-next-line react/jsx-no-constructed-context-values
 				({
 					registerSequence,
 					unregisterSequence,

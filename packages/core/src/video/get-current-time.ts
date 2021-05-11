@@ -13,12 +13,14 @@ export const getCurrentTime = ({
 		// So frame = 0 in Remotion is like frame = 1 for the browser
 		return (frame + 1) / fps;
 	}
+
 	if (src.endsWith('webm')) {
 		// For WebM videos, we need to add a little bit of shift to get the right frame.
 		const msPerFrame = 1000 / fps;
 		const msShift = msPerFrame / 2;
 		return (frame * msPerFrame + msShift) / 1000;
 	}
+
 	// For audio, we don't do any shift correction
 	return frame / fps;
 };

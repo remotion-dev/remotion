@@ -27,7 +27,7 @@ export const RemotionRoot: React.FC = ({children}) => {
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	const [compositions, setCompositions] = useState<TComposition<any>[]>([]);
 	const [currentComposition, setCurrentComposition] = useState<string | null>(
-		typeof window !== 'undefined' ? window.location.pathname.substr(1) : null
+		typeof window === 'undefined' ? null : window.location.pathname.substr(1)
 	);
 	const [remotionRootId] = useState(() => String(random(null)));
 	const [sequences, setSequences] = useState<TSequence[]>([]);
@@ -62,6 +62,7 @@ export const RemotionRoot: React.FC = ({children}) => {
 					`Multiple composition with id ${comp.id} are registered.`
 				);
 			}
+
 			return [...comps, comp].slice().sort((a, b) => a.nonce - b.nonce);
 		});
 	}, []);

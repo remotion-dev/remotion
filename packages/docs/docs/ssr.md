@@ -99,7 +99,7 @@ const start = async () => {
     // Information needed to construct audio correctly.
     assetsInfo,
     // Hook into the FFMPEG progress
-    onProgress: (frame) => void 0
+    onProgress: (frame) => undefined
   });
 };
 

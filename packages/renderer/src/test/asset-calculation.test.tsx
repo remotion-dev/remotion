@@ -73,9 +73,9 @@ test('Should handle jumps inbetween', async () => {
 		const frame = useCurrentFrame();
 		return (
 			<div>
-				{frame !== 20 ? (
+				{frame === 20 ? null : (
 					<Video src="https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/1080/Big_Buck_Bunny_1080_10s_1MB.mp4" />
-				) : null}
+				)}
 			</div>
 		);
 	});

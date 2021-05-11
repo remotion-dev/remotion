@@ -65,6 +65,7 @@ export const splitAssetsIntoSegments = ({
 						trimLeft: a.trimLeft + amountOfFramesThatGetCut,
 					} as MediaAsset;
 				}
+
 				// Video starts before cut
 				if (assetStart < cutStart && assetEnd > cutStart) {
 					const newDuration = a.duration - amountOfFramesThatGetCut;
@@ -87,14 +88,17 @@ export const splitAssetsIntoSegments = ({
 				if (assetStart >= cutStart && assetEnd <= cutEnd) {
 					return a;
 				}
+
 				// Video is left from cut
 				if (assetStart <= cutStart && assetEnd <= cutStart) {
 					return null;
 				}
+
 				// Video is right from cut
 				if (assetStart >= cutStart && assetEnd >= cutStart) {
 					return null;
 				}
+
 				throw new Error('Unhandled');
 			});
 		})

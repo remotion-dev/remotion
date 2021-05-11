@@ -1,0 +1,53 @@
+.realvideos {
+  display: flex;
+  flex-direction: row;
+}
+
+.realtitle {
+  font-size: 2.5em;
+  font-weight: 700;
+  font-family: --apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+    Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+  line-height: 1.1;
+}
+
+.realgradient {
+  background: linear-gradient(to right, rgb(66, 144, 245), rgb(66, 233, 245));
+  -webkit-text-fill-color: transparent;
+  -webkit-background-clip: text;
+}
+
+.realmp4container {
+  flex: 1;
+  justify-content: flex-end;
+  align-items: center;
+  display: flex;
+}
+
+@media screen and (max-width: 900px) {
+  .realvideos {
+    flex-direction: column-reverse;
+  }
+  .realmp4container {
+    justify-content: flex-start;
+  }
+  .icon {
+    animation: none;
+    margin-bottom: 30px;
+  }
+}
+
+@keyframes goup {
+  from {
+    opacity: 0;
+    transform: translateY(50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0px);
+  }
+}
+
+.icon {
+  animation: goup 0.6s;
+}

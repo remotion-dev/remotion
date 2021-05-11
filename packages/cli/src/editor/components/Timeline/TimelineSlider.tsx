@@ -1,8 +1,8 @@
+import {PlayerInternals} from '@remotion/player';
 import React from 'react';
 import {Internals} from 'remotion';
 import styled from 'styled-components';
 import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
-import {useElementSize} from '../../hooks/get-el-size';
 import {sliderAreaRef} from './timeline-refs';
 import {TimelineSliderHandle} from './TimelineSliderHandle';
 
@@ -22,7 +22,7 @@ const Line = styled.div`
 export const TimelineSlider: React.FC = () => {
 	const timelinePosition = Internals.Timeline.useTimelinePosition();
 	const videoConfig = Internals.useUnsafeVideoConfig();
-	const size = useElementSize(sliderAreaRef);
+	const size = PlayerInternals.useElementSize(sliderAreaRef);
 	const width = size?.width ?? 0;
 
 	if (!videoConfig) {

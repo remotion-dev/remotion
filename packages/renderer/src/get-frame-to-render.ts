@@ -8,8 +8,10 @@ export const getFrameToRender = (
 		// todo document change
 		return index + frameRange[0];
 	}
+
 	if (typeof frameRange === 'number') {
 		return frameRange;
 	}
+
 	return index;
 };
