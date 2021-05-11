@@ -82,6 +82,7 @@ const renderHandler = async (params: LambdaPayload) => {
 
 	const uploading = timer('uploading');
 	await lambdaWriteFile({
+		forceS3: false,
 		bucketName: params.bucketName,
 		key: `chunk-${String(params.chunk).padStart(8, '0')}.mp4`,
 		body: fs.createReadStream(outputLocation),
@@ -120,10 +121,11 @@ export const rendererHandler = async (params: LambdaPayload) => {
 
 		console.log('Error occurred', err);
 		await lambdaWriteFile({
+			forceS3: false,
 			bucketName: params.bucketName,
 			key: `error-chunk-${params.chunk}-${Date.now()}.txt`,
 			body: JSON.stringify({
-				error: err.stack,
+				error: err.message,
 			}),
 		});
 	}

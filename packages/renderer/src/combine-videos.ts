@@ -10,11 +10,13 @@ export const combineVideos = async ({
 	filelistDir,
 	output,
 	onProgress,
+	numberOfFrames,
 }: {
 	files: string[];
 	filelistDir: string;
 	output: string;
 	onProgress: (p: number) => void;
+	numberOfFrames: number;
 }) => {
 	const fileList = files.map((p) => `file '${p}'`).join('\n');
 
@@ -45,6 +47,7 @@ export const combineVideos = async ({
 		});
 
 		await task;
+		onProgress(numberOfFrames);
 		rmdirSync(filelistDir, {recursive: true});
 	} catch (err) {
 		rmdirSync(filelistDir, {recursive: true});

@@ -109,7 +109,8 @@ export const progressHandler = async (lambdaParams: LambdaPayload) => {
 		throw new TypeError('Expected status type');
 	}
 
-	const contents = await lambdaLs(lambdaParams.bucketName);
+	const contents = await lambdaLs(lambdaParams.bucketName, false);
+	const s3contents = await lambdaLs(lambdaParams.bucketName, true);
 
 	if (!contents) {
 		throw new Error('Could not get list contents');
@@ -120,7 +121,7 @@ export const progressHandler = async (lambdaParams: LambdaPayload) => {
 		.reduce((a, b) => a + b, 0);
 
 	const chunks = contents.filter((c) => c.Key?.match(/chunk(.*).mp4/));
-	const output = contents.find((c) => c.Key?.includes(OUT_NAME)) ?? null;
+	const output = s3contents.find((c) => c.Key?.includes(OUT_NAME)) ?? null;
 	const errors = contents
 		// TODO: unhardcode
 		.filter(
@@ -160,7 +161,7 @@ export const progressHandler = async (lambdaParams: LambdaPayload) => {
 			output,
 			renderMetadata,
 		}),
-		errors,
+		//	errors,
 		errorExplanations,
 		currentTime: Date.now(),
 		bucketSize,

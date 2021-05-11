@@ -27,6 +27,10 @@ export const inspectErrors = async ({
 			return 'Your lambda function reached the 512MB storage. To render videos this big, you need to enable EFS mode.';
 		}
 
+		if (e.includes('FATAL:zygote_communication_linux.cc')) {
+			return 'Failed to launch browser';
+		}
+
 		// TODO: Make typesafe and handle error
 		return JSON.parse(e).error;
 	});
