@@ -5,15 +5,15 @@ export const setPropsAndEnv = async ({
 	inputProps,
 	envVariables,
 	page,
-	port,
+	serveUrl,
 }: {
 	inputProps: unknown;
 	envVariables: Record<string, string> | undefined;
 	page: Page;
-	port: number;
+	serveUrl: string;
 }) => {
 	if (inputProps || envVariables) {
-		await page.goto(`http://localhost:${port}/index.html`);
+		await page.goto(`${serveUrl}/index.html`);
 
 		if (inputProps) {
 			await page.evaluate(
