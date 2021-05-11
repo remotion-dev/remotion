@@ -1,30 +1,32 @@
+import {InvokeCommand} from '@aws-sdk/client-lambda';
 import {PutObjectCommand} from '@aws-sdk/client-s3';
 import {renderFrames, stitchFramesToVideo} from '@remotion/renderer';
 import fs, {copyFileSync, writeFileSync} from 'fs';
 import path from 'path';
-import {s3Client} from '../aws-clients';
+import {lambdaClient, s3Client} from '../aws-clients';
 import {
 	EFS_MOUNT_PATH,
 	ENABLE_EFS,
 	LambdaPayload,
+	LambdaPayloads,
 	LambdaRoutines,
 } from '../constants';
 import {getBrowserInstance} from '../get-browser-instance';
 import {timer} from '../timer';
 
-export const rendererHandler = async (params: LambdaPayload) => {
+const renderHandler = async (params: LambdaPayload) => {
+	if (params.type !== LambdaRoutines.renderer) {
+		throw new Error('Params must be renderer');
+	}
+
 	const efsRemotionVideoRenderDone = EFS_MOUNT_PATH + '/render-done';
 	const browserInstance = await getBrowserInstance();
-	const outputDir = '/tmp/' + 'remotion-render-' + Math.random();
+	const outputDir = '/tmp/remotion-render-' + Math.random();
 	if (fs.existsSync(outputDir)) {
 		fs.rmdirSync(outputDir);
 	}
 
 	fs.mkdirSync(outputDir);
-
-	if (params.type !== LambdaRoutines.renderer) {
-		throw new Error('Params must be renderer');
-	}
 
 	if (typeof params.chunk !== 'number') {
 		throw new Error('must pass chunk');
@@ -120,5 +122,47 @@ export const rendererHandler = async (params: LambdaPayload) => {
 		);
 		uploading.end();
 		console.log('Done rendering!', outputDir, outputLocation);
+	}
+};
+
+export const rendererHandler = async (params: LambdaPayload) => {
+	if (params.type !== LambdaRoutines.renderer) {
+		throw new Error('Params must be renderer');
+	}
+
+	try {
+		await renderHandler(params);
+	} catch (err) {
+		// If this error is encountered, we can just retry as it
+		// is a very rare error to occur
+		if (
+			err.message.includes('FATAL:zygote_communication_linux.cc') &&
+			params.retriesLeft > 0
+		) {
+			const retryPayload: LambdaPayloads[LambdaRoutines.renderer] = {
+				...params,
+				retriesLeft: params.retriesLeft - 1,
+			};
+			await lambdaClient.send(
+				new InvokeCommand({
+					FunctionName: process.env.AWS_LAMBDA_FUNCTION_NAME,
+					// @ts-expect-error
+					Payload: JSON.stringify(retryPayload),
+					InvocationType: 'Event',
+				})
+			);
+		}
+
+		console.log('Error occurred', err);
+		await s3Client.send(
+			new PutObjectCommand({
+				Bucket: params.bucketName,
+				Key: `error-chunk-${params.chunk}-${Date.now()}.txt`,
+				Body: JSON.stringify({
+					error: err.message,
+				}),
+				ACL: 'public-read',
+			})
+		);
 	}
 };

@@ -14,7 +14,7 @@ export const combineVideos = async ({
 	files: string[];
 	filelistDir: string;
 	output: string;
-	onProgress: (progress: number) => void;
+	onProgress: (p: number) => void;
 }) => {
 	const fileList = files.map((p) => `file '${p}'`).join('\n');
 

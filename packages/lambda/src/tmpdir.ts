@@ -1,7 +1,7 @@
 import {mkdirSync, mkdtempSync} from 'fs';
 import {EFS_MOUNT_PATH, ENABLE_EFS} from './constants';
 
-const isLambda = !!process.env.LAMBDA_TASK_ROOT;
+const isLambda = Boolean(process.env.LAMBDA_TASK_ROOT);
 
 export const tmpDir = (str: string) => {
 	if (isLambda) {
@@ -11,5 +11,6 @@ export const tmpDir = (str: string) => {
 		mkdirSync(dir);
 		return dir;
 	}
+
 	return mkdtempSync(str);
 };

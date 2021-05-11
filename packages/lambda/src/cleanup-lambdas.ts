@@ -26,6 +26,7 @@ export const cleanupLambdas = xns(
 			if (remotionLambdas.length === 0) {
 				break;
 			}
+
 			for (const lambda of remotionLambdas) {
 				console.log('Deleting lambda', lambda.FunctionName);
 				await lambdaClient.send(

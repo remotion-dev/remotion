@@ -138,6 +138,7 @@ export const createLambda = xns(async () => {
 	if (!created.FunctionName) {
 		throw new Error('Lambda was created but has no name');
 	}
+
 	await waitForLambdaReady(created.FunctionName);
 	return {
 		functionName: created.FunctionName,

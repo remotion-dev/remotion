@@ -1,10 +1,10 @@
-import {LambdaPayload, LambdaRoutines} from '../src/constants';
-import {fireHandler} from '../src/functions/fire';
-import {progressHandler} from '../src/functions/get-progress';
-import {launchHandler} from '../src/functions/launch';
-import {rendererHandler} from '../src/functions/renderer';
-import {startHandler} from '../src/functions/start';
-import {LambdaReturnValues} from '../src/return-values';
+import {LambdaPayload, LambdaRoutines} from '../constants';
+import {LambdaReturnValues} from '../return-values';
+import {fireHandler} from './fire';
+import {progressHandler} from './get-progress';
+import {launchHandler} from './launch';
+import {rendererHandler} from './renderer';
+import {startHandler} from './start';
 
 export const handler = async <T extends LambdaRoutines>(
 	params: LambdaPayload

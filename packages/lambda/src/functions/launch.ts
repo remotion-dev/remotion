@@ -83,6 +83,7 @@ export const launchHandler = async (params: LambdaPayload) => {
 			width: comp.width,
 			durationInFrames: params.durationInFrames,
 			bucketName: params.bucketName,
+			retriesLeft: 3,
 		};
 		return payload;
 	});
@@ -146,7 +147,7 @@ export const launchHandler = async (params: LambdaPayload) => {
 		: await concatVideosS3({
 				s3Client,
 				bucket: params.bucketName,
-				expectedFiles: lambdaPayloads.length,
+				expectedFiles: chunkCount,
 				onProgress,
 		  });
 	await s3Client.send(

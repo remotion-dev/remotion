@@ -128,6 +128,9 @@ export const progressHandler = async (lambdaParams: LambdaPayload) => {
 
 	const chunks = contents.filter((c) => c.Key?.match(/chunk(.*).mp4/));
 	const output = contents.find((c) => c.Key?.includes(OUT_NAME)) ?? null;
+	const errors = contents
+		.filter((c) => c.Key?.startsWith('error-chunk'))
+		.map((c) => c.Key);
 
 	const [encodingStatus, renderMetadata] = await Promise.all([
 		getEncodingMetadata({
@@ -156,5 +159,7 @@ export const progressHandler = async (lambdaParams: LambdaPayload) => {
 			output,
 			renderMetadata,
 		}),
+		errors,
+		currentTime: Date.now(),
 	};
 };
