@@ -7,7 +7,7 @@ export const evaluateVolume = ({
 }: {
 	frame: number;
 	volume: VolumeProp | undefined;
-	mediaVolume?: number;
+	mediaVolume: number;
 }): number => {
 	if (typeof volume === 'number') {
 		return Math.min(1, volume * mediaVolume);
