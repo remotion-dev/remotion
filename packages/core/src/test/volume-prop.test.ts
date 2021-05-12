@@ -43,11 +43,13 @@ describe('evaluateVolume throws exception', () => {
 	});
 	test('It should throw if volume is invalid type', () => {
 		const invalidVolume = 'anystring';
-		const toEvaluate = {frame: 1, volume: () => invalidVolume};
+		const toEvaluate = {frame: 1, volume: () => invalidVolume, mediaVolume: 1};
+
+		// changing the test because string multiply by a number in javascript is `NaN`
 		expectToThrow(() => {
 			// @ts-expect-error
 			evaluateVolume(toEvaluate);
-		}, new RegExp(`You passed in a a function to the volume prop but it did not return a number but a value of type ${typeof invalidVolume} for frame 1`));
+		}, /You passed in a function to the volume prop but it returned NaN for frame 1./);
 	});
 	test('It should throw if volume is NaN', () => {
 		const invalidVolume = NaN;
