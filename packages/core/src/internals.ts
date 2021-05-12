@@ -81,6 +81,8 @@ import {
 	MediaVolumeContextValue,
 	SetMediaVolumeContext,
 	SetMediaVolumeContextValue,
+	useMediaMutedState,
+	useMediaVolumeState,
 } from './volume-position-state';
 import {
 	RemotionContextProvider,
@@ -110,6 +112,8 @@ export const Internals = {
 	getShouldOutputImageSequence,
 	validateSelectedCrfAndCodecCombination,
 	getFinalOutputCodec,
+	useMediaVolumeState,
+	useMediaMutedState,
 	DEFAULT_CODEC,
 	DEFAULT_PIXEL_FORMAT,
 	FEATURE_FLAG_FIREFOX_SUPPORT,
