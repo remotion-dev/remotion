@@ -6,11 +6,13 @@ import {ControlButton} from './ControlButton';
 export const MediaVolumeSlider: React.FC = () => {
 	const [mediaMuted, setMediaMuted] = Internals.useMediaMutedState();
 	const [mediaVolume, setMediaVolume] = Internals.useMediaVolumeState();
-	console.log(mediaVolume, 'media volume');
+	console.log(mediaMuted, mediaVolume, 'media');
 
 	const onClick = useCallback(() => {
 		setMediaMuted(!mediaMuted);
-	}, [setMediaMuted, mediaMuted]);
+		setMediaVolume(Number(mediaMuted));
+		console.log(Number(mediaMuted), 'media volume');
+	}, [setMediaMuted, mediaMuted, setMediaVolume]);
 
 	return (
 		<ControlButton onClick={onClick}>
