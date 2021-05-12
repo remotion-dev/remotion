@@ -10,7 +10,7 @@ export type SetMediaVolumeContextValue = {
 	setMediaVolume: (u: React.SetStateAction<number>) => void;
 };
 
-export const MeidaVolumeContext = createContext<MediaVolumeContextValue>({
+export const MediaVolumeContext = createContext<MediaVolumeContextValue>({
 	mediaMuted: false,
 	mediaVolume: 1,
 });
@@ -30,7 +30,7 @@ type MediaVolumeReturnType = readonly [
 ];
 
 export const useMediaVolumeState = (): MediaVolumeReturnType => {
-	const {mediaVolume} = useContext(MeidaVolumeContext);
+	const {mediaVolume} = useContext(MediaVolumeContext);
 	const {setMediaVolume} = useContext(SetMediaVolumeContext);
 	return [mediaVolume, setMediaVolume];
 };
@@ -41,7 +41,7 @@ type MediaMutedReturnType = readonly [
 ];
 
 export const useMediaMutedState = (): MediaMutedReturnType => {
-	const {mediaMuted} = useContext(MeidaVolumeContext);
+	const {mediaMuted} = useContext(MediaVolumeContext);
 	const {setMediaMuted} = useContext(SetMediaVolumeContext);
 	return [mediaMuted, setMediaMuted];
 };
