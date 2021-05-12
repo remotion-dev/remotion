@@ -21,12 +21,6 @@ import {
 	TimelineContext,
 	TimelineContextValue,
 } from './timeline-position-state';
-import {
-	MediaVolumeContext,
-	MediaVolumeContextValue,
-	SetMediaVolumeContext,
-	SetMediaVolumeContextValue,
-} from './volume-position-state';
 
 export const RemotionRoot: React.FC = ({children}) => {
 	// Wontfix, expected to have
@@ -40,8 +34,6 @@ export const RemotionRoot: React.FC = ({children}) => {
 	const [assets, setAssets] = useState<TAsset[]>([]);
 	const [frame, setFrame] = useState<number>(0);
 	const [playing, setPlaying] = useState<boolean>(false);
-	const [mediaMuted, setMediaMuted] = useState<boolean>(false);
-	const [mediaVolume, setMediaVolume] = useState<number>(1);
 	const [fastRefreshes, setFastRefreshes] = useState(0);
 
 	useLayoutEffect(() => {
@@ -144,20 +136,6 @@ export const RemotionRoot: React.FC = ({children}) => {
 		};
 	}, []);
 
-	const mediaVolumeContextValue = useMemo((): MediaVolumeContextValue => {
-		return {
-			mediaMuted,
-			mediaVolume,
-		};
-	}, [mediaMuted, mediaVolume]);
-
-	const setMediaVolumeContextValue = useMemo((): SetMediaVolumeContextValue => {
-		return {
-			setMediaMuted,
-			setMediaVolume,
-		};
-	}, []);
-
 	const nonceContext = useMemo((): TNonceContext => {
 		let counter = 0;
 		return {
@@ -180,13 +158,9 @@ export const RemotionRoot: React.FC = ({children}) => {
 		<NonceContext.Provider value={nonceContext}>
 			<TimelineContext.Provider value={timelineContextValue}>
 				<SetTimelineContext.Provider value={setTimelineContextValue}>
-					<MediaVolumeContext.Provider value={mediaVolumeContextValue}>
-						<SetMediaVolumeContext.Provider value={setMediaVolumeContextValue}>
-							<CompositionManager.Provider value={contextValue}>
-								{children}
-							</CompositionManager.Provider>
-						</SetMediaVolumeContext.Provider>
-					</MediaVolumeContext.Provider>
+					<CompositionManager.Provider value={contextValue}>
+						{children}
+					</CompositionManager.Provider>
 				</SetTimelineContext.Provider>
 			</TimelineContext.Provider>
 		</NonceContext.Provider>
