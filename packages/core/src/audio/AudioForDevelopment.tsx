@@ -40,7 +40,7 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 	});
 
 	useImperativeHandle(ref, () => {
-		return audioRef.current as HTMLVideoElement;
+		return audioRef.current as HTMLAudioElement;
 	});
 
 	return <audio ref={audioRef} {...nativeProps} />;
