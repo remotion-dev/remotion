@@ -77,6 +77,12 @@ import {useLazyComponent} from './use-lazy-component';
 import {useUnsafeVideoConfig} from './use-unsafe-video-config';
 import {useVideo} from './use-video';
 import {
+	MediaVolumeContext,
+	MediaVolumeContextValue,
+	SetMediaVolumeContext,
+	SetMediaVolumeContextValue,
+} from './volume-position-state';
+import {
 	RemotionContextProvider,
 	useRemotionContexts,
 } from './wrap-remotion-context';
@@ -133,6 +139,8 @@ export const Internals = {
 	ENV_VARIABLES_LOCAL_STORAGE_KEY,
 	getDotEnvLocation,
 	getServerPort,
+	MediaVolumeContext,
+	SetMediaVolumeContext,
 };
 
 export type {
@@ -147,4 +155,6 @@ export type {
 	SetTimelineContextValue,
 	CompProps,
 	CompositionManagerContext,
+	MediaVolumeContextValue,
+	SetMediaVolumeContextValue,
 };
