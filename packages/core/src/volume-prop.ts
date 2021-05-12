@@ -14,7 +14,7 @@ export const evaluateVolume = ({
 	}
 
 	if (typeof volume === 'undefined') {
-		return 1;
+		return Number(mediaVolume);
 	}
 
 	const evaluated = volume(frame) * mediaVolume;
