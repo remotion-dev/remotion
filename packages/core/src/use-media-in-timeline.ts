@@ -10,11 +10,13 @@ import {evaluateVolume, VolumeProp} from './volume-prop';
 
 export const useMediaInTimeline = ({
 	volume,
+	mediaVolume = 1,
 	mediaRef,
 	src,
 	mediaType,
 }: {
 	volume: VolumeProp | undefined;
+	mediaVolume: number;
 	mediaRef: RefObject<HTMLAudioElement | HTMLVideoElement>;
 	src: string | undefined;
 	mediaType: 'audio' | 'video';
@@ -49,10 +51,11 @@ export const useMediaInTimeline = ({
 				return evaluateVolume({
 					frame: i + startsAt,
 					volume,
+					mediaVolume,
 				});
 			})
 			.join(',');
-	}, [duration, startsAt, volume]);
+	}, [duration, startsAt, volume, mediaVolume]);
 
 	useEffect(() => {
 		if (!mediaRef.current) {
