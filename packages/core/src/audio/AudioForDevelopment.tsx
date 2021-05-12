@@ -3,6 +3,7 @@ import {useMediaInTimeline} from '../use-media-in-timeline';
 import {useMediaPlayback} from '../use-media-playback';
 import {useMediaTagVolume} from '../use-media-tag-volume';
 import {useSyncVolumeWithMediaTag} from '../use-sync-volume-with-media-tag';
+import {useMediaVolumeState} from '../volume-position-state';
 import {RemotionAudioProps} from './props';
 import {useFrameForVolumeProp} from './use-audio-frame';
 
@@ -11,6 +12,7 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 	RemotionAudioProps
 > = (props, ref) => {
 	const audioRef = useRef<HTMLAudioElement>(null);
+	const [mediaVolume] = useMediaVolumeState();
 
 	const volumePropFrame = useFrameForVolumeProp();
 
@@ -22,11 +24,13 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		volumePropFrame,
 		actualVolume,
 		volume,
+		mediaVolume,
 		mediaRef: audioRef,
 	});
 
 	useMediaInTimeline({
 		volume,
+		mediaVolume,
 		mediaRef: audioRef,
 		src: nativeProps.src,
 		mediaType: 'audio',
