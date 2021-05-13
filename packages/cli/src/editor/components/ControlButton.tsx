@@ -9,3 +9,12 @@ export const ControlButton = styled.button`
 	border: none;
 	padding: ${CONTROL_BUTTON_PADDING}px;
 `;
+
+export const ControlDiv = styled.div`
+	display: inline-flex;
+	background: none;
+	border: none;
+	padding: ${CONTROL_BUTTON_PADDING}px;
+	justify-content: 'center';
+	align-items: center;
+`;
