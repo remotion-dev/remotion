@@ -8,5 +8,5 @@ test('Should calculate costs accurately', () => {
 			durationMs: 20000,
 			memory: MEMORY_SIZE,
 		})
-	).toEqual(0.0011518950117187499);
+	).toEqual(0.00115);
 });
