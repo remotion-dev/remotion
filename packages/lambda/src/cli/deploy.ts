@@ -4,9 +4,11 @@ import {BINARY_NAME} from '../bundle-remotion';
 import {deploySite} from '../deploy-site';
 import {
 	BucketCreationProgress,
+	BundleProgress,
 	createProgressBar,
 	DeployToS3Progress,
 	makeBucketProgress,
+	makeBundleProgress,
 	makeDeployProgressBar,
 } from '../progress-bar';
 import {parsedCli} from './args';
@@ -42,9 +44,14 @@ export const deployCommand = async () => {
 	const progressBar = createProgressBar();
 
 	const multiProgress: {
+		bundleProgress: BundleProgress;
 		bucketProgress: BucketCreationProgress;
 		deployProgress: DeployToS3Progress;
 	} = {
+		bundleProgress: {
+			doneIn: null,
+			progress: 0,
+		},
 		bucketProgress: {
 			bucketCreated: false,
 			doneIn: null,
@@ -60,6 +67,7 @@ export const deployCommand = async () => {
 	const updateProgress = () => {
 		progressBar.update(
 			[
+				makeBundleProgress(multiProgress.bundleProgress),
 				makeBucketProgress(multiProgress.bucketProgress),
 				makeDeployProgressBar(multiProgress.deployProgress),
 			].join('\n')
@@ -68,10 +76,17 @@ export const deployCommand = async () => {
 
 	updateProgress();
 
+	const bundleStart = Date.now();
 	const bucketStart = Date.now();
 	const uploadStart = Date.now();
 
 	const {url} = await deploySite(absoluteFile, {
+		onBundleProgress: (progress: number) => {
+			multiProgress.bundleProgress = {
+				progress,
+				doneIn: progress === 100 ? Date.now() - bundleStart : null,
+			};
+		},
 		onBucketCreated: () => {
 			multiProgress.bucketProgress = {
 				bucketCreated: true,
