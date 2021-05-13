@@ -5,6 +5,7 @@ import {
 	ENCODING_PROGRESS_KEY,
 	LambdaPayload,
 	LambdaRoutines,
+	MEMORY_SIZE,
 	OUT_NAME,
 	REGION,
 	RenderMetadata,
@@ -12,6 +13,7 @@ import {
 } from '../constants';
 import {inspectErrors} from '../inspect-errors';
 import {lambdaLs, lambdaReadFile} from '../io';
+import {getPriceInCents} from '../pricing/get-price';
 import {streamToString} from '../stream-to-string';
 
 const getFinalEncodingStatus = ({
@@ -145,6 +147,16 @@ export const progressHandler = async (lambdaParams: LambdaPayload) => {
 		]
 	);
 
+	const timeToFinish = getTimeToFinish({
+		output,
+		renderMetadata,
+	});
+
+	const elapsedTime =
+		timeToFinish === null
+			? Date.now() - (renderMetadata?.startedDate ?? 0)
+			: timeToFinish;
+
 	return {
 		chunks: chunks.length,
 		done: Boolean(output),
@@ -153,14 +165,19 @@ export const progressHandler = async (lambdaParams: LambdaPayload) => {
 			outputFileExists: Boolean(output),
 			renderMetadata,
 		}),
+		costs: {
+			accruedSoFar:
+				getPriceInCents({
+					region: REGION,
+					durationMs: elapsedTime,
+					memory: MEMORY_SIZE,
+				}) * (renderMetadata?.estimatedLambdaInvokations ?? 0),
+		},
 		renderMetadata,
 		outputFile: output
 			? `https://s3.${REGION}.amazonaws.com/${lambdaParams.bucketName}/${OUT_NAME}`
 			: null,
-		timeToFinish: getTimeToFinish({
-			output,
-			renderMetadata,
-		}),
+		timeToFinish,
 		//	errors,
 		errorExplanations,
 		currentTime: Date.now(),
