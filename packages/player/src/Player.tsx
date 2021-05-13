@@ -10,6 +10,8 @@ import {
 	CompositionManagerContext,
 	CompProps,
 	Internals,
+	MediaVolumeContextValue,
+	SetMediaVolumeContextValue,
 	SetTimelineContextValue,
 	TimelineContextValue,
 } from 'remotion';
@@ -69,6 +71,8 @@ export const PlayerFn = <T,>(
 	const [rootId] = useState<string>('player-comp');
 	const [emitter] = useState(() => new PlayerEmitter());
 	const rootRef = useRef<PlayerRef>(null);
+	const [mediaMuted, setMediaMuted] = useState<boolean>(false);
+	const [mediaVolume, setMediaVolume] = useState<number>(1);
 
 	useImperativeHandle(ref, () => rootRef.current as PlayerRef);
 
@@ -89,6 +93,20 @@ export const PlayerFn = <T,>(
 			setPlaying,
 		};
 	}, [setFrame]);
+	const mediaVolumeContextValue = useMemo((): MediaVolumeContextValue => {
+		return {
+			mediaMuted,
+			mediaVolume,
+		};
+	}, [mediaMuted, mediaVolume]);
+
+	const setMediaVolumeContextValue = useMemo((): SetMediaVolumeContextValue => {
+		return {
+			setMediaMuted,
+			setMediaVolume,
+		};
+	}, []);
+
 	const compositionManagerContext: CompositionManagerContext = useMemo(() => {
 		return {
 			compositions: [
@@ -126,18 +144,26 @@ export const PlayerFn = <T,>(
 				<Internals.CompositionManager.Provider
 					value={compositionManagerContext}
 				>
-					<PlayerEventEmitterContext.Provider value={emitter}>
-						<PlayerUI
-							ref={rootRef}
-							autoPlay={Boolean(autoPlay)}
-							loop={Boolean(loop)}
-							controls={Boolean(controls)}
-							style={style}
-							inputProps={inputProps ?? {}}
-							allowFullscreen={Boolean(allowFullscreen)}
-							clickToPlay={clickToPlay}
-						/>
-					</PlayerEventEmitterContext.Provider>
+					<Internals.MediaVolumeContext.Provider
+						value={mediaVolumeContextValue}
+					>
+						<Internals.SetMediaVolumeContext.Provider
+							value={setMediaVolumeContextValue}
+						>
+							<PlayerEventEmitterContext.Provider value={emitter}>
+								<PlayerUI
+									ref={rootRef}
+									autoPlay={Boolean(autoPlay)}
+									loop={Boolean(loop)}
+									controls={Boolean(controls)}
+									style={style}
+									inputProps={inputProps ?? {}}
+									allowFullscreen={Boolean(allowFullscreen)}
+									clickToPlay={clickToPlay}
+								/>
+							</PlayerEventEmitterContext.Provider>
+						</Internals.SetMediaVolumeContext.Provider>
+					</Internals.MediaVolumeContext.Provider>
 				</Internals.CompositionManager.Provider>
 			</Internals.Timeline.SetTimelineContext.Provider>
 		</Internals.Timeline.TimelineContext.Provider>
