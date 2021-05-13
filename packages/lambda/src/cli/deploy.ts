@@ -2,6 +2,13 @@ import {existsSync, lstatSync} from 'fs';
 import path from 'path';
 import {BINARY_NAME} from '../bundle-remotion';
 import {deploySite} from '../deploy-site';
+import {
+	BucketCreationProgress,
+	createProgressBar,
+	DeployToS3Progress,
+	makeBucketProgress,
+	makeDeployProgressBar,
+} from '../progress-bar';
 import {parsedCli} from './args';
 import {Log} from './log';
 
@@ -32,12 +39,75 @@ export const deployCommand = async () => {
 		process.exit(1);
 	}
 
-	// TODO: Progress bar
+	const progressBar = createProgressBar();
+
+	const multiProgress: {
+		bucketProgress: BucketCreationProgress;
+		deployProgress: DeployToS3Progress;
+	} = {
+		bucketProgress: {
+			bucketCreated: false,
+			doneIn: null,
+			websiteEnabled: false,
+		},
+		deployProgress: {
+			doneIn: null,
+			totalSize: null,
+			sizeUploaded: 0,
+		},
+	};
+
+	const updateProgress = () => {
+		progressBar.update(
+			[
+				makeBucketProgress(multiProgress.bucketProgress),
+				makeDeployProgressBar(multiProgress.deployProgress),
+			].join('\n')
+		);
+	};
+
+	updateProgress();
+
+	const bucketStart = Date.now();
+	const uploadStart = Date.now();
 
 	const {url} = await deploySite(absoluteFile, {
-		onBucketCreated: () => Log.info('Bucket created.'),
-		onUploadProgress: (p) => Log.info(p.sizeUploaded / p.totalSize),
-		onWebsiteActivated: () => Log.info('Website activated'),
+		onBucketCreated: () => {
+			multiProgress.bucketProgress = {
+				bucketCreated: true,
+				doneIn: null,
+				websiteEnabled: false,
+			};
+			updateProgress();
+		},
+		onUploadProgress: (p) => {
+			multiProgress.deployProgress = {
+				sizeUploaded: p.sizeUploaded,
+				totalSize: p.totalSize,
+				doneIn: null,
+			};
+			updateProgress();
+		},
+		onWebsiteActivated: () => {
+			multiProgress.bucketProgress = {
+				bucketCreated: true,
+				doneIn: Date.now() - bucketStart,
+				websiteEnabled: true,
+			};
+			updateProgress();
+		},
 	});
-	console.log({url});
+	const uploadDuration = Date.now() - uploadStart;
+	multiProgress.deployProgress = {
+		sizeUploaded: 1,
+		totalSize: 1,
+		doneIn: uploadDuration,
+	};
+	updateProgress();
+
+	Log.info();
+	Log.info();
+	Log.info('Deployed to S3!');
+
+	Log.info(url);
 };
