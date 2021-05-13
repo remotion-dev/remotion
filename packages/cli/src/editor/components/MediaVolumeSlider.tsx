@@ -1,8 +1,17 @@
 import {PlayerInternals} from '@remotion/player';
 import React, {useCallback, useEffect, useRef, useState} from 'react';
-import {Internals} from 'remotion';
+import {Internals, interpolate} from 'remotion';
 import {VolumeOffIcon, VolumeOnIcon} from '../icons/media-volume';
 import {ControlDiv} from './ControlButton';
+
+const getVolumeFromX = (clientX: number, width: number) => {
+	const pos = clientX;
+	const volume = interpolate(pos, [0, width], [0, 1], {
+		extrapolateLeft: 'clamp',
+		extrapolateRight: 'clamp',
+	});
+	return volume;
+};
 
 const xSpacer: React.CSSProperties = {
 	width: 5,
@@ -17,7 +26,6 @@ export const MediaVolumeSlider: React.FC = () => {
 	const parentDivRef = useRef<HTMLDivElement>(null);
 	const size = PlayerInternals.useElementSize(currentRef);
 	const hover = PlayerInternals.useHoverState(parentDivRef);
-	console.log(mediaVolume);
 
 	const onClick = useCallback(() => {
 		setMediaMuted(!mediaMuted);
@@ -30,10 +38,18 @@ export const MediaVolumeSlider: React.FC = () => {
 				throw new Error('Player has no size');
 			}
 
-			console.log(e.clientX);
+			console.log(e.clientX - size.left, size.width, 'leftsize');
+
+			const volume = getVolumeFromX(e.clientX - size.left, size.width);
+			console.log(volume, 'media volume');
+			setMediaVolume(volume);
+			if (volume === 0) {
+				setMediaMuted(true);
+			}
+
 			setDragging(true);
 		},
-		[size]
+		[setMediaMuted, setMediaVolume, size]
 	);
 
 	const onPointerMove = useCallback(
@@ -48,6 +64,7 @@ export const MediaVolumeSlider: React.FC = () => {
 		console.log('poiter up');
 		setDragging(false);
 	}, []);
+
 	useEffect(() => {
 		if (!dragging) {
 			return;
