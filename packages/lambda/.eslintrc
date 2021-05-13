@@ -4,6 +4,7 @@
 		"project": "./tsconfig.json"
 	},
 	"rules": {
+		"no-console": "error",
 		"ts-exports/unused-exports": "off"
 	}
 }
