@@ -4,6 +4,10 @@
 	"description": "Utility functions for audio and video",
 	"main": "dist/index.js",
 	"sideEffects": false,
+	"bin": {
+		"@remotion/lambda": "remotion-lambda-cli.js"
+	},
+	"module": "true",
 	"scripts": {
 		"test": "eslint src --ext ts,tsx",
 		"watch": "tsc -w",
@@ -24,6 +28,7 @@
 		"chalk": "^4.1.1",
 		"esbuild": "^0.11.12",
 		"lambdafs": "^2.0.3",
+		"minimist": "^1.2.5",
 		"remotion": "^2.0.2",
 		"ts-node": "^9.1.1",
 		"xns": "^2.0.7",
