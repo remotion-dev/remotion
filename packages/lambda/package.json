@@ -23,6 +23,7 @@
 	"dependencies": {
 		"@aws-sdk/client-lambda": "^3.13.0",
 		"@aws-sdk/client-s3": "^3.13.0",
+		"@aws-sdk/lib-storage": "^3.15.0",
 		"@remotion/bundler": "^2.0.2",
 		"@remotion/renderer": "^2.0.2",
 		"chalk": "^4.1.1",
