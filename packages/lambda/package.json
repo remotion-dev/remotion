@@ -8,7 +8,7 @@
 		"test": "eslint src --ext ts,tsx",
 		"watch": "tsc -w",
 		"build": "tsc -d",
-		"start": "AWS_ACCESS_KEY_ID=AKIAVJFWOU2G6VZNXHQE AWS_SECRET_ACCESS_KEY=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 npx ts-node src/create-lambda.ts",
+		"start": "ts-node src/run.ts",
 		"test-re": "npx remotion preview remotion-project/index.ts"
 	},
 	"author": "",
