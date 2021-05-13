@@ -1,38 +1,100 @@
 import {PutObjectCommand, S3Client} from '@aws-sdk/client-s3';
+import {Upload} from '@aws-sdk/lib-storage';
 import {createReadStream, promises as fs} from 'fs';
 import path from 'path';
+import {s3Client} from './aws-clients';
+
+type FileInfo = {
+	name: string;
+	size: number;
+};
+
+export type UploadDirProgress = {
+	totalFiles: number;
+	filesUploaded: number;
+	totalSize: number;
+	sizeUploaded: number;
+};
 
 export const uploadDir = async ({
 	bucket,
 	client,
 	dir,
+	onProgress,
 }: {
 	bucket: string;
 	client: S3Client;
 	dir: string;
+	onProgress: (progress: UploadDirProgress) => void;
 }) => {
-	async function getFiles(directory: string): Promise<string | string[]> {
+	async function getFiles(directory: string): Promise<FileInfo[]> {
 		const dirents = await fs.readdir(directory, {withFileTypes: true});
 		const _files = await Promise.all(
-			dirents.map((dirent) => {
+			dirents.map(async (dirent) => {
 				const res = path.resolve(directory, dirent.name);
-				return dirent.isDirectory() ? getFiles(res) : res;
+				const {size} = await fs.stat(res);
+				return dirent.isDirectory()
+					? getFiles(res)
+					: [
+							{
+								name: res,
+								size,
+							},
+					  ];
 			})
 		);
-		return Array.prototype.concat(..._files);
+		return _files.flat(1);
 	}
 
-	const files = (await getFiles(dir)) as string[];
-	const uploads = files.map((filePath) => {
-		return client.send(
+	const files = await getFiles(dir);
+	const progresses: {[key: string]: number} = {};
+	for (const file of files) {
+		progresses[file.name] = 0;
+	}
+
+	const uploads = files.map(async (filePath) => {
+		const Key = path.relative(dir, filePath.name);
+		const Body = createReadStream(filePath.name);
+		if (filePath.size > 5 * 1024 * 1024) {
+			const paralellUploads3 = new Upload({
+				client: s3Client,
+				queueSize: 4,
+				partSize: 5 * 1024 * 1024,
+				params: {
+					Key,
+					Bucket: bucket,
+					Body,
+				},
+			});
+			paralellUploads3.on('httpUploadProgress', (progress) => {
+				progresses[filePath.name] = progress.loaded ?? 0;
+			});
+			return paralellUploads3.done();
+		}
+
+		await client.send(
 			new PutObjectCommand({
-				Key: path.relative(dir, filePath),
+				Key,
 				Bucket: bucket,
-				Body: createReadStream(filePath),
+				Body,
 				ACL: 'public-read',
-				ContentType: filePath.includes('index.html') ? 'text/html' : undefined,
+				ContentType: filePath.name.includes('index.html')
+					? 'text/html'
+					: undefined,
 			})
 		);
+		progresses[filePath.name] = filePath.size;
 	});
-	return Promise.all(uploads);
+	const promise = Promise.all(uploads);
+
+	const interval = setInterval(() => {
+		onProgress({
+			totalSize: files.map((f) => f.size).reduce((a, b) => a + b, 0),
+			sizeUploaded: Object.values(progresses).reduce((a, b) => a + b, 0),
+			totalFiles: files.length,
+			filesUploaded: files.filter((f) => progresses[f.name] === f.size).length,
+		});
+	}, 1000);
+	await promise;
+	clearInterval(interval);
 };

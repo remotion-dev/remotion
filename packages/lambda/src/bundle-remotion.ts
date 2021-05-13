@@ -1,12 +1,9 @@
 import {bundle} from '@remotion/bundler';
-import path from 'path';
 
-export const bundleRemotion = () => {
-	return bundle(
-		path.join(__dirname, '..', 'remotion-project', 'index.ts'),
-		() => undefined,
-		{
-			enableCaching: false,
-		}
-	);
+export const BINARY_NAME = '@remotion/lambda';
+
+export const bundleRemotion = (entryFile: string) => {
+	return bundle(entryFile, () => undefined, {
+		enableCaching: false,
+	});
 };

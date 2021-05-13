@@ -1,24 +1,18 @@
 import {CreateFunctionCommand, LambdaClient} from '@aws-sdk/client-lambda';
-import {
-	CreateBucketCommand,
-	PutBucketWebsiteCommand,
-	PutObjectCommand,
-	S3Client,
-} from '@aws-sdk/client-s3';
+import {PutObjectCommand, S3Client} from '@aws-sdk/client-s3';
 import {createReadStream} from 'fs';
+import path from 'path';
 import xns from 'xns';
 import {bundleLambda} from './bundle-lambda';
-import {bundleRemotion} from './bundle-remotion';
 import {
 	EFS_MOUNT_PATH,
 	ENABLE_EFS,
-	LAMBDA_BUCKET_PREFIX,
 	REGION,
 	REMOTION_RENDER_FN_ZIP,
 	RENDER_FN_PREFIX,
 } from './constants';
+import {deploySite} from './deploy-site';
 import {ensureLayers} from './lambda-layers';
-import {uploadDir} from './upload-dir';
 import {waitForLambdaReady} from './wait-for-lambda-ready';
 
 const lambdaClient = new LambdaClient({
@@ -33,47 +27,21 @@ const developer: Developer = 'jonny' as Developer;
 export const createLambda = xns(async () => {
 	const {layerArn} = await ensureLayers(lambdaClient);
 	console.log('Done creating layers');
-	const bucketName = LAMBDA_BUCKET_PREFIX + Math.random();
 	const id = String(Math.random());
 	const s3KeyRender = `${REMOTION_RENDER_FN_ZIP}${id}.zip`;
 	const fnNameRender =
 		RENDER_FN_PREFIX + String(Math.random()).replace('0.', '');
-	const [remBundle, renderOut] = await Promise.all([
-		bundleRemotion(),
-		bundleLambda('render'),
-	]);
+	const [renderOut] = await Promise.all([bundleLambda('render')]);
 	console.log('done Bundling');
 
-	await s3Client.send(
-		new CreateBucketCommand({
-			Bucket: bucketName,
-			ACL: 'public-read',
-		})
+	const {url, bucketName} = await deploySite(
+		path.join(__dirname, '..', 'remotion-project', 'index.ts'),
+		{
+			// TODO: Start uploading lambda now
+			onBucketCreated: async () => {},
+		}
 	);
-	console.log('created bucket', bucketName);
-
-	await s3Client.send(
-		new PutBucketWebsiteCommand({
-			Bucket: bucketName,
-			WebsiteConfiguration: {
-				IndexDocument: {
-					Suffix: 'index.html',
-				},
-			},
-		})
-	);
-	console.log('enabled web hosting for bucket', bucketName);
-
-	// Upload bundle
-	await uploadDir({
-		bucket: bucketName,
-		client: s3Client,
-		dir: remBundle,
-	});
-	// TODO: Potentially big, should show progress bar
-	console.log('bundle uploaded');
-
-	// Upload lambda
+	console.log(url);
 	await s3Client.send(
 		new PutObjectCommand({
 			Bucket: bucketName,
@@ -82,11 +50,9 @@ export const createLambda = xns(async () => {
 			ACL: 'public-read',
 		})
 	);
-	console.log('lambdas uploaded');
+	// TODO: Potentially big, should show progress bar
 
-	// TODO: Do it with HTTPS, but wait for certificate
-	const url = `http://${bucketName}.s3.${REGION}.amazonaws.com`;
-	console.log(url);
+	console.log('lambdas uploaded');
 
 	const created = await lambdaClient.send(
 		new CreateFunctionCommand({
