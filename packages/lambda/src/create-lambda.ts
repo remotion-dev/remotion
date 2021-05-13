@@ -7,6 +7,7 @@ import {bundleLambda} from './bundle-lambda';
 import {
 	EFS_MOUNT_PATH,
 	ENABLE_EFS,
+	MEMORY_SIZE,
 	REGION,
 	REMOTION_RENDER_FN_ZIP,
 	RENDER_FN_PREFIX,
@@ -68,7 +69,7 @@ export const createLambda = xns(async () => {
 					: 'arn:aws:iam::976210361945:role/lambda-admin', // IAM_ROLE_ARN; e.g., arn:aws:iam::650138640062:role/v3-lambda-tutorial-lambda-role
 			Runtime: 'nodejs12.x',
 			Description: 'Renders a Remotion video.',
-			MemorySize: 1769 * 2,
+			MemorySize: MEMORY_SIZE,
 			Timeout: 120,
 			Layers: [layerArn],
 
