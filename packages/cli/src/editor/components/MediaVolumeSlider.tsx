@@ -15,6 +15,7 @@ export const MediaVolumeSlider: React.FC = () => {
 	const currentRef = useRef<HTMLDivElement>(null);
 	const iconDivRef = useRef<HTMLDivElement>(null);
 	const parentDivRef = useRef<HTMLDivElement>(null);
+	const size = PlayerInternals.useElementSize(currentRef);
 	const hover = PlayerInternals.useHoverState(parentDivRef);
 	console.log(mediaVolume);
 
@@ -23,27 +24,42 @@ export const MediaVolumeSlider: React.FC = () => {
 		setMediaVolume(Number(mediaMuted));
 	}, [setMediaMuted, mediaMuted, setMediaVolume]);
 
-	const onPointerDown = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
-		console.log(e.clientX);
-		setDragging(true);
-	}, []);
+	const onPointerDown = useCallback(
+		(e: React.PointerEvent<HTMLDivElement>) => {
+			if (!size) {
+				throw new Error('Player has no size');
+			}
 
-	const onPointerMove = useCallback((e: PointerEvent) => {
-		console.log(e.clientX);
-	}, []);
+			console.log(e.clientX);
+			setDragging(true);
+		},
+		[size]
+	);
+
+	const onPointerMove = useCallback(
+		(e: PointerEvent) => {
+			if (!dragging) return;
+			console.log(e.clientX);
+		},
+		[dragging]
+	);
 
 	const onPointerUp = useCallback(() => {
 		console.log('poiter up');
 		setDragging(false);
 	}, []);
 	useEffect(() => {
+		if (!dragging) {
+			return;
+		}
+
 		currentRef?.current?.addEventListener('pointermove', onPointerMove);
 		currentRef?.current?.addEventListener('pointerup', onPointerUp);
 		return () => {
 			currentRef?.current?.removeEventListener('pointermove', onPointerMove);
 			currentRef?.current?.removeEventListener('pointerup', onPointerUp);
 		};
-	}, [currentRef, onPointerMove, onPointerUp, onPointerDown]);
+	}, [currentRef, dragging, onPointerMove, onPointerUp, onPointerDown]);
 
 	return (
 		<ControlDiv ref={parentDivRef}>
@@ -51,15 +67,16 @@ export const MediaVolumeSlider: React.FC = () => {
 				{mediaMuted ? <VolumeOffIcon /> : <VolumeOnIcon />}
 			</div>
 			<div style={xSpacer} />
-			{hover ? (
-				<div
-					ref={currentRef}
-					onPointerDown={onPointerDown}
-					style={{width: 100, height: 10, backgroundColor: '#fff'}}
-				/>
-			) : (
-				<div style={{width: 100}} />
-			)}
+
+			<div
+				ref={currentRef}
+				onPointerDown={onPointerDown}
+				style={{
+					width: 100,
+					height: hover ? 10 : 0,
+					backgroundColor: hover ? '#fff' : 'none',
+				}}
+			/>
 		</ControlDiv>
 	);
 };
