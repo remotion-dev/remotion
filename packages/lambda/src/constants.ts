@@ -1,4 +1,6 @@
-export const REGION = 'eu-central-1';
+import {AwsRegion} from './pricing/aws-regions';
+
+export const REGION: AwsRegion = 'eu-central-1';
 export const RENDERS_BUCKET_PREFIX = 'remotion-renders-';
 export const LAMBDA_BUCKET_PREFIX = 'remotion-bucket-';
 export const REMOTION_RENDER_FN_ZIP = 'remotion-render-function-';
