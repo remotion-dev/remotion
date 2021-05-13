@@ -18,6 +18,21 @@ export const makeProgressBar = (percentage: number) => {
 	return `[${'='.repeat(barsToShow).padEnd(totalBars, ' ')}]`;
 };
 
+export type BundleProgress = {
+	progress: number;
+	doneIn: number | null;
+};
+
+export const makeBundleProgress = ({progress, doneIn}: BundleProgress) => {
+	return [
+		'📦',
+		`(1/3)`,
+		makeProgressBar(progress / 100),
+		`${doneIn === null ? 'Bundling' : 'Bundled'} video`,
+		doneIn === null ? `${Math.round(progress)}%` : chalk.gray(`${doneIn}ms`),
+	].join(' ');
+};
+
 export type BucketCreationProgress = {
 	bucketCreated: boolean;
 	websiteEnabled: boolean;
@@ -35,7 +50,7 @@ export const makeBucketProgress = ({
 
 	return [
 		'🪣 ',
-		`(1/2)`,
+		`(2/3)`,
 		makeProgressBar(progress),
 		`${doneIn === null ? 'Creating' : 'Created'} bucket`,
 		doneIn === null
@@ -58,7 +73,7 @@ export const makeDeployProgressBar = ({
 	const progress = totalSize === null ? 0 : sizeUploaded / totalSize;
 	return [
 		'☁️ ',
-		`(2/2)`,
+		`(3/3)`,
 		makeProgressBar(progress),
 		`${doneIn === null ? 'Uploading' : 'Uploaded'} to S3`,
 		doneIn === null
