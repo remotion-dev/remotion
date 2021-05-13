@@ -16,5 +16,5 @@ export const getPriceInCents = ({
 
 	const invocationCost = Number(pricing[region]['Lambda Requests'].price);
 
-	return timeCostDollars + invocationCost;
+	return Number((timeCostDollars + invocationCost).toFixed(5));
 };

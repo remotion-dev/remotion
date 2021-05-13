@@ -54,11 +54,16 @@ const getEncodingMetadata = async ({
 		key: ENCODING_PROGRESS_KEY,
 	});
 
-	const encodingProgress = JSON.parse(
-		await streamToString(Body)
-	) as EncodingProgress;
+	try {
+		const encodingProgress = JSON.parse(
+			await streamToString(Body)
+		) as EncodingProgress;
 
-	return encodingProgress;
+		return encodingProgress;
+	} catch (err) {
+		// The file may not yet have been fully written
+		return null;
+	}
 };
 
 const getRenderMetadata = async ({
@@ -157,6 +162,13 @@ export const progressHandler = async (lambdaParams: LambdaPayload) => {
 			? Date.now() - (renderMetadata?.startedDate ?? 0)
 			: timeToFinish;
 
+	const accruedSoFar =
+		getPriceInCents({
+			region: REGION,
+			durationMs: elapsedTime,
+			memory: MEMORY_SIZE,
+		}) * (renderMetadata?.estimatedLambdaInvokations ?? 0);
+
 	return {
 		chunks: chunks.length,
 		done: Boolean(output),
@@ -166,12 +178,14 @@ export const progressHandler = async (lambdaParams: LambdaPayload) => {
 			renderMetadata,
 		}),
 		costs: {
-			accruedSoFar:
-				getPriceInCents({
-					region: REGION,
-					durationMs: elapsedTime,
-					memory: MEMORY_SIZE,
-				}) * (renderMetadata?.estimatedLambdaInvokations ?? 0),
+			accruedSoFar,
+			displayCost: new Intl.NumberFormat('en-US', {
+				currency: 'USD',
+				currencyDisplay: 'narrowSymbol',
+			}).format(accruedSoFar),
+			currency: 'USD',
+			disclaimer:
+				'Estimated cost only. Does not include charges for EFS and other AWS services.',
 		},
 		renderMetadata,
 		outputFile: output

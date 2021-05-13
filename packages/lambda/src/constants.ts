@@ -1,6 +1,6 @@
 import {AwsRegion} from './pricing/aws-regions';
 
-export const MEMORY_SIZE = 1769 * 2;
+export const MEMORY_SIZE = 2048;
 export const REGION: AwsRegion = 'eu-central-1';
 export const RENDERS_BUCKET_PREFIX = 'remotion-renders-';
 export const LAMBDA_BUCKET_PREFIX = 'remotion-bucket-';
