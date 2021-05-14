@@ -1,6 +1,7 @@
 import React, {
 	forwardRef,
 	MutableRefObject,
+	useCallback,
 	useImperativeHandle,
 	useMemo,
 	useRef,
@@ -20,6 +21,7 @@ import {PlayerEmitter} from './event-emitter';
 import {PLAYER_CSS_CLASSNAME} from './player-css-classname';
 import {PlayerRef} from './player-methods';
 import PlayerUI from './PlayerUI';
+import {getPreferredVolume, persistVolume} from './volume-persistance';
 
 type PropsIfHasProps<Props> = {} extends Props
 	? {
@@ -74,7 +76,12 @@ export const PlayerFn = <T,>(
 	const [emitter] = useState(() => new PlayerEmitter());
 	const rootRef = useRef<PlayerRef>(null);
 	const [mediaMuted, setMediaMuted] = useState<boolean>(false);
-	const [mediaVolume, setMediaVolume] = useState<number>(1);
+	const [mediaVolume, _setMediaVolume] = useState<number>(getPreferredVolume());
+
+	const setMediaVolume = useCallback((vol: number) => {
+		_setMediaVolume(vol);
+		persistVolume(vol);
+	}, []);
 
 	useImperativeHandle(ref, () => rootRef.current as PlayerRef);
 
@@ -107,7 +114,7 @@ export const PlayerFn = <T,>(
 			setMediaMuted,
 			setMediaVolume,
 		};
-	}, []);
+	}, [setMediaVolume]);
 
 	const compositionManagerContext: CompositionManagerContext = useMemo(() => {
 		return {
