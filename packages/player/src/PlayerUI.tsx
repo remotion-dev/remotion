@@ -32,6 +32,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		autoPlay: boolean;
 		allowFullscreen: boolean;
 		inputProps: unknown;
+		showVolumeControls: boolean;
 		style?: React.CSSProperties;
 		clickToPlay: boolean;
 		setMediaVolume: (v: number) => void;
@@ -46,6 +47,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		allowFullscreen,
 		inputProps,
 		clickToPlay,
+		showVolumeControls,
 		mediaVolume,
 		setMediaVolume,
 	},
@@ -294,6 +296,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 					onFullscreenButtonClick={onFullscreenButtonClick}
 					isFullscreen={isFullscreen}
 					allowFullscreen={allowFullscreen}
+					showVolumeControls={showVolumeControls}
 					onExitFullscreenButtonClick={onExitFullscreenButtonClick}
 				/>
 			) : null}
