@@ -56,15 +56,15 @@ const downloadAsset = async (
 
 export const downloadAndMapAssetsToFileUrl = async ({
 	localhostAsset,
-	webpackBundle,
+	downloadDir,
 	onDownload,
 }: {
 	localhostAsset: TAsset;
-	webpackBundle: string;
+	downloadDir: string;
 	onDownload: (src: string) => void;
 }): Promise<TAsset> => {
 	const {pathname} = new URL(localhostAsset.src);
-	const newSrc = path.join(webpackBundle, sanitizeFilename(pathname));
+	const newSrc = path.join(downloadDir, sanitizeFilename(pathname));
 	if (localhostAsset.isRemote) {
 		await downloadAsset(localhostAsset.src, newSrc, onDownload);
 	}

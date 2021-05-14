@@ -74,7 +74,19 @@ const renderHandler = async (params: LambdaPayload) => {
 
 	const stitchLabel = timer('stitcher');
 	await stitchFramesToVideo({
-		assetsInfo,
+		assetsInfo: {
+			...assetsInfo,
+			// Make all assets remote
+			assets: assetsInfo.assets.map((asset) => {
+				return asset.map((a) => {
+					return {
+						...a,
+						isRemote: true,
+					};
+				});
+			}),
+		},
+		downloadDir: '/tmp',
 		dir: outputDir,
 		force: true,
 		fps: params.fps,

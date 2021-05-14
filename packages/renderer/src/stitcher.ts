@@ -76,6 +76,7 @@ export const stitchFramesToVideo = async (options: {
 	onProgress?: (progress: number) => void;
 	onDownload?: (src: string) => void;
 	verbose?: boolean;
+	downloadDir?: string;
 }): Promise<void> => {
 	const codec = options.codec ?? Internals.DEFAULT_CODEC;
 	const crf = options.crf ?? Internals.getDefaultCrfForCodec(codec);
@@ -116,7 +117,7 @@ export const stitchFramesToVideo = async (options: {
 
 	const fileUrlAssets = await convertAssetsToFileUrls({
 		assets: options.assetsInfo.assets,
-		dir: options.assetsInfo.bundleDir,
+		downloadDir: options.downloadDir ?? options.assetsInfo.bundleDir,
 		onDownload: options.onDownload ?? (() => undefined),
 	});
 	const assetPositions = calculateAssetPositions(fileUrlAssets);
