@@ -61,6 +61,7 @@ export const MediaVolumeSlider: React.FC = () => {
 	const [mediaMuted, setMediaMuted] = Internals.useMediaMutedState();
 	const [mediaVolume, setMediaVolume] = Internals.useMediaVolumeState();
 	const [dragging, setDragging] = useState<boolean>(false);
+	const [lastMediaVolume, setLastMediaVolume] = useState<number>(1);
 	const currentRef = useRef<HTMLDivElement>(null);
 	const iconDivRef = useRef<HTMLDivElement>(null);
 	const parentDivRef = useRef<HTMLDivElement>(null);
@@ -71,8 +72,14 @@ export const MediaVolumeSlider: React.FC = () => {
 
 	const onClick = useCallback(() => {
 		setMediaMuted(!mediaMuted);
-		setMediaVolume(Number(mediaMuted));
-	}, [setMediaMuted, mediaMuted, setMediaVolume]);
+		if (!mediaMuted) {
+			setMediaVolume(Number(mediaMuted));
+		}
+
+		if (mediaMuted) {
+			setMediaVolume(lastMediaVolume);
+		}
+	}, [setMediaMuted, mediaMuted, setMediaVolume, lastMediaVolume]);
 
 	const onPointerDown = useCallback(
 		(e: React.PointerEvent<HTMLDivElement>) => {
@@ -82,6 +89,7 @@ export const MediaVolumeSlider: React.FC = () => {
 
 			const _volume = getVolumeFromX(e.clientX - size.left, size.width);
 			setMediaVolume(_volume);
+			setLastMediaVolume(_volume > 0 ? _volume : 1);
 			setMediaMuted(_volume <= 0);
 
 			setDragging(true);
@@ -99,6 +107,7 @@ export const MediaVolumeSlider: React.FC = () => {
 
 			const _volume = getVolumeFromX(e.clientX - size.left, size.width);
 			setMediaVolume(_volume);
+			setLastMediaVolume(_volume > 0 ? _volume : 1);
 			setMediaMuted(_volume <= 0);
 		},
 		[dragging, setMediaMuted, setMediaVolume, size]
