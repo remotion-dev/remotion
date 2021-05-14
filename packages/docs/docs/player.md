@@ -87,6 +87,12 @@ _optional_
 
 Whether the video should display a seek bar and a play/pause button. Default `false.`
 
+### `showVolumeControls`
+
+_optional_
+
+Whether the video should display a volume slider and a mute button. Default `true`.
+
 ### `allowFullscreen`
 
 _optional_
@@ -147,6 +153,30 @@ Pauses the video if it's playing. Plays the video if it's paused.
 ### `getCurrentFrame()`
 
 Gets the current postition expressed as the current frame. Divide by the `fps` you passed to get the time in seconds.
+
+### `mute()`
+
+Mutes the video.
+
+### `unmute()`
+
+Unmutes the video.
+
+### `getVolume()`
+
+Gets the volume of the video. The volume is a value between 0 and 1 and is initially 1.
+
+### `setVolume()`
+
+#### Arguments
+
+- `volume`: `number`
+
+Set the volume of the video. Must be a value between 0 and 1, otherwise an exception will be thrown.
+
+### `isMuted()`
+
+Returns a boolean specifying whether the video is muted.
 
 ### `seekTo()`
 
