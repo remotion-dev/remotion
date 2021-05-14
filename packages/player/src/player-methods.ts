@@ -9,6 +9,8 @@ export type PlayerMethods = {
 	requestFullscreen: () => void;
 	exitFullscreen: () => void;
 	isFullscreen: () => void;
+	setVolume: (num: number) => void;
+	getVolume: () => number;
 };
 
 export type PlayerRef = PlayerEventTarget & PlayerMethods;
