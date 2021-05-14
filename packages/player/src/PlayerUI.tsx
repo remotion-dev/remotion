@@ -37,6 +37,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		style?: React.CSSProperties;
 		clickToPlay: boolean;
 		setMediaVolume: (v: number) => void;
+		setMediaMuted: (v: boolean) => void;
 		mediaVolume: number;
 	}
 > = (
@@ -51,6 +52,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		showVolumeControls,
 		mediaVolume,
 		mediaMuted,
+		setMediaMuted,
 		setMediaVolume,
 	},
 	ref
@@ -155,6 +157,12 @@ const PlayerUI: React.ForwardRefRenderFunction<
 			getVolume: () => mediaVolume,
 			setVolume: setMediaVolume,
 			getMuted: () => mediaMuted,
+			mute: () => {
+				setMediaMuted(true);
+			},
+			unmute: () => {
+				setMediaMuted(false);
+			},
 		};
 		return Object.assign(player.emitter, methods);
 	});
