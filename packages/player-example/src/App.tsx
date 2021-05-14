@@ -56,6 +56,12 @@ export default function App() {
 			<button type="button" onClick={() => ref.current?.pause()}>
 				Pause
 			</button>
+			<button type="button" onClick={() => ref.current?.mute()}>
+				Mute
+			</button>
+			<button type="button" onClick={() => ref.current?.unmute()}>
+				Unmute
+			</button>
 			<button type="button" onClick={() => ref.current?.toggle()}>
 				toggle
 			</button>
