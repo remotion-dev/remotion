@@ -18,8 +18,10 @@ xns(async () => {
 		payload: {
 			chunkSize: 20,
 			composition: 'my-video',
-			durationInFrames: 1000,
 			serveUrl: bucketUrl,
+			inputProps: {
+				duration: 1000,
+			},
 		},
 	});
 	for (let i = 0; i < 3000; i++) {
