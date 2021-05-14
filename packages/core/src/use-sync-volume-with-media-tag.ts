@@ -6,7 +6,7 @@ export type UseSyncVolumeWithMediaTagOptions = {
 	volumePropFrame: number;
 	actualVolume: number;
 	volume?: VolumeProp;
-	mediaVolume?: number;
+	mediaVolume: number;
 	mediaRef: RefObject<HTMLVideoElement | HTMLAudioElement>;
 };
 

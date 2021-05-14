@@ -1,4 +1,4 @@
-import {createContext, useContext} from 'react';
+import {createContext, useContext, useMemo} from 'react';
 
 export type MediaVolumeContextValue = {
 	mediaMuted: boolean;
@@ -32,7 +32,9 @@ type MediaVolumeReturnType = readonly [
 export const useMediaVolumeState = (): MediaVolumeReturnType => {
 	const {mediaVolume} = useContext(MediaVolumeContext);
 	const {setMediaVolume} = useContext(SetMediaVolumeContext);
-	return [mediaVolume, setMediaVolume];
+	return useMemo(() => {
+		return [mediaVolume, setMediaVolume];
+	}, [mediaVolume, setMediaVolume]);
 };
 
 type MediaMutedReturnType = readonly [
@@ -43,5 +45,8 @@ type MediaMutedReturnType = readonly [
 export const useMediaMutedState = (): MediaMutedReturnType => {
 	const {mediaMuted} = useContext(MediaVolumeContext);
 	const {setMediaMuted} = useContext(SetMediaVolumeContext);
-	return [mediaMuted, setMediaMuted];
+
+	return useMemo(() => {
+		return [mediaMuted, setMediaMuted];
+	}, [mediaMuted, setMediaMuted]);
 };
