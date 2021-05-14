@@ -77,6 +77,7 @@ export default function App() {
 			<button type="button" onClick={() => setLoop((l) => !l)}>
 				loop = {String(loop)}
 			</button>
+			<br />
 			<button
 				type="button"
 				onClick={() =>
@@ -87,6 +88,14 @@ export default function App() {
 				}
 			>
 				log currentFrame
+			</button>
+			<button
+				type="button"
+				onClick={() =>
+					setLogs((l) => [...l, `volume = ${ref.current?.getVolume()}`])
+				}
+			>
+				log volume
 			</button>
 			<br />
 			<br />
