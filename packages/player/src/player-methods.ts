@@ -12,6 +12,8 @@ export type PlayerMethods = {
 	setVolume: (num: number) => void;
 	getVolume: () => number;
 	getMuted: () => boolean;
+	mute: () => void;
+	unmute: () => void;
 };
 
 export type PlayerRef = PlayerEventTarget & PlayerMethods;
