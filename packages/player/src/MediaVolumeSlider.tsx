@@ -61,7 +61,6 @@ export const MediaVolumeSlider: React.FC = () => {
 	const [mediaMuted, setMediaMuted] = Internals.useMediaMutedState();
 	const [mediaVolume, setMediaVolume] = Internals.useMediaVolumeState();
 	const [dragging, setDragging] = useState<boolean>(false);
-	const [lastMediaVolume, setLastMediaVolume] = useState<number>(1);
 	const currentRef = useRef<HTMLDivElement>(null);
 	const iconDivRef = useRef<HTMLDivElement>(null);
 	const parentDivRef = useRef<HTMLDivElement>(null);
@@ -71,15 +70,8 @@ export const MediaVolumeSlider: React.FC = () => {
 	const hoverOrDragging = hover || dragging;
 
 	const onClick = useCallback(() => {
-		setMediaMuted(!mediaMuted);
-		if (!mediaMuted) {
-			setMediaVolume(Number(mediaMuted));
-		}
-
-		if (mediaMuted) {
-			setMediaVolume(lastMediaVolume);
-		}
-	}, [setMediaMuted, mediaMuted, setMediaVolume, lastMediaVolume]);
+		setMediaMuted((mute) => !mute);
+	}, [setMediaMuted]);
 
 	const onPointerDown = useCallback(
 		(e: React.PointerEvent<HTMLDivElement>) => {
@@ -87,14 +79,15 @@ export const MediaVolumeSlider: React.FC = () => {
 				throw new Error('Player has no size');
 			}
 
-			const _volume = getVolumeFromX(e.clientX - size.left, size.width);
+			const _volume = getVolumeFromX(
+				e.clientX - size.left - KNOB_SIZE / 2,
+				size.width - KNOB_SIZE
+			);
 			setMediaVolume(_volume);
-			setLastMediaVolume(_volume > 0 ? _volume : 1);
-			setMediaMuted(_volume <= 0);
 
 			setDragging(true);
 		},
-		[setMediaMuted, setMediaVolume, size]
+		[setMediaVolume, size]
 	);
 
 	const onPointerMove = useCallback(
@@ -105,12 +98,13 @@ export const MediaVolumeSlider: React.FC = () => {
 
 			if (!dragging) return;
 
-			const _volume = getVolumeFromX(e.clientX - size.left, size.width);
+			const _volume = getVolumeFromX(
+				e.clientX - size.left - KNOB_SIZE / 2,
+				size.width - KNOB_SIZE
+			);
 			setMediaVolume(_volume);
-			setLastMediaVolume(_volume > 0 ? _volume : 1);
-			setMediaMuted(_volume <= 0);
 		},
-		[dragging, setMediaMuted, setMediaVolume, size]
+		[dragging, setMediaVolume, size]
 	);
 
 	const onPointerUp = useCallback(() => {
@@ -138,7 +132,7 @@ export const MediaVolumeSlider: React.FC = () => {
 			position: 'absolute',
 			top: VERTICAL_PADDING - KNOB_SIZE / 2 + 5 / 2,
 			backgroundColor: 'white',
-			left: Math.max(0, mediaVolume * (size?.width ?? 0) - KNOB_SIZE / 2),
+			left: Math.max(0, mediaVolume * ((size?.width ?? 0) - KNOB_SIZE)),
 			boxShadow: '0 0 2px black',
 			opacity: Number(hoverOrDragging),
 		};
@@ -153,17 +147,19 @@ export const MediaVolumeSlider: React.FC = () => {
 		};
 	}, [mediaVolume]);
 
+	const isMutedOrZero = mediaMuted || mediaVolume === 0;
+
 	return (
 		<div ref={parentDivRef} style={parentDivStyle}>
 			<div
 				ref={iconDivRef}
 				role="button"
-				aria-label={mediaMuted ? 'Unmute sound' : 'Mute sound'}
-				title={mediaMuted ? 'Unmute sound' : 'Mute sound'}
+				aria-label={isMutedOrZero ? 'Unmute sound' : 'Mute sound'}
+				title={isMutedOrZero ? 'Unmute sound' : 'Mute sound'}
 				onClick={onClick}
 				style={volumeContainer}
 			>
-				{mediaMuted ? <VolumeOffIcon /> : <VolumeOnIcon />}
+				{isMutedOrZero ? <VolumeOffIcon /> : <VolumeOnIcon />}
 			</div>
 			<div style={xSpacer} />
 
