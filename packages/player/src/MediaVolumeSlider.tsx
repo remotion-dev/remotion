@@ -155,7 +155,14 @@ export const MediaVolumeSlider: React.FC = () => {
 
 	return (
 		<div ref={parentDivRef} style={parentDivStyle}>
-			<div ref={iconDivRef} onClick={onClick} style={volumeContainer}>
+			<div
+				ref={iconDivRef}
+				role="button"
+				aria-label={mediaMuted ? 'Unmute sound' : 'Mute sound'}
+				title={mediaMuted ? 'Unmute sound' : 'Mute sound'}
+				onClick={onClick}
+				style={volumeContainer}
+			>
 				{mediaMuted ? <VolumeOffIcon /> : <VolumeOnIcon />}
 			</div>
 			<div style={xSpacer} />
