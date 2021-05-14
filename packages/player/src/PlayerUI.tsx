@@ -155,8 +155,28 @@ const PlayerUI: React.ForwardRefRenderFunction<
 			requestFullscreen,
 			exitFullscreen,
 			getVolume: () => mediaVolume,
-			setVolume: setMediaVolume,
-			getMuted: () => mediaMuted,
+			setVolume: (vol: number) => {
+				if (typeof vol !== 'number') {
+					throw new TypeError(
+						`setVolume() takes a number, got value of type ${typeof vol}`
+					);
+				}
+
+				if (isNaN(vol)) {
+					throw new TypeError(
+						`setVolume() got a number that is NaN. Volume must be between 0 and 1.`
+					);
+				}
+
+				if (vol < 0 || vol > 1) {
+					throw new TypeError(
+						`setVolume() got a number that is out of range. Must be between 0 and 1, got ${typeof vol}`
+					);
+				}
+
+				setMediaVolume(vol);
+			},
+			isMuted: () => mediaMuted || mediaVolume === 0,
 			mute: () => {
 				setMediaMuted(true);
 			},
