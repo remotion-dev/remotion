@@ -23,10 +23,13 @@ const ensureDir = async ({bucketName}: {bucketName: string}) => {
 	}
 };
 
-export const lambdaLs = async (
-	bucketName: string,
-	forceS3: boolean
-): Promise<_Object[]> => {
+export const lambdaLs = async ({
+	bucketName,
+	forceS3,
+}: {
+	bucketName: string;
+	forceS3: boolean;
+}): Promise<_Object[]> => {
 	await ensureDir({bucketName});
 	if (ENABLE_EFS && !forceS3) {
 		const dir = await promises.readdir(EFS_MOUNT_PATH + '/' + bucketName);

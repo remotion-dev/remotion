@@ -56,7 +56,7 @@ const getAllFilesS3 = async ({
 
 	const getFiles = async () => {
 		const lsTimer = timer('Listing files');
-		const contents = await lambdaLs(bucket, false);
+		const contents = await lambdaLs({bucketName: bucket, forceS3: false});
 		lsTimer.end();
 		return (
 			contents

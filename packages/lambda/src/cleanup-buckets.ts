@@ -5,9 +5,12 @@ import {
 	ListObjectsCommand,
 	S3Client,
 } from '@aws-sdk/client-s3';
+import pLimit from 'p-limit';
 import {Internals} from 'remotion';
 import xns from 'xns';
 import {LAMBDA_BUCKET_PREFIX, REGION, RENDERS_BUCKET_PREFIX} from './constants';
+
+const limit = pLimit(10);
 
 const cleanItems = async (s3client: S3Client, bucket: string) => {
 	const list = await s3client.send(
@@ -16,15 +19,19 @@ const cleanItems = async (s3client: S3Client, bucket: string) => {
 		})
 	);
 	if (list.Contents && list.Contents.length > 0) {
-		for (const object of list.Contents) {
-			await s3client.send(
-				new DeleteObjectCommand({
-					Bucket: bucket,
-					Key: object.Key,
+		await Promise.all(
+			list.Contents.map((object) =>
+				limit(async () => {
+					await s3client.send(
+						new DeleteObjectCommand({
+							Bucket: bucket,
+							Key: object.Key,
+						})
+					);
+					console.log('Deleted', `${bucket}/${object.Key}`);
 				})
-			);
-			console.log('Deleted', `${bucket}/${object.Key}`);
-		}
+			)
+		);
 
 		await cleanItems(s3client, bucket);
 	}
