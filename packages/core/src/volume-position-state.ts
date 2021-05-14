@@ -7,7 +7,7 @@ export type MediaVolumeContextValue = {
 
 export type SetMediaVolumeContextValue = {
 	setMediaMuted: (u: React.SetStateAction<boolean>) => void;
-	setMediaVolume: (u: React.SetStateAction<number>) => void;
+	setMediaVolume: (u: number) => void;
 };
 
 export const MediaVolumeContext = createContext<MediaVolumeContextValue>({
@@ -24,10 +24,7 @@ export const SetMediaVolumeContext = createContext<SetMediaVolumeContextValue>({
 	},
 });
 
-type MediaVolumeReturnType = readonly [
-	number,
-	(u: React.SetStateAction<number>) => void
-];
+type MediaVolumeReturnType = readonly [number, (u: number) => void];
 
 export const useMediaVolumeState = (): MediaVolumeReturnType => {
 	const {mediaVolume} = useContext(MediaVolumeContext);
