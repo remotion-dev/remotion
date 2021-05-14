@@ -74,6 +74,7 @@ export const Controls: React.FC<{
 	fps: number;
 	durationInFrames: number;
 	hovered: boolean;
+	showVolumeControls: boolean;
 	player: ReturnType<typeof usePlayer>;
 	onFullscreenButtonClick: MouseEventHandler<HTMLButtonElement>;
 	isFullscreen: boolean;
@@ -85,6 +86,7 @@ export const Controls: React.FC<{
 	isFullscreen,
 	fps,
 	player,
+	showVolumeControls,
 	onFullscreenButtonClick,
 	allowFullscreen,
 	onExitFullscreenButtonClick,
@@ -113,8 +115,12 @@ export const Controls: React.FC<{
 					>
 						{player.playing ? <PauseIcon /> : <PlayIcon />}
 					</button>
-					<div style={xSpacer} />
-					<MediaVolumeSlider />
+					{showVolumeControls ? (
+						<>
+							<div style={xSpacer} />
+							<MediaVolumeSlider />
+						</>
+					) : null}
 					<div style={xSpacer} />
 					<div style={timeLabel}>
 						{formatTime(frame / fps)} / {formatTime(durationInFrames / fps)}
