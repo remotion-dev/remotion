@@ -136,6 +136,10 @@ export const PlayerFn = <T,>(
 		};
 	}, [component, durationInFrames, height, width, fps, inputProps]);
 
+	const passedInputProps = useMemo(() => {
+		return inputProps ?? {};
+	}, [inputProps]);
+
 	return (
 		<Internals.Timeline.TimelineContext.Provider value={timelineContextValue}>
 			<Internals.Timeline.SetTimelineContext.Provider
@@ -157,9 +161,11 @@ export const PlayerFn = <T,>(
 									loop={Boolean(loop)}
 									controls={Boolean(controls)}
 									style={style}
-									inputProps={inputProps ?? {}}
+									inputProps={passedInputProps}
 									allowFullscreen={Boolean(allowFullscreen)}
 									clickToPlay={clickToPlay}
+									setMediaVolume={setMediaVolume}
+									mediaVolume={mediaVolume}
 								/>
 							</PlayerEventEmitterContext.Provider>
 						</Internals.SetMediaVolumeContext.Provider>
