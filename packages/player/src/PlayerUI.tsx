@@ -34,9 +34,21 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		inputProps: unknown;
 		style?: React.CSSProperties;
 		clickToPlay: boolean;
+		setMediaVolume: (v: number) => void;
+		mediaVolume: number;
 	}
 > = (
-	{controls, style, loop, autoPlay, allowFullscreen, inputProps, clickToPlay},
+	{
+		controls,
+		style,
+		loop,
+		autoPlay,
+		allowFullscreen,
+		inputProps,
+		clickToPlay,
+		mediaVolume,
+		setMediaVolume,
+	},
 	ref
 ) => {
 	const config = Internals.useUnsafeVideoConfig();
@@ -136,6 +148,8 @@ const PlayerUI: React.ForwardRefRenderFunction<
 			isFullscreen: () => isFullscreen,
 			requestFullscreen,
 			exitFullscreen,
+			getVolume: () => mediaVolume,
+			setVolume: setMediaVolume,
 		};
 		return Object.assign(player.emitter, methods);
 	});
