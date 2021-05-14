@@ -14,7 +14,7 @@ export const useSyncVolumeWithMediaTag = ({
 	volumePropFrame,
 	actualVolume,
 	volume,
-	mediaVolume = 1,
+	mediaVolume,
 	mediaRef,
 }: UseSyncVolumeWithMediaTagOptions) => {
 	useEffect(() => {
