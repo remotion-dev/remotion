@@ -70,7 +70,6 @@ export const MediaVolumeSlider: React.FC = () => {
 	const hoverOrDragging = hover || dragging;
 
 	const onClick = useCallback(() => {
-		console.log({mediaMuted});
 		if (mediaVolume === 0) {
 			setMediaVolume(1);
 			setMediaMuted(false);
@@ -78,7 +77,7 @@ export const MediaVolumeSlider: React.FC = () => {
 		}
 
 		setMediaMuted((mute) => !mute);
-	}, [mediaMuted, mediaVolume, setMediaMuted, setMediaVolume]);
+	}, [mediaVolume, setMediaMuted, setMediaVolume]);
 
 	const onPointerDown = useCallback(
 		(e: React.PointerEvent<HTMLDivElement>) => {
