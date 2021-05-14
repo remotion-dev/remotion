@@ -64,6 +64,16 @@ export default function App() {
 			<button type="button" onClick={() => ref.current?.seekTo(10)}>
 				seekTo 10
 			</button>
+			<br />
+			<button type="button" onClick={() => ref.current?.setVolume(0)}>
+				set volume to 0
+			</button>
+			<button type="button" onClick={() => ref.current?.setVolume(0.5)}>
+				set volume to 0.5
+			</button>
+			<button type="button" onClick={() => ref.current?.setVolume(1)}>
+				set volume to 1
+			</button>
 			<button type="button" onClick={() => setLoop((l) => !l)}>
 				loop = {String(loop)}
 			</button>
