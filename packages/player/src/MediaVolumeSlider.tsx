@@ -67,17 +67,9 @@ export const MediaVolumeSlider: React.FC = () => {
 				throw new Error('Player has no size');
 			}
 
-			console.log(e.clientX - size.left, size.width, 'leftsize');
-
 			const _volume = getVolumeFromX(e.clientX - size.left, size.width);
 			setMediaVolume(_volume);
-			if (_volume <= 0) {
-				setMediaMuted(true);
-			}
-
-			if (_volume > 0) {
-				setMediaMuted(false);
-			}
+			setMediaMuted(_volume <= 0);
 
 			setDragging(true);
 		},
@@ -94,13 +86,7 @@ export const MediaVolumeSlider: React.FC = () => {
 
 			const _volume = getVolumeFromX(e.clientX - size.left, size.width);
 			setMediaVolume(_volume);
-			if (_volume <= 0) {
-				setMediaMuted(true);
-			}
-
-			if (_volume > 0) {
-				setMediaMuted(false);
-			}
+			setMediaMuted(_volume <= 0);
 		},
 		[dragging, setMediaMuted, setMediaVolume, size]
 	);
@@ -114,11 +100,11 @@ export const MediaVolumeSlider: React.FC = () => {
 			return;
 		}
 
-		currentRef?.current?.addEventListener('pointermove', onPointerMove);
-		currentRef?.current?.addEventListener('pointerup', onPointerUp);
+		window.addEventListener('pointermove', onPointerMove);
+		window.addEventListener('pointerup', onPointerUp);
 		return () => {
-			currentRef?.current?.removeEventListener('pointermove', onPointerMove);
-			currentRef?.current?.removeEventListener('pointerup', onPointerUp);
+			window.removeEventListener('pointermove', onPointerMove);
+			window.removeEventListener('pointerup', onPointerUp);
 		};
 	}, [currentRef, dragging, onPointerMove, onPointerUp, onPointerDown]);
 
