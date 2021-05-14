@@ -172,12 +172,15 @@ export const progressHandler = async (lambdaParams: LambdaPayload) => {
 			? Date.now() - (renderMetadata?.startedDate ?? 0)
 			: timeToFinish;
 
-	const accruedSoFar =
-		getPriceInCents({
-			region: REGION,
-			durationMs: elapsedTime,
-			memory: MEMORY_SIZE,
-		}) * (renderMetadata?.estimatedLambdaInvokations ?? 0);
+	const accruedSoFar = Number(
+		(
+			getPriceInCents({
+				region: REGION,
+				durationMs: elapsedTime,
+				memory: MEMORY_SIZE,
+			}) * (renderMetadata?.estimatedLambdaInvokations ?? 0)
+		).toPrecision(5)
+	);
 
 	return {
 		chunks: chunks.length,

@@ -30,11 +30,6 @@ const innerLaunchHandler = async (params: LambdaPayload) => {
 		throw new Error('Pass chunkSize');
 	}
 
-	// TODO: Better validation
-	if (!params.durationInFrames) {
-		throw new Error('Pass durationInFrames');
-	}
-
 	const browserInstance = await getBrowserInstance();
 
 	const comp = await validateComposition({
@@ -42,14 +37,19 @@ const innerLaunchHandler = async (params: LambdaPayload) => {
 		composition: params.composition,
 		browserInstance,
 	});
+	// TODO: Better validation
+	if (!comp.durationInFrames) {
+		throw new Error('Pass durationInFrames');
+	}
+
 	console.log(comp);
 	const {chunkSize} = params;
-	const chunkCount = Math.ceil(params.durationInFrames / chunkSize);
+	const chunkCount = Math.ceil(comp.durationInFrames / chunkSize);
 
 	const chunks = new Array(chunkCount).fill(1).map((_, i) => {
 		return [
 			i * chunkSize,
-			Math.min(params.durationInFrames, (i + 1) * chunkSize) - 1,
+			Math.min(comp.durationInFrames, (i + 1) * chunkSize) - 1,
 		] as [number, number];
 	});
 	const invokers = Math.round(Math.sqrt(chunks.length));
@@ -65,7 +65,7 @@ const innerLaunchHandler = async (params: LambdaPayload) => {
 			fps: comp.fps,
 			height: comp.height,
 			width: comp.width,
-			durationInFrames: params.durationInFrames,
+			durationInFrames: comp.durationInFrames,
 			bucketName: params.bucketName,
 			retriesLeft: 3,
 		};
@@ -73,7 +73,7 @@ const innerLaunchHandler = async (params: LambdaPayload) => {
 	});
 	const renderMetadata: RenderMetadata = {
 		startedDate: Date.now(),
-		totalFrames: params.durationInFrames,
+		totalFrames: comp.durationInFrames,
 		totalChunks: chunks.length,
 		estimatedLambdaInvokations: [
 			// Direct invokations
@@ -129,7 +129,7 @@ const innerLaunchHandler = async (params: LambdaPayload) => {
 		bucket: params.bucketName,
 		expectedFiles: chunkCount,
 		onProgress,
-		numberOfFrames: params.durationInFrames,
+		numberOfFrames: comp.durationInFrames,
 	});
 	await lambdaWriteFile({
 		bucketName: params.bucketName,

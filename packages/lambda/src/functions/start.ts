@@ -25,8 +25,8 @@ export const startHandler = async (params: LambdaPayload) => {
 		type: LambdaRoutines.launch,
 		chunkSize: params.chunkSize,
 		composition: params.composition,
-		durationInFrames: params.durationInFrames,
 		serveUrl: params.serveUrl,
+		inputProps: params.inputProps,
 		bucketName,
 	};
 	const launchEvent = await lambdaClient.send(

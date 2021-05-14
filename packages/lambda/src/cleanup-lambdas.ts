@@ -4,7 +4,7 @@ import {
 	ListFunctionsCommand,
 } from '@aws-sdk/client-lambda';
 import xns from 'xns';
-import {REGION, RENDER_FN_PREFIX, RENDER_STITCHER_PREFIX} from './constants';
+import {REGION, RENDER_FN_PREFIX} from './constants';
 
 export const cleanupLambdas = xns(
 	async (
@@ -17,11 +17,8 @@ export const cleanupLambdas = xns(
 		while (true) {
 			const lambdas = await lambdaClient.send(new ListFunctionsCommand({}));
 
-			const remotionLambdas = (lambdas.Functions || []).filter(
-				(f) =>
-					f.FunctionName?.startsWith(RENDER_FN_PREFIX) ||
-					f.FunctionName?.startsWith(RENDER_STITCHER_PREFIX) ||
-					f.FunctionName?.startsWith('remotion-test-')
+			const remotionLambdas = (lambdas.Functions || []).filter((f) =>
+				f.FunctionName?.startsWith(RENDER_FN_PREFIX)
 			);
 			if (remotionLambdas.length === 0) {
 				break;
