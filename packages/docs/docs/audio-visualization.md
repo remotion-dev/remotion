@@ -24,13 +24,8 @@ Using the [`visualizeAudio()`](/docs/visualize-audio) API, you can get an audio 
 Refer to the documentation of the above mentioned functions to learn more.
 
 ```tsx
-import {
-  useCurrentFrame,
-  useVideoConfig,
-  useAudioData,
-  visualizeAudio,
-  Audio
-} from 'remotion';
+import {useCurrentFrame, useVideoConfig, Audio} from 'remotion';
+import {useAudioData, visualizeAudio} from '@remotion/media-utils';
 import music from './music.mp3';
 
 export const MyComponent: React.FC = () => {
