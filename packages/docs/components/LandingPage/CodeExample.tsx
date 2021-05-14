@@ -21,7 +21,7 @@ const Demo: React.FC = () => {
     >
       <img
         style={{ transform: `scale(${scale})` }}
-        src="http://localhost:3000/img/logo-small.png"
+        src="/img/logo-small.png"
       />
     </div>
   );
