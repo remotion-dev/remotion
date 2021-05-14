@@ -43,7 +43,7 @@ const renderHandler = async (params: LambdaPayload) => {
 	}
 
 	console.log(`Started rendering ${params.chunk}, frame ${params.frameRange}`);
-	await renderFrames({
+	const {assetsInfo} = await renderFrames({
 		compositionId: params.composition,
 		config: {
 			durationInFrames: params.durationInFrames,
@@ -74,11 +74,7 @@ const renderHandler = async (params: LambdaPayload) => {
 
 	const stitchLabel = timer('stitcher');
 	await stitchFramesToVideo({
-		assetsInfo: {
-			// TODO
-			assets: [],
-			bundleDir: '',
-		},
+		assetsInfo,
 		dir: outputDir,
 		force: true,
 		fps: params.fps,
