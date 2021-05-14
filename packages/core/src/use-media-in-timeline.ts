@@ -10,7 +10,7 @@ import {evaluateVolume, VolumeProp} from './volume-prop';
 
 export const useMediaInTimeline = ({
 	volume,
-	mediaVolume = 1,
+	mediaVolume,
 	mediaRef,
 	src,
 	mediaType,
