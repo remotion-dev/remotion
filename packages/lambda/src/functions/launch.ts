@@ -36,6 +36,7 @@ const innerLaunchHandler = async (params: LambdaPayload) => {
 		serveUrl: params.serveUrl,
 		composition: params.composition,
 		browserInstance,
+		inputProps: params.inputProps,
 	});
 	// TODO: Better validation
 	if (!comp.durationInFrames) {

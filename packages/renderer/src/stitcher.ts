@@ -57,6 +57,7 @@ const getAudioCodecName = (codec: Codec): string | null => {
 	return null;
 };
 
+// eslint-disable-next-line complexity
 export const stitchFramesToVideo = async (options: {
 	dir: string;
 	fps: number;
