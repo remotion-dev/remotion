@@ -34,6 +34,7 @@ export type PlayerProps<T> = {
 	compositionWidth: number;
 	compositionHeight: number;
 	fps: number;
+	showVolumeControls?: boolean;
 	controls?: boolean;
 	style?: React.CSSProperties;
 	loop?: boolean;
@@ -58,6 +59,7 @@ export const PlayerFn = <T,>(
 		style,
 		loop,
 		autoPlay,
+		showVolumeControls = true,
 		allowFullscreen = true,
 		inputProps,
 		clickToPlay = true,
@@ -164,6 +166,7 @@ export const PlayerFn = <T,>(
 									inputProps={passedInputProps}
 									allowFullscreen={Boolean(allowFullscreen)}
 									clickToPlay={clickToPlay}
+									showVolumeControls={showVolumeControls}
 									setMediaVolume={setMediaVolume}
 									mediaVolume={mediaVolume}
 								/>

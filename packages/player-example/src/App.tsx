@@ -38,6 +38,7 @@ export default function App() {
 				component={CarSlideshow}
 				controls
 				loop={loop}
+				showVolumeControls={false}
 				inputProps={{
 					title: String(title),
 				}}
