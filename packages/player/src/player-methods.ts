@@ -11,6 +11,7 @@ export type PlayerMethods = {
 	isFullscreen: () => void;
 	setVolume: (num: number) => void;
 	getVolume: () => number;
+	getMuted: () => boolean;
 };
 
 export type PlayerRef = PlayerEventTarget & PlayerMethods;

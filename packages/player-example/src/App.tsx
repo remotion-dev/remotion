@@ -38,7 +38,7 @@ export default function App() {
 				component={CarSlideshow}
 				controls
 				loop={loop}
-				showVolumeControls={false}
+				showVolumeControls={true}
 				inputProps={{
 					title: String(title),
 				}}
@@ -89,6 +89,14 @@ export default function App() {
 				}
 			>
 				log currentFrame
+			</button>
+			<button
+				type="button"
+				onClick={() =>
+					setLogs((l) => [...l, `muted = ${ref.current?.getMuted()}`])
+				}
+			>
+				log muted
 			</button>
 			<button
 				type="button"

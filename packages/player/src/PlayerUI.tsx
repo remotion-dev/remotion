@@ -33,6 +33,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		allowFullscreen: boolean;
 		inputProps: unknown;
 		showVolumeControls: boolean;
+		mediaMuted: boolean;
 		style?: React.CSSProperties;
 		clickToPlay: boolean;
 		setMediaVolume: (v: number) => void;
@@ -49,6 +50,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		clickToPlay,
 		showVolumeControls,
 		mediaVolume,
+		mediaMuted,
 		setMediaVolume,
 	},
 	ref
@@ -152,6 +154,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 			exitFullscreen,
 			getVolume: () => mediaVolume,
 			setVolume: setMediaVolume,
+			getMuted: () => mediaMuted,
 		};
 		return Object.assign(player.emitter, methods);
 	});
