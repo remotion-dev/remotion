@@ -114,11 +114,12 @@ export const Controls: React.FC<{
 						{player.playing ? <PauseIcon /> : <PlayIcon />}
 					</button>
 					<div style={xSpacer} />
+					<MediaVolumeSlider />
+					<div style={xSpacer} />
 					<div style={timeLabel}>
 						{formatTime(frame / fps)} / {formatTime(durationInFrames / fps)}
 					</div>
 					<div style={xSpacer} />
-					<MediaVolumeSlider />
 				</div>
 				<div style={flex1} />
 				{browserSupportsFullscreen && allowFullscreen ? (

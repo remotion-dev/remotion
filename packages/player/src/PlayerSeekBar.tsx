@@ -138,7 +138,7 @@ export const PlayerSeekBar: React.FC<{
 			top: VERTICAL_PADDING - KNOB_SIZE / 2 + 5 / 2,
 			backgroundColor: 'white',
 			left: Math.max(
-				-KNOB_SIZE / 2,
+				0,
 				(frame / (durationInFrames - 1)) * (size?.width ?? 0) - KNOB_SIZE / 2
 			),
 			boxShadow: '0 0 2px black',

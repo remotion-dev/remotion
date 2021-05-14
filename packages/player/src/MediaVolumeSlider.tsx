@@ -1,12 +1,13 @@
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {Internals, interpolate} from 'remotion';
-import {VolumeOffIcon, VolumeOnIcon} from './icons';
+import {ICON_SIZE, VolumeOffIcon, VolumeOnIcon} from './icons';
 import {useHoverState} from './use-hover-state';
 import {useElementSize} from './utils/use-element-size';
 
 const BAR_HEIGHT = 5;
 const KNOB_SIZE = 12;
 const VERTICAL_PADDING = 4;
+const VOLUME_SLIDER_WIDTH = 100;
 
 const parentDivStyle: React.CSSProperties = {
 	display: 'inline-flex',
@@ -29,21 +30,31 @@ const containerStyle: React.CSSProperties = {
 const barBackground: React.CSSProperties = {
 	height: BAR_HEIGHT,
 	backgroundColor: 'rgba(255, 255, 255, 0.5)',
-	width: 100,
+	width: VOLUME_SLIDER_WIDTH,
 	borderRadius: BAR_HEIGHT / 2,
 };
 
 const getVolumeFromX = (clientX: number, width: number) => {
 	const pos = clientX;
-	const volume = interpolate(pos, [0, width], [0, 1], {
-		extrapolateLeft: 'clamp',
-		extrapolateRight: 'clamp',
-	});
+	const volume =
+		width === 0
+			? 0
+			: interpolate(pos, [0, width], [0, 1], {
+					extrapolateLeft: 'clamp',
+					extrapolateRight: 'clamp',
+			  });
 	return volume;
 };
 
 const xSpacer: React.CSSProperties = {
 	width: 5,
+};
+
+const volumeContainer: React.CSSProperties = {
+	display: 'inline',
+	width: ICON_SIZE,
+	height: ICON_SIZE,
+	cursor: 'pointer',
 };
 
 export const MediaVolumeSlider: React.FC = () => {
@@ -55,6 +66,8 @@ export const MediaVolumeSlider: React.FC = () => {
 	const parentDivRef = useRef<HTMLDivElement>(null);
 	const size = useElementSize(currentRef);
 	const hover = useHoverState(parentDivRef);
+
+	const hoverOrDragging = hover || dragging;
 
 	const onClick = useCallback(() => {
 		setMediaMuted(!mediaMuted);
@@ -116,14 +129,11 @@ export const MediaVolumeSlider: React.FC = () => {
 			position: 'absolute',
 			top: VERTICAL_PADDING - KNOB_SIZE / 2 + 5 / 2,
 			backgroundColor: 'white',
-			left: Math.max(
-				-KNOB_SIZE / 2,
-				mediaVolume * (size?.width ?? 0) - KNOB_SIZE / 2
-			),
+			left: Math.max(0, mediaVolume * (size?.width ?? 0) - KNOB_SIZE / 2),
 			boxShadow: '0 0 2px black',
-			opacity: Number(hover),
+			opacity: Number(hoverOrDragging),
 		};
-	}, [hover, mediaVolume, size?.width]);
+	}, [hoverOrDragging, mediaVolume, size?.width]);
 
 	const fillStyle: React.CSSProperties = useMemo(() => {
 		return {
@@ -136,7 +146,7 @@ export const MediaVolumeSlider: React.FC = () => {
 
 	return (
 		<div ref={parentDivRef} style={parentDivStyle}>
-			<div ref={iconDivRef} onClick={onClick}>
+			<div ref={iconDivRef} onClick={onClick} style={volumeContainer}>
 				{mediaMuted ? <VolumeOffIcon /> : <VolumeOnIcon />}
 			</div>
 			<div style={xSpacer} />
@@ -146,16 +156,14 @@ export const MediaVolumeSlider: React.FC = () => {
 				onPointerDown={onPointerDown}
 				style={containerStyle}
 			>
-				{hover ? (
+				{hoverOrDragging ? (
 					<>
-						<div style={{...barBackground}}>
+						<div style={barBackground}>
 							<div style={fillStyle} />
 						</div>
 						<div style={knobStyle} />
 					</>
-				) : (
-					<div style={{width: 100}} />
-				)}
+				) : null}
 			</div>
 		</div>
 	);
