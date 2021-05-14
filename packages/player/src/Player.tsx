@@ -76,10 +76,10 @@ export const PlayerFn = <T,>(
 	const [emitter] = useState(() => new PlayerEmitter());
 	const rootRef = useRef<PlayerRef>(null);
 	const [mediaMuted, setMediaMuted] = useState<boolean>(false);
-	const [mediaVolume, _setMediaVolume] = useState<number>(getPreferredVolume());
+	const [mediaVolume, setMediaVolume] = useState<number>(getPreferredVolume());
 
-	const setMediaVolume = useCallback((vol: number) => {
-		_setMediaVolume(vol);
+	const setMediaVolumeAndPersist = useCallback((vol: number) => {
+		setMediaVolume(vol);
 		persistVolume(vol);
 	}, []);
 
@@ -112,9 +112,9 @@ export const PlayerFn = <T,>(
 	const setMediaVolumeContextValue = useMemo((): SetMediaVolumeContextValue => {
 		return {
 			setMediaMuted,
-			setMediaVolume,
+			setMediaVolume: setMediaVolumeAndPersist,
 		};
-	}, [setMediaVolume]);
+	}, [setMediaVolumeAndPersist]);
 
 	const compositionManagerContext: CompositionManagerContext = useMemo(() => {
 		return {
@@ -174,7 +174,7 @@ export const PlayerFn = <T,>(
 									allowFullscreen={Boolean(allowFullscreen)}
 									clickToPlay={clickToPlay}
 									showVolumeControls={showVolumeControls}
-									setMediaVolume={setMediaVolume}
+									setMediaVolume={setMediaVolumeAndPersist}
 									mediaVolume={mediaVolume}
 									mediaMuted={mediaMuted}
 									setMediaMuted={setMediaMuted}
