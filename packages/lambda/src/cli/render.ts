@@ -20,6 +20,13 @@ export const renderCommand = async () => {
 		process.exit(1);
 	}
 
+	// TODO: Redundancy with CLI
+	if (!parsedCli._[2]) {
+		Log.error('Composition ID not passed.');
+		Log.error('Pass an extra argument <composition-id>.');
+		process.exit(1);
+	}
+
 	// TODO: Further validate serveUrl
 
 	const lambdas = await lambdaClient.send(new ListFunctionsCommand({}));
@@ -47,9 +54,8 @@ export const renderCommand = async () => {
 		type: LambdaRoutines.start,
 		payload: {
 			// TODO: Allow to parametrize
-			chunkSize: 5,
-			// TODO: Allow to parametrize
-			composition: 'my-video',
+			chunkSize: 20,
+			composition: parsedCli._[2],
 			serveUrl,
 			// TODO: Allow to parametrize
 			inputProps: {},
