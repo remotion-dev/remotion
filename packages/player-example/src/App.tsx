@@ -99,7 +99,7 @@ export default function App() {
 			<button
 				type="button"
 				onClick={() =>
-					setLogs((l) => [...l, `muted = ${ref.current?.getMuted()}`])
+					setLogs((l) => [...l, `muted = ${ref.current?.isMuted()}`])
 				}
 			>
 				log muted

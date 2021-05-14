@@ -11,7 +11,7 @@ export type PlayerMethods = {
 	isFullscreen: () => void;
 	setVolume: (num: number) => void;
 	getVolume: () => number;
-	getMuted: () => boolean;
+	isMuted: () => boolean;
 	mute: () => void;
 	unmute: () => void;
 };
