@@ -154,7 +154,13 @@ const PlayerUI: React.ForwardRefRenderFunction<
 			isFullscreen: () => isFullscreen,
 			requestFullscreen,
 			exitFullscreen,
-			getVolume: () => mediaVolume,
+			getVolume: () => {
+				if (mediaMuted) {
+					return 0;
+				}
+
+				return mediaVolume;
+			},
 			setVolume: (vol: number) => {
 				if (typeof vol !== 'number') {
 					throw new TypeError(

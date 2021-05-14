@@ -70,8 +70,15 @@ export const MediaVolumeSlider: React.FC = () => {
 	const hoverOrDragging = hover || dragging;
 
 	const onClick = useCallback(() => {
+		console.log({mediaMuted});
+		if (mediaVolume === 0) {
+			setMediaVolume(1);
+			setMediaMuted(false);
+			return;
+		}
+
 		setMediaMuted((mute) => !mute);
-	}, [setMediaMuted]);
+	}, [mediaMuted, mediaVolume, setMediaMuted, setMediaVolume]);
 
 	const onPointerDown = useCallback(
 		(e: React.PointerEvent<HTMLDivElement>) => {
@@ -84,10 +91,13 @@ export const MediaVolumeSlider: React.FC = () => {
 				size.width - KNOB_SIZE
 			);
 			setMediaVolume(_volume);
+			if (_volume > 0) {
+				setMediaMuted(false);
+			}
 
 			setDragging(true);
 		},
-		[setMediaVolume, size]
+		[setMediaMuted, setMediaVolume, size]
 	);
 
 	const onPointerMove = useCallback(
@@ -103,8 +113,11 @@ export const MediaVolumeSlider: React.FC = () => {
 				size.width - KNOB_SIZE
 			);
 			setMediaVolume(_volume);
+			if (_volume > 0) {
+				setMediaMuted(false);
+			}
 		},
-		[dragging, setMediaVolume, size]
+		[dragging, setMediaMuted, setMediaVolume, size]
 	);
 
 	const onPointerUp = useCallback(() => {
@@ -132,20 +145,22 @@ export const MediaVolumeSlider: React.FC = () => {
 			position: 'absolute',
 			top: VERTICAL_PADDING - KNOB_SIZE / 2 + 5 / 2,
 			backgroundColor: 'white',
-			left: Math.max(0, mediaVolume * ((size?.width ?? 0) - KNOB_SIZE)),
+			left: mediaMuted
+				? 0
+				: Math.max(0, mediaVolume * ((size?.width ?? 0) - KNOB_SIZE)),
 			boxShadow: '0 0 2px black',
 			opacity: Number(hoverOrDragging),
 		};
-	}, [hoverOrDragging, mediaVolume, size?.width]);
+	}, [hoverOrDragging, mediaMuted, mediaVolume, size?.width]);
 
 	const fillStyle: React.CSSProperties = useMemo(() => {
 		return {
 			height: BAR_HEIGHT,
 			backgroundColor: 'rgba(255, 255, 255, 1)',
-			width: (mediaVolume / 1) * 100 + '%',
+			width: mediaMuted ? 0 : (mediaVolume / 1) * 100 + '%',
 			borderRadius: BAR_HEIGHT / 2,
 		};
-	}, [mediaVolume]);
+	}, [mediaMuted, mediaVolume]);
 
 	const isMutedOrZero = mediaMuted || mediaVolume === 0;
 
