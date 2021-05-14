@@ -169,6 +169,7 @@ export const PlayerFn = <T,>(
 									showVolumeControls={showVolumeControls}
 									setMediaVolume={setMediaVolume}
 									mediaVolume={mediaVolume}
+									mediaMuted={mediaMuted}
 								/>
 							</PlayerEventEmitterContext.Provider>
 						</Internals.SetMediaVolumeContext.Provider>
