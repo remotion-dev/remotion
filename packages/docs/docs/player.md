@@ -91,7 +91,7 @@ Whether the video should display a seek bar and a play/pause button. Default `fa
 
 _optional_
 
-Whether the video should display the volume off/on button . Default `true`.
+Whether the video should display a volume slider and a mute button. Default `true`.
 
 ### `allowFullscreen`
 
@@ -160,19 +160,23 @@ Mutes the video.
 
 ### `unmute()`
 
-Unmutes the vide0.
+Unmutes the video.
 
-### `getVolume`
+### `getVolume()`
 
-Gets the volume of remotion video.
+Gets the volume of the video. The volume is a value between 0 and 1 and is initially 1.
 
-### `setVolume`
+### `setVolume()`
 
-Sets the volume of remotion video. takes number 0-1 as inputs and sets the volume of video.
+#### Arguments
 
-### `getMuted`
+- `volume`: `number`
 
-Gets remotion video is mute or not.
+Set the volume of the video. Must be a value between 0 and 1, otherwise an exception will be thrown.
+
+### `isMuted()`
+
+Returns a boolean specifying whether the video is muted.
 
 ### `seekTo()`
 
