@@ -4,7 +4,10 @@ import {useMediaInTimeline} from '../use-media-in-timeline';
 import {useMediaPlayback} from '../use-media-playback';
 import {useMediaTagVolume} from '../use-media-tag-volume';
 import {useSyncVolumeWithMediaTag} from '../use-sync-volume-with-media-tag';
-import {useMediaVolumeState} from '../volume-position-state';
+import {
+	useMediaMutedState,
+	useMediaVolumeState,
+} from '../volume-position-state';
 import {RemotionVideoProps} from './props';
 
 const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
@@ -15,11 +18,12 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 
 	const volumePropFrame = useFrameForVolumeProp();
 
-	const {volume, ...nativeProps} = props;
+	const {volume, muted, ...nativeProps} = props;
 
 	const actualVolume = useMediaTagVolume(videoRef);
 
 	const [mediaVolume] = useMediaVolumeState();
+	const [mediaMuted] = useMediaMutedState();
 
 	useMediaInTimeline({
 		mediaRef: videoRef,
@@ -47,7 +51,14 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		return videoRef.current as HTMLVideoElement;
 	});
 
-	return <video ref={videoRef} playsInline {...nativeProps} />;
+	return (
+		<video
+			ref={videoRef}
+			muted={muted || mediaMuted}
+			playsInline
+			{...nativeProps}
+		/>
+	);
 };
 
 export const VideoForDevelopment = forwardRef(
