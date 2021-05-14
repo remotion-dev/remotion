@@ -12,6 +12,7 @@ export const EFS_MOUNT_PATH = '/mnt/efs';
 export const ENABLE_EFS = false;
 export const ENCODING_PROGRESS_KEY = 'encoding-progress.json';
 export const RENDER_METADATA_KEY = 'render-metadata.json';
+export const LAMBDA_INITIALIZED_KEY = 'lambda-initialized';
 export const OUT_NAME = 'out.mp4';
 
 export enum LambdaRoutines {

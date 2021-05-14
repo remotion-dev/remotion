@@ -5,6 +5,7 @@ import {
 	ENCODING_PROGRESS_KEY,
 	LambdaPayload,
 	LambdaRoutines,
+	LAMBDA_INITIALIZED_KEY,
 	MEMORY_SIZE,
 	OUT_NAME,
 	REGION,
@@ -116,8 +117,14 @@ export const progressHandler = async (lambdaParams: LambdaPayload) => {
 		throw new TypeError('Expected status type');
 	}
 
-	const contents = await lambdaLs(lambdaParams.bucketName, false);
-	const s3contents = await lambdaLs(lambdaParams.bucketName, true);
+	const contents = await lambdaLs({
+		bucketName: lambdaParams.bucketName,
+		forceS3: false,
+	});
+	const s3contents = await lambdaLs({
+		bucketName: lambdaParams.bucketName,
+		forceS3: true,
+	});
 
 	if (!contents) {
 		throw new Error('Could not get list contents');
@@ -129,6 +136,9 @@ export const progressHandler = async (lambdaParams: LambdaPayload) => {
 
 	const chunks = contents.filter((c) => c.Key?.match(/chunk(.*).mp4/));
 	const output = s3contents.find((c) => c.Key?.includes(OUT_NAME)) ?? null;
+	const lambdasInvoked = contents.filter((c) =>
+		c.Key?.startsWith(LAMBDA_INITIALIZED_KEY)
+	).length;
 	const errors = contents
 		// TODO: unhardcode
 		.filter(
@@ -196,5 +206,6 @@ export const progressHandler = async (lambdaParams: LambdaPayload) => {
 		errorExplanations,
 		currentTime: Date.now(),
 		bucketSize,
+		lambdasInvoked,
 	};
 };

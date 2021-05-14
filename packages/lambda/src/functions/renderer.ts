@@ -3,7 +3,12 @@ import {renderFrames, stitchFramesToVideo} from '@remotion/renderer';
 import fs from 'fs';
 import path from 'path';
 import {lambdaClient} from '../aws-clients';
-import {LambdaPayload, LambdaPayloads, LambdaRoutines} from '../constants';
+import {
+	LambdaPayload,
+	LambdaPayloads,
+	LambdaRoutines,
+	LAMBDA_INITIALIZED_KEY,
+} from '../constants';
 import {getBrowserInstance} from '../get-browser-instance';
 import {lambdaWriteFile} from '../io';
 import {timer} from '../timer';
@@ -19,6 +24,13 @@ const renderHandler = async (params: LambdaPayload) => {
 	if (fs.existsSync(outputDir)) {
 		fs.rmdirSync(outputDir);
 	}
+
+	lambdaWriteFile({
+		bucketName: params.bucketName,
+		body: '0',
+		key: `${LAMBDA_INITIALIZED_KEY}-${params.chunk}.txt`,
+		forceS3: false,
+	});
 
 	fs.mkdirSync(outputDir);
 
