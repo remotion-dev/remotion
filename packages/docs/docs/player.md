@@ -87,6 +87,12 @@ _optional_
 
 Whether the video should display a seek bar and a play/pause button. Default `false.`
 
+### `showVolumeControls`
+
+_optional_
+
+Whether the video should display the volume off/on button . Default `true`.
+
 ### `allowFullscreen`
 
 _optional_
@@ -147,6 +153,26 @@ Pauses the video if it's playing. Plays the video if it's paused.
 ### `getCurrentFrame()`
 
 Gets the current postition expressed as the current frame. Divide by the `fps` you passed to get the time in seconds.
+
+### `mute()`
+
+Mutes the video.
+
+### `unmute()`
+
+Unmutes the vide0.
+
+### `getVolume`
+
+Gets the volume of remotion video.
+
+### `setVolume`
+
+Sets the volume of remotion video. takes number 0-1 as inputs and sets the volume of video.
+
+### `getMuted`
+
+Gets remotion video is mute or not.
 
 ### `seekTo()`
 
