@@ -32,11 +32,29 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		autoPlay: boolean;
 		allowFullscreen: boolean;
 		inputProps: unknown;
+		showVolumeControls: boolean;
+		mediaMuted: boolean;
 		style?: React.CSSProperties;
 		clickToPlay: boolean;
+		setMediaVolume: (v: number) => void;
+		setMediaMuted: (v: boolean) => void;
+		mediaVolume: number;
 	}
 > = (
-	{controls, style, loop, autoPlay, allowFullscreen, inputProps, clickToPlay},
+	{
+		controls,
+		style,
+		loop,
+		autoPlay,
+		allowFullscreen,
+		inputProps,
+		clickToPlay,
+		showVolumeControls,
+		mediaVolume,
+		mediaMuted,
+		setMediaMuted,
+		setMediaVolume,
+	},
 	ref
 ) => {
 	const config = Internals.useUnsafeVideoConfig();
@@ -136,6 +154,41 @@ const PlayerUI: React.ForwardRefRenderFunction<
 			isFullscreen: () => isFullscreen,
 			requestFullscreen,
 			exitFullscreen,
+			getVolume: () => {
+				if (mediaMuted) {
+					return 0;
+				}
+
+				return mediaVolume;
+			},
+			setVolume: (vol: number) => {
+				if (typeof vol !== 'number') {
+					throw new TypeError(
+						`setVolume() takes a number, got value of type ${typeof vol}`
+					);
+				}
+
+				if (isNaN(vol)) {
+					throw new TypeError(
+						`setVolume() got a number that is NaN. Volume must be between 0 and 1.`
+					);
+				}
+
+				if (vol < 0 || vol > 1) {
+					throw new TypeError(
+						`setVolume() got a number that is out of range. Must be between 0 and 1, got ${typeof vol}`
+					);
+				}
+
+				setMediaVolume(vol);
+			},
+			isMuted: () => mediaMuted || mediaVolume === 0,
+			mute: () => {
+				setMediaMuted(true);
+			},
+			unmute: () => {
+				setMediaMuted(false);
+			},
 		};
 		return Object.assign(player.emitter, methods);
 	});
@@ -280,6 +333,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 					onFullscreenButtonClick={onFullscreenButtonClick}
 					isFullscreen={isFullscreen}
 					allowFullscreen={allowFullscreen}
+					showVolumeControls={showVolumeControls}
 					onExitFullscreenButtonClick={onExitFullscreenButtonClick}
 				/>
 			) : null}

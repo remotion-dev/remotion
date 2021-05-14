@@ -1,6 +1,7 @@
 import React, {
 	forwardRef,
 	MutableRefObject,
+	useCallback,
 	useImperativeHandle,
 	useMemo,
 	useRef,
@@ -10,6 +11,8 @@ import {
 	CompositionManagerContext,
 	CompProps,
 	Internals,
+	MediaVolumeContextValue,
+	SetMediaVolumeContextValue,
 	SetTimelineContextValue,
 	TimelineContextValue,
 } from 'remotion';
@@ -18,6 +21,7 @@ import {PlayerEmitter} from './event-emitter';
 import {PLAYER_CSS_CLASSNAME} from './player-css-classname';
 import {PlayerRef} from './player-methods';
 import PlayerUI from './PlayerUI';
+import {getPreferredVolume, persistVolume} from './volume-persistance';
 
 type PropsIfHasProps<Props> = {} extends Props
 	? {
@@ -32,6 +36,7 @@ export type PlayerProps<T> = {
 	compositionWidth: number;
 	compositionHeight: number;
 	fps: number;
+	showVolumeControls?: boolean;
 	controls?: boolean;
 	style?: React.CSSProperties;
 	loop?: boolean;
@@ -56,6 +61,7 @@ export const PlayerFn = <T,>(
 		style,
 		loop,
 		autoPlay,
+		showVolumeControls = true,
 		allowFullscreen = true,
 		inputProps,
 		clickToPlay = true,
@@ -69,6 +75,13 @@ export const PlayerFn = <T,>(
 	const [rootId] = useState<string>('player-comp');
 	const [emitter] = useState(() => new PlayerEmitter());
 	const rootRef = useRef<PlayerRef>(null);
+	const [mediaMuted, setMediaMuted] = useState<boolean>(false);
+	const [mediaVolume, setMediaVolume] = useState<number>(getPreferredVolume());
+
+	const setMediaVolumeAndPersist = useCallback((vol: number) => {
+		setMediaVolume(vol);
+		persistVolume(vol);
+	}, []);
 
 	useImperativeHandle(ref, () => rootRef.current as PlayerRef);
 
@@ -89,6 +102,20 @@ export const PlayerFn = <T,>(
 			setPlaying,
 		};
 	}, [setFrame]);
+	const mediaVolumeContextValue = useMemo((): MediaVolumeContextValue => {
+		return {
+			mediaMuted,
+			mediaVolume,
+		};
+	}, [mediaMuted, mediaVolume]);
+
+	const setMediaVolumeContextValue = useMemo((): SetMediaVolumeContextValue => {
+		return {
+			setMediaMuted,
+			setMediaVolume: setMediaVolumeAndPersist,
+		};
+	}, [setMediaVolumeAndPersist]);
+
 	const compositionManagerContext: CompositionManagerContext = useMemo(() => {
 		return {
 			compositions: [
@@ -118,6 +145,10 @@ export const PlayerFn = <T,>(
 		};
 	}, [component, durationInFrames, height, width, fps, inputProps]);
 
+	const passedInputProps = useMemo(() => {
+		return inputProps ?? {};
+	}, [inputProps]);
+
 	return (
 		<Internals.Timeline.TimelineContext.Provider value={timelineContextValue}>
 			<Internals.Timeline.SetTimelineContext.Provider
@@ -126,18 +157,31 @@ export const PlayerFn = <T,>(
 				<Internals.CompositionManager.Provider
 					value={compositionManagerContext}
 				>
-					<PlayerEventEmitterContext.Provider value={emitter}>
-						<PlayerUI
-							ref={rootRef}
-							autoPlay={Boolean(autoPlay)}
-							loop={Boolean(loop)}
-							controls={Boolean(controls)}
-							style={style}
-							inputProps={inputProps ?? {}}
-							allowFullscreen={Boolean(allowFullscreen)}
-							clickToPlay={clickToPlay}
-						/>
-					</PlayerEventEmitterContext.Provider>
+					<Internals.MediaVolumeContext.Provider
+						value={mediaVolumeContextValue}
+					>
+						<Internals.SetMediaVolumeContext.Provider
+							value={setMediaVolumeContextValue}
+						>
+							<PlayerEventEmitterContext.Provider value={emitter}>
+								<PlayerUI
+									ref={rootRef}
+									autoPlay={Boolean(autoPlay)}
+									loop={Boolean(loop)}
+									controls={Boolean(controls)}
+									style={style}
+									inputProps={passedInputProps}
+									allowFullscreen={Boolean(allowFullscreen)}
+									clickToPlay={clickToPlay}
+									showVolumeControls={showVolumeControls}
+									setMediaVolume={setMediaVolumeAndPersist}
+									mediaVolume={mediaVolume}
+									mediaMuted={mediaMuted}
+									setMediaMuted={setMediaMuted}
+								/>
+							</PlayerEventEmitterContext.Provider>
+						</Internals.SetMediaVolumeContext.Provider>
+					</Internals.MediaVolumeContext.Provider>
 				</Internals.CompositionManager.Provider>
 			</Internals.Timeline.SetTimelineContext.Provider>
 		</Internals.Timeline.TimelineContext.Provider>

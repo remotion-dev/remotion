@@ -2,6 +2,7 @@ import React, {MouseEventHandler, useMemo} from 'react';
 import {Internals} from 'remotion';
 import {formatTime} from './format-time';
 import {FullscreenIcon, PauseIcon, PlayIcon} from './icons';
+import {MediaVolumeSlider} from './MediaVolumeSlider';
 import {PlayerSeekBar} from './PlayerSeekBar';
 import {usePlayer} from './use-player';
 import {browserSupportsFullscreen} from './utils/browser-supports-fullscreen';
@@ -73,6 +74,7 @@ export const Controls: React.FC<{
 	fps: number;
 	durationInFrames: number;
 	hovered: boolean;
+	showVolumeControls: boolean;
 	player: ReturnType<typeof usePlayer>;
 	onFullscreenButtonClick: MouseEventHandler<HTMLButtonElement>;
 	isFullscreen: boolean;
@@ -84,6 +86,7 @@ export const Controls: React.FC<{
 	isFullscreen,
 	fps,
 	player,
+	showVolumeControls,
 	onFullscreenButtonClick,
 	allowFullscreen,
 	onExitFullscreenButtonClick,
@@ -112,10 +115,17 @@ export const Controls: React.FC<{
 					>
 						{player.playing ? <PauseIcon /> : <PlayIcon />}
 					</button>
+					{showVolumeControls ? (
+						<>
+							<div style={xSpacer} />
+							<MediaVolumeSlider />
+						</>
+					) : null}
 					<div style={xSpacer} />
 					<div style={timeLabel}>
 						{formatTime(frame / fps)} / {formatTime(durationInFrames / fps)}
 					</div>
+					<div style={xSpacer} />
 				</div>
 				<div style={flex1} />
 				{browserSupportsFullscreen && allowFullscreen ? (

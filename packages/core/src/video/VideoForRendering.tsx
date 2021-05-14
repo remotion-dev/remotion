@@ -57,6 +57,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 	const volume = evaluateVolume({
 		volume: volumeProp,
 		frame: volumePropsFrame,
+		mediaVolume: 1,
 	});
 
 	useEffect(() => {
