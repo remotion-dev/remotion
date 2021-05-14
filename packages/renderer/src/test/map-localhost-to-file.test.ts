@@ -14,7 +14,7 @@ test('Should correctly map a localhost URL to an asset', async () => {
 				mediaFrame: 2045,
 			},
 			onDownload: () => undefined,
-			webpackBundle:
+			downloadDir:
 				'/var/folders/hl/p8pg9kw15dbg3l7dbpn0scc80000gn/T/react-motion-graphicstoSTC7',
 		})
 	).toEqual({

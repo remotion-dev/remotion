@@ -12,7 +12,7 @@ test('Should sanitize weird file names when downloading', async () => {
 			type: 'video',
 			volume: 1,
 		},
-		webpackBundle: '/var/tmp',
+		downloadDir: '/var/tmp',
 		onDownload: () => undefined,
 	});
 	expect(newAsset.src).toBe(
