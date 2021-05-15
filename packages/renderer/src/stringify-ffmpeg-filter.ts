@@ -11,6 +11,7 @@ export const stringifyFfmpegFilter = ({
 	simulatenousAssets,
 	volume,
 	fps,
+	playbackRate,
 }: {
 	streamIndex: number;
 	trimLeft: string;
@@ -20,6 +21,7 @@ export const stringifyFfmpegFilter = ({
 	simulatenousAssets: number;
 	volume: AssetVolume;
 	fps: number;
+	playbackRate: number;
 }) => {
 	const startInVideoSeconds = ((startInVideo / fps) * 1000).toFixed(); // in milliseconds
 
@@ -40,6 +42,8 @@ export const stringifyFfmpegFilter = ({
 			// "Unused delays will be silently ignored."
 			// https://ffmpeg.org/ffmpeg-filters.html#adelay
 			`adelay=${new Array(channels + 1).fill(startInVideoSeconds).join('|')}`,
+			// TODO: Can only be between 0.5 and 2
+			`atempo=${playbackRate}`,
 			`volume=${volumeFilter.value}:eval=${volumeFilter.eval}`,
 		]
 			.filter(Internals.truthy)

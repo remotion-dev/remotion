@@ -27,7 +27,10 @@ export const calculateFfmpegFilters = ({
 	});
 	return withMoreThan1Channel.map((asset) => {
 		const assetTrimLeft = (asset.trimLeft / fps).toFixed(3);
-		const assetTrimRight = ((asset.trimLeft + asset.duration) / fps).toFixed(3);
+		const assetTrimRight = (
+			(asset.trimLeft + asset.duration * asset.playbackRate) /
+			fps
+		).toFixed(3);
 		const audioDetails = assetAudioDetails.get(
 			resolveAssetSrc(asset.src)
 		) as AssetAudioDetails;
@@ -47,6 +50,7 @@ export const calculateFfmpegFilters = ({
 				simulatenousAssets: simultaneousAssets.length,
 				volume: asset.volume,
 				fps,
+				playbackRate: asset.playbackRate,
 			}),
 			streamIndex,
 		};

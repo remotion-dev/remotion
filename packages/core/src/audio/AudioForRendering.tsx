@@ -67,6 +67,7 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 			volume,
 			isRemote: isRemoteAsset(getAbsoluteSrc(props.src)),
 			mediaFrame: frame,
+			playbackRate: props.playbackRate ?? 1,
 		});
 		return () => unregisterAsset(id);
 	}, [
@@ -79,6 +80,7 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 		volume,
 		volumePropFrame,
 		frame,
+		props.playbackRate,
 	]);
 
 	return <audio ref={audioRef} {...nativeProps} />;
