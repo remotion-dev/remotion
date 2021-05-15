@@ -26,15 +26,6 @@ export const webpackOverride: WebpackOverrideFn = (currentConfiguration) => {
 	})();
 	return {
 		...replaced,
-		resolve: {
-			...replaced.resolve,
-			alias: {
-				...replaced.resolve.alias,
-				three: require.resolve(
-					path.join(__dirname, '..', '..', 'example', 'node_modules', 'three')
-				),
-			},
-		},
 		module: {
 			...replaced.module,
 			rules: [
