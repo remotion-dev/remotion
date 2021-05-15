@@ -26,7 +26,7 @@ import {RemotionVideoProps} from './props';
 const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 	HTMLVideoElement,
 	RemotionVideoProps
-> = ({onError, volume: volumeProp, ...props}, ref) => {
+> = ({onError, volume: volumeProp, playbackRate, ...props}, ref) => {
 	const absoluteFrame = useAbsoluteCurrentFrame();
 
 	const frame = useCurrentFrame();
@@ -81,7 +81,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 			volume,
 			isRemote: isRemoteAsset(getAbsoluteSrc(props.src)),
 			mediaFrame: frame,
-			playbackRate: props.playbackRate ?? 1,
+			playbackRate: playbackRate ?? 1,
 		});
 
 		return () => unregisterAsset(id);
@@ -94,7 +94,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 		volume,
 		frame,
 		absoluteFrame,
-		props.playbackRate,
+		playbackRate,
 	]);
 
 	useImperativeHandle(ref, () => {
@@ -111,7 +111,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 				fps: videoConfig.fps,
 				frame,
 				src: props.src as string,
-				playbackRate: props.playbackRate || 1,
+				playbackRate: playbackRate || 1,
 				startFrom: -mediaStartsAt,
 			});
 		})();
@@ -168,7 +168,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 	}, [
 		volumePropsFrame,
 		props.src,
-		props.playbackRate,
+		playbackRate,
 		videoConfig.fps,
 		frame,
 		mediaStartsAt,
