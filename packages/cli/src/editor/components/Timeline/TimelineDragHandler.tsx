@@ -3,6 +3,7 @@ import React, {useCallback, useEffect, useState} from 'react';
 import {Internals, interpolate} from 'remotion';
 import styled from 'styled-components';
 import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
+import {persistCurrentFrame} from '../FramePersistor';
 import {sliderAreaRef} from './timeline-refs';
 
 const Container = styled.div`
@@ -97,18 +98,33 @@ export const TimelineDragHandler: React.FC = ({children}) => {
 		[dragging.dragging, seek, left, videoConfig, width]
 	);
 
-	const onPointerUp = useCallback(() => {
-		setDragging({
-			dragging: false,
-		});
-		if (!dragging.dragging) {
-			return;
-		}
+	const onPointerUp = useCallback(
+		(e: PointerEvent) => {
+			setDragging({
+				dragging: false,
+			});
+			if (!dragging.dragging) {
+				return;
+			}
 
-		if (dragging.wasPlaying) {
-			play();
-		}
-	}, [dragging, play]);
+			if (!videoConfig) {
+				return;
+			}
+
+			const frame = getFrameFromX(
+				e.clientX - left,
+				videoConfig.durationInFrames,
+				width
+			);
+
+			persistCurrentFrame(frame);
+
+			if (dragging.wasPlaying) {
+				play();
+			}
+		},
+		[dragging, left, play, videoConfig, width]
+	);
 
 	useEffect(() => {
 		if (!dragging.dragging) {
@@ -124,11 +140,7 @@ export const TimelineDragHandler: React.FC = ({children}) => {
 	}, [dragging.dragging, onPointerMove, onPointerUp]);
 
 	return (
-		<Container
-			ref={sliderAreaRef}
-			onPointerDown={onPointerDown}
-			onPointerUp={onPointerUp}
-		>
+		<Container ref={sliderAreaRef} onPointerDown={onPointerDown}>
 			<Inner>{children}</Inner>
 		</Container>
 	);
