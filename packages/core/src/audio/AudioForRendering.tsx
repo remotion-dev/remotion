@@ -43,6 +43,7 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 	const volume = evaluateVolume({
 		volume: volumeProp,
 		frame: volumePropFrame,
+		mediaVolume: 1,
 	});
 
 	useImperativeHandle(ref, () => {

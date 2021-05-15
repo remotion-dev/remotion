@@ -31,6 +31,7 @@ module.exports = {
         "ssr",
         "webpack",
         "legacy-babel",
+        "env-variables",
       ],
     },
     "cli",
@@ -78,6 +79,7 @@ module.exports = {
         "visualize-audio",
       ],
     },
+    "player",
     {
       type: "category",
       label: "API - @remotion/renderer",

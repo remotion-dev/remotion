@@ -2,6 +2,7 @@ import {RenderInternals} from '@remotion/renderer';
 import fs from 'fs';
 import path from 'path';
 import {Codec, FrameRange, Internals, PixelFormat} from 'remotion';
+import {getEnvironmentVariables} from './get-env';
 import {getOutputFilename} from './get-filename';
 import {getInputProps} from './get-input-props';
 import {getImageFormat} from './image-formats';
@@ -174,6 +175,7 @@ export const getCliOptions = async () => {
 		codec,
 		overwrite: Internals.getShouldOverwrite(),
 		inputProps: getInputProps(),
+		envVariables: await getEnvironmentVariables(),
 		quality: Internals.getQuality(),
 		browser: await getAndValidateBrowser(),
 		absoluteOutputFile: getAndValidateAbsoluteOutputFile(outputFile, overwrite),
