@@ -1,5 +1,4 @@
 import React, {
-	ComponentType,
 	Suspense,
 	useCallback,
 	useContext,
@@ -8,6 +7,7 @@ import React, {
 } from 'react';
 import {render} from 'react-dom';
 import {
+	AnyComponent,
 	continueRender,
 	delayRender,
 	getInputProps,
@@ -39,7 +39,9 @@ const inputProps = getInputProps();
 const GetVideo = () => {
 	const video = Internals.useVideo();
 	const compositions = useContext(Internals.CompositionManager);
-	const [Component, setComponent] = useState<ComponentType | null>(null);
+	const [Component, setComponent] = useState<AnyComponent<unknown> | null>(
+		null
+	);
 
 	useEffect(() => {
 		if (Internals.getIsEvaluation()) {
