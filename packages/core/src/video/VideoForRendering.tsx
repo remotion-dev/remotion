@@ -106,6 +106,8 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 				frame,
 				src: props.src as string,
 				playbackRate: props.playbackRate || 1,
+				// TODO: Implement startFrom
+				startFrom: 0,
 			});
 		})();
 		const handle = delayRender();

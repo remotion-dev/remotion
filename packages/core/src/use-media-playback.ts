@@ -48,6 +48,8 @@ export const useMediaPlayback = ({
 			frame,
 			src,
 			playbackRate,
+			// TODO: Implement start from
+			startFrom: 0,
 		});
 
 		const isTime = mediaRef.current.currentTime;
