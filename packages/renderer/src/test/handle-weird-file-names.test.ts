@@ -11,6 +11,7 @@ test('Should sanitize weird file names when downloading', async () => {
 			mediaFrame: 1,
 			type: 'video',
 			volume: 1,
+			playbackRate: 1,
 		},
 		webpackBundle: '/var/tmp',
 		onDownload: () => undefined,
