@@ -5,6 +5,7 @@ import {Framer} from './Framer';
 import {MissingImg} from './MissingImg';
 import RemoteVideo from './RemoteVideo';
 import {TenFrameTester} from './TenFrameTester';
+import ThreeBasic from './ThreeBasic';
 import {VideoSpeed} from './VideoSpeed';
 import {VideoTesting} from './VideoTesting';
 
@@ -221,6 +222,14 @@ export const Index: React.FC = () => {
 			<Composition
 				id="remote-video"
 				component={RemoteVideo}
+				width={1280}
+				height={720}
+				fps={30}
+				durationInFrames={600}
+			/>
+			<Composition
+				id="three-basic"
+				component={ThreeBasic}
 				width={1280}
 				height={720}
 				fps={30}
