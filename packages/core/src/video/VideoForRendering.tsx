@@ -7,7 +7,10 @@ import React, {
 	useRef,
 } from 'react';
 import {getAbsoluteSrc} from '../absolute-src';
-import {useFrameForVolumeProp} from '../audio/use-audio-frame';
+import {
+	useFrameForVolumeProp,
+	useMediaStartsAt,
+} from '../audio/use-audio-frame';
 import {CompositionManager} from '../CompositionManager';
 import {isApproximatelyTheSame} from '../is-approximately-the-same';
 import {isRemoteAsset} from '../is-remote-asset';
@@ -31,6 +34,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 	const videoConfig = useUnsafeVideoConfig();
 	const videoRef = useRef<HTMLVideoElement>(null);
 	const sequenceContext = useContext(SequenceContext);
+	const mediaStartsAt = useMediaStartsAt();
 
 	const {registerAsset, unregisterAsset} = useContext(CompositionManager);
 
@@ -106,8 +110,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 				frame,
 				src: props.src as string,
 				playbackRate: props.playbackRate || 1,
-				// TODO: Implement startFrom
-				startFrom: 0,
+				startFrom: -mediaStartsAt,
 			});
 		})();
 		const handle = delayRender();
