@@ -14,6 +14,7 @@ const asset: MediaAsset = {
 	volume: 1,
 	id: '1',
 	isRemote: false,
+	playbackRate: 1,
 };
 
 test('Should create a basic filter correctly', () => {
@@ -117,6 +118,7 @@ test('Should calculate correct indices even if some muted channels are removed b
 					src: mutedSrc,
 					type: 'video',
 					volume: 1,
+					playbackRate: 1,
 				},
 				{
 					...asset,

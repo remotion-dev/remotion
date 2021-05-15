@@ -1,6 +1,6 @@
 import React from 'react';
 import {Video} from 'remotion';
-import framer from '../resources/framer.mp4';
+import framer from '../resources/framer-music.mp4';
 
 export const VideoSpeed: React.FC = () => {
 	return (
