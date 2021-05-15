@@ -21,6 +21,7 @@ export type AssetVolume = number | number[];
 export type MediaAsset = Omit<UnsafeAsset, 'duration' | 'volume'> & {
 	duration: number;
 	volume: AssetVolume;
+	playbackRate: number;
 };
 
 export type AssetAudioDetails = {
