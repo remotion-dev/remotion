@@ -1,4 +1,6 @@
-export const getCurrentTime = ({
+// Calculate the `.currentTime` of a video or audio element
+
+export const getMediaTime = ({
 	fps,
 	frame,
 	src,

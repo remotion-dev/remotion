@@ -17,7 +17,7 @@ import {SequenceContext} from '../sequencing';
 import {useAbsoluteCurrentFrame, useCurrentFrame} from '../use-frame';
 import {useUnsafeVideoConfig} from '../use-unsafe-video-config';
 import {evaluateVolume} from '../volume-prop';
-import {getCurrentTime} from './get-current-time';
+import {getMediaTime} from './get-current-time';
 import {RemotionVideoProps} from './props';
 
 const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
@@ -101,7 +101,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 		}
 
 		const currentTime = (() => {
-			return getCurrentTime({
+			return getMediaTime({
 				fps: videoConfig.fps,
 				frame,
 				src: props.src as string,

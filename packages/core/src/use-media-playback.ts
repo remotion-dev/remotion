@@ -2,7 +2,7 @@ import {RefObject, useEffect} from 'react';
 import {usePlayingState} from './timeline-position-state';
 import {useAbsoluteCurrentFrame, useCurrentFrame} from './use-frame';
 import {useVideoConfig} from './use-video-config';
-import {getCurrentTime} from './video/get-current-time';
+import {getMediaTime} from './video/get-current-time';
 
 export const useMediaPlayback = ({
 	mediaRef,
@@ -42,7 +42,8 @@ export const useMediaPlayback = ({
 		}
 
 		mediaRef.current.playbackRate = playbackRate;
-		const shouldBeTime = getCurrentTime({
+
+		const shouldBeTime = getMediaTime({
 			fps,
 			frame,
 			src,
