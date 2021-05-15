@@ -1,8 +1,5 @@
 {
   "version": "1.0.0-alpha.4",
-  "workspaces": [
-    "packages/*"
-  ],
   "private": true,
   "license": "SEE LICENSE IN LICENSE.md",
   "scripts": {

@@ -1,0 +1,11 @@
+input[type="text"] {
+  padding: 13px;
+  font-family: inherit;
+  border: 2px solid var(--ifm-code-background);
+  border-radius: 6px;
+  background-color: transparent;
+  outline: none;
+}
+input[type="text"]:focus {
+  border-color: var(--ifm-tabs-color-active);
+}

@@ -9,7 +9,8 @@
 	"references": [
 		{"path": "../core"},
 		{"path": "../bundler"},
-		{"path": "../media-utils"},
-		{"path": "../renderer"}
+		{"path": "../renderer"},
+		{"path": "../player"},
+		{"path": "../media-utils"}
 	]
 }

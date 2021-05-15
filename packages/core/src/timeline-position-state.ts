@@ -18,8 +18,12 @@ export const TimelineContext = createContext<TimelineContextValue>({
 });
 
 export const SetTimelineContext = createContext<SetTimelineContextValue>({
-	setFrame: () => undefined,
-	setPlaying: () => undefined,
+	setFrame: () => {
+		throw new Error('default');
+	},
+	setPlaying: () => {
+		throw new Error('default');
+	},
 });
 
 export const useTimelinePosition = (): number => {

@@ -59,14 +59,6 @@ export const Index: React.FC = () => {
 				fps={30}
 				durationInFrames={4 * 30}
 			/>
-			<Composition
-				id="font"
-				lazyComponent={() => import('./Font')}
-				width={1080}
-				height={1080}
-				fps={30}
-				durationInFrames={30 * 30}
-			/>
 
 			<Composition
 				id="hacker-logo"
