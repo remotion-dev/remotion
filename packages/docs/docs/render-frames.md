@@ -19,11 +19,13 @@ const renderFrames: (options: {
   inputProps: unknown;
   webpackBundle: string;
   imageFormat: "png" | "jpeg" | "none";
+  envVariables?: Record<string, string>;
   parallelism?: number | null;
   quality?: number;
   frameRange?: number | [number, number] | null;
   dumpBrowserLogs?: boolean;
-  puppeteerInstance?: puppeteer.Browser
+  puppeteerInstance?: puppeteer.Browser;
+  onError?: (info: {error: Error; frame: number | null}) => void;
 }): Promise<RenderFramesOutput>;
 ```
 
@@ -114,6 +116,32 @@ Passes the `dumpio` flag to Puppeteer which will log all browser logs to the con
 _optional_
 
 An already open Puppeteer [`Browser`](https://pptr.dev/#?product=Puppeteer&version=main&show=api-class-browser) instance. Reusing a browser across multiple function calls can speed up the rendering process. You are responsible for opening and closing the browser yourself. If you don't specify this option, a new browser will be opened and closed at the end.
+
+### `envVariables?`
+
+_optional - Available since v2.2.0_
+
+An object containing key-value pairs of environment variables which will be injected into your Remotion projected and which can be accessed by reading the global `process.env` object.
+
+### `onError?`
+
+_optional - Available since v2.1.0_
+
+Allows you to react to an exception thrown in your React code. The callback has an argument which is an object containing `error` and `frame` properties.
+The `frame` property tells you at which frame the error was thrown. If the error was thrown at startup, `frame` is null.
+
+```tsx
+renderFrames({
+  onError: (info) => {
+    if (info.frame === null) {
+      console.log('Got error while initalizing video rendering', info.error)
+    } else {
+      console.log('Got error at frame ', info.frame, info.error)
+    }
+    // Handle error here
+  }
+})
+```
 
 ## Return value
 

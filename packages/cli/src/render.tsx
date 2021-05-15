@@ -1,6 +1,7 @@
 import {bundle, BundlerInternals} from '@remotion/bundler';
 import {
 	getCompositions,
+	OnErrorInfo,
 	OnStartData,
 	renderFrames,
 	RenderInternals,
@@ -25,6 +26,36 @@ import {
 } from './progress-bar';
 import {checkAndValidateFfmpegVersion} from './validate-ffmpeg-version';
 
+const onError = async (info: OnErrorInfo) => {
+	Log.error();
+	if (info.frame === null) {
+		Log.error(
+			'The following error occured when trying to initialize the video rendering:'
+		);
+	} else {
+		Log.error(
+			`The following error occurred when trying to render frame ${info.frame}:`
+		);
+	}
+
+	Log.error(info.error.message);
+	if (info.error.message.includes('Could not play video with')) {
+		Log.info();
+		Log.info(
+			'💡 Get help for this issue at https://remotion.dev/docs/media-playback-error.'
+		);
+	}
+
+	if (info.error.message.includes('A delayRender was called')) {
+		Log.info();
+		Log.info(
+			'💡 Get help for this issue at https://remotion.dev/docs/timeout.'
+		);
+	}
+
+	process.exit(1);
+};
+
 export const render = async () => {
 	const startTime = Date.now();
 	const file = parsedCli._[1];
@@ -45,6 +76,7 @@ export const render = async () => {
 		absoluteOutputFile,
 		overwrite,
 		inputProps,
+		envVariables,
 		quality,
 		browser,
 		crf,
@@ -137,6 +169,7 @@ export const render = async () => {
 		parallelism,
 		compositionId,
 		outputDir,
+		onError,
 		onStart: ({frameCount: fc}: OnStartData) => {
 			renderProgress.update(
 				makeRenderingProgress({
@@ -150,6 +183,7 @@ export const render = async () => {
 			totalFrames = fc;
 		},
 		inputProps,
+		envVariables,
 		webpackBundle: bundled,
 		imageFormat,
 		quality,

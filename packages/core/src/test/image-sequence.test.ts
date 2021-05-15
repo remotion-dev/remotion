@@ -27,6 +27,9 @@ test('setImageSequence should NOT throw if image sequence is a boolean value', (
 test('getShouldOutputImageSequence should return false by default', () => {
 	expect(getShouldOutputImageSequence(null)).toEqual(false);
 });
+test('getShouldOutputImageSequence should return true if a single frame number is passed', () => {
+	expect(getShouldOutputImageSequence(1)).toEqual(true);
+});
 test('getShouldOutputImageSequence should return true', () => {
 	setImageSequence(true);
 	expect(getShouldOutputImageSequence(null)).toEqual(true);

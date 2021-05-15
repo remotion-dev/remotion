@@ -20,6 +20,7 @@ export const webpackConfig = ({
 	onProgressUpdate,
 	enableCaching = Internals.DEFAULT_WEBPACK_CACHE_ENABLED,
 	inputProps,
+	envVariables,
 }: {
 	entry: string;
 	userDefinedComponent: string;
@@ -29,6 +30,7 @@ export const webpackConfig = ({
 	onProgressUpdate?: (f: number) => void;
 	enableCaching?: boolean;
 	inputProps?: object;
+	envVariables?: Record<string, string>;
 }): WebpackConfiguration => {
 	return webpackOverride({
 		optimization: {
@@ -69,6 +71,9 @@ export const webpackConfig = ({
 						new webpack.HotModuleReplacementPlugin(),
 						new webpack.DefinePlugin({
 							'process.env.INPUT_PROPS': JSON.stringify(inputProps ?? {}),
+							[`process.env.${Internals.ENV_VARIABLES_ENV_NAME}`]: JSON.stringify(
+								envVariables ?? {}
+							),
 						}),
 				  ]
 				: [
@@ -112,7 +117,7 @@ export const webpackConfig = ({
 					use: [require.resolve('style-loader'), require.resolve('css-loader')],
 				},
 				{
-					test: /\.(png|svg|jpg|jpeg|webp|gif|bmp|webm|mp4|mp3|wav|aac)$/,
+					test: /\.(png|svg|jpg|jpeg|webp|gif|bmp|webm|mp4|mp3|m4a|wav|aac)$/,
 					use: [
 						{
 							loader: require.resolve('file-loader'),

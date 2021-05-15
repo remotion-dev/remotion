@@ -3,19 +3,21 @@ export type VolumeProp = number | ((frame: number) => number);
 export const evaluateVolume = ({
 	frame,
 	volume,
+	mediaVolume = 1,
 }: {
 	frame: number;
 	volume: VolumeProp | undefined;
+	mediaVolume: number;
 }): number => {
 	if (typeof volume === 'number') {
-		return Math.min(1, volume);
+		return Math.min(1, volume * mediaVolume);
 	}
 
 	if (typeof volume === 'undefined') {
-		return 1;
+		return Number(mediaVolume);
 	}
 
-	const evaluated = volume(frame);
+	const evaluated = volume(frame) * mediaVolume;
 	if (typeof evaluated !== 'number') {
 		throw new TypeError(
 			`You passed in a a function to the volume prop but it did not return a number but a value of type ${typeof evaluated} for frame ${frame}`
