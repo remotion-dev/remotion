@@ -38,7 +38,7 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 		[props.muted, props.src, sequenceContext]
 	);
 
-	const {volume: volumeProp, ...nativeProps} = props;
+	const {volume: volumeProp, playbackRate, ...nativeProps} = props;
 
 	const volume = evaluateVolume({
 		volume: volumeProp,
