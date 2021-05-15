@@ -99,7 +99,7 @@ export const TimelineDragHandler: React.FC = ({children}) => {
 	);
 
 	const onPointerUp = useCallback(
-		(e: React.PointerEvent<HTMLDivElement>) => {
+		(e: PointerEvent) => {
 			setDragging({
 				dragging: false,
 			});
@@ -140,11 +140,7 @@ export const TimelineDragHandler: React.FC = ({children}) => {
 	}, [dragging.dragging, onPointerMove, onPointerUp]);
 
 	return (
-		<Container
-			ref={sliderAreaRef}
-			onPointerDown={onPointerDown}
-			onPointerUp={onPointerUp}
-		>
+		<Container ref={sliderAreaRef} onPointerDown={onPointerDown}>
 			<Inner>{children}</Inner>
 		</Container>
 	);

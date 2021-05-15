@@ -2,6 +2,10 @@ import React, {useCallback, useContext, useEffect} from 'react';
 import {Internals, TComposition} from 'remotion';
 import styled from 'styled-components';
 import {CurrentComposition} from './CurrentComposition';
+import {
+	getCurrentCompositionFromUrl,
+	getFrameForComposition,
+} from './FramePersistor';
 
 const Container = styled.div`
 	border-right: 1px solid black;
@@ -43,14 +47,29 @@ export const CompositionSelector: React.FC = () => {
 	const selectComposition = useCallback(
 		(c: TComposition) => {
 			window.history.pushState({}, 'Preview', `/${c.id}`);
-			setCurrentFrame(0);
+			const frame = getFrameForComposition(c.id);
+			const frameInBounds = Math.min(c.durationInFrames - 1, frame);
+			setCurrentFrame(frameInBounds);
 			setCurrentComposition(c.id);
 		},
 		[setCurrentComposition, setCurrentFrame]
 	);
 
 	useEffect(() => {
-		if (!currentComposition && compositions.length) {
+		if (currentComposition) {
+			return;
+		}
+
+		const compositionFromUrl = getCurrentCompositionFromUrl();
+		if (compositionFromUrl) {
+			const exists = compositions.find((c) => c.id === compositionFromUrl);
+			if (exists) {
+				selectComposition(exists);
+				return;
+			}
+		}
+
+		if (compositions.length) {
 			selectComposition(compositions[0]);
 		}
 	}, [compositions, currentComposition, selectComposition]);
