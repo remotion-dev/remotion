@@ -6,9 +6,6 @@ import {MissingImg} from './MissingImg';
 import RemoteVideo from './RemoteVideo';
 import {TenFrameTester} from './TenFrameTester';
 import ThreeBasic from './ThreeBasic';
-import ThreePostprocessing from './ThreePostprocessing';
-import ThreeShaderedVideo from './ThreeShaderedVideo';
-import ThreeVideo from './ThreeVideo';
 import {VideoTesting} from './VideoTesting';
 
 export const Index: React.FC = () => {
@@ -237,30 +234,7 @@ export const Index: React.FC = () => {
 				fps={30}
 				durationInFrames={600}
 			/>
-			<Composition
-				id="three-video"
-				component={ThreeVideo}
-				width={1280}
-				height={720}
-				fps={30}
-				durationInFrames={600}
-			/>
-			<Composition
-				id="three-postprocessing"
-				component={ThreePostprocessing}
-				width={1280}
-				height={720}
-				fps={30}
-				durationInFrames={600}
-			/>
-			<Composition
-				id="three-shadered-video"
-				component={ThreeShaderedVideo}
-				width={1280}
-				height={720}
-				fps={30}
-				durationInFrames={600}
-			/>
+
 			<Composition
 				id="color-interpolation"
 				component={ColorInterpolation}

@@ -8,6 +8,8 @@ const block: React.CSSProperties = {
 	display: 'block',
 };
 
+export type ThreeCanvasProps = React.ComponentProps<typeof Canvas>;
+
 export const ThreeCanvas = ({
 	children,
 	tabIndex,
@@ -17,7 +19,7 @@ export const ThreeCanvas = ({
 	className,
 	events,
 	...rest
-}: React.ComponentProps<typeof Canvas>) => {
+}: ThreeCanvasProps) => {
 	const wrapperRef = React.useRef<HTMLDivElement>(null);
 	const canvasRef = React.useRef<HTMLCanvasElement>(null);
 

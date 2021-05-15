@@ -31,7 +31,6 @@
 		"@remotion/three": "^2.0.2",
 		"@types/express": "^4.17.11",
 		"@types/node": "^15.0.1",
-		"@types/react-native": "^0.64.0",
 		"@types/styled-components": "^5.1.1",
 		"babel-loader": "^8.2.2",
 		"express": "^4.17.1",
@@ -54,9 +53,8 @@
 		"prettier-plugin-organize-imports": "^1.1.1"
 	},
 	"peerDependencies": {
-		"@react-three/fiber": "^6.0.14",
-		"@react-three/postprocessing": "^2.0.3",
-		"three": "^0.127.0"
+		"@react-three/fiber": ">=6.0.14",
+		"three": ">=0.127.0"
 	},
 	"publishConfig": {
 		"access": "public"
