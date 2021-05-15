@@ -1,4 +1,5 @@
 import {Internals} from 'remotion';
+import {calculateATempo} from './assets/calculate-atempo';
 import {ffmpegVolumeExpression} from './assets/ffmpeg-volume-expression';
 import {AssetVolume} from './assets/types';
 
@@ -42,8 +43,7 @@ export const stringifyFfmpegFilter = ({
 			// "Unused delays will be silently ignored."
 			// https://ffmpeg.org/ffmpeg-filters.html#adelay
 			`adelay=${new Array(channels + 1).fill(startInVideoSeconds).join('|')}`,
-			// TODO: Can only be between 0.5 and 2
-			`atempo=${playbackRate}`,
+			calculateATempo(playbackRate),
 			`volume=${volumeFilter.value}:eval=${volumeFilter.eval}`,
 		]
 			.filter(Internals.truthy)
