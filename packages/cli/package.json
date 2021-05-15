@@ -31,7 +31,7 @@
 		"minimist": "^1.2.5",
 		"remotion": "^2.1.2",
 		"semver": "^7.3.4",
-		"webpack": "5.33.2",
+		"webpack": "5.37.0",
 		"xns": "^2.0.7"
 	},
 	"peerDependencies": {
