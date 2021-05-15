@@ -15,6 +15,7 @@ import {
 	loadRichTimelineOption,
 	RichTimelineContext,
 } from '../state/rich-timeline';
+import {FramePersistor} from './FramePersistor';
 import {SplitterContainer} from './Splitter/SplitterContainer';
 import {SplitterElement} from './Splitter/SplitterElement';
 import {SplitterHandle} from './Splitter/SplitterHandle';
@@ -98,6 +99,7 @@ export const Editor: React.FC = () => {
 								<Background>
 									<Root />
 									<UpdateCheck />
+									<FramePersistor />
 									<SplitterContainer
 										orientation="horizontal"
 										id="top-to-bottom"
