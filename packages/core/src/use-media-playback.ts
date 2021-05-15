@@ -23,7 +23,6 @@ export const useMediaPlayback = ({
 	const mediaStartsAt = useMediaStartsAt();
 
 	useEffect(() => {
-		// TODO: Investigate if this is correct
 		if (playing && !mediaRef.current?.ended) {
 			mediaRef.current?.play();
 		} else {

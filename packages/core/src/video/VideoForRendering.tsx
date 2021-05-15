@@ -165,7 +165,14 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 			},
 			{once: true}
 		);
-	}, [volumePropsFrame, props.src, props.playbackRate, videoConfig.fps, frame]);
+	}, [
+		volumePropsFrame,
+		props.src,
+		props.playbackRate,
+		videoConfig.fps,
+		frame,
+		mediaStartsAt,
+	]);
 
 	return <video ref={videoRef} {...props} onError={onError} />;
 };
