@@ -58,6 +58,7 @@ export type TAsset = {
 	volume: number;
 	isRemote: boolean;
 	mediaFrame: number;
+	playbackRate: number;
 };
 
 export type RenderAssetInfo = {

@@ -35,6 +35,7 @@ test('Should be able to collect assets', async () => {
 		trimLeft: 0,
 		volume: 1,
 		isRemote: true,
+		playbackRate: 1,
 	});
 });
 
@@ -55,6 +56,7 @@ test('Should get multiple assets', async () => {
 		trimLeft: 0,
 		volume: 1,
 		isRemote: true,
+		playbackRate: 1,
 	});
 	expect(withoutId(assetPositions[1])).toEqual({
 		type: 'audio',
@@ -65,6 +67,7 @@ test('Should get multiple assets', async () => {
 		trimLeft: 0,
 		volume: 1,
 		isRemote: true,
+		playbackRate: 1,
 	});
 });
 
@@ -88,6 +91,7 @@ test('Should handle jumps inbetween', async () => {
 		startInVideo: 0,
 		trimLeft: 0,
 		volume: 1,
+		playbackRate: 1,
 		isRemote: true,
 	});
 	expect(withoutId(assetPositions[1])).toEqual({
@@ -98,6 +102,7 @@ test('Should handle jumps inbetween', async () => {
 		startInVideo: 21,
 		trimLeft: 21,
 		volume: 1,
+		playbackRate: 1,
 		isRemote: true,
 	});
 });
@@ -119,6 +124,7 @@ test('Should support sequencing', async () => {
 		startInVideo: 0,
 		trimLeft: 20,
 		volume: 1,
+		playbackRate: 1,
 		isRemote: true,
 	});
 });
@@ -145,6 +151,7 @@ test('Should calculate volumes correctly', async () => {
 		startInVideo: 0,
 		trimLeft: 0,
 		isRemote: true,
+		playbackRate: 1,
 		volume: new Array(60)
 			.fill(true)
 			.map((_, i) =>
@@ -182,6 +189,7 @@ test('Should calculate startFrom correctly', async () => {
 		startInVideo: 1,
 		trimLeft: 100,
 		isRemote: true,
+		playbackRate: 1,
 		volume: new Array(59).fill(true).map((_, i) =>
 			interpolate(i, [0, 50, 100], [0, 1, 0], {
 				extrapolateLeft: 'clamp',

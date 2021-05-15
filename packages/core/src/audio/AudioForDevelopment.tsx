@@ -20,7 +20,7 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 
 	const volumePropFrame = useFrameForVolumeProp();
 
-	const {volume, muted, ...nativeProps} = props;
+	const {volume, muted, playbackRate, ...nativeProps} = props;
 
 	const actualVolume = useMediaTagVolume(audioRef);
 
@@ -44,6 +44,7 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		mediaRef: audioRef,
 		src: nativeProps.src,
 		mediaType: 'audio',
+		playbackRate: playbackRate ?? 1,
 	});
 
 	useImperativeHandle(ref, () => {
