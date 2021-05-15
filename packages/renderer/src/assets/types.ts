@@ -12,6 +12,7 @@ export type UnsafeAsset = Omit<
 	trimLeft: number;
 	volume: number[];
 	id: string;
+	playbackRate: number;
 };
 
 // Volume can either be static, for all frames the same,
@@ -21,7 +22,6 @@ export type AssetVolume = number | number[];
 export type MediaAsset = Omit<UnsafeAsset, 'duration' | 'volume'> & {
 	duration: number;
 	volume: AssetVolume;
-	playbackRate: number;
 };
 
 export type AssetAudioDetails = {
