@@ -1,4 +1,5 @@
 import {RefObject, useEffect} from 'react';
+import {useMediaStartsAt} from './audio/use-audio-frame';
 import {usePlayingState} from './timeline-position-state';
 import {useAbsoluteCurrentFrame, useCurrentFrame} from './use-frame';
 import {useVideoConfig} from './use-video-config';
@@ -19,6 +20,7 @@ export const useMediaPlayback = ({
 	const absoluteFrame = useAbsoluteCurrentFrame();
 	const [playing] = usePlayingState();
 	const {fps} = useVideoConfig();
+	const mediaStartsAt = useMediaStartsAt();
 
 	useEffect(() => {
 		// TODO: Investigate if this is correct
@@ -48,8 +50,7 @@ export const useMediaPlayback = ({
 			frame,
 			src,
 			playbackRate,
-			// TODO: Implement start from
-			startFrom: 0,
+			startFrom: -mediaStartsAt,
 		});
 
 		const isTime = mediaRef.current.currentTime;
@@ -78,5 +79,6 @@ export const useMediaPlayback = ({
 		mediaType,
 		playing,
 		src,
+		mediaStartsAt,
 	]);
 };

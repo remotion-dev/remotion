@@ -25,14 +25,14 @@ export const getMediaTime = ({
 		// In Chrome, for MP4s, if 30fps, the first frame is still displayed at 0.033333
 		// even though after that it increases by 0.033333333 each.
 		// So frame = 0 in Remotion is like frame = 1 for the browser
-		return ((expectedFrame + 1) / fps) * playbackRate;
+		return (expectedFrame + 1) / fps;
 	}
 
 	if (src.endsWith('webm')) {
 		// For WebM videos, we need to add a little bit of shift to get the right frame.
 		const msPerFrame = 1000 / fps;
 		const msShift = msPerFrame / 2;
-		return ((expectedFrame * msPerFrame + msShift) / 1000) * playbackRate;
+		return (expectedFrame * msPerFrame + msShift) / 1000;
 	}
 
 	// For audio, we don't do any shift correction
