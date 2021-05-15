@@ -1,4 +1,3 @@
 {
-	"extends": "@remotion",
-	"ignorePatterns": "src/ThreePostprocessing/types/*"
+	"extends": "@remotion"
 }

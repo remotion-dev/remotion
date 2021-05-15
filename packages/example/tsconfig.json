@@ -5,9 +5,7 @@
 		"outDir": "./dist",
 		"jsx": "react-jsx",
 		"skipLibCheck": true,
-		"allowSyntheticDefaultImports": true,
-		"types": ["node"],
-		"typeRoots": ["./node_modules/types", "src/ThreePostProcessing/types"]
+		"allowSyntheticDefaultImports": true
 	},
 	"include": ["src"],
 	"references": [
