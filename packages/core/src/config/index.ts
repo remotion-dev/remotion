@@ -3,6 +3,7 @@ import {BrowserExecutable, setBrowserExecutable} from './browser-executable';
 import {Codec, setCodec, setOutputFormat} from './codec';
 import {Concurrency, setConcurrency} from './concurrency';
 import {setCrf} from './crf';
+import {setDotEnvLocation} from './env-file';
 import {FrameRange, setFrameRange} from './frame-range';
 import {ImageFormat, setImageFormat} from './image-format';
 import {setImageSequence} from './image-sequence';
@@ -14,6 +15,7 @@ import {
 } from './override-webpack';
 import {setOverwriteOutput} from './overwrite';
 import {PixelFormat, setPixelFormat} from './pixel-format';
+import {setPort} from './preview-server';
 import {setQuality} from './quality';
 import {setWebpackCaching} from './webpack-caching';
 
@@ -30,6 +32,12 @@ export const Config = {
 		 * subsequent renders faster. Default: true
 		 */
 		setCachingEnabled: setWebpackCaching,
+		/**
+		 * Define on which port Remotion should start it's HTTP servers during preview and rendering.
+		 * By default, Remotion will try to find a free port.
+		 * If you specify a port, but it's not available, Remotion will throw an error.
+		 */
+		setPort,
 	},
 	Log: {
 		/**
@@ -49,6 +57,11 @@ export const Config = {
 		setBrowserExecutable,
 	},
 	Rendering: {
+		/**
+		 * Set a custom location for a .env file.
+		 * Default: `.env`
+		 */
+		setDotEnvLocation,
 		/**
 		 * Sets how many Puppeteer instances will work on rendering your video in parallel.
 		 * Default: `null`, meaning half of the threads available on your CPU.

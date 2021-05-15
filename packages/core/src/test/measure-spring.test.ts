@@ -1,23 +1,25 @@
 import {measureSpring, spring} from '../spring';
 import {expectToThrow} from './expect-to-throw';
 
-test('Measure spring should work', () => {
+describe('Measure spring should work', () => {
 	const duration = measureSpring({
 		fps: 30,
 	});
-	expect(duration).toBe(28);
-	expect(
-		spring({
-			fps: 30,
-			frame: duration,
-		})
-	).toBeCloseTo(1);
-	expect(
-		spring({
-			fps: 30,
-			frame: duration - 1,
-		})
-	).not.toBe(1);
+	test('test measureSpring()', () => expect(duration).toBe(28));
+	test('spring should be close to 1', () =>
+		expect(
+			spring({
+				fps: 30,
+				frame: duration,
+			})
+		).toBeCloseTo(1));
+	test('spring should not be 1', () =>
+		expect(
+			spring({
+				fps: 30,
+				frame: duration - 1,
+			})
+		).not.toBe(1));
 });
 
 test('Higher threshold should lead to faster spring', () => {
@@ -32,22 +34,30 @@ test('Lower threshold should lead to slower spring', () => {
 	);
 });
 
-test('Threshold edge cases', () => {
-	expect(measureSpring({fps: 30, threshold: 0})).toBe(Infinity);
-	expect(measureSpring({fps: 30, threshold: 1})).toBe(0);
+describe('Threshold edge cases', () => {
+	// threshold, expected
+	const validEdgeCases: [number, number][] = [
+		[0, Infinity],
+		[1, 0],
+	];
+	validEdgeCases.forEach((entry) =>
+		test('', () =>
+			expect(measureSpring({fps: 30, threshold: entry[0]})).toBe(entry[1]))
+	);
 
-	expectToThrow(
-		() => measureSpring({fps: 30, threshold: NaN}),
-		/Threshold is NaN/
-	);
-	expectToThrow(
-		() => measureSpring({fps: 30, threshold: Infinity}),
-		/Threshold is not finite/
-	);
-	expectToThrow(
-		// @ts-expect-error
-		() => measureSpring({fps: 30, threshold: null}),
-		/threshold must be a number, got null of type object/
+	// threshold, errMsg
+	const errorEdgeCases: [number | null, RegExp][] = [
+		[NaN, /Threshold is NaN/],
+		[Infinity, /Threshold is not finite/],
+		[null, /threshold must be a number, got null of type object/],
+	];
+
+	errorEdgeCases.forEach((entry) =>
+		expectToThrow(
+			// @ts-expect-error
+			() => measureSpring({fps: 30, threshold: entry[0]}),
+			entry[1]
+		)
 	);
 });
 

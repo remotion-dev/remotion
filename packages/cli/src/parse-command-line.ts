@@ -15,6 +15,7 @@ export type CommandLineOptions = {
 	['pixel-format']: PixelFormat;
 	['image-format']: ImageFormat;
 	['bundle-cache']: string;
+	['env-file']: string;
 	codec: Codec;
 	concurrency: number;
 	config: string;
@@ -28,6 +29,7 @@ export type CommandLineOptions = {
 	sequence: boolean;
 	log: string;
 	help: boolean;
+	port: number;
 };
 
 export const parsedCli = minimist<CommandLineOptions>(process.argv.slice(2));
