@@ -234,7 +234,6 @@ export const Index: React.FC = () => {
 				fps={30}
 				durationInFrames={600}
 			/>
-
 			<Composition
 				id="color-interpolation"
 				component={ColorInterpolation}
