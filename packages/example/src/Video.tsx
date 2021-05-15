@@ -6,6 +6,7 @@ import {MissingImg} from './MissingImg';
 import RemoteVideo from './RemoteVideo';
 import {TenFrameTester} from './TenFrameTester';
 import ThreeBasic from './ThreeBasic';
+import {VideoSpeed} from './VideoSpeed';
 import {VideoTesting} from './VideoTesting';
 
 export const Index: React.FC = () => {
@@ -237,6 +238,14 @@ export const Index: React.FC = () => {
 			<Composition
 				id="color-interpolation"
 				component={ColorInterpolation}
+				width={1280}
+				height={720}
+				fps={30}
+				durationInFrames={100}
+			/>
+			<Composition
+				id="video-speed"
+				component={VideoSpeed}
 				width={1280}
 				height={720}
 				fps={30}
