@@ -1,4 +1,4 @@
-import React, {useMemo} from 'react';
+import React, {ComponentType, useMemo} from 'react';
 import {CompProps} from './internals';
 
 // Expected, it can be any component props
@@ -7,7 +7,9 @@ export const useLazyComponent = <T>(
 ): React.LazyExoticComponent<React.ComponentType<T>> => {
 	const lazy = useMemo(() => {
 		if ('lazyComponent' in compProps) {
-			return React.lazy(compProps.lazyComponent);
+			return React.lazy(
+				compProps.lazyComponent as () => Promise<{default: ComponentType<T>}>
+			);
 		}
 
 		if ('component' in compProps) {
@@ -18,7 +20,9 @@ export const useLazyComponent = <T>(
 				>;
 			}
 
-			return React.lazy(() => Promise.resolve({default: compProps.component}));
+			return React.lazy(() =>
+				Promise.resolve({default: compProps.component as ComponentType<T>})
+			);
 		}
 
 		throw new Error("You must pass either 'component' or 'lazyComponent'");
