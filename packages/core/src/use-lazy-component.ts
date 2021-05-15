@@ -1,14 +1,17 @@
-import React, {ComponentType, useMemo} from 'react';
+import React, {useMemo} from 'react';
+import {LooseAnyComponent} from './any-component';
 import {CompProps} from './internals';
 
 // Expected, it can be any component props
 export const useLazyComponent = <T>(
 	compProps: CompProps<T>
-): React.LazyExoticComponent<React.ComponentType<T>> => {
+): React.LazyExoticComponent<LooseAnyComponent<T>> => {
 	const lazy = useMemo(() => {
 		if ('lazyComponent' in compProps) {
 			return React.lazy(
-				compProps.lazyComponent as () => Promise<{default: ComponentType<T>}>
+				compProps.lazyComponent as () => Promise<{
+					default: LooseAnyComponent<T>;
+				}>
 			);
 		}
 
@@ -16,12 +19,12 @@ export const useLazyComponent = <T>(
 			// In SSR, suspense is not yet supported, we cannot use React.lazy
 			if (typeof document === 'undefined') {
 				return (compProps.component as unknown) as React.LazyExoticComponent<
-					React.ComponentType<T>
+					LooseAnyComponent<T>
 				>;
 			}
 
 			return React.lazy(() =>
-				Promise.resolve({default: compProps.component as ComponentType<T>})
+				Promise.resolve({default: compProps.component as LooseAnyComponent<T>})
 			);
 		}
 
