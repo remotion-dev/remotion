@@ -69,7 +69,7 @@ export const CompositionSelector: React.FC = () => {
 			}
 		}
 
-		if (compositions.length) {
+		if (compositions.length > 0) {
 			selectComposition(compositions[0]);
 		}
 	}, [compositions, currentComposition, selectComposition]);
