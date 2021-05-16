@@ -1,5 +1,6 @@
 import React from 'react';
 import {Composition, getInputProps} from 'remotion';
+import BetaText from './BetaText';
 import {ColorInterpolation} from './ColorInterpolation';
 import {Framer} from './Framer';
 import {MissingImg} from './MissingImg';
@@ -32,7 +33,7 @@ export const Index: React.FC = () => {
 			/>
 			<Composition
 				id="beta-text"
-				lazyComponent={() => import('./BetaText')}
+				component={BetaText}
 				width={1080}
 				height={1080}
 				fps={30}

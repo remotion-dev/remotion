@@ -16,6 +16,7 @@ import {
 	SetTimelineContextValue,
 	TimelineContextValue,
 } from 'remotion';
+import {LooseAnyComponent} from 'remotion/src/any-component';
 import {PlayerEventEmitterContext} from './emitter-context';
 import {PlayerEmitter} from './event-emitter';
 import {PLAYER_CSS_CLASSNAME} from './player-css-classname';
@@ -121,7 +122,7 @@ export const PlayerFn = <T,>(
 			compositions: [
 				{
 					component: component as React.LazyExoticComponent<
-						React.ComponentType<unknown>
+						LooseAnyComponent<unknown>
 					>,
 					durationInFrames,
 					height,
