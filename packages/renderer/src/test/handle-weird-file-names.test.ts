@@ -18,7 +18,7 @@ test('Should sanitize weird file names when downloading', async () => {
 	});
 	expect(newAsset.src).toBe(
 		process.platform === 'win32'
-			? '\\var\\tmp\\f62bea5a62'
-			: '/var/tmp/f62bea5a62'
+			? '\\var\\tmp\\aWHv6qn3/X'
+			: '/var/tmp/aWHv6qn3/X'
 	);
 });
