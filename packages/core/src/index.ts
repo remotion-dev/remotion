@@ -11,6 +11,7 @@ declare global {
 }
 
 export * from './AbsoluteFill';
+export {AnyComponent} from './any-component';
 export * from './audio';
 export * from './Composition';
 export {TAsset} from './CompositionManager';
