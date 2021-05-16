@@ -1,4 +1,5 @@
-import {ComponentType, useContext, useEffect} from 'react';
+import {useContext, useEffect} from 'react';
+import {AnyComponent} from './any-component';
 import {CompositionManager} from './CompositionManager';
 import {useNonce} from './nonce';
 import {
@@ -12,10 +13,10 @@ import {validateFps} from './validation/validate-fps';
 
 export type CompProps<T> =
 	| {
-			lazyComponent: () => Promise<{default: ComponentType<T>}>;
+			lazyComponent: () => Promise<{default: AnyComponent<T>}>;
 	  }
 	| {
-			component: ComponentType<T>;
+			component: AnyComponent<T>;
 	  };
 
 type Props<T> = {
