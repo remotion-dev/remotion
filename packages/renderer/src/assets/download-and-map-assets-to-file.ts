@@ -66,7 +66,7 @@ export const downloadAndMapAssetsToFileUrl = async ({
 	const {pathname, search} = new URL(localhostAsset.src);
 	const hashedFileName =  crypto.createHash('sha1')
 			.update(`${pathname}${search}`)
-			.digest('base64')
+			.digest('hex')
 			.substring(0, 10);
 	const newSrc = path.join(webpackBundle, hashedFileName);
 	if (localhostAsset.isRemote) {
