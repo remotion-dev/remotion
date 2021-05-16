@@ -21,7 +21,7 @@ test('Should correctly map a localhost URL to an asset', async () => {
 	).toEqual({
 		type: 'video',
 		src: fileNameInOs(
-			'/var/folders/hl/p8pg9kw15dbg3l7dbpn0scc80000gn/T/react-motion-graphicstoSTC7/BNuOOK3RlK'
+			'/var/folders/hl/p8pg9kw15dbg3l7dbpn0scc80000gn/T/react-motion-graphicstoSTC7/7847861938644201.mp4'
 		),
 		id: '0.8331499681195862',
 		frame: 2045,
