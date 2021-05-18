@@ -47,7 +47,7 @@ export const getValidCrfRanges = (codec: Codec): [number, number] => {
 	}
 
 	if (codec === 'h264') {
-		return [0, 51];
+		return [1, 51];
 	}
 
 	if (codec === 'h265') {
@@ -70,6 +70,12 @@ export const validateSelectedCrfAndCodecCombination = (
 	codec: Codec
 ) => {
 	const range = getValidCrfRanges(codec);
+	if (crf === 0 && codec === 'h264') {
+		throw new TypeError(
+			"Setting the CRF to 0 with a H264 codec is not supported anymore because of it's inconsistencies between platforms. Videos with CRF 0 cannot be played on iOS/macOS. 0 is a extreme value with inefficient settings which you probably want. Set CRF to a higher value to fix this error."
+		);
+	}
+
 	if (crf < range[0] || crf > range[1]) {
 		throw new TypeError(
 			`CRF must be between ${range[0]} and ${range[1]} for codec ${codec}. Passed: ${crf}`
