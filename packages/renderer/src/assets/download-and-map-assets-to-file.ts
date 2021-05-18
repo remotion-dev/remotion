@@ -54,6 +54,16 @@ const downloadAsset = async (
 	notifyAssetIsDownloaded(src);
 };
 
+export const markAllAssetsAsDownloaded = () => {
+	Object.keys(hasBeenDownloadedMap).forEach((key) => {
+		delete hasBeenDownloadedMap[key];
+	});
+
+	Object.keys(isDownloadingMap).forEach((key) => {
+		delete isDownloadingMap[key];
+	});
+};
+
 export const getSanitizedFilenameForAssetUrl = ({
 	src,
 	isRemote,
