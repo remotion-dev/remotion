@@ -19,16 +19,13 @@ const Demo: React.FC = () => {
         backgroundColor: "black",
       }}
     >
-      <img
-        style={{ transform: `scale(${scale})` }}
-        src="/img/logo-small.png"
-      />
+      <img style={{ transform: `scale(${scale})` }} src="/img/logo-small.png" />
     </div>
   );
 };
 
 const container = {
-  width: 500,
+  maxWidth: 500,
   height: (1 / ASPECT) * 500,
   position: "relative" as const,
 };
@@ -61,7 +58,7 @@ type Tab = "code" | "preview";
 export const CodeExample: React.FC = () => {
   const [tab, setTab] = useState<Tab>("code");
   return (
-    <div style={{ flex: 1, textAlign: "left", width: 500 }}>
+    <div style={{ flex: 1, textAlign: "left", maxWidth: 500 }}>
       <button
         style={{ ...tabStyle, opacity: tab === "code" ? 1 : 0.5 }}
         onClick={() => setTab("code")}

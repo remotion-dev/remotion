@@ -22,11 +22,8 @@
 }
 
 .aknow {
+  text-decoration: none !important;
   display: inline-block;
-}
-
-.aknow:hover  {
-  text-decoration: none;
 }
 
 @media screen and (max-width: 900px) {
