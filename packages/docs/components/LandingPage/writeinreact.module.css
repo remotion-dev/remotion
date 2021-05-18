@@ -16,7 +16,7 @@
     var(--light-text-color)
   );
   -webkit-background-clip: text;
-  width: 500px;
+  max-width: 500px;
 }
 
 .writeright {
@@ -26,6 +26,9 @@
 @media screen and (max-width: 900px) {
   .writeincss {
     flex-direction: column;
+  }
+  .writeincsstitle {
+    font-size: 3.5em;
   }
   .writeright {
     margin-top: 30px;

@@ -10,3 +10,12 @@
   font-size: 0.75em;
   margin-top: 2.5px;
 }
+
+@media screen and (max-width: 900px) {
+  .githubicon {
+    display: none;
+  }
+  .stars {
+    display: none;
+  }
+}

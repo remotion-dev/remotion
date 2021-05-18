@@ -3,7 +3,12 @@ import styles from "./playerpreview.module.css";
 
 export const PlayerPreview: React.FC = () => {
   return (
-    <a href="https://www.youtube.com/watch?v=gwlDorikqgY" target="_blank">
+    <a
+      href="https://www.youtube.com/watch?v=gwlDorikqgY"
+      target="_blank"
+      data-splitbee-event="External Link"
+      data-splitbee-event-target={"YouTube Trailer"}
+    >
       <div className={styles.playerpreview}>
         <img
           style={{

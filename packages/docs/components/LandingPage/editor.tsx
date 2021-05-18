@@ -42,6 +42,7 @@ export const LightningFastEditor: React.FC = () => {
           style={{
             animationPlayState: isIntersecting ? "running" : "paused",
             width: 500,
+            maxWidth: "100%",
             borderRadius: 7,
             overflow: "hidden",
           }}
