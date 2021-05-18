@@ -2,6 +2,7 @@ import {createWriteStream, mkdirSync} from 'fs';
 import got from 'got';
 import path from 'path';
 import {random, TAsset} from 'remotion';
+import sanitizeFilename from 'sanitize-filename';
 import stream from 'stream';
 import {promisify} from 'util';
 
@@ -64,22 +65,29 @@ export const downloadAndMapAssetsToFileUrl = async ({
 }): Promise<TAsset> => {
 	const {pathname, search} = new URL(localhostAsset.src);
 
-	const split = pathname.split('.');
-	const fileExtension =
-		split.length > 1 && split[split.length - 1]
-			? `.${split[split.length - 1]}`
-			: '';
-	const hashedFileName = String(random(`${pathname}${search}`)).replace(
-		'0.',
-		''
-	);
-	const newSrc = path.join(webpackBundle, hashedFileName + fileExtension);
 	if (localhostAsset.isRemote) {
+		const split = pathname.split('.');
+		const fileExtension =
+			split.length > 1 && split[split.length - 1]
+				? `.${split[split.length - 1]}`
+				: '';
+		const hashedFileName = String(random(`${pathname}${search}`)).replace(
+			'0.',
+			''
+		);
+		const newSrc = path.join(
+			webpackBundle,
+			sanitizeFilename(hashedFileName + fileExtension)
+		);
 		await downloadAsset(localhostAsset.src, newSrc, onDownload);
+		return {
+			...localhostAsset,
+			src: newSrc,
+		};
 	}
 
 	return {
 		...localhostAsset,
-		src: newSrc,
+		src: path.join(webpackBundle, sanitizeFilename(pathname)),
 	};
 };
