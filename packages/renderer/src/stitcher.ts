@@ -9,6 +9,7 @@ import {
 } from 'remotion';
 import {calculateAssetPositions} from './assets/calculate-asset-positions';
 import {convertAssetsToFileUrls} from './assets/convert-assets-to-file-urls';
+import {markAllAssetsAsDownloaded} from './assets/download-and-map-assets-to-file';
 import {getAssetAudioDetails} from './assets/get-asset-audio-details';
 import {calculateFfmpegFilters} from './calculate-ffmpeg-filters';
 import {createFfmpegComplexFilter} from './create-ffmpeg-complex-filter';
@@ -57,6 +58,7 @@ const getAudioCodecName = (codec: Codec): string | null => {
 	return null;
 };
 
+// eslint-disable-next-line complexity
 export const stitchFramesToVideo = async (options: {
 	dir: string;
 	fps: number;
@@ -118,6 +120,7 @@ export const stitchFramesToVideo = async (options: {
 		dir: options.assetsInfo.bundleDir,
 		onDownload: options.onDownload ?? (() => undefined),
 	});
+	markAllAssetsAsDownloaded();
 	const assetPositions = calculateAssetPositions(fileUrlAssets);
 
 	const assetPaths = assetPositions.map((asset) => resolveAssetSrc(asset.src));
