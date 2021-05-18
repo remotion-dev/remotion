@@ -70,12 +70,6 @@ module.exports = {
           title: "Community",
           items: [
             {
-              label: "Twitter",
-              href: "https://twitter.com/JNYBGR",
-              "data-splitbee-event": "External Link",
-              "data-splitbee-event-target": "Twitter",
-            },
-            {
               label: "GitHub Issues",
               href: "https://github.com/JonnyBurger/remotion/issues",
               "data-splitbee-event": "External Link",
@@ -86,6 +80,12 @@ module.exports = {
               href: "https://discord.gg/6VzzNDwUwV",
               "data-splitbee-event": "External Link",
               "data-splitbee-event-target": "Discord",
+            },
+            {
+              label: "Twitter",
+              href: "https://twitter.com/JNYBGR",
+              "data-splitbee-event": "External Link",
+              "data-splitbee-event-target": "Twitter",
             },
           ],
         },
@@ -99,6 +99,10 @@ module.exports = {
             {
               label: "GitHub",
               href: "https://github.com/JonnyBurger/remotion",
+            },
+            {
+              label: "For companies",
+              href: "https://companies.remotion.dev",
             },
           ],
         },
