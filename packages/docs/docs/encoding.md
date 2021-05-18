@@ -59,6 +59,17 @@ No matter which codec you end up using, there's always a tradeoff between file s
 
 Be cautious: Every codec has it's own range of acceptable values and a different default. So while `23` will look very good on a H264 video, it will look terrible on a WebM video. Use this chart to determine which CRF value to use:
 
+<details style={{fontSize: '0.9em'}}>
+<summary>
+Changelog
+</summary>
+<ul>
+<li>
+Since version 2.1.3, Remotion doesn't allow the CRF to be set to <code>0</code> anymore because of the issues it causes on macOS/iOS and possible other scenarios. Set the CRF to 1 or higher.
+</li>
+</ul>
+</details>
+<div style={{height: 10}}/>
 <table>
 <tr>
 <th>
@@ -79,7 +90,7 @@ Default
 H264
 </td>
 <td>
-0
+1
 </td>
 <td>
 51</td>
