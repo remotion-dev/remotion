@@ -4,6 +4,7 @@ import {
 	getOutputCodecOrUndefined,
 	setCodec,
 } from '../config/codec';
+import {expectToThrow} from "./expect-to-throw";
 
 // getFinalOutputCodec
 
@@ -88,4 +89,8 @@ describe('Codec tests setOutputFormat', () => {
 			expect(getOutputCodecOrUndefined()).toEqual(entry);
 		})
 	);
+	test('setCodec with invalid coded', () => {
+		// @ts-expect-error
+		expectToThrow(() => setCodec('invalid'), /Codec must be one of the following:/)
+	})
 });
