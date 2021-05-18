@@ -54,6 +54,36 @@ const downloadAsset = async (
 	notifyAssetIsDownloaded(src);
 };
 
+export const getSanitizedFilenameForAssetUrl = ({
+	src,
+	isRemote,
+	webpackBundle,
+}: {
+	src: string;
+	isRemote: boolean;
+	webpackBundle: string;
+}) => {
+	const {pathname, search} = new URL(src);
+
+	if (!isRemote) {
+		return path.join(webpackBundle, sanitizeFilename(pathname));
+	}
+
+	const split = pathname.split('.');
+	const fileExtension =
+		split.length > 1 && split[split.length - 1]
+			? `.${split[split.length - 1]}`
+			: '';
+	const hashedFileName = String(random(`${pathname}${search}`)).replace(
+		'0.',
+		''
+	);
+	return path.join(
+		webpackBundle,
+		sanitizeFilename(hashedFileName + fileExtension)
+	);
+};
+
 export const downloadAndMapAssetsToFileUrl = async ({
 	localhostAsset,
 	webpackBundle,
@@ -63,31 +93,18 @@ export const downloadAndMapAssetsToFileUrl = async ({
 	webpackBundle: string;
 	onDownload: (src: string) => void;
 }): Promise<TAsset> => {
-	const {pathname, search} = new URL(localhostAsset.src);
+	const newSrc = getSanitizedFilenameForAssetUrl({
+		src: localhostAsset.src,
+		isRemote: localhostAsset.isRemote,
+		webpackBundle,
+	});
 
 	if (localhostAsset.isRemote) {
-		const split = pathname.split('.');
-		const fileExtension =
-			split.length > 1 && split[split.length - 1]
-				? `.${split[split.length - 1]}`
-				: '';
-		const hashedFileName = String(random(`${pathname}${search}`)).replace(
-			'0.',
-			''
-		);
-		const newSrc = path.join(
-			webpackBundle,
-			sanitizeFilename(hashedFileName + fileExtension)
-		);
 		await downloadAsset(localhostAsset.src, newSrc, onDownload);
-		return {
-			...localhostAsset,
-			src: newSrc,
-		};
 	}
 
 	return {
 		...localhostAsset,
-		src: path.join(webpackBundle, sanitizeFilename(pathname)),
+		src: newSrc,
 	};
 };
