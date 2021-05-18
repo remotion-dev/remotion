@@ -1,7 +1,7 @@
 import {createWriteStream, mkdirSync} from 'fs';
 import got from 'got';
 import path from 'path';
-import {TAsset} from 'remotion';
+import {random, TAsset} from 'remotion';
 import sanitizeFilename from 'sanitize-filename';
 import stream from 'stream';
 import {promisify} from 'util';
@@ -54,6 +54,46 @@ const downloadAsset = async (
 	notifyAssetIsDownloaded(src);
 };
 
+export const markAllAssetsAsDownloaded = () => {
+	Object.keys(hasBeenDownloadedMap).forEach((key) => {
+		delete hasBeenDownloadedMap[key];
+	});
+
+	Object.keys(isDownloadingMap).forEach((key) => {
+		delete isDownloadingMap[key];
+	});
+};
+
+export const getSanitizedFilenameForAssetUrl = ({
+	src,
+	isRemote,
+	webpackBundle,
+}: {
+	src: string;
+	isRemote: boolean;
+	webpackBundle: string;
+}) => {
+	const {pathname, search} = new URL(src);
+
+	if (!isRemote) {
+		return path.join(webpackBundle, sanitizeFilename(pathname));
+	}
+
+	const split = pathname.split('.');
+	const fileExtension =
+		split.length > 1 && split[split.length - 1]
+			? `.${split[split.length - 1]}`
+			: '';
+	const hashedFileName = String(random(`${pathname}${search}`)).replace(
+		'0.',
+		''
+	);
+	return path.join(
+		webpackBundle,
+		sanitizeFilename(hashedFileName + fileExtension)
+	);
+};
+
 export const downloadAndMapAssetsToFileUrl = async ({
 	localhostAsset,
 	webpackBundle,
@@ -63,8 +103,12 @@ export const downloadAndMapAssetsToFileUrl = async ({
 	webpackBundle: string;
 	onDownload: (src: string) => void;
 }): Promise<TAsset> => {
-	const {pathname} = new URL(localhostAsset.src);
-	const newSrc = path.join(webpackBundle, sanitizeFilename(pathname));
+	const newSrc = getSanitizedFilenameForAssetUrl({
+		src: localhostAsset.src,
+		isRemote: localhostAsset.isRemote,
+		webpackBundle,
+	});
+
 	if (localhostAsset.isRemote) {
 		await downloadAsset(localhostAsset.src, newSrc, onDownload);
 	}
