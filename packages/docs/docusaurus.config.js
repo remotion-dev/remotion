@@ -9,6 +9,11 @@ module.exports = {
   organizationName: "JonnyBurger", // Usually your GitHub org/user name.
   projectName: "remotion", // Usually your repo name.
   themeConfig: {
+    algolia: {
+      apiKey: "f63f08c037745da5269569bfbd91cd59",
+      indexName: "remotion",
+      contextualSearch: false,
+    },
     image: "img/social-preview.png",
     prism: {
       theme: require("prism-react-renderer/themes/github"),
