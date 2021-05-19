@@ -47,6 +47,9 @@ const downloadAsset = async (
 		recursive: true,
 	});
 
+	// Listen to 'close' event instead of more
+	// concise method to avoid this problem
+	// https://github.com/JonnyBurger/remotion/issues/384#issuecomment-844398183
 	await new Promise<void>((resolve, reject) => {
 		const writeStream = createWriteStream(to);
 
