@@ -1,9 +1,9 @@
 import chalk from 'chalk';
 import {BINARY_NAME} from '../bundle-remotion';
 import {CLEANUP_COMMAND} from './cleanup';
-import {UPLOAD_COMMAND} from './deploy';
 import {Log} from './log';
 import {RENDER_COMMAND} from './render';
+import {UPLOAD_COMMAND} from './upload';
 
 const packagejson = require('../../package.json');
 
