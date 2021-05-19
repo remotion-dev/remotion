@@ -31,7 +31,7 @@ Inline JSON string isn't supported on Windows because it removes the `"` charact
 
 ### `--image-format`
 
-[`jpeg` or `png` - JPEG is faster, but supports transparency.](/docs/config#setimageformat) The default image format is `jpeg` since v1.1. Flag available since v1.4.
+[`jpeg` or `png` - JPEG is faster, but doesn't support transparency.](/docs/config#setimageformat) The default image format is `jpeg` since v1.1. Flag available since v1.4.
 
 ### `--config`
 
