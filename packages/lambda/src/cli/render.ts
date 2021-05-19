@@ -8,6 +8,8 @@ import {sleep} from '../sleep';
 import {parsedCli} from './args';
 import {Log} from './log';
 
+export const RENDER_COMMAND = 'render';
+
 export const renderCommand = async () => {
 	const serveUrl = parsedCli._[1];
 	if (!serveUrl) {

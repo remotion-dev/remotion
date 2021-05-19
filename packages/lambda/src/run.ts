@@ -2,17 +2,36 @@ import {CliInternals} from '@remotion/cli';
 import {lambdaClient, s3Client} from './aws-clients';
 import {callLambda} from './call-lambda';
 import {checkLambdaStatus} from './check-lambda-status';
-import {cleanupLambdas} from './cleanup/cleanup-lambdas';
-import {cleanUpBuckets} from './cleanup/s3-buckets';
+import {cleanupLambdas, getRemotionLambdas} from './cleanup/cleanup-lambdas';
+import {cleanUpBuckets, getRemotionS3Buckets} from './cleanup/s3-buckets';
 import {LambdaRoutines} from './constants';
 import {createLambda} from './create-lambda';
+import {makeS3Url} from './make-s3-url';
 import {sleep} from './sleep';
 
-CliInternals.xns(async () => {
-	await cleanupLambdas({lambdaClient});
-	await cleanUpBuckets({s3client: s3Client});
-	const {functionName, bucketUrl} = await createLambda();
+const DEPLOY = false;
 
+const getFnName = async (): Promise<{
+	functionName: string;
+	bucketUrl: string;
+}> => {
+	if (DEPLOY) {
+		await cleanupLambdas({lambdaClient});
+		await cleanUpBuckets({s3client: s3Client});
+		const {functionName, bucketUrl} = await createLambda();
+		return {functionName, bucketUrl};
+	}
+
+	const lambdas = await getRemotionLambdas(lambdaClient);
+	const {remotionBuckets} = await getRemotionS3Buckets(s3Client);
+	return {
+		functionName: lambdas[0].FunctionName as string,
+		bucketUrl: makeS3Url(remotionBuckets[0] as string),
+	};
+};
+
+CliInternals.xns(async () => {
+	const {functionName, bucketUrl} = await getFnName();
 	const res = await callLambda({
 		functionName,
 		type: LambdaRoutines.start,

@@ -14,7 +14,9 @@ import {
 import {parsedCli} from './args';
 import {Log} from './log';
 
-export const deployCommand = async () => {
+export const UPLOAD_COMMAND = 'upload';
+
+export const uploadCommand = async () => {
 	const fileName = parsedCli._[1];
 	if (!fileName) {
 		Log.error('No entry file passed.');
