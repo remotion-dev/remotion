@@ -3,35 +3,32 @@ import {
 	LambdaClient,
 	ListFunctionsCommand,
 } from '@aws-sdk/client-lambda';
-import {CliInternals} from '@remotion/cli';
-import {REGION, RENDER_FN_PREFIX} from '../constants';
+import {RENDER_FN_PREFIX} from '../constants';
 
-export const cleanupLambdas = CliInternals.xns(
-	async (
-		lambdaClient: LambdaClient = new LambdaClient({
-			region: REGION,
-		})
-	) => {
-		// TODO: Pagination
-		// eslint-disable-next-line no-constant-condition
-		while (true) {
-			const lambdas = await lambdaClient.send(new ListFunctionsCommand({}));
+export const getRemotionLambdas = async (lambdaClient: LambdaClient) => {
+	const lambdas = await lambdaClient.send(new ListFunctionsCommand({}));
 
-			const remotionLambdas = (lambdas.Functions || []).filter((f) =>
-				f.FunctionName?.startsWith(RENDER_FN_PREFIX)
-			);
-			if (remotionLambdas.length === 0) {
-				break;
-			}
+	const remotionLambdas = (lambdas.Functions || []).filter((f) =>
+		f.FunctionName?.startsWith(RENDER_FN_PREFIX)
+	);
 
-			for (const lambda of remotionLambdas) {
-				console.log('Deleting lambda', lambda.FunctionName);
-				await lambdaClient.send(
-					new DeleteFunctionCommand({
-						FunctionName: lambda.FunctionName,
-					})
-				);
-			}
-		}
+	return remotionLambdas;
+};
+
+export const cleanupLambdas = async (lambdaClient: LambdaClient) => {
+	const remotionLambdas = await getRemotionLambdas(lambdaClient);
+	if (remotionLambdas.length === 0) {
+		return;
 	}
-);
+
+	for (const lambda of remotionLambdas) {
+		console.log('Deleting lambda', lambda.FunctionName);
+		await lambdaClient.send(
+			new DeleteFunctionCommand({
+				FunctionName: lambda.FunctionName,
+			})
+		);
+	}
+
+	await cleanupLambdas(lambdaClient);
+};

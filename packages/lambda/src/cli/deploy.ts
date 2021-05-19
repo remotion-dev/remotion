@@ -41,7 +41,7 @@ export const deployCommand = async () => {
 		process.exit(1);
 	}
 
-	const progressBar = CliInternals.createProgressBar();
+	const progressBar = CliInternals.createOverwriteableCliOutput();
 
 	const multiProgress: {
 		bundleProgress: BundleProgress;

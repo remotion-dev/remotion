@@ -19,7 +19,7 @@ import {loadConfigFile} from './load-config';
 import {Log} from './log';
 import {parseCommandLine, parsedCli} from './parse-command-line';
 import {
-	createProgressBar,
+	createOverwriteableCliOutput,
 	makeBundlingProgress,
 	makeRenderingProgress,
 	makeStitchingProgres,
@@ -106,7 +106,7 @@ export const render = async () => {
 	}
 
 	const bundleStartTime = Date.now();
-	const bundlingProgress = createProgressBar();
+	const bundlingProgress = createOverwriteableCliOutput();
 	const bundled = await bundle(
 		fullPath,
 		(progress) => {
@@ -154,7 +154,7 @@ export const render = async () => {
 
 	Log.verbose('Output dir', outputDir);
 
-	const renderProgress = createProgressBar();
+	const renderProgress = createOverwriteableCliOutput();
 	let totalFrames = 0;
 	const renderStart = Date.now();
 	const {assetsInfo} = await renderFrames({
@@ -217,7 +217,7 @@ export const render = async () => {
 			throw new TypeError('CRF is unexpectedly not a number');
 		}
 
-		const stitchingProgress = createProgressBar();
+		const stitchingProgress = createOverwriteableCliOutput();
 
 		stitchingProgress.update(
 			makeStitchingProgres({

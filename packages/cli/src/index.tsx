@@ -5,7 +5,7 @@ import {Log} from './log';
 import {parsedCli} from './parse-command-line';
 import {previewCommand} from './preview';
 import {printHelp} from './print-help';
-import {createProgressBar, makeProgressBar} from './progress-bar';
+import {createOverwriteableCliOutput, makeProgressBar} from './progress-bar';
 import {render} from './render';
 import {upgrade} from './upgrade';
 
@@ -37,7 +37,7 @@ export const cli = async () => {
 export * from './render';
 
 export const CliInternals = {
-	createProgressBar,
+	createOverwriteableCliOutput,
 	chalk,
 	xns,
 	makeProgressBar,
