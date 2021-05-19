@@ -1,7 +1,7 @@
 import {Player} from '../index';
 import {HelloWorld, render} from './test-utils';
 
-test('no durationInFrames should give errors', () => {
+test('no compositionWidth should give errors', () => {
 	try {
 		render(
 			<Player
@@ -18,6 +18,116 @@ test('no durationInFrames should give errors', () => {
 	} catch (e) {
 		expect(e.message).toMatch(
 			/'compositionWidth' must be a number but got 'object' instead/
+		);
+	}
+});
+
+test('no compositionHeight should give errors', () => {
+	try {
+		render(
+			<Player
+				compositionWidth={400}
+				// @ts-expect-error
+				compositionHeight={undefined}
+				fps={30}
+				durationInFrames={500}
+				component={HelloWorld}
+				controls
+				showVolumeControls
+			/>
+		);
+	} catch (e) {
+		expect(e.message).toMatch(
+			/'compositionHeight' must be a number but got 'undefined' instead/
+		);
+	}
+});
+
+test('No fps should give errors', () => {
+	try {
+		render(
+			<Player
+				compositionWidth={500}
+				compositionHeight={400}
+				// @ts-expect-error
+				fps={null}
+				durationInFrames={500}
+				component={HelloWorld}
+				controls
+				showVolumeControls
+			/>
+		);
+	} catch (e) {
+		expect(e.message).toMatch(
+			/'fps' must be a number but got 'object' instead/
+		);
+	}
+
+	try {
+		render(
+			<Player
+				compositionWidth={500}
+				compositionHeight={400}
+				// @ts-expect-error
+				fps={undefined}
+				durationInFrames={500}
+				component={HelloWorld}
+				controls
+				showVolumeControls
+			/>
+		);
+	} catch (e) {
+		expect(e.message).toMatch(
+			/'fps' must be a number but got 'undefined' instead/
+		);
+	}
+});
+
+test('No durationInFrames should give errors', () => {
+	try {
+		render(
+			<Player
+				compositionWidth={500}
+				compositionHeight={400}
+				fps={30}
+				// @ts-expect-error
+				durationInFrames={undefined}
+				component={HelloWorld}
+				controls
+				showVolumeControls
+			/>
+		);
+	} catch (e) {
+		expect(e.message).toMatch(
+			/'durationInFrames' must be a number but got 'undefined' instead/
+		);
+	}
+});
+
+test.each([
+	['controls'],
+	['loop'],
+	['autoPlay'],
+	['showVolumeControls'],
+	['allowFullscreen'],
+	['clickToPlay'],
+])('No durationInFrames should give errors %s', (a: string) => {
+	const props: {[name: string]: string} = {};
+	props[a] = 'hey';
+	try {
+		render(
+			<Player
+				compositionWidth={500}
+				compositionHeight={400}
+				fps={30}
+				durationInFrames={100}
+				component={HelloWorld}
+				{...props}
+			/>
+		);
+	} catch (e) {
+		expect(e.message).toMatch(
+			`'${a}' must be a boolean or undefined but got 'string' instead`
 		);
 	}
 });
