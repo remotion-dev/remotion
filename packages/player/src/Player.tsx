@@ -11,12 +11,12 @@ import {
 	CompositionManagerContext,
 	CompProps,
 	Internals,
+	LooseAnyComponent,
 	MediaVolumeContextValue,
 	SetMediaVolumeContextValue,
 	SetTimelineContextValue,
 	TimelineContextValue,
 } from 'remotion';
-import {LooseAnyComponent} from 'remotion/src/any-component';
 import {PlayerEventEmitterContext} from './emitter-context';
 import {PlayerEmitter} from './event-emitter';
 import {PLAYER_CSS_CLASSNAME} from './player-css-classname';
@@ -55,8 +55,8 @@ Internals.CSSUtils.injectCSS(
 export const PlayerFn = <T,>(
 	{
 		durationInFrames,
-		compositionHeight: height,
-		compositionWidth: width,
+		compositionHeight,
+		compositionWidth,
 		fps,
 		inputProps,
 		style,
@@ -79,29 +79,22 @@ export const PlayerFn = <T,>(
 	const [mediaMuted, setMediaMuted] = useState<boolean>(false);
 	const [mediaVolume, setMediaVolume] = useState<number>(getPreferredVolume());
 
-	if (typeof height !== 'number') {
+	if (typeof compositionHeight !== 'number') {
 		throw new TypeError(
-			`'compositionHeight' must be a number but got '${typeof height}' instead`
+			`'compositionHeight' must be a number but got '${typeof compositionHeight}' instead`
 		);
 	}
 
-	if (typeof width !== 'number') {
+	if (typeof compositionWidth !== 'number') {
 		throw new TypeError(
-			`'compositionWidth' must be a number but got '${typeof width}' instead`
+			`'compositionWidth' must be a number but got '${typeof compositionWidth}' instead`
 		);
 	}
 
-	if (typeof durationInFrames !== 'number') {
-		throw new TypeError(
-			`'durationInFrames' must be a number but got '${typeof durationInFrames}' instead`
-		);
-	}
-
-	if (typeof fps !== 'number') {
-		throw new TypeError(
-			`'fps' must be a number but got '${typeof fps}' instead`
-		);
-	}
+	Internals.validateDimension(compositionHeight, 'compositionHeight');
+	Internals.validateDimension(compositionWidth, 'compositionWidth');
+	Internals.validateDurationInFrames(durationInFrames);
+	Internals.validateFps(fps);
 
 	if (typeof controls !== 'boolean' && typeof controls !== 'undefined') {
 		throw new TypeError(
@@ -191,8 +184,8 @@ export const PlayerFn = <T,>(
 						LooseAnyComponent<unknown>
 					>,
 					durationInFrames,
-					height,
-					width,
+					height: compositionHeight,
+					width: compositionWidth,
 					fps,
 					id: 'player-comp',
 					props: inputProps as unknown,
@@ -210,7 +203,14 @@ export const PlayerFn = <T,>(
 			unregisterAsset: () => undefined,
 			assets: [],
 		};
-	}, [component, durationInFrames, height, width, fps, inputProps]);
+	}, [
+		component,
+		durationInFrames,
+		compositionHeight,
+		compositionWidth,
+		fps,
+		inputProps,
+	]);
 
 	const passedInputProps = useMemo(() => {
 		return inputProps ?? {};
