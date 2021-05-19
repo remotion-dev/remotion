@@ -82,6 +82,24 @@ describe('Composition-validation render should throw with invalid props', () => 
 				/The "height" of a composition must be a number, but you passed a string/
 			);
 		});
+		test('It should throw if height is not an integer', () => {
+			expectToThrow(
+				() =>
+					render(
+						<RemotionRoot>
+							<Composition
+								lazyComponent={() => Promise.resolve({default: AnyComp})}
+								durationInFrames={100}
+								fps={30}
+								height={100.01}
+								width={100}
+								id="id"
+							/>
+						</RemotionRoot>
+					),
+				/The "height" of a composition must be an integer, but is 100.01/
+			);
+		});
 	});
 	describe('Throw with invalid width props', () => {
 		test('It should throw if width is a negative number', () => {
