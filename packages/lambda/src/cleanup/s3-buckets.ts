@@ -8,7 +8,7 @@ import {
 import {CliInternals} from '@remotion/cli';
 import pLimit from 'p-limit';
 import {Internals} from 'remotion';
-import {LAMBDA_BUCKET_PREFIX, REGION, RENDERS_BUCKET_PREFIX} from './constants';
+import {LAMBDA_BUCKET_PREFIX, RENDERS_BUCKET_PREFIX} from '../constants';
 
 const limit = pLimit(10);
 
@@ -47,27 +47,36 @@ const cleanBucket = async (s3client: S3Client, bucket: string) => {
 	);
 };
 
-export const cleanUpBuckets = CliInternals.xns(
-	async (
-		s3client: S3Client = new S3Client({
-			region: REGION,
-		})
-	) => {
-		// TODO: pagination
-		const {Buckets} = await s3client.send(new ListBucketsCommand({}));
-		if (!Buckets) {
-			console.log('No buckets available.');
-			return;
-		}
-
-		const remotionBuckets = Buckets.filter(
-			(b) =>
-				b.Name?.startsWith(RENDERS_BUCKET_PREFIX) ||
-				b.Name?.startsWith(LAMBDA_BUCKET_PREFIX)
-		);
-		const names = remotionBuckets.map((b) => b.Name).filter(Internals.truthy);
-		for (const bucket of names) {
-			await cleanBucket(s3client, bucket);
-		}
+export const cleanUpBuckets = CliInternals.xns(async (s3client: S3Client) => {
+	const {remotionBuckets} = await getRemotionS3Buckets(s3client);
+	if (remotionBuckets.length === 0) {
+		return;
 	}
-);
+
+	for (const bucket of remotionBuckets) {
+		await cleanBucket(s3client, bucket);
+	}
+
+	await cleanUpBuckets(s3client);
+});
+
+export const getRemotionS3Buckets = async (
+	s3Client: S3Client
+): Promise<{
+	remotionBuckets: string[];
+}> => {
+	const {Buckets} = await s3Client.send(new ListBucketsCommand({}));
+	if (!Buckets) {
+		return {remotionBuckets: []};
+	}
+
+	const remotionBuckets = Buckets.filter(
+		(b) =>
+			b.Name?.startsWith(RENDERS_BUCKET_PREFIX) ||
+			b.Name?.startsWith(LAMBDA_BUCKET_PREFIX)
+	);
+	const names = remotionBuckets.map((b) => b.Name).filter(Internals.truthy);
+	return {
+		remotionBuckets: names,
+	};
+};

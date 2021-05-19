@@ -4,7 +4,7 @@ import {
 	ListFunctionsCommand,
 } from '@aws-sdk/client-lambda';
 import {CliInternals} from '@remotion/cli';
-import {REGION, RENDER_FN_PREFIX} from './constants';
+import {REGION, RENDER_FN_PREFIX} from '../constants';
 
 export const cleanupLambdas = CliInternals.xns(
 	async (

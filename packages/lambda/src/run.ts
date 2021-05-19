@@ -1,15 +1,16 @@
 import {CliInternals} from '@remotion/cli';
+import {s3Client} from './aws-clients';
 import {callLambda} from './call-lambda';
 import {checkLambdaStatus} from './check-lambda-status';
-import {cleanUpBuckets} from './cleanup-buckets';
-import {cleanupLambdas} from './cleanup-lambdas';
+import {cleanupLambdas} from './cleanup/cleanup-lambdas';
+import {cleanUpBuckets} from './cleanup/s3-buckets';
 import {LambdaRoutines} from './constants';
 import {createLambda} from './create-lambda';
 import {sleep} from './sleep';
 
 CliInternals.xns(async () => {
 	await cleanupLambdas();
-	await cleanUpBuckets();
+	await cleanUpBuckets(s3Client);
 	const {functionName, bucketUrl} = await createLambda();
 
 	const res = await callLambda({
