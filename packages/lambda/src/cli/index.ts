@@ -1,5 +1,5 @@
 import {parsedCli} from './args';
-import {cleanupCommand} from './cleanup';
+import {cleanupCommand, CLEANUP_COMMAND} from './cleanup';
 import {deployCommand} from './deploy';
 import {printHelp} from './help';
 import {Log} from './log';
@@ -19,8 +19,8 @@ export const cli = async () => {
 		return renderCommand();
 	}
 
-	if (parsedCli._[0] === 'cleanup') {
-		return cleanupCommand();
+	if (parsedCli._[0] === CLEANUP_COMMAND) {
+		return cleanupCommand(parsedCli._.slice(1));
 	}
 
 	Log.error(`Command ${parsedCli._[0]} not found.`);

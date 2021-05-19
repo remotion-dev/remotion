@@ -15,20 +15,29 @@ export const getRemotionLambdas = async (lambdaClient: LambdaClient) => {
 	return remotionLambdas;
 };
 
-export const cleanupLambdas = async (lambdaClient: LambdaClient) => {
+export const cleanupLambdas = async ({
+	lambdaClient,
+	onBeforeDelete,
+	onAfterDelete,
+}: {
+	lambdaClient: LambdaClient;
+	onBeforeDelete?: (lambdaName: string) => void;
+	onAfterDelete?: (lambdaName: string) => void;
+}) => {
 	const remotionLambdas = await getRemotionLambdas(lambdaClient);
 	if (remotionLambdas.length === 0) {
 		return;
 	}
 
 	for (const lambda of remotionLambdas) {
-		console.log('Deleting lambda', lambda.FunctionName);
+		onBeforeDelete?.(lambda.FunctionName as string);
 		await lambdaClient.send(
 			new DeleteFunctionCommand({
 				FunctionName: lambda.FunctionName,
 			})
 		);
+		onAfterDelete?.(lambda.FunctionName as string);
 	}
 
-	await cleanupLambdas(lambdaClient);
+	await cleanupLambdas({lambdaClient, onBeforeDelete, onAfterDelete});
 };

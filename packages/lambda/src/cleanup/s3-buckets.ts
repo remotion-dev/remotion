@@ -5,14 +5,23 @@ import {
 	ListObjectsCommand,
 	S3Client,
 } from '@aws-sdk/client-s3';
-import {CliInternals} from '@remotion/cli';
 import pLimit from 'p-limit';
 import {Internals} from 'remotion';
 import {LAMBDA_BUCKET_PREFIX, RENDERS_BUCKET_PREFIX} from '../constants';
 
 const limit = pLimit(10);
 
-const cleanItems = async (s3client: S3Client, bucket: string) => {
+const cleanItems = async ({
+	s3client,
+	bucket,
+	onAfterItemDeleted,
+	onBeforeItemDeleted,
+}: {
+	s3client: S3Client;
+	bucket: string;
+	onBeforeItemDeleted: (data: {bucketName: string; itemName: string}) => void;
+	onAfterItemDeleted: (data: {bucketName: string; itemName: string}) => void;
+}) => {
 	const list = await s3client.send(
 		new ListObjectsCommand({
 			Bucket: bucket,
@@ -22,23 +31,45 @@ const cleanItems = async (s3client: S3Client, bucket: string) => {
 		await Promise.all(
 			list.Contents.map((object) =>
 				limit(async () => {
+					onBeforeItemDeleted({
+						bucketName: bucket,
+						itemName: object.Key as string,
+					});
 					await s3client.send(
 						new DeleteObjectCommand({
 							Bucket: bucket,
 							Key: object.Key,
 						})
 					);
-					console.log('Deleted', `${bucket}/${object.Key}`);
+					onAfterItemDeleted({
+						bucketName: bucket,
+						itemName: object.Key as string,
+					});
 				})
 			)
 		);
 
-		await cleanItems(s3client, bucket);
+		await cleanItems({
+			s3client,
+			bucket,
+			onAfterItemDeleted,
+			onBeforeItemDeleted,
+		});
 	}
 };
 
-const cleanBucket = async (s3client: S3Client, bucket: string) => {
-	await cleanItems(s3client, bucket);
+const cleanBucket = async ({
+	s3client,
+	bucket,
+	onAfterItemDeleted,
+	onBeforeItemDeleted,
+}: {
+	s3client: S3Client;
+	bucket: string;
+	onAfterItemDeleted: (data: {bucketName: string; itemName: string}) => void;
+	onBeforeItemDeleted: (data: {bucketName: string; itemName: string}) => void;
+}) => {
+	await cleanItems({s3client, bucket, onAfterItemDeleted, onBeforeItemDeleted});
 
 	await s3client.send(
 		new DeleteBucketCommand({
@@ -47,18 +78,41 @@ const cleanBucket = async (s3client: S3Client, bucket: string) => {
 	);
 };
 
-export const cleanUpBuckets = CliInternals.xns(async (s3client: S3Client) => {
+export const cleanUpBuckets = async ({
+	s3client,
+	onBeforeBucketDeleted,
+	onAfterBucketDeleted,
+	onAfterItemDeleted,
+	onBeforeItemDeleted,
+}: {
+	s3client: S3Client;
+	onBeforeBucketDeleted?: (bucketName: string) => void;
+	onAfterItemDeleted?: (data: {bucketName: string; itemName: string}) => void;
+	onBeforeItemDeleted?: (data: {bucketName: string; itemName: string}) => void;
+	onAfterBucketDeleted?: (bucketName: string) => void;
+}) => {
 	const {remotionBuckets} = await getRemotionS3Buckets(s3client);
 	if (remotionBuckets.length === 0) {
 		return;
 	}
 
 	for (const bucket of remotionBuckets) {
-		await cleanBucket(s3client, bucket);
+		onBeforeBucketDeleted?.(bucket);
+		await cleanBucket({
+			s3client,
+			bucket,
+			onAfterItemDeleted: onAfterItemDeleted ?? (() => undefined),
+			onBeforeItemDeleted: onBeforeItemDeleted ?? (() => undefined),
+		});
+		onAfterBucketDeleted?.(bucket);
 	}
 
-	await cleanUpBuckets(s3client);
-});
+	await cleanUpBuckets({
+		s3client,
+		onAfterBucketDeleted,
+		onBeforeBucketDeleted,
+	});
+};
 
 export const getRemotionS3Buckets = async (
 	s3Client: S3Client

@@ -9,8 +9,8 @@ import {createLambda} from './create-lambda';
 import {sleep} from './sleep';
 
 CliInternals.xns(async () => {
-	await cleanupLambdas(lambdaClient);
-	await cleanUpBuckets(s3Client);
+	await cleanupLambdas({lambdaClient});
+	await cleanUpBuckets({s3client: s3Client});
 	const {functionName, bucketUrl} = await createLambda();
 
 	const res = await callLambda({
