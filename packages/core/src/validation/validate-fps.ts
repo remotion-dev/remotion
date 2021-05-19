@@ -1,6 +1,8 @@
 export const validateFps = (fps: number) => {
 	if (typeof fps !== 'number') {
-		throw new Error(`"fps" must be a number, but you passed a ${typeof fps}`);
+		throw new Error(
+			`"fps" must be a number, but you passed a value of type ${typeof fps}`
+		);
 	}
 
 	if (!Number.isFinite(fps)) {
