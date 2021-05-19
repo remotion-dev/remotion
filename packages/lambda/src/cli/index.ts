@@ -2,6 +2,7 @@ import {parsedCli} from './args';
 import {cleanupCommand, CLEANUP_COMMAND} from './cleanup';
 import {deployCommand, DEPLOY_COMMAND} from './deploy';
 import {printHelp} from './help';
+import {infoCommand} from './info';
 import {Log} from './log';
 import {renderCommand, RENDER_COMMAND} from './render';
 import {uploadCommand, UPLOAD_COMMAND} from './upload';
@@ -10,6 +11,11 @@ export const cli = async () => {
 	if (parsedCli.help || parsedCli._.length === 0) {
 		printHelp();
 		process.exit(0);
+	}
+
+	if (parsedCli._[0] === 'info') {
+		await infoCommand();
+		return;
 	}
 
 	if (parsedCli._[0] === DEPLOY_COMMAND) {
