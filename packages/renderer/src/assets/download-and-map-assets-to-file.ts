@@ -3,14 +3,10 @@ import got from 'got';
 import path from 'path';
 import {random, TAsset} from 'remotion';
 import sanitizeFilename from 'sanitize-filename';
-import stream from 'stream';
-import {promisify} from 'util';
 
 const isDownloadingMap: {[key: string]: boolean} = {};
 const hasBeenDownloadedMap: {[key: string]: boolean} = {};
 const listeners: {[key: string]: (() => void)[]} = {};
-
-const pipeline = promisify(stream.pipeline);
 
 const waitForAssetToBeDownloaded = (src: string) => {
 	if (!listeners[src]) {
@@ -50,7 +46,18 @@ const downloadAsset = async (
 	mkdirSync(path.resolve(to, '..'), {
 		recursive: true,
 	});
-	await pipeline(got.stream(src), createWriteStream(to));
+
+	await new Promise<void>((resolve, reject) => {
+		const writeStream = createWriteStream(to);
+
+		writeStream.on('close', () => resolve());
+		writeStream.on('error', (err) => reject(err));
+
+		got
+			.stream(src)
+			.pipe(writeStream)
+			.on('error', (err) => reject(err));
+	});
 	notifyAssetIsDownloaded(src);
 };
 
