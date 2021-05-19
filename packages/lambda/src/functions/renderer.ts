@@ -11,6 +11,7 @@ import {
 } from '../constants';
 import {getBrowserInstance} from '../get-browser-instance';
 import {lambdaWriteFile} from '../io';
+import {randomHash} from '../random-hash';
 import {timer} from '../timer';
 import {tmpDir} from '../tmpdir';
 
@@ -20,7 +21,7 @@ const renderHandler = async (params: LambdaPayload) => {
 	}
 
 	const browserInstance = await getBrowserInstance();
-	const outputDir = '/tmp/remotion-render-' + Math.random();
+	const outputDir = '/tmp/remotion-render-' + randomHash();
 	if (fs.existsSync(outputDir)) {
 		(fs.rmSync ?? fs.rmdirSync)(outputDir);
 	}

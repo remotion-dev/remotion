@@ -9,6 +9,7 @@ import {
 	RENDER_FN_PREFIX,
 } from './constants';
 import {ensureLayers} from './lambda-layers';
+import {randomHash} from './random-hash';
 import {waitForLambdaReady} from './wait-for-lambda-ready';
 
 const lambdaClient = new LambdaClient({
@@ -21,8 +22,7 @@ const developer: Developer = 'jonny' as Developer;
 export const createLambda = async () => {
 	const {layerArn} = await ensureLayers(lambdaClient);
 	console.log('Done creating layers');
-	const fnNameRender =
-		RENDER_FN_PREFIX + String(Math.random()).replace('0.', '');
+	const fnNameRender = RENDER_FN_PREFIX + randomHash();
 	const renderOut = await bundleLambda('render');
 	console.log('done Bundling');
 

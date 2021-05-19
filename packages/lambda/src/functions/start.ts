@@ -6,6 +6,7 @@ import {
 	LambdaRoutines,
 	RENDERS_BUCKET_PREFIX,
 } from '../constants';
+import {randomHash} from '../random-hash';
 import {timer} from '../timer';
 
 export const startHandler = async (params: LambdaPayload) => {
@@ -13,7 +14,7 @@ export const startHandler = async (params: LambdaPayload) => {
 		throw new TypeError('Expected type start');
 	}
 
-	const bucketName = RENDERS_BUCKET_PREFIX + Math.random();
+	const bucketName = RENDERS_BUCKET_PREFIX + randomHash();
 	const bucketTimer = timer('creating bucket');
 	await s3Client.send(
 		new CreateBucketCommand({

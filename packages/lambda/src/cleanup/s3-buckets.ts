@@ -7,7 +7,7 @@ import {
 } from '@aws-sdk/client-s3';
 import pLimit from 'p-limit';
 import {Internals} from 'remotion';
-import {LAMBDA_BUCKET_PREFIX, RENDERS_BUCKET_PREFIX} from '../constants';
+import {LAMBDA_S3_WEBSITE_DEPLOY, RENDERS_BUCKET_PREFIX} from '../constants';
 
 const limit = pLimit(10);
 
@@ -127,7 +127,7 @@ export const getRemotionS3Buckets = async (
 	const remotionBuckets = Buckets.filter(
 		(b) =>
 			b.Name?.startsWith(RENDERS_BUCKET_PREFIX) ||
-			b.Name?.startsWith(LAMBDA_BUCKET_PREFIX)
+			b.Name?.startsWith(LAMBDA_S3_WEBSITE_DEPLOY)
 	);
 	const names = remotionBuckets.map((b) => b.Name).filter(Internals.truthy);
 	return {

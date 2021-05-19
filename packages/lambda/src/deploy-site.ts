@@ -1,8 +1,9 @@
 import {CreateBucketCommand, PutBucketWebsiteCommand} from '@aws-sdk/client-s3';
 import {s3Client} from './aws-clients';
 import {bundleRemotion} from './bundle-remotion';
-import {LAMBDA_BUCKET_PREFIX} from './constants';
+import {LAMBDA_S3_WEBSITE_DEPLOY} from './constants';
 import {makeS3Url} from './make-s3-url';
+import {randomHash} from './random-hash';
 import {uploadDir, UploadDirProgress} from './upload-dir';
 
 export const deploySite = async (
@@ -14,7 +15,7 @@ export const deploySite = async (
 		onUploadProgress?: (upload: UploadDirProgress) => void;
 	}
 ) => {
-	const bucketName = LAMBDA_BUCKET_PREFIX + Math.random();
+	const bucketName = LAMBDA_S3_WEBSITE_DEPLOY + randomHash();
 
 	const [bundle] = await Promise.all([
 		bundleRemotion(
