@@ -103,39 +103,45 @@ export const PlayerFn = <T,>(
 		);
 	}
 
-	if (typeof controls !== 'boolean') {
+	if (typeof controls !== 'boolean' && typeof controls !== 'undefined') {
 		throw new TypeError(
-			`'loop' must be a boolean but got '${typeof controls}' instead`
+			`'controls' must be a boolean or undefined but got '${typeof controls}' instead`
 		);
 	}
 
-	if (typeof autoPlay !== 'boolean') {
+	if (typeof autoPlay !== 'boolean' && typeof autoPlay !== 'undefined') {
 		throw new TypeError(
-			`'autoPlay' must be a boolean but got '${typeof autoPlay}' instead`
+			`'autoPlay' must be a boolean or undefined but got '${typeof autoPlay}' instead`
 		);
 	}
 
-	if (typeof loop !== 'boolean') {
+	if (typeof loop !== 'boolean' && typeof loop !== 'undefined') {
 		throw new TypeError(
-			`'loop' must be a boolean but got '${typeof loop}' instead`
+			`'loop' must be a boolean or undefined but got '${typeof loop}' instead`
 		);
 	}
 
-	if (typeof showVolumeControls !== 'boolean') {
+	if (
+		typeof showVolumeControls !== 'boolean' &&
+		typeof showVolumeControls !== 'undefined'
+	) {
 		throw new TypeError(
-			`'showVolumeControls' must be a boolean but got '${typeof showVolumeControls}' instead`
+			`'showVolumeControls' must be a boolean or undefined but got '${typeof showVolumeControls}' instead`
 		);
 	}
 
-	if (typeof allowFullscreen !== 'boolean') {
+	if (
+		typeof allowFullscreen !== 'boolean' &&
+		typeof allowFullscreen !== 'undefined'
+	) {
 		throw new TypeError(
-			`'allowFullscreen' must be a boolean but got '${typeof allowFullscreen}' instead`
+			`'allowFullscreen' must be a boolean or undefined but got '${typeof allowFullscreen}' instead`
 		);
 	}
 
-	if (typeof clickToPlay !== 'boolean') {
+	if (typeof clickToPlay !== 'boolean' && typeof clickToPlay !== 'undefined') {
 		throw new TypeError(
-			`'clickToPlay' must be a boolean but got '${typeof clickToPlay}' instead`
+			`'clickToPlay' must be a boolean or undefined but got '${typeof clickToPlay}' instead`
 		);
 	}
 
