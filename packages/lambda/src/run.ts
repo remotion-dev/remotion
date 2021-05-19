@@ -1,4 +1,5 @@
 import {CliInternals} from '@remotion/cli';
+import path from 'path';
 import {lambdaClient, s3Client} from './aws-clients';
 import {callLambda} from './call-lambda';
 import {checkLambdaStatus} from './check-lambda-status';
@@ -6,10 +7,11 @@ import {cleanupLambdas, getRemotionLambdas} from './cleanup/cleanup-lambdas';
 import {cleanUpBuckets, getRemotionS3Buckets} from './cleanup/s3-buckets';
 import {LambdaRoutines} from './constants';
 import {createLambda} from './create-lambda';
+import {deploySite} from './deploy-site';
 import {makeS3Url} from './make-s3-url';
 import {sleep} from './sleep';
 
-const DEPLOY = false;
+const DEPLOY = true;
 
 const getFnName = async (): Promise<{
 	functionName: string;
@@ -18,8 +20,18 @@ const getFnName = async (): Promise<{
 	if (DEPLOY) {
 		await cleanupLambdas({lambdaClient});
 		await cleanUpBuckets({s3client: s3Client});
-		const {functionName, bucketUrl} = await createLambda();
-		return {functionName, bucketUrl};
+
+		const {functionName} = await createLambda();
+
+		const {url} = await deploySite(
+			path.join(__dirname, '..', 'remotion-project', 'index.ts'),
+			{
+				// TODO: Start uploading lambda now
+				onBucketCreated: async () => {},
+			}
+		);
+
+		return {functionName, bucketUrl: url};
 	}
 
 	const lambdas = await getRemotionLambdas(lambdaClient);

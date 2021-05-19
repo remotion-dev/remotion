@@ -57,6 +57,5 @@ export const deploySite = async (
 
 	return {
 		url: makeS3Url(bucketName),
-		bucketName,
 	};
 };

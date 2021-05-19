@@ -1,18 +1,13 @@
 import {CreateFunctionCommand, LambdaClient} from '@aws-sdk/client-lambda';
-import {PutObjectCommand, S3Client} from '@aws-sdk/client-s3';
-import {CliInternals} from '@remotion/cli';
-import {createReadStream} from 'fs';
-import path from 'path';
+import {readFileSync} from 'fs';
 import {bundleLambda} from './bundle-lambda';
 import {
 	EFS_MOUNT_PATH,
 	ENABLE_EFS,
 	MEMORY_SIZE,
 	REGION,
-	REMOTION_RENDER_FN_ZIP,
 	RENDER_FN_PREFIX,
 } from './constants';
-import {deploySite} from './deploy-site';
 import {ensureLayers} from './lambda-layers';
 import {waitForLambdaReady} from './wait-for-lambda-ready';
 
@@ -20,46 +15,21 @@ const lambdaClient = new LambdaClient({
 	region: REGION,
 });
 
-const s3Client = new S3Client({region: REGION});
-
 type Developer = 'jonny' | 'shankhadeep';
 const developer: Developer = 'jonny' as Developer;
 
-export const createLambda = CliInternals.xns(async () => {
+export const createLambda = async () => {
 	const {layerArn} = await ensureLayers(lambdaClient);
 	console.log('Done creating layers');
-	const id = String(Math.random());
-	const s3KeyRender = `${REMOTION_RENDER_FN_ZIP}${id}.zip`;
 	const fnNameRender =
 		RENDER_FN_PREFIX + String(Math.random()).replace('0.', '');
 	const renderOut = await bundleLambda('render');
 	console.log('done Bundling');
 
-	const {url, bucketName} = await deploySite(
-		path.join(__dirname, '..', 'remotion-project', 'index.ts'),
-		{
-			// TODO: Start uploading lambda now
-			onBucketCreated: async () => {},
-		}
-	);
-	console.log(url);
-	await s3Client.send(
-		new PutObjectCommand({
-			Bucket: bucketName,
-			Body: createReadStream(renderOut),
-			Key: s3KeyRender,
-			ACL: 'public-read',
-		})
-	);
-	// TODO: Potentially big, should show progress bar
-
-	console.log('lambdas uploaded');
-
 	const created = await lambdaClient.send(
 		new CreateFunctionCommand({
 			Code: {
-				S3Bucket: bucketName,
-				S3Key: s3KeyRender,
+				ZipFile: readFileSync(renderOut),
 			},
 			FunctionName: fnNameRender,
 			Handler: 'index.handler',
@@ -67,7 +37,7 @@ export const createLambda = CliInternals.xns(async () => {
 				developer === 'shankhadeep'
 					? 'arn:aws:iam::363307378317:role/awesomeLambda'
 					: 'arn:aws:iam::976210361945:role/lambda-admin', // IAM_ROLE_ARN; e.g., arn:aws:iam::650138640062:role/v3-lambda-tutorial-lambda-role
-			Runtime: 'nodejs12.x',
+			Runtime: 'nodejs14.x',
 			Description: 'Renders a Remotion video.',
 			MemorySize: MEMORY_SIZE,
 			Timeout: 120,
@@ -109,7 +79,5 @@ export const createLambda = CliInternals.xns(async () => {
 	await waitForLambdaReady(created.FunctionName);
 	return {
 		functionName: created.FunctionName,
-		bucketName,
-		bucketUrl: url,
 	};
-});
+};
