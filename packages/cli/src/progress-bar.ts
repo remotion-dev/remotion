@@ -2,7 +2,7 @@
 import ansiDiff from 'ansi-diff';
 import chalk from 'chalk';
 
-export const createProgressBar = () => {
+export const createOverwriteableCliOutput = () => {
 	const diff = ansiDiff();
 	process.stdout.write('');
 	return {

@@ -1,5 +1,5 @@
 import {CliInternals} from '@remotion/cli';
-import {s3Client} from './aws-clients';
+import {lambdaClient, s3Client} from './aws-clients';
 import {callLambda} from './call-lambda';
 import {checkLambdaStatus} from './check-lambda-status';
 import {cleanupLambdas} from './cleanup/cleanup-lambdas';
@@ -9,7 +9,7 @@ import {createLambda} from './create-lambda';
 import {sleep} from './sleep';
 
 CliInternals.xns(async () => {
-	await cleanupLambdas();
+	await cleanupLambdas(lambdaClient);
 	await cleanUpBuckets(s3Client);
 	const {functionName, bucketUrl} = await createLambda();
 
