@@ -32,7 +32,7 @@ export const createLambda = CliInternals.xns(async () => {
 	const s3KeyRender = `${REMOTION_RENDER_FN_ZIP}${id}.zip`;
 	const fnNameRender =
 		RENDER_FN_PREFIX + String(Math.random()).replace('0.', '');
-	const [renderOut] = await Promise.all([bundleLambda('render')]);
+	const renderOut = await bundleLambda('render');
 	console.log('done Bundling');
 
 	const {url, bucketName} = await deploySite(

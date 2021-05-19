@@ -1,7 +1,7 @@
 // Combine multiple video chunks, useful for decentralized rendering
 
 import execa from 'execa';
-import {rmdirSync, writeFileSync} from 'fs';
+import {rmdirSync, rmSync, writeFileSync} from 'fs';
 import {join} from 'path';
 import {parseFfmpegProgress} from './parse-ffmpeg-progress';
 
@@ -48,9 +48,9 @@ export const combineVideos = async ({
 
 		await task;
 		onProgress(numberOfFrames);
-		rmdirSync(filelistDir, {recursive: true});
+		(rmSync ?? rmdirSync)(filelistDir, {recursive: true});
 	} catch (err) {
-		rmdirSync(filelistDir, {recursive: true});
+		(rmSync ?? rmdirSync)(filelistDir, {recursive: true});
 		throw err;
 	}
 };
