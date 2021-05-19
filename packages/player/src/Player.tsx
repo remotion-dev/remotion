@@ -58,13 +58,13 @@ export const PlayerFn = <T,>(
 		compositionHeight: height,
 		compositionWidth: width,
 		fps,
-		controls,
+		inputProps,
 		style,
-		loop,
-		autoPlay,
+		controls = false,
+		loop = false,
+		autoPlay = false,
 		showVolumeControls = true,
 		allowFullscreen = true,
-		inputProps,
 		clickToPlay = true,
 		...componentProps
 	}: PlayerProps<T>,
@@ -78,6 +78,66 @@ export const PlayerFn = <T,>(
 	const rootRef = useRef<PlayerRef>(null);
 	const [mediaMuted, setMediaMuted] = useState<boolean>(false);
 	const [mediaVolume, setMediaVolume] = useState<number>(getPreferredVolume());
+
+	if (typeof height !== 'number') {
+		throw new TypeError(
+			`'compositionHeight' must be a number but got '${typeof height}' instead`
+		);
+	}
+
+	if (typeof width !== 'number') {
+		throw new TypeError(
+			`'compositionWidth' must be a number but got '${typeof width}' instead`
+		);
+	}
+
+	if (typeof durationInFrames !== 'number') {
+		throw new TypeError(
+			`'durationInFrames' must be a number but got '${typeof durationInFrames}' instead`
+		);
+	}
+
+	if (typeof fps !== 'number') {
+		throw new TypeError(
+			`'fps' must be a number but got '${typeof fps}' instead`
+		);
+	}
+
+	if (typeof controls !== 'boolean') {
+		throw new TypeError(
+			`'loop' must be a boolean but got '${typeof controls}' instead`
+		);
+	}
+
+	if (typeof autoPlay !== 'boolean') {
+		throw new TypeError(
+			`'autoPlay' must be a boolean but got '${typeof autoPlay}' instead`
+		);
+	}
+
+	if (typeof loop !== 'boolean') {
+		throw new TypeError(
+			`'loop' must be a boolean but got '${typeof loop}' instead`
+		);
+	}
+
+	if (typeof showVolumeControls !== 'boolean') {
+		throw new TypeError(
+			`'showVolumeControls' must be a boolean but got '${typeof showVolumeControls}' instead`
+		);
+	}
+
+	if (typeof allowFullscreen !== 'boolean') {
+		throw new TypeError(
+			`'allowFullscreen' must be a boolean but got '${typeof allowFullscreen}' instead`
+		);
+	}
+
+	if (typeof clickToPlay !== 'boolean') {
+		throw new TypeError(
+			`'clickToPlay' must be a boolean but got '${typeof clickToPlay}' instead`
+		);
+	}
 
 	const setMediaVolumeAndPersist = useCallback((vol: number) => {
 		setMediaVolume(vol);
