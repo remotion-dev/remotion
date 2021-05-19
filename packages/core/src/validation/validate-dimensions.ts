@@ -1,7 +1,7 @@
 export const validateDimension = (amount: number, nameOfProp: string) => {
 	if (typeof amount !== 'number') {
 		throw new Error(
-			`The "${nameOfProp}" of a composition must be a number, but you passed a ${typeof amount}`
+			`The "${nameOfProp}" of a composition must be a number, but you passed a value of type ${typeof amount}`
 		);
 	}
 

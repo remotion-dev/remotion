@@ -59,7 +59,7 @@ test('No fps should give errors', () => {
 		);
 	} catch (e) {
 		expect(e.message).toMatch(
-			/'fps' must be a number but got 'object' instead/
+			/"fps" must be a number, but you passed a value of type object/
 		);
 	}
 
@@ -78,7 +78,7 @@ test('No fps should give errors', () => {
 		);
 	} catch (e) {
 		expect(e.message).toMatch(
-			/'fps' must be a number but got 'undefined' instead/
+			/"fps" must be a number, but you passed a value of type undefined/
 		);
 	}
 });
@@ -99,7 +99,7 @@ test('No durationInFrames should give errors', () => {
 		);
 	} catch (e) {
 		expect(e.message).toMatch(
-			/'durationInFrames' must be a number but got 'undefined' instead/
+			/The "durationInFrames" of a composition must be a number, but you passed a value of type undefined/
 		);
 	}
 });
