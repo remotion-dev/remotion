@@ -1,4 +1,3 @@
-import {CliInternals} from '@remotion/cli';
 import {combineVideos} from '@remotion/renderer';
 import {
 	createWriteStream,
@@ -6,6 +5,7 @@ import {
 	mkdirSync,
 	promises,
 	rmdirSync,
+	rmSync,
 } from 'fs';
 import path, {join} from 'path';
 import {EFS_MOUNT_PATH, ENABLE_EFS} from './constants';
@@ -132,7 +132,7 @@ export const concatVideosS3 = async ({
 }) => {
 	const outdir = join(tmpDir('remotion-concat'), 'bucket');
 	if (existsSync(outdir)) {
-		rmdirSync(outdir, {
+		(rmSync ?? rmdirSync)(outdir, {
 			recursive: true,
 		});
 	}
@@ -156,10 +156,8 @@ export const concatVideosS3 = async ({
 	});
 	combine.end();
 
-	rmdirSync(outdir, {
+	(rmSync ?? rmdirSync)(outdir, {
 		recursive: true,
 	});
 	return outfile;
 };
-
-CliInternals.xns(concatVideosS3);

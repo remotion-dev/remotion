@@ -22,7 +22,7 @@ const renderHandler = async (params: LambdaPayload) => {
 	const browserInstance = await getBrowserInstance();
 	const outputDir = '/tmp/remotion-render-' + Math.random();
 	if (fs.existsSync(outputDir)) {
-		fs.rmdirSync(outputDir);
+		(fs.rm ?? fs.rmdirSync)(outputDir);
 	}
 
 	lambdaWriteFile({

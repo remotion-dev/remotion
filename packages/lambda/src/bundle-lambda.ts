@@ -10,7 +10,7 @@ export const bundleLambda = async (type: 'render') => {
 	});
 	const outfile = path.join(outdir, 'index.js');
 
-	fs.rmdirSync(outdir, {recursive: true});
+	(fs.rmSync ?? fs.rmdirSync)(outdir, {recursive: true});
 	fs.mkdirSync(outdir, {recursive: true});
 	const template = path.join(__dirname, '..', 'src', 'functions', 'index.ts');
 
