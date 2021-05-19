@@ -1,3 +1,4 @@
+import {CliInternals} from '@remotion/cli';
 import {existsSync, lstatSync} from 'fs';
 import path from 'path';
 import {BINARY_NAME} from '../bundle-remotion';
@@ -5,7 +6,6 @@ import {deploySite} from '../deploy-site';
 import {
 	BucketCreationProgress,
 	BundleProgress,
-	createProgressBar,
 	DeployToS3Progress,
 	makeBucketProgress,
 	makeBundleProgress,
@@ -41,7 +41,7 @@ export const deployCommand = async () => {
 		process.exit(1);
 	}
 
-	const progressBar = createProgressBar();
+	const progressBar = CliInternals.createProgressBar();
 
 	const multiProgress: {
 		bundleProgress: BundleProgress;

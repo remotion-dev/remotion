@@ -5,9 +5,9 @@ import {
 	ListObjectsCommand,
 	S3Client,
 } from '@aws-sdk/client-s3';
+import {CliInternals} from '@remotion/cli';
 import pLimit from 'p-limit';
 import {Internals} from 'remotion';
-import xns from 'xns';
 import {LAMBDA_BUCKET_PREFIX, REGION, RENDERS_BUCKET_PREFIX} from './constants';
 
 const limit = pLimit(10);
@@ -47,7 +47,7 @@ const cleanBucket = async (s3client: S3Client, bucket: string) => {
 	);
 };
 
-export const cleanUpBuckets = xns(
+export const cleanUpBuckets = CliInternals.xns(
 	async (
 		s3client: S3Client = new S3Client({
 			region: REGION,

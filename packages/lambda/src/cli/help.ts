@@ -15,4 +15,6 @@ export const printHelp = () => {
 	Log.info('');
 	Log.info(`${BINARY_NAME} deploy <index-file.ts>`);
 	Log.info(chalk.gray('Deploy a lambda.'));
+	Log.info(`${BINARY_NAME} render <index-file.ts>`);
+	Log.info(chalk.gray('Render a video on the cloud.'));
 };

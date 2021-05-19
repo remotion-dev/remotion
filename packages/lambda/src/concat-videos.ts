@@ -1,3 +1,4 @@
+import {CliInternals} from '@remotion/cli';
 import {combineVideos} from '@remotion/renderer';
 import {
 	createWriteStream,
@@ -7,7 +8,6 @@ import {
 	rmdirSync,
 } from 'fs';
 import path, {join} from 'path';
-import xns from 'xns';
 import {EFS_MOUNT_PATH, ENABLE_EFS} from './constants';
 import {lambdaLs, lambdaReadFile} from './io';
 import {timer} from './timer';
@@ -162,4 +162,4 @@ export const concatVideosS3 = async ({
 	return outfile;
 };
 
-xns(concatVideosS3);
+CliInternals.xns(concatVideosS3);
