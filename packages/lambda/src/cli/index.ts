@@ -1,9 +1,9 @@
 import {parsedCli} from './args';
 import {cleanupCommand, CLEANUP_COMMAND} from './cleanup';
-import {deployCommand} from './deploy';
+import {uploadCommand, UPLOAD_COMMAND} from './deploy';
 import {printHelp} from './help';
 import {Log} from './log';
-import {renderCommand} from './render';
+import {renderCommand, RENDER_COMMAND} from './render';
 
 export const cli = async () => {
 	if (parsedCli.help || parsedCli._.length === 0) {
@@ -11,11 +11,11 @@ export const cli = async () => {
 		process.exit(0);
 	}
 
-	if (parsedCli._[0] === 'deploy') {
-		return deployCommand();
+	if (parsedCli._[0] === UPLOAD_COMMAND) {
+		return uploadCommand();
 	}
 
-	if (parsedCli._[0] === 'render') {
+	if (parsedCli._[0] === RENDER_COMMAND) {
 		return renderCommand();
 	}
 

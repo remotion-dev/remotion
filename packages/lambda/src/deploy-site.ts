@@ -1,7 +1,8 @@
 import {CreateBucketCommand, PutBucketWebsiteCommand} from '@aws-sdk/client-s3';
 import {s3Client} from './aws-clients';
 import {bundleRemotion} from './bundle-remotion';
-import {LAMBDA_BUCKET_PREFIX, REGION} from './constants';
+import {LAMBDA_BUCKET_PREFIX} from './constants';
+import {makeS3Url} from './make-s3-url';
 import {uploadDir, UploadDirProgress} from './upload-dir';
 
 export const deploySite = async (
@@ -54,10 +55,8 @@ export const deploySite = async (
 	]);
 	// TODO: Do it with HTTPS, but wait for certificate
 
-	const url = `http://${bucketName}.s3.${REGION}.amazonaws.com`;
-
 	return {
-		url,
+		url: makeS3Url(bucketName),
 		bucketName,
 	};
 };
