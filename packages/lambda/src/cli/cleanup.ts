@@ -10,7 +10,7 @@ import {REGION} from '../constants';
 import {Log} from './log';
 
 export const CLEANUP_COMMAND = 'cleanup';
-const LAMBDA_SUBCOMMAND = 'lambda';
+const LAMBDA_SUBCOMMAND = 'lambdas';
 const S3_BUCKETS_SUBCOMMAND = 'buckets';
 
 const cleanupLambdaCommand = async (client: LambdaClient) => {

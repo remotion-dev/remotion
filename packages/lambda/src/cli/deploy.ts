@@ -1,7 +1,9 @@
 import {createLambda} from '../create-lambda';
+import {Log} from './log';
 
 export const DEPLOY_COMMAND = 'deploy';
 
 export const deployCommand = async () => {
-	await createLambda();
+	const {functionName} = await createLambda();
+	Log.info(`Deployed to ${functionName}`);
 };

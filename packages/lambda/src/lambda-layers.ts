@@ -9,21 +9,28 @@ const runtimes: string[] = ['nodejs14.x', 'nodejs12.x', 'nodejs10.x'];
 
 const LAYER_NAME = 'remotion-binaries';
 
-export const createLayer = (
-	lambdaClient: LambdaClient,
-	name: string,
-	key: string
-) => {
+export const createLayer = ({
+	lambdaClient,
+	name,
+	key,
+	sourceS3Bucket,
+}: {
+	lambdaClient: LambdaClient;
+	name: string;
+	key: string;
+	sourceS3Bucket: string;
+}) => {
 	return lambdaClient.send(
 		new PublishLayerVersionCommand({
 			Content: {
-				S3Bucket: 'remotion-binaries',
+				S3Bucket: sourceS3Bucket,
 				S3Key: key,
 			},
 			LayerName: name,
-			LicenseInfo: 'https://ffmpeg.org/legal.html',
+			LicenseInfo:
+				'https://ffmpeg.org/legal.html / https://chromium.googlesource.com/chromium/src/+/refs/heads/main/LICENSE',
 			CompatibleRuntimes: runtimes,
-			Description: 'Adds ffmpeg and ffprobe binaries in PATH',
+			Description: 'FFMPEG and Chromium binaries for Lambda',
 		})
 	);
 };
@@ -50,7 +57,12 @@ export const ensureLayer = async (
 		return existingLayer.LatestMatchingVersion?.LayerVersionArn as string;
 	}
 
-	const layer = await createLayer(lambdaClient, LAYER_NAME, 'remotion.zip');
+	const layer = await createLayer({
+		lambdaClient,
+		name: LAYER_NAME,
+		key: 'remotion.zip',
+		sourceS3Bucket: 'remotion-binaries',
+	});
 	return layer.LayerVersionArn as string;
 };
 
