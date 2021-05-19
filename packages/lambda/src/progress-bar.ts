@@ -2,12 +2,6 @@ import {CliInternals} from '@remotion/cli';
 import {Internals} from 'remotion';
 import {formatBytes} from './format-bytes';
 
-export const makeProgressBar = (percentage: number) => {
-	const totalBars = 20;
-	const barsToShow = Math.floor(percentage * totalBars);
-	return `[${'='.repeat(barsToShow).padEnd(totalBars, ' ')}]`;
-};
-
 export type BundleProgress = {
 	progress: number;
 	doneIn: number | null;
@@ -17,7 +11,7 @@ export const makeBundleProgress = ({progress, doneIn}: BundleProgress) => {
 	return [
 		'📦',
 		`(1/3)`,
-		makeProgressBar(progress / 100),
+		CliInternals.makeProgressBar(progress / 100),
 		`${doneIn === null ? 'Bundling' : 'Bundled'} video`,
 		doneIn === null
 			? `${Math.round(progress)}%`
@@ -43,7 +37,7 @@ export const makeBucketProgress = ({
 	return [
 		'🪣 ',
 		`(2/3)`,
-		makeProgressBar(progress),
+		CliInternals.makeProgressBar(progress),
 		`${doneIn === null ? 'Creating' : 'Created'} bucket`,
 		doneIn === null
 			? `${statesFinished} / ${states.length}`
@@ -66,7 +60,7 @@ export const makeDeployProgressBar = ({
 	return [
 		'☁️ ',
 		`(3/3)`,
-		makeProgressBar(progress),
+		CliInternals.makeProgressBar(progress),
 		`${doneIn === null ? 'Uploading' : 'Uploaded'} to S3`,
 		doneIn === null
 			? typeof totalSize === 'number'

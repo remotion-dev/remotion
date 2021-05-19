@@ -5,7 +5,7 @@ import {Log} from './log';
 import {parsedCli} from './parse-command-line';
 import {previewCommand} from './preview';
 import {printHelp} from './print-help';
-import {createProgressBar} from './progress-bar';
+import {createProgressBar, makeProgressBar} from './progress-bar';
 import {render} from './render';
 import {upgrade} from './upgrade';
 
@@ -40,4 +40,5 @@ export const CliInternals = {
 	createProgressBar,
 	chalk,
 	xns,
+	makeProgressBar,
 };
