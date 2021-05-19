@@ -1,16 +1,6 @@
-// @ts-expect-error
-import ansiDiff from 'ansi-diff';
-import chalk from 'chalk';
+import {CliInternals} from '@remotion/cli';
 import {Internals} from 'remotion';
 import {formatBytes} from './format-bytes';
-
-export const createProgressBar = () => {
-	const diff = ansiDiff();
-	process.stdout.write('');
-	return {
-		update: (up: string): boolean => process.stdout.write(diff.update(up)),
-	};
-};
 
 export const makeProgressBar = (percentage: number) => {
 	const totalBars = 20;
@@ -29,7 +19,9 @@ export const makeBundleProgress = ({progress, doneIn}: BundleProgress) => {
 		`(1/3)`,
 		makeProgressBar(progress / 100),
 		`${doneIn === null ? 'Bundling' : 'Bundled'} video`,
-		doneIn === null ? `${Math.round(progress)}%` : chalk.gray(`${doneIn}ms`),
+		doneIn === null
+			? `${Math.round(progress)}%`
+			: CliInternals.chalk.gray(`${doneIn}ms`),
 	].join(' ');
 };
 
@@ -55,7 +47,7 @@ export const makeBucketProgress = ({
 		`${doneIn === null ? 'Creating' : 'Created'} bucket`,
 		doneIn === null
 			? `${statesFinished} / ${states.length}`
-			: chalk.gray(`${doneIn}ms`),
+			: CliInternals.chalk.gray(`${doneIn}ms`),
 	].join(' ');
 };
 
@@ -80,7 +72,7 @@ export const makeDeployProgressBar = ({
 			? typeof totalSize === 'number'
 				? `${formatBytes(sizeUploaded)}/${formatBytes(totalSize)}`
 				: ''
-			: chalk.gray(`${doneIn}ms`),
+			: CliInternals.chalk.gray(`${doneIn}ms`),
 	]
 		.filter(Internals.truthy)
 		.join(' ');

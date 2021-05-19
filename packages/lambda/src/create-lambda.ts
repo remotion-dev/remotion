@@ -1,8 +1,8 @@
 import {CreateFunctionCommand, LambdaClient} from '@aws-sdk/client-lambda';
 import {PutObjectCommand, S3Client} from '@aws-sdk/client-s3';
+import {CliInternals} from '@remotion/cli';
 import {createReadStream} from 'fs';
 import path from 'path';
-import xns from 'xns';
 import {bundleLambda} from './bundle-lambda';
 import {
 	EFS_MOUNT_PATH,
@@ -25,7 +25,7 @@ const s3Client = new S3Client({region: REGION});
 type Developer = 'jonny' | 'shankhadeep';
 const developer: Developer = 'jonny' as Developer;
 
-export const createLambda = xns(async () => {
+export const createLambda = CliInternals.xns(async () => {
 	const {layerArn} = await ensureLayers(lambdaClient);
 	console.log('Done creating layers');
 	const id = String(Math.random());

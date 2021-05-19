@@ -1,4 +1,4 @@
-import xns from 'xns';
+import {CliInternals} from '@remotion/cli';
 import {callLambda} from './call-lambda';
 import {checkLambdaStatus} from './check-lambda-status';
 import {cleanUpBuckets} from './cleanup-buckets';
@@ -7,7 +7,7 @@ import {LambdaRoutines} from './constants';
 import {createLambda} from './create-lambda';
 import {sleep} from './sleep';
 
-xns(async () => {
+CliInternals.xns(async () => {
 	await cleanupLambdas();
 	await cleanUpBuckets();
 	const {functionName, bucketUrl} = await createLambda();

@@ -1,5 +1,5 @@
 import {InvokeCommand, LambdaClient} from '@aws-sdk/client-lambda';
-import xns from 'xns';
+import {CliInternals} from '@remotion/cli';
 import {REGION} from './constants';
 
 const lambdaClient = new LambdaClient({
@@ -9,7 +9,7 @@ const lambdaClient = new LambdaClient({
 const toTest = [12, 15, 20, 100];
 const runs = [1, 2, 3, 4, 5];
 
-export const benchmark = xns(async () => {
+export const benchmark = CliInternals.xns(async () => {
 	for (const chunkSize of toTest) {
 		for (const run of runs) {
 			const id = `invoking with  ${chunkSize},run ${run}/${runs.length}`;

@@ -3,10 +3,10 @@ import {
 	LambdaClient,
 	ListFunctionsCommand,
 } from '@aws-sdk/client-lambda';
-import xns from 'xns';
+import {CliInternals} from '@remotion/cli';
 import {REGION, RENDER_FN_PREFIX} from './constants';
 
-export const cleanupLambdas = xns(
+export const cleanupLambdas = CliInternals.xns(
 	async (
 		lambdaClient: LambdaClient = new LambdaClient({
 			region: REGION,

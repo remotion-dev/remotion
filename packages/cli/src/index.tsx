@@ -1,8 +1,11 @@
+import chalk from 'chalk';
+import xns from 'xns';
 import {checkNodeVersion} from './check-version';
 import {Log} from './log';
 import {parsedCli} from './parse-command-line';
 import {previewCommand} from './preview';
 import {printHelp} from './print-help';
+import {createProgressBar} from './progress-bar';
 import {render} from './render';
 import {upgrade} from './upgrade';
 
@@ -32,3 +35,9 @@ export const cli = async () => {
 };
 
 export * from './render';
+
+export const CliInternals = {
+	createProgressBar,
+	chalk,
+	xns,
+};
