@@ -5,6 +5,7 @@ import {ColorInterpolation} from './ColorInterpolation';
 import {Framer} from './Framer';
 import {MissingImg} from './MissingImg';
 import RemoteVideo from './RemoteVideo';
+import {StaggerTesting} from './StaggerTesting';
 import {TenFrameTester} from './TenFrameTester';
 import ThreeBasic from './ThreeBasic';
 import {VideoSpeed} from './VideoSpeed';
@@ -247,6 +248,14 @@ export const Index: React.FC = () => {
 			<Composition
 				id="video-speed"
 				component={VideoSpeed}
+				width={1280}
+				height={720}
+				fps={30}
+				durationInFrames={100}
+			/>
+			<Composition
+				id="stagger-test"
+				component={StaggerTesting}
 				width={1280}
 				height={720}
 				fps={30}
