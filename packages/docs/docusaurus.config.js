@@ -9,6 +9,11 @@ module.exports = {
   organizationName: "JonnyBurger", // Usually your GitHub org/user name.
   projectName: "remotion", // Usually your repo name.
   themeConfig: {
+    algolia: {
+      apiKey: "f63f08c037745da5269569bfbd91cd59",
+      indexName: "remotion",
+      contextualSearch: false,
+    },
     image: "img/social-preview.png",
     prism: {
       theme: require("prism-react-renderer/themes/github"),
@@ -65,12 +70,6 @@ module.exports = {
           title: "Community",
           items: [
             {
-              label: "Twitter",
-              href: "https://twitter.com/JNYBGR",
-              "data-splitbee-event": "External Link",
-              "data-splitbee-event-target": "Twitter",
-            },
-            {
               label: "GitHub Issues",
               href: "https://github.com/JonnyBurger/remotion/issues",
               "data-splitbee-event": "External Link",
@@ -81,6 +80,12 @@ module.exports = {
               href: "https://discord.gg/6VzzNDwUwV",
               "data-splitbee-event": "External Link",
               "data-splitbee-event-target": "Discord",
+            },
+            {
+              label: "Twitter",
+              href: "https://twitter.com/JNYBGR",
+              "data-splitbee-event": "External Link",
+              "data-splitbee-event-target": "Twitter",
             },
           ],
         },
@@ -94,6 +99,10 @@ module.exports = {
             {
               label: "GitHub",
               href: "https://github.com/JonnyBurger/remotion",
+            },
+            {
+              label: "For companies",
+              href: "https://companies.remotion.dev",
             },
           ],
         },

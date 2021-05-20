@@ -94,6 +94,8 @@ export const PricingTable: React.FC<{}> = () => {
                 className={styles.pricinga}
                 href="https://companies.remotion.dev"
                 target="_blank"
+                data-splitbee-event="License-Buy"
+                data-splitbee-event-target={`developer-${period}`}
               >
                 <div>
                   <BlueButton fullWidth loading={false} size="bg">
@@ -135,6 +137,8 @@ export const PricingTable: React.FC<{}> = () => {
                 className={styles.pricinga}
                 href="https://companies.remotion.dev"
                 target="_blank"
+                data-splitbee-event="License-Buy"
+                data-splitbee-event-target={`cloud-${period}`}
               >
                 <div>
                   <BlueButton fullWidth loading={false} size="bg">
