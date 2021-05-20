@@ -48,7 +48,7 @@ const getFnName = async (): Promise<{
 	);
 	return {
 		functionName: lambdas[0].FunctionName as string,
-		bucketUrl: makeS3Url('remotion-bucket-0.015890651294784286'),
+		bucketUrl: makeS3Url('remotion-bucket-0.5314926089630405'),
 	};
 };
 
