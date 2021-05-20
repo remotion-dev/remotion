@@ -26,13 +26,6 @@ const renderHandler = async (params: LambdaPayload) => {
 		(fs.rmSync ?? fs.rmdirSync)(outputDir);
 	}
 
-	lambdaWriteFile({
-		bucketName: params.bucketName,
-		body: '0',
-		key: `${LAMBDA_INITIALIZED_KEY}-${params.chunk}.txt`,
-		forceS3: false,
-	});
-
 	fs.mkdirSync(outputDir);
 
 	if (typeof params.chunk !== 'number') {
@@ -43,7 +36,9 @@ const renderHandler = async (params: LambdaPayload) => {
 		throw new Error('must pass framerange');
 	}
 
+	const timings: {[key: number]: number} = {};
 	console.log(`Started rendering ${params.chunk}, frame ${params.frameRange}`);
+	const start = Date.now();
 	const {assetsInfo} = await renderFrames({
 		compositionId: params.composition,
 		config: {
@@ -56,6 +51,16 @@ const renderHandler = async (params: LambdaPayload) => {
 		inputProps: {},
 		frameRange: params.frameRange,
 		onFrameUpdate: (i: number, output: string) => {
+			timings[i] = Date.now() - start;
+			if (i === 1) {
+				lambdaWriteFile({
+					bucketName: params.bucketName,
+					body: '0',
+					key: `${LAMBDA_INITIALIZED_KEY}-${params.chunk}.txt`,
+					forceS3: false,
+				});
+			}
+
 			console.log('Rendered frames', i, output);
 		},
 		parallelism: 1,
@@ -65,6 +70,19 @@ const renderHandler = async (params: LambdaPayload) => {
 		outputDir,
 		puppeteerInstance: browserInstance,
 		serveUrl: params.serveUrl,
+	});
+	await lambdaWriteFile({
+		bucketName: params.bucketName,
+		body: JSON.stringify(
+			{
+				duration: Date.now() - start,
+				timings,
+			},
+			null,
+			2
+		),
+		key: `${LAMBDA_INITIALIZED_KEY}-${params.chunk}.txt`,
+		forceS3: false,
 	});
 	const outdir = tmpDir('bucket');
 
@@ -147,6 +165,7 @@ export const rendererHandler = async (params: LambdaPayload) => {
 			key: `error-chunk-${params.chunk}-${Date.now()}.txt`,
 			body: JSON.stringify({
 				error: err.message,
+				stack: err.stack,
 			}),
 		});
 	}
