@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/lambda",
-	"version": "2.1.2",
+	"version": "2.1.4",
 	"description": "Utility functions for audio and video",
 	"main": "dist/index.js",
 	"sideEffects": false,
@@ -25,9 +25,9 @@
 		"@aws-sdk/client-lambda": "^3.16.0",
 		"@aws-sdk/client-s3": "^3.16.0",
 		"@aws-sdk/lib-storage": "^3.15.0",
-		"@remotion/bundler": "^2.1.2",
-		"@remotion/cli": "^2.1.2",
-		"@remotion/renderer": "^2.1.2",
+		"@remotion/bundler": "^2.1.4",
+		"@remotion/cli": "^2.1.4",
+		"@remotion/renderer": "^2.1.4",
 		"@types/jest": "^26.0.23",
 		"aws-policies": "^1.0.1",
 		"esbuild": "^0.11.12",
@@ -35,7 +35,7 @@
 		"lambdafs": "^2.0.3",
 		"minimist": "^1.2.5",
 		"p-limit": "^3.1.0",
-		"remotion": "^2.1.2",
+		"remotion": "^2.1.4",
 		"ts-jest": "^26.5.6",
 		"ts-node": "^9.1.1",
 		"zip-lib": "^0.7.2"
@@ -45,7 +45,7 @@
 		"react-dom": "^17.0.1"
 	},
 	"devDependencies": {
-		"@jonny/eslint-config": "^2.1.210",
+		"@jonny/eslint-config": "^2.1.410",
 		"@types/node": "^14.14.14",
 		"eslint": "^7.4.0",
 		"prettier": "^2.0.5",
