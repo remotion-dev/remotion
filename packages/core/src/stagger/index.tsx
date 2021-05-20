@@ -5,6 +5,18 @@ const Stagger: FC<{componentDuration: Array<number>}> = ({
 	children,
 	componentDuration,
 }) => {
+	if (typeof componentDuration === 'undefined') {
+		throw new Error(
+			'componentDuration is a required props, pass a number array'
+		);
+	}
+
+	if (Children.count(children) !== componentDuration.length) {
+		throw new Error(
+			'Length of componentDuration and number of component inside <Stagger /> should be same '
+		);
+	}
+
 	const childrenValue = useMemo(() => {
 		return Children.map(children, (child, index) => {
 			let startFrame = 0;
@@ -13,7 +25,6 @@ const Stagger: FC<{componentDuration: Array<number>}> = ({
 					startFrame += currentDuration - 1;
 				}
 			});
-			console.log(startFrame, 'startframee');
 			return (
 				<Sequence from={startFrame} durationInFrames={componentDuration[index]}>
 					{child}
