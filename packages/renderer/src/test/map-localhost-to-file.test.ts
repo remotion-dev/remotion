@@ -12,6 +12,7 @@ test('Should correctly map a localhost URL to an asset', async () => {
 				volume: 1,
 				isRemote: false,
 				mediaFrame: 2045,
+				playbackRate: 1,
 			},
 			onDownload: () => undefined,
 			downloadDir:
@@ -27,5 +28,6 @@ test('Should correctly map a localhost URL to an asset', async () => {
 		mediaFrame: 2045,
 		volume: 1,
 		isRemote: false,
+		playbackRate: 1,
 	});
 });

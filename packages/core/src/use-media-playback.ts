@@ -1,25 +1,28 @@
 import {RefObject, useEffect} from 'react';
+import {useMediaStartsAt} from './audio/use-audio-frame';
 import {usePlayingState} from './timeline-position-state';
 import {useAbsoluteCurrentFrame, useCurrentFrame} from './use-frame';
 import {useVideoConfig} from './use-video-config';
-import {getCurrentTime} from './video/get-current-time';
+import {getMediaTime} from './video/get-current-time';
 
 export const useMediaPlayback = ({
 	mediaRef,
 	src,
 	mediaType,
+	playbackRate,
 }: {
 	mediaRef: RefObject<HTMLVideoElement | HTMLAudioElement>;
 	src: string | undefined;
 	mediaType: 'audio' | 'video';
+	playbackRate: number;
 }) => {
 	const frame = useCurrentFrame();
 	const absoluteFrame = useAbsoluteCurrentFrame();
 	const [playing] = usePlayingState();
 	const {fps} = useVideoConfig();
+	const mediaStartsAt = useMediaStartsAt();
 
 	useEffect(() => {
-		// TODO: Investigate if this is correct
 		if (playing && !mediaRef.current?.ended) {
 			mediaRef.current?.play();
 		} else {
@@ -39,10 +42,14 @@ export const useMediaPlayback = ({
 			);
 		}
 
-		const shouldBeTime = getCurrentTime({
+		mediaRef.current.playbackRate = playbackRate;
+
+		const shouldBeTime = getMediaTime({
 			fps,
 			frame,
 			src,
+			playbackRate,
+			startFrom: -mediaStartsAt,
 		});
 
 		const isTime = mediaRef.current.currentTime;
@@ -62,5 +69,15 @@ export const useMediaPlayback = ({
 			mediaRef.current.currentTime = shouldBeTime;
 			mediaRef.current.play();
 		}
-	}, [absoluteFrame, fps, frame, mediaRef, mediaType, playing, src]);
+	}, [
+		absoluteFrame,
+		fps,
+		playbackRate,
+		frame,
+		mediaRef,
+		mediaType,
+		playing,
+		src,
+		mediaStartsAt,
+	]);
 };

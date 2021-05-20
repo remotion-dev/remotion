@@ -12,6 +12,7 @@ export type UnsafeAsset = Omit<
 	trimLeft: number;
 	volume: number[];
 	id: string;
+	playbackRate: number;
 };
 
 // Volume can either be static, for all frames the same,

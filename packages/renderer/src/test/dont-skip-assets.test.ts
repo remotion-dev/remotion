@@ -20,6 +20,7 @@ test('Dont skip assets', () => {
 			trimLeft: 0,
 			volume: 1,
 			isRemote: false,
+			playbackRate: 1,
 		},
 		{
 			src: 'http://localhost:3000/4793bac32f610ffba8197b8a3422456f.mp3',
@@ -31,6 +32,7 @@ test('Dont skip assets', () => {
 			trimLeft: 180,
 			volume: 1,
 			isRemote: false,
+			playbackRate: 1,
 		},
 		{
 			src: 'http://localhost:3000/4793bac32f610ffba8197b8a3422456f.mp3',
@@ -42,6 +44,7 @@ test('Dont skip assets', () => {
 			trimLeft: 220,
 			volume: 1,
 			isRemote: false,
+			playbackRate: 1,
 		},
 		{
 			src: 'http://localhost:3000/e15ac5e3d531199ebb1828ca6a99100d.webm',
@@ -52,6 +55,7 @@ test('Dont skip assets', () => {
 			trimLeft: 0,
 			volume: 1,
 			isRemote: false,
+			playbackRate: 1,
 		},
 	]);
 });
@@ -69,6 +73,7 @@ const mock: TAsset[][] = new Array(2934)
 						frame: 180,
 						volume: 1,
 						isRemote: false,
+						playbackRate: 1,
 						mediaFrame: 0,
 				  }
 				: null,
@@ -80,6 +85,7 @@ const mock: TAsset[][] = new Array(2934)
 				frame: k,
 				volume: 1,
 				isRemote: false,
+				playbackRate: 1,
 				mediaFrame: k,
 			},
 		].filter(truthy);

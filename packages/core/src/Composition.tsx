@@ -1,4 +1,5 @@
-import {ComponentType, useContext, useEffect} from 'react';
+import {useContext, useEffect} from 'react';
+import {AnyComponent} from './any-component';
 import {CompositionManager} from './CompositionManager';
 import {useNonce} from './nonce';
 import {
@@ -7,15 +8,16 @@ import {
 	removeStaticComposition,
 } from './register-root';
 import {useLazyComponent} from './use-lazy-component';
+import {validateDimension} from './validation/validate-dimensions';
 import {validateDurationInFrames} from './validation/validate-duration-in-frames';
 import {validateFps} from './validation/validate-fps';
 
 export type CompProps<T> =
 	| {
-			lazyComponent: () => Promise<{default: ComponentType<T>}>;
+			lazyComponent: () => Promise<{default: AnyComponent<T>}>;
 	  }
 	| {
-			component: ComponentType<T>;
+			component: AnyComponent<T>;
 	  };
 
 type Props<T> = {
@@ -55,30 +57,8 @@ export const Composition = <T,>({
 			);
 		}
 
-		if (typeof width !== 'number') {
-			throw new Error(
-				`The "width" of a composition must be a number, but you passed a ${typeof width}`
-			);
-		}
-
-		if (width <= 0) {
-			throw new TypeError(
-				`The "width" of a composition must be positive, but got ${width}.`
-			);
-		}
-
-		if (typeof height !== 'number') {
-			throw new Error(
-				`The "height" of a composition must be a number, but you passed a ${typeof height}`
-			);
-		}
-
-		if (height <= 0) {
-			throw new TypeError(
-				`The "height" of a composition must be positive, but got ${height}.`
-			);
-		}
-
+		validateDimension(width, 'width');
+		validateDimension(height, 'height');
 		validateDurationInFrames(durationInFrames);
 		validateFps(fps);
 		registerComposition<T>({

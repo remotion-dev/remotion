@@ -13,6 +13,7 @@ test('Should create segments of audio clips correctly', () => {
 			volume: 1,
 			id: '1',
 			isRemote: false,
+			playbackRate: 1,
 		},
 		// Clip from 5-15 seconds
 		{
@@ -24,6 +25,7 @@ test('Should create segments of audio clips correctly', () => {
 			volume: 1,
 			id: '2',
 			isRemote: false,
+			playbackRate: 1,
 		},
 	];
 	expect(splitAssetsIntoSegments({assets, duration: 450})).toEqual([
@@ -36,6 +38,7 @@ test('Should create segments of audio clips correctly', () => {
 			volume: 1,
 			id: '1',
 			isRemote: false,
+			playbackRate: 1,
 		},
 		{
 			duration: 150,
@@ -46,6 +49,7 @@ test('Should create segments of audio clips correctly', () => {
 			volume: 1,
 			id: '1',
 			isRemote: false,
+			playbackRate: 1,
 		},
 		{
 			duration: 150,
@@ -56,6 +60,7 @@ test('Should create segments of audio clips correctly', () => {
 			volume: 1,
 			id: '2',
 			isRemote: false,
+			playbackRate: 1,
 		},
 		{
 			duration: 150,
@@ -66,6 +71,7 @@ test('Should create segments of audio clips correctly', () => {
 			volume: 1,
 			id: '2',
 			isRemote: false,
+			playbackRate: 1,
 		},
 	]);
 });
@@ -82,6 +88,7 @@ test('Should leave single clip untouched', () => {
 			volume: 1,
 			id: '1',
 			isRemote: false,
+			playbackRate: 1,
 		},
 	];
 	expect(splitAssetsIntoSegments({assets, duration: 450})).toEqual([
@@ -94,6 +101,7 @@ test('Should leave single clip untouched', () => {
 			volume: 1,
 			id: '1',
 			isRemote: false,
+			playbackRate: 1,
 		},
 	]);
 });
@@ -110,6 +118,7 @@ test('Should leave two identical clips the same', () => {
 			volume: 1,
 			id: '1',
 			isRemote: false,
+			playbackRate: 1,
 		},
 		{
 			duration: 300,
@@ -120,6 +129,7 @@ test('Should leave two identical clips the same', () => {
 			volume: 1,
 			id: '2',
 			isRemote: false,
+			playbackRate: 1,
 		},
 	];
 	expect(splitAssetsIntoSegments({assets, duration: 450})).toEqual([
@@ -132,6 +142,7 @@ test('Should leave two identical clips the same', () => {
 			volume: 1,
 			id: '1',
 			isRemote: false,
+			playbackRate: 1,
 		},
 		{
 			duration: 300,
@@ -142,6 +153,7 @@ test('Should leave two identical clips the same', () => {
 			volume: 1,
 			id: '2',
 			isRemote: false,
+			playbackRate: 1,
 		},
 	]);
 });
@@ -158,6 +170,7 @@ test('Should not have one-off errors', () => {
 			volume: 1,
 			id: '1',
 			isRemote: false,
+			playbackRate: 1,
 		},
 		{
 			duration: 2,
@@ -168,6 +181,7 @@ test('Should not have one-off errors', () => {
 			volume: 1,
 			id: '2',
 			isRemote: false,
+			playbackRate: 1,
 		},
 		{
 			duration: 2,
@@ -178,6 +192,7 @@ test('Should not have one-off errors', () => {
 			volume: 1,
 			id: '3',
 			isRemote: false,
+			playbackRate: 1,
 		},
 	];
 	expect(splitAssetsIntoSegments({assets, duration: 450})).toEqual([
@@ -190,6 +205,7 @@ test('Should not have one-off errors', () => {
 			volume: 1,
 			id: '1',
 			isRemote: false,
+			playbackRate: 1,
 		},
 		{
 			duration: 1,
@@ -200,6 +216,7 @@ test('Should not have one-off errors', () => {
 			volume: 1,
 			id: '1',
 			isRemote: false,
+			playbackRate: 1,
 		},
 		{
 			duration: 1,
@@ -210,6 +227,7 @@ test('Should not have one-off errors', () => {
 			volume: 1,
 			id: '2',
 			isRemote: false,
+			playbackRate: 1,
 		},
 		{
 			duration: 1,
@@ -220,6 +238,7 @@ test('Should not have one-off errors', () => {
 			volume: 1,
 			id: '2',
 			isRemote: false,
+			playbackRate: 1,
 		},
 		{
 			duration: 1,
@@ -230,6 +249,7 @@ test('Should not have one-off errors', () => {
 			volume: 1,
 			id: '3',
 			isRemote: false,
+			playbackRate: 1,
 		},
 		{
 			duration: 1,
@@ -240,6 +260,7 @@ test('Should not have one-off errors', () => {
 			volume: 1,
 			id: '3',
 			isRemote: false,
+			playbackRate: 1,
 		},
 	]);
 });
@@ -257,6 +278,7 @@ test('Should have correct volume arrays', () => {
 					volume: new Array(100).fill(1).map((_, i) => (i === 0 ? 0 : 1)),
 					id: '1',
 					isRemote: false,
+					playbackRate: 1,
 				},
 				{
 					duration: 50,
@@ -267,6 +289,7 @@ test('Should have correct volume arrays', () => {
 					volume: new Array(100).fill(1).map((_, i) => (i === 0 ? 0 : 1)),
 					id: 'breaker',
 					isRemote: false,
+					playbackRate: 1,
 				},
 			],
 			duration: 100,
@@ -281,6 +304,7 @@ test('Should have correct volume arrays', () => {
 			volume: new Array(50).fill(1).map((_, i) => (i === 0 ? 0 : 1)),
 			id: '1',
 			isRemote: false,
+			playbackRate: 1,
 		},
 		{
 			duration: 50,
@@ -291,6 +315,7 @@ test('Should have correct volume arrays', () => {
 			volume: 1,
 			id: '1',
 			isRemote: false,
+			playbackRate: 1,
 		},
 		{
 			duration: 50,
@@ -301,6 +326,7 @@ test('Should have correct volume arrays', () => {
 			volume: new Array(100).fill(1).map((_, i) => (i === 0 ? 0 : 1)),
 			id: 'breaker',
 			isRemote: false,
+			playbackRate: 1,
 		},
 	]);
 });

@@ -17,7 +17,7 @@ const getNumberForLogLevel = (level: LogLevel) => {
 };
 
 export const isValidLogLevel = (level: string) => {
-	return getNumberForLogLevel(level as LogLevel) >= -1;
+	return getNumberForLogLevel(level as LogLevel) > -1;
 };
 
 export const isEqualOrBelowLogLevel = (level: LogLevel) => {
