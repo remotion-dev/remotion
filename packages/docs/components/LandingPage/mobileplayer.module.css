@@ -1,5 +1,5 @@
 .mobileplayer {
-  width: 500px;
+  max-width: 500px;
   position: relative;
 }
 

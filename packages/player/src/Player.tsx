@@ -11,12 +11,12 @@ import {
 	CompositionManagerContext,
 	CompProps,
 	Internals,
+	LooseAnyComponent,
 	MediaVolumeContextValue,
 	SetMediaVolumeContextValue,
 	SetTimelineContextValue,
 	TimelineContextValue,
 } from 'remotion';
-import {LooseAnyComponent} from 'remotion/src/any-component';
 import {PlayerEventEmitterContext} from './emitter-context';
 import {PlayerEmitter} from './event-emitter';
 import {PLAYER_CSS_CLASSNAME} from './player-css-classname';
@@ -55,16 +55,16 @@ Internals.CSSUtils.injectCSS(
 export const PlayerFn = <T,>(
 	{
 		durationInFrames,
-		compositionHeight: height,
-		compositionWidth: width,
+		compositionHeight,
+		compositionWidth,
 		fps,
-		controls,
+		inputProps,
 		style,
-		loop,
-		autoPlay,
+		controls = false,
+		loop = false,
+		autoPlay = false,
 		showVolumeControls = true,
 		allowFullscreen = true,
-		inputProps,
 		clickToPlay = true,
 		...componentProps
 	}: PlayerProps<T>,
@@ -78,6 +78,65 @@ export const PlayerFn = <T,>(
 	const rootRef = useRef<PlayerRef>(null);
 	const [mediaMuted, setMediaMuted] = useState<boolean>(false);
 	const [mediaVolume, setMediaVolume] = useState<number>(getPreferredVolume());
+
+	if (typeof compositionHeight !== 'number') {
+		throw new TypeError(
+			`'compositionHeight' must be a number but got '${typeof compositionHeight}' instead`
+		);
+	}
+
+	if (typeof compositionWidth !== 'number') {
+		throw new TypeError(
+			`'compositionWidth' must be a number but got '${typeof compositionWidth}' instead`
+		);
+	}
+
+	Internals.validateDimension(compositionHeight, 'compositionHeight');
+	Internals.validateDimension(compositionWidth, 'compositionWidth');
+	Internals.validateDurationInFrames(durationInFrames);
+	Internals.validateFps(fps);
+
+	if (typeof controls !== 'boolean' && typeof controls !== 'undefined') {
+		throw new TypeError(
+			`'controls' must be a boolean or undefined but got '${typeof controls}' instead`
+		);
+	}
+
+	if (typeof autoPlay !== 'boolean' && typeof autoPlay !== 'undefined') {
+		throw new TypeError(
+			`'autoPlay' must be a boolean or undefined but got '${typeof autoPlay}' instead`
+		);
+	}
+
+	if (typeof loop !== 'boolean' && typeof loop !== 'undefined') {
+		throw new TypeError(
+			`'loop' must be a boolean or undefined but got '${typeof loop}' instead`
+		);
+	}
+
+	if (
+		typeof showVolumeControls !== 'boolean' &&
+		typeof showVolumeControls !== 'undefined'
+	) {
+		throw new TypeError(
+			`'showVolumeControls' must be a boolean or undefined but got '${typeof showVolumeControls}' instead`
+		);
+	}
+
+	if (
+		typeof allowFullscreen !== 'boolean' &&
+		typeof allowFullscreen !== 'undefined'
+	) {
+		throw new TypeError(
+			`'allowFullscreen' must be a boolean or undefined but got '${typeof allowFullscreen}' instead`
+		);
+	}
+
+	if (typeof clickToPlay !== 'boolean' && typeof clickToPlay !== 'undefined') {
+		throw new TypeError(
+			`'clickToPlay' must be a boolean or undefined but got '${typeof clickToPlay}' instead`
+		);
+	}
 
 	const setMediaVolumeAndPersist = useCallback((vol: number) => {
 		setMediaVolume(vol);
@@ -125,8 +184,8 @@ export const PlayerFn = <T,>(
 						LooseAnyComponent<unknown>
 					>,
 					durationInFrames,
-					height,
-					width,
+					height: compositionHeight,
+					width: compositionWidth,
 					fps,
 					id: 'player-comp',
 					props: inputProps as unknown,
@@ -144,7 +203,14 @@ export const PlayerFn = <T,>(
 			unregisterAsset: () => undefined,
 			assets: [],
 		};
-	}, [component, durationInFrames, height, width, fps, inputProps]);
+	}, [
+		component,
+		durationInFrames,
+		compositionHeight,
+		compositionWidth,
+		fps,
+		inputProps,
+	]);
 
 	const passedInputProps = useMemo(() => {
 		return inputProps ?? {};

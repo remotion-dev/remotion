@@ -79,7 +79,25 @@ describe('Composition-validation render should throw with invalid props', () => 
 							/>
 						</RemotionRoot>
 					),
-				/The "height" of a composition must be a number, but you passed a string/
+				/The "height" of a composition must be a number, but you passed a value of type string/
+			);
+		});
+		test('It should throw if height is not an integer', () => {
+			expectToThrow(
+				() =>
+					render(
+						<RemotionRoot>
+							<Composition
+								lazyComponent={() => Promise.resolve({default: AnyComp})}
+								durationInFrames={100}
+								fps={30}
+								height={100.01}
+								width={100}
+								id="id"
+							/>
+						</RemotionRoot>
+					),
+				/The "height" of a composition must be an integer, but is 100.01/
 			);
 		});
 	});
@@ -136,7 +154,7 @@ describe('Composition-validation render should throw with invalid props', () => 
 							/>
 						</RemotionRoot>
 					),
-				/The "width" of a composition must be a number, but you passed a string/
+				/The "width" of a composition must be a number, but you passed a value of type string/
 			);
 		});
 	});
@@ -211,7 +229,7 @@ describe('Composition-validation render should throw with invalid props', () => 
 							/>
 						</RemotionRoot>
 					),
-				/The "durationInFrames" of a composition must be a number, but you passed a string/
+				/The "durationInFrames" of a composition must be a number, but you passed a value of type string/
 			);
 		});
 	});
@@ -269,7 +287,7 @@ describe('Composition-validation render should throw with invalid props', () => 
 							/>
 						</RemotionRoot>
 					),
-				/"fps" must be a number, but you passed a string/
+				/"fps" must be a number, but you passed a value of type string/
 			);
 		});
 	});

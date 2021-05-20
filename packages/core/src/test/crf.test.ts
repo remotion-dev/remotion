@@ -41,7 +41,7 @@ describe('crf tests getDefaultCrfForCodec invalid input', () => {
 describe('crf tests getValidCrfRanges valid input', () => {
 	// input crf, input codec, valid range
 	const validInputs: [Codec, [number, number]][] = [
-		['h264', [0, 51]],
+		['h264', [1, 51]],
 		['h265', [0, 51]],
 		['vp8', [4, 63]],
 		['vp9', [0, 63]],
@@ -72,7 +72,7 @@ describe('validateSelectedCrfAndCodecCombination valid input', () => {
 	// input crf, input codec
 	const validInputs: [number, Codec][] = [
 		[20, 'h264'],
-		[0, 'h264'],
+		[1, 'h264'],
 		[51, 'h264'],
 		[20, 'h265'],
 		[0, 'h265'],
@@ -95,9 +95,9 @@ describe('validateSelectedCrfAndCodecCombination valid input', () => {
 describe('validateSelectedCrfAndCodecCombination invalid input', () => {
 	// input crf, input codec, valid range
 	const invalidInputs: [number, Codec, [number, number]][] = [
-		[80, 'h264', [0, 51]],
-		[-1, 'h264', [0, 51]],
-		[52, 'h264', [0, 51]],
+		[80, 'h264', [1, 51]],
+		[-1, 'h264', [1, 51]],
+		[52, 'h264', [1, 51]],
 		[80, 'h265', [0, 51]],
 		[-1, 'h265', [0, 51]],
 		[52, 'h265', [0, 51]],
@@ -142,7 +142,7 @@ describe('get crf valid input', () => {
 describe('get crf invalid input', () => {
 	// input crf, input codec, valid range
 	const invalidInputs: [number, Codec, [number, number]][] = [
-		[80, 'h264', [0, 51]],
+		[80, 'h264', [1, 51]],
 		[80, 'h265', [0, 51]],
 		[80, 'vp8', [4, 63]],
 		[80, 'vp9', [0, 63]],

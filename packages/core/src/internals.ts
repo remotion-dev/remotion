@@ -1,3 +1,4 @@
+import {LooseAnyComponent} from './any-component';
 import {CompProps} from './Composition';
 import {
 	CompositionManager,
@@ -76,6 +77,9 @@ import {truthy} from './truthy';
 import {useLazyComponent} from './use-lazy-component';
 import {useUnsafeVideoConfig} from './use-unsafe-video-config';
 import {useVideo} from './use-video';
+import {validateDimension} from './validation/validate-dimensions';
+import {validateDurationInFrames} from './validation/validate-duration-in-frames';
+import {validateFps} from './validation/validate-fps';
 import {
 	MediaVolumeContext,
 	MediaVolumeContextValue,
@@ -145,6 +149,9 @@ export const Internals = {
 	getServerPort,
 	MediaVolumeContext,
 	SetMediaVolumeContext,
+	validateDurationInFrames,
+	validateFps,
+	validateDimension,
 };
 
 export type {
@@ -161,4 +168,5 @@ export type {
 	CompositionManagerContext,
 	MediaVolumeContextValue,
 	SetMediaVolumeContextValue,
+	LooseAnyComponent,
 };
