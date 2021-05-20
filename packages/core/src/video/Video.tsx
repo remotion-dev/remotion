@@ -1,4 +1,4 @@
-import React, {forwardRef, useCallback} from 'react';
+import React, {forwardRef} from 'react';
 import {Sequence} from '../sequencing';
 import {validateMediaProps} from '../validate-media-props';
 import {validateStartFromProps} from '../validate-start-from-props';
@@ -15,10 +15,6 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 	if (typeof ref === 'string') {
 		throw new Error('string refs are not supported');
 	}
-
-	const onError = useCallback(() => {
-		throw new Error(`Could not play video with src ${otherProps.src}`);
-	}, [otherProps.src]);
 
 	if (typeof startFrom !== 'undefined' || typeof endAt !== 'undefined') {
 		validateStartFromProps(startFrom, endAt);
@@ -40,10 +36,10 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 	validateMediaProps(props, 'Video');
 
 	if (process.env.NODE_ENV === 'development') {
-		return <VideoForDevelopment {...props} ref={ref} onError={onError} />;
+		return <VideoForDevelopment {...otherProps} ref={ref} />;
 	}
 
-	return <VideoForRendering {...props} ref={ref} onError={onError} />;
+	return <VideoForRendering {...otherProps} ref={ref} />;
 };
 
 export const Video = forwardRef(VideoForwardingFunction);
