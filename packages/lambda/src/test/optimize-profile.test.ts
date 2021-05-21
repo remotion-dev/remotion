@@ -1,4 +1,12 @@
+import {
+	getFrameRangesFromProfile,
+	sortProfileByFrameRanges,
+} from '../chunk-optimization/get-frame-ranges-from-profile';
 import {getProfileDuration} from '../chunk-optimization/get-profile-duration';
+import {
+	assignFrameToOther,
+	optimizeProfile,
+} from '../chunk-optimization/optimize-profile';
 import {
 	getSimulatedTimingForFrameRange,
 	getTimingForFrame,
@@ -49,11 +57,49 @@ test('Get simulated profile for frame range', () => {
 test('Parser should not lose precision, same duration after parsing and reconstruction', () => {
 	const reconstructed = simulateFrameRanges({
 		profile: demoProfiles,
-		newFrameRanges: demoProfiles.map((p) => p.frameRange),
+		newFrameRanges: getFrameRangesFromProfile(demoProfiles),
 	});
 
 	expect(getProfileDuration(reconstructed)).toEqual(24440);
 	expect(getProfileDuration(reconstructed)).toEqual(
 		getProfileDuration(demoProfiles)
 	);
+});
+
+describe('Move frame from 1 frame range to another', () => {
+	const frameRanges: [number, number][] = [
+		[0, 19],
+		[20, 39],
+		[40, 59],
+	];
+	test('Case from < to', () => {
+		expect(assignFrameToOther({frameRanges, fromChunk: 0, toChunk: 2})).toEqual(
+			[
+				[0, 18],
+				[19, 38],
+				[39, 59],
+			]
+		);
+	});
+	test('Case from > to', () => {
+		expect(assignFrameToOther({frameRanges, fromChunk: 2, toChunk: 0})).toEqual(
+			[
+				[0, 20],
+				[21, 40],
+				[41, 59],
+			]
+		);
+	});
+});
+
+test('Optimize profile', () => {
+	const sortedProfile = sortProfileByFrameRanges(demoProfiles);
+	let optimized = sortedProfile;
+	for (let i = 0; i < 10; i++) {
+		optimized = optimizeProfile(optimized);
+	}
+
+	const newDuration = getProfileDuration(optimized);
+	console.log(newDuration);
+	expect(newDuration).toBeLessThan(20000);
 });
