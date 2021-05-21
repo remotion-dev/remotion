@@ -6,7 +6,7 @@ import {collectChunkInformation} from '../chunk-optimization/collect-data';
 import {getFrameRangesFromProfile} from '../chunk-optimization/get-frame-ranges-from-profile';
 import {getProfileDuration} from '../chunk-optimization/get-profile-duration';
 import {optimizeInvocationOrder} from '../chunk-optimization/optimize-invocation-order';
-import {optimizeProfile} from '../chunk-optimization/optimize-profile';
+import {optimizeProfileRecursively} from '../chunk-optimization/optimize-profile';
 import {planFrameRanges} from '../chunk-optimization/plan-frame-ranges';
 import {
 	getOptimization,
@@ -157,7 +157,9 @@ const innerLaunchHandler = async (params: LambdaPayload) => {
 	});
 	const chunkData = await collectChunkInformation(params.bucketName);
 	await writeTimingProfile({data: chunkData, bucketName: params.bucketName});
-	const optimizedProfile = optimizeInvocationOrder(optimizeProfile(chunkData));
+	const optimizedProfile = optimizeInvocationOrder(
+		optimizeProfileRecursively(chunkData, 400)
+	);
 
 	const optimizedFrameRange = getFrameRangesFromProfile(optimizedProfile);
 	await writeOptimization(params.bucketName, {

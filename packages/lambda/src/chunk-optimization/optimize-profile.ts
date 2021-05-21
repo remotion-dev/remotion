@@ -49,21 +49,24 @@ export const assignFrameToOther = ({
 	});
 };
 
-export const optimizeProfile = (profile: TimingProfile) => {
-	const sortedByDuration = sortProfileByDuration(profile);
+export const optimizeProfile = (_profile: TimingProfile) => {
+	const sortedByStart = _profile
+		.slice()
+		.sort((a, b) => a.frameRange[0] - b.frameRange[0]);
+	const sortedByDuration = sortProfileByDuration(sortedByStart);
 
-	const indexOfFastest = profile.indexOf(sortedByDuration[0]);
+	const indexOfFastest = sortedByStart.indexOf(sortedByDuration[0]);
 	if (indexOfFastest === -1) {
 		throw new Error('something went wrong');
 	}
 
 	const slowest = sortedByDuration[sortedByDuration.length - 1];
-	const indexOfSlowest = profile.indexOf(slowest);
+	const indexOfSlowest = sortedByStart.indexOf(slowest);
 	if (indexOfSlowest === -1) {
 		throw new Error('something went wrong');
 	}
 
-	const frameRanges = getFrameRangesFromProfile(profile);
+	const frameRanges = getFrameRangesFromProfile(sortedByStart);
 	const newFrameRanges = assignFrameToOther({
 		frameRanges,
 		fromChunk: indexOfSlowest,
@@ -74,15 +77,18 @@ export const optimizeProfile = (profile: TimingProfile) => {
 		),
 	});
 	const simulated = simulateFrameRanges({
-		profile,
+		profile: sortedByStart,
 		newFrameRanges,
 	});
 	return simulated;
 };
 
-export const optimizeProfileRecursively = (profile: TimingProfile) => {
+export const optimizeProfileRecursively = (
+	profile: TimingProfile,
+	amount: number
+) => {
 	let optimized = profile;
-	for (let i = 0; i < 400; i++) {
+	for (let i = 0; i < amount; i++) {
 		optimized = optimizeProfile(optimized);
 	}
 
