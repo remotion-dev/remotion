@@ -11,6 +11,7 @@ export const ENCODING_PROGRESS_KEY = 'encoding-progress.json';
 export const RENDER_METADATA_KEY = 'render-metadata.json';
 export const LAMBDA_INITIALIZED_KEY = 'lambda-initialized';
 export const TIMING_PROFILE_PREFIX = 'timing-profie';
+export const OPTIMIZATION_PROFILE = 'optimization-profile';
 export const OUT_NAME = 'out.mp4';
 
 export enum LambdaRoutines {

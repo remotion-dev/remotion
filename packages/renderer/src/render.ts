@@ -46,7 +46,11 @@ export const renderFrames = async ({
 	config: VideoConfig;
 	compositionId: string;
 	onStart: (data: OnStartData) => void;
-	onFrameUpdate: (f: number, src: string) => void;
+	onFrameUpdate: (
+		framesRendered: number,
+		src: string,
+		frameIndex: number
+	) => void;
 	outputDir: string;
 	inputProps: unknown;
 	envVariables?: Record<string, string>;
@@ -157,7 +161,7 @@ export const renderFrames = async ({
 				});
 				pool.release(freePage);
 				framesRendered++;
-				onFrameUpdate(framesRendered, output);
+				onFrameUpdate(framesRendered, output, frame);
 				freePage.off('pageerror', errorCallback);
 				return collectedAssets;
 			})

@@ -3,7 +3,10 @@ import {renderFrames, stitchFramesToVideo} from '@remotion/renderer';
 import fs from 'fs';
 import path from 'path';
 import {lambdaClient} from '../aws-clients';
-import {ChunkTimingData} from '../chunk-optimization/types';
+import {
+	ChunkTimingData,
+	ObjectChunkTimingData,
+} from '../chunk-optimization/types';
 import {
 	LambdaPayload,
 	LambdaPayloads,
@@ -39,7 +42,7 @@ const renderHandler = async (params: LambdaPayload) => {
 
 	console.log(`Started rendering ${params.chunk}, frame ${params.frameRange}`);
 	const start = Date.now();
-	const chunkTimingData: ChunkTimingData = {
+	const chunkTimingData: ObjectChunkTimingData = {
 		timings: {},
 		chunk: params.chunk,
 		frameRange: params.frameRange,
@@ -57,8 +60,8 @@ const renderHandler = async (params: LambdaPayload) => {
 		// TODO: Pass input props
 		inputProps: {},
 		frameRange: params.frameRange,
-		onFrameUpdate: (i: number, output: string) => {
-			chunkTimingData.timings[i] = Date.now() - start;
+		onFrameUpdate: (i: number, output: string, frameNumber: number) => {
+			chunkTimingData.timings[frameNumber] = Date.now() - start;
 			if (i === 1) {
 				lambdaWriteFile({
 					bucketName: params.bucketName,
@@ -78,9 +81,13 @@ const renderHandler = async (params: LambdaPayload) => {
 		puppeteerInstance: browserInstance,
 		serveUrl: params.serveUrl,
 	});
+	const condensedTimingData: ChunkTimingData = {
+		...chunkTimingData,
+		timings: Object.values(chunkTimingData.timings),
+	};
 	const uploadMetricsData = lambdaWriteFile({
 		bucketName: params.bucketName,
-		body: JSON.stringify(chunkTimingData, null, 2),
+		body: JSON.stringify(condensedTimingData as ChunkTimingData, null, 2),
 		key: `${LAMBDA_INITIALIZED_KEY}-${params.chunk}.txt`,
 		forceS3: false,
 	});

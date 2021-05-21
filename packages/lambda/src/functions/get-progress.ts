@@ -1,5 +1,6 @@
 import {_Object} from '@aws-sdk/client-s3';
 import {Internals} from 'remotion';
+import {getOptimization} from '../chunk-optimization/s3-optimization-file';
 import {
 	EncodingProgress,
 	ENCODING_PROGRESS_KEY,
@@ -148,8 +149,8 @@ export const progressHandler = async (lambdaParams: LambdaPayload) => {
 		.map((c) => c.Key)
 		.filter(Internals.truthy);
 
-	const [encodingStatus, renderMetadata, errorExplanations] = await Promise.all(
-		[
+	const [encodingStatus, renderMetadata, errorExplanations, optimization] =
+		await Promise.all([
 			getEncodingMetadata({
 				exists: Boolean(contents.find((c) => c.Key === ENCODING_PROGRESS_KEY)),
 				bucketName: lambdaParams.bucketName,
@@ -159,8 +160,8 @@ export const progressHandler = async (lambdaParams: LambdaPayload) => {
 				bucketName: lambdaParams.bucketName,
 			}),
 			inspectErrors({errs: errors, bucket: lambdaParams.bucketName}),
-		]
-	);
+			getOptimization(lambdaParams.bucketName),
+		]);
 
 	const timeToFinish = getTimeToFinish({
 		output,
@@ -204,6 +205,8 @@ export const progressHandler = async (lambdaParams: LambdaPayload) => {
 		outputFile: output
 			? `https://s3.${REGION}.amazonaws.com/${lambdaParams.bucketName}/${OUT_NAME}`
 			: null,
+		// TODO: Only fetch optimization if actually shown
+		optimizationForNextRender: output ? optimization : null,
 		timeToFinish,
 		//	errors,
 		errorExplanations,

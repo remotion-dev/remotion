@@ -1,12 +1,12 @@
 import {TIMING_PROFILE_PREFIX} from '../constants';
 import {lambdaWriteFile} from '../io';
-import {ChunkTimingData} from './types';
+import {TimingProfile} from './types';
 
 export const writeTimingProfile = async ({
 	data,
 	bucketName,
 }: {
-	data: ChunkTimingData[];
+	data: TimingProfile;
 	bucketName: string;
 }) => {
 	await lambdaWriteFile({

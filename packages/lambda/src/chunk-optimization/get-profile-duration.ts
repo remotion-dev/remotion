@@ -1,21 +1,20 @@
-import {ChunkTimingData} from '../../dist/chunk-optimization/types';
+import {ChunkTimingData} from '../chunk-optimization/types';
+import {TimingProfile} from './types';
 
-export const getTimingEndTimestamps = (chunk: ChunkTimingData) => {
-	const timestamps: number[] = Object.values(chunk.timings).map(
-		(timings) => chunk.startDate + timings
-	);
-	return timestamps;
+export const getTimingEndTimestamps = (chunk: ChunkTimingData): number[] => {
+	return chunk.timings.map((timing) => chunk.startDate + timing);
 };
 
-export const getProfileTimestamps = (chunks: ChunkTimingData[]) => {
+export const getProfileTimestamps = (chunks: TimingProfile) => {
 	return chunks.map((c) => getTimingEndTimestamps(c));
 };
 
-export const getProfileDuration = (chunks: ChunkTimingData[]) => {
-	const allTimestamps = getProfileTimestamps(chunks).flat(1);
+export const getProfileDuration = (chunks: TimingProfile) => {
+	const startTimeStamps = chunks.map((c) => c.startDate).flat(1);
+	const endTimestamps = getProfileTimestamps(chunks).flat(1);
 
-	const smallest = Math.min(...allTimestamps);
-	const biggest = Math.max(...allTimestamps);
+	const earliest = Math.min(...startTimeStamps);
+	const latest = Math.max(...endTimestamps);
 
-	return biggest - smallest;
+	return latest - earliest;
 };

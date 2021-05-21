@@ -25,8 +25,8 @@ const waitForLaunched = () => {
 	});
 };
 
-export const getBrowserInstance = async (): Promise<
-	ReturnType<typeof RenderInternals.openBrowser>
+export const getBrowserInstance = async (): ReturnType<
+	typeof RenderInternals.openBrowser
 > => {
 	if (launching) {
 		await waitForLaunched();

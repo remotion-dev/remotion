@@ -1,13 +1,15 @@
-import {ChunkTimingData} from './types';
+import {ChunkTimingData, TimingProfile} from './types';
 
-export const getTimingForFrame = (
-	profile: ChunkTimingData[],
-	frame: number
-) => {
+export const getTimingForFrame = (profile: TimingProfile, frame: number) => {
 	for (const timingInfo of profile) {
+		if (timingInfo.frameRange[0] > frame || timingInfo.frameRange[1] < frame) {
+			continue;
+		}
+
 		let lastTime = timingInfo.startDate;
-		for (const [fr, timing] of Object.entries(timingInfo.timings)) {
-			const actualFrame = timingInfo.frameRange[0] + Number(fr) - 1;
+		for (let i = 0; i < timingInfo.timings.length; i++) {
+			const actualFrame = i + timingInfo.frameRange[0];
+			const timing = timingInfo.timings[i];
 			const absolute = timing + timingInfo.startDate;
 			if (actualFrame === frame) {
 				return absolute - lastTime;
@@ -21,17 +23,16 @@ export const getTimingForFrame = (
 };
 
 export const getSimulatedTimingForFrameRange = (
-	profile: ChunkTimingData[],
+	profile: TimingProfile,
 	frameRange: [number, number]
 ): ChunkTimingData['timings'] => {
-	const timings: ChunkTimingData['timings'] = {};
+	const timings: ChunkTimingData['timings'] = [];
 
 	let totalDuration = 0;
-	let index = 1;
 	for (let i = frameRange[0]; i <= frameRange[1]; i++) {
-		timings[index] = getTimingForFrame(profile, i) + totalDuration;
-		totalDuration += getTimingForFrame(profile, i);
-		index++;
+		const timingForFrame = getTimingForFrame(profile, i);
+		timings.push(timingForFrame + totalDuration);
+		totalDuration += timingForFrame;
 	}
 
 	return timings;
@@ -41,9 +42,9 @@ export const simulateFrameRanges = ({
 	profile,
 	newFrameRanges,
 }: {
-	profile: ChunkTimingData[];
+	profile: TimingProfile;
 	newFrameRanges: [number, number][];
-}): ChunkTimingData[] => {
+}): TimingProfile => {
 	if (profile.length !== newFrameRanges.length) {
 		throw new Error('Expected previous and new frame ranges to be equal');
 	}
