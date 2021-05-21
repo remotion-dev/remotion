@@ -2,6 +2,7 @@ import {getProfileDuration} from '../chunk-optimization/get-profile-duration';
 import {
 	getSimulatedTimingForFrameRange,
 	getTimingForFrame,
+	simulateFrameRanges,
 } from '../chunk-optimization/simulate-frame-ranges';
 import {demoProfiles} from './demo-profile';
 
@@ -41,5 +42,18 @@ test('Get simulated profile for frame range', () => {
 		'17': 2619,
 		'18': 2735,
 		'19': 2819,
+		'20': 2903,
 	});
+});
+
+test('Parser should not lose precision, same duration after parsing and reconstruction', () => {
+	const reconstructed = simulateFrameRanges({
+		profile: demoProfiles,
+		newFrameRanges: demoProfiles.map((p) => p.frameRange),
+	});
+
+	expect(getProfileDuration(reconstructed)).toEqual(24440);
+	expect(getProfileDuration(reconstructed)).toEqual(
+		getProfileDuration(demoProfiles)
+	);
 });
