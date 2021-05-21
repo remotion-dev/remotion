@@ -102,6 +102,7 @@ export const webpackConfig = ({
 				remotion: require.resolve('remotion'),
 				'styled-components': require.resolve('styled-components'),
 				'react-native$': 'react-native-web',
+				'react-native-svg$': 'react-native-svg-web',
 			},
 		},
 		module: {
