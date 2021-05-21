@@ -28,7 +28,7 @@ export const getSimulatedTimingForFrameRange = (
 
 	let totalDuration = 0;
 	let index = 1;
-	for (let i = frameRange[0]; i < frameRange[1]; i++) {
+	for (let i = frameRange[0]; i <= frameRange[1]; i++) {
 		timings[index] = getTimingForFrame(profile, i) + totalDuration;
 		totalDuration += getTimingForFrame(profile, i);
 		index++;
