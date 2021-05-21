@@ -6,7 +6,6 @@ import {
 	S3Client,
 } from '@aws-sdk/client-s3';
 import pLimit from 'p-limit';
-import {Internals} from 'remotion';
 import {LAMBDA_S3_WEBSITE_DEPLOY, RENDERS_BUCKET_PREFIX} from '../constants';
 
 const limit = pLimit(10);
@@ -97,14 +96,14 @@ export const cleanUpBuckets = async ({
 	}
 
 	for (const bucket of remotionBuckets) {
-		onBeforeBucketDeleted?.(bucket);
+		onBeforeBucketDeleted?.(bucket.Name as string);
 		await cleanBucket({
 			s3client,
-			bucket,
+			bucket: bucket.Name as string,
 			onAfterItemDeleted: onAfterItemDeleted ?? (() => undefined),
 			onBeforeItemDeleted: onBeforeItemDeleted ?? (() => undefined),
 		});
-		onAfterBucketDeleted?.(bucket);
+		onAfterBucketDeleted?.(bucket.Name as string);
 	}
 
 	await cleanUpBuckets({
@@ -114,11 +113,7 @@ export const cleanUpBuckets = async ({
 	});
 };
 
-export const getRemotionS3Buckets = async (
-	s3Client: S3Client
-): Promise<{
-	remotionBuckets: string[];
-}> => {
+export const getRemotionS3Buckets = async (s3Client: S3Client) => {
 	const {Buckets} = await s3Client.send(new ListBucketsCommand({}));
 	if (!Buckets) {
 		return {remotionBuckets: []};
@@ -129,8 +124,7 @@ export const getRemotionS3Buckets = async (
 			b.Name?.startsWith(RENDERS_BUCKET_PREFIX) ||
 			b.Name?.startsWith(LAMBDA_S3_WEBSITE_DEPLOY)
 	);
-	const names = remotionBuckets.map((b) => b.Name).filter(Internals.truthy);
 	return {
-		remotionBuckets: names,
+		remotionBuckets,
 	};
 };

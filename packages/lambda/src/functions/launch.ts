@@ -28,9 +28,6 @@ import {lambdaWriteFile} from '../io';
 import {timer} from '../timer';
 import {validateComposition} from '../validate-composition';
 
-// TODO: redundant
-type Await<T> = T extends PromiseLike<infer U> ? U : T;
-
 const innerLaunchHandler = async (params: LambdaPayload) => {
 	if (params.type !== LambdaRoutines.launch) {
 		throw new Error('Expected launch type');
@@ -45,7 +42,7 @@ const innerLaunchHandler = async (params: LambdaPayload) => {
 
 	const [browserInstance, optimization] = await Promise.all([
 		getBrowserInstance(),
-		getOptimization(params.bucketName),
+		getOptimization(),
 	]);
 
 	const comp = await validateComposition({
