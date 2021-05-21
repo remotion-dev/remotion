@@ -206,7 +206,7 @@ export const progressHandler = async (lambdaParams: LambdaPayload) => {
 			? `https://s3.${REGION}.amazonaws.com/${lambdaParams.bucketName}/${OUT_NAME}`
 			: null,
 		// TODO: Only fetch optimization if actually shown
-		optimizationForNextRender: output ? optimization : null,
+		optimizationForNextRender: optimization,
 		timeToFinish,
 		//	errors,
 		errorExplanations,
