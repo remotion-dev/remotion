@@ -3,6 +3,7 @@ import {renderFrames, stitchFramesToVideo} from '@remotion/renderer';
 import fs from 'fs';
 import path from 'path';
 import {lambdaClient} from '../aws-clients';
+import {ChunkTimingData} from '../chunk-optimization/types';
 import {
 	LambdaPayload,
 	LambdaPayloads,
@@ -36,9 +37,14 @@ const renderHandler = async (params: LambdaPayload) => {
 		throw new Error('must pass framerange');
 	}
 
-	const timings: {[key: number]: number} = {};
 	console.log(`Started rendering ${params.chunk}, frame ${params.frameRange}`);
 	const start = Date.now();
+	const chunkTimingData: ChunkTimingData = {
+		timings: {},
+		chunk: params.chunk,
+		frameRange: params.frameRange,
+		startDate: start,
+	};
 	const {assetsInfo} = await renderFrames({
 		compositionId: params.composition,
 		config: {
@@ -48,10 +54,11 @@ const renderHandler = async (params: LambdaPayload) => {
 			width: params.width,
 		},
 		imageFormat: 'jpeg',
+		// TODO: Pass input props
 		inputProps: {},
 		frameRange: params.frameRange,
 		onFrameUpdate: (i: number, output: string) => {
-			timings[i] = Date.now() - start;
+			chunkTimingData.timings[i] = Date.now() - start;
 			if (i === 1) {
 				lambdaWriteFile({
 					bucketName: params.bucketName,
@@ -71,16 +78,9 @@ const renderHandler = async (params: LambdaPayload) => {
 		puppeteerInstance: browserInstance,
 		serveUrl: params.serveUrl,
 	});
-	await lambdaWriteFile({
+	const uploadMetricsData = lambdaWriteFile({
 		bucketName: params.bucketName,
-		body: JSON.stringify(
-			{
-				duration: Date.now() - start,
-				timings,
-			},
-			null,
-			2
-		),
+		body: JSON.stringify(chunkTimingData, null, 2),
 		key: `${LAMBDA_INITIALIZED_KEY}-${params.chunk}.txt`,
 		forceS3: false,
 	});
@@ -119,14 +119,13 @@ const renderHandler = async (params: LambdaPayload) => {
 	});
 	stitchLabel.end();
 
-	const uploading = timer('uploading');
 	await lambdaWriteFile({
 		forceS3: false,
 		bucketName: params.bucketName,
 		key: `chunk-${String(params.chunk).padStart(8, '0')}.mp4`,
 		body: fs.createReadStream(outputLocation),
 	});
-	uploading.end();
+	await uploadMetricsData;
 	console.log('Done rendering!', outputDir, outputLocation);
 };
 
