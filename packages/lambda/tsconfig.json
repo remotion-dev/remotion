@@ -3,7 +3,8 @@
 	"compilerOptions": {
 		"composite": true,
 		"rootDir": "src",
-		"outDir": "dist"
+		"outDir": "dist",
+		"lib": ["ES2019"]
 	},
 	"include": ["src"],
 	"references": [
