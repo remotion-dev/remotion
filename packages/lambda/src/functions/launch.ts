@@ -3,7 +3,15 @@ import fs from 'fs';
 import {lambdaClient} from '../aws-clients';
 import {chunk} from '../chunk';
 import {collectChunkInformation} from '../chunk-optimization/collect-data';
+import {getFrameRangesFromProfile} from '../chunk-optimization/get-frame-ranges-from-profile';
+import {getProfileDuration} from '../chunk-optimization/get-profile-duration';
+import {optimizeInvocationOrder} from '../chunk-optimization/optimize-invocation-order';
+import {optimizeProfile} from '../chunk-optimization/optimize-profile';
 import {planFrameRanges} from '../chunk-optimization/plan-frame-ranges';
+import {
+	getOptimization,
+	writeOptimization,
+} from '../chunk-optimization/s3-optimization-file';
 import {writeTimingProfile} from '../chunk-optimization/write-profile';
 import {concatVideosS3} from '../concat-videos';
 import {
@@ -20,6 +28,9 @@ import {lambdaWriteFile} from '../io';
 import {timer} from '../timer';
 import {validateComposition} from '../validate-composition';
 
+// TODO: redundant
+type Await<T> = T extends PromiseLike<infer U> ? U : T;
+
 const innerLaunchHandler = async (params: LambdaPayload) => {
 	if (params.type !== LambdaRoutines.launch) {
 		throw new Error('Expected launch type');
@@ -32,7 +43,10 @@ const innerLaunchHandler = async (params: LambdaPayload) => {
 		throw new Error('Pass chunkSize');
 	}
 
-	const browserInstance = await getBrowserInstance();
+	const [browserInstance, optimization] = await Promise.all([
+		getBrowserInstance(),
+		getOptimization(params.bucketName),
+	]);
 
 	const comp = await validateComposition({
 		serveUrl: params.serveUrl,
@@ -53,6 +67,7 @@ const innerLaunchHandler = async (params: LambdaPayload) => {
 		chunkCount,
 		chunkSize,
 		frameCount: comp.durationInFrames,
+		optimization,
 	});
 	const invokers = Math.round(Math.sqrt(chunks.length));
 
@@ -142,6 +157,14 @@ const innerLaunchHandler = async (params: LambdaPayload) => {
 	});
 	const chunkData = await collectChunkInformation(params.bucketName);
 	await writeTimingProfile({data: chunkData, bucketName: params.bucketName});
+	const optimizedProfile = optimizeInvocationOrder(optimizeProfile(chunkData));
+
+	const optimizedFrameRange = getFrameRangesFromProfile(optimizedProfile);
+	await writeOptimization(params.bucketName, {
+		frameRange: optimizedFrameRange,
+		oldTiming: getProfileDuration(chunkData),
+		newTiming: getProfileDuration(optimizedProfile),
+	});
 };
 
 export const launchHandler = async (params: LambdaPayload) => {

@@ -4,7 +4,7 @@
 		"composite": true,
 		"rootDir": "src",
 		"outDir": "dist",
-		"lib": ["ES2019"]
+		"lib": ["es2019", "dom"]
 	},
 	"include": ["src"],
 	"references": [
