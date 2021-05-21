@@ -6,6 +6,7 @@ import {getProfileDuration} from '../chunk-optimization/get-profile-duration';
 import {optimizeInvocationOrder} from '../chunk-optimization/optimize-invocation-order';
 import {
 	assignFrameToOther,
+	optimizeProfile,
 	optimizeProfileRecursively,
 } from '../chunk-optimization/optimize-profile';
 import {
@@ -14,6 +15,7 @@ import {
 	simulateFrameRanges,
 } from '../chunk-optimization/simulate-frame-ranges';
 import {demoProfiles} from './demo-profile';
+import {demoProfile2} from './demo-profile-2';
 
 test('Should measure demo profile correctly', () => {
 	expect(getProfileDuration(demoProfiles)).toEqual(29202);
@@ -87,7 +89,7 @@ describe('Move frame from 1 frame range to another', () => {
 
 test('Optimize profile', () => {
 	const sortedProfile = sortProfileByFrameRanges(demoProfiles);
-	const optimized = optimizeProfileRecursively(sortedProfile);
+	const optimized = optimizeProfileRecursively(sortedProfile, 400);
 
 	const newDuration = getProfileDuration(optimized);
 	expect(newDuration).toBeLessThan(10000);
@@ -96,4 +98,8 @@ test('Optimize profile', () => {
 	);
 	expect(optimizedInvocationOrder).toBeLessThan(9000);
 	expect(optimizedInvocationOrder).toBeLessThan(newDuration);
+});
+
+test('Optimize profile edge case', () => {
+	optimizeProfile(demoProfile2);
 });
