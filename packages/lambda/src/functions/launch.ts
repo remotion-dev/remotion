@@ -3,6 +3,7 @@ import fs from 'fs';
 import {lambdaClient} from '../aws-clients';
 import {chunk} from '../chunk';
 import {collectChunkInformation} from '../chunk-optimization/collect-data';
+import {planFrameRanges} from '../chunk-optimization/plan-frame-ranges';
 import {writeTimingProfile} from '../chunk-optimization/write-profile';
 import {concatVideosS3} from '../concat-videos';
 import {
@@ -48,11 +49,10 @@ const innerLaunchHandler = async (params: LambdaPayload) => {
 	const {chunkSize} = params;
 	const chunkCount = Math.ceil(comp.durationInFrames / chunkSize);
 
-	const chunks = new Array(chunkCount).fill(1).map((_, i) => {
-		return [
-			i * chunkSize,
-			Math.min(comp.durationInFrames, (i + 1) * chunkSize) - 1,
-		] as [number, number];
+	const chunks = planFrameRanges({
+		chunkCount,
+		chunkSize,
+		frameCount: comp.durationInFrames,
 	});
 	const invokers = Math.round(Math.sqrt(chunks.length));
 
