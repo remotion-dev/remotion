@@ -5,11 +5,11 @@ import {lambdaClient, s3Client} from './aws-clients';
 import {callLambda} from './call-lambda';
 import {checkLambdaStatus} from './check-lambda-status';
 import {cleanupLambdas, getRemotionLambdas} from './cleanup/cleanup-lambdas';
-import {cleanUpBuckets, getRemotionS3Buckets} from './cleanup/s3-buckets';
+import {getRemotionS3Buckets} from './cleanup/s3-buckets';
 import {
 	LambdaRoutines,
-	LAMBDA_INITIALIZED_KEY,
 	LAMBDA_S3_WEBSITE_DEPLOY,
+	TIMING_PROFILE_PREFIX,
 } from './constants';
 import {createLambda} from './create-lambda';
 import {deploySite} from './deploy-site';
@@ -23,10 +23,11 @@ const DEPLOY = false;
 const getFnName = async (): Promise<{
 	functionName: string;
 	bucketUrl: string;
+	compositionName: string;
 }> => {
 	if (DEPLOY) {
 		await cleanupLambdas({lambdaClient});
-		await cleanUpBuckets({s3client: s3Client});
+		// await cleanUpBuckets({s3client: s3Client});
 
 		const {functionName} = await createLambda();
 
@@ -38,7 +39,7 @@ const getFnName = async (): Promise<{
 			}
 		);
 
-		return {functionName, bucketUrl: url};
+		return {functionName, bucketUrl: url, compositionName: 'my-video'};
 	}
 
 	const lambdas = await getRemotionLambdas(lambdaClient);
@@ -48,18 +49,19 @@ const getFnName = async (): Promise<{
 	);
 	return {
 		functionName: lambdas[0].FunctionName as string,
-		bucketUrl: makeS3Url('remotion-video-4n5ruqm1rk'),
+		bucketUrl: makeS3Url('remotion-video-wx044jzjgd'),
+		compositionName: 'Main',
 	};
 };
 
 CliInternals.xns(async () => {
-	const {functionName, bucketUrl} = await getFnName();
+	const {functionName, bucketUrl, compositionName} = await getFnName();
 	const res = await callLambda({
 		functionName,
 		type: LambdaRoutines.start,
 		payload: {
 			chunkSize: 20,
-			composition: 'Main',
+			composition: compositionName,
 			serveUrl: bucketUrl,
 			inputProps: {},
 		},
@@ -79,7 +81,7 @@ CliInternals.xns(async () => {
 		bucketName: res.bucketName,
 		forceS3: true,
 	});
-	const logs = files.filter((f) => f.Key?.startsWith(LAMBDA_INITIALIZED_KEY));
+	const logs = files.filter((f) => f.Key?.startsWith(TIMING_PROFILE_PREFIX));
 
 	for (const log of logs) {
 		const content = await lambdaReadFile({

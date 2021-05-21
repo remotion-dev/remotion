@@ -2,6 +2,8 @@ import {InvokeCommand} from '@aws-sdk/client-lambda';
 import fs from 'fs';
 import {lambdaClient} from '../aws-clients';
 import {chunk} from '../chunk';
+import {collectChunkInformation} from '../chunk-optimization/collect-data';
+import {writeTimingProfile} from '../chunk-optimization/write-profile';
 import {concatVideosS3} from '../concat-videos';
 import {
 	EncodingProgress,
@@ -9,7 +11,6 @@ import {
 	LambdaPayload,
 	LambdaRoutines,
 	OUT_NAME,
-	REGION,
 	RenderMetadata,
 	RENDER_METADATA_KEY,
 } from '../constants';
@@ -114,6 +115,7 @@ const innerLaunchHandler = async (params: LambdaPayload) => {
 	);
 	reqSend.end();
 
+	// TODO: Should throttle?
 	const onProgress = (framesRendered: number) => {
 		const encodingProgress: EncodingProgress = {
 			framesRendered,
@@ -138,8 +140,8 @@ const innerLaunchHandler = async (params: LambdaPayload) => {
 		body: fs.createReadStream(out),
 		forceS3: true,
 	});
-	const url = `https://s3.${REGION}.amazonaws.com/${params.bucketName}/${OUT_NAME}`;
-	return {url};
+	const chunkData = await collectChunkInformation(params.bucketName);
+	await writeTimingProfile({data: chunkData, bucketName: params.bucketName});
 };
 
 export const launchHandler = async (params: LambdaPayload) => {
