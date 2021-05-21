@@ -28,7 +28,8 @@ export const getOptimization =
 				(a, b) =>
 					(a.CreationDate?.getTime() as number) -
 					(b.CreationDate?.getTime() as number)
-			);
+			)
+			.reverse();
 		if (renderBuckets.length === 0) {
 			return null;
 		}
