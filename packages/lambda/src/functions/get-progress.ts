@@ -160,7 +160,7 @@ export const progressHandler = async (lambdaParams: LambdaPayload) => {
 				bucketName: lambdaParams.bucketName,
 			}),
 			inspectErrors({errs: errors, bucket: lambdaParams.bucketName}),
-			getOptimization(lambdaParams.bucketName),
+			getOptimization(),
 		]);
 
 	const timeToFinish = getTimeToFinish({

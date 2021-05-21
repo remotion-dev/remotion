@@ -74,7 +74,9 @@ export const cleanupCommand = async (args: string[]) => {
 		Log.info(
 			`${chunk(remotionBuckets, 2)
 				.map((b) =>
-					CliInternals.chalk.blue(b.map((a) => a.padEnd(40, ' ')).join(' '))
+					CliInternals.chalk.blue(
+						b.map((a) => (a.Name as string).padEnd(40, ' ')).join(' ')
+					)
 				)
 				.join('\n')}`
 		);

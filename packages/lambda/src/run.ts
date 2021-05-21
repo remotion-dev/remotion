@@ -45,7 +45,7 @@ const getFnName = async (): Promise<{
 	const lambdas = await getRemotionLambdas(lambdaClient);
 	const {remotionBuckets} = await getRemotionS3Buckets(s3Client);
 	const websiteBuckets = remotionBuckets.filter((b) =>
-		b.startsWith(LAMBDA_S3_WEBSITE_DEPLOY)
+		(b.Name as string).startsWith(LAMBDA_S3_WEBSITE_DEPLOY)
 	);
 	return {
 		functionName: lambdas[0].FunctionName as string,
