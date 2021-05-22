@@ -18,23 +18,29 @@ export const writeOptimization = async (
 	});
 };
 
+export const getNewestRenderBucket = async () => {
+	// TODO: Just use 1 bucket
+	const buckets = await getRemotionS3Buckets(s3Client);
+	const renderBuckets = buckets.remotionBuckets
+		.filter((f) => f.Name?.startsWith(RENDERS_BUCKET_PREFIX))
+		.sort(
+			(a, b) =>
+				(new Date(a.CreationDate as Date)?.getTime() as number) -
+				(new Date(b.CreationDate as Date)?.getTime() as number)
+		)
+		.reverse();
+	// TODO: Delete this ASAP, second newest bucket because we just created one
+	return renderBuckets[1] ?? null;
+};
+
 export const getOptimization =
 	async (): Promise<OptimizationProfile | null> => {
-		// TODO: Just use 1 bucket
-		const buckets = await getRemotionS3Buckets(s3Client);
-		const renderBuckets = buckets.remotionBuckets
-			.filter((f) => f.Name?.startsWith(RENDERS_BUCKET_PREFIX))
-			.sort(
-				(a, b) =>
-					(a.CreationDate?.getTime() as number) -
-					(b.CreationDate?.getTime() as number)
-			)
-			.reverse();
-		if (renderBuckets.length === 0) {
+		const bucket = await getNewestRenderBucket();
+		if (bucket === null) {
 			return null;
 		}
 
-		const bucketName = renderBuckets[0].Name as string;
+		const bucketName = bucket.Name as string;
 
 		const dir = await lambdaLs({
 			bucketName,
