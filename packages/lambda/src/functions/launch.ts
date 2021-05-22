@@ -66,6 +66,7 @@ const innerLaunchHandler = async (params: LambdaPayload) => {
 		frameCount: comp.durationInFrames,
 		optimization,
 	});
+	const sortedChunks = chunks.slice().sort((a, b) => a[0] - b[0]);
 	const invokers = Math.round(Math.sqrt(chunks.length));
 
 	const reqSend = timer('sending off requests');
@@ -74,7 +75,7 @@ const innerLaunchHandler = async (params: LambdaPayload) => {
 			type: LambdaRoutines.renderer,
 			frameRange: chunkPayload,
 			serveUrl: params.serveUrl,
-			chunk: chunks.indexOf(chunkPayload),
+			chunk: sortedChunks.indexOf(chunkPayload),
 			composition: params.composition,
 			fps: comp.fps,
 			height: comp.height,
