@@ -21,6 +21,7 @@ const outer: React.CSSProperties = {
 	alignItems: 'center',
 	fontSize: 13,
 	paddingLeft: TIMELINE_PADDING,
+	wordBreak: 'break-all',
 };
 
 const hookContainer: React.CSSProperties = {
@@ -105,6 +106,10 @@ export const TimelineListItem: React.FC<{
 			});
 		}
 	}, [collapsed, dispatchStateChange, hash]);
+	const text =
+		sequence.displayName.length > 80
+			? sequence.displayName.slice(0, 80) + '...'
+			: sequence.displayName;
 
 	return (
 		<div style={outer}>
@@ -125,7 +130,7 @@ export const TimelineListItem: React.FC<{
 					<div style={space} />
 				</>
 			) : null}
-			{sequence.displayName}
+			{text}
 		</div>
 	);
 };
