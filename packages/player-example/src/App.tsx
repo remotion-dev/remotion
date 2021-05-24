@@ -37,6 +37,7 @@ export default function App() {
 				durationInFrames={500}
 				component={CarSlideshow}
 				controls
+				doubleClickToFullscreen={true}
 				loop={loop}
 				showVolumeControls={true}
 				inputProps={{
