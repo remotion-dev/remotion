@@ -105,6 +105,12 @@ _optional_
 
 A boolean property defining whether you can play, pause or resume the video with a single click into the player. Default true.
 
+### `doubleClickToFullscreen`
+
+_optional_
+
+A boolean property defining whether you can go fullscreen and exit fullscreen in the video with double click into the player. Default true.
+
 ### `style`
 
 _optional_
