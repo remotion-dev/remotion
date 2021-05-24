@@ -37,6 +37,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		mediaMuted: boolean;
 		style?: React.CSSProperties;
 		clickToPlay: boolean;
+		doubleClickToFullscreen: boolean;
 		setMediaVolume: (v: number) => void;
 		setMediaMuted: (v: boolean) => void;
 		mediaVolume: number;
@@ -53,6 +54,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		showVolumeControls,
 		mediaVolume,
 		mediaMuted,
+		doubleClickToFullscreen,
 		setMediaMuted,
 		setMediaVolume,
 	},
@@ -329,7 +331,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 			<div
 				style={outer}
 				onClick={clickToPlay ? handleClick : undefined}
-				onDoubleClick={clickToPlay ? handleDoubleClick : undefined}
+				onDoubleClick={doubleClickToFullscreen ? handleDoubleClick : undefined}
 			>
 				<div style={containerStyle} className={PLAYER_CSS_CLASSNAME}>
 					{VideoComponent ? (
