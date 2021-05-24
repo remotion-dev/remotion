@@ -312,7 +312,8 @@ const PlayerUI: React.ForwardRefRenderFunction<
 
 	const [handleClick, handleDoubleClick] = useClickPreventionOnDoubleClick(
 		onSingleClick,
-		onDoubleClick
+		onDoubleClick,
+		doubleClickToFullscreen
 	);
 
 	useEffect(() => {

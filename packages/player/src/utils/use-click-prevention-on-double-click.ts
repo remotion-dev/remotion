@@ -4,13 +4,18 @@ import {useCancellablePromises} from './use-cancellable-promises';
 
 const useClickPreventionOnDoubleClick = (
 	onClick: () => void,
-	onDoubleClick: () => void
+	onDoubleClick: () => void,
+	doubleClickToFullscreen: boolean
 ) => {
 	const api = useCancellablePromises();
 
+	if (!doubleClickToFullscreen) {
+		return [onClick, onDoubleClick];
+	}
+
 	const handleClick = () => {
 		api.clearPendingPromises();
-		const waitForClick = cancellablePromise(delay(300));
+		const waitForClick = cancellablePromise(delay(200));
 		api.appendPendingPromise(waitForClick);
 
 		return waitForClick.promise
