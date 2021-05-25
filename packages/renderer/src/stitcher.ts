@@ -14,6 +14,7 @@ import {getAssetAudioDetails} from './assets/get-asset-audio-details';
 import {calculateFfmpegFilters} from './calculate-ffmpeg-filters';
 import {createFfmpegComplexFilter} from './create-ffmpeg-complex-filter';
 import {DEFAULT_IMAGE_FORMAT} from './image-format';
+import {max, min} from './min-max';
 import {parseFfmpegProgress} from './parse-ffmpeg-progress';
 import {resolveAssetSrc} from './resolve-asset-src';
 import {validateFfmpeg} from './validate-ffmpeg';
@@ -90,8 +91,8 @@ export const stitchFramesToVideo = async (options: {
 			return f.match(/element-([0-9]+)/)?.[1] as string;
 		})
 		.map((f) => Number(f));
-	const biggestNumber = Math.max(...numbers);
-	const smallestNumber = Math.min(...numbers);
+	const biggestNumber = max(numbers);
+	const smallestNumber = min(numbers);
 	const numberLength = String(biggestNumber).length;
 
 	const encoderName = getCodecName(codec);
