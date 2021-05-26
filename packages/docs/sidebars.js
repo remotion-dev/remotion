@@ -93,7 +93,12 @@ module.exports = {
     {
       type: "category",
       label: "Troubleshooting",
-      items: ["timeout", "media-playback-error", "performance"],
+      items: [
+        "timeout",
+        "media-playback-error",
+        "performance",
+        "webpack-dynamic-imports",
+      ],
     },
     "2-0-migration",
     "license",
