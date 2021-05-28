@@ -109,7 +109,13 @@ A boolean property defining whether you can play, pause or resume the video with
 
 _optional_
 
-A boolean property defining whether you can go fullscreen and exit fullscreen in the video with double click into the player. If enabled, clicking on the video once will delay pausing the video for 200ms to wait for a possible second click. Default false.
+A boolean property defining whether you can go fullscreen and exit fullscreen in the video with double click into the player. If enabled, clicking on the video once will delay pausing the video for 200ms to wait for a possible second click. Default `false`.
+
+### `inputProps`
+
+_optional_
+
+Pass props to the component that you have specified using the `component` prop. The Typescript definition takes the shape of the props that you have given to your `component`. Default `undefined`.
 
 ### `style`
 
