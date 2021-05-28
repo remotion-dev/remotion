@@ -1,0 +1,38 @@
+{
+	"name": "@remotion/three",
+	"version": "2.1.5",
+	"description": "Utility functions for using react-three-fiber with remotion",
+	"main": "dist/index.js",
+	"types": "dist/index.d.ts",
+	"sideEffects": false,
+	"scripts": {
+		"test": "eslint src --ext ts,tsx",
+		"watch": "tsc -w",
+		"build": "tsc -d"
+	},
+	"author": "Björn Zeutzheim",
+	"contributors": [],
+	"license": "MIT",
+	"repository": {
+		"url": "https://github.com/JonnyBurger/remotion"
+	},
+	"dependencies": {
+		"remotion": "^2.1.5"
+	},
+	"peerDependencies": {
+		"@react-three/fiber": ">=6.0.14",
+		"react": ">=17.0.1",
+		"react-dom": ">=17.0.1"
+	},
+	"devDependencies": {
+		"@jonny/eslint-config": "^2.1.210",
+		"@types/node": "^14.14.14",
+		"eslint": "^7.4.0",
+		"prettier": "^2.0.5",
+		"prettier-plugin-organize-imports": "^1.1.1",
+		"typescript": "^4.1.2"
+	},
+	"publishConfig": {
+		"access": "public"
+	}
+}

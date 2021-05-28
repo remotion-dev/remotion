@@ -87,17 +87,35 @@ _optional_
 
 Whether the video should display a seek bar and a play/pause button. Default `false.`
 
+### `showVolumeControls`
+
+_optional_
+
+Whether the video should display a volume slider and a mute button. Only has an effect if `controls` is also set to true. Default `true`.
+
 ### `allowFullscreen`
 
 _optional_
 
-Whether the video can go fullscreen. By default true.
+Whether the video can go fullscreen. By default `true`.
 
 ### `clickToPlay`
 
 _optional_
 
-A boolean property defining whether you can play, pause or resume the video with a single click into the player. Default true.
+A boolean property defining whether you can play, pause or resume the video with a single click into the player. Default `true` if `controls` are true, otherwise `false`.
+
+### `doubleClickToFullscreen`
+
+_optional_
+
+A boolean property defining whether you can go fullscreen and exit fullscreen in the video with double click into the player. If enabled, clicking on the video once will delay pausing the video for 200ms to wait for a possible second click. Default `false`.
+
+### `inputProps`
+
+_optional_
+
+Pass props to the component that you have specified using the `component` prop. The Typescript definition takes the shape of the props that you have given to your `component`. Default `undefined`.
 
 ### `style`
 
@@ -147,6 +165,30 @@ Pauses the video if it's playing. Plays the video if it's paused.
 ### `getCurrentFrame()`
 
 Gets the current postition expressed as the current frame. Divide by the `fps` you passed to get the time in seconds.
+
+### `mute()`
+
+Mutes the video.
+
+### `unmute()`
+
+Unmutes the video.
+
+### `getVolume()`
+
+Gets the volume of the video. The volume is a value between 0 and 1 and is initially 1.
+
+### `setVolume()`
+
+#### Arguments
+
+- `volume`: `number`
+
+Set the volume of the video. Must be a value between 0 and 1, otherwise an exception will be thrown.
+
+### `isMuted()`
+
+Returns a boolean specifying whether the video is muted.
 
 ### `seekTo()`
 
@@ -258,8 +300,4 @@ Before we mark the player as stable, we are looking to improve in the following 
 
 - Better loading state than the current "Loading..." text.
 - Implement keyboard controls.
-- Better props validation
 - Customize error UI
-- Volume slider
-- Fix the fullscreen icon - it should inverse when the player is already in fullscreen.
-- Implement double click to fullscreen.

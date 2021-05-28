@@ -1,0 +1,129 @@
+.pricingtitle {
+  font-size: 2.5em;
+  font-weight: 700;
+  font-family: --apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+    Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+  line-height: 1.1;
+}
+
+.mp4 {
+  background: linear-gradient(to right, rgb(66, 144, 245), rgb(66, 233, 245));
+  -webkit-text-fill-color: transparent;
+  -webkit-background-clip: text;
+}
+
+.pricingcontainer {
+  text-align: center;
+}
+
+.pricingrow {
+  display: flex;
+  flex-direction: row;
+}
+
+.panel {
+  background-color: var(--ifm-background-color);
+  box-shadow: var(--box-shadow);
+  padding: 10px;
+  border-radius: 15px;
+  flex: 1;
+  text-align: center;
+  padding-top: 30px;
+  padding-bottom: 10px;
+  min-height: 500px;
+  display: flex;
+  flex-direction: column;
+}
+.panel ul {
+  text-align: left;
+  list-style-type: none;
+  padding-left: 0;
+}
+.panel li {
+  margin-top: 12px;
+  margin-bottom: 12px;
+  display: flex;
+  color: var(--text-color);
+  font-size: 0.95em;
+}
+
+.perperiod {
+  font-weight: 500;
+  margin-top: -7px;
+  font-size: 0.9em;
+}
+
+.tableprice {
+  font-size: 60px;
+  font-weight: 700;
+  margin-top: -5px;
+}
+
+.freeprice {
+  background: linear-gradient(to right, #4290f5, #42e9f5);
+  -webkit-background-clip: text;
+  -moz-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  -moz-text-fill-color: transparent;
+  text-fill-color: transparent;
+}
+
+.gradientprice {
+  background: linear-gradient(to right, #e01d67, #79367a);
+  -webkit-background-clip: text;
+  -moz-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  -moz-text-fill-color: transparent;
+  text-fill-color: transparent;
+}
+
+.orangeprice {
+  background: linear-gradient(to right, #f5ad43, #fd764a);
+  -webkit-background-clip: text;
+  -moz-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  -moz-text-fill-color: transparent;
+  text-fill-color: transparent;
+}
+
+.portion {
+  flex: 1;
+}
+
+.targettitle {
+  border-bottom: 1px solid var(--text-color);
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+
+.bulletcontainer {
+  margin-right: 8px;
+  display: inline-flex;
+  justify-content: center;
+  margin-top: 5px;
+}
+
+.pricinga {
+  color: inherit;
+}
+
+.pricinga:hover {
+  text-decoration: none;
+}
+
+@media screen and (max-width: 900px) {
+  .pricingcontainer {
+    text-align: left;
+  }
+  .pricingrow {
+    flex-direction: column;
+    align-items: center;
+  }
+  .portion {
+    max-width: 500px;
+    width: 100%;
+  }
+}

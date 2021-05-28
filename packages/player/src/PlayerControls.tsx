@@ -2,6 +2,7 @@ import React, {MouseEventHandler, useMemo} from 'react';
 import {Internals} from 'remotion';
 import {formatTime} from './format-time';
 import {FullscreenIcon, PauseIcon, PlayIcon} from './icons';
+import {MediaVolumeSlider} from './MediaVolumeSlider';
 import {PlayerSeekBar} from './PlayerSeekBar';
 import {usePlayer} from './use-player';
 import {browserSupportsFullscreen} from './utils/browser-supports-fullscreen';
@@ -11,7 +12,7 @@ const containerStyle: React.CSSProperties = {
 	position: 'absolute',
 	bottom: 0,
 	width: '100%',
-	paddingTop: 40,
+	paddingTop: 10,
 	paddingBottom: 10,
 	background: 'linear-gradient(transparent, rgba(0, 0, 0, 0.4))',
 	display: 'flex',
@@ -29,6 +30,7 @@ const buttonStyle: React.CSSProperties = {
 	padding: 0,
 	display: 'inline',
 	marginBottom: 0,
+	marginTop: 0,
 	height: 25,
 };
 
@@ -37,7 +39,7 @@ const controlsRow: React.CSSProperties = {
 	flexDirection: 'row',
 	width: '100%',
 	alignItems: 'center',
-	justifyContent: 'space-between',
+	justifyContent: 'center',
 	userSelect: 'none',
 };
 
@@ -56,9 +58,11 @@ const ySpacer: React.CSSProperties = {
 	height: 8,
 };
 
-const fullscreen: React.CSSProperties = {
-	justifyItems: 'flex-end',
+const flex1: React.CSSProperties = {
+	flex: 1,
 };
+
+const fullscreen: React.CSSProperties = {};
 
 const timeLabel: React.CSSProperties = {
 	color: 'white',
@@ -70,6 +74,7 @@ export const Controls: React.FC<{
 	fps: number;
 	durationInFrames: number;
 	hovered: boolean;
+	showVolumeControls: boolean;
 	player: ReturnType<typeof usePlayer>;
 	onFullscreenButtonClick: MouseEventHandler<HTMLButtonElement>;
 	isFullscreen: boolean;
@@ -81,6 +86,7 @@ export const Controls: React.FC<{
 	isFullscreen,
 	fps,
 	player,
+	showVolumeControls,
 	onFullscreenButtonClick,
 	allowFullscreen,
 	onExitFullscreenButtonClick,
@@ -109,11 +115,19 @@ export const Controls: React.FC<{
 					>
 						{player.playing ? <PauseIcon /> : <PlayIcon />}
 					</button>
+					{showVolumeControls ? (
+						<>
+							<div style={xSpacer} />
+							<MediaVolumeSlider />
+						</>
+					) : null}
 					<div style={xSpacer} />
 					<div style={timeLabel}>
 						{formatTime(frame / fps)} / {formatTime(durationInFrames / fps)}
 					</div>
+					<div style={xSpacer} />
 				</div>
+				<div style={flex1} />
 				{browserSupportsFullscreen && allowFullscreen ? (
 					<div style={fullscreen}>
 						<button
@@ -127,7 +141,7 @@ export const Controls: React.FC<{
 									: onFullscreenButtonClick
 							}
 						>
-							<FullscreenIcon />
+							<FullscreenIcon minimized={!isFullscreen} />
 						</button>
 					</div>
 				) : null}

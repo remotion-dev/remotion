@@ -1,5 +1,4 @@
 import execa from 'execa';
-import fs from 'fs';
 import {
 	Codec,
 	ImageFormat,
@@ -9,9 +8,11 @@ import {
 } from 'remotion';
 import {calculateAssetPositions} from './assets/calculate-asset-positions';
 import {convertAssetsToFileUrls} from './assets/convert-assets-to-file-urls';
+import {markAllAssetsAsDownloaded} from './assets/download-and-map-assets-to-file';
 import {getAssetAudioDetails} from './assets/get-asset-audio-details';
 import {calculateFfmpegFilters} from './calculate-ffmpeg-filters';
 import {createFfmpegComplexFilter} from './create-ffmpeg-complex-filter';
+import {getFrameInfo} from './get-frame-number-length';
 import {DEFAULT_IMAGE_FORMAT} from './image-format';
 import {parseFfmpegProgress} from './parse-ffmpeg-progress';
 import {resolveAssetSrc} from './resolve-asset-src';
@@ -57,6 +58,7 @@ const getAudioCodecName = (codec: Codec): string | null => {
 	return null;
 };
 
+// eslint-disable-next-line complexity
 export const stitchFramesToVideo = async (options: {
 	dir: string;
 	fps: number;
@@ -81,16 +83,6 @@ export const stitchFramesToVideo = async (options: {
 	const imageFormat = options.imageFormat ?? DEFAULT_IMAGE_FORMAT;
 	const pixelFormat = options.pixelFormat ?? Internals.DEFAULT_PIXEL_FORMAT;
 	await validateFfmpeg();
-	const files = await fs.promises.readdir(options.dir);
-	const numbers = files
-		.filter((f) => f.match(/element-([0-9]+)/))
-		.map((f) => {
-			return f.match(/element-([0-9]+)/)?.[1] as string;
-		})
-		.map((f) => Number(f));
-	const biggestNumber = Math.max(...numbers);
-	const smallestNumber = Math.min(...numbers);
-	const numberLength = String(biggestNumber).length;
 
 	const encoderName = getCodecName(codec);
 	const audioCodecName = getAudioCodecName(codec);
@@ -113,11 +105,19 @@ export const stitchFramesToVideo = async (options: {
 	);
 	Internals.validateSelectedPixelFormatAndCodecCombination(pixelFormat, codec);
 
-	const fileUrlAssets = await convertAssetsToFileUrls({
-		assets: options.assetsInfo.assets,
-		dir: options.assetsInfo.bundleDir,
-		onDownload: options.onDownload ?? (() => undefined),
-	});
+	const [frameInfo, fileUrlAssets] = await Promise.all([
+		getFrameInfo({
+			dir: options.dir,
+			isAudioOnly,
+		}),
+		convertAssetsToFileUrls({
+			assets: options.assetsInfo.assets,
+			dir: options.assetsInfo.bundleDir,
+			onDownload: options.onDownload ?? (() => undefined),
+		}),
+	]);
+
+	markAllAssetsAsDownloaded();
 	const assetPositions = calculateAssetPositions(fileUrlAssets);
 
 	const assetPaths = assetPositions.map((asset) => resolveAssetSrc(asset.src));
@@ -151,8 +151,10 @@ export const stitchFramesToVideo = async (options: {
 		['-r', String(options.fps)],
 		isAudioOnly ? null : ['-f', 'image2'],
 		isAudioOnly ? null : ['-s', `${options.width}x${options.height}`],
-		isAudioOnly ? null : ['-start_number', String(smallestNumber)],
-		isAudioOnly ? null : ['-i', `element-%0${numberLength}d.${imageFormat}`],
+		frameInfo ? ['-start_number', String(frameInfo.startNumber)] : null,
+		frameInfo
+			? ['-i', `element-%0${frameInfo.numberLength}d.${imageFormat}`]
+			: null,
 		...assetPaths.map((path) => ['-i', path]),
 		encoderName
 			? // -c:v is the same as -vcodec as -codec:video

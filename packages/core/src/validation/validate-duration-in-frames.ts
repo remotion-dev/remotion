@@ -1,7 +1,7 @@
 export const validateDurationInFrames = (durationInFrames: number) => {
 	if (typeof durationInFrames !== 'number') {
 		throw new Error(
-			`The "durationInFrames" of a composition must be a number, but you passed a ${typeof durationInFrames}`
+			`The "durationInFrames" of a composition must be a number, but you passed a value of type ${typeof durationInFrames}`
 		);
 	}
 

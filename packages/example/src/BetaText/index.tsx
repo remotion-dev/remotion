@@ -90,9 +90,11 @@ const Row: React.FC<{
 	);
 };
 
-const BetaText: React.FC<{
+type Props = {
 	word1: string;
-}> = ({word1}) => {
+};
+
+const BetaText = ({word1}: Props): React.ReactNode => {
 	const videoConfig = useVideoConfig();
 	const frame = useCurrentFrame();
 

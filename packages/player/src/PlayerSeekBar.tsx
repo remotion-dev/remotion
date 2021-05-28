@@ -137,7 +137,10 @@ export const PlayerSeekBar: React.FC<{
 			position: 'absolute',
 			top: VERTICAL_PADDING - KNOB_SIZE / 2 + 5 / 2,
 			backgroundColor: 'white',
-			left: (frame / durationInFrames) * ((size?.width ?? 0) - KNOB_SIZE),
+			left: Math.max(
+				0,
+				(frame / (durationInFrames - 1)) * (size?.width ?? 0) - KNOB_SIZE / 2
+			),
 			boxShadow: '0 0 2px black',
 			opacity: Number(barHovered),
 		};
@@ -147,7 +150,7 @@ export const PlayerSeekBar: React.FC<{
 		return {
 			height: BAR_HEIGHT,
 			backgroundColor: 'rgba(255, 255, 255, 1)',
-			width: (frame / durationInFrames) * 100 + '%',
+			width: (frame / (durationInFrames - 1)) * 100 + '%',
 			borderRadius: BAR_HEIGHT / 2,
 		};
 	}, [durationInFrames, frame]);

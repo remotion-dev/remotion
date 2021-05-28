@@ -8,6 +8,7 @@ import React, {
 } from 'react';
 import {act} from 'react-dom/test-utils';
 import {Internals, TAsset} from 'remotion';
+import {LooseAnyComponent} from 'remotion/src/any-component';
 
 let collectAssets = (): TAsset[] => [];
 
@@ -72,7 +73,7 @@ export const getAssetsForMarkup = async (
 						id: 'markup',
 						component: React.lazy(() =>
 							Promise.resolve({
-								default: Markup as React.ComponentType<unknown>,
+								default: Markup as LooseAnyComponent<unknown>,
 							})
 						),
 						nonce: 0,

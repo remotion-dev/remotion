@@ -6,6 +6,7 @@ export type UseSyncVolumeWithMediaTagOptions = {
 	volumePropFrame: number;
 	actualVolume: number;
 	volume?: VolumeProp;
+	mediaVolume: number;
 	mediaRef: RefObject<HTMLVideoElement | HTMLAudioElement>;
 };
 
@@ -13,12 +14,14 @@ export const useSyncVolumeWithMediaTag = ({
 	volumePropFrame,
 	actualVolume,
 	volume,
+	mediaVolume,
 	mediaRef,
 }: UseSyncVolumeWithMediaTagOptions) => {
 	useEffect(() => {
 		const userPreferredVolume = evaluateVolume({
 			frame: volumePropFrame,
 			volume,
+			mediaVolume,
 		});
 		if (
 			!isApproximatelyTheSame(userPreferredVolume, actualVolume) &&
@@ -26,5 +29,5 @@ export const useSyncVolumeWithMediaTag = ({
 		) {
 			mediaRef.current.volume = userPreferredVolume;
 		}
-	}, [actualVolume, volumePropFrame, mediaRef, volume]);
+	}, [actualVolume, volumePropFrame, mediaRef, volume, mediaVolume]);
 };

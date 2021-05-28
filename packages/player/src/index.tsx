@@ -1,6 +1,7 @@
 import {calculateScale} from './calculate-scale';
 import {PlayerEventEmitterContext} from './emitter-context';
 import {PlayerEmitter} from './event-emitter';
+import {useHoverState} from './use-hover-state';
 import {usePlayback} from './use-playback';
 import {usePlayer} from './use-player';
 import {useElementSize} from './utils/use-element-size';
@@ -17,4 +18,5 @@ export const PlayerInternals = {
 	usePlayback,
 	useElementSize,
 	calculateScale,
+	useHoverState,
 };

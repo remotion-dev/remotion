@@ -22,6 +22,7 @@ import {usePlayer} from './use-player';
 import {browserSupportsFullscreen} from './utils/browser-supports-fullscreen';
 import {calculatePlayerSize} from './utils/calculate-player-size';
 import {IS_NODE} from './utils/is-node';
+import {useClickPreventionOnDoubleClick} from './utils/use-click-prevention-on-double-click';
 import {useElementSize} from './utils/use-element-size';
 
 const PlayerUI: React.ForwardRefRenderFunction<
@@ -32,11 +33,31 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		autoPlay: boolean;
 		allowFullscreen: boolean;
 		inputProps: unknown;
+		showVolumeControls: boolean;
+		mediaMuted: boolean;
 		style?: React.CSSProperties;
 		clickToPlay: boolean;
+		doubleClickToFullscreen: boolean;
+		setMediaVolume: (v: number) => void;
+		setMediaMuted: (v: boolean) => void;
+		mediaVolume: number;
 	}
 > = (
-	{controls, style, loop, autoPlay, allowFullscreen, inputProps, clickToPlay},
+	{
+		controls,
+		style,
+		loop,
+		autoPlay,
+		allowFullscreen,
+		inputProps,
+		clickToPlay,
+		showVolumeControls,
+		mediaVolume,
+		mediaMuted,
+		doubleClickToFullscreen,
+		setMediaMuted,
+		setMediaVolume,
+	},
 	ref
 ) => {
 	const config = Internals.useUnsafeVideoConfig();
@@ -136,6 +157,41 @@ const PlayerUI: React.ForwardRefRenderFunction<
 			isFullscreen: () => isFullscreen,
 			requestFullscreen,
 			exitFullscreen,
+			getVolume: () => {
+				if (mediaMuted) {
+					return 0;
+				}
+
+				return mediaVolume;
+			},
+			setVolume: (vol: number) => {
+				if (typeof vol !== 'number') {
+					throw new TypeError(
+						`setVolume() takes a number, got value of type ${typeof vol}`
+					);
+				}
+
+				if (isNaN(vol)) {
+					throw new TypeError(
+						`setVolume() got a number that is NaN. Volume must be between 0 and 1.`
+					);
+				}
+
+				if (vol < 0 || vol > 1) {
+					throw new TypeError(
+						`setVolume() got a number that is out of range. Must be between 0 and 1, got ${typeof vol}`
+					);
+				}
+
+				setMediaVolume(vol);
+			},
+			isMuted: () => mediaMuted || mediaVolume === 0,
+			mute: () => {
+				setMediaMuted(true);
+			},
+			unmute: () => {
+				setMediaMuted(false);
+			},
 		};
 		return Object.assign(player.emitter, methods);
 	});
@@ -246,6 +302,20 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		toggle();
 	}, [toggle]);
 
+	const onDoubleClick = useCallback(() => {
+		if (isFullscreen) {
+			exitFullscreen();
+		} else {
+			requestFullscreen();
+		}
+	}, [exitFullscreen, isFullscreen, requestFullscreen]);
+
+	const [handleClick, handleDoubleClick] = useClickPreventionOnDoubleClick(
+		onSingleClick,
+		onDoubleClick,
+		doubleClickToFullscreen
+	);
+
 	useEffect(() => {
 		if (shouldAutoplay) {
 			player.play();
@@ -258,12 +328,12 @@ const PlayerUI: React.ForwardRefRenderFunction<
 	}
 
 	const content = (
-		<div
-			ref={container}
-			style={outerStyle}
-			onClick={clickToPlay ? onSingleClick : undefined}
-		>
-			<div style={outer}>
+		<div ref={container} style={outerStyle}>
+			<div
+				style={outer}
+				onClick={clickToPlay ? handleClick : undefined}
+				onDoubleClick={doubleClickToFullscreen ? handleDoubleClick : undefined}
+			>
 				<div style={containerStyle} className={PLAYER_CSS_CLASSNAME}>
 					{VideoComponent ? (
 						<ErrorBoundary onError={onError}>
@@ -284,6 +354,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 					onFullscreenButtonClick={onFullscreenButtonClick}
 					isFullscreen={isFullscreen}
 					allowFullscreen={allowFullscreen}
+					showVolumeControls={showVolumeControls}
 					onExitFullscreenButtonClick={onExitFullscreenButtonClick}
 				/>
 			) : null}

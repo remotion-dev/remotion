@@ -1,5 +1,4 @@
 import React, {
-	ComponentType,
 	Suspense,
 	useCallback,
 	useContext,
@@ -14,6 +13,7 @@ import {
 	Internals,
 	TComposition,
 } from 'remotion';
+import {LooseAnyComponent} from 'remotion/src/any-component';
 
 Internals.CSSUtils.injectCSS(Internals.CSSUtils.makeDefaultCSS(null));
 Internals.setupEnvVariables();
@@ -39,7 +39,9 @@ const inputProps = getInputProps();
 const GetVideo = () => {
 	const video = Internals.useVideo();
 	const compositions = useContext(Internals.CompositionManager);
-	const [Component, setComponent] = useState<ComponentType | null>(null);
+	const [Component, setComponent] = useState<LooseAnyComponent<unknown> | null>(
+		null
+	);
 
 	useEffect(() => {
 		if (Internals.getIsEvaluation()) {

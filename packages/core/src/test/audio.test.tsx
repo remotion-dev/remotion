@@ -1,5 +1,6 @@
 import {render} from '@testing-library/react';
 import React, {useContext} from 'react';
+import {LooseAnyComponent} from '../any-component';
 import {Audio} from '../audio';
 import {Internals} from '../internals';
 
@@ -21,7 +22,7 @@ const Wrapper: React.FC = ({children}) => {
 							nonce: 0,
 							component: React.lazy(() =>
 								Promise.resolve({
-									default: (() => null) as React.ComponentType<unknown>,
+									default: (() => null) as LooseAnyComponent<unknown>,
 								})
 							),
 						},
