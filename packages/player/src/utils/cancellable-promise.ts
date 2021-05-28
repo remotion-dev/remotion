@@ -11,8 +11,12 @@ export const cancellablePromise = (
 	const wrappedPromise = new Promise((resolve, reject) => {
 		promise
 			.then((value) => {
-				// eslint-disable-next-line no-unused-expressions
-				isCanceled ? reject({isCanceled, value}) : resolve(value);
+				if (isCanceled) {
+					reject({isCanceled, value});
+					return;
+				}
+
+				resolve(value);
 			})
 			.catch((error) => {
 				reject({isCanceled, error});
