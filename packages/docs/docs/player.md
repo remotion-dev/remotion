@@ -294,8 +294,4 @@ Before we mark the player as stable, we are looking to improve in the following 
 
 - Better loading state than the current "Loading..." text.
 - Implement keyboard controls.
-- Better props validation
 - Customize error UI
-- Volume slider
-- Fix the fullscreen icon - it should inverse when the player is already in fullscreen.
-- Implement double click to fullscreen.
