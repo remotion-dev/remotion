@@ -25,7 +25,7 @@ const useCancellablePromises = () => {
 			removePendingPromise,
 			clearPendingPromises,
 		}),
-		[clearPendingPromises]
+		[appendPendingPromise, clearPendingPromises, removePendingPromise]
 	);
 
 	return api;
