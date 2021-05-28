@@ -6,7 +6,7 @@ export type RemotionEnvironment =
 
 export const getRemotionEnvironment = (): RemotionEnvironment => {
 	if (process.env.NODE_ENV === 'production') {
-		if (window.remotion_isPlayer) {
+		if (typeof window !== 'undefined' && window.remotion_isPlayer) {
 			return 'player-production';
 		}
 
@@ -14,7 +14,7 @@ export const getRemotionEnvironment = (): RemotionEnvironment => {
 	}
 
 	if (process.env.NODE_ENV === 'development') {
-		if (window.remotion_isPlayer) {
+		if (typeof window !== 'undefined' && window.remotion_isPlayer) {
 			return 'player-development';
 		}
 
