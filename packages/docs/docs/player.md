@@ -91,13 +91,13 @@ Whether the video should display a seek bar and a play/pause button. Default `fa
 
 _optional_
 
-Whether the video should display a volume slider and a mute button. Default `true`.
+Whether the video should display a volume slider and a mute button. Only has an effect if `controls` is also set to true. Default `true`.
 
 ### `allowFullscreen`
 
 _optional_
 
-Whether the video can go fullscreen. By default true.
+Whether the video can go fullscreen. By default `true`.
 
 ### `clickToPlay`
 
