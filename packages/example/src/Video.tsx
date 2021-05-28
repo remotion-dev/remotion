@@ -1,10 +1,13 @@
 import React from 'react';
 import {Composition, getInputProps} from 'remotion';
+import BetaText from './BetaText';
 import {ColorInterpolation} from './ColorInterpolation';
 import {Framer} from './Framer';
 import {MissingImg} from './MissingImg';
 import RemoteVideo from './RemoteVideo';
 import {TenFrameTester} from './TenFrameTester';
+import ThreeBasic from './ThreeBasic';
+import {VideoSpeed} from './VideoSpeed';
 import {VideoTesting} from './VideoTesting';
 
 export const Index: React.FC = () => {
@@ -30,7 +33,7 @@ export const Index: React.FC = () => {
 			/>
 			<Composition
 				id="beta-text"
-				lazyComponent={() => import('./BetaText')}
+				component={BetaText}
 				width={1080}
 				height={1080}
 				fps={30}
@@ -54,14 +57,6 @@ export const Index: React.FC = () => {
 				height={1080}
 				fps={30}
 				durationInFrames={4 * 30}
-			/>
-			<Composition
-				id="font"
-				lazyComponent={() => import('./Font')}
-				width={1080}
-				height={1080}
-				fps={30}
-				durationInFrames={30 * 30}
 			/>
 
 			<Composition
@@ -234,8 +229,24 @@ export const Index: React.FC = () => {
 				durationInFrames={600}
 			/>
 			<Composition
+				id="three-basic"
+				component={ThreeBasic}
+				width={1280}
+				height={720}
+				fps={30}
+				durationInFrames={600}
+			/>
+			<Composition
 				id="color-interpolation"
 				component={ColorInterpolation}
+				width={1280}
+				height={720}
+				fps={30}
+				durationInFrames={100}
+			/>
+			<Composition
+				id="video-speed"
+				component={VideoSpeed}
 				width={1280}
 				height={720}
 				fps={30}

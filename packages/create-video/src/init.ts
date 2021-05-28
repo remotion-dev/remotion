@@ -45,7 +45,6 @@ export const init = async () => {
 		console.log(`Directory ${selectedDirname} already exists. Quitting.`);
 		return;
 	}
-	await turnIntoDot(templateDir);
 	if (process.platform === 'win32') {
 		await execa('xcopy', [
 			templateDir,
@@ -58,6 +57,7 @@ export const init = async () => {
 	} else {
 		await execa('cp', ['-r', templateDir, selectedDirname]);
 	}
+	await turnIntoDot(selectedDirname);
 	console.log('');
 	console.log(
 		`Created project at ${chalk.blue(

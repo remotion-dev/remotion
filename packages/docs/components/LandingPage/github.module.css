@@ -1,0 +1,21 @@
+.container {
+  display: flex;
+  flex-direction: row;
+  font-weight: bold;
+  justify-content: center;
+  align-items: center;
+}
+
+.stars {
+  font-size: 0.75em;
+  margin-top: 2.5px;
+}
+
+@media screen and (max-width: 900px) {
+  .githubicon {
+    display: none;
+  }
+  .stars {
+    display: none;
+  }
+}

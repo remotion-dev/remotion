@@ -1,0 +1,43 @@
+.parametrizerow {
+  display: flex;
+  flex-direction: row;
+  text-align: left;
+  align-items: center;
+}
+
+@media screen and (max-width: 900px) {
+  .parametrizerow {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+.parametrizetitle {
+  font-size: 2.5em;
+  font-weight: 700;
+  font-family: --apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+    Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+  line-height: 1.1;
+  text-align: left;
+}
+
+.parametrizegradient {
+  background: linear-gradient(to right, rgb(66, 144, 245), rgb(66, 233, 245));
+  -webkit-text-fill-color: transparent;
+  -webkit-background-clip: text;
+}
+
+.parametrizeinput {
+  appearance: none;
+  color: var(--text-color);
+  padding: 13px;
+  font-family: inherit;
+  border: 2px solid var(--ifm-code-background);
+  border-radius: 6px;
+  background-color: transparent;
+  outline: none;
+}
+
+.parametrizeinput:focus {
+  border-color: var(--ifm-tabs-color-active);
+}

@@ -1,3 +1,4 @@
+import {LooseAnyComponent} from './any-component';
 import {CompProps} from './Composition';
 import {
 	CompositionManager,
@@ -44,6 +45,7 @@ import {
 	getPixelFormat,
 	validateSelectedPixelFormatAndCodecCombination,
 } from './config/pixel-format';
+import {getServerPort} from './config/preview-server';
 import {getQuality} from './config/quality';
 import {
 	DEFAULT_WEBPACK_CACHE_ENABLED,
@@ -75,6 +77,17 @@ import {truthy} from './truthy';
 import {useLazyComponent} from './use-lazy-component';
 import {useUnsafeVideoConfig} from './use-unsafe-video-config';
 import {useVideo} from './use-video';
+import {validateDimension} from './validation/validate-dimensions';
+import {validateDurationInFrames} from './validation/validate-duration-in-frames';
+import {validateFps} from './validation/validate-fps';
+import {
+	MediaVolumeContext,
+	MediaVolumeContextValue,
+	SetMediaVolumeContext,
+	SetMediaVolumeContextValue,
+	useMediaMutedState,
+	useMediaVolumeState,
+} from './volume-position-state';
 import {
 	RemotionContextProvider,
 	useRemotionContexts,
@@ -103,6 +116,8 @@ export const Internals = {
 	getShouldOutputImageSequence,
 	validateSelectedCrfAndCodecCombination,
 	getFinalOutputCodec,
+	useMediaVolumeState,
+	useMediaMutedState,
 	DEFAULT_CODEC,
 	DEFAULT_PIXEL_FORMAT,
 	FEATURE_FLAG_FIREFOX_SUPPORT,
@@ -131,6 +146,12 @@ export const Internals = {
 	ENV_VARIABLES_ENV_NAME,
 	ENV_VARIABLES_LOCAL_STORAGE_KEY,
 	getDotEnvLocation,
+	getServerPort,
+	MediaVolumeContext,
+	SetMediaVolumeContext,
+	validateDurationInFrames,
+	validateFps,
+	validateDimension,
 };
 
 export type {
@@ -145,4 +166,7 @@ export type {
 	SetTimelineContextValue,
 	CompProps,
 	CompositionManagerContext,
+	MediaVolumeContextValue,
+	SetMediaVolumeContextValue,
+	LooseAnyComponent,
 };

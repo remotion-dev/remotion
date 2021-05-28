@@ -82,13 +82,24 @@ module.exports = {
     "player",
     {
       type: "category",
+      label: "API - @remotion/three",
+      items: ["three-canvas"],
+    },
+    {
+      type: "category",
       label: "API - @remotion/renderer",
       items: ["get-compositions", "render-frames", "stitch-frames-to-video"],
     },
     {
       type: "category",
       label: "Troubleshooting",
-      items: ["timeout", "media-playback-error", "performance"],
+      items: [
+        "timeout",
+        "media-playback-error",
+        "performance",
+        "webpack-dynamic-imports",
+        "non-seekable-media",
+      ],
     },
     "2-0-migration",
     "license",

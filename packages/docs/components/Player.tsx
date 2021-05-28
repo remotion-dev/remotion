@@ -1,7 +1,7 @@
 import { Player } from "@remotion/player";
 import React, { useState } from "react";
 import { Main } from "./ColorDemo/Main";
-import "./player.css";
+import "./input-fields.css";
 
 export const PlayerExample: React.FC = () => {
   const [name, setName] = useState("");

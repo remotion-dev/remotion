@@ -5,6 +5,8 @@ import CarSlideshow from './CarSlideshow';
 export default function App() {
 	const [title, setTitle] = useState('Hello World');
 	const [loop, setLoop] = useState(false);
+	const [doubleClickToFullscreen, setDoubleClickToFullscreen] = useState(true);
+	const [clickToPlay, setClickToPlay] = useState(true);
 	const [logs, setLogs] = useState<string[]>(() => []);
 
 	const ref = useRef<PlayerRef>(null);
@@ -30,7 +32,6 @@ export default function App() {
 	return (
 		<div>
 			<Player
-				autoPlay
 				ref={ref}
 				compositionWidth={500}
 				compositionHeight={432}
@@ -38,7 +39,10 @@ export default function App() {
 				durationInFrames={500}
 				component={CarSlideshow}
 				controls
+				doubleClickToFullscreen={doubleClickToFullscreen}
 				loop={loop}
+				showVolumeControls={true}
+				clickToPlay={clickToPlay}
 				inputProps={{
 					title: String(title),
 				}}
@@ -56,6 +60,12 @@ export default function App() {
 			<button type="button" onClick={() => ref.current?.pause()}>
 				Pause
 			</button>
+			<button type="button" onClick={() => ref.current?.mute()}>
+				Mute
+			</button>
+			<button type="button" onClick={() => ref.current?.unmute()}>
+				Unmute
+			</button>
 			<button type="button" onClick={() => ref.current?.toggle()}>
 				toggle
 			</button>
@@ -65,8 +75,28 @@ export default function App() {
 			<button type="button" onClick={() => ref.current?.seekTo(10)}>
 				seekTo 10
 			</button>
+			<br />
+			<button type="button" onClick={() => ref.current?.setVolume(0)}>
+				set volume to 0
+			</button>
+			<button type="button" onClick={() => ref.current?.setVolume(0.5)}>
+				set volume to 0.5
+			</button>
+			<button type="button" onClick={() => ref.current?.setVolume(1)}>
+				set volume to 1
+			</button>
 			<button type="button" onClick={() => setLoop((l) => !l)}>
 				loop = {String(loop)}
+			</button>
+			<br />
+			<button type="button" onClick={() => setClickToPlay((l) => !l)}>
+				clickToPlay = {String(clickToPlay)}
+			</button>
+			<button
+				type="button"
+				onClick={() => setDoubleClickToFullscreen((l) => !l)}
+			>
+				doubleClickToFullscreen = {String(doubleClickToFullscreen)}
 			</button>
 			<button
 				type="button"
@@ -78,6 +108,24 @@ export default function App() {
 				}
 			>
 				log currentFrame
+			</button>
+			<br />
+
+			<button
+				type="button"
+				onClick={() =>
+					setLogs((l) => [...l, `muted = ${ref.current?.isMuted()}`])
+				}
+			>
+				log muted
+			</button>
+			<button
+				type="button"
+				onClick={() =>
+					setLogs((l) => [...l, `volume = ${ref.current?.getVolume()}`])
+				}
+			>
+				log volume
 			</button>
 			<br />
 			<br />

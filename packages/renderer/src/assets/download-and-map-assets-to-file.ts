@@ -1,16 +1,12 @@
 import {createWriteStream, mkdirSync} from 'fs';
 import got from 'got';
 import path from 'path';
-import {TAsset} from 'remotion';
+import {random, TAsset} from 'remotion';
 import sanitizeFilename from 'sanitize-filename';
-import stream from 'stream';
-import {promisify} from 'util';
 
 const isDownloadingMap: {[key: string]: boolean} = {};
 const hasBeenDownloadedMap: {[key: string]: boolean} = {};
 const listeners: {[key: string]: (() => void)[]} = {};
-
-const pipeline = promisify(stream.pipeline);
 
 const waitForAssetToBeDownloaded = (src: string) => {
 	if (!listeners[src]) {
@@ -50,8 +46,62 @@ const downloadAsset = async (
 	mkdirSync(path.resolve(to, '..'), {
 		recursive: true,
 	});
-	await pipeline(got.stream(src), createWriteStream(to));
+
+	// Listen to 'close' event instead of more
+	// concise method to avoid this problem
+	// https://github.com/JonnyBurger/remotion/issues/384#issuecomment-844398183
+	await new Promise<void>((resolve, reject) => {
+		const writeStream = createWriteStream(to);
+
+		writeStream.on('close', () => resolve());
+		writeStream.on('error', (err) => reject(err));
+
+		got
+			.stream(src)
+			.pipe(writeStream)
+			.on('error', (err) => reject(err));
+	});
 	notifyAssetIsDownloaded(src);
+};
+
+export const markAllAssetsAsDownloaded = () => {
+	Object.keys(hasBeenDownloadedMap).forEach((key) => {
+		delete hasBeenDownloadedMap[key];
+	});
+
+	Object.keys(isDownloadingMap).forEach((key) => {
+		delete isDownloadingMap[key];
+	});
+};
+
+export const getSanitizedFilenameForAssetUrl = ({
+	src,
+	isRemote,
+	webpackBundle,
+}: {
+	src: string;
+	isRemote: boolean;
+	webpackBundle: string;
+}) => {
+	const {pathname, search} = new URL(src);
+
+	if (!isRemote) {
+		return path.join(webpackBundle, sanitizeFilename(pathname));
+	}
+
+	const split = pathname.split('.');
+	const fileExtension =
+		split.length > 1 && split[split.length - 1]
+			? `.${split[split.length - 1]}`
+			: '';
+	const hashedFileName = String(random(`${pathname}${search}`)).replace(
+		'0.',
+		''
+	);
+	return path.join(
+		webpackBundle,
+		sanitizeFilename(hashedFileName + fileExtension)
+	);
 };
 
 export const downloadAndMapAssetsToFileUrl = async ({
@@ -63,8 +113,12 @@ export const downloadAndMapAssetsToFileUrl = async ({
 	webpackBundle: string;
 	onDownload: (src: string) => void;
 }): Promise<TAsset> => {
-	const {pathname} = new URL(localhostAsset.src);
-	const newSrc = path.join(webpackBundle, sanitizeFilename(pathname));
+	const newSrc = getSanitizedFilenameForAssetUrl({
+		src: localhostAsset.src,
+		isRemote: localhostAsset.isRemote,
+		webpackBundle,
+	});
+
 	if (localhostAsset.isRemote) {
 		await downloadAsset(localhostAsset.src, newSrc, onDownload);
 	}
