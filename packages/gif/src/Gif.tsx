@@ -1,12 +1,13 @@
 import React from 'react';
+import {Internals} from 'remotion';
 import {GifForDevelopment} from './GifForDevelopment';
 import {GifForRendering} from './GifForRendering';
 import {RemotionGifProps} from './props';
 
 export const Gif = (props: RemotionGifProps) => {
-	if (process.env.NODE_ENV === 'development') {
-		return <GifForDevelopment {...props} />;
+	if (Internals.getRemotionEnvironment() === 'rendering') {
+		return <GifForRendering {...props} />;
 	}
 
-	return <GifForRendering {...props} />;
+	return <GifForDevelopment {...props} />;
 };
