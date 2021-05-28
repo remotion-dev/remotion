@@ -45,7 +45,6 @@ export type PlayerProps<T> = {
 	allowFullscreen?: boolean;
 	clickToPlay?: boolean;
 	doubleClickToFullscreen?: boolean;
-	inputProps?: unknown;
 } & PropsIfHasProps<T> &
 	CompProps<T>;
 
