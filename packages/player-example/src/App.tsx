@@ -5,6 +5,7 @@ import CarSlideshow from './CarSlideshow';
 export default function App() {
 	const [title, setTitle] = useState('Hello World');
 	const [loop, setLoop] = useState(false);
+	const [doubleClickToFullscreen, setDoubleClickToFullscreen] = useState(false);
 	const [logs, setLogs] = useState<string[]>(() => []);
 
 	const ref = useRef<PlayerRef>(null);
@@ -37,7 +38,7 @@ export default function App() {
 				durationInFrames={500}
 				component={CarSlideshow}
 				controls
-				doubleClickToFullscreen={true}
+				doubleClickToFullscreen={doubleClickToFullscreen}
 				loop={loop}
 				showVolumeControls={true}
 				inputProps={{
@@ -84,6 +85,12 @@ export default function App() {
 			</button>
 			<button type="button" onClick={() => setLoop((l) => !l)}>
 				loop = {String(loop)}
+			</button>
+			<button
+				type="button"
+				onClick={() => setDoubleClickToFullscreen((l) => !l)}
+			>
+				doubleClickToFullscreen = {String(doubleClickToFullscreen)}
 			</button>
 			<br />
 			<button
