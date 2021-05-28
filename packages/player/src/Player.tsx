@@ -67,7 +67,7 @@ export const PlayerFn = <T,>(
 		showVolumeControls = true,
 		allowFullscreen = true,
 		clickToPlay = true,
-		doubleClickToFullscreen = true,
+		doubleClickToFullscreen = false,
 		...componentProps
 	}: PlayerProps<T>,
 	ref: MutableRefObject<PlayerRef>
