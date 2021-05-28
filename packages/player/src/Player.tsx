@@ -65,7 +65,7 @@ export const PlayerFn = <T,>(
 		autoPlay = false,
 		showVolumeControls = true,
 		allowFullscreen = true,
-		clickToPlay = true,
+		clickToPlay,
 		doubleClickToFullscreen = false,
 		...componentProps
 	}: PlayerProps<T>,
@@ -249,7 +249,11 @@ export const PlayerFn = <T,>(
 									style={style}
 									inputProps={passedInputProps}
 									allowFullscreen={Boolean(allowFullscreen)}
-									clickToPlay={Boolean(clickToPlay)}
+									clickToPlay={
+										typeof clickToPlay === 'boolean'
+											? clickToPlay
+											: Boolean(controls)
+									}
 									showVolumeControls={Boolean(showVolumeControls)}
 									setMediaVolume={setMediaVolumeAndPersist}
 									mediaVolume={mediaVolume}
