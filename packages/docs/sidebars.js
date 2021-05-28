@@ -98,6 +98,7 @@ module.exports = {
         "media-playback-error",
         "performance",
         "webpack-dynamic-imports",
+        "non-seekable-media",
       ],
     },
     "2-0-migration",
