@@ -2,16 +2,6 @@ import React from "react";
 
 export type ShowcaseLink = "tutorial" | "source_code" | "website" | "video";
 
-type VideoType =
-  | {
-      type: "mux_video";
-      muxId: string;
-    }
-  | {
-      type: "video_url";
-      videoUrl: string;
-    };
-
 export type ShowcaseVideo = {
   title: string;
   imageUrl: string;
@@ -23,7 +13,9 @@ export type ShowcaseVideo = {
     type: ShowcaseLink;
   }[];
   submittedOn: Date;
-} & VideoType;
+  type: "mux_video";
+  muxId: string;
+};
 
 export const showcaseVideos: ShowcaseVideo[] = [
   {
@@ -90,11 +82,16 @@ export const showcaseVideos: ShowcaseVideo[] = [
     ],
   },
   {
-    title: "VFB Crowdfunding Campain",
+    title: "VFB Crowdfunding Campaign",
     type: "mux_video",
     muxId: "L7DYDk9o701zxfWUhcFb1Z1mGGzYoIuxddwNVI3tcemQ",
     imageUrl: "img/showcase/4.png",
-    description: <>It fetchs the actual raised amount and generate an animation with instagram story specifications.</>,
+    description: (
+      <>
+        It fetchs the actual raised amount and generate an animation with
+        instagram story specifications.
+      </>
+    ),
     width: 1080,
     height: 1920,
     submittedOn: new Date("25-03-2021"),
@@ -105,7 +102,8 @@ export const showcaseVideos: ShowcaseVideo[] = [
       },
       {
         type: "video",
-        url: "https://twitter.com/FlorentPergoud/status/1371874105281159178?s=20",
+        url:
+          "https://twitter.com/FlorentPergoud/status/1371874105281159178?s=20",
       },
     ],
   },
