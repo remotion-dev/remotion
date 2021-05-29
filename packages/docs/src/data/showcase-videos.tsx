@@ -102,4 +102,91 @@ export const showcaseVideos: ShowcaseVideo[] = [
       },
     ],
   },
+  {
+    title: "Love, Death & React",
+    type: "mux_video",
+    muxId: "pEo7cREHlak5FxdpNOKB8BYlUCa19Klkfn1XtXxjfxc",
+    description: (
+      <>
+        A recreation of Netflix{"'"}s &quot;Love, Death &amp; React&quot; intro.
+      </>
+    ),
+    width: 1280,
+    height: 720,
+    submittedOn: new Date("29-05-2021"),
+    links: [
+      {
+        type: "source_code",
+        url: "https://github.com/wcandillon/love-death-react",
+      },
+      {
+        type: "video",
+        url: "https://www.youtube.com/watch?v=YtcINOj2w5g",
+      },
+    ],
+  },
+  {
+    title: "Music Player",
+    type: "mux_video",
+    muxId: "7NZ41UEioG00jZygP02NXji01wr7HE02R8m3puh19V8IlZw",
+    description: (
+      <>A music player visualization for teasing tracks on Instagram.</>
+    ),
+    width: 720,
+    height: 720,
+    submittedOn: new Date("29-05-2021"),
+    links: [
+      {
+        type: "website",
+        url: "https://www.instagram.com/tripmusic.online/",
+      },
+      {
+        type: "video",
+        url: "https://twitter.com/kanzitelli/status/1398296728059666432",
+      },
+    ],
+  },
+  {
+    title: "Crypto Prices",
+    type: "mux_video",
+    muxId: "fAhMmqHE5fQg9V7H2CwNj4buFC6JhLDfgaMI9OBpYhw",
+    description: (
+      <>
+        Fully automated Twitter bot summarizing movements in the crypto market.
+      </>
+    ),
+    width: 720,
+    height: 720,
+    submittedOn: new Date("29-05-2021"),
+    links: [
+      {
+        type: "website",
+        url: "https://twitter.com/tokenviz",
+      },
+      {
+        type: "video",
+        url: "https://twitter.com/tokenviz/status/1391798812180508674",
+      },
+    ],
+  },
+  {
+    title: "Piano Teacher",
+    type: "mux_video",
+    muxId: "uuhPSi5C01DIIxBm3HcxJGs9d8hYmDnNjkmgwTMWJQPg",
+    description: (
+      <>
+        A MIDI-to-Remotion converter visualizing how to play a song on the
+        piano.
+      </>
+    ),
+    width: 1280,
+    height: 720,
+    submittedOn: new Date("29-05-2021"),
+    links: [
+      {
+        type: "video",
+        url: "uuhPSi5C01DIIxBm3HcxJGs9d8hYmDnNjkmgwTMWJQPg",
+      },
+    ],
+  },
 ];

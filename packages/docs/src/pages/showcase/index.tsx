@@ -36,7 +36,6 @@ const Showcase = () => {
   const hasPrevious = currentIndex > 0;
 
   const goToNextVideo = useCallback(() => {
-    console.log(currentIndex, showcaseVideos.length);
     if (!hasNext) {
       return;
     }
