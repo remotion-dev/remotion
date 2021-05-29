@@ -28,8 +28,8 @@
     "polished": "4.1.2",
     "prism-react-renderer": "^1.1.1",
     "react-player": "^2.9.0",
-    "styled-components": "^5.2.1",
-    "remotion": "^2.1.5"
+    "remotion": "^2.1.5",
+    "styled-components": "^5.2.1"
   },
   "browserslist": {
     "production": [
@@ -42,12 +42,5 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  },
-  "devDependencies": {
-    "@docusaurus/module-type-aliases": "^2.0.0-alpha.72",
-    "@tsconfig/docusaurus": "^1.0.2",
-    "@types/react-helmet": "^6.1.0",
-    "@types/react-router-dom": "^5.1.7",
-    "typescript": "^4.2.3"
   }
 }

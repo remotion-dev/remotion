@@ -1,9 +1,0 @@
-{
-  "compilerOptions": {
-    "jsx": "react",
-    "target": "ES2019",
-    "lib": ["DOM"]
-  },
-  "extends": "@tsconfig/docusaurus/tsconfig.json",
-  "include": ["src/"]
-}
