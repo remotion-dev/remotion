@@ -71,6 +71,10 @@ module.exports = {
           title: "Community",
           items: [
             {
+              label: "Showcase",
+              to: "showcase",
+            },
+            {
               label: "GitHub Issues",
               href: "https://github.com/JonnyBurger/remotion/issues",
               "data-splitbee-event": "External Link",
@@ -97,10 +101,7 @@ module.exports = {
               label: "Blog",
               to: "blog",
             },
-            {
-              label: "Showcase",
-              to: "showcase",
-            },
+
             {
               label: "GitHub",
               href: "https://github.com/JonnyBurger/remotion",
