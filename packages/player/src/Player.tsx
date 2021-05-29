@@ -92,8 +92,8 @@ export const PlayerFn = <T,>(
 		);
 	}
 
-	Internals.validateDimension(compositionHeight, 'compositionHeight');
-	Internals.validateDimension(compositionWidth, 'compositionWidth');
+	Internals.validateDimension(compositionHeight, 'compositionHeight', 'Player');
+	Internals.validateDimension(compositionWidth, 'compositionWidth', 'Player');
 	Internals.validateDurationInFrames(durationInFrames);
 	Internals.validateFps(fps);
 
