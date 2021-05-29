@@ -45,7 +45,7 @@ export type PlayerProps<T> = {
 	autoPlay?: boolean;
 	allowFullscreen?: boolean;
 	clickToPlay?: boolean;
-	inputProps?: unknown;
+	doubleClickToFullscreen?: boolean;
 } & PropsIfHasProps<T> &
 	CompProps<T>;
 
@@ -66,7 +66,8 @@ export const PlayerFn = <T,>(
 		autoPlay = false,
 		showVolumeControls = true,
 		allowFullscreen = true,
-		clickToPlay = true,
+		clickToPlay,
+		doubleClickToFullscreen = false,
 		...componentProps
 	}: PlayerProps<T>,
 	ref: MutableRefObject<PlayerRef>
@@ -117,6 +118,15 @@ export const PlayerFn = <T,>(
 	if (typeof loop !== 'boolean' && typeof loop !== 'undefined') {
 		throw new TypeError(
 			`'loop' must be a boolean or undefined but got '${typeof loop}' instead`
+		);
+	}
+
+	if (
+		typeof doubleClickToFullscreen !== 'boolean' &&
+		typeof doubleClickToFullscreen !== 'undefined'
+	) {
+		throw new TypeError(
+			`'doubleClickToFullscreen' must be a boolean or undefined but got '${typeof doubleClickToFullscreen}' instead`
 		);
 	}
 
@@ -245,11 +255,16 @@ export const PlayerFn = <T,>(
 									style={style}
 									inputProps={passedInputProps}
 									allowFullscreen={Boolean(allowFullscreen)}
-									clickToPlay={clickToPlay}
-									showVolumeControls={showVolumeControls}
+									clickToPlay={
+										typeof clickToPlay === 'boolean'
+											? clickToPlay
+											: Boolean(controls)
+									}
+									showVolumeControls={Boolean(showVolumeControls)}
 									setMediaVolume={setMediaVolumeAndPersist}
 									mediaVolume={mediaVolume}
 									mediaMuted={mediaMuted}
+									doubleClickToFullscreen={Boolean(doubleClickToFullscreen)}
 									setMediaMuted={setMediaMuted}
 								/>
 							</PlayerEventEmitterContext.Provider>

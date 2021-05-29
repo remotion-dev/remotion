@@ -111,6 +111,7 @@ test.each([
 	['showVolumeControls'],
 	['allowFullscreen'],
 	['clickToPlay'],
+	['doubleClickToFullscreen'],
 ])('No durationInFrames should give errors %s', (a: string) => {
 	const props: {[name: string]: string} = {};
 	props[a] = 'hey';
