@@ -41,12 +41,15 @@ export const VideoPreview: React.FC<
     if (!current) {
       return;
     }
+
     const onPointerEnter = () => {
       setHover(true);
     };
+
     const onPointerLeave = () => {
       setHover(false);
     };
+
     current.addEventListener("pointerenter", onPointerEnter);
     current.addEventListener("pointerleave", onPointerLeave);
 
@@ -72,7 +75,7 @@ export const VideoPreview: React.FC<
             backgroundPosition: "50% 50%",
           }}
         >
-          <img width={300} height={300}></img>
+          <img width={300} height={300} />
         </div>
       </div>
       <h3 style={videoTitle}>{title}</h3>

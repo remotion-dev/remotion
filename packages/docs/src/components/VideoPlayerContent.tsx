@@ -1,4 +1,3 @@
-import useBaseUrl from "@docusaurus/useBaseUrl";
 import Hls from "hls.js";
 import React, { useEffect, useRef } from "react";
 import styled from "styled-components";
@@ -24,11 +23,12 @@ const Sidebar = styled.div`
   width: ${RESERVED_FOR_SIDEBAR}px;
 `;
 
-const getVideoToPlayUrl = (video: ShowcaseVideo, vidUrl: string) => {
+const getVideoToPlayUrl = (video: ShowcaseVideo) => {
   if (video.type === "mux_video") {
     return `https://stream.mux.com/${video.muxId}.m3u8`;
   }
-  return vidUrl;
+
+  throw new Error("no url");
 };
 
 export const VideoPlayerContent: React.FC<{ video: ShowcaseVideo }> = ({
@@ -36,10 +36,7 @@ export const VideoPlayerContent: React.FC<{ video: ShowcaseVideo }> = ({
 }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const container = useRef<HTMLDivElement>(null);
-  const baseVidUrl = useBaseUrl(
-    video.type === "video_url" ? video.videoUrl : undefined
-  );
-  const vidUrl = getVideoToPlayUrl(video, baseVidUrl);
+  const vidUrl = getVideoToPlayUrl(video);
 
   const containerSize = useElementSize(document.body);
 
@@ -55,12 +52,10 @@ export const VideoPlayerContent: React.FC<{ video: ShowcaseVideo }> = ({
   const width = ratio * video.width;
 
   useEffect(() => {
-    let hls;
+    let hls: Hls;
     if (videoRef.current) {
-      const current = videoRef.current;
-      if (video.type === "video_url") {
-        current.src = video.videoUrl;
-      } else if (current.canPlayType("application/vnd.apple.mpegurl")) {
+      const { current } = videoRef;
+      if (current.canPlayType("application/vnd.apple.mpegurl")) {
         // Some browers (safari and ie edge) support HLS natively
         current.src = vidUrl;
       } else if (Hls.isSupported()) {
@@ -78,13 +73,13 @@ export const VideoPlayerContent: React.FC<{ video: ShowcaseVideo }> = ({
         hls.destroy();
       }
     };
-  }, [videoRef]);
+  }, [vidUrl, videoRef]);
 
   return (
     <Container ref={container}>
-      <Video ref={videoRef} height={height} width={width} autoPlay></Video>
+      <Video ref={videoRef} height={height} width={width} autoPlay />
       <Sidebar>
-        <VideoSidebar video={video}></VideoSidebar>
+        <VideoSidebar video={video} />
       </Sidebar>
     </Container>
   );

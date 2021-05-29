@@ -1,6 +1,6 @@
 import Layout from "@theme/Layout";
 import clsx from "clsx";
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import { VideoPlayer } from "../../components/VideoPlayer";
 import { VideoPreview } from "../../components/VideoPreview";
 import { ShowcaseVideo, showcaseVideos } from "../../data/showcase-videos";
@@ -21,8 +21,36 @@ const PageHeader: React.FC = () => {
   );
 };
 
-function Showcase() {
+const Showcase = () => {
   const [video, setVideo] = useState<ShowcaseVideo | null>(null);
+
+  const currentIndex = useMemo(() => {
+    if (video === null) {
+      return -1;
+    }
+
+    return showcaseVideos.findIndex((v) => v.muxId === video.muxId);
+  }, [video]);
+
+  const hasNext = currentIndex < showcaseVideos.length - 1;
+  const hasPrevious = currentIndex > 0;
+
+  const goToNextVideo = useCallback(() => {
+    console.log(currentIndex, showcaseVideos.length);
+    if (!hasNext) {
+      return;
+    }
+
+    setVideo(showcaseVideos[currentIndex + 1]);
+  }, [currentIndex, hasNext]);
+
+  const goToPreviousVideo = useCallback(() => {
+    if (!hasPrevious) {
+      return;
+    }
+
+    setVideo(showcaseVideos[currentIndex - 1]);
+  }, [currentIndex, hasPrevious]);
 
   const dismiss = useCallback(() => {
     setVideo(null);
@@ -38,19 +66,26 @@ function Showcase() {
           <PageHeader />
         </div>
       </header>
-      <VideoPlayer dismiss={dismiss} video={video}></VideoPlayer>
+      <VideoPlayer
+        hasNext={hasNext}
+        hasPrevious={hasPrevious}
+        toNext={goToNextVideo}
+        toPrevious={goToPreviousVideo}
+        dismiss={dismiss}
+        video={video}
+      />
 
       <main>
         <section className={styles.videos}>
           <div className="container">
             <div className="row">
-              {showcaseVideos.map((video, idx) => (
+              {showcaseVideos.map((vid) => (
                 <VideoPreview
+                  key={vid.muxId}
                   onClick={() => {
-                    setVideo(video);
+                    setVideo(vid);
                   }}
-                  key={idx}
-                  {...video}
+                  {...vid}
                 />
               ))}
             </div>
@@ -59,6 +94,6 @@ function Showcase() {
       </main>
     </Layout>
   );
-}
+};
 
 export default Showcase;
