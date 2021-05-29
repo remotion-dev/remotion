@@ -185,7 +185,51 @@ export const showcaseVideos: ShowcaseVideo[] = [
     links: [
       {
         type: "video",
-        url: "uuhPSi5C01DIIxBm3HcxJGs9d8hYmDnNjkmgwTMWJQPg",
+        url: "https://twitter.com/FlorentPergoud/status/1388430389715292161",
+      },
+    ],
+  },
+  {
+    title: "Vlog editor",
+    type: "mux_video",
+    muxId: "pSEhcZX5HBJy9SFK4j7vGs00NhPFCedqwL9X01ykNsIlo",
+    description: (
+      <>
+        This daily vlog is automatically cut together using Remotion. Clips are
+        recorded and uploaded to an FTP server, YouTube clips downloaded
+        automatically.
+      </>
+    ),
+    width: 1280,
+    height: 720,
+    submittedOn: new Date("29-05-2021"),
+    links: [
+      {
+        type: "video",
+        url: "https://www.youtube.com/watch?v=CcrCz8iRpHY",
+      },
+      {
+        type: "website",
+        url: "https://www.youtube.com/channel/UCRylGayptCYAnrZfWTwuV7A",
+      },
+    ],
+  },
+  {
+    title: "Flow Fields",
+    type: "mux_video",
+    muxId: "st5ifZHHqs8k9m19FNqYyRdh01CM8pX302ikEzAvnikTA",
+    description: <>A generative SVG animation using noise.</>,
+    width: 720,
+    height: 720,
+    submittedOn: new Date("29-05-2021"),
+    links: [
+      {
+        type: "video",
+        url: "https://twitter.com/noWukkas_/status/1386174689660203011",
+      },
+      {
+        type: "source_code",
+        url: "https://codesandbox.io/s/flow-fields-evqg3",
       },
     ],
   },
