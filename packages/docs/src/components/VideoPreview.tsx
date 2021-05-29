@@ -24,12 +24,11 @@ const videoTitle: React.CSSProperties = {
 
 export const VideoPreview: React.FC<
   ShowcaseVideo & {
-    imageUrl: string;
     title: string;
     description: React.ReactNode;
     onClick: () => void;
   }
-> = ({ imageUrl, title, description, onClick, muxId }) => {
+> = ({ title, description, onClick, muxId }) => {
   const [hover, setHover] = useState(false);
 
   const container = useRef<HTMLAnchorElement>(null);
