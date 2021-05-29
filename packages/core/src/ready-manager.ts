@@ -1,3 +1,5 @@
+import {getRemotionEnvironment} from './get-environment';
+
 if (typeof window !== 'undefined') {
 	window.ready = false;
 }
@@ -10,7 +12,7 @@ export const delayRender = (): number => {
 	handles.push(handle);
 	const called = Error().stack?.replace(/^Error/g, '') ?? '';
 
-	if (process.env.NODE_ENV === 'production') {
+	if (getRemotionEnvironment() === 'rendering') {
 		timeouts[handle] = setTimeout(() => {
 			throw new Error(
 				'A delayRender was called but not cleared after 25000ms. See https://remotion.dev/docs/timeout for help. The delayRender was called: ' +
@@ -29,7 +31,7 @@ export const delayRender = (): number => {
 export const continueRender = (handle: number): void => {
 	handles = handles.filter((h) => {
 		if (h === handle) {
-			if (process.env.NODE_ENV === 'production') {
+			if (getRemotionEnvironment() === 'rendering') {
 				clearTimeout(timeouts[handle] as number);
 			}
 

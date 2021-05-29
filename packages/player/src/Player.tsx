@@ -3,6 +3,7 @@ import React, {
 	MutableRefObject,
 	useCallback,
 	useImperativeHandle,
+	useLayoutEffect,
 	useMemo,
 	useRef,
 	useState,
@@ -71,6 +72,11 @@ export const PlayerFn = <T,>(
 	}: PlayerProps<T>,
 	ref: MutableRefObject<PlayerRef>
 ) => {
+	useLayoutEffect(() => {
+		if (typeof window !== 'undefined') {
+			window.remotion_isPlayer = true;
+		}
+	}, []);
 	const component = Internals.useLazyComponent(componentProps);
 	const [frame, setFrame] = useState(0);
 	const [playing, setPlaying] = useState<boolean>(false);

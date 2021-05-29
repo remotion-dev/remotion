@@ -53,6 +53,7 @@ import {
 } from './config/webpack-caching';
 import * as CSSUtils from './default-css';
 import {FEATURE_FLAG_FIREFOX_SUPPORT} from './feature-flags';
+import {getRemotionEnvironment, RemotionEnvironment} from './get-environment';
 import {isAudioCodec} from './is-audio-codec';
 import * as perf from './perf';
 import {
@@ -152,6 +153,7 @@ export const Internals = {
 	validateDurationInFrames,
 	validateFps,
 	validateDimension,
+	getRemotionEnvironment,
 };
 
 export type {
@@ -169,4 +171,5 @@ export type {
 	MediaVolumeContextValue,
 	SetMediaVolumeContextValue,
 	LooseAnyComponent,
+	RemotionEnvironment,
 };
