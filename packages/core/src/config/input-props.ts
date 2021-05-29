@@ -1,7 +1,9 @@
+import {getRemotionEnvironment} from '../get-environment';
+
 export const INPUT_PROPS_KEY = 'remotion.inputProps';
 
 export const getInputProps = () => {
-	if (process.env.NODE_ENV === 'production') {
+	if (getRemotionEnvironment() === 'rendering') {
 		const param = localStorage.getItem(INPUT_PROPS_KEY);
 		if (!param) {
 			return {};
@@ -11,5 +13,11 @@ export const getInputProps = () => {
 		return parsed;
 	}
 
-	return (process.env.INPUT_PROPS as unknown) as object | null;
+	if (getRemotionEnvironment() === 'preview') {
+		return (process.env.INPUT_PROPS as unknown) as object | null;
+	}
+
+	throw new Error(
+		'You cannot call `getInputProps()` from a <Player>. Instead, the props are available as React props from component that you passed as `component` prop.'
+	);
 };
