@@ -77,7 +77,7 @@ export const VideoPlayerContent: React.FC<{ video: ShowcaseVideo }> = ({
 
   return (
     <Container ref={container}>
-      <Video ref={videoRef} height={height} width={width} autoPlay />
+      <Video ref={videoRef} loop height={height} width={width} autoPlay />
       <Sidebar>
         <VideoSidebar video={video} />
       </Sidebar>
