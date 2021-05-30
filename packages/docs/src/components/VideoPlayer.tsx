@@ -106,6 +106,31 @@ export const VideoPlayer: React.FC<{
     };
   }, [dismiss, video]);
 
+  useEffect(() => {
+    if (!video) {
+      return;
+    }
+
+    const onKeyPress = (e: KeyboardEvent) => {
+      if (hasNext && e.key === "ArrowRight") {
+        toNext();
+      }
+
+      if (hasPrevious && e.key === "ArrowLeft") {
+        toPrevious();
+      }
+
+      if (hasPrevious && e.key === "Escape") {
+        dismiss();
+      }
+    };
+
+    window.addEventListener("keyup", onKeyPress);
+    return () => {
+      window.removeEventListener("keyup", onKeyPress);
+    };
+  }, [dismiss, hasNext, hasPrevious, toNext, toPrevious, video]);
+
   if (!video) {
     return null;
   }
