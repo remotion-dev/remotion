@@ -8,15 +8,8 @@
 .heroBanner {
   padding-top: 4rem;
   padding-bottom: 0;
-  text-align: center;
   position: relative;
   overflow: hidden;
-}
-
-@media screen and (max-width: 966px) {
-  .heroBanner {
-    padding: 2rem;
-  }
 }
 
 .videos {

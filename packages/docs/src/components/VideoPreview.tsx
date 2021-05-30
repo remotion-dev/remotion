@@ -1,5 +1,5 @@
 import clsx from "clsx";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { ShowcaseVideo } from "../data/showcase-videos";
 
 const a: React.CSSProperties = {
@@ -55,6 +55,16 @@ export const VideoPreview: React.FC<
     };
   }, []);
 
+  const style = useMemo(() => {
+    return {
+      width: 300,
+      height: 300,
+      backgroundImage: `url(${hover ? animated : thumbnail})`,
+      backgroundSize: "cover",
+      backgroundPosition: "50% 50%",
+    };
+  }, [animated, hover, thumbnail]);
+
   return (
     <a
       ref={container}
@@ -63,15 +73,7 @@ export const VideoPreview: React.FC<
       onClick={onClick}
     >
       <div className="text--center">
-        <div
-          style={{
-            width: 300,
-            height: 300,
-            backgroundImage: `url(${hover ? animated : thumbnail})`,
-            backgroundSize: "cover",
-            backgroundPosition: "50% 50%",
-          }}
-        >
+        <div style={style}>
           <img width={300} height={300} />
         </div>
       </div>

@@ -41,6 +41,11 @@ const loadingContainer: React.CSSProperties = {
   display: "flex",
 };
 
+export const PAGINATE_ICON_WIDTH = 24;
+export const PAGINATE_ICON_PADDING = 20;
+export const PAGINATE_BUTTONS_WIDTH =
+  (PAGINATE_ICON_WIDTH + PAGINATE_ICON_PADDING * 2) * 2;
+
 const getVideoToPlayUrl = (video: ShowcaseVideo) => {
   if (video.type === "mux_video") {
     return `https://stream.mux.com/${video.muxId}.m3u8`;
@@ -59,11 +64,14 @@ export const VideoPlayerContent: React.FC<{ video: ShowcaseVideo }> = ({
 
   const containerSize = useElementSize(document.body);
 
-  const containerWidth = Math.min(containerSize?.width ?? 0, 1200) - 200;
+  const possibleVideoWidth =
+    Math.min(containerSize?.width ?? 0, 1200) -
+    RESERVED_FOR_SIDEBAR -
+    PAGINATE_BUTTONS_WIDTH;
   const containerHeight = Math.min(containerSize?.height ?? 0, 800);
 
   const heightRatio = (containerHeight ?? 0) / video.height;
-  const widthRatio = (containerWidth ?? 0) / video.width;
+  const widthRatio = (possibleVideoWidth ?? 0) / video.width;
 
   const ratio = Math.min(heightRatio, widthRatio);
 
