@@ -1,25 +1,23 @@
 import React from "react";
-import styled from "styled-components";
 import { ShowcaseLink, ShowcaseVideo } from "../data/showcase-videos";
 
-const Container = styled.div`
-  padding: 20px;
-`;
+const container: React.CSSProperties = {
+  padding: 20,
+};
 
-const Title = styled.div`
-  font-weight: bold;
-  margin-bottom: 12px;
-`;
+const title: React.CSSProperties = {
+  fontWeight: "bold",
+  marginBottom: 12,
+};
+const description: React.CSSProperties = {
+  fontSize: 13,
+  marginBottom: 20,
+};
 
-const Description = styled.div`
-  font-size: 14px;
-  margin-bottom: 20px;
-`;
-
-const A = styled.a`
-  font-size: 14px;
-  font-weight: bold;
-`;
+const a: React.CSSProperties = {
+  fontSize: 14,
+  fontWeight: "bold",
+};
 
 const getLinkLabel = (linkType: ShowcaseLink) => {
   switch (linkType) {
@@ -31,6 +29,8 @@ const getLinkLabel = (linkType: ShowcaseLink) => {
       return "Website";
     case "video":
       return "Video";
+    default:
+      throw new Error("don't know link type");
   }
 };
 
@@ -38,16 +38,18 @@ export const VideoSidebar: React.FC<{
   video: ShowcaseVideo;
 }> = ({ video }) => {
   return (
-    <Container>
-      <Title>{video.title}</Title>
-      <Description>{video.description}</Description>
+    <div style={container}>
+      <div style={title}>{video.title}</div>
+      <div style={description}>{video.description}</div>
       {video.links.map((link) => {
         return (
           <div key={link.url}>
-            <A href={link.url}>{getLinkLabel(link.type)}</A>
+            <a style={a} target="_blank" href={link.url}>
+              {getLinkLabel(link.type)}
+            </a>
           </div>
         );
       })}
-    </Container>
+    </div>
   );
 };

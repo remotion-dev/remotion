@@ -1,27 +1,45 @@
 import Hls from "hls.js";
-import React, { useEffect, useRef } from "react";
-import styled from "styled-components";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { ShowcaseVideo } from "../data/showcase-videos";
 import { useElementSize } from "../helpers/use-el-size";
+import { Spinner } from "./Spinner";
 import { VideoSidebar } from "./VideoSidebar";
 
-export const Container = styled.div`
-  background-color: white;
-  margin-bottom: 0;
-  display: flex;
-  flex-direction: row;
-`;
+const containerCss: React.CSSProperties = {
+  backgroundColor: "white",
+  marginBottom: 0,
+  display: "flex",
+  flexDirection: "row",
+};
 
-const Video = styled.video`
-  margin-bottom: 0;
-  background-color: white;
-`;
+const videoCss: React.CSSProperties = {
+  marginBottom: 0,
+  backgroundColor: "white",
+};
 
 const RESERVED_FOR_SIDEBAR = 300;
 
-const Sidebar = styled.div`
-  width: ${RESERVED_FOR_SIDEBAR}px;
-`;
+const sidebar: React.CSSProperties = {
+  width: RESERVED_FOR_SIDEBAR,
+};
+
+const spinner: React.CSSProperties = {
+  height: 16,
+  width: 16,
+};
+
+const loadingContainer: React.CSSProperties = {
+  position: "absolute",
+  justifyContent: "center",
+  alignItems: "center",
+  display: "flex",
+};
 
 const getVideoToPlayUrl = (video: ShowcaseVideo) => {
   if (video.type === "mux_video") {
@@ -34,6 +52,7 @@ const getVideoToPlayUrl = (video: ShowcaseVideo) => {
 export const VideoPlayerContent: React.FC<{ video: ShowcaseVideo }> = ({
   video,
 }) => {
+  const [loaded, setLoaded] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const container = useRef<HTMLDivElement>(null);
   const vidUrl = getVideoToPlayUrl(video);
@@ -75,12 +94,37 @@ export const VideoPlayerContent: React.FC<{ video: ShowcaseVideo }> = ({
     };
   }, [vidUrl, videoRef]);
 
+  const onLoadedMetadata = useCallback(() => {
+    setLoaded(true);
+  }, []);
+
+  const loadingStyle = useMemo(() => {
+    return {
+      ...loadingContainer,
+      height,
+      width,
+    };
+  }, [height, width]);
+
   return (
-    <Container ref={container}>
-      <Video ref={videoRef} loop height={height} width={width} autoPlay />
-      <Sidebar>
+    <div ref={container} style={containerCss}>
+      {loaded ? null : (
+        <div style={loadingStyle}>
+          <Spinner style={spinner} />
+        </div>
+      )}
+      <video
+        ref={videoRef}
+        style={videoCss}
+        onLoadedMetadata={onLoadedMetadata}
+        loop
+        height={height}
+        width={width}
+        autoPlay
+      />
+      <div style={sidebar}>
         <VideoSidebar video={video} />
-      </Sidebar>
-    </Container>
+      </div>
+    </div>
   );
 };

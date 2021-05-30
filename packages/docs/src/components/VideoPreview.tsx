@@ -1,15 +1,11 @@
 import clsx from "clsx";
 import React, { useEffect, useRef, useState } from "react";
-import styled from "styled-components";
 import { ShowcaseVideo } from "../data/showcase-videos";
 
-const A = styled.a`
-  color: inherit;
-  cursor: pointer;
-  &:hover {
-    color: inherit;
-  }
-`;
+const a: React.CSSProperties = {
+  color: "inherit",
+  cursor: "pointer",
+};
 
 const videoStyle: React.CSSProperties = {
   display: "flex",
@@ -60,8 +56,9 @@ export const VideoPreview: React.FC<
   }, []);
 
   return (
-    <A
+    <a
       ref={container}
+      style={a}
       className={clsx("col col--4", videoStyle)}
       onClick={onClick}
     >
@@ -80,6 +77,6 @@ export const VideoPreview: React.FC<
       </div>
       <h3 style={videoTitle}>{title}</h3>
       <p>{description}</p>
-    </A>
+    </a>
   );
 };
