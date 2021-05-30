@@ -1,6 +1,6 @@
 import Layout from "@theme/Layout";
 import clsx from "clsx";
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { VideoPlayer } from "../../components/VideoPlayer";
 import { VideoPreview } from "../../components/VideoPreview";
 import { ShowcaseVideo, showcaseVideos } from "../../data/showcase-videos";
@@ -13,8 +13,8 @@ const PageHeader: React.FC = () => {
       <div style={{ flex: 1 }}>
         <h1 className={headerStyles.title}>Showcase</h1>
         <p>
-          Use your React knowledge to create real MP4 videos. Feel free to pull
-          request your creations!
+          Some awesome creations from the community, many with source code. Have
+          you made your own video with Remotion? Add it to the showcase!
         </p>
       </div>
     </div>
@@ -22,7 +22,17 @@ const PageHeader: React.FC = () => {
 };
 
 const Showcase = () => {
-  const [video, setVideo] = useState<ShowcaseVideo | null>(null);
+  const [video, setVideo] = useState<ShowcaseVideo | null>(() => {
+    if (!window.location.hash) {
+      return null;
+    }
+
+    return (
+      showcaseVideos.find(
+        (v) => v.muxId === window.location.hash.replace("#", "")
+      ) ?? null
+    );
+  });
 
   const currentIndex = useMemo(() => {
     if (video === null) {
@@ -30,6 +40,12 @@ const Showcase = () => {
     }
 
     return showcaseVideos.findIndex((v) => v.muxId === video.muxId);
+  }, [video]);
+
+  useEffect(() => {
+    if (video) {
+      window.location.hash = video.muxId;
+    }
   }, [video]);
 
   const hasNext = currentIndex < showcaseVideos.length - 1;
@@ -57,7 +73,7 @@ const Showcase = () => {
 
   return (
     <Layout
-      title="Write videos in React"
+      title="Showcase"
       description="Create MP4 motion graphics in React. Leverage CSS, SVG, WebGL and more technologies to render videos programmatically!"
     >
       <header className={clsx("hero ", styles.heroBanner)}>
