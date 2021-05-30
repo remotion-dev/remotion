@@ -45,6 +45,12 @@ const Showcase = () => {
   useEffect(() => {
     if (video) {
       window.location.hash = video.muxId;
+    } else if (window.location.href.includes("#")) {
+      window.history.replaceState(
+        {},
+        document.title,
+        window.location.href.substr(0, window.location.href.indexOf("#"))
+      );
     }
   }, [video]);
 
