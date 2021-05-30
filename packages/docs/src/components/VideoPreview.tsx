@@ -5,6 +5,11 @@ import { ShowcaseVideo } from "../data/showcase-videos";
 const a: React.CSSProperties = {
   color: "inherit",
   cursor: "pointer",
+  margin: "auto",
+  width: 300,
+  maxWidth: 300,
+  display: "block",
+  flex: 1,
 };
 
 const videoStyle: React.CSSProperties = {
@@ -23,6 +28,7 @@ export const VideoPreview: React.FC<
     title: string;
     description: React.ReactNode;
     onClick: () => void;
+    mobileLayout: boolean;
   }
 > = ({ title, description, onClick, muxId }) => {
   const [hover, setHover] = useState(false);
