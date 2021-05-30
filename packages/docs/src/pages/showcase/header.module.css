@@ -5,15 +5,3 @@
   font-weight: 700;
   line-height: 1.2;
 }
-
-.row {
-  display: flex;
-  flex-direction: row;
-  text-align: left;
-}
-
-@media screen and (max-width: 1200px) {
-  .row {
-    flex-direction: column;
-  }
-}

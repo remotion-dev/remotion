@@ -4,6 +4,8 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { VideoPlayer } from "../../components/VideoPlayer";
 import { VideoPreview } from "../../components/VideoPreview";
 import { ShowcaseVideo, showcaseVideos } from "../../data/showcase-videos";
+import { chunk } from "../../helpers/chunk";
+import { useElementSize } from "../../helpers/use-el-size";
 import headerStyles from "./header.module.css";
 import styles from "./styles.module.css";
 
@@ -21,7 +23,14 @@ const PageHeader: React.FC = () => {
   );
 };
 
+const flex1: React.CSSProperties = {
+  flex: 1,
+};
+
 const Showcase = () => {
+  const containerSize = useElementSize(document.body);
+  const mobileLayout = (containerSize?.width ?? Infinity) < 1200;
+
   const [video, setVideo] = useState<ShowcaseVideo | null>(() => {
     if (!window.location.hash) {
       return null;
@@ -77,6 +86,24 @@ const Showcase = () => {
     setVideo(null);
   }, []);
 
+  const layoutStyle: React.CSSProperties = useMemo(() => {
+    if (mobileLayout) {
+      return {
+        display: "flex",
+        flexDirection: "column",
+        textAlign: "left",
+      };
+    }
+
+    return {
+      display: "flex",
+      flexDirection: "row",
+      textAlign: "left",
+    };
+  }, [mobileLayout]);
+
+  const chunks = chunk(showcaseVideos, 3);
+
   return (
     <Layout
       title="Showcase"
@@ -99,17 +126,27 @@ const Showcase = () => {
       <main>
         <section className={styles.videos}>
           <div className="container">
-            <div className="row">
-              {showcaseVideos.map((vid) => (
-                <VideoPreview
-                  key={vid.muxId}
-                  onClick={() => {
-                    setVideo(vid);
-                  }}
-                  {...vid}
-                />
-              ))}
-            </div>
+            {chunks.map((c) => {
+              return (
+                <div key={c.map((c_) => c_.muxId).join("")} style={layoutStyle}>
+                  {c.map((vid) => {
+                    return (
+                      <div key={vid.muxId} style={flex1}>
+                        <VideoPreview
+                          onClick={() => {
+                            setVideo(vid);
+                          }}
+                          mobileLayout={mobileLayout}
+                          {...vid}
+                        />
+                      </div>
+                    );
+                  })}
+                  {c.length < 3 ? <div style={flex1} /> : null}
+                  {c.length < 2 ? <div style={flex1} /> : null}
+                </div>
+              );
+            })}
           </div>
         </section>
       </main>
