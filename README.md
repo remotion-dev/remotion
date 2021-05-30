@@ -4,7 +4,7 @@
   </a>
 </p>
 
-![Discord Shield](https://discordapp.com/api/guilds/809501355504959528/widget.png?style=shield) [Join the Discord](https://discord.gg/6VzzNDwUwV)
+![Discord Shield](https://discordapp.com/api/guilds/809501355504959528/widget.png?style=shield) [Join the Discord](https://discord.com/invite/b3sDrFqa4Y)
 
 Remotion is a suite of libraries building a fundament for **creating videos programmatically using React.**
 

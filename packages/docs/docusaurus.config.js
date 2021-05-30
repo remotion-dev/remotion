@@ -35,7 +35,7 @@ module.exports = {
         { to: "blog", label: "Blog", position: "left" },
         { to: "/docs/license", label: "Licensing", position: "left" },
         {
-          href: "https://discord.gg/6VzzNDwUwV",
+          href: "https://discord.com/invite/b3sDrFqa4Y",
           label: "Discord",
           position: "right",
           "data-splitbee-event": "External Link",
@@ -77,7 +77,7 @@ module.exports = {
             },
             {
               label: "Discord",
-              href: "https://discord.gg/6VzzNDwUwV",
+              href: "https://discord.com/invite/b3sDrFqa4Y",
               "data-splitbee-event": "External Link",
               "data-splitbee-event-target": "Discord",
             },
