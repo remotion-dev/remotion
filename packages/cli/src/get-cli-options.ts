@@ -167,7 +167,7 @@ export const getCliOptions = async () => {
 		codec,
 		pixelFormat,
 	});
-	const profile = getProfile();
+	const profile = Internals.getProfile();
 
 	return {
 		parallelism: Internals.getConcurrency(),

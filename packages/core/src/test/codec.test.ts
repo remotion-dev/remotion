@@ -2,7 +2,9 @@ import {
 	CodecOrUndefined,
 	getFinalOutputCodec,
 	getOutputCodecOrUndefined,
+	getOutputProfileOrUndefined,
 	setCodec,
+	setProfile
 } from '../config/codec';
 import {expectToThrow} from "./expect-to-throw";
 
@@ -81,6 +83,7 @@ describe('Codec tests setOutputFormat', () => {
 		'h265',
 		'vp8',
 		'vp9',
+		'prores',
 		undefined,
 	];
 	validCodecInputs.forEach(entry =>
@@ -93,4 +96,11 @@ describe('Codec tests setOutputFormat', () => {
 		// @ts-expect-error
 		expectToThrow(() => setCodec('invalid'), /Codec must be one of the following:/)
 	})
+});
+
+describe('Codec tests setProfile', () => {
+		test(`testing with 4444`, () => {
+			setProfile('4444');
+			expect(getOutputProfileOrUndefined()).toEqual('4444');
+		});
 });

@@ -21,6 +21,7 @@ let profile: ProfileOrUndefined;
 export const getOutputCodecOrUndefined = (): CodecOrUndefined => {
 	return codec;
 };
+
 export const getOutputProfileOrUndefined = (): ProfileOrUndefined => {
 	return profile;
 }
