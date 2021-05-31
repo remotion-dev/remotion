@@ -39,6 +39,10 @@ const getCodecName = (codec: Codec): string | null => {
 		return 'libvpx-vp9';
 	}
 
+	if (codec === 'prores') {
+		return 'prores_ks'
+	}
+
 	throw new TypeError(`Cannot find FFMPEG codec for ${codec}`);
 };
 
@@ -71,6 +75,7 @@ export const stitchFramesToVideo = async (options: {
 	imageFormat?: ImageFormat;
 	pixelFormat?: PixelFormat;
 	codec?: Codec;
+	profile?: string;
 	crf?: number;
 	// TODO: Do we want a parallelism flag for stitcher?
 	parallelism?: number | null;
@@ -174,6 +179,7 @@ export const stitchFramesToVideo = async (options: {
 		// Ignore audio from image sequence
 		isAudioOnly ? null : ['-map', '0:v'],
 		options.force ? '-y' : null,
+		options.profile ? ['-profile:v', options.profile] : null,
 		options.outputLocation,
 	];
 
