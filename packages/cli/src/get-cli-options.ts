@@ -167,6 +167,7 @@ export const getCliOptions = async () => {
 		codec,
 		pixelFormat,
 	});
+	const profile = getProfile();
 
 	return {
 		parallelism: Internals.getConcurrency(),
@@ -182,5 +183,6 @@ export const getCliOptions = async () => {
 		crf,
 		pixelFormat,
 		imageFormat,
+		profile
 	};
 };
