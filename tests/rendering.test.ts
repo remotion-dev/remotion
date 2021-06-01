@@ -108,6 +108,34 @@ test("Should fail to render out of range frame when range is a string", async ()
   expect(task.stderr).toContain("Frame range 2-10 is not in between 0-9");
 });
 
+test("Should render a ProRes video", async () => {
+  const out = outputPath.replace(".mp4", ".mov");
+  const task = await execa(
+    "npx",
+    [
+      "remotion",
+      "render",
+      "src/index.tsx",
+      "ten-frame-tester",
+      "--prores-profile=4444",
+      out,
+    ],
+    {
+      cwd: "packages/example",
+      reject: false,
+    }
+  );
+  expect(task.exitCode).toBe(0);
+
+  const exists = fs.existsSync(out);
+  expect(exists).toBe(true);
+
+  const info = await execa("ffprobe", [out]);
+  const data = info.stderr;
+  expect(data).toContain("prores (4444)");
+  fs.unlinkSync(out);
+});
+
 test("Should render a still image if single frame specified", async () => {
   const outDir = outputPath.replace(".mp4", "");
   const outImg = path.join(outDir, "element-2.png");
