@@ -3,10 +3,6 @@ id: three-canvas
 title: <ThreeCanvas />
 ---
 
-import { ExperimentalBadge } from "../components/Experimental.tsx";
-
-<ExperimentalBadge/>
-
 A wrapper for [React Three Fiber](https://github.com/pmndrs/react-three-fiber)'s `<Canvas />` which synchronizes with Remotions [`useCurrentFrame()`](/docs/use-current-frame).
 
 Since React Three Fiber is a custom renderer, normally the React contexts that surround it don't work inside. This would normally break the usage of it in Remotion, but this component wraps the contexts so you can write your markup as expected.
