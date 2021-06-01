@@ -46,6 +46,12 @@ import {
 	validateSelectedPixelFormatAndCodecCombination,
 } from './config/pixel-format';
 import {getServerPort} from './config/preview-server';
+import {
+	getProResProfile,
+	ProResProfile,
+	setProResProfile,
+	validateSelectedCodecAndProResCombination,
+} from './config/prores-profile';
 import {getQuality} from './config/quality';
 import {
 	DEFAULT_WEBPACK_CACHE_ENABLED,
@@ -154,6 +160,9 @@ export const Internals = {
 	validateFps,
 	validateDimension,
 	getRemotionEnvironment,
+	getProResProfile,
+	setProResProfile,
+	validateSelectedCodecAndProResCombination,
 };
 
 export type {
@@ -172,4 +181,5 @@ export type {
 	SetMediaVolumeContextValue,
 	LooseAnyComponent,
 	RemotionEnvironment,
+	ProResProfile,
 };

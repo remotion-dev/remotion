@@ -6,6 +6,7 @@ const validCodecs = [
 	'mp3',
 	'aac',
 	'wav',
+	'prores',
 ] as const;
 
 export type Codec = typeof validCodecs[number];
@@ -21,6 +22,7 @@ export const getOutputCodecOrUndefined = (): CodecOrUndefined => {
 
 export const DEFAULT_CODEC: Codec = 'h264';
 
+// eslint-disable-next-line complexity
 export const getFinalOutputCodec = ({
 	codec: inputCodec,
 	fileExtension,
@@ -58,6 +60,16 @@ export const getFinalOutputCodec = ({
 		}
 
 		return 'mp3';
+	}
+
+	if (inputCodec === undefined && fileExtension === 'mov') {
+		if (emitWarning) {
+			console.info(
+				'You have specified a .mov extension, using the Apple ProRes encoder.'
+			);
+		}
+
+		return 'prores';
 	}
 
 	if (inputCodec === undefined && fileExtension === 'wav') {
