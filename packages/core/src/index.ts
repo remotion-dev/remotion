@@ -1,5 +1,6 @@
 import './asset-types';
 import {TAsset, TCompMetadata} from './CompositionManager';
+import {checkMultipleRemotionVersions} from './multiple-versions-warning';
 
 declare global {
 	interface Window {
@@ -8,8 +9,11 @@ declare global {
 		remotion_setFrame: (frame: number) => void;
 		remotion_collectAssets: () => TAsset[];
 		remotion_isPlayer: boolean;
+		remotion_imported: boolean;
 	}
 }
+
+checkMultipleRemotionVersions();
 
 export * from './AbsoluteFill';
 export {AnyComponent} from './any-component';
