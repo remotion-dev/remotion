@@ -197,13 +197,18 @@ Choose one of the supported codecs: `h264` _(default)_, `h265`, `vp8`, `vp9`.
 - `h265` is the successor of H264, with smaller file sizes. Also known as HEVC. Poor browser compatibility.
 - `vp8` is the codec for WebM.
 - `vp9` is the next-generation codec for WebM. Lower file size, longer compression time.
-- `mp3` will export audio only as an MP3 file.
-- `wav` will export audio only as an WAV file.
-- `aac` will export audio only as an AAC file.
+- `prores` is a common codec if you want to import the output into another video editing program _(available from v2.1.6)_
+- `mp3` will export audio only as an MP3 file _(available from v2.0)_
+- `wav` will export audio only as an WAV file _(available from v2.0)_
+- `aac` will export audio only as an AAC file _(available from v2.0)_
 
 ```tsx
 Config.Output.setCodec('h265');
 ```
+
+The [command line flag](/docs/cli#--codec) `--codec` will take precedence over this option.
+
+**See also**: [Encoding guide](/docs/encoding)
 
 ### setProResProfile()
 
