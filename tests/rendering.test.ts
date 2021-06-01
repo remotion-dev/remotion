@@ -283,3 +283,5 @@ test("Dynamic duration should work", async () => {
     fs.unlinkSync(outputPath);
   }
 });
+
+test.todo("ProRes rendering");

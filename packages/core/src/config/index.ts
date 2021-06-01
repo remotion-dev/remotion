@@ -16,6 +16,7 @@ import {
 import {setOverwriteOutput} from './overwrite';
 import {PixelFormat, setPixelFormat} from './pixel-format';
 import {setPort} from './preview-server';
+import {setProResProfile} from './prores-profile';
 import {setQuality} from './quality';
 import {setWebpackCaching} from './webpack-caching';
 
@@ -118,6 +119,12 @@ export const Config = {
 		 * Set to true if don't want a video but an image sequence as the output.
 		 */
 		setImageSequence,
+		/**
+		 * Set the ProRes profile.
+		 * This method is only valid if the codec has been set to 'ProRes'.
+		 * Possible values: 4444-xq, 4444, hq, standard, light, proxy
+		 */
+		setProResProfile,
 	},
 } as const;
 
