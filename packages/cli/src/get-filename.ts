@@ -38,6 +38,12 @@ export const getOutputFilename = (
 			filename += '.webm';
 			extension = 'webm';
 		}
+
+		if (codec === 'prores') {
+			Log.info('No file extension specified, adding .mov automatically.');
+			filename += '.mov';
+			extension = 'mov';
+		}
 	}
 
 	if (codec === 'h264') {
@@ -62,6 +68,18 @@ export const getOutputFilename = (
 		if (extension !== 'webm') {
 			Log.error(
 				`When using the ${codec.toUpperCase()} codec, the output filename must end in .webm.`
+			);
+			process.exit(1);
+		}
+	}
+
+	if (codec === 'prores') {
+		const allowedProResExtensions = ['mov', 'mkv', 'mxf'];
+		if (!extension || !allowedProResExtensions.includes(extension)) {
+			Log.error(
+				`When using the 'prores' codec, the output must end in one of those extensions: ${allowedProResExtensions
+					.map((a) => `.${a}`)
+					.join(', ')}`
 			);
 			process.exit(1);
 		}
