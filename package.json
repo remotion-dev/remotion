@@ -18,7 +18,7 @@
     "eslint": "^7.25.0",
     "execa": "^5.0.0",
     "jest": "^26.6.3",
-    "lerna": "^2.11.0",
+    "lerna": "^4.0.0",
     "prettier": "^2.2.1",
     "prettier-plugin-organize-imports": "^1.1.1",
     "sharp": "^0.28.1",
