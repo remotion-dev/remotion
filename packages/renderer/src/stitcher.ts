@@ -4,6 +4,7 @@ import {
 	ImageFormat,
 	Internals,
 	PixelFormat,
+	ProResProfile,
 	RenderAssetInfo,
 } from 'remotion';
 import {calculateAssetPositions} from './assets/calculate-asset-positions';
@@ -12,55 +13,14 @@ import {markAllAssetsAsDownloaded} from './assets/download-and-map-assets-to-fil
 import {getAssetAudioDetails} from './assets/get-asset-audio-details';
 import {calculateFfmpegFilters} from './calculate-ffmpeg-filters';
 import {createFfmpegComplexFilter} from './create-ffmpeg-complex-filter';
+import {getAudioCodecName} from './get-audio-codec-name';
+import {getCodecName} from './get-codec-name';
 import {getFrameInfo} from './get-frame-number-length';
+import {getProResProfileName} from './get-pro-res-profile-name';
 import {DEFAULT_IMAGE_FORMAT} from './image-format';
 import {parseFfmpegProgress} from './parse-ffmpeg-progress';
 import {resolveAssetSrc} from './resolve-asset-src';
 import {validateFfmpeg} from './validate-ffmpeg';
-
-const getCodecName = (codec: Codec): string | null => {
-	if (Internals.isAudioCodec(codec)) {
-		return null;
-	}
-
-	if (codec === 'h264') {
-		return 'libx264';
-	}
-
-	if (codec === 'h265') {
-		return 'libx265';
-	}
-
-	if (codec === 'vp8') {
-		return 'libvpx';
-	}
-
-	if (codec === 'vp9') {
-		return 'libvpx-vp9';
-	}
-
-	if (codec === 'prores') {
-		return 'prores_ks'
-	}
-
-	throw new TypeError(`Cannot find FFMPEG codec for ${codec}`);
-};
-
-const getAudioCodecName = (codec: Codec): string | null => {
-	if (!Internals.isAudioCodec(codec)) {
-		return 'aac';
-	}
-
-	if (codec === 'aac') {
-		return 'aac';
-	}
-
-	if (codec === 'mp3') {
-		return 'libmp3lame';
-	}
-
-	return null;
-};
 
 // eslint-disable-next-line complexity
 export const stitchFramesToVideo = async (options: {
@@ -75,12 +35,12 @@ export const stitchFramesToVideo = async (options: {
 	imageFormat?: ImageFormat;
 	pixelFormat?: PixelFormat;
 	codec?: Codec;
-	profile?: string;
 	crf?: number;
 	// TODO: Do we want a parallelism flag for stitcher?
 	parallelism?: number | null;
 	onProgress?: (progress: number) => void;
 	onDownload?: (src: string) => void;
+	proResProfile?: ProResProfile;
 	verbose?: boolean;
 }): Promise<void> => {
 	const codec = options.codec ?? Internals.DEFAULT_CODEC;
@@ -91,6 +51,7 @@ export const stitchFramesToVideo = async (options: {
 
 	const encoderName = getCodecName(codec);
 	const audioCodecName = getAudioCodecName(codec);
+	const proResProfileName = getProResProfileName(options.proResProfile);
 	const isAudioOnly = encoderName === null;
 
 	if (options.verbose) {
@@ -167,6 +128,7 @@ export const stitchFramesToVideo = async (options: {
 			  ['-c:v', encoderName]
 			: // If only exporting audio, we drop the video explicitly
 			  ['-vn'],
+		proResProfileName ? ['-profile:v', proResProfileName] : null,
 		isAudioOnly ? null : ['-crf', String(crf)],
 		isAudioOnly ? null : ['-pix_fmt', pixelFormat],
 
@@ -179,7 +141,6 @@ export const stitchFramesToVideo = async (options: {
 		// Ignore audio from image sequence
 		isAudioOnly ? null : ['-map', '0:v'],
 		options.force ? '-y' : null,
-		options.profile ? ['-profile:v', options.profile] : null,
 		options.outputLocation,
 	];
 

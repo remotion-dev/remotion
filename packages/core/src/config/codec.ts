@@ -6,24 +6,19 @@ const validCodecs = [
 	'mp3',
 	'aac',
 	'wav',
-	'prores'
+	'prores',
 ] as const;
 
 export type Codec = typeof validCodecs[number];
 export type CodecOrUndefined = Codec | undefined;
-export type ProfileOrUndefined = string | undefined;
 const validLegacyFormats = ['mp4', 'png-sequence'] as const;
 type LegacyFormat = typeof validLegacyFormats[number];
 
 let codec: CodecOrUndefined;
-let profile: ProfileOrUndefined;
 
 export const getOutputCodecOrUndefined = (): CodecOrUndefined => {
 	return codec;
 };
-export const getOutputProfileOrUndefined = (): ProfileOrUndefined => {
-	return profile;
-}
 
 export const DEFAULT_CODEC: Codec = 'h264';
 
@@ -142,7 +137,3 @@ export const setCodec = (newCodec: CodecOrUndefined) => {
 
 	codec = newCodec;
 };
-
-export const setProfile = (newProfile: ProfileOrUndefined) => {
-	profile = newProfile;
-}
