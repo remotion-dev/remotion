@@ -1,8 +1,13 @@
-import {ProResProfile} from 'remotion';
+import {Codec, ProResProfile} from 'remotion';
 
 export const getProResProfileName = (
+	codec: Codec,
 	proResProfile: ProResProfile | undefined
 ): string | null => {
+	if (codec !== 'prores') {
+		return null;
+	}
+
 	switch (proResProfile) {
 		case '4444-xq':
 			return '5';
@@ -17,6 +22,6 @@ export const getProResProfileName = (
 		case 'proxy':
 			return '0';
 		default:
-			return null;
+			return '3';
 	}
 };

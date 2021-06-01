@@ -121,8 +121,9 @@ export const Config = {
 		setImageSequence,
 		/**
 		 * Set the ProRes profile.
-		 * This method is only valid if the codec has been set to 'ProRes'.
-		 * Possible values: 4444-xq, 4444, hq, standard, light, proxy
+		 * This method is only valid if the codec has been set to 'prores'.
+		 * Possible values: 4444-xq, 4444, hq, standard, light, proxy. Default: 'hq'
+		 * See https://avpres.net/FFmpeg/im_ProRes.html for meaning of possible values.
 		 */
 		setProResProfile,
 	},
