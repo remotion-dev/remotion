@@ -4,6 +4,7 @@ import {
 	ImageFormat,
 	Internals,
 	PixelFormat,
+	ProResProfile,
 	RenderAssetInfo,
 } from 'remotion';
 import {calculateAssetPositions} from './assets/calculate-asset-positions';
@@ -12,51 +13,14 @@ import {markAllAssetsAsDownloaded} from './assets/download-and-map-assets-to-fil
 import {getAssetAudioDetails} from './assets/get-asset-audio-details';
 import {calculateFfmpegFilters} from './calculate-ffmpeg-filters';
 import {createFfmpegComplexFilter} from './create-ffmpeg-complex-filter';
+import {getAudioCodecName} from './get-audio-codec-name';
+import {getCodecName} from './get-codec-name';
 import {getFrameInfo} from './get-frame-number-length';
+import {getProResProfileName} from './get-prores-profile-name';
 import {DEFAULT_IMAGE_FORMAT} from './image-format';
 import {parseFfmpegProgress} from './parse-ffmpeg-progress';
 import {resolveAssetSrc} from './resolve-asset-src';
 import {validateFfmpeg} from './validate-ffmpeg';
-
-const getCodecName = (codec: Codec): string | null => {
-	if (Internals.isAudioCodec(codec)) {
-		return null;
-	}
-
-	if (codec === 'h264') {
-		return 'libx264';
-	}
-
-	if (codec === 'h265') {
-		return 'libx265';
-	}
-
-	if (codec === 'vp8') {
-		return 'libvpx';
-	}
-
-	if (codec === 'vp9') {
-		return 'libvpx-vp9';
-	}
-
-	throw new TypeError(`Cannot find FFMPEG codec for ${codec}`);
-};
-
-const getAudioCodecName = (codec: Codec): string | null => {
-	if (!Internals.isAudioCodec(codec)) {
-		return 'aac';
-	}
-
-	if (codec === 'aac') {
-		return 'aac';
-	}
-
-	if (codec === 'mp3') {
-		return 'libmp3lame';
-	}
-
-	return null;
-};
 
 // eslint-disable-next-line complexity
 export const stitchFramesToVideo = async (options: {
@@ -76,6 +40,7 @@ export const stitchFramesToVideo = async (options: {
 	parallelism?: number | null;
 	onProgress?: (progress: number) => void;
 	onDownload?: (src: string) => void;
+	proResProfile?: ProResProfile;
 	verbose?: boolean;
 }): Promise<void> => {
 	const codec = options.codec ?? Internals.DEFAULT_CODEC;
@@ -86,16 +51,23 @@ export const stitchFramesToVideo = async (options: {
 
 	const encoderName = getCodecName(codec);
 	const audioCodecName = getAudioCodecName(codec);
+	const proResProfileName = getProResProfileName(codec, options.proResProfile);
+
 	const isAudioOnly = encoderName === null;
+	const supportsCrf = encoderName && codec !== 'prores';
 
 	if (options.verbose) {
 		console.log('[verbose] encoder', encoderName);
 		console.log('[verbose] audioCodec', audioCodecName);
 		console.log('[verbose] pixelFormat', pixelFormat);
 		console.log('[verbose] imageFormat', imageFormat);
-		console.log('[verbose] crf', crf);
+		if (supportsCrf) {
+			console.log('[verbose] crf', crf);
+		}
+
 		console.log('[verbose] codec', codec);
 		console.log('[verbose] isAudioOnly', isAudioOnly);
+		console.log('[verbose] proResProfileName', proResProfileName);
 	}
 
 	Internals.validateSelectedCrfAndCodecCombination(crf, codec);
@@ -162,7 +134,8 @@ export const stitchFramesToVideo = async (options: {
 			  ['-c:v', encoderName]
 			: // If only exporting audio, we drop the video explicitly
 			  ['-vn'],
-		isAudioOnly ? null : ['-crf', String(crf)],
+		proResProfileName ? ['-profile:v', proResProfileName] : null,
+		supportsCrf ? ['-crf', String(crf)] : null,
 		isAudioOnly ? null : ['-pix_fmt', pixelFormat],
 
 		// Without explicitly disabling auto-alt-ref,

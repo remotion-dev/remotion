@@ -46,6 +46,12 @@ import {
 	validateSelectedPixelFormatAndCodecCombination,
 } from './config/pixel-format';
 import {getServerPort} from './config/preview-server';
+import {
+	getProResProfile,
+	ProResProfile,
+	setProResProfile,
+	validateSelectedCodecAndProResCombination,
+} from './config/prores-profile';
 import {getQuality} from './config/quality';
 import {
 	DEFAULT_WEBPACK_CACHE_ENABLED,
@@ -53,6 +59,7 @@ import {
 } from './config/webpack-caching';
 import * as CSSUtils from './default-css';
 import {FEATURE_FLAG_FIREFOX_SUPPORT} from './feature-flags';
+import {getRemotionEnvironment, RemotionEnvironment} from './get-environment';
 import {isAudioCodec} from './is-audio-codec';
 import * as perf from './perf';
 import {
@@ -152,6 +159,10 @@ export const Internals = {
 	validateDurationInFrames,
 	validateFps,
 	validateDimension,
+	getRemotionEnvironment,
+	getProResProfile,
+	setProResProfile,
+	validateSelectedCodecAndProResCombination,
 };
 
 export type {
@@ -169,4 +180,6 @@ export type {
 	MediaVolumeContextValue,
 	SetMediaVolumeContextValue,
 	LooseAnyComponent,
+	RemotionEnvironment,
+	ProResProfile,
 };

@@ -1,22 +1,30 @@
+import {getRemotionEnvironment} from './get-environment';
+
 export const ENV_VARIABLES_LOCAL_STORAGE_KEY = 'remotion.envVariables';
 export const ENV_VARIABLES_ENV_NAME = 'ENV_VARIABLES' as const;
 
 const getEnvVariables = (): Record<string, string> => {
-	if (process.env.NODE_ENV === 'production') {
+	if (getRemotionEnvironment() === 'rendering') {
 		const param = localStorage.getItem(ENV_VARIABLES_LOCAL_STORAGE_KEY);
 		if (!param) {
 			return {};
 		}
 
-		return {...JSON.parse(param), NODE_ENV: 'production'};
+		return {...JSON.parse(param), NODE_ENV: process.env.NODE_ENV};
 	}
 
-	// Webpack will convert this to an object at compile time.
-	// Don't convert this syntax to a computed property.
-	return {
-		...((process.env.ENV_VARIABLES as unknown) as Record<string, string>),
-		NODE_ENV: 'development',
-	};
+	if (getRemotionEnvironment() === 'preview') {
+		// Webpack will convert this to an object at compile time.
+		// Don't convert this syntax to a computed property.
+		return {
+			...((process.env.ENV_VARIABLES as unknown) as Record<string, string>),
+			NODE_ENV: process.env.NODE_ENV as string,
+		};
+	}
+
+	throw new Error(
+		'Can only call getEnvVariables() if environment is `rendering` or `preview`'
+	);
 };
 
 export const setupEnvVariables = () => {
