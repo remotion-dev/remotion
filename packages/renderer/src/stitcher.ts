@@ -43,6 +43,17 @@ export const stitchFramesToVideo = async (options: {
 	proResProfile?: ProResProfile;
 	verbose?: boolean;
 }): Promise<void> => {
+	Internals.validateDimension(
+		options.height,
+		'height',
+		'passed to `stitchFramesToVideo()`'
+	);
+	Internals.validateDimension(
+		options.width,
+		'width',
+		'passed to `stitchFramesToVideo()`'
+	);
+	Internals.validateFps(options.fps, 'passed to `stitchFramesToVideo()`');
 	const codec = options.codec ?? Internals.DEFAULT_CODEC;
 	const crf = options.crf ?? Internals.getDefaultCrfForCodec(codec);
 	const imageFormat = options.imageFormat ?? DEFAULT_IMAGE_FORMAT;
