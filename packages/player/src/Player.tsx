@@ -100,7 +100,10 @@ export const PlayerFn = <T,>(
 
 	Internals.validateDimension(compositionHeight, 'compositionHeight', 'Player');
 	Internals.validateDimension(compositionWidth, 'compositionWidth', 'Player');
-	Internals.validateDurationInFrames(durationInFrames);
+	Internals.validateDurationInFrames(
+		durationInFrames,
+		'of the <Player/> component'
+	);
 	Internals.validateFps(fps);
 
 	if (typeof controls !== 'boolean' && typeof controls !== 'undefined') {
