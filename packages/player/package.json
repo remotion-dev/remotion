@@ -23,12 +23,10 @@
 		"Shankhadeep Dey <shankhadeepdey99@gmail.com>"
 	],
 	"license": "SEE LICENSE IN LICENSE.md",
-	"dependencies": {
-		"remotion": "^2.1.6"
-	},
 	"peerDependencies": {
 		"react": ">=16.8.0",
-		"react-dom": ">=16.8.0"
+		"react-dom": ">=16.8.0",
+		"remotion": "^2.1.6"
 	},
 	"devDependencies": {
 		"@jonny/eslint-config": "^2.1.233",
