@@ -15,6 +15,7 @@ export const getFfmpegBuildInfo = async () => {
 	return buildConfig;
 };
 
+// TODO: Check for ProRes
 export const ffmpegHasFeature = async (
 	feature: 'enable-gpl' | 'enable-libx265' | 'enable-libvpx'
 ) => {

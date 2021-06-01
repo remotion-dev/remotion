@@ -120,6 +120,14 @@ const getAndValidatePixelFormat = (codec: Codec) => {
 	return pixelFormat;
 };
 
+const getAndValidateProResProfile = (actualCodec: Codec) => {
+	const proResProfile = Internals.getProResProfile();
+	Internals.validateSelectedCodecAndProResCombination(
+		actualCodec,
+		proResProfile
+	);
+};
+
 const getAndValidateImageFormat = ({
 	shouldOutputImageSequence,
 	codec,
@@ -167,7 +175,7 @@ export const getCliOptions = async () => {
 		codec,
 		pixelFormat,
 	});
-	const profile = getProfile();
+	const proResProfile = getAndValidateProResProfile(codec);
 
 	return {
 		parallelism: Internals.getConcurrency(),
@@ -183,6 +191,6 @@ export const getCliOptions = async () => {
 		crf,
 		pixelFormat,
 		imageFormat,
-		profile
+		proResProfile,
 	};
 };
