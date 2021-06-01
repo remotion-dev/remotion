@@ -24,9 +24,9 @@ If you want to set these options and persist them, add this to your `remotion.co
 ```tsx
 import {Config} from 'remotion';
 
-Config.Rendering.setImageFormat('png')
-Config.Output.setPixelFormat('yuva420p')
-Config.Output.setCodec('vp8')
+Config.Rendering.setImageFormat('png');
+Config.Output.setPixelFormat('yuva420p');
+Config.Output.setCodec('vp8');
 ```
 
 You can also set the settings on the command line:
@@ -37,13 +37,15 @@ You can also set the settings on the command line:
 
 ## Creating a ProRes video with Alpha channels
 
-If you want to export a transparent video for use in another video editing program, and you are using macOS, ProRes is a more suitable option.
+If you want to export a transparent video for use in another video editing program, Apple ProRes is a more suitable option.
+ProRes is supported by Final Cut Pro, Adobe Premiere and Davinci Resolve.
 
 Supported since v2.1.6, you can set the codec to `prores` and choose a ProRes profile with alpha support: Either: `4444` or `4444-hq`.
 
 ```tsx
 import {Config} from 'remotion';
 
+Config.Rendering.setImageFormat('png');
 Config.Output.setCodec('prores');
 Config.Output.setProResProfile('4444');
 ```
@@ -51,7 +53,7 @@ Config.Output.setProResProfile('4444');
 You can also set the settings on the command line:
 
 ```console
---codec=prores --prores-profile=4444
+--image-format=png --codec=prores --prores-profile=4444
 ```
 
 ## Creating a fallback version
