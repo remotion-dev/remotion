@@ -22,7 +22,7 @@
     "clsx": "^1.1.1",
     "color-namer": "1.4.0",
     "polished": "4.1.2",
-    "prism-react-renderer": "^1.1.1",
+    "prism-react-renderer": "^1.2.1",
     "remotion": "^2.1.5"
   },
   "browserslist": {
