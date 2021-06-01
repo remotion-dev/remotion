@@ -98,13 +98,21 @@ export const PlayerFn = <T,>(
 		);
 	}
 
-	Internals.validateDimension(compositionHeight, 'compositionHeight', 'Player');
-	Internals.validateDimension(compositionWidth, 'compositionWidth', 'Player');
+	Internals.validateDimension(
+		compositionHeight,
+		'compositionHeight',
+		'of the <Player /> component'
+	);
+	Internals.validateDimension(
+		compositionWidth,
+		'compositionWidth',
+		'of the <Player /> component'
+	);
 	Internals.validateDurationInFrames(
 		durationInFrames,
 		'of the <Player/> component'
 	);
-	Internals.validateFps(fps);
+	Internals.validateFps(fps, 'as a prop of the <Player/> component');
 
 	if (typeof controls !== 'boolean' && typeof controls !== 'undefined') {
 		throw new TypeError(
