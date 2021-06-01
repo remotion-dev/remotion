@@ -3,8 +3,7 @@
   "private": true,
   "license": "SEE LICENSE IN LICENSE.md",
   "scripts": {
-    "test": "lerna run test && npx jest --runInBand",
-    "build": "lerna run build",
+    "test": "npx jest --runInBand",
     "watch": "lerna run watch --stream --parallel"
   },
   "devDependencies": {
@@ -30,5 +29,8 @@
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
     "three": "^0.128.0"
-  }
+  },
+  "workspaces": [
+    "./packages/*"
+  ]
 }

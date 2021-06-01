@@ -5,7 +5,8 @@
   "main": "dist/index.js",
   "scripts": {
     "build": "tsc -d",
-    "watch": "tsc -w"
+    "watch": "tsc -w",
+    "test": "exit 0"
   },
   "files": [
     "dist"
