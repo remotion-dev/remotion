@@ -23,7 +23,7 @@
 		"@react-three/fiber": ">=6.0.14",
 		"react": ">=17.0.1",
 		"react-dom": ">=17.0.1",
-		"three": "^0.129.0"
+		"three": ">=0.129.0"
 	},
 	"devDependencies": {
 		"@jonny/eslint-config": "^2.1.210",
