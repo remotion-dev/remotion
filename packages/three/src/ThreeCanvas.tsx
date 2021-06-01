@@ -20,8 +20,16 @@ const Scale = ({ width, height }: { width: number; height: number }) => {
 
 export const ThreeCanvas = (props: ThreeCanvasProps) => {
 	const { children, width, height, style, ...rest } = props;
-	Internals.validateDimension(width, 'width', 'ThreeCanvas');
-	Internals.validateDimension(height, 'height', 'ThreeCanvas');
+	Internals.validateDimension(
+		width,
+		'width',
+		'of the <ThreeCanvas /> component'
+	);
+	Internals.validateDimension(
+		height,
+		'height',
+		'of the <ThreeCanvas /> component'
+	);
 	const contexts = Internals.useRemotionContexts();
 	const actualStyle = {
 		width: props.width,
