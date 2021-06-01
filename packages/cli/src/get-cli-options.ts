@@ -126,6 +126,8 @@ const getAndValidateProResProfile = (actualCodec: Codec) => {
 		actualCodec,
 		proResProfile
 	);
+
+	return proResProfile;
 };
 
 const getAndValidateImageFormat = ({
