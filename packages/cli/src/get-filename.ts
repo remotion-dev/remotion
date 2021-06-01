@@ -5,8 +5,6 @@ import {
 	getUserPassedOutputLocation,
 } from './user-passed-output-location';
 
-// TODO: Validate ProRes
-
 // eslint-disable-next-line complexity
 export const getOutputFilename = (
 	codec: Codec,
