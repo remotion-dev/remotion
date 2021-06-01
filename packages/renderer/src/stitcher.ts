@@ -51,17 +51,23 @@ export const stitchFramesToVideo = async (options: {
 
 	const encoderName = getCodecName(codec);
 	const audioCodecName = getAudioCodecName(codec);
-	const proResProfileName = getProResProfileName(options.proResProfile);
+	const proResProfileName = getProResProfileName(codec, options.proResProfile);
+
 	const isAudioOnly = encoderName === null;
+	const supportsCrf = encoderName && codec !== 'prores';
 
 	if (options.verbose) {
 		console.log('[verbose] encoder', encoderName);
 		console.log('[verbose] audioCodec', audioCodecName);
 		console.log('[verbose] pixelFormat', pixelFormat);
 		console.log('[verbose] imageFormat', imageFormat);
-		console.log('[verbose] crf', crf);
+		if (supportsCrf) {
+			console.log('[verbose] crf', crf);
+		}
+
 		console.log('[verbose] codec', codec);
 		console.log('[verbose] isAudioOnly', isAudioOnly);
+		console.log('[verbose] proResProfileName', proResProfileName);
 	}
 
 	Internals.validateSelectedCrfAndCodecCombination(crf, codec);
@@ -129,7 +135,7 @@ export const stitchFramesToVideo = async (options: {
 			: // If only exporting audio, we drop the video explicitly
 			  ['-vn'],
 		proResProfileName ? ['-profile:v', proResProfileName] : null,
-		isAudioOnly ? null : ['-crf', String(crf)],
+		supportsCrf ? ['-crf', String(crf)] : null,
 		isAudioOnly ? null : ['-pix_fmt', pixelFormat],
 
 		// Without explicitly disabling auto-alt-ref,

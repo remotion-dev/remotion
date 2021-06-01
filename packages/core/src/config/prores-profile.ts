@@ -33,7 +33,7 @@ export const validateSelectedCodecAndProResCombination = (
 
 	if (
 		actualProResProfile !== undefined &&
-		!proResProfileOptions.includes(actualProResProfile)
+		!proResProfileOptions.includes(actualProResProfile as ProResProfile)
 	) {
 		throw new TypeError(
 			`The ProRes profile "${actualProResProfile}" is not valid. Valid options are ${proResProfileOptions

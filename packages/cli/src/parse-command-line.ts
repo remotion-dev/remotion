@@ -96,7 +96,9 @@ export const parseCommandLine = () => {
 	}
 
 	if (parsedCli['prores-profile']) {
-		Config.Output.setProResProfile(parsedCli['prores-profile']);
+		Config.Output.setProResProfile(
+			String(parsedCli['prores-profile']) as ProResProfile
+		);
 	}
 
 	if (typeof parsedCli.overwrite !== 'undefined') {
