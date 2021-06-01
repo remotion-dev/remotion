@@ -7,7 +7,7 @@ Backed by [FFMPEG](https://ffmpeg.org/), Remotion allows you to configure a vari
 
 ## Choosing a codec
 
-Remotion supports 5 codecs: `h264` (_default_), `h265`, `vp8`, `vp9`, `prores`. The first two produce an output that will be an MP4, the last two are for generating WebM videos. While H264 will work well in most cases, sometimes it's worth going for a different codec. Refer to the table below to see the advantages and drawbacks of each codec.
+Remotion supports 5 video codecs: `h264` (_default_), `h265`, `vp8`, `vp9`, `prores`. The first two produce an output that will be an MP4, the last two are for generating WebM videos. While H264 will work well in most cases, sometimes it's worth going for a different codec. Refer to the table below to see the advantages and drawbacks of each codec.
 
 <table>
   <tr>
