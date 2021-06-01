@@ -11,7 +11,7 @@ If you are lucky enough to visit the website in one of those supported web brows
 
 <TransparentVideoDemo />
 
-## Creating a video with Alpha channel
+## Creating a WebM with Alpha channel
 
 In order to create a transparent video, you need at least version 1.4 of Remotion. Make sure to not set any background (use the checkerboard button to ensure your video is transparent). In order to render your videos transparent, you need to change 3 settings:
 
@@ -33,6 +33,25 @@ You can also set the settings on the command line:
 
 ```console
 --image-format=png --pixel-format=yuva420p --codec=vp8
+```
+
+## Creating a ProRes with Alpha channels
+
+If you want to export a transparent video for use in another video editing program, and you are using macOS, ProRes is a more suitable option.
+
+Supported since v2.1.6, you can set the codec to `prores` and choose a ProRes profile with alpha support: Either: `4444` or `4444-hq`.
+
+```tsx
+import {Config} from 'remotion';
+
+Config.Output.setCodec('prores');
+Config.Output.setProResProfile('4444');
+```
+
+You can also set the settings on the command line:
+
+```console
+--codec=prores --prores-profile=4444
 ```
 
 ## Creating a fallback version
