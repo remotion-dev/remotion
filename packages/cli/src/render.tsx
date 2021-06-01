@@ -70,7 +70,7 @@ export const render = async () => {
 
 	const {
 		codec,
-		profile,
+		proResProfile,
 		parallelism,
 		frameRange,
 		shouldOutputImageSequence,
@@ -236,7 +236,7 @@ export const render = async () => {
 			imageFormat,
 			pixelFormat,
 			codec,
-			profile,
+			proResProfile,
 			crf,
 			assetsInfo,
 			parallelism,
