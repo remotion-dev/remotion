@@ -46,6 +46,7 @@ Supported since v2.1.6, you can set the codec to `prores` and choose a ProRes pr
 import {Config} from 'remotion';
 
 Config.Rendering.setImageFormat('png');
+Config.Output.setPixelFormat("yuva444p10le");
 Config.Output.setCodec('prores');
 Config.Output.setProResProfile('4444');
 ```
@@ -53,7 +54,7 @@ Config.Output.setProResProfile('4444');
 You can also set the settings on the command line:
 
 ```console
---image-format=png --codec=prores --prores-profile=4444
+--image-format=png --pixel-format=yuva444p10le --codec=prores --prores-profile=4444
 ```
 
 ## Creating a fallback version
