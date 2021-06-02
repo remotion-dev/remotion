@@ -1,7 +1,5 @@
 import {Codec, ProResProfile} from 'remotion';
 
-const proResProfiles = ['4444-xq', '4444', 'hq', 'standard', 'light', 'proxy'];
-
 export const getProResProfileName = (
 	codec: Codec,
 	proResProfile: ProResProfile | undefined
@@ -10,9 +8,20 @@ export const getProResProfileName = (
 		return null;
 	}
 
-	if (proResProfiles.indexOf(proResProfile) === -1) {
-		return '3';
+	switch (proResProfile) {
+		case '4444-xq':
+			return '5';
+		case '4444':
+			return '4';
+		case 'hq':
+			return '3';
+		case 'standard':
+			return '2';
+		case 'light':
+			return '1';
+		case 'proxy':
+			return '0';
+		default:
+			return '3';
 	}
-
-	return proResProfile;
 };
