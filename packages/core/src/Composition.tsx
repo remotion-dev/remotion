@@ -57,13 +57,13 @@ export const Composition = <T,>({
 			);
 		}
 
-		validateDimension(width, 'width', 'Composition');
-		validateDimension(height, 'height', 'Composition');
+		validateDimension(width, 'width', 'of the <Composition/> component');
+		validateDimension(height, 'height', 'of the <Composition/> component');
 		validateDurationInFrames(
 			durationInFrames,
 			'of the <Composition/> component'
 		);
-		validateFps(fps);
+		validateFps(fps, 'as a prop of the <Composition/> component');
 		registerComposition<T>({
 			durationInFrames,
 			fps,
