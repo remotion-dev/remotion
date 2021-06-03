@@ -83,7 +83,7 @@ export const useVideoTexture = (
 	}, [frame, loaded, videoRef]);
 
 	if (
-		typeof HTMLVideoElement !== 'undefined' &&
+		typeof HTMLVideoElement === 'undefined' ||
 		!HTMLVideoElement.prototype.requestVideoFrameCallback
 	) {
 		continueRender(loaded);
