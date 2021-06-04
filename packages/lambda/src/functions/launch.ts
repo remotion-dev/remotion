@@ -82,7 +82,9 @@ const innerLaunchHandler = async (params: LambdaPayload) => {
 			width: comp.width,
 			durationInFrames: comp.durationInFrames,
 			bucketName: params.bucketName,
+			// TODO: Configurable retries
 			retriesLeft: 3,
+			inputProps: params.inputProps,
 		};
 		return payload;
 	});
