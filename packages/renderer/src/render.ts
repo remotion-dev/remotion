@@ -64,6 +64,24 @@ export const renderFrames = async ({
 	puppeteerInstance: PuppeteerBrowser;
 	onError?: (info: OnErrorInfo) => void;
 }): Promise<RenderFramesOutput> => {
+	Internals.validateDimension(
+		config.height,
+		'height',
+		'in the `config` object passed to `renderFrames()`'
+	);
+	Internals.validateDimension(
+		config.width,
+		'width',
+		'in the `config` object passed to `renderFrames()`'
+	);
+	Internals.validateFps(
+		config.fps,
+		'in the `config` object of `renderFrames()`'
+	);
+	Internals.validateDurationInFrames(
+		config.durationInFrames,
+		'in the `config` object passed to `renderFrames()`'
+	);
 	if (quality !== undefined && imageFormat !== 'jpeg') {
 		throw new Error(
 			"You can only pass the `quality` option if `imageFormat` is 'jpeg'."

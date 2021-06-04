@@ -22,6 +22,7 @@ import {usePlayer} from './use-player';
 import {browserSupportsFullscreen} from './utils/browser-supports-fullscreen';
 import {calculatePlayerSize} from './utils/calculate-player-size';
 import {IS_NODE} from './utils/is-node';
+import {useClickPreventionOnDoubleClick} from './utils/use-click-prevention-on-double-click';
 import {useElementSize} from './utils/use-element-size';
 
 const PlayerUI: React.ForwardRefRenderFunction<
@@ -36,6 +37,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		mediaMuted: boolean;
 		style?: React.CSSProperties;
 		clickToPlay: boolean;
+		doubleClickToFullscreen: boolean;
 		setMediaVolume: (v: number) => void;
 		setMediaMuted: (v: boolean) => void;
 		mediaVolume: number;
@@ -52,6 +54,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		showVolumeControls,
 		mediaVolume,
 		mediaMuted,
+		doubleClickToFullscreen,
 		setMediaMuted,
 		setMediaVolume,
 	},
@@ -299,6 +302,20 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		toggle();
 	}, [toggle]);
 
+	const onDoubleClick = useCallback(() => {
+		if (isFullscreen) {
+			exitFullscreen();
+		} else {
+			requestFullscreen();
+		}
+	}, [exitFullscreen, isFullscreen, requestFullscreen]);
+
+	const [handleClick, handleDoubleClick] = useClickPreventionOnDoubleClick(
+		onSingleClick,
+		onDoubleClick,
+		doubleClickToFullscreen
+	);
+
 	useEffect(() => {
 		if (shouldAutoplay) {
 			player.play();
@@ -312,7 +329,11 @@ const PlayerUI: React.ForwardRefRenderFunction<
 
 	const content = (
 		<div ref={container} style={outerStyle}>
-			<div style={outer} onClick={clickToPlay ? onSingleClick : undefined}>
+			<div
+				style={outer}
+				onClick={clickToPlay ? handleClick : undefined}
+				onDoubleClick={doubleClickToFullscreen ? handleDoubleClick : undefined}
+			>
 				<div style={containerStyle} className={PLAYER_CSS_CLASSNAME}>
 					{VideoComponent ? (
 						<ErrorBoundary onError={onError}>

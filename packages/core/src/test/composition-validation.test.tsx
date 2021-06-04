@@ -42,7 +42,7 @@ describe('Composition-validation render should throw with invalid props', () => 
 							/>
 						</RemotionRoot>
 					),
-				/The "height" of a composition must be positive, but got -100./
+				/The "height" prop of the <Composition\/> component must be positive, but got -100./
 			);
 		});
 		test('It should throw if height=0 is boundary off-point', () => {
@@ -60,7 +60,7 @@ describe('Composition-validation render should throw with invalid props', () => 
 							/>
 						</RemotionRoot>
 					),
-				/The "height" of a composition must be positive, but got 0./
+				/The "height" prop of the <Composition\/> component must be positive, but got 0./
 			);
 		});
 		test('It should throw if height is not a number', () => {
@@ -79,7 +79,7 @@ describe('Composition-validation render should throw with invalid props', () => 
 							/>
 						</RemotionRoot>
 					),
-				/The "height" of a composition must be a number, but you passed a value of type string/
+				/The "height" prop of the <Composition\/> component must be a number, but you passed a value of type string/
 			);
 		});
 		test('It should throw if height is not an integer', () => {
@@ -97,7 +97,7 @@ describe('Composition-validation render should throw with invalid props', () => 
 							/>
 						</RemotionRoot>
 					),
-				/The "height" of a composition must be an integer, but is 100.01/
+				/The "height" prop of the <Composition\/> component must be an integer, but is 100.01/
 			);
 		});
 	});
@@ -117,7 +117,7 @@ describe('Composition-validation render should throw with invalid props', () => 
 							/>
 						</RemotionRoot>
 					),
-				/The "width" of a composition must be positive, but got -100./
+				/The "width" prop of the <Composition\/> component must be positive, but got -100./
 			);
 		});
 		test('It should throw if width=0 is boundary off-point', () => {
@@ -135,7 +135,7 @@ describe('Composition-validation render should throw with invalid props', () => 
 							/>
 						</RemotionRoot>
 					),
-				/The "width" of a composition must be positive, but got 0./
+				/The "width" prop of the <Composition\/> component must be positive, but got 0./
 			);
 		});
 		test('It should throw if width is not a number', () => {
@@ -154,7 +154,7 @@ describe('Composition-validation render should throw with invalid props', () => 
 							/>
 						</RemotionRoot>
 					),
-				/The "width" of a composition must be a number, but you passed a value of type string/
+				/The "width" prop of the <Composition\/> component must be a number, but you passed a value of type string/
 			);
 		});
 	});
@@ -174,7 +174,7 @@ describe('Composition-validation render should throw with invalid props', () => 
 							/>
 						</RemotionRoot>
 					),
-				/The "durationInFrames" of a composition must be positive, but got -100./
+				/The "durationInFrames" prop of the <Composition\/> component must be positive, but got -100./
 			);
 		});
 		test('It should throw if durationInFrames=0 of a composition is boundary off-point', () => {
@@ -192,7 +192,7 @@ describe('Composition-validation render should throw with invalid props', () => 
 							/>
 						</RemotionRoot>
 					),
-				/The "durationInFrames" of a composition must be positive, but got 0./
+				/The "durationInFrames" prop of the <Composition\/> component must be positive, but got 0./
 			);
 		});
 		test('It should throw if durationInFrames of a composition is not an integer', () => {
@@ -210,7 +210,7 @@ describe('Composition-validation render should throw with invalid props', () => 
 							/>
 						</RemotionRoot>
 					),
-				/The "durationInFrames" of a composition must be an integer, but got 0.11./
+				/The "durationInFrames" prop of the <Composition\/> component must be an integer, but got 0.11./
 			);
 		});
 		test('It should throw if durationInFrames of a composition is not a number', () => {
@@ -229,7 +229,7 @@ describe('Composition-validation render should throw with invalid props', () => 
 							/>
 						</RemotionRoot>
 					),
-				/The "durationInFrames" of a composition must be a number, but you passed a value of type string/
+				/The "durationInFrames" prop of the <Composition\/> component must be a number, but you passed a value of type string/
 			);
 		});
 	});

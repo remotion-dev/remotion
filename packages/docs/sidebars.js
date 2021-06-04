@@ -84,7 +84,7 @@ module.exports = {
     {
       type: "category",
       label: "API - @remotion/three",
-      items: ["three-canvas"],
+      items: ["three", "three-canvas", "use-video-texture"],
     },
     {
       type: "category",
@@ -94,7 +94,13 @@ module.exports = {
     {
       type: "category",
       label: "Troubleshooting",
-      items: ["timeout", "media-playback-error", "performance"],
+      items: [
+        "timeout",
+        "media-playback-error",
+        "performance",
+        "webpack-dynamic-imports",
+        "non-seekable-media",
+      ],
     },
     "2-0-migration",
     "license",

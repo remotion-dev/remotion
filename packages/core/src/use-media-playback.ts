@@ -4,6 +4,7 @@ import {usePlayingState} from './timeline-position-state';
 import {useAbsoluteCurrentFrame, useCurrentFrame} from './use-frame';
 import {useVideoConfig} from './use-video-config';
 import {getMediaTime} from './video/get-current-time';
+import {warnAboutNonSeekableMedia} from './warn-about-non-seekable-media';
 
 export const useMediaPlayback = ({
 	mediaRef,
@@ -59,6 +60,7 @@ export const useMediaPlayback = ({
 			// If scrubbing around, adjust timing
 			// or if time shift is bigger than 0.2sec
 			mediaRef.current.currentTime = shouldBeTime;
+			warnAboutNonSeekableMedia(mediaRef.current);
 		}
 
 		if (!playing || absoluteFrame === 0) {

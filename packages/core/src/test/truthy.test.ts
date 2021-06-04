@@ -1,6 +1,6 @@
 import {truthy} from '../truthy';
 
-test.each<[any, boolean]>([
+test.each<[unknown, boolean]>([
 	['true', true],
 	['false', true],
 	['True', true],

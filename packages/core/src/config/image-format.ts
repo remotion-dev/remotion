@@ -38,13 +38,13 @@ export const validateSelectedPixelFormatAndImageFormatCombination = (
 		);
 	}
 
-	if (pixelFormat !== 'yuva420p') {
+	if (pixelFormat !== 'yuva420p' && pixelFormat !== 'yuva444p10le') {
 		return 'valid';
 	}
 
 	if (imageFormat !== 'png') {
 		throw new TypeError(
-			"Pixel format was set to 'yuva420p' but the image format is not PNG. To render transparent videos, you need to set PNG as the image format."
+			`Pixel format was set to '${pixelFormat}' but the image format is not PNG. To render transparent videos, you need to set PNG as the image format.`
 		);
 	}
 

@@ -3,6 +3,7 @@ import React, {
 	MutableRefObject,
 	useCallback,
 	useImperativeHandle,
+	useLayoutEffect,
 	useMemo,
 	useRef,
 	useState,
@@ -44,7 +45,7 @@ export type PlayerProps<T> = {
 	autoPlay?: boolean;
 	allowFullscreen?: boolean;
 	clickToPlay?: boolean;
-	inputProps?: unknown;
+	doubleClickToFullscreen?: boolean;
 } & PropsIfHasProps<T> &
 	CompProps<T>;
 
@@ -65,11 +66,17 @@ export const PlayerFn = <T,>(
 		autoPlay = false,
 		showVolumeControls = true,
 		allowFullscreen = true,
-		clickToPlay = true,
+		clickToPlay,
+		doubleClickToFullscreen = false,
 		...componentProps
 	}: PlayerProps<T>,
 	ref: MutableRefObject<PlayerRef>
 ) => {
+	useLayoutEffect(() => {
+		if (typeof window !== 'undefined') {
+			window.remotion_isPlayer = true;
+		}
+	}, []);
 	const component = Internals.useLazyComponent(componentProps);
 	const [frame, setFrame] = useState(0);
 	const [playing, setPlaying] = useState<boolean>(false);
@@ -91,10 +98,21 @@ export const PlayerFn = <T,>(
 		);
 	}
 
-	Internals.validateDimension(compositionHeight, 'compositionHeight');
-	Internals.validateDimension(compositionWidth, 'compositionWidth');
-	Internals.validateDurationInFrames(durationInFrames);
-	Internals.validateFps(fps);
+	Internals.validateDimension(
+		compositionHeight,
+		'compositionHeight',
+		'of the <Player /> component'
+	);
+	Internals.validateDimension(
+		compositionWidth,
+		'compositionWidth',
+		'of the <Player /> component'
+	);
+	Internals.validateDurationInFrames(
+		durationInFrames,
+		'of the <Player/> component'
+	);
+	Internals.validateFps(fps, 'as a prop of the <Player/> component');
 
 	if (typeof controls !== 'boolean' && typeof controls !== 'undefined') {
 		throw new TypeError(
@@ -111,6 +129,15 @@ export const PlayerFn = <T,>(
 	if (typeof loop !== 'boolean' && typeof loop !== 'undefined') {
 		throw new TypeError(
 			`'loop' must be a boolean or undefined but got '${typeof loop}' instead`
+		);
+	}
+
+	if (
+		typeof doubleClickToFullscreen !== 'boolean' &&
+		typeof doubleClickToFullscreen !== 'undefined'
+	) {
+		throw new TypeError(
+			`'doubleClickToFullscreen' must be a boolean or undefined but got '${typeof doubleClickToFullscreen}' instead`
 		);
 	}
 
@@ -239,11 +266,16 @@ export const PlayerFn = <T,>(
 									style={style}
 									inputProps={passedInputProps}
 									allowFullscreen={Boolean(allowFullscreen)}
-									clickToPlay={clickToPlay}
-									showVolumeControls={showVolumeControls}
+									clickToPlay={
+										typeof clickToPlay === 'boolean'
+											? clickToPlay
+											: Boolean(controls)
+									}
+									showVolumeControls={Boolean(showVolumeControls)}
 									setMediaVolume={setMediaVolumeAndPersist}
 									mediaVolume={mediaVolume}
 									mediaMuted={mediaMuted}
+									doubleClickToFullscreen={Boolean(doubleClickToFullscreen)}
 									setMediaMuted={setMediaMuted}
 								/>
 							</PlayerEventEmitterContext.Provider>
