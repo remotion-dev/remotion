@@ -14,8 +14,8 @@ import {
 	LAMBDA_INITIALIZED_KEY,
 } from '../constants';
 import {getBrowserInstance} from '../get-browser-instance';
+import {randomHash} from '../helpers/random-hash';
 import {lambdaWriteFile} from '../io';
-import {randomHash} from '../random-hash';
 import {timer} from '../timer';
 import {tmpDir} from '../tmpdir';
 

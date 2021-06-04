@@ -2,8 +2,8 @@ import {CreateBucketCommand, PutBucketWebsiteCommand} from '@aws-sdk/client-s3';
 import {s3Client} from './aws-clients';
 import {bundleRemotion} from './bundle-remotion';
 import {LAMBDA_S3_WEBSITE_DEPLOY} from './constants';
+import {randomHash} from './helpers/random-hash';
 import {makeS3Url} from './make-s3-url';
-import {randomHash} from './random-hash';
 import {uploadDir, UploadDirProgress} from './upload-dir';
 
 export const deploySite = async (

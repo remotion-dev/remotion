@@ -6,7 +6,7 @@ import {
 	LambdaRoutines,
 	RENDERS_BUCKET_PREFIX,
 } from '../constants';
-import {randomHash} from '../random-hash';
+import {randomHash} from '../helpers/random-hash';
 import {timer} from '../timer';
 
 export const startHandler = async (params: LambdaPayload) => {
