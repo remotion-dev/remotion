@@ -1,4 +1,4 @@
-import {PlayerEventTarget} from './event-emitter';
+import {PlayerEmitter} from './event-emitter';
 
 export type PlayerMethods = {
 	play: () => void;
@@ -16,4 +16,4 @@ export type PlayerMethods = {
 	unmute: () => void;
 };
 
-export type PlayerRef = PlayerEventTarget & PlayerMethods;
+export type PlayerRef = PlayerEmitter & PlayerMethods;
