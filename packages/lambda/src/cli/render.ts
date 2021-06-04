@@ -1,4 +1,5 @@
 import {ListFunctionsCommand} from '@aws-sdk/client-lambda';
+import {CliInternals} from '@remotion/cli';
 import {lambdaClient} from '../aws-clients';
 import {BINARY_NAME} from '../bundle-remotion';
 import {callLambda} from '../call-lambda';
@@ -59,8 +60,7 @@ export const renderCommand = async () => {
 			chunkSize: 20,
 			composition: parsedCli._[2],
 			serveUrl,
-			// TODO: Allow to parametrize
-			inputProps: {},
+			inputProps: CliInternals.getInputProps(),
 		},
 	});
 	for (let i = 0; i < 3000; i++) {
