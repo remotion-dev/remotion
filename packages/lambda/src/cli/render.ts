@@ -5,7 +5,7 @@ import {BINARY_NAME} from '../bundle-remotion';
 import {callLambda} from '../call-lambda';
 import {checkLambdaStatus} from '../check-lambda-status';
 import {LambdaRoutines, RENDER_FN_PREFIX} from '../constants';
-import {sleep} from '../sleep';
+import {sleep} from '../helpers/sleep';
 import {parsedCli} from './args';
 import {Log} from './log';
 

@@ -16,10 +16,10 @@ import {
 	RenderMetadata,
 	RENDER_METADATA_KEY,
 } from '../constants';
+import {streamToString} from '../helpers/stream-to-string';
 import {inspectErrors} from '../inspect-errors';
 import {lambdaLs, lambdaReadFile} from '../io';
 import {getPriceInCents} from '../pricing/get-price';
-import {streamToString} from '../stream-to-string';
 
 const getFinalEncodingStatus = ({
 	encodingStatus: encodingProgress,

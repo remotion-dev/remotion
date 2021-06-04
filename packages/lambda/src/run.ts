@@ -13,10 +13,10 @@ import {
 } from './constants';
 import {createLambda} from './create-lambda';
 import {deploySite} from './deploy-site';
+import {sleep} from './helpers/sleep';
+import {streamToString} from './helpers/stream-to-string';
 import {lambdaLs, lambdaReadFile} from './io';
 import {makeS3Url} from './make-s3-url';
-import {sleep} from './sleep';
-import {streamToString} from './stream-to-string';
 
 const DEPLOY = false;
 
