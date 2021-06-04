@@ -57,8 +57,7 @@ const renderHandler = async (params: LambdaPayload) => {
 			width: params.width,
 		},
 		imageFormat: 'jpeg',
-		// TODO: Pass input props
-		inputProps: {},
+		inputProps: params.inputProps,
 		frameRange: params.frameRange,
 		onFrameUpdate: (i: number, output: string, frameNumber: number) => {
 			chunkTimingData.timings[frameNumber] = Date.now() - start;
