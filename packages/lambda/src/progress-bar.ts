@@ -1,6 +1,6 @@
 import {CliInternals} from '@remotion/cli';
 import {Internals} from 'remotion';
-import {formatBytes} from './format-bytes';
+import {formatBytes} from './helpers/format-bytes';
 
 export type BundleProgress = {
 	progress: number;

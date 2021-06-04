@@ -8,8 +8,8 @@ import {
 	REGION,
 	RENDER_FN_PREFIX,
 } from './constants';
+import {randomHash} from './helpers/random-hash';
 import {ensureLayers} from './lambda-layers';
-import {randomHash} from './random-hash';
 import {waitForLambdaReady} from './wait-for-lambda-ready';
 
 const lambdaClient = new LambdaClient({
