@@ -1,4 +1,3 @@
-import './event-target-polyfill';
 type SeekPayload = {
 	frame: number;
 };
@@ -83,5 +82,3 @@ export class PlayerEmitter {
 		});
 	}
 }
-
-const emitter = new PlayerEmitter();
