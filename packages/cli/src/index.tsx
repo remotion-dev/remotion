@@ -43,4 +43,5 @@ export const CliInternals = {
 	xns,
 	makeProgressBar,
 	getInputProps,
+	Log,
 };

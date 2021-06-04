@@ -1,29 +1,3 @@
-/* eslint-disable no-console */
+import {CliInternals} from '@remotion/cli';
 
-import chalk from 'chalk';
-import {Internals} from 'remotion';
-
-// TODO: Move logging into core?
-
-export const Log = {
-	verbose: (...args: Parameters<typeof console.log>) => {
-		if (Internals.Logging.isEqualOrBelowLogLevel('verbose')) {
-			return console.log(chalk.blueBright(...args));
-		}
-	},
-	info: (...args: Parameters<typeof console.log>) => {
-		if (Internals.Logging.isEqualOrBelowLogLevel('info')) {
-			return console.log(...args);
-		}
-	},
-	warn: (...args: Parameters<typeof console.log>) => {
-		if (Internals.Logging.isEqualOrBelowLogLevel('warn')) {
-			return console.warn(chalk.yellow(...args));
-		}
-	},
-	error: (...args: Parameters<typeof console.log>) => {
-		if (Internals.Logging.isEqualOrBelowLogLevel('error')) {
-			return console.error(chalk.red(...args));
-		}
-	},
-};
+export const {Log} = CliInternals;

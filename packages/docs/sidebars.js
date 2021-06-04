@@ -67,7 +67,6 @@ module.exports = {
       items: ["bundle"],
     },
     "gif",
-    "lambda",
     {
       type: "category",
       label: "API - @remotion/media-utils",
@@ -79,6 +78,11 @@ module.exports = {
         "use-audio-data",
         "visualize-audio",
       ],
+    },
+    {
+      type: "category",
+      label: "API - @remotion/lambda",
+      items: ["lambda", "lambda-permissions"],
     },
     "player",
     {

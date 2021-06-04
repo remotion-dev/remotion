@@ -1,6 +1,6 @@
 ---
 id: lambda
-sidebar_label: API - @remotion/lambda
+sidebar_label: Overview
 title: "@remotion/lambda"
 ---
 
