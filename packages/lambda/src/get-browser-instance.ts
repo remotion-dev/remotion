@@ -1,7 +1,6 @@
 import {RenderInternals} from '@remotion/renderer';
 import {executablePath} from './get-chromium-executable-path';
-
-type Await<T> = T extends PromiseLike<infer U> ? U : T;
+import {Await} from './helpers/await';
 
 let _browserInstance: Await<
 	ReturnType<typeof RenderInternals.openBrowser>

@@ -1,8 +1,6 @@
 import {getCompositions, RenderInternals} from '@remotion/renderer';
 import {TCompMetadata} from 'remotion';
-
-// TODO: redundant
-type Await<T> = T extends PromiseLike<infer U> ? U : T;
+import {Await} from './helpers/await';
 
 export const validateComposition = async ({
 	serveUrl,
