@@ -4,6 +4,7 @@ import {
 	Browser,
 	FrameRange,
 	ImageFormat,
+	Internals,
 	RenderAssetInfo,
 	VideoConfig,
 } from 'remotion';
