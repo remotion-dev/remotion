@@ -7,7 +7,7 @@ export const requiredPermissions: {
 	{
 		actions: [iam.GetUser],
 		// eslint-disable-next-line no-template-curly-in-string
-		resource: ['arn:aws:iam::976210361945:user/remotion-tester'],
+		resource: ['arn:aws:iam::*:user/${aws:username}'],
 	},
 	{
 		actions: [iam.SimulatePrincipalPolicy],
@@ -33,11 +33,6 @@ export const requiredPermissions: {
 			lambda.InvokeFunction,
 			lambda.CreateFunction,
 			lambda.DeleteFunction,
-		],
-		resource: ['arn:aws:lambda:*::remotion-*'],
-	},
-	{
-		actions: [
 			lambda.PublishLayerVersion,
 			lambda.DeleteLayerVersion,
 			lambda.GetLayerVersion,
