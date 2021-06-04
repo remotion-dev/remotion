@@ -43,6 +43,8 @@ export const RemotionRoot: React.FC = ({children}) => {
 				setFrame(f);
 				requestAnimationFrame(() => continueRender(id));
 			};
+
+			window.remotion_isPlayer = false;
 		}
 	}, []);
 

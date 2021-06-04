@@ -178,7 +178,7 @@ In version 1.x, the default behavior was inverse - Remotion would not override b
 
 ### setPixelFormat()
 
-Controls the pixel format in FFMPEG. [Read more about it here.](https://trac.ffmpeg.org/wiki/Chroma%20Subsampling) Acceptable values: `yuv420p`, `yuv422p`, `yuv444p`, `yuv420p10le`, `yuv422p10le`, `yuv444p10le`. Since v1.4, `yuva420p` is also supported for transparent WebM videos.
+Controls the pixel format in FFMPEG. [Read more about it here.](https://trac.ffmpeg.org/wiki/Chroma%20Subsampling) Acceptable values: `yuv420p`, `yuv422p`, `yuv444p`, `yuv420p10le`, `yuv422p10le`, `yuv444p10le`. Since v1.4, `yuva420p` is also supported for transparent WebM videos. Since v2.1.7, `yuva444p10le` is also supported for transparent ProRes videos
 Default value: `yuv420p`
 
 ```tsx
@@ -197,9 +197,10 @@ Choose one of the supported codecs: `h264` _(default)_, `h265`, `vp8`, `vp9`.
 - `h265` is the successor of H264, with smaller file sizes. Also known as HEVC. Poor browser compatibility.
 - `vp8` is the codec for WebM.
 - `vp9` is the next-generation codec for WebM. Lower file size, longer compression time.
-- `mp3` will export audio only as an MP3 file.
-- `wav` will export audio only as an WAV file.
-- `aac` will export audio only as an AAC file.
+- `prores` is a common codec if you want to import the output into another video editing program _(available from v2.1.6)_
+- `mp3` will export audio only as an MP3 file _(available from v2.0)_
+- `wav` will export audio only as an WAV file _(available from v2.0)_
+- `aac` will export audio only as an AAC file _(available from v2.0)_
 
 ```tsx
 Config.Output.setCodec('h265');
@@ -208,6 +209,23 @@ Config.Output.setCodec('h265');
 The [command line flag](/docs/cli#--codec) `--codec` will take precedence over this option.
 
 **See also**: [Encoding guide](/docs/encoding)
+
+### setProResProfile()
+
+_Available from Version 2.1.6._
+
+Set the ProRes profile. This option is only valid if the codec has been set to `prores`.
+Possible values: `4444-xq`, `4444`, `hq`, `standard`, `light`, `proxy`.
+See [here](https://video.stackexchange.com/a/14715) for explanation of possible values.
+Default: `hq`
+
+```tsx
+Config.Output.setProResProfile('4444');
+```
+
+The [command line flag](/docs/cli#--prores-profile) `--prores-profile` will take precedence over this option.
+
+**See also**: [Encoding guide](/docs/encoding), [Transparent videos](/docs/transparent-videos)
 
 ### setImageSequence()
 

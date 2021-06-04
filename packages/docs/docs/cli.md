@@ -55,7 +55,11 @@ Specify a location for a dotenv file. Default `.env`. Available in v2.2 and late
 
 ### `--codec`
 
-[`h264` or `h265` or `png` or `vp8` or `vp9` or `mp3` or `aac` or `wav`](/docs/config#setcodec). If you don't supply `--codec`, it will use the H.264 encoder. Available since v1.4.
+[`h264` or `h265` or `png` or `vp8` or `vp9` or `mp3` or `aac` or `wav` or `prores`](/docs/config#setcodec). If you don't supply `--codec`, it will use the H.264 encoder. Available since v1.4.
+
+### `--prores-profile`
+
+[Set the ProRes profile](/docs/config#setproresprofile). This option is only valid if the [`codec`](#--codec) has been set to `prores`. Possible values: `4444-xq`, `4444`, `hq`, `standard`, `light`, `proxy`. See [here](https://video.stackexchange.com/a/14715) for explanation of possible values. Default: `hq`. Available since v2.1.6.
 
 ### `--crf`
 

@@ -99,7 +99,7 @@ test('No durationInFrames should give errors', () => {
 		);
 	} catch (e) {
 		expect(e.message).toMatch(
-			/The "durationInFrames" of a composition must be a number, but you passed a value of type undefined/
+			/The "durationInFrames" prop of the <Player\/> component must be a number, but you passed a value of type undefined/
 		);
 	}
 });
@@ -111,6 +111,7 @@ test.each([
 	['showVolumeControls'],
 	['allowFullscreen'],
 	['clickToPlay'],
+	['doubleClickToFullscreen'],
 ])('No durationInFrames should give errors %s', (a: string) => {
 	const props: {[name: string]: string} = {};
 	props[a] = 'hey';
