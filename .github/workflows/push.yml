@@ -2,6 +2,7 @@ on: [push, pull_request]
 name: Install and Test
 jobs:
   build:
+    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name != 'JonnyBurger/remotion'
     name: Build Node ${{ matrix.node_version }} - ffmpeg ${{ matrix.ffmpeg_version }} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
