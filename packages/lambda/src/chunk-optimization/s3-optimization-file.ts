@@ -1,8 +1,8 @@
 import {s3Client} from '../aws-clients';
 import {getRemotionS3Buckets} from '../cleanup/s3-buckets';
 import {OPTIMIZATION_PROFILE, RENDERS_BUCKET_PREFIX} from '../constants';
+import {streamToString} from '../helpers/stream-to-string';
 import {lambdaLs, lambdaReadFile, lambdaWriteFile} from '../io';
-import {streamToString} from '../stream-to-string';
 import {OptimizationProfile} from './types';
 
 // TODO: Optimization per composition

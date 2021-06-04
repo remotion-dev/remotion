@@ -1,6 +1,6 @@
 import {LAMBDA_INITIALIZED_KEY} from '../constants';
+import {streamToString} from '../helpers/stream-to-string';
 import {lambdaLs, lambdaReadFile} from '../io';
-import {streamToString} from '../stream-to-string';
 import {ChunkTimingData} from './types';
 
 export const collectChunkInformation = async (bucketName: string) => {

@@ -1,6 +1,6 @@
 import {GetFunctionCommand} from '@aws-sdk/client-lambda';
 import {lambdaClient} from './aws-clients';
-import {sleep} from './sleep';
+import {sleep} from './helpers/sleep';
 
 type FunctionState = 'Pending' | 'Active' | 'Inactive' | 'Failed' | 'Unknown';
 
