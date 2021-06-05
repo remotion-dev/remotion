@@ -8,7 +8,7 @@
 
 Remotion is a suite of libraries building a fundament for **creating videos programmatically using React.**
 
-## Why create videos in React?
+## Why create videos in React? 
 
 - **Leverage web technologies**: Use all of CSS, Canvas, SVG, WebGL, etc.
 - **Leverage programming**: Use variables, functions, APIs, math and algorithms to create new effects
