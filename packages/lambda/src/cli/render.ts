@@ -7,6 +7,8 @@ import {checkLambdaStatus} from '../check-lambda-status';
 import {LambdaRoutines, RENDER_FN_PREFIX} from '../constants';
 import {sleep} from '../helpers/sleep';
 import {parsedCli} from './args';
+import {CLEANUP_COMMAND, CLEANUP_LAMBDAS_SUBCOMMAND} from './cleanup';
+import {DEPLOY_COMMAND} from './deploy';
 import {Log} from './log';
 
 export const RENDER_COMMAND = 'render';
@@ -40,13 +42,21 @@ export const renderCommand = async () => {
 
 	if (remotionLambdas.length === 0) {
 		Log.error('No lambda functions found in your account.');
+		Log.error('Run');
+		Log.error(`  npx ${BINARY_NAME} ${DEPLOY_COMMAND}`);
+		Log.error(`to deploy a lambda function`);
 		process.exit(1);
 	}
 
 	if (remotionLambdas.length > 1) {
 		Log.error(
-			'More than lambda function found in your account. Not sure what to do.'
+			'More than lambda function found in your account. This is an error'
 		);
+		Log.error(`Delete extraneous lambda functions in your AWS console or run`);
+		Log.error(
+			`  npx ${BINARY_NAME} ${CLEANUP_COMMAND} ${CLEANUP_LAMBDAS_SUBCOMMAND}`
+		);
+		Log.error('to delete all lambda functions.');
 		process.exit(1);
 	}
 
@@ -65,7 +75,11 @@ export const renderCommand = async () => {
 	});
 	for (let i = 0; i < 3000; i++) {
 		await sleep(1000);
-		const status = await checkLambdaStatus(functionName, res.bucketName);
+		const status = await checkLambdaStatus(
+			functionName,
+			res.bucketName,
+			res.renderId
+		);
 		console.log(status);
 		if (status.done) {
 			console.log('Done! ' + res.bucketName);

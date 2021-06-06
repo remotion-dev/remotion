@@ -10,7 +10,7 @@ import {chunk} from '../helpers/chunk';
 import {Log} from './log';
 
 export const CLEANUP_COMMAND = 'cleanup';
-const LAMBDA_SUBCOMMAND = 'lambdas';
+export const CLEANUP_LAMBDAS_SUBCOMMAND = 'lambdas';
 const S3_BUCKETS_SUBCOMMAND = 'buckets';
 
 const cleanupLambdaCommand = async (client: LambdaClient) => {
@@ -38,7 +38,7 @@ const cleanupBucketsCommand = async (client: S3Client) => {
 };
 
 export const cleanupCommand = async (args: string[]) => {
-	if (args[0] === LAMBDA_SUBCOMMAND) {
+	if (args[0] === CLEANUP_LAMBDAS_SUBCOMMAND) {
 		await cleanupLambdaCommand(lambdaClient);
 		return;
 	}
@@ -104,7 +104,7 @@ export const cleanupCommand = async (args: string[]) => {
 		);
 		Log.info(
 			CliInternals.chalk.gray(
-				`Run \`${BINARY_NAME} ${CLEANUP_COMMAND} ${LAMBDA_SUBCOMMAND}\` to permanently delete lambdas`
+				`Run \`${BINARY_NAME} ${CLEANUP_COMMAND} ${CLEANUP_LAMBDAS_SUBCOMMAND}\` to permanently delete lambdas`
 			)
 		);
 		Log.info();

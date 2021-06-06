@@ -6,15 +6,17 @@ import {
 } from '../chunk-optimization/s3-optimization-file';
 import {
 	EncodingProgress,
-	ENCODING_PROGRESS_KEY,
+	encodingProgressKey,
+	getRendererErrorKeyPrefix,
+	getStitcherErrorKeyPrefix,
+	lambdaInitializedKey,
 	LambdaPayload,
 	LambdaRoutines,
-	LAMBDA_INITIALIZED_KEY,
 	MEMORY_SIZE,
-	OUT_NAME,
+	outName,
 	REGION,
 	RenderMetadata,
-	RENDER_METADATA_KEY,
+	renderMetadataKey,
 } from '../constants';
 import {streamToString} from '../helpers/stream-to-string';
 import {inspectErrors} from '../inspect-errors';
@@ -46,9 +48,11 @@ const getFinalEncodingStatus = ({
 const getEncodingMetadata = async ({
 	exists,
 	bucketName,
+	renderId,
 }: {
 	exists: boolean;
 	bucketName: string;
+	renderId: string;
 }): Promise<EncodingProgress | null> => {
 	if (!exists) {
 		return null;
@@ -56,7 +60,7 @@ const getEncodingMetadata = async ({
 
 	const Body = await lambdaReadFile({
 		bucketName,
-		key: ENCODING_PROGRESS_KEY,
+		key: encodingProgressKey(renderId),
 	});
 
 	try {
@@ -74,9 +78,11 @@ const getEncodingMetadata = async ({
 const getRenderMetadata = async ({
 	exists,
 	bucketName,
+	renderId,
 }: {
 	exists: boolean;
 	bucketName: string;
+	renderId: string;
 }) => {
 	if (!exists) {
 		return null;
@@ -84,7 +90,7 @@ const getRenderMetadata = async ({
 
 	const Body = await lambdaReadFile({
 		bucketName,
-		key: RENDER_METADATA_KEY,
+		key: renderMetadataKey(renderId),
 	});
 
 	const renderMetadataResponse = JSON.parse(
@@ -139,38 +145,47 @@ export const progressHandler = async (lambdaParams: LambdaPayload) => {
 		.reduce((a, b) => a + b, 0);
 
 	const chunks = contents.filter((c) => c.Key?.match(/chunk(.*).mp4/));
-	const output = s3contents.find((c) => c.Key?.includes(OUT_NAME)) ?? null;
+	const output =
+		s3contents.find((c) => c.Key?.includes(outName(lambdaParams.renderId))) ??
+		null;
 	const lambdasInvoked = contents.filter((c) =>
-		c.Key?.startsWith(LAMBDA_INITIALIZED_KEY)
+		c.Key?.startsWith(lambdaInitializedKey(lambdaParams.renderId))
 	).length;
 	const errors = contents
-		// TODO: unhardcode
 		.filter(
 			(c) =>
-				c.Key?.startsWith('error-chunk') || c.Key?.startsWith('error-stitcher')
+				c.Key?.startsWith(getRendererErrorKeyPrefix(lambdaParams.renderId)) ||
+				c.Key?.startsWith(getStitcherErrorKeyPrefix(lambdaParams.renderId))
 		)
 		.map((c) => c.Key)
 		.filter(Internals.truthy);
 
-	const [
-		encodingStatus,
-		renderMetadata,
-		errorExplanations,
-		optimization,
-		bucket,
-	] = await Promise.all([
-		getEncodingMetadata({
-			exists: Boolean(contents.find((c) => c.Key === ENCODING_PROGRESS_KEY)),
-			bucketName: lambdaParams.bucketName,
-		}),
-		getRenderMetadata({
-			exists: Boolean(contents.find((c) => c.Key === RENDER_METADATA_KEY)),
-			bucketName: lambdaParams.bucketName,
-		}),
-		inspectErrors({errs: errors, bucket: lambdaParams.bucketName}),
-		getOptimization(),
-		getNewestRenderBucket(),
-	]);
+	const [encodingStatus, renderMetadata, errorExplanations, bucket] =
+		await Promise.all([
+			getEncodingMetadata({
+				exists: Boolean(
+					contents.find(
+						(c) => c.Key === encodingProgressKey(lambdaParams.renderId)
+					)
+				),
+				bucketName: lambdaParams.bucketName,
+				renderId: lambdaParams.renderId,
+			}),
+			getRenderMetadata({
+				exists: Boolean(
+					contents.find(
+						(c) => c.Key === renderMetadataKey(lambdaParams.renderId)
+					)
+				),
+				bucketName: lambdaParams.bucketName,
+				renderId: lambdaParams.renderId,
+			}),
+			inspectErrors({errs: errors, bucket: lambdaParams.bucketName}),
+			getNewestRenderBucket(),
+		]);
+	const optimization = renderMetadata
+		? await getOptimization(renderMetadata.compositionId)
+		: null;
 
 	const timeToFinish = getTimeToFinish({
 		output,
@@ -213,7 +228,9 @@ export const progressHandler = async (lambdaParams: LambdaPayload) => {
 		renderMetadata,
 		bucket,
 		outputFile: output
-			? `https://s3.${REGION}.amazonaws.com/${lambdaParams.bucketName}/${OUT_NAME}`
+			? `https://s3.${REGION}.amazonaws.com/${
+					lambdaParams.bucketName
+			  }/${outName(lambdaParams.renderId)}`
 			: null,
 		// TODO: Only fetch optimization if actually shown
 		optimizationForNextRender: optimization,

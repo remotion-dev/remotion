@@ -21,10 +21,12 @@ export const uploadDir = async ({
 	client,
 	dir,
 	onProgress,
+	folder,
 }: {
 	bucket: string;
 	client: S3Client;
 	dir: string;
+	folder: string;
 	onProgress: (progress: UploadDirProgress) => void;
 }) => {
 	async function getFiles(directory: string): Promise<FileInfo[]> {
@@ -53,7 +55,7 @@ export const uploadDir = async ({
 	}
 
 	const uploads = files.map(async (filePath) => {
-		const Key = path.relative(dir, filePath.name);
+		const Key = `${folder}/${path.relative(dir, filePath.name)}`;
 		const Body = createReadStream(filePath.name);
 		if (filePath.size > 5 * 1024 * 1024) {
 			const paralellUploads3 = new Upload({

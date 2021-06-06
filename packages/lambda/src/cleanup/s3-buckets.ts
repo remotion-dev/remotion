@@ -6,7 +6,7 @@ import {
 	S3Client,
 } from '@aws-sdk/client-s3';
 import pLimit from 'p-limit';
-import {LAMBDA_S3_WEBSITE_DEPLOY, RENDERS_BUCKET_PREFIX} from '../constants';
+import {REMOTION_BUCKET_PREFIX} from '../constants';
 
 const limit = pLimit(10);
 
@@ -121,8 +121,9 @@ export const getRemotionS3Buckets = async (s3Client: S3Client) => {
 
 	const remotionBuckets = Buckets.filter(
 		(b) =>
-			b.Name?.startsWith(RENDERS_BUCKET_PREFIX) ||
-			b.Name?.startsWith(LAMBDA_S3_WEBSITE_DEPLOY)
+			b.Name?.startsWith(REMOTION_BUCKET_PREFIX) &&
+			// TODO: Rename other buckets in Jonnys account bucket first
+			!b.Name.startsWith('remotion-binaries')
 	);
 	return {
 		remotionBuckets,
