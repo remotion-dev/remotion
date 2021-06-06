@@ -59,7 +59,7 @@ const getFnName = async (): Promise<{
 		functionName: lambdas[0].FunctionName as string,
 		bucketUrl: makeS3Url(
 			websiteBuckets[0].Name as string,
-			firstSite?.Key as string
+			firstSite?.Key?.match(/(sites\/.*)\//)?.[1] as string
 		),
 		compositionName: 'Main',
 	};
