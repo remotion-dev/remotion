@@ -52,6 +52,7 @@ export const webpackConfig = ({
 			: false,
 		devtool: 'cheap-module-source-map',
 		entry: [
+			require.resolve('./setup-env-variables'),
 			environment === 'development'
 				? require.resolve('webpack-hot-middleware/client') + '?overlay=true'
 				: null,
