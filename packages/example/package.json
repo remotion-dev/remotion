@@ -27,6 +27,7 @@
 		"@remotion/eslint-config": "^2.1.5",
 		"@remotion/eslint-plugin": "^2.1.5",
 		"@remotion/gif": "^2.1.7",
+		"@remotion/lambda": "^2.1.7",
 		"@remotion/media-utils": "^2.1.7",
 		"@remotion/renderer": "^2.1.7",
 		"@remotion/three": "^2.1.7",

@@ -15,12 +15,13 @@ import {writeTimingProfile} from '../chunk-optimization/write-profile';
 import {concatVideosS3} from '../concat-videos';
 import {
 	EncodingProgress,
-	ENCODING_PROGRESS_KEY,
+	encodingProgressKey,
+	getStitcherErrorKeyPrefix,
 	LambdaPayload,
 	LambdaRoutines,
-	OUT_NAME,
+	outName,
 	RenderMetadata,
-	RENDER_METADATA_KEY,
+	renderMetadataKey,
 } from '../constants';
 import {getBrowserInstance} from '../get-browser-instance';
 import {chunk} from '../helpers/chunk';
@@ -42,7 +43,7 @@ const innerLaunchHandler = async (params: LambdaPayload) => {
 
 	const [browserInstance, optimization] = await Promise.all([
 		getBrowserInstance(),
-		getOptimization(),
+		getOptimization(params.composition),
 	]);
 
 	const comp = await validateComposition({
@@ -85,6 +86,7 @@ const innerLaunchHandler = async (params: LambdaPayload) => {
 			// TODO: Configurable retries
 			retriesLeft: 3,
 			inputProps: params.inputProps,
+			renderId: params.renderId,
 		};
 		return payload;
 	});
@@ -99,11 +101,12 @@ const innerLaunchHandler = async (params: LambdaPayload) => {
 			invokers,
 			// This function
 		].reduce((a, b) => a + b, 0),
+		compositionId: comp.id,
 	};
 
 	await lambdaWriteFile({
 		bucketName: params.bucketName,
-		key: RENDER_METADATA_KEY,
+		key: renderMetadataKey(params.renderId),
 		body: JSON.stringify(renderMetadata),
 		forceS3: false,
 	});
@@ -115,6 +118,7 @@ const innerLaunchHandler = async (params: LambdaPayload) => {
 			const firePayload: LambdaPayload = {
 				type: LambdaRoutines.fire,
 				payloads,
+				renderId: params.renderId,
 			};
 			await lambdaClient.send(
 				new InvokeCommand({
@@ -137,7 +141,7 @@ const innerLaunchHandler = async (params: LambdaPayload) => {
 		};
 		lambdaWriteFile({
 			bucketName: params.bucketName,
-			key: ENCODING_PROGRESS_KEY,
+			key: encodingProgressKey(params.renderId),
 			body: JSON.stringify(encodingProgress),
 			forceS3: false,
 		});
@@ -148,25 +152,37 @@ const innerLaunchHandler = async (params: LambdaPayload) => {
 		expectedFiles: chunkCount,
 		onProgress,
 		numberOfFrames: comp.durationInFrames,
+		renderId: params.renderId,
 	});
 	await lambdaWriteFile({
 		bucketName: params.bucketName,
-		key: OUT_NAME,
+		key: outName(params.renderId),
 		body: fs.createReadStream(out),
 		forceS3: true,
 	});
-	const chunkData = await collectChunkInformation(params.bucketName);
-	await writeTimingProfile({data: chunkData, bucketName: params.bucketName});
+	const chunkData = await collectChunkInformation(
+		params.bucketName,
+		params.renderId
+	);
+	await writeTimingProfile({
+		data: chunkData,
+		bucketName: params.bucketName,
+		renderId: params.renderId,
+	});
 	const optimizedProfile = optimizeInvocationOrder(
 		optimizeProfileRecursively(chunkData, 400)
 	);
 
 	const optimizedFrameRange = getFrameRangesFromProfile(optimizedProfile);
-	await writeOptimization(params.bucketName, {
-		frameRange: optimizedFrameRange,
-		oldTiming: getProfileDuration(chunkData),
-		newTiming: getProfileDuration(optimizedProfile),
-	});
+	await writeOptimization(
+		params.bucketName,
+		{
+			frameRange: optimizedFrameRange,
+			oldTiming: getProfileDuration(chunkData),
+			newTiming: getProfileDuration(optimizedProfile),
+		},
+		params.composition
+	);
 };
 
 export const launchHandler = async (params: LambdaPayload) => {
@@ -180,7 +196,7 @@ export const launchHandler = async (params: LambdaPayload) => {
 		console.log('Error occurred', err);
 		await lambdaWriteFile({
 			bucketName: params.bucketName,
-			key: `error-stitcher-${Date.now()}.txt`,
+			key: `${getStitcherErrorKeyPrefix(params.renderId)}${Date.now()}.txt`,
 			body: JSON.stringify({
 				error: err.message,
 			}),

@@ -3,6 +3,7 @@ import {existsSync, lstatSync} from 'fs';
 import path from 'path';
 import {BINARY_NAME} from '../bundle-remotion';
 import {deploySite} from '../deploy-site';
+import {getOrMakeBucket} from '../get-or-make-bucket';
 import {
 	BucketCreationProgress,
 	BundleProgress,
@@ -43,6 +44,8 @@ export const uploadCommand = async () => {
 		process.exit(1);
 	}
 
+	const bucketName = await getOrMakeBucket();
+
 	const progressBar = CliInternals.createOverwriteableCliOutput();
 
 	const multiProgress: {
@@ -82,36 +85,40 @@ export const uploadCommand = async () => {
 	const bucketStart = Date.now();
 	const uploadStart = Date.now();
 
-	const {url} = await deploySite(absoluteFile, {
-		onBundleProgress: (progress: number) => {
-			multiProgress.bundleProgress = {
-				progress,
-				doneIn: progress === 100 ? Date.now() - bundleStart : null,
-			};
-		},
-		onBucketCreated: () => {
-			multiProgress.bucketProgress = {
-				bucketCreated: true,
-				doneIn: null,
-				websiteEnabled: false,
-			};
-			updateProgress();
-		},
-		onUploadProgress: (p) => {
-			multiProgress.deployProgress = {
-				sizeUploaded: p.sizeUploaded,
-				totalSize: p.totalSize,
-				doneIn: null,
-			};
-			updateProgress();
-		},
-		onWebsiteActivated: () => {
-			multiProgress.bucketProgress = {
-				bucketCreated: true,
-				doneIn: Date.now() - bucketStart,
-				websiteEnabled: true,
-			};
-			updateProgress();
+	const {url} = await deploySite({
+		absoluteFile,
+		bucketName,
+		options: {
+			onBundleProgress: (progress: number) => {
+				multiProgress.bundleProgress = {
+					progress,
+					doneIn: progress === 100 ? Date.now() - bundleStart : null,
+				};
+			},
+			onBucketCreated: () => {
+				multiProgress.bucketProgress = {
+					bucketCreated: true,
+					doneIn: null,
+					websiteEnabled: false,
+				};
+				updateProgress();
+			},
+			onUploadProgress: (p) => {
+				multiProgress.deployProgress = {
+					sizeUploaded: p.sizeUploaded,
+					totalSize: p.totalSize,
+					doneIn: null,
+				};
+				updateProgress();
+			},
+			onWebsiteActivated: () => {
+				multiProgress.bucketProgress = {
+					bucketCreated: true,
+					doneIn: Date.now() - bucketStart,
+					websiteEnabled: true,
+				};
+				updateProgress();
+			},
 		},
 	});
 	const uploadDuration = Date.now() - uploadStart;

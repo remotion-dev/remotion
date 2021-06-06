@@ -1,11 +1,11 @@
 {
 	"name": "@remotion/lambda",
-	"version": "2.1.4",
+	"version": "2.1.7",
 	"description": "Utility functions for audio and video",
 	"main": "dist/index.js",
 	"sideEffects": false,
 	"bin": {
-		"@remotion/lambda": "remotion-lambda-cli.js"
+		"remotion-lambda": "remotion-lambda-cli.js"
 	},
 	"module": "true",
 	"scripts": {
@@ -30,6 +30,7 @@
 		"@remotion/renderer": "^2.1.4",
 		"@types/jest": "^26.0.23",
 		"aws-policies": "^1.0.1",
+		"dotenv": "^10.0.0",
 		"esbuild": "^0.11.12",
 		"jest": "^26.6.3",
 		"lambdafs": "^2.0.3",

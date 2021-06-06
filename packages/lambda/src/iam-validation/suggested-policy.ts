@@ -9,6 +9,7 @@ export const suggestedPolicy = {
 				Effect: 'Allow',
 				Action: per.actions,
 				Resource: per.resource,
+				Condition: per.condition ? per.condition : undefined,
 			};
 		}),
 	],

@@ -8,10 +8,12 @@ import {
 	ObjectChunkTimingData,
 } from '../chunk-optimization/types';
 import {
+	chunkKey,
+	getRendererErrorKeyPrefix,
+	lambdaInitializedKey,
 	LambdaPayload,
 	LambdaPayloads,
 	LambdaRoutines,
-	LAMBDA_INITIALIZED_KEY,
 } from '../constants';
 import {getBrowserInstance} from '../get-browser-instance';
 import {randomHash} from '../helpers/random-hash';
@@ -65,7 +67,7 @@ const renderHandler = async (params: LambdaPayload) => {
 				lambdaWriteFile({
 					bucketName: params.bucketName,
 					body: '0',
-					key: `${LAMBDA_INITIALIZED_KEY}-${params.chunk}.txt`,
+					key: `${lambdaInitializedKey(params.renderId)}-${params.chunk}.txt`,
 					forceS3: false,
 				});
 			}
@@ -87,14 +89,14 @@ const renderHandler = async (params: LambdaPayload) => {
 	const uploadMetricsData = lambdaWriteFile({
 		bucketName: params.bucketName,
 		body: JSON.stringify(condensedTimingData as ChunkTimingData, null, 2),
-		key: `${LAMBDA_INITIALIZED_KEY}-${params.chunk}.txt`,
+		key: `${lambdaInitializedKey(params.renderId)}-${params.chunk}.txt`,
 		forceS3: false,
 	});
 	const outdir = tmpDir('bucket');
 
 	const outputLocation = path.join(
 		outdir,
-		`chunk-${String(params.chunk).padStart(8, '0')}.mp4`
+		`localchunk-${String(params.chunk).padStart(8, '0')}.mp4`
 	);
 
 	const stitchLabel = timer('stitcher');
@@ -128,7 +130,10 @@ const renderHandler = async (params: LambdaPayload) => {
 	await lambdaWriteFile({
 		forceS3: false,
 		bucketName: params.bucketName,
-		key: `chunk-${String(params.chunk).padStart(8, '0')}.mp4`,
+		key: `${chunkKey(params.renderId)}${String(params.chunk).padStart(
+			8,
+			'0'
+		)}.mp4`,
 		body: fs.createReadStream(outputLocation),
 	});
 	await uploadMetricsData;
@@ -167,7 +172,9 @@ export const rendererHandler = async (params: LambdaPayload) => {
 		await lambdaWriteFile({
 			forceS3: false,
 			bucketName: params.bucketName,
-			key: `error-chunk-${params.chunk}-${Date.now()}.txt`,
+			key: `${getRendererErrorKeyPrefix(params.renderId)}${
+				params.chunk
+			}-${Date.now()}.txt`,
 			body: JSON.stringify({
 				error: err.message,
 				stack: err.stack,

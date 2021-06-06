@@ -8,18 +8,28 @@ import {
 	rmSync,
 } from 'fs';
 import path, {join} from 'path';
-import {EFS_MOUNT_PATH, ENABLE_EFS} from './constants';
+import {chunkKey, EFS_MOUNT_PATH, ENABLE_EFS} from './constants';
 import {lambdaLs, lambdaReadFile} from './io';
 import {timer} from './timer';
 import {tmpDir} from './tmpdir';
 
+export const getChunkDownloadOutputLocation = ({
+	outdir,
+	file,
+}: {
+	outdir: string;
+	file: string;
+}) => {
+	return path.join(outdir, path.basename(file));
+};
+
 const downloadS3File = async ({
 	bucket,
-	content,
+	key,
 	outdir,
 }: {
 	bucket: string;
-	content: string;
+	key: string;
 	outdir: string;
 }) => {
 	if (ENABLE_EFS) {
@@ -28,9 +38,9 @@ const downloadS3File = async ({
 
 	const Body = await lambdaReadFile({
 		bucketName: bucket,
-		key: content,
+		key,
 	});
-	const outpath = join(outdir, content);
+	const outpath = getChunkDownloadOutputLocation({outdir, file: key});
 	if (Buffer.isBuffer(Body)) {
 		return promises.writeFile(outpath, Body);
 	}
@@ -46,10 +56,12 @@ const getAllFilesS3 = async ({
 	bucket,
 	expectedFiles,
 	outdir,
+	renderId,
 }: {
 	bucket: string;
 	expectedFiles: number;
 	outdir: string;
+	renderId: string;
 }): Promise<string[]> => {
 	const alreadyDownloading: {[key: string]: true} = {};
 	const downloaded: {[key: string]: true} = {};
@@ -58,12 +70,9 @@ const getAllFilesS3 = async ({
 		const lsTimer = timer('Listing files');
 		const contents = await lambdaLs({bucketName: bucket, forceS3: false});
 		lsTimer.end();
-		return (
-			contents
-				// TODO make prefix generic
-				.filter((c) => c.Key?.startsWith('chunk-'))
-				.map((_) => _.Key as string)
-		);
+		return contents
+			.filter((c) => c.Key?.startsWith(chunkKey(renderId)))
+			.map((_) => _.Key as string);
 	};
 
 	return new Promise<string[]>((resolve, reject) => {
@@ -80,26 +89,30 @@ const getAllFilesS3 = async ({
 							)
 						);
 					} else {
-						resolve(filesInBucket.map((file) => join(outdir, file)));
+						resolve(
+							filesInBucket.map((file) =>
+								getChunkDownloadOutputLocation({outdir, file})
+							)
+						);
 					}
 				}
 			};
 
-			filesInBucket.forEach(async (content) => {
-				if (alreadyDownloading[content]) {
+			filesInBucket.forEach(async (key) => {
+				if (alreadyDownloading[key]) {
 					return;
 				}
 
-				alreadyDownloading[content] = true;
+				alreadyDownloading[key] = true;
 				try {
-					const downloadTimer = timer('Downloading ' + content);
+					const downloadTimer = timer('Downloading ' + key);
 					await downloadS3File({
 						bucket,
-						content,
+						key,
 						outdir,
 					});
 					downloadTimer.end();
-					downloaded[content] = true;
+					downloaded[key] = true;
 					checkFinish();
 				} catch (err) {
 					reject(err);
@@ -124,11 +137,13 @@ export const concatVideosS3 = async ({
 	expectedFiles,
 	onProgress,
 	numberOfFrames,
+	renderId,
 }: {
 	bucket: string;
 	expectedFiles: number;
 	onProgress: (frames: number) => void;
 	numberOfFrames: number;
+	renderId: string;
 }) => {
 	const outdir = join(tmpDir('remotion-concat'), 'bucket');
 	if (existsSync(outdir)) {
@@ -142,6 +157,7 @@ export const concatVideosS3 = async ({
 		bucket,
 		expectedFiles,
 		outdir,
+		renderId,
 	});
 
 	const outfile = join(tmpDir('remotion-concated'), 'concat.mp4');

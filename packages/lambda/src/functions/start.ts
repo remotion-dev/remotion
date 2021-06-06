@@ -1,27 +1,17 @@
 import {InvokeCommand} from '@aws-sdk/client-lambda';
-import {CreateBucketCommand} from '@aws-sdk/client-s3';
-import {lambdaClient, s3Client} from '../aws-clients';
-import {
-	LambdaPayload,
-	LambdaRoutines,
-	RENDERS_BUCKET_PREFIX,
-} from '../constants';
+import {lambdaClient} from '../aws-clients';
+import {LambdaPayload, LambdaRoutines} from '../constants';
+import {getOrMakeBucket} from '../get-or-make-bucket';
 import {randomHash} from '../helpers/random-hash';
-import {timer} from '../timer';
 
 export const startHandler = async (params: LambdaPayload) => {
 	if (params.type !== LambdaRoutines.start) {
 		throw new TypeError('Expected type start');
 	}
 
-	const bucketName = RENDERS_BUCKET_PREFIX + randomHash();
-	const bucketTimer = timer('creating bucket');
-	await s3Client.send(
-		new CreateBucketCommand({
-			Bucket: bucketName,
-			ACL: 'public-read',
-		})
-	);
+	const bucketName = await getOrMakeBucket();
+	const renderId = randomHash();
+
 	const payload: LambdaPayload = {
 		type: LambdaRoutines.launch,
 		chunkSize: params.chunkSize,
@@ -29,6 +19,7 @@ export const startHandler = async (params: LambdaPayload) => {
 		serveUrl: params.serveUrl,
 		inputProps: params.inputProps,
 		bucketName,
+		renderId,
 	};
 	const launchEvent = await lambdaClient.send(
 		new InvokeCommand({
@@ -38,9 +29,9 @@ export const startHandler = async (params: LambdaPayload) => {
 			InvocationType: 'Event',
 		})
 	);
-	bucketTimer.end();
 	return {
 		bucketName,
 		launchEvent,
+		renderId,
 	};
 };
