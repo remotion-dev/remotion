@@ -1,5 +1,7 @@
+import {GetUserCommand} from '@aws-sdk/client-iam';
 import {CreateFunctionCommand, LambdaClient} from '@aws-sdk/client-lambda';
 import {readFileSync} from 'fs';
+import {iamClient} from './aws-clients';
 import {bundleLambda} from './bundle-lambda';
 import {
 	EFS_MOUNT_PATH,
@@ -26,6 +28,14 @@ export const createLambda = async () => {
 	const renderOut = await bundleLambda('render');
 	console.log('done Bundling');
 
+	const user = await iamClient.send(new GetUserCommand({}));
+
+	const accountId = user.User?.Arn?.match(/aws:iam::([0-9]+)/);
+
+	if (!accountId) {
+		throw new Error('Cannot get account ID');
+	}
+
 	const created = await lambdaClient.send(
 		new CreateFunctionCommand({
 			Code: {
@@ -33,13 +43,12 @@ export const createLambda = async () => {
 			},
 			FunctionName: fnNameRender,
 			Handler: 'index.handler',
-			Role:
-				developer === 'shankhadeep'
-					? 'arn:aws:iam::363307378317:role/awesomeLambda'
-					: 'arn:aws:iam::976210361945:role/remotion-role', // IAM_ROLE_ARN; e.g., arn:aws:iam::650138640062:role/v3-lambda-tutorial-lambda-role
+			// TODO: Give helpful suggestion if user did not create role
+			Role: `arn:aws:iam::${accountId[1]}:role/remotion-lambda-role`,
 			Runtime: 'nodejs14.x',
 			Description: 'Renders a Remotion video.',
 			MemorySize: MEMORY_SIZE,
+			// TODO: Set timeout
 			Timeout: 120,
 			Layers: [layerArn],
 
@@ -70,6 +79,7 @@ export const createLambda = async () => {
 				: undefined,
 		})
 	);
+
 	console.log('lambdas created');
 
 	if (!created.FunctionName) {
