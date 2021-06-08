@@ -1,5 +1,5 @@
 ---
-id: Lambda setup
+id: lambda-setup
 title: Lambda setup
 ---
 
