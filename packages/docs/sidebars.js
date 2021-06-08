@@ -82,7 +82,7 @@ module.exports = {
     {
       type: "category",
       label: "API - @remotion/lambda",
-      items: ["lambda", "lambda-cli", "lambda-permissions"],
+      items: ["lambda", "lambda-cli", "lambda-setup", "lambda-permissions"],
     },
     "player",
     {
