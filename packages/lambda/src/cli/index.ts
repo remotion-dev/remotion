@@ -5,6 +5,7 @@ import {deployCommand, DEPLOY_COMMAND} from './deploy';
 import {printHelp} from './help';
 import {infoCommand} from './info';
 import {Log} from './log';
+import {policiesCommand, POLICIES_COMMAND} from './policies';
 import {renderCommand, RENDER_COMMAND} from './render';
 import {uploadCommand, UPLOAD_COMMAND} from './upload';
 
@@ -32,6 +33,10 @@ const matchCommand = async () => {
 
 	if (parsedCli._[0] === CLEANUP_COMMAND) {
 		return cleanupCommand(parsedCli._.slice(1));
+	}
+
+	if (parsedCli._[0] === POLICIES_COMMAND) {
+		return policiesCommand(parsedCli._.slice(1));
 	}
 
 	Log.error(`Command ${parsedCli._[0]} not found.`);
