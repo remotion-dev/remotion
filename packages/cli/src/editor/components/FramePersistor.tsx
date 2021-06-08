@@ -38,7 +38,7 @@ export const FramePersistor: React.FC = () => {
 		if (!playing) {
 			persistCurrentFrame(frame);
 		}
-	}, [frame, playing]);
+	}, [frame, isActive, playing]);
 
 	return null;
 };
