@@ -3,7 +3,6 @@ import {parsedCli} from './args';
 import {cleanupCommand, CLEANUP_COMMAND} from './cleanup';
 import {deployCommand, DEPLOY_COMMAND} from './deploy';
 import {printHelp} from './help';
-import {infoCommand} from './info';
 import {Log} from './log';
 import {policiesCommand, POLICIES_COMMAND} from './policies';
 import {renderCommand, RENDER_COMMAND} from './render';
@@ -13,10 +12,6 @@ const matchCommand = async () => {
 	if (parsedCli.help || parsedCli._.length === 0) {
 		printHelp();
 		process.exit(0);
-	}
-
-	if (parsedCli._[0] === 'info') {
-		return infoCommand();
 	}
 
 	if (parsedCli._[0] === DEPLOY_COMMAND) {
