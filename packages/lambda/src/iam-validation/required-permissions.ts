@@ -5,7 +5,6 @@ import {REMOTION_BUCKET_PREFIX, RENDER_FN_PREFIX} from '../constants';
 export const requiredPermissions: {
 	actions: (s3 | iam | lambda)[];
 	resource: string[];
-	condition?: unknown;
 }[] = [
 	{
 		actions: [iam.GetUser],
