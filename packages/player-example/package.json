@@ -1,6 +1,6 @@
 {
 	"name": "player-example",
-	"version": "2.1.7",
+	"version": "2.1.8",
 	"private": true,
 	"author": "Jonny Burger <hi@jonny.io>",
 	"maintainers": [
@@ -9,7 +9,7 @@
 	],
 	"dependencies": {
 		"@craco/craco": "^6.1.1",
-		"@remotion/player": "^2.1.7",
+		"@remotion/player": "^2.1.8",
 		"@testing-library/jest-dom": "^5.11.4",
 		"@testing-library/react": "^11.1.0",
 		"@testing-library/user-event": "^12.1.10",

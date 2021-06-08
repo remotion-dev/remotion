@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/three",
-	"version": "2.1.7",
+	"version": "2.1.8",
 	"description": "Utility functions for using react-three-fiber with remotion",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
