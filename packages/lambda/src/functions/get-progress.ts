@@ -5,6 +5,7 @@ import {
 	getOptimization,
 } from '../chunk-optimization/s3-optimization-file';
 import {
+	chunkKey,
 	EncodingProgress,
 	encodingProgressKey,
 	getRendererErrorKeyPrefix,
@@ -144,7 +145,9 @@ export const progressHandler = async (lambdaParams: LambdaPayload) => {
 		.map((c) => c.Size ?? 0)
 		.reduce((a, b) => a + b, 0);
 
-	const chunks = contents.filter((c) => c.Key?.match(/chunk(.*).mp4/));
+	const chunks = contents.filter((c) =>
+		c.Key?.startsWith(chunkKey(lambdaParams.renderId))
+	);
 	const output =
 		s3contents.find((c) => c.Key?.includes(outName(lambdaParams.renderId))) ??
 		null;
