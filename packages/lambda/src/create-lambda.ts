@@ -36,7 +36,7 @@ export const createLambda = async () => {
 			Role:
 				developer === 'shankhadeep'
 					? 'arn:aws:iam::363307378317:role/awesomeLambda'
-					: 'arn:aws:iam::976210361945:role/lambda-admin', // IAM_ROLE_ARN; e.g., arn:aws:iam::650138640062:role/v3-lambda-tutorial-lambda-role
+					: 'arn:aws:iam::976210361945:role/remotion-role', // IAM_ROLE_ARN; e.g., arn:aws:iam::650138640062:role/v3-lambda-tutorial-lambda-role
 			Runtime: 'nodejs14.x',
 			Description: 'Renders a Remotion video.',
 			MemorySize: MEMORY_SIZE,
