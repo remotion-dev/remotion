@@ -17,6 +17,7 @@ export const printHelp = () => {
 	Log.info('Available commands:');
 	Log.info('');
 	Log.info(`${BINARY_NAME} ${UPLOAD_COMMAND} <index-file.ts>`);
+	// TODO: can get chalk from cliinternals
 	Log.info(chalk.gray('Upload a Remotion project to S3.'));
 	Log.info();
 

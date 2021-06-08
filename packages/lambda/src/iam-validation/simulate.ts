@@ -7,7 +7,6 @@ import {
 import {iamClient} from '../aws-clients';
 import {Log} from '../cli/log';
 import {requiredPermissions} from './required-permissions';
-import {suggestedPolicy} from './suggested-policy';
 
 type EvalDecision = 'allowed' | 'explicitDeny' | 'implicitDeny';
 
@@ -54,6 +53,4 @@ export const simulatePermissions = async () => {
 			)
 		);
 	}
-
-	Log.info(JSON.stringify(suggestedPolicy, null, 2));
 };
