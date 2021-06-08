@@ -55,5 +55,5 @@ export const simulatePermissions = async () => {
 		);
 	}
 
-	console.log(JSON.stringify(suggestedPolicy, null, 2));
+	Log.info(JSON.stringify(suggestedPolicy, null, 2));
 };
