@@ -21,5 +21,19 @@ export const callLambda = async <T extends LambdaRoutines>({
 	);
 	const string = Buffer.from(res.Payload as Uint8Array).toString();
 
-	return JSON.parse(string) as LambdaReturnValues[T];
+	const json = JSON.parse(string) as
+		| LambdaReturnValues[T]
+		| {
+				errorType: string;
+				errorMessage: string;
+				trace: string[];
+		  };
+	if ('errorMessage' in json) {
+		const err = new Error(json.errorMessage);
+		err.name = json.errorType;
+		err.stack = json.trace.join('\n');
+		throw err;
+	}
+
+	return json;
 };
