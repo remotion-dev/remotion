@@ -21,10 +21,10 @@
 		"url": "https://github.com/JonnyBurger/remotion"
 	},
 	"dependencies": {
-		"@aws-sdk/client-iam": "^3.16.0",
-		"@aws-sdk/client-lambda": "^3.16.0",
-		"@aws-sdk/client-s3": "^3.16.0",
-		"@aws-sdk/lib-storage": "^3.15.0",
+		"@aws-sdk/client-iam": "^3.18.0",
+		"@aws-sdk/client-lambda": "^3.18.0",
+		"@aws-sdk/client-s3": "^3.18.0",
+		"@aws-sdk/lib-storage": "^3.18.0",
 		"@remotion/bundler": "^2.1.4",
 		"@remotion/cli": "^2.1.4",
 		"@remotion/renderer": "^2.1.4",
