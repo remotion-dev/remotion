@@ -53,11 +53,13 @@ export const policiesCommand = (args: string[]) => {
 	if (args[0] === USER_SUBCOMMAND) {
 		Log.info('Policy for user:');
 		Log.info(JSON.stringify(suggestedPolicy, null, 2));
+		return;
 	}
 
 	if (args[0] === ROLE_SUBCOMMAND) {
 		Log.info('Policy for role:');
 		Log.info(JSON.stringify(suggestedRolePolicy, null, 2));
+		return;
 	}
 
 	if (args[0] === VALIDATE_SUBCOMMAND) {
@@ -65,7 +67,7 @@ export const policiesCommand = (args: string[]) => {
 	}
 
 	if (args[0]) {
-		Log.error(`Command ${args[0]} not found.`);
+		Log.error(`Subcommand ${args[0]} not found.`);
 		printPoliciesHelp();
 		process.exit(1);
 	}
