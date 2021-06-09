@@ -19,12 +19,14 @@
 	"dependencies": {
 		"chalk": "^4.1.0",
 		"execa": "^5.0.0",
+		"fs-extra": "^9.1.0",
 		"npm-package-arg": "^8.1.2",
 		"prompts": "^2.4.1",
 		"xns": "^2.0.7"
 	},
 	"devDependencies": {
 		"@jonny/eslint-config": "^2.1.233",
+		"@types/fs-extra": "^9.0.11",
 		"@types/node": "^15.0.1",
 		"@types/npm-package-arg": "^6.1.0",
 		"@types/prompts": "^2.0.12",
