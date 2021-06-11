@@ -41,6 +41,7 @@ export const bundle = async (
 			onProgressUpdate,
 			enableCaching:
 				options?.enableCaching ?? Internals.DEFAULT_WEBPACK_CACHE_ENABLED,
+			maxTimelineTracks: 15,
 		}),
 	]);
 	if (!output) {
