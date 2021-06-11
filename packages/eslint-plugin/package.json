@@ -8,7 +8,7 @@
   },
   "main": "dist/index.js",
   "bugs": {
-    "url": "https://github.com/JonnyBurger/remotion/issues"
+    "url": "https://github.com/remotion-dev/remotion/issues"
   },
   "author": "Jonny Burger <hi@jonny.io>",
   "license": "ISC",

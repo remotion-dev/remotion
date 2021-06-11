@@ -5,7 +5,7 @@ const files = ['gitignore', 'eslintrc', 'prettierrc', 'dockerignore'];
 
 export const turnIntoUnderscore = async (dir: string) => {
 	for (const file of files) {
-		await execa(process.platform === 'win32' ? 'copy' : 'cp', [
+		await execa(process.platform === 'win32' ? 'move' : 'mv', [
 			path.join(dir, `.${file}`),
 			path.join(dir, `_${file}`),
 		]);

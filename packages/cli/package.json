@@ -14,7 +14,7 @@
 		"watch": "tsc -w"
 	},
 	"repository": {
-		"url": "https://github.com/JonnyBurger/remotion"
+		"url": "https://github.com/remotion-dev/remotion"
 	},
 	"author": "Jonny Burger <hi@jonny.io>",
 	"license": "SEE LICENSE IN LICENSE.md",

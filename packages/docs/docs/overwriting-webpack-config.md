@@ -9,7 +9,7 @@ Create a config file called `remotion.config.ts` in the root of your project. As
 
 ## Overriding the webpack config
 
-Get familiar with the default Webpack configuration which can be [found here](https://github.com/JonnyBurger/remotion/blob/main/packages/bundler/src/webpack-config.ts).
+Get familiar with the default Webpack configuration which can be [found here](https://github.com/remotion-dev/remotion/blob/main/packages/bundler/src/webpack-config.ts).
 
 In your `remotion.config.ts` file, you can call `Config.Bundler.overrideWebpackConfig` from `remotion`.
 

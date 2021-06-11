@@ -4,7 +4,7 @@
 	"description": "Gif component for remotion",
 	"sideEffects": false,
 	"repository": {
-		"url": "https://github.com/JonnyBurger/remotion"
+		"url": "https://github.com/remotion-dev/remotion"
 	},
 	"license": "SEE LICENSE IN LICENSE.md",
 	"author": "",

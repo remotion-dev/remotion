@@ -12,7 +12,7 @@
 	"author": "",
 	"license": "SEE LICENSE IN LICENSE.md",
 	"repository": {
-		"url": "https://github.com/JonnyBurger/remotion"
+		"url": "https://github.com/remotion-dev/remotion"
 	},
 	"dependencies": {
 		"@remotion/bundler": "2.1.9",
