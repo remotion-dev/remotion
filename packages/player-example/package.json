@@ -2,9 +2,9 @@
 	"name": "player-example",
 	"version": "2.1.9",
 	"private": true,
-	"author": "Jonny Burger <hi@jonny.io>",
+	"author": "Jonny Burger <jonny@remotion.dev>",
 	"maintainers": [
-		"Jonny Burger <hi@jonny.io>",
+		"Jonny Burger <jonny@remotion.dev>",
 		"Shankhadeep Dey <shankhadeepdey99@gmail.com>"
 	],
 	"dependencies": {

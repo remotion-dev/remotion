@@ -14,7 +14,7 @@
 	"author": "",
 	"license": "SEE LICENSE IN LICENSE.md",
 	"repository": {
-		"url": "https://github.com/JonnyBurger/remotion"
+		"url": "https://github.com/remotion-dev/remotion"
 	},
 	"dependencies": {
 		"@babel/core": "^7.12.10",
