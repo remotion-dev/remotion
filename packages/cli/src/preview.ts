@@ -3,6 +3,7 @@
 import {BundlerInternals} from '@remotion/bundler';
 import betterOpn from 'better-opn';
 import path from 'path';
+import {Internals} from 'remotion';
 import xns from 'xns';
 import {getConfigFileName} from './get-config-file-name';
 import {getEnvironmentVariables} from './get-env';
@@ -29,6 +30,7 @@ export const previewCommand = xns(async () => {
 			inputProps,
 			envVariables,
 			port: desiredPort,
+			maxTimelineTracks: Internals.getMaxTimelineTracks(),
 		}
 	);
 	betterOpn(`http://localhost:${port}`);

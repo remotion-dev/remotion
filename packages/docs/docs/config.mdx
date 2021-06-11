@@ -75,6 +75,18 @@ Config.Log.setLevel('verbose');
 
 The [command line flag](/docs/cli#--log) `--log` will take precedence over this option.
 
+## Preview
+
+_Available from Version 2.1.10._
+
+### setMaxTimelineTracks()
+
+Set how many tracks are being displayed in the timeline at most. This does not affect your video, just the amount of tracks shown when previewing. Default `15`.
+
+```ts
+Config.Preview.setMaxTimelineTracks(20);
+```
+
 ## Puppeteer
 
 ### setBrowserExecutable()
@@ -84,7 +96,7 @@ _Available from Version 1.5._
 Set a custom Chrome or Chromium executable path. By default Remotion will try to find an existing version of Chrome on your system and if not found, it will download one. This flag is useful if you don't have Chrome installed in a standard location and you want to prevent downloading an additional browser or need [support for the H264 codec](/docs/video#codec-support).
 
 ```ts
-Config.Puppeteer.setBrowserExecutable('/usr/bin/google-chrome-stable')
+Config.Puppeteer.setBrowserExecutable('/usr/bin/google-chrome-stable');
 ```
 
 The [command line flag](/docs/cli#--browser-executable) `--browser-executable` will take precedence over this option.
