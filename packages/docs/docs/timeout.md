@@ -29,7 +29,7 @@ If you rely on network assets such as fonts, images, videos or audio and you don
 
 Chrome has the codecs needed for displaying MP4 videos, but Chromium doesn't. If you try to load an MP4 video or an unsupported audio codec in Chromium, it currently leads to a timeout.
 
-We intend to fix this in the future, the issue is [#250](https://github.com/JonnyBurger/remotion/issues/250).
+We intend to fix this in the future, the issue is [#250](https://github.com/remotion-dev/remotion/issues/250).
 
 **Workaround**: Convert videos to WebM or use Chrome instead of Chromium.
 
@@ -50,7 +50,7 @@ Especially 1.x releases could timeout when importing large assets
 
 ### Not helpful?
 
-[Open an issue](https://github.com/JonnyBurger/remotion/issues/new) and try to describe your issue in a way that is reproducible for us. We will try to help you out.
+[Open an issue](https://github.com/remotion-dev/remotion/issues/new) and try to describe your issue in a way that is reproducible for us. We will try to help you out.
 
 ## See also
 

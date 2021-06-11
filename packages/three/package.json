@@ -14,7 +14,7 @@
 	"contributors": [],
 	"license": "MIT",
 	"repository": {
-		"url": "https://github.com/JonnyBurger/remotion"
+		"url": "https://github.com/remotion-dev/remotion"
 	},
 	"dependencies": {
 		"remotion": "2.1.9"

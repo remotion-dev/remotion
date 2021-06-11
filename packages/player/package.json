@@ -11,7 +11,7 @@
 		"prerelease": "cp ../../README.md ."
 	},
 	"repository": {
-		"url": "https://github.com/JonnyBurger/remotion"
+		"url": "https://github.com/remotion-dev/remotion"
 	},
 	"files": [
 		"dist",

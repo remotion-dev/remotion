@@ -5,7 +5,7 @@
 	"main": "dist/index.js",
 	"sideEffects": false,
 	"repository": {
-		"url": "https://github.com/JonnyBurger/remotion"
+		"url": "https://github.com/remotion-dev/remotion"
 	},
 	"scripts": {
 		"test": "eslint src --ext ts,tsx",
