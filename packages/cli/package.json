@@ -14,9 +14,9 @@
 		"watch": "tsc -w"
 	},
 	"repository": {
-		"url": "https://github.com/JonnyBurger/remotion"
+		"url": "https://github.com/remotion-dev/remotion"
 	},
-	"author": "Jonny Burger <hi@jonny.io>",
+	"author": "Jonny Burger <jonny@remotion.dev>",
 	"license": "SEE LICENSE IN LICENSE.md",
 	"dependencies": {
 		"@remotion/bundler": "2.1.9",

@@ -11,15 +11,15 @@
 		"prerelease": "cp ../../README.md ."
 	},
 	"repository": {
-		"url": "https://github.com/JonnyBurger/remotion"
+		"url": "https://github.com/remotion-dev/remotion"
 	},
 	"files": [
 		"dist",
 		"README.md"
 	],
-	"author": "Jonny Burger <hi@jonny.io>",
+	"author": "Jonny Burger <jonny@remotion.dev>",
 	"maintainers": [
-		"Jonny Burger <hi@jonny.io>",
+		"Jonny Burger <jonny@remotion.dev>",
 		"Shankhadeep Dey <shankhadeepdey99@gmail.com>"
 	],
 	"license": "SEE LICENSE IN LICENSE.md",

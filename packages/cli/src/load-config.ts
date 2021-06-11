@@ -9,7 +9,7 @@ export const loadConfigFile = (configFileName: string): string | null => {
 	const tsconfigJson = path.join(process.cwd(), 'tsconfig.json');
 	if (!fs.existsSync(tsconfigJson)) {
 		Log.error(
-			'Could not find a tsconfig.json file in your project. Did you delete it? Create a tsconfig.json in the root of your project. Copy the default file from https://github.com/JonnyBurger/remotion-template/blob/main/tsconfig.json.'
+			'Could not find a tsconfig.json file in your project. Did you delete it? Create a tsconfig.json in the root of your project. Copy the default file from https://github.com/remotion-dev/template/blob/main/tsconfig.json.'
 		);
 		process.exit(1);
 	}
