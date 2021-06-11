@@ -32,3 +32,7 @@ More renders also mean slower rendering. If you are suffering from slow playback
 The rich timline will become the default in the future, but right now it is disabled by default.
 
 We encourage you to try out the rich timeline mode and [letting us know about any issues you will face.](https://github.com/JonnyBurger/remotion/issues/new).
+
+## See also
+
+- [Customize the number of timeline tracks shown](/docs/config#setmaxtimelinetracks) using the `setMaxTimelineTracks()` configuration.
