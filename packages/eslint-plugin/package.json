@@ -1,6 +1,6 @@
 {
   "name": "@remotion/eslint-plugin",
-  "version": "2.1.5",
+  "version": "2.1.9",
   "description": "A set of rules helping you avoid common pitfalls in Remotion.",
   "scripts": {
     "build": "tsc -d",
