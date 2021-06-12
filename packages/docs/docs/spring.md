@@ -50,13 +50,13 @@ _Default:_ `1`
 
 The weight of the spring. If you reduce the mass, the animation becomes faster!
 
-#### Damping
+#### damping
 
 _Default_: `10`
 
 How hard the animation decelerates.
 
-#### Stiffness
+#### stiffness
 
 _Default_: `100`
 
