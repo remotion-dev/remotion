@@ -35,6 +35,7 @@ import {
 import {getShouldOutputImageSequence} from './config/image-sequence';
 import {INPUT_PROPS_KEY} from './config/input-props';
 import * as Logging from './config/log';
+import {getMaxTimelineTracks} from './config/max-timeline-tracks';
 import {
 	getWebpackOverrideFn,
 	WebpackOverrideFn,
@@ -163,6 +164,7 @@ export const Internals = {
 	getProResProfile,
 	setProResProfile,
 	validateSelectedCodecAndProResCombination,
+	getMaxTimelineTracks,
 };
 
 export type {

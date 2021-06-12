@@ -8,6 +8,7 @@ import {FrameRange, setFrameRange} from './frame-range';
 import {ImageFormat, setImageFormat} from './image-format';
 import {setImageSequence} from './image-sequence';
 import {LogLevel, setLogLevel} from './log';
+import {setMaxTimelineTracks} from './max-timeline-tracks';
 import {
 	overrideWebpackConfig,
 	WebpackConfiguration,
@@ -21,6 +22,14 @@ import {setQuality} from './quality';
 import {setWebpackCaching} from './webpack-caching';
 
 export const Config = {
+	Preview: {
+		/**
+		 * Change the maximum amount of tracks that are shown in the timeline.
+		 * @param maxTracks The maximum amount of timeline tracks that you would like to show.
+		 * @default 15
+		 */
+		setMaxTimelineTracks,
+	},
 	Bundling: {
 		/**
 		 * Pass in a function which takes the current Webpack config

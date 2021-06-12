@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/media-utils",
-	"version": "2.1.6",
+	"version": "2.1.9",
 	"description": "Utility functions for audio and video",
 	"main": "dist/index.js",
 	"sideEffects": false,
@@ -12,10 +12,10 @@
 	"author": "",
 	"license": "MIT",
 	"repository": {
-		"url": "https://github.com/JonnyBurger/remotion"
+		"url": "https://github.com/remotion-dev/remotion"
 	},
 	"dependencies": {
-		"remotion": "^2.1.6"
+		"remotion": "2.1.9"
 	},
 	"peerDependencies": {
 		"react": "^17.0.1",

@@ -16,7 +16,6 @@ import {
 import {LooseAnyComponent} from 'remotion/src/any-component';
 
 Internals.CSSUtils.injectCSS(Internals.CSSUtils.makeDefaultCSS(null));
-Internals.setupEnvVariables();
 
 const Root = Internals.getRoot();
 

@@ -43,7 +43,7 @@ module.exports = {
           "data-splitbee-event-target": "Discord",
         },
         {
-          href: "https://github.com/JonnyBurger/remotion",
+          href: "https://github.com/remotion-dev/remotion",
           label: "GitHub",
           position: "right",
           "data-splitbee-event": "External Link",
@@ -76,7 +76,7 @@ module.exports = {
             },
             {
               label: "GitHub Issues",
-              href: "https://github.com/JonnyBurger/remotion/issues",
+              href: "https://github.com/remotion-dev/remotion/issues",
               "data-splitbee-event": "External Link",
               "data-splitbee-event-target": "Github",
             },
@@ -104,7 +104,7 @@ module.exports = {
 
             {
               label: "GitHub",
-              href: "https://github.com/JonnyBurger/remotion",
+              href: "https://github.com/remotion-dev/remotion",
             },
             {
               label: "For companies",
@@ -124,13 +124,13 @@ module.exports = {
           sidebarPath: require.resolve("./sidebars.js"),
           // Please change this to your repo.
           editUrl:
-            "https://github.com/JonnyBurger/remotion/edit/main/packages/docs/",
+            "https://github.com/remotion-dev/remotion/edit/main/packages/docs/",
         },
         blog: {
           showReadingTime: true,
           // Please change this to your repo.
           editUrl:
-            "https://github.com/Jonnyburger/remotion/edit/main/packages/docs/blog/",
+            "https://github.com/remotion-dev/remotion/edit/main/packages/docs/blog/",
         },
         theme: {
           customCss: require.resolve("./src/css/custom.css"),
