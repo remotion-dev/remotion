@@ -15,6 +15,7 @@ import {Internals} from 'remotion';
 import {getCliOptions} from './get-cli-options';
 import {getCompositionId} from './get-composition-id';
 import {getConfigFileName} from './get-config-file-name';
+import {isJavascript} from './is-javascript';
 import {loadConfigFile} from './load-config';
 import {Log} from './log';
 import {parseCommandLine, parsedCli} from './parse-command-line';
@@ -25,8 +26,6 @@ import {
 	makeStitchingProgres,
 } from './progress-bar';
 import {checkAndValidateFfmpegVersion} from './validate-ffmpeg-version';
-import {isJavascript, isJavascript} from './is-javascript';
-import { javascript } from 'webpack';
 
 const onError = async (info: OnErrorInfo) => {
 	Log.error();
@@ -66,7 +65,7 @@ export const render = async () => {
 	const isFileJavascript = isJavascript(fullPath);
 
 	const configFileName = getConfigFileName(isFileJavascript);
-	const appliedName = loadConfigFile(configFileName);
+	const appliedName = loadConfigFile(configFileName, isFileJavascript);
 	parseCommandLine();
 	if (appliedName) {
 		Log.verbose(`Applied configuration from ${appliedName}.`);

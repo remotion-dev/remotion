@@ -1,14 +1,16 @@
 import {parsedCli} from './parse-command-line';
 
-const defaultConfigFileTypescript = 'remotion.config.ts';
+let defaultConfigFile = 'remotion.config.ts';
 const defaultConfigFileJavascript = 'remotion.config.js';
+const defaultConfigFileTypescript = 'remotion.config.ts';
 
 export const getConfigFileName = (isJavascript: boolean): string => {
-	return parsedCli.config ?? isJavascript
+	defaultConfigFile = isJavascript
 		? defaultConfigFileJavascript
 		: defaultConfigFileTypescript;
+	return parsedCli.config ?? defaultConfigFile;
 };
 
 export const isDefaultConfigFile = (fileName: string) => {
-	return fileName === defaultConfigFileTypescript;
+	return fileName === defaultConfigFile;
 };
