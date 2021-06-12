@@ -28,10 +28,16 @@ const flex1: React.CSSProperties = {
 };
 
 const Showcase = () => {
-  const containerSize = useElementSize(document.body);
+  const containerSize = useElementSize(
+    typeof document === "undefined" ? null : document.body
+  );
   const mobileLayout = (containerSize?.width ?? Infinity) < 1200;
 
   const [video, setVideo] = useState<ShowcaseVideo | null>(() => {
+    if (typeof window === "undefined") {
+      return null;
+    }
+
     if (!window.location.hash) {
       return null;
     }
