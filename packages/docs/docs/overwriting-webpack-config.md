@@ -3,13 +3,15 @@ id: webpack
 title: Custom Webpack config
 ---
 
+import Tabs from "@theme/Tabs";
+
 You can customize the Webpack configuration if you have at least Version 1.1 of Remotion.
 
 Create a config file called `remotion.config.ts` in the root of your project. As a confirmation, you should get a console message `Applied configuration from [configuration-file]`.
 
 ## Overriding the webpack config
 
-Get familiar with the default Webpack configuration which can be [found here](https://github.com/JonnyBurger/remotion/blob/main/packages/bundler/src/webpack-config.ts).
+Get familiar with the default Webpack configuration which can be [found here](https://github.com/remotion-dev/remotion/blob/main/packages/bundler/src/webpack-config.ts).
 
 In your `remotion.config.ts` file, you can call `Config.Bundler.overrideWebpackConfig` from `remotion`.
 
@@ -85,9 +87,35 @@ Create a file which contains `declare module '*.mdx';` in your project to fix a 
 
 ### Enable SASS/SCSS support
 
-```tsx
-import {Config} from 'remotion';
+1. Install the following dependencies:
 
+<Tabs
+defaultValue="npm"
+values={[
+{ label: 'npm', value: 'npm', },
+{ label: 'yarn', value: 'yarn', },
+]
+}>
+<TabItem value="npm">
+
+```bash
+npm i sass sass-loader
+```
+
+  </TabItem>
+
+  <TabItem value="yarn">
+
+```bash
+yarn add sass sass-loader
+```
+
+  </TabItem>
+</Tabs>
+
+2. Add the following to your [`remotion.config.ts`](/docs/config) file:
+
+```tsx
 Config.Bundling.overrideWebpackConfig((currentConfiguration) => {
 	return {
 		...currentConfiguration,
@@ -97,12 +125,8 @@ Config.Bundling.overrideWebpackConfig((currentConfiguration) => {
 				...(currentConfiguration.module?.rules
 					? currentConfiguration.module.rules
 					: []),
-				// Add more loaders here
 				{
-					// look for .css or .scss files
-					test: /\.(css|scss)$/,
-					// in the `src` directory
-					include: [resolveApp('src')],
+					test: /\.s[ac]ss$/i,
 					use: [
 						{
 							loader: 'style-loader',
@@ -123,6 +147,8 @@ Config.Bundling.overrideWebpackConfig((currentConfiguration) => {
 	};
 });
 ```
+
+3. Restart the preview server.
 
 ### Use legacy babel loader
 

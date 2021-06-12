@@ -20,6 +20,7 @@ export const startServer = async (
 		inputProps?: object;
 		envVariables?: Record<string, string>;
 		port?: number;
+		maxTimelineTracks?: number;
 	}
 ): Promise<number> => {
 	const app = express();
@@ -36,6 +37,7 @@ export const startServer = async (
 			options?.webpackOverride ?? Internals.getWebpackOverrideFn(),
 		inputProps: options?.inputProps ?? {},
 		envVariables: options?.envVariables ?? {},
+		maxTimelineTracks: options?.maxTimelineTracks ?? 15,
 	});
 	const compiler = webpack(config);
 

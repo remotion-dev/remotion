@@ -57,5 +57,5 @@ export const usePlayback = ({loop}: {loop: boolean}) => {
 		return () => {
 			stop();
 		};
-	}, [config, loop, pause, playing, setFrame]);
+	}, [config, loop, pause, playing, setFrame, emitter]);
 };

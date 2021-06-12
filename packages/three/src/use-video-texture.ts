@@ -10,6 +10,19 @@ declare global {
 
 export type UseVideoTextureOptions = React.ComponentProps<typeof Video>;
 
+let warned = false;
+
+const warnAboutRequestVideoFrameCallback = () => {
+	if (warned) {
+		return false;
+	}
+
+	warned = true;
+	console.warn(
+		'Browser does not support requestVideoFrameCallback. Cannot display video.'
+	);
+};
+
 export const useVideoTexture = (
 	videoRef: React.RefObject<HTMLVideoElement>
 ): VideoTexture | null => {
@@ -57,9 +70,8 @@ export const useVideoTexture = (
 		}
 
 		if (!current.requestVideoFrameCallback) {
-			throw new Error(
-				'HTMLVideoElement.requestVideoFrameCallback not supported'
-			);
+			warnAboutRequestVideoFrameCallback();
+			return;
 		}
 
 		const ready = () => {
@@ -69,6 +81,14 @@ export const useVideoTexture = (
 
 		current.requestVideoFrameCallback(ready);
 	}, [frame, loaded, videoRef]);
+
+	if (
+		typeof HTMLVideoElement === 'undefined' ||
+		!HTMLVideoElement.prototype.requestVideoFrameCallback
+	) {
+		continueRender(loaded);
+		return null;
+	}
 
 	return videoTexture;
 };
