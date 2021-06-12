@@ -25,6 +25,8 @@ import {
 	makeStitchingProgres,
 } from './progress-bar';
 import {checkAndValidateFfmpegVersion} from './validate-ffmpeg-version';
+import {isJavascript, isJavascript} from './is-javascript';
+import { javascript } from 'webpack';
 
 const onError = async (info: OnErrorInfo) => {
 	Log.error();
@@ -61,7 +63,9 @@ export const render = async () => {
 	const file = parsedCli._[1];
 	const fullPath = path.join(process.cwd(), file);
 
-	const configFileName = getConfigFileName();
+	const isFileJavascript = isJavascript(fullPath);
+
+	const configFileName = getConfigFileName(isFileJavascript);
 	const appliedName = loadConfigFile(configFileName);
 	parseCommandLine();
 	if (appliedName) {
