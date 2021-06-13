@@ -1,10 +1,8 @@
-import React from "react";
-
 export type ShowcaseLink = "tutorial" | "source_code" | "website" | "video";
 
 export type ShowcaseVideo = {
   title: string;
-  description: React.ReactNode;
+  description: string;
   height: number;
   width: number;
   links: {
@@ -21,12 +19,8 @@ export const showcaseVideos: ShowcaseVideo[] = [
     title: "Spotify Wrapped",
     type: "mux_video",
     muxId: "V5Dpfui9NmUSons5P5VQRbyX5m5011LsRA01f0129CLbHo",
-    description: (
-      <>
-        A recreation of Spotify Wrapped where you can override all text and
-        images via command line.
-      </>
-    ),
+    description:
+      "A recreation of Spotify Wrapped where you can override all text and images via command line.",
     height: 1280,
     width: 720,
     submittedOn: new Date("25-03-2021"),
@@ -45,9 +39,8 @@ export const showcaseVideos: ShowcaseVideo[] = [
     title: "AnySticker In App Assets",
     type: "mux_video",
     muxId: "HL4G1x01aX8lizSXFGuQG8do6LLKcI1mup6WjIz6OEFE",
-    description: (
-      <>This video will welcome users in the newest version of AnySticker.</>
-    ),
+    description:
+      "This video will welcome users in the newest version of AnySticker.",
     height: 1920,
     width: 1080,
     submittedOn: new Date("25-03-2021"),
@@ -62,7 +55,7 @@ export const showcaseVideos: ShowcaseVideo[] = [
     title: "Remotion Trailer",
     type: "mux_video",
     muxId: "nJ2JnX2a02JiDvirVoNrz02lJ01q8DuvIZoKKq8q1uPdKA",
-    description: <>This video Welcome you to Remotion project.</>,
+    description: "This video Welcome you to Remotion project.",
     width: 1920,
     height: 1080,
     submittedOn: new Date("25-03-2021"),
@@ -81,12 +74,8 @@ export const showcaseVideos: ShowcaseVideo[] = [
     title: "VFB Crowdfunding Campaign",
     type: "mux_video",
     muxId: "L7DYDk9o701zxfWUhcFb1Z1mGGzYoIuxddwNVI3tcemQ",
-    description: (
-      <>
-        It fetchs the actual raised amount and generate an animation with
-        instagram story specifications.
-      </>
-    ),
+    description:
+      "It fetchs the actual raised amount and generate an animation with instagram story specifications.",
     width: 1080,
     height: 1920,
     submittedOn: new Date("25-03-2021"),
@@ -106,11 +95,8 @@ export const showcaseVideos: ShowcaseVideo[] = [
     title: "Love, Death & React",
     type: "mux_video",
     muxId: "pEo7cREHlak5FxdpNOKB8BYlUCa19Klkfn1XtXxjfxc",
-    description: (
-      <>
-        A recreation of Netflix{"'"}s &quot;Love, Death &amp; React&quot; intro.
-      </>
-    ),
+    description:
+      "A recreation of Netflix's &quot;Love, Death &amp; React&quot; intro.",
     width: 1280,
     height: 720,
     submittedOn: new Date("29-05-2021"),
@@ -129,9 +115,8 @@ export const showcaseVideos: ShowcaseVideo[] = [
     title: "Music Player",
     type: "mux_video",
     muxId: "7NZ41UEioG00jZygP02NXji01wr7HE02R8m3puh19V8IlZw",
-    description: (
-      <>A music player visualization for teasing tracks on Instagram.</>
-    ),
+    description:
+      "A music player visualization for teasing tracks on Instagram.",
     width: 720,
     height: 720,
     submittedOn: new Date("29-05-2021"),
@@ -150,11 +135,8 @@ export const showcaseVideos: ShowcaseVideo[] = [
     title: "Crypto Prices",
     type: "mux_video",
     muxId: "fAhMmqHE5fQg9V7H2CwNj4buFC6JhLDfgaMI9OBpYhw",
-    description: (
-      <>
-        Fully automated Twitter bot summarizing movements in the crypto market.
-      </>
-    ),
+    description:
+      "Fully automated Twitter bot summarizing movements in the crypto market.",
     width: 720,
     height: 720,
     submittedOn: new Date("29-05-2021"),
@@ -173,12 +155,8 @@ export const showcaseVideos: ShowcaseVideo[] = [
     title: "Piano Teacher",
     type: "mux_video",
     muxId: "uuhPSi5C01DIIxBm3HcxJGs9d8hYmDnNjkmgwTMWJQPg",
-    description: (
-      <>
-        A MIDI-to-Remotion converter visualizing how to play a song on the
-        piano.
-      </>
-    ),
+    description:
+      "A MIDI-to-Remotion converter visualizing how to play a song on the piano.",
     width: 1280,
     height: 720,
     submittedOn: new Date("29-05-2021"),
@@ -193,13 +171,8 @@ export const showcaseVideos: ShowcaseVideo[] = [
     title: "Vlog editor",
     type: "mux_video",
     muxId: "pSEhcZX5HBJy9SFK4j7vGs00NhPFCedqwL9X01ykNsIlo",
-    description: (
-      <>
-        This daily vlog is automatically cut together using Remotion. Clips are
-        recorded and uploaded to an FTP server, YouTube clips downloaded
-        automatically.
-      </>
-    ),
+    description:
+      "This daily vlog is automatically cut together using Remotion. Clips are recorded and uploaded to an FTP server, YouTube clips downloaded automatically.",
     width: 1280,
     height: 720,
     submittedOn: new Date("29-05-2021"),
@@ -218,7 +191,7 @@ export const showcaseVideos: ShowcaseVideo[] = [
     title: "Flow Fields",
     type: "mux_video",
     muxId: "st5ifZHHqs8k9m19FNqYyRdh01CM8pX302ikEzAvnikTA",
-    description: <>A generative SVG animation using noise.</>,
+    description: "A generative SVG animation using noise.",
     width: 720,
     height: 720,
     submittedOn: new Date("29-05-2021"),
