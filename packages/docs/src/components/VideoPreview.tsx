@@ -79,9 +79,7 @@ export const VideoPreview: React.FC<
       onClick={onClick}
     >
       <div className="text--center">
-        <div style={style}>
-          <img width={300} height={300} />
-        </div>
+        <div style={style} />
       </div>
       <h3 style={videoTitle}>{title}</h3>
       <p>{description}</p>

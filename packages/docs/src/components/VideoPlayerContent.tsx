@@ -9,11 +9,12 @@ import React, {
 import { ShowcaseVideo } from "../data/showcase-videos";
 import { useElementSize } from "../helpers/use-el-size";
 import { Spinner } from "./Spinner";
+import { SHOWCASE_MOBILE_HEADER_HEIGHT } from "./VideoPlayerHeader";
 import { VideoSidebar } from "./VideoSidebar";
 
 const videoCss: React.CSSProperties = {
   marginBottom: 0,
-  backgroundColor: "white",
+  backgroundColor: "var(--ifm-hero-background-color)",
 };
 
 const RESERVED_FOR_SIDEBAR = 300;
@@ -107,7 +108,7 @@ export const VideoPlayerContent: React.FC<{ video: ShowcaseVideo }> = ({
 
   const containerCss: React.CSSProperties = useMemo(() => {
     return {
-      backgroundColor: "white",
+      backgroundColor: "var(--ifm-hero-background-color)",
       marginBottom: 0,
       display: "flex",
       flexDirection: mobileLayout ? "column" : "row",
@@ -116,6 +117,7 @@ export const VideoPlayerContent: React.FC<{ video: ShowcaseVideo }> = ({
       position: mobileLayout ? "absolute" : undefined,
       left: mobileLayout ? 0 : undefined,
       top: mobileLayout ? 0 : undefined,
+      overflow: "auto",
     };
   }, [mobileLayout]);
 
@@ -129,6 +131,10 @@ export const VideoPlayerContent: React.FC<{ video: ShowcaseVideo }> = ({
 
   return (
     <div ref={container} style={containerCss}>
+      {mobileLayout ? (
+        <div style={{ height: SHOWCASE_MOBILE_HEADER_HEIGHT }} />
+      ) : null}
+
       {loaded ? null : (
         <div style={loadingStyle}>
           <Spinner style={spinner} />
