@@ -52,7 +52,7 @@ module.exports = {
       ],
     },
     footer: {
-      style: "dark",
+      style: "light",
       links: [
         {
           title: "Docs",
@@ -113,7 +113,7 @@ module.exports = {
           ],
         },
       ],
-      copyright: `Copyright © ${new Date().getFullYear()} Jonny Burger. Built with Docusaurus.`,
+      copyright: `Copyright © ${new Date().getFullYear()} remotion.dev. Built with Docusaurus.`,
     },
   },
   presets: [
