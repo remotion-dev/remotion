@@ -8,6 +8,7 @@ import xns from 'xns';
 import {getConfigFileName} from './get-config-file-name';
 import {getEnvironmentVariables} from './get-env';
 import {getInputProps} from './get-input-props';
+import {isJavascript} from './is-javascript';
 import {loadConfigFile} from './load-config';
 import {parsedCli} from './parse-command-line';
 
@@ -18,7 +19,9 @@ export const previewCommand = xns(async () => {
 	const {port: desiredPort} = parsedCli;
 	const fullPath = path.join(process.cwd(), file);
 
-	loadConfigFile(getConfigFileName());
+	const isFileJavascript = isJavascript(fullPath);
+
+	loadConfigFile(getConfigFileName(isFileJavascript), isFileJavascript);
 
 	const inputProps = getInputProps();
 	const envVariables = await getEnvironmentVariables();
