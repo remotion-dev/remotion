@@ -95,8 +95,7 @@ export const showcaseVideos: ShowcaseVideo[] = [
     title: "Love, Death & React",
     type: "mux_video",
     muxId: "pEo7cREHlak5FxdpNOKB8BYlUCa19Klkfn1XtXxjfxc",
-    description:
-      "A recreation of Netflix's &quot;Love, Death &amp; React&quot; intro.",
+    description: "A recreation of Netflix's 'Love, Death & React' intro.",
     width: 1280,
     height: 720,
     submittedOn: new Date("29-05-2021"),

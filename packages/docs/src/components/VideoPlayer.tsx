@@ -1,5 +1,6 @@
-import React, { SVGProps, useEffect, useRef } from "react";
+import React, { SVGProps, useEffect, useMemo, useRef } from "react";
 import { ShowcaseVideo } from "../data/showcase-videos";
+import { useElementSize } from "../helpers/use-el-size";
 import { VideoPlayerContent } from "./VideoPlayerContent";
 
 const container: React.CSSProperties = {
@@ -58,6 +59,18 @@ export const VideoPlayer: React.FC<{
   hasPrevious: boolean;
   hasNext: boolean;
 }> = ({ video, dismiss, toNext, toPrevious, hasNext, hasPrevious }) => {
+  const containerSize = useElementSize(
+    typeof document === "undefined" ? null : document.body
+  );
+  const mobileLayout = (containerSize?.width ?? Infinity) < 900;
+
+  const containerWithDirection: React.CSSProperties = useMemo(() => {
+    return {
+      ...container,
+      flexDirection: mobileLayout ? "column" : "row",
+    };
+  }, [mobileLayout]);
+
   const outside = useRef<HTMLDivElement>(null);
   const inside = useRef<HTMLDivElement>(null);
   const backButton = useRef<HTMLDivElement>(null);
@@ -76,11 +89,11 @@ export const VideoPlayer: React.FC<{
       return;
     }
 
-    if (!backButtonCurrent) {
+    if (!mobileLayout && !backButtonCurrent) {
       return;
     }
 
-    if (!forwardButtonCurrent) {
+    if (!mobileLayout && !forwardButtonCurrent) {
       return;
     }
 
@@ -89,11 +102,21 @@ export const VideoPlayer: React.FC<{
         return;
       }
 
-      if (backButtonCurrent.contains(event.target as Node | null)) {
+      if (
+        !mobileLayout &&
+        (backButtonCurrent as HTMLDivElement).contains(
+          event.target as Node | null
+        )
+      ) {
         return;
       }
 
-      if (forwardButtonCurrent.contains(event.target as Node | null)) {
+      if (
+        !mobileLayout &&
+        (forwardButtonCurrent as HTMLDivElement).contains(
+          event.target as Node | null
+        )
+      ) {
         return;
       }
 
@@ -104,7 +127,7 @@ export const VideoPlayer: React.FC<{
     return () => {
       current.removeEventListener("click", onClick);
     };
-  }, [dismiss, video]);
+  }, [dismiss, mobileLayout, video]);
 
   useEffect(() => {
     if (!video) {
@@ -120,7 +143,7 @@ export const VideoPlayer: React.FC<{
         toPrevious();
       }
 
-      if (hasPrevious && e.key === "Escape") {
+      if (e.key === "Escape") {
         dismiss();
       }
     };
@@ -136,24 +159,28 @@ export const VideoPlayer: React.FC<{
   }
 
   return (
-    <div ref={outside} style={container}>
-      <div
-        ref={backButton}
-        style={hasPrevious ? changeButton : changeButtonInactive}
-        onClick={toPrevious}
-      >
-        <IconLeft style={icon} />
-      </div>
+    <div ref={outside} style={containerWithDirection}>
+      {mobileLayout ? null : (
+        <div
+          ref={backButton}
+          style={hasPrevious ? changeButton : changeButtonInactive}
+          onClick={toPrevious}
+        >
+          <IconLeft style={icon} />
+        </div>
+      )}
       <div ref={inside}>
         <VideoPlayerContent video={video} />
       </div>
-      <div
-        ref={forwardButton}
-        style={hasNext ? changeButton : changeButtonInactive}
-        onClick={toNext}
-      >
-        <IconRight style={icon} />
-      </div>
+      {mobileLayout ? null : (
+        <div
+          ref={forwardButton}
+          style={hasNext ? changeButton : changeButtonInactive}
+          onClick={toNext}
+        >
+          <IconRight style={icon} />
+        </div>
+      )}
     </div>
   );
 };
