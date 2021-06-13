@@ -16,7 +16,8 @@ const PageHeader: React.FC = () => {
         <h1 className={headerStyles.title}>Showcase</h1>
         <p>
           Some awesome creations from the community, many with source code. Have
-          you made your own video with Remotion? Add it to the showcase!
+          you made your own video with Remotion?{" "}
+          <a href="/showcase/add">Add it to the showcase!</a>
         </p>
       </div>
     </div>
