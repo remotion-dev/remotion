@@ -11,13 +11,6 @@ import { useElementSize } from "../helpers/use-el-size";
 import { Spinner } from "./Spinner";
 import { VideoSidebar } from "./VideoSidebar";
 
-const containerCss: React.CSSProperties = {
-  backgroundColor: "white",
-  marginBottom: 0,
-  display: "flex",
-  flexDirection: "row",
-};
-
 const videoCss: React.CSSProperties = {
   marginBottom: 0,
   backgroundColor: "white",
@@ -62,13 +55,19 @@ export const VideoPlayerContent: React.FC<{ video: ShowcaseVideo }> = ({
   const container = useRef<HTMLDivElement>(null);
   const vidUrl = getVideoToPlayUrl(video);
 
-  const containerSize = useElementSize(document.body);
+  const containerSize = useElementSize(
+    typeof document === "undefined" ? null : document.body
+  );
+  const mobileLayout = (containerSize?.width ?? Infinity) < 900;
 
-  const possibleVideoWidth =
-    Math.min(containerSize?.width ?? 0, 1200) -
-    RESERVED_FOR_SIDEBAR -
-    PAGINATE_BUTTONS_WIDTH;
-  const containerHeight = Math.min(containerSize?.height ?? 0, 800);
+  const possibleVideoWidth = mobileLayout
+    ? containerSize?.width
+    : Math.min(containerSize?.width ?? 0, 1200) -
+      (mobileLayout ? 0 : RESERVED_FOR_SIDEBAR) -
+      (mobileLayout ? 0 : PAGINATE_BUTTONS_WIDTH);
+  const containerHeight = mobileLayout
+    ? Infinity
+    : Math.min(containerSize?.height ?? 0, 800);
 
   const heightRatio = (containerHeight ?? 0) / video.height;
   const widthRatio = (possibleVideoWidth ?? 0) / video.width;
@@ -105,6 +104,20 @@ export const VideoPlayerContent: React.FC<{ video: ShowcaseVideo }> = ({
   const onLoadedMetadata = useCallback(() => {
     setLoaded(true);
   }, []);
+
+  const containerCss: React.CSSProperties = useMemo(() => {
+    return {
+      backgroundColor: "white",
+      marginBottom: 0,
+      display: "flex",
+      flexDirection: mobileLayout ? "column" : "row",
+      height: mobileLayout ? "100%" : undefined,
+      width: mobileLayout ? "100%" : undefined,
+      position: mobileLayout ? "absolute" : undefined,
+      left: mobileLayout ? 0 : undefined,
+      top: mobileLayout ? 0 : undefined,
+    };
+  }, [mobileLayout]);
 
   const loadingStyle = useMemo(() => {
     return {
