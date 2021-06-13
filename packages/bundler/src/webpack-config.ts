@@ -171,6 +171,13 @@ export const webpackConfig = ({
 								target: 'chrome85',
 							},
 						},
+						environment === 'development'
+							? {
+									loader: require.resolve(
+										'@webhotelier/webpack-fast-refresh/loader.js'
+									),
+							  }
+							: null,
 					].filter(truthy),
 				},
 			],
