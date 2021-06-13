@@ -1,6 +1,6 @@
 {
   "name": "docs",
-  "version": "2.1.9",
+  "version": "2.1.10",
   "private": true,
   "scripts": {
     "docusaurus": "docusaurus",
@@ -16,16 +16,16 @@
     "@docusaurus/core": "2.0.0-beta.0",
     "@docusaurus/preset-classic": "2.0.0-beta.0",
     "@mdx-js/react": "^1.6.21",
-    "@remotion/media-utils": "2.1.9",
-    "@remotion/player": "2.1.9",
-    "@remotion/three": "2.1.9",
+    "@remotion/media-utils": "2.1.10",
+    "@remotion/player": "2.1.10",
+    "@remotion/three": "2.1.10",
     "@splitbee/web": "^0.2.4",
     "@types/color-namer": "^1.3.0",
     "clsx": "^1.1.1",
     "color-namer": "1.4.0",
     "polished": "4.1.2",
     "prism-react-renderer": "^1.2.1",
-    "remotion": "2.1.9"
+    "remotion": "2.1.10"
   },
   "browserslist": {
     "production": [
