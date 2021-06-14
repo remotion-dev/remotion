@@ -1,7 +1,12 @@
 import namer from 'color-namer';
 import React from 'react';
-import {spring, useCurrentFrame, useVideoConfig} from 'remotion';
-import {getReadableColor} from '../readable-color';
+import {
+  spring,
+  useCurrentFrame,
+  useVideoConfig,
+} from "remotion";
+import { getReadableColor } from './readable-color';
+import { defaultStyles } from './styles';
 
 export const Shade: React.FC<{
 	color: string;
@@ -19,16 +24,8 @@ export const Shade: React.FC<{
 	return (
 		<div
 			style={{
-				display: 'flex',
-				justifyContent: 'center',
-				alignItems: 'center',
-				fontFamily:
-					"--apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif",
-				fontWeight: 'bold',
-				fontSize: 100,
-				lineHeight: 1.1,
+				...defaultStyles,
 				backgroundColor: getReadableColor(color),
-				flex: 1,
 				color,
 			}}
 		>
