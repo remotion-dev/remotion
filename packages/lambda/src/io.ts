@@ -26,30 +26,18 @@ const ensureDir = async ({bucketName}: {bucketName: string}) => {
 export const lambdaLs = async ({
 	bucketName,
 	forceS3,
+	prefix,
 }: {
 	bucketName: string;
+	prefix: string;
 	forceS3: boolean;
 }): Promise<_Object[]> => {
 	await ensureDir({bucketName});
-	if (ENABLE_EFS && !forceS3) {
-		const dir = await promises.readdir(EFS_MOUNT_PATH + '/' + bucketName);
-
-		// TODO: Mock data
-		return dir.map((d) => {
-			return {
-				ETag: undefined,
-				Key: d,
-				LastModified: new Date(),
-				Owner: undefined,
-				Size: 0,
-				StorageClass: undefined,
-			};
-		});
-	}
 
 	const list = await s3Client.send(
 		new ListObjectsV2Command({
 			Bucket: bucketName,
+			Prefix: prefix,
 		})
 	);
 	return list.Contents ?? [];

@@ -20,7 +20,7 @@ export const writeOptimization = async (
 };
 
 export const getNewestRenderBucket = async () => {
-	// TODO: Just use 1 bucket
+	// TODO: Just use 1 bucket, already have it
 	const buckets = await getRemotionS3Buckets(s3Client);
 	const renderBuckets = buckets.remotionBuckets
 		.filter((f) => f.Name?.startsWith(REMOTION_BUCKET_PREFIX))
@@ -36,6 +36,7 @@ export const getNewestRenderBucket = async () => {
 export const getOptimization = async (
 	compositionId: string
 ): Promise<OptimizationProfile | null> => {
+	// TODO: already have render bucket id
 	const bucket = await getNewestRenderBucket();
 	if (bucket === null) {
 		return null;
@@ -43,12 +44,13 @@ export const getOptimization = async (
 
 	const bucketName = bucket.Name as string;
 
+	const prefix = optimizationProfile(compositionId);
 	const dir = await lambdaLs({
 		bucketName,
 		forceS3: false,
+		prefix,
 	});
 	const files = dir
-		.filter((d) => d.Key?.startsWith(optimizationProfile(compositionId)))
 		.sort(
 			(a, b) =>
 				(a.LastModified?.getTime() as number) -

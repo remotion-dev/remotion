@@ -73,7 +73,7 @@ export const startServer = async (
 
 	app.use('*', (req, res) => {
 		res.type('text/html');
-		res.end(indexHtml.replace(/%PUBLIC_PATH%/g, options?.publicPath ?? ''));
+		res.end(indexHtml.replace(/%PUBLIC_PATH%/g, options?.publicPath ?? '/'));
 	});
 
 	const desiredPort = options?.port ?? Internals.getServerPort();

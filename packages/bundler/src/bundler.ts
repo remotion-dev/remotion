@@ -60,7 +60,7 @@ export const bundle = async (
 	});
 	const withPublicPath = content.replace(
 		/%PUBLIC_PATH%/g,
-		options?.publicPath ?? ''
+		options?.publicPath ?? '/'
 	);
 	const outPath = path.join(outDir, 'index.html');
 	await fs.promises.writeFile(outPath, withPublicPath);
