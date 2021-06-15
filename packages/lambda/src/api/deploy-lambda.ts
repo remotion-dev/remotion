@@ -5,10 +5,10 @@ import {iamClient, lambdaClient} from '../shared/aws-clients';
 import {MEMORY_SIZE, RENDER_FN_PREFIX} from '../shared/constants';
 import {randomHash} from '../shared/random-hash';
 import {bundleLambda} from './bundle-lambda';
-import {ensureLayers} from './lambda-layers';
+import {ensureLambdaBinaries} from './ensure-lambda-binaries';
 
 export const deployLambda = async () => {
-	const {layerArn} = await ensureLayers(lambdaClient);
+	const {layerArn} = await ensureLambdaBinaries(lambdaClient);
 	console.log('Done creating layers');
 	const fnNameRender = RENDER_FN_PREFIX + randomHash();
 	const renderOut = await bundleLambda('render');
