@@ -1,4 +1,7 @@
 import execa from 'execa';
+import fs from 'fs';
+import os from 'os';
+import path from 'path';
 import {
 	Codec,
 	ImageFormat,
@@ -21,6 +24,10 @@ import {DEFAULT_IMAGE_FORMAT} from './image-format';
 import {parseFfmpegProgress} from './parse-ffmpeg-progress';
 import {resolveAssetSrc} from './resolve-asset-src';
 import {validateFfmpeg} from './validate-ffmpeg';
+
+const makeAssetsDownloadTmpDir = (): Promise<string> => {
+	return fs.promises.mkdtemp(path.join(os.tmpdir(), 'remotion-complex-filter'));
+};
 
 // eslint-disable-next-line complexity
 export const stitchFramesToVideo = async (options: {
@@ -96,7 +103,7 @@ export const stitchFramesToVideo = async (options: {
 		}),
 		convertAssetsToFileUrls({
 			assets: options.assetsInfo.assets,
-			downloadDir: options.downloadDir ?? options.assetsInfo.bundleDir,
+			downloadDir: options.downloadDir ?? (await makeAssetsDownloadTmpDir()),
 			onDownload: options.onDownload ?? (() => undefined),
 		}),
 	]);
