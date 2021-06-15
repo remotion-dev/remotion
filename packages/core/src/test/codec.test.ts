@@ -91,8 +91,8 @@ describe('Codec tests setOutputFormat', () => {
 		})
 	);
 	test('setCodec with invalid coded', () => {
-		// @ts-expect-error
 		expectToThrow(
+			// @ts-expect-error
 			() => setCodec('invalid'),
 			/Codec must be one of the following:/
 		);
