@@ -25,12 +25,10 @@ const ensureDir = async ({bucketName}: {bucketName: string}) => {
 
 export const lambdaLs = async ({
 	bucketName,
-	forceS3,
 	prefix,
 }: {
 	bucketName: string;
 	prefix: string;
-	forceS3: boolean;
 }): Promise<_Object[]> => {
 	await ensureDir({bucketName});
 
