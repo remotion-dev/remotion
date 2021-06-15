@@ -40,7 +40,8 @@ const matchCommand = async () => {
 };
 
 export const cli = async () => {
-	CliInternals.loadConfigFile(CliInternals.getConfigFileName());
+	// TODO: TS hardcoded, support JS just as in normal CLI
+	CliInternals.loadConfigFile(CliInternals.getConfigFileName(false), false);
 	try {
 		await matchCommand();
 	} catch (err) {

@@ -81,6 +81,7 @@ const renderHandler = async (params: LambdaPayload) => {
 		outputDir,
 		puppeteerInstance: browserInstance,
 		serveUrl: params.serveUrl,
+		bundleDir: null,
 	});
 	const condensedTimingData: ChunkTimingData = {
 		...chunkTimingData,

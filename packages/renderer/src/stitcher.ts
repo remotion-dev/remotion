@@ -26,7 +26,7 @@ import {resolveAssetSrc} from './resolve-asset-src';
 import {validateFfmpeg} from './validate-ffmpeg';
 
 const makeAssetsDownloadTmpDir = (): Promise<string> => {
-	return fs.promises.mkdtemp(path.join(os.tmpdir(), 'remotion-complex-filter'));
+	return fs.promises.mkdtemp(path.join(os.tmpdir(), 'remotion-assets-dir'));
 };
 
 // eslint-disable-next-line complexity
@@ -105,6 +105,7 @@ export const stitchFramesToVideo = async (options: {
 			assets: options.assetsInfo.assets,
 			downloadDir: options.downloadDir ?? (await makeAssetsDownloadTmpDir()),
 			onDownload: options.onDownload ?? (() => undefined),
+			webpackBundle: options.assetsInfo.bundleDir,
 		}),
 	]);
 
@@ -146,7 +147,7 @@ export const stitchFramesToVideo = async (options: {
 		frameInfo
 			? ['-i', `element-%0${frameInfo.numberLength}d.${imageFormat}`]
 			: null,
-		...assetPaths.map((path) => ['-i', path]),
+		...assetPaths.map((p) => ['-i', p]),
 		encoderName
 			? // -c:v is the same as -vcodec as -codec:video
 			  // and specified the video codec.
