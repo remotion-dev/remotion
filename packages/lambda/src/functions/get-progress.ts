@@ -128,7 +128,6 @@ export const progressHandler = async (lambdaParams: LambdaPayload) => {
 
 	const contents = await lambdaLs({
 		bucketName: lambdaParams.bucketName,
-		forceS3: true,
 		prefix: rendersPrefix(lambdaParams.renderId),
 	});
 

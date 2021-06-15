@@ -34,7 +34,6 @@ export const getOptimization = async ({
 	const prefix = optimizationProfile(siteId, compositionId);
 	const dir = await lambdaLs({
 		bucketName,
-		forceS3: false,
 		prefix,
 	});
 	const files = dir

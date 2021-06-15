@@ -10,7 +10,6 @@ export const collectChunkInformation = async (
 	const prefix = rendersPrefix(lambdaInitializedKey(renderId));
 	const timingFiles = await lambdaLs({
 		bucketName,
-		forceS3: true,
 		prefix,
 	});
 	const timingFileContents = await Promise.all(

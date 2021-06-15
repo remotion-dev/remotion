@@ -53,7 +53,6 @@ const getFnName = async (): Promise<{
 	const prefix = getSitesKey('');
 	const firstBucket = await lambdaLs({
 		bucketName: websiteBuckets[0].Name as string,
-		forceS3: true,
 		prefix,
 	});
 	const firstSite = firstBucket.find(() => true);
@@ -96,7 +95,6 @@ CliInternals.xns(async () => {
 
 	const logs = await lambdaLs({
 		bucketName: res.bucketName,
-		forceS3: true,
 		prefix: timingProfileName(res.renderId),
 	});
 
