@@ -2,7 +2,7 @@ import {PutObjectCommand, S3Client} from '@aws-sdk/client-s3';
 import {Upload} from '@aws-sdk/lib-storage';
 import {createReadStream, promises as fs} from 'fs';
 import path from 'path';
-import {s3Client} from './shared/aws-clients';
+import {s3Client} from '../shared/aws-clients';
 
 type FileInfo = {
 	name: string;

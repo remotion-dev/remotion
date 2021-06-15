@@ -4,9 +4,9 @@ import {CliInternals} from '@remotion/cli';
 import {BINARY_NAME} from '../api/bundle-remotion';
 import {cleanupLambdas, getRemotionLambdas} from '../cleanup/cleanup-lambdas';
 import {cleanUpBuckets, getRemotionS3Buckets} from '../cleanup/s3-buckets';
-import {REGION} from '../constants';
-import {chunk} from '../helpers/chunk';
 import {lambdaClient, s3Client} from '../shared/aws-clients';
+import {chunk} from '../shared/chunk';
+import {REGION} from '../shared/constants';
 import {Log} from './log';
 
 export const CLEANUP_COMMAND = 'cleanup';

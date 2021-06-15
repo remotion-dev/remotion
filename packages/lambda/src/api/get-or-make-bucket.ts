@@ -1,7 +1,7 @@
 import {CreateBucketCommand, ListBucketsCommand} from '@aws-sdk/client-s3';
-import {REMOTION_BUCKET_PREFIX} from './constants';
-import {randomHash} from './helpers/random-hash';
-import {s3Client} from './shared/aws-clients';
+import {s3Client} from '../shared/aws-clients';
+import {REMOTION_BUCKET_PREFIX} from '../shared/constants';
+import {randomHash} from '../shared/random-hash';
 
 export const getOrMakeBucket = async () => {
 	const existingBuckets = await s3Client.send(new ListBucketsCommand({}));

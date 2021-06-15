@@ -1,6 +1,6 @@
 import {InvokeCommand, LambdaClient} from '@aws-sdk/client-lambda';
 import {CliInternals} from '@remotion/cli';
-import {REGION} from './constants';
+import {REGION} from './shared/constants';
 
 const lambdaClient = new LambdaClient({
 	region: REGION,

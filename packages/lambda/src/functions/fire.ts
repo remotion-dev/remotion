@@ -1,6 +1,6 @@
 import {InvokeCommand} from '@aws-sdk/client-lambda';
-import {LambdaPayload, LambdaRoutines} from '../constants';
 import {lambdaClient} from '../shared/aws-clients';
+import {LambdaPayload, LambdaRoutines} from '../shared/constants';
 import {timer} from './helpers/timer';
 
 export const fireHandler = async (params: LambdaPayload) => {

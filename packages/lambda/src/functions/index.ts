@@ -1,5 +1,5 @@
-import {LambdaPayload, LambdaRoutines} from '../constants';
-import {LambdaReturnValues} from '../return-values';
+import {LambdaPayload, LambdaRoutines} from '../shared/constants';
+import {LambdaReturnValues} from '../shared/return-values';
 import {fireHandler} from './fire';
 import {progressHandler} from './get-progress';
 import {launchHandler} from './launch';

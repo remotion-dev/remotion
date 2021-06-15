@@ -1,6 +1,6 @@
 import {RenderInternals} from '@remotion/renderer';
+import {Await} from '../../shared/await';
 import {executablePath} from './get-chromium-executable-path';
-import {Await} from './helpers/await';
 
 let _browserInstance: Await<
 	ReturnType<typeof RenderInternals.openBrowser>

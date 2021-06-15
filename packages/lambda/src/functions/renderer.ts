@@ -2,10 +2,7 @@ import {InvokeCommand} from '@aws-sdk/client-lambda';
 import {renderFrames, stitchFramesToVideo} from '@remotion/renderer';
 import fs from 'fs';
 import path from 'path';
-import {
-	ChunkTimingData,
-	ObjectChunkTimingData,
-} from '../chunk-optimization/types';
+import {lambdaClient} from '../shared/aws-clients';
 import {
 	chunkKey,
 	getRendererErrorKeyPrefix,
@@ -13,12 +10,15 @@ import {
 	LambdaPayload,
 	LambdaPayloads,
 	LambdaRoutines,
-} from '../constants';
-import {getBrowserInstance} from '../get-browser-instance';
-import {randomHash} from '../helpers/random-hash';
-import {lambdaWriteFile} from '../io';
-import {lambdaClient} from '../shared/aws-clients';
-import {tmpDir} from '../tmpdir';
+} from '../shared/constants';
+import {randomHash} from '../shared/random-hash';
+import {tmpDir} from '../shared/tmpdir';
+import {
+	ChunkTimingData,
+	ObjectChunkTimingData,
+} from './chunk-optimization/types';
+import {getBrowserInstance} from './helpers/get-browser-instance';
+import {lambdaWriteFile} from './helpers/io';
 import {timer} from './helpers/timer';
 
 const renderHandler = async (params: LambdaPayload) => {

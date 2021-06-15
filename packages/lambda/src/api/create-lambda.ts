@@ -1,19 +1,15 @@
 import {GetUserCommand} from '@aws-sdk/client-iam';
 import {CreateFunctionCommand, LambdaClient} from '@aws-sdk/client-lambda';
 import {readFileSync} from 'fs';
-import {bundleLambda} from './api/bundle-lambda';
-import {MEMORY_SIZE, REGION, RENDER_FN_PREFIX} from './constants';
-import {randomHash} from './helpers/random-hash';
+import {iamClient} from '../shared/aws-clients';
+import {MEMORY_SIZE, REGION, RENDER_FN_PREFIX} from '../shared/constants';
+import {randomHash} from '../shared/random-hash';
+import {bundleLambda} from './bundle-lambda';
 import {ensureLayers} from './lambda-layers';
-import {iamClient} from './shared/aws-clients';
-import {waitForLambdaReady} from './wait-for-lambda-ready';
 
 const lambdaClient = new LambdaClient({
 	region: REGION,
 });
-
-type Developer = 'jonny' | 'shankhadeep';
-const developer: Developer = 'jonny' as Developer;
 
 export const createLambda = async () => {
 	const {layerArn} = await ensureLayers(lambdaClient);
@@ -54,7 +50,6 @@ export const createLambda = async () => {
 		throw new Error('Lambda was created but has no name');
 	}
 
-	await waitForLambdaReady(created.FunctionName);
 	return {
 		functionName: created.FunctionName,
 	};

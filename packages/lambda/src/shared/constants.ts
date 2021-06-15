@@ -1,4 +1,4 @@
-import {AwsRegion} from './pricing/aws-regions';
+import {AwsRegion} from '../pricing/aws-regions';
 
 export const MEMORY_SIZE = 2048;
 export const REGION: AwsRegion = 'eu-central-1';

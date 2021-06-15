@@ -1,6 +1,6 @@
-import {rendersPrefix, timingProfileName} from '../constants';
-import {streamToString} from '../helpers/stream-to-string';
-import {lambdaLs, lambdaReadFile} from '../io';
+import {rendersPrefix, timingProfileName} from '../../shared/constants';
+import {streamToString} from '../../shared/stream-to-string';
+import {lambdaLs, lambdaReadFile} from '../helpers/io';
 import {ChunkTimingData} from './types';
 
 export const collectChunkInformation = async (

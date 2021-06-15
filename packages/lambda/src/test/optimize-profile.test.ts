@@ -1,19 +1,19 @@
 import {
 	getFrameRangesFromProfile,
 	sortProfileByFrameRanges,
-} from '../chunk-optimization/get-frame-ranges-from-profile';
-import {getProfileDuration} from '../chunk-optimization/get-profile-duration';
-import {optimizeInvocationOrder} from '../chunk-optimization/optimize-invocation-order';
+} from '../functions/chunk-optimization/get-frame-ranges-from-profile';
+import {getProfileDuration} from '../functions/chunk-optimization/get-profile-duration';
+import {optimizeInvocationOrder} from '../functions/chunk-optimization/optimize-invocation-order';
 import {
 	assignFrameToOther,
 	optimizeProfile,
 	optimizeProfileRecursively,
-} from '../chunk-optimization/optimize-profile';
+} from '../functions/chunk-optimization/optimize-profile';
 import {
 	getSimulatedTimingForFrameRange,
 	getTimingForFrame,
 	simulateFrameRanges,
-} from '../chunk-optimization/simulate-frame-ranges';
+} from '../functions/chunk-optimization/simulate-frame-ranges';
 import {demoProfiles} from './demo-profile';
 import {demoProfile2} from './demo-profile-2';
 
