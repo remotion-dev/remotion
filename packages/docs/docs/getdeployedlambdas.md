@@ -1,0 +1,4 @@
+---
+title: getDeployedLambdas()
+id: getdeployedlambdas
+---

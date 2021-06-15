@@ -9,7 +9,7 @@ const runtimes: string[] = ['nodejs14.x', 'nodejs12.x', 'nodejs10.x'];
 
 const LAYER_NAME = 'remotion-binaries';
 
-export const createLayer = ({
+const createLayer = ({
 	lambdaClient,
 	name,
 	key,
@@ -35,7 +35,7 @@ export const createLayer = ({
 	);
 };
 
-export const getLayers = async (lambdaClient: LambdaClient) => {
+const getLayers = async (lambdaClient: LambdaClient) => {
 	const data = await lambdaClient.send(
 		new ListLayersCommand({
 			CompatibleRuntime: runtimes[0],
@@ -48,7 +48,7 @@ const hasLayer = (name: string, layers: LayersListItem[]) => {
 	return layers.find((l) => l.LayerName === name);
 };
 
-export const ensureLayer = async (
+const ensureLayer = async (
 	layers: LayersListItem[],
 	lambdaClient: LambdaClient
 ): Promise<string> => {

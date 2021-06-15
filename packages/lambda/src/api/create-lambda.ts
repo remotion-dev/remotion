@@ -1,17 +1,13 @@
 import {GetUserCommand} from '@aws-sdk/client-iam';
-import {CreateFunctionCommand, LambdaClient} from '@aws-sdk/client-lambda';
+import {CreateFunctionCommand} from '@aws-sdk/client-lambda';
 import {readFileSync} from 'fs';
-import {iamClient} from '../shared/aws-clients';
-import {MEMORY_SIZE, REGION, RENDER_FN_PREFIX} from '../shared/constants';
+import {iamClient, lambdaClient} from '../shared/aws-clients';
+import {MEMORY_SIZE, RENDER_FN_PREFIX} from '../shared/constants';
 import {randomHash} from '../shared/random-hash';
 import {bundleLambda} from './bundle-lambda';
 import {ensureLayers} from './lambda-layers';
 
-const lambdaClient = new LambdaClient({
-	region: REGION,
-});
-
-export const createLambda = async () => {
+export const deployLambda = async () => {
 	const {layerArn} = await ensureLayers(lambdaClient);
 	console.log('Done creating layers');
 	const fnNameRender = RENDER_FN_PREFIX + randomHash();

@@ -4,8 +4,8 @@ import {
 	SimulatePrincipalPolicyCommand,
 	SimulatePrincipalPolicyCommandOutput,
 } from '@aws-sdk/client-iam';
-import {Log} from '../cli/log';
-import {iamClient} from '../shared/aws-clients';
+import {Log} from '../../cli/log';
+import {iamClient} from '../../shared/aws-clients';
 import {requiredPermissions} from './required-permissions';
 
 type EvalDecision = 'allowed' | 'explicitDeny' | 'implicitDeny';

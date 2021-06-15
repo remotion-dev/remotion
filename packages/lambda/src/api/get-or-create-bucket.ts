@@ -3,7 +3,7 @@ import {s3Client} from '../shared/aws-clients';
 import {REMOTION_BUCKET_PREFIX} from '../shared/constants';
 import {randomHash} from '../shared/random-hash';
 
-export const getOrMakeBucket = async () => {
+export const getOrCreateBucket = async () => {
 	const existingBuckets = await s3Client.send(new ListBucketsCommand({}));
 	const withPrefix = (existingBuckets.Buckets ?? []).filter((b) => {
 		return b.Name?.startsWith(REMOTION_BUCKET_PREFIX);

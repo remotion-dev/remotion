@@ -1,0 +1,4 @@
+---
+id: calculateprice
+title: calculatePrice()
+---

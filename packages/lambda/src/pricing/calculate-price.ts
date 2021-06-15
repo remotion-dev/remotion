@@ -1,7 +1,7 @@
 import {AwsRegion} from './aws-regions';
 import {pricing} from './price-per-1-s';
 
-export const getPriceInCents = ({
+export const calculatePrice = ({
 	region,
 	durationMs,
 	memory,

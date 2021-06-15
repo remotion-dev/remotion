@@ -1,0 +1,4 @@
+---
+id: simulatepermissions
+title: simulatePermissions()
+---
