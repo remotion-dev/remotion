@@ -36,6 +36,7 @@ title: "@remotion/lambda"
 - [ ] Chunk optimization currently works on a global scope and does not differentiate between S3 site deployments
 - [ ] Costs are not calculated accurately (probably slightly higher than effective)
 - [ ] Parallelism is not configurable
+- [ ] Rendering using more than 1000 chunks is undefined behavior, things will break
 
 ## License
 

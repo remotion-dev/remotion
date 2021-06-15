@@ -1,4 +1,4 @@
-import {lambdaInitializedKey, rendersPrefix} from '../constants';
+import {rendersPrefix, timingProfileName} from '../constants';
 import {streamToString} from '../helpers/stream-to-string';
 import {lambdaLs, lambdaReadFile} from '../io';
 import {ChunkTimingData} from './types';
@@ -7,7 +7,7 @@ export const collectChunkInformation = async (
 	bucketName: string,
 	renderId: string
 ) => {
-	const prefix = rendersPrefix(lambdaInitializedKey(renderId));
+	const prefix = rendersPrefix(timingProfileName(renderId));
 	const timingFiles = await lambdaLs({
 		bucketName,
 		prefix,
