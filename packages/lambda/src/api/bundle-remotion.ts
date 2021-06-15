@@ -1,8 +1,8 @@
 import {bundle} from '@remotion/bundler';
-import {Internals} from 'remotion';
 
 export const BINARY_NAME = 'remotion-lambda';
 
+// TODO: Necessary? No
 export const bundleRemotion = ({
 	entryFile,
 	onProgress,
@@ -13,8 +13,6 @@ export const bundleRemotion = ({
 	publicPath: string;
 }) => {
 	return bundle(entryFile, onProgress, {
-		enableCaching: false,
-		webpackOverride: Internals.getWebpackOverrideFn(),
 		publicPath,
 	});
 };

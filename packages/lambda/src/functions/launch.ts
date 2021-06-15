@@ -27,8 +27,8 @@ import {chunk} from '../helpers/chunk';
 import {lambdaWriteFile} from '../io';
 import {getSiteId} from '../make-s3-url';
 import {lambdaClient} from '../shared/aws-clients';
-import {timer} from '../timer';
 import {validateComposition} from '../validate-composition';
+import {timer} from './helpers/timer';
 
 const innerLaunchHandler = async (params: LambdaPayload) => {
 	if (params.type !== LambdaRoutines.launch) {

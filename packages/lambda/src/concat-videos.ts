@@ -9,8 +9,8 @@ import {
 } from 'fs';
 import path, {join} from 'path';
 import {chunkKey, EFS_MOUNT_PATH, ENABLE_EFS} from './constants';
+import {timer} from './functions/helpers/timer';
 import {lambdaLs, lambdaReadFile} from './io';
-import {timer} from './timer';
 import {tmpDir} from './tmpdir';
 
 export const getChunkDownloadOutputLocation = ({

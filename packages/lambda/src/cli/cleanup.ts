@@ -1,7 +1,7 @@
 import {LambdaClient} from '@aws-sdk/client-lambda';
 import {S3Client} from '@aws-sdk/client-s3';
 import {CliInternals} from '@remotion/cli';
-import {BINARY_NAME} from '../bundle-remotion';
+import {BINARY_NAME} from '../api/bundle-remotion';
 import {cleanupLambdas, getRemotionLambdas} from '../cleanup/cleanup-lambdas';
 import {cleanUpBuckets, getRemotionS3Buckets} from '../cleanup/s3-buckets';
 import {REGION} from '../constants';

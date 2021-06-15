@@ -1,5 +1,5 @@
 import {PutBucketWebsiteCommand} from '@aws-sdk/client-s3';
-import {bundleRemotion} from './bundle-remotion';
+import {bundleRemotion} from './api/bundle-remotion';
 import {getSitesKey} from './constants';
 import {randomHash} from './helpers/random-hash';
 import {makeS3Url} from './make-s3-url';

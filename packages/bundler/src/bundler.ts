@@ -39,8 +39,7 @@ export const bundle = async (
 			webpackOverride:
 				options?.webpackOverride ?? Internals.getWebpackOverrideFn(),
 			onProgressUpdate,
-			enableCaching:
-				options?.enableCaching ?? Internals.DEFAULT_WEBPACK_CACHE_ENABLED,
+			enableCaching: options?.enableCaching ?? Internals.getWebpackCaching(),
 			publicPath: options?.publicPath ?? '/',
 			maxTimelineTracks: 15,
 		}),

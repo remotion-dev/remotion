@@ -1,7 +1,7 @@
 import {InvokeCommand} from '@aws-sdk/client-lambda';
 import {LambdaPayload, LambdaRoutines} from '../constants';
 import {lambdaClient} from '../shared/aws-clients';
-import {timer} from '../timer';
+import {timer} from './helpers/timer';
 
 export const fireHandler = async (params: LambdaPayload) => {
 	if (params.type !== LambdaRoutines.fire) {

@@ -1,7 +1,7 @@
 import {GetUserCommand} from '@aws-sdk/client-iam';
 import {CreateFunctionCommand, LambdaClient} from '@aws-sdk/client-lambda';
 import {readFileSync} from 'fs';
-import {bundleLambda} from './bundle-lambda';
+import {bundleLambda} from './api/bundle-lambda';
 import {
 	EFS_MOUNT_PATH,
 	ENABLE_EFS,
