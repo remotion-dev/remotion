@@ -2,8 +2,8 @@ export const getAudioDuration = (src: string): Promise<number> => {
 	const audio = document.createElement('audio');
 	audio.src = src;
 	return new Promise<number>((resolve, reject) => {
-		const onError = (ev: ErrorEvent) => {
-			reject(ev.error);
+		const onError = () => {
+			reject(audio.error);
 			cleanup();
 		};
 
