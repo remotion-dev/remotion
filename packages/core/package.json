@@ -1,6 +1,6 @@
 {
 	"name": "remotion",
-	"version": "2.1.7",
+	"version": "2.1.11",
 	"description": "Render videos in React",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
@@ -13,7 +13,7 @@
 		"prepare": "rimraf node_modules/@types/react"
 	},
 	"repository": {
-		"url": "https://github.com/JonnyBurger/remotion"
+		"url": "https://github.com/remotion-dev/remotion"
 	},
 	"author": "",
 	"license": "SEE LICENSE IN LICENSE.md",
