@@ -1,12 +1,12 @@
 import {LambdaClient} from '@aws-sdk/client-lambda';
 import {S3Client} from '@aws-sdk/client-s3';
 import {CliInternals} from '@remotion/cli';
-import {lambdaClient, s3Client} from '../aws-clients';
 import {BINARY_NAME} from '../bundle-remotion';
 import {cleanupLambdas, getRemotionLambdas} from '../cleanup/cleanup-lambdas';
 import {cleanUpBuckets, getRemotionS3Buckets} from '../cleanup/s3-buckets';
 import {REGION} from '../constants';
 import {chunk} from '../helpers/chunk';
+import {lambdaClient, s3Client} from '../shared/aws-clients';
 import {Log} from './log';
 
 export const CLEANUP_COMMAND = 'cleanup';

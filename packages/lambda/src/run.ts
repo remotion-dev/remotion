@@ -1,7 +1,6 @@
 import {CliInternals} from '@remotion/cli';
 import {writeFileSync} from 'fs';
 import path from 'path';
-import {lambdaClient, s3Client} from './aws-clients';
 import {callLambda} from './call-lambda';
 import {checkLambdaStatus} from './check-lambda-status';
 import {cleanupLambdas, getRemotionLambdas} from './cleanup/cleanup-lambdas';
@@ -19,6 +18,7 @@ import {sleep} from './helpers/sleep';
 import {streamToString} from './helpers/stream-to-string';
 import {lambdaLs, lambdaReadFile} from './io';
 import {makeS3Url} from './make-s3-url';
+import {lambdaClient, s3Client} from './shared/aws-clients';
 
 const DEPLOY = false;
 

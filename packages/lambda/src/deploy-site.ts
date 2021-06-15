@@ -1,9 +1,9 @@
 import {PutBucketWebsiteCommand} from '@aws-sdk/client-s3';
-import {s3Client} from './aws-clients';
 import {bundleRemotion} from './bundle-remotion';
 import {getSitesKey} from './constants';
 import {randomHash} from './helpers/random-hash';
 import {makeS3Url} from './make-s3-url';
+import {s3Client} from './shared/aws-clients';
 import {uploadDir, UploadDirProgress} from './upload-dir';
 
 export const deploySite = async ({

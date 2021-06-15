@@ -2,7 +2,6 @@ import {InvokeCommand} from '@aws-sdk/client-lambda';
 import {renderFrames, stitchFramesToVideo} from '@remotion/renderer';
 import fs from 'fs';
 import path from 'path';
-import {lambdaClient} from '../aws-clients';
 import {
 	ChunkTimingData,
 	ObjectChunkTimingData,
@@ -18,6 +17,7 @@ import {
 import {getBrowserInstance} from '../get-browser-instance';
 import {randomHash} from '../helpers/random-hash';
 import {lambdaWriteFile} from '../io';
+import {lambdaClient} from '../shared/aws-clients';
 import {timer} from '../timer';
 import {tmpDir} from '../tmpdir';
 

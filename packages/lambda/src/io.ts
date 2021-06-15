@@ -12,8 +12,8 @@ import {
 	ReadStream,
 } from 'fs';
 import {Readable} from 'stream';
-import {s3Client} from './aws-clients';
 import {EFS_MOUNT_PATH, ENABLE_EFS} from './constants';
+import {s3Client} from './shared/aws-clients';
 
 const ensureDir = async ({bucketName}: {bucketName: string}) => {
 	if (ENABLE_EFS) {

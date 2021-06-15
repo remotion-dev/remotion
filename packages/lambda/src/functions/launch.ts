@@ -1,6 +1,5 @@
 import {InvokeCommand} from '@aws-sdk/client-lambda';
 import fs from 'fs';
-import {lambdaClient} from '../aws-clients';
 import {collectChunkInformation} from '../chunk-optimization/collect-data';
 import {getFrameRangesFromProfile} from '../chunk-optimization/get-frame-ranges-from-profile';
 import {getProfileDuration} from '../chunk-optimization/get-profile-duration';
@@ -27,6 +26,7 @@ import {getBrowserInstance} from '../get-browser-instance';
 import {chunk} from '../helpers/chunk';
 import {lambdaWriteFile} from '../io';
 import {getSiteId} from '../make-s3-url';
+import {lambdaClient} from '../shared/aws-clients';
 import {timer} from '../timer';
 import {validateComposition} from '../validate-composition';
 
