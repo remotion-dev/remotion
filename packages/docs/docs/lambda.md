@@ -60,7 +60,7 @@ A mechanism that determines after a render which frames rendered the slowest opt
 - [getUserPolicy()](/docs/getuserpolicy)
 - [getRolePolicy()](/docs/getrolepolicy)
 - [getDeployedLambdas()](/docs/getdeployedlambdas)
-- [getOrCreateBucket()](/docs/getorcreatebuckets)
+- [getOrCreateBucket()](/docs/getorcreatebucket)
 - [getRenderProgress()](/docs/getrenderprogress)
 - [renderVideoOnLambda()](/docs/rendervideoonlambda)
 - [simulatePermissions()](/docs/simulatepermissions)
