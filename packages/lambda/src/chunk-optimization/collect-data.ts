@@ -1,4 +1,4 @@
-import {lambdaInitializedKey} from '../constants';
+import {lambdaInitializedKey, rendersPrefix} from '../constants';
 import {streamToString} from '../helpers/stream-to-string';
 import {lambdaLs, lambdaReadFile} from '../io';
 import {ChunkTimingData} from './types';
@@ -7,13 +7,12 @@ export const collectChunkInformation = async (
 	bucketName: string,
 	renderId: string
 ) => {
-	const files = await lambdaLs({
+	const prefix = rendersPrefix(lambdaInitializedKey(renderId));
+	const timingFiles = await lambdaLs({
 		bucketName,
 		forceS3: true,
+		prefix,
 	});
-	const timingFiles = files.filter((f) =>
-		f.Key?.startsWith(lambdaInitializedKey(renderId))
-	);
 	const timingFileContents = await Promise.all(
 		timingFiles.map(async (file) => {
 			const contents = await lambdaReadFile({

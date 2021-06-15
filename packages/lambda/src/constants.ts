@@ -7,25 +7,27 @@ export const REMOTION_BUCKET_PREFIX = 'remotionlambda-';
 export const RENDER_FN_PREFIX = 'remotion-render-';
 export const EFS_MOUNT_PATH = '/mnt/efs';
 export const ENABLE_EFS = false;
+export const rendersPrefix = (renderId: string) => `renders/${renderId}`;
 export const encodingProgressKey = (renderId: string) =>
-	`renders/${renderId}/encoding-progress.json`;
+	`${rendersPrefix(renderId)}/encoding-progress.json`;
 export const renderMetadataKey = (renderId: string) =>
-	`renders/${renderId}/render-metadata.json`;
+	`${rendersPrefix(renderId)}/render-metadata.json`;
 export const lambdaInitializedKey = (renderId: string) =>
-	`renders/${renderId}/lambda-initialized`;
+	`${rendersPrefix(renderId)}/lambda-initialized`;
 export const chunkKey = (renderId: string) =>
-	`renders/${renderId}/chunks/chunk-`;
+	`${rendersPrefix(renderId)}/chunks/chunk-`;
 export const timingProfileName = (renderId: string) =>
-	`renders/${renderId}/timing-profile`;
+	`${rendersPrefix(renderId)}/timing-profile`;
 export const getStitcherErrorKeyPrefix = (renderId: string) =>
-	`renders/${renderId}/errors/stitcher-`;
+	`${rendersPrefix(renderId)}/errors/stitcher-`;
 export const getRendererErrorKeyPrefix = (renderId: string) =>
-	`renders/${renderId}/errors/renderer-`;
+	`${rendersPrefix(renderId)}/errors/renderer-`;
 // TODO: Optimization profile per deploy
 export const optimizationProfile = (compositionId: string) =>
 	`optimization-profiles/${compositionId}/optimization-profile`;
 export const getSitesKey = (siteId: string) => `sites/${siteId}`;
-export const outName = (renderId: string) => `renders/${renderId}/out.mp4`;
+export const outName = (renderId: string) =>
+	`${rendersPrefix(renderId)}/out.mp4`;
 
 export enum LambdaRoutines {
 	start = 'start',

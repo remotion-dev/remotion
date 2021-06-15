@@ -26,7 +26,7 @@ export const deploySite = async ({
 	const bundle = await bundleRemotion({
 		entryFile: absoluteFile,
 		onProgress: options?.onBundleProgress ?? (() => undefined),
-		publicPath: `/${subFolder}`,
+		publicPath: `/${subFolder}/`,
 	});
 
 	await Promise.all([

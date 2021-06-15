@@ -18,6 +18,7 @@ import {
 	REGION,
 	RenderMetadata,
 	renderMetadataKey,
+	rendersPrefix,
 } from '../constants';
 import {streamToString} from '../helpers/stream-to-string';
 import {inspectErrors} from '../inspect-errors';
@@ -130,11 +131,8 @@ export const progressHandler = async (lambdaParams: LambdaPayload) => {
 
 	const contents = await lambdaLs({
 		bucketName: lambdaParams.bucketName,
-		forceS3: false,
-	});
-	const s3contents = await lambdaLs({
-		bucketName: lambdaParams.bucketName,
 		forceS3: true,
+		prefix: rendersPrefix(lambdaParams.renderId),
 	});
 
 	if (!contents) {
@@ -149,7 +147,7 @@ export const progressHandler = async (lambdaParams: LambdaPayload) => {
 		c.Key?.startsWith(chunkKey(lambdaParams.renderId))
 	);
 	const output =
-		s3contents.find((c) => c.Key?.includes(outName(lambdaParams.renderId))) ??
+		contents.find((c) => c.Key?.includes(outName(lambdaParams.renderId))) ??
 		null;
 	const lambdasInvoked = contents.filter((c) =>
 		c.Key?.startsWith(lambdaInitializedKey(lambdaParams.renderId))
@@ -226,8 +224,9 @@ export const progressHandler = async (lambdaParams: LambdaPayload) => {
 			}).format(accruedSoFar),
 			currency: 'USD',
 			disclaimer:
-				'Estimated cost only. Does not include charges for EFS and other AWS services.',
+				'Estimated cost only. Does not include charges for other AWS services.',
 		},
+		renderId: lambdaParams.renderId,
 		renderMetadata,
 		bucket,
 		outputFile: output

@@ -50,11 +50,13 @@ const getFnName = async (): Promise<{
 	const websiteBuckets = remotionBuckets.filter((b) =>
 		(b.Name as string).startsWith(REMOTION_BUCKET_PREFIX)
 	);
+	const prefix = getSitesKey('');
 	const firstBucket = await lambdaLs({
 		bucketName: websiteBuckets[0].Name as string,
 		forceS3: true,
+		prefix,
 	});
-	const firstSite = firstBucket.find((d) => d.Key?.startsWith(getSitesKey('')));
+	const firstSite = firstBucket.find(() => true);
 	return {
 		functionName: lambdas[0].FunctionName as string,
 		bucketUrl: makeS3Url(
@@ -92,13 +94,11 @@ CliInternals.xns(async () => {
 		}
 	}
 
-	const files = await lambdaLs({
+	const logs = await lambdaLs({
 		bucketName: res.bucketName,
 		forceS3: true,
+		prefix: timingProfileName(res.renderId),
 	});
-	const logs = files.filter((f) =>
-		f.Key?.startsWith(timingProfileName(res.renderId))
-	);
 
 	for (const log of logs) {
 		const content = await lambdaReadFile({
