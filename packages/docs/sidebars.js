@@ -91,7 +91,7 @@ module.exports = {
         "lambda-cli",
         "lambda-setup",
         "lambda-permissions",
-        "ensurelayers",
+        "ensurelambdabinaries",
         "calculateprice",
         "deploylambda",
         "deployproject",

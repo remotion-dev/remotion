@@ -3,73 +3,11 @@ sidebar_label: Permissions
 title: Lambda - Permissions
 ---
 
-## TL;DR
-
-Create an AWS user with the following policy. This policy has been designed to require the minimal amount of permissions needed and includes the necessary permissions to validate that the account it setup properly.
-
-```json
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Sid": "0",
-      "Effect": "Allow",
-      "Action": ["iam:GetUser"],
-      "Resource": ["arn:aws:iam::*:user/${aws:username}"]
-    },
-    {
-      "Sid": "1",
-      "Effect": "Allow",
-      "Action": ["iam:SimulatePrincipalPolicy"],
-      "Resource": ["*"]
-    },
-    {
-      "Sid": "2",
-      "Effect": "Allow",
-      "Action": [
-        "s3:GetObject",
-        "s3:DeleteObject",
-        "s3:DeleteBucket",
-        "s3:PutBucketWebsite",
-        "s3:ListBucket",
-        "s3:DeleteBucketWebsite"
-      ],
-      "Resource": ["arn:aws:s3:::remotion-*"]
-    },
-    {
-      "Sid": "3",
-      "Effect": "Allow",
-      "Action": ["s3:ListAllMyBuckets"],
-      "Resource": ["arn:aws:s3:::*"]
-    },
-    {
-      "Sid": "4",
-      "Effect": "Allow",
-      "Action": [
-        "lambda:InvokeFunction",
-        "lambda:CreateFunction",
-        "lambda:DeleteFunction",
-        "lambda:PublishLayerVersion",
-        "lambda:DeleteLayerVersion",
-        "lambda:GetLayerVersion"
-      ],
-      "Resource": ["arn:aws:lambda:*::remotion-*"]
-    },
-    {
-      "Sid": "5",
-      "Effect": "Allow",
-      "Action": ["lambda:ListLayers", "lambda:ListFunctions"],
-      "Resource": ["*"]
-    }
-  ]
-}
-```
-
-## Setup Tutorial
-
-TODO
-
 ## Required permissions
+
+:::info
+Currently outdated. Does not list all permissions. See `npx remotion-lambda policies user` and `npx remotion-lambda policies role` for the most up to date policy files.
+:::
 
 <table>
   <tr>

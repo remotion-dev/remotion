@@ -7,9 +7,9 @@ import {bundleRemotion} from './bundle-remotion';
 import {uploadDir, UploadDirProgress} from './upload-dir';
 
 export const deployProject = async ({
+	bucketName,
 	entryPoint,
 	options,
-	bucketName,
 }: {
 	entryPoint: string;
 	bucketName: string;

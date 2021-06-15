@@ -48,10 +48,13 @@ const hasLayer = (name: string, layers: LayersListItem[]) => {
 	return layers.find((l) => l.LayerName === name);
 };
 
-const ensureLayer = async (
-	layers: LayersListItem[],
-	lambdaClient: LambdaClient
-): Promise<string> => {
+const ensureLayer = async ({
+	layers,
+	lambdaClient,
+}: {
+	layers: LayersListItem[];
+	lambdaClient: LambdaClient;
+}): Promise<string> => {
 	const existingLayer = hasLayer(LAYER_NAME, layers);
 	if (existingLayer) {
 		return existingLayer.LatestMatchingVersion?.LayerVersionArn as string;
@@ -66,9 +69,9 @@ const ensureLayer = async (
 	return layer.LayerVersionArn as string;
 };
 
-export const ensureLayers = async (lambdaClient: LambdaClient) => {
+export const ensureLambdaBinaries = async (lambdaClient: LambdaClient) => {
 	const layers = await getLayers(lambdaClient);
-	const layerArn = await ensureLayer(layers, lambdaClient);
+	const layerArn = await ensureLayer({layers, lambdaClient});
 
 	return {layerArn};
 };

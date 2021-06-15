@@ -1,5 +1,6 @@
-import {deployLambda} from './api/create-lambda';
+import {deployLambda} from './api/deploy-lambda';
 import {deployProject} from './api/deploy-project';
+import {ensureLambdaBinaries} from './api/ensure-lambda-binaries';
 import {getDeployedLambdas} from './api/get-deployed-lambdas';
 import {getOrCreateBucket} from './api/get-or-create-bucket';
 import {getRenderProgress} from './api/get-render-progress';
@@ -8,13 +9,12 @@ import {
 	getRolePolicy,
 	getUserPolicy,
 } from './api/iam-validation/suggested-policy';
-import {ensureLayers} from './api/lambda-layers';
 import {renderVideoOnLambda} from './api/render-video-on-lambda';
 
 export {
 	deployLambda,
 	deployProject,
-	ensureLayers,
+	ensureLambdaBinaries,
 	getDeployedLambdas,
 	getUserPolicy,
 	getRolePolicy,
