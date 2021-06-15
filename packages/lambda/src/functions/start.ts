@@ -1,5 +1,5 @@
 import {InvokeCommand} from '@aws-sdk/client-lambda';
-import {getOrMakeBucket} from '../api/get-or-make-bucket';
+import {getOrCreateBucket} from '../api/get-or-create-bucket';
 import {lambdaClient} from '../shared/aws-clients';
 import {LambdaPayload, LambdaRoutines} from '../shared/constants';
 import {randomHash} from '../shared/random-hash';
@@ -9,7 +9,7 @@ export const startHandler = async (params: LambdaPayload) => {
 		throw new TypeError('Expected type start');
 	}
 
-	const bucketName = await getOrMakeBucket();
+	const bucketName = await getOrCreateBucket();
 	const renderId = randomHash();
 
 	const payload: LambdaPayload = {
@@ -21,7 +21,7 @@ export const startHandler = async (params: LambdaPayload) => {
 		bucketName,
 		renderId,
 	};
-	const launchEvent = await lambdaClient.send(
+	await lambdaClient.send(
 		new InvokeCommand({
 			FunctionName: process.env.AWS_LAMBDA_FUNCTION_NAME,
 			// @ts-expect-error
@@ -31,7 +31,6 @@ export const startHandler = async (params: LambdaPayload) => {
 	);
 	return {
 		bucketName,
-		launchEvent,
 		renderId,
 	};
 };

@@ -1,10 +1,10 @@
 import {CliInternals} from '@remotion/cli';
 import {writeFileSync} from 'fs';
 import path from 'path';
-import {checkLambdaStatus} from './api/check-lambda-status';
-import {createLambda} from './api/create-lambda';
-import {deploySite} from './api/deploy-site';
-import {getOrMakeBucket} from './api/get-or-make-bucket';
+import {deployLambda} from './api/create-lambda';
+import {deployProject} from './api/deploy-project';
+import {getOrCreateBucket} from './api/get-or-create-bucket';
+import {getRenderProgress} from './api/get-render-progress';
 import {cleanupLambdas, getRemotionLambdas} from './cleanup/cleanup-lambdas';
 import {getRemotionS3Buckets} from './cleanup/s3-buckets';
 import {lambdaLs, lambdaReadFile} from './functions/helpers/io';
@@ -27,19 +27,16 @@ const getFnName = async (): Promise<{
 	bucketUrl: string;
 	compositionName: string;
 }> => {
-	const bucketName = await getOrMakeBucket();
+	const bucketName = await getOrCreateBucket();
 	if (DEPLOY) {
 		await cleanupLambdas({lambdaClient});
 		// await cleanUpBuckets({s3client: s3Client});
 
-		const {functionName} = await createLambda();
+		const {functionName} = await deployLambda();
 
-		const {url} = await deploySite({
-			absoluteFile: path.join(__dirname, '..', 'remotion-project', 'index.ts'),
+		const {url} = await deployProject({
+			entryPoint: path.join(__dirname, '..', 'remotion-project', 'index.ts'),
 			bucketName,
-			options: {
-				onBucketCreated: async () => {},
-			},
 		});
 
 		return {functionName, bucketUrl: url, compositionName: 'my-video'};
@@ -81,11 +78,11 @@ CliInternals.xns(async () => {
 	console.log(bucketUrl);
 	for (let i = 0; i < 3000; i++) {
 		await sleep(1000);
-		const status = await checkLambdaStatus(
+		const status = await getRenderProgress({
 			functionName,
-			res.bucketName,
-			res.renderId
-		);
+			bucketName: res.bucketName,
+			renderId: res.renderId,
+		});
 		console.log(status);
 		if (status.done) {
 			console.log('Done! ' + res.bucketName);

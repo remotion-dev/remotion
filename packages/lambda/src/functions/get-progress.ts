@@ -1,6 +1,6 @@
 import {_Object} from '@aws-sdk/client-s3';
 import {Internals} from 'remotion';
-import {getPriceInCents} from '../pricing/get-price';
+import {calculatePrice} from '../pricing/calculate-price';
 import {
 	chunkKey,
 	EncodingProgress,
@@ -200,7 +200,7 @@ export const progressHandler = async (lambdaParams: LambdaPayload) => {
 
 	const accruedSoFar = Number(
 		(
-			getPriceInCents({
+			calculatePrice({
 				region: REGION,
 				durationMs: elapsedTime,
 				memory: MEMORY_SIZE,

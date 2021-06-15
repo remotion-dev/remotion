@@ -6,25 +6,22 @@ import {randomHash} from '../shared/random-hash';
 import {bundleRemotion} from './bundle-remotion';
 import {uploadDir, UploadDirProgress} from './upload-dir';
 
-export const deploySite = async ({
-	absoluteFile,
+export const deployProject = async ({
+	entryPoint,
 	options,
 	bucketName,
 }: {
-	absoluteFile: string;
+	entryPoint: string;
 	bucketName: string;
 	options?: {
 		onBundleProgress?: (progress: number) => void;
 		onWebsiteActivated?: () => void;
-		onBucketCreated?: (bucketName: string) => void;
 		onUploadProgress?: (upload: UploadDirProgress) => void;
 	};
 }) => {
 	const subFolder = getSitesKey(randomHash());
-	// TODO: Not necessary anmore
-	options?.onBucketCreated?.(bucketName);
 	const bundle = await bundleRemotion({
-		entryFile: absoluteFile,
+		entryFile: entryPoint,
 		onProgress: options?.onBundleProgress ?? (() => undefined),
 		publicPath: `/${subFolder}/`,
 	});

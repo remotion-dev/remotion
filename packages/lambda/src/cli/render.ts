@@ -1,10 +1,7 @@
-import {ListFunctionsCommand} from '@aws-sdk/client-lambda';
-import {CliInternals} from '@remotion/cli';
 import {BINARY_NAME} from '../api/bundle-remotion';
-import {checkLambdaStatus} from '../api/check-lambda-status';
-import {lambdaClient} from '../shared/aws-clients';
-import {callLambda} from '../shared/call-lambda';
-import {LambdaRoutines, RENDER_FN_PREFIX} from '../shared/constants';
+import {getDeployedLambdas} from '../api/get-deployed-lambdas';
+import {getRenderProgress} from '../api/get-render-progress';
+import {renderVideoOnLambda} from '../api/render-video-on-lambda';
 import {sleep} from '../shared/sleep';
 import {parsedCli} from './args';
 import {CLEANUP_COMMAND, CLEANUP_LAMBDAS_SUBCOMMAND} from './cleanup';
@@ -34,11 +31,7 @@ export const renderCommand = async () => {
 
 	// TODO: Further validate serveUrl
 
-	const lambdas = await lambdaClient.send(new ListFunctionsCommand({}));
-
-	const remotionLambdas = (lambdas.Functions || []).filter((f) => {
-		return f.FunctionName?.startsWith(RENDER_FN_PREFIX);
-	});
+	const remotionLambdas = await getDeployedLambdas();
 
 	if (remotionLambdas.length === 0) {
 		Log.error('No lambda functions found in your account.');
@@ -62,24 +55,14 @@ export const renderCommand = async () => {
 
 	const functionName = remotionLambdas[0].FunctionName as string;
 
-	const res = await callLambda({
-		functionName,
-		type: LambdaRoutines.start,
-		payload: {
-			// TODO: Allow to parametrize
-			chunkSize: 20,
-			composition: parsedCli._[2],
-			serveUrl,
-			inputProps: CliInternals.getInputProps(),
-		},
-	});
+	const res = await renderVideoOnLambda({functionName, serveUrl});
 	for (let i = 0; i < 3000; i++) {
 		await sleep(1000);
-		const status = await checkLambdaStatus(
+		const status = await getRenderProgress({
 			functionName,
-			res.bucketName,
-			res.renderId
-		);
+			bucketName: res.bucketName,
+			renderId: res.renderId,
+		});
 		console.log(status);
 		if (status.done) {
 			console.log('Done! ' + res.bucketName);

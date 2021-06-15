@@ -2,8 +2,8 @@ import {CliInternals} from '@remotion/cli';
 import {existsSync, lstatSync} from 'fs';
 import path from 'path';
 import {BINARY_NAME} from '../api/bundle-remotion';
-import {deploySite} from '../api/deploy-site';
-import {getOrMakeBucket} from '../api/get-or-make-bucket';
+import {deployProject} from '../api/deploy-project';
+import {getOrCreateBucket} from '../api/get-or-create-bucket';
 import {parsedCli} from './args';
 import {
 	BucketCreationProgress,
@@ -44,8 +44,6 @@ export const uploadCommand = async () => {
 		process.exit(1);
 	}
 
-	const bucketName = await getOrMakeBucket();
-
 	const progressBar = CliInternals.createOverwriteableCliOutput();
 
 	const multiProgress: {
@@ -79,14 +77,21 @@ export const uploadCommand = async () => {
 		);
 	};
 
+	const bucketName = await getOrCreateBucket();
+	multiProgress.bucketProgress = {
+		bucketCreated: true,
+		doneIn: null,
+		websiteEnabled: false,
+	};
+
 	updateProgress();
 
 	const bundleStart = Date.now();
 	const bucketStart = Date.now();
 	const uploadStart = Date.now();
 
-	const {url} = await deploySite({
-		absoluteFile,
+	const {url} = await deployProject({
+		entryPoint: absoluteFile,
 		bucketName,
 		options: {
 			onBundleProgress: (progress: number) => {
@@ -94,14 +99,6 @@ export const uploadCommand = async () => {
 					progress,
 					doneIn: progress === 100 ? Date.now() - bundleStart : null,
 				};
-			},
-			onBucketCreated: () => {
-				multiProgress.bucketProgress = {
-					bucketCreated: true,
-					doneIn: null,
-					websiteEnabled: false,
-				};
-				updateProgress();
 			},
 			onUploadProgress: (p) => {
 				multiProgress.deployProgress = {

@@ -1,0 +1,4 @@
+---
+id: getrolepolicy
+title: getRolePolicy()
+---

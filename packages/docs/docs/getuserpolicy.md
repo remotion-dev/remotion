@@ -1,0 +1,4 @@
+---
+id: getuserpolicy
+title: getUserPolicy()
+---

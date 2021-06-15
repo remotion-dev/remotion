@@ -1,7 +1,7 @@
 import {requiredPermissions} from './required-permissions';
 import {rolePermissions} from './role-permissions';
 
-export const suggestedPolicy = {
+const suggestedPolicy = {
 	Version: '2012-10-17',
 	Statement: [
 		...requiredPermissions.map((per, i) => {
@@ -15,7 +15,7 @@ export const suggestedPolicy = {
 	],
 };
 
-export const suggestedRolePolicy = {
+const suggestedRolePolicy = {
 	Version: '2012-10-17',
 	Statement: [
 		...rolePermissions.map((per, i) => {
@@ -28,3 +28,6 @@ export const suggestedRolePolicy = {
 		}),
 	],
 };
+
+export const getUserPolicy = () => suggestedPolicy;
+export const getRolePolicy = () => suggestedRolePolicy;

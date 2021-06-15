@@ -1,10 +1,10 @@
 import {CliInternals} from '@remotion/cli';
 import {BINARY_NAME} from '../api/bundle-remotion';
-import {simulatePermissions} from '../iam-validation/simulate';
+import {simulatePermissions} from '../api/iam-validation/simulate';
 import {
-	suggestedPolicy,
-	suggestedRolePolicy,
-} from '../iam-validation/suggested-policy';
+	getRolePolicy,
+	getUserPolicy,
+} from '../api/iam-validation/suggested-policy';
 import {Log} from './log';
 
 export const POLICIES_COMMAND = 'policies';
@@ -52,13 +52,13 @@ const validateSubcommand = async () => {
 export const policiesCommand = (args: string[]) => {
 	if (args[0] === USER_SUBCOMMAND) {
 		Log.info('Policy for user:');
-		Log.info(JSON.stringify(suggestedPolicy, null, 2));
+		Log.info(JSON.stringify(getUserPolicy(), null, 2));
 		return;
 	}
 
 	if (args[0] === ROLE_SUBCOMMAND) {
 		Log.info('Policy for role:');
-		Log.info(JSON.stringify(suggestedRolePolicy, null, 2));
+		Log.info(JSON.stringify(getRolePolicy(), null, 2));
 		return;
 	}
 
