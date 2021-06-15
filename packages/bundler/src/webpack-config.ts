@@ -163,6 +163,7 @@ export const webpackConfig = ({
 				},
 				{
 					test: /\.jsx?$/,
+					exclude: /node_modules/,
 					use: [
 						{
 							loader: require.resolve('esbuild-loader'),
