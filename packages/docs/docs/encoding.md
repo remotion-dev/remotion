@@ -229,7 +229,7 @@ You can pass `mp3`, `wav` or `aac` as a codec. If you do it, an audio file will 
 
 ## What other settings do you need?
 
-Which of the dozens of options that FFMPEG supports would you like to see exposed in Remotion? Let us know by opening an [issue on our issue tracker!](https://github.com/JonnyBurger/remotion/issues)
+Which of the dozens of options that FFMPEG supports would you like to see exposed in Remotion? Let us know by opening an [issue on our issue tracker!](https://github.com/remotion-dev/remotion/issues)
 
 ## See also
 

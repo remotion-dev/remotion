@@ -42,6 +42,7 @@ export const bundle = async (
 			enableCaching:
 				options?.enableCaching ?? Internals.DEFAULT_WEBPACK_CACHE_ENABLED,
 			publicPath: options?.publicPath ?? '/',
+			maxTimelineTracks: 15,
 		}),
 	]);
 	if (!output) {

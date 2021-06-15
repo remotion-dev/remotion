@@ -122,7 +122,7 @@ export const UpdateCheck = () => {
 			)}{' '}
 			to get it. <br />
 			<a
-				href="https://github.com/JonnyBurger/remotion/releases"
+				href="https://github.com/remotion-dev/remotion/releases"
 				target="_blank"
 			>
 				Release notes

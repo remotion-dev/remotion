@@ -20,7 +20,7 @@ export const GithubButton: React.FC = () => {
   const [stars, setStars] = useState(null);
 
   useEffect(() => {
-    fetch(`https://api.github.com/repos/JonnyBurger/remotion`)
+    fetch(`https://api.github.com/repos/remotion-dev/remotion`)
       .then((res) => res.json())
       .then((json) => json.watchers)
       .then((stars) => {
