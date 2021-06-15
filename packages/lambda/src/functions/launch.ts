@@ -26,6 +26,7 @@ import {
 import {getBrowserInstance} from '../get-browser-instance';
 import {chunk} from '../helpers/chunk';
 import {lambdaWriteFile} from '../io';
+import {getSiteId} from '../make-s3-url';
 import {timer} from '../timer';
 import {validateComposition} from '../validate-composition';
 
@@ -41,9 +42,13 @@ const innerLaunchHandler = async (params: LambdaPayload) => {
 		throw new Error('Pass chunkSize');
 	}
 
+	const urlBreakdown = getSiteId(params.serveUrl);
 	const [browserInstance, optimization] = await Promise.all([
 		getBrowserInstance(),
-		getOptimization(params.composition),
+		getOptimization({
+			siteId: urlBreakdown.siteId,
+			compositionId: params.composition,
+		}),
 	]);
 
 	const comp = await validateComposition({
@@ -102,6 +107,7 @@ const innerLaunchHandler = async (params: LambdaPayload) => {
 			// This function
 		].reduce((a, b) => a + b, 0),
 		compositionId: comp.id,
+		siteId: urlBreakdown.siteId,
 	};
 
 	await lambdaWriteFile({
@@ -174,15 +180,16 @@ const innerLaunchHandler = async (params: LambdaPayload) => {
 	);
 
 	const optimizedFrameRange = getFrameRangesFromProfile(optimizedProfile);
-	await writeOptimization(
-		params.bucketName,
-		{
+	await writeOptimization({
+		bucketName: params.bucketName,
+		optimization: {
 			frameRange: optimizedFrameRange,
 			oldTiming: getProfileDuration(chunkData),
 			newTiming: getProfileDuration(optimizedProfile),
 		},
-		params.composition
-	);
+		compositionId: params.composition,
+		siteId: urlBreakdown.siteId,
+	});
 };
 
 export const launchHandler = async (params: LambdaPayload) => {

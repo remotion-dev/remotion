@@ -23,8 +23,8 @@ export const getStitcherErrorKeyPrefix = (renderId: string) =>
 export const getRendererErrorKeyPrefix = (renderId: string) =>
 	`${rendersPrefix(renderId)}/errors/renderer-`;
 // TODO: Optimization profile per deploy
-export const optimizationProfile = (compositionId: string) =>
-	`optimization-profiles/${compositionId}/optimization-profile`;
+export const optimizationProfile = (siteId: string, compositionId: string) =>
+	`optimization-profiles/${siteId}/${compositionId}/optimization-profile`;
 export const getSitesKey = (siteId: string) => `sites/${siteId}`;
 export const outName = (renderId: string) =>
 	`${rendersPrefix(renderId)}/out.mp4`;
@@ -88,6 +88,7 @@ export type EncodingProgress = {
 };
 
 export type RenderMetadata = {
+	siteId: string;
 	totalFrames: number;
 	startedDate: number;
 	totalChunks: number;

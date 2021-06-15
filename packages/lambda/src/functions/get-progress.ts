@@ -185,7 +185,10 @@ export const progressHandler = async (lambdaParams: LambdaPayload) => {
 			getNewestRenderBucket(),
 		]);
 	const optimization = renderMetadata
-		? await getOptimization(renderMetadata.compositionId)
+		? await getOptimization({
+				siteId: renderMetadata.siteId,
+				compositionId: renderMetadata.compositionId,
+		  })
 		: null;
 
 	const timeToFinish = getTimeToFinish({

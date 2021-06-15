@@ -5,17 +5,22 @@ import {streamToString} from '../helpers/stream-to-string';
 import {lambdaLs, lambdaReadFile, lambdaWriteFile} from '../io';
 import {OptimizationProfile} from './types';
 
-// TODO: Optimization per composition
-export const writeOptimization = async (
-	bucketName: string,
-	optimization: OptimizationProfile,
-	compositionId: string
-) => {
+export const writeOptimization = async ({
+	bucketName,
+	optimization,
+	compositionId,
+	siteId,
+}: {
+	bucketName: string;
+	optimization: OptimizationProfile;
+	compositionId: string;
+	siteId: string;
+}) => {
 	await lambdaWriteFile({
 		bucketName,
 		body: JSON.stringify(optimization),
 		forceS3: false,
-		key: optimizationProfile(compositionId) + '.json',
+		key: optimizationProfile(siteId, compositionId) + '.json',
 	});
 };
 
@@ -33,9 +38,13 @@ export const getNewestRenderBucket = async () => {
 	return renderBuckets[0] ?? null;
 };
 
-export const getOptimization = async (
-	compositionId: string
-): Promise<OptimizationProfile | null> => {
+export const getOptimization = async ({
+	siteId,
+	compositionId,
+}: {
+	siteId: string;
+	compositionId: string;
+}): Promise<OptimizationProfile | null> => {
 	// TODO: already have render bucket id
 	const bucket = await getNewestRenderBucket();
 	if (bucket === null) {
@@ -44,7 +53,7 @@ export const getOptimization = async (
 
 	const bucketName = bucket.Name as string;
 
-	const prefix = optimizationProfile(compositionId);
+	const prefix = optimizationProfile(siteId, compositionId);
 	const dir = await lambdaLs({
 		bucketName,
 		forceS3: false,
