@@ -1,5 +1,5 @@
 import {mkdirSync, mkdtempSync} from 'fs';
-import {randomHash} from './helpers/random-hash';
+import {randomHash} from './random-hash';
 
 const isLambda = Boolean(process.env.LAMBDA_TASK_ROOT);
 

@@ -8,10 +8,10 @@ import {
 	rmSync,
 } from 'fs';
 import path, {join} from 'path';
-import {chunkKey} from './constants';
-import {timer} from './functions/helpers/timer';
+import {chunkKey} from '../../shared/constants';
+import {tmpDir} from '../../shared/tmpdir';
 import {lambdaLs, lambdaReadFile} from './io';
-import {tmpDir} from './tmpdir';
+import {timer} from './timer';
 
 export const getChunkDownloadOutputLocation = ({
 	outdir,

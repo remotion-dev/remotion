@@ -1,6 +1,6 @@
 import {getCompositions, RenderInternals} from '@remotion/renderer';
 import {TCompMetadata} from 'remotion';
-import {Await} from './helpers/await';
+import {Await} from '../../shared/await';
 
 export const validateComposition = async ({
 	serveUrl,
@@ -13,7 +13,6 @@ export const validateComposition = async ({
 	browserInstance: Await<ReturnType<typeof RenderInternals.openBrowser>>;
 	inputProps: unknown;
 }): Promise<TCompMetadata> => {
-	// TODO: Support input props
 	const compositions = await getCompositions(serveUrl, {
 		browserInstance,
 		inputProps: inputProps as object,

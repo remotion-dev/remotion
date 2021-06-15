@@ -37,6 +37,8 @@ title: "@remotion/lambda"
 - [ ] Costs are not calculated accurately (probably slightly higher than effective)
 - [ ] Parallelism is not configurable
 - [ ] Rendering using more than 1000 chunks is undefined behavior, things will break
+- [ ] `eu-central-1` is hardcoded
+- [ ] 2048 MB RAM is hardcoded
 
 ## License
 

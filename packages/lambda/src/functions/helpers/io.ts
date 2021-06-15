@@ -6,7 +6,7 @@ import {
 } from '@aws-sdk/client-s3';
 import {ReadStream} from 'fs';
 import {Readable} from 'stream';
-import {s3Client} from './shared/aws-clients';
+import {s3Client} from '../../shared/aws-clients';
 
 export const lambdaLs = async ({
 	bucketName,

@@ -1,4 +1,4 @@
-import {createLambda} from '../create-lambda';
+import {createLambda} from '../api/create-lambda';
 import {Log} from './log';
 
 export const DEPLOY_COMMAND = 'deploy';

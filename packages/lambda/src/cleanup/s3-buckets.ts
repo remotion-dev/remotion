@@ -6,7 +6,7 @@ import {
 	S3Client,
 } from '@aws-sdk/client-s3';
 import pLimit from 'p-limit';
-import {REMOTION_BUCKET_PREFIX} from '../constants';
+import {REMOTION_BUCKET_PREFIX} from '../shared/constants';
 
 const limit = pLimit(10);
 

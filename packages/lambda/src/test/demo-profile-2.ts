@@ -1,4 +1,4 @@
-import {TimingProfile} from '../chunk-optimization/types';
+import {TimingProfile} from '../functions/chunk-optimization/types';
 
 export const demoProfile2: TimingProfile = [
 	{

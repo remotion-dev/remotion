@@ -1,6 +1,6 @@
 import {_Object} from '@aws-sdk/client-s3';
 import {Internals} from 'remotion';
-import {getOptimization} from '../chunk-optimization/s3-optimization-file';
+import {getPriceInCents} from '../pricing/get-price';
 import {
 	chunkKey,
 	EncodingProgress,
@@ -16,11 +16,11 @@ import {
 	RenderMetadata,
 	renderMetadataKey,
 	rendersPrefix,
-} from '../constants';
-import {streamToString} from '../helpers/stream-to-string';
-import {inspectErrors} from '../inspect-errors';
-import {lambdaLs, lambdaReadFile} from '../io';
-import {getPriceInCents} from '../pricing/get-price';
+} from '../shared/constants';
+import {streamToString} from '../shared/stream-to-string';
+import {getOptimization} from './chunk-optimization/s3-optimization-file';
+import {inspectErrors} from './helpers/inspect-errors';
+import {lambdaLs, lambdaReadFile} from './helpers/io';
 
 const getFinalEncodingStatus = ({
 	encodingStatus: encodingProgress,

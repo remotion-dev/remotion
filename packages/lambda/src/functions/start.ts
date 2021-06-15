@@ -1,8 +1,8 @@
 import {InvokeCommand} from '@aws-sdk/client-lambda';
-import {LambdaPayload, LambdaRoutines} from '../constants';
-import {getOrMakeBucket} from '../get-or-make-bucket';
-import {randomHash} from '../helpers/random-hash';
+import {getOrMakeBucket} from '../api/get-or-make-bucket';
 import {lambdaClient} from '../shared/aws-clients';
+import {LambdaPayload, LambdaRoutines} from '../shared/constants';
+import {randomHash} from '../shared/random-hash';
 
 export const startHandler = async (params: LambdaPayload) => {
 	if (params.type !== LambdaRoutines.start) {

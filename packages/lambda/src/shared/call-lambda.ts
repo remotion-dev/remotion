@@ -1,7 +1,7 @@
 import {InvokeCommand} from '@aws-sdk/client-lambda';
+import {lambdaClient} from './aws-clients';
 import {LambdaPayloads, LambdaRoutines} from './constants';
 import {LambdaReturnValues} from './return-values';
-import {lambdaClient} from './shared/aws-clients';
 
 export const callLambda = async <T extends LambdaRoutines>({
 	functionName,

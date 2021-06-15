@@ -2,23 +2,23 @@ import {CliInternals} from '@remotion/cli';
 import {writeFileSync} from 'fs';
 import path from 'path';
 import {checkLambdaStatus} from './api/check-lambda-status';
-import {callLambda} from './call-lambda';
+import {createLambda} from './api/create-lambda';
+import {deploySite} from './api/deploy-site';
+import {getOrMakeBucket} from './api/get-or-make-bucket';
 import {cleanupLambdas, getRemotionLambdas} from './cleanup/cleanup-lambdas';
 import {getRemotionS3Buckets} from './cleanup/s3-buckets';
+import {lambdaLs, lambdaReadFile} from './functions/helpers/io';
+import {lambdaClient, s3Client} from './shared/aws-clients';
+import {callLambda} from './shared/call-lambda';
 import {
 	getSitesKey,
 	LambdaRoutines,
 	REMOTION_BUCKET_PREFIX,
 	timingProfileName,
-} from './constants';
-import {createLambda} from './create-lambda';
-import {deploySite} from './deploy-site';
-import {getOrMakeBucket} from './get-or-make-bucket';
-import {sleep} from './helpers/sleep';
-import {streamToString} from './helpers/stream-to-string';
-import {lambdaLs, lambdaReadFile} from './io';
-import {makeS3Url} from './make-s3-url';
-import {lambdaClient, s3Client} from './shared/aws-clients';
+} from './shared/constants';
+import {makeS3Url} from './shared/make-s3-url';
+import {sleep} from './shared/sleep';
+import {streamToString} from './shared/stream-to-string';
 
 const DEPLOY = false;
 

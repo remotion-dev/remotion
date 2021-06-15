@@ -1,4 +1,4 @@
-import {streamToString} from './helpers/stream-to-string';
+import {streamToString} from '../../shared/stream-to-string';
 import {lambdaReadFile} from './io';
 
 export const inspectErrors = async ({

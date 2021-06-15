@@ -1,5 +1,5 @@
-import {timingProfileName} from '../constants';
-import {lambdaWriteFile} from '../io';
+import {timingProfileName} from '../../shared/constants';
+import {lambdaWriteFile} from '../helpers/io';
 import {TimingProfile} from './types';
 
 export const writeTimingProfile = async ({

@@ -1,17 +1,7 @@
 import {InvokeCommand} from '@aws-sdk/client-lambda';
 import fs from 'fs';
-import {collectChunkInformation} from '../chunk-optimization/collect-data';
-import {getFrameRangesFromProfile} from '../chunk-optimization/get-frame-ranges-from-profile';
-import {getProfileDuration} from '../chunk-optimization/get-profile-duration';
-import {optimizeInvocationOrder} from '../chunk-optimization/optimize-invocation-order';
-import {optimizeProfileRecursively} from '../chunk-optimization/optimize-profile';
-import {planFrameRanges} from '../chunk-optimization/plan-frame-ranges';
-import {
-	getOptimization,
-	writeOptimization,
-} from '../chunk-optimization/s3-optimization-file';
-import {writeTimingProfile} from '../chunk-optimization/write-profile';
-import {concatVideosS3} from '../concat-videos';
+import {lambdaClient} from '../shared/aws-clients';
+import {chunk} from '../shared/chunk';
 import {
 	EncodingProgress,
 	encodingProgressKey,
@@ -21,14 +11,24 @@ import {
 	outName,
 	RenderMetadata,
 	renderMetadataKey,
-} from '../constants';
-import {getBrowserInstance} from '../get-browser-instance';
-import {chunk} from '../helpers/chunk';
-import {lambdaWriteFile} from '../io';
-import {getSiteId} from '../make-s3-url';
-import {lambdaClient} from '../shared/aws-clients';
-import {validateComposition} from '../validate-composition';
+} from '../shared/constants';
+import {getSiteId} from '../shared/make-s3-url';
+import {collectChunkInformation} from './chunk-optimization/collect-data';
+import {getFrameRangesFromProfile} from './chunk-optimization/get-frame-ranges-from-profile';
+import {getProfileDuration} from './chunk-optimization/get-profile-duration';
+import {optimizeInvocationOrder} from './chunk-optimization/optimize-invocation-order';
+import {optimizeProfileRecursively} from './chunk-optimization/optimize-profile';
+import {planFrameRanges} from './chunk-optimization/plan-frame-ranges';
+import {
+	getOptimization,
+	writeOptimization,
+} from './chunk-optimization/s3-optimization-file';
+import {writeTimingProfile} from './chunk-optimization/write-profile';
+import {concatVideosS3} from './helpers/concat-videos';
+import {getBrowserInstance} from './helpers/get-browser-instance';
+import {lambdaWriteFile} from './helpers/io';
 import {timer} from './helpers/timer';
+import {validateComposition} from './helpers/validate-composition';
 
 const innerLaunchHandler = async (params: LambdaPayload) => {
 	if (params.type !== LambdaRoutines.launch) {

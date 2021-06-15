@@ -1,6 +1,6 @@
-import {optimizationProfile} from '../constants';
-import {streamToString} from '../helpers/stream-to-string';
-import {lambdaLs, lambdaReadFile, lambdaWriteFile} from '../io';
+import {optimizationProfile} from '../../shared/constants';
+import {streamToString} from '../../shared/stream-to-string';
+import {lambdaLs, lambdaReadFile, lambdaWriteFile} from '../helpers/io';
 import {OptimizationProfile} from './types';
 
 export const writeOptimization = async ({

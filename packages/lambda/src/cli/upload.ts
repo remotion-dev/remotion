@@ -2,8 +2,9 @@ import {CliInternals} from '@remotion/cli';
 import {existsSync, lstatSync} from 'fs';
 import path from 'path';
 import {BINARY_NAME} from '../api/bundle-remotion';
-import {deploySite} from '../deploy-site';
-import {getOrMakeBucket} from '../get-or-make-bucket';
+import {deploySite} from '../api/deploy-site';
+import {getOrMakeBucket} from '../api/get-or-make-bucket';
+import {parsedCli} from './args';
 import {
 	BucketCreationProgress,
 	BundleProgress,
@@ -11,8 +12,7 @@ import {
 	makeBucketProgress,
 	makeBundleProgress,
 	makeDeployProgressBar,
-} from '../progress-bar';
-import {parsedCli} from './args';
+} from './helpers/progress-bar';
 import {Log} from './log';
 
 export const UPLOAD_COMMAND = 'upload';

@@ -3,7 +3,7 @@ import {
 	LambdaClient,
 	ListFunctionsCommand,
 } from '@aws-sdk/client-lambda';
-import {RENDER_FN_PREFIX} from '../constants';
+import {RENDER_FN_PREFIX} from '../shared/constants';
 
 export const getRemotionLambdas = async (lambdaClient: LambdaClient) => {
 	const lambdas = await lambdaClient.send(new ListFunctionsCommand({}));

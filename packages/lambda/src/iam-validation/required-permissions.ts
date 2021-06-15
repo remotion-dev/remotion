@@ -1,5 +1,5 @@
 import {iam, lambda, s3} from 'aws-policies';
-import {REMOTION_BUCKET_PREFIX, RENDER_FN_PREFIX} from '../constants';
+import {REMOTION_BUCKET_PREFIX, RENDER_FN_PREFIX} from '../shared/constants';
 
 // TODO: Update docs before release
 export const requiredPermissions: {
