@@ -1,5 +1,5 @@
 import {CliInternals} from '@remotion/cli';
-import {BINARY_NAME} from '../bundle-remotion';
+import {BINARY_NAME} from '../api/bundle-remotion';
 import {simulatePermissions} from '../iam-validation/simulate';
 import {
 	suggestedPolicy,

@@ -1,5 +1,5 @@
 import chalk from 'chalk';
-import {BINARY_NAME} from '../bundle-remotion';
+import {BINARY_NAME} from '../api/bundle-remotion';
 import {CLEANUP_COMMAND} from './cleanup';
 import {Log} from './log';
 import {RENDER_COMMAND} from './render';

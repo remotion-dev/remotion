@@ -1,7 +1,7 @@
 import {CliInternals} from '@remotion/cli';
 import {existsSync, lstatSync} from 'fs';
 import path from 'path';
-import {BINARY_NAME} from '../bundle-remotion';
+import {BINARY_NAME} from '../api/bundle-remotion';
 import {deploySite} from '../deploy-site';
 import {getOrMakeBucket} from '../get-or-make-bucket';
 import {
