@@ -189,8 +189,6 @@ export const renderFrames = async ({
 	return {
 		assetsInfo: {
 			assets,
-			// TODO: Will break stuff
-			bundleDir: '',
 		},
 		frameCount,
 	};
