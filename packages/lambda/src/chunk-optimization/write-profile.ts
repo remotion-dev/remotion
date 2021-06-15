@@ -14,7 +14,6 @@ export const writeTimingProfile = async ({
 	await lambdaWriteFile({
 		bucketName,
 		body: JSON.stringify(data),
-		forceS3: true,
 		key: timingProfileName(renderId) + Date.now() + '.json',
 	});
 };

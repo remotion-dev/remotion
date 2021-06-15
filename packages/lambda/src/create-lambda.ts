@@ -2,13 +2,7 @@ import {GetUserCommand} from '@aws-sdk/client-iam';
 import {CreateFunctionCommand, LambdaClient} from '@aws-sdk/client-lambda';
 import {readFileSync} from 'fs';
 import {bundleLambda} from './api/bundle-lambda';
-import {
-	EFS_MOUNT_PATH,
-	ENABLE_EFS,
-	MEMORY_SIZE,
-	REGION,
-	RENDER_FN_PREFIX,
-} from './constants';
+import {MEMORY_SIZE, REGION, RENDER_FN_PREFIX} from './constants';
 import {randomHash} from './helpers/random-hash';
 import {ensureLayers} from './lambda-layers';
 import {iamClient} from './shared/aws-clients';
@@ -51,32 +45,6 @@ export const createLambda = async () => {
 			// TODO: Set timeout
 			Timeout: 120,
 			Layers: [layerArn],
-
-			VpcConfig: ENABLE_EFS
-				? {
-						SubnetIds: [
-							developer === 'shankhadeep'
-								? 'subnet-be85fcd4'
-								: 'subnet-00e3aa99745996ff7',
-						],
-						SecurityGroupIds: [
-							developer === 'shankhadeep'
-								? 'sg-8f2391fc'
-								: 'sg-0251b3f6fa6af4577',
-						],
-				  }
-				: undefined,
-			FileSystemConfigs: ENABLE_EFS
-				? [
-						{
-							Arn:
-								developer === 'shankhadeep'
-									? 'arn:aws:elasticfilesystem:eu-central-1:363307378317:access-point/fsap-05a31f7aad4e47581'
-									: 'arn:aws:elasticfilesystem:eu-central-1:976210361945:access-point/fsap-0e697d03f5bf221a7',
-							LocalMountPath: EFS_MOUNT_PATH,
-						},
-				  ]
-				: undefined,
 		})
 	);
 

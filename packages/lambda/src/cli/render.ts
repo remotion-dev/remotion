@@ -1,8 +1,8 @@
 import {ListFunctionsCommand} from '@aws-sdk/client-lambda';
 import {CliInternals} from '@remotion/cli';
 import {BINARY_NAME} from '../api/bundle-remotion';
+import {checkLambdaStatus} from '../api/check-lambda-status';
 import {callLambda} from '../call-lambda';
-import {checkLambdaStatus} from '../check-lambda-status';
 import {LambdaRoutines, RENDER_FN_PREFIX} from '../constants';
 import {sleep} from '../helpers/sleep';
 import {lambdaClient} from '../shared/aws-clients';

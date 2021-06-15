@@ -8,7 +8,7 @@ import {
 	rmSync,
 } from 'fs';
 import path, {join} from 'path';
-import {chunkKey, EFS_MOUNT_PATH, ENABLE_EFS} from './constants';
+import {chunkKey} from './constants';
 import {timer} from './functions/helpers/timer';
 import {lambdaLs, lambdaReadFile} from './io';
 import {tmpDir} from './tmpdir';
@@ -32,10 +32,6 @@ const downloadS3File = async ({
 	key: string;
 	outdir: string;
 }) => {
-	if (ENABLE_EFS) {
-		return Promise.resolve();
-	}
-
 	const Body = await lambdaReadFile({
 		bucketName: bucket,
 		key,
@@ -86,19 +82,11 @@ const getAllFilesS3 = async ({
 				const areAllFilesDownloaded =
 					Object.keys(downloaded).length === expectedFiles;
 				if (areAllFilesDownloaded) {
-					if (ENABLE_EFS) {
-						resolve(
-							filesInBucket.map((file) =>
-								path.join(EFS_MOUNT_PATH + '/' + bucket, file)
-							)
-						);
-					} else {
-						resolve(
-							filesInBucket.map((file) =>
-								getChunkDownloadOutputLocation({outdir, file})
-							)
-						);
-					}
+					resolve(
+						filesInBucket.map((file) =>
+							getChunkDownloadOutputLocation({outdir, file})
+						)
+					);
 				}
 			};
 
