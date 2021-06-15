@@ -7,7 +7,7 @@ If your video flickers or suffers from choppyness during rendering, it is an ind
 
 The rendering process of Remotion works as follows:
 
-<img src="/static/img/parallel-rendering.png" />
+<img src="/img/parallel-rendering.png" />
 
 We open multiple tabs to render the video to speed up the process dramatically. These tabs don't share state and animations that run independent of [`useCurrentFrame()`](/docs/use-current-frame) will break. Frames don't render in order and frames can be skipped.
 
