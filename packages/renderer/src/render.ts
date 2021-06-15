@@ -43,6 +43,7 @@ export const renderFrames = async ({
 	serveUrl,
 	onError,
 	envVariables,
+	bundleDir,
 }: {
 	config: VideoConfig;
 	compositionId: string;
@@ -61,6 +62,8 @@ export const renderFrames = async ({
 	browser?: Browser;
 	frameRange?: FrameRange | null;
 	serveUrl: string;
+	// TODO: It's just pass through but not really needed
+	bundleDir: string | null;
 	dumpBrowserLogs?: boolean;
 	puppeteerInstance: PuppeteerBrowser;
 	onError?: (info: OnErrorInfo) => void;
@@ -189,6 +192,7 @@ export const renderFrames = async ({
 	return {
 		assetsInfo: {
 			assets,
+			bundleDir,
 		},
 		frameCount,
 	};

@@ -198,6 +198,7 @@ export const render = async () => {
 		frameRange: frameRange ?? null,
 		puppeteerInstance: openedBrowser,
 		serveUrl,
+		bundleDir: bundled,
 	});
 
 	const closeBrowserPromise = openedBrowser.close();

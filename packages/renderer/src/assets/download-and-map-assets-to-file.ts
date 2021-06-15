@@ -78,14 +78,20 @@ export const getSanitizedFilenameForAssetUrl = ({
 	src,
 	isRemote,
 	webpackBundle,
+	downloadDir,
 }: {
 	src: string;
 	isRemote: boolean;
-	webpackBundle: string;
+	webpackBundle: string | null;
+	downloadDir: string;
 }) => {
 	const {pathname, search} = new URL(src);
 
 	if (!isRemote) {
+		if (!webpackBundle) {
+			throw new TypeError('Expected webpack bundle');
+		}
+
 		return path.join(webpackBundle, sanitizeFilename(pathname));
 	}
 
@@ -99,7 +105,7 @@ export const getSanitizedFilenameForAssetUrl = ({
 		''
 	);
 	return path.join(
-		webpackBundle,
+		downloadDir,
 		sanitizeFilename(hashedFileName + fileExtension)
 	);
 };
@@ -108,15 +114,18 @@ export const downloadAndMapAssetsToFileUrl = async ({
 	localhostAsset,
 	downloadDir,
 	onDownload,
+	webpackBundle,
 }: {
 	localhostAsset: TAsset;
 	downloadDir: string;
 	onDownload: (src: string) => void;
+	webpackBundle: string | null;
 }): Promise<TAsset> => {
 	const newSrc = getSanitizedFilenameForAssetUrl({
 		src: localhostAsset.src,
 		isRemote: localhostAsset.isRemote,
-		webpackBundle: downloadDir,
+		webpackBundle,
+		downloadDir,
 	});
 
 	if (localhostAsset.isRemote) {
