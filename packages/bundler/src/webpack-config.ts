@@ -111,12 +111,6 @@ export const webpackConfig = ({
 		module: {
 			rules: [
 				{
-					test: /\.(woff|woff2)$/,
-					use: {
-						loader: require.resolve('url-loader'),
-					},
-				},
-				{
 					test: /\.css$/i,
 					use: [require.resolve('style-loader'), require.resolve('css-loader')],
 				},
@@ -162,7 +156,7 @@ export const webpackConfig = ({
 					].filter(truthy),
 				},
 				{
-					test: /\.(woff(2)?|ttf|eot|svg)(\?v=\d+\.\d+\.\d+)?$/,
+					test: /\.(woff(2)?|ttf|eot)(\?v=\d+\.\d+\.\d+)?$/,
 					use: [
 						{
 							loader: require.resolve('file-loader'),
