@@ -97,7 +97,7 @@ const renderHandler = async (params: LambdaPayload) => {
 
 	const outputLocation = path.join(
 		outdir,
-		`localchunk-${String(params.chunk).padStart(8, '0')}.mp4`
+		`localchunk-${String(params.chunk).padStart(8, '0')}.mkv`
 	);
 
 	const stitchLabel = timer('stitcher');
@@ -122,7 +122,7 @@ const renderHandler = async (params: LambdaPayload) => {
 		width: params.width,
 		outputLocation,
 		// TODO
-		codec: 'h264',
+		codec: 'h264-mkv',
 		// TODO
 		imageFormat: 'jpeg',
 	});

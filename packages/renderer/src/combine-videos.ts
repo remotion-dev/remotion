@@ -21,7 +21,6 @@ export const combineVideos = async ({
 	const fileList = files.map((p) => `file '${p}'`).join('\n');
 
 	const fileListTxt = join(filelistDir, 'files.txt');
-	console.log(fileList, 'file list');
 	writeFileSync(fileListTxt, fileList);
 
 	try {
@@ -32,8 +31,10 @@ export const combineVideos = async ({
 			'0',
 			'-i',
 			fileListTxt,
-			'-c',
+			'-c:v',
 			'copy',
+			'-c:a',
+			'aac',
 			'-y',
 			output,
 		]);
