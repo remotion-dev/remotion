@@ -46,6 +46,7 @@ const innerLaunchHandler = async (params: LambdaPayload) => {
 	const [browserInstance, optimization] = await Promise.all([
 		getBrowserInstance(),
 		getOptimization({
+			bucketName: params.bucketName,
 			siteId: urlBreakdown.siteId,
 			compositionId: params.composition,
 		}),

@@ -1,6 +1,4 @@
-import {s3Client} from '../aws-clients';
-import {getRemotionS3Buckets} from '../cleanup/s3-buckets';
-import {optimizationProfile, REMOTION_BUCKET_PREFIX} from '../constants';
+import {optimizationProfile} from '../constants';
 import {streamToString} from '../helpers/stream-to-string';
 import {lambdaLs, lambdaReadFile, lambdaWriteFile} from '../io';
 import {OptimizationProfile} from './types';
@@ -24,35 +22,15 @@ export const writeOptimization = async ({
 	});
 };
 
-export const getNewestRenderBucket = async () => {
-	// TODO: Just use 1 bucket, already have it
-	const buckets = await getRemotionS3Buckets(s3Client);
-	const renderBuckets = buckets.remotionBuckets
-		.filter((f) => f.Name?.startsWith(REMOTION_BUCKET_PREFIX))
-		.sort(
-			(a, b) =>
-				(new Date(a.CreationDate as Date)?.getTime() as number) -
-				(new Date(b.CreationDate as Date)?.getTime() as number)
-		)
-		.reverse();
-	return renderBuckets[0] ?? null;
-};
-
 export const getOptimization = async ({
 	siteId,
 	compositionId,
+	bucketName,
 }: {
+	bucketName: string;
 	siteId: string;
 	compositionId: string;
 }): Promise<OptimizationProfile | null> => {
-	// TODO: already have render bucket id
-	const bucket = await getNewestRenderBucket();
-	if (bucket === null) {
-		return null;
-	}
-
-	const bucketName = bucket.Name as string;
-
 	const prefix = optimizationProfile(siteId, compositionId);
 	const dir = await lambdaLs({
 		bucketName,
