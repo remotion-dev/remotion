@@ -1,9 +1,6 @@
 import {_Object} from '@aws-sdk/client-s3';
 import {Internals} from 'remotion';
-import {
-	getNewestRenderBucket,
-	getOptimization,
-} from '../chunk-optimization/s3-optimization-file';
+import {getOptimization} from '../chunk-optimization/s3-optimization-file';
 import {
 	chunkKey,
 	EncodingProgress,
@@ -161,8 +158,8 @@ export const progressHandler = async (lambdaParams: LambdaPayload) => {
 		.map((c) => c.Key)
 		.filter(Internals.truthy);
 
-	const [encodingStatus, renderMetadata, errorExplanations, bucket] =
-		await Promise.all([
+	const [encodingStatus, renderMetadata, errorExplanations] = await Promise.all(
+		[
 			getEncodingMetadata({
 				exists: Boolean(
 					contents.find(
@@ -182,10 +179,11 @@ export const progressHandler = async (lambdaParams: LambdaPayload) => {
 				renderId: lambdaParams.renderId,
 			}),
 			inspectErrors({errs: errors, bucket: lambdaParams.bucketName}),
-			getNewestRenderBucket(),
-		]);
+		]
+	);
 	const optimization = renderMetadata
 		? await getOptimization({
+				bucketName: lambdaParams.bucketName,
 				siteId: renderMetadata.siteId,
 				compositionId: renderMetadata.compositionId,
 		  })
@@ -231,7 +229,7 @@ export const progressHandler = async (lambdaParams: LambdaPayload) => {
 		},
 		renderId: lambdaParams.renderId,
 		renderMetadata,
-		bucket,
+		bucket: lambdaParams.bucketName,
 		outputFile: output
 			? `https://s3.${REGION}.amazonaws.com/${
 					lambdaParams.bucketName
