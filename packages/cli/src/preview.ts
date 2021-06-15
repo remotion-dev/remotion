@@ -29,7 +29,7 @@ export const previewCommand = xns(async () => {
 			inputProps,
 			envVariables,
 			port: desiredPort,
-			publicPath: '/',
+			publicPath: '',
 		}
 	);
 	betterOpn(`http://localhost:${port}`);
