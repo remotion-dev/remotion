@@ -1,7 +1,6 @@
 import {GetUserCommand} from '@aws-sdk/client-iam';
 import {CreateFunctionCommand, LambdaClient} from '@aws-sdk/client-lambda';
 import {readFileSync} from 'fs';
-import {iamClient} from './aws-clients';
 import {bundleLambda} from './bundle-lambda';
 import {
 	EFS_MOUNT_PATH,
@@ -12,6 +11,7 @@ import {
 } from './constants';
 import {randomHash} from './helpers/random-hash';
 import {ensureLayers} from './lambda-layers';
+import {iamClient} from './shared/aws-clients';
 import {waitForLambdaReady} from './wait-for-lambda-ready';
 
 const lambdaClient = new LambdaClient({

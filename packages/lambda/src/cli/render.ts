@@ -1,11 +1,11 @@
 import {ListFunctionsCommand} from '@aws-sdk/client-lambda';
 import {CliInternals} from '@remotion/cli';
-import {lambdaClient} from '../aws-clients';
 import {BINARY_NAME} from '../bundle-remotion';
 import {callLambda} from '../call-lambda';
 import {checkLambdaStatus} from '../check-lambda-status';
 import {LambdaRoutines, RENDER_FN_PREFIX} from '../constants';
 import {sleep} from '../helpers/sleep';
+import {lambdaClient} from '../shared/aws-clients';
 import {parsedCli} from './args';
 import {CLEANUP_COMMAND, CLEANUP_LAMBDAS_SUBCOMMAND} from './cleanup';
 import {DEPLOY_COMMAND} from './deploy';
