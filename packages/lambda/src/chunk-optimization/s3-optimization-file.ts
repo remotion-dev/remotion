@@ -17,7 +17,6 @@ export const writeOptimization = async ({
 	await lambdaWriteFile({
 		bucketName,
 		body: JSON.stringify(optimization),
-		forceS3: false,
 		key: optimizationProfile(siteId, compositionId) + '.json',
 	});
 };

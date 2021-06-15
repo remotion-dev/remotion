@@ -6,7 +6,6 @@ export const REGION: AwsRegion = 'eu-central-1';
 export const REMOTION_BUCKET_PREFIX = 'remotionlambda-';
 export const RENDER_FN_PREFIX = 'remotion-render-';
 export const EFS_MOUNT_PATH = '/mnt/efs';
-export const ENABLE_EFS = false;
 export const rendersPrefix = (renderId: string) => `renders/${renderId}`;
 export const encodingProgressKey = (renderId: string) =>
 	`${rendersPrefix(renderId)}/encoding-progress.json`;

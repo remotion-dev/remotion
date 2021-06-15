@@ -115,7 +115,6 @@ const innerLaunchHandler = async (params: LambdaPayload) => {
 		bucketName: params.bucketName,
 		key: renderMetadataKey(params.renderId),
 		body: JSON.stringify(renderMetadata),
-		forceS3: false,
 	});
 
 	const payloadChunks = chunk(lambdaPayloads, invokers);
@@ -150,7 +149,6 @@ const innerLaunchHandler = async (params: LambdaPayload) => {
 			bucketName: params.bucketName,
 			key: encodingProgressKey(params.renderId),
 			body: JSON.stringify(encodingProgress),
-			forceS3: false,
 		});
 	};
 
@@ -165,7 +163,6 @@ const innerLaunchHandler = async (params: LambdaPayload) => {
 		bucketName: params.bucketName,
 		key: outName(params.renderId),
 		body: fs.createReadStream(out),
-		forceS3: true,
 	});
 	const chunkData = await collectChunkInformation(
 		params.bucketName,
@@ -208,7 +205,6 @@ export const launchHandler = async (params: LambdaPayload) => {
 			body: JSON.stringify({
 				error: err.message,
 			}),
-			forceS3: false,
 		});
 	}
 };

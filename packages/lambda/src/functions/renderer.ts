@@ -68,7 +68,6 @@ const renderHandler = async (params: LambdaPayload) => {
 					bucketName: params.bucketName,
 					body: '0',
 					key: `${lambdaInitializedKey(params.renderId)}-${params.chunk}.txt`,
-					forceS3: false,
 				});
 			}
 
@@ -91,7 +90,6 @@ const renderHandler = async (params: LambdaPayload) => {
 		bucketName: params.bucketName,
 		body: JSON.stringify(condensedTimingData as ChunkTimingData, null, 2),
 		key: `${lambdaInitializedKey(params.renderId)}-${params.chunk}.txt`,
-		forceS3: false,
 	});
 	const outdir = tmpDir('bucket');
 
@@ -129,7 +127,6 @@ const renderHandler = async (params: LambdaPayload) => {
 	stitchLabel.end();
 
 	await lambdaWriteFile({
-		forceS3: false,
 		bucketName: params.bucketName,
 		key: `${chunkKey(params.renderId)}${String(params.chunk).padStart(
 			8,
@@ -171,7 +168,6 @@ export const rendererHandler = async (params: LambdaPayload) => {
 
 		console.log('Error occurred', err);
 		await lambdaWriteFile({
-			forceS3: false,
 			bucketName: params.bucketName,
 			key: `${getRendererErrorKeyPrefix(params.renderId)}${
 				params.chunk

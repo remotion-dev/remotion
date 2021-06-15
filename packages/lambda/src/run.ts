@@ -1,8 +1,8 @@
 import {CliInternals} from '@remotion/cli';
 import {writeFileSync} from 'fs';
 import path from 'path';
+import {checkLambdaStatus} from './api/check-lambda-status';
 import {callLambda} from './call-lambda';
-import {checkLambdaStatus} from './check-lambda-status';
 import {cleanupLambdas, getRemotionLambdas} from './cleanup/cleanup-lambdas';
 import {getRemotionS3Buckets} from './cleanup/s3-buckets';
 import {
