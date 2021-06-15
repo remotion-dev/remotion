@@ -1,6 +1,6 @@
 import { Player } from "@remotion/player";
 import React, { useState } from "react";
-import { Main } from "./ColorDemo/Main";
+import { ColorDemo } from "./ColorDemo";
 import "./input-fields.css";
 
 export const PlayerExample: React.FC = () => {
@@ -10,7 +10,7 @@ export const PlayerExample: React.FC = () => {
   return (
     <div>
       <Player
-        component={Main}
+        component={ColorDemo}
         compositionWidth={1280}
         compositionHeight={720}
         controls
@@ -33,6 +33,9 @@ export const PlayerExample: React.FC = () => {
           placeholder="Your name"
           value={name}
           onChange={(e) => setName(e.target.value)}
+          style={{
+            backgroundColor: "#fffee4",
+          }}
         />
       </p>
       <p>
