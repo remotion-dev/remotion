@@ -66,6 +66,7 @@ export const uploadDir = async ({
 					Key,
 					Bucket: bucket,
 					Body,
+					ACL: 'public-read',
 				},
 			});
 			paralellUploads3.on('httpUploadProgress', (progress) => {
