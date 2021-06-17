@@ -12,7 +12,9 @@ export const bundleLambda = async (type: 'render') => {
 
 	(fs.rmSync ?? fs.rmdirSync)(outdir, {recursive: true});
 	fs.mkdirSync(outdir, {recursive: true});
-	const template = require.resolve(path.join(__dirname, 'functions', 'index'));
+	const template = require.resolve(
+		path.join(__dirname, '..', 'functions', 'index')
+	);
 
 	await esbuild.build({
 		platform: 'node',
