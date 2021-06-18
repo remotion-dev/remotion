@@ -1,4 +1,4 @@
-import {Codec, ImageFormat} from 'remotion';
+import {Codec, ImageFormat, PixelFormat, ProResProfile} from 'remotion';
 import {AwsRegion} from '../pricing/aws-regions';
 
 export const MEMORY_SIZE = 2048;
@@ -22,7 +22,6 @@ export const getStitcherErrorKeyPrefix = (renderId: string) =>
 	`${rendersPrefix(renderId)}/errors/stitcher-`;
 export const getRendererErrorKeyPrefix = (renderId: string) =>
 	`${rendersPrefix(renderId)}/errors/renderer-`;
-// TODO: Optimization profile per deploy
 export const optimizationProfile = (siteId: string, compositionId: string) =>
 	`optimization-profiles/${siteId}/${compositionId}/optimization-profile`;
 export const getSitesKey = (siteId: string) => `sites/${siteId}`;
@@ -47,6 +46,10 @@ export type LambdaPayloads = {
 		codec: Codec;
 		imageFormat: ImageFormat;
 		crf: number | undefined;
+		envVariables: Record<string, string> | undefined;
+		pixelFormat: PixelFormat | undefined;
+		proResProfile: ProResProfile | undefined;
+		quality: number | undefined;
 	};
 	launch: {
 		type: LambdaRoutines.launch;
@@ -59,6 +62,10 @@ export type LambdaPayloads = {
 		imageFormat: ImageFormat;
 		codec: Codec;
 		crf: number | undefined;
+		envVariables: Record<string, string> | undefined;
+		pixelFormat: PixelFormat | undefined;
+		proResProfile: ProResProfile | undefined;
+		quality: number | undefined;
 	};
 	fire: {
 		type: LambdaRoutines.fire;
@@ -87,6 +94,10 @@ export type LambdaPayloads = {
 		imageFormat: ImageFormat;
 		codec: Codec;
 		crf: number | undefined;
+		proResProfile: ProResProfile | undefined;
+		pixelFormat: PixelFormat | undefined;
+		quality: number | undefined;
+		envVariables: Record<string, string> | undefined;
 	};
 };
 

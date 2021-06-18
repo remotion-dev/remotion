@@ -1,4 +1,4 @@
-import {Codec, ImageFormat} from 'remotion';
+import {Codec, ImageFormat, PixelFormat, ProResProfile} from 'remotion';
 import {parsedCli} from '../cli/args';
 import {callLambda} from '../shared/call-lambda';
 import {LambdaRoutines} from '../shared/constants';
@@ -10,6 +10,10 @@ export const renderVideoOnLambda = async ({
 	codec,
 	imageFormat,
 	crf,
+	envVariables,
+	pixelFormat,
+	proResProfile,
+	quality,
 }: {
 	functionName: string;
 	serveUrl: string;
@@ -17,6 +21,10 @@ export const renderVideoOnLambda = async ({
 	codec: Codec;
 	imageFormat: ImageFormat;
 	crf?: number | undefined;
+	envVariables?: Record<string, string>;
+	pixelFormat?: PixelFormat;
+	proResProfile?: ProResProfile;
+	quality?: number;
 }) => {
 	const res = await callLambda({
 		functionName,
@@ -30,6 +38,10 @@ export const renderVideoOnLambda = async ({
 			codec,
 			imageFormat,
 			crf,
+			envVariables,
+			pixelFormat,
+			proResProfile,
+			quality,
 		},
 	});
 	return {

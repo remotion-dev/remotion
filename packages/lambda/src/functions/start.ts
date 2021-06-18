@@ -23,6 +23,10 @@ export const startHandler = async (params: LambdaPayload) => {
 		codec: params.codec,
 		imageFormat: params.imageFormat,
 		crf: params.crf,
+		envVariables: params.envVariables,
+		pixelFormat: params.pixelFormat,
+		proResProfile: params.proResProfile,
+		quality: params.quality,
 	};
 	await lambdaClient.send(
 		new InvokeCommand({

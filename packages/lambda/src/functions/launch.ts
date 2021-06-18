@@ -1,4 +1,5 @@
 import {InvokeCommand} from '@aws-sdk/client-lambda';
+import {Log} from '@remotion/cli/dist/log';
 import fs from 'fs';
 import {lambdaClient} from '../shared/aws-clients';
 import {chunk} from '../shared/chunk';
@@ -96,6 +97,10 @@ const innerLaunchHandler = async (params: LambdaPayload) => {
 			imageFormat: params.imageFormat,
 			codec: params.codec,
 			crf: params.crf,
+			envVariables: params.envVariables,
+			pixelFormat: params.pixelFormat,
+			proResProfile: params.proResProfile,
+			quality: params.quality,
 		};
 		return payload;
 	});
@@ -162,6 +167,7 @@ const innerLaunchHandler = async (params: LambdaPayload) => {
 		numberOfFrames: comp.durationInFrames,
 		renderId: params.renderId,
 	});
+	// TODO: Enable or disable chunk optimization
 	await lambdaWriteFile({
 		bucketName: params.bucketName,
 		key: outName(params.renderId),
@@ -201,7 +207,7 @@ export const launchHandler = async (params: LambdaPayload) => {
 	try {
 		await innerLaunchHandler(params);
 	} catch (err) {
-		console.log('Error occurred', err);
+		Log.error('Error occurred', err);
 		await lambdaWriteFile({
 			bucketName: params.bucketName,
 			key: `${getStitcherErrorKeyPrefix(params.renderId)}${Date.now()}.txt`,

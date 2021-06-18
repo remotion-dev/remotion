@@ -42,7 +42,6 @@ const renderHandler = async (params: LambdaPayload) => {
 		throw new Error('must pass framerange');
 	}
 
-	console.log(`Started rendering ${params.chunk}, frame ${params.frameRange}`);
 	const start = Date.now();
 	const chunkTimingData: ObjectChunkTimingData = {
 		timings: {},
@@ -82,6 +81,13 @@ const renderHandler = async (params: LambdaPayload) => {
 		puppeteerInstance: browserInstance,
 		serveUrl: params.serveUrl,
 		bundleDir: null,
+		quality: params.quality,
+		envVariables: params.envVariables,
+		onError: () => {
+			// TODO handle error
+		},
+		browser: 'chrome',
+		dumpBrowserLogs: false,
 	});
 	const condensedTimingData: ChunkTimingData = {
 		...chunkTimingData,
@@ -123,6 +129,13 @@ const renderHandler = async (params: LambdaPayload) => {
 		codec: params.codec,
 		imageFormat: params.imageFormat,
 		crf: params.crf,
+		pixelFormat: params.pixelFormat,
+		proResProfile: params.proResProfile,
+		parallelism: 1,
+		verbose: false,
+		onProgress: () => {
+			// TODO: upload progress from time to time
+		},
 	});
 	stitchLabel.end();
 
@@ -131,6 +144,7 @@ const renderHandler = async (params: LambdaPayload) => {
 		key: `${chunkKey(params.renderId)}${String(params.chunk).padStart(
 			8,
 			'0'
+			// TODO: Dynamic file extension
 		)}.mp4`,
 		body: fs.createReadStream(outputLocation),
 	});
