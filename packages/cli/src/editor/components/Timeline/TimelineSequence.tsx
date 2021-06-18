@@ -1,6 +1,6 @@
 import {PlayerInternals} from '@remotion/player';
 import React, {useContext, useMemo, useState} from 'react';
-import {Internals, TSequence} from 'remotion';
+import {Internals, TSequence,useCurrentFrame} from 'remotion';
 import {
 	getTimelineSequenceLayout,
 	SEQUENCE_BORDER_WIDTH,
@@ -12,7 +12,7 @@ import {Thumbnail} from '../Thumbnail';
 import {sliderAreaRef} from './timeline-refs';
 import {TimelineVideoInfo} from './TimelineVideoInfo';
 
-const SEQUENCE_GRADIENT = 'linear-gradient(to bottom, #3697e1, #348AC7 60%)';
+const SEQUENCE_GRADIENT = 'linear-gradient(to bottom, #5f88f7, #348AC7 60%)';
 const AUDIO_GRADIENT = 'linear-gradient(rgb(16 171 58), rgb(43 165 63) 60%)';
 const VIDEO_GRADIENT = 'linear-gradient(to top, #8e44ad, #9b59b6)';
 
@@ -53,7 +53,7 @@ export const TimelineSequence: React.FC<{
 					? VIDEO_GRADIENT
 					: SEQUENCE_GRADIENT,
 			border: SEQUENCE_BORDER_WIDTH + 'px solid rgba(255, 255, 255, 0.2)',
-			borderRadius: 4,
+			borderRadius: 2,
 			position: 'absolute',
 			height: TIMELINE_LAYER_HEIGHT,
 			marginTop: 1,
@@ -72,9 +72,16 @@ export const TimelineSequence: React.FC<{
 			overflow: 'hidden',
 		};
 	}, []);
-
+	const relativeFrameStyle: React.CSSProperties = {
+		position: 'relative',
+		fontSize: "15px",
+		fontFamily:" Arial, Helvetica, sans-serif",
+		marginTop: 10,
+		marginLeft:4,
+		color: 'white',
+	}
 	const thumbnailWidth = TIMELINE_LAYER_HEIGHT * (video.width / video.height);
-
+	const relativeFrame=(useCurrentFrame()-s.from<0||useCurrentFrame()-s.from>=s.duration?"":useCurrentFrame()-s.from);
 	return (
 		<div key={s.id} style={style} title={s.displayName}>
 			<div style={row}>
@@ -86,6 +93,7 @@ export const TimelineSequence: React.FC<{
 						frameToDisplay={Math.floor(s.from + s.duration / 2)}
 					/>
 				) : null}
+				<div style={relativeFrameStyle}>	{relativeFrame}</div>
 			</div>
 			{s.type === 'audio' ? (
 				<AudioWaveform
