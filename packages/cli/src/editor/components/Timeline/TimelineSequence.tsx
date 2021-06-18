@@ -93,7 +93,7 @@ export const TimelineSequence: React.FC<{
 						frameToDisplay={Math.floor(s.from + s.duration / 2)}
 					/>
 				) : null}
-				<div style={relativeFrameStyle}>	{relativeFrame}</div>
+				<div style={relativeFrameStyle}>{relativeFrame}</div>
 			</div>
 			{s.type === 'audio' ? (
 				<AudioWaveform
