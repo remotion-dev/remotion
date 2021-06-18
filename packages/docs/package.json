@@ -27,6 +27,10 @@
     "prism-react-renderer": "^1.2.1",
     "remotion": "2.1.11"
   },
+  "devDependencies": {
+    "@docusaurus/module-type-aliases": "^2.0.0-beta.0",
+    "@tsconfig/docusaurus": "^1.0.2"
+  },
   "browserslist": {
     "production": [
       ">0.5%",
