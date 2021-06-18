@@ -136,14 +136,14 @@ const renderHandler = async (params: LambdaPayload) => {
 
 	await lambdaWriteFile({
 		bucketName: params.bucketName,
-		key: `${chunkKey(params.renderId)}${String(params.chunk).padStart(
-			8,
-			'0'
-			// TODO: Dynamic file extension
-		)}.mp4`,
+		key: `${chunkKey(params.renderId)}${String(params.chunk).padStart(8, '0')}`,
 		body: fs.createReadStream(outputLocation),
 	});
-	await uploadMetricsData;
+	await Promise.all([
+		uploadMetricsData,
+		fs.promises.rm(outputLocation, {recursive: true}),
+		fs.promises.rm(outputPath, {recursive: true}),
+	]);
 };
 
 export const rendererHandler = async (params: LambdaPayload) => {
