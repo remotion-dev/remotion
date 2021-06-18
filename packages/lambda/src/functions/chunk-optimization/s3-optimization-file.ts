@@ -1,3 +1,4 @@
+import {AwsRegion} from '../../pricing/aws-regions';
 import {optimizationProfile} from '../../shared/constants';
 import {streamToString} from '../../shared/stream-to-string';
 import {lambdaLs, lambdaReadFile, lambdaWriteFile} from '../helpers/io';
@@ -8,16 +9,19 @@ export const writeOptimization = async ({
 	optimization,
 	compositionId,
 	siteId,
+	region,
 }: {
 	bucketName: string;
 	optimization: OptimizationProfile;
 	compositionId: string;
 	siteId: string;
+	region: AwsRegion;
 }) => {
 	await lambdaWriteFile({
 		bucketName,
 		body: JSON.stringify(optimization),
 		key: optimizationProfile(siteId, compositionId) + '.json',
+		region,
 	});
 };
 
@@ -25,15 +29,18 @@ export const getOptimization = async ({
 	siteId,
 	compositionId,
 	bucketName,
+	region,
 }: {
 	bucketName: string;
 	siteId: string;
 	compositionId: string;
+	region: AwsRegion;
 }): Promise<OptimizationProfile | null> => {
 	const prefix = optimizationProfile(siteId, compositionId);
 	const dir = await lambdaLs({
 		bucketName,
 		prefix,
+		region,
 	});
 	const files = dir
 		.sort(
@@ -49,6 +56,7 @@ export const getOptimization = async ({
 	const body = await lambdaReadFile({
 		bucketName,
 		key: files[0].Key as string,
+		region,
 	});
 
 	const str = await streamToString(body);

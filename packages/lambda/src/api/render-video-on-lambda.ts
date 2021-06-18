@@ -1,5 +1,6 @@
 import {Codec, ImageFormat, PixelFormat, ProResProfile} from 'remotion';
-import {parsedCli} from '../cli/args';
+import {parsedLambdaCli} from '../cli/args';
+import {AwsRegion} from '../pricing/aws-regions';
 import {callLambda} from '../shared/call-lambda';
 import {LambdaRoutines} from '../shared/constants';
 
@@ -14,7 +15,9 @@ export const renderVideoOnLambda = async ({
 	pixelFormat,
 	proResProfile,
 	quality,
+	region,
 }: {
+	region: AwsRegion;
 	functionName: string;
 	serveUrl: string;
 	inputProps: unknown;
@@ -32,7 +35,7 @@ export const renderVideoOnLambda = async ({
 		payload: {
 			// TODO: Allow to parametrize
 			chunkSize: 20,
-			composition: parsedCli._[2],
+			composition: parsedLambdaCli._[2],
 			serveUrl,
 			inputProps,
 			codec,
@@ -43,6 +46,7 @@ export const renderVideoOnLambda = async ({
 			proResProfile,
 			quality,
 		},
+		region,
 	});
 	return {
 		renderId: res.renderId,

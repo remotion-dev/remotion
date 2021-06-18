@@ -1,6 +1,7 @@
 import {InvokeCommand} from '@aws-sdk/client-lambda';
-import {lambdaClient} from '../shared/aws-clients';
+import {getLambdaClient} from '../shared/aws-clients';
 import {LambdaPayload, LambdaRoutines} from '../shared/constants';
+import {getCurrentRegion} from './helpers/get-current-region';
 import {timer} from './helpers/timer';
 
 export const fireHandler = async (params: LambdaPayload) => {
@@ -11,7 +12,7 @@ export const fireHandler = async (params: LambdaPayload) => {
 	await Promise.all(
 		params.payloads.map(async (payload, index) => {
 			const callingLambdaTimer = timer('Calling lambda ' + index);
-			await lambdaClient.send(
+			await getLambdaClient(getCurrentRegion()).send(
 				new InvokeCommand({
 					FunctionName: process.env.AWS_LAMBDA_FUNCTION_NAME,
 					// @ts-expect-error

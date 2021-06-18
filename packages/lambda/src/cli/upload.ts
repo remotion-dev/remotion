@@ -4,7 +4,8 @@ import path from 'path';
 import {BINARY_NAME} from '../api/bundle-remotion';
 import {deployProject} from '../api/deploy-project';
 import {getOrCreateBucket} from '../api/get-or-create-bucket';
-import {parsedCli} from './args';
+import {parsedLambdaCli} from './args';
+import {getAwsRegion} from './get-aws-region';
 import {
 	BucketCreationProgress,
 	BundleProgress,
@@ -18,7 +19,7 @@ import {Log} from './log';
 export const UPLOAD_COMMAND = 'upload';
 
 export const uploadCommand = async () => {
-	const fileName = parsedCli._[1];
+	const fileName = parsedLambdaCli._[1];
 	if (!fileName) {
 		Log.error('No entry file passed.');
 		Log.info(
@@ -77,7 +78,7 @@ export const uploadCommand = async () => {
 		);
 	};
 
-	const bucketName = await getOrCreateBucket();
+	const bucketName = await getOrCreateBucket({region: getAwsRegion()});
 	multiProgress.bucketProgress = {
 		bucketCreated: true,
 		doneIn: null,
@@ -117,6 +118,7 @@ export const uploadCommand = async () => {
 				updateProgress();
 			},
 		},
+		region: getAwsRegion(),
 	});
 	const uploadDuration = Date.now() - uploadStart;
 	multiProgress.deployProgress = {

@@ -1,9 +1,17 @@
 // TODO: wait for certificate
 
-import {REGION} from './constants';
+import {AwsRegion} from '../pricing/aws-regions';
 
-export const makeS3Url = (bucketName: string, subFolder: string): string => {
-	return `https://${bucketName}.s3.${REGION}.amazonaws.com/${subFolder}`;
+export const makeS3Url = ({
+	bucketName,
+	subFolder,
+	region,
+}: {
+	bucketName: string;
+	subFolder: string;
+	region: AwsRegion;
+}): string => {
+	return `https://${bucketName}.s3.${region}.amazonaws.com/${subFolder}`;
 };
 
 // TODO: Instead of site ID, could also just make a hash

@@ -1,10 +1,13 @@
 import {CreateBucketCommand, ListBucketsCommand} from '@aws-sdk/client-s3';
-import {s3Client} from '../shared/aws-clients';
+import {AwsRegion} from '../pricing/aws-regions';
+import {getS3Client} from '../shared/aws-clients';
 import {REMOTION_BUCKET_PREFIX} from '../shared/constants';
 import {randomHash} from '../shared/random-hash';
 
-export const getOrCreateBucket = async () => {
-	const existingBuckets = await s3Client.send(new ListBucketsCommand({}));
+export const getOrCreateBucket = async (options: {region: AwsRegion}) => {
+	const existingBuckets = await getS3Client(options.region).send(
+		new ListBucketsCommand({})
+	);
 	const withPrefix = (existingBuckets.Buckets ?? []).filter((b) => {
 		return b.Name?.startsWith(REMOTION_BUCKET_PREFIX);
 	});
@@ -20,7 +23,7 @@ export const getOrCreateBucket = async () => {
 
 	const bucketName = REMOTION_BUCKET_PREFIX + randomHash();
 
-	await s3Client.send(
+	await getS3Client(options.region).send(
 		new CreateBucketCommand({
 			Bucket: bucketName,
 			ACL: 'public-read',

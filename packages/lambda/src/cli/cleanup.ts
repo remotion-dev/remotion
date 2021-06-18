@@ -4,9 +4,9 @@ import {CliInternals} from '@remotion/cli';
 import {BINARY_NAME} from '../api/bundle-remotion';
 import {cleanupLambdas, getRemotionLambdas} from '../cleanup/cleanup-lambdas';
 import {cleanUpBuckets, getRemotionS3Buckets} from '../cleanup/s3-buckets';
-import {lambdaClient, s3Client} from '../shared/aws-clients';
+import {getLambdaClient, getS3Client} from '../shared/aws-clients';
 import {chunk} from '../shared/chunk';
-import {REGION} from '../shared/constants';
+import {getAwsRegion} from './get-aws-region';
 import {Log} from './log';
 
 export const CLEANUP_COMMAND = 'cleanup';
@@ -38,13 +38,14 @@ const cleanupBucketsCommand = async (client: S3Client) => {
 };
 
 export const cleanupCommand = async (args: string[]) => {
+	const region = getAwsRegion();
 	if (args[0] === CLEANUP_LAMBDAS_SUBCOMMAND) {
-		await cleanupLambdaCommand(lambdaClient);
+		await cleanupLambdaCommand(getLambdaClient(getAwsRegion()));
 		return;
 	}
 
 	if (args[0] === S3_BUCKETS_SUBCOMMAND) {
-		await cleanupBucketsCommand(s3Client);
+		await cleanupBucketsCommand(getS3Client(getAwsRegion()));
 		return;
 	}
 
@@ -52,18 +53,18 @@ export const cleanupCommand = async (args: string[]) => {
 	fetching.update('Fetching AWS account...');
 
 	const [{remotionBuckets}, lambdas] = await Promise.all([
-		getRemotionS3Buckets(s3Client),
-		getRemotionLambdas(lambdaClient),
+		getRemotionS3Buckets(getS3Client(region)),
+		getRemotionLambdas(getS3Client(region)),
 	]);
 	if (remotionBuckets.length === 0 && lambdas.length === 0) {
 		fetching.update(
-			`Your AWS account in ${REGION} contains no following Remotion-related resources.\n`
+			`Your AWS account in ${region} contains no following Remotion-related resources.\n`
 		);
 		return;
 	}
 
 	fetching.update(
-		`Your AWS account in ${REGION} contains the following Remotion-related resources:\n\n`
+		`Your AWS account in ${region} contains the following Remotion-related resources:\n\n`
 	);
 	if (remotionBuckets.length !== 0) {
 		Log.info(
