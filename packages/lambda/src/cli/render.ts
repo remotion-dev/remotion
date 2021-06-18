@@ -1,3 +1,4 @@
+import {CliInternals} from '@remotion/cli';
 import {BINARY_NAME} from '../api/bundle-remotion';
 import {getDeployedLambdas} from '../api/get-deployed-lambdas';
 import {getRenderProgress} from '../api/get-render-progress';
@@ -55,7 +56,11 @@ export const renderCommand = async () => {
 
 	const functionName = remotionLambdas[0].FunctionName as string;
 
-	const res = await renderVideoOnLambda({functionName, serveUrl});
+	const res = await renderVideoOnLambda({
+		functionName,
+		serveUrl,
+		inputProps: CliInternals.getInputProps(),
+	});
 	for (let i = 0; i < 3000; i++) {
 		await sleep(1000);
 		const status = await getRenderProgress({
