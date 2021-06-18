@@ -57,13 +57,13 @@ export const optimizeProfile = (_profile: TimingProfile) => {
 
 	const indexOfFastest = sortedByStart.indexOf(sortedByDuration[0]);
 	if (indexOfFastest === -1) {
-		throw new Error('something went wrong');
+		throw new Error('invalid timing profile: ' + JSON.stringify(_profile));
 	}
 
 	const slowest = sortedByDuration[sortedByDuration.length - 1];
 	const indexOfSlowest = sortedByStart.indexOf(slowest);
 	if (indexOfSlowest === -1) {
-		throw new Error('something went wrong');
+		throw new Error('invalid timing profile: ' + JSON.stringify(_profile));
 	}
 
 	const frameRanges = getFrameRangesFromProfile(sortedByStart);

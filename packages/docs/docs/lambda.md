@@ -30,6 +30,15 @@ title: "@remotion/lambda"
 
 [**See here**](/docs/lambda-setup)
 
+## Considerations
+
+Currently hardcoded but you will need to decide in the future:
+
+- Decide memory limit
+- Decide lambda timeout
+- Decide parallelism
+- Decide Region
+
 ## Limitations
 
 - You only have 512MB of storage available in lambda function. This must be sufficient for both the chunks and the output, therefore the output file can only be about ~250MB maximum.

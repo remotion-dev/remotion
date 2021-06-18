@@ -19,7 +19,9 @@ export const renderCommand = async () => {
 			'Pass an additional argument specifying a URL where your Remotion project is hosted.'
 		);
 		Log.info();
-		Log.info(`${BINARY_NAME} render <http://remotion.s3.amazonaws.com>`);
+		Log.info(
+			`${BINARY_NAME} ${RENDER_COMMAND} <http://remotion.s3.amazonaws.com>`
+		);
 		process.exit(1);
 	}
 
