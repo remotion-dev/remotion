@@ -1,8 +1,8 @@
 import chalk from 'chalk';
 import xns from 'xns';
 import {checkNodeVersion} from './check-version';
+import {getCliOptions} from './get-cli-options';
 import {getConfigFileName} from './get-config-file-name';
-import {getInputProps} from './get-input-props';
 import {loadConfigFile} from './load-config';
 import {Log} from './log';
 import {parsedCli} from './parse-command-line';
@@ -44,8 +44,8 @@ export const CliInternals = {
 	chalk,
 	xns,
 	makeProgressBar,
-	getInputProps,
 	Log,
 	loadConfigFile,
 	getConfigFileName,
+	getCliOptions,
 };

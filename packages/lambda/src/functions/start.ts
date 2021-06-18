@@ -20,6 +20,9 @@ export const startHandler = async (params: LambdaPayload) => {
 		inputProps: params.inputProps,
 		bucketName,
 		renderId,
+		codec: params.codec,
+		imageFormat: params.imageFormat,
+		crf: params.crf,
 	};
 	await lambdaClient.send(
 		new InvokeCommand({

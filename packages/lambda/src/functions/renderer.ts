@@ -58,9 +58,10 @@ const renderHandler = async (params: LambdaPayload) => {
 			height: params.height,
 			width: params.width,
 		},
-		imageFormat: 'jpeg',
+		imageFormat: params.imageFormat,
 		inputProps: params.inputProps,
 		frameRange: params.frameRange,
+
 		onFrameUpdate: (i: number, output: string, frameNumber: number) => {
 			chunkTimingData.timings[frameNumber] = Date.now() - start;
 			if (i === 1) {
@@ -119,10 +120,9 @@ const renderHandler = async (params: LambdaPayload) => {
 		height: params.height,
 		width: params.width,
 		outputLocation,
-		// TODO
-		codec: 'h264-mkv',
-		// TODO
-		imageFormat: 'jpeg',
+		codec: params.codec,
+		imageFormat: params.imageFormat,
+		crf: params.crf,
 	});
 	stitchLabel.end();
 
