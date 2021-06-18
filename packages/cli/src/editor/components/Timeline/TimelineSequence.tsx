@@ -79,7 +79,7 @@ export const TimelineSequence: React.FC<{
 		marginTop: 10,
 		marginLeft:4,
 		color: 'white',
-	}
+	} 
 	const thumbnailWidth = TIMELINE_LAYER_HEIGHT * (video.width / video.height);
 	const relativeFrame=(useCurrentFrame()-s.from<0||useCurrentFrame()-s.from>=s.duration?"":useCurrentFrame()-s.from);
 	return (
