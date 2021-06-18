@@ -27,7 +27,7 @@ const getFinalCodec = async (options: {isLambda: boolean}) => {
 
 	const codec = Internals.getFinalOutputCodec({
 		codec: userCodec,
-		fileExtension: getUserPassedFileExtension(),
+		fileExtension: options.isLambda ? null : getUserPassedFileExtension(),
 		emitWarning: true,
 		isLambda: options.isLambda,
 	});
@@ -172,7 +172,9 @@ export const getCliOptions = async (options: {isLambda: boolean}) => {
 		frameRange
 	);
 	const codec = await getFinalCodec({isLambda: options.isLambda});
-	const outputFile = getOutputFilename(codec, shouldOutputImageSequence);
+	const outputFile = options.isLambda
+		? null
+		: getOutputFilename(codec, shouldOutputImageSequence);
 	const overwrite = Internals.getShouldOverwrite();
 	const crf = getAndValidateCrf(shouldOutputImageSequence, codec);
 	const pixelFormat = getAndValidatePixelFormat(codec);
@@ -193,7 +195,9 @@ export const getCliOptions = async (options: {isLambda: boolean}) => {
 		envVariables: await getEnvironmentVariables(),
 		quality: Internals.getQuality(),
 		browser: await getAndValidateBrowser(),
-		absoluteOutputFile: getAndValidateAbsoluteOutputFile(outputFile, overwrite),
+		absoluteOutputFile: outputFile
+			? getAndValidateAbsoluteOutputFile(outputFile, overwrite)
+			: null,
 		crf,
 		pixelFormat,
 		imageFormat,

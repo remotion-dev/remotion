@@ -86,7 +86,13 @@ export const render = async () => {
 		crf,
 		pixelFormat,
 		imageFormat,
-	} = await getCliOptions();
+	} = await getCliOptions({isLambda: false});
+
+	if (!absoluteOutputFile) {
+		throw new Error(
+			'assertion error - expected absoluteOutputFile to not be null'
+		);
+	}
 
 	await checkAndValidateFfmpegVersion();
 
@@ -155,6 +161,10 @@ export const render = async () => {
 	const outputDir = shouldOutputImageSequence
 		? absoluteOutputFile
 		: await fs.promises.mkdtemp(path.join(os.tmpdir(), 'react-motion-render'));
+
+	if (!outputDir) {
+		throw new Error('Assertion error: Expected outputDir to not be null');
+	}
 
 	Log.verbose('Output dir', outputDir);
 
