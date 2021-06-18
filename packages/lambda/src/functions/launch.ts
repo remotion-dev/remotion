@@ -64,7 +64,6 @@ const innerLaunchHandler = async (params: LambdaPayload) => {
 		throw new Error('Pass durationInFrames');
 	}
 
-	console.log(comp);
 	const {chunkSize} = params;
 	const chunkCount = Math.ceil(comp.durationInFrames / chunkSize);
 
