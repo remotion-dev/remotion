@@ -1,4 +1,3 @@
-import {CliInternals} from '@remotion/cli';
 import {parsedCli} from '../cli/args';
 import {callLambda} from '../shared/call-lambda';
 import {LambdaRoutines} from '../shared/constants';
@@ -6,9 +5,11 @@ import {LambdaRoutines} from '../shared/constants';
 export const renderVideoOnLambda = async ({
 	functionName,
 	serveUrl,
+	inputProps,
 }: {
 	functionName: string;
 	serveUrl: string;
+	inputProps: unknown;
 }) => {
 	const res = await callLambda({
 		functionName,
@@ -18,7 +19,7 @@ export const renderVideoOnLambda = async ({
 			chunkSize: 20,
 			composition: parsedCli._[2],
 			serveUrl,
-			inputProps: CliInternals.getInputProps(),
+			inputProps,
 		},
 	});
 	return {
