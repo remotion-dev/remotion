@@ -17,6 +17,7 @@ Follow this commented example to see how to render a video:
 
 ```tsx
 import fs from 'fs';
+import path from 'path';
 import {evaluateRootForCompositions} from 'remotion';
 import {bundle} from '@remotion/bundler';
 import {
@@ -81,7 +82,7 @@ const start = async () => {
   // Add this step if you want to make an MP4 out of the rendered frames.
   await stitchFramesToVideo({
     // Input directory of the frames
-    dir: tmpDir,
+    dir: framesDir,
     // Overwrite existing video
     force: true,
     // Possible overwrite of video metadata,
@@ -93,7 +94,7 @@ const start = async () => {
     // Must match the value above for the image format
     imageFormat: 'jpeg',
     // Pass in the desired output path of the video. Et voilà!
-    outputLocation: path.join(tmpDir, 'out.mp4'),
+    outputLocation: path.join(framesDir, 'out.mp4'),
     // FFMPEG pixel format
     pixelFormat: 'yuv420p',
     // Information needed to construct audio correctly.
