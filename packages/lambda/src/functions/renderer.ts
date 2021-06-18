@@ -1,4 +1,5 @@
 import {InvokeCommand} from '@aws-sdk/client-lambda';
+import {Log} from '@remotion/cli/dist/log';
 import {renderFrames, stitchFramesToVideo} from '@remotion/renderer';
 import fs from 'fs';
 import path from 'path';
@@ -27,12 +28,12 @@ const renderHandler = async (params: LambdaPayload) => {
 	}
 
 	const browserInstance = await getBrowserInstance();
-	const outputDir = '/tmp/remotion-render-' + randomHash();
-	if (fs.existsSync(outputDir)) {
-		(fs.rmSync ?? fs.rmdirSync)(outputDir);
+	const outputPath = '/tmp/remotion-render-' + randomHash();
+	if (fs.existsSync(outputPath)) {
+		(fs.rmSync ?? fs.rmdirSync)(outputPath);
 	}
 
-	fs.mkdirSync(outputDir);
+	fs.mkdirSync(outputPath);
 
 	if (typeof params.chunk !== 'number') {
 		throw new Error('must pass chunk');
@@ -60,24 +61,18 @@ const renderHandler = async (params: LambdaPayload) => {
 		imageFormat: params.imageFormat,
 		inputProps: params.inputProps,
 		frameRange: params.frameRange,
-
 		onFrameUpdate: (i: number, output: string, frameNumber: number) => {
 			chunkTimingData.timings[frameNumber] = Date.now() - start;
-			if (i === 1) {
-				lambdaWriteFile({
-					bucketName: params.bucketName,
-					body: '0',
-					key: `${lambdaInitializedKey(params.renderId)}-${params.chunk}.txt`,
-				});
-			}
-
-			console.log('Rendered frames', i, output);
 		},
 		parallelism: 1,
 		onStart: () => {
-			console.log('Starting');
+			lambdaWriteFile({
+				bucketName: params.bucketName,
+				body: '0',
+				key: `${lambdaInitializedKey(params.renderId)}-${params.chunk}.txt`,
+			});
 		},
-		outputDir,
+		outputDir: outputPath,
 		puppeteerInstance: browserInstance,
 		serveUrl: params.serveUrl,
 		bundleDir: null,
@@ -120,7 +115,7 @@ const renderHandler = async (params: LambdaPayload) => {
 			}),
 		},
 		downloadDir: '/tmp',
-		dir: outputDir,
+		dir: outputPath,
 		force: true,
 		fps: params.fps,
 		height: params.height,
@@ -149,7 +144,6 @@ const renderHandler = async (params: LambdaPayload) => {
 		body: fs.createReadStream(outputLocation),
 	});
 	await uploadMetricsData;
-	console.log('Done rendering!', outputDir, outputLocation);
 };
 
 export const rendererHandler = async (params: LambdaPayload) => {
@@ -180,7 +174,8 @@ export const rendererHandler = async (params: LambdaPayload) => {
 			);
 		}
 
-		console.log('Error occurred', err);
+		Log.error('Error occurred');
+		Log.error(err);
 		await lambdaWriteFile({
 			bucketName: params.bucketName,
 			key: `${getRendererErrorKeyPrefix(params.renderId)}${
