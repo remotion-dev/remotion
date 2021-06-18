@@ -1,6 +1,7 @@
 import {InvokeCommand} from '@aws-sdk/client-lambda';
 import {Log} from '@remotion/cli/dist/log';
 import fs from 'fs';
+import {Internals} from 'remotion';
 import {lambdaClient} from '../shared/aws-clients';
 import {chunk} from '../shared/chunk';
 import {
@@ -59,10 +60,13 @@ const innerLaunchHandler = async (params: LambdaPayload) => {
 		browserInstance,
 		inputProps: params.inputProps,
 	});
-	// TODO: Better validation
-	if (!comp.durationInFrames) {
-		throw new Error('Pass durationInFrames');
-	}
+	Internals.validateDurationInFrames(
+		comp.durationInFrames,
+		'passed to <Component />'
+	);
+	Internals.validateFps(comp.fps, 'passed to <Component />');
+	Internals.validateDimension(comp.height, 'height', 'passed to <Component />');
+	Internals.validateDimension(comp.width, 'width', 'passed to <Component />');
 
 	const {chunkSize} = params;
 	const chunkCount = Math.ceil(comp.durationInFrames / chunkSize);
