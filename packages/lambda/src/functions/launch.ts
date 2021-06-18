@@ -93,6 +93,9 @@ const innerLaunchHandler = async (params: LambdaPayload) => {
 			retriesLeft: 3,
 			inputProps: params.inputProps,
 			renderId: params.renderId,
+			imageFormat: params.imageFormat,
+			codec: params.codec,
+			crf: params.crf,
 		};
 		return payload;
 	});

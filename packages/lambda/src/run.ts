@@ -73,6 +73,9 @@ CliInternals.xns(async () => {
 			composition: compositionName,
 			serveUrl: bucketUrl,
 			inputProps: {},
+			codec: 'h264-mkv',
+			imageFormat: 'jpeg',
+			crf: undefined,
 		},
 	});
 	console.log(bucketUrl);

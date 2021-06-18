@@ -56,10 +56,14 @@ export const renderCommand = async () => {
 
 	const functionName = remotionLambdas[0].FunctionName as string;
 
+	const cliOptions = await CliInternals.getCliOptions({isLambda: true});
+
 	const res = await renderVideoOnLambda({
 		functionName,
 		serveUrl,
-		inputProps: CliInternals.getInputProps(),
+		inputProps: cliOptions.inputProps,
+		codec: cliOptions.codec,
+		imageFormat: cliOptions.imageFormat,
 	});
 	for (let i = 0; i < 3000; i++) {
 		await sleep(1000);

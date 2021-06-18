@@ -22,13 +22,14 @@ const getAndValidateFrameRange = () => {
 	return frameRange;
 };
 
-const getFinalCodec = async () => {
+const getFinalCodec = async (options: {isLambda: boolean}) => {
 	const userCodec = Internals.getOutputCodecOrUndefined();
 
 	const codec = Internals.getFinalOutputCodec({
 		codec: userCodec,
 		fileExtension: getUserPassedFileExtension(),
 		emitWarning: true,
+		isLambda: options.isLambda,
 	});
 	if (
 		codec === 'vp8' &&
@@ -165,12 +166,12 @@ const getAndValidateBrowser = async () => {
 	return browser;
 };
 
-export const getCliOptions = async () => {
+export const getCliOptions = async (options: {isLambda: boolean}) => {
 	const frameRange = getAndValidateFrameRange();
 	const shouldOutputImageSequence = await getAndValidateShouldOutputImageSequence(
 		frameRange
 	);
-	const codec = await getFinalCodec();
+	const codec = await getFinalCodec({isLambda: options.isLambda});
 	const outputFile = getOutputFilename(codec, shouldOutputImageSequence);
 	const overwrite = Internals.getShouldOverwrite();
 	const crf = getAndValidateCrf(shouldOutputImageSequence, codec);

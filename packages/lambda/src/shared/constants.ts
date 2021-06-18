@@ -1,3 +1,4 @@
+import {Codec, ImageFormat} from 'remotion';
 import {AwsRegion} from '../pricing/aws-regions';
 
 export const MEMORY_SIZE = 2048;
@@ -43,6 +44,9 @@ export type LambdaPayloads = {
 		composition: string;
 		chunkSize: number;
 		inputProps: unknown;
+		codec: Codec;
+		imageFormat: ImageFormat;
+		crf: number | undefined;
 	};
 	launch: {
 		type: LambdaRoutines.launch;
@@ -52,6 +56,9 @@ export type LambdaPayloads = {
 		bucketName: string;
 		inputProps: unknown;
 		renderId: string;
+		imageFormat: ImageFormat;
+		codec: Codec;
+		crf: number | undefined;
 	};
 	fire: {
 		type: LambdaRoutines.fire;
@@ -77,6 +84,9 @@ export type LambdaPayloads = {
 		retriesLeft: number;
 		inputProps: unknown;
 		renderId: string;
+		imageFormat: ImageFormat;
+		codec: Codec;
+		crf: number | undefined;
 	};
 };
 
