@@ -134,13 +134,18 @@ const renderHandler = async (params: LambdaPayload) => {
 	});
 	stitchLabel.end();
 
-	await lambdaWriteFile({
-		bucketName: params.bucketName,
-		key: `${chunkKey(params.renderId)}${String(params.chunk).padStart(8, '0')}`,
-		body: fs.createReadStream(outputLocation),
-	});
 	await Promise.all([
 		uploadMetricsData,
+		lambdaWriteFile({
+			bucketName: params.bucketName,
+			key: `${chunkKey(params.renderId)}${String(params.chunk).padStart(
+				8,
+				'0'
+			)}`,
+			body: fs.createReadStream(outputLocation),
+		}),
+	]);
+	await Promise.all([
 		fs.promises.rm(outputLocation, {recursive: true}),
 		fs.promises.rm(outputPath, {recursive: true}),
 	]);
