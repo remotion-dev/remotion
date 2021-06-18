@@ -3,7 +3,7 @@ import {Log} from '@remotion/cli/dist/log';
 import {renderFrames, stitchFramesToVideo} from '@remotion/renderer';
 import fs from 'fs';
 import path from 'path';
-import {lambdaClient} from '../shared/aws-clients';
+import {getLambdaClient} from '../shared/aws-clients';
 import {
 	chunkKey,
 	getRendererErrorKeyPrefix,
@@ -19,6 +19,7 @@ import {
 	ObjectChunkTimingData,
 } from './chunk-optimization/types';
 import {getBrowserInstance} from './helpers/get-browser-instance';
+import {getCurrentRegion} from './helpers/get-current-region';
 import {lambdaWriteFile} from './helpers/io';
 import {timer} from './helpers/timer';
 
@@ -70,6 +71,7 @@ const renderHandler = async (params: LambdaPayload) => {
 				bucketName: params.bucketName,
 				body: '0',
 				key: `${lambdaInitializedKey(params.renderId)}-${params.chunk}.txt`,
+				region: getCurrentRegion(),
 			});
 		},
 		outputDir: outputPath,
@@ -92,6 +94,7 @@ const renderHandler = async (params: LambdaPayload) => {
 		bucketName: params.bucketName,
 		body: JSON.stringify(condensedTimingData as ChunkTimingData, null, 2),
 		key: `${lambdaInitializedKey(params.renderId)}-${params.chunk}.txt`,
+		region: getCurrentRegion(),
 	});
 	const outdir = tmpDir('bucket');
 
@@ -143,6 +146,7 @@ const renderHandler = async (params: LambdaPayload) => {
 				'0'
 			)}`,
 			body: fs.createReadStream(outputLocation),
+			region: getCurrentRegion(),
 		}),
 	]);
 	await Promise.all([
@@ -169,7 +173,7 @@ export const rendererHandler = async (params: LambdaPayload) => {
 				...params,
 				retriesLeft: params.retriesLeft - 1,
 			};
-			await lambdaClient.send(
+			await getLambdaClient(getCurrentRegion()).send(
 				new InvokeCommand({
 					FunctionName: process.env.AWS_LAMBDA_FUNCTION_NAME,
 					// @ts-expect-error
@@ -190,6 +194,7 @@ export const rendererHandler = async (params: LambdaPayload) => {
 				error: err.message,
 				stack: err.stack,
 			}),
+			region: getCurrentRegion(),
 		});
 	}
 };

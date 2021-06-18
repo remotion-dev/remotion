@@ -1,5 +1,6 @@
 import {_Object} from '@aws-sdk/client-s3';
 import {Internals} from 'remotion';
+import {AwsRegion} from '../pricing/aws-regions';
 import {calculatePrice} from '../pricing/calculate-price';
 import {
 	chunkKey,
@@ -12,13 +13,13 @@ import {
 	LambdaRoutines,
 	MEMORY_SIZE,
 	outName,
-	REGION,
 	RenderMetadata,
 	renderMetadataKey,
 	rendersPrefix,
 } from '../shared/constants';
 import {streamToString} from '../shared/stream-to-string';
 import {getOptimization} from './chunk-optimization/s3-optimization-file';
+import {getCurrentRegion} from './helpers/get-current-region';
 import {inspectErrors} from './helpers/inspect-errors';
 import {lambdaLs, lambdaReadFile} from './helpers/io';
 
@@ -48,10 +49,12 @@ const getEncodingMetadata = async ({
 	exists,
 	bucketName,
 	renderId,
+	region,
 }: {
 	exists: boolean;
 	bucketName: string;
 	renderId: string;
+	region: AwsRegion;
 }): Promise<EncodingProgress | null> => {
 	if (!exists) {
 		return null;
@@ -60,6 +63,7 @@ const getEncodingMetadata = async ({
 	const Body = await lambdaReadFile({
 		bucketName,
 		key: encodingProgressKey(renderId),
+		region,
 	});
 
 	try {
@@ -78,10 +82,12 @@ const getRenderMetadata = async ({
 	exists,
 	bucketName,
 	renderId,
+	region,
 }: {
 	exists: boolean;
 	bucketName: string;
 	renderId: string;
+	region: AwsRegion;
 }) => {
 	if (!exists) {
 		return null;
@@ -90,6 +96,7 @@ const getRenderMetadata = async ({
 	const Body = await lambdaReadFile({
 		bucketName,
 		key: renderMetadataKey(renderId),
+		region,
 	});
 
 	const renderMetadataResponse = JSON.parse(
@@ -129,6 +136,7 @@ export const progressHandler = async (lambdaParams: LambdaPayload) => {
 	const contents = await lambdaLs({
 		bucketName: lambdaParams.bucketName,
 		prefix: rendersPrefix(lambdaParams.renderId),
+		region: getCurrentRegion(),
 	});
 
 	if (!contents) {
@@ -167,6 +175,7 @@ export const progressHandler = async (lambdaParams: LambdaPayload) => {
 				),
 				bucketName: lambdaParams.bucketName,
 				renderId: lambdaParams.renderId,
+				region: getCurrentRegion(),
 			}),
 			getRenderMetadata({
 				exists: Boolean(
@@ -176,8 +185,13 @@ export const progressHandler = async (lambdaParams: LambdaPayload) => {
 				),
 				bucketName: lambdaParams.bucketName,
 				renderId: lambdaParams.renderId,
+				region: getCurrentRegion(),
 			}),
-			inspectErrors({errs: errors, bucket: lambdaParams.bucketName}),
+			inspectErrors({
+				errs: errors,
+				bucket: lambdaParams.bucketName,
+				region: getCurrentRegion(),
+			}),
 		]
 	);
 	const optimization = renderMetadata
@@ -185,6 +199,7 @@ export const progressHandler = async (lambdaParams: LambdaPayload) => {
 				bucketName: lambdaParams.bucketName,
 				siteId: renderMetadata.siteId,
 				compositionId: renderMetadata.compositionId,
+				region: getCurrentRegion(),
 		  })
 		: null;
 
@@ -201,7 +216,7 @@ export const progressHandler = async (lambdaParams: LambdaPayload) => {
 	const accruedSoFar = Number(
 		(
 			calculatePrice({
-				region: REGION,
+				region: getCurrentRegion(),
 				durationMs: elapsedTime,
 				memory: MEMORY_SIZE,
 			}) * (renderMetadata?.estimatedLambdaInvokations ?? 0)
@@ -230,7 +245,7 @@ export const progressHandler = async (lambdaParams: LambdaPayload) => {
 		renderMetadata,
 		bucket: lambdaParams.bucketName,
 		outputFile: output
-			? `https://s3.${REGION}.amazonaws.com/${
+			? `https://s3.${process.env.AWS_REGION as AwsRegion}.amazonaws.com/${
 					lambdaParams.bucketName
 			  }/${outName(lambdaParams.renderId)}`
 			: null,

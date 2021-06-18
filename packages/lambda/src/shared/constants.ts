@@ -1,8 +1,6 @@
 import {Codec, ImageFormat, PixelFormat, ProResProfile} from 'remotion';
-import {AwsRegion} from '../pricing/aws-regions';
 
 export const MEMORY_SIZE = 2048;
-export const REGION: AwsRegion = 'eu-central-1';
 // TODO: Rename other buckets in Jonnys accoudn first
 export const REMOTION_BUCKET_PREFIX = 'remotionlambda-';
 export const RENDER_FN_PREFIX = 'remotion-render-';
@@ -24,6 +22,7 @@ export const getRendererErrorKeyPrefix = (renderId: string) =>
 export const optimizationProfile = (siteId: string, compositionId: string) =>
 	`optimization-profiles/${siteId}/${compositionId}/optimization-profile`;
 export const getSitesKey = (siteId: string) => `sites/${siteId}`;
+// TODO: adapt file extension
 export const outName = (renderId: string) =>
 	`${rendersPrefix(renderId)}/out.mp4`;
 

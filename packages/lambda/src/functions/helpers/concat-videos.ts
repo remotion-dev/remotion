@@ -8,6 +8,7 @@ import {
 	rmSync,
 } from 'fs';
 import path, {join} from 'path';
+import {AwsRegion} from '../../pricing/aws-regions';
 import {chunkKey} from '../../shared/constants';
 import {tmpDir} from '../../shared/tmpdir';
 import {lambdaLs, lambdaReadFile} from './io';
@@ -27,14 +28,17 @@ const downloadS3File = async ({
 	bucket,
 	key,
 	outdir,
+	region,
 }: {
 	bucket: string;
 	key: string;
 	outdir: string;
+	region: AwsRegion;
 }) => {
 	const Body = await lambdaReadFile({
 		bucketName: bucket,
 		key,
+		region,
 	});
 	const outpath = getChunkDownloadOutputLocation({outdir, file: key});
 	if (Buffer.isBuffer(Body)) {
@@ -53,11 +57,13 @@ const getAllFilesS3 = async ({
 	expectedFiles,
 	outdir,
 	renderId,
+	region,
 }: {
 	bucket: string;
 	expectedFiles: number;
 	outdir: string;
 	renderId: string;
+	region: AwsRegion;
 }): Promise<string[]> => {
 	const alreadyDownloading: {[key: string]: true} = {};
 	const downloaded: {[key: string]: true} = {};
@@ -68,6 +74,7 @@ const getAllFilesS3 = async ({
 		const contents = await lambdaLs({
 			bucketName: bucket,
 			prefix,
+			region,
 		});
 		lsTimer.end();
 		return contents
@@ -102,6 +109,7 @@ const getAllFilesS3 = async ({
 						bucket,
 						key,
 						outdir,
+						region,
 					});
 					downloadTimer.end();
 					downloaded[key] = true;
@@ -130,12 +138,14 @@ export const concatVideosS3 = async ({
 	onProgress,
 	numberOfFrames,
 	renderId,
+	region,
 }: {
 	bucket: string;
 	expectedFiles: number;
 	onProgress: (frames: number) => void;
 	numberOfFrames: number;
 	renderId: string;
+	region: AwsRegion;
 }) => {
 	const outdir = join(tmpDir('remotion-concat'), 'bucket');
 	if (existsSync(outdir)) {
@@ -150,6 +160,7 @@ export const concatVideosS3 = async ({
 		expectedFiles,
 		outdir,
 		renderId,
+		region,
 	});
 
 	const outfile = join(tmpDir('remotion-concated'), 'concat.mp4');

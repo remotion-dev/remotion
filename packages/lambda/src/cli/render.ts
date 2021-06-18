@@ -4,15 +4,16 @@ import {getDeployedLambdas} from '../api/get-deployed-lambdas';
 import {getRenderProgress} from '../api/get-render-progress';
 import {renderVideoOnLambda} from '../api/render-video-on-lambda';
 import {sleep} from '../shared/sleep';
-import {parsedCli} from './args';
+import {parsedLambdaCli} from './args';
 import {CLEANUP_COMMAND, CLEANUP_LAMBDAS_SUBCOMMAND} from './cleanup';
 import {DEPLOY_COMMAND} from './deploy';
+import {getAwsRegion} from './get-aws-region';
 import {Log} from './log';
 
 export const RENDER_COMMAND = 'render';
 
 export const renderCommand = async () => {
-	const serveUrl = parsedCli._[1];
+	const serveUrl = parsedLambdaCli._[1];
 	if (!serveUrl) {
 		Log.error('No serve URL passed.');
 		Log.info(
@@ -26,7 +27,7 @@ export const renderCommand = async () => {
 	}
 
 	// TODO: Redundancy with CLI
-	if (!parsedCli._[2]) {
+	if (!parsedLambdaCli._[2]) {
 		Log.error('Composition ID not passed.');
 		Log.error('Pass an extra argument <composition-id>.');
 		process.exit(1);
@@ -34,7 +35,7 @@ export const renderCommand = async () => {
 
 	// TODO: Further validate serveUrl
 
-	const remotionLambdas = await getDeployedLambdas();
+	const remotionLambdas = await getDeployedLambdas({region: getAwsRegion()});
 
 	if (remotionLambdas.length === 0) {
 		Log.error('No lambda functions found in your account.');
@@ -71,6 +72,7 @@ export const renderCommand = async () => {
 		pixelFormat: cliOptions.pixelFormat,
 		proResProfile: cliOptions.proResProfile,
 		quality: cliOptions.quality,
+		region: getAwsRegion(),
 	});
 	for (let i = 0; i < 3000; i++) {
 		await sleep(1000);
@@ -78,6 +80,7 @@ export const renderCommand = async () => {
 			functionName,
 			bucketName: res.bucketName,
 			renderId: res.renderId,
+			region: getAwsRegion(),
 		});
 		console.log(status);
 		if (status.done) {

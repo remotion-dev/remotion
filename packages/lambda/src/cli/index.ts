@@ -1,5 +1,5 @@
 import {CliInternals} from '@remotion/cli';
-import {parsedCli} from './args';
+import {parsedLambdaCli} from './args';
 import {cleanupCommand, CLEANUP_COMMAND} from './cleanup';
 import {deployCommand, DEPLOY_COMMAND} from './deploy';
 import {printHelp} from './help';
@@ -9,32 +9,32 @@ import {renderCommand, RENDER_COMMAND} from './render';
 import {uploadCommand, UPLOAD_COMMAND} from './upload';
 
 const matchCommand = async () => {
-	if (parsedCli.help || parsedCli._.length === 0) {
+	if (parsedLambdaCli.help || parsedLambdaCli._.length === 0) {
 		printHelp();
 		process.exit(0);
 	}
 
-	if (parsedCli._[0] === DEPLOY_COMMAND) {
+	if (parsedLambdaCli._[0] === DEPLOY_COMMAND) {
 		return deployCommand();
 	}
 
-	if (parsedCli._[0] === UPLOAD_COMMAND) {
+	if (parsedLambdaCli._[0] === UPLOAD_COMMAND) {
 		return uploadCommand();
 	}
 
-	if (parsedCli._[0] === RENDER_COMMAND) {
+	if (parsedLambdaCli._[0] === RENDER_COMMAND) {
 		return renderCommand();
 	}
 
-	if (parsedCli._[0] === CLEANUP_COMMAND) {
-		return cleanupCommand(parsedCli._.slice(1));
+	if (parsedLambdaCli._[0] === CLEANUP_COMMAND) {
+		return cleanupCommand(parsedLambdaCli._.slice(1));
 	}
 
-	if (parsedCli._[0] === POLICIES_COMMAND) {
-		return policiesCommand(parsedCli._.slice(1));
+	if (parsedLambdaCli._[0] === POLICIES_COMMAND) {
+		return policiesCommand(parsedLambdaCli._.slice(1));
 	}
 
-	Log.error(`Command ${parsedCli._[0]} not found.`);
+	Log.error(`Command ${parsedLambdaCli._[0]} not found.`);
 	printHelp();
 	process.exit(1);
 };

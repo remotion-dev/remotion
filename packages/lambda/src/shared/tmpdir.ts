@@ -3,10 +3,10 @@ import os from 'os';
 import path from 'path';
 import {randomHash} from './random-hash';
 
-const isLambda = Boolean(process.env.LAMBDA_TASK_ROOT);
+export const isInLambda = Boolean(process.env.LAMBDA_TASK_ROOT);
 
 export const tmpDir = (str: string) => {
-	if (isLambda) {
+	if (isInLambda) {
 		const dir = '/tmp/' + str + randomHash();
 		mkdirSync(dir);
 		return dir;

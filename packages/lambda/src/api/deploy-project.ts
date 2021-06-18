@@ -1,5 +1,6 @@
 import {PutBucketWebsiteCommand} from '@aws-sdk/client-s3';
-import {s3Client} from '../shared/aws-clients';
+import {AwsRegion} from '../pricing/aws-regions';
+import {getS3Client} from '../shared/aws-clients';
 import {getSitesKey} from '../shared/constants';
 import {makeS3Url} from '../shared/make-s3-url';
 import {randomHash} from '../shared/random-hash';
@@ -10,9 +11,11 @@ export const deployProject = async ({
 	bucketName,
 	entryPoint,
 	options,
+	region,
 }: {
 	entryPoint: string;
 	bucketName: string;
+	region: AwsRegion;
 	options?: {
 		onBundleProgress?: (progress: number) => void;
 		onWebsiteActivated?: () => void;
@@ -29,12 +32,12 @@ export const deployProject = async ({
 	await Promise.all([
 		uploadDir({
 			bucket: bucketName,
-			client: s3Client,
+			client: getS3Client(region),
 			dir: bundle,
 			onProgress: options?.onUploadProgress ?? (() => undefined),
 			folder: subFolder,
 		}),
-		s3Client
+		getS3Client(region)
 			.send(
 				new PutBucketWebsiteCommand({
 					Bucket: bucketName,
@@ -50,6 +53,6 @@ export const deployProject = async ({
 	]);
 
 	return {
-		url: makeS3Url(bucketName, subFolder),
+		url: makeS3Url({bucketName, subFolder, region}),
 	};
 };

@@ -2,7 +2,7 @@ import {InvokeCommand} from '@aws-sdk/client-lambda';
 import {Log} from '@remotion/cli/dist/log';
 import fs from 'fs';
 import {Internals} from 'remotion';
-import {lambdaClient} from '../shared/aws-clients';
+import {getLambdaClient} from '../shared/aws-clients';
 import {chunk} from '../shared/chunk';
 import {
 	EncodingProgress,
@@ -28,6 +28,7 @@ import {
 import {writeTimingProfile} from './chunk-optimization/write-profile';
 import {concatVideosS3} from './helpers/concat-videos';
 import {getBrowserInstance} from './helpers/get-browser-instance';
+import {getCurrentRegion} from './helpers/get-current-region';
 import {lambdaWriteFile} from './helpers/io';
 import {timer} from './helpers/timer';
 import {validateComposition} from './helpers/validate-composition';
@@ -51,6 +52,7 @@ const innerLaunchHandler = async (params: LambdaPayload) => {
 			bucketName: params.bucketName,
 			siteId: urlBreakdown.siteId,
 			compositionId: params.composition,
+			region: getCurrentRegion(),
 		}),
 	]);
 
@@ -126,6 +128,7 @@ const innerLaunchHandler = async (params: LambdaPayload) => {
 		bucketName: params.bucketName,
 		key: renderMetadataKey(params.renderId),
 		body: JSON.stringify(renderMetadata),
+		region: getCurrentRegion(),
 	});
 
 	const payloadChunks = chunk(lambdaPayloads, invokers);
@@ -137,7 +140,7 @@ const innerLaunchHandler = async (params: LambdaPayload) => {
 				payloads,
 				renderId: params.renderId,
 			};
-			await lambdaClient.send(
+			await getLambdaClient(getCurrentRegion()).send(
 				new InvokeCommand({
 					FunctionName: process.env.AWS_LAMBDA_FUNCTION_NAME,
 					// @ts-expect-error
@@ -160,6 +163,7 @@ const innerLaunchHandler = async (params: LambdaPayload) => {
 			bucketName: params.bucketName,
 			key: encodingProgressKey(params.renderId),
 			body: JSON.stringify(encodingProgress),
+			region: getCurrentRegion(),
 		});
 	};
 
@@ -169,17 +173,20 @@ const innerLaunchHandler = async (params: LambdaPayload) => {
 		onProgress,
 		numberOfFrames: comp.durationInFrames,
 		renderId: params.renderId,
+		region: getCurrentRegion(),
 	});
 	// TODO: Enable or disable chunk optimization
 	await lambdaWriteFile({
 		bucketName: params.bucketName,
 		key: outName(params.renderId),
 		body: fs.createReadStream(out),
+		region: getCurrentRegion(),
 	});
-	const chunkData = await collectChunkInformation(
-		params.bucketName,
-		params.renderId
-	);
+	const chunkData = await collectChunkInformation({
+		bucketName: params.bucketName,
+		renderId: params.renderId,
+		region: getCurrentRegion(),
+	});
 	await writeTimingProfile({
 		data: chunkData,
 		bucketName: params.bucketName,
@@ -199,6 +206,7 @@ const innerLaunchHandler = async (params: LambdaPayload) => {
 		},
 		compositionId: params.composition,
 		siteId: urlBreakdown.siteId,
+		region: getCurrentRegion(),
 	});
 };
 
@@ -217,6 +225,7 @@ export const launchHandler = async (params: LambdaPayload) => {
 			body: JSON.stringify({
 				error: err.message,
 			}),
+			region: getCurrentRegion(),
 		});
 	}
 };

@@ -5,7 +5,8 @@ import {
 	SimulatePrincipalPolicyCommandOutput,
 } from '@aws-sdk/client-iam';
 import {Log} from '../../cli/log';
-import {iamClient} from '../../shared/aws-clients';
+import {AwsRegion} from '../../pricing/aws-regions';
+import {getIamClient} from '../../shared/aws-clients';
 import {requiredPermissions} from './required-permissions';
 
 type EvalDecision = 'allowed' | 'explicitDeny' | 'implicitDeny';
@@ -32,8 +33,8 @@ const logPermissionOutput = (output: SimulatePrincipalPolicyCommandOutput) => {
 	}
 };
 
-export const simulatePermissions = async () => {
-	const user = await iamClient.send(new GetUserCommand({}));
+export const simulatePermissions = async (options: {region: AwsRegion}) => {
+	const user = await getIamClient(options.region).send(new GetUserCommand({}));
 
 	if (!user || !user.User) {
 		throw new Error('No valid AWS user detected');
@@ -41,7 +42,7 @@ export const simulatePermissions = async () => {
 
 	for (const per of requiredPermissions) {
 		logPermissionOutput(
-			await iamClient.send(
+			await getIamClient(options.region).send(
 				new SimulatePrincipalPolicyCommand({
 					ActionNames: per.actions,
 					PolicySourceArn: user.User.Arn,

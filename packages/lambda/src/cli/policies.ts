@@ -5,6 +5,7 @@ import {
 	getRolePolicy,
 	getUserPolicy,
 } from '../api/iam-validation/suggested-policy';
+import {getAwsRegion} from './get-aws-region';
 import {Log} from './log';
 
 export const POLICIES_COMMAND = 'policies';
@@ -42,7 +43,7 @@ const printPoliciesHelp = () => {
 
 const validateSubcommand = async () => {
 	try {
-		await simulatePermissions();
+		await simulatePermissions({region: getAwsRegion()});
 	} catch (err) {
 		Log.error('Did not have the required permissions on AWS:');
 		Log.error(err);

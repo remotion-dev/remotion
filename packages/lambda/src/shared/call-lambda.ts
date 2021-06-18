@@ -1,5 +1,6 @@
 import {InvokeCommand} from '@aws-sdk/client-lambda';
-import {lambdaClient} from './aws-clients';
+import {AwsRegion} from '../pricing/aws-regions';
+import {getLambdaClient} from './aws-clients';
 import {LambdaPayloads, LambdaRoutines} from './constants';
 import {LambdaReturnValues} from './return-values';
 
@@ -7,12 +8,14 @@ export const callLambda = async <T extends LambdaRoutines>({
 	functionName,
 	type,
 	payload,
+	region,
 }: {
 	functionName: string;
 	type: T;
 	payload: Omit<LambdaPayloads[T], 'type'>;
+	region: AwsRegion;
 }): Promise<LambdaReturnValues[T]> => {
-	const res = await lambdaClient.send(
+	const res = await getLambdaClient(region).send(
 		new InvokeCommand({
 			FunctionName: functionName,
 			// @ts-expect-error
