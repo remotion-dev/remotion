@@ -64,6 +64,11 @@ export const renderCommand = async () => {
 		inputProps: cliOptions.inputProps,
 		codec: cliOptions.codec,
 		imageFormat: cliOptions.imageFormat,
+		crf: cliOptions.crf ?? undefined,
+		envVariables: cliOptions.envVariables,
+		pixelFormat: cliOptions.pixelFormat,
+		proResProfile: cliOptions.proResProfile,
+		quality: cliOptions.quality,
 	});
 	for (let i = 0; i < 3000; i++) {
 		await sleep(1000);

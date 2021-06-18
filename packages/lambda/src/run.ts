@@ -76,6 +76,10 @@ CliInternals.xns(async () => {
 			codec: 'h264-mkv',
 			imageFormat: 'jpeg',
 			crf: undefined,
+			envVariables: {},
+			pixelFormat: undefined,
+			proResProfile: undefined,
+			quality: undefined,
 		},
 	});
 	console.log(bucketUrl);
