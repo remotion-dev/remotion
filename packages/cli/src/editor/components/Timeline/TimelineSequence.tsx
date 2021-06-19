@@ -1,6 +1,6 @@
 import {PlayerInternals} from '@remotion/player';
 import React, {useContext, useMemo, useState} from 'react';
-import {Internals, TSequence, useCurrentFrame} from 'remotion';
+import {Internals, TSequence} from 'remotion';
 import {
 	getTimelineSequenceLayout,
 	SEQUENCE_BORDER_WIDTH,
@@ -72,19 +72,9 @@ export const TimelineSequence: React.FC<{
 			overflow: 'hidden',
 		};
 	}, []);
-	const relativeFrameStyle: React.CSSProperties = {
-		position: 'relative',
-		fontSize: '15px',
-		fontFamily: ' Arial, Helvetica, sans-serif',
-		marginTop: 10,
-		marginLeft: 4,
-		color: 'white',
-	};
+
 	const thumbnailWidth = TIMELINE_LAYER_HEIGHT * (video.width / video.height);
-	const relativeFrame =
-		useCurrentFrame() - s.from < 0 || useCurrentFrame() - s.from >= s.duration
-			? ''
-			: useCurrentFrame() - s.from;
+
 	return (
 		<div key={s.id} style={style} title={s.displayName}>
 			<div style={row}>
@@ -96,7 +86,6 @@ export const TimelineSequence: React.FC<{
 						frameToDisplay={Math.floor(s.from + s.duration / 2)}
 					/>
 				) : null}
-				<div style={relativeFrameStyle}>{relativeFrame}</div>
 			</div>
 			{s.type === 'audio' ? (
 				<AudioWaveform
