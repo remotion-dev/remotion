@@ -1,0 +1,24 @@
+{
+  "name": "nextjs-player-example",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@remotion/player": "^2.1.11",
+    "next": "11.0.0",
+    "react": "17.0.2",
+    "react-dom": "17.0.2",
+    "remotion": "^2.1.11"
+  },
+  "devDependencies": {
+    "@types/react": "^17.0.11",
+    "eslint": "7.28.0",
+    "eslint-config-next": "11.0.0",
+    "typescript": "^4.3.4"
+  }
+}
