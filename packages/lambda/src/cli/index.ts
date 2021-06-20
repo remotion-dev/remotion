@@ -42,6 +42,7 @@ const matchCommand = async () => {
 export const cli = async () => {
 	// TODO: TS hardcoded, support JS just as in normal CLI
 	CliInternals.loadConfigFile(CliInternals.getConfigFileName(false), false);
+	CliInternals.parseCommandLine();
 	try {
 		await matchCommand();
 	} catch (err) {

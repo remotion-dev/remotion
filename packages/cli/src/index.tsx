@@ -5,7 +5,7 @@ import {getCliOptions} from './get-cli-options';
 import {getConfigFileName} from './get-config-file-name';
 import {loadConfigFile} from './load-config';
 import {Log} from './log';
-import {parsedCli} from './parse-command-line';
+import {parseCommandLine, parsedCli} from './parse-command-line';
 import {previewCommand} from './preview';
 import {printHelp} from './print-help';
 import {createOverwriteableCliOutput, makeProgressBar} from './progress-bar';
@@ -48,4 +48,5 @@ export const CliInternals = {
 	loadConfigFile,
 	getConfigFileName,
 	getCliOptions,
+	parseCommandLine,
 };

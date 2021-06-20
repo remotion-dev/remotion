@@ -86,7 +86,7 @@ A mechanism that determines after a render which frames rendered the slowest opt
 - [ ] Costs are not calculated accurately (probably slightly higher than effective)
 - [ ] Parallelism is not configurable
 - [ ] Rendering using more than 1000 chunks is undefined behavior, things will break
-- [ ] `eu-central-1` region is hardcoded
+- [x] ~`eu-central-1` region is hardcoded~
 - [ ] 2048 MB RAM is hardcoded
 - [ ] Lambda timeout of 120 seconds is hardcoded
 
