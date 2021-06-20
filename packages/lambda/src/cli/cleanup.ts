@@ -1,17 +1,18 @@
 import {LambdaClient} from '@aws-sdk/client-lambda';
-import {S3Client} from '@aws-sdk/client-s3';
 import {CliInternals} from '@remotion/cli';
 import {BINARY_NAME} from '../api/bundle-remotion';
+import {getRemotionS3Buckets} from '../api/get-buckets';
 import {cleanupLambdas, getRemotionLambdas} from '../cleanup/cleanup-lambdas';
-import {cleanUpBuckets, getRemotionS3Buckets} from '../cleanup/s3-buckets';
-import {getLambdaClient, getS3Client} from '../shared/aws-clients';
+import {cleanUpBuckets} from '../cleanup/s3-buckets';
+import {AwsRegion} from '../pricing/aws-regions';
+import {getLambdaClient} from '../shared/aws-clients';
 import {chunk} from '../shared/chunk';
 import {getAwsRegion} from './get-aws-region';
 import {Log} from './log';
 
 export const CLEANUP_COMMAND = 'cleanup';
 export const CLEANUP_LAMBDAS_SUBCOMMAND = 'lambdas';
-const S3_BUCKETS_SUBCOMMAND = 'buckets';
+const CLEANUP_S3_BUCKETS_SUBCOMMAND = 'buckets';
 
 const cleanupLambdaCommand = async (client: LambdaClient) => {
 	await cleanupLambdas({
@@ -22,9 +23,9 @@ const cleanupLambdaCommand = async (client: LambdaClient) => {
 	Log.info('All Remotion-related lambdas deleted.');
 };
 
-const cleanupBucketsCommand = async (client: S3Client) => {
+const cleanupBucketsCommand = async (region: AwsRegion) => {
 	await cleanUpBuckets({
-		s3client: client,
+		region,
 		onBeforeBucketDeleted: (bucketName) => {
 			Log.info(`Deleting items of ${bucketName}`);
 		},
@@ -44,8 +45,8 @@ export const cleanupCommand = async (args: string[]) => {
 		return;
 	}
 
-	if (args[0] === S3_BUCKETS_SUBCOMMAND) {
-		await cleanupBucketsCommand(getS3Client(getAwsRegion()));
+	if (args[0] === CLEANUP_S3_BUCKETS_SUBCOMMAND) {
+		await cleanupBucketsCommand(getAwsRegion());
 		return;
 	}
 
@@ -53,8 +54,8 @@ export const cleanupCommand = async (args: string[]) => {
 	fetching.update('Fetching AWS account...');
 
 	const [{remotionBuckets}, lambdas] = await Promise.all([
-		getRemotionS3Buckets(getS3Client(region)),
-		getRemotionLambdas(getS3Client(region)),
+		getRemotionS3Buckets(region),
+		getRemotionLambdas(getLambdaClient(region)),
 	]);
 	if (remotionBuckets.length === 0 && lambdas.length === 0) {
 		fetching.update(
@@ -84,7 +85,7 @@ export const cleanupCommand = async (args: string[]) => {
 
 		Log.info(
 			CliInternals.chalk.gray(
-				`Run \`${BINARY_NAME} ${CLEANUP_COMMAND} ${S3_BUCKETS_SUBCOMMAND}\` to permanently delete S3 buckets`
+				`Run \`${BINARY_NAME} ${CLEANUP_COMMAND} ${CLEANUP_S3_BUCKETS_SUBCOMMAND}\` to permanently delete S3 buckets`
 			)
 		);
 		Log.info();

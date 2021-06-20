@@ -7,7 +7,6 @@ import {RENDER_FN_PREFIX} from '../shared/constants';
 
 export const getRemotionLambdas = async (lambdaClient: LambdaClient) => {
 	const lambdas = await lambdaClient.send(new ListFunctionsCommand({}));
-
 	const remotionLambdas = (lambdas.Functions || []).filter((f) =>
 		f.FunctionName?.startsWith(RENDER_FN_PREFIX)
 	);

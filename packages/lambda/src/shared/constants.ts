@@ -1,4 +1,5 @@
 import {Codec, ImageFormat, PixelFormat, ProResProfile} from 'remotion';
+import {AwsRegion} from '../pricing/aws-regions';
 
 export const MEMORY_SIZE = 2048;
 // TODO: Rename other buckets in Jonnys accoudn first
@@ -25,6 +26,9 @@ export const getSitesKey = (siteId: string) => `sites/${siteId}`;
 // TODO: adapt file extension
 export const outName = (renderId: string) =>
 	`${rendersPrefix(renderId)}/out.mp4`;
+export const getBinariesBucketName = (region: AwsRegion) => {
+	return 'lambda-remotion-binaries-' + region;
+};
 
 export enum LambdaRoutines {
 	start = 'start',
