@@ -4,6 +4,7 @@ import execa from 'execa';
 import {rmdirSync, rmSync, writeFileSync} from 'fs';
 import {join} from 'path';
 import {Codec, Internals} from 'remotion';
+import {getAudioCodecName} from './get-audio-codec-name';
 import {parseFfmpegProgress} from './parse-ffmpeg-progress';
 
 export const combineVideos = async ({
@@ -39,7 +40,7 @@ export const combineVideos = async ({
 				Internals.isAudioCodec(codec) ? null : '-c:v',
 				Internals.isAudioCodec(codec) ? null : 'copy',
 				'-c:a',
-				Internals.isAudioCodec(codec) ? 'copy' : 'aac',
+				Internals.isAudioCodec(codec) ? getAudioCodecName(codec) : 'aac',
 				'-y',
 				output,
 			].filter(Internals.truthy)
