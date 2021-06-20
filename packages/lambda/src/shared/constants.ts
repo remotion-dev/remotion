@@ -1,5 +1,6 @@
 import {Codec, ImageFormat, PixelFormat, ProResProfile} from 'remotion';
 import {AwsRegion} from '../pricing/aws-regions';
+import {getFileExtensionFromCodec} from './get-file-extension-from-codec';
 
 export const MEMORY_SIZE = 2048;
 // TODO: Rename other buckets in Jonnys accoudn first
@@ -23,9 +24,8 @@ export const getRendererErrorKeyPrefix = (renderId: string) =>
 export const optimizationProfile = (siteId: string, compositionId: string) =>
 	`optimization-profiles/${siteId}/${compositionId}/optimization-profile`;
 export const getSitesKey = (siteId: string) => `sites/${siteId}`;
-// TODO: adapt file extension
-export const outName = (renderId: string) =>
-	`${rendersPrefix(renderId)}/out.mp4`;
+export const outName = (renderId: string, codec: Codec) =>
+	`${rendersPrefix(renderId)}/out.${getFileExtensionFromCodec(codec)}`;
 export const getBinariesBucketName = (region: AwsRegion) => {
 	return 'lambda-remotion-binaries-' + region;
 };
@@ -116,4 +116,5 @@ export type RenderMetadata = {
 	totalChunks: number;
 	estimatedLambdaInvokations: number;
 	compositionId: string;
+	codec: Codec;
 };
