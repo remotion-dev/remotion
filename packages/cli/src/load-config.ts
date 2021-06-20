@@ -54,6 +54,18 @@ export const loadConfigFile = (
 	}
 
 	const configFiles = path.resolve(process.cwd(), configFileName);
+
+	if (!fs.existsSync(configFiles)) {
+		if (!isDefaultConfigFile(configFileName)) {
+			Log.error(
+				`You specified a config file located at ${configFileName}, but no file at ${configFiles} could be found.`
+			);
+			process.exit(1);
+		}
+
+		return null;
+	}
+
 	const outputs = typescript.transpileModule(
 		fs.readFileSync(configFiles, 'utf-8'),
 		{}

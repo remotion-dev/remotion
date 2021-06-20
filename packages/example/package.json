@@ -15,6 +15,7 @@
 		"test": "eslint src --ext ts,tsx,js,jsx",
 		"build": "tsc -d",
 		"render": "remotion render src/index.tsx react-svg video.mp4",
+		"render-js": "remotion render src/entry.jsx framer video.mp4",
 		"render-transparent": "remotion render src/index.tsx --image-format=png --pixel-format=yuva420p --codec=vp8 react-svg video.webm"
 	},
 	"dependencies": {
