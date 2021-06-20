@@ -122,6 +122,7 @@ const innerLaunchHandler = async (params: LambdaPayload) => {
 		].reduce((a, b) => a + b, 0),
 		compositionId: comp.id,
 		siteId: urlBreakdown.siteId,
+		codec: params.codec,
 	};
 
 	await lambdaWriteFile({
@@ -178,7 +179,7 @@ const innerLaunchHandler = async (params: LambdaPayload) => {
 	// TODO: Enable or disable chunk optimization
 	await lambdaWriteFile({
 		bucketName: params.bucketName,
-		key: outName(params.renderId),
+		key: outName(params.renderId, params.codec),
 		body: fs.createReadStream(out),
 		region: getCurrentRegion(),
 	});

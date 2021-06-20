@@ -9,9 +9,7 @@ import {bundleLambda} from './bundle-lambda';
 import {ensureLambdaBinaries} from './ensure-lambda-binaries';
 
 export const deployLambda = async (options: {region: AwsRegion}) => {
-	const {layerArn} = await ensureLambdaBinaries(
-		getLambdaClient(options.region)
-	);
+	const {layerArn} = await ensureLambdaBinaries(options.region);
 	console.log('Done creating layers');
 	const fnNameRender = RENDER_FN_PREFIX + randomHash();
 	const renderOut = await bundleLambda('render');

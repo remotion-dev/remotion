@@ -150,9 +150,7 @@ export const progressHandler = async (lambdaParams: LambdaPayload) => {
 	const chunks = contents.filter((c) =>
 		c.Key?.startsWith(chunkKey(lambdaParams.renderId))
 	);
-	const output =
-		contents.find((c) => c.Key?.includes(outName(lambdaParams.renderId))) ??
-		null;
+
 	const lambdasInvoked = contents.filter((c) =>
 		c.Key?.startsWith(lambdaInitializedKey(lambdaParams.renderId))
 	).length;
@@ -203,6 +201,12 @@ export const progressHandler = async (lambdaParams: LambdaPayload) => {
 		  })
 		: null;
 
+	const output = renderMetadata
+		? contents.find((c) =>
+				c.Key?.includes(outName(lambdaParams.renderId, renderMetadata.codec))
+		  ) ?? null
+		: null;
+
 	const timeToFinish = getTimeToFinish({
 		output,
 		renderMetadata,
@@ -222,6 +226,20 @@ export const progressHandler = async (lambdaParams: LambdaPayload) => {
 			}) * (renderMetadata?.estimatedLambdaInvokations ?? 0)
 		).toPrecision(5)
 	);
+
+	const outputFile = () => {
+		if (!output) {
+			return null;
+		}
+
+		if (!renderMetadata) {
+			throw new Error('unexpectedly did not get renderMetadata');
+		}
+
+		return `https://s3.${process.env.AWS_REGION as AwsRegion}.amazonaws.com/${
+			lambdaParams.bucketName
+		}/${outName(lambdaParams.renderId, renderMetadata.codec)}`;
+	};
 
 	return {
 		chunks: chunks.length,
@@ -244,11 +262,7 @@ export const progressHandler = async (lambdaParams: LambdaPayload) => {
 		renderId: lambdaParams.renderId,
 		renderMetadata,
 		bucket: lambdaParams.bucketName,
-		outputFile: output
-			? `https://s3.${process.env.AWS_REGION as AwsRegion}.amazonaws.com/${
-					lambdaParams.bucketName
-			  }/${outName(lambdaParams.renderId)}`
-			: null,
+		outputFile: outputFile(),
 		// TODO: Only fetch optimization if actually shown
 		optimizationForNextRender: optimization,
 		timeToFinish,
