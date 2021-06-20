@@ -7,6 +7,7 @@ import {
 	ProResProfile,
 	RenderAssetInfo,
 } from 'remotion';
+import {assetsToFfmpegInputs} from './assets-to-ffmpeg-inputs';
 import {calculateAssetPositions} from './assets/calculate-asset-positions';
 import {convertAssetsToFileUrls} from './assets/convert-assets-to-file-urls';
 import {markAllAssetsAsDownloaded} from './assets/download-and-map-assets-to-file';
@@ -104,11 +105,6 @@ export const stitchFramesToVideo = async (options: {
 	const assetPositions = calculateAssetPositions(fileUrlAssets);
 
 	const assetPaths = assetPositions.map((asset) => resolveAssetSrc(asset.src));
-	if (isAudioOnly && assetPaths.length === 0) {
-		throw new Error(
-			`Cannot render - you are trying to generate an audio file (${codec}) but your composition doesn't contain any audio.`
-		);
-	}
 
 	const assetAudioDetails = await getAssetAudioDetails({
 		assetPaths,
@@ -138,7 +134,12 @@ export const stitchFramesToVideo = async (options: {
 		frameInfo
 			? ['-i', `element-%0${frameInfo.numberLength}d.${imageFormat}`]
 			: null,
-		...assetPaths.map((path) => ['-i', path]),
+		...assetsToFfmpegInputs({
+			assets: assetPaths,
+			isAudioOnly,
+			fps: options.fps,
+			frameCount: options.assetsInfo.assets.length,
+		}),
 		encoderName
 			? // -c:v is the same as -vcodec as -codec:video
 			  // and specified the video codec.
