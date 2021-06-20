@@ -3,8 +3,6 @@ export const AWS_REGIONS = [
 	'us-east-2', // Ohio;
 	'us-west-1', // N. California
 	'us-west-2', // Oregon
-	'us-gov-east-1', // GovCloud East
-	'us-gov-west-1',
 	'af-south-1',
 	'ap-east-1',
 	'ap-south-1',
