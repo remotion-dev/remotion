@@ -1,27 +1,27 @@
 import {
 	DeleteBucketCommand,
 	DeleteObjectCommand,
-	ListBucketsCommand,
 	ListObjectsCommand,
-	S3Client,
 } from '@aws-sdk/client-s3';
 import pLimit from 'p-limit';
-import {REMOTION_BUCKET_PREFIX} from '../shared/constants';
+import {getRemotionS3Buckets} from '../api/get-buckets';
+import {AwsRegion} from '../pricing/aws-regions';
+import {getS3Client} from '../shared/aws-clients';
 
 const limit = pLimit(10);
 
 const cleanItems = async ({
-	s3client,
 	bucket,
 	onAfterItemDeleted,
 	onBeforeItemDeleted,
+	region,
 }: {
-	s3client: S3Client;
 	bucket: string;
+	region: AwsRegion;
 	onBeforeItemDeleted: (data: {bucketName: string; itemName: string}) => void;
 	onAfterItemDeleted: (data: {bucketName: string; itemName: string}) => void;
 }) => {
-	const list = await s3client.send(
+	const list = await getS3Client(region).send(
 		new ListObjectsCommand({
 			Bucket: bucket,
 		})
@@ -34,7 +34,7 @@ const cleanItems = async ({
 						bucketName: bucket,
 						itemName: object.Key as string,
 					});
-					await s3client.send(
+					await getS3Client(region).send(
 						new DeleteObjectCommand({
 							Bucket: bucket,
 							Key: object.Key,
@@ -49,7 +49,7 @@ const cleanItems = async ({
 		);
 
 		await cleanItems({
-			s3client,
+			region,
 			bucket,
 			onAfterItemDeleted,
 			onBeforeItemDeleted,
@@ -58,19 +58,19 @@ const cleanItems = async ({
 };
 
 const cleanBucket = async ({
-	s3client,
+	region,
 	bucket,
 	onAfterItemDeleted,
 	onBeforeItemDeleted,
 }: {
-	s3client: S3Client;
+	region: AwsRegion;
 	bucket: string;
 	onAfterItemDeleted: (data: {bucketName: string; itemName: string}) => void;
 	onBeforeItemDeleted: (data: {bucketName: string; itemName: string}) => void;
 }) => {
-	await cleanItems({s3client, bucket, onAfterItemDeleted, onBeforeItemDeleted});
+	await cleanItems({region, bucket, onAfterItemDeleted, onBeforeItemDeleted});
 
-	await s3client.send(
+	await getS3Client(region).send(
 		new DeleteBucketCommand({
 			Bucket: bucket,
 		})
@@ -78,19 +78,19 @@ const cleanBucket = async ({
 };
 
 export const cleanUpBuckets = async ({
-	s3client,
+	region,
 	onBeforeBucketDeleted,
 	onAfterBucketDeleted,
 	onAfterItemDeleted,
 	onBeforeItemDeleted,
 }: {
-	s3client: S3Client;
+	region: AwsRegion;
 	onBeforeBucketDeleted?: (bucketName: string) => void;
 	onAfterItemDeleted?: (data: {bucketName: string; itemName: string}) => void;
 	onBeforeItemDeleted?: (data: {bucketName: string; itemName: string}) => void;
 	onAfterBucketDeleted?: (bucketName: string) => void;
 }) => {
-	const {remotionBuckets} = await getRemotionS3Buckets(s3client);
+	const {remotionBuckets} = await getRemotionS3Buckets(region);
 	if (remotionBuckets.length === 0) {
 		return;
 	}
@@ -98,7 +98,7 @@ export const cleanUpBuckets = async ({
 	for (const bucket of remotionBuckets) {
 		onBeforeBucketDeleted?.(bucket.Name as string);
 		await cleanBucket({
-			s3client,
+			region,
 			bucket: bucket.Name as string,
 			onAfterItemDeleted: onAfterItemDeleted ?? (() => undefined),
 			onBeforeItemDeleted: onBeforeItemDeleted ?? (() => undefined),
@@ -107,25 +107,8 @@ export const cleanUpBuckets = async ({
 	}
 
 	await cleanUpBuckets({
-		s3client,
+		region,
 		onAfterBucketDeleted,
 		onBeforeBucketDeleted,
 	});
-};
-
-export const getRemotionS3Buckets = async (s3Client: S3Client) => {
-	const {Buckets} = await s3Client.send(new ListBucketsCommand({}));
-	if (!Buckets) {
-		return {remotionBuckets: []};
-	}
-
-	const remotionBuckets = Buckets.filter(
-		(b) =>
-			b.Name?.startsWith(REMOTION_BUCKET_PREFIX) &&
-			// TODO: Rename other buckets in Jonnys account bucket first
-			!b.Name.startsWith('remotion-binaries')
-	);
-	return {
-		remotionBuckets,
-	};
 };

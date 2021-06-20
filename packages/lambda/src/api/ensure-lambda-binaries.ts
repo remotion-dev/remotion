@@ -4,23 +4,26 @@ import {
 	ListLayersCommand,
 	PublishLayerVersionCommand,
 } from '@aws-sdk/client-lambda';
+import {AwsRegion} from '../pricing/aws-regions';
+import {getLambdaClient} from '../shared/aws-clients';
+import {getBinariesBucketName} from '../shared/constants';
 
 const runtimes: string[] = ['nodejs14.x', 'nodejs12.x', 'nodejs10.x'];
 
 const LAYER_NAME = 'remotion-binaries';
 
 const createLayer = ({
-	lambdaClient,
+	region,
 	name,
 	key,
 	sourceS3Bucket,
 }: {
-	lambdaClient: LambdaClient;
+	region: AwsRegion;
 	name: string;
 	key: string;
 	sourceS3Bucket: string;
 }) => {
-	return lambdaClient.send(
+	return getLambdaClient(region).send(
 		new PublishLayerVersionCommand({
 			Content: {
 				S3Bucket: sourceS3Bucket,
@@ -50,10 +53,10 @@ const hasLayer = (name: string, layers: LayersListItem[]) => {
 
 const ensureLayer = async ({
 	layers,
-	lambdaClient,
+	region,
 }: {
+	region: AwsRegion;
 	layers: LayersListItem[];
-	lambdaClient: LambdaClient;
 }): Promise<string> => {
 	const existingLayer = hasLayer(LAYER_NAME, layers);
 	if (existingLayer) {
@@ -61,17 +64,17 @@ const ensureLayer = async ({
 	}
 
 	const layer = await createLayer({
-		lambdaClient,
 		name: LAYER_NAME,
 		key: 'remotion.zip',
-		sourceS3Bucket: 'remotion-binaries',
+		sourceS3Bucket: getBinariesBucketName(region),
+		region,
 	});
 	return layer.LayerVersionArn as string;
 };
 
-export const ensureLambdaBinaries = async (lambdaClient: LambdaClient) => {
-	const layers = await getLayers(lambdaClient);
-	const layerArn = await ensureLayer({layers, lambdaClient});
+export const ensureLambdaBinaries = async (region: AwsRegion) => {
+	const layers = await getLayers(getLambdaClient(region));
+	const layerArn = await ensureLayer({layers, region});
 
 	return {layerArn};
 };

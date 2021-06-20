@@ -3,15 +3,15 @@ import {writeFileSync} from 'fs';
 import path from 'path';
 import {deployLambda} from './api/deploy-lambda';
 import {deployProject} from './api/deploy-project';
+import {getRemotionS3Buckets} from './api/get-buckets';
 import {getOrCreateBucket} from './api/get-or-create-bucket';
 import {getRenderProgress} from './api/get-render-progress';
 import {cleanupLambdas, getRemotionLambdas} from './cleanup/cleanup-lambdas';
-import {getRemotionS3Buckets} from './cleanup/s3-buckets';
 import {getAwsRegion} from './cli/get-aws-region';
 import {Log} from './cli/log';
 import {lambdaLs, lambdaReadFile} from './functions/helpers/io';
 import {AwsRegion} from './pricing/aws-regions';
-import {getLambdaClient, getS3Client} from './shared/aws-clients';
+import {getLambdaClient} from './shared/aws-clients';
 import {callLambda} from './shared/call-lambda';
 import {
 	getSitesKey,
@@ -49,9 +49,7 @@ const getFnName = async (options: {
 	}
 
 	const lambdas = await getRemotionLambdas(getLambdaClient(options.region));
-	const {remotionBuckets} = await getRemotionS3Buckets(
-		getS3Client(options.region)
-	);
+	const {remotionBuckets} = await getRemotionS3Buckets(options.region);
 	const websiteBuckets = remotionBuckets.filter((b) =>
 		(b.Name as string).startsWith(REMOTION_BUCKET_PREFIX)
 	);
