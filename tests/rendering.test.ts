@@ -1,6 +1,7 @@
 import execa from "execa";
 import fs from "fs";
 import path from "path";
+import { complexSubtract } from "../packages/media-utils/dist/fft/complex";
 
 const outputPath = path.join(process.cwd(), "packages/example/out.mp4");
 
@@ -310,4 +311,41 @@ test("Dynamic duration should work", async () => {
     expect(data).toContain(`Duration: 00:00:0${expectedDuration}`);
     fs.unlinkSync(outputPath);
   }
+});
+
+test("Should be able to render if remotion.config.js is not provided", async () => {
+  const task = await execa(
+    "node",
+    [
+      "packages/cli/remotion-cli.js",
+      "render",
+      "packages/example/src/entry.jsx",
+      "framer",
+      outputPath,
+    ],
+    {
+      reject: false,
+    }
+  );
+
+  expect(task.exitCode).toBe(0);
+});
+
+test("Should be able to render if remotion.config.ts is not provided", async () => {
+  const task = await execa(
+    "node",
+    [
+      "packages/cli/remotion-cli.js",
+      "render",
+      "packages/example/src/ts-entry.tsx",
+      "framer",
+      outputPath,
+    ],
+    {
+      reject: false,
+    }
+  );
+  console.log(task.stderr,'err');
+
+  expect(task.exitCode).toBe(0);
 });
