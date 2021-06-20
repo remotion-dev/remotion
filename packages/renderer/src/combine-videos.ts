@@ -3,6 +3,7 @@
 import execa from 'execa';
 import {rmdirSync, rmSync, writeFileSync} from 'fs';
 import {join} from 'path';
+import {Codec, Internals} from 'remotion';
 import {parseFfmpegProgress} from './parse-ffmpeg-progress';
 
 export const combineVideos = async ({
@@ -11,12 +12,14 @@ export const combineVideos = async ({
 	output,
 	onProgress,
 	numberOfFrames,
+	codec,
 }: {
 	files: string[];
 	filelistDir: string;
 	output: string;
 	onProgress: (p: number) => void;
 	numberOfFrames: number;
+	codec: Codec;
 }) => {
 	const fileList = files.map((p) => `file '${p}'`).join('\n');
 
@@ -24,20 +27,23 @@ export const combineVideos = async ({
 	writeFileSync(fileListTxt, fileList);
 
 	try {
-		const task = execa('ffmpeg', [
-			'-f',
-			'concat',
-			'-safe',
-			'0',
-			'-i',
-			fileListTxt,
-			'-c:v',
-			'copy',
-			'-c:a',
-			'aac',
-			'-y',
-			output,
-		]);
+		const task = execa(
+			'ffmpeg',
+			[
+				'-f',
+				'concat',
+				'-safe',
+				'0',
+				'-i',
+				fileListTxt,
+				Internals.isAudioCodec(codec) ? null : '-c:v',
+				Internals.isAudioCodec(codec) ? null : 'copy',
+				'-c:a',
+				Internals.isAudioCodec(codec) ? 'copy' : 'aac',
+				'-y',
+				output,
+			].filter(Internals.truthy)
+		);
 		task.stderr?.on('data', (data: Buffer) => {
 			if (onProgress) {
 				const parsed = parseFfmpegProgress(data.toString());

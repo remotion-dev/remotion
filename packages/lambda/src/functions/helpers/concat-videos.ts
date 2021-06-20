@@ -8,8 +8,10 @@ import {
 	rmSync,
 } from 'fs';
 import path, {join} from 'path';
+import {Codec} from 'remotion';
 import {AwsRegion} from '../../pricing/aws-regions';
 import {chunkKey} from '../../shared/constants';
+import {getFileExtensionFromCodec} from '../../shared/get-file-extension-from-codec';
 import {tmpDir} from '../../shared/tmpdir';
 import {lambdaLs, lambdaReadFile} from './io';
 import {timer} from './timer';
@@ -139,6 +141,7 @@ export const concatVideosS3 = async ({
 	numberOfFrames,
 	renderId,
 	region,
+	codec,
 }: {
 	bucket: string;
 	expectedFiles: number;
@@ -146,6 +149,7 @@ export const concatVideosS3 = async ({
 	numberOfFrames: number;
 	renderId: string;
 	region: AwsRegion;
+	codec: Codec;
 }) => {
 	const outdir = join(tmpDir('remotion-concat'), 'bucket');
 	if (existsSync(outdir)) {
@@ -163,7 +167,10 @@ export const concatVideosS3 = async ({
 		region,
 	});
 
-	const outfile = join(tmpDir('remotion-concated'), 'concat.mp4');
+	const outfile = join(
+		tmpDir('remotion-concated'),
+		'concat.' + getFileExtensionFromCodec(codec, 'final')
+	);
 	const combine = timer('Combine videos');
 	const filelistDir = tmpDir('remotion-filelist');
 	await combineVideos({
@@ -172,6 +179,7 @@ export const concatVideosS3 = async ({
 		output: outfile,
 		onProgress,
 		numberOfFrames,
+		codec,
 	});
 	combine.end();
 

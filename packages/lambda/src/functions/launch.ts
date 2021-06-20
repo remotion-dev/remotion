@@ -175,6 +175,7 @@ const innerLaunchHandler = async (params: LambdaPayload) => {
 		numberOfFrames: comp.durationInFrames,
 		renderId: params.renderId,
 		region: getCurrentRegion(),
+		codec: params.codec,
 	});
 	// TODO: Enable or disable chunk optimization
 	await lambdaWriteFile({
