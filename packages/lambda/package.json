@@ -12,8 +12,7 @@
 		"test": "eslint src --ext ts,tsx",
 		"watch": "tsc -w",
 		"build": "tsc -d",
-		"start": "ts-node src/run.ts",
-		"test-re": "npx remotion preview remotion-project/index.ts"
+		"start": "ts-node src/run.ts"
 	},
 	"author": "",
 	"license": "MIT",
