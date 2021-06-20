@@ -37,7 +37,36 @@ Currently hardcoded but you will need to decide in the future:
 - Decide memory limit
 - Decide lambda timeout
 - Decide parallelism
-- Decide Region
+
+## Region selection
+
+Starting from release `2.2.0-alpha.6c60bafb`, you can select an AWS region (previously `eu-central-1` was hardcoded) using the `AWS_REGION` environment variable. The default value is `us-east-1`.
+
+In this release, a new `s3:GetBucketRegion` permission is needed, so you need to do [update the permissions](/docs/lambda-setup).
+
+The following regions are available for Remotion Lambda:
+
+- `us-east-1`
+- `us-east-2`
+- `us-west-1`
+- `us-west-2`
+- `af-south-1`
+- `ap-east-1`
+- `ap-south-1`
+- `ap-northeast-3`
+- `ap-northeast-2`
+- `ap-southeast-1`
+- `ap-southeast-2`
+- `ap-northeast-1`
+- `ca-central-1`
+- `eu-central-1`
+- `eu-west-1`
+- `eu-west-2`
+- `eu-south-1`
+- `eu-west-3`
+- `eu-north-1`
+- `me-south-1`
+- `sa-east-1`
 
 ## Limitations
 
@@ -78,17 +107,18 @@ A mechanism that determines after a render which frames rendered the slowest opt
 
 - [ ] There is no cleanup on AWS, unnecessary files stay after the render
 - [ ] Sometimes an error `Unable to spawn browser` is shown - you can ignore it
-- [ ] Most CLI options known from Remotion are ignored
-- [ ] Currently only MP4 files can be rendered
+- [x] ~~Most CLI options known from Remotion are ignored~~
+- [x] ~~Currently only MP4 files can be rendered~~
 - [ ] AWS permissions are looser than necessary
 - [ ] Permission validation command sometimes breaks
-- [ ] Chunk optimization currently works on a global scope and does not differentiate between S3 site deployments
+- [x] ~~Chunk optimization currently works on a global scope and does not differentiate between S3 site deployments~~
 - [ ] Costs are not calculated accurately (probably slightly higher than effective)
 - [ ] Parallelism is not configurable
 - [ ] Rendering using more than 1000 chunks is undefined behavior, things will break
-- [x] ~`eu-central-1` region is hardcoded~
+- [x] ~~`eu-central-1` region is hardcoded~~
 - [ ] 2048 MB RAM is hardcoded
 - [ ] Lambda timeout of 120 seconds is hardcoded
+- [ ] There is no way to disable chunk optimization
 
 ## License
 
