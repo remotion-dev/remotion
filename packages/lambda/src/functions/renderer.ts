@@ -12,6 +12,7 @@ import {
 	LambdaPayloads,
 	LambdaRoutines,
 } from '../shared/constants';
+import {getFileExtensionFromCodec} from '../shared/get-file-extension-from-codec';
 import {randomHash} from '../shared/random-hash';
 import {tmpDir} from '../shared/tmpdir';
 import {
@@ -100,7 +101,10 @@ const renderHandler = async (params: LambdaPayload) => {
 
 	const outputLocation = path.join(
 		outdir,
-		`localchunk-${String(params.chunk).padStart(8, '0')}.mkv`
+		`localchunk-${String(params.chunk).padStart(
+			8,
+			'0'
+		)}.${getFileExtensionFromCodec(params.codec, 'chunk')}`
 	);
 
 	const stitchLabel = timer('stitcher');

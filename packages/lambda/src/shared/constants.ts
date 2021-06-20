@@ -25,7 +25,7 @@ export const optimizationProfile = (siteId: string, compositionId: string) =>
 	`optimization-profiles/${siteId}/${compositionId}/optimization-profile`;
 export const getSitesKey = (siteId: string) => `sites/${siteId}`;
 export const outName = (renderId: string, codec: Codec) =>
-	`${rendersPrefix(renderId)}/out.${getFileExtensionFromCodec(codec)}`;
+	`${rendersPrefix(renderId)}/out.${getFileExtensionFromCodec(codec, 'final')}`;
 export const getBinariesBucketName = (region: AwsRegion) => {
 	return 'lambda-remotion-binaries-' + region;
 };
