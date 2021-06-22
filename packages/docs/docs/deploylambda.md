@@ -30,7 +30,7 @@ An object with the following properties:
 
 ### `layerArn`
 
-The [ARN](https://docs.aws.amazon.com/general/latest/gr/aws-arns-and-namespaces.html) of the Lambda Layer that should be used. You can obtain it by calling [`ensureLambdaBinaries()`](/docs/ensurelambdabinaries).
+The [ARN](https://docs.aws.amazon.com/general/latest/gr/aws-arns-and-namespaces.html) of the Lambda Layer that should be used. You can obtain it by calling [`ensureLambdaBinaries()`](/docs/lambda/ensurelambdabinaries).
 
 ### `region`
 

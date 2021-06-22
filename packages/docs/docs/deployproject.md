@@ -8,7 +8,7 @@ Takes a Remotion project, bundles it and uploads it to an S3 bucket. Once upload
 
 Note that the Remotion project will be deployed to a subdirectory, not the root of the domain. Therefore you must ensure that if you have specified paths in your Remotion project, they are able to handle this scenario.
 
-Before calling this function, you should create a bucket, see [`getOrCreateBucket()`](/docs/getorcreatebucket).
+Before calling this function, you should create a bucket, see [`getOrCreateBucket()`](/docs/lambda/getorcreatebucket).
 
 ## Example
 
