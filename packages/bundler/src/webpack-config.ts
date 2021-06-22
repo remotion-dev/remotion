@@ -111,12 +111,6 @@ export const webpackConfig = ({
 		module: {
 			rules: [
 				{
-					test: /\.(woff|woff2)$/,
-					use: {
-						loader: require.resolve('url-loader'),
-					},
-				},
-				{
 					test: /\.css$/i,
 					use: [require.resolve('style-loader'), require.resolve('css-loader')],
 				},
@@ -162,7 +156,20 @@ export const webpackConfig = ({
 					].filter(truthy),
 				},
 				{
+					test: /\.(woff(2)?|ttf|eot)(\?v=\d+\.\d+\.\d+)?$/,
+					use: [
+						{
+							loader: require.resolve('file-loader'),
+							options: {
+								name: '[name].[ext]',
+								outputPath: 'fonts/',
+							},
+						},
+					],
+				},
+				{
 					test: /\.jsx?$/,
+					exclude: /node_modules/,
 					use: [
 						{
 							loader: require.resolve('esbuild-loader'),
@@ -171,6 +178,13 @@ export const webpackConfig = ({
 								target: 'chrome85',
 							},
 						},
+						environment === 'development'
+							? {
+									loader: require.resolve(
+										'@webhotelier/webpack-fast-refresh/loader.js'
+									),
+							  }
+							: null,
 					].filter(truthy),
 				},
 			],
