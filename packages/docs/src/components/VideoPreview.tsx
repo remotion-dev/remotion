@@ -2,16 +2,6 @@ import clsx from "clsx";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { ShowcaseVideo } from "../data/showcase-videos";
 
-const a: React.CSSProperties = {
-  color: "inherit",
-  cursor: "pointer",
-  margin: "auto",
-  width: 300,
-  maxWidth: 300,
-  display: "block",
-  flex: 1,
-};
-
 const videoStyle: React.CSSProperties = {
   display: "flex",
   alignItems: "center",
@@ -23,14 +13,18 @@ const videoTitle: React.CSSProperties = {
   marginTop: "1rem",
 };
 
+const padding: React.CSSProperties = {
+  padding: "0 var(--ifm-spacing-horizontal)",
+};
 export const VideoPreview: React.FC<
   ShowcaseVideo & {
     title: string;
     description: React.ReactNode;
     onClick: () => void;
     mobileLayout: boolean;
+    mobileHeight: number;
   }
-> = ({ title, description, onClick, muxId }) => {
+> = ({ title, description, onClick, muxId, mobileLayout, mobileHeight }) => {
   const [hover, setHover] = useState(false);
 
   const container = useRef<HTMLAnchorElement>(null);
@@ -61,15 +55,27 @@ export const VideoPreview: React.FC<
     };
   }, []);
 
+  const a: React.CSSProperties = useMemo(() => {
+    return {
+      color: "inherit",
+      cursor: "pointer",
+      margin: "auto",
+      width: mobileLayout ? mobileHeight : 300,
+      maxWidth: mobileLayout ? mobileHeight : 300,
+      display: "block",
+      flex: 1,
+    };
+  }, [mobileHeight, mobileLayout]);
+
   const style = useMemo(() => {
     return {
-      width: 300,
-      height: 300,
+      width: mobileLayout ? mobileHeight : 300,
+      height: mobileLayout ? mobileHeight : 300,
       backgroundImage: `url(${hover ? animated : thumbnail})`,
       backgroundSize: "cover",
       backgroundPosition: "50% 50%",
     };
-  }, [animated, hover, thumbnail]);
+  }, [animated, hover, mobileHeight, mobileLayout, thumbnail]);
 
   const placeholder: React.CSSProperties = useMemo(() => {
     return {
@@ -87,8 +93,10 @@ export const VideoPreview: React.FC<
       <div className="text--center" style={placeholder}>
         <div style={style} />
       </div>
-      <h3 style={videoTitle}>{title}</h3>
-      <p>{description}</p>
+      <div style={padding}>
+        <h3 style={videoTitle}>{title}</h3>
+        <p>{description}</p>
+      </div>
     </a>
   );
 };
