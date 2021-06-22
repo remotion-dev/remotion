@@ -3,6 +3,7 @@ import {writeFileSync} from 'fs';
 import path from 'path';
 import {deployLambda} from './api/deploy-lambda';
 import {deployProject} from './api/deploy-project';
+import {ensureLambdaBinaries} from './api/ensure-lambda-binaries';
 import {getRemotionS3Buckets} from './api/get-buckets';
 import {getOrCreateBucket} from './api/get-or-create-bucket';
 import {getRenderProgress} from './api/get-render-progress';
@@ -36,8 +37,13 @@ const getFnName = async (options: {
 	if (DEPLOY) {
 		await cleanupLambdas({lambdaClient: getLambdaClient(options.region)});
 		// await cleanUpBuckets({s3client: s3Client});
+		const {layerArn} = await ensureLambdaBinaries(getAwsRegion());
 
-		const {functionName} = await deployLambda({region: getAwsRegion()});
+		const {functionName} = await deployLambda({
+			region: getAwsRegion(),
+			timeoutInSeconds: 120,
+			layerArn,
+		});
 
 		const {url} = await deployProject({
 			entryPoint: path.join(__dirname, '..', 'remotion-project', 'index.ts'),

@@ -6,16 +6,17 @@ import {getIamClient, getLambdaClient} from '../shared/aws-clients';
 import {MEMORY_SIZE, RENDER_FN_PREFIX} from '../shared/constants';
 import {randomHash} from '../shared/random-hash';
 import {bundleLambda} from './bundle-lambda';
-import {ensureLambdaBinaries} from './ensure-lambda-binaries';
 
-export const deployLambda = async (options: {region: AwsRegion}) => {
-	const {layerArn} = await ensureLambdaBinaries(options.region);
-	console.log('Done creating layers');
+export const deployLambda = async (options: {
+	region: AwsRegion;
+	layerArn: string;
+	timeoutInSeconds: number;
+}) => {
 	const fnNameRender = RENDER_FN_PREFIX + randomHash();
-	const renderOut = await bundleLambda('render');
-	console.log('done Bundling');
-
-	const user = await getIamClient(options.region).send(new GetUserCommand({}));
+	const [renderOut, user] = await Promise.all([
+		bundleLambda('render'),
+		getIamClient(options.region).send(new GetUserCommand({})),
+	]);
 
 	const accountId = user.User?.Arn?.match(/aws:iam::([0-9]+)/);
 
@@ -35,9 +36,8 @@ export const deployLambda = async (options: {region: AwsRegion}) => {
 			Runtime: 'nodejs14.x',
 			Description: 'Renders a Remotion video.',
 			MemorySize: MEMORY_SIZE,
-			// TODO: Set timeout
-			Timeout: 120,
-			Layers: [layerArn],
+			Timeout: options.timeoutInSeconds,
+			Layers: [options.layerArn],
 		})
 	);
 
