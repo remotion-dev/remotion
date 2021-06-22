@@ -41,6 +41,14 @@ export const VideoSidebar: React.FC<{
     <div style={container}>
       <div style={title}>{video.title}</div>
       <div style={description}>{video.description}</div>
+
+      <div style={description}>
+        Created by{" "}
+        <a style={a} target="_blank" href={video.author.url}>
+          {video.author.name}
+        </a>
+        .
+      </div>
       {video.links.map((link) => {
         return (
           <div key={link.url}>
