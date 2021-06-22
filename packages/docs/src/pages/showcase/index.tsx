@@ -28,11 +28,18 @@ const flex1: React.CSSProperties = {
   flex: 1,
 };
 
+const container: React.CSSProperties = {
+  maxWidth: "var(--ifm-container-width)",
+  width: "100%",
+  margin: "auto",
+};
+
 const Showcase = () => {
   const containerSize = useElementSize(
     typeof document === "undefined" ? null : document.body
   );
   const mobileLayout = (containerSize?.width ?? Infinity) < 1200;
+  const mobileHeight = mobileLayout ? containerSize.width : null;
 
   const [userHasInteractedWithPage, setUserHasInteractedWithPage] = useState(
     false
@@ -138,7 +145,7 @@ const Showcase = () => {
 
       <main>
         <section className={styles.videos}>
-          <div className="container">
+          <div style={container}>
             {chunks.map((c) => {
               return (
                 <div key={c.map((c_) => c_.muxId).join("")} style={layoutStyle}>
@@ -146,6 +153,7 @@ const Showcase = () => {
                     return (
                       <div key={vid.muxId} style={flex1}>
                         <VideoPreview
+                          mobileHeight={mobileHeight}
                           onClick={() => {
                             setVideo(vid);
                             setUserHasInteractedWithPage(true);
