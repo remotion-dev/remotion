@@ -55,7 +55,16 @@ export const VideoPlayer: React.FC<{
   toPrevious: () => void;
   hasPrevious: boolean;
   hasNext: boolean;
-}> = ({ video, dismiss, toNext, toPrevious, hasNext, hasPrevious }) => {
+  userHasInteractedWithPage: boolean;
+}> = ({
+  video,
+  dismiss,
+  toNext,
+  toPrevious,
+  hasNext,
+  hasPrevious,
+  userHasInteractedWithPage,
+}) => {
   const containerSize = useElementSize(
     typeof document === "undefined" ? null : document.body
   );
@@ -187,7 +196,10 @@ export const VideoPlayer: React.FC<{
         </div>
       )}
       <div ref={inside}>
-        <VideoPlayerContent video={video} />
+        <VideoPlayerContent
+          video={video}
+          userHasInteractedWithPage={userHasInteractedWithPage}
+        />
       </div>
       {mobileLayout ? (
         <VidPlayerHeader

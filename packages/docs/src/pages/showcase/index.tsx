@@ -34,6 +34,9 @@ const Showcase = () => {
   );
   const mobileLayout = (containerSize?.width ?? Infinity) < 1200;
 
+  const [userHasInteractedWithPage, setUserHasInteractedWithPage] = useState(
+    false
+  );
   const [video, setVideo] = useState<ShowcaseVideo | null>(() => {
     if (typeof window === "undefined") {
       return null;
@@ -79,6 +82,7 @@ const Showcase = () => {
     }
 
     setVideo(showcaseVideos[currentIndex + 1]);
+    setUserHasInteractedWithPage(true);
   }, [currentIndex, hasNext]);
 
   const goToPreviousVideo = useCallback(() => {
@@ -87,6 +91,7 @@ const Showcase = () => {
     }
 
     setVideo(showcaseVideos[currentIndex - 1]);
+    setUserHasInteractedWithPage(true);
   }, [currentIndex, hasPrevious]);
 
   const dismiss = useCallback(() => {
@@ -128,6 +133,7 @@ const Showcase = () => {
         toPrevious={goToPreviousVideo}
         dismiss={dismiss}
         video={video}
+        userHasInteractedWithPage={userHasInteractedWithPage}
       />
 
       <main>
@@ -142,6 +148,7 @@ const Showcase = () => {
                         <VideoPreview
                           onClick={() => {
                             setVideo(vid);
+                            setUserHasInteractedWithPage(true);
                           }}
                           mobileLayout={mobileLayout}
                           {...vid}
