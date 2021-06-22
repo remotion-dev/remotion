@@ -28,11 +28,32 @@ export const CancelIcon: React.FC<SVGProps<SVGSVGElement>> = (props) => {
       role="img"
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 352 512"
-      {...props}>
+      {...props}
     >
       <path
         fill="currentColor"
         d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"
+      />
+    </svg>
+  );
+};
+
+export const PausedIcon: React.FC<SVGProps<SVGSVGElement>> = (props) => {
+  return (
+    <svg
+      aria-hidden="true"
+      focusable="false"
+      data-prefix="fas"
+      data-icon="play"
+      className="svg-inline--fa fa-play fa-w-14"
+      role="img"
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 448 512"
+      {...props}
+    >
+      <path
+        fill="currentColor"
+        d="M424.4 214.7L72.4 6.6C43.8-10.3 0 6.1 0 47.9V464c0 37.5 40.7 60.1 72.4 41.3l352-208c31.4-18.5 31.5-64.1 0-82.6z"
       />
     </svg>
   );

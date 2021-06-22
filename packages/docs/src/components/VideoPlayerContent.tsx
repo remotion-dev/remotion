@@ -8,6 +8,7 @@ import React, {
 } from "react";
 import { ShowcaseVideo } from "../data/showcase-videos";
 import { useElementSize } from "../helpers/use-el-size";
+import { PausedIcon } from "../icons/arrows";
 import { Spinner } from "./Spinner";
 import { SHOWCASE_MOBILE_HEADER_HEIGHT } from "./VideoPlayerHeader";
 import { VideoSidebar } from "./VideoSidebar";
@@ -35,6 +36,17 @@ const loadingContainer: React.CSSProperties = {
   display: "flex",
 };
 
+const pausedContainer: React.CSSProperties = {
+  ...loadingContainer,
+  pointerEvents: "none",
+};
+
+const pausedIconStyle: React.CSSProperties = {
+  color: "white",
+  width: 50,
+  filter: `drop-shadow(0 0 5px rgba(0, 0, 0, 0.3))`,
+};
+
 export const PAGINATE_ICON_WIDTH = 24;
 export const PAGINATE_ICON_PADDING = 20;
 export const PAGINATE_BUTTONS_WIDTH =
@@ -55,6 +67,8 @@ export const VideoPlayerContent: React.FC<{ video: ShowcaseVideo }> = ({
   const videoRef = useRef<HTMLVideoElement>(null);
   const container = useRef<HTMLDivElement>(null);
   const vidUrl = getVideoToPlayUrl(video);
+
+  const [paused, setPaused] = useState(false);
 
   const containerSize = useElementSize(
     typeof document === "undefined" ? null : document.body
@@ -129,6 +143,37 @@ export const VideoPlayerContent: React.FC<{ video: ShowcaseVideo }> = ({
     };
   }, [height, width]);
 
+  useEffect(() => {
+    const { current } = videoRef;
+
+    if (!current) {
+      return;
+    }
+
+    const onClick = () => {
+      if (videoRef.current.paused) {
+        videoRef.current.play();
+        setPaused(false);
+      } else {
+        videoRef.current.pause();
+        setPaused(true);
+      }
+    };
+
+    current.addEventListener("click", onClick);
+    return () => {
+      current.removeEventListener("click", onClick);
+    };
+  }, []);
+
+  const loadingContainerStyle: React.CSSProperties = useMemo(() => {
+    return {
+      ...pausedContainer,
+      height,
+      width,
+    };
+  }, [height, width]);
+
   return (
     <div ref={container} style={containerCss}>
       {mobileLayout ? (
@@ -149,6 +194,12 @@ export const VideoPlayerContent: React.FC<{ video: ShowcaseVideo }> = ({
         width={width}
         autoPlay
       />
+      {paused ? (
+        <div style={loadingContainerStyle}>
+          <PausedIcon style={pausedIconStyle} />
+        </div>
+      ) : null}
+
       <div style={sidebar}>
         <VideoSidebar video={video} />
       </div>
