@@ -1,0 +1,134 @@
+/*! ../demux/demuxer-inline */
+
+/*! ../demux/demuxer-worker.js */
+
+/*! ../events */
+
+/*! ../utils/get-self-scope */
+
+/*! ../utils/logger */
+
+/*! ./get-self-scope */
+
+/*! ModuleConcatenation bailout: Cannot concat with ./node_modules/eventemitter3/index.js (<- Module is not an ECMAScript module) */
+
+/*! ModuleConcatenation bailout: Cannot concat with ./node_modules/url-toolkit/src/url-toolkit.js (<- Module is not an ECMAScript module) */
+
+/*! ModuleConcatenation bailout: Cannot concat with ./src/crypt/decrypter.js because of ./src/demux/demuxer-worker.js */
+
+/*! ModuleConcatenation bailout: Cannot concat with ./src/crypt/decrypter.js because of ./src/hls.ts */
+
+/*! ModuleConcatenation bailout: Cannot concat with ./src/demux/demuxer-inline.js because of ./src/demux/demuxer-worker.js */
+
+/*! ModuleConcatenation bailout: Cannot concat with ./src/demux/id3.js because of ./src/demux/demuxer-worker.js */
+
+/*! ModuleConcatenation bailout: Cannot concat with ./src/demux/id3.js because of ./src/hls.ts */
+
+/*! ModuleConcatenation bailout: Cannot concat with ./src/demux/mp4demuxer.js because of ./src/demux/demuxer-worker.js */
+
+/*! ModuleConcatenation bailout: Cannot concat with ./src/demux/mp4demuxer.js because of ./src/hls.ts */
+
+/*! ModuleConcatenation bailout: Cannot concat with ./src/errors.ts because of ./src/demux/demuxer-worker.js */
+
+/*! ModuleConcatenation bailout: Cannot concat with ./src/errors.ts because of ./src/hls.ts */
+
+/*! ModuleConcatenation bailout: Cannot concat with ./src/events.js because of ./src/demux/demuxer-worker.js */
+
+/*! ModuleConcatenation bailout: Cannot concat with ./src/events.js because of ./src/hls.ts */
+
+/*! ModuleConcatenation bailout: Cannot concat with ./src/polyfills/number.js because of ./src/demux/demuxer-worker.js */
+
+/*! ModuleConcatenation bailout: Cannot concat with ./src/polyfills/number.js because of ./src/hls.ts */
+
+/*! ModuleConcatenation bailout: Cannot concat with ./src/utils/get-self-scope.js because of ./src/demux/demuxer-worker.js */
+
+/*! ModuleConcatenation bailout: Cannot concat with ./src/utils/get-self-scope.js because of ./src/hls.ts */
+
+/*! ModuleConcatenation bailout: Cannot concat with ./src/utils/logger.js because of ./src/demux/demuxer-worker.js */
+
+/*! ModuleConcatenation bailout: Cannot concat with ./src/utils/logger.js because of ./src/hls.ts */
+
+/*! ModuleConcatenation bailout: Module is not an ECMAScript module */
+
+/*! ModuleConcatenation bailout: Module is referenced from these modules with unsupported syntax: ./src/demux/demuxer.js (referenced with require.resolve) */
+
+/*! eventemitter3 */
+
+/*! exports provided: ErrorTypes, ErrorDetails */
+
+/*! exports provided: default */
+
+/*! exports provided: default, utf8ArrayToStr */
+
+/*! exports provided: enableLogs, logger */
+
+/*! exports provided: getSelfScope */
+
+/*! exports provided: isFiniteNumber, MAX_SAFE_INTEGER */
+
+/*! no static exports found */
+
+/*!***********************!*\
+  !*** ./src/errors.ts ***!
+  \***********************/
+
+/*!***********************!*\
+  !*** ./src/events.js ***!
+  \***********************/
+
+/*!**************************!*\
+  !*** ./src/demux/id3.js ***!
+  \**************************/
+
+/*!*****************************!*\
+  !*** ./src/utils/logger.js ***!
+  \*****************************/
+
+/*!*********************************!*\
+  !*** ./src/demux/mp4demuxer.js ***!
+  \*********************************/
+
+/*!*********************************!*\
+  !*** ./src/hls.ts + 50 modules ***!
+  \*********************************/
+
+/*!*********************************!*\
+  !*** ./src/polyfills/number.js ***!
+  \*********************************/
+
+/*!*************************************!*\
+  !*** ./src/demux/demuxer-worker.js ***!
+  \*************************************/
+
+/*!*************************************!*\
+  !*** ./src/utils/get-self-scope.js ***!
+  \*************************************/
+
+/*!********************************************!*\
+  !*** ./src/crypt/decrypter.js + 3 modules ***!
+  \********************************************/
+
+/*!*********************************************!*\
+  !*** ./node_modules/eventemitter3/index.js ***!
+  \*********************************************/
+
+/*!**************************************************!*\
+  !*** ./node_modules/webworkify-webpack/index.js ***!
+  \**************************************************/
+
+/*!**************************************************!*\
+  !*** ./src/demux/demuxer-inline.js + 12 modules ***!
+  \**************************************************/
+
+/*!*****************************************************!*\
+  !*** ./node_modules/url-toolkit/src/url-toolkit.js ***!
+  \*****************************************************/
+
+/** @license React v17.0.2
+ * react-jsx-runtime.production.min.js
+ *
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
