@@ -60,15 +60,16 @@ const getVideoToPlayUrl = (video: ShowcaseVideo) => {
   throw new Error("no url");
 };
 
-export const VideoPlayerContent: React.FC<{ video: ShowcaseVideo }> = ({
-  video,
-}) => {
+export const VideoPlayerContent: React.FC<{
+  video: ShowcaseVideo;
+  userHasInteractedWithPage: boolean;
+}> = ({ video, userHasInteractedWithPage }) => {
   const [loaded, setLoaded] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const container = useRef<HTMLDivElement>(null);
   const vidUrl = getVideoToPlayUrl(video);
 
-  const [paused, setPaused] = useState(false);
+  const [paused, setPaused] = useState(!userHasInteractedWithPage);
 
   const containerSize = useElementSize(
     typeof document === "undefined" ? null : document.body
@@ -192,7 +193,7 @@ export const VideoPlayerContent: React.FC<{ video: ShowcaseVideo }> = ({
         loop
         height={height}
         width={width}
-        autoPlay
+        autoPlay={userHasInteractedWithPage}
       />
       {paused ? (
         <div style={loadingContainerStyle}>
