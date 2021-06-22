@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef } from "react";
 import { ShowcaseVideo } from "../data/showcase-videos";
 import { useElementSize } from "../helpers/use-el-size";
-import { IconLeft, IconRight } from "../icons/arrows";
+import { CancelIcon, IconLeft, IconRight } from "../icons/arrows";
 import { VideoPlayerContent } from "./VideoPlayerContent";
 import { VidPlayerHeader } from "./VideoPlayerHeader";
 
@@ -34,6 +34,18 @@ const changeButtonInactive: React.CSSProperties = {
 const icon: React.CSSProperties = {
   width: 24,
   color: "white",
+};
+
+const cancelContainer: React.CSSProperties = {
+  left: 16,
+  top: 16,
+  position: "absolute",
+};
+
+const cancelIcon: React.CSSProperties = {
+  width: 20,
+  color: "white",
+  cursor: "pointer",
 };
 
 export const VideoPlayer: React.FC<{
@@ -160,6 +172,11 @@ export const VideoPlayer: React.FC<{
 
   return (
     <div ref={outside} style={containerWithDirection}>
+      {mobileLayout ? null : (
+        <div style={cancelContainer}>
+          <CancelIcon style={cancelIcon} />
+        </div>
+      )}
       {mobileLayout ? null : (
         <div
           ref={backButton}
