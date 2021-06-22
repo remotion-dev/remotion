@@ -1,6 +1,7 @@
 ---
 id: ensurelambdabinaries
 title: ensureLambdaBinaries()
+slug: /lambda/ensurelambdabinaries
 ---
 
 Ensures that a [Lambda layer](https://docs.aws.amazon.com/lambda/latest/dg/configuration-layers.html) with the necessary binaries exists.

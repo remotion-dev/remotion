@@ -1,6 +1,7 @@
 ---
 sidebar_label: Permissions
 title: Lambda - Permissions
+slug: /lambda/permissions
 ---
 
 ## Required permissions

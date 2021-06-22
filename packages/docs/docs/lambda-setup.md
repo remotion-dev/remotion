@@ -1,6 +1,7 @@
 ---
 id: lambda-setup
 title: Lambda setup
+slug: /lambda/setup
 ---
 
 ## 1. Install `@remotion/lambda`

@@ -1,11 +1,12 @@
 ---
 id: deploylambda
 title: deployLambda()
+slug: /lambda/deploylambda
 ---
 
 Creates an [AWS Lambda](https://aws.amazon.com/lambda/) function in your AWS account that will be able to render a video in the cloud.
 
-Before calling `deployLambda()`, you need to deploy the necessary binaries and obtain the identifier for the Lambda Layer. You can do so by calling [`ensureLambdaBinaries()`](/docs/ensurelambdabinaries).
+Before calling `deployLambda()`, you need to deploy the necessary binaries and obtain the identifier for the Lambda Layer. You can do so by calling [`ensureLambdaBinaries()`](/docs/lambda/ensurelambdabinaries).
 
 ## Example
 
