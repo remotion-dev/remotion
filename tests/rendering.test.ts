@@ -1,7 +1,6 @@
 import execa from "execa";
 import fs from "fs";
 import path from "path";
-import { complexSubtract } from "../packages/media-utils/dist/fft/complex";
 
 const outputPath = path.join(process.cwd(), "packages/example/out.mp4");
 
@@ -345,7 +344,6 @@ test("Should be able to render if remotion.config.ts is not provided", async () 
       reject: false,
     }
   );
-  console.log(task.stderr,'err');
-
+ 
   expect(task.exitCode).toBe(0);
 });
