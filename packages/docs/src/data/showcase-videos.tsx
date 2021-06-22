@@ -1,3 +1,5 @@
+import { random } from "remotion";
+
 export type ShowcaseLink = "tutorial" | "source_code" | "website" | "video";
 
 export type ShowcaseVideo = {
@@ -24,7 +26,7 @@ export const showcaseVideos: ShowcaseVideo[] = [
     type: "mux_video",
     muxId: "V5Dpfui9NmUSons5P5VQRbyX5m5011LsRA01f0129CLbHo",
     description:
-      "A recreation of Spotify Wrapped where you can override all text and images via command line.",
+      "A recreation of Spotify Wrapped where you can override all text and images programmatically.",
     height: 1280,
     width: 720,
     submittedOn: new Date("25-03-2021"),
@@ -67,7 +69,7 @@ export const showcaseVideos: ShowcaseVideo[] = [
     title: "Remotion Trailer",
     type: "mux_video",
     muxId: "nJ2JnX2a02JiDvirVoNrz02lJ01q8DuvIZoKKq8q1uPdKA",
-    description: "This video Welcome you to Remotion project.",
+    description: "The original trailer which announced Remotion.",
     width: 1920,
     height: 1080,
     submittedOn: new Date("25-03-2021"),
@@ -91,7 +93,7 @@ export const showcaseVideos: ShowcaseVideo[] = [
     type: "mux_video",
     muxId: "L7DYDk9o701zxfWUhcFb1Z1mGGzYoIuxddwNVI3tcemQ",
     description:
-      "It fetchs the actual raised amount and generate an animation with instagram story specifications.",
+      "An animation celebrating a successful fundraising campaign. It fetches the amount raised programmatically and generates an animation suitable for posting on Instagram.",
     width: 1080,
     height: 1920,
     submittedOn: new Date("25-03-2021"),
@@ -126,6 +128,10 @@ export const showcaseVideos: ShowcaseVideo[] = [
       },
       {
         type: "video",
+        url: "https://www.youtube.com/watch?v=YtcINOj2w5g",
+      },
+      {
+        type: "tutorial",
         url: "https://www.youtube.com/watch?v=YtcINOj2w5g",
       },
     ],
@@ -250,3 +256,12 @@ export const showcaseVideos: ShowcaseVideo[] = [
     },
   },
 ];
+
+const dateString = (date: Date) =>
+  date.getDate() + "-" + date.getMonth() + "-" + date.getFullYear();
+
+const todayHash = dateString(new Date());
+
+export const shuffledShowcaseVideos = showcaseVideos.sort((a, b) => {
+  return random(a.muxId + todayHash) - random(b.muxId + todayHash);
+});
