@@ -12,6 +12,10 @@ export type ShowcaseVideo = {
   submittedOn: Date;
   type: "mux_video";
   muxId: string;
+  author: {
+    name: string;
+    url: string;
+  };
 };
 
 export const showcaseVideos: ShowcaseVideo[] = [
@@ -34,6 +38,10 @@ export const showcaseVideos: ShowcaseVideo[] = [
         url: "https://www.youtube.com/watch?v=I-y_5H9-3gk",
       },
     ],
+    author: {
+      name: "Jonny Burger",
+      url: "https://twitter.com/JNYBGR",
+    },
   },
   {
     title: "AnySticker In App Assets",
@@ -50,6 +58,10 @@ export const showcaseVideos: ShowcaseVideo[] = [
         url: "https://github.com/JonnyBurger/anysticker-tutorials",
       },
     ],
+    author: {
+      name: "Jonny Burger",
+      url: "https://twitter.com/JNYBGR",
+    },
   },
   {
     title: "Remotion Trailer",
@@ -69,6 +81,10 @@ export const showcaseVideos: ShowcaseVideo[] = [
         url: "https://www.youtube.com/watch?v=gwlDorikqgY",
       },
     ],
+    author: {
+      name: "Jonny Burger",
+      url: "https://twitter.com/JNYBGR",
+    },
   },
   {
     title: "VFB Crowdfunding Campaign",
@@ -90,6 +106,10 @@ export const showcaseVideos: ShowcaseVideo[] = [
           "https://twitter.com/FlorentPergoud/status/1371874105281159178?s=20",
       },
     ],
+    author: {
+      name: "Florent Pergoud",
+      url: "https://twitter.com/FlorentPergoud",
+    },
   },
   {
     title: "Love, Death & React",
@@ -109,6 +129,10 @@ export const showcaseVideos: ShowcaseVideo[] = [
         url: "https://www.youtube.com/watch?v=YtcINOj2w5g",
       },
     ],
+    author: {
+      name: "Willian Candillon",
+      url: "https://twitter.com/wcandillon",
+    },
   },
   {
     title: "Music Player",
@@ -129,6 +153,10 @@ export const showcaseVideos: ShowcaseVideo[] = [
         url: "https://twitter.com/kanzitelli/status/1398296728059666432",
       },
     ],
+    author: {
+      name: "Batyr",
+      url: "https://twitter.com/kanzitelli",
+    },
   },
   {
     title: "Crypto Prices",
@@ -149,6 +177,10 @@ export const showcaseVideos: ShowcaseVideo[] = [
         url: "https://twitter.com/tokenviz/status/1391798812180508674",
       },
     ],
+    author: {
+      name: "Tokenviz",
+      url: "https://twitter.com/tokenviz",
+    },
   },
   {
     title: "Piano Teacher",
@@ -165,6 +197,10 @@ export const showcaseVideos: ShowcaseVideo[] = [
         url: "https://twitter.com/FlorentPergoud/status/1388430389715292161",
       },
     ],
+    author: {
+      name: "Florent Pergoud",
+      url: "https://twitter.com/FlorentPergoud",
+    },
   },
   {
     title: "Vlog editor",
@@ -185,6 +221,10 @@ export const showcaseVideos: ShowcaseVideo[] = [
         url: "https://www.youtube.com/channel/UCRylGayptCYAnrZfWTwuV7A",
       },
     ],
+    author: {
+      name: "Pierre Miniggio",
+      url: "https://www.youtube.com/c/PierreMiniggio",
+    },
   },
   {
     title: "Flow Fields",
@@ -204,5 +244,9 @@ export const showcaseVideos: ShowcaseVideo[] = [
         url: "https://codesandbox.io/s/flow-fields-evqg3",
       },
     ],
+    author: {
+      name: "No Wukkas",
+      url: "https://twitter.com/noWukkas_",
+    },
   },
 ];
