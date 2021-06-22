@@ -33,6 +33,7 @@ module.exports = {
           position: "left",
         },
         { to: "blog", label: "Blog", position: "left" },
+        { to: "showcase", label: "Showcase", position: "left" },
         { to: "/docs/license", label: "Licensing", position: "left" },
         {
           href: "https://discord.gg/6VzzNDwUwV",
@@ -51,7 +52,7 @@ module.exports = {
       ],
     },
     footer: {
-      style: "dark",
+      style: "light",
       links: [
         {
           title: "Docs",
@@ -69,6 +70,10 @@ module.exports = {
         {
           title: "Community",
           items: [
+            {
+              label: "Showcase",
+              to: "showcase",
+            },
             {
               label: "GitHub Issues",
               href: "https://github.com/remotion-dev/remotion/issues",
@@ -96,6 +101,7 @@ module.exports = {
               label: "Blog",
               to: "blog",
             },
+
             {
               label: "GitHub",
               href: "https://github.com/remotion-dev/remotion",
@@ -107,7 +113,7 @@ module.exports = {
           ],
         },
       ],
-      copyright: `Copyright © ${new Date().getFullYear()} Jonny Burger. Built with Docusaurus.`,
+      copyright: `Copyright © ${new Date().getFullYear()} remotion.dev. Built with Docusaurus.`,
     },
   },
   presets: [
