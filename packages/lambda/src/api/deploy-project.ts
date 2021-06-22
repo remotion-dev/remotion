@@ -22,6 +22,7 @@ export const deployProject = async ({
 		onUploadProgress?: (upload: UploadDirProgress) => void;
 	};
 }) => {
+	// TODO: Validate bucket name starts with prefix
 	const subFolder = getSitesKey(randomHash());
 	const bundle = await bundleRemotion({
 		entryFile: entryPoint,
@@ -44,11 +45,14 @@ export const deployProject = async ({
 
 					WebsiteConfiguration: {
 						IndexDocument: {
+							// TODO: but it doesn't exist
+							// TODO: shouldn't we do this before
 							Suffix: `index.html`,
 						},
 					},
 				})
 			)
+			// TODO if we decide to keep it, add callback to docs
 			.then(() => options?.onWebsiteActivated?.()),
 	]);
 

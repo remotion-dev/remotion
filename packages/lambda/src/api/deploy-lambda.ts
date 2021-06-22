@@ -12,6 +12,7 @@ export const deployLambda = async (options: {
 	layerArn: string;
 	timeoutInSeconds: number;
 }) => {
+	// TODO: Validate parameters and enforce timeout below 900 seconds.
 	const fnNameRender = RENDER_FN_PREFIX + randomHash();
 	const [renderOut, user] = await Promise.all([
 		bundleLambda('render'),

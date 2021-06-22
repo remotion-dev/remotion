@@ -17,12 +17,6 @@ https://lambda-remotion-binaries-<any-s3-region>.s3.<any-s3-region>.amazonaws.co
 
 This value is hardcoded into the `ensureLambdaBinaries()` function - you only need to call it.
 
-## Arguments
-
-### `region`
-
-The AWS region in which you would like to install the binaries. You have to install the binaries separately for each region that you would like to use Remotion Lambda.
-
 ## Example
 
 ```ts
@@ -30,5 +24,18 @@ import {ensureLambdaBinaries} from '@remotion/lambda';
 
 // ...
 
-await ensureLambdaBinaries('us-east-1');
+const {layerArn} = await ensureLambdaBinaries('us-east-1');
+console.log(layerArn)
 ```
+
+## Arguments
+
+### `region`
+
+The AWS region in which you would like to install the binaries. You have to install the binaries separately for each region that you would like to use Remotion Lambda.
+
+## Return value
+
+An object with the following keys:
+
+- `layerArn` _(string)_: The [ARN](https://docs.aws.amazon.com/general/latest/gr/aws-arns-and-namespaces.html) of the layer that has been created, or if one has already existed, the ARN of the existing layer.

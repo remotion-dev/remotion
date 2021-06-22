@@ -1,5 +1,6 @@
 import {bundle} from '@remotion/bundler';
 
+// TODO: not here
 export const BINARY_NAME = 'remotion-lambda';
 
 // TODO: Necessary? No
