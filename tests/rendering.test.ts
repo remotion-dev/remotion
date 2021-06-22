@@ -346,4 +346,5 @@ test("Should be able to render if remotion.config.ts is not provided", async () 
   );
  
   expect(task.exitCode).toBe(0);
+  fs.unlinkSync(outputPath);
 });
