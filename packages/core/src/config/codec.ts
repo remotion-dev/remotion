@@ -7,7 +7,6 @@ const validCodecs = [
 	'aac',
 	'wav',
 	'prores',
-	'h264-mkv',
 ] as const;
 
 export type Codec = typeof validCodecs[number];
@@ -101,16 +100,6 @@ export const getFinalOutputCodec = ({
 		}
 
 		return 'aac';
-	}
-
-	if (inputCodec === undefined && fileExtension === 'mkv') {
-		if (emitWarning) {
-			console.info(
-				'You have specified a .mkv extension, using the H264 encoder and WAV audio format.'
-			);
-		}
-
-		return 'h264-mkv';
 	}
 
 	return inputCodec ?? DEFAULT_CODEC;

@@ -272,12 +272,10 @@ test("Should fail to render an audio file that doesn't have any audio inputs", a
       reject: false,
     }
   );
-  expect(task.exitCode).toBe(0);
-  const info = await execa("ffprobe", [out]);
-  const data = info.stderr;
-  expect(data).toContain("Duration: 00:00:00.37");
-  expect(data).toContain("Audio: mp3, 44100 Hz");
-  fs.unlinkSync(out);
+  expect(task.exitCode).toBe(process.platform === "win32" ? 0 : 1);
+  expect(task.stderr).toContain(
+    "Cannot render - you are trying to generate an audio file (mp3) but your composition doesn't contain any audio."
+  );
 });
 
 test("Dynamic duration should work", async () => {

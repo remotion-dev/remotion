@@ -1,13 +1,16 @@
-import { shade, tint } from 'polished';
+import {shade, tint} from 'polished';
 import React from 'react';
-import {
-  interpolate,
-  spring,
-  useCurrentFrame,
-  useVideoConfig,
-} from "remotion";
-import { getReadableColor } from './readable-color';
-import { defaultStyles } from './styles';
+import {interpolate, spring, useCurrentFrame, useVideoConfig} from 'remotion';
+import {getReadableColor} from '../readable-color';
+
+const outer: React.CSSProperties = {
+	display: 'flex',
+	justifyContent: 'center',
+	alignItems: 'center',
+	flex: 1,
+	fontFamily:
+		"--apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif",
+};
 
 export const Palette: React.FC<{
 	color: string;
@@ -17,14 +20,14 @@ export const Palette: React.FC<{
 
 	const scale = interpolate(frame, [0, 50, 70], [0.8, 1.8, 10], {});
 	return (
-		<div style={defaultStyles}>
+		<div style={outer}>
 			<div
 				style={{
-					display: 'flex',
 					flex: 1,
 					flexDirection: 'row',
 					width: width * 0.6,
 					height: height * 0.6,
+					display: 'flex',
 					position: 'absolute',
 					transform: `scale(${scale})`,
 				}}

@@ -1,12 +1,16 @@
 import { parseToRgb } from "polished";
 import React from "react";
-import {
-  interpolate,
-  spring,
-  useCurrentFrame,
-  useVideoConfig,
-} from "remotion";
-import { defaultStyles } from './styles';
+import { interpolate, spring, useCurrentFrame, useVideoConfig } from "remotion";
+
+const container: React.CSSProperties = {
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+  fontFamily:
+    "--apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif",
+  fontWeight: "bold",
+  fontSize: 30,
+};
 
 const BAR_SCALE_FACTOR = 1.5;
 const TOP_PANEL = 100;
@@ -16,6 +20,10 @@ const row: React.CSSProperties = {
   flexDirection: "row",
   alignItems: "flex-end",
   height: BAR_SCALE_FACTOR * 255 + TOP_PANEL,
+};
+
+const bar: React.CSSProperties = {
+  borderRadius: 10,
 };
 
 const rgb = ["#ff7979", "#badc58", "#3498db"];
@@ -41,9 +49,11 @@ export const Colors: React.FC<{
   return (
     <div
       style={{
-        ...defaultStyles,
+        ...container,
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
         backgroundColor: "white",
-        fontSize: 30,
       }}
     >
       <div style={row}>
@@ -66,23 +76,18 @@ export const Colors: React.FC<{
                   overflow: "hidden",
                 }}
               >
-                <span
-                  style={{
-                    opacity: barProgress,
-                    fontSize: 80
-                  }}
-                >
+                <span style={{ opacity: barProgress, fontSize: 80 }}>
                   {String(color)}
                 </span>
               </div>
               <div
                 key={index}
                 style={{
+                  ...bar,
                   width: 250,
                   marginLeft: barMargin,
                   marginRight: barMargin,
                   height: color * BAR_SCALE_FACTOR * barProgress,
-                  borderRadius: 10,
                   backgroundColor: rgb[index],
                 }}
               />

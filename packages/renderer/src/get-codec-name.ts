@@ -5,7 +5,7 @@ export const getCodecName = (codec: Codec): string | null => {
 		return null;
 	}
 
-	if (codec === 'h264' || codec === 'h264-mkv') {
+	if (codec === 'h264') {
 		return 'libx264';
 	}
 

@@ -14,7 +14,7 @@ export const PlayerPreview: React.FC = () => {
           style={{
             boxShadow: "var(--box-shadow)",
           }}
-          src="https://i3.ytimg.com/vi/gwlDorikqgY/maxresdefault.jpg"
+          src="http://i3.ytimg.com/vi/gwlDorikqgY/maxresdefault.jpg"
         ></img>
         <div
           style={{

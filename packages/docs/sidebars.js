@@ -1,7 +1,6 @@
 module.exports = {
   someSidebar: [
     {
-      collapsed: false,
       type: "category",
       label: "Getting started",
       items: [
@@ -16,7 +15,6 @@ module.exports = {
     {
       type: "category",
       label: "Techniques",
-      collapsed: false,
       items: [
         "assets",
         "using-audio",
@@ -34,7 +32,6 @@ module.exports = {
         "webpack",
         "legacy-babel",
         "env-variables",
-        "third-party",
       ],
     },
     "cli",
@@ -42,7 +39,6 @@ module.exports = {
     {
       type: "category",
       label: "API - Core",
-      collapsed: false,
       items: [
         "continue-render",
         "delay-render",
@@ -97,14 +93,12 @@ module.exports = {
     {
       type: "category",
       label: "Troubleshooting",
-      collapsed: false,
       items: [
         "timeout",
         "media-playback-error",
         "performance",
         "webpack-dynamic-imports",
         "non-seekable-media",
-        "flickering",
       ],
     },
     "2-0-migration",

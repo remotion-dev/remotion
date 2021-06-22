@@ -7,7 +7,6 @@ import {
 } from '../../helpers/timeline-layout';
 import {TimelineActionState} from './timeline-state-reducer';
 import {TimelineCollapseToggle} from './TimelineCollapseToggle';
-import {TimelineSequenceFrame} from './TimelineSequenceFrame';
 
 const HOOK_WIDTH = 7;
 const BORDER_BOTTOM_LEFT_RADIUS = 2;
@@ -131,13 +130,7 @@ export const TimelineListItem: React.FC<{
 					<div style={space} />
 				</>
 			) : null}
-			<div>
-				{text || 'Untitled'}
-				<TimelineSequenceFrame
-					duration={sequence.duration}
-					from={sequence.from}
-				/>
-			</div>
+			{text}
 		</div>
 	);
 };
