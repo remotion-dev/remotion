@@ -71,6 +71,12 @@ export const VideoPreview: React.FC<
     };
   }, [animated, hover, thumbnail]);
 
+  const placeholder: React.CSSProperties = useMemo(() => {
+    return {
+      backgroundColor: "rgba(0, 0, 0, 0.05)",
+    };
+  }, []);
+
   return (
     <a
       ref={container}
@@ -78,7 +84,7 @@ export const VideoPreview: React.FC<
       className={clsx("col col--4", videoStyle)}
       onClick={onClick}
     >
-      <div className="text--center">
+      <div className="text--center" style={placeholder}>
         <div style={style} />
       </div>
       <h3 style={videoTitle}>{title}</h3>
