@@ -28,7 +28,7 @@ title: "@remotion/lambda"
 
 ## Setup / Installation
 
-[**See here**](/docs/lambda-setup)
+[**See here**](/docs/lambda/setup)
 
 ## Considerations
 
@@ -42,7 +42,7 @@ Currently hardcoded but you will need to decide in the future:
 
 Starting from release `2.2.0-alpha.6c60bafb`, you can select an AWS region (previously `eu-central-1` was hardcoded) using the `AWS_REGION` environment variable. The default value is `us-east-1`.
 
-In this release, a new `s3:GetBucketRegion` permission is needed, so you need to do [update the permissions](/docs/lambda-setup).
+In this release, a new `s3:GetBucketRegion` permission is needed, so you need to do [update the permissions](/docs/lambda/setup).
 
 The following regions are available for Remotion Lambda:
 
@@ -83,25 +83,25 @@ A mechanism that determines after a render which frames rendered the slowest opt
 
 ## AWS permissions
 
-[**See here**](/docs/lambda-permissions)
+[**See here**](/docs/lambda/permissions)
 
 ## CLI
 
-[**See here**](/docs/lambda-cli)
+[**See here**](/docs/lambda/cli)
 
 ## Node.JS API
 
-- [calculatePrice()](/docs/calculateprice)
-- [deployLambda()](/docs/deployLambda)
-- [deployProject()](/docs/deployproject)
-- [ensureLambdaBinaries()](/docs/ensurelambdabinaries)
-- [getUserPolicy()](/docs/getuserpolicy)
-- [getRolePolicy()](/docs/getrolepolicy)
-- [getDeployedLambdas()](/docs/getdeployedlambdas)
-- [getOrCreateBucket()](/docs/getorcreatebucket)
-- [getRenderProgress()](/docs/getrenderprogress)
-- [renderVideoOnLambda()](/docs/rendervideoonlambda)
-- [simulatePermissions()](/docs/simulatepermissions)
+- [calculatePrice()](/docs/lambda/calculateprice)
+- [deployLambda()](/docs/lambda/deployLambda)
+- [deployProject()](/docs/lambda/deployproject)
+- [ensureLambdaBinaries()](/docs/lambda/ensurelambdabinaries)
+- [getUserPolicy()](/docs/lambda/getuserpolicy)
+- [getRolePolicy()](/docs/lambda/getrolepolicy)
+- [getDeployedLambdas()](/docs/lambda/getdeployedlambdas)
+- [getOrCreateBucket()](/docs/lambda/getorcreatebucket)
+- [getRenderProgress()](/docs/lambda/getrenderprogress)
+- [renderVideoOnLambda()](/docs/lambda/rendervideoonlambda)
+- [simulatePermissions()](/docs/lambda/simulatepermissions)
 
 ## Known issues
 

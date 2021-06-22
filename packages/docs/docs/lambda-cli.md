@@ -2,6 +2,7 @@
 id: lambda-cli
 sidebar_label: CLI
 title: "@remotion/lambda - CLI"
+slug: /lambda/cli
 ---
 
 You can get a list of all commands using `npx remotion-lambda --help`.

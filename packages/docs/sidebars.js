@@ -1,4 +1,33 @@
 module.exports = {
+  lambdaSidebar: [
+    {
+      type: "link",
+      label: "← Back to main docs",
+      href: "/docs",
+    },
+    "lambda",
+    "lambda-cli",
+    "lambda-setup",
+    "lambda-permissions",
+    {
+      collapsed: false,
+      type: "category",
+      label: "Node.JS APIs",
+      items: [
+        "calculateprice",
+        "deploylambda",
+        "deployproject",
+        "ensurelambdabinaries",
+        "getuserpolicy",
+        "getrolepolicy",
+        "getdeployedlambdas",
+        "getorcreatebucket",
+        "getrenderprogress",
+        "rendervideoonlambda",
+        "simulatepermissions",
+      ],
+    },
+  ],
   someSidebar: [
     {
       collapsed: false,
@@ -84,25 +113,9 @@ module.exports = {
       ],
     },
     {
-      type: "category",
+      type: "link",
+      href: "/docs/lambda",
       label: "API - @remotion/lambda",
-      items: [
-        "lambda",
-        "lambda-cli",
-        "lambda-setup",
-        "lambda-permissions",
-        "ensurelambdabinaries",
-        "calculateprice",
-        "deploylambda",
-        "deployproject",
-        "getuserpolicy",
-        "getrolepolicy",
-        "getdeployedlambdas",
-        "getorcreatebucket",
-        "getrenderprogress",
-        "rendervideoonlambda",
-        "simulatepermissions",
-      ],
     },
     "player",
     {
