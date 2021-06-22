@@ -4,6 +4,8 @@ import CarSlideshow from './CarSlideshow';
 
 export default function App() {
 	const [title, setTitle] = useState('Hello World');
+	const [color, setColor] = useState("#ffffff")
+	const [bgColor, setBgColor] = useState("#000000")
 	const [loop, setLoop] = useState(false);
 	const [doubleClickToFullscreen, setDoubleClickToFullscreen] = useState(true);
 	const [clickToPlay, setClickToPlay] = useState(true);
@@ -30,7 +32,7 @@ export default function App() {
 	}, []);
 
 	return (
-		<div>
+		<div style={{margin: "2rem"}}>
 			<Player
 				ref={ref}
 				compositionWidth={500}
@@ -45,14 +47,39 @@ export default function App() {
 				clickToPlay={clickToPlay}
 				inputProps={{
 					title: String(title),
+					bgColor: String(bgColor),
+					color: String(color)
 				}}
 			/>
+			<div style={{paddingTop:"0.5rem"}}>
+				Enter Text {" "}
 			<input
 				value={title}
 				onChange={(e) => {
 					setTitle(e.target.value);
 				}}
 			/>
+			</div>
+			
+			<div style={{paddingTop:"0.5rem"}}>		 
+				<div>
+				Select Text Color {" "}
+				<input
+					type="color"
+					value={color}
+					onChange={(e) => setColor(e.target.value)}
+      	/>
+				</div>
+				<div>
+				Select Background Color {" "} 
+				<input
+					type="color"
+					value={bgColor}
+					onChange={(e) => setBgColor(e.target.value)}
+      	/>
+				</div>
+			</div>
+			
 			<br />
 			<button type="button" onClick={() => ref.current?.play()}>
 				Play
@@ -66,6 +93,7 @@ export default function App() {
 			<button type="button" onClick={() => ref.current?.unmute()}>
 				Unmute
 			</button>
+			
 			<button type="button" onClick={() => ref.current?.toggle()}>
 				toggle
 			</button>

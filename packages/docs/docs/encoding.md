@@ -19,7 +19,7 @@ Remotion supports 5 video codecs: `h264` (_default_), `h265`, `vp8`, `vp9`, `pro
   </tr>
   <tr>
     <td>H.264 <sub>also known as MPEG-4</sub></td>
-    <td>.mp4</td>
+    <td>.mp4 or .mkv</td>
     <td style={{color: 'red'}}>Large</td>
     <td style={{color: 'green', fontWeight: 'bold'}}>Very fast</td>
     <td><a href="https://caniuse.com/mpeg4" style={{color: 'green', fontWeight: 'bold'}}>Very good</a></td>
@@ -226,6 +226,14 @@ Higher bitrate means higher quality and higher file size.
 ## Audio-only export
 
 You can pass `mp3`, `wav` or `aac` as a codec. If you do it, an audio file will be output in the corresponding format. Quality settings will be ignored.
+
+## Use .mkv container format
+
+You can set the codec to `h264-mkv` to use the mkv container format together with the H264 codec. If you select this option, the audio will be encoded losslessly using the WAV codec.
+
+:::info
+This preset was created for Remotion Lambda, and is optimal for when concatenating multiple video clips into one.
+:::
 
 ## What other settings do you need?
 
