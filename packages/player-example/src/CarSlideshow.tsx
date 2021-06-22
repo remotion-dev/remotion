@@ -2,19 +2,16 @@ import {interpolate, useCurrentFrame, useVideoConfig} from 'remotion';
 
 type Props = {
 	title: string;
-	bgColor: string,
-	color: string
 };
 
-const CarSlideshow = ({title, bgColor, color}: Props) => {
+const CarSlideshow = ({title}: Props) => {
 	const frame = useCurrentFrame();
 	const {width, height, durationInFrames} = useVideoConfig();
 	const left = interpolate(frame, [0, durationInFrames], [width, width * -1]);
-	console.log(bgColor, color)
 	return (
 		<div
 			style={{
-				backgroundColor: bgColor,
+				backgroundColor: 'hotpink',
 				width: width,
 				height: height,
 				position: 'absolute',
@@ -29,7 +26,7 @@ const CarSlideshow = ({title, bgColor, color}: Props) => {
 					position: 'absolute',
 					top: height / 2 - 100,
 					left,
-					color: color,
+					color: 'black',
 					whiteSpace: 'nowrap',
 				}}
 			>

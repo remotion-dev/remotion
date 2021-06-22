@@ -91,9 +91,3 @@ export const MyVideo = () => {
 ```
 
 You should see the text 'jump in'. The default spring configuration leads to a little bit of overshoot, meaning the text will bounce a little bit. See the reference page about the `spring` function to learn how to customize your spring animations.
-
-## Always animate using `useCurrentFrame()`
-
-Watch out for flickering issues during rendering that arise if you write animations that are not driven by [`useCurrentFrame()`](/docs/use-current-frame) - for example CSS transitions.
-
-[Read more about how Remotion's rendering works](/docs/flickering) - understanding it will help you avoid issues down the road.

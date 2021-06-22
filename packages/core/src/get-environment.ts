@@ -13,6 +13,14 @@ export const getRemotionEnvironment = (): RemotionEnvironment => {
 		return 'rendering';
 	}
 
+	if (process.env.NODE_ENV === 'development') {
+		if (typeof window !== 'undefined' && window.remotion_isPlayer) {
+			return 'player-development';
+		}
+
+		return 'preview';
+	}
+
 	// The Jest framework sets NODE_ENV as test.
 	// Right now we don't need to treat it in a special
 	// way which is good - defaulting to `rendering`.
@@ -20,9 +28,5 @@ export const getRemotionEnvironment = (): RemotionEnvironment => {
 		return 'rendering';
 	}
 
-	if (typeof window !== 'undefined' && window.remotion_isPlayer) {
-		return 'player-development';
-	}
-
-	return 'preview';
+	throw new Error('Cannot determine Remotion environment');
 };

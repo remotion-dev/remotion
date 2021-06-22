@@ -11,8 +11,8 @@ export const getVideoMetadata = async (src: string): Promise<VideoMetadata> => {
 	const video = document.createElement('video');
 	video.src = src;
 	return new Promise<VideoMetadata>((resolve, reject) => {
-		const onError = () => {
-			reject(video.error);
+		const onError = (ev: ErrorEvent) => {
+			reject(ev.error);
 			cleanup();
 		};
 

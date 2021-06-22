@@ -54,6 +54,6 @@ const MyComp: React.FC = () => {
 }
 ```
 
-### File requirements
+## File requirements
 
-Fonts must have one of the following file extensions to be loaded: `woff`, `woff2`, `ttf`, `eot`.
+Fonts must have a `.woff` or `.woff2` file extension to be loaded.

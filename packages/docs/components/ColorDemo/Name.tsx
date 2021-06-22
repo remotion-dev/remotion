@@ -6,7 +6,12 @@ import {
   useCurrentFrame,
   useVideoConfig,
 } from "remotion";
-import { defaultStyles } from './styles';
+
+const container: React.CSSProperties = {
+  fontFamily:
+    "--apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif",
+  fontWeight: "bold",
+};
 
 export const Name: React.FC<{
   name: string;
@@ -23,23 +28,25 @@ export const Name: React.FC<{
   return (
     <AbsoluteFill
       style={{
-        ...defaultStyles,
+        ...container,
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        flex: 1,
+        fontSize: 100,
         backgroundColor: "white",
         color: "black",
       }}
     >
-      <div
-        style={{
-          transform: `translateY(${interpolate(
-            progress,
-            [0, 1],
-            [1000, 0]
-          )}px)`,
-        }}
-      >
+      <div>
         <span
           style={{
             display: "block",
+            transform: `translateY(${interpolate(
+              progress,
+              [0, 1],
+              [1000, 0]
+            )}px)`,
             lineHeight: 1.1,
           }}
         >
@@ -48,6 +55,11 @@ export const Name: React.FC<{
         <span
           style={{
             display: "block",
+            transform: `translateY(${interpolate(
+              progress,
+              [0, 1],
+              [1000, 0]
+            )}px)`,
             lineHeight: 1.1,
           }}
         >

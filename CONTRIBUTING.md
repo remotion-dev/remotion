@@ -1,7 +1,3 @@
-Want to watch a tutorial video instead? [Click here](https://www.youtube.com/watch?v=edWIkrjFgoQ)
-
----
-
 ## Contributing
 
 Issues and pull requests of all sorts are welcome!

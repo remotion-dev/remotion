@@ -1,13 +1,13 @@
-import { parseToRgb } from 'polished';
+import {parseToRgb} from 'polished';
 import React from 'react';
-import { AbsoluteFill, Sequence } from 'remotion';
-import { Big } from './Big';
-import { Colors } from './RGBColors';
-import { Name } from './Name';
-import { Palette } from './Palette';
-import { Shade } from './ColorName';
+import {AbsoluteFill, Sequence} from 'remotion';
+import {Big} from './Big';
+import {Colors} from './Colors';
+import {Name} from './Name';
+import {Palette} from './Palette';
+import {Shade} from './Shade';
 
-export const ColorDemo: React.FC<{
+export const Main: React.FC<{
 	color: string;
 	name: string;
 }> = ({color, name}) => {

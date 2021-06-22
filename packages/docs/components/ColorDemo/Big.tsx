@@ -7,7 +7,12 @@ import {
   useVideoConfig,
 } from "remotion";
 import { getReadableColor } from "./readable-color";
-import { defaultStyles } from './styles';
+
+const container: React.CSSProperties = {
+  fontFamily:
+    "--apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif",
+  fontWeight: "bold",
+};
 
 export const Big: React.FC<{
   color: string;
@@ -24,7 +29,11 @@ export const Big: React.FC<{
   return (
     <AbsoluteFill
       style={{
-        ...defaultStyles,
+        ...container,
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        flex: 1,
         color: getReadableColor(color),
         fontSize: 150,
       }}

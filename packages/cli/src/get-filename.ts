@@ -31,12 +31,6 @@ export const getOutputFilename = (
 			extension = 'mp4';
 		}
 
-		if (codec === 'h264-mkv') {
-			Log.info('No file extension specified, adding .mkv automatically.');
-			filename += '.mkv';
-			extension = 'mkv';
-		}
-
 		if (codec === 'vp8' || codec === 'vp9') {
 			Log.info('No file extension specified, adding .webm automatically.');
 			filename += '.webm';
@@ -51,9 +45,9 @@ export const getOutputFilename = (
 	}
 
 	if (codec === 'h264') {
-		if (extension !== 'mp4' && extension !== 'mkv') {
+		if (extension !== 'mp4') {
 			Log.error(
-				'When using the H264 codec, the output filename must end in .mp4 or .mkv.'
+				'When using the H264 codec, the output filename must end in .mp4.'
 			);
 			process.exit(1);
 		}

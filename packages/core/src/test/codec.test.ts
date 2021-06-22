@@ -4,7 +4,7 @@ import {
 	getOutputCodecOrUndefined,
 	setCodec,
 } from '../config/codec';
-import {expectToThrow} from './expect-to-throw';
+import {expectToThrow} from "./expect-to-throw";
 
 // getFinalOutputCodec
 
@@ -17,9 +17,8 @@ describe('Codec tests valid codec input', () => {
 		'mp3',
 		'aac',
 		'wav',
-		'h264-mkv',
 	];
-	validCodecInput.forEach((entry) =>
+	validCodecInput.forEach(entry =>
 		test(`codec ${entry}`, () =>
 			expect(
 				getFinalOutputCodec({
@@ -62,7 +61,7 @@ describe('Codec tests undefined codec input with known extension', () => {
 
 describe('Codec tests undefined codec input with unknown extension', () => {
 	const unknownExtensions = ['', 'abc'];
-	unknownExtensions.forEach((entry) =>
+	unknownExtensions.forEach(entry =>
 		test(`testing with "${entry}" as extension`, () =>
 			expect(
 				getFinalOutputCodec({
@@ -84,17 +83,14 @@ describe('Codec tests setOutputFormat', () => {
 		'vp9',
 		undefined,
 	];
-	validCodecInputs.forEach((entry) =>
+	validCodecInputs.forEach(entry =>
 		test(`testing with ${entry}`, () => {
 			setCodec(entry);
 			expect(getOutputCodecOrUndefined()).toEqual(entry);
 		})
 	);
 	test('setCodec with invalid coded', () => {
-		expectToThrow(
-			// @ts-expect-error
-			() => setCodec('invalid'),
-			/Codec must be one of the following:/
-		);
-	});
+		// @ts-expect-error
+		expectToThrow(() => setCodec('invalid'), /Codec must be one of the following:/)
+	})
 });
