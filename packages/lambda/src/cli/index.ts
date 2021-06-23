@@ -1,8 +1,8 @@
 import {CliInternals} from '@remotion/cli';
 import {parsedLambdaCli} from './args';
 import {cleanupCommand, CLEANUP_COMMAND} from './cleanup';
+import {functionsCommand, FUNCTIONS_COMMAND} from './commands/functions';
 import {deployCommand, DEPLOY_COMMAND} from './deploy';
-import {functionsCommand, FUNCTIONS_COMMAND} from './functions';
 import {printHelp} from './help';
 import {Log} from './log';
 import {policiesCommand, POLICIES_COMMAND} from './policies';
@@ -28,7 +28,7 @@ const matchCommand = async () => {
 	}
 
 	if (parsedLambdaCli._[0] === FUNCTIONS_COMMAND) {
-		return functionsCommand();
+		return functionsCommand(parsedLambdaCli._.slice(1));
 	}
 
 	if (parsedLambdaCli._[0] === CLEANUP_COMMAND) {

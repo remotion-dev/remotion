@@ -1,17 +1,17 @@
 import {CliInternals} from '@remotion/cli';
 import {Log} from '@remotion/cli/dist/log';
-import {getDeployedLambdas} from '../api/get-deployed-lambdas';
-import {getFunctionVersion} from '../api/get-function-version';
-import {getAwsRegion} from './get-aws-region';
-
-export const FUNCTIONS_COMMAND = 'functions';
+import {getDeployedLambdas} from '../../../api/get-deployed-lambdas';
+import {getFunctionVersion} from '../../../api/get-function-version';
+import {getAwsRegion} from '../../get-aws-region';
 
 const NAME_COLS = 32;
 const MEMORY_COLS = 15;
 const TIMEOUT_COLS = 15;
 const VERSION_COLS = 15;
 
-export const functionsCommand = async () => {
+export const FUNCTIONS_LS_SUBCOMMAND = 'ls';
+
+export const functionsLsCommand = async () => {
 	const region = getAwsRegion();
 	const functions = await getDeployedLambdas({
 		region,
