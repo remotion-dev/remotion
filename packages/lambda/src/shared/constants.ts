@@ -31,6 +31,7 @@ export const getBinariesBucketName = (region: AwsRegion) => {
 };
 
 export enum LambdaRoutines {
+	info = 'info',
 	start = 'start',
 	launch = 'launch',
 	status = 'status',
@@ -39,6 +40,9 @@ export enum LambdaRoutines {
 }
 
 export type LambdaPayloads = {
+	info: {
+		type: LambdaRoutines.info;
+	};
 	start: {
 		type: LambdaRoutines.start;
 		serveUrl: string;
@@ -118,3 +122,5 @@ export type RenderMetadata = {
 	compositionId: string;
 	codec: Codec;
 };
+
+export type LambdaVersions = '2021-06-23';

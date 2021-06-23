@@ -1,5 +1,6 @@
 import {fireHandler} from '../functions/fire';
 import {progressHandler} from '../functions/get-progress';
+import {infoHandler} from '../functions/info';
 import {launchHandler} from '../functions/launch';
 import {rendererHandler} from '../functions/renderer';
 import {startHandler} from '../functions/start';
@@ -11,4 +12,5 @@ export interface LambdaReturnValues {
 	[LambdaRoutines.renderer]: ReturnType<typeof rendererHandler>;
 	[LambdaRoutines.status]: ReturnType<typeof progressHandler>;
 	[LambdaRoutines.fire]: ReturnType<typeof fireHandler>;
+	[LambdaRoutines.info]: ReturnType<typeof infoHandler>;
 }
