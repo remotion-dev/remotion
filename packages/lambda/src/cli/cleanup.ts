@@ -1,12 +1,12 @@
 import {LambdaClient} from '@aws-sdk/client-lambda';
 import {CliInternals} from '@remotion/cli';
-import {BINARY_NAME} from '../api/bundle-remotion';
 import {getRemotionS3Buckets} from '../api/get-buckets';
 import {cleanupLambdas, getRemotionLambdas} from '../cleanup/cleanup-lambdas';
 import {cleanUpBuckets} from '../cleanup/s3-buckets';
 import {AwsRegion} from '../pricing/aws-regions';
 import {getLambdaClient} from '../shared/aws-clients';
 import {chunk} from '../shared/chunk';
+import {BINARY_NAME} from '../shared/constants';
 import {getAwsRegion} from './get-aws-region';
 import {Log} from './log';
 

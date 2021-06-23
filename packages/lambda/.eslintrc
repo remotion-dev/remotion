@@ -4,7 +4,15 @@
 		"project": "./tsconfig.json"
 	},
 	"rules": {
-		"no-console": "error",
+		"no-console": "off",
 		"ts-exports/unused-exports": "off"
-	}
+	},
+	"overrides": [
+		{
+			"files": "./src/cli/**",
+			"rules": {
+				"no-console": "error"
+			}
+		}
+	]
 }

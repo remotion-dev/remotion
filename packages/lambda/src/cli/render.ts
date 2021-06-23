@@ -1,8 +1,8 @@
 import {CliInternals} from '@remotion/cli';
-import {BINARY_NAME} from '../api/bundle-remotion';
 import {getDeployedLambdas} from '../api/get-deployed-lambdas';
 import {getRenderProgress} from '../api/get-render-progress';
 import {renderVideoOnLambda} from '../api/render-video-on-lambda';
+import {BINARY_NAME} from '../shared/constants';
 import {sleep} from '../shared/sleep';
 import {parsedLambdaCli} from './args';
 import {CLEANUP_COMMAND, CLEANUP_LAMBDAS_SUBCOMMAND} from './cleanup';
@@ -82,9 +82,9 @@ export const renderCommand = async () => {
 			renderId: res.renderId,
 			region: getAwsRegion(),
 		});
-		console.log(status);
+		Log.info(status);
 		if (status.done) {
-			console.log('Done! ' + res.bucketName);
+			Log.info('Done! ' + res.bucketName);
 			process.exit(0);
 		}
 	}

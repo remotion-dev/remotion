@@ -11,7 +11,6 @@ import {
 	lambdaInitializedKey,
 	LambdaPayload,
 	LambdaRoutines,
-	MEMORY_SIZE,
 	outName,
 	RenderMetadata,
 	renderMetadataKey,
@@ -221,8 +220,8 @@ export const progressHandler = async (lambdaParams: LambdaPayload) => {
 		(
 			calculatePrice({
 				region: getCurrentRegion(),
-				durationMs: elapsedTime,
-				memory: MEMORY_SIZE,
+				durationInMiliseconds: elapsedTime,
+				memorySize: Number(process.env.AWS_LAMBDA_FUNCTION_MEMORY_SIZE),
 			}) * (renderMetadata?.estimatedLambdaInvokations ?? 0)
 		).toPrecision(5)
 	);
@@ -266,7 +265,7 @@ export const progressHandler = async (lambdaParams: LambdaPayload) => {
 		// TODO: Only fetch optimization if actually shown
 		optimizationForNextRender: optimization,
 		timeToFinish,
-		//	errors,
+		errors,
 		errorExplanations,
 		currentTime: Date.now(),
 		bucketSize,

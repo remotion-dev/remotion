@@ -1,9 +1,9 @@
 import {CliInternals} from '@remotion/cli';
 import {existsSync, lstatSync} from 'fs';
 import path from 'path';
-import {BINARY_NAME} from '../api/bundle-remotion';
 import {deployProject} from '../api/deploy-project';
 import {getOrCreateBucket} from '../api/get-or-create-bucket';
+import {BINARY_NAME} from '../shared/constants';
 import {parsedLambdaCli} from './args';
 import {getAwsRegion} from './get-aws-region';
 import {

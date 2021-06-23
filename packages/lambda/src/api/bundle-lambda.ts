@@ -4,8 +4,8 @@ import {tmpDir} from '../shared/tmpdir';
 import esbuild = require('esbuild');
 import zl = require('zip-lib');
 
-export const bundleLambda = async (type: 'render') => {
-	const outdir = path.join(__dirname, '..', `build-${type}`);
+export const bundleLambda = async () => {
+	const outdir = path.join(__dirname, '..', `build-render`);
 	fs.mkdirSync(outdir, {
 		recursive: true,
 	});
@@ -19,13 +19,18 @@ export const bundleLambda = async (type: 'render') => {
 
 	await esbuild.build({
 		platform: 'node',
-		target: 'node12',
+		target: 'node14',
 		bundle: true,
 		outfile,
 		entryPoints: [template],
+		banner: {
+			js: `
+global.			
+			`,
+		},
 	});
 
-	const out = path.join(tmpDir('remotion-fn'), `function-${type}.zip`);
+	const out = path.join(tmpDir('remotion-fn'), `function-render.zip`);
 	await zl.archiveFolder(outdir, out);
 	return out;
 };

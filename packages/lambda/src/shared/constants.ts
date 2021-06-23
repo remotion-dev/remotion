@@ -2,7 +2,16 @@ import {Codec, ImageFormat, PixelFormat, ProResProfile} from 'remotion';
 import {AwsRegion} from '../pricing/aws-regions';
 import {getFileExtensionFromCodec} from './get-file-extension-from-codec';
 
-export const MEMORY_SIZE = 2048;
+export const MIN_MEMORY = 512;
+export const MAX_MEMORY = 10240;
+export const DEFAULT_MEMORY_SIZE = 1024;
+
+export const DEFAULT_TIMEOUT = 120;
+export const MIN_TIMEOUT = 15;
+export const MAX_TIMEOUT = 900;
+
+export const BINARY_NAME = 'remotion-lambda';
+
 // TODO: Rename other buckets in Jonnys accoudn first
 export const REMOTION_BUCKET_PREFIX = 'remotionlambda-';
 export const RENDER_FN_PREFIX = 'remotion-render-';
