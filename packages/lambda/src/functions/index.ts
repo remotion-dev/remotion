@@ -1,5 +1,9 @@
 import {Log} from '@remotion/cli/dist/log';
-import {LambdaPayload, LambdaRoutines} from '../shared/constants';
+import {
+	COMMAND_NOT_FOUND,
+	LambdaPayload,
+	LambdaRoutines,
+} from '../shared/constants';
 import {LambdaReturnValues} from '../shared/return-values';
 import {fireHandler} from './fire';
 import {progressHandler} from './get-progress';
@@ -36,5 +40,5 @@ export const handler = async <T extends LambdaRoutines>(
 		return infoHandler(params);
 	}
 
-	throw new Error('Command not found');
+	throw new Error(COMMAND_NOT_FOUND);
 };

@@ -18,6 +18,7 @@ module.exports = {
         "deploylambda",
         "deployproject",
         "ensurelambdabinaries",
+        "getfunctionversion",
         "getuserpolicy",
         "getrolepolicy",
         "getdeployedlambdas",

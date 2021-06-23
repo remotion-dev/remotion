@@ -23,11 +23,6 @@ export const bundleLambda = async () => {
 		bundle: true,
 		outfile,
 		entryPoints: [template],
-		banner: {
-			js: `
-global.			
-			`,
-		},
 	});
 
 	const out = path.join(tmpDir('remotion-fn'), `function-render.zip`);
