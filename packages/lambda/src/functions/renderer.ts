@@ -78,7 +78,6 @@ const renderHandler = async (params: LambdaPayload) => {
 		outputDir: outputPath,
 		puppeteerInstance: browserInstance,
 		serveUrl: params.serveUrl,
-		bundleDir: null,
 		quality: params.quality,
 		envVariables: params.envVariables,
 		onError: () => {
