@@ -65,6 +65,7 @@ export type LambdaPayloads = {
 		pixelFormat: PixelFormat | undefined;
 		proResProfile: ProResProfile | undefined;
 		quality: number | undefined;
+		maxRetries: number;
 	};
 	launch: {
 		type: LambdaRoutines.launch;
@@ -81,6 +82,7 @@ export type LambdaPayloads = {
 		pixelFormat: PixelFormat | undefined;
 		proResProfile: ProResProfile | undefined;
 		quality: number | undefined;
+		maxRetries: number;
 	};
 	fire: {
 		type: LambdaRoutines.fire;

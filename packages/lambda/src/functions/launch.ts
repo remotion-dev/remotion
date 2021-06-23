@@ -92,8 +92,7 @@ const innerLaunchHandler = async (params: LambdaPayload) => {
 			width: comp.width,
 			durationInFrames: comp.durationInFrames,
 			bucketName: params.bucketName,
-			// TODO: Configurable retries
-			retriesLeft: 3,
+			retriesLeft: params.maxRetries,
 			inputProps: params.inputProps,
 			renderId: params.renderId,
 			imageFormat: params.imageFormat,
