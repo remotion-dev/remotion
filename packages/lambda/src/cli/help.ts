@@ -1,4 +1,4 @@
-import chalk from 'chalk';
+import {CliInternals} from '@remotion/cli';
 import {BINARY_NAME} from '../shared/constants';
 import {CLEANUP_COMMAND} from './cleanup';
 import {Log} from './log';
@@ -17,16 +17,17 @@ export const printHelp = () => {
 	Log.info('Available commands:');
 	Log.info('');
 	Log.info(`${BINARY_NAME} ${UPLOAD_COMMAND} <index-file.ts>`);
-	// TODO: can get chalk from cliinternals
-	Log.info(chalk.gray('Upload a Remotion project to S3.'));
+	Log.info(CliInternals.chalk.gray('Upload a Remotion project to S3.'));
 	Log.info();
 
 	Log.info(`${BINARY_NAME} ${RENDER_COMMAND} <s3-url>`);
-	Log.info(chalk.gray('Render a video on the cloud.'));
+	Log.info(CliInternals.chalk.gray('Render a video on the cloud.'));
 
 	Log.info();
 	Log.info(`${BINARY_NAME} ${CLEANUP_COMMAND}`);
 	Log.info(
-		chalk.gray('Delete Remotion-related infrastructure from your AWS account.')
+		CliInternals.chalk.gray(
+			'Delete Remotion-related infrastructure from your AWS account.'
+		)
 	);
 };
