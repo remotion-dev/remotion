@@ -1,6 +1,7 @@
 import {CliInternals} from '@remotion/cli';
 import {BINARY_NAME} from '../shared/constants';
 import {CLEANUP_COMMAND} from './cleanup';
+import {FUNCTIONS_COMMAND} from './commands/functions';
 import {Log} from './log';
 import {RENDER_COMMAND} from './render';
 import {UPLOAD_COMMAND} from './upload';
@@ -30,4 +31,8 @@ export const printHelp = () => {
 			'Delete Remotion-related infrastructure from your AWS account.'
 		)
 	);
+
+	Log.info();
+	Log.info(`${BINARY_NAME} ${FUNCTIONS_COMMAND}`);
+	Log.info(CliInternals.chalk.gray('Deploy and manage AWS Lambda functions.'));
 };
