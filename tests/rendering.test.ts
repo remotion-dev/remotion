@@ -313,3 +313,40 @@ test("Dynamic duration should work", async () => {
     fs.unlinkSync(outputPath);
   }
 });
+
+test("Should be able to render if remotion.config.js is not provided", async () => {
+  const task = await execa(
+    "node",
+    [
+      "packages/cli/remotion-cli.js",
+      "render",
+      "packages/example/src/entry.jsx",
+      "framer",
+      outputPath,
+    ],
+    {
+      reject: false,
+    }
+  );
+
+  expect(task.exitCode).toBe(0);
+});
+
+test("Should be able to render if remotion.config.ts is not provided", async () => {
+  const task = await execa(
+    "node",
+    [
+      "packages/cli/remotion-cli.js",
+      "render",
+      "packages/example/src/ts-entry.tsx",
+      "framer",
+      outputPath,
+    ],
+    {
+      reject: false,
+    }
+  );
+ 
+  expect(task.exitCode).toBe(0);
+  fs.unlinkSync(outputPath);
+});
