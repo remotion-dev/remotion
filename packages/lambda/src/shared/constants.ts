@@ -12,6 +12,8 @@ export const MAX_TIMEOUT = 900;
 
 export const BINARY_NAME = 'remotion-lambda';
 
+export const COMMAND_NOT_FOUND = 'Command not found';
+
 // TODO: Rename other buckets in Jonnys accoudn first
 export const REMOTION_BUCKET_PREFIX = 'remotionlambda-';
 export const RENDER_FN_PREFIX = 'remotion-render-';
@@ -134,4 +136,4 @@ export type RenderMetadata = {
 	codec: Codec;
 };
 
-export type LambdaVersions = '2021-06-23';
+export type LambdaVersions = '2021-06-23' | 'n/a';
