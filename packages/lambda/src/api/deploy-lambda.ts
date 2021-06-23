@@ -3,7 +3,7 @@ import {CreateFunctionCommand} from '@aws-sdk/client-lambda';
 import {readFileSync} from 'fs';
 import {AwsRegion} from '../pricing/aws-regions';
 import {getIamClient, getLambdaClient} from '../shared/aws-clients';
-import {MEMORY_SIZE, RENDER_FN_PREFIX} from '../shared/constants';
+import {RENDER_FN_PREFIX} from '../shared/constants';
 import {randomHash} from '../shared/random-hash';
 import {bundleLambda} from './bundle-lambda';
 
@@ -11,7 +11,9 @@ export const deployLambda = async (options: {
 	region: AwsRegion;
 	layerArn: string;
 	timeoutInSeconds: number;
+	memorySize: number;
 }) => {
+	// TODO: Validate memory size
 	// TODO: Validate parameters and enforce timeout below 900 seconds.
 	const fnNameRender = RENDER_FN_PREFIX + randomHash();
 	const [renderOut, user] = await Promise.all([
@@ -36,7 +38,7 @@ export const deployLambda = async (options: {
 			Role: `arn:aws:iam::${accountId[1]}:role/remotion-lambda-role`,
 			Runtime: 'nodejs14.x',
 			Description: 'Renders a Remotion video.',
-			MemorySize: MEMORY_SIZE,
+			MemorySize: options.memorySize,
 			Timeout: options.timeoutInSeconds,
 			Layers: [options.layerArn],
 		})
