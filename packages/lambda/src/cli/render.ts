@@ -6,7 +6,8 @@ import {BINARY_NAME} from '../shared/constants';
 import {sleep} from '../shared/sleep';
 import {parsedLambdaCli} from './args';
 import {CLEANUP_COMMAND, CLEANUP_LAMBDAS_SUBCOMMAND} from './cleanup';
-import {DEPLOY_COMMAND} from './deploy';
+import {FUNCTIONS_COMMAND} from './commands/functions';
+import {FUNCTIONS_DEPLOY_SUBCOMMAND} from './commands/functions/deploy';
 import {getAwsRegion} from './get-aws-region';
 import {Log} from './log';
 
@@ -40,7 +41,9 @@ export const renderCommand = async () => {
 	if (remotionLambdas.length === 0) {
 		Log.error('No lambda functions found in your account.');
 		Log.info('Run');
-		Log.info(`  npx ${BINARY_NAME} ${DEPLOY_COMMAND}`);
+		Log.info(
+			`  npx ${BINARY_NAME} ${FUNCTIONS_COMMAND} ${FUNCTIONS_DEPLOY_SUBCOMMAND}`
+		);
 		Log.info(`to deploy a lambda function.`);
 		process.exit(1);
 	}

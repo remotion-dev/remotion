@@ -17,6 +17,7 @@ export const printHelp = () => {
 	Log.info();
 	Log.info('Available commands:');
 	Log.info('');
+
 	Log.info(`${BINARY_NAME} ${UPLOAD_COMMAND} <index-file.ts>`);
 	Log.info(CliInternals.chalk.gray('Upload a Remotion project to S3.'));
 	Log.info();
