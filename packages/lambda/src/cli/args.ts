@@ -6,6 +6,7 @@ type LambdaCommandLineOptions = {
 	region: AwsRegion;
 	memory: number;
 	timeout: number;
+	force: boolean;
 };
 
 export const parsedLambdaCli = minimist<LambdaCommandLineOptions>(

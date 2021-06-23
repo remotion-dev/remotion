@@ -35,6 +35,8 @@
 		"lambdafs": "^2.0.3",
 		"minimist": "^1.2.5",
 		"p-limit": "^3.1.0",
+		"prompt": "^1.1.0",
+		"@types/prompt": "^1.1.0",
 		"remotion": "^2.1.4",
 		"ts-jest": "^26.5.6",
 		"ts-node": "^9.1.1",

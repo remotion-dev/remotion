@@ -1,7 +1,10 @@
+import {deleteFunction} from './api/delete-function';
 import {deployLambda} from './api/deploy-lambda';
 import {deployProject} from './api/deploy-project';
 import {ensureLambdaBinaries} from './api/ensure-lambda-binaries';
 import {getDeployedLambdas} from './api/get-deployed-lambdas';
+import {getFunctionInfo} from './api/get-function-info';
+import {getFunctionVersion} from './api/get-function-version';
 import {getOrCreateBucket} from './api/get-or-create-bucket';
 import {getRenderProgress} from './api/get-render-progress';
 import {simulatePermissions} from './api/iam-validation/simulate';
@@ -22,4 +25,7 @@ export {
 	getRenderProgress,
 	renderVideoOnLambda,
 	simulatePermissions,
+	deleteFunction,
+	getFunctionInfo,
+	getFunctionVersion,
 };
