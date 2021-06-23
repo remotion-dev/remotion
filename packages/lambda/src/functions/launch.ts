@@ -14,7 +14,7 @@ import {
 	RenderMetadata,
 	renderMetadataKey,
 } from '../shared/constants';
-import {getSiteId} from '../shared/make-s3-url';
+import {getServeUrlHash} from '../shared/make-s3-url';
 import {collectChunkInformation} from './chunk-optimization/collect-data';
 import {getFrameRangesFromProfile} from './chunk-optimization/get-frame-ranges-from-profile';
 import {getProfileDuration} from './chunk-optimization/get-profile-duration';
@@ -38,19 +38,16 @@ const innerLaunchHandler = async (params: LambdaPayload) => {
 		throw new Error('Expected launch type');
 	}
 
-	// TODO: Cleanup EFS after render, it is not ephemereal
-
 	// TODO: Better validation
 	if (!params.chunkSize) {
 		throw new Error('Pass chunkSize');
 	}
 
-	const urlBreakdown = getSiteId(params.serveUrl);
 	const [browserInstance, optimization] = await Promise.all([
 		getBrowserInstance(),
 		getOptimization({
 			bucketName: params.bucketName,
-			siteId: urlBreakdown.siteId,
+			siteId: getServeUrlHash(params.serveUrl),
 			compositionId: params.composition,
 			region: getCurrentRegion(),
 		}),
@@ -121,7 +118,7 @@ const innerLaunchHandler = async (params: LambdaPayload) => {
 			// This function
 		].reduce((a, b) => a + b, 0),
 		compositionId: comp.id,
-		siteId: urlBreakdown.siteId,
+		siteId: getServeUrlHash(params.serveUrl),
 		codec: params.codec,
 	};
 
@@ -207,7 +204,7 @@ const innerLaunchHandler = async (params: LambdaPayload) => {
 			newTiming: getProfileDuration(optimizedProfile),
 		},
 		compositionId: params.composition,
-		siteId: urlBreakdown.siteId,
+		siteId: getServeUrlHash(params.serveUrl),
 		region: getCurrentRegion(),
 	});
 };
