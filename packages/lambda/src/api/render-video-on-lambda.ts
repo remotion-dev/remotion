@@ -16,6 +16,7 @@ export const renderVideoOnLambda = async ({
 	proResProfile,
 	quality,
 	region,
+	maxRetries,
 }: {
 	region: AwsRegion;
 	functionName: string;
@@ -28,6 +29,7 @@ export const renderVideoOnLambda = async ({
 	pixelFormat?: PixelFormat;
 	proResProfile?: ProResProfile;
 	quality?: number;
+	maxRetries: number;
 }) => {
 	const res = await callLambda({
 		functionName,
@@ -45,6 +47,7 @@ export const renderVideoOnLambda = async ({
 			pixelFormat,
 			proResProfile,
 			quality,
+			maxRetries,
 		},
 		region,
 	});

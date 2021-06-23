@@ -28,6 +28,7 @@ export const startHandler = async (params: LambdaPayload) => {
 		pixelFormat: params.pixelFormat,
 		proResProfile: params.proResProfile,
 		quality: params.quality,
+		maxRetries: params.maxRetries,
 	};
 	await getLambdaClient(getCurrentRegion()).send(
 		new InvokeCommand({

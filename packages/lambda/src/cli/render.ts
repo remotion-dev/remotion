@@ -73,6 +73,8 @@ export const renderCommand = async () => {
 		proResProfile: cliOptions.proResProfile,
 		quality: cliOptions.quality,
 		region: getAwsRegion(),
+		// TODO: Unhardcode retries
+		maxRetries: 3,
 	});
 	for (let i = 0; i < 3000; i++) {
 		await sleep(1000);

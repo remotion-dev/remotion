@@ -97,6 +97,7 @@ CliInternals.xns(async () => {
 			pixelFormat: undefined,
 			proResProfile: undefined,
 			quality: undefined,
+			maxRetries: 3,
 		},
 		region: 'eu-central-1',
 	});
