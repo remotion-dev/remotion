@@ -13,9 +13,12 @@ export const FUNCTIONS_LS_SUBCOMMAND = 'ls';
 
 export const functionsLsCommand = async () => {
 	const region = getAwsRegion();
+	const fetchingOutput = CliInternals.createOverwriteableCliOutput();
+	fetchingOutput.update('Getting functions...');
 	const functions = await getDeployedLambdas({
 		region,
 	});
+	fetchingOutput.update('Getting function info...');
 
 	const configs = await Promise.all(
 		functions.map((fn) => {
@@ -26,7 +29,9 @@ export const functionsLsCommand = async () => {
 		})
 	);
 	const pluralized = functions.length === 1 ? 'function' : 'functions';
-	Log.info(`${functions.length} ${pluralized} in the ${region} region:`);
+	fetchingOutput.update(
+		`${functions.length} ${pluralized} in the ${region} region`
+	);
 	Log.info();
 	Log.info(
 		CliInternals.chalk.gray(
