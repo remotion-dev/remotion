@@ -63,7 +63,7 @@ AWS_SECRET_ACCESS_KEY=xxx
 
 ## 7. Deploy a lambda
 
-- Run `npx remotion-lambda deploy`
+- Run `npx remotion-lambda functions deploy`
 
 ## 8. Deploy a website
 

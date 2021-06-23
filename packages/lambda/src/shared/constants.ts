@@ -137,3 +137,4 @@ export type RenderMetadata = {
 };
 
 export type LambdaVersions = '2021-06-23' | 'n/a';
+export const CURRENT_VERSION: LambdaVersions = '2021-06-23';

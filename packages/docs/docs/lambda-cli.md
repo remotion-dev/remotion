@@ -67,5 +67,5 @@ npx remotion-lambda render https://remotionlambda-abcdefgh.s3.eu-central-1.amazo
 Deploys a Remotion render lambda function to your account. You only need 1 function to render videos.
 
 ```
-npx remotion-lambda deploy
+npx remotion-lambda functions deploy
 ```

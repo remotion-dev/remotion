@@ -1,4 +1,5 @@
 import {
+	CURRENT_VERSION,
 	LambdaPayload,
 	LambdaRoutines,
 	LambdaVersions,
@@ -12,7 +13,7 @@ export const infoHandler = async (lambdaParams: LambdaPayload) => {
 	const returnValue: {
 		version: LambdaVersions;
 	} = {
-		version: '2021-06-23',
+		version: CURRENT_VERSION,
 	};
 
 	return returnValue;
