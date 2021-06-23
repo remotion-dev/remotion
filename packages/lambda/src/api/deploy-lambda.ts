@@ -1,10 +1,13 @@
-import {GetUserCommand} from '@aws-sdk/client-iam';
 import {CreateFunctionCommand} from '@aws-sdk/client-lambda';
 import {readFileSync} from 'fs';
 import {AwsRegion} from '../pricing/aws-regions';
-import {getIamClient, getLambdaClient} from '../shared/aws-clients';
+import {getLambdaClient} from '../shared/aws-clients';
 import {RENDER_FN_PREFIX} from '../shared/constants';
+import {getAccountId} from '../shared/get-account-id';
 import {randomHash} from '../shared/random-hash';
+import {validateAwsRegion} from '../shared/validate-aws-region';
+import {validateMemorySize} from '../shared/validate-memory-size';
+import {validateTimeout} from '../shared/validate-timeout';
 import {bundleLambda} from './bundle-lambda';
 
 export const deployLambda = async (options: {
@@ -13,19 +16,15 @@ export const deployLambda = async (options: {
 	timeoutInSeconds: number;
 	memorySize: number;
 }) => {
-	// TODO: Validate memory size
-	// TODO: Validate parameters and enforce timeout below 900 seconds.
+	validateMemorySize(options.memorySize);
+	validateTimeout(options.timeoutInSeconds);
+	validateAwsRegion(options.region);
+
 	const fnNameRender = RENDER_FN_PREFIX + randomHash();
-	const [renderOut, user] = await Promise.all([
-		bundleLambda('render'),
-		getIamClient(options.region).send(new GetUserCommand({})),
+	const [renderOut, accountId] = await Promise.all([
+		bundleLambda(),
+		getAccountId({region: options.region}),
 	]);
-
-	const accountId = user.User?.Arn?.match(/aws:iam::([0-9]+)/);
-
-	if (!accountId) {
-		throw new Error('Cannot get account ID');
-	}
 
 	const created = await getLambdaClient(options.region).send(
 		new CreateFunctionCommand({
@@ -43,8 +42,6 @@ export const deployLambda = async (options: {
 			Layers: [options.layerArn],
 		})
 	);
-
-	console.log('lambdas created');
 
 	if (!created.FunctionName) {
 		throw new Error('Lambda was created but has no name');

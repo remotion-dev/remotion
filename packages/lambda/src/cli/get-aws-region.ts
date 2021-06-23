@@ -1,18 +1,9 @@
-import {AwsRegion, AWS_REGIONS} from '../pricing/aws-regions';
+import {AwsRegion} from '../pricing/aws-regions';
 import {isInLambda} from '../shared/tmpdir';
+import {validateAwsRegion} from '../shared/validate-aws-region';
 import {parsedLambdaCli} from './args';
 
 const DEFAULT_REGION: AwsRegion = 'us-east-1';
-
-function validateAwsRegion(region: unknown): asserts region is AwsRegion {
-	if (!AWS_REGIONS.includes(region as AwsRegion)) {
-		throw new TypeError(
-			`${region} is not a valid AWS region. Must be one of: ${AWS_REGIONS.join(
-				', '
-			)}`
-		);
-	}
-}
 
 export const getAwsRegion = (): AwsRegion => {
 	if (isInLambda) {

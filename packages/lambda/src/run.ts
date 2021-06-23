@@ -100,7 +100,7 @@ CliInternals.xns(async () => {
 		},
 		region: 'eu-central-1',
 	});
-	console.log(bucketUrl);
+	Log.info(bucketUrl);
 	for (let i = 0; i < 3000; i++) {
 		await sleep(1000);
 		const status = await getRenderProgress({

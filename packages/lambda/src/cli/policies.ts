@@ -1,10 +1,10 @@
 import {CliInternals} from '@remotion/cli';
-import {BINARY_NAME} from '../api/bundle-remotion';
 import {simulatePermissions} from '../api/iam-validation/simulate';
 import {
 	getRolePolicy,
 	getUserPolicy,
 } from '../api/iam-validation/suggested-policy';
+import {BINARY_NAME} from '../shared/constants';
 import {getAwsRegion} from './get-aws-region';
 import {Log} from './log';
 
