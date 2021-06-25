@@ -10,7 +10,7 @@ import {validateMemorySize} from '../shared/validate-memory-size';
 import {validateTimeout} from '../shared/validate-timeout';
 import {bundleLambda} from './bundle-lambda';
 
-export const deployLambda = async (options: {
+export const deployFunction = async (options: {
 	region: AwsRegion;
 	layerArn: string;
 	timeoutInSeconds: number;

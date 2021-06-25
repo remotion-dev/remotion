@@ -15,7 +15,7 @@ module.exports = {
       label: "Node.JS APIs",
       items: [
         "calculateprice",
-        "deploylambda",
+        "deployfunction",
         "deployproject",
         "deletefunction",
         "ensurelambdabinaries",

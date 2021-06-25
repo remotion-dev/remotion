@@ -92,7 +92,7 @@ A mechanism that determines after a render which frames rendered the slowest opt
 ## Node.JS API
 
 - [calculatePrice()](/docs/lambda/calculateprice)
-- [deployLambda()](/docs/lambda/deployLambda)
+- [deployFunction()](/docs/lambda/deployfunction)
 - [deployProject()](/docs/lambda/deployproject)
 - [ensureLambdaBinaries()](/docs/lambda/ensurelambdabinaries)
 - [getUserPolicy()](/docs/lambda/getuserpolicy)

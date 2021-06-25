@@ -1,6 +1,6 @@
 import {CliInternals} from '@remotion/cli';
 import {Log} from '@remotion/cli/dist/log';
-import {deployLambda} from '../../../api/deploy-lambda';
+import {deployFunction} from '../../../api/deploy-lambda';
 import {ensureLambdaBinaries} from '../../../api/ensure-lambda-binaries';
 import {
 	CURRENT_VERSION,
@@ -30,7 +30,7 @@ export const functionsDeploySubcommand = async () => {
 	// TODO: Output can be more finegrained
 	const {layerArn} = await ensureLambdaBinaries(getAwsRegion());
 	output.update('Bundling lambda and deploying...');
-	const {functionName} = await deployLambda({
+	const {functionName} = await deployFunction({
 		region,
 		timeoutInSeconds,
 		layerArn,
