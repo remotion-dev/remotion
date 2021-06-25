@@ -1,6 +1,6 @@
 import {CliInternals} from '@remotion/cli';
 import {Log} from '@remotion/cli/dist/log';
-import {deployFunction} from '../../../api/deploy-lambda';
+import {deployFunction} from '../../../api/deploy-function';
 import {ensureLambdaBinaries} from '../../../api/ensure-lambda-binaries';
 import {
 	CURRENT_VERSION,
