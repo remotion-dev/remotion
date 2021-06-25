@@ -1,5 +1,5 @@
 import {deleteFunction} from './api/delete-function';
-import {deployLambda} from './api/deploy-lambda';
+import {deployFunction} from './api/deploy-lambda';
 import {deployProject} from './api/deploy-project';
 import {ensureLambdaBinaries} from './api/ensure-lambda-binaries';
 import {getDeployedLambdas} from './api/get-deployed-lambdas';
@@ -15,7 +15,7 @@ import {
 import {renderVideoOnLambda} from './api/render-video-on-lambda';
 
 export {
-	deployLambda,
+	deployFunction,
 	deployProject,
 	ensureLambdaBinaries,
 	getDeployedLambdas,

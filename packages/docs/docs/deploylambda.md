@@ -1,22 +1,22 @@
 ---
-id: deploylambda
-title: deployLambda()
-slug: /lambda/deploylambda
+id: deployfunction
+title: deployFunction()
+slug: /lambda/deployfunction
 ---
 
 Creates an [AWS Lambda](https://aws.amazon.com/lambda/) function in your AWS account that will be able to render a video in the cloud.
 
-Before calling `deployLambda()`, you need to deploy the necessary binaries and obtain the identifier for the Lambda Layer. You can do so by calling [`ensureLambdaBinaries()`](/docs/lambda/ensurelambdabinaries).
+Before calling `deployFunction()`, you need to deploy the necessary binaries and obtain the identifier for the Lambda Layer. You can do so by calling [`ensureLambdaBinaries()`](/docs/lambda/ensurelambdabinaries).
 
 ## Example
 
 ```ts
-import {deployLambda, ensureLambdaBinaries} from '@remotion/lambda';
+import {deployFunction, ensureLambdaBinaries} from '@remotion/lambda';
 
 // ...
 
 const {layerArn} = await ensureLambdaBinaries('us-east-1');
-const {functionName} = await deployLambda({
+const {functionName} = await deployFunction({
   layerArn,
   region: 'us-east-1',
   timeoutInSeconds: 120,
