@@ -255,6 +255,37 @@ export const showcaseVideos: ShowcaseVideo[] = [
       url: "https://twitter.com/noWukkas_",
     },
   },
+  {
+    title: "<enter title>",
+    type: "mux_video",
+    muxId: "ujzfb6501KAiNDwKDzLIzCvcWxECz01rfSXh500I3mmifo",
+    description: "Add a description here",
+    height: 500,
+    width: 500,
+    submittedOn: new Date("06-25-2021"),
+    links: [
+      {
+        type: "source_code",
+        url: "<add github url or delete this object>",
+      },
+      {
+        type: "video",
+        url: "<add video link or delete this object>",
+      },
+      {
+        type: "website",
+        url: "<add product link or delete this object>",
+      },
+      {
+        type: "tutorial",
+        url: "<add link to tutorial or delete this object>",
+      },
+    ],
+    author: {
+      url: "<link your website or social media profile>",
+      name: "<Enter your name or organization>",
+    },
+  },
 ];
 
 const dateString = (date: Date) =>
