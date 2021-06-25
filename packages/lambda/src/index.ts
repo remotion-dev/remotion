@@ -1,5 +1,5 @@
 import {deleteFunction} from './api/delete-function';
-import {deployFunction} from './api/deploy-lambda';
+import {deployFunction} from './api/deploy-function';
 import {deployProject} from './api/deploy-project';
 import {ensureLambdaBinaries} from './api/ensure-lambda-binaries';
 import {getDeployedLambdas} from './api/get-deployed-lambdas';
