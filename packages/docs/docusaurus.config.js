@@ -133,9 +133,13 @@ module.exports = {
             "https://github.com/remotion-dev/remotion/edit/main/packages/docs/blog/",
         },
         theme: {
-          customCss: require.resolve("./src/css/custom.css"),
+          customCss: [
+            require.resolve("./src/css/custom.css"),
+            require.resolve("./src/css/twoslash.css"),
+          ],
         },
       },
     ],
+    ["docusaurus-preset-shiki-twoslash", { themes: ["min-light", "min-dark"] }],
   ],
 };
