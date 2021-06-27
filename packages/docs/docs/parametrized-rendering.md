@@ -102,7 +102,7 @@ await renderFrames({
 
 When using GitHub Actions, you need to adjust the file at `.github/workflows/render-video.yml` to make the inputs in the `workflow_dispatch` section manually match the shape of the props your root component accepts.
 
-```yml {3,7}
+```yaml {3, 7}
 workflow_dispatch:
   inputs:
     titleText:
