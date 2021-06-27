@@ -3,13 +3,7 @@ id: parametrized-rendering
 title: Parametrized rendering
 ---
 
-Parametrized rendering is the idea of creating a video template once and then render as many videos as you want with different parameters. Just like in regular React, we use props to reuse and customize components!
-
-## Defining accepted props
-
-To define which props your video accepts, simply give your component the `React.FC` type and pass in a generic argument describing the shape of the props you want to accept.
-
-```tsx {2-3}
+```twoslash include example
 export const MyComponent: React.FC<{
   propOne: string;
   propTwo: number;
@@ -18,6 +12,17 @@ export const MyComponent: React.FC<{
     <div>props: {propOne}, {propTwo}</div>
   );
 }
+// - MyComponent
+```
+
+Parametrized rendering is the idea of creating a video template once and then render as many videos as you want with different parameters. Just like in regular React, we use props to reuse and customize components!
+
+## Defining accepted props
+
+To define which props your video accepts, simply give your component the `React.FC` type and pass in a generic argument describing the shape of the props you want to accept.
+
+```tsx twoslash {1-2}
+// @include: example-MyComponent
 ```
 
 ## Define default props
@@ -121,6 +126,8 @@ _Available since v2.0._: You can also use the `getInputProps()` function to retr
 Even if you have registered a component as a sequence,
 you can still use it as normal in your videos and pass it's props directly. Default props don't apply in this case.
 
-```tsx
+```tsx twoslash
+// @include: example-MyComponent
+// ---cut---
 <MyComponent propOne="hi" propTwo={10} />
 ```

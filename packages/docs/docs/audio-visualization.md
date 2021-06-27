@@ -23,7 +23,7 @@ Using the [`visualizeAudio()`](/docs/visualize-audio) API, you can get an audio 
 
 Refer to the documentation of the above mentioned functions to learn more.
 
-```tsx
+```tsx twoslash
 import {useCurrentFrame, useVideoConfig, Audio} from 'remotion';
 import {useAudioData, visualizeAudio} from '@remotion/media-utils';
 import music from './music.mp3';

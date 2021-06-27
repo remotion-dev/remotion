@@ -15,7 +15,7 @@ You can use fonts by loading them in a CSS file using @font-face. Web fonts ofte
 
 `MyComp.tsx`:
 
-```tsx
+```tsx twoslash
 import './font.css'
 
 const MyComp: React.FC = () => {
@@ -44,7 +44,7 @@ Google Web Fonts by default appends `?display=swap` to their URLs. Make sure to 
 
 `MyComp.tsx`:
 
-```tsx
+```tsx twoslash
 import './font.css'
 
 const MyComp: React.FC = () => {
