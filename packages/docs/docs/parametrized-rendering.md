@@ -88,7 +88,15 @@ npx remotion render src/index.tsx HelloWorld helloworld.mp4 --props=./path/to/pr
 
 When server-rendering using `renderFrames`, you can pass props using the `inputProps` option:
 
-```tsx {8-10}
+```tsx twoslash {9-11}
+// @module: esnext
+// @target: es2017
+const video = {fps: 30, durationInFrames: 30, width: 1080, height: 1080};
+const bundled = '/path/to/bundle';
+const framesDir = '/path/to/frames';
+// ---cut---
+import {renderFrames} from '@remotion/renderer';
+
 await renderFrames({
   config: video,
   webpackBundle: bundled,
