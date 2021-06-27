@@ -2,9 +2,10 @@ import chalk from 'chalk';
 import execa from 'execa';
 import fs from 'fs-extra';
 import path from 'path';
-import prompts from 'prompts';
+import stripAnsi from 'strip-ansi';
 import * as CreateDirectory from './create-directory';
 import {Log} from './log';
+import prompts, {selectAsync} from './prompts';
 
 const FEATURED_TEMPLATES = [
 	{
@@ -18,6 +19,12 @@ const FEATURED_TEMPLATES = [
 		description: 'same as helloworld but with Javascript configuration',
 	},
 ];
+
+function padEnd(str: string, width: number): string {
+	// Pulled from commander for overriding
+	const len = Math.max(0, width - stripAnsi(str).length);
+	return str + Array(len + 1).join(' ');
+}
 
 function assertValidName(folderName: string) {
 	const validation = CreateDirectory.validateName(folderName);
@@ -135,21 +142,60 @@ const resolveProjectRootAsync = async () => {
 	return projectRoot;
 };
 
+const isNodeVersionGreater = () => {
+	return process.versions.node >= '16.0.0';
+};
+
 export const init = async () => {
 	// let projectName = process.argv[2];
 	// console.log(projectName, 'new');
 	const projectRoot = await resolveProjectRootAsync();
+	const greaterNodeVersion = isNodeVersionGreater();
+
+	const descriptionColumn =
+		Math.max(
+			...FEATURED_TEMPLATES.map((t) =>
+				typeof t === 'object' ? t.shortName.length : 0
+			)
+		) + 2;
+
+	const template = await selectAsync(
+		{
+			message: 'Choose a template:',
+			optionsPerPage: 20,
+			choices: FEATURED_TEMPLATES.map((template) => {
+				if (typeof template === 'string') {
+					return prompts.separator(template);
+				} else {
+					return {
+						value: template.name,
+						title:
+							chalk.bold(padEnd(template.shortName, descriptionColumn)) +
+							template.description.trim(),
+						short: template.name,
+					};
+				}
+			}),
+		},
+		{}
+	);
+
 	await execa('git', [
 		'clone',
-		`https://github.com/remotion-dev/${FEATURED_TEMPLATES[0].name}`,
+		`https://github.com/remotion-dev/${template}`,
 		projectRoot,
 	]);
-	await execa('rm', ['-r', path.join(projectRoot, '.git')]);
+
+	if (greaterNodeVersion) {
+		fs.rmSync(path.join(projectRoot, '.git'), {recursive: true});
+	} else {
+		fs.rmdirSync(path.join(projectRoot, '.git'), {recursive: true});
+	}
 
 	const isGitInitialized = await initGitRepoAsync(projectRoot, {
 		silent: true,
 		commit: true,
 	});
 
-	console.log(projectRoot, isGitInitialized, 'nice');
+	Log.info('Template downloaded and initialized');
 };
