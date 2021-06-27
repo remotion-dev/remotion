@@ -224,12 +224,15 @@ Stop listening to an event. See the [Events](#events) section to see the functio
 
 Using a [player ref](#playerref), you can bind event listeners to get notified of certain events of the player.
 
-```tsx
+```tsx twoslash
+import {useRef, useEffect} from 'react';
+import {PlayerRef} from '@remotion/player';
+// ---cut---
 const playerRef = useRef<PlayerRef>(null);
 
 useEffect(() => {
   if (!playerRef.current) {
-    return null;
+    return;
   }
   playerRef.current.addEventListener('play', () => {
     console.log('playing');
@@ -253,8 +256,12 @@ useEffect(() => {
 
 Fired when the time position changes. You may get the current frame by reading it from `e.detail.frame`.
 
-```tsx
-playerRef.current.addEventListener('seeked', (e) => {
+```tsx twoslash
+import {useRef, useEffect} from 'react';
+import {PlayerRef} from '@remotion/player';
+const playerRef = useRef<PlayerRef>(null);
+// ---cut---
+playerRef.current?.addEventListener('seeked', (e) => {
   console.log('seeked to ' + e.detail.frame); // seeked to 120
 });
 ```
@@ -279,8 +286,12 @@ Fires when an error or uncaught exception has happened in the video.
 
 You may get the error by reading the `e.detail.error` value:
 
-```tsx
-ref.current.addEventListener('error', (e) => {
+```tsx twoslash
+import {useRef, useEffect} from 'react';
+import {PlayerRef} from '@remotion/player';
+const ref = useRef<PlayerRef>(null);
+// ---cut---
+ref.current?.addEventListener('error', (e) => {
   console.log('error ', e.detail.error); // error [Error: undefined is not a function]
 });
 ```
