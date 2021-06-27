@@ -21,7 +21,7 @@ pre {
   position: relative;
 }
 pre.shiki {
-  overflow-x: auto;
+  overflow: visible;
 }
 pre.shiki div.line {
   min-height: 1rem;
@@ -46,8 +46,8 @@ pre.shiki div.highlight::before {
   opacity: 0;
   position: absolute;
   z-index: 0;
-  height: 1.4rem;
-  width: calc(100% + 2rem - 3px);
+  height: 24.55px;
+  width: calc(100% - 3px);
   left: 0;
   background-color: var(--blue-underlay);
   border-left: 3px solid var(--ifm-color-primary);
@@ -117,19 +117,18 @@ pre .query {
 
 pre .error,
 pre .error-behind {
-  margin-left: -14px;
-  margin-top: 8px;
-  margin-bottom: 4px;
-  padding: 6px;
-  padding-left: 14px;
-  width: calc(100% - 19px);
+  margin: 0.5rem 0;
+  padding: 0.5rem;
+  padding-left: 1.5rem;
+  width: 100%;
+  left: 0;
   white-space: pre-wrap;
   display: block;
 }
 pre .error {
   position: absolute;
   background-color: #fee;
-  border-left: 2px solid #bf1818;
+  border-left: 3px solid #bf1818;
   /* Give the space to the error code */
   display: flex;
   align-items: center;
