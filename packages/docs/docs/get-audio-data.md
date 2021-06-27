@@ -26,7 +26,7 @@ A string pointing to an audio asset.
 
 ## Example
 
-```tsx
+```ts
 import {getAudioData} from '@remotion/media-utils';
 import music from './music.mp3';
 
