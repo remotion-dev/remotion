@@ -18,6 +18,7 @@ export const lambdaLs = async ({
 	prefix: string;
 	region: AwsRegion;
 }): Promise<_Object[]> => {
+	// TODO: Should paginate with list.ContinuationToken
 	const list = await getS3Client(region).send(
 		new ListObjectsV2Command({
 			Bucket: bucketName,

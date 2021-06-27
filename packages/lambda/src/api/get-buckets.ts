@@ -11,6 +11,7 @@ type BucketWithLocation = Bucket & {
 	region: AwsRegion;
 };
 
+// TODO: In the CLI, warn everytime this function gets called about more than 1 bucket.
 export const getRemotionS3Buckets = async (region: AwsRegion) => {
 	const {Buckets} = await getS3Client(region).send(new ListBucketsCommand({}));
 	if (!Buckets) {
