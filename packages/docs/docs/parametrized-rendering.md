@@ -29,18 +29,26 @@ To define which props your video accepts, simply give your component the `React.
 
 When registering the component as a sequence, you can define the default props:
 
-```tsx {13-16}
-import {Sequence} from 'remotion';
+```tsx twoslash {13-16}
+// @filename: MyComponent.tsx
+import React from 'react';
+export const MyComponent: React.FC<{propOne: string; propTwo: number;}> = () => null;
+
+// @filename: Root.tsx
+import React from 'react';
+// ---cut---
+import {Composition} from 'remotion';
 import {MyComponent} from './MyComponent';
 
 export const Root = () => {
   return (
     <>
-      <Sequence
+      <Composition
         id="my-video"
         width={1080}
         height={1080}
         fps={30}
+        durationInFrames={30}
         component={MyComponent}
         defaultProps={{
           propOne: 'Hi',
