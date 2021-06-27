@@ -3,7 +3,7 @@ id: the-fundamentals
 title: The fundamentals
 ---
 
-```twoslash include sample
+```twoslash include example
 import { useCurrentFrame } from "remotion";
 
 export const MyVideo = () => {
@@ -23,7 +23,7 @@ The basic idea behind Remotion is that you get a frame number and blank canvas t
 You express those ideas using **[React](https://reactjs.org)**.
 
 ```tsx twoslash
-// @include: sample-MyVideo
+// @include: example-MyVideo
 ```
 
 ## Video properties
@@ -58,7 +58,7 @@ Compositions are components with the above mentioned metadata. You can define co
 
 ```tsx twoslash
 import { Composition } from "remotion"
-// @include: sample-MyVideo
+// @include: example-MyVideo
 // ---cut---
 
 export const RemotionVideo: React.FC = () => {

@@ -8,7 +8,9 @@ Let's start with a simple example, let's say we want to create a fade in animati
 
 If we want to fade the text in over 20 frames, we need to gradually change the `opacity` style over time so that it goes from 0 to 1.
 
-```tsx {4,11}
+```tsx twoslash {3, 10}
+import { useCurrentFrame } from "remotion"
+// ---cut---
 export const MyVideo = () => {
   const frame = useCurrentFrame();
 
@@ -37,7 +39,7 @@ The function takes 4 arguments:
 3. The range of values that you want to map the input to
 4. Optional settings
 
-```tsx {6,13}
+```tsx twoslash {5, 12}
 import {useCurrentFrame, interpolate} from 'remotion';
 
 export const MyVideo = () => {
@@ -64,7 +66,7 @@ In this example, we map the frames 0 to 20 to their opacity values `(0, 0.05, 0.
 
 Spring animations are beautiful way to put things into motion and make them natural. Remotion includes a helper function to make spring animations easy! This time, let's animate the scale of the text.
 
-```tsx {7,20}
+```tsx twoslash {6-11, 19}
 import {useCurrentFrame, useVideoConfig, spring} from 'remotion';
 
 export const MyVideo = () => {
