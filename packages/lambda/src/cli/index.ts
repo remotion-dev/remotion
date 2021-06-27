@@ -2,6 +2,7 @@ import {CliInternals} from '@remotion/cli';
 import {parsedLambdaCli} from './args';
 import {cleanupCommand, CLEANUP_COMMAND} from './cleanup';
 import {functionsCommand, FUNCTIONS_COMMAND} from './commands/functions';
+import {sitesCommand, SITES_COMMAND} from './commands/sites';
 import {printHelp} from './help';
 import {Log} from './log';
 import {policiesCommand, POLICIES_COMMAND} from './policies';
@@ -32,6 +33,10 @@ const matchCommand = async () => {
 
 	if (parsedLambdaCli._[0] === POLICIES_COMMAND) {
 		return policiesCommand(parsedLambdaCli._.slice(1));
+	}
+
+	if (parsedLambdaCli._[0] === SITES_COMMAND) {
+		return sitesCommand(parsedLambdaCli._.slice(1));
 	}
 
 	Log.error(`Command ${parsedLambdaCli._[0]} not found.`);
