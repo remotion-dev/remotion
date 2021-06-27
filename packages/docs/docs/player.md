@@ -127,8 +127,18 @@ A regular `style` prop for a HTMLDivElement. You can pass a different height and
 
 You may attach a ref to the player and control it in an imperative manner.
 
-```tsx {14}
+```tsx twoslash {15}
+// @filename: MyComposition.tsx
+import React from 'react';
+
+export const MyComposition: React.FC = () => null;
+
+// @filename: index.tsx
+import React from 'react';
+// ---cut---
+import {useEffect, useRef} from 'react';
 import {Player, PlayerRef} from '@remotion/player';
+import {MyComposition} from './MyComposition'
 
 const MyComp: React.FC = () => {
   const playerRef = useRef<PlayerRef>(null);
@@ -142,7 +152,12 @@ const MyComp: React.FC = () => {
   return (
     <Player
       ref={playerRef}
-      // other props
+      durationInFrames={30}
+      compositionWidth={1080}
+      compositionHeight={1080}
+      fps={30}
+      component={MyComposition}
+      // Many other optional props are available.
     />
   );
 }
