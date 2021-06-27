@@ -47,7 +47,9 @@ The following helpers are used to modify other easing functions.
 
 ## Example
 
-```tsx
+```tsx twoslash
+import {useCurrentFrame, AbsoluteFill} from 'remotion'
+// ---cut---
 import {interpolate, Easing} from 'remotion';
 
 const MyVideo: React.FC = () => {
