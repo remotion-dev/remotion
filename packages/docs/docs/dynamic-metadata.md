@@ -122,8 +122,7 @@ getCompositions(bundled, {
 
 ```tsx twoslash
 import {renderFrames as rf} from "@remotion/renderer"
-type RenderFramesOptions = Parameters<typeof rf>[0]
-const renderFrames = (options: Partial<RenderFramesOptions>): void => {}
+const renderFrames = (options: Partial<Parameters<typeof rf>[0]>) => {}
 // ---cut---
 renderFrames({
   // ...
