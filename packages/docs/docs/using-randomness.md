@@ -5,17 +5,20 @@ title: Using randomness
 
 The following thing is an anti-pattern in Remotion:
 
-```tsx
+```tsx twoslash
+import { useState } from "react";
+// ---cut---
 const MyComp: React.FC = () => {
-  const randomValues = useState(() =>  {
-    return new Array(10).fill(true).map((a, i) => {
+  const [randomValues] = useState(() =>
+    new Array(10).fill(true).map((a, i) => {
       return {
         x: Math.random(),
         y: Math.random(),
       };
-    });
+    })
   );
   // Do something with coordinates
+  return <></>;
 }
 ```
 
@@ -25,7 +28,9 @@ While this will work during preview, it will break while rendering. The reason i
 
 Use the [`random()`](/docs/random) API from Remotion to get deterministic pseudorandom values. Pass in a seed (number or string) and as long as the seed is the same, the return value will be the same.
 
-```tsx {7,8}
+```tsx twoslash {6, 7}
+import { useState } from "react";
+// ---cut---
 import {random} from 'remotion';
 
 const MyComp: React.FC = () => {
@@ -36,6 +41,8 @@ const MyComp: React.FC = () => {
       y: random(`y-${i}`),
     };
   });
+
+  return <></>
 }
 ```
 

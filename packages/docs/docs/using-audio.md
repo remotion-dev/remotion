@@ -13,7 +13,7 @@ import audio from './audio.mp3'
 
 You may add an [`<Audio/>`](/docs/audio) tag to your composition to add sound to it.
 
-```tsx {8}
+```tsx twoslash {7}
 import {Audio} from 'remotion';
 import audio from './audio.mp3'
 
@@ -38,7 +38,7 @@ You can mix multiple tracks together by adding more audio tags.
 You can use the [`<Sequence />`](/docs/sequence) API to cut and trim audio.
 As a convienience, the `<Audio />` tag supports the `startFrom` and `endAt` props.
 
-```tsx {10-11}
+```tsx twoslash {9-10}
 import {Audio} from 'remotion';
 import audio from './audio.mp3'
 
@@ -61,7 +61,7 @@ export const MyVideo = () => {
 Use a `<Sequence>` with a positive `from` attribute to delay the audio from playing.
 In the following example, the audio will start playing (from the beginning) after 100 frames.
 
-```tsx {8}
+```tsx twoslash {8}
 import {Audio, Sequence} from 'remotion';
 import audio from './audio.mp3'
 
@@ -70,7 +70,7 @@ export const MyVideo = () => {
     <div>
       <div>Hello World!</div>
       <Sequence from={100} durationInFrames={Infinity}>
-        <Audio src={audio}>
+        <Audio src={audio} />
       </Sequence>
     </div>
   )
@@ -82,7 +82,7 @@ export const MyVideo = () => {
 You can use the `volume` prop to control the volume.
 **The simplest way is to pass a number between 0 and 1**. `1` is the maximum volume, values over 1 are allowed but will not increase the volume further. Volumes under 0 are not allowed.
 
-```tsx {8}
+```tsx twoslash {7}
 import {Audio} from 'remotion';
 import audio from './audio.mp3'
 
@@ -90,7 +90,7 @@ export const MyVideo = () => {
   return (
     <div>
       <div>Hello World!</div>
-      <Audio src={audio} volume={0.5}>
+      <Audio src={audio} volume={0.5} />
     </div>
   )
 }
@@ -98,7 +98,7 @@ export const MyVideo = () => {
 
 You can also **change volume over time**, in this example we are using the [interpolate()](/docs/interpolate) function. Note that because values below 0 are not allowed, we need to set the `extrapolateLeft: 'clamp'` option to ensure no negative values.
 
-```tsx {10}
+```tsx twoslash {9}
 import {Audio, interpolate, useCurrentFrame} from 'remotion';
 import audio from './audio.mp3'
 
@@ -108,7 +108,7 @@ export const MyVideo = () => {
   return (
     <div>
       <div>Hello World!</div>
-      <Audio src={audio} volume={interpolate(frame, [0, 30], [0,1], {extrapolateLeft: 'clamp'})}>
+      <Audio src={audio} volume={interpolate(frame, [0, 30], [0,1], {extrapolateLeft: 'clamp'})} />
     </div>
   )
 }
@@ -116,7 +116,7 @@ export const MyVideo = () => {
 
 You may also pass a **callback function** that returns the volume based an arbitrary frame number. This has the benefit that Remotion is able to **draw a volume curve in the timeline**!
 
-```tsx {8}
+```tsx twoslash {7}
 import {Audio, interpolate} from 'remotion';
 import audio from './audio.mp3'
 
@@ -124,7 +124,7 @@ export const MyVideo = () => {
   return (
     <div>
       <div>Hello World!</div>
-      <Audio src={audio} volume={f => interpolate(f, [0, 30], [0,1], {extrapolateLeft: 'clamp'})}>
+      <Audio src={audio} volume={f => interpolate(f, [0, 30], [0,1], {extrapolateLeft: 'clamp'})} />
     </div>
   )
 }
@@ -136,7 +136,7 @@ Note that if you pass in a callback function, the first frame on which audio is 
 
 You may pass in the `muted` and it may change over time. When `muted` is true, audio will be omitted at that time. In the following example, we are muting the track between frame 40 and 60.
 
-```tsx {10}
+```tsx twoslash {9}
 import {Audio, interpolate, useCurrentFrame} from 'remotion';
 import audio from './audio.mp3'
 
@@ -146,7 +146,7 @@ export const MyVideo = () => {
   return (
     <div>
       <div>Hello World!</div>
-      <Audio src={audio} muted={frame >= 40 && frame <= 60}>
+      <Audio src={audio} muted={frame >= 40 && frame <= 60} />
     </div>
   )
 }
