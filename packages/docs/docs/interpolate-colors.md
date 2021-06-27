@@ -25,17 +25,19 @@ In this example, we are interpolating colors from red to yellow. At frame 0 (the
 
 Using the following snippet, we can calculate the current color for any frame:
 
-```tsx
+```tsx twoslash
+let color = ''
+// ---cut---
 import {useCurrentFrame, interpolateColors} from 'remotion';
 
 const frame = useCurrentFrame(); // 10
 
-const color = interpolateColors(frame,
+color = interpolateColors(frame,
   [0, 20],
   ['red', 'yellow']
 ); // rgba(255, 128, 0, 1)
 
-const color = interpolateColors(frame,
+color = interpolateColors(frame,
   [0, 20],
   ['#ff0000', '#ffff00']
 ); // rgba(255, 128, 0, 1)
@@ -47,19 +49,21 @@ In this example, we are interpolating colors from red to yellow. At frame 0 (the
 
 Using the following snippet, we can calculate the current color for any frame:
 
-```tsx
+```tsx twoslash
+let color = ''
+// ---cut---
 import {useCurrentFrame, interpolateColors} from 'remotion'
 
 const frame = useCurrentFrame(); // 10
 
 // RGB colors
-const color = interpolateColors(frame,
+color = interpolateColors(frame,
   [0, 20],
   ['rgb(255, 0, 0)', 'rgb(255, 255, 0)']
 ); // rgba(255, 128, 0, 1)
 
 // RGBA colors
-const color = interpolateColors(frame,
+color = interpolateColors(frame,
   [0, 20],
   ['rgba(255, 0, 0, 1)', 'rgba(255, 255, 0, 0)']
 ); // rgba(255, 128, 0, 0.5)
@@ -71,18 +75,20 @@ In this example, we are interpolating colors from red to yellow. At frame 0 (the
 
 Using the following snippet, we can calculate the current color for any frame:
 
-```tsx
+```ts twoslash
+let color = ''
+// ---cut---
 import {useCurrentFrame, interpolateColors} from 'remotion'
 
 const frame = useCurrentFrame(); // 10
 //hsl example
-const color = interpolateColors(frame,
+color = interpolateColors(frame,
   [0, 20],
   ['hsl(0, 100%, 50%)', 'hsl(60, 100%, 50%)']
 ); // rgba(255, 128, 0, 1)
 
 //hsla example
-const color = interpolateColors(frame,
+color = interpolateColors(frame,
   [0, 20],
   ['hsla(0, 100%, 50%, 1)', 'hsla(60, 100%, 50%, 1)']
 ); // rgba(255, 128, 0, 1)
@@ -92,7 +98,7 @@ const color = interpolateColors(frame,
 
 Interpolating CSS color names is also supported.
 
-```tsx
+```ts twoslash
 import {useCurrentFrame, interpolateColors} from 'remotion'
 
 const frame = useCurrentFrame(); // 10

@@ -18,7 +18,6 @@ In your `remotion.config.ts` file, you can call `Config.Bundler.overrideWebpackC
 Overriding the Webpack config uses the reducer pattern - pass in a function that takes as it's argument a Webpack configuration and return a new Webpack configuration.
 
 ```ts twoslash
-// @errors: 2532 2488
 import {Config} from 'remotion';
 
 Config.Bundling.overrideWebpackConfig((currentConfiguration) => {
@@ -27,7 +26,7 @@ Config.Bundling.overrideWebpackConfig((currentConfiguration) => {
     module: {
       ...currentConfiguration.module,
       rules: [
-        ...currentConfiguration.module.rules,
+        ...(currentConfiguration.module?.rules ?? []),
         // Add more loaders here
       ],
     },

@@ -15,7 +15,7 @@ The list of compositions can be updated without reloading the page, but calling 
 
 ```tsx
 import {registerRoot} from 'remotion';
-import {RemotionVideo} from './RemotionVideo';
+import {RemotionVideo} from './Video';
 
 registerRoot(RemotionVideo);
 ```
