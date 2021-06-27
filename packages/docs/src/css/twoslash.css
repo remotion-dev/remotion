@@ -14,30 +14,47 @@ pre.shiki.min-light {
 
 /* None theme specific styles */
 pre {
-  padding: 1rem;
+  padding: 0;
+  margin: 0;
   margin-bottom: 3rem;
   overflow-x: auto;
+  position: relative;
 }
 pre.shiki {
   overflow-x: auto;
 }
-pre.shiki:hover .dim {
-  opacity: 1;
+pre.shiki div.line {
+  min-height: 1rem;
 }
-pre.shiki div.dim {
-  opacity: 0.5;
-}
+
+/** Line highlighting **/
 pre.shiki div.dim,
 pre.shiki div.highlight {
   margin: 0;
   padding: 0;
 }
-pre.shiki div.highlight {
+pre.shiki:hover .dim {
   opacity: 1;
-  background-color: #f1f8ff;
+  filter: none;
 }
-pre.shiki div.line {
-  min-height: 1rem;
+pre.shiki div.dim {
+  opacity: 0.5;
+  filter: grayscale(1);
+}
+pre.shiki div.highlight::before {
+  content: "";
+  opacity: 0;
+  position: absolute;
+  z-index: 0;
+  height: 1.4rem;
+  width: calc(100% + 2rem - 3px);
+  left: 0;
+  background-color: var(--blue-underlay);
+  border-left: 3px solid var(--ifm-color-primary);
+  pointer-events: none;
+}
+pre.shiki:hover div.highlight::before {
+  opacity: 1;
 }
 
 /** Hide language identifiers */
@@ -69,6 +86,7 @@ pre.twoslash data-lsp:hover::before {
 }
 
 pre .code-container {
+  padding: 1rem;
   overflow: auto;
 }
 
