@@ -150,4 +150,5 @@ module.exports = {
       },
     ],
   ],
+  plugins: [require.resolve("./src/plugins/copy-to-clipboard")],
 };
