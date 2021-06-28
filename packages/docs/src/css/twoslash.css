@@ -1,3 +1,24 @@
+/* Copy to clipboard button */
+.copy-button {
+  font-family: inherit;
+  background: rgba(0, 0, 0, 0.3);
+  border: none;
+  border-radius: var(--ifm-global-radius);
+  color: var(--ifm-color-white);
+  cursor: pointer;
+  opacity: 0;
+  padding: 0.4rem 0.5rem;
+  position: absolute;
+  right: calc(var(--ifm-pre-padding) / 2);
+  top: calc(var(--ifm-pre-padding) / 2);
+  transition: opacity 0.2s ease-in-out;
+  user-select: none;
+}
+
+pre.shiki:hover .copy-button {
+  opacity: 1;
+}
+
 /* Hide code blocks according to theme */
 [data-theme="light"] .shiki.min-dark {
   display: none;
