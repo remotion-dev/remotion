@@ -3,17 +3,10 @@ import {Log} from '@remotion/cli/dist/log';
 import {getSites} from '../../../api/get-sites';
 import {makeS3Url} from '../../../shared/make-s3-url';
 import {getAwsRegion} from '../../get-aws-region';
+import {dateString} from '../../helpers/date-string';
 import {formatBytes} from '../../helpers/format-bytes';
 
 export const SITES_LS_SUBCOMMAND = 'ls';
-
-// TODO: extract
-const dateString = (date: Date) =>
-	date.getFullYear() +
-	'-' +
-	String(date.getMonth() + 1).padEnd(2, '0') +
-	'-' +
-	String(date.getDate()).padEnd(2, '0');
 
 const COLS: [number, number, number, number] = [20, 30, 10, 15];
 
