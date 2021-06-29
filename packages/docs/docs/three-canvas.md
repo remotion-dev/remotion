@@ -17,7 +17,7 @@ A spinning, color changing, scaling cube. This example can also be found in the 
 
 ```tsx
 import React from 'react';
-import {interpolate, useCurrentFrame} from 'remotion';
+import {interpolate, useCurrentFrame, useVideoConfig} from 'remotion';
 import {ThreeCanvas} from '@remotion/three';
 
 const ThreeBasic: React.FC = () => {
