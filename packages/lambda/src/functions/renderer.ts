@@ -69,6 +69,7 @@ const renderHandler = async (params: LambdaPayload) => {
 		parallelism: 1,
 		onStart: () => {
 			lambdaWriteFile({
+				acl: 'private',
 				bucketName: params.bucketName,
 				body: '0',
 				key: `${lambdaInitializedKey(params.renderId)}-${params.chunk}.txt`,
@@ -95,6 +96,7 @@ const renderHandler = async (params: LambdaPayload) => {
 		body: JSON.stringify(condensedTimingData as ChunkTimingData, null, 2),
 		key: `${lambdaInitializedKey(params.renderId)}-${params.chunk}.txt`,
 		region: getCurrentRegion(),
+		acl: 'private',
 	});
 	const outdir = tmpDir('bucket');
 
@@ -150,6 +152,7 @@ const renderHandler = async (params: LambdaPayload) => {
 			)}`,
 			body: fs.createReadStream(outputLocation),
 			region: getCurrentRegion(),
+			acl: 'public-read',
 		}),
 	]);
 	await Promise.all([
@@ -198,6 +201,7 @@ export const rendererHandler = async (params: LambdaPayload) => {
 				stack: err.stack,
 			}),
 			region: getCurrentRegion(),
+			acl: 'private',
 		});
 	}
 };

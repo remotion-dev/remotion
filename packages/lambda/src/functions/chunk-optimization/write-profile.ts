@@ -17,5 +17,6 @@ export const writeTimingProfile = async ({
 		body: JSON.stringify(data),
 		key: timingProfileName(renderId) + Date.now() + '.json',
 		region: getCurrentRegion(),
+		acl: 'private',
 	});
 };
