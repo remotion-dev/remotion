@@ -204,6 +204,7 @@ const innerLaunchHandler = async (params: LambdaPayload) => {
 			frameRange: optimizedFrameRange,
 			oldTiming: getProfileDuration(chunkData),
 			newTiming: getProfileDuration(optimizedProfile),
+			frameCount: comp.durationInFrames,
 		},
 		compositionId: params.composition,
 		siteId: getServeUrlHash(params.serveUrl),
