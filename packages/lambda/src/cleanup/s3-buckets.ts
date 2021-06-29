@@ -1,61 +1,9 @@
-import {
-	DeleteBucketCommand,
-	DeleteObjectCommand,
-	ListObjectsCommand,
-} from '@aws-sdk/client-s3';
-import pLimit from 'p-limit';
+import {DeleteBucketCommand} from '@aws-sdk/client-s3';
+import {cleanItems} from '../api/clean-items';
 import {getRemotionS3Buckets} from '../api/get-buckets';
+import {lambdaLs} from '../functions/helpers/io';
 import {AwsRegion} from '../pricing/aws-regions';
 import {getS3Client} from '../shared/aws-clients';
-
-const limit = pLimit(10);
-
-const cleanItems = async ({
-	bucket,
-	onAfterItemDeleted,
-	onBeforeItemDeleted,
-	region,
-}: {
-	bucket: string;
-	region: AwsRegion;
-	onBeforeItemDeleted: (data: {bucketName: string; itemName: string}) => void;
-	onAfterItemDeleted: (data: {bucketName: string; itemName: string}) => void;
-}) => {
-	const list = await getS3Client(region).send(
-		new ListObjectsCommand({
-			Bucket: bucket,
-		})
-	);
-	if (list.Contents && list.Contents.length > 0) {
-		await Promise.all(
-			list.Contents.map((object) =>
-				limit(async () => {
-					onBeforeItemDeleted({
-						bucketName: bucket,
-						itemName: object.Key as string,
-					});
-					await getS3Client(region).send(
-						new DeleteObjectCommand({
-							Bucket: bucket,
-							Key: object.Key,
-						})
-					);
-					onAfterItemDeleted({
-						bucketName: bucket,
-						itemName: object.Key as string,
-					});
-				})
-			)
-		);
-
-		await cleanItems({
-			region,
-			bucket,
-			onAfterItemDeleted,
-			onBeforeItemDeleted,
-		});
-	}
-};
 
 const cleanBucket = async ({
 	region,
@@ -68,7 +16,17 @@ const cleanBucket = async ({
 	onAfterItemDeleted: (data: {bucketName: string; itemName: string}) => void;
 	onBeforeItemDeleted: (data: {bucketName: string; itemName: string}) => void;
 }) => {
-	await cleanItems({region, bucket, onAfterItemDeleted, onBeforeItemDeleted});
+	let list = await lambdaLs({bucketName: bucket, prefix: '', region});
+	while (list.length > 0) {
+		await cleanItems({
+			list,
+			region,
+			bucket,
+			onAfterItemDeleted,
+			onBeforeItemDeleted,
+		});
+		list = await lambdaLs({bucketName: bucket, prefix: '', region});
+	}
 
 	await getS3Client(region).send(
 		new DeleteBucketCommand({
