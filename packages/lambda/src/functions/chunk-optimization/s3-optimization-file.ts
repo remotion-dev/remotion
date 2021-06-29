@@ -22,6 +22,7 @@ export const writeOptimization = async ({
 		body: JSON.stringify(optimization),
 		key: optimizationProfile(siteId, compositionId) + '.json',
 		region,
+		acl: 'private',
 	});
 };
 

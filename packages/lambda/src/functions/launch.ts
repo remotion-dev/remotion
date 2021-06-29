@@ -126,6 +126,7 @@ const innerLaunchHandler = async (params: LambdaPayload) => {
 		key: renderMetadataKey(params.renderId),
 		body: JSON.stringify(renderMetadata),
 		region: getCurrentRegion(),
+		acl: 'private',
 	});
 
 	const payloadChunks = chunk(lambdaPayloads, invokers);
@@ -161,6 +162,7 @@ const innerLaunchHandler = async (params: LambdaPayload) => {
 			key: encodingProgressKey(params.renderId),
 			body: JSON.stringify(encodingProgress),
 			region: getCurrentRegion(),
+			acl: 'private',
 		});
 	};
 
@@ -179,6 +181,7 @@ const innerLaunchHandler = async (params: LambdaPayload) => {
 		key: outName(params.renderId, params.codec),
 		body: fs.createReadStream(out),
 		region: getCurrentRegion(),
+		acl: 'public-read',
 	});
 	const chunkData = await collectChunkInformation({
 		bucketName: params.bucketName,
@@ -224,6 +227,7 @@ export const launchHandler = async (params: LambdaPayload) => {
 				error: err.message,
 			}),
 			region: getCurrentRegion(),
+			acl: 'private',
 		});
 	}
 };

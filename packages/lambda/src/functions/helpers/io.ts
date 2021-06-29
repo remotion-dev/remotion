@@ -33,19 +33,20 @@ export const lambdaWriteFile = async ({
 	key,
 	body,
 	region,
+	acl,
 }: {
 	bucketName: string;
 	key: string;
 	body: ReadStream | string;
 	region: AwsRegion;
+	acl: 'public-read' | 'private';
 }): Promise<void> => {
 	await getS3Client(region).send(
 		new PutObjectCommand({
 			Bucket: bucketName,
 			Key: key,
 			Body: body,
-			// TODO: should not be default
-			ACL: 'public-read',
+			ACL: acl,
 		})
 	);
 };
