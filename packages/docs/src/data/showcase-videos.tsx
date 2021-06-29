@@ -255,6 +255,48 @@ export const showcaseVideos: ShowcaseVideo[] = [
       url: "https://twitter.com/noWukkas_",
     },
   },
+  {
+    title: "CSS+SVG effects",
+    type: "mux_video",
+    muxId: "ujzfb6501KAiNDwKDzLIzCvcWxECz01rfSXh500I3mmifo",
+    description: "A generative CSS + SVG animation.",
+    width: 500,
+    height: 500,
+    submittedOn: new Date("27-06-2021"),
+    links: [
+      {
+        type: "video",
+        url: "https://twitter.com/calebwright/status/1406412814512803841",
+      },
+      {
+        type: "source_code",
+        url: "https://github.com/c0/remotion-playground/blob/main/src/GooBallCSS.jsx",
+      },
+    ],
+    author: {
+      name: "calebwright",
+      url: "https://twitter.com/calebwright",
+    },
+  },
+  {
+    title: "Personalized Welcome Videos",
+    type: "mux_video",
+    muxId: "BPP7jS72gdEtARObTEGOc5GHnDv6ODfp48hIFMU9U6E",
+    description: "A SlackHQ integrated tool to generate personalized welcome videos for new employees.",
+    width: 1920,
+    height: 1080,
+    submittedOn: new Date("27-06-2021"),
+    links: [
+      {
+        type: "video",
+        url: "https://twitter.com/BhimteBhaisaab/status/1401195261943115777",
+      }
+    ],
+    author: {
+      name: "Utkarsh Bhimte",
+      url: "https://twitter.com/BhimteBhaisaab",
+    },
+  }
 ];
 
 const dateString = (date: Date) =>
