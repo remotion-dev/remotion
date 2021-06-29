@@ -1,11 +1,10 @@
 import {CliInternals} from '@remotion/cli';
 import {existsSync, lstatSync} from 'fs';
 import path from 'path';
-import {deployProject} from '../api/deploy-project';
-import {getOrCreateBucket} from '../api/get-or-create-bucket';
-import {BINARY_NAME} from '../shared/constants';
-import {parsedLambdaCli} from './args';
-import {getAwsRegion} from './get-aws-region';
+import {deployProject} from '../../../api/deploy-project';
+import {getOrCreateBucket} from '../../../api/get-or-create-bucket';
+import {BINARY_NAME} from '../../../shared/constants';
+import {getAwsRegion} from '../../get-aws-region';
 import {
 	BucketCreationProgress,
 	BundleProgress,
@@ -13,13 +12,13 @@ import {
 	makeBucketProgress,
 	makeBundleProgress,
 	makeDeployProgressBar,
-} from './helpers/progress-bar';
-import {Log} from './log';
+} from '../../helpers/progress-bar';
+import {Log} from '../../log';
 
-export const UPLOAD_COMMAND = 'upload';
+export const SITES_UPLOAD_SUBCOMMAND = 'create';
 
-export const uploadCommand = async () => {
-	const fileName = parsedLambdaCli._[1];
+export const sitesUploadSubcommand = async (args: string[]) => {
+	const fileName = args[0];
 	if (!fileName) {
 		Log.error('No entry file passed.');
 		Log.info(
