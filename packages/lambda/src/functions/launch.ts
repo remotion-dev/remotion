@@ -166,6 +166,7 @@ const innerLaunchHandler = async (params: LambdaPayload) => {
 		});
 	};
 
+	// TODO: Should clean up afterwards
 	const out = await concatVideosS3({
 		bucket: params.bucketName,
 		expectedFiles: chunkCount,
