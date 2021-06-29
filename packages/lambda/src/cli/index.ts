@@ -7,7 +7,6 @@ import {printHelp} from './help';
 import {Log} from './log';
 import {policiesCommand, POLICIES_COMMAND} from './policies';
 import {renderCommand, RENDER_COMMAND} from './render';
-import {uploadCommand, UPLOAD_COMMAND} from './upload';
 
 const matchCommand = async () => {
 	if (parsedLambdaCli.help || parsedLambdaCli._.length === 0) {
@@ -15,12 +14,8 @@ const matchCommand = async () => {
 		process.exit(0);
 	}
 
-	if (parsedLambdaCli._[0] === UPLOAD_COMMAND) {
-		return uploadCommand();
-	}
-
 	if (parsedLambdaCli._[0] === RENDER_COMMAND) {
-		return renderCommand();
+		return renderCommand(parsedLambdaCli._.slice(1));
 	}
 
 	if (parsedLambdaCli._[0] === FUNCTIONS_COMMAND) {
@@ -37,6 +32,20 @@ const matchCommand = async () => {
 
 	if (parsedLambdaCli._[0] === SITES_COMMAND) {
 		return sitesCommand(parsedLambdaCli._.slice(1));
+	}
+
+	if (parsedLambdaCli._[0] === 'upload') {
+		Log.info('The command has been renamed.');
+		Log.info('Before: remotion-lambda upload <entry-point>');
+		Log.info('After: remotion-lambda sites create <entry-point>');
+		process.exit(1);
+	}
+
+	if (parsedLambdaCli._[0] === 'deploy') {
+		Log.info('The command has been renamed.');
+		Log.info('Before: remotion-lambda deploy');
+		Log.info('After: remotion-lambda functions deploy');
+		process.exit(1);
 	}
 
 	Log.error(`Command ${parsedLambdaCli._[0]} not found.`);

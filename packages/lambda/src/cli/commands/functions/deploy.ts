@@ -15,6 +15,7 @@ import {getAwsRegion} from '../../get-aws-region';
 export const FUNCTIONS_DEPLOY_SUBCOMMAND = 'deploy';
 
 export const functionsDeploySubcommand = async () => {
+	// TODO: Should only allow one lambda to be deployed
 	const region = getAwsRegion();
 	const timeoutInSeconds = parsedLambdaCli.timeout ?? DEFAULT_TIMEOUT;
 	const memorySize = parsedLambdaCli.memory ?? DEFAULT_MEMORY_SIZE;

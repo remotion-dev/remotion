@@ -13,18 +13,25 @@ import {Log} from './log';
 
 export const RENDER_COMMAND = 'render';
 
-export const renderCommand = async () => {
-	const serveUrl = parsedLambdaCli._[1];
+export const renderCommand = async (args: string[]) => {
+	const serveUrl = args[0];
 	if (!serveUrl) {
 		Log.error('No serve URL passed.');
 		Log.info(
 			'Pass an additional argument specifying a URL where your Remotion project is hosted.'
 		);
 		Log.info();
-		Log.info(
-			`${BINARY_NAME} ${RENDER_COMMAND} <http://remotion.s3.amazonaws.com>`
-		);
+		Log.info(`${BINARY_NAME} ${RENDER_COMMAND} <serve-url> <composition-id>`);
 		process.exit(1);
+	}
+
+	const composition = args[1];
+	if (!composition) {
+		Log.error('No composition ID passed.');
+		Log.info('Pass an additional argument specifying the composition ID.');
+		Log.info();
+		// TODO: Rename serveURL
+		Log.info(`${BINARY_NAME} ${RENDER_COMMAND} <serve-url> <composition-id>`);
 	}
 
 	// TODO: Redundancy with CLI
@@ -48,9 +55,10 @@ export const renderCommand = async () => {
 		process.exit(1);
 	}
 
+	// TODO: Should only trigger if more than 1 function of the same version
 	if (remotionLambdas.length > 1) {
 		Log.error(
-			'More than lambda function found in your account. This is an error'
+			'More than 1 lambda function found in your account. This is an error.'
 		);
 		Log.info(`Delete extraneous lambda functions in your AWS console or run`);
 		Log.info(
@@ -78,6 +86,7 @@ export const renderCommand = async () => {
 		region: getAwsRegion(),
 		// TODO: Unhardcode retries
 		maxRetries: 3,
+		composition,
 	});
 	for (let i = 0; i < 3000; i++) {
 		await sleep(1000);

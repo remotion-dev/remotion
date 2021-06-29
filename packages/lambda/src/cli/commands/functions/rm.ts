@@ -11,6 +11,7 @@ import {FUNCTIONS_LS_SUBCOMMAND} from './ls';
 export const FUNCTIONS_RM_SUBCOMMAND = 'rm';
 const LEFT_COL = 16;
 
+// TODO: Should allow to remove multiple at once
 export const functionsRmCommand = async (args: string[]) => {
 	const region = getAwsRegion();
 	const functionName = args[0];
