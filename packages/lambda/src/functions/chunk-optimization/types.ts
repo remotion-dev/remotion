@@ -17,4 +17,5 @@ export type OptimizationProfile = {
 	frameRange: [number, number][];
 	oldTiming: number;
 	newTiming: number;
+	frameCount: number;
 };

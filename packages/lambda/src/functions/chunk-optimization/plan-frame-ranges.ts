@@ -11,9 +11,7 @@ export const planFrameRanges = ({
 	frameCount: number;
 	optimization: OptimizationProfile | null;
 }): [number, number][] => {
-	// TODO: Only apply optimization if duration is the same
-
-	if (optimization) {
+	if (optimization && optimization.frameCount === frameCount) {
 		return optimization.frameRange;
 	}
 
