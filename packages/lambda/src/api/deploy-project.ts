@@ -1,10 +1,10 @@
 import {PutBucketWebsiteCommand} from '@aws-sdk/client-s3';
+import {bundle} from '@remotion/bundler';
 import {AwsRegion} from '../pricing/aws-regions';
 import {getS3Client} from '../shared/aws-clients';
-import {getSitesKey} from '../shared/constants';
+import {getSitesKey, REMOTION_BUCKET_PREFIX} from '../shared/constants';
 import {makeS3Url} from '../shared/make-s3-url';
 import {randomHash} from '../shared/random-hash';
-import {bundleRemotion} from './bundle-remotion';
 import {uploadDir, UploadDirProgress} from './upload-dir';
 
 export const deployProject = async ({
@@ -22,19 +22,26 @@ export const deployProject = async ({
 		onUploadProgress?: (upload: UploadDirProgress) => void;
 	};
 }) => {
-	// TODO: Validate bucket name starts with prefix
+	if (!bucketName.startsWith(REMOTION_BUCKET_PREFIX)) {
+		throw new Error(
+			`The bucketName parameter must start with ${REMOTION_BUCKET_PREFIX}.`
+		);
+	}
+
 	const subFolder = getSitesKey(randomHash());
-	const bundle = await bundleRemotion({
-		entryFile: entryPoint,
-		onProgress: options?.onBundleProgress ?? (() => undefined),
-		publicPath: `/${subFolder}/`,
-	});
+	const bundled = await bundle(
+		entryPoint,
+		options?.onBundleProgress ?? (() => undefined),
+		{
+			publicPath: `/${subFolder}/`,
+		}
+	);
 
 	await Promise.all([
 		uploadDir({
 			bucket: bucketName,
 			client: getS3Client(region),
-			dir: bundle,
+			dir: bundled,
 			onProgress: options?.onUploadProgress ?? (() => undefined),
 			folder: subFolder,
 		}),
