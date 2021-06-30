@@ -13,7 +13,7 @@ This should not be necessary in general, it is encouraged to [report issues](htt
 
 ## Example
 
-console
+`console`
 
 ```
 npm i @remotion/babel-loader
@@ -21,7 +21,9 @@ npm i @remotion/babel-loader
 
 `remotion.config.ts`
 
-```tsx
+```ts twoslash
+import {Config} from 'remotion'
+// ---cut---
 import {replaceLoadersWithBabel} from '@remotion/babel-loader';
 
 Config.Bundling.overrideWebpackConfig((currentConfiguration) => {

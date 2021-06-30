@@ -13,16 +13,37 @@ The list of compositions can be updated without reloading the page, but calling 
 
 `index.ts`
 
-```tsx
+```tsx twoslash
+// @filename: ./Video.tsx
+export const RemotionVideo = () => <></>;
+
+// @filename: index.tsx
+// ---cut---
 import {registerRoot} from 'remotion';
-import {RemotionVideo} from './RemotionVideo';
+import {RemotionVideo} from './Video';
 
 registerRoot(RemotionVideo);
 ```
 
 `Video.tsx`
 
-```tsx
+```tsx twoslash
+// @allowUmdGlobalAccess
+// @filename: MyComponent.tsx
+export default () => <></>
+
+// @filename: MyOtherComponent.tsx
+export default () => <></>
+
+// @filename: index.tsx
+const Composition: React.FC<{
+        id:string,
+        fps: number,
+        height: number,
+        width: number
+        component: () => JSX.Element
+}> = () => <></>
+// ---cut---
 import MyComponent from './MyComponent';
 import MyOtherComponent from './MyOtherComponent';
 

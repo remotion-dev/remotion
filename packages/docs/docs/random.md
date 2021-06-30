@@ -5,10 +5,11 @@ title: random()
 
 The `random()` API will give your deterministic pseudorandom values. Unlike the `Math.random()` function, Remotions function takes in a seed which can be a `number` or a `string`. If the seed is the same, the output is always the same.
 
-```ts
-const rand = random(1); // 0.07301638228818774
-const rand = random(1); // still 0.07301638228818774
+```ts twoslash
+import {random} from 'remotion';
 
+const rand = random(1); // 0.07301638228818774
+const rand2 = random(1); // still 0.07301638228818774
 
 const randomCoordinates = new Array(10).fill(true).map((a, i) => {
   return {
@@ -17,6 +18,7 @@ const randomCoordinates = new Array(10).fill(true).map((a, i) => {
   };
 }); // will always be [{x: 0.2887063352391124, y: 0.18660089606419206}, ...]
 
+// @ts-expect-error
 random() // Error: random() argument must be a number or a string
 ```
 
@@ -28,7 +30,9 @@ Randomness can be used to create to create interesting visualizations, such as p
 
 Calling `Math.random()` results in an ESLint warning in Remotion since often it leads to bugs in rendering. If you are sure you want a true random number, and want to bypass this message without adding an ignore comment, use `random(null)`
 
-```ts
+```ts twoslash
+const random = (seed: number | string | null) => Math.random()
+// ---cut---
 // Passing null will result in a different value every time.
 random(null) === random(null) // false
 ```

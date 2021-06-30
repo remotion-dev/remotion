@@ -50,7 +50,9 @@ Allows to pass in custom CSS styles.
 
 ## Example
 
-```tsx
+```tsx twoslash
+import {useVideoConfig} from "remotion";
+// ---cut---
 import {Gif} from '@remotion/gif';
 
 export const MyComponent: React.FC = () => {

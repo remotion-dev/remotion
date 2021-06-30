@@ -15,10 +15,10 @@ The NPM package `@remotion/renderer` provides you with an API for rendering the 
 
 Follow this commented example to see how to render a video:
 
-```tsx
+```tsx twoslash
 import fs from 'fs';
+import os from 'os';
 import path from 'path';
-import {evaluateRootForCompositions} from 'remotion';
 import {bundle} from '@remotion/bundler';
 import {
 	getCompositions,
@@ -45,7 +45,12 @@ const start = async () => {
   });
 
   // Select the composition you want to render.
-  const video = comps.find((c) => c.id === compositionId);
+  const composition = comps.find((c) => c.id === compositionId);
+
+  // Ensure the composition exists
+  if (!composition) {
+    throw new Error(`No composition with the ID ${compositionId} found`)
+  }
 
   // We create a temporary directory for storing the frames
   const framesDir = await fs.promises.mkdtemp(
@@ -54,7 +59,7 @@ const start = async () => {
 
   // We create JPEGs for all frames
   const {assetsInfo} = await renderFrames({
-    config: video,
+    config: composition,
     // Path of the webpack bundle you have created
     webpackBundle: bundled,
     // Get's called after bundling is finished and the
@@ -70,7 +75,7 @@ const start = async () => {
     // See 'CLI options' section for concurrency options.
     parallelism: null,
     outputDir: framesDir,
-    // React props passed to the root component of the sequence. Will be merged with the `defaultProps` of a video.
+    // React props passed to the root component of the sequence. Will be merged with the `defaultProps` of a composition.
     inputProps: {
       titleText: 'Hello World'
     },
@@ -88,9 +93,9 @@ const start = async () => {
     // Possible overwrite of video metadata,
     // we suggest to just fill in the data from the
     // video variable
-    fps: video.fps,
-    height: video.height,
-    width: video.width,
+    fps: composition.fps,
+    height: composition.height,
+    width: composition.width,
     // Must match the value above for the image format
     imageFormat: 'jpeg',
     // Pass in the desired output path of the video. Et voilà!

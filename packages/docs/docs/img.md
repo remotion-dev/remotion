@@ -8,7 +8,7 @@ The difference is that if you use the component from Remotion, that Remotion wil
 
 ## Example
 
-```tsx
+```tsx twoslash
 import {Img} from 'remotion';
 import hi from './hi.png'
 

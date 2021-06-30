@@ -7,7 +7,9 @@ Delightful and smooth animation primitive. Calculates a position based on physic
 
 Example:
 
-```tsx
+```tsx twoslash
+import {useCurrentFrame, useVideoConfig, spring} from "remotion";
+// ---cut---
 const frame = useCurrentFrame()
 const videoConfig = useVideoConfig()
 
