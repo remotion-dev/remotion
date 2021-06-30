@@ -8,7 +8,6 @@ Allows you to use a video in React Three Fiber that is synchronized with Remotio
 To use a video in a Three.JS context, you first have to render it and assign it a ref. If you only want to use it in a React Three Fiber Scene, you can make it invisible by adding a `{position: "absolute", opacity: 0}` style.
 
 ```tsx twoslash
-// @errors: 2322
 import {useRef} from 'react';
 import {Video} from 'remotion';
 import src from './vid.mp4';
