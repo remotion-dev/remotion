@@ -37,8 +37,9 @@ export const optimizationProfile = (siteId: string, compositionId: string) =>
 export const getSitesKey = (siteId: string) => `sites/${siteId}`;
 export const outName = (renderId: string, codec: Codec) =>
 	`${rendersPrefix(renderId)}/out.${getFileExtensionFromCodec(codec, 'final')}`;
+export const BINARIES_BUCKET_PREFIX = 'lambda-remotion-binaries-';
 export const getBinariesBucketName = (region: AwsRegion) => {
-	return 'lambda-remotion-binaries-' + region;
+	return BINARIES_BUCKET_PREFIX + region;
 };
 
 export enum LambdaRoutines {

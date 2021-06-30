@@ -1,5 +1,9 @@
 import {iam, lambda, s3} from 'aws-policies';
-import {REMOTION_BUCKET_PREFIX, RENDER_FN_PREFIX} from '../../shared/constants';
+import {
+	BINARIES_BUCKET_PREFIX,
+	REMOTION_BUCKET_PREFIX,
+	RENDER_FN_PREFIX,
+} from '../../shared/constants';
 
 // TODO: Update docs before release
 export const requiredPermissions: {
@@ -32,6 +36,11 @@ export const requiredPermissions: {
 			s3.GetBucketLocation,
 		],
 		resource: [`arn:aws:s3:::${REMOTION_BUCKET_PREFIX}*`],
+	},
+	{
+		// To download layers
+		actions: [s3.GetObject],
+		resource: [`arn:aws:s3:::${BINARIES_BUCKET_PREFIX}*`],
 	},
 	{
 		actions: [s3.CreateBucket, s3.ListBucket, s3.PutBucketAcl],
