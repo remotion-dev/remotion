@@ -2,10 +2,10 @@ import {CliInternals} from '@remotion/cli';
 import {parsedLambdaCli} from './args';
 import {cleanupCommand, CLEANUP_COMMAND} from './cleanup';
 import {functionsCommand, FUNCTIONS_COMMAND} from './commands/functions';
+import {policiesCommand, POLICIES_COMMAND} from './commands/policies/policies';
 import {sitesCommand, SITES_COMMAND} from './commands/sites';
 import {printHelp} from './help';
 import {Log} from './log';
-import {policiesCommand, POLICIES_COMMAND} from './policies';
 import {renderCommand, RENDER_COMMAND} from './render';
 
 const matchCommand = async () => {
