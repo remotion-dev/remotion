@@ -15,9 +15,9 @@ import {
 } from '../../helpers/progress-bar';
 import {Log} from '../../log';
 
-export const SITES_UPLOAD_SUBCOMMAND = 'create';
+export const SITES_CREATE_SUBCOMMAND = 'create';
 
-export const sitesUploadSubcommand = async (args: string[]) => {
+export const sitesCreateSubcommand = async (args: string[]) => {
 	const fileName = args[0];
 	if (!fileName) {
 		Log.error('No entry file passed.');

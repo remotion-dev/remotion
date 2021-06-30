@@ -1,9 +1,12 @@
 import {CliInternals} from '@remotion/cli';
 import {Log} from '@remotion/cli/dist/log';
 import {BINARY_NAME} from '../../../shared/constants';
+import {
+	sitesCreateSubcommand,
+	SITES_UPLOAD_SUBCOMMAND as SITES_CREATE_SUBCOMMAND,
+} from './create';
 import {sitesLsSubcommand, SITES_LS_SUBCOMMAND} from './ls';
 import {sitesRmSubcommand, SITES_RM_COMMAND} from './rm';
-import {sitesUploadSubcommand, SITES_UPLOAD_SUBCOMMAND} from './upload';
 
 export const SITES_COMMAND = 'sites';
 
@@ -13,7 +16,7 @@ export const printSitesHelp = () => {
 	Log.info('Available subcommands:');
 	Log.info();
 	Log.info(
-		`${BINARY_NAME} ${SITES_COMMAND} ${SITES_UPLOAD_SUBCOMMAND} <entry-point>`
+		`${BINARY_NAME} ${SITES_COMMAND} ${SITES_CREATE_SUBCOMMAND} <entry-point>`
 	);
 	Log.info(
 		CliInternals.chalk.gray('Creates a new site based on a Remotion project')
@@ -35,8 +38,8 @@ export const sitesCommand = (args: string[]) => {
 		return sitesRmSubcommand(args.slice(1));
 	}
 
-	if (args[0] === SITES_UPLOAD_SUBCOMMAND) {
-		return sitesUploadSubcommand(args.slice(1));
+	if (args[0] === SITES_CREATE_SUBCOMMAND) {
+		return sitesCreateSubcommand(args.slice(1));
 	}
 
 	if (args[0]) {

@@ -116,8 +116,8 @@ A mechanism that determines after a render which frames rendered the slowest opt
 - [ ] Parallelism is not configurable
 - [ ] Rendering using more than 1000 chunks is undefined behavior, things will break
 - [x] ~~`eu-central-1` region is hardcoded~~
-- [ ] 2048 MB RAM is hardcoded
-- [ ] Lambda timeout of 120 seconds is hardcoded
+- [x] 2048 MB RAM is hardcoded
+- [x] Lambda timeout of 120 seconds is hardcoded
 - [ ] There is no way to disable chunk optimization
 
 ## License

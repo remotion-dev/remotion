@@ -71,7 +71,7 @@ AWS_SECRET_ACCESS_KEY=xxx
 
 ## 8. Deploy a website
 
-- Run `npx remotion-lambda upload`
+- Run `npx remotion-lambda sites create src/index.tsx`
 
 ## 9. Render a video
 

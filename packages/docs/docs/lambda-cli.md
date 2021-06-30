@@ -7,12 +7,40 @@ slug: /lambda/cli
 
 You can get a list of all commands using `npx remotion-lambda --help`.
 
-## upload
+## Global options
+
+You can specify `--region` to select an AWS region: For example:
+
+```console
+--region=eu-central-1
+```
+
+The default region is `us-east-1`. You may also set a `AWS_REGION` environment variable directly or via `.env` file.
+
+## sites
+
+### create
 
 Uploads a Remotion project to an S3 bucket. You will get a URL which you can pass to the `render` command to render the video.
 
 ```console
-npx remotion-lambda upload src/index.ts
+npx remotion-lambda sites create src/index.ts
+```
+
+### ls
+
+Lists the sites uploaded to the S3 buckets
+
+```console
+npx remotion-lambda sites ls
+```
+
+### rm
+
+Deletes a site from an S3 bucket.
+
+```console
+npx remotion-lambda sites rm f87nffa
 ```
 
 ## policies
@@ -43,14 +71,6 @@ Validate the current policies setup is correct by running tests using the AWS po
 npx remotion-lambda policies validate
 ```
 
-## cleanup
-
-This command helps remove Remotion-related resources from your AWS account.
-
-```
-npx remotion-lambda cleanup
-```
-
 ## render
 
 Renders a video using Remotion Lambda. You need to pass two arguments:
@@ -62,10 +82,36 @@ Renders a video using Remotion Lambda. You need to pass two arguments:
 npx remotion-lambda render https://remotionlambda-abcdefgh.s3.eu-central-1.amazonaws.com/sites/abcdefgh HelloWorld
 ```
 
-## deploy
+## functions
+
+### deploy
 
 Deploys a Remotion render lambda function to your account. You only need 1 function to render videos.
 
 ```
 npx remotion-lambda functions deploy
+```
+
+### ls
+
+List the functions deployed to your AWS account.
+
+```console
+npx remotion-lambda functions ls
+```
+
+### rm
+
+Removes a render function from your AWS account.
+
+```console
+npx remotion-lambda functions rm remotion-lambda-4y2y1aaf
+```
+
+## cleanup
+
+This command helps remove Remotion-related resources from your AWS account.
+
+```
+npx remotion-lambda cleanup
 ```
