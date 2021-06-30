@@ -139,6 +139,7 @@ const renderHandler = async (params: LambdaPayload) => {
 		onProgress: () => {
 			// TODO: upload progress from time to time
 		},
+		webpackBundle: null,
 	});
 	stitchLabel.end();
 
