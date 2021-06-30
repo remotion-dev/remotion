@@ -92,7 +92,7 @@ _optional_
 
 Callback function which informs about the encoding progress. The `progress` value is a `number` between 0 and 1.
 
-```ts
+```ts twoslash
 const onProgress = (progress: number) => {
   console.log(`Encoding progress: ${progress * 100}%`)
 }
@@ -104,7 +104,7 @@ _optional_
 
 Notifies when a remote asset needs to be downloaded in order to extract the audio track.
 
-```ts
+```ts twoslash
 const onDownload = (src: string) => {
   console.log(`Downloading ${src}...`)
 }
