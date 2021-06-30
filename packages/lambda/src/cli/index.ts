@@ -1,4 +1,5 @@
 import {CliInternals} from '@remotion/cli';
+import {checkCredentials} from '../shared/check-credentials';
 import {parsedLambdaCli} from './args';
 import {cleanupCommand, CLEANUP_COMMAND} from './cleanup';
 import {functionsCommand, FUNCTIONS_COMMAND} from './commands/functions';
@@ -9,6 +10,7 @@ import {Log} from './log';
 import {renderCommand, RENDER_COMMAND} from './render';
 
 const matchCommand = async () => {
+	checkCredentials();
 	if (parsedLambdaCli.help || parsedLambdaCli._.length === 0) {
 		printHelp();
 		process.exit(0);
