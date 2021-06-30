@@ -109,12 +109,26 @@ export const renderFrames = async ({
 			onError?.({error: err, frame: null});
 		};
 
+		await page.setCacheEnabled(false);
+		await page.setRequestInterception(true);
+		page.on('request', (request) => {
+			if (request.resourceType() !== 'font') {
+				request.continue();
+				return;
+			}
+
+			setTimeout(() => {
+				request.continue();
+			}, 3000);
+		});
 		page.on('pageerror', errorCallback);
 
 		await setPropsAndEnv({inputProps, envVariables, page, port});
 
 		const site = `http://localhost:${port}/index.html?composition=${compositionId}`;
 		await page.goto(site);
+		// Toggle the line below and render the video again
+		// await page.evaluateHandle('document.fonts.ready');
 		page.off('pageerror', errorCallback);
 		return page;
 	});

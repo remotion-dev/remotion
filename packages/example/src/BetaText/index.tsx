@@ -2,6 +2,7 @@ import {mix} from 'polished';
 import React from 'react';
 import {interpolate, spring, useCurrentFrame, useVideoConfig} from 'remotion';
 import styled from 'styled-components';
+import './font.css';
 
 const BRAND_GRADIENT = ['#5851db', '#405de6'];
 const solidBrand = mix(0.5, BRAND_GRADIENT[0], BRAND_GRADIENT[1]);
@@ -9,8 +10,7 @@ const Label = styled.span<{
 	outline: boolean;
 }>`
 	font-size: 120px;
-	font-family: ${(props) =>
-		props.outline ? 'Altero Outline' : 'Altero-Regular'};
+	font-family: Bangers;
 	text-align: center;
 	transform: scaleX(1);
 	line-height: 1em;
