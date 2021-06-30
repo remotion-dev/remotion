@@ -135,6 +135,7 @@ export type RenderMetadata = {
 	estimatedLambdaInvokations: number;
 	compositionId: string;
 	codec: Codec;
+	usesOptimizationProfile: boolean;
 };
 
 export type LambdaVersions = '2021-06-23' | 'n/a';

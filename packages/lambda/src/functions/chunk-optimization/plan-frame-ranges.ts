@@ -10,12 +10,15 @@ export const planFrameRanges = ({
 	chunkSize: number;
 	frameCount: number;
 	optimization: OptimizationProfile | null;
-}): [number, number][] => {
+}): {chunks: [number, number][]; didUseOptimization: boolean} => {
 	if (optimization && optimization.frameCount === frameCount) {
-		return optimization.frameRange;
+		return {chunks: optimization.frameRange, didUseOptimization: true};
 	}
 
-	return new Array(chunkCount).fill(1).map((_, i) => {
-		return [i * chunkSize, Math.min(frameCount, (i + 1) * chunkSize) - 1];
-	});
+	return {
+		chunks: new Array(chunkCount).fill(1).map((_, i) => {
+			return [i * chunkSize, Math.min(frameCount, (i + 1) * chunkSize) - 1];
+		}),
+		didUseOptimization: false,
+	};
 };
