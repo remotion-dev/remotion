@@ -5,15 +5,5 @@
   "editor.codeActionsOnSave": {
     "source.organizeImports": false,
     "source.fixAll": true
-  },
-  "files.watcherExclude": {
-    "**/example/**": true,
-    "**/packages/bundler": true,
-    "**/packages/player": true,
-    "**/packages/renderer": true,
-    "**/packages/cli": true,
-    "**/tests/**": true,
-    "**/packages/three": true,
-    "**/.docusaurus": true
   }
 }
