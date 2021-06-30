@@ -209,6 +209,12 @@ export const progressHandler = async (
 		  })
 		: null;
 
+	const didUseOptimization =
+		optimization &&
+		renderMetadata &&
+		optimization.frameCount === renderMetadata.totalFrames &&
+		optimization.createdFromRenderId !== lambdaParams.renderId;
+
 	const output = renderMetadata
 		? contents.find((c) =>
 				c.Key?.includes(outName(lambdaParams.renderId, renderMetadata.codec))
@@ -271,8 +277,9 @@ export const progressHandler = async (
 		renderMetadata,
 		bucket: lambdaParams.bucketName,
 		outputFile: outputFile(),
-		// TODO: Only fetch optimization if actually shown
-		optimizationForNextRender: optimization,
+		// TODO: Remove before launch
+		UNSTABLE_currentOptimizationProfile: optimization,
+		UNSTABLE_didUseOptimization: didUseOptimization,
 		timeToFinish,
 		errors,
 		errorExplanations,

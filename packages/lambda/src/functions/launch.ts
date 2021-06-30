@@ -217,6 +217,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 			oldTiming: getProfileDuration(chunkData),
 			newTiming: getProfileDuration(optimizedProfile),
 			frameCount: comp.durationInFrames,
+			createdFromRenderId: params.renderId,
 		},
 		expectedBucketOwner: options.expectedBucketOwner,
 		compositionId: params.composition,

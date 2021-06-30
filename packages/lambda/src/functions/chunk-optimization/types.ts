@@ -18,4 +18,5 @@ export type OptimizationProfile = {
 	oldTiming: number;
 	newTiming: number;
 	frameCount: number;
+	createdFromRenderId: string;
 };
