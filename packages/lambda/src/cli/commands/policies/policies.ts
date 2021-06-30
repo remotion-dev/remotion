@@ -1,23 +1,16 @@
 import {CliInternals} from '@remotion/cli';
-import {simulatePermissions} from '../api/iam-validation/simulate';
-import {
-	getRolePolicy,
-	getUserPolicy,
-} from '../api/iam-validation/suggested-policy';
-import {BINARY_NAME} from '../shared/constants';
-import {getAwsRegion} from './get-aws-region';
-import {Log} from './log';
+import {BINARY_NAME} from '../../../shared/constants';
+import {Log} from '../../log';
+import {roleSubcommand, ROLE_SUBCOMMAND} from './role';
+import {userSubcommand, USER_SUBCOMMAND} from './user';
+import {validateSubcommand, VALIDATE_SUBCOMMAND} from './validate';
 
 export const POLICIES_COMMAND = 'policies';
-
-const USER_SUBCOMMAND = 'user';
-const ROLE_SUBCOMMAND = 'role';
-const VALIDATE_SUBCOMMAND = 'validate';
 
 const printPoliciesHelp = () => {
 	Log.info(`${BINARY_NAME} ${POLICIES_COMMAND} <subcommand>`);
 	Log.info();
-	Log.info('Available subcommandss:');
+	Log.info('Available subcommands:');
 	Log.info('');
 	Log.info(`${BINARY_NAME} ${POLICIES_COMMAND} ${USER_SUBCOMMAND}`);
 	Log.info(
@@ -41,26 +34,13 @@ const printPoliciesHelp = () => {
 	);
 };
 
-const validateSubcommand = async () => {
-	try {
-		await simulatePermissions({region: getAwsRegion()});
-	} catch (err) {
-		Log.error('Did not have the required permissions on AWS:');
-		Log.error(err);
-	}
-};
-
 export const policiesCommand = (args: string[]) => {
 	if (args[0] === USER_SUBCOMMAND) {
-		Log.info('Policy for user:');
-		Log.info(JSON.stringify(getUserPolicy(), null, 2));
-		return;
+		return userSubcommand();
 	}
 
 	if (args[0] === ROLE_SUBCOMMAND) {
-		Log.info('Policy for role:');
-		Log.info(JSON.stringify(getRolePolicy(), null, 2));
-		return;
+		return roleSubcommand();
 	}
 
 	if (args[0] === VALIDATE_SUBCOMMAND) {
