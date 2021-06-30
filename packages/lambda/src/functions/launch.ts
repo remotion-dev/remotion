@@ -75,7 +75,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 	const {chunkSize} = params;
 	const chunkCount = Math.ceil(comp.durationInFrames / chunkSize);
 
-	const chunks = planFrameRanges({
+	const {chunks, didUseOptimization} = planFrameRanges({
 		chunkCount,
 		chunkSize,
 		frameCount: comp.durationInFrames,
@@ -124,6 +124,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		compositionId: comp.id,
 		siteId: getServeUrlHash(params.serveUrl),
 		codec: params.codec,
+		usesOptimizationProfile: didUseOptimization,
 	};
 
 	await lambdaWriteFile({
