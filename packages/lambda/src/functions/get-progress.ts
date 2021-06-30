@@ -17,7 +17,6 @@ import {
 	rendersPrefix,
 } from '../shared/constants';
 import {streamToString} from '../shared/stream-to-string';
-import {getOptimization} from './chunk-optimization/s3-optimization-file';
 import {getCurrentRegion} from './helpers/get-current-region';
 import {inspectErrors} from './helpers/inspect-errors';
 import {lambdaLs, lambdaReadFile} from './helpers/io';
@@ -199,21 +198,6 @@ export const progressHandler = async (
 			}),
 		]
 	);
-	const optimization = renderMetadata
-		? await getOptimization({
-				bucketName: lambdaParams.bucketName,
-				siteId: renderMetadata.siteId,
-				compositionId: renderMetadata.compositionId,
-				region: getCurrentRegion(),
-				expectedBucketOwner: options.expectedBucketOwner,
-		  })
-		: null;
-
-	const didUseOptimization =
-		optimization &&
-		renderMetadata &&
-		optimization.frameCount === renderMetadata.totalFrames &&
-		optimization.createdFromRenderId !== lambdaParams.renderId;
 
 	const output = renderMetadata
 		? contents.find((c) =>
@@ -277,9 +261,6 @@ export const progressHandler = async (
 		renderMetadata,
 		bucket: lambdaParams.bucketName,
 		outputFile: outputFile(),
-		// TODO: Remove before launch
-		UNSTABLE_currentOptimizationProfile: optimization,
-		UNSTABLE_didUseOptimization: didUseOptimization,
 		timeToFinish,
 		errors,
 		errorExplanations,
