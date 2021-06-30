@@ -1,10 +1,7 @@
 import {CliInternals} from '@remotion/cli';
 import {Log} from '@remotion/cli/dist/log';
 import {BINARY_NAME} from '../../../shared/constants';
-import {
-	sitesCreateSubcommand,
-	SITES_UPLOAD_SUBCOMMAND as SITES_CREATE_SUBCOMMAND,
-} from './create';
+import {sitesCreateSubcommand, SITES_CREATE_SUBCOMMAND} from './create';
 import {sitesLsSubcommand, SITES_LS_SUBCOMMAND} from './ls';
 import {sitesRmSubcommand, SITES_RM_COMMAND} from './rm';
 
