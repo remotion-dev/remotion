@@ -65,6 +65,7 @@ const getFnName = async (options: {
 		bucketName: websiteBuckets[0].Name as string,
 		prefix,
 		region: getAwsRegion(),
+		expectedBucketOwner: null,
 	});
 	const firstSite = firstBucket.find(() => true);
 	return {
@@ -121,6 +122,7 @@ CliInternals.xns(async () => {
 		bucketName: res.bucketName,
 		prefix: timingProfileName(res.renderId),
 		region: getAwsRegion(),
+		expectedBucketOwner: null,
 	});
 
 	for (const log of logs) {

@@ -22,6 +22,10 @@ import {getCurrentRegion} from './helpers/get-current-region';
 import {inspectErrors} from './helpers/inspect-errors';
 import {lambdaLs, lambdaReadFile} from './helpers/io';
 
+type Options = {
+	expectedBucketOwner: string;
+};
+
 const getFinalEncodingStatus = ({
 	encodingStatus: encodingProgress,
 	renderMetadata,
@@ -127,7 +131,10 @@ const getTimeToFinish = ({
 	return output.LastModified.getTime() - renderMetadata.startedDate;
 };
 
-export const progressHandler = async (lambdaParams: LambdaPayload) => {
+export const progressHandler = async (
+	lambdaParams: LambdaPayload,
+	options: Options
+) => {
 	if (lambdaParams.type !== LambdaRoutines.status) {
 		throw new TypeError('Expected status type');
 	}
@@ -136,6 +143,7 @@ export const progressHandler = async (lambdaParams: LambdaPayload) => {
 		bucketName: lambdaParams.bucketName,
 		prefix: rendersPrefix(lambdaParams.renderId),
 		region: getCurrentRegion(),
+		expectedBucketOwner: options.expectedBucketOwner,
 	});
 
 	if (!contents) {
@@ -197,6 +205,7 @@ export const progressHandler = async (lambdaParams: LambdaPayload) => {
 				siteId: renderMetadata.siteId,
 				compositionId: renderMetadata.compositionId,
 				region: getCurrentRegion(),
+				expectedBucketOwner: options.expectedBucketOwner,
 		  })
 		: null;
 

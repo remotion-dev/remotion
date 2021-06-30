@@ -10,13 +10,20 @@ const cleanBucket = async ({
 	bucket,
 	onAfterItemDeleted,
 	onBeforeItemDeleted,
+	expectedBucketOwner,
 }: {
 	region: AwsRegion;
 	bucket: string;
 	onAfterItemDeleted: (data: {bucketName: string; itemName: string}) => void;
 	onBeforeItemDeleted: (data: {bucketName: string; itemName: string}) => void;
+	expectedBucketOwner: string | null;
 }) => {
-	let list = await lambdaLs({bucketName: bucket, prefix: '', region});
+	let list = await lambdaLs({
+		bucketName: bucket,
+		prefix: '',
+		region,
+		expectedBucketOwner,
+	});
 	while (list.length > 0) {
 		await cleanItems({
 			list,
@@ -25,7 +32,12 @@ const cleanBucket = async ({
 			onAfterItemDeleted,
 			onBeforeItemDeleted,
 		});
-		list = await lambdaLs({bucketName: bucket, prefix: '', region});
+		list = await lambdaLs({
+			bucketName: bucket,
+			prefix: '',
+			region,
+			expectedBucketOwner,
+		});
 	}
 
 	await getS3Client(region).send(
@@ -41,12 +53,14 @@ export const cleanUpBuckets = async ({
 	onAfterBucketDeleted,
 	onAfterItemDeleted,
 	onBeforeItemDeleted,
+	expectedBucketOwner,
 }: {
 	region: AwsRegion;
 	onBeforeBucketDeleted?: (bucketName: string) => void;
 	onAfterItemDeleted?: (data: {bucketName: string; itemName: string}) => void;
 	onBeforeItemDeleted?: (data: {bucketName: string; itemName: string}) => void;
 	onAfterBucketDeleted?: (bucketName: string) => void;
+	expectedBucketOwner: string | null;
 }) => {
 	const {remotionBuckets} = await getRemotionS3Buckets(region);
 	if (remotionBuckets.length === 0) {
@@ -60,6 +74,7 @@ export const cleanUpBuckets = async ({
 			bucket: bucket.Name as string,
 			onAfterItemDeleted: onAfterItemDeleted ?? (() => undefined),
 			onBeforeItemDeleted: onBeforeItemDeleted ?? (() => undefined),
+			expectedBucketOwner,
 		});
 		onAfterBucketDeleted?.(bucket.Name as string);
 	}
@@ -68,5 +83,6 @@ export const cleanUpBuckets = async ({
 		region,
 		onAfterBucketDeleted,
 		onBeforeBucketDeleted,
+		expectedBucketOwner,
 	});
 };

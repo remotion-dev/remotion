@@ -10,12 +10,14 @@ export const writeOptimization = async ({
 	compositionId,
 	siteId,
 	region,
+	expectedBucketOwner,
 }: {
 	bucketName: string;
 	optimization: OptimizationProfile;
 	compositionId: string;
 	siteId: string;
 	region: AwsRegion;
+	expectedBucketOwner: string;
 }) => {
 	await lambdaWriteFile({
 		bucketName,
@@ -23,6 +25,7 @@ export const writeOptimization = async ({
 		key: optimizationProfile(siteId, compositionId) + '.json',
 		region,
 		acl: 'private',
+		expectedBucketOwner,
 	});
 };
 
@@ -31,17 +34,20 @@ export const getOptimization = async ({
 	compositionId,
 	bucketName,
 	region,
+	expectedBucketOwner,
 }: {
 	bucketName: string;
 	siteId: string;
 	compositionId: string;
 	region: AwsRegion;
+	expectedBucketOwner: string;
 }): Promise<OptimizationProfile | null> => {
 	const prefix = optimizationProfile(siteId, compositionId);
 	const dir = await lambdaLs({
 		bucketName,
 		prefix,
 		region,
+		expectedBucketOwner,
 	});
 	const files = dir
 		.sort(

@@ -34,6 +34,7 @@ const cleanupBucketsCommand = async (region: AwsRegion) => {
 		},
 		onAfterBucketDeleted: (bucketName: string) =>
 			Log.info(CliInternals.chalk.blue(`Deleted bucket ${bucketName}.`)),
+		expectedBucketOwner: null,
 	});
 	Log.info('All Remotion-related buckets deleted.');
 };

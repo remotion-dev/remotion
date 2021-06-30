@@ -39,6 +39,7 @@ export const sitesRmSubcommand = async (args: string[]) => {
 		bucketName: remotionBuckets[0].Name as string,
 		prefix: getSitesKey(siteId),
 		region,
+		expectedBucketOwner: null,
 	});
 
 	if (files.length === 0) {
@@ -65,6 +66,7 @@ export const sitesRmSubcommand = async (args: string[]) => {
 			bucketName: remotionBuckets[0].Name as string,
 			prefix: getSitesKey(siteId),
 			region,
+			expectedBucketOwner: null,
 		});
 	}
 
