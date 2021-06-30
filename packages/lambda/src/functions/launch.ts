@@ -33,7 +33,11 @@ import {lambdaWriteFile} from './helpers/io';
 import {timer} from './helpers/timer';
 import {validateComposition} from './helpers/validate-composition';
 
-const innerLaunchHandler = async (params: LambdaPayload) => {
+type Options = {
+	expectedBucketOwner: string;
+};
+
+const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 	if (params.type !== LambdaRoutines.launch) {
 		throw new Error('Expected launch type');
 	}
@@ -50,6 +54,7 @@ const innerLaunchHandler = async (params: LambdaPayload) => {
 			siteId: getServeUrlHash(params.serveUrl),
 			compositionId: params.composition,
 			region: getCurrentRegion(),
+			expectedBucketOwner: options.expectedBucketOwner,
 		}),
 	]);
 
@@ -127,6 +132,7 @@ const innerLaunchHandler = async (params: LambdaPayload) => {
 		body: JSON.stringify(renderMetadata),
 		region: getCurrentRegion(),
 		acl: 'private',
+		expectedBucketOwner: options.expectedBucketOwner,
 	});
 
 	const payloadChunks = chunk(lambdaPayloads, invokers);
@@ -163,6 +169,7 @@ const innerLaunchHandler = async (params: LambdaPayload) => {
 			body: JSON.stringify(encodingProgress),
 			region: getCurrentRegion(),
 			acl: 'private',
+			expectedBucketOwner: options.expectedBucketOwner,
 		});
 	};
 
@@ -175,6 +182,7 @@ const innerLaunchHandler = async (params: LambdaPayload) => {
 		renderId: params.renderId,
 		region: getCurrentRegion(),
 		codec: params.codec,
+		expectedBucketOwner: options.expectedBucketOwner,
 	});
 	// TODO: Enable or disable chunk optimization
 	await lambdaWriteFile({
@@ -183,16 +191,19 @@ const innerLaunchHandler = async (params: LambdaPayload) => {
 		body: fs.createReadStream(out),
 		region: getCurrentRegion(),
 		acl: 'public-read',
+		expectedBucketOwner: options.expectedBucketOwner,
 	});
 	const chunkData = await collectChunkInformation({
 		bucketName: params.bucketName,
 		renderId: params.renderId,
 		region: getCurrentRegion(),
+		expectedBucketOwner: options.expectedBucketOwner,
 	});
 	await writeTimingProfile({
 		data: chunkData,
 		bucketName: params.bucketName,
 		renderId: params.renderId,
+		expectedBucketOwner: options.expectedBucketOwner,
 	});
 	const optimizedProfile = optimizeInvocationOrder(
 		optimizeProfileRecursively(chunkData, 400)
@@ -207,19 +218,23 @@ const innerLaunchHandler = async (params: LambdaPayload) => {
 			newTiming: getProfileDuration(optimizedProfile),
 			frameCount: comp.durationInFrames,
 		},
+		expectedBucketOwner: options.expectedBucketOwner,
 		compositionId: params.composition,
 		siteId: getServeUrlHash(params.serveUrl),
 		region: getCurrentRegion(),
 	});
 };
 
-export const launchHandler = async (params: LambdaPayload) => {
+export const launchHandler = async (
+	params: LambdaPayload,
+	options: Options
+) => {
 	if (params.type !== LambdaRoutines.launch) {
 		throw new Error('Expected launch type');
 	}
 
 	try {
-		await innerLaunchHandler(params);
+		await innerLaunchHandler(params, options);
 	} catch (err) {
 		Log.error('Error occurred', err);
 		await lambdaWriteFile({
@@ -230,6 +245,7 @@ export const launchHandler = async (params: LambdaPayload) => {
 			}),
 			region: getCurrentRegion(),
 			acl: 'private',
+			expectedBucketOwner: null,
 		});
 	}
 };

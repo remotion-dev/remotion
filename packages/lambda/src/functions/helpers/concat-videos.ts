@@ -60,12 +60,14 @@ const getAllFilesS3 = async ({
 	outdir,
 	renderId,
 	region,
+	expectedBucketOwner,
 }: {
 	bucket: string;
 	expectedFiles: number;
 	outdir: string;
 	renderId: string;
 	region: AwsRegion;
+	expectedBucketOwner: string;
 }): Promise<string[]> => {
 	const alreadyDownloading: {[key: string]: true} = {};
 	const downloaded: {[key: string]: true} = {};
@@ -77,6 +79,7 @@ const getAllFilesS3 = async ({
 			bucketName: bucket,
 			prefix,
 			region,
+			expectedBucketOwner,
 		});
 		lsTimer.end();
 		return contents
@@ -142,6 +145,7 @@ export const concatVideosS3 = async ({
 	renderId,
 	region,
 	codec,
+	expectedBucketOwner,
 }: {
 	bucket: string;
 	expectedFiles: number;
@@ -150,6 +154,7 @@ export const concatVideosS3 = async ({
 	renderId: string;
 	region: AwsRegion;
 	codec: Codec;
+	expectedBucketOwner: string;
 }) => {
 	const outdir = join(tmpDir('remotion-concat'), 'bucket');
 	if (existsSync(outdir)) {
@@ -165,6 +170,7 @@ export const concatVideosS3 = async ({
 		outdir,
 		renderId,
 		region,
+		expectedBucketOwner,
 	});
 
 	const outfile = join(

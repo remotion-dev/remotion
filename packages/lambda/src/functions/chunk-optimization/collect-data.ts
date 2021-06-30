@@ -8,16 +8,19 @@ export const collectChunkInformation = async ({
 	bucketName,
 	renderId,
 	region,
+	expectedBucketOwner,
 }: {
 	bucketName: string;
 	renderId: string;
 	region: AwsRegion;
+	expectedBucketOwner: string;
 }) => {
 	const prefix = lambdaInitializedKey(renderId);
 	const timingFiles = await lambdaLs({
 		bucketName,
 		prefix,
 		region,
+		expectedBucketOwner,
 	});
 	const timingFileContents = await Promise.all(
 		timingFiles.map(async (file) => {

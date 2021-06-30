@@ -7,10 +7,12 @@ export const writeTimingProfile = async ({
 	data,
 	bucketName,
 	renderId,
+	expectedBucketOwner,
 }: {
 	data: TimingProfile;
 	bucketName: string;
 	renderId: string;
+	expectedBucketOwner: string;
 }) => {
 	await lambdaWriteFile({
 		bucketName,
@@ -18,5 +20,6 @@ export const writeTimingProfile = async ({
 		key: timingProfileName(renderId) + Date.now() + '.json',
 		region: getCurrentRegion(),
 		acl: 'private',
+		expectedBucketOwner,
 	});
 };

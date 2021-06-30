@@ -24,7 +24,11 @@ import {getCurrentRegion} from './helpers/get-current-region';
 import {lambdaWriteFile} from './helpers/io';
 import {timer} from './helpers/timer';
 
-const renderHandler = async (params: LambdaPayload) => {
+type Options = {
+	expectedBucketOwner: string;
+};
+
+const renderHandler = async (params: LambdaPayload, options: Options) => {
 	if (params.type !== LambdaRoutines.renderer) {
 		throw new Error('Params must be renderer');
 	}
@@ -74,6 +78,7 @@ const renderHandler = async (params: LambdaPayload) => {
 				body: '0',
 				key: `${lambdaInitializedKey(params.renderId)}-${params.chunk}.txt`,
 				region: getCurrentRegion(),
+				expectedBucketOwner: options.expectedBucketOwner,
 			});
 		},
 		outputDir: outputPath,
@@ -97,6 +102,7 @@ const renderHandler = async (params: LambdaPayload) => {
 		key: `${lambdaInitializedKey(params.renderId)}-${params.chunk}.txt`,
 		region: getCurrentRegion(),
 		acl: 'private',
+		expectedBucketOwner: options.expectedBucketOwner,
 	});
 	const outdir = tmpDir('bucket');
 
@@ -154,6 +160,7 @@ const renderHandler = async (params: LambdaPayload) => {
 			body: fs.createReadStream(outputLocation),
 			region: getCurrentRegion(),
 			acl: 'public-read',
+			expectedBucketOwner: options.expectedBucketOwner,
 		}),
 	]);
 	await Promise.all([
@@ -162,13 +169,16 @@ const renderHandler = async (params: LambdaPayload) => {
 	]);
 };
 
-export const rendererHandler = async (params: LambdaPayload) => {
+export const rendererHandler = async (
+	params: LambdaPayload,
+	options: Options
+) => {
 	if (params.type !== LambdaRoutines.renderer) {
 		throw new Error('Params must be renderer');
 	}
 
 	try {
-		await renderHandler(params);
+		await renderHandler(params, options);
 	} catch (err) {
 		// If this error is encountered, we can just retry as it
 		// is a very rare error to occur
@@ -203,6 +213,7 @@ export const rendererHandler = async (params: LambdaPayload) => {
 			}),
 			region: getCurrentRegion(),
 			acl: 'private',
+			expectedBucketOwner: options.expectedBucketOwner,
 		});
 	}
 };

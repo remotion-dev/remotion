@@ -6,9 +6,12 @@ import {LambdaReturnValues} from '../shared/return-values';
 
 test('Info handler should return version', async () => {
 	Internals.Logging.setLogLevel('error');
-	const response = await handler({
-		type: LambdaRoutines.info,
-	});
+	const response = await handler(
+		{
+			type: LambdaRoutines.info,
+		},
+		{invokedFunctionArn: '::::::'}
+	);
 
 	expect(
 		typeof (response as Await<LambdaReturnValues[LambdaRoutines.info]>)

@@ -13,19 +13,43 @@ export const lambdaLs = async ({
 	bucketName,
 	prefix,
 	region,
+	expectedBucketOwner,
 }: {
 	bucketName: string;
 	prefix: string;
 	region: AwsRegion;
+	expectedBucketOwner: string | null;
 }): Promise<_Object[]> => {
-	// TODO: Should paginate with list.ContinuationToken
-	const list = await getS3Client(region).send(
-		new ListObjectsV2Command({
-			Bucket: bucketName,
-			Prefix: prefix,
-		})
-	);
-	return list.Contents ?? [];
+	try {
+		// TODO: Should paginate with list.ContinuationToken
+		const list = await getS3Client(region).send(
+			new ListObjectsV2Command({
+				Bucket: bucketName,
+				Prefix: prefix,
+				ExpectedBucketOwner: expectedBucketOwner ?? undefined,
+			})
+		);
+		return list.Contents ?? [];
+	} catch (err) {
+		if (!expectedBucketOwner) {
+			throw err;
+		}
+
+		// Prevent from accessing a foreign bucket, retry without ExpectedBucketOwner and see if it works. If it works then it's an owner mismatch.
+		if (err.stack.includes('AccessDenied')) {
+			await getS3Client(region).send(
+				new ListObjectsV2Command({
+					Bucket: bucketName,
+					Prefix: prefix,
+				})
+			);
+			throw new Error(
+				`Bucket owner mismatch: Expected the bucket ${bucketName} to be owned by you (AWS Account ID: ${expectedBucketOwner}) but it's not the case. Did you accidentially specify the wrong bucket?`
+			);
+		}
+
+		throw err;
+	}
 };
 
 export const lambdaWriteFile = async ({
@@ -34,12 +58,14 @@ export const lambdaWriteFile = async ({
 	body,
 	region,
 	acl,
+	expectedBucketOwner,
 }: {
 	bucketName: string;
 	key: string;
 	body: ReadStream | string;
 	region: AwsRegion;
 	acl: 'public-read' | 'private';
+	expectedBucketOwner: string | null;
 }): Promise<void> => {
 	await getS3Client(region).send(
 		new PutObjectCommand({
@@ -47,6 +73,7 @@ export const lambdaWriteFile = async ({
 			Key: key,
 			Body: body,
 			ACL: acl,
+			ExpectedBucketOwner: expectedBucketOwner ?? undefined,
 		})
 	);
 };

@@ -13,19 +13,27 @@ import {rendererHandler} from './renderer';
 import {startHandler} from './start';
 
 export const handler = async <T extends LambdaRoutines>(
-	params: LambdaPayload
+	params: LambdaPayload,
+	context: {invokedFunctionArn: string}
 ): Promise<LambdaReturnValues[T]> => {
+	if (!context || !context.invokedFunctionArn) {
+		throw new Error(
+			'Lambda function unexpectedly does not have context.invokedFunctionArn'
+		);
+	}
+
+	const currentUserId = context.invokedFunctionArn.split(':')[4];
 	Log.info('Lambda parameters passed', params);
 	if (params.type === LambdaRoutines.start) {
 		return startHandler(params);
 	}
 
 	if (params.type === LambdaRoutines.launch) {
-		return launchHandler(params);
+		return launchHandler(params, {expectedBucketOwner: currentUserId});
 	}
 
 	if (params.type === LambdaRoutines.status) {
-		return progressHandler(params);
+		return progressHandler(params, {expectedBucketOwner: currentUserId});
 	}
 
 	if (params.type === LambdaRoutines.fire) {
@@ -33,7 +41,7 @@ export const handler = async <T extends LambdaRoutines>(
 	}
 
 	if (params.type === LambdaRoutines.renderer) {
-		return rendererHandler(params);
+		return rendererHandler(params, {expectedBucketOwner: currentUserId});
 	}
 
 	if (params.type === LambdaRoutines.info) {

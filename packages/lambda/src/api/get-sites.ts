@@ -20,6 +20,7 @@ export const getSites = async ({region}: {region: AwsRegion}) => {
 			bucketName: bucket.Name as string,
 			prefix: getSitesKey(''),
 			region,
+			expectedBucketOwner: null,
 		});
 
 		for (const file of ls) {
