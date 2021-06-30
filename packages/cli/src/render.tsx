@@ -208,7 +208,6 @@ export const render = async () => {
 		frameRange: frameRange ?? null,
 		puppeteerInstance: openedBrowser,
 		serveUrl,
-		bundleDir: bundled,
 	});
 
 	const closeBrowserPromise = openedBrowser.close();
@@ -270,6 +269,7 @@ export const render = async () => {
 			onDownload: (src: string) => {
 				Log.info('Downloading asset... ', src);
 			},
+			webpackBundle: bundled,
 			verbose: Internals.Logging.isEqualOrBelowLogLevel('verbose'),
 		});
 		stitchingProgress.update(

@@ -6,9 +6,13 @@ slug: /lambda/setup
 
 ## 1. Install `@remotion/lambda`
 
+Check the newest version number in the #lambda Discord channel
+
 ```
-npm i @remotion/lambda
+npm i @remotion/lambda@<version-number>
 ```
+
+Also update **all the other Remotion packages** to have the same version. Make sure no package version number has a `^` character in front of it as it will install a different version.
 
 ## 2. Create role policy
 

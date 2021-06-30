@@ -51,6 +51,7 @@ export const stitchFramesToVideo = async (options: {
 	proResProfile?: ProResProfile;
 	verbose?: boolean;
 	downloadDir?: string;
+	webpackBundle: string | null;
 }): Promise<void> => {
 	Internals.validateDimension(
 		options.height,
@@ -106,7 +107,7 @@ export const stitchFramesToVideo = async (options: {
 			assets: options.assetsInfo.assets,
 			downloadDir: options.downloadDir ?? (await makeAssetsDownloadTmpDir()),
 			onDownload: options.onDownload ?? (() => undefined),
-			webpackBundle: options.assetsInfo.bundleDir,
+			webpackBundle: options.webpackBundle,
 		}),
 	]);
 
