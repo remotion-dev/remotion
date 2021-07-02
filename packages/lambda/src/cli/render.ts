@@ -2,7 +2,7 @@ import {CliInternals} from '@remotion/cli';
 import {getDeployedLambdas} from '../api/get-deployed-lambdas';
 import {getRenderProgress} from '../api/get-render-progress';
 import {renderVideoOnLambda} from '../api/render-video-on-lambda';
-import {BINARY_NAME} from '../shared/constants';
+import {BINARY_NAME, CURRENT_VERSION} from '../shared/constants';
 import {sleep} from '../shared/sleep';
 import {parsedLambdaCli} from './args';
 import {CLEANUP_COMMAND, CLEANUP_LAMBDAS_SUBCOMMAND} from './cleanup';
@@ -44,19 +44,29 @@ export const renderCommand = async (args: string[]) => {
 	// TODO: Further validate serveUrl
 
 	const remotionLambdas = await getDeployedLambdas({region: getAwsRegion()});
+	const lambdasWithMatchingVersion = remotionLambdas.filter(
+		(l) => l.version === CURRENT_VERSION
+	);
 
-	if (remotionLambdas.length === 0) {
-		Log.error('No lambda functions found in your account.');
+	if (lambdasWithMatchingVersion.length === 0) {
+		Log.error(
+			`No lambda functions with version ${CURRENT_VERSION} found in your account.`
+		);
+		if (remotionLambdas.length > 0) {
+			Log.error(
+				'Other functions were found, but are not compatible with this version of the CLI.'
+			);
+		}
+
 		Log.info('Run');
 		Log.info(
 			`  npx ${BINARY_NAME} ${FUNCTIONS_COMMAND} ${FUNCTIONS_DEPLOY_SUBCOMMAND}`
 		);
-		Log.info(`to deploy a lambda function.`);
+		Log.info(`to deploy a new lambda function.`);
 		process.exit(1);
 	}
 
-	// TODO: Should only trigger if more than 1 function of the same version
-	if (remotionLambdas.length > 1) {
+	if (lambdasWithMatchingVersion.length > 1) {
 		Log.error(
 			'More than 1 lambda function found in your account. This is an error.'
 		);
@@ -68,7 +78,7 @@ export const renderCommand = async (args: string[]) => {
 		process.exit(1);
 	}
 
-	const functionName = remotionLambdas[0].FunctionName as string;
+	const functionName = lambdasWithMatchingVersion[0].name;
 
 	const cliOptions = await CliInternals.getCliOptions({isLambda: true});
 
@@ -102,7 +112,7 @@ export const renderCommand = async (args: string[]) => {
 			process.exit(0);
 		}
 
-		if (status.errors?.fatalErrorEncountered) {
+		if (status.errors.fatalErrorEncountered) {
 			Log.error('Fatal error encountered. Exiting.');
 			process.exit(1);
 		}

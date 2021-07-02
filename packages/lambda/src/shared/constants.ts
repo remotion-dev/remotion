@@ -28,10 +28,8 @@ export const chunkKey = (renderId: string) =>
 	`${rendersPrefix(renderId)}/chunks/chunk-`;
 export const timingProfileName = (renderId: string) =>
 	`${rendersPrefix(renderId)}/timing-profile`;
-export const getStitcherErrorKeyPrefix = (renderId: string) =>
-	`${rendersPrefix(renderId)}/errors/stitcher-`;
-export const getRendererErrorKeyPrefix = (renderId: string) =>
-	`${rendersPrefix(renderId)}/errors/renderer-`;
+export const getErrorKeyPrefix = (renderId: string) =>
+	`${rendersPrefix(renderId)}/errors/`;
 export const optimizationProfile = (siteId: string, compositionId: string) =>
 	`optimization-profiles/${siteId}/${compositionId}/optimization-profile`;
 export const getSitesKey = (siteId: string) => `sites/${siteId}`;
@@ -138,5 +136,5 @@ export type RenderMetadata = {
 	usesOptimizationProfile: boolean;
 };
 
-export type LambdaVersions = '2021-06-23' | 'n/a';
-export const CURRENT_VERSION: LambdaVersions = '2021-06-23';
+export type LambdaVersions = '2021-07-02' | '2021-06-23' | 'n/a';
+export const CURRENT_VERSION: LambdaVersions = '2021-07-02';

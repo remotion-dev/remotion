@@ -8,6 +8,7 @@ type GetCompositionsConfig = {
 	inputProps?: object | null;
 	envVariables?: Record<string, string>;
 	browserInstance?: PuppeteerBrowser;
+	onError?: (errorData: {err: Error}) => void;
 };
 
 const getPageAndCleanupFn = async ({
@@ -59,8 +60,14 @@ export const getCompositions = async (
 		browser: config?.browser ?? Internals.DEFAULT_BROWSER,
 	});
 
-	page.on('error', console.error);
-	page.on('pageerror', console.error);
+	page.on('error', (err) => {
+		console.log(err);
+		config?.onError?.({err: err as Error});
+	});
+	page.on('pageerror', (err) => {
+		console.log(err);
+		config?.onError?.({err: err as Error});
+	});
 
 	await setPropsAndEnv({
 		inputProps: config?.inputProps,

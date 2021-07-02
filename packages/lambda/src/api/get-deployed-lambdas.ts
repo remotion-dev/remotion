@@ -2,8 +2,8 @@ import {ListFunctionsCommand} from '@aws-sdk/client-lambda';
 import {AwsRegion} from '../pricing/aws-regions';
 import {getLambdaClient} from '../shared/aws-clients';
 import {RENDER_FN_PREFIX} from '../shared/constants';
+import {getFunctionVersion} from './get-function-version';
 
-// TODO: Should assert string
 export const getDeployedLambdas = async (options: {region: AwsRegion}) => {
 	const lambdas = await getLambdaClient(options.region).send(
 		new ListFunctionsCommand({})
@@ -13,5 +13,21 @@ export const getDeployedLambdas = async (options: {region: AwsRegion}) => {
 		return f.FunctionName?.startsWith(RENDER_FN_PREFIX);
 	});
 
-	return remotionLambdas;
+	const configs = await Promise.all(
+		remotionLambdas.map((fn) => {
+			return getFunctionVersion({
+				functionName: fn.FunctionName as string,
+				region: options.region,
+			});
+		})
+	);
+
+	return remotionLambdas.map((lambda, i) => {
+		return {
+			name: lambda.FunctionName as string,
+			version: configs[i],
+			memory: lambda.MemorySize as number,
+			timeout: lambda.Timeout as number,
+		};
+	});
 };

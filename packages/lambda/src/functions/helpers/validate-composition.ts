@@ -7,15 +7,18 @@ export const validateComposition = async ({
 	composition,
 	browserInstance,
 	inputProps,
+	onError,
 }: {
 	serveUrl: string;
 	composition: string;
 	browserInstance: Await<ReturnType<typeof RenderInternals.openBrowser>>;
 	inputProps: unknown;
+	onError: (onError: {err: Error}) => void;
 }): Promise<TCompMetadata> => {
 	const compositions = await getCompositions(serveUrl, {
 		browserInstance,
 		inputProps: inputProps as object,
+		onError,
 	});
 	const found = compositions.find((c) => c.id === composition);
 	if (!found) {

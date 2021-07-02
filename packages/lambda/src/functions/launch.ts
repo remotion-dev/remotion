@@ -7,7 +7,6 @@ import {chunk} from '../shared/chunk';
 import {
 	EncodingProgress,
 	encodingProgressKey,
-	getStitcherErrorKeyPrefix,
 	LambdaPayload,
 	LambdaRoutines,
 	outName,
@@ -27,11 +26,12 @@ import {
 } from './chunk-optimization/s3-optimization-file';
 import {writeTimingProfile} from './chunk-optimization/write-profile';
 import {concatVideosS3} from './helpers/concat-videos';
-import {getBrowserInstance} from './helpers/get-browser-instance';
+import {closeBrowser, getBrowserInstance} from './helpers/get-browser-instance';
 import {getCurrentRegion} from './helpers/get-current-region';
 import {lambdaWriteFile} from './helpers/io';
 import {timer} from './helpers/timer';
 import {validateComposition} from './helpers/validate-composition';
+import {writeLambdaError} from './helpers/write-lambda-error';
 
 type Options = {
 	expectedBucketOwner: string;
@@ -63,6 +63,20 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		composition: params.composition,
 		browserInstance,
 		inputProps: params.inputProps,
+		onError: ({err}) => {
+			writeLambdaError({
+				bucketName: params.bucketName,
+				errorInfo: {
+					chunk: null,
+					frame: null,
+					isFatal: false,
+					stack: err.stack as string,
+					type: 'browser',
+				},
+				expectedBucketOwner: options.expectedBucketOwner,
+				renderId: params.renderId,
+			});
+		},
 	});
 	Internals.validateDurationInFrames(
 		comp.durationInFrames,
@@ -239,16 +253,19 @@ export const launchHandler = async (
 		await innerLaunchHandler(params, options);
 	} catch (err) {
 		Log.error('Error occurred', err);
-		await lambdaWriteFile({
+		await writeLambdaError({
 			bucketName: params.bucketName,
-			key: `${getStitcherErrorKeyPrefix(params.renderId)}${Date.now()}.txt`,
-			body: JSON.stringify({
-				error: err.message,
+			errorInfo: {
+				chunk: null,
+				frame: null,
 				stack: err.stack,
-			}),
-			region: getCurrentRegion(),
-			acl: 'private',
-			expectedBucketOwner: null,
+				type: 'stitcher',
+				isFatal: true,
+			},
+			expectedBucketOwner: options.expectedBucketOwner,
+			renderId: params.renderId,
 		});
+	} finally {
+		await closeBrowser();
 	}
 };
