@@ -244,6 +244,7 @@ export const launchHandler = async (
 			key: `${getStitcherErrorKeyPrefix(params.renderId)}${Date.now()}.txt`,
 			body: JSON.stringify({
 				error: err.message,
+				stack: err.stack,
 			}),
 			region: getCurrentRegion(),
 			acl: 'private',
