@@ -43,7 +43,7 @@ const getFnName = async (options: {
 			region: getAwsRegion(),
 			timeoutInSeconds: 120,
 			layerArn,
-			memorySize: 1024,
+			memorySize: 2048,
 		});
 
 		const {url} = await deployProject({

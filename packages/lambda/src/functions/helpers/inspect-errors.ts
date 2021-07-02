@@ -28,7 +28,7 @@ export const inspectErrors = async ({
 	);
 	return errors.map((e) => {
 		if (e.includes('ENOSPC')) {
-			return 'Your lambda function reached the 512MB storage. Reduce the amount of space needed per lambda function. Feel free to reach out to #lambda Discord for help';
+			return 'Your lambda function reached the 512MB storage limit. Reduce the amount of space needed per lambda function. Feel free to reach out to #lambda Discord for help';
 		}
 
 		if (e.includes('FATAL:zygote_communication_linux.cc')) {

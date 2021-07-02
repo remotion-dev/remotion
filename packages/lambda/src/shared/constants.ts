@@ -4,7 +4,7 @@ import {getFileExtensionFromCodec} from './get-file-extension-from-codec';
 
 export const MIN_MEMORY = 512;
 export const MAX_MEMORY = 10240;
-export const DEFAULT_MEMORY_SIZE = 1024;
+export const DEFAULT_MEMORY_SIZE = 2048;
 
 export const DEFAULT_TIMEOUT = 120;
 export const MIN_TIMEOUT = 15;

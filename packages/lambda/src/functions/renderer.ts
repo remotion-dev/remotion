@@ -210,6 +210,7 @@ export const rendererHandler = async (
 			body: JSON.stringify({
 				error: err.message,
 				stack: err.stack,
+				filesInTmp: fs.readFileSync('/tmp'),
 			}),
 			region: getCurrentRegion(),
 			acl: 'private',
