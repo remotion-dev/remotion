@@ -2,6 +2,8 @@ import {AwsRegion} from '../../pricing/aws-regions';
 import {streamToString} from '../../shared/stream-to-string';
 import {lambdaReadFile} from './io';
 
+export const FAILED_TO_LAUNCH_TOKEN = 'Failed to launch browser.';
+
 export const inspectErrors = async ({
 	errs,
 	bucket,
@@ -32,7 +34,10 @@ export const inspectErrors = async ({
 		}
 
 		if (e.includes('FATAL:zygote_communication_linux.cc')) {
-			return 'Failed to launch browser. Will be retried - you can probably ignore this error.';
+			return (
+				FAILED_TO_LAUNCH_TOKEN +
+				' Will be retried - you can probably ignore this error.'
+			);
 		}
 
 		// TODO: Make typesafe and handle error

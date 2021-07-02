@@ -101,5 +101,10 @@ export const renderCommand = async (args: string[]) => {
 			Log.info('Done! ' + res.bucketName);
 			process.exit(0);
 		}
+
+		if (status.errors?.fatalErrorEncountered) {
+			Log.error('Fatal error encountered. Exiting.');
+			process.exit(1);
+		}
 	}
 };
