@@ -17,7 +17,7 @@ In your `remotion.config.ts` file, you can call `Config.Bundler.overrideWebpackC
 
 Overriding the Webpack config uses the reducer pattern - pass in a function that takes as it's argument a Webpack configuration and return a new Webpack configuration.
 
-```tsx
+```ts twoslash
 import {Config} from 'remotion';
 
 Config.Bundling.overrideWebpackConfig((currentConfiguration) => {
@@ -26,7 +26,7 @@ Config.Bundling.overrideWebpackConfig((currentConfiguration) => {
     module: {
       ...currentConfiguration.module,
       rules: [
-        ...currentConfiguration.module.rules,
+        ...(currentConfiguration.module?.rules ?? []),
         // Add more loaders here
       ],
     },
@@ -44,41 +44,42 @@ Using the reducer pattern will help with type safety, give you auto-complete, en
 
 The following `remotion.config.ts` file shows how to enable support for MDX. Installation of `mdx-loader babel-loader @babel/preset-env @babel/preset-react` is required.
 
-```ts
+```ts twoslash
+import { Config } from "remotion";
+// ---cut---
 Config.Bundling.overrideWebpackConfig((currentConfiguration) => {
-	return {
-		...currentConfiguration,
-		module: {
-			...currentConfiguration.module,
-			rules: [
-				...(currentConfiguration.module?.rules
-					? currentConfiguration.module.rules
-					: []),
-				{
-					test: /\.mdx?$/,
-					use: [
-						{
-							loader: 'babel-loader',
-							options: {
-								presets: [
-									'@babel/preset-env',
-									[
-										'@babel/preset-react',
-										{
-											runtime: 'automatic',
-										},
-									],
-								],
-							},
-						},
-						'mdx-loader',
-					],
-				},
-			],
-		},
-	};
+  return {
+    ...currentConfiguration,
+    module: {
+      ...currentConfiguration.module,
+      rules: [
+        ...(currentConfiguration.module?.rules
+          ? currentConfiguration.module.rules
+          : []),
+        {
+          test: /\.mdx?$/,
+          use: [
+            {
+              loader: 'babel-loader',
+              options: {
+                presets: [
+                  '@babel/preset-env',
+                  [
+                    '@babel/preset-react',
+                    {
+                      runtime: 'automatic',
+                    },
+                  ],
+                ],
+              },
+            },
+            'mdx-loader',
+          ],
+        },
+      ],
+    },
+  };
 });
-
 ```
 
 :::info
@@ -115,7 +116,9 @@ yarn add postcss-loader postcss postcss-preset-env tailwindcss autoprefixer
 
 2. Add the following to your [`remotion.config.ts`](/docs/config) file:
 
-```ts
+```ts twoslash
+import {Config} from "remotion";
+// ---cut---
 Config.Bundling.overrideWebpackConfig((currentConfiguration) => {
   return {
     ...currentConfiguration,
@@ -203,36 +206,38 @@ yarn add sass sass-loader
 
 2. Add the following to your [`remotion.config.ts`](/docs/config) file:
 
-```tsx
+```ts twoslash
+import {Config} from "remotion";
+// ---cut---
 Config.Bundling.overrideWebpackConfig((currentConfiguration) => {
-	return {
-		...currentConfiguration,
-		module: {
-			...currentConfiguration.module,
-			rules: [
-				...(currentConfiguration.module?.rules
-					? currentConfiguration.module.rules
-					: []),
-				{
-					test: /\.s[ac]ss$/i,
-					use: [
-						{
-							loader: 'style-loader',
-						},
-						{
-							loader: 'css-loader',
-						},
-						{
-							loader: 'sass-loader',
-							options: {
-								sourceMap: true,
-							},
-						},
-					],
-				},
-			],
-		},
-	};
+  return {
+    ...currentConfiguration,
+    module: {
+      ...currentConfiguration.module,
+      rules: [
+        ...(currentConfiguration.module?.rules
+          ? currentConfiguration.module.rules
+          : []),
+        {
+          test: /\.s[ac]ss$/i,
+          use: [
+            {
+              loader: 'style-loader',
+            },
+            {
+              loader: 'css-loader',
+            },
+            {
+              loader: 'sass-loader',
+              options: {
+                sourceMap: true,
+              },
+            },
+          ],
+        },
+      ],
+    },
+  };
 });
 ```
 

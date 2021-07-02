@@ -127,8 +127,18 @@ A regular `style` prop for a HTMLDivElement. You can pass a different height and
 
 You may attach a ref to the player and control it in an imperative manner.
 
-```tsx {14}
+```tsx twoslash {15}
+// @filename: MyComposition.tsx
+import React from 'react';
+
+export const MyComposition: React.FC = () => null;
+
+// @filename: index.tsx
+import React from 'react';
+// ---cut---
+import {useEffect, useRef} from 'react';
 import {Player, PlayerRef} from '@remotion/player';
+import {MyComposition} from './MyComposition'
 
 const MyComp: React.FC = () => {
   const playerRef = useRef<PlayerRef>(null);
@@ -142,7 +152,12 @@ const MyComp: React.FC = () => {
   return (
     <Player
       ref={playerRef}
-      // other props
+      durationInFrames={30}
+      compositionWidth={1080}
+      compositionHeight={1080}
+      fps={30}
+      component={MyComposition}
+      // Many other optional props are available.
     />
   );
 }
@@ -224,12 +239,15 @@ Stop listening to an event. See the [Events](#events) section to see the functio
 
 Using a [player ref](#playerref), you can bind event listeners to get notified of certain events of the player.
 
-```tsx
+```tsx twoslash
+import {useRef, useEffect} from 'react';
+import {PlayerRef} from '@remotion/player';
+// ---cut---
 const playerRef = useRef<PlayerRef>(null);
 
 useEffect(() => {
   if (!playerRef.current) {
-    return null;
+    return;
   }
   playerRef.current.addEventListener('play', () => {
     console.log('playing');
@@ -253,8 +271,12 @@ useEffect(() => {
 
 Fired when the time position changes. You may get the current frame by reading it from `e.detail.frame`.
 
-```tsx
-playerRef.current.addEventListener('seeked', (e) => {
+```tsx twoslash
+import {useRef, useEffect} from 'react';
+import {PlayerRef} from '@remotion/player';
+const playerRef = useRef<PlayerRef>(null);
+// ---cut---
+playerRef.current?.addEventListener('seeked', (e) => {
   console.log('seeked to ' + e.detail.frame); // seeked to 120
 });
 ```
@@ -279,8 +301,12 @@ Fires when an error or uncaught exception has happened in the video.
 
 You may get the error by reading the `e.detail.error` value:
 
-```tsx
-ref.current.addEventListener('error', (e) => {
+```tsx twoslash
+import {useRef, useEffect} from 'react';
+import {PlayerRef} from '@remotion/player';
+const ref = useRef<PlayerRef>(null);
+// ---cut---
+ref.current?.addEventListener('error', (e) => {
   console.log('error ', e.detail.error); // error [Error: undefined is not a function]
 });
 ```

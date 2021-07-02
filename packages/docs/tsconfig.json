@@ -2,6 +2,6 @@
   "extends": "@tsconfig/docusaurus/tsconfig.json",
   "include": ["src/"],
   "compilerOptions": {
-    "types": ["node", "jest"]
+    "types": ["node", "jest", "@docusaurus/module-type-aliases"]
   }
 }

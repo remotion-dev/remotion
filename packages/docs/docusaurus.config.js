@@ -15,10 +15,6 @@ module.exports = {
       contextualSearch: false,
     },
     image: "img/social-preview.png",
-    prism: {
-      theme: require("prism-react-renderer/themes/github"),
-      darkTheme: require("prism-react-renderer/themes/dracula"),
-    },
     navbar: {
       title: "Remotion",
       logo: {
@@ -121,6 +117,17 @@ module.exports = {
       "@docusaurus/preset-classic",
       {
         docs: {
+          remarkPlugins: [
+            [
+              require("remark-shiki-twoslash").default,
+              {
+                themes: ["min-light", "min-dark"],
+                defaultCompilerOptions: {
+                  types: ["node"],
+                },
+              },
+            ],
+          ],
           sidebarPath: require.resolve("./sidebars.js"),
           // Please change this to your repo.
           editUrl:
@@ -133,9 +140,13 @@ module.exports = {
             "https://github.com/remotion-dev/remotion/edit/main/packages/docs/blog/",
         },
         theme: {
-          customCss: require.resolve("./src/css/custom.css"),
+          customCss: [
+            require.resolve("./src/css/custom.css"),
+            require.resolve("./src/css/twoslash.css"),
+          ],
         },
       },
     ],
   ],
+  plugins: [require.resolve("./src/plugins/copy-to-clipboard")],
 };

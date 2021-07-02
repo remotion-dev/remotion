@@ -3,13 +3,7 @@ id: parametrized-rendering
 title: Parametrized rendering
 ---
 
-Parametrized rendering is the idea of creating a video template once and then render as many videos as you want with different parameters. Just like in regular React, we use props to reuse and customize components!
-
-## Defining accepted props
-
-To define which props your video accepts, simply give your component the `React.FC` type and pass in a generic argument describing the shape of the props you want to accept.
-
-```tsx {2-3}
+```twoslash include example
 export const MyComponent: React.FC<{
   propOne: string;
   propTwo: number;
@@ -18,24 +12,43 @@ export const MyComponent: React.FC<{
     <div>props: {propOne}, {propTwo}</div>
   );
 }
+// - MyComponent
+```
+
+Parametrized rendering is the idea of creating a video template once and then render as many videos as you want with different parameters. Just like in regular React, we use props to reuse and customize components!
+
+## Defining accepted props
+
+To define which props your video accepts, simply give your component the `React.FC` type and pass in a generic argument describing the shape of the props you want to accept.
+
+```tsx twoslash {1-2}
+// @include: example-MyComponent
 ```
 
 ## Define default props
 
 When registering the component as a sequence, you can define the default props:
 
-```tsx {13-16}
-import {Sequence} from 'remotion';
+```tsx twoslash {13-16}
+// @filename: MyComponent.tsx
+import React from 'react';
+export const MyComponent: React.FC<{propOne: string; propTwo: number;}> = () => null;
+
+// @filename: Root.tsx
+import React from 'react';
+// ---cut---
+import {Composition} from 'remotion';
 import {MyComponent} from './MyComponent';
 
 export const Root = () => {
   return (
     <>
-      <Sequence
+      <Composition
         id="my-video"
         width={1080}
         height={1080}
         fps={30}
+        durationInFrames={30}
         component={MyComponent}
         defaultProps={{
           propOne: 'Hi',
@@ -75,7 +88,15 @@ npx remotion render src/index.tsx HelloWorld helloworld.mp4 --props=./path/to/pr
 
 When server-rendering using `renderFrames`, you can pass props using the `inputProps` option:
 
-```tsx {8-10}
+```tsx twoslash {9-11}
+// @module: esnext
+// @target: es2017
+const video = {fps: 30, durationInFrames: 30, width: 1080, height: 1080};
+const bundled = '/path/to/bundle';
+const framesDir = '/path/to/frames';
+// ---cut---
+import {renderFrames} from '@remotion/renderer';
+
 await renderFrames({
   config: video,
   webpackBundle: bundled,
@@ -97,7 +118,7 @@ await renderFrames({
 
 When using GitHub Actions, you need to adjust the file at `.github/workflows/render-video.yml` to make the inputs in the `workflow_dispatch` section manually match the shape of the props your root component accepts.
 
-```yml {3,7}
+```yaml {3, 7}
 workflow_dispatch:
   inputs:
     titleText:
@@ -121,6 +142,8 @@ _Available since v2.0._: You can also use the `getInputProps()` function to retr
 Even if you have registered a component as a sequence,
 you can still use it as normal in your videos and pass it's props directly. Default props don't apply in this case.
 
-```tsx
+```tsx twoslash
+// @include: example-MyComponent
+// ---cut---
 <MyComponent propOne="hi" propTwo={10} />
 ```

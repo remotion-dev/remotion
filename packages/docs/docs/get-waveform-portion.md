@@ -27,8 +27,12 @@ An object with the following arguments:
 
 ## Example
 
-```tsx
-import {getAudioData} from '@remotion/media-utils';
+```tsx twoslash
+// @module: ESNext
+// @target: ESNext
+import {Audio} from 'remotion'
+// ---cut---
+import {getAudioData, getWaveformPortion} from '@remotion/media-utils';
 import music from './music.mp3';
 
 const audioData = await getAudioData(music); /* {
@@ -40,7 +44,7 @@ const audioData = await getAudioData(music); /* {
   isRemote: false
 } */
 
-await waveformPortion = getWaveformPortion({
+const waveformPortion = await getWaveformPortion({
   audioData,
   // Will select time range of 20-40 seconds
   startTimeInSeconds: 20,
