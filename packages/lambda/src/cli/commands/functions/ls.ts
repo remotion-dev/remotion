@@ -23,7 +23,7 @@ export const functionsLsCommand = async () => {
 	const configs = await Promise.all(
 		functions.map((fn) => {
 			return getFunctionVersion({
-				functionName: fn.FunctionName as string,
+				functionName: fn.name,
 				region,
 			});
 		})
@@ -54,10 +54,10 @@ export const functionsLsCommand = async () => {
 	for (const datapoint of info) {
 		Log.info(
 			[
-				(datapoint.fn.FunctionName as string).padEnd(NAME_COLS, ' '),
+				datapoint.fn.name.padEnd(NAME_COLS, ' '),
 				datapoint.config.padEnd(VERSION_COLS, ' '),
-				String(datapoint.fn.MemorySize as number).padEnd(MEMORY_COLS, ' '),
-				String(datapoint.fn.Timeout as number).padEnd(TIMEOUT_COLS, ' '),
+				String(datapoint.fn.memory).padEnd(MEMORY_COLS, ' '),
+				String(datapoint.fn.timeout).padEnd(TIMEOUT_COLS, ' '),
 			].join('')
 		);
 	}

@@ -6,7 +6,6 @@ import path from 'path';
 import {getLambdaClient} from '../shared/aws-clients';
 import {
 	chunkKey,
-	getRendererErrorKeyPrefix,
 	lambdaInitializedKey,
 	LambdaPayload,
 	LambdaPayloads,
@@ -19,10 +18,11 @@ import {
 	ChunkTimingData,
 	ObjectChunkTimingData,
 } from './chunk-optimization/types';
-import {getBrowserInstance} from './helpers/get-browser-instance';
+import {closeBrowser, getBrowserInstance} from './helpers/get-browser-instance';
 import {getCurrentRegion} from './helpers/get-current-region';
 import {lambdaWriteFile} from './helpers/io';
 import {timer} from './helpers/timer';
+import {writeLambdaError} from './helpers/write-lambda-error';
 
 type Options = {
 	expectedBucketOwner: string;
@@ -86,8 +86,19 @@ const renderHandler = async (params: LambdaPayload, options: Options) => {
 		serveUrl: params.serveUrl,
 		quality: params.quality,
 		envVariables: params.envVariables,
-		onError: () => {
-			// TODO handle error
+		onError: ({error, frame}) => {
+			writeLambdaError({
+				errorInfo: {
+					stack: error.stack as string,
+					type: 'browser',
+					frame,
+					chunk: params.chunk,
+					isFatal: false,
+				},
+				bucketName: params.bucketName,
+				expectedBucketOwner: options.expectedBucketOwner,
+				renderId: params.renderId,
+			});
 		},
 		browser: 'chrome',
 		dumpBrowserLogs: false,
@@ -182,6 +193,9 @@ export const rendererHandler = async (
 	} catch (err) {
 		// If this error is encountered, we can just retry as it
 		// is a very rare error to occur
+		const isBrowserError = err.message.includes(
+			'FATAL:zygote_communication_linux.cc'
+		);
 		if (
 			err.message.includes('FATAL:zygote_communication_linux.cc') &&
 			params.retriesLeft > 0
@@ -202,19 +216,19 @@ export const rendererHandler = async (
 
 		Log.error('Error occurred');
 		Log.error(err);
-		await lambdaWriteFile({
+		await writeLambdaError({
 			bucketName: params.bucketName,
-			key: `${getRendererErrorKeyPrefix(params.renderId)}${
-				params.chunk
-			}-${Date.now()}.txt`,
-			body: JSON.stringify({
-				error: err.message,
+			errorInfo: {
 				stack: err.stack,
-				filesInTmp: fs.readFileSync('/tmp'),
-			}),
-			region: getCurrentRegion(),
-			acl: 'private',
+				chunk: params.chunk,
+				frame: null,
+				type: 'renderer',
+				isFatal: !isBrowserError,
+			},
+			renderId: params.renderId,
 			expectedBucketOwner: options.expectedBucketOwner,
 		});
+	} finally {
+		await closeBrowser();
 	}
 };

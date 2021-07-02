@@ -6,8 +6,7 @@ import {
 	chunkKey,
 	EncodingProgress,
 	encodingProgressKey,
-	getRendererErrorKeyPrefix,
-	getStitcherErrorKeyPrefix,
+	getErrorKeyPrefix,
 	lambdaInitializedKey,
 	LambdaPayload,
 	LambdaRoutines,
@@ -162,11 +161,7 @@ export const progressHandler = async (
 		c.Key?.startsWith(lambdaInitializedKey(lambdaParams.renderId))
 	).length;
 	const errors = contents
-		.filter(
-			(c) =>
-				c.Key?.startsWith(getRendererErrorKeyPrefix(lambdaParams.renderId)) ||
-				c.Key?.startsWith(getStitcherErrorKeyPrefix(lambdaParams.renderId))
-		)
+		.filter((c) => c.Key?.startsWith(getErrorKeyPrefix(lambdaParams.renderId)))
 		.map((c) => c.Key)
 		.filter(Internals.truthy);
 
@@ -265,7 +260,6 @@ export const progressHandler = async (
 		timeToFinish,
 		errors: {
 			locations: errors,
-			messages: errorExplanations,
 			fatalErrorEncountered: errorExplanations.some(isFatalError),
 		},
 		currentTime: Date.now(),

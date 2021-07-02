@@ -44,3 +44,11 @@ export const getBrowserInstance = async (): ReturnType<
 	launching = false;
 	return _browserInstance;
 };
+
+export const closeBrowser = async () => {
+	if (_browserInstance) {
+		await _browserInstance.close();
+	}
+
+	_browserInstance = null;
+};

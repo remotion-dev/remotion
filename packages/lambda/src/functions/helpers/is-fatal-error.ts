@@ -1,9 +1,5 @@
-import {FAILED_TO_LAUNCH_TOKEN} from './inspect-errors';
+import {LambdaErrorInfo} from './write-lambda-error';
 
-export const isFatalError = (err: string) => {
-	if (err.includes(FAILED_TO_LAUNCH_TOKEN)) {
-		return false;
-	}
-
-	return true;
+export const isFatalError = (err: LambdaErrorInfo) => {
+	return err.isFatal;
 };
