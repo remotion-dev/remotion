@@ -47,8 +47,7 @@ export const getBrowserInstance = async (): ReturnType<
 
 export const closeBrowser = async () => {
 	if (_browserInstance) {
-		await _browserInstance.close();
+		const pages = await _browserInstance.pages();
+		await Promise.all(pages.map((p) => p.close()));
 	}
-
-	_browserInstance = null;
 };

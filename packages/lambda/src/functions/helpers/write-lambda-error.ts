@@ -29,7 +29,7 @@ export const writeLambdaError = async ({
 }) => {
 	await lambdaWriteFile({
 		bucketName,
-		key: `${getErrorKeyPrefix(renderId)}-${randomHash()}.txt`,
+		key: `${getErrorKeyPrefix(renderId)}${randomHash()}.txt`,
 		body: JSON.stringify(errorInfo),
 		region: getCurrentRegion(),
 		acl: 'private',
