@@ -1,4 +1,3 @@
-import {Log} from '@remotion/cli/dist/log';
 import {
 	COMMAND_NOT_FOUND,
 	LambdaPayload,
@@ -7,6 +6,7 @@ import {
 import {LambdaReturnValues} from '../shared/return-values';
 import {fireHandler} from './fire';
 import {progressHandler} from './get-progress';
+import {deleteTmpDir} from './helpers/clean-tmpdir';
 import {infoHandler} from './info';
 import {launchHandler} from './launch';
 import {rendererHandler} from './renderer';
@@ -23,7 +23,7 @@ export const handler = async <T extends LambdaRoutines>(
 	}
 
 	const currentUserId = context.invokedFunctionArn.split(':')[4];
-	Log.info('Lambda parameters passed', params);
+	deleteTmpDir();
 	if (params.type === LambdaRoutines.start) {
 		return startHandler(params);
 	}
