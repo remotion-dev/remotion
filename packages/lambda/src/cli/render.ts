@@ -112,7 +112,7 @@ export const renderCommand = async (args: string[]) => {
 			process.exit(0);
 		}
 
-		if (status.errors.fatalErrorEncountered) {
+		if (status.fatalErrorEncountered) {
 			Log.error('Fatal error encountered. Exiting.');
 			process.exit(1);
 		}

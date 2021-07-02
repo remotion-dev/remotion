@@ -258,10 +258,8 @@ export const progressHandler = async (
 		bucket: lambdaParams.bucketName,
 		outputFile: outputFile(),
 		timeToFinish,
-		errors: {
-			locations: errors,
-			fatalErrorEncountered: errorExplanations.some(isFatalError),
-		},
+		errors: errorExplanations,
+		fatalErrorEncountered: errorExplanations.some(isFatalError),
 		currentTime: Date.now(),
 		bucketSize,
 		lambdasInvoked,

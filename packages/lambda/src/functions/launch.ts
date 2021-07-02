@@ -1,5 +1,4 @@
 import {InvokeCommand} from '@aws-sdk/client-lambda';
-import {Log} from '@remotion/cli/dist/log';
 import fs from 'fs';
 import {Internals} from 'remotion';
 import {getLambdaClient} from '../shared/aws-clients';
@@ -252,7 +251,7 @@ export const launchHandler = async (
 	try {
 		await innerLaunchHandler(params, options);
 	} catch (err) {
-		Log.error('Error occurred', err);
+		console.log('Error occurred', err);
 		await writeLambdaError({
 			bucketName: params.bucketName,
 			errorInfo: {
