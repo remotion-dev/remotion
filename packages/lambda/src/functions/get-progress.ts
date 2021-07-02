@@ -20,6 +20,7 @@ import {streamToString} from '../shared/stream-to-string';
 import {getCurrentRegion} from './helpers/get-current-region';
 import {inspectErrors} from './helpers/inspect-errors';
 import {lambdaLs, lambdaReadFile} from './helpers/io';
+import {isFatalError} from './helpers/is-fatal-error';
 
 type Options = {
 	expectedBucketOwner: string;
@@ -262,8 +263,11 @@ export const progressHandler = async (
 		bucket: lambdaParams.bucketName,
 		outputFile: outputFile(),
 		timeToFinish,
-		errors,
-		errorExplanations,
+		errors: {
+			locations: errors,
+			messages: errorExplanations,
+			fatalErrorEncountered: errorExplanations.some(isFatalError),
+		},
 		currentTime: Date.now(),
 		bucketSize,
 		lambdasInvoked,

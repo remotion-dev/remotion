@@ -69,7 +69,21 @@ export const getCompositions = async (
 		serveUrl,
 	});
 
-	await page.goto(`${serveUrl}/index.html?evaluation=true`);
+	const urlToVisit = `${serveUrl}/index.html?evaluation=true`;
+	const pageRes = await page.goto(urlToVisit);
+	if (pageRes.status() !== 200) {
+		throw new Error(
+			`Error while getting compositions: Tried to go to ${urlToVisit} but the status code was not 200 as expected, but ${pageRes.status()}. Does the site you specified exist?`
+		);
+	}
+
+	const isRemotionFn = await page.evaluate('window.getStaticCompositions');
+	if (isRemotionFn === undefined) {
+		throw new Error(
+			`Error while getting compositions: Tried to go to ${urlToVisit} and verify that it is a Remotion project by checking if window.getStaticCompositions is defined. However, the function was undefined, which indicates that this is not a valid Remotion project. Please check the URL you passed.`
+		);
+	}
+
 	await page.waitForFunction('window.ready === true');
 	const result = await page.evaluate('window.getStaticCompositions()');
 
