@@ -28,11 +28,11 @@ export const inspectErrors = async ({
 	);
 	return errors.map((e) => {
 		if (e.includes('ENOSPC')) {
-			return 'Your lambda function reached the 512MB storage. To render videos this big, you need to enable EFS mode.';
+			return 'Your lambda function reached the 512MB storage. Reduce the amount of space needed per lambda function. Feel free to reach out to #lambda Discord for help';
 		}
 
 		if (e.includes('FATAL:zygote_communication_linux.cc')) {
-			return 'Failed to launch browser';
+			return 'Failed to launch browser. Will be retried - you can probably ignore this error.';
 		}
 
 		// TODO: Make typesafe and handle error
