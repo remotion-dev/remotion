@@ -1,34 +1,10 @@
 <!--- Provide a general summary of the issue in the Title above -->
+
 # Bug Report 🐛
-<!--- Provide an expanded summary of the issue -->
 
-## Expected Behavior
-<!--- Tell us what should happen -->
+<!--
+To make it easier for us to solve your issue, please help us by writing your issue in a way that we can reproduce the bug yourself.
+Include relevant information like exception messages, screenshots, example code snippets, information about your environment and the Remotion version you are using.
 
-## Current Behavior
-<!--- Tell us what happens instead of the expected behavior -->
-
-## Possible Solution
-<!--- Not obligatory, but suggest a fix/reason for the bug, -->
-
-## Steps to Reproduce
-<!--- Provide a link to a live example, or an unambiguous set of steps to -->
-<!--- reproduce this bug. Include code to reproduce, if relevant -->
-1.
-2.
-3.
-4.
-
-## Context (Environment)
-<!--- How has this issue affected you? What are you trying to accomplish? -->
-<!--- Providing context helps us come up with a solution that is most useful in the real world -->
-### Desktop
- - OS: [e.g. macOS]
- - Browser: [e.g. Chrome, Safari]
- - Version: [e.g. 0.22.15]
-
-## Detailed Description
-<!--- Provide a detailed description of the change or addition you are proposing -->
-
-## Possible Implementation
-<!--- Not obligatory, but suggest an idea for implementing addition or change -->
+Common problems are also explained in the "Troubleshooting" section under https://www.remotion.dev/docs/.
+-->
