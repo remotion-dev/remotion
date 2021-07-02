@@ -14,7 +14,7 @@ Remotion allows you to include several types of files in your project:
 
 Require images using an `import` statement and pass them to the [`<Img/>`](/docs/img) tag.
 
-```tsx
+```tsx twoslash
 import {Img} from 'remotion';
 import logo from './logo.png'
 
@@ -29,7 +29,7 @@ export const MyComp: React.FC = () => {
 
 If you have a series of images, for example exported from another program like After Effects or Rotato, you can use a dynamic `require` statement to import the images as they are needed.
 
-```tsx
+```tsx twoslash
 import {useCurrentFrame} from 'remotion';
 
 /*
@@ -59,7 +59,7 @@ Avoid writing a require statement that requires a file that doesn't exist. If yo
 
 Import your files using an import statement. Use the [`<Video />`/docs/video) component to keep the timeline and your video in sync.
 
-```tsx
+```tsx twoslash
 import {Video} from 'remotion';
 import vid from './vid.webm'
 
@@ -76,7 +76,7 @@ Be aware that if you are rendering using Chromium (as opposed to Chrome), the co
 
 Import your audio using an `import` statement and pass it to the [`<Audio/ >`](/docs/audio) component.
 
-```tsx
+```tsx twoslash
 import {Audio} from 'remotion';
 import tune from './tune.mp3'
 

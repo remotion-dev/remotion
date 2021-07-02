@@ -39,7 +39,14 @@ Type your components using the `React.FC<{}>` type and the `defaultProps` prop w
 
 ## Example using `component`
 
-```tsx
+```tsx twoslash
+// @allowUmdGlobalAccess
+// @filename: ./MyComp.tsx
+export const MyComp = () => <></>
+
+// @filename: index.tsx
+// ---cut---
+import {Composition} from 'remotion';
 import {MyComp} from './MyComp';
 
 export const MyVideo = () => {

@@ -1,6 +1,6 @@
 {
 	"name": "player-example",
-	"version": "2.1.11",
+	"version": "2.1.12",
 	"private": true,
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"maintainers": [
@@ -9,7 +9,7 @@
 	],
 	"dependencies": {
 		"@craco/craco": "^6.1.1",
-		"@remotion/player": "2.1.11",
+		"@remotion/player": "^2.1.12",
 		"@testing-library/jest-dom": "^5.11.4",
 		"@testing-library/react": "^11.1.0",
 		"@testing-library/user-event": "^12.1.10",
@@ -20,7 +20,7 @@
 		"react": "^17.0.1",
 		"react-dom": "^17.0.1",
 		"react-scripts": "4.0.3",
-		"remotion": "2.1.11",
+		"remotion": "^2.1.12",
 		"typescript": "^4.1.2"
 	},
 	"scripts": {

@@ -17,7 +17,7 @@ The component also accepts a `volume` props which allows you to control the volu
 
 `<Audio>` has two more helper props: `startFrom` and `endAt` for defining the start frame and end frame. Both are optional and do not get forwarded to the native `<audio>` element but tell Remotion which portion of the audio should be included.
 
-```tsx
+```tsx twoslash
 import {Audio} from 'remotion';
 import audio from './audio.mp3'
 
