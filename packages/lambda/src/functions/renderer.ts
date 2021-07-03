@@ -193,13 +193,10 @@ export const rendererHandler = async (
 	} catch (err) {
 		// If this error is encountered, we can just retry as it
 		// is a very rare error to occur
-		const isBrowserError = err.message.includes(
-			'FATAL:zygote_communication_linux.cc'
-		);
-		if (
-			err.message.includes('FATAL:zygote_communication_linux.cc') &&
-			params.retriesLeft > 0
-		) {
+		const isBrowserError =
+			err.message.includes('FATAL:zygote_communication_linux.cc') ||
+			err.message.included('error while loading shared libraries: libnss3.so');
+		if (isBrowserError || params.retriesLeft > 0) {
 			const retryPayload: LambdaPayloads[LambdaRoutines.renderer] = {
 				...params,
 				retriesLeft: params.retriesLeft - 1,
