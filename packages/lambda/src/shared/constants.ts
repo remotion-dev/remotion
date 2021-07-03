@@ -24,6 +24,8 @@ export const renderMetadataKey = (renderId: string) =>
 	`${rendersPrefix(renderId)}/render-metadata.json`;
 export const lambdaInitializedKey = (renderId: string) =>
 	`${rendersPrefix(renderId)}/lambda-initialized`;
+export const lambdaTimingsKey = (renderId: string) =>
+	`${rendersPrefix(renderId)}/lambda-timings`;
 export const chunkKey = (renderId: string) =>
 	`${rendersPrefix(renderId)}/chunks/chunk-`;
 export const timingProfileName = (renderId: string) =>

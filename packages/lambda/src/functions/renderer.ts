@@ -10,6 +10,7 @@ import {
 	LambdaPayload,
 	LambdaPayloads,
 	LambdaRoutines,
+	lambdaTimingsKey,
 } from '../shared/constants';
 import {getFileExtensionFromCodec} from '../shared/get-file-extension-from-codec';
 import {randomHash} from '../shared/random-hash';
@@ -18,6 +19,7 @@ import {
 	ChunkTimingData,
 	ObjectChunkTimingData,
 } from './chunk-optimization/types';
+import {deletedFiles} from './helpers/clean-tmpdir';
 import {closeBrowser, getBrowserInstance} from './helpers/get-browser-instance';
 import {getCurrentRegion} from './helpers/get-current-region';
 import {lambdaWriteFile} from './helpers/io';
@@ -26,6 +28,7 @@ import {writeLambdaError} from './helpers/write-lambda-error';
 
 type Options = {
 	expectedBucketOwner: string;
+	isWarm: boolean;
 };
 
 const renderHandler = async (params: LambdaPayload, options: Options) => {
@@ -75,7 +78,11 @@ const renderHandler = async (params: LambdaPayload, options: Options) => {
 			lambdaWriteFile({
 				acl: 'private',
 				bucketName: params.bucketName,
-				body: '0',
+				body: JSON.stringify({
+					filesInTmp: fs.readdirSync('/tmp'),
+					isWarm: options.isWarm,
+					deletedFiles,
+				}),
 				key: `${lambdaInitializedKey(params.renderId)}-${params.chunk}.txt`,
 				region: getCurrentRegion(),
 				expectedBucketOwner: options.expectedBucketOwner,
@@ -110,7 +117,7 @@ const renderHandler = async (params: LambdaPayload, options: Options) => {
 	const uploadMetricsData = lambdaWriteFile({
 		bucketName: params.bucketName,
 		body: JSON.stringify(condensedTimingData as ChunkTimingData, null, 2),
-		key: `${lambdaInitializedKey(params.renderId)}-${params.chunk}.txt`,
+		key: `${lambdaTimingsKey(params.renderId)}-${params.chunk}.txt`,
 		region: getCurrentRegion(),
 		acl: 'private',
 		expectedBucketOwner: options.expectedBucketOwner,
