@@ -7,6 +7,7 @@ import {LambdaReturnValues} from '../shared/return-values';
 import {fireHandler} from './fire';
 import {progressHandler} from './get-progress';
 import {deleteTmpDir} from './helpers/clean-tmpdir';
+import {getWarm, setWarm} from './helpers/is-warm';
 import {infoHandler} from './info';
 import {launchHandler} from './launch';
 import {rendererHandler} from './renderer';
@@ -22,8 +23,12 @@ export const handler = async <T extends LambdaRoutines>(
 		);
 	}
 
-	const currentUserId = context.invokedFunctionArn.split(':')[4];
 	deleteTmpDir();
+
+	const isWarm = getWarm();
+	setWarm();
+
+	const currentUserId = context.invokedFunctionArn.split(':')[4];
 	if (params.type === LambdaRoutines.start) {
 		return startHandler(params);
 	}
@@ -41,7 +46,10 @@ export const handler = async <T extends LambdaRoutines>(
 	}
 
 	if (params.type === LambdaRoutines.renderer) {
-		return rendererHandler(params, {expectedBucketOwner: currentUserId});
+		return rendererHandler(params, {
+			expectedBucketOwner: currentUserId,
+			isWarm,
+		});
 	}
 
 	if (params.type === LambdaRoutines.info) {
