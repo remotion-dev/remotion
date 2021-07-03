@@ -6,11 +6,13 @@ import path from 'path';
 import {getLambdaClient} from '../shared/aws-clients';
 import {
 	chunkKey,
+	DOWNLOADS_DIR,
 	lambdaInitializedKey,
 	LambdaPayload,
 	LambdaPayloads,
 	LambdaRoutines,
 	lambdaTimingsKey,
+	OUTPUT_PATH_PREFIX,
 } from '../shared/constants';
 import {getFileExtensionFromCodec} from '../shared/get-file-extension-from-codec';
 import {randomHash} from '../shared/random-hash';
@@ -19,9 +21,11 @@ import {
 	ChunkTimingData,
 	ObjectChunkTimingData,
 } from './chunk-optimization/types';
-import {deletedFiles} from './helpers/clean-tmpdir';
+import {deletedFiles, deletedFilesSize} from './helpers/clean-tmpdir';
 import {closeBrowser, getBrowserInstance} from './helpers/get-browser-instance';
 import {getCurrentRegion} from './helpers/get-current-region';
+import {getFolderFiles} from './helpers/get-files-in-folder';
+import {getFolderSizeRecursively} from './helpers/get-folder-size';
 import {lambdaWriteFile} from './helpers/io';
 import {timer} from './helpers/timer';
 import {writeLambdaError} from './helpers/write-lambda-error';
@@ -37,7 +41,7 @@ const renderHandler = async (params: LambdaPayload, options: Options) => {
 	}
 
 	const browserInstance = await getBrowserInstance();
-	const outputPath = '/tmp/remotion-render-' + randomHash();
+	const outputPath = OUTPUT_PATH_PREFIX + randomHash();
 	if (fs.existsSync(outputPath)) {
 		(fs.rmSync ?? fs.rmdirSync)(outputPath);
 	}
@@ -79,9 +83,12 @@ const renderHandler = async (params: LambdaPayload, options: Options) => {
 				acl: 'private',
 				bucketName: params.bucketName,
 				body: JSON.stringify({
+					filesCleaned: deletedFilesSize,
 					filesInTmp: fs.readdirSync('/tmp'),
 					isWarm: options.isWarm,
 					deletedFiles,
+					tmpSize: getFolderSizeRecursively('/tmp'),
+					tmpDirFiles: getFolderFiles('/tmp'),
 				}),
 				key: `${lambdaInitializedKey(params.renderId)}-${params.chunk}.txt`,
 				region: getCurrentRegion(),
@@ -133,6 +140,10 @@ const renderHandler = async (params: LambdaPayload, options: Options) => {
 	);
 
 	const stitchLabel = timer('stitcher');
+	if (!fs.existsSync(DOWNLOADS_DIR)) {
+		fs.mkdirSync(DOWNLOADS_DIR);
+	}
+
 	await stitchFramesToVideo({
 		assetsInfo: {
 			...assetsInfo,
@@ -146,7 +157,7 @@ const renderHandler = async (params: LambdaPayload, options: Options) => {
 				});
 			}),
 		},
-		downloadDir: '/tmp',
+		downloadDir: DOWNLOADS_DIR,
 		dir: outputPath,
 		force: true,
 		fps: params.fps,

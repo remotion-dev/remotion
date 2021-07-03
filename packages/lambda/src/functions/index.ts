@@ -7,6 +7,7 @@ import {LambdaReturnValues} from '../shared/return-values';
 import {fireHandler} from './fire';
 import {progressHandler} from './get-progress';
 import {deleteTmpDir} from './helpers/clean-tmpdir';
+import {closeBrowser} from './helpers/get-browser-instance';
 import {getWarm, setWarm} from './helpers/is-warm';
 import {infoHandler} from './info';
 import {launchHandler} from './launch';
@@ -23,8 +24,8 @@ export const handler = async <T extends LambdaRoutines>(
 		);
 	}
 
+	await closeBrowser();
 	deleteTmpDir();
-
 	const isWarm = getWarm();
 	setWarm();
 
