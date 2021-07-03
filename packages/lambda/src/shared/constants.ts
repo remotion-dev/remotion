@@ -42,6 +42,8 @@ export const getBinariesBucketName = (region: AwsRegion) => {
 	return BINARIES_BUCKET_PREFIX + region;
 };
 
+export const DOWNLOADS_DIR = '/tmp/downloads';
+export const OUTPUT_PATH_PREFIX = '/tmp/remotion-render-';
 export enum LambdaRoutines {
 	info = 'info',
 	start = 'start',
