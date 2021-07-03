@@ -102,12 +102,14 @@ export const renderFrames = async ({
 			onError?.({error: err, frame: null});
 		};
 
+		page.on('error', errorCallback);
 		page.on('pageerror', errorCallback);
 
 		await setPropsAndEnv({inputProps, envVariables, page, serveUrl});
 
 		const site = `${serveUrl}/index.html?composition=${compositionId}`;
 		await page.goto(site);
+		page.off('error', errorCallback);
 		page.off('pageerror', errorCallback);
 		return page;
 	});
