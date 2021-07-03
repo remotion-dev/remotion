@@ -296,6 +296,29 @@ export const showcaseVideos: ShowcaseVideo[] = [
       name: "Utkarsh Bhimte",
       url: "https://twitter.com/BhimteBhaisaab",
     },
+  },
+  {
+    title: "All Champions League Winners in History",
+    type: "mux_video",
+    muxId: "R9SZTw2ZoWuV44i5QVx5yVu01VaGm89JlZ876TdVXAyQ",
+    description: "This video shows all the UEFA Champions Cup (1956-1992) and Champions League (since 1993) Winners year by year and concludes with the ranking of the countries with the most trophies.",
+    height: 1080,
+    width: 1920,
+    submittedOn: new Date("07-03-2021"),
+    links: [
+      {
+        type: "video",
+        url: "https://www.youtube.com/watch?v=6Xn47wG_c5Q",
+      },
+      {
+        type: "website",
+        url: "https://www.youtube.com/channel/UCRBZkDc7udWuxrvedrFUbCQ/featured",
+      },
+    ],
+    author: {
+      "url": "https://twitter.com/mikepombal",
+      "name": "mikepombal"
+    }
   }
 ];
 
