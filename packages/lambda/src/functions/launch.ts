@@ -1,5 +1,6 @@
 import {InvokeCommand} from '@aws-sdk/client-lambda';
 import fs from 'fs';
+import pRetry from 'p-retry';
 import {Internals} from 'remotion';
 import {getLambdaClient} from '../shared/aws-clients';
 import {chunk} from '../shared/chunk';
@@ -24,10 +25,16 @@ import {
 	writeOptimization,
 } from './chunk-optimization/s3-optimization-file';
 import {writeTimingProfile} from './chunk-optimization/write-profile';
+import {deleteTmpDir} from './helpers/clean-tmpdir';
 import {concatVideosS3} from './helpers/concat-videos';
-import {closeBrowser, getBrowserInstance} from './helpers/get-browser-instance';
+import {
+	closeBrowser,
+	getBrowserInstance,
+	quitBrowser,
+} from './helpers/get-browser-instance';
 import {getCurrentRegion} from './helpers/get-current-region';
 import {lambdaWriteFile} from './helpers/io';
+import {isErrInsufficientResourcesErr} from './helpers/is-enosp-err';
 import {timer} from './helpers/timer';
 import {validateComposition} from './helpers/validate-composition';
 import {
@@ -49,7 +56,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		throw new Error('Pass chunkSize');
 	}
 
-	const [browserInstance, optimization] = await Promise.all([
+	const [, optimization] = await Promise.all([
 		getBrowserInstance(),
 		getOptimization({
 			bucketName: params.bucketName,
@@ -60,27 +67,52 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		}),
 	]);
 
-	const comp = await validateComposition({
-		serveUrl: params.serveUrl,
-		composition: params.composition,
-		browserInstance,
-		inputProps: params.inputProps,
-		onError: ({err}) => {
-			writeLambdaError({
-				bucketName: params.bucketName,
-				errorInfo: {
-					chunk: null,
-					frame: null,
-					isFatal: false,
-					stack: err.stack as string,
-					type: 'browser',
-					tmpDir: getTmpDirStateIfENoSp(err.stack as string),
+	const comp = await pRetry(
+		async () =>
+			validateComposition({
+				serveUrl: params.serveUrl,
+				composition: params.composition,
+				browserInstance: await getBrowserInstance(),
+				inputProps: params.inputProps,
+				onError: ({err}) => {
+					writeLambdaError({
+						bucketName: params.bucketName,
+						errorInfo: {
+							chunk: null,
+							frame: null,
+							isFatal: false,
+							stack: err.stack as string,
+							type: 'browser',
+							tmpDir: getTmpDirStateIfENoSp(err.stack as string),
+						},
+						expectedBucketOwner: options.expectedBucketOwner,
+						renderId: params.renderId,
+					});
 				},
-				expectedBucketOwner: options.expectedBucketOwner,
-				renderId: params.renderId,
-			});
-		},
-	});
+			}),
+		{
+			retries: 1,
+			onFailedAttempt: async (err) => {
+				if (isErrInsufficientResourcesErr(err.message)) {
+					await writeLambdaError({
+						bucketName: params.bucketName,
+						errorInfo: {
+							chunk: null,
+							frame: null,
+							isFatal: false,
+							stack: err.stack as string,
+							tmpDir: null,
+							type: 'stitcher',
+						},
+						expectedBucketOwner: options.expectedBucketOwner,
+						renderId: params.renderId,
+					});
+					await quitBrowser();
+					deleteTmpDir();
+				}
+			},
+		}
+	);
 	Internals.validateDurationInFrames(
 		comp.durationInFrames,
 		'passed to <Component />'
