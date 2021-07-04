@@ -56,6 +56,25 @@ async function assertFolderEmptyAsync(
 	}
 }
 
+const shouldUseYarn = (): boolean => {
+	return Boolean(
+		process.env.npm_execpath?.includes('yarn.js') ||
+			process.env.npm_config_user_agent?.includes('yarn')
+	);
+};
+
+const isGitExecutableAvailable = async () => {
+	try {
+		await execa('git', ['--version']);
+		return true;
+	} catch (e) {
+		if (e.errno === 'ENOENT') {
+			Log.warn('Unable to find `git` command. `git` not in PATH.');
+			return false;
+		}
+	}
+};
+
 const initGitRepoAsync = async (
 	root: string,
 	flags: {silent: boolean; commit: boolean} = {silent: false, commit: true}
@@ -84,7 +103,7 @@ const initGitRepoAsync = async (
 
 		if (flags.commit) {
 			await execa('git', ['add', '--all'], {cwd: root, stdio: 'ignore'});
-			await execa('git', ['commit', '-m', 'Created a new Remotion app'], {
+			await execa('git', ['commit', '-m', 'Create a new Remotion app'], {
 				cwd: root,
 				stdio: 'ignore',
 			});
@@ -108,7 +127,7 @@ const resolveProjectRootAsync = async () => {
 			type: 'text',
 			name: 'answer',
 			message: 'What would you like to name your app?',
-			initial: 'my-app',
+			initial: 'my-video',
 			validate: (name) => {
 				const validation = CreateDirectory.validateName(
 					path.basename(path.resolve(name))
@@ -139,7 +158,7 @@ const resolveProjectRootAsync = async () => {
 
 	await assertFolderEmptyAsync(projectRoot, folderName);
 
-	return projectRoot;
+	return [projectRoot, folderName];
 };
 
 const isNodeVersionGreater = () => {
@@ -148,9 +167,10 @@ const isNodeVersionGreater = () => {
 
 export const init = async () => {
 	// let projectName = process.argv[2];
-	// console.log(projectName, 'new');
-	const projectRoot = await resolveProjectRootAsync();
+	// Log.info(projectName, 'new');
+	const [projectRoot, folderName] = await resolveProjectRootAsync();
 	const greaterNodeVersion = isNodeVersionGreater();
+	await isGitExecutableAvailable();
 
 	const descriptionColumn =
 		Math.max(
@@ -192,10 +212,44 @@ export const init = async () => {
 		fs.rmdirSync(path.join(projectRoot, '.git'), {recursive: true});
 	}
 
-	const isGitInitialized = await initGitRepoAsync(projectRoot, {
+	await initGitRepoAsync(projectRoot, {
 		silent: true,
 		commit: true,
 	});
 
-	Log.info('Template downloaded and initialized');
+	Log.info(
+		`Created project at ${chalk.blue(folderName)}. Installing dependencies...`
+	);
+	if (shouldUseYarn()) {
+		Log.info('> yarn');
+		const promise = execa('yarn', [], {
+			cwd: projectRoot,
+		});
+		promise.stderr?.pipe(process.stderr);
+		promise.stdout?.pipe(process.stdout);
+		await promise;
+	} else {
+		Log.info('> npm install');
+		const promise = execa('npm', ['install'], {
+			cwd: projectRoot,
+		});
+		promise.stderr?.pipe(process.stderr);
+		promise.stdout?.pipe(process.stdout);
+		await promise;
+	}
+	Log.info(`Welcome to ${chalk.blue('Remotion')}!`);
+	Log.info(`✨ Your video has been created at ${chalk.blue(folderName)}.\n`);
+
+	Log.info('Get started by running');
+	Log.info(chalk.blue(`cd ${folderName}`));
+	Log.info(chalk.blue(shouldUseYarn() ? 'yarn start' : 'npm start'));
+	Log.info('');
+	Log.info('To render an MP4 video, run');
+	Log.info(chalk.blue(shouldUseYarn() ? 'yarn build' : 'npm run build'));
+	Log.info('');
+	Log.info(
+		'Read the documentation at',
+		chalk.underline('https://remotion.dev')
+	);
+	Log.info('Enjoy Remotion!');
 };
