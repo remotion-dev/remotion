@@ -4,6 +4,7 @@ import {getLambdaClient} from '../shared/aws-clients';
 import {RENDER_FN_PREFIX} from '../shared/constants';
 import {getFunctionVersion} from './get-function-version';
 
+// TODO: Rename to getDeployedFunctions
 export const getDeployedLambdas = async (options: {region: AwsRegion}) => {
 	const lambdas = await getLambdaClient(options.region).send(
 		new ListFunctionsCommand({})
