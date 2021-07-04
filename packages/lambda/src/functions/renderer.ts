@@ -1,6 +1,7 @@
 import {InvokeCommand} from '@aws-sdk/client-lambda';
 import {Log} from '@remotion/cli/dist/log';
 import {renderFrames, stitchFramesToVideo} from '@remotion/renderer';
+import {addSilentAudioIfNecessary} from '@remotion/renderer/src/add-silent-audio-if-necessary';
 import fs from 'fs';
 import path from 'path';
 import {getLambdaClient} from '../shared/aws-clients';
@@ -182,6 +183,7 @@ const renderHandler = async (params: LambdaPayload, options: Options) => {
 		webpackBundle: null,
 	});
 	stitchLabel.end();
+	await addSilentAudioIfNecessary(outputLocation);
 
 	await Promise.all([
 		uploadMetricsData,
