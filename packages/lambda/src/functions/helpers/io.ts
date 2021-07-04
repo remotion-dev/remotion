@@ -14,21 +14,36 @@ export const lambdaLs = async ({
 	prefix,
 	region,
 	expectedBucketOwner,
+	continuationToken,
 }: {
 	bucketName: string;
 	prefix: string;
 	region: AwsRegion;
 	expectedBucketOwner: string | null;
+	continuationToken?: string;
 }): Promise<_Object[]> => {
 	try {
-		// TODO: Should paginate with list.ContinuationToken
 		const list = await getS3Client(region).send(
 			new ListObjectsV2Command({
 				Bucket: bucketName,
 				Prefix: prefix,
 				ExpectedBucketOwner: expectedBucketOwner ?? undefined,
+				ContinuationToken: continuationToken,
 			})
 		);
+		if (list.NextContinuationToken) {
+			return [
+				...(list.Contents ?? []),
+				...(await lambdaLs({
+					bucketName,
+					prefix,
+					expectedBucketOwner,
+					region,
+					continuationToken: list.NextContinuationToken,
+				})),
+			];
+		}
+
 		return list.Contents ?? [];
 	} catch (err) {
 		if (!expectedBucketOwner) {
