@@ -1,6 +1,7 @@
 import {AwsRegion} from '../../pricing/aws-regions';
 import {streamToString} from '../../shared/stream-to-string';
 import {lambdaReadFile} from './io';
+import {errorIsOutOfSpaceError} from './is-enosp-err';
 import {EnhancedErrorInfo, LambdaErrorInfo} from './write-lambda-error';
 
 export const FAILED_TO_LAUNCH_TOKEN = 'Failed to launch browser.';
@@ -9,18 +10,18 @@ const getExplanation = (stack: string) => {
 	if (stack.includes('FATAL:zygote_communication_linux.cc')) {
 		return (
 			FAILED_TO_LAUNCH_TOKEN +
-			'Will be retried - you can probably ignore this error.'
+			' Will be retried - you can probably ignore this error.'
 		);
 	}
 
 	if (stack.includes('error while loading shared libraries: libnss3.so')) {
 		return (
 			FAILED_TO_LAUNCH_TOKEN +
-			'Will be retried - you can probably ignore this error.'
+			' Will be retried - you can probably ignore this error.'
 		);
 	}
 
-	if (stack.includes('ENOSPC')) {
+	if (errorIsOutOfSpaceError(stack)) {
 		return 'Your lambda function reached the 512MB storage limit. Reduce the amount of space needed per lambda function. Feel free to reach out to #lambda Discord for help';
 	}
 

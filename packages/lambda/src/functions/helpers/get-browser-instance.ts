@@ -1,4 +1,5 @@
 import {RenderInternals} from '@remotion/renderer';
+import pRetry from 'p-retry';
 import {Await} from '../../shared/await';
 import {executablePath} from './get-chromium-executable-path';
 
@@ -38,9 +39,15 @@ export const getBrowserInstance = async (): ReturnType<
 	launching = true;
 
 	const execPath = await executablePath();
-	_browserInstance = await RenderInternals.openBrowser('chrome', {
-		customExecutable: execPath,
-	});
+	_browserInstance = await pRetry(
+		() =>
+			RenderInternals.openBrowser('chrome', {
+				customExecutable: execPath,
+			}),
+		{
+			retries: 3,
+		}
+	);
 	launching = false;
 	return _browserInstance;
 };
