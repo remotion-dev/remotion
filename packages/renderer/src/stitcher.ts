@@ -156,6 +156,8 @@ export const stitchFramesToVideo = async (options: {
 			  ['-c:v', encoderName]
 			: // If only exporting audio, we drop the video explicitly
 			  ['-vn'],
+		['-ar', '44100'],
+		['-ac', '2'],
 		proResProfileName ? ['-profile:v', proResProfileName] : null,
 		supportsCrf ? ['-crf', String(crf)] : null,
 		isAudioOnly ? null : ['-pix_fmt', pixelFormat],
