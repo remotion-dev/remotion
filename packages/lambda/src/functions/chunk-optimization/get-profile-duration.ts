@@ -4,7 +4,7 @@ export const getTimingEndTimestamps = (chunk: ChunkTimingData): number[] => {
 	return chunk.timings.map((timing) => chunk.startDate + timing);
 };
 
-export const getProfileTimestamps = (chunks: TimingProfile) => {
+const getProfileTimestamps = (chunks: TimingProfile) => {
 	return chunks.map((c) => getTimingEndTimestamps(c));
 };
 

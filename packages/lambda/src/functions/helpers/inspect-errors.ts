@@ -4,7 +4,7 @@ import {lambdaReadFile} from './io';
 import {errorIsOutOfSpaceError} from './is-enosp-err';
 import {EnhancedErrorInfo, LambdaErrorInfo} from './write-lambda-error';
 
-export const FAILED_TO_LAUNCH_TOKEN = 'Failed to launch browser.';
+const FAILED_TO_LAUNCH_TOKEN = 'Failed to launch browser.';
 
 const getExplanation = (stack: string) => {
 	if (stack.includes('FATAL:zygote_communication_linux.cc')) {

@@ -7,7 +7,7 @@ import {sitesRmSubcommand, SITES_RM_COMMAND} from './rm';
 
 export const SITES_COMMAND = 'sites';
 
-export const printSitesHelp = () => {
+const printSitesHelp = () => {
 	Log.info(`${BINARY_NAME} ${SITES_COMMAND} <subcommand>`);
 	Log.info();
 	Log.info('Available subcommands:');

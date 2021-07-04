@@ -34,7 +34,7 @@ export const callLambda = async <T extends LambdaRoutines>({
 	if ('errorMessage' in json) {
 		const err = new Error(json.errorMessage);
 		err.name = json.errorType;
-		err.stack = json.trace.join('\n');
+		err.stack = (json.trace ?? []).join('\n');
 		throw err;
 	}
 

@@ -1,6 +1,13 @@
 import fs from 'fs';
 import {join} from 'path';
-import {DOWNLOADS_DIR, OUTPUT_PATH_PREFIX} from '../../shared/constants';
+import {
+	CONCAT_TMPDIR,
+	DOWNLOADS_DIR,
+	OUTPUT_PATH_PREFIX,
+	REMOTION_CONCATED_TMP_PREFIX,
+	REMOTION_FILELIST_TMP_PREFIX,
+	RENDERER_PATH_PREFIX,
+} from '../../shared/constants';
 
 export let deletedFiles: string[] = [];
 export let deletedFilesSize = 0;
@@ -12,22 +19,26 @@ const deleteAllFilesInAFolderRecursively = (path: string) => {
 		if (
 			!filePath.startsWith(OUTPUT_PATH_PREFIX) &&
 			!filePath.startsWith(DOWNLOADS_DIR) &&
+			!filePath.startsWith(RENDERER_PATH_PREFIX) &&
+			!filePath.startsWith(CONCAT_TMPDIR) &&
+			!filePath.startsWith(REMOTION_CONCATED_TMP_PREFIX) &&
+			!filePath.startsWith(REMOTION_FILELIST_TMP_PREFIX) &&
 			!filePath.startsWith('/tmp/puppeteer_dev_chrome')
 		) {
 			return;
 		}
 
-		if (fs.statSync(filePath).isDirectory()) {
+		const stat = fs.statSync(filePath);
+		if (stat.isDirectory()) {
 			deleteAllFilesInAFolderRecursively(filePath);
 		} else {
-			const stat = fs.statSync(filePath);
 			fs.unlinkSync(filePath);
 			deletedFiles.push(filePath);
 			deletedFilesSize += stat.size;
 		}
 	});
 	if (path !== '/tmp') {
-		fs.rmdirSync(path);
+		fs.rmSync(path, {recursive: true, force: true});
 	}
 };
 
