@@ -6,7 +6,7 @@ title: "@remotion/gif"
 
 You can install this package from NPM to get a component for displaying GIFs that synchronize with Remotions [`useCurrentFrame()`](use-current-frame).
 
-```console
+```bash
 npm i @remotion/gif
 ```
 

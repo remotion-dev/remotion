@@ -13,7 +13,7 @@ If you want to pass an environment variable from the CLI, you need to prefix it 
 
 You can pass environment variables in development mode and while rendering. For example:
 
-```console
+```bash
 REMOTION_MY_VAR=hello_world npm start
 ```
 
@@ -25,7 +25,7 @@ In your project, you can access the variable using `process.env.REMOTION_MY_VAR`
 
 For example, if your file contains
 
-```dotenv
+```ini title=".env"
 MY_VAR=hello
 ANOTHER_VAR=world
 ```

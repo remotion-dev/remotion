@@ -11,7 +11,7 @@ This can become an unexpected hurdle in Webpack. On this page we collect some ti
 
 Consider you have a PNG sequence of images with the following file structure:
 
-```
+```bash
 my-video/
 ├─ src/
 │  ├─ assets/
@@ -35,7 +35,7 @@ export const DynamicImports: React.FC = () => {
 };
 ```
 
-```console
+```bash
 Error: Cannot find module './image0.png'
 ```
 

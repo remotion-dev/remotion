@@ -17,7 +17,7 @@ This method is not available when inside a Remotion Player. Instead, get the pro
 
 Pass in a [parseable](/docs/cli) JSON representation using the `--props` flag to either `remotion preview` or `remotion render`:
 
-```console
+```bash
 npx remotion render --props='{"hello": "world"}' src/index.tsx my-composition out.mp4
 ```
 

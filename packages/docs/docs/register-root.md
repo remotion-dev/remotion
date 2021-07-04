@@ -11,9 +11,7 @@ The list of compositions can be updated without reloading the page, but calling 
 
 ## Example
 
-`index.ts`
-
-```tsx twoslash
+```tsx twoslash title="index.ts"
 // @filename: ./Video.tsx
 export const RemotionVideo = () => <></>;
 
@@ -25,9 +23,7 @@ import {RemotionVideo} from './Video';
 registerRoot(RemotionVideo);
 ```
 
-`Video.tsx`
-
-```tsx twoslash
+```tsx twoslash title="Video.tsx"
 // @allowUmdGlobalAccess
 // @filename: MyComponent.tsx
 export default () => <></>

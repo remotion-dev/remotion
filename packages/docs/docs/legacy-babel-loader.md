@@ -13,15 +13,11 @@ This should not be necessary in general, it is encouraged to [report issues](htt
 
 ## Example
 
-`console`
-
-```
+```bash title="Console"
 npm i @remotion/babel-loader
 ```
 
-`remotion.config.ts`
-
-```ts twoslash
+```ts twoslash title="remotion.config.ts"
 import {Config} from 'remotion'
 // ---cut---
 import {replaceLoadersWithBabel} from '@remotion/babel-loader';
