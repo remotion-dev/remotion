@@ -270,7 +270,8 @@ export const showcaseVideos: ShowcaseVideo[] = [
       },
       {
         type: "source_code",
-        url: "https://github.com/c0/remotion-playground/blob/main/src/GooBallCSS.jsx",
+        url:
+          "https://github.com/c0/remotion-playground/blob/main/src/GooBallCSS.jsx",
       },
     ],
     author: {
@@ -282,7 +283,8 @@ export const showcaseVideos: ShowcaseVideo[] = [
     title: "Personalized Welcome Videos",
     type: "mux_video",
     muxId: "BPP7jS72gdEtARObTEGOc5GHnDv6ODfp48hIFMU9U6E",
-    description: "A SlackHQ integrated tool to generate personalized welcome videos for new employees.",
+    description:
+      "A SlackHQ integrated tool to generate personalized welcome videos for new employees.",
     width: 1920,
     height: 1080,
     submittedOn: new Date("27-06-2021"),
@@ -290,7 +292,7 @@ export const showcaseVideos: ShowcaseVideo[] = [
       {
         type: "video",
         url: "https://twitter.com/BhimteBhaisaab/status/1401195261943115777",
-      }
+      },
     ],
     author: {
       name: "Utkarsh Bhimte",
@@ -301,7 +303,8 @@ export const showcaseVideos: ShowcaseVideo[] = [
     title: "All Champions League Winners in History",
     type: "mux_video",
     muxId: "R9SZTw2ZoWuV44i5QVx5yVu01VaGm89JlZ876TdVXAyQ",
-    description: "This video shows all the UEFA Champions Cup (1956-1992) and Champions League (since 1993) Winners year by year and concludes with the ranking of the countries with the most trophies.",
+    description:
+      "This video shows all the UEFA Champions Cup (1956-1992) and Champions League (since 1993) Winners year by year and concludes with the ranking of the countries with the most trophies.",
     height: 1080,
     width: 1920,
     submittedOn: new Date("07-03-2021"),
@@ -312,14 +315,15 @@ export const showcaseVideos: ShowcaseVideo[] = [
       },
       {
         type: "website",
-        url: "https://www.youtube.com/channel/UCRBZkDc7udWuxrvedrFUbCQ/featured",
+        url:
+          "https://www.youtube.com/channel/UCRBZkDc7udWuxrvedrFUbCQ/featured",
       },
     ],
     author: {
-      "url": "https://twitter.com/mikepombal",
-      "name": "mikepombal"
-    }
-  }
+      url: "https://twitter.com/mikepombal",
+      name: "mikepombal",
+    },
+  },
 ];
 
 const dateString = (date: Date) =>
@@ -327,6 +331,9 @@ const dateString = (date: Date) =>
 
 const todayHash = dateString(new Date());
 
-export const shuffledShowcaseVideos = showcaseVideos.sort((a, b) => {
-  return random(a.muxId + todayHash) - random(b.muxId + todayHash);
-});
+export const shuffledShowcaseVideos =
+  typeof window === "undefined"
+    ? []
+    : showcaseVideos.slice(0).sort((a, b) => {
+        return random(a.muxId + todayHash) - random(b.muxId + todayHash);
+      });
