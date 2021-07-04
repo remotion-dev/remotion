@@ -3,6 +3,7 @@ import {randomHash} from '../../shared/random-hash';
 import {getCurrentRegion} from './get-current-region';
 import {FileNameAndSize, getFolderFiles} from './get-files-in-folder';
 import {lambdaWriteFile} from './io';
+import {errorIsOutOfSpaceError} from './is-enosp-err';
 
 export type LambdaErrorInfo = {
 	type: 'renderer' | 'browser' | 'stitcher';
@@ -16,7 +17,7 @@ export type LambdaErrorInfo = {
 export const getTmpDirStateIfENoSp = (
 	err: string
 ): LambdaErrorInfo['tmpDir'] => {
-	if (!err.includes('ENOSP')) {
+	if (!errorIsOutOfSpaceError(err)) {
 		return null;
 	}
 
