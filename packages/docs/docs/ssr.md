@@ -21,9 +21,9 @@ import os from 'os'
 import path from 'path'
 import {bundle} from '@remotion/bundler'
 import {
-	getCompositions,
-	renderFrames,
-	stitchFramesToVideo,
+  getCompositions,
+  renderFrames,
+  stitchFramesToVideo,
 } from '@remotion/renderer'
 
 const start = async () => {
