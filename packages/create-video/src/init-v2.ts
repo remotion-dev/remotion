@@ -7,16 +7,27 @@ import * as CreateDirectory from './create-directory';
 import {Log} from './log';
 import prompts, {selectAsync} from './prompts';
 
-const FEATURED_TEMPLATES = [
+type TEMPLATES = {
+	shortName: string;
+	name: string;
+	description: string;
+};
+
+const FEATURED_TEMPLATES: TEMPLATES[] = [
 	{
-		shortName: 'helloworld',
+		shortName: 'Helloworld',
 		name: 'template-helloworld',
 		description: 'a helloworld app with react logo',
 	},
 	{
-		shortName: 'helloworld (Javascript)',
+		shortName: 'Helloworld (Javascript)',
 		name: 'template-helloworld-javascript',
 		description: 'same as helloworld but with Javascript configuration',
+	},
+	{
+		shortName: 'Three Fiber template',
+		name: 'template-three',
+		description: 'Remotion + React Three Fiber Starter Template',
 	},
 ];
 
