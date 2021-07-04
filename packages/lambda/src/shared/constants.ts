@@ -44,6 +44,18 @@ export const getBinariesBucketName = (region: AwsRegion) => {
 
 export const DOWNLOADS_DIR = '/tmp/downloads';
 export const OUTPUT_PATH_PREFIX = '/tmp/remotion-render-';
+export const RENDERER_PATH_TOKEN = 'remotion-bucket';
+export const RENDERER_PATH_PREFIX = '/tmp/' + RENDERER_PATH_TOKEN;
+
+export const CONCAT_FOLDER_TOKEN = 'remotion-concat';
+export const CONCAT_TMPDIR = '/tmp/' + CONCAT_FOLDER_TOKEN;
+
+export const REMOTION_CONCATED_TOKEN = 'remotion-concated-token';
+export const REMOTION_CONCATED_TMP_PREFIX = '/tmp/' + REMOTION_CONCATED_TOKEN;
+
+export const REMOTION_FILELIST_TOKEN = 'remotion-filelist';
+export const REMOTION_FILELIST_TMP_PREFIX = '/tmp' + REMOTION_FILELIST_TOKEN;
+
 export enum LambdaRoutines {
 	info = 'info',
 	start = 'start',

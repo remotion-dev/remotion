@@ -3,7 +3,7 @@ import {ChunkTimingData, TimingProfile} from './types';
 
 const durationCache = new Map<ChunkTimingData, number>();
 
-export const getChunkDuration = (chunk: ChunkTimingData) => {
+const getChunkDuration = (chunk: ChunkTimingData) => {
 	const inCache = durationCache.get(chunk);
 	if (inCache) {
 		return inCache;

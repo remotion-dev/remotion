@@ -13,6 +13,7 @@ import {
 	LambdaRoutines,
 	lambdaTimingsKey,
 	OUTPUT_PATH_PREFIX,
+	RENDERER_PATH_TOKEN,
 } from '../shared/constants';
 import {getFileExtensionFromCodec} from '../shared/get-file-extension-from-codec';
 import {randomHash} from '../shared/random-hash';
@@ -133,7 +134,7 @@ const renderHandler = async (params: LambdaPayload, options: Options) => {
 		acl: 'private',
 		expectedBucketOwner: options.expectedBucketOwner,
 	});
-	const outdir = tmpDir('bucket');
+	const outdir = tmpDir(RENDERER_PATH_TOKEN);
 
 	const outputLocation = path.join(
 		outdir,
