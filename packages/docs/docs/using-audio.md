@@ -7,7 +7,9 @@ id: using-audio
 
 You can import an audio file using an `import` statement:
 
-```tsx
+```ts twoslash
+import {Audio} from 'remotion' // needed to import audio files
+// ---cut---
 import audio from './audio.mp3'
 ```
 
