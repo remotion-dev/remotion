@@ -52,7 +52,7 @@ export const Root = () => {
         component={MyComponent}
         defaultProps={{
           propOne: 'Hi',
-          propTwo: 10
+          propTwo: 10,
         }}
       />
     </>
@@ -91,11 +91,11 @@ When server-rendering using `renderFrames`, you can pass props using the `inputP
 ```tsx twoslash {9-11}
 // @module: esnext
 // @target: es2017
-const video = {fps: 30, durationInFrames: 30, width: 1080, height: 1080};
-const bundled = '/path/to/bundle';
-const framesDir = '/path/to/frames';
+const video = {fps: 30, durationInFrames: 30, width: 1080, height: 1080}
+const bundled = '/path/to/bundle'
+const framesDir = '/path/to/frames'
 // ---cut---
-import {renderFrames} from '@remotion/renderer';
+import {renderFrames} from '@remotion/renderer'
 
 await renderFrames({
   config: video,
@@ -105,11 +105,11 @@ await renderFrames({
   parallelism: null,
   outputDir: framesDir,
   inputProps: {
-    titleText: 'Hello World'
+    titleText: 'Hello World',
   },
   compositionId: 'HelloWorld',
-  imageFormat: 'jpeg'
-});
+  imageFormat: 'jpeg',
+})
 ```
 
 ### Passing input props in GitHub Actions

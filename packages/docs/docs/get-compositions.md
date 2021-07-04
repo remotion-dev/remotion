@@ -8,10 +8,13 @@ _Part of the `@remotion/renderer` package._
 Gets the compositions defined in a Remotion project based on a webpack bundle. Spins up a browser with Puppeteer and evaluates the Remotion root.
 
 ```ts
-const getCompositions: (bundle: string, options: {
-  inputProps?: object | null;
-  browserInstance?: puppeteer.Browser;
-}) => Promise<TComposition[]>
+const getCompositions: (
+  bundle: string,
+  options: {
+    inputProps?: object | null
+    browserInstance?: puppeteer.Browser
+  }
+) => Promise<TComposition[]>
 ```
 
 ## Arguments
@@ -45,18 +48,18 @@ Returns a promise that resolves to an array of available compositions. Example v
 ```ts twoslash
 [
   {
-    id: "HelloWorld",
+    id: 'HelloWorld',
     width: 1920,
     height: 1080,
     fps: 30,
   },
   {
-    id: "Title",
+    id: 'Title',
     width: 1080,
     height: 1080,
     fps: 30,
   },
-];
+]
 ```
 
 ## See also

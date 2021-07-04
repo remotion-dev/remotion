@@ -15,9 +15,7 @@ You can use fonts by loading them in a CSS file using @font-face. Web fonts ofte
 import './font.css'
 
 const MyComp: React.FC = () => {
-  return (
-    <div style={{fontFamily: 'Bangers'}}>Hello</div>
-  )
+  return <div style={{fontFamily: 'Bangers'}}>Hello</div>
 }
 ```
 
@@ -40,9 +38,7 @@ Google Web Fonts by default appends `?display=swap` to their URLs. Make sure to 
 import './font.css'
 
 const MyComp: React.FC = () => {
-  return (
-    <div style={{fontFamily: 'Bangers'}}>Hello</div>
-  )
+  return <div style={{fontFamily: 'Bangers'}}>Hello</div>
 }
 ```
 

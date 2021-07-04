@@ -15,13 +15,11 @@ Remotion allows you to include several types of files in your project:
 Require images using an `import` statement and pass them to the [`<Img/>`](/docs/img) tag.
 
 ```tsx twoslash
-import {Img} from 'remotion';
+import {Img} from 'remotion'
 import logo from './logo.png'
 
 export const MyComp: React.FC = () => {
-  return (
-    <Img src={logo} />
-  )
+  return <Img src={logo} />
 }
 ```
 
@@ -30,7 +28,7 @@ export const MyComp: React.FC = () => {
 If you have a series of images, for example exported from another program like After Effects or Rotato, you can use a dynamic `require` statement to import the images as they are needed.
 
 ```tsx twoslash
-import {useCurrentFrame} from 'remotion';
+import {useCurrentFrame} from 'remotion'
 
 /*
   Assuming your file structure is:
@@ -42,12 +40,10 @@ import {useCurrentFrame} from 'remotion';
 */
 
 const MyComp: React.FC = () => {
-  const frame = useCurrentFrame();
-  const src = require('./assets/frame' + frame + '.png');
+  const frame = useCurrentFrame()
+  const src = require('./assets/frame' + frame + '.png')
 
-  return (
-    <img src={src} />
-  )
+  return <img src={src} />
 }
 ```
 
@@ -60,13 +56,11 @@ Avoid writing a require statement that requires a file that doesn't exist. If yo
 Import your files using an import statement. Use the [`<Video />`/docs/video) component to keep the timeline and your video in sync.
 
 ```tsx twoslash
-import {Video} from 'remotion';
+import {Video} from 'remotion'
 import vid from './vid.webm'
 
 export const MyComp: React.FC = () => {
-  return (
-    <Video src={vid} />
-  );
+  return <Video src={vid} />
 }
 ```
 
@@ -77,13 +71,11 @@ Be aware that if you are rendering using Chromium (as opposed to Chrome), the co
 Import your audio using an `import` statement and pass it to the [`<Audio/ >`](/docs/audio) component.
 
 ```tsx twoslash
-import {Audio} from 'remotion';
+import {Audio} from 'remotion'
 import tune from './tune.mp3'
 
 export const MyComp: React.FC = () => {
-  return (
-    <Audio src={tune} />
-  );
+  return <Audio src={tune} />
 }
 ```
 
