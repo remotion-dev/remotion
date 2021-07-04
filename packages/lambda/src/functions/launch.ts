@@ -30,7 +30,10 @@ import {getCurrentRegion} from './helpers/get-current-region';
 import {lambdaWriteFile} from './helpers/io';
 import {timer} from './helpers/timer';
 import {validateComposition} from './helpers/validate-composition';
-import {writeLambdaError} from './helpers/write-lambda-error';
+import {
+	getTmpDirStateIfENoSp,
+	writeLambdaError,
+} from './helpers/write-lambda-error';
 
 type Options = {
 	expectedBucketOwner: string;
@@ -71,6 +74,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 					isFatal: false,
 					stack: err.stack as string,
 					type: 'browser',
+					tmpDir: getTmpDirStateIfENoSp(err.stack as string),
 				},
 				expectedBucketOwner: options.expectedBucketOwner,
 				renderId: params.renderId,
@@ -173,9 +177,9 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 	reqSend.end();
 
 	// TODO: Should throttle?
-	const onProgress = (framesRendered: number) => {
+	const onProgress = (framesEncoded: number) => {
 		const encodingProgress: EncodingProgress = {
-			framesRendered,
+			framesEncoded,
 		};
 		lambdaWriteFile({
 			bucketName: params.bucketName,
@@ -260,6 +264,7 @@ export const launchHandler = async (
 				stack: err.stack,
 				type: 'stitcher',
 				isFatal: true,
+				tmpDir: getTmpDirStateIfENoSp(err.stack),
 			},
 			expectedBucketOwner: options.expectedBucketOwner,
 			renderId: params.renderId,

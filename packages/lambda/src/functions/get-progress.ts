@@ -40,7 +40,7 @@ const getFinalEncodingStatus = ({
 
 	if (outputFileExists) {
 		return {
-			framesRendered: renderMetadata.totalFrames,
+			framesEncoded: renderMetadata.totalFrames,
 		};
 	}
 

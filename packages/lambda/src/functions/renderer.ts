@@ -28,7 +28,10 @@ import {getFolderFiles} from './helpers/get-files-in-folder';
 import {getFolderSizeRecursively} from './helpers/get-folder-size';
 import {lambdaWriteFile} from './helpers/io';
 import {timer} from './helpers/timer';
-import {writeLambdaError} from './helpers/write-lambda-error';
+import {
+	getTmpDirStateIfENoSp,
+	writeLambdaError,
+} from './helpers/write-lambda-error';
 
 type Options = {
 	expectedBucketOwner: string;
@@ -103,11 +106,12 @@ const renderHandler = async (params: LambdaPayload, options: Options) => {
 		onError: ({error, frame}) => {
 			writeLambdaError({
 				errorInfo: {
-					stack: error.stack as string,
+					stack: JSON.stringify(error),
 					type: 'browser',
 					frame,
 					chunk: params.chunk,
 					isFatal: false,
+					tmpDir: getTmpDirStateIfENoSp(JSON.stringify(error)),
 				},
 				bucketName: params.bucketName,
 				expectedBucketOwner: options.expectedBucketOwner,
@@ -239,6 +243,7 @@ export const rendererHandler = async (
 				frame: null,
 				type: 'renderer',
 				isFatal: !isBrowserError,
+				tmpDir: getTmpDirStateIfENoSp(err.stack),
 			},
 			renderId: params.renderId,
 			expectedBucketOwner: options.expectedBucketOwner,

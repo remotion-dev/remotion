@@ -126,7 +126,7 @@ export type LambdaPayloads = {
 export type LambdaPayload = LambdaPayloads[LambdaRoutines];
 
 export type EncodingProgress = {
-	framesRendered: number;
+	framesEncoded: number;
 };
 
 export type RenderMetadata = {
