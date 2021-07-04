@@ -15,14 +15,14 @@ type TEMPLATES = {
 
 const FEATURED_TEMPLATES: TEMPLATES[] = [
 	{
-		shortName: 'Helloworld',
+		shortName: 'Hello World',
 		name: 'template-helloworld',
-		description: 'a helloworld app with react logo',
+		description: 'The default starter template (recommended)',
 	},
 	{
 		shortName: 'Helloworld (Javascript)',
 		name: 'template-helloworld-javascript',
-		description: 'same as helloworld but with Javascript configuration',
+		description: 'The default starter template in plain JS',
 	},
 	{
 		shortName: 'Three Fiber template',
