@@ -16,18 +16,23 @@ type TEMPLATES = {
 const FEATURED_TEMPLATES: TEMPLATES[] = [
 	{
 		shortName: 'Hello World',
-		name: 'template-helloworld',
+		name: 'remotion-dev/template-helloworld',
 		description: 'The default starter template (recommended)',
 	},
 	{
-		shortName: 'Helloworld (Javascript)',
-		name: 'template-helloworld-javascript',
+		shortName: 'Hello World (Javascript)',
+		name: 'remotion-dev/template-helloworld-javascript',
 		description: 'The default starter template in plain JS',
 	},
 	{
-		shortName: 'Three Fiber template',
-		name: 'template-three',
+		shortName: 'React Three Fiber',
+		name: 'remotion-dev/template-three',
 		description: 'Remotion + React Three Fiber Starter Template',
+	},
+	{
+		shortName: 'Text To Speech',
+		name: 'FelippeChemello/Remotion-TTS-Example',
+		description: 'Turns text into speech and makes a video',
 	},
 ];
 
@@ -211,11 +216,7 @@ export const init = async () => {
 		{}
 	);
 
-	await execa('git', [
-		'clone',
-		`https://github.com/remotion-dev/${template}`,
-		projectRoot,
-	]);
+	await execa('git', ['clone', `https://github.com/${template}`, projectRoot]);
 
 	if (greaterNodeVersion) {
 		fs.rmSync(path.join(projectRoot, '.git'), {recursive: true});
