@@ -46,8 +46,8 @@ export const MyComp = () => <></>
 
 // @filename: index.tsx
 // ---cut---
-import {Composition} from 'remotion';
-import {MyComp} from './MyComp';
+import {Composition} from 'remotion'
+import {MyComp} from './MyComp'
 
 export const MyVideo = () => {
   return (
@@ -61,7 +61,7 @@ export const MyVideo = () => {
         durationInFrames={3 * 30}
       />
     </>
-  );
+  )
 }
 ```
 
@@ -80,7 +80,7 @@ export const MyVideo = () => {
         durationInFrames={3 * 30}
       />
     </>
-  );
+  )
 }
 ```
 

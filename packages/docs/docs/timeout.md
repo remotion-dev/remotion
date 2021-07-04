@@ -5,7 +5,7 @@ title: Puppeteer timeout
 
 The following error:
 
-```console
+```bash
 TimeoutError: waiting for function failed: timeout 30000ms exceeded
 ```
 

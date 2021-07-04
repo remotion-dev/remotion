@@ -27,7 +27,7 @@ For example if you have passed `--props='{"hello": "world"}'` as a command line 
 
 ```tsx twoslash
 // It's better to fake type here than to import any
-const getInputProps = () => ({hello: "world"} as const)
+const getInputProps = () => ({hello: 'world'} as const)
 // ---cut---
 const {hello} = getInputProps()
 console.log(hello) // "world"
@@ -38,7 +38,7 @@ You can use this technique to dynamically change the frame rate, dimensions or d
 ```tsx twoslash
 // @include: example-MyComponent
 // ---cut---
-import {getInputProps, Composition} from 'remotion';
+import {Composition, getInputProps} from 'remotion'
 
 const inputProps = getInputProps()
 
@@ -72,23 +72,23 @@ In this example, we fetch the duration of "Big Buck Bunny" and use it to make ou
 
 ```tsx twoslash
 // @include: example-VideoTesting
-import {useState, useEffect} from "react";
-import {Composition, delayRender, continueRender} from "remotion";
+import {useEffect, useState} from 'react'
+import {Composition, continueRender, delayRender} from 'remotion'
 // ---cut---
 export const Index: React.FC = () => {
-  const [handle] = useState(() => delayRender());
-  const [duration, setDuration] = useState(1);
+  const [handle] = useState(() => delayRender())
+  const [duration, setDuration] = useState(1)
 
   useEffect(() => {
-    const video = document.createElement('video');
+    const video = document.createElement('video')
     video.src =
-      'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4';
+      'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4'
 
     video.onloadedmetadata = () => {
-      setDuration(Math.round(video.duration * 30));
-      continueRender(handle);
-    };
-  }, [handle]);
+      setDuration(Math.round(video.duration * 30))
+      continueRender(handle)
+    }
+  }, [handle])
 
   return (
     <>
@@ -110,7 +110,7 @@ export const Index: React.FC = () => {
 Both `getCompositions()` and `renderFrames()` functions accept an `inputProps` object as a parameter.
 
 ```tsx twoslash
-import {getCompositions} from "@remotion/renderer"
+import {getCompositions} from '@remotion/renderer'
 const bundled: string = ''
 // ---cut---
 getCompositions(bundled, {
@@ -121,7 +121,7 @@ getCompositions(bundled, {
 ```
 
 ```tsx twoslash
-import {renderFrames as rf} from "@remotion/renderer"
+import {renderFrames as rf} from '@remotion/renderer'
 const renderFrames = (options: Partial<Parameters<typeof rf>[0]>) => {}
 // ---cut---
 renderFrames({

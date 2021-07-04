@@ -10,24 +10,20 @@ If the component you are writing is wrapped in a `<Sequence>`, `useCurrentFrame`
 Say the timeline marker is positioned at frame 25. In the example below, `useCurrentFrame` will return `20`, except within the Subtitle component, where it will return `15` because it is within a sequence that starts at frame 10.
 
 ```tsx twoslash
-import {useCurrentFrame, Sequence} from 'remotion';
+import {Sequence, useCurrentFrame} from 'remotion'
 
 const Title = () => {
-  const frame = useCurrentFrame(); // 25
-  return (
-    <div>{frame}</div>
-  )
+  const frame = useCurrentFrame() // 25
+  return <div>{frame}</div>
 }
 
 const Subtitle = () => {
-  const frame = useCurrentFrame(); // 15
-  return (
-    <div>{frame}</div>
-  )
+  const frame = useCurrentFrame() // 15
+  return <div>{frame}</div>
 }
 
 const MyVideo = () => {
-  const frame = useCurrentFrame(); // 25
+  const frame = useCurrentFrame() // 25
 
   return (
     <div>
@@ -36,7 +32,7 @@ const MyVideo = () => {
         <Subtitle />
       </Sequence>
     </div>
-  );
+  )
 }
 ```
 

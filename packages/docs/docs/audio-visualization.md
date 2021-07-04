@@ -9,7 +9,9 @@ Using the audio visualization APIs in Remotion 2.0, you can create animations ba
 
 You can import an audio file using an `import` statement:
 
-```tsx
+```ts twoslash
+import {Audio} from 'remotion'
+// ---cut---
 import audio from './audio.mp3'
 ```
 
@@ -24,17 +26,17 @@ Using the [`visualizeAudio()`](/docs/visualize-audio) API, you can get an audio 
 Refer to the documentation of the above mentioned functions to learn more.
 
 ```tsx twoslash
-import {useCurrentFrame, useVideoConfig, Audio} from 'remotion';
-import {useAudioData, visualizeAudio} from '@remotion/media-utils';
-import music from './music.mp3';
+import {Audio, useCurrentFrame, useVideoConfig} from 'remotion'
+import {useAudioData, visualizeAudio} from '@remotion/media-utils'
+import music from './music.mp3'
 
 export const MyComponent: React.FC = () => {
-  const frame = useCurrentFrame();
-  const {width, height, fps} = useVideoConfig();
-  const audioData = useAudioData(music);
+  const frame = useCurrentFrame()
+  const {width, height, fps} = useVideoConfig()
+  const audioData = useAudioData(music)
 
   if (!audioData) {
-    return null;
+    return null
   }
 
   const visualization = visualizeAudio({
@@ -42,17 +44,17 @@ export const MyComponent: React.FC = () => {
     frame,
     audioData,
     numberOfSamples: 16,
-  }); // [0.22, 0.1, 0.01, 0.01, 0.01, 0.02, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+  }) // [0.22, 0.1, 0.01, 0.01, 0.01, 0.02, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
   // Render a bar chart for each frequency, the higher the amplitude,
   // the longer the bar
   return (
     <div>
-      <Audio src={music}/>
-      {visualization.map(v => {
+      <Audio src={music} />
+      {visualization.map((v) => {
         return (
           <div style={{width: 1000 * v, height: 15, backgroundColor: 'blue'}} />
-        );
+        )
       })}
     </div>
   )

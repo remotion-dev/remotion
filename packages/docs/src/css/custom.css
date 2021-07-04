@@ -49,3 +49,17 @@
   margin: 0 calc(-1 * var(--ifm-pre-padding));
   padding: 0 var(--ifm-pre-padding);
 }
+
+/* Hide code blocks according to theme */
+[data-theme="light"] .shiki.min-dark {
+  display: none;
+}
+
+[data-theme="dark"] .shiki.min-light {
+  display: none;
+}
+
+/* Patches */
+pre.shiki > .code-title {
+  color: var(--ifm-color-emphasis-900) !important;
+}

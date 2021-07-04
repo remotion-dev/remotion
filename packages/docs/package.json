@@ -28,12 +28,11 @@
     "clipboard": "^2.0.8",
     "clsx": "^1.1.1",
     "color-namer": "1.4.0",
-    "cross-env": "^7.0.3",
+    "docusaurus-preset-shiki-twoslash": "^1.1.5",
     "hls.js": "^0.14.17",
     "jest": "^27.0.4",
     "polished": "4.1.2",
     "react-player": "^2.9.0",
-    "remark-shiki-twoslash": "^1.5.0",
     "remotion": "^2.1.12",
     "ts-jest": "^27.0.3"
   },
