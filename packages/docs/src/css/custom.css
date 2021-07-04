@@ -58,3 +58,8 @@
 [data-theme="dark"] .shiki.min-light {
   display: none;
 }
+
+/* Patches */
+pre.shiki > .code-title {
+  color: var(--ifm-color-emphasis-900) !important;
+}
