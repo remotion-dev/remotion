@@ -11,7 +11,7 @@ This can become an unexpected hurdle in Webpack. On this page we collect some ti
 
 Consider you have a PNG sequence of images with the following file structure:
 
-```
+```bash
 my-video/
 ├─ src/
 │  ├─ assets/
@@ -26,28 +26,28 @@ my-video/
 Note that the following pattern doesn't work:
 
 ```tsx twoslash
-import {Img, useCurrentFrame} from 'remotion';
+import {Img, useCurrentFrame} from 'remotion'
 
 export const DynamicImports: React.FC = () => {
-  const frame = useCurrentFrame();
+  const frame = useCurrentFrame()
   const img = './assets/image' + frame + '.png'
-  return <Img src={require(img)} />;
-};
+  return <Img src={require(img)} />
+}
 ```
 
-```console
+```bash
 Error: Cannot find module './image0.png'
 ```
 
 However the following example **does** work:
 
 ```tsx twoslash
-import {Img, useCurrentFrame} from 'remotion';
+import {Img, useCurrentFrame} from 'remotion'
 
 export const DynamicImports: React.FC = () => {
-	const frame = useCurrentFrame();
-	return <Img src={require('./assets/image' + frame + '.png')} />;
-};
+  const frame = useCurrentFrame()
+  return <Img src={require('./assets/image' + frame + '.png')} />
+}
 ```
 
 Webpack needs to figure out which assets it should bundle and cannot do it in the first example. However, it is smart enough to do so if you place your expression inside the `require()` or `import()` statement. In this case, Webpack will automatically bundle all `.png` files in the `assets/image` folder even if the asset is never used. Therefore you have to be careful to not bundle too many assets.
@@ -59,11 +59,11 @@ Please read [the Webpack documentation page](https://webpack.js.org/api/module-m
 Let's imagine a scenario where the asset that should be imported is completely unknown and will be read at runtime, for example through an [input prop](/docs/get-input-props):
 
 ```tsx twoslash
-import {Img, getInputProps} from 'remotion';
+import {getInputProps, Img} from 'remotion'
 
 const DynamicAsset: React.FC = () => {
   const inputProps = getInputProps() // {"imageSrc": "./assets/img0.png"}
-  return <Img src={require(inputProps.imageSrc)}/>
+  return <Img src={require(inputProps.imageSrc)} />
 }
 ```
 
@@ -71,12 +71,12 @@ This cannot work because Webpack has no ideas which assets it has to bundle. The
 Like above, you can force Webpack to bundle the whole assets folder by putting an expression inside the `require()` statement:
 
 ```tsx twoslash
-import {Img, getInputProps} from 'remotion';
+import {getInputProps, Img} from 'remotion'
 
 const DynamicAsset: React.FC = () => {
   const inputProps = getInputProps() // {"imageSrc": "img0.png"}
   // Works!
-  return <Img src={require('./assets/' + inputProps.imageSrc)}/>
+  return <Img src={require('./assets/' + inputProps.imageSrc)} />
 }
 ```
 
@@ -91,10 +91,10 @@ You can use the following workaround that relies on the fact that Remotion creat
 3. Rely on the fact that the asset is available via the static HTTP server. Since you only want this during rendering, use the `process.env.NODE_ENV === 'production'` statement to differentiate between development and rendering.
 
 ```tsx twoslash
-import {Img, getInputProps} from 'remotion';
+import {getInputProps, Img} from 'remotion'
 
 export const DynamicAsset: React.FC = () => {
-  const inputProps = getInputProps(); // {"imageSrc": "assets/img0.png"}
+  const inputProps = getInputProps() // {"imageSrc": "assets/img0.png"}
   return (
     <Img
       src={
@@ -103,7 +103,7 @@ export const DynamicAsset: React.FC = () => {
           : require('./assets/default-asset.png')
       }
     />
-  );
+  )
 }
 ```
 
@@ -117,10 +117,10 @@ npx serve --cors ./src
 ```
 
 ```tsx twoslash
-import {Img, getInputProps} from 'remotion';
+import {getInputProps, Img} from 'remotion'
 
 const HttpAsset: React.FC = () => {
-  const inputProps = getInputProps(); // {"imageSrc": "assets/img0.png"}
+  const inputProps = getInputProps() // {"imageSrc": "assets/img0.png"}
   return <Img src={`http://localhost:5000/${inputProps.imageSrc}`} />
 }
 ```

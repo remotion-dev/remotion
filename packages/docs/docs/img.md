@@ -9,15 +9,12 @@ The difference is that if you use the component from Remotion, that Remotion wil
 ## Example
 
 ```tsx twoslash
-import {Img} from 'remotion';
+import {Img} from 'remotion'
 import hi from './hi.png'
 
 export const MyComp: React.FC = () => {
-  return (
-    <Img src={hi} />
-  )
+  return <Img src={hi} />
 }
-
 ```
 
 ## See also
