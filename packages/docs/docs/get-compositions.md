@@ -42,21 +42,21 @@ An already open Puppeteer [`Browser`](https://pptr.dev/#?product=Puppeteer&versi
 
 Returns a promise that resolves to an array of available compositions. Example value:
 
-```json
+```ts twoslash
 [
   {
-    "id": "HelloWorld",
-    "width": 1920,
-    "height": 1080,
-    "fps": 30
+    id: "HelloWorld",
+    width: 1920,
+    height: 1080,
+    fps: 30,
   },
   {
-    "id": "Title",
-    "width": 1080,
-    "height": 1080,
-    "fps": 30
-  }
-]
+    id: "Title",
+    width: 1080,
+    height: 1080,
+    fps: 30,
+  },
+];
 ```
 
 ## See also
