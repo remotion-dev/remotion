@@ -128,16 +128,15 @@ A regular `style` prop for a HTMLDivElement. You can pass a different height and
 You may attach a ref to the player and control it in an imperative manner.
 
 ```tsx twoslash {15}
-// @filename: MyComposition.tsx
-import React from 'react';
+// @allowUmdGlobalAccess
 
-export const MyComposition: React.FC = () => null;
+// @filename: MyComposition.tsx
+export const MyComposition: React.FC = () => null
 
 // @filename: index.tsx
-import React from 'react';
 // ---cut---
-import {useEffect, useRef} from 'react';
-import {Player, PlayerRef} from '@remotion/player';
+import {useEffect, useRef} from 'react'
+import {Player, PlayerRef} from '@remotion/player'
 import {MyComposition} from './MyComposition'
 
 const MyComp: React.FC = () => {
@@ -145,9 +144,9 @@ const MyComp: React.FC = () => {
 
   useEffect(() => {
     if (playerRef.current) {
-      console.log(playerRef.current.getCurrentFrame());
+      console.log(playerRef.current.getCurrentFrame())
     }
-  }, []);
+  }, [])
 
   return (
     <Player
@@ -159,7 +158,7 @@ const MyComp: React.FC = () => {
       component={MyComposition}
       // Many other optional props are available.
     />
-  );
+  )
 }
 ```
 
@@ -240,30 +239,30 @@ Stop listening to an event. See the [Events](#events) section to see the functio
 Using a [player ref](#playerref), you can bind event listeners to get notified of certain events of the player.
 
 ```tsx twoslash
-import {useRef, useEffect} from 'react';
-import {PlayerRef} from '@remotion/player';
+import {useRef, useEffect} from 'react'
+import {PlayerRef} from '@remotion/player'
 // ---cut---
 const playerRef = useRef<PlayerRef>(null);
 
 useEffect(() => {
   if (!playerRef.current) {
-    return;
+    return
   }
   playerRef.current.addEventListener('play', () => {
-    console.log('playing');
-  });
+    console.log('playing')
+  })
   playerRef.current.addEventListener('pause', () => {
-    console.log('pausing');
-  });
+    console.log('pausing')
+  })
   playerRef.current.addEventListener('seeked', (e) => {
-    console.log('seeked to ' + e.detail.frame);
-  });
+    console.log('seeked to ' + e.detail.frame)
+  })
   playerRef.current.addEventListener('ended', (e) => {
-    console.log('ended');
-  });
+    console.log('ended')
+  })
   playerRef.current.addEventListener('error', (e) => {
-    console.log('error', e.detail.error);
-  });
+    console.log('error', e.detail.error)
+  })
 }, []);
 ```
 
@@ -272,13 +271,13 @@ useEffect(() => {
 Fired when the time position changes. You may get the current frame by reading it from `e.detail.frame`.
 
 ```tsx twoslash
-import {useRef, useEffect} from 'react';
-import {PlayerRef} from '@remotion/player';
-const playerRef = useRef<PlayerRef>(null);
+import {useRef, useEffect} from 'react'
+import {PlayerRef} from '@remotion/player'
+const playerRef = useRef<PlayerRef>(null)
 // ---cut---
 playerRef.current?.addEventListener('seeked', (e) => {
-  console.log('seeked to ' + e.detail.frame); // seeked to 120
-});
+  console.log('seeked to ' + e.detail.frame) // seeked to 120
+})
 ```
 
 This event fires on every single frame update. If you link it to a state update, you may want to throttle the updates to avoid expensive rendering operations.
@@ -302,13 +301,13 @@ Fires when an error or uncaught exception has happened in the video.
 You may get the error by reading the `e.detail.error` value:
 
 ```tsx twoslash
-import {useRef, useEffect} from 'react';
-import {PlayerRef} from '@remotion/player';
-const ref = useRef<PlayerRef>(null);
+import {useRef, useEffect} from 'react'
+import {PlayerRef} from '@remotion/player'
+const ref = useRef<PlayerRef>(null)
 // ---cut---
 ref.current?.addEventListener('error', (e) => {
-  console.log('error ', e.detail.error); // error [Error: undefined is not a function]
-});
+  console.log('error ', e.detail.error) // error [Error: undefined is not a function]
+})
 ```
 
 ## Handling errors

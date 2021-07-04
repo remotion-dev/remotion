@@ -5,11 +5,11 @@ sidebar_label: Reuse components
 ---
 
 ```twoslash include example
-import {useCurrentFrame, interpolate} from 'remotion';
+import {interpolate, useCurrentFrame} from 'remotion'
 
-const Title: React.FC<{title: string;}> = ({title}) => {
-    const frame = useCurrentFrame();
-    const opacity = interpolate(frame, [0, 20], [0, 1], {extrapolateRight: 'clamp'});
+const Title: React.FC<{title: string}> = ({title}) => {
+    const frame = useCurrentFrame()
+    const opacity = interpolate(frame, [0, 20], [0, 1], {extrapolateRight: 'clamp'})
 
     return (
       <div style={{opacity}}>{title}</div>
@@ -28,7 +28,7 @@ In order to make a title reusable, we first factor it out into it's own componen
 export const MyVideo = () => {
   return (
     <div style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-      <Title title="Hello World"/>
+      <Title title="Hello World" />
     </div>
   )
 }
@@ -39,16 +39,23 @@ Now we can use the `<Sequence>` component to limit the duration of the first tit
 ```tsx twoslash
 // @include: example-Title
 // ---cut---
-import {Sequence} from 'remotion';
+import {Sequence} from 'remotion'
 
 export const MyVideo = () => {
   return (
-    <div style={{flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'white'}}>
+    <div
+      style={{
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'white',
+      }}
+    >
       <Sequence from={0} durationInFrames={40}>
-        <Title title="Hello"/>
+        <Title title="Hello" />
       </Sequence>
       <Sequence from={40} durationInFrames={Infinity}>
-        <Title title="World"/>
+        <Title title="World" />
       </Sequence>
     </div>
   )

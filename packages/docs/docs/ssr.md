@@ -16,22 +16,22 @@ The NPM package `@remotion/renderer` provides you with an API for rendering the 
 Follow this commented example to see how to render a video:
 
 ```tsx twoslash
-import fs from 'fs';
-import os from 'os';
-import path from 'path';
-import {bundle} from '@remotion/bundler';
+import fs from 'fs'
+import os from 'os'
+import path from 'path'
+import {bundle} from '@remotion/bundler'
 import {
 	getCompositions,
 	renderFrames,
 	stitchFramesToVideo,
-} from '@remotion/renderer';
+} from '@remotion/renderer'
 
 const start = async () => {
   // The composition you want to render
-  const compositionId = 'HelloWorld';
+  const compositionId = 'HelloWorld'
 
   // Create a webpack bundle of the entry file.
-  const bundled = await bundle(require.resolve('./src/index'));
+  const bundled = await bundle(require.resolve('./src/index'))
 
   // Extract all the compositions you have defined in your project
   // from the webpack bundle.
@@ -40,12 +40,12 @@ const start = async () => {
     // in the composition list. Use this if you want to dynamically set the duration or
     // dimensions of the video.
     inputProps: {
-      custom: 'data'
-    }
-  });
+      custom: 'data',
+    },
+  })
 
   // Select the composition you want to render.
-  const composition = comps.find((c) => c.id === compositionId);
+  const composition = comps.find((c) => c.id === compositionId)
 
   // Ensure the composition exists
   if (!composition) {
@@ -55,7 +55,7 @@ const start = async () => {
   // We create a temporary directory for storing the frames
   const framesDir = await fs.promises.mkdtemp(
     path.join(os.tmpdir(), 'remotion-')
-  );
+  )
 
   // We create JPEGs for all frames
   const {assetsInfo} = await renderFrames({
@@ -68,7 +68,7 @@ const start = async () => {
     onFrameUpdate: (f) => {
       // Log a message whenever 10 frames have rendered.
       if (f % 10 === 0) {
-        console.log(`Rendered frame ${f}`);
+        console.log(`Rendered frame ${f}`)
       }
     },
     // How many CPU threads to use. `null` will use a sane default (half of the available threads)
@@ -82,7 +82,7 @@ const start = async () => {
     compositionId,
     // Can be either 'jpeg' or 'png'. JPEG is faster, but has no transparency.
     imageFormat: 'jpeg'
-  });
+  })
 
   // Add this step if you want to make an MP4 out of the rendered frames.
   await stitchFramesToVideo({
@@ -106,10 +106,10 @@ const start = async () => {
     assetsInfo,
     // Hook into the FFMPEG progress
     onProgress: (frame) => undefined
-  });
-};
+  })
+}
 
-start();
+start()
 ```
 
 :::warning

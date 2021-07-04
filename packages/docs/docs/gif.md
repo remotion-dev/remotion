@@ -51,12 +51,12 @@ Allows to pass in custom CSS styles.
 ## Example
 
 ```tsx twoslash
-import {useVideoConfig} from "remotion";
+import {useVideoConfig} from 'remotion'
 // ---cut---
-import {Gif} from '@remotion/gif';
+import {Gif} from '@remotion/gif'
 
 export const MyComponent: React.FC = () => {
-  const {width, height} = useVideoConfig();
+  const {width, height} = useVideoConfig()
 
   return (
     <Gif

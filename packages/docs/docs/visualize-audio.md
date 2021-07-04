@@ -34,17 +34,17 @@ Usually the values on left side of the array can become much larger than the val
 In this example, we render a bar chart visualizing the audio spectrum of an audio file we imported using [`useAudioData()`](use-audio-data) and `visualizeAudio()`.
 
 ```tsx twoslash
-import {Audio, useCurrentFrame, useVideoConfig} from 'remotion';
-import {useAudioData, visualizeAudio} from '@remotion/media-utils';
-import music from './music.mp3';
+import {Audio, useCurrentFrame, useVideoConfig} from 'remotion'
+import {useAudioData, visualizeAudio} from '@remotion/media-utils'
+import music from './music.mp3'
 
 export const MyComponent: React.FC = () => {
-  const frame = useCurrentFrame();
-  const {width, height, fps} = useVideoConfig();
-  const audioData = useAudioData(music);
+  const frame = useCurrentFrame()
+  const {width, height, fps} = useVideoConfig()
+  const audioData = useAudioData(music)
 
   if (!audioData) {
-    return null;
+    return null
   }
 
   const visualization = visualizeAudio({
@@ -52,22 +52,21 @@ export const MyComponent: React.FC = () => {
     frame,
     audioData,
     numberOfSamples: 16,
-  }); // [0.22, 0.1, 0.01, 0.01, 0.01, 0.02, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+  }) // [0.22, 0.1, 0.01, 0.01, 0.01, 0.02, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
   // Render a bar chart for each frequency, the higher the amplitude,
   // the longer the bar
   return (
     <div>
-      <Audio src={music}/>
-      {visualization.map(v => {
+      <Audio src={music} />
+      {visualization.map((v) => {
         return (
           <div style={{width: 1000 * v, height: 15, backgroundColor: 'blue'}} />
-        );
+        )
       })}
     </div>
   )
 }
-
 ```
 
 ## See also
