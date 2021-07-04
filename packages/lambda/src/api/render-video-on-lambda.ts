@@ -1,4 +1,4 @@
-import {Codec, ImageFormat, PixelFormat, ProResProfile} from 'remotion';
+import {ImageFormat, PixelFormat, ProResProfile} from 'remotion';
 import {AwsRegion} from '../pricing/aws-regions';
 import {callLambda} from '../shared/call-lambda';
 import {LambdaRoutines} from '../shared/constants';
@@ -21,8 +21,9 @@ export const renderVideoOnLambda = async ({
 	region: AwsRegion;
 	functionName: string;
 	serveUrl: string;
+	composition: string;
 	inputProps: unknown;
-	codec: Codec;
+	codec: 'h264-mkv' | 'mp3' | 'aac' | 'wav';
 	imageFormat: ImageFormat;
 	crf?: number | undefined;
 	envVariables?: Record<string, string>;
@@ -30,7 +31,6 @@ export const renderVideoOnLambda = async ({
 	proResProfile?: ProResProfile;
 	quality?: number;
 	maxRetries: number;
-	composition: string;
 }) => {
 	const res = await callLambda({
 		functionName,

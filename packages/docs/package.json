@@ -20,6 +20,7 @@
     "@remotion/bundler": "^2.1.12",
     "@remotion/gif": "^2.1.12",
     "@remotion/media-utils": "^2.1.12",
+    "@remotion/lambda": "^2.1.12",
     "@remotion/player": "^2.1.12",
     "@remotion/renderer": "^2.1.12",
     "@remotion/three": "^2.1.12",
