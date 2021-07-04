@@ -1,4 +1,5 @@
 import {TAsset, TCompMetadata} from 'remotion';
+import {addSilentAudioIfNecessary} from './add-silent-audio-if-necessary';
 import {
 	ffmpegHasFeature,
 	getFfmpegBuildInfo,
@@ -40,4 +41,5 @@ export const RenderInternals = {
 	binaryExists,
 	getFfmpegBuildInfo,
 	serveStatic,
+	addSilentAudioIfNecessary,
 };
