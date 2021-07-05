@@ -1,7 +1,9 @@
 import {InvokeCommand} from '@aws-sdk/client-lambda';
-import {Log} from '@remotion/cli/dist/log';
-import {renderFrames, stitchFramesToVideo} from '@remotion/renderer';
-import {addSilentAudioIfNecessary} from '@remotion/renderer/src/add-silent-audio-if-necessary';
+import {
+	renderFrames,
+	RenderInternals,
+	stitchFramesToVideo,
+} from '@remotion/renderer';
 import fs from 'fs';
 import path from 'path';
 import {getLambdaClient} from '../shared/aws-clients';
@@ -183,7 +185,7 @@ const renderHandler = async (params: LambdaPayload, options: Options) => {
 		webpackBundle: null,
 	});
 	stitchLabel.end();
-	await addSilentAudioIfNecessary(outputLocation);
+	await RenderInternals.addSilentAudioIfNecessary(outputLocation);
 
 	await Promise.all([
 		uploadMetricsData,
@@ -236,8 +238,8 @@ export const rendererHandler = async (
 			);
 		}
 
-		Log.error('Error occurred');
-		Log.error(err);
+		console.log('Error occurred');
+		console.log(err);
 		await writeLambdaError({
 			bucketName: params.bucketName,
 			errorInfo: {
