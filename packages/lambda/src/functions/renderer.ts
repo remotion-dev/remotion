@@ -110,7 +110,7 @@ const renderHandler = async (params: LambdaPayload, options: Options) => {
 		onError: ({error, frame}) => {
 			writeLambdaError({
 				errorInfo: {
-					stack: JSON.stringify(error),
+					stack: error.message + ' ' + error.stack,
 					type: 'browser',
 					frame,
 					chunk: params.chunk,

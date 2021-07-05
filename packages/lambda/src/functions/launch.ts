@@ -81,7 +81,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 							chunk: null,
 							frame: null,
 							isFatal: false,
-							stack: err.stack as string,
+							stack: (err.message + ' ' + err.stack) as string,
 							type: 'browser',
 							tmpDir: getTmpDirStateIfENoSp(err.stack as string),
 						},
