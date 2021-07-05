@@ -28,13 +28,17 @@ const deleteAllFilesInAFolderRecursively = (path: string) => {
 			return;
 		}
 
-		const stat = fs.statSync(filePath);
-		if (stat.isDirectory()) {
-			deleteAllFilesInAFolderRecursively(filePath);
-		} else {
-			fs.unlinkSync(filePath);
-			deletedFiles.push(filePath);
-			deletedFilesSize += stat.size;
+		try {
+			const stat = fs.statSync(filePath);
+			if (stat.isDirectory()) {
+				deleteAllFilesInAFolderRecursively(filePath);
+			} else {
+				fs.unlinkSync(filePath);
+				deletedFiles.push(filePath);
+				deletedFilesSize += stat.size;
+			}
+		} catch (err) {
+			// TODO: why can statsync fail?
 		}
 	});
 	if (path !== '/tmp') {
