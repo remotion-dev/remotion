@@ -86,7 +86,7 @@ export const renderCommand = async (args: string[]) => {
 		functionName,
 		serveUrl,
 		inputProps: cliOptions.inputProps,
-		codec: cliOptions.codec,
+		codec: cliOptions.codec as 'h264-mkv' | 'mp3' | 'aac' | 'wav',
 		imageFormat: cliOptions.imageFormat,
 		crf: cliOptions.crf ?? undefined,
 		envVariables: cliOptions.envVariables,
