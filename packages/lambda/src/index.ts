@@ -13,6 +13,7 @@ import {
 	getUserPolicy,
 } from './api/iam-validation/suggested-policy';
 import {renderVideoOnLambda} from './api/render-video-on-lambda';
+import {LambdaInternals} from './internals';
 import {AwsRegion} from './pricing/aws-regions';
 
 export {
@@ -29,5 +30,6 @@ export {
 	deleteFunction,
 	getFunctionInfo,
 	getFunctionVersion,
+	LambdaInternals,
 };
 export type {AwsRegion};

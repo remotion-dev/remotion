@@ -4,7 +4,6 @@ import {getRenderProgress} from '../api/get-render-progress';
 import {renderVideoOnLambda} from '../api/render-video-on-lambda';
 import {BINARY_NAME, CURRENT_VERSION} from '../shared/constants';
 import {sleep} from '../shared/sleep';
-import {parsedLambdaCli} from './args';
 import {CLEANUP_COMMAND, CLEANUP_LAMBDAS_SUBCOMMAND} from './cleanup';
 import {FUNCTIONS_COMMAND} from './commands/functions';
 import {FUNCTIONS_DEPLOY_SUBCOMMAND} from './commands/functions/deploy';
@@ -35,7 +34,7 @@ export const renderCommand = async (args: string[]) => {
 	}
 
 	// TODO: Redundancy with CLI
-	if (!parsedLambdaCli._[2]) {
+	if (!args[2]) {
 		Log.error('Composition ID not passed.');
 		Log.error('Pass an extra argument <composition-id>.');
 		process.exit(1);
