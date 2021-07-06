@@ -61,7 +61,7 @@ const start = async () => {
   const {assetsInfo} = await renderFrames({
     config: composition,
     // Path of the webpack bundle you have created
-    webpackBundle: bundled,
+    serveUrl: bundled,
     // Get's called after bundling is finished and the
     // actual rendering starts.
     onStart: () => console.log('Rendering frames...'),
@@ -104,6 +104,7 @@ const start = async () => {
     pixelFormat: 'yuv420p',
     // Information needed to construct audio correctly.
     assetsInfo,
+    webpackBundle: bundled,
     // Hook into the FFMPEG progress
     onProgress: (frame) => undefined
   });
