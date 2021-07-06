@@ -2,6 +2,7 @@ import {CliInternals} from '@remotion/cli';
 import {Log} from '@remotion/cli/dist/log';
 import {getDeployedLambdas} from '../../../api/get-deployed-lambdas';
 import {getFunctionVersion} from '../../../api/get-function-version';
+import {parsedLambdaCli} from '../../args';
 import {getAwsRegion} from '../../get-aws-region';
 
 const NAME_COLS = 32;
@@ -14,10 +15,20 @@ export const FUNCTIONS_LS_SUBCOMMAND = 'ls';
 export const functionsLsCommand = async () => {
 	const region = getAwsRegion();
 	const fetchingOutput = CliInternals.createOverwriteableCliOutput();
-	fetchingOutput.update('Getting functions...');
+	const quiet = Boolean(parsedLambdaCli.q);
+	if (!quiet) {
+		fetchingOutput.update('Getting functions...');
+	}
+
 	const functions = await getDeployedLambdas({
 		region,
 	});
+
+	if (quiet) {
+		Log.info(functions.map((f) => f.name).join(' '));
+		return;
+	}
+
 	fetchingOutput.update('Getting function info...');
 
 	const configs = await Promise.all(
@@ -43,7 +54,6 @@ export const functionsLsCommand = async () => {
 			].join('')
 		)
 	);
-
 	const info = functions.map((f, i) => {
 		return {
 			fn: f,

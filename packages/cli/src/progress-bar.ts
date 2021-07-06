@@ -4,7 +4,6 @@ import chalk from 'chalk';
 
 export const createOverwriteableCliOutput = () => {
 	const diff = ansiDiff();
-	process.stdout.write('');
 	return {
 		update: (up: string): boolean => process.stdout.write(diff.update(up)),
 	};

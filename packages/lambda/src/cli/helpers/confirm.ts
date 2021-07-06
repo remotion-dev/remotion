@@ -1,5 +1,5 @@
 import prompt from 'prompt';
-import {parsedLambdaCli} from '../args';
+import {forceFlagProvided} from '../args';
 
 export const confirmCli = async ({
 	delMessage,
@@ -11,7 +11,7 @@ export const confirmCli = async ({
 	prompt.message = '';
 	prompt.start();
 
-	if (allowForceFlag && parsedLambdaCli.force) {
+	if (allowForceFlag && forceFlagProvided) {
 		return;
 	}
 
