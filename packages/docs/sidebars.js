@@ -10,6 +10,7 @@ module.exports = {
     "lambda-setup",
     "lambda-permissions",
     "lambda-region-selection",
+    "lambda-runtime",
     {
       collapsed: false,
       type: "category",
