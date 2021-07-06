@@ -39,14 +39,14 @@ const matchCommand = async (args: string[]) => {
 	if (args[0] === 'upload') {
 		Log.info('The command has been renamed.');
 		Log.info('Before: remotion-lambda upload <entry-point>');
-		Log.info('After: remotion-lambda sites create <entry-point>');
+		Log.info('After: remotion lambda sites create <entry-point>');
 		process.exit(1);
 	}
 
 	if (args[0] === 'deploy') {
 		Log.info('The command has been renamed.');
 		Log.info('Before: remotion-lambda deploy');
-		Log.info('After: remotion-lambda functions deploy');
+		Log.info('After: remotion lambda functions deploy');
 		process.exit(1);
 	}
 

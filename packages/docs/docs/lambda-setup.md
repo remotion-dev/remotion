@@ -19,7 +19,7 @@ Also update **all the other Remotion packages** to have the same version. Make s
 - Go to AWS account IAM section
 - Create a new policy
 - Click on JSON
-- Type in `npx remotion-lambda policies role` and copy it into the JSON field
+- Type in `npx remotion lambda policies role` and copy it into the JSON field
 - Go to tags, no tags are needed
 - Give the policy the name `remotion-lambda-policy`!
 
@@ -57,22 +57,22 @@ AWS_SECRET_ACCESS_KEY=xxx
 - Click on your user
 - Click "Add inline policy"
 - Click JSON
-- Enter in your terminal: `npx remotion-lambda policies user` and copy it in
+- Enter in your terminal: `npx remotion lambda policies user` and copy it in
 - Give the policy a name, can be anything
 - Click "Create policy"
 
 ## 6. Optional: Validate the permission setup
 
-- Run `npx remotion-lambda policies validate`
+- Run `npx remotion lambda policies validate`
 
 ## 7. Deploy a lambda
 
-- Run `npx remotion-lambda functions deploy`
+- Run `npx remotion lambda functions deploy`
 
 ## 8. Deploy a website
 
-- Run `npx remotion-lambda sites create src/index.tsx`
+- Run `npx remotion lambda sites create src/index.tsx`
 
 ## 9. Render a video
 
-- Run `npx remotion-lambda render <serve-url> <composition-name>`
+- Run `npx remotion lambda render <serve-url> <composition-name>`
