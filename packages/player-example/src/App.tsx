@@ -10,6 +10,8 @@ export default function App() {
 	const [doubleClickToFullscreen, setDoubleClickToFullscreen] = useState(true);
 	const [clickToPlay, setClickToPlay] = useState(true);
 	const [logs, setLogs] = useState<string[]>(() => []);
+	const [logTimeUpdate, setLogTimeUpdate] = useState<boolean>(false);
+	const [elapsedTime, setElapsedTime] = useState<number>(0);
 
 	const ref = useRef<PlayerRef>(null);
 
@@ -45,6 +47,11 @@ export default function App() {
 				loop={loop}
 				showVolumeControls={true}
 				clickToPlay={clickToPlay}
+				onTimeUpdate={({elapsedTime}) => {
+					if(logTimeUpdate) {
+						setElapsedTime(elapsedTime);
+					}
+				}}
 				inputProps={{
 					title: String(title),
 					bgColor: String(bgColor),
@@ -155,6 +162,14 @@ export default function App() {
 			>
 				log volume
 			</button>
+			<button
+				type="button"
+				onClick={() =>
+					setLogTimeUpdate(!logTimeUpdate)
+				}
+			>
+				log time update
+			</button>
 			<br />
 			<br />
 			{logs
@@ -165,6 +180,7 @@ export default function App() {
 				.map((l) => {
 					return <div key={l}>{l}</div>;
 				})}
+			{logTimeUpdate && <div>elapsed time = {elapsedTime}</div>}
 		</div>
 	);
 }
