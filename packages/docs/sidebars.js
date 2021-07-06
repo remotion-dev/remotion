@@ -9,6 +9,7 @@ module.exports = {
     "lambda-cli",
     "lambda-setup",
     "lambda-permissions",
+    "lambda-region-selection",
     {
       collapsed: false,
       type: "category",
