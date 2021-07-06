@@ -3,6 +3,7 @@ import xns from 'xns';
 import {checkNodeVersion} from './check-version';
 import {getCliOptions} from './get-cli-options';
 import {getConfigFileName} from './get-config-file-name';
+import {lambdaCommand} from './lambda-command';
 import {loadConfigFile} from './load-config';
 import {Log} from './log';
 import {parseCommandLine, parsedCli} from './parse-command-line';
@@ -26,6 +27,8 @@ export const cli = async () => {
 
 	if (command === 'preview') {
 		await previewCommand();
+	} else if (command === 'lambda') {
+		await lambdaCommand();
 	} else if (command === 'render') {
 		await render();
 	} else if (command === 'upgrade') {
