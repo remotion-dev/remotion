@@ -7,7 +7,7 @@ slug: /lambda/permissions
 ## Required permissions
 
 :::info
-Currently outdated. Does not list all permissions. See `npx remotion-lambda policies user` and `npx remotion-lambda policies role` for the most up to date policy files.
+Currently outdated. Does not list all permissions. See `npx remotion lambda policies user` and `npx remotion lambda policies role` for the most up to date policy files.
 :::
 
 <table>

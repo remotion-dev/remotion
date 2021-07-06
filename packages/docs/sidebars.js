@@ -32,6 +32,7 @@ module.exports = {
         "simulatepermissions",
       ],
     },
+    "lambda-changelog",
   ],
   someSidebar: [
     {
