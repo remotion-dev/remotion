@@ -62,7 +62,7 @@ export const renderFrames = async ({
 	frameRange?: FrameRange | null;
 	serveUrl: string;
 	dumpBrowserLogs?: boolean;
-	puppeteerInstance: PuppeteerBrowser;
+	puppeteerInstance?: PuppeteerBrowser;
 	onError?: (info: OnErrorInfo) => void;
 }): Promise<RenderFramesOutput> => {
 	Internals.validateDimension(
@@ -90,6 +90,11 @@ export const renderFrames = async ({
 	}
 
 	const actualParallelism = getActualConcurrency(parallelism ?? null);
+
+	// TODO: Don't require it before launching lambda
+	if (!puppeteerInstance) {
+		throw new Error('no puppeteer');
+	}
 
 	const pages = new Array(actualParallelism).fill(true).map(async () => {
 		const page = await puppeteerInstance.newPage();
