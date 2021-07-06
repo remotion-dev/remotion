@@ -41,6 +41,11 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		setMediaVolume: (v: number) => void;
 		setMediaMuted: (v: boolean) => void;
 		mediaVolume: number;
+		onTimeUpdate?: ({
+			elapsedTime,
+		}: {
+			elapsedTime: number
+		}) => void;
 	}
 > = (
 	{
@@ -57,6 +62,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		doubleClickToFullscreen,
 		setMediaMuted,
 		setMediaVolume,
+		onTimeUpdate,
 	},
 	ref
 ) => {
@@ -139,6 +145,15 @@ const PlayerUI: React.ForwardRefRenderFunction<
 			document.exitFullscreen();
 		}
 	}, []);
+
+	useEffect(() => {
+		if(config) {
+			const playedSeconds = player.getCurrentFrame() / config.fps;
+			onTimeUpdate?.({
+				elapsedTime: playedSeconds,
+			});
+		}
+	}, [player, onTimeUpdate, config])
 
 	useImperativeHandle(ref, () => {
 		const methods: PlayerMethods = {
