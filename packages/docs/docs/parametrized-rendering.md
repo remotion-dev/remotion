@@ -96,7 +96,6 @@ const bundled = '/path/to/bundle';
 const framesDir = '/path/to/frames';
 // ---cut---
 import {renderFrames} from '@remotion/renderer';
-// @ts-expect-error
 await renderFrames({
   config: video,
   serveUrl: bundled,
