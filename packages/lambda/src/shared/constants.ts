@@ -11,8 +11,8 @@ export const MIN_TIMEOUT = 15;
 export const MAX_TIMEOUT = 900;
 
 export const BINARY_NAME = 'remotion-lambda';
-
 export const COMMAND_NOT_FOUND = 'Command not found';
+export const DEFAULT_REGION: AwsRegion = 'us-east-1';
 
 // TODO: Rename other buckets in Jonnys accoudn first
 export const REMOTION_BUCKET_PREFIX = 'remotionlambda-';

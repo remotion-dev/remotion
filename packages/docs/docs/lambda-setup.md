@@ -1,6 +1,6 @@
 ---
 id: lambda-setup
-title: Lambda setup
+title: Setup
 slug: /lambda/setup
 ---
 
