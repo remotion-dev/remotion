@@ -125,18 +125,6 @@ const renderHandler = async (params: LambdaPayload, options: Options) => {
 		browser: 'chrome',
 		dumpBrowserLogs: false,
 	});
-	const condensedTimingData: ChunkTimingData = {
-		...chunkTimingData,
-		timings: Object.values(chunkTimingData.timings),
-	};
-	const uploadMetricsData = lambdaWriteFile({
-		bucketName: params.bucketName,
-		body: JSON.stringify(condensedTimingData as ChunkTimingData, null, 2),
-		key: `${lambdaTimingsKey(params.renderId)}-${params.chunk}.txt`,
-		region: getCurrentRegion(),
-		acl: 'private',
-		expectedBucketOwner: options.expectedBucketOwner,
-	});
 	const outdir = tmpDir(RENDERER_PATH_TOKEN);
 
 	const outputLocation = path.join(
@@ -187,23 +175,35 @@ const renderHandler = async (params: LambdaPayload, options: Options) => {
 	stitchLabel.end();
 	await RenderInternals.addSilentAudioIfNecessary(outputLocation);
 
-	await Promise.all([
-		uploadMetricsData,
-		lambdaWriteFile({
-			bucketName: params.bucketName,
-			key: `${chunkKey(params.renderId)}${String(params.chunk).padStart(
-				8,
-				'0'
-			)}`,
-			body: fs.createReadStream(outputLocation),
-			region: getCurrentRegion(),
-			acl: 'public-read',
-			expectedBucketOwner: options.expectedBucketOwner,
-		}),
-	]);
+	const condensedTimingData: ChunkTimingData = {
+		...chunkTimingData,
+		timings: Object.values(chunkTimingData.timings),
+	};
+
+	await lambdaWriteFile({
+		bucketName: params.bucketName,
+		key: `${chunkKey(params.renderId)}${String(params.chunk).padStart(8, '0')}`,
+		body: fs.createReadStream(outputLocation),
+		region: getCurrentRegion(),
+		acl: 'public-read',
+		expectedBucketOwner: options.expectedBucketOwner,
+	});
 	await Promise.all([
 		fs.promises.rm(outputLocation, {recursive: true}),
 		fs.promises.rm(outputPath, {recursive: true}),
+		lambdaWriteFile({
+			bucketName: params.bucketName,
+			body: JSON.stringify(condensedTimingData as ChunkTimingData, null, 2),
+			key: `${lambdaTimingsKey({
+				renderId: params.renderId,
+				chunk: params.chunk,
+				end: Date.now(),
+				start,
+			})}`,
+			region: getCurrentRegion(),
+			acl: 'private',
+			expectedBucketOwner: options.expectedBucketOwner,
+		}),
 	]);
 };
 

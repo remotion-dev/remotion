@@ -1,5 +1,5 @@
 import {AwsRegion} from '../../pricing/aws-regions';
-import {lambdaTimingsKey} from '../../shared/constants';
+import {lambdaTimingsPrefix} from '../../shared/constants';
 import {streamToString} from '../../shared/stream-to-string';
 import {lambdaLs, lambdaReadFile} from '../helpers/io';
 import {ChunkTimingData} from './types';
@@ -15,7 +15,7 @@ export const collectChunkInformation = async ({
 	region: AwsRegion;
 	expectedBucketOwner: string;
 }) => {
-	const prefix = lambdaTimingsKey(renderId);
+	const prefix = lambdaTimingsPrefix(renderId);
 	const timingFiles = await lambdaLs({
 		bucketName,
 		prefix,
