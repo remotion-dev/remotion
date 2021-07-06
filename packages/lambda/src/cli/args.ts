@@ -6,9 +6,20 @@ type LambdaCommandLineOptions = {
 	region: AwsRegion;
 	memory: number;
 	timeout: number;
+	y: boolean;
+	yes: boolean;
 	force: boolean;
+	f: boolean;
+	quiet: boolean;
 };
 
 export const parsedLambdaCli = minimist<LambdaCommandLineOptions>(
-	process.argv.slice(2)
+	process.argv.slice(2),
+	{boolean: ['q', 'quiet', 'force', 'yes', 'y']}
 );
+
+export const forceFlagProvided =
+	parsedLambdaCli.f ||
+	parsedLambdaCli.force ||
+	parsedLambdaCli.yes ||
+	parsedLambdaCli.y;

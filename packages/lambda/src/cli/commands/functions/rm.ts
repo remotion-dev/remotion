@@ -11,11 +11,9 @@ import {FUNCTIONS_LS_SUBCOMMAND} from './ls';
 export const FUNCTIONS_RM_SUBCOMMAND = 'rm';
 const LEFT_COL = 16;
 
-// TODO: Should allow to remove multiple at once
 export const functionsRmCommand = async (args: string[]) => {
 	const region = getAwsRegion();
-	const functionName = args[0];
-	if (!args[0]) {
+	if (args.length === 0) {
 		Log.error('No function name passed.');
 		Log.error(
 			'Pass another argument which is the name of the function you would like to remove.'
@@ -26,27 +24,28 @@ export const functionsRmCommand = async (args: string[]) => {
 		process.exit(1);
 	}
 
-	const infoOutput = CliInternals.createOverwriteableCliOutput();
-	infoOutput.update('Getting function info...');
+	for (const functionName of args) {
+		const infoOutput = CliInternals.createOverwriteableCliOutput();
+		infoOutput.update('Getting function info...');
+		const info = await getFunctionInfo({
+			region,
+			functionName,
+		});
 
-	const info = await getFunctionInfo({
-		region,
-		functionName,
-	});
+		infoOutput.update(
+			[
+				'Function name: '.padEnd(LEFT_COL, ' ') + ' ' + info.functionName,
+				'Memory: '.padEnd(LEFT_COL, ' ') + ' ' + info.memorySize + 'MB',
+				'Timeout: '.padEnd(LEFT_COL, ' ') + ' ' + info.timeout + 'sec',
+				'Version: '.padEnd(LEFT_COL, ' ') + ' ' + info.version,
+			].join('\n')
+		);
+		Log.info();
 
-	infoOutput.update(
-		[
-			'Function name: '.padEnd(LEFT_COL, ' ') + ' ' + info.functionName,
-			'Memory: '.padEnd(LEFT_COL, ' ') + ' ' + info.memorySize + 'MB',
-			'Timeout: '.padEnd(LEFT_COL, ' ') + ' ' + info.timeout + 'sec',
-			'Version: '.padEnd(LEFT_COL, ' ') + ' ' + info.version,
-		].join('\n')
-	);
-	Log.info();
-
-	await confirmCli({delMessage: 'Delete? (Y/n)', allowForceFlag: true});
-	const output = CliInternals.createOverwriteableCliOutput();
-	output.update('Deleting...');
-	await deleteFunction({region, functionName});
-	output.update('Deleted!\n');
+		await confirmCli({delMessage: 'Delete? (Y/n)', allowForceFlag: true});
+		const output = CliInternals.createOverwriteableCliOutput();
+		output.update('Deleting...');
+		await deleteFunction({region, functionName});
+		output.update('Deleted!\n');
+	}
 };
