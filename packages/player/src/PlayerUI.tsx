@@ -147,9 +147,9 @@ const PlayerUI: React.ForwardRefRenderFunction<
 	}, []);
 
 	useEffect(() => {
-		if(config) {
+		if(config && onTimeUpdate) {
 			const playedSeconds = player.getCurrentFrame() / config.fps;
-			onTimeUpdate?.({
+			onTimeUpdate({
 				elapsedTime: playedSeconds,
 			});
 		}
