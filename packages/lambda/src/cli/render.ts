@@ -31,12 +31,6 @@ export const renderCommand = async (args: string[]) => {
 		Log.info();
 		// TODO: Rename serveURL
 		Log.info(`${BINARY_NAME} ${RENDER_COMMAND} <serve-url> <composition-id>`);
-	}
-
-	// TODO: Redundancy with CLI
-	if (!args[2]) {
-		Log.error('Composition ID not passed.');
-		Log.error('Pass an extra argument <composition-id>.');
 		process.exit(1);
 	}
 
