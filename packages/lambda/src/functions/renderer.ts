@@ -97,7 +97,10 @@ const renderHandler = async (params: LambdaPayload, options: Options) => {
 					tmpSize: getFolderSizeRecursively('/tmp'),
 					tmpDirFiles: getFolderFiles('/tmp'),
 				}),
-				key: `${lambdaInitializedKey(params.renderId)}-${params.chunk}.txt`,
+				key: lambdaInitializedKey({
+					renderId: params.renderId,
+					chunk: params.chunk,
+				}),
 				region: getCurrentRegion(),
 				expectedBucketOwner: options.expectedBucketOwner,
 			});

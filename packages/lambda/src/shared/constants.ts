@@ -28,8 +28,15 @@ export const encodingProgressKey = (renderId: string) =>
 	`${rendersPrefix(renderId)}/encoding-progress.json`;
 export const renderMetadataKey = (renderId: string) =>
 	`${rendersPrefix(renderId)}/render-metadata.json`;
-export const lambdaInitializedKey = (renderId: string) =>
+export const lambdaInitializedPrefix = (renderId: string) =>
 	`${rendersPrefix(renderId)}/lambda-initialized`;
+export const lambdaInitializedKey = ({
+	renderId,
+	chunk,
+}: {
+	renderId: string;
+	chunk: number;
+}) => `${lambdaInitializedPrefix(renderId)}-${chunk}.txt`;
 export const lambdaTimingsPrefix = (renderId: string) =>
 	`${rendersPrefix(renderId)}/lambda-timings`;
 export const lambdaTimingsKey = ({
@@ -56,7 +63,7 @@ export const chunkKeyForIndex = ({
 	index: number;
 }) => `${chunkKey(renderId)}${String(index).padStart(8, '0')}`;
 export const timingProfileName = (renderId: string) =>
-	`${rendersPrefix(renderId)}/timing-profile`;
+	`${rendersPrefix(renderId)}/timing-profile.json`;
 export const getErrorKeyPrefix = (renderId: string) =>
 	`${rendersPrefix(renderId)}/errors/`;
 export const optimizationProfile = (siteId: string, compositionId: string) =>

@@ -1,14 +1,18 @@
 import {_Object} from '@aws-sdk/client-s3';
+import {getFilesToDelete} from './get-files-to-delete';
 
 export const getCleanupProgress = ({
-	chunks,
+	contents,
 	output,
 	chunkCount,
+	renderId,
 }: {
-	chunks: _Object[];
+	contents: _Object[];
 	output: string | null;
 	chunkCount: number;
+	renderId: string;
 }): null | {
+	filesToDelete: number;
 	filesDeleted: number;
 	done: boolean;
 } => {
@@ -16,10 +20,16 @@ export const getCleanupProgress = ({
 		return null;
 	}
 
-	const filesDeleted = chunkCount - chunks.length;
+	const filesToDelete = getFilesToDelete({chunkCount, renderId});
+	const filesStillThere = contents.filter((c) =>
+		filesToDelete.includes(c.Key as string)
+	);
+
+	const filesDeleted = filesToDelete.length - filesStillThere.length;
 
 	return {
+		filesToDelete: filesToDelete.length,
 		filesDeleted,
-		done: chunks.length === 0,
+		done: filesStillThere.length === 0,
 	};
 };
