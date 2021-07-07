@@ -202,3 +202,34 @@ export type PostRenderData = {
 	startTime: number;
 	endTime: number;
 };
+
+type CostsInfo = {
+	accruedSoFar: number;
+	displayCost: string;
+	currency: string;
+	disclaimer: string;
+};
+
+export type CleanupInfo = {
+	done: boolean;
+	filesToDelete: number;
+	filesDeleted: number;
+};
+
+export type RenderProgress = {
+	chunks: number;
+	done: boolean;
+	encodingStatus: EncodingProgress | null;
+	costs: CostsInfo;
+	renderId: string;
+	renderMetadata: RenderMetadata | null;
+	bucket: string;
+	outputFile: string | null;
+	timeToFinish: number | null;
+	errors: EnhancedErrorInfo[];
+	fatalErrorEncountered: boolean;
+	currentTime: number;
+	bucketSize: number;
+	lambdasInvoked: number;
+	cleanup: CleanupInfo | null;
+};
