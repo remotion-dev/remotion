@@ -1,5 +1,4 @@
 import {CliInternals} from '@remotion/cli';
-import {writeFileSync} from 'fs';
 import path from 'path';
 import {deployFunction} from './api/deploy-function';
 import {deployProject} from './api/deploy-project';
@@ -10,7 +9,7 @@ import {getRenderProgress} from './api/get-render-progress';
 import {cleanupLambdas, getRemotionLambdas} from './cleanup/cleanup-lambdas';
 import {getAwsRegion} from './cli/get-aws-region';
 import {Log} from './cli/log';
-import {lambdaLs, lambdaReadFile} from './functions/helpers/io';
+import {lambdaLs} from './functions/helpers/io';
 import {AwsRegion} from './pricing/aws-regions';
 import {getLambdaClient} from './shared/aws-clients';
 import {callLambda} from './shared/call-lambda';
@@ -18,11 +17,9 @@ import {
 	getSitesKey,
 	LambdaRoutines,
 	REMOTION_BUCKET_PREFIX,
-	timingProfileName,
 } from './shared/constants';
 import {makeS3Url} from './shared/make-s3-url';
 import {sleep} from './shared/sleep';
-import {streamToString} from './shared/stream-to-string';
 
 const DEPLOY = false;
 
@@ -116,21 +113,5 @@ CliInternals.xns(async () => {
 			Log.info('Done! ' + res.bucketName);
 			break;
 		}
-	}
-
-	const logs = await lambdaLs({
-		bucketName: res.bucketName,
-		prefix: timingProfileName(res.renderId),
-		region: getAwsRegion(),
-		expectedBucketOwner: null,
-	});
-
-	for (const log of logs) {
-		const content = await lambdaReadFile({
-			bucketName: res.bucketName,
-			key: log.Key as string,
-			region: getAwsRegion(),
-		});
-		writeFileSync(log.Key as string, await streamToString(content));
 	}
 });

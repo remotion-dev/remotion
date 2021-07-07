@@ -62,8 +62,6 @@ export const chunkKeyForIndex = ({
 	renderId: string;
 	index: number;
 }) => `${chunkKey(renderId)}${String(index).padStart(8, '0')}`;
-export const timingProfileName = (renderId: string) =>
-	`${rendersPrefix(renderId)}/timing-profile.json`;
 export const getErrorKeyPrefix = (renderId: string) =>
 	`${rendersPrefix(renderId)}/errors/`;
 export const optimizationProfile = (siteId: string, compositionId: string) =>
