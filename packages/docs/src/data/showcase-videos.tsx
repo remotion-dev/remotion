@@ -370,6 +370,79 @@ export const showcaseVideos: ShowcaseVideo[] = [
       "name": "Twitter Engineering"
     }
   },
+  {
+    title: "Quantargo - Data Science",
+    type: "mux_video",
+    muxId: "MqUUJjKZk01x9KGUJtSD1SLoUHmrab3eaVx9sDPCw9L00",
+    description: "This is a promo video of an data science course offered by Quantargo.",
+    height: 720,
+    width: 1280,
+    submittedOn: new Date("07-07-2021"),
+    links: [
+      {
+        type: "video",
+        url: "https://twitter.com/quantargo/status/1365233907793338369",
+      },
+      {
+        type: "website",
+        url: "https://www.quantargo.com/blog/2021-02-26-new-course-advanced-data-transformation/",
+      },
+    ],
+    author: {
+      "url": "https://www.quantargo.com/",
+      "name": "Quantargo"
+    }
+  },
+  {
+    title: "sld.codes Newsletter",
+    type: "mux_video",
+    muxId: "zSKsGBzfoPowlFVBm47N01aoMK2Er8qkM3CzZgnUDido",
+    description: "Here you see a promo video of Sam Larsen-Disney's newsletter.",
+    height: 628,
+    width: 1200,
+    submittedOn: new Date("07-07-2021"),
+    links: [
+      {
+        type: "video",
+        url: "https://twitter.com/SamLarsenDisney/status/1362029962241466372",
+      },
+      {
+        type: "website",
+        url: "https://sld.codes/newsletter",
+      },
+      {
+        type: "tutorial",
+        url: "https://sld.codes/articles/Remotion-&-Open-Graph-Video",
+      },
+    ],
+    author: {
+      "url": "https://sld.codes/",
+      "name": "Sam Larsen-Disney"
+    }
+  },
+  {
+    title: "Snappy Format File Animation",
+    type: "mux_video",
+    muxId: "WopGJTJ4UfzD5zu9yXl4aEZ3ASufllximGBL9AjsjDQ",
+    description: "In this visual you get to see an animation of various file formats.",
+    height: 500,
+    width: 500,
+    submittedOn: new Date("07-07-2021"),
+    links: [
+      {
+        type: "video",
+        url: "https://twitter.com/zackdotcomputer/status/1360682974224744452",
+      },
+      {
+        type: "website",
+        url: "https://www.phototamer.app/",
+      },
+    ],
+    author: {
+      "url": "https://zack.computer/",
+      "name": "Zack Sheppard"
+    }
+  },
 ];
 
 
