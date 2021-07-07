@@ -12,8 +12,8 @@ export const lambdaCommand = async () => {
 	} catch (err) {
 		Log.error(err);
 		Log.error('Remotion Lambda is not installed.');
-		Log.info('You can install it using:');
 		Log.info('');
+		Log.info('You can install it using:');
 		Log.info('npm i @remotion/lambda');
 		process.exit(1);
 	}

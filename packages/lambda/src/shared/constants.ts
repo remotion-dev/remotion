@@ -48,6 +48,13 @@ export const lambdaTimingsKey = ({
 	)}/chunk:${chunk}-start:${start}-end:${end}.txt`;
 export const chunkKey = (renderId: string) =>
 	`${rendersPrefix(renderId)}/chunks/chunk-`;
+export const chunkKeyForIndex = ({
+	renderId,
+	index,
+}: {
+	renderId: string;
+	index: number;
+}) => `${chunkKey(renderId)}${String(index).padStart(8, '0')}`;
 export const timingProfileName = (renderId: string) =>
 	`${rendersPrefix(renderId)}/timing-profile`;
 export const getErrorKeyPrefix = (renderId: string) =>

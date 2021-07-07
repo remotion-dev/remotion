@@ -18,6 +18,7 @@ import {
 } from '../shared/constants';
 import {parseLambdaTimingsKey} from '../shared/parse-lambda-timings-key';
 import {streamToString} from '../shared/stream-to-string';
+import {getCleanupProgress} from './helpers/get-cleanup-progress';
 import {getCurrentRegion} from './helpers/get-current-region';
 import {inspectErrors} from './helpers/inspect-errors';
 import {lambdaLs, lambdaReadFile} from './helpers/io';
@@ -42,7 +43,7 @@ const getFinalEncodingStatus = ({
 
 	if (outputFileExists) {
 		return {
-			framesEncoded: renderMetadata.totalFrames,
+			framesEncoded: renderMetadata.videoConfig.durationInFrames,
 		};
 	}
 
@@ -171,6 +172,7 @@ export const progressHandler = async (
 		parseLambdaTimingsKey(f.Key as string)
 	);
 
+	// TODO: Should also calculate invoker functions, and main function
 	const totalEncodingTimings = parsedTimings
 		.map((p) => p.end - p.start)
 		.reduce((a, b) => a + b, 0);
@@ -240,7 +242,7 @@ export const progressHandler = async (
 		}).toPrecision(5)
 	);
 
-	const outputFile = () => {
+	const getOutputFile = () => {
 		if (!output) {
 			return null;
 		}
@@ -254,9 +256,15 @@ export const progressHandler = async (
 		}/${outName(lambdaParams.renderId, renderMetadata.codec)}`;
 	};
 
+	const cleanup = getCleanupProgress({
+		chunkCount: renderMetadata?.totalChunks ?? 0,
+		chunks,
+		output: getOutputFile(),
+	});
+
 	return {
 		chunks: chunks.length,
-		done: Boolean(output),
+		done: Boolean(output) && cleanup?.done,
 		encodingStatus: getFinalEncodingStatus({
 			encodingStatus,
 			outputFileExists: Boolean(output),
@@ -275,12 +283,13 @@ export const progressHandler = async (
 		renderId: lambdaParams.renderId,
 		renderMetadata,
 		bucket: lambdaParams.bucketName,
-		outputFile: outputFile(),
+		outputFile: getOutputFile(),
 		timeToFinish,
 		errors: errorExplanations,
 		fatalErrorEncountered: errorExplanations.some(isFatalError),
 		currentTime: Date.now(),
 		bucketSize,
 		lambdasInvoked,
+		cleanup,
 	};
 };

@@ -8,7 +8,7 @@ import fs from 'fs';
 import path from 'path';
 import {getLambdaClient} from '../shared/aws-clients';
 import {
-	chunkKey,
+	chunkKeyForIndex,
 	DOWNLOADS_DIR,
 	lambdaInitializedKey,
 	LambdaPayload,
@@ -182,7 +182,10 @@ const renderHandler = async (params: LambdaPayload, options: Options) => {
 
 	await lambdaWriteFile({
 		bucketName: params.bucketName,
-		key: `${chunkKey(params.renderId)}${String(params.chunk).padStart(8, '0')}`,
+		key: chunkKeyForIndex({
+			renderId: params.renderId,
+			index: params.chunk,
+		}),
 		body: fs.createReadStream(outputLocation),
 		region: getCurrentRegion(),
 		acl: 'public-read',
