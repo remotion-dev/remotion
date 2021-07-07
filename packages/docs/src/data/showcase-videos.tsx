@@ -320,11 +320,35 @@ export const showcaseVideos: ShowcaseVideo[] = [
       },
     ],
     author: {
-      url: "https://twitter.com/mikepombal",
-      name: "mikepombal",
-    },
+      "url": "https://twitter.com/mikepombal",
+      "name": "mikepombal"
+    }
+  },
+  {
+    title: "Code Highlighter",
+    type: "mux_video",
+    muxId: "1W02pMAx5ZdtRE2PajqW7Ni01qbxADjpe37o4Non9Sonc",
+    description: "This video animates code and highlights interesting parts of it.",
+    height: 720,
+    width: 1280,
+    submittedOn: new Date("07-07-2021"),
+    links: [
+      {
+        type: "video",
+        url: "https://twitter.com/matfrana/status/1372336451246034948",
+      },
+      {
+        type: "website",
+        url: "https://reactbricks.com/",
+      },
+    ],
+    author: {
+      "url": "https://twitter.com/matfrana",
+      "name": "Matteo Frana"
+    }
   },
 ];
+
 
 const dateString = (date: Date) =>
   date.getDate() + "-" + date.getMonth() + "-" + date.getFullYear();
