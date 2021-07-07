@@ -7,8 +7,8 @@ type ErrorPayload = {
 };
 
 type OnTimeUpdateEventPayload = {
-	elapsedTime: number,
-}
+	elapsedTime: number;
+};
 
 type StateEventMap = {
 	seeked: SeekPayload;
@@ -89,6 +89,6 @@ export class PlayerEmitter {
 	}
 
 	dispatchOnTimeUpdate(event: OnTimeUpdateEventPayload) {
-		this.dispatchEvent('ontimeupdate', event)
+		this.dispatchEvent('ontimeupdate', event);
 	}
 }

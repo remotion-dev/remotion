@@ -13,7 +13,7 @@ import React, {
 } from 'react';
 import {Internals} from 'remotion';
 import {calculateScale} from './calculate-scale';
-import { PlayerEventEmitterContext } from './emitter-context';
+import {PlayerEventEmitterContext} from './emitter-context';
 import {ErrorBoundary} from './error-boundary';
 import {PLAYER_CSS_CLASSNAME} from './player-css-classname';
 import {PlayerMethods, PlayerRef} from './player-methods';
@@ -24,9 +24,9 @@ import {usePlayer} from './use-player';
 import {browserSupportsFullscreen} from './utils/browser-supports-fullscreen';
 import {calculatePlayerSize} from './utils/calculate-player-size';
 import {IS_NODE} from './utils/is-node';
-import { useThrottle } from './utils/use-throttle';
 import {useClickPreventionOnDoubleClick} from './utils/use-click-prevention-on-double-click';
 import {useElementSize} from './utils/use-element-size';
+import {useThrottle} from './utils/use-throttle';
 
 const PlayerUI: React.ForwardRefRenderFunction<
 	PlayerRef,
@@ -147,11 +147,11 @@ const PlayerUI: React.ForwardRefRenderFunction<
 	const throttledCurrentFrame = useThrottle(player.getCurrentFrame());
 
 	useEffect(() => {
-		if(config) {
+		if (config) {
 			const playedSeconds = throttledCurrentFrame / config.fps;
-			emitter?.dispatchOnTimeUpdate({elapsedTime: playedSeconds})
+			emitter?.dispatchOnTimeUpdate({elapsedTime: playedSeconds});
 		}
-	}, [throttledCurrentFrame])
+	}, [throttledCurrentFrame]);
 
 	useImperativeHandle(ref, () => {
 		const methods: PlayerMethods = {
