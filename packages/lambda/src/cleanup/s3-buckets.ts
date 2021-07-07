@@ -26,7 +26,7 @@ const cleanBucket = async ({
 	});
 	while (list.length > 0) {
 		await cleanItems({
-			list,
+			list: list.map((l) => l.Key as string),
 			region,
 			bucket,
 			onAfterItemDeleted,

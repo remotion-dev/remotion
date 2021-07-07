@@ -54,7 +54,7 @@ export const sitesRmSubcommand = async (args: string[]) => {
 			return a + (b.Size ?? 0);
 		}, 0);
 		await cleanItems({
-			list: files,
+			list: files.map((f) => f.Key as string),
 			bucket: remotionBuckets[0].Name as string,
 			onAfterItemDeleted: ({itemName}) => {
 				Log.info(CliInternals.chalk.gray(`Deleted ${itemName}`));

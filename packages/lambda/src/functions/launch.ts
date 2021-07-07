@@ -27,6 +27,7 @@ import {
 import {writeTimingProfile} from './chunk-optimization/write-profile';
 import {deleteTmpDir} from './helpers/clean-tmpdir';
 import {concatVideosS3} from './helpers/concat-videos';
+import {deleteChunks} from './helpers/delete-chunks';
 import {
 	closeBrowser,
 	getBrowserInstance,
@@ -273,6 +274,12 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		compositionId: params.composition,
 		siteId: getServeUrlHash(params.serveUrl),
 		region: getCurrentRegion(),
+	});
+	await deleteChunks({
+		region: getCurrentRegion(),
+		renderId: params.renderId,
+		bucket: params.bucketName,
+		chunkCount,
 	});
 };
 

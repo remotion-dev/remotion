@@ -1,4 +1,4 @@
-import {DeleteObjectCommand, _Object} from '@aws-sdk/client-s3';
+import {DeleteObjectCommand} from '@aws-sdk/client-s3';
 import pLimit from 'p-limit';
 import {AwsRegion} from '../pricing/aws-regions';
 import {getS3Client} from '../shared/aws-clients';
@@ -14,7 +14,7 @@ export const cleanItems = async ({
 }: {
 	bucket: string;
 	region: AwsRegion;
-	list: _Object[];
+	list: string[];
 	onBeforeItemDeleted: (data: {bucketName: string; itemName: string}) => void;
 	onAfterItemDeleted: (data: {bucketName: string; itemName: string}) => void;
 }) => {
@@ -23,17 +23,17 @@ export const cleanItems = async ({
 			limit(async () => {
 				onBeforeItemDeleted({
 					bucketName: bucket,
-					itemName: object.Key as string,
+					itemName: object,
 				});
 				await getS3Client(region).send(
 					new DeleteObjectCommand({
 						Bucket: bucket,
-						Key: object.Key,
+						Key: object,
 					})
 				);
 				onAfterItemDeleted({
 					bucketName: bucket,
-					itemName: object.Key as string,
+					itemName: object,
 				});
 			})
 		)
