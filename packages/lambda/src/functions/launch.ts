@@ -12,6 +12,7 @@ import {
 	outName,
 	RenderMetadata,
 	renderMetadataKey,
+	rendersPrefix,
 } from '../shared/constants';
 import {getServeUrlHash} from '../shared/make-s3-url';
 import {collectChunkInformation} from './chunk-optimization/collect-data';
@@ -33,8 +34,8 @@ import {
 	getBrowserInstance,
 	quitBrowser,
 } from './helpers/get-browser-instance';
-import {getCurrentRegion} from './helpers/get-current-region';
-import {lambdaWriteFile} from './helpers/io';
+import {getCurrentRegionInFunction} from './helpers/get-current-region';
+import {lambdaLs, lambdaWriteFile} from './helpers/io';
 import {isErrInsufficientResourcesErr} from './helpers/is-enosp-err';
 import {timer} from './helpers/timer';
 import {validateComposition} from './helpers/validate-composition';
@@ -65,7 +66,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 			bucketName: params.bucketName,
 			siteId: getServeUrlHash(params.serveUrl),
 			compositionId: params.composition,
-			region: getCurrentRegion(),
+			region: getCurrentRegionInFunction(),
 			expectedBucketOwner: options.expectedBucketOwner,
 		}),
 	]);
@@ -183,7 +184,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		bucketName: params.bucketName,
 		key: renderMetadataKey(params.renderId),
 		body: JSON.stringify(renderMetadata),
-		region: getCurrentRegion(),
+		region: getCurrentRegionInFunction(),
 		acl: 'private',
 		expectedBucketOwner: options.expectedBucketOwner,
 	});
@@ -197,7 +198,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 				payloads,
 				renderId: params.renderId,
 			};
-			await getLambdaClient(getCurrentRegion()).send(
+			await getLambdaClient(getCurrentRegionInFunction()).send(
 				new InvokeCommand({
 					FunctionName: process.env.AWS_LAMBDA_FUNCTION_NAME,
 					// @ts-expect-error
@@ -220,7 +221,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 			bucketName: params.bucketName,
 			key: encodingProgressKey(params.renderId),
 			body: JSON.stringify(encodingProgress),
-			region: getCurrentRegion(),
+			region: getCurrentRegionInFunction(),
 			acl: 'private',
 			expectedBucketOwner: options.expectedBucketOwner,
 		});
@@ -233,7 +234,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		onProgress,
 		numberOfFrames: comp.durationInFrames,
 		renderId: params.renderId,
-		region: getCurrentRegion(),
+		region: getCurrentRegionInFunction(),
 		codec: params.codec,
 		expectedBucketOwner: options.expectedBucketOwner,
 	});
@@ -242,14 +243,14 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		bucketName: params.bucketName,
 		key: outName(params.renderId, params.codec),
 		body: fs.createReadStream(out),
-		region: getCurrentRegion(),
+		region: getCurrentRegionInFunction(),
 		acl: 'public-read',
 		expectedBucketOwner: options.expectedBucketOwner,
 	});
 	const chunkData = await collectChunkInformation({
 		bucketName: params.bucketName,
 		renderId: params.renderId,
-		region: getCurrentRegion(),
+		region: getCurrentRegionInFunction(),
 		expectedBucketOwner: options.expectedBucketOwner,
 	});
 	const optimizedProfile = optimizeInvocationOrder(
@@ -269,29 +270,39 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		expectedBucketOwner: options.expectedBucketOwner,
 		compositionId: params.composition,
 		siteId: getServeUrlHash(params.serveUrl),
-		region: getCurrentRegion(),
+		region: getCurrentRegionInFunction(),
 	});
+
+	const contents = await lambdaLs({
+		bucketName: params.bucketName,
+		prefix: rendersPrefix(params.renderId),
+		expectedBucketOwner: options.expectedBucketOwner,
+		region: getCurrentRegionInFunction(),
+	});
+
 	// TODO: Opportunity to parallelize
 	const postRenderData = await createPostRenderData({
 		bucketName: params.bucketName,
 		expectedBucketOwner: options.expectedBucketOwner,
-		region: getCurrentRegion(),
+		region: getCurrentRegionInFunction(),
 		renderId: params.renderId,
 		memorySize: Number(process.env.AWS_LAMBDA_FUNCTION_MEMORY_SIZE),
 		renderMetadata,
+		contents,
 	});
 	await writePostRenderData({
 		bucketName: params.bucketName,
 		expectedBucketOwner: options.expectedBucketOwner,
 		postRenderData,
-		region: getCurrentRegion(),
+		region: getCurrentRegionInFunction(),
 		renderId: params.renderId,
 	});
 	await deleteChunks({
-		region: getCurrentRegion(),
+		region: getCurrentRegionInFunction(),
 		renderId: params.renderId,
 		bucket: params.bucketName,
 		chunkCount,
+		contents,
 	});
 };
 

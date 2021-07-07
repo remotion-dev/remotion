@@ -27,7 +27,7 @@ import {
 } from './chunk-optimization/types';
 import {deletedFiles, deletedFilesSize} from './helpers/clean-tmpdir';
 import {closeBrowser, getBrowserInstance} from './helpers/get-browser-instance';
-import {getCurrentRegion} from './helpers/get-current-region';
+import {getCurrentRegionInFunction} from './helpers/get-current-region';
 import {getFolderFiles} from './helpers/get-files-in-folder';
 import {getFolderSizeRecursively} from './helpers/get-folder-size';
 import {lambdaWriteFile} from './helpers/io';
@@ -101,7 +101,7 @@ const renderHandler = async (params: LambdaPayload, options: Options) => {
 					renderId: params.renderId,
 					chunk: params.chunk,
 				}),
-				region: getCurrentRegion(),
+				region: getCurrentRegionInFunction(),
 				expectedBucketOwner: options.expectedBucketOwner,
 			});
 		},
@@ -190,7 +190,7 @@ const renderHandler = async (params: LambdaPayload, options: Options) => {
 			index: params.chunk,
 		}),
 		body: fs.createReadStream(outputLocation),
-		region: getCurrentRegion(),
+		region: getCurrentRegionInFunction(),
 		acl: 'public-read',
 		expectedBucketOwner: options.expectedBucketOwner,
 	});
@@ -206,7 +206,7 @@ const renderHandler = async (params: LambdaPayload, options: Options) => {
 				end: Date.now(),
 				start,
 			})}`,
-			region: getCurrentRegion(),
+			region: getCurrentRegionInFunction(),
 			acl: 'private',
 			expectedBucketOwner: options.expectedBucketOwner,
 		}),
@@ -234,7 +234,7 @@ export const rendererHandler = async (
 				...params,
 				retriesLeft: params.retriesLeft - 1,
 			};
-			await getLambdaClient(getCurrentRegion()).send(
+			await getLambdaClient(getCurrentRegionInFunction()).send(
 				new InvokeCommand({
 					FunctionName: process.env.AWS_LAMBDA_FUNCTION_NAME,
 					// @ts-expect-error

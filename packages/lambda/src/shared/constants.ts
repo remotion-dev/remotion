@@ -28,7 +28,7 @@ export const rendersPrefix = (renderId: string) => `renders/${renderId}`;
 export const encodingProgressKey = (renderId: string) =>
 	`${rendersPrefix(renderId)}/encoding-progress.json`;
 export const renderMetadataKey = (renderId: string) =>
-	`${rendersPrefix(renderId)}/render-metadata.json`;
+	`${rendersPrefix(renderId)}/pre-render-metadata.json`;
 export const lambdaInitializedPrefix = (renderId: string) =>
 	`${rendersPrefix(renderId)}/lambda-initialized`;
 export const lambdaInitializedKey = ({
@@ -39,7 +39,10 @@ export const lambdaInitializedKey = ({
 	chunk: number;
 }) => `${lambdaInitializedPrefix(renderId)}-${chunk}.txt`;
 export const lambdaTimingsPrefix = (renderId: string) =>
-	`${rendersPrefix(renderId)}/lambda-timings`;
+	`${rendersPrefix(renderId)}/lambda-timings/chunk:`;
+
+export const lambdaTimingsPrefixForChunk = (renderId: string, chunk: number) =>
+	lambdaTimingsPrefix(renderId) + String(chunk).padStart(8, '0');
 export const lambdaTimingsKey = ({
 	renderId,
 	chunk,
@@ -51,9 +54,10 @@ export const lambdaTimingsKey = ({
 	start: number;
 	end: number;
 }) =>
-	`${lambdaTimingsPrefix(
-		renderId
-	)}/chunk:${chunk}-start:${start}-end:${end}.txt`;
+	`${lambdaTimingsPrefixForChunk(
+		renderId,
+		chunk
+	)}-start:${start}-end:${end}.txt`;
 export const chunkKey = (renderId: string) =>
 	`${rendersPrefix(renderId)}/chunks/chunk-`;
 export const chunkKeyForIndex = ({

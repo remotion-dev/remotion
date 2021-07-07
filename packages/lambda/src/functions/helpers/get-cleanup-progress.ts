@@ -18,9 +18,19 @@ export const getCleanupProgress = ({
 	}
 
 	const filesToDelete = getFilesToDelete({chunkCount, renderId});
-	const filesStillThere = contents.filter((c) =>
-		filesToDelete.includes(c.Key as string)
-	);
+	const filesStillThere = contents.filter((c) => {
+		return filesToDelete.find((f) => {
+			if (f.type === 'exact') {
+				return f.name === c.Key;
+			}
+
+			if (f.type === 'prefix') {
+				return c.Key?.startsWith(f.name);
+			}
+
+			throw new Error('Unexpected in getCleanupProgress');
+		});
+	});
 
 	const filesDeleted = filesToDelete.length - filesStillThere.length;
 

@@ -3,14 +3,16 @@ import {getOrCreateBucket} from '../api/get-or-create-bucket';
 import {getLambdaClient} from '../shared/aws-clients';
 import {LambdaPayload, LambdaRoutines} from '../shared/constants';
 import {randomHash} from '../shared/random-hash';
-import {getCurrentRegion} from './helpers/get-current-region';
+import {getCurrentRegionInFunction} from './helpers/get-current-region';
 
 export const startHandler = async (params: LambdaPayload) => {
 	if (params.type !== LambdaRoutines.start) {
 		throw new TypeError('Expected type start');
 	}
 
-	const bucketName = await getOrCreateBucket({region: getCurrentRegion()});
+	const bucketName = await getOrCreateBucket({
+		region: getCurrentRegionInFunction(),
+	});
 	const renderId = randomHash();
 
 	const payload: LambdaPayload = {
@@ -30,7 +32,7 @@ export const startHandler = async (params: LambdaPayload) => {
 		quality: params.quality,
 		maxRetries: params.maxRetries,
 	};
-	await getLambdaClient(getCurrentRegion()).send(
+	await getLambdaClient(getCurrentRegionInFunction()).send(
 		new InvokeCommand({
 			FunctionName: process.env.AWS_LAMBDA_FUNCTION_NAME,
 			// @ts-expect-error
