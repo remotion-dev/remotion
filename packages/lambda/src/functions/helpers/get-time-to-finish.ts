@@ -1,18 +1,13 @@
-import {_Object} from '@aws-sdk/client-s3';
 import {RenderMetadata} from '../../defaults';
 
 export const getTimeToFinish = ({
 	renderMetadata,
-	output,
+	lastModified,
 }: {
 	renderMetadata: RenderMetadata | null;
-	output: _Object | null;
+	lastModified: number | null;
 }) => {
-	if (!output) {
-		return null;
-	}
-
-	if (!output.LastModified) {
+	if (!lastModified) {
 		return null;
 	}
 
@@ -20,5 +15,5 @@ export const getTimeToFinish = ({
 		return null;
 	}
 
-	return output.LastModified.getTime() - renderMetadata.startedDate;
+	return lastModified - renderMetadata.startedDate;
 };

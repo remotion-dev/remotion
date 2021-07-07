@@ -97,15 +97,18 @@ export const lambdaReadFile = async ({
 	bucketName,
 	key,
 	region,
+	expectedBucketOwner,
 }: {
 	bucketName: string;
 	key: string;
 	region: AwsRegion;
+	expectedBucketOwner: string;
 }): Promise<Readable | Buffer> => {
 	const {Body} = await getS3Client(region).send(
 		new GetObjectCommand({
 			Bucket: bucketName,
 			Key: key,
+			ExpectedBucketOwner: expectedBucketOwner,
 		})
 	);
 	return Body as Readable;

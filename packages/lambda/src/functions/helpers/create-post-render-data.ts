@@ -2,13 +2,13 @@ import {AwsRegion} from '../..';
 import {calculatePrice} from '../../pricing/calculate-price';
 import {
 	lambdaTimingsPrefix,
-	outName,
 	PostRenderData,
 	RenderMetadata,
 	rendersPrefix,
 } from '../../shared/constants';
 import {parseLambdaTimingsKey} from '../../shared/parse-lambda-timings-key';
 import {findOutputFileInBucket} from './find-output-file-in-bucket';
+import {getFilesToDelete} from './get-files-to-delete';
 import {inspectErrors} from './inspect-errors';
 import {lambdaLs} from './io';
 
@@ -54,19 +54,8 @@ export const createPostRenderData = async ({
 		region,
 	});
 
-	const output =
-		contents.find((c) =>
-			c.Key?.includes(outName(renderId, renderMetadata.codec))
-		) ?? null;
-
-	if (!output) {
-		throw new Error(
-			'Could not find output file. Not yet ready to call createPostRenderData()'
-		);
-	}
-
 	const outputFile = findOutputFileInBucket({
-		output,
+		contents,
 		bucketName,
 		renderId,
 		renderMetadata,
@@ -81,11 +70,16 @@ export const createPostRenderData = async ({
 		renderId,
 		bucket: bucketName,
 		region,
+		expectedBucketOwner,
 	});
 
 	const endTime = Date.now();
 	const startTime = renderMetadata.startedDate;
 	const timeToFinish = endTime - startTime;
+
+	const bucketSize = contents
+		.map((c) => c.Size ?? 0)
+		.reduce((a, b) => a + b, 0);
 
 	const data: PostRenderData = {
 		cost: {
@@ -98,12 +92,18 @@ export const createPostRenderData = async ({
 				currencyDisplay: 'narrowSymbol',
 			}).format(cost),
 		},
-		outputFile,
+		outputFile: outputFile.url,
 		timeToFinish,
 		errors: errorExplanations,
 		startTime: renderMetadata.startedDate,
 		endTime,
-		outputSize: output.Size as number,
+		outputSize: outputFile.size,
+		bucketSize,
+		renderMetadata,
+		filesCleanedUp: getFilesToDelete({
+			chunkCount: renderMetadata.totalChunks,
+			renderId,
+		}).length,
 	};
 
 	return data;

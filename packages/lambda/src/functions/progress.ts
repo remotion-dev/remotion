@@ -1,3 +1,4 @@
+import {getAwsRegion} from '../cli/get-aws-region';
 import {
 	LambdaPayload,
 	LambdaRoutines,
@@ -17,9 +18,11 @@ export const progressHandler = async (
 		throw new TypeError('Expected status type');
 	}
 
-	return getProgress(
-		lambdaParams.bucketName,
-		lambdaParams.renderId,
-		options.expectedBucketOwner
-	);
+	return getProgress({
+		bucketName: lambdaParams.bucketName,
+		renderId: lambdaParams.renderId,
+		expectedBucketOwner: options.expectedBucketOwner,
+		region: getAwsRegion(),
+		memorySize: Number(process.env.AWS_LAMBDA_FUNCTION_MEMORY_SIZE),
+	});
 };

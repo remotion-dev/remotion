@@ -8,11 +8,13 @@ export const getEncodingMetadata = async ({
 	bucketName,
 	renderId,
 	region,
+	expectedBucketOwner,
 }: {
 	exists: boolean;
 	bucketName: string;
 	renderId: string;
 	region: AwsRegion;
+	expectedBucketOwner: string;
 }): Promise<EncodingProgress | null> => {
 	if (!exists) {
 		return null;
@@ -22,6 +24,7 @@ export const getEncodingMetadata = async ({
 		bucketName,
 		key: encodingProgressKey(renderId),
 		region,
+		expectedBucketOwner,
 	});
 
 	try {

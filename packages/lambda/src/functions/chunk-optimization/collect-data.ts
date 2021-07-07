@@ -28,6 +28,7 @@ export const collectChunkInformation = async ({
 				bucketName,
 				key: file.Key as string,
 				region,
+				expectedBucketOwner,
 			});
 			const string = await streamToString(contents);
 			return JSON.parse(string) as ChunkTimingData;
