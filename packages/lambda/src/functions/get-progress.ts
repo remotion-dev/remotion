@@ -1,12 +1,8 @@
-import {_Object} from '@aws-sdk/client-s3';
-import {Internals} from 'remotion';
-import {AwsRegion} from '../pricing/aws-regions';
 import {calculatePrice} from '../pricing/calculate-price';
 import {
 	chunkKey,
 	EncodingProgress,
 	encodingProgressKey,
-	getErrorKeyPrefix,
 	lambdaInitializedPrefix,
 	LambdaPayload,
 	LambdaRoutines,
@@ -17,11 +13,14 @@ import {
 	rendersPrefix,
 } from '../shared/constants';
 import {parseLambdaTimingsKey} from '../shared/parse-lambda-timings-key';
-import {streamToString} from '../shared/stream-to-string';
+import {findOutputFileInBucket} from './helpers/find-output-file-in-bucket';
 import {getCleanupProgress} from './helpers/get-cleanup-progress';
 import {getCurrentRegion} from './helpers/get-current-region';
+import {getEncodingMetadata} from './helpers/get-encoding-metadata';
+import {getRenderMetadata} from './helpers/get-render-metadata';
+import {getTimeToFinish} from './helpers/get-time-to-finish';
 import {inspectErrors} from './helpers/inspect-errors';
-import {lambdaLs, lambdaReadFile} from './helpers/io';
+import {lambdaLs} from './helpers/io';
 import {isFatalError} from './helpers/is-fatal-error';
 
 type Options = {
@@ -48,89 +47,6 @@ const getFinalEncodingStatus = ({
 	}
 
 	return encodingProgress;
-};
-
-const getEncodingMetadata = async ({
-	exists,
-	bucketName,
-	renderId,
-	region,
-}: {
-	exists: boolean;
-	bucketName: string;
-	renderId: string;
-	region: AwsRegion;
-}): Promise<EncodingProgress | null> => {
-	if (!exists) {
-		return null;
-	}
-
-	const Body = await lambdaReadFile({
-		bucketName,
-		key: encodingProgressKey(renderId),
-		region,
-	});
-
-	try {
-		const encodingProgress = JSON.parse(
-			await streamToString(Body)
-		) as EncodingProgress;
-
-		return encodingProgress;
-	} catch (err) {
-		// The file may not yet have been fully written
-		return null;
-	}
-};
-
-const getRenderMetadata = async ({
-	exists,
-	bucketName,
-	renderId,
-	region,
-}: {
-	exists: boolean;
-	bucketName: string;
-	renderId: string;
-	region: AwsRegion;
-}) => {
-	if (!exists) {
-		return null;
-	}
-
-	const Body = await lambdaReadFile({
-		bucketName,
-		key: renderMetadataKey(renderId),
-		region,
-	});
-
-	const renderMetadataResponse = JSON.parse(
-		await streamToString(Body)
-	) as RenderMetadata;
-
-	return renderMetadataResponse;
-};
-
-const getTimeToFinish = ({
-	renderMetadata,
-	output,
-}: {
-	renderMetadata: RenderMetadata | null;
-	output: _Object | null;
-}) => {
-	if (!output) {
-		return null;
-	}
-
-	if (!output.LastModified) {
-		return null;
-	}
-
-	if (!renderMetadata) {
-		return null;
-	}
-
-	return output.LastModified.getTime() - renderMetadata.startedDate;
 };
 
 export const progressHandler = async (
@@ -173,11 +89,6 @@ export const progressHandler = async (
 		.map((p) => p.end - p.start)
 		.reduce((a, b) => a + b, 0);
 
-	const errors = contents
-		.filter((c) => c.Key?.startsWith(getErrorKeyPrefix(lambdaParams.renderId)))
-		.map((c) => c.Key)
-		.filter(Internals.truthy);
-
 	const [encodingStatus, renderMetadata, errorExplanations] = await Promise.all(
 		[
 			getEncodingMetadata({
@@ -201,7 +112,8 @@ export const progressHandler = async (
 				region: getCurrentRegion(),
 			}),
 			inspectErrors({
-				errs: errors,
+				contents,
+				renderId: lambdaParams.renderId,
 				bucket: lambdaParams.bucketName,
 				region: getCurrentRegion(),
 			}),
@@ -238,21 +150,14 @@ export const progressHandler = async (
 		}).toPrecision(5)
 	);
 
-	const getOutputFile = () => {
-		if (!output) {
-			return null;
-		}
+	const outputFile = findOutputFileInBucket({
+		bucketName: lambdaParams.bucketName,
+		output,
+		renderId: lambdaParams.renderId,
+		renderMetadata,
+	});
 
-		if (!renderMetadata) {
-			throw new Error('unexpectedly did not get renderMetadata');
-		}
-
-		return `https://s3.${process.env.AWS_REGION as AwsRegion}.amazonaws.com/${
-			lambdaParams.bucketName
-		}/${outName(lambdaParams.renderId, renderMetadata.codec)}`;
-	};
-
-	const lambdasInvoked = getOutputFile()
+	const lambdasInvoked = outputFile
 		? renderMetadata?.totalChunks ?? 0
 		: contents.filter((c) =>
 				c.Key?.startsWith(lambdaInitializedPrefix(lambdaParams.renderId))
@@ -261,12 +166,12 @@ export const progressHandler = async (
 	const cleanup = getCleanupProgress({
 		chunkCount: renderMetadata?.totalChunks ?? 0,
 		contents,
-		output: getOutputFile(),
+		output: outputFile,
 		renderId: lambdaParams.renderId,
 	});
 
 	return {
-		chunks: chunks.length,
+		chunks: outputFile ? renderMetadata?.totalChunks ?? 0 : chunks.length,
 		done: Boolean(output) && cleanup?.done,
 		encodingStatus: getFinalEncodingStatus({
 			encodingStatus,
@@ -286,7 +191,7 @@ export const progressHandler = async (
 		renderId: lambdaParams.renderId,
 		renderMetadata,
 		bucket: lambdaParams.bucketName,
-		outputFile: getOutputFile(),
+		outputFile,
 		timeToFinish,
 		errors: errorExplanations,
 		fatalErrorEncountered: errorExplanations.some(isFatalError),
