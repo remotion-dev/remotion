@@ -3,7 +3,7 @@ import {calculatePrice} from '../../pricing/calculate-price';
 import {lambdaTimingsPrefix, RenderMetadata} from '../../shared/constants';
 import {parseLambdaTimingsKey} from '../../shared/parse-lambda-timings-key';
 import {findOutputFileInBucket} from './find-output-file-in-bucket';
-import {getCurrentRegion} from './get-current-region';
+import {getCurrentRegionInFunction} from './get-current-region';
 import {getTimeToFinish} from './get-time-to-finish';
 
 // TODO: Should differentiate between finished and in progress
@@ -62,7 +62,7 @@ export const calculatePriceFromBucket = ({
 
 	const accruedSoFar = Number(
 		calculatePrice({
-			region: getCurrentRegion(),
+			region: getCurrentRegionInFunction(),
 			durationInMiliseconds: totalEncodingTimings + timeElapsedOfUnfinished,
 			memorySize,
 		}).toPrecision(5)

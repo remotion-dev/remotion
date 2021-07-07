@@ -1,6 +1,6 @@
 import {_Object} from '@aws-sdk/client-s3';
-import {getAwsRegion} from '../../cli/get-aws-region';
 import {outName, RenderMetadata} from '../../shared/constants';
+import {getCurrentRegionInFunction} from './get-current-region';
 
 export const findOutputFileInBucket = ({
 	contents,
@@ -34,7 +34,7 @@ export const findOutputFileInBucket = ({
 	return {
 		lastModified: output.LastModified?.getTime() as number,
 		size: output.Size as number,
-		url: `https://s3.${getAwsRegion()}.amazonaws.com/${bucketName}/${outName(
+		url: `https://s3.${getCurrentRegionInFunction()}.amazonaws.com/${bucketName}/${outName(
 			renderId,
 			renderMetadata.codec
 		)}`,

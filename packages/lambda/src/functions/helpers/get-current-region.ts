@@ -1,7 +1,7 @@
 import {AwsRegion} from '../../pricing/aws-regions';
 import {isInLambda} from '../../shared/tmpdir';
 
-export const getCurrentRegion = () => {
+export const getCurrentRegionInFunction = () => {
 	if (!isInLambda) {
 		throw new Error(
 			'Should not call getCurrentRegion() if not inside a lambda function'

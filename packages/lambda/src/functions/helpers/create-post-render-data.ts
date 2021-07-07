@@ -1,16 +1,15 @@
+import {_Object} from '@aws-sdk/client-s3';
 import {AwsRegion} from '../..';
 import {calculatePrice} from '../../pricing/calculate-price';
 import {
 	lambdaTimingsPrefix,
 	PostRenderData,
 	RenderMetadata,
-	rendersPrefix,
 } from '../../shared/constants';
 import {parseLambdaTimingsKey} from '../../shared/parse-lambda-timings-key';
 import {findOutputFileInBucket} from './find-output-file-in-bucket';
 import {getFilesToDelete} from './get-files-to-delete';
 import {inspectErrors} from './inspect-errors';
-import {lambdaLs} from './io';
 
 const OVERHEAD_TIME_PER_LAMBDA = 100;
 
@@ -21,6 +20,7 @@ export const createPostRenderData = async ({
 	region,
 	memorySize,
 	renderMetadata,
+	contents,
 }: {
 	renderId: string;
 	bucketName: string;
@@ -28,14 +28,8 @@ export const createPostRenderData = async ({
 	region: AwsRegion;
 	memorySize: number;
 	renderMetadata: RenderMetadata;
+	contents: _Object[];
 }) => {
-	const contents = await lambdaLs({
-		bucketName,
-		prefix: rendersPrefix(renderId),
-		expectedBucketOwner,
-		region,
-	});
-
 	const initializedKeys = contents.filter((c) =>
 		c.Key?.startsWith(lambdaTimingsPrefix(renderId))
 	);

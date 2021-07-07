@@ -10,7 +10,7 @@ import {
 import {calculatePriceFromBucket} from './calculate-price-from-bucket';
 import {findOutputFileInBucket} from './find-output-file-in-bucket';
 import {getCleanupProgress} from './get-cleanup-progress';
-import {getCurrentRegion} from './get-current-region';
+import {getCurrentRegionInFunction} from './get-current-region';
 import {getEncodingMetadata} from './get-encoding-metadata';
 import {getFinalEncodingStatus} from './get-final-encoding-status';
 import {getPostRenderData} from './get-post-render-data';
@@ -75,7 +75,7 @@ export const getProgress = async ({
 	const contents = await lambdaLs({
 		bucketName,
 		prefix: rendersPrefix(renderId),
-		region: getCurrentRegion(),
+		region: getCurrentRegionInFunction(),
 		expectedBucketOwner,
 	});
 
@@ -87,7 +87,7 @@ export const getProgress = async ({
 				),
 				bucketName,
 				renderId,
-				region: getCurrentRegion(),
+				region: getCurrentRegionInFunction(),
 				expectedBucketOwner,
 			}),
 			getRenderMetadata({
@@ -96,14 +96,14 @@ export const getProgress = async ({
 				),
 				bucketName,
 				renderId,
-				region: getCurrentRegion(),
+				region: getCurrentRegionInFunction(),
 				expectedBucketOwner,
 			}),
 			inspectErrors({
 				contents,
 				renderId,
 				bucket: bucketName,
-				region: getCurrentRegion(),
+				region: getCurrentRegionInFunction(),
 				expectedBucketOwner,
 			}),
 		]

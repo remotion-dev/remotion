@@ -1,6 +1,6 @@
 import {getErrorKeyPrefix} from '../../shared/constants';
 import {randomHash} from '../../shared/random-hash';
-import {getCurrentRegion} from './get-current-region';
+import {getCurrentRegionInFunction} from './get-current-region';
 import {FileNameAndSize, getFolderFiles} from './get-files-in-folder';
 import {lambdaWriteFile} from './io';
 import {errorIsOutOfSpaceError} from './is-enosp-err';
@@ -52,7 +52,7 @@ export const writeLambdaError = async ({
 		bucketName,
 		key: `${getErrorKeyPrefix(renderId)}${randomHash()}.txt`,
 		body: JSON.stringify(errorInfo),
-		region: getCurrentRegion(),
+		region: getCurrentRegionInFunction(),
 		acl: 'private',
 		expectedBucketOwner,
 	});
