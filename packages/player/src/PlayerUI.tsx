@@ -4,6 +4,7 @@ import React, {
 	MouseEventHandler,
 	Suspense,
 	useCallback,
+	useContext,
 	useEffect,
 	useImperativeHandle,
 	useMemo,
@@ -12,6 +13,7 @@ import React, {
 } from 'react';
 import {Internals} from 'remotion';
 import {calculateScale} from './calculate-scale';
+import { PlayerEventEmitterContext } from './emitter-context';
 import {ErrorBoundary} from './error-boundary';
 import {PLAYER_CSS_CLASSNAME} from './player-css-classname';
 import {PlayerMethods, PlayerRef} from './player-methods';
@@ -22,6 +24,7 @@ import {usePlayer} from './use-player';
 import {browserSupportsFullscreen} from './utils/browser-supports-fullscreen';
 import {calculatePlayerSize} from './utils/calculate-player-size';
 import {IS_NODE} from './utils/is-node';
+import { useThrottle } from './utils/use-throttle';
 import {useClickPreventionOnDoubleClick} from './utils/use-click-prevention-on-double-click';
 import {useElementSize} from './utils/use-element-size';
 
@@ -41,11 +44,6 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		setMediaVolume: (v: number) => void;
 		setMediaMuted: (v: boolean) => void;
 		mediaVolume: number;
-		onTimeUpdate?: ({
-			elapsedTime,
-		}: {
-			elapsedTime: number
-		}) => void;
 	}
 > = (
 	{
@@ -62,7 +60,6 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		doubleClickToFullscreen,
 		setMediaMuted,
 		setMediaVolume,
-		onTimeUpdate,
 	},
 	ref
 ) => {
@@ -71,6 +68,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 	const container = useRef<HTMLDivElement>(null);
 	const hovered = useHoverState(container);
 	const canvasSize = useElementSize(container);
+	const emitter = useContext(PlayerEventEmitterContext);
 
 	const [hasPausedToResume, setHasPausedToResume] = useState(false);
 	const [shouldAutoplay, setShouldAutoPlay] = useState(autoPlay);
@@ -146,14 +144,14 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		}
 	}, []);
 
+	const throttledCurrentFrame = useThrottle(player.getCurrentFrame());
+
 	useEffect(() => {
-		if(config && onTimeUpdate) {
-			const playedSeconds = player.getCurrentFrame() / config.fps;
-			onTimeUpdate({
-				elapsedTime: playedSeconds,
-			});
+		if(config) {
+			const playedSeconds = throttledCurrentFrame / config.fps;
+			emitter?.dispatchOnTimeUpdate({elapsedTime: playedSeconds})
 		}
-	}, [player, onTimeUpdate, config])
+	}, [throttledCurrentFrame])
 
 	useImperativeHandle(ref, () => {
 		const methods: PlayerMethods = {
