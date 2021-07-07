@@ -31,6 +31,9 @@ export default function App() {
 		ref.current?.addEventListener('error', (e) => {
 			setLogs((l) => [...l, 'error ' + Date.now()]);
 		});
+		ref.current?.addEventListener('ontimeupdate', (e) => {
+			setElapsedTime(e.detail.elapsedTime);
+		})
 	}, []);
 
 	return (
@@ -47,11 +50,6 @@ export default function App() {
 				loop={loop}
 				showVolumeControls={true}
 				clickToPlay={clickToPlay}
-				onTimeUpdate={({elapsedTime}) => {
-					if(logTimeUpdate) {
-						setElapsedTime(elapsedTime);
-					}
-				}}
 				inputProps={{
 					title: String(title),
 					bgColor: String(bgColor),

@@ -46,11 +46,6 @@ export type PlayerProps<T> = {
 	allowFullscreen?: boolean;
 	clickToPlay?: boolean;
 	doubleClickToFullscreen?: boolean;
-	onTimeUpdate?: ({
-		elapsedTime,
-	}: {
-		elapsedTime: number
-	}) => void;
 } & PropsIfHasProps<T> &
 	CompProps<T>;
 
@@ -73,7 +68,6 @@ export const PlayerFn = <T,>(
 		allowFullscreen = true,
 		clickToPlay,
 		doubleClickToFullscreen = false,
-		onTimeUpdate,
 		...componentProps
 	}: PlayerProps<T>,
 	ref: MutableRefObject<PlayerRef>
@@ -283,7 +277,6 @@ export const PlayerFn = <T,>(
 									mediaMuted={mediaMuted}
 									doubleClickToFullscreen={Boolean(doubleClickToFullscreen)}
 									setMediaMuted={setMediaMuted}
-									onTimeUpdate={onTimeUpdate}
 								/>
 							</PlayerEventEmitterContext.Provider>
 						</Internals.SetMediaVolumeContext.Provider>
