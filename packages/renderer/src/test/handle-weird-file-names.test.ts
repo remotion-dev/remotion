@@ -4,7 +4,7 @@ test('Should sanitize weird file names when downloading', async () => {
 	const newSrc = getSanitizedFilenameForAssetUrl({
 		src: 'http://gtts-api.miniggiodev.fr/Ici+Japon+Corp.?lang=ja',
 		isRemote: true,
-		downloadDir: '',
+		downloadDir: '/var/tmp',
 		webpackBundle: '/var/tmp',
 	});
 	expect(newSrc).toBe(
