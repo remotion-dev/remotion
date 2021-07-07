@@ -320,15 +320,16 @@ export const showcaseVideos: ShowcaseVideo[] = [
       },
     ],
     author: {
-      "url": "https://twitter.com/mikepombal",
-      "name": "mikepombal"
-    }
+      url: "https://twitter.com/mikepombal",
+      name: "mikepombal",
+    },
   },
   {
     title: "Code Highlighter",
     type: "mux_video",
     muxId: "1W02pMAx5ZdtRE2PajqW7Ni01qbxADjpe37o4Non9Sonc",
-    description: "This video animates code and highlights interesting parts of it.",
+    description:
+      "This video animates code and highlights interesting parts of it.",
     height: 720,
     width: 1280,
     submittedOn: new Date("07-07-2021"),
@@ -343,15 +344,36 @@ export const showcaseVideos: ShowcaseVideo[] = [
       },
     ],
     author: {
-      "url": "https://twitter.com/matfrana",
-      "name": "Matteo Frana"
-    }
+      url: "https://twitter.com/matfrana",
+      name: "Matteo Frana",
+    },
+  },
+  {
+    title: "Redesigning the Scatterplot",
+    type: "mux_video",
+    muxId: "mnQCnHc56wrafN4DIPkIdYpFh7Yk202rbMOzxrZaUylE",
+    description:
+      "In this video you get a visual display of some quantitative information.",
+    height: 720,
+    width: 1280,
+    submittedOn: new Date("07-07-2021"),
+    links: [
+      {
+        type: "video",
+        url: "https://twitter.com/BrooksLybrand/status/1371547875109445635",
+      },
+    ],
+    author: {
+      url: "https://twitter.com/BrooksLybrand",
+      name: "Brooks Lybrand",
+    },
   },
   {
     title: "Twitter year in review",
     type: "mux_video",
     muxId: "iRnXEBXAvxCQAtu01TVEJsizIfXaPpxlyqeJfm54K1Vs",
-    description: "This videos shows the user various metrics of their Twitter account.",
+    description:
+      "This videos shows the user various metrics of their Twitter account.",
     height: 720,
     width: 720,
     submittedOn: new Date("07-07-2021"),
@@ -366,15 +388,16 @@ export const showcaseVideos: ShowcaseVideo[] = [
       },
     ],
     author: {
-      "url": "https://twitter.com/TwitterEng",
-      "name": "Twitter Engineering"
-    }
+      url: "https://twitter.com/TwitterEng",
+      name: "Twitter Engineering",
+    },
   },
   {
     title: "Data Science Product Ad",
     type: "mux_video",
     muxId: "MqUUJjKZk01x9KGUJtSD1SLoUHmrab3eaVx9sDPCw9L00",
-    description: "This is a promo video of an data science course offered by Quantargo.",
+    description:
+      "This is a promo video of an data science course offered by Quantargo.",
     height: 720,
     width: 1280,
     submittedOn: new Date("07-07-2021"),
@@ -385,19 +408,21 @@ export const showcaseVideos: ShowcaseVideo[] = [
       },
       {
         type: "website",
-        url: "https://www.quantargo.com/blog/2021-02-26-new-course-advanced-data-transformation/",
+        url:
+          "https://www.quantargo.com/blog/2021-02-26-new-course-advanced-data-transformation/",
       },
     ],
     author: {
-      "url": "https://www.quantargo.com/",
-      "name": "Quantargo"
-    }
+      url: "https://www.quantargo.com/",
+      name: "Quantargo",
+    },
   },
   {
     title: "Animated Social Media Preview Card",
     type: "mux_video",
     muxId: "zSKsGBzfoPowlFVBm47N01aoMK2Er8qkM3CzZgnUDido",
-    description: "Here you see a promo video of Sam Larsen-Disney's newsletter.",
+    description:
+      "Here you see a promo video of Sam Larsen-Disney's newsletter.",
     height: 628,
     width: 1200,
     submittedOn: new Date("07-07-2021"),
@@ -416,15 +441,16 @@ export const showcaseVideos: ShowcaseVideo[] = [
       },
     ],
     author: {
-      "url": "https://sld.codes/",
-      "name": "Sam Larsen-Disney"
-    }
+      url: "https://sld.codes/",
+      name: "Sam Larsen-Disney",
+    },
   },
   {
     title: "Snappy Format File Animation",
     type: "mux_video",
     muxId: "WopGJTJ4UfzD5zu9yXl4aEZ3ASufllximGBL9AjsjDQ",
-    description: "In this visual you get to see an animation of various file formats.",
+    description:
+      "In this visual you get to see an animation of various file formats.",
     height: 500,
     width: 500,
     submittedOn: new Date("07-07-2021"),
@@ -439,12 +465,11 @@ export const showcaseVideos: ShowcaseVideo[] = [
       },
     ],
     author: {
-      "url": "https://zack.computer/",
-      "name": "Zack Sheppard"
-    }
+      url: "https://zack.computer/",
+      name: "Zack Sheppard",
+    },
   },
 ];
-
 
 const dateString = (date: Date) =>
   date.getDate() + "-" + date.getMonth() + "-" + date.getFullYear();
