@@ -12,9 +12,9 @@ const bundle: (
   entryPoint: string,
   onProgressUpdate?: (progress: number) => void,
   options?: {
-    webpackOverride?: WebpackOverrideFn;
-    outDir?: string;
-    enableCaching?: boolean;
+    webpackOverride?: WebpackOverrideFn
+    outDir?: string
+    enableCaching?: boolean
   }
 ) => Promise<string>
 ```
@@ -46,11 +46,11 @@ _optional_
 A function to override the webpack config reducer-style. Takes a function which gives you the current webpack config which you can transform and return a modified version of it. For example:
 
 ```ts twoslash
-import {WebpackOverrideFn} from "remotion";
+import {WebpackOverrideFn} from 'remotion'
 // ---cut---
 const webpackOverride: WebpackOverrideFn = (webpackConfig) => {
   return {
-    ...webpackConfig
+    ...webpackConfig,
     // Override properties
   }
 }

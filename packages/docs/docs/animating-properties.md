@@ -8,21 +8,23 @@ Let's start with a simple example, let's say we want to create a fade in animati
 
 If we want to fade the text in over 20 frames, we need to gradually change the `opacity` style over time so that it goes from 0 to 1.
 
-```tsx twoslash {3, 10}
-import { useCurrentFrame } from "remotion"
+```tsx twoslash {3, 11}
+import {useCurrentFrame} from 'remotion'
 // ---cut---
 export const MyVideo = () => {
-  const frame = useCurrentFrame();
+  const frame = useCurrentFrame()
 
-  const opacity = frame >= 20 ? 1 : (frame / 20);
+  const opacity = frame >= 20 ? 1 : (frame / 20)
 
   return (
-    <div style={{
-      flex: 1,
-      justifyContent: 'center',
-      alignItems: 'center',
-      opacity: opacity
-    }}>
+    <div
+      style={{
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        opacity: opacity,
+      }}
+    >
       Hello World!
     </div>
   )
@@ -39,21 +41,25 @@ The function takes 4 arguments:
 3. The range of values that you want to map the input to
 4. Optional settings
 
-```tsx twoslash {5, 12}
-import {useCurrentFrame, interpolate} from 'remotion';
+```tsx twoslash {5-7, 15}
+import {interpolate, useCurrentFrame} from 'remotion'
 
 export const MyVideo = () => {
-  const frame = useCurrentFrame();
+  const frame = useCurrentFrame()
 
-  const opacity = interpolate(frame, [0, 20], [0, 1], {extrapolateRight: 'clamp'});
+  const opacity = interpolate(frame, [0, 20], [0, 1], {
+    extrapolateRight: 'clamp',
+  })
 
   return (
-    <div style={{
-      flex: 1,
-      justifyContent: 'center',
-      alignItems: 'center',
-      opacity: opacity
-    }}>
+    <div
+      style={{
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        opacity: opacity,
+      }}
+    >
       Hello World!
     </div>
   )
@@ -66,26 +72,28 @@ In this example, we map the frames 0 to 20 to their opacity values `(0, 0.05, 0.
 
 Spring animations are beautiful way to put things into motion and make them natural. Remotion includes a helper function to make spring animations easy! This time, let's animate the scale of the text.
 
-```tsx twoslash {6-11, 19}
-import {useCurrentFrame, useVideoConfig, spring} from 'remotion';
+```tsx twoslash {6-11, 21}
+import {spring, useCurrentFrame, useVideoConfig} from 'remotion'
 
 export const MyVideo = () => {
-  const frame = useCurrentFrame();
-  const {fps} = useVideoConfig();
+  const frame = useCurrentFrame()
+  const {fps} = useVideoConfig()
 
   const scale = spring({
     fps,
     from: 0,
     to: 1,
-    frame
-  });
+    frame,
+  })
 
   return (
-    <div style={{
-      flex: 1,
-      justifyContent: 'center',
-      alignItems: 'center',
-    }}>
+    <div
+      style={{
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+      }}
+    >
       <div style={{transform: `scale(${scale})`}}>Hello World!</div>
     </div>
   )

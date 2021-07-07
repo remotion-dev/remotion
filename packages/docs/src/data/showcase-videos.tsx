@@ -270,7 +270,8 @@ export const showcaseVideos: ShowcaseVideo[] = [
       },
       {
         type: "source_code",
-        url: "https://github.com/c0/remotion-playground/blob/main/src/GooBallCSS.jsx",
+        url:
+          "https://github.com/c0/remotion-playground/blob/main/src/GooBallCSS.jsx",
       },
     ],
     author: {
@@ -282,7 +283,8 @@ export const showcaseVideos: ShowcaseVideo[] = [
     title: "Personalized Welcome Videos",
     type: "mux_video",
     muxId: "BPP7jS72gdEtARObTEGOc5GHnDv6ODfp48hIFMU9U6E",
-    description: "A SlackHQ integrated tool to generate personalized welcome videos for new employees.",
+    description:
+      "A SlackHQ integrated tool to generate personalized welcome videos for new employees.",
     width: 1920,
     height: 1080,
     submittedOn: new Date("27-06-2021"),
@@ -290,20 +292,91 @@ export const showcaseVideos: ShowcaseVideo[] = [
       {
         type: "video",
         url: "https://twitter.com/BhimteBhaisaab/status/1401195261943115777",
-      }
+      },
     ],
     author: {
       name: "Utkarsh Bhimte",
       url: "https://twitter.com/BhimteBhaisaab",
     },
-  }
+  },
+  {
+    title: "All Champions League Winners in History",
+    type: "mux_video",
+    muxId: "R9SZTw2ZoWuV44i5QVx5yVu01VaGm89JlZ876TdVXAyQ",
+    description:
+      "This video shows all the UEFA Champions Cup (1956-1992) and Champions League (since 1993) Winners year by year and concludes with the ranking of the countries with the most trophies.",
+    height: 1080,
+    width: 1920,
+    submittedOn: new Date("07-03-2021"),
+    links: [
+      {
+        type: "video",
+        url: "https://www.youtube.com/watch?v=6Xn47wG_c5Q",
+      },
+      {
+        type: "website",
+        url:
+          "https://www.youtube.com/channel/UCRBZkDc7udWuxrvedrFUbCQ/featured",
+      },
+    ],
+    author: {
+      "url": "https://twitter.com/mikepombal",
+      "name": "mikepombal"
+    }
+  },
+  {
+    title: "Code Highlighter",
+    type: "mux_video",
+    muxId: "1W02pMAx5ZdtRE2PajqW7Ni01qbxADjpe37o4Non9Sonc",
+    description: "This video animates code and highlights interesting parts of it.",
+    height: 720,
+    width: 1280,
+    submittedOn: new Date("07-07-2021"),
+    links: [
+      {
+        type: "video",
+        url: "https://twitter.com/matfrana/status/1372336451246034948",
+      },
+      {
+        type: "website",
+        url: "https://reactbricks.com/",
+      },
+    ],
+    author: {
+      "url": "https://twitter.com/matfrana",
+      "name": "Matteo Frana"
+    }
+  },
+  {
+    title: "Redesigning the Scatterplot",
+    type: "mux_video",
+    muxId: "mnQCnHc56wrafN4DIPkIdYpFh7Yk202rbMOzxrZaUylE",
+    description: "In this video you get a visual display of some quantitative information.",
+    height: 720,
+    width: 1280,
+    submittedOn: new Date("07-07-2021"),
+    links: [
+      {
+        type: "video",
+        url: "https://twitter.com/BrooksLybrand/status/1371547875109445635",
+      },
+    ],
+    author: {
+      "url": "https://twitter.com/BrooksLybrand",
+      "name": "Brooks Lybrand"
+    }
+  },
 ];
+
 
 const dateString = (date: Date) =>
   date.getDate() + "-" + date.getMonth() + "-" + date.getFullYear();
 
 const todayHash = dateString(new Date());
 
-export const shuffledShowcaseVideos = showcaseVideos.sort((a, b) => {
-  return random(a.muxId + todayHash) - random(b.muxId + todayHash);
-});
+export const shuffledShowcaseVideos =
+  typeof window === "undefined"
+    ? []
+    : showcaseVideos.slice(0).sort((a, b) => {
+        return random(a.muxId + todayHash) - random(b.muxId + todayHash);
+      });

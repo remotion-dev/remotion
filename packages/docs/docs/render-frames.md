@@ -51,7 +51,7 @@ A callback that fires after the setup process (validation, browser launch) has f
 
 ```ts twoslash
 const onStart = () => {
-  console.log('Starting rendering...');
+  console.log('Starting rendering...')
 }
 ```
 
