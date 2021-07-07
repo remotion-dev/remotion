@@ -347,6 +347,25 @@ export const showcaseVideos: ShowcaseVideo[] = [
       "name": "Matteo Frana"
     }
   },
+  {
+    title: "Redesigning the Scatterplot",
+    type: "mux_video",
+    muxId: "mnQCnHc56wrafN4DIPkIdYpFh7Yk202rbMOzxrZaUylE",
+    description: "In this video you get a visual display of some quantitative information.",
+    height: 720,
+    width: 1280,
+    submittedOn: new Date("07-07-2021"),
+    links: [
+      {
+        type: "video",
+        url: "https://twitter.com/BrooksLybrand/status/1371547875109445635",
+      },
+    ],
+    author: {
+      "url": "https://twitter.com/BrooksLybrand",
+      "name": "Brooks Lybrand"
+    }
+  },
 ];
 
 
