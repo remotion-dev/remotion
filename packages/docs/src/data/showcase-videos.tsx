@@ -348,7 +348,7 @@ export const showcaseVideos: ShowcaseVideo[] = [
     }
   },
   {
-    title: "Your Twitter Highlights Of The Year",
+    title: "Twitter year in review",
     type: "mux_video",
     muxId: "iRnXEBXAvxCQAtu01TVEJsizIfXaPpxlyqeJfm54K1Vs",
     description: "This videos shows the user various metrics of their Twitter account.",
@@ -371,7 +371,7 @@ export const showcaseVideos: ShowcaseVideo[] = [
     }
   },
   {
-    title: "Quantargo - Data Science",
+    title: "Data Science Product Ad",
     type: "mux_video",
     muxId: "MqUUJjKZk01x9KGUJtSD1SLoUHmrab3eaVx9sDPCw9L00",
     description: "This is a promo video of an data science course offered by Quantargo.",
