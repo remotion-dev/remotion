@@ -7,7 +7,7 @@ import {
 	EncodingProgress,
 	encodingProgressKey,
 	getErrorKeyPrefix,
-	lambdaInitializedKey,
+	lambdaInitializedPrefix,
 	LambdaPayload,
 	LambdaRoutines,
 	lambdaTimingsPrefix,
@@ -160,10 +160,6 @@ export const progressHandler = async (
 		c.Key?.startsWith(chunkKey(lambdaParams.renderId))
 	);
 
-	const lambdasInvoked = contents.filter((c) =>
-		c.Key?.startsWith(lambdaInitializedKey(lambdaParams.renderId))
-	).length;
-
 	const finishedTimings = contents.filter((c) =>
 		c.Key?.startsWith(lambdaTimingsPrefix(lambdaParams.renderId))
 	);
@@ -256,10 +252,17 @@ export const progressHandler = async (
 		}/${outName(lambdaParams.renderId, renderMetadata.codec)}`;
 	};
 
+	const lambdasInvoked = getOutputFile()
+		? renderMetadata?.totalChunks ?? 0
+		: contents.filter((c) =>
+				c.Key?.startsWith(lambdaInitializedPrefix(lambdaParams.renderId))
+		  ).length;
+
 	const cleanup = getCleanupProgress({
 		chunkCount: renderMetadata?.totalChunks ?? 0,
-		chunks,
+		contents,
 		output: getOutputFile(),
+		renderId: lambdaParams.renderId,
 	});
 
 	return {

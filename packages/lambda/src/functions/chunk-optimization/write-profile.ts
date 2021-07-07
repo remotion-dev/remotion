@@ -17,7 +17,7 @@ export const writeTimingProfile = async ({
 	await lambdaWriteFile({
 		bucketName,
 		body: JSON.stringify(data),
-		key: timingProfileName(renderId) + Date.now() + '.json',
+		key: timingProfileName(renderId),
 		region: getCurrentRegion(),
 		acl: 'private',
 		expectedBucketOwner,

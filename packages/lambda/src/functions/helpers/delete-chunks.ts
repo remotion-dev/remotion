@@ -1,6 +1,6 @@
 import {AwsRegion} from '../..';
 import {cleanItems} from '../../api/clean-items';
-import {chunkKeyForIndex} from '../../shared/constants';
+import {getFilesToDelete} from './get-files-to-delete';
 
 export const deleteChunks = async ({
 	renderId,
@@ -13,12 +13,10 @@ export const deleteChunks = async ({
 	bucket: string;
 	region: AwsRegion;
 }) => {
-	const toDelete = new Array(chunkCount).fill(true).map((x, i) =>
-		chunkKeyForIndex({
-			index: i,
-			renderId,
-		})
-	);
+	const toDelete = getFilesToDelete({
+		chunkCount,
+		renderId,
+	});
 
 	await cleanItems({
 		bucket,
