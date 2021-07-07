@@ -10,11 +10,13 @@ import {
 	lambdaInitializedKey,
 	LambdaPayload,
 	LambdaRoutines,
+	lambdaTimingsPrefix,
 	outName,
 	RenderMetadata,
 	renderMetadataKey,
 	rendersPrefix,
 } from '../shared/constants';
+import {parseLambdaTimingsKey} from '../shared/parse-lambda-timings-key';
 import {streamToString} from '../shared/stream-to-string';
 import {getCurrentRegion} from './helpers/get-current-region';
 import {inspectErrors} from './helpers/inspect-errors';
@@ -160,6 +162,19 @@ export const progressHandler = async (
 	const lambdasInvoked = contents.filter((c) =>
 		c.Key?.startsWith(lambdaInitializedKey(lambdaParams.renderId))
 	).length;
+
+	const finishedTimings = contents.filter((c) =>
+		c.Key?.startsWith(lambdaTimingsPrefix(lambdaParams.renderId))
+	);
+
+	const parsedTimings = finishedTimings.map((f) =>
+		parseLambdaTimingsKey(f.Key as string)
+	);
+
+	const totalEncodingTimings = parsedTimings
+		.map((p) => p.end - p.start)
+		.reduce((a, b) => a + b, 0);
+
 	const errors = contents
 		.filter((c) => c.Key?.startsWith(getErrorKeyPrefix(lambdaParams.renderId)))
 		.map((c) => c.Key)
@@ -211,14 +226,18 @@ export const progressHandler = async (
 			? Date.now() - (renderMetadata?.startedDate ?? 0)
 			: timeToFinish;
 
+	const unfinished = (renderMetadata?.totalChunks ?? 0) - parsedTimings.length;
+	const timeElapsedOfUnfinished = new Array(unfinished)
+		.fill(true)
+		.map(() => elapsedTime)
+		.reduce((a, b) => a + b, 0);
+
 	const accruedSoFar = Number(
-		(
-			calculatePrice({
-				region: getCurrentRegion(),
-				durationInMiliseconds: elapsedTime,
-				memorySize: Number(process.env.AWS_LAMBDA_FUNCTION_MEMORY_SIZE),
-			}) * (renderMetadata?.estimatedLambdaInvokations ?? 0)
-		).toPrecision(5)
+		calculatePrice({
+			region: getCurrentRegion(),
+			durationInMiliseconds: totalEncodingTimings + timeElapsedOfUnfinished,
+			memorySize: Number(process.env.AWS_LAMBDA_FUNCTION_MEMORY_SIZE),
+		}).toPrecision(5)
 	);
 
 	const outputFile = () => {
