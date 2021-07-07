@@ -347,6 +347,29 @@ export const showcaseVideos: ShowcaseVideo[] = [
       "name": "Matteo Frana"
     }
   },
+  {
+    title: "Your Twitter Highlights Of The Year",
+    type: "mux_video",
+    muxId: "iRnXEBXAvxCQAtu01TVEJsizIfXaPpxlyqeJfm54K1Vs",
+    description: "This videos shows the user various metrics of their Twitter account.",
+    height: 720,
+    width: 720,
+    submittedOn: new Date("07-07-2021"),
+    links: [
+      {
+        type: "video",
+        url: "https://twitter.com/vjo/status/1367901005027942403",
+      },
+      {
+        type: "website",
+        url: "https://twitter.com",
+      },
+    ],
+    author: {
+      "url": "https://twitter.com/TwitterEng",
+      "name": "Twitter Engineering"
+    }
+  },
 ];
 
 
