@@ -26,6 +26,7 @@ import {
 } from './chunk-optimization/s3-optimization-file';
 import {deleteTmpDir} from './helpers/clean-tmpdir';
 import {concatVideosS3} from './helpers/concat-videos';
+import {createPostRenderData} from './helpers/create-post-render-data';
 import {deleteChunks} from './helpers/delete-chunks';
 import {
 	closeBrowser,
@@ -41,6 +42,7 @@ import {
 	getTmpDirStateIfENoSp,
 	writeLambdaError,
 } from './helpers/write-lambda-error';
+import {writePostRenderData} from './helpers/write-post-render-data';
 ('./chunk-optimization/write-profile');
 
 type Options = {
@@ -268,6 +270,22 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		compositionId: params.composition,
 		siteId: getServeUrlHash(params.serveUrl),
 		region: getCurrentRegion(),
+	});
+	// TODO: Opportunity to parallelize
+	const postRenderData = await createPostRenderData({
+		bucketName: params.bucketName,
+		expectedBucketOwner: options.expectedBucketOwner,
+		region: getCurrentRegion(),
+		renderId: params.renderId,
+		memorySize: Number(process.env.AWS_LAMBDA_FUNCTION_MEMORY_SIZE),
+		renderMetadata,
+	});
+	await writePostRenderData({
+		bucketName: params.bucketName,
+		expectedBucketOwner: options.expectedBucketOwner,
+		postRenderData,
+		region: getCurrentRegion(),
+		renderId: params.renderId,
 	});
 	await deleteChunks({
 		region: getCurrentRegion(),

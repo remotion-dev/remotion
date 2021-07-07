@@ -64,6 +64,7 @@ export const getOptimization = async ({
 		bucketName,
 		key: files[0].Key as string,
 		region,
+		expectedBucketOwner,
 	});
 
 	const str = await streamToString(body);

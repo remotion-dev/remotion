@@ -1,8 +1,8 @@
+import {AwsRegion} from '../..';
 import {
 	chunkKey,
 	encodingProgressKey,
 	lambdaInitializedPrefix,
-	outName,
 	renderMetadataKey,
 	RenderProgress,
 	rendersPrefix,
@@ -13,17 +13,65 @@ import {getCleanupProgress} from './get-cleanup-progress';
 import {getCurrentRegion} from './get-current-region';
 import {getEncodingMetadata} from './get-encoding-metadata';
 import {getFinalEncodingStatus} from './get-final-encoding-status';
+import {getPostRenderData} from './get-post-render-data';
 import {getRenderMetadata} from './get-render-metadata';
 import {getTimeToFinish} from './get-time-to-finish';
 import {inspectErrors} from './inspect-errors';
 import {lambdaLs} from './io';
 import {isFatalError} from './is-fatal-error';
 
-export const getProgress = async (
-	bucketName: string,
-	renderId: string,
-	expectedBucketOwner: string
-): Promise<RenderProgress> => {
+export const getProgress = async ({
+	bucketName,
+	renderId,
+	expectedBucketOwner,
+	region,
+	memorySize,
+}: {
+	bucketName: string;
+	renderId: string;
+	expectedBucketOwner: string;
+	region: AwsRegion;
+	memorySize: number;
+}): Promise<RenderProgress> => {
+	const postRenderData = await getPostRenderData({
+		bucketName,
+		region,
+		renderId,
+		expectedBucketOwner,
+	});
+
+	if (postRenderData) {
+		return {
+			bucket: bucketName,
+			bucketSize: postRenderData.bucketSize,
+			chunks: postRenderData.renderMetadata.totalChunks,
+			cleanup: {
+				done: true,
+				filesDeleted: postRenderData.filesCleanedUp,
+				filesToDelete: postRenderData.filesCleanedUp,
+			},
+			costs: {
+				accruedSoFar: postRenderData.cost.estimatedCost,
+				displayCost: postRenderData.cost.estimatedDisplayCost,
+				currency: postRenderData.cost.currency,
+				disclaimer: postRenderData.cost.disclaimer,
+			},
+			currentTime: Date.now(),
+			done: true,
+			encodingStatus: {
+				framesEncoded:
+					postRenderData.renderMetadata.videoConfig.durationInFrames,
+			},
+			errors: postRenderData.errors,
+			fatalErrorEncountered: false,
+			lambdasInvoked: postRenderData.renderMetadata.totalChunks,
+			outputFile: postRenderData.outputFile,
+			renderId,
+			renderMetadata: postRenderData.renderMetadata,
+			timeToFinish: postRenderData.timeToFinish,
+		};
+	}
+
 	const contents = await lambdaLs({
 		bucketName,
 		prefix: rendersPrefix(renderId),
@@ -40,6 +88,7 @@ export const getProgress = async (
 				bucketName,
 				renderId,
 				region: getCurrentRegion(),
+				expectedBucketOwner,
 			}),
 			getRenderMetadata({
 				exists: Boolean(
@@ -48,29 +97,31 @@ export const getProgress = async (
 				bucketName,
 				renderId,
 				region: getCurrentRegion(),
+				expectedBucketOwner,
 			}),
 			inspectErrors({
 				contents,
 				renderId,
 				bucket: bucketName,
 				region: getCurrentRegion(),
+				expectedBucketOwner,
 			}),
 		]
 	);
 
 	const accruedSoFar = Number(
-		calculatePriceFromBucket(renderId, contents, renderMetadata)
+		calculatePriceFromBucket({
+			renderId,
+			contents,
+			renderMetadata,
+			bucketName,
+			memorySize,
+		})
 	);
-
-	const output = renderMetadata
-		? contents.find((c) =>
-				c.Key?.includes(outName(renderId, renderMetadata.codec))
-		  ) ?? null
-		: null;
 
 	const outputFile = findOutputFileInBucket({
 		bucketName,
-		output,
+		contents,
 		renderId,
 		renderMetadata,
 	});
@@ -78,12 +129,12 @@ export const getProgress = async (
 	const cleanup = getCleanupProgress({
 		chunkCount: renderMetadata?.totalChunks ?? 0,
 		contents,
-		output: outputFile,
+		output: outputFile?.url ?? null,
 		renderId,
 	});
 
 	const timeToFinish = getTimeToFinish({
-		output,
+		lastModified: outputFile?.lastModified ?? null,
 		renderMetadata,
 	});
 
@@ -101,10 +152,10 @@ export const getProgress = async (
 
 	return {
 		chunks: outputFile ? renderMetadata?.totalChunks ?? 0 : chunks.length,
-		done: Boolean(output && cleanup?.done),
+		done: Boolean(outputFile && cleanup?.done),
 		encodingStatus: getFinalEncodingStatus({
 			encodingStatus,
-			outputFileExists: Boolean(output),
+			outputFileExists: Boolean(outputFile),
 			renderMetadata,
 		}),
 		costs: {
@@ -120,7 +171,7 @@ export const getProgress = async (
 		renderId,
 		renderMetadata,
 		bucket: bucketName,
-		outputFile,
+		outputFile: outputFile?.url ?? null,
 		timeToFinish,
 		errors: errorExplanations,
 		fatalErrorEncountered: errorExplanations.some(isFatalError),

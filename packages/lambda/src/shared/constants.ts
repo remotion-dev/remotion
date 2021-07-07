@@ -75,6 +75,10 @@ export const getBinariesBucketName = (region: AwsRegion) => {
 	return BINARIES_BUCKET_PREFIX + region;
 };
 
+export const postRenderDataKey = (renderId: string) => {
+	return `${rendersPrefix(renderId)}/post-render-metadata.json`;
+};
+
 export const DOWNLOADS_DIR = '/tmp/downloads';
 export const OUTPUT_PATH_PREFIX = '/tmp/remotion-render-';
 export const RENDERER_PATH_TOKEN = 'remotion-bucket';
@@ -197,10 +201,14 @@ export type PostRenderData = {
 	};
 	outputFile: string;
 	outputSize: number;
+	// TODO: Confusing, should be renderSize
+	bucketSize: number;
 	timeToFinish: number;
 	errors: EnhancedErrorInfo[];
 	startTime: number;
 	endTime: number;
+	filesCleanedUp: number;
+	renderMetadata: RenderMetadata;
 };
 
 type CostsInfo = {

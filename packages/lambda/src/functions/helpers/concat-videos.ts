@@ -36,16 +36,19 @@ const downloadS3File = async ({
 	key,
 	outdir,
 	region,
+	expectedBucketOwner,
 }: {
 	bucket: string;
 	key: string;
 	outdir: string;
 	region: AwsRegion;
+	expectedBucketOwner: string;
 }) => {
 	const Body = await lambdaReadFile({
 		bucketName: bucket,
 		key,
 		region,
+		expectedBucketOwner,
 	});
 	const outpath = getChunkDownloadOutputLocation({outdir, file: key});
 	if (Buffer.isBuffer(Body)) {
@@ -120,6 +123,7 @@ const getAllFilesS3 = async ({
 						key,
 						outdir,
 						region,
+						expectedBucketOwner,
 					});
 					downloadTimer.end();
 					downloaded[key] = true;

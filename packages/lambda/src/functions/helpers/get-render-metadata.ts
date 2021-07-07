@@ -8,11 +8,13 @@ export const getRenderMetadata = async ({
 	bucketName,
 	renderId,
 	region,
+	expectedBucketOwner,
 }: {
 	exists: boolean;
 	bucketName: string;
 	renderId: string;
 	region: AwsRegion;
+	expectedBucketOwner: string;
 }) => {
 	if (!exists) {
 		return null;
@@ -22,6 +24,7 @@ export const getRenderMetadata = async ({
 		bucketName,
 		key: renderMetadataKey(renderId),
 		region,
+		expectedBucketOwner,
 	});
 
 	const renderMetadataResponse = JSON.parse(

@@ -36,11 +36,13 @@ export const inspectErrors = async ({
 	bucket,
 	region,
 	renderId,
+	expectedBucketOwner,
 }: {
 	contents: _Object[];
 	bucket: string;
 	region: AwsRegion;
 	renderId: string;
+	expectedBucketOwner: string;
 }): Promise<EnhancedErrorInfo[]> => {
 	const errs = contents
 		.filter((c) => c.Key?.startsWith(getErrorKeyPrefix(renderId)))
@@ -57,6 +59,7 @@ export const inspectErrors = async ({
 				bucketName: bucket,
 				key,
 				region,
+				expectedBucketOwner,
 			});
 			const errorLog = await streamToString(Body);
 			return errorLog;

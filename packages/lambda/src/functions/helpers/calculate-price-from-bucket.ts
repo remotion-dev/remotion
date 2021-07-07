@@ -1,20 +1,25 @@
 import {_Object} from '@aws-sdk/client-s3';
 import {calculatePrice} from '../../pricing/calculate-price';
-import {
-	lambdaTimingsPrefix,
-	outName,
-	RenderMetadata,
-} from '../../shared/constants';
+import {lambdaTimingsPrefix, RenderMetadata} from '../../shared/constants';
 import {parseLambdaTimingsKey} from '../../shared/parse-lambda-timings-key';
+import {findOutputFileInBucket} from './find-output-file-in-bucket';
 import {getCurrentRegion} from './get-current-region';
 import {getTimeToFinish} from './get-time-to-finish';
 
 // TODO: Should differentiate between finished and in progress
-export const calculatePriceFromBucket = (
-	renderId: string,
-	contents: _Object[],
-	renderMetadata: RenderMetadata | null
-) => {
+export const calculatePriceFromBucket = ({
+	renderId,
+	contents,
+	renderMetadata,
+	bucketName,
+	memorySize,
+}: {
+	renderId: string;
+	contents: _Object[];
+	renderMetadata: RenderMetadata | null;
+	bucketName: string;
+	memorySize: number;
+}) => {
 	if (!renderMetadata) {
 		return null;
 	}
@@ -32,14 +37,15 @@ export const calculatePriceFromBucket = (
 		.map((p) => p.end - p.start)
 		.reduce((a, b) => a + b, 0);
 
-	const output = renderMetadata
-		? contents.find((c) =>
-				c.Key?.includes(outName(renderId, renderMetadata.codec))
-		  ) ?? null
-		: null;
+	const outputFile = findOutputFileInBucket({
+		bucketName,
+		contents,
+		renderId,
+		renderMetadata,
+	});
 
 	const timeToFinish = getTimeToFinish({
-		output,
+		lastModified: outputFile?.lastModified ?? null,
 		renderMetadata,
 	});
 
@@ -58,7 +64,7 @@ export const calculatePriceFromBucket = (
 		calculatePrice({
 			region: getCurrentRegion(),
 			durationInMiliseconds: totalEncodingTimings + timeElapsedOfUnfinished,
-			memorySize: Number(process.env.AWS_LAMBDA_FUNCTION_MEMORY_SIZE),
+			memorySize,
 		}).toPrecision(5)
 	);
 	return accruedSoFar;
