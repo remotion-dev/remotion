@@ -44,7 +44,6 @@ import {
 	writeLambdaError,
 } from './helpers/write-lambda-error';
 import {writePostRenderData} from './helpers/write-post-render-data';
-('./chunk-optimization/write-profile');
 
 type Options = {
 	expectedBucketOwner: string;

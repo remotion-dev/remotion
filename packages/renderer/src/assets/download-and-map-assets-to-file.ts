@@ -87,6 +87,11 @@ export const getSanitizedFilenameForAssetUrl = ({
 }) => {
 	const {pathname, search} = new URL(src);
 
+	// There is always a webpack bundle, except when we are
+	// in Lambda. Also in Lambda, all assets are remote.
+
+	// Therefore we assert that if an asset is local and no Webpack bundle
+	// is available, it is an error
 	if (!isRemote) {
 		if (!webpackBundle) {
 			throw new TypeError('Expected webpack bundle');
