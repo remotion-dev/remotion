@@ -24,7 +24,6 @@ import {
 	getOptimization,
 	writeOptimization,
 } from './chunk-optimization/s3-optimization-file';
-import {writeTimingProfile} from './chunk-optimization/write-profile';
 import {deleteTmpDir} from './helpers/clean-tmpdir';
 import {concatVideosS3} from './helpers/concat-videos';
 import {deleteChunks} from './helpers/delete-chunks';
@@ -42,6 +41,7 @@ import {
 	getTmpDirStateIfENoSp,
 	writeLambdaError,
 } from './helpers/write-lambda-error';
+('./chunk-optimization/write-profile');
 
 type Options = {
 	expectedBucketOwner: string;
@@ -248,12 +248,6 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		bucketName: params.bucketName,
 		renderId: params.renderId,
 		region: getCurrentRegion(),
-		expectedBucketOwner: options.expectedBucketOwner,
-	});
-	await writeTimingProfile({
-		data: chunkData,
-		bucketName: params.bucketName,
-		renderId: params.renderId,
 		expectedBucketOwner: options.expectedBucketOwner,
 	});
 	const optimizedProfile = optimizeInvocationOrder(
