@@ -1,4 +1,10 @@
-import {Codec, ImageFormat, PixelFormat, ProResProfile} from 'remotion';
+import {
+	Codec,
+	ImageFormat,
+	PixelFormat,
+	ProResProfile,
+	VideoConfig,
+} from 'remotion';
 import {AwsRegion} from '../pricing/aws-regions';
 import {getFileExtensionFromCodec} from './get-file-extension-from-codec';
 
@@ -157,7 +163,7 @@ export type EncodingProgress = {
 
 export type RenderMetadata = {
 	siteId: string;
-	totalFrames: number;
+	videoConfig: VideoConfig;
 	startedDate: number;
 	totalChunks: number;
 	estimatedLambdaInvokations: number;

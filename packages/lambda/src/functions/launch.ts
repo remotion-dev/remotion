@@ -161,7 +161,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 	});
 	const renderMetadata: RenderMetadata = {
 		startedDate: Date.now(),
-		totalFrames: comp.durationInFrames,
+		videoConfig: comp,
 		totalChunks: chunks.length,
 		estimatedLambdaInvokations: [
 			// Direct invokations
