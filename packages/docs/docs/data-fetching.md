@@ -10,24 +10,24 @@ One of the most groundbreaking things about Remotion is that you can fetch data 
 There are two functions, [`delayRender`](/docs/delay-render) and [`continueRender`](/docs/continue-render), which you can use to tell Remotion to not yet render the frame. If you want to asynchronously render a frame, you should call `delayRender()` as soon as possible, before the window `onload` event is fired. The function returns a handle that you need to give Remotion the green light to render later using `continueRender()`.
 
 ```tsx twoslash
-import {useEffect, useState} from 'react';
-import {continueRender, delayRender} from 'remotion';
+import {useEffect, useState} from 'react'
+import {continueRender, delayRender} from 'remotion'
 
 export const MyVideo = () => {
-  const [data, setData] = useState(null);
-  const [handle] = useState(() => delayRender());
+  const [data, setData] = useState(null)
+  const [handle] = useState(() => delayRender())
 
   const fetchData = async () => {
-    const response = await fetch('http://example.com/api');
-    const json = await response.json();
-    setData(json);
+    const response = await fetch('http://example.com/api')
+    const json = await response.json()
+    setData(json)
 
-    continueRender(handle);
+    continueRender(handle)
   }
 
   useEffect(() => {
-    fetchData();
-  }, []);
+    fetchData()
+  }, [])
 
   return (
     <div>
@@ -35,9 +35,8 @@ export const MyVideo = () => {
         <div>This video has data from an API! {JSON.stringify(data)}</div>
       ) : null}
     </div>
-  );
+  )
 }
-
 ```
 
 ## Caching

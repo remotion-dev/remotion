@@ -7,21 +7,15 @@ You can use fonts by loading them in a CSS file using @font-face. Web fonts ofte
 
 ## Example using Google Web Fonts
 
-`font.css`:
-
-```css
+```css title="font.css"
 @import url("https://fonts.googleapis.com/css2?family=Bangers");
 ```
 
-`MyComp.tsx`:
-
-```tsx twoslash
+```tsx twoslash title="MyComp.tsx"
 import './font.css'
 
 const MyComp: React.FC = () => {
-  return (
-    <div style={{fontFamily: 'Bangers'}}>Hello</div>
-  )
+  return <div style={{fontFamily: 'Bangers'}}>Hello</div>
 }
 ```
 
@@ -31,9 +25,7 @@ Google Web Fonts by default appends `?display=swap` to their URLs. Make sure to 
 
 ## Example using local fonts
 
-`font.css`:
-
-```css
+```css title="font.css"
 @font-face {
   font-family: "Bangers";
   font-style: normal;
@@ -42,15 +34,11 @@ Google Web Fonts by default appends `?display=swap` to their URLs. Make sure to 
 }
 ```
 
-`MyComp.tsx`:
-
-```tsx twoslash
+```tsx twoslash title="MyComp.tsx"
 import './font.css'
 
 const MyComp: React.FC = () => {
-  return (
-    <div style={{fontFamily: 'Bangers'}}>Hello</div>
-  )
+  return <div style={{fontFamily: 'Bangers'}}>Hello</div>
 }
 ```
 

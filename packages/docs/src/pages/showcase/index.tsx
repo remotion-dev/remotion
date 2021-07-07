@@ -3,7 +3,11 @@ import clsx from "clsx";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { VideoPlayer } from "../../components/VideoPlayer";
 import { VideoPreview } from "../../components/VideoPreview";
-import { ShowcaseVideo, showcaseVideos } from "../../data/showcase-videos";
+import {
+  ShowcaseVideo,
+  showcaseVideos,
+  shuffledShowcaseVideos,
+} from "../../data/showcase-videos";
 import { chunk } from "../../helpers/chunk";
 import { useElementSize } from "../../helpers/use-el-size";
 import headerStyles from "./header.module.css";
@@ -121,7 +125,7 @@ const Showcase = () => {
     };
   }, [mobileLayout]);
 
-  const chunks = chunk(showcaseVideos, 3);
+  const chunks = chunk(shuffledShowcaseVideos, 3);
 
   return (
     <Layout

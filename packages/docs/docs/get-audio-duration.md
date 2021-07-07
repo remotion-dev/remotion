@@ -24,9 +24,9 @@ A string pointing to an audio asset
 // @target: ESNext
 import {Audio} from 'remotion'
 // ---cut---
-import {getAudioDuration} from '@remotion/media-utils';
-import music from './music.mp3';
+import {getAudioDuration} from '@remotion/media-utils'
+import music from './music.mp3'
 
-await getAudioDuration(music); // 127.452
-await getAudioDuration('https://example.com/remote-audio.aac'); // 50.24
+await getAudioDuration(music) // 127.452
+await getAudioDuration('https://example.com/remote-audio.aac') // 50.24
 ```

@@ -117,17 +117,6 @@ module.exports = {
       "@docusaurus/preset-classic",
       {
         docs: {
-          remarkPlugins: [
-            [
-              require("remark-shiki-twoslash").default,
-              {
-                themes: ["min-light", "min-dark"],
-                defaultCompilerOptions: {
-                  types: ["node"],
-                },
-              },
-            ],
-          ],
           sidebarPath: require.resolve("./sidebars.js"),
           // Please change this to your repo.
           editUrl:
@@ -140,13 +129,18 @@ module.exports = {
             "https://github.com/remotion-dev/remotion/edit/main/packages/docs/blog/",
         },
         theme: {
-          customCss: [
-            require.resolve("./src/css/custom.css"),
-            require.resolve("./src/css/twoslash.css"),
-          ],
+          customCss: [require.resolve("./src/css/custom.css")],
+        },
+      },
+    ],
+    [
+      "docusaurus-preset-shiki-twoslash",
+      {
+        themes: ["min-light", "min-dark"],
+        defaultCompilerOptions: {
+          types: ["node"],
         },
       },
     ],
   ],
-  plugins: [require.resolve("./src/plugins/copy-to-clipboard")],
 };
