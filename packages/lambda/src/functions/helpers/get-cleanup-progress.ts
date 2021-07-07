@@ -1,4 +1,5 @@
 import {_Object} from '@aws-sdk/client-s3';
+import {CleanupInfo} from '../../shared/constants';
 import {getFilesToDelete} from './get-files-to-delete';
 
 export const getCleanupProgress = ({
@@ -11,11 +12,7 @@ export const getCleanupProgress = ({
 	output: string | null;
 	chunkCount: number;
 	renderId: string;
-}): null | {
-	filesToDelete: number;
-	filesDeleted: number;
-	done: boolean;
-} => {
+}): null | CleanupInfo => {
 	if (output === null) {
 		return null;
 	}

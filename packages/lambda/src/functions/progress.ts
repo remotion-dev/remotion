@@ -10,6 +10,7 @@ import {
 	outName,
 	RenderMetadata,
 	renderMetadataKey,
+	RenderProgress,
 	rendersPrefix,
 } from '../shared/constants';
 import {parseLambdaTimingsKey} from '../shared/parse-lambda-timings-key';
@@ -52,7 +53,7 @@ const getFinalEncodingStatus = ({
 export const progressHandler = async (
 	lambdaParams: LambdaPayload,
 	options: Options
-) => {
+): Promise<RenderProgress> => {
 	if (lambdaParams.type !== LambdaRoutines.status) {
 		throw new TypeError('Expected status type');
 	}
@@ -172,7 +173,7 @@ export const progressHandler = async (
 
 	return {
 		chunks: outputFile ? renderMetadata?.totalChunks ?? 0 : chunks.length,
-		done: Boolean(output) && cleanup?.done,
+		done: Boolean(output && cleanup?.done),
 		encodingStatus: getFinalEncodingStatus({
 			encodingStatus,
 			outputFileExists: Boolean(output),
