@@ -5,6 +5,7 @@ import {
 	ProResProfile,
 	VideoConfig,
 } from 'remotion';
+import {EnhancedErrorInfo} from '../functions/helpers/write-lambda-error';
 import {AwsRegion} from '../pricing/aws-regions';
 import {getFileExtensionFromCodec} from './get-file-extension-from-codec';
 
@@ -186,3 +187,18 @@ export type RenderMetadata = {
 
 export type LambdaVersions = '2021-07-05' | '2021-07-02' | '2021-06-23' | 'n/a';
 export const CURRENT_VERSION: LambdaVersions = '2021-07-05';
+
+export type PostRenderData = {
+	cost: {
+		estimatedCost: number;
+		estimatedDisplayCost: string;
+		currency: string;
+		disclaimer: string;
+	};
+	outputFile: string;
+	outputSize: number;
+	timeToFinish: number;
+	errors: EnhancedErrorInfo[];
+	startTime: number;
+	endTime: number;
+};

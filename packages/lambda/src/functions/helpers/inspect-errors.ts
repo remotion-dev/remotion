@@ -1,4 +1,7 @@
+import {_Object} from '@aws-sdk/client-s3';
+import {Internals} from 'remotion';
 import {AwsRegion} from '../../pricing/aws-regions';
+import {getErrorKeyPrefix} from '../../shared/constants';
 import {streamToString} from '../../shared/stream-to-string';
 import {lambdaReadFile} from './io';
 import {errorIsOutOfSpaceError} from './is-enosp-err';
@@ -29,14 +32,21 @@ const getExplanation = (stack: string) => {
 };
 
 export const inspectErrors = async ({
-	errs,
+	contents,
 	bucket,
 	region,
+	renderId,
 }: {
-	errs: string[];
+	contents: _Object[];
 	bucket: string;
 	region: AwsRegion;
+	renderId: string;
 }): Promise<EnhancedErrorInfo[]> => {
+	const errs = contents
+		.filter((c) => c.Key?.startsWith(getErrorKeyPrefix(renderId)))
+		.map((c) => c.Key)
+		.filter(Internals.truthy);
+
 	if (errs.length === 0) {
 		return [];
 	}
