@@ -394,7 +394,7 @@ export const showcaseVideos: ShowcaseVideo[] = [
     }
   },
   {
-    title: "sld.codes Newsletter",
+    title: "Animated Social Media Preview Card",
     type: "mux_video",
     muxId: "zSKsGBzfoPowlFVBm47N01aoMK2Er8qkM3CzZgnUDido",
     description: "Here you see a promo video of Sam Larsen-Disney's newsletter.",
