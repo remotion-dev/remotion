@@ -1,0 +1,39 @@
+---
+id: freeze
+title: <Freeze />
+sidebar_label: <Freeze />
+---
+import { FreezeExample } from "../components/FreezeExample/FreezeExample";
+
+
+```twoslash include example
+const BlueSquare: React.FC = () => <div></div>
+// - BlueSquare
+```
+_Available from v2.2.0_
+
+Using a Freeze, you can freeze a video to a certain frame.
+
+## API
+
+The Freeze component is a high order component and accepts, besides it's children, the following props:
+
+- `frame` _(required)_: At which frame it's children should freeze. And it makes `useCurrentFrame()` to always return frame number.
+
+## Example
+
+```tsx twoslash
+// @include: example-BlueSquare
+import {Freeze} from 'remotion'
+// ---cut---
+const MyVideo = () => {
+  return (
+    <Freeze frame={30}>
+      <BlueSquare />
+    </Freeze>
+  );
+}
+```
+
+<FreezeExample />
+
