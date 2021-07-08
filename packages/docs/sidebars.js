@@ -58,6 +58,7 @@ module.exports = {
         "audio",
         "composition",
         "sequence",
+        "freeze",
         "video",
         "absolute-fill",
         "img",
