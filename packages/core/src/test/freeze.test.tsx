@@ -7,14 +7,14 @@ describe('Throw with invalid duration props', () => {
 		expectToThrow(
 			// @ts-expect-error
 			() => render(<Freeze frame={'0'} />),
-			/You passed to 'frame' an argument of type string, but it must be a number./
+			/The 'frame' prop of <Freeze \/> must be a number, but is of type string/
 		);
 	});
 	test('It should throw if Freeze has undefined as frame prop value', () => {
 		expectToThrow(
 			// @ts-expect-error
 			() => render(<Freeze />),
-			/You passed to 'frame' an argument of type undefined, but it must be a number./
+			/The <Freeze \/> component requires a 'frame' prop, but none was passed./
 		);
 	});
 });
