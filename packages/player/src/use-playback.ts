@@ -11,6 +11,8 @@ export const usePlayback = ({loop}: {loop: boolean}) => {
 	const frameRef = useRef(frame);
 	frameRef.current = frame;
 
+	const lastTimeUpdateEvent = useRef<number | null>(null);
+
 	useEffect(() => {
 		if (!config) {
 			return;
@@ -60,14 +62,15 @@ export const usePlayback = ({loop}: {loop: boolean}) => {
 	}, [config, loop, pause, playing, setFrame, emitter]);
 
 	useEffect(() => {
-		if (!playing) {
-			return;
-		}
-
 		const interval = setInterval(() => {
+			if (lastTimeUpdateEvent.current === frameRef.current) {
+				return;
+			}
+
 			emitter.dispatchTimeUpdate({frame: frameRef.current as number});
+			lastTimeUpdateEvent.current = frameRef.current;
 		}, 250);
 
 		return () => clearInterval(interval);
-	}, [emitter, playing]);
+	}, [emitter]);
 };
