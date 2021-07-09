@@ -6,12 +6,17 @@ type ErrorPayload = {
 	error: Error;
 };
 
+type TimeUpdateEventPayload = {
+	frame: number;
+};
+
 type StateEventMap = {
 	seeked: SeekPayload;
 	pause: undefined;
 	play: undefined;
 	ended: undefined;
 	error: ErrorPayload;
+	timeupdate: TimeUpdateEventPayload;
 };
 
 type EventTypes = keyof StateEventMap;
@@ -29,6 +34,7 @@ export class PlayerEmitter {
 		pause: [],
 		play: [],
 		seeked: [],
+		timeupdate: [],
 	};
 
 	addEventListener<Q extends EventTypes>(
@@ -80,5 +86,9 @@ export class PlayerEmitter {
 		this.dispatchEvent('error', {
 			error,
 		});
+	}
+
+	dispatchTimeUpdate(event: TimeUpdateEventPayload) {
+		this.dispatchEvent('timeupdate', event);
 	}
 }
