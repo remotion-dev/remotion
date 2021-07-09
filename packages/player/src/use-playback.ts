@@ -65,7 +65,7 @@ export const usePlayback = ({loop}: {loop: boolean}) => {
 		}
 
 		const interval = setInterval(() => {
-			emitter.dispatchTimeUpdate({currentFrame: frameRef.current as number});
+			emitter.dispatchTimeUpdate({frame: frameRef.current as number});
 		}, 250);
 
 		return () => clearInterval(interval);

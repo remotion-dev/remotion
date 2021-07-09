@@ -30,7 +30,7 @@ export default function App() {
 			setLogs((l) => [...l, 'error ' + Date.now()]);
 		});
 		ref.current?.addEventListener('timeupdate', (e) => {
-			setLogs((l) => [...l, 'timeupdate ' + e.detail.currentFrame]);
+			setLogs((l) => [...l, 'timeupdate ' + e.detail.frame]);
 		});
 	}, []);
 
