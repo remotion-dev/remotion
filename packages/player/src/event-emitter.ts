@@ -6,7 +6,7 @@ type ErrorPayload = {
 	error: Error;
 };
 
-type OnTimeUpdateEventPayload = {
+type TimeUpdateEventPayload = {
 	currentFrame: number;
 };
 
@@ -16,7 +16,7 @@ type StateEventMap = {
 	play: undefined;
 	ended: undefined;
 	error: ErrorPayload;
-	ontimeupdate: OnTimeUpdateEventPayload;
+	timeupdate: TimeUpdateEventPayload;
 };
 
 type EventTypes = keyof StateEventMap;
@@ -34,7 +34,7 @@ export class PlayerEmitter {
 		pause: [],
 		play: [],
 		seeked: [],
-		ontimeupdate: [],
+		timeupdate: [],
 	};
 
 	addEventListener<Q extends EventTypes>(
@@ -88,7 +88,7 @@ export class PlayerEmitter {
 		});
 	}
 
-	dispatchOnTimeUpdate(event: OnTimeUpdateEventPayload) {
-		this.dispatchEvent('ontimeupdate', event);
+	dispatchTimeUpdate(event: TimeUpdateEventPayload) {
+		this.dispatchEvent('timeupdate', event);
 	}
 }

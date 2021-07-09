@@ -29,7 +29,7 @@ export default function App() {
 		ref.current?.addEventListener('error', (e) => {
 			setLogs((l) => [...l, 'error ' + Date.now()]);
 		});
-		ref.current?.addEventListener('ontimeupdate', (e) => {
+		ref.current?.addEventListener('timeupdate', (e) => {
 			setLogs((l) => [...l, 'timeupdate ' + e.detail.currentFrame]);
 		});
 	}, []);
