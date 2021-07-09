@@ -1,4 +1,4 @@
-import {useCallback, useContext, useMemo, useRef, useState} from 'react';
+import {useCallback, useContext, useMemo, useRef} from 'react';
 import {Internals} from 'remotion';
 import {PlayerEventEmitterContext} from './emitter-context';
 import {PlayerEmitter} from './event-emitter';
@@ -14,7 +14,6 @@ export const usePlayer = (): {
 	seek: (newFrame: number) => void;
 	getCurrentFrame: () => number;
 } => {
-	const [id] = useState(() => Math.random());
 	const [playing, setPlaying] = Internals.Timeline.usePlayingState();
 	const frame = Internals.Timeline.useTimelinePosition();
 	const setFrame = Internals.Timeline.useTimelineSetFrame();
