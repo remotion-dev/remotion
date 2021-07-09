@@ -7,7 +7,7 @@ import Tabs from "@theme/Tabs";
 
 You can customize the Webpack configuration if you have at least Version 1.1 of Remotion.
 
-Create a config file called `remotion.config.ts` in the root of your project. As a confirmation, you should get a console message `Applied configuration from [configuration-file]`.
+Create a config file called `remotion.config.js` in the root of your project. As a confirmation, you should get a console message `Applied configuration from [configuration-file]`.
 
 ## Overriding the webpack config
 
