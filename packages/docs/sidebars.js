@@ -62,6 +62,7 @@ module.exports = {
         "absolute-fill",
         "img",
         "iframe",
+        "freeze",
         "easing",
       ],
     },

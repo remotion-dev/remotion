@@ -7,7 +7,7 @@ With this hook, you can retrieve the current frame of the video. Frames are 0-in
 
 If the component you are writing is wrapped in a `<Sequence>`, `useCurrentFrame` will return the frame relative to when the Sequence starts.
 
-Say the timeline marker is positioned at frame 25. In the example below, `useCurrentFrame` will return `20`, except within the Subtitle component, where it will return `15` because it is within a sequence that starts at frame 10.
+Say the timeline marker is positioned at frame 25. In the example below, `useCurrentFrame` will return `25`, except within the Subtitle component, where it will return `15` because it is within a sequence that starts at frame 10.
 
 ```tsx twoslash
 import {Sequence, useCurrentFrame} from 'remotion'
