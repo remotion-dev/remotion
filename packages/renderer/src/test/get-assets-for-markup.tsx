@@ -7,8 +7,7 @@ import React, {
 	useState,
 } from 'react';
 import {act} from 'react-dom/test-utils';
-import {Internals, TAsset} from 'remotion';
-import {LooseAnyComponent} from 'remotion/src/any-component';
+import {Internals, LooseAnyComponent, TAsset} from 'remotion';
 
 let collectAssets = (): TAsset[] => [];
 
