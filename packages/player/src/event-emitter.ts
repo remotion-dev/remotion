@@ -7,7 +7,7 @@ type ErrorPayload = {
 };
 
 type OnTimeUpdateEventPayload = {
-	elapsedTime: number;
+	currentFrame: number;
 };
 
 type StateEventMap = {

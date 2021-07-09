@@ -4,7 +4,6 @@ import React, {
 	MouseEventHandler,
 	Suspense,
 	useCallback,
-	useContext,
 	useEffect,
 	useImperativeHandle,
 	useMemo,
@@ -13,7 +12,6 @@ import React, {
 } from 'react';
 import {Internals} from 'remotion';
 import {calculateScale} from './calculate-scale';
-import {PlayerEventEmitterContext} from './emitter-context';
 import {ErrorBoundary} from './error-boundary';
 import {PLAYER_CSS_CLASSNAME} from './player-css-classname';
 import {PlayerMethods, PlayerRef} from './player-methods';
@@ -26,7 +24,6 @@ import {calculatePlayerSize} from './utils/calculate-player-size';
 import {IS_NODE} from './utils/is-node';
 import {useClickPreventionOnDoubleClick} from './utils/use-click-prevention-on-double-click';
 import {useElementSize} from './utils/use-element-size';
-import {useThrottle} from './utils/use-throttle';
 
 const PlayerUI: React.ForwardRefRenderFunction<
 	PlayerRef,
@@ -68,7 +65,6 @@ const PlayerUI: React.ForwardRefRenderFunction<
 	const container = useRef<HTMLDivElement>(null);
 	const hovered = useHoverState(container);
 	const canvasSize = useElementSize(container);
-	const emitter = useContext(PlayerEventEmitterContext);
 
 	const [hasPausedToResume, setHasPausedToResume] = useState(false);
 	const [shouldAutoplay, setShouldAutoPlay] = useState(autoPlay);
@@ -143,15 +139,6 @@ const PlayerUI: React.ForwardRefRenderFunction<
 			document.exitFullscreen();
 		}
 	}, []);
-
-	const throttledCurrentFrame = useThrottle(player.getCurrentFrame());
-
-	useEffect(() => {
-		if (config) {
-			const playedSeconds = throttledCurrentFrame / config.fps;
-			emitter?.dispatchOnTimeUpdate({elapsedTime: playedSeconds});
-		}
-	}, [throttledCurrentFrame]);
 
 	useImperativeHandle(ref, () => {
 		const methods: PlayerMethods = {
