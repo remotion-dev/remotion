@@ -7,9 +7,13 @@ export const seekToFrame = async ({
 	frame: number;
 	page: puppeteer.Page;
 }) => {
-	await page.waitForFunction('window.ready === true');
+	await page.waitForFunction(
+		'window.remotion_handlesReady === true && window.remotion_fontsReady === true'
+	);
 	await page.evaluate((f) => {
 		window.remotion_setFrame(f);
 	}, frame);
-	await page.waitForFunction('window.ready === true');
+	await page.waitForFunction(
+		'window.remotion_handlesReady === true && window.remotion_fontsReady === true'
+	);
 };

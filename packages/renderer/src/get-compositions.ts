@@ -72,7 +72,9 @@ export const getCompositions = async (
 	});
 
 	await page.goto(`http://localhost:${port}/index.html?evaluation=true`);
-	await page.waitForFunction('window.ready === true');
+	await page.waitForFunction(
+		'window.remotion_handlesReady === true && window.remotion_fontsReady === true'
+	);
 	const result = await page.evaluate('window.getStaticCompositions()');
 
 	// Close web server and don't wait for it to finish,

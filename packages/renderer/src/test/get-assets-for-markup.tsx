@@ -16,7 +16,7 @@ const waitForWindowToBeReady = () => {
 	return new Promise<void>((resolve) => {
 		let interval: null | number | NodeJS.Timeout = null;
 		const check = () => {
-			if (window.ready) {
+			if (window.remotion_handlesReady) {
 				clearInterval(interval as number);
 				resolve();
 			}

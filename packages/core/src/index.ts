@@ -4,12 +4,18 @@ import {checkMultipleRemotionVersions} from './multiple-versions-warning';
 
 declare global {
 	interface Window {
-		ready: boolean;
 		getStaticCompositions: () => TCompMetadata[];
 		remotion_setFrame: (frame: number) => void;
 		remotion_collectAssets: () => TAsset[];
 		remotion_isPlayer: boolean;
 		remotion_imported: boolean;
+		remotion_handlesReady: boolean;
+		remotion_fontsReady: boolean;
+	}
+	interface Document {
+		fonts: {
+			ready: Promise<void>;
+		};
 	}
 }
 

@@ -1,7 +1,16 @@
 import {getRemotionEnvironment} from './get-environment';
 
 if (typeof window !== 'undefined') {
-	window.ready = false;
+	window.remotion_handlesReady = false;
+	window.remotion_fontsReady = false;
+
+	document.fonts.ready
+		.then(() => {
+			window.remotion_fontsReady = true;
+		})
+		.catch(() => {
+			window.remotion_fontsReady = true;
+		});
 }
 
 let handles: number[] = [];
@@ -22,7 +31,7 @@ export const delayRender = (): number => {
 	}
 
 	if (typeof window !== 'undefined') {
-		window.ready = false;
+		window.remotion_handlesReady = false;
 	}
 
 	return handle;
@@ -41,6 +50,6 @@ export const continueRender = (handle: number): void => {
 		return true;
 	});
 	if (handles.length === 0 && typeof window !== 'undefined') {
-		window.ready = true;
+		window.remotion_handlesReady = true;
 	}
 };
