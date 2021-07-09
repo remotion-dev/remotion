@@ -115,6 +115,7 @@ export const renderFrames = async ({
 
 		const site = `http://localhost:${port}/index.html?composition=${compositionId}`;
 		await page.goto(site);
+		await page.evaluateHandle('document.fonts.ready');
 		page.off('pageerror', errorCallback);
 		return page;
 	});
