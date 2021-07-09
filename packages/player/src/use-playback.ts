@@ -58,4 +58,16 @@ export const usePlayback = ({loop}: {loop: boolean}) => {
 			stop();
 		};
 	}, [config, loop, pause, playing, setFrame, emitter]);
+
+	useEffect(() => {
+		if (!playing) {
+			return;
+		}
+
+		const interval = setInterval(() => {
+			emitter.dispatchOnTimeUpdate({currentFrame: frameRef.current as number});
+		}, 250);
+
+		return () => clearInterval(interval);
+	}, [emitter, playing]);
 };
