@@ -1,3 +1,11 @@
+---
+name: Feature request
+about: Ask for a feature to be added to Remotion.
+title: ""
+labels: ""
+assignees: ""
+---
+
 <!--- Provide a general summary of the feature in the Title above -->
 
 # Feature Request 🛍️
