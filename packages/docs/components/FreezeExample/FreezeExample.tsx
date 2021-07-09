@@ -1,12 +1,10 @@
 import { Player } from "@remotion/player";
-import React,{useState} from "react";
+import React, { useState } from "react";
 import {
   AbsoluteFill,
-  interpolate,
-  Sequence,
   Freeze,
+  interpolate,
   spring,
-  getInputProps,
   useCurrentFrame,
 } from "remotion";
 
@@ -45,23 +43,25 @@ const BlueSquare: React.FC = () => {
   );
 };
 
-const BlueSquareFreeze: React.FC<{frame:number}> = ({frame}) => {
-  return (
-    <Freeze frame={frame}>
-      <BlueSquare />
-    </Freeze>
-  );
+const BlueSquareFreeze: React.FC<{ frozen: number | null }> = ({ frozen }) => {
+  if (frozen !== null) {
+    return (
+      <Freeze frame={frozen}>
+        <BlueSquare />
+      </Freeze>
+    );
+  }
+
+  return <BlueSquare />;
 };
 
-
-
-export const FreezeExample: React.FC = ( ) =>{ 
-  const [isFreeze,setIsFreeze] = useState(false);
-  const [frame,setFrameNumber] = useState(30);
+export const FreezeExample: React.FC = () => {
+  const [isFreeze, setIsFreeze] = useState(false);
+  const [frame, setFrameNumber] = useState(30);
   return (
     <div>
       <Player
-        component={isFreeze? BlueSquareFreeze:BlueSquare}
+        component={BlueSquareFreeze}
         compositionWidth={1280}
         compositionHeight={720}
         controls
@@ -71,22 +71,33 @@ export const FreezeExample: React.FC = ( ) =>{
           width: "100%",
         }}
         inputProps={{
-          frame
+          frozen: isFreeze ? frame : null,
         }}
         loop
-       />
-       <div>
+      />
+      <div>
         <label>
-          <input type='checkbox' checked={isFreeze} onChange={ (e) => setIsFreeze(!isFreeze)} />
+          <input
+            type="checkbox"
+            checked={isFreeze}
+            onChange={() => setIsFreeze(!isFreeze)}
+          />
           Use Freeze component
         </label>
-        </div>
+      </div>
+      {isFreeze ? (
         <div>
-        <label>
-          <input type='number' value={frame} onChange={ (e) => setFrameNumber(Number(e.target.value))} />
-          Frame of the Freeze
-        </label>
-       </div>
+          <label>
+            <input
+              type="number"
+              value={frame}
+              style={{ width: 50, marginRight: 8, padding: 8 }}
+              onChange={(e) => setFrameNumber(Number(e.target.value))}
+            />
+            Frame of the Freeze
+          </label>
+        </div>
+      ) : null}
     </div>
   );
 };
