@@ -3,14 +3,20 @@ import {getRemotionEnvironment} from './get-environment';
 if (typeof window !== 'undefined') {
 	window.remotion_handlesReady = false;
 	window.remotion_fontsReady = false;
+}
 
-	document.fonts.ready
-		.then(() => {
-			window.remotion_fontsReady = true;
-		})
-		.catch(() => {
-			window.remotion_fontsReady = true;
-		});
+if (typeof document !== 'undefined') {
+	if (document.fonts?.ready) {
+		document.fonts.ready
+			.then(() => {
+				window.remotion_fontsReady = true;
+			})
+			.catch(() => {
+				window.remotion_fontsReady = true;
+			});
+	} else {
+		window.remotion_fontsReady = true;
+	}
 }
 
 let handles: number[] = [];

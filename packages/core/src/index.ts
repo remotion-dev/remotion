@@ -13,8 +13,8 @@ declare global {
 		remotion_fontsReady: boolean;
 	}
 	interface Document {
-		fonts: {
-			ready: Promise<void>;
+		fonts?: {
+			ready?: Promise<void>;
 		};
 	}
 }
