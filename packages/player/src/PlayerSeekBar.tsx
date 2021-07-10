@@ -30,6 +30,7 @@ const containerStyle: React.CSSProperties = {
 	boxSizing: 'border-box',
 	cursor: 'pointer',
 	position: 'relative',
+	touchAction: 'none',
 };
 
 const barBackground: React.CSSProperties = {
