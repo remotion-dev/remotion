@@ -1,4 +1,6 @@
 import React, {MouseEventHandler, useMemo} from 'react';
+import { useEffect } from 'react';
+import { useRef } from 'react';
 import {Internals} from 'remotion';
 import {formatTime} from './format-time';
 import {FullscreenIcon, PauseIcon, PlayIcon} from './icons';
@@ -91,6 +93,7 @@ export const Controls: React.FC<{
 	allowFullscreen,
 	onExitFullscreenButtonClick,
 }) => {
+	const playButtonRef = useRef<HTMLButtonElement | null>(null);
 	const frame = Internals.Timeline.useTimelinePosition();
 
 	const containerCss: React.CSSProperties = useMemo(() => {
@@ -102,11 +105,19 @@ export const Controls: React.FC<{
 		};
 	}, [hovered, player.playing]);
 
+	useEffect(() => {
+		if(playButtonRef.current) {
+			// This switches focus to play button when player.playing flag changes
+			playButtonRef.current.focus();
+		}
+	}, [player.playing])
+
 	return (
 		<div style={containerCss}>
 			<div style={controlsRow}>
 				<div style={leftPartStyle}>
 					<button
+						ref={playButtonRef}
 						type="button"
 						style={buttonStyle}
 						onClick={player.playing ? player.pause : player.play}
