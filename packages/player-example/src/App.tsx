@@ -10,7 +10,8 @@ export default function App() {
 	const [doubleClickToFullscreen, setDoubleClickToFullscreen] = useState(true);
 	const [clickToPlay, setClickToPlay] = useState(true);
 	const [logs, setLogs] = useState<string[]>(() => []);
-	const [spaceKeyPressPlayOrPause, setSpaceKeyPressPlayOrPause] = useState(true);
+	const [spaceKeyPressPlayOrPause, setSpaceKeyPressPlayOrPause] =
+		useState(true);
 
 	const ref = useRef<PlayerRef>(null);
 
