@@ -1,6 +1,4 @@
-import React, {MouseEventHandler, useMemo} from 'react';
-import { useEffect } from 'react';
-import { useRef } from 'react';
+import React, {MouseEventHandler, useEffect, useMemo, useRef} from 'react';
 import {Internals} from 'remotion';
 import {formatTime} from './format-time';
 import {FullscreenIcon, PauseIcon, PlayIcon} from './icons';
@@ -106,11 +104,11 @@ export const Controls: React.FC<{
 	}, [hovered, player.playing]);
 
 	useEffect(() => {
-		if(playButtonRef.current) {
+		if (playButtonRef.current) {
 			// This switches focus to play button when player.playing flag changes
 			playButtonRef.current.focus();
 		}
-	}, [player.playing])
+	}, [player.playing]);
 
 	return (
 		<div style={containerCss}>
