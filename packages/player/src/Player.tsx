@@ -46,6 +46,7 @@ export type PlayerProps<T> = {
 	allowFullscreen?: boolean;
 	clickToPlay?: boolean;
 	doubleClickToFullscreen?: boolean;
+	spaceKeyPressPlayOrPause?: boolean;
 } & PropsIfHasProps<T> &
 	CompProps<T>;
 
@@ -68,6 +69,7 @@ export const PlayerFn = <T,>(
 		allowFullscreen = true,
 		clickToPlay,
 		doubleClickToFullscreen = false,
+		spaceKeyPressPlayOrPause = true,
 		...componentProps
 	}: PlayerProps<T>,
 	ref: MutableRefObject<PlayerRef>
@@ -162,6 +164,15 @@ export const PlayerFn = <T,>(
 	if (typeof clickToPlay !== 'boolean' && typeof clickToPlay !== 'undefined') {
 		throw new TypeError(
 			`'clickToPlay' must be a boolean or undefined but got '${typeof clickToPlay}' instead`
+		);
+	}
+
+	if (
+		typeof spaceKeyPressPlayOrPause !== 'boolean' &&
+		typeof spaceKeyPressPlayOrPause !== 'undefined'
+	) {
+		throw new TypeError(
+			`'spaceKeyPressPlayOrPause' must be a boolean or undefined but got '${typeof spaceKeyPressPlayOrPause}' instead`
 		);
 	}
 
@@ -277,6 +288,7 @@ export const PlayerFn = <T,>(
 									mediaMuted={mediaMuted}
 									doubleClickToFullscreen={Boolean(doubleClickToFullscreen)}
 									setMediaMuted={setMediaMuted}
+									spaceKeyPressPlayOrPause={Boolean(spaceKeyPressPlayOrPause)}
 								/>
 							</PlayerEventEmitterContext.Provider>
 						</Internals.SetMediaVolumeContext.Provider>
