@@ -318,25 +318,6 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		doubleClickToFullscreen
 	);
 
-	const onKeyPress = useCallback(
-		(e: React.KeyboardEvent<HTMLDivElement>): void => {
-			// Handle space key to pause / play the video
-			if (e.which === 32) {
-				if (!spaceKeyPressPlayOrPause) {
-					return;
-				}
-
-				if (!player.playing) {
-					player.play();
-					return;
-				}
-
-				player.pause();
-			}
-		},
-		[spaceKeyPressPlayOrPause, player]
-	);
-
 	useEffect(() => {
 		if (shouldAutoplay) {
 			player.play();
@@ -351,7 +332,6 @@ const PlayerUI: React.ForwardRefRenderFunction<
 	const content = (
 		<div ref={container} style={outerStyle}>
 			<div
-				onKeyPress={onKeyPress}
 				style={outer}
 				onClick={clickToPlay ? handleClick : undefined}
 				onDoubleClick={doubleClickToFullscreen ? handleDoubleClick : undefined}
@@ -378,6 +358,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 					allowFullscreen={allowFullscreen}
 					showVolumeControls={showVolumeControls}
 					onExitFullscreenButtonClick={onExitFullscreenButtonClick}
+					spaceKeyPressPlayOrPause={spaceKeyPressPlayOrPause}
 				/>
 			) : null}
 		</div>
