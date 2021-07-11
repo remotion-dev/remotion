@@ -111,6 +111,12 @@ _optional_
 
 A boolean property defining whether you can go fullscreen and exit fullscreen in the video with double click into the player. If enabled, clicking on the video once will delay pausing the video for 200ms to wait for a possible second click. Default `false`.
 
+### `spaceKeyPressPlayOrPause`
+
+_optional_
+
+A boolean property defining whether you can play or pause a video using space key. If enabled, clicking on the video focus and subsequent space key actions play or pause the video. Default `true`.
+
 ### `inputProps`
 
 _optional_
