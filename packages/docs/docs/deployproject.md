@@ -23,7 +23,8 @@ const {url} = await deployProject({
   region: 'us-east-1',
   options: {
     onBundleProgress: (progress) => {
-      console.log(`Bundle progress: ${progress * 100}%`)
+      // Progress is between 0 and 100
+      console.log(`Bundle progress: ${progress}%`)
     },
     onUploadProgress: ({totalFiles, filesUploaded, totalSize, sizeUploaded}) => {
       console.log(`Upload progress: Total files ${totalFiles}, Files uploaded ${filesUploaded}, Total size ${totalSize}, Size uploaded ${sizeUploaded}`, )
@@ -59,7 +60,7 @@ An object with the following properties:
 
 _optional_
 
-Callback from Webpack when the bundling has progressed. Passes a number between 0 and 1 to the callback, see example at the top of the page.
+Callback from Webpack when the bundling has progressed. Passes a number between 0 and 100 to the callback, see example at the top of the page.
 
 #### `onUploadProgress`
 
