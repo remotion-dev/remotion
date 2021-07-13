@@ -2,11 +2,18 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://remotion.dev/blog</id>
     <title>Remotion Blog</title>
-    <updated>2021-05-06T00:00:00.000Z</updated>
+    <updated>2021-07-09T00:00:00.000Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://remotion.dev/blog"/>
     <subtitle>Remotion Blog</subtitle>
     <icon>https://remotion.dev/img/logo-small.png</icon>
+    <entry>
+        <title type="html"><![CDATA[Remotion 2.2]]></title>
+        <id>2-2</id>
+        <link href="https://remotion.dev/blog/2-2"/>
+        <updated>2021-07-09T00:00:00.000Z</updated>
+        <summary type="html"><![CDATA[Welcome to the release notes of Remotion 2.2! It's been a while since v2.1, but in the meanwhile we had a dozen smaller releases inbetween. This post summarizes the highlights of the past 2 months 🎉.]]></summary>
+    </entry>
     <entry>
         <title type="html"><![CDATA[Remotion 2.1]]></title>
         <id>2-1</id>
