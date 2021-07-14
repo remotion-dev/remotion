@@ -115,7 +115,7 @@ A boolean property defining whether you can go fullscreen and exit fullscreen in
 
 _optional_
 
-A boolean property defining whether you can play or pause a video using space key. If enabled, clicking on the video focus and subsequent space key actions play or pause the video. Default `true`.
+A boolean property defining whether you can play or pause a video using space key. If enabled, playing the video and subsequently pressing the space key pauses and resumes the video. Default `true`.
 
 ### `inputProps`
 
