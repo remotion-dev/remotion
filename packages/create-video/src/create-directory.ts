@@ -1,6 +1,5 @@
 import fs from 'fs-extra';
 import * as path from 'path';
-import {Log} from './log';
 
 const TOLERABLE_FILES = [
 	// System
@@ -54,25 +53,12 @@ export async function assertFolderEmptyAsync({
 }): Promise<boolean> {
 	const conflicts = getConflictsForDirectory(projectRoot);
 	if (conflicts.length) {
-		Log.info(
-			`The directory ${Log.chalk.green(
-				folderName
-			)} has files that might be overwritten:`
-		);
-		Log.newLine();
-		for (const file of conflicts) {
-			Log.info(`  ${file}`);
-		}
-
 		if (overwrite) {
-			Log.newLine();
-			Log.info(`Removing existing files from ${Log.chalk.green(folderName)}`);
 			await Promise.all(
 				conflicts.map((conflict) => fs.remove(path.join(projectRoot, conflict)))
 			);
 			return true;
 		}
-
 		return false;
 	}
 	return true;

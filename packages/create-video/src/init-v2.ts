@@ -68,7 +68,7 @@ async function assertFolderEmptyAsync(
 		Log.newLine();
 		Log.info(message);
 		Log.newLine();
-		throw new Error(message);
+		process.exit(1);
 	}
 }
 
@@ -119,7 +119,7 @@ const initGitRepoAsync = async (
 
 		if (flags.commit) {
 			await execa('git', ['add', '--all'], {cwd: root, stdio: 'ignore'});
-			await execa('git', ['commit', '-m', 'Create a new Remotion app'], {
+			await execa('git', ['commit', '-m', 'Create a new Remotion video'], {
 				cwd: root,
 				stdio: 'ignore',
 			});
@@ -142,7 +142,7 @@ const resolveProjectRootAsync = async () => {
 		const {answer} = await prompts({
 			type: 'text',
 			name: 'answer',
-			message: 'What would you like to name your app?',
+			message: 'What would you like to name your video?',
 			initial: 'my-video',
 			validate: (name) => {
 				const validation = CreateDirectory.validateName(
@@ -177,15 +177,8 @@ const resolveProjectRootAsync = async () => {
 	return [projectRoot, folderName];
 };
 
-const isNodeVersionGreater = () => {
-	return process.versions.node >= '16.0.0';
-};
-
 export const init = async () => {
-	// let projectName = process.argv[2];
-	// Log.info(projectName, 'new');
 	const [projectRoot, folderName] = await resolveProjectRootAsync();
-	const greaterNodeVersion = isNodeVersionGreater();
 	await isGitExecutableAvailable();
 
 	const descriptionColumn =
@@ -218,11 +211,9 @@ export const init = async () => {
 
 	await execa('git', ['clone', `https://github.com/${template}`, projectRoot]);
 
-	if (greaterNodeVersion) {
-		fs.rmSync(path.join(projectRoot, '.git'), {recursive: true});
-	} else {
-		fs.rmdirSync(path.join(projectRoot, '.git'), {recursive: true});
-	}
+	(fs.rmSync ?? fs.rmdirSync)(path.join(projectRoot, '.git'), {
+		recursive: true,
+	});
 
 	await initGitRepoAsync(projectRoot, {
 		silent: true,

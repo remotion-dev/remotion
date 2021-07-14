@@ -20,7 +20,6 @@
 		"chalk": "^4.1.0",
 		"execa": "^5.0.0",
 		"fs-extra": "^9.1.0",
-		"npm-package-arg": "^8.1.2",
 		"prompts": "^2.4.1"
 	},
 	"devDependencies": {
