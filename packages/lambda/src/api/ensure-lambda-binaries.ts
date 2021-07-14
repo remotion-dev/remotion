@@ -6,7 +6,7 @@ import {
 } from '@aws-sdk/client-lambda';
 import {AwsRegion} from '../pricing/aws-regions';
 import {getLambdaClient} from '../shared/aws-clients';
-import {getBinariesBucketName} from '../shared/constants';
+import {CURRENT_VERSION, getBinariesBucketName} from '../shared/constants';
 
 const runtimes: string[] = ['nodejs14.x', 'nodejs12.x', 'nodejs10.x'];
 
@@ -33,7 +33,7 @@ const createLayer = ({
 			LicenseInfo:
 				'https://ffmpeg.org/legal.html / https://chromium.googlesource.com/chromium/src/+/refs/heads/main/LICENSE',
 			CompatibleRuntimes: runtimes,
-			Description: 'FFMPEG and Chromium binaries for Lambda',
+			Description: CURRENT_VERSION,
 		})
 	);
 };
@@ -48,7 +48,11 @@ const getLayers = async (lambdaClient: LambdaClient) => {
 };
 
 const hasLayer = (name: string, layers: LayersListItem[]) => {
-	return layers.find((l) => l.LayerName === name);
+	return layers.find(
+		(l) =>
+			l.LayerName === name &&
+			l.LatestMatchingVersion?.Description === CURRENT_VERSION
+	);
 };
 
 const ensureLayer = async ({
