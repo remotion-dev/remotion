@@ -44,4 +44,4 @@ _TODO: Specify which version of FFMPEG._
 
 ## Fonts
 
-The function only includes `Open Sans` as it's only font. You need to load other fonts using Webfonts.
+The function includes `Open Sans` as its only font and `Noto Color Emoji` for emojis. You need to load other fonts using Webfonts.
