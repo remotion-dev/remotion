@@ -11,6 +11,7 @@ module.exports = {
     "lambda-permissions",
     "lambda-region-selection",
     "lambda-runtime",
+    "lambda-faq",
     {
       collapsed: false,
       type: "category",

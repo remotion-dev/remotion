@@ -25,7 +25,7 @@ To assign, go to [AWS console](https://console.aws.amazon.com/console/home) ➞ 
 
 <RolePolicy />
 
-## Required permissions
+## Explanation
 
 :::info
 Currently the permissions are too loose. They will be made stricter to only require as minimal access as possible.
