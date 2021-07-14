@@ -12,10 +12,10 @@ Before calling this function, you should create a bucket, see [`getOrCreateBucke
 
 ## Example
 
-```ts
+```ts twoslash
+// @module: esnext
+// @target: es2017
 import {deployProject} from '@remotion/lambda';
-
-// ...
 
 const {url} = await deployProject({
   entryPoint: '/Users/jonnyburger/my-remotion-video/src/index.tsx',

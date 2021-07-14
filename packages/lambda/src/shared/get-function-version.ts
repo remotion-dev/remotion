@@ -1,10 +1,6 @@
 import {AwsRegion} from '../pricing/aws-regions';
-import {callLambda} from '../shared/call-lambda';
-import {
-	COMMAND_NOT_FOUND,
-	LambdaRoutines,
-	LambdaVersions,
-} from '../shared/constants';
+import {callLambda} from './call-lambda';
+import {COMMAND_NOT_FOUND, LambdaRoutines, LambdaVersions} from './constants';
 
 export const getFunctionVersion = async ({
 	functionName,

@@ -1,7 +1,6 @@
 import {CliInternals} from '@remotion/cli';
 import {Log} from '@remotion/cli/dist/log';
-import {getFunctions} from '../../../api/get-deployed-lambdas';
-import {getFunctionVersion} from '../../../api/get-function-version';
+import {getFunctions} from '../../../api/get-functions';
 import {parsedLambdaCli} from '../../args';
 import {getAwsRegion} from '../../get-aws-region';
 
@@ -31,14 +30,6 @@ export const functionsLsCommand = async () => {
 
 	fetchingOutput.update('Getting function info...');
 
-	const configs = await Promise.all(
-		functions.map((fn) => {
-			return getFunctionVersion({
-				functionName: fn.name,
-				region,
-			});
-		})
-	);
 	const pluralized = functions.length === 1 ? 'function' : 'functions';
 	fetchingOutput.update(
 		`${functions.length} ${pluralized} in the ${region} region`
@@ -54,20 +45,14 @@ export const functionsLsCommand = async () => {
 			].join('')
 		)
 	);
-	const info = functions.map((f, i) => {
-		return {
-			fn: f,
-			config: configs[i],
-		};
-	});
 
-	for (const datapoint of info) {
+	for (const datapoint of functions) {
 		Log.info(
 			[
-				datapoint.fn.name.padEnd(NAME_COLS, ' '),
-				datapoint.config.padEnd(VERSION_COLS, ' '),
-				String(datapoint.fn.memory).padEnd(MEMORY_COLS, ' '),
-				String(datapoint.fn.timeout).padEnd(TIMEOUT_COLS, ' '),
+				datapoint.name.padEnd(NAME_COLS, ' '),
+				datapoint.version.padEnd(VERSION_COLS, ' '),
+				String(datapoint.memory).padEnd(MEMORY_COLS, ' '),
+				String(datapoint.timeout).padEnd(TIMEOUT_COLS, ' '),
 			].join('')
 		);
 	}

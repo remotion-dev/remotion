@@ -2,7 +2,7 @@ import {ListFunctionsCommand} from '@aws-sdk/client-lambda';
 import {AwsRegion} from '../pricing/aws-regions';
 import {getLambdaClient} from '../shared/aws-clients';
 import {RENDER_FN_PREFIX} from '../shared/constants';
-import {getFunctionVersion} from './get-function-version';
+import {getFunctionVersion} from '../shared/get-function-version';
 
 export const getFunctions = async (options: {region: AwsRegion}) => {
 	const lambdas = await getLambdaClient(options.region).send(

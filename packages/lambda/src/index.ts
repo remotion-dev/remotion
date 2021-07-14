@@ -2,9 +2,8 @@ import {deleteFunction} from './api/delete-function';
 import {deployFunction} from './api/deploy-function';
 import {deployProject} from './api/deploy-project';
 import {ensureLambdaBinaries} from './api/ensure-lambda-binaries';
-import {getFunctions} from './api/get-deployed-lambdas';
 import {getFunctionInfo} from './api/get-function-info';
-import {getFunctionVersion} from './api/get-function-version';
+import {getFunctions} from './api/get-functions';
 import {getOrCreateBucket} from './api/get-or-create-bucket';
 import {getRenderProgress} from './api/get-render-progress';
 import {simulatePermissions} from './api/iam-validation/simulate';
@@ -29,7 +28,6 @@ export {
 	simulatePermissions,
 	deleteFunction,
 	getFunctionInfo,
-	getFunctionVersion,
 	LambdaInternals,
 };
 export type {AwsRegion};

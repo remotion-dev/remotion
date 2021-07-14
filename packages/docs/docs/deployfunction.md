@@ -10,10 +10,11 @@ Before calling `deployFunction()`, you need to deploy the necessary binaries and
 
 ## Example
 
-```ts
-import {deployFunction, ensureLambdaBinaries} from '@remotion/lambda';
+```ts twoslash
+// @module: esnext
+// @target: es2017
 
-// ...
+import {deployFunction, ensureLambdaBinaries} from '@remotion/lambda';
 
 const {layerArn} = await ensureLambdaBinaries('us-east-1');
 const {functionName} = await deployFunction({
