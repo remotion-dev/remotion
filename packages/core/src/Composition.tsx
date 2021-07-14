@@ -12,7 +12,7 @@ import {validateDimension} from './validation/validate-dimensions';
 import {validateDurationInFrames} from './validation/validate-duration-in-frames';
 import {validateFps} from './validation/validate-fps';
 
-export type CompProps<C extends AnyComponent> =
+export type CompProps<C> =
 	| {
 			lazyComponent: () => Promise<{default: C}>;
 	  }
@@ -20,7 +20,7 @@ export type CompProps<C extends AnyComponent> =
 			component: C;
 	  };
 
-type Props<C extends AnyComponent> = {
+type Props<C> = {
 	width: number;
 	height: number;
 	fps: number;
@@ -29,7 +29,7 @@ type Props<C extends AnyComponent> = {
 	defaultProps?: Omit<ComponentProps<C>, keyof C["defaultProps"]> & Partial<C["defaultProps"]>;
 } & CompProps<C>;
 
-export const Composition = <C extends AnyComponent,>({
+export const Composition = <C extends ComponentType,>({
 	width,
 	height,
 	fps,
