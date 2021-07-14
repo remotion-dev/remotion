@@ -26,7 +26,7 @@ type Props<C extends AnyComponent> = {
 	fps: number;
 	durationInFrames: number;
 	id: string;
-        defaultProps?: Omit<P, keyof C["defaultProps"]>;
+	defaultProps?: Omit<P, keyof C["defaultProps"]>;
 } & CompProps<C>;
 
 export const Composition = <C extends AnyComponent,>({
