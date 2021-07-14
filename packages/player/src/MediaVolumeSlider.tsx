@@ -1,11 +1,45 @@
 import React, {useCallback, useRef, useState} from 'react';
 import {Internals} from 'remotion';
 import {ICON_SIZE, VolumeOffIcon, VolumeOnIcon} from './icons';
+import {VOLUME_SLIDER_INPUT_CSS_CLASSNAME} from './player-css-classname';
 import {useHoverState} from './use-hover-state';
 
 const BAR_HEIGHT = 5;
-// const KNOB_SIZE = 12;
+const KNOB_SIZE = 12;
 const VOLUME_SLIDER_WIDTH = 100;
+
+const scope = `.${VOLUME_SLIDER_INPUT_CSS_CLASSNAME}`;
+const sliderStyle = `
+	${scope} {
+		-webkit-appearance: none;
+		background-color: rgba(255, 255, 255, 0.5);	
+		border-radius: ${BAR_HEIGHT / 2}px;
+		cursor: pointer;
+		height: ${BAR_HEIGHT}px;
+		margin-left: 5px;
+		width: ${VOLUME_SLIDER_WIDTH}px;
+	}
+
+	${scope}::-webkit-slider-thumb {
+		-webkit-appearance: none;
+		background-color: white;
+		border-radius: ${KNOB_SIZE / 2}px;
+		box-shadow: 0 0 2px black;
+		height: ${KNOB_SIZE}px;
+		width: ${KNOB_SIZE}px;
+	}
+
+	${scope}::-moz-range-thumb {
+		-webkit-appearance: none;
+		background-color: white;
+		border-radius: ${KNOB_SIZE / 2}px;
+		box-shadow: 0 0 2px black;
+		height: ${KNOB_SIZE}px;
+		width: ${KNOB_SIZE}px;
+	}
+`;
+
+Internals.CSSUtils.injectCSS(sliderStyle);
 
 const parentDivStyle: React.CSSProperties = {
 	display: 'inline-flex',
@@ -15,14 +49,6 @@ const parentDivStyle: React.CSSProperties = {
 	justifyContent: 'center',
 	alignItems: 'center',
 	touchAction: 'none',
-};
-
-const barBackground: React.CSSProperties = {
-	height: BAR_HEIGHT,
-	backgroundColor: 'rgba(255, 255, 255, 0.5)',
-	width: VOLUME_SLIDER_WIDTH,
-	borderRadius: BAR_HEIGHT / 2,
-	marginLeft: 5,
 };
 
 const volumeContainer: React.CSSProperties = {
@@ -87,12 +113,12 @@ export const MediaVolumeSlider: React.FC = () => {
 				<input
 					ref={inputRef}
 					aria-label="Change volume"
+					className={VOLUME_SLIDER_INPUT_CSS_CLASSNAME}
 					max={1}
 					min={0}
 					onBlur={() => setFocused(false)}
 					onChange={onVolumeChange}
 					step={0.01}
-					style={barBackground}
 					type="range"
 					value={mediaVolume}
 				/>
