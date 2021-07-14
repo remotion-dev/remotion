@@ -37,7 +37,7 @@ In which region your Lambda function is deployed. It's highly recommended that y
 ### `functionName`
 
 The name of the deployed Lambda function.
-Use [`deployFunction()`](/docs/lambda/deployfunction) to create a new function and [`getDeployedLambdas()`](/docs/lambda/getdeployedlambdas) to obtain currently deployed Lambdas.
+Use [`deployFunction()`](/docs/lambda/deployfunction) to create a new function and [`getFunctions()`](/docs/lambda/getfunctions) to obtain currently deployed Lambdas.
 
 ### `serveUrl`
 
