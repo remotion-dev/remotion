@@ -26,7 +26,7 @@ module.exports = {
         "getfunctionversion",
         "getuserpolicy",
         "getrolepolicy",
-        "getdeployedlambdas",
+        "getfunctions",
         "getorcreatebucket",
         "getrenderprogress",
         "rendervideoonlambda",

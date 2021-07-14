@@ -2,7 +2,7 @@ import {deleteFunction} from './api/delete-function';
 import {deployFunction} from './api/deploy-function';
 import {deployProject} from './api/deploy-project';
 import {ensureLambdaBinaries} from './api/ensure-lambda-binaries';
-import {getDeployedLambdas} from './api/get-deployed-lambdas';
+import {getFunctions} from './api/get-deployed-lambdas';
 import {getFunctionInfo} from './api/get-function-info';
 import {getFunctionVersion} from './api/get-function-version';
 import {getOrCreateBucket} from './api/get-or-create-bucket';
@@ -20,7 +20,7 @@ export {
 	deployFunction,
 	deployProject,
 	ensureLambdaBinaries,
-	getDeployedLambdas,
+	getFunctions,
 	getUserPolicy,
 	getRolePolicy,
 	getOrCreateBucket,

@@ -1,6 +1,6 @@
 import {CliInternals} from '@remotion/cli';
 import {Log} from '@remotion/cli/dist/log';
-import {getDeployedLambdas} from '../../../api/get-deployed-lambdas';
+import {getFunctions} from '../../../api/get-deployed-lambdas';
 import {getFunctionVersion} from '../../../api/get-function-version';
 import {parsedLambdaCli} from '../../args';
 import {getAwsRegion} from '../../get-aws-region';
@@ -20,7 +20,7 @@ export const functionsLsCommand = async () => {
 		fetchingOutput.update('Getting functions...');
 	}
 
-	const functions = await getDeployedLambdas({
+	const functions = await getFunctions({
 		region,
 	});
 

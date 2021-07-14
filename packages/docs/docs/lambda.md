@@ -91,17 +91,7 @@ A mechanism that determines after a render which frames rendered the slowest opt
 
 ## Node.JS API
 
-- [calculatePrice()](/docs/lambda/calculateprice)
-- [deployFunction()](/docs/lambda/deployfunction)
-- [deployProject()](/docs/lambda/deployproject)
-- [ensureLambdaBinaries()](/docs/lambda/ensurelambdabinaries)
-- [getUserPolicy()](/docs/lambda/getuserpolicy)
-- [getRolePolicy()](/docs/lambda/getrolepolicy)
-- [getDeployedLambdas()](/docs/lambda/getdeployedlambdas)
-- [getOrCreateBucket()](/docs/lambda/getorcreatebucket)
-- [getRenderProgress()](/docs/lambda/getrenderprogress)
-- [renderVideoOnLambda()](/docs/lambda/rendervideoonlambda)
-- [simulatePermissions()](/docs/lambda/simulatepermissions)
+Everything you can do using the CLI, you can also control using Node.JS APIs. Refer to the left sidebar to see the list of available APIs.
 
 ## Known issues
 

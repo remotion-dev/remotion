@@ -1,5 +1,5 @@
 import {CliInternals} from '@remotion/cli';
-import {getDeployedLambdas} from '../api/get-deployed-lambdas';
+import {getFunctions} from '../api/get-deployed-lambdas';
 import {getRenderProgress} from '../api/get-render-progress';
 import {renderVideoOnLambda} from '../api/render-video-on-lambda';
 import {BINARY_NAME, CURRENT_VERSION} from '../shared/constants';
@@ -36,7 +36,7 @@ export const renderCommand = async (args: string[]) => {
 
 	// TODO: Further validate serveUrl
 
-	const remotionLambdas = await getDeployedLambdas({region: getAwsRegion()});
+	const remotionLambdas = await getFunctions({region: getAwsRegion()});
 	const lambdasWithMatchingVersion = remotionLambdas.filter(
 		(l) => l.version === CURRENT_VERSION
 	);
