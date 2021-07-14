@@ -72,8 +72,13 @@ export const executeCommand = async (args: string[]) => {
 };
 
 export const cli = async () => {
-	// TODO: TS hardcoded, support JS just as in normal CLI
-	CliInternals.loadConfigFile(CliInternals.getConfigFileName(false), false);
+	const appliedName = CliInternals.loadConfig();
+	if (appliedName) {
+		Log.verbose(`Applied configuration from ${appliedName}.`);
+	} else {
+		Log.verbose('No config file loaded.');
+	}
+
 	CliInternals.parseCommandLine();
 	await executeCommand(parsedLambdaCli._);
 };
