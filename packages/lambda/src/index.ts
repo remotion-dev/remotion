@@ -14,6 +14,7 @@ import {
 import {renderVideoOnLambda} from './api/render-video-on-lambda';
 import {LambdaInternals} from './internals';
 import {AwsRegion} from './pricing/aws-regions';
+import {estimatePrice} from './pricing/calculate-price';
 
 export {
 	deployFunction,
@@ -28,6 +29,7 @@ export {
 	simulatePermissions,
 	deleteFunction,
 	getFunctionInfo,
+	estimatePrice,
 	LambdaInternals,
 };
 export type {AwsRegion};

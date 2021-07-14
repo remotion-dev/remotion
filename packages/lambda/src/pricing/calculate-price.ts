@@ -3,16 +3,23 @@ import {validateMemorySize} from '../shared/validate-memory-size';
 import {AwsRegion} from './aws-regions';
 import {pricing} from './price-per-1-s';
 
-export const calculatePrice = ({
-	region,
-	durationInMiliseconds,
-	memorySize: memory,
-}: {
+type EstimatePriceInput = {
 	region: AwsRegion;
 	durationInMiliseconds: number;
-	memorySize: number;
-}) => {
-	validateMemorySize(memory);
+	memorySizeInMb: number;
+};
+/**
+ *
+ * @description Calculates the AWS costs incurred for AWS Lambda given the region, execution duration and memory size.
+ * @returns `number` Price in USD
+ * @link https://remotion.dev/docs/lambda/estimateprice
+ */
+export const estimatePrice = ({
+	region,
+	durationInMiliseconds,
+	memorySizeInMb,
+}: EstimatePriceInput) => {
+	validateMemorySize(memorySizeInMb);
 	validateAwsRegion(region);
 	if (typeof durationInMiliseconds !== 'number') {
 		throw new TypeError(
@@ -40,7 +47,7 @@ export const calculatePrice = ({
 
 	const timeCostDollars =
 		Number(pricing[region]['Lambda Duration'].price) *
-		((memory * durationInMiliseconds) / 1000 / 1024);
+		((memorySizeInMb * durationInMiliseconds) / 1000 / 1024);
 
 	const invocationCost = Number(pricing[region]['Lambda Requests'].price);
 
