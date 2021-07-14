@@ -77,7 +77,7 @@ export const sitesCreateSubcommand = async (args: string[]) => {
 		);
 	};
 
-	const bucketName = await getOrCreateBucket({region: getAwsRegion()});
+	const {bucketName} = await getOrCreateBucket({region: getAwsRegion()});
 	multiProgress.bucketProgress = {
 		bucketCreated: true,
 		doneIn: null,

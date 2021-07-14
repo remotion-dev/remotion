@@ -18,6 +18,7 @@ Keep track of changes to the APIs of Remotion Lambda here.
 
 - `getDeployedLambdas()` was renamed to `getFunctions()`
 - `getFunctionVersion()` was removed, use `getFunctionInfo()`
+- New function `estimatePrice` is now available.
 
 ## July 14th, 2021
 

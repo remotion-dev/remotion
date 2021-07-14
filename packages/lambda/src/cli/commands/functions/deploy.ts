@@ -35,7 +35,7 @@ export const functionsDeploySubcommand = async () => {
 		region,
 		timeoutInSeconds,
 		layerArn,
-		memorySize,
+		memorySizeInMb: memorySize,
 	});
 	output.update(`Deployed to ${functionName}\n`);
 };

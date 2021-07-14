@@ -21,7 +21,7 @@ const {functionName} = await deployFunction({
   layerArn,
   region: 'us-east-1',
   timeoutInSeconds: 120,
-  memorySize: 1024
+  memorySizeInMb: 1024
 });
 console.log(functionName)
 ```
@@ -43,9 +43,9 @@ The AWS region which you want to deploy the Lambda function too. It must be the 
 How long the Lambda function may run before it gets killed. Must be below 900 seconds.
 We recommend a timeout of 120 seconds or lower - remember, Remotion Lambda is the fastest if you render with a high concurrency. If your video takes longer to render, the concurrency should be increased rather than the timeout.
 
-### `memorySize`
+### `memorySizeInMb`
 
-How many megabytes of RAM the Lambda function should have. By default we recommend a value of 1024MB. You may increase or decrease it depending on how memory-consuming your video is. The minimum allowed number is `512`, the maximum allowed number is `10240`. Since the costs of Remotion Lambda is directly proportional to the amount of RAM, we recommend to keep this amount as low as possiblr.
+How many megabytes of RAM the Lambda function should have. By default we recommend a value of 1024MB. You may increase or decrease it depending on how memory-consuming your video is. The minimum allowed number is `512`, the maximum allowed number is `10240`. Since the costs of Remotion Lambda is directly proportional to the amount of RAM, we recommend to keep this amount as low as possible.
 
 ## Return value
 

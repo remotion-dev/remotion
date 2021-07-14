@@ -10,7 +10,7 @@ export const startHandler = async (params: LambdaPayload) => {
 		throw new TypeError('Expected type start');
 	}
 
-	const bucketName = await getOrCreateBucket({
+	const {bucketName} = await getOrCreateBucket({
 		region: getCurrentRegionInFunction(),
 	});
 	const renderId = randomHash();

@@ -5,7 +5,17 @@ import {REMOTION_BUCKET_PREFIX} from '../shared/constants';
 import {randomHash} from '../shared/random-hash';
 import {getRemotionS3Buckets} from './get-buckets';
 
-export const getOrCreateBucket = async (options: {region: AwsRegion}) => {
+type GetOrCreateBucketInput = {
+	region: AwsRegion;
+};
+
+type GetOrCreateBucketResult = {
+	bucketName: string;
+};
+
+export const getOrCreateBucket = async (
+	options: GetOrCreateBucketInput
+): Promise<GetOrCreateBucketResult> => {
 	const {remotionBuckets} = await getRemotionS3Buckets(options.region);
 	if (remotionBuckets.length > 1) {
 		throw new Error(
@@ -18,7 +28,7 @@ export const getOrCreateBucket = async (options: {region: AwsRegion}) => {
 	}
 
 	if (remotionBuckets.length === 1) {
-		return remotionBuckets[0].Name as string;
+		return {bucketName: remotionBuckets[0].Name as string};
 	}
 
 	const bucketName = REMOTION_BUCKET_PREFIX + randomHash();
@@ -30,5 +40,5 @@ export const getOrCreateBucket = async (options: {region: AwsRegion}) => {
 		})
 	);
 
-	return bucketName;
+	return {bucketName};
 };

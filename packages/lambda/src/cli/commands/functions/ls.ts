@@ -21,6 +21,7 @@ export const functionsLsCommand = async () => {
 
 	const functions = await getFunctions({
 		region,
+		compatibleOnly: false,
 	});
 
 	if (quiet) {

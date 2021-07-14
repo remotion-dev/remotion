@@ -14,9 +14,9 @@ export const deployFunction = async (options: {
 	region: AwsRegion;
 	layerArn: string;
 	timeoutInSeconds: number;
-	memorySize: number;
+	memorySizeInMb: number;
 }) => {
-	validateMemorySize(options.memorySize);
+	validateMemorySize(options.memorySizeInMb);
 	validateTimeout(options.timeoutInSeconds);
 	validateAwsRegion(options.region);
 
@@ -37,7 +37,7 @@ export const deployFunction = async (options: {
 			Role: `arn:aws:iam::${accountId[1]}:role/remotion-lambda-role`,
 			Runtime: 'nodejs14.x',
 			Description: 'Renders a Remotion video.',
-			MemorySize: options.memorySize,
+			MemorySize: options.memorySizeInMb,
 			Timeout: options.timeoutInSeconds,
 			Layers: [options.layerArn],
 		})
