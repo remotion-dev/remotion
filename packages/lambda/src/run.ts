@@ -30,7 +30,7 @@ const getFnName = async (options: {
 	bucketUrl: string;
 	compositionName: string;
 }> => {
-	const bucketName = await getOrCreateBucket({region: getAwsRegion()});
+	const {bucketName} = await getOrCreateBucket({region: getAwsRegion()});
 	if (DEPLOY) {
 		await cleanupLambdas({lambdaClient: getLambdaClient(options.region)});
 		// await cleanUpBuckets({s3client: s3Client});
@@ -40,7 +40,7 @@ const getFnName = async (options: {
 			region: getAwsRegion(),
 			timeoutInSeconds: 120,
 			layerArn,
-			memorySize: 2048,
+			memorySizeInMb: 2048,
 		});
 
 		const {url} = await deployProject({

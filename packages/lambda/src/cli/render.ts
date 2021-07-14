@@ -36,7 +36,10 @@ export const renderCommand = async (args: string[]) => {
 
 	// TODO: Further validate serveUrl
 
-	const remotionLambdas = await getFunctions({region: getAwsRegion()});
+	const remotionLambdas = await getFunctions({
+		region: getAwsRegion(),
+		compatibleOnly: false,
+	});
 	const lambdasWithMatchingVersion = remotionLambdas.filter(
 		(l) => l.version === CURRENT_VERSION
 	);
