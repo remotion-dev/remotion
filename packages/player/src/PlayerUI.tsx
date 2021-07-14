@@ -38,7 +38,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		style?: React.CSSProperties;
 		clickToPlay: boolean;
 		doubleClickToFullscreen: boolean;
-		spaceKeyPressPlayOrPause: boolean;
+		spaceKeyToPlayOrPause: boolean;
 		setMediaVolume: (v: number) => void;
 		setMediaMuted: (v: boolean) => void;
 		mediaVolume: number;
@@ -58,7 +58,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		doubleClickToFullscreen,
 		setMediaMuted,
 		setMediaVolume,
-		spaceKeyPressPlayOrPause,
+		spaceKeyToPlayOrPause,
 	},
 	ref
 ) => {
@@ -358,7 +358,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 					allowFullscreen={allowFullscreen}
 					showVolumeControls={showVolumeControls}
 					onExitFullscreenButtonClick={onExitFullscreenButtonClick}
-					spaceKeyPressPlayOrPause={spaceKeyPressPlayOrPause}
+					spaceKeyToPlayOrPause={spaceKeyToPlayOrPause}
 				/>
 			) : null}
 		</div>
