@@ -80,7 +80,7 @@ export const Controls: React.FC<{
 	isFullscreen: boolean;
 	allowFullscreen: boolean;
 	onExitFullscreenButtonClick: MouseEventHandler<HTMLButtonElement>;
-	spaceKeyPressPlayOrPause: boolean;
+	spaceKeyToPlayOrPause: boolean;
 }> = ({
 	durationInFrames,
 	hovered,
@@ -91,7 +91,7 @@ export const Controls: React.FC<{
 	onFullscreenButtonClick,
 	allowFullscreen,
 	onExitFullscreenButtonClick,
-	spaceKeyPressPlayOrPause,
+	spaceKeyToPlayOrPause,
 }) => {
 	const playButtonRef = useRef<HTMLButtonElement | null>(null);
 	const frame = Internals.Timeline.useTimelinePosition();
@@ -106,11 +106,11 @@ export const Controls: React.FC<{
 	}, [hovered, player.playing]);
 
 	useEffect(() => {
-		if (playButtonRef.current && spaceKeyPressPlayOrPause) {
+		if (playButtonRef.current && spaceKeyToPlayOrPause) {
 			// This switches focus to play button when player.playing flag changes
 			playButtonRef.current.focus();
 		}
-	}, [player.playing, spaceKeyPressPlayOrPause]);
+	}, [player.playing, spaceKeyToPlayOrPause]);
 
 	return (
 		<div style={containerCss}>
