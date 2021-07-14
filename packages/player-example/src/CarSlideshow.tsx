@@ -2,15 +2,15 @@ import {interpolate, useCurrentFrame, useVideoConfig} from 'remotion';
 
 type Props = {
 	title: string;
-	bgColor: string,
-	color: string
+	bgColor: string;
+	color: string;
 };
 
 const CarSlideshow = ({title, bgColor, color}: Props) => {
 	const frame = useCurrentFrame();
 	const {width, height, durationInFrames} = useVideoConfig();
 	const left = interpolate(frame, [0, durationInFrames], [width, width * -1]);
-	console.log(bgColor, color)
+
 	return (
 		<div
 			style={{
