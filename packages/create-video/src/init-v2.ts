@@ -216,7 +216,7 @@ export const init = async () => {
 	});
 
 	await initGitRepoAsync(projectRoot, {
-		silent: true,
+		silent: false,
 		commit: true,
 	});
 
