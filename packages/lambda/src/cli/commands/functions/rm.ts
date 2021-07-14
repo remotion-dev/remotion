@@ -35,8 +35,8 @@ export const functionsRmCommand = async (args: string[]) => {
 		infoOutput.update(
 			[
 				'Function name: '.padEnd(LEFT_COL, ' ') + ' ' + info.functionName,
-				'Memory: '.padEnd(LEFT_COL, ' ') + ' ' + info.memorySize + 'MB',
-				'Timeout: '.padEnd(LEFT_COL, ' ') + ' ' + info.timeout + 'sec',
+				'Memory: '.padEnd(LEFT_COL, ' ') + ' ' + info.memorySizeInMb + 'MB',
+				'Timeout: '.padEnd(LEFT_COL, ' ') + ' ' + info.timeoutInSeconds + 'sec',
 				'Version: '.padEnd(LEFT_COL, ' ') + ' ' + info.version,
 			].join('\n')
 		);
