@@ -20,7 +20,9 @@ This value is hardcoded into the `ensureLambdaBinaries()` function - you only ne
 
 ## Example
 
-```ts
+```ts twoslash
+// @module: esnext
+// @target: es2017
 import {ensureLambdaBinaries} from '@remotion/lambda';
 
 // ...

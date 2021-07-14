@@ -1,5 +1,5 @@
 ---
-title: getDeployedLambdas()
-id: getdeployedlambdas
-slug: /lambda/getdeployedlambdas
+title: getFunctions()
+id: getfunctions
+slug: /lambda/getfunctions
 ---

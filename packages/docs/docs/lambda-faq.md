@@ -10,6 +10,10 @@ Some commonly asked questions about Remotion Lambda.
 
 No, you only need to deploy one function and it will be capable of rendering multiple videos, even across different projects.
 
+### What if I want to render longer videos?
+
+You don't need to worry about the timeout of a Lambda function because Remotion splits the video in many parts and renders them in parallel. However, you need to be aware of the 512MB storage limit that may not be exceeded. See: [Storage space](/docs/lambda/runtime#storage-space)
+
 ### Why are you not using Amazon EFS?
 
 We have evaluated Amazon Elastic File System (EFS) and we found the speed benefits of EFS are not substantial enough to warrant the increased complexity - for EFS to be integrated, VPC and security groups need to be created which will disable public internet access. To restore public internet access, a persistent EC2 instance needs to be created for proxying the traffic, negating many benefits of Lambda.
