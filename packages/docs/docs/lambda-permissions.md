@@ -4,10 +4,31 @@ title: Lambda - Permissions
 slug: /lambda/permissions
 ---
 
+import {LambdaRegionList} from '../components/lambda/user-permissions.tsx';
+import {RolePolicy} from '../components/lambda/role-permissions.tsx';
+
+This document describes the necessary permissions for Remotion Lambda and explains to those interested why the permissions are necessary.
+
+Before configuring permissions, [follow the setup guide first](/docs/lambda/setup).
+
+## User permissions
+
+This policy should be assigned to the **AWS user**. To do so, go to the [AWS console](https://console.aws.amazon.com/console/home) ➞ [IAM](https://console.aws.amazon.com/iam/home) ➞ [Users](https://console.aws.amazon.com/iamv2/home#/users) ➞ Your created Remotion user ➞ Permissions tab ➞ Add inline policy ➞ JSON.
+
+<LambdaRegionList />
+
+## Role permissions
+
+This policy should be assigned to the **role `remotion-lambda-role`** in your AWS account. The permissions below are given to the Lambda function itself.
+
+To assign, go to [AWS console](https://console.aws.amazon.com/console/home) ➞ [IAM](https://console.aws.amazon.com/iam/home) ➞ [Roles](https://console.aws.amazon.com/iamv2/home#/roles) ➞ [`remotion-lambda-role`](https://console.aws.amazon.com/iam/home#/roles/remotion-lambda-role) ➞ Permissions tab ➞ [Add inline policy](https://console.aws.amazon.com/iam/home#/roles/remotion-lambda-role$createPolicy?step=edit).
+
+<RolePolicy />
+
 ## Required permissions
 
 :::info
-Currently outdated. Does not list all permissions. See `npx remotion lambda policies user` and `npx remotion lambda policies role` for the most up to date policy files.
+Currently the permissions are too loose. They will be made stricter to only require as minimal access as possible.
 :::
 
 <table>
