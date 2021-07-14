@@ -4,7 +4,7 @@ import React from "react";
 export const LambdaRegionList: React.FC = () => {
   return (
     <div>
-      <pre>{JSON.stringify(getUserPolicy(), null, 2)}</pre>
+      <pre>{getUserPolicy()}</pre>
     </div>
   );
 };
