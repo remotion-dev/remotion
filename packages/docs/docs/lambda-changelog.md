@@ -14,6 +14,10 @@ Keep track of changes to the APIs of Remotion Lambda here.
 1. Redeploy your function: `npx remotion lambda functions deploy`
 1. Migrate according to the changelog below:
 
+## Unreleased
+
+- `getDeployedLambdas()` was renamed to `getFunctions()`
+
 ## July 14th, 2021
 
 - Emojis are now rendered using the Noto Color Emoji font

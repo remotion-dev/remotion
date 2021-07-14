@@ -2,7 +2,7 @@ import chalk from 'chalk';
 import xns from 'xns';
 import {checkNodeVersion} from './check-version';
 import {getCliOptions} from './get-cli-options';
-import {getConfigFileName} from './get-config-file-name';
+import {loadConfig} from './get-config-file-name';
 import {lambdaCommand} from './lambda-command';
 import {loadConfigFile} from './load-config';
 import {Log} from './log';
@@ -49,7 +49,7 @@ export const CliInternals = {
 	makeProgressBar,
 	Log,
 	loadConfigFile,
-	getConfigFileName,
 	getCliOptions,
 	parseCommandLine,
+	loadConfig,
 };
