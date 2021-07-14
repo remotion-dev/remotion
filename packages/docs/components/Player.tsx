@@ -24,7 +24,7 @@ export const PlayerExample: React.FC = () => {
           width: "100%",
         }}
         loop
-      ></Player>
+      />
       <br />
       <p>
         Enter your name:{" "}

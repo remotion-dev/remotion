@@ -58,6 +58,7 @@ const TrimStartExample: React.FC = () => {
     </Sequence>
   );
 };
+
 const TrimAndDelayExample: React.FC = () => {
   return (
     <Sequence from={30} durationInFrames={Infinity}>
@@ -87,18 +88,23 @@ export const SequenceForwardExample: React.FC<{
     if (type === "base") {
       return BaseExample;
     }
+
     if (type === "delay") {
       return DelayExample;
     }
+
     if (type === "trim-start") {
       return TrimStartExample;
     }
+
     if (type === "trim-and-delay") {
       return TrimAndDelayExample;
     }
+
     if (type === "clip") {
       return ClipExample;
     }
+
     throw new TypeError("oops");
   })();
   return (
@@ -114,7 +120,7 @@ export const SequenceForwardExample: React.FC<{
           width: "100%",
         }}
         loop
-      ></Player>
+       />
     </div>
   );
 };
