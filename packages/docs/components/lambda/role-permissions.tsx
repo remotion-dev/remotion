@@ -4,7 +4,7 @@ import React from "react";
 export const RolePolicy: React.FC = () => {
   return (
     <div>
-      <pre>{JSON.stringify(getRolePolicy(), null, 2)}</pre>
+      <pre>{getRolePolicy()}</pre>
     </div>
   );
 };
