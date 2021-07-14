@@ -9,6 +9,6 @@ export type AnyComponent<T> = ComponentType<T> | ((props: T) => ReactNode);
 // but we want to allow it. Therefore we do type assertion that it's a LooseAnyComponent
 // make the types happy.
 
-export type LooseAnyComponent<T = {}> =
+export type LooseAnyComponent<T> =
 	| ComponentType<T>
 	| ((props: T) => Exclude<ReactNode, ReactFragment | undefined>);
