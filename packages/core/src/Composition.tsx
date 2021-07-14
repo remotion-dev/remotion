@@ -20,7 +20,7 @@ export type CompProps<C> =
 			component: C;
 	  };
 
-type Props<C> = {
+type Props<C extends ComponentType> = {
 	width: number;
 	height: number;
 	fps: number;
