@@ -50,7 +50,7 @@ The spring configuration that you pass to [spring()](/docs/spring#config).
 
 ### `from?`
 
-_optional - default: `1`_
+_optional - default: `0`_
 
 The initial value of the animation.
 
