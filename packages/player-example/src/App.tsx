@@ -10,6 +10,7 @@ export default function App() {
 	const [doubleClickToFullscreen, setDoubleClickToFullscreen] = useState(true);
 	const [clickToPlay, setClickToPlay] = useState(true);
 	const [logs, setLogs] = useState<string[]>(() => []);
+	const [spaceKeyToPlayOrPause, setspaceKeyToPlayOrPause] = useState(true);
 
 	const ref = useRef<PlayerRef>(null);
 
@@ -53,6 +54,7 @@ export default function App() {
 					bgColor: String(bgColor),
 					color: String(color),
 				}}
+				spaceKeyToPlayOrPause={spaceKeyToPlayOrPause}
 			/>
 			<div style={{paddingTop: '0.5rem'}}>
 				Enter Text{' '}
@@ -157,6 +159,9 @@ export default function App() {
 				}
 			>
 				log volume
+			</button>
+			<button type="button" onClick={() => setspaceKeyToPlayOrPause((l) => !l)}>
+				spaceKeyToPlayOrPause = {String(spaceKeyToPlayOrPause)}
 			</button>
 			<br />
 			<br />
