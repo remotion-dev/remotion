@@ -14,9 +14,7 @@ import path from 'path';
 import {Internals} from 'remotion';
 import {getCliOptions} from './get-cli-options';
 import {getCompositionId} from './get-composition-id';
-import {getConfigFileName} from './get-config-file-name';
-import {isJavascript} from './is-javascript';
-import {loadConfigFile} from './load-config';
+import {loadConfig} from './get-config-file-name';
 import {Log} from './log';
 import {parseCommandLine, parsedCli} from './parse-command-line';
 import {
@@ -62,13 +60,12 @@ export const render = async () => {
 	const file = parsedCli._[1];
 	const fullPath = path.join(process.cwd(), file);
 
-	const isFileJavascript = isJavascript(fullPath);
-
-	const configFileName = getConfigFileName(isFileJavascript);
-	const appliedName = loadConfigFile(configFileName, isFileJavascript);
 	parseCommandLine();
+	const appliedName = loadConfig();
 	if (appliedName) {
 		Log.verbose(`Applied configuration from ${appliedName}.`);
+	} else {
+		Log.verbose('No config file loaded.');
 	}
 
 	const {
