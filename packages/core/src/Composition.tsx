@@ -20,13 +20,13 @@ export type CompProps<C extends AnyComponent> =
 			component: C;
 	  };
 
-type Props<C extends AnyComponent<ComponentProps<C>>> = {
+type Props<C extends AnyComponent> = {
 	width: number;
 	height: number;
 	fps: number;
 	durationInFrames: number;
 	id: string;
-	defaultProps?: Omit<ComponentProps<C>, keyof C["defaultProps"]>;
+	defaultProps?: Omit<ComponentProps<C>, keyof C["defaultProps"]> & Partial<C["defaultProps"]>;
 } & CompProps<C>;
 
 export const Composition = <C extends AnyComponent,>({
