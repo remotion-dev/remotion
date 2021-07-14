@@ -1,5 +1,5 @@
 import {CliInternals} from '@remotion/cli';
-import {getFunctions} from '../api/get-deployed-lambdas';
+import {getFunctions} from '../api/get-functions';
 import {getRenderProgress} from '../api/get-render-progress';
 import {renderVideoOnLambda} from '../api/render-video-on-lambda';
 import {BINARY_NAME, CURRENT_VERSION} from '../shared/constants';

@@ -2,8 +2,8 @@ import {GetFunctionCommand} from '@aws-sdk/client-lambda';
 import {AwsRegion} from '../pricing/aws-regions';
 import {getLambdaClient} from '../shared/aws-clients';
 import {LambdaVersions} from '../shared/constants';
+import {getFunctionVersion} from '../shared/get-function-version';
 import {validateAwsRegion} from '../shared/validate-aws-region';
-import {getFunctionVersion} from './get-function-version';
 
 type FunctionInfo = {
 	functionName: string;

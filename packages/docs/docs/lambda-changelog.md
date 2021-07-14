@@ -17,6 +17,7 @@ Keep track of changes to the APIs of Remotion Lambda here.
 ## Unreleased
 
 - `getDeployedLambdas()` was renamed to `getFunctions()`
+- `getFunctionVersion()` was removed, use `getFunctionInfo()`
 
 ## July 14th, 2021
 

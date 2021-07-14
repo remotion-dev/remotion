@@ -21,7 +21,6 @@ module.exports = {
         "deployfunction",
         "deletefunction",
         "getfunctioninfo",
-        "getfunctionversion",
         "getfunctions",
         "deployproject",
         "ensurelambdabinaries",
