@@ -17,7 +17,7 @@ module.exports = {
       type: "category",
       label: "Node.JS APIs",
       items: [
-        "calculateprice",
+        "estimateprice",
         "deployfunction",
         "deletefunction",
         "getfunctioninfo",

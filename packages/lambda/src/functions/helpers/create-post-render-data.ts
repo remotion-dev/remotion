@@ -1,6 +1,6 @@
 import {_Object} from '@aws-sdk/client-s3';
 import {AwsRegion} from '../..';
-import {calculatePrice} from '../../pricing/calculate-price';
+import {estimatePrice} from '../../pricing/calculate-price';
 import {
 	lambdaTimingsPrefix,
 	PostRenderData,
@@ -42,9 +42,9 @@ export const createPostRenderData = async ({
 		.map((p) => p.end - p.start + OVERHEAD_TIME_PER_LAMBDA)
 		.reduce((a, b) => a + b);
 
-	const cost = calculatePrice({
+	const cost = estimatePrice({
 		durationInMiliseconds: times,
-		memorySize,
+		memorySizeInMb: memorySize,
 		region,
 	});
 

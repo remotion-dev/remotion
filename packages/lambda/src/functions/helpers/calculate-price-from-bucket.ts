@@ -1,5 +1,5 @@
 import {_Object} from '@aws-sdk/client-s3';
-import {calculatePrice} from '../../pricing/calculate-price';
+import {estimatePrice} from '../../pricing/calculate-price';
 import {lambdaTimingsPrefix, RenderMetadata} from '../../shared/constants';
 import {parseLambdaTimingsKey} from '../../shared/parse-lambda-timings-key';
 import {findOutputFileInBucket} from './find-output-file-in-bucket';
@@ -7,7 +7,7 @@ import {getCurrentRegionInFunction} from './get-current-region';
 import {getTimeToFinish} from './get-time-to-finish';
 
 // TODO: Should differentiate between finished and in progress
-export const calculatePriceFromBucket = ({
+export const estimatePriceFromBucket = ({
 	renderId,
 	contents,
 	renderMetadata,
@@ -61,10 +61,10 @@ export const calculatePriceFromBucket = ({
 		.reduce((a, b) => a + b, 0);
 
 	const accruedSoFar = Number(
-		calculatePrice({
+		estimatePrice({
 			region: getCurrentRegionInFunction(),
 			durationInMiliseconds: totalEncodingTimings + timeElapsedOfUnfinished,
-			memorySize,
+			memorySizeInMb: memorySize,
 		}).toPrecision(5)
 	);
 	return accruedSoFar;

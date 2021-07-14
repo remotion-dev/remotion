@@ -7,7 +7,7 @@ import {
 	RenderProgress,
 	rendersPrefix,
 } from '../../shared/constants';
-import {calculatePriceFromBucket} from './calculate-price-from-bucket';
+import {estimatePriceFromBucket} from './calculate-price-from-bucket';
 import {findOutputFileInBucket} from './find-output-file-in-bucket';
 import {getCleanupProgress} from './get-cleanup-progress';
 import {getCurrentRegionInFunction} from './get-current-region';
@@ -110,7 +110,7 @@ export const getProgress = async ({
 	);
 
 	const accruedSoFar = Number(
-		calculatePriceFromBucket({
+		estimatePriceFromBucket({
 			renderId,
 			contents,
 			renderMetadata,
