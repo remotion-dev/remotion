@@ -12,24 +12,24 @@ import {validateDimension} from './validation/validate-dimensions';
 import {validateDurationInFrames} from './validation/validate-duration-in-frames';
 import {validateFps} from './validation/validate-fps';
 
-export type CompProps<T> =
+export type CompProps<C extends AnyComponent> =
 	| {
-			lazyComponent: () => Promise<{default: AnyComponent<T>}>;
+			lazyComponent: () => Promise<{default: C}>;
 	  }
 	| {
-			component: AnyComponent<T>;
+			component: C;
 	  };
 
-type Props<T> = {
+type Props<C extends AnyComponent> = {
 	width: number;
 	height: number;
 	fps: number;
 	durationInFrames: number;
 	id: string;
-	defaultProps?: T;
-} & CompProps<T>;
+        defaultProps?: Omit<P, keyof C["defaultProps"]>;
+} & CompProps<C>;
 
-export const Composition = <T,>({
+export const Composition = <C extends AnyComponent,>({
 	width,
 	height,
 	fps,
@@ -37,7 +37,7 @@ export const Composition = <T,>({
 	id,
 	defaultProps: props,
 	...compProps
-}: Props<T>) => {
+}: Props<C>) => {
 	const {registerComposition, unregisterComposition} = useContext(
 		CompositionManager
 	);
