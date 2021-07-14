@@ -111,6 +111,12 @@ _optional_
 
 A boolean property defining whether you can go fullscreen and exit fullscreen in the video with double click into the player. If enabled, clicking on the video once will delay pausing the video for 200ms to wait for a possible second click. Default `false`.
 
+### `spaceKeyToPlayOrPause`
+
+_optional_
+
+A boolean property defining whether you can play or pause a video using space key. If enabled, playing the video and subsequently pressing the space key pauses and resumes the video. Only works if `controls` is true. Default `true`.
+
 ### `inputProps`
 
 _optional_
@@ -254,8 +260,13 @@ useEffect(() => {
   playerRef.current.addEventListener('pause', () => {
     console.log('pausing')
   })
+
+  // See below for difference between `seeked` and `timeupdate`
   playerRef.current.addEventListener('seeked', (e) => {
     console.log('seeked to ' + e.detail.frame)
+  })
+  playerRef.current.addEventListener('timeupdate', (e) => {
+    console.log('time has updated to ' + e.detail.frame)
   })
   playerRef.current.addEventListener('ended', (e) => {
     console.log('ended')
@@ -274,13 +285,16 @@ Fired when the time position changes. You may get the current frame by reading i
 import {useRef, useEffect} from 'react'
 import {PlayerRef} from '@remotion/player'
 const playerRef = useRef<PlayerRef>(null)
+if (!playerRef.current) {
+  throw new Error()
+}
 // ---cut---
-playerRef.current?.addEventListener('seeked', (e) => {
+playerRef.current.addEventListener('seeked', (e) => {
   console.log('seeked to ' + e.detail.frame) // seeked to 120
 })
 ```
 
-This event fires on every single frame update. If you link it to a state update, you may want to throttle the updates to avoid expensive rendering operations.
+This event fires on every single frame update. Don't update your UI based on this event as it will cause a lot of rerenders. Use the [`timeupdate`](#timeupdate) event instead.
 
 ### `ended`
 
@@ -293,6 +307,23 @@ Fires when the video has started playing or has resumed from a pause.
 ### `pause`
 
 Fires when the video has paused or ended.
+
+### `timeupdate`
+
+Fires periodically when the video is playing. Unlike the [`seeked`](#seeked) event, frames are skipped, and the event is throttled to only fire a few times a second.
+
+```tsx twoslash
+import {useRef, useEffect} from 'react'
+import {PlayerRef} from '@remotion/player'
+const playerRef = useRef<PlayerRef>(null)
+if (!playerRef.current) {
+  throw new Error()
+}
+// ---cut---
+playerRef.current.addEventListener('timeupdate', (e) => {
+  console.log('current frame is ' + e.detail.frame) // current frame is 120
+})
+```
 
 ### `error`
 

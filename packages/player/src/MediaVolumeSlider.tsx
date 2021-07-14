@@ -16,6 +16,7 @@ const parentDivStyle: React.CSSProperties = {
 	padding: '6px',
 	justifyContent: 'center',
 	alignItems: 'center',
+	touchAction: 'none',
 };
 
 const containerStyle: React.CSSProperties = {
