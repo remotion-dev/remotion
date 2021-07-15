@@ -45,7 +45,7 @@ export const PlayerSeekBar: React.FC<{
 }> = ({durationInFrames}) => {
 	const containerRef = useRef<HTMLDivElement>(null);
 	const barHovered = useHoverState(containerRef);
-	const size = useElementSize(containerRef);
+	const size = useElementSize(containerRef, true);
 	const {seek, play, pause, playing} = usePlayer();
 	const frame = Internals.Timeline.useTimelinePosition();
 

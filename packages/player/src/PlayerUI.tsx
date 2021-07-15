@@ -66,7 +66,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 	const video = Internals.useVideo();
 	const container = useRef<HTMLDivElement>(null);
 	const hovered = useHoverState(container);
-	const canvasSize = useElementSize(container);
+	const canvasSize = useElementSize(container, false);
 
 	const [hasPausedToResume, setHasPausedToResume] = useState(false);
 	const [shouldAutoplay, setShouldAutoPlay] = useState(autoPlay);
