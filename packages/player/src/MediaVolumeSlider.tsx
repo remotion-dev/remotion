@@ -65,7 +65,7 @@ export const MediaVolumeSlider: React.FC = () => {
 	const currentRef = useRef<HTMLDivElement>(null);
 	const iconDivRef = useRef<HTMLDivElement>(null);
 	const parentDivRef = useRef<HTMLDivElement>(null);
-	const size = useElementSize(currentRef);
+	const size = useElementSize(currentRef, false);
 	const hover = useHoverState(parentDivRef);
 
 	const hoverOrDragging = hover || dragging;
