@@ -22,7 +22,9 @@ const Line = styled.div`
 export const TimelineSlider: React.FC = () => {
 	const timelinePosition = Internals.Timeline.useTimelinePosition();
 	const videoConfig = Internals.useUnsafeVideoConfig();
-	const size = PlayerInternals.useElementSize(sliderAreaRef, false);
+	const size = PlayerInternals.useElementSize(sliderAreaRef, {
+		triggerOnWindowResize: false,
+	});
 	const width = size?.width ?? 0;
 
 	if (!videoConfig) {
