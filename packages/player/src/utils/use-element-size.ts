@@ -69,7 +69,7 @@ export const useElementSize = (
 				observer.unobserve(current);
 			}
 		};
-	}, [observer, ref, updateSize, options.triggerOnWindowResize]);
+	}, [observer, ref, updateSize]);
 
 	useEffect(() => {
 		if (!options.triggerOnWindowResize) {
