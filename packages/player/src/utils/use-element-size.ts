@@ -9,7 +9,9 @@ export type Size = {
 
 export const useElementSize = (
 	ref: React.RefObject<HTMLDivElement>,
-	triggerOnWindowResize: boolean
+	options: {
+		triggerOnWindowResize: boolean;
+	}
 ): Size | null => {
 	const [size, setSize] = useState<Size | null>(null);
 	const observer = useMemo(() => {
@@ -62,18 +64,18 @@ export const useElementSize = (
 			observer.observe(ref.current);
 		}
 
-		if (triggerOnWindowResize) {
+		if (options.triggerOnWindowResize) {
 			window.addEventListener('resize', updateSize);
 		}
 
 		return (): void => {
 			if (current) {
 				observer.unobserve(current);
-				if (triggerOnWindowResize) {
+				if (options.triggerOnWindowResize) {
 					window.removeEventListener('resize', updateSize);
 				}
 			}
 		};
-	}, [observer, ref, updateSize, triggerOnWindowResize]);
+	}, [observer, ref, updateSize, options.triggerOnWindowResize]);
 	return size;
 };
