@@ -64,18 +64,24 @@ export const useElementSize = (
 			observer.observe(ref.current);
 		}
 
-		if (options.triggerOnWindowResize) {
-			window.addEventListener('resize', updateSize);
-		}
-
 		return (): void => {
 			if (current) {
 				observer.unobserve(current);
-				if (options.triggerOnWindowResize) {
-					window.removeEventListener('resize', updateSize);
-				}
 			}
 		};
 	}, [observer, ref, updateSize, options.triggerOnWindowResize]);
+
+	useEffect(() => {
+		if (!options.triggerOnWindowResize) {
+			return;
+		}
+
+		window.addEventListener('resize', updateSize);
+
+		return () => {
+			window.removeEventListener('resize', updateSize);
+		};
+	}, [options.triggerOnWindowResize, updateSize]);
+
 	return size;
 };
