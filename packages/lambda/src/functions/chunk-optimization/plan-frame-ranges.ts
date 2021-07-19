@@ -11,7 +11,11 @@ export const planFrameRanges = ({
 	frameCount: number;
 	optimization: OptimizationProfile | null;
 }): {chunks: [number, number][]; didUseOptimization: boolean} => {
-	if (optimization && optimization.frameCount === frameCount) {
+	if (
+		optimization &&
+		optimization.chunkSize === chunkSize &&
+		optimization.frameCount === frameCount
+	) {
 		return {chunks: optimization.frameRange, didUseOptimization: true};
 	}
 

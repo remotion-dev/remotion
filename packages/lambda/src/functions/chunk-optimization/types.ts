@@ -19,4 +19,5 @@ export type OptimizationProfile = {
 	newTiming: number;
 	frameCount: number;
 	createdFromRenderId: string;
+	chunkSize: number;
 };

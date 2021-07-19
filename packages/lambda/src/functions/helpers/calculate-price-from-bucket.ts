@@ -54,7 +54,10 @@ export const estimatePriceFromBucket = ({
 			? Date.now() - (renderMetadata?.startedDate ?? 0)
 			: timeToFinish;
 
-	const unfinished = (renderMetadata?.totalChunks ?? 0) - parsedTimings.length;
+	const unfinished = Math.max(
+		0,
+		(renderMetadata?.totalChunks ?? 0) - parsedTimings.length
+	);
 	const timeElapsedOfUnfinished = new Array(unfinished)
 		.fill(true)
 		.map(() => elapsedTime)
