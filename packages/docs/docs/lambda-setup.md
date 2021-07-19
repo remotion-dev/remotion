@@ -221,7 +221,7 @@ const functions = await getFunctions({
 const functionName = functions[0].name
 ```
 
-We can now trigger a render using the [`renderVideoOnLambda()`](/docs/rendervideoonlambda) function.
+We can now trigger a render using the [`renderVideoOnLambda()`](/docs/lambda/rendervideoonlambda) function.
 
 ```ts twoslash
 // @module: ESNext
