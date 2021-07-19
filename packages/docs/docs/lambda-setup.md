@@ -15,7 +15,17 @@ Check the newest version number in the #lambda Discord channel
 npm i @remotion/lambda@<version-number>
 ```
 
-Also update **all the other Remotion packages** to have the same version. Make sure no package version number has a `^` character in front of it as it will install a different version.
+Also update **all the other Remotion packages** to have the same version: `remotion`, `@remotion/cli`, `@remotion/bundler` Make sure no package version number has a `^` character in front of it as it will install a different version.
+
+Your package.json should look like the following:
+
+```json
+  "@remotion/bundler": "2.3.0-alpha.[versionhash]",
+  "@remotion/cli": "2.3.0-alpha.[versionhash]",
+  "@remotion/lambda": "2.3.0-alpha.[versionhash]",
+  // ...
+  "remotion": "2.3.0-alpha.[versionhash]",
+```
 
 ## 2. Create role policy
 
