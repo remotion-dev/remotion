@@ -3,7 +3,6 @@ import execa from 'execa';
 import fs from 'fs-extra';
 import path from 'path';
 import stripAnsi from 'strip-ansi';
-import * as CreateDirectory from './create-directory';
 import {Log} from './log';
 import prompts, {selectAsync} from './prompts';
 
@@ -42,8 +41,18 @@ function padEnd(str: string, width: number): string {
 	return str + Array(len + 1).join(' ');
 }
 
+export function validateName(name?: string): string | true {
+	if (typeof name !== 'string' || name === '') {
+		return 'The project name can not be empty.';
+	}
+	if (!/^[a-z0-9@.\-_]+$/i.test(name)) {
+		return 'The project name can only contain URL-friendly characters (alphanumeric and @ . -  _)';
+	}
+	return true;
+}
+
 function assertValidName(folderName: string) {
-	const validation = CreateDirectory.validateName(folderName);
+	const validation = validateName(folderName);
 	if (typeof validation === 'string') {
 		throw new Error(
 			`Cannot create an app named ${chalk.red(
@@ -57,16 +66,14 @@ async function assertFolderEmptyAsync(
 	projectRoot: string,
 	folderName?: string
 ) {
-	if (
-		!(await CreateDirectory.assertFolderEmptyAsync({
-			projectRoot,
-			folderName,
-			overwrite: false,
-		}))
-	) {
+	const conflicts = fs
+		.readdirSync(projectRoot)
+		.filter((file: string) => !/\.iml$/.test(file));
+
+	if (conflicts.length) {
 		const message = 'Try using a new directory name, or moving these files.';
 		Log.newLine();
-		Log.info(message);
+		Log.error(message);
 		Log.newLine();
 		process.exit(1);
 	}
@@ -145,9 +152,7 @@ const resolveProjectRootAsync = async () => {
 			message: 'What would you like to name your video?',
 			initial: 'my-video',
 			validate: (name) => {
-				const validation = CreateDirectory.validateName(
-					path.basename(path.resolve(name))
-				);
+				const validation = validateName(path.basename(path.resolve(name)));
 				if (typeof validation === 'string') {
 					return 'Invalid project name: ' + validation;
 				}
