@@ -96,6 +96,7 @@ export const render = async () => {
 	const browserInstance = RenderInternals.openBrowser(browser, {
 		shouldDumpIo: Internals.Logging.isEqualOrBelowLogLevel('verbose'),
 	});
+
 	if (shouldOutputImageSequence) {
 		fs.mkdirSync(absoluteOutputFile, {
 			recursive: true,
@@ -143,6 +144,23 @@ export const render = async () => {
 	const serveUrl = `http://localhost:${port}`;
 
 	const openedBrowser = await browserInstance;
+	let i = 0;
+
+	// Cycle through the browser and focus each tabs to activate contexts
+	// like Mapbox GL.
+	// TODO: Move this out of the Lambda branch
+	const interval = setInterval(() => {
+		openedBrowser
+			.pages()
+			.then((pages) => {
+				const currentPage = pages[i % pages.length];
+				i++;
+				if (!currentPage.isClosed()) {
+					currentPage.bringToFront();
+				}
+			})
+			.catch((err) => Log.error(err));
+	}, 100);
 	const comps = await getCompositions(serveUrl, {
 		browser,
 		inputProps,
@@ -208,6 +226,7 @@ export const render = async () => {
 	});
 
 	const closeBrowserPromise = openedBrowser.close();
+	clearInterval(interval);
 	renderProgress.update(
 		makeRenderingProgress({
 			frames: totalFrames,
