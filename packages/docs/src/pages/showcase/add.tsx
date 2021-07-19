@@ -80,10 +80,10 @@ const PageHeader: React.FC = () => {
             We will automatically host your video, and create static and
             animated preview images. These assets are associated with the{" "}
             <code>muxId</code>. Once uploaded, you will see a JSON markup and a
-            Github link where you can edit the list of showcase videos.
+            GitHub link where you can edit the list of showcase videos.
           </li>
           <li>
-            Edit the list of showcase videos on Github by adding the JSON object
+            Edit the list of showcase videos on GitHub by adding the JSON object
             to the bottom of the list. Fill in the placeholders in angle
             brackets according to the guidelines above and send your pull
             request.
