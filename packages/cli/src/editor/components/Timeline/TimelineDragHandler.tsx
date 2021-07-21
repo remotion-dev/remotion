@@ -40,7 +40,9 @@ const getFrameFromX = (
 };
 
 export const TimelineDragHandler: React.FC = ({children}) => {
-	const size = PlayerInternals.useElementSize(sliderAreaRef);
+	const size = PlayerInternals.useElementSize(sliderAreaRef, {
+		triggerOnWindowResize: true,
+	});
 	const width = size?.width ?? 0;
 	const left = size?.left ?? 0;
 	const [dragging, setDragging] = useState<

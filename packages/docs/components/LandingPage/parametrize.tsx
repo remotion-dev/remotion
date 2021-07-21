@@ -108,7 +108,7 @@ export const Parametrize: React.FC = () => {
           Render videos programmatically using our server-side APIs.
         </p>
         <span style={{ fontSize: 13 }}>
-          Customize the video by entering your Github username.
+          Customize the video by entering your GitHub username.
         </span>
         <div style={{ height: 10 }}></div>
         <div>
@@ -124,13 +124,13 @@ export const Parametrize: React.FC = () => {
             style={{ display: "flex", flexDirection: "row" }}
           >
             <input
+              ref={ref}
               className={styles.parametrizeinput}
               autoFocus
-              ref={ref}
               type="text"
-              placeholder="Your Github username"
-            ></input>{" "}
-            <div style={{ width: 8, display: "inline-block" }}></div>
+              placeholder="Your GitHub username"
+            />{' '}
+            <div style={{ width: 8, display: 'inline-block' }} />
             <BlueButton
               loading={state.type === "loading"}
               fullWidth={false}
