@@ -127,7 +127,7 @@ const {functionName} = await deployFunction({
   layerArn,
   region: 'us-east-1',
   timeoutInSeconds: 120,
-  memorySize: 1536
+  memorySizeInMb: 1536
 })
 ```
 

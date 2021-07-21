@@ -18,12 +18,12 @@ export const functionsDeploySubcommand = async () => {
 	// TODO: Should only allow one lambda to be deployed
 	const region = getAwsRegion();
 	const timeoutInSeconds = parsedLambdaCli.timeout ?? DEFAULT_TIMEOUT;
-	const memorySize = parsedLambdaCli.memory ?? DEFAULT_MEMORY_SIZE;
-	validateMemorySize(memorySize);
+	const memorySizeInMb = parsedLambdaCli.memory ?? DEFAULT_MEMORY_SIZE;
+	validateMemorySize(memorySizeInMb);
 	validateTimeout(timeoutInSeconds);
 	Log.info(
 		CliInternals.chalk.gray(
-			`Region = ${region}, Memory = ${memorySize}MB, Timeout = ${timeoutInSeconds}sec, Version = ${CURRENT_VERSION}`
+			`Region = ${region}, Memory = ${memorySizeInMb}MB, Timeout = ${timeoutInSeconds}sec, Version = ${CURRENT_VERSION}`
 		)
 	);
 	const output = CliInternals.createOverwriteableCliOutput();
@@ -35,7 +35,7 @@ export const functionsDeploySubcommand = async () => {
 		region,
 		timeoutInSeconds,
 		layerArn,
-		memorySizeInMb: memorySize,
+		memorySizeInMb,
 	});
 	output.update(`Deployed to ${functionName}\n`);
 };

@@ -12,13 +12,13 @@ export const estimatePriceFromBucket = ({
 	contents,
 	renderMetadata,
 	bucketName,
-	memorySize,
+	memorySizeInMb,
 }: {
 	renderId: string;
 	contents: _Object[];
 	renderMetadata: RenderMetadata | null;
 	bucketName: string;
-	memorySize: number;
+	memorySizeInMb: number;
 }) => {
 	if (!renderMetadata) {
 		return null;
@@ -67,7 +67,7 @@ export const estimatePriceFromBucket = ({
 		estimatePrice({
 			region: getCurrentRegionInFunction(),
 			durationInMiliseconds: totalEncodingTimings + timeElapsedOfUnfinished,
-			memorySizeInMb: memorySize,
+			memorySizeInMb,
 		}).toPrecision(5)
 	);
 	return accruedSoFar;

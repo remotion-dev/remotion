@@ -25,13 +25,13 @@ export const getProgress = async ({
 	renderId,
 	expectedBucketOwner,
 	region,
-	memorySize,
+	memorySizeInMb,
 }: {
 	bucketName: string;
 	renderId: string;
 	expectedBucketOwner: string;
 	region: AwsRegion;
-	memorySize: number;
+	memorySizeInMb: number;
 }): Promise<RenderProgress> => {
 	const postRenderData = await getPostRenderData({
 		bucketName,
@@ -115,7 +115,7 @@ export const getProgress = async ({
 			contents,
 			renderMetadata,
 			bucketName,
-			memorySize,
+			memorySizeInMb,
 		})
 	);
 
