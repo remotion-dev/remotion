@@ -32,7 +32,7 @@ The software is provided "as is", without warranty of any kind, express or impli
 
 ### Support
 
-Support is provided on a best-we-can-do basis via Github Issues.
+Support is provided on a best-we-can-do basis via GitHub Issues.
 
 ## Company license
 
