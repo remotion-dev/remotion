@@ -41,7 +41,7 @@ function padEnd(str: string, width: number): string {
 	return str + Array(len + 1).join(' ');
 }
 
-export function validateName(name?: string): string | true {
+function validateName(name?: string): string | true {
 	if (typeof name !== 'string' || name === '') {
 		return 'The project name can not be empty.';
 	}

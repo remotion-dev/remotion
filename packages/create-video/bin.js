@@ -1,6 +1,6 @@
 #! /usr/bin/env node
 
-const {init} = require('./dist/init-v2');
+const {init} = require('./dist/init');
 init()
 	.then(() => process.exit(0))
 	.catch((err) => {
