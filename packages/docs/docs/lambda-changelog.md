@@ -16,9 +16,11 @@ Keep track of changes to the APIs of Remotion Lambda here.
 
 ## Unreleased
 
+- Fix `remotion lambda policies validate` wrongly indicating that the `iam:GetUser` permission was not given
 - `getDeployedLambdas()` was renamed to `getFunctions()`
 - `getFunctionVersion()` was removed, use `getFunctionInfo()`
 - New function `estimatePrice` is now available.
+- Parameter `memorySize` was renamed to `memorySizeInMb` globally.
 
 ## July 14th, 2021
 
