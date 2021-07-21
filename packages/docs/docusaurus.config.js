@@ -97,7 +97,10 @@ module.exports = {
               label: "Blog",
               to: "blog",
             },
-
+            {
+              label: "Success Stories",
+              to: "success-stories",
+            },
             {
               label: "GitHub",
               href: "https://github.com/remotion-dev/remotion",
@@ -140,6 +143,27 @@ module.exports = {
         defaultCompilerOptions: {
           types: ["node"],
         },
+      },
+    ],
+  ],
+  plugins: [
+    [
+      "@docusaurus/plugin-content-blog",
+      {
+        /**
+         * Required for any multi-instance plugin
+         */
+        id: "success-stories",
+        /**
+         * URL route for the blog section of your site.
+         * *DO NOT* include a trailing slash.
+         */
+        routeBasePath: "success-stories",
+        /**
+         * Path to data on filesystem relative to site dir.
+         */
+        path: "./success-stories",
+        blogSidebarTitle: "Success stories",
       },
     ],
   ],
