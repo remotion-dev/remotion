@@ -1,19 +1,9 @@
-import {
-	EvaluationResult,
-	GetUserCommand,
-	SimulatePrincipalPolicyCommand,
-	SimulatePrincipalPolicyCommandOutput,
-} from '@aws-sdk/client-iam';
+import {GetUserCommand} from '@aws-sdk/client-iam';
 import {Log} from '../../cli/log';
 import {AwsRegion} from '../../pricing/aws-regions';
 import {getIamClient} from '../../shared/aws-clients';
 import {requiredPermissions} from './required-permissions';
-
-type EvalDecision = 'allowed' | 'explicitDeny' | 'implicitDeny';
-
-type ExplicitEvaluationResult = Omit<EvaluationResult, 'EvalDecision'> & {
-	EvalDecision: EvalDecision;
-};
+import {EvalDecision, simulateRule, SimulationResult} from './simulate-rule';
 
 const getEmojiForStatus = (decision: EvalDecision) => {
 	switch (decision) {
@@ -24,12 +14,9 @@ const getEmojiForStatus = (decision: EvalDecision) => {
 	}
 };
 
-const logPermissionOutput = (output: SimulatePrincipalPolicyCommandOutput) => {
-	const results = output.EvaluationResults as ExplicitEvaluationResult[];
-	for (const result of results) {
-		Log.info(
-			[getEmojiForStatus(result.EvalDecision), result.EvalActionName].join(' ')
-		);
+const logPermissionOutput = (output: SimulationResult[]) => {
+	for (const result of output) {
+		Log.info([getEmojiForStatus(result.decision), result.name].join(' '));
 	}
 };
 
@@ -42,16 +29,12 @@ export const simulatePermissions = async (options: {region: AwsRegion}) => {
 
 	for (const per of requiredPermissions) {
 		logPermissionOutput(
-			await getIamClient(options.region).send(
-				new SimulatePrincipalPolicyCommand({
-					ActionNames: per.actions,
-					PolicySourceArn: user.User.Arn,
-					ResourceArns: per.resource.map((r) =>
-						// eslint-disable-next-line no-template-curly-in-string
-						r.replace('${aws:username}', user.User?.UserName as string)
-					),
-				})
-			)
+			await simulateRule({
+				actionNames: per.actions,
+				arn: user.User.Arn as string,
+				region: options.region,
+				resource: per.resource,
+			})
 		);
 	}
 };
