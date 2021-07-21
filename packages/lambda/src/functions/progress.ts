@@ -23,6 +23,6 @@ export const progressHandler = async (
 		renderId: lambdaParams.renderId,
 		expectedBucketOwner: options.expectedBucketOwner,
 		region: getCurrentRegionInFunction(),
-		memorySize: Number(process.env.AWS_LAMBDA_FUNCTION_MEMORY_SIZE),
+		memorySizeInMb: Number(process.env.AWS_LAMBDA_FUNCTION_MEMORY_SIZE),
 	});
 };

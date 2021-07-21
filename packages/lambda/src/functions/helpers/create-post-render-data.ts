@@ -18,7 +18,7 @@ export const createPostRenderData = async ({
 	bucketName,
 	expectedBucketOwner,
 	region,
-	memorySize,
+	memorySizeInMb,
 	renderMetadata,
 	contents,
 }: {
@@ -26,7 +26,7 @@ export const createPostRenderData = async ({
 	bucketName: string;
 	expectedBucketOwner: string;
 	region: AwsRegion;
-	memorySize: number;
+	memorySizeInMb: number;
 	renderMetadata: RenderMetadata;
 	contents: _Object[];
 }) => {
@@ -44,7 +44,7 @@ export const createPostRenderData = async ({
 
 	const cost = estimatePrice({
 		durationInMiliseconds: times,
-		memorySizeInMb: memorySize,
+		memorySizeInMb,
 		region,
 	});
 

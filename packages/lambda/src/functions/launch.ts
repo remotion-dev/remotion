@@ -286,7 +286,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		expectedBucketOwner: options.expectedBucketOwner,
 		region: getCurrentRegionInFunction(),
 		renderId: params.renderId,
-		memorySize: Number(process.env.AWS_LAMBDA_FUNCTION_MEMORY_SIZE),
+		memorySizeInMb: Number(process.env.AWS_LAMBDA_FUNCTION_MEMORY_SIZE),
 		renderMetadata,
 		contents,
 	});
