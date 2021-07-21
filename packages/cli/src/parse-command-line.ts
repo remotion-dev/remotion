@@ -34,7 +34,9 @@ export type CommandLineOptions = {
 	port: number;
 };
 
-export const parsedCli = minimist<CommandLineOptions>(process.argv.slice(2));
+export const parsedCli = minimist<CommandLineOptions>(process.argv.slice(2), {
+	boolean: ['force', 'overwrite', 'sequence', 'help'],
+});
 
 export const parseCommandLine = () => {
 	if (parsedCli['pixel-format']) {
