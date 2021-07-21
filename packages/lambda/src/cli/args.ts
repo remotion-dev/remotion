@@ -15,7 +15,7 @@ type LambdaCommandLineOptions = {
 
 export const parsedLambdaCli = minimist<LambdaCommandLineOptions>(
 	process.argv.slice(2),
-	{boolean: ['q', 'quiet', 'force', 'yes', 'y']}
+	{boolean: ['q', 'quiet', 'force', 'yes', 'y', 'help']}
 );
 
 export const forceFlagProvided =
