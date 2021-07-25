@@ -76,6 +76,12 @@ const ensureLayer = async ({
 	return layer.LayerVersionArn as string;
 };
 
+/**
+ * @description Ensures that a Lambda layer with the necessary binaries exists.
+ * @link https://remotion.dev/docs/lambda/ensurelambdabinaries
+ * @param {AwsRegion} region The region in which you want ensure the binaries are deployed.
+ * @returns `Promise<{layerArn: string}>`
+ */
 export const ensureLambdaBinaries = async (region: AwsRegion) => {
 	const layers = await getLayers(getLambdaClient(region));
 	const layerArn = await ensureLayer({layers, region});

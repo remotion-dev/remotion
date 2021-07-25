@@ -12,7 +12,12 @@ type GetOrCreateBucketInput = {
 type GetOrCreateBucketResult = {
 	bucketName: string;
 };
-
+/**
+ * @description Creates a bucket for Remotion Lambda in your S3 account. If one already exists, it will get returned instead.
+ * @link http://remotion.dev/docs/lambda/getorcreatebucket
+ * @param options.region The region in which you want your S3 bucket to reside in.
+ * @returns `Promise<{region: AwsRegion}>`
+ */
 export const getOrCreateBucket = async (
 	options: GetOrCreateBucketInput
 ): Promise<GetOrCreateBucketResult> => {

@@ -11,8 +11,8 @@ type EstimatePriceInput = {
 /**
  *
  * @description Calculates the AWS costs incurred for AWS Lambda given the region, execution duration and memory size.
- * @returns `number` Price in USD
  * @link https://remotion.dev/docs/lambda/estimateprice
+ * @returns `number` Price in USD
  */
 export const estimatePrice = ({
 	region,
