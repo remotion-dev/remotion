@@ -52,8 +52,8 @@ export const functionsLsCommand = async () => {
 			[
 				datapoint.name.padEnd(NAME_COLS, ' '),
 				datapoint.version.padEnd(VERSION_COLS, ' '),
-				String(datapoint.memory).padEnd(MEMORY_COLS, ' '),
-				String(datapoint.timeout).padEnd(TIMEOUT_COLS, ' '),
+				String(datapoint.memoryInMb).padEnd(MEMORY_COLS, ' '),
+				String(datapoint.timeoutInSeconds).padEnd(TIMEOUT_COLS, ' '),
 			].join('')
 		);
 	}

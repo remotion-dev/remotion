@@ -36,7 +36,7 @@ The [ARN](https://docs.aws.amazon.com/general/latest/gr/aws-arns-and-namespaces.
 
 ### `region`
 
-The AWS region which you want to deploy the Lambda function too. It must be the same region that your Lambda Layer resides in.
+The [AWS region](/docs/lambda/region-selection) which you want to deploy the Lambda function too. It must be the same region that your Lambda Layer resides in.
 
 ### `timeoutInSeconds`
 
@@ -52,3 +52,8 @@ How many megabytes of RAM the Lambda function should have. By default we recomme
 An object with the following values:
 
 - `functionName` (_string_): The name of the function just created.
+
+## See also
+
+- [deleteFunction()](/docs/lambda/deletefunction)
+- [getFunctions()](/docs/lambda/getfunctions)
