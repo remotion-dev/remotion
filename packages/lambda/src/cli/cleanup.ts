@@ -1,10 +1,9 @@
-import {LambdaClient} from '@aws-sdk/client-lambda';
 import {CliInternals} from '@remotion/cli';
 import {getRemotionS3Buckets} from '../api/get-buckets';
-import {cleanupLambdas, getRemotionLambdas} from '../cleanup/cleanup-lambdas';
+import {getFunctions} from '../api/get-functions';
+import {cleanupLambdas} from '../cleanup/cleanup-lambdas';
 import {cleanUpBuckets} from '../cleanup/s3-buckets';
 import {AwsRegion} from '../pricing/aws-regions';
-import {getLambdaClient} from '../shared/aws-clients';
 import {chunk} from '../shared/chunk';
 import {BINARY_NAME} from '../shared/constants';
 import {getAwsRegion} from './get-aws-region';
@@ -14,9 +13,9 @@ export const CLEANUP_COMMAND = 'cleanup';
 export const CLEANUP_LAMBDAS_SUBCOMMAND = 'lambdas';
 const CLEANUP_S3_BUCKETS_SUBCOMMAND = 'buckets';
 
-const cleanupLambdaCommand = async (client: LambdaClient) => {
+const cleanupLambdaCommand = async (region: AwsRegion) => {
 	await cleanupLambdas({
-		lambdaClient: client,
+		region,
 		onAfterDelete: (lambdaName: string) =>
 			Log.info(CliInternals.chalk.blue(`Deleted ${lambdaName}`)),
 	});
@@ -42,7 +41,7 @@ const cleanupBucketsCommand = async (region: AwsRegion) => {
 export const cleanupCommand = async (args: string[]) => {
 	const region = getAwsRegion();
 	if (args[0] === CLEANUP_LAMBDAS_SUBCOMMAND) {
-		await cleanupLambdaCommand(getLambdaClient(getAwsRegion()));
+		await cleanupLambdaCommand(getAwsRegion());
 		return;
 	}
 
@@ -56,7 +55,7 @@ export const cleanupCommand = async (args: string[]) => {
 
 	const [{remotionBuckets}, lambdas] = await Promise.all([
 		getRemotionS3Buckets(region),
-		getRemotionLambdas(getLambdaClient(region)),
+		getFunctions({region, compatibleOnly: false}),
 	]);
 	if (remotionBuckets.length === 0 && lambdas.length === 0) {
 		fetching.update(
@@ -100,7 +99,7 @@ export const cleanupCommand = async (args: string[]) => {
 			`${chunk(lambdas, 2)
 				.map((b) =>
 					CliInternals.chalk.blue(
-						b.map((a) => (a.FunctionName ?? '').padEnd(40, ' ')).join(' ')
+						b.map((a) => (a.name ?? '').padEnd(40, ' ')).join(' ')
 					)
 				)
 				.join('\n')}`

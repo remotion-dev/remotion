@@ -1,42 +1,29 @@
-import {
-	DeleteFunctionCommand,
-	LambdaClient,
-	ListFunctionsCommand,
-} from '@aws-sdk/client-lambda';
-import {RENDER_FN_PREFIX} from '../shared/constants';
-
-export const getRemotionLambdas = async (lambdaClient: LambdaClient) => {
-	const lambdas = await lambdaClient.send(new ListFunctionsCommand({}));
-	const remotionLambdas = (lambdas.Functions || []).filter((f) =>
-		f.FunctionName?.startsWith(RENDER_FN_PREFIX)
-	);
-
-	return remotionLambdas;
-};
+import {AwsRegion} from '..';
+import {deleteFunction} from '../api/delete-function';
+import {getFunctions} from '../api/get-functions';
 
 export const cleanupLambdas = async ({
-	lambdaClient,
 	onBeforeDelete,
 	onAfterDelete,
+	region,
 }: {
-	lambdaClient: LambdaClient;
+	region: AwsRegion;
 	onBeforeDelete?: (lambdaName: string) => void;
 	onAfterDelete?: (lambdaName: string) => void;
 }) => {
-	const remotionLambdas = await getRemotionLambdas(lambdaClient);
+	const remotionLambdas = await getFunctions({region, compatibleOnly: false});
 	if (remotionLambdas.length === 0) {
 		return;
 	}
 
 	for (const lambda of remotionLambdas) {
-		onBeforeDelete?.(lambda.FunctionName as string);
-		await lambdaClient.send(
-			new DeleteFunctionCommand({
-				FunctionName: lambda.FunctionName,
-			})
-		);
-		onAfterDelete?.(lambda.FunctionName as string);
+		onBeforeDelete?.(lambda.name);
+		await deleteFunction({
+			region,
+			functionName: lambda.name,
+		});
+		onAfterDelete?.(lambda.name);
 	}
 
-	await cleanupLambdas({lambdaClient, onBeforeDelete, onAfterDelete});
+	await cleanupLambdas({region, onBeforeDelete, onAfterDelete});
 };
