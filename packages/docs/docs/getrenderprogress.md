@@ -37,7 +37,7 @@ The bucket in which information about the render is saved. You can get the bucke
 
 ### `region`
 
-The region in which the lambda function is located in.
+The region in which the Lambda function is located in.
 
 ### `functionName`
 

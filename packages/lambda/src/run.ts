@@ -69,7 +69,7 @@ const getFnName = async (options: {
 	});
 	const firstSite = firstBucket.find(() => true);
 	return {
-		functionName: lambdas[0].name as string,
+		functionName: lambdas[0].functionName as string,
 		bucketUrl: makeS3Url({
 			bucketName: websiteBuckets[0].Name as string,
 			subFolder: firstSite?.Key?.match(/(sites\/.*)\//)?.[1] as string,

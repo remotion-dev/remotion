@@ -30,11 +30,11 @@ console.log(info.timeoutInSeconds) // 120
 
 ## Arguments
 
-An option containing the following properties:
+An object containing the following properties:
 
 ### `region`
 
-The [region](/docs/lambda/region-selection) the function resides in.
+The [AWS region](/docs/lambda/region-selection) the function resides in.
 
 ### `functionName`
 

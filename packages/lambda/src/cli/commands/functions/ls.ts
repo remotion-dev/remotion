@@ -25,7 +25,7 @@ export const functionsLsCommand = async () => {
 	});
 
 	if (quiet) {
-		Log.info(functions.map((f) => f.name).join(' '));
+		Log.info(functions.map((f) => f.functionName).join(' '));
 		return;
 	}
 
@@ -50,9 +50,9 @@ export const functionsLsCommand = async () => {
 	for (const datapoint of functions) {
 		Log.info(
 			[
-				datapoint.name.padEnd(NAME_COLS, ' '),
+				datapoint.functionName.padEnd(NAME_COLS, ' '),
 				datapoint.version.padEnd(VERSION_COLS, ' '),
-				String(datapoint.memoryInMb).padEnd(MEMORY_COLS, ' '),
+				String(datapoint.memorySizeInMb).padEnd(MEMORY_COLS, ' '),
 				String(datapoint.timeoutInSeconds).padEnd(TIMEOUT_COLS, ' '),
 			].join('')
 		);
