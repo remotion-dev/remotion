@@ -14,27 +14,36 @@ const getEmojiForStatus = (decision: EvalDecision) => {
 	}
 };
 
-const logPermissionOutput = (output: SimulationResult[]) => {
-	for (const result of output) {
-		Log.info([getEmojiForStatus(result.decision), result.name].join(' '));
-	}
+export const logPermissionOutput = (output: SimulationResult) => {
+	Log.info([getEmojiForStatus(output.decision), output.name].join(' '));
 };
 
-export const simulatePermissions = async (options: {region: AwsRegion}) => {
+export const simulatePermissions = async (options: {
+	region: AwsRegion;
+	onSimulation?: (result: SimulationResult) => void;
+}): Promise<{
+	results: SimulationResult[];
+}> => {
 	const user = await getIamClient(options.region).send(new GetUserCommand({}));
 
 	if (!user || !user.User) {
 		throw new Error('No valid AWS user detected');
 	}
 
+	const results: SimulationResult[] = [];
+
 	for (const per of requiredPermissions) {
-		logPermissionOutput(
-			await simulateRule({
-				actionNames: per.actions,
-				arn: user.User.Arn as string,
-				region: options.region,
-				resource: per.resource,
-			})
-		);
+		const result = await simulateRule({
+			actionNames: per.actions,
+			arn: user.User.Arn as string,
+			region: options.region,
+			resource: per.resource,
+		});
+		for (const res of result) {
+			results.push(res);
+			options.onSimulation?.(res);
+		}
 	}
+
+	return {results};
 };
