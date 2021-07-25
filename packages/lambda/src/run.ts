@@ -4,14 +4,14 @@ import {deployFunction} from './api/deploy-function';
 import {deployProject} from './api/deploy-project';
 import {ensureLambdaBinaries} from './api/ensure-lambda-binaries';
 import {getRemotionS3Buckets} from './api/get-buckets';
+import {getFunctions} from './api/get-functions';
 import {getOrCreateBucket} from './api/get-or-create-bucket';
 import {getRenderProgress} from './api/get-render-progress';
-import {cleanupLambdas, getRemotionLambdas} from './cleanup/cleanup-lambdas';
+import {cleanupLambdas} from './cleanup/cleanup-lambdas';
 import {getAwsRegion} from './cli/get-aws-region';
 import {Log} from './cli/log';
 import {lambdaLs} from './functions/helpers/io';
 import {AwsRegion} from './pricing/aws-regions';
-import {getLambdaClient} from './shared/aws-clients';
 import {callLambda} from './shared/call-lambda';
 import {
 	getSitesKey,
@@ -32,7 +32,7 @@ const getFnName = async (options: {
 }> => {
 	const {bucketName} = await getOrCreateBucket({region: getAwsRegion()});
 	if (DEPLOY) {
-		await cleanupLambdas({lambdaClient: getLambdaClient(options.region)});
+		await cleanupLambdas({region: options.region});
 		// await cleanUpBuckets({s3client: s3Client});
 		const {layerArn} = await ensureLambdaBinaries(getAwsRegion());
 
@@ -52,7 +52,10 @@ const getFnName = async (options: {
 		return {functionName, bucketUrl: url, compositionName: 'my-video'};
 	}
 
-	const lambdas = await getRemotionLambdas(getLambdaClient(options.region));
+	const lambdas = await getFunctions({
+		region: options.region,
+		compatibleOnly: true,
+	});
 	const {remotionBuckets} = await getRemotionS3Buckets(options.region);
 	const websiteBuckets = remotionBuckets.filter((b) =>
 		(b.Name as string).startsWith(REMOTION_BUCKET_PREFIX)
@@ -66,7 +69,7 @@ const getFnName = async (options: {
 	});
 	const firstSite = firstBucket.find(() => true);
 	return {
-		functionName: lambdas[0].FunctionName as string,
+		functionName: lambdas[0].name as string,
 		bucketUrl: makeS3Url({
 			bucketName: websiteBuckets[0].Name as string,
 			subFolder: firstSite?.Key?.match(/(sites\/.*)\//)?.[1] as string,
