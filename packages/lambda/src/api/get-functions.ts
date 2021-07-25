@@ -1,14 +1,33 @@
 import {ListFunctionsCommand} from '@aws-sdk/client-lambda';
 import {AwsRegion} from '../pricing/aws-regions';
 import {getLambdaClient} from '../shared/aws-clients';
-import {CURRENT_VERSION, RENDER_FN_PREFIX} from '../shared/constants';
+import {
+	CURRENT_VERSION,
+	LambdaVersions,
+	RENDER_FN_PREFIX,
+} from '../shared/constants';
 import {getFunctionVersion} from '../shared/get-function-version';
 
-// TODO: Compatible only
+type FunctionInfo = {
+	name: string;
+	version: LambdaVersions;
+	memoryInMb: number;
+	timeoutInSeconds: number;
+};
+
+/**
+ *
+ *
+ * @description Lists Remotion Lambda render functions deployed to AWS Lambda.
+ * @param options.region The region of which the functions should be listed.
+ * @param options.compatibleOnly Whether only functions compatible with the installed version of Remotion Lambda should be returned.
+ * @returns An array with the objects containing information about the deployed functions.
+ * @link https://remotion.dev/docs/lambda/getfunctions
+ */
 export const getFunctions = async (options: {
 	region: AwsRegion;
 	compatibleOnly: boolean;
-}) => {
+}): Promise<FunctionInfo[]> => {
 	const lambdas = await getLambdaClient(options.region).send(
 		new ListFunctionsCommand({})
 	);
@@ -26,12 +45,12 @@ export const getFunctions = async (options: {
 		})
 	);
 
-	const list = remotionLambdas.map((lambda, i) => {
+	const list = remotionLambdas.map((lambda, i): FunctionInfo => {
 		return {
 			name: lambda.FunctionName as string,
 			version: configs[i],
-			memory: lambda.MemorySize as number,
-			timeout: lambda.Timeout as number,
+			memoryInMb: lambda.MemorySize as number,
+			timeoutInSeconds: lambda.Timeout as number,
 		};
 	});
 	if (!options.compatibleOnly) {
