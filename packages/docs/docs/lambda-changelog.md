@@ -16,6 +16,8 @@ Keep track of changes to the APIs of Remotion Lambda here.
 
 ## Unreleased
 
+- Node.JS API is now fully documented
+- Lambda function `name` was renamed to `functionName`
 - Fix `remotion lambda policies validate` wrongly indicating that the `iam:GetUser` permission was not given
 - `getDeployedLambdas()` was renamed to `getFunctions()`
 - `getFunctionVersion()` was removed, use `getFunctionInfo()`

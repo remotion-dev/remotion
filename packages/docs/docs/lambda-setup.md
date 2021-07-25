@@ -228,7 +228,7 @@ const functions = await getFunctions({
   compatibleOnly: true
 })
 
-const functionName = functions[0].name
+const functionName = functions[0].functionName
 ```
 
 We can now trigger a render using the [`renderVideoOnLambda()`](/docs/lambda/rendervideoonlambda) function.
@@ -244,7 +244,7 @@ const functions = await getFunctions({
   compatibleOnly: true
 })
 
-const functionName = functions[0].name
+const functionName = functions[0].functionName
 // ---cut---
 
 const {renderId, bucketName} = await renderVideoOnLambda({
@@ -272,7 +272,7 @@ const functions = await getFunctions({
   compatibleOnly: true
 })
 
-const functionName = functions[0].name
+const functionName = functions[0].functionName
 
 const {renderId, bucketName} = await renderVideoOnLambda({
   region: 'us-east-1',
