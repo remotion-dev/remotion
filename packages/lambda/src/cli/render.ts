@@ -74,7 +74,7 @@ export const renderCommand = async (args: string[]) => {
 		process.exit(1);
 	}
 
-	const functionName = lambdasWithMatchingVersion[0].name;
+	const {functionName} = lambdasWithMatchingVersion[0];
 
 	const cliOptions = await CliInternals.getCliOptions({isLambda: true});
 

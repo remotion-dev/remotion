@@ -99,7 +99,7 @@ export const cleanupCommand = async (args: string[]) => {
 			`${chunk(lambdas, 2)
 				.map((b) =>
 					CliInternals.chalk.blue(
-						b.map((a) => (a.name ?? '').padEnd(40, ' ')).join(' ')
+						b.map((a) => (a.functionName ?? '').padEnd(40, ' ')).join(' ')
 					)
 				)
 				.join('\n')}`

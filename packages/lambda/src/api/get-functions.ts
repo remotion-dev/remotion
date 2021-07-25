@@ -1,19 +1,9 @@
 import {ListFunctionsCommand} from '@aws-sdk/client-lambda';
 import {AwsRegion} from '../pricing/aws-regions';
 import {getLambdaClient} from '../shared/aws-clients';
-import {
-	CURRENT_VERSION,
-	LambdaVersions,
-	RENDER_FN_PREFIX,
-} from '../shared/constants';
+import {CURRENT_VERSION, RENDER_FN_PREFIX} from '../shared/constants';
 import {getFunctionVersion} from '../shared/get-function-version';
-
-type FunctionInfo = {
-	name: string;
-	version: LambdaVersions;
-	memoryInMb: number;
-	timeoutInSeconds: number;
-};
+import {FunctionInfo} from './get-function-info';
 
 /**
  *
@@ -47,9 +37,9 @@ export const getFunctions = async (options: {
 
 	const list = remotionLambdas.map((lambda, i): FunctionInfo => {
 		return {
-			name: lambda.FunctionName as string,
+			functionName: lambda.FunctionName as string,
 			version: configs[i],
-			memoryInMb: lambda.MemorySize as number,
+			memorySizeInMb: lambda.MemorySize as number,
 			timeoutInSeconds: lambda.Timeout as number,
 		};
 	});

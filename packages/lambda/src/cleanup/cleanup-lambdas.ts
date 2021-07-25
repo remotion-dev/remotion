@@ -17,12 +17,12 @@ export const cleanupLambdas = async ({
 	}
 
 	for (const lambda of remotionLambdas) {
-		onBeforeDelete?.(lambda.name);
+		onBeforeDelete?.(lambda.functionName);
 		await deleteFunction({
 			region,
-			functionName: lambda.name,
+			functionName: lambda.functionName,
 		});
-		onAfterDelete?.(lambda.name);
+		onAfterDelete?.(lambda.functionName);
 	}
 
 	await cleanupLambdas({region, onBeforeDelete, onAfterDelete});

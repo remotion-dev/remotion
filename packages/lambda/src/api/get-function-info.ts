@@ -5,7 +5,7 @@ import {LambdaVersions} from '../shared/constants';
 import {getFunctionVersion} from '../shared/get-function-version';
 import {validateAwsRegion} from '../shared/validate-aws-region';
 
-type FunctionInfo = {
+export type FunctionInfo = {
 	functionName: string;
 	timeoutInSeconds: number;
 	memorySizeInMb: number;

@@ -38,4 +38,4 @@ You can deploy a new function using:
 npx remotion lambda functions deploy
 ```
 
-If you are using the CLI, the following APIs are useful: [`getFunctions()`](/docs/lambda/getfunctions), [`deployFunction()`](/docs/lambda/deployfunction) and [`deleteFunction()`](/docs/lambda/deletefunction).
+If you are using the Node.JS APIs, the following APIs are useful: [`getFunctions()`](/docs/lambda/getfunctions), [`deployFunction()`](/docs/lambda/deployfunction) and [`deleteFunction()`](/docs/lambda/deletefunction).
