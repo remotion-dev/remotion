@@ -21,6 +21,10 @@ type DeployProjectInput = {
 /**
  * @description Deploys a Remotion project to an S3 bucket to prepare it for rendering on AWS Lambda.
  * @link https://remotion.dev/docs/lambda/deployproject
+ * @param {AwsRegion} params.region The region in which the S3 bucket resides in.
+ * @param {string} params.entryPoint An absolute path to the entry file of your Remotion project.
+ * @param {string} params.bucketName The name of the bucket to deploy your project into.
+ * @param {object} params.options Further options, see documentation page for this function.
  */
 export const deployProject = async ({
 	bucketName,
