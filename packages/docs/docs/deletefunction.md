@@ -23,7 +23,7 @@ const functions = await getFunctions({
 for (const fn of functions) {
   await deleteFunction({
     region: 'us-east-1',
-    functionName: fn.name
+    functionName: fn.functionName
   });
 }
 ```
