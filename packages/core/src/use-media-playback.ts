@@ -1,4 +1,4 @@
-import {RefObject, useEffect} from 'react';
+import {RefObject, useEffect, useState} from 'react';
 import {useMediaStartsAt} from './audio/use-audio-frame';
 import {usePlayingState} from './timeline-position-state';
 import {useAbsoluteCurrentFrame, useCurrentFrame} from './use-frame';
@@ -30,12 +30,10 @@ const playAndHandleNotAllowedError = (
 
 export const useMediaPlayback = ({
 	mediaRef,
-	src,
 	mediaType,
 	playbackRate,
 }: {
 	mediaRef: RefObject<HTMLVideoElement | HTMLAudioElement>;
-	src: string | undefined;
 	mediaType: 'audio' | 'video';
 	playbackRate: number;
 }) => {
@@ -44,6 +42,7 @@ export const useMediaPlayback = ({
 	const [playing] = usePlayingState();
 	const {fps} = useVideoConfig();
 	const mediaStartsAt = useMediaStartsAt();
+	const [mediaMetadata, setMediaMetadata] = useState(false);
 
 	useEffect(() => {
 		if (playing && !mediaRef.current?.ended) {
@@ -54,14 +53,28 @@ export const useMediaPlayback = ({
 	}, [mediaRef, mediaType, playing]);
 
 	useEffect(() => {
+		const _ref = mediaRef.current;
+		const handler = () => setMediaMetadata(true);
+
+		_ref?.addEventListener('loadedmetadata', handler);
+
+		return () => _ref?.removeEventListener('loadedmetadata', handler);
+	}, [mediaRef]);
+
+	useEffect(() => {
 		const tagName = mediaType === 'audio' ? '<Audio>' : '<Video>';
+
 		if (!mediaRef.current) {
 			throw new Error(`No ${mediaType} ref found`);
 		}
 
-		if (!src) {
+		if (!mediaMetadata) {
+			return;
+		}
+
+		if (!mediaRef.current.currentSrc) {
 			throw new Error(
-				`No 'src' attribute was passed to the ${tagName} element.`
+				`No src found. Please provide a src prop or a <source> child to the ${tagName} element.`
 			);
 		}
 
@@ -70,8 +83,8 @@ export const useMediaPlayback = ({
 		const shouldBeTime = getMediaTime({
 			fps,
 			frame,
-			src,
 			playbackRate,
+			src: mediaRef.current.currentSrc,
 			startFrom: -mediaStartsAt,
 		});
 
@@ -102,7 +115,7 @@ export const useMediaPlayback = ({
 		mediaRef,
 		mediaType,
 		playing,
-		src,
+		mediaMetadata,
 		mediaStartsAt,
 	]);
 };
