@@ -5,6 +5,7 @@ import React, {
 	useImperativeHandle,
 	useMemo,
 	useRef,
+	useState,
 } from 'react';
 import {getAbsoluteSrc} from '../absolute-src';
 import {
@@ -27,12 +28,14 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 	HTMLVideoElement,
 	RemotionVideoProps
 > = ({onError, volume: volumeProp, playbackRate, ...props}, ref) => {
+	const videoRef = useRef<HTMLVideoElement>(null);
+	const {currentSrc} = videoRef.current || {};
+	const [mediaMetadata, setMediaMetadata] = useState(false);
 	const absoluteFrame = useAbsoluteCurrentFrame();
 
 	const frame = useCurrentFrame();
 	const volumePropsFrame = useFrameForVolumeProp();
 	const videoConfig = useUnsafeVideoConfig();
-	const videoRef = useRef<HTMLVideoElement>(null);
 	const sequenceContext = useContext(SequenceContext);
 	const mediaStartsAt = useMediaStartsAt();
 
@@ -42,11 +45,11 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 	// but at the same time the same on all threads
 	const id = useMemo(
 		() =>
-			`audio-${random(props.src ?? '')}-${sequenceContext?.cumulatedFrom}-${
+			`audio-${random(currentSrc ?? '')}-${sequenceContext?.cumulatedFrom}-${
 				sequenceContext?.relativeFrom
 			}-${sequenceContext?.durationInFrames}-muted:${props.muted}`,
 		[
-			props.src,
+			currentSrc,
 			props.muted,
 			sequenceContext?.cumulatedFrom,
 			sequenceContext?.relativeFrom,
@@ -65,21 +68,36 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 	});
 
 	useEffect(() => {
-		if (!props.src) {
-			throw new Error('No src passed');
-		}
+		const _ref = videoRef.current;
+		const handler = () => setMediaMetadata(true);
 
+		_ref?.addEventListener('loadedmetadata', handler);
+
+		return () => _ref?.removeEventListener('loadedmetadata', handler);
+	}, []);
+
+	useEffect(() => {
 		if (props.muted) {
 			return;
 		}
 
+		if (!videoRef.current || !mediaMetadata) {
+			return;
+		}
+
+		if (!videoRef.current.currentSrc) {
+			throw new Error(
+				`No src found. Please provide a src prop or a <source> child to the Audio element.`
+			);
+		}
+
 		registerAsset({
 			type: 'video',
-			src: getAbsoluteSrc(props.src),
+			src: getAbsoluteSrc(videoRef.current.currentSrc),
 			id,
 			frame: absoluteFrame,
 			volume,
-			isRemote: isRemoteAsset(getAbsoluteSrc(props.src)),
+			isRemote: isRemoteAsset(getAbsoluteSrc(videoRef.current.currentSrc)),
 			mediaFrame: frame,
 			playbackRate: playbackRate ?? 1,
 		});
@@ -87,7 +105,6 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 		return () => unregisterAsset(id);
 	}, [
 		props.muted,
-		props.src,
 		registerAsset,
 		id,
 		unregisterAsset,
@@ -95,6 +112,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 		frame,
 		absoluteFrame,
 		playbackRate,
+		mediaMetadata,
 	]);
 
 	useImperativeHandle(ref, () => {
@@ -110,7 +128,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 			return getMediaTime({
 				fps: videoConfig.fps,
 				frame,
-				src: props.src as string,
+				src: videoRef.current.currentSrc,
 				playbackRate: playbackRate || 1,
 				startFrom: -mediaStartsAt,
 			});
@@ -171,14 +189,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 			},
 			{once: true}
 		);
-	}, [
-		volumePropsFrame,
-		props.src,
-		playbackRate,
-		videoConfig.fps,
-		frame,
-		mediaStartsAt,
-	]);
+	}, [volumePropsFrame, playbackRate, videoConfig.fps, frame, mediaStartsAt]);
 
 	return <video ref={videoRef} {...props} onError={onError} />;
 };
