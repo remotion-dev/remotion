@@ -12,13 +12,11 @@ export const useMediaInTimeline = ({
 	volume,
 	mediaVolume,
 	mediaRef,
-	src,
 	mediaType,
 }: {
 	volume: VolumeProp | undefined;
 	mediaVolume: number;
 	mediaRef: RefObject<HTMLAudioElement | HTMLVideoElement>;
-	src: string | undefined;
 	mediaType: 'audio' | 'video';
 }) => {
 	const videoConfig = useVideoConfig();
@@ -28,6 +26,7 @@ export const useMediaInTimeline = ({
 		? parentSequence.relativeFrom + parentSequence.cumulatedFrom
 		: 0;
 	const startsAt = useMediaStartsAt();
+	const [mediaMetadata, setMediaMetadata] = useState(false);
 	const {registerSequence, unregisterSequence} = useContext(CompositionManager);
 	const [id] = useState(() => String(Math.random()));
 	const nonce = useNonce();
@@ -58,23 +57,36 @@ export const useMediaInTimeline = ({
 	}, [duration, startsAt, volume, mediaVolume]);
 
 	useEffect(() => {
-		if (!mediaRef.current) {
+		const _ref = mediaRef.current;
+		const handler = () => setMediaMetadata(true);
+
+		_ref?.addEventListener('loadedmetadata', handler);
+
+		return () => _ref?.removeEventListener('loadedmetadata', handler);
+	}, [mediaRef]);
+
+	useEffect(() => {
+		const tagName = mediaType === 'audio' ? '<Audio>' : '<Video>';
+
+		if (!mediaRef.current || !mediaMetadata) {
 			return;
 		}
 
-		if (!src) {
-			throw new Error('No src passed');
+		if (!mediaRef.current.currentSrc) {
+			throw new Error(
+				`No src found. Please provide a src prop or a <source> child to the ${tagName} element.`
+			);
 		}
 
 		registerSequence({
 			type: mediaType,
-			src,
+			src: mediaRef.current.currentSrc,
 			id,
 			// TODO: Cap to media duration
 			duration,
 			from: 0,
 			parent: parentSequence?.id ?? null,
-			displayName: getAssetFileName(src),
+			displayName: getAssetFileName(mediaRef.current.currentSrc),
 			rootId,
 			volume: volumes,
 			showInTimeline: true,
@@ -88,7 +100,6 @@ export const useMediaInTimeline = ({
 		duration,
 		id,
 		parentSequence,
-		src,
 		registerSequence,
 		rootId,
 		unregisterSequence,
@@ -96,6 +107,7 @@ export const useMediaInTimeline = ({
 		volumes,
 		doesVolumeChange,
 		nonce,
+		mediaMetadata,
 		mediaRef,
 		mediaType,
 		startsAt,
