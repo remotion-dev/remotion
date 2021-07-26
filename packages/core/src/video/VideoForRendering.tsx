@@ -175,6 +175,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 		videoConfig.fps,
 		frame,
 		mediaStartsAt,
+		props.children,
 	]);
 
 	if (props.src) {
