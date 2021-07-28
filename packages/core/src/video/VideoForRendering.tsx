@@ -39,6 +39,8 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 	const sequenceContext = useContext(SequenceContext);
 	const mediaStartsAt = useMediaStartsAt();
 
+	const canvasPropsFromVideoProps = props as React.CanvasHTMLAttributes<HTMLCanvasElement>
+
 	const {registerAsset, unregisterAsset} = useContext(CompositionManager);
 
 	// Generate a string that's as unique as possible for this asset
@@ -178,6 +180,13 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 			if(onError) onError(event as never)
 		}
 
+		// copying video element props
+		Object.keys(props).forEach(propName => {
+			const propValue = (props as any)[propName]
+			const vid = _videoElement as any
+			vid[propName] = propValue
+		})
+
 		_videoElement.addEventListener(
 				'loadeddata',
 				() => {
@@ -202,7 +211,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 		ctx.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
 	}
 
-	return <canvas ref={canvasRef} width={props.width} height={props.height} />;
+	return <canvas ref={canvasRef} width={props.width} height={props.height} {...canvasPropsFromVideoProps} />;
 };
 
 export const VideoForRendering = forwardRef(VideoForRenderingForwardFunction);
