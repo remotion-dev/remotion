@@ -10,6 +10,14 @@ Some commonly asked questions about Remotion Lambda.
 
 No, you only need to deploy one function and it will be capable of rendering multiple videos, even across different projects.
 
+### Do I need to create multiple buckets?
+
+Only one bucket per region is required.
+
+### Do I need to deploy multiple projects?
+
+You can render one project and use it for as many renders as you need. If you have multiple projects, you can deploy all of them and reuse the same Lambda function.
+
 ### What if I want to render longer videos?
 
 You don't need to worry about the timeout of a Lambda function because Remotion splits the video in many parts and renders them in parallel. However, you need to be aware of the 512MB storage limit that may not be exceeded. See: [Storage space](/docs/lambda/runtime#storage-space)
