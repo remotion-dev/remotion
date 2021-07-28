@@ -131,18 +131,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 				continueRender(handle);
 				return;
 			}
-
-			// videoElement.addEventListener(
-			// 	'loadeddata',
-			// 	() => {
-			// 		if(!canvasRef.current || (props.width !== undefined && props.height === undefined)) return continueRender(handle);
-			// 		const canvas = canvasRef.current
-			// 		canvas.width = videoElement.videoWidth
-			// 		canvas.height = videoElement.videoHeight
-			// 		continueRender(handle);
-			// 	},
-			// 	{once: true}
-			// );
+			
 			continueRender(handle);
 			return;
 		}
