@@ -133,10 +133,6 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 			videoElement.addEventListener(
 				'loadeddata',
 				() => {
-					if(!canvasRef.current || (props.width !== undefined && props.height === undefined)) return continueRender(handle);
-					const canvas = canvasRef.current
-					canvas.width = videoElement.videoWidth
-					canvas.height = videoElement.videoHeight
 					continueRender(handle);
 				},
 				{once: true}
@@ -181,6 +177,17 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 		_videoElement.onerror = (event: Event | string) => {
 			if(onError) onError(event as never)
 		}
+
+		_videoElement.addEventListener(
+				'loadeddata',
+				() => {
+					if(!canvasRef.current || !videoRef.current || (props.width !== undefined && props.height === undefined)) return
+					const canvas = canvasRef.current
+					canvas.width = videoRef.current.videoWidth
+					canvas.height = videoRef.current.videoHeight
+				},
+				{once: true}
+			);
 
 		videoRef.current = _videoElement || null
 		setVideoElement(_videoElement)
