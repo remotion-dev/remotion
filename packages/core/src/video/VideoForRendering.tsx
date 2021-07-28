@@ -35,6 +35,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 	const videoConfig = useUnsafeVideoConfig();
 	const [videoElement, setVideoElement] = useState<HTMLVideoElement>();
 	const canvasRef = useRef<HTMLCanvasElement>(null);
+	const videoRef = useRef<HTMLVideoElement | null>(null)
 	const sequenceContext = useContext(SequenceContext);
 	const mediaStartsAt = useMediaStartsAt();
 
@@ -181,16 +182,17 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 			if(onError) onError(event as never)
 		}
 
-		setVideoElement(videoElement)
+		videoRef.current = _videoElement || null
+		setVideoElement(_videoElement)
 	}, [props.src]);
 
 	const drawVideoFrameOnCanvas = () => {
-		if(!videoElement) return
+		if(!videoRef.current) return
 		if(!canvasRef.current) return
 		const canvas = canvasRef.current
 		const ctx = canvas.getContext("2d")
 		if(!ctx) return
-		ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+		ctx.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
 	}
 
 	return <canvas ref={canvasRef} width={props.width} height={props.height} />;
