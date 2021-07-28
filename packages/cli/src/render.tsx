@@ -60,13 +60,14 @@ export const render = async () => {
 	const file = parsedCli._[1];
 	const fullPath = path.join(process.cwd(), file);
 
-	parseCommandLine();
 	const appliedName = loadConfig();
 	if (appliedName) {
 		Log.verbose(`Applied configuration from ${appliedName}.`);
 	} else {
 		Log.verbose('No config file loaded.');
 	}
+
+	parseCommandLine();
 
 	const {
 		codec,
