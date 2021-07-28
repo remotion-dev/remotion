@@ -6,7 +6,7 @@ image: /img/makestories.png
 
 _This is the first article in our new series: Success Stories. We interview companies and creators that we find inspiring and which have successfully implemented Remotion in their stack. Let us know what you think!_
 
-[Web Stories](https://stories.google/) is a format by Google to bring stories to the web. Appearing directly in Google Search, they are an opportunity for publishers to increase their audience massively.
+MakeStories is in the business of [Web Stories](https://stories.google/) - a format by Google to bring stories to the web. Appearing directly in Google Search, they are an opportunity for publishers to increase their audience massively.
 
 ![Cover image](/img/makestories.png)
 
@@ -38,3 +38,7 @@ Considering this is a better product than we used before, everything was perfect
 The integration of Remotion was straightforward. The documentation on the website was good and gave us guidance throughout the whole process.
 Another good thing for us was that Remotion uses TypeScript since we already used it before we were already familiar with it. This made many things easier for us. And even some minor quality issues we had before are gone now.
 _Editors note: MakeStories consulted with Remotion on how to optimize render time and quality for their stories._
+
+---
+
+_Were you successful using Remotion? Let us know your story at hi@remotion.dev!_
