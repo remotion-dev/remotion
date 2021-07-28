@@ -132,13 +132,18 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 				return;
 			}
 
-			videoElement.addEventListener(
-				'loadeddata',
-				() => {
-					continueRender(handle);
-				},
-				{once: true}
-			);
+			// videoElement.addEventListener(
+			// 	'loadeddata',
+			// 	() => {
+			// 		if(!canvasRef.current || (props.width !== undefined && props.height === undefined)) return continueRender(handle);
+			// 		const canvas = canvasRef.current
+			// 		canvas.width = videoElement.videoWidth
+			// 		canvas.height = videoElement.videoHeight
+			// 		continueRender(handle);
+			// 	},
+			// 	{once: true}
+			// );
+			continueRender(handle);
 			return;
 		}
 
@@ -187,19 +192,21 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 			vid[propName] = propValue
 		})
 
-		_videoElement.addEventListener(
-				'loadeddata',
-				() => {
-					if(!canvasRef.current || !videoRef.current || (props.width !== undefined && props.height === undefined)) return
-					const canvas = canvasRef.current
-					canvas.width = videoRef.current.videoWidth
-					canvas.height = videoRef.current.videoHeight
-				},
-				{once: true}
-			);
 
-		videoRef.current = _videoElement || null
-		setVideoElement(_videoElement)
+		const handle = delayRender();
+		_videoElement.addEventListener(
+			'loadeddata',
+			() => {
+				if(!canvasRef.current || (props.width !== undefined && props.height === undefined)) return continueRender(handle);
+				const canvas = canvasRef.current
+				canvas.width = _videoElement.videoWidth
+				canvas.height = _videoElement.videoHeight
+				videoRef.current = _videoElement || null
+				setVideoElement(_videoElement)
+				continueRender(handle);
+			},
+			{once: true}
+		);
 	}, [props.src]);
 
 	const drawVideoFrameOnCanvas = () => {
