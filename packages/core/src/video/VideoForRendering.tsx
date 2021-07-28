@@ -192,7 +192,6 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 			vid[propName] = propValue
 		})
 
-
 		const handle = delayRender();
 		_videoElement.addEventListener(
 			'loadeddata',
