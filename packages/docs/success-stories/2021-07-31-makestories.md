@@ -1,6 +1,6 @@
 ---
 slug: makestories
-title: How MakeStories.io uses Remotion to render Web Stories
+title: How MakeStories uses Remotion to render Web Stories
 image: /img/makestories.png
 ---
 
@@ -17,11 +17,11 @@ about how they are using Remotion to allow publishers to export their videos as 
 
 **Hi Pratik! Pitch us MakeStories really quick.**
 
-Makestories.io is a web based tool where you can create stories for websites. For context: Google has a product called Web Stories. These stories are on the web and not the same stories as you know from social media where you just can take pictures and upload them to your storyline. These Web Stories need to be written in HTML and CSS which is the tough part. What we did is we built a tool called Makestories.io which has a drag, drop & click approach. What you can do essentially is using our simplified approach to create animations. By using Makestories to create your own web stories you get the necessary HTML and CSS code of your story. This is used to put your story for example on Google Discover or on your own website.
+MakeStories is a web based tool where you can create stories for websites. For context: Google has a product called Web Stories. These stories are on the web and not the same stories as you know from social media where you just can take pictures and upload them to your storyline. These Web Stories need to be written in HTML and CSS which is the tough part. What we did is we built a tool called MakeStories which has a drag, drop & click approach. What you can do essentially is using our simplified approach to create animations. By using MakeStories to create your own web stories you get the necessary HTML and CSS code of your story. This is used to put your story for example on Google Discover or on your own website.
 
 **How are you using Remotion for MakeStories?**
 
-We started to build a Web Story builder for social media. For that reason we were looking for a rendering engine and that was when we came across Remotion. Now a Web Story created on Makestories.io is compatible with any platform - Google as well as social media.
+We started to build a Web Story builder for social media. For that reason we were looking for a rendering engine and that was when we came across Remotion. Now a Web Story created on MakeStories is compatible with any platform - Google as well as social media.
 
 ![Cover image](/img/makestories-export.png)
 
