@@ -1,6 +1,6 @@
 {
 	"name": "create-video",
-	"version": "2.2.1",
+	"version": "2.2.2",
 	"description": "",
 	"main": "index.js",
 	"bin": {
@@ -20,7 +20,8 @@
 		"chalk": "^4.1.0",
 		"execa": "^5.0.0",
 		"fs-extra": "^9.1.0",
-		"prompts": "^2.4.1"
+		"prompts": "^2.4.1",
+		"strip-ansi": "^7.0.0"
 	},
 	"devDependencies": {
 		"@jonny/eslint-config": "^2.1.233",
