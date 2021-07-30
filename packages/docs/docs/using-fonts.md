@@ -5,7 +5,7 @@ id: fonts
 
 You can use fonts by loading them in a CSS file using @font-face. Web fonts often ship with a css file declaring the fonts, which you can import using the `@import` statement.
 
-## Example using Google Web Fonts
+## Example using Google Fonts
 
 ```css title="font.css"
 @import url("https://fonts.googleapis.com/css2?family=Bangers");
@@ -19,9 +19,10 @@ const MyComp: React.FC = () => {
 }
 ```
 
-:::tip
-Google Web Fonts by default appends `?display=swap` to their URLs. Make sure to remove it to ensure the video renders correctly if you have a slow internet connection.
-:::
+**Important when using Webfonts:**
+
+- _When using v2.2 or later_: We automatically wait for fonts to be loaded, so you don't need to do anything.
+- _When using an older version of Remotion_: Google Fonts by default appends `?display=swap` to their URLs. Make sure to remove it to ensure the video renders correctly if you have a slow internet connection.
 
 ## Example using local fonts
 
