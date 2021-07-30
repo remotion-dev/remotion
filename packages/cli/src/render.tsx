@@ -133,6 +133,19 @@ export const render = async () => {
 	}
 
 	const openedBrowser = await browserInstance;
+	let i = 0;
+	const interval = setInterval(() => {
+		openedBrowser
+			.pages()
+			.then((pages) => {
+				const currentPage = pages[i % pages.length];
+				i++;
+				if (!currentPage.isClosed()) {
+					currentPage.bringToFront();
+				}
+			})
+			.catch((err) => Log.error(err));
+	}, 100);
 	const comps = await getCompositions(bundled, {
 		browser,
 		inputProps,
@@ -195,6 +208,7 @@ export const render = async () => {
 		puppeteerInstance: openedBrowser,
 	});
 
+	clearInterval(interval);
 	const closeBrowserPromise = openedBrowser.close();
 	renderProgress.update(
 		makeRenderingProgress({
