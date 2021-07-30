@@ -4,7 +4,6 @@ import {
 	PutObjectCommand,
 	_Object,
 } from '@aws-sdk/client-s3';
-import {ReadStream} from 'fs';
 import {Readable} from 'stream';
 import {AwsRegion} from '../../pricing/aws-regions';
 import {getS3Client} from '../../shared/aws-clients';
@@ -77,7 +76,7 @@ export const lambdaWriteFile = async ({
 }: {
 	bucketName: string;
 	key: string;
-	body: ReadStream | string;
+	body: Readable | string;
 	region: AwsRegion;
 	acl: 'public-read' | 'private';
 	expectedBucketOwner: string | null;

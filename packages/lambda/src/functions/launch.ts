@@ -1,4 +1,5 @@
 import {InvokeCommand} from '@aws-sdk/client-lambda';
+import execa from 'execa';
 import fs from 'fs';
 import pRetry from 'p-retry';
 import {Internals} from 'remotion';
@@ -54,6 +55,14 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		throw new Error('Expected launch type');
 	}
 
+	await execa('mount', [
+		'-t',
+		'tmpfs',
+		'-o',
+		'size=512m',
+		'tmpfs',
+		'/mnt/ramdisk',
+	]);
 	// TODO: Better validation
 	if (!params.chunkSize) {
 		throw new Error('Pass chunkSize');
