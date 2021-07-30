@@ -5,6 +5,7 @@ import {
 	getUserPassedOutputLocation,
 } from './user-passed-output-location';
 
+// eslint-disable-next-line complexity
 export const getOutputFilename = (
 	codec: Codec,
 	imageSequence: boolean
@@ -30,17 +31,29 @@ export const getOutputFilename = (
 			extension = 'mp4';
 		}
 
+		if (codec === 'h264-mkv') {
+			Log.info('No file extension specified, adding .mkv automatically.');
+			filename += '.mkv';
+			extension = 'mkv';
+		}
+
 		if (codec === 'vp8' || codec === 'vp9') {
 			Log.info('No file extension specified, adding .webm automatically.');
 			filename += '.webm';
 			extension = 'webm';
 		}
+
+		if (codec === 'prores') {
+			Log.info('No file extension specified, adding .mov automatically.');
+			filename += '.mov';
+			extension = 'mov';
+		}
 	}
 
 	if (codec === 'h264') {
-		if (extension !== 'mp4') {
+		if (extension !== 'mp4' && extension !== 'mkv') {
 			Log.error(
-				'When using the H264 codec, the output filename must end in .mp4.'
+				'When using the H264 codec, the output filename must end in .mp4 or .mkv.'
 			);
 			process.exit(1);
 		}
@@ -59,6 +72,18 @@ export const getOutputFilename = (
 		if (extension !== 'webm') {
 			Log.error(
 				`When using the ${codec.toUpperCase()} codec, the output filename must end in .webm.`
+			);
+			process.exit(1);
+		}
+	}
+
+	if (codec === 'prores') {
+		const allowedProResExtensions = ['mov', 'mkv', 'mxf'];
+		if (!extension || !allowedProResExtensions.includes(extension)) {
+			Log.error(
+				`When using the 'prores' codec, the output must end in one of those extensions: ${allowedProResExtensions
+					.map((a) => `.${a}`)
+					.join(', ')}`
 			);
 			process.exit(1);
 		}

@@ -1,6 +1,6 @@
 <p align="center">
-  <a href="https://github.com/JonnyBurger/remotion-logo">
-    <img src="https://github.com/JonnyBurger/remotion-logo/raw/main/withtitle/element-0.png">
+  <a href="https://github.com/remotion-dev/logo">
+    <img src="https://github.com/remotion-dev/logo/raw/main/withtitle/element-0.png">
   </a>
 </p>
 
@@ -14,7 +14,7 @@ Remotion is a suite of libraries building a fundament for **creating videos prog
 
 ## Example videos
 
-- **Remotion Trailer** [Watch](https://www.youtube.com/watch?v=1UU_GEQuolI) • [Source code](https://github.com/JonnyBurger/remotion-trailer) • The announcement video for Remotion was written in Remotion itself!
+- **Remotion Trailer** [Watch](https://www.youtube.com/watch?v=1UU_GEQuolI) • [Source code](https://github.com/remotion-dev/trailer) • The announcement video for Remotion was written in Remotion itself!
 - **AnySticker Welcome Video** [Watch](https://www.youtube.com/watch?v=Y0SNPeTz09w) • [Source code](https://github.com/JonnyBurger/anysticker-tutorials) • An in-app explainer video for my app AnySticker.
 - **"Game changer or no game changer" intro** [Watch](https://youtu.be/ga_xAZo9m7k?t=61) • [Source code](https://github.com/JonnyBurger/gamechanger-or-no-gamechanger-intro) • An intro for a quiz show I did with William Candillon.
 

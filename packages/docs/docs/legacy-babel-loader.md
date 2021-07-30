@@ -9,24 +9,22 @@ If you for some reason need to go back to the previous behavior, you may [overri
 
 We provide a compatibility package `@remotion/babel-loader` that you can install into your Remotion project and use the function `replaceLoadersWithBabel()` to swap out the ESBuild loader with the old Babel one that was in Remotion 1.0
 
-This should not be necessary in general, it is encouraged to [report issues](https://github.com/JonnyBurger/remotion/issues/new) regarding the new ESBuild loader.
+This should not be necessary in general, it is encouraged to [report issues](https://github.com/remotion-dev/remotion/issues/new) regarding the new ESBuild loader.
 
 ## Example
 
-console
-
-```
+```bash title="Console"
 npm i @remotion/babel-loader
 ```
 
-`remotion.config.ts`
-
-```tsx
-import {replaceLoadersWithBabel} from '@remotion/babel-loader';
+```ts twoslash title="remotion.config.ts"
+import {Config} from 'remotion'
+// ---cut---
+import {replaceLoadersWithBabel} from '@remotion/babel-loader'
 
 Config.Bundling.overrideWebpackConfig((currentConfiguration) => {
-  return replaceLoadersWithBabel(currentConfiguration);
-});
+  return replaceLoadersWithBabel(currentConfiguration)
+})
 ```
 
 ## See also

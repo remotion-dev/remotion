@@ -4,26 +4,31 @@ title: Reuse components using Sequences
 sidebar_label: Reuse components
 ---
 
-Let's say we want to show two titles that both fade in after each other.
+```twoslash include example
+import {interpolate, useCurrentFrame} from 'remotion'
 
-In order to make a title reusable, we first factor it out into it's own component.
-
-```tsx
-import {useCurrentFrame, interpolate} from 'remotion';
-
-const Title: React.FC<{title: string;}> = ({title}) => {
-    const frame = useCurrentFrame();
-    const opacity = interpolate(frame, [0, 20], [0, 1], {extrapolateRight: 'clamp'});
+const Title: React.FC<{title: string}> = ({title}) => {
+    const frame = useCurrentFrame()
+    const opacity = interpolate(frame, [0, 20], [0, 1], {extrapolateRight: 'clamp'})
 
     return (
       <div style={{opacity}}>{title}</div>
     )
 }
+// - Title
+```
+
+Let's say we want to show two titles that both fade in after each other.
+
+In order to make a title reusable, we first factor it out into it's own component.
+
+```tsx twoslash
+// @include: example-Title
 
 export const MyVideo = () => {
   return (
     <div style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-      <Title title="Hello World"/>
+      <Title title="Hello World" />
     </div>
   )
 }
@@ -31,26 +36,26 @@ export const MyVideo = () => {
 
 Now we can use the `<Sequence>` component to limit the duration of the first title and time-shift the appearance of the second title.
 
-```tsx
-import {useCurrentFrame, interpolate, Sequence} from 'remotion';
-
-const Title: React.FC<{title: string;}> = ({title}) => {
-    const frame = useCurrentFrame();
-    const opacity = interpolate(frame, [0, 20], [0, 1], {extrapolateRight: 'clamp'});
-
-    return (
-      <div style={{opacity, fontSize: 80}} >{title}</div>
-    )
-}
+```tsx twoslash
+// @include: example-Title
+// ---cut---
+import {Sequence} from 'remotion'
 
 export const MyVideo = () => {
   return (
-    <div style={{flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'white'}}>
+    <div
+      style={{
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'white',
+      }}
+    >
       <Sequence from={0} durationInFrames={40}>
-        <Title title="Hello"/>
+        <Title title="Hello" />
       </Sequence>
       <Sequence from={40} durationInFrames={Infinity}>
-        <Title title="World"/>
+        <Title title="World" />
       </Sequence>
     </div>
   )

@@ -3,10 +3,12 @@ import {BrowserExecutable, setBrowserExecutable} from './browser-executable';
 import {Codec, setCodec, setOutputFormat} from './codec';
 import {Concurrency, setConcurrency} from './concurrency';
 import {setCrf} from './crf';
+import {setDotEnvLocation} from './env-file';
 import {FrameRange, setFrameRange} from './frame-range';
 import {ImageFormat, setImageFormat} from './image-format';
 import {setImageSequence} from './image-sequence';
 import {LogLevel, setLogLevel} from './log';
+import {setMaxTimelineTracks} from './max-timeline-tracks';
 import {
 	overrideWebpackConfig,
 	WebpackConfiguration,
@@ -14,10 +16,20 @@ import {
 } from './override-webpack';
 import {setOverwriteOutput} from './overwrite';
 import {PixelFormat, setPixelFormat} from './pixel-format';
+import {setPort} from './preview-server';
+import {setProResProfile} from './prores-profile';
 import {setQuality} from './quality';
 import {setWebpackCaching} from './webpack-caching';
 
 export const Config = {
+	Preview: {
+		/**
+		 * Change the maximum amount of tracks that are shown in the timeline.
+		 * @param maxTracks The maximum amount of timeline tracks that you would like to show.
+		 * @default 15
+		 */
+		setMaxTimelineTracks,
+	},
 	Bundling: {
 		/**
 		 * Pass in a function which takes the current Webpack config
@@ -30,6 +42,12 @@ export const Config = {
 		 * subsequent renders faster. Default: true
 		 */
 		setCachingEnabled: setWebpackCaching,
+		/**
+		 * Define on which port Remotion should start it's HTTP servers during preview and rendering.
+		 * By default, Remotion will try to find a free port.
+		 * If you specify a port, but it's not available, Remotion will throw an error.
+		 */
+		setPort,
 	},
 	Log: {
 		/**
@@ -49,6 +67,11 @@ export const Config = {
 		setBrowserExecutable,
 	},
 	Rendering: {
+		/**
+		 * Set a custom location for a .env file.
+		 * Default: `.env`
+		 */
+		setDotEnvLocation,
 		/**
 		 * Sets how many Puppeteer instances will work on rendering your video in parallel.
 		 * Default: `null`, meaning half of the threads available on your CPU.
@@ -105,6 +128,13 @@ export const Config = {
 		 * Set to true if don't want a video but an image sequence as the output.
 		 */
 		setImageSequence,
+		/**
+		 * Set the ProRes profile.
+		 * This method is only valid if the codec has been set to 'prores'.
+		 * Possible values: 4444-xq, 4444, hq, standard, light, proxy. Default: 'hq'
+		 * See https://avpres.net/FFmpeg/im_ProRes.html for meaning of possible values.
+		 */
+		setProResProfile,
 	},
 } as const;
 

@@ -7,7 +7,9 @@ Delightful and smooth animation primitive. Calculates a position based on physic
 
 Example:
 
-```tsx
+```tsx twoslash
+import {spring, useCurrentFrame, useVideoConfig} from 'remotion'
+// ---cut---
 const frame = useCurrentFrame()
 const videoConfig = useVideoConfig()
 
@@ -17,8 +19,8 @@ const value = spring({
   to: 1,
   fps: videoConfig.fps,
   config: {
-    stiffness: 100
-  }
+    stiffness: 100,
+  },
 })
 ```
 
@@ -50,13 +52,13 @@ _Default:_ `1`
 
 The weight of the spring. If you reduce the mass, the animation becomes faster!
 
-#### Damping
+#### damping
 
 _Default_: `10`
 
 How hard the animation decelerates.
 
-#### Stiffness
+#### stiffness
 
 _Default_: `100`
 

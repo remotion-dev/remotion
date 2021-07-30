@@ -43,6 +43,7 @@ test('useMediaInTimeline registers and unregisters new sequence', () => {
 			useMediaInTimeline({
 				volume: 1,
 				src: 'test',
+				mediaVolume: 1,
 				mediaType: 'audio',
 				mediaRef: audioRef,
 			}),

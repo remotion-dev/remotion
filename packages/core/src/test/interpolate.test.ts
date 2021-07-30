@@ -2,13 +2,24 @@ import {Easing} from '../easing';
 import {interpolate} from '../interpolate';
 import {expectToThrow} from './expect-to-throw';
 
-test('Basic interpolations', () => {
-	expect(interpolate(1, [0, 1], [0, 2])).toEqual(2);
-	expect(interpolate(Math.PI, [0, 1, 4, 9], [0, 2, 1000, -1000])).toEqual(
-		714.4364894275378
-	);
-	expect(interpolate(Infinity, [0, 1], [0, 2])).toEqual(Infinity);
-	expect(interpolate(Infinity, [0, 1], [1, 0])).toEqual(-Infinity);
+describe('Basic interpolations', () => {
+	test('Input and output range strictly monotonically increasing', () => {
+		expect(interpolate(1, [0, 1], [0, 2])).toEqual(2);
+	});
+	test('Input range strictly monotonically increasing, Output range non-increasing', () => {
+		expect(interpolate(1, [0, 1], [2, 2])).toEqual(2);
+	});
+	test('Interpolate with 4 values, output non-increasing', () => {
+		expect(interpolate(Math.PI, [0, 1, 4, 9], [0, 2, 1000, -1000])).toEqual(
+			714.4364894275378
+		);
+	});
+	test('Interpolate Infinity: output range increasing', () => {
+		expect(interpolate(Infinity, [0, 1], [0, 2])).toEqual(Infinity);
+	});
+	test('Interpolate Infinity: output range decreasing', () => {
+		expect(interpolate(Infinity, [0, 1], [1, 0])).toEqual(-Infinity);
+	});
 });
 
 test('Must be the same length', () => {
@@ -162,7 +173,15 @@ test('Zig-zag test', () => {
 
 test('Handle bad types', () => {
 	// @ts-expect-error
-	expect(() => interpolate()).toThrowError(
+	expect(() => interpolate(undefined, [0, 1], [1, 0])).toThrowError(
+		/input or inputRange or outputRange can not be undefined/
+	);
+	// @ts-expect-error
+	expect(() => interpolate(1, undefined, [1, 0])).toThrowError(
+		/input or inputRange or outputRange can not be undefined/
+	);
+	// @ts-expect-error
+	expect(() => interpolate(1, [1, 0], undefined)).toThrowError(
 		/input or inputRange or outputRange can not be undefined/
 	);
 	// @ts-expect-error

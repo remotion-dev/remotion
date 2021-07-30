@@ -1,6 +1,5 @@
+import {PreviewSize} from '@remotion/player';
 import {createContext} from 'react';
-
-export type PreviewSize = 'auto' | number;
 
 type PreviewSizeCtx = {
 	size: PreviewSize;

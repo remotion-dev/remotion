@@ -2,6 +2,7 @@ import {RenderInternals} from '@remotion/renderer';
 import fs from 'fs';
 import path from 'path';
 import {Codec, FrameRange, Internals, PixelFormat} from 'remotion';
+import {getEnvironmentVariables} from './get-env';
 import {getOutputFilename} from './get-filename';
 import {getInputProps} from './get-input-props';
 import {getImageFormat} from './image-formats';
@@ -119,6 +120,16 @@ const getAndValidatePixelFormat = (codec: Codec) => {
 	return pixelFormat;
 };
 
+const getAndValidateProResProfile = (actualCodec: Codec) => {
+	const proResProfile = Internals.getProResProfile();
+	Internals.validateSelectedCodecAndProResCombination(
+		actualCodec,
+		proResProfile
+	);
+
+	return proResProfile;
+};
+
 const getAndValidateImageFormat = ({
 	shouldOutputImageSequence,
 	codec,
@@ -166,6 +177,7 @@ export const getCliOptions = async () => {
 		codec,
 		pixelFormat,
 	});
+	const proResProfile = getAndValidateProResProfile(codec);
 
 	return {
 		parallelism: Internals.getConcurrency(),
@@ -174,11 +186,13 @@ export const getCliOptions = async () => {
 		codec,
 		overwrite: Internals.getShouldOverwrite(),
 		inputProps: getInputProps(),
+		envVariables: await getEnvironmentVariables(),
 		quality: Internals.getQuality(),
 		browser: await getAndValidateBrowser(),
 		absoluteOutputFile: getAndValidateAbsoluteOutputFile(outputFile, overwrite),
 		crf,
 		pixelFormat,
 		imageFormat,
+		proResProfile,
 	};
 };

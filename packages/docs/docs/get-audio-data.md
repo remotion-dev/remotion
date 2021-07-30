@@ -26,11 +26,15 @@ A string pointing to an audio asset.
 
 ## Example
 
-```tsx
-import {getAudioData} from '@remotion/media-utils';
-import music from './music.mp3';
+```ts twoslash
+// @module: ESNext
+// @target: ESNext
+import {Audio} from "remotion"
+// ---cut---
+import {getAudioData} from '@remotion/media-utils'
+import music from './music.mp3'
 
-await getAudioData(music); /* {
+await getAudioData(music) /* {
   channelWaveforms: [Float32Array(4410000), Float32Array(4410000)],
   sampleRate: 44100,
   durationInSeconds: 100.0000,
@@ -38,7 +42,7 @@ await getAudioData(music); /* {
   resultId: "0.432878981",
   isRemote: false
 } */
-await getAudioData('https://example.com/remote-audio.aac'); /* {
+await getAudioData('https://example.com/remote-audio.aac') /* {
   channelWaveforms: [Float32Array(4800000)],
   sampleRate: 48000,
   durationInSeconds: 100.0000,

@@ -22,14 +22,14 @@ At frame 20, we want the opacity to be 1.
 
 Using the following snippet, we can calculate the current opacity for any frame:
 
-```tsx
-import {useCurrentFrame, interpolate} from 'remotion'
+```ts twoslash
+import {interpolate, useCurrentFrame} from 'remotion'
 
-const frame = useCurrentFrame(); // 10
+const frame = useCurrentFrame() // 10
 const opacity = interpolate(frame,
   [0, 20],
-  [0, 1]
-); // 0.5
+  [0, 1],
+) // 0.5
 ```
 
 ## Example: Fade in and out
@@ -40,16 +40,16 @@ At the end, the opacity should be 0.
 
 We can interpolate over multiple points in one go and use [`useVideoConfig()`](/docs/use-video-config) to determine the duration of the composition.
 
-```tsx
-import {useCurrentFrame, interpolate} from 'remotion'
+```ts twoslash
+import {interpolate, useCurrentFrame, useVideoConfig} from 'remotion'
 
-const frame = useCurrentFrame();
-const {durationInFrames} = useVideoConfig();
+const frame = useCurrentFrame()
+const {durationInFrames} = useVideoConfig()
 const opacity = interpolate(
   frame,
   [0, 20, durationInFrames - 20, durationInFrames],
 // v--v---v----------------------v
-  [0, 1,  1,                     0]
+  [0, 1,  1,                     0],
 )
 ```
 
@@ -60,8 +60,8 @@ Let's assume we want to animate an object on the X axis from 0 to 200 pixels and
 
 Let's create a spring:
 
-```tsx
-import {useCurrentFrame, interpolate, spring} from 'remotion';
+```twoslash include example
+import {useCurrentFrame, interpolate, spring, useVideoConfig} from 'remotion';
 
 const frame = useCurrentFrame();
 const {fps} = useVideoConfig();
@@ -69,36 +69,52 @@ const driver = spring({
   frame,
   fps
 });
+// - spring
 ```
 
-A [`spring()`](/docs/spring) animation will always animate from 0 to 1.
+```ts twoslash
+// @include: example-spring
+```
+
+A [`spring()`](/docs/spring) animation with it's default settings will animate from 0 to 1.
 Given that knowledge, we can interpolate the spring value to go from 0 to 200.
 
-```tsx
+```ts twoslash
+// @include: example-spring
+// ---cut---
 const marginLeft = interpolate(driver, [0, 1], [0, 200])
 ```
 
 We can then apply it to an HTML element.
 
-```tsx
-<div style={{marginLeft}}></div>
+```tsx twoslash {1}
+// @include: example-spring
+const marginLeft = interpolate(driver, [0, 1], [0, 200])
+// ---cut---
+const Component: React.FC = () => (
+  <div style={{marginLeft}}></div>
+)
 ```
 
 ## Example: Prevent the output from going outside the output range
 
 Consider the following interpolation which is supposed to animate the scale over 20 frames:
 
-```tsx
+```tsx twoslash
+import {interpolate, useCurrentFrame} from 'remotion'
+const frame = useCurrentFrame()
+// ---cut---
 const scale = interpolate(frame, [0, 20], [0, 1])
 ```
 
 This works, but after 20 frames, the value keeps growing. For example, at frame 40, the scale will be `2`.
 To prevent this, this we can use the `extrapolateLeft` and `extrapolateRight` options and set them to `'clamp'` to prevent the result going outside the output range.
 
-```tsx
-const scale = interpolate(frame, [0, 20], [0, 1], {
-  extrapolateRight: 'clamp'
-});
+```tsx twoslash
+import {interpolate, useCurrentFrame} from 'remotion'
+const frame = useCurrentFrame()
+// ---cut---
+const scale = interpolate(frame, [0, 20], [0, 1], {extrapolateRight: 'clamp'})
 ```
 
 ## Reference
@@ -130,7 +146,9 @@ Same as [extrapolateLeft](#extrapolateleft), except for values outside right the
 
 Example:
 
-```tsx
+```tsx twoslash
+import {interpolate} from 'remotion'
+// ---cut---
 interpolate(1.5, [0, 1], [0, 2], {extrapolateRight: 'extend'}) // 3
 interpolate(1.5, [0, 1], [0, 2], {extrapolateRight: 'clamp'}) // 2
 interpolate(1.5, [0, 1], [0, 2], {extrapolateRight: 'identity'}) // 1.5
@@ -143,8 +161,11 @@ _Default_: `(x) => x`
 Function which allows you to customize the input, for example to apply a certain easing function.
 By default, the input is left unmodified, resulting in a pure linear interpolation. [Read the documentation for the built-in easing functions](/docs/easing).
 
-```tsx
-import {interpolate, Easing} from 'remotion';
+```ts twoslash
+import {useCurrentFrame} from 'remotion'
+const frame = useCurrentFrame()
+// ---cut---
+import {interpolate, Easing} from 'remotion'
 
 interpolate(frame, [0, 100], [0, 1], {
   easing: Easing.bezier(0.8, 0.22, 0.96, 0.65),

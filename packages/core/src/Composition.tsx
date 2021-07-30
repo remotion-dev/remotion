@@ -1,4 +1,5 @@
-import React, {ComponentType, useContext, useEffect, useMemo} from 'react';
+import {useContext, useEffect} from 'react';
+import {AnyComponent} from './any-component';
 import {CompositionManager} from './CompositionManager';
 import {useNonce} from './nonce';
 import {
@@ -6,15 +7,17 @@ import {
 	getIsEvaluation,
 	removeStaticComposition,
 } from './register-root';
+import {useLazyComponent} from './use-lazy-component';
+import {validateDimension} from './validation/validate-dimensions';
 import {validateDurationInFrames} from './validation/validate-duration-in-frames';
 import {validateFps} from './validation/validate-fps';
 
-type CompProps<T> =
+export type CompProps<T> =
 	| {
-			lazyComponent: () => Promise<{default: ComponentType<T>}>;
+			lazyComponent: () => Promise<{default: AnyComponent<T>}>;
 	  }
 	| {
-			component: ComponentType<T>;
+			component: AnyComponent<T>;
 	  };
 
 type Props<T> = {
@@ -26,7 +29,7 @@ type Props<T> = {
 	defaultProps?: T;
 } & CompProps<T>;
 
-export const Composition = <T, >({
+export const Composition = <T,>({
 	width,
 	height,
 	fps,
@@ -39,21 +42,8 @@ export const Composition = <T, >({
 		CompositionManager
 	);
 
+	const lazy = useLazyComponent(compProps);
 	const nonce = useNonce();
-
-	const lazy = useMemo(() => {
-		if ('lazyComponent' in compProps) {
-			return React.lazy(compProps.lazyComponent);
-		}
-
-		if ('component' in compProps) {
-			return React.lazy(() => Promise.resolve({default: compProps.component}));
-		}
-
-		throw new Error("You must pass either 'component' or 'lazyComponent'");
-		// @ts-expect-error
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [compProps.lazyComponent, compProps.component]);
 
 	useEffect(() => {
 		// Ensure it's a URL safe id
@@ -67,32 +57,13 @@ export const Composition = <T, >({
 			);
 		}
 
-		if (typeof width !== 'number') {
-			throw new Error(
-				`The "width" of a composition must be a number, but you passed a ${typeof width}`
-			);
-		}
-
-		if (width <= 0) {
-			throw new TypeError(
-				`The "width" of a composition must be positive, but got ${width}.`
-			);
-		}
-
-		if (typeof height !== 'number') {
-			throw new Error(
-				`The "height" of a composition must be a number, but you passed a ${typeof height}`
-			);
-		}
-
-		if (height <= 0) {
-			throw new TypeError(
-				`The "height" of a composition must be positive, but got ${height}.`
-			);
-		}
-
-		validateDurationInFrames(durationInFrames);
-		validateFps(fps);
+		validateDimension(width, 'width', 'of the <Composition/> component');
+		validateDimension(height, 'height', 'of the <Composition/> component');
+		validateDurationInFrames(
+			durationInFrames,
+			'of the <Composition/> component'
+		);
+		validateFps(fps, 'as a prop of the <Composition/> component');
 		registerComposition<T>({
 			durationInFrames,
 			fps,

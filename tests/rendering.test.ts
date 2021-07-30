@@ -108,6 +108,34 @@ test("Should fail to render out of range frame when range is a string", async ()
   expect(task.stderr).toContain("Frame range 2-10 is not in between 0-9");
 });
 
+test("Should render a ProRes video", async () => {
+  const out = outputPath.replace(".mp4", ".mov");
+  const task = await execa(
+    "npx",
+    [
+      "remotion",
+      "render",
+      "src/index.tsx",
+      "ten-frame-tester",
+      "--prores-profile=4444",
+      out,
+    ],
+    {
+      cwd: "packages/example",
+      reject: false,
+    }
+  );
+  expect(task.exitCode).toBe(0);
+
+  const exists = fs.existsSync(out);
+  expect(exists).toBe(true);
+
+  const info = await execa("ffprobe", [out]);
+  const data = info.stderr;
+  expect(data).toContain("prores (4444)");
+  fs.unlinkSync(out);
+});
+
 test("Should render a still image if single frame specified", async () => {
   const outDir = outputPath.replace(".mp4", "");
   const outImg = path.join(outDir, "element-2.png");
@@ -244,10 +272,12 @@ test("Should fail to render an audio file that doesn't have any audio inputs", a
       reject: false,
     }
   );
-  expect(task.exitCode).toBe(process.platform === "win32" ? 0 : 1);
-  expect(task.stderr).toContain(
-    "Cannot render - you are trying to generate an audio file (mp3) but your composition doesn't contain any audio."
-  );
+  expect(task.exitCode).toBe(0);
+  const info = await execa("ffprobe", [out]);
+  const data = info.stderr;
+  expect(data).toContain("Duration: 00:00:00.37");
+  expect(data).toContain("Audio: mp3, 44100 Hz");
+  fs.unlinkSync(out);
 });
 
 test("Dynamic duration should work", async () => {
@@ -282,4 +312,41 @@ test("Dynamic duration should work", async () => {
     expect(data).toContain(`Duration: 00:00:0${expectedDuration}`);
     fs.unlinkSync(outputPath);
   }
+});
+
+test("Should be able to render if remotion.config.js is not provided", async () => {
+  const task = await execa(
+    "node",
+    [
+      "packages/cli/remotion-cli.js",
+      "render",
+      "packages/example/src/entry.jsx",
+      "framer",
+      outputPath,
+    ],
+    {
+      reject: false,
+    }
+  );
+
+  expect(task.exitCode).toBe(0);
+});
+
+test("Should be able to render if remotion.config.ts is not provided", async () => {
+  const task = await execa(
+    "node",
+    [
+      "packages/cli/remotion-cli.js",
+      "render",
+      "packages/example/src/ts-entry.tsx",
+      "framer",
+      outputPath,
+    ],
+    {
+      reject: false,
+    }
+  );
+ 
+  expect(task.exitCode).toBe(0);
+  fs.unlinkSync(outputPath);
 });

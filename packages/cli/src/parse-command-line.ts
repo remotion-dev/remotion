@@ -7,6 +7,7 @@ import {
 	Internals,
 	LogLevel,
 	PixelFormat,
+	ProResProfile,
 } from 'remotion';
 import {Log} from './log';
 
@@ -14,7 +15,9 @@ export type CommandLineOptions = {
 	['browser-executable']: BrowserExecutable;
 	['pixel-format']: PixelFormat;
 	['image-format']: ImageFormat;
+	['prores-profile']: ProResProfile;
 	['bundle-cache']: string;
+	['env-file']: string;
 	codec: Codec;
 	concurrency: number;
 	config: string;
@@ -28,9 +31,12 @@ export type CommandLineOptions = {
 	sequence: boolean;
 	log: string;
 	help: boolean;
+	port: number;
 };
 
-export const parsedCli = minimist<CommandLineOptions>(process.argv.slice(2));
+export const parsedCli = minimist<CommandLineOptions>(process.argv.slice(2), {
+	boolean: ['force', 'overwrite', 'sequence', 'help'],
+});
 
 export const parseCommandLine = () => {
 	if (parsedCli['pixel-format']) {
@@ -89,6 +95,12 @@ export const parseCommandLine = () => {
 
 	if (parsedCli.codec) {
 		Config.Output.setCodec(parsedCli.codec);
+	}
+
+	if (parsedCli['prores-profile']) {
+		Config.Output.setProResProfile(
+			String(parsedCli['prores-profile']) as ProResProfile
+		);
 	}
 
 	if (typeof parsedCli.overwrite !== 'undefined') {

@@ -1,6 +1,6 @@
 {
   "name": "@remotion/eslint-plugin",
-  "version": "2.0.7",
+  "version": "2.2.4",
   "description": "A set of rules helping you avoid common pitfalls in Remotion.",
   "scripts": {
     "build": "tsc -d",
@@ -8,9 +8,9 @@
   },
   "main": "dist/index.js",
   "bugs": {
-    "url": "https://github.com/JonnyBurger/remotion/issues"
+    "url": "https://github.com/remotion-dev/remotion/issues"
   },
-  "author": "Jonny Burger <hi@jonny.io>",
+  "author": "Jonny Burger <jonny@remotion.dev>",
   "license": "ISC",
   "devDependencies": {
     "@typescript-eslint/experimental-utils": "^4.14.1",

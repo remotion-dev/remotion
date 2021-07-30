@@ -7,7 +7,10 @@ import React, {
 	useRef,
 } from 'react';
 import {getAbsoluteSrc} from '../absolute-src';
-import {useFrameForVolumeProp} from '../audio/use-audio-frame';
+import {
+	useFrameForVolumeProp,
+	useMediaStartsAt,
+} from '../audio/use-audio-frame';
 import {CompositionManager} from '../CompositionManager';
 import {isApproximatelyTheSame} from '../is-approximately-the-same';
 import {isRemoteAsset} from '../is-remote-asset';
@@ -17,13 +20,13 @@ import {SequenceContext} from '../sequencing';
 import {useAbsoluteCurrentFrame, useCurrentFrame} from '../use-frame';
 import {useUnsafeVideoConfig} from '../use-unsafe-video-config';
 import {evaluateVolume} from '../volume-prop';
-import {getCurrentTime} from './get-current-time';
+import {getMediaTime} from './get-current-time';
 import {RemotionVideoProps} from './props';
 
 const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 	HTMLVideoElement,
 	RemotionVideoProps
-> = ({onError, volume: volumeProp, ...props}, ref) => {
+> = ({onError, volume: volumeProp, playbackRate, ...props}, ref) => {
 	const absoluteFrame = useAbsoluteCurrentFrame();
 
 	const frame = useCurrentFrame();
@@ -31,6 +34,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 	const videoConfig = useUnsafeVideoConfig();
 	const videoRef = useRef<HTMLVideoElement>(null);
 	const sequenceContext = useContext(SequenceContext);
+	const mediaStartsAt = useMediaStartsAt();
 
 	const {registerAsset, unregisterAsset} = useContext(CompositionManager);
 
@@ -57,6 +61,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 	const volume = evaluateVolume({
 		volume: volumeProp,
 		frame: volumePropsFrame,
+		mediaVolume: 1,
 	});
 
 	useEffect(() => {
@@ -76,6 +81,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 			volume,
 			isRemote: isRemoteAsset(getAbsoluteSrc(props.src)),
 			mediaFrame: frame,
+			playbackRate: playbackRate ?? 1,
 		});
 
 		return () => unregisterAsset(id);
@@ -88,6 +94,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 		volume,
 		frame,
 		absoluteFrame,
+		playbackRate,
 	]);
 
 	useImperativeHandle(ref, () => {
@@ -100,10 +107,12 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 		}
 
 		const currentTime = (() => {
-			return getCurrentTime({
+			return getMediaTime({
 				fps: videoConfig.fps,
 				frame,
 				src: props.src as string,
+				playbackRate: playbackRate || 1,
+				startFrom: -mediaStartsAt,
 			});
 		})();
 		const handle = delayRender();
@@ -134,7 +143,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 			'seeked',
 			() => {
 				// Improve me: This is ensures frame perfectness but slows down render.
-				// Please see this issue for context: https://github.com/JonnyBurger/remotion/issues/200
+				// Please see this issue for context: https://github.com/remotion-dev/remotion/issues/200
 				setTimeout(() => {
 					continueRender(handle);
 				}, 100);
@@ -150,15 +159,22 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 		);
 		videoRef.current.addEventListener(
 			'error',
-			err => {
+			(err) => {
 				console.error('Error occurred in video', err);
 				continueRender(handle);
 			},
 			{once: true}
 		);
-	}, [volumePropsFrame, props.src, videoConfig.fps, frame]);
+	}, [
+		volumePropsFrame,
+		props.src,
+		playbackRate,
+		videoConfig.fps,
+		frame,
+		mediaStartsAt,
+	]);
 
-	return <video ref={videoRef} {...props} />;
+	return <video ref={videoRef} {...props} onError={onError} />;
 };
 
 export const VideoForRendering = forwardRef(VideoForRenderingForwardFunction);

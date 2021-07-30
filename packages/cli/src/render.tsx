@@ -1,6 +1,7 @@
 import {bundle, BundlerInternals} from '@remotion/bundler';
 import {
 	getCompositions,
+	OnErrorInfo,
 	OnStartData,
 	renderFrames,
 	RenderInternals,
@@ -13,8 +14,7 @@ import path from 'path';
 import {Internals} from 'remotion';
 import {getCliOptions} from './get-cli-options';
 import {getCompositionId} from './get-composition-id';
-import {getConfigFileName} from './get-config-file-name';
-import {loadConfigFile} from './load-config';
+import {loadConfig} from './get-config-file-name';
 import {Log} from './log';
 import {parseCommandLine, parsedCli} from './parse-command-line';
 import {
@@ -25,26 +25,59 @@ import {
 } from './progress-bar';
 import {checkAndValidateFfmpegVersion} from './validate-ffmpeg-version';
 
+const onError = async (info: OnErrorInfo) => {
+	Log.error();
+	if (info.frame === null) {
+		Log.error(
+			'The following error occured when trying to initialize the video rendering:'
+		);
+	} else {
+		Log.error(
+			`The following error occurred when trying to render frame ${info.frame}:`
+		);
+	}
+
+	Log.error(info.error.message);
+	if (info.error.message.includes('Could not play video with')) {
+		Log.info();
+		Log.info(
+			'💡 Get help for this issue at https://remotion.dev/docs/media-playback-error.'
+		);
+	}
+
+	if (info.error.message.includes('A delayRender was called')) {
+		Log.info();
+		Log.info(
+			'💡 Get help for this issue at https://remotion.dev/docs/timeout.'
+		);
+	}
+
+	process.exit(1);
+};
+
 export const render = async () => {
 	const startTime = Date.now();
 	const file = parsedCli._[1];
 	const fullPath = path.join(process.cwd(), file);
 
-	const configFileName = getConfigFileName();
-	const appliedName = loadConfigFile(configFileName);
 	parseCommandLine();
+	const appliedName = loadConfig();
 	if (appliedName) {
 		Log.verbose(`Applied configuration from ${appliedName}.`);
+	} else {
+		Log.verbose('No config file loaded.');
 	}
 
 	const {
 		codec,
+		proResProfile,
 		parallelism,
 		frameRange,
 		shouldOutputImageSequence,
 		absoluteOutputFile,
 		overwrite,
 		inputProps,
+		envVariables,
 		quality,
 		browser,
 		crf,
@@ -104,6 +137,7 @@ export const render = async () => {
 		browser,
 		inputProps,
 		browserInstance: openedBrowser,
+		envVariables,
 	});
 	const compositionId = getCompositionId(comps);
 
@@ -137,6 +171,7 @@ export const render = async () => {
 		parallelism,
 		compositionId,
 		outputDir,
+		onError,
 		onStart: ({frameCount: fc}: OnStartData) => {
 			renderProgress.update(
 				makeRenderingProgress({
@@ -150,6 +185,7 @@ export const render = async () => {
 			totalFrames = fc;
 		},
 		inputProps,
+		envVariables,
 		webpackBundle: bundled,
 		imageFormat,
 		quality,
@@ -201,6 +237,7 @@ export const render = async () => {
 			imageFormat,
 			pixelFormat,
 			codec,
+			proResProfile,
 			crf,
 			assetsInfo,
 			parallelism,
@@ -239,10 +276,9 @@ export const render = async () => {
 				}),
 			]);
 		} catch (err) {
-			Log.error('Could not clean up directory.');
-			Log.error(err);
-			Log.error('Do you have minimum required Node.js version?');
-			process.exit(1);
+			Log.warn('Could not clean up directory.');
+			Log.warn(err);
+			Log.warn('Do you have minimum required Node.js version?');
 		}
 
 		Log.info(chalk.green('\nYour video is ready!'));

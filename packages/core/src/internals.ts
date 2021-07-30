@@ -1,5 +1,8 @@
+import {LooseAnyComponent} from './any-component';
+import {CompProps} from './Composition';
 import {
 	CompositionManager,
+	CompositionManagerContext,
 	RenderAssetInfo,
 	TAsset,
 	TCompMetadata,
@@ -19,6 +22,7 @@ import {
 	getDefaultCrfForCodec,
 	validateSelectedCrfAndCodecCombination,
 } from './config/crf';
+import {getDotEnvLocation} from './config/env-file';
 import {
 	getRange,
 	setFrameRangeFromCli,
@@ -31,6 +35,7 @@ import {
 import {getShouldOutputImageSequence} from './config/image-sequence';
 import {INPUT_PROPS_KEY} from './config/input-props';
 import * as Logging from './config/log';
+import {getMaxTimelineTracks} from './config/max-timeline-tracks';
 import {
 	getWebpackOverrideFn,
 	WebpackOverrideFn,
@@ -41,12 +46,21 @@ import {
 	getPixelFormat,
 	validateSelectedPixelFormatAndCodecCombination,
 } from './config/pixel-format';
+import {getServerPort} from './config/preview-server';
+import {
+	getProResProfile,
+	ProResProfile,
+	setProResProfile,
+	validateSelectedCodecAndProResCombination,
+} from './config/prores-profile';
 import {getQuality} from './config/quality';
 import {
 	DEFAULT_WEBPACK_CACHE_ENABLED,
 	getWebpackCaching,
 } from './config/webpack-caching';
+import * as CSSUtils from './default-css';
 import {FEATURE_FLAG_FIREFOX_SUPPORT} from './feature-flags';
+import {getRemotionEnvironment, RemotionEnvironment} from './get-environment';
 import {isAudioCodec} from './is-audio-codec';
 import * as perf from './perf';
 import {
@@ -57,11 +71,31 @@ import {
 } from './register-root';
 import {RemotionRoot} from './RemotionRoot';
 import {SequenceContext} from './sequencing';
+import {
+	ENV_VARIABLES_ENV_NAME,
+	ENV_VARIABLES_LOCAL_STORAGE_KEY,
+	setupEnvVariables,
+} from './setup-env-variables';
 import * as Timeline from './timeline-position-state';
-import {TimelineContextValue} from './timeline-position-state';
+import {
+	SetTimelineContextValue,
+	TimelineContextValue,
+} from './timeline-position-state';
 import {truthy} from './truthy';
+import {useLazyComponent} from './use-lazy-component';
 import {useUnsafeVideoConfig} from './use-unsafe-video-config';
 import {useVideo} from './use-video';
+import {validateDimension} from './validation/validate-dimensions';
+import {validateDurationInFrames} from './validation/validate-duration-in-frames';
+import {validateFps} from './validation/validate-fps';
+import {
+	MediaVolumeContext,
+	MediaVolumeContextValue,
+	SetMediaVolumeContext,
+	SetMediaVolumeContextValue,
+	useMediaMutedState,
+	useMediaVolumeState,
+} from './volume-position-state';
 import {
 	RemotionContextProvider,
 	useRemotionContexts,
@@ -90,6 +124,8 @@ export const Internals = {
 	getShouldOutputImageSequence,
 	validateSelectedCrfAndCodecCombination,
 	getFinalOutputCodec,
+	useMediaVolumeState,
+	useMediaMutedState,
 	DEFAULT_CODEC,
 	DEFAULT_PIXEL_FORMAT,
 	FEATURE_FLAG_FIREFOX_SUPPORT,
@@ -104,6 +140,7 @@ export const Internals = {
 	validateSelectedPixelFormatAndCodecCombination,
 	validateFrameRange,
 	getWebpackCaching,
+	useLazyComponent,
 	truthy,
 	isAudioCodec,
 	INPUT_PROPS_KEY,
@@ -112,6 +149,22 @@ export const Internals = {
 	useRemotionContexts,
 	RemotionContextProvider,
 	isPlainIndex,
+	CSSUtils,
+	setupEnvVariables,
+	ENV_VARIABLES_ENV_NAME,
+	ENV_VARIABLES_LOCAL_STORAGE_KEY,
+	getDotEnvLocation,
+	getServerPort,
+	MediaVolumeContext,
+	SetMediaVolumeContext,
+	validateDurationInFrames,
+	validateFps,
+	validateDimension,
+	getRemotionEnvironment,
+	getProResProfile,
+	setProResProfile,
+	validateSelectedCodecAndProResCombination,
+	getMaxTimelineTracks,
 };
 
 export type {
@@ -123,4 +176,12 @@ export type {
 	TAsset,
 	RenderAssetInfo,
 	TimelineContextValue,
+	SetTimelineContextValue,
+	CompProps,
+	CompositionManagerContext,
+	MediaVolumeContextValue,
+	SetMediaVolumeContextValue,
+	LooseAnyComponent,
+	RemotionEnvironment,
+	ProResProfile,
 };

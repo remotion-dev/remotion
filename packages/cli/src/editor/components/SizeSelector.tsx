@@ -1,5 +1,9 @@
+import {PreviewSize} from '@remotion/player';
 import React, {useCallback, useContext, useMemo} from 'react';
-import {persistPreviewSizeOption, PreviewSize, PreviewSizeContext} from '../state/preview-size';
+import {
+	persistPreviewSizeOption,
+	PreviewSizeContext,
+} from '../state/preview-size';
 import {CONTROL_BUTTON_PADDING} from './ControlButton';
 
 export const SizeSelector: React.FC = () => {
@@ -8,8 +12,8 @@ export const SizeSelector: React.FC = () => {
 	const onChange = useCallback(
 		(e: React.ChangeEvent<HTMLSelectElement>) => {
 			setSize(() => {
-				persistPreviewSizeOption(e.target.value as PreviewSize)
-				return e.target.value as PreviewSize
+				persistPreviewSizeOption(e.target.value as PreviewSize);
+				return e.target.value as PreviewSize;
 			});
 		},
 		[setSize]

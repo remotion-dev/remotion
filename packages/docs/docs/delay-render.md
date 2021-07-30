@@ -22,35 +22,33 @@ This method is useful if you for example want to call an API to fetch data befor
 
 ## Example
 
-```tsx
-import {useEffect, useState} from 'react';
-import {continueRender, delayRender} from 'remotion';
+```tsx twoslash
+import {useEffect, useState} from 'react'
+import {continueRender, delayRender} from 'remotion'
 
 export const MyVideo = () => {
-  const [data, setData] = useState(null);
-  const [handle] = useState(() => delayRender());
+  const [data, setData] = useState(null)
+  const [handle] = useState(() => delayRender())
 
   const fetchData = async () => {
-    const response = await fetch('http://example.com/api');
-    const json = await response.json();
-    setData(json);
+    const response = await fetch('http://example.com/api')
+    const json = await response.json()
+    setData(json)
 
-    continueRender(handle);
+    continueRender(handle)
   }
 
   useEffect(() => {
-    fetchData();
-  }, []);
-
+    fetchData()
+  }, [])
   return (
     <div>
       {data ? (
         <div>This video has data from an API! {JSON.stringify(data)}</div>
       ) : null}
     </div>
-  );
+  )
 }
-
 ```
 
 ## See also

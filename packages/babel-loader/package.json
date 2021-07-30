@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/babel-loader",
-	"version": "2.0.7",
+	"version": "2.2.4",
 	"description": "babel-loader polyfill for Remotion",
 	"main": "dist/index.js",
 	"scripts": {
@@ -14,7 +14,7 @@
 	"author": "",
 	"license": "SEE LICENSE IN LICENSE.md",
 	"repository": {
-		"url": "https://github.com/JonnyBurger/remotion"
+		"url": "https://github.com/remotion-dev/remotion"
 	},
 	"dependencies": {
 		"@babel/core": "^7.12.10",
@@ -25,7 +25,7 @@
 		"@webhotelier/webpack-fast-refresh": "^5.1.0",
 		"babel-loader": "^8.1.0",
 		"react-refresh": "^0.9.0-rc.2",
-		"webpack": "5.33.2"
+		"webpack": "5.37.0"
 	},
 	"devDependencies": {
 		"@jonny/eslint-config": "^2.1.233",
@@ -33,7 +33,7 @@
 		"eslint": "^7.25.0",
 		"prettier": "^2.0.5",
 		"prettier-plugin-organize-imports": "^1.1.1",
-		"remotion": "^2.0.7",
+		"remotion": "^2.2.4",
 		"typescript": "^4.1.2"
 	},
 	"publishConfig": {

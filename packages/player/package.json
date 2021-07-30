@@ -1,0 +1,51 @@
+{
+	"name": "@remotion/player",
+	"version": "2.2.4",
+	"description": "Remotion Player",
+	"main": "dist/index.js",
+	"sideEffects": false,
+	"scripts": {
+		"test": "eslint src --ext ts,tsx && jest",
+		"build": "tsc -d",
+		"watch": "tsc -w",
+		"prerelease": "cp ../../README.md ."
+	},
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion"
+	},
+	"files": [
+		"dist",
+		"README.md"
+	],
+	"author": "Jonny Burger <jonny@remotion.dev>",
+	"maintainers": [
+		"Jonny Burger <jonny@remotion.dev>",
+		"Shankhadeep Dey <shankhadeepdey99@gmail.com>"
+	],
+	"license": "SEE LICENSE IN LICENSE.md",
+	"dependencies": {
+		"remotion": "^2.2.4"
+	},
+	"peerDependencies": {
+		"react": ">=16.8.0",
+		"react-dom": ">=16.8.0"
+	},
+	"devDependencies": {
+		"@jonny/eslint-config": "^2.1.233",
+		"@testing-library/react": "^11.2.2",
+		"@types/jest": "^26.0.19",
+		"@types/node": "^14.14.14",
+		"@types/react": "17.0.8",
+		"@types/react-dom": "^17.0.0",
+		"eslint": "^7.4.0",
+		"jest": "^26.6.3",
+		"prettier": "^2.0.5",
+		"prettier-plugin-organize-imports": "^1.1.1",
+		"ts-jest": "^26.4.4",
+		"typescript": "^4.1.2",
+		"webpack": "^5.21.2"
+	},
+	"publishConfig": {
+		"access": "public"
+	}
+}

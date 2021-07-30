@@ -1,11 +1,11 @@
 {
 	"name": "@remotion/bundler",
-	"version": "2.0.7",
+	"version": "2.2.4",
 	"description": "Bundler for Remotion",
 	"main": "dist/index.js",
 	"sideEffects": false,
 	"repository": {
-		"url": "https://github.com/JonnyBurger/remotion"
+		"url": "https://github.com/remotion-dev/remotion"
 	},
 	"scripts": {
 		"test": "eslint src --ext ts,tsx",
@@ -27,15 +27,13 @@
 		"execa": "^4.0.3",
 		"express": "^4.17.1",
 		"file-loader": "^6.0.0",
-		"get-port": "^5.1.1",
 		"latest-version": "^5.1.0",
 		"react-refresh": "^0.9.0-rc.2",
-		"remotion": "^2.0.7",
+		"remotion": "^2.2.4",
 		"semver": "7.3.4",
 		"style-loader": "^2.0.0",
 		"styled-components": "^5.2.1",
-		"url-loader": "^4.1.1",
-		"webpack": "5.33.2",
+		"webpack": "5.37.0",
 		"webpack-hot-middleware": "^2.25.0"
 	},
 	"peerDependencies": {
