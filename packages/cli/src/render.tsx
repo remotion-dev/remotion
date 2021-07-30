@@ -137,6 +137,7 @@ export const render = async () => {
 		browser,
 		inputProps,
 		browserInstance: openedBrowser,
+		envVariables,
 	});
 	const compositionId = getCompositionId(comps);
 
