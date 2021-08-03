@@ -469,6 +469,34 @@ export const showcaseVideos: ShowcaseVideo[] = [
       name: "Zack Sheppard",
     },
   },
+  {
+    title: "Conference talk",
+    type: "mux_video",
+    muxId: "01DRoSacYBQvVpDzoAXl01Wt2r8JWtgTq4t5lFwPjVcDE",
+    description:
+      "A conference talk production composed in Remotion, including code animations, facecam, subtitles and a browser as an iFrame.",
+    height: 270,
+    width: 480,
+    submittedOn: new Date("08-03-2021"),
+    links: [
+      {
+        type: "source_code",
+        url: "https://github.com/pomber/record-talk-with-remotion/",
+      },
+      {
+        type: "video",
+        url: "https://twitter.com/pomber/status/1359556846688886789",
+      },
+      {
+        type: "tutorial",
+        url: "https://twitter.com/pomber/status/1358837764033241092",
+      },
+    ],
+    author: {
+      url: "https://pomb.us/",
+      name: "Rodrigo Pombo",
+    },
+  },
 ];
 
 const dateString = (date: Date) =>
