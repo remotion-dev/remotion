@@ -546,6 +546,30 @@ export const showcaseVideos: ShowcaseVideo[] = [
       name: "Jonny Burger",
     },
   },
+  {
+    title: "The math behind animations",
+    type: "mux_video",
+    muxId: "IDMyruXHia3rmOllIi13uy01hHgN4UxkAZT4BcgwiN00E",
+    description:
+      "In this masterpiece, William Candillon explains the fundamentals of how trigonometry is used for user interfaces. Full video available on YouTube.",
+    height: 360,
+    width: 640,
+    submittedOn: new Date("08-03-2021"),
+    links: [
+      {
+        type: "video",
+        url: "https://www.youtube.com/watch?v=-lF7sSTelOg&t=8s&pp=sAQA",
+      },
+      {
+        type: "website",
+        url: "https://start-react-native.dev/",
+      },
+    ],
+    author: {
+      url: "https://twitter.com/wcandillon",
+      name: "William Candillon",
+    },
+  },
 ];
 
 const dateString = (date: Date) =>
