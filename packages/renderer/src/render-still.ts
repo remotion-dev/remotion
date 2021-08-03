@@ -1,19 +1,17 @@
 import {Browser as PuppeteerBrowser} from 'puppeteer-core';
-import {Browser, Internals, VideoConfig} from 'remotion';
+import {Browser, Internals, TCompMetadata} from 'remotion';
 import {openBrowser} from './open-browser';
 import {provideScreenshot} from './provide-screenshot';
 import {seekToFrame} from './seek-to-frame';
 import {serveStatic} from './serve-static';
 import {setPropsAndEnv} from './set-props-and-env';
-import {OnErrorInfo} from './types';
 import {validateFrame} from './validate-frame';
 
 /**
  * @description Render a still frame from a composition and returns an image path
  */
 export const renderStill = async ({
-	config,
-	compositionId,
+	composition,
 	quality,
 	imageFormat = 'png',
 	webpackBundle,
@@ -26,40 +24,39 @@ export const renderStill = async ({
 	output,
 	frame = 0,
 }: {
-	config: VideoConfig;
-	compositionId: string;
+	composition: TCompMetadata;
 	output: string;
 	webpackBundle: string;
 	frame?: number;
-	quality?: number;
+	inputProps?: unknown;
 	imageFormat?: 'png' | 'jpeg';
+	quality?: number;
 	browser?: Browser;
 	puppeteerInstance?: PuppeteerBrowser;
 	dumpBrowserLogs?: boolean;
-	onError?: (info: OnErrorInfo) => void;
-	inputProps?: unknown;
+	onError?: (err: Error) => void;
 	envVariables?: Record<string, string>;
 }) => {
 	Internals.validateDimension(
-		config.height,
+		composition.height,
 		'height',
 		'in the `config` object passed to `renderStill()`'
 	);
 	Internals.validateDimension(
-		config.width,
+		composition.width,
 		'width',
 		'in the `config` object passed to `renderStill()`'
 	);
 	Internals.validateFps(
-		config.fps,
+		composition.fps,
 		'in the `config` object of `renderStill()`'
 	);
 	Internals.validateDurationInFrames(
-		config.durationInFrames,
+		composition.durationInFrames,
 		'in the `config` object passed to `renderStill()`'
 	);
 	Internals.validateImageFormat(imageFormat);
-	validateFrame(frame, config.durationInFrames);
+	validateFrame(frame, composition.durationInFrames);
 
 	if (quality !== undefined && imageFormat !== 'jpeg') {
 		throw new Error(
@@ -78,18 +75,18 @@ export const renderStill = async ({
 	]);
 	const page = await browserInstance.newPage();
 	page.setViewport({
-		width: config.width,
-		height: config.height,
+		width: composition.width,
+		height: composition.height,
 		deviceScaleFactor: 1,
 	});
 	const errorCallback = (err: Error) => {
-		onError?.({error: err, frame: null});
+		onError?.(err);
 	};
 
 	page.on('pageerror', errorCallback);
 	await setPropsAndEnv({inputProps, envVariables, page, port});
 
-	const site = `http://localhost:${port}/index.html?composition=${compositionId}`;
+	const site = `http://localhost:${port}/index.html?composition=${composition.id}`;
 	await page.goto(site);
 	try {
 		await seekToFrame({frame, page});

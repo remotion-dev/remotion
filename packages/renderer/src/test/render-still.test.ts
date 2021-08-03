@@ -3,12 +3,12 @@ import {renderStill} from '../render-still';
 test('Need to pass valid metadata', async () => {
 	return expect(() =>
 		renderStill({
-			compositionId: 'hithere',
-			config: {
+			composition: {
 				width: NaN,
 				height: 1000,
 				fps: 30,
 				durationInFrames: 30,
+				id: 'hithere',
 			},
 			frame: 0,
 			output: '/file/output.png',
@@ -20,12 +20,12 @@ test('Need to pass valid metadata', async () => {
 test('Need to pass valid metadata', async () => {
 	return expect(() =>
 		renderStill({
-			compositionId: 'hithere',
-			config: {
+			composition: {
 				width: 1000,
 				height: 1000,
 				fps: 30,
 				durationInFrames: 30,
+				id: 'hithere',
 			},
 			frame: 200,
 			output: '/file/output.png',
@@ -39,12 +39,12 @@ test('Need to pass valid metadata', async () => {
 test('Catches invalid image format', async () => {
 	return expect(() =>
 		renderStill({
-			compositionId: 'hithere',
-			config: {
+			composition: {
 				width: 1000,
 				height: 1000,
 				fps: 30,
 				durationInFrames: 30,
+				id: 'hithere',
 			},
 			// @ts-expect-error
 			imageFormat: 'jjj',

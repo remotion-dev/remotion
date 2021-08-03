@@ -7,6 +7,8 @@ _Part of the `@remotion/renderer` package._
 
 Renders a series of images using Puppeteer and computes information for mixing audio.
 
+If you want to render only a still image, use [renderStill()](/docs/render-still).
+
 ```ts
 const renderFrames: (options: {
   config: VideoConfig;
@@ -71,7 +73,7 @@ A `string` specifying the directory (absolute path) to which frames should be sa
 
 ### `inputProps`
 
-Custom props which will be passed to the component. Useful for rendering videos with dynamic content. Can be an object of any shape.
+[Custom props which will be passed to the component.](/docs/parametrized-rendering) Useful for rendering videos with dynamic content. Can be an object of any shape.
 
 ### `webpackBundle`
 
@@ -159,3 +161,4 @@ A promise resolving to an object containing the following properties:
 - [Server-Side rendering](/docs/ssr)
 - [getCompositions()](/docs/get-compositions)
 - [stitchFramesToVideo()](/docs/stitch-frames-to-video)
+- [renderStill()](/docs/render-still)
