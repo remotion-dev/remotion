@@ -570,6 +570,30 @@ export const showcaseVideos: ShowcaseVideo[] = [
       name: "William Candillon",
     },
   },
+  {
+    title: "Liquid Swipe Tutorial Intro",
+    type: "mux_video",
+    muxId: "kNJDX8EkZzclZa01SBTCtRbma2fqgPzIJKczHntB01m84",
+    description:
+      "This intro warms you up for an awesome React Native tutorial on how to recreate a Liquid Swipe animation.",
+    height: 360,
+    width: 640,
+    submittedOn: new Date("08-03-2021"),
+    links: [
+      {
+        type: "video",
+        url: "https://www.youtube.com/watch?v=6jxy5wfNpk0",
+      },
+      {
+        type: "website",
+        url: "https://start-react-native.dev/",
+      },
+    ],
+    author: {
+      url: "https://twitter.com/wcandillon",
+      name: "William Candillon",
+    },
+  },
 ];
 
 const dateString = (date: Date) =>
