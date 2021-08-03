@@ -1,3 +1,5 @@
+import fs, {mkdirSync, statSync} from 'fs';
+import path from 'path';
 import {Browser as PuppeteerBrowser} from 'puppeteer-core';
 import {Browser, Internals, TCompMetadata} from 'remotion';
 import {openBrowser} from './open-browser';
@@ -22,6 +24,7 @@ export const renderStill = async ({
 	envVariables,
 	output,
 	frame = 0,
+	overwrite = true,
 }: {
 	composition: TCompMetadata;
 	output: string;
@@ -35,6 +38,7 @@ export const renderStill = async ({
 	dumpBrowserLogs?: boolean;
 	onError?: (err: Error) => void;
 	envVariables?: Record<string, string>;
+	overwrite?: boolean;
 }) => {
 	Internals.validateDimension(
 		composition.height,
@@ -57,6 +61,8 @@ export const renderStill = async ({
 	Internals.validateImageFormat(imageFormat);
 	Internals.validateFrame(frame, composition.durationInFrames);
 
+	output = path.resolve(process.cwd(), output);
+
 	if (quality !== undefined && imageFormat !== 'jpeg') {
 		throw new Error(
 			"You can only pass the `quality` option if `imageFormat` is 'jpeg'."
@@ -64,6 +70,26 @@ export const renderStill = async ({
 	}
 
 	Internals.validateQuality(quality);
+
+	if (fs.existsSync(output)) {
+		if (!overwrite) {
+			throw new Error(
+				`Cannot render still - "overwrite" option was set to false, but the output destination ${output} already exists.`
+			);
+		}
+
+		const stat = statSync(output);
+
+		if (!stat.isFile()) {
+			throw new Error(
+				`The output location ${output} already exists, but is not a file, but something else (e.g. folder). Cannot save to it.`
+			);
+		}
+	}
+
+	mkdirSync(path.resolve(output, '..'), {
+		recursive: true,
+	});
 
 	const [{port, close}, browserInstance] = await Promise.all([
 		serveStatic(webpackBundle),

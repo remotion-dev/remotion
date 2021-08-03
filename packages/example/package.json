@@ -12,7 +12,7 @@
 	"scripts": {
 		"start": "remotion preview src/index.tsx",
 		"start-js": "remotion preview src/entry.jsx",
-		"test": "eslint src --ext ts,tsx,js,jsx",
+		"test": "eslint src --ext ts,tsx,js,jsx && jest",
 		"build": "tsc -d",
 		"render": "remotion render src/index.tsx react-svg video.mp4",
 		"render-js": "remotion render src/entry.jsx framer video.mp4",
@@ -53,7 +53,9 @@
 		"@types/babel__core": "^7.1.12",
 		"@types/babel__template": "^7.4.0",
 		"eslint": "^7.25.0",
-		"prettier-plugin-organize-imports": "^1.1.1"
+		"prettier-plugin-organize-imports": "^1.1.1",
+		"ts-jest": "^27.0.4",
+		"jest": "^27.0.6"
 	},
 	"publishConfig": {
 		"access": "public"

@@ -124,6 +124,12 @@ renderStill({
 })
 ```
 
+### `overwrite?`
+
+_optional - default `true`_
+
+Whether the file should be overwritten if the output already exists.
+
 ## Return value
 
 A promise with no value. If the render succeeded, the still has been saved to `output`. If the render failed, the promise rejects.
