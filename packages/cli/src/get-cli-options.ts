@@ -194,5 +194,7 @@ export const getCliOptions = async () => {
 		pixelFormat,
 		imageFormat,
 		proResProfile,
+		// TODO: parse flag
+		frame: 0,
 	};
 };

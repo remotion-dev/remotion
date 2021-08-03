@@ -22,6 +22,8 @@ export const cli = async () => {
 		await previewCommand();
 	} else if (command === 'render') {
 		await render();
+	} else if (command === 'still') {
+		await render();
 	} else if (command === 'upgrade') {
 		await upgrade();
 	} else {

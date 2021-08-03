@@ -15,6 +15,7 @@ import {Internals} from 'remotion';
 import {getCliOptions} from './get-cli-options';
 import {getCompositionId} from './get-composition-id';
 import {loadConfig} from './get-config-file-name';
+import {handleCommonError} from './handle-common-errors';
 import {Log} from './log';
 import {parseCommandLine, parsedCli} from './parse-command-line';
 import {
@@ -37,18 +38,7 @@ const onError = async (info: OnErrorInfo) => {
 		);
 	}
 
-	Log.error(info.error.message);
-	if (info.error.message.includes('Could not play video with')) {
-		Log.info();
-		Log.info(
-			'💡 Get help for this issue at https://remotion.dev/docs/media-playback-error'
-		);
-	}
-
-	if (info.error.message.includes('A delayRender was called')) {
-		Log.info();
-		Log.info('💡 Get help for this issue at https://remotion.dev/docs/timeout');
-	}
+	handleCommonError(info.error);
 
 	process.exit(1);
 };
