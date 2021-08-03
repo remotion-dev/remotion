@@ -58,6 +58,7 @@ export const renderStill = async ({
 		config.durationInFrames,
 		'in the `config` object passed to `renderStill()`'
 	);
+	Internals.validateImageFormat(imageFormat);
 	validateFrame(frame, config.durationInFrames);
 
 	if (quality !== undefined && imageFormat !== 'jpeg') {

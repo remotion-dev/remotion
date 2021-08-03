@@ -35,3 +35,22 @@ test('Need to pass valid metadata', async () => {
 		/Cannot use frame 200: Duration of composition is 30, therefore the highest frame that can be rendered is 29/
 	);
 });
+
+test('Catches invalid image format', async () => {
+	return expect(() =>
+		renderStill({
+			compositionId: 'hithere',
+			config: {
+				width: 1000,
+				height: 1000,
+				fps: 30,
+				durationInFrames: 30,
+			},
+			// @ts-expect-error
+			imageFormat: 'jjj',
+			frame: 200,
+			output: '/file/output.png',
+			webpackBundle: '/hi/there',
+		})
+	).rejects.toThrow(/Image format should be either "png" or "jpeg"/);
+});
