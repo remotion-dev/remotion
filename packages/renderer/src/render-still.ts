@@ -5,7 +5,6 @@ import {provideScreenshot} from './provide-screenshot';
 import {seekToFrame} from './seek-to-frame';
 import {serveStatic} from './serve-static';
 import {setPropsAndEnv} from './set-props-and-env';
-import {validateFrame} from './validate-frame';
 
 /**
  * @description Render a still frame from a composition and returns an image path
@@ -56,7 +55,7 @@ export const renderStill = async ({
 		'in the `config` object passed to `renderStill()`'
 	);
 	Internals.validateImageFormat(imageFormat);
-	validateFrame(frame, composition.durationInFrames);
+	Internals.validateFrame(frame, composition.durationInFrames);
 
 	if (quality !== undefined && imageFormat !== 'jpeg') {
 		throw new Error(
