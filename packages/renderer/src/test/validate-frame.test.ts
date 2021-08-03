@@ -20,4 +20,6 @@ test('Validate frame', () => {
 		() => validateFrame(2.99, 10),
 		/Argument for frame must be an integer, but got 2.99/
 	);
+	expect(() => validateFrame(0, 1)).not.toThrow();
+	expect(() => validateFrame(1, 2)).not.toThrow();
 });
