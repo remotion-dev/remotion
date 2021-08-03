@@ -515,6 +515,25 @@ export const showcaseVideos: ShowcaseVideo[] = [
       "name": "Rodrigo Pombo"
     }
   },
+  {
+    title: "Confirmed Coronavirus Cases In the WORLD time-lapse",
+    type: "mux_video",
+    muxId: "Anx7p2jNQLUsSWBOjnEzdo9xvfC9spsVyL01sk7esrtY",
+    description: "Time-lapse of the spread of the corona virus in the WORLD.",
+    height: 1080,
+    width: 1920,
+    submittedOn: new Date("08-04-2021"),
+    links: [
+      {
+        type: "video",
+        url: "https://www.youtube.com/watch?v=Mrl229Zf23g",
+      },
+    ],
+    author: {
+      "url": "https://www.youtube.com/channel/UCEyTSyN3FmW39THCl0kfDUA",
+      "name": "Envision"
+    }
+  },
 ];
 
 const dateString = (date: Date) =>
