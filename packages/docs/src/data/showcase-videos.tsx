@@ -534,6 +534,33 @@ export const showcaseVideos: ShowcaseVideo[] = [
       "name": "Envision"
     }
   },
+  {
+    title: "Remotion 2.0 trailer",
+    type: "mux_video",
+    muxId: "g00CHkGQm1J0101dma3TBPvwufeAKZ8yOZk9p0048soVjW00",
+    description: "Trailer for Remotion 2.0 launch",
+    height: 1080,
+    width: 1920,
+    submittedOn: new Date("08-04-2021"),
+    links: [
+      {
+        type: "source_code",
+        url: "https://github.com/JonnyBurger/remotion-2-0-trailer",
+      },
+      {
+        type: "video",
+        url: "youtube.com/watch?v=0r6ho5sNPm4",
+      },
+      {
+        type: "website",
+        url: "https://www.remotion.dev/",
+      }
+    ],
+    author: {
+      "url": "https://twitter.com/JNYBGR",
+      "name": "Jonny Burger"
+    }
+  },
 ];
 
 const dateString = (date: Date) =>
