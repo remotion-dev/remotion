@@ -1,4 +1,4 @@
-import {validateFrame} from '../validate-frame';
+import {validateFrame} from '../validation/validate-frame';
 import {expectToThrow} from './expect-to-throw';
 
 test('Validate frame', () => {

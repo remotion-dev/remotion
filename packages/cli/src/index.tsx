@@ -4,6 +4,7 @@ import {parsedCli} from './parse-command-line';
 import {previewCommand} from './preview';
 import {printHelp} from './print-help';
 import {render} from './render';
+import {still} from './still';
 import {upgrade} from './upgrade';
 
 export const cli = async () => {
@@ -23,7 +24,7 @@ export const cli = async () => {
 	} else if (command === 'render') {
 		await render();
 	} else if (command === 'still') {
-		await render();
+		await still();
 	} else if (command === 'upgrade') {
 		await upgrade();
 	} else {

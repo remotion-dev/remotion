@@ -10,10 +10,10 @@ import path from 'path';
 import {Internals} from 'remotion';
 import {getCliOptions} from './get-cli-options';
 import {getCompositionId} from './get-composition-id';
-import {loadConfig} from './get-config-file-name';
 import {handleCommonError} from './handle-common-errors';
+import {initializeRenderCli} from './initialize-render-cli';
 import {Log} from './log';
-import {parseCommandLine, parsedCli} from './parse-command-line';
+import {parsedCli} from './parse-command-line';
 import {
 	createProgressBar,
 	makeBundlingProgress,
@@ -22,17 +22,11 @@ import {
 import {getUserPassedOutputLocation} from './user-passed-output-location';
 
 export const still = async () => {
+	const startTime = Date.now();
 	const file = parsedCli._[1];
 	const fullPath = path.join(process.cwd(), file);
 
-	const startTime = Date.now();
-	parseCommandLine();
-	const appliedName = loadConfig();
-	if (appliedName) {
-		Log.verbose(`Applied configuration from ${appliedName}.`);
-	} else {
-		Log.verbose('No config file loaded.');
-	}
+	initializeRenderCli();
 
 	const userOutput = path.resolve(process.cwd(), getUserPassedOutputLocation());
 
@@ -42,8 +36,8 @@ export const still = async () => {
 		quality,
 		browser,
 		imageFormat,
-		frame,
-	} = await getCliOptions();
+		stillFrame,
+	} = await getCliOptions('still');
 
 	if (imageFormat === 'none') {
 		Log.error(
@@ -116,7 +110,7 @@ export const still = async () => {
 
 	await renderStill({
 		composition,
-		frame,
+		frame: stillFrame,
 		output: userOutput,
 		webpackBundle: bundled,
 		quality,

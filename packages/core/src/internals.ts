@@ -54,6 +54,7 @@ import {
 	validateSelectedCodecAndProResCombination,
 } from './config/prores-profile';
 import {getQuality} from './config/quality';
+import {getStillFrame, setStillFrame} from './config/still-frame';
 import {
 	DEFAULT_WEBPACK_CACHE_ENABLED,
 	getWebpackCaching,
@@ -88,6 +89,7 @@ import {useVideo} from './use-video';
 import {validateDimension} from './validation/validate-dimensions';
 import {validateDurationInFrames} from './validation/validate-duration-in-frames';
 import {validateFps} from './validation/validate-fps';
+import {validateFrame} from './validation/validate-frame';
 import {validateImageFormat} from './validation/validate-image-format';
 import {validateQuality} from './validation/validate-quality';
 import {
@@ -169,6 +171,9 @@ export const Internals = {
 	validateSelectedCodecAndProResCombination,
 	getMaxTimelineTracks,
 	validateQuality,
+	validateFrame,
+	setStillFrame,
+	getStillFrame,
 };
 
 export type {

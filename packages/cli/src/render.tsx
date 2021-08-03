@@ -14,10 +14,10 @@ import path from 'path';
 import {Internals} from 'remotion';
 import {getCliOptions} from './get-cli-options';
 import {getCompositionId} from './get-composition-id';
-import {loadConfig} from './get-config-file-name';
 import {handleCommonError} from './handle-common-errors';
+import {initializeRenderCli} from './initialize-render-cli';
 import {Log} from './log';
-import {parseCommandLine, parsedCli} from './parse-command-line';
+import {parsedCli} from './parse-command-line';
 import {
 	createProgressBar,
 	makeBundlingProgress,
@@ -48,13 +48,7 @@ export const render = async () => {
 	const file = parsedCli._[1];
 	const fullPath = path.join(process.cwd(), file);
 
-	parseCommandLine();
-	const appliedName = loadConfig();
-	if (appliedName) {
-		Log.verbose(`Applied configuration from ${appliedName}.`);
-	} else {
-		Log.verbose('No config file loaded.');
-	}
+	initializeRenderCli();
 
 	const {
 		codec,
@@ -71,7 +65,7 @@ export const render = async () => {
 		crf,
 		pixelFormat,
 		imageFormat,
-	} = await getCliOptions();
+	} = await getCliOptions('series');
 
 	await checkAndValidateFfmpegVersion();
 
