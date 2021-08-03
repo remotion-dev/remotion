@@ -522,6 +522,30 @@ export const showcaseVideos: ShowcaseVideo[] = [
       url: "https://advancedweb.hu/",
     },
   },
+  {
+    title: "Apple Spring Loaded Logo",
+    type: "mux_video",
+    muxId: "wvFXhgp3WA8bvp025y74gkoX56TKTyX7Xx9Qvos1TStc",
+    description:
+      "A recreation of Apple's Spring Loaded Logo for their Spring 2021 Keynote. Uses Remotions interpolateColors() API.",
+    height: 700,
+    width: 700,
+    submittedOn: new Date("08-03-2021"),
+    links: [
+      {
+        type: "source_code",
+        url: "https://github.com/jonnyburger/spring-loaded",
+      },
+      {
+        type: "video",
+        url: "https://twitter.com/JNYBGR/status/1384606085173108737",
+      },
+    ],
+    author: {
+      url: "https://jonny.io",
+      name: "Jonny Burger",
+    },
+  },
 ];
 
 const dateString = (date: Date) =>
