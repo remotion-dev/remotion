@@ -469,6 +469,29 @@ export const showcaseVideos: ShowcaseVideo[] = [
       name: "Zack Sheppard",
     },
   },
+  {
+	title: "Transfer Fee Record Specific to British Football",
+	type: "mux_video",
+	muxId: "sBbBlET802IE1C3bHCkNhDB00rpWPXRpIrkUP9YTqruXM",
+	description: "An infographic showing the progression of the transfer fee record specific to British Football",
+	height: 1152,
+	width: 2048,
+	submittedOn: new Date("08-03-2021"),
+	links: [
+		{
+			type: "video",
+			url: "https://www.youtube.com/watch?v=hMsi04DkoMI&feature=youtu.be",
+		},
+		{
+			type: "website",
+			url: "https://twitter.com/mikepombal/status/1422219571206008835",
+		},
+	],
+	author: {
+		"url": "https://twitter.com/mikepombal",
+		"name": "Mickael Marques"
+	}
+},
 ];
 
 const dateString = (date: Date) =>
