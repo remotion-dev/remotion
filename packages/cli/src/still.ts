@@ -1,4 +1,3 @@
-import {bundle, BundlerInternals} from '@remotion/bundler';
 import {
 	getCompositions,
 	RenderInternals,
@@ -14,11 +13,8 @@ import {handleCommonError} from './handle-common-errors';
 import {initializeRenderCli} from './initialize-render-cli';
 import {Log} from './log';
 import {parsedCli} from './parse-command-line';
-import {
-	createProgressBar,
-	makeBundlingProgress,
-	makeRenderingProgress,
-} from './progress-bar';
+import {createProgressBar, makeRenderingProgress} from './progress-bar';
+import {bundleOnCli} from './setup-cache';
 import {getUserPassedOutputLocation} from './user-passed-output-location';
 
 export const still = async () => {
@@ -56,40 +52,7 @@ export const still = async () => {
 
 	const steps = 2;
 
-	const shouldCache = Internals.getWebpackCaching();
-	const cacheExistedBefore = BundlerInternals.cacheExists('production', null);
-	if (cacheExistedBefore && !shouldCache) {
-		process.stdout.write('🧹 Cache disabled but found. Deleting... ');
-		await BundlerInternals.clearCache('production', null);
-		process.stdout.write('done. \n');
-	}
-
-	const bundleStartTime = Date.now();
-	const bundlingProgress = createProgressBar();
-	const bundled = await bundle(
-		fullPath,
-		(progress) => {
-			bundlingProgress.update(
-				makeBundlingProgress({progress: progress / 100, steps, doneIn: null})
-			);
-		},
-		{
-			enableCaching: shouldCache,
-		}
-	);
-	bundlingProgress.update(
-		makeBundlingProgress({
-			progress: 1,
-			steps,
-			doneIn: Date.now() - bundleStartTime,
-		}) + '\n'
-	);
-	Log.verbose('Bundled under', bundled);
-
-	const cacheExistedAfter = BundlerInternals.cacheExists('production', null);
-	if (cacheExistedAfter && !cacheExistedBefore) {
-		Log.info('⚡️ Cached bundle. Subsequent builds will be faster.');
-	}
+	const bundled = await bundleOnCli(fullPath, steps);
 
 	const openedBrowser = await browserInstance;
 	const comps = await getCompositions(bundled, {
