@@ -497,6 +497,31 @@ export const showcaseVideos: ShowcaseVideo[] = [
       name: "Rodrigo Pombo",
     },
   },
+  {
+    title: "Cloudfront Explainer",
+    type: "mux_video",
+    muxId: "BrKshHsFgC8DNhQPJGeu4fVjjWlzxHFLvMTcPB6EB6E",
+    description: "The intro for an online course about Cloudfront.",
+    height: 1080,
+    width: 1920,
+    submittedOn: new Date("08-03-2021"),
+    links: [
+      {
+        type: "video",
+        url:
+          "https://www.udemy.com/course/the-cloud-architects-guide-to-cloudfront/",
+      },
+      {
+        type: "website",
+        url:
+          "https://www.udemy.com/course/the-cloud-architects-guide-to-cloudfront/",
+      },
+    ],
+    author: {
+      name: "Tamàs Sallai",
+      url: "https://advancedweb.hu/",
+    },
+  },
 ];
 
 const dateString = (date: Date) =>
