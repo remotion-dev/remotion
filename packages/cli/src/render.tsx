@@ -1,4 +1,3 @@
-import {bundle, BundlerInternals} from '@remotion/bundler';
 import {
 	getCompositions,
 	OnErrorInfo,
@@ -20,10 +19,10 @@ import {Log} from './log';
 import {parsedCli} from './parse-command-line';
 import {
 	createProgressBar,
-	makeBundlingProgress,
 	makeRenderingProgress,
 	makeStitchingProgres,
 } from './progress-bar';
+import {bundleOnCli} from './setup-cache';
 import {checkAndValidateFfmpegVersion} from './validate-ffmpeg-version';
 
 const onError = async (info: OnErrorInfo) => {
@@ -80,39 +79,7 @@ export const render = async () => {
 
 	const steps = shouldOutputImageSequence ? 2 : 3;
 
-	const shouldCache = Internals.getWebpackCaching();
-	const cacheExistedBefore = BundlerInternals.cacheExists('production', null);
-	if (cacheExistedBefore && !shouldCache) {
-		process.stdout.write('🧹 Cache disabled but found. Deleting... ');
-		await BundlerInternals.clearCache('production', null);
-		process.stdout.write('done. \n');
-	}
-
-	const bundleStartTime = Date.now();
-	const bundlingProgress = createProgressBar();
-	const bundled = await bundle(
-		fullPath,
-		(progress) => {
-			bundlingProgress.update(
-				makeBundlingProgress({progress: progress / 100, steps, doneIn: null})
-			);
-		},
-		{
-			enableCaching: shouldCache,
-		}
-	);
-	bundlingProgress.update(
-		makeBundlingProgress({
-			progress: 1,
-			steps,
-			doneIn: Date.now() - bundleStartTime,
-		}) + '\n'
-	);
-	Log.verbose('Bundled under', bundled);
-	const cacheExistedAfter = BundlerInternals.cacheExists('production', null);
-	if (cacheExistedAfter && !cacheExistedBefore) {
-		Log.info('⚡️ Cached bundle. Subsequent builds will be faster.');
-	}
+	const bundled = await bundleOnCli(fullPath, steps);
 
 	const openedBrowser = await browserInstance;
 	const comps = await getCompositions(bundled, {
