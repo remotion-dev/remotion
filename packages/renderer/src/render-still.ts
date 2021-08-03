@@ -28,17 +28,17 @@ export const renderStill = async ({
 }: {
 	config: VideoConfig;
 	compositionId: string;
+	output: string;
+	webpackBundle: string;
+	frame?: number;
 	quality?: number;
 	imageFormat?: 'png' | 'jpeg';
 	browser?: Browser;
 	puppeteerInstance?: PuppeteerBrowser;
-	webpackBundle: string;
 	dumpBrowserLogs?: boolean;
 	onError?: (info: OnErrorInfo) => void;
 	inputProps?: unknown;
 	envVariables?: Record<string, string>;
-	output: string;
-	frame?: number;
 }) => {
 	Internals.validateDimension(
 		config.height,
@@ -66,6 +66,8 @@ export const renderStill = async ({
 			"You can only pass the `quality` option if `imageFormat` is 'jpeg'."
 		);
 	}
+
+	Internals.validateQuality(quality);
 
 	const [{port, close}, browserInstance] = await Promise.all([
 		serveStatic(webpackBundle),

@@ -89,6 +89,7 @@ import {validateDimension} from './validation/validate-dimensions';
 import {validateDurationInFrames} from './validation/validate-duration-in-frames';
 import {validateFps} from './validation/validate-fps';
 import {validateImageFormat} from './validation/validate-image-format';
+import {validateQuality} from './validation/validate-quality';
 import {
 	MediaVolumeContext,
 	MediaVolumeContextValue,
@@ -167,6 +168,7 @@ export const Internals = {
 	setProResProfile,
 	validateSelectedCodecAndProResCombination,
 	getMaxTimelineTracks,
+	validateQuality,
 };
 
 export type {

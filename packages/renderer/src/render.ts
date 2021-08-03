@@ -78,6 +78,8 @@ export const renderFrames = async ({
 		);
 	}
 
+	Internals.validateQuality(quality);
+
 	const actualParallelism = getActualConcurrency(parallelism ?? null);
 
 	const [{port, close}, browserInstance] = await Promise.all([
