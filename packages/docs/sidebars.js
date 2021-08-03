@@ -93,7 +93,12 @@ module.exports = {
     {
       type: "category",
       label: "API - @remotion/renderer",
-      items: ["get-compositions", "render-frames", "stitch-frames-to-video"],
+      items: [
+        "get-compositions",
+        "render-frames",
+        "stitch-frames-to-video",
+        "render-still",
+      ],
     },
     {
       type: "category",
