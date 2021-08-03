@@ -57,6 +57,8 @@ export const upgrade = async () => {
 		'@remotion/renderer',
 		'@remotion/media-utils',
 		'@remotion/babel-loader',
+		'@remotion/lambda',
+		'@remotion/three',
 		'@remotion/gif',
 		'remotion',
 	].filter((u) => dependencies.includes(u));
