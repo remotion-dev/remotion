@@ -127,6 +127,4 @@ export const renderStill = async ({
 			console.log('Unable to close browser', err);
 		});
 	}
-
-	return {output};
 };
