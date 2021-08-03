@@ -6,6 +6,8 @@ import {seekToFrame} from './seek-to-frame';
 import {serveStatic} from './serve-static';
 import {setPropsAndEnv} from './set-props-and-env';
 import {OnErrorInfo} from './types';
+import {validateFrame} from './validate-frame';
+
 /**
  * @description Render a still frame from a composition and returns an image path
  */
@@ -22,7 +24,7 @@ export const renderStill = async ({
 	inputProps,
 	envVariables,
 	output,
-	frame,
+	frame = 0,
 }: {
 	config: VideoConfig;
 	compositionId: string;
@@ -33,10 +35,10 @@ export const renderStill = async ({
 	webpackBundle: string;
 	dumpBrowserLogs?: boolean;
 	onError?: (info: OnErrorInfo) => void;
-	inputProps: unknown;
+	inputProps?: unknown;
 	envVariables?: Record<string, string>;
 	output: string;
-	frame: number;
+	frame?: number;
 }) => {
 	Internals.validateDimension(
 		config.height,
@@ -56,6 +58,7 @@ export const renderStill = async ({
 		config.durationInFrames,
 		'in the `config` object passed to `renderStill()`'
 	);
+	validateFrame(frame, config.durationInFrames);
 
 	if (quality !== undefined && imageFormat !== 'jpeg') {
 		throw new Error(
