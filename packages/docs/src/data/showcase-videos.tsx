@@ -491,7 +491,30 @@ export const showcaseVideos: ShowcaseVideo[] = [
 		"url": "https://twitter.com/mikepombal",
 		"name": "Mickael Marques"
 	}
-},
+  },
+  {
+    title: "Stargazer",
+    type: "mux_video",
+    muxId: "FaeI2kV02tWW8DyOLm301gNYATgbqvq8LHHo8mHdtfID4",
+    description: "Your repo reached a stars milestone? Celebrate with a video of your stargazers!",
+    height: 540,
+    width: 960,
+    submittedOn: new Date("08-03-2021"),
+    links: [
+      {
+        type: "source_code",
+        url: "https://github.com/pomber/stargazer",
+      },
+      {
+        type: "video",
+        url: "https://twitter.com/pomber/status/1412039274963275779",
+      },
+    ],
+    author: {
+      "url": "https://twitter.com/pomber",
+      "name": "Rodrigo Pombo"
+    }
+  },
 ];
 
 const dateString = (date: Date) =>
