@@ -61,6 +61,10 @@ export const renderStill = async ({
 	Internals.validateImageFormat(imageFormat);
 	Internals.validateFrame(frame, composition.durationInFrames);
 
+	if (typeof output !== 'string') {
+		throw new TypeError('`output` parameter was not passed or is not a string');
+	}
+
 	output = path.resolve(process.cwd(), output);
 
 	if (quality !== undefined && imageFormat !== 'jpeg') {

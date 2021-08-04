@@ -5,9 +5,9 @@ title: renderStill()
 
 _Part of the `@remotion/renderer` package. Available from v2.3._
 
-Renders a single frame to an image.
+Renders a single frame to an image and writes it to the specified output location.
 
-If you want to render the full image sequence, use [renderFrames()](/docs/render-frames) instead.
+If you want to render a full image sequence and possibly encode it to a video later, use [renderFrames()](/docs/render-frames) instead.
 
 ## Example usage
 
