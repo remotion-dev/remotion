@@ -31,11 +31,11 @@ const start = async () => {
   const compositionId = 'HelloWorld'
 
   // Create a webpack bundle of the entry file.
-  const bundled = await bundle(require.resolve('./src/index'))
+  const bundleLocation = await bundle(require.resolve('./src/index'))
 
   // Extract all the compositions you have defined in your project
   // from the webpack bundle.
-  const comps = await getCompositions(bundled, {
+  const comps = await getCompositions(bundleLocation, {
     // You can pass custom input props that you can retrieve using getInputProps()
     // in the composition list. Use this if you want to dynamically set the duration or
     // dimensions of the video.
@@ -61,7 +61,7 @@ const start = async () => {
   const {assetsInfo} = await renderFrames({
     config: composition,
     // Path of the webpack bundle you have created
-    webpackBundle: bundled,
+    webpackBundle: bundleLocation,
     // Get's called after bundling is finished and the
     // actual rendering starts.
     onStart: () => console.log('Rendering frames...'),

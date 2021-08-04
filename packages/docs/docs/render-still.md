@@ -11,7 +11,7 @@ If you want to render a full image sequence and possibly encode it to a video la
 
 ## Example usage
 
-You first need to bundle the project and fetch the compositions. Read [the code snippet on the site for server-side rendering](/docs/ssr/#render-a-video-programmatically) for an example how to come up with the `bundled` and `composition` variables.
+You first need to bundle the project and fetch the compositions. Read [the code snippet on the site for server-side rendering](/docs/ssr/#render-a-video-programmatically) for an example how to come up with the `bundleLocation` and `composition` variables.
 
 ```ts twoslash
 // @module: ESNext
@@ -25,9 +25,9 @@ import {
 // The composition you want to render
 const compositionId = 'HelloWorld'
 
-const bundled = await bundle(require.resolve('./src/index'))
+const bundleLocation = await bundle(require.resolve('./src/index'))
 
-const comps = await getCompositions(bundled, {
+const comps = await getCompositions(bundleLocation, {
   inputProps: {
     custom: 'data',
   },
@@ -42,7 +42,7 @@ if (!composition) {
 
 await renderStill({
   composition,
-  webpackBundle: bundled,
+  webpackBundle: bundleLocation,
   output: '/tmp/still.png',
   inputProps: {
     custom: 'data'
