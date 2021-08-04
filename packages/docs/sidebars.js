@@ -30,6 +30,7 @@ module.exports = {
         "getrenderprogress",
         "rendervideoonlambda",
         "simulatepermissions",
+        "renderstillonlambda",
       ],
     },
     "lambda-changelog",
