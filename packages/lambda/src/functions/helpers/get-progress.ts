@@ -9,6 +9,7 @@ import {
 } from '../../shared/constants';
 import {estimatePriceFromBucket} from './calculate-price-from-bucket';
 import {findOutputFileInBucket} from './find-output-file-in-bucket';
+import {formatCostsInfo} from './format-costs-info';
 import {getCleanupProgress} from './get-cleanup-progress';
 import {getCurrentRegionInFunction} from './get-current-region';
 import {getEncodingMetadata} from './get-encoding-metadata';
@@ -124,6 +125,7 @@ export const getProgress = async ({
 		contents,
 		renderId,
 		renderMetadata,
+		type: 'video',
 	});
 
 	const cleanup = getCleanupProgress({
@@ -158,16 +160,7 @@ export const getProgress = async ({
 			outputFileExists: Boolean(outputFile),
 			renderMetadata,
 		}),
-		costs: {
-			accruedSoFar,
-			displayCost: new Intl.NumberFormat('en-US', {
-				currency: 'USD',
-				currencyDisplay: 'narrowSymbol',
-			}).format(accruedSoFar),
-			currency: 'USD',
-			disclaimer:
-				'Estimated cost only. Does not include charges for other AWS services.',
-		},
+		costs: formatCostsInfo(accruedSoFar),
 		renderId,
 		renderMetadata,
 		bucket: bucketName,

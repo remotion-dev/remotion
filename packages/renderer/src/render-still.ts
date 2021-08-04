@@ -5,7 +5,6 @@ import {Browser, Internals, TCompMetadata} from 'remotion';
 import {openBrowser} from './open-browser';
 import {provideScreenshot} from './provide-screenshot';
 import {seekToFrame} from './seek-to-frame';
-import {serveStatic} from './serve-static';
 import {setPropsAndEnv} from './set-props-and-env';
 
 /**
@@ -15,7 +14,7 @@ export const renderStill = async ({
 	composition,
 	quality,
 	imageFormat = 'png',
-	webpackBundle,
+	serveUrl,
 	browser = Internals.DEFAULT_BROWSER,
 	puppeteerInstance,
 	dumpBrowserLogs = false,
@@ -28,7 +27,7 @@ export const renderStill = async ({
 }: {
 	composition: TCompMetadata;
 	output: string;
-	webpackBundle: string;
+	serveUrl: string;
 	frame?: number;
 	inputProps?: unknown;
 	imageFormat?: 'png' | 'jpeg';
@@ -95,13 +94,11 @@ export const renderStill = async ({
 		recursive: true,
 	});
 
-	const [{port, close}, browserInstance] = await Promise.all([
-		serveStatic(webpackBundle),
+	const browserInstance =
 		puppeteerInstance ??
-			openBrowser(browser, {
-				shouldDumpIo: dumpBrowserLogs,
-			}),
-	]);
+		(await openBrowser(browser, {
+			shouldDumpIo: dumpBrowserLogs,
+		}));
 	const page = await browserInstance.newPage();
 	page.setViewport({
 		width: composition.width,
@@ -113,7 +110,6 @@ export const renderStill = async ({
 	};
 
 	page.on('pageerror', errorCallback);
-	const serveUrl = `http://localhost:${port}`;
 	const site = `${serveUrl}/index.html?composition=${composition.id}`;
 	await setPropsAndEnv({inputProps, envVariables, page, serveUrl});
 
@@ -145,10 +141,6 @@ export const renderStill = async ({
 	});
 
 	page.off('pageerror', errorCallback);
-
-	close().catch((err) => {
-		console.log('Unable to close web server', err);
-	});
 
 	if (puppeteerInstance) {
 		await page.close();

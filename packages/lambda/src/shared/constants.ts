@@ -74,6 +74,8 @@ export const optimizationProfile = (siteId: string, compositionId: string) =>
 export const getSitesKey = (siteId: string) => `sites/${siteId}`;
 export const outName = (renderId: string, codec: Codec) =>
 	`${rendersPrefix(renderId)}/out.${getFileExtensionFromCodec(codec, 'final')}`;
+export const outStillName = (renderId: string, imageFormat: ImageFormat) =>
+	`${rendersPrefix(renderId)}/out.${imageFormat}`;
 export const BINARIES_BUCKET_PREFIX = 'lambda-remotion-binaries-';
 export const getBinariesBucketName = (region: AwsRegion) => {
 	return BINARIES_BUCKET_PREFIX + region;
@@ -104,6 +106,7 @@ export enum LambdaRoutines {
 	status = 'status',
 	fire = 'fire',
 	renderer = 'renderer',
+	still = 'still',
 }
 
 export type LambdaPayloads = {
@@ -174,6 +177,18 @@ export type LambdaPayloads = {
 		quality: number | undefined;
 		envVariables: Record<string, string> | undefined;
 	};
+	still: {
+		type: LambdaRoutines.still;
+		serveUrl: string;
+		composition: string;
+		inputProps: unknown;
+		imageFormat: ImageFormat;
+		envVariables: Record<string, string> | undefined;
+		quality: number | undefined;
+		maxRetries: number;
+		frame: number;
+		privacy: 'private' | 'public';
+	};
 };
 
 export type LambdaPayload = LambdaPayloads[LambdaRoutines];
@@ -189,8 +204,10 @@ export type RenderMetadata = {
 	totalChunks: number;
 	estimatedLambdaInvokations: number;
 	compositionId: string;
-	codec: Codec;
+	codec: Codec | null;
 	usesOptimizationProfile: boolean;
+	type: 'still' | 'video';
+	imageFormat: ImageFormat;
 };
 
 export type LambdaVersions =
@@ -220,7 +237,7 @@ export type PostRenderData = {
 	renderMetadata: RenderMetadata;
 };
 
-type CostsInfo = {
+export type CostsInfo = {
 	accruedSoFar: number;
 	displayCost: string;
 	currency: string;

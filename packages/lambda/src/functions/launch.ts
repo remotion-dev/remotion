@@ -177,6 +177,8 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		siteId: getServeUrlHash(params.serveUrl),
 		codec: params.codec,
 		usesOptimizationProfile: didUseOptimization,
+		type: 'still',
+		imageFormat: params.imageFormat,
 	};
 
 	await lambdaWriteFile({
