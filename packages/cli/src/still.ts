@@ -22,7 +22,7 @@ export const still = async () => {
 	const file = parsedCli._[1];
 	const fullPath = path.join(process.cwd(), file);
 
-	initializeRenderCli();
+	initializeRenderCli('still');
 
 	const userOutput = path.resolve(process.cwd(), getUserPassedOutputLocation());
 

@@ -2,7 +2,7 @@ import {loadConfig} from './get-config-file-name';
 import {Log} from './log';
 import {parseCommandLine} from './parse-command-line';
 
-export const initializeRenderCli = () => {
+export const initializeRenderCli = (type: 'still' | 'sequence') => {
 	parseCommandLine();
 	const appliedName = loadConfig();
 	if (appliedName) {
