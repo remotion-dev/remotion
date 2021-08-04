@@ -90,7 +90,7 @@ import {validateDimension} from './validation/validate-dimensions';
 import {validateDurationInFrames} from './validation/validate-duration-in-frames';
 import {validateFps} from './validation/validate-fps';
 import {validateFrame} from './validation/validate-frame';
-import {validateImageFormat} from './validation/validate-image-format';
+import {validateNonNullImageFormat} from './validation/validate-image-format';
 import {validateQuality} from './validation/validate-quality';
 import {
 	MediaVolumeContext,
@@ -143,7 +143,7 @@ export const Internals = {
 	validateSelectedPixelFormatAndImageFormatCombination,
 	validateSelectedPixelFormatAndCodecCombination,
 	validateFrameRange,
-	validateImageFormat,
+	validateNonNullImageFormat,
 	getWebpackCaching,
 	useLazyComponent,
 	truthy,

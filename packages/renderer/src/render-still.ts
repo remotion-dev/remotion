@@ -58,7 +58,7 @@ export const renderStill = async ({
 		composition.durationInFrames,
 		'in the `config` object passed to `renderStill()`'
 	);
-	Internals.validateImageFormat(imageFormat);
+	Internals.validateNonNullImageFormat(imageFormat);
 	Internals.validateFrame(frame, composition.durationInFrames);
 
 	if (typeof output !== 'string') {
