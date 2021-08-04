@@ -469,6 +469,37 @@ export const showcaseVideos: ShowcaseVideo[] = [
       name: "Zack Sheppard",
     },
   },
+  {
+    title: "Verdaccio Announcement Video",
+    type: "mux_video",
+    muxId: "lSa6eYA01jP5ooFSgTE02P6nfRbjIbF1kcr5LdwS01Zp8o",
+    description: "Add a description here",
+    height: 720,
+    width: 1280,
+    submittedOn: new Date("08-04-2021"),
+    links: [
+      {
+        type: "source_code",
+        url: "<add github url or delete this object>",
+      },
+      {
+        type: "video",
+        url: "<add video link or delete this object>",
+      },
+      {
+        type: "website",
+        url: "<add product link or delete this object>",
+      },
+      {
+        type: "tutorial",
+        url: "<add link to tutorial or delete this object>",
+      },
+    ],
+    author: {
+      url: "<link your website or social media profile>",
+      name: "<Enter your name or organization>",
+    },
+  },
 ];
 
 const dateString = (date: Date) =>
