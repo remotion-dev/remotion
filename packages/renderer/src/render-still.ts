@@ -113,9 +113,10 @@ export const renderStill = async ({
 	};
 
 	page.on('pageerror', errorCallback);
-	await setPropsAndEnv({inputProps, envVariables, page, port});
+	const serveUrl = `http://localhost:${port}`;
+	const site = `${serveUrl}/index.html?composition=${composition.id}`;
+	await setPropsAndEnv({inputProps, envVariables, page, serveUrl});
 
-	const site = `http://localhost:${port}/index.html?composition=${composition.id}`;
 	await page.goto(site);
 	try {
 		await seekToFrame({frame, page});

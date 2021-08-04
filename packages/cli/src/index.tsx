@@ -3,6 +3,7 @@ import xns from 'xns';
 import {checkNodeVersion} from './check-version';
 import {getCliOptions} from './get-cli-options';
 import {loadConfig} from './get-config-file-name';
+import {initializeRenderCli} from './initialize-render-cli';
 import {lambdaCommand} from './lambda-command';
 import {loadConfigFile} from './load-config';
 import {Log} from './log';
@@ -58,4 +59,5 @@ export const CliInternals = {
 	getCliOptions,
 	parseCommandLine,
 	loadConfig,
+	initializeRenderCli,
 };

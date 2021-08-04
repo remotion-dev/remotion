@@ -72,13 +72,7 @@ export const executeCommand = async (args: string[]) => {
 };
 
 export const cli = async () => {
-	const appliedName = CliInternals.loadConfig();
-	if (appliedName) {
-		Log.verbose(`Applied configuration from ${appliedName}.`);
-	} else {
-		Log.verbose('No config file loaded.');
-	}
+	CliInternals.initializeRenderCli('lambda');
 
-	CliInternals.parseCommandLine();
 	await executeCommand(parsedLambdaCli._);
 };
