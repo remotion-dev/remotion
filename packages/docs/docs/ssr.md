@@ -157,7 +157,7 @@ Note that running the workflow may incur costs. However, the workflow will only 
 
 ## Rendering a video using serverless
 
-We are working on a library which will help you render videos using AWS Lambda. Contact us if you are interested in testing an early version.
+We are working on a library which will help you render videos using AWS Lambda. Contact us if you are interested in testing an early version or read the `#lambda` channel on our Discord server.
 
 ## API reference
 
