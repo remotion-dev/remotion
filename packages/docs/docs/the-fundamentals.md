@@ -18,13 +18,13 @@ export const MyVideo = () => {
 // - MyVideo
 ```
 
-The basic idea behind Remotion is that you get a frame number and blank canvas to render anything you want.
-
-You express those ideas using **[React](https://reactjs.org)**.
+The basic idea behind Remotion is that we'll give you a frame number and a blank canvas, and the freedom to render anything you want using **[React.js](https://reactjs.org)**.
 
 ```tsx twoslash
 // @include: example-MyVideo
 ```
+
+A video is a function of images over time. If you change content every frame, you'll end up with an animation.
 
 ## Video properties
 
@@ -78,3 +78,5 @@ export const RemotionVideo: React.FC = () => {
 ```
 
 Remember that if you like, you can register multiple compositions that rely on the same component. For example, if you like to make a square video for social media feeds, and a portrait video for Stories, you can reuse the component and try to make it 'responsive'.
+
+Besides the `<Composition />` component, you can also render a [`<Still />`](/docs/still) component and define a still image rather than a video.

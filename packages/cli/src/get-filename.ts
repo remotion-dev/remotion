@@ -6,11 +6,20 @@ import {
 } from './user-passed-output-location';
 
 // eslint-disable-next-line complexity
-export const getOutputFilename = (
-	codec: Codec,
-	imageSequence: boolean
-): string => {
+export const getOutputFilename = ({
+	codec,
+	imageSequence,
+	type,
+}: {
+	codec: Codec;
+	imageSequence: boolean;
+	type: 'still' | 'series';
+}): string => {
 	let filename = getUserPassedOutputLocation();
+	if (type === 'still') {
+		return filename;
+	}
+
 	let extension = getUserPassedFileExtension();
 	if (imageSequence) {
 		if (extension !== null) {

@@ -1,6 +1,7 @@
 import {PlayerInternals} from '@remotion/player';
 import React, {useCallback, useEffect} from 'react';
 import {Internals} from 'remotion';
+import {useIsStill} from '../helpers/is-current-selected-still';
 import {Pause} from '../icons/pause';
 import {Play} from '../icons/play';
 import {StepBack} from '../icons/step-back';
@@ -20,6 +21,14 @@ export const PlayPause: React.FC = () => {
 		frameForward,
 		isLastFrame,
 	} = PlayerInternals.usePlayer();
+
+	const isStill = useIsStill();
+
+	useEffect(() => {
+		if (isStill) {
+			pause();
+		}
+	}, [isStill, pause]);
 
 	const onKeyPress = useCallback(
 		(e: KeyboardEvent) => {
@@ -64,6 +73,10 @@ export const PlayPause: React.FC = () => {
 			window.removeEventListener('keydown', onKeyPress);
 		};
 	}, [onKeyPress]);
+
+	if (isStill) {
+		return null;
+	}
 
 	return (
 		<>
