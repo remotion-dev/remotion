@@ -64,6 +64,7 @@ module.exports = {
         "img",
         "iframe",
         "freeze",
+        "still",
         "easing",
       ],
     },
