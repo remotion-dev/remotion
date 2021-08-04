@@ -31,11 +31,11 @@ const start = async () => {
   const compositionId = 'HelloWorld'
 
   // Create a webpack bundle of the entry file.
-  const bundled = await bundle(require.resolve('./src/index'))
+  const bundleLocation = await bundle(require.resolve('./src/index'))
 
   // Extract all the compositions you have defined in your project
   // from the webpack bundle.
-  const comps = await getCompositions(bundled, {
+  const comps = await getCompositions(bundleLocation, {
     // You can pass custom input props that you can retrieve using getInputProps()
     // in the composition list. Use this if you want to dynamically set the duration or
     // dimensions of the video.
@@ -158,7 +158,7 @@ Note that running the workflow may incur costs. However, the workflow will only 
 
 ## Rendering a video using serverless
 
-We are working on a library which will help you render videos using AWS Lambda. Contact us if you are interested in testing an early version.
+We are working on a library which will help you render videos using AWS Lambda. Contact us if you are interested in testing an early version or read the `#lambda` channel on our Discord server.
 
 ## API reference
 

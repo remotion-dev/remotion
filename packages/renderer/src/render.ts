@@ -5,7 +5,6 @@ import {
 	FrameRange,
 	ImageFormat,
 	Internals,
-	RenderAssetInfo,
 	VideoConfig,
 } from 'remotion';
 import {getActualConcurrency} from './get-concurrency';
@@ -16,17 +15,7 @@ import {Pool} from './pool';
 import {provideScreenshot} from './provide-screenshot';
 import {seekToFrame} from './seek-to-frame';
 import {setPropsAndEnv} from './set-props-and-env';
-
-export type RenderFramesOutput = {
-	frameCount: number;
-	assetsInfo: RenderAssetInfo;
-};
-
-export type OnStartData = {
-	frameCount: number;
-};
-
-export type OnErrorInfo = {error: Error; frame: number | null};
+import {OnErrorInfo, OnStartData, RenderFramesOutput} from './types';
 
 export const renderFrames = async ({
 	config,
@@ -88,6 +77,8 @@ export const renderFrames = async ({
 			"You can only pass the `quality` option if `imageFormat` is 'jpeg'."
 		);
 	}
+
+	Internals.validateQuality(quality);
 
 	const actualParallelism = getActualConcurrency(parallelism ?? null);
 
