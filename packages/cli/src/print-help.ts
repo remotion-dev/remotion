@@ -42,7 +42,7 @@ export const printHelp = () => {
 		['--port', 'Custom port to use for the HTTP server'],
 		['--env-file', 'Specify a location for a dotenv file'],
 	]);
-	Log.info('remotion still <index-file.ts> <comp-name> <still.mp4>');
+	Log.info('remotion still <index-file.ts> <comp-name> <still.png>');
 	Log.info(chalk.gray('Render a still frame and save it as an image.'));
 	printFlags([
 		['--frame', 'Which frame to render (default 0)'],
