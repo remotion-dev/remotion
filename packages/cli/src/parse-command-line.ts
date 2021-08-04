@@ -32,7 +32,7 @@ export type CommandLineOptions = {
 	log: string;
 	help: boolean;
 	port: number;
-	['frame']: string | number;
+	frame: string | number;
 };
 
 export const parsedCli = minimist<CommandLineOptions>(process.argv.slice(2), {

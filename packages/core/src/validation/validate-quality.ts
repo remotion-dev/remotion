@@ -20,6 +20,6 @@ export const validateQuality = (q: number | undefined) => {
 	}
 
 	if (q > 100 || q < 0) {
-		throw new RangeError('Quality option must be between 1 and 100.');
+		throw new RangeError('Quality option must be between 0 and 100.');
 	}
 };
