@@ -68,13 +68,15 @@ An absolute path to where the frame should be rendered to.
 
 ### `inputProps?`
 
+_optional_
+
 [Custom props which will be passed to the component.](/docs/parametrized-rendering) Useful for rendering videos with dynamic content. Can be an object of any shape.
 
 ### `frame?`
 
 _optional - default: 0_
 
-Which frame should be rendered based on it's number.
+Which frame should be rendered based on its number.
 
 ### `imageFormat?`
 
@@ -84,7 +86,7 @@ Which output format the image should have, either `png` or `jpeg`.
 
 ### `quality?`
 
-_optional - default: 80_
+_optional - default: `undefined`_
 
 Sets the JPEG quality - must be an integer between 0 and 100 and can only be passed if `imageFormat` is set to `jpeg`.
 
@@ -98,13 +100,13 @@ An already open Puppeteer [`Browser`](https://pptr.dev/#?product=Puppeteer&versi
 
 _optional - default `{}`_
 
-An object containing key-value pairs of environment variables which will be injected into your Remotion projected and which can be accessed by reading the global `process.env` object.
+An object containing key-value pairs of environment variables which will be injected into your Remotion project and which can be accessed by reading the global `process.env` object.
 
 ### `dumpBrowserLogs?`
 
 _optional - default `false`_
 
-A boolean value deciding whether Puppeteer logs should be printed to the console.
+A boolean value deciding whether Puppeteer logs should be printed to the console, useful for debugging only.
 
 ### `onError?`
 
