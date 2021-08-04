@@ -91,6 +91,7 @@ export const still = async () => {
 			process.exit(1);
 		},
 		puppeteerInstance: openedBrowser,
+		overwrite: Internals.getShouldOverwrite(),
 	});
 
 	const closeBrowserPromise = openedBrowser.close();
