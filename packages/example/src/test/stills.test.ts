@@ -35,7 +35,7 @@ test('Can render a still using Node.JS APIs', async () => {
 	expect(() =>
 		renderStill({
 			composition,
-			output: process.platform === 'win32' ? 'D:\\my\\path' : '/var',
+			output: process.platform === 'win32' ? 'D:\\' : '/var',
 			webpackBundle: bundled,
 		})
 	).rejects.toThrow(/already exists, but is not a file/);
