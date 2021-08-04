@@ -76,7 +76,10 @@ export const renderCommand = async (args: string[]) => {
 
 	const {functionName} = lambdasWithMatchingVersion[0];
 
-	const cliOptions = await CliInternals.getCliOptions({isLambda: true});
+	const cliOptions = await CliInternals.getCliOptions({
+		type: 'series',
+		isLambda: true,
+	});
 
 	const res = await renderVideoOnLambda({
 		functionName,

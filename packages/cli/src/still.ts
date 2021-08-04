@@ -13,7 +13,10 @@ import {handleCommonError} from './handle-common-errors';
 import {initializeRenderCli} from './initialize-render-cli';
 import {Log} from './log';
 import {parsedCli} from './parse-command-line';
-import {createProgressBar, makeRenderingProgress} from './progress-bar';
+import {
+	createOverwriteableCliOutput,
+	makeRenderingProgress,
+} from './progress-bar';
 import {bundleOnCli} from './setup-cache';
 import {getUserPassedOutputLocation} from './user-passed-output-location';
 
@@ -40,7 +43,7 @@ export const still = async () => {
 		browser,
 		imageFormat,
 		stillFrame,
-	} = await getCliOptions('still');
+	} = await getCliOptions({isLambda: false, type: 'still'});
 
 	if (imageFormat === 'none') {
 		Log.error(
@@ -91,7 +94,7 @@ export const still = async () => {
 		throw new Error(`Cannot find composition with ID ${compositionId}`);
 	}
 
-	const renderProgress = createProgressBar();
+	const renderProgress = createOverwriteableCliOutput();
 	const renderStart = Date.now();
 
 	await renderStill({

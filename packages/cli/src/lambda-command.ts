@@ -1,6 +1,6 @@
-import {loadConfig} from './get-config-file-name';
+import {initializeRenderCli} from './initialize-render-cli';
 import {Log} from './log';
-import {parseCommandLine, parsedCli} from './parse-command-line';
+import {parsedCli} from './parse-command-line';
 
 export const lambdaCommand = async () => {
 	try {
@@ -8,13 +8,7 @@ export const lambdaCommand = async () => {
 			paths: [process.cwd()],
 		});
 		const {LambdaInternals} = require(path);
-		parseCommandLine();
-		const appliedName = loadConfig();
-		if (appliedName) {
-			Log.verbose(`Applied configuration from ${appliedName}.`);
-		} else {
-			Log.verbose('No config file loaded.');
-		}
+		initializeRenderCli('lambda');
 
 		await LambdaInternals.executeCommand(parsedCli._.slice(1));
 		process.exit(0);

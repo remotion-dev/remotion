@@ -49,8 +49,6 @@ export const render = async () => {
 
 	initializeRenderCli('sequence');
 
-	parseCommandLine();
-
 	const {
 		codec,
 		proResProfile,
