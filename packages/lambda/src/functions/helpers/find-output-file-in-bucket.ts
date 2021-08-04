@@ -1,5 +1,6 @@
 import {_Object} from '@aws-sdk/client-s3';
-import {outName, RenderMetadata} from '../../shared/constants';
+import {Codec} from 'remotion';
+import {outName, outStillName, RenderMetadata} from '../../shared/constants';
 import {getCurrentRegionInFunction} from './get-current-region';
 
 export const findOutputFileInBucket = ({
@@ -7,20 +8,38 @@ export const findOutputFileInBucket = ({
 	renderMetadata,
 	bucketName,
 	renderId,
+	type,
 }: {
 	contents: _Object[];
 	renderMetadata: RenderMetadata | null;
 	bucketName: string;
 	renderId: string;
+	type: 'still' | 'video';
 }): {
 	url: string;
 	size: number;
 	lastModified: number;
 } | null => {
-	const output = renderMetadata
-		? contents.find((c) =>
-				c.Key?.includes(outName(renderId, renderMetadata.codec))
-		  ) ?? null
+	const expectedOutName = (() => {
+		if (!renderMetadata) {
+			return null;
+		}
+
+		if (type === 'still') {
+			return outStillName(renderId, renderMetadata?.imageFormat);
+		}
+
+		if (type === 'video') {
+			return outName(renderId, renderMetadata?.codec as Codec);
+		}
+
+		throw new TypeError('no type passed');
+	})();
+
+	const output = expectedOutName
+		? renderMetadata
+			? contents.find((c) => c.Key?.includes(expectedOutName)) ?? null
+			: null
 		: null;
 
 	if (!output) {
@@ -34,9 +53,6 @@ export const findOutputFileInBucket = ({
 	return {
 		lastModified: output.LastModified?.getTime() as number,
 		size: output.Size as number,
-		url: `https://s3.${getCurrentRegionInFunction()}.amazonaws.com/${bucketName}/${outName(
-			renderId,
-			renderMetadata.codec
-		)}`,
+		url: `https://s3.${getCurrentRegionInFunction()}.amazonaws.com/${bucketName}/${expectedOutName}`,
 	};
 };

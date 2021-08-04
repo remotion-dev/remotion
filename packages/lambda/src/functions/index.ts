@@ -13,6 +13,7 @@ import {launchHandler} from './launch';
 import {progressHandler} from './progress';
 import {rendererHandler} from './renderer';
 import {startHandler} from './start';
+import {stillHandler} from './still';
 
 export const handler = async <T extends LambdaRoutines>(
 	params: LambdaPayload,
@@ -30,6 +31,12 @@ export const handler = async <T extends LambdaRoutines>(
 	setWarm();
 
 	const currentUserId = context.invokedFunctionArn.split(':')[4];
+	if (params.type === LambdaRoutines.still) {
+		return stillHandler(params, {
+			expectedBucketOwner: currentUserId,
+		});
+	}
+
 	if (params.type === LambdaRoutines.start) {
 		return startHandler(params);
 	}

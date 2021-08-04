@@ -53,6 +53,7 @@ export const createPostRenderData = async ({
 		bucketName,
 		renderId,
 		renderMetadata,
+		type: 'video',
 	});
 
 	if (!outputFile) {

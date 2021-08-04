@@ -4,6 +4,7 @@ import {launchHandler} from '../functions/launch';
 import {progressHandler} from '../functions/progress';
 import {rendererHandler} from '../functions/renderer';
 import {startHandler} from '../functions/start';
+import {stillHandler} from '../functions/still';
 import {LambdaRoutines} from './constants';
 
 export interface LambdaReturnValues {
@@ -13,4 +14,5 @@ export interface LambdaReturnValues {
 	[LambdaRoutines.status]: ReturnType<typeof progressHandler>;
 	[LambdaRoutines.fire]: ReturnType<typeof fireHandler>;
 	[LambdaRoutines.info]: ReturnType<typeof infoHandler>;
+	[LambdaRoutines.still]: ReturnType<typeof stillHandler>;
 }

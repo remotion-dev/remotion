@@ -191,6 +191,7 @@ const renderHandler = async (params: LambdaPayload, options: Options) => {
 		}),
 		body: fs.createReadStream(outputLocation),
 		region: getCurrentRegionInFunction(),
+		// TODO: Allow to be private
 		acl: 'public-read',
 		expectedBucketOwner: options.expectedBucketOwner,
 	});

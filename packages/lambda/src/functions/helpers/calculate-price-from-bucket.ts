@@ -42,6 +42,8 @@ export const estimatePriceFromBucket = ({
 		contents,
 		renderId,
 		renderMetadata,
+		// TODO: Differentiate better?
+		type: 'video',
 	});
 
 	const timeToFinish = getTimeToFinish({
