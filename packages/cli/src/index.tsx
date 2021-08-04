@@ -27,6 +27,9 @@ export const cli = async () => {
 		await still();
 	} else if (command === 'upgrade') {
 		await upgrade();
+	} else if (command === 'help') {
+		printHelp();
+		process.exit(0);
 	} else {
 		Log.error(`Command ${command} not found.`);
 		printHelp();

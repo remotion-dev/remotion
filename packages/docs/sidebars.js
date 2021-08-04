@@ -35,6 +35,7 @@ module.exports = {
         "legacy-babel",
         "env-variables",
         "third-party",
+        "stills",
       ],
     },
     "cli",
