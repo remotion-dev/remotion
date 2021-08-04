@@ -6,7 +6,7 @@ import {
 import chalk from 'chalk';
 import {mkdirSync} from 'fs';
 import path from 'path';
-import {Internals} from 'remotion';
+import {Config, Internals} from 'remotion';
 import {getCliOptions} from './get-cli-options';
 import {getCompositionId} from './get-composition-id';
 import {handleCommonError} from './handle-common-errors';
@@ -26,6 +26,13 @@ export const still = async () => {
 
 	const userOutput = path.resolve(process.cwd(), getUserPassedOutputLocation());
 
+	if (userOutput.endsWith('.jpeg') || userOutput.endsWith('.jpg')) {
+		Log.verbose(
+			'Output file has a JPEG extension, therefore setting the image format to PNG.'
+		);
+		Config.Rendering.setImageFormat('jpeg');
+	}
+
 	const {
 		inputProps,
 		envVariables,
@@ -40,6 +47,22 @@ export const still = async () => {
 			'No image format was selected - this is probably an error in Remotion - please post your command on Github Issues for help.'
 		);
 		process.exit(1);
+	}
+
+	if (imageFormat === 'png' && !userOutput.endsWith('.png')) {
+		Log.warn(
+			`Rendering a PNG, expected a .png extension but got ${userOutput}`
+		);
+	}
+
+	if (
+		imageFormat === 'jpeg' &&
+		!userOutput.endsWith('.jpg') &&
+		!userOutput.endsWith('.jpeg')
+	) {
+		Log.warn(
+			`Rendering a JPEG, expected a .jpg or .jpeg extension but got ${userOutput}`
+		);
 	}
 
 	const browserInstance = RenderInternals.openBrowser(browser, {
