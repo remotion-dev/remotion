@@ -4,7 +4,7 @@ import {
 	renderStill,
 } from '@remotion/renderer';
 import chalk from 'chalk';
-import {mkdirSync} from 'node:fs';
+import {mkdirSync} from 'fs';
 import path from 'path';
 import {Internals} from 'remotion';
 import {getCliOptions} from './get-cli-options';
