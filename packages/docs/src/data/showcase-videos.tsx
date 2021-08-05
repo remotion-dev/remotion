@@ -473,31 +473,232 @@ export const showcaseVideos: ShowcaseVideo[] = [
     title: "Verdaccio Announcement Video",
     type: "mux_video",
     muxId: "lSa6eYA01jP5ooFSgTE02P6nfRbjIbF1kcr5LdwS01Zp8o",
-    description: "Add a description here",
+    description:
+      "This Animation shows new features on the new built website of Verdaccio a lightweight private Node.js proxy regisry.",
     height: 720,
     width: 1280,
     submittedOn: new Date("08-04-2021"),
     links: [
       {
-        type: "source_code",
-        url: "<add github url or delete this object>",
-      },
-      {
         type: "video",
-        url: "<add video link or delete this object>",
+        url: "<https://twitter.com/verdaccio_npm/status/1420187249145118722",
       },
       {
         type: "website",
-        url: "<add product link or delete this object>",
-      },
-      {
-        type: "tutorial",
-        url: "<add link to tutorial or delete this object>",
+        url: "https://verdaccio.org/",
       },
     ],
     author: {
-      url: "<link your website or social media profile>",
-      name: "<Enter your name or organization>",
+      url: "<https://twitter.com/_semoal>",
+      name: "<Sergio Moreno>",
+    },
+  },
+  {
+    title: "1000 Stars for Code Hike",
+    type: "mux_video",
+    muxId: "x7Dzaunb9JbdwyaR00CwBnIC2MkUPzJwmSiUrtNiYYP4",
+    description:
+      "A celebration video by Code Hike for reaching 1000 stars on GitHub.",
+    height: 540,
+    width: 960,
+    submittedOn: new Date("08-04-2021"),
+    links: [
+      {
+        type: "video",
+        url: "https://twitter.com/codehike_/status/1410976982867775489",
+      },
+      {
+        type: "website",
+        url: "https://codehike.org/",
+      },
+    ],
+    author: {
+      url: "https://codehike.org/",
+      name: "Code Hike",
+    },
+  },
+  {
+    title: "Instagram Profile as a Story",
+    type: "mux_video",
+    muxId: "6hyS0000BS02M4MPbZJxBuUG9SnJJCxCglHrTuWRdbpvOY",
+    description:
+      "A video as an example from a profile video generator which allows you to share your profile as a story.",
+    height: 1280,
+    width: 720,
+    submittedOn: new Date("08-04-2021"),
+    links: [
+      {
+        type: "video",
+        url: "https://twitter.com/FlorentPergoud/status/1375134968733704217",
+      },
+    ],
+    author: {
+      url: "https://twitter.com/FlorentPergoud",
+      name: "Florent Pergoud",
+    },
+  },
+  {
+    title: "Code Stack - A Fully Automated News Podcast",
+    type: "mux_video",
+    muxId: "w02JWs4nf5GXSQjhHzIF00Ws6e1L1pz5PaZ02AgnE02K6dI",
+    description:
+      "A daily briefing with CodeStack's news podcast that uses Text-to-Speech.",
+    height: 720,
+    width: 1280,
+    submittedOn: new Date("08-05-2021"),
+    links: [
+      {
+        type: "source_code",
+        url: "https://github.com/FelippeChemello/podcast-maker",
+      },
+      {
+        type: "video",
+        url: "https://www.youtube.com/watch?v=3VSh3uCVtOE",
+      },
+      {
+        type: "website",
+        url: "https://anchor.fm/codestack",
+      },
+    ],
+    author: {
+      url: "https://twitter.com/CodeStackMe",
+      name: "Felippe Chemello",
+    },
+  },
+  {
+    title: "Weather Report With Hellometeo",
+    type: "mux_video",
+    muxId: "dE02NVflg500LNpSECSUmcwLFpKU100Z9TY362Lifdo0228",
+    description:
+      "A weather forecast that informs you through your social media feed.",
+    height: 1280,
+    width: 720,
+    submittedOn: new Date("08-05-2021"),
+    links: [
+      {
+        type: "source_code",
+        url: "https://github.com/florentpergoud/remotion-weather",
+      },
+      {
+        type: "video",
+        url: "https://twitter.com/JNYBGR/status/1398234353721917440",
+      },
+    ],
+    author: {
+      url: "https://twitter.com/FlorentPergoud",
+      name: "Florent Pergoud",
+    },
+  },
+  {
+    title: "Name The Movie - Quiz",
+    type: "mux_video",
+    muxId: "FFft61dbntN4DEnt00HiXCmfiJhNLnOaI02dT2D802oPIY",
+    description:
+      "A quiz game that gives you quotes from classic films to guess their title.",
+    height: 720,
+    width: 1280,
+    submittedOn: new Date("08-05-2021"),
+    links: [
+      {
+        type: "video",
+        url: "https://www.youtube.com/watch?v=kSqbAdwk5Bc&t=1s",
+      },
+    ],
+    author: {
+      url: "https://www.youtube.com/channel/UCfwUNx_fEW98olmpByg-V7w",
+      name: "Collou",
+    },
+  },
+  {
+    title: "ChessExpressed",
+    type: "mux_video",
+    muxId: "00kMu8F202f3nS6JJy8UUw8hAkrsoAKdC49bYvCboWN8g",
+    description: "Visually appealing chess videos of classical matchups.",
+    height: 720,
+    width: 1280,
+    submittedOn: new Date("08-05-2021"),
+    links: [
+      {
+        type: "video",
+        url: "https://www.youtube.com/watch?v=477uHt7-0jQ",
+      },
+      {
+        type: "website",
+        url:
+          "https://www.youtube.com/channel/UCM9AuQuwPOLhb07wA3_2a-Q/featured",
+      },
+    ],
+    author: {
+      url: "https://twitter.com/ChessExpressed",
+      name: "ChessExpressed",
+    },
+  },
+  {
+    title: "Match Announcer",
+    type: "mux_video",
+    muxId: "zDEoYi6tII8cA017JrZpqyx1hf2ErMaPUklUSSkdkhKk",
+    description: "An animation that shows a matchup.",
+    height: 1280,
+    width: 720,
+    submittedOn: new Date("08-05-2021"),
+    links: [
+      {
+        type: "video",
+        url: "https://jonnyburger.s3.eu-central-1.amazonaws.com/out+(41).mp4",
+      },
+    ],
+    author: {
+      name: "Suthar",
+    },
+  },
+  {
+    title: "Trailer Video",
+    type: "mux_video",
+    muxId: "J8H3dOuyC01ZurH9NnSvd17oS00FUPKns8HnTO02KyCF02k",
+    description: "A trailer video from William Candillon.",
+    height: 720,
+    width: 1280,
+    submittedOn: new Date("08-05-2021"),
+    links: [
+      {
+        type: "video",
+        url: "https://twitter.com/wcandillon/status/1415263264737476608",
+      },
+      {
+        type: "website",
+        url: "https://www.youtube.com/wcandillon",
+      },
+      {
+        type: "tutorial",
+        url: "https://www.youtube.com/watch?v=sHRgQjxNj5E",
+      },
+    ],
+    author: {
+      url: "https://twitter.com/wcandillon",
+      name: "William Candillon",
+    },
+  },
+  {
+    title: "Creating Videos Programmatically in React",
+    type: "mux_video",
+    muxId: "fWKVFtHn4bIEcPlqhsHcf69t0100SkUE6WXB600NcENQww",
+    description: "An introduction to Remotion for the React Summit 2021",
+    height: 720,
+    width: 1280,
+    submittedOn: new Date("08-05-2021"),
+    links: [
+      {
+        type: "source_code",
+        url: "https://github.com/JonnyBurger/react-summit-talk",
+      },
+      {
+        type: "video",
+        url: "https://www.youtube.com/watch?v=316oZDqOyEg",
+      },
+    ],
+    author: {
+      url: "https://twitter.com/jnybgr?lang=en",
+      name: "Jonny Burger",
     },
   },
 ];
