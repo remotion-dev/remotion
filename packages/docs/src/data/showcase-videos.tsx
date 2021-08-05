@@ -648,6 +648,7 @@ export const showcaseVideos: ShowcaseVideo[] = [
       },
     ],
     author: {
+      url: "",
       name: "Suthar",
     },
   },
