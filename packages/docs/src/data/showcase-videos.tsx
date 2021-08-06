@@ -594,6 +594,100 @@ export const showcaseVideos: ShowcaseVideo[] = [
       name: "William Candillon",
     },
   },
+  {
+    title: "Transfer Fee Record Specific to British Football",
+    type: "mux_video",
+    muxId: "sBbBlET802IE1C3bHCkNhDB00rpWPXRpIrkUP9YTqruXM",
+    description:
+      "An infographic showing the progression of the transfer fee record specific to British Football",
+    height: 1152,
+    width: 2048,
+    submittedOn: new Date("08-03-2021"),
+    links: [
+      {
+        type: "video",
+        url: "https://www.youtube.com/watch?v=hMsi04DkoMI&feature=youtu.be",
+      },
+      {
+        type: "website",
+        url: "https://twitter.com/mikepombal/status/1422219571206008835",
+      },
+    ],
+    author: {
+      url: "https://twitter.com/mikepombal",
+      name: "Mickael Marques",
+    },
+  },
+  {
+    title: "Stargazer",
+    type: "mux_video",
+    muxId: "FaeI2kV02tWW8DyOLm301gNYATgbqvq8LHHo8mHdtfID4",
+    description:
+      "Your repo reached a stars milestone? Celebrate with a video of your stargazers!",
+    height: 540,
+    width: 960,
+    submittedOn: new Date("08-03-2021"),
+    links: [
+      {
+        type: "source_code",
+        url: "https://github.com/pomber/stargazer",
+      },
+      {
+        type: "video",
+        url: "https://twitter.com/pomber/status/1412039274963275779",
+      },
+    ],
+    author: {
+      url: "https://twitter.com/pomber",
+      name: "Rodrigo Pombo",
+    },
+  },
+  {
+    title: "Confirmed Coronavirus Cases In the WORLD time-lapse",
+    type: "mux_video",
+    muxId: "Anx7p2jNQLUsSWBOjnEzdo9xvfC9spsVyL01sk7esrtY",
+    description: "Time-lapse of the spread of the corona virus in the WORLD.",
+    height: 1080,
+    width: 1920,
+    submittedOn: new Date("08-04-2021"),
+    links: [
+      {
+        type: "video",
+        url: "https://www.youtube.com/watch?v=Mrl229Zf23g",
+      },
+    ],
+    author: {
+      url: "https://www.youtube.com/channel/UCEyTSyN3FmW39THCl0kfDUA",
+      name: "Envision",
+    },
+  },
+  {
+    title: "Remotion 2.0 trailer",
+    type: "mux_video",
+    muxId: "g00CHkGQm1J0101dma3TBPvwufeAKZ8yOZk9p0048soVjW00",
+    description: "Trailer for Remotion 2.0 launch",
+    height: 1080,
+    width: 1920,
+    submittedOn: new Date("08-04-2021"),
+    links: [
+      {
+        type: "source_code",
+        url: "https://github.com/JonnyBurger/remotion-2-0-trailer",
+      },
+      {
+        type: "video",
+        url: "https://youtube.com/watch?v=0r6ho5sNPm4",
+      },
+      {
+        type: "website",
+        url: "https://www.remotion.dev/",
+      },
+    ],
+    author: {
+      url: "https://twitter.com/JNYBGR",
+      name: "Jonny Burger",
+    },
+  },
 ];
 
 const dateString = (date: Date) =>
