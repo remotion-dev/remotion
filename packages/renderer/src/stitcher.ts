@@ -157,7 +157,9 @@ export const stitchFramesToVideo = async (options: {
 		audioCodecName ? ['-c:a', audioCodecName] : null,
 		complexFilterFlag,
 		// Ignore audio from image sequence
-		isAudioOnly ? null : ['-map', '0:v', '-map_metadata', '-1'],
+		isAudioOnly ? null : ['-map', '0:v'],
+		// Ignore metadata that may come from remote media
+		isAudioOnly ? null : ['-map_metadata', '-1'],
 		options.force ? '-y' : null,
 		options.outputLocation,
 	];
