@@ -699,6 +699,10 @@ export const showcaseVideos: ShowcaseVideo[] = [
     ],
     author: {
       url: "https://twitter.com/jnybgr?lang=en",
+      name: "Jonny Burger",
+    },
+  },
+  {
     title: "Conference talk",
     type: "mux_video",
     muxId: "01DRoSacYBQvVpDzoAXl01Wt2r8JWtgTq4t5lFwPjVcDE",
@@ -913,8 +917,8 @@ export const showcaseVideos: ShowcaseVideo[] = [
       },
     ],
     author: {
-      url: "https://twitter.com/JNYBGR",
       name: "Jonny Burger",
+      url: "https://twitter.com/JNYBGR",
     },
   },
 ];
