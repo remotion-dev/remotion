@@ -101,7 +101,20 @@ export const renderFrames = async ({
 		page.on('error', errorCallback);
 		page.on('pageerror', errorCallback);
 
-		await setPropsAndEnv({inputProps, envVariables, page, serveUrl});
+		const initialFrame =
+			typeof frameRange === 'number'
+				? frameCount
+				: frameRange === null || frameRange === undefined
+				? 0
+				: frameRange[0];
+
+		await setPropsAndEnv({
+			inputProps,
+			envVariables,
+			page,
+			serveUrl,
+			initialFrame,
+		});
 
 		const site = `${serveUrl}/index.html?composition=${compositionId}`;
 		await page.goto(site);

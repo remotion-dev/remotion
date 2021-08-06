@@ -74,6 +74,7 @@ export const getCompositions = async (
 		envVariables: config?.envVariables,
 		page,
 		serveUrl,
+		initialFrame: 0,
 	});
 
 	const urlToVisit = `${serveUrl}/index.html?evaluation=true`;
