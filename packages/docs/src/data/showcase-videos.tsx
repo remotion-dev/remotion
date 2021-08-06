@@ -470,33 +470,160 @@ export const showcaseVideos: ShowcaseVideo[] = [
     },
   },
   {
-	title: "Transfer Fee Record Specific to British Football",
-	type: "mux_video",
-	muxId: "sBbBlET802IE1C3bHCkNhDB00rpWPXRpIrkUP9YTqruXM",
-	description: "An infographic showing the progression of the transfer fee record specific to British Football",
-	height: 1152,
-	width: 2048,
-	submittedOn: new Date("08-03-2021"),
-	links: [
-		{
-			type: "video",
-			url: "https://www.youtube.com/watch?v=hMsi04DkoMI&feature=youtu.be",
-		},
-		{
-			type: "website",
-			url: "https://twitter.com/mikepombal/status/1422219571206008835",
-		},
-	],
-	author: {
-		"url": "https://twitter.com/mikepombal",
-		"name": "Mickael Marques"
-	}
+    title: "Conference talk",
+    type: "mux_video",
+    muxId: "01DRoSacYBQvVpDzoAXl01Wt2r8JWtgTq4t5lFwPjVcDE",
+    description:
+      "A conference talk production composed in Remotion, including code animations, facecam, subtitles and a browser as an iFrame.",
+    height: 270,
+    width: 480,
+    submittedOn: new Date("08-03-2021"),
+    links: [
+      {
+        type: "source_code",
+        url: "https://github.com/pomber/record-talk-with-remotion/",
+      },
+      {
+        type: "video",
+        url: "https://twitter.com/pomber/status/1359556846688886789",
+      },
+      {
+        type: "tutorial",
+        url: "https://twitter.com/pomber/status/1358837764033241092",
+      },
+    ],
+    author: {
+      url: "https://pomb.us/",
+      name: "Rodrigo Pombo",
+    },
+  },
+  {
+    title: "Cloudfront Explainer",
+    type: "mux_video",
+    muxId: "BrKshHsFgC8DNhQPJGeu4fVjjWlzxHFLvMTcPB6EB6E",
+    description: "The intro for an online course about Cloudfront.",
+    height: 1080,
+    width: 1920,
+    submittedOn: new Date("08-03-2021"),
+    links: [
+      {
+        type: "video",
+        url:
+          "https://www.udemy.com/course/the-cloud-architects-guide-to-cloudfront/",
+      },
+      {
+        type: "website",
+        url:
+          "https://www.udemy.com/course/the-cloud-architects-guide-to-cloudfront/",
+      },
+    ],
+    author: {
+      name: "Tamàs Sallai",
+      url: "https://advancedweb.hu/",
+    },
+  },
+  {
+    title: "Apple Spring Loaded Logo",
+    type: "mux_video",
+    muxId: "wvFXhgp3WA8bvp025y74gkoX56TKTyX7Xx9Qvos1TStc",
+    description:
+      "A recreation of Apple's Spring Loaded Logo for their Spring 2021 Keynote. Uses Remotions interpolateColors() API.",
+    height: 700,
+    width: 700,
+    submittedOn: new Date("08-03-2021"),
+    links: [
+      {
+        type: "source_code",
+        url: "https://github.com/jonnyburger/spring-loaded",
+      },
+      {
+        type: "video",
+        url: "https://twitter.com/JNYBGR/status/1384606085173108737",
+      },
+    ],
+    author: {
+      url: "https://jonny.io",
+      name: "Jonny Burger",
+    },
+  },
+  {
+    title: "The math behind animations",
+    type: "mux_video",
+    muxId: "IDMyruXHia3rmOllIi13uy01hHgN4UxkAZT4BcgwiN00E",
+    description:
+      "In this masterpiece, William Candillon explains the fundamentals of how trigonometry is used for user interfaces. Full video available on YouTube.",
+    height: 360,
+    width: 640,
+    submittedOn: new Date("08-03-2021"),
+    links: [
+      {
+        type: "video",
+        url: "https://www.youtube.com/watch?v=-lF7sSTelOg&t=8s&pp=sAQA",
+      },
+      {
+        type: "website",
+        url: "https://start-react-native.dev/",
+      },
+    ],
+    author: {
+      url: "https://twitter.com/wcandillon",
+      name: "William Candillon",
+    },
+  },
+  {
+    title: "Liquid Swipe Tutorial Intro",
+    type: "mux_video",
+    muxId: "kNJDX8EkZzclZa01SBTCtRbma2fqgPzIJKczHntB01m84",
+    description:
+      "This intro warms you up for an awesome React Native tutorial on how to recreate a Liquid Swipe animation.",
+    height: 360,
+    width: 640,
+    submittedOn: new Date("08-03-2021"),
+    links: [
+      {
+        type: "video",
+        url: "https://www.youtube.com/watch?v=6jxy5wfNpk0",
+      },
+      {
+        type: "website",
+        url: "https://start-react-native.dev/",
+      },
+    ],
+    author: {
+      url: "https://twitter.com/wcandillon",
+      name: "William Candillon",
+    },
+  },
+  {
+    title: "Transfer Fee Record Specific to British Football",
+    type: "mux_video",
+    muxId: "sBbBlET802IE1C3bHCkNhDB00rpWPXRpIrkUP9YTqruXM",
+    description:
+      "An infographic showing the progression of the transfer fee record specific to British Football",
+    height: 1152,
+    width: 2048,
+    submittedOn: new Date("08-03-2021"),
+    links: [
+      {
+        type: "video",
+        url: "https://www.youtube.com/watch?v=hMsi04DkoMI&feature=youtu.be",
+      },
+      {
+        type: "website",
+        url: "https://twitter.com/mikepombal/status/1422219571206008835",
+      },
+    ],
+    author: {
+      url: "https://twitter.com/mikepombal",
+      name: "Mickael Marques",
+    },
   },
   {
     title: "Stargazer",
     type: "mux_video",
     muxId: "FaeI2kV02tWW8DyOLm301gNYATgbqvq8LHHo8mHdtfID4",
-    description: "Your repo reached a stars milestone? Celebrate with a video of your stargazers!",
+    description:
+      "Your repo reached a stars milestone? Celebrate with a video of your stargazers!",
     height: 540,
     width: 960,
     submittedOn: new Date("08-03-2021"),
@@ -511,9 +638,9 @@ export const showcaseVideos: ShowcaseVideo[] = [
       },
     ],
     author: {
-      "url": "https://twitter.com/pomber",
-      "name": "Rodrigo Pombo"
-    }
+      url: "https://twitter.com/pomber",
+      name: "Rodrigo Pombo",
+    },
   },
   {
     title: "Confirmed Coronavirus Cases In the WORLD time-lapse",
@@ -530,9 +657,9 @@ export const showcaseVideos: ShowcaseVideo[] = [
       },
     ],
     author: {
-      "url": "https://www.youtube.com/channel/UCEyTSyN3FmW39THCl0kfDUA",
-      "name": "Envision"
-    }
+      url: "https://www.youtube.com/channel/UCEyTSyN3FmW39THCl0kfDUA",
+      name: "Envision",
+    },
   },
   {
     title: "Remotion 2.0 trailer",
@@ -554,12 +681,12 @@ export const showcaseVideos: ShowcaseVideo[] = [
       {
         type: "website",
         url: "https://www.remotion.dev/",
-      }
+      },
     ],
     author: {
-      "url": "https://twitter.com/JNYBGR",
-      "name": "Jonny Burger"
-    }
+      url: "https://twitter.com/JNYBGR",
+      name: "Jonny Burger",
+    },
   },
 ];
 
