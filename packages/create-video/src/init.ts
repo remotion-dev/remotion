@@ -214,11 +214,17 @@ export const init = async () => {
 		{}
 	);
 
-	await execa('git', ['clone', `https://github.com/${template}`, projectRoot]);
+	try {
+		await execa('degit', [`https://github.com/${template}`, projectRoot]);
+		Log.info(`Cloned template into ${projectRoot}`);
+	} catch (e) {
+		Log.error('Error with template cloning. Aborting');
+		process.exit(1);
+	}
 
-	(fs.rmSync ?? fs.rmdirSync)(path.join(projectRoot, '.git'), {
-		recursive: true,
-	});
+	// (fs.rmSync ?? fs.rmdirSync)(path.join(projectRoot, '.git'), {
+	// 	recursive: true,
+	// });
 
 	await initGitRepoAsync(projectRoot, {
 		silent: false,
