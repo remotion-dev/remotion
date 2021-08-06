@@ -16,6 +16,8 @@ Keep track of changes to the APIs of Remotion Lambda here.
 
 ## August 6th, 2021
 
+Version hash: `2.3.0-alpha.0d814aad`
+
 - Node.JS API is now fully documented
 - Lambda function `name` was renamed to `functionName`
 - Fix `remotion lambda policies validate` wrongly indicating that the `iam:GetUser` permission was not given
