@@ -61,8 +61,63 @@ The name of the [composition](/docs/composition) you want to render..
 
 React props that are passed to your composition. You define the shape of the props that the component accepts.
 
+### `privacy`
+
+Whether the output in the S3 bucket should be public or private. Either `"private"` or `"public"`.
+
+### `frame`
+
+_optional - default `0`_
+
+Which frame of the composition should be rendered.
+
 ### `imageFormat?`
 
-_optional - default _
+_optional - default `"png"`_
 
-The image format that you want
+The image format that you want - either `"png"` or `"jpeg"`.
+
+### `quality?`
+
+_optional_
+
+Sets the quality of the generate JPEG images. Must be an integer between 0 and 100. Default is to leave it up to the browser, [current default is 80](https://github.com/chromium/chromium/blob/99314be8152e688bafbbf9a615536bdbb289ea87/headless/lib/browser/protocol/headless_handler.cc#L32).
+
+Only applies if `imageFormat` is `"jpeg"`, otherwise this option is invalid.
+
+### `maxRetries?`
+
+_optional - default `3`_
+
+How often a frame render may be retried until it fails.
+
+### `envVariables?`
+
+_optional - default `{}`_
+
+See [`renderFrames() -> envVariables`](/docs/render-frames#envvariables).
+
+## Return value
+
+Returns a promise resolving to an object with the following properties:
+
+### `bucketName`
+
+The S3 bucket in which the video was saved.
+
+### `output`
+
+An AWS S3 URL where the output is available.
+
+### `estimatedPrice`
+
+Object containing roughly estimated information about how expensive this operation was.
+
+### `size`
+
+The size of the output image in bytes.
+
+## See also
+
+- [renderVideoOnLambda()](/docs/lambda/rendervideoonlambda)
+- [renderStill()](/docs/lambda/renderstill)
