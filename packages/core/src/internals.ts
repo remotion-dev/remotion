@@ -62,6 +62,10 @@ import {
 import * as CSSUtils from './default-css';
 import {FEATURE_FLAG_FIREFOX_SUPPORT} from './feature-flags';
 import {getRemotionEnvironment, RemotionEnvironment} from './get-environment';
+import {
+	INITIAL_FRAME_LOCAL_STORAGE_KEY,
+	setupInitialFrame,
+} from './initial-frame';
 import {isAudioCodec} from './is-audio-codec';
 import * as perf from './perf';
 import {
@@ -156,8 +160,10 @@ export const Internals = {
 	isPlainIndex,
 	CSSUtils,
 	setupEnvVariables,
+	setupInitialFrame,
 	ENV_VARIABLES_ENV_NAME,
 	ENV_VARIABLES_LOCAL_STORAGE_KEY,
+	INITIAL_FRAME_LOCAL_STORAGE_KEY,
 	getDotEnvLocation,
 	getServerPort,
 	MediaVolumeContext,
