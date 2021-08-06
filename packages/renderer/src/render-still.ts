@@ -1,7 +1,7 @@
 import fs, {mkdirSync, statSync} from 'fs';
 import path from 'path';
 import {Browser as PuppeteerBrowser} from 'puppeteer-core';
-import {Browser, Internals, TCompMetadata} from 'remotion';
+import {Browser, Internals, StillImageFormat, TCompMetadata} from 'remotion';
 import {openBrowser} from './open-browser';
 import {provideScreenshot} from './provide-screenshot';
 import {seekToFrame} from './seek-to-frame';
@@ -30,7 +30,7 @@ export const renderStill = async ({
 	serveUrl: string;
 	frame?: number;
 	inputProps?: unknown;
-	imageFormat?: 'png' | 'jpeg';
+	imageFormat?: StillImageFormat;
 	quality?: number;
 	browser?: Browser;
 	puppeteerInstance?: PuppeteerBrowser;
