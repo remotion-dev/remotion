@@ -676,7 +676,7 @@ export const showcaseVideos: ShowcaseVideo[] = [
       },
       {
         type: "video",
-        url: "youtube.com/watch?v=0r6ho5sNPm4",
+        url: "https://youtube.com/watch?v=0r6ho5sNPm4",
       },
       {
         type: "website",
