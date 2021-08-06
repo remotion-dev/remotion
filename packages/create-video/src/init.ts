@@ -1,4 +1,5 @@
 import chalk from 'chalk';
+import degit from 'degit';
 import execa from 'execa';
 import fs from 'fs-extra';
 import path from 'path';
@@ -215,16 +216,15 @@ export const init = async () => {
 	);
 
 	try {
-		await execa('degit', [`https://github.com/${template}`, projectRoot]);
-		Log.info(`Cloned template into ${projectRoot}`);
+		const emitter = degit(`https://github.com/${template}`);
+		await emitter.clone(projectRoot);
+
+		Log.info(`Cloned template into clonign ${projectRoot}`);
 	} catch (e) {
+		console.log(e, 'error');
 		Log.error('Error with template cloning. Aborting');
 		process.exit(1);
 	}
-
-	// (fs.rmSync ?? fs.rmdirSync)(path.join(projectRoot, '.git'), {
-	// 	recursive: true,
-	// });
 
 	await initGitRepoAsync(projectRoot, {
 		silent: false,
