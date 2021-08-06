@@ -97,11 +97,14 @@ export const still = async () => {
 	const renderProgress = createOverwriteableCliOutput();
 	const renderStart = Date.now();
 
+	const {port, close} = await RenderInternals.serveStatic(bundled);
+	const serveUrl = `http://localhost:${port}`;
+
 	await renderStill({
 		composition,
 		frame: stillFrame,
 		output: userOutput,
-		webpackBundle: bundled,
+		serveUrl,
 		quality,
 		browser,
 		dumpBrowserLogs: Internals.Logging.isEqualOrBelowLogLevel('verbose'),
@@ -121,6 +124,9 @@ export const still = async () => {
 	});
 
 	const closeBrowserPromise = openedBrowser.close();
+	close().catch((err) => {
+		Log.error('Could not close web server', err);
+	});
 	renderProgress.update(
 		makeRenderingProgress({
 			frames: 1,

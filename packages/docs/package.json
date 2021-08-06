@@ -21,6 +21,7 @@
     "@remotion/gif": "^2.2.4",
     "@remotion/media-utils": "^2.2.4",
     "@remotion/player": "^2.2.4",
+    "@remotion/lambda": "^2.2.4",
     "@remotion/renderer": "^2.2.4",
     "@remotion/three": "^2.2.4",
     "@splitbee/web": "^0.2.4",
