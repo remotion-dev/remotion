@@ -64,5 +64,6 @@ export const renderStillOnLambda = async ({
 		estimatedPrice: res.estimatedPrice,
 		url: res.output,
 		size: res.size,
+		bucketName: res.bucketName,
 	};
 };

@@ -140,7 +140,7 @@ module.exports = {
         "get-compositions",
         "render-frames",
         "stitch-frames-to-video",
-        "render-still",
+        "renderstill",
       ],
     },
     {
