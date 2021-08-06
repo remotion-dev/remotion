@@ -1,10 +1,10 @@
 import fs from 'fs';
 import {Page, ScreenshotOptions} from 'puppeteer-core';
-import {Internals} from 'remotion';
+import {Internals, StillImageFormat} from 'remotion';
 
 export const _screenshotTask = async (
 	page: Page,
-	format: 'png' | 'jpeg',
+	format: StillImageFormat,
 	options: ScreenshotOptions
 ): Promise<Buffer | string> => {
 	const client = (page as any)._client;

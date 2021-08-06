@@ -1,4 +1,4 @@
-import {ImageFormat} from 'remotion';
+import {StillImageFormat} from 'remotion';
 import {AwsRegion} from '../pricing/aws-regions';
 import {callLambda} from '../shared/call-lambda';
 import {LambdaRoutines} from '../shared/constants';
@@ -37,7 +37,7 @@ export const renderStillOnLambda = async ({
 	serveUrl: string;
 	composition: string;
 	inputProps: unknown;
-	imageFormat: ImageFormat;
+	imageFormat: StillImageFormat;
 	maxRetries: number;
 	privacy: 'private' | 'public';
 	envVariables?: Record<string, string>;

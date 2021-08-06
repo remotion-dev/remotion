@@ -11,6 +11,7 @@ import {
 	getRolePolicy,
 	getUserPolicy,
 } from './api/iam-validation/suggested-policy';
+import {renderStillOnLambda} from './api/render-still-on-lambda';
 import {renderVideoOnLambda} from './api/render-video-on-lambda';
 import {LambdaInternals} from './internals';
 import {AwsRegion} from './pricing/aws-regions';
@@ -31,5 +32,6 @@ export {
 	getFunctionInfo,
 	estimatePrice,
 	LambdaInternals,
+	renderStillOnLambda,
 };
 export type {AwsRegion};
