@@ -2,6 +2,7 @@ import {InvokeCommand} from '@aws-sdk/client-lambda';
 import {renderStill} from '@remotion/renderer';
 import fs from 'fs';
 import path from 'path';
+import {StillImageFormat} from 'remotion';
 import {getOrCreateBucket} from '../api/get-or-create-bucket';
 import {estimatePrice} from '../pricing/calculate-price';
 import {getLambdaClient} from '../shared/aws-clients';
@@ -111,8 +112,7 @@ export const innerStillHandler = async (
 		envVariables: lambdaParams.envVariables,
 		// TODO: validate
 		frame: lambdaParams.frame,
-		// TODO: validate, fix type casting
-		imageFormat: lambdaParams.imageFormat as 'png',
+		imageFormat: lambdaParams.imageFormat as StillImageFormat,
 		inputProps: lambdaParams.inputProps,
 		onError: (error) => {
 			writeLambdaError({
@@ -158,6 +158,7 @@ export const innerStillHandler = async (
 	return {
 		output: `https://s3.${getCurrentRegionInFunction()}.amazonaws.com/${bucketName}/${outName}`,
 		size,
+		bucketName,
 		estimatedPrice: formatCostsInfo(estimatedPrice),
 	};
 };

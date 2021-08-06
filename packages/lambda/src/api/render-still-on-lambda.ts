@@ -38,8 +38,8 @@ export const renderStillOnLambda = async ({
 	composition: string;
 	inputProps: unknown;
 	imageFormat: StillImageFormat;
-	maxRetries: number;
 	privacy: 'private' | 'public';
+	maxRetries?: number;
 	envVariables?: Record<string, string>;
 	quality?: number;
 	frame?: number;
@@ -54,7 +54,7 @@ export const renderStillOnLambda = async ({
 			imageFormat,
 			envVariables,
 			quality,
-			maxRetries,
+			maxRetries: maxRetries ?? 3,
 			frame: frame ?? 0,
 			privacy,
 		},

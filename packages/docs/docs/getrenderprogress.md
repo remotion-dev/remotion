@@ -111,6 +111,10 @@ How many bytes have been saved to the S3 bucket as a result of this render.
 
 How many lambdas that render a chunk have been invoked yet and have started rendering. Note that `lambdasInvoked` and `renderMetadata.estimatedLambdaInvokations` don't match up currently, this is expected.
 
+### `estimatedPrice`
+
+TODO
+
 ## See also
 
 - [renderVideoOnLambda()](/docs/lambda/rendervideoonlambda)
