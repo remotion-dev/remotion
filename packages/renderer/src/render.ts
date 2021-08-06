@@ -113,7 +113,7 @@ export const renderFrames = async ({
 
 		const initialFrame =
 			typeof frameRange === 'number'
-				? frameCount
+				? frameRange
 				: frameRange === null || frameRange === undefined
 				? 0
 				: frameRange[0];
