@@ -1,3 +1,4 @@
+import Head from "@docusaurus/Head";
 import Layout from "@theme/Layout";
 import clsx from "clsx";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
@@ -132,6 +133,12 @@ const Showcase = () => {
       title="Showcase"
       description="Create MP4 motion graphics in React. Leverage CSS, SVG, WebGL and more technologies to render videos programmatically!"
     >
+      <Head>
+        <meta name="og:image" content="/img/showcase.png" />
+        <meta name="twitter:image" content="/img/showcase.png" />
+        <meta property="og:image" content="/img/showcase.png" />
+        <meta property="twitter:image" content="/img/showcase.png" />
+      </Head>
       <header className={clsx("hero ", styles.heroBanner)}>
         <div className="container">
           <PageHeader />
