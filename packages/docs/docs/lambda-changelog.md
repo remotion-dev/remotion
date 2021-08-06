@@ -14,7 +14,7 @@ Keep track of changes to the APIs of Remotion Lambda here.
 1. Redeploy your function: `npx remotion lambda functions deploy`
 1. Migrate according to the changelog below:
 
-## Unreleased
+## August 6th, 2021
 
 - Node.JS API is now fully documented
 - Lambda function `name` was renamed to `functionName`
@@ -23,6 +23,10 @@ Keep track of changes to the APIs of Remotion Lambda here.
 - `getFunctionVersion()` was removed, use `getFunctionInfo()`
 - New function `estimatePrice` is now available.
 - Parameter `memorySize` was renamed to `memorySizeInMb` globally.
+- New function [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda) available for rendering a still image.
+- New command [`npx remotion lambda still`](/docs/lambda/cli) for rendering a still image
+- React component lifecycle change: When the component is mounting, initially `useCurrentFrame()` returns the frame that is initially being rendered, rather than just `0` and then updating to the frame that will be initially rendered.
+- Includes all the changes from Remotion 2.2
 
 ## July 14th, 2021
 
