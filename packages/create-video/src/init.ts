@@ -221,7 +221,6 @@ export const init = async () => {
 
 		Log.info(`Cloned template into clonign ${projectRoot}`);
 	} catch (e) {
-		console.log(e, 'error');
 		Log.error('Error with template cloning. Aborting');
 		process.exit(1);
 	}
