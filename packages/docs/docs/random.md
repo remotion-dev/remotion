@@ -24,7 +24,7 @@ random() // Error: random() argument must be a number or a string
 
 ## Use cases
 
-Randomness can be used to create to create interesting visualizations, such as particle effect for example. Since Remotion renders a video on multiple threads and opens the website multiple times, the value returned by a `Math.random()` call will not be the same across multiple threads, making it hard to create animations based on randomness. Using this API will ensure that the pseudorandom number will be the same always.
+Randomness can be used to create interesting visualizations, such as particle effect for example. Since Remotion renders a video on multiple threads and opens the website multiple times, the value returned by a `Math.random()` call will not be the same across multiple threads, making it hard to create animations based on randomness. Using this API will ensure that the pseudorandom number will be the same always.
 
 ## Accessing true randomness
 

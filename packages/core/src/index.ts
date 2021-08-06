@@ -7,6 +7,7 @@ declare global {
 		ready: boolean;
 		getStaticCompositions: () => TCompMetadata[];
 		remotion_setFrame: (frame: number) => void;
+		remotion_initialFrame: number;
 		remotion_collectAssets: () => TAsset[];
 		remotion_isPlayer: boolean;
 		remotion_imported: boolean;

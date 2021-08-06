@@ -20,7 +20,7 @@ import {parsedCli} from './parse-command-line';
 import {
 	createProgressBar,
 	makeRenderingProgress,
-	makeStitchingProgres,
+	makeStitchingProgress,
 } from './progress-bar';
 import {bundleOnCli} from './setup-cache';
 import {checkAndValidateFfmpegVersion} from './validate-ffmpeg-version';
@@ -168,7 +168,7 @@ export const render = async () => {
 		const stitchingProgress = createProgressBar();
 
 		stitchingProgress.update(
-			makeStitchingProgres({
+			makeStitchingProgress({
 				doneIn: null,
 				frames: 0,
 				steps,
@@ -192,7 +192,7 @@ export const render = async () => {
 			parallelism,
 			onProgress: (frame: number) => {
 				stitchingProgress.update(
-					makeStitchingProgres({
+					makeStitchingProgress({
 						doneIn: null,
 						frames: frame,
 						steps,
@@ -206,7 +206,7 @@ export const render = async () => {
 			verbose: Internals.Logging.isEqualOrBelowLogLevel('verbose'),
 		});
 		stitchingProgress.update(
-			makeStitchingProgres({
+			makeStitchingProgress({
 				doneIn: Date.now() - stitchStart,
 				frames: totalFrames,
 				steps,
