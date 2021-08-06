@@ -6,6 +6,7 @@ import {functionsCommand, FUNCTIONS_COMMAND} from './commands/functions';
 import {policiesCommand, POLICIES_COMMAND} from './commands/policies/policies';
 import {renderCommand, RENDER_COMMAND} from './commands/render';
 import {sitesCommand, SITES_COMMAND} from './commands/sites';
+import {stillCommand, STILL_COMMAND} from './commands/still';
 import {printHelp} from './help';
 import {Log} from './log';
 
@@ -18,6 +19,10 @@ const matchCommand = async (args: string[]) => {
 
 	if (args[0] === RENDER_COMMAND) {
 		return renderCommand(args.slice(1));
+	}
+
+	if (args[0] === STILL_COMMAND) {
+		return stillCommand(args.slice(1));
 	}
 
 	if (args[0] === FUNCTIONS_COMMAND) {

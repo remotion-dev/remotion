@@ -8,7 +8,7 @@ Renders a still image inside a lambda function and writes it to the specified ou
 
 If you want to render a video instead, use [`renderVideoOnLamda()`](/docs/lambda/rendervideoonlambda) instead.
 
-If you want to render a still locally instead, use [`renderStill()`](/docs/renderstill) instead.
+If you want to render a still locally instead, use [`renderStill()`](/docs/render-still) instead.
 
 ## Example
 
@@ -120,4 +120,4 @@ The size of the output image in bytes.
 ## See also
 
 - [renderVideoOnLambda()](/docs/lambda/rendervideoonlambda)
-- [renderStill()](/docs/lambda/renderstill)
+- [renderStill()](/docs/render-still)

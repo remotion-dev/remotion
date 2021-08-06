@@ -2,6 +2,8 @@ import {ImageFormat, PixelFormat, ProResProfile} from 'remotion';
 import {AwsRegion} from '../pricing/aws-regions';
 import {callLambda} from '../shared/call-lambda';
 import {LambdaRoutines} from '../shared/constants';
+
+// TODO: `privacy` field
 /**
  * @description Triggers a render on a lambda given a composition and a lambda function.
  * @link https://remotion.dev/docs/lambda/rendervideoonlambda
