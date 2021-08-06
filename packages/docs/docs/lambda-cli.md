@@ -81,11 +81,22 @@ npx remotion lambda policies validate
 
 Renders a video using Remotion Lambda. You need to pass two arguments:
 
-- A URL, obtained from the `upload` command.
+- A URL, obtained from the `sites create` command.
 - The ID of the composition that you want to render.
 
 ```
 npx remotion lambda render https://remotionlambda-abcdefgh.s3.eu-central-1.amazonaws.com/sites/abcdefgh HelloWorld
+```
+
+## still
+
+Renders a still frame using Remotion Lambda. You need to pass two arguments:
+
+- A URL, obtained from the `sites create` command.
+- The ID of the composition that you want to render.
+
+```
+npx remotion lambda still https://remotionlambda-abcdefgh.s3.eu-central-1.amazonaws.com/sites/abcdefgh HelloWorld
 ```
 
 ## functions
