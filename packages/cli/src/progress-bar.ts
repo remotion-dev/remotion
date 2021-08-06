@@ -58,7 +58,7 @@ export const makeRenderingProgress = ({
 	].join(' ');
 };
 
-export const makeStitchingProgres = ({
+export const makeStitchingProgress = ({
 	frames,
 	totalFrames,
 	steps,
