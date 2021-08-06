@@ -6,7 +6,7 @@ sidebar_label: delayRender()
 
 By calling `delayRender`, you are signaling that a frame should not be immediately rendered and instead should wait on an asynchronous task to complete.
 
-This method is useful if you for example want to call an API to fetch data before you before you render.
+This method is useful if you for example want to call an API to fetch data before you render.
 
 `delayRender` returns an identifier. Once you have fetched data or finished the asynchronous task, you should call `continueRender(identifier)` to let Remotion know that you are now ready to render.
 
