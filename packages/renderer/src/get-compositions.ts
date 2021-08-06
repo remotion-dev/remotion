@@ -69,6 +69,7 @@ export const getCompositions = async (
 		envVariables: config?.envVariables,
 		page,
 		port,
+		initialFrame: 0,
 	});
 
 	await page.goto(`http://localhost:${port}/index.html?evaluation=true`);

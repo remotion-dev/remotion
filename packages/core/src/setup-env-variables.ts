@@ -1,7 +1,13 @@
 import {getRemotionEnvironment} from './get-environment';
 
 export const ENV_VARIABLES_LOCAL_STORAGE_KEY = 'remotion.envVariables';
+export const INITIAL_FRAME_LOCAL_STORAGE_KEY = 'remotion.initialFrame';
 export const ENV_VARIABLES_ENV_NAME = 'ENV_VARIABLES' as const;
+
+const getInitialFrame = (): number => {
+	const param = localStorage.getItem(INITIAL_FRAME_LOCAL_STORAGE_KEY);
+	return param ? Number(param) : 0;
+};
 
 const getEnvVariables = (): Record<string, string> => {
 	if (getRemotionEnvironment() === 'rendering') {
@@ -40,4 +46,8 @@ export const setupEnvVariables = () => {
 	Object.keys(env).forEach((key) => {
 		window.process.env[key] = env[key];
 	});
+};
+
+export const setupInitialFrame = () => {
+	window.remotion_initialFrame = getInitialFrame();
 };
