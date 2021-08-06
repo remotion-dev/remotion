@@ -470,18 +470,18 @@ export const showcaseVideos: ShowcaseVideo[] = [
     },
   },
   {
-    title: "Verdaccio Announcement Video",
+    title: "Product Announcement Video",
     type: "mux_video",
     muxId: "lSa6eYA01jP5ooFSgTE02P6nfRbjIbF1kcr5LdwS01Zp8o",
     description:
-      "This Animation shows new features on the new built website of Verdaccio a lightweight private Node.js proxy regisry.",
+      "Animation showing new features on the newly built website of Verdaccio, a lightweight private Node.js proxy regisry.",
     height: 720,
     width: 1280,
     submittedOn: new Date("08-04-2021"),
     links: [
       {
         type: "video",
-        url: "<https://twitter.com/verdaccio_npm/status/1420187249145118722",
+        url: "https://twitter.com/verdaccio_npm/status/1420187249145118722",
       },
       {
         type: "website",
@@ -489,8 +489,8 @@ export const showcaseVideos: ShowcaseVideo[] = [
       },
     ],
     author: {
-      url: "<https://twitter.com/_semoal>",
-      name: "<Sergio Moreno>",
+      url: "https://twitter.com/_semoal",
+      name: "Sergio Moreno",
     },
   },
   {
@@ -511,6 +511,10 @@ export const showcaseVideos: ShowcaseVideo[] = [
         type: "website",
         url: "https://codehike.org/",
       },
+      {
+        type: "source_code",
+        url: "https://github.com/pomber/stargazer",
+      },
     ],
     author: {
       url: "https://codehike.org/",
@@ -522,7 +526,7 @@ export const showcaseVideos: ShowcaseVideo[] = [
     type: "mux_video",
     muxId: "6hyS0000BS02M4MPbZJxBuUG9SnJJCxCglHrTuWRdbpvOY",
     description:
-      "A video as an example from a profile video generator which allows you to share your profile as a story.",
+      "A profile video generator which allows you to share your Instagram profile as a story.",
     height: 1280,
     width: 720,
     submittedOn: new Date("08-04-2021"),
@@ -542,7 +546,7 @@ export const showcaseVideos: ShowcaseVideo[] = [
     type: "mux_video",
     muxId: "w02JWs4nf5GXSQjhHzIF00Ws6e1L1pz5PaZ02AgnE02K6dI",
     description:
-      "A daily briefing with CodeStack's news podcast that uses Text-to-Speech.",
+      "Get a daily briefing with CodeStack's fully automated news podcast that reads news using text-to-speech.",
     height: 720,
     width: 1280,
     submittedOn: new Date("08-05-2021"),
@@ -566,11 +570,11 @@ export const showcaseVideos: ShowcaseVideo[] = [
     },
   },
   {
-    title: "Weather Report With Hellometeo",
+    title: "Weather Report",
     type: "mux_video",
     muxId: "dE02NVflg500LNpSECSUmcwLFpKU100Z9TY362Lifdo0228",
     description:
-      "A weather forecast that informs you through your social media feed.",
+      "A fully automated weather forecast that appears in your TikTok or Instagram feed.",
     height: 1280,
     width: 720,
     submittedOn: new Date("08-05-2021"),
@@ -582,6 +586,10 @@ export const showcaseVideos: ShowcaseVideo[] = [
       {
         type: "video",
         url: "https://twitter.com/JNYBGR/status/1398234353721917440",
+      },
+      {
+        type: "website",
+        url: "https://www.instagram.com/hellometeo/",
       },
     ],
     author: {
@@ -601,7 +609,11 @@ export const showcaseVideos: ShowcaseVideo[] = [
     links: [
       {
         type: "video",
-        url: "https://www.youtube.com/watch?v=kSqbAdwk5Bc&t=1s",
+        url: "https://www.youtube.com/watch?v=kSqbAdwk5Bc",
+      },
+      {
+        type: "website",
+        url: "https://www.youtube.com/channel/UCfwUNx_fEW98olmpByg-V7w",
       },
     ],
     author: {
@@ -613,7 +625,8 @@ export const showcaseVideos: ShowcaseVideo[] = [
     title: "ChessExpressed",
     type: "mux_video",
     muxId: "00kMu8F202f3nS6JJy8UUw8hAkrsoAKdC49bYvCboWN8g",
-    description: "Visually appealing chess videos of classical matchups.",
+    description:
+      "Videos of classic chess matchups with space domination visualized.",
     height: 720,
     width: 1280,
     submittedOn: new Date("08-05-2021"),
@@ -634,29 +647,32 @@ export const showcaseVideos: ShowcaseVideo[] = [
     },
   },
   {
-    title: "Match Announcer",
+    title: "Cricket Match Feature",
     type: "mux_video",
     muxId: "zDEoYi6tII8cA017JrZpqyx1hf2ErMaPUklUSSkdkhKk",
-    description: "An animation that shows a matchup.",
+    description:
+      "An animation showing the two teams competing in todays cricket match.",
     height: 1280,
     width: 720,
     submittedOn: new Date("08-05-2021"),
     links: [
       {
         type: "video",
-        url: "https://jonnyburger.s3.eu-central-1.amazonaws.com/out+(41).mp4",
+        url:
+          "https://discord.com/channels/809501355504959528/817306292590215181/820365999697952790",
       },
     ],
     author: {
-      url: "",
+      url:
+        "https://discord.com/channels/809501355504959528/817306292590215181/820365999697952790",
       name: "Suthar",
     },
   },
   {
-    title: "Trailer Video",
+    title: "Flashy Title Card",
     type: "mux_video",
     muxId: "J8H3dOuyC01ZurH9NnSvd17oS00FUPKns8HnTO02KyCF02k",
-    description: "A trailer video from William Candillon.",
+    description: "A nice title design in William Candillons video.",
     height: 720,
     width: 1280,
     submittedOn: new Date("08-05-2021"),
@@ -669,10 +685,6 @@ export const showcaseVideos: ShowcaseVideo[] = [
         type: "website",
         url: "https://www.youtube.com/wcandillon",
       },
-      {
-        type: "tutorial",
-        url: "https://www.youtube.com/watch?v=sHRgQjxNj5E",
-      },
     ],
     author: {
       url: "https://twitter.com/wcandillon",
@@ -680,10 +692,11 @@ export const showcaseVideos: ShowcaseVideo[] = [
     },
   },
   {
-    title: "Creating Videos Programmatically in React",
+    title: "Remotion Web Summit Talk",
     type: "mux_video",
     muxId: "fWKVFtHn4bIEcPlqhsHcf69t0100SkUE6WXB600NcENQww",
-    description: "An introduction to Remotion for the React Summit 2021",
+    description:
+      "A talk about Remotion given at React Summit 2021, fully written in React",
     height: 720,
     width: 1280,
     submittedOn: new Date("08-05-2021"),
@@ -698,7 +711,7 @@ export const showcaseVideos: ShowcaseVideo[] = [
       },
     ],
     author: {
-      url: "https://twitter.com/jnybgr?lang=en",
+      url: "https://twitter.com/jnybgr",
       name: "Jonny Burger",
     },
   },
@@ -784,7 +797,7 @@ export const showcaseVideos: ShowcaseVideo[] = [
     type: "mux_video",
     muxId: "IDMyruXHia3rmOllIi13uy01hHgN4UxkAZT4BcgwiN00E",
     description:
-      "In this masterpiece, William Candillon explains the fundamentals of how trigonometry is used for user interfaces. Full video available on YouTube.",
+      "William Candillon explains the fundamentals of how trigonometry is used for user interfaces. Full video available on YouTube.",
     height: 360,
     width: 640,
     submittedOn: new Date("08-03-2021"),
@@ -832,7 +845,7 @@ export const showcaseVideos: ShowcaseVideo[] = [
     type: "mux_video",
     muxId: "sBbBlET802IE1C3bHCkNhDB00rpWPXRpIrkUP9YTqruXM",
     description:
-      "An infographic showing the progression of the transfer fee record specific to British Football",
+      "An infographic showing the progression of the transfer fee record in British Football",
     height: 1152,
     width: 2048,
     submittedOn: new Date("08-03-2021"),
@@ -851,35 +864,12 @@ export const showcaseVideos: ShowcaseVideo[] = [
       name: "Mickael Marques",
     },
   },
+
   {
-    title: "Stargazer",
-    type: "mux_video",
-    muxId: "FaeI2kV02tWW8DyOLm301gNYATgbqvq8LHHo8mHdtfID4",
-    description:
-      "Your repo reached a stars milestone? Celebrate with a video of your stargazers!",
-    height: 540,
-    width: 960,
-    submittedOn: new Date("08-03-2021"),
-    links: [
-      {
-        type: "source_code",
-        url: "https://github.com/pomber/stargazer",
-      },
-      {
-        type: "video",
-        url: "https://twitter.com/pomber/status/1412039274963275779",
-      },
-    ],
-    author: {
-      url: "https://twitter.com/pomber",
-      name: "Rodrigo Pombo",
-    },
-  },
-  {
-    title: "Confirmed Coronavirus Cases In the WORLD time-lapse",
+    title: "Coronavirus Cases Visualization",
     type: "mux_video",
     muxId: "Anx7p2jNQLUsSWBOjnEzdo9xvfC9spsVyL01sk7esrtY",
-    description: "Time-lapse of the spread of the corona virus in the WORLD.",
+    description: "Timelapse of the spread of the coronavirus in the world.",
     height: 1080,
     width: 1920,
     submittedOn: new Date("08-04-2021"),
@@ -917,8 +907,8 @@ export const showcaseVideos: ShowcaseVideo[] = [
       },
     ],
     author: {
-      name: "Jonny Burger",
       url: "https://twitter.com/JNYBGR",
+      name: "Jonny Burger",
     },
   },
 ];
