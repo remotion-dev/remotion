@@ -470,6 +470,252 @@ export const showcaseVideos: ShowcaseVideo[] = [
     },
   },
   {
+    title: "Product Announcement Video",
+    type: "mux_video",
+    muxId: "lSa6eYA01jP5ooFSgTE02P6nfRbjIbF1kcr5LdwS01Zp8o",
+    description:
+      "Animation showing new features on the newly built website of Verdaccio, a lightweight private Node.js proxy regisry.",
+    height: 720,
+    width: 1280,
+    submittedOn: new Date("08-04-2021"),
+    links: [
+      {
+        type: "video",
+        url: "https://twitter.com/verdaccio_npm/status/1420187249145118722",
+      },
+      {
+        type: "website",
+        url: "https://verdaccio.org/",
+      },
+    ],
+    author: {
+      url: "https://twitter.com/_semoal",
+      name: "Sergio Moreno",
+    },
+  },
+  {
+    title: "1000 Stars for Code Hike",
+    type: "mux_video",
+    muxId: "x7Dzaunb9JbdwyaR00CwBnIC2MkUPzJwmSiUrtNiYYP4",
+    description:
+      "A celebration video by Code Hike for reaching 1000 stars on GitHub.",
+    height: 540,
+    width: 960,
+    submittedOn: new Date("08-04-2021"),
+    links: [
+      {
+        type: "video",
+        url: "https://twitter.com/codehike_/status/1410976982867775489",
+      },
+      {
+        type: "website",
+        url: "https://codehike.org/",
+      },
+      {
+        type: "source_code",
+        url: "https://github.com/pomber/stargazer",
+      },
+    ],
+    author: {
+      url: "https://codehike.org/",
+      name: "Code Hike",
+    },
+  },
+  {
+    title: "Instagram Profile as a Story",
+    type: "mux_video",
+    muxId: "6hyS0000BS02M4MPbZJxBuUG9SnJJCxCglHrTuWRdbpvOY",
+    description:
+      "A profile video generator which allows you to share your Instagram profile as a story.",
+    height: 1280,
+    width: 720,
+    submittedOn: new Date("08-04-2021"),
+    links: [
+      {
+        type: "video",
+        url: "https://twitter.com/FlorentPergoud/status/1375134968733704217",
+      },
+    ],
+    author: {
+      url: "https://twitter.com/FlorentPergoud",
+      name: "Florent Pergoud",
+    },
+  },
+  {
+    title: "Code Stack - A Fully Automated News Podcast",
+    type: "mux_video",
+    muxId: "w02JWs4nf5GXSQjhHzIF00Ws6e1L1pz5PaZ02AgnE02K6dI",
+    description:
+      "Get a daily briefing with CodeStack's fully automated news podcast that reads news using text-to-speech.",
+    height: 720,
+    width: 1280,
+    submittedOn: new Date("08-05-2021"),
+    links: [
+      {
+        type: "source_code",
+        url: "https://github.com/FelippeChemello/podcast-maker",
+      },
+      {
+        type: "video",
+        url: "https://www.youtube.com/watch?v=3VSh3uCVtOE",
+      },
+      {
+        type: "website",
+        url: "https://anchor.fm/codestack",
+      },
+    ],
+    author: {
+      url: "https://twitter.com/CodeStackMe",
+      name: "Felippe Chemello",
+    },
+  },
+  {
+    title: "Weather Report",
+    type: "mux_video",
+    muxId: "dE02NVflg500LNpSECSUmcwLFpKU100Z9TY362Lifdo0228",
+    description:
+      "A fully automated weather forecast that appears in your TikTok or Instagram feed.",
+    height: 1280,
+    width: 720,
+    submittedOn: new Date("08-05-2021"),
+    links: [
+      {
+        type: "source_code",
+        url: "https://github.com/florentpergoud/remotion-weather",
+      },
+      {
+        type: "video",
+        url: "https://twitter.com/JNYBGR/status/1398234353721917440",
+      },
+      {
+        type: "website",
+        url: "https://www.instagram.com/hellometeo/",
+      },
+    ],
+    author: {
+      url: "https://twitter.com/FlorentPergoud",
+      name: "Florent Pergoud",
+    },
+  },
+  {
+    title: "Name The Movie - Quiz",
+    type: "mux_video",
+    muxId: "FFft61dbntN4DEnt00HiXCmfiJhNLnOaI02dT2D802oPIY",
+    description:
+      "A quiz game that gives you quotes from classic films to guess their title.",
+    height: 720,
+    width: 1280,
+    submittedOn: new Date("08-05-2021"),
+    links: [
+      {
+        type: "video",
+        url: "https://www.youtube.com/watch?v=kSqbAdwk5Bc",
+      },
+      {
+        type: "website",
+        url: "https://www.youtube.com/channel/UCfwUNx_fEW98olmpByg-V7w",
+      },
+    ],
+    author: {
+      url: "https://www.youtube.com/channel/UCfwUNx_fEW98olmpByg-V7w",
+      name: "Collou",
+    },
+  },
+  {
+    title: "ChessExpressed",
+    type: "mux_video",
+    muxId: "00kMu8F202f3nS6JJy8UUw8hAkrsoAKdC49bYvCboWN8g",
+    description:
+      "Videos of classic chess matchups with space domination visualized.",
+    height: 720,
+    width: 1280,
+    submittedOn: new Date("08-05-2021"),
+    links: [
+      {
+        type: "video",
+        url: "https://www.youtube.com/watch?v=477uHt7-0jQ",
+      },
+      {
+        type: "website",
+        url:
+          "https://www.youtube.com/channel/UCM9AuQuwPOLhb07wA3_2a-Q/featured",
+      },
+    ],
+    author: {
+      url: "https://twitter.com/ChessExpressed",
+      name: "ChessExpressed",
+    },
+  },
+  {
+    title: "Cricket Match Feature",
+    type: "mux_video",
+    muxId: "zDEoYi6tII8cA017JrZpqyx1hf2ErMaPUklUSSkdkhKk",
+    description:
+      "An animation showing the two teams competing in todays cricket match.",
+    height: 1280,
+    width: 720,
+    submittedOn: new Date("08-05-2021"),
+    links: [
+      {
+        type: "video",
+        url:
+          "https://discord.com/channels/809501355504959528/817306292590215181/820365999697952790",
+      },
+    ],
+    author: {
+      url:
+        "https://discord.com/channels/809501355504959528/817306292590215181/820365999697952790",
+      name: "Suthar",
+    },
+  },
+  {
+    title: "Flashy Title Card",
+    type: "mux_video",
+    muxId: "J8H3dOuyC01ZurH9NnSvd17oS00FUPKns8HnTO02KyCF02k",
+    description: "A nice title design in William Candillons video.",
+    height: 720,
+    width: 1280,
+    submittedOn: new Date("08-05-2021"),
+    links: [
+      {
+        type: "video",
+        url: "https://twitter.com/wcandillon/status/1415263264737476608",
+      },
+      {
+        type: "website",
+        url: "https://www.youtube.com/wcandillon",
+      },
+    ],
+    author: {
+      url: "https://twitter.com/wcandillon",
+      name: "William Candillon",
+    },
+  },
+  {
+    title: "Remotion Web Summit Talk",
+    type: "mux_video",
+    muxId: "fWKVFtHn4bIEcPlqhsHcf69t0100SkUE6WXB600NcENQww",
+    description:
+      "A talk about Remotion given at React Summit 2021, fully written in React",
+    height: 720,
+    width: 1280,
+    submittedOn: new Date("08-05-2021"),
+    links: [
+      {
+        type: "source_code",
+        url: "https://github.com/JonnyBurger/react-summit-talk",
+      },
+      {
+        type: "video",
+        url: "https://www.youtube.com/watch?v=316oZDqOyEg",
+      },
+    ],
+    author: {
+      url: "https://twitter.com/jnybgr",
+      name: "Jonny Burger",
+    },
+  },
+  {
     title: "Conference talk",
     type: "mux_video",
     muxId: "01DRoSacYBQvVpDzoAXl01Wt2r8JWtgTq4t5lFwPjVcDE",
@@ -551,7 +797,7 @@ export const showcaseVideos: ShowcaseVideo[] = [
     type: "mux_video",
     muxId: "IDMyruXHia3rmOllIi13uy01hHgN4UxkAZT4BcgwiN00E",
     description:
-      "In this masterpiece, William Candillon explains the fundamentals of how trigonometry is used for user interfaces. Full video available on YouTube.",
+      "William Candillon explains the fundamentals of how trigonometry is used for user interfaces. Full video available on YouTube.",
     height: 360,
     width: 640,
     submittedOn: new Date("08-03-2021"),
@@ -599,7 +845,7 @@ export const showcaseVideos: ShowcaseVideo[] = [
     type: "mux_video",
     muxId: "sBbBlET802IE1C3bHCkNhDB00rpWPXRpIrkUP9YTqruXM",
     description:
-      "An infographic showing the progression of the transfer fee record specific to British Football",
+      "An infographic showing the progression of the transfer fee record in British Football",
     height: 1152,
     width: 2048,
     submittedOn: new Date("08-03-2021"),
@@ -618,35 +864,12 @@ export const showcaseVideos: ShowcaseVideo[] = [
       name: "Mickael Marques",
     },
   },
+
   {
-    title: "Stargazer",
-    type: "mux_video",
-    muxId: "FaeI2kV02tWW8DyOLm301gNYATgbqvq8LHHo8mHdtfID4",
-    description:
-      "Your repo reached a stars milestone? Celebrate with a video of your stargazers!",
-    height: 540,
-    width: 960,
-    submittedOn: new Date("08-03-2021"),
-    links: [
-      {
-        type: "source_code",
-        url: "https://github.com/pomber/stargazer",
-      },
-      {
-        type: "video",
-        url: "https://twitter.com/pomber/status/1412039274963275779",
-      },
-    ],
-    author: {
-      url: "https://twitter.com/pomber",
-      name: "Rodrigo Pombo",
-    },
-  },
-  {
-    title: "Confirmed Coronavirus Cases In the WORLD time-lapse",
+    title: "Coronavirus Cases Visualization",
     type: "mux_video",
     muxId: "Anx7p2jNQLUsSWBOjnEzdo9xvfC9spsVyL01sk7esrtY",
-    description: "Time-lapse of the spread of the corona virus in the WORLD.",
+    description: "Timelapse of the spread of the coronavirus in the world.",
     height: 1080,
     width: 1920,
     submittedOn: new Date("08-04-2021"),
