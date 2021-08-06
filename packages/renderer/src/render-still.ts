@@ -113,7 +113,13 @@ export const renderStill = async ({
 	};
 
 	page.on('pageerror', errorCallback);
-	await setPropsAndEnv({inputProps, envVariables, page, port});
+	await setPropsAndEnv({
+		inputProps,
+		envVariables,
+		page,
+		port,
+		initialFrame: frame,
+	});
 
 	const site = `http://localhost:${port}/index.html?composition=${composition.id}`;
 	await page.goto(site);
