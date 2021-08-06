@@ -4,10 +4,10 @@ import {parsedLambdaCli} from './args';
 import {cleanupCommand, CLEANUP_COMMAND} from './cleanup';
 import {functionsCommand, FUNCTIONS_COMMAND} from './commands/functions';
 import {policiesCommand, POLICIES_COMMAND} from './commands/policies/policies';
+import {renderCommand, RENDER_COMMAND} from './commands/render';
 import {sitesCommand, SITES_COMMAND} from './commands/sites';
 import {printHelp} from './help';
 import {Log} from './log';
-import {renderCommand, RENDER_COMMAND} from './render';
 
 const matchCommand = async (args: string[]) => {
 	checkCredentials();
