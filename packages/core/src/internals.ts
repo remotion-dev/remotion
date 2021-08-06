@@ -74,7 +74,9 @@ import {SequenceContext} from './sequencing';
 import {
 	ENV_VARIABLES_ENV_NAME,
 	ENV_VARIABLES_LOCAL_STORAGE_KEY,
+	INITIAL_FRAME_LOCAL_STORAGE_KEY,
 	setupEnvVariables,
+	setupInitialFrame,
 } from './setup-env-variables';
 import * as Timeline from './timeline-position-state';
 import {
@@ -151,8 +153,10 @@ export const Internals = {
 	isPlainIndex,
 	CSSUtils,
 	setupEnvVariables,
+	setupInitialFrame,
 	ENV_VARIABLES_ENV_NAME,
 	ENV_VARIABLES_LOCAL_STORAGE_KEY,
+	INITIAL_FRAME_LOCAL_STORAGE_KEY,
 	getDotEnvLocation,
 	getServerPort,
 	MediaVolumeContext,

@@ -32,7 +32,7 @@ export const RemotionRoot: React.FC = ({children}) => {
 	const [remotionRootId] = useState(() => String(random(null)));
 	const [sequences, setSequences] = useState<TSequence[]>([]);
 	const [assets, setAssets] = useState<TAsset[]>([]);
-	const [frame, setFrame] = useState<number>(0);
+	const [frame, setFrame] = useState<number>(window.remotion_initialFrame ?? 0);
 	const [playing, setPlaying] = useState<boolean>(false);
 	const [fastRefreshes, setFastRefreshes] = useState(0);
 
