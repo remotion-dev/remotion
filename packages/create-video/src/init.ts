@@ -1,4 +1,5 @@
 import chalk from 'chalk';
+import degit from 'degit';
 import execa from 'execa';
 import fs from 'fs-extra';
 import path from 'path';
@@ -214,16 +215,15 @@ export const init = async () => {
 		{}
 	);
 
-	await execa('git', ['clone', `https://github.com/${template}`, projectRoot]);
+	try {
+		const emitter = degit(`https://github.com/${template}`);
+		await emitter.clone(projectRoot);
 
-	(fs.rmSync ?? fs.rmdirSync)(path.join(projectRoot, '.git'), {
-		recursive: true,
-	});
-
-	await initGitRepoAsync(projectRoot, {
-		silent: false,
-		commit: true,
-	});
+		Log.info(`Cloned template into ${projectRoot}`);
+	} catch (e) {
+		Log.error('Error with template cloning. Aborting');
+		process.exit(1);
+	}
 
 	Log.info(
 		`Created project at ${chalk.blue(folderName)}. Installing dependencies...`
@@ -245,6 +245,12 @@ export const init = async () => {
 		promise.stdout?.pipe(process.stdout);
 		await promise;
 	}
+
+	await initGitRepoAsync(projectRoot, {
+		silent: false,
+		commit: true,
+	});
+
 	Log.info(`Welcome to ${chalk.blue('Remotion')}!`);
 	Log.info(`✨ Your video has been created at ${chalk.blue(folderName)}.\n`);
 
