@@ -164,9 +164,10 @@ const getAndValidateBrowser = async () => {
 
 export const getCliOptions = async (type: 'still' | 'series') => {
 	const frameRange = getAndValidateFrameRange();
-	const shouldOutputImageSequence = await getAndValidateShouldOutputImageSequence(
-		frameRange
-	);
+	const shouldOutputImageSequence =
+		type === 'still'
+			? true
+			: await getAndValidateShouldOutputImageSequence(frameRange);
 	const codec = await getFinalCodec();
 	const outputFile = getOutputFilename({
 		codec,

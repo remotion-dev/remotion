@@ -28,7 +28,7 @@ export const still = async () => {
 
 	if (userOutput.endsWith('.jpeg') || userOutput.endsWith('.jpg')) {
 		Log.verbose(
-			'Output file has a JPEG extension, therefore setting the image format to PNG.'
+			'Output file has a JPEG extension, therefore setting the image format to JPEG.'
 		);
 		Config.Rendering.setImageFormat('jpeg');
 	}
