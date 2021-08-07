@@ -33,6 +33,13 @@ export const still = async () => {
 		Config.Rendering.setImageFormat('jpeg');
 	}
 
+	if (userOutput.endsWith('.png')) {
+		Log.verbose(
+			'Output file has a PNG extension, therefore setting the image format to PNG.'
+		);
+		Config.Rendering.setImageFormat('png');
+	}
+
 	const {
 		inputProps,
 		envVariables,
