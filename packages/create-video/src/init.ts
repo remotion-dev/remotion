@@ -219,16 +219,11 @@ export const init = async () => {
 		const emitter = degit(`https://github.com/${template}`);
 		await emitter.clone(projectRoot);
 
-		Log.info(`Cloned template into clonign ${projectRoot}`);
+		Log.info(`Cloned template into ${projectRoot}`);
 	} catch (e) {
 		Log.error('Error with template cloning. Aborting');
 		process.exit(1);
 	}
-
-	await initGitRepoAsync(projectRoot, {
-		silent: false,
-		commit: true,
-	});
 
 	Log.info(
 		`Created project at ${chalk.blue(folderName)}. Installing dependencies...`
@@ -250,6 +245,12 @@ export const init = async () => {
 		promise.stdout?.pipe(process.stdout);
 		await promise;
 	}
+
+	await initGitRepoAsync(projectRoot, {
+		silent: false,
+		commit: true,
+	});
+
 	Log.info(`Welcome to ${chalk.blue('Remotion')}!`);
 	Log.info(`✨ Your video has been created at ${chalk.blue(folderName)}.\n`);
 
