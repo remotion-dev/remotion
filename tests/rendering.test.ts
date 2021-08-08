@@ -147,6 +147,7 @@ test("Should render a still image if single frame specified", async () => {
       "src/index.tsx",
       "ten-frame-tester",
       "--frames=2",
+      "--overwrite",
       outDir,
     ],
     {
