@@ -1,5 +1,4 @@
 import fs from 'fs';
-import path from 'path';
 import puppeteer, {Product, PuppeteerNode} from 'puppeteer-core';
 import {downloadBrowser} from 'puppeteer-core/lib/cjs/puppeteer/node/install';
 import {PUPPETEER_REVISIONS} from 'puppeteer-core/lib/cjs/puppeteer/revisions';
@@ -14,11 +13,6 @@ const getSearchPathsForProduct = (product: puppeteer.Product) => {
 				: null,
 			process.platform === 'linux' ? '/usr/bin/google-chrome' : null,
 			process.platform === 'linux' ? '/usr/bin/chromium-browser' : null,
-			path.resolve(
-				process.cwd(),
-				'node_modules/puppeteer-core/.local-chromium'
-			),
-			path.resolve(process.cwd(), 'node_modules/puppeteer/.local-chromium'),
 			process.platform === 'win32'
 				? 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe'
 				: null,
@@ -99,6 +93,7 @@ const getBrowserStatus = (product: puppeteer.Product): BrowserStatus => {
 	}
 
 	const revision = getBrowserRevision(product);
+	console.log({revision});
 	if (revision.local !== null && fs.existsSync(revision.executablePath)) {
 		return {path: revision.executablePath, type: 'local-puppeteer-browser'};
 	}
