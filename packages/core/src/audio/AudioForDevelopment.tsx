@@ -1,4 +1,4 @@
-import React, {forwardRef, useImperativeHandle, useRef} from 'react';
+import React, {forwardRef, useImperativeHandle, useMemo} from 'react';
 import {useMediaInTimeline} from '../use-media-in-timeline';
 import {useMediaPlayback} from '../use-media-playback';
 import {useMediaTagVolume} from '../use-media-tag-volume';
@@ -8,13 +8,13 @@ import {
 	useMediaVolumeState,
 } from '../volume-position-state';
 import {RemotionAudioProps} from './props';
+import {useSharedAudio} from './shared-audio-tags';
 import {useFrameForVolumeProp} from './use-audio-frame';
 
 const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 	HTMLAudioElement,
 	RemotionAudioProps
 > = (props, ref) => {
-	const audioRef = useRef<HTMLAudioElement>(null);
 	const [mediaVolume] = useMediaVolumeState();
 	const [mediaMuted] = useMediaMutedState();
 
@@ -22,36 +22,45 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 
 	const {volume, muted, playbackRate, ...nativeProps} = props;
 
-	const actualVolume = useMediaTagVolume(audioRef);
+	const propsToPass = useMemo((): RemotionAudioProps => {
+		return {
+			muted: muted || mediaMuted,
+			...nativeProps,
+		};
+	}, [mediaMuted, muted, nativeProps]);
+
+	const elem = useSharedAudio(propsToPass);
+
+	const actualVolume = useMediaTagVolume(elem.el);
 
 	useSyncVolumeWithMediaTag({
 		volumePropFrame,
 		actualVolume,
 		volume,
 		mediaVolume,
-		mediaRef: audioRef,
+		mediaRef: elem.el,
 	});
 
 	useMediaInTimeline({
 		volume,
 		mediaVolume,
-		mediaRef: audioRef,
+		mediaRef: elem.el,
 		src: nativeProps.src,
 		mediaType: 'audio',
 	});
 
 	useMediaPlayback({
-		mediaRef: audioRef,
+		mediaRef: elem.el,
 		src: nativeProps.src,
 		mediaType: 'audio',
 		playbackRate: playbackRate ?? 1,
 	});
 
 	useImperativeHandle(ref, () => {
-		return audioRef.current as HTMLAudioElement;
+		return elem.el.current as HTMLAudioElement;
 	});
 
-	return <audio ref={audioRef} muted={muted || mediaMuted} {...nativeProps} />;
+	return null;
 };
 
 export const AudioForDevelopment = forwardRef(

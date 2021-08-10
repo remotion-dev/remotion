@@ -5,6 +5,7 @@ import React, {
 	useMemo,
 	useState,
 } from 'react';
+import {SharedAudioContextProvider} from './audio/shared-audio-tags';
 import {
 	CompositionManager,
 	CompositionManagerContext,
@@ -161,7 +162,7 @@ export const RemotionRoot: React.FC = ({children}) => {
 			<TimelineContext.Provider value={timelineContextValue}>
 				<SetTimelineContext.Provider value={setTimelineContextValue}>
 					<CompositionManager.Provider value={contextValue}>
-						{children}
+						<SharedAudioContextProvider>{children}</SharedAudioContextProvider>
 					</CompositionManager.Provider>
 				</SetTimelineContext.Provider>
 			</TimelineContext.Provider>
