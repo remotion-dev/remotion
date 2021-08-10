@@ -268,29 +268,31 @@ export const PlayerFn = <T,>(
 						<Internals.SetMediaVolumeContext.Provider
 							value={setMediaVolumeContextValue}
 						>
-							<PlayerEventEmitterContext.Provider value={emitter}>
-								<PlayerUI
-									ref={rootRef}
-									autoPlay={Boolean(autoPlay)}
-									loop={Boolean(loop)}
-									controls={Boolean(controls)}
-									style={style}
-									inputProps={passedInputProps}
-									allowFullscreen={Boolean(allowFullscreen)}
-									clickToPlay={
-										typeof clickToPlay === 'boolean'
-											? clickToPlay
-											: Boolean(controls)
-									}
-									showVolumeControls={Boolean(showVolumeControls)}
-									setMediaVolume={setMediaVolumeAndPersist}
-									mediaVolume={mediaVolume}
-									mediaMuted={mediaMuted}
-									doubleClickToFullscreen={Boolean(doubleClickToFullscreen)}
-									setMediaMuted={setMediaMuted}
-									spaceKeyToPlayOrPause={Boolean(spaceKeyToPlayOrPause)}
-								/>
-							</PlayerEventEmitterContext.Provider>
+							<Internals.SharedAudioContextProvider>
+								<PlayerEventEmitterContext.Provider value={emitter}>
+									<PlayerUI
+										ref={rootRef}
+										autoPlay={Boolean(autoPlay)}
+										loop={Boolean(loop)}
+										controls={Boolean(controls)}
+										style={style}
+										inputProps={passedInputProps}
+										allowFullscreen={Boolean(allowFullscreen)}
+										clickToPlay={
+											typeof clickToPlay === 'boolean'
+												? clickToPlay
+												: Boolean(controls)
+										}
+										showVolumeControls={Boolean(showVolumeControls)}
+										setMediaVolume={setMediaVolumeAndPersist}
+										mediaVolume={mediaVolume}
+										mediaMuted={mediaMuted}
+										doubleClickToFullscreen={Boolean(doubleClickToFullscreen)}
+										setMediaMuted={setMediaMuted}
+										spaceKeyToPlayOrPause={Boolean(spaceKeyToPlayOrPause)}
+									/>
+								</PlayerEventEmitterContext.Provider>
+							</Internals.SharedAudioContextProvider>
 						</Internals.SetMediaVolumeContext.Provider>
 					</Internals.MediaVolumeContext.Provider>
 				</Internals.CompositionManager.Provider>

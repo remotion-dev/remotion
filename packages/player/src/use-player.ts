@@ -18,6 +18,7 @@ export const usePlayer = (): {
 	const frame = Internals.Timeline.useTimelinePosition();
 	const setFrame = Internals.Timeline.useTimelineSetFrame();
 	const setTimelinePosition = Internals.Timeline.useTimelineSetFrame();
+	const audioContext = useContext(Internals.SharedAudioContext);
 
 	const frameRef = useRef<number>();
 	frameRef.current = frame;
@@ -49,9 +50,10 @@ export const usePlayer = (): {
 			seek(0);
 		}
 
+		audioContext.playAllAudios();
 		setPlaying(true);
 		emitter.dispatchPlay();
-	}, [playing, isLastFrame, setPlaying, emitter, seek]);
+	}, [playing, isLastFrame, audioContext, setPlaying, emitter, seek]);
 
 	const pause = useCallback(() => {
 		if (playing) {
