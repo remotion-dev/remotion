@@ -103,7 +103,7 @@ export const parseCommandLine = () => {
 		);
 	}
 
-	if (typeof parsedCli.overwrite !== 'undefined') {
+	if (parsedCli.overwrite) {
 		Config.Output.setOverwriteOutput(parsedCli.overwrite);
 	}
 
