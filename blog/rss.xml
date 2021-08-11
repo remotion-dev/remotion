@@ -4,9 +4,16 @@
         <title>Remotion Blog</title>
         <link>https://remotion.dev/blog</link>
         <description>Remotion Blog</description>
-        <lastBuildDate>Fri, 09 Jul 2021 00:00:00 GMT</lastBuildDate>
+        <lastBuildDate>Wed, 11 Aug 2021 00:00:00 GMT</lastBuildDate>
         <docs>https://validator.w3.org/feed/docs/rss2.html</docs>
         <generator>https://github.com/jpmonette/feed</generator>
+        <item>
+            <title><![CDATA[Remotion 2.3]]></title>
+            <link>https://remotion.dev/blog/2-3</link>
+            <guid>2-3</guid>
+            <pubDate>Wed, 11 Aug 2021 00:00:00 GMT</pubDate>
+            <description><![CDATA[Remotion 2.3 is out and features first-class support for still images!]]></description>
+        </item>
         <item>
             <title><![CDATA[Remotion 2.2]]></title>
             <link>https://remotion.dev/blog/2-2</link>
