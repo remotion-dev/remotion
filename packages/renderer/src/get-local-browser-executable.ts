@@ -13,6 +13,9 @@ const getSearchPathsForProduct = (product: puppeteer.Product) => {
 				: null,
 			process.platform === 'linux' ? '/usr/bin/google-chrome' : null,
 			process.platform === 'linux' ? '/usr/bin/chromium-browser' : null,
+			process.platform === 'linux'
+				? '/app/.apt/usr/bin/google-chrome-stable'
+				: null,
 			process.platform === 'win32'
 				? 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe'
 				: null,

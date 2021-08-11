@@ -162,13 +162,18 @@ const getAndValidateBrowser = async () => {
 	return browser;
 };
 
-export const getCliOptions = async () => {
+export const getCliOptions = async (type: 'still' | 'series') => {
 	const frameRange = getAndValidateFrameRange();
-	const shouldOutputImageSequence = await getAndValidateShouldOutputImageSequence(
-		frameRange
-	);
+	const shouldOutputImageSequence =
+		type === 'still'
+			? true
+			: await getAndValidateShouldOutputImageSequence(frameRange);
 	const codec = await getFinalCodec();
-	const outputFile = getOutputFilename(codec, shouldOutputImageSequence);
+	const outputFile = getOutputFilename({
+		codec,
+		imageSequence: shouldOutputImageSequence,
+		type,
+	});
 	const overwrite = Internals.getShouldOverwrite();
 	const crf = getAndValidateCrf(shouldOutputImageSequence, codec);
 	const pixelFormat = getAndValidatePixelFormat(codec);
@@ -194,5 +199,6 @@ export const getCliOptions = async () => {
 		pixelFormat,
 		imageFormat,
 		proResProfile,
+		stillFrame: Internals.getStillFrame(),
 	};
 };
