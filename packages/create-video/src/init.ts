@@ -29,6 +29,11 @@ const FEATURED_TEMPLATES: TEMPLATES[] = [
 		description: 'Remotion + React Three Fiber Starter Template',
 	},
 	{
+		shortName: 'Still images',
+		name: 'remotion-dev/template-still',
+		description: 'Dynamic PNG/JPEG template with built-in server',
+	},
+	{
 		shortName: 'Text To Speech',
 		name: 'FelippeChemello/Remotion-TTS-Example',
 		description: 'Turns text into speech and makes a video',
