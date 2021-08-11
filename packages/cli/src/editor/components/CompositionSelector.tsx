@@ -1,6 +1,9 @@
 import React, {useCallback, useContext, useEffect} from 'react';
 import {Internals, TComposition} from 'remotion';
 import styled from 'styled-components';
+import {isCompositionStill} from '../helpers/is-composition-still';
+import {FilmIcon} from '../icons/film';
+import {StillIcon} from '../icons/still';
 import {CurrentComposition} from './CurrentComposition';
 import {
 	getCurrentCompositionFromUrl,
@@ -16,7 +19,7 @@ const Container = styled.div`
 `;
 
 const List = styled.div`
-	padding: 8px;
+	padding: 5px;
 	height: calc(100% - 100px);
 	overflow-y: auto;
 `;
@@ -24,19 +27,36 @@ const List = styled.div`
 const Item = styled.a<{
 	selected: boolean;
 }>`
-	background: ${(props) => (props.selected ? 'white' : 'transparent')};
-	color: ${(props) => (props.selected ? 'black' : 'white')};
+	background: ${(props) =>
+		props.selected ? 'rgba(255, 255, 255, 0.3)' : 'transparent'};
+	color: ${(props) => (props.selected ? 'white' : 'rgba(255, 255, 255, 0.6)')};
 	padding-left: 8px;
 	padding-right: 8px;
 	padding-top: 6px;
 	padding-bottom: 6px;
 	font-size: 13px;
 	font-family: Arial, Helvetica, sans-serif;
-	display: block;
+	display: flex;
 	border-radius: 2px;
 	text-decoration: none;
 	cursor: default;
+	align-items: center;
+	border-width: 1px;
+	border-style: solid;
+	border-color: transparent;
+	margin-bottom: 1px;
+	&:hover {
+		border-color: ${(props) =>
+			props.selected ? 'transparent' : 'rgba(255, 255, 255, 0.1)'};
+		background: ${(props) =>
+			props.selected ? 'rgba(255, 255, 255, 0.3)' : 'rgba(255, 255, 255, 0.1)'};
+		color: white;
+	}
 `;
+
+const spacer: React.CSSProperties = {
+	width: 6,
+};
 
 export const CompositionSelector: React.FC = () => {
 	const {compositions, setCurrentComposition, currentComposition} = useContext(
@@ -89,6 +109,12 @@ export const CompositionSelector: React.FC = () => {
 								selectComposition(c);
 							}}
 						>
+							{isCompositionStill(c) ? (
+								<StillIcon style={{height: 18, width: 18}} />
+							) : (
+								<FilmIcon style={{height: 18, width: 18}} />
+							)}
+							<div style={spacer} />
 							{c.id}
 						</Item>
 					);

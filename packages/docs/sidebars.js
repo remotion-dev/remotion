@@ -35,6 +35,7 @@ module.exports = {
         "legacy-babel",
         "env-variables",
         "third-party",
+        "stills",
       ],
     },
     "cli",
@@ -63,6 +64,7 @@ module.exports = {
         "img",
         "iframe",
         "freeze",
+        "still",
         "easing",
       ],
     },
@@ -93,7 +95,12 @@ module.exports = {
     {
       type: "category",
       label: "API - @remotion/renderer",
-      items: ["get-compositions", "render-frames", "stitch-frames-to-video"],
+      items: [
+        "get-compositions",
+        "render-frames",
+        "stitch-frames-to-video",
+        "render-still",
+      ],
     },
     {
       type: "category",

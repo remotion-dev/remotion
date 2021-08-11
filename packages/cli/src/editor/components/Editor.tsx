@@ -15,12 +15,8 @@ import {
 	loadRichTimelineOption,
 	RichTimelineContext,
 } from '../state/rich-timeline';
+import {EditorContent} from './EditorContent';
 import {FramePersistor} from './FramePersistor';
-import {SplitterContainer} from './Splitter/SplitterContainer';
-import {SplitterElement} from './Splitter/SplitterElement';
-import {SplitterHandle} from './Splitter/SplitterHandle';
-import {Timeline} from './Timeline/Timeline';
-import {TopPanel} from './TopPanel';
 import {UpdateCheck} from './UpdateCheck';
 
 const Background = styled.div`
@@ -37,6 +33,7 @@ const Root = Internals.getRoot();
 export const Editor: React.FC = () => {
 	const [emitter] = useState(() => new PlayerInternals.PlayerEmitter());
 	const [size, setSize] = useState(() => loadPreviewSizeOption());
+
 	const [checkerboard, setCheckerboard] = useState(() =>
 		loadCheckerboardOption()
 	);
@@ -100,21 +97,7 @@ export const Editor: React.FC = () => {
 									<Root />
 									<UpdateCheck />
 									<FramePersistor />
-									<SplitterContainer
-										orientation="horizontal"
-										id="top-to-bottom"
-										maxFlex={0.9}
-										minFlex={0.2}
-										defaultFlex={0.75}
-									>
-										<SplitterElement type="flexer">
-											<TopPanel />
-										</SplitterElement>
-										<SplitterHandle />
-										<SplitterElement type="anti-flexer">
-											<Timeline />
-										</SplitterElement>
-									</SplitterContainer>
+									<EditorContent />
 								</Background>
 							</PlayerInternals.PlayerEventEmitterContext.Provider>
 						</Internals.SetMediaVolumeContext.Provider>
