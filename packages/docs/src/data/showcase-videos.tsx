@@ -393,11 +393,11 @@ export const showcaseVideos: ShowcaseVideo[] = [
     },
   },
   {
-    title: "Data Science Product Ad",
+    title: "Data Science Course Ad",
     type: "mux_video",
     muxId: "MqUUJjKZk01x9KGUJtSD1SLoUHmrab3eaVx9sDPCw9L00",
     description:
-      "This is a promo video of an data science course offered by Quantargo.",
+      "This is a promo video of a data science course offered by Quantargo.",
     height: 720,
     width: 1280,
     submittedOn: new Date("07-07-2021"),
@@ -909,6 +909,70 @@ export const showcaseVideos: ShowcaseVideo[] = [
     author: {
       url: "https://twitter.com/JNYBGR",
       name: "Jonny Burger",
+    },
+  },
+  {
+    title: "Lotus App",
+    type: "mux_video",
+    muxId: "LAtfpU01MnxJc200ccLrLVPanKx7wSv1NNT42027Ptq4VI",
+    description:
+      "An animated Lotus icon in the Dock on Mac. With Lotus you can manage your GitHub notifications without stress.",
+    height: 230,
+    width: 378,
+    submittedOn: new Date("08-12-2021"),
+    links: [
+      {
+        type: "video",
+        url: "https://twitter.com/vadimdemedes/status/1425178353737293829",
+      },
+      {
+        type: "website",
+        url: "https://getlotus.app/",
+      },
+    ],
+    author: {
+      url: "Vadim Demedes",
+      name: "https://vadimdemedes.com/",
+    },
+  },
+  {
+    title: "Olympics Ranking",
+    type: "mux_video",
+    muxId: "uggP01wfSNgmwm9KjanfeKvbQdbeVdDK0001qdBfDszCB4",
+    description:
+      "A medal ranking which shows which country has won the most medals at the Tokyo Olympics so far.",
+    height: 1280,
+    width: 720,
+    submittedOn: new Date("08-12-2021"),
+    links: [
+      {
+        type: "video",
+        url: "https://twitter.com/FlorentPergoud/status/1423360349877809154",
+      },
+    ],
+    author: {
+      url: "https://twitter.com/FlorentPergoud",
+      name: "Florent Pergoud",
+    },
+  },
+  {
+    title: "The Song of the Fae - Animated Banner",
+    type: "mux_video",
+    muxId: "cEmxepEENf6004NhdttN7igT3O8o82ODq02dn01PMgS101I",
+    description:
+      "An animated banner as an intro sequences for a game called The Song of the Fae.",
+    height: 720,
+    width: 720,
+    submittedOn: new Date("08-12-2021"),
+    links: [
+      {
+        type: "video",
+        url: "https://twitter.com/vivavolt/status/1408670642451345410",
+      },
+    ],
+    author: {
+      url: "https://bf.wtf/",
+      name: "Ben Follington",
     },
   },
 ];
