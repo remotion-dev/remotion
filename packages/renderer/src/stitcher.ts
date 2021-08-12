@@ -1,4 +1,5 @@
 import execa from 'execa';
+import path from 'path';
 import {
 	Codec,
 	ImageFormat,
@@ -131,6 +132,11 @@ export const stitchFramesToVideo = async (options: {
 		console.log('filters', filters);
 	}
 
+	const pathToSubtitle = path.resolve(
+		__dirname,
+		'../../example/src/RemoteVideo/src/subs.srt'
+	);
+
 	const {complexFilterFlag, cleanup} = await createFfmpegComplexFilter(filters);
 	const ffmpegArgs = [
 		['-r', String(options.fps)],
@@ -141,7 +147,7 @@ export const stitchFramesToVideo = async (options: {
 			? ['-i', `element-%0${frameInfo.numberLength}d.${imageFormat}`]
 			: null,
 		...assetsToFfmpegInputs({
-			assets: assetPaths,
+			assets: assetPaths.concat([pathToSubtitle]),
 			isAudioOnly,
 			fps: options.fps,
 			frameCount: options.assetsInfo.assets.length,
@@ -164,7 +170,11 @@ export const stitchFramesToVideo = async (options: {
 		complexFilterFlag,
 		// Ignore audio from image sequence
 		isAudioOnly ? null : ['-map', '0:v'],
+		// Copy subtitle inputs if encoding video
+		// !2:s because the subtitle is the second input. It should be dynamic of course.
+		isAudioOnly ? null : ['-map', '2:s', '-c:s', 'mov_text'],
 		// Ignore metadata that may come from remote media
+		// !This is not removing the subtitle metadata, so the final video has the wrong duration again
 		isAudioOnly ? null : ['-map_metadata', '-1'],
 		options.force ? '-y' : null,
 		options.outputLocation,
