@@ -88,6 +88,18 @@ module.exports = {
               "data-splitbee-event": "External Link",
               "data-splitbee-event-target": "Twitter",
             },
+            {
+              label: "Instagram",
+              href: "https://instagram.com/remotion.dev",
+              "data-splitbee-event": "External Link",
+              "data-splitbee-event-target": "Instagram",
+            },
+            {
+              label: "Tiktok",
+              href: "https://www.tiktok.com/@remotion.dev",
+              "data-splitbee-event": "External Link",
+              "data-splitbee-event-target": "TikTok",
+            },
           ],
         },
         {
