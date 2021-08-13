@@ -47,6 +47,7 @@ export const still = async () => {
 		browser,
 		imageFormat,
 		stillFrame,
+		browserExecutable,
 	} = await getCliOptions('still');
 
 	if (imageFormat === 'none') {
@@ -73,6 +74,7 @@ export const still = async () => {
 	}
 
 	const browserInstance = RenderInternals.openBrowser(browser, {
+		browserExecutable,
 		shouldDumpIo: Internals.Logging.isEqualOrBelowLogLevel('verbose'),
 	});
 
