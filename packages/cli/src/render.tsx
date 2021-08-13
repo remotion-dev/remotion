@@ -64,11 +64,13 @@ export const render = async () => {
 		crf,
 		pixelFormat,
 		imageFormat,
+		browserExecutable,
 	} = await getCliOptions('series');
 
 	await checkAndValidateFfmpegVersion();
 
 	const browserInstance = RenderInternals.openBrowser(browser, {
+		browserExecutable,
 		shouldDumpIo: Internals.Logging.isEqualOrBelowLogLevel('verbose'),
 	});
 	if (shouldOutputImageSequence) {

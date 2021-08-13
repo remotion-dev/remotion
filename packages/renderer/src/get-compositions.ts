@@ -1,5 +1,5 @@
 import {Browser as PuppeteerBrowser, Page} from 'puppeteer-core';
-import {Browser, Internals, TCompMetadata} from 'remotion';
+import {Browser, BrowserExecutable, Internals, TCompMetadata} from 'remotion';
 import {openBrowser} from './open-browser';
 import {serveStatic} from './serve-static';
 import {setPropsAndEnv} from './set-props-and-env';
@@ -9,14 +9,17 @@ type GetCompositionsConfig = {
 	inputProps?: object | null;
 	envVariables?: Record<string, string>;
 	browserInstance?: PuppeteerBrowser;
+	browserExecutable?: BrowserExecutable;
 };
 
 const getPageAndCleanupFn = async ({
 	passedInInstance,
 	browser,
+	browserExecutable,
 }: {
 	passedInInstance: PuppeteerBrowser | undefined;
 	browser: Browser;
+	browserExecutable: BrowserExecutable | null;
 }): Promise<{
 	cleanup: () => void;
 	page: Page;
@@ -36,7 +39,10 @@ const getPageAndCleanupFn = async ({
 	}
 
 	const browserInstance = await openBrowser(
-		browser || Internals.DEFAULT_BROWSER
+		browser || Internals.DEFAULT_BROWSER,
+		{
+			browserExecutable,
+		}
 	);
 	const browserPage = await browserInstance.newPage();
 
@@ -58,6 +64,7 @@ export const getCompositions = async (
 	const {page, cleanup} = await getPageAndCleanupFn({
 		passedInInstance: config?.browserInstance,
 		browser: config?.browser ?? Internals.DEFAULT_BROWSER,
+		browserExecutable: config?.browserExecutable ?? null,
 	});
 
 	const {port, close} = await serveStatic(webpackBundle);

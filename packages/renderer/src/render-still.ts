@@ -1,7 +1,7 @@
 import fs, {mkdirSync, statSync} from 'fs';
 import path from 'path';
 import {Browser as PuppeteerBrowser} from 'puppeteer-core';
-import {Browser, Internals, TCompMetadata} from 'remotion';
+import {Browser, BrowserExecutable, Internals, TCompMetadata} from 'remotion';
 import {openBrowser} from './open-browser';
 import {provideScreenshot} from './provide-screenshot';
 import {seekToFrame} from './seek-to-frame';
@@ -25,6 +25,7 @@ export const renderStill = async ({
 	output,
 	frame = 0,
 	overwrite = true,
+	browserExecutable,
 }: {
 	composition: TCompMetadata;
 	output: string;
@@ -39,6 +40,7 @@ export const renderStill = async ({
 	onError?: (err: Error) => void;
 	envVariables?: Record<string, string>;
 	overwrite?: boolean;
+	browserExecutable?: BrowserExecutable;
 }) => {
 	Internals.validateDimension(
 		composition.height,
@@ -99,6 +101,7 @@ export const renderStill = async ({
 		serveStatic(webpackBundle),
 		puppeteerInstance ??
 			openBrowser(browser, {
+				browserExecutable,
 				shouldDumpIo: dumpBrowserLogs,
 			}),
 	]);
