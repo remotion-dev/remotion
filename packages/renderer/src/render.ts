@@ -8,7 +8,6 @@ import {
 	Internals,
 	VideoConfig,
 } from 'remotion';
-import {DEFAULT_BROWSER} from 'remotion/src/config/browser';
 import {getActualConcurrency} from './get-concurrency';
 import {getFrameCount} from './get-frame-range';
 import {getFrameToRender} from './get-frame-to-render';
@@ -91,7 +90,7 @@ export const renderFrames = async ({
 
 	const browserInstance =
 		puppeteerInstance ??
-		(await openBrowser(browser ?? DEFAULT_BROWSER, {
+		(await openBrowser(browser ?? Internals.DEFAULT_BROWSER, {
 			shouldDumpIo: dumpBrowserLogs,
 			browserExecutable,
 		}));

@@ -42,7 +42,7 @@ export const getBrowserInstance = async (): ReturnType<
 	_browserInstance = await pRetry(
 		() =>
 			RenderInternals.openBrowser('chrome', {
-				customExecutable: execPath,
+				browserExecutable: execPath,
 			}),
 		{
 			retries: 3,

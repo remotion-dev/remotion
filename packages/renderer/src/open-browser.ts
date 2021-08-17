@@ -8,7 +8,6 @@ import {
 export const openBrowser = async (
 	browser: Browser,
 	options?: {
-		customExecutable?: string | null;
 		shouldDumpIo?: boolean;
 		browserExecutable?: string | null;
 	}
