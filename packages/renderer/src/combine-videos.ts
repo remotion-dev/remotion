@@ -41,6 +41,7 @@ export const combineVideos = async ({
 				Internals.isAudioCodec(codec) ? null : 'copy',
 				'-c:a',
 				Internals.isAudioCodec(codec) ? getAudioCodecName(codec) : 'aac',
+				'-shortest',
 				'-y',
 				output,
 			].filter(Internals.truthy)
