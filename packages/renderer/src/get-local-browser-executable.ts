@@ -2,7 +2,7 @@ import fs from 'fs';
 import puppeteer, {Product, PuppeteerNode} from 'puppeteer-core';
 import {downloadBrowser} from 'puppeteer-core/lib/cjs/puppeteer/node/install';
 import {PUPPETEER_REVISIONS} from 'puppeteer-core/lib/cjs/puppeteer/revisions';
-import {Browser, Internals} from 'remotion';
+import {Browser, BrowserExecutable} from 'remotion';
 
 const getSearchPathsForProduct = (product: puppeteer.Product) => {
 	if (product === 'chrome') {
@@ -13,6 +13,9 @@ const getSearchPathsForProduct = (product: puppeteer.Product) => {
 				: null,
 			process.platform === 'linux' ? '/usr/bin/google-chrome' : null,
 			process.platform === 'linux' ? '/usr/bin/chromium-browser' : null,
+			process.platform === 'linux'
+				? '/app/.apt/usr/bin/google-chrome-stable'
+				: null,
 			process.platform === 'win32'
 				? 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe'
 				: null,
@@ -77,10 +80,8 @@ type BrowserStatus =
 
 const getBrowserStatus = (
 	product: puppeteer.Product,
-	customBrowser: string | null
+	browserExecutablePath: BrowserExecutable
 ): BrowserStatus => {
-	const browserExecutablePath =
-		customBrowser ?? Internals.getBrowserExecutable();
 	if (browserExecutablePath) {
 		if (!fs.existsSync(browserExecutablePath)) {
 			console.warn(
@@ -106,11 +107,11 @@ const getBrowserStatus = (
 
 export const ensureLocalBrowser = async (
 	browser: Browser,
-	customExecutable: string | null
+	preferredBrowserExecutable: BrowserExecutable
 ) => {
 	const status = getBrowserStatus(
 		mapBrowserToProduct(browser),
-		customExecutable
+		preferredBrowserExecutable
 	);
 	if (status.type === 'no-browser') {
 		console.log(
@@ -122,11 +123,11 @@ export const ensureLocalBrowser = async (
 
 export const getLocalBrowserExecutable = async (
 	browser: Browser,
-	customExecutable: string | null
+	preferredBrowserExecutable: BrowserExecutable
 ): Promise<string> => {
 	const status = getBrowserStatus(
 		mapBrowserToProduct(browser),
-		customExecutable
+		preferredBrowserExecutable
 	);
 	if (status.type === 'no-browser') {
 		throw new TypeError(

@@ -2,15 +2,18 @@ import path from 'path';
 import {Browser as PuppeteerBrowser} from 'puppeteer-core';
 import {
 	Browser,
+	BrowserExecutable,
 	FrameRange,
 	ImageFormat,
 	Internals,
 	VideoConfig,
 } from 'remotion';
+import {DEFAULT_BROWSER} from 'remotion/src/config/browser';
 import {getActualConcurrency} from './get-concurrency';
 import {getFrameCount} from './get-frame-range';
 import {getFrameToRender} from './get-frame-to-render';
 import {DEFAULT_IMAGE_FORMAT} from './image-format';
+import {openBrowser} from './open-browser';
 import {Pool} from './pool';
 import {provideScreenshot} from './provide-screenshot';
 import {seekToFrame} from './seek-to-frame';
@@ -32,6 +35,9 @@ export const renderFrames = async ({
 	serveUrl,
 	onError,
 	envVariables,
+	browserExecutable,
+	dumpBrowserLogs,
+	browser,
 }: {
 	config: VideoConfig;
 	compositionId: string;
@@ -52,6 +58,7 @@ export const renderFrames = async ({
 	serveUrl: string;
 	dumpBrowserLogs?: boolean;
 	puppeteerInstance?: PuppeteerBrowser;
+	browserExecutable?: BrowserExecutable;
 	onError?: (info: OnErrorInfo) => void;
 }): Promise<RenderFramesOutput> => {
 	Internals.validateDimension(
@@ -82,13 +89,15 @@ export const renderFrames = async ({
 
 	const actualParallelism = getActualConcurrency(parallelism ?? null);
 
-	// TODO: Don't require it before launching lambda
-	if (!puppeteerInstance) {
-		throw new Error('no puppeteer');
-	}
+	const browserInstance =
+		puppeteerInstance ??
+		(await openBrowser(browser ?? DEFAULT_BROWSER, {
+			shouldDumpIo: dumpBrowserLogs,
+			browserExecutable,
+		}));
 
 	const pages = new Array(actualParallelism).fill(true).map(async () => {
-		const page = await puppeteerInstance.newPage();
+		const page = await browserInstance.newPage();
 		page.setViewport({
 			width: config.width,
 			height: config.height,

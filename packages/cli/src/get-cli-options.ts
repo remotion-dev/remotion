@@ -1,7 +1,13 @@
 import {RenderInternals} from '@remotion/renderer';
 import fs from 'fs';
 import path from 'path';
-import {Codec, FrameRange, Internals, PixelFormat} from 'remotion';
+import {
+	BrowserExecutable,
+	Codec,
+	FrameRange,
+	Internals,
+	PixelFormat,
+} from 'remotion';
 import {getEnvironmentVariables} from './get-env';
 import {getOutputFilename} from './get-filename';
 import {getInputProps} from './get-input-props';
@@ -150,13 +156,10 @@ const getAndValidateImageFormat = ({
 	return imageFormat;
 };
 
-const getAndValidateBrowser = async () => {
+const getAndValidateBrowser = async (browserExecutable: BrowserExecutable) => {
 	const browser = getBrowser();
 	try {
-		await RenderInternals.ensureLocalBrowser(
-			browser,
-			Internals.getBrowserExecutable()
-		);
+		await RenderInternals.ensureLocalBrowser(browser, browserExecutable);
 	} catch (err) {
 		Log.error('Could not download a browser for rendering frames.');
 		Log.error(err);
@@ -171,10 +174,12 @@ export const getCliOptions = async (options: {
 	type: 'still' | 'series';
 }) => {
 	const frameRange = getAndValidateFrameRange();
-	const shouldOutputImageSequence = await getAndValidateShouldOutputImageSequence(
-		frameRange
-	);
+
 	const codec = await getFinalCodec({isLambda: options.isLambda});
+	const shouldOutputImageSequence =
+		options.type === 'still'
+			? true
+			: await getAndValidateShouldOutputImageSequence(frameRange);
 	const outputFile = options.isLambda
 		? null
 		: getOutputFilename({
@@ -182,6 +187,7 @@ export const getCliOptions = async (options: {
 				imageSequence: shouldOutputImageSequence,
 				type: options.type,
 		  });
+
 	const overwrite = Internals.getShouldOverwrite();
 	const crf = getAndValidateCrf(shouldOutputImageSequence, codec);
 	const pixelFormat = getAndValidatePixelFormat(codec);
@@ -191,6 +197,7 @@ export const getCliOptions = async (options: {
 		pixelFormat,
 	});
 	const proResProfile = getAndValidateProResProfile(codec);
+	const browserExecutable = Internals.getBrowserExecutable();
 
 	return {
 		parallelism: Internals.getConcurrency(),
@@ -201,14 +208,15 @@ export const getCliOptions = async (options: {
 		inputProps: getInputProps(),
 		envVariables: await getEnvironmentVariables(),
 		quality: Internals.getQuality(),
-		browser: await getAndValidateBrowser(),
 		absoluteOutputFile: outputFile
 			? getAndValidateAbsoluteOutputFile(outputFile, overwrite)
 			: null,
+		browser: await getAndValidateBrowser(browserExecutable),
 		crf,
 		pixelFormat,
 		imageFormat,
 		proResProfile,
 		stillFrame: Internals.getStillFrame(),
+		browserExecutable,
 	};
 };

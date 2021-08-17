@@ -64,6 +64,7 @@ export const render = async () => {
 		crf,
 		pixelFormat,
 		imageFormat,
+		browserExecutable,
 	} = await getCliOptions({isLambda: false, type: 'series'});
 
 	if (!absoluteOutputFile) {
@@ -75,6 +76,7 @@ export const render = async () => {
 	await checkAndValidateFfmpegVersion();
 
 	const browserInstance = RenderInternals.openBrowser(browser, {
+		browserExecutable,
 		shouldDumpIo: Internals.Logging.isEqualOrBelowLogLevel('verbose'),
 	});
 

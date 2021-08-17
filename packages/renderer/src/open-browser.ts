@@ -10,6 +10,7 @@ export const openBrowser = async (
 	options?: {
 		customExecutable?: string | null;
 		shouldDumpIo?: boolean;
+		browserExecutable?: string | null;
 	}
 ): Promise<puppeteer.Browser> => {
 	if (browser === 'firefox' && !Internals.FEATURE_FLAG_FIREFOX_SUPPORT) {
@@ -18,11 +19,11 @@ export const openBrowser = async (
 		);
 	}
 
-	await ensureLocalBrowser(browser, options?.customExecutable ?? null);
+	await ensureLocalBrowser(browser, options?.browserExecutable ?? null);
 
 	const executablePath = await getLocalBrowserExecutable(
 		browser,
-		options?.customExecutable ?? null
+		options?.browserExecutable ?? null
 	);
 	const browserInstance = await puppeteer.launch({
 		executablePath,

@@ -13,9 +13,14 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 > = (props, ref) => {
 	const {startFrom, endAt, ...otherProps} = props;
 
-	const onError = useCallback(() => {
-		throw new Error(`Could not play video with src ${otherProps.src}`);
-	}, [otherProps.src]);
+	const onError: React.ReactEventHandler<HTMLAudioElement> = useCallback(
+		(e) => {
+			throw new Error(
+				`Could not play audio with src ${otherProps.src}: ${e.currentTarget.error}`
+			);
+		},
+		[otherProps.src]
+	);
 
 	if (typeof startFrom !== 'undefined' || typeof endAt !== 'undefined') {
 		validateStartFromProps(startFrom, endAt);

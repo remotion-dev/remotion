@@ -132,6 +132,12 @@ _optional - default `true`_
 
 Whether the file should be overwritten if the output already exists.
 
+### `browserExecutable?`
+
+_optional, available from v2.3.1_
+
+A string defining the absolute path on disk of the browser executable that should be used. By default Remotion will try to detect it automatically and download one if none is available. If `puppeteerInstance` is defined, it will take precedence over `browserExecutable`.
+
 ## Return value
 
 A promise with no value. If the render succeeded, the still has been saved to `output`. If the render failed, the promise rejects.
