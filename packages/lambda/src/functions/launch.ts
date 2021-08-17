@@ -177,7 +177,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		siteId: getServeUrlHash(params.serveUrl),
 		codec: params.codec,
 		usesOptimizationProfile: didUseOptimization,
-		type: 'still',
+		type: 'video',
 		imageFormat: params.imageFormat,
 	};
 
