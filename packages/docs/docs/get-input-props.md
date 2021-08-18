@@ -33,4 +33,4 @@ In this example, the props also get passed to the component of the composition w
 
 ## See also
 
-- [Dynamic duration, FPS & dimensions](dynamic-metadata)
+- [Dynamic duration, FPS & dimensions](/docs/dynamic-metadata)
