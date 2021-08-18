@@ -240,7 +240,7 @@ Config.Bundling.overrideWebpackConfig((currentConfiguration) => {
 
 ### Use legacy babel loader
 
-See [Using legacy Babel transpilation](legacy-babel).
+See [Using legacy Babel transpilation](/docs/legacy-babel).
 
 ## Customizing configuration file location
 
