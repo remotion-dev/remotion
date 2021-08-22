@@ -72,7 +72,7 @@ export const MyComponent: React.FC = () => {
 ## See also
 
 - [Audio visualization](/docs/audio-visualization)
-- [`useAudioData()`](/docs//docs/use-audio-data)
+- [`useAudioData()`](/docs/use-audio-data)
 - [`getAudioData()`](/docs/get-audio-data)
 - [`<Audio/>`](/docs/audio)
 - [Using audio](/docs/using-audio)
