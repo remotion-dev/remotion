@@ -41,19 +41,19 @@ export const SharedAudioContext = createContext<SharedContext>({
 	},
 });
 
-const numberOfAudios = 5;
-
-export const SharedAudioContextProvider: React.FC = ({children}) => {
+export const SharedAudioContextProvider: React.FC<{
+	numberOfAudioTags: number;
+}> = ({children, numberOfAudioTags}) => {
 	const [audios, setAudios] = useState<AudioElem[]>([]);
 
 	const refs = useMemo(() => {
-		return new Array(numberOfAudios).fill(true).map(() => {
+		return new Array(numberOfAudioTags).fill(true).map(() => {
 			return {id: Math.random(), ref: createRef<HTMLAudioElement>()};
 		});
-	}, []);
+	}, [numberOfAudioTags]);
 
 	const takenAudios = useRef<(false | number)[]>(
-		new Array(numberOfAudios).fill(false)
+		new Array(numberOfAudioTags).fill(false)
 	);
 
 	const registerAudio = useCallback(
@@ -61,7 +61,9 @@ export const SharedAudioContextProvider: React.FC = ({children}) => {
 			const firstFreeAudio = takenAudios.current.findIndex((a) => a === false);
 			if (firstFreeAudio === -1) {
 				throw new Error(
-					'Trying to register more than XXX audio elements at the same time'
+					`Tried to simultaneously mount ${
+						numberOfAudioTags + 1
+					} <Audio /> tags at the same time. The maximum amount of <Audio /> tags is currently limited to ${numberOfAudioTags} at the same time. Remotion pre-mounts silent audio tags to help avoid browser autoplay restrictions. See https://remotion.dev/docs/player#numberofsharedaudiotags for more information on how to increase this limit.`
 				);
 			}
 
