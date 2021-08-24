@@ -129,6 +129,12 @@ _optional_
 
 A regular `style` prop for a HTMLDivElement. You can pass a different height and width if you would like different dimensions for the player than the original composition dimensions.
 
+### `numberOfSharedAudioTags`
+
+_optional - available since v.2.3.1_
+
+If you use an [`<Audio />`](/docs/audio) tag, it might not play in some browsers (specifically iOS Safari) due to browser autoplay policies. This is why the Remotion Player pre-mounts a set of audio tags with silent audio that get played upon user interaction. These audio tags can then be used to play real audio later and will not be subject to the autoplay policy of the browser. This option controls how many audio tags are being rendered, the default is `5`. If you mount more audio tags than shared audio tags are available, then an error will be thrown.
+
 ## `PlayerRef`
 
 You may attach a ref to the player and control it in an imperative manner.
