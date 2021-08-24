@@ -84,6 +84,10 @@ export const SharedAudioContextProvider: React.FC<{
 				id,
 				el: ref,
 			};
+			// We need a timeout because this state setting is triggered by another state being set, causing React to throw an error.
+			// By setting a timeout, we are bypassing the error and allowing the state
+			// to be updated in the next tick.
+			// This can lead to a tiny delay of audio playback, improvement ideas are welcome.
 			setTimeout(() => {
 				setAudios((prevAudios) => [...prevAudios, newElem]);
 			}, 4);
