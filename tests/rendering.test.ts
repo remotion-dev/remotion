@@ -161,7 +161,7 @@ test("Should render a still image if single frame specified", async () => {
   const data = info.stderr;
   expect(data).toContain("Video: png");
   expect(data).toContain("png_pipe");
-  fs.rmdirSync(outDir, {
+  await (fs.promises.rm ?? fs.promises.rmdir)(outDir, {
     recursive: true,
   });
 });
@@ -346,7 +346,7 @@ test("Should be able to render if remotion.config.ts is not provided", async () 
       reject: false,
     }
   );
- 
+
   expect(task.exitCode).toBe(0);
   fs.unlinkSync(outputPath);
 });

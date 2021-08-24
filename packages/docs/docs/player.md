@@ -367,5 +367,4 @@ This feature is implemented using an [error boundary](https://reactjs.org/docs/e
 Before we mark the player as stable, we are looking to improve in the following areas:
 
 - Better loading state than the current "Loading..." text.
-- Implement keyboard controls.
 - Customize error UI
