@@ -50,7 +50,10 @@ export const usePlayer = (): {
 			seek(0);
 		}
 
-		audioContext.playAllAudios();
+		if (audioContext && audioContext.numberOfAudioTags > 0) {
+			audioContext.playAllAudios();
+		}
+
 		setPlaying(true);
 		emitter.dispatchPlay();
 	}, [playing, isLastFrame, audioContext, setPlaying, emitter, seek]);
