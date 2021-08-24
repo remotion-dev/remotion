@@ -10,6 +10,11 @@ import React, {
 } from 'react';
 import {RemotionAudioProps} from './props';
 
+/**
+ * This functionality of Remotion will keep a certain amount
+ * of <audio> tags pre-mounted
+ */
+
 type AudioElem = {
 	id: number;
 	props: RemotionAudioProps;
@@ -17,7 +22,7 @@ type AudioElem = {
 };
 
 const EMPTY_AUDIO =
-	'SUQzBAAAAAACDVRYWFgAAAASAAADbWFqb3JfYnJhbmQATTRBIABUWFhYAAAAEQAAA21pbm9yX3ZlcnNpb24AMABUWFhYAAAAIAAAA2NvbXBhdGlibGVfYnJhbmRzAE00QSBpc29tbXA0MgBUWFhYAAAAfwAAA2lUdW5TTVBCACAwMDAwMDAwMCAwMDAwMDg0MCAwMDAwMDMwMyAwMDAwMDAwMDAwMDAwNEJEIDAwMDAwMDAwIDAwMDAwMDAwIDAwMDAwMDAwIDAwMDAwMDAwIDAwMDAwMDAwIDAwMDAwMDAwIDAwMDAwMDAwIDAwMDAwMDAwAFRTU0UAAAAPAAADTGF2ZjU4Ljc2LjEwMAAAAAAAAAAAAAAA/+M4wAAAAAAAAAAAAEluZm8AAAAPAAAABgAAAogAcXFxcXFxcXFxcXFxcXFxcY6Ojo6Ojo6Ojo6Ojo6Ojo6OqqqqqqqqqqqqqqqqqqqqqsfHx8fHx8fHx8fHx8fHx8fH4+Pj4+Pj4+Pj4+Pj4+Pj4+P/////////////////////AAAAAExhdmM1OC4xMwAAAAAAAAAAAAAAACQDgAAAAAAAAAKIql7rrgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/+MYxAALg13diAgEzAAoAZ/////81/oR/+eRv6n36v/53J////7dT29FPIzHqc76gbwgAUDdCMgAoGf/////4jF3/90X/J3y/+MYxA0MM134ABAKsH/6N////67KwkOkQiCLncaKoJ1c7jQVRdxhQiLKgwFHgOw0Wf/////njP/Gujf79xcQb/8X////+ulD/+MYxBcLu2YQAAgKsKERVViOyFKdFSRlKLxhQQxHOIibg7GFzv/////isjf/Q3+I6iqt///////GtLFVFVQxlRHeuV5VPdw7/+MYxCMLu2X8ABAKsKCwsEREREQ6BQVBjZ//CGa/ITmGQv/iE/////6rDbSq8rytc602qrqKjhZxWmFhU2igVA2ZFMiNNEZG/+MYxC8KM1ngAABRSH//8v/+ZEf///yyX8mCggVRyMv/7LLUMj5ZKRkyhnWVTEFNRTMuMTAwVVVVVVVVVVVVVVVVVVVVVVVV/+MYxEEJU2FECABHSVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV';
+	'data:audio/wav;base64,UklGRjIAAABXQVZFZm10IBIAAAABAAEAQB8AAEAfAAABAAgAAABmYWN0BAAAAAAAAABkYXRhAAAAAA==';
 
 type SharedContext = {
 	registerAudio: (aud: RemotionAudioProps) => AudioElem;
@@ -142,13 +147,7 @@ export const SharedAudioContextProvider: React.FC<{
 			{refs.map(({id, ref}) => {
 				const data = audios.find((a) => a.id === id);
 				if (data === undefined) {
-					return (
-						<audio
-							key={id}
-							ref={ref}
-							src={`data:audio/mp3;base64,${EMPTY_AUDIO}`}
-						/>
-					);
+					return <audio key={id} ref={ref} src={EMPTY_AUDIO} />;
 				}
 
 				if (!data) {
