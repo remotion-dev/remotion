@@ -162,7 +162,10 @@ export const RemotionRoot: React.FC = ({children}) => {
 			<TimelineContext.Provider value={timelineContextValue}>
 				<SetTimelineContext.Provider value={setTimelineContextValue}>
 					<CompositionManager.Provider value={contextValue}>
-						<SharedAudioContextProvider numberOfAudioTags={0}>
+						<SharedAudioContextProvider
+							// In the preview, which is mostly played on Desktop, we opt out of the autoplay policy fix as described in https://github.com/remotion-dev/remotion/pull/554, as it mostly applies to mobile.
+							numberOfAudioTags={0}
+						>
 							{children}
 						</SharedAudioContextProvider>
 					</CompositionManager.Provider>
