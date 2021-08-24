@@ -176,6 +176,10 @@ import "/style.css";
 
 6.  _Optional_: Add a `tailwind.config.js` file to the root of your project. Add `/* eslint-env node */` to the top of the file to get rid of an ESLint rule complaining that `module` is not defined.
 
+:::warn
+Due to a caching bug, the config file might not be picked up until you remove the `node_modules/.cache` folder - watch this issue: https://github.com/remotion-dev/remotion/issues/315
+:::
+
 ### Enable SASS/SCSS support
 
 1. Install the following dependencies:
@@ -236,7 +240,7 @@ Config.Bundling.overrideWebpackConfig((currentConfiguration) => {
 
 ### Use legacy babel loader
 
-See [Using legacy Babel transpilation](legacy-babel).
+See [Using legacy Babel transpilation](/docs/legacy-babel).
 
 ## Customizing configuration file location
 

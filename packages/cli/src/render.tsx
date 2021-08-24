@@ -1,4 +1,3 @@
-import {bundle, BundlerInternals} from '@remotion/bundler';
 import {
 	getCompositions,
 	OnErrorInfo,
@@ -14,15 +13,16 @@ import path from 'path';
 import {Internals} from 'remotion';
 import {getCliOptions} from './get-cli-options';
 import {getCompositionId} from './get-composition-id';
-import {loadConfig} from './get-config-file-name';
+import {handleCommonError} from './handle-common-errors';
+import {initializeRenderCli} from './initialize-render-cli';
 import {Log} from './log';
-import {parseCommandLine, parsedCli} from './parse-command-line';
+import {parsedCli} from './parse-command-line';
 import {
 	createProgressBar,
-	makeBundlingProgress,
 	makeRenderingProgress,
 	makeStitchingProgress,
 } from './progress-bar';
+import {bundleOnCli} from './setup-cache';
 import {checkAndValidateFfmpegVersion} from './validate-ffmpeg-version';
 
 const onError = async (info: OnErrorInfo) => {
@@ -37,18 +37,7 @@ const onError = async (info: OnErrorInfo) => {
 		);
 	}
 
-	Log.error(info.error.message);
-	if (info.error.message.includes('Could not play video with')) {
-		Log.info();
-		Log.info(
-			'💡 Get help for this issue at https://remotion.dev/docs/media-playback-error'
-		);
-	}
-
-	if (info.error.message.includes('A delayRender was called')) {
-		Log.info();
-		Log.info('💡 Get help for this issue at https://remotion.dev/docs/timeout');
-	}
+	handleCommonError(info.error);
 
 	process.exit(1);
 };
@@ -58,13 +47,7 @@ export const render = async () => {
 	const file = parsedCli._[1];
 	const fullPath = path.join(process.cwd(), file);
 
-	parseCommandLine();
-	const appliedName = loadConfig();
-	if (appliedName) {
-		Log.verbose(`Applied configuration from ${appliedName}.`);
-	} else {
-		Log.verbose('No config file loaded.');
-	}
+	initializeRenderCli('sequence');
 
 	const {
 		codec,
@@ -81,11 +64,13 @@ export const render = async () => {
 		crf,
 		pixelFormat,
 		imageFormat,
-	} = await getCliOptions();
+		browserExecutable,
+	} = await getCliOptions('series');
 
 	await checkAndValidateFfmpegVersion();
 
 	const browserInstance = RenderInternals.openBrowser(browser, {
+		browserExecutable,
 		shouldDumpIo: Internals.Logging.isEqualOrBelowLogLevel('verbose'),
 	});
 	if (shouldOutputImageSequence) {
@@ -96,39 +81,7 @@ export const render = async () => {
 
 	const steps = shouldOutputImageSequence ? 2 : 3;
 
-	const shouldCache = Internals.getWebpackCaching();
-	const cacheExistedBefore = BundlerInternals.cacheExists('production', null);
-	if (cacheExistedBefore && !shouldCache) {
-		process.stdout.write('🧹 Cache disabled but found. Deleting... ');
-		await BundlerInternals.clearCache('production', null);
-		process.stdout.write('done. \n');
-	}
-
-	const bundleStartTime = Date.now();
-	const bundlingProgress = createProgressBar();
-	const bundled = await bundle(
-		fullPath,
-		(progress) => {
-			bundlingProgress.update(
-				makeBundlingProgress({progress: progress / 100, steps, doneIn: null})
-			);
-		},
-		{
-			enableCaching: shouldCache,
-		}
-	);
-	bundlingProgress.update(
-		makeBundlingProgress({
-			progress: 1,
-			steps,
-			doneIn: Date.now() - bundleStartTime,
-		}) + '\n'
-	);
-	Log.verbose('Bundled under', bundled);
-	const cacheExistedAfter = BundlerInternals.cacheExists('production', null);
-	if (cacheExistedAfter && !cacheExistedBefore) {
-		Log.info('⚡️ Cached bundle. Subsequent builds will be faster.');
-	}
+	const bundled = await bundleOnCli(fullPath, steps);
 
 	const openedBrowser = await browserInstance;
 	const comps = await getCompositions(bundled, {
