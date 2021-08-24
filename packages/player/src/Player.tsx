@@ -182,10 +182,12 @@ export const PlayerFn = <T,>(
 	if (
 		typeof numberOfSharedAudioTags !== 'number' ||
 		numberOfSharedAudioTags % 1 !== 0 ||
+		!Number.isFinite(numberOfSharedAudioTags) ||
+		Number.isNaN(numberOfSharedAudioTags) ||
 		numberOfSharedAudioTags < 0
 	) {
 		throw new TypeError(
-			`'numberOfSharedAudioTags' must be an positive integer but got '${typeof numberOfSharedAudioTags}' instead`
+			`'numberOfSharedAudioTags' must be an integer but got '${numberOfSharedAudioTags}' instead`
 		);
 	}
 

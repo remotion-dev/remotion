@@ -24,27 +24,22 @@ type SharedContext = {
 	unregisterAudio: (id: number) => void;
 	updateAudio: (id: number, aud: RemotionAudioProps) => void;
 	playAllAudios: () => void;
+	numberOfAudioTags: number;
 };
 
-export const SharedAudioContext = createContext<SharedContext>({
-	registerAudio: () => {
-		throw new Error('sharedaudiocontext not mounted');
-	},
-	unregisterAudio: () => {
-		throw new Error('sharedaudiocontext not mounted');
-	},
-	updateAudio: () => {
-		throw new Error('sharedaudiocontext not mounted');
-	},
-	playAllAudios: () => {
-		throw new Error('sharedaudiocontext not mounted');
-	},
-});
+export const SharedAudioContext = createContext<SharedContext | null>(null);
 
 export const SharedAudioContextProvider: React.FC<{
 	numberOfAudioTags: number;
 }> = ({children, numberOfAudioTags}) => {
 	const [audios, setAudios] = useState<AudioElem[]>([]);
+	const [initialNumberOfAudioTags] = useState(numberOfAudioTags);
+
+	if (numberOfAudioTags !== initialNumberOfAudioTags) {
+		throw new Error(
+			'The number of shared audio tags has changed dynamically. Once you have set this property, you cannot change it afterwards.'
+		);
+	}
 
 	const refs = useMemo(() => {
 		return new Array(numberOfAudioTags).fill(true).map(() => {
@@ -63,7 +58,7 @@ export const SharedAudioContextProvider: React.FC<{
 				throw new Error(
 					`Tried to simultaneously mount ${
 						numberOfAudioTags + 1
-					} <Audio /> tags at the same time. The maximum amount of <Audio /> tags is currently limited to ${numberOfAudioTags} at the same time. Remotion pre-mounts silent audio tags to help avoid browser autoplay restrictions. See https://remotion.dev/docs/player#numberofsharedaudiotags for more information on how to increase this limit.`
+					} <Audio /> tags at the same time. With the current settings, the maximum amount of <Audio /> tags is limited to ${numberOfAudioTags} at the same time. Remotion pre-mounts silent audio tags to help avoid browser autoplay restrictions. See https://remotion.dev/docs/player#numberofsharedaudiotags for more information on how to increase this limit.`
 				);
 			}
 
@@ -82,7 +77,7 @@ export const SharedAudioContextProvider: React.FC<{
 			}, 4);
 			return newElem;
 		},
-		[refs, takenAudios]
+		[numberOfAudioTags, refs]
 	);
 
 	const unregisterAudio = useCallback(
@@ -90,7 +85,7 @@ export const SharedAudioContextProvider: React.FC<{
 			const cloned = [...takenAudios.current];
 			const index = refs.findIndex((r) => r.id === id);
 			if (index === -1) {
-				throw new TypeError('unregister audio');
+				throw new TypeError('Error occured in ');
 			}
 
 			cloned[index] = false;
@@ -132,8 +127,15 @@ export const SharedAudioContextProvider: React.FC<{
 			unregisterAudio,
 			updateAudio,
 			playAllAudios,
+			numberOfAudioTags,
 		};
-	}, [playAllAudios, registerAudio, unregisterAudio, updateAudio]);
+	}, [
+		numberOfAudioTags,
+		playAllAudios,
+		registerAudio,
+		unregisterAudio,
+		updateAudio,
+	]);
 
 	return (
 		<SharedAudioContext.Provider value={value}>
@@ -163,16 +165,32 @@ export const SharedAudioContextProvider: React.FC<{
 export const useSharedAudio = (aud: RemotionAudioProps) => {
 	const ctx = useContext(SharedAudioContext);
 
-	const [elem] = useState(() => ctx.registerAudio(aud));
+	const [elem] = useState(
+		(): AudioElem => {
+			if (ctx && ctx.numberOfAudioTags > 0) {
+				return ctx.registerAudio(aud);
+			}
+
+			return {
+				el: React.createRef<HTMLAudioElement>(),
+				id: Math.random(),
+				props: aud,
+			};
+		}
+	);
 
 	useEffect(() => {
 		return () => {
-			ctx.unregisterAudio(elem.id);
+			if (ctx && ctx.numberOfAudioTags > 0) {
+				ctx.unregisterAudio(elem.id);
+			}
 		};
 	}, [ctx, elem.id]);
 
 	useEffect(() => {
-		ctx.updateAudio(elem.id, aud);
+		if (ctx && ctx.numberOfAudioTags > 0) {
+			ctx.updateAudio(elem.id, aud);
+		}
 	}, [aud, ctx, elem.id]);
 
 	return elem;

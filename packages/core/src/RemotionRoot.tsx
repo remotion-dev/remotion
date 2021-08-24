@@ -162,7 +162,7 @@ export const RemotionRoot: React.FC = ({children}) => {
 			<TimelineContext.Provider value={timelineContextValue}>
 				<SetTimelineContext.Provider value={setTimelineContextValue}>
 					<CompositionManager.Provider value={contextValue}>
-						<SharedAudioContextProvider numberOfAudioTags={5}>
+						<SharedAudioContextProvider numberOfAudioTags={0}>
 							{children}
 						</SharedAudioContextProvider>
 					</CompositionManager.Provider>
