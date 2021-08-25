@@ -28,7 +28,7 @@ export * from './ready-manager';
 export {registerRoot} from './register-root';
 export {Sequence} from './sequencing';
 export * from './spring';
-export {Stagger} from './stagger';
+export {Stagger, StaggerChild} from './stagger';
 export * from './use-frame';
 export * from './use-video-config';
 export * from './video';
