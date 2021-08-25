@@ -39,7 +39,7 @@ const Series: FC & {
 
 			if (castedChild.type !== SeriesSequence) {
 				throw new TypeError(
-					"The <Series /> component only accepts a list of <Series.Sequence /> components as it's children"
+					`The <Series /> component only accepts a list of <Series.Sequence /> components as it's children but got ${castedChild}`
 				);
 			}
 
