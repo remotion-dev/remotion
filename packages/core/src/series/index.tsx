@@ -1,27 +1,30 @@
 import React, {Children, FC, PropsWithChildren, useMemo} from 'react';
 import {Sequence, SequenceProps} from '../sequencing';
 import {validateDurationInFrames} from '../validation/validate-duration-in-frames';
+import {flattenChildren} from './flatten-children';
 
-type StaggerChildProps = PropsWithChildren<
+type SeriesSequenceProps = PropsWithChildren<
 	{
 		durationInFrames: number;
 		offset?: number;
 	} & Pick<SequenceProps, 'layout' | 'name'>
 >;
 
-const StaggerChild = ({children}: StaggerChildProps) => {
+const SeriesSequence = ({children}: SeriesSequenceProps) => {
 	// eslint-disable-next-line react/jsx-no-useless-fragment
 	return <>{children}</>;
 };
 
-const Stagger: FC = ({children}) => {
+const Series: FC & {
+	Sequence: typeof SeriesSequence;
+} = ({children}) => {
 	const childrenValue = useMemo(() => {
 		let startFrame = 0;
-		return Children.map(children, (child, i) => {
+		return Children.map(flattenChildren(children), (child, i) => {
 			const castedChild = (child as unknown) as
 				| {
-						props: StaggerChildProps;
-						type: typeof StaggerChild;
+						props: SeriesSequenceProps;
+						type: typeof SeriesSequence;
 				  }
 				| string;
 			if (typeof castedChild === 'string') {
@@ -30,13 +33,13 @@ const Stagger: FC = ({children}) => {
 				}
 
 				throw new TypeError(
-					`The <Stagger> component only accepts a list of <StaggerChild /> components as it's children, but you passed a string "${castedChild}"`
+					`The <Series /> component only accepts a list of <Series.Sequence /> components as it's children, but you passed a string "${castedChild}"`
 				);
 			}
 
-			if (castedChild.type !== StaggerChild) {
+			if (castedChild.type !== SeriesSequence) {
 				throw new TypeError(
-					"The <Stagger> component only accepts a list of <StaggerChild /> components as it's children"
+					"The <Series /> component only accepts a list of <Series.Sequence /> components as it's children"
 				);
 			}
 
@@ -44,7 +47,7 @@ const Stagger: FC = ({children}) => {
 
 			if (!castedChild || !castedChild.props.children) {
 				throw new TypeError(
-					`A <StaggerChild /> component (${debugInfo}) doesn't have any children.`
+					`A <Series.Sequence /> component (${debugInfo}) doesn't have any children.`
 				);
 			}
 
@@ -54,23 +57,23 @@ const Stagger: FC = ({children}) => {
 				children: _children,
 				...passedProps
 			} = castedChild.props;
-			validateDurationInFrames(durationInFramesProp, `<StaggerChild />`);
+			validateDurationInFrames(durationInFramesProp, `<Series.Sequence />`);
 			const offset = castedChild.props.offset ?? 0;
 			if (Number.isNaN(offset)) {
 				throw new TypeError(
-					`The "offset" property of a <StaggerChild /> must not be NaN, but got NaN (${debugInfo}).`
+					`The "offset" property of a <Series.Sequence /> must not be NaN, but got NaN (${debugInfo}).`
 				);
 			}
 
 			if (!Number.isFinite(offset)) {
 				throw new TypeError(
-					`The "offset" property of a <StaggerChild /> must be finite, but got ${offset} (${debugInfo}).`
+					`The "offset" property of a <Series.Sequence /> must be finite, but got ${offset} (${debugInfo}).`
 				);
 			}
 
 			if (offset % 1 !== 0) {
 				throw new TypeError(
-					`The "offset" property of a <StaggerChild /> must be finite, but got ${offset} (${debugInfo}).`
+					`The "offset" property of a <Series.Sequence /> must be finite, but got ${offset} (${debugInfo}).`
 				);
 			}
 
@@ -92,4 +95,6 @@ const Stagger: FC = ({children}) => {
 	return <>{childrenValue}</>;
 };
 
-export {Stagger, StaggerChild};
+Series.Sequence = SeriesSequence;
+
+export {Series};
