@@ -57,7 +57,10 @@ const Series: FC & {
 				children: _children,
 				...passedProps
 			} = castedChild.props;
-			validateDurationInFrames(durationInFramesProp, `<Series.Sequence />`);
+			validateDurationInFrames(
+				durationInFramesProp,
+				`of a <Series.Sequence /> component`
+			);
 			const offset = castedChild.props.offset ?? 0;
 			if (Number.isNaN(offset)) {
 				throw new TypeError(
