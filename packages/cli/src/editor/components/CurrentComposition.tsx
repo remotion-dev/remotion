@@ -1,6 +1,7 @@
 import React, {useContext} from 'react';
 import {Internals} from 'remotion';
 import styled from 'styled-components';
+import {isCompositionStill} from '../helpers/is-composition-still';
 import {renderFrame} from '../state/render-frame';
 import {RichTimelineContext} from '../state/rich-timeline';
 import {Thumbnail} from './Thumbnail';
@@ -63,11 +64,16 @@ export const CurrentComposition = () => {
 				<div>
 					<Title>{video.id}</Title>
 					<Subtitle>
-						{video.width}x{video.height}, {video.fps} FPS
+						{video.width}x{video.height}
+						{isCompositionStill(video) ? null : `, ${video.fps} FPS`}
 					</Subtitle>
-					<Subtitle>
-						Duration {renderFrame(video.durationInFrames, video.fps)}
-					</Subtitle>
+					{isCompositionStill(video) ? (
+						<Subtitle>Still</Subtitle>
+					) : (
+						<Subtitle>
+							Duration {renderFrame(video.durationInFrames, video.fps)}
+						</Subtitle>
+					)}
 				</div>
 			</Row>
 		</Container>

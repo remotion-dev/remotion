@@ -8,7 +8,7 @@ import {
   useCurrentFrame,
 } from "remotion";
 
-const BlueBall: React.FC = () => {
+const BlueSquare: React.FC = () => {
   const frame = useCurrentFrame();
   const animation = spring({
     fps: 30,
@@ -46,7 +46,7 @@ const BlueBall: React.FC = () => {
 const DelayExample: React.FC = () => {
   return (
     <Sequence from={30} durationInFrames={Infinity}>
-      <BlueBall></BlueBall>
+      <BlueSquare/>
     </Sequence>
   );
 };
@@ -54,15 +54,16 @@ const DelayExample: React.FC = () => {
 const TrimStartExample: React.FC = () => {
   return (
     <Sequence from={-15} durationInFrames={Infinity}>
-      <BlueBall></BlueBall>
+      <BlueSquare />
     </Sequence>
   );
 };
+
 const TrimAndDelayExample: React.FC = () => {
   return (
     <Sequence from={30} durationInFrames={Infinity}>
       <Sequence from={-15} durationInFrames={Infinity}>
-        <BlueBall></BlueBall>
+        <BlueSquare />
       </Sequence>
     </Sequence>
   );
@@ -71,13 +72,13 @@ const TrimAndDelayExample: React.FC = () => {
 const ClipExample: React.FC = () => {
   return (
     <Sequence from={0} durationInFrames={45}>
-      <BlueBall></BlueBall>
+      <BlueSquare />
     </Sequence>
   );
 };
 
 const BaseExample: React.FC = () => {
-  return <BlueBall></BlueBall>;
+  return <BlueSquare />;
 };
 
 export const SequenceForwardExample: React.FC<{
@@ -87,18 +88,23 @@ export const SequenceForwardExample: React.FC<{
     if (type === "base") {
       return BaseExample;
     }
+
     if (type === "delay") {
       return DelayExample;
     }
+
     if (type === "trim-start") {
       return TrimStartExample;
     }
+
     if (type === "trim-and-delay") {
       return TrimAndDelayExample;
     }
+
     if (type === "clip") {
       return ClipExample;
     }
+
     throw new TypeError("oops");
   })();
   return (
@@ -114,7 +120,7 @@ export const SequenceForwardExample: React.FC<{
           width: "100%",
         }}
         loop
-      ></Player>
+       />
     </div>
   );
 };

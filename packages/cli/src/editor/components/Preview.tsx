@@ -1,6 +1,6 @@
 import {PlayerInternals, Size} from '@remotion/player';
 import React, {Suspense, useContext, useMemo} from 'react';
-import {Internals, useVideoConfig} from 'remotion';
+import {getInputProps, Internals, useVideoConfig} from 'remotion';
 import styled from 'styled-components';
 import {
 	checkerboardBackgroundColor,
@@ -76,6 +76,7 @@ const Inner: React.FC<{
 	}, [centerX, centerY, config.height, config.width, scale]);
 
 	const Component = video ? video.component : null;
+	const inputProps = getInputProps();
 
 	return (
 		<Suspense fallback={<div>loading...</div>}>
@@ -91,7 +92,10 @@ const Inner: React.FC<{
 					}}
 				>
 					{Component ? (
-						<Component {...(((video?.props as unknown) as {}) ?? {})} />
+						<Component
+							{...(((video?.props as unknown) as {}) ?? {})}
+							{...inputProps}
+						/>
 					) : null}
 				</Container>
 			</div>

@@ -8,10 +8,13 @@ _Part of the `@remotion/renderer` package._
 Gets the compositions defined in a Remotion project based on a webpack bundle. Spins up a browser with Puppeteer and evaluates the Remotion root.
 
 ```ts
-const getCompositions: (bundle: string, options: {
-  inputProps?: object | null;
-  browserInstance?: puppeteer.Browser;
-}) => Promise<TComposition[]>
+const getCompositions: (
+  bundle: string,
+  options: {
+    inputProps?: object | null
+    browserInstance?: puppeteer.Browser
+  }
+) => Promise<TComposition[]>
 ```
 
 ## Arguments
@@ -38,24 +41,30 @@ _optional_
 
 An already open Puppeteer [`Browser`](https://pptr.dev/#?product=Puppeteer&version=main&show=api-class-browser) instance. Reusing a browser across multiple function calls can speed up the rendering process. You are responsible for opening and closing the browser yourself. If you don't specify this option, a new browser will be opened and closed at the end.
 
+#### `browserExecutable?`
+
+_optional, available from v2.3.1_
+
+A string defining the absolute path on disk of the browser executable that should be used. By default Remotion will try to detect it automatically and download one if none is available. If `browserInstance` is defined, it will take precedence over `browserExecutable`.
+
 ## Return value
 
 Returns a promise that resolves to an array of available compositions. Example value:
 
-```json
+```ts twoslash
 [
   {
-    "id": "HelloWorld",
-    "width": 1920,
-    "height": 1080,
-    "fps": 30
+    id: 'HelloWorld',
+    width: 1920,
+    height: 1080,
+    fps: 30,
   },
   {
-    "id": "Title",
-    "width": 1080,
-    "height": 1080,
-    "fps": 30
-  }
+    id: 'Title',
+    width: 1080,
+    height: 1080,
+    fps: 30,
+  },
 ]
 ```
 

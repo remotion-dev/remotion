@@ -39,8 +39,15 @@ Type your components using the `React.FC<{}>` type and the `defaultProps` prop w
 
 ## Example using `component`
 
-```tsx
-import {MyComp} from './MyComp';
+```tsx twoslash
+// @allowUmdGlobalAccess
+// @filename: ./MyComp.tsx
+export const MyComp = () => <></>
+
+// @filename: index.tsx
+// ---cut---
+import {Composition} from 'remotion'
+import {MyComp} from './MyComp'
 
 export const MyVideo = () => {
   return (
@@ -54,7 +61,7 @@ export const MyVideo = () => {
         durationInFrames={3 * 30}
       />
     </>
-  );
+  )
 }
 ```
 
@@ -73,7 +80,7 @@ export const MyVideo = () => {
         durationInFrames={3 * 30}
       />
     </>
-  );
+  )
 }
 ```
 
@@ -82,3 +89,4 @@ export const MyVideo = () => {
 - [registerRoot()](/docs/register-root)
 - [The fundamentals](/docs/the-fundamentals)
 - [CLI options](/docs/cli)
+- [`<Still />`](/docs/still)

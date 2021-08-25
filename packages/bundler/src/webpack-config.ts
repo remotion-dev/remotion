@@ -21,6 +21,7 @@ export const webpackConfig = ({
 	enableCaching = Internals.DEFAULT_WEBPACK_CACHE_ENABLED,
 	inputProps,
 	envVariables,
+	maxTimelineTracks,
 }: {
 	entry: string;
 	userDefinedComponent: string;
@@ -31,6 +32,7 @@ export const webpackConfig = ({
 	enableCaching?: boolean;
 	inputProps?: object;
 	envVariables?: Record<string, string>;
+	maxTimelineTracks: number;
 }): WebpackConfiguration => {
 	return webpackOverride({
 		optimization: {
@@ -52,6 +54,7 @@ export const webpackConfig = ({
 			: false,
 		devtool: 'cheap-module-source-map',
 		entry: [
+			require.resolve('./setup-environment'),
 			environment === 'development'
 				? require.resolve('webpack-hot-middleware/client') + '?overlay=true'
 				: null,
@@ -70,6 +73,7 @@ export const webpackConfig = ({
 						new ReactRefreshPlugin(),
 						new webpack.HotModuleReplacementPlugin(),
 						new webpack.DefinePlugin({
+							'process.env.MAX_TIMELINE_TRACKS': maxTimelineTracks,
 							'process.env.INPUT_PROPS': JSON.stringify(inputProps ?? {}),
 							[`process.env.${Internals.ENV_VARIABLES_ENV_NAME}`]: JSON.stringify(
 								envVariables ?? {}
@@ -106,12 +110,6 @@ export const webpackConfig = ({
 		},
 		module: {
 			rules: [
-				{
-					test: /\.(woff|woff2)$/,
-					use: {
-						loader: require.resolve('url-loader'),
-					},
-				},
 				{
 					test: /\.css$/i,
 					use: [require.resolve('style-loader'), require.resolve('css-loader')],
@@ -158,7 +156,20 @@ export const webpackConfig = ({
 					].filter(truthy),
 				},
 				{
+					test: /\.(woff(2)?|ttf|eot)(\?v=\d+\.\d+\.\d+)?$/,
+					use: [
+						{
+							loader: require.resolve('file-loader'),
+							options: {
+								name: '[name].[ext]',
+								outputPath: 'fonts/',
+							},
+						},
+					],
+				},
+				{
 					test: /\.jsx?$/,
+					exclude: /node_modules/,
 					use: [
 						{
 							loader: require.resolve('esbuild-loader'),
@@ -167,6 +178,13 @@ export const webpackConfig = ({
 								target: 'chrome85',
 							},
 						},
+						environment === 'development'
+							? {
+									loader: require.resolve(
+										'@webhotelier/webpack-fast-refresh/loader.js'
+									),
+							  }
+							: null,
 					].filter(truthy),
 				},
 			],

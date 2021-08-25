@@ -15,9 +15,11 @@ export const getImageFormat = (
 
 	if (
 		codec === 'h264' ||
+		codec === 'h264-mkv' ||
 		codec === 'h265' ||
 		codec === 'vp8' ||
-		codec === 'vp9'
+		codec === 'vp9' ||
+		codec === 'prores'
 	) {
 		return 'jpeg';
 	}

@@ -1,4 +1,8 @@
 import {LooseAnyComponent} from './any-component';
+import {
+	SharedAudioContext,
+	SharedAudioContextProvider,
+} from './audio/shared-audio-tags';
 import {CompProps} from './Composition';
 import {
 	CompositionManager,
@@ -35,6 +39,7 @@ import {
 import {getShouldOutputImageSequence} from './config/image-sequence';
 import {INPUT_PROPS_KEY} from './config/input-props';
 import * as Logging from './config/log';
+import {getMaxTimelineTracks} from './config/max-timeline-tracks';
 import {
 	getWebpackOverrideFn,
 	WebpackOverrideFn,
@@ -46,13 +51,25 @@ import {
 	validateSelectedPixelFormatAndCodecCombination,
 } from './config/pixel-format';
 import {getServerPort} from './config/preview-server';
+import {
+	getProResProfile,
+	ProResProfile,
+	setProResProfile,
+	validateSelectedCodecAndProResCombination,
+} from './config/prores-profile';
 import {getQuality} from './config/quality';
+import {getStillFrame, setStillFrame} from './config/still-frame';
 import {
 	DEFAULT_WEBPACK_CACHE_ENABLED,
 	getWebpackCaching,
 } from './config/webpack-caching';
 import * as CSSUtils from './default-css';
 import {FEATURE_FLAG_FIREFOX_SUPPORT} from './feature-flags';
+import {getRemotionEnvironment, RemotionEnvironment} from './get-environment';
+import {
+	INITIAL_FRAME_LOCAL_STORAGE_KEY,
+	setupInitialFrame,
+} from './initial-frame';
 import {isAudioCodec} from './is-audio-codec';
 import * as perf from './perf';
 import {
@@ -80,6 +97,9 @@ import {useVideo} from './use-video';
 import {validateDimension} from './validation/validate-dimensions';
 import {validateDurationInFrames} from './validation/validate-duration-in-frames';
 import {validateFps} from './validation/validate-fps';
+import {validateFrame} from './validation/validate-frame';
+import {validateNonNullImageFormat} from './validation/validate-image-format';
+import {validateQuality} from './validation/validate-quality';
 import {
 	MediaVolumeContext,
 	MediaVolumeContextValue,
@@ -131,6 +151,7 @@ export const Internals = {
 	validateSelectedPixelFormatAndImageFormatCombination,
 	validateSelectedPixelFormatAndCodecCombination,
 	validateFrameRange,
+	validateNonNullImageFormat,
 	getWebpackCaching,
 	useLazyComponent,
 	truthy,
@@ -143,8 +164,10 @@ export const Internals = {
 	isPlainIndex,
 	CSSUtils,
 	setupEnvVariables,
+	setupInitialFrame,
 	ENV_VARIABLES_ENV_NAME,
 	ENV_VARIABLES_LOCAL_STORAGE_KEY,
+	INITIAL_FRAME_LOCAL_STORAGE_KEY,
 	getDotEnvLocation,
 	getServerPort,
 	MediaVolumeContext,
@@ -152,6 +175,17 @@ export const Internals = {
 	validateDurationInFrames,
 	validateFps,
 	validateDimension,
+	getRemotionEnvironment,
+	getProResProfile,
+	setProResProfile,
+	validateSelectedCodecAndProResCombination,
+	getMaxTimelineTracks,
+	SharedAudioContext,
+	SharedAudioContextProvider,
+	validateQuality,
+	validateFrame,
+	setStillFrame,
+	getStillFrame,
 };
 
 export type {
@@ -169,4 +203,6 @@ export type {
 	MediaVolumeContextValue,
 	SetMediaVolumeContextValue,
 	LooseAnyComponent,
+	RemotionEnvironment,
+	ProResProfile,
 };

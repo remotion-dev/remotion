@@ -1,22 +1,71 @@
-import {Browser as PuppeteerBrowser} from 'puppeteer-core';
-import {Browser, Internals, TCompMetadata} from 'remotion';
+import {Browser as PuppeteerBrowser, Page} from 'puppeteer-core';
+import {Browser, BrowserExecutable, Internals, TCompMetadata} from 'remotion';
 import {openBrowser} from './open-browser';
 import {serveStatic} from './serve-static';
 import {setPropsAndEnv} from './set-props-and-env';
 
+type GetCompositionsConfig = {
+	browser?: Browser;
+	inputProps?: object | null;
+	envVariables?: Record<string, string>;
+	browserInstance?: PuppeteerBrowser;
+	browserExecutable?: BrowserExecutable;
+};
+
+const getPageAndCleanupFn = async ({
+	passedInInstance,
+	browser,
+	browserExecutable,
+}: {
+	passedInInstance: PuppeteerBrowser | undefined;
+	browser: Browser;
+	browserExecutable: BrowserExecutable | null;
+}): Promise<{
+	cleanup: () => void;
+	page: Page;
+}> => {
+	if (passedInInstance) {
+		const page = await passedInInstance.newPage();
+		return {
+			page,
+			cleanup: () => {
+				// Close puppeteer page and don't wait for it to finish.
+				// Keep browser open.
+				page.close().catch((err) => {
+					console.error('Was not able to close puppeteer page', err);
+				});
+			},
+		};
+	}
+
+	const browserInstance = await openBrowser(
+		browser || Internals.DEFAULT_BROWSER,
+		{
+			browserExecutable,
+		}
+	);
+	const browserPage = await browserInstance.newPage();
+
+	return {
+		page: browserPage,
+		cleanup: () => {
+			// Close whole browser that was just created and don't wait for it to finish.
+			browserInstance.close().catch((err) => {
+				console.error('Was not able to close puppeteer page', err);
+			});
+		},
+	};
+};
+
 export const getCompositions = async (
 	webpackBundle: string,
-	config?: {
-		browser?: Browser;
-		inputProps?: object | null;
-		envVariables?: Record<string, string>;
-		browserInstance?: PuppeteerBrowser;
-	}
+	config?: GetCompositionsConfig
 ): Promise<TCompMetadata[]> => {
-	const browserInstance =
-		config?.browserInstance ??
-		(await openBrowser(config?.browser || Internals.DEFAULT_BROWSER));
-	const page = await browserInstance.newPage();
+	const {page, cleanup} = await getPageAndCleanupFn({
+		passedInInstance: config?.browserInstance,
+		browser: config?.browser ?? Internals.DEFAULT_BROWSER,
+		browserExecutable: config?.browserExecutable ?? null,
+	});
 
 	const {port, close} = await serveStatic(webpackBundle);
 	page.on('error', console.error);
@@ -27,6 +76,7 @@ export const getCompositions = async (
 		envVariables: config?.envVariables,
 		page,
 		port,
+		initialFrame: 0,
 	});
 
 	await page.goto(`http://localhost:${port}/index.html?evaluation=true`);
@@ -38,9 +88,7 @@ export const getCompositions = async (
 	close().catch((err) => {
 		console.error('Was not able to close web server', err);
 	});
-	// Close puppeteer page and don't wait for it to finish.
-	page.close().catch((err) => {
-		console.error('Was not able to close puppeteer page', err);
-	});
+	cleanup();
+
 	return result as TCompMetadata[];
 };

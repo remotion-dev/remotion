@@ -1,4 +1,5 @@
 import React, {forwardRef} from 'react';
+import {getRemotionEnvironment} from '../get-environment';
 import {Sequence} from '../sequencing';
 import {validateMediaProps} from '../validate-media-props';
 import {validateStartFromProps} from '../validate-start-from-props';
@@ -35,11 +36,11 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 
 	validateMediaProps(props, 'Video');
 
-	if (process.env.NODE_ENV === 'development') {
-		return <VideoForDevelopment {...otherProps} ref={ref} />;
+	if (getRemotionEnvironment() === 'rendering') {
+		return <VideoForRendering {...otherProps} ref={ref} />;
 	}
 
-	return <VideoForRendering {...otherProps} ref={ref} />;
+	return <VideoForDevelopment {...otherProps} ref={ref} />;
 };
 
 export const Video = forwardRef(VideoForwardingFunction);

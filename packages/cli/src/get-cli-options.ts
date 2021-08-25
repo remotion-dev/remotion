@@ -1,7 +1,13 @@
 import {RenderInternals} from '@remotion/renderer';
 import fs from 'fs';
 import path from 'path';
-import {Codec, FrameRange, Internals, PixelFormat} from 'remotion';
+import {
+	BrowserExecutable,
+	Codec,
+	FrameRange,
+	Internals,
+	PixelFormat,
+} from 'remotion';
 import {getEnvironmentVariables} from './get-env';
 import {getOutputFilename} from './get-filename';
 import {getInputProps} from './get-input-props';
@@ -120,6 +126,16 @@ const getAndValidatePixelFormat = (codec: Codec) => {
 	return pixelFormat;
 };
 
+const getAndValidateProResProfile = (actualCodec: Codec) => {
+	const proResProfile = Internals.getProResProfile();
+	Internals.validateSelectedCodecAndProResCombination(
+		actualCodec,
+		proResProfile
+	);
+
+	return proResProfile;
+};
+
 const getAndValidateImageFormat = ({
 	shouldOutputImageSequence,
 	codec,
@@ -139,10 +155,10 @@ const getAndValidateImageFormat = ({
 	return imageFormat;
 };
 
-const getAndValidateBrowser = async () => {
+const getAndValidateBrowser = async (browserExecutable: BrowserExecutable) => {
 	const browser = getBrowser();
 	try {
-		await RenderInternals.ensureLocalBrowser(browser);
+		await RenderInternals.ensureLocalBrowser(browser, browserExecutable);
 	} catch (err) {
 		Log.error('Could not download a browser for rendering frames.');
 		Log.error(err);
@@ -152,13 +168,18 @@ const getAndValidateBrowser = async () => {
 	return browser;
 };
 
-export const getCliOptions = async () => {
+export const getCliOptions = async (type: 'still' | 'series') => {
 	const frameRange = getAndValidateFrameRange();
-	const shouldOutputImageSequence = await getAndValidateShouldOutputImageSequence(
-		frameRange
-	);
+	const shouldOutputImageSequence =
+		type === 'still'
+			? true
+			: await getAndValidateShouldOutputImageSequence(frameRange);
 	const codec = await getFinalCodec();
-	const outputFile = getOutputFilename(codec, shouldOutputImageSequence);
+	const outputFile = getOutputFilename({
+		codec,
+		imageSequence: shouldOutputImageSequence,
+		type,
+	});
 	const overwrite = Internals.getShouldOverwrite();
 	const crf = getAndValidateCrf(shouldOutputImageSequence, codec);
 	const pixelFormat = getAndValidatePixelFormat(codec);
@@ -167,6 +188,8 @@ export const getCliOptions = async () => {
 		codec,
 		pixelFormat,
 	});
+	const proResProfile = getAndValidateProResProfile(codec);
+	const browserExecutable = Internals.getBrowserExecutable();
 
 	return {
 		parallelism: Internals.getConcurrency(),
@@ -177,10 +200,13 @@ export const getCliOptions = async () => {
 		inputProps: getInputProps(),
 		envVariables: await getEnvironmentVariables(),
 		quality: Internals.getQuality(),
-		browser: await getAndValidateBrowser(),
+		browser: await getAndValidateBrowser(browserExecutable),
 		absoluteOutputFile: getAndValidateAbsoluteOutputFile(outputFile, overwrite),
 		crf,
 		pixelFormat,
 		imageFormat,
+		proResProfile,
+		stillFrame: Internals.getStillFrame(),
+		browserExecutable,
 	};
 };

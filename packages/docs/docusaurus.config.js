@@ -15,10 +15,6 @@ module.exports = {
       contextualSearch: false,
     },
     image: "img/social-preview.png",
-    prism: {
-      theme: require("prism-react-renderer/themes/github"),
-      darkTheme: require("prism-react-renderer/themes/dracula"),
-    },
     navbar: {
       title: "Remotion",
       logo: {
@@ -33,6 +29,7 @@ module.exports = {
           position: "left",
         },
         { to: "blog", label: "Blog", position: "left" },
+        { to: "showcase", label: "Showcase", position: "left" },
         { to: "/docs/license", label: "Licensing", position: "left" },
         {
           href: "https://discord.gg/6VzzNDwUwV",
@@ -42,7 +39,7 @@ module.exports = {
           "data-splitbee-event-target": "Discord",
         },
         {
-          href: "https://github.com/JonnyBurger/remotion",
+          href: "https://github.com/remotion-dev/remotion",
           label: "GitHub",
           position: "right",
           "data-splitbee-event": "External Link",
@@ -51,7 +48,7 @@ module.exports = {
       ],
     },
     footer: {
-      style: "dark",
+      style: "light",
       links: [
         {
           title: "Docs",
@@ -70,8 +67,12 @@ module.exports = {
           title: "Community",
           items: [
             {
+              label: "Showcase",
+              to: "showcase",
+            },
+            {
               label: "GitHub Issues",
-              href: "https://github.com/JonnyBurger/remotion/issues",
+              href: "https://github.com/remotion-dev/remotion/issues",
               "data-splitbee-event": "External Link",
               "data-splitbee-event-target": "Github",
             },
@@ -87,6 +88,18 @@ module.exports = {
               "data-splitbee-event": "External Link",
               "data-splitbee-event-target": "Twitter",
             },
+            {
+              label: "Instagram",
+              href: "https://instagram.com/remotion.dev",
+              "data-splitbee-event": "External Link",
+              "data-splitbee-event-target": "Instagram",
+            },
+            {
+              label: "Tiktok",
+              href: "https://www.tiktok.com/@remotion.dev",
+              "data-splitbee-event": "External Link",
+              "data-splitbee-event-target": "TikTok",
+            },
           ],
         },
         {
@@ -96,9 +109,10 @@ module.exports = {
               label: "Blog",
               to: "blog",
             },
+
             {
               label: "GitHub",
-              href: "https://github.com/JonnyBurger/remotion",
+              href: "https://github.com/remotion-dev/remotion",
             },
             {
               label: "For companies",
@@ -107,7 +121,7 @@ module.exports = {
           ],
         },
       ],
-      copyright: `Copyright © ${new Date().getFullYear()} Jonny Burger. Built with Docusaurus.`,
+      copyright: `Copyright © ${new Date().getFullYear()} remotion.dev. Built with Docusaurus.`,
     },
   },
   presets: [
@@ -118,16 +132,25 @@ module.exports = {
           sidebarPath: require.resolve("./sidebars.js"),
           // Please change this to your repo.
           editUrl:
-            "https://github.com/JonnyBurger/remotion/edit/main/packages/docs/",
+            "https://github.com/remotion-dev/remotion/edit/main/packages/docs/",
         },
         blog: {
           showReadingTime: true,
           // Please change this to your repo.
           editUrl:
-            "https://github.com/Jonnyburger/remotion/edit/main/packages/docs/blog/",
+            "https://github.com/remotion-dev/remotion/edit/main/packages/docs/blog/",
         },
         theme: {
-          customCss: require.resolve("./src/css/custom.css"),
+          customCss: [require.resolve("./src/css/custom.css")],
+        },
+      },
+    ],
+    [
+      "docusaurus-preset-shiki-twoslash",
+      {
+        themes: ["min-light", "min-dark"],
+        defaultCompilerOptions: {
+          types: ["node"],
         },
       },
     ],

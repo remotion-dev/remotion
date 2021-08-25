@@ -1,6 +1,6 @@
 {
 	"name": "create-video",
-	"version": "2.1.3",
+	"version": "2.3.1",
 	"description": "",
 	"main": "index.js",
 	"bin": {
@@ -18,12 +18,18 @@
 	"license": "SEE LICENSE IN LICENSE.md",
 	"dependencies": {
 		"chalk": "^4.1.0",
+		"degit": "^2.8.4",
 		"execa": "^5.0.0",
-		"xns": "^2.0.7"
+		"fs-extra": "^9.1.0",
+		"prompts": "^2.4.1",
+		"strip-ansi": "^6.0.0"
 	},
 	"devDependencies": {
 		"@jonny/eslint-config": "^2.1.233",
+		"@types/degit": "^2.8.3",
+		"@types/fs-extra": "^9.0.11",
 		"@types/node": "^15.0.1",
+		"@types/prompts": "^2.0.12",
 		"eslint": "^7.15.0",
 		"ts-node": "^9.1.1",
 		"typescript": "^4.1.2"

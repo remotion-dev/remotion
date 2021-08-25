@@ -13,7 +13,7 @@ export const GifForDevelopment = forwardRef<
 	const [state, update] = useState<GifState>(() => {
 		const parsedGif = cache.get(src);
 
-		if (parsedGif === null) {
+		if (parsedGif === undefined) {
 			return {
 				delays: [],
 				frames: [],

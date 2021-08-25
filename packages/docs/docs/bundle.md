@@ -12,9 +12,9 @@ const bundle: (
   entryPoint: string,
   onProgressUpdate?: (progress: number) => void,
   options?: {
-    webpackOverride?: WebpackOverrideFn;
-    outDir?: string;
-    enableCaching?: boolean;
+    webpackOverride?: WebpackOverrideFn
+    outDir?: string
+    enableCaching?: boolean
   }
 ) => Promise<string>
 ```
@@ -27,11 +27,11 @@ A `string` containing an absolute path of the entry point of a Remotion project.
 
 ### `onProgressUpdate?`
 
-A callback function that notifies about the progress of the Webpack bundling. Example function:
+A callback function that notifies about the progress of the Webpack bundling. Passes a number between `0` and `100`. Example function:
 
-```ts
+```ts twoslash
 const onProgressUpdate = (progress: number) => {
-  console.log(`Webpack bundling progress: ${progress * 100}%`)
+  console.log(`Webpack bundling progress: ${progress}%`)
 }
 ```
 
@@ -45,10 +45,12 @@ _optional_
 
 A function to override the webpack config reducer-style. Takes a function which gives you the current webpack config which you can transform and return a modified version of it. For example:
 
-```ts
+```ts twoslash
+import {WebpackOverrideFn} from 'remotion'
+// ---cut---
 const webpackOverride: WebpackOverrideFn = (webpackConfig) => {
   return {
-    ...webpackConfig
+    ...webpackConfig,
     // Override properties
   }
 }

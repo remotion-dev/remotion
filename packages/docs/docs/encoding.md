@@ -7,7 +7,7 @@ Backed by [FFMPEG](https://ffmpeg.org/), Remotion allows you to configure a vari
 
 ## Choosing a codec
 
-Remotion supports 4 codecs: `h264` (_default_), `h265`, `vp8` and `vp9`. The first two produce an output that will be an MP4, the last two are for generating WebM videos. While H264 will work well in most cases, sometimes it's worth going for a different codec. Refer to the table below to see the advantages and drawbacks of each codec.
+Remotion supports 5 video codecs: `h264` (_default_), `h265`, `vp8`, `vp9`, `prores`. The first two produce an output that will be an MP4, the last two are for generating WebM videos. While H264 will work well in most cases, sometimes it's worth going for a different codec. Refer to the table below to see the advantages and drawbacks of each codec.
 
 <table>
   <tr>
@@ -19,7 +19,7 @@ Remotion supports 4 codecs: `h264` (_default_), `h265`, `vp8` and `vp9`. The fir
   </tr>
   <tr>
     <td>H.264 <sub>also known as MPEG-4</sub></td>
-    <td>.mp4</td>
+    <td>.mp4 or .mkv</td>
     <td style={{color: 'red'}}>Large</td>
     <td style={{color: 'green', fontWeight: 'bold'}}>Very fast</td>
     <td><a href="https://caniuse.com/mpeg4" style={{color: 'green', fontWeight: 'bold'}}>Very good</a></td>
@@ -45,6 +45,13 @@ Remotion supports 4 codecs: `h264` (_default_), `h265`, `vp8` and `vp9`. The fir
     <td style={{color: 'red', fontWeight: 'bold'}}>Very slow</td>
     <td><a href="https://caniuse.com/webm" style={{color: 'darkorange'}}>Okay</a></td>
   </tr>
+  <tr>
+    <td>ProRes</td>
+    <td>.mov</td>
+    <td style={{color: 'red'}}>Large</td>
+    <td style={{color: 'green'}}>Fast</td>
+    <td style={{color: 'red', fontWeight: 'bold'}}>None</td>
+  </tr>
 </table>
 
 :::info
@@ -54,6 +61,8 @@ Click on a browser compatibility link to see exactly which browsers are supporte
 You can set a config using [`Config.Output.setCodec()` in the config file](/docs/config#setcodec) or the [`--codec`](/docs/cli) CLI flag.
 
 ## Controlling quality using the CRF setting
+
+_Applies only to `h264`, `h265`, `vp8` and `vp9`._
 
 No matter which codec you end up using, there's always a tradeoff between file size and video quality. You can control it by setting the so called CRF (Constant Rate Factor). The **lower the number, the better the quality**, the higher the number, the smaller the file is – of course at the cost of quality.
 
@@ -139,15 +148,96 @@ VP9
 </tr>
 </table>
 
-You can [set a CRF in the config file using the `Config.Output.setCrf()`](config#setcrf) function or use the [`--crf`](/docs/cli#flags) command line flag.
+You can [set a CRF in the config file using the `Config.Output.setCrf()`](/docs/config#setcrf) function or use the [`--crf`](/docs/cli#flags) command line flag.
+
+## Controlling quality using ProRes profile
+
+_Applies only to `prores` codec_.
+
+For ProRes, there is no CRF option, but there are profiles which you can set using the [`--prores-profile` flag](/docs/cli#--prores-profile) or the [`setProResProfile`](/docs/config#setproresprofile) config file option.
+
+<table>
+  <tr>
+    <th>
+      Value
+    </th>
+    <th>
+      FFMPEG setting
+    </th>
+    <th>
+      Bitrate
+    </th>
+    <th>
+      <a href="/docs/transparent-videos">Supports alpha channel</a>
+    </th>
+  </tr>
+  <tr>
+    <td>
+      <code>"proxy"</code>
+    </td>
+    <td>0</td>
+    <td>~45Mbps</td>
+    <td>No</td>
+  </tr>
+  <tr>
+    <td>
+      <code>"light"</code>
+    </td>
+    <td>1</td>
+    <td>~102Mbps</td>
+    <td>No</td>
+  </tr>
+  <tr>
+    <td>
+      <code>"standard"</code> (default)
+    </td>
+    <td>2</td>
+    <td>~147Mbps</td>
+    <td>No</td>
+  </tr>
+  <tr>
+    <td>
+      <code>"hq"</code>
+    </td>
+    <td>3</td>
+    <td>~220Mbps</td>
+    <td>No</td>
+  </tr>
+  <tr>
+    <td>
+      <code>"4444"</code>
+    </td>
+    <td>4</td>
+    <td>~330Mbps</td>
+    <td>Yes</td>
+  </tr>
+  <tr>
+    <td>
+      <code>"4444-xq"</code>
+    </td>
+    <td>4</td>
+    <td>~500Mbps</td>
+    <td>Yes</td>
+  </tr>
+</table>
+
+Higher bitrate means higher quality and higher file size.
 
 ## Audio-only export
 
 You can pass `mp3`, `wav` or `aac` as a codec. If you do it, an audio file will be output in the corresponding format. Quality settings will be ignored.
 
+## Use .mkv container format
+
+You can set the codec to `h264-mkv` to use the mkv container format together with the H264 codec. If you select this option, the audio will be encoded losslessly using the WAV codec.
+
+:::info
+This preset was created for Remotion Lambda, and is optimal for when concatenating multiple video clips into one.
+:::
+
 ## What other settings do you need?
 
-Which of the dozens of options that FFMPEG supports would you like to see exposed in Remotion? Let us know by opening an [issue on our issue tracker!](https://github.com/JonnyBurger/remotion/issues)
+Which of the dozens of options that FFMPEG supports would you like to see exposed in Remotion? Let us know by opening an [issue on our issue tracker!](https://github.com/remotion-dev/remotion/issues)
 
 ## See also
 

@@ -12,4 +12,5 @@ export const seekToFrame = async ({
 		window.remotion_setFrame(f);
 	}, frame);
 	await page.waitForFunction('window.ready === true');
+	await page.evaluateHandle('document.fonts.ready');
 };

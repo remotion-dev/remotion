@@ -5,7 +5,7 @@ id: get-waveform-portion
 
 _Part of the `@remotion/media-utils`_ package of helper functions.
 
-Takes bulky waveform data (for example fetched by [`getAudioData()`](get-audio-data)) and returns a trimmed and simplified version of it, for simpler visualization. This function is suitable if you only need volume data, if you need more detailed data about each frequency range, use [`visualizeAudio()`](visualize-audio).
+Takes bulky waveform data (for example fetched by [`getAudioData()`](/docs/get-audio-data)) and returns a trimmed and simplified version of it, for simpler visualization. This function is suitable if you only need volume data, if you need more detailed data about each frequency range, use [`visualizeAudio()`](/docs/visualize-audio).
 
 ## Arguments
 
@@ -13,7 +13,7 @@ Takes bulky waveform data (for example fetched by [`getAudioData()`](get-audio-d
 
 An object with the following arguments:
 
-- `audioData`: `AudioData` - information about the audio. Use [`getAudioData()`](get-audio-data) to fetch it.
+- `audioData`: `AudioData` - information about the audio. Use [`getAudioData()`](/docs/get-audio-data) to fetch it.
 - `startTimeInSeconds`: `number` - trim the waveform to exclude all data before `startTimeInSeconds`.
 - `durationInSeconds`: `number` - trim the waveform to exclude all data after `startTimeInSeconds + durationInSeconds`.
 - `numberOfSamples`: `number` - how big you want the result array to be. The function will compress the waveform to fit in `numberOfSamples` data points.
@@ -27,11 +27,15 @@ An object with the following arguments:
 
 ## Example
 
-```tsx
-import {getAudioData} from '@remotion/media-utils';
-import music from './music.mp3';
+```tsx twoslash
+// @module: ESNext
+// @target: ESNext
+import {Audio} from 'remotion'
+// ---cut---
+import {getAudioData, getWaveformPortion} from '@remotion/media-utils'
+import music from './music.mp3'
 
-const audioData = await getAudioData(music); /* {
+const audioData = await getAudioData(music) /* {
   channelWaveforms: [Float32Array(4410000), Float32Array(4410000)],
   sampleRate: 44100,
   durationInSeconds: 100.0000,
@@ -40,7 +44,7 @@ const audioData = await getAudioData(music); /* {
   isRemote: false
 } */
 
-await waveformPortion = getWaveformPortion({
+const waveformPortion = await getWaveformPortion({
   audioData,
   // Will select time range of 20-40 seconds
   startTimeInSeconds: 20,
@@ -53,7 +57,7 @@ console.log(waveformPortion.length) // 10
 
 ## Alternatives
 
-The [`visualizeAudio()`](visualize-audio) function is more suitable for visualizing audio based on frequency properties of the audio (bass, mids, highs, etc).
+The [`visualizeAudio()`](/docs/visualize-audio) function is more suitable for visualizing audio based on frequency properties of the audio (bass, mids, highs, etc).
 
 - [Using audio](/docs/using-audio)
 - [`<Audio/>`](/docs/audio)

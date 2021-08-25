@@ -3,6 +3,7 @@ import React, {
 	MutableRefObject,
 	useCallback,
 	useImperativeHandle,
+	useLayoutEffect,
 	useMemo,
 	useRef,
 	useState,
@@ -44,7 +45,9 @@ export type PlayerProps<T> = {
 	autoPlay?: boolean;
 	allowFullscreen?: boolean;
 	clickToPlay?: boolean;
-	inputProps?: unknown;
+	doubleClickToFullscreen?: boolean;
+	spaceKeyToPlayOrPause?: boolean;
+	numberOfSharedAudioTags?: number;
 } & PropsIfHasProps<T> &
 	CompProps<T>;
 
@@ -52,6 +55,7 @@ Internals.CSSUtils.injectCSS(
 	Internals.CSSUtils.makeDefaultCSS(`.${PLAYER_CSS_CLASSNAME}`)
 );
 
+// eslint-disable-next-line complexity
 export const PlayerFn = <T,>(
 	{
 		durationInFrames,
@@ -65,11 +69,19 @@ export const PlayerFn = <T,>(
 		autoPlay = false,
 		showVolumeControls = true,
 		allowFullscreen = true,
-		clickToPlay = true,
+		clickToPlay,
+		doubleClickToFullscreen = false,
+		spaceKeyToPlayOrPause = true,
+		numberOfSharedAudioTags = 5,
 		...componentProps
 	}: PlayerProps<T>,
 	ref: MutableRefObject<PlayerRef>
 ) => {
+	useLayoutEffect(() => {
+		if (typeof window !== 'undefined') {
+			window.remotion_isPlayer = true;
+		}
+	}, []);
 	const component = Internals.useLazyComponent(componentProps);
 	const [frame, setFrame] = useState(0);
 	const [playing, setPlaying] = useState<boolean>(false);
@@ -91,10 +103,21 @@ export const PlayerFn = <T,>(
 		);
 	}
 
-	Internals.validateDimension(compositionHeight, 'compositionHeight');
-	Internals.validateDimension(compositionWidth, 'compositionWidth');
-	Internals.validateDurationInFrames(durationInFrames, '<Player />');
-	Internals.validateFps(fps);
+	Internals.validateDimension(
+		compositionHeight,
+		'compositionHeight',
+		'of the <Player /> component'
+	);
+	Internals.validateDimension(
+		compositionWidth,
+		'compositionWidth',
+		'of the <Player /> component'
+	);
+	Internals.validateDurationInFrames(
+		durationInFrames,
+		'of the <Player/> component'
+	);
+	Internals.validateFps(fps, 'as a prop of the <Player/> component');
 
 	if (typeof controls !== 'boolean' && typeof controls !== 'undefined') {
 		throw new TypeError(
@@ -111,6 +134,15 @@ export const PlayerFn = <T,>(
 	if (typeof loop !== 'boolean' && typeof loop !== 'undefined') {
 		throw new TypeError(
 			`'loop' must be a boolean or undefined but got '${typeof loop}' instead`
+		);
+	}
+
+	if (
+		typeof doubleClickToFullscreen !== 'boolean' &&
+		typeof doubleClickToFullscreen !== 'undefined'
+	) {
+		throw new TypeError(
+			`'doubleClickToFullscreen' must be a boolean or undefined but got '${typeof doubleClickToFullscreen}' instead`
 		);
 	}
 
@@ -135,6 +167,27 @@ export const PlayerFn = <T,>(
 	if (typeof clickToPlay !== 'boolean' && typeof clickToPlay !== 'undefined') {
 		throw new TypeError(
 			`'clickToPlay' must be a boolean or undefined but got '${typeof clickToPlay}' instead`
+		);
+	}
+
+	if (
+		typeof spaceKeyToPlayOrPause !== 'boolean' &&
+		typeof spaceKeyToPlayOrPause !== 'undefined'
+	) {
+		throw new TypeError(
+			`'spaceKeyToPlayOrPause' must be a boolean or undefined but got '${typeof spaceKeyToPlayOrPause}' instead`
+		);
+	}
+
+	if (
+		typeof numberOfSharedAudioTags !== 'number' ||
+		numberOfSharedAudioTags % 1 !== 0 ||
+		!Number.isFinite(numberOfSharedAudioTags) ||
+		Number.isNaN(numberOfSharedAudioTags) ||
+		numberOfSharedAudioTags < 0
+	) {
+		throw new TypeError(
+			`'numberOfSharedAudioTags' must be an integer but got '${numberOfSharedAudioTags}' instead`
 		);
 	}
 
@@ -230,23 +283,33 @@ export const PlayerFn = <T,>(
 						<Internals.SetMediaVolumeContext.Provider
 							value={setMediaVolumeContextValue}
 						>
-							<PlayerEventEmitterContext.Provider value={emitter}>
-								<PlayerUI
-									ref={rootRef}
-									autoPlay={Boolean(autoPlay)}
-									loop={Boolean(loop)}
-									controls={Boolean(controls)}
-									style={style}
-									inputProps={passedInputProps}
-									allowFullscreen={Boolean(allowFullscreen)}
-									clickToPlay={clickToPlay}
-									showVolumeControls={showVolumeControls}
-									setMediaVolume={setMediaVolumeAndPersist}
-									mediaVolume={mediaVolume}
-									mediaMuted={mediaMuted}
-									setMediaMuted={setMediaMuted}
-								/>
-							</PlayerEventEmitterContext.Provider>
+							<Internals.SharedAudioContextProvider
+								numberOfAudioTags={numberOfSharedAudioTags}
+							>
+								<PlayerEventEmitterContext.Provider value={emitter}>
+									<PlayerUI
+										ref={rootRef}
+										autoPlay={Boolean(autoPlay)}
+										loop={Boolean(loop)}
+										controls={Boolean(controls)}
+										style={style}
+										inputProps={passedInputProps}
+										allowFullscreen={Boolean(allowFullscreen)}
+										clickToPlay={
+											typeof clickToPlay === 'boolean'
+												? clickToPlay
+												: Boolean(controls)
+										}
+										showVolumeControls={Boolean(showVolumeControls)}
+										setMediaVolume={setMediaVolumeAndPersist}
+										mediaVolume={mediaVolume}
+										mediaMuted={mediaMuted}
+										doubleClickToFullscreen={Boolean(doubleClickToFullscreen)}
+										setMediaMuted={setMediaMuted}
+										spaceKeyToPlayOrPause={Boolean(spaceKeyToPlayOrPause)}
+									/>
+								</PlayerEventEmitterContext.Provider>
+							</Internals.SharedAudioContextProvider>
 						</Internals.SetMediaVolumeContext.Provider>
 					</Internals.MediaVolumeContext.Provider>
 				</Internals.CompositionManager.Provider>

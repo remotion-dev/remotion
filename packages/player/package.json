@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/player",
-	"version": "2.1.4",
+	"version": "2.3.0",
 	"description": "Remotion Player",
 	"main": "dist/index.js",
 	"sideEffects": false,
@@ -11,20 +11,20 @@
 		"prerelease": "cp ../../README.md ."
 	},
 	"repository": {
-		"url": "https://github.com/JonnyBurger/remotion"
+		"url": "https://github.com/remotion-dev/remotion"
 	},
 	"files": [
 		"dist",
 		"README.md"
 	],
-	"author": "Jonny Burger <hi@jonny.io>",
+	"author": "Jonny Burger <jonny@remotion.dev>",
 	"maintainers": [
-		"Jonny Burger <hi@jonny.io>",
+		"Jonny Burger <jonny@remotion.dev>",
 		"Shankhadeep Dey <shankhadeepdey99@gmail.com>"
 	],
 	"license": "SEE LICENSE IN LICENSE.md",
 	"dependencies": {
-		"remotion": "^2.1.4"
+		"remotion": "^2.3.0"
 	},
 	"peerDependencies": {
 		"react": ">=16.8.0",
@@ -35,7 +35,7 @@
 		"@testing-library/react": "^11.2.2",
 		"@types/jest": "^26.0.19",
 		"@types/node": "^14.14.14",
-		"@types/react": "^17.0.0",
+		"@types/react": "17.0.8",
 		"@types/react-dom": "^17.0.0",
 		"eslint": "^7.4.0",
 		"jest": "^26.6.3",
