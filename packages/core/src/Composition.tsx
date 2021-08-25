@@ -59,7 +59,7 @@ export const Composition = <T,>({
 
 		validateDimension(width, 'width');
 		validateDimension(height, 'height');
-		validateDurationInFrames(durationInFrames);
+		validateDurationInFrames(durationInFrames, `<Composition />`);
 		validateFps(fps);
 		registerComposition<T>({
 			durationInFrames,

@@ -1,40 +1,59 @@
-import {Children, FC, useMemo} from 'react';
-import {Sequence} from '../sequencing';
+import React, {Children, FC, PropsWithChildren, useMemo} from 'react';
+import {Sequence, SequenceProps} from '../sequencing';
+import {validateDurationInFrames} from '../validation/validate-duration-in-frames';
 
-const Stagger: FC<{componentDuration: Array<number>}> = ({
-	children,
-	componentDuration,
-}) => {
-	if (typeof componentDuration === 'undefined') {
-		throw new Error(
-			'componentDuration is a required props, pass a number array'
-		);
-	}
+type StaggerChildProps = PropsWithChildren<
+	{
+		durationInFrames: number;
+	} & Pick<SequenceProps, 'layout' | 'name'>
+>;
 
-	if (Children.count(children) !== componentDuration.length) {
-		throw new Error(
-			'Length of componentDuration and number of component inside <Stagger /> should be same '
-		);
-	}
+const StaggerChild = ({children}: StaggerChildProps) => {
+	// eslint-disable-next-line react/jsx-no-useless-fragment
+	return <>{children}</>;
+};
 
+const Stagger: FC = ({children}) => {
 	const childrenValue = useMemo(() => {
-		return Children.map(children, (child, index) => {
-			let startFrame = 0;
-			componentDuration.forEach((currentDuration, i) => {
-				if (i < index) {
-					startFrame += currentDuration - 1;
-				}
-			});
+		let startFrame = 0;
+		return Children.map(children, (child) => {
+			const castedChild = (child as unknown) as {
+				props: StaggerChildProps;
+				type: typeof StaggerChild;
+			};
+			if (!castedChild || !castedChild.props.children) {
+				throw new TypeError(`The StaggerChild component must have children.`);
+			}
+
+			if (castedChild.type !== StaggerChild) {
+				throw new TypeError(
+					"The <Stagger> component only accepts a list of <StaggerChild /> components as it's children"
+				);
+			}
+
+			const durationInFramesProp = castedChild.props.durationInFrames;
+			const {
+				durationInFrames,
+				children: _children,
+				...passedProps
+			} = castedChild.props;
+			validateDurationInFrames(durationInFramesProp, `<StaggerChild />`);
+			const currentStartFrame = startFrame;
+			startFrame += durationInFramesProp;
 			return (
-				<Sequence from={startFrame} durationInFrames={componentDuration[index]}>
+				<Sequence
+					from={currentStartFrame}
+					durationInFrames={durationInFramesProp}
+					{...passedProps}
+				>
 					{child}
 				</Sequence>
 			);
 		});
-	}, [componentDuration, children]);
+	}, [children]);
 
 	/* eslint-disable react/jsx-no-useless-fragment */
 	return <>{childrenValue}</>;
 };
 
-export {Stagger};
+export {Stagger, StaggerChild};

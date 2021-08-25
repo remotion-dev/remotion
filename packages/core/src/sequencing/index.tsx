@@ -22,14 +22,16 @@ export type SequenceContextType = {
 
 export const SequenceContext = createContext<SequenceContextType | null>(null);
 
-export const Sequence: React.FC<{
+export type SequenceProps = {
 	children: React.ReactNode;
 	from: number;
 	durationInFrames: number;
 	name?: string;
 	layout?: 'absolute-fill' | 'none';
 	showInTimeline?: boolean;
-}> = ({
+};
+
+export const Sequence: React.FC<SequenceProps> = ({
 	from,
 	durationInFrames,
 	children,
@@ -92,10 +94,10 @@ export const Sequence: React.FC<{
 		compositionDuration - from,
 		parentSequence
 			? Math.min(
-				parentSequence.durationInFrames +
+					parentSequence.durationInFrames +
 						(parentSequence.cumulatedFrom + parentSequence.relativeFrom) -
 						actualFrom,
-				durationInFrames
+					durationInFrames
 			  )
 			: durationInFrames
 	);
@@ -160,8 +162,8 @@ export const Sequence: React.FC<{
 		absoluteFrame < actualFrom
 			? null
 			: absoluteFrame > endThreshold
-				? null
-				: children;
+			? null
+			: children;
 
 	return (
 		<SequenceContext.Provider value={contextValue}>
