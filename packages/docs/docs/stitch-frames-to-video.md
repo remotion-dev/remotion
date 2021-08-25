@@ -90,10 +90,10 @@ The constant rate factor of the output, a parameter which controls quality. See 
 
 _optional_
 
-Callback function which informs about the encoding progress. The `progress` value is the frame number.
+Callback function which informs about the encoding progress. The `frameNumber` value is a `number`.
 
 ```ts twoslash
-const onProgress = (progress: frameNumber) => {
+const onProgress = (frameNumber: number) => {
   console.log(`Encoding progress: on ${frameNumber} frame`)
 }
 ```
