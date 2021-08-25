@@ -167,7 +167,7 @@ export const Sequence: React.FC<SequenceProps> = ({
 
 	return (
 		<SequenceContext.Provider value={contextValue}>
-			{layout === 'absolute-fill' ? (
+			{content === null ? null : layout === 'absolute-fill' ? (
 				<div
 					style={{
 						position: 'absolute',

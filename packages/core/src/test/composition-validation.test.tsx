@@ -174,7 +174,7 @@ describe('Composition-validation render should throw with invalid props', () => 
 							/>
 						</RemotionRoot>
 					),
-				/The "durationInFrames" of a composition must be positive, but got -100./
+				/The "durationInFrames" prop of a <Composition \/> component must be positive, but got -100./
 			);
 		});
 		test('It should throw if durationInFrames=0 of a composition is boundary off-point', () => {
@@ -192,7 +192,7 @@ describe('Composition-validation render should throw with invalid props', () => 
 							/>
 						</RemotionRoot>
 					),
-				/The "durationInFrames" of a composition must be positive, but got 0./
+				/The "durationInFrames" prop of a <Composition \/> component must be positive, but got 0./
 			);
 		});
 		test('It should throw if durationInFrames of a composition is not an integer', () => {
@@ -210,7 +210,7 @@ describe('Composition-validation render should throw with invalid props', () => 
 							/>
 						</RemotionRoot>
 					),
-				/The "durationInFrames" of a composition must be an integer, but got 0.11./
+				/The "durationInFrames" prop of a <Composition \/> component must be an integer, but got 0.11./
 			);
 		});
 		test('It should throw if durationInFrames of a composition is not a number', () => {
@@ -229,7 +229,7 @@ describe('Composition-validation render should throw with invalid props', () => 
 							/>
 						</RemotionRoot>
 					),
-				/The "durationInFrames" of a composition must be a number, but you passed a value of type string/
+				/The "durationInFrames" prop of a <Composition \/> component must be a number, but you passed a value of type string/
 			);
 		});
 	});
