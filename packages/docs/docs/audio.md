@@ -5,10 +5,6 @@ id: audio
 
 Using this component, you can add audio to your video. All audio formats which are supported by Chromium are supported by the component.
 
-:::info
-Version 1.x doesn't render audio to an output. Make sure to upgrade to [Remotion 2.0](/docs/2-0-migration) to render audio.
-:::
-
 ## API / Example
 
 Use an import or require to load an audio file and pass it to the `src` props of the `<Audio />` component.
@@ -17,8 +13,8 @@ The component also accepts a `volume` props which allows you to control the volu
 
 `<Audio>` has two more helper props: `startFrom` and `endAt` for defining the start frame and end frame. Both are optional and do not get forwarded to the native `<audio>` element but tell Remotion which portion of the audio should be included.
 
-```tsx
-import {Audio} from 'remotion';
+```tsx twoslash
+import {Audio} from 'remotion'
 import audio from './audio.mp3'
 
 export const MyVideo = () => {

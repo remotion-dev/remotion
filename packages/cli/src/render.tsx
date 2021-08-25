@@ -1,4 +1,3 @@
-import {bundle, BundlerInternals} from '@remotion/bundler';
 import {
 	getCompositions,
 	OnErrorInfo,
@@ -14,16 +13,16 @@ import path from 'path';
 import {Internals} from 'remotion';
 import {getCliOptions} from './get-cli-options';
 import {getCompositionId} from './get-composition-id';
-import {getConfigFileName} from './get-config-file-name';
-import {loadConfigFile} from './load-config';
+import {handleCommonError} from './handle-common-errors';
+import {initializeRenderCli} from './initialize-render-cli';
 import {Log} from './log';
-import {parseCommandLine, parsedCli} from './parse-command-line';
+import {parsedCli} from './parse-command-line';
 import {
 	createProgressBar,
-	makeBundlingProgress,
 	makeRenderingProgress,
-	makeStitchingProgres,
+	makeStitchingProgress,
 } from './progress-bar';
+import {bundleOnCli} from './setup-cache';
 import {checkAndValidateFfmpegVersion} from './validate-ffmpeg-version';
 
 const onError = async (info: OnErrorInfo) => {
@@ -38,20 +37,7 @@ const onError = async (info: OnErrorInfo) => {
 		);
 	}
 
-	Log.error(info.error.message);
-	if (info.error.message.includes('Could not play video with')) {
-		Log.info();
-		Log.info(
-			'💡 Get help for this issue at https://remotion.dev/docs/media-playback-error.'
-		);
-	}
-
-	if (info.error.message.includes('A delayRender was called')) {
-		Log.info();
-		Log.info(
-			'💡 Get help for this issue at https://remotion.dev/docs/timeout.'
-		);
-	}
+	handleCommonError(info.error);
 
 	process.exit(1);
 };
@@ -61,15 +47,11 @@ export const render = async () => {
 	const file = parsedCli._[1];
 	const fullPath = path.join(process.cwd(), file);
 
-	const configFileName = getConfigFileName();
-	const appliedName = loadConfigFile(configFileName);
-	parseCommandLine();
-	if (appliedName) {
-		Log.verbose(`Applied configuration from ${appliedName}.`);
-	}
+	initializeRenderCli('sequence');
 
 	const {
 		codec,
+		proResProfile,
 		parallelism,
 		frameRange,
 		shouldOutputImageSequence,
@@ -82,11 +64,13 @@ export const render = async () => {
 		crf,
 		pixelFormat,
 		imageFormat,
-	} = await getCliOptions();
+		browserExecutable,
+	} = await getCliOptions('series');
 
 	await checkAndValidateFfmpegVersion();
 
 	const browserInstance = RenderInternals.openBrowser(browser, {
+		browserExecutable,
 		shouldDumpIo: Internals.Logging.isEqualOrBelowLogLevel('verbose'),
 	});
 	if (shouldOutputImageSequence) {
@@ -97,45 +81,14 @@ export const render = async () => {
 
 	const steps = shouldOutputImageSequence ? 2 : 3;
 
-	const shouldCache = Internals.getWebpackCaching();
-	const cacheExistedBefore = BundlerInternals.cacheExists('production', null);
-	if (cacheExistedBefore && !shouldCache) {
-		process.stdout.write('🧹 Cache disabled but found. Deleting... ');
-		await BundlerInternals.clearCache('production', null);
-		process.stdout.write('done. \n');
-	}
-
-	const bundleStartTime = Date.now();
-	const bundlingProgress = createProgressBar();
-	const bundled = await bundle(
-		fullPath,
-		(progress) => {
-			bundlingProgress.update(
-				makeBundlingProgress({progress: progress / 100, steps, doneIn: null})
-			);
-		},
-		{
-			enableCaching: shouldCache,
-		}
-	);
-	bundlingProgress.update(
-		makeBundlingProgress({
-			progress: 1,
-			steps,
-			doneIn: Date.now() - bundleStartTime,
-		}) + '\n'
-	);
-	Log.verbose('Bundled under', bundled);
-	const cacheExistedAfter = BundlerInternals.cacheExists('production', null);
-	if (cacheExistedAfter && !cacheExistedBefore) {
-		Log.info('⚡️ Cached bundle. Subsequent builds will be faster.');
-	}
+	const bundled = await bundleOnCli(fullPath, steps);
 
 	const openedBrowser = await browserInstance;
 	const comps = await getCompositions(bundled, {
 		browser,
 		inputProps,
 		browserInstance: openedBrowser,
+		envVariables,
 	});
 	const compositionId = getCompositionId(comps);
 
@@ -217,7 +170,7 @@ export const render = async () => {
 		const stitchingProgress = createProgressBar();
 
 		stitchingProgress.update(
-			makeStitchingProgres({
+			makeStitchingProgress({
 				doneIn: null,
 				frames: 0,
 				steps,
@@ -235,12 +188,13 @@ export const render = async () => {
 			imageFormat,
 			pixelFormat,
 			codec,
+			proResProfile,
 			crf,
 			assetsInfo,
 			parallelism,
 			onProgress: (frame: number) => {
 				stitchingProgress.update(
-					makeStitchingProgres({
+					makeStitchingProgress({
 						doneIn: null,
 						frames: frame,
 						steps,
@@ -254,7 +208,7 @@ export const render = async () => {
 			verbose: Internals.Logging.isEqualOrBelowLogLevel('verbose'),
 		});
 		stitchingProgress.update(
-			makeStitchingProgres({
+			makeStitchingProgress({
 				doneIn: Date.now() - stitchStart,
 				frames: totalFrames,
 				steps,

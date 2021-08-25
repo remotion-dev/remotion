@@ -13,7 +13,9 @@ export const Container = styled.div`
 export const Canvas: React.FC = () => {
 	const ref = useRef<HTMLDivElement>(null);
 
-	const size = PlayerInternals.useElementSize(ref);
+	const size = PlayerInternals.useElementSize(ref, {
+		triggerOnWindowResize: false,
+	});
 
 	return (
 		<Container ref={ref}>

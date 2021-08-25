@@ -2,7 +2,7 @@ import fs from 'fs';
 import puppeteer, {Product, PuppeteerNode} from 'puppeteer-core';
 import {downloadBrowser} from 'puppeteer-core/lib/cjs/puppeteer/node/install';
 import {PUPPETEER_REVISIONS} from 'puppeteer-core/lib/cjs/puppeteer/revisions';
-import {Browser, Internals} from 'remotion';
+import {Browser, BrowserExecutable} from 'remotion';
 
 const getSearchPathsForProduct = (product: puppeteer.Product) => {
 	if (product === 'chrome') {
@@ -13,6 +13,9 @@ const getSearchPathsForProduct = (product: puppeteer.Product) => {
 				: null,
 			process.platform === 'linux' ? '/usr/bin/google-chrome' : null,
 			process.platform === 'linux' ? '/usr/bin/chromium-browser' : null,
+			process.platform === 'linux'
+				? '/app/.apt/usr/bin/google-chrome-stable'
+				: null,
 			process.platform === 'win32'
 				? 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe'
 				: null,
@@ -75,8 +78,10 @@ type BrowserStatus =
 			type: 'no-browser';
 	  };
 
-const getBrowserStatus = (product: puppeteer.Product): BrowserStatus => {
-	const browserExecutablePath = Internals.getBrowserExecutable();
+const getBrowserStatus = (
+	product: puppeteer.Product,
+	browserExecutablePath: BrowserExecutable
+): BrowserStatus => {
 	if (browserExecutablePath) {
 		if (!fs.existsSync(browserExecutablePath)) {
 			console.warn(
@@ -100,8 +105,14 @@ const getBrowserStatus = (product: puppeteer.Product): BrowserStatus => {
 	return {type: 'no-browser'};
 };
 
-export const ensureLocalBrowser = async (browser: Browser) => {
-	const status = getBrowserStatus(mapBrowserToProduct(browser));
+export const ensureLocalBrowser = async (
+	browser: Browser,
+	preferredBrowserExecutable: BrowserExecutable
+) => {
+	const status = getBrowserStatus(
+		mapBrowserToProduct(browser),
+		preferredBrowserExecutable
+	);
 	if (status.type === 'no-browser') {
 		console.log(
 			'No local browser could be found. Downloading one from the internet...'
@@ -111,13 +122,17 @@ export const ensureLocalBrowser = async (browser: Browser) => {
 };
 
 export const getLocalBrowserExecutable = async (
-	browser: Browser
+	browser: Browser,
+	preferredBrowserExecutable: BrowserExecutable
 ): Promise<string> => {
-	const status = getBrowserStatus(mapBrowserToProduct(browser));
+	const status = getBrowserStatus(
+		mapBrowserToProduct(browser),
+		preferredBrowserExecutable
+	);
 	if (status.type === 'no-browser') {
 		throw new TypeError(
-			'No browser found for rendering frames! Please open a Github issue and describe ' +
-				'how you reached this error: https://github.com/JonnyBurger/remotion/issues'
+			'No browser found for rendering frames! Please open a GitHub issue and describe ' +
+				'how you reached this error: https://github.com/remotion-dev/remotion/issues'
 		);
 	}
 

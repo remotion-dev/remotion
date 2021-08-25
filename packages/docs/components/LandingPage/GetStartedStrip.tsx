@@ -33,7 +33,7 @@ export const GetStarted: React.FC = () => {
           </BlueButton>
         </a>
         <div style={{ width: 10 }}></div>
-        <a className={styles.a} href="https://github.com/JonnyBurger/remotion">
+        <a className={styles.a} href="https://github.com/remotion-dev/remotion">
           <BlueButton size="sm" loading={false} fullWidth={false}>
             <GithubButton></GithubButton>
           </BlueButton>

@@ -91,19 +91,37 @@ Whether the video should display a seek bar and a play/pause button. Default `fa
 
 _optional_
 
-Whether the video should display a volume slider and a mute button. Default `true`.
+Whether the video should display a volume slider and a mute button. Only has an effect if `controls` is also set to true. Default `true`.
 
 ### `allowFullscreen`
 
 _optional_
 
-Whether the video can go fullscreen. By default true.
+Whether the video can go fullscreen. By default `true`.
 
 ### `clickToPlay`
 
 _optional_
 
-A boolean property defining whether you can play, pause or resume the video with a single click into the player. Default true.
+A boolean property defining whether you can play, pause or resume the video with a single click into the player. Default `true` if `controls` are true, otherwise `false`.
+
+### `doubleClickToFullscreen`
+
+_optional_
+
+A boolean property defining whether you can go fullscreen and exit fullscreen in the video with double click into the player. If enabled, clicking on the video once will delay pausing the video for 200ms to wait for a possible second click. Default `false`.
+
+### `spaceKeyToPlayOrPause`
+
+_optional_
+
+A boolean property defining whether you can play or pause a video using space key. If enabled, playing the video and subsequently pressing the space key pauses and resumes the video. Only works if `controls` is true. Default `true`.
+
+### `inputProps`
+
+_optional_
+
+Pass props to the component that you have specified using the `component` prop. The Typescript definition takes the shape of the props that you have given to your `component`. Default `undefined`.
 
 ### `style`
 
@@ -111,28 +129,54 @@ _optional_
 
 A regular `style` prop for a HTMLDivElement. You can pass a different height and width if you would like different dimensions for the player than the original composition dimensions.
 
+### `numberOfSharedAudioTags`
+
+_optional - available since v.2.3.1_
+
+If you use an [`<Audio />`](/docs/audio) tag, it might not play in some browsers (specifically iOS Safari) due to browser autoplay policies. This is why the Remotion Player pre-mounts a set of audio tags with silent audio that get played upon user interaction. These audio tags can then be used to play real audio later and will not be subject to the autoplay policy of the browser.
+
+This option controls how many audio tags are being rendered, the default is `5`. If you mount more audio tags than shared audio tags are available, then an error will be thrown.
+
+If you'd like to opt out of this behavior, you can pass `0` to mount native audio tags simultaneously as you mount Remotion's [`<Audio />`](/docs/audio) tags.
+
+Once you have set this prop, you cannot change it anymore or an error will be thrown.
+
 ## `PlayerRef`
 
 You may attach a ref to the player and control it in an imperative manner.
 
-```tsx {14}
-import {Player, PlayerRef} from '@remotion/player';
+```tsx twoslash {15}
+// @allowUmdGlobalAccess
+
+// @filename: MyComposition.tsx
+export const MyComposition: React.FC = () => null
+
+// @filename: index.tsx
+// ---cut---
+import {useEffect, useRef} from 'react'
+import {Player, PlayerRef} from '@remotion/player'
+import {MyComposition} from './MyComposition'
 
 const MyComp: React.FC = () => {
   const playerRef = useRef<PlayerRef>(null);
 
   useEffect(() => {
     if (playerRef.current) {
-      console.log(playerRef.current.getCurrentFrame());
+      console.log(playerRef.current.getCurrentFrame())
     }
-  }, []);
+  }, [])
 
   return (
     <Player
       ref={playerRef}
-      // other props
+      durationInFrames={30}
+      compositionWidth={1080}
+      compositionHeight={1080}
+      fps={30}
+      component={MyComposition}
+      // Many other optional props are available.
     />
-  );
+  )
 }
 ```
 
@@ -212,28 +256,36 @@ Stop listening to an event. See the [Events](#events) section to see the functio
 
 Using a [player ref](#playerref), you can bind event listeners to get notified of certain events of the player.
 
-```tsx
+```tsx twoslash
+import {useRef, useEffect} from 'react'
+import {PlayerRef} from '@remotion/player'
+// ---cut---
 const playerRef = useRef<PlayerRef>(null);
 
 useEffect(() => {
   if (!playerRef.current) {
-    return null;
+    return
   }
   playerRef.current.addEventListener('play', () => {
-    console.log('playing');
-  });
+    console.log('playing')
+  })
   playerRef.current.addEventListener('pause', () => {
-    console.log('pausing');
-  });
+    console.log('pausing')
+  })
+
+  // See below for difference between `seeked` and `timeupdate`
   playerRef.current.addEventListener('seeked', (e) => {
-    console.log('seeked to ' + e.detail.frame);
-  });
+    console.log('seeked to ' + e.detail.frame)
+  })
+  playerRef.current.addEventListener('timeupdate', (e) => {
+    console.log('time has updated to ' + e.detail.frame)
+  })
   playerRef.current.addEventListener('ended', (e) => {
-    console.log('ended');
-  });
+    console.log('ended')
+  })
   playerRef.current.addEventListener('error', (e) => {
-    console.log('error', e.detail.error);
-  });
+    console.log('error', e.detail.error)
+  })
 }, []);
 ```
 
@@ -241,13 +293,20 @@ useEffect(() => {
 
 Fired when the time position changes. You may get the current frame by reading it from `e.detail.frame`.
 
-```tsx
+```tsx twoslash
+import {useRef, useEffect} from 'react'
+import {PlayerRef} from '@remotion/player'
+const playerRef = useRef<PlayerRef>(null)
+if (!playerRef.current) {
+  throw new Error()
+}
+// ---cut---
 playerRef.current.addEventListener('seeked', (e) => {
-  console.log('seeked to ' + e.detail.frame); // seeked to 120
-});
+  console.log('seeked to ' + e.detail.frame) // seeked to 120
+})
 ```
 
-This event fires on every single frame update. If you link it to a state update, you may want to throttle the updates to avoid expensive rendering operations.
+This event fires on every single frame update. Don't update your UI based on this event as it will cause a lot of rerenders. Use the [`timeupdate`](#timeupdate) event instead.
 
 ### `ended`
 
@@ -261,16 +320,37 @@ Fires when the video has started playing or has resumed from a pause.
 
 Fires when the video has paused or ended.
 
+### `timeupdate`
+
+Fires periodically when the video is playing. Unlike the [`seeked`](#seeked) event, frames are skipped, and the event is throttled to only fire a few times a second.
+
+```tsx twoslash
+import {useRef, useEffect} from 'react'
+import {PlayerRef} from '@remotion/player'
+const playerRef = useRef<PlayerRef>(null)
+if (!playerRef.current) {
+  throw new Error()
+}
+// ---cut---
+playerRef.current.addEventListener('timeupdate', (e) => {
+  console.log('current frame is ' + e.detail.frame) // current frame is 120
+})
+```
+
 ### `error`
 
 Fires when an error or uncaught exception has happened in the video.
 
 You may get the error by reading the `e.detail.error` value:
 
-```tsx
-ref.current.addEventListener('error', (e) => {
-  console.log('error ', e.detail.error); // error [Error: undefined is not a function]
-});
+```tsx twoslash
+import {useRef, useEffect} from 'react'
+import {PlayerRef} from '@remotion/player'
+const ref = useRef<PlayerRef>(null)
+// ---cut---
+ref.current?.addEventListener('error', (e) => {
+  console.log('error ', e.detail.error) // error [Error: undefined is not a function]
+})
 ```
 
 ## Handling errors
@@ -287,9 +367,4 @@ This feature is implemented using an [error boundary](https://reactjs.org/docs/e
 Before we mark the player as stable, we are looking to improve in the following areas:
 
 - Better loading state than the current "Loading..." text.
-- Implement keyboard controls.
-- Better props validation
 - Customize error UI
-- Volume slider
-- Fix the fullscreen icon - it should inverse when the player is already in fullscreen.
-- Implement double click to fullscreen.

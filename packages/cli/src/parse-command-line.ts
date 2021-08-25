@@ -7,6 +7,7 @@ import {
 	Internals,
 	LogLevel,
 	PixelFormat,
+	ProResProfile,
 } from 'remotion';
 import {Log} from './log';
 
@@ -14,6 +15,7 @@ export type CommandLineOptions = {
 	['browser-executable']: BrowserExecutable;
 	['pixel-format']: PixelFormat;
 	['image-format']: ImageFormat;
+	['prores-profile']: ProResProfile;
 	['bundle-cache']: string;
 	['env-file']: string;
 	codec: Codec;
@@ -30,11 +32,14 @@ export type CommandLineOptions = {
 	log: string;
 	help: boolean;
 	port: number;
+	frame: string | number;
 };
 
-export const parsedCli = minimist<CommandLineOptions>(process.argv.slice(2));
+export const parsedCli = minimist<CommandLineOptions>(process.argv.slice(2), {
+	boolean: ['force', 'overwrite', 'sequence', 'help'],
+});
 
-export const parseCommandLine = () => {
+export const parseCommandLine = (type: 'still' | 'sequence') => {
 	if (parsedCli['pixel-format']) {
 		Config.Output.setPixelFormat(parsedCli['pixel-format']);
 	}
@@ -70,7 +75,25 @@ export const parseCommandLine = () => {
 	}
 
 	if (parsedCli.frames) {
+		if (type === 'still') {
+			Log.error(
+				'--frames flag was passed to the `still` command. This flag only works with the `render` command. Did you mean `--frame`? See reference: https://www.remotion.dev/docs/cli/'
+			);
+			process.exit(1);
+		}
+
 		Internals.setFrameRangeFromCli(parsedCli.frames);
+	}
+
+	if (parsedCli.frame) {
+		if (type === 'sequence') {
+			Log.error(
+				'--frame flag was passed to the `render` command. This flag only works with the `still` command. Did you mean `--frames`? See reference: https://www.remotion.dev/docs/cli/'
+			);
+			process.exit(1);
+		}
+
+		Internals.setStillFrame(Number(parsedCli.frame));
 	}
 
 	if (parsedCli.png) {
@@ -93,7 +116,13 @@ export const parseCommandLine = () => {
 		Config.Output.setCodec(parsedCli.codec);
 	}
 
-	if (typeof parsedCli.overwrite !== 'undefined') {
+	if (parsedCli['prores-profile']) {
+		Config.Output.setProResProfile(
+			String(parsedCli['prores-profile']) as ProResProfile
+		);
+	}
+
+	if (parsedCli.overwrite) {
 		Config.Output.setOverwriteOutput(parsedCli.overwrite);
 	}
 

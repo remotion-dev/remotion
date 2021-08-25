@@ -81,6 +81,7 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 		volumePropFrame,
 		frame,
 		playbackRate,
+		props.playbackRate,
 	]);
 
 	return <audio ref={audioRef} {...nativeProps} />;

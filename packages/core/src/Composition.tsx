@@ -20,14 +20,17 @@ export type CompProps<T> =
 			component: AnyComponent<T>;
 	  };
 
-type Props<T> = {
+export type StillProps<T> = {
 	width: number;
 	height: number;
-	fps: number;
-	durationInFrames: number;
 	id: string;
 	defaultProps?: T;
 } & CompProps<T>;
+
+type CompositionProps<T> = StillProps<T> & {
+	fps: number;
+	durationInFrames: number;
+};
 
 export const Composition = <T,>({
 	width,
@@ -37,7 +40,7 @@ export const Composition = <T,>({
 	id,
 	defaultProps: props,
 	...compProps
-}: Props<T>) => {
+}: CompositionProps<T>) => {
 	const {registerComposition, unregisterComposition} = useContext(
 		CompositionManager
 	);
@@ -57,10 +60,13 @@ export const Composition = <T,>({
 			);
 		}
 
-		validateDimension(width, 'width');
-		validateDimension(height, 'height');
-		validateDurationInFrames(durationInFrames, `<Composition />`);
-		validateFps(fps);
+		validateDimension(width, 'width', 'of the <Composition/> component');
+		validateDimension(height, 'height', 'of the <Composition/> component');
+		validateDurationInFrames(
+			durationInFrames,
+			'of the <Composition/> component'
+		);
+		validateFps(fps, 'as a prop of the <Composition/> component');
 		registerComposition<T>({
 			durationInFrames,
 			fps,

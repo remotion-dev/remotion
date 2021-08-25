@@ -1,20 +1,28 @@
-import React, {forwardRef, useCallback} from 'react';
+import React, {forwardRef, useCallback, useContext} from 'react';
+import {getRemotionEnvironment} from '../get-environment';
 import {Sequence} from '../sequencing';
 import {validateMediaProps} from '../validate-media-props';
 import {validateStartFromProps} from '../validate-start-from-props';
 import {AudioForDevelopment} from './AudioForDevelopment';
 import {AudioForRendering} from './AudioForRendering';
 import {RemotionAudioProps, RemotionMainAudioProps} from './props';
+import {SharedAudioContext} from './shared-audio-tags';
 
 const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 	HTMLAudioElement,
 	RemotionAudioProps & RemotionMainAudioProps
 > = (props, ref) => {
+	const audioContext = useContext(SharedAudioContext);
 	const {startFrom, endAt, ...otherProps} = props;
 
-	const onError = useCallback(() => {
-		throw new Error(`Could not play video with src ${otherProps.src}`);
-	}, [otherProps.src]);
+	const onError: React.ReactEventHandler<HTMLAudioElement> = useCallback(
+		(e) => {
+			throw new Error(
+				`Could not play audio with src ${otherProps.src}: ${e.currentTarget.error}`
+			);
+		},
+		[otherProps.src]
+	);
 
 	if (typeof startFrom !== 'undefined' || typeof endAt !== 'undefined') {
 		validateStartFromProps(startFrom, endAt);
@@ -35,11 +43,20 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 
 	validateMediaProps(props, 'Audio');
 
-	if (process.env.NODE_ENV === 'development') {
-		return <AudioForDevelopment {...props} ref={ref} onError={onError} />;
+	if (getRemotionEnvironment() === 'rendering') {
+		return <AudioForRendering {...props} ref={ref} onError={onError} />;
 	}
 
-	return <AudioForRendering {...props} ref={ref} onError={onError} />;
+	return (
+		<AudioForDevelopment
+			shouldPreMountAudioTags={
+				audioContext !== null && audioContext.numberOfAudioTags > 0
+			}
+			{...props}
+			ref={ref}
+			onError={onError}
+		/>
+	);
 };
 
 export const Audio = forwardRef(AudioRefForwardingFunction);

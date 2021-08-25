@@ -20,7 +20,9 @@ export const TimelineSequence: React.FC<{
 	s: TSequence;
 	fps: number;
 }> = ({s, fps}) => {
-	const size = PlayerInternals.useElementSize(sliderAreaRef);
+	const size = PlayerInternals.useElementSize(sliderAreaRef, {
+		triggerOnWindowResize: false,
+	});
 	const {richTimeline} = useContext(RichTimelineContext);
 
 	const windowWidth = size?.width ?? 0;

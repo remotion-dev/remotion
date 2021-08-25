@@ -11,12 +11,11 @@ import {
 	delayRender,
 	getInputProps,
 	Internals,
+	LooseAnyComponent,
 	TComposition,
 } from 'remotion';
-import {LooseAnyComponent} from 'remotion/src/any-component';
 
 Internals.CSSUtils.injectCSS(Internals.CSSUtils.makeDefaultCSS(null));
-Internals.setupEnvVariables();
 
 const Root = Internals.getRoot();
 

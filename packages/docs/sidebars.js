@@ -1,6 +1,7 @@
 module.exports = {
   someSidebar: [
     {
+      collapsed: false,
       type: "category",
       label: "Getting started",
       items: [
@@ -15,6 +16,7 @@ module.exports = {
     {
       type: "category",
       label: "Techniques",
+      collapsed: false,
       items: [
         "assets",
         "using-audio",
@@ -32,6 +34,8 @@ module.exports = {
         "webpack",
         "legacy-babel",
         "env-variables",
+        "third-party",
+        "stills",
       ],
     },
     "cli",
@@ -39,6 +43,7 @@ module.exports = {
     {
       type: "category",
       label: "API - Core",
+      collapsed: false,
       items: [
         "continue-render",
         "delay-render",
@@ -58,6 +63,8 @@ module.exports = {
         "absolute-fill",
         "img",
         "iframe",
+        "freeze",
+        "still",
         "easing",
       ],
     },
@@ -83,17 +90,30 @@ module.exports = {
     {
       type: "category",
       label: "API - @remotion/three",
-      items: ["three-canvas"],
+      items: ["three", "three-canvas", "use-video-texture"],
     },
     {
       type: "category",
       label: "API - @remotion/renderer",
-      items: ["get-compositions", "render-frames", "stitch-frames-to-video"],
+      items: [
+        "get-compositions",
+        "render-frames",
+        "stitch-frames-to-video",
+        "render-still",
+      ],
     },
     {
       type: "category",
       label: "Troubleshooting",
-      items: ["timeout", "media-playback-error", "performance"],
+      collapsed: false,
+      items: [
+        "timeout",
+        "media-playback-error",
+        "performance",
+        "webpack-dynamic-imports",
+        "non-seekable-media",
+        "flickering",
+      ],
     },
     "2-0-migration",
     "license",

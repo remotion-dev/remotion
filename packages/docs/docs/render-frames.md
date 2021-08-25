@@ -7,6 +7,8 @@ _Part of the `@remotion/renderer` package._
 
 Renders a series of images using Puppeteer and computes information for mixing audio.
 
+If you want to render only a still image, use [renderStill()](/docs/render-still).
+
 ```ts
 const renderFrames: (options: {
   config: VideoConfig;
@@ -49,9 +51,9 @@ A `string` specifying the ID of the composition. See: [Defining compositions](/d
 
 A callback that fires after the setup process (validation, browser launch) has finished. Example value
 
-```ts
+```ts twoslash
 const onStart = () => {
-  console.log('Starting rendering...');
+  console.log('Starting rendering...')
 }
 ```
 
@@ -59,7 +61,7 @@ const onStart = () => {
 
 A callback function that gets called whenever a frame finished rendering. An argument is passed containing how many frames have been rendered (not the frame number of the rendered frame). Example value
 
-```ts
+```ts twoslash
 const onFrameUpdate = (frame: number) => {
   console.log(`${frame} frames rendered.`)
 }
@@ -71,7 +73,7 @@ A `string` specifying the directory (absolute path) to which frames should be sa
 
 ### `inputProps`
 
-Custom props which will be passed to the component. Useful for rendering videos with dynamic content. Can be an object of any shape.
+[Custom props which will be passed to the component.](/docs/parametrized-rendering) Useful for rendering videos with dynamic content. Can be an object of any shape.
 
 ### `webpackBundle`
 
@@ -130,7 +132,10 @@ _optional - Available since v2.1.0_
 Allows you to react to an exception thrown in your React code. The callback has an argument which is an object containing `error` and `frame` properties.
 The `frame` property tells you at which frame the error was thrown. If the error was thrown at startup, `frame` is null.
 
-```tsx
+```tsx twoslash
+import {renderFrames as rf} from '@remotion/renderer'
+const renderFrames = (options: Partial<Parameters<typeof rf>[0]>) => {}
+// ---cut---
 renderFrames({
   onError: (info) => {
     if (info.frame === null) {
@@ -142,6 +147,12 @@ renderFrames({
   }
 })
 ```
+
+### `browserExecutable?`
+
+_optional, available from v2.3.1_
+
+A string defining the absolute path on disk of the browser executable that should be used. By default Remotion will try to detect it automatically and download one if none is available. If `puppeteerInstance` is defined, it will take precedence over `browserExecutable`.
 
 ## Return value
 
@@ -156,3 +167,4 @@ A promise resolving to an object containing the following properties:
 - [Server-Side rendering](/docs/ssr)
 - [getCompositions()](/docs/get-compositions)
 - [stitchFramesToVideo()](/docs/stitch-frames-to-video)
+- [renderStill()](/docs/render-still)

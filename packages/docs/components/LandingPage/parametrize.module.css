@@ -21,18 +21,6 @@
   text-align: left;
 }
 
-input[type="text"] {
-  padding: 13px;
-  font-family: inherit;
-  border: 2px solid var(--ifm-code-background);
-  border-radius: 6px;
-  background-color: transparent;
-  outline: none;
-}
-input[type="text"]:focus {
-  border-color: var(--ifm-tabs-color-active);
-}
-
 .parametrizegradient {
   background: linear-gradient(to right, rgb(66, 144, 245), rgb(66, 233, 245));
   -webkit-text-fill-color: transparent;
@@ -42,4 +30,14 @@ input[type="text"]:focus {
 .parametrizeinput {
   appearance: none;
   color: var(--text-color);
+  padding: 13px;
+  font-family: inherit;
+  border: 2px solid var(--ifm-code-background);
+  border-radius: 6px;
+  background-color: transparent;
+  outline: none;
+}
+
+.parametrizeinput:focus {
+  border-color: var(--ifm-tabs-color-active);
 }

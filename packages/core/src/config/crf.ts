@@ -22,7 +22,7 @@ export const getDefaultCrfForCodec = (codec: Codec): number => {
 		return 0;
 	}
 
-	if (codec === 'h264') {
+	if (codec === 'h264' || codec === 'h264-mkv') {
 		return 18; // FFMPEG default 23
 	}
 
@@ -38,6 +38,10 @@ export const getDefaultCrfForCodec = (codec: Codec): number => {
 		return 28; // FFMPEG recommendation 31
 	}
 
+	if (codec === 'prores') {
+		return 0;
+	}
+
 	throw new TypeError(`Got unexpected codec "${codec}"`);
 };
 
@@ -46,7 +50,11 @@ export const getValidCrfRanges = (codec: Codec): [number, number] => {
 		return [0, 0];
 	}
 
-	if (codec === 'h264') {
+	if (codec === 'prores') {
+		return [0, 0];
+	}
+
+	if (codec === 'h264' || codec === 'h264-mkv') {
 		return [1, 51];
 	}
 
@@ -70,7 +78,7 @@ export const validateSelectedCrfAndCodecCombination = (
 	codec: Codec
 ) => {
 	const range = getValidCrfRanges(codec);
-	if (crf === 0 && codec === 'h264') {
+	if (crf === 0 && (codec === 'h264' || codec === 'h264-mkv')) {
 		throw new TypeError(
 			"Setting the CRF to 0 with a H264 codec is not supported anymore because of it's inconsistencies between platforms. Videos with CRF 0 cannot be played on iOS/macOS. 0 is a extreme value with inefficient settings which you probably want. Set CRF to a higher value to fix this error."
 		);

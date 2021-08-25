@@ -4,6 +4,29 @@ import {usePlayingState} from './timeline-position-state';
 import {useAbsoluteCurrentFrame, useCurrentFrame} from './use-frame';
 import {useVideoConfig} from './use-video-config';
 import {getMediaTime} from './video/get-current-time';
+import {warnAboutNonSeekableMedia} from './warn-about-non-seekable-media';
+
+const playAndHandleNotAllowedError = (
+	mediaRef: RefObject<HTMLVideoElement | HTMLAudioElement>,
+	mediaType: 'audio' | 'video'
+) => {
+	const {current} = mediaRef;
+	const prom = current?.play();
+	if (prom?.catch) {
+		prom?.catch((err) => {
+			if (!current) {
+				return;
+			}
+
+			console.log(`Could not play ${mediaType} due to following error: `, err);
+			if (!current.muted) {
+				console.log(`The video will be muted and we'll retry playing it.`, err);
+				current.muted = true;
+				current.play();
+			}
+		});
+	}
+};
 
 export const useMediaPlayback = ({
 	mediaRef,
@@ -24,11 +47,11 @@ export const useMediaPlayback = ({
 
 	useEffect(() => {
 		if (playing && !mediaRef.current?.ended) {
-			mediaRef.current?.play();
+			playAndHandleNotAllowedError(mediaRef, mediaType);
 		} else {
 			mediaRef.current?.pause();
 		}
-	}, [mediaRef, playing]);
+	}, [mediaRef, mediaType, playing]);
 
 	useEffect(() => {
 		const tagName = mediaType === 'audio' ? '<Audio>' : '<Video>';
@@ -59,6 +82,7 @@ export const useMediaPlayback = ({
 			// If scrubbing around, adjust timing
 			// or if time shift is bigger than 0.2sec
 			mediaRef.current.currentTime = shouldBeTime;
+			warnAboutNonSeekableMedia(mediaRef.current);
 		}
 
 		if (!playing || absoluteFrame === 0) {
@@ -66,8 +90,9 @@ export const useMediaPlayback = ({
 		}
 
 		if (mediaRef.current.paused && !mediaRef.current.ended && playing) {
-			mediaRef.current.currentTime = shouldBeTime;
-			mediaRef.current.play();
+			const {current} = mediaRef;
+			current.currentTime = shouldBeTime;
+			playAndHandleNotAllowedError(mediaRef, mediaType);
 		}
 	}, [
 		absoluteFrame,
