@@ -15,11 +15,19 @@ export const validateComposition = async ({
 	inputProps: unknown;
 	onError: (onError: {err: Error}) => void;
 }): Promise<TCompMetadata> => {
+	const errors: Error[] = [];
 	const compositions = await getCompositions(serveUrl, {
 		browserInstance,
 		inputProps: inputProps as object,
-		onError,
+		onError: ({err}) => {
+			errors.push(err);
+			onError({err});
+		},
 	});
+	if (errors.length > 0) {
+		throw errors[0];
+	}
+
 	const found = compositions.find((c) => c.id === composition);
 	if (!found) {
 		throw new Error(
