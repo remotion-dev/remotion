@@ -103,6 +103,11 @@ const TrimAndDelayExample: React.FC = () => {
 }
 ```
 
+## Play Sequences sequentially
+
+See the [`<Series />`](/docs/series) helper component, which helps you calculate markup that makes sequences play after each other.
+
 ## See also
 
 - [Reuse components using Sequences](/docs/reusability)
+- [`<Series /> `](/docs/series)
