@@ -48,7 +48,7 @@ const Series: FC & {
 
 			if (!castedChild || !castedChild.props.children) {
 				throw new TypeError(
-					`A <Series.Sequence /> component (${debugInfo}) was detected to not  have any children. Delete it to fix this error.`
+					`A <Series.Sequence /> component (${debugInfo}) was detected to not have any children. Delete it to fix this error.`
 				);
 			}
 

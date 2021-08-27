@@ -168,7 +168,7 @@ test('Handle empty Series.Sequence', () => {
 					<Series.Sequence durationInFrames={10} />
 				</Series>
 			),
-		/A <Series.Sequence \/> component \(index = 1, duration = 10\) doesn't have any children\./
+		/A <Series.Sequence \/> component \(index = 1, duration = 10\) was detected to not have any children\. Delete it to fix this error\./
 	);
 });
 
