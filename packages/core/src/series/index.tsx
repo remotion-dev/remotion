@@ -28,6 +28,7 @@ const Series: FC & {
 				  }
 				| string;
 			if (typeof castedChild === 'string') {
+				// Don't throw if it's just some accidential whitespace
 				if (castedChild.trim() === '') {
 					return null;
 				}
@@ -39,7 +40,7 @@ const Series: FC & {
 
 			if (castedChild.type !== SeriesSequence) {
 				throw new TypeError(
-					`The <Series /> component only accepts a list of <Series.Sequence /> components as it's children but got ${castedChild}`
+					`The <Series /> component only accepts a list of <Series.Sequence /> components as it's children, but got ${castedChild} instead`
 				);
 			}
 
@@ -47,7 +48,7 @@ const Series: FC & {
 
 			if (!castedChild || !castedChild.props.children) {
 				throw new TypeError(
-					`A <Series.Sequence /> component (${debugInfo}) doesn't have any children.`
+					`A <Series.Sequence /> component (${debugInfo}) was detected to not  have any children. Delete it to fix this error.`
 				);
 			}
 
