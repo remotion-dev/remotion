@@ -49,14 +49,15 @@ describe('pixel-format tests validateSelectedPixelFormatAndCodecCombination', ()
 
 	const codecs: Codec[] = ['h264', 'h265', 'vp8', 'vp9'];
 
-	formats.forEach((f) =>
-		codecs.forEach((c) =>
-			test(`test for valid combination ${f} and ${c}`, () =>
+	for (const format of formats) {
+		for (const codec of codecs) {
+			test(`test for valid combination ${format} and ${codec}`, () => {
 				expect(() =>
-					validateSelectedPixelFormatAndCodecCombination(f, c)
-				).not.toThrow())
-		)
-	);
+					validateSelectedPixelFormatAndCodecCombination(format, codec)
+				).not.toThrow();
+			});
+		}
+	}
 
 	const invalidCodecs: Codec[] = ['h264', 'h265'];
 	invalidCodecs.forEach((entry) =>
