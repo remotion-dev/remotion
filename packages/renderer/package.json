@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/renderer",
-	"version": "2.3.0",
+	"version": "2.3.1",
 	"description": "Renderer for Remotion",
 	"main": "dist/index.js",
 	"sideEffects": false,
@@ -19,7 +19,7 @@
 		"execa": "^4.0.2",
 		"got": "11.8.2",
 		"p-limit": "^3.1.0",
-		"puppeteer-core": "^8.0.0",
+		"puppeteer-core": "^10.2.0",
 		"remotion": "^2.3.0",
 		"sanitize-filename": "^1.6.3",
 		"serve-handler": "^6.1.3",

@@ -1,4 +1,4 @@
-import React, {forwardRef, useImperativeHandle, useRef} from 'react';
+import React, {forwardRef, useImperativeHandle, useMemo, useState} from 'react';
 import {useMediaInTimeline} from '../use-media-in-timeline';
 import {useMediaPlayback} from '../use-media-playback';
 import {useMediaTagVolume} from '../use-media-tag-volume';
@@ -8,19 +8,45 @@ import {
 	useMediaVolumeState,
 } from '../volume-position-state';
 import {RemotionAudioProps} from './props';
+import {useSharedAudio} from './shared-audio-tags';
 import {useFrameForVolumeProp} from './use-audio-frame';
 
 const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 	HTMLAudioElement,
-	RemotionAudioProps
+	RemotionAudioProps & {
+		shouldPreMountAudioTags: boolean;
+	}
 > = (props, ref) => {
-	const audioRef = useRef<HTMLAudioElement>(null);
+	const [initialShouldPreMountAudioElements] = useState(
+		props.shouldPreMountAudioTags
+	);
+	if (props.shouldPreMountAudioTags !== initialShouldPreMountAudioElements) {
+		throw new Error(
+			'Cannot change the behavior for pre-mounting audio tags dynamically.'
+		);
+	}
+
 	const [mediaVolume] = useMediaVolumeState();
 	const [mediaMuted] = useMediaMutedState();
 
 	const volumePropFrame = useFrameForVolumeProp();
 
-	const {volume, muted, playbackRate, ...nativeProps} = props;
+	const {
+		volume,
+		muted,
+		playbackRate,
+		shouldPreMountAudioTags,
+		...nativeProps
+	} = props;
+
+	const propsToPass = useMemo((): RemotionAudioProps => {
+		return {
+			muted: muted || mediaMuted,
+			...nativeProps,
+		};
+	}, [mediaMuted, muted, nativeProps]);
+
+	const audioRef = useSharedAudio(propsToPass).el;
 
 	const actualVolume = useMediaTagVolume(audioRef);
 
@@ -51,7 +77,11 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		return audioRef.current as HTMLAudioElement;
 	});
 
-	return <audio ref={audioRef} muted={muted || mediaMuted} {...nativeProps} />;
+	if (initialShouldPreMountAudioElements) {
+		return null;
+	}
+
+	return <audio ref={audioRef} {...propsToPass} />;
 };
 
 export const AudioForDevelopment = forwardRef(

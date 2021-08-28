@@ -1,8 +1,15 @@
 // @ts-expect-error
 import ansiDiff from 'ansi-diff';
 import chalk from 'chalk';
+import {Internals} from 'remotion';
 
-export const createProgressBar = () => {
+export const createProgressBar = (): {
+	update: (str: string) => boolean;
+} => {
+	if (!Internals.Logging.isEqualOrBelowLogLevel('info')) {
+		return {update: () => false};
+	}
+
 	const diff = ansiDiff();
 	process.stdout.write('');
 	return {
