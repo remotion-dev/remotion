@@ -12,7 +12,6 @@ import fs from 'fs';
 import os from 'os';
 import path from 'path';
 import {Internals} from 'remotion';
-import {cycleBrowserTabs} from './cycle-browser-tabs';
 import {getCliOptions} from './get-cli-options';
 import {getCompositionId} from './get-composition-id';
 import {loadConfig} from './get-config-file-name';
@@ -134,7 +133,6 @@ export const render = async () => {
 	}
 
 	const openedBrowser = await browserInstance;
-	const {stopCycling} = cycleBrowserTabs(openedBrowser);
 	const comps = await getCompositions(bundled, {
 		browser,
 		inputProps,
@@ -197,7 +195,6 @@ export const render = async () => {
 		puppeteerInstance: openedBrowser,
 	});
 
-	stopCycling();
 	const closeBrowserPromise = openedBrowser.close();
 	renderProgress.update(
 		makeRenderingProgress({

@@ -1,10 +1,9 @@
-import {RenderInternals} from '@remotion/renderer';
-import {Log} from './log';
+import {openBrowser} from './open-browser';
 
 type Await<T> = T extends PromiseLike<infer U> ? U : T;
 
 export const cycleBrowserTabs = (
-	openedBrowser: Await<ReturnType<typeof RenderInternals.openBrowser>>
+	openedBrowser: Await<ReturnType<typeof openBrowser>>
 ) => {
 	let i = 0;
 	const interval = setInterval(() => {
@@ -17,7 +16,7 @@ export const cycleBrowserTabs = (
 					currentPage.bringToFront();
 				}
 			})
-			.catch((err) => Log.error(err));
+			.catch((err) => console.log(err));
 	}, 100);
 
 	return {

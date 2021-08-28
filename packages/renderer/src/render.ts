@@ -8,6 +8,7 @@ import {
 	RenderAssetInfo,
 	VideoConfig,
 } from 'remotion';
+import {cycleBrowserTabs} from './cycle-browser-tabs';
 import {getActualConcurrency} from './get-concurrency';
 import {getFrameCount} from './get-frame-range';
 import {getFrameToRender} from './get-frame-to-render';
@@ -118,6 +119,7 @@ export const renderFrames = async ({
 		page.off('pageerror', errorCallback);
 		return page;
 	});
+	const {stopCycling} = cycleBrowserTabs(browserInstance);
 
 	const puppeteerPages = await Promise.all(pages);
 	const pool = new Pool(puppeteerPages);
@@ -196,6 +198,7 @@ export const renderFrames = async ({
 	close().catch((err) => {
 		console.log('Unable to close web server', err);
 	});
+	stopCycling();
 	// If browser instance was passed in, we close all the pages
 	// we opened.
 	// If new browser was opened, then closing the browser as a cleanup.
