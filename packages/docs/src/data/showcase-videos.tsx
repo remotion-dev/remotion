@@ -911,6 +911,27 @@ export const showcaseVideos: ShowcaseVideo[] = [
       name: "Jonny Burger",
     },
   },
+  {
+    title: "EcoEats",
+    type: "mux_video",
+    muxId: "XJpfsCytTHSoAyVwfObPVXbNN64Thj2Z8pLvoqO1Ocs",
+    description:
+      "A promo video for a zero emission takeaway and grocery delivery service.",
+    height: 1080,
+    width: 1080,
+    submittedOn: new Date("08-28-2021"),
+    links: [
+      {
+        type: "video",
+        url:
+          "https://cdn.ecoeats.uk/videos/merchant-features/06c07944-6d13-4188-8356-d42d744ba54e/raw-pressed-market-street.mp4",
+      },
+    ],
+    author: {
+      url: "https://ecoeats.uk/",
+      name: "EcoEats",
+    },
+  },
 ];
 
 const dateString = (date: Date) =>
