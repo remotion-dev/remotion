@@ -97,6 +97,12 @@ export const render = async () => {
 		throw new Error(`Cannot find composition with ID ${compositionId}`);
 	}
 
+	RenderInternals.validateEvenDimensionsWithCodec({
+		width: config.width,
+		height: config.height,
+		codec,
+	});
+
 	const outputDir = shouldOutputImageSequence
 		? absoluteOutputFile
 		: await fs.promises.mkdtemp(path.join(os.tmpdir(), 'react-motion-render'));
