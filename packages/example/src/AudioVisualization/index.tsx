@@ -1,6 +1,10 @@
-import {useAudioData, visualizeAudio} from '@remotion/media-utils';
+import {
+	useAudioData,
+	visualizeAudio,
+	visualizeAudioWaveform,
+} from '@remotion/media-utils';
 import {transparentize} from 'polished';
-import React from 'react';
+import React, {useEffect, useRef} from 'react';
 import {
 	AbsoluteFill,
 	Audio,
@@ -81,21 +85,60 @@ const Text: React.FC<{
 	);
 };
 
+const Canvas: React.FC<{waveform: number[]}> = ({waveform}) => {
+	const canvasRef = useRef<HTMLCanvasElement>(null);
+	const canvas = canvasRef.current;
+	const canvasCtx = canvas?.getContext('2d');
+	useEffect(() => {
+		if (canvasCtx) {
+			canvasCtx.fillStyle = 'rgb(200, 200, 200)';
+			canvasCtx.fillRect(0, 0, 200, 200);
+			canvasCtx.lineWidth = 2;
+			canvasCtx.strokeStyle = 'rgb(0, 0, 0)';
+			canvasCtx.beginPath();
+			const sliceWidth = (200 * 1.0) / 2048;
+			let x = 100;
+			for (let i = 0; i < waveform.length; i++) {
+				const v = waveform[i] / 128.0;
+				const y = (v * 4000) / 2;
+
+				if (i === 0) {
+					canvasCtx.moveTo(x, y);
+				} else {
+					canvasCtx.lineTo(x, y);
+				}
+
+				x += sliceWidth;
+			}
+			// canvasCtx.lineTo(200, 200 / 2);
+			canvasCtx.stroke();
+		}
+	}, [canvasCtx, waveform]);
+	return <canvas ref={canvasRef} />;
+};
+
 const AudioVisualization: React.FC = () => {
 	const frame = useCurrentFrame();
 	const {width, height, fps} = useVideoConfig();
 	const audioData = useAudioData(music);
-
 	if (!audioData) {
 		return null;
 	}
+
 	const visualization = visualizeAudio({
 		fps,
 		frame,
 		audioData,
 		numberOfSamples: 32,
 	});
+	const waveform = visualizeAudioWaveform({
+		fps,
+		frame,
+		audioData,
+		numberOfSamples: 1024,
+	});
 
+	console.log(waveform, frame, 'waveform visualization');
 	const scale =
 		1 +
 		interpolate(visualization[1], [0.14, 1], [0, 0.6], {
@@ -207,7 +250,8 @@ const AudioVisualization: React.FC = () => {
 						boxShadow: `0 0 50px ${transparentize(0.5, textColor)}`,
 					}}
 				>
-					<Text
+					<Canvas waveform={waveform} />
+					{/* <Text
 						blur={2}
 						color="rgba(255, 0, 0, 0.3)"
 						transform={`translateY(${-rgbEffect}px) translateX(${
@@ -230,7 +274,7 @@ const AudioVisualization: React.FC = () => {
 						blur={0}
 						color={textColor}
 						transform={`translateY(${rgbEffect}px)`}
-					/>
+					/> */}
 				</Orb>
 			</FullSize>
 		</div>
