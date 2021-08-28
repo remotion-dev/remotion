@@ -1,6 +1,7 @@
 import execa from 'execa';
 import fs from 'fs';
 import path from 'path';
+import {Internals} from 'remotion';
 import {Log} from './log';
 
 const npmOrYarn = (): 'npm' | 'yarn' => {
@@ -64,7 +65,10 @@ export const upgrade = async () => {
 	].filter((u) => dependencies.includes(u));
 
 	const prom = execa(tool, ['upgrade', ...toUpgrade]);
-	prom.stdout?.pipe(process.stdout);
+	if (Internals.Logging.isEqualOrBelowLogLevel('info')) {
+		prom.stdout?.pipe(process.stdout);
+	}
+
 	await prom;
 	Log.info('⏫ Remotion has been upgraded!');
 };

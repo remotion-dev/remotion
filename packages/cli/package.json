@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/cli",
-	"version": "2.3.0",
+	"version": "2.3.1",
 	"description": "CLI for Remotion",
 	"main": "dist/index.js",
 	"sideEffects": false,
@@ -22,7 +22,7 @@
 		"@remotion/bundler": "^2.3.0",
 		"@remotion/media-utils": "^2.3.0",
 		"@remotion/player": "^2.3.0",
-		"@remotion/renderer": "^2.3.0",
+		"@remotion/renderer": "^2.3.1",
 		"ansi-diff": "^1.1.1",
 		"better-opn": "^2.1.1",
 		"chalk": "^4.1.0",

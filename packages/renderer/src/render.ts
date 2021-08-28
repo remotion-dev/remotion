@@ -2,6 +2,7 @@ import path from 'path';
 import {Browser as PuppeteerBrowser} from 'puppeteer-core';
 import {
 	Browser,
+	BrowserExecutable,
 	FrameRange,
 	ImageFormat,
 	Internals,
@@ -36,6 +37,7 @@ export const renderFrames = async ({
 	dumpBrowserLogs = false,
 	puppeteerInstance,
 	onError,
+	browserExecutable,
 }: {
 	config: VideoConfig;
 	compositionId: string;
@@ -52,6 +54,7 @@ export const renderFrames = async ({
 	frameRange?: FrameRange | null;
 	dumpBrowserLogs?: boolean;
 	puppeteerInstance?: PuppeteerBrowser;
+	browserExecutable?: BrowserExecutable;
 	onError?: (info: OnErrorInfo) => void;
 }): Promise<RenderFramesOutput> => {
 	Internals.validateDimension(
@@ -87,6 +90,7 @@ export const renderFrames = async ({
 		puppeteerInstance ??
 			openBrowser(browser, {
 				shouldDumpIo: dumpBrowserLogs,
+				browserExecutable,
 			}),
 	]);
 	const pages = new Array(actualParallelism).fill(true).map(async () => {

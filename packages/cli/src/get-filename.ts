@@ -35,25 +35,25 @@ export const getOutputFilename = ({
 
 	if (extension === null && !imageSequence) {
 		if (codec === 'h264' || codec === 'h265') {
-			Log.info('No file extension specified, adding .mp4 automatically.');
+			Log.warn('No file extension specified, adding .mp4 automatically.');
 			filename += '.mp4';
 			extension = 'mp4';
 		}
 
 		if (codec === 'h264-mkv') {
-			Log.info('No file extension specified, adding .mkv automatically.');
+			Log.warn('No file extension specified, adding .mkv automatically.');
 			filename += '.mkv';
 			extension = 'mkv';
 		}
 
 		if (codec === 'vp8' || codec === 'vp9') {
-			Log.info('No file extension specified, adding .webm automatically.');
+			Log.warn('No file extension specified, adding .webm automatically.');
 			filename += '.webm';
 			extension = 'webm';
 		}
 
 		if (codec === 'prores') {
-			Log.info('No file extension specified, adding .mov automatically.');
+			Log.warn('No file extension specified, adding .mov automatically.');
 			filename += '.mov';
 			extension = 'mov';
 		}
