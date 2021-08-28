@@ -9,7 +9,7 @@ type Options = [];
 type MessageIds = "EvenDimensions";
 
 const EvenDimensions =
-  "Videos rendered in H264 codec do not support dimensions that are not divisible by 2. Make the number even to resolve this warning. Ignore this warning if you don't plan on rendering this video with a H264 codec.";
+  "Videos rendered in H264/H265 codec do not support dimensions that are not divisible by 2. Make the number even to resolve this warning. Ignore this warning if you don't plan on rendering this video with a H264 or H265 codec.";
 
 export default createRule<Options, MessageIds>({
   name: "even-dimensions",
