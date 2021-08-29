@@ -50,7 +50,7 @@
 		"prettier": "^2.0.5",
 		"prettier-plugin-organize-imports": "^1.1.1",
 		"ts-jest": "^26.5.4",
-		"typescript": "^4.1.2"
+		"typescript": "^4.4.2"
 	},
 	"publishConfig": {
 		"access": "public"
