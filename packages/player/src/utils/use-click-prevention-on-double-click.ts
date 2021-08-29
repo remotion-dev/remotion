@@ -10,29 +10,32 @@ const useClickPreventionOnDoubleClick = (
 ): [(e: SyntheticEvent) => void, () => void] => {
 	const api = useCancellablePromises();
 
-	const handleClick = useCallback(async () => {
-		api.clearPendingPromises();
-		const waitForClick = cancellablePromise(delay(200));
-		api.appendPendingPromise(waitForClick);
+	const handleClick = useCallback(
+		async (e: SyntheticEvent) => {
+			api.clearPendingPromises();
+			const waitForClick = cancellablePromise(delay(200));
+			api.appendPendingPromise(waitForClick);
 
-		try {
-			await waitForClick.promise;
-			api.removePendingPromise(waitForClick);
-			onClick(e);
-		} catch (errorInfo) {
-			api.removePendingPromise(waitForClick);
-			if (!errorInfo.isCanceled) {
-				throw errorInfo.error;
+			try {
+				await waitForClick.promise;
+				api.removePendingPromise(waitForClick);
+				onClick(e);
+			} catch (errorInfo) {
+				api.removePendingPromise(waitForClick);
+				if (!errorInfo.isCanceled) {
+					throw errorInfo.error;
+				}
 			}
-		}
-	}, [api, onClick]);
+		},
+		[api, onClick]
+	);
 
 	const handleDoubleClick = useCallback(() => {
 		api.clearPendingPromises();
 		onDoubleClick();
 	}, [api, onDoubleClick]);
 
-	const returnValue = useMemo((): [() => void, () => void] => {
+	const returnValue = useMemo((): [(e: SyntheticEvent) => void, () => void] => {
 		if (!doubleClickToFullscreen) {
 			return [onClick, onDoubleClick];
 		}
