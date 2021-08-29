@@ -162,9 +162,10 @@ export const renderFrames = async ({
 				try {
 					await seekToFrame({frame, page: freePage});
 				} catch (err) {
+					const error = err as Error;
 					if (
-						err.message.includes('timeout') &&
-						err.message.includes('exceeded')
+						error.message.includes('timeout') &&
+						error.message.includes('exceeded')
 					) {
 						errorCallback(
 							new Error(
@@ -172,10 +173,10 @@ export const renderFrames = async ({
 							)
 						);
 					} else {
-						errorCallback(err);
+						errorCallback(error);
 					}
 
-					throw err;
+					throw error;
 				}
 
 				if (imageFormat !== 'none') {

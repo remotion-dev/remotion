@@ -36,7 +36,7 @@ export const cli = async () => {
 			process.exit(1);
 		}
 	} catch (err) {
-		Log.error(err.stack);
+		Log.error((err as Error).stack);
 		process.exit(1);
 	}
 };
