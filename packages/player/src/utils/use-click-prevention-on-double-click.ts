@@ -1,13 +1,13 @@
-import {useCallback, useMemo} from 'react';
+import {SyntheticEvent, useCallback, useMemo} from 'react';
 import {cancellablePromise} from './cancellable-promise';
 import {delay} from './delay';
 import {useCancellablePromises} from './use-cancellable-promises';
 
 const useClickPreventionOnDoubleClick = (
-	onClick: () => void,
+	onClick: (e: SyntheticEvent) => void,
 	onDoubleClick: () => void,
 	doubleClickToFullscreen: boolean
-): [() => void, () => void] => {
+): [(e: SyntheticEvent) => void, () => void] => {
 	const api = useCancellablePromises();
 
 	const handleClick = useCallback(async () => {
@@ -18,7 +18,7 @@ const useClickPreventionOnDoubleClick = (
 		try {
 			await waitForClick.promise;
 			api.removePendingPromise(waitForClick);
-			onClick();
+			onClick(e);
 		} catch (errorInfo) {
 			api.removePendingPromise(waitForClick);
 			if (!errorInfo.isCanceled) {

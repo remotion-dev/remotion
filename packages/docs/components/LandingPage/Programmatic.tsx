@@ -26,6 +26,7 @@ export const ProgrammaticContent: React.FC<{ data: GithubResponse | null }> = ({
     if (!current) {
       return;
     }
+
     const observer = new IntersectionObserver(callback, {
       root: null,
       threshold: 1,
@@ -33,7 +34,7 @@ export const ProgrammaticContent: React.FC<{ data: GithubResponse | null }> = ({
     observer.observe(current);
 
     return () => observer.unobserve(current);
-  }, []);
+  }, [callback]);
 
   useEffect(() => {
     if (isIntersecting) {
@@ -42,7 +43,7 @@ export const ProgrammaticContent: React.FC<{ data: GithubResponse | null }> = ({
   }, [data, isIntersecting]);
 
   return (
-    <div className={styles.mobileplayer} ref={containerRef}>
+    <div ref={containerRef} className={styles.mobileplayer}>
       <Player
         ref={playerRef}
         component={GithubDemo}
