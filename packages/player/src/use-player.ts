@@ -1,4 +1,4 @@
-import {useCallback, useContext, useMemo, useRef} from 'react';
+import {SyntheticEvent, useCallback, useContext, useMemo, useRef} from 'react';
 import {Internals} from 'remotion';
 import {PlayerEventEmitterContext} from './emitter-context';
 import {PlayerEmitter} from './event-emitter';
@@ -9,7 +9,7 @@ export const usePlayer = (): {
 	isLastFrame: boolean;
 	emitter: PlayerEmitter;
 	playing: boolean;
-	play: () => void;
+	play: (e?: SyntheticEvent) => void;
 	pause: () => void;
 	seek: (newFrame: number) => void;
 	getCurrentFrame: () => number;
@@ -41,22 +41,25 @@ export const usePlayer = (): {
 		[emitter, setTimelinePosition]
 	);
 
-	const play = useCallback(() => {
-		if (playing) {
-			return;
-		}
+	const play = useCallback(
+		(e?: SyntheticEvent) => {
+			if (playing) {
+				return;
+			}
 
-		if (isLastFrame) {
-			seek(0);
-		}
+			if (isLastFrame) {
+				seek(0);
+			}
 
-		if (audioContext && audioContext.numberOfAudioTags > 0) {
-			audioContext.playAllAudios();
-		}
+			if (audioContext && audioContext.numberOfAudioTags > 0 && e) {
+				audioContext.playAllAudios();
+			}
 
-		setPlaying(true);
-		emitter.dispatchPlay();
-	}, [playing, isLastFrame, audioContext, setPlaying, emitter, seek]);
+			setPlaying(true);
+			emitter.dispatchPlay();
+		},
+		[playing, isLastFrame, audioContext, setPlaying, emitter, seek]
+	);
 
 	const pause = useCallback(() => {
 		if (playing) {
