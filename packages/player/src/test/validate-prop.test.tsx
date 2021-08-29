@@ -16,7 +16,7 @@ test('no compositionWidth should give errors', () => {
 			/>
 		);
 	} catch (e) {
-		expect(e.message).toMatch(
+		expect((e as Error).message).toMatch(
 			/'compositionWidth' must be a number but got 'object' instead/
 		);
 	}
@@ -37,7 +37,7 @@ test('no compositionHeight should give errors', () => {
 			/>
 		);
 	} catch (e) {
-		expect(e.message).toMatch(
+		expect((e as Error).message).toMatch(
 			/'compositionHeight' must be a number but got 'undefined' instead/
 		);
 	}
@@ -58,7 +58,7 @@ test('No fps should give errors', () => {
 			/>
 		);
 	} catch (e) {
-		expect(e.message).toMatch(
+		expect((e as Error).message).toMatch(
 			/"fps" must be a number, but you passed a value of type object/
 		);
 	}
@@ -77,7 +77,7 @@ test('No fps should give errors', () => {
 			/>
 		);
 	} catch (e) {
-		expect(e.message).toMatch(
+		expect((e as Error).message).toMatch(
 			/"fps" must be a number, but you passed a value of type undefined/
 		);
 	}
@@ -98,7 +98,7 @@ test('No durationInFrames should give errors', () => {
 			/>
 		);
 	} catch (e) {
-		expect(e.message).toMatch(
+		expect((e as Error).message).toMatch(
 			/The "durationInFrames" prop of the <Player\/> component must be a number, but you passed a value of type undefined/
 		);
 	}
@@ -127,7 +127,7 @@ test.each([
 			/>
 		);
 	} catch (e) {
-		expect(e.message).toMatch(
+		expect((e as Error).message).toMatch(
 			`'${a}' must be a boolean or undefined but got 'string' instead`
 		);
 	}
