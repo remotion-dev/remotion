@@ -29,7 +29,7 @@
 	},
 	"devDependencies": {
 		"@jonny/eslint-config": "^2.1.233",
-		"@types/node": "^15.0.1",
+		"@types/node": "^16.7.5",
 		"eslint": "^7.25.0",
 		"prettier": "^2.0.5",
 		"prettier-plugin-organize-imports": "^1.1.1",
