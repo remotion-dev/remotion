@@ -15,13 +15,13 @@
 		"@testing-library/user-event": "^12.1.10",
 		"@types/jest": "^26.0.15",
 		"@types/node": "^12.0.0",
-		"@types/react": "17.0.8",
+		"@types/react": "17.0.19",
 		"@types/react-dom": "^17.0.0",
 		"react": "^17.0.1",
 		"react-dom": "^17.0.1",
 		"react-scripts": "4.0.3",
 		"remotion": "^2.3.0",
-		"typescript": "^4.1.2"
+		"typescript": "^4.4.2"
 	},
 	"scripts": {
 		"start": "craco start",

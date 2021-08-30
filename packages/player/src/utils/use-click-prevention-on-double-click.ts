@@ -21,9 +21,11 @@ const useClickPreventionOnDoubleClick = (
 				api.removePendingPromise(waitForClick);
 				onClick(e);
 			} catch (errorInfo) {
+				const info = errorInfo as {isCanceled: boolean; error: Error};
+
 				api.removePendingPromise(waitForClick);
-				if (!errorInfo.isCanceled) {
-					throw errorInfo.error;
+				if (!info.isCanceled) {
+					throw info.error;
 				}
 			}
 		},

@@ -27,7 +27,7 @@ const isPortAvailable = async (port: number) => {
 
 		return true;
 	} catch (error) {
-		if (!['EADDRINUSE', 'EACCES'].includes(error.code)) {
+		if (!['EADDRINUSE', 'EACCES'].includes((error as {code: string}).code)) {
 			throw error;
 		}
 
