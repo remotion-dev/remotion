@@ -68,6 +68,10 @@ export const MenuToolbar: React.FC = () => {
 					return menus[(menus.indexOf(s) - 1) % menus.length];
 				});
 			}
+
+			if (e.key === 'Escape') {
+				return setSelected(null);
+			}
 		},
 		[setSelected]
 	);
@@ -133,6 +137,10 @@ export const MenuToolbar: React.FC = () => {
 		throw new Error('menu item not implemented');
 	}, []);
 
+	const onKeyboardUnfocused = useCallback(() => {
+		setSelected(null);
+	}, [setSelected]);
+
 	return (
 		<div style={row}>
 			{menus.map((mId) => {
@@ -144,6 +152,7 @@ export const MenuToolbar: React.FC = () => {
 						onItemHovered={itemHovered}
 						id={mId}
 						label={renderLabel(mId)}
+						onKeyboardUnfocused={onKeyboardUnfocused}
 					>
 						{renderMenu(mId)}
 					</MenuItem>

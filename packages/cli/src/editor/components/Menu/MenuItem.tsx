@@ -1,5 +1,11 @@
 import {PlayerInternals} from '@remotion/player';
-import React, {useCallback, useMemo, useRef, useState} from 'react';
+import React, {
+	FocusEventHandler,
+	useCallback,
+	useMemo,
+	useRef,
+	useState,
+} from 'react';
 import ReactDOM from 'react-dom';
 import {
 	BACKGROUND,
@@ -7,6 +13,8 @@ import {
 	SELECTED_BACKGROUND,
 } from '../../helpers/colors';
 import {FONT_FAMILY} from '../../helpers/font';
+
+const MENU_BUTTON_CLASS_NAME = 'remotion-menu-button';
 
 const container: React.CSSProperties = {
 	fontSize: 13,
@@ -18,6 +26,7 @@ const container: React.CSSProperties = {
 	paddingTop: 8,
 	paddingBottom: 8,
 	userSelect: 'none',
+	border: 'none',
 };
 
 const menuContainer: React.CSSProperties = {
@@ -49,6 +58,7 @@ export const MenuItem: React.FC<{
 	selected: boolean;
 	onItemSelected: (id: MenuId) => void;
 	onItemHovered: (id: MenuId) => void;
+	onKeyboardUnfocused: () => void;
 }> = ({
 	label: itemName,
 	children,
@@ -56,12 +66,13 @@ export const MenuItem: React.FC<{
 	id,
 	onItemSelected,
 	onItemHovered,
+	onKeyboardUnfocused,
 }) => {
 	const onClick = useCallback(() => {
 		onItemSelected(id);
 	}, [id, onItemSelected]);
 	const [hovered, setHovered] = useState(false);
-	const ref = useRef<HTMLDivElement>(null);
+	const ref = useRef<HTMLButtonElement>(null);
 	const size = PlayerInternals.useElementSize(ref, {
 		triggerOnWindowResize: true,
 	});
@@ -74,6 +85,8 @@ export const MenuItem: React.FC<{
 				: hovered
 				? HOVERED_BACKGROUND
 				: 'transparent',
+			// Don't panic, we apply our own selected style
+			outline: 'none',
 		};
 	}, [hovered, selected]);
 
@@ -105,17 +118,33 @@ export const MenuItem: React.FC<{
 		};
 	}, [size]);
 
+	const onFocus = useCallback(() => {
+		onClick();
+	}, [onClick]);
+
+	const onBlur: FocusEventHandler = useCallback(() => {
+		setHovered(false);
+		if (!document.activeElement?.classList.contains(MENU_BUTTON_CLASS_NAME)) {
+			onKeyboardUnfocused();
+		}
+	}, [onKeyboardUnfocused]);
+
 	return (
 		<>
-			<div
+			<button
 				ref={ref}
+				role="button"
 				onPointerEnter={onPointerEnter}
 				onPointerLeave={onPointerLeave}
 				onClick={onClick}
+				onFocus={onFocus}
 				style={containerStyle}
+				type="button"
+				onBlur={onBlur}
+				className={MENU_BUTTON_CLASS_NAME}
 			>
 				{itemName}
-			</div>
+			</button>
 			{portalStyle
 				? ReactDOM.createPortal(
 						<div style={outerStyle}>
