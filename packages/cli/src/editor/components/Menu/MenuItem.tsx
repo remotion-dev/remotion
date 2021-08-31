@@ -39,7 +39,7 @@ const outerPortal: React.CSSProperties = {
 	backgroundColor: 'rgba(255, 255, 255, 0.02)',
 };
 
-export type MenuId = 'file' | 'help';
+export type MenuId = 'remotion' | 'file' | 'help';
 
 const portal = document.getElementById('menuportal') as Element;
 
@@ -48,7 +48,15 @@ export const MenuItem: React.FC<{
 	id: MenuId;
 	selected: boolean;
 	onItemSelected: (id: MenuId) => void;
-}> = ({label: itemName, children, selected, id, onItemSelected}) => {
+	onItemHovered: (id: MenuId) => void;
+}> = ({
+	label: itemName,
+	children,
+	selected,
+	id,
+	onItemSelected,
+	onItemHovered,
+}) => {
 	const onClick = useCallback(() => {
 		onItemSelected(id);
 	}, [id, onItemSelected]);
@@ -82,8 +90,9 @@ export const MenuItem: React.FC<{
 	}, [selected, size]);
 
 	const onPointerEnter = useCallback(() => {
+		onItemHovered(id);
 		setHovered(true);
-	}, []);
+	}, [id, onItemHovered]);
 
 	const onPointerLeave = useCallback(() => {
 		setHovered(false);
