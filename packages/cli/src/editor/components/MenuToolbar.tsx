@@ -1,6 +1,10 @@
-import React, {useCallback, useContext, useEffect} from 'react';
+import React, {useCallback, useEffect, useLayoutEffect, useState} from 'react';
 import {FONT_FAMILY} from '../helpers/font';
-import {MenuToolbarSelectionContext} from '../state/menu-selection';
+import {setGlobalMenuId} from '../state/global-menu-id';
+import {
+	isClickInsideMenuStructure,
+	MENU_ITEMS_CONTAINER,
+} from './Menu/is-menu-click';
 import {MenuId, MenuItem} from './Menu/MenuItem';
 import {MenuSubItem} from './Menu/MenuSubItem';
 
@@ -19,17 +23,15 @@ const row: React.CSSProperties = {
 const menus: MenuId[] = ['remotion', 'file', 'help'];
 
 export const MenuToolbar: React.FC = () => {
-	const {selected, setSelected} = useContext(MenuToolbarSelectionContext);
+	const [selected, setSelected] = useState<MenuId | null>(null);
+
+	useLayoutEffect(() => {
+		setGlobalMenuId(selected);
+	}, [selected]);
 
 	const itemClicked = useCallback(
 		(itemId: MenuId) => {
-			setSelected((currentItem) => {
-				if (currentItem === itemId) {
-					return null;
-				}
-
-				return itemId;
-			});
+			setSelected(itemId);
 		},
 		[setSelected]
 	);
@@ -70,10 +72,27 @@ export const MenuToolbar: React.FC = () => {
 			}
 
 			if (e.key === 'Escape') {
-				return setSelected(null);
+				setSelected(null);
+				(document.activeElement as HTMLElement).blur();
 			}
 		},
 		[setSelected]
+	);
+
+	const onPointerDown: EventListenerOrEventListenerObject = useCallback(
+		(e) => {
+			const {target} = e;
+			if (selected === null || !target) {
+				return;
+			}
+
+			if (isClickInsideMenuStructure(target as HTMLElement)) {
+				return;
+			}
+
+			setSelected(null);
+		},
+		[selected]
 	);
 
 	useEffect(() => {
@@ -82,8 +101,12 @@ export const MenuToolbar: React.FC = () => {
 		}
 
 		window.addEventListener('keydown', onKeyPress);
-		return () => window.removeEventListener('keydown', onKeyPress);
-	}, [onKeyPress, selected]);
+		window.addEventListener('pointerdown', onPointerDown);
+		return () => {
+			window.removeEventListener('keydown', onKeyPress);
+			window.removeEventListener('pointerdown', onPointerDown);
+		};
+	}, [onKeyPress, onPointerDown, selected]);
 
 	const renderMenu = useCallback((id: MenuId) => {
 		if (id === 'remotion') {
@@ -141,23 +164,42 @@ export const MenuToolbar: React.FC = () => {
 		setSelected(null);
 	}, [setSelected]);
 
+	const onItemFocused = useCallback(
+		(item: MenuId) => {
+			setSelected(item);
+		},
+		[setSelected]
+	);
+
+	const onKeyboardTabEndReached = useCallback(() => {
+		setSelected(null);
+	}, []);
+
 	return (
 		<div style={row}>
-			{menus.map((mId) => {
-				return (
-					<MenuItem
-						key={mId}
-						selected={selected === mId}
-						onItemSelected={itemClicked}
-						onItemHovered={itemHovered}
-						id={mId}
-						label={renderLabel(mId)}
-						onKeyboardUnfocused={onKeyboardUnfocused}
-					>
-						{renderMenu(mId)}
-					</MenuItem>
-				);
-			})}
+			<div className={MENU_ITEMS_CONTAINER}>
+				{menus.map((mId) => {
+					return (
+						<MenuItem
+							key={mId}
+							selected={selected === mId}
+							onItemSelected={itemClicked}
+							onItemHovered={itemHovered}
+							id={mId}
+							label={renderLabel(mId)}
+							onItemFocused={onItemFocused}
+							onItemQuit={onKeyboardUnfocused}
+						>
+							{renderMenu(mId)}
+						</MenuItem>
+					);
+				})}
+			</div>
+			{selected === null ? null : (
+				// If this element gets focused, the user has tabbed through all menus,
+				// unfocusing the menu
+				<div tabIndex={0} onFocus={onKeyboardTabEndReached} />
+			)}
 		</div>
 	);
 };
