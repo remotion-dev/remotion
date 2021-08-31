@@ -18,7 +18,7 @@ import {
 } from '../state/rich-timeline';
 import {EditorContent} from './EditorContent';
 import {FramePersistor} from './FramePersistor';
-import {NewSequence} from './NewComposition';
+import {NewSequence} from './NewComposition/NewComposition';
 import {UpdateCheck} from './UpdateCheck';
 
 const Background = styled.div`
