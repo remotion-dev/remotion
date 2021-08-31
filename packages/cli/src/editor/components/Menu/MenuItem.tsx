@@ -113,12 +113,10 @@ export const MenuItem: React.FC<{
 	}, []);
 
 	const onFocus: FocusEventHandler<HTMLButtonElement> = useCallback(() => {
-		console.log('focusing');
 		onItemFocused(id);
 	}, [id, onItemFocused]);
 
 	const onClick = useCallback(() => {
-		console.log('pointeddown', {selected});
 		if (selected) {
 			onItemQuit();
 		} else {
@@ -150,8 +148,10 @@ export const MenuItem: React.FC<{
 			</button>
 			{portalStyle
 				? ReactDOM.createPortal(
-						<div className={SUBMENU_CONTAINER_CLASS_NAME} style={outerStyle}>
-							<div style={portalStyle}>{children}</div>
+						<div style={outerStyle}>
+							<div className={SUBMENU_CONTAINER_CLASS_NAME} style={portalStyle}>
+								{children}
+							</div>
 						</div>,
 						portal
 				  )
