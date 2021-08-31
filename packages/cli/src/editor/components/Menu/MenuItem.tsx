@@ -156,7 +156,7 @@ export const MenuItem: React.FC<{
 		<>
 			{menu.items.map((item) => {
 				if (item.type === 'divider') {
-					return <MenuDivider />;
+					return <MenuDivider key={item.id} />;
 				}
 
 				return (

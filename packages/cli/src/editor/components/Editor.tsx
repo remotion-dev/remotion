@@ -18,6 +18,7 @@ import {
 } from '../state/rich-timeline';
 import {EditorContent} from './EditorContent';
 import {FramePersistor} from './FramePersistor';
+import {NewSequence} from './NewComposition';
 import {UpdateCheck} from './UpdateCheck';
 
 const Background = styled.div`
@@ -99,6 +100,7 @@ export const Editor: React.FC = () => {
 									<FramePersistor />
 									<EditorContent />
 								</Background>
+								<NewSequence />
 							</PlayerInternals.PlayerEventEmitterContext.Provider>
 						</Internals.SetMediaVolumeContext.Provider>
 					</Internals.MediaVolumeContext.Provider>
