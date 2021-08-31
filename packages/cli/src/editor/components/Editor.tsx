@@ -11,6 +11,10 @@ import {
 	CheckerboardContext,
 	loadCheckerboardOption,
 } from '../state/checkerboard';
+import {
+	MenuContext,
+	MenuToolbarSelectionContext,
+} from '../state/menu-selection';
 import {loadPreviewSizeOption, PreviewSizeContext} from '../state/preview-size';
 import {
 	loadRichTimelineOption,
@@ -18,6 +22,7 @@ import {
 } from '../state/rich-timeline';
 import {EditorContent} from './EditorContent';
 import {FramePersistor} from './FramePersistor';
+import {MenuId} from './Menu/MenuItem';
 import {UpdateCheck} from './UpdateCheck';
 
 const Background = styled.div`
@@ -34,7 +39,7 @@ const Root = Internals.getRoot();
 export const Editor: React.FC = () => {
 	const [emitter] = useState(() => new PlayerInternals.PlayerEmitter());
 	const [size, setSize] = useState(() => loadPreviewSizeOption());
-
+	const [menuSelection, setMenuSelection] = useState<MenuId | null>(null);
 	const [checkerboard, setCheckerboard] = useState(() =>
 		loadCheckerboardOption()
 	);
@@ -77,34 +82,43 @@ export const Editor: React.FC = () => {
 		};
 	}, []);
 
+	const menuContextValue = useMemo((): MenuContext => {
+		return {
+			selected: menuSelection,
+			setSelected: setMenuSelection,
+		};
+	}, [menuSelection]);
+
 	if (!Root) {
 		throw new Error('Root has not been registered. ');
 	}
 
 	return (
-		<RichTimelineContext.Provider value={richTimelineCtx}>
-			<CheckerboardContext.Provider value={checkerboardCtx}>
-				<PreviewSizeContext.Provider value={previewSizeCtx}>
-					<Internals.MediaVolumeContext.Provider
-						value={mediaVolumeContextValue}
-					>
-						<Internals.SetMediaVolumeContext.Provider
-							value={setMediaVolumeContextValue}
+		<MenuToolbarSelectionContext.Provider value={menuContextValue}>
+			<RichTimelineContext.Provider value={richTimelineCtx}>
+				<CheckerboardContext.Provider value={checkerboardCtx}>
+					<PreviewSizeContext.Provider value={previewSizeCtx}>
+						<Internals.MediaVolumeContext.Provider
+							value={mediaVolumeContextValue}
 						>
-							<PlayerInternals.PlayerEventEmitterContext.Provider
-								value={emitter}
+							<Internals.SetMediaVolumeContext.Provider
+								value={setMediaVolumeContextValue}
 							>
-								<Background>
-									<Root />
-									<UpdateCheck />
-									<FramePersistor />
-									<EditorContent />
-								</Background>
-							</PlayerInternals.PlayerEventEmitterContext.Provider>
-						</Internals.SetMediaVolumeContext.Provider>
-					</Internals.MediaVolumeContext.Provider>
-				</PreviewSizeContext.Provider>
-			</CheckerboardContext.Provider>
-		</RichTimelineContext.Provider>
+								<PlayerInternals.PlayerEventEmitterContext.Provider
+									value={emitter}
+								>
+									<Background>
+										<Root />
+										<UpdateCheck />
+										<FramePersistor />
+										<EditorContent />
+									</Background>
+								</PlayerInternals.PlayerEventEmitterContext.Provider>
+							</Internals.SetMediaVolumeContext.Provider>
+						</Internals.MediaVolumeContext.Provider>
+					</PreviewSizeContext.Provider>
+				</CheckerboardContext.Provider>
+			</RichTimelineContext.Provider>
+		</MenuToolbarSelectionContext.Provider>
 	);
 };

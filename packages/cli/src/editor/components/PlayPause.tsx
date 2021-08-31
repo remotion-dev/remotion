@@ -1,16 +1,18 @@
 import {PlayerInternals} from '@remotion/player';
-import React, {useCallback, useEffect} from 'react';
+import React, {useCallback, useContext, useEffect} from 'react';
 import {Internals} from 'remotion';
 import {useIsStill} from '../helpers/is-current-selected-still';
 import {Pause} from '../icons/pause';
 import {Play} from '../icons/play';
 import {StepBack} from '../icons/step-back';
 import {StepForward} from '../icons/step-forward';
+import {MenuToolbarSelectionContext} from '../state/menu-selection';
 import {ControlButton} from './ControlButton';
 
 export const PlayPause: React.FC = () => {
 	const frame = Internals.Timeline.useTimelinePosition();
 	const video = Internals.useVideo();
+	const {selected: selectedMenu} = useContext(MenuToolbarSelectionContext);
 	PlayerInternals.usePlayback({loop: true});
 
 	const {
@@ -36,6 +38,11 @@ export const PlayPause: React.FC = () => {
 				return;
 			}
 
+			// Don't react to keypresses if a menu is open
+			if (selectedMenu !== null) {
+				return;
+			}
+
 			if (e.code === 'Space') {
 				if (playing) {
 					pause();
@@ -56,7 +63,7 @@ export const PlayPause: React.FC = () => {
 				e.preventDefault();
 			}
 		},
-		[frameBack, frameForward, pause, play, playing, video]
+		[frameBack, frameForward, pause, play, playing, selectedMenu, video]
 	);
 
 	const oneFrameBack = useCallback(() => {
