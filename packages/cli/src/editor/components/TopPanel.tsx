@@ -2,6 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import {Canvas} from './Canvas';
 import {CompositionSelector} from './CompositionSelector';
+import {MenuToolbar} from './MenuToolbar';
 import {PreviewToolbar} from './PreviewToolbar';
 import {SplitterContainer} from './Splitter/SplitterContainer';
 import {SplitterElement} from './Splitter/SplitterElement';
@@ -32,6 +33,7 @@ const LeftContainer = styled.div`
 export const TopPanel: React.FC = () => {
 	return (
 		<Container>
+			<MenuToolbar />
 			<Row>
 				<SplitterContainer
 					minFlex={0.15}

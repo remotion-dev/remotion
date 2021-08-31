@@ -6,6 +6,7 @@ import {
 	SetMediaVolumeContextValue,
 } from 'remotion';
 import styled from 'styled-components';
+import {BACKGROUND} from '../helpers/colors';
 import {
 	CheckerboardContext,
 	loadCheckerboardOption,
@@ -20,7 +21,7 @@ import {FramePersistor} from './FramePersistor';
 import {UpdateCheck} from './UpdateCheck';
 
 const Background = styled.div`
-	background: #222;
+	background: ${BACKGROUND};
 	display: flex;
 	width: 100%;
 	height: 100%;
