@@ -17,6 +17,8 @@ import {
 	MENU_BUTTON_CLASS_NAME,
 	SUBMENU_CONTAINER_CLASS_NAME,
 } from './is-menu-click';
+import {MenuDivider} from './MenuDivider';
+import {MenuSubItem} from './MenuSubItem';
 
 const container: React.CSSProperties = {
 	fontSize: 13,
@@ -54,6 +56,24 @@ export type MenuId = 'remotion' | 'file' | 'help';
 
 const portal = document.getElementById('menuportal') as Element;
 
+export type Menu = {
+	id: MenuId;
+	label: string;
+	items: TMenuItem[];
+};
+
+export type TMenuItem =
+	| {
+			type: 'divider';
+			id: string;
+	  }
+	| {
+			id: string;
+			type: 'item';
+			label: React.ReactNode;
+			onClick: () => void;
+	  };
+
 export const MenuItem: React.FC<{
 	label: string;
 	id: MenuId;
@@ -62,15 +82,16 @@ export const MenuItem: React.FC<{
 	onItemHovered: (id: MenuId) => void;
 	onItemQuit: () => void;
 	onItemFocused: (id: MenuId) => void;
+	menu: Menu;
 }> = ({
 	label: itemName,
-	children,
 	selected,
 	id,
 	onItemSelected,
 	onItemHovered,
 	onItemQuit,
 	onItemFocused,
+	menu,
 }) => {
 	const [hovered, setHovered] = useState(false);
 	const ref = useRef<HTMLButtonElement>(null);
@@ -131,6 +152,24 @@ export const MenuItem: React.FC<{
 		};
 	}, [size]);
 
+	const menuContent = (
+		<>
+			{menu.items.map((item) => {
+				if (item.type === 'divider') {
+					return <MenuDivider />;
+				}
+
+				return (
+					<MenuSubItem
+						key={item.id}
+						onActionSelected={item.onClick}
+						label={item.label}
+					/>
+				);
+			})}
+		</>
+	);
+
 	return (
 		<>
 			<button
@@ -150,7 +189,7 @@ export const MenuItem: React.FC<{
 				? ReactDOM.createPortal(
 						<div style={outerStyle}>
 							<div className={SUBMENU_CONTAINER_CLASS_NAME} style={portalStyle}>
-								{children}
+								{menuContent}
 							</div>
 						</div>,
 						portal

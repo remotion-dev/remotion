@@ -12,7 +12,7 @@ const container: React.CSSProperties = {
 export const MENU_SUBMENU_BUTTON_CLASS_NAME = 'remotion-submenu-button';
 
 export const MenuSubItem: React.FC<{
-	label: string;
+	label: React.ReactNode;
 	onActionSelected: () => void;
 }> = ({label, onActionSelected}) => {
 	const [hovered, setHovered] = useState(false);
