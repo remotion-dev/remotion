@@ -108,41 +108,64 @@ export const MenuToolbar: React.FC = () => {
 		};
 	}, [onKeyPress, onPointerDown, selected]);
 
-	const renderMenu = useCallback((id: MenuId) => {
-		if (id === 'remotion') {
-			return (
-				<>
-					<MenuSubItem label="About Remotion" />
-					<MenuSubItem label="License" />
-				</>
-			);
-		}
-
-		if (id === 'file') {
-			return (
-				<>
-					<MenuSubItem label="New composition" />
-					<MenuSubItem label="Render..." />
-				</>
-			);
-		}
-
-		if (id === 'help') {
-			return (
-				<>
-					<MenuSubItem label="Documentation" />
-					<MenuSubItem label="File an issue" />
-					<MenuSubItem label="Join Discord community" />
-					<hr />
-					<MenuSubItem label="Instagram" />
-					<MenuSubItem label="Twitter" />
-					<MenuSubItem label="TikTok" />
-				</>
-			);
-		}
-
-		throw new Error('menu item not implemented');
+	const aboutRemotion = useCallback(() => {
+		setSelected(null);
+		window.open('https://remotion.dev', '_blank');
 	}, []);
+
+	const renderMenu = useCallback(
+		(id: MenuId) => {
+			if (id === 'remotion') {
+				return (
+					<>
+						<MenuSubItem
+							onActionSelected={aboutRemotion}
+							label="About Remotion"
+						/>
+						<MenuSubItem onActionSelected={aboutRemotion} label="License" />
+					</>
+				);
+			}
+
+			if (id === 'file') {
+				return (
+					<>
+						<MenuSubItem
+							onActionSelected={aboutRemotion}
+							label="New composition"
+						/>
+						<MenuSubItem onActionSelected={aboutRemotion} label="Render..." />
+					</>
+				);
+			}
+
+			if (id === 'help') {
+				return (
+					<>
+						<MenuSubItem
+							onActionSelected={aboutRemotion}
+							label="Documentation"
+						/>
+						<MenuSubItem
+							onActionSelected={aboutRemotion}
+							label="File an issue"
+						/>
+						<MenuSubItem
+							onActionSelected={aboutRemotion}
+							label="Join Discord community"
+						/>
+						<hr />
+						<MenuSubItem onActionSelected={aboutRemotion} label="Instagram" />
+						<MenuSubItem onActionSelected={aboutRemotion} label="Twitter" />
+						<MenuSubItem onActionSelected={aboutRemotion} label="TikTok" />
+					</>
+				);
+			}
+
+			throw new Error('menu item not implemented');
+		},
+		[aboutRemotion]
+	);
 
 	const renderLabel = useCallback((id: MenuId) => {
 		if (id === 'file') {
