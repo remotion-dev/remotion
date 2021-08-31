@@ -9,6 +9,7 @@ const container: React.CSSProperties = {
 	fontSize: 13,
 	cursor: 'default',
 };
+export const MENU_SUBMENU_BUTTON_CLASS_NAME = 'remotion-submenu-button';
 
 export const MenuSubItem: React.FC<{
 	label: string;
@@ -32,6 +33,7 @@ export const MenuSubItem: React.FC<{
 
 	return (
 		<div
+			className={MENU_SUBMENU_BUTTON_CLASS_NAME}
 			onPointerEnter={onPointerEnter}
 			onPointerLeave={onPointerLeave}
 			style={style}
