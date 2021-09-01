@@ -1,7 +1,7 @@
 import React, {useCallback, useContext, useEffect} from 'react';
 import {Internals, TComposition} from 'remotion';
 import styled from 'styled-components';
-import {HOVERED_BACKGROUND, SELECTED_BACKGROUND} from '../helpers/colors';
+import {CLEAR_HOVER, SELECTED_BACKGROUND} from '../helpers/colors';
 import {isCompositionStill} from '../helpers/is-composition-still';
 import {FilmIcon} from '../icons/film';
 import {StillIcon} from '../icons/still';
@@ -47,10 +47,9 @@ const Item = styled.a<{
 	border-color: transparent;
 	margin-bottom: 1px;
 	&:hover {
-		border-color: ${(props) =>
-			props.selected ? 'transparent' : HOVERED_BACKGROUND};
+		border-color: ${(props) => (props.selected ? 'transparent' : CLEAR_HOVER)};
 		background: ${(props) =>
-			props.selected ? SELECTED_BACKGROUND : HOVERED_BACKGROUND};
+			props.selected ? SELECTED_BACKGROUND : CLEAR_HOVER};
 		color: white;
 	}
 `;

@@ -6,7 +6,11 @@ import React, {
 	useRef,
 	useState,
 } from 'react';
-import {BORDER_COLOR} from '../../helpers/colors';
+import {
+	BORDER_COLOR,
+	CLEAR_HOVER,
+	SELECTED_BACKGROUND,
+} from '../../helpers/colors';
 import {FONT_FAMILY} from '../../helpers/font';
 
 type Props = React.DetailedHTMLProps<
@@ -19,23 +23,29 @@ const RemInputForwardRef: React.ForwardRefRenderFunction<
 	Props
 > = (props, ref) => {
 	const [isFocused, setIsFocused] = useState(false);
+	const [isHovered, setIsHovered] = useState(false);
 	const inputRef = useRef<HTMLInputElement>(null);
 
 	const style = useMemo(() => {
 		return {
-			backgroundColor: 'rgba(255, 255, 255, 0.05)',
+			backgroundColor: 'rgba(255, 255, 255, 0.06)',
 			border: BORDER_COLOR,
 			fontFamily: FONT_FAMILY,
-			padding: '10px 10px',
+			padding: '10px 16px',
 			color: 'white',
 			outline: 'none',
 			borderStyle: 'solid',
-			borderWidth: 1,
+			borderWidth: 2,
 			borderRadius: 5,
-			borderColor: isFocused ? 'rgba(255, 255, 255, 0.5)' : 'transparent',
+			fontSize: 16,
+			borderColor: isFocused
+				? SELECTED_BACKGROUND
+				: isHovered
+				? CLEAR_HOVER
+				: 'transparent',
 			...(props.style ?? {}),
 		};
-	}, [isFocused, props.style]);
+	}, [isFocused, isHovered, props.style]);
 
 	useImperativeHandle(ref, () => {
 		return inputRef.current as HTMLInputElement;
@@ -50,13 +60,19 @@ const RemInputForwardRef: React.ForwardRefRenderFunction<
 
 		const onFocus = () => setIsFocused(true);
 		const onBlur = () => setIsFocused(false);
+		const onMouseEnter = () => setIsHovered(true);
+		const onMouseLeave = () => setIsHovered(false);
 
 		current.addEventListener('focus', onFocus);
 		current.addEventListener('blur', onBlur);
+		current.addEventListener('mouseenter', onMouseEnter);
+		current.addEventListener('mouseleave', onMouseLeave);
 
 		return () => {
 			current.removeEventListener('focus', onFocus);
 			current.removeEventListener('blur', onBlur);
+			current.removeEventListener('mouseenter', onMouseEnter);
+			current.removeEventListener('mouseleave', onMouseLeave);
 		};
 	}, [inputRef]);
 
