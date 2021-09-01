@@ -2,6 +2,8 @@ import React, {ChangeEventHandler, useCallback, useState} from 'react';
 import {BACKGROUND} from '../../helpers/colors';
 import {FONT_FAMILY} from '../../helpers/font';
 import {getNewCompositionCode} from './NewCompCode';
+import {NewCompHeader} from './NewCompHeader';
+import {RemotionInput} from './RemInput';
 import {aspectRatio} from './render-aspect-ratio';
 
 const backgroundOverlay: React.CSSProperties = {
@@ -20,6 +22,9 @@ const panel: React.CSSProperties = {
 	boxShadow: '0 0 4px black',
 	color: 'white',
 	fontFamily: FONT_FAMILY,
+};
+
+const panelContent: React.CSSProperties = {
 	flexDirection: 'row',
 	display: 'flex',
 };
@@ -45,6 +50,7 @@ const leftLabel: React.CSSProperties = {
 	textAlign: 'right',
 	paddingRight: 30,
 	fontSize: 14,
+	color: '#ddd',
 };
 
 const pre: React.CSSProperties = {
@@ -114,116 +120,116 @@ export const NewSequence: React.FC = () => {
 	return (
 		<div style={backgroundOverlay}>
 			<div style={panel}>
-				<div style={left}>
-					<form>
-						<label>
-							<div style={leftLabel}>Name</div>
-							<input
-								value={name}
-								onChange={onNameChange}
-								type="text"
-								placeholder="Composition name"
-							/>
-						</label>
-						<br />
-						<br />
-						<div>
-							<div style={leftLabel}>Type</div>
+				<NewCompHeader />
+				<div style={panelContent}>
+					<div style={left}>
+						<form>
 							<label>
-								<input
-									onChange={onCompositionChanged}
-									checked={type === 'composition'}
-									name="type"
-									type="radio"
+								<div style={leftLabel}>Name</div>
+								<RemotionInput
+									value={name}
+									onChange={onNameChange}
+									type="text"
+									placeholder="Composition name"
 								/>
-								Composition
 							</label>
+							<br />
+							<br />
+							<div>
+								<div style={leftLabel}>Type</div>
+								<label>
+									<RemotionInput
+										onChange={onCompositionChanged}
+										checked={type === 'composition'}
+										name="type"
+										type="radio"
+									/>
+									Composition
+								</label>
+								<label>
+									<RemotionInput
+										onChange={onStillChanged}
+										checked={type === 'still'}
+										name="type"
+										type="radio"
+									/>
+									Still
+								</label>
+							</div>
+							<br />
 							<label>
-								<input
-									onChange={onStillChanged}
-									checked={type === 'still'}
-									name="type"
-									type="radio"
+								<div style={leftLabel}>Width</div>
+								<RemotionInput
+									type="number"
+									value={width}
+									placeholder="Width (px)"
+									onChange={onWidthChanged}
+									name="width"
 								/>
-								Still
 							</label>
-						</div>
-						<br />
-						<label>
-							<div style={leftLabel}>Width</div>
-							<input
-								type="number"
-								value={width}
-								placeholder="Width (px)"
-								onChange={onWidthChanged}
-								name="width"
-							/>
-						</label>
-						<br />
-						<br />
-						<label>
-							<div style={leftLabel}>Height</div>
-							<input
-								type="number"
-								value={height}
-								onChange={onHeightChanged}
-								placeholder="Height (px)"
-								name="height"
-							/>
-						</label>
-						<br />
-						<br />
-						<div>
-							<div style={leftLabel}>Aspect ratio</div>
-							{aspectRatio(Number(width) / Number(height))}
-						</div>
-						<br />
-						<label>
-							<div style={leftLabel}> Duration in frames</div>
-							<input
-								type="number"
-								value={durationInFrames}
-								onChange={onDurationInFramesChanged}
-								placeholder="Duration (frames)"
-								name="height"
-							/>
-						</label>
-						<br />
-						<br />
-						<div>
-							<div style={leftLabel} />
-							<span>
-								{(Number(durationInFrames) / Number(fps)).toFixed(2)}sec
-							</span>
-						</div>
-						<br />
-						<br />
-						<label>
-							<div style={leftLabel}>Framerate</div>
-							<select value={fps} onChange={onFpsChange}>
-								<option value="24">24fps</option>
-								<option value="25">25fps</option>
-								<option value="29.97">29.97fps</option>
-								<option value="30">30fps</option>
-								<option value="48">48fps</option>
-								<option value="50">50fps</option>
-								<option value="60">60fps</option>
-							</select>
-						</label>
-					</form>
-				</div>
+							<br />
+							<br />
+							<label>
+								<div style={leftLabel}>Height</div>
+								<RemotionInput
+									type="number"
+									value={height}
+									onChange={onHeightChanged}
+									placeholder="Height (px)"
+									name="height"
+								/>
+							</label>
+							<br />
+							<br />
+							<div>
+								<div style={leftLabel}>Aspect ratio</div>
+								{aspectRatio(Number(width) / Number(height))}
+							</div>
+							<br />
+							<label>
+								<div style={leftLabel}> Duration in frames</div>
+								<RemotionInput
+									type="number"
+									value={durationInFrames}
+									onChange={onDurationInFramesChanged}
+									placeholder="Duration (frames)"
+									name="height"
+								/>
+								<span>
+									{(Number(durationInFrames) / Number(fps)).toFixed(2)}sec
+								</span>
+							</label>
+							<br />
+							<br />
+							<br />
+							<br />
+							<label>
+								<div style={leftLabel}>Framerate</div>
+								<select value={fps} onChange={onFpsChange}>
+									<option value="24">24fps</option>
+									<option value="25">25fps</option>
+									<option value="29.97">29.97fps</option>
+									<option value="30">30fps</option>
+									<option value="48">48fps</option>
+									<option value="50">50fps</option>
+									<option value="60">60fps</option>
+								</select>
+							</label>
+						</form>
+					</div>
 
-				<div style={panelRight}>
-					<pre style={pre}>
-						{getNewCompositionCode({
-							type,
-							durationInFrames: Number(durationInFrames),
-							fps: Number(fps),
-							height: Number(height),
-							width: Number(width),
-							name,
-						})}
-					</pre>
+					<div style={panelRight}>
+						<pre style={pre}>
+							{getNewCompositionCode({
+								type,
+								durationInFrames: Number(durationInFrames),
+								fps: Number(fps),
+								height: Number(height),
+								width: Number(width),
+								name,
+							})}
+						</pre>
+					</div>
 				</div>
 			</div>
 		</div>
