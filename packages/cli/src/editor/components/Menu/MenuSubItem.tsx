@@ -13,8 +13,9 @@ export const MENU_SUBMENU_BUTTON_CLASS_NAME = 'remotion-submenu-button';
 
 export const MenuSubItem: React.FC<{
 	label: React.ReactNode;
-	onActionSelected: () => void;
-}> = ({label, onActionSelected}) => {
+	id: string;
+	onActionSelected: (id: string) => void;
+}> = ({label, onActionSelected, id}) => {
 	const [hovered, setHovered] = useState(false);
 
 	const style = useMemo((): React.CSSProperties => {
@@ -33,8 +34,8 @@ export const MenuSubItem: React.FC<{
 	}, []);
 
 	const onClick = useCallback(() => {
-		onActionSelected();
-	}, [onActionSelected]);
+		onActionSelected(id);
+	}, [id, onActionSelected]);
 
 	return (
 		<div

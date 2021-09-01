@@ -1,7 +1,8 @@
-import React, {ChangeEventHandler, useCallback, useState} from 'react';
+import React, {ChangeEventHandler, useCallback, useMemo, useState} from 'react';
 import {BACKGROUND} from '../../helpers/colors';
 import {FONT_FAMILY} from '../../helpers/font';
 import {Spacing} from '../Spacing';
+import {Combobox, ComboboxValue} from './ComboBox';
 import {CompositionType, CompType} from './CompositionType';
 import {NewCompAspectRatio} from './NewCompAspectRatio';
 import {getNewCompositionCode} from './NewCompCode';
@@ -58,6 +59,8 @@ const pre: React.CSSProperties = {
 	fontSize: 17,
 };
 
+const commonFrameRates = [24, 25, 29.97, 30, 48, 50];
+
 export const NewSequence: React.FC = () => {
 	const [type, setType] = useState<CompType>('composition');
 	const [name, setName] = useState('MyComp');
@@ -65,15 +68,6 @@ export const NewSequence: React.FC = () => {
 	const [height, setHeight] = useState('720');
 	const [fps, setFps] = useState(24);
 	const [durationInFrames, setDurationInFrames] = useState('150');
-
-	const onStillChanged: React.ChangeEventHandler<HTMLInputElement> = useCallback(
-		(e) => {
-			if (e.target.checked) {
-				setType('still');
-			}
-		},
-		[]
-	);
 
 	const onTypeChanged = useCallback((newType: CompType) => {
 		setType(newType);
@@ -104,12 +98,23 @@ export const NewSequence: React.FC = () => {
 		},
 		[]
 	);
-	const onFpsChange: ChangeEventHandler<HTMLSelectElement> = useCallback(
-		(e) => {
-			setFps(Number(e.target.value));
-		},
-		[]
-	);
+	const onFpsChange = useCallback((newFps: number) => {
+		setFps(newFps);
+	}, []);
+
+	const items: ComboboxValue[] = useMemo(() => {
+		return commonFrameRates.map(
+			(frameRate): ComboboxValue => {
+				return {
+					id: String(frameRate),
+					label: `${frameRate}fps`,
+					onClick: () => onFpsChange(frameRate),
+					type: 'item',
+					value: frameRate,
+				};
+			}
+		);
+	}, [onFpsChange]);
 
 	return (
 		<div style={backgroundOverlay}>
@@ -187,19 +192,13 @@ export const NewSequence: React.FC = () => {
 									</label>
 								</div>
 							) : null}
+
 							{type === 'composition' ? (
 								<div>
+									<Spacing y={1} />
 									<label>
 										<div style={leftLabel}>Framerate</div>
-										<select value={fps} onChange={onFpsChange}>
-											<option value="24">24fps</option>
-											<option value="25">25fps</option>
-											<option value="29.97">29.97fps</option>
-											<option value="30">30fps</option>
-											<option value="48">48fps</option>
-											<option value="50">50fps</option>
-											<option value="60">60fps</option>
-										</select>
+										<Combobox values={items} />
 									</label>
 								</div>
 							) : null}
