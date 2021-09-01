@@ -7,11 +7,7 @@ import React, {
 	useState,
 } from 'react';
 import ReactDOM from 'react-dom';
-import {
-	BACKGROUND,
-	HOVERED_BACKGROUND,
-	SELECTED_BACKGROUND,
-} from '../../helpers/colors';
+import {BACKGROUND, getBackgroundFromHoverState} from '../../helpers/colors';
 import {FONT_FAMILY} from '../../helpers/font';
 import {
 	MENU_BUTTON_CLASS_NAME,
@@ -102,11 +98,10 @@ export const MenuItem: React.FC<{
 	const containerStyle = useMemo((): React.CSSProperties => {
 		return {
 			...container,
-			backgroundColor: selected
-				? SELECTED_BACKGROUND
-				: hovered
-				? HOVERED_BACKGROUND
-				: 'transparent',
+			backgroundColor: getBackgroundFromHoverState({
+				hovered,
+				selected,
+			}),
 			// Don't panic, we apply our own selected style
 			outline: 'none',
 		};

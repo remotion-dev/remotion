@@ -1,6 +1,8 @@
 import React, {ChangeEventHandler, useCallback, useState} from 'react';
 import {BACKGROUND} from '../../helpers/colors';
 import {FONT_FAMILY} from '../../helpers/font';
+import {Spacing} from '../Spacing';
+import {CompositionType, CompType} from './CompositionType';
 import {NewCompAspectRatio} from './NewCompAspectRatio';
 import {getNewCompositionCode} from './NewCompCode';
 import {NewCompHeader} from './NewCompHeader';
@@ -30,10 +32,9 @@ const panelContent: React.CSSProperties = {
 };
 
 const left: React.CSSProperties = {
-	padding: 20,
-	paddingTop: 80,
+	padding: 12,
 	paddingBottom: 80,
-	paddingRight: 40,
+	paddingRight: 12,
 };
 
 const panelRight: React.CSSProperties = {
@@ -57,10 +58,8 @@ const pre: React.CSSProperties = {
 	fontSize: 17,
 };
 
-type CompositionType = 'composition' | 'still';
-
 export const NewSequence: React.FC = () => {
-	const [type, setType] = useState<CompositionType>('composition');
+	const [type, setType] = useState<CompType>('composition');
 	const [name, setName] = useState('MyComp');
 	const [width, setWidth] = useState('1280');
 	const [height, setHeight] = useState('720');
@@ -76,14 +75,9 @@ export const NewSequence: React.FC = () => {
 		[]
 	);
 
-	const onCompositionChanged: React.ChangeEventHandler<HTMLInputElement> = useCallback(
-		(e) => {
-			if (e.target.checked) {
-				setType('composition');
-			}
-		},
-		[]
-	);
+	const onTypeChanged = useCallback((newType: CompType) => {
+		setType(newType);
+	}, []);
 
 	const onWidthChanged: ChangeEventHandler<HTMLInputElement> = useCallback(
 		(e) => {
@@ -123,6 +117,8 @@ export const NewSequence: React.FC = () => {
 				<NewCompHeader />
 				<div style={panelContent}>
 					<div style={left}>
+						<CompositionType onSelected={onTypeChanged} type={type} />
+						<Spacing y={3} />
 						<form>
 							<label>
 								<div style={leftLabel}>Name</div>
@@ -133,30 +129,7 @@ export const NewSequence: React.FC = () => {
 									placeholder="Composition name"
 								/>
 							</label>
-							<br />
-							<br />
-							<div>
-								<div style={leftLabel}>Type</div>
-								<label>
-									<RemotionInput
-										onChange={onCompositionChanged}
-										checked={type === 'composition'}
-										name="type"
-										type="radio"
-									/>
-									Composition
-								</label>
-								<label>
-									<RemotionInput
-										onChange={onStillChanged}
-										checked={type === 'still'}
-										name="type"
-										type="radio"
-									/>
-									Still
-								</label>
-							</div>
-							<br />
+							<Spacing y={1} />
 							<div
 								style={{
 									display: 'flex',
@@ -165,18 +138,19 @@ export const NewSequence: React.FC = () => {
 								}}
 							>
 								<div>
-									<label>
-										<div style={leftLabel}>Width</div>
-										<RemotionInput
-											type="number"
-											value={width}
-											placeholder="Width (px)"
-											onChange={onWidthChanged}
-											name="width"
-										/>
-									</label>
-									<br />
-									<br />
+									<div>
+										<label>
+											<div style={leftLabel}>Width</div>
+											<RemotionInput
+												type="number"
+												value={width}
+												placeholder="Width (px)"
+												onChange={onWidthChanged}
+												name="width"
+											/>
+										</label>
+									</div>
+									<Spacing y={1} />
 									<label>
 										<div style={leftLabel}>Height</div>
 										<RemotionInput
@@ -195,37 +169,40 @@ export const NewSequence: React.FC = () => {
 									/>
 								</div>
 							</div>
-
-							<br />
-							<label>
-								<div style={leftLabel}> Duration in frames</div>
-								<RemotionInput
-									type="number"
-									value={durationInFrames}
-									onChange={onDurationInFramesChanged}
-									placeholder="Duration (frames)"
-									name="height"
-								/>
-								<span>
-									{(Number(durationInFrames) / Number(fps)).toFixed(2)}sec
-								</span>
-							</label>
-							<br />
-							<br />
-							<br />
-							<br />
-							<label>
-								<div style={leftLabel}>Framerate</div>
-								<select value={fps} onChange={onFpsChange}>
-									<option value="24">24fps</option>
-									<option value="25">25fps</option>
-									<option value="29.97">29.97fps</option>
-									<option value="30">30fps</option>
-									<option value="48">48fps</option>
-									<option value="50">50fps</option>
-									<option value="60">60fps</option>
-								</select>
-							</label>
+							<Spacing y={1} />
+							{type === 'composition' ? (
+								<div>
+									<label>
+										<div style={leftLabel}> Duration in frames</div>
+										<RemotionInput
+											type="number"
+											value={durationInFrames}
+											onChange={onDurationInFramesChanged}
+											placeholder="Duration (frames)"
+											name="height"
+										/>
+										<span>
+											{(Number(durationInFrames) / Number(fps)).toFixed(2)}sec
+										</span>
+									</label>
+								</div>
+							) : null}
+							{type === 'composition' ? (
+								<div>
+									<label>
+										<div style={leftLabel}>Framerate</div>
+										<select value={fps} onChange={onFpsChange}>
+											<option value="24">24fps</option>
+											<option value="25">25fps</option>
+											<option value="29.97">29.97fps</option>
+											<option value="30">30fps</option>
+											<option value="48">48fps</option>
+											<option value="50">50fps</option>
+											<option value="60">60fps</option>
+										</select>
+									</label>
+								</div>
+							) : null}
 						</form>
 					</div>
 

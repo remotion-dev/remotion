@@ -1,5 +1,5 @@
 import React, {useCallback, useMemo, useState} from 'react';
-import {HOVERED_BACKGROUND} from '../../helpers/colors';
+import {CLEAR_HOVER} from '../../helpers/colors';
 
 const container: React.CSSProperties = {
 	paddingTop: 8,
@@ -20,7 +20,7 @@ export const MenuSubItem: React.FC<{
 	const style = useMemo((): React.CSSProperties => {
 		return {
 			...container,
-			backgroundColor: hovered ? HOVERED_BACKGROUND : 'transparent',
+			backgroundColor: hovered ? CLEAR_HOVER : 'transparent',
 		};
 	}, [hovered]);
 
