@@ -159,6 +159,7 @@ export const MenuItem: React.FC<{
 						key={item.id}
 						onActionSelected={item.onClick}
 						label={item.label}
+						id={item.id}
 					/>
 				);
 			})}

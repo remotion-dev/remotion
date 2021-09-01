@@ -37,7 +37,7 @@ const RemInputForwardRef: React.ForwardRefRenderFunction<
 			borderStyle: 'solid',
 			borderWidth: 2,
 			borderRadius: 5,
-			fontSize: 16,
+			fontSize: 15,
 			borderColor: isFocused
 				? SELECTED_BACKGROUND
 				: isHovered
