@@ -1,4 +1,5 @@
 import React from 'react';
+import {CancelButton} from './CancelButton';
 
 const container: React.CSSProperties = {
 	display: 'flex',
@@ -10,5 +11,11 @@ const container: React.CSSProperties = {
 };
 
 export const NewCompHeader: React.FC = () => {
-	return <div style={container}>New composition</div>;
+	return (
+		<div style={container}>
+			<div>New composition</div>
+			<div style={{flex: 1}} />
+			<CancelButton style={{height: 20, width: 20}} />
+		</div>
+	);
 };

@@ -1,10 +1,10 @@
 import React, {ChangeEventHandler, useCallback, useState} from 'react';
 import {BACKGROUND} from '../../helpers/colors';
 import {FONT_FAMILY} from '../../helpers/font';
+import {NewCompAspectRatio} from './NewCompAspectRatio';
 import {getNewCompositionCode} from './NewCompCode';
 import {NewCompHeader} from './NewCompHeader';
 import {RemotionInput} from './RemInput';
-import {aspectRatio} from './render-aspect-ratio';
 
 const backgroundOverlay: React.CSSProperties = {
 	backgroundColor: 'rgba(255, 255, 255, 0.2)',
@@ -157,34 +157,45 @@ export const NewSequence: React.FC = () => {
 								</label>
 							</div>
 							<br />
-							<label>
-								<div style={leftLabel}>Width</div>
-								<RemotionInput
-									type="number"
-									value={width}
-									placeholder="Width (px)"
-									onChange={onWidthChanged}
-									name="width"
-								/>
-							</label>
-							<br />
-							<br />
-							<label>
-								<div style={leftLabel}>Height</div>
-								<RemotionInput
-									type="number"
-									value={height}
-									onChange={onHeightChanged}
-									placeholder="Height (px)"
-									name="height"
-								/>
-							</label>
-							<br />
-							<br />
-							<div>
-								<div style={leftLabel}>Aspect ratio</div>
-								{aspectRatio(Number(width) / Number(height))}
+							<div
+								style={{
+									display: 'flex',
+									flexDirection: 'row',
+									alignItems: 'center',
+								}}
+							>
+								<div>
+									<label>
+										<div style={leftLabel}>Width</div>
+										<RemotionInput
+											type="number"
+											value={width}
+											placeholder="Width (px)"
+											onChange={onWidthChanged}
+											name="width"
+										/>
+									</label>
+									<br />
+									<br />
+									<label>
+										<div style={leftLabel}>Height</div>
+										<RemotionInput
+											type="number"
+											value={height}
+											onChange={onHeightChanged}
+											placeholder="Height (px)"
+											name="height"
+										/>
+									</label>
+								</div>
+								<div>
+									<NewCompAspectRatio
+										width={Number(width)}
+										height={Number(height)}
+									/>
+								</div>
 							</div>
+
 							<br />
 							<label>
 								<div style={leftLabel}> Duration in frames</div>

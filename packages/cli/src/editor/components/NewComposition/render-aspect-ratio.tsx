@@ -1,11 +1,16 @@
-export const aspectRatio = (ratio: number) => {
-	if (ratio === 16 / 9) {
-		return '16:9';
+function gcd_two_numbers(x: number, y: number) {
+	x = Math.abs(x);
+	y = Math.abs(y);
+	while (y) {
+		const t = y;
+		y = x % y;
+		x = t;
 	}
 
-	if (ratio === 5 / 4) {
-		return '5:4';
-	}
+	return x;
+}
 
-	return ratio.toFixed(2);
+export const aspectRatio = (width: number, height: number) => {
+	const commonDivisor = gcd_two_numbers(width, height);
+	return width / commonDivisor + ':' + height / commonDivisor;
 };
