@@ -92,15 +92,15 @@ const Canvas: React.FC<{waveform: number[]}> = ({waveform}) => {
 	useEffect(() => {
 		if (canvasCtx) {
 			canvasCtx.fillStyle = 'rgb(200, 200, 200)';
-			canvasCtx.fillRect(0, 0, 200, 200);
+			canvasCtx.fillRect(0, 0, 300, 300);
 			canvasCtx.lineWidth = 2;
 			canvasCtx.strokeStyle = 'rgb(0, 0, 0)';
 			canvasCtx.beginPath();
-			const sliceWidth = (200 * 1.0) / 2048;
-			let x = 100;
+			const sliceWidth = (200 * 1.0) / 512;
+			let x = 0;
 			for (let i = 0; i < waveform.length; i++) {
 				const v = waveform[i] / 128.0;
-				const y = (v * 4000) / 2;
+				const y = (v * 40000) / 2;
 
 				if (i === 0) {
 					canvasCtx.moveTo(x, y);
@@ -117,7 +117,7 @@ const Canvas: React.FC<{waveform: number[]}> = ({waveform}) => {
 	return <canvas ref={canvasRef} />;
 };
 
-const AudioVisualization: React.FC = () => {
+const AudioVisualization: React.FC<{isWaveform: boolean}> = ({isWaveform}) => {
 	const frame = useCurrentFrame();
 	const {width, height, fps} = useVideoConfig();
 	const audioData = useAudioData(music);
@@ -136,6 +136,7 @@ const AudioVisualization: React.FC = () => {
 		frame,
 		audioData,
 		numberOfSamples: 1024,
+		waveformDuration: 1,
 	});
 
 	console.log(waveform, frame, 'waveform visualization');
@@ -250,31 +251,35 @@ const AudioVisualization: React.FC = () => {
 						boxShadow: `0 0 50px ${transparentize(0.5, textColor)}`,
 					}}
 				>
-					<Canvas waveform={waveform} />
-					{/* <Text
-						blur={2}
-						color="rgba(255, 0, 0, 0.3)"
-						transform={`translateY(${-rgbEffect}px) translateX(${
-							rgbEffect * 2
-						}px)`}
-					/>
-					<Text
-						blur={2}
-						color="rgba(0, 255, 0, 0.3)"
-						transform={`translateX(${rgbEffect * 3}px) translateY(${
-							rgbEffect * 3
-						}px)`}
-					/>
-					<Text
-						blur={2}
-						color="rgba(0, 0, 255, 0.3)"
-						transform={`translateX(${-rgbEffect * 3}px)`}
-					/>
-					<Text
-						blur={0}
-						color={textColor}
-						transform={`translateY(${rgbEffect}px)`}
-					/> */}
+					{isWaveform && <Canvas waveform={waveform} />}
+					{!isWaveform && (
+						<>
+							<Text
+								blur={2}
+								color="rgba(255, 0, 0, 0.3)"
+								transform={`translateY(${-rgbEffect}px) translateX(${
+									rgbEffect * 2
+								}px)`}
+							/>
+							<Text
+								blur={2}
+								color="rgba(0, 255, 0, 0.3)"
+								transform={`translateX(${rgbEffect * 3}px) translateY(${
+									rgbEffect * 3
+								}px)`}
+							/>
+							<Text
+								blur={2}
+								color="rgba(0, 0, 255, 0.3)"
+								transform={`translateX(${-rgbEffect * 3}px)`}
+							/>
+							<Text
+								blur={0}
+								color={textColor}
+								transform={`translateY(${rgbEffect}px)`}
+							/>
+						</>
+					)}
 				</Orb>
 			</FullSize>
 		</div>
