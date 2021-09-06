@@ -1,17 +1,10 @@
-import React, {
-	Suspense,
-	useCallback,
-	useContext,
-	useEffect,
-	useState,
-} from 'react';
+import React, {Suspense, useContext, useEffect, useMemo} from 'react';
 import {render} from 'react-dom';
 import {
 	continueRender,
 	delayRender,
 	getInputProps,
 	Internals,
-	LooseAnyComponent,
 	TComposition,
 } from 'remotion';
 
@@ -38,9 +31,6 @@ const inputProps = getInputProps();
 const GetVideo = () => {
 	const video = Internals.useVideo();
 	const compositions = useContext(Internals.CompositionManager);
-	const [Component, setComponent] = useState<LooseAnyComponent<unknown> | null>(
-		null
-	);
 
 	useEffect(() => {
 		if (Internals.getIsEvaluation()) {
@@ -56,44 +46,36 @@ const GetVideo = () => {
 		}
 	}, [compositions, compositions.compositions, video]);
 
-	const fetchComponent = useCallback(() => {
-		if (!video) {
-			throw new Error('Expected to have video');
-		}
-
-		const Comp = video.component;
-		setComponent(Comp);
-	}, [video]);
-
-	useEffect(() => {
-		if (video) {
-			fetchComponent();
-		}
-	}, [fetchComponent, video]);
-
 	useEffect(() => {
 		if (Internals.getIsEvaluation()) {
 			continueRender(handle);
-		} else if (Component) {
+		} else {
 			continueRender(handle);
 		}
-	}, [Component]);
+	}, []);
+
+	const style = useMemo(() => {
+		if (!video) {
+			return {};
+		}
+
+		return {
+			width: video.width,
+			height: video.height,
+			display: 'flex',
+			backgroundColor: 'transparent',
+		};
+	}, [video]);
 
 	if (!video) {
 		return null;
 	}
 
+	const Component = video.component;
+
 	return (
 		<Suspense fallback={<Fallback />}>
-			<div
-				id="canvas"
-				style={{
-					width: video.width,
-					height: video.height,
-					display: 'flex',
-					backgroundColor: 'transparent',
-				}}
-			>
+			<div id="canvas" style={style}>
 				{Component ? (
 					<Component {...((video?.props as {}) ?? {})} {...inputProps} />
 				) : null}
