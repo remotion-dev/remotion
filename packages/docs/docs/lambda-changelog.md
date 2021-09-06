@@ -16,7 +16,7 @@ Keep track of changes to the APIs of Remotion Lambda here.
 
 ## September 6th, 2021
 
-Version hash: `XXX`
+Version hash: `2.4.0-alpha.41bfd52d`
 
 - Added more font families to support Arabic, Devanagari, Hebrew, Tamil, Thai scripts.
 - Added input props to the render metadata that gets persisted for each render to help debugging.

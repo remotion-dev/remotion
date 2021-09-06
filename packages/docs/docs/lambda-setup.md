@@ -20,11 +20,11 @@ Also update **all the other Remotion packages** to have the same version: `remot
 Your package.json should look like the following:
 
 ```json
-  "@remotion/bundler": "2.3.0-alpha.[versionhash]",
-  "@remotion/cli": "2.3.0-alpha.[versionhash]",
-  "@remotion/lambda": "2.3.0-alpha.[versionhash]",
+  "@remotion/bundler": "2.4.0-alpha.[versionhash]",
+  "@remotion/cli": "2.4.0-alpha.[versionhash]",
+  "@remotion/lambda": "2.4.0-alpha.[versionhash]",
   // ...
-  "remotion": "2.3.0-alpha.[versionhash]",
+  "remotion": "2.4.0-alpha.[versionhash]",
 ```
 
 ## 2. Create role policy
