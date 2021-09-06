@@ -4,8 +4,10 @@ import {FONT_FAMILY} from '../../helpers/font';
 import {Spacing} from '../Spacing';
 import {Combobox, ComboboxValue} from './ComboBox';
 import {CompositionType, CompType} from './CompositionType';
+import {leftLabel} from './new-comp-layout';
 import {NewCompAspectRatio} from './NewCompAspectRatio';
 import {getNewCompositionCode} from './NewCompCode';
+import {NewCompDuration} from './NewCompDuration';
 import {NewCompHeader} from './NewCompHeader';
 import {RemotionInput} from './RemInput';
 
@@ -46,15 +48,6 @@ const panelRight: React.CSSProperties = {
 	alignItems: 'center',
 };
 
-const leftLabel: React.CSSProperties = {
-	width: 160,
-	display: 'inline-block',
-	textAlign: 'right',
-	paddingRight: 30,
-	fontSize: 14,
-	color: '#ddd',
-};
-
 const pre: React.CSSProperties = {
 	fontSize: 17,
 };
@@ -62,11 +55,13 @@ const pre: React.CSSProperties = {
 const commonFrameRates = [24, 25, 29.97, 30, 48, 50];
 
 export const NewSequence: React.FC = () => {
+	const [selectedFrameRate, setFrameRate] = useState<string>(
+		String(commonFrameRates[0])
+	);
 	const [type, setType] = useState<CompType>('composition');
 	const [name, setName] = useState('MyComp');
 	const [width, setWidth] = useState('1280');
 	const [height, setHeight] = useState('720');
-	const [fps, setFps] = useState(24);
 	const [durationInFrames, setDurationInFrames] = useState('150');
 
 	const onTypeChanged = useCallback((newType: CompType) => {
@@ -86,12 +81,6 @@ export const NewSequence: React.FC = () => {
 		},
 		[]
 	);
-	const onDurationInFramesChanged: ChangeEventHandler<HTMLInputElement> = useCallback(
-		(e) => {
-			setDurationInFrames(e.target.value);
-		},
-		[]
-	);
 	const onNameChange: ChangeEventHandler<HTMLInputElement> = useCallback(
 		(e) => {
 			setName(e.target.value);
@@ -99,7 +88,7 @@ export const NewSequence: React.FC = () => {
 		[]
 	);
 	const onFpsChange = useCallback((newFps: number) => {
-		setFps(newFps);
+		setFrameRate(String(newFps));
 	}, []);
 
 	const items: ComboboxValue[] = useMemo(() => {
@@ -176,21 +165,11 @@ export const NewSequence: React.FC = () => {
 							</div>
 							<Spacing y={1} />
 							{type === 'composition' ? (
-								<div>
-									<label>
-										<div style={leftLabel}> Duration in frames</div>
-										<RemotionInput
-											type="number"
-											value={durationInFrames}
-											onChange={onDurationInFramesChanged}
-											placeholder="Duration (frames)"
-											name="height"
-										/>
-										<span>
-											{(Number(durationInFrames) / Number(fps)).toFixed(2)}sec
-										</span>
-									</label>
-								</div>
+								<NewCompDuration
+									durationInFrames={durationInFrames}
+									fps={selectedFrameRate}
+									setDurationInFrames={setDurationInFrames}
+								/>
 							) : null}
 
 							{type === 'composition' ? (
@@ -198,7 +177,7 @@ export const NewSequence: React.FC = () => {
 									<Spacing y={1} />
 									<label>
 										<div style={leftLabel}>Framerate</div>
-										<Combobox values={items} />
+										<Combobox values={items} selectedId={selectedFrameRate} />
 									</label>
 								</div>
 							) : null}
@@ -210,7 +189,7 @@ export const NewSequence: React.FC = () => {
 							{getNewCompositionCode({
 								type,
 								durationInFrames: Number(durationInFrames),
-								fps: Number(fps),
+								fps: Number(selectedFrameRate),
 								height: Number(height),
 								width: Number(width),
 								name,

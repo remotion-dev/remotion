@@ -52,8 +52,10 @@ export type ComboboxValue = DividerItem | SelectionItem;
 
 const portal = document.getElementById('menuportal') as Element;
 
-export const Combobox: React.FC<{values: ComboboxValue[]}> = ({values}) => {
-	const selected = values[0];
+export const Combobox: React.FC<{
+	values: ComboboxValue[];
+	selectedId: string | number;
+}> = ({values, selectedId}) => {
 	const [hovered, setIsHovered] = useState(false);
 	const [opened, setOpened] = useState(false);
 	const ref = useRef<HTMLDivElement>(null);
@@ -111,10 +113,15 @@ export const Combobox: React.FC<{values: ComboboxValue[]}> = ({values}) => {
 					return <MenuDivider key={item.id} />;
 				}
 
+				const onClick = () => {
+					setOpened(false);
+					item.onClick(item.id);
+				};
+
 				return (
 					<MenuSubItem
 						key={item.id}
-						onActionSelected={item.onClick}
+						onActionSelected={onClick}
 						label={item.label}
 						id={item.id}
 					/>
@@ -130,10 +137,12 @@ export const Combobox: React.FC<{values: ComboboxValue[]}> = ({values}) => {
 		};
 	}, [size]);
 
+	const selected = values.find((v) => v.id === selectedId) as SelectionItem;
+
 	return (
 		<>
 			<div ref={ref} style={style}>
-				{(selected as SelectionItem).label}
+				{selected.label}
 			</div>
 			{portalStyle
 				? ReactDOM.createPortal(
