@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/lambda",
-	"version": "2.3.0",
+	"version": "2.3.2",
 	"description": "Utility functions for audio and video",
 	"main": "dist/index.js",
 	"sideEffects": false,
