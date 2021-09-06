@@ -16,3 +16,14 @@ export const Spacing: React.FC<{
 
 	return <div style={style} />;
 };
+
+const flex: React.CSSProperties = {flex: 1};
+
+export const Flex = () => <div style={flex} />;
+
+const row: React.CSSProperties = {
+	display: 'flex',
+	flexDirection: 'row',
+};
+
+export const Row: React.FC = ({children}) => <div style={row}>{children}</div>;

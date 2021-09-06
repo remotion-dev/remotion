@@ -2,12 +2,7 @@ import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {getBackgroundFromHoverState} from '../../helpers/colors';
 import {FilmIcon} from '../../icons/film';
 import {StillIcon} from '../../icons/still';
-import {Spacing} from '../Spacing';
-
-const row: React.CSSProperties = {
-	display: 'flex',
-	flexDirection: 'row',
-};
+import {Row, Spacing} from '../layout';
 
 const panel: React.CSSProperties = {
 	flex: 1,
@@ -78,13 +73,13 @@ export const CompositionType: React.FC<{
 	onSelected: (type: CompType) => void;
 }> = ({onSelected, type}) => {
 	return (
-		<div style={row}>
+		<Row>
 			<Panel
 				onSelected={onSelected}
 				type="composition"
 				selected={type === 'composition'}
 			/>
 			<Panel onSelected={onSelected} type="still" selected={type === 'still'} />
-		</div>
+		</Row>
 	);
 };
