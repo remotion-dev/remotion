@@ -1,7 +1,15 @@
-import React, {ChangeEventHandler, useCallback, useMemo, useState} from 'react';
+import React, {
+	ChangeEventHandler,
+	useCallback,
+	useContext,
+	useEffect,
+	useMemo,
+	useState,
+} from 'react';
 import {BACKGROUND} from '../../helpers/colors';
 import {FONT_FAMILY} from '../../helpers/font';
-import {Spacing} from '../Spacing';
+import {ModalsContext} from '../../state/modals';
+import {Spacing} from '../layout';
 import {Combobox, ComboboxValue} from './ComboBox';
 import {CompositionType, CompType} from './CompositionType';
 import {leftLabel} from './new-comp-layout';
@@ -63,6 +71,7 @@ export const NewComposition: React.FC = () => {
 	const [width, setWidth] = useState('1280');
 	const [height, setHeight] = useState('720');
 	const [durationInFrames, setDurationInFrames] = useState('150');
+	const {setSelectedModal} = useContext(ModalsContext);
 
 	const onTypeChanged = useCallback((newType: CompType) => {
 		setType(newType);
@@ -104,6 +113,19 @@ export const NewComposition: React.FC = () => {
 			}
 		);
 	}, [onFpsChange]);
+
+	useEffect(() => {
+		const onKeyPress = (e: KeyboardEvent) => {
+			if (e.key === 'Escape') {
+				setSelectedModal(null);
+			}
+		};
+
+		window.addEventListener('keyup', onKeyPress);
+		return () => {
+			window.removeEventListener('keyup', onKeyPress);
+		};
+	}, [setSelectedModal]);
 
 	return (
 		<div style={backgroundOverlay}>
