@@ -11,11 +11,13 @@ const getWaveformPortion = ({
 	startTimeInSeconds,
 	durationInSeconds,
 	numberOfSamples,
+	normalize,
 }: {
 	audioData: AudioData;
 	startTimeInSeconds: number;
 	durationInSeconds: number;
 	numberOfSamples: number;
+	normalize: boolean;
 }): Bar[] => {
 	const startSample = Math.floor(
 		(startTimeInSeconds / audioData.durationInSeconds) *
@@ -28,7 +30,8 @@ const getWaveformPortion = ({
 
 	return getWaveformSamples(
 		audioData.channelWaveforms[0].slice(startSample, endSample),
-		numberOfSamples
+		numberOfSamples,
+		normalize
 	).map((w, i) => {
 		return {
 			index: i,

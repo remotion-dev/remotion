@@ -16,6 +16,7 @@ import {
 import styled from 'styled-components';
 import DropDots from '../DropDots/DropDots';
 import music from '../resources/sound1.mp3';
+import voice from '../resources/voice-short.mp3';
 
 const Background = styled(Img)`
 	height: 100%;
@@ -85,6 +86,8 @@ const Text: React.FC<{
 	);
 };
 
+const WAVEFORM_SAMPLES = 32;
+
 const Canvas: React.FC<{waveform: number[]}> = ({waveform}) => {
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const canvas = canvasRef.current;
@@ -96,7 +99,7 @@ const Canvas: React.FC<{waveform: number[]}> = ({waveform}) => {
 			canvasCtx.lineWidth = 2;
 			canvasCtx.strokeStyle = 'rgb(0, 0, 0)';
 			canvasCtx.beginPath();
-			const sliceWidth = (200 * 1.0) / 512;
+			const sliceWidth = (200 * 1.0) / WAVEFORM_SAMPLES;
 			let x = 0;
 			for (let i = 0; i < waveform.length; i++) {
 				const v = waveform[i] / 128.0;
@@ -121,7 +124,8 @@ const AudioVisualization: React.FC<{isWaveform: boolean}> = ({isWaveform}) => {
 	const frame = useCurrentFrame();
 	const {width, height, fps} = useVideoConfig();
 	const audioData = useAudioData(music);
-	if (!audioData) {
+	const audioDataVoice = useAudioData(voice);
+	if (!audioData || !audioDataVoice) {
 		return null;
 	}
 
@@ -134,9 +138,9 @@ const AudioVisualization: React.FC<{isWaveform: boolean}> = ({isWaveform}) => {
 	const waveform = visualizeAudioWaveform({
 		fps,
 		frame,
-		audioData,
-		numberOfSamples: 1024,
-		waveformDuration: 1,
+		audioData: audioDataVoice,
+		numberOfSamples: WAVEFORM_SAMPLES,
+		waveformDuration: 1 / fps,
 	});
 
 	console.log(waveform, frame, 'waveform visualization');
@@ -202,7 +206,7 @@ const AudioVisualization: React.FC<{isWaveform: boolean}> = ({isWaveform}) => {
 				})}
 			/>
 
-			<Audio src={music} />
+			<Audio src={isWaveform ? voice : music} />
 			<FullSize>
 				{circlesToUse.map((v, i) => {
 					const leftNeighbour =

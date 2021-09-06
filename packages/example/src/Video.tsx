@@ -166,6 +166,20 @@ export const Index: React.FC = () => {
 				height={1080}
 				fps={30}
 				durationInFrames={180 * 30}
+				defaultProps={{
+					isWaveform: false,
+				}}
+			/>
+			<Composition
+				id="voice-visualization"
+				lazyComponent={() => import('./voice-visualization')}
+				width={1080}
+				height={1080}
+				fps={30}
+				durationInFrames={180 * 30}
+				defaultProps={{
+					isWaveform: false,
+				}}
 			/>
 			<Composition
 				id="audio-visualization-wave"
@@ -176,7 +190,7 @@ export const Index: React.FC = () => {
 				defaultProps={{
 					isWaveform: true,
 				}}
-				durationInFrames={5 * 30}
+				durationInFrames={30 * 30}
 			/>
 			<Composition
 				id="drop-dots"

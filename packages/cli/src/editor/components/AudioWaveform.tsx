@@ -119,6 +119,7 @@ export const AudioWaveform: React.FC<{
 			startTimeInSeconds: startFrom / fps,
 			durationInSeconds: durationInFrames / fps,
 			numberOfSamples,
+			normalize: true,
 		});
 	}, [durationInFrames, fps, metadata, startFrom, visualizationWidth]);
 

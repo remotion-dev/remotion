@@ -25,7 +25,12 @@ const normalizeData = (filteredData: number[]) => {
 
 export const getWaveformSamples = (
 	waveform: Float32Array,
-	sampleAmount: number
+	sampleAmount: number,
+	normalize: boolean
 ) => {
-	return normalizeData(filterData(waveform, sampleAmount));
+	if (normalize) {
+		return normalizeData(filterData(waveform, sampleAmount));
+	}
+
+	return filterData(waveform, sampleAmount);
 };
