@@ -16,8 +16,6 @@ if (!Root) {
 	throw new Error('Root has not been registered.');
 }
 
-const handle = delayRender();
-
 const Fallback: React.FC = () => {
 	useEffect(() => {
 		const fallback = delayRender();
@@ -27,6 +25,7 @@ const Fallback: React.FC = () => {
 };
 
 const inputProps = getInputProps();
+const handle = delayRender();
 
 const GetVideo = () => {
 	const video = Internals.useVideo();
@@ -46,14 +45,6 @@ const GetVideo = () => {
 		}
 	}, [compositions, compositions.compositions, video]);
 
-	useEffect(() => {
-		if (Internals.getIsEvaluation()) {
-			continueRender(handle);
-		} else {
-			continueRender(handle);
-		}
-	}, []);
-
 	const style = useMemo(() => {
 		if (!video) {
 			return {};
@@ -65,6 +56,12 @@ const GetVideo = () => {
 			display: 'flex',
 			backgroundColor: 'transparent',
 		};
+	}, [video]);
+
+	useEffect(() => {
+		if (video) {
+			continueRender(handle);
+		}
 	}, [video]);
 
 	if (!video) {
