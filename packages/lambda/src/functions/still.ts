@@ -92,6 +92,7 @@ export const innerStillHandler = async (
 		type: 'still',
 		usesOptimizationProfile: false,
 		imageFormat: lambdaParams.imageFormat,
+		inputProps: lambdaParams.inputProps,
 	};
 
 	await lambdaWriteFile({

@@ -179,6 +179,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		usesOptimizationProfile: didUseOptimization,
 		type: 'video',
 		imageFormat: params.imageFormat,
+		inputProps: params.inputProps,
 	};
 
 	await lambdaWriteFile({
