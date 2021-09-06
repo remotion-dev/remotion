@@ -10,6 +10,7 @@ import {Log} from './log';
 import {parseCommandLine, parsedCli} from './parse-command-line';
 import {previewCommand} from './preview';
 import {printHelp} from './print-help';
+import {createOverwriteableCliOutput, makeProgressBar} from './progress-bar';
 import {render} from './render';
 import {still} from './still';
 import {upgrade} from './upgrade';
