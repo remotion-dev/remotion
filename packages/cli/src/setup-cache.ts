@@ -10,9 +10,8 @@ export const bundleOnCli = async (fullPath: string, steps: number) => {
 	const shouldCache = Internals.getWebpackCaching();
 	const cacheExistedBefore = BundlerInternals.cacheExists('production', null);
 	if (cacheExistedBefore && !shouldCache) {
-		process.stdout.write('🧹 Cache disabled but found. Deleting... ');
+		Log.info('🧹 Cache disabled but found. Deleting... ');
 		await BundlerInternals.clearCache('production', null);
-		process.stdout.write('done. \n');
 	}
 
 	const bundleStartTime = Date.now();

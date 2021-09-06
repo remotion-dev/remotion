@@ -6,6 +6,7 @@ import {Framer} from './Framer';
 import {MissingImg} from './MissingImg';
 import RemoteVideo from './RemoteVideo';
 import {SkipZeroFrame} from './SkipZeroFrame';
+import {SeriesTesting} from './StaggerTesting';
 import {TenFrameTester} from './TenFrameTester';
 import ThreeBasic from './ThreeBasic';
 import {VideoSpeed} from './VideoSpeed';
@@ -256,6 +257,14 @@ export const Index: React.FC = () => {
 			<Composition
 				id="skip-zero-frame"
 				component={SkipZeroFrame}
+				width={1280}
+				height={720}
+				fps={30}
+				durationInFrames={100}
+			/>
+			<Composition
+				id="stagger-test"
+				component={SeriesTesting}
 				width={1280}
 				height={720}
 				fps={30}

@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/bundler",
-	"version": "2.3.0",
+	"version": "2.3.2",
 	"description": "Bundler for Remotion",
 	"main": "dist/index.js",
 	"sideEffects": false,
@@ -29,7 +29,7 @@
 		"file-loader": "^6.0.0",
 		"latest-version": "^5.1.0",
 		"react-refresh": "^0.9.0-rc.2",
-		"remotion": "^2.3.0",
+		"remotion": "^2.3.2",
 		"semver": "7.3.4",
 		"style-loader": "^2.0.0",
 		"styled-components": "^5.2.1",
@@ -43,13 +43,13 @@
 	"devDependencies": {
 		"@jonny/eslint-config": "^2.1.233",
 		"@types/express": "^4.17.7",
-		"@types/node": "^15.0.1",
+		"@types/node": "^16.7.5",
 		"@types/semver": "^7.3.4",
 		"eslint": "^7.25.0",
 		"patch-package": "^6.2.2",
 		"prettier": "^2.0.5",
 		"prettier-plugin-organize-imports": "^1.1.1",
-		"typescript": "^4.1.2"
+		"typescript": "^4.4.2"
 	},
 	"publishConfig": {
 		"access": "public"

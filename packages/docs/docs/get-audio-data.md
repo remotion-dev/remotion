@@ -59,9 +59,9 @@ If you pass in the same argument to `src` multiple times, it will return a cache
 
 ## Alternatives
 
-If you need only the duration, prefer [`getAudioDuration()`](get-audio-duration) which is faster because it doesn't need to read waveform data.
+If you need only the duration, prefer [`getAudioDuration()`](/docs/get-audio-duration) which is faster because it doesn't need to read waveform data.
 
-Use the [`useAudioData()`](use-audio-data) helper hook to not have to do state management yourself and to wrap the call in [`delayRender()`](delay-render).
+Use the [`useAudioData()`](/docs/use-audio-data) helper hook to not have to do state management yourself and to wrap the call in [`delayRender()`](/docs/delay-render).
 
 ## See also
 

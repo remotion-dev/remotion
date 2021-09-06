@@ -5,6 +5,7 @@ import React, {
 	useMemo,
 	useState,
 } from 'react';
+import {SharedAudioContextProvider} from './audio/shared-audio-tags';
 import {
 	CompositionManager,
 	CompositionManagerContext,
@@ -161,7 +162,12 @@ export const RemotionRoot: React.FC = ({children}) => {
 			<TimelineContext.Provider value={timelineContextValue}>
 				<SetTimelineContext.Provider value={setTimelineContextValue}>
 					<CompositionManager.Provider value={contextValue}>
-						{children}
+						<SharedAudioContextProvider
+							// In the preview, which is mostly played on Desktop, we opt out of the autoplay policy fix as described in https://github.com/remotion-dev/remotion/pull/554, as it mostly applies to mobile.
+							numberOfAudioTags={0}
+						>
+							{children}
+						</SharedAudioContextProvider>
 					</CompositionManager.Provider>
 				</SetTimelineContext.Provider>
 			</TimelineContext.Provider>

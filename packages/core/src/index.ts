@@ -34,6 +34,7 @@ export * from './random';
 export * from './ready-manager';
 export {registerRoot} from './register-root';
 export {Sequence} from './sequencing';
+export {Series} from './series';
 export * from './spring';
 export * from './Still';
 export * from './use-frame';
