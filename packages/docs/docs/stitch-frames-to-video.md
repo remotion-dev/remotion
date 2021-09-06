@@ -96,11 +96,11 @@ Sets a ProRes profile. Only applies to videos rendered with `prores` codec. See 
 
 _optional_
 
-Callback function which informs about the encoding progress. The `progress` value is a `number` between 0 and 1.
+Callback function which informs about the encoding progress. The `frameNumber` value is a `number`.
 
 ```ts twoslash
-const onProgress = (progress: number) => {
-  console.log(`Encoding progress: ${progress * 100}%`)
+const onProgress = (frameNumber: number) => {
+  console.log(`Encoding progress: on ${frameNumber} frame`)
 }
 ```
 

@@ -1,4 +1,8 @@
 import {LooseAnyComponent} from './any-component';
+import {
+	SharedAudioContext,
+	SharedAudioContextProvider,
+} from './audio/shared-audio-tags';
 import {CompProps} from './Composition';
 import {
 	CompositionManager,
@@ -176,6 +180,8 @@ export const Internals = {
 	setProResProfile,
 	validateSelectedCodecAndProResCombination,
 	getMaxTimelineTracks,
+	SharedAudioContext,
+	SharedAudioContextProvider,
 	validateQuality,
 	validateFrame,
 	setStillFrame,

@@ -150,6 +150,19 @@ export const PricingTable: React.FC<{}> = () => {
           </div>
         </div>
       </div>
+      <p style={{ textAlign: "center", marginTop: 24 }}>
+        Want a 15 minute call to evaluate if Remotion is right for you?{" "}
+        <a
+          style={{
+            color: "var(--blue-button-color)",
+            fontWeight: "bold",
+            textDecoration: "none",
+          }}
+          href="mailto:hi@remotion.dev"
+        >
+          Contact us
+        </a>
+      </p>
     </div>
   );
 };

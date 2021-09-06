@@ -3,6 +3,7 @@ import React, {
 	forwardRef,
 	MouseEventHandler,
 	Suspense,
+	SyntheticEvent,
 	useCallback,
 	useEffect,
 	useImperativeHandle,
@@ -106,13 +107,16 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		};
 	}, []);
 
-	const toggle = useCallback(() => {
-		if (player.playing) {
-			player.pause();
-		} else {
-			player.play();
-		}
-	}, [player]);
+	const toggle = useCallback(
+		(e?: SyntheticEvent) => {
+			if (player.playing) {
+				player.pause();
+			} else {
+				player.play(e);
+			}
+		},
+		[player]
+	);
 
 	const requestFullscreen = useCallback(() => {
 		if (!allowFullscreen) {
@@ -300,9 +304,12 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		[exitFullscreen]
 	);
 
-	const onSingleClick = useCallback(() => {
-		toggle();
-	}, [toggle]);
+	const onSingleClick = useCallback(
+		(e: SyntheticEvent) => {
+			toggle(e);
+		},
+		[toggle]
+	);
 
 	const onDoubleClick = useCallback(() => {
 		if (isFullscreen) {

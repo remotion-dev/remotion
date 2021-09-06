@@ -150,7 +150,7 @@ _available for `still`, `render` commands_
 
 _available for `preview`, `still`, `render` commands_
 
-[Set the log level](/docs/config#setlevel). Increase or decrease the amount of output. Acceptable values: `error`, `warning`, `info` (_default_), `verbose`
+[Set the log level](/docs/config#setlevel). Increase or decrease the amount of output. Acceptable values: `error`, `warn`, `info` (_default_), `verbose`
 
 :::info
 If you don't feel like passing command line flags every time, consider creating a `remotion.config.ts` [config file](/docs/config).

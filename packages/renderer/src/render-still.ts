@@ -132,17 +132,21 @@ export const renderStill = async ({
 	try {
 		await seekToFrame({frame, page});
 	} catch (err) {
-		if (err.message.includes('timeout') && err.message.includes('exceeded')) {
+		const error = err as Error;
+		if (
+			error.message.includes('timeout') &&
+			error.message.includes('exceeded')
+		) {
 			errorCallback(
 				new Error(
 					'The rendering timed out. See https://www.remotion.dev/docs/timeout/ for possible reasons.'
 				)
 			);
 		} else {
-			errorCallback(err);
+			errorCallback(error);
 		}
 
-		throw err;
+		throw error;
 	}
 
 	await provideScreenshot({

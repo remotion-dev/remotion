@@ -101,6 +101,7 @@ module.exports = {
         "iframe",
         "freeze",
         "still",
+        "series",
         "easing",
       ],
     },
