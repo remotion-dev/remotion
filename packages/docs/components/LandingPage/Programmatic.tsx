@@ -11,15 +11,17 @@ export const ProgrammaticContent: React.FC<{ data: GithubResponse | null }> = ({
 
   const [isIntersecting, setIsIntersecting] = useState(false);
 
-  const callback: IntersectionObserverCallback = useCallback((data) => {
-    const { isIntersecting } = data[0];
-    setIsIntersecting(isIntersecting);
-    if (isIntersecting) {
-      playerRef.current?.play();
-    } else {
-      playerRef.current?.pause();
-    }
-  }, []);
+  const callback: IntersectionObserverCallback = useCallback(
+    (newData) => {
+      setIsIntersecting(newData[0].isIntersecting);
+      if (isIntersecting) {
+        playerRef.current?.play();
+      } else {
+        playerRef.current?.pause();
+      }
+    },
+    [isIntersecting]
+  );
 
   useEffect(() => {
     const { current } = containerRef;
