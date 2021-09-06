@@ -21,6 +21,7 @@
     "@remotion/bundler": "^2.3.2",
     "@remotion/gif": "^2.3.2",
     "@remotion/media-utils": "^2.3.2",
+    "@remotion/lambda": "^2.3.2",
     "@remotion/player": "^2.3.2",
     "@remotion/renderer": "^2.3.2",
     "@remotion/three": "^2.3.2",
