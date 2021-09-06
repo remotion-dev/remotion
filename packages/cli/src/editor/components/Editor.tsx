@@ -11,6 +11,7 @@ import {
 	CheckerboardContext,
 	loadCheckerboardOption,
 } from '../state/checkerboard';
+import {ModalContextType, ModalsContext, ModalType} from '../state/modals';
 import {loadPreviewSizeOption, PreviewSizeContext} from '../state/preview-size';
 import {
 	loadRichTimelineOption,
@@ -18,7 +19,7 @@ import {
 } from '../state/rich-timeline';
 import {EditorContent} from './EditorContent';
 import {FramePersistor} from './FramePersistor';
-import {NewSequence} from './NewComposition/NewComposition';
+import {NewComposition} from './NewComposition/NewComposition';
 import {UpdateCheck} from './UpdateCheck';
 
 const Background = styled.div`
@@ -43,6 +44,9 @@ export const Editor: React.FC = () => {
 	);
 	const [mediaMuted, setMediaMuted] = useState<boolean>(false);
 	const [mediaVolume, setMediaVolume] = useState<number>(1);
+	const [modalContextType, setModalContextType] = useState<ModalType | null>(
+		null
+	);
 
 	const previewSizeCtx = useMemo(() => {
 		return {
@@ -77,6 +81,13 @@ export const Editor: React.FC = () => {
 		};
 	}, []);
 
+	const modalsContext = useMemo((): ModalContextType => {
+		return {
+			selectedModal: modalContextType,
+			setSelectedModal: setModalContextType,
+		};
+	}, [modalContextType]);
+
 	if (!Root) {
 		throw new Error('Root has not been registered. ');
 	}
@@ -85,25 +96,27 @@ export const Editor: React.FC = () => {
 		<RichTimelineContext.Provider value={richTimelineCtx}>
 			<CheckerboardContext.Provider value={checkerboardCtx}>
 				<PreviewSizeContext.Provider value={previewSizeCtx}>
-					<Internals.MediaVolumeContext.Provider
-						value={mediaVolumeContextValue}
-					>
-						<Internals.SetMediaVolumeContext.Provider
-							value={setMediaVolumeContextValue}
+					<ModalsContext.Provider value={modalsContext}>
+						<Internals.MediaVolumeContext.Provider
+							value={mediaVolumeContextValue}
 						>
-							<PlayerInternals.PlayerEventEmitterContext.Provider
-								value={emitter}
+							<Internals.SetMediaVolumeContext.Provider
+								value={setMediaVolumeContextValue}
 							>
-								<Background>
-									<Root />
-									<UpdateCheck />
-									<FramePersistor />
-									<EditorContent />
-								</Background>
-								<NewSequence />
-							</PlayerInternals.PlayerEventEmitterContext.Provider>
-						</Internals.SetMediaVolumeContext.Provider>
-					</Internals.MediaVolumeContext.Provider>
+								<PlayerInternals.PlayerEventEmitterContext.Provider
+									value={emitter}
+								>
+									<Background>
+										<Root />
+										<UpdateCheck />
+										<FramePersistor />
+										<EditorContent />
+									</Background>
+									{modalContextType === 'new-comp' && <NewComposition />}
+								</PlayerInternals.PlayerEventEmitterContext.Provider>
+							</Internals.SetMediaVolumeContext.Provider>
+						</Internals.MediaVolumeContext.Provider>
+					</ModalsContext.Provider>
 				</PreviewSizeContext.Provider>
 			</CheckerboardContext.Provider>
 		</RichTimelineContext.Provider>

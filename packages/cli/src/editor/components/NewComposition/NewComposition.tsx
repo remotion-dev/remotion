@@ -54,7 +54,7 @@ const pre: React.CSSProperties = {
 
 const commonFrameRates = [24, 25, 29.97, 30, 48, 50];
 
-export const NewSequence: React.FC = () => {
+export const NewComposition: React.FC = () => {
 	const [selectedFrameRate, setFrameRate] = useState<string>(
 		String(commonFrameRates[0])
 	);
