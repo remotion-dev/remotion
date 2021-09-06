@@ -1,14 +1,9 @@
 import React from 'react';
+import {rightLabel} from './new-comp-layout';
 import {aspectRatio} from './render-aspect-ratio';
 
 const GUIDE_HEIGHT = 55;
 const GUIDE_WIDTH = 10;
-
-const label: React.CSSProperties = {
-	fontSize: 13,
-	color: 'rgba(255, 255, 255, 0.5)',
-	marginLeft: 10,
-};
 
 export const NewCompAspectRatio: React.FC<{
 	width: number;
@@ -32,7 +27,7 @@ export const NewCompAspectRatio: React.FC<{
 						stroke="rgba(255, 255, 255, 0.2)"
 					/>
 				</svg>
-				<div style={label}>
+				<div style={rightLabel}>
 					Aspect ratio {aspectRatio(Number(width), Number(height))}
 				</div>
 			</div>
