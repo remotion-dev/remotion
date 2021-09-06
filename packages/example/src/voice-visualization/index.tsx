@@ -1,4 +1,8 @@
-import {useAudioData, visualizeAudioWaveform} from '@remotion/media-utils';
+import {
+	AudioData,
+	useAudioData,
+	visualizeAudioWaveform,
+} from '@remotion/media-utils';
 import React, {useEffect, useRef} from 'react';
 import {AbsoluteFill, Audio, useCurrentFrame, useVideoConfig} from 'remotion';
 import styled from 'styled-components';
@@ -18,9 +22,12 @@ const Orb = styled.div`
 	flex: 1;
 `;
 
-const WAVEFORM_SAMPLES = 32;
+const WAVEFORM_SAMPLES = 16;
 
-const Canvas: React.FC<{waveform: number[]}> = ({waveform}) => {
+const Canvas: React.FC<{waveform: number[]; audioData: AudioData}> = ({
+	waveform,
+	audioData,
+}) => {
 	const {width, height} = useVideoConfig();
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const canvas = canvasRef.current;
@@ -29,14 +36,14 @@ const Canvas: React.FC<{waveform: number[]}> = ({waveform}) => {
 		if (canvasCtx) {
 			canvasCtx.fillStyle = 'rgb(200, 200, 200)';
 			canvasCtx.fillRect(0, 0, width, height);
-			canvasCtx.lineWidth = 2;
+			canvasCtx.lineWidth = 4;
 			canvasCtx.strokeStyle = 'rgb(0, 0, 0)';
 			canvasCtx.beginPath();
 			const sliceWidth = width / (WAVEFORM_SAMPLES - 1);
 			let x = 0;
 			for (let i = 0; i < waveform.length; i++) {
-				const v = (waveform[i] - 0.5) / 128.0;
-				const y = (v * 40000) / 2 + height / 2;
+				const v = waveform[i] / 128.0;
+				const y = v * audioData.sampleRate + height / 2;
 
 				if (i === 0) {
 					canvasCtx.moveTo(x, y);
@@ -48,7 +55,7 @@ const Canvas: React.FC<{waveform: number[]}> = ({waveform}) => {
 			}
 			canvasCtx.stroke();
 		}
-	}, [canvasCtx, height, waveform, width]);
+	}, [audioData.sampleRate, canvasCtx, height, waveform, width]);
 	return <canvas ref={canvasRef} width={width} height={height} />;
 };
 
@@ -69,14 +76,12 @@ const VoiceVisualization: React.FC = () => {
 		waveformDuration: 1 / fps,
 	});
 
-	console.log(waveform, frame, 'waveform visualization');
-
 	return (
 		<div style={{flex: 1}}>
 			<Audio src={voice} />
 			<FullSize>
 				<Orb>
-					<Canvas waveform={waveform} />
+					<Canvas audioData={audioData} waveform={waveform} />
 				</Orb>
 			</FullSize>
 		</div>

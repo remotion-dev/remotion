@@ -55,6 +55,7 @@ export const visualizeAudioWaveform = ({
 	smoothing?: boolean;
 }) => {
 	if (smoothing) {
+		// TODO: Add bezier manipulation?
 		console.log('nice');
 	}
 
