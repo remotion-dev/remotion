@@ -14,6 +14,13 @@ Keep track of changes to the APIs of Remotion Lambda here.
 1. Redeploy your function: `npx remotion lambda functions deploy`
 1. Migrate according to the changelog below:
 
+## September 6th, 2021
+
+Version hash: `XXX`
+
+- Added more font families to support Arabic, Devanagari, Hebrew, Tamil, Thai scripts.
+- Added input props to the render metadata that gets persisted for each render to help debugging.
+
 ## August 6th, 2021
 
 Version hash: `2.3.0-alpha.0d814aad`

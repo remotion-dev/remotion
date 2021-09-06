@@ -27,7 +27,7 @@ const bucketExistsInRegion = async ({
 
 		return (bucket.LocationConstraint ?? 'us-east-1') === region;
 	} catch (err) {
-		if (err.Code === 'NoSuchBucket') {
+		if ((err as {Code: string}).Code === 'NoSuchBucket') {
 			return false;
 		}
 

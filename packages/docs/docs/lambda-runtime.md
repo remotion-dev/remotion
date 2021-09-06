@@ -44,4 +44,20 @@ _TODO: Specify which version of FFMPEG._
 
 ## Fonts
 
-The function includes `Open Sans` as its only font and `Noto Color Emoji` for emojis. You need to load other fonts using Webfonts.
+The function includes the following fonts:
+
+- Noto Color Emoji
+- Noto Sans Black
+- Noto Sans Bold
+- Noto Sans Regular
+- Noto Sans SemiBold
+- Noto Sans Thin
+- Noto Sans Arabic Regular
+- Noto Sans Devanagari Regular
+- Noto Sans Hebrew Regular
+- Noto Sans Tamil Regular
+- Noto Sans Thai Regular
+
+If you'd like to use different fonts, we recommend using Webfonts.
+
+While the set of default fonts that we can include must be kept small in order to save space, we are happy to hear feedback if you encounter a scenario where characters cannot be rendered.
