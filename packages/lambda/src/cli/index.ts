@@ -64,14 +64,16 @@ export const executeCommand = async (args: string[]) => {
 	try {
 		await matchCommand(args);
 	} catch (err) {
+		const error = err as Error;
 		if (
-			err.stack.includes('AccessDenied') ||
-			err.stack.includes('AccessDeniedException')
+			error.stack?.includes('AccessDenied') ||
+			error.stack?.includes('AccessDeniedException')
 		) {
+			// TODO: Explain permission problem
 			Log.error('PERMISSION PROBLEM PUT HELPFUL MESSAGE HERE');
 		}
 
-		Log.error(err.stack);
+		Log.error(error.stack);
 		process.exit(1);
 	}
 };
