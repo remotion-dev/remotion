@@ -1,5 +1,6 @@
 import React, {
 	useCallback,
+	useContext,
 	useEffect,
 	useLayoutEffect,
 	useMemo,
@@ -7,6 +8,7 @@ import React, {
 } from 'react';
 import {FONT_FAMILY} from '../helpers/font';
 import {setGlobalMenuId} from '../state/global-menu-id';
+import {ModalsContext} from '../state/modals';
 import {
 	isClickInsideMenuStructure,
 	MENU_ITEMS_CONTAINER,
@@ -33,6 +35,7 @@ const openExternal = (link: string) => {
 
 export const MenuToolbar: React.FC = () => {
 	const [selected, setSelected] = useState<MenuId | null>(null);
+	const {setSelectedModal} = useContext(ModalsContext);
 
 	useLayoutEffect(() => {
 		setGlobalMenuId(selected);
@@ -101,11 +104,10 @@ export const MenuToolbar: React.FC = () => {
 				items: [
 					{
 						id: 'new-sequence',
-						label: 'New sequence',
+						label: 'New composition',
 						onClick: () => {
 							close();
-							// eslint-disable-next-line no-alert
-							alert('todo');
+							setSelectedModal('new-comp');
 						},
 						type: 'item',
 					},
@@ -114,8 +116,7 @@ export const MenuToolbar: React.FC = () => {
 						label: 'New still',
 						onClick: () => {
 							close();
-							// eslint-disable-next-line no-alert
-							alert('todo');
+							setSelectedModal('new-comp');
 						},
 						type: 'item',
 					},
@@ -198,7 +199,7 @@ export const MenuToolbar: React.FC = () => {
 				],
 			},
 		];
-	}, [close]);
+	}, [close, setSelectedModal]);
 
 	const menus = useMemo(() => {
 		return structure.map((s) => s.id);
