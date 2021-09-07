@@ -45,5 +45,6 @@ export const loadConfigFile = async (
 	// eslint-disable-next-line no-eval
 	eval(file);
 
+	await fs.promises.unlink(out);
 	return resolved;
 };
