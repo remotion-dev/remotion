@@ -14,6 +14,12 @@ Keep track of changes to the APIs of Remotion Lambda here.
 1. Redeploy your function: `npx remotion lambda functions deploy`
 1. Migrate according to the changelog below:
 
+## September 7th, 2021
+
+Version hash: `2.4.0-alpha.ec355aba`
+
+- Pins the version of AWS SDKs, since a new version broke some things.
+
 ## September 6th, 2021
 
 Version hash: `2.4.0-alpha.41bfd52d`
