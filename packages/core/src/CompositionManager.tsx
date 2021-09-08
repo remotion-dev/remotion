@@ -105,7 +105,6 @@ export const CompositionManager = createContext<CompositionManagerContext>({
 export const CompositionManagerProvider: React.FC = ({children}) => {
 	// Wontfix, expected to have
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-
 	const [compositions, setCompositions] = useState<TComposition<any>[]>([]);
 	const [currentComposition, setCurrentComposition] = useState<string | null>(
 		null
@@ -163,7 +162,6 @@ export const CompositionManagerProvider: React.FC = ({children}) => {
 	}, [assets]);
 
 	const contextValue = useMemo((): CompositionManagerContext => {
-		console.log('reconstructing');
 		return {
 			compositions,
 			registerComposition,

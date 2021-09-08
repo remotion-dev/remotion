@@ -29,6 +29,9 @@ export const ModalContainer: React.FC<{
 
 	useEffect(() => {
 		keybindings.stashOther();
+	}, [keybindings]);
+
+	useEffect(() => {
 		const escape = keybindings.registerKeybinding(
 			'keydown',
 			'Escape',
@@ -36,7 +39,6 @@ export const ModalContainer: React.FC<{
 		);
 
 		return () => {
-			keybindings.unstashOther();
 			escape.unregister();
 		};
 	}, [keybindings, onEscape]);

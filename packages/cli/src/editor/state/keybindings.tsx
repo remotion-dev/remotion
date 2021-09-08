@@ -44,9 +44,23 @@ export const KeybindingContextProvider: React.FC = ({children}) => {
 
 	const unregisterKeybinding = useCallback((binding: RegisteredKeybinding) => {
 		registered.current = registered.current.filter((r) => {
-			return r.id !== binding.id;
+			if (r.id === binding.id) {
+				window.removeEventListener(binding.event, binding.callback);
+
+				return false;
+			}
+
+			return true;
 		});
-		window.removeEventListener(binding.event, binding.callback);
+		stashed.current = stashed.current.filter((r) => {
+			if (r.binding.id === binding.id) {
+				window.removeEventListener(binding.event, binding.callback);
+
+				return false;
+			}
+
+			return true;
+		});
 	}, []);
 
 	const stashOtherKeybindings = useCallback(

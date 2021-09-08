@@ -10,12 +10,12 @@ import ReactDOM from 'react-dom';
 import {BACKGROUND, getBackgroundFromHoverState} from '../../helpers/colors';
 import {FONT_FAMILY} from '../../helpers/font';
 import {useZIndex} from '../../state/z-index';
+import {ComboboxValue} from '../NewComposition/ComboBox';
+import {MenuContent} from '../NewComposition/MenuContent';
 import {
 	MENU_BUTTON_CLASS_NAME,
 	SUBMENU_CONTAINER_CLASS_NAME,
 } from './is-menu-click';
-import {MenuDivider} from './MenuDivider';
-import {MenuSubItem} from './MenuSubItem';
 
 const container: React.CSSProperties = {
 	fontSize: 13,
@@ -56,20 +56,8 @@ const portal = document.getElementById('menuportal') as Element;
 export type Menu = {
 	id: MenuId;
 	label: string;
-	items: TMenuItem[];
+	items: ComboboxValue[];
 };
-
-export type TMenuItem =
-	| {
-			type: 'divider';
-			id: string;
-	  }
-	| {
-			id: string;
-			type: 'item';
-			label: React.ReactNode;
-			onClick: () => void;
-	  };
 
 export const MenuItem: React.FC<{
 	label: string;
@@ -79,6 +67,8 @@ export const MenuItem: React.FC<{
 	onItemHovered: (id: MenuId) => void;
 	onItemQuit: () => void;
 	onItemFocused: (id: MenuId) => void;
+	onArrowLeft: () => void;
+	onArrowRight: () => void;
 	menu: Menu;
 }> = ({
 	label: itemName,
@@ -88,6 +78,8 @@ export const MenuItem: React.FC<{
 	onItemHovered,
 	onItemQuit,
 	onItemFocused,
+	onArrowLeft,
+	onArrowRight,
 	menu,
 }) => {
 	const [hovered, setHovered] = useState(false);
@@ -149,25 +141,6 @@ export const MenuItem: React.FC<{
 		};
 	}, [size]);
 
-	const menuContent = (
-		<>
-			{menu.items.map((item) => {
-				if (item.type === 'divider') {
-					return <MenuDivider key={item.id} />;
-				}
-
-				return (
-					<MenuSubItem
-						key={item.id}
-						onActionSelected={item.onClick}
-						label={item.label}
-						id={item.id}
-					/>
-				);
-			})}
-		</>
-	);
-
 	return (
 		<>
 			<button
@@ -188,7 +161,12 @@ export const MenuItem: React.FC<{
 				? ReactDOM.createPortal(
 						<div style={outerStyle}>
 							<div className={SUBMENU_CONTAINER_CLASS_NAME} style={portalStyle}>
-								{menuContent}
+								<MenuContent
+									onArrowLeft={onArrowLeft}
+									onArrowRight={onArrowRight}
+									values={menu.items}
+									onHide={onItemQuit}
+								/>
 							</div>
 						</div>,
 						portal
