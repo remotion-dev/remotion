@@ -12,6 +12,7 @@ import {
 	SELECTED_BACKGROUND,
 } from '../../helpers/colors';
 import {FONT_FAMILY} from '../../helpers/font';
+import {useZIndex} from '../../state/z-index';
 
 type Props = React.DetailedHTMLProps<
 	React.InputHTMLAttributes<HTMLInputElement>,
@@ -25,6 +26,7 @@ const RemInputForwardRef: React.ForwardRefRenderFunction<
 	const [isFocused, setIsFocused] = useState(false);
 	const [isHovered, setIsHovered] = useState(false);
 	const inputRef = useRef<HTMLInputElement>(null);
+	const {tabIndex} = useZIndex();
 
 	const style = useMemo(() => {
 		return {
@@ -76,7 +78,7 @@ const RemInputForwardRef: React.ForwardRefRenderFunction<
 		};
 	}, [inputRef]);
 
-	return <input ref={inputRef} {...props} style={style} />;
+	return <input ref={inputRef} tabIndex={tabIndex} {...props} style={style} />;
 };
 
 export const RemotionInput = forwardRef(RemInputForwardRef);
