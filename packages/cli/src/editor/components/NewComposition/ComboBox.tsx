@@ -1,11 +1,10 @@
 import {useElementSize} from '@remotion/player/src/utils/use-element-size';
-import React, {useEffect, useMemo, useRef, useState} from 'react';
+import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import ReactDOM from 'react-dom';
 import {BACKGROUND, getBackgroundFromHoverState} from '../../helpers/colors';
 import {FONT_FAMILY} from '../../helpers/font';
 import {SUBMENU_CONTAINER_CLASS_NAME} from '../Menu/is-menu-click';
-import {MenuDivider} from '../Menu/MenuDivider';
-import {MenuSubItem} from '../Menu/MenuSubItem';
+import {MenuContent} from './MenuContent';
 
 const container: React.CSSProperties = {
 	padding: '10px 16px',
@@ -63,6 +62,10 @@ export const Combobox: React.FC<{
 		triggerOnWindowResize: true,
 	});
 
+	const onHide = useCallback(() => {
+		setOpened(false);
+	}, []);
+
 	const style = useMemo((): React.CSSProperties => {
 		return {
 			...container,
@@ -106,30 +109,6 @@ export const Combobox: React.FC<{
 		};
 	}, [opened, size]);
 
-	const menuContent = (
-		<>
-			{values.map((item) => {
-				if (item.type === 'divider') {
-					return <MenuDivider key={item.id} />;
-				}
-
-				const onClick = () => {
-					setOpened(false);
-					item.onClick(item.id);
-				};
-
-				return (
-					<MenuSubItem
-						key={item.id}
-						onActionSelected={onClick}
-						label={item.label}
-						id={item.id}
-					/>
-				);
-			})}
-		</>
-	);
-
 	const outerStyle = useMemo(() => {
 		return {
 			...outerPortal,
@@ -148,7 +127,7 @@ export const Combobox: React.FC<{
 				? ReactDOM.createPortal(
 						<div style={outerStyle}>
 							<div className={SUBMENU_CONTAINER_CLASS_NAME} style={portalStyle}>
-								{menuContent}
+								<MenuContent values={values} onHide={onHide} />
 							</div>
 						</div>,
 						portal

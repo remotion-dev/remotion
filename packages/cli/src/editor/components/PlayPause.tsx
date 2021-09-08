@@ -2,11 +2,11 @@ import {PlayerInternals} from '@remotion/player';
 import React, {useCallback, useEffect} from 'react';
 import {Internals} from 'remotion';
 import {useIsStill} from '../helpers/is-current-selected-still';
+import {useKeybinding} from '../helpers/use-keybinding';
 import {Pause} from '../icons/pause';
 import {Play} from '../icons/play';
 import {StepBack} from '../icons/step-back';
 import {StepForward} from '../icons/step-forward';
-import {getGlobalMenuId} from '../state/global-menu-id';
 import {ControlButton} from './ControlButton';
 
 export const PlayPause: React.FC = () => {
@@ -31,38 +31,41 @@ export const PlayPause: React.FC = () => {
 		}
 	}, [isStill, pause]);
 
-	const onKeyPress = useCallback(
+	const onSpace = useCallback(
+		(e: KeyboardEvent) => {
+			if (playing) {
+				pause();
+			} else {
+				play();
+			}
+
+			e.preventDefault();
+		},
+		[pause, play, playing]
+	);
+
+	const onArrowLeft = useCallback(
 		(e: KeyboardEvent) => {
 			if (!video) {
-				return;
+				return null;
 			}
 
-			// Don't react to keypresses if a menu is open
-			if (getGlobalMenuId() !== null) {
-				return;
-			}
-
-			if (e.code === 'Space') {
-				if (playing) {
-					pause();
-				} else {
-					play();
-				}
-
-				e.preventDefault();
-			}
-
-			if (e.code === 'ArrowLeft') {
-				frameBack(e.shiftKey ? video.fps : 1);
-				e.preventDefault();
-			}
-
-			if (e.code === 'ArrowRight') {
-				frameForward(e.shiftKey ? video.fps : 1);
-				e.preventDefault();
-			}
+			frameBack(e.shiftKey ? video.fps : 1);
+			e.preventDefault();
 		},
-		[frameBack, frameForward, pause, play, playing, video]
+		[frameBack, video]
+	);
+
+	const onArrowRight = useCallback(
+		(e: KeyboardEvent) => {
+			if (!video) {
+				return null;
+			}
+
+			frameForward(e.shiftKey ? video.fps : 1);
+			e.preventDefault();
+		},
+		[frameForward, video]
 	);
 
 	const oneFrameBack = useCallback(() => {
@@ -72,13 +75,27 @@ export const PlayPause: React.FC = () => {
 	const oneFrameForward = useCallback(() => {
 		frameForward(1);
 	}, [frameForward]);
+	const keybindings = useKeybinding();
 
 	useEffect(() => {
-		window.addEventListener('keydown', onKeyPress);
-		return (): void => {
-			window.removeEventListener('keydown', onKeyPress);
+		const arrowLeft = keybindings.registerKeybinding(
+			'keydown',
+			'ArrowLeft',
+			onArrowLeft
+		);
+		const arrowRight = keybindings.registerKeybinding(
+			'keydown',
+			'ArrowRight',
+			onArrowRight
+		);
+		const space = keybindings.registerKeybinding('keydown', 'Space', onSpace);
+
+		return () => {
+			arrowLeft.unregister();
+			arrowRight.unregister();
+			space.unregister();
 		};
-	}, [onKeyPress]);
+	}, [keybindings, onArrowLeft, onArrowRight, onSpace]);
 
 	if (isStill) {
 		return null;

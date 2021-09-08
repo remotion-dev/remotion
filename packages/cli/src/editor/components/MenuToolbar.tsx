@@ -2,12 +2,11 @@ import React, {
 	useCallback,
 	useContext,
 	useEffect,
-	useLayoutEffect,
 	useMemo,
 	useState,
 } from 'react';
 import {FONT_FAMILY} from '../helpers/font';
-import {setGlobalMenuId} from '../state/global-menu-id';
+import {useKeybinding} from '../helpers/use-keybinding';
 import {ModalsContext} from '../state/modals';
 import {
 	isClickInsideMenuStructure,
@@ -36,10 +35,6 @@ const openExternal = (link: string) => {
 export const MenuToolbar: React.FC = () => {
 	const [selected, setSelected] = useState<MenuId | null>(null);
 	const {setSelectedModal} = useContext(ModalsContext);
-
-	useLayoutEffect(() => {
-		setGlobalMenuId(selected);
-	}, [selected]);
 
 	const itemClicked = useCallback(
 		(itemId: MenuId) => {
@@ -205,39 +200,34 @@ export const MenuToolbar: React.FC = () => {
 		return structure.map((s) => s.id);
 	}, [structure]);
 
-	const onKeyPress = useCallback(
-		(e: KeyboardEvent) => {
-			if (e.key === 'ArrowRight') {
-				setSelected((s) => {
-					if (s === null) {
-						return null;
-					}
-
-					return menus[(menus.indexOf(s) + 1) % menus.length];
-				});
+	const onArrowRight = useCallback(() => {
+		setSelected((s) => {
+			if (s === null) {
+				return null;
 			}
 
-			if (e.key === 'ArrowLeft') {
-				setSelected((s) => {
-					if (s === null) {
-						return null;
-					}
+			return menus[(menus.indexOf(s) + 1) % menus.length];
+		});
+	}, [menus]);
 
-					if (menus.indexOf(s) === 0) {
-						return menus[menus.length - 1];
-					}
-
-					return menus[(menus.indexOf(s) - 1) % menus.length];
-				});
+	const onArrowLeft = useCallback(() => {
+		setSelected((s) => {
+			if (s === null) {
+				return null;
 			}
 
-			if (e.key === 'Escape') {
-				setSelected(null);
-				(document.activeElement as HTMLElement).blur();
+			if (menus.indexOf(s) === 0) {
+				return menus[menus.length - 1];
 			}
-		},
-		[menus]
-	);
+
+			return menus[(menus.indexOf(s) - 1) % menus.length];
+		});
+	}, [menus]);
+
+	const onEscape = useCallback(() => {
+		setSelected(null);
+		(document.activeElement as HTMLElement).blur();
+	}, []);
 
 	const onPointerDown: EventListenerOrEventListenerObject = useCallback(
 		(e) => {
@@ -254,19 +244,45 @@ export const MenuToolbar: React.FC = () => {
 		},
 		[selected]
 	);
+	const keybindings = useKeybinding();
 
 	useEffect(() => {
 		if (selected === null) {
 			return;
 		}
 
-		window.addEventListener('keydown', onKeyPress);
-		window.addEventListener('pointerdown', onPointerDown);
+		keybindings.stashOther();
+
+		const arrowLeft = keybindings.registerKeybinding(
+			'keydown',
+			'ArrowLeft',
+			onArrowLeft
+		);
+		const arrowRight = keybindings.registerKeybinding(
+			'keydown',
+			'ArrowRight',
+			onArrowRight
+		);
+		const keyDown = keybindings.registerKeybinding(
+			'keydown',
+			'Escape',
+			onEscape
+		);
+
 		return () => {
-			window.removeEventListener('keydown', onKeyPress);
-			window.removeEventListener('pointerdown', onPointerDown);
+			arrowLeft.unregister();
+			arrowRight.unregister();
+			keyDown.unregister();
+			keybindings.unstashOther();
 		};
-	}, [onKeyPress, onPointerDown, selected]);
+	}, [
+		keybindings,
+		onArrowLeft,
+		onArrowRight,
+		onEscape,
+		onPointerDown,
+		selected,
+	]);
 
 	const onKeyboardUnfocused = useCallback(() => {
 		setSelected(null);
