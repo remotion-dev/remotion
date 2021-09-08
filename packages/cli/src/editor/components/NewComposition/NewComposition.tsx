@@ -2,15 +2,12 @@ import React, {
 	ChangeEventHandler,
 	useCallback,
 	useContext,
-	useEffect,
 	useMemo,
 	useState,
 } from 'react';
-import {BACKGROUND} from '../../helpers/colors';
-import {FONT_FAMILY} from '../../helpers/font';
-import {useKeybinding} from '../../helpers/use-keybinding';
 import {ModalsContext} from '../../state/modals';
 import {Spacing} from '../layout';
+import {ModalContainer} from '../ModalContainer';
 import {Combobox, ComboboxValue} from './ComboBox';
 import {CompositionType, CompType} from './CompositionType';
 import {leftLabel} from './new-comp-layout';
@@ -19,24 +16,6 @@ import {getNewCompositionCode} from './NewCompCode';
 import {NewCompDuration} from './NewCompDuration';
 import {NewCompHeader} from './NewCompHeader';
 import {RemotionInput} from './RemInput';
-
-const backgroundOverlay: React.CSSProperties = {
-	backgroundColor: 'rgba(255, 255, 255, 0.2)',
-	backdropFilter: `blur(1px)`,
-	position: 'fixed',
-	height: '100%',
-	width: '100%',
-	display: 'flex',
-	justifyContent: 'center',
-	alignItems: 'center',
-};
-
-const panel: React.CSSProperties = {
-	backgroundColor: BACKGROUND,
-	boxShadow: '0 0 4px black',
-	color: 'white',
-	fontFamily: FONT_FAMILY,
-};
 
 const panelContent: React.CSSProperties = {
 	flexDirection: 'row',
@@ -73,6 +52,10 @@ export const NewComposition: React.FC = () => {
 	const [height, setHeight] = useState('720');
 	const [durationInFrames, setDurationInFrames] = useState('150');
 	const {setSelectedModal} = useContext(ModalsContext);
+
+	const onEscape = useCallback(() => {
+		setSelectedModal(null);
+	}, [setSelectedModal]);
 
 	const onTypeChanged = useCallback((newType: CompType) => {
 		setType(newType);
@@ -115,117 +98,97 @@ export const NewComposition: React.FC = () => {
 		);
 	}, [onFpsChange]);
 
-	const keybindings = useKeybinding();
-
-	useEffect(() => {
-		const onEscape = () => {
-			setSelectedModal(null);
-		};
-
-		const escape = keybindings.registerKeybinding(
-			'keydown',
-			'Escape',
-			onEscape
-		);
-
-		return () => {
-			escape.unregister();
-		};
-	}, [keybindings, setSelectedModal]);
-
 	return (
-		<div style={backgroundOverlay}>
-			<div style={panel}>
-				<NewCompHeader />
-				<div style={panelContent}>
-					<div style={left}>
-						<CompositionType onSelected={onTypeChanged} type={type} />
-						<Spacing y={3} />
-						<form>
-							<label>
-								<div style={leftLabel}>Name</div>
-								<RemotionInput
-									value={name}
-									onChange={onNameChange}
-									type="text"
-									placeholder="Composition name"
-								/>
-							</label>
-							<Spacing y={1} />
-							<div
-								style={{
-									display: 'flex',
-									flexDirection: 'row',
-									alignItems: 'center',
-								}}
-							>
+		<ModalContainer onEscape={onEscape}>
+			<NewCompHeader />
+			<div style={panelContent}>
+				<div style={left}>
+					<CompositionType onSelected={onTypeChanged} type={type} />
+					<Spacing y={3} />
+					<form>
+						<label>
+							<div style={leftLabel}>Name</div>
+							<RemotionInput
+								value={name}
+								onChange={onNameChange}
+								type="text"
+								placeholder="Composition name"
+							/>
+						</label>
+						<Spacing y={1} />
+						<div
+							style={{
+								display: 'flex',
+								flexDirection: 'row',
+								alignItems: 'center',
+							}}
+						>
+							<div>
 								<div>
-									<div>
-										<label>
-											<div style={leftLabel}>Width</div>
-											<RemotionInput
-												type="number"
-												value={width}
-												placeholder="Width (px)"
-												onChange={onWidthChanged}
-												name="width"
-											/>
-										</label>
-									</div>
-									<Spacing y={1} />
 									<label>
-										<div style={leftLabel}>Height</div>
+										<div style={leftLabel}>Width</div>
 										<RemotionInput
 											type="number"
-											value={height}
-											onChange={onHeightChanged}
-											placeholder="Height (px)"
-											name="height"
+											value={width}
+											placeholder="Width (px)"
+											onChange={onWidthChanged}
+											name="width"
 										/>
 									</label>
 								</div>
-								<div>
-									<NewCompAspectRatio
-										width={Number(width)}
-										height={Number(height)}
+								<Spacing y={1} />
+								<label>
+									<div style={leftLabel}>Height</div>
+									<RemotionInput
+										type="number"
+										value={height}
+										onChange={onHeightChanged}
+										placeholder="Height (px)"
+										name="height"
 									/>
-								</div>
+								</label>
 							</div>
-							<Spacing y={1} />
-							{type === 'composition' ? (
-								<NewCompDuration
-									durationInFrames={durationInFrames}
-									fps={selectedFrameRate}
-									setDurationInFrames={setDurationInFrames}
+							<div>
+								<NewCompAspectRatio
+									width={Number(width)}
+									height={Number(height)}
 								/>
-							) : null}
+							</div>
+						</div>
+						<Spacing y={1} />
+						{type === 'composition' ? (
+							<NewCompDuration
+								durationInFrames={durationInFrames}
+								fps={selectedFrameRate}
+								setDurationInFrames={setDurationInFrames}
+							/>
+						) : null}
 
-							{type === 'composition' ? (
-								<div>
-									<Spacing y={1} />
-									<label>
-										<div style={leftLabel}>Framerate</div>
-										<Combobox values={items} selectedId={selectedFrameRate} />
-									</label>
-								</div>
-							) : null}
-						</form>
-					</div>
+						{type === 'composition' ? (
+							<div>
+								<Spacing y={1} />
+								<label>
+									<div style={leftLabel}>Framerate</div>
+									<Combobox values={items} selectedId={selectedFrameRate} />
+								</label>
+							</div>
+						) : null}
+					</form>
+				</div>
 
-					<div style={panelRight}>
-						<pre style={pre}>
-							{getNewCompositionCode({
-								type,
-								durationInFrames: Number(durationInFrames),
-								fps: Number(selectedFrameRate),
-								height: Number(height),
-								width: Number(width),
-								name,
-							})}
-						</pre>
-					</div>
+				<div style={panelRight}>
+					<pre style={pre}>
+						{getNewCompositionCode({
+							type,
+							durationInFrames: Number(durationInFrames),
+							fps: Number(selectedFrameRate),
+							height: Number(height),
+							width: Number(width),
+							name,
+						})}
+					</pre>
 				</div>
 			</div>
-		</div>
+		</ModalContainer>
 	);
 };
