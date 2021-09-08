@@ -226,6 +226,7 @@ export const renderFrames = async ({
 		assetsInfo: {
 			assets,
 			bundleDir: webpackBundle,
+			captions: [],
 		},
 		frameCount,
 	};
