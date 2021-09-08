@@ -3,6 +3,7 @@ import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import ReactDOM from 'react-dom';
 import {BACKGROUND, getBackgroundFromHoverState} from '../../helpers/colors';
 import {FONT_FAMILY} from '../../helpers/font';
+import {HigherZIndex} from '../../state/z-index';
 import {SUBMENU_CONTAINER_CLASS_NAME} from '../Menu/is-menu-click';
 import {MenuContent} from './MenuContent';
 
@@ -125,11 +126,16 @@ export const Combobox: React.FC<{
 			</div>
 			{portalStyle
 				? ReactDOM.createPortal(
-						<div style={outerStyle}>
-							<div className={SUBMENU_CONTAINER_CLASS_NAME} style={portalStyle}>
-								<MenuContent values={values} onHide={onHide} />
+						<HigherZIndex>
+							<div style={outerStyle}>
+								<div
+									className={SUBMENU_CONTAINER_CLASS_NAME}
+									style={portalStyle}
+								>
+									<MenuContent values={values} onHide={onHide} />
+								</div>
 							</div>
-						</div>,
+						</HigherZIndex>,
 						portal
 				  )
 				: null}

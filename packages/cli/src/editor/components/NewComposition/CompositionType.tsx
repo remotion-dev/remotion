@@ -2,6 +2,7 @@ import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {getBackgroundFromHoverState} from '../../helpers/colors';
 import {FilmIcon} from '../../icons/film';
 import {StillIcon} from '../../icons/still';
+import {useZIndex} from '../../state/z-index';
 import {Row, Spacing} from '../layout';
 
 const panel: React.CSSProperties = {
@@ -23,6 +24,7 @@ const Panel: React.FC<{
 	onSelected: (type: CompType) => void;
 }> = ({selected, type, onSelected}) => {
 	const ref = useRef<HTMLButtonElement>(null);
+	const {tabIndex} = useZIndex();
 	const [hovered, setHovered] = useState(false);
 
 	useEffect(() => {
@@ -56,7 +58,13 @@ const Panel: React.FC<{
 	}, [onSelected, type]);
 
 	return (
-		<button ref={ref} type="button" style={style} onClick={onClick}>
+		<button
+			ref={ref}
+			tabIndex={tabIndex}
+			type="button"
+			style={style}
+			onClick={onClick}
+		>
 			{type === 'composition' ? (
 				<FilmIcon style={{height: 18, width: 18}} />
 			) : (
