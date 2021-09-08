@@ -93,7 +93,7 @@ export const MenuToolbar: React.FC = () => {
 					{
 						id: 'new-sequence',
 						value: 'new-sequence',
-						label: 'New composition',
+						label: 'New composition...',
 						onClick: () => {
 							close();
 							setSelectedModal('new-comp');
@@ -103,7 +103,7 @@ export const MenuToolbar: React.FC = () => {
 					{
 						id: 'new-still',
 						value: 'new-still',
-						label: 'New still',
+						label: 'New still...',
 						onClick: () => {
 							close();
 							setSelectedModal('new-comp');
