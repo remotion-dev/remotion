@@ -1,17 +1,7 @@
-import React, {
-	useCallback,
-	useContext,
-	useEffect,
-	useMemo,
-	useState,
-} from 'react';
+import React, {useCallback, useContext, useMemo, useState} from 'react';
 import {FONT_FAMILY} from '../helpers/font';
-import {useKeybinding} from '../helpers/use-keybinding';
 import {ModalsContext} from '../state/modals';
-import {
-	isClickInsideMenuStructure,
-	MENU_ITEMS_CONTAINER,
-} from './Menu/is-menu-click';
+import {MENU_ITEMS_CONTAINER} from './Menu/is-menu-click';
 import {Menu, MenuId, MenuItem} from './Menu/MenuItem';
 
 const row: React.CSSProperties = {
@@ -64,6 +54,7 @@ export const MenuToolbar: React.FC = () => {
 				items: [
 					{
 						id: 'about',
+						value: 'about',
 						label: 'About Remotion',
 						onClick: () => {
 							close();
@@ -73,6 +64,7 @@ export const MenuToolbar: React.FC = () => {
 					},
 					{
 						id: 'changelog',
+						value: 'changelog',
 						label: 'Changelog',
 						onClick: () => {
 							close();
@@ -82,6 +74,7 @@ export const MenuToolbar: React.FC = () => {
 					},
 					{
 						id: 'license',
+						value: 'license',
 						label: 'License',
 						onClick: () => {
 							close();
@@ -99,6 +92,7 @@ export const MenuToolbar: React.FC = () => {
 				items: [
 					{
 						id: 'new-sequence',
+						value: 'new-sequence',
 						label: 'New composition',
 						onClick: () => {
 							close();
@@ -108,6 +102,7 @@ export const MenuToolbar: React.FC = () => {
 					},
 					{
 						id: 'new-still',
+						value: 'new-still',
 						label: 'New still',
 						onClick: () => {
 							close();
@@ -117,6 +112,7 @@ export const MenuToolbar: React.FC = () => {
 					},
 					{
 						id: 'render',
+						value: 'render',
 						label: 'Render',
 						onClick: () => {
 							close();
@@ -133,6 +129,7 @@ export const MenuToolbar: React.FC = () => {
 				items: [
 					{
 						id: 'docs',
+						value: 'docs',
 						label: 'Docs',
 						onClick: () => {
 							close();
@@ -142,6 +139,7 @@ export const MenuToolbar: React.FC = () => {
 					},
 					{
 						id: 'file-issue',
+						value: 'file-issue',
 						label: 'File an issue',
 						onClick: () => {
 							close();
@@ -153,6 +151,7 @@ export const MenuToolbar: React.FC = () => {
 					},
 					{
 						id: 'discord',
+						value: 'discord',
 						label: 'Join Discord community',
 						onClick: () => {
 							close();
@@ -166,6 +165,7 @@ export const MenuToolbar: React.FC = () => {
 					},
 					{
 						id: 'insta',
+						value: 'insta',
 						label: 'Instagram',
 						onClick: () => {
 							close();
@@ -175,6 +175,7 @@ export const MenuToolbar: React.FC = () => {
 					},
 					{
 						id: 'twitter',
+						value: 'twitter',
 						label: 'Twitter',
 						onClick: () => {
 							close();
@@ -184,6 +185,7 @@ export const MenuToolbar: React.FC = () => {
 					},
 					{
 						id: 'tiktok',
+						value: 'tiktok',
 						label: 'TikTok',
 						onClick: () => {
 							close();
@@ -224,66 +226,6 @@ export const MenuToolbar: React.FC = () => {
 		});
 	}, [menus]);
 
-	const onEscape = useCallback(() => {
-		setSelected(null);
-		(document.activeElement as HTMLElement).blur();
-	}, []);
-
-	const onPointerDown: EventListenerOrEventListenerObject = useCallback(
-		(e) => {
-			const {target} = e;
-			if (selected === null || !target) {
-				return;
-			}
-
-			if (isClickInsideMenuStructure(target as HTMLElement)) {
-				return;
-			}
-
-			setSelected(null);
-		},
-		[selected]
-	);
-	const keybindings = useKeybinding();
-
-	useEffect(() => {
-		if (selected === null) {
-			return;
-		}
-
-		keybindings.stashOther();
-
-		const arrowLeft = keybindings.registerKeybinding(
-			'keydown',
-			'ArrowLeft',
-			onArrowLeft
-		);
-		const arrowRight = keybindings.registerKeybinding(
-			'keydown',
-			'ArrowRight',
-			onArrowRight
-		);
-		const keyDown = keybindings.registerKeybinding(
-			'keydown',
-			'Escape',
-			onEscape
-		);
-
-		return () => {
-			arrowLeft.unregister();
-			arrowRight.unregister();
-			keyDown.unregister();
-			keybindings.unstashOther();
-		};
-	}, [
-		keybindings,
-		onArrowLeft,
-		onArrowRight,
-		onEscape,
-		onPointerDown,
-		selected,
-	]);
-
 	const onKeyboardUnfocused = useCallback(() => {
 		setSelected(null);
 	}, [setSelected]);
@@ -311,9 +253,11 @@ export const MenuToolbar: React.FC = () => {
 							onItemHovered={itemHovered}
 							id={s.id}
 							label={s.label}
-							onItemFocused={onItemFocused}
 							onItemQuit={onKeyboardUnfocused}
 							menu={s}
+							onItemFocused={onItemFocused}
+							onArrowLeft={onArrowLeft}
+							onArrowRight={onArrowRight}
 						/>
 					);
 				})}

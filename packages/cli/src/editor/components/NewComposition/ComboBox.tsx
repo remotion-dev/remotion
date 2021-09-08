@@ -3,7 +3,8 @@ import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import ReactDOM from 'react-dom';
 import {BACKGROUND, getBackgroundFromHoverState} from '../../helpers/colors';
 import {FONT_FAMILY} from '../../helpers/font';
-import {HigherZIndex} from '../../state/z-index';
+import {noop} from '../../helpers/noop';
+import {HigherZIndex, useZIndex} from '../../state/z-index';
 import {SUBMENU_CONTAINER_CLASS_NAME} from '../Menu/is-menu-click';
 import {MenuContent} from './MenuContent';
 
@@ -58,7 +59,8 @@ export const Combobox: React.FC<{
 }> = ({values, selectedId}) => {
 	const [hovered, setIsHovered] = useState(false);
 	const [opened, setOpened] = useState(false);
-	const ref = useRef<HTMLDivElement>(null);
+	const ref = useRef<HTMLButtonElement>(null);
+	const {tabIndex} = useZIndex();
 	const size = useElementSize(ref, {
 		triggerOnWindowResize: true,
 	});
@@ -71,6 +73,7 @@ export const Combobox: React.FC<{
 		return {
 			...container,
 			userSelect: 'none',
+			color: 'white',
 			borderColor: getBackgroundFromHoverState({
 				hovered,
 				selected: false,
@@ -121,9 +124,9 @@ export const Combobox: React.FC<{
 
 	return (
 		<>
-			<div ref={ref} style={style}>
+			<button ref={ref} tabIndex={tabIndex} type="button" style={style}>
 				{selected.label}
-			</div>
+			</button>
 			{portalStyle
 				? ReactDOM.createPortal(
 						<HigherZIndex>
@@ -132,7 +135,12 @@ export const Combobox: React.FC<{
 									className={SUBMENU_CONTAINER_CLASS_NAME}
 									style={portalStyle}
 								>
-									<MenuContent values={values} onHide={onHide} />
+									<MenuContent
+										onArrowLeft={noop}
+										onArrowRight={noop}
+										values={values}
+										onHide={onHide}
+									/>
 								</div>
 							</div>
 						</HigherZIndex>,

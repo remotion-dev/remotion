@@ -7,7 +7,9 @@ import {ComboboxValue} from './ComboBox';
 export const MenuContent: React.FC<{
 	values: ComboboxValue[];
 	onHide: () => void;
-}> = ({onHide, values}) => {
+	onArrowLeft: () => void;
+	onArrowRight: () => void;
+}> = ({onHide, values, onArrowLeft, onArrowRight}) => {
 	const keybindings = useKeybinding();
 	const onEscape = useCallback(() => {
 		onHide();
@@ -15,8 +17,30 @@ export const MenuContent: React.FC<{
 
 	useEffect(() => {
 		keybindings.stashOther();
-		keybindings.registerKeybinding('keydown', 'Escape', onEscape);
-	}, [keybindings, onEscape]);
+	}, [keybindings]);
+
+	useEffect(() => {
+		const escapeBinding = keybindings.registerKeybinding(
+			'keydown',
+			'Escape',
+			onEscape
+		);
+		const leftBinding = keybindings.registerKeybinding(
+			'keydown',
+			'ArrowLeft',
+			onArrowLeft
+		);
+		const rightBinding = keybindings.registerKeybinding(
+			'keydown',
+			'ArrowRight',
+			onArrowRight
+		);
+		return () => {
+			escapeBinding.unregister();
+			leftBinding.unregister();
+			rightBinding.unregister();
+		};
+	}, [keybindings, onEscape, onArrowLeft, onArrowRight]);
 
 	return (
 		<div>
