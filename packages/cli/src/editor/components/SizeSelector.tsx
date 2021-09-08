@@ -1,24 +1,34 @@
 import {PreviewSize} from '@remotion/player';
-import React, {useCallback, useContext, useMemo} from 'react';
+import React, {useContext, useMemo} from 'react';
 import {
 	persistPreviewSizeOption,
 	PreviewSizeContext,
 } from '../state/preview-size';
-import {useZIndex} from '../state/z-index';
 import {CONTROL_BUTTON_PADDING} from './ControlButton';
+import {Combobox, ComboboxValue} from './NewComposition/ComboBox';
+
+const sizes: PreviewSize[] = ['auto', 0.25, 0.5, 1];
+
+const getLabel = (previewSize: PreviewSize) => {
+	if (previewSize === 1) {
+		return '100%';
+	}
+
+	if (previewSize === 0.5) {
+		return '50%';
+	}
+
+	if (previewSize === 0.25) {
+		return '25%';
+	}
+
+	if (previewSize === 'auto') {
+		return 'Fit';
+	}
+};
 
 export const SizeSelector: React.FC = () => {
 	const {size, setSize} = useContext(PreviewSizeContext);
-	const {tabIndex} = useZIndex();
-	const onChange = useCallback(
-		(e: React.ChangeEvent<HTMLSelectElement>) => {
-			setSize(() => {
-				persistPreviewSizeOption(e.target.value as PreviewSize);
-				return e.target.value as PreviewSize;
-			});
-		},
-		[setSize]
-	);
 
 	const style = useMemo(() => {
 		return {
@@ -26,19 +36,27 @@ export const SizeSelector: React.FC = () => {
 		};
 	}, []);
 
+	const items: ComboboxValue[] = useMemo(() => {
+		return sizes.map(
+			(newSize): ComboboxValue => {
+				return {
+					id: String(newSize),
+					label: getLabel(newSize),
+					onClick: () =>
+						setSize(() => {
+							persistPreviewSizeOption(newSize);
+							return newSize;
+						}),
+					type: 'item',
+					value: newSize,
+				};
+			}
+		);
+	}, [setSize]);
+
 	return (
-		<div style={style}>
-			<select
-				aria-label="Select the size of the preview"
-				onChange={onChange}
-				value={size}
-				tabIndex={tabIndex}
-			>
-				<option value="auto">Fit</option>
-				<option value="0.25">25%</option>
-				<option value="0.5">50%</option>
-				<option value="1">100%</option>
-			</select>
+		<div style={style} aria-label="Select the size of the preview">
+			<Combobox selectedId={String(size)} values={items} />
 		</div>
 	);
 };
