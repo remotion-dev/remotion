@@ -43,29 +43,30 @@ export const PlayPause: React.FC = () => {
 		},
 		[pause, play, playing]
 	);
+	const videoFps = video?.fps ?? null;
 
 	const onArrowLeft = useCallback(
 		(e: KeyboardEvent) => {
-			if (!video) {
+			if (!videoFps) {
 				return null;
 			}
 
-			frameBack(e.shiftKey ? video.fps : 1);
+			frameBack(e.shiftKey ? videoFps : 1);
 			e.preventDefault();
 		},
-		[frameBack, video]
+		[frameBack, videoFps]
 	);
 
 	const onArrowRight = useCallback(
 		(e: KeyboardEvent) => {
-			if (!video) {
+			if (!videoFps) {
 				return null;
 			}
 
-			frameForward(e.shiftKey ? video.fps : 1);
+			frameForward(e.shiftKey ? videoFps : 1);
 			e.preventDefault();
 		},
-		[frameForward, video]
+		[frameForward, videoFps]
 	);
 
 	const oneFrameBack = useCallback(() => {
