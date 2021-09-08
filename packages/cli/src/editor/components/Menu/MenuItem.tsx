@@ -9,7 +9,7 @@ import React, {
 import ReactDOM from 'react-dom';
 import {BACKGROUND, getBackgroundFromHoverState} from '../../helpers/colors';
 import {FONT_FAMILY} from '../../helpers/font';
-import {useZIndex} from '../../state/z-index';
+import {HigherZIndex, useZIndex} from '../../state/z-index';
 import {ComboboxValue} from '../NewComposition/ComboBox';
 import {MenuContent} from '../NewComposition/MenuContent';
 import {
@@ -159,16 +159,21 @@ export const MenuItem: React.FC<{
 			</button>
 			{portalStyle
 				? ReactDOM.createPortal(
-						<div style={outerStyle}>
-							<div className={SUBMENU_CONTAINER_CLASS_NAME} style={portalStyle}>
-								<MenuContent
-									onArrowLeft={onArrowLeft}
-									onArrowRight={onArrowRight}
-									values={menu.items}
-									onHide={onItemQuit}
-								/>
+						<HigherZIndex onEscape={onItemQuit}>
+							<div style={outerStyle}>
+								<div
+									className={SUBMENU_CONTAINER_CLASS_NAME}
+									style={portalStyle}
+								>
+									<MenuContent
+										onArrowLeft={onArrowLeft}
+										onArrowRight={onArrowRight}
+										values={menu.items}
+										onHide={onItemQuit}
+									/>
+								</div>
 							</div>
-						</div>,
+						</HigherZIndex>,
 						portal
 				  )
 				: null}

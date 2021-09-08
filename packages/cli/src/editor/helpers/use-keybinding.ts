@@ -4,18 +4,12 @@ import {
 	KeyEventType,
 	RegisteredKeybinding,
 } from '../state/keybindings';
+import {useZIndex} from '../state/z-index';
 
 export const useKeybinding = () => {
 	const [paneId] = useState(() => String(Math.random()));
 	const context = useContext(KeybindingContext);
-
-	const stashOther = useCallback(() => {
-		context.stashOtherKeybindings(paneId);
-	}, [context, paneId]);
-
-	const unstashOther = useCallback(() => {
-		context.unstashOtherKeybindings(paneId);
-	}, [context, paneId]);
+	const {isHighestContext} = useZIndex();
 
 	const registerKeybinding = useCallback(
 		(
@@ -23,6 +17,12 @@ export const useKeybinding = () => {
 			key: string,
 			callback: (e: KeyboardEvent) => void
 		) => {
+			if (!isHighestContext) {
+				return {
+					unregister: () => undefined,
+				};
+			}
+
 			const listener = (e: KeyboardEvent) => {
 				if (e.key === key) {
 					callback(e);
@@ -42,19 +42,17 @@ export const useKeybinding = () => {
 				unregister: () => context.unregisterKeybinding(toRegister),
 			};
 		},
-		[context, paneId]
+		[context, isHighestContext, paneId]
 	);
 
 	useEffect(() => {
 		return () => {
 			context.unregisterPane(paneId);
-			context.unstashOtherKeybindings(paneId);
 		};
 	}, [context, paneId]);
 
-	return useMemo(() => ({registerKeybinding, stashOther, unstashOther}), [
+	return useMemo(() => ({registerKeybinding, isHighestContext}), [
 		registerKeybinding,
-		stashOther,
-		unstashOther,
+		isHighestContext,
 	]);
 };
