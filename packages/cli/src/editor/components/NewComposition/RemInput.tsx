@@ -33,12 +33,11 @@ const RemInputForwardRef: React.ForwardRefRenderFunction<
 			backgroundColor: 'rgba(255, 255, 255, 0.06)',
 			border: BORDER_COLOR,
 			fontFamily: FONT_FAMILY,
-			padding: '10px 16px',
+			padding: '6px 8px',
 			color: 'white',
 			outline: 'none',
 			borderStyle: 'solid',
 			borderWidth: 2,
-			borderRadius: 5,
 			fontSize: 15,
 			borderColor: isFocused
 				? SELECTED_BACKGROUND

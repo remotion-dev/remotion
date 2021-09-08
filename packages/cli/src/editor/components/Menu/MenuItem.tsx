@@ -117,7 +117,7 @@ export const MenuItem: React.FC<{
 			onItemQuit();
 		} else {
 			onItemSelected(id);
-			document.activeElement.blur();
+			(document.activeElement as HTMLDivElement).blur();
 		}
 	}, [id, onItemQuit, onItemSelected, selected]);
 

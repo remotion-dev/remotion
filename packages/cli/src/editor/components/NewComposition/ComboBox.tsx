@@ -9,10 +9,9 @@ import {SUBMENU_CONTAINER_CLASS_NAME} from '../Menu/is-menu-click';
 import {MenuContent} from './MenuContent';
 
 const container: React.CSSProperties = {
-	padding: '10px 16px',
+	padding: '6px 8px',
 	display: 'inline-block',
 	backgroundColor: 'rgba(255, 255, 255, 0.06)',
-	borderRadius: 5,
 	fontSize: 15,
 	borderWidth: 2,
 	borderStyle: 'solid',
