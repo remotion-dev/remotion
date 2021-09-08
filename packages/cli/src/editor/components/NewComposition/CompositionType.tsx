@@ -22,7 +22,7 @@ const Panel: React.FC<{
 	type: CompType;
 	onSelected: (type: CompType) => void;
 }> = ({selected, type, onSelected}) => {
-	const ref = useRef<HTMLDivElement>(null);
+	const ref = useRef<HTMLButtonElement>(null);
 	const [hovered, setHovered] = useState(false);
 
 	useEffect(() => {
@@ -45,6 +45,9 @@ const Panel: React.FC<{
 				hovered,
 				selected,
 			}),
+			color: 'white',
+			appearance: 'none',
+			border: 'none',
 		};
 	}, [hovered, selected]);
 
@@ -53,7 +56,7 @@ const Panel: React.FC<{
 	}, [onSelected, type]);
 
 	return (
-		<div ref={ref} style={style} onClick={onClick}>
+		<button ref={ref} type="button" style={style} onClick={onClick}>
 			{type === 'composition' ? (
 				<FilmIcon style={{height: 18, width: 18}} />
 			) : (
@@ -64,7 +67,7 @@ const Panel: React.FC<{
 				<strong>{type === 'composition' ? '<Composition>' : '<Still>'}</strong>
 				<div>{type === 'composition' ? 'For videos' : 'For still images'}</div>
 			</div>
-		</div>
+		</button>
 	);
 };
 
