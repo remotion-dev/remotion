@@ -4,11 +4,12 @@ import {
 	persistPreviewSizeOption,
 	PreviewSizeContext,
 } from '../state/preview-size';
+import {useZIndex} from '../state/z-index';
 import {CONTROL_BUTTON_PADDING} from './ControlButton';
 
 export const SizeSelector: React.FC = () => {
 	const {size, setSize} = useContext(PreviewSizeContext);
-
+	const {tabIndex} = useZIndex();
 	const onChange = useCallback(
 		(e: React.ChangeEvent<HTMLSelectElement>) => {
 			setSize(() => {
@@ -31,6 +32,7 @@ export const SizeSelector: React.FC = () => {
 				aria-label="Select the size of the preview"
 				onChange={onChange}
 				value={size}
+				tabIndex={tabIndex}
 			>
 				<option value="auto">Fit</option>
 				<option value="0.25">25%</option>

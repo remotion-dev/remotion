@@ -11,6 +11,7 @@ import {
 	CheckerboardContext,
 	loadCheckerboardOption,
 } from '../state/checkerboard';
+import {HighestZIndexProvider} from '../state/highest-z-index';
 import {KeybindingContextProvider} from '../state/keybindings';
 import {ModalContextType, ModalsContext, ModalType} from '../state/modals';
 import {loadPreviewSizeOption, PreviewSizeContext} from '../state/preview-size';
@@ -18,6 +19,7 @@ import {
 	loadRichTimelineOption,
 	RichTimelineContext,
 } from '../state/rich-timeline';
+import {HigherZIndex} from '../state/z-index';
 import {EditorContent} from './EditorContent';
 import {FramePersistor} from './FramePersistor';
 import {NewComposition} from './NewComposition/NewComposition';
@@ -108,13 +110,17 @@ export const Editor: React.FC = () => {
 									<PlayerInternals.PlayerEventEmitterContext.Provider
 										value={emitter}
 									>
-										<Background>
-											<Root />
-											<UpdateCheck />
-											<FramePersistor />
-											<EditorContent />
-										</Background>
-										{modalContextType === 'new-comp' && <NewComposition />}
+										<HighestZIndexProvider>
+											<HigherZIndex>
+												<Background>
+													<Root />
+													<UpdateCheck />
+													<FramePersistor />
+													<EditorContent />
+												</Background>
+												{modalContextType === 'new-comp' && <NewComposition />}
+											</HigherZIndex>
+										</HighestZIndexProvider>
 									</PlayerInternals.PlayerEventEmitterContext.Provider>
 								</Internals.SetMediaVolumeContext.Provider>
 							</Internals.MediaVolumeContext.Provider>

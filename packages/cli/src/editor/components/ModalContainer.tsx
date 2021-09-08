@@ -2,6 +2,7 @@ import React, {useEffect} from 'react';
 import {BACKGROUND} from '../helpers/colors';
 import {FONT_FAMILY} from '../helpers/font';
 import {useKeybinding} from '../helpers/use-keybinding';
+import {HigherZIndex} from '../state/z-index';
 
 const backgroundOverlay: React.CSSProperties = {
 	backgroundColor: 'rgba(255, 255, 255, 0.2)',
@@ -41,8 +42,10 @@ export const ModalContainer: React.FC<{
 	}, [keybindings, onEscape]);
 
 	return (
-		<div style={backgroundOverlay} role="dialog" aria-modal="true">
-			<div style={panel}>{children}</div>
-		</div>
+		<HigherZIndex>
+			<div style={backgroundOverlay} role="dialog" aria-modal="true">
+				<div style={panel}>{children}</div>
+			</div>
+		</HigherZIndex>
 	);
 };
