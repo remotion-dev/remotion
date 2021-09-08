@@ -1,5 +1,4 @@
 import execa from 'execa';
-import path from 'path';
 import {
 	Codec,
 	ImageFormat,
@@ -132,10 +131,7 @@ export const stitchFramesToVideo = async (options: {
 		console.log('filters', filters);
 	}
 
-	const pathToSubtitle = path.resolve(
-		__dirname,
-		'../../example/src/RemoteVideo/src/subs.srt'
-	);
+	const {captions} = options.assetsInfo;
 
 	const {complexFilterFlag, cleanup} = await createFfmpegComplexFilter(filters);
 	const ffmpegArgs = [
@@ -147,7 +143,7 @@ export const stitchFramesToVideo = async (options: {
 			? ['-i', `element-%0${frameInfo.numberLength}d.${imageFormat}`]
 			: null,
 		...assetsToFfmpegInputs({
-			assets: assetPaths.concat([pathToSubtitle]),
+			assets: assetPaths.concat(captions.map((caption) => caption.src)),
 			isAudioOnly,
 			fps: options.fps,
 			frameCount: options.assetsInfo.assets.length,

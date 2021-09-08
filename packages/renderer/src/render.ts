@@ -226,7 +226,16 @@ export const renderFrames = async ({
 		assetsInfo: {
 			assets,
 			bundleDir: webpackBundle,
-			captions: [],
+			// TODO: Figure out how to make this dynamic
+			captions: [
+				{
+					id: '123',
+					src: path.resolve(
+						__dirname,
+						'../../example/src/RemoteVideo/src/subs.srt'
+					),
+				},
+			],
 		},
 		frameCount,
 	};
