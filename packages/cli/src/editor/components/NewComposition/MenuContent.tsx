@@ -76,7 +76,7 @@ export const MenuContent: React.FC<{
 			throw new Error('cannot find divider');
 		}
 
-		item.onClick();
+		item.onClick(item.id);
 	}, [onHide, selectedItem, values]);
 
 	useEffect(() => {
