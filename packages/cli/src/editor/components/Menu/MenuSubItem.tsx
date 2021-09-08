@@ -1,4 +1,4 @@
-import React, {useCallback, useMemo, useState} from 'react';
+import React, {useCallback, useMemo} from 'react';
 import {CLEAR_HOVER} from '../../helpers/colors';
 
 const container: React.CSSProperties = {
@@ -14,34 +14,29 @@ export const MENU_SUBMENU_BUTTON_CLASS_NAME = 'remotion-submenu-button';
 export const MenuSubItem: React.FC<{
 	label: React.ReactNode;
 	id: string;
-	onActionSelected: (id: string) => void;
-}> = ({label, onActionSelected, id}) => {
-	const [hovered, setHovered] = useState(false);
-
+	onActionChosen: (id: string) => void;
+	selected: boolean;
+	onItemSelected: (id: string) => void;
+}> = ({label, onActionChosen, id, selected, onItemSelected}) => {
 	const style = useMemo((): React.CSSProperties => {
 		return {
 			...container,
-			backgroundColor: hovered ? CLEAR_HOVER : 'transparent',
+			backgroundColor: selected ? CLEAR_HOVER : 'transparent',
 		};
-	}, [hovered]);
-
-	const onPointerEnter = useCallback(() => {
-		setHovered(true);
-	}, []);
-
-	const onPointerLeave = useCallback(() => {
-		setHovered(false);
-	}, []);
+	}, [selected]);
 
 	const onClick = useCallback(() => {
-		onActionSelected(id);
-	}, [id, onActionSelected]);
+		onActionChosen(id);
+	}, [id, onActionChosen]);
+
+	const onPointerEnter = useCallback(() => {
+		onItemSelected(id);
+	}, [id, onItemSelected]);
 
 	return (
 		<div
 			className={MENU_SUBMENU_BUTTON_CLASS_NAME}
 			onPointerEnter={onPointerEnter}
-			onPointerLeave={onPointerLeave}
 			style={style}
 			onClick={onClick}
 		>

@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {useKeybinding} from '../../helpers/use-keybinding';
 import {MenuDivider} from '../Menu/MenuDivider';
 import {MenuSubItem} from '../Menu/MenuSubItem';
@@ -11,9 +11,56 @@ export const MenuContent: React.FC<{
 	onArrowRight: () => void;
 }> = ({onHide, values, onArrowLeft, onArrowRight}) => {
 	const keybindings = useKeybinding();
+
+	const [selectedItem, setSelectedItem] = useState<string | null>(null);
+
 	const onEscape = useCallback(() => {
 		onHide();
 	}, [onHide]);
+
+	const onItemSelected = useCallback((id: string) => {
+		setSelectedItem(id);
+	}, []);
+
+	const onArrowUp = useCallback(() => {
+		setSelectedItem((prevItem) => {
+			const index = values.findIndex((val) => val.id === prevItem);
+			const previousItems = values.filter(
+				(v, i) => i < index && v.type !== 'divider'
+			);
+			if (previousItems.length > 0) {
+				return previousItems[previousItems.length - 1].id;
+			}
+
+			const firstNonDivider = values.find((v) => v.type !== 'divider');
+			if (firstNonDivider) {
+				return firstNonDivider.id;
+			}
+
+			throw new Error('could not find previous item');
+		});
+	}, [values]);
+
+	const onArrowDown = useCallback(() => {
+		setSelectedItem((prevItem) => {
+			const index = values.findIndex((val) => val.id === prevItem);
+			const nextItem = values.find((v, i) => i > index && v.type !== 'divider');
+			if (nextItem) {
+				return nextItem.id;
+			}
+
+			const lastNonDivider = values
+				.slice()
+				.reverse()
+				.find((v) => v.type !== 'divider');
+
+			if (lastNonDivider) {
+				return lastNonDivider.id;
+			}
+
+			throw new Error('could not find next item');
+		});
+	}, [values]);
 
 	useEffect(() => {
 		const escapeBinding = keybindings.registerKeybinding(
@@ -31,12 +78,31 @@ export const MenuContent: React.FC<{
 			'ArrowRight',
 			onArrowRight
 		);
+		const downBinding = keybindings.registerKeybinding(
+			'keydown',
+			'ArrowDown',
+			onArrowDown
+		);
+		const upBinding = keybindings.registerKeybinding(
+			'keydown',
+			'ArrowUp',
+			onArrowUp
+		);
 		return () => {
 			escapeBinding.unregister();
 			leftBinding.unregister();
 			rightBinding.unregister();
+			downBinding.unregister();
+			upBinding.unregister();
 		};
-	}, [keybindings, onEscape, onArrowLeft, onArrowRight]);
+	}, [
+		keybindings,
+		onEscape,
+		onArrowLeft,
+		onArrowRight,
+		onArrowDown,
+		onArrowUp,
+	]);
 
 	return (
 		<div>
@@ -53,7 +119,9 @@ export const MenuContent: React.FC<{
 				return (
 					<MenuSubItem
 						key={item.id}
-						onActionSelected={onClick}
+						selected={item.id === selectedItem}
+						onActionChosen={onClick}
+						onItemSelected={onItemSelected}
 						label={item.label}
 						id={item.id}
 					/>
