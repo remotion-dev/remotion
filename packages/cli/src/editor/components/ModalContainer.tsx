@@ -1,7 +1,6 @@
-import React, {useEffect} from 'react';
+import React from 'react';
 import {BACKGROUND} from '../helpers/colors';
 import {FONT_FAMILY} from '../helpers/font';
-import {useKeybinding} from '../helpers/use-keybinding';
 import {HigherZIndex} from '../state/z-index';
 
 const backgroundOverlay: React.CSSProperties = {
@@ -25,26 +24,8 @@ const panel: React.CSSProperties = {
 export const ModalContainer: React.FC<{
 	onEscape: () => void;
 }> = ({children, onEscape}) => {
-	const keybindings = useKeybinding();
-
-	useEffect(() => {
-		keybindings.stashOther();
-	}, [keybindings]);
-
-	useEffect(() => {
-		const escape = keybindings.registerKeybinding(
-			'keydown',
-			'Escape',
-			onEscape
-		);
-
-		return () => {
-			escape.unregister();
-		};
-	}, [keybindings, onEscape]);
-
 	return (
-		<HigherZIndex>
+		<HigherZIndex onEscape={onEscape}>
 			<div style={backgroundOverlay} role="dialog" aria-modal="true">
 				<div style={panel}>{children}</div>
 			</div>

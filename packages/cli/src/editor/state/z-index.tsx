@@ -1,4 +1,5 @@
 import React, {createContext, useContext, useEffect, useMemo} from 'react';
+import {useKeybinding} from '../helpers/use-keybinding';
 import {HighestZIndexContext} from './highest-z-index';
 
 type ZIndex = {
@@ -9,7 +10,29 @@ export const ZIndexContext = createContext<ZIndex>({
 	currentIndex: 0,
 });
 
-export const HigherZIndex: React.FC = ({children}) => {
+const EscapeHook: React.FC<{
+	onEscape: () => void;
+}> = ({onEscape}) => {
+	const keybindings = useKeybinding();
+
+	useEffect(() => {
+		const escape = keybindings.registerKeybinding(
+			'keydown',
+			'Escape',
+			onEscape
+		);
+
+		return () => {
+			escape.unregister();
+		};
+	}, [keybindings, onEscape]);
+
+	return null;
+};
+
+export const HigherZIndex: React.FC<{
+	onEscape: () => void;
+}> = ({children, onEscape}) => {
 	const context = useContext(ZIndexContext);
 	const highestContext = useContext(HighestZIndexContext);
 
@@ -27,20 +50,25 @@ export const HigherZIndex: React.FC = ({children}) => {
 	}, [currentIndex]);
 
 	return (
-		<ZIndexContext.Provider value={value}>{children}</ZIndexContext.Provider>
+		<ZIndexContext.Provider value={value}>
+			<EscapeHook onEscape={onEscape} />
+			{children}
+		</ZIndexContext.Provider>
 	);
 };
 
 export const useZIndex = () => {
 	const context = useContext(ZIndexContext);
 	const highestContext = useContext(HighestZIndexContext);
+	const isHighestContext = highestContext.highestIndex === context.currentIndex;
 
 	return useMemo(
 		() => ({
 			currentZIndex: context.currentIndex,
 			highestZIndex: highestContext.highestIndex,
-			tabIndex: context.currentIndex === highestContext.highestIndex ? 0 : -1,
+			isHighestContext,
+			tabIndex: isHighestContext ? 0 : -1,
 		}),
-		[context.currentIndex, highestContext.highestIndex]
+		[context.currentIndex, highestContext.highestIndex, isHighestContext]
 	);
 };

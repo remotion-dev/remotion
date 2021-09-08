@@ -129,7 +129,7 @@ export const Combobox: React.FC<{
 			</button>
 			{portalStyle
 				? ReactDOM.createPortal(
-						<HigherZIndex>
+						<HigherZIndex onEscape={onHide}>
 							<div style={outerStyle}>
 								<div
 									className={SUBMENU_CONTAINER_CLASS_NAME}

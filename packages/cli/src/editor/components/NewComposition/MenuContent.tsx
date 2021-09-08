@@ -16,10 +16,6 @@ export const MenuContent: React.FC<{
 	}, [onHide]);
 
 	useEffect(() => {
-		keybindings.stashOther();
-	}, [keybindings]);
-
-	useEffect(() => {
 		const escapeBinding = keybindings.registerKeybinding(
 			'keydown',
 			'Escape',

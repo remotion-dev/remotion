@@ -7,6 +7,7 @@ import {
 } from 'remotion';
 import styled from 'styled-components';
 import {BACKGROUND} from '../helpers/colors';
+import {noop} from '../helpers/noop';
 import {
 	CheckerboardContext,
 	loadCheckerboardOption,
@@ -111,7 +112,7 @@ export const Editor: React.FC = () => {
 										value={emitter}
 									>
 										<HighestZIndexProvider>
-											<HigherZIndex>
+											<HigherZIndex onEscape={noop}>
 												<Background>
 													<Root />
 													<UpdateCheck />
