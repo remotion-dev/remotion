@@ -11,6 +11,7 @@ import {
 	CheckerboardContext,
 	loadCheckerboardOption,
 } from '../state/checkerboard';
+import {KeybindingContextProvider} from '../state/keybindings';
 import {ModalContextType, ModalsContext, ModalType} from '../state/modals';
 import {loadPreviewSizeOption, PreviewSizeContext} from '../state/preview-size';
 import {
@@ -93,32 +94,34 @@ export const Editor: React.FC = () => {
 	}
 
 	return (
-		<RichTimelineContext.Provider value={richTimelineCtx}>
-			<CheckerboardContext.Provider value={checkerboardCtx}>
-				<PreviewSizeContext.Provider value={previewSizeCtx}>
-					<ModalsContext.Provider value={modalsContext}>
-						<Internals.MediaVolumeContext.Provider
-							value={mediaVolumeContextValue}
-						>
-							<Internals.SetMediaVolumeContext.Provider
-								value={setMediaVolumeContextValue}
+		<KeybindingContextProvider>
+			<RichTimelineContext.Provider value={richTimelineCtx}>
+				<CheckerboardContext.Provider value={checkerboardCtx}>
+					<PreviewSizeContext.Provider value={previewSizeCtx}>
+						<ModalsContext.Provider value={modalsContext}>
+							<Internals.MediaVolumeContext.Provider
+								value={mediaVolumeContextValue}
 							>
-								<PlayerInternals.PlayerEventEmitterContext.Provider
-									value={emitter}
+								<Internals.SetMediaVolumeContext.Provider
+									value={setMediaVolumeContextValue}
 								>
-									<Background>
-										<Root />
-										<UpdateCheck />
-										<FramePersistor />
-										<EditorContent />
-									</Background>
-									{modalContextType === 'new-comp' && <NewComposition />}
-								</PlayerInternals.PlayerEventEmitterContext.Provider>
-							</Internals.SetMediaVolumeContext.Provider>
-						</Internals.MediaVolumeContext.Provider>
-					</ModalsContext.Provider>
-				</PreviewSizeContext.Provider>
-			</CheckerboardContext.Provider>
-		</RichTimelineContext.Provider>
+									<PlayerInternals.PlayerEventEmitterContext.Provider
+										value={emitter}
+									>
+										<Background>
+											<Root />
+											<UpdateCheck />
+											<FramePersistor />
+											<EditorContent />
+										</Background>
+										{modalContextType === 'new-comp' && <NewComposition />}
+									</PlayerInternals.PlayerEventEmitterContext.Provider>
+								</Internals.SetMediaVolumeContext.Provider>
+							</Internals.MediaVolumeContext.Provider>
+						</ModalsContext.Provider>
+					</PreviewSizeContext.Provider>
+				</CheckerboardContext.Provider>
+			</RichTimelineContext.Provider>
+		</KeybindingContextProvider>
 	);
 };

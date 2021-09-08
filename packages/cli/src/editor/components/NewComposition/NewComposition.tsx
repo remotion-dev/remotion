@@ -8,6 +8,7 @@ import React, {
 } from 'react';
 import {BACKGROUND} from '../../helpers/colors';
 import {FONT_FAMILY} from '../../helpers/font';
+import {useKeybinding} from '../../helpers/use-keybinding';
 import {ModalsContext} from '../../state/modals';
 import {Spacing} from '../layout';
 import {Combobox, ComboboxValue} from './ComboBox';
@@ -114,18 +115,23 @@ export const NewComposition: React.FC = () => {
 		);
 	}, [onFpsChange]);
 
+	const keybindings = useKeybinding();
+
 	useEffect(() => {
-		const onKeyPress = (e: KeyboardEvent) => {
-			if (e.key === 'Escape') {
-				setSelectedModal(null);
-			}
+		const onEscape = () => {
+			setSelectedModal(null);
 		};
 
-		window.addEventListener('keyup', onKeyPress);
+		const escape = keybindings.registerKeybinding(
+			'keydown',
+			'Escape',
+			onEscape
+		);
+
 		return () => {
-			window.removeEventListener('keyup', onKeyPress);
+			escape.unregister();
 		};
-	}, [setSelectedModal]);
+	}, [keybindings, setSelectedModal]);
 
 	return (
 		<div style={backgroundOverlay}>
