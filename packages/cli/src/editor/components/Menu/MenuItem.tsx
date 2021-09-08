@@ -1,11 +1,5 @@
 import {PlayerInternals} from '@remotion/player';
-import React, {
-	FocusEventHandler,
-	useCallback,
-	useMemo,
-	useRef,
-	useState,
-} from 'react';
+import React, {useCallback, useMemo, useRef, useState} from 'react';
 import ReactDOM from 'react-dom';
 import {BACKGROUND, getBackgroundFromHoverState} from '../../helpers/colors';
 import {FONT_FAMILY} from '../../helpers/font';
@@ -66,7 +60,6 @@ export const MenuItem: React.FC<{
 	onItemSelected: (id: MenuId) => void;
 	onItemHovered: (id: MenuId) => void;
 	onItemQuit: () => void;
-	onItemFocused: (id: MenuId) => void;
 	onArrowLeft: () => void;
 	onArrowRight: () => void;
 	menu: Menu;
@@ -77,7 +70,6 @@ export const MenuItem: React.FC<{
 	onItemSelected,
 	onItemHovered,
 	onItemQuit,
-	onItemFocused,
 	onArrowLeft,
 	onArrowRight,
 	menu,
@@ -96,8 +88,6 @@ export const MenuItem: React.FC<{
 				hovered,
 				selected,
 			}),
-			// Don't panic, we apply our own selected style
-			outline: 'none',
 		};
 	}, [hovered, selected]);
 
@@ -122,15 +112,12 @@ export const MenuItem: React.FC<{
 		setHovered(false);
 	}, []);
 
-	const onFocus: FocusEventHandler<HTMLButtonElement> = useCallback(() => {
-		onItemFocused(id);
-	}, [id, onItemFocused]);
-
 	const onClick = useCallback(() => {
 		if (selected) {
 			onItemQuit();
 		} else {
 			onItemSelected(id);
+			document.activeElement.blur();
 		}
 	}, [id, onItemQuit, onItemSelected, selected]);
 
@@ -149,8 +136,7 @@ export const MenuItem: React.FC<{
 				tabIndex={tabIndex}
 				onPointerEnter={onPointerEnter}
 				onPointerLeave={onPointerLeave}
-				onPointerDown={onClick}
-				onFocus={onFocus}
+				onClick={onClick}
 				style={containerStyle}
 				type="button"
 				className={MENU_BUTTON_CLASS_NAME}

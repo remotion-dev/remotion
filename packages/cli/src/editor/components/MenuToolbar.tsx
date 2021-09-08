@@ -226,20 +226,10 @@ export const MenuToolbar: React.FC = () => {
 		});
 	}, [menus]);
 
-	const onKeyboardUnfocused = useCallback(() => {
+	const onItemQuit = useCallback(() => {
+		console.log('quitting');
 		setSelected(null);
 	}, [setSelected]);
-
-	const onItemFocused = useCallback(
-		(item: MenuId) => {
-			setSelected(item);
-		},
-		[setSelected]
-	);
-
-	const onKeyboardTabEndReached = useCallback(() => {
-		setSelected(null);
-	}, []);
 
 	return (
 		<div style={row}>
@@ -253,20 +243,14 @@ export const MenuToolbar: React.FC = () => {
 							onItemHovered={itemHovered}
 							id={s.id}
 							label={s.label}
-							onItemQuit={onKeyboardUnfocused}
+							onItemQuit={onItemQuit}
 							menu={s}
-							onItemFocused={onItemFocused}
 							onArrowLeft={onArrowLeft}
 							onArrowRight={onArrowRight}
 						/>
 					);
 				})}
 			</div>
-			{selected === null ? null : (
-				// If this element gets focused, the user has tabbed through all menus,
-				// unfocusing the menu
-				<div tabIndex={0} onFocus={onKeyboardTabEndReached} />
-			)}
 		</div>
 	);
 };
