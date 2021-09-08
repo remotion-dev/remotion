@@ -5,6 +5,7 @@ import {
 	TIMELINE_LAYER_HEIGHT,
 	TIMELINE_PADDING,
 } from '../../helpers/timeline-layout';
+import {useZIndex} from '../../state/z-index';
 import {TimelineActionState} from './timeline-state-reducer';
 import {TimelineCollapseToggle} from './TimelineCollapseToggle';
 import {TimelineSequenceFrame} from './TimelineSequenceFrame';
@@ -77,6 +78,7 @@ export const TimelineListItem: React.FC<{
 	hash,
 	canCollapse,
 }) => {
+	const {tabIndex} = useZIndex();
 	const leftOffset = HOOK_WIDTH + SPACING * 1.5;
 	const hookStyle = useMemo(() => {
 		return {
@@ -116,7 +118,12 @@ export const TimelineListItem: React.FC<{
 		<div style={outer}>
 			<div style={padder} />
 			{canCollapse ? (
-				<button type="button" style={collapserButton} onClick={toggleCollapse}>
+				<button
+					tabIndex={tabIndex}
+					type="button"
+					style={collapserButton}
+					onClick={toggleCollapse}
+				>
 					<TimelineCollapseToggle collapsed={collapsed} />
 				</button>
 			) : (

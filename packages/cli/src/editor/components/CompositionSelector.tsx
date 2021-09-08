@@ -5,6 +5,7 @@ import {CLEAR_HOVER, SELECTED_BACKGROUND} from '../helpers/colors';
 import {isCompositionStill} from '../helpers/is-composition-still';
 import {FilmIcon} from '../icons/film';
 import {StillIcon} from '../icons/still';
+import {useZIndex} from '../state/z-index';
 import {CurrentComposition} from './CurrentComposition';
 import {
 	getCurrentCompositionFromUrl,
@@ -62,6 +63,7 @@ export const CompositionSelector: React.FC = () => {
 	const {compositions, setCurrentComposition, currentComposition} = useContext(
 		Internals.CompositionManager
 	);
+	const {tabIndex} = useZIndex();
 	const setCurrentFrame = Internals.Timeline.useTimelineSetFrame();
 
 	const selectComposition = useCallback(
@@ -104,6 +106,7 @@ export const CompositionSelector: React.FC = () => {
 							key={c.id}
 							href={c.id}
 							selected={currentComposition === c.id}
+							tabIndex={tabIndex}
 							onClick={(evt) => {
 								evt.preventDefault();
 								selectComposition(c);

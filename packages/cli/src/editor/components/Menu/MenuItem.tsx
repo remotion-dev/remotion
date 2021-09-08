@@ -9,6 +9,7 @@ import React, {
 import ReactDOM from 'react-dom';
 import {BACKGROUND, getBackgroundFromHoverState} from '../../helpers/colors';
 import {FONT_FAMILY} from '../../helpers/font';
+import {useZIndex} from '../../state/z-index';
 import {
 	MENU_BUTTON_CLASS_NAME,
 	SUBMENU_CONTAINER_CLASS_NAME,
@@ -94,6 +95,7 @@ export const MenuItem: React.FC<{
 	const size = PlayerInternals.useElementSize(ref, {
 		triggerOnWindowResize: true,
 	});
+	const {tabIndex} = useZIndex();
 
 	const containerStyle = useMemo((): React.CSSProperties => {
 		return {
@@ -171,6 +173,7 @@ export const MenuItem: React.FC<{
 			<button
 				ref={ref}
 				role="button"
+				tabIndex={tabIndex}
 				onPointerEnter={onPointerEnter}
 				onPointerLeave={onPointerLeave}
 				onPointerDown={onClick}
