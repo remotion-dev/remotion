@@ -89,7 +89,7 @@ export const PlayPause: React.FC = () => {
 			'ArrowRight',
 			onArrowRight
 		);
-		const space = keybindings.registerKeybinding('keydown', 'Space', onSpace);
+		const space = keybindings.registerKeybinding('keydown', ' ', onSpace);
 
 		return () => {
 			arrowLeft.unregister();

@@ -62,6 +62,23 @@ export const MenuContent: React.FC<{
 		});
 	}, [values]);
 
+	const onEnter = useCallback(() => {
+		if (selectedItem === null) {
+			return onHide();
+		}
+
+		const item = values.find((i) => i.id === selectedItem);
+		if (!item) {
+			throw new Error('cannot find item');
+		}
+
+		if (item.type === 'divider') {
+			throw new Error('cannot find divider');
+		}
+
+		item.onClick();
+	}, [onHide, selectedItem, values]);
+
 	useEffect(() => {
 		const escapeBinding = keybindings.registerKeybinding(
 			'keydown',
@@ -88,12 +105,20 @@ export const MenuContent: React.FC<{
 			'ArrowUp',
 			onArrowUp
 		);
+		const enterBinding = keybindings.registerKeybinding(
+			'keydown',
+			'Enter',
+			onEnter
+		);
+		const spaceBinding = keybindings.registerKeybinding('keyup', ' ', onEnter);
 		return () => {
 			escapeBinding.unregister();
 			leftBinding.unregister();
 			rightBinding.unregister();
 			downBinding.unregister();
 			upBinding.unregister();
+			enterBinding.unregister();
+			spaceBinding.unregister();
 		};
 	}, [
 		keybindings,
@@ -102,6 +127,7 @@ export const MenuContent: React.FC<{
 		onArrowRight,
 		onArrowDown,
 		onArrowUp,
+		onEnter,
 	]);
 
 	return (
