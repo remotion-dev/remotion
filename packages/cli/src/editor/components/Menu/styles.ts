@@ -10,8 +10,6 @@ export const menuContainer: React.CSSProperties = {
 	boxShadow: '0 2px 8px rgba(0, 0, 0, 0.5)',
 	color: 'white',
 	fontFamily: FONT_FAMILY,
-	paddingTop: MENU_VERTICAL_PADDING,
-	paddingBottom: MENU_VERTICAL_PADDING,
 	userSelect: 'none',
 	minWidth: 200,
 };
