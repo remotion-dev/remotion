@@ -3,8 +3,10 @@ import {FONT_FAMILY} from '../helpers/font';
 import {Checkmark} from '../icons/Checkmark';
 import {CheckerboardContext} from '../state/checkerboard';
 import {ModalsContext} from '../state/modals';
+import {PreviewSizeContext} from '../state/preview-size';
 import {RichTimelineContext} from '../state/rich-timeline';
 import {Menu, MenuId, MenuItem} from './Menu/MenuItem';
+import {commonPreviewSizes, getPreviewSizeLabel} from './SizeSelector';
 
 const row: React.CSSProperties = {
 	alignItems: 'center',
@@ -29,6 +31,7 @@ export const MenuToolbar: React.FC = () => {
 	const {setSelectedModal} = useContext(ModalsContext);
 	const {checkerboard, setCheckerboard} = useContext(CheckerboardContext);
 	const {richTimeline, setRichTimeline} = useContext(RichTimelineContext);
+	const {size, setSize} = useContext(PreviewSizeContext);
 
 	const itemClicked = useCallback(
 		(itemId: MenuId) => {
@@ -165,20 +168,18 @@ export const MenuToolbar: React.FC = () => {
 						leftItem: null,
 						subMenu: {
 							leaveLeftSpace: true,
-							items: [
-								{
-									id: '0.25',
-									keyHint: null,
-									label: '25%',
-									leftItem: null,
-									onClick: () => {
-										alert('25%');
-									},
-									subMenu: null,
-									type: 'item',
-									value: '0.25',
+							items: commonPreviewSizes.map((newSize) => ({
+								id: String(newSize),
+								keyHint: null,
+								label: getPreviewSizeLabel(newSize),
+								leftItem: newSize === size ? <Checkmark /> : null,
+								onClick: () => {
+									setSize(() => newSize);
 								},
-							],
+								subMenu: null,
+								type: 'item',
+								value: '0.25',
+							})),
 						},
 					},
 					{
@@ -312,6 +313,8 @@ export const MenuToolbar: React.FC = () => {
 		setCheckerboard,
 		setRichTimeline,
 		setSelectedModal,
+		setSize,
+		size,
 	]);
 
 	const menus = useMemo(() => {
