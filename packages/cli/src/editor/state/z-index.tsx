@@ -1,4 +1,10 @@
-import React, {createContext, useContext, useEffect, useMemo} from 'react';
+import React, {
+	createContext,
+	useContext,
+	useEffect,
+	useMemo,
+	useRef,
+} from 'react';
 import {useKeybinding} from '../helpers/use-keybinding';
 import {HighestZIndexContext} from './highest-z-index';
 
@@ -32,9 +38,11 @@ const EscapeHook: React.FC<{
 
 export const HigherZIndex: React.FC<{
 	onEscape: () => void;
-}> = ({children, onEscape}) => {
+	onOutsideClick: () => void;
+}> = ({children, onEscape, onOutsideClick}) => {
 	const context = useContext(ZIndexContext);
 	const highestContext = useContext(HighestZIndexContext);
+	const containerRef = useRef<HTMLDivElement>(null);
 
 	const currentIndex = context.currentIndex + 1;
 
@@ -42,6 +50,20 @@ export const HigherZIndex: React.FC<{
 		highestContext.registerZIndex(currentIndex);
 		return () => highestContext.unregisterZIndex(currentIndex);
 	}, [currentIndex, highestContext]);
+
+	useEffect(() => {
+		const listener = (e: MouseEvent) => {
+			const outsideClick = !containerRef.current?.contains(e.target as Node);
+
+			if (outsideClick) {
+				e.stopPropagation();
+				onOutsideClick();
+			}
+		};
+
+		window.addEventListener('click', listener);
+		return () => window.removeEventListener('click', listener);
+	}, [onOutsideClick]);
 
 	const value = useMemo((): ZIndex => {
 		return {
@@ -52,7 +74,7 @@ export const HigherZIndex: React.FC<{
 	return (
 		<ZIndexContext.Provider value={value}>
 			<EscapeHook onEscape={onEscape} />
-			{children}
+			<div ref={containerRef}>{children}</div>
 		</ZIndexContext.Provider>
 	);
 };

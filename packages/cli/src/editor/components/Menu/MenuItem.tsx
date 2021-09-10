@@ -115,13 +115,9 @@ export const MenuItem: React.FC<{
 	}, []);
 
 	const onClick = useCallback(() => {
-		if (selected) {
-			onItemQuit();
-		} else {
-			onItemSelected(id);
-			(document.activeElement as HTMLDivElement).blur();
-		}
-	}, [id, onItemQuit, onItemSelected, selected]);
+		onItemSelected(id);
+		(document.activeElement as HTMLDivElement).blur();
+	}, [id, onItemSelected]);
 
 	const outerStyle = useMemo(() => {
 		return {
@@ -147,8 +143,8 @@ export const MenuItem: React.FC<{
 			</button>
 			{portalStyle
 				? ReactDOM.createPortal(
-						<HigherZIndex onEscape={onItemQuit}>
-							<div style={outerStyle}>
+						<div style={outerStyle}>
+							<HigherZIndex onEscape={onItemQuit} onOutsideClick={onItemQuit}>
 								<div
 									className={SUBMENU_CONTAINER_CLASS_NAME}
 									style={portalStyle}
@@ -161,8 +157,8 @@ export const MenuItem: React.FC<{
 										leaveLeftSpace={menu.leaveLeftPadding}
 									/>
 								</div>
-							</div>
-						</HigherZIndex>,
+							</HigherZIndex>
+						</div>,
 						portal
 				  )
 				: null}
