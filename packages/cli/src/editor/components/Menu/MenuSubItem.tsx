@@ -1,6 +1,6 @@
 import React, {useCallback, useMemo} from 'react';
 import {CLEAR_HOVER, LIGHT_TEXT} from '../../helpers/colors';
-import {Flex, Row} from '../layout';
+import {Flex, Row, Spacing} from '../layout';
 
 const container: React.CSSProperties = {
 	paddingTop: 8,
@@ -17,6 +17,14 @@ const keyHintCss: React.CSSProperties = {
 	color: LIGHT_TEXT,
 };
 
+const leftSpace: React.CSSProperties = {
+	width: 24,
+	marginLeft: -6,
+	display: 'inline-flex',
+	justifyContent: 'center',
+	alignItems: 'center',
+};
+
 export const MenuSubItem: React.FC<{
 	label: React.ReactNode;
 	id: string;
@@ -24,7 +32,18 @@ export const MenuSubItem: React.FC<{
 	selected: boolean;
 	onItemSelected: (id: string) => void;
 	keyHint: string | null;
-}> = ({label, onActionChosen, id, selected, onItemSelected, keyHint}) => {
+	leaveLeftSpace: boolean;
+	leftItem: React.ReactNode;
+}> = ({
+	label,
+	leaveLeftSpace,
+	leftItem,
+	onActionChosen,
+	id,
+	selected,
+	onItemSelected,
+	keyHint,
+}) => {
 	const style = useMemo((): React.CSSProperties => {
 		return {
 			...container,
@@ -48,7 +67,14 @@ export const MenuSubItem: React.FC<{
 			onClick={onClick}
 		>
 			<Row>
+				{leaveLeftSpace ? (
+					<>
+						<div style={leftSpace}>{leftItem}</div>
+						<Spacing x={1} />
+					</>
+				) : null}
 				<div>{label}</div> <Flex />
+				<Spacing x={2} />
 				{keyHint ? <div style={keyHintCss}>{keyHint}</div> : null}
 			</Row>
 		</div>

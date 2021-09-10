@@ -50,6 +50,7 @@ export const SizeSelector: React.FC = () => {
 					type: 'item',
 					value: newSize,
 					keyHint: null,
+					leftItem: null,
 				};
 			}
 		);

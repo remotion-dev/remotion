@@ -1,5 +1,5 @@
 import {PlayerInternals} from '@remotion/player';
-import React, {useMemo, useState} from 'react';
+import React, {useCallback, useMemo, useState} from 'react';
 import {
 	Internals,
 	MediaVolumeContextValue,
@@ -11,6 +11,7 @@ import {noop} from '../helpers/noop';
 import {
 	CheckerboardContext,
 	loadCheckerboardOption,
+	persistCheckerboardOption,
 } from '../state/checkerboard';
 import {HighestZIndexProvider} from '../state/highest-z-index';
 import {KeybindingContextProvider} from '../state/keybindings';
@@ -18,6 +19,7 @@ import {ModalContextType, ModalsContext, ModalType} from '../state/modals';
 import {loadPreviewSizeOption, PreviewSizeContext} from '../state/preview-size';
 import {
 	loadRichTimelineOption,
+	persistRichTimelineOption,
 	RichTimelineContext,
 } from '../state/rich-timeline';
 import {HigherZIndex} from '../state/z-index';
@@ -41,11 +43,31 @@ const Root = Internals.getRoot();
 export const Editor: React.FC = () => {
 	const [emitter] = useState(() => new PlayerInternals.PlayerEmitter());
 	const [size, setSize] = useState(() => loadPreviewSizeOption());
-	const [checkerboard, setCheckerboard] = useState(() =>
+	const [checkerboard, setCheckerboardState] = useState(() =>
 		loadCheckerboardOption()
 	);
-	const [richTimeline, setRichTimeline] = useState(() =>
+	const setCheckerboard = useCallback(
+		(newValue: (prevState: boolean) => boolean) => {
+			setCheckerboardState((prevState) => {
+				const newVal = newValue(prevState);
+				persistCheckerboardOption(newVal);
+				return newVal;
+			});
+		},
+		[]
+	);
+	const [richTimeline, setRichTimelineState] = useState(() =>
 		loadRichTimelineOption()
+	);
+	const setRichTimeline = useCallback(
+		(newValue: (prevState: boolean) => boolean) => {
+			setRichTimelineState((prevState) => {
+				const newVal = newValue(prevState);
+				persistRichTimelineOption(newVal);
+				return newVal;
+			});
+		},
+		[]
 	);
 	const [mediaMuted, setMediaMuted] = useState<boolean>(false);
 	const [mediaVolume, setMediaVolume] = useState<number>(1);
@@ -64,13 +86,13 @@ export const Editor: React.FC = () => {
 			checkerboard,
 			setCheckerboard,
 		};
-	}, [checkerboard]);
+	}, [checkerboard, setCheckerboard]);
 	const richTimelineCtx = useMemo(() => {
 		return {
 			richTimeline,
 			setRichTimeline,
 		};
-	}, [richTimeline]);
+	}, [richTimeline, setRichTimeline]);
 
 	const mediaVolumeContextValue = useMemo((): MediaVolumeContextValue => {
 		return {
