@@ -1,7 +1,7 @@
 import React, {useCallback, useContext, useEffect} from 'react';
 import {Internals, TComposition} from 'remotion';
 import styled from 'styled-components';
-import {CLEAR_HOVER, SELECTED_BACKGROUND} from '../helpers/colors';
+import {CLEAR_HOVER, LIGHT_TEXT, SELECTED_BACKGROUND} from '../helpers/colors';
 import {isCompositionStill} from '../helpers/is-composition-still';
 import {FilmIcon} from '../icons/film';
 import {StillIcon} from '../icons/still';
@@ -31,7 +31,7 @@ const Item = styled.a<{
 }>`
 	background: ${(props) =>
 		props.selected ? SELECTED_BACKGROUND : 'transparent'};
-	color: ${(props) => (props.selected ? 'white' : 'rgba(255, 255, 255, 0.6)')};
+	color: ${(props) => (props.selected ? 'white' : LIGHT_TEXT)};
 	padding-left: 8px;
 	padding-right: 8px;
 	padding-top: 6px;

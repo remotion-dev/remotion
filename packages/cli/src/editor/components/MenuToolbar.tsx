@@ -61,6 +61,7 @@ export const MenuToolbar: React.FC = () => {
 							openExternal('https://remotion.dev');
 						},
 						type: 'item',
+						keyHint: null,
 					},
 					{
 						id: 'changelog',
@@ -71,6 +72,7 @@ export const MenuToolbar: React.FC = () => {
 							openExternal('https://github.com/remotion-dev/remotion/releases');
 						},
 						type: 'item',
+						keyHint: null,
 					},
 					{
 						id: 'license',
@@ -83,6 +85,7 @@ export const MenuToolbar: React.FC = () => {
 							);
 						},
 						type: 'item',
+						keyHint: null,
 					},
 				],
 			},
@@ -99,6 +102,7 @@ export const MenuToolbar: React.FC = () => {
 							setSelectedModal('new-comp');
 						},
 						type: 'item',
+						keyHint: 'N',
 					},
 					{
 						id: 'new-still',
@@ -109,6 +113,7 @@ export const MenuToolbar: React.FC = () => {
 							setSelectedModal('new-comp');
 						},
 						type: 'item',
+						keyHint: null,
 					},
 					{
 						id: 'render',
@@ -120,6 +125,7 @@ export const MenuToolbar: React.FC = () => {
 							alert('todo');
 						},
 						type: 'item',
+						keyHint: null,
 					},
 				],
 			},
@@ -136,6 +142,7 @@ export const MenuToolbar: React.FC = () => {
 							openExternal('https://remotion.dev/docs');
 						},
 						type: 'item',
+						keyHint: null,
 					},
 					{
 						id: 'file-issue',
@@ -148,6 +155,7 @@ export const MenuToolbar: React.FC = () => {
 							);
 						},
 						type: 'item',
+						keyHint: null,
 					},
 					{
 						id: 'discord',
@@ -158,6 +166,7 @@ export const MenuToolbar: React.FC = () => {
 							openExternal('https://discord.com/invite/6VzzNDwUwV');
 						},
 						type: 'item',
+						keyHint: null,
 					},
 					{
 						id: 'help-divider',
@@ -172,6 +181,7 @@ export const MenuToolbar: React.FC = () => {
 							openExternal('https://instagram.com/remotion.dev');
 						},
 						type: 'item',
+						keyHint: null,
 					},
 					{
 						id: 'twitter',
@@ -182,6 +192,7 @@ export const MenuToolbar: React.FC = () => {
 							openExternal('https://twitter.com/JNYBGR');
 						},
 						type: 'item',
+						keyHint: null,
 					},
 					{
 						id: 'tiktok',
@@ -192,6 +203,7 @@ export const MenuToolbar: React.FC = () => {
 							openExternal('https://www.tiktok.com/@remotion.dev');
 						},
 						type: 'item',
+						keyHint: null,
 					},
 				],
 			},
@@ -227,7 +239,6 @@ export const MenuToolbar: React.FC = () => {
 	}, [menus]);
 
 	const onItemQuit = useCallback(() => {
-		console.log('quitting');
 		setSelected(null);
 	}, [setSelected]);
 

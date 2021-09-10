@@ -1,5 +1,6 @@
 import React, {useCallback, useMemo} from 'react';
-import {CLEAR_HOVER} from '../../helpers/colors';
+import {CLEAR_HOVER, LIGHT_TEXT} from '../../helpers/colors';
+import {Flex, Row} from '../layout';
 
 const container: React.CSSProperties = {
 	paddingTop: 8,
@@ -11,13 +12,19 @@ const container: React.CSSProperties = {
 };
 export const MENU_SUBMENU_BUTTON_CLASS_NAME = 'remotion-submenu-button';
 
+const keyHintCss: React.CSSProperties = {
+	flexDirection: 'row',
+	color: LIGHT_TEXT,
+};
+
 export const MenuSubItem: React.FC<{
 	label: React.ReactNode;
 	id: string;
 	onActionChosen: (id: string) => void;
 	selected: boolean;
 	onItemSelected: (id: string) => void;
-}> = ({label, onActionChosen, id, selected, onItemSelected}) => {
+	keyHint: string | null;
+}> = ({label, onActionChosen, id, selected, onItemSelected, keyHint}) => {
 	const style = useMemo((): React.CSSProperties => {
 		return {
 			...container,
@@ -40,7 +47,10 @@ export const MenuSubItem: React.FC<{
 			style={style}
 			onClick={onClick}
 		>
-			{label}
+			<Row>
+				<div>{label}</div> <Flex />
+				{keyHint ? <div style={keyHintCss}>{keyHint}</div> : null}
+			</Row>
 		</div>
 	);
 };
