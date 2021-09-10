@@ -60,12 +60,7 @@ export const MenuSubItem: React.FC<{
 	}, [id, onItemSelected]);
 
 	return (
-		<div
-			className={MENU_SUBMENU_BUTTON_CLASS_NAME}
-			onPointerEnter={onPointerEnter}
-			style={style}
-			onClick={onClick}
-		>
+		<div onPointerEnter={onPointerEnter} style={style} onClick={onClick}>
 			<Row>
 				{leaveLeftSpace ? (
 					<>
