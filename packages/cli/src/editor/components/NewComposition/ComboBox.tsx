@@ -141,7 +141,7 @@ export const Combobox: React.FC<{
 										onArrowRight={noop}
 										values={values}
 										onHide={onHide}
-										leaveLeftSpace={false}
+										leaveLeftSpace
 									/>
 								</div>
 							</div>
