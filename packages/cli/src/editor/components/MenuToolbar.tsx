@@ -174,6 +174,7 @@ export const MenuToolbar: React.FC = () => {
 								label: getPreviewSizeLabel(newSize),
 								leftItem: newSize === size ? <Checkmark /> : null,
 								onClick: () => {
+									close();
 									setSize(() => newSize);
 								},
 								subMenu: null,

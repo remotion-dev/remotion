@@ -40,10 +40,11 @@ export const SizeSelector: React.FC = () => {
 				return {
 					id: String(newSize),
 					label: getPreviewSizeLabel(newSize),
-					onClick: () =>
-						setSize(() => {
+					onClick: () => {
+						return setSize(() => {
 							return newSize;
-						}),
+						});
+					},
 					type: 'item',
 					value: newSize,
 					keyHint: null,

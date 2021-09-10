@@ -88,6 +88,10 @@ export const MenuSubItem: React.FC<{
 		setHovered(false);
 	}, []);
 
+	const onQuitSubmenu = useCallback(() => {
+		setSubMenuActivated(false);
+	}, [setSubMenuActivated]);
+
 	const portalStyle = useMemo((): React.CSSProperties | null => {
 		if (!selected || !size || !subMenu || !subMenuActivated) {
 			return null;
@@ -135,6 +139,7 @@ export const MenuSubItem: React.FC<{
 							<SubMenuComponent
 								onQuitFullMenu={onQuitMenu}
 								subMenu={subMenu}
+								onQuitSubMenu={onQuitSubmenu}
 								portalStyle={portalStyle}
 							/>,
 							getPortal(currentZIndex)
