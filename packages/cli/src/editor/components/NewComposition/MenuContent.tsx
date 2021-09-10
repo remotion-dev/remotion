@@ -1,7 +1,7 @@
 import React, {useCallback, useEffect, useState} from 'react';
 import {useKeybinding} from '../../helpers/use-keybinding';
 import {MenuDivider} from '../Menu/MenuDivider';
-import {MenuSubItem} from '../Menu/MenuSubItem';
+import {MenuSubItem, SubMenuActivated} from '../Menu/MenuSubItem';
 import {ComboboxValue} from './ComboBox';
 
 export const MenuContent: React.FC<{
@@ -10,12 +10,28 @@ export const MenuContent: React.FC<{
 	onNextMenu: () => void;
 	onPreviousMenu: () => void;
 	leaveLeftSpace: boolean;
-}> = ({onHide, values, onNextMenu, onPreviousMenu, leaveLeftSpace}) => {
+	preselectIndex: false | number;
+}> = ({
+	onHide,
+	values,
+	preselectIndex: preselectItem,
+	onNextMenu,
+	onPreviousMenu,
+	leaveLeftSpace,
+}) => {
 	const keybindings = useKeybinding();
 
-	const [subMenuActivated, setSubMenuActivated] = useState(false);
+	const [subMenuActivated, setSubMenuActivated] = useState<SubMenuActivated>(
+		false
+	);
 
-	const [selectedItem, setSelectedItem] = useState<string | null>(null);
+	if (values[0].type === 'divider') {
+		throw new Error('first value cant be divide');
+	}
+
+	const [selectedItem, setSelectedItem] = useState<string | null>(
+		typeof preselectItem === 'number' ? values[preselectItem].id : null
+	);
 
 	const onEscape = useCallback(() => {
 		onHide();
@@ -79,6 +95,10 @@ export const MenuContent: React.FC<{
 			throw new Error('cannot find divider');
 		}
 
+		if (item.subMenu) {
+			return setSubMenuActivated('without-mouse');
+		}
+
 		item.onClick(item.id);
 	}, [onHide, selectedItem, values]);
 
@@ -100,7 +120,7 @@ export const MenuContent: React.FC<{
 			return onNextMenu();
 		}
 
-		setSubMenuActivated(true);
+		setSubMenuActivated('without-mouse');
 	}, [onNextMenu, selectedItem, values]);
 
 	useEffect(() => {

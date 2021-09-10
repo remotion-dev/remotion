@@ -23,6 +23,7 @@ type DividerItem = {
 };
 
 export type SubMenu = {
+	preselectIndex: number | false;
 	leaveLeftSpace: boolean;
 	items: ComboboxValue[];
 };
@@ -122,6 +123,9 @@ export const Combobox: React.FC<{
 										values={values}
 										onHide={onHide}
 										leaveLeftSpace
+										preselectIndex={values.findIndex(
+											(v) => v.id === selected.id
+										)}
 									/>
 								</div>
 							</HigherZIndex>
