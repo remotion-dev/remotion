@@ -44,6 +44,9 @@ export const MenuSubItem: React.FC<{
 	leftItem: React.ReactNode;
 	subMenu: SubMenu | null;
 	onQuitMenu: () => void;
+	onNextMenu: () => void;
+	subMenuActivated: boolean;
+	setSubMenuActivated: React.Dispatch<React.SetStateAction<boolean>>;
 }> = ({
 	label,
 	leaveLeftSpace,
@@ -55,9 +58,10 @@ export const MenuSubItem: React.FC<{
 	keyHint,
 	subMenu,
 	onQuitMenu,
+	subMenuActivated,
+	setSubMenuActivated,
 }) => {
 	const [hovered, setHovered] = useState(false);
-	const [subMenuActivated, setSubMenuActivated] = useState(false);
 	const ref = useRef<HTMLDivElement>(null);
 	const size = PlayerInternals.useElementSize(ref, {
 		triggerOnWindowResize: true,
@@ -82,7 +86,6 @@ export const MenuSubItem: React.FC<{
 
 	const onPointerLeave = useCallback(() => {
 		setHovered(false);
-		setSubMenuActivated(false);
 	}, []);
 
 	const portalStyle = useMemo((): React.CSSProperties | null => {
@@ -106,7 +109,7 @@ export const MenuSubItem: React.FC<{
 			setSubMenuActivated(true);
 		}, 100);
 		return () => clearTimeout(hi);
-	}, [hovered, selected, subMenu]);
+	}, [hovered, selected, setSubMenuActivated, subMenu]);
 
 	return (
 		<div
@@ -130,7 +133,7 @@ export const MenuSubItem: React.FC<{
 				{portalStyle && subMenu
 					? ReactDOM.createPortal(
 							<SubMenuComponent
-								onQuitMenu={onQuitMenu}
+								onQuitFullMenu={onQuitMenu}
 								subMenu={subMenu}
 								portalStyle={portalStyle}
 							/>,

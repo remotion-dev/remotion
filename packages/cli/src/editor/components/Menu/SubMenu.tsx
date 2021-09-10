@@ -7,14 +7,14 @@ import {MenuContent} from '../NewComposition/MenuContent';
 export const SubMenuComponent: React.FC<{
 	portalStyle: React.CSSProperties;
 	subMenu: SubMenu;
-	onQuitMenu: () => void;
-}> = ({portalStyle, subMenu, onQuitMenu}) => {
+	onQuitFullMenu: () => void;
+}> = ({portalStyle, subMenu, onQuitFullMenu}) => {
 	return (
-		<HigherZIndex onEscape={onQuitMenu} onOutsideClick={noop}>
+		<HigherZIndex onEscape={onQuitFullMenu} onOutsideClick={noop}>
 			<div style={portalStyle}>
 				<MenuContent
-					onArrowLeft={noop}
-					onArrowRight={noop}
+					onNextMenu={noop}
+					onPreviousMenu={noop}
 					values={subMenu.items}
 					onHide={noop}
 					leaveLeftSpace={subMenu.leaveLeftSpace}

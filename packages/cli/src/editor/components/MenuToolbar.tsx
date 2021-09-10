@@ -321,7 +321,7 @@ export const MenuToolbar: React.FC = () => {
 		return structure.map((s) => s.id);
 	}, [structure]);
 
-	const onArrowRight = useCallback(() => {
+	const onPreviousMenu = useCallback(() => {
 		setSelected((s) => {
 			if (s === null) {
 				return null;
@@ -331,7 +331,7 @@ export const MenuToolbar: React.FC = () => {
 		});
 	}, [menus]);
 
-	const onArrowLeft = useCallback(() => {
+	const onNextMenu = useCallback(() => {
 		setSelected((s) => {
 			if (s === null) {
 				return null;
@@ -363,8 +363,8 @@ export const MenuToolbar: React.FC = () => {
 							label={s.label}
 							onItemQuit={onItemQuit}
 							menu={s}
-							onArrowLeft={onArrowLeft}
-							onArrowRight={onArrowRight}
+							onPreviousMenu={onPreviousMenu}
+							onNextMenu={onNextMenu}
 							leaveLeftPadding={s.leaveLeftPadding}
 						/>
 					);

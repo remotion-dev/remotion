@@ -38,8 +38,8 @@ export const MenuItem: React.FC<{
 	onItemSelected: (id: MenuId) => void;
 	onItemHovered: (id: MenuId) => void;
 	onItemQuit: () => void;
-	onArrowLeft: () => void;
-	onArrowRight: () => void;
+	onPreviousMenu: () => void;
+	onNextMenu: () => void;
 	menu: Menu;
 	leaveLeftPadding: boolean;
 }> = ({
@@ -49,8 +49,8 @@ export const MenuItem: React.FC<{
 	onItemSelected,
 	onItemHovered,
 	onItemQuit,
-	onArrowLeft,
-	onArrowRight,
+	onPreviousMenu,
+	onNextMenu,
 	menu,
 }) => {
 	const [hovered, setHovered] = useState(false);
@@ -123,8 +123,8 @@ export const MenuItem: React.FC<{
 							<HigherZIndex onEscape={onItemQuit} onOutsideClick={onItemQuit}>
 								<div style={portalStyle}>
 									<MenuContent
-										onArrowLeft={onArrowLeft}
-										onArrowRight={onArrowRight}
+										onNextMenu={onPreviousMenu}
+										onPreviousMenu={onNextMenu}
 										values={menu.items}
 										onHide={onItemQuit}
 										leaveLeftSpace={menu.leaveLeftPadding}
