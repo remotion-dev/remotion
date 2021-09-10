@@ -94,6 +94,7 @@ export const NewComposition: React.FC = () => {
 					type: 'item',
 					value: frameRate,
 					keyHint: null,
+					leftItem: null,
 				};
 			}
 		);

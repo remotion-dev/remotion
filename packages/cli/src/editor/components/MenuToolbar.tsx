@@ -1,6 +1,9 @@
 import React, {useCallback, useContext, useMemo, useState} from 'react';
 import {FONT_FAMILY} from '../helpers/font';
+import {CheckerboardContext} from '../state/checkerboard';
 import {ModalsContext} from '../state/modals';
+import {RichTimelineContext} from '../state/rich-timeline';
+import {Checkmark} from './Menu/Checkmark';
 import {MENU_ITEMS_CONTAINER} from './Menu/is-menu-click';
 import {Menu, MenuId, MenuItem} from './Menu/MenuItem';
 
@@ -25,6 +28,8 @@ const openExternal = (link: string) => {
 export const MenuToolbar: React.FC = () => {
 	const [selected, setSelected] = useState<MenuId | null>(null);
 	const {setSelectedModal} = useContext(ModalsContext);
+	const {checkerboard, setCheckerboard} = useContext(CheckerboardContext);
+	const {richTimeline, setRichTimeline} = useContext(RichTimelineContext);
 
 	const itemClicked = useCallback(
 		(itemId: MenuId) => {
@@ -51,6 +56,7 @@ export const MenuToolbar: React.FC = () => {
 			{
 				id: 'remotion',
 				label: 'Remotion',
+				leaveLeftPadding: false,
 				items: [
 					{
 						id: 'about',
@@ -62,6 +68,7 @@ export const MenuToolbar: React.FC = () => {
 						},
 						type: 'item',
 						keyHint: null,
+						leftItem: null,
 					},
 					{
 						id: 'changelog',
@@ -73,6 +80,7 @@ export const MenuToolbar: React.FC = () => {
 						},
 						type: 'item',
 						keyHint: null,
+						leftItem: null,
 					},
 					{
 						id: 'license',
@@ -86,12 +94,15 @@ export const MenuToolbar: React.FC = () => {
 						},
 						type: 'item',
 						keyHint: null,
+						leftItem: null,
 					},
 				],
 			},
 			{
 				id: 'file',
 				label: 'File',
+				leaveLeftPadding: false,
+
 				items: [
 					{
 						id: 'new-sequence',
@@ -103,6 +114,7 @@ export const MenuToolbar: React.FC = () => {
 						},
 						type: 'item',
 						keyHint: 'N',
+						leftItem: null,
 					},
 					{
 						id: 'new-still',
@@ -114,6 +126,7 @@ export const MenuToolbar: React.FC = () => {
 						},
 						type: 'item',
 						keyHint: null,
+						leftItem: null,
 					},
 					{
 						id: 'render',
@@ -126,12 +139,45 @@ export const MenuToolbar: React.FC = () => {
 						},
 						type: 'item',
 						keyHint: null,
+						leftItem: null,
+					},
+				],
+			},
+			{
+				id: 'view',
+				label: 'View',
+				leaveLeftPadding: true,
+				items: [
+					{
+						id: 'checkerboard',
+						keyHint: 'C',
+						label: 'Transparency as checkerboard',
+						onClick: () => {
+							close();
+							setCheckerboard((c) => !c);
+						},
+						type: 'item',
+						value: 'checkerboard',
+						leftItem: checkerboard ? <Checkmark /> : null,
+					},
+					{
+						id: 'rich-timeline',
+						keyHint: null,
+						label: 'Rich timeline',
+						onClick: () => {
+							close();
+							setRichTimeline((r) => !r);
+						},
+						type: 'item',
+						value: 'rich-timeline',
+						leftItem: richTimeline ? <Checkmark /> : null,
 					},
 				],
 			},
 			{
 				id: 'help',
 				label: 'Help',
+				leaveLeftPadding: false,
 				items: [
 					{
 						id: 'docs',
@@ -143,6 +189,7 @@ export const MenuToolbar: React.FC = () => {
 						},
 						type: 'item',
 						keyHint: null,
+						leftItem: null,
 					},
 					{
 						id: 'file-issue',
@@ -156,6 +203,7 @@ export const MenuToolbar: React.FC = () => {
 						},
 						type: 'item',
 						keyHint: null,
+						leftItem: null,
 					},
 					{
 						id: 'discord',
@@ -167,6 +215,7 @@ export const MenuToolbar: React.FC = () => {
 						},
 						type: 'item',
 						keyHint: null,
+						leftItem: null,
 					},
 					{
 						id: 'help-divider',
@@ -182,6 +231,7 @@ export const MenuToolbar: React.FC = () => {
 						},
 						type: 'item',
 						keyHint: null,
+						leftItem: null,
 					},
 					{
 						id: 'twitter',
@@ -193,6 +243,7 @@ export const MenuToolbar: React.FC = () => {
 						},
 						type: 'item',
 						keyHint: null,
+						leftItem: null,
 					},
 					{
 						id: 'tiktok',
@@ -204,11 +255,19 @@ export const MenuToolbar: React.FC = () => {
 						},
 						type: 'item',
 						keyHint: null,
+						leftItem: null,
 					},
 				],
 			},
 		];
-	}, [close, setSelectedModal]);
+	}, [
+		checkerboard,
+		close,
+		richTimeline,
+		setCheckerboard,
+		setRichTimeline,
+		setSelectedModal,
+	]);
 
 	const menus = useMemo(() => {
 		return structure.map((s) => s.id);
@@ -258,6 +317,7 @@ export const MenuToolbar: React.FC = () => {
 							menu={s}
 							onArrowLeft={onArrowLeft}
 							onArrowRight={onArrowRight}
+							leaveLeftPadding={s.leaveLeftPadding}
 						/>
 					);
 				})}

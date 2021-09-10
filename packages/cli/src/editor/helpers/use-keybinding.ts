@@ -24,7 +24,7 @@ export const useKeybinding = () => {
 			}
 
 			const listener = (e: KeyboardEvent) => {
-				if (e.key === key) {
+				if (e.key.toLowerCase() === key.toLowerCase()) {
 					callback(e);
 				}
 			};

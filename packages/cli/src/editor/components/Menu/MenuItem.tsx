@@ -43,7 +43,7 @@ const outerPortal: React.CSSProperties = {
 	backgroundColor: 'rgba(255, 255, 255, 0.02)',
 };
 
-export type MenuId = 'remotion' | 'file' | 'help';
+export type MenuId = 'remotion' | 'file' | 'view' | 'help';
 
 const portal = document.getElementById('menuportal') as Element;
 
@@ -51,6 +51,7 @@ export type Menu = {
 	id: MenuId;
 	label: string;
 	items: ComboboxValue[];
+	leaveLeftPadding: boolean;
 };
 
 export const MenuItem: React.FC<{
@@ -63,6 +64,7 @@ export const MenuItem: React.FC<{
 	onArrowLeft: () => void;
 	onArrowRight: () => void;
 	menu: Menu;
+	leaveLeftPadding: boolean;
 }> = ({
 	label: itemName,
 	selected,
@@ -156,6 +158,7 @@ export const MenuItem: React.FC<{
 										onArrowRight={onArrowRight}
 										values={menu.items}
 										onHide={onItemQuit}
+										leaveLeftSpace={menu.leaveLeftPadding}
 									/>
 								</div>
 							</div>

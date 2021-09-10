@@ -9,7 +9,8 @@ export const MenuContent: React.FC<{
 	onHide: () => void;
 	onArrowLeft: () => void;
 	onArrowRight: () => void;
-}> = ({onHide, values, onArrowLeft, onArrowRight}) => {
+	leaveLeftSpace: boolean;
+}> = ({onHide, values, onArrowLeft, onArrowRight, leaveLeftSpace}) => {
 	const keybindings = useKeybinding();
 
 	const [selectedItem, setSelectedItem] = useState<string | null>(null);
@@ -151,6 +152,8 @@ export const MenuContent: React.FC<{
 						label={item.label}
 						id={item.id}
 						keyHint={item.keyHint}
+						leaveLeftSpace={leaveLeftSpace}
+						leftItem={item.leftItem}
 					/>
 				);
 			})}

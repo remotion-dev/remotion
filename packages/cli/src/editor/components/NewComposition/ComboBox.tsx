@@ -47,6 +47,7 @@ type SelectionItem = {
 	value: string | number;
 	onClick: (id: string) => void;
 	keyHint: string | null;
+	leftItem: React.ReactNode;
 };
 
 export type ComboboxValue = DividerItem | SelectionItem;
@@ -140,6 +141,7 @@ export const Combobox: React.FC<{
 										onArrowRight={noop}
 										values={values}
 										onHide={onHide}
+										leaveLeftSpace={false}
 									/>
 								</div>
 							</div>
