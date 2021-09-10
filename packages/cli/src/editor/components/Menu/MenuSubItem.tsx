@@ -1,5 +1,5 @@
 import {PlayerInternals} from '@remotion/player';
-import React, {useCallback, useMemo, useRef} from 'react';
+import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import ReactDOM from 'react-dom';
 import {CLEAR_HOVER, LIGHT_TEXT} from '../../helpers/colors';
 import {Caret} from '../../icons/caret';
@@ -56,6 +56,8 @@ export const MenuSubItem: React.FC<{
 	subMenu,
 	onQuitMenu,
 }) => {
+	const [hovered, setHovered] = useState(false);
+	const [subMenuActivated, setSubMenuActivated] = useState(false);
 	const ref = useRef<HTMLDivElement>(null);
 	const size = PlayerInternals.useElementSize(ref, {
 		triggerOnWindowResize: true,
@@ -75,10 +77,16 @@ export const MenuSubItem: React.FC<{
 
 	const onPointerEnter = useCallback(() => {
 		onItemSelected(id);
+		setHovered(true);
 	}, [id, onItemSelected]);
 
+	const onPointerLeave = useCallback(() => {
+		setHovered(false);
+		setSubMenuActivated(false);
+	}, []);
+
 	const portalStyle = useMemo((): React.CSSProperties | null => {
-		if (!selected || !size || !subMenu) {
+		if (!selected || !size || !subMenu || !subMenuActivated) {
 			return null;
 		}
 
@@ -87,12 +95,24 @@ export const MenuSubItem: React.FC<{
 			left: size.left + size.width,
 			top: size.top,
 		};
-	}, [selected, size, subMenu]);
+	}, [selected, size, subMenu, subMenuActivated]);
+
+	useEffect(() => {
+		if (!hovered || !subMenu) {
+			return;
+		}
+
+		const hi = setTimeout(() => {
+			setSubMenuActivated(true);
+		}, 100);
+		return () => clearTimeout(hi);
+	}, [hovered, selected, subMenu]);
 
 	return (
 		<div
 			ref={ref}
 			onPointerEnter={onPointerEnter}
+			onPointerLeave={onPointerLeave}
 			style={style}
 			onClick={onClick}
 		>

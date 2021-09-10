@@ -1,16 +1,13 @@
 import {PreviewSize} from '@remotion/player';
 import React, {useContext, useMemo} from 'react';
 import {Checkmark} from '../icons/Checkmark';
-import {
-	persistPreviewSizeOption,
-	PreviewSizeContext,
-} from '../state/preview-size';
+import {PreviewSizeContext} from '../state/preview-size';
 import {CONTROL_BUTTON_PADDING} from './ControlButton';
 import {Combobox, ComboboxValue} from './NewComposition/ComboBox';
 
-const sizes: PreviewSize[] = ['auto', 0.25, 0.5, 1];
+export const commonPreviewSizes: PreviewSize[] = ['auto', 0.25, 0.5, 1];
 
-const getLabel = (previewSize: PreviewSize) => {
+export const getPreviewSizeLabel = (previewSize: PreviewSize) => {
 	if (previewSize === 1) {
 		return '100%';
 	}
@@ -38,14 +35,13 @@ export const SizeSelector: React.FC = () => {
 	}, []);
 
 	const items: ComboboxValue[] = useMemo(() => {
-		return sizes.map(
+		return commonPreviewSizes.map(
 			(newSize): ComboboxValue => {
 				return {
 					id: String(newSize),
-					label: getLabel(newSize),
+					label: getPreviewSizeLabel(newSize),
 					onClick: () =>
 						setSize(() => {
-							persistPreviewSizeOption(newSize);
 							return newSize;
 						}),
 					type: 'item',

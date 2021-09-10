@@ -1,4 +1,4 @@
-import {PlayerInternals} from '@remotion/player';
+import {PlayerInternals, PreviewSize} from '@remotion/player';
 import React, {useCallback, useMemo, useState} from 'react';
 import {
 	Internals,
@@ -16,7 +16,11 @@ import {
 import {HighestZIndexProvider} from '../state/highest-z-index';
 import {KeybindingContextProvider} from '../state/keybindings';
 import {ModalContextType, ModalsContext, ModalType} from '../state/modals';
-import {loadPreviewSizeOption, PreviewSizeContext} from '../state/preview-size';
+import {
+	loadPreviewSizeOption,
+	persistPreviewSizeOption,
+	PreviewSizeContext,
+} from '../state/preview-size';
 import {
 	loadRichTimelineOption,
 	persistRichTimelineOption,
@@ -42,7 +46,7 @@ const Root = Internals.getRoot();
 
 export const Editor: React.FC = () => {
 	const [emitter] = useState(() => new PlayerInternals.PlayerEmitter());
-	const [size, setSize] = useState(() => loadPreviewSizeOption());
+	const [size, setSizeState] = useState(() => loadPreviewSizeOption());
 	const [checkerboard, setCheckerboardState] = useState(() =>
 		loadCheckerboardOption()
 	);
@@ -64,6 +68,16 @@ export const Editor: React.FC = () => {
 			setRichTimelineState((prevState) => {
 				const newVal = newValue(prevState);
 				persistRichTimelineOption(newVal);
+				return newVal;
+			});
+		},
+		[]
+	);
+	const setSize = useCallback(
+		(newValue: (prevState: PreviewSize) => PreviewSize) => {
+			setSizeState((prevState) => {
+				const newVal = newValue(prevState);
+				persistPreviewSizeOption(newVal);
 				return newVal;
 			});
 		},
