@@ -54,7 +54,7 @@ export const NewComposition: React.FC = () => {
 	const [durationInFrames, setDurationInFrames] = useState('150');
 	const {setSelectedModal} = useContext(ModalsContext);
 
-	const onEscape = useCallback(() => {
+	const onQuit = useCallback(() => {
 		setSelectedModal(null);
 	}, [setSelectedModal]);
 
@@ -103,7 +103,7 @@ export const NewComposition: React.FC = () => {
 	}, [onFpsChange, selectedFrameRate]);
 
 	return (
-		<ModalContainer onEscape={onEscape}>
+		<ModalContainer onOutsideClick={onQuit} onEscape={onQuit}>
 			<NewCompHeader />
 			<div style={panelContent}>
 				<div style={left}>

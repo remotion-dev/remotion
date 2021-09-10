@@ -135,7 +135,7 @@ export const Editor: React.FC = () => {
 										value={emitter}
 									>
 										<HighestZIndexProvider>
-											<HigherZIndex onEscape={noop}>
+											<HigherZIndex onEscape={noop} onOutsideClick={noop}>
 												<Background>
 													<Root />
 													<UpdateCheck />

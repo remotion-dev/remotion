@@ -23,12 +23,13 @@ const panel: React.CSSProperties = {
 
 export const ModalContainer: React.FC<{
 	onEscape: () => void;
-}> = ({children, onEscape}) => {
+	onOutsideClick: () => void;
+}> = ({children, onEscape, onOutsideClick}) => {
 	return (
-		<HigherZIndex onEscape={onEscape}>
-			<div style={backgroundOverlay} role="dialog" aria-modal="true">
+		<div style={backgroundOverlay} role="dialog" aria-modal="true">
+			<HigherZIndex onOutsideClick={onOutsideClick} onEscape={onEscape}>
 				<div style={panel}>{children}</div>
-			</div>
-		</HigherZIndex>
+			</HigherZIndex>
+		</div>
 	);
 };
