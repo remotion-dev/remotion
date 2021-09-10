@@ -4,7 +4,6 @@ import {CheckerboardContext} from '../state/checkerboard';
 import {ModalsContext} from '../state/modals';
 import {RichTimelineContext} from '../state/rich-timeline';
 import {Checkmark} from './Menu/Checkmark';
-import {MENU_ITEMS_CONTAINER} from './Menu/is-menu-click';
 import {Menu, MenuId, MenuItem} from './Menu/MenuItem';
 
 const row: React.CSSProperties = {
@@ -303,7 +302,7 @@ export const MenuToolbar: React.FC = () => {
 
 	return (
 		<div style={row}>
-			<div className={MENU_ITEMS_CONTAINER}>
+			<div>
 				{structure.map((s) => {
 					return (
 						<MenuItem
