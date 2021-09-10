@@ -33,6 +33,7 @@ export const SubMenuComponent: React.FC<{
 							? subMenu.preselectIndex
 							: false
 					}
+					topItemCanBeUnselected={false}
 				/>
 			</div>
 		</HigherZIndex>

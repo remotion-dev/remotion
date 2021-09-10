@@ -7,7 +7,11 @@ import {useZIndex} from '../../state/z-index';
 import {Flex, Row, Spacing} from '../layout';
 import {SubMenu} from '../NewComposition/ComboBox';
 import {getPortal} from './portals';
-import {menuContainer} from './styles';
+import {
+	menuContainer,
+	MENU_VERTICAL_PADDING,
+	SUBMENU_LEFT_INSET,
+} from './styles';
 import {SubMenuComponent} from './SubMenu';
 
 const container: React.CSSProperties = {
@@ -101,8 +105,8 @@ export const MenuSubItem: React.FC<{
 
 		return {
 			...menuContainer,
-			left: size.left + size.width,
-			top: size.top,
+			left: size.left + size.width + SUBMENU_LEFT_INSET,
+			top: size.top - MENU_VERTICAL_PADDING,
 		};
 	}, [selected, size, subMenu, subMenuActivated]);
 

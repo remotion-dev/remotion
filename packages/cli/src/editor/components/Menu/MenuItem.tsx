@@ -129,6 +129,7 @@ export const MenuItem: React.FC<{
 										onHide={onItemQuit}
 										leaveLeftSpace={menu.leaveLeftPadding}
 										preselectIndex={false}
+										topItemCanBeUnselected
 									/>
 								</div>
 							</HigherZIndex>

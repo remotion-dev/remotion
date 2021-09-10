@@ -11,6 +11,7 @@ export const MenuContent: React.FC<{
 	onPreviousMenu: () => void;
 	leaveLeftSpace: boolean;
 	preselectIndex: false | number;
+	topItemCanBeUnselected: boolean;
 }> = ({
 	onHide,
 	values,
@@ -18,6 +19,7 @@ export const MenuContent: React.FC<{
 	onNextMenu,
 	onPreviousMenu,
 	leaveLeftSpace,
+	topItemCanBeUnselected,
 }) => {
 	const keybindings = useKeybinding();
 
@@ -43,7 +45,15 @@ export const MenuContent: React.FC<{
 
 	const onArrowUp = useCallback(() => {
 		setSelectedItem((prevItem) => {
+			if (prevItem === null) {
+				return null;
+			}
+
 			const index = values.findIndex((val) => val.id === prevItem);
+			if ((topItemCanBeUnselected && index === 0) || prevItem === null) {
+				return null;
+			}
+
 			const previousItems = values.filter(
 				(v, i) => i < index && v.type !== 'divider'
 			);
@@ -58,7 +68,7 @@ export const MenuContent: React.FC<{
 
 			throw new Error('could not find previous item');
 		});
-	}, [values]);
+	}, [topItemCanBeUnselected, values]);
 
 	const onArrowDown = useCallback(() => {
 		setSelectedItem((prevItem) => {

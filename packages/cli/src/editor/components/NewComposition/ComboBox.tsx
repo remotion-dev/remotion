@@ -126,6 +126,7 @@ export const Combobox: React.FC<{
 										preselectIndex={values.findIndex(
 											(v) => v.id === selected.id
 										)}
+										topItemCanBeUnselected={false}
 									/>
 								</div>
 							</HigherZIndex>
