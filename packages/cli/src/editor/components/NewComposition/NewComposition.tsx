@@ -7,6 +7,7 @@ import React, {
 } from 'react';
 import {ModalsContext} from '../../state/modals';
 import {Spacing} from '../layout';
+import {Checkmark} from '../Menu/Checkmark';
 import {ModalContainer} from '../ModalContainer';
 import {Combobox, ComboboxValue} from './ComboBox';
 import {CompositionType, CompType} from './CompositionType';
@@ -94,11 +95,12 @@ export const NewComposition: React.FC = () => {
 					type: 'item',
 					value: frameRate,
 					keyHint: null,
-					leftItem: null,
+					leftItem:
+						String(frameRate) === selectedFrameRate ? <Checkmark /> : null,
 				};
 			}
 		);
-	}, [onFpsChange]);
+	}, [onFpsChange, selectedFrameRate]);
 
 	return (
 		<ModalContainer onEscape={onEscape}>

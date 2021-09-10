@@ -5,6 +5,7 @@ import {
 	PreviewSizeContext,
 } from '../state/preview-size';
 import {CONTROL_BUTTON_PADDING} from './ControlButton';
+import {Checkmark} from './Menu/Checkmark';
 import {Combobox, ComboboxValue} from './NewComposition/ComboBox';
 
 const sizes: PreviewSize[] = ['auto', 0.25, 0.5, 1];
@@ -50,11 +51,11 @@ export const SizeSelector: React.FC = () => {
 					type: 'item',
 					value: newSize,
 					keyHint: null,
-					leftItem: null,
+					leftItem: size === newSize ? <Checkmark /> : null,
 				};
 			}
 		);
-	}, [setSize]);
+	}, [setSize, size]);
 
 	return (
 		<div style={style} aria-label="Select the size of the preview">
