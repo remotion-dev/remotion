@@ -8,13 +8,14 @@ export const SubMenuComponent: React.FC<{
 	portalStyle: React.CSSProperties;
 	subMenu: SubMenu;
 	onQuitFullMenu: () => void;
-}> = ({portalStyle, subMenu, onQuitFullMenu}) => {
+	onQuitSubMenu: () => void;
+}> = ({portalStyle, subMenu, onQuitFullMenu, onQuitSubMenu}) => {
 	return (
 		<HigherZIndex onEscape={onQuitFullMenu} onOutsideClick={noop}>
 			<div style={portalStyle}>
 				<MenuContent
 					onNextMenu={noop}
-					onPreviousMenu={noop}
+					onPreviousMenu={onQuitSubMenu}
 					values={subMenu.items}
 					onHide={noop}
 					leaveLeftSpace={subMenu.leaveLeftSpace}
