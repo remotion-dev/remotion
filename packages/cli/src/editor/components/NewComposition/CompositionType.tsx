@@ -50,6 +50,7 @@ const Panel: React.FC<{
 			color: 'white',
 			appearance: 'none',
 			border: 'none',
+			textAlign: 'left',
 		};
 	}, [hovered, selected]);
 
