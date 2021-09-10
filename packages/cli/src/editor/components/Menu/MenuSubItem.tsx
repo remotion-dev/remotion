@@ -139,7 +139,7 @@ export const MenuSubItem: React.FC<{
 				<div>{label}</div> <Flex />
 				<Spacing x={2} />
 				{subMenu ? <Caret /> : null}
-				{keyHint ? <div style={keyHintCss}>{keyHint}</div> : null}
+				{keyHint ? <span style={keyHintCss}>{keyHint}</span> : null}
 				{portalStyle && subMenu
 					? ReactDOM.createPortal(
 							<SubMenuComponent

@@ -55,7 +55,7 @@ export const HigherZIndex: React.FC<{
 		const listener = (e: MouseEvent) => {
 			const outsideClick = !containerRef.current?.contains(e.target as Node);
 
-			if (outsideClick) {
+			if (outsideClick && highestContext.highestIndex === currentIndex) {
 				e.stopPropagation();
 				onOutsideClick();
 			}
@@ -63,7 +63,7 @@ export const HigherZIndex: React.FC<{
 
 		window.addEventListener('click', listener);
 		return () => window.removeEventListener('click', listener);
-	}, [onOutsideClick]);
+	}, [currentIndex, highestContext.highestIndex, onOutsideClick]);
 
 	const value = useMemo((): ZIndex => {
 		return {
