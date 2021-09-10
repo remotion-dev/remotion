@@ -117,8 +117,8 @@ export const Combobox: React.FC<{
 							<HigherZIndex onOutsideClick={onHide} onEscape={onHide}>
 								<div style={portalStyle}>
 									<MenuContent
-										onArrowLeft={noop}
-										onArrowRight={noop}
+										onNextMenu={noop}
+										onPreviousMenu={noop}
 										values={values}
 										onHide={onHide}
 										leaveLeftSpace

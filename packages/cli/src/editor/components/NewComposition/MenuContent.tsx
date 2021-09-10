@@ -7,11 +7,13 @@ import {ComboboxValue} from './ComboBox';
 export const MenuContent: React.FC<{
 	values: ComboboxValue[];
 	onHide: () => void;
-	onArrowLeft: () => void;
-	onArrowRight: () => void;
+	onNextMenu: () => void;
+	onPreviousMenu: () => void;
 	leaveLeftSpace: boolean;
-}> = ({onHide, values, onArrowLeft, onArrowRight, leaveLeftSpace}) => {
+}> = ({onHide, values, onNextMenu, onPreviousMenu, leaveLeftSpace}) => {
 	const keybindings = useKeybinding();
+
+	const [subMenuActivated, setSubMenuActivated] = useState(false);
 
 	const [selectedItem, setSelectedItem] = useState<string | null>(null);
 
@@ -80,21 +82,42 @@ export const MenuContent: React.FC<{
 		item.onClick(item.id);
 	}, [onHide, selectedItem, values]);
 
+	const onArrowRight = useCallback(() => {
+		if (selectedItem === null) {
+			return onNextMenu();
+		}
+
+		const item = values.find((i) => i.id === selectedItem);
+		if (!item) {
+			throw new Error('cannot find item');
+		}
+
+		if (item.type === 'divider') {
+			throw new Error('cannot find divider');
+		}
+
+		if (!item.subMenu) {
+			return onNextMenu();
+		}
+
+		setSubMenuActivated(true);
+	}, [onNextMenu, selectedItem, values]);
+
 	useEffect(() => {
 		const escapeBinding = keybindings.registerKeybinding(
 			'keydown',
 			'Escape',
 			onEscape
 		);
-		const leftBinding = keybindings.registerKeybinding(
-			'keydown',
-			'ArrowLeft',
-			onArrowLeft
-		);
 		const rightBinding = keybindings.registerKeybinding(
 			'keydown',
 			'ArrowRight',
 			onArrowRight
+		);
+		const leftBinding = keybindings.registerKeybinding(
+			'keydown',
+			'ArrowLeft',
+			onPreviousMenu
 		);
 		const downBinding = keybindings.registerKeybinding(
 			'keydown',
@@ -124,12 +147,37 @@ export const MenuContent: React.FC<{
 	}, [
 		keybindings,
 		onEscape,
-		onArrowLeft,
-		onArrowRight,
+		onNextMenu,
+		onPreviousMenu,
 		onArrowDown,
 		onArrowUp,
 		onEnter,
+		onArrowRight,
 	]);
+
+	// Disable submenu if not selected
+	useEffect(() => {
+		if (!subMenuActivated) {
+			return;
+		}
+
+		if (selectedItem === null) {
+			return setSubMenuActivated(false);
+		}
+
+		const item = values.find((i) => i.id === selectedItem);
+		if (!item) {
+			throw new Error('cannot find item');
+		}
+
+		if (item.type === 'divider') {
+			throw new Error('should not select divider');
+		}
+
+		if (!item.subMenu && subMenuActivated) {
+			setSubMenuActivated(false);
+		}
+	}, [selectedItem, subMenuActivated, values]);
 
 	return (
 		<div>
@@ -156,6 +204,9 @@ export const MenuContent: React.FC<{
 						leftItem={item.leftItem}
 						subMenu={item.subMenu}
 						onQuitMenu={onHide}
+						onNextMenu={onNextMenu}
+						subMenuActivated={subMenuActivated}
+						setSubMenuActivated={setSubMenuActivated}
 					/>
 				);
 			})}
