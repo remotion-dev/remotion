@@ -5,7 +5,6 @@ import {BACKGROUND, getBackgroundFromHoverState} from '../../helpers/colors';
 import {FONT_FAMILY} from '../../helpers/font';
 import {noop} from '../../helpers/noop';
 import {HigherZIndex, useZIndex} from '../../state/z-index';
-import {SUBMENU_CONTAINER_CLASS_NAME} from '../Menu/is-menu-click';
 import {MenuContent} from './MenuContent';
 
 const container: React.CSSProperties = {
@@ -132,10 +131,7 @@ export const Combobox: React.FC<{
 				? ReactDOM.createPortal(
 						<HigherZIndex onOutsideClick={onHide} onEscape={onHide}>
 							<div style={outerStyle}>
-								<div
-									className={SUBMENU_CONTAINER_CLASS_NAME}
-									style={portalStyle}
-								>
+								<div style={portalStyle}>
 									<MenuContent
 										onArrowLeft={noop}
 										onArrowRight={noop}
