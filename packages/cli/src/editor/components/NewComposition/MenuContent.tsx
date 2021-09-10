@@ -1,8 +1,14 @@
-import React, {useCallback, useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {useKeybinding} from '../../helpers/use-keybinding';
 import {MenuDivider} from '../Menu/MenuDivider';
 import {MenuSubItem, SubMenuActivated} from '../Menu/MenuSubItem';
+import {MENU_VERTICAL_PADDING} from '../Menu/styles';
 import {ComboboxValue} from './ComboBox';
+
+const container: React.CSSProperties = {
+	paddingTop: MENU_VERTICAL_PADDING,
+	paddingBottom: MENU_VERTICAL_PADDING,
+};
 
 export const MenuContent: React.FC<{
 	values: ComboboxValue[];
@@ -15,13 +21,14 @@ export const MenuContent: React.FC<{
 }> = ({
 	onHide,
 	values,
-	preselectIndex: preselectItem,
+	preselectIndex,
 	onNextMenu,
 	onPreviousMenu,
 	leaveLeftSpace,
 	topItemCanBeUnselected,
 }) => {
 	const keybindings = useKeybinding();
+	const containerRef = useRef<HTMLDivElement>(null);
 
 	const [subMenuActivated, setSubMenuActivated] = useState<SubMenuActivated>(
 		false
@@ -32,7 +39,7 @@ export const MenuContent: React.FC<{
 	}
 
 	const [selectedItem, setSelectedItem] = useState<string | null>(
-		typeof preselectItem === 'number' ? values[preselectItem].id : null
+		typeof preselectIndex === 'number' ? values[preselectIndex].id : null
 	);
 
 	const onEscape = useCallback(() => {
@@ -209,8 +216,26 @@ export const MenuContent: React.FC<{
 		}
 	}, [selectedItem, subMenuActivated, values]);
 
+	useEffect(() => {
+		const {current} = containerRef;
+		if (!current) {
+			return;
+		}
+
+		const onPointerLeave = () => {
+			if (subMenuActivated) {
+				return;
+			}
+
+			setSelectedItem(null);
+		};
+
+		current.addEventListener('pointerleave', onPointerLeave);
+		return () => current.removeEventListener('pointerleave', onPointerLeave);
+	}, [onHide, subMenuActivated]);
+
 	return (
-		<div>
+		<div ref={containerRef} style={container}>
 			{values.map((item) => {
 				if (item.type === 'divider') {
 					return <MenuDivider key={item.id} />;

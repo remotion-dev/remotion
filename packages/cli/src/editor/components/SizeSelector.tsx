@@ -55,7 +55,6 @@ export const SizeSelector: React.FC = () => {
 		);
 	}, [setSize, size]);
 
-	console.log({size, commonPreviewSizes});
 	return (
 		<div style={style} aria-label="Select the size of the preview">
 			<Combobox selectedId={String(size)} values={items} />
