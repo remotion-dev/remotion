@@ -5,9 +5,9 @@ import React, {
 	useMemo,
 	useState,
 } from 'react';
+import {Checkmark} from '../../icons/Checkmark';
 import {ModalsContext} from '../../state/modals';
 import {Spacing} from '../layout';
-import {Checkmark} from '../Menu/Checkmark';
 import {ModalContainer} from '../ModalContainer';
 import {Combobox, ComboboxValue} from './ComboBox';
 import {CompositionType, CompType} from './CompositionType';
@@ -97,6 +97,7 @@ export const NewComposition: React.FC = () => {
 					keyHint: null,
 					leftItem:
 						String(frameRate) === selectedFrameRate ? <Checkmark /> : null,
+					subMenu: null,
 				};
 			}
 		);

@@ -154,6 +154,8 @@ export const MenuContent: React.FC<{
 						keyHint={item.keyHint}
 						leaveLeftSpace={leaveLeftSpace}
 						leftItem={item.leftItem}
+						subMenu={item.subMenu}
+						onQuitMenu={onHide}
 					/>
 				);
 			})}

@@ -1,10 +1,11 @@
 import {useElementSize} from '@remotion/player/src/utils/use-element-size';
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import ReactDOM from 'react-dom';
-import {BACKGROUND, getBackgroundFromHoverState} from '../../helpers/colors';
-import {FONT_FAMILY} from '../../helpers/font';
+import {getBackgroundFromHoverState} from '../../helpers/colors';
 import {noop} from '../../helpers/noop';
 import {HigherZIndex, useZIndex} from '../../state/z-index';
+import {getPortal} from '../Menu/portals';
+import {menuContainer, outerPortal} from '../Menu/styles';
 import {MenuContent} from './MenuContent';
 
 const container: React.CSSProperties = {
@@ -16,27 +17,14 @@ const container: React.CSSProperties = {
 	borderStyle: 'solid',
 };
 
-const menuContainer: React.CSSProperties = {
-	backgroundColor: BACKGROUND,
-	position: 'fixed',
-	boxShadow: '0 2px 8px rgba(0, 0, 0, 0.5)',
-	color: 'white',
-	fontFamily: FONT_FAMILY,
-	paddingTop: 4,
-	paddingBottom: 4,
-	userSelect: 'none',
-	minWidth: 200,
-};
-
-const outerPortal: React.CSSProperties = {
-	position: 'fixed',
-	height: '100%',
-	width: '100%',
-};
-
 type DividerItem = {
 	type: 'divider';
 	id: string;
+};
+
+export type SubMenu = {
+	leaveLeftSpace: boolean;
+	items: ComboboxValue[];
 };
 
 type SelectionItem = {
@@ -47,11 +35,10 @@ type SelectionItem = {
 	onClick: (id: string) => void;
 	keyHint: string | null;
 	leftItem: React.ReactNode;
+	subMenu: SubMenu | null;
 };
 
 export type ComboboxValue = DividerItem | SelectionItem;
-
-const portal = document.getElementById('menuportal') as Element;
 
 export const Combobox: React.FC<{
 	values: ComboboxValue[];
@@ -60,7 +47,7 @@ export const Combobox: React.FC<{
 	const [hovered, setIsHovered] = useState(false);
 	const [opened, setOpened] = useState(false);
 	const ref = useRef<HTMLButtonElement>(null);
-	const {tabIndex} = useZIndex();
+	const {tabIndex, currentZIndex} = useZIndex();
 	const size = useElementSize(ref, {
 		triggerOnWindowResize: true,
 	});
@@ -89,7 +76,10 @@ export const Combobox: React.FC<{
 
 		const onMouseEnter = () => setIsHovered(true);
 		const onMouseLeave = () => setIsHovered(false);
-		const onClick = () => setOpened((o) => !o);
+		const onClick = (e: MouseEvent) => {
+			e.stopPropagation();
+			return setOpened((o) => !o);
+		};
 
 		current.addEventListener('mouseenter', onMouseEnter);
 		current.addEventListener('mouseleave', onMouseLeave);
@@ -98,6 +88,7 @@ export const Combobox: React.FC<{
 		return () => {
 			current.removeEventListener('mouseenter', onMouseEnter);
 			current.removeEventListener('mouseleave', onMouseLeave);
+			current.removeEventListener('click', onClick);
 		};
 	}, []);
 
@@ -113,13 +104,6 @@ export const Combobox: React.FC<{
 		};
 	}, [opened, size]);
 
-	const outerStyle = useMemo(() => {
-		return {
-			...outerPortal,
-			top: (size?.top ?? 0) + (size?.height ?? 0),
-		};
-	}, [size]);
-
 	const selected = values.find((v) => v.id === selectedId) as SelectionItem;
 
 	return (
@@ -129,8 +113,8 @@ export const Combobox: React.FC<{
 			</button>
 			{portalStyle
 				? ReactDOM.createPortal(
-						<HigherZIndex onOutsideClick={onHide} onEscape={onHide}>
-							<div style={outerStyle}>
+						<div style={outerPortal}>
+							<HigherZIndex onOutsideClick={onHide} onEscape={onHide}>
 								<div style={portalStyle}>
 									<MenuContent
 										onArrowLeft={noop}
@@ -140,9 +124,9 @@ export const Combobox: React.FC<{
 										leaveLeftSpace
 									/>
 								</div>
-							</div>
-						</HigherZIndex>,
-						portal
+							</HigherZIndex>
+						</div>,
+						getPortal(currentZIndex)
 				  )
 				: null}
 		</>

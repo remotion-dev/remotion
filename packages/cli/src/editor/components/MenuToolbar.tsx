@@ -1,9 +1,9 @@
 import React, {useCallback, useContext, useMemo, useState} from 'react';
 import {FONT_FAMILY} from '../helpers/font';
+import {Checkmark} from '../icons/Checkmark';
 import {CheckerboardContext} from '../state/checkerboard';
 import {ModalsContext} from '../state/modals';
 import {RichTimelineContext} from '../state/rich-timeline';
-import {Checkmark} from './Menu/Checkmark';
 import {Menu, MenuId, MenuItem} from './Menu/MenuItem';
 
 const row: React.CSSProperties = {
@@ -68,6 +68,7 @@ export const MenuToolbar: React.FC = () => {
 						type: 'item',
 						keyHint: null,
 						leftItem: null,
+						subMenu: null,
 					},
 					{
 						id: 'changelog',
@@ -80,6 +81,7 @@ export const MenuToolbar: React.FC = () => {
 						type: 'item',
 						keyHint: null,
 						leftItem: null,
+						subMenu: null,
 					},
 					{
 						id: 'license',
@@ -94,6 +96,7 @@ export const MenuToolbar: React.FC = () => {
 						type: 'item',
 						keyHint: null,
 						leftItem: null,
+						subMenu: null,
 					},
 				],
 			},
@@ -114,6 +117,7 @@ export const MenuToolbar: React.FC = () => {
 						type: 'item',
 						keyHint: 'N',
 						leftItem: null,
+						subMenu: null,
 					},
 					{
 						id: 'new-still',
@@ -126,6 +130,7 @@ export const MenuToolbar: React.FC = () => {
 						type: 'item',
 						keyHint: null,
 						leftItem: null,
+						subMenu: null,
 					},
 					{
 						id: 'render',
@@ -139,6 +144,7 @@ export const MenuToolbar: React.FC = () => {
 						type: 'item',
 						keyHint: null,
 						leftItem: null,
+						subMenu: null,
 					},
 				],
 			},
@@ -147,6 +153,34 @@ export const MenuToolbar: React.FC = () => {
 				label: 'View',
 				leaveLeftPadding: true,
 				items: [
+					{
+						id: 'preview-size',
+						keyHint: null,
+						label: 'Preview size',
+						onClick: () => {
+							console.log('pressed');
+						},
+						type: 'item',
+						value: 'preview-size',
+						leftItem: null,
+						subMenu: {
+							leaveLeftSpace: true,
+							items: [
+								{
+									id: '0.25',
+									keyHint: null,
+									label: '25%',
+									leftItem: null,
+									onClick: () => {
+										alert('25%');
+									},
+									subMenu: null,
+									type: 'item',
+									value: '0.25',
+								},
+							],
+						},
+					},
 					{
 						id: 'checkerboard',
 						keyHint: 'C',
@@ -158,6 +192,11 @@ export const MenuToolbar: React.FC = () => {
 						type: 'item',
 						value: 'checkerboard',
 						leftItem: checkerboard ? <Checkmark /> : null,
+						subMenu: null,
+					},
+					{
+						id: 'timeline-divider',
+						type: 'divider',
 					},
 					{
 						id: 'rich-timeline',
@@ -170,6 +209,7 @@ export const MenuToolbar: React.FC = () => {
 						type: 'item',
 						value: 'rich-timeline',
 						leftItem: richTimeline ? <Checkmark /> : null,
+						subMenu: null,
 					},
 				],
 			},
@@ -189,6 +229,7 @@ export const MenuToolbar: React.FC = () => {
 						type: 'item',
 						keyHint: null,
 						leftItem: null,
+						subMenu: null,
 					},
 					{
 						id: 'file-issue',
@@ -203,6 +244,7 @@ export const MenuToolbar: React.FC = () => {
 						type: 'item',
 						keyHint: null,
 						leftItem: null,
+						subMenu: null,
 					},
 					{
 						id: 'discord',
@@ -215,6 +257,7 @@ export const MenuToolbar: React.FC = () => {
 						type: 'item',
 						keyHint: null,
 						leftItem: null,
+						subMenu: null,
 					},
 					{
 						id: 'help-divider',
@@ -231,6 +274,7 @@ export const MenuToolbar: React.FC = () => {
 						type: 'item',
 						keyHint: null,
 						leftItem: null,
+						subMenu: null,
 					},
 					{
 						id: 'twitter',
@@ -243,6 +287,7 @@ export const MenuToolbar: React.FC = () => {
 						type: 'item',
 						keyHint: null,
 						leftItem: null,
+						subMenu: null,
 					},
 					{
 						id: 'tiktok',
@@ -255,6 +300,7 @@ export const MenuToolbar: React.FC = () => {
 						type: 'item',
 						keyHint: null,
 						leftItem: null,
+						subMenu: null,
 					},
 				],
 			},

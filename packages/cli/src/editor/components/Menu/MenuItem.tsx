@@ -1,11 +1,13 @@
 import {PlayerInternals} from '@remotion/player';
 import React, {useCallback, useMemo, useRef, useState} from 'react';
 import ReactDOM from 'react-dom';
-import {BACKGROUND, getBackgroundFromHoverState} from '../../helpers/colors';
+import {getBackgroundFromHoverState} from '../../helpers/colors';
 import {FONT_FAMILY} from '../../helpers/font';
 import {HigherZIndex, useZIndex} from '../../state/z-index';
 import {ComboboxValue} from '../NewComposition/ComboBox';
 import {MenuContent} from '../NewComposition/MenuContent';
+import {getPortal} from './portals';
+import {menuContainer, outerPortal} from './styles';
 
 const container: React.CSSProperties = {
 	fontSize: 13,
@@ -20,28 +22,7 @@ const container: React.CSSProperties = {
 	border: 'none',
 };
 
-const menuContainer: React.CSSProperties = {
-	backgroundColor: BACKGROUND,
-	position: 'fixed',
-	boxShadow: '0 2px 8px rgba(0, 0, 0, 0.5)',
-	color: 'white',
-	fontFamily: FONT_FAMILY,
-	paddingTop: 4,
-	paddingBottom: 4,
-	userSelect: 'none',
-	minWidth: 200,
-};
-
-const outerPortal: React.CSSProperties = {
-	position: 'fixed',
-	height: '100%',
-	width: '100%',
-	backgroundColor: 'rgba(255, 255, 255, 0.02)',
-};
-
 export type MenuId = 'remotion' | 'file' | 'view' | 'help';
-
-const portal = document.getElementById('menuportal') as Element;
 
 export type Menu = {
 	id: MenuId;
@@ -77,7 +58,7 @@ export const MenuItem: React.FC<{
 	const size = PlayerInternals.useElementSize(ref, {
 		triggerOnWindowResize: true,
 	});
-	const {tabIndex} = useZIndex();
+	const {tabIndex, currentZIndex} = useZIndex();
 
 	const containerStyle = useMemo((): React.CSSProperties => {
 		return {
@@ -151,7 +132,7 @@ export const MenuItem: React.FC<{
 								</div>
 							</HigherZIndex>
 						</div>,
-						portal
+						getPortal(currentZIndex)
 				  )
 				: null}
 		</>
