@@ -1,6 +1,14 @@
-import React, {useCallback, useMemo} from 'react';
+import {PlayerInternals} from '@remotion/player';
+import React, {useCallback, useMemo, useRef} from 'react';
+import ReactDOM from 'react-dom';
 import {CLEAR_HOVER, LIGHT_TEXT} from '../../helpers/colors';
+import {Caret} from '../../icons/caret';
+import {useZIndex} from '../../state/z-index';
 import {Flex, Row, Spacing} from '../layout';
+import {SubMenu} from '../NewComposition/ComboBox';
+import {getPortal} from './portals';
+import {menuContainer} from './styles';
+import {SubMenuComponent} from './SubMenu';
 
 const container: React.CSSProperties = {
 	paddingTop: 8,
@@ -34,6 +42,8 @@ export const MenuSubItem: React.FC<{
 	keyHint: string | null;
 	leaveLeftSpace: boolean;
 	leftItem: React.ReactNode;
+	subMenu: SubMenu | null;
+	onQuitMenu: () => void;
 }> = ({
 	label,
 	leaveLeftSpace,
@@ -43,7 +53,15 @@ export const MenuSubItem: React.FC<{
 	selected,
 	onItemSelected,
 	keyHint,
+	subMenu,
+	onQuitMenu,
 }) => {
+	const ref = useRef<HTMLDivElement>(null);
+	const size = PlayerInternals.useElementSize(ref, {
+		triggerOnWindowResize: true,
+	});
+	const {currentZIndex} = useZIndex();
+
 	const style = useMemo((): React.CSSProperties => {
 		return {
 			...container,
@@ -59,8 +77,25 @@ export const MenuSubItem: React.FC<{
 		onItemSelected(id);
 	}, [id, onItemSelected]);
 
+	const portalStyle = useMemo((): React.CSSProperties | null => {
+		if (!selected || !size || !subMenu) {
+			return null;
+		}
+
+		return {
+			...menuContainer,
+			left: size.left + size.width,
+			top: size.top,
+		};
+	}, [selected, size, subMenu]);
+
 	return (
-		<div onPointerEnter={onPointerEnter} style={style} onClick={onClick}>
+		<div
+			ref={ref}
+			onPointerEnter={onPointerEnter}
+			style={style}
+			onClick={onClick}
+		>
 			<Row>
 				{leaveLeftSpace ? (
 					<>
@@ -70,7 +105,18 @@ export const MenuSubItem: React.FC<{
 				) : null}
 				<div>{label}</div> <Flex />
 				<Spacing x={2} />
+				{subMenu ? <Caret /> : null}
 				{keyHint ? <div style={keyHintCss}>{keyHint}</div> : null}
+				{portalStyle && subMenu
+					? ReactDOM.createPortal(
+							<SubMenuComponent
+								onQuitMenu={onQuitMenu}
+								subMenu={subMenu}
+								portalStyle={portalStyle}
+							/>,
+							getPortal(currentZIndex)
+					  )
+					: null}
 			</Row>
 		</div>
 	);

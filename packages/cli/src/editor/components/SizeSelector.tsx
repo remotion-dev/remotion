@@ -1,11 +1,11 @@
 import {PreviewSize} from '@remotion/player';
 import React, {useContext, useMemo} from 'react';
+import {Checkmark} from '../icons/Checkmark';
 import {
 	persistPreviewSizeOption,
 	PreviewSizeContext,
 } from '../state/preview-size';
 import {CONTROL_BUTTON_PADDING} from './ControlButton';
-import {Checkmark} from './Menu/Checkmark';
 import {Combobox, ComboboxValue} from './NewComposition/ComboBox';
 
 const sizes: PreviewSize[] = ['auto', 0.25, 0.5, 1];
@@ -52,6 +52,7 @@ export const SizeSelector: React.FC = () => {
 					value: newSize,
 					keyHint: null,
 					leftItem: size === newSize ? <Checkmark /> : null,
+					subMenu: null,
 				};
 			}
 		);
