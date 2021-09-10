@@ -6,10 +6,7 @@ import {FONT_FAMILY} from '../../helpers/font';
 import {HigherZIndex, useZIndex} from '../../state/z-index';
 import {ComboboxValue} from '../NewComposition/ComboBox';
 import {MenuContent} from '../NewComposition/MenuContent';
-import {
-	MENU_BUTTON_CLASS_NAME,
-	SUBMENU_CONTAINER_CLASS_NAME,
-} from './is-menu-click';
+import {MENU_BUTTON_CLASS_NAME} from './is-menu-click';
 
 const container: React.CSSProperties = {
 	fontSize: 13,
@@ -145,10 +142,7 @@ export const MenuItem: React.FC<{
 				? ReactDOM.createPortal(
 						<div style={outerStyle}>
 							<HigherZIndex onEscape={onItemQuit} onOutsideClick={onItemQuit}>
-								<div
-									className={SUBMENU_CONTAINER_CLASS_NAME}
-									style={portalStyle}
-								>
+								<div style={portalStyle}>
 									<MenuContent
 										onArrowLeft={onArrowLeft}
 										onArrowRight={onArrowRight}
