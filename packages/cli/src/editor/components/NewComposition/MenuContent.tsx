@@ -150,6 +150,7 @@ export const MenuContent: React.FC<{
 						onItemSelected={onItemSelected}
 						label={item.label}
 						id={item.id}
+						keyHint={item.keyHint}
 					/>
 				);
 			})}

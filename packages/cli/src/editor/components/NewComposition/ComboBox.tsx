@@ -46,6 +46,7 @@ type SelectionItem = {
 	label: React.ReactNode;
 	value: string | number;
 	onClick: (id: string) => void;
+	keyHint: string | null;
 };
 
 export type ComboboxValue = DividerItem | SelectionItem;

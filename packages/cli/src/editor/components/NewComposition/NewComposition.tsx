@@ -93,6 +93,7 @@ export const NewComposition: React.FC = () => {
 					onClick: () => onFpsChange(frameRate),
 					type: 'item',
 					value: frameRate,
+					keyHint: null,
 				};
 			}
 		);

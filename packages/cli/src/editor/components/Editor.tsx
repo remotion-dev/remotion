@@ -23,6 +23,7 @@ import {
 import {HigherZIndex} from '../state/z-index';
 import {EditorContent} from './EditorContent';
 import {FramePersistor} from './FramePersistor';
+import {GlobalKeybindings} from './GlobalKeybindings';
 import {NewComposition} from './NewComposition/NewComposition';
 import {UpdateCheck} from './UpdateCheck';
 
@@ -118,6 +119,7 @@ export const Editor: React.FC = () => {
 													<UpdateCheck />
 													<FramePersistor />
 													<EditorContent />
+													<GlobalKeybindings />
 												</Background>
 												{modalContextType === 'new-comp' && <NewComposition />}
 											</HigherZIndex>

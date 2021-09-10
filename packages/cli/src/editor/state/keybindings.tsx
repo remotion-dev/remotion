@@ -12,11 +12,6 @@ export type RegisteredKeybinding = {
 	callback: KeyListenerCallback;
 };
 
-type StashedKeybinding = {
-	stashedPane: string;
-	binding: RegisteredKeybinding;
-};
-
 export type KeybindingContextType = {
 	registerKeybinding: (binding: RegisteredKeybinding) => void;
 	unregisterKeybinding: (binding: RegisteredKeybinding) => void;
