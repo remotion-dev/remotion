@@ -168,6 +168,9 @@ export const MenuToolbar: React.FC = () => {
 						leftItem: null,
 						subMenu: {
 							leaveLeftSpace: true,
+							preselectIndex: commonPreviewSizes.findIndex(
+								(s) => String(size) === String(s)
+							),
 							items: commonPreviewSizes.map((newSize) => ({
 								id: String(newSize),
 								keyHint: null,

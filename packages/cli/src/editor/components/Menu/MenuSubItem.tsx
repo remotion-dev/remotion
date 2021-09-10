@@ -33,6 +33,8 @@ const leftSpace: React.CSSProperties = {
 	alignItems: 'center',
 };
 
+export type SubMenuActivated = false | 'with-mouse' | 'without-mouse';
+
 export const MenuSubItem: React.FC<{
 	label: React.ReactNode;
 	id: string;
@@ -45,8 +47,8 @@ export const MenuSubItem: React.FC<{
 	subMenu: SubMenu | null;
 	onQuitMenu: () => void;
 	onNextMenu: () => void;
-	subMenuActivated: boolean;
-	setSubMenuActivated: React.Dispatch<React.SetStateAction<boolean>>;
+	subMenuActivated: SubMenuActivated;
+	setSubMenuActivated: React.Dispatch<React.SetStateAction<SubMenuActivated>>;
 }> = ({
 	label,
 	leaveLeftSpace,
@@ -110,7 +112,7 @@ export const MenuSubItem: React.FC<{
 		}
 
 		const hi = setTimeout(() => {
-			setSubMenuActivated(true);
+			setSubMenuActivated('with-mouse');
 		}, 100);
 		return () => clearTimeout(hi);
 	}, [hovered, selected, setSubMenuActivated, subMenu]);
@@ -141,6 +143,7 @@ export const MenuSubItem: React.FC<{
 								subMenu={subMenu}
 								onQuitSubMenu={onQuitSubmenu}
 								portalStyle={portalStyle}
+								subMenuActivated={subMenuActivated}
 							/>,
 							getPortal(currentZIndex)
 					  )
