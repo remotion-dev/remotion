@@ -172,14 +172,15 @@ export const MenuToolbar: React.FC = () => {
 								id: String(newSize),
 								keyHint: null,
 								label: getPreviewSizeLabel(newSize),
-								leftItem: newSize === size ? <Checkmark /> : null,
+								leftItem:
+									String(newSize) === String(size) ? <Checkmark /> : null,
 								onClick: () => {
 									close();
 									setSize(() => newSize);
 								},
 								subMenu: null,
 								type: 'item',
-								value: '0.25',
+								value: newSize,
 							})),
 						},
 					},

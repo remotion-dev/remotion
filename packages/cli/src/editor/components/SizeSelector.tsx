@@ -48,13 +48,14 @@ export const SizeSelector: React.FC = () => {
 					type: 'item',
 					value: newSize,
 					keyHint: null,
-					leftItem: size === newSize ? <Checkmark /> : null,
+					leftItem: String(size) === String(newSize) ? <Checkmark /> : null,
 					subMenu: null,
 				};
 			}
 		);
 	}, [setSize, size]);
 
+	console.log({size, commonPreviewSizes});
 	return (
 		<div style={style} aria-label="Select the size of the preview">
 			<Combobox selectedId={String(size)} values={items} />
