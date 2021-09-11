@@ -8,7 +8,7 @@ export const Spacing: React.FC<{
 }> = ({x = 0, y = 0}) => {
 	const style = useMemo((): React.CSSProperties => {
 		return {
-			display: 'block',
+			display: 'inline-block',
 			width: x * SPACING_UNIT,
 			height: y * SPACING_UNIT,
 		};

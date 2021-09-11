@@ -30,6 +30,7 @@ import {HigherZIndex} from '../state/z-index';
 import {EditorContent} from './EditorContent';
 import {FramePersistor} from './FramePersistor';
 import {GlobalKeybindings} from './GlobalKeybindings';
+import {KeyboardShortcuts} from './KeyboardShortcutsModal';
 import {NewComposition} from './NewComposition/NewComposition';
 import {UpdateModal} from './UpdateModal/UpdateModal';
 
@@ -165,6 +166,10 @@ export const Editor: React.FC = () => {
 												{modalContextType &&
 													modalContextType.type === 'update' && (
 														<UpdateModal info={modalContextType.info} />
+													)}
+												{modalContextType &&
+													modalContextType.type === 'shortcuts' && (
+														<KeyboardShortcuts />
 													)}
 											</HigherZIndex>
 										</HighestZIndexProvider>

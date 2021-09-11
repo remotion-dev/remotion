@@ -7,6 +7,7 @@ import React, {
 } from 'react';
 import {Checkmark} from '../../icons/Checkmark';
 import {ModalsContext} from '../../state/modals';
+import {CopyButton} from '../CopyButton';
 import {Spacing} from '../layout';
 import {ModalContainer} from '../ModalContainer';
 import {NewCompHeader} from '../ModalHeader';
@@ -35,6 +36,7 @@ const panelRight: React.CSSProperties = {
 	display: 'flex',
 	justifyContent: 'center',
 	alignItems: 'center',
+	position: 'relative',
 };
 
 const pre: React.CSSProperties = {
@@ -192,8 +194,32 @@ export const NewComposition: React.FC<{initialCompType: CompType}> = ({
 							height: Number(height),
 							width: Number(width),
 							name,
+							raw: false,
 						})}
 					</pre>
+					<div
+						style={{
+							position: 'absolute',
+							bottom: 10,
+							right: 10,
+						}}
+					>
+						<CopyButton
+							label="Copy code"
+							labelWhenCopied="Copied"
+							textToCopy={
+								getNewCompositionCode({
+									type,
+									durationInFrames: Number(durationInFrames),
+									fps: Number(selectedFrameRate),
+									height: Number(height),
+									width: Number(width),
+									name,
+									raw: true,
+								}) as string
+							}
+						/>
+					</div>
 				</div>
 			</div>
 		</ModalContainer>
