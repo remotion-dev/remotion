@@ -196,7 +196,7 @@ export const MenuToolbar: React.FC = () => {
 					},
 					{
 						id: 'checkerboard',
-						keyHint: 'C',
+						keyHint: 'T',
 						label: 'Transparency as checkerboard',
 						onClick: () => {
 							close();

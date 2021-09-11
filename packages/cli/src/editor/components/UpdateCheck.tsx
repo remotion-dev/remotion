@@ -1,5 +1,6 @@
 import React, {useCallback, useContext, useEffect, useState} from 'react';
 import {ModalsContext} from '../state/modals';
+import {useZIndex} from '../state/z-index';
 
 type PackageManager = 'npm' | 'yarn' | 'unknown';
 
@@ -23,6 +24,7 @@ const buttonStyle: React.CSSProperties = {
 export const UpdateCheck = () => {
 	const [info, setInfo] = useState<UpdateInfo | null>(null);
 	const {setSelectedModal} = useContext(ModalsContext);
+	const {tabIndex} = useZIndex();
 
 	const checkForUpdates = useCallback(() => {
 		fetch('/update')
@@ -53,7 +55,12 @@ export const UpdateCheck = () => {
 	}
 
 	return (
-		<button style={buttonStyle} onClick={openModal} type="button">
+		<button
+			tabIndex={tabIndex}
+			style={buttonStyle}
+			onClick={openModal}
+			type="button"
+		>
 			Update available!
 		</button>
 	);

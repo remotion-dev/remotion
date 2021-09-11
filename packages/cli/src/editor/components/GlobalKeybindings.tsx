@@ -15,13 +15,20 @@ export const GlobalKeybindings: React.FC = () => {
 				compType: 'composition',
 			});
 		});
-		const cKey = keybindings.registerKeybinding('keypress', 'c', () => {
+
+		const cKey = keybindings.registerKeybinding('keypress', 't', () => {
 			setCheckerboard((c) => !c);
+		});
+		const questionMark = keybindings.registerKeybinding('keypress', '?', () => {
+			setSelectedModal({
+				type: 'shortcuts',
+			});
 		});
 
 		return () => {
 			nKey.unregister();
 			cKey.unregister();
+			questionMark.unregister();
 		};
 	}, [keybindings, setCheckerboard, setSelectedModal]);
 

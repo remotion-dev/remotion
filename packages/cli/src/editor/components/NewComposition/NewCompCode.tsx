@@ -6,8 +6,13 @@ const keywordColor = '#F97583';
 const makeProperty = (
 	key: string,
 	val: number | string,
-	type: 'const' | 'string'
+	type: 'const' | 'string',
+	raw: boolean
 ) => {
+	if (raw) {
+		return makePropertyRaw(key, val, type);
+	}
+
 	return [
 		`  `,
 		<span key={key + 'key'} style={{color: propColor}}>
@@ -38,6 +43,20 @@ const makeProperty = (
 	];
 };
 
+const makePropertyRaw = (
+	key: string,
+	val: number | string,
+	type: 'const' | 'string'
+) => {
+	return [
+		`  `,
+		key,
+		'=',
+		type === 'string' ? ['"' + val + '"'].join('') : ['{', val, '}'].join(''),
+		'\n',
+	].join('');
+};
+
 export const getNewCompositionCode = ({
 	type,
 	height,
@@ -45,6 +64,7 @@ export const getNewCompositionCode = ({
 	fps,
 	durationInFrames,
 	name,
+	raw,
 }: {
 	type: 'still' | 'composition';
 	height: number;
@@ -52,21 +72,32 @@ export const getNewCompositionCode = ({
 	fps: number;
 	durationInFrames: number;
 	name: string;
+	raw: boolean;
 }) => {
+	const compName = type === 'still' ? 'Still' : 'Composition';
+
+	const props = [
+		...makeProperty('id', name, 'string', raw),
+		...makeProperty('component', name, 'const', raw),
+		...(type === 'composition'
+			? makeProperty('durationInFrames', durationInFrames, 'const', raw)
+			: []),
+		...makeProperty('height', height, 'const', raw),
+		...makeProperty('width', width, 'const', raw),
+		...(type === 'composition' ? makeProperty('fps', fps, 'const', raw) : []),
+	];
+
+	if (raw) {
+		return ['<', compName, '\n', ...props, '/>'].join('');
+	}
+
 	return [
 		`<`,
 		<span key="compname" style={{color: '#79B8FF'}}>
-			{type === 'still' ? 'Still' : 'Composition'}
+			{compName}
 		</span>,
 		<br key="linebr1" />,
-		...makeProperty('id', name, 'string'),
-		...makeProperty('component', name, 'const'),
-		...(type === 'composition'
-			? makeProperty('durationInFrames', durationInFrames, 'const')
-			: []),
-		...makeProperty('height', height, 'const'),
-		...makeProperty('width', width, 'const'),
-		...(type === 'composition' ? makeProperty('fps', fps, 'const') : []),
+		...props,
 		'/>',
 	];
 };

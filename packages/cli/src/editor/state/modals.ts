@@ -10,6 +10,9 @@ export type ModalState =
 	| {
 			type: 'update';
 			info: UpdateInfo;
+	  }
+	| {
+			type: 'shortcuts';
 	  };
 
 export type ModalContextType = {
