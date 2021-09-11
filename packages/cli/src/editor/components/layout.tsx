@@ -19,11 +19,23 @@ export const Spacing: React.FC<{
 
 const flex: React.CSSProperties = {flex: 1};
 
-export const Flex = () => <div style={flex} />;
+export const Flex: React.FC = ({children}) => (
+	<div style={flex}>{children}</div>
+);
 
-const row: React.CSSProperties = {
-	display: 'flex',
-	flexDirection: 'row',
+export const Row: React.FC<{
+	justify?: 'center';
+	align?: 'center';
+	style?: React.CSSProperties;
+}> = ({children, justify, align, style = {}}) => {
+	const finalStyle: React.CSSProperties = useMemo(() => {
+		return {
+			...style,
+			display: 'flex',
+			flexDirection: 'row',
+			justifyContent: justify ?? 'flex-start',
+			alignItems: align ?? 'flex-start',
+		};
+	}, [align, justify, style]);
+	return <div style={finalStyle}>{children}</div>;
 };
-
-export const Row: React.FC = ({children}) => <div style={row}>{children}</div>;

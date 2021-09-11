@@ -133,7 +133,7 @@ export const MenuToolbar: React.FC = () => {
 						onClick: () => {
 							close();
 							setSelectedModal({
-								compType: 'composition',
+								compType: 'still',
 								type: 'new-comp',
 							});
 						},

@@ -2,6 +2,8 @@ import React, {useCallback, useContext} from 'react';
 import {SELECTED_BACKGROUND} from '../../helpers/colors';
 import {copyCmd} from '../../helpers/copy-text';
 import {ModalsContext} from '../../state/modals';
+import {CopyButton} from '../CopyButton';
+import {Flex, Row, Spacing} from '../layout';
 import {ModalContainer} from '../ModalContainer';
 import {NewCompHeader} from '../ModalHeader';
 import {UpdateInfo} from '../UpdateCheck';
@@ -33,20 +35,28 @@ export const UpdateModal: React.FC<{
 	const onQuit = useCallback(() => {
 		setSelectedModal(null);
 	}, [setSelectedModal]);
+
+	const command =
+		info.packageManager === 'yarn' ? 'yarn upgrade' : 'npm run upgrade';
+
 	return (
 		<ModalContainer onOutsideClick={onQuit} onEscape={onQuit}>
 			<NewCompHeader title="Update available" />
 			<div style={container}>
 				<p>A new update to Remotion is available! Run the following command:</p>
-				{info.packageManager === 'yarn' ? (
-					<pre onClick={() => copyCmd('yarn upgrade')} style={code}>
-						yarn upgrade
-					</pre>
-				) : (
-					<pre onClick={() => copyCmd('npm run upgrade')} style={code}>
-						npm run upgrade
-					</pre>
-				)}{' '}
+				<Row align="center">
+					<Flex>
+						<pre onClick={() => copyCmd('yarn upgrade')} style={code}>
+							{command}
+						</pre>
+					</Flex>
+					<Spacing x={1} />
+					<CopyButton
+						textToCopy={command}
+						label="Copy command"
+						labelWhenCopied="Copied!"
+					/>
+				</Row>
 				<p>
 					This will upgrade Remotion from {info.currentVersion} to{' '}
 					{info.latestVersion}.
