@@ -1,5 +1,6 @@
 import React, {useCallback, useContext, useEffect, useState} from 'react';
 import styled from 'styled-components';
+import {copyCmd} from '../helpers/copy-text';
 import {ModalsContext} from '../state/modals';
 
 export const Container = styled.div`
@@ -27,7 +28,7 @@ export const Container = styled.div`
 
 type PackageManager = 'npm' | 'yarn' | 'unknown';
 
-type Info = {
+export type UpdateInfo = {
 	currentVersion: string;
 	latestVersion: string;
 	updateAvailable: boolean;
@@ -46,7 +47,7 @@ const isVersionDismissed = (version: string) => {
 };
 
 export const UpdateCheck = () => {
-	const [info, setInfo] = useState<Info | null>(null);
+	const [info, setInfo] = useState<UpdateInfo | null>(null);
 	const {setSelectedModal} = useContext(ModalsContext);
 
 	const checkForUpdates = useCallback(() => {
@@ -75,23 +76,12 @@ export const UpdateCheck = () => {
 		checkForUpdates();
 	}, [checkForUpdates]);
 
-	const copyCmd = (cmd: string) => {
-		const permissionName = 'clipboard-write' as PermissionName;
-		navigator.permissions
-			.query({name: permissionName})
-			.then((result) => {
-				if (result.state === 'granted' || result.state === 'prompt') {
-					navigator.clipboard.writeText(cmd);
-				}
-			})
-			.catch((err) => {
-				console.log('Could not copy command', err);
-			});
-	};
-
 	const openModal = useCallback(() => {
-		setSelectedModal('update');
-	}, [setSelectedModal]);
+		setSelectedModal({
+			type: 'update',
+			info: info as UpdateInfo,
+		});
+	}, [info, setSelectedModal]);
 
 	if (!info) {
 		return null;

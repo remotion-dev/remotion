@@ -43,11 +43,13 @@ const pre: React.CSSProperties = {
 
 const commonFrameRates = [24, 25, 29.97, 30, 48, 50];
 
-export const NewComposition: React.FC = () => {
+export const NewComposition: React.FC<{initialCompType: CompType}> = ({
+	initialCompType,
+}) => {
 	const [selectedFrameRate, setFrameRate] = useState<string>(
 		String(commonFrameRates[0])
 	);
-	const [type, setType] = useState<CompType>('composition');
+	const [type, setType] = useState<CompType>(initialCompType);
 	const [name, setName] = useState('MyComp');
 	const [width, setWidth] = useState('1280');
 	const [height, setHeight] = useState('720');

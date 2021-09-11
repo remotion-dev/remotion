@@ -15,7 +15,7 @@ import {
 } from '../state/checkerboard';
 import {HighestZIndexProvider} from '../state/highest-z-index';
 import {KeybindingContextProvider} from '../state/keybindings';
-import {ModalContextType, ModalsContext, ModalType} from '../state/modals';
+import {ModalContextType, ModalsContext, ModalState} from '../state/modals';
 import {
 	loadPreviewSizeOption,
 	persistPreviewSizeOption,
@@ -85,7 +85,7 @@ export const Editor: React.FC = () => {
 	);
 	const [mediaMuted, setMediaMuted] = useState<boolean>(false);
 	const [mediaVolume, setMediaVolume] = useState<number>(1);
-	const [modalContextType, setModalContextType] = useState<ModalType | null>(
+	const [modalContextType, setModalContextType] = useState<ModalState | null>(
 		null
 	);
 
@@ -94,7 +94,7 @@ export const Editor: React.FC = () => {
 			size,
 			setSize,
 		};
-	}, [size]);
+	}, [setSize, size]);
 	const checkerboardCtx = useMemo(() => {
 		return {
 			checkerboard,
@@ -156,8 +156,16 @@ export const Editor: React.FC = () => {
 													<EditorContent />
 													<GlobalKeybindings />
 												</Background>
-												{modalContextType === 'new-comp' && <NewComposition />}
-												{modalContextType === 'update' && <UpdateModal />}
+												{modalContextType &&
+													modalContextType.type === 'new-comp' && (
+														<NewComposition
+															initialCompType={modalContextType.compType}
+														/>
+													)}
+												{modalContextType &&
+													modalContextType.type === 'update' && (
+														<UpdateModal info={modalContextType.info} />
+													)}
 											</HigherZIndex>
 										</HighestZIndexProvider>
 									</PlayerInternals.PlayerEventEmitterContext.Provider>
