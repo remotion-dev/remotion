@@ -1,5 +1,4 @@
 import React from 'react';
-import styled from 'styled-components';
 import {Canvas} from './Canvas';
 import {CompositionSelector} from './CompositionSelector';
 import {MenuToolbar} from './MenuToolbar';
@@ -8,33 +7,34 @@ import {SplitterContainer} from './Splitter/SplitterContainer';
 import {SplitterElement} from './Splitter/SplitterElement';
 import {SplitterHandle} from './Splitter/SplitterHandle';
 
-export const Container = styled.div`
-	height: 100%;
-	display: flex;
-	flex-direction: column;
-	flex: 1;
-`;
+const container: React.CSSProperties = {
+	height: '100%',
+	display: 'flex',
+	flexDirection: 'column',
+	flex: 1,
+};
 
-const Row = styled.div`
-	display: flex;
-	flex-direction: row;
-	flex: 1;
-`;
+const row: React.CSSProperties = {
+	display: 'flex',
+	flexDirection: 'row',
+	flex: 1,
+};
 
-const CanvasContainer = styled.div`
-	flex: 1;
-	display: flex;
-`;
+const canvasContainer: React.CSSProperties = {
+	flex: 1,
+	display: 'flex',
+};
 
-const LeftContainer = styled.div`
-	display: flex;
-`;
+const leftContainer: React.CSSProperties = {
+	flex: 1,
+	display: 'flex',
+};
 
 export const TopPanel: React.FC = () => {
 	return (
-		<Container>
+		<div style={container}>
 			<MenuToolbar />
-			<Row>
+			<div style={row}>
 				<SplitterContainer
 					minFlex={0.15}
 					maxFlex={0.4}
@@ -43,19 +43,19 @@ export const TopPanel: React.FC = () => {
 					orientation="vertical"
 				>
 					<SplitterElement type="flexer">
-						<LeftContainer>
+						<div style={leftContainer}>
 							<CompositionSelector />
-						</LeftContainer>
+						</div>
 					</SplitterElement>
 					<SplitterHandle />
 					<SplitterElement type="anti-flexer">
-						<CanvasContainer>
+						<div style={canvasContainer}>
 							<Canvas />
-						</CanvasContainer>
+						</div>
 					</SplitterElement>
 				</SplitterContainer>
-			</Row>
+			</div>
 			<PreviewToolbar />
-		</Container>
+		</div>
 	);
 };

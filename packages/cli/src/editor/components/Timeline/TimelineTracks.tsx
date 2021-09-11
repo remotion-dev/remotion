@@ -1,5 +1,4 @@
 import React, {useMemo} from 'react';
-import styled from 'styled-components';
 import {TrackWithHash} from '../../helpers/get-timeline-sequence-sort-key';
 import {
 	TIMELINE_BORDER,
@@ -11,16 +10,16 @@ import {MaxTimelineTracksReached} from './MaxTimelineTracks';
 import {TimelineViewState} from './timeline-state-reducer';
 import {TimelineSequence} from './TimelineSequence';
 
-const Content = styled.div`
-	padding-left: ${TIMELINE_PADDING}px;
-	padding-right: ${TIMELINE_PADDING}px;
-`;
+const content: React.CSSProperties = {
+	paddingLeft: TIMELINE_PADDING,
+	paddingRight: TIMELINE_PADDING,
+};
 
-const TimelineContent = styled.div`
-	flex: 1;
-	background-color: #111111;
-	width: 100%;
-`;
+const timelineContent: React.CSSProperties = {
+	flex: 1,
+	backgroundColor: '#111111',
+	width: '100%',
+};
 
 export const TimelineTracks: React.FC<{
 	timeline: TrackWithHash[];
@@ -34,8 +33,8 @@ export const TimelineTracks: React.FC<{
 		};
 	}, []);
 	return (
-		<TimelineContent>
-			<Content>
+		<div style={timelineContent}>
+			<div style={content}>
 				{timeline.map((track) => {
 					if (isTrackHidden(track, timeline, viewState)) {
 						return null;
@@ -47,8 +46,8 @@ export const TimelineTracks: React.FC<{
 						</div>
 					);
 				})}
-			</Content>
+			</div>
 			{hasBeenCut ? <MaxTimelineTracksReached /> : null}
-		</TimelineContent>
+		</div>
 	);
 };
