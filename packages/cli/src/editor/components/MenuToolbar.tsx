@@ -116,7 +116,10 @@ export const MenuToolbar: React.FC = () => {
 						label: 'New composition...',
 						onClick: () => {
 							close();
-							setSelectedModal('new-comp');
+							setSelectedModal({
+								compType: 'composition',
+								type: 'new-comp',
+							});
 						},
 						type: 'item',
 						keyHint: 'N',
@@ -129,7 +132,10 @@ export const MenuToolbar: React.FC = () => {
 						label: 'New still...',
 						onClick: () => {
 							close();
-							setSelectedModal('new-comp');
+							setSelectedModal({
+								compType: 'composition',
+								type: 'new-comp',
+							});
 						},
 						type: 'item',
 						keyHint: null,

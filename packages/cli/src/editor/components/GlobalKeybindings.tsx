@@ -10,7 +10,10 @@ export const GlobalKeybindings: React.FC = () => {
 
 	useEffect(() => {
 		const nKey = keybindings.registerKeybinding('keypress', 'n', () => {
-			setSelectedModal('new-comp');
+			setSelectedModal({
+				type: 'new-comp',
+				compType: 'composition',
+			});
 		});
 		const cKey = keybindings.registerKeybinding('keypress', 'c', () => {
 			setCheckerboard((c) => !c);

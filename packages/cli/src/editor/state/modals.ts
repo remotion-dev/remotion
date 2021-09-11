@@ -1,10 +1,20 @@
 import React, {createContext} from 'react';
+import {CompType} from '../components/NewComposition/CompositionType';
+import {UpdateInfo} from '../components/UpdateCheck';
 
-export type ModalType = 'new-comp' | 'update';
+export type ModalState =
+	| {
+			type: 'new-comp';
+			compType: CompType;
+	  }
+	| {
+			type: 'update';
+			info: UpdateInfo;
+	  };
 
 export type ModalContextType = {
-	selectedModal: ModalType | null;
-	setSelectedModal: React.Dispatch<React.SetStateAction<ModalType | null>>;
+	selectedModal: ModalState | null;
+	setSelectedModal: React.Dispatch<React.SetStateAction<ModalState | null>>;
 };
 
 export const ModalsContext = createContext<ModalContextType>({
