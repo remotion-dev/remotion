@@ -1,6 +1,5 @@
 import React, {useContext, useMemo, useReducer} from 'react';
 import {Internals} from 'remotion';
-import styled from 'styled-components';
 import {calculateTimeline} from '../../helpers/calculate-timeline';
 import {TrackWithHash} from '../../helpers/get-timeline-sequence-sort-key';
 import {
@@ -18,13 +17,13 @@ import {TimelineList} from './TimelineList';
 import {TimelineSlider} from './TimelineSlider';
 import {TimelineTracks} from './TimelineTracks';
 
-const Container = styled.div`
-	min-height: 100%;
-	flex: 1;
-	display: flex;
-	height: 0;
-	overflow: auto;
-`;
+const container: React.CSSProperties = {
+	minHeight: '100%',
+	flex: 1,
+	display: 'flex',
+	height: 0,
+	overflow: 'auto',
+};
 
 export const Timeline: React.FC = () => {
 	const {sequences} = useContext(Internals.CompositionManager);
@@ -66,7 +65,7 @@ export const Timeline: React.FC = () => {
 	}
 
 	return (
-		<Container>
+		<div style={container}>
 			<div style={inner}>
 				<SplitterContainer
 					orientation="vertical"
@@ -95,6 +94,6 @@ export const Timeline: React.FC = () => {
 					</SplitterElement>
 				</SplitterContainer>
 			</div>
-		</Container>
+		</div>
 	);
 };

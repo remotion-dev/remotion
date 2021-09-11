@@ -1,12 +1,11 @@
 import React, {useEffect, useLayoutEffect, useRef, useState} from 'react';
 import {Internals} from 'remotion';
-import styled from 'styled-components';
 
-const Label = styled.div`
-	color: white;
-	font-size: 15px;
-	font-family: Arial, Helvetica, sans-serif;
-`;
+const label: React.CSSProperties = {
+	color: 'white',
+	fontSize: 15,
+	fontFamily: 'Arial, Helvetica, sans-serif',
+};
 
 const pushWithMaxSize = (
 	arr: number[],
@@ -78,6 +77,9 @@ export const FpsCounter: React.FC = () => {
 		return null;
 	}
 
-	const style = {color: fps < videoConfig.fps * 0.9 ? 'red' : 'white'};
-	return <Label style={style}>{fps.toFixed(1)} FPS</Label>;
+	const style = {
+		...label,
+		color: fps < videoConfig.fps * 0.9 ? 'red' : 'white',
+	};
+	return <div style={style}>{fps.toFixed(1)} FPS</div>;
 };

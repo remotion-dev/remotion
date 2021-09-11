@@ -1,13 +1,12 @@
 import React, {SVGProps} from 'react';
-import styled from 'styled-components';
 
-const Container = styled.div`
-	height: 10px;
-	width: 10px;
-	display: flex;
-	justify-content: center;
-	align-items: center;
-`;
+const container: React.CSSProperties = {
+	height: 10,
+	width: 10,
+	display: 'flex',
+	justifyContent: 'center',
+	alignItems: 'center',
+};
 
 const Icon: React.FC<SVGProps<SVGSVGElement>> = (props) => {
 	return (
@@ -21,8 +20,10 @@ export const TimelineCollapseToggle: React.FC<{
 	collapsed: boolean;
 }> = ({collapsed}) => {
 	return (
-		<Container style={collapsed ? {} : {transform: 'rotate(90deg)'}}>
+		<div
+			style={collapsed ? container : {...container, transform: 'rotate(90deg)'}}
+		>
 			<Icon />
-		</Container>
+		</div>
 	);
 };

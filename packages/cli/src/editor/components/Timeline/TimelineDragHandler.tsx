@@ -1,23 +1,22 @@
 import {PlayerInternals} from '@remotion/player';
 import React, {useCallback, useEffect, useState} from 'react';
 import {Internals, interpolate} from 'remotion';
-import styled from 'styled-components';
 import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
 import {persistCurrentFrame} from '../FramePersistor';
 import {sliderAreaRef} from './timeline-refs';
 
-const Container = styled.div`
-	user-select: none;
-	overflow: hidden;
-	position: absolute;
-	width: 100%;
-	height: 100%;
-`;
+const container: React.CSSProperties = {
+	userSelect: 'none',
+	overflow: 'hidden',
+	position: 'absolute',
+	width: '100%',
+	height: '100%',
+};
 
-const Inner = styled.div`
-	overflow-y: auto;
-	overflow-x: hidden;
-`;
+const inner: React.CSSProperties = {
+	overflowY: 'auto',
+	overflowX: 'hidden',
+};
 
 const getFrameFromX = (
 	clientX: number,
@@ -142,8 +141,8 @@ export const TimelineDragHandler: React.FC = ({children}) => {
 	}, [dragging.dragging, onPointerMove, onPointerUp]);
 
 	return (
-		<Container ref={sliderAreaRef} onPointerDown={onPointerDown}>
-			<Inner>{children}</Inner>
-		</Container>
+		<div ref={sliderAreaRef} style={container} onPointerDown={onPointerDown}>
+			<div style={inner}>{children}</div>
+		</div>
 	);
 };
