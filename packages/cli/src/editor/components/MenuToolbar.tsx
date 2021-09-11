@@ -7,6 +7,7 @@ import {PreviewSizeContext} from '../state/preview-size';
 import {RichTimelineContext} from '../state/rich-timeline';
 import {Menu, MenuId, MenuItem} from './Menu/MenuItem';
 import {commonPreviewSizes, getPreviewSizeLabel} from './SizeSelector';
+import {UpdateCheck} from './UpdateCheck';
 
 const row: React.CSSProperties = {
 	alignItems: 'center',
@@ -375,6 +376,7 @@ export const MenuToolbar: React.FC = () => {
 					);
 				})}
 			</div>
+			<UpdateCheck />
 		</div>
 	);
 };

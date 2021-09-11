@@ -31,7 +31,7 @@ import {EditorContent} from './EditorContent';
 import {FramePersistor} from './FramePersistor';
 import {GlobalKeybindings} from './GlobalKeybindings';
 import {NewComposition} from './NewComposition/NewComposition';
-import {UpdateCheck} from './UpdateCheck';
+import {UpdateModal} from './UpdateModal/UpdateModal';
 
 const Background = styled.div`
 	background: ${BACKGROUND};
@@ -152,12 +152,12 @@ export const Editor: React.FC = () => {
 											<HigherZIndex onEscape={noop} onOutsideClick={noop}>
 												<Background>
 													<Root />
-													<UpdateCheck />
 													<FramePersistor />
 													<EditorContent />
 													<GlobalKeybindings />
 												</Background>
 												{modalContextType === 'new-comp' && <NewComposition />}
+												{modalContextType === 'update' && <UpdateModal />}
 											</HigherZIndex>
 										</HighestZIndexProvider>
 									</PlayerInternals.PlayerEventEmitterContext.Provider>
