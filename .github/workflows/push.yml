@@ -30,7 +30,7 @@ jobs:
       - uses: actions/checkout@main
       - uses: actions/setup-node@v2
         with:
-          cache: npm
+          cache: "npm"
           node-version: ${{ matrix.node_version }}
           cache-dependency-path: packages/**/package-lock.json
       - uses: Iamshankhadeep/setup-ffmpeg@v1.1
