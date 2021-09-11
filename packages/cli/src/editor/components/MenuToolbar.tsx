@@ -142,20 +142,6 @@ export const MenuToolbar: React.FC = () => {
 						leftItem: null,
 						subMenu: null,
 					},
-					{
-						id: 'render',
-						value: 'render',
-						label: 'Render',
-						onClick: () => {
-							close();
-							// eslint-disable-next-line no-alert
-							alert('todo');
-						},
-						type: 'item',
-						keyHint: null,
-						leftItem: null,
-						subMenu: null,
-					},
 				],
 			},
 			{
@@ -231,6 +217,22 @@ export const MenuToolbar: React.FC = () => {
 				label: 'Help',
 				leaveLeftPadding: false,
 				items: [
+					{
+						id: 'shortcuts',
+						value: 'shortcuts',
+						label: 'Shortcuts',
+						onClick: () => {
+							close();
+
+							setSelectedModal({
+								type: 'shortcuts',
+							});
+						},
+						keyHint: '?',
+						leftItem: null,
+						subMenu: null,
+						type: 'item',
+					},
 					{
 						id: 'docs',
 						value: 'docs',
