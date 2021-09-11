@@ -9,13 +9,13 @@ import {Checkmark} from '../../icons/Checkmark';
 import {ModalsContext} from '../../state/modals';
 import {Spacing} from '../layout';
 import {ModalContainer} from '../ModalContainer';
+import {NewCompHeader} from '../ModalHeader';
 import {Combobox, ComboboxValue} from './ComboBox';
 import {CompositionType, CompType} from './CompositionType';
 import {leftLabel} from './new-comp-layout';
 import {NewCompAspectRatio} from './NewCompAspectRatio';
 import {getNewCompositionCode} from './NewCompCode';
 import {NewCompDuration} from './NewCompDuration';
-import {NewCompHeader} from './NewCompHeader';
 import {RemotionInput} from './RemInput';
 
 const panelContent: React.CSSProperties = {
@@ -105,7 +105,7 @@ export const NewComposition: React.FC = () => {
 
 	return (
 		<ModalContainer onOutsideClick={onQuit} onEscape={onQuit}>
-			<NewCompHeader />
+			<NewCompHeader title="New composition" />
 			<div style={panelContent}>
 				<div style={left}>
 					<CompositionType onSelected={onTypeChanged} type={type} />

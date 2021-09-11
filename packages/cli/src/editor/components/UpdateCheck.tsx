@@ -1,9 +1,9 @@
-import React, {useCallback, useEffect, useState} from 'react';
+import React, {useCallback, useContext, useEffect, useState} from 'react';
 import styled from 'styled-components';
+import {ModalsContext} from '../state/modals';
 
 export const Container = styled.div`
 	background: linear-gradient(to right, #4290f5, #42e9f5);
-	padding: 8px;
 	font-family: ---apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
 		Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 	color: white;
@@ -47,6 +47,7 @@ const isVersionDismissed = (version: string) => {
 
 export const UpdateCheck = () => {
 	const [info, setInfo] = useState<Info | null>(null);
+	const {setSelectedModal} = useContext(ModalsContext);
 
 	const checkForUpdates = useCallback(() => {
 		fetch('/update')
@@ -88,6 +89,10 @@ export const UpdateCheck = () => {
 			});
 	};
 
+	const openModal = useCallback(() => {
+		setSelectedModal('update');
+	}, [setSelectedModal]);
+
 	if (!info) {
 		return null;
 	}
@@ -102,7 +107,7 @@ export const UpdateCheck = () => {
 
 	return (
 		<Container>
-			A new version of Remotion is available! {info.currentVersion} ➡️{' '}
+			Update available! {info.currentVersion} ➡️{' '}
 			<span style={{width: 8, display: 'inline-block'}} />
 			{info.latestVersion}. Run{' '}
 			{info.packageManager === 'yarn' ? (
@@ -131,6 +136,8 @@ export const UpdateCheck = () => {
 			<a onClick={remindLater}>Remind me next time</a>
 			<span style={{width: 8, display: 'inline-block'}} />
 			<a onClick={dismiss}>Skip this version</a>
+			<span style={{width: 8, display: 'inline-block'}} />
+			<a onClick={openModal}>Open modal</a>
 		</Container>
 	);
 };

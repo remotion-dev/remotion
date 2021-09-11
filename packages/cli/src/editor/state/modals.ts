@@ -1,6 +1,6 @@
 import React, {createContext} from 'react';
 
-export type ModalType = 'new-comp';
+export type ModalType = 'new-comp' | 'update';
 
 export type ModalContextType = {
 	selectedModal: ModalType | null;

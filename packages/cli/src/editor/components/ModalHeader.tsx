@@ -1,7 +1,7 @@
 import React, {useCallback, useContext} from 'react';
-import {ModalsContext} from '../../state/modals';
-import {Flex} from '../layout';
-import {CancelButton} from './CancelButton';
+import {ModalsContext} from '../state/modals';
+import {Flex} from './layout';
+import {CancelButton} from './NewComposition/CancelButton';
 
 const container: React.CSSProperties = {
 	display: 'flex',
@@ -17,14 +17,16 @@ const icon: React.CSSProperties = {
 	width: 20,
 };
 
-export const NewCompHeader: React.FC = () => {
+export const NewCompHeader: React.FC<{
+	title: string;
+}> = ({title}) => {
 	const {setSelectedModal} = useContext(ModalsContext);
 	const onPress = useCallback(() => {
 		setSelectedModal(null);
 	}, [setSelectedModal]);
 	return (
 		<div style={container}>
-			<div>New composition</div>
+			<div>{title}</div>
 			<Flex />
 			<CancelButton style={icon} onPress={onPress} />
 		</div>
