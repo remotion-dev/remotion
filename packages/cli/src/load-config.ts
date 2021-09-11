@@ -30,6 +30,7 @@ export const loadConfigFile = async (
 		tsconfig: isJavascript ? undefined : tsconfigJson,
 		absWorkingDir: process.cwd(),
 		outfile: out,
+		external: ['remotion'],
 	});
 	if (result.errors.length > 0) {
 		Log.error('Error in remotion.config.ts file');
