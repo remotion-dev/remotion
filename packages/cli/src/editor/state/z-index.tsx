@@ -7,6 +7,7 @@ import React, {
 } from 'react';
 import {useKeybinding} from '../helpers/use-keybinding';
 import {HighestZIndexContext} from './highest-z-index';
+import {getClickLock} from './input-dragger-click-lock';
 
 type ZIndex = {
 	currentIndex: number;
@@ -54,9 +55,14 @@ export const HigherZIndex: React.FC<{
 	useEffect(() => {
 		const listener = (e: MouseEvent) => {
 			const outsideClick = !containerRef.current?.contains(e.target as Node);
-
-			if (outsideClick && highestContext.highestIndex === currentIndex) {
+			console.log({containerRef: containerRef.current, target: e.target});
+			if (
+				outsideClick &&
+				highestContext.highestIndex === currentIndex &&
+				!getClickLock()
+			) {
 				e.stopPropagation();
+				console.log('outside click');
 				onOutsideClick();
 			}
 		};
