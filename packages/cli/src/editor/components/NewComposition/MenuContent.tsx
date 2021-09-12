@@ -1,13 +1,17 @@
 import React, {useCallback, useEffect, useRef, useState} from 'react';
+import {INPUT_BORDER_COLOR_UNHOVERED} from '../../helpers/colors';
 import {useKeybinding} from '../../helpers/use-keybinding';
 import {MenuDivider} from '../Menu/MenuDivider';
 import {MenuSubItem, SubMenuActivated} from '../Menu/MenuSubItem';
 import {MENU_VERTICAL_PADDING} from '../Menu/styles';
 import {ComboboxValue} from './ComboBox';
 
+const BORDER_SIZE = 1;
 const container: React.CSSProperties = {
 	paddingTop: MENU_VERTICAL_PADDING,
 	paddingBottom: MENU_VERTICAL_PADDING,
+	border: `${BORDER_SIZE}px solid ${INPUT_BORDER_COLOR_UNHOVERED}`,
+	marginLeft: 0 - BORDER_SIZE,
 };
 
 export const MenuContent: React.FC<{

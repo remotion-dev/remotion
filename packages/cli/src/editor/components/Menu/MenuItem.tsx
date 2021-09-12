@@ -26,13 +26,13 @@ export type MenuId = 'remotion' | 'file' | 'view' | 'help';
 
 export type Menu = {
 	id: MenuId;
-	label: string;
+	label: React.ReactNode;
 	items: ComboboxValue[];
 	leaveLeftPadding: boolean;
 };
 
 export const MenuItem: React.FC<{
-	label: string;
+	label: React.ReactNode;
 	id: MenuId;
 	selected: boolean;
 	onItemSelected: (id: MenuId) => void;
