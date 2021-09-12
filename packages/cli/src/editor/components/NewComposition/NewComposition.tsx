@@ -79,6 +79,14 @@ export const NewComposition: React.FC<{initialCompType: CompType}> = ({
 		[]
 	);
 
+	const onWidthDirectlyChanged = useCallback((newWidth: number) => {
+		setWidth(String(newWidth));
+	}, []);
+
+	const onHeightDirectlyChanged = useCallback((newHeight: number) => {
+		setHeight(String(newHeight));
+	}, []);
+
 	const onHeightChanged: ChangeEventHandler<HTMLInputElement> = useCallback(
 		(e) => {
 			setHeight(e.target.value);
@@ -163,6 +171,7 @@ export const NewComposition: React.FC<{initialCompType: CompType}> = ({
 													name="width"
 													step={2}
 													min={2}
+													onValueChange={onWidthDirectlyChanged}
 												/>
 												{Number(width) % 2 === 0 ? null : (
 													<ValidationMessage message="Dimension should be divisible by 2, since H264 codec doesn't support odd dimensions.." />
@@ -186,6 +195,7 @@ export const NewComposition: React.FC<{initialCompType: CompType}> = ({
 												name="height"
 												step={2}
 												min={2}
+												onValueChange={onHeightDirectlyChanged}
 											/>
 											{Number(height) % 2 === 0 ? null : (
 												<ValidationMessage message="Dimension should be divisible by 2, since H264 codec doesn't support odd dimensions.." />
@@ -247,7 +257,7 @@ export const NewComposition: React.FC<{initialCompType: CompType}> = ({
 					>
 						<CopyButton
 							label="Copy code"
-							labelWhenCopied="Copied"
+							labelWhenCopied="Copied!"
 							textToCopy={
 								getNewCompositionCode({
 									type,

@@ -10,9 +10,11 @@ import {interpolate} from 'remotion';
 import {getClickLock, setClickLock} from '../../state/input-dragger-click-lock';
 import {inputBaseStyle, RemotionInput} from './RemInput';
 
-type Props = InputHTMLAttributes<HTMLInputElement>;
+type Props = InputHTMLAttributes<HTMLInputElement> & {
+	onValueChange: (newVal: number) => void;
+};
 
-export const InputDragger: React.FC<Props> = (props) => {
+export const InputDragger: React.FC<Props> = ({onValueChange, ...props}) => {
 	const [inputFallback, setInputFallback] = useState(false);
 	const [editMode, setEditMode] = useState(false);
 
@@ -36,7 +38,7 @@ export const InputDragger: React.FC<Props> = (props) => {
 	);
 
 	const onClick: MouseEventHandler<HTMLButtonElement> = useCallback((e) => {
-		if (!getClickLock) e.stopPropagation();
+		if (!getClickLock()) e.stopPropagation();
 		setInputFallback(true);
 	}, []);
 
@@ -74,7 +76,8 @@ export const InputDragger: React.FC<Props> = (props) => {
 					[-step, 0, 0, 0, step]
 				);
 				const newValue = Math.max(min, Math.floor(Number(props.value) + diff));
-				console.log({newValue});
+				const roundToStep = Math.floor(newValue / step) * step;
+				onValueChange(roundToStep);
 			};
 
 			window.addEventListener('mousemove', moveListener);
@@ -92,7 +95,7 @@ export const InputDragger: React.FC<Props> = (props) => {
 				}
 			);
 		},
-		[props.min, props.step, props.value]
+		[onValueChange, props.min, props.step, props.value]
 	);
 
 	if (inputFallback) {
