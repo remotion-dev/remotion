@@ -8,6 +8,7 @@ import {
 	removeStaticComposition,
 } from './register-root';
 import {useLazyComponent} from './use-lazy-component';
+import {validateCompositionId} from './validation/validate-composition-id';
 import {validateDimension} from './validation/validate-dimensions';
 import {validateDurationInFrames} from './validation/validate-duration-in-frames';
 import {validateFps} from './validation/validate-fps';
@@ -54,12 +55,7 @@ export const Composition = <T,>({
 			throw new Error('No id for composition passed.');
 		}
 
-		if (!id.match(/^([a-zA-Z0-9-])+$/g)) {
-			throw new Error(
-				`Composition id can only contain a-z, A-Z, 0-9 and -. You passed ${id}`
-			);
-		}
-
+		validateCompositionId(id);
 		validateDimension(width, 'width', 'of the <Composition/> component');
 		validateDimension(height, 'height', 'of the <Composition/> component');
 		validateDurationInFrames(

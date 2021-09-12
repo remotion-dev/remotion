@@ -7,8 +7,9 @@ import React, {
 	useState,
 } from 'react';
 import {
-	BORDER_COLOR,
-	CLEAR_HOVER,
+	INPUT_BACKGROUND,
+	INPUT_BORDER_COLOR_HOVERED,
+	INPUT_BORDER_COLOR_UNHOVERED,
 	SELECTED_BACKGROUND,
 } from '../../helpers/colors';
 import {FONT_FAMILY} from '../../helpers/font';
@@ -30,20 +31,20 @@ const RemInputForwardRef: React.ForwardRefRenderFunction<
 
 	const style = useMemo(() => {
 		return {
-			backgroundColor: 'rgba(255, 255, 255, 0.06)',
-			border: BORDER_COLOR,
+			backgroundColor: INPUT_BACKGROUND,
 			fontFamily: FONT_FAMILY,
-			padding: '6px 8px',
+			padding: '8px 10px',
 			color: 'white',
 			outline: 'none',
 			borderStyle: 'solid',
-			borderWidth: 2,
-			fontSize: 15,
+			borderWidth: 1,
+			fontSize: 14,
+			appearance: 'textfield',
 			borderColor: isFocused
 				? SELECTED_BACKGROUND
 				: isHovered
-				? CLEAR_HOVER
-				: 'transparent',
+				? INPUT_BORDER_COLOR_HOVERED
+				: INPUT_BORDER_COLOR_UNHOVERED,
 			...(props.style ?? {}),
 		};
 	}, [isFocused, isHovered, props.style]);
