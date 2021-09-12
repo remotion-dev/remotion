@@ -38,7 +38,10 @@ export const InputDragger: React.FC<Props> = ({onValueChange, ...props}) => {
 	);
 
 	const onClick: MouseEventHandler<HTMLButtonElement> = useCallback((e) => {
-		if (!getClickLock()) e.stopPropagation();
+		if (!getClickLock()) {
+			e.stopPropagation();
+		}
+
 		setInputFallback(true);
 	}, []);
 

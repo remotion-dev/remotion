@@ -229,7 +229,13 @@ export const NewComposition: React.FC<{initialCompType: CompType}> = ({
 								<Spacing y={1} />
 								<label>
 									<div style={leftLabel}>Framerate</div>
-									<Combobox values={items} selectedId={selectedFrameRate} />
+									<Combobox
+										style={{
+											width: inputArea.width,
+										}}
+										values={items}
+										selectedId={selectedFrameRate}
+									/>
 								</label>
 							</div>
 						) : null}
