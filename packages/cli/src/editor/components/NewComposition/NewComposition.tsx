@@ -14,6 +14,7 @@ import {ModalContainer} from '../ModalContainer';
 import {NewCompHeader} from '../ModalHeader';
 import {Combobox, ComboboxValue} from './ComboBox';
 import {CompositionType, CompType} from './CompositionType';
+import {InputDragger} from './InputDragger';
 import {inputArea, leftLabel} from './new-comp-layout';
 import {NewCompAspectRatio} from './NewCompAspectRatio';
 import {getNewCompositionCode} from './NewCompCode';
@@ -154,7 +155,7 @@ export const NewComposition: React.FC<{initialCompType: CompType}> = ({
 										<Row align="center">
 											<div style={leftLabel}>Width</div>
 											<div style={inputArea}>
-												<RemotionInput
+												<InputDragger
 													type="number"
 													value={width}
 													placeholder="Width (px)"
@@ -177,7 +178,7 @@ export const NewComposition: React.FC<{initialCompType: CompType}> = ({
 									<Row align="center">
 										<div style={leftLabel}>Height</div>
 										<div style={inputArea}>
-											<RemotionInput
+											<InputDragger
 												type="number"
 												value={height}
 												onChange={onHeightChanged}
@@ -186,6 +187,9 @@ export const NewComposition: React.FC<{initialCompType: CompType}> = ({
 												step={2}
 												min={2}
 											/>
+											{Number(height) % 2 === 0 ? null : (
+												<ValidationMessage message="Dimension should be divisible by 2, since H264 codec doesn't support odd dimensions.." />
+											)}
 										</div>
 									</Row>
 								</label>

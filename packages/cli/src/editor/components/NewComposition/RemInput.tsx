@@ -20,6 +20,15 @@ type Props = React.DetailedHTMLProps<
 	HTMLInputElement
 >;
 
+export const inputBaseStyle: React.CSSProperties = {
+	fontFamily: FONT_FAMILY,
+	padding: '8px 10px',
+	color: 'white',
+	borderStyle: 'solid',
+	borderWidth: 1,
+	fontSize: 14,
+};
+
 const RemInputForwardRef: React.ForwardRefRenderFunction<
 	HTMLInputElement,
 	Props
@@ -32,14 +41,8 @@ const RemInputForwardRef: React.ForwardRefRenderFunction<
 	const style = useMemo(() => {
 		return {
 			backgroundColor: INPUT_BACKGROUND,
-			fontFamily: FONT_FAMILY,
-			padding: '8px 10px',
-			color: 'white',
-			outline: 'none',
-			borderStyle: 'solid',
-			borderWidth: 1,
-			fontSize: 14,
-			appearance: 'textfield',
+			...inputBaseStyle,
+
 			borderColor: isFocused
 				? SELECTED_BACKGROUND
 				: isHovered

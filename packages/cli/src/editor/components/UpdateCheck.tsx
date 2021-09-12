@@ -14,7 +14,7 @@ export type UpdateInfo = {
 
 const buttonStyle: React.CSSProperties = {
 	appearance: 'none',
-	color: '#4290f5',
+	color: 'var(--blue)',
 	border: 'none',
 	fontWeight: 'bold',
 	backgroundColor: 'transparent',
