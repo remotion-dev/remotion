@@ -1,4 +1,8 @@
-import React, {useCallback, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
+import {
+	INPUT_BACKGROUND,
+	INPUT_BORDER_COLOR_UNHOVERED,
+} from '../helpers/colors';
 import {copyCmd} from '../helpers/copy-text';
 import {Row, Spacing} from './layout';
 
@@ -22,16 +26,16 @@ const copyIcon = (
 );
 
 const container: React.CSSProperties = {
-	border: `2px solid rgba(255, 255, 255, 0.2)`,
-	borderRadius: 4,
 	padding: 10,
 	cursor: 'pointer',
+	fontSize: 14,
 };
 
 const button: React.CSSProperties = {
-	backgroundColor: 'transparent',
+	border: `1px solid ${INPUT_BORDER_COLOR_UNHOVERED}`,
+	borderRadius: 4,
+	backgroundColor: INPUT_BACKGROUND,
 	appearance: 'none',
-	border: 'none',
 	fontFamily: 'inherit',
 	fontSize: 16,
 	color: 'white',
@@ -42,18 +46,27 @@ export const CopyButton: React.FC<{
 	label: string;
 	labelWhenCopied: string;
 }> = ({textToCopy, label, labelWhenCopied}) => {
-	const [copied, setCopied] = useState(false);
+	const [copied, setCopied] = useState<false | number>(false);
 
 	const onClick = useCallback(() => {
 		copyCmd(textToCopy);
-		setCopied(true);
+		setCopied(Date.now());
 	}, [textToCopy]);
+
+	useEffect(() => {
+		if (!copied) {
+			return;
+		}
+
+		const to = setTimeout(() => setCopied(false), 2000);
+		return () => clearTimeout(to);
+	}, [copied]);
 
 	return (
 		<button onClick={onClick} style={button} type="button">
 			<Row style={container}>
 				{copyIcon}
-				<Spacing x={1} /> {copied ? labelWhenCopied : label}
+				<Spacing x={1.5} /> {copied ? labelWhenCopied : label}
 			</Row>
 		</button>
 	);

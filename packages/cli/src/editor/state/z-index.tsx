@@ -55,14 +55,12 @@ export const HigherZIndex: React.FC<{
 	useEffect(() => {
 		const listener = (e: MouseEvent) => {
 			const outsideClick = !containerRef.current?.contains(e.target as Node);
-			console.log({containerRef: containerRef.current, target: e.target});
 			if (
 				outsideClick &&
 				highestContext.highestIndex === currentIndex &&
 				!getClickLock()
 			) {
 				e.stopPropagation();
-				console.log('outside click');
 				onOutsideClick();
 			}
 		};
