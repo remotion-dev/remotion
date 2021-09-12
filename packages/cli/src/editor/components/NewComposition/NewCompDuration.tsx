@@ -1,6 +1,7 @@
 import React, {ChangeEventHandler, useCallback} from 'react';
-import {leftLabel, rightLabel} from './new-comp-layout';
-import {RemotionInput} from './RemInput';
+import {Row} from '../layout';
+import {InputDragger} from './InputDragger';
+import {inputArea, leftLabel, rightLabel} from './new-comp-layout';
 
 const label: React.CSSProperties = {
 	fontSize: 13,
@@ -20,20 +21,33 @@ export const NewCompDuration: React.FC<{
 		[setDurationInFrames]
 	);
 
+	const onDurationChangedDirectly = useCallback(
+		(newVal: number) => {
+			setDurationInFrames(String(newVal));
+		},
+		[setDurationInFrames]
+	);
+
 	return (
 		<div>
 			<label>
-				<div style={leftLabel}> Duration in frames</div>
-				<RemotionInput
-					type="number"
-					value={durationInFrames}
-					onChange={onDurationInFramesChanged}
-					placeholder="Duration (frames)"
-					name="height"
-				/>
-				<span style={rightLabel}>
-					{(Number(durationInFrames) / Number(fps)).toFixed(2)}sec
-				</span>
+				<Row align="center">
+					<div style={leftLabel}> Duration in frames</div>
+					<div style={inputArea}>
+						<InputDragger
+							type="number"
+							value={durationInFrames}
+							onChange={onDurationInFramesChanged}
+							placeholder="Duration (frames)"
+							name="height"
+							min={1}
+							onValueChange={onDurationChangedDirectly}
+						/>
+					</div>
+					<span style={rightLabel}>
+						{(Number(durationInFrames) / Number(fps)).toFixed(2)}sec
+					</span>
+				</Row>
 			</label>
 		</div>
 	);

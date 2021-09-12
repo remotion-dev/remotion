@@ -8,7 +8,9 @@ import {
 	SELECTED_BACKGROUND,
 } from '../../helpers/colors';
 import {noop} from '../../helpers/noop';
+import {CaretDown} from '../../icons/caret';
 import {HigherZIndex, useZIndex} from '../../state/z-index';
+import {Flex, Spacing} from '../layout';
 import {getPortal} from '../Menu/portals';
 import {menuContainer, outerPortal} from '../Menu/styles';
 import {MenuContent} from './MenuContent';
@@ -49,7 +51,8 @@ export type ComboboxValue = DividerItem | SelectionItem;
 export const Combobox: React.FC<{
 	values: ComboboxValue[];
 	selectedId: string | number;
-}> = ({values, selectedId}) => {
+	style?: React.CSSProperties;
+}> = ({values, selectedId, style: customStyle}) => {
 	const [hovered, setIsHovered] = useState(false);
 	const [opened, setOpened] = useState(false);
 	const ref = useRef<HTMLButtonElement>(null);
@@ -103,20 +106,24 @@ export const Combobox: React.FC<{
 	const style = useMemo((): React.CSSProperties => {
 		return {
 			...container,
+			...(customStyle ?? {}),
 			userSelect: 'none',
 			color: 'white',
+			display: 'inline-flex',
+			flexDirection: 'row',
+			alignItems: 'center',
 			borderColor: opened
 				? SELECTED_BACKGROUND
 				: hovered
 				? INPUT_BORDER_COLOR_HOVERED
 				: INPUT_BORDER_COLOR_UNHOVERED,
 		};
-	}, [hovered, opened]);
+	}, [customStyle, hovered, opened]);
 
 	return (
 		<>
 			<button ref={ref} tabIndex={tabIndex} type="button" style={style}>
-				{selected.label}
+				{selected.label} <Flex /> <Spacing x={1} /> <CaretDown />
 			</button>
 			{portalStyle
 				? ReactDOM.createPortal(

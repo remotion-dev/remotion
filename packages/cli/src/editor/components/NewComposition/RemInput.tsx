@@ -42,7 +42,7 @@ const RemInputForwardRef: React.ForwardRefRenderFunction<
 		return {
 			backgroundColor: INPUT_BACKGROUND,
 			...inputBaseStyle,
-
+			width: '100%',
 			borderColor: isFocused
 				? SELECTED_BACKGROUND
 				: isHovered
