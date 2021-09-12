@@ -5,29 +5,34 @@ import React, {
 	useMemo,
 	useState,
 } from 'react';
+import {Internals} from 'remotion';
 import {Checkmark} from '../../icons/Checkmark';
 import {ModalsContext} from '../../state/modals';
 import {CopyButton} from '../CopyButton';
-import {Spacing} from '../layout';
+import {Row, Spacing} from '../layout';
 import {ModalContainer} from '../ModalContainer';
 import {NewCompHeader} from '../ModalHeader';
 import {Combobox, ComboboxValue} from './ComboBox';
 import {CompositionType, CompType} from './CompositionType';
-import {leftLabel} from './new-comp-layout';
+import {inputArea, leftLabel} from './new-comp-layout';
 import {NewCompAspectRatio} from './NewCompAspectRatio';
 import {getNewCompositionCode} from './NewCompCode';
 import {NewCompDuration} from './NewCompDuration';
 import {RemotionInput} from './RemInput';
+import {ValidationMessage} from './ValidationMessage';
 
 const panelContent: React.CSSProperties = {
 	flexDirection: 'row',
 	display: 'flex',
+	width: 1100,
+	height: 450,
 };
 
 const left: React.CSSProperties = {
 	padding: 12,
 	paddingBottom: 80,
 	paddingRight: 12,
+	flex: 1,
 };
 
 const panelRight: React.CSSProperties = {
@@ -107,6 +112,8 @@ export const NewComposition: React.FC<{initialCompType: CompType}> = ({
 		);
 	}, [onFpsChange, selectedFrameRate]);
 
+	const isValidCompName = Internals.isCompositionIdValid(name);
+
 	return (
 		<ModalContainer onOutsideClick={onQuit} onEscape={onQuit}>
 			<NewCompHeader title="New composition" />
@@ -116,13 +123,22 @@ export const NewComposition: React.FC<{initialCompType: CompType}> = ({
 					<Spacing y={3} />
 					<form>
 						<label>
-							<div style={leftLabel}>Name</div>
-							<RemotionInput
-								value={name}
-								onChange={onNameChange}
-								type="text"
-								placeholder="Composition name"
-							/>
+							<Row align="center">
+								<div style={leftLabel}>Name</div>
+								<div style={inputArea}>
+									<RemotionInput
+										value={name}
+										onChange={onNameChange}
+										type="text"
+										placeholder="Composition name"
+									/>
+									{isValidCompName ? null : (
+										<ValidationMessage
+											message={Internals.invalidCompositionErrorMessage}
+										/>
+									)}
+								</div>
+							</Row>
 						</label>
 						<Spacing y={1} />
 						<div
@@ -135,26 +151,43 @@ export const NewComposition: React.FC<{initialCompType: CompType}> = ({
 							<div>
 								<div>
 									<label>
-										<div style={leftLabel}>Width</div>
-										<RemotionInput
-											type="number"
-											value={width}
-											placeholder="Width (px)"
-											onChange={onWidthChanged}
-											name="width"
-										/>
+										<Row align="center">
+											<div style={leftLabel}>Width</div>
+											<div style={inputArea}>
+												<RemotionInput
+													type="number"
+													value={width}
+													placeholder="Width (px)"
+													onChange={onWidthChanged}
+													name="width"
+													step={2}
+													min={2}
+												/>
+												{Number(width) % 2 === 0 ? null : (
+													<ValidationMessage message="Dimension should be divisible by 2, since H264 codec doesn't support odd dimensions.." />
+												)}
+											</div>
+										</Row>
 									</label>
 								</div>
+								<div />
 								<Spacing y={1} />
+								<div />
 								<label>
-									<div style={leftLabel}>Height</div>
-									<RemotionInput
-										type="number"
-										value={height}
-										onChange={onHeightChanged}
-										placeholder="Height (px)"
-										name="height"
-									/>
+									<Row align="center">
+										<div style={leftLabel}>Height</div>
+										<div style={inputArea}>
+											<RemotionInput
+												type="number"
+												value={height}
+												onChange={onHeightChanged}
+												placeholder="Height (px)"
+												name="height"
+												step={2}
+												min={2}
+											/>
+										</div>
+									</Row>
 								</label>
 							</div>
 							<div>
@@ -164,6 +197,7 @@ export const NewComposition: React.FC<{initialCompType: CompType}> = ({
 								/>
 							</div>
 						</div>
+						<div />
 						<Spacing y={1} />
 						{type === 'composition' ? (
 							<NewCompDuration
@@ -172,9 +206,12 @@ export const NewComposition: React.FC<{initialCompType: CompType}> = ({
 								setDurationInFrames={setDurationInFrames}
 							/>
 						) : null}
-
+						<div />
+						<br />
+						<div />
 						{type === 'composition' ? (
 							<div>
+								<div />
 								<Spacing y={1} />
 								<label>
 									<div style={leftLabel}>Framerate</div>

@@ -9,6 +9,10 @@ export const leftLabel: React.CSSProperties = {
 	color: '#ddd',
 };
 
+export const inputArea: React.CSSProperties = {
+	width: 190,
+};
+
 export const rightLabel: React.CSSProperties = {
 	fontSize: 13,
 	color: 'rgba(255, 255, 255, 0.5)',

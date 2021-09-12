@@ -1,7 +1,12 @@
 import {useElementSize} from '@remotion/player/src/utils/use-element-size';
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import ReactDOM from 'react-dom';
-import {getBackgroundFromHoverState} from '../../helpers/colors';
+import {
+	INPUT_BACKGROUND,
+	INPUT_BORDER_COLOR_HOVERED,
+	INPUT_BORDER_COLOR_UNHOVERED,
+	SELECTED_BACKGROUND,
+} from '../../helpers/colors';
 import {noop} from '../../helpers/noop';
 import {HigherZIndex, useZIndex} from '../../state/z-index';
 import {getPortal} from '../Menu/portals';
@@ -9,11 +14,11 @@ import {menuContainer, outerPortal} from '../Menu/styles';
 import {MenuContent} from './MenuContent';
 
 const container: React.CSSProperties = {
-	padding: '6px 8px',
+	padding: '8px 10px',
 	display: 'inline-block',
-	backgroundColor: 'rgba(255, 255, 255, 0.06)',
-	fontSize: 15,
-	borderWidth: 2,
+	backgroundColor: INPUT_BACKGROUND,
+	fontSize: 14,
+	borderWidth: 1,
 	borderStyle: 'solid',
 };
 
@@ -57,18 +62,6 @@ export const Combobox: React.FC<{
 		setOpened(false);
 	}, []);
 
-	const style = useMemo((): React.CSSProperties => {
-		return {
-			...container,
-			userSelect: 'none',
-			color: 'white',
-			borderColor: getBackgroundFromHoverState({
-				hovered,
-				selected: false,
-			}),
-		};
-	}, [hovered]);
-
 	useEffect(() => {
 		const {current} = ref;
 		if (!current) {
@@ -106,6 +99,19 @@ export const Combobox: React.FC<{
 	}, [opened, size]);
 
 	const selected = values.find((v) => v.id === selectedId) as SelectionItem;
+
+	const style = useMemo((): React.CSSProperties => {
+		return {
+			...container,
+			userSelect: 'none',
+			color: 'white',
+			borderColor: opened
+				? SELECTED_BACKGROUND
+				: hovered
+				? INPUT_BORDER_COLOR_HOVERED
+				: INPUT_BORDER_COLOR_UNHOVERED,
+		};
+	}, [hovered, opened]);
 
 	return (
 		<>

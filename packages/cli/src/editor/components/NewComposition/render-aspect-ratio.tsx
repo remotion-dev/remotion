@@ -12,5 +12,12 @@ function gcd_two_numbers(x: number, y: number) {
 
 export const aspectRatio = (width: number, height: number) => {
 	const commonDivisor = gcd_two_numbers(width, height);
-	return width / commonDivisor + ':' + height / commonDivisor;
+	const widthDivisor = width / commonDivisor;
+	const heightDivisor = height / commonDivisor;
+
+	if (widthDivisor < 100) {
+		return widthDivisor + ':' + heightDivisor;
+	}
+
+	return (widthDivisor / heightDivisor).toFixed(2);
 };
