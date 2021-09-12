@@ -5,6 +5,7 @@ import {CheckerboardContext} from '../state/checkerboard';
 import {ModalsContext} from '../state/modals';
 import {PreviewSizeContext} from '../state/preview-size';
 import {RichTimelineContext} from '../state/rich-timeline';
+import {Row} from './layout';
 import {Menu, MenuId, MenuItem} from './Menu/MenuItem';
 import {commonPreviewSizes, getPreviewSizeLabel} from './SizeSelector';
 import {UpdateCheck} from './UpdateCheck';
@@ -26,6 +27,11 @@ type Structure = Menu[];
 const openExternal = (link: string) => {
 	window.open(link, '_blank');
 };
+
+const rotate: React.CSSProperties = {
+	transform: `rotate(90deg)`,
+};
+const ICON_SIZE = 16;
 
 export const MenuToolbar: React.FC = () => {
 	const [selected, setSelected] = useState<MenuId | null>(null);
@@ -58,7 +64,24 @@ export const MenuToolbar: React.FC = () => {
 		return [
 			{
 				id: 'remotion',
-				label: 'Remotion',
+				label: (
+					<Row align="center" justify="center">
+						<svg
+							width={ICON_SIZE}
+							height={ICON_SIZE}
+							viewBox="-100 -100 400 400"
+							style={rotate}
+						>
+							<path
+								fill="#fff"
+								stroke="#fff"
+								strokeWidth="100"
+								strokeLinejoin="round"
+								d="M 2 172 a 196 100 0 0 0 195 5 A 196 240 0 0 0 100 2.259 A 196 240 0 0 0 2 172 z"
+							/>
+						</svg>
+					</Row>
+				),
 				leaveLeftPadding: false,
 				items: [
 					{
@@ -153,9 +176,7 @@ export const MenuToolbar: React.FC = () => {
 						id: 'preview-size',
 						keyHint: null,
 						label: 'Preview size',
-						onClick: () => {
-							console.log('pressed');
-						},
+						onClick: () => undefined,
 						type: 'item',
 						value: 'preview-size',
 						leftItem: null,
@@ -364,27 +385,25 @@ export const MenuToolbar: React.FC = () => {
 	}, [setSelected]);
 
 	return (
-		<div style={row}>
-			<div>
-				{structure.map((s) => {
-					return (
-						<MenuItem
-							key={s.id}
-							selected={selected === s.id}
-							onItemSelected={itemClicked}
-							onItemHovered={itemHovered}
-							id={s.id}
-							label={s.label}
-							onItemQuit={onItemQuit}
-							menu={s}
-							onPreviousMenu={onPreviousMenu}
-							onNextMenu={onNextMenu}
-							leaveLeftPadding={s.leaveLeftPadding}
-						/>
-					);
-				})}
-			</div>
+		<Row align="center" style={row}>
+			{structure.map((s) => {
+				return (
+					<MenuItem
+						key={s.id}
+						selected={selected === s.id}
+						onItemSelected={itemClicked}
+						onItemHovered={itemHovered}
+						id={s.id}
+						label={s.label}
+						onItemQuit={onItemQuit}
+						menu={s}
+						onPreviousMenu={onPreviousMenu}
+						onNextMenu={onNextMenu}
+						leaveLeftPadding={s.leaveLeftPadding}
+					/>
+				);
+			})}
 			<UpdateCheck />
-		</div>
+		</Row>
 	);
 };
