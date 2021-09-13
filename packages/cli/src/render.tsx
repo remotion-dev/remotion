@@ -54,6 +54,8 @@ export const render = async () => {
 		codec,
 		proResProfile,
 		parallelism,
+		concurrentMode,
+		parallelEncoding,
 		frameRange,
 		shouldOutputImageSequence,
 		absoluteOutputFile,
@@ -72,7 +74,7 @@ export const render = async () => {
 
 	const actualParallelism = getActualConcurrency(parallelism ?? null);
 
-	const browserInstance = Promise.all(new Array(actualParallelism).fill(true).map(()=>RenderInternals.openBrowser(browser, {
+	const browserInstance = Promise.all(new Array(concurrentMode==='browser'?actualParallelism:1).fill(true).map(()=>RenderInternals.openBrowser(browser, {
 		browserExecutable,
 		shouldDumpIo: Internals.Logging.isEqualOrBelowLogLevel('verbose'),
 	})));
@@ -129,6 +131,8 @@ export const render = async () => {
 			);
 		},
 		parallelism,
+		concurrentMode,
+		parallelEncoding,
 		compositionId,
 		outputDir,
 		onError,

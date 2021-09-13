@@ -20,7 +20,7 @@ import {setPort} from './preview-server';
 import {setProResProfile} from './prores-profile';
 import {setQuality} from './quality';
 import {setWebpackCaching} from './webpack-caching';
-import {setConcurrentMode} from "./concurrent-mode";
+import {setConcurrentMode,ConcurrentMode} from "./concurrent-mode";
 import {setParallelEncoding} from "./parallel-encoding";
 
 export const Config = {
@@ -165,4 +165,5 @@ export type {
 	Browser,
 	FrameRange,
 	LogLevel,
+	ConcurrentMode,
 };

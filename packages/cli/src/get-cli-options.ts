@@ -193,6 +193,8 @@ export const getCliOptions = async (type: 'still' | 'series') => {
 
 	return {
 		parallelism: Internals.getConcurrency(),
+		concurrentMode: Internals.getConcurrentMode(),
+		parallelEncoding: Internals.getParallelEncoding(),
 		frameRange,
 		shouldOutputImageSequence,
 		codec,

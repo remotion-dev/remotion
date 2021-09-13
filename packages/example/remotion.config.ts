@@ -3,6 +3,7 @@ import path from 'path';
 import {Config, WebpackOverrideFn} from 'remotion';
 
 Config.Output.setOverwriteOutput(true);
+Config.Rendering.setConcurrentMode('browser');
 
 type Bundler = 'webpack' | 'esbuild';
 

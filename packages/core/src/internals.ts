@@ -21,6 +21,8 @@ import {
 	getOutputCodecOrUndefined,
 } from './config/codec';
 import {getConcurrency} from './config/concurrency';
+import {getConcurrentMode} from "./config/concurrent-mode";
+import {getParallelEncoding} from "./config/parallel-encoding";
 import {
 	getActualCrf,
 	getDefaultCrfForCodec,
@@ -128,6 +130,8 @@ export const Internals = {
 	getIsEvaluation,
 	getPixelFormat,
 	getConcurrency,
+	getConcurrentMode,
+	getParallelEncoding,
 	getRange,
 	getShouldOverwrite,
 	getOutputCodecOrUndefined,

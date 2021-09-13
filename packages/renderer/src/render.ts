@@ -7,6 +7,7 @@ import {
 	ImageFormat,
 	Internals,
 	VideoConfig,
+	ConcurrentMode,
 } from 'remotion';
 import {getActualConcurrency} from './get-concurrency';
 import {getFrameCount} from './get-frame-range';
@@ -19,6 +20,7 @@ import {seekToFrame} from './seek-to-frame';
 import {serveStatic} from './serve-static';
 import {setPropsAndEnv} from './set-props-and-env';
 import {OnErrorInfo, OnStartData, RenderFramesOutput} from './types';
+import {cycleBrowserTabs} from "./cycle-browser-tabs";
 
 export const renderFrames = async ({
 	config,
@@ -38,6 +40,8 @@ export const renderFrames = async ({
 	puppeteerInstance,
 	onError,
 	browserExecutable,
+	concurrentMode,
+	parallelEncoding,
 }: {
 	config: VideoConfig;
 	compositionId: string;
@@ -56,6 +60,8 @@ export const renderFrames = async ({
 	puppeteerInstance?: Array<PuppeteerBrowser>;
 	browserExecutable?: BrowserExecutable;
 	onError?: (info: OnErrorInfo) => void;
+	concurrentMode?: ConcurrentMode;
+	parallelEncoding?: boolean;
 }): Promise<RenderFramesOutput> => {
 	Internals.validateDimension(
 		config.height,
@@ -88,7 +94,7 @@ export const renderFrames = async ({
 	const [{port, close}, browserInstance] = await Promise.all([
 		serveStatic(webpackBundle),
 		puppeteerInstance ??
-		Promise.all(new Array(actualParallelism).fill(true).map(()=>
+		Promise.all(new Array(concurrentMode==='browser'?actualParallelism:1).fill(true).map(()=>
 			openBrowser(browser, {
 				shouldDumpIo: dumpBrowserLogs,
 				browserExecutable,
@@ -99,8 +105,9 @@ export const renderFrames = async ({
 		// 	browserExecutable,
 		// }),
 	]);
-	const pages = browserInstance.map(async o => {
-		const page = await o.newPage();
+
+	const initPage=async (_browser:PuppeteerBrowser) => {
+		const page = await _browser.newPage();
 		// const page = await browserInstance.newPage();
 		page.setViewport({
 			width: config.width,
@@ -132,8 +139,15 @@ export const renderFrames = async ({
 		await page.goto(site);
 		page.off('pageerror', errorCallback);
 		return page;
-	});
-	// const {stopCycling} = cycleBrowserTabs(browserInstance);
+	}
+
+	const pages = concurrentMode==='browser'?
+		browserInstance.map(initPage):
+		new Array(actualParallelism).fill(true).map(()=>initPage(browserInstance[0]));
+
+	let stopCycling = () => {};
+	if(concurrentMode!=='browser')
+		stopCycling=cycleBrowserTabs(browserInstance[0]).stopCycling;
 
 	const puppeteerPages = await Promise.all(pages);
 	const pool = new Pool(puppeteerPages);
@@ -213,7 +227,7 @@ export const renderFrames = async ({
 	close().catch((err) => {
 		console.log('Unable to close web server', err);
 	});
-	// stopCycling();
+	stopCycling();
 	// If browser instance was passed in, we close all the pages
 	// we opened.
 	// If new browser was opened, then closing the browser as a cleanup.
