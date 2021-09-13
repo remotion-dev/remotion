@@ -88,15 +88,20 @@ export const renderFrames = async ({
 
 	const [{port, close}, browserInstance] = await Promise.all([
 		serveStatic(webpackBundle),
-		//puppeteerInstance ??
 		Promise.all(new Array(actualParallelism).fill(true).map(()=>
 			openBrowser(browser, {
 				shouldDumpIo: dumpBrowserLogs,
 				browserExecutable,
 			})))
+		// puppeteerInstance ??
+		// openBrowser(browser, {
+		// 	shouldDumpIo: dumpBrowserLogs,
+		// 	browserExecutable,
+		// }),
 	]);
 	const pages = new Array(actualParallelism).fill(true).map(async (o,i) => {
 		const page = await browserInstance[i].newPage();
+		//const page = await browserInstance.newPage();
 		page.setViewport({
 			width: config.width,
 			height: config.height,
@@ -208,7 +213,7 @@ export const renderFrames = async ({
 	close().catch((err) => {
 		console.log('Unable to close web server', err);
 	});
-	//stopCycling();
+	// stopCycling();
 	// If browser instance was passed in, we close all the pages
 	// we opened.
 	// If new browser was opened, then closing the browser as a cleanup.
