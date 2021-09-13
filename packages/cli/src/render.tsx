@@ -24,6 +24,7 @@ import {
 } from './progress-bar';
 import {bundleOnCli} from './setup-cache';
 import {checkAndValidateFfmpegVersion} from './validate-ffmpeg-version';
+import {getActualConcurrency} from "@remotion/renderer/dist/get-concurrency";
 
 const onError = async (info: OnErrorInfo) => {
 	Log.error();
@@ -69,10 +70,12 @@ export const render = async () => {
 
 	await checkAndValidateFfmpegVersion();
 
-	const browserInstance = RenderInternals.openBrowser(browser, {
+	const actualParallelism = getActualConcurrency(parallelism ?? null);
+
+	const browserInstance = Promise.all(new Array(actualParallelism).fill(true).map(()=>RenderInternals.openBrowser(browser, {
 		browserExecutable,
 		shouldDumpIo: Internals.Logging.isEqualOrBelowLogLevel('verbose'),
-	});
+	})));
 	if (shouldOutputImageSequence) {
 		fs.mkdirSync(absoluteOutputFile, {
 			recursive: true,
@@ -87,7 +90,7 @@ export const render = async () => {
 	const comps = await getCompositions(bundled, {
 		browser,
 		inputProps,
-		browserInstance: openedBrowser,
+		browserInstance: openedBrowser[0],
 		envVariables,
 	});
 	const compositionId = getCompositionId(comps);
@@ -152,7 +155,7 @@ export const render = async () => {
 		puppeteerInstance: openedBrowser,
 	});
 
-	const closeBrowserPromise = openedBrowser.close();
+	const closeBrowserPromise = openedBrowser.map(o=>o.close());
 	renderProgress.update(
 		makeRenderingProgress({
 			frames: totalFrames,
