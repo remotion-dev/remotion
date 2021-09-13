@@ -16,7 +16,7 @@ export const provideScreenshot = async ({
 		output: string;
 	};
 }): Promise<void> => {
-	console.log(options.output);
+	// console.log(options.output);
 	await screenshotDOMElement({
 		page,
 		opts: {

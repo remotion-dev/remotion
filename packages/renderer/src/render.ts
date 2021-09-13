@@ -8,7 +8,6 @@ import {
 	Internals,
 	VideoConfig,
 } from 'remotion';
-import {cycleBrowserTabs} from './cycle-browser-tabs';
 import {getActualConcurrency} from './get-concurrency';
 import {getFrameCount} from './get-frame-range';
 import {getFrameToRender} from './get-frame-to-render';
@@ -54,7 +53,7 @@ export const renderFrames = async ({
 	browser?: Browser;
 	frameRange?: FrameRange | null;
 	dumpBrowserLogs?: boolean;
-	puppeteerInstance?: PuppeteerBrowser;
+	puppeteerInstance?: Array<PuppeteerBrowser>;
 	browserExecutable?: BrowserExecutable;
 	onError?: (info: OnErrorInfo) => void;
 }): Promise<RenderFramesOutput> => {
@@ -88,6 +87,7 @@ export const renderFrames = async ({
 
 	const [{port, close}, browserInstance] = await Promise.all([
 		serveStatic(webpackBundle),
+		puppeteerInstance ??
 		Promise.all(new Array(actualParallelism).fill(true).map(()=>
 			openBrowser(browser, {
 				shouldDumpIo: dumpBrowserLogs,
@@ -99,9 +99,9 @@ export const renderFrames = async ({
 		// 	browserExecutable,
 		// }),
 	]);
-	const pages = new Array(actualParallelism).fill(true).map(async (o,i) => {
-		const page = await browserInstance[i].newPage();
-		//const page = await browserInstance.newPage();
+	const pages = browserInstance.map(async o => {
+		const page = await o.newPage();
+		// const page = await browserInstance.newPage();
 		page.setViewport({
 			width: config.width,
 			height: config.height,
@@ -133,7 +133,7 @@ export const renderFrames = async ({
 		page.off('pageerror', errorCallback);
 		return page;
 	});
-	//const {stopCycling} = cycleBrowserTabs(browserInstance);
+	// const {stopCycling} = cycleBrowserTabs(browserInstance);
 
 	const puppeteerPages = await Promise.all(pages);
 	const pool = new Pool(puppeteerPages);

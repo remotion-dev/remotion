@@ -20,6 +20,8 @@ import {setPort} from './preview-server';
 import {setProResProfile} from './prores-profile';
 import {setQuality} from './quality';
 import {setWebpackCaching} from './webpack-caching';
+import {setConcurrentMode} from "./concurrent-mode";
+import {setParallelEncoding} from "./parallel-encoding";
 
 export const Config = {
 	Preview: {
@@ -95,6 +97,20 @@ export const Config = {
 		 * The frame count starts at 0.
 		 */
 		setFrameRange,
+
+		/**
+		 * Set the concurrent mode.
+		 * Pass in 'tab' and the renderer will launch a single browser and pages will be opened in multiple tabs.
+		 * Pass in 'browser' and the renderer will launch multiple browsers and open one page in each browser.
+		 * Use 'browser' to maximize CPU utilization and render faster.
+		 */
+		setConcurrentMode,
+
+		/**
+		 * Enabling parallel encoding means render frames and encode video at the same time.
+		 * The image will be passed directly into ffmpeg.
+		 */
+		setParallelEncoding,
 	},
 	Output: {
 		/**
