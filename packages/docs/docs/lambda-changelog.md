@@ -14,6 +14,13 @@ Keep track of changes to the APIs of Remotion Lambda here.
 1. Redeploy your function: `npx remotion lambda functions deploy`
 1. Migrate according to the changelog below:
 
+## September 14th, 2021
+
+Version hash: `2.4.0-alpha.91579e8b`
+
+- Fixes a bug where `npx remotion lambda policies user` could not be executed without AWS credentials which is a paradox.
+- Fixes a bug where a render could fail with an error `Frame X was not rendered`
+
 ## September 7th, 2021
 
 Version hash: `2.4.0-alpha.ec355aba`
