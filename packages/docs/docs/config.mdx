@@ -75,7 +75,7 @@ Increase or decrease the amount of log messages in the CLI.
 Acceptable values:
 
 - `error`: Silent except error messages.
-- `warning`: Only showing errors and warnings.
+- `warn`: Only showing errors and warnings.
 - `info` (_default_): Default output - besides errors and warnings, prints progress and output location.
 - `verbose`: All of the above, plus browser logs and other debug info.
 
@@ -212,8 +212,6 @@ import {Config} from 'remotion'
 Config.Output.setOverwriteOutput(false)
 ```
 
-The [command line flag](/docs/cli#--overwrite) `--overwrite` will take precedence over this option.
-
 :::info
 In version 1.x, the default behavior was inverse - Remotion would not override by default.
 :::
@@ -310,7 +308,7 @@ The [command line flag](/docs/cli) `--quality` will take precedence over this op
 
 _Available from Version 1.4._
 
-The "Constant Rate Factor" (CRF) of the output. [Use this setting to tell FFMPEG how to trade off size and quality.](encoding#controlling-quality-using-the-crf-setting)
+The "Constant Rate Factor" (CRF) of the output. [Use this setting to tell FFMPEG how to trade off size and quality.](/docs/encoding#controlling-quality-using-the-crf-setting)
 
 Ranges for CRF scale, by codec:
 

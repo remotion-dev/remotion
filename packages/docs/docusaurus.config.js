@@ -51,7 +51,7 @@ module.exports = {
       style: "light",
       links: [
         {
-          title: "Docs",
+          title: "Remotion",
           items: [
             {
               label: "Getting started",
@@ -60,6 +60,10 @@ module.exports = {
             {
               label: "API reference",
               to: "docs/cli",
+            },
+            {
+              label: "Changelog",
+              href: "https://github.com/remotion-dev/remotion/releases",
             },
           ],
         },
@@ -87,6 +91,18 @@ module.exports = {
               href: "https://twitter.com/JNYBGR",
               "data-splitbee-event": "External Link",
               "data-splitbee-event-target": "Twitter",
+            },
+            {
+              label: "Instagram",
+              href: "https://instagram.com/remotion.dev",
+              "data-splitbee-event": "External Link",
+              "data-splitbee-event-target": "Instagram",
+            },
+            {
+              label: "TikTok",
+              href: "https://www.tiktok.com/@remotion.dev",
+              "data-splitbee-event": "External Link",
+              "data-splitbee-event-target": "TikTok",
             },
           ],
         },
