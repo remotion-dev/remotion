@@ -3,5 +3,5 @@ import {Log} from '../../log';
 export const ROLE_SUBCOMMAND = 'role';
 
 export const roleSubcommand = () => {
-	Log.info(JSON.stringify(getRolePolicy(), null, 2));
+	Log.info(getRolePolicy());
 };

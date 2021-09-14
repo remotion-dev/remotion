@@ -4,5 +4,5 @@ import {Log} from '../../log';
 export const USER_SUBCOMMAND = 'user';
 
 export const userSubcommand = () => {
-	Log.info(JSON.stringify(getUserPolicy(), null, 2));
+	Log.info(getUserPolicy());
 };
