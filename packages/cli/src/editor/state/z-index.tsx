@@ -58,7 +58,9 @@ export const HigherZIndex: React.FC<{
 			if (
 				outsideClick &&
 				highestContext.highestIndex === currentIndex &&
-				!getClickLock()
+				!getClickLock() &&
+				// Don't trigger if that click removed that node
+				document.contains(e.target as Node)
 			) {
 				e.stopPropagation();
 				onOutsideClick();
