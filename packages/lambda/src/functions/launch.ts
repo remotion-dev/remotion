@@ -18,6 +18,7 @@ import {getServeUrlHash} from '../shared/make-s3-url';
 import {collectChunkInformation} from './chunk-optimization/collect-data';
 import {getFrameRangesFromProfile} from './chunk-optimization/get-frame-ranges-from-profile';
 import {getProfileDuration} from './chunk-optimization/get-profile-duration';
+import {isValidOptimizationProfile} from './chunk-optimization/is-valid-profile';
 import {optimizeInvocationOrder} from './chunk-optimization/optimize-invocation-order';
 import {optimizeProfileRecursively} from './chunk-optimization/optimize-profile';
 import {planFrameRanges} from './chunk-optimization/plan-frame-ranges';
@@ -260,21 +261,23 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 	);
 
 	const optimizedFrameRange = getFrameRangesFromProfile(optimizedProfile);
-	await writeOptimization({
-		bucketName: params.bucketName,
-		optimization: {
-			frameRange: optimizedFrameRange,
-			oldTiming: getProfileDuration(chunkData),
-			newTiming: getProfileDuration(optimizedProfile),
-			frameCount: comp.durationInFrames,
-			createdFromRenderId: params.renderId,
-			chunkSize,
-		},
-		expectedBucketOwner: options.expectedBucketOwner,
-		compositionId: params.composition,
-		siteId: getServeUrlHash(params.serveUrl),
-		region: getCurrentRegionInFunction(),
-	});
+	if (isValidOptimizationProfile(optimizedProfile)) {
+		await writeOptimization({
+			bucketName: params.bucketName,
+			optimization: {
+				frameRange: optimizedFrameRange,
+				oldTiming: getProfileDuration(chunkData),
+				newTiming: getProfileDuration(optimizedProfile),
+				frameCount: comp.durationInFrames,
+				createdFromRenderId: params.renderId,
+				chunkSize,
+			},
+			expectedBucketOwner: options.expectedBucketOwner,
+			compositionId: params.composition,
+			siteId: getServeUrlHash(params.serveUrl),
+			region: getCurrentRegionInFunction(),
+		});
+	}
 
 	const contents = await lambdaLs({
 		bucketName: params.bucketName,
