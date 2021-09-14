@@ -4,11 +4,15 @@ title: How MakeStories uses Remotion to render Web Stories
 image: /img/makestories.png
 ---
 
+import {MuxVideo} from '../src/components/MuxVideo';
+
 _This is the first article in our new series: Success Stories. We interview companies and creators that we find inspiring and which have successfully implemented Remotion in their stack. Let us know what you think!_
 
 MakeStories is in the business of [Web Stories](https://stories.google/) - a format by Google to bring stories to the web. Appearing directly in Google Search, they are an opportunity for publishers to increase their audience massively.
 
-![Cover image](/img/makestories.png)
+<MuxVideo muxId="eB9pPF17zyOrmEas4kwsa3OvTeQV3cDlLQ5U01CHrfcg" style={{
+  width: '100%'
+}} controls poster="/img/makestories.png"/>
 
 <p align="center"><em>MakeStories founder Pratik Ghela explains how they built a Remotion rendering service to export Web Stories to MP4s.</em></p>
 
@@ -23,7 +27,7 @@ MakeStories is a web based tool where you can create stories for websites. For c
 
 We started to build a Web Story builder for social media. For that reason we were looking for a rendering engine and that was when we came across Remotion. Now a Web Story created on MakeStories is compatible with any platform - Google as well as social media.
 
-![Cover image](/img/makestories-export.png)
+![Screenshot of MakeStories' export feature](/img/makestories-export.png)
 
 <p align="center"><em>MakeStories customers get two options to export their stories - either in AMP format to publish on Google or as MP4 to post to social media.</em></p>
 
