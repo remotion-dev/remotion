@@ -4,17 +4,36 @@ import {parsedLambdaCli} from './args';
 import {cleanupCommand, CLEANUP_COMMAND} from './cleanup';
 import {functionsCommand, FUNCTIONS_COMMAND} from './commands/functions';
 import {policiesCommand, POLICIES_COMMAND} from './commands/policies/policies';
+import {ROLE_SUBCOMMAND} from './commands/policies/role';
+import {USER_SUBCOMMAND} from './commands/policies/user';
 import {renderCommand, RENDER_COMMAND} from './commands/render';
 import {sitesCommand, SITES_COMMAND} from './commands/sites';
 import {stillCommand, STILL_COMMAND} from './commands/still';
 import {printHelp} from './help';
 import {Log} from './log';
 
+const requiresCredentials = (args: string[]) => {
+	if (args[0] === POLICIES_COMMAND) {
+		if (args[1] === USER_SUBCOMMAND) {
+			return false;
+		}
+
+		if (args[1] === ROLE_SUBCOMMAND) {
+			return false;
+		}
+	}
+
+	return true;
+};
+
 const matchCommand = async (args: string[]) => {
-	checkCredentials();
 	if (parsedLambdaCli.help || args.length === 0) {
 		printHelp();
 		process.exit(0);
+	}
+
+	if (requiresCredentials(args)) {
+		checkCredentials();
 	}
 
 	if (args[0] === RENDER_COMMAND) {
