@@ -53,6 +53,7 @@ export const optimizeProfile = (_profile: TimingProfile) => {
 	const sortedByStart = _profile
 		.slice()
 		.sort((a, b) => a.frameRange[0] - b.frameRange[0]);
+
 	const sortedByDuration = sortProfileByDuration(sortedByStart);
 
 	const indexOfFastest = sortedByStart.indexOf(sortedByDuration[0]);
@@ -67,6 +68,11 @@ export const optimizeProfile = (_profile: TimingProfile) => {
 	}
 
 	const frameRanges = getFrameRangesFromProfile(sortedByStart);
+
+	if (indexOfFastest === indexOfSlowest) {
+		return _profile;
+	}
+
 	const newFrameRanges = assignFrameToOther({
 		frameRanges,
 		fromChunk: indexOfSlowest,
