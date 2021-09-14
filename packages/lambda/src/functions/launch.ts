@@ -326,10 +326,10 @@ export const launchHandler = async (
 			errorInfo: {
 				chunk: null,
 				frame: null,
-				stack: err.stack,
+				stack: (err as Error).stack as string,
 				type: 'stitcher',
 				isFatal: true,
-				tmpDir: getTmpDirStateIfENoSp(err.stack),
+				tmpDir: getTmpDirStateIfENoSp((err as Error).stack as string),
 			},
 			expectedBucketOwner: options.expectedBucketOwner,
 			renderId: params.renderId,
