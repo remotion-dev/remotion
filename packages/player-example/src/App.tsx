@@ -86,7 +86,7 @@ export default function App() {
 			</div>
 
 			<br />
-			<button type="button" onClick={() => ref.current?.play()}>
+			<button type="button" onClick={(e) => ref.current?.play(e)}>
 				Play
 			</button>
 			<button type="button" onClick={() => ref.current?.pause()}>

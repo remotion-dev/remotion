@@ -7,6 +7,7 @@ import {
 import {getActualConcurrency} from './get-concurrency';
 import {ensureLocalBrowser} from './get-local-browser-executable';
 import {openBrowser} from './open-browser';
+import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
 import {binaryExists, validateFfmpeg} from './validate-ffmpeg';
 
 declare global {
@@ -20,13 +21,10 @@ declare global {
 
 export {FfmpegVersion} from './ffmpeg-flags';
 export {getCompositions} from './get-compositions';
-export {
-	OnErrorInfo,
-	OnStartData,
-	renderFrames,
-	RenderFramesOutput,
-} from './render';
+export {renderFrames} from './render';
+export {renderStill} from './render-still';
 export {stitchFramesToVideo} from './stitcher';
+export {OnErrorInfo, OnStartData, RenderFramesOutput} from './types';
 export const RenderInternals = {
 	ensureLocalBrowser,
 	ffmpegHasFeature,
@@ -36,4 +34,5 @@ export const RenderInternals = {
 	validateFfmpeg,
 	binaryExists,
 	getFfmpegBuildInfo,
+	validateEvenDimensionsWithCodec,
 };

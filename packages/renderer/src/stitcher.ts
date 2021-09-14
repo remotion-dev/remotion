@@ -21,6 +21,7 @@ import {getProResProfileName} from './get-prores-profile-name';
 import {DEFAULT_IMAGE_FORMAT} from './image-format';
 import {parseFfmpegProgress} from './parse-ffmpeg-progress';
 import {resolveAssetSrc} from './resolve-asset-src';
+import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
 import {validateFfmpeg} from './validate-ffmpeg';
 
 // eslint-disable-next-line complexity
@@ -56,6 +57,11 @@ export const stitchFramesToVideo = async (options: {
 	);
 	Internals.validateFps(options.fps, 'passed to `stitchFramesToVideo()`');
 	const codec = options.codec ?? Internals.DEFAULT_CODEC;
+	validateEvenDimensionsWithCodec({
+		width: options.width,
+		height: options.height,
+		codec,
+	});
 	const crf = options.crf ?? Internals.getDefaultCrfForCodec(codec);
 	const imageFormat = options.imageFormat ?? DEFAULT_IMAGE_FORMAT;
 	const pixelFormat = options.pixelFormat ?? Internals.DEFAULT_PIXEL_FORMAT;
@@ -158,6 +164,8 @@ export const stitchFramesToVideo = async (options: {
 		complexFilterFlag,
 		// Ignore audio from image sequence
 		isAudioOnly ? null : ['-map', '0:v'],
+		// Ignore metadata that may come from remote media
+		isAudioOnly ? null : ['-map_metadata', '-1'],
 		options.force ? '-y' : null,
 		options.outputLocation,
 	];

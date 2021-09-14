@@ -55,7 +55,7 @@ You need to clear all handles created by `delayRender` within 30 seconds after t
 
 You can also customize duration, frame rate and dimensions based on asynchronous data fetching:
 
-- **See: [Dynamic duration, FPS & dimensions](dynamic-metadata)**
+- **See: [Dynamic duration, FPS & dimensions](/docs/dynamic-metadata)**
 
 ## See also
 

@@ -128,7 +128,6 @@ export const Parametrize: React.FC = () => {
             <input
               ref={ref}
               className={styles.parametrizeinput}
-              autoFocus
               type="text"
               placeholder="Your GitHub username"
             />{" "}

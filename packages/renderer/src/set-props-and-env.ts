@@ -6,11 +6,13 @@ export const setPropsAndEnv = async ({
 	envVariables,
 	page,
 	port,
+	initialFrame,
 }: {
 	inputProps: unknown;
 	envVariables: Record<string, string> | undefined;
 	page: Page;
 	port: number;
+	initialFrame: number;
 }) => {
 	if (inputProps || envVariables) {
 		await page.goto(`http://localhost:${port}/index.html`);
@@ -34,5 +36,13 @@ export const setPropsAndEnv = async ({
 				JSON.stringify(envVariables)
 			);
 		}
+
+		await page.evaluate(
+			(key, value) => {
+				window.localStorage.setItem(key, value);
+			},
+			Internals.INITIAL_FRAME_LOCAL_STORAGE_KEY,
+			initialFrame
+		);
 	}
 };

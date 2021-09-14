@@ -166,7 +166,7 @@ Config.Bundling.overrideWebpackConfig((currentConfiguration) => {
 @tailwind utilities;
 ```
 
-4. Import the stylesheet in your `src/index.ts` file. Add to the top of the file:
+4. Import the stylesheet in your `src/Video.tsx` file. Add to the top of the file:
 
 ```js
 import "/style.css";
@@ -175,6 +175,10 @@ import "/style.css";
 5.  Start using TailwindCSS! You can verify that it's working by adding `className="bg-red-900"` to any element.
 
 6.  _Optional_: Add a `tailwind.config.js` file to the root of your project. Add `/* eslint-env node */` to the top of the file to get rid of an ESLint rule complaining that `module` is not defined.
+
+:::warn
+Due to a caching bug, the config file might not be picked up until you remove the `node_modules/.cache` folder - watch this issue: https://github.com/remotion-dev/remotion/issues/315
+:::
 
 ### Enable SASS/SCSS support
 
@@ -236,7 +240,7 @@ Config.Bundling.overrideWebpackConfig((currentConfiguration) => {
 
 ### Use legacy babel loader
 
-See [Using legacy Babel transpilation](legacy-babel).
+See [Using legacy Babel transpilation](/docs/legacy-babel).
 
 ## Customizing configuration file location
 

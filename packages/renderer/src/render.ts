@@ -2,12 +2,13 @@ import path from 'path';
 import {Browser as PuppeteerBrowser} from 'puppeteer-core';
 import {
 	Browser,
+	BrowserExecutable,
 	FrameRange,
 	ImageFormat,
 	Internals,
-	RenderAssetInfo,
 	VideoConfig,
 } from 'remotion';
+import {cycleBrowserTabs} from './cycle-browser-tabs';
 import {getActualConcurrency} from './get-concurrency';
 import {getFrameCount} from './get-frame-range';
 import {getFrameToRender} from './get-frame-to-render';
@@ -18,17 +19,7 @@ import {provideScreenshot} from './provide-screenshot';
 import {seekToFrame} from './seek-to-frame';
 import {serveStatic} from './serve-static';
 import {setPropsAndEnv} from './set-props-and-env';
-
-export type RenderFramesOutput = {
-	frameCount: number;
-	assetsInfo: RenderAssetInfo;
-};
-
-export type OnStartData = {
-	frameCount: number;
-};
-
-export type OnErrorInfo = {error: Error; frame: number | null};
+import {OnErrorInfo, OnStartData, RenderFramesOutput} from './types';
 
 export const renderFrames = async ({
 	config,
@@ -47,6 +38,7 @@ export const renderFrames = async ({
 	dumpBrowserLogs = false,
 	puppeteerInstance,
 	onError,
+	browserExecutable,
 }: {
 	config: VideoConfig;
 	compositionId: string;
@@ -63,6 +55,7 @@ export const renderFrames = async ({
 	frameRange?: FrameRange | null;
 	dumpBrowserLogs?: boolean;
 	puppeteerInstance?: PuppeteerBrowser;
+	browserExecutable?: BrowserExecutable;
 	onError?: (info: OnErrorInfo) => void;
 }): Promise<RenderFramesOutput> => {
 	Internals.validateDimension(
@@ -89,6 +82,8 @@ export const renderFrames = async ({
 		);
 	}
 
+	Internals.validateQuality(quality);
+
 	const actualParallelism = getActualConcurrency(parallelism ?? null);
 
 	const [{port, close}, browserInstance] = await Promise.all([
@@ -96,6 +91,7 @@ export const renderFrames = async ({
 		puppeteerInstance ??
 			openBrowser(browser, {
 				shouldDumpIo: dumpBrowserLogs,
+				browserExecutable,
 			}),
 	]);
 	const pages = new Array(actualParallelism).fill(true).map(async () => {
@@ -111,13 +107,27 @@ export const renderFrames = async ({
 
 		page.on('pageerror', errorCallback);
 
-		await setPropsAndEnv({inputProps, envVariables, page, port});
+		const initialFrame =
+			typeof frameRange === 'number'
+				? frameRange
+				: frameRange === null || frameRange === undefined
+				? 0
+				: frameRange[0];
+
+		await setPropsAndEnv({
+			inputProps,
+			envVariables,
+			page,
+			port,
+			initialFrame,
+		});
 
 		const site = `http://localhost:${port}/index.html?composition=${compositionId}`;
 		await page.goto(site);
 		page.off('pageerror', errorCallback);
 		return page;
 	});
+	const {stopCycling} = cycleBrowserTabs(browserInstance);
 
 	const puppeteerPages = await Promise.all(pages);
 	const pool = new Pool(puppeteerPages);
@@ -152,9 +162,10 @@ export const renderFrames = async ({
 				try {
 					await seekToFrame({frame, page: freePage});
 				} catch (err) {
+					const error = err as Error;
 					if (
-						err.message.includes('timeout') &&
-						err.message.includes('exceeded')
+						error.message.includes('timeout') &&
+						error.message.includes('exceeded')
 					) {
 						errorCallback(
 							new Error(
@@ -162,10 +173,10 @@ export const renderFrames = async ({
 							)
 						);
 					} else {
-						errorCallback(err);
+						errorCallback(error);
 					}
 
-					throw err;
+					throw error;
 				}
 
 				if (imageFormat !== 'none') {
@@ -196,6 +207,7 @@ export const renderFrames = async ({
 	close().catch((err) => {
 		console.log('Unable to close web server', err);
 	});
+	stopCycling();
 	// If browser instance was passed in, we close all the pages
 	// we opened.
 	// If new browser was opened, then closing the browser as a cleanup.
