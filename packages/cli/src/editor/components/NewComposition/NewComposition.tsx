@@ -62,6 +62,7 @@ export const NewComposition: React.FC<{initialCompType: CompType}> = ({
 	const [width, setWidth] = useState('1280');
 	const [height, setHeight] = useState('720');
 	const [durationInFrames, setDurationInFrames] = useState('150');
+	const [aspectRatioLocked, setAspectRatioLocked] = useState(false);
 	const {setSelectedModal} = useContext(ModalsContext);
 
 	const onQuit = useCallback(() => {
@@ -208,6 +209,8 @@ export const NewComposition: React.FC<{initialCompType: CompType}> = ({
 								<NewCompAspectRatio
 									width={Number(width)}
 									height={Number(height)}
+									aspectRatioLocked={aspectRatioLocked}
+									setAspectRatioLocked={setAspectRatioLocked}
 								/>
 							</div>
 						</div>
