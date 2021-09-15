@@ -20,34 +20,34 @@ const NewLanding: React.FC = () => {
       description="Create MP4 motion graphics in React. Leverage CSS, SVG, WebGL and more technologies to render videos programmatically!"
     >
       <div className={styles.content}>
-        <WriteInReact></WriteInReact>
+        <WriteInReact />
         <br />
         <br />
         <br />
         <br />
         <br />
-        <IfYouKnowReact></IfYouKnowReact>
+        <IfYouKnowReact />
         <br />
         <br />
         <br />
         <br />
         <br />
-        <RealMP4Videos></RealMP4Videos>
+        <RealMP4Videos />
         <br />
         <br />
         <br />
         <br />
-        <LightningFastEditor></LightningFastEditor>
+        <LightningFastEditor />
         <br />
         <br />
         <br />
         <br />
-        <Parametrize></Parametrize>
+        <Parametrize />
         <br />
         <br />
         <br />
         <br />
-        <FreePricing></FreePricing>
+        <FreePricing />
       </div>
     </Layout>
   );
