@@ -18,6 +18,7 @@ export type CommandLineOptions = {
 	['prores-profile']: ProResProfile;
 	['bundle-cache']: string;
 	['env-file']: string;
+	['frames-per-lambda']: number;
 	codec: Codec;
 	concurrency: number;
 	config: string;
@@ -33,7 +34,6 @@ export type CommandLineOptions = {
 	help: boolean;
 	port: number;
 	frame: string | number;
-	framesPerLambda: number;
 };
 
 export const parsedCli = minimist<CommandLineOptions>(process.argv.slice(2), {
@@ -99,8 +99,8 @@ export const parseCommandLine = (
 		Internals.setStillFrame(Number(parsedCli.frame));
 	}
 
-	if (parsedCli.framesPerLambda) {
-		Internals.setFramesPerLambda(parsedCli.framesPerLambda);
+	if (parsedCli['frames-per-lambda']) {
+		Internals.setFramesPerLambda(parsedCli['frames-per-lambda']);
 	}
 
 	if (parsedCli.png) {
