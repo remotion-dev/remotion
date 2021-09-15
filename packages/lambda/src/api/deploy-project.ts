@@ -1,5 +1,6 @@
 import {PutBucketWebsiteCommand} from '@aws-sdk/client-s3';
 import {bundle} from '@remotion/bundler';
+import {Internals} from 'remotion';
 import {AwsRegion} from '../pricing/aws-regions';
 import {getS3Client} from '../shared/aws-clients';
 import {getSitesKey, REMOTION_BUCKET_PREFIX} from '../shared/constants';
@@ -44,6 +45,8 @@ export const deployProject = async ({
 		options?.onBundleProgress ?? (() => undefined),
 		{
 			publicPath: `/${subFolder}/`,
+			webpackOverride: Internals.getWebpackOverrideFn(),
+			enableCaching: Internals.getWebpackCaching(),
 		}
 	);
 
