@@ -5,6 +5,7 @@ import {CheckerboardContext} from '../state/checkerboard';
 import {ModalsContext} from '../state/modals';
 import {PreviewSizeContext} from '../state/preview-size';
 import {RichTimelineContext} from '../state/rich-timeline';
+import {timelineRef} from '../state/timeline-ref';
 import {Row} from './layout';
 import {Menu, MenuId, MenuItem} from './Menu/MenuItem';
 import {commonPreviewSizes, getPreviewSizeLabel} from './SizeSelector';
@@ -229,6 +230,32 @@ export const MenuToolbar: React.FC = () => {
 						type: 'item',
 						value: 'rich-timeline',
 						leftItem: richTimeline ? <Checkmark /> : null,
+						subMenu: null,
+					},
+					{
+						id: 'expand-all',
+						keyHint: null,
+						label: 'Expand all',
+						onClick: () => {
+							close();
+							timelineRef.current?.expandAll();
+						},
+						type: 'item',
+						value: 'expand-all',
+						leftItem: null,
+						subMenu: null,
+					},
+					{
+						id: 'collapse-all',
+						keyHint: null,
+						label: 'Collapse all',
+						onClick: () => {
+							close();
+							timelineRef.current?.collapseAll();
+						},
+						type: 'item',
+						value: 'collapse-all',
+						leftItem: null,
 						subMenu: null,
 					},
 				],

@@ -25,6 +25,8 @@ export const getPreviewSizeLabel = (previewSize: PreviewSize) => {
 	}
 };
 
+const comboStyle: React.CSSProperties = {width: 80};
+
 export const SizeSelector: React.FC = () => {
 	const {size, setSize} = useContext(PreviewSizeContext);
 
@@ -57,7 +59,7 @@ export const SizeSelector: React.FC = () => {
 
 	return (
 		<div style={style} aria-label="Select the size of the preview">
-			<Combobox selectedId={String(size)} values={items} />
+			<Combobox style={comboStyle} selectedId={String(size)} values={items} />
 		</div>
 	);
 };

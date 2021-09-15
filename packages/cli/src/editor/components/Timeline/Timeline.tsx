@@ -1,4 +1,9 @@
-import React, {useContext, useMemo, useReducer} from 'react';
+import React, {
+	useContext,
+	useImperativeHandle,
+	useMemo,
+	useReducer,
+} from 'react';
 import {Internals} from 'remotion';
 import {calculateTimeline} from '../../helpers/calculate-timeline';
 import {TrackWithHash} from '../../helpers/get-timeline-sequence-sort-key';
@@ -6,6 +11,7 @@ import {
 	TIMELINE_BORDER,
 	TIMELINE_LAYER_HEIGHT,
 } from '../../helpers/timeline-layout';
+import {timelineRef} from '../../state/timeline-ref';
 import {SplitterContainer} from '../Splitter/SplitterContainer';
 import {SplitterElement} from '../Splitter/SplitterElement';
 import {SplitterHandle} from '../Splitter/SplitterHandle';
@@ -43,6 +49,23 @@ export const Timeline: React.FC = () => {
 			sequenceDuration: videoConfig.durationInFrames,
 		});
 	}, [sequences, videoConfig]);
+
+	useImperativeHandle(timelineRef, () => {
+		return {
+			expandAll: () => {
+				dispatch({
+					type: 'expand-all',
+					allHashes: timeline.map((t) => t.hash),
+				});
+			},
+			collapseAll: () => {
+				dispatch({
+					type: 'collapse-all',
+					allHashes: timeline.map((t) => t.hash),
+				});
+			},
+		};
+	});
 
 	const withoutHidden = useMemo(() => {
 		return timeline.filter((t) => !isTrackHidden(t, timeline, state));
