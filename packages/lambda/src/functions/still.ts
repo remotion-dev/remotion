@@ -7,6 +7,7 @@ import {getOrCreateBucket} from '../api/get-or-create-bucket';
 import {estimatePrice} from '../pricing/calculate-price';
 import {getLambdaClient} from '../shared/aws-clients';
 import {
+	CURRENT_VERSION,
 	LambdaPayload,
 	LambdaPayloads,
 	LambdaRoutines,
@@ -93,6 +94,10 @@ export const innerStillHandler = async (
 		usesOptimizationProfile: false,
 		imageFormat: lambdaParams.imageFormat,
 		inputProps: lambdaParams.inputProps,
+		lambdaVersion: CURRENT_VERSION,
+		framesPerLambda: 1,
+		memorySizeInMb: Number(process.env.AWS_LAMBDA_FUNCTION_MEMORY_SIZE),
+		region: getCurrentRegionInFunction(),
 	};
 
 	await lambdaWriteFile({

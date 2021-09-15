@@ -212,6 +212,10 @@ export type RenderMetadata = {
 	type: 'still' | 'video';
 	imageFormat: ImageFormat;
 	inputProps: unknown;
+	framesPerLambda: number;
+	memorySizeInMb: number;
+	lambdaVersion: LambdaVersions;
+	region: AwsRegion;
 };
 
 export type LambdaVersions =
