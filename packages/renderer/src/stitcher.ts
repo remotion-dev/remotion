@@ -144,7 +144,7 @@ export const stitchFramesToVideo = async (options: {
 		frameCount: options.assetsInfo.assets.length,
 	});
 
-	const captionInputs = captionsToFfmpegInputs({
+	const {captionFilters, captionInputs} = captionsToFfmpegInputs({
 		assetsCount: assetInputs.length,
 		captions: fileUrlCaptions,
 	});
@@ -179,8 +179,7 @@ export const stitchFramesToVideo = async (options: {
 		// Ignore audio from image sequence
 		isAudioOnly ? null : ['-map', '0:v'],
 		// Copy subtitle inputs if encoding video
-		// !2:s because the subtitle is the second input. It should be dynamic of course.
-		isAudioOnly ? null : ['-map', '2:s', '-c:s', 'mov_text'],
+		isAudioOnly ? null : captionFilters,
 		// Ignore metadata that may come from remote media
 		// !This is not removing the subtitle metadata, so the final video has the wrong duration again
 		isAudioOnly ? null : ['-map_metadata', '-1'],
