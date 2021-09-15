@@ -5,6 +5,10 @@ interface CaptionFfmpegInputs {
 	captionInputs: [string, string][];
 }
 
+/**
+ * TODO: Support more formats.
+ * The below only works for SRT.
+ */
 const getFilter = (index: number): string[] => [
 	'-map',
 	`${index}:s`,
@@ -19,9 +23,8 @@ export const captionsToFfmpegInputs = ({
 	assetsCount: number;
 	captions: TCaption[][];
 }): CaptionFfmpegInputs => {
-	const allCaptions = captions.flat(1);
 	const uniqueCaptions = Object.values(
-		allCaptions.reduce<Record<string, TCaption>>((acc, caption) => {
+		captions.flat(1).reduce<Record<string, TCaption>>((acc, caption) => {
 			acc[caption.id] = caption;
 
 			return acc;
