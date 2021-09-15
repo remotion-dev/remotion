@@ -95,19 +95,11 @@ Everything you can do using the CLI, you can also control using Node.JS APIs. Re
 
 ## Known issues
 
-- [ ] There is no cleanup on AWS, unnecessary files stay after the render
 - [ ] Sometimes an error `Unable to spawn browser` is shown - you can ignore it
-- [x] ~~Most CLI options known from Remotion are ignored~~
-- [x] ~~Currently only MP4 files can be rendered~~
 - [ ] AWS permissions are looser than necessary
 - [ ] Permission validation command sometimes breaks
-- [x] ~~Chunk optimization currently works on a global scope and does not differentiate between S3 site deployments~~
 - [ ] Costs are not calculated accurately (probably slightly higher than effective)
-- [ ] Parallelism is not configurable
 - [ ] Rendering using more than 1000 chunks is undefined behavior, things will break
-- [x] ~~`eu-central-1` region is hardcoded~~
-- [x] 2048 MB RAM is hardcoded
-- [x] Lambda timeout of 120 seconds is hardcoded
 - [ ] There is no way to disable chunk optimization
 
 ## License

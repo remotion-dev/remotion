@@ -1,7 +1,7 @@
 import {CliInternals} from '@remotion/cli';
 import {getRenderProgress} from '../../api/get-render-progress';
 import {renderVideoOnLambda} from '../../api/render-video-on-lambda';
-import {BINARY_NAME} from '../../shared/constants';
+import {BINARY_NAME, DEFAULT_FRAMES_PER_LAMBDA} from '../../shared/constants';
 import {sleep} from '../../shared/sleep';
 import {getAwsRegion} from '../get-aws-region';
 import {findFunctionName} from '../helpers/find-function-name';
@@ -55,6 +55,7 @@ export const renderCommand = async (args: string[]) => {
 		// TODO: Unhardcode retries
 		maxRetries: 3,
 		composition,
+		framesPerLambda: cliOptions.framesPerLambda ?? DEFAULT_FRAMES_PER_LAMBDA,
 	});
 	for (let i = 0; i < 3000; i++) {
 		await sleep(1000);

@@ -17,6 +17,9 @@ export const DEFAULT_TIMEOUT = 120;
 export const MIN_TIMEOUT = 15;
 export const MAX_TIMEOUT = 900;
 
+export const MINIMUM_FRAMES_PER_LAMBDA = 4;
+export const DEFAULT_FRAMES_PER_LAMBDA = 20;
+
 export const BINARY_NAME = 'remotion lambda';
 export const COMMAND_NOT_FOUND = 'Command not found';
 export const DEFAULT_REGION: AwsRegion = 'us-east-1';
@@ -117,7 +120,7 @@ export type LambdaPayloads = {
 		type: LambdaRoutines.start;
 		serveUrl: string;
 		composition: string;
-		chunkSize: number;
+		framesPerLambda: number;
 		inputProps: unknown;
 		codec: Codec;
 		imageFormat: ImageFormat;
@@ -132,7 +135,7 @@ export type LambdaPayloads = {
 		type: LambdaRoutines.launch;
 		serveUrl: string;
 		composition: string;
-		chunkSize: number;
+		framesPerLambda: number;
 		bucketName: string;
 		inputProps: unknown;
 		renderId: string;
@@ -212,6 +215,7 @@ export type RenderMetadata = {
 };
 
 export type LambdaVersions =
+	| '2021-09-15'
 	| '2021-09-06'
 	| '2021-08-06'
 	| '2021-07-14'
@@ -219,7 +223,7 @@ export type LambdaVersions =
 	| '2021-07-02'
 	| '2021-06-23'
 	| 'n/a';
-export const CURRENT_VERSION: LambdaVersions = '2021-09-06';
+export const CURRENT_VERSION: LambdaVersions = '2021-09-15';
 
 export type PostRenderData = {
 	cost: {

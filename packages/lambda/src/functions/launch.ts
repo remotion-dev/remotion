@@ -2,9 +2,11 @@ import {InvokeCommand} from '@aws-sdk/client-lambda';
 import fs from 'fs';
 import pRetry from 'p-retry';
 import {Internals} from 'remotion';
+import {validateFramesPerLambda} from '../api/validate-frames-per-lambda';
 import {getLambdaClient} from '../shared/aws-clients';
 import {chunk} from '../shared/chunk';
 import {
+	CURRENT_VERSION,
 	EncodingProgress,
 	encodingProgressKey,
 	LambdaPayload,
@@ -55,10 +57,11 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		throw new Error('Expected launch type');
 	}
 
-	// TODO: Better validation
-	if (!params.chunkSize) {
-		throw new Error('Pass chunkSize');
+	if (!params.framesPerLambda) {
+		throw new Error('You need to pass "framesPerLambda" parameter');
 	}
+
+	validateFramesPerLambda(params.framesPerLambda);
 
 	const [, optimization] = await Promise.all([
 		getBrowserInstance(),
@@ -125,12 +128,12 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 	Internals.validateDimension(comp.height, 'height', 'passed to <Component />');
 	Internals.validateDimension(comp.width, 'width', 'passed to <Component />');
 
-	const {chunkSize} = params;
-	const chunkCount = Math.ceil(comp.durationInFrames / chunkSize);
+	const {framesPerLambda} = params;
+	const chunkCount = Math.ceil(comp.durationInFrames / framesPerLambda);
 
 	const {chunks, didUseOptimization} = planFrameRanges({
 		chunkCount,
-		chunkSize,
+		framesPerLambda,
 		frameCount: comp.durationInFrames,
 		optimization,
 	});
@@ -270,7 +273,8 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 				newTiming: getProfileDuration(optimizedProfile),
 				frameCount: comp.durationInFrames,
 				createdFromRenderId: params.renderId,
-				chunkSize,
+				framesPerLambda,
+				lambdaVersion: CURRENT_VERSION,
 			},
 			expectedBucketOwner: options.expectedBucketOwner,
 			compositionId: params.composition,

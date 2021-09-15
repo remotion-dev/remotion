@@ -5,6 +5,7 @@ import {Concurrency, setConcurrency} from './concurrency';
 import {setCrf} from './crf';
 import {setDotEnvLocation} from './env-file';
 import {FrameRange, setFrameRange} from './frame-range';
+import {setFramesPerLambda} from './frames-per-lambda';
 import {ImageFormat, setImageFormat, StillImageFormat} from './image-format';
 import {setImageSequence} from './image-sequence';
 import {LogLevel, setLogLevel} from './log';
@@ -135,6 +136,13 @@ export const Config = {
 		 * See https://avpres.net/FFmpeg/im_ProRes.html for meaning of possible values.
 		 */
 		setProResProfile,
+	},
+	Lambda: {
+		/**
+		 * Determine how many frames get rendered per lambda invocation.
+		 * The lower the number, the more lambdas get invoked and the faster the render gets.
+		 */
+		setFramesPerLambda,
 	},
 } as const;
 

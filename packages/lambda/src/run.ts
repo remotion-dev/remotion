@@ -87,7 +87,7 @@ CliInternals.xns(async () => {
 		functionName,
 		type: LambdaRoutines.start,
 		payload: {
-			chunkSize: 20,
+			framesPerLambda: 20,
 			composition: compositionName,
 			serveUrl: bucketUrl,
 			inputProps: {},
