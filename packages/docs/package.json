@@ -5,13 +5,14 @@
   "scripts": {
     "docusaurus": "docusaurus",
     "start": "docusaurus start",
-    "build": "docusaurus build",
+    "build": "tsc",
+    "build-docs": "docusaurus build",
     "swizzle": "docusaurus swizzle",
     "deploy": "docusaurus deploy",
     "serve": "docusaurus serve",
     "clear": "docusaurus clear",
     "postinstall": "patch-package",
-    "test": "jest"
+    "test": "eslint src && jest"
   },
   "dependencies": {
     "@docusaurus/core": "2.0.0-beta.5",
