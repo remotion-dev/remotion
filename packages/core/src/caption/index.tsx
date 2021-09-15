@@ -4,11 +4,12 @@ import {getRemotionEnvironment} from '../get-environment';
 import {isRemoteAsset} from '../is-remote-asset';
 
 interface CaptionProps {
+	language?: string;
 	src: string;
 }
 
 export const Caption = (props: CaptionProps) => {
-	const {src} = props;
+	const {language, src} = props;
 	const {registerCaption, unregisterCaption} = useContext(CompositionManager);
 
 	useEffect(() => {
@@ -20,12 +21,13 @@ export const Caption = (props: CaptionProps) => {
 
 		registerCaption({
 			id,
+			language,
 			src,
 			isRemote: isRemoteAsset(src),
 		});
 
 		return () => unregisterCaption(id);
-	}, [registerCaption, src, unregisterCaption]);
+	}, [language, registerCaption, src, unregisterCaption]);
 
 	return null;
 };

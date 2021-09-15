@@ -7,8 +7,8 @@ const RemoteVideo: React.FC = () => {
 
 	return (
 		<>
-			<Caption src="http://127.0.0.1:8080/subs.srt" />
-			<Caption src="http://127.0.0.1:8080/subs_alt.srt" />
+			<Caption language="eng" src="http://127.0.0.1:8080/subs.srt" />
+			<Caption language="ger" src="http://127.0.0.1:8080/subs_alt.srt" />
 			<Video
 				ref={ref}
 				volume={interpolate(frame, [0, 500], [1, 0], {

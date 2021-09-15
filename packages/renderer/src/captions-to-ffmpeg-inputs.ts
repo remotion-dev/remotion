@@ -5,17 +5,6 @@ interface CaptionFfmpegInputs {
 	captionInputs: [string, string][];
 }
 
-/**
- * TODO: Support more formats.
- * The below only works for SRT.
- */
-const getFilter = (index: number): string[] => [
-	'-map',
-	`${index}:s`,
-	'-c:s',
-	'mov_text',
-];
-
 export const captionsToFfmpegInputs = ({
 	assetsCount,
 	captions,
@@ -31,10 +20,20 @@ export const captionsToFfmpegInputs = ({
 		}, {})
 	);
 
+	/**
+	 * TODO: Support more formats.
+	 * `mov_text` works for SRT.
+	 */
+	const getFilter = ({language}: TCaption, index: number): string[] => {
+		return ['-map', `${assetsCount + 1 + index}:s`, '-c:s', 'mov_text'].concat(
+			language ? [`-metadata:s:s:${index}`, `language=${language}`] : []
+		);
+	};
+
 	return {
 		captionInputs: uniqueCaptions.map((caption) => ['-i', caption.src]),
 		captionFilters: uniqueCaptions.reduce<string[]>(
-			(acc, _, i) => acc.concat(getFilter(assetsCount + 1 + i)),
+			(acc, caption, i) => acc.concat(getFilter(caption, i)),
 			[]
 		),
 	};

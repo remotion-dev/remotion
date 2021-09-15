@@ -65,6 +65,7 @@ export type TAsset = {
 export type TCaption = {
 	id: string;
 	isRemote: boolean;
+	language?: string;
 	src: string;
 };
 
