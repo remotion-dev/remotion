@@ -73,6 +73,18 @@ Callback function that gets called when uploading of the assets has progressed. 
 - `totalSize` (_number_): Total size in bytes of all the files in the bundle.
 - `sizeUploaded` (_number_): Amount of bytes uploaded so far.
 
+### `webpackOverride`
+
+_optional_
+
+Allows to pass a custom webpack override. See [`bundle()` -> webpackOverride](/docs/bundle#webpackoverride) for more information.
+
+### `enableCaching`
+
+_optional - default true_
+
+Whether webpack caching should be enabled. See [`bundle()` -> enableCaching](/docs/bundle#enablecaching) for more information.
+
 ## Return value
 
 An object with the following values:
