@@ -67,6 +67,7 @@ export type TCaption = {
 	isRemote: boolean;
 	language?: string;
 	src: string;
+	title?: string;
 };
 
 export type RenderAssetInfo = {

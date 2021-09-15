@@ -1,15 +1,12 @@
 import {useContext, useEffect} from 'react';
-import {CompositionManager} from '../CompositionManager';
+import {CompositionManager, TCaption} from '../CompositionManager';
 import {getRemotionEnvironment} from '../get-environment';
 import {isRemoteAsset} from '../is-remote-asset';
 
-interface CaptionProps {
-	language?: string;
-	src: string;
-}
+type CaptionProps = Omit<TCaption, 'id' | 'isRemote'>;
 
 export const Caption = (props: CaptionProps) => {
-	const {language, src} = props;
+	const {language, src, title} = props;
 	const {registerCaption, unregisterCaption} = useContext(CompositionManager);
 
 	useEffect(() => {
@@ -23,11 +20,12 @@ export const Caption = (props: CaptionProps) => {
 			id,
 			language,
 			src,
+			title,
 			isRemote: isRemoteAsset(src),
 		});
 
 		return () => unregisterCaption(id);
-	}, [language, registerCaption, src, unregisterCaption]);
+	}, [language, registerCaption, src, title, unregisterCaption]);
 
 	return null;
 };

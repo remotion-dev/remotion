@@ -24,9 +24,10 @@ export const captionsToFfmpegInputs = ({
 	 * TODO: Support more formats.
 	 * `mov_text` works for SRT.
 	 */
-	const getFilter = ({language}: TCaption, index: number): string[] => {
+	const getFilter = ({language, title}: TCaption, index: number): string[] => {
 		return ['-map', `${assetsCount + 1 + index}:s`, '-c:s', 'mov_text'].concat(
-			language ? [`-metadata:s:s:${index}`, `language=${language}`] : []
+			language ? [`-metadata:s:s:${index}`, `language=${language}`] : '',
+			title ? [`-metadata:s:s:${index}`, `title=${title}`] : ''
 		);
 	};
 
