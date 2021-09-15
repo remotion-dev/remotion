@@ -14,8 +14,12 @@ Keep track of changes to the APIs of Remotion Lambda here.
 1. Redeploy your function: `npx remotion lambda functions deploy`
 1. Migrate according to the changelog below:
 
-## Unreleased
+## September 15th, 2021
 
+Version hash: `2.4.0-alpha.d3efed28`
+
+- Added `framesPerLambda` setting to `renderVideoOnLambda()`.
+- Added `--frames-per-lambda` option to `npx remotion lambda render` command.
 - Added `enableCaching` and `webpackOverride` options to `deployProject()` function.
 - Webpack override and webpack caching is now respected when deploying from the CLI
 
