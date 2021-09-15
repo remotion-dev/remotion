@@ -14,6 +14,11 @@ Keep track of changes to the APIs of Remotion Lambda here.
 1. Redeploy your function: `npx remotion lambda functions deploy`
 1. Migrate according to the changelog below:
 
+## Unreleased
+
+- Added `enableCaching` and `webpackOverride` options to `deployProject()` function.
+- Webpack override and webpack caching is now respected when deploying from the CLI
+
 ## September 14th, 2021
 
 Version hash: `2.4.0-alpha.91579e8b`
