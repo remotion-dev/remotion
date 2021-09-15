@@ -13,6 +13,7 @@ import {convertAssetsToFileUrls} from './assets/convert-assets-to-file-urls';
 import {markAllAssetsAsDownloaded} from './assets/download-and-map-assets-to-file';
 import {getAssetAudioDetails} from './assets/get-asset-audio-details';
 import {calculateFfmpegFilters} from './calculate-ffmpeg-filters';
+import {captionsToFfmpegInputs} from './captions-to-ffmpeg-inputs';
 import {createFfmpegComplexFilter} from './create-ffmpeg-complex-filter';
 import {getAudioCodecName} from './get-audio-codec-name';
 import {getCodecName} from './get-codec-name';
@@ -95,13 +96,18 @@ export const stitchFramesToVideo = async (options: {
 	);
 	Internals.validateSelectedPixelFormatAndCodecCombination(pixelFormat, codec);
 
-	const [frameInfo, fileUrlAssets] = await Promise.all([
+	const [frameInfo, fileUrlAssets, fileUrlCaptions] = await Promise.all([
 		getFrameInfo({
 			dir: options.dir,
 			isAudioOnly,
 		}),
 		convertAssetsToFileUrls({
 			assets: options.assetsInfo.assets,
+			dir: options.assetsInfo.bundleDir,
+			onDownload: options.onDownload ?? (() => undefined),
+		}),
+		convertAssetsToFileUrls({
+			assets: options.assetsInfo.captions,
 			dir: options.assetsInfo.bundleDir,
 			onDownload: options.onDownload ?? (() => undefined),
 		}),
@@ -131,7 +137,17 @@ export const stitchFramesToVideo = async (options: {
 		console.log('filters', filters);
 	}
 
-	const {captions} = options.assetsInfo;
+	const assetInputs = assetsToFfmpegInputs({
+		assets: assetPaths,
+		isAudioOnly,
+		fps: options.fps,
+		frameCount: options.assetsInfo.assets.length,
+	});
+
+	const captionInputs = captionsToFfmpegInputs({
+		assetsCount: assetInputs.length,
+		captions: fileUrlCaptions,
+	});
 
 	const {complexFilterFlag, cleanup} = await createFfmpegComplexFilter(filters);
 	const ffmpegArgs = [
@@ -142,12 +158,8 @@ export const stitchFramesToVideo = async (options: {
 		frameInfo
 			? ['-i', `element-%0${frameInfo.numberLength}d.${imageFormat}`]
 			: null,
-		...assetsToFfmpegInputs({
-			assets: assetPaths.concat(captions.map((caption) => caption.src)),
-			isAudioOnly,
-			fps: options.fps,
-			frameCount: options.assetsInfo.assets.length,
-		}),
+		...assetInputs,
+		...captionInputs,
 		encoderName
 			? // -c:v is the same as -vcodec as -codec:video
 			  // and specified the video codec.

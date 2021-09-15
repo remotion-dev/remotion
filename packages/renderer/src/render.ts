@@ -145,7 +145,7 @@ export const renderFrames = async ({
 	onStart({
 		frameCount,
 	});
-	const assets = await Promise.all(
+	const collectedItems = await Promise.all(
 		new Array(frameCount)
 			.fill(Boolean)
 			.map((x, i) => i)
@@ -197,11 +197,19 @@ export const renderFrames = async ({
 				const collectedAssets = await freePage.evaluate(() => {
 					return window.remotion_collectAssets();
 				});
+				const collectedCaptions = await freePage.evaluate(() => {
+					return window.remotion_collectCaptions();
+				});
+
 				pool.release(freePage);
 				framesRendered++;
 				onFrameUpdate(framesRendered);
 				freePage.off('pageerror', errorCallback);
-				return collectedAssets;
+
+				return {
+					assets: collectedAssets,
+					captions: collectedCaptions,
+				};
 			})
 	);
 	close().catch((err) => {
@@ -222,20 +230,14 @@ export const renderFrames = async ({
 		});
 	}
 
+	const assets = collectedItems.map((x) => x.assets);
+	const captions = collectedItems.map((x) => x.captions);
+
 	return {
 		assetsInfo: {
 			assets,
+			captions,
 			bundleDir: webpackBundle,
-			// TODO: Figure out how to make this dynamic
-			captions: [
-				{
-					id: '123',
-					src: path.resolve(
-						__dirname,
-						'../../example/src/RemoteVideo/src/subs.srt'
-					),
-				},
-			],
 		},
 		frameCount,
 	};

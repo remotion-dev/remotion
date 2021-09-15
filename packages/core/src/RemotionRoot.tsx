@@ -60,6 +60,15 @@ export const RemotionRoot: React.FC = ({children}) => {
 		}
 	}, [assets]);
 
+	useLayoutEffect(() => {
+		if (typeof window !== 'undefined') {
+			window.remotion_collectCaptions = () => {
+				setCaptions([]); // clear captions at next render
+				return captions;
+			};
+		}
+	}, [captions]);
+
 	const registerComposition = useCallback(<T,>(comp: TComposition<T>) => {
 		setCompositions((comps) => {
 			if (comps.find((c) => c.id === comp.id)) {

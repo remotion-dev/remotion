@@ -64,12 +64,13 @@ export type TAsset = {
 
 export type TCaption = {
 	id: string;
+	isRemote: boolean;
 	src: string;
 };
 
 export type RenderAssetInfo = {
 	assets: TAsset[][];
-	captions: TCaption[];
+	captions: TCaption[][];
 	bundleDir: string;
 };
 
