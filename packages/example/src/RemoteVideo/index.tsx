@@ -1,16 +1,22 @@
 import {useRef} from 'react';
-import {interpolate, useCurrentFrame, Video} from 'remotion';
+import {Caption, interpolate, useCurrentFrame, Video} from 'remotion';
 
 const RemoteVideo: React.FC = () => {
 	const frame = useCurrentFrame();
 	const ref = useRef<HTMLVideoElement>(null);
 
 	return (
-		<Video
-			ref={ref}
-			volume={interpolate(frame, [0, 500], [1, 0], {extrapolateRight: 'clamp'})}
-			src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
-		/>
+		<>
+			<Caption src="http://127.0.0.1:8080/subs.srt" />
+			<Caption src="http://127.0.0.1:8080/subs_alt.srt" />
+			<Video
+				ref={ref}
+				volume={interpolate(frame, [0, 500], [1, 0], {
+					extrapolateRight: 'clamp',
+				})}
+				src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
+			/>
+		</>
 	);
 };
 
