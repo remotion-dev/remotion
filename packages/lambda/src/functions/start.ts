@@ -17,7 +17,7 @@ export const startHandler = async (params: LambdaPayload) => {
 
 	const payload: LambdaPayload = {
 		type: LambdaRoutines.launch,
-		chunkSize: params.chunkSize,
+		framesPerLambda: params.framesPerLambda,
 		composition: params.composition,
 		serveUrl: params.serveUrl,
 		inputProps: params.inputProps,

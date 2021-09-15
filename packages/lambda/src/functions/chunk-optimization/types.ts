@@ -1,3 +1,5 @@
+import {LambdaVersions} from '../../shared/constants';
+
 export type ObjectChunkTimingData = {
 	chunk: number;
 	frameRange: [number, number];
@@ -19,5 +21,6 @@ export type OptimizationProfile = {
 	newTiming: number;
 	frameCount: number;
 	createdFromRenderId: string;
-	chunkSize: number;
+	framesPerLambda: number;
+	lambdaVersion: LambdaVersions;
 };

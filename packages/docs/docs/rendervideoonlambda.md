@@ -4,6 +4,8 @@ title: renderVideoOnLambda()
 slug: /lambda/rendervideoonlambda
 ---
 
+import { DefaultFramesPerLambda, MinimumFramesPerLambda } from "../components/lambda/default-frames-per-lambda";
+
 Triggers a render on a lambda given a composition and a lambda function.
 
 ## Example
@@ -18,6 +20,7 @@ const {bucketName, renderId} = await renderVideoOnLambda({
   region: 'us-east-1',
   functionName: 'remotion-render-bds9aab',
   composition: 'MyVideo',
+  framesPerLambda: 20,
   serveUrl: 'https://remotionlambda-qg35eyp1s1.s3.eu-central-1.amazonaws.com/sites/bf2jrbfkw',
   inputProps: {},
   codec: 'h264-mkv',
@@ -38,6 +41,13 @@ In which region your Lambda function is deployed. It's highly recommended that y
 
 The name of the deployed Lambda function.
 Use [`deployFunction()`](/docs/lambda/deployfunction) to create a new function and [`getFunctions()`](/docs/lambda/getfunctions) to obtain currently deployed Lambdas.
+
+### `framesPerLambda`
+
+The video rendering process gets distributed across multiple Lambda functions. This setting controls how many frames are rendered per Lambda invocation. The lower the number you pass, the more Lambdas get spawned.
+
+Default value: <DefaultFramesPerLambda /> <br/>
+Minimum value: <MinimumFramesPerLambda />
 
 ### `serveUrl`
 

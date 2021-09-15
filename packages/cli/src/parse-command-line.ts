@@ -33,6 +33,7 @@ export type CommandLineOptions = {
 	help: boolean;
 	port: number;
 	frame: string | number;
+	framesPerLambda: number;
 };
 
 export const parsedCli = minimist<CommandLineOptions>(process.argv.slice(2), {
@@ -96,6 +97,10 @@ export const parseCommandLine = (
 		}
 
 		Internals.setStillFrame(Number(parsedCli.frame));
+	}
+
+	if (parsedCli.framesPerLambda) {
+		Internals.setFramesPerLambda(parsedCli.framesPerLambda);
 	}
 
 	if (parsedCli.png) {

@@ -1,7 +1,8 @@
 import {ImageFormat, PixelFormat, ProResProfile} from 'remotion';
 import {AwsRegion} from '../pricing/aws-regions';
 import {callLambda} from '../shared/call-lambda';
-import {LambdaRoutines} from '../shared/constants';
+import {DEFAULT_FRAMES_PER_LAMBDA, LambdaRoutines} from '../shared/constants';
+import {validateFramesPerLambda} from './validate-frames-per-lambda';
 
 // TODO: `privacy` field
 /**
@@ -36,6 +37,7 @@ export const renderVideoOnLambda = async ({
 	region,
 	maxRetries,
 	composition,
+	framesPerLambda,
 }: {
 	region: AwsRegion;
 	functionName: string;
@@ -50,13 +52,14 @@ export const renderVideoOnLambda = async ({
 	proResProfile?: ProResProfile;
 	quality?: number;
 	maxRetries: number;
+	framesPerLambda?: number;
 }) => {
+	validateFramesPerLambda(framesPerLambda);
 	const res = await callLambda({
 		functionName,
 		type: LambdaRoutines.start,
 		payload: {
-			// TODO: Allow to parametrize
-			chunkSize: 20,
+			framesPerLambda: framesPerLambda ?? DEFAULT_FRAMES_PER_LAMBDA,
 			composition,
 			serveUrl,
 			inputProps,
