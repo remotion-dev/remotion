@@ -16,7 +16,6 @@ type Props = InputHTMLAttributes<HTMLInputElement> & {
 
 export const InputDragger: React.FC<Props> = ({onValueChange, ...props}) => {
 	const [inputFallback, setInputFallback] = useState(false);
-	const [editMode, setEditMode] = useState(false);
 
 	const style = useMemo(() => {
 		return {
@@ -30,16 +29,20 @@ export const InputDragger: React.FC<Props> = ({onValueChange, ...props}) => {
 		() => ({
 			borderBottom: '1px dotted var(--blue)',
 			paddingBottom: 1,
-			color: editMode ? 'var(--light-blue)' : 'var(--blue)',
+			color: 'var(--blue)',
 			cursor: 'ew-resize',
 			userSelect: 'none',
 		}),
-		[editMode]
+		[]
 	);
 
 	const onClick: MouseEventHandler<HTMLButtonElement> = useCallback((e) => {
 		if (!getClickLock()) {
 			e.stopPropagation();
+		}
+
+		if (getClickLock()) {
+			return;
 		}
 
 		setInputFallback(true);
@@ -61,7 +64,6 @@ export const InputDragger: React.FC<Props> = ({onValueChange, ...props}) => {
 	const onPointerDown: PointerEventHandler = useCallback(
 		(e) => {
 			const {pageX, pageY} = e;
-			setEditMode(true);
 			const moveListener = (ev: MouseEvent) => {
 				const xDistance = ev.pageX - pageX;
 				const distanceFromStart = Math.sqrt(
@@ -88,7 +90,6 @@ export const InputDragger: React.FC<Props> = ({onValueChange, ...props}) => {
 				'pointerup',
 				() => {
 					window.removeEventListener('mousemove', moveListener);
-					setEditMode(false);
 					setTimeout(() => {
 						setClickLock(false);
 					}, 2);
