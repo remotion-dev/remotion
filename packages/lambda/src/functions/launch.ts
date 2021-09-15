@@ -184,6 +184,10 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		type: 'video',
 		imageFormat: params.imageFormat,
 		inputProps: params.inputProps,
+		lambdaVersion: CURRENT_VERSION,
+		framesPerLambda: params.framesPerLambda,
+		memorySizeInMb: Number(process.env.AWS_LAMBDA_FUNCTION_MEMORY_SIZE),
+		region: getCurrentRegionInFunction(),
 	};
 
 	await lambdaWriteFile({
