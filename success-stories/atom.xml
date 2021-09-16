@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+    <id>https://remotion.dev/success-stories</id>
+    <title>Remotion Blog</title>
+    <updated>2021-09-16T00:00:00.000Z</updated>
+    <generator>https://github.com/jpmonette/feed</generator>
+    <link rel="alternate" href="https://remotion.dev/success-stories"/>
+    <subtitle>Remotion Blog</subtitle>
+    <icon>https://remotion.dev/img/logo-small.png</icon>
+    <entry>
+        <title type="html"><![CDATA[How MakeStories uses Remotion to render Web Stories]]></title>
+        <id>makestories</id>
+        <link href="https://remotion.dev/success-stories/makestories"/>
+        <updated>2021-09-16T00:00:00.000Z</updated>
+        <summary type="html"><![CDATA[This is the first article in our new series: Success Stories. We interview companies and creators that we find inspiring and which have successfully implemented Remotion in their stack. Let us know what you think!]]></summary>
+    </entry>
+</feed>

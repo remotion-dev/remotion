@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0">
+    <channel>
+        <title>Remotion Blog</title>
+        <link>https://remotion.dev/success-stories</link>
+        <description>Remotion Blog</description>
+        <lastBuildDate>Thu, 16 Sep 2021 00:00:00 GMT</lastBuildDate>
+        <docs>https://validator.w3.org/feed/docs/rss2.html</docs>
+        <generator>https://github.com/jpmonette/feed</generator>
+        <item>
+            <title><![CDATA[How MakeStories uses Remotion to render Web Stories]]></title>
+            <link>https://remotion.dev/success-stories/makestories</link>
+            <guid>makestories</guid>
+            <pubDate>Thu, 16 Sep 2021 00:00:00 GMT</pubDate>
+            <description><![CDATA[This is the first article in our new series: Success Stories. We interview companies and creators that we find inspiring and which have successfully implemented Remotion in their stack. Let us know what you think!]]></description>
+        </item>
+    </channel>
+</rss>
