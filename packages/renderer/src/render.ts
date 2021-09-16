@@ -210,7 +210,7 @@ export const renderFrames = async ({
 						quality,
 						options: {
 							frame,
-							output: path.join(
+							output: parallelEncoding?undefined:path.join(
 								outputDir,
 								`element-${paddedIndex}.${imageFormat}`
 							),
