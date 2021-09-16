@@ -45,12 +45,14 @@ export const makeBundlingProgress = ({
 export const makeRenderingProgress = ({
 	frames,
 	totalFrames,
+	encodedFrames,
 	steps,
 	concurrency,
 	doneIn,
 }: {
 	frames: number;
 	totalFrames: number;
+	encodedFrames?:number;
 	steps: number;
 	concurrency: number;
 	doneIn: number | null;
@@ -60,8 +62,8 @@ export const makeRenderingProgress = ({
 		'🖼 ',
 		`(2/${steps})`,
 		makeProgressBar(progress),
-		`${doneIn ? 'Rendered' : 'Rendering'} frames (${concurrency}x)`,
-		doneIn === null ? `${frames}/${totalFrames}` : chalk.gray(`${doneIn}ms`),
+		`${doneIn ? 'Rendered' : 'Rendering'}${encodedFrames===undefined?'':` and ${doneIn ? 'Encoded' : 'Encoding'}`} frames (${concurrency}x)`,
+		doneIn === null ? `${encodedFrames===undefined?'':`${encodedFrames}/`}${frames}/${totalFrames}` : chalk.gray(`${doneIn}ms`),
 	].join(' ');
 };
 

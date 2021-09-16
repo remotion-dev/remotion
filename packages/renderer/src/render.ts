@@ -42,6 +42,7 @@ export const renderFrames = async ({
 	browserExecutable,
 	concurrentMode,
 	parallelEncoding,
+	writeFrame,
 }: {
 	config: VideoConfig;
 	compositionId: string;
@@ -62,6 +63,7 @@ export const renderFrames = async ({
 	onError?: (info: OnErrorInfo) => void;
 	concurrentMode?: ConcurrentMode;
 	parallelEncoding?: boolean;
+	writeFrame?: (buffer?: Buffer) => void;
 }): Promise<RenderFramesOutput> => {
 	Internals.validateDimension(
 		config.height,
@@ -145,7 +147,7 @@ export const renderFrames = async ({
 		browserInstance.map(initPage):
 		new Array(actualParallelism).fill(true).map(()=>initPage(browserInstance[0]));
 
-	let stopCycling = () => {};
+	let stopCycling;
 	if(concurrentMode!=='browser')
 		stopCycling=cycleBrowserTabs(browserInstance[0]).stopCycling;
 
@@ -165,7 +167,7 @@ export const renderFrames = async ({
 	onStart({
 		frameCount,
 	});
-	const assets = await Promise.all(
+	const frameRenderTasks =
 		new Array(frameCount)
 			.fill(Boolean)
 			.map((x, i) => i)
@@ -199,8 +201,10 @@ export const renderFrames = async ({
 					throw error;
 				}
 
+				let frameBuffer;
+
 				if (imageFormat !== 'none') {
-					await provideScreenshot({
+					frameBuffer = await provideScreenshot({
 						page: freePage,
 						imageFormat,
 						quality,
@@ -221,13 +225,21 @@ export const renderFrames = async ({
 				framesRendered++;
 				onFrameUpdate(framesRendered);
 				freePage.off('pageerror', errorCallback);
-				return collectedAssets;
-			})
-	);
+				return {collectedAssets,frameBuffer};
+			});
+
+	if(parallelEncoding) {
+		for (const i in frameRenderTasks) {
+			const o = await frameRenderTasks[i];
+			writeFrame?.(o.frameBuffer);
+		}
+	}
+
+	const assets= (await Promise.all(frameRenderTasks)).map(o=>o.collectedAssets);
 	close().catch((err) => {
 		console.log('Unable to close web server', err);
 	});
-	stopCycling();
+	stopCycling?.();
 	// If browser instance was passed in, we close all the pages
 	// we opened.
 	// If new browser was opened, then closing the browser as a cleanup.
