@@ -23,7 +23,6 @@ import {parseFfmpegProgress} from './parse-ffmpeg-progress';
 import {resolveAssetSrc} from './resolve-asset-src';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
 import {validateFfmpeg} from './validate-ffmpeg';
-import {ChildProcess} from "child_process";
 
 export type StitcherOptions= {
 	dir: string;
@@ -45,6 +44,7 @@ export type StitcherOptions= {
 	proResProfile?: ProResProfile;
 	verbose?: boolean;
 	parallelEncoding?: boolean;
+	preEncodedFileLocation?: string;
 }
 
 const getAssetsData=async (options:StitcherOptions)=>{
@@ -53,7 +53,7 @@ const getAssetsData=async (options:StitcherOptions)=>{
 	const isAudioOnly = encoderName === null;
 	// eslint-disable-next-line @typescript-eslint/no-shadow
 	const [frameInfo, fileUrlAssets] = await Promise.all([
-		getFrameInfo({
+		options.preEncodedFileLocation?undefined:getFrameInfo({
 			dir: options.dir,
 			isAudioOnly,
 		}),
@@ -161,25 +161,30 @@ export const spawnFfmpeg = async (options: StitcherOptions) => {
 
 	const ffmpegArgs = [
 		['-r', String(options.fps)],
-		isAudioOnly ? null : ['-f', options.parallelEncoding?'image2pipe':'image2'],
-		isAudioOnly ? null : ['-s', `${options.width}x${options.height}`],
-		frameInfo ? ['-start_number', String(frameInfo.startNumber)] : null,
-		frameInfo
-			? ['-i', `element-%0${frameInfo.numberLength}d.${imageFormat}`]
-			: null,
-		options.parallelEncoding?['-i','-']:null,
+		...options.preEncodedFileLocation?[
+			['-i',options.preEncodedFileLocation]
+		]:[
+			isAudioOnly ? null : ['-f', options.parallelEncoding?'image2pipe':'image2'],
+			isAudioOnly ? null : ['-s', `${options.width}x${options.height}`],
+			frameInfo ? ['-start_number', String(frameInfo.startNumber)] : null,
+			frameInfo
+				? ['-i', `element-%0${frameInfo.numberLength}d.${imageFormat}`]
+				: null,
+			options.parallelEncoding?['-i','-']:null,
+		],
 		...assetPaths?assetsToFfmpegInputs({
 			assets: assetPaths,
 			isAudioOnly,
 			fps: options.fps,
 			frameCount: options.assetsInfo.assets.length,
 		}): [],
-		encoderName
+		options.preEncodedFileLocation?['-c:v','copy']:encoderName
 			? // -c:v is the same as -vcodec as -codec:video
 			  // and specified the video codec.
 			['-c:v', encoderName]
 			: // If only exporting audio, we drop the video explicitly
 			['-vn'],
+			...options.preEncodedFileLocation?[]:[
 		proResProfileName ? ['-profile:v', proResProfileName] : null,
 		supportsCrf ? ['-crf', String(crf)] : null,
 		isAudioOnly ? null : ['-pix_fmt', pixelFormat],
@@ -188,6 +193,7 @@ export const spawnFfmpeg = async (options: StitcherOptions) => {
 		// transparent WebM generation doesn't work
 		pixelFormat === 'yuva420p' ? ['-auto-alt-ref', '0'] : null,
 		isAudioOnly ? null : ['-b:v', '1M'],
+				],
 		audioCodecName ? ['-c:a', audioCodecName] : null,
 		complexFilterFlag,
 		// Ignore audio from image sequence
