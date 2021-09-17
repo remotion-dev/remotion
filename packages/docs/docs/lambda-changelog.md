@@ -14,6 +14,10 @@ Keep track of changes to the APIs of Remotion Lambda here.
 1. Redeploy your function: `npx remotion lambda functions deploy`
 1. Migrate according to the changelog below:
 
+## Unreleased
+
+- Renamed `deployProject` to `deploySite()`.
+
 ## September 15th, 2021
 
 Version hash: `2.4.0-alpha.d3efed28`

@@ -1,7 +1,7 @@
 ---
-id: deployproject
-title: deployProject()
-slug: /lambda/deployproject
+id: deploysite
+title: deploySite()
+slug: /lambda/deploysite
 ---
 
 Takes a Remotion project, bundles it and uploads it to an S3 bucket. Once uploaded, a Lambda function can render any composition in the Remotion project by specifying the URL.
@@ -15,9 +15,9 @@ Before calling this function, you should create a bucket, see [`getOrCreateBucke
 ```ts twoslash
 // @module: esnext
 // @target: es2017
-import {deployProject} from '@remotion/lambda';
+import {deploySite} from '@remotion/lambda';
 
-const {url} = await deployProject({
+const {url} = await deploySite({
   entryPoint: '/Users/jonnyburger/my-remotion-video/src/index.tsx',
   bucketName: 'remotionlambda-c7fsl3d',
   region: 'us-east-1',

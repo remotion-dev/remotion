@@ -163,7 +163,7 @@ First, you need to create an S3 bucket in your preferred region. If one already 
 // @module: ESNext
 // @target: ESNext
 import path from 'path';
-import {deployProject, getOrCreateBucket} from '@remotion/lambda';
+import {deploySite, getOrCreateBucket} from '@remotion/lambda';
 
 const {bucketName} = await getOrCreateBucket({
   region: 'us-east-1'
@@ -176,13 +176,13 @@ Next, upload your Remotion project to an S3 bucket. Specify the entry point of y
 // @module: ESNext
 // @target: ESNext
 import path from 'path';
-import {deployProject, getOrCreateBucket} from '@remotion/lambda';
+import {deploySite, getOrCreateBucket} from '@remotion/lambda';
 
 const {bucketName} = await getOrCreateBucket({
   region: 'us-east-1'
 })
 // ---cut---
-const {url} = await deployProject({
+const {url} = await deploySite({
   bucketName,
   entryPoint: path.resolve(process.cwd(), 'src/index.tsx'),
   region: 'us-east-1'

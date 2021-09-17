@@ -1,7 +1,7 @@
 import {CliInternals} from '@remotion/cli';
 import {existsSync, lstatSync} from 'fs';
 import path from 'path';
-import {deployProject} from '../../../api/deploy-project';
+import {deploySite} from '../../../api/deploy-site';
 import {getOrCreateBucket} from '../../../api/get-or-create-bucket';
 import {BINARY_NAME} from '../../../shared/constants';
 import {getAwsRegion} from '../../get-aws-region';
@@ -90,7 +90,7 @@ export const sitesCreateSubcommand = async (args: string[]) => {
 	const bucketStart = Date.now();
 	const uploadStart = Date.now();
 
-	const {url} = await deployProject({
+	const {url} = await deploySite({
 		entryPoint: absoluteFile,
 		bucketName,
 		options: {

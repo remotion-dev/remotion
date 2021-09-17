@@ -1,6 +1,6 @@
 import {deleteFunction} from './api/delete-function';
 import {deployFunction} from './api/deploy-function';
-import {deployProject} from './api/deploy-project';
+import {deploySite} from './api/deploy-site';
 import {ensureLambdaBinaries} from './api/ensure-lambda-binaries';
 import {getFunctionInfo} from './api/get-function-info';
 import {getFunctions} from './api/get-functions';
@@ -19,7 +19,7 @@ import {estimatePrice} from './pricing/calculate-price';
 
 export {
 	deployFunction,
-	deployProject,
+	deploySite,
 	ensureLambdaBinaries,
 	getFunctions,
 	getUserPolicy,

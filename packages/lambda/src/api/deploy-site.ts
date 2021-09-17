@@ -8,10 +8,11 @@ import {makeS3Url} from '../shared/make-s3-url';
 import {randomHash} from '../shared/random-hash';
 import {uploadDir, UploadDirProgress} from './upload-dir';
 
-type DeployProjectInput = {
+type DeploySiteInput = {
 	entryPoint: string;
 	bucketName: string;
 	region: AwsRegion;
+	projectName?: string;
 	options?: {
 		onBundleProgress?: (progress: number) => void;
 		onWebsiteActivated?: () => void;
@@ -23,18 +24,19 @@ type DeployProjectInput = {
 
 /**
  * @description Deploys a Remotion project to an S3 bucket to prepare it for rendering on AWS Lambda.
- * @link https://remotion.dev/docs/lambda/deployproject
+ * @link https://remotion.dev/docs/lambda/deploysite
  * @param {AwsRegion} params.region The region in which the S3 bucket resides in.
  * @param {string} params.entryPoint An absolute path to the entry file of your Remotion project.
  * @param {string} params.bucketName The name of the bucket to deploy your project into.
+ * @param {string} params.projectName The name of the folder in which the project gets deployed to.
  * @param {object} params.options Further options, see documentation page for this function.
  */
-export const deployProject = async ({
+export const deploySite = async ({
 	bucketName,
 	entryPoint,
 	options,
 	region,
-}: DeployProjectInput) => {
+}: DeploySiteInput) => {
 	if (!bucketName.startsWith(REMOTION_BUCKET_PREFIX)) {
 		throw new Error(
 			`The bucketName parameter must start with ${REMOTION_BUCKET_PREFIX}.`
