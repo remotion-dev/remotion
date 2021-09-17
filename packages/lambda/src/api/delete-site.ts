@@ -10,18 +10,18 @@ type DeleteSiteReturnData = {
 // TODO: Write JSDoc annotations
 export const deleteSite = async ({
 	bucketName,
-	siteId,
+	siteName,
 	region,
 	onAfterItemDeleted,
 }: {
 	bucketName: string;
-	siteId: string;
+	siteName: string;
 	region: AwsRegion;
-	onAfterItemDeleted: (data: {bucketName: string; itemName: string}) => void;
+	onAfterItemDeleted?: (data: {bucketName: string; itemName: string}) => void;
 }): Promise<DeleteSiteReturnData> => {
 	let files = await lambdaLs({
 		bucketName,
-		prefix: getSitesKey(siteId),
+		prefix: getSitesKey(siteName),
 		region,
 		expectedBucketOwner: null,
 	});
@@ -41,13 +41,13 @@ export const deleteSite = async ({
 		await cleanItems({
 			list: files.map((f) => f.Key as string),
 			bucket: bucketName as string,
-			onAfterItemDeleted,
+			onAfterItemDeleted: onAfterItemDeleted ?? (() => undefined),
 			onBeforeItemDeleted: () => undefined,
 			region,
 		});
 		files = await lambdaLs({
 			bucketName,
-			prefix: getSitesKey(siteId),
+			prefix: getSitesKey(siteName),
 			region,
 			expectedBucketOwner: null,
 		});
