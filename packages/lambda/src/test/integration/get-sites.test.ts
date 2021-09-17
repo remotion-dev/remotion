@@ -31,6 +31,7 @@ test('Should have a site after deploying', async () => {
 		})
 	).toEqual({
 		url: 'https://remotionlambda-abcdef.s3.eu-central-1.amazonaws.com/sites/testing',
+		siteName: 'testing',
 	});
 	expect(await getSites({region: 'eu-central-1'})).toEqual({
 		buckets: [

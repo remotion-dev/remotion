@@ -24,8 +24,10 @@ export type DeploySiteInput = {
 	};
 };
 
+// TODO: Return site ID
 export type DeploySiteReturnType = Promise<{
 	url: string;
+	siteName: string;
 }>;
 
 /**
@@ -104,5 +106,6 @@ export const deploySite = async ({
 
 	return {
 		url: makeS3Url({bucketName, subFolder, region}),
+		siteName: siteId,
 	};
 };
