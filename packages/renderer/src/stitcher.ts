@@ -24,7 +24,7 @@ import {resolveAssetSrc} from './resolve-asset-src';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
 import {validateFfmpeg} from './validate-ffmpeg';
 
-export type StitcherOptions= {
+export type StitcherOptions = {
 	dir: string;
 	fps: number;
 	width: number;
@@ -45,18 +45,20 @@ export type StitcherOptions= {
 	verbose?: boolean;
 	parallelEncoding?: boolean;
 	preEncodedFileLocation?: string;
-}
+};
 
-const getAssetsData=async (options:StitcherOptions)=>{
+const getAssetsData = async (options: StitcherOptions) => {
 	const codec = options.codec ?? Internals.DEFAULT_CODEC;
 	const encoderName = getCodecName(codec);
 	const isAudioOnly = encoderName === null;
 	// eslint-disable-next-line @typescript-eslint/no-shadow
 	const [frameInfo, fileUrlAssets] = await Promise.all([
-		options.preEncodedFileLocation?undefined:getFrameInfo({
-			dir: options.dir,
-			isAudioOnly,
-		}),
+		options.preEncodedFileLocation
+			? undefined
+			: getFrameInfo({
+					dir: options.dir,
+					isAudioOnly,
+			  }),
 		convertAssetsToFileUrls({
 			assets: options.assetsInfo.assets,
 			dir: options.assetsInfo.bundleDir,
@@ -97,8 +99,8 @@ const getAssetsData=async (options:StitcherOptions)=>{
 		cleanup,
 		frameInfo,
 		assetPaths,
-	}
-}
+	};
+};
 
 // eslint-disable-next-line complexity
 export const spawnFfmpeg = async (options: StitcherOptions) => {
@@ -153,47 +155,55 @@ export const spawnFfmpeg = async (options: StitcherOptions) => {
 	Internals.validateSelectedPixelFormatAndCodecCombination(pixelFormat, codec);
 
 	const {
-		complexFilterFlag=undefined,
-		cleanup=undefined,
-		frameInfo=undefined,
-		assetPaths=undefined,
-	} = options.parallelEncoding?{}:await getAssetsData(options);
+		complexFilterFlag = undefined,
+		cleanup = undefined,
+		frameInfo = undefined,
+		assetPaths = undefined,
+	} = options.parallelEncoding ? {} : await getAssetsData(options);
 
 	const ffmpegArgs = [
 		['-r', String(options.fps)],
-		...options.preEncodedFileLocation?[
-			['-i',options.preEncodedFileLocation]
-		]:[
-			isAudioOnly ? null : ['-f', options.parallelEncoding?'image2pipe':'image2'],
-			isAudioOnly ? null : ['-s', `${options.width}x${options.height}`],
-			frameInfo ? ['-start_number', String(frameInfo.startNumber)] : null,
-			frameInfo
-				? ['-i', `element-%0${frameInfo.numberLength}d.${imageFormat}`]
-				: null,
-			options.parallelEncoding?['-i','-']:null,
-		],
-		...assetPaths?assetsToFfmpegInputs({
-			assets: assetPaths,
-			isAudioOnly,
-			fps: options.fps,
-			frameCount: options.assetsInfo.assets.length,
-		}): [],
-		options.preEncodedFileLocation?['-c:v','copy']:encoderName
+		...(options.preEncodedFileLocation
+			? [['-i', options.preEncodedFileLocation]]
+			: [
+					isAudioOnly
+						? null
+						: ['-f', options.parallelEncoding ? 'image2pipe' : 'image2'],
+					isAudioOnly ? null : ['-s', `${options.width}x${options.height}`],
+					frameInfo ? ['-start_number', String(frameInfo.startNumber)] : null,
+					frameInfo
+						? ['-i', `element-%0${frameInfo.numberLength}d.${imageFormat}`]
+						: null,
+					options.parallelEncoding ? ['-i', '-'] : null,
+			  ]),
+		...(assetPaths
+			? assetsToFfmpegInputs({
+					assets: assetPaths,
+					isAudioOnly,
+					fps: options.fps,
+					frameCount: options.assetsInfo.assets.length,
+			  })
+			: []),
+		options.preEncodedFileLocation
+			? ['-c:v', 'copy']
+			: encoderName
 			? // -c:v is the same as -vcodec as -codec:video
 			  // and specified the video codec.
-			['-c:v', encoderName]
+			  ['-c:v', encoderName]
 			: // If only exporting audio, we drop the video explicitly
-			['-vn'],
-			...options.preEncodedFileLocation?[]:[
-		proResProfileName ? ['-profile:v', proResProfileName] : null,
-		supportsCrf ? ['-crf', String(crf)] : null,
-		isAudioOnly ? null : ['-pix_fmt', pixelFormat],
+			  ['-vn'],
+		...(options.preEncodedFileLocation
+			? []
+			: [
+					proResProfileName ? ['-profile:v', proResProfileName] : null,
+					supportsCrf ? ['-crf', String(crf)] : null,
+					isAudioOnly ? null : ['-pix_fmt', pixelFormat],
 
-		// Without explicitly disabling auto-alt-ref,
-		// transparent WebM generation doesn't work
-		pixelFormat === 'yuva420p' ? ['-auto-alt-ref', '0'] : null,
-		isAudioOnly ? null : ['-b:v', '1M'],
-				],
+					// Without explicitly disabling auto-alt-ref,
+					// transparent WebM generation doesn't work
+					pixelFormat === 'yuva420p' ? ['-auto-alt-ref', '0'] : null,
+					isAudioOnly ? null : ['-b:v', '1M'],
+			  ]),
 		audioCodecName ? ['-c:a', audioCodecName] : null,
 		complexFilterFlag,
 		// Ignore audio from image sequence
@@ -223,13 +233,14 @@ export const spawnFfmpeg = async (options: StitcherOptions) => {
 			}
 		}
 	});
-	return {task,cleanup};
-}
+	return {task, cleanup};
+};
 
 // eslint-disable-next-line complexity
-export const stitchFramesToVideo = async (options: StitcherOptions): Promise<void> => {
-
-	const {task,cleanup}=await spawnFfmpeg(options);
+export const stitchFramesToVideo = async (
+	options: StitcherOptions
+): Promise<void> => {
+	const {task, cleanup} = await spawnFfmpeg(options);
 	await task;
 	cleanup?.();
 };

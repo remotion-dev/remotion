@@ -1,4 +1,4 @@
-const validOptions = ['tab','browser'] as const;
+const validOptions = ['tab', 'browser'] as const;
 
 export type ConcurrentMode = typeof validOptions[number];
 

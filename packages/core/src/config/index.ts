@@ -2,6 +2,7 @@ import {Browser} from './browser';
 import {BrowserExecutable, setBrowserExecutable} from './browser-executable';
 import {Codec, setCodec, setOutputFormat} from './codec';
 import {Concurrency, setConcurrency} from './concurrency';
+import {ConcurrentMode, setConcurrentMode} from './concurrent-mode';
 import {setCrf} from './crf';
 import {setDotEnvLocation} from './env-file';
 import {FrameRange, setFrameRange} from './frame-range';
@@ -15,13 +16,12 @@ import {
 	WebpackOverrideFn,
 } from './override-webpack';
 import {setOverwriteOutput} from './overwrite';
+import {setParallelEncoding} from './parallel-encoding';
 import {PixelFormat, setPixelFormat} from './pixel-format';
 import {setPort} from './preview-server';
 import {setProResProfile} from './prores-profile';
 import {setQuality} from './quality';
 import {setWebpackCaching} from './webpack-caching';
-import {setConcurrentMode,ConcurrentMode} from "./concurrent-mode";
-import {setParallelEncoding} from "./parallel-encoding";
 
 export const Config = {
 	Preview: {

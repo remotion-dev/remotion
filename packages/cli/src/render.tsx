@@ -6,7 +6,10 @@ import {
 	RenderInternals,
 	stitchFramesToVideo,
 } from '@remotion/renderer';
+import {getActualConcurrency} from '@remotion/renderer/dist/get-concurrency';
+import {spawnFfmpeg} from '@remotion/renderer/dist/stitcher';
 import chalk from 'chalk';
+import {ExecaChildProcess} from 'execa';
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
@@ -23,11 +26,8 @@ import {
 	makeStitchingProgress,
 } from './progress-bar';
 import {bundleOnCli} from './setup-cache';
+import {getUserPassedFileExtension} from './user-passed-output-location';
 import {checkAndValidateFfmpegVersion} from './validate-ffmpeg-version';
-import {getActualConcurrency} from "@remotion/renderer/dist/get-concurrency";
-import {spawnFfmpeg} from "@remotion/renderer/dist/stitcher";
-import { ExecaChildProcess } from 'execa';
-import {getUserPassedFileExtension} from "./user-passed-output-location";
 
 const onError = async (info: OnErrorInfo) => {
 	Log.error();
@@ -77,10 +77,16 @@ export const render = async () => {
 
 	const actualParallelism = getActualConcurrency(parallelism ?? null);
 
-	const browserInstance = Promise.all(new Array(concurrentMode === 'browser' ? actualParallelism : 1).fill(true).map(() => RenderInternals.openBrowser(browser, {
-		browserExecutable,
-		shouldDumpIo: Internals.Logging.isEqualOrBelowLogLevel('verbose'),
-	})));
+	const browserInstance = Promise.all(
+		new Array(concurrentMode === 'browser' ? actualParallelism : 1)
+			.fill(true)
+			.map(() =>
+				RenderInternals.openBrowser(browser, {
+					browserExecutable,
+					shouldDumpIo: Internals.Logging.isEqualOrBelowLogLevel('verbose'),
+				})
+			)
+	);
 	if (shouldOutputImageSequence) {
 		fs.mkdirSync(absoluteOutputFile, {
 			recursive: true,
@@ -121,27 +127,31 @@ export const render = async () => {
 	let totalFrames = 0;
 	const renderStart = Date.now();
 
-	let stitcherFfmpeg: ExecaChildProcess<string>|undefined;
+	let stitcherFfmpeg: ExecaChildProcess<string> | undefined;
 	let preStitcher;
-	let encodedFrames:number|undefined;
+	let encodedFrames: number | undefined;
 	let renderedFrames: number;
-	let preEncodedFileLocation:string|undefined;
-	const updateRenderProgress=()=>renderProgress.update(
-		makeRenderingProgress({
-			frames: renderedFrames||0,
-			encodedFrames,
-			totalFrames,
-			concurrency: RenderInternals.getActualConcurrency(parallelism),
-			doneIn: null,
-			steps,
-		})
-	);
-	if(parallelEncoding){
+	let preEncodedFileLocation: string | undefined;
+	const updateRenderProgress = () =>
+		renderProgress.update(
+			makeRenderingProgress({
+				frames: renderedFrames || 0,
+				encodedFrames,
+				totalFrames,
+				concurrency: RenderInternals.getActualConcurrency(parallelism),
+				doneIn: null,
+				steps,
+			})
+		);
+	if (parallelEncoding) {
 		if (typeof crf !== 'number') {
 			throw new TypeError('CRF is unexpectedly not a number');
 		}
 
-		preEncodedFileLocation=path.join(outputDir,'pre-encode.'+getUserPassedFileExtension());
+		preEncodedFileLocation = path.join(
+			outputDir,
+			'pre-encode.' + getUserPassedFileExtension()
+		);
 
 		preStitcher = await spawnFfmpeg({
 			dir: outputDir,
@@ -157,20 +167,20 @@ export const render = async () => {
 			crf,
 			parallelism,
 			onProgress: (frame: number) => {
-				encodedFrames=frame;
+				encodedFrames = frame;
 				updateRenderProgress();
 			},
 			verbose: Internals.Logging.isEqualOrBelowLogLevel('verbose'),
 			parallelEncoding,
-			assetsInfo: {assets: [], bundleDir: bundled}
+			assetsInfo: {assets: [], bundleDir: bundled},
 		});
-		stitcherFfmpeg=preStitcher.task;
+		stitcherFfmpeg = preStitcher.task;
 	}
 
 	const renderer = renderFrames({
 		config,
 		onFrameUpdate: (frame: number) => {
-			renderedFrames=frame;
+			renderedFrames = frame;
 			updateRenderProgress();
 		},
 		parallelism,
@@ -180,8 +190,8 @@ export const render = async () => {
 		outputDir,
 		onError,
 		onStart: ({frameCount: fc}: OnStartData) => {
-			renderedFrames=0;
-			if(parallelEncoding)encodedFrames=0;
+			renderedFrames = 0;
+			if (parallelEncoding) encodedFrames = 0;
 			totalFrames = fc;
 			updateRenderProgress();
 		},
@@ -194,22 +204,22 @@ export const render = async () => {
 		frameRange: frameRange ?? null,
 		dumpBrowserLogs: Internals.Logging.isEqualOrBelowLogLevel('verbose'),
 		puppeteerInstance: openedBrowser,
-		writeFrame: async buffer => {
+		writeFrame: async (buffer) => {
 			stitcherFfmpeg?.stdin?.write(buffer);
-		}
+		},
 	});
-	const {assetsInfo}=await renderer;
-	if(stitcherFfmpeg){
+	const {assetsInfo} = await renderer;
+	if (stitcherFfmpeg) {
 		stitcherFfmpeg?.stdin?.end();
 		await stitcherFfmpeg;
 		preStitcher?.cleanup?.();
 	}
 
-	const closeBrowserPromise = openedBrowser.map(o=>o.close());
+	const closeBrowserPromise = openedBrowser.map((o) => o.close());
 	renderProgress.update(
 		makeRenderingProgress({
 			frames: totalFrames,
-			encodedFrames: parallelEncoding?totalFrames:undefined,
+			encodedFrames: parallelEncoding ? totalFrames : undefined,
 			totalFrames,
 			steps,
 			concurrency: RenderInternals.getActualConcurrency(parallelism),
@@ -227,7 +237,6 @@ export const render = async () => {
 			throw new TypeError('CRF is unexpectedly not a number');
 		}
 
-
 		const stitchingProgress = createProgressBar();
 
 		stitchingProgress.update(
@@ -236,7 +245,7 @@ export const render = async () => {
 				frames: 0,
 				steps,
 				totalFrames,
-				parallelEncoding
+				parallelEncoding,
 			})
 		);
 		const stitchStart = Date.now();
@@ -262,7 +271,7 @@ export const render = async () => {
 						frames: frame,
 						steps,
 						totalFrames,
-						parallelEncoding
+						parallelEncoding,
 					})
 				);
 			},
@@ -277,10 +286,9 @@ export const render = async () => {
 				frames: totalFrames,
 				steps,
 				totalFrames,
-				parallelEncoding
+				parallelEncoding,
 			}) + '\n'
 		);
-
 
 		Log.verbose('Cleaning up...');
 		try {
