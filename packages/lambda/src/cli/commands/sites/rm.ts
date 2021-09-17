@@ -7,10 +7,10 @@ import {Log} from '../../log';
 export const SITES_RM_COMMAND = 'rm';
 
 export const sitesRmSubcommand = async (args: string[]) => {
-	const siteId = args[0];
-	if (!siteId) {
+	const siteName = args[0];
+	if (!siteName) {
 		Log.error(
-			'No site ID was passed. Run the command again and pass another argument <site-id>.'
+			'No site name was passed. Run the command again and pass another argument <site-name>.'
 		);
 		process.exit(1);
 	}
@@ -34,12 +34,12 @@ export const sitesRmSubcommand = async (args: string[]) => {
 
 	const {totalSize} = await deleteSite({
 		bucketName: remotionBuckets[0].Name as string,
-		siteId,
+		siteName,
 		region,
 		onAfterItemDeleted: ({itemName}) => {
 			Log.info(CliInternals.chalk.gray(`Deleted ${itemName}`));
 		},
 	});
 
-	Log.info(`Deleted site ${siteId} and freed up ${formatBytes(totalSize)}.`);
+	Log.info(`Deleted site ${siteName} and freed up ${formatBytes(totalSize)}.`);
 };

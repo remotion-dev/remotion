@@ -71,12 +71,12 @@ export const deploySite = async ({
 
 	const siteId = siteName ?? randomHash();
 
-	const subFolder = getSitesKey(siteName ?? randomHash());
+	const subFolder = getSitesKey(siteId);
 	await deleteSite({
 		bucketName,
 		onAfterItemDeleted: () => undefined,
 		region,
-		siteId,
+		siteName: siteId,
 	});
 	const bundled = await bundleSite(
 		entryPoint,

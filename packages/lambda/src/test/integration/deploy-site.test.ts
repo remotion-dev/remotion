@@ -9,6 +9,7 @@ jest.mock('../../api/enable-s3-website');
 jest.mock('../../api/create-bucket');
 jest.mock('../../api/upload-dir');
 jest.mock('../../api/bucket-exists');
+jest.mock('../../api/clean-items');
 
 test('Should throw on wrong prefix', async () => {
 	await expect(() =>

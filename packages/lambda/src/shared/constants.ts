@@ -278,3 +278,5 @@ export type RenderProgress = {
 	lambdasInvoked: number;
 	cleanup: CleanupInfo | null;
 };
+
+export type LambdaAcl = 'public-read' | 'private';
