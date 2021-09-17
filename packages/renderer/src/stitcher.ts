@@ -153,10 +153,10 @@ export const spawnFfmpeg = async (options: StitcherOptions) => {
 	Internals.validateSelectedPixelFormatAndCodecCombination(pixelFormat, codec);
 
 	const {
-		complexFilterFlag,
-		cleanup,
-		frameInfo,
-		assetPaths,
+		complexFilterFlag=undefined,
+		cleanup=undefined,
+		frameInfo=undefined,
+		assetPaths=undefined,
 	} = options.parallelEncoding?{}:await getAssetsData(options);
 
 	const ffmpegArgs = [
@@ -210,7 +210,7 @@ export const spawnFfmpeg = async (options: StitcherOptions) => {
 	}
 
 	const ffmpegString = ffmpegArgs
-		.reduce<(string | null)[]>((acc, val) => acc.concat(val), [])
+		.reduce<(string | null | undefined)[]>((acc, val) => acc.concat(val), [])
 		.filter(Boolean) as string[];
 
 	const task = execa('ffmpeg', ffmpegString, {cwd: options.dir});
