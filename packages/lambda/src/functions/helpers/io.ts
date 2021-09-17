@@ -8,6 +8,7 @@ import {ReadStream} from 'fs';
 import {Readable} from 'stream';
 import {AwsRegion} from '../../pricing/aws-regions';
 import {getS3Client} from '../../shared/aws-clients';
+import {LambdaAcl} from '../../shared/constants';
 
 export type LambdaLSInput = {
 	bucketName: string;
@@ -82,7 +83,7 @@ export const lambdaWriteFile = async ({
 	key: string;
 	body: ReadStream | string;
 	region: AwsRegion;
-	acl: 'public-read' | 'private';
+	acl: LambdaAcl;
 	expectedBucketOwner: string | null;
 }): Promise<void> => {
 	await getS3Client(region).send(

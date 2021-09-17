@@ -6,6 +6,7 @@ jest.mock('../../functions/helpers/io');
 jest.mock('../../shared/bundle-site');
 jest.mock('../../api/enable-s3-website');
 jest.mock('../../api/upload-dir');
+jest.mock('../../api/clean-items');
 jest.mock('../../api/create-bucket');
 jest.mock('../../api/bucket-exists');
 jest.mock('../../shared/random-hash');
@@ -41,6 +42,13 @@ test('Should have a site after deploying', async () => {
 				region: 'eu-central-1',
 			},
 		],
-		sites: [],
+		sites: [
+			{
+				bucketName: 'remotionlambda-abcdef',
+				id: 'testing',
+				lastModified: 0,
+				size: 48,
+			},
+		],
 	});
 });
