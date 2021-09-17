@@ -7,6 +7,7 @@ import {getFunctionInfo} from './api/get-function-info';
 import {getFunctions} from './api/get-functions';
 import {getOrCreateBucket} from './api/get-or-create-bucket';
 import {getRenderProgress} from './api/get-render-progress';
+import {getSites} from './api/get-sites';
 import {simulatePermissions} from './api/iam-validation/simulate';
 import {
 	getRolePolicy,
@@ -26,6 +27,7 @@ export {
 	getFunctions,
 	getUserPolicy,
 	getRolePolicy,
+	getSites,
 	getOrCreateBucket,
 	getRenderProgress,
 	renderVideoOnLambda,

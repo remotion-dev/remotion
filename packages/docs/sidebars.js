@@ -27,6 +27,7 @@ module.exports = {
         "ensurelambdabinaries",
         "getuserpolicy",
         "getrolepolicy",
+        "getsites",
         "getorcreatebucket",
         "getrenderprogress",
         "rendervideoonlambda",

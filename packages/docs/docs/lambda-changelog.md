@@ -17,6 +17,8 @@ Keep track of changes to the APIs of Remotion Lambda here.
 ## Unreleased
 
 - Renamed `deployProject` to `deploySite()`.
+- Exported `getSites()` and `deleteSite()` (not documented yet)
+- Added `siteName` to the options of `deploySite()`.
 
 ## September 15th, 2021
 

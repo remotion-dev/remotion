@@ -10,6 +10,7 @@ type Site = {
 	id: string;
 };
 
+// TODO: Add JSDoc comments
 export const getSites = async ({region}: {region: AwsRegion}) => {
 	const {remotionBuckets} = await getRemotionS3Buckets(region);
 

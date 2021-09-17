@@ -1,6 +1,7 @@
 import {PutBucketWebsiteCommand} from '@aws-sdk/client-s3';
 import {bundle} from '@remotion/bundler';
 import {Internals, WebpackOverrideFn} from 'remotion';
+import {deleteSite} from '../api/delete-site';
 import {AwsRegion} from '../pricing/aws-regions';
 import {getS3Client} from '../shared/aws-clients';
 import {getSitesKey, REMOTION_BUCKET_PREFIX} from '../shared/constants';
@@ -50,7 +51,15 @@ export const deploySite = async ({
 		);
 	}
 
+	const siteId = siteName ?? randomHash();
+
 	const subFolder = getSitesKey(siteName ?? randomHash());
+	await deleteSite({
+		bucketName,
+		onAfterItemDeleted: () => undefined,
+		region,
+		siteId,
+	});
 	const bundled = await bundle(
 		entryPoint,
 		options?.onBundleProgress ?? (() => undefined),
