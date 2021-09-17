@@ -7,6 +7,7 @@
 		"lib": ["es2019", "dom"]
 	},
 	"include": ["src"],
+	"exclude": ["**/__mocks__/*"],
 	"references": [
 		{"path": "../core"},
 		{"path": "../bundler"},

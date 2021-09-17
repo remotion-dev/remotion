@@ -1,8 +1,5 @@
 {
 	"extends": "@jonny",
-	"parserOptions": {
-		"project": "./tsconfig.json"
-	},
 	"rules": {
 		"no-console": "off",
 		"ts-exports/unused-exports": "off"

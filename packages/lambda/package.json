@@ -9,7 +9,7 @@
 	},
 	"module": "true",
 	"scripts": {
-		"test": "eslint src --ext ts,tsx",
+		"test": "eslint src --ext ts,tsx && tsc && jest",
 		"watch": "tsc -w",
 		"build": "tsc -d",
 		"start": "ts-node src/run.ts"
