@@ -1,12 +1,9 @@
 import {CliInternals} from '@remotion/cli';
-import {Log} from '@remotion/cli/dist/log';
-import {cleanItems} from '../../../api/clean-items';
+import {deleteSite} from '../../../api/delete-site';
 import {getRemotionS3Buckets} from '../../../api/get-buckets';
-import {lambdaLs} from '../../../functions/helpers/io';
-import {getSitesKey} from '../../../shared/constants';
 import {getAwsRegion} from '../../get-aws-region';
 import {formatBytes} from '../../helpers/format-bytes';
-
+import {Log} from '../../log';
 export const SITES_RM_COMMAND = 'rm';
 
 export const sitesRmSubcommand = async (args: string[]) => {
@@ -35,40 +32,14 @@ export const sitesRmSubcommand = async (args: string[]) => {
 		process.exit(1);
 	}
 
-	let files = await lambdaLs({
+	const {totalSize} = await deleteSite({
 		bucketName: remotionBuckets[0].Name as string,
-		prefix: getSitesKey(siteId),
+		siteId,
 		region,
-		expectedBucketOwner: null,
+		onAfterItemDeleted: ({itemName}) => {
+			Log.info(CliInternals.chalk.gray(`Deleted ${itemName}`));
+		},
 	});
-
-	if (files.length === 0) {
-		Log.info(`Site ${siteId} doesn't exist. Nothing to delete.`);
-		process.exit(0);
-	}
-
-	let totalSize = 0;
-
-	while (files.length > 0) {
-		totalSize += files.reduce((a, b) => {
-			return a + (b.Size ?? 0);
-		}, 0);
-		await cleanItems({
-			list: files.map((f) => f.Key as string),
-			bucket: remotionBuckets[0].Name as string,
-			onAfterItemDeleted: ({itemName}) => {
-				Log.info(CliInternals.chalk.gray(`Deleted ${itemName}`));
-			},
-			onBeforeItemDeleted: () => undefined,
-			region,
-		});
-		files = await lambdaLs({
-			bucketName: remotionBuckets[0].Name as string,
-			prefix: getSitesKey(siteId),
-			region,
-			expectedBucketOwner: null,
-		});
-	}
 
 	Log.info(`Deleted site ${siteId} and freed up ${formatBytes(totalSize)}.`);
 };

@@ -12,7 +12,7 @@ type DeploySiteInput = {
 	entryPoint: string;
 	bucketName: string;
 	region: AwsRegion;
-	projectName?: string;
+	siteName?: string;
 	options?: {
 		onBundleProgress?: (progress: number) => void;
 		onWebsiteActivated?: () => void;
@@ -28,12 +28,13 @@ type DeploySiteInput = {
  * @param {AwsRegion} params.region The region in which the S3 bucket resides in.
  * @param {string} params.entryPoint An absolute path to the entry file of your Remotion project.
  * @param {string} params.bucketName The name of the bucket to deploy your project into.
- * @param {string} params.projectName The name of the folder in which the project gets deployed to.
+ * @param {string} params.siteName The name of the folder in which the project gets deployed to.
  * @param {object} params.options Further options, see documentation page for this function.
  */
 export const deploySite = async ({
 	bucketName,
 	entryPoint,
+	siteName,
 	options,
 	region,
 }: DeploySiteInput) => {
@@ -43,7 +44,13 @@ export const deploySite = async ({
 		);
 	}
 
-	const subFolder = getSitesKey(randomHash());
+	if (typeof siteName !== 'string' && typeof siteName !== 'undefined') {
+		throw new TypeError(
+			'The `projectName` argument must be a string if provided.'
+		);
+	}
+
+	const subFolder = getSitesKey(siteName ?? randomHash());
 	const bundled = await bundle(
 		entryPoint,
 		options?.onBundleProgress ?? (() => undefined),
