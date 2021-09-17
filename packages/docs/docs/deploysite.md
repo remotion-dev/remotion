@@ -46,6 +46,12 @@ An absolute path pointing to the entry file of your Remotion project. Usually th
 
 The bucket to where the website will be deployed. The bucket must have been created by Remotion Lambda.
 
+### `siteName`
+
+_optional_
+
+Specify the subfolder in your S3 bucket that you want the site to deploy to. If you omit this property, a new subfolder with a random name will be created. If a site already exists with the name you passed, it will be overwritten.
+
 ### `region`
 
 The AWS region in which the bucket resides.
