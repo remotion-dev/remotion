@@ -153,7 +153,10 @@ const PlayerUI: React.ForwardRefRenderFunction<
 				setHasPausedToResume(false);
 				player.pause();
 			},
-			toggle,
+			toggle: () => {
+				setHasPausedToResume(false);
+				toggle();
+			},
 			getCurrentFrame: player.getCurrentFrame,
 			seekTo: (f) => {
 				if (player.playing) {
