@@ -149,7 +149,10 @@ const PlayerUI: React.ForwardRefRenderFunction<
 	useImperativeHandle(ref, () => {
 		const methods: PlayerMethods = {
 			play: player.play,
-			pause: player.pause,
+			pause: () => {
+				setHasPausedToResume(false);
+				player.pause();
+			},
 			toggle,
 			getCurrentFrame: player.getCurrentFrame,
 			seekTo: (f) => {
