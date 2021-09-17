@@ -9,19 +9,22 @@ import {Readable} from 'stream';
 import {AwsRegion} from '../../pricing/aws-regions';
 import {getS3Client} from '../../shared/aws-clients';
 
+export type LambdaLSInput = {
+	bucketName: string;
+	prefix: string;
+	region: AwsRegion;
+	expectedBucketOwner: string | null;
+	continuationToken?: string;
+};
+export type LambdaLsReturnType = Promise<_Object[]>;
+
 export const lambdaLs = async ({
 	bucketName,
 	prefix,
 	region,
 	expectedBucketOwner,
 	continuationToken,
-}: {
-	bucketName: string;
-	prefix: string;
-	region: AwsRegion;
-	expectedBucketOwner: string | null;
-	continuationToken?: string;
-}): Promise<_Object[]> => {
+}: LambdaLSInput): LambdaLsReturnType => {
 	try {
 		const list = await getS3Client(region).send(
 			new ListObjectsV2Command({
