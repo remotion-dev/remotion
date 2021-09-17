@@ -1,6 +1,8 @@
 import React, {HTMLAttributes, useMemo} from 'react';
 
-export const AbsoluteFill: React.FC<HTMLAttributes<HTMLDivElement>> = props => {
+export const AbsoluteFill: React.FC<HTMLAttributes<HTMLDivElement>> = (
+	props
+) => {
 	const {style, ...other} = props;
 	const actualStyle = useMemo((): React.CSSProperties => {
 		return {
