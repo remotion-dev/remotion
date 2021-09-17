@@ -136,7 +136,7 @@ export const render = async () => {
 			steps,
 		})
 	);
-	if(parallelEncoding&&!shouldOutputImageSequence){
+	if(parallelEncoding){
 		if (typeof crf !== 'number') {
 			throw new TypeError('CRF is unexpectedly not a number');
 		}
