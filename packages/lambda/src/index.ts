@@ -1,4 +1,5 @@
 import {deleteFunction} from './api/delete-function';
+import {deleteSite} from './api/delete-site';
 import {deployFunction} from './api/deploy-function';
 import {deploySite} from './api/deploy-site';
 import {ensureLambdaBinaries} from './api/ensure-lambda-binaries';
@@ -18,6 +19,7 @@ import {AwsRegion} from './pricing/aws-regions';
 import {estimatePrice} from './pricing/calculate-price';
 
 export {
+	deleteSite,
 	deployFunction,
 	deploySite,
 	ensureLambdaBinaries,
