@@ -51,7 +51,7 @@ Minimum value: <MinimumFramesPerLambda />
 
 ### `serveUrl`
 
-A URL pointing to a Remotion project. Use [`deployProject()`](/docs/lambda/deployproject) to deploy a Remotion project.
+A URL pointing to a Remotion project. Use [`deploySite()`](/docs/lambda/deploysite) to deploy a Remotion project.
 
 ### `composition`
 

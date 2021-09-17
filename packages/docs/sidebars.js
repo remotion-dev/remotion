@@ -22,7 +22,7 @@ module.exports = {
         "deletefunction",
         "getfunctioninfo",
         "getfunctions",
-        "deployproject",
+        "deploysite",
         "ensurelambdabinaries",
         "getuserpolicy",
         "getrolepolicy",

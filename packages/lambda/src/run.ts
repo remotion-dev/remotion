@@ -1,7 +1,7 @@
 import {CliInternals} from '@remotion/cli';
 import path from 'path';
 import {deployFunction} from './api/deploy-function';
-import {deployProject} from './api/deploy-project';
+import {deploySite} from './api/deploy-site';
 import {ensureLambdaBinaries} from './api/ensure-lambda-binaries';
 import {getRemotionS3Buckets} from './api/get-buckets';
 import {getFunctions} from './api/get-functions';
@@ -43,7 +43,7 @@ const getFnName = async (options: {
 			memorySizeInMb: 2048,
 		});
 
-		const {url} = await deployProject({
+		const {url} = await deploySite({
 			entryPoint: path.join(__dirname, '..', 'remotion-project', 'index.ts'),
 			bucketName,
 			region: getAwsRegion(),
