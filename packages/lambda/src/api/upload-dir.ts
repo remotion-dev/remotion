@@ -1,7 +1,9 @@
-import {PutObjectCommand, S3Client} from '@aws-sdk/client-s3';
+import {PutObjectCommand} from '@aws-sdk/client-s3';
 import {Upload} from '@aws-sdk/lib-storage';
 import {createReadStream, promises as fs} from 'fs';
 import path from 'path';
+import {AwsRegion} from '..';
+import {getS3Client} from '../shared/aws-clients';
 
 type FileInfo = {
 	name: string;
@@ -17,13 +19,13 @@ export type UploadDirProgress = {
 
 export const uploadDir = async ({
 	bucket,
-	client,
+	region,
 	dir,
 	onProgress,
 	folder,
 }: {
 	bucket: string;
-	client: S3Client;
+	region: AwsRegion;
 	dir: string;
 	folder: string;
 	onProgress: (progress: UploadDirProgress) => void;
@@ -52,6 +54,8 @@ export const uploadDir = async ({
 	for (const file of files) {
 		progresses[file.name] = 0;
 	}
+
+	const client = getS3Client(region);
 
 	const uploads = files.map(async (filePath) => {
 		const Key = `${folder}/${path.relative(dir, filePath.name)}`;

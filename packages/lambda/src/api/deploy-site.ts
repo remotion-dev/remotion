@@ -1,12 +1,13 @@
-import {PutBucketWebsiteCommand} from '@aws-sdk/client-s3';
-import {bundle} from '@remotion/bundler';
 import {Internals, WebpackOverrideFn} from 'remotion';
 import {deleteSite} from '../api/delete-site';
 import {AwsRegion} from '../pricing/aws-regions';
-import {getS3Client} from '../shared/aws-clients';
+import {bundleSite} from '../shared/bundle-site';
 import {getSitesKey, REMOTION_BUCKET_PREFIX} from '../shared/constants';
 import {makeS3Url} from '../shared/make-s3-url';
 import {randomHash} from '../shared/random-hash';
+import {validateAwsRegion} from '../shared/validate-aws-region';
+import {bucketExistsInRegion} from './bucket-exists';
+import {enableS3Website} from './enable-s3-website';
 import {uploadDir, UploadDirProgress} from './upload-dir';
 
 export type DeploySiteInput = {
@@ -43,6 +44,7 @@ export const deploySite = async ({
 	options,
 	region,
 }: DeploySiteInput): DeploySiteReturnType => {
+	validateAwsRegion(region);
 	if (!bucketName.startsWith(REMOTION_BUCKET_PREFIX)) {
 		throw new Error(
 			`The bucketName parameter must start with ${REMOTION_BUCKET_PREFIX}.`
@@ -55,6 +57,16 @@ export const deploySite = async ({
 		);
 	}
 
+	const bucketExists = await bucketExistsInRegion({
+		bucketName,
+		region,
+		// TODO: Pass actual bucket owner
+		expectedBucketOwner: null,
+	});
+	if (!bucketExists) {
+		throw new Error(`No bucket with the name ${bucketName} exists`);
+	}
+
 	const siteId = siteName ?? randomHash();
 
 	const subFolder = getSitesKey(siteName ?? randomHash());
@@ -64,7 +76,7 @@ export const deploySite = async ({
 		region,
 		siteId,
 	});
-	const bundled = await bundle(
+	const bundled = await bundleSite(
 		entryPoint,
 		options?.onBundleProgress ?? (() => undefined),
 		{
@@ -78,26 +90,15 @@ export const deploySite = async ({
 	await Promise.all([
 		uploadDir({
 			bucket: bucketName,
-			client: getS3Client(region),
+			region,
 			dir: bundled,
 			onProgress: options?.onUploadProgress ?? (() => undefined),
 			folder: subFolder,
 		}),
-		getS3Client(region)
-			.send(
-				new PutBucketWebsiteCommand({
-					Bucket: bucketName,
-
-					WebsiteConfiguration: {
-						IndexDocument: {
-							// TODO: but it doesn't exist
-							// TODO: shouldn't we do this before
-							Suffix: `index.html`,
-						},
-					},
-				})
-			)
-			// TODO if we decide to keep it, add callback to docs
+		enableS3Website({
+			region,
+			bucketName,
+		}) // TODO if we decide to keep it, add callback to docs
 			.then(() => options?.onWebsiteActivated?.()),
 	]);
 

@@ -1,8 +1,7 @@
-import {CreateBucketCommand} from '@aws-sdk/client-s3';
 import {AwsRegion} from '../pricing/aws-regions';
-import {getS3Client} from '../shared/aws-clients';
 import {REMOTION_BUCKET_PREFIX} from '../shared/constants';
 import {randomHash} from '../shared/random-hash';
+import {createBucket} from './create-bucket';
 import {getRemotionS3Buckets} from './get-buckets';
 
 type GetOrCreateBucketInput = {
@@ -38,12 +37,10 @@ export const getOrCreateBucket = async (
 
 	const bucketName = REMOTION_BUCKET_PREFIX + randomHash();
 
-	await getS3Client(options.region).send(
-		new CreateBucketCommand({
-			Bucket: bucketName,
-			ACL: 'public-read',
-		})
-	);
+	await createBucket({
+		bucketName,
+		region: options.region,
+	});
 
 	return {bucketName};
 };
