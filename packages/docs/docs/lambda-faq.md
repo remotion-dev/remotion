@@ -14,7 +14,7 @@ No, you only need to deploy one function and it will be capable of rendering mul
 
 Only one bucket per region is required.
 
-### Do I need to deploy multiple projects?
+### Do I need to deploy multiple sites?
 
 You can render one project and use it for as many renders as you need. If you have multiple projects, you can deploy all of them and reuse the same Lambda function.
 
