@@ -1,9 +1,14 @@
-import {deploySite} from '../..';
+import {deploySite, getOrCreateBucket} from '../..';
 import {getSites} from '../../api/get-sites';
 
 jest.mock('../../api/get-buckets');
-jest.mock('../../api/deploy-site');
 jest.mock('../../functions/helpers/io');
+jest.mock('../../shared/bundle-site');
+jest.mock('../../api/enable-s3-website');
+jest.mock('../../api/upload-dir');
+jest.mock('../../api/create-bucket');
+jest.mock('../../api/bucket-exists');
+jest.mock('../../shared/random-hash');
 
 test('Should have no buckets at first', async () => {
 	expect(
@@ -14,21 +19,24 @@ test('Should have no buckets at first', async () => {
 });
 
 test('Should have a site after deploying', async () => {
+	await getOrCreateBucket({
+		region: 'eu-central-1',
+	});
 	expect(
 		await deploySite({
-			bucketName: 'remotionlambda-test',
+			bucketName: 'remotionlambda-abcdef',
 			entryPoint: './src/index.tsx',
 			region: 'eu-central-1',
 			siteName: 'testing',
 		})
 	).toEqual({
-		url: 'https://remotionlambda-test.s3.eu-central-1.amazonaws.com/testing',
+		url: 'https://remotionlambda-abcdef.s3.eu-central-1.amazonaws.com/sites/testing',
 	});
 	expect(await getSites({region: 'eu-central-1'})).toEqual({
 		buckets: [
 			{
 				CreationDate: new Date(0),
-				Name: 'remotionlambda-test',
+				Name: 'remotionlambda-abcdef',
 				region: 'eu-central-1',
 			},
 		],
