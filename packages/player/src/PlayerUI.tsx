@@ -151,14 +151,8 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		() => {
 			const methods: PlayerMethods = {
 				play: player.play,
-				pause: () => {
-					setHasPausedToResume(false);
-					player.pause();
-				},
-				toggle: () => {
-					setHasPausedToResume(false);
-					toggle();
-				},
+				pause: player.pause,
+				toggle,
 				getCurrentFrame: player.getCurrentFrame,
 				seekTo: (f) => {
 					if (player.isPlaying()) {
