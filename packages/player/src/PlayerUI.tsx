@@ -109,7 +109,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 
 	const toggle = useCallback(
 		(e?: SyntheticEvent) => {
-			if (player.playing) {
+			if (player.isPlaying()) {
 				player.pause();
 			} else {
 				player.play(e);
@@ -161,7 +161,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 				},
 				getCurrentFrame: player.getCurrentFrame,
 				seekTo: (f) => {
-					if (player.playing) {
+					if (player.isPlaying()) {
 						setHasPausedToResume(true);
 						player.pause();
 					}
