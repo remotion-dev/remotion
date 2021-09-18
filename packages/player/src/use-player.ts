@@ -13,8 +13,10 @@ export const usePlayer = (): {
 	pause: () => void;
 	seek: (newFrame: number) => void;
 	getCurrentFrame: () => number;
+	isPlaying: () => boolean;
 } => {
 	const [playing, setPlaying] = Internals.Timeline.usePlayingState();
+	const imperativePlaying = useRef(false);
 	const frame = Internals.Timeline.useTimelinePosition();
 	const setFrame = Internals.Timeline.useTimelineSetFrame();
 	const setTimelinePosition = Internals.Timeline.useTimelineSetFrame();
@@ -43,7 +45,7 @@ export const usePlayer = (): {
 
 	const play = useCallback(
 		(e?: SyntheticEvent) => {
-			if (playing) {
+			if (imperativePlaying.current) {
 				return;
 			}
 
@@ -55,18 +57,21 @@ export const usePlayer = (): {
 				audioContext.playAllAudios();
 			}
 
+			imperativePlaying.current = true;
 			setPlaying(true);
 			emitter.dispatchPlay();
 		},
-		[playing, isLastFrame, audioContext, setPlaying, emitter, seek]
+		[isLastFrame, audioContext, setPlaying, emitter, seek]
 	);
 
 	const pause = useCallback(() => {
-		if (playing) {
+		if (imperativePlaying.current) {
+			imperativePlaying.current = false;
+
 			setPlaying(false);
 			emitter.dispatchPause();
 		}
-	}, [emitter, playing, setPlaying]);
+	}, [emitter, setPlaying]);
 
 	const frameBack = useCallback(
 		(frames: number) => {
@@ -74,7 +79,7 @@ export const usePlayer = (): {
 				return null;
 			}
 
-			if (playing) {
+			if (imperativePlaying.current) {
 				return;
 			}
 
@@ -84,7 +89,7 @@ export const usePlayer = (): {
 
 			setFrame((f) => Math.max(0, f - frames));
 		},
-		[frame, playing, setFrame, video]
+		[frame, setFrame, video]
 	);
 
 	const frameForward = useCallback(
@@ -93,7 +98,7 @@ export const usePlayer = (): {
 				return null;
 			}
 
-			if (playing) {
+			if (imperativePlaying.current) {
 				return;
 			}
 
@@ -103,7 +108,7 @@ export const usePlayer = (): {
 
 			setFrame((f) => Math.min(lastFrame, f + frames));
 		},
-		[isLastFrame, lastFrame, playing, setFrame, video]
+		[isLastFrame, lastFrame, setFrame, video]
 	);
 
 	const returnValue = useMemo(() => {
@@ -117,6 +122,7 @@ export const usePlayer = (): {
 			pause,
 			seek,
 			getCurrentFrame: () => frameRef.current as number,
+			isPlaying: () => imperativePlaying.current as boolean,
 		};
 	}, [
 		emitter,
