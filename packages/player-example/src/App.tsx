@@ -163,6 +163,15 @@ export default function App() {
 			<button type="button" onClick={() => setspaceKeyToPlayOrPause((l) => !l)}>
 				spaceKeyToPlayOrPause = {String(spaceKeyToPlayOrPause)}
 			</button>
+			<button
+				type="button"
+				onClick={() => {
+					ref.current?.pause();
+					ref.current?.seekTo(50);
+				}}
+			>
+				pause and seek
+			</button>
 			<br />
 			<br />
 			{logs
