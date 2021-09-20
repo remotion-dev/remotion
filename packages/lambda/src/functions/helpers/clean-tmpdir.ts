@@ -49,5 +49,7 @@ const deleteAllFilesInAFolderRecursively = (path: string) => {
 export const deleteTmpDir = () => {
 	deletedFiles = [];
 	deletedFilesSize = 0;
-	deleteAllFilesInAFolderRecursively('/tmp');
+	if (typeof jest === 'undefined') {
+		deleteAllFilesInAFolderRecursively('/tmp');
+	}
 };
