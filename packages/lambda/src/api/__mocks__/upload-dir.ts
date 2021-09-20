@@ -1,13 +1,8 @@
 import path from 'path';
-import {uploadDir as original} from '../upload-dir';
+import {MockFile, uploadDir as original} from '../upload-dir';
 import {mockS3Upload} from './mock-s3';
 
-type MockFile = {
-	name: string;
-	content: string;
-};
-
-const getDirFiles = (dir: string): MockFile[] => {
+export const getDirFiles = (dir: string): MockFile[] => {
 	if (dir === '/path/to/bundle-1') {
 		return [
 			{
@@ -21,7 +16,20 @@ const getDirFiles = (dir: string): MockFile[] => {
 		];
 	}
 
-	return [];
+	if (dir === '/path/to/bundle-2') {
+		return [
+			{
+				name: 'bundle.js',
+				content: 'console.log("Hello World")',
+			},
+			{
+				name: 'styles2.css',
+				content: 'body {background: red}',
+			},
+		];
+	}
+
+	throw new Error('could not get dir for ' + dir);
 };
 
 export const uploadDir: typeof original = async (input) => {
