@@ -27,7 +27,7 @@ test('Return more than 0 total size if site did not exist', async () => {
 	});
 	const {siteName} = await deploySite({
 		bucketName,
-		entryPoint: 'hi.tsx',
+		entryPoint: 'first',
 		region: 'ap-east-1',
 	});
 	expect(

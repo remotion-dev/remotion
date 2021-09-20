@@ -26,7 +26,7 @@ test('Should have a site after deploying', async () => {
 	expect(
 		await deploySite({
 			bucketName: 'remotionlambda-abcdef',
-			entryPoint: './src/index.tsx',
+			entryPoint: 'first',
 			region: 'eu-central-1',
 			siteName: 'testing',
 		})

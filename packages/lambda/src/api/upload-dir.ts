@@ -17,6 +17,17 @@ export type UploadDirProgress = {
 	sizeUploaded: number;
 };
 
+export type MockFile = {
+	name: string;
+	content: string;
+};
+
+export const getDirFiles = (entry: string): MockFile[] => {
+	throw new TypeError(
+		'should only be executed in test ' + JSON.stringify(entry)
+	);
+};
+
 export const uploadDir = async ({
 	bucket,
 	region,
