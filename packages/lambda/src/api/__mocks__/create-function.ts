@@ -1,6 +1,6 @@
 import {CURRENT_VERSION} from '../../defaults';
 import {createFunction as original} from '../create-function';
-import {addFunction} from './mock-functions';
+import {addFunction} from '../mock-functions';
 import {isLayerEnsured} from './mock-layers';
 
 export const createFunction: typeof original = async (input) => {

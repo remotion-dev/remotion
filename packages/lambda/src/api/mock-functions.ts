@@ -1,4 +1,4 @@
-import {FunctionInfo} from '../get-function-info';
+import {FunctionInfo} from './get-function-info';
 
 export let mockFunctionsStore: FunctionInfo[] = [];
 
