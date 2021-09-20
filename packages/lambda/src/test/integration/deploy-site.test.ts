@@ -137,7 +137,7 @@ test('Should keep the previous site if deploying the new one with different ID',
 	const files = await lambdaLs({
 		bucketName,
 		expectedBucketOwner: null,
-		prefix: 'sites/testing/',
+		prefix: 'sites/',
 		region: 'ap-northeast-1',
 		continuationToken: undefined,
 	});
@@ -145,25 +145,12 @@ test('Should keep the previous site if deploying the new one with different ID',
 		files.map((f) => {
 			return f.Key;
 		})
-	).toEqual(
-		getDirFiles('/path/to/bundle-1').map((f) => {
+	).toEqual([
+		...getDirFiles('/path/to/bundle-1').map((f) => {
 			return 'sites/testing/' + f.name;
-		})
-	);
-	const files2 = await lambdaLs({
-		bucketName,
-		expectedBucketOwner: null,
-		prefix: 'sites/testing-2/',
-		region: 'ap-northeast-1',
-		continuationToken: undefined,
-	});
-	expect(
-		files2.map((f) => {
-			return f.Key;
-		})
-	).toEqual(
-		getDirFiles('/path/to/bundle-2').map((f) => {
+		}),
+		...getDirFiles('/path/to/bundle-2').map((f) => {
 			return 'sites/testing-2/' + f.name;
-		})
-	);
+		}),
+	]);
 });
