@@ -1,7 +1,7 @@
 import {deployFunction} from '../../api/deploy-function';
 import {ensureLambdaBinaries} from '../../api/ensure-lambda-binaries';
 import {getFunctions} from '../../api/get-functions';
-import {cleanFnStore} from '../../api/__mocks__/mock-functions';
+import {cleanFnStore} from '../../api/mock-functions';
 
 jest.mock('../../api/get-buckets');
 jest.mock('../../functions/helpers/io');
