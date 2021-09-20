@@ -1,7 +1,7 @@
 import {Children, isValidElement} from 'react';
 
 export const getTimelineClipName = (children: React.ReactNode): string => {
-	const tree = Children.map(children, ch => {
+	const tree = Children.map(children, (ch) => {
 		if (!isValidElement(ch)) {
 			return null;
 		}
