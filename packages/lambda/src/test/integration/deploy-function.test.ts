@@ -1,3 +1,4 @@
+import {deleteFunction} from '../../api/delete-function';
 import {deployFunction} from '../../api/deploy-function';
 import {ensureLambdaBinaries} from '../../api/ensure-lambda-binaries';
 import {getFunctions} from '../../api/get-functions';
@@ -14,6 +15,7 @@ jest.mock('../../api/bucket-exists');
 jest.mock('../../api/clean-items');
 jest.mock('../../api/ensure-lambda-binaries');
 jest.mock('../../api/create-function');
+jest.mock('../../api/delete-function');
 jest.mock('../../api/bundle-lambda');
 jest.mock('../../api/get-functions');
 jest.mock('../../shared/get-account-id');
@@ -62,6 +64,29 @@ test('Should be able to get the function afterwards', async () => {
 			memorySizeInMb: 1024,
 			timeoutInSeconds: 120,
 			version: '2021-09-15',
+			region: 'us-east-1',
 		},
 	]);
+});
+
+test('Should be able to delete the function', async () => {
+	cleanFnStore();
+	const {layerArn} = await ensureLambdaBinaries('us-east-1');
+
+	const {functionName} = await deployFunction({
+		layerArn,
+		memorySizeInMb: 2048,
+		region: 'us-east-1',
+		timeoutInSeconds: 120,
+	});
+	expect(functionName).toBe('remotion-render-abcdef');
+	await deleteFunction({
+		region: 'us-east-1',
+		functionName: 'remotion-render-abcdef',
+	});
+	const fns = await getFunctions({
+		region: 'us-east-1',
+		compatibleOnly: true,
+	});
+	expect(fns).toEqual([]);
 });

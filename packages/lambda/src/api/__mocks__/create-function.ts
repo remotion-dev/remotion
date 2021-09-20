@@ -8,12 +8,15 @@ export const createFunction: typeof original = async (input) => {
 		throw new TypeError('did not ensure layer for ' + input.region);
 	}
 
-	addFunction({
-		functionName: input.functionName,
-		memorySizeInMb: 1024,
-		timeoutInSeconds: input.timeoutInSeconds,
-		version: CURRENT_VERSION,
-	});
+	addFunction(
+		{
+			functionName: input.functionName,
+			memorySizeInMb: 1024,
+			timeoutInSeconds: input.timeoutInSeconds,
+			version: CURRENT_VERSION,
+		},
+		input.region
+	);
 	return Promise.resolve({
 		FunctionName: input.functionName,
 	});
