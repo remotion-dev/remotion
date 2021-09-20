@@ -1,7 +1,4 @@
-import {CreateFunctionCommand} from '@aws-sdk/client-lambda';
-import {readFileSync} from 'fs';
 import {AwsRegion} from '../pricing/aws-regions';
-import {getLambdaClient} from '../shared/aws-clients';
 import {RENDER_FN_PREFIX} from '../shared/constants';
 import {getAccountId} from '../shared/get-account-id';
 import {randomHash} from '../shared/random-hash';
@@ -9,6 +6,7 @@ import {validateAwsRegion} from '../shared/validate-aws-region';
 import {validateMemorySize} from '../shared/validate-memory-size';
 import {validateTimeout} from '../shared/validate-timeout';
 import {bundleLambda} from './bundle-lambda';
+import {createFunction} from './create-function';
 
 /**
  * @description Creates an AWS Lambda function in your account that will be able to render a video in the cloud.
@@ -35,22 +33,15 @@ export const deployFunction = async (options: {
 		getAccountId({region: options.region}),
 	]);
 
-	const created = await getLambdaClient(options.region).send(
-		new CreateFunctionCommand({
-			Code: {
-				ZipFile: readFileSync(renderOut),
-			},
-			FunctionName: fnNameRender,
-			Handler: 'index.handler',
-			// TODO: Give helpful suggestion if user did not create role
-			Role: `arn:aws:iam::${accountId[1]}:role/remotion-lambda-role`,
-			Runtime: 'nodejs14.x',
-			Description: 'Renders a Remotion video.',
-			MemorySize: options.memorySizeInMb,
-			Timeout: options.timeoutInSeconds,
-			Layers: [options.layerArn],
-		})
-	);
+	const created = await createFunction({
+		region: options.region,
+		zipFile: renderOut,
+		functionName: fnNameRender,
+		accountId: accountId[1],
+		memorySizeInMb: options.memorySizeInMb,
+		timeoutInSeconds: options.timeoutInSeconds,
+		layerArn: options.layerArn,
+	});
 
 	if (!created.FunctionName) {
 		throw new Error('Lambda was created but has no name');
