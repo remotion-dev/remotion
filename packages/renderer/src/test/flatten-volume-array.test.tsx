@@ -1,5 +1,5 @@
 import {flattenVolumeArray} from '../assets/flatten-volume-array';
-import { expectToThrow } from './expect-to-throw';
+import {expectToThrow} from './expect-to-throw';
 
 test('Should be able to flatten volume array', () => {
 	expect(flattenVolumeArray([1, 1, 1, 1, 1])).toBe(1);

@@ -109,7 +109,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 
 	const toggle = useCallback(
 		(e?: SyntheticEvent) => {
-			if (player.playing) {
+			if (player.isPlaying()) {
 				player.pause();
 			} else {
 				player.play(e);
@@ -146,61 +146,75 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		}
 	}, []);
 
-	useImperativeHandle(ref, () => {
-		const methods: PlayerMethods = {
-			play: player.play,
-			pause: player.pause,
-			toggle,
-			getCurrentFrame: player.getCurrentFrame,
-			seekTo: (f) => {
-				if (player.playing) {
-					setHasPausedToResume(true);
-					player.pause();
-				}
+	useImperativeHandle(
+		ref,
+		() => {
+			const methods: PlayerMethods = {
+				play: player.play,
+				pause: player.pause,
+				toggle,
+				getCurrentFrame: player.getCurrentFrame,
+				seekTo: (f) => {
+					if (player.isPlaying()) {
+						setHasPausedToResume(true);
+						player.pause();
+					}
 
-				player.seek(f);
-			},
-			isFullscreen: () => isFullscreen,
-			requestFullscreen,
+					player.seek(f);
+				},
+				isFullscreen: () => isFullscreen,
+				requestFullscreen,
+				exitFullscreen,
+				getVolume: () => {
+					if (mediaMuted) {
+						return 0;
+					}
+
+					return mediaVolume;
+				},
+				setVolume: (vol: number) => {
+					if (typeof vol !== 'number') {
+						throw new TypeError(
+							`setVolume() takes a number, got value of type ${typeof vol}`
+						);
+					}
+
+					if (isNaN(vol)) {
+						throw new TypeError(
+							`setVolume() got a number that is NaN. Volume must be between 0 and 1.`
+						);
+					}
+
+					if (vol < 0 || vol > 1) {
+						throw new TypeError(
+							`setVolume() got a number that is out of range. Must be between 0 and 1, got ${typeof vol}`
+						);
+					}
+
+					setMediaVolume(vol);
+				},
+				isMuted: () => mediaMuted || mediaVolume === 0,
+				mute: () => {
+					setMediaMuted(true);
+				},
+				unmute: () => {
+					setMediaMuted(false);
+				},
+			};
+			return Object.assign(player.emitter, methods);
+		},
+		[
 			exitFullscreen,
-			getVolume: () => {
-				if (mediaMuted) {
-					return 0;
-				}
-
-				return mediaVolume;
-			},
-			setVolume: (vol: number) => {
-				if (typeof vol !== 'number') {
-					throw new TypeError(
-						`setVolume() takes a number, got value of type ${typeof vol}`
-					);
-				}
-
-				if (isNaN(vol)) {
-					throw new TypeError(
-						`setVolume() got a number that is NaN. Volume must be between 0 and 1.`
-					);
-				}
-
-				if (vol < 0 || vol > 1) {
-					throw new TypeError(
-						`setVolume() got a number that is out of range. Must be between 0 and 1, got ${typeof vol}`
-					);
-				}
-
-				setMediaVolume(vol);
-			},
-			isMuted: () => mediaMuted || mediaVolume === 0,
-			mute: () => {
-				setMediaMuted(true);
-			},
-			unmute: () => {
-				setMediaMuted(false);
-			},
-		};
-		return Object.assign(player.emitter, methods);
-	});
+			isFullscreen,
+			mediaMuted,
+			mediaVolume,
+			player,
+			requestFullscreen,
+			setMediaMuted,
+			setMediaVolume,
+			toggle,
+		]
+	);
 
 	const VideoComponent = video ? video.component : null;
 
