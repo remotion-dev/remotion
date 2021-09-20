@@ -11,6 +11,7 @@ import fs from 'fs';
 import os from 'os';
 import path from 'path';
 import {Internals} from 'remotion';
+import {deleteRecursively} from './delete-recursively';
 import {getCliOptions} from './get-cli-options';
 import {getCompositionId} from './get-composition-id';
 import {handleCommonError} from './handle-common-errors';
@@ -224,14 +225,8 @@ export const render = async () => {
 
 		Log.verbose('Cleaning up...');
 		try {
-			await Promise.all([
-				(fs.promises.rm ?? fs.promises.rmdir)(outputDir, {
-					recursive: true,
-				}),
-				(fs.promises.rm ?? fs.promises.rmdir)(bundled, {
-					recursive: true,
-				}),
-			]);
+			deleteRecursively(outputDir);
+			deleteRecursively(bundled);
 		} catch (err) {
 			Log.warn('Could not clean up directory.');
 			Log.warn(err);
