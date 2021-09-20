@@ -1,10 +1,14 @@
 import {AwsRegion} from '..';
+import {LambdaVersions} from '../shared/constants';
 import {FunctionInfo} from './get-function-info';
 
-export let mockFunctionsStore: (FunctionInfo & {region: AwsRegion})[] = [];
+export let mockFunctionsStore: (FunctionInfo & {
+	region: AwsRegion;
+	version: LambdaVersions;
+})[] = [];
 
 export const addFunction = (fn: FunctionInfo, region: AwsRegion) => {
-	mockFunctionsStore.push({...fn, region});
+	mockFunctionsStore.push({...fn, region, version: fn.version});
 };
 
 export const deleteMockFunction = (name: string, region: string) => {
@@ -19,10 +23,23 @@ export const findFunction = (name: string, region: string) => {
 	);
 };
 
-export const getAllMockFunctions = (region: string) => {
-	return mockFunctionsStore.filter((f) => f.region === region);
+export const getAllMockFunctions = (
+	region: string,
+	version: LambdaVersions | null
+) => {
+	return mockFunctionsStore.filter(
+		(f) => f.region === region && (version ? f.version === version : true)
+	);
 };
 
 export const cleanFnStore = () => {
 	mockFunctionsStore = [];
+};
+
+export const markFunctionAsIncompatible = (functionName: string) => {
+	for (const fn of mockFunctionsStore) {
+		if (fn.functionName === functionName) {
+			fn.version = '2021-06-23';
+		}
+	}
 };
