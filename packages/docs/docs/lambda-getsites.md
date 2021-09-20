@@ -1,5 +1,5 @@
 ---
-id: deletesite
+id: getsites
 title: getSites()
 slug: /lambda/getsites
 ---
