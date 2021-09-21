@@ -7,7 +7,7 @@ Remotion allows you to include several types of files in your project:
 
 - Images (`.png`, `.svg`, `.jpg`, `.jpeg`, `.webp`, `.gif`, `.bmp`)
 - Videos (`.webm`, `.mp4`)
-- Audio (`.mp3`, `.wav`, `.aac`), preview only
+- Audio (`.mp3`, `.wav`, `.aac`)
 - [Fonts (`.woff` and `.woff2`) - read the separate page for fonts](/docs/fonts)
 
 ## Using images
