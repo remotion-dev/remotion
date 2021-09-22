@@ -7,6 +7,10 @@ import React, {
 } from 'react';
 import {Internals} from 'remotion';
 import {Checkmark} from '../../icons/Checkmark';
+import {
+	loadAspectRatioOption,
+	persistAspectRatioOption,
+} from '../../state/aspect-ratio-locked';
 import {ModalsContext} from '../../state/modals';
 import {CopyButton} from '../CopyButton';
 import {Row, Spacing} from '../layout';
@@ -62,7 +66,15 @@ export const NewComposition: React.FC<{initialCompType: CompType}> = ({
 	const [width, setWidth] = useState('1280');
 	const [height, setHeight] = useState('720');
 	const [durationInFrames, setDurationInFrames] = useState('150');
-	const [aspectRatioLocked, setAspectRatioLocked] = useState(false);
+	const [aspectRatioLocked, setAspectRatioLockedState] = useState(
+		loadAspectRatioOption()
+	);
+
+	const setAspectRatioLocked = useCallback((option: boolean) => {
+		setAspectRatioLockedState(option);
+		persistAspectRatioOption(option);
+	}, []);
+
 	const {setSelectedModal} = useContext(ModalsContext);
 
 	const onQuit = useCallback(() => {
