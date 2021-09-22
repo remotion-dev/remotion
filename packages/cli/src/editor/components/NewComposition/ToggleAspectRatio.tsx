@@ -6,20 +6,24 @@ const buttonStyle: React.CSSProperties = {
 	backgroundColor: BACKGROUND,
 	border: 'none',
 	position: 'absolute',
+	paddingLeft: 2,
+	paddingRight: 2,
+	marginLeft: 3,
 };
 
 const iconStyle: React.CSSProperties = {
-	width: 14,
+	width: 10,
 	color: 'white',
 };
 
 export const ToggleAspectRatio: React.FC<{
 	aspectRatioLocked: boolean;
-	setAspectRatioLocked: React.Dispatch<React.SetStateAction<boolean>>;
+	setAspectRatioLocked: (option: boolean) => void;
 }> = ({aspectRatioLocked, setAspectRatioLocked}) => {
 	const onClick: MouseEventHandler = useCallback(() => {
-		setAspectRatioLocked((a) => !a);
-	}, [setAspectRatioLocked]);
+		setAspectRatioLocked(!aspectRatioLocked);
+	}, [aspectRatioLocked, setAspectRatioLocked]);
+
 	return (
 		<button type="button" onClick={onClick} style={buttonStyle}>
 			{aspectRatioLocked ? (

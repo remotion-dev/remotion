@@ -89,7 +89,7 @@ export const usePlayer = (): {
 				return Math.max(0, f - frames);
 			});
 		},
-		[frame, setFrame, video]
+		[hasVideo, setFrame]
 	);
 
 	const frameForward = useCallback(
