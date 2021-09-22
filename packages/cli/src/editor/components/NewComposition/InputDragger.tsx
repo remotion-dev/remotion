@@ -3,7 +3,9 @@ import React, {
 	MouseEventHandler,
 	PointerEventHandler,
 	useCallback,
+	useEffect,
 	useMemo,
+	useRef,
 	useState,
 } from 'react';
 import {interpolate} from 'remotion';
@@ -16,6 +18,7 @@ type Props = InputHTMLAttributes<HTMLInputElement> & {
 
 export const InputDragger: React.FC<Props> = ({onValueChange, ...props}) => {
 	const [inputFallback, setInputFallback] = useState(false);
+	const fallbackRef = useRef<HTMLInputElement>(null);
 
 	const style = useMemo(() => {
 		return {
@@ -102,9 +105,16 @@ export const InputDragger: React.FC<Props> = ({onValueChange, ...props}) => {
 		[onValueChange, props.min, props.step, props.value]
 	);
 
+	useEffect(() => {
+		if (inputFallback) {
+			fallbackRef.current?.select();
+		}
+	}, [inputFallback]);
+
 	if (inputFallback) {
 		return (
 			<RemotionInput
+				ref={fallbackRef}
 				autoFocus
 				onKeyPress={onKeyPress}
 				onBlur={onBlur}
