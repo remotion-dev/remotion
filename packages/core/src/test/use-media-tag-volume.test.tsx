@@ -8,7 +8,7 @@ describe('Should update state when volume changes', () => {
 	const useStateSpy = jest.spyOn(React, 'useState');
 	beforeEach(() => {
 		// @ts-expect-error
-		useStateSpy.mockImplementation(init => [init, setState]);
+		useStateSpy.mockImplementation((init) => [init, setState]);
 	});
 	afterEach(() => {
 		useStateSpy.mockRestore();
@@ -32,7 +32,10 @@ describe('Should update state when volume changes', () => {
 		rerender({mediaRef: audioRef});
 		expect(setState).toHaveBeenCalledWith(0.75);
 		expect(addEventListener).toHaveBeenCalledWith('volumechange', anything());
-		expect(removeEventListener).toHaveBeenCalledWith('volumechange', anything());
+		expect(removeEventListener).toHaveBeenCalledWith(
+			'volumechange',
+			anything()
+		);
 	});
 });
 

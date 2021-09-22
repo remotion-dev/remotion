@@ -102,7 +102,7 @@ test('Easing test', () => {
 
 test('Extrapolation left test', () => {
 	const testValues: ('extend' | undefined)[] = ['extend', undefined];
-	testValues.forEach(entry => {
+	testValues.forEach((entry) => {
 		expect(
 			interpolate(-3, [0, 1, 2], [0, 0.5, 1], {
 				extrapolateRight: entry,
@@ -113,7 +113,7 @@ test('Extrapolation left test', () => {
 
 test('Extrapolation right test', () => {
 	const testValues: ('extend' | undefined)[] = ['extend', undefined];
-	testValues.forEach(entry => {
+	testValues.forEach((entry) => {
 		expect(
 			interpolate(3, [0, 1, 2], [0, 0.5, 1], {
 				extrapolateRight: entry,
@@ -133,7 +133,7 @@ test('Extrapolation identity', () => {
 		[1000, {extrapolateRight: 'identity'}],
 		[-1000, {extrapolateLeft: 'identity'}],
 	];
-	testValues.forEach(entry => {
+	testValues.forEach((entry) => {
 		expect(interpolate(entry[0], [0, 1, 2], [0, 2, 4], entry[1])).toBe(
 			entry[0]
 		);
@@ -164,7 +164,7 @@ test('Zig-zag test', () => {
 		[-0.1, -1100],
 	];
 
-	testValues.forEach(entry => {
+	testValues.forEach((entry) => {
 		expect(
 			interpolate(entry[0], [1, 2, 3, 4, 5], [0, 1000, 0, -1000, 1000])
 		).toBe(entry[1]);
