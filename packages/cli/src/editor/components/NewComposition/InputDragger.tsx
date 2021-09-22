@@ -16,7 +16,13 @@ type Props = InputHTMLAttributes<HTMLInputElement> & {
 	onValueChange: (newVal: number) => void;
 };
 
-export const InputDragger: React.FC<Props> = ({onValueChange, ...props}) => {
+export const InputDragger: React.FC<Props> = ({
+	onValueChange,
+	min: _min,
+	step: _step,
+	value,
+	...props
+}) => {
 	const [inputFallback, setInputFallback] = useState(false);
 	const fallbackRef = useRef<HTMLInputElement>(null);
 
@@ -72,8 +78,8 @@ export const InputDragger: React.FC<Props> = ({onValueChange, ...props}) => {
 				const distanceFromStart = Math.sqrt(
 					xDistance ** 2 + (ev.pageY - pageY) ** 2
 				);
-				const step = Number(props.step ?? 1);
-				const min = Number(props.min ?? 0);
+				const step = Number(_step ?? 1);
+				const min = Number(_min ?? 0);
 				if (distanceFromStart > 4) {
 					setClickLock(true);
 				}
@@ -83,7 +89,7 @@ export const InputDragger: React.FC<Props> = ({onValueChange, ...props}) => {
 					[-5, -4, 0, 4, 5],
 					[-step, 0, 0, 0, step]
 				);
-				const newValue = Math.max(min, Math.floor(Number(props.value) + diff));
+				const newValue = Math.max(min, Math.floor(Number(value) + diff));
 				const roundToStep = Math.floor(newValue / step) * step;
 				onValueChange(roundToStep);
 			};
@@ -102,7 +108,7 @@ export const InputDragger: React.FC<Props> = ({onValueChange, ...props}) => {
 				}
 			);
 		},
-		[onValueChange, props.min, props.step, props.value]
+		[_step, _min, value, onValueChange]
 	);
 
 	useEffect(() => {
@@ -118,6 +124,9 @@ export const InputDragger: React.FC<Props> = ({onValueChange, ...props}) => {
 				autoFocus
 				onKeyPress={onKeyPress}
 				onBlur={onBlur}
+				value={value}
+				min={_min}
+				step={_step}
 				{...props}
 			/>
 		);
@@ -130,7 +139,7 @@ export const InputDragger: React.FC<Props> = ({onValueChange, ...props}) => {
 			onClick={onClick}
 			onPointerDown={onPointerDown}
 		>
-			<span style={span}>{props.value}</span>
+			<span style={span}>{value}</span>
 		</button>
 	);
 };
