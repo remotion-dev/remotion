@@ -63,8 +63,10 @@ export const NewComposition: React.FC<{initialCompType: CompType}> = ({
 	);
 	const [type, setType] = useState<CompType>(initialCompType);
 	const [name, setName] = useState('MyComp');
-	const [width, setWidth] = useState('1280');
-	const [height, setHeight] = useState('720');
+	const [size, setSize] = useState({
+		width: '1280',
+		height: '720',
+	});
 	const [durationInFrames, setDurationInFrames] = useState('150');
 	const [aspectRatioLocked, setAspectRatioLockedState] = useState(
 		loadAspectRatioOption()
@@ -87,24 +89,62 @@ export const NewComposition: React.FC<{initialCompType: CompType}> = ({
 
 	const onWidthChanged: ChangeEventHandler<HTMLInputElement> = useCallback(
 		(e) => {
-			setWidth(e.target.value);
+			setSize((s) => {
+				const {height, width} = s;
+				const aspectRatio = Number(width) / Number(height);
+				const newWidth = Number(e.target.value);
+				return {
+					height: aspectRatioLocked ? String(newWidth / aspectRatio) : height,
+					width: String(newWidth),
+				};
+			});
 		},
-		[]
+		[aspectRatioLocked]
 	);
 
-	const onWidthDirectlyChanged = useCallback((newWidth: number) => {
-		setWidth(String(newWidth));
-	}, []);
+	const onWidthDirectlyChanged = useCallback(
+		(newWidth: number) => {
+			setSize((s) => {
+				const {height, width} = s;
+				const aspectRatio = Number(width) / Number(height);
 
-	const onHeightDirectlyChanged = useCallback((newHeight: number) => {
-		setHeight(String(newHeight));
-	}, []);
+				return {
+					height: aspectRatioLocked ? String(newWidth / aspectRatio) : height,
+					width: String(newWidth),
+				};
+			});
+		},
+		[aspectRatioLocked]
+	);
+
+	const onHeightDirectlyChanged = useCallback(
+		(newHeight: number) => {
+			setSize((s) => {
+				const {height, width} = s;
+				const aspectRatio = Number(width) / Number(height);
+
+				return {
+					width: aspectRatioLocked ? String(newHeight * aspectRatio) : width,
+					height: String(newHeight),
+				};
+			});
+		},
+		[aspectRatioLocked]
+	);
 
 	const onHeightChanged: ChangeEventHandler<HTMLInputElement> = useCallback(
 		(e) => {
-			setHeight(e.target.value);
+			setSize((s) => {
+				const {height, width} = s;
+				const aspectRatio = Number(width) / Number(height);
+				const newHeight = Number(e.target.value);
+				return {
+					width: aspectRatioLocked ? String(newHeight * aspectRatio) : width,
+					height: String(newHeight),
+				};
+			});
 		},
-		[]
+		[aspectRatioLocked]
 	);
 	const onNameChange: ChangeEventHandler<HTMLInputElement> = useCallback(
 		(e) => {
@@ -178,7 +218,7 @@ export const NewComposition: React.FC<{initialCompType: CompType}> = ({
 											<div style={inputArea}>
 												<InputDragger
 													type="number"
-													value={width}
+													value={size.width}
 													placeholder="Width (px)"
 													onChange={onWidthChanged}
 													name="width"
@@ -186,7 +226,7 @@ export const NewComposition: React.FC<{initialCompType: CompType}> = ({
 													min={2}
 													onValueChange={onWidthDirectlyChanged}
 												/>
-												{Number(width) % 2 === 0 ? null : (
+												{Number(size.width) % 2 === 0 ? null : (
 													<ValidationMessage message="Dimension should be divisible by 2, since H264 codec doesn't support odd dimensions.." />
 												)}
 											</div>
@@ -202,7 +242,7 @@ export const NewComposition: React.FC<{initialCompType: CompType}> = ({
 										<div style={inputArea}>
 											<InputDragger
 												type="number"
-												value={height}
+												value={size.height}
 												onChange={onHeightChanged}
 												placeholder="Height (px)"
 												name="height"
@@ -210,7 +250,7 @@ export const NewComposition: React.FC<{initialCompType: CompType}> = ({
 												min={2}
 												onValueChange={onHeightDirectlyChanged}
 											/>
-											{Number(height) % 2 === 0 ? null : (
+											{Number(size.height) % 2 === 0 ? null : (
 												<ValidationMessage message="Dimension should be divisible by 2, since H264 codec doesn't support odd dimensions.." />
 											)}
 										</div>
@@ -219,8 +259,8 @@ export const NewComposition: React.FC<{initialCompType: CompType}> = ({
 							</div>
 							<div>
 								<NewCompAspectRatio
-									width={Number(width)}
-									height={Number(height)}
+									width={Number(size.width)}
+									height={Number(size.height)}
 									aspectRatioLocked={aspectRatioLocked}
 									setAspectRatioLocked={setAspectRatioLocked}
 								/>
@@ -263,8 +303,8 @@ export const NewComposition: React.FC<{initialCompType: CompType}> = ({
 							type,
 							durationInFrames: Number(durationInFrames),
 							fps: Number(selectedFrameRate),
-							height: Number(height),
-							width: Number(width),
+							height: Number(size.height),
+							width: Number(size.width),
 							name,
 							raw: false,
 						})}
@@ -284,8 +324,8 @@ export const NewComposition: React.FC<{initialCompType: CompType}> = ({
 									type,
 									durationInFrames: Number(durationInFrames),
 									fps: Number(selectedFrameRate),
-									height: Number(height),
-									width: Number(width),
+									height: Number(size.height),
+									width: Number(size.width),
 									name,
 									raw: true,
 								}) as string
