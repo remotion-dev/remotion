@@ -94,7 +94,9 @@ export const NewComposition: React.FC<{initialCompType: CompType}> = ({
 				const aspectRatio = Number(width) / Number(height);
 				const newWidth = Number(e.target.value);
 				return {
-					height: aspectRatioLocked ? String(newWidth / aspectRatio) : height,
+					height: aspectRatioLocked
+						? String(Math.ceil(newWidth / aspectRatio / 2) * 2)
+						: height,
 					width: String(newWidth),
 				};
 			});
@@ -109,7 +111,9 @@ export const NewComposition: React.FC<{initialCompType: CompType}> = ({
 				const aspectRatio = Number(width) / Number(height);
 
 				return {
-					height: aspectRatioLocked ? String(newWidth / aspectRatio) : height,
+					height: aspectRatioLocked
+						? String(Math.ceil(newWidth / aspectRatio / 2) * 2)
+						: height,
 					width: String(newWidth),
 				};
 			});
@@ -124,7 +128,9 @@ export const NewComposition: React.FC<{initialCompType: CompType}> = ({
 				const aspectRatio = Number(width) / Number(height);
 
 				return {
-					width: aspectRatioLocked ? String(newHeight * aspectRatio) : width,
+					width: aspectRatioLocked
+						? String(Math.ceil((newHeight / 2) * aspectRatio) * 2)
+						: width,
 					height: String(newHeight),
 				};
 			});
@@ -139,7 +145,9 @@ export const NewComposition: React.FC<{initialCompType: CompType}> = ({
 				const aspectRatio = Number(width) / Number(height);
 				const newHeight = Number(e.target.value);
 				return {
-					width: aspectRatioLocked ? String(newHeight * aspectRatio) : width,
+					width: aspectRatioLocked
+						? String(Math.ceil((newHeight / 2) * aspectRatio) * 2)
+						: width,
 					height: String(newHeight),
 				};
 			});
