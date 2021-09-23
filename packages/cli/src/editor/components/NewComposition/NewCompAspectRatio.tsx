@@ -19,6 +19,7 @@ export const NewCompAspectRatio: React.FC<{
 	aspectRatioLocked: boolean;
 	setAspectRatioLocked: (newOption: boolean) => void;
 }> = ({width, height, aspectRatioLocked, setAspectRatioLocked}) => {
+	const pixels = Number(width) * Number(height);
 	return (
 		<div>
 			<div style={container}>
@@ -34,9 +35,11 @@ export const NewCompAspectRatio: React.FC<{
 					aspectRatioLocked={aspectRatioLocked}
 					setAspectRatioLocked={setAspectRatioLocked}
 				/>
-				<div style={rightLabel}>
-					Aspect ratio {aspectRatio(Number(width), Number(height))}
-				</div>
+				{pixels > 0 ? (
+					<div style={rightLabel}>
+						Aspect ratio {aspectRatio(Number(width), Number(height))}
+					</div>
+				) : null}
 			</div>
 		</div>
 	);
