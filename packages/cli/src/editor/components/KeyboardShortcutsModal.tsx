@@ -60,7 +60,7 @@ export const KeyboardShortcuts: React.FC = () => {
 					<div style={left}>
 						<kbd style={key}>
 							<ArrowLeft />
-						</kbd>{' '}
+						</kbd>
 					</div>
 					<div style={right}>Previous frame</div>
 				</Row>
@@ -86,7 +86,7 @@ export const KeyboardShortcuts: React.FC = () => {
 						<Spacing x={0.3} />
 						<kbd style={key}>
 							<ArrowRight />
-						</kbd>{' '}
+						</kbd>
 					</div>
 					<div style={right}>1 second forward</div>
 				</Row>

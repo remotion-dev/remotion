@@ -1,4 +1,10 @@
-import React, {useEffect, useLayoutEffect, useRef, useState} from 'react';
+import React, {
+	useEffect,
+	useLayoutEffect,
+	useMemo,
+	useRef,
+	useState,
+} from 'react';
 import {Internals} from 'remotion';
 
 const label: React.CSSProperties = {
@@ -65,6 +71,17 @@ export const FpsCounter: React.FC = () => {
 		}
 	}, [marker, playing]);
 
+	const style = useMemo(() => {
+		if (!videoConfig) {
+			return {};
+		}
+
+		return {
+			...label,
+			color: fps < videoConfig.fps * 0.9 ? 'red' : 'white',
+		};
+	}, [fps, videoConfig]);
+
 	if (fps === 0) {
 		return null;
 	}
@@ -77,9 +94,5 @@ export const FpsCounter: React.FC = () => {
 		return null;
 	}
 
-	const style = {
-		...label,
-		color: fps < videoConfig.fps * 0.9 ? 'red' : 'white',
-	};
 	return <div style={style}>{fps.toFixed(1)} FPS</div>;
 };
