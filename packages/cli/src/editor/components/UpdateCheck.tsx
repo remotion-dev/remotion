@@ -27,7 +27,7 @@ export const UpdateCheck = () => {
 	const {tabIndex} = useZIndex();
 
 	const checkForUpdates = useCallback(() => {
-		fetch('/update')
+		fetch('/api/update')
 			.then((res) => res.json())
 			.then((d) => setInfo(d))
 			.catch((err) => {

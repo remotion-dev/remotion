@@ -1,4 +1,5 @@
-import React from 'react';
+import {ProjectInfo} from '@remotion/bundler/src/project-info';
+import React, {useEffect, useState} from 'react';
 import {LIGHT_TEXT} from '../../helpers/colors';
 
 const style: React.CSSProperties = {
@@ -7,9 +8,27 @@ const style: React.CSSProperties = {
 };
 
 export const CopyHint: React.FC = () => {
+	const [projectInfo, setProjectInfo] = useState<ProjectInfo | null>(null);
+
+	useEffect(() => {
+		fetch(`/api/project-info`)
+			.then((res) => res.json())
+			.then((res) => {
+				setProjectInfo(res);
+			})
+			.catch((err) => {
+				console.log('Error fetching info about the project');
+				setProjectInfo(null);
+			});
+	}, []);
+
+	if (!projectInfo) {
+		return null;
+	}
+
 	return (
 		<div style={style}>
-			Copy this into <br /> your src/Video.tsx file.
+			Copy this into <br /> your {projectInfo.relativeVideoFile} file.
 		</div>
 	);
 };

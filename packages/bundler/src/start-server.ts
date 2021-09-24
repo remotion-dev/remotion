@@ -9,6 +9,7 @@ import webpack from 'webpack';
 // @ts-expect-error
 import webpackHotMiddleware from 'webpack-hot-middleware';
 import {getDesiredPort} from './get-port';
+import {getProjectInfo} from './project-info';
 import {isUpdateAvailableWithTimeout} from './update-available';
 import {webpackConfig} from './webpack-config';
 
@@ -50,8 +51,20 @@ export const startServer = async (
 		})
 	);
 
-	app.get('/update', (req, res) => {
+	app.get('/api/update', (req, res) => {
 		isUpdateAvailableWithTimeout()
+			.then((data) => {
+				res.json(data);
+			})
+			.catch((err) => {
+				res.status(500).json({
+					err: err.message,
+				});
+			});
+	});
+
+	app.get('/api/project-info', (req, res) => {
+		getProjectInfo()
 			.then((data) => {
 				res.json(data);
 			})
