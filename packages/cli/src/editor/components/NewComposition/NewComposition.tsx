@@ -54,6 +54,17 @@ const comboBoxStyle: React.CSSProperties = {
 	width: inputArea.width,
 };
 
+const copyRowStyle: React.CSSProperties = {
+	position: 'absolute',
+	bottom: 10,
+	right: 0,
+	paddingRight: 10,
+	paddingLeft: 20,
+	width: '100%',
+	alignItems: 'center',
+	color: leftLabel.color,
+};
+
 const commonFrameRates = [24, 25, 29.97, 30, 48, 50];
 
 const NewComposition: React.FC<{initialCompType: CompType}> = (props) => {
@@ -344,9 +355,7 @@ const NewComposition: React.FC<{initialCompType: CompType}> = (props) => {
 								<label>
 									<div style={leftLabel}>Framerate</div>
 									<Combobox
-										style={{
-											width: inputArea.width,
-										}}
+										style={comboBoxStyle}
 										values={items}
 										selectedId={selectedFrameRate}
 									/>
@@ -367,19 +376,7 @@ const NewComposition: React.FC<{initialCompType: CompType}> = (props) => {
 							raw: false,
 						})}
 					</pre>
-					<Row
-						align="center"
-						style={{
-							position: 'absolute',
-							bottom: 10,
-							right: 0,
-							paddingRight: 10,
-							paddingLeft: 20,
-							width: '100%',
-							alignItems: 'center',
-							color: leftLabel.color,
-						}}
-					>
+					<Row align="center" style={copyRowStyle}>
 						<CopyHint />
 						<Flex />
 						<CopyButton
