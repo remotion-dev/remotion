@@ -288,6 +288,7 @@ export const NewComposition: React.FC<{initialCompType: CompType}> = ({
 													name="width"
 													step={2}
 													min={2}
+													max={100000000}
 													onValueChange={onWidthDirectlyChanged}
 												/>
 												{compWidthErrMessage ? (
@@ -312,6 +313,7 @@ export const NewComposition: React.FC<{initialCompType: CompType}> = ({
 												name="height"
 												step={2}
 												min={2}
+												max={100000000}
 												onValueChange={onHeightDirectlyChanged}
 											/>
 											{compHeightErrMessage ? (

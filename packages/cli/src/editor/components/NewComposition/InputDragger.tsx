@@ -9,7 +9,9 @@ import React, {
 	useState,
 } from 'react';
 import {interpolate} from 'remotion';
+import {noop} from '../../helpers/noop';
 import {getClickLock, setClickLock} from '../../state/input-dragger-click-lock';
+import {HigherZIndex} from '../../state/z-index';
 import {inputBaseStyle, RemotionInput} from './RemInput';
 
 type Props = InputHTMLAttributes<HTMLInputElement> & {
@@ -119,16 +121,18 @@ export const InputDragger: React.FC<Props> = ({
 
 	if (inputFallback) {
 		return (
-			<RemotionInput
-				ref={fallbackRef}
-				autoFocus
-				onKeyPress={onKeyPress}
-				onBlur={onBlur}
-				value={value}
-				min={_min}
-				step={_step}
-				{...props}
-			/>
+			<HigherZIndex onEscape={onBlur} onOutsideClick={noop}>
+				<RemotionInput
+					ref={fallbackRef}
+					autoFocus
+					onKeyPress={onKeyPress}
+					onBlur={onBlur}
+					value={value}
+					min={_min}
+					step={_step}
+					{...props}
+				/>
+			</HigherZIndex>
 		);
 	}
 
