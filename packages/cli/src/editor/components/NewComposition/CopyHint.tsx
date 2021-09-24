@@ -17,18 +17,22 @@ export const CopyHint: React.FC = () => {
 				setProjectInfo(res);
 			})
 			.catch((err) => {
-				console.log('Error fetching info about the project');
+				console.log('Error fetching info about the project', err);
 				setProjectInfo(null);
 			});
 	}, []);
 
-	if (!projectInfo) {
+	if (!projectInfo || !projectInfo.videoFile) {
 		return null;
 	}
 
 	return (
 		<div style={style}>
-			Copy this into <br /> your {projectInfo.relativeVideoFile} file.
+			Copy this into <br /> your{' '}
+			<span title={projectInfo.videoFile as string}>
+				{projectInfo.relativeVideoFile}
+			</span>{' '}
+			file.
 		</div>
 	);
 };
