@@ -20,6 +20,7 @@ Keep track of changes to the APIs of Remotion Lambda here.
 - Exported `getSites()` and `deleteSite()` (not documented yet)
 - Added `siteName` to the options of `deploySite()`.
 - Replace `estimatedLambdaInvokations` with `estimatedRenderLambdaInvokations`.
+- Rename `bucketSize` to `renderSize`. This property is reporting the size of the render, not the size of the bucket.
 
 ## September 15th, 2021
 
