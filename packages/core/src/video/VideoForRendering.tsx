@@ -5,7 +5,6 @@ import React, {
 	useImperativeHandle,
 	useMemo,
 	useRef,
-	useState,
 } from 'react';
 import {getAbsoluteSrc} from '../absolute-src';
 import {
@@ -19,6 +18,7 @@ import {random} from '../random';
 import {continueRender, delayRender} from '../ready-manager';
 import {SequenceContext} from '../sequencing';
 import {useAbsoluteCurrentFrame, useCurrentFrame} from '../use-frame';
+import {useMediaHasMetadata} from '../use-media-metadata';
 import {useUnsafeVideoConfig} from '../use-unsafe-video-config';
 import {evaluateVolume} from '../volume-prop';
 import {getMediaTime} from './get-current-time';
@@ -30,7 +30,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 > = ({onError, volume: volumeProp, playbackRate, ...props}, ref) => {
 	const videoRef = useRef<HTMLVideoElement>(null);
 	const {currentSrc} = videoRef.current || {};
-	const [mediaMetadata, setMediaMetadata] = useState(false);
+	const hasMetadata = useMediaHasMetadata(videoRef);
 	const absoluteFrame = useAbsoluteCurrentFrame();
 
 	const frame = useCurrentFrame();
@@ -68,20 +68,11 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 	});
 
 	useEffect(() => {
-		const _ref = videoRef.current;
-		const handler = () => setMediaMetadata(true);
-
-		_ref?.addEventListener('loadedmetadata', handler);
-
-		return () => _ref?.removeEventListener('loadedmetadata', handler);
-	}, []);
-
-	useEffect(() => {
 		if (props.muted) {
 			return;
 		}
 
-		if (!videoRef.current || !mediaMetadata) {
+		if (!videoRef.current || !hasMetadata) {
 			return;
 		}
 
@@ -112,7 +103,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 		frame,
 		absoluteFrame,
 		playbackRate,
-		mediaMetadata,
+		hasMetadata,
 	]);
 
 	useImperativeHandle(ref, () => {

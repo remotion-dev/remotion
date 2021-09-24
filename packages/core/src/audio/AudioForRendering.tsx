@@ -5,7 +5,6 @@ import React, {
 	useImperativeHandle,
 	useMemo,
 	useRef,
-	useState,
 } from 'react';
 import {getAbsoluteSrc} from '../absolute-src';
 import {CompositionManager} from '../CompositionManager';
@@ -13,6 +12,7 @@ import {isRemoteAsset} from '../is-remote-asset';
 import {random} from '../random';
 import {SequenceContext} from '../sequencing';
 import {useAbsoluteCurrentFrame, useCurrentFrame} from '../use-frame';
+import {useMediaHasMetadata} from '../use-media-metadata';
 import {evaluateVolume} from '../volume-prop';
 import {RemotionAudioProps} from './props';
 import {useFrameForVolumeProp} from './use-audio-frame';
@@ -23,7 +23,7 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 > = (props, ref) => {
 	const audioRef = useRef<HTMLAudioElement>(null);
 	const {currentSrc} = audioRef.current || {};
-	const [mediaMetadata, setMediaMetadata] = useState(false);
+	const hasMetadata = useMediaHasMetadata(audioRef);
 
 	const absoluteFrame = useAbsoluteCurrentFrame();
 	const volumePropFrame = useFrameForVolumeProp();
@@ -54,20 +54,11 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 	});
 
 	useEffect(() => {
-		const _ref = audioRef.current;
-		const handler = () => setMediaMetadata(true);
-
-		_ref?.addEventListener('loadedmetadata', handler);
-
-		return () => _ref?.removeEventListener('loadedmetadata', handler);
-	}, []);
-
-	useEffect(() => {
 		if (props.muted) {
 			return;
 		}
 
-		if (!audioRef.current || !mediaMetadata) {
+		if (!audioRef.current || !hasMetadata) {
 			return;
 		}
 
@@ -99,7 +90,7 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 		frame,
 		playbackRate,
 		props.playbackRate,
-		mediaMetadata,
+		hasMetadata,
 	]);
 
 	return <audio ref={audioRef} {...nativeProps} />;

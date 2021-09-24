@@ -1,7 +1,8 @@
-import {RefObject, useEffect, useState} from 'react';
+import {RefObject, useEffect} from 'react';
 import {useMediaStartsAt} from './audio/use-audio-frame';
 import {usePlayingState} from './timeline-position-state';
 import {useAbsoluteCurrentFrame, useCurrentFrame} from './use-frame';
+import {useMediaHasMetadata} from './use-media-metadata';
 import {useVideoConfig} from './use-video-config';
 import {getMediaTime} from './video/get-current-time';
 import {warnAboutNonSeekableMedia} from './warn-about-non-seekable-media';
@@ -42,7 +43,7 @@ export const useMediaPlayback = ({
 	const [playing] = usePlayingState();
 	const {fps} = useVideoConfig();
 	const mediaStartsAt = useMediaStartsAt();
-	const [mediaMetadata, setMediaMetadata] = useState(false);
+	const hasMetadata = useMediaHasMetadata(mediaRef);
 
 	useEffect(() => {
 		if (playing && !mediaRef.current?.ended) {
@@ -53,22 +54,13 @@ export const useMediaPlayback = ({
 	}, [mediaRef, mediaType, playing]);
 
 	useEffect(() => {
-		const _ref = mediaRef.current;
-		const handler = () => setMediaMetadata(true);
-
-		_ref?.addEventListener('loadedmetadata', handler);
-
-		return () => _ref?.removeEventListener('loadedmetadata', handler);
-	}, [mediaRef]);
-
-	useEffect(() => {
 		const tagName = mediaType === 'audio' ? '<Audio>' : '<Video>';
 
 		if (!mediaRef.current) {
 			throw new Error(`No ${mediaType} ref found`);
 		}
 
-		if (!mediaMetadata) {
+		if (!hasMetadata) {
 			return;
 		}
 
@@ -115,7 +107,7 @@ export const useMediaPlayback = ({
 		mediaRef,
 		mediaType,
 		playing,
-		mediaMetadata,
+		hasMetadata,
 		mediaStartsAt,
 	]);
 };
