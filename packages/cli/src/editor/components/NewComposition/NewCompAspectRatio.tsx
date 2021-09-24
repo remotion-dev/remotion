@@ -16,7 +16,7 @@ const container: React.CSSProperties = {
 export const NewCompAspectRatio: React.FC<{
 	width: number;
 	height: number;
-	aspectRatioLocked: boolean;
+	aspectRatioLocked: number | null;
 	setAspectRatioLocked: (newOption: boolean) => void;
 }> = ({width, height, aspectRatioLocked, setAspectRatioLocked}) => {
 	const pixels = Number(width) * Number(height);
@@ -32,7 +32,7 @@ export const NewCompAspectRatio: React.FC<{
 					/>
 				</svg>
 				<ToggleAspectRatio
-					aspectRatioLocked={aspectRatioLocked}
+					aspectRatioLocked={Boolean(aspectRatioLocked)}
 					setAspectRatioLocked={setAspectRatioLocked}
 				/>
 				{pixels > 0 ? (
