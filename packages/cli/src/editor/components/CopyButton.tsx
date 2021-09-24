@@ -6,6 +6,12 @@ import {
 import {copyCmd} from '../helpers/copy-text';
 import {Row, Spacing} from './layout';
 
+const iconStyle: React.CSSProperties = {
+	width: 16,
+	height: 16,
+	color: 'white',
+};
+
 const copyIcon = (
 	<svg
 		aria-hidden="true"
@@ -16,7 +22,7 @@ const copyIcon = (
 		role="img"
 		xmlns="http://www.w3.org/2000/svg"
 		viewBox="0 0 384 512"
-		style={{width: 16, height: 16, color: 'white'}}
+		style={iconStyle}
 	>
 		<path
 			fill="currentColor"
