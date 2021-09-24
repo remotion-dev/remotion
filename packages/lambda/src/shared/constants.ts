@@ -198,6 +198,8 @@ export type LambdaPayload = LambdaPayloads[LambdaRoutines];
 
 export type EncodingProgress = {
 	framesEncoded: number;
+	totalFrames: number | null;
+	doneIn: number | null;
 };
 
 export type RenderMetadata = {

@@ -6,7 +6,7 @@ import {functionsCommand, FUNCTIONS_COMMAND} from './commands/functions';
 import {policiesCommand, POLICIES_COMMAND} from './commands/policies/policies';
 import {ROLE_SUBCOMMAND} from './commands/policies/role';
 import {USER_SUBCOMMAND} from './commands/policies/user';
-import {renderCommand, RENDER_COMMAND} from './commands/render';
+import {renderCommand, RENDER_COMMAND} from './commands/render/render';
 import {sitesCommand, SITES_COMMAND} from './commands/sites';
 import {stillCommand, STILL_COMMAND} from './commands/still';
 import {printHelp} from './help';

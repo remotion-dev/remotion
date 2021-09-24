@@ -28,7 +28,7 @@ export const createFunction = async ({
 			FunctionName: functionName,
 			Handler: 'index.handler',
 			// TODO: Give helpful suggestion if user did not create role
-			Role: `arn:aws:iam::${accountId[1]}:role/remotion-lambda-role`,
+			Role: `arn:aws:iam::${accountId}:role/remotion-lambda-role`,
 			Runtime: 'nodejs14.x',
 			Description: 'Renders a Remotion video.',
 			MemorySize: memorySizeInMb,

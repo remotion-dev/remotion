@@ -2,7 +2,7 @@ import {CliInternals} from '@remotion/cli';
 import {BINARY_NAME} from '../shared/constants';
 import {CLEANUP_COMMAND} from './cleanup';
 import {FUNCTIONS_COMMAND} from './commands/functions';
-import {RENDER_COMMAND} from './commands/render';
+import {RENDER_COMMAND} from './commands/render/render';
 import {STILL_COMMAND} from './commands/still';
 import {Log} from './log';
 
