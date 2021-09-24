@@ -1,29 +1,29 @@
 import React from 'react';
 import {Internals, useCurrentFrame} from 'remotion';
-import styled from 'styled-components';
+import {FONT_FAMILY} from '../helpers/font';
 import {useIsStill} from '../helpers/is-current-selected-still';
 import {renderFrame} from '../state/render-frame';
 
-const Text = styled.div`
-	color: white;
-	font-size: 16px;
-	font-family: Helvetica, Arial, sans-serif;
-	display: flex;
-	flex-direction: column;
-	justify-content: center;
-	font-variant-numeric: tabular-nums;
-	line-height: 1;
-`;
+const text: React.CSSProperties = {
+	color: 'white',
+	fontSize: 16,
+	fontFamily: FONT_FAMILY,
+	display: 'flex',
+	flexDirection: 'column',
+	justifyContent: 'center',
+	fontVariantNumeric: 'tabular-nums',
+	lineHeight: 1,
+};
 
-const Time = styled.div`
-	display: inline-block;
-`;
+const time: React.CSSProperties = {
+	display: 'inline-block',
+};
 
-const Frame = styled.span`
-	color: #ccc;
-	font-size: 10px;
-	font-weight: 500;
-`;
+const frameStyle: React.CSSProperties = {
+	color: '#ccc',
+	fontSize: 10,
+	fontWeight: 500,
+};
 
 export const TimeValue: React.FC = () => {
 	const frame = useCurrentFrame();
@@ -39,11 +39,11 @@ export const TimeValue: React.FC = () => {
 	}
 
 	return (
-		<Text>
-			<Time>{renderFrame(frame, config.fps)}</Time>{' '}
-			<Frame>
+		<div style={text}>
+			<div style={time}>{renderFrame(frame, config.fps)}</div>{' '}
+			<div style={frameStyle}>
 				{frame} <span>({config.fps} fps)</span>
-			</Frame>
-		</Text>
+			</div>
+		</div>
 	);
 };

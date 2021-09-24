@@ -5,7 +5,6 @@ import {
 	MediaVolumeContextValue,
 	SetMediaVolumeContextValue,
 } from 'remotion';
-import styled from 'styled-components';
 import {BACKGROUND} from '../helpers/colors';
 import {noop} from '../helpers/noop';
 import {
@@ -34,14 +33,14 @@ import {KeyboardShortcuts} from './KeyboardShortcutsModal';
 import NewComposition from './NewComposition/NewComposition';
 import {UpdateModal} from './UpdateModal/UpdateModal';
 
-const Background = styled.div`
-	background: ${BACKGROUND};
-	display: flex;
-	width: 100%;
-	height: 100%;
-	flex-direction: column;
-	position: absolute;
-`;
+const background: React.CSSProperties = {
+	backgroundColor: BACKGROUND,
+	display: 'flex',
+	width: '100%',
+	height: '100%',
+	flexDirection: 'column',
+	position: 'absolute',
+};
 
 const Root = Internals.getRoot();
 
@@ -151,12 +150,12 @@ export const Editor: React.FC = () => {
 									>
 										<HighestZIndexProvider>
 											<HigherZIndex onEscape={noop} onOutsideClick={noop}>
-												<Background>
+												<div style={background}>
 													<Root />
 													<FramePersistor />
 													<EditorContent />
 													<GlobalKeybindings />
-												</Background>
+												</div>
 												{modalContextType &&
 													modalContextType.type === 'new-comp' && (
 														<NewComposition
