@@ -227,6 +227,9 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 	const onProgress = (framesEncoded: number) => {
 		const encodingProgress: EncodingProgress = {
 			framesEncoded,
+			totalFrames: comp.durationInFrames,
+			// TODO: Define doneIn property
+			doneIn: null,
 		};
 		lambdaWriteFile({
 			bucketName: params.bucketName,

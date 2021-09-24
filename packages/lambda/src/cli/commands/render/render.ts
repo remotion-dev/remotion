@@ -1,11 +1,20 @@
 import {CliInternals} from '@remotion/cli';
-import {getRenderProgress} from '../../api/get-render-progress';
-import {renderVideoOnLambda} from '../../api/render-video-on-lambda';
-import {BINARY_NAME, DEFAULT_FRAMES_PER_LAMBDA} from '../../shared/constants';
-import {sleep} from '../../shared/sleep';
-import {getAwsRegion} from '../get-aws-region';
-import {findFunctionName} from '../helpers/find-function-name';
-import {Log} from '../log';
+import {getRenderProgress} from '../../../api/get-render-progress';
+import {renderVideoOnLambda} from '../../../api/render-video-on-lambda';
+import {
+	BINARY_NAME,
+	DEFAULT_FRAMES_PER_LAMBDA,
+} from '../../../shared/constants';
+import {sleep} from '../../../shared/sleep';
+import {getAwsRegion} from '../../get-aws-region';
+import {findFunctionName} from '../../helpers/find-function-name';
+import {Log} from '../../log';
+import {
+	makeChunkProgress,
+	makeEncodingProgress,
+	makeInvokeProgress,
+	makeMultiProgressFromStatus,
+} from './progress';
 
 export const RENDER_COMMAND = 'render';
 
@@ -57,21 +66,51 @@ export const renderCommand = async (args: string[]) => {
 		composition,
 		framesPerLambda: cliOptions.framesPerLambda ?? DEFAULT_FRAMES_PER_LAMBDA,
 	});
+
+	const progressBar = CliInternals.createOverwriteableCliOutput();
+
+	const status = await getRenderProgress({
+		functionName,
+		bucketName: res.bucketName,
+		renderId: res.renderId,
+		region: getAwsRegion(),
+	});
+	const multiProgress = makeMultiProgressFromStatus(status);
+	progressBar.update(
+		[
+			makeInvokeProgress(multiProgress.lambdaInvokeProgress),
+			makeChunkProgress(multiProgress.chunkProgress),
+			makeEncodingProgress(multiProgress.encodingProgress),
+		].join('\n')
+	);
+
 	for (let i = 0; i < 3000; i++) {
 		await sleep(1000);
-		const status = await getRenderProgress({
+		const newStatus = await getRenderProgress({
 			functionName,
 			bucketName: res.bucketName,
 			renderId: res.renderId,
 			region: getAwsRegion(),
 		});
-		Log.info(status);
-		if (status.done) {
-			Log.info('Done! ' + res.bucketName);
+		CliInternals.Log.verbose(JSON.stringify(newStatus, null, 2));
+		const newProgress = makeMultiProgressFromStatus(newStatus);
+		progressBar.update(
+			[
+				makeInvokeProgress(newProgress.lambdaInvokeProgress),
+				makeChunkProgress(newProgress.chunkProgress),
+				makeEncodingProgress(newProgress.encodingProgress),
+			].join('\n')
+		);
+
+		//	Log.info(newStatus);
+		if (newStatus.done) {
+			Log.info();
+			Log.info('Done! ' + newStatus.outputFile);
 			process.exit(0);
 		}
 
-		if (status.fatalErrorEncountered) {
+		if (newStatus.fatalErrorEncountered) {
+			Log.error(newStatus);
 			Log.error('Fatal error encountered. Exiting.');
 			process.exit(1);
 		}

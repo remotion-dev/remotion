@@ -16,6 +16,9 @@ export const getFinalEncodingStatus = ({
 	if (outputFileExists) {
 		return {
 			framesEncoded: renderMetadata.videoConfig.durationInFrames,
+			totalFrames: renderMetadata.videoConfig.durationInFrames,
+			// TODO: Define doneIn
+			doneIn: null,
 		};
 	}
 
