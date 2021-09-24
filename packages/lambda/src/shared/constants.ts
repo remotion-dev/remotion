@@ -205,7 +205,8 @@ export type RenderMetadata = {
 	videoConfig: VideoConfig;
 	startedDate: number;
 	totalChunks: number;
-	estimatedLambdaInvokations: number;
+	estimatedTotalLambdaInvokations: number;
+	estimatedRenderLambdaInvokations: number;
 	compositionId: string;
 	codec: Codec | null;
 	usesOptimizationProfile: boolean;

@@ -74,7 +74,8 @@ Contains the following information about the render:
 - `totalFrames`: The duration of the video
 - `startedDate`: Timestamp of when the rendering process started.
 - `totalChunks`: Into how many pieces the rendering is divided.
-- `estimatedLambdaInvokations`: The estimated amount of many Lambda functions get called in total, excluding calls to `getRenderProgress()`.
+- `estimatedTotalLambdaInvokations`: The estimated amount of total Lambda function calls in total, excluding calls to `getRenderProgress()`.
+- `estimatedRenderLambdaInvokations`: The estimated amount of Lambdas that will render chunks of the video.`.
 - `compositionId`: The ID of the composition that is being rendered.
 - `codec`: The selected codec into which the video gets encoded.
 - `usesOptimizationProfile`: If chunk optimization was applied to the render.
@@ -109,7 +110,7 @@ How many bytes have been saved to the S3 bucket as a result of this render.
 
 ### `lambdasInvoked`
 
-How many lambdas that render a chunk have been invoked yet and have started rendering. Note that `lambdasInvoked` and `renderMetadata.estimatedLambdaInvokations` don't match up currently, this is expected.
+How many lambdas that render a chunk have been invoked yet and have started rendering.
 
 ### `estimatedPrice`
 
