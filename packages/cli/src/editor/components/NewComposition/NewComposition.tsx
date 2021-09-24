@@ -67,15 +67,20 @@ export const NewComposition: React.FC<{initialCompType: CompType}> = ({
 		width: '1280',
 		height: '720',
 	});
-	const [durationInFrames, setDurationInFrames] = useState('150');
-	const [aspectRatioLocked, setAspectRatioLockedState] = useState(
-		loadAspectRatioOption()
+	const [lockedAspectRatio, setLockedAspectRatio] = useState(
+		loadAspectRatioOption() ? Number(size.width) / Number(size.height) : null
 	);
+	const [durationInFrames, setDurationInFrames] = useState('150');
 
-	const setAspectRatioLocked = useCallback((option: boolean) => {
-		setAspectRatioLockedState(option);
-		persistAspectRatioOption(option);
-	}, []);
+	const setAspectRatioLocked = useCallback(
+		(option: boolean) => {
+			persistAspectRatioOption(option);
+			setLockedAspectRatio(
+				option ? Number(size.width) / Number(size.height) : null
+			);
+		},
+		[size.height, size.width]
+	);
 
 	const {setSelectedModal} = useContext(ModalsContext);
 
@@ -90,69 +95,69 @@ export const NewComposition: React.FC<{initialCompType: CompType}> = ({
 	const onWidthChanged: ChangeEventHandler<HTMLInputElement> = useCallback(
 		(e) => {
 			setSize((s) => {
-				const {height, width} = s;
-				const aspectRatio = Number(width) / Number(height);
+				const {height} = s;
 				const newWidth = Number(e.target.value);
 				return {
-					height: aspectRatioLocked
-						? String(Math.ceil(newWidth / aspectRatio / 2) * 2)
-						: height,
+					height:
+						lockedAspectRatio === null
+							? height
+							: String(Math.ceil(newWidth / lockedAspectRatio / 2) * 2),
 					width: String(newWidth),
 				};
 			});
 		},
-		[aspectRatioLocked]
+		[lockedAspectRatio]
 	);
 
 	const onWidthDirectlyChanged = useCallback(
 		(newWidth: number) => {
 			setSize((s) => {
-				const {height, width} = s;
-				const aspectRatio = Number(width) / Number(height);
+				const {height} = s;
 
 				return {
-					height: aspectRatioLocked
-						? String(Math.ceil(newWidth / aspectRatio / 2) * 2)
-						: height,
+					height:
+						lockedAspectRatio === null
+							? height
+							: String(Math.ceil(newWidth / lockedAspectRatio / 2) * 2),
 					width: String(newWidth),
 				};
 			});
 		},
-		[aspectRatioLocked]
+		[lockedAspectRatio]
 	);
 
 	const onHeightDirectlyChanged = useCallback(
 		(newHeight: number) => {
 			setSize((s) => {
-				const {height, width} = s;
-				const aspectRatio = Number(width) / Number(height);
+				const {width} = s;
 
 				return {
-					width: aspectRatioLocked
-						? String(Math.ceil((newHeight / 2) * aspectRatio) * 2)
-						: width,
+					width:
+						lockedAspectRatio === null
+							? width
+							: String(Math.ceil((newHeight / 2) * lockedAspectRatio) * 2),
 					height: String(newHeight),
 				};
 			});
 		},
-		[aspectRatioLocked]
+		[lockedAspectRatio]
 	);
 
 	const onHeightChanged: ChangeEventHandler<HTMLInputElement> = useCallback(
 		(e) => {
 			setSize((s) => {
-				const {height, width} = s;
-				const aspectRatio = Number(width) / Number(height);
+				const {width} = s;
 				const newHeight = Number(e.target.value);
 				return {
-					width: aspectRatioLocked
-						? String(Math.ceil((newHeight / 2) * aspectRatio) * 2)
-						: width,
+					width:
+						lockedAspectRatio === null
+							? width
+							: String(Math.ceil((newHeight / 2) * lockedAspectRatio) * 2),
 					height: String(newHeight),
 				};
 			});
 		},
-		[aspectRatioLocked]
+		[lockedAspectRatio]
 	);
 	const onNameChange: ChangeEventHandler<HTMLInputElement> = useCallback(
 		(e) => {
@@ -269,7 +274,7 @@ export const NewComposition: React.FC<{initialCompType: CompType}> = ({
 								<NewCompAspectRatio
 									width={Number(size.width)}
 									height={Number(size.height)}
-									aspectRatioLocked={aspectRatioLocked}
+									aspectRatioLocked={lockedAspectRatio}
 									setAspectRatioLocked={setAspectRatioLocked}
 								/>
 							</div>
