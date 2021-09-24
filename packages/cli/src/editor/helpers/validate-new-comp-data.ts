@@ -33,3 +33,19 @@ export const validateCompositionDimension = (
 
 	return null;
 };
+
+export const validateCompositionDuration = (value: string): string | null => {
+	if (Number(value) % 1 !== 0) {
+		return `Duration must be an integer.`;
+	}
+
+	if (Number.isNaN(Number(value))) {
+		return 'Invalid number.';
+	}
+
+	if (Number(value) === 0) {
+		return 'Duration cannot be zero.';
+	}
+
+	return null;
+};

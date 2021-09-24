@@ -1,7 +1,9 @@
 import React, {ChangeEventHandler, useCallback} from 'react';
+import {validateCompositionDuration} from '../../helpers/validate-new-comp-data';
 import {Row} from '../layout';
 import {InputDragger} from './InputDragger';
 import {inputArea, leftLabel, rightLabel} from './new-comp-layout';
+import {ValidationMessage} from './ValidationMessage';
 
 const label: React.CSSProperties = {
 	fontSize: 13,
@@ -16,7 +18,7 @@ export const NewCompDuration: React.FC<{
 }> = ({durationInFrames, setDurationInFrames, fps}) => {
 	const onDurationInFramesChanged: ChangeEventHandler<HTMLInputElement> = useCallback(
 		(e) => {
-			setDurationInFrames(e.target.value);
+			setDurationInFrames(String(Number(e.target.value)));
 		},
 		[setDurationInFrames]
 	);
@@ -27,6 +29,8 @@ export const NewCompDuration: React.FC<{
 		},
 		[setDurationInFrames]
 	);
+
+	const compDurationErrMessage = validateCompositionDuration(durationInFrames);
 
 	return (
 		<div>
@@ -39,10 +43,15 @@ export const NewCompDuration: React.FC<{
 							value={durationInFrames}
 							onChange={onDurationInFramesChanged}
 							placeholder="Duration (frames)"
-							name="height"
+							name="durationInFrames"
 							min={1}
+							step={1}
+							max={100000000}
 							onValueChange={onDurationChangedDirectly}
 						/>
+						{compDurationErrMessage ? (
+							<ValidationMessage message={compDurationErrMessage} />
+						) : null}
 					</div>
 					<span style={rightLabel}>
 						{(Number(durationInFrames) / Number(fps)).toFixed(2)}sec
