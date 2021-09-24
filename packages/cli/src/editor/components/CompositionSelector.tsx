@@ -1,62 +1,25 @@
 import React, {useCallback, useContext, useEffect} from 'react';
 import {Internals, TComposition} from 'remotion';
-import styled from 'styled-components';
-import {CLEAR_HOVER, LIGHT_TEXT, SELECTED_BACKGROUND} from '../helpers/colors';
-import {isCompositionStill} from '../helpers/is-composition-still';
-import {FilmIcon} from '../icons/film';
-import {StillIcon} from '../icons/still';
 import {useZIndex} from '../state/z-index';
+import {CompositionSelectorItem} from './CompositionSelectorItem';
 import {CurrentComposition} from './CurrentComposition';
 import {
 	getCurrentCompositionFromUrl,
 	getFrameForComposition,
 } from './FramePersistor';
 
-const Container = styled.div`
-	border-right: 1px solid black;
-	position: absolute;
-	height: 100%;
-	width: 100%;
-	flex: 1;
-`;
+const container: React.CSSProperties = {
+	borderRight: '1px solid black',
+	position: 'absolute',
+	height: '100%',
+	width: '100%',
+	flex: 1,
+};
 
-const List = styled.div`
-	padding: 5px;
-	height: calc(100% - 100px);
-	overflow-y: auto;
-`;
-
-const Item = styled.a<{
-	selected: boolean;
-}>`
-	background: ${(props) =>
-		props.selected ? SELECTED_BACKGROUND : 'transparent'};
-	color: ${(props) => (props.selected ? 'white' : LIGHT_TEXT)};
-	padding-left: 8px;
-	padding-right: 8px;
-	padding-top: 6px;
-	padding-bottom: 6px;
-	font-size: 13px;
-	font-family: Arial, Helvetica, sans-serif;
-	display: flex;
-	border-radius: 2px;
-	text-decoration: none;
-	cursor: default;
-	align-items: center;
-	border-width: 1px;
-	border-style: solid;
-	border-color: transparent;
-	margin-bottom: 1px;
-	&:hover {
-		border-color: ${(props) => (props.selected ? 'transparent' : CLEAR_HOVER)};
-		background: ${(props) =>
-			props.selected ? SELECTED_BACKGROUND : CLEAR_HOVER};
-		color: white;
-	}
-`;
-
-const spacer: React.CSSProperties = {
-	width: 6,
+const list: React.CSSProperties = {
+	padding: 5,
+	height: 'calc(100% - 100px)',
+	overflowY: 'auto',
 };
 
 export const CompositionSelector: React.FC = () => {
@@ -97,32 +60,21 @@ export const CompositionSelector: React.FC = () => {
 	}, [compositions, currentComposition, selectComposition]);
 
 	return (
-		<Container>
+		<div style={container}>
 			<CurrentComposition />
-			<List>
+			<div style={list}>
 				{compositions.map((c) => {
 					return (
-						<Item
+						<CompositionSelectorItem
 							key={c.id}
-							href={c.id}
-							selected={currentComposition === c.id}
+							currentComposition={currentComposition}
+							selectComposition={selectComposition}
 							tabIndex={tabIndex}
-							onClick={(evt) => {
-								evt.preventDefault();
-								selectComposition(c);
-							}}
-						>
-							{isCompositionStill(c) ? (
-								<StillIcon style={{height: 18, width: 18}} />
-							) : (
-								<FilmIcon style={{height: 18, width: 18}} />
-							)}
-							<div style={spacer} />
-							{c.id}
-						</Item>
+							composition={c}
+						/>
 					);
 				})}
-			</List>
-		</Container>
+			</div>
+		</div>
 	);
 };

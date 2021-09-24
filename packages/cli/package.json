@@ -44,7 +44,6 @@
 		"@types/node": "^16.7.5",
 		"@types/react": "17.0.19",
 		"@types/react-dom": "^17.0.0",
-		"@types/styled-components": "^5.1.1",
 		"eslint": "^7.25.0",
 		"jest": "^26.6.3",
 		"prettier": "^2.0.5",

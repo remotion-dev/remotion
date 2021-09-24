@@ -1,40 +1,39 @@
 import React, {useContext} from 'react';
 import {Internals} from 'remotion';
-import styled from 'styled-components';
+import {FONT_FAMILY} from '../helpers/font';
 import {isCompositionStill} from '../helpers/is-composition-still';
 import {renderFrame} from '../state/render-frame';
 import {RichTimelineContext} from '../state/rich-timeline';
+import {Spacing} from './layout';
 import {Thumbnail} from './Thumbnail';
 
-const Container = styled.div`
-	min-height: 100px;
-	display: block;
-	border-bottom: 1px solid black;
-	padding: 16px;
-	color: white;
-	line-height: 18px;
-`;
+const container: React.CSSProperties = {
+	minHeight: 100,
+	display: 'block',
+	borderBottom: '1px solid black',
+	padding: 16,
+	color: 'white',
+	lineHeight: '18px',
+};
 
-const Title = styled.div`
-	font-weight: bold;
-	font-family: Arial, Helvetica, sans-serif;
-	font-size: 12px;
-`;
+const title: React.CSSProperties = {
+	fontWeight: 'bold',
+	fontFamily: FONT_FAMILY,
+	fontSize: 12,
+	whiteSpace: 'nowrap',
+};
 
-const Subtitle = styled.div`
-	font-family: Arial, Helvetica, sans-serif;
-	font-size: 12px;
-	opacity: 0.8;
-`;
+const subtitle: React.CSSProperties = {
+	fontFamily: FONT_FAMILY,
+	fontSize: 12,
+	opacity: 0.8,
+	whiteSpace: 'nowrap',
+};
 
-const Row = styled.div`
-	display: flex;
-	flex-direction: row;
-`;
-
-const Space = styled.div`
-	width: 12px;
-`;
+const row: React.CSSProperties = {
+	display: 'flex',
+	flexDirection: 'row',
+};
 
 const targetHeight = 60;
 const targetWidth = (targetHeight * 16) / 9;
@@ -43,13 +42,13 @@ export const CurrentComposition = () => {
 	const richTimelineContext = useContext(RichTimelineContext);
 	const video = Internals.useVideo();
 	if (!video) {
-		return <Container />;
+		return <div style={container} />;
 	}
 
 	const frameToDisplay = Math.floor(video.durationInFrames / 2);
 	return (
-		<Container>
-			<Row>
+		<div style={container}>
+			<div style={row}>
 				{richTimelineContext.richTimeline ? (
 					<>
 						<Thumbnail
@@ -58,24 +57,24 @@ export const CurrentComposition = () => {
 							targetWidth={targetWidth}
 							frameToDisplay={frameToDisplay}
 						/>
-						<Space />
+						<Spacing />
 					</>
 				) : null}
 				<div>
-					<Title>{video.id}</Title>
-					<Subtitle>
+					<div style={title}>{video.id}</div>
+					<div style={subtitle}>
 						{video.width}x{video.height}
 						{isCompositionStill(video) ? null : `, ${video.fps} FPS`}
-					</Subtitle>
+					</div>
 					{isCompositionStill(video) ? (
-						<Subtitle>Still</Subtitle>
+						<div style={subtitle}>Still</div>
 					) : (
-						<Subtitle>
+						<div style={subtitle}>
 							Duration {renderFrame(video.durationInFrames, video.fps)}
-						</Subtitle>
+						</div>
 					)}
 				</div>
-			</Row>
-		</Container>
+			</div>
+		</div>
 	);
 };
