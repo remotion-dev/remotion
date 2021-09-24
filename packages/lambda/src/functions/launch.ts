@@ -170,13 +170,14 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		startedDate: Date.now(),
 		videoConfig: comp,
 		totalChunks: chunks.length,
-		estimatedLambdaInvokations: [
+		estimatedTotalLambdaInvokations: [
 			// Direct invokations
 			chunks.length,
 			// Parent invokers
 			invokers,
 			// This function
 		].reduce((a, b) => a + b, 0),
+		estimatedRenderLambdaInvokations: chunks.length,
 		compositionId: comp.id,
 		siteId: getServeUrlHash(params.serveUrl),
 		codec: params.codec,
