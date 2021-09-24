@@ -1,4 +1,4 @@
-import {useElementSize} from '@remotion/player/src/utils/use-element-size';
+import {PlayerInternals} from '@remotion/player';
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import ReactDOM from 'react-dom';
 import {
@@ -57,7 +57,7 @@ export const Combobox: React.FC<{
 	const [opened, setOpened] = useState(false);
 	const ref = useRef<HTMLButtonElement>(null);
 	const {tabIndex, currentZIndex} = useZIndex();
-	const size = useElementSize(ref, {
+	const size = PlayerInternals.useElementSize(ref, {
 		triggerOnWindowResize: true,
 	});
 

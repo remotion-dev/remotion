@@ -43,10 +43,12 @@ export const UpdateModal: React.FC<{
 		<ModalContainer onOutsideClick={onQuit} onEscape={onQuit}>
 			<NewCompHeader title="Update available" />
 			<div style={container}>
-				<p>A new update to Remotion is available! Run the following command:</p>
+				<p>
+					A new update for Remotion is available! Run the following command:
+				</p>
 				<Row align="center">
 					<Flex>
-						<pre onClick={() => copyCmd('yarn upgrade')} style={code}>
+						<pre onClick={() => copyCmd(command)} style={code}>
 							{command}
 						</pre>
 					</Flex>
