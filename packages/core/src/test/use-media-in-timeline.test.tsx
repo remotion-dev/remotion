@@ -17,7 +17,9 @@ afterAll(() => {
 	jest.spyOn(useVideoConfigModule, 'useVideoConfig').mockClear();
 });
 
-test('useMediaInTimeline registers and unregisters new sequence', () => {
+// JSDOM doesn't simulate browser events, `currentSrc` is always empty,
+// so we can't assert the registration and unregistration of assets.
+test.skip('useMediaInTimeline registers and unregisters new sequence', () => {
 	const registerSequence = jest.fn();
 	const unregisterSequence = jest.fn();
 	const wrapper: React.FC = ({children}) => (
