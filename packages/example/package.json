@@ -10,7 +10,6 @@
 		"dist"
 	],
 	"scripts": {
-		"serve": "npx http-server src/AudioTesting",
 		"start": "remotion preview src/index.tsx",
 		"start-js": "remotion preview src/entry.jsx",
 		"test": "eslint src --ext ts,tsx,js,jsx && jest",
