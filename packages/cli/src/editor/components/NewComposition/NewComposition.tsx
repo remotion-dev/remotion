@@ -6,6 +6,10 @@ import React, {
 	useState,
 } from 'react';
 import {Internals} from 'remotion';
+import {
+	validateCompositionDimension,
+	validateCompositionName,
+} from '../../helpers/validate-new-comp-data';
 import {Checkmark} from '../../icons/Checkmark';
 import {
 	loadAspectRatioOption,
@@ -17,7 +21,7 @@ import {Row, Spacing} from '../layout';
 import {ModalContainer} from '../ModalContainer';
 import {NewCompHeader} from '../ModalHeader';
 import {Combobox, ComboboxValue} from './ComboBox';
-import {CompositionType, CompType} from './CompositionType';
+import {CompType} from './CompositionType';
 import {InputDragger} from './InputDragger';
 import {inputArea, leftLabel} from './new-comp-layout';
 import {NewCompAspectRatio} from './NewCompAspectRatio';
@@ -25,13 +29,6 @@ import {getNewCompositionCode} from './NewCompCode';
 import {NewCompDuration} from './NewCompDuration';
 import {RemotionInput} from './RemInput';
 import {ValidationMessage} from './ValidationMessage';
-
-const panelContent: React.CSSProperties = {
-	flexDirection: 'row',
-	display: 'flex',
-	width: 1100,
-	height: 450,
-};
 
 const left: React.CSSProperties = {
 	padding: 12,
@@ -53,6 +50,10 @@ const pre: React.CSSProperties = {
 	fontSize: 17,
 };
 
+const comboBoxStyle: React.CSSProperties = {
+	width: inputArea.width,
+};
+
 const commonFrameRates = [24, 25, 29.97, 30, 48, 50];
 
 export const NewComposition: React.FC<{initialCompType: CompType}> = ({
@@ -61,12 +62,23 @@ export const NewComposition: React.FC<{initialCompType: CompType}> = ({
 	const [selectedFrameRate, setFrameRate] = useState<string>(
 		String(commonFrameRates[0])
 	);
+	const {compositions} = useContext(Internals.CompositionManager);
 	const [type, setType] = useState<CompType>(initialCompType);
 	const [name, setName] = useState('MyComp');
 	const [size, setSize] = useState({
 		width: '1280',
 		height: '720',
 	});
+
+	const panelContent: React.CSSProperties = useMemo(() => {
+		return {
+			flexDirection: 'row',
+			display: 'flex',
+			width: 950,
+			height: type === 'composition' ? 450 : 300,
+		};
+	}, [type]);
+
 	const [lockedAspectRatio, setLockedAspectRatio] = useState(
 		loadAspectRatioOption() ? Number(size.width) / Number(size.height) : null
 	);
@@ -187,17 +199,58 @@ export const NewComposition: React.FC<{initialCompType: CompType}> = ({
 		);
 	}, [onFpsChange, selectedFrameRate]);
 
-	const isValidCompName = Internals.isCompositionIdValid(name);
+	const compNameErrMessage = validateCompositionName(name, compositions);
+	const compWidthErrMessage = validateCompositionDimension('Width', size.width);
+	const compHeightErrMessage = validateCompositionDimension(
+		'Height',
+		size.height
+	);
+
+	const typeValues: ComboboxValue[] = useMemo(() => {
+		return [
+			{
+				id: 'composition',
+				keyHint: null,
+				label: '<Composition />',
+				leftItem: null,
+				onClick: () => onTypeChanged('composition'),
+				subMenu: null,
+				type: 'item',
+				value: 'composition' as CompType,
+			},
+			{
+				id: 'still',
+				keyHint: null,
+				label: '<Still />',
+				leftItem: null,
+				onClick: () => onTypeChanged('still'),
+				subMenu: null,
+				type: 'item',
+				value: 'still' as CompType,
+			},
+		];
+	}, [onTypeChanged]);
 
 	return (
 		<ModalContainer onOutsideClick={onQuit} onEscape={onQuit}>
 			<NewCompHeader title="New composition" />
 			<div style={panelContent}>
 				<div style={left}>
-					<CompositionType onSelected={onTypeChanged} type={type} />
 					<Spacing y={3} />
 					<form>
 						<label>
+							<Row align="center">
+								<div style={leftLabel}>Type</div>
+								<div style={inputArea}>
+									<Combobox
+										style={comboBoxStyle}
+										values={typeValues}
+										selectedId={type}
+									/>
+								</div>
+							</Row>
+							<Spacing y={1} />
+
 							<Row align="center">
 								<div style={leftLabel}>Name</div>
 								<div style={inputArea}>
@@ -207,11 +260,9 @@ export const NewComposition: React.FC<{initialCompType: CompType}> = ({
 										type="text"
 										placeholder="Composition name"
 									/>
-									{isValidCompName ? null : (
-										<ValidationMessage
-											message={Internals.invalidCompositionErrorMessage}
-										/>
-									)}
+									{compNameErrMessage ? (
+										<ValidationMessage message={compNameErrMessage} />
+									) : null}
 								</div>
 							</Row>
 						</label>
@@ -239,9 +290,9 @@ export const NewComposition: React.FC<{initialCompType: CompType}> = ({
 													min={2}
 													onValueChange={onWidthDirectlyChanged}
 												/>
-												{Number(size.width) % 2 === 0 ? null : (
-													<ValidationMessage message="Dimension should be divisible by 2, since H264 codec doesn't support odd dimensions.." />
-												)}
+												{compWidthErrMessage ? (
+													<ValidationMessage message={compWidthErrMessage} />
+												) : null}
 											</div>
 										</Row>
 									</label>
@@ -263,9 +314,9 @@ export const NewComposition: React.FC<{initialCompType: CompType}> = ({
 												min={2}
 												onValueChange={onHeightDirectlyChanged}
 											/>
-											{Number(size.height) % 2 === 0 ? null : (
-												<ValidationMessage message="Dimension should be divisible by 2, since H264 codec doesn't support odd dimensions.." />
-											)}
+											{compHeightErrMessage ? (
+												<ValidationMessage message={compHeightErrMessage} />
+											) : null}
 										</div>
 									</Row>
 								</label>
