@@ -1,6 +1,7 @@
 export const BACKGROUND = '#1f2428';
 export const INPUT_BACKGROUND = '#2f363d';
 export const BORDER_COLOR = '#000';
+export const LIGHT_COLOR = '#ddd';
 export const SELECTED_BACKGROUND = 'hsla(0, 0%, 100%, 0.15)';
 export const LIGHT_TEXT = 'rgba(255, 255, 255, 0.6)';
 export const SELECTED_HOVER_BACKGROUND = 'hsla(0, 0%, 100%, 0.25)';

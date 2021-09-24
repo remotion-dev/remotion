@@ -1,4 +1,5 @@
 import React, {SVGProps} from 'react';
+import {LIGHT_COLOR} from '../../helpers/colors';
 
 const container: React.CSSProperties = {
 	height: 10,
@@ -11,7 +12,7 @@ const container: React.CSSProperties = {
 const Icon: React.FC<SVGProps<SVGSVGElement>> = (props) => {
 	return (
 		<svg viewBox="0 0 8 10" {...props} style={{height: 10, width: 8}}>
-			<path d="M 0 0 L 8 5 L 0 10 z" fill="#ddd" />
+			<path d="M 0 0 L 8 5 L 0 10 z" fill={LIGHT_COLOR} />
 		</svg>
 	);
 };

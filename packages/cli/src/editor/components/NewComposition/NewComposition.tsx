@@ -17,10 +17,11 @@ import {
 } from '../../state/aspect-ratio-locked';
 import {CompType, ModalsContext} from '../../state/modals';
 import {CopyButton} from '../CopyButton';
-import {Row, Spacing} from '../layout';
+import {Flex, Row, Spacing} from '../layout';
 import {ModalContainer} from '../ModalContainer';
 import {NewCompHeader} from '../ModalHeader';
 import {Combobox, ComboboxValue} from './ComboBox';
+import {CopyHint} from './CopyHint';
 import {InputDragger} from './InputDragger';
 import {inputArea, leftLabel} from './new-comp-layout';
 import {NewCompAspectRatio} from './NewCompAspectRatio';
@@ -265,13 +266,7 @@ const NewComposition: React.FC<{initialCompType: CompType}> = (props) => {
 							</Row>
 						</label>
 						<Spacing y={1} />
-						<div
-							style={{
-								display: 'flex',
-								flexDirection: 'row',
-								alignItems: 'center',
-							}}
-						>
+						<Row align="center">
 							<div>
 								<div>
 									<label>
@@ -329,7 +324,7 @@ const NewComposition: React.FC<{initialCompType: CompType}> = (props) => {
 									setAspectRatioLocked={setAspectRatioLocked}
 								/>
 							</div>
-						</div>
+						</Row>
 						<div />
 						<Spacing y={1} />
 						{type === 'composition' ? (
@@ -360,7 +355,6 @@ const NewComposition: React.FC<{initialCompType: CompType}> = (props) => {
 						) : null}
 					</form>
 				</div>
-
 				<div style={panelRight}>
 					<pre style={pre}>
 						{getNewCompositionCode({
@@ -373,13 +367,21 @@ const NewComposition: React.FC<{initialCompType: CompType}> = (props) => {
 							raw: false,
 						})}
 					</pre>
-					<div
+					<Row
+						align="center"
 						style={{
 							position: 'absolute',
 							bottom: 10,
-							right: 10,
+							right: 0,
+							paddingRight: 10,
+							paddingLeft: 20,
+							width: '100%',
+							alignItems: 'center',
+							color: leftLabel.color,
 						}}
 					>
+						<CopyHint />
+						<Flex />
 						<CopyButton
 							label="Copy code"
 							labelWhenCopied="Copied!"
@@ -395,7 +397,7 @@ const NewComposition: React.FC<{initialCompType: CompType}> = (props) => {
 								}) as string
 							}
 						/>
-					</div>
+					</Row>
 				</div>
 			</div>
 		</ModalContainer>
