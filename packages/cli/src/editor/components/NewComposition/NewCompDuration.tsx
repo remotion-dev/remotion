@@ -5,12 +5,6 @@ import {InputDragger} from './InputDragger';
 import {inputArea, leftLabel, rightLabel} from './new-comp-layout';
 import {ValidationMessage} from './ValidationMessage';
 
-const label: React.CSSProperties = {
-	fontSize: 13,
-	color: 'rgba(255, 255, 255, 0.5)',
-	marginLeft: 10,
-};
-
 export const NewCompDuration: React.FC<{
 	durationInFrames: string;
 	fps: string;

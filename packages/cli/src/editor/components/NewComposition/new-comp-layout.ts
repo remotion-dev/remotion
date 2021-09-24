@@ -1,4 +1,5 @@
 import React from 'react';
+import {LIGHT_COLOR, LIGHT_TEXT} from '../../helpers/colors';
 
 export const leftLabel: React.CSSProperties = {
 	width: 160,
@@ -6,7 +7,7 @@ export const leftLabel: React.CSSProperties = {
 	textAlign: 'right',
 	paddingRight: 30,
 	fontSize: 14,
-	color: '#ddd',
+	color: LIGHT_COLOR,
 };
 
 export const inputArea: React.CSSProperties = {
@@ -15,6 +16,6 @@ export const inputArea: React.CSSProperties = {
 
 export const rightLabel: React.CSSProperties = {
 	fontSize: 13,
-	color: 'rgba(255, 255, 255, 0.5)',
+	color: LIGHT_TEXT,
 	marginLeft: 10,
 };
