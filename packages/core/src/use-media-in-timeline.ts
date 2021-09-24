@@ -5,6 +5,7 @@ import {getAssetFileName} from './get-asset-file-name';
 import {useNonce} from './nonce';
 import {SequenceContext} from './sequencing';
 import {TimelineContext} from './timeline-position-state';
+import {useMediaHasMetadata} from './use-media-metadata';
 import {useVideoConfig} from './use-video-config';
 import {evaluateVolume, VolumeProp} from './volume-prop';
 
@@ -26,7 +27,7 @@ export const useMediaInTimeline = ({
 		? parentSequence.relativeFrom + parentSequence.cumulatedFrom
 		: 0;
 	const startsAt = useMediaStartsAt();
-	const [mediaMetadata, setMediaMetadata] = useState(false);
+	const hasMetadata = useMediaHasMetadata(mediaRef);
 	const {registerSequence, unregisterSequence} = useContext(CompositionManager);
 	const [id] = useState(() => String(Math.random()));
 	const nonce = useNonce();
@@ -57,18 +58,9 @@ export const useMediaInTimeline = ({
 	}, [duration, startsAt, volume, mediaVolume]);
 
 	useEffect(() => {
-		const _ref = mediaRef.current;
-		const handler = () => setMediaMetadata(true);
-
-		_ref?.addEventListener('loadedmetadata', handler);
-
-		return () => _ref?.removeEventListener('loadedmetadata', handler);
-	}, [mediaRef]);
-
-	useEffect(() => {
 		const tagName = mediaType === 'audio' ? '<Audio>' : '<Video>';
 
-		if (!mediaRef.current || !mediaMetadata) {
+		if (!mediaRef.current || !hasMetadata) {
 			return;
 		}
 
@@ -107,7 +99,7 @@ export const useMediaInTimeline = ({
 		volumes,
 		doesVolumeChange,
 		nonce,
-		mediaMetadata,
+		hasMetadata,
 		mediaRef,
 		mediaType,
 		startsAt,
