@@ -56,9 +56,8 @@ const comboBoxStyle: React.CSSProperties = {
 
 const commonFrameRates = [24, 25, 29.97, 30, 48, 50];
 
-export const NewComposition: React.FC<{initialCompType: CompType}> = ({
-	initialCompType,
-}) => {
+const NewComposition: React.FC<{initialCompType: CompType}> = (props) => {
+	const {initialCompType} = props;
 	const [selectedFrameRate, setFrameRate] = useState<string>(
 		String(commonFrameRates[0])
 	);
@@ -403,3 +402,5 @@ export const NewComposition: React.FC<{initialCompType: CompType}> = ({
 		</ModalContainer>
 	);
 };
+
+export default NewComposition;
