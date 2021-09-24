@@ -15,13 +15,12 @@ import {
 	loadAspectRatioOption,
 	persistAspectRatioOption,
 } from '../../state/aspect-ratio-locked';
-import {ModalsContext} from '../../state/modals';
+import {CompType, ModalsContext} from '../../state/modals';
 import {CopyButton} from '../CopyButton';
 import {Row, Spacing} from '../layout';
 import {ModalContainer} from '../ModalContainer';
 import {NewCompHeader} from '../ModalHeader';
 import {Combobox, ComboboxValue} from './ComboBox';
-import {CompType} from './CompositionType';
 import {InputDragger} from './InputDragger';
 import {inputArea, leftLabel} from './new-comp-layout';
 import {NewCompAspectRatio} from './NewCompAspectRatio';

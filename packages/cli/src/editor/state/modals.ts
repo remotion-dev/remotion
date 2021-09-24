@@ -1,6 +1,7 @@
 import React, {createContext} from 'react';
-import {CompType} from '../components/NewComposition/CompositionType';
 import {UpdateInfo} from '../components/UpdateCheck';
+
+export type CompType = 'composition' | 'still';
 
 export type ModalState =
 	| {
