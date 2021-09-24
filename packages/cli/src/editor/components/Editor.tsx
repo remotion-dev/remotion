@@ -31,7 +31,7 @@ import {EditorContent} from './EditorContent';
 import {FramePersistor} from './FramePersistor';
 import {GlobalKeybindings} from './GlobalKeybindings';
 import {KeyboardShortcuts} from './KeyboardShortcutsModal';
-import {LazyLoadNewComposition} from './NewComposition/LazyLoadNewComposition';
+import NewComposition from './NewComposition/NewComposition';
 import {UpdateModal} from './UpdateModal/UpdateModal';
 
 const Background = styled.div`
@@ -159,7 +159,7 @@ export const Editor: React.FC = () => {
 												</Background>
 												{modalContextType &&
 													modalContextType.type === 'new-comp' && (
-														<LazyLoadNewComposition
+														<NewComposition
 															initialCompType={modalContextType.compType}
 														/>
 													)}
