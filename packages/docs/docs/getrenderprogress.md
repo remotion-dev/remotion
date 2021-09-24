@@ -104,7 +104,7 @@ An array which contains errors that occured.
 
 The current time at which the Lambda function responded to the progress request.
 
-### `bucketSize`
+### `renderSize`
 
 How many bytes have been saved to the S3 bucket as a result of this render.
 

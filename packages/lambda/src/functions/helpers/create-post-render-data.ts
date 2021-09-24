@@ -72,7 +72,7 @@ export const createPostRenderData = async ({
 	const startTime = renderMetadata.startedDate;
 	const timeToFinish = endTime - startTime;
 
-	const bucketSize = contents
+	const renderSize = contents
 		.map((c) => c.Size ?? 0)
 		.reduce((a, b) => a + b, 0);
 
@@ -93,7 +93,7 @@ export const createPostRenderData = async ({
 		startTime: renderMetadata.startedDate,
 		endTime,
 		outputSize: outputFile.size,
-		bucketSize,
+		renderSize,
 		renderMetadata,
 		filesCleanedUp: getFilesToDelete({
 			chunkCount: renderMetadata.totalChunks,

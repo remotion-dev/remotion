@@ -239,8 +239,7 @@ export type PostRenderData = {
 	};
 	outputFile: string;
 	outputSize: number;
-	// TODO: Confusing, should be renderSize
-	bucketSize: number;
+	renderSize: number;
 	timeToFinish: number;
 	errors: EnhancedErrorInfo[];
 	startTime: number;
@@ -275,7 +274,7 @@ export type RenderProgress = {
 	errors: EnhancedErrorInfo[];
 	fatalErrorEncountered: boolean;
 	currentTime: number;
-	bucketSize: number;
+	renderSize: number;
 	lambdasInvoked: number;
 	cleanup: CleanupInfo | null;
 };

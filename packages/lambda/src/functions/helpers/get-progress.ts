@@ -44,7 +44,7 @@ export const getProgress = async ({
 	if (postRenderData) {
 		return {
 			bucket: bucketName,
-			bucketSize: postRenderData.bucketSize,
+			renderSize: postRenderData.renderSize,
 			chunks: postRenderData.renderMetadata.totalChunks,
 			cleanup: {
 				done: true,
@@ -142,7 +142,7 @@ export const getProgress = async ({
 
 	const chunks = contents.filter((c) => c.Key?.startsWith(chunkKey(renderId)));
 
-	const bucketSize = contents
+	const renderSize = contents
 		.map((c) => c.Size ?? 0)
 		.reduce((a, b) => a + b, 0);
 
@@ -169,7 +169,7 @@ export const getProgress = async ({
 		errors: errorExplanations,
 		fatalErrorEncountered: errorExplanations.some(isFatalError),
 		currentTime: Date.now(),
-		bucketSize,
+		renderSize,
 		lambdasInvoked,
 		cleanup,
 	};
