@@ -10,6 +10,7 @@ interface MockCompositionManagerContext {
 	registerAsset: Function;
 	unregisterAsset: Function;
 }
+
 let mockContext: MockCompositionManagerContext;
 
 describe('Register and unregister asset', () => {
@@ -45,17 +46,34 @@ describe('Register and unregister asset', () => {
 
 	// JSDOM doesn't simulate browser events, `currentSrc` is always empty,
 	// so we can't assert the registration and unregistration of assets.
-	test.skip('register and unregister asset', () => {
+	test('register and unregister asset', () => {
 		const props = {
 			src: 'test',
 			muted: false,
 			volume: 50,
 		};
-		const {unmount} = render(
+
+		Object.defineProperty(
+			global.window.HTMLMediaElement.prototype,
+			'currentSrc',
+			{
+				get() {
+					return this.src;
+				},
+			}
+		);
+
+		const {container, unmount} = render(
 			<mockContext.MockProvider>
 				<AudioForRendering {...props} />
 			</mockContext.MockProvider>
 		);
+
+		const audioEl = container.querySelector('audio') as HTMLAudioElement;
+
+		// Dispatch the `loadedmetadata` event manually
+		// since JSDOM doesn't support these events
+		fireEvent(audioEl, createEvent.loadedMetadata(audioEl));
 
 		expect(mockContext.registerAsset).toHaveBeenCalled();
 		unmount();
