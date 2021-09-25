@@ -1,5 +1,5 @@
 import {CliInternals} from '@remotion/cli';
-import {EncodingProgress, RenderProgress} from '../../../defaults';
+import {CleanupInfo, EncodingProgress, RenderProgress} from '../../../defaults';
 
 type LambdaInvokeProgress = {
 	totalLambdas: number | null;
@@ -17,13 +17,14 @@ export type MultiRenderProgress = {
 	lambdaInvokeProgress: LambdaInvokeProgress;
 	chunkProgress: ChunkProgress;
 	encodingProgress: EncodingProgress;
+	cleanupInfo: CleanupInfo | null;
 };
 
 export const makeInvokeProgress = (chunkProgress: LambdaInvokeProgress) => {
 	const {lambdasInvoked, totalLambdas, doneIn} = chunkProgress;
 	return [
-		'🌩',
-		`(1/3)`,
+		'🌩 ',
+		`(1/4)`,
 		CliInternals.makeProgressBar(
 			totalLambdas === null ? 0 : lambdasInvoked / totalLambdas
 		),
@@ -39,8 +40,8 @@ export const makeInvokeProgress = (chunkProgress: LambdaInvokeProgress) => {
 export const makeChunkProgress = (chunkProgress: ChunkProgress) => {
 	const {chunksInvoked, totalChunks, doneIn} = chunkProgress;
 	return [
-		'📽',
-		`(2/3)`,
+		'🧩',
+		`(2/4)`,
 		CliInternals.makeProgressBar(
 			totalChunks === null ? 0 : chunksInvoked / totalChunks
 		),
@@ -56,8 +57,8 @@ export const makeChunkProgress = (chunkProgress: ChunkProgress) => {
 export const makeEncodingProgress = (encodingProgress: EncodingProgress) => {
 	const {framesEncoded, totalFrames, doneIn} = encodingProgress;
 	return [
-		'📽',
-		`(3/3)`,
+		'📽 ',
+		`(3/4)`,
 		CliInternals.makeProgressBar(
 			totalFrames === null ? 0 : framesEncoded / totalFrames
 		),
@@ -67,6 +68,23 @@ export const makeEncodingProgress = (encodingProgress: EncodingProgress) => {
 					totalFrames === null ? 0 : (framesEncoded / totalFrames) * 100
 			  )}%`
 			: CliInternals.chalk.gray(`${doneIn}ms`),
+	].join(' ');
+};
+
+export const makeCleanupProgress = (cleanupInfo: CleanupInfo | null) => {
+	if (!cleanupInfo) {
+		return '';
+	}
+
+	const {done, filesDeleted, filesToDelete} = cleanupInfo;
+	return [
+		'🪣 ',
+		`(4/4)`,
+		CliInternals.makeProgressBar(filesDeleted / filesToDelete),
+		`${done ? 'Cleaned up' : 'Cleaning up'} `,
+		done
+			? CliInternals.chalk.gray('TODOms')
+			: `${Math.round((filesDeleted / filesToDelete) * 100)}%`,
 	].join(' ');
 };
 
@@ -92,5 +110,6 @@ export const makeMultiProgressFromStatus = (
 			totalLambdas:
 				status.renderMetadata?.estimatedRenderLambdaInvokations ?? null,
 		},
+		cleanupInfo: status.cleanup,
 	};
 };

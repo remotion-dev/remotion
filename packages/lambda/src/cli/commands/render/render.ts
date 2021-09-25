@@ -11,6 +11,7 @@ import {findFunctionName} from '../../helpers/find-function-name';
 import {Log} from '../../log';
 import {
 	makeChunkProgress,
+	makeCleanupProgress,
 	makeEncodingProgress,
 	makeInvokeProgress,
 	makeMultiProgressFromStatus,
@@ -81,6 +82,7 @@ export const renderCommand = async (args: string[]) => {
 			makeInvokeProgress(multiProgress.lambdaInvokeProgress),
 			makeChunkProgress(multiProgress.chunkProgress),
 			makeEncodingProgress(multiProgress.encodingProgress),
+			makeCleanupProgress(multiProgress.cleanupInfo),
 		].join('\n')
 	);
 
@@ -99,6 +101,7 @@ export const renderCommand = async (args: string[]) => {
 				makeInvokeProgress(newProgress.lambdaInvokeProgress),
 				makeChunkProgress(newProgress.chunkProgress),
 				makeEncodingProgress(newProgress.encodingProgress),
+				makeCleanupProgress(newProgress.cleanupInfo),
 			].join('\n')
 		);
 
