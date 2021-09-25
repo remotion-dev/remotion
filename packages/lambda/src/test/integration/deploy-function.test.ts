@@ -16,7 +16,6 @@ jest.mock('../../api/create-bucket');
 jest.mock('../../api/upload-dir');
 jest.mock('../../api/bucket-exists');
 jest.mock('../../api/clean-items');
-jest.mock('../../api/ensure-lambda-binaries');
 jest.mock('../../api/create-function');
 jest.mock('../../api/delete-function');
 jest.mock('../../api/bundle-lambda');
@@ -30,16 +29,6 @@ test('Should be able to deploy function', async () => {
 		timeoutInSeconds: 120,
 	});
 	expect(functionName).toBe('remotion-render-abcdef');
-});
-
-test('Should not be able to deploy function if binaries were not ensured', async () => {
-	await expect(() =>
-		deployFunction({
-			memorySizeInMb: 2048,
-			region: 'us-east-2',
-			timeoutInSeconds: 120,
-		})
-	).rejects.toThrow(/did not ensure layer for/);
 });
 
 test('Should be able to get the function afterwards', async () => {
