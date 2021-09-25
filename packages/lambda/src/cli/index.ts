@@ -92,6 +92,7 @@ export const executeCommand = async (args: string[]) => {
 			Log.error('PERMISSION PROBLEM PUT HELPFUL MESSAGE HERE');
 		}
 
+		Log.error(error);
 		Log.error(error.stack);
 		process.exit(1);
 	}

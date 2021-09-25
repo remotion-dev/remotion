@@ -30,14 +30,12 @@
 		"aws-policies": "^1.0.1",
 		"dotenv": "^10.0.0",
 		"esbuild": "^0.11.12",
-		"lambdafs": "^2.0.3",
 		"minimist": "^1.2.5",
 		"p-limit": "^3.1.0",
 		"p-retry": "^4.6.0",
 		"prompt": "^1.1.0",
 		"remotion": "^2.1.4",
-		"ts-node": "^9.1.1",
-		"zip-lib": "^0.7.2"
+		"ts-node": "^9.1.1"
 	},
 	"peerDependencies": {
 		"react": "^17.0.1",

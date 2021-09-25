@@ -19,14 +19,13 @@ export const createFunction = async ({
 		new CreateFunctionCommand({
 			Code: {
 				ImageUri:
-					'976210361945.dkr.ecr.eu-central-1.amazonaws.com/lambda-base-image:latest',
+					'976210361945.dkr.ecr.eu-central-1.amazonaws.com/lambda-base-image:v1',
 			},
 			FunctionName: functionName,
-			Handler: 'index.handler',
 			// TODO: Give helpful suggestion if user did not create role
 			Role: `arn:aws:iam::${accountId}:role/remotion-lambda-role`,
-			Runtime: 'nodejs14.x',
 			Description: 'Renders a Remotion video.',
+			PackageType: 'Image',
 			MemorySize: memorySizeInMb,
 			Timeout: timeoutInSeconds,
 		})
