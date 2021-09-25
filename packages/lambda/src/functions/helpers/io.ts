@@ -55,7 +55,7 @@ export const lambdaLs = async ({
 		}
 
 		// Prevent from accessing a foreign bucket, retry without ExpectedBucketOwner and see if it works. If it works then it's an owner mismatch.
-		if (err.stack.includes('AccessDenied')) {
+		if ((err as Error).stack?.includes('AccessDenied')) {
 			await getS3Client(region).send(
 				new ListObjectsV2Command({
 					Bucket: bucketName,
@@ -107,7 +107,7 @@ export const lambdaReadFile = async ({
 	key: string;
 	region: AwsRegion;
 	expectedBucketOwner: string;
-}): Promise<Readable | Buffer> => {
+}): Promise<Readable> => {
 	const {Body} = await getS3Client(region).send(
 		new GetObjectCommand({
 			Bucket: bucketName,

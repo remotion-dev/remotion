@@ -1,4 +1,6 @@
 import {CliInternals} from '@remotion/cli';
+import {Internals} from 'remotion';
+import {downloadVideo} from '../../../api/download-video';
 import {getRenderProgress} from '../../../api/get-render-progress';
 import {renderVideoOnLambda} from '../../../api/render-video-on-lambda';
 import {
@@ -8,10 +10,12 @@ import {
 import {sleep} from '../../../shared/sleep';
 import {getAwsRegion} from '../../get-aws-region';
 import {findFunctionName} from '../../helpers/find-function-name';
+import {formatBytes} from '../../helpers/format-bytes';
 import {Log} from '../../log';
 import {
 	makeChunkProgress,
 	makeCleanupProgress,
+	makeDownloadProgess,
 	makeEncodingProgress,
 	makeInvokeProgress,
 	makeMultiProgressFromStatus,
@@ -41,6 +45,8 @@ export const renderCommand = async (args: string[]) => {
 		process.exit(1);
 	}
 
+	const outName = args[2] ?? null;
+
 	// TODO: Further validate serveUrl
 
 	const cliOptions = await CliInternals.getCliOptions({
@@ -68,6 +74,8 @@ export const renderCommand = async (args: string[]) => {
 		framesPerLambda: cliOptions.framesPerLambda ?? DEFAULT_FRAMES_PER_LAMBDA,
 	});
 
+	const totalSteps = outName ? 5 : 4;
+
 	const progressBar = CliInternals.createOverwriteableCliOutput();
 
 	const status = await getRenderProgress({
@@ -79,10 +87,10 @@ export const renderCommand = async (args: string[]) => {
 	const multiProgress = makeMultiProgressFromStatus(status);
 	progressBar.update(
 		[
-			makeInvokeProgress(multiProgress.lambdaInvokeProgress),
-			makeChunkProgress(multiProgress.chunkProgress),
-			makeEncodingProgress(multiProgress.encodingProgress),
-			makeCleanupProgress(multiProgress.cleanupInfo),
+			makeInvokeProgress(multiProgress.lambdaInvokeProgress, totalSteps),
+			makeChunkProgress(multiProgress.chunkProgress, totalSteps),
+			makeEncodingProgress(multiProgress.encodingProgress, totalSteps),
+			makeCleanupProgress(multiProgress.cleanupInfo, totalSteps),
 		].join('\n')
 	);
 
@@ -98,17 +106,52 @@ export const renderCommand = async (args: string[]) => {
 		const newProgress = makeMultiProgressFromStatus(newStatus);
 		progressBar.update(
 			[
-				makeInvokeProgress(newProgress.lambdaInvokeProgress),
-				makeChunkProgress(newProgress.chunkProgress),
-				makeEncodingProgress(newProgress.encodingProgress),
-				makeCleanupProgress(newProgress.cleanupInfo),
-			].join('\n')
+				makeInvokeProgress(newProgress.lambdaInvokeProgress, totalSteps),
+				makeChunkProgress(newProgress.chunkProgress, totalSteps),
+				makeEncodingProgress(newProgress.encodingProgress, totalSteps),
+				makeCleanupProgress(newProgress.cleanupInfo, totalSteps),
+			]
+				.filter(Internals.truthy)
+				.join('\n')
 		);
 
 		//	Log.info(newStatus);
 		if (newStatus.done) {
-			Log.info();
-			Log.info('Done! ' + newStatus.outputFile);
+			progressBar.update(
+				[
+					makeInvokeProgress(newProgress.lambdaInvokeProgress, totalSteps),
+					makeChunkProgress(newProgress.chunkProgress, totalSteps),
+					makeEncodingProgress(newProgress.encodingProgress, totalSteps),
+					makeCleanupProgress(newProgress.cleanupInfo, totalSteps),
+				]
+					.filter(Internals.truthy)
+					.join('\n')
+			);
+			if (outName) {
+				const {outputPath, size} = await downloadVideo({
+					bucketName: res.bucketName,
+					outPath: outName,
+					region: getAwsRegion(),
+					renderId: res.renderId,
+				});
+				progressBar.update(
+					[
+						makeInvokeProgress(newProgress.lambdaInvokeProgress, totalSteps),
+						makeChunkProgress(newProgress.chunkProgress, totalSteps),
+						makeEncodingProgress(newProgress.encodingProgress, totalSteps),
+						makeCleanupProgress(newProgress.cleanupInfo, totalSteps),
+						outName ? makeDownloadProgess(totalSteps, true) : null,
+					]
+						.filter(Internals.truthy)
+						.join('\n')
+				);
+				Log.info();
+				Log.info('Done!', outputPath, formatBytes(size));
+			} else {
+				Log.info();
+				Log.info('Done! ' + newStatus.outputFile);
+			}
+
 			process.exit(0);
 		}
 

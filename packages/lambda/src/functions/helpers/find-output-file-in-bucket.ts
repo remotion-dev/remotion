@@ -1,6 +1,6 @@
 import {_Object} from '@aws-sdk/client-s3';
-import {Codec} from 'remotion';
-import {outName, outStillName, RenderMetadata} from '../../shared/constants';
+import {RenderMetadata} from '../../shared/constants';
+import {getExpectedOutName} from './expected-out-name';
 import {getCurrentRegionInFunction} from './get-current-region';
 
 export const findOutputFileInBucket = ({
@@ -20,21 +20,8 @@ export const findOutputFileInBucket = ({
 	size: number;
 	lastModified: number;
 } | null => {
-	const expectedOutName = (() => {
-		if (!renderMetadata) {
-			return null;
-		}
-
-		if (type === 'still') {
-			return outStillName(renderId, renderMetadata?.imageFormat);
-		}
-
-		if (type === 'video') {
-			return outName(renderId, renderMetadata?.codec as Codec);
-		}
-
-		throw new TypeError('no type passed');
-	})();
+	const expectedOutName =
+		renderMetadata === null ? null : getExpectedOutName(renderMetadata);
 
 	const output = expectedOutName
 		? renderMetadata

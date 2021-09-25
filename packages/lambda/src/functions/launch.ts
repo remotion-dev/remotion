@@ -189,6 +189,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		framesPerLambda: params.framesPerLambda,
 		memorySizeInMb: Number(process.env.AWS_LAMBDA_FUNCTION_MEMORY_SIZE),
 		region: getCurrentRegionInFunction(),
+		renderId: params.renderId,
 	};
 
 	await lambdaWriteFile({

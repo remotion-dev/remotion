@@ -20,11 +20,14 @@ export type MultiRenderProgress = {
 	cleanupInfo: CleanupInfo | null;
 };
 
-export const makeInvokeProgress = (chunkProgress: LambdaInvokeProgress) => {
+export const makeInvokeProgress = (
+	chunkProgress: LambdaInvokeProgress,
+	totalSteps: number
+) => {
 	const {lambdasInvoked, totalLambdas, doneIn} = chunkProgress;
 	return [
 		'🌩 ',
-		`(1/4)`,
+		`(1/${totalSteps})`,
 		CliInternals.makeProgressBar(
 			totalLambdas === null ? 0 : lambdasInvoked / totalLambdas
 		),
@@ -37,11 +40,14 @@ export const makeInvokeProgress = (chunkProgress: LambdaInvokeProgress) => {
 	].join(' ');
 };
 
-export const makeChunkProgress = (chunkProgress: ChunkProgress) => {
+export const makeChunkProgress = (
+	chunkProgress: ChunkProgress,
+	totalSteps: number
+) => {
 	const {chunksInvoked, totalChunks, doneIn} = chunkProgress;
 	return [
 		'🧩',
-		`(2/4)`,
+		`(2/${totalSteps})`,
 		CliInternals.makeProgressBar(
 			totalChunks === null ? 0 : chunksInvoked / totalChunks
 		),
@@ -54,15 +60,18 @@ export const makeChunkProgress = (chunkProgress: ChunkProgress) => {
 	].join(' ');
 };
 
-export const makeEncodingProgress = (encodingProgress: EncodingProgress) => {
+export const makeEncodingProgress = (
+	encodingProgress: EncodingProgress,
+	totalSteps: number
+) => {
 	const {framesEncoded, totalFrames, doneIn} = encodingProgress;
 	return [
 		'📽 ',
-		`(3/4)`,
+		`(3/${totalSteps})`,
 		CliInternals.makeProgressBar(
 			totalFrames === null ? 0 : framesEncoded / totalFrames
 		),
-		`${doneIn === null ? 'Encoding' : 'Encoded'} frames`,
+		`${doneIn === null ? 'Combining' : 'Combined'} videos`,
 		doneIn === null
 			? `${Math.round(
 					totalFrames === null ? 0 : (framesEncoded / totalFrames) * 100
@@ -71,7 +80,10 @@ export const makeEncodingProgress = (encodingProgress: EncodingProgress) => {
 	].join(' ');
 };
 
-export const makeCleanupProgress = (cleanupInfo: CleanupInfo | null) => {
+export const makeCleanupProgress = (
+	cleanupInfo: CleanupInfo | null,
+	totalSteps: number
+) => {
 	if (!cleanupInfo) {
 		return '';
 	}
@@ -79,12 +91,27 @@ export const makeCleanupProgress = (cleanupInfo: CleanupInfo | null) => {
 	const {done, filesDeleted, filesToDelete} = cleanupInfo;
 	return [
 		'🪣 ',
-		`(4/4)`,
+		`(4/${totalSteps})`,
 		CliInternals.makeProgressBar(filesDeleted / filesToDelete),
-		`${done ? 'Cleaned up' : 'Cleaning up'} `,
+		`${done ? 'Cleaned up' : 'Cleaning up'} artifacts`,
 		done
 			? CliInternals.chalk.gray('TODOms')
 			: `${Math.round((filesDeleted / filesToDelete) * 100)}%`,
+	].join(' ');
+};
+
+export const makeDownloadProgess = (
+	totalSteps: number,
+	downloadedYet: boolean
+) => {
+	return [
+		'💾',
+		`(5/${totalSteps})`,
+		// TODO: More granularly
+		CliInternals.makeProgressBar(Number(downloadedYet)),
+		`${downloadedYet ? 'Downloaded' : 'Downloading'} video`,
+		// TODO
+		downloadedYet ? CliInternals.chalk.gray('TODOms') : '0%',
 	].join(' ');
 };
 

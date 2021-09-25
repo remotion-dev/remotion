@@ -219,6 +219,7 @@ export type RenderMetadata = {
 	memorySizeInMb: number;
 	lambdaVersion: LambdaVersions;
 	region: AwsRegion;
+	renderId: string;
 };
 
 export type LambdaVersions =
