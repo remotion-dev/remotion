@@ -1,8 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import {tmpDir} from '../shared/tmpdir';
 import esbuild = require('esbuild');
-import zl = require('zip-lib');
 
 export const bundleLambda = async () => {
 	const outdir = path.join(__dirname, '..', `build-render`);
@@ -25,7 +23,5 @@ export const bundleLambda = async () => {
 		entryPoints: [template],
 	});
 
-	const out = path.join(tmpDir('remotion-fn'), `function-render.zip`);
-	await zl.archiveFolder(outdir, out);
-	return out;
+	return outfile;
 };

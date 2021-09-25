@@ -101,26 +101,14 @@ npx remotion lambda functions deploy
 </TabItem>
 <TabItem value="node">
 
-First create a Lambda layer - it will contain the necessary binaries such as Google Chrome and FFMPEG. If one already exists, it will be used instead.
-
 We'll assume `us-east-1`, but you can choose [any supported region](/docs/lambda/region-selection).
 
-```ts twoslash
-// @module: ESNext
-// @target: ESNext
-import {ensureLambdaBinaries, deployFunction} from '@remotion/lambda';
-
-const {layerArn} = await ensureLambdaBinaries('us-east-1')
-```
-
-Now you are ready to deploy the function itself using [`deployFunction()`](/docs/lambda/deployfunction).
+You can deploy the function using [`deployFunction()`](/docs/lambda/deployfunction).
 
 ```ts twoslash
 // @module: ESNext
 // @target: ESNext
-import {ensureLambdaBinaries, deployFunction} from '@remotion/lambda';
-
-const {layerArn} = await ensureLambdaBinaries('us-east-1')
+import {deployFunction} from '@remotion/lambda';
 
 // ---cut---
 const {functionName} = await deployFunction({

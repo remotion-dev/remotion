@@ -1,6 +1,5 @@
 import {deleteFunction} from '../../api/delete-function';
 import {deployFunction} from '../../api/deploy-function';
-import {ensureLambdaBinaries} from '../../api/ensure-lambda-binaries';
 import {getFunctions} from '../../api/get-functions';
 import {
 	cleanFnStore,
@@ -25,10 +24,7 @@ jest.mock('../../api/get-functions');
 jest.mock('../../shared/get-account-id');
 
 test('Should be able to deploy function', async () => {
-	const {layerArn} = await ensureLambdaBinaries('us-east-1');
-
 	const {functionName} = await deployFunction({
-		layerArn,
 		memorySizeInMb: 2048,
 		region: 'us-east-1',
 		timeoutInSeconds: 120,
@@ -39,7 +35,6 @@ test('Should be able to deploy function', async () => {
 test('Should not be able to deploy function if binaries were not ensured', async () => {
 	await expect(() =>
 		deployFunction({
-			layerArn: 'us-east-2',
 			memorySizeInMb: 2048,
 			region: 'us-east-2',
 			timeoutInSeconds: 120,
@@ -49,10 +44,8 @@ test('Should not be able to deploy function if binaries were not ensured', async
 
 test('Should be able to get the function afterwards', async () => {
 	cleanFnStore();
-	const {layerArn} = await ensureLambdaBinaries('us-east-1');
 
 	const {functionName} = await deployFunction({
-		layerArn,
 		memorySizeInMb: 2048,
 		region: 'us-east-1',
 		timeoutInSeconds: 120,
@@ -80,10 +73,8 @@ test('Should be able to get the function afterwards', async () => {
 
 test('Should be able to delete the function', async () => {
 	cleanFnStore();
-	const {layerArn} = await ensureLambdaBinaries('us-east-1');
 
 	const {functionName} = await deployFunction({
-		layerArn,
 		memorySizeInMb: 2048,
 		region: 'us-east-1',
 		timeoutInSeconds: 120,
@@ -102,10 +93,8 @@ test('Should be able to delete the function', async () => {
 
 test('Should be able to get the function afterwards', async () => {
 	cleanFnStore();
-	const {layerArn} = await ensureLambdaBinaries('us-east-1');
 
 	const {functionName} = await deployFunction({
-		layerArn,
 		memorySizeInMb: 2048,
 		region: 'us-east-1',
 		timeoutInSeconds: 120,

@@ -6,17 +6,14 @@ slug: /lambda/deployfunction
 
 Creates an [AWS Lambda](https://aws.amazon.com/lambda/) function in your AWS account that will be able to render a video in the cloud.
 
-Before calling `deployFunction()`, you need to deploy the necessary binaries and obtain the identifier for the Lambda Layer. You can do so by calling [`ensureLambdaBinaries()`](/docs/lambda/ensurelambdabinaries).
-
 ## Example
 
 ```ts twoslash
 // @module: esnext
 // @target: es2017
 
-import {deployFunction, ensureLambdaBinaries} from '@remotion/lambda';
+import {deployFunction} from '@remotion/lambda';
 
-const {layerArn} = await ensureLambdaBinaries('us-east-1');
 const {functionName} = await deployFunction({
   layerArn,
   region: 'us-east-1',
@@ -29,10 +26,6 @@ console.log(functionName)
 ## Arguments
 
 An object with the following properties:
-
-### `layerArn`
-
-The [ARN](https://docs.aws.amazon.com/general/latest/gr/aws-arns-and-namespaces.html) of the Lambda Layer that should be used. You can obtain it by calling [`ensureLambdaBinaries()`](/docs/lambda/ensurelambdabinaries).
 
 ### `region`
 

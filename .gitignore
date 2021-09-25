@@ -5,3 +5,4 @@ lerna-debug.log
 .DS_Store
 coverage
 packages/example/.env
+packages/lambda/src/admin/image/app.js

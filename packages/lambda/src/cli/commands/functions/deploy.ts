@@ -1,7 +1,6 @@
 import {CliInternals} from '@remotion/cli';
 import {Log} from '@remotion/cli/dist/log';
 import {deployFunction} from '../../../api/deploy-function';
-import {ensureLambdaBinaries} from '../../../api/ensure-lambda-binaries';
 import {
 	CURRENT_VERSION,
 	DEFAULT_MEMORY_SIZE,
@@ -28,13 +27,10 @@ export const functionsDeploySubcommand = async () => {
 	);
 	const output = CliInternals.createOverwriteableCliOutput();
 	output.update('Ensuring Lambda binaries...');
-	// TODO: Output can be more finegrained
-	const {layerArn} = await ensureLambdaBinaries(getAwsRegion());
 	output.update('Bundling lambda and deploying...');
 	const {functionName} = await deployFunction({
 		region,
 		timeoutInSeconds,
-		layerArn,
 		memorySizeInMb,
 	});
 	output.update(`Deployed to ${functionName}\n`);
