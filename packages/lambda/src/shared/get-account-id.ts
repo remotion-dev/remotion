@@ -13,5 +13,5 @@ export const getAccountId = async (options: {region: AwsRegion}) => {
 		throw new Error('Cannot get account ID');
 	}
 
-	return accountId;
+	return accountId[1];
 };

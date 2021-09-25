@@ -99,6 +99,7 @@ export const innerStillHandler = async (
 		framesPerLambda: 1,
 		memorySizeInMb: Number(process.env.AWS_LAMBDA_FUNCTION_MEMORY_SIZE),
 		region: getCurrentRegionInFunction(),
+		renderId,
 	};
 
 	await lambdaWriteFile({
@@ -184,8 +185,10 @@ export const stillHandler = async (
 		// If this error is encountered, we can just retry as it
 		// is a very rare error to occur
 		const isBrowserError =
-			err.message.includes('FATAL:zygote_communication_linux.cc') ||
-			err.message.included('error while loading shared libraries: libnss3.so');
+			(err as Error).message.includes('FATAL:zygote_communication_linux.cc') ||
+			(err as Error).message.includes(
+				'error while loading shared libraries: libnss3.so'
+			);
 		if (isBrowserError || params.maxRetries > 0) {
 			const retryPayload: LambdaPayloads[LambdaRoutines.still] = {
 				...params,

@@ -37,7 +37,7 @@ export const deployFunction = async (options: {
 		region: options.region,
 		zipFile: renderOut,
 		functionName: fnNameRender,
-		accountId: accountId[1],
+		accountId,
 		memorySizeInMb: options.memorySizeInMb,
 		timeoutInSeconds: options.timeoutInSeconds,
 		layerArn: options.layerArn,
