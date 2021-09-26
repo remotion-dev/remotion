@@ -2,7 +2,6 @@ import {PlayerInternals} from '@remotion/player';
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import ReactDOM from 'react-dom';
 import {CLEAR_HOVER, LIGHT_TEXT} from '../../helpers/colors';
-import {cssReset} from '../../helpers/css-reset';
 import {Caret} from '../../icons/caret';
 import {useZIndex} from '../../state/z-index';
 import {Flex, Row, Spacing} from '../layout';
@@ -20,14 +19,18 @@ const container: React.CSSProperties = {
 	paddingBottom: 8,
 	paddingLeft: 12,
 	paddingRight: 8,
-	fontSize: 13,
 	cursor: 'default',
 };
 export const MENU_SUBMENU_BUTTON_CLASS_NAME = 'remotion-submenu-button';
 
+const labelStyle: React.CSSProperties = {
+	fontSize: 13,
+};
+
 const keyHintCss: React.CSSProperties = {
 	flexDirection: 'row',
 	color: LIGHT_TEXT,
+	fontSize: 13,
 };
 
 const leftSpace: React.CSSProperties = {
@@ -105,7 +108,6 @@ export const MenuSubItem: React.FC<{
 		}
 
 		return {
-			...cssReset,
 			...menuContainer,
 			left: size.left + size.width + SUBMENU_LEFT_INSET,
 			top: size.top - MENU_VERTICAL_PADDING,
@@ -138,7 +140,7 @@ export const MenuSubItem: React.FC<{
 						<Spacing x={1} />
 					</>
 				) : null}
-				<div>{label}</div> <Flex />
+				<div style={labelStyle}>{label}</div> <Flex />
 				<Spacing x={2} />
 				{subMenu ? <Caret /> : null}
 				{keyHint ? <span style={keyHintCss}>{keyHint}</span> : null}

@@ -14,6 +14,10 @@ const HOOK_WIDTH = 7;
 const BORDER_BOTTOM_LEFT_RADIUS = 2;
 const SPACING = 5;
 
+const textStyle: React.CSSProperties = {
+	fontSize: 13,
+};
+
 const outer: React.CSSProperties = {
 	height: TIMELINE_LAYER_HEIGHT + TIMELINE_BORDER * 2,
 	color: 'white',
@@ -21,7 +25,6 @@ const outer: React.CSSProperties = {
 	display: 'flex',
 	flexDirection: 'row',
 	alignItems: 'center',
-	fontSize: 13,
 	paddingLeft: TIMELINE_PADDING,
 	wordBreak: 'break-all',
 };
@@ -138,7 +141,7 @@ export const TimelineListItem: React.FC<{
 					<div style={space} />
 				</>
 			) : null}
-			<div>
+			<div style={textStyle}>
 				{text || 'Untitled'}
 				<TimelineSequenceFrame
 					duration={sequence.duration}

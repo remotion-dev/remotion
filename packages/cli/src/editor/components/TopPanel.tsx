@@ -1,5 +1,4 @@
 import React from 'react';
-import {cssReset} from '../helpers/css-reset';
 import {Canvas} from './Canvas';
 import {CompositionSelector} from './CompositionSelector';
 import {MenuToolbar} from './MenuToolbar';
@@ -13,7 +12,6 @@ const container: React.CSSProperties = {
 	display: 'flex',
 	flexDirection: 'column',
 	flex: 1,
-	...cssReset,
 };
 
 const row: React.CSSProperties = {
@@ -34,7 +32,7 @@ const leftContainer: React.CSSProperties = {
 
 export const TopPanel: React.FC = () => {
 	return (
-		<div style={container}>
+		<div style={container} className="css-reset">
 			<MenuToolbar />
 			<div style={row}>
 				<SplitterContainer

@@ -1,7 +1,13 @@
+import React from 'react';
+
 const strColor = '#9ECBFF';
 const consColor = '#79B8FF';
 const propColor = '#B392F0';
 const keywordColor = '#F97583';
+
+const cssReset: React.CSSProperties = {
+	fontFamily: 'monospace',
+};
 
 const makeProperty = (
 	key: string,
@@ -15,15 +21,15 @@ const makeProperty = (
 
 	return [
 		`  `,
-		<span key={key + 'key'} style={{color: propColor}}>
+		<span key={key + 'key'} style={{...cssReset, color: propColor}}>
 			{key}
 		</span>,
-		<span key={key + 'equal'} style={{color: keywordColor}}>
+		<span key={key + 'equal'} style={{...cssReset, color: keywordColor}}>
 			{'='}
 		</span>,
 		type === 'string'
 			? [
-					<span key={key + 'value'} style={{color: strColor}}>
+					<span key={key + 'value'} style={{...cssReset, color: strColor}}>
 						{'"'}
 						{val}
 						{'"'}
@@ -33,7 +39,10 @@ const makeProperty = (
 					'{',
 					<span
 						key={key + 'value'}
-						style={{color: typeof val === 'number' ? consColor : strColor}}
+						style={{
+							...cssReset,
+							color: typeof val === 'number' ? consColor : strColor,
+						}}
 					>
 						{val}
 					</span>,
@@ -93,7 +102,7 @@ export const getNewCompositionCode = ({
 
 	return [
 		`<`,
-		<span key="compname" style={{color: '#79B8FF'}}>
+		<span key="compname" style={{...cssReset, color: '#79B8FF'}}>
 			{compName}
 		</span>,
 		<br key="linebr1" />,

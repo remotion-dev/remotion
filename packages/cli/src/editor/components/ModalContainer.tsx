@@ -1,7 +1,5 @@
 import React from 'react';
 import {BACKGROUND} from '../helpers/colors';
-import {cssReset} from '../helpers/css-reset';
-import {FONT_FAMILY} from '../helpers/font';
 import {HigherZIndex} from '../state/z-index';
 
 const backgroundOverlay: React.CSSProperties = {
@@ -13,14 +11,12 @@ const backgroundOverlay: React.CSSProperties = {
 	display: 'flex',
 	justifyContent: 'center',
 	alignItems: 'center',
-	...cssReset,
 };
 
 const panel: React.CSSProperties = {
 	backgroundColor: BACKGROUND,
 	boxShadow: '0 0 4px black',
 	color: 'white',
-	fontFamily: FONT_FAMILY,
 };
 
 export const ModalContainer: React.FC<{
@@ -28,7 +24,12 @@ export const ModalContainer: React.FC<{
 	onOutsideClick: () => void;
 }> = ({children, onEscape, onOutsideClick}) => {
 	return (
-		<div style={backgroundOverlay} role="dialog" aria-modal="true">
+		<div
+			className="css-reset"
+			style={backgroundOverlay}
+			role="dialog"
+			aria-modal="true"
+		>
 			<HigherZIndex onOutsideClick={onOutsideClick} onEscape={onEscape}>
 				<div style={panel}>{children}</div>
 			</HigherZIndex>

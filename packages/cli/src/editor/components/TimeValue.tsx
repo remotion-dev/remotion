@@ -1,13 +1,11 @@
 import React from 'react';
 import {Internals, useCurrentFrame} from 'remotion';
-import {FONT_FAMILY} from '../helpers/font';
 import {useIsStill} from '../helpers/is-current-selected-still';
 import {renderFrame} from '../state/render-frame';
 
 const text: React.CSSProperties = {
 	color: 'white',
 	fontSize: 16,
-	fontFamily: FONT_FAMILY,
 	display: 'flex',
 	flexDirection: 'column',
 	justifyContent: 'center',
@@ -17,6 +15,7 @@ const text: React.CSSProperties = {
 
 const time: React.CSSProperties = {
 	display: 'inline-block',
+	fontSize: 16,
 };
 
 const frameStyle: React.CSSProperties = {
@@ -42,7 +41,7 @@ export const TimeValue: React.FC = () => {
 		<div style={text}>
 			<div style={time}>{renderFrame(frame, config.fps)}</div>{' '}
 			<div style={frameStyle}>
-				{frame} <span>({config.fps} fps)</span>
+				{frame} <span style={frameStyle}>({config.fps} fps)</span>
 			</div>
 		</div>
 	);
