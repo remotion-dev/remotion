@@ -21,7 +21,7 @@ const withoutId = (asset: MediaAsset) => {
 	return others;
 };
 
-test.skip('Should be able to collect assets', async () => {
+test('Should be able to collect assets', async () => {
 	const assetPositions = await getPositions(() => (
 		<Video src="https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/1080/Big_Buck_Bunny_1080_10s_1MB.mp4" />
 	));
@@ -39,7 +39,7 @@ test.skip('Should be able to collect assets', async () => {
 	});
 });
 
-test.skip('Should get multiple assets', async () => {
+test('Should get multiple assets', async () => {
 	const assetPositions = await getPositions(() => (
 		<div>
 			<Video src="https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/1080/Big_Buck_Bunny_1080_10s_1MB.mp4" />
@@ -71,7 +71,7 @@ test.skip('Should get multiple assets', async () => {
 	});
 });
 
-test.skip('Should handle jumps inbetween', async () => {
+test('Should handle jumps inbetween', async () => {
 	const assetPositions = await getPositions(() => {
 		const frame = useCurrentFrame();
 		return (
@@ -107,7 +107,7 @@ test.skip('Should handle jumps inbetween', async () => {
 	});
 });
 
-test.skip('Should support sequencing', async () => {
+test('Should support sequencing', async () => {
 	const assetPositions = await getPositions(() => {
 		return (
 			<Sequence durationInFrames={30} from={-20}>
@@ -129,7 +129,7 @@ test.skip('Should support sequencing', async () => {
 	});
 });
 
-test.skip('Should calculate volumes correctly', async () => {
+test('Should calculate volumes correctly', async () => {
 	const assetPositions = await getPositions(() => {
 		return (
 			<Video
@@ -160,7 +160,7 @@ test.skip('Should calculate volumes correctly', async () => {
 	});
 });
 
-test.skip('Should calculate startFrom correctly', async () => {
+test('Should calculate startFrom correctly', async () => {
 	const assetPositions = await getPositions(() => {
 		return (
 			<Sequence from={1}>
