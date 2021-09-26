@@ -212,7 +212,6 @@ export const init = async () => {
 						title:
 							chalk.bold(padEnd(template.shortName, descriptionColumn)) +
 							template.description.trim(),
-						short: template.name,
 					};
 				}
 			}),
