@@ -17,7 +17,7 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 
 	const onError = useCallback((e) => {
 		console.error('onError', e);
-		throw new Error(`Could not play video: ${e.currentTarget.error}`);
+		throw new Error(`Could not play audio: ${e.currentTarget.error}`);
 	}, []);
 
 	if (typeof startFrom !== 'undefined' || typeof endAt !== 'undefined') {
