@@ -2,6 +2,7 @@ import {PlayerInternals} from '@remotion/player';
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import ReactDOM from 'react-dom';
 import {CLEAR_HOVER, LIGHT_TEXT} from '../../helpers/colors';
+import {cssReset} from '../../helpers/css-reset';
 import {Caret} from '../../icons/caret';
 import {useZIndex} from '../../state/z-index';
 import {Flex, Row, Spacing} from '../layout';
@@ -104,6 +105,7 @@ export const MenuSubItem: React.FC<{
 		}
 
 		return {
+			...cssReset,
 			...menuContainer,
 			left: size.left + size.width + SUBMENU_LEFT_INSET,
 			top: size.top - MENU_VERTICAL_PADDING,

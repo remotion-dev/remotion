@@ -1,4 +1,5 @@
 import React from 'react';
+import {cssReset} from '../helpers/css-reset';
 import {Canvas} from './Canvas';
 import {CompositionSelector} from './CompositionSelector';
 import {MenuToolbar} from './MenuToolbar';
@@ -12,6 +13,7 @@ const container: React.CSSProperties = {
 	display: 'flex',
 	flexDirection: 'column',
 	flex: 1,
+	...cssReset,
 };
 
 const row: React.CSSProperties = {

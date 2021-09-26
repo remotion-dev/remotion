@@ -1,5 +1,6 @@
 import React from 'react';
 import {BACKGROUND} from '../helpers/colors';
+import {cssReset} from '../helpers/css-reset';
 import {FONT_FAMILY} from '../helpers/font';
 import {HigherZIndex} from '../state/z-index';
 
@@ -12,6 +13,7 @@ const backgroundOverlay: React.CSSProperties = {
 	display: 'flex',
 	justifyContent: 'center',
 	alignItems: 'center',
+	...cssReset,
 };
 
 const panel: React.CSSProperties = {
