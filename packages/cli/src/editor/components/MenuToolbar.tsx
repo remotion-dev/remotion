@@ -1,4 +1,5 @@
 import React, {useCallback, useContext, useMemo, useState} from 'react';
+import {cssReset} from '../helpers/css-reset';
 import {FONT_FAMILY} from '../helpers/font';
 import {Checkmark} from '../icons/Checkmark';
 import {CheckerboardContext} from '../state/checkerboard';
@@ -12,6 +13,7 @@ import {commonPreviewSizes, getPreviewSizeLabel} from './SizeSelector';
 import {UpdateCheck} from './UpdateCheck';
 
 const row: React.CSSProperties = {
+	...cssReset,
 	alignItems: 'center',
 	flexDirection: 'row',
 	display: 'flex',

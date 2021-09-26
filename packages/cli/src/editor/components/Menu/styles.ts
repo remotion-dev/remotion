@@ -1,4 +1,5 @@
 import {BACKGROUND} from '../../helpers/colors';
+import {cssReset} from '../../helpers/css-reset';
 import {FONT_FAMILY} from '../../helpers/font';
 
 export const MENU_VERTICAL_PADDING = 4;
@@ -18,4 +19,5 @@ export const outerPortal: React.CSSProperties = {
 	position: 'fixed',
 	height: '100%',
 	width: '100%',
+	...cssReset,
 };

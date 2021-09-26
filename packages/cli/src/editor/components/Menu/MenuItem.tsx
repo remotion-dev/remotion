@@ -2,6 +2,7 @@ import {PlayerInternals} from '@remotion/player';
 import React, {useCallback, useMemo, useRef, useState} from 'react';
 import ReactDOM from 'react-dom';
 import {getBackgroundFromHoverState} from '../../helpers/colors';
+import {cssReset} from '../../helpers/css-reset';
 import {FONT_FAMILY} from '../../helpers/font';
 import {HigherZIndex, useZIndex} from '../../state/z-index';
 import {ComboboxValue} from '../NewComposition/ComboBox';
@@ -98,6 +99,7 @@ export const MenuItem: React.FC<{
 
 	const outerStyle = useMemo(() => {
 		return {
+			...cssReset,
 			...outerPortal,
 			top: (size?.top ?? 0) + (size?.height ?? 0),
 		};
