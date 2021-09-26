@@ -19,7 +19,7 @@ const key: React.CSSProperties = {
 	border: '1px solid black',
 	borderBottomWidth: 3,
 	fontSize: 13,
-	fontFamily: 'inherit',
+	fontFamily: 'monospace',
 };
 
 const right: React.CSSProperties = {
