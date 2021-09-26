@@ -43,8 +43,12 @@ const button: React.CSSProperties = {
 	backgroundColor: INPUT_BACKGROUND,
 	appearance: 'none',
 	fontFamily: 'inherit',
-	fontSize: 16,
+	fontSize: 14,
 	color: 'white',
+};
+
+const labelStyle: React.CSSProperties = {
+	fontSize: 14,
 };
 
 export const CopyButton: React.FC<{
@@ -72,7 +76,8 @@ export const CopyButton: React.FC<{
 		<button onClick={onClick} style={button} type="button">
 			<Row style={container}>
 				{copyIcon}
-				<Spacing x={1.5} /> {copied ? labelWhenCopied : label}
+				<Spacing x={1.5} />{' '}
+				<span style={labelStyle}>{copied ? labelWhenCopied : label}</span>
 			</Row>
 		</button>
 	);

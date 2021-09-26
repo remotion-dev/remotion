@@ -6,7 +6,6 @@ import React, {
 } from 'react';
 import {Internals} from 'remotion';
 import {calculateTimeline} from '../../helpers/calculate-timeline';
-import {cssReset} from '../../helpers/css-reset';
 import {TrackWithHash} from '../../helpers/get-timeline-sequence-sort-key';
 import {
 	TIMELINE_BORDER,
@@ -30,7 +29,6 @@ const container: React.CSSProperties = {
 	display: 'flex',
 	height: 0,
 	overflow: 'auto',
-	...cssReset,
 };
 
 export const Timeline: React.FC = () => {
@@ -90,7 +88,7 @@ export const Timeline: React.FC = () => {
 	}
 
 	return (
-		<div style={container}>
+		<div style={container} className="css-reset">
 			<div style={inner}>
 				<SplitterContainer
 					orientation="vertical"

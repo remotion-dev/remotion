@@ -1,6 +1,5 @@
 import React, {useContext} from 'react';
 import {Internals} from 'remotion';
-import {FONT_FAMILY} from '../helpers/font';
 import {isCompositionStill} from '../helpers/is-composition-still';
 import {renderFrame} from '../state/render-frame';
 import {RichTimelineContext} from '../state/rich-timeline';
@@ -13,26 +12,26 @@ const container: React.CSSProperties = {
 	borderBottom: '1px solid black',
 	padding: 16,
 	color: 'white',
-	lineHeight: '18px',
 };
 
 const title: React.CSSProperties = {
 	fontWeight: 'bold',
-	fontFamily: FONT_FAMILY,
 	fontSize: 12,
 	whiteSpace: 'nowrap',
+	lineHeight: '18px',
 };
 
 const subtitle: React.CSSProperties = {
-	fontFamily: FONT_FAMILY,
 	fontSize: 12,
 	opacity: 0.8,
 	whiteSpace: 'nowrap',
+	lineHeight: '18px',
 };
 
 const row: React.CSSProperties = {
 	display: 'flex',
 	flexDirection: 'row',
+	lineHeight: '18px',
 };
 
 const targetHeight = 60;

@@ -1,7 +1,6 @@
 import React, {useCallback, useState} from 'react';
 import {TComposition} from 'remotion';
 import {CLEAR_HOVER, LIGHT_TEXT, SELECTED_BACKGROUND} from '../helpers/colors';
-import {FONT_FAMILY} from '../helpers/font';
 import {isCompositionStill} from '../helpers/is-composition-still';
 import {FilmIcon} from '../icons/film';
 import {StillIcon} from '../icons/still';
@@ -13,12 +12,16 @@ const item: React.CSSProperties = {
 	paddingTop: 6,
 	paddingBottom: 6,
 	fontSize: 13,
-	fontFamily: FONT_FAMILY,
 	display: 'flex',
 	textDecoration: 'none',
 	cursor: 'default',
 	alignItems: 'center',
 	marginBottom: 1,
+};
+
+const iconStyle: React.CSSProperties = {
+	width: 18,
+	height: 18,
 };
 
 export const CompositionSelectorItem: React.FC<{
@@ -60,11 +63,11 @@ export const CompositionSelectorItem: React.FC<{
 			}}
 		>
 			{isCompositionStill(composition) ? (
-				<StillIcon style={{height: 18, width: 18}} />
+				<StillIcon style={iconStyle} />
 			) : (
-				<FilmIcon style={{height: 18, width: 18}} />
+				<FilmIcon style={iconStyle} />
 			)}
-			<Spacing x={0.5} />
+			<Spacing x={1} />
 			{composition.id}
 		</a>
 	);

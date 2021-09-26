@@ -2,8 +2,6 @@ import {PlayerInternals} from '@remotion/player';
 import React, {useCallback, useMemo, useRef, useState} from 'react';
 import ReactDOM from 'react-dom';
 import {getBackgroundFromHoverState} from '../../helpers/colors';
-import {cssReset} from '../../helpers/css-reset';
-import {FONT_FAMILY} from '../../helpers/font';
 import {HigherZIndex, useZIndex} from '../../state/z-index';
 import {ComboboxValue} from '../NewComposition/ComboBox';
 import {MenuContent} from '../NewComposition/MenuContent';
@@ -12,7 +10,6 @@ import {menuContainer, outerPortal} from './styles';
 
 const container: React.CSSProperties = {
 	fontSize: 13,
-	fontFamily: FONT_FAMILY,
 	color: 'white',
 	paddingLeft: 10,
 	paddingRight: 10,
@@ -99,7 +96,6 @@ export const MenuItem: React.FC<{
 
 	const outerStyle = useMemo(() => {
 		return {
-			...cssReset,
 			...outerPortal,
 			top: (size?.top ?? 0) + (size?.height ?? 0),
 		};
@@ -121,7 +117,7 @@ export const MenuItem: React.FC<{
 			</button>
 			{portalStyle
 				? ReactDOM.createPortal(
-						<div style={outerStyle}>
+						<div className="css-reset" style={outerStyle}>
 							<HigherZIndex onEscape={onItemQuit} onOutsideClick={onItemQuit}>
 								<div style={portalStyle}>
 									<MenuContent

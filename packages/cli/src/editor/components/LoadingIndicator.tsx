@@ -1,6 +1,5 @@
 import React from 'react';
 import {AbsoluteFill} from 'remotion';
-import {FONT_FAMILY} from '../helpers/font';
 
 const rotate: React.CSSProperties = {
 	transform: `rotate(90deg)`,
@@ -8,7 +7,6 @@ const rotate: React.CSSProperties = {
 const ICON_SIZE = 40;
 
 const label: React.CSSProperties = {
-	fontFamily: FONT_FAMILY,
 	color: '#555',
 	fontSize: 14,
 };

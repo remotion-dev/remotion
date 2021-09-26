@@ -27,7 +27,8 @@ export const Row: React.FC<{
 	justify?: 'center';
 	align?: 'center';
 	style?: React.CSSProperties;
-}> = ({children, justify, align, style = {}}) => {
+	className?: string;
+}> = ({children, justify, className, align, style = {}}) => {
 	const finalStyle: React.CSSProperties = useMemo(() => {
 		return {
 			...style,
@@ -37,5 +38,9 @@ export const Row: React.FC<{
 			alignItems: align ?? 'flex-start',
 		};
 	}, [align, justify, style]);
-	return <div style={finalStyle}>{children}</div>;
+	return (
+		<div className={className} style={finalStyle}>
+			{children}
+		</div>
+	);
 };

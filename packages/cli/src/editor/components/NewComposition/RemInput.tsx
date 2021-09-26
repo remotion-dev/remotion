@@ -12,7 +12,6 @@ import {
 	INPUT_BORDER_COLOR_UNHOVERED,
 	SELECTED_BACKGROUND,
 } from '../../helpers/colors';
-import {FONT_FAMILY} from '../../helpers/font';
 import {useZIndex} from '../../state/z-index';
 
 type Props = React.DetailedHTMLProps<
@@ -21,7 +20,6 @@ type Props = React.DetailedHTMLProps<
 >;
 
 export const inputBaseStyle: React.CSSProperties = {
-	fontFamily: FONT_FAMILY,
 	padding: '8px 10px',
 	color: 'white',
 	borderStyle: 'solid',

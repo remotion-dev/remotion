@@ -29,7 +29,7 @@ export const CopyHint: React.FC = () => {
 	return (
 		<div style={style}>
 			Copy this into <br /> your{' '}
-			<span title={projectInfo.videoFile as string}>
+			<span style={style} title={projectInfo.videoFile as string}>
 				{projectInfo.relativeVideoFile}
 			</span>{' '}
 			file.

@@ -127,7 +127,7 @@ export const Combobox: React.FC<{
 			</button>
 			{portalStyle
 				? ReactDOM.createPortal(
-						<div style={outerPortal}>
+						<div style={outerPortal} className="css-reset">
 							<HigherZIndex onOutsideClick={onHide} onEscape={onHide}>
 								<div style={portalStyle}>
 									<MenuContent

@@ -1,6 +1,4 @@
 import React, {useCallback, useContext, useMemo, useState} from 'react';
-import {cssReset} from '../helpers/css-reset';
-import {FONT_FAMILY} from '../helpers/font';
 import {Checkmark} from '../icons/Checkmark';
 import {CheckerboardContext} from '../state/checkerboard';
 import {ModalsContext} from '../state/modals';
@@ -13,14 +11,12 @@ import {commonPreviewSizes, getPreviewSizeLabel} from './SizeSelector';
 import {UpdateCheck} from './UpdateCheck';
 
 const row: React.CSSProperties = {
-	...cssReset,
 	alignItems: 'center',
 	flexDirection: 'row',
 	display: 'flex',
 	color: 'white',
 	borderBottom: '1px solid black',
 
-	fontFamily: FONT_FAMILY,
 	fontSize: 13,
 	paddingLeft: 6,
 };
@@ -414,7 +410,7 @@ export const MenuToolbar: React.FC = () => {
 	}, [setSelected]);
 
 	return (
-		<Row align="center" style={row}>
+		<Row align="center" className="css-reset" style={row}>
 			{structure.map((s) => {
 				return (
 					<MenuItem

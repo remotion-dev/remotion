@@ -35,6 +35,7 @@ const left: React.CSSProperties = {
 	paddingBottom: 80,
 	paddingRight: 12,
 	flex: 1,
+	fontSize: 13,
 };
 
 const panelRight: React.CSSProperties = {
@@ -48,6 +49,7 @@ const panelRight: React.CSSProperties = {
 
 const pre: React.CSSProperties = {
 	fontSize: 17,
+	fontFamily: 'monospace',
 };
 
 const comboBoxStyle: React.CSSProperties = {

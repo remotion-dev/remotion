@@ -20,7 +20,7 @@ export const SubMenuComponent: React.FC<{
 }) => {
 	return (
 		<HigherZIndex onEscape={onQuitFullMenu} onOutsideClick={noop}>
-			<div style={portalStyle}>
+			<div style={portalStyle} className="css-reset">
 				<MenuContent
 					onNextMenu={noop}
 					onPreviousMenu={onQuitSubMenu}
