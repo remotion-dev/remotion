@@ -9,6 +9,7 @@ import {
 } from '../helpers/checkerboard-background';
 import {CheckerboardContext} from '../state/checkerboard';
 import {PreviewSizeContext} from '../state/preview-size';
+import {Loading} from './LoadingIndicator';
 
 const checkerboardSize = 49;
 
@@ -96,7 +97,7 @@ const Inner: React.FC<{
 	const inputProps = getInputProps();
 
 	return (
-		<Suspense fallback={<div>loading...</div>}>
+		<Suspense fallback={<Loading />}>
 			<div style={outer}>
 				<div style={style}>
 					{Component ? (
