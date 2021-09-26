@@ -1,9 +1,13 @@
 import React from "react";
 
+const FALLBACK_VERSION = "2.4.0-alpha.b886f9bc";
+
 export const Prerelease: React.FC = () => {
   const version =
-    new URLSearchParams(window.location.search)?.get("version") ??
-    "2.4.0-alpha.b886f9bc";
+    typeof URLSearchParams === "undefined"
+      ? FALLBACK_VERSION
+      : new URLSearchParams(window.location.search).get("version") ??
+        FALLBACK_VERSION;
   return (
     <div>
       <p>
