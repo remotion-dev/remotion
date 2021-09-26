@@ -6,12 +6,16 @@ export const useMediaHasMetadata = (
 	const [hasMetadata, setHasMetadata] = useState(false);
 
 	useEffect(() => {
-		const _ref = mediaRef.current;
+		const {current} = mediaRef;
+		if (!current) {
+			return;
+		}
+
 		const handler = () => setHasMetadata(true);
 
-		_ref?.addEventListener('loadedmetadata', handler);
+		current.addEventListener('loadedmetadata', handler);
 
-		return () => _ref?.removeEventListener('loadedmetadata', handler);
+		return () => current.removeEventListener('loadedmetadata', handler);
 	}, [mediaRef]);
 
 	return hasMetadata;
