@@ -10,6 +10,7 @@ import {
 } from '../helpers/checkerboard-background';
 import {CheckerboardContext} from '../state/checkerboard';
 import {PreviewSizeContext} from '../state/preview-size';
+import {IFrameWrapper} from './IFrameWrapper';
 
 const checkerboardSize = 49;
 
@@ -91,12 +92,14 @@ const Inner: React.FC<{
 						height: config.height,
 					}}
 				>
-					{Component ? (
-						<Component
-							{...(((video?.props as unknown) as {}) ?? {})}
-							{...inputProps}
-						/>
-					) : null}
+					<IFrameWrapper width={config.width} height={config.height}>
+						{Component ? (
+							<Component
+								{...(((video?.props as unknown) as {}) ?? {})}
+								{...inputProps}
+							/>
+						) : null}
+					</IFrameWrapper>
 				</Container>
 			</div>
 		</Suspense>

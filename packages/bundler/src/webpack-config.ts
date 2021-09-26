@@ -112,7 +112,19 @@ export const webpackConfig = ({
 			rules: [
 				{
 					test: /\.css$/i,
-					use: [require.resolve('style-loader'), require.resolve('css-loader')],
+					use: [
+						{
+							loader: require.resolve('style-loader'),
+							options: {
+								/* eslint-disable */
+								insert: function (element) {
+									window.remotion_acceptStyleSheet(element);
+									/* eslint-enable */
+								},
+							},
+						},
+						require.resolve('css-loader'),
+					],
 				},
 				{
 					test: /\.(png|svg|jpg|jpeg|webp|gif|bmp|webm|mp4|mp3|m4a|wav|aac)$/,

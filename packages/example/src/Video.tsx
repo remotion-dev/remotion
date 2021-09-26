@@ -3,6 +3,7 @@ import {Composition, getInputProps} from 'remotion';
 import BetaText from './BetaText';
 import {ColorInterpolation} from './ColorInterpolation';
 import {Framer} from './Framer';
+import {FullWidth} from './FullWidth/FullWidth';
 import {MissingImg} from './MissingImg';
 import RemoteVideo from './RemoteVideo';
 import {SkipZeroFrame} from './SkipZeroFrame';
@@ -267,6 +268,14 @@ export const Index: React.FC = () => {
 				component={SeriesTesting}
 				width={1280}
 				height={720}
+				fps={30}
+				durationInFrames={100}
+			/>
+			<Composition
+				id="FullWidth"
+				component={FullWidth}
+				width={200}
+				height={200}
 				fps={30}
 				durationInFrames={100}
 			/>
