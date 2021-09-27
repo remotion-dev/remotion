@@ -94,6 +94,10 @@ import {truthy} from './truthy';
 import {useLazyComponent} from './use-lazy-component';
 import {useUnsafeVideoConfig} from './use-unsafe-video-config';
 import {useVideo} from './use-video';
+import {
+	invalidCompositionErrorMessage,
+	isCompositionIdValid,
+} from './validation/validate-composition-id';
 import {validateDimension} from './validation/validate-dimensions';
 import {validateDurationInFrames} from './validation/validate-duration-in-frames';
 import {validateFps} from './validation/validate-fps';
@@ -186,6 +190,8 @@ export const Internals = {
 	validateFrame,
 	setStillFrame,
 	getStillFrame,
+	invalidCompositionErrorMessage,
+	isCompositionIdValid,
 };
 
 export type {

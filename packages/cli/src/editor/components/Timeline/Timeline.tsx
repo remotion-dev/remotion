@@ -1,12 +1,17 @@
-import React, {useContext, useMemo, useReducer} from 'react';
+import React, {
+	useContext,
+	useImperativeHandle,
+	useMemo,
+	useReducer,
+} from 'react';
 import {Internals} from 'remotion';
-import styled from 'styled-components';
 import {calculateTimeline} from '../../helpers/calculate-timeline';
 import {TrackWithHash} from '../../helpers/get-timeline-sequence-sort-key';
 import {
 	TIMELINE_BORDER,
 	TIMELINE_LAYER_HEIGHT,
 } from '../../helpers/timeline-layout';
+import {timelineRef} from '../../state/timeline-ref';
 import {SplitterContainer} from '../Splitter/SplitterContainer';
 import {SplitterElement} from '../Splitter/SplitterElement';
 import {SplitterHandle} from '../Splitter/SplitterHandle';
@@ -18,13 +23,13 @@ import {TimelineList} from './TimelineList';
 import {TimelineSlider} from './TimelineSlider';
 import {TimelineTracks} from './TimelineTracks';
 
-const Container = styled.div`
-	min-height: 100%;
-	flex: 1;
-	display: flex;
-	height: 0;
-	overflow: auto;
-`;
+const container: React.CSSProperties = {
+	minHeight: '100%',
+	flex: 1,
+	display: 'flex',
+	height: 0,
+	overflow: 'auto',
+};
 
 export const Timeline: React.FC = () => {
 	const {sequences} = useContext(Internals.CompositionManager);
@@ -44,6 +49,23 @@ export const Timeline: React.FC = () => {
 			sequenceDuration: videoConfig.durationInFrames,
 		});
 	}, [sequences, videoConfig]);
+
+	useImperativeHandle(timelineRef, () => {
+		return {
+			expandAll: () => {
+				dispatch({
+					type: 'expand-all',
+					allHashes: timeline.map((t) => t.hash),
+				});
+			},
+			collapseAll: () => {
+				dispatch({
+					type: 'collapse-all',
+					allHashes: timeline.map((t) => t.hash),
+				});
+			},
+		};
+	});
 
 	const withoutHidden = useMemo(() => {
 		return timeline.filter((t) => !isTrackHidden(t, timeline, state));
@@ -66,7 +88,7 @@ export const Timeline: React.FC = () => {
 	}
 
 	return (
-		<Container>
+		<div style={container} className="css-reset">
 			<div style={inner}>
 				<SplitterContainer
 					orientation="vertical"
@@ -95,6 +117,6 @@ export const Timeline: React.FC = () => {
 					</SplitterElement>
 				</SplitterContainer>
 			</div>
-		</Container>
+		</div>
 	);
 };
