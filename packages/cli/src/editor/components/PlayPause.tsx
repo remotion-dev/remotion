@@ -2,6 +2,7 @@ import {PlayerInternals} from '@remotion/player';
 import React, {useCallback, useEffect} from 'react';
 import {Internals} from 'remotion';
 import {useIsStill} from '../helpers/is-current-selected-still';
+import {useKeybinding} from '../helpers/use-keybinding';
 import {Pause} from '../icons/pause';
 import {Play} from '../icons/play';
 import {StepBack} from '../icons/step-back';
@@ -30,33 +31,42 @@ export const PlayPause: React.FC = () => {
 		}
 	}, [isStill, pause]);
 
-	const onKeyPress = useCallback(
+	const onSpace = useCallback(
 		(e: KeyboardEvent) => {
-			if (!video) {
-				return;
+			if (playing) {
+				pause();
+			} else {
+				play();
 			}
 
-			if (e.code === 'Space') {
-				if (playing) {
-					pause();
-				} else {
-					play();
-				}
-
-				e.preventDefault();
-			}
-
-			if (e.code === 'ArrowLeft') {
-				frameBack(e.shiftKey ? video.fps : 1);
-				e.preventDefault();
-			}
-
-			if (e.code === 'ArrowRight') {
-				frameForward(e.shiftKey ? video.fps : 1);
-				e.preventDefault();
-			}
+			e.preventDefault();
 		},
-		[frameBack, frameForward, pause, play, playing, video]
+		[pause, play, playing]
+	);
+	const videoFps = video?.fps ?? null;
+
+	const onArrowLeft = useCallback(
+		(e: KeyboardEvent) => {
+			if (!videoFps) {
+				return null;
+			}
+
+			frameBack(e.shiftKey ? videoFps : 1);
+			e.preventDefault();
+		},
+		[frameBack, videoFps]
+	);
+
+	const onArrowRight = useCallback(
+		(e: KeyboardEvent) => {
+			if (!videoFps) {
+				return null;
+			}
+
+			frameForward(e.shiftKey ? videoFps : 1);
+			e.preventDefault();
+		},
+		[frameForward, videoFps]
 	);
 
 	const oneFrameBack = useCallback(() => {
@@ -66,13 +76,27 @@ export const PlayPause: React.FC = () => {
 	const oneFrameForward = useCallback(() => {
 		frameForward(1);
 	}, [frameForward]);
+	const keybindings = useKeybinding();
 
 	useEffect(() => {
-		window.addEventListener('keydown', onKeyPress);
-		return (): void => {
-			window.removeEventListener('keydown', onKeyPress);
+		const arrowLeft = keybindings.registerKeybinding(
+			'keydown',
+			'ArrowLeft',
+			onArrowLeft
+		);
+		const arrowRight = keybindings.registerKeybinding(
+			'keydown',
+			'ArrowRight',
+			onArrowRight
+		);
+		const space = keybindings.registerKeybinding('keydown', ' ', onSpace);
+
+		return () => {
+			arrowLeft.unregister();
+			arrowRight.unregister();
+			space.unregister();
 		};
-	}, [onKeyPress]);
+	}, [keybindings, onArrowLeft, onArrowRight, onSpace]);
 
 	if (isStill) {
 		return null;

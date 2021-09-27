@@ -107,7 +107,6 @@ export const webpackConfig = ({
 				'react/jsx-runtime': require.resolve('react/jsx-runtime'),
 				react: require.resolve('react'),
 				remotion: require.resolve('remotion'),
-				'styled-components': require.resolve('styled-components'),
 				'react-native$': 'react-native-web',
 			},
 		},

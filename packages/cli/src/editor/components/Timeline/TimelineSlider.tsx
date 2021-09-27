@@ -1,23 +1,22 @@
 import {PlayerInternals} from '@remotion/player';
 import React from 'react';
 import {Internals} from 'remotion';
-import styled from 'styled-components';
 import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
 import {sliderAreaRef} from './timeline-refs';
 import {TimelineSliderHandle} from './TimelineSliderHandle';
 
-const Container = styled.div`
-	position: absolute;
-	bottom: 0;
-	top: 0;
-`;
+const container: React.CSSProperties = {
+	position: 'absolute',
+	bottom: 0,
+	top: 0,
+};
 
-const Line = styled.div`
-	height: 100%;
-	width: 1px;
-	position: fixed;
-	background-color: #f02c00;
-`;
+const line: React.CSSProperties = {
+	height: '100%',
+	width: 1,
+	position: 'fixed',
+	backgroundColor: '#f02c00',
+};
 
 export const TimelineSlider: React.FC = () => {
 	const timelinePosition = Internals.Timeline.useTimelinePosition();
@@ -37,10 +36,10 @@ export const TimelineSlider: React.FC = () => {
 		TIMELINE_PADDING;
 
 	return (
-		<Container style={{transform: `translateX(${left}px)`}}>
-			<Line>
+		<div style={{...container, transform: `translateX(${left}px)`}}>
+			<div style={line}>
 				<TimelineSliderHandle />
-			</Line>
-		</Container>
+			</div>
+		</div>
 	);
 };
