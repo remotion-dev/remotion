@@ -32,7 +32,6 @@
 		"remotion": "^2.3.3",
 		"semver": "7.3.4",
 		"style-loader": "^2.0.0",
-		"styled-components": "^5.2.1",
 		"webpack": "5.37.0",
 		"webpack-hot-middleware": "^2.25.0"
 	},

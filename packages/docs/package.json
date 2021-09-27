@@ -15,8 +15,8 @@
     "test": "eslint src && jest"
   },
   "dependencies": {
-    "@docusaurus/core": "2.0.0-beta.6",
-    "@docusaurus/preset-classic": "2.0.0-beta.6",
+    "@docusaurus/core": "2.0.0-beta.5",
+    "@docusaurus/preset-classic": "2.0.0-beta.5",
     "@mdx-js/react": "^1.6.21",
     "@remotion/babel-loader": "^2.3.4",
     "@remotion/bundler": "^2.3.4",

@@ -73,9 +73,11 @@ export const usePlayer = (): {
 		}
 	}, [emitter, setPlaying]);
 
+	const hasVideo = Boolean(video);
+
 	const frameBack = useCallback(
 		(frames: number) => {
-			if (!video) {
+			if (!hasVideo) {
 				return null;
 			}
 
@@ -83,32 +85,26 @@ export const usePlayer = (): {
 				return;
 			}
 
-			if (frame === 0) {
-				return;
-			}
-
-			setFrame((f) => Math.max(0, f - frames));
+			setFrame((f) => {
+				return Math.max(0, f - frames);
+			});
 		},
-		[frame, setFrame, video]
+		[hasVideo, setFrame]
 	);
 
 	const frameForward = useCallback(
 		(frames: number) => {
-			if (!video) {
+			if (!hasVideo) {
 				return null;
 			}
 
 			if (imperativePlaying.current) {
-				return;
-			}
-
-			if (isLastFrame) {
 				return;
 			}
 
 			setFrame((f) => Math.min(lastFrame, f + frames));
 		},
-		[isLastFrame, lastFrame, setFrame, video]
+		[hasVideo, lastFrame, setFrame]
 	);
 
 	const returnValue = useMemo(() => {
