@@ -33,9 +33,9 @@ export const createFunction = async ({
 			MemorySize: memorySizeInMb,
 			Timeout: timeoutInSeconds,
 			Layers: [
-				`arn:aws:lambda:eu-central-1:976210361945:layer:remotion-binaries-chromium:1`,
-				'arn:aws:lambda:eu-central-1:976210361945:layer:remotion-binaries-ffmpeg:1',
-				'arn:aws:lambda:eu-central-1:976210361945:layer:remotion-binaries-remotion:1',
+				`arn:aws:lambda:eu-central-1:976210361945:layer:remotion-binaries-chromium:2`,
+				'arn:aws:lambda:eu-central-1:976210361945:layer:remotion-binaries-ffmpeg:2',
+				'arn:aws:lambda:eu-central-1:976210361945:layer:remotion-binaries-remotion:2',
 			],
 		})
 	);

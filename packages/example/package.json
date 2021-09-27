@@ -30,6 +30,7 @@
 		"@remotion/eslint-plugin": "^2.4.0",
 		"@remotion/gif": "^2.4.0",
 		"@remotion/media-utils": "^2.4.0",
+		"@remotion/lambda": "^2.4.0",
 		"@remotion/renderer": "^2.4.0",
 		"@remotion/three": "^2.4.0",
 		"@types/express": "^4.17.11",
