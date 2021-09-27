@@ -1,8 +1,5 @@
 import React, {useCallback, useContext} from 'react';
-import {
-	CheckerboardContext,
-	persistCheckerboardOption,
-} from '../state/checkerboard';
+import {CheckerboardContext} from '../state/checkerboard';
 import {ControlButton} from './ControlButton';
 
 export const CheckboardToggle: React.FC = () => {
@@ -10,7 +7,6 @@ export const CheckboardToggle: React.FC = () => {
 
 	const onClick = useCallback(() => {
 		setCheckerboard((c) => {
-			persistCheckerboardOption(!c);
 			return !c;
 		});
 	}, [setCheckerboard]);
