@@ -10,7 +10,6 @@ export const createFunction = async ({
 	accountId,
 	memorySizeInMb,
 	timeoutInSeconds,
-	layerArn,
 }: {
 	region: AwsRegion;
 	zipFile: string;
@@ -18,11 +17,11 @@ export const createFunction = async ({
 	accountId: string;
 	memorySizeInMb: number;
 	timeoutInSeconds: number;
-	layerArn: string;
 }) => {
 	const {FunctionName} = await getLambdaClient(region).send(
 		new CreateFunctionCommand({
 			Code: {
+				// TODO: Put it in S3 bucket
 				ZipFile: readFileSync(zipFile),
 			},
 			FunctionName: functionName,
@@ -33,7 +32,11 @@ export const createFunction = async ({
 			Description: 'Renders a Remotion video.',
 			MemorySize: memorySizeInMb,
 			Timeout: timeoutInSeconds,
-			Layers: [layerArn],
+			Layers: [
+				`arn:aws:lambda:eu-central-1:976210361945:layer:remotion-binaries-chromium:1`,
+				'arn:aws:lambda:eu-central-1:976210361945:layer:remotion-binaries-ffmpeg:1',
+				'arn:aws:lambda:eu-central-1:976210361945:layer:remotion-binaries-remotion:1',
+			],
 		})
 	);
 	return {FunctionName};
