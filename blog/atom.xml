@@ -2,11 +2,22 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://remotion.dev/blog</id>
     <title>Remotion Blog</title>
-    <updated>2021-08-11T00:00:00.000Z</updated>
+    <updated>2021-09-27T00:00:00.000Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://remotion.dev/blog"/>
     <subtitle>Remotion Blog</subtitle>
     <icon>https://remotion.dev/img/logo-small.png</icon>
+    <entry>
+        <title type="html"><![CDATA[Remotion 2.4]]></title>
+        <id>2-4</id>
+        <link href="https://remotion.dev/blog/2-4"/>
+        <updated>2021-09-27T00:00:00.000Z</updated>
+        <summary type="html"><![CDATA[In this release, we are revamping the Remotion Preview interface to make it easier on the eyes and add new features. While Remotion will always be about leveraging code instead of clicking buttons, we want to add complementary helpers to help you get your videos done faster!]]></summary>
+        <author>
+            <name>Jonny Burger</name>
+            <uri>https://github.com/JonnyBurger</uri>
+        </author>
+    </entry>
     <entry>
         <title type="html"><![CDATA[Remotion 2.3]]></title>
         <id>2-3</id>

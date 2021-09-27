@@ -4,9 +4,16 @@
         <title>Remotion Blog</title>
         <link>https://remotion.dev/blog</link>
         <description>Remotion Blog</description>
-        <lastBuildDate>Wed, 11 Aug 2021 00:00:00 GMT</lastBuildDate>
+        <lastBuildDate>Mon, 27 Sep 2021 00:00:00 GMT</lastBuildDate>
         <docs>https://validator.w3.org/feed/docs/rss2.html</docs>
         <generator>https://github.com/jpmonette/feed</generator>
+        <item>
+            <title><![CDATA[Remotion 2.4]]></title>
+            <link>https://remotion.dev/blog/2-4</link>
+            <guid>2-4</guid>
+            <pubDate>Mon, 27 Sep 2021 00:00:00 GMT</pubDate>
+            <description><![CDATA[In this release, we are revamping the Remotion Preview interface to make it easier on the eyes and add new features. While Remotion will always be about leveraging code instead of clicking buttons, we want to add complementary helpers to help you get your videos done faster!]]></description>
+        </item>
         <item>
             <title><![CDATA[Remotion 2.3]]></title>
             <link>https://remotion.dev/blog/2-3</link>
