@@ -1,30 +1,21 @@
-import LambdaFS from 'lambdafs';
-
 if (
 	/^AWS_Lambda_nodejs(?:10|12|14)[.]x$/.test(
 		process.env.AWS_EXECUTION_ENV ?? ''
 	) === true
 ) {
 	if (process.env.FONTCONFIG_PATH === undefined) {
-		process.env.FONTCONFIG_PATH = '/tmp/aws';
+		process.env.FONTCONFIG_PATH = '/opt/aws';
 	}
 
 	if (process.env.LD_LIBRARY_PATH === undefined) {
-		process.env.LD_LIBRARY_PATH = '/tmp/aws/lib';
-	} else if (process.env.LD_LIBRARY_PATH.startsWith('/tmp/aws/lib') !== true) {
+		process.env.LD_LIBRARY_PATH = '/opt/aws/lib';
+	} else if (process.env.LD_LIBRARY_PATH.startsWith('/opt/aws/lib') !== true) {
 		process.env.LD_LIBRARY_PATH = [
-			...new Set(['/tmp/aws/lib', ...process.env.LD_LIBRARY_PATH.split(':')]),
+			...new Set(['/opt/aws/lib', ...process.env.LD_LIBRARY_PATH.split(':')]),
 		].join(':');
 	}
 }
 
 export const executablePath = async (): Promise<string> => {
-	const promises = [
-		LambdaFS.inflate('/opt/bin/chromium.br'),
-		LambdaFS.inflate('/opt/bin/swiftshader.tar.br'),
-		LambdaFS.inflate('/opt/bin/aws.tar.br'),
-	];
-
-	const result = await Promise.all(promises);
-	return result[0];
+	return '/opt/bin/chromium';
 };

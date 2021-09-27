@@ -6,5 +6,5 @@ export const getAccountId: typeof original = () => {
 		throw new Error('Cannot get account ID');
 	}
 
-	return Promise.resolve(accountId);
+	return Promise.resolve(accountId[1]);
 };
