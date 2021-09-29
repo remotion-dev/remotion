@@ -1,7 +1,7 @@
 {
 	"name": "@remotion/example",
 	"private": true,
-	"version": "2.4.1",
+	"version": "2.4.0",
 	"description": "",
 	"license": "SEE LICENSE IN LICENSE.md",
 	"author": "Jonny Burger",
@@ -25,7 +25,7 @@
 		"@react-three/drei": "^4.3.3",
 		"@remotion/babel-loader": "^2.4.0",
 		"@remotion/bundler": "^2.4.0",
-		"@remotion/cli": "^2.4.1",
+		"@remotion/cli": "^2.4.0",
 		"@remotion/eslint-config": "^2.4.0",
 		"@remotion/eslint-plugin": "^2.4.0",
 		"@remotion/gif": "^2.4.0",
