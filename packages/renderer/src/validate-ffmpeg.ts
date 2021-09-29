@@ -4,7 +4,7 @@ import os from 'os';
 
 const existsMap: {[key: string]: boolean} = {};
 
-export const binaryExists = async (name: 'ffmpeg' | 'brew') => {
+export const binaryExists = async (name: 'ffmpeg' | 'ffprobe' | 'brew') => {
 	if (typeof existsMap[name] !== 'undefined') {
 		return existsMap[name];
 	}

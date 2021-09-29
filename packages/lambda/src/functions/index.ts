@@ -1,3 +1,4 @@
+import execa from 'execa';
 import {
 	COMMAND_NOT_FOUND,
 	LambdaPayload,
@@ -19,6 +20,8 @@ export const handler = async <T extends LambdaRoutines>(
 	params: LambdaPayload,
 	context: {invokedFunctionArn: string}
 ): Promise<LambdaReturnValues[T]> => {
+	const {stderr} = await execa('ffmpeg', ['-v']);
+	console.log({stderr});
 	if (!context || !context.invokedFunctionArn) {
 		throw new Error(
 			'Lambda function unexpectedly does not have context.invokedFunctionArn'
