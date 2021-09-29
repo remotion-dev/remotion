@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/renderer",
-	"version": "2.4.0",
+	"version": "2.4.1",
 	"description": "Renderer for Remotion",
 	"main": "dist/index.js",
 	"sideEffects": false,
@@ -15,12 +15,12 @@
 		"url": "https://github.com/remotion-dev/remotion"
 	},
 	"dependencies": {
-		"@remotion/bundler": "^2.4.0",
+		"@remotion/bundler": "^2.4.1",
 		"execa": "^4.0.2",
 		"got": "11.8.2",
 		"p-limit": "^3.1.0",
 		"puppeteer-core": "^10.2.0",
-		"remotion": "^2.4.0",
+		"remotion": "^2.4.1",
 		"sanitize-filename": "^1.6.3",
 		"serve-handler": "^6.1.3",
 		"xns": "^2.0.7"
