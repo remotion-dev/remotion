@@ -8,10 +8,13 @@ if (
 	}
 
 	if (process.env.LD_LIBRARY_PATH === undefined) {
-		process.env.LD_LIBRARY_PATH = '/opt/aws/lib';
+		process.env.LD_LIBRARY_PATH = '/opt/aws/lib:/opt/lib';
 	} else if (process.env.LD_LIBRARY_PATH.startsWith('/opt/aws/lib') !== true) {
 		process.env.LD_LIBRARY_PATH = [
-			...new Set(['/opt/aws/lib', ...process.env.LD_LIBRARY_PATH.split(':')]),
+			...new Set([
+				'/opt/aws/lib:/opt/lib',
+				...process.env.LD_LIBRARY_PATH.split(':'),
+			]),
 		].join(':');
 	}
 }

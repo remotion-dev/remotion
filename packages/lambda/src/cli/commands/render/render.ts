@@ -156,7 +156,7 @@ export const renderCommand = async (args: string[]) => {
 		}
 
 		if (newStatus.fatalErrorEncountered) {
-			Log.error(newStatus);
+			Log.error(JSON.stringify(newStatus.errors));
 			Log.error('Fatal error encountered. Exiting.');
 			process.exit(1);
 		}

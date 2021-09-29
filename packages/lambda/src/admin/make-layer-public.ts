@@ -13,9 +13,8 @@ const region: AwsRegion = 'eu-central-1';
 export const makeLayerPublic = async () => {
 	const layers = ['remotion', 'ffmpeg', 'chromium'];
 	for (const layer of layers) {
-		console.log({layer});
 		const layerName = `remotion-binaries-${layer}`;
-		const {Version} = await getLambdaClient(region).send(
+		const {Version, LayerArn} = await getLambdaClient(region).send(
 			new PublishLayerVersionCommand({
 				Content: {
 					S3Bucket: 'lambda-remotion-binaries-' + region,
@@ -37,6 +36,7 @@ export const makeLayerPublic = async () => {
 				StatementId: 'public-layer',
 			})
 		);
+		console.log({LayerArn, Version});
 	}
 };
 
