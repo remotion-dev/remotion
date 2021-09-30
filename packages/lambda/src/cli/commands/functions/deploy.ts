@@ -34,5 +34,5 @@ export const functionsDeploySubcommand = async () => {
 		timeoutInSeconds,
 		memorySizeInMb,
 	});
-	output.update(`Deployed to ${functionName}\n`);
+	output.update(`Deployed as ${functionName}\n`);
 };
