@@ -166,6 +166,8 @@ export const render = async () => {
 		Internals.perf.logPerf();
 	}
 
+	let outputLocation = absoluteOutputFile
+
 	if (shouldOutputImageSequence) {
 		Log.info(chalk.green('\nYour image sequence is ready!'));
 	} else {
@@ -173,6 +175,15 @@ export const render = async () => {
 			throw new TypeError('CRF is unexpectedly not a number');
 		}
 
+		const outFolder = path.resolve(process.cwd(), './out');
+		outputLocation = absoluteOutputFile.replace(process.cwd(), outFolder)
+
+		if (!fs.existsSync(outFolder)) {
+				fs.mkdirSync(outFolder, {
+						recursive: true,
+				});
+		}
+	
 		const stitchingProgress = createProgressBar();
 
 		stitchingProgress.update(
@@ -189,7 +200,7 @@ export const render = async () => {
 			width: config.width,
 			height: config.height,
 			fps: config.fps,
-			outputLocation: absoluteOutputFile,
+			outputLocation,
 			force: overwrite,
 			imageFormat,
 			pixelFormat,
@@ -250,6 +261,6 @@ export const render = async () => {
 		].join(' ')
 	);
 	Log.info('-', 'Output can be found at:');
-	Log.info(chalk.cyan(`▶️ ${absoluteOutputFile}`));
+	Log.info(chalk.cyan(`▶️ ${outputLocation}`));
 	await closeBrowserPromise;
 };
