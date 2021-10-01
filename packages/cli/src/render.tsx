@@ -166,8 +166,6 @@ export const render = async () => {
 		Internals.perf.logPerf();
 	}
 
-	let outputLocation = absoluteOutputFile
-
 	if (shouldOutputImageSequence) {
 		Log.info(chalk.green('\nYour image sequence is ready!'));
 	} else {
@@ -175,9 +173,7 @@ export const render = async () => {
 			throw new TypeError('CRF is unexpectedly not a number');
 		}
 
-		const outFolder = path.resolve(process.cwd(), './out');
-		outputLocation = absoluteOutputFile.replace(process.cwd(), outFolder)
-		const dirName = path.dirname(outputLocation)
+		const dirName = path.dirname(absoluteOutputFile)
 
 		if (!fs.existsSync(dirName)) {
 				fs.mkdirSync(dirName, {
@@ -201,7 +197,7 @@ export const render = async () => {
 			width: config.width,
 			height: config.height,
 			fps: config.fps,
-			outputLocation,
+			outputLocation: absoluteOutputFile,
 			force: overwrite,
 			imageFormat,
 			pixelFormat,
@@ -262,6 +258,6 @@ export const render = async () => {
 		].join(' ')
 	);
 	Log.info('-', 'Output can be found at:');
-	Log.info(chalk.cyan(`▶️ ${outputLocation}`));
+	Log.info(chalk.cyan(`▶️ ${absoluteOutputFile}`));
 	await closeBrowserPromise;
 };
