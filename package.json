@@ -9,7 +9,7 @@
   },
   "devDependencies": {
     "@jonny/eslint-config": "^2.1.233",
-    "@types/jest": "^26.0.20",
+    "@types/jest": "^27.0.2",
     "@types/minimist": "^1.2.1",
     "@types/node": "^16.7.5",
     "@types/react": "17.0.19",
@@ -17,12 +17,12 @@
     "@types/sharp": "^0.28.5",
     "eslint": "^7.25.0",
     "execa": "^5.0.0",
-    "jest": "^26.6.3",
-    "lerna": "^2.11.0",
+    "jest": "^27.2.4",
+    "lerna": "^4.0.0",
     "prettier": "^2.2.1",
     "prettier-plugin-organize-imports": "^1.1.1",
     "sharp": "^0.29.0",
-    "ts-jest": "^26.5.1",
+    "ts-jest": "^27.0.5",
     "typescript": "^4.4.2"
   },
   "dependencies": {
@@ -30,5 +30,8 @@
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
     "three": "^0.128.0"
-  }
+  },
+  "workspaces": [
+    "packages/**"
+  ]
 }

@@ -55,7 +55,7 @@
 		"eslint": "^7.25.0",
 		"jest": "^27.0.6",
 		"prettier-plugin-organize-imports": "^1.1.1",
-		"ts-jest": "^27.0.4"
+		"ts-jest": "^27.0.5"
 	},
 	"publishConfig": {
 		"access": "public"

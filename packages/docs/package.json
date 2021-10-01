@@ -32,12 +32,12 @@
     "color-namer": "1.4.0",
     "docusaurus-preset-shiki-twoslash": "1.1.16",
     "hls.js": "^0.14.17",
-    "jest": "^27.0.4",
+    "jest": "^27.2.4",
     "patch-package": "^6.4.7",
     "polished": "4.1.2",
     "react-player": "^2.9.0",
     "remotion": "^2.4.1",
-    "ts-jest": "^27.0.3"
+    "ts-jest": "^27.0.5"
   },
   "devDependencies": {
     "@babel/plugin-transform-modules-commonjs": "^7.14.0",
