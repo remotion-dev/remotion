@@ -20,7 +20,7 @@ export const provideScreenshot = async ({
 		page,
 		opts: {
 			path: options.output,
-			selector: '#canvas',
+			selector: '#remotion-canvas',
 		},
 		imageFormat,
 		quality,
