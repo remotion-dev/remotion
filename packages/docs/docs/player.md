@@ -200,7 +200,33 @@ Gets the current postition expressed as the current frame. Divide by the `fps` y
 
 ### `getContainerNode()`
 
-Gets the container HTMLDivElement of the Remotion Player. This method is useful if you'd like to handle Player click events yourself with `addEventListener`.
+Gets the container `HTMLDivElement` of the player. Useful if you'd like to manually attach listeners to the player element.
+
+```tsx
+import {useRef, useEffect} from 'react'
+import {PlayerRef} from '@remotion/player'
+// ---cut---
+const playerRef = useRef<PlayerRef>(null);
+
+useEffect(() => {
+  if (!playerRef.current) {
+    return;
+  }
+  const container = playerRef.current.getContainerNode();
+  if (!container) {
+    return;
+  }
+  
+  const onClick = () => {
+    console.log('player got clicked');
+  };
+  
+  container.addEventListener('click', onClick)
+  return () => {
+    container.removeEventListener('click', onClick);
+  }
+}, []);
+```
 
 ### `mute()`
 
