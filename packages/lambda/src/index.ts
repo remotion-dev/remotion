@@ -2,6 +2,7 @@ import {deleteFunction} from './api/delete-function';
 import {deleteSite} from './api/delete-site';
 import {deployFunction} from './api/deploy-function';
 import {deploySite} from './api/deploy-site';
+import {downloadVideo} from './api/download-video';
 import {ensureLambdaBinaries} from './api/ensure-lambda-binaries';
 import {getFunctionInfo} from './api/get-function-info';
 import {getFunctions} from './api/get-functions';
@@ -23,6 +24,7 @@ export {
 	deleteSite,
 	deployFunction,
 	deploySite,
+	downloadVideo,
 	ensureLambdaBinaries,
 	getFunctions,
 	getUserPolicy,
