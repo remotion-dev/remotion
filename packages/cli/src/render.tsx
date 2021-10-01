@@ -177,9 +177,10 @@ export const render = async () => {
 
 		const outFolder = path.resolve(process.cwd(), './out');
 		outputLocation = absoluteOutputFile.replace(process.cwd(), outFolder)
+		const dirName = path.dirname(outputLocation)
 
-		if (!fs.existsSync(outFolder)) {
-				fs.mkdirSync(outFolder, {
+		if (!fs.existsSync(dirName)) {
+				fs.mkdirSync(dirName, {
 						recursive: true,
 				});
 		}
