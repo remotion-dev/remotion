@@ -37,5 +37,7 @@ jobs:
           version: ${{ matrix.versionffmpeg_version }}
       - run: |
           npm i
+          npm run bootstrap -- --ci --concurrency=2
           npm run build
+          npm run bootstrap -- --ci --concurrency=2
           npm test
