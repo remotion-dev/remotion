@@ -153,6 +153,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 				play: player.play,
 				pause: player.pause,
 				toggle,
+				getContainerNode: () => container.current,
 				getCurrentFrame: player.getCurrentFrame,
 				seekTo: (f) => {
 					if (player.isPlaying()) {
