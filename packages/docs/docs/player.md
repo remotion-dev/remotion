@@ -198,6 +198,10 @@ Pauses the video if it's playing. Plays the video if it's paused.
 
 Gets the current postition expressed as the current frame. Divide by the `fps` you passed to get the time in seconds.
 
+### `getContainerNode()`
+
+Gets the container HTMLDivElement of the Remotion Player. This method is useful if you'd like to handle Player click events yourself with `addEventListener`.
+
 ### `mute()`
 
 Mutes the video.
