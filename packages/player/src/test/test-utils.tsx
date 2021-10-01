@@ -12,7 +12,7 @@ const AllTheProviders: FC = ({children}) => {
 	return <div>{children}</div>;
 };
 
-const customRender = (
+const customRender: any = (
 	ui: ReactElement,
 	options?: Omit<RenderOptions, 'queries'>
 ) => render(ui, {wrapper: AllTheProviders, ...options});

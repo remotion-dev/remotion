@@ -12,8 +12,9 @@ jobs:
         with:
           persist-credentials: false
 
-      - run: npm i
-      - run: npm run build
+      - run: |
+          npm i
+          npm run build
       - name: Install and Build 🔧
         run: |
           cd packages/docs && npm run build-docs

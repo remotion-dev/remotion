@@ -33,7 +33,6 @@
     "docusaurus-preset-shiki-twoslash": "1.1.16",
     "hls.js": "^0.14.17",
     "jest": "^27.2.4",
-    "patch-package": "^6.4.7",
     "polished": "4.1.2",
     "react-player": "^2.9.0",
     "remotion": "^2.4.1",

@@ -5,6 +5,7 @@
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
+    "preserveSymlinks": true,
     "lib": ["es2018", "dom"],
     "jsx": "react-jsx",
     "noEmit": false,
