@@ -6,6 +6,7 @@ export type PlayerMethods = {
 	pause: () => void;
 	toggle: () => void;
 	seekTo: (frame: number) => void;
+	getContainerNode: () => HTMLDivElement | null;
 	getCurrentFrame: () => number;
 	requestFullscreen: () => void;
 	exitFullscreen: () => void;
