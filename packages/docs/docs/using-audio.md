@@ -71,7 +71,7 @@ export const MyVideo = () => {
   return (
     <div>
       <div>Hello World!</div>
-      <Sequence from={100} durationInFrames={Infinity}>
+      <Sequence from={100}>
         <Audio src={audio} />
       </Sequence>
     </div>

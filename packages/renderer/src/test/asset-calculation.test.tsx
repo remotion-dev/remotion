@@ -163,7 +163,7 @@ test('Should calculate volumes correctly', async () => {
 test('Should calculate startFrom correctly', async () => {
 	const assetPositions = await getPositions(() => {
 		return (
-			<Sequence from={1} durationInFrames={Infinity}>
+			<Sequence from={1}>
 				<Audio
 					startFrom={100}
 					endAt={200}
