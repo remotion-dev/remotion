@@ -6,15 +6,15 @@ if (
 	) === true
 ) {
 	if (process.env.FONTCONFIG_PATH === undefined) {
-		process.env.FONTCONFIG_PATH = '/opt/aws';
+		process.env.FONTCONFIG_PATH = '/tmp/aws';
 	}
 
 	if (process.env.LD_LIBRARY_PATH === undefined) {
-		process.env.LD_LIBRARY_PATH = '/opt/aws/lib:/opt/lib:/opt/bin';
-	} else if (process.env.LD_LIBRARY_PATH.startsWith('/opt/aws/lib') !== true) {
+		process.env.LD_LIBRARY_PATH = '/tmp/aws/lib:/opt/lib:/opt/bin';
+	} else if (process.env.LD_LIBRARY_PATH.startsWith('/tmp/aws/lib') !== true) {
 		process.env.LD_LIBRARY_PATH = [
 			...new Set([
-				'/opt/aws/lib:/opt/lib:/opt/bin',
+				'/tmp/aws/lib:/opt/lib:/opt/bin',
 				...process.env.LD_LIBRARY_PATH.split(':'),
 			]),
 		].join(':');
