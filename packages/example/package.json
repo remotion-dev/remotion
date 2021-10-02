@@ -14,9 +14,9 @@
 		"start-js": "remotion preview src/entry.jsx",
 		"test": "eslint src --ext ts,tsx,js,jsx && jest",
 		"build": "tsc -d",
-		"render": "remotion render src/index.tsx react-svg video.mp4",
-		"render-js": "remotion render src/entry.jsx framer video.mp4",
-		"render-transparent": "remotion render src/index.tsx --image-format=png --pixel-format=yuva420p --codec=vp8 react-svg video.webm"
+		"render": "remotion render src/index.tsx react-svg out/video.mp4",
+		"render-js": "remotion render src/entry.jsx framer out/video.mp4",
+		"render-transparent": "remotion render src/index.tsx --image-format=png --pixel-format=yuva420p --codec=vp8 react-svg out/video.webm"
 	},
 	"dependencies": {
 		"@babel/plugin-syntax-jsx": "7.12.13",
