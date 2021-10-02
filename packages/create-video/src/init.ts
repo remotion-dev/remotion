@@ -20,6 +20,11 @@ const FEATURED_TEMPLATES: TEMPLATES[] = [
 		description: 'The default starter template (recommended)',
 	},
 	{
+		shortName: 'Blank',
+		name: 'remotion-dev/template-empty',
+		description: 'Nothing except an empty canvas',
+	},
+	{
 		shortName: 'Hello World (Javascript)',
 		name: 'remotion-dev/template-helloworld-javascript',
 		description: 'The default starter template in plain JS',
@@ -39,11 +44,6 @@ const FEATURED_TEMPLATES: TEMPLATES[] = [
 		name: 'FelippeChemello/Remotion-TTS-Example',
 		description: 'Turns text into speech and makes a video',
 	},
-	{
-		shortName: 'Empty',
-		name: 'remotion-dev/template-empty',
-		description: 'An empty canvas to get you started'
-	}
 ];
 
 function padEnd(str: string, width: number): string {
