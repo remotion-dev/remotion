@@ -173,14 +173,14 @@ export const render = async () => {
 			throw new TypeError('CRF is unexpectedly not a number');
 		}
 
-		const dirName = path.dirname(absoluteOutputFile)
+		const dirName = path.dirname(absoluteOutputFile);
 
 		if (!fs.existsSync(dirName)) {
-				fs.mkdirSync(dirName, {
-						recursive: true,
-				});
+			fs.mkdirSync(dirName, {
+				recursive: true,
+			});
 		}
-	
+
 		const stitchingProgress = createProgressBar();
 
 		stitchingProgress.update(
