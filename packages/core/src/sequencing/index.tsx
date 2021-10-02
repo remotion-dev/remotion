@@ -25,7 +25,7 @@ export const SequenceContext = createContext<SequenceContextType | null>(null);
 export type SequenceProps = {
 	children: React.ReactNode;
 	from: number;
-	durationInFrames: number;
+	durationInFrames?: number;
 	name?: string;
 	layout?: 'absolute-fill' | 'none';
 	showInTimeline?: boolean;
@@ -33,7 +33,7 @@ export type SequenceProps = {
 
 export const Sequence: React.FC<SequenceProps> = ({
 	from,
-	durationInFrames,
+	durationInFrames = Infinity,
 	children,
 	name,
 	layout = 'absolute-fill',
