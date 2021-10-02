@@ -22,5 +22,7 @@ if (
 }
 
 export const executablePath = async (): Promise<string> => {
+	await LambdaFS.inflate('/opt/bin/aws.tar.br');
+	await LambdaFS.inflate('/opt/bin/swiftshader.tar.br');
 	return LambdaFS.inflate('/opt/bin/chromium.br');
 };
