@@ -8,7 +8,8 @@ type Options = [];
 
 type MessageIds = "DurationInFrames";
 
-const DurationInFrames = "Sequence component prop durationInFrames by default value is Infinity";
+const DurationInFrames =
+  "Infinity is now the default, so you can remove the prop.";
 
 export default createRule<Options, MessageIds>({
   name: "duration-in-frames",
@@ -19,7 +20,7 @@ export default createRule<Options, MessageIds>({
       category: "Best Practices",
       recommended: "warn",
     },
-    fixable: undefined,
+    fixable: "code",
     schema: [],
     messages: {
       DurationInFrames,
@@ -32,7 +33,7 @@ export default createRule<Options, MessageIds>({
         if (node.type !== "JSXAttribute") {
           return;
         }
-        
+
         if (node.name.name !== "durationInFrames") {
           return;
         }
@@ -55,7 +56,7 @@ export default createRule<Options, MessageIds>({
         if (!parent) {
           return;
         }
-        
+
         if (parent.type !== "JSXOpeningElement") {
           return;
         }
@@ -71,6 +72,9 @@ export default createRule<Options, MessageIds>({
           context.report({
             messageId: "DurationInFrames",
             node,
+            fix: (fixer) => {
+              return fixer.removeRange([node.name.range[0], value.range[1]]);
+            },
           });
         }
       },
