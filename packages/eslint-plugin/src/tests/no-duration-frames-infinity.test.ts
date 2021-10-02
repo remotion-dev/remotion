@@ -31,7 +31,7 @@ ruleTester.run("no-duration-frames-infinity", rule, {
 
         export const Re = () => {
           return (
-            <Sequence durationInFrames={Infinity} >
+            <Sequence>
               Hi
             </Sequence>
           );
