@@ -169,7 +169,7 @@ Print the list of available CLI commands and flags.
 ## Example command
 
 ```
-npx remotion render --codec=vp8 src/index.tsx HelloWorld video.webm
+npx remotion render --codec=vp8 src/index.tsx HelloWorld out/video.webm
 ```
 
 ## See also
