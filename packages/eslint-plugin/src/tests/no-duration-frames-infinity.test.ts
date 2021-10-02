@@ -31,7 +31,18 @@ ruleTester.run("no-duration-frames-infinity", rule, {
 
         export const Re = () => {
           return (
-            <Sequence>
+            <Sequence durationInFrames={Infinity}>
+              Hi
+            </Sequence>
+          );
+        }
+      `,
+      output: `
+        import {Composition} from 'remotion';
+
+        export const Re = () => {
+          return (
+            <Sequence >
               Hi
             </Sequence>
           );
