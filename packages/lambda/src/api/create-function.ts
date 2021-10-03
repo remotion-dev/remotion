@@ -22,7 +22,6 @@ export const createFunction = async ({
 	const {FunctionName} = await getLambdaClient(region).send(
 		new CreateFunctionCommand({
 			Code: {
-				// TODO: Put it in S3 bucket
 				ZipFile: readFileSync(zipFile),
 			},
 			FunctionName: functionName,
