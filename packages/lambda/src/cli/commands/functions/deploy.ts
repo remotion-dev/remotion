@@ -26,8 +26,6 @@ export const functionsDeploySubcommand = async () => {
 		)
 	);
 	const output = CliInternals.createOverwriteableCliOutput();
-	output.update('Ensuring Lambda binaries...');
-	// TODO: Output can be more finegrained
 	output.update('Deploying Lambda...');
 	const {functionName} = await deployFunction({
 		region,
