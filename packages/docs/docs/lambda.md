@@ -5,7 +5,7 @@ title: "@remotion/lambda"
 ---
 
 :::warning
-**Highly experimental**: APIs might undergo major changes and the framework still has rough edges and hardcoded values - see known issues section. Updates will be provided on the #lambda channel on Discord.
+**Experimental**: APIs might undergo major changes and the framework still has rough edges and hardcoded values - see known issues section. Updates will be provided on the #lambda channel on Discord.
 
 **No release timeline**: The project is in active development but will not be rushed to a release but instead we want to ensure it's futureproof.
 :::
@@ -21,7 +21,7 @@ title: "@remotion/lambda"
 
 ## Architecture
 
-- **Lambda function**: Requires a layer with Google Chrome and FFMPEG, is currently pulled from a central S3 bucket. Only one lambda function is required, but it can execute different actions.
+- **Lambda function**: Requires a layer with Chromium and FFMPEG, currently hosted by Remotion. Only one lambda function is required, but it can execute different actions.
 - **S3 bucket**: Stores the projects, the renders, render metadata and chunk optimization data.
 - **CLI**: Allows to control the overall architecture from the command line. Is installed by adding `@remotion/lambda` to a project.
 - **Node.JS API**: Has the same features as the CLI but is easier to use programmatically
