@@ -7,14 +7,10 @@ export const findOutputFileInBucket = ({
 	contents,
 	renderMetadata,
 	bucketName,
-	renderId,
-	type,
 }: {
 	contents: _Object[];
 	renderMetadata: RenderMetadata | null;
 	bucketName: string;
-	renderId: string;
-	type: 'still' | 'video';
 }): {
 	url: string;
 	size: number;

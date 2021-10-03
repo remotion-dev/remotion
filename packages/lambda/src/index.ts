@@ -3,7 +3,6 @@ import {deleteSite} from './api/delete-site';
 import {deployFunction} from './api/deploy-function';
 import {deploySite} from './api/deploy-site';
 import {downloadVideo} from './api/download-video';
-import {ensureLambdaBinaries} from './api/ensure-lambda-binaries';
 import {getFunctionInfo} from './api/get-function-info';
 import {getFunctions} from './api/get-functions';
 import {getOrCreateBucket} from './api/get-or-create-bucket';
@@ -25,7 +24,6 @@ export {
 	deployFunction,
 	deploySite,
 	downloadVideo,
-	ensureLambdaBinaries,
 	getFunctions,
 	getUserPolicy,
 	getRolePolicy,

@@ -14,6 +14,11 @@ Keep track of changes to the APIs of Remotion Lambda here.
 1. Redeploy your function: `npx remotion lambda functions deploy`
 1. Migrate according to the changelog below:
 
+## Unreleased
+
+- Layers are now hosted by Remotion - that means no more `ensureLambdaBinaries()` call is necessary, we'll take care of it!
+- The necessary binaries are now hosted outside the
+
 ## October 1th, 2021
 
 Version hash: `2.5.0-alpha.b52a746f`
