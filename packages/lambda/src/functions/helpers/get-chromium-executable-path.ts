@@ -1,28 +1,15 @@
-import LambdaFS from 'lambdafs';
-
 if (
 	/^AWS_Lambda_nodejs(?:10|12|14)[.]x$/.test(
 		process.env.AWS_EXECUTION_ENV ?? ''
 	) === true
 ) {
 	if (process.env.FONTCONFIG_PATH === undefined) {
-		process.env.FONTCONFIG_PATH = '/tmp/aws';
+		process.env.FONTCONFIG_PATH = '/opt';
 	}
 
-	if (process.env.LD_LIBRARY_PATH === undefined) {
-		process.env.LD_LIBRARY_PATH = '/tmp/aws/lib:/opt/lib:/opt/bin';
-	} else if (process.env.LD_LIBRARY_PATH.startsWith('/tmp/aws/lib') !== true) {
-		process.env.LD_LIBRARY_PATH = [
-			...new Set([
-				'/tmp/aws/lib:/opt/lib:/opt/bin',
-				...process.env.LD_LIBRARY_PATH.split(':'),
-			]),
-		].join(':');
-	}
+	process.env.LD_LIBRARY_PATH = '/opt/lib:/opt/bin';
 }
 
 export const executablePath = async (): Promise<string> => {
-	await LambdaFS.inflate('/opt/bin/aws.tar.br');
-	await LambdaFS.inflate('/opt/bin/swiftshader.tar.br');
-	return LambdaFS.inflate('/opt/bin/chromium.br');
+	return '/opt/bin/chromium';
 };
