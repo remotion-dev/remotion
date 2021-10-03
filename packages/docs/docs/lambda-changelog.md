@@ -26,6 +26,8 @@ Refactor of the Lambda layer architecture to bring the following benefits:
 Also:
 
 - Fixed a bug where a `ENOENT` exception could be thrown during render
+- Improved time to deploy a function by removing need to bundle the function first.
+- Removed `esbuild`, `zip-lib` and `p-retry` dependendencies to make library more lightweight.
 
 ## October 1th, 2021
 
