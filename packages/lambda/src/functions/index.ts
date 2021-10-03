@@ -1,5 +1,3 @@
-import {RenderInternals} from '@remotion/renderer';
-import execa from 'execa';
 import {
 	COMMAND_NOT_FOUND,
 	LambdaPayload,
@@ -9,7 +7,6 @@ import {LambdaReturnValues} from '../shared/return-values';
 import {fireHandler} from './fire';
 import {deleteTmpDir} from './helpers/clean-tmpdir';
 import {closeBrowser} from './helpers/get-browser-instance';
-import {executablePath} from './helpers/get-chromium-executable-path';
 import {getWarm, setWarm} from './helpers/is-warm';
 import {infoHandler} from './info';
 import {launchHandler} from './launch';
@@ -22,13 +19,6 @@ export const handler = async <T extends LambdaRoutines>(
 	params: LambdaPayload,
 	context: {invokedFunctionArn: string}
 ): Promise<LambdaReturnValues[T]> => {
-	console.log('opening chrome');
-	await RenderInternals.openBrowser('chrome', {
-		browserExecutable: await executablePath(),
-		shouldDumpIo: true,
-	});
-	const {stderr} = await execa('ffmpeg', ['-v']);
-	console.log({stderr});
 	if (!context || !context.invokedFunctionArn) {
 		throw new Error(
 			'Lambda function unexpectedly does not have context.invokedFunctionArn'
