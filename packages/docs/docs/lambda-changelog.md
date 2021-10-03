@@ -16,8 +16,12 @@ Keep track of changes to the APIs of Remotion Lambda here.
 
 ## Unreleased
 
-- Layers are now hosted by Remotion - that means no more `ensureLambdaBinaries()` call is necessary, we'll take care of it!
-- The necessary binaries are now hosted outside the
+Refactor of the Lambda layer architecture to bring the following benefits:
+
+- Free up more than 200 MB in the `/tmp` directory to allow for longer videos to be rendered
+- Avoid having to unzip Chromium and FFMPEG on every function launch, saving 300-400ms on every function launch
+- Removed the need for `lambda:ListLayers`, `lambda:DeleteLayerVersion`, `lambda:GetLayerVersion` and `lambda:PublishLayerVersion` permission.
+- Removed the need to call `ensureLambdaBinaries()`. The function and docs for it have been deleted, remove it from your implementation as well. You also don't need to pass `layerArn` to `deployFunction` anymore either.
 
 ## October 1th, 2021
 
