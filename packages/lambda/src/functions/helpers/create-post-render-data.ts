@@ -51,9 +51,7 @@ export const createPostRenderData = async ({
 	const outputFile = findOutputFileInBucket({
 		contents,
 		bucketName,
-		renderId,
 		renderMetadata,
-		type: 'video',
 	});
 
 	if (!outputFile) {
