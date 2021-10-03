@@ -25,16 +25,14 @@ Note that you probably don't need to increase it - Since the video is rendered b
 
 ## Storage space
 
-The function only has 512MB of storage space in total, of which ~200MB are already taken by Google Chrome, FFMPEG and the Remotion function code. This means your video rendering must not take more than ~300MB of space - keep in mind that the concatenations of various chunks into one video takes place within a Lambda function, so the space must suffice for both the chunks and the output video.
+The function only has 512MB of storage space in total. available for video rendering. Keep in mind that the concatenations of various chunks into one video takes place within a Lambda function, so the space must suffice for both the chunks and the output video.
 
-In practice, this means your final video should not be bigger than ~150MB.
+## Chromium
 
-## Google Chrome
-
-The function already includes a running version of Google Chrome.
+The function already includes a running version of Chromium.
 The browser was compiled including the proprietary codecs, so you can include MP4 videos into your project.
 
-_TODO: Specify which version of Google Chrome_
+**Chromium revision**: `884014` (`92.0.4512.0`)
 
 ## FFMPEG
 

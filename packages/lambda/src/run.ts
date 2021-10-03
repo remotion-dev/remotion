@@ -2,7 +2,6 @@ import {CliInternals} from '@remotion/cli';
 import path from 'path';
 import {deployFunction} from './api/deploy-function';
 import {deploySite} from './api/deploy-site';
-import {ensureLambdaBinaries} from './api/ensure-lambda-binaries';
 import {getRemotionS3Buckets} from './api/get-buckets';
 import {getFunctions} from './api/get-functions';
 import {getOrCreateBucket} from './api/get-or-create-bucket';
@@ -34,12 +33,10 @@ const getFnName = async (options: {
 	if (DEPLOY) {
 		await cleanupLambdas({region: options.region});
 		// await cleanUpBuckets({s3client: s3Client});
-		const {layerArn} = await ensureLambdaBinaries(getAwsRegion());
 
 		const {functionName} = await deployFunction({
 			region: getAwsRegion(),
 			timeoutInSeconds: 120,
-			layerArn,
 			memorySizeInMb: 2048,
 		});
 

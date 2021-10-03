@@ -51,7 +51,9 @@ export const functionsLsCommand = async () => {
 		Log.info(
 			[
 				datapoint.functionName.padEnd(NAME_COLS, ' '),
-				datapoint.version.padEnd(VERSION_COLS, ' '),
+				datapoint.version
+					? datapoint.version.padEnd(VERSION_COLS, ' ')
+					: 'Error'.padEnd(VERSION_COLS, ' '),
 				String(datapoint.memorySizeInMb).padEnd(MEMORY_COLS, ' '),
 				String(datapoint.timeoutInSeconds).padEnd(TIMEOUT_COLS, ' '),
 			].join('')

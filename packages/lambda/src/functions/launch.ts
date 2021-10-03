@@ -1,6 +1,5 @@
 import {InvokeCommand} from '@aws-sdk/client-lambda';
 import fs from 'fs';
-import pRetry from 'p-retry';
 import {Internals} from 'remotion';
 import {validateFramesPerLambda} from '../api/validate-frames-per-lambda';
 import {getLambdaClient} from '../shared/aws-clients';
@@ -28,18 +27,12 @@ import {
 	getOptimization,
 	writeOptimization,
 } from './chunk-optimization/s3-optimization-file';
-import {deleteTmpDir} from './helpers/clean-tmpdir';
 import {concatVideosS3} from './helpers/concat-videos';
 import {createPostRenderData} from './helpers/create-post-render-data';
 import {deleteChunks} from './helpers/delete-chunks';
-import {
-	closeBrowser,
-	getBrowserInstance,
-	quitBrowser,
-} from './helpers/get-browser-instance';
+import {closeBrowser, getBrowserInstance} from './helpers/get-browser-instance';
 import {getCurrentRegionInFunction} from './helpers/get-current-region';
 import {lambdaLs, lambdaWriteFile} from './helpers/io';
-import {isErrInsufficientResourcesErr} from './helpers/is-enosp-err';
 import {timer} from './helpers/timer';
 import {validateComposition} from './helpers/validate-composition';
 import {
@@ -74,52 +67,27 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		}),
 	]);
 
-	const comp = await pRetry(
-		async () =>
-			validateComposition({
-				serveUrl: params.serveUrl,
-				composition: params.composition,
-				browserInstance: await getBrowserInstance(),
-				inputProps: params.inputProps,
-				onError: ({err}) => {
-					writeLambdaError({
-						bucketName: params.bucketName,
-						errorInfo: {
-							chunk: null,
-							frame: null,
-							isFatal: false,
-							stack: (err.message + ' ' + err.stack) as string,
-							type: 'browser',
-							tmpDir: getTmpDirStateIfENoSp(err.stack as string),
-						},
-						expectedBucketOwner: options.expectedBucketOwner,
-						renderId: params.renderId,
-					});
+	const comp = await validateComposition({
+		serveUrl: params.serveUrl,
+		composition: params.composition,
+		browserInstance: await getBrowserInstance(),
+		inputProps: params.inputProps,
+		onError: ({err}) => {
+			writeLambdaError({
+				bucketName: params.bucketName,
+				errorInfo: {
+					chunk: null,
+					frame: null,
+					isFatal: false,
+					stack: (err.message + ' ' + err.stack) as string,
+					type: 'browser',
+					tmpDir: getTmpDirStateIfENoSp(err.stack as string),
 				},
-			}),
-		{
-			retries: 1,
-			onFailedAttempt: async (err) => {
-				if (isErrInsufficientResourcesErr(err.message)) {
-					await writeLambdaError({
-						bucketName: params.bucketName,
-						errorInfo: {
-							chunk: null,
-							frame: null,
-							isFatal: false,
-							stack: err.stack as string,
-							tmpDir: null,
-							type: 'stitcher',
-						},
-						expectedBucketOwner: options.expectedBucketOwner,
-						renderId: params.renderId,
-					});
-					await quitBrowser();
-					deleteTmpDir();
-				}
-			},
-		}
-	);
+				expectedBucketOwner: options.expectedBucketOwner,
+				renderId: params.renderId,
+			});
+		},
+	});
 	Internals.validateDurationInFrames(
 		comp.durationInFrames,
 		'passed to <Component />'

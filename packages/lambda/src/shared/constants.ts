@@ -79,10 +79,6 @@ export const outName = (renderId: string, codec: Codec) =>
 	`${rendersPrefix(renderId)}/out.${getFileExtensionFromCodec(codec, 'final')}`;
 export const outStillName = (renderId: string, imageFormat: ImageFormat) =>
 	`${rendersPrefix(renderId)}/out.${imageFormat}`;
-export const BINARIES_BUCKET_PREFIX = 'lambda-remotion-binaries-';
-export const getBinariesBucketName = (region: AwsRegion) => {
-	return BINARIES_BUCKET_PREFIX + region;
-};
 
 export const postRenderDataKey = (renderId: string) => {
 	return `${rendersPrefix(renderId)}/post-render-metadata.json`;
