@@ -54,7 +54,7 @@ export const MyVideo = () => {
       <Sequence from={0} durationInFrames={40}>
         <Title title="Hello" />
       </Sequence>
-      <Sequence from={40} durationInFrames={Infinity}>
+      <Sequence from={40}>
         <Title title="World" />
       </Sequence>
     </div>
