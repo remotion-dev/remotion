@@ -21,7 +21,7 @@ export const printHelp = () => {
 	Log.info(`${BINARY_NAME} ${RENDER_COMMAND} <s3-url> <composition-id>`);
 	Log.info(CliInternals.chalk.gray('Render a video in the cloud.'));
 
-	Log.info(`${BINARY_NAME} ${STILL_COMMAND} <s3-url> <composiiton-id>`);
+	Log.info(`${BINARY_NAME} ${STILL_COMMAND} <s3-url> <composition-id>`);
 	Log.info(CliInternals.chalk.gray('Render a still image in the cloud.'));
 
 	Log.info();
