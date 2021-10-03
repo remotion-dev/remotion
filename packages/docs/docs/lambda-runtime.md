@@ -31,10 +31,10 @@ In practice, this means your final video should not be bigger than ~150MB.
 
 ## Google Chrome
 
-The function already includes a running version of Google Chrome.
+The function already includes a running version of Chromium.
 The browser was compiled including the proprietary codecs, so you can include MP4 videos into your project.
 
-_TODO: Specify which version of Google Chrome_
+**Chromium revision**: `884014` (`92.0.4512.0`)
 
 ## FFMPEG
 
