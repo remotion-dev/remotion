@@ -12,7 +12,7 @@ export const printHelp = () => {
 	Log.info(
 		`${BINARY_NAME} ${
 			packagejson.version
-		} © ${new Date().getFullYear()} Jonny Burger`
+		} © ${new Date().getFullYear()} The Remotion developers`
 	);
 	Log.info();
 	Log.info('Available commands:');
