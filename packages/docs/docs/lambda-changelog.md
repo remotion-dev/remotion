@@ -23,6 +23,10 @@ Refactor of the Lambda layer architecture to bring the following benefits:
 - Removed the need for `lambda:ListLayers`, `lambda:DeleteLayerVersion`, `lambda:GetLayerVersion` and `lambda:PublishLayerVersion` permission.
 - Removed the need to call `ensureLambdaBinaries()`. The function and docs for it have been deleted, remove it from your implementation as well. You also don't need to pass `layerArn` to `deployFunction` anymore either.
 
+Also:
+
+- Fixed a bug where a `ENOENT` exception could be thrown during render
+
 ## October 1th, 2021
 
 Version hash: `2.5.0-alpha.b52a746f`
