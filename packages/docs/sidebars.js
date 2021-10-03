@@ -24,6 +24,7 @@ module.exports = {
         "getfunctions",
         "deletesite",
         "deploysite",
+        "downloadvideo",
         "getuserpolicy",
         "getrolepolicy",
         "getsites",

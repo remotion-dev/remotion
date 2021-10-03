@@ -14,13 +14,18 @@ Keep track of changes to the APIs of Remotion Lambda here.
 1. Redeploy your function: `npx remotion lambda functions deploy`
 1. Migrate according to the changelog below:
 
-## Unreleased
+## October 1th, 2021
 
-- Renamed `deployProject` to `deploySite()`.
-- Exported `getSites()` and `deleteSite()` (not documented yet)
-- Added `siteName` to the options of `deploySite()`.
+Version hash: `2.5.0-alpha.b52a746f`
+
+- Renamed `deployProject()` to `deploySite()`.
+- Exported `getSites()` and `deleteSite()` methods (not documented yet)
+- Added `siteName` to the options of `deploySite()` - now you can define the name of your site yourself, and redeploy to keep the same site.
 - Replace `estimatedLambdaInvokations` with `estimatedRenderLambdaInvokations`.
 - Rename `bucketSize` to `renderSize`. This property is reporting the size of the render, not the size of the bucket.
+- Added `downloadVideo()` API (not documented yet)
+- If you add a filename to the end of the render command `npx remotion lambda render [url] [comp-name] out.mp4`, the video will be downloaded to your computer!
+- `npx remotion lambda render` has a progress bar now. To continue to see all details, use the `--log=verbose` flag!
 
 ## September 15th, 2021
 
