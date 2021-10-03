@@ -126,9 +126,7 @@ export const getProgress = async ({
 	const outputFile = findOutputFileInBucket({
 		bucketName,
 		contents,
-		renderId,
 		renderMetadata,
-		type: 'video',
 	});
 
 	const cleanup = getCleanupProgress({

@@ -40,6 +40,11 @@ export const makeLayerPublic = async () => {
 	}
 };
 
-makeLayerPublic().then(() => {
-	console.log('made public');
-});
+makeLayerPublic()
+	.then(() => {
+		console.log('made public');
+	})
+	.catch((err) => {
+		console.log(err);
+		process.exit(1);
+	});
