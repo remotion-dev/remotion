@@ -2,6 +2,7 @@ import {CreateFunctionCommand} from '@aws-sdk/client-lambda';
 import {readFileSync} from 'fs';
 import {AwsRegion} from '..';
 import {getLambdaClient} from '../shared/aws-clients';
+import {hostedLayers} from '../shared/hosted-layers';
 
 export const createFunction = async ({
 	region,
@@ -32,12 +33,9 @@ export const createFunction = async ({
 			Description: 'Renders a Remotion video.',
 			MemorySize: memorySizeInMb,
 			Timeout: timeoutInSeconds,
-			Layers: [
-				// TODO: Unhardcode
-				'arn:aws:lambda:eu-central-1:976210361945:layer:remotion-binaries-remotion:20',
-				'arn:aws:lambda:eu-central-1:976210361945:layer:remotion-binaries-chromium:20',
-				'arn:aws:lambda:eu-central-1:976210361945:layer:remotion-binaries-ffmpeg:20',
-			],
+			Layers: hostedLayers[region].map(
+				({layerArn, version}) => `${layerArn}:${version}`
+			),
 		})
 	);
 	return {FunctionName};
