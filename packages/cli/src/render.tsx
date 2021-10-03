@@ -206,6 +206,13 @@ export const render = async () => {
 		}
 
 		const stitchingProgress = createOverwriteableCliOutput();
+		const dirName = path.dirname(absoluteOutputFile);
+
+		if (!fs.existsSync(dirName)) {
+			fs.mkdirSync(dirName, {
+				recursive: true,
+			});
+		}
 
 		stitchingProgress.update(
 			makeStitchingProgress({
