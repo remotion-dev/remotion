@@ -36,6 +36,7 @@ export const createFunction = async ({
 				// TODO: Unhardcode
 				'arn:aws:lambda:eu-central-1:976210361945:layer:remotion-binaries-remotion:20',
 				'arn:aws:lambda:eu-central-1:976210361945:layer:remotion-binaries-chromium:20',
+				'arn:aws:lambda:eu-central-1:976210361945:layer:remotion-binaries-ffmpeg:20',
 			],
 		})
 	);
