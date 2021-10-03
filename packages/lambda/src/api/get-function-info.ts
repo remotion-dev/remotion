@@ -9,7 +9,7 @@ export type FunctionInfo = {
 	functionName: string;
 	timeoutInSeconds: number;
 	memorySizeInMb: number;
-	version: LambdaVersions;
+	version: LambdaVersions | null;
 };
 
 type GetFunctionInfoArgs = {
