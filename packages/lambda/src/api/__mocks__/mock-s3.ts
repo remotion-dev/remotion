@@ -1,5 +1,5 @@
-import {AwsRegion} from '../../../dist';
 import {LambdaAcl} from '../../defaults';
+import {AwsRegion} from '../../pricing/aws-regions';
 
 type S3MockFile = {
 	bucketName: string;
