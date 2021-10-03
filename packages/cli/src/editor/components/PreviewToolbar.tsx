@@ -32,7 +32,7 @@ const padding: React.CSSProperties = {
 
 export const PreviewToolbar: React.FC = () => {
 	return (
-		<div style={container}>
+		<div style={container} className="css-reset">
 			<div style={sideContainer}>
 				<div style={padding} />
 				<TimeValue />
