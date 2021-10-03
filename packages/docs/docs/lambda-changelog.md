@@ -16,7 +16,7 @@ Keep track of changes to the APIs of Remotion Lambda here.
 
 ## October 3rd, 2021
 
-Version hash: `2.5.0-alpha.be0e6380`
+Version hash: `2.5.0-alpha.5da9a754`
 
 Refactor of the Lambda layer architecture to bring the following benefits:
 
