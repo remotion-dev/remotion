@@ -18,7 +18,6 @@ jest.mock('../../api/bucket-exists');
 jest.mock('../../api/clean-items');
 jest.mock('../../api/create-function');
 jest.mock('../../api/delete-function');
-jest.mock('../../api/bundle-lambda');
 jest.mock('../../api/get-functions');
 jest.mock('../../shared/get-account-id');
 

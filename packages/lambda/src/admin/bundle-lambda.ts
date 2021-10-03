@@ -1,10 +1,10 @@
 import fs from 'fs';
 import path from 'path';
-import {tmpDir} from '../shared/tmpdir';
+import {FUNCTION_ZIP} from '../defaults';
 import esbuild = require('esbuild');
 import zl = require('zip-lib');
 
-export const bundleLambda = async () => {
+const bundleLambda = async () => {
 	const outdir = path.join(__dirname, '..', `build-render`);
 	fs.mkdirSync(outdir, {
 		recursive: true,
@@ -25,7 +25,15 @@ export const bundleLambda = async () => {
 		entryPoints: [template],
 	});
 
-	const out = path.join(tmpDir('remotion-fn'), `function-render.zip`);
-	await zl.archiveFolder(outdir, out);
-	return out;
+	await zl.archiveFolder(outdir, FUNCTION_ZIP);
+	await fs.promises.rm(outfile);
 };
+
+bundleLambda()
+	.then(() => {
+		console.log('Lambda bundled');
+	})
+	.catch((err) => {
+		console.log(err);
+		process.exit(1);
+	});
