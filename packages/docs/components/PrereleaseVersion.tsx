@@ -25,7 +25,7 @@ export const Prerelease: React.FC = () => {
           return (
             <div key={r}>
               <span style={{ color: "#e13238" }}>
-                - &quot;{r}&quot;: &quot;{version}&quot;
+                - &quot;{r}&quot;: &quot;{"^2.4.1"}&quot;
               </span>
               {"\n"}
               <span style={{ color: "#009400" }}>
