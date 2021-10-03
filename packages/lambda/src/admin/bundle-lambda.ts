@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import {FUNCTION_ZIP} from '../defaults';
+import {FUNCTION_ZIP} from '../shared/function-zip-path';
 import esbuild = require('esbuild');
 import zl = require('zip-lib');
 
