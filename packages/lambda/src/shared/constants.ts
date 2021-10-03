@@ -1,4 +1,3 @@
-import path from 'path';
 import {
 	Codec,
 	ImageFormat,
@@ -282,8 +281,3 @@ export type RenderProgress = {
 };
 
 export type LambdaAcl = 'public-read' | 'private';
-
-export const FUNCTION_ZIP = path.join(
-	path.resolve(__dirname, '..', '..'),
-	`remotionlambda.zip`
-);

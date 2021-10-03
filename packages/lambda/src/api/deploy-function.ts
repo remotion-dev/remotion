@@ -1,5 +1,6 @@
 import {AwsRegion} from '../pricing/aws-regions';
-import {FUNCTION_ZIP, RENDER_FN_PREFIX} from '../shared/constants';
+import {RENDER_FN_PREFIX} from '../shared/constants';
+import {FUNCTION_ZIP} from '../shared/function-zip-path';
 import {getAccountId} from '../shared/get-account-id';
 import {randomHash} from '../shared/random-hash';
 import {validateAwsRegion} from '../shared/validate-aws-region';
