@@ -35,7 +35,17 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           version: ${{ matrix.versionffmpeg_version }}
-      - run: |
+
+      - name: Install, Build & Test for Node 16 and NPM 7
+        if: matrix.node_version >= 16
+        run: |
+          npm i
+          npm run build
+          npm test
+
+      - name: Install, Build & Test for Node 12,14 and NPM 6
+        if: matrix.node_version <= 16
+        run: |
           npm i
           npm run bootstrap -- --ci --concurrency=2
           npm run build

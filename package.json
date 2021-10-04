@@ -32,5 +32,8 @@
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
     "three": "^0.128.0"
-  }
+  },
+  "workspaces": [
+    "packages/**"
+  ]
 }
