@@ -142,11 +142,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 		videoRef.current.addEventListener(
 			'seeked',
 			() => {
-				// Improve me: This is ensures frame perfectness but slows down render.
-				// Please see this issue for context: https://github.com/remotion-dev/remotion/issues/200
-				setTimeout(() => {
-					continueRender(handle);
-				}, 100);
+				continueRender(handle);
 			},
 			{once: true}
 		);
