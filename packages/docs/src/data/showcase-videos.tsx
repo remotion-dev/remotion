@@ -995,6 +995,30 @@ export const showcaseVideos: ShowcaseVideo[] = [
       name: "Ben Follington",
     },
   },
+  {
+    title: "Feature overview",
+    type: "mux_video",
+    muxId: "d2SvbrhHvyJZb2EmSv441M601UBy1dfEYfToKGqDpV01Y",
+    description: "A showcase of features in the new Bottom Sheet library.",
+    height: 640,
+    width: 1280,
+    submittedOn: new Date("10-04-2021"),
+    links: [
+      {
+        type: "video",
+        url: "https://twitter.com/Gorhom/status/1432363415272558593",
+      },
+      {
+        type: "website",
+        url:
+          "https://gorhom.github.io/react-native-bottom-sheet/blog/bottom-sheet-v4/",
+      },
+    ],
+    author: {
+      url: "https://gorhom.dev/",
+      name: "Mo Gorhim",
+    },
+  },
 ];
 
 const dateString = (date: Date) =>
