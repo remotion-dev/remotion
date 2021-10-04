@@ -6,3 +6,4 @@ lerna-debug.log
 coverage
 packages/example/.env
 .cache
+packages/example/out
