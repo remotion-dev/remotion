@@ -18,19 +18,29 @@ Please note that this project is released with a [Contributor Code of Conduct](C
 
 Clone the repo and run
 
+Since we use NPM and Lerna, we suggest to check which version of Node and NPM you're using, we're compatible with both but steps changes.
+
+#### Node 16
+
 ```console
-
 npm i
-
-npx lerna bootstrap
 
 npm run build
 
-npx lerna bootstrap
-
+npm run test
 ```
 
-to set up the project. Make sure to run `npx lerna bootstrap` twice - the reason is that during the build phase new CLI binaries are being created so another symlink is necessary. You only have to do this once.
+#### Node 12, 14
+
+```console
+npm i
+
+npm run bootstrap
+
+npm run build
+
+npm run test
+```
 
 We recommend keeping a terminal open with the command
 
@@ -45,4 +55,5 @@ running to keep the monorepos building and synchronized.
 As a testbed, you can use the `example` folder. Run `npm start` to trigger the preview and `npm run render` to trigger the render process.
 
 ### Testing
+
 For information about testing, please consult [TESTING.md](./TESTING.md).

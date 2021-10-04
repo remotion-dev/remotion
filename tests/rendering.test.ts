@@ -59,7 +59,7 @@ test("Should fail to render out of range CRF", async () => {
       reject: false,
     }
   );
-  expect(task.exitCode).toBe(process.platform === "win32" ? 0 : 1);
+  expect(task.exitCode).toBe(1);
   expect(task.stderr).toContain("CRF must be between ");
 });
 
@@ -82,7 +82,7 @@ test("Should fail to render out of range frame when range is a number", async ()
       reject: false,
     }
   );
-  expect(task.exitCode).toBe(process.platform === "win32" ? 0 : 1);
+  expect(task.exitCode).toBe(1);
   expect(task.stderr).toContain(
     "Frame number is out of range, must be between 0 and 9"
   );
@@ -104,7 +104,7 @@ test("Should fail to render out of range frame when range is a string", async ()
       reject: false,
     }
   );
-  expect(task.exitCode).toBe(process.platform === "win32" ? 0 : 1);
+  expect(task.exitCode).toBe(1);
   expect(task.stderr).toContain("Frame range 2-10 is not in between 0-9");
 });
 
