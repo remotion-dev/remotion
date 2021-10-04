@@ -3,8 +3,7 @@
   "private": true,
   "license": "SEE LICENSE IN LICENSE.md",
   "scripts": {
-    "postinstall": "patch-package",
-    "bootstrap": "lerna bootstrap --hoist",
+    "bootstrap": "lerna bootstrap --force-local",
     "test": "lerna run test && jest --runInBand",
     "build": "lerna run build",
     "watch": "lerna run watch --stream --parallel"
@@ -23,7 +22,6 @@
     "jest-environment-jsdom": "^27.2.4",
     "lerna": "^4.0.0",
     "prettier": "^2.2.1",
-    "patch-package": "^6.4.7",
     "prettier-plugin-organize-imports": "^1.1.1",
     "sharp": "^0.29.0",
     "ts-jest": "^27.0.5",

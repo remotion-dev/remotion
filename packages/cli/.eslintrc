@@ -1,6 +1,7 @@
 {
 	"extends": "@jonny",
 	"rules": {
+		"arrow-body-style": "off",
 		"no-console": "error",
 		"ts-exports/unused-exports": "off"
 	},
