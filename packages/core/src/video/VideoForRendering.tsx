@@ -142,7 +142,14 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 		videoRef.current.addEventListener(
 			'seeked',
 			() => {
-				continueRender(handle);
+				if (window.navigator.platform.startsWith('Mac')) {
+					// If the
+					setTimeout(() => {
+						continueRender(handle);
+					}, 100);
+				} else {
+					continueRender(handle);
+				}
 			},
 			{once: true}
 		);
