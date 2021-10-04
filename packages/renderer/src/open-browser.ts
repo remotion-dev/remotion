@@ -32,7 +32,7 @@ export const openBrowser = async (
 			'--no-sandbox',
 			'--disable-setuid-sandbox',
 			'--disable-dev-shm-usage',
-			'--use-gl=swiftshader',
+			process.platform === 'darwin' ? null : '--use-gl=egl',
 			process.platform === 'linux' ? '--single-process' : null,
 		].filter(Boolean) as string[],
 	});
