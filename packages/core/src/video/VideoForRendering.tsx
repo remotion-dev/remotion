@@ -144,6 +144,8 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 			() => {
 				// Improve me: This is ensures frame perfectness but slows down render.
 				// Please see this issue for context: https://github.com/remotion-dev/remotion/issues/200
+
+				// Only affects macOS since it uses VideoToolbox decoding.
 				setTimeout(() => {
 					continueRender(handle);
 				}, 100);
