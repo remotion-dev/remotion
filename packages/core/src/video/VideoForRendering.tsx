@@ -142,13 +142,17 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 		videoRef.current.addEventListener(
 			'seeked',
 			() => {
-				// Improve me: This is ensures frame perfectness but slows down render.
-				// Please see this issue for context: https://github.com/remotion-dev/remotion/issues/200
+				if (window.navigator.platform.startsWith('Mac')) {
+					// Improve me: This is ensures frame perfectness but slows down render.
+					// Please see this issue for context: https://github.com/remotion-dev/remotion/issues/200
 
-				// Only affects macOS since it uses VideoToolbox decoding.
-				setTimeout(() => {
+					// Only affects macOS since it uses VideoToolbox decoding.
+					setTimeout(() => {
+						continueRender(handle);
+					}, 100);
+				} else {
 					continueRender(handle);
-				}, 100);
+				}
 			},
 			{once: true}
 		);
