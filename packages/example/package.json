@@ -22,6 +22,7 @@
 		"@babel/plugin-syntax-jsx": "7.12.13",
 		"@babel/preset-env": "7.12.13",
 		"@babel/preset-react": "7.12.13",
+		"@mdx-js/react": "^1.6.21",
 		"@react-three/drei": "^4.3.3",
 		"@remotion/babel-loader": "^2.4.2",
 		"@remotion/bundler": "^2.4.2",
@@ -55,7 +56,7 @@
 		"eslint": "^7.25.0",
 		"jest": "^27.0.6",
 		"prettier-plugin-organize-imports": "^1.1.1",
-		"ts-jest": "^27.0.4"
+		"ts-jest": "^27.0.5"
 	},
 	"publishConfig": {
 		"access": "public"

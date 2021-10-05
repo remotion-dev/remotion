@@ -4,6 +4,8 @@
 		"project": "./tsconfig.json"
 	},
 	"rules": {
+		"arrow-body-style": "off",
+		"no-bitwise": "off",
 		"ts-exports/unused-exports": "off"
 	}
 }

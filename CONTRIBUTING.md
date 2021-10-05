@@ -16,33 +16,46 @@ Please note that this project is released with a [Contributor Code of Conduct](C
 
 ### Code setup
 
-Clone the repo and run
+Remotion uses [`pnpm`](https://pnpm.io/) as the package manager for development in this repository.
 
-```console
+If you are using pnpm for the first time the [pnpm configuration documentation](https://pnpm.io/configuring) may be useful to avoid any potential problems with the following steps.
 
-npm i
-
-npx lerna bootstrap
-
-npm run build
-
-npx lerna bootstrap
+To begin your development setup, please install the latest version of pnpm globally:
 
 ```
-
-to set up the project. Make sure to run `npx lerna bootstrap` twice - the reason is that during the build phase new CLI binaries are being created so another symlink is necessary. You only have to do this once.
-
-We recommend keeping a terminal open with the command
-
-```console
-
-npm run watch
-
+npm i -g pnpm
 ```
 
-running to keep the monorepos building and synchronized.
+With pnpm installed, the first step is installing all dependencies:
 
-As a testbed, you can use the `example` folder. Run `npm start` to trigger the preview and `npm run render` to trigger the render process.
+```
+pnpm install
+```
+
+### Building the project
+
+To build the project run
+
+```
+pnpm build
+```
+
+### Watch mode
+
+To enable watch mode run
+
+```
+pnpm watch
+```
+
+### Running test
+
+```
+pnpm test
+```
+
+As a testbed, you can use the `example` folder. Run `pnpm start` to trigger the preview and `pnpm render` to trigger the render process.
 
 ### Testing
+
 For information about testing, please consult [TESTING.md](./TESTING.md).
