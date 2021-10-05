@@ -3,7 +3,7 @@ import videoMp4 from './framer.mp4';
 import videoWebm from './framer.webm';
 
 export const VideoTesting: React.FC<{
-	codec: 'mp4' | 'webm';
+	codec: 'mp4' | 'webm' | string;
 }> = ({codec}) => {
 	const {durationInFrames} = useVideoConfig();
 	return (
