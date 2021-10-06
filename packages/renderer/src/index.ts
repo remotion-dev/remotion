@@ -7,6 +7,7 @@ import {
 } from './ffmpeg-flags';
 import {getActualConcurrency} from './get-concurrency';
 import {ensureLocalBrowser} from './get-local-browser-executable';
+import {max, min} from './min-max';
 import {openBrowser} from './open-browser';
 import {serveStatic} from './serve-static';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
@@ -41,4 +42,6 @@ export const RenderInternals = {
 	serveStatic,
 	addSilentAudioIfNecessary,
 	validateEvenDimensionsWithCodec,
+	min,
+	max,
 };

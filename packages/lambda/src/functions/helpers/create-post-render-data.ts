@@ -7,6 +7,7 @@ import {
 	RenderMetadata,
 } from '../../shared/constants';
 import {parseLambdaTimingsKey} from '../../shared/parse-lambda-timings-key';
+import {calculateChunkTimes} from './calculate-chunk-times';
 import {findOutputFileInBucket} from './find-output-file-in-bucket';
 import {getFilesToDelete} from './get-files-to-delete';
 import {EnhancedErrorInfo} from './write-lambda-error';
@@ -44,7 +45,7 @@ export const createPostRenderData = ({
 	);
 
 	const times = parsedTimings
-		.map((p) => p.end - p.start + OVERHEAD_TIME_PER_LAMBDA)
+		.map((p) => p.encoded - p.start + OVERHEAD_TIME_PER_LAMBDA)
 		.reduce((a, b) => a + b);
 
 	const cost = estimatePrice({
@@ -96,6 +97,11 @@ export const createPostRenderData = ({
 		}).length,
 		timeToEncode,
 		timeToCleanUp: timeToDelete,
+		timeToRenderChunks: calculateChunkTimes({
+			contents,
+			renderId,
+			type: 'absolute-time',
+		}),
 	};
 
 	return data;

@@ -50,17 +50,19 @@ export const lambdaTimingsKey = ({
 	renderId,
 	chunk,
 	start,
-	end,
+	rendered,
+	encoded,
 }: {
 	renderId: string;
 	chunk: number;
 	start: number;
-	end: number;
+	rendered: number;
+	encoded: number;
 }) =>
 	`${lambdaTimingsPrefixForChunk(
 		renderId,
 		chunk
-	)}-start:${start}-end:${end}.txt`;
+	)}-start:${start}-rendered:${rendered}-encoded:${encoded}.txt`;
 export const chunkKey = (renderId: string) =>
 	`${rendersPrefix(renderId)}/chunks/chunk`;
 export const chunkKeyForIndex = ({
@@ -70,23 +72,6 @@ export const chunkKeyForIndex = ({
 	renderId: string;
 	index: number;
 }) => `${chunkKey(renderId)}:${String(index).padStart(8, '0')}`;
-
-export const chunkKeyWithEmbeddedTiming = ({
-	renderId,
-	index,
-	start,
-	end,
-}: {
-	renderId: string;
-	index: number;
-	start: number;
-	end: number;
-}) => {
-	return `${chunkKeyForIndex({
-		index,
-		renderId,
-	})}-start:${start}-end:${end}`;
-};
 
 export const getErrorKeyPrefix = (renderId: string) =>
 	`${rendersPrefix(renderId)}/errors/`;
@@ -237,6 +222,7 @@ export type RenderMetadata = {
 };
 
 export type LambdaVersions =
+	| '2021-10-06'
 	| '2021-10-03'
 	| '2021-10-01'
 	| '2021-09-15'
@@ -247,7 +233,8 @@ export type LambdaVersions =
 	| '2021-07-02'
 	| '2021-06-23'
 	| 'n/a';
-export const CURRENT_VERSION: LambdaVersions = '2021-10-03';
+
+export const CURRENT_VERSION: LambdaVersions = '2021-10-06';
 
 export type PostRenderData = {
 	cost: {
@@ -267,6 +254,7 @@ export type PostRenderData = {
 	renderMetadata: RenderMetadata;
 	timeToEncode: number;
 	timeToCleanUp: number;
+	timeToRenderChunks: number;
 };
 
 export type CostsInfo = {
@@ -298,6 +286,7 @@ export type RenderProgress = {
 	renderSize: number;
 	lambdasInvoked: number;
 	cleanup: CleanupInfo | null;
+	timeToFinishChunks: number | null;
 };
 
 export type LambdaAcl = 'public-read' | 'private';

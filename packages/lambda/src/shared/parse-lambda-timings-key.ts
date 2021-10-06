@@ -1,6 +1,6 @@
 export const parseLambdaTimingsKey = (key: string) => {
 	const match = key.match(
-		/^renders\/(.*)\/lambda-timings\/chunk:([0-9]+)-start:([0-9]+)-end:([0-9]+).txt$/
+		/^renders\/(.*)\/lambda-timings\/chunk:([0-9]+)-start:([0-9]+)-rendered:([0-9]+)-encoded:([0-9]+).txt$/
 	);
 	if (!match) {
 		throw new Error(
@@ -12,6 +12,7 @@ export const parseLambdaTimingsKey = (key: string) => {
 		renderId: match[1],
 		chunk: Number(match[2]),
 		start: Number(match[3]),
-		end: Number(match[4]),
+		rendered: Number(match[4]),
+		encoded: Number(match[5]),
 	};
 };

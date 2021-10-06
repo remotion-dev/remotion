@@ -7,6 +7,7 @@ import {
 	RenderProgress,
 	rendersPrefix,
 } from '../../shared/constants';
+import {calculateChunkTimes} from './calculate-chunk-times';
 import {estimatePriceFromBucket} from './calculate-price-from-bucket';
 import {findOutputFileInBucket} from './find-output-file-in-bucket';
 import {formatCostsInfo} from './format-costs-info';
@@ -72,6 +73,7 @@ export const getProgress = async ({
 			renderId,
 			renderMetadata: postRenderData.renderMetadata,
 			timeToFinish: postRenderData.timeToFinish,
+			timeToFinishChunks: postRenderData.timeToRenderChunks,
 		};
 	}
 
@@ -141,7 +143,7 @@ export const getProgress = async ({
 	});
 
 	const chunks = contents.filter((c) => c.Key?.startsWith(chunkKey(renderId)));
-
+	const allChunks = chunks.length === (renderMetadata?.totalChunks ?? Infinity);
 	const renderSize = contents
 		.map((c) => c.Size ?? 0)
 		.reduce((a, b) => a + b, 0);
@@ -172,5 +174,12 @@ export const getProgress = async ({
 		renderSize,
 		lambdasInvoked,
 		cleanup,
+		timeToFinishChunks: allChunks
+			? calculateChunkTimes({
+					contents,
+					renderId,
+					type: 'absolute-time',
+			  })
+			: null,
 	};
 };
