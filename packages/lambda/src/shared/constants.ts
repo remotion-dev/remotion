@@ -248,6 +248,7 @@ export type PostRenderData = {
 	filesCleanedUp: number;
 	renderMetadata: RenderMetadata;
 	timeToEncode: number;
+	timeToCleanUp: number;
 };
 
 export type CostsInfo = {
@@ -258,7 +259,7 @@ export type CostsInfo = {
 };
 
 export type CleanupInfo = {
-	done: boolean;
+	doneIn: number | null;
 	filesToDelete: number;
 	filesDeleted: number;
 };

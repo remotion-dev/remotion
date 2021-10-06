@@ -88,15 +88,15 @@ export const makeCleanupProgress = (
 		return '';
 	}
 
-	const {done, filesDeleted, filesToDelete} = cleanupInfo;
+	const {doneIn, filesDeleted, filesToDelete} = cleanupInfo;
 	return [
 		'🪣 ',
 		`(4/${totalSteps})`,
 		CliInternals.makeProgressBar(filesDeleted / filesToDelete),
-		`${done ? 'Cleaned up' : 'Cleaning up'} artifacts`,
-		done
-			? CliInternals.chalk.gray('TODOms')
-			: `${Math.round((filesDeleted / filesToDelete) * 100)}%`,
+		`${doneIn === null ? 'Cleaning up' : 'Cleaned up'} artifacts`,
+		doneIn === null
+			? `${Math.round((filesDeleted / filesToDelete) * 100)}%`
+			: CliInternals.chalk.gray('ms'),
 	].join(' ');
 };
 
@@ -127,9 +127,8 @@ export const makeMultiProgressFromStatus = (
 		},
 		encodingProgress: {
 			framesEncoded: status.encodingStatus?.framesEncoded ?? 0,
-			totalFrames: status.encodingStatus?.totalFrames ?? null,
-			// TODO: Define done in
-			doneIn: null,
+			totalFrames: status.renderMetadata?.videoConfig.durationInFrames ?? 1,
+			doneIn: status.encodingStatus?.doneIn ?? null,
 		},
 		lambdaInvokeProgress: {
 			doneIn: null,

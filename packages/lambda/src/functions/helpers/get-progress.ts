@@ -47,7 +47,7 @@ export const getProgress = async ({
 			renderSize: postRenderData.renderSize,
 			chunks: postRenderData.renderMetadata.totalChunks,
 			cleanup: {
-				done: true,
+				doneIn: postRenderData.timeToCleanUp,
 				filesDeleted: postRenderData.filesCleanedUp,
 				filesToDelete: postRenderData.filesCleanedUp,
 			},
@@ -154,7 +154,7 @@ export const getProgress = async ({
 
 	return {
 		chunks: outputFile ? renderMetadata?.totalChunks ?? 0 : chunks.length,
-		done: Boolean(outputFile && cleanup?.done),
+		done: false,
 		encodingStatus: getFinalEncodingStatus({
 			encodingStatus,
 			outputFileExists: Boolean(outputFile),

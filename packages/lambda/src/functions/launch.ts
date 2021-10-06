@@ -32,6 +32,7 @@ import {createPostRenderData} from './helpers/create-post-render-data';
 import {deleteChunks} from './helpers/delete-chunks';
 import {closeBrowser, getBrowserInstance} from './helpers/get-browser-instance';
 import {getCurrentRegionInFunction} from './helpers/get-current-region';
+import {inspectErrors} from './helpers/inspect-errors';
 import {lambdaLs, lambdaWriteFile} from './helpers/io';
 import {timer} from './helpers/timer';
 import {validateComposition} from './helpers/validate-composition';
@@ -303,8 +304,23 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		region: getCurrentRegionInFunction(),
 	});
 
-	// TODO: Opportunity to parallelize
-	const postRenderData = await createPostRenderData({
+	const errorExplanationsProm = inspectErrors({
+		contents,
+		renderId: params.renderId,
+		bucket: params.bucketName,
+		region: getCurrentRegionInFunction(),
+		expectedBucketOwner: options.expectedBucketOwner,
+	});
+
+	const deletProm = deleteChunks({
+		region: getCurrentRegionInFunction(),
+		renderId: params.renderId,
+		bucket: params.bucketName,
+		chunkCount,
+		contents,
+	});
+
+	const postRenderData = createPostRenderData({
 		bucketName: params.bucketName,
 		expectedBucketOwner: options.expectedBucketOwner,
 		region: getCurrentRegionInFunction(),
@@ -312,7 +328,9 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		memorySizeInMb: Number(process.env.AWS_LAMBDA_FUNCTION_MEMORY_SIZE),
 		renderMetadata,
 		contents,
+		errorExplanations: await errorExplanationsProm,
 		timeToEncode: encodingStop - encodingStart,
+		timeToDelete: await deletProm,
 	});
 	await writePostRenderData({
 		bucketName: params.bucketName,
@@ -320,13 +338,6 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		postRenderData,
 		region: getCurrentRegionInFunction(),
 		renderId: params.renderId,
-	});
-	await deleteChunks({
-		region: getCurrentRegionInFunction(),
-		renderId: params.renderId,
-		bucket: params.bucketName,
-		chunkCount,
-		contents,
 	});
 };
 

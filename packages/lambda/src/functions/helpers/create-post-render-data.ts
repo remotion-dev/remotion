@@ -9,19 +9,20 @@ import {
 import {parseLambdaTimingsKey} from '../../shared/parse-lambda-timings-key';
 import {findOutputFileInBucket} from './find-output-file-in-bucket';
 import {getFilesToDelete} from './get-files-to-delete';
-import {inspectErrors} from './inspect-errors';
+import {EnhancedErrorInfo} from './write-lambda-error';
 
 const OVERHEAD_TIME_PER_LAMBDA = 100;
 
-export const createPostRenderData = async ({
+export const createPostRenderData = ({
 	renderId,
 	bucketName,
-	expectedBucketOwner,
 	region,
 	memorySizeInMb,
 	renderMetadata,
 	contents,
 	timeToEncode,
+	errorExplanations,
+	timeToDelete,
 }: {
 	renderId: string;
 	bucketName: string;
@@ -31,6 +32,8 @@ export const createPostRenderData = async ({
 	renderMetadata: RenderMetadata;
 	contents: _Object[];
 	timeToEncode: number;
+	timeToDelete: number;
+	errorExplanations: EnhancedErrorInfo[];
 }) => {
 	const initializedKeys = contents.filter((c) =>
 		c.Key?.startsWith(lambdaTimingsPrefix(renderId))
@@ -59,14 +62,6 @@ export const createPostRenderData = async ({
 	if (!outputFile) {
 		throw new Error('Cannot wrap up without an output file in the S3 bucket.');
 	}
-
-	const errorExplanations = await inspectErrors({
-		contents,
-		renderId,
-		bucket: bucketName,
-		region,
-		expectedBucketOwner,
-	});
 
 	const endTime = Date.now();
 	const startTime = renderMetadata.startedDate;
@@ -100,6 +95,7 @@ export const createPostRenderData = async ({
 			renderId,
 		}).length,
 		timeToEncode,
+		timeToCleanUp: timeToDelete,
 	};
 
 	return data;
