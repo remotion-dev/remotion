@@ -4,5 +4,5 @@ test("Should be able to call npx remotion lambda", async () => {
   const task = await execa("npx", ["remotion", "lambda"], {
     cwd: "packages/example",
   });
-  expect(task.stdout).toContain("Available subcommands");
+  expect(task.stdout).toContain("Available commands");
 });
