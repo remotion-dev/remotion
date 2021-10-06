@@ -37,6 +37,7 @@ export const getCleanupProgress = ({
 	return {
 		filesToDelete: filesToDelete.length,
 		filesDeleted,
-		done: filesStillThere.length === 0,
+		// We don't know. Only if post render data is saved, we know the timing
+		doneIn: null,
 	};
 };

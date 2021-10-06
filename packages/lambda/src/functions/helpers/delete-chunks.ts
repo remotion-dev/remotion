@@ -16,6 +16,7 @@ export const deleteChunks = async ({
 	region: AwsRegion;
 	contents: _Object[];
 }) => {
+	const start = Date.now();
 	const toDelete = getFilesToDelete({
 		chunkCount,
 		renderId,
@@ -39,4 +40,5 @@ export const deleteChunks = async ({
 		onAfterItemDeleted: () => undefined,
 		onBeforeItemDeleted: () => undefined,
 	});
+	return Date.now() - start;
 };
