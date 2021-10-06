@@ -122,8 +122,7 @@ export const makeMultiProgressFromStatus = (
 			doneIn: status.encodingStatus?.doneIn ?? null,
 		},
 		lambdaInvokeProgress: {
-			// TODO: Calculate invoke progress
-			doneIn: null,
+			doneIn: status.timeToInvokeLambdas,
 			lambdasInvoked: status.lambdasInvoked,
 			totalLambdas:
 				status.renderMetadata?.estimatedRenderLambdaInvokations ?? null,

@@ -2,7 +2,6 @@ import {AwsRegion} from '../..';
 import {
 	chunkKey,
 	encodingProgressKey,
-	lambdaInitializedPrefix,
 	renderMetadataKey,
 	RenderProgress,
 	rendersPrefix,
@@ -15,6 +14,7 @@ import {getCleanupProgress} from './get-cleanup-progress';
 import {getCurrentRegionInFunction} from './get-current-region';
 import {getEncodingMetadata} from './get-encoding-metadata';
 import {getFinalEncodingStatus} from './get-final-encoding-status';
+import {getLambdasInvokedStats} from './get-lambdas-invoked-stats';
 import {getPostRenderData} from './get-post-render-data';
 import {getRenderMetadata} from './get-render-metadata';
 import {getTimeToFinish} from './get-time-to-finish';
@@ -74,6 +74,7 @@ export const getProgress = async ({
 			renderMetadata: postRenderData.renderMetadata,
 			timeToFinish: postRenderData.timeToFinish,
 			timeToFinishChunks: postRenderData.timeToRenderChunks,
+			timeToInvokeLambdas: postRenderData.timeToInvokeLambdas,
 		};
 	}
 
@@ -148,11 +149,12 @@ export const getProgress = async ({
 		.map((c) => c.Size ?? 0)
 		.reduce((a, b) => a + b, 0);
 
-	const lambdasInvoked = outputFile
-		? renderMetadata?.totalChunks ?? 0
-		: contents.filter((c) =>
-				c.Key?.startsWith(lambdaInitializedPrefix(renderId))
-		  ).length;
+	const lambdasInvokedStats = getLambdasInvokedStats(
+		contents,
+		renderId,
+		renderMetadata?.estimatedRenderLambdaInvokations ?? null,
+		renderMetadata?.startedDate ?? null
+	);
 
 	return {
 		chunks: outputFile ? renderMetadata?.totalChunks ?? 0 : chunks.length,
@@ -172,7 +174,7 @@ export const getProgress = async ({
 		fatalErrorEncountered: errorExplanations.some(isFatalError),
 		currentTime: Date.now(),
 		renderSize,
-		lambdasInvoked,
+		lambdasInvoked: lambdasInvokedStats.lambdasInvoked,
 		cleanup,
 		timeToFinishChunks: allChunks
 			? calculateChunkTimes({
@@ -181,5 +183,6 @@ export const getProgress = async ({
 					type: 'absolute-time',
 			  })
 			: null,
+		timeToInvokeLambdas: lambdasInvokedStats.timeToInvokeLambdas,
 	};
 };
