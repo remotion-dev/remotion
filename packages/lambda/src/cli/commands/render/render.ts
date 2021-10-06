@@ -146,11 +146,17 @@ export const renderCommand = async (args: string[]) => {
 						.join('\n')
 				);
 				Log.info();
+				Log.info();
 				Log.info('Done!', outputPath, formatBytes(size));
 			} else {
 				Log.info();
+				Log.info();
 				Log.info('Done! ' + newStatus.outputFile);
 			}
+
+			Log.info(
+				`${newStatus.renderMetadata?.estimatedTotalLambdaInvokations} λ's used, Estimated cost $${newStatus.costs.displayCost}`
+			);
 
 			process.exit(0);
 		}

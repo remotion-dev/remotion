@@ -88,7 +88,7 @@ export const makeCleanupProgress = (
 		`${doneIn === null ? 'Cleaning up' : 'Cleaned up'} artifacts`,
 		doneIn === null
 			? `${Math.round(progress * 100)}%`
-			: CliInternals.chalk.gray('ms'),
+			: CliInternals.chalk.gray(`${doneIn}ms`),
 	].join(' ');
 };
 
@@ -122,6 +122,7 @@ export const makeMultiProgressFromStatus = (
 			doneIn: status.encodingStatus?.doneIn ?? null,
 		},
 		lambdaInvokeProgress: {
+			// TODO: Calculate invoke progress
 			doneIn: null,
 			lambdasInvoked: status.lambdasInvoked,
 			totalLambdas:
