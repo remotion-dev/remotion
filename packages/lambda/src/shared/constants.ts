@@ -247,6 +247,7 @@ export type PostRenderData = {
 	endTime: number;
 	filesCleanedUp: number;
 	renderMetadata: RenderMetadata;
+	timeToEncode: number;
 };
 
 export type CostsInfo = {

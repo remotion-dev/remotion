@@ -13,14 +13,17 @@ export const getFinalEncodingStatus = ({
 		return null;
 	}
 
+	if (encodingProgress) {
+		return encodingProgress;
+	}
+
 	if (outputFileExists) {
 		return {
 			framesEncoded: renderMetadata.videoConfig.durationInFrames,
 			totalFrames: renderMetadata.videoConfig.durationInFrames,
-			// TODO: Define doneIn
 			doneIn: null,
 		};
 	}
 
-	return encodingProgress;
+	return null;
 };
