@@ -8,7 +8,7 @@ import fs from 'fs';
 import path from 'path';
 import {getLambdaClient} from '../shared/aws-clients';
 import {
-	chunkKeyWithEmbeddedTiming,
+	chunkKeyForIndex,
 	DOWNLOADS_DIR,
 	lambdaInitializedKey,
 	LambdaPayload,
@@ -143,6 +143,8 @@ const renderHandler = async (params: LambdaPayload, options: Options) => {
 		fs.mkdirSync(DOWNLOADS_DIR);
 	}
 
+	const endRendered = Date.now();
+
 	await stitchFramesToVideo({
 		assetsInfo: {
 			...assetsInfo,
@@ -177,20 +179,18 @@ const renderHandler = async (params: LambdaPayload, options: Options) => {
 	});
 	stitchLabel.end();
 	await RenderInternals.addSilentAudioIfNecessary(outputLocation);
+	const endStitching = Date.now();
 
 	const condensedTimingData: ChunkTimingData = {
 		...chunkTimingData,
 		timings: Object.values(chunkTimingData.timings),
 	};
-	const end = Date.now();
 
 	await lambdaWriteFile({
 		bucketName: params.bucketName,
-		key: chunkKeyWithEmbeddedTiming({
+		key: chunkKeyForIndex({
 			renderId: params.renderId,
 			index: params.chunk,
-			start,
-			end,
 		}),
 		body: fs.createReadStream(outputLocation),
 		region: getCurrentRegionInFunction(),
@@ -207,7 +207,8 @@ const renderHandler = async (params: LambdaPayload, options: Options) => {
 			key: `${lambdaTimingsKey({
 				renderId: params.renderId,
 				chunk: params.chunk,
-				end: Date.now(),
+				encoded: endStitching,
+				rendered: endRendered,
 				start,
 			})}`,
 			region: getCurrentRegionInFunction(),
