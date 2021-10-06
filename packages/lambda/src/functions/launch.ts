@@ -214,8 +214,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		const encodingProgress: EncodingProgress = {
 			framesEncoded,
 			totalFrames: comp.durationInFrames,
-			// TODO: Define doneIn property
-			doneIn: encodingStop,
+			doneIn: encodingStop ? encodingStop - encodingStart : null,
 		};
 		lambdaWriteFile({
 			bucketName: params.bucketName,
@@ -243,7 +242,6 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		});
 	};
 
-	// TODO: Should clean up afterwards
 	const out = await concatVideosS3({
 		bucket: params.bucketName,
 		expectedFiles: chunkCount,
@@ -278,31 +276,32 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 	);
 
 	const optimizedFrameRange = getFrameRangesFromProfile(optimizedProfile);
-	if (isValidOptimizationProfile(optimizedProfile)) {
-		await writeOptimization({
+	const [, contents] = await Promise.all([
+		isValidOptimizationProfile(optimizedProfile)
+			? writeOptimization({
+					bucketName: params.bucketName,
+					optimization: {
+						frameRange: optimizedFrameRange,
+						oldTiming: getProfileDuration(chunkData),
+						newTiming: getProfileDuration(optimizedProfile),
+						frameCount: comp.durationInFrames,
+						createdFromRenderId: params.renderId,
+						framesPerLambda,
+						lambdaVersion: CURRENT_VERSION,
+					},
+					expectedBucketOwner: options.expectedBucketOwner,
+					compositionId: params.composition,
+					siteId: getServeUrlHash(params.serveUrl),
+					region: getCurrentRegionInFunction(),
+			  })
+			: Promise.resolve(),
+		lambdaLs({
 			bucketName: params.bucketName,
-			optimization: {
-				frameRange: optimizedFrameRange,
-				oldTiming: getProfileDuration(chunkData),
-				newTiming: getProfileDuration(optimizedProfile),
-				frameCount: comp.durationInFrames,
-				createdFromRenderId: params.renderId,
-				framesPerLambda,
-				lambdaVersion: CURRENT_VERSION,
-			},
+			prefix: rendersPrefix(params.renderId),
 			expectedBucketOwner: options.expectedBucketOwner,
-			compositionId: params.composition,
-			siteId: getServeUrlHash(params.serveUrl),
 			region: getCurrentRegionInFunction(),
-		});
-	}
-
-	const contents = await lambdaLs({
-		bucketName: params.bucketName,
-		prefix: rendersPrefix(params.renderId),
-		expectedBucketOwner: options.expectedBucketOwner,
-		region: getCurrentRegionInFunction(),
-	});
+		}),
+	]);
 
 	const errorExplanationsProm = inspectErrors({
 		contents,
