@@ -192,8 +192,18 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 	);
 	reqSend.end();
 
-	// TODO: Should throttle?
+	let lastProgressUploaded = 0;
+
 	const onProgress = (framesEncoded: number) => {
+		const relativeProgress = framesEncoded / comp.durationInFrames;
+		const deltaSinceLastProgressUploaded =
+			relativeProgress - lastProgressUploaded;
+		if (deltaSinceLastProgressUploaded < 0.1) {
+			return;
+		}
+
+		lastProgressUploaded = relativeProgress;
+
 		const encodingProgress: EncodingProgress = {
 			framesEncoded,
 			totalFrames: comp.durationInFrames,
@@ -207,6 +217,20 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 			region: getCurrentRegionInFunction(),
 			acl: 'private',
 			expectedBucketOwner: options.expectedBucketOwner,
+		}).catch((err) => {
+			writeLambdaError({
+				bucketName: params.bucketName,
+				errorInfo: {
+					chunk: null,
+					frame: null,
+					isFatal: false,
+					stack: (err as Error).stack as string,
+					tmpDir: null,
+					type: 'stitcher',
+				},
+				renderId: params.renderId,
+				expectedBucketOwner: options.expectedBucketOwner,
+			});
 		});
 	};
 
