@@ -8,7 +8,7 @@ import fs from 'fs';
 import path from 'path';
 import {getLambdaClient} from '../shared/aws-clients';
 import {
-	chunkKeyForIndex,
+	chunkKeyWithEmbeddedTiming,
 	DOWNLOADS_DIR,
 	lambdaInitializedKey,
 	LambdaPayload,
@@ -182,12 +182,15 @@ const renderHandler = async (params: LambdaPayload, options: Options) => {
 		...chunkTimingData,
 		timings: Object.values(chunkTimingData.timings),
 	};
+	const end = Date.now();
 
 	await lambdaWriteFile({
 		bucketName: params.bucketName,
-		key: chunkKeyForIndex({
+		key: chunkKeyWithEmbeddedTiming({
 			renderId: params.renderId,
 			index: params.chunk,
+			start,
+			end,
 		}),
 		body: fs.createReadStream(outputLocation),
 		region: getCurrentRegionInFunction(),

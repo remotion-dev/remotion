@@ -62,14 +62,32 @@ export const lambdaTimingsKey = ({
 		chunk
 	)}-start:${start}-end:${end}.txt`;
 export const chunkKey = (renderId: string) =>
-	`${rendersPrefix(renderId)}/chunks/chunk-`;
+	`${rendersPrefix(renderId)}/chunks/chunk`;
 export const chunkKeyForIndex = ({
 	renderId,
 	index,
 }: {
 	renderId: string;
 	index: number;
-}) => `${chunkKey(renderId)}${String(index).padStart(8, '0')}`;
+}) => `${chunkKey(renderId)}:${String(index).padStart(8, '0')}`;
+
+export const chunkKeyWithEmbeddedTiming = ({
+	renderId,
+	index,
+	start,
+	end,
+}: {
+	renderId: string;
+	index: number;
+	start: number;
+	end: number;
+}) => {
+	return `${chunkKeyForIndex({
+		index,
+		renderId,
+	})}-start:${start}-end:${end}`;
+};
+
 export const getErrorKeyPrefix = (renderId: string) =>
 	`${rendersPrefix(renderId)}/errors/`;
 export const optimizationProfile = (siteId: string, compositionId: string) =>

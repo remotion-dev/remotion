@@ -195,9 +195,8 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 
 	let lastProgressUploaded = 0;
 	let encodingStop: number | null = null;
-	const encodingStart = Date.now();
 
-	const onProgress = (framesEncoded: number) => {
+	const onProgress = (framesEncoded: number, start: number) => {
 		const relativeProgress = framesEncoded / comp.durationInFrames;
 		const deltaSinceLastProgressUploaded =
 			relativeProgress - lastProgressUploaded;
@@ -214,7 +213,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		const encodingProgress: EncodingProgress = {
 			framesEncoded,
 			totalFrames: comp.durationInFrames,
-			doneIn: encodingStop ? encodingStop - encodingStart : null,
+			doneIn: encodingStop ? encodingStop - start : null,
 		};
 		lambdaWriteFile({
 			bucketName: params.bucketName,
@@ -242,7 +241,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		});
 	};
 
-	const out = await concatVideosS3({
+	const {outfile, cleanupChunksProm, encodingStart} = await concatVideosS3({
 		bucket: params.bucketName,
 		expectedFiles: chunkCount,
 		onProgress,
@@ -260,7 +259,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 	await lambdaWriteFile({
 		bucketName: params.bucketName,
 		key: outName(params.renderId, params.codec),
-		body: fs.createReadStream(out),
+		body: fs.createReadStream(outfile),
 		region: getCurrentRegionInFunction(),
 		acl: 'public-read',
 		expectedBucketOwner: options.expectedBucketOwner,
@@ -338,6 +337,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		region: getCurrentRegionInFunction(),
 		renderId: params.renderId,
 	});
+	await Promise.all([cleanupChunksProm, fs.promises.rm(outfile)]);
 };
 
 export const launchHandler = async (

@@ -1,5 +1,5 @@
 import {combineVideos} from '@remotion/renderer';
-import {
+import fs, {
 	createWriteStream,
 	existsSync,
 	mkdirSync,
@@ -158,7 +158,7 @@ export const concatVideosS3 = async ({
 }: {
 	bucket: string;
 	expectedFiles: number;
-	onProgress: (frames: number) => void;
+	onProgress: (frames: number, encodingStart: number) => void;
 	numberOfFrames: number;
 	renderId: string;
 	region: AwsRegion;
@@ -188,18 +188,19 @@ export const concatVideosS3 = async ({
 	);
 	const combine = timer('Combine videos');
 	const filelistDir = tmpDir(REMOTION_FILELIST_TOKEN);
+	const encodingStart = Date.now();
 	await combineVideos({
 		files,
 		filelistDir,
 		output: outfile,
-		onProgress,
+		onProgress: (p) => onProgress(p, encodingStart),
 		numberOfFrames,
 		codec,
 	});
 	combine.end();
 
-	(rmSync ?? rmdirSync)(outdir, {
+	const cleanupChunksProm = fs.promises.rmdir(outdir, {
 		recursive: true,
 	});
-	return outfile;
+	return {outfile, cleanupChunksProm, encodingStart};
 };
