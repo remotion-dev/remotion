@@ -255,6 +255,7 @@ export type PostRenderData = {
 	timeToEncode: number;
 	timeToCleanUp: number;
 	timeToRenderChunks: number;
+	timeToInvokeLambdas: number;
 };
 
 export type CostsInfo = {
@@ -287,6 +288,7 @@ export type RenderProgress = {
 	lambdasInvoked: number;
 	cleanup: CleanupInfo | null;
 	timeToFinishChunks: number | null;
+	timeToInvokeLambdas: number | null;
 };
 
 export type LambdaAcl = 'public-read' | 'private';

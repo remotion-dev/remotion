@@ -40,7 +40,7 @@ export const getFilesToDelete = ({
 		...chunks.map((i) => {
 			return {
 				name: i,
-				type: 'prefix' as const,
+				type: 'exact' as const,
 			};
 		}),
 		...lambdaTimings.map((i) => {

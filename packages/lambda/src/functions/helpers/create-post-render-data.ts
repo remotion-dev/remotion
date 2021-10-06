@@ -10,6 +10,7 @@ import {parseLambdaTimingsKey} from '../../shared/parse-lambda-timings-key';
 import {calculateChunkTimes} from './calculate-chunk-times';
 import {findOutputFileInBucket} from './find-output-file-in-bucket';
 import {getFilesToDelete} from './get-files-to-delete';
+import {getLambdasInvokedStats} from './get-lambdas-invoked-stats';
 import {EnhancedErrorInfo} from './write-lambda-error';
 
 const OVERHEAD_TIME_PER_LAMBDA = 100;
@@ -72,6 +73,17 @@ export const createPostRenderData = ({
 		.map((c) => c.Size ?? 0)
 		.reduce((a, b) => a + b, 0);
 
+	const {timeToInvokeLambdas} = getLambdasInvokedStats(
+		contents,
+		renderId,
+		renderMetadata?.estimatedRenderLambdaInvokations ?? null,
+		renderMetadata.startedDate
+	);
+
+	if (timeToInvokeLambdas === null) {
+		throw new Error('should have timing for all lambdas');
+	}
+
 	const data: PostRenderData = {
 		cost: {
 			currency: 'USD',
@@ -102,6 +114,7 @@ export const createPostRenderData = ({
 			renderId,
 			type: 'absolute-time',
 		}),
+		timeToInvokeLambdas,
 	};
 
 	return data;
