@@ -9,7 +9,7 @@
 	},
 	"module": "true",
 	"scripts": {
-		"test": "CI=true eslint src --ext ts,tsx && tsc -d && CI=true jest",
+		"test": "eslint src --ext ts,tsx && tsc -d && jest",
 		"watch": "tsc -w",
 		"build": "tsc -d",
 		"buildlambda": "ts-node src/admin/bundle-lambda.ts",
