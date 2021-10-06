@@ -63,8 +63,7 @@ export const getProgress = async ({
 				framesEncoded:
 					postRenderData.renderMetadata.videoConfig.durationInFrames,
 				totalFrames: postRenderData.renderMetadata.videoConfig.durationInFrames,
-				// TODO: Define doneIn proeprty
-				doneIn: null,
+				doneIn: postRenderData.timeToEncode,
 			},
 			errors: postRenderData.errors,
 			fatalErrorEncountered: false,

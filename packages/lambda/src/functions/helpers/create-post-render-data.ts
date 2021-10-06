@@ -21,6 +21,7 @@ export const createPostRenderData = async ({
 	memorySizeInMb,
 	renderMetadata,
 	contents,
+	timeToEncode,
 }: {
 	renderId: string;
 	bucketName: string;
@@ -29,6 +30,7 @@ export const createPostRenderData = async ({
 	memorySizeInMb: number;
 	renderMetadata: RenderMetadata;
 	contents: _Object[];
+	timeToEncode: number;
 }) => {
 	const initializedKeys = contents.filter((c) =>
 		c.Key?.startsWith(lambdaTimingsPrefix(renderId))
@@ -97,6 +99,7 @@ export const createPostRenderData = async ({
 			chunkCount: renderMetadata.totalChunks,
 			renderId,
 		}).length,
+		timeToEncode,
 	};
 
 	return data;

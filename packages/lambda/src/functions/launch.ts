@@ -193,11 +193,17 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 	reqSend.end();
 
 	let lastProgressUploaded = 0;
+	let encodingStop: number | null = null;
+	const encodingStart = Date.now();
 
 	const onProgress = (framesEncoded: number) => {
 		const relativeProgress = framesEncoded / comp.durationInFrames;
 		const deltaSinceLastProgressUploaded =
 			relativeProgress - lastProgressUploaded;
+		if (relativeProgress === 1) {
+			encodingStop = Date.now();
+		}
+
 		if (deltaSinceLastProgressUploaded < 0.1) {
 			return;
 		}
@@ -208,7 +214,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 			framesEncoded,
 			totalFrames: comp.durationInFrames,
 			// TODO: Define doneIn property
-			doneIn: null,
+			doneIn: encodingStop,
 		};
 		lambdaWriteFile({
 			bucketName: params.bucketName,
@@ -224,7 +230,9 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 					chunk: null,
 					frame: null,
 					isFatal: false,
-					stack: (err as Error).stack as string,
+					stack: `Could not upload stitching progress ${
+						(err as Error).stack as string
+					}`,
 					tmpDir: null,
 					type: 'stitcher',
 				},
@@ -245,6 +253,10 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		codec: params.codec,
 		expectedBucketOwner: options.expectedBucketOwner,
 	});
+	if (!encodingStop) {
+		encodingStop = Date.now();
+	}
+
 	// TODO: Enable or disable chunk optimization
 	await lambdaWriteFile({
 		bucketName: params.bucketName,
@@ -300,6 +312,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		memorySizeInMb: Number(process.env.AWS_LAMBDA_FUNCTION_MEMORY_SIZE),
 		renderMetadata,
 		contents,
+		timeToEncode: encodingStop - encodingStart,
 	});
 	await writePostRenderData({
 		bucketName: params.bucketName,
