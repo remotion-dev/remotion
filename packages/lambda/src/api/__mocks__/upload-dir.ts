@@ -1,4 +1,3 @@
-import path from 'path';
 import {MockFile, uploadDir as original} from '../upload-dir';
 import {mockS3Upload} from './mock-s3';
 
@@ -39,7 +38,8 @@ export const uploadDir: typeof original = async (input) => {
 			acl: 'public-read',
 			bucketName: input.bucket,
 			content: file.content,
-			key: path.join(input.folder, file.name),
+			// Should not use path.join here because on Windows it's not / separator
+			key: [input.folder, file.name].join('/'),
 			region: input.region,
 		});
 	}
