@@ -16,8 +16,15 @@ Keep track of changes to the APIs of Remotion Lambda here.
 
 ## Unreleased
 
+- A new `privacy` field determines if the video will be public of private once it's rendered. No default - this field is mandatory
+- New `overallProgress` field in `getRenderProgress()` which can be used to display a progress bar to end users
 - The `getSites()` method returns a property `sizeInBytes` which was previously `size`.
 - The `deleteSite()` method returns a property `totalSizeInBytes` which was previously `totalSize`.
+- Lambda layers are now hosted in a dedicated AWS account
+- Documented `getSites()` and `deleteSite()` methods
+- Improved progress display for `npx remotion lambda` command
+- Now showing estimated cost for `npx remotion lambda` command
+- Using the `ANGLE` OpenGL renderer for Chrome instead of SwiftShader
 
 ## October 3rd, 2021
 

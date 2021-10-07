@@ -26,6 +26,7 @@ const {bucketName, renderId} = await renderVideoOnLambda({
   codec: 'h264-mkv',
   imageFormat: 'jpeg',
   maxRetries: 3,
+  privacy: 'public'
 })
 ```
 
@@ -36,6 +37,10 @@ An object with the following properties:
 ### `region`
 
 In which region your Lambda function is deployed. It's highly recommended that your Remotion site is also in the same region.
+
+### `privacy`
+
+Either `"public"` or `"private"`, determining whether the video can be seen by anyone after it's uploaded to the S3 bucket.
 
 ### `functionName`
 
