@@ -7,6 +7,10 @@ export const usePlayback = ({loop}: {loop: boolean}) => {
 	const config = Internals.useUnsafeVideoConfig();
 	const {playing, pause, emitter} = usePlayer();
 	const setFrame = Internals.Timeline.useTimelineSetFrame();
+	const {
+		inFrame,
+		outFrame,
+	} = Internals.Timeline.useTimelineInOutFramePosition();
 
 	const frameRef = useRef(frame);
 	frameRef.current = frame;
@@ -22,10 +26,33 @@ export const usePlayback = ({loop}: {loop: boolean}) => {
 			return;
 		}
 
+		const getFrameInRange = (nextFrame: number) => {
+			if (
+				(inFrame && nextFrame < inFrame) ||
+				(inFrame && outFrame && nextFrame > outFrame)
+			) {
+				return inFrame;
+			}
+
+			if (outFrame && nextFrame > outFrame) {
+				return 0;
+			}
+
+			return nextFrame;
+		};
+
 		let hasBeenStopped = false;
 		let reqAnimFrameCall: number | null = null;
 		const startedTime = performance.now();
-		const startedFrame = frameRef.current;
+		const startedFrame = getFrameInRange(frameRef.current);
+
+		const durationInFrames = inFrame
+			? outFrame
+				? outFrame - inFrame + 1
+				: config.durationInFrames - inFrame
+			: outFrame
+			? outFrame + 1
+			: config.durationInFrames;
 
 		const stop = () => {
 			hasBeenStopped = true;
@@ -36,7 +63,8 @@ export const usePlayback = ({loop}: {loop: boolean}) => {
 
 		const callback = () => {
 			const time = performance.now() - startedTime;
-			const nextFrame = Math.round(time / (1000 / config.fps)) + startedFrame;
+			const nextFrame =
+				Math.round(time / (1000 / config.fps)) + startedFrame - (inFrame ?? 0);
 			if (nextFrame === config.durationInFrames && !loop) {
 				stop();
 				pause();
@@ -44,7 +72,8 @@ export const usePlayback = ({loop}: {loop: boolean}) => {
 				return;
 			}
 
-			const actualNextFrame = nextFrame % config.durationInFrames;
+			const actualNextFrame = (nextFrame % durationInFrames) + (inFrame ?? 0);
+
 			if (actualNextFrame !== frameRef.current) {
 				setFrame(actualNextFrame);
 			}
@@ -59,7 +88,7 @@ export const usePlayback = ({loop}: {loop: boolean}) => {
 		return () => {
 			stop();
 		};
-	}, [config, loop, pause, playing, setFrame, emitter]);
+	}, [config, loop, pause, playing, setFrame, emitter, inFrame, outFrame]);
 
 	useEffect(() => {
 		const interval = setInterval(() => {
