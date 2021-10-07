@@ -290,6 +290,7 @@ export type RenderProgress = {
 	cleanup: CleanupInfo | null;
 	timeToFinishChunks: number | null;
 	timeToInvokeLambdas: number | null;
+	overallProgress: number;
 };
 
 export type LambdaAcl = 'public-read' | 'private';

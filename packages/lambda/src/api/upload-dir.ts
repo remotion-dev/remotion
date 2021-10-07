@@ -80,6 +80,7 @@ export const uploadDir = async ({
 					Key,
 					Bucket: bucket,
 					Body,
+					// TODO: Parametrize
 					ACL: 'public-read',
 				},
 			});
@@ -94,6 +95,7 @@ export const uploadDir = async ({
 				Key,
 				Bucket: bucket,
 				Body,
+				// TODO: Parametrize
 				ACL: 'public-read',
 				ContentType: filePath.name.includes('index.html')
 					? 'text/html'
