@@ -65,6 +65,11 @@ const start = async () => {
     // Get's called after bundling is finished and the
     // actual rendering starts.
     onStart: () => console.log('Rendering frames...'),
+    // Handle errors in your React code
+    onError: (error) => {
+      console.error(`Could not render frame ${error.frame} properly`);
+      console.error(`${error.error.message}`);
+		},
     onFrameUpdate: (f) => {
       // Log a message whenever 10 frames have rendered.
       if (f % 10 === 0) {
