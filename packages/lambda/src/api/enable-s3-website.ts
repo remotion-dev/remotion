@@ -13,12 +13,7 @@ export const enableS3Website = async ({
 	await getS3Client(region).send(
 		new PutBucketWebsiteCommand({
 			Bucket: bucketName,
-			WebsiteConfiguration: {
-				IndexDocument: {
-					// TODO: but it doesn't exist
-					Suffix: `index.html`,
-				},
-			},
+			WebsiteConfiguration: {},
 		})
 	);
 };

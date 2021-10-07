@@ -2,10 +2,13 @@ import {AwsRegion} from '../pricing/aws-regions';
 import {REMOTION_BUCKET_PREFIX} from '../shared/constants';
 import {randomHash} from '../shared/random-hash';
 import {createBucket} from './create-bucket';
+import {enableS3Website} from './enable-s3-website';
 import {getRemotionS3Buckets} from './get-buckets';
 
 type GetOrCreateBucketInput = {
 	region: AwsRegion;
+	// TODO: Not documented
+	onBucketEnsured?: () => void;
 };
 
 type GetOrCreateBucketResult = {
@@ -40,6 +43,11 @@ export const getOrCreateBucket = async (
 	await createBucket({
 		bucketName,
 		region: options.region,
+	});
+	options.onBucketEnsured?.();
+	await enableS3Website({
+		region: options.region,
+		bucketName,
 	});
 
 	return {bucketName};
