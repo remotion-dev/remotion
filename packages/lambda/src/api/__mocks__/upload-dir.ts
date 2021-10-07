@@ -35,8 +35,7 @@ export const uploadDir: typeof original = async (input) => {
 	const files = getDirFiles(input.dir);
 	for (const file of files) {
 		mockS3Upload({
-			// TODO: Parametrize
-			acl: 'public-read',
+			acl: input.acl,
 			bucketName: input.bucket,
 			content: file.content,
 			// Should not use path.join here because on Windows it's not / separator

@@ -77,17 +77,21 @@ export const sitesCreateSubcommand = async (args: string[]) => {
 		);
 	};
 
-	const {bucketName} = await getOrCreateBucket({region: getAwsRegion()});
-	multiProgress.bucketProgress = {
-		bucketCreated: true,
-		doneIn: null,
-		websiteEnabled: false,
-	};
+	const bucketStart = Date.now();
 
+	const {bucketName} = await getOrCreateBucket({
+		region: getAwsRegion(),
+		onBucketEnsured: () => {
+			multiProgress.bucketProgress.bucketCreated = true;
+			updateProgress();
+		},
+	});
+
+	multiProgress.bucketProgress.websiteEnabled = true;
+	multiProgress.bucketProgress.doneIn = Date.now() - bucketStart;
 	updateProgress();
 
 	const bundleStart = Date.now();
-	const bucketStart = Date.now();
 	const uploadStart = Date.now();
 
 	const {url} = await deploySite({
@@ -105,14 +109,6 @@ export const sitesCreateSubcommand = async (args: string[]) => {
 					sizeUploaded: p.sizeUploaded,
 					totalSize: p.totalSize,
 					doneIn: null,
-				};
-				updateProgress();
-			},
-			onWebsiteActivated: () => {
-				multiProgress.bucketProgress = {
-					bucketCreated: true,
-					doneIn: Date.now() - bucketStart,
-					websiteEnabled: true,
 				};
 				updateProgress();
 			},

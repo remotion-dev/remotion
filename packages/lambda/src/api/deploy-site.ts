@@ -18,7 +18,6 @@ export type DeploySiteInput = {
 	siteName?: string;
 	options?: {
 		onBundleProgress?: (progress: number) => void;
-		onWebsiteActivated?: () => void;
 		onUploadProgress?: (upload: UploadDirProgress) => void;
 		webpackOverride?: WebpackOverrideFn;
 		enableCaching?: boolean;
@@ -96,12 +95,12 @@ export const deploySite = async ({
 			dir: bundled,
 			onProgress: options?.onUploadProgress ?? (() => undefined),
 			folder: subFolder,
+			acl: 'public-read',
 		}),
 		enableS3Website({
 			region,
 			bucketName,
-		}) // TODO if we decide to keep it, add callback to docs
-			.then(() => options?.onWebsiteActivated?.()),
+		}),
 	]);
 
 	return {
