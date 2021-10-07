@@ -118,7 +118,6 @@ export const innerStillHandler = async (
 		browser: 'chrome',
 		dumpBrowserLogs: false,
 		envVariables: lambdaParams.envVariables,
-		// TODO: validate
 		frame: lambdaParams.frame,
 		imageFormat: lambdaParams.imageFormat as StillImageFormat,
 		inputProps: lambdaParams.inputProps,
