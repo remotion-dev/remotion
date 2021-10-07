@@ -32,6 +32,10 @@ import {createPostRenderData} from './helpers/create-post-render-data';
 import {deleteChunks} from './helpers/delete-chunks';
 import {closeBrowser, getBrowserInstance} from './helpers/get-browser-instance';
 import {getCurrentRegionInFunction} from './helpers/get-current-region';
+import {
+	getFilesToDelete,
+	getFinalFileToDelete,
+} from './helpers/get-files-to-delete';
 import {inspectErrors} from './helpers/inspect-errors';
 import {lambdaLs, lambdaWriteFile} from './helpers/io';
 import {timer} from './helpers/timer';
@@ -261,6 +265,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		key: outName(params.renderId, params.codec),
 		body: fs.createReadStream(outfile),
 		region: getCurrentRegionInFunction(),
+		// TODO: Allow to make private
 		acl: 'public-read',
 		expectedBucketOwner: options.expectedBucketOwner,
 	});
@@ -310,12 +315,16 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		expectedBucketOwner: options.expectedBucketOwner,
 	});
 
+	const jobs = getFilesToDelete({
+		chunkCount,
+		renderId: params.renderId,
+	});
+
 	const deletProm = deleteChunks({
 		region: getCurrentRegionInFunction(),
-		renderId: params.renderId,
 		bucket: params.bucketName,
-		chunkCount,
 		contents,
+		jobs,
 	});
 
 	const postRenderData = createPostRenderData({
@@ -337,7 +346,21 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		region: getCurrentRegionInFunction(),
 		renderId: params.renderId,
 	});
-	await Promise.all([cleanupChunksProm, fs.promises.rm(outfile)]);
+	// This file will be deleted last, if we delete it before,
+	// The invoke progress timing info returned by getRenderProgress() will go
+	// backwards
+	const encodingDelete = deleteChunks({
+		region: getCurrentRegionInFunction(),
+		bucket: params.bucketName,
+		contents,
+		jobs: getFinalFileToDelete(params.renderId),
+	});
+
+	await Promise.all([
+		cleanupChunksProm,
+		encodingDelete,
+		fs.promises.rm(outfile),
+	]);
 };
 
 export const launchHandler = async (

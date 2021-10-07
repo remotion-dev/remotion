@@ -13,7 +13,6 @@ export const getLambdasInvokedStats = (
 	);
 	const allLambdasInvoked = lambdasInvoked.length === estimatedInvokations;
 
-	// TODO: Doesn't work while in cleanup, progress goes backwards
 	const timeToInvokeLambdas =
 		allLambdasInvoked && startDate
 			? RenderInternals.max(

@@ -5,16 +5,27 @@ import {
 	lambdaTimingsPrefixForChunk,
 } from '../../shared/constants';
 
+export type CleanupJob = {
+	name: string;
+	type: 'exact' | 'prefix';
+};
+
+export const getFinalFileToDelete = (renderId: string): CleanupJob[] => {
+	return [
+		{
+			name: encodingProgressKey(renderId),
+			type: 'exact',
+		},
+	];
+};
+
 export const getFilesToDelete = ({
 	chunkCount,
 	renderId,
 }: {
 	chunkCount: number;
 	renderId: string;
-}): {
-	name: string;
-	type: 'exact' | 'prefix';
-}[] => {
+}): CleanupJob[] => {
 	const initialized = new Array(chunkCount).fill(true).map((x, i) =>
 		lambdaInitializedKey({
 			chunk: i,
@@ -49,9 +60,5 @@ export const getFilesToDelete = ({
 				type: 'prefix' as const,
 			};
 		}),
-		{
-			name: encodingProgressKey(renderId),
-			type: 'exact',
-		},
 	];
 };
