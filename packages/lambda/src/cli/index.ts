@@ -74,6 +74,21 @@ const matchCommand = async (args: string[]) => {
 		process.exit(1);
 	}
 
+	if (args[0] === 'ls') {
+		Log.info(`The "ls" command does not exist.`);
+		Log.info(`Did you mean "functions ls" or "sites ls"?`);
+	}
+
+	if (args[0] === 'rm') {
+		Log.info(`The "rm" command does not exist.`);
+		Log.info(`Did you mean "functions rm" or "sites rm"?`);
+	}
+
+	if (args[0] === 'deploy') {
+		Log.info(`The "deploy" command does not exist.`);
+		Log.info(`Did you mean "functions deploy"?`);
+	}
+
 	Log.error(`Command ${args[0]} not found.`);
 	printHelp();
 	process.exit(1);
