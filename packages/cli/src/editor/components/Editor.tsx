@@ -4,6 +4,8 @@ import {
 	Internals,
 	MediaVolumeContextValue,
 	SetMediaVolumeContextValue,
+	SetTimelineInOutContextValue,
+	TimelineInOutContextValue,
 } from 'remotion';
 import {BACKGROUND} from '../helpers/colors';
 import {noop} from '../helpers/noop';
@@ -83,6 +85,8 @@ export const Editor: React.FC = () => {
 		},
 		[]
 	);
+	const [inFrame, setInFrame] = useState<number | null>(null);
+	const [outFrame, setOutFrame] = useState<number | null>(null);
 	const [mediaMuted, setMediaMuted] = useState<boolean>(false);
 	const [mediaVolume, setMediaVolume] = useState<number>(1);
 	const [modalContextType, setModalContextType] = useState<ModalState | null>(
@@ -107,6 +111,20 @@ export const Editor: React.FC = () => {
 			setRichTimeline,
 		};
 	}, [richTimeline, setRichTimeline]);
+
+	const timelineInOutContextValue = useMemo((): TimelineInOutContextValue => {
+		return {
+			inFrame,
+			outFrame,
+		};
+	}, [inFrame, outFrame]);
+
+	const setTimelineInOutContextValue = useMemo((): SetTimelineInOutContextValue => {
+		return {
+			setInFrame,
+			setOutFrame,
+		};
+	}, [setInFrame, setOutFrame]);
 
 	const mediaVolumeContextValue = useMemo((): MediaVolumeContextValue => {
 		return {
@@ -139,42 +157,50 @@ export const Editor: React.FC = () => {
 				<CheckerboardContext.Provider value={checkerboardCtx}>
 					<PreviewSizeContext.Provider value={previewSizeCtx}>
 						<ModalsContext.Provider value={modalsContext}>
-							<Internals.MediaVolumeContext.Provider
-								value={mediaVolumeContextValue}
+							<Internals.Timeline.TimelineInOutContext.Provider
+								value={timelineInOutContextValue}
 							>
-								<Internals.SetMediaVolumeContext.Provider
-									value={setMediaVolumeContextValue}
+								<Internals.Timeline.SetTimelineInOutContext.Provider
+									value={setTimelineInOutContextValue}
 								>
-									<PlayerInternals.PlayerEventEmitterContext.Provider
-										value={emitter}
+									<Internals.MediaVolumeContext.Provider
+										value={mediaVolumeContextValue}
 									>
-										<HighestZIndexProvider>
-											<HigherZIndex onEscape={noop} onOutsideClick={noop}>
-												<div style={background}>
-													<Root />
-													<FramePersistor />
-													<EditorContent />
-													<GlobalKeybindings />
-												</div>
-												{modalContextType &&
-													modalContextType.type === 'new-comp' && (
-														<NewComposition
-															initialCompType={modalContextType.compType}
-														/>
-													)}
-												{modalContextType &&
-													modalContextType.type === 'update' && (
-														<UpdateModal info={modalContextType.info} />
-													)}
-												{modalContextType &&
-													modalContextType.type === 'shortcuts' && (
-														<KeyboardShortcuts />
-													)}
-											</HigherZIndex>
-										</HighestZIndexProvider>
-									</PlayerInternals.PlayerEventEmitterContext.Provider>
-								</Internals.SetMediaVolumeContext.Provider>
-							</Internals.MediaVolumeContext.Provider>
+										<Internals.SetMediaVolumeContext.Provider
+											value={setMediaVolumeContextValue}
+										>
+											<PlayerInternals.PlayerEventEmitterContext.Provider
+												value={emitter}
+											>
+												<HighestZIndexProvider>
+													<HigherZIndex onEscape={noop} onOutsideClick={noop}>
+														<div style={background}>
+															<Root />
+															<FramePersistor />
+															<EditorContent />
+															<GlobalKeybindings />
+														</div>
+														{modalContextType &&
+															modalContextType.type === 'new-comp' && (
+																<NewComposition
+																	initialCompType={modalContextType.compType}
+																/>
+															)}
+														{modalContextType &&
+															modalContextType.type === 'update' && (
+																<UpdateModal info={modalContextType.info} />
+															)}
+														{modalContextType &&
+															modalContextType.type === 'shortcuts' && (
+																<KeyboardShortcuts />
+															)}
+													</HigherZIndex>
+												</HighestZIndexProvider>
+											</PlayerInternals.PlayerEventEmitterContext.Provider>
+										</Internals.SetMediaVolumeContext.Provider>
+									</Internals.MediaVolumeContext.Provider>
+								</Internals.Timeline.SetTimelineInOutContext.Provider>
+							</Internals.Timeline.TimelineInOutContext.Provider>
 						</ModalsContext.Provider>
 					</PreviewSizeContext.Provider>
 				</CheckerboardContext.Provider>
