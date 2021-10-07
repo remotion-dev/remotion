@@ -4,8 +4,8 @@ import {addMockBucket} from './mock-store';
 export const createBucket: typeof original = (input) => {
 	addMockBucket({
 		region: input.region,
-		CreationDate: new Date(0),
-		Name: input.bucketName,
+		creationDate: 0,
+		name: input.bucketName,
 	});
 	return Promise.resolve();
 };

@@ -98,3 +98,8 @@ An object with the following values:
 - `url` _(string)_: The URL of the website that has been deployed. You can pass in this URL when rendering videos with Remotion Lambda.
 
 - `siteName` _(string)_: The identifier of the site that was given. Is either the site name that you have passed into this function, or a random string that was generated if you didn't pass a site name.
+
+## See also
+
+- [getSites()](/docs/lambda/getsites)
+- [deleteSite()](/docs/lambda/deletesite)

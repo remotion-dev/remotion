@@ -17,6 +17,7 @@ Keep track of changes to the APIs of Remotion Lambda here.
 ## Unreleased
 
 - The `getSites()` method returns a property `sizeInBytes` which was previously `size`.
+- The `deleteSite()` method returns a property `totalSizeInBytes` which was previously `totalSize`.
 
 ## October 3rd, 2021
 

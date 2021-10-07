@@ -32,7 +32,7 @@ export const sitesRmSubcommand = async (args: string[]) => {
 		process.exit(1);
 	}
 
-	const {totalSize} = await deleteSite({
+	const {totalSizeInBytes: totalSize} = await deleteSite({
 		bucketName: remotionBuckets[0].name,
 		siteName,
 		region,
