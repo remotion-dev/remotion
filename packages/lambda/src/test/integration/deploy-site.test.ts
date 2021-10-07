@@ -7,6 +7,7 @@ jest.mock('../../api/get-buckets');
 jest.mock('../../functions/helpers/io');
 jest.mock('../../shared/bundle-site');
 jest.mock('../../shared/random-hash');
+jest.mock('../../shared/get-account-id');
 jest.mock('../../api/enable-s3-website');
 jest.mock('../../api/create-bucket');
 jest.mock('../../api/upload-dir');
@@ -43,7 +44,9 @@ test("Should throw if bucket doesn't exist", async () => {
 			region: 'ap-northeast-1',
 			siteName: 'testing',
 		})
-	).rejects.toThrow(/o bucket with the name remotionlambda-non-existed exists/);
+	).rejects.toThrow(
+		/No bucket with the name remotionlambda-non-existed exists/
+	);
 });
 
 test('Should apply name if given', async () => {
