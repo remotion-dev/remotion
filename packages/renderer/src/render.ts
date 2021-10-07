@@ -41,7 +41,7 @@ export const renderFrames = async ({
 	browserExecutable,
 }: {
 	config: VideoConfig;
-	compositionId: string;
+	compositionId?: string;
 	onStart: (data: OnStartData) => void;
 	onFrameUpdate: (f: number) => void;
 	outputDir: string;
@@ -122,7 +122,7 @@ export const renderFrames = async ({
 			initialFrame,
 		});
 
-		const site = `http://localhost:${port}/index.html?composition=${compositionId}`;
+		const site = `http://localhost:${port}/index.html?composition=${compositionId ?? config.id}`;
 		await page.goto(site);
 		page.off('pageerror', errorCallback);
 		return page;

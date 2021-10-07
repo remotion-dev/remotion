@@ -12,7 +12,7 @@ If you want to render only a still image, use [renderStill()](/docs/render-still
 ```ts
 const renderFrames: (options: {
   config: VideoConfig;
-  compositionId: string;
+  compositionId?: string;
   onFrameUpdate: (frame: number) => void;
   onStart: (data: {
     frameCount: number;
@@ -41,7 +41,7 @@ Takes an object with the following keys:
 
 ### `config`
 
-A video config, consisting out of `width`, `height`, `durationInFrames` and `fps`. See: [Defining compositions](/docs/the-fundamentals#defining-compositions) and [useVideoConfig()](/docs/use-video-config).
+A video config, consisting out of `id`, `width`, `height`, `durationInFrames` and `fps`, where `id` is the compositions ID. See: [Defining compositions](/docs/the-fundamentals#defining-compositions) and [useVideoConfig()](/docs/use-video-config).
 
 ### `compositionId`
 
