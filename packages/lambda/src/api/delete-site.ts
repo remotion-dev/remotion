@@ -5,7 +5,7 @@ import {getAccountId} from '../shared/get-account-id';
 import {cleanItems} from './clean-items';
 
 type DeleteSiteReturnData = {
-	totalSize: number;
+	totalSizeInBytes: number;
 };
 
 // TODO: Write JSDoc annotations
@@ -16,6 +16,7 @@ export const deleteSite = async ({
 	onAfterItemDeleted,
 }: {
 	bucketName: string;
+	// TODO: Make siteName / siteId consistent
 	siteName: string;
 	region: AwsRegion;
 	onAfterItemDeleted?: (data: {bucketName: string; itemName: string}) => void;
@@ -31,7 +32,7 @@ export const deleteSite = async ({
 
 	if (files.length === 0) {
 		return {
-			totalSize: 0,
+			totalSizeInBytes: 0,
 		};
 	}
 
@@ -57,6 +58,6 @@ export const deleteSite = async ({
 	}
 
 	return {
-		totalSize,
+		totalSizeInBytes: totalSize,
 	};
 };

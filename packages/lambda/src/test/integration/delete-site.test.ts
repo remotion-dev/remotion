@@ -20,7 +20,7 @@ test('Return 0 total size if site did not exist', async () => {
 			region: 'ap-east-1',
 			siteName: 'non existent',
 		})
-	).toEqual({totalSize: 0});
+	).toEqual({totalSizeInBytes: 0});
 });
 test('Return more than 0 total size if site did not exist', async () => {
 	const {bucketName} = await getOrCreateBucket({
@@ -38,6 +38,6 @@ test('Return more than 0 total size if site did not exist', async () => {
 				region: 'ap-east-1',
 				siteName,
 			})
-		).totalSize
+		).totalSizeInBytes
 	).toBeGreaterThan(0);
 });

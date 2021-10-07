@@ -38,8 +38,8 @@ test('Should have a site after deploying', async () => {
 	expect(await getSites({region: 'eu-central-1'})).toEqual({
 		buckets: [
 			{
-				CreationDate: new Date(0),
-				Name: 'remotionlambda-abcdef',
+				creationDate: 0,
+				name: 'remotionlambda-abcdef',
 				region: 'eu-central-1',
 			},
 		],
@@ -48,7 +48,7 @@ test('Should have a site after deploying', async () => {
 				bucketName: 'remotionlambda-abcdef',
 				id: 'testing',
 				lastModified: 0,
-				size: 48,
+				sizeInBytes: 48,
 			},
 		],
 	});
