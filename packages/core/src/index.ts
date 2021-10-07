@@ -38,6 +38,7 @@ export {Series} from './series';
 export * from './spring';
 export * from './Still';
 export * from './use-frame';
+export * from './use-time';
 export * from './use-video-config';
 export * from './video';
 export * from './video-config';
