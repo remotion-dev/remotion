@@ -18,6 +18,7 @@ import {
 } from '../shared/constants';
 import {getServeUrlHash} from '../shared/make-s3-url';
 import {randomHash} from '../shared/random-hash';
+import {validatePrivacy} from '../shared/validate-privacy';
 import {formatCostsInfo} from './helpers/format-costs-info';
 import {closeBrowser, getBrowserInstance} from './helpers/get-browser-instance';
 import {getCurrentRegionInFunction} from './helpers/get-current-region';
@@ -39,6 +40,8 @@ export const innerStillHandler = async (
 	if (lambdaParams.type !== LambdaRoutines.still) {
 		throw new TypeError('Expected still type');
 	}
+
+	validatePrivacy(lambdaParams.privacy);
 
 	const start = Date.now();
 
@@ -148,7 +151,6 @@ export const innerStillHandler = async (
 	await lambdaWriteFile({
 		bucketName,
 		key: outName,
-		// TODO: validate
 		acl: lambdaParams.privacy === 'private' ? 'private' : 'public-read',
 		body: fs.createReadStream(outputPath),
 		expectedBucketOwner: options.expectedBucketOwner,
