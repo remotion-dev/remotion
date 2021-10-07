@@ -16,6 +16,7 @@ import {
 	rendersPrefix,
 } from '../shared/constants';
 import {getServeUrlHash} from '../shared/make-s3-url';
+import {validatePrivacy} from '../shared/validate-privacy';
 import {collectChunkInformation} from './chunk-optimization/collect-data';
 import {getFrameRangesFromProfile} from './chunk-optimization/get-frame-ranges-from-profile';
 import {getProfileDuration} from './chunk-optimization/get-profile-duration';
@@ -98,6 +99,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 	Internals.validateFps(comp.fps, 'passed to <Component />');
 	Internals.validateDimension(comp.height, 'height', 'passed to <Component />');
 	Internals.validateDimension(comp.width, 'width', 'passed to <Component />');
+	validatePrivacy(params.privacy);
 
 	const {framesPerLambda} = params;
 	const chunkCount = Math.ceil(comp.durationInFrames / framesPerLambda);
@@ -134,6 +136,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 			pixelFormat: params.pixelFormat,
 			proResProfile: params.proResProfile,
 			quality: params.quality,
+			privacy: params.privacy,
 		};
 		return payload;
 	});
@@ -168,7 +171,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		key: renderMetadataKey(params.renderId),
 		body: JSON.stringify(renderMetadata),
 		region: getCurrentRegionInFunction(),
-		acl: 'private',
+		privacy: 'private',
 		expectedBucketOwner: options.expectedBucketOwner,
 	});
 
@@ -223,7 +226,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 			key: encodingProgressKey(params.renderId),
 			body: JSON.stringify(encodingProgress),
 			region: getCurrentRegionInFunction(),
-			acl: 'private',
+			privacy: 'private',
 			expectedBucketOwner: options.expectedBucketOwner,
 		}).catch((err) => {
 			writeLambdaError({
@@ -264,8 +267,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		key: outName(params.renderId, params.codec),
 		body: fs.createReadStream(outfile),
 		region: getCurrentRegionInFunction(),
-		// TODO: Allow to make private
-		acl: 'public-read',
+		privacy: params.privacy,
 		expectedBucketOwner: options.expectedBucketOwner,
 	});
 	const chunkData = await collectChunkInformation({
@@ -321,7 +323,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		key: encodingProgressKey(params.renderId),
 		body: JSON.stringify(finalEncodingProgress),
 		region: getCurrentRegionInFunction(),
-		acl: 'private',
+		privacy: 'private',
 		expectedBucketOwner: options.expectedBucketOwner,
 	});
 

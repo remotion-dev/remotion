@@ -129,6 +129,7 @@ export type LambdaPayloads = {
 		proResProfile: ProResProfile | undefined;
 		quality: number | undefined;
 		maxRetries: number;
+		privacy: Privacy;
 	};
 	launch: {
 		type: LambdaRoutines.launch;
@@ -146,6 +147,7 @@ export type LambdaPayloads = {
 		proResProfile: ProResProfile | undefined;
 		quality: number | undefined;
 		maxRetries: number;
+		privacy: Privacy;
 	};
 	fire: {
 		type: LambdaRoutines.fire;
@@ -178,6 +180,7 @@ export type LambdaPayloads = {
 		pixelFormat: PixelFormat | undefined;
 		quality: number | undefined;
 		envVariables: Record<string, string> | undefined;
+		privacy: Privacy;
 	};
 	still: {
 		type: LambdaRoutines.still;
@@ -189,7 +192,7 @@ export type LambdaPayloads = {
 		quality: number | undefined;
 		maxRetries: number;
 		frame: number;
-		privacy: 'private' | 'public';
+		privacy: Privacy;
 	};
 };
 
@@ -293,4 +296,4 @@ export type RenderProgress = {
 	overallProgress: number;
 };
 
-export type LambdaAcl = 'public-read' | 'private';
+export type Privacy = 'public' | 'private';

@@ -110,7 +110,7 @@ export const innerStillHandler = async (
 		key: renderMetadataKey(renderId),
 		body: JSON.stringify(renderMetadata),
 		region: getCurrentRegionInFunction(),
-		acl: 'private',
+		privacy: 'private',
 		expectedBucketOwner: options.expectedBucketOwner,
 	});
 
@@ -151,7 +151,7 @@ export const innerStillHandler = async (
 	await lambdaWriteFile({
 		bucketName,
 		key: outName,
-		acl: lambdaParams.privacy === 'private' ? 'private' : 'public-read',
+		privacy: lambdaParams.privacy,
 		body: fs.createReadStream(outputPath),
 		expectedBucketOwner: options.expectedBucketOwner,
 		region: getCurrentRegionInFunction(),

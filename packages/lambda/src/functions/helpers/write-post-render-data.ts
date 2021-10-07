@@ -18,7 +18,7 @@ export const writePostRenderData = async ({
 	await lambdaWriteFile({
 		bucketName,
 		key: postRenderDataKey(renderId),
-		acl: 'private',
+		privacy: 'private',
 		body: JSON.stringify(postRenderData),
 		expectedBucketOwner,
 		region,

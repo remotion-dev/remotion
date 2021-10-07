@@ -1,10 +1,13 @@
 import {ImageFormat, PixelFormat, ProResProfile} from 'remotion';
 import {AwsRegion} from '../pricing/aws-regions';
 import {callLambda} from '../shared/call-lambda';
-import {DEFAULT_FRAMES_PER_LAMBDA, LambdaRoutines} from '../shared/constants';
+import {
+	DEFAULT_FRAMES_PER_LAMBDA,
+	LambdaRoutines,
+	Privacy,
+} from '../shared/constants';
 import {validateFramesPerLambda} from './validate-frames-per-lambda';
 
-// TODO: `privacy` field
 /**
  * @description Triggers a render on a lambda given a composition and a lambda function.
  * @link https://remotion.dev/docs/lambda/rendervideoonlambda
@@ -38,6 +41,7 @@ export const renderVideoOnLambda = async ({
 	maxRetries,
 	composition,
 	framesPerLambda,
+	privacy,
 }: {
 	region: AwsRegion;
 	functionName: string;
@@ -50,6 +54,7 @@ export const renderVideoOnLambda = async ({
 	envVariables?: Record<string, string>;
 	pixelFormat?: PixelFormat;
 	proResProfile?: ProResProfile;
+	privacy: Privacy;
 	quality?: number;
 	maxRetries: number;
 	framesPerLambda?: number;
@@ -71,6 +76,7 @@ export const renderVideoOnLambda = async ({
 			proResProfile,
 			quality,
 			maxRetries,
+			privacy,
 		},
 		region,
 	});

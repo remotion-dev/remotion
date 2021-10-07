@@ -31,6 +31,7 @@ export const startHandler = async (params: LambdaPayload) => {
 		proResProfile: params.proResProfile,
 		quality: params.quality,
 		maxRetries: params.maxRetries,
+		privacy: params.privacy,
 	};
 	await getLambdaClient(getCurrentRegionInFunction()).send(
 		new InvokeCommand({

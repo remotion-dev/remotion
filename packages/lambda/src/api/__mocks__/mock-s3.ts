@@ -1,10 +1,9 @@
-import {LambdaAcl} from '../../defaults';
 import {AwsRegion} from '../../pricing/aws-regions';
 
 type S3MockFile = {
 	bucketName: string;
 	region: AwsRegion;
-	acl: LambdaAcl;
+	acl: 'public-read' | 'private';
 	key: string;
 	content: string;
 };
