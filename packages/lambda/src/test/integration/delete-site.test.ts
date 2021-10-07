@@ -3,6 +3,7 @@ import {deleteSite, deploySite, getOrCreateBucket} from '../..';
 jest.mock('../../api/get-buckets');
 jest.mock('../../functions/helpers/io');
 jest.mock('../../shared/bundle-site');
+jest.mock('../../shared/get-account-id');
 jest.mock('../../api/enable-s3-website');
 jest.mock('../../api/create-bucket');
 jest.mock('../../api/upload-dir');
