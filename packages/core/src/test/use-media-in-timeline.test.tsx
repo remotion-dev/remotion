@@ -11,7 +11,7 @@ beforeAll(() => {
 		height: 10,
 		fps: 30,
 		durationInFrames: 100,
-		id: '1'
+		id: 'hithere'
 	}));
 });
 afterAll(() => {
