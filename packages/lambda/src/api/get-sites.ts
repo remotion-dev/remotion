@@ -1,6 +1,7 @@
 import {lambdaLs} from '../functions/helpers/io';
 import {AwsRegion} from '../pricing/aws-regions';
 import {getSitesKey} from '../shared/constants';
+import {getAccountId} from '../shared/get-account-id';
 import {getRemotionS3Buckets} from './get-buckets';
 
 type Site = {
@@ -13,6 +14,7 @@ type Site = {
 // TODO: Add JSDoc comments
 export const getSites = async ({region}: {region: AwsRegion}) => {
 	const {remotionBuckets} = await getRemotionS3Buckets(region);
+	const accountId = await getAccountId({region});
 
 	const sites: {[key: string]: Site} = {};
 
@@ -21,7 +23,7 @@ export const getSites = async ({region}: {region: AwsRegion}) => {
 			bucketName: bucket.Name as string,
 			prefix: getSitesKey(''),
 			region,
-			expectedBucketOwner: null,
+			expectedBucketOwner: accountId,
 		});
 
 		for (const file of ls) {

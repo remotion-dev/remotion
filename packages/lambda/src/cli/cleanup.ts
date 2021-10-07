@@ -6,6 +6,7 @@ import {cleanUpBuckets} from '../cleanup/s3-buckets';
 import {AwsRegion} from '../pricing/aws-regions';
 import {chunk} from '../shared/chunk';
 import {BINARY_NAME} from '../shared/constants';
+import {getAccountId} from '../shared/get-account-id';
 import {getAwsRegion} from './get-aws-region';
 import {Log} from './log';
 
@@ -33,7 +34,7 @@ const cleanupBucketsCommand = async (region: AwsRegion) => {
 		},
 		onAfterBucketDeleted: (bucketName: string) =>
 			Log.info(CliInternals.chalk.blue(`Deleted bucket ${bucketName}.`)),
-		expectedBucketOwner: null,
+		expectedBucketOwner: await getAccountId({region}),
 	});
 	Log.info('All Remotion-related buckets deleted.');
 };
