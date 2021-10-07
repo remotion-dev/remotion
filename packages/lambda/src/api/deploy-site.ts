@@ -24,7 +24,6 @@ export type DeploySiteInput = {
 	};
 };
 
-// TODO: Return site ID
 export type DeploySiteReturnType = Promise<{
 	url: string;
 	siteName: string;
