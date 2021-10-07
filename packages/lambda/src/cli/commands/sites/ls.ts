@@ -44,7 +44,7 @@ export const sitesLsSubcommand = async () => {
 			logRow([
 				site.id,
 				site.bucketName,
-				formatBytes(site.size),
+				formatBytes(site.sizeInBytes),
 				site.lastModified ? dateString(new Date(site.lastModified)) : 'n/a',
 			])
 		);

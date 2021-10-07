@@ -2,17 +2,27 @@ import {lambdaLs} from '../functions/helpers/io';
 import {AwsRegion} from '../pricing/aws-regions';
 import {getSitesKey} from '../shared/constants';
 import {getAccountId} from '../shared/get-account-id';
-import {getRemotionS3Buckets} from './get-buckets';
+import {BucketWithLocation, getRemotionS3Buckets} from './get-buckets';
 
 type Site = {
-	size: number;
+	sizeInBytes: number;
 	lastModified: number | null;
 	bucketName: string;
 	id: string;
 };
 
+type GetSitesReturnValue = {
+	sites: Site[];
+	buckets: BucketWithLocation[];
+};
+
+// TODO: Return the `serveUrl` as well
 // TODO: Add JSDoc comments
-export const getSites = async ({region}: {region: AwsRegion}) => {
+export const getSites = async ({
+	region,
+}: {
+	region: AwsRegion;
+}): Promise<GetSitesReturnValue> => {
 	const {remotionBuckets} = await getRemotionS3Buckets(region);
 	const accountId = await getAccountId({region});
 
@@ -20,7 +30,7 @@ export const getSites = async ({region}: {region: AwsRegion}) => {
 
 	for (const bucket of remotionBuckets) {
 		const ls = await lambdaLs({
-			bucketName: bucket.Name as string,
+			bucketName: bucket.name,
 			prefix: getSitesKey(''),
 			region,
 			expectedBucketOwner: accountId,
@@ -30,15 +40,15 @@ export const getSites = async ({region}: {region: AwsRegion}) => {
 			const siteKeyMatch = file.Key?.match(/sites\/(.*)\/(.*)$/);
 			if (!siteKeyMatch) {
 				throw new Error(
-					`An file was found in the bucket "${bucket.Name}" with the key ${file.Key} which is an unexpected folder structure. Delete this file.`
+					`An file was found in the bucket "${bucket.name}" with the key ${file.Key} which is an unexpected folder structure. Delete this file.`
 				);
 			}
 
 			const [, siteId] = siteKeyMatch;
 			if (!sites[siteId]) {
 				sites[siteId] = {
-					size: 0,
-					bucketName: bucket.Name as string,
+					sizeInBytes: 0,
+					bucketName: bucket.name,
 					lastModified: null,
 					id: siteId,
 				};
@@ -55,7 +65,7 @@ export const getSites = async ({region}: {region: AwsRegion}) => {
 			}
 
 			if (file.Size) {
-				sites[siteId].size += file.Size;
+				sites[siteId].sizeInBytes += file.Size;
 			}
 		}
 	}
