@@ -1,5 +1,4 @@
 import {CliInternals} from '@remotion/cli';
-import {Internals} from 'remotion';
 import {downloadVideo} from '../../../api/download-video';
 import {getRenderProgress} from '../../../api/get-render-progress';
 import {renderVideoOnLambda} from '../../../api/render-video-on-lambda';
@@ -12,14 +11,7 @@ import {getAwsRegion} from '../../get-aws-region';
 import {findFunctionName} from '../../helpers/find-function-name';
 import {formatBytes} from '../../helpers/format-bytes';
 import {Log} from '../../log';
-import {
-	makeChunkProgress,
-	makeCleanupProgress,
-	makeDownloadProgess,
-	makeEncodingProgress,
-	makeInvokeProgress,
-	makeMultiProgressFromStatus,
-} from './progress';
+import {makeMultiProgressFromStatus, makeProgressString} from './progress';
 
 export const RENDER_COMMAND = 'render';
 
@@ -86,12 +78,11 @@ export const renderCommand = async (args: string[]) => {
 	});
 	const multiProgress = makeMultiProgressFromStatus(status);
 	progressBar.update(
-		[
-			makeInvokeProgress(multiProgress.lambdaInvokeProgress, totalSteps),
-			makeChunkProgress(multiProgress.chunkProgress, totalSteps),
-			makeEncodingProgress(multiProgress.encodingProgress, totalSteps),
-			makeCleanupProgress(multiProgress.cleanupInfo, totalSteps),
-		].join('\n')
+		makeProgressString({
+			progress: multiProgress,
+			outName,
+			steps: totalSteps,
+		})
 	);
 
 	for (let i = 0; i < 3000; i++) {
@@ -105,27 +96,21 @@ export const renderCommand = async (args: string[]) => {
 		CliInternals.Log.verbose(JSON.stringify(newStatus, null, 2));
 		const newProgress = makeMultiProgressFromStatus(newStatus);
 		progressBar.update(
-			[
-				makeInvokeProgress(newProgress.lambdaInvokeProgress, totalSteps),
-				makeChunkProgress(newProgress.chunkProgress, totalSteps),
-				makeEncodingProgress(newProgress.encodingProgress, totalSteps),
-				makeCleanupProgress(newProgress.cleanupInfo, totalSteps),
-			]
-				.filter(Internals.truthy)
-				.join('\n')
+			makeProgressString({
+				outName,
+				progress: newProgress,
+				steps: totalSteps,
+			})
 		);
 
 		//	Log.info(newStatus);
 		if (newStatus.done) {
 			progressBar.update(
-				[
-					makeInvokeProgress(newProgress.lambdaInvokeProgress, totalSteps),
-					makeChunkProgress(newProgress.chunkProgress, totalSteps),
-					makeEncodingProgress(newProgress.encodingProgress, totalSteps),
-					makeCleanupProgress(newProgress.cleanupInfo, totalSteps),
-				]
-					.filter(Internals.truthy)
-					.join('\n')
+				makeProgressString({
+					outName,
+					progress: newProgress,
+					steps: totalSteps,
+				})
 			);
 			if (outName) {
 				const {outputPath, size} = await downloadVideo({
@@ -135,15 +120,11 @@ export const renderCommand = async (args: string[]) => {
 					renderId: res.renderId,
 				});
 				progressBar.update(
-					[
-						makeInvokeProgress(newProgress.lambdaInvokeProgress, totalSteps),
-						makeChunkProgress(newProgress.chunkProgress, totalSteps),
-						makeEncodingProgress(newProgress.encodingProgress, totalSteps),
-						makeCleanupProgress(newProgress.cleanupInfo, totalSteps),
-						outName ? makeDownloadProgess(totalSteps, true) : null,
-					]
-						.filter(Internals.truthy)
-						.join('\n')
+					makeProgressString({
+						outName,
+						progress: newProgress,
+						steps: totalSteps,
+					})
 				);
 				Log.info();
 				Log.info();

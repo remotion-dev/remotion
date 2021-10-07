@@ -10,15 +10,6 @@ export type CleanupJob = {
 	type: 'exact' | 'prefix';
 };
 
-export const getFinalFileToDelete = (renderId: string): CleanupJob[] => {
-	return [
-		{
-			name: encodingProgressKey(renderId),
-			type: 'exact',
-		},
-	];
-};
-
 export const getFilesToDelete = ({
 	chunkCount,
 	renderId,
@@ -60,5 +51,9 @@ export const getFilesToDelete = ({
 				type: 'prefix' as const,
 			};
 		}),
+		{
+			name: encodingProgressKey(renderId),
+			type: 'exact',
+		},
 	];
 };

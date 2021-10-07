@@ -199,6 +199,7 @@ export type EncodingProgress = {
 	framesEncoded: number;
 	totalFrames: number | null;
 	doneIn: number | null;
+	timeToInvoke: number | null;
 };
 
 export type RenderMetadata = {

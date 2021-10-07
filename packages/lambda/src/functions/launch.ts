@@ -29,13 +29,11 @@ import {
 } from './chunk-optimization/s3-optimization-file';
 import {concatVideosS3} from './helpers/concat-videos';
 import {createPostRenderData} from './helpers/create-post-render-data';
-import {deleteChunks} from './helpers/delete-chunks';
+import {cleanupFiles} from './helpers/delete-chunks';
 import {closeBrowser, getBrowserInstance} from './helpers/get-browser-instance';
 import {getCurrentRegionInFunction} from './helpers/get-current-region';
-import {
-	getFilesToDelete,
-	getFinalFileToDelete,
-} from './helpers/get-files-to-delete';
+import {getFilesToDelete} from './helpers/get-files-to-delete';
+import {getLambdasInvokedStats} from './helpers/get-lambdas-invoked-stats';
 import {inspectErrors} from './helpers/inspect-errors';
 import {lambdaLs, lambdaWriteFile} from './helpers/io';
 import {timer} from './helpers/timer';
@@ -218,6 +216,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 			framesEncoded,
 			totalFrames: comp.durationInFrames,
 			doneIn: encodingStop ? encodingStop - start : null,
+			timeToInvoke: null,
 		};
 		lambdaWriteFile({
 			bucketName: params.bucketName,
@@ -306,6 +305,25 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 			region: getCurrentRegionInFunction(),
 		}),
 	]);
+	const finalEncodingProgress: EncodingProgress = {
+		framesEncoded: comp.durationInFrames,
+		totalFrames: comp.durationInFrames,
+		doneIn: encodingStop ? encodingStop - encodingStart : null,
+		timeToInvoke: getLambdasInvokedStats(
+			contents,
+			params.renderId,
+			renderMetadata.estimatedRenderLambdaInvokations,
+			renderMetadata.startedDate
+		).timeToInvokeLambdas,
+	};
+	const finalEncodingProgressProm = lambdaWriteFile({
+		bucketName: params.bucketName,
+		key: encodingProgressKey(params.renderId),
+		body: JSON.stringify(finalEncodingProgress),
+		region: getCurrentRegionInFunction(),
+		acl: 'private',
+		expectedBucketOwner: options.expectedBucketOwner,
+	});
 
 	const errorExplanationsProm = inspectErrors({
 		contents,
@@ -320,7 +338,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		renderId: params.renderId,
 	});
 
-	const deletProm = deleteChunks({
+	const deletProm = cleanupFiles({
 		region: getCurrentRegionInFunction(),
 		bucket: params.bucketName,
 		contents,
@@ -339,6 +357,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		timeToEncode: encodingStop - encodingStart,
 		timeToDelete: await deletProm,
 	});
+	await finalEncodingProgressProm;
 	await writePostRenderData({
 		bucketName: params.bucketName,
 		expectedBucketOwner: options.expectedBucketOwner,
@@ -346,21 +365,8 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		region: getCurrentRegionInFunction(),
 		renderId: params.renderId,
 	});
-	// This file will be deleted last, if we delete it before,
-	// The invoke progress timing info returned by getRenderProgress() will go
-	// backwards
-	const encodingDelete = deleteChunks({
-		region: getCurrentRegionInFunction(),
-		bucket: params.bucketName,
-		contents,
-		jobs: getFinalFileToDelete(params.renderId),
-	});
 
-	await Promise.all([
-		cleanupChunksProm,
-		encodingDelete,
-		fs.promises.rm(outfile),
-	]);
+	await Promise.all([cleanupChunksProm, fs.promises.rm(outfile)]);
 };
 
 export const launchHandler = async (
