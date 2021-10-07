@@ -1,6 +1,7 @@
 import {AwsRegion} from '..';
 import {getSitesKey} from '../defaults';
 import {lambdaLs} from '../functions/helpers/io';
+import {getAccountId} from '../shared/get-account-id';
 import {cleanItems} from './clean-items';
 
 type DeleteSiteReturnData = {
@@ -19,11 +20,13 @@ export const deleteSite = async ({
 	region: AwsRegion;
 	onAfterItemDeleted?: (data: {bucketName: string; itemName: string}) => void;
 }): Promise<DeleteSiteReturnData> => {
+	const accountId = await getAccountId({region});
+
 	let files = await lambdaLs({
 		bucketName,
 		prefix: getSitesKey(siteName),
 		region,
-		expectedBucketOwner: null,
+		expectedBucketOwner: accountId,
 	});
 
 	if (files.length === 0) {
@@ -49,7 +52,7 @@ export const deleteSite = async ({
 			bucketName,
 			prefix: getSitesKey(siteName),
 			region,
-			expectedBucketOwner: null,
+			expectedBucketOwner: accountId,
 		});
 	}
 
