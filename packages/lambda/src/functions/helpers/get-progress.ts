@@ -88,6 +88,10 @@ export const getProgress = async ({
 		expectedBucketOwner,
 	});
 
+	const renderMetadataExists = Boolean(
+		contents.find((c) => c.Key === renderMetadataKey(renderId))
+	);
+
 	const [encodingStatus, renderMetadata, errorExplanations] = await Promise.all(
 		[
 			getEncodingMetadata({
@@ -99,15 +103,14 @@ export const getProgress = async ({
 				region: getCurrentRegionInFunction(),
 				expectedBucketOwner,
 			}),
-			getRenderMetadata({
-				exists: Boolean(
-					contents.find((c) => c.Key === renderMetadataKey(renderId))
-				),
-				bucketName,
-				renderId,
-				region: getCurrentRegionInFunction(),
-				expectedBucketOwner,
-			}),
+			renderMetadataExists
+				? getRenderMetadata({
+						bucketName,
+						renderId,
+						region: getCurrentRegionInFunction(),
+						expectedBucketOwner,
+				  })
+				: null,
 			inspectErrors({
 				contents,
 				renderId,

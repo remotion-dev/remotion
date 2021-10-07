@@ -1,6 +1,6 @@
-export function validatePrivacy(
-	privacy: unknown
-): asserts privacy is 'private' | 'public' {
+import {Privacy} from './constants';
+
+export function validatePrivacy(privacy: unknown): asserts privacy is Privacy {
 	if (typeof privacy !== 'string') {
 		throw new TypeError('Privacy must be a string');
 	}

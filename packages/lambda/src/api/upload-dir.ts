@@ -3,7 +3,7 @@ import {Upload} from '@aws-sdk/lib-storage';
 import {createReadStream, promises as fs} from 'fs';
 import path from 'path';
 import {AwsRegion} from '..';
-import {LambdaAcl} from '../defaults';
+import {Privacy} from '../defaults';
 import {getS3Client} from '../shared/aws-clients';
 
 type FileInfo = {
@@ -35,14 +35,14 @@ export const uploadDir = async ({
 	dir,
 	onProgress,
 	folder,
-	acl,
+	privacy,
 }: {
 	bucket: string;
 	region: AwsRegion;
 	dir: string;
 	folder: string;
 	onProgress: (progress: UploadDirProgress) => void;
-	acl: LambdaAcl;
+	privacy: Privacy;
 }) => {
 	async function getFiles(directory: string): Promise<FileInfo[]> {
 		const dirents = await fs.readdir(directory, {withFileTypes: true});
@@ -83,7 +83,7 @@ export const uploadDir = async ({
 					Key,
 					Bucket: bucket,
 					Body,
-					ACL: acl,
+					ACL: privacy === 'private' ? 'private' : 'public-read',
 				},
 			});
 			paralellUploads3.on('httpUploadProgress', (progress) => {
@@ -97,7 +97,7 @@ export const uploadDir = async ({
 				Key,
 				Bucket: bucket,
 				Body,
-				ACL: acl,
+				ACL: privacy === 'private' ? 'private' : 'public-read',
 				ContentType: filePath.name.includes('index.html')
 					? 'text/html'
 					: undefined,

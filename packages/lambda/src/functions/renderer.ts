@@ -87,7 +87,7 @@ const renderHandler = async (params: LambdaPayload, options: Options) => {
 		parallelism: 1,
 		onStart: () => {
 			lambdaWriteFile({
-				acl: 'private',
+				privacy: 'private',
 				bucketName: params.bucketName,
 				body: JSON.stringify({
 					filesCleaned: deletedFilesSize,
@@ -194,8 +194,7 @@ const renderHandler = async (params: LambdaPayload, options: Options) => {
 		}),
 		body: fs.createReadStream(outputLocation),
 		region: getCurrentRegionInFunction(),
-		// TODO: Allow to be private
-		acl: 'public-read',
+		privacy: params.privacy,
 		expectedBucketOwner: options.expectedBucketOwner,
 	});
 	await Promise.all([
@@ -212,7 +211,7 @@ const renderHandler = async (params: LambdaPayload, options: Options) => {
 				start,
 			})}`,
 			region: getCurrentRegionInFunction(),
-			acl: 'private',
+			privacy: 'private',
 			expectedBucketOwner: options.expectedBucketOwner,
 		}),
 	]);

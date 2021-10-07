@@ -64,6 +64,8 @@ export const renderCommand = async (args: string[]) => {
 		maxRetries: 3,
 		composition,
 		framesPerLambda: cliOptions.framesPerLambda ?? DEFAULT_FRAMES_PER_LAMBDA,
+		// TODO: Unhardcode and specify as parameter
+		privacy: 'public',
 	});
 
 	const totalSteps = outName ? 5 : 4;

@@ -53,7 +53,7 @@ export const writeLambdaError = async ({
 		key: `${getErrorKeyPrefix(renderId)}${randomHash()}.txt`,
 		body: JSON.stringify(errorInfo),
 		region: getCurrentRegionInFunction(),
-		acl: 'private',
+		privacy: 'private',
 		expectedBucketOwner,
 	});
 };

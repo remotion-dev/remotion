@@ -94,7 +94,7 @@ export const deploySite = async ({
 			dir: bundled,
 			onProgress: options?.onUploadProgress ?? (() => undefined),
 			folder: subFolder,
-			acl: 'public-read',
+			privacy: 'public',
 		}),
 		enableS3Website({
 			region,
