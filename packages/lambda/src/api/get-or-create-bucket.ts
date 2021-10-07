@@ -35,6 +35,7 @@ export const getOrCreateBucket = async (
 	}
 
 	if (remotionBuckets.length === 1) {
+		options.onBucketEnsured?.();
 		return {bucketName: remotionBuckets[0].Name as string};
 	}
 
