@@ -3,7 +3,7 @@ import {AwsRegion} from '../..';
 import {cleanItems} from '../../api/clean-items';
 import {CleanupJob} from './get-files-to-delete';
 
-export const deleteChunks = async ({
+export const cleanupFiles = async ({
 	bucket,
 	region,
 	contents,

@@ -65,6 +65,7 @@ export const getProgress = async ({
 					postRenderData.renderMetadata.videoConfig.durationInFrames,
 				totalFrames: postRenderData.renderMetadata.videoConfig.durationInFrames,
 				doneIn: postRenderData.timeToEncode,
+				timeToInvoke: postRenderData.timeToInvokeLambdas,
 			},
 			errors: postRenderData.errors,
 			fatalErrorEncountered: false,
@@ -163,6 +164,7 @@ export const getProgress = async ({
 			encodingStatus,
 			outputFileExists: Boolean(outputFile),
 			renderMetadata,
+			lambdaInvokeStatus: lambdasInvokedStats,
 		}),
 		costs: formatCostsInfo(accruedSoFar),
 		renderId,
@@ -183,6 +185,7 @@ export const getProgress = async ({
 					type: 'absolute-time',
 			  })
 			: null,
-		timeToInvokeLambdas: lambdasInvokedStats.timeToInvokeLambdas,
+		timeToInvokeLambdas:
+			encodingStatus?.timeToInvoke ?? lambdasInvokedStats.timeToInvokeLambdas,
 	};
 };
