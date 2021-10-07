@@ -39,3 +39,4 @@ const MyVideo = () => {
 ## See also
 
 - [useVideoConfig()](/docs/use-video-config)
+- [useCurrentTime()](/docs/use-current-time)

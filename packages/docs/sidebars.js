@@ -55,6 +55,7 @@ module.exports = {
         "register-root",
         "spring",
         "use-current-frame",
+        "use-current-time",
         "use-video-config",
         "audio",
         "composition",

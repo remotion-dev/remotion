@@ -3,12 +3,10 @@ title: useCurrentTime()
 id: use-current-time
 ---
 
-With this hook, you can retrieve the current time of the video in seconds. To learn more about how Remotion works with time, read the page about [the fundamentals](/docs/the-fundamentals).
-
-This hook calculates based off of the frame and the videos fps settings.
+This hook works the same as [`useCurrentTime()`](/docs/use-current-time), except that it returns the current time in seconds rather than the frame number.
 
 ```tsx twoslash
-import {Sequence, useCurrentFrame} from 'remotion'
+import {Sequence, useCurrentFrame, useCurrentTime} from 'remotion'
 
 const Title = () => {
   const time = useCurrentTime() // 25
@@ -21,7 +19,7 @@ const Subtitle = () => {
 }
 
 const MyVideo = () => {
-  const time = useCurrenttime() // 25
+  const time = useCurrentTime() // 25
 
   return (
     <div>
