@@ -1,8 +1,6 @@
 import {iam, lambda, s3} from 'aws-policies';
 import {REMOTION_BUCKET_PREFIX, RENDER_FN_PREFIX} from '../../shared/constants';
 
-export const REMOTION_AWS_ACCOUNT = '678892195805';
-
 // TODO: Update docs before release
 export const requiredPermissions: {
 	actions: (s3 | iam | lambda)[];
@@ -18,7 +16,7 @@ export const requiredPermissions: {
 		resource: ['*'],
 	},
 	{
-		// TODO: arn:aws:iam::976210361945:role/lambda-admin, can it be locked down more?
+		// TODO: arn:aws:iam::678892195805:role/lambda-admin, can it be locked down more?
 		actions: [iam.PassRole],
 		resource: ['*'],
 	},

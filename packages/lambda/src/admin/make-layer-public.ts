@@ -44,7 +44,7 @@ export const makeLayerPublic = async () => {
 			const {Version, LayerArn} = await getLambdaClient(region).send(
 				new PublishLayerVersionCommand({
 					Content: {
-						S3Bucket: 'lambda-remotion-binaries-' + region,
+						S3Bucket: 'remotionlambda-binaries-' + region,
 						S3Key: `remotion-layer-${layer}-v1.zip`,
 					},
 					LayerName: layerName,
