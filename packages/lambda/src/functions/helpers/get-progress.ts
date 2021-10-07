@@ -15,6 +15,7 @@ import {getCurrentRegionInFunction} from './get-current-region';
 import {getEncodingMetadata} from './get-encoding-metadata';
 import {getFinalEncodingStatus} from './get-final-encoding-status';
 import {getLambdasInvokedStats} from './get-lambdas-invoked-stats';
+import {getOverallProgress} from './get-overall-progress';
 import {getPostRenderData} from './get-post-render-data';
 import {getRenderMetadata} from './get-render-metadata';
 import {getTimeToFinish} from './get-time-to-finish';
@@ -76,6 +77,7 @@ export const getProgress = async ({
 			timeToFinish: postRenderData.timeToFinish,
 			timeToFinishChunks: postRenderData.timeToRenderChunks,
 			timeToInvokeLambdas: postRenderData.timeToInvokeLambdas,
+			overallProgress: 1,
 		};
 	}
 
@@ -157,15 +159,20 @@ export const getProgress = async ({
 		renderMetadata?.startedDate ?? null
 	);
 
+	const finalEncodingStatus = getFinalEncodingStatus({
+		encodingStatus,
+		outputFileExists: Boolean(outputFile),
+		renderMetadata,
+		lambdaInvokeStatus: lambdasInvokedStats,
+	});
+
+	const chunkCount = outputFile
+		? renderMetadata?.totalChunks ?? 0
+		: chunks.length;
 	return {
-		chunks: outputFile ? renderMetadata?.totalChunks ?? 0 : chunks.length,
+		chunks: chunkCount,
 		done: false,
-		encodingStatus: getFinalEncodingStatus({
-			encodingStatus,
-			outputFileExists: Boolean(outputFile),
-			renderMetadata,
-			lambdaInvokeStatus: lambdasInvokedStats,
-		}),
+		encodingStatus,
 		costs: formatCostsInfo(accruedSoFar),
 		renderId,
 		renderMetadata,
@@ -187,5 +194,18 @@ export const getProgress = async ({
 			: null,
 		timeToInvokeLambdas:
 			encodingStatus?.timeToInvoke ?? lambdasInvokedStats.timeToInvokeLambdas,
+		overallProgress: getOverallProgress({
+			cleanup: cleanup ? cleanup.filesDeleted / cleanup.filesToDelete : 0,
+			encoding:
+				finalEncodingStatus && renderMetadata
+					? finalEncodingStatus.framesEncoded /
+					  renderMetadata.videoConfig.durationInFrames
+					: 0,
+			invoking: renderMetadata
+				? lambdasInvokedStats.lambdasInvoked /
+				  renderMetadata.estimatedRenderLambdaInvokations
+				: 0,
+			rendering: renderMetadata ? chunkCount / renderMetadata.totalChunks : 0,
+		}),
 	};
 };
