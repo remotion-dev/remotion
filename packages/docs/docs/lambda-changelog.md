@@ -14,7 +14,9 @@ Keep track of changes to the APIs of Remotion Lambda here.
 1. Redeploy your function: `npx remotion lambda functions deploy`
 1. Migrate according to the changelog below:
 
-## Unreleased
+## October 7th, 2021
+
+Version hash: `2.5.0-alpha.da8c43b8`
 
 - A new `privacy` field determines if the video will be public of private once it's rendered. No default - this field is mandatory
 - New `overallProgress` field in `getRenderProgress()` which can be used to display a progress bar to end users
