@@ -14,6 +14,10 @@ Keep track of changes to the APIs of Remotion Lambda here.
 1. Redeploy your function: `npx remotion lambda functions deploy`
 1. Migrate according to the changelog below:
 
+## Unreleased
+
+- The `getSites()` method returns a property `sizeInBytes` which was previously `size`.
+
 ## October 3rd, 2021
 
 Version hash: `2.5.0-alpha.5da9a754`

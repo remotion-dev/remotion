@@ -68,15 +68,15 @@ export const cleanUpBuckets = async ({
 	}
 
 	for (const bucket of remotionBuckets) {
-		onBeforeBucketDeleted?.(bucket.Name as string);
+		onBeforeBucketDeleted?.(bucket.name);
 		await cleanBucket({
 			region,
-			bucket: bucket.Name as string,
+			bucket: bucket.name,
 			onAfterItemDeleted: onAfterItemDeleted ?? (() => undefined),
 			onBeforeItemDeleted: onBeforeItemDeleted ?? (() => undefined),
 			expectedBucketOwner,
 		});
-		onAfterBucketDeleted?.(bucket.Name as string);
+		onAfterBucketDeleted?.(bucket.name);
 	}
 
 	await cleanUpBuckets({

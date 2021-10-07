@@ -27,7 +27,7 @@ export const getOrCreateBucket = async (
 	if (remotionBuckets.length > 1) {
 		throw new Error(
 			`You have multiple buckets (${remotionBuckets.map(
-				(b) => b.Name
+				(b) => b.name
 			)}) in your S3 region (${
 				options.region
 			}) starting with "${REMOTION_BUCKET_PREFIX}". This is an error, please delete buckets so that you have one maximum.`
@@ -36,7 +36,7 @@ export const getOrCreateBucket = async (
 
 	if (remotionBuckets.length === 1) {
 		options.onBucketEnsured?.();
-		return {bucketName: remotionBuckets[0].Name as string};
+		return {bucketName: remotionBuckets[0].name};
 	}
 
 	const bucketName = REMOTION_BUCKET_PREFIX + randomHash();

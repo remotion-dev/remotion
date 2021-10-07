@@ -1,6 +1,8 @@
 import {iam, lambda, s3} from 'aws-policies';
 import {REMOTION_BUCKET_PREFIX, RENDER_FN_PREFIX} from '../../shared/constants';
 
+export const REMOTION_AWS_ACCOUNT = '678892195805';
+
 // TODO: Update docs before release
 export const requiredPermissions: {
 	actions: (s3 | iam | lambda)[];
