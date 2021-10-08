@@ -6,7 +6,7 @@
     "docusaurus": "docusaurus",
     "start": "docusaurus start",
     "build": "tsc",
-    "build-docs": "node --max_old_space_size=16000 docusaurus build",
+    "build-docs": "node --max_old_space_size=16000 node_modules/@docusaurus/core/bin/docusaurus.js build",
     "swizzle": "docusaurus swizzle",
     "deploy": "docusaurus deploy",
     "serve": "docusaurus serve",
