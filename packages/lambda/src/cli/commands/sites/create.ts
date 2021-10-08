@@ -4,6 +4,7 @@ import path from 'path';
 import {deploySite} from '../../../api/deploy-site';
 import {getOrCreateBucket} from '../../../api/get-or-create-bucket';
 import {BINARY_NAME} from '../../../shared/constants';
+import {parsedLambdaCli} from '../../args';
 import {getAwsRegion} from '../../get-aws-region';
 import {
 	BucketCreationProgress,
@@ -96,6 +97,8 @@ export const sitesCreateSubcommand = async (args: string[]) => {
 
 	const {url} = await deploySite({
 		entryPoint: absoluteFile,
+		// TODO: Make better
+		siteName: parsedLambdaCli['site-name'] ?? undefined,
 		bucketName,
 		options: {
 			onBundleProgress: (progress: number) => {

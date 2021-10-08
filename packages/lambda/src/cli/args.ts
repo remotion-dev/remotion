@@ -11,6 +11,7 @@ type LambdaCommandLineOptions = {
 	force: boolean;
 	f: boolean;
 	quiet: boolean;
+	['site-name']: string;
 };
 
 export const parsedLambdaCli = minimist<LambdaCommandLineOptions>(
