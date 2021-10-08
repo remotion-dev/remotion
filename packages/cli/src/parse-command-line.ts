@@ -34,6 +34,7 @@ export type CommandLineOptions = {
 	help: boolean;
 	port: number;
 	frame: string | number;
+	siteName: string;
 };
 
 export const parsedCli = minimist<CommandLineOptions>(process.argv.slice(2), {
