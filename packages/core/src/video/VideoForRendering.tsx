@@ -76,7 +76,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 			return;
 		}
 
-		if (!videoRef.current.currentSrc) {
+		if (!currentSrc) {
 			throw new Error(
 				`No src found. Please provide a src prop or a <source> child to the Audio element.`
 			);
@@ -84,11 +84,11 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 
 		registerAsset({
 			type: 'video',
-			src: getAbsoluteSrc(videoRef.current.currentSrc),
+			src: getAbsoluteSrc(currentSrc),
 			id,
 			frame: absoluteFrame,
 			volume,
-			isRemote: isRemoteAsset(getAbsoluteSrc(videoRef.current.currentSrc)),
+			isRemote: isRemoteAsset(getAbsoluteSrc(currentSrc)),
 			mediaFrame: frame,
 			playbackRate: playbackRate ?? 1,
 		});
@@ -104,6 +104,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 		absoluteFrame,
 		playbackRate,
 		hasMetadata,
+		currentSrc,
 	]);
 
 	useImperativeHandle(ref, () => {
@@ -117,10 +118,10 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 
 		const currentTime = (() => {
 			return getMediaTime({
-				fps: videoConfig.fps,
 				frame,
-				src: videoRef.current.currentSrc,
+				fps: videoConfig.fps,
 				playbackRate: playbackRate || 1,
+				src: currentSrc as string,
 				startFrom: -mediaStartsAt,
 			});
 		})();
@@ -180,7 +181,14 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 			},
 			{once: true}
 		);
-	}, [volumePropsFrame, playbackRate, videoConfig.fps, frame, mediaStartsAt]);
+	}, [
+		currentSrc,
+		volumePropsFrame,
+		playbackRate,
+		videoConfig.fps,
+		frame,
+		mediaStartsAt,
+	]);
 
 	return <video ref={videoRef} {...props} onError={onError} />;
 };

@@ -38,6 +38,7 @@ export const useMediaPlayback = ({
 	mediaType: 'audio' | 'video';
 	playbackRate: number;
 }) => {
+	const {currentSrc} = mediaRef.current || {};
 	const frame = useCurrentFrame();
 	const absoluteFrame = useAbsoluteCurrentFrame();
 	const [playing] = usePlayingState();
@@ -64,7 +65,7 @@ export const useMediaPlayback = ({
 			return;
 		}
 
-		if (!mediaRef.current.currentSrc) {
+		if (!currentSrc) {
 			throw new Error(
 				`No src found. Please provide a src prop or a <source> child to the ${tagName} element.`
 			);
@@ -76,7 +77,7 @@ export const useMediaPlayback = ({
 			fps,
 			frame,
 			playbackRate,
-			src: mediaRef.current.currentSrc,
+			src: currentSrc,
 			startFrom: -mediaStartsAt,
 		});
 
@@ -108,6 +109,7 @@ export const useMediaPlayback = ({
 		mediaType,
 		playing,
 		hasMetadata,
+		currentSrc,
 		mediaStartsAt,
 	]);
 };
