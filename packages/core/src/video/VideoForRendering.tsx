@@ -78,7 +78,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 
 		if (!currentSrc) {
 			throw new Error(
-				`No src found. Please provide a src prop or a <source> child to the Audio element.`
+				'No src found. Please provide a src prop or a <source> child to the Audio element.'
 			);
 		}
 
@@ -96,6 +96,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 		return () => unregisterAsset(id);
 	}, [
 		props.muted,
+		currentSrc,
 		registerAsset,
 		id,
 		unregisterAsset,
@@ -104,7 +105,6 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 		absoluteFrame,
 		playbackRate,
 		hasMetadata,
-		currentSrc,
 	]);
 
 	useImperativeHandle(ref, () => {
@@ -121,7 +121,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 				frame,
 				fps: videoConfig.fps,
 				playbackRate: playbackRate || 1,
-				src: currentSrc as string,
+				src: String(currentSrc),
 				startFrom: -mediaStartsAt,
 			});
 		})();
@@ -182,8 +182,8 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 			{once: true}
 		);
 	}, [
-		currentSrc,
 		volumePropsFrame,
+		currentSrc,
 		playbackRate,
 		videoConfig.fps,
 		frame,
