@@ -146,7 +146,7 @@ Config.Bundling.overrideWebpackConfig((currentConfiguration) => {
               loader: 'postcss-loader',
               options: {
                 postcssOptions: {
-                  plugins: ['postcss-preset-env', 'tailwindcss'],
+                  plugins: ['postcss-preset-env', 'tailwindcss', 'autoprefixer'],
                 },
               },
             },
