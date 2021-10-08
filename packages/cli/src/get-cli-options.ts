@@ -76,9 +76,7 @@ const getFinalCodec = async (options: {isLambda: boolean}) => {
 	return codec;
 };
 
-const getBrowser = () => {
-	return Internals.getBrowser() ?? Internals.DEFAULT_BROWSER;
-};
+const getBrowser = () => Internals.getBrowser() ?? Internals.DEFAULT_BROWSER;
 
 const getAndValidateAbsoluteOutputFile = (
 	outputFile: string,
@@ -98,10 +96,10 @@ const getAndValidateAbsoluteOutputFile = (
 const getAndValidateShouldOutputImageSequence = async (
 	frameRange: FrameRange | null
 ) => {
-	const shouldOutputImageSequence = Internals.getShouldOutputImageSequence(
-		frameRange
-	);
+	const shouldOutputImageSequence =
+		Internals.getShouldOutputImageSequence(frameRange);
 	if (!shouldOutputImageSequence) {
+		// TODO: should not be required for lambda
 		await RenderInternals.validateFfmpeg();
 	}
 
