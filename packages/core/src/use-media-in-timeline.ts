@@ -20,6 +20,7 @@ export const useMediaInTimeline = ({
 	mediaRef: RefObject<HTMLAudioElement | HTMLVideoElement>;
 	mediaType: 'audio' | 'video';
 }) => {
+	const {currentSrc} = mediaRef.current || {};
 	const videoConfig = useVideoConfig();
 	const {rootId} = useContext(TimelineContext);
 	const parentSequence = useContext(SequenceContext);
@@ -64,7 +65,7 @@ export const useMediaInTimeline = ({
 			return;
 		}
 
-		if (!mediaRef.current.currentSrc) {
+		if (!currentSrc) {
 			throw new Error(
 				`No src found. Please provide a src prop or a <source> child to the ${tagName} element.`
 			);
@@ -72,13 +73,13 @@ export const useMediaInTimeline = ({
 
 		registerSequence({
 			type: mediaType,
-			src: mediaRef.current.currentSrc,
+			src: currentSrc,
 			id,
 			// TODO: Cap to media duration
 			duration,
 			from: 0,
 			parent: parentSequence?.id ?? null,
-			displayName: getAssetFileName(mediaRef.current.currentSrc),
+			displayName: getAssetFileName(currentSrc),
 			rootId,
 			volume: volumes,
 			showInTimeline: true,
@@ -86,12 +87,14 @@ export const useMediaInTimeline = ({
 			startMediaFrom: 0 - startsAt,
 			doesVolumeChange,
 		});
+
 		return () => unregisterSequence(id);
 	}, [
 		actualFrom,
 		duration,
 		id,
 		parentSequence,
+		currentSrc,
 		registerSequence,
 		rootId,
 		unregisterSequence,

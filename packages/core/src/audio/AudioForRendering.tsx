@@ -62,7 +62,7 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 			return;
 		}
 
-		if (!audioRef.current.currentSrc) {
+		if (!currentSrc) {
 			throw new Error(
 				`No src found. Please provide a src prop or a <source> child to the Audio element.`
 			);
@@ -70,11 +70,11 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 
 		registerAsset({
 			type: 'audio',
-			src: getAbsoluteSrc(audioRef.current.currentSrc),
+			src: getAbsoluteSrc(currentSrc),
 			id,
 			frame: absoluteFrame,
 			volume,
-			isRemote: isRemoteAsset(getAbsoluteSrc(audioRef.current.currentSrc)),
+			isRemote: isRemoteAsset(getAbsoluteSrc(currentSrc)),
 			mediaFrame: frame,
 			playbackRate: props.playbackRate ?? 1,
 		});
@@ -91,6 +91,7 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 		playbackRate,
 		props.playbackRate,
 		hasMetadata,
+		currentSrc,
 	]);
 
 	return <audio ref={audioRef} {...nativeProps} />;

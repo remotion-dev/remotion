@@ -7,8 +7,21 @@ export const useMediaHasMetadata = (
 
 	useEffect(() => {
 		const {current} = mediaRef;
+
 		if (!current) {
 			return;
+		}
+
+		const hasSourceChild = Array.from(current.childNodes).some(
+			(child) => child.nodeName === 'SOURCE'
+		);
+
+		if (!current.src && !hasSourceChild) {
+			const tagName = current.nodeName === 'AUDIO' ? '<Audio>' : '<Video>';
+
+			throw new Error(
+				`No src found. Please provide a src prop or a <source> child to the ${tagName} element.`
+			);
 		}
 
 		const handler = () => setHasMetadata(true);
