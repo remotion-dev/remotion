@@ -238,6 +238,7 @@ export const render = async () => {
 				}),
 				(fs.promises.rm ?? fs.promises.rmdir)(bundled, {
 					recursive: true,
+					maxRetries: 100,
 				}),
 			]);
 		} catch (err) {
