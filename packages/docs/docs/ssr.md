@@ -66,9 +66,12 @@ const start = async () => {
     // actual rendering starts.
     onStart: () => console.log('Rendering frames...'),
     // Handle errors in your React code
-    onError: (error) => {
-      console.error(`Could not render frame ${error.frame} properly`);
-      console.error(`${error.error.message}`);
+    onError: (info) => {
+      if (info.frame === null) {
+        console.error('Got error while initalizing video rendering', info.error)
+      } else {
+        console.error('Got error at frame ', info.frame, info.error)
+      }
 		},
     onFrameUpdate: (f) => {
       // Log a message whenever 10 frames have rendered.
