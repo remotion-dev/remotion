@@ -7,6 +7,7 @@ import {
 	stitchFramesToVideo,
 } from '@remotion/renderer';
 import chalk from 'chalk';
+import execa from 'execa';
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
@@ -232,13 +233,18 @@ export const render = async () => {
 
 		Log.verbose('Cleaning up...');
 		try {
+			if (process.platform === 'win32') {
+				// Properly delete all files in bundled directory because 
+				// Windows doesn't seem to like fs 
+				await execa('cmd', ['/c', 'del', '/f', '/s', '/q', bundled]);
+			}
+			
 			await Promise.all([
 				(fs.promises.rm ?? fs.promises.rmdir)(outputDir, {
 					recursive: true,
 				}),
 				(fs.promises.rm ?? fs.promises.rmdir)(bundled, {
 					recursive: true,
-					maxRetries: 100,
 				}),
 			]);
 		} catch (err) {
