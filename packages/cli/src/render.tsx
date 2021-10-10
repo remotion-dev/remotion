@@ -234,19 +234,22 @@ export const render = async () => {
 		Log.verbose('Cleaning up...');
 		try {
 			if (process.platform === 'win32') {
-				// Properly delete all files in bundled directory because 
-				// Windows doesn't seem to like fs 
+				// Properly delete directories because Windows doesn't seem to like fs 
+				await execa('rmdir', ['/s', '/q', outputDir]);
+				// Bundled directory needs an additional 'del' command, otherwise rmdir
+				// will throw an error (directory not empty)
 				await execa('cmd', ['/c', 'del', '/f', '/s', '/q', bundled]);
+				await execa('rmdir', ['/s', '/q', bundled]);
+			} else {
+				await Promise.all([
+					(fs.promises.rm ?? fs.promises.rmdir)(outputDir, {
+						recursive: true,
+					}),
+					(fs.promises.rm ?? fs.promises.rmdir)(bundled, {
+						recursive: true,
+					}),
+				]);
 			}
-			
-			await Promise.all([
-				(fs.promises.rm ?? fs.promises.rmdir)(outputDir, {
-					recursive: true,
-				}),
-				(fs.promises.rm ?? fs.promises.rmdir)(bundled, {
-					recursive: true,
-				}),
-			]);
 		} catch (err) {
 			Log.warn('Could not clean up directory.');
 			Log.warn(err);
