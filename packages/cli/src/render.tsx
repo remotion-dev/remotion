@@ -7,11 +7,11 @@ import {
 	stitchFramesToVideo,
 } from '@remotion/renderer';
 import chalk from 'chalk';
-import execa from 'execa';
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
 import {Internals} from 'remotion';
+import {deleteDirectory} from './delete-directory';
 import {getCliOptions} from './get-cli-options';
 import {getCompositionId} from './get-composition-id';
 import {handleCommonError} from './handle-common-errors';
@@ -234,12 +234,9 @@ export const render = async () => {
 		Log.verbose('Cleaning up...');
 		try {
 			if (process.platform === 'win32') {
-				// Properly delete directories because Windows doesn't seem to like fs 
-				await execa('rmdir', ['/s', '/q', outputDir]);
-				// Bundled directory needs an additional 'del' command, otherwise rmdir
-				// will throw an error (directory not empty)
-				await execa('cmd', ['/c', 'del', '/f', '/s', '/q', bundled]);
-				await execa('rmdir', ['/s', '/q', bundled]);
+				// Properly delete directories because Windows doesn't seem to like fs.
+				await deleteDirectory(outputDir);
+				await deleteDirectory(bundled);
 			} else {
 				await Promise.all([
 					(fs.promises.rm ?? fs.promises.rmdir)(outputDir, {
