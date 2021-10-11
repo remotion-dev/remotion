@@ -139,9 +139,9 @@ const renderFrames = (options: Partial<Parameters<typeof rf>[0]>) => {}
 renderFrames({
   onError: (info) => {
     if (info.frame === null) {
-      console.log('Got error while initalizing video rendering', info.error)
+      console.error('Got error while initalizing video rendering', info.error)
     } else {
-      console.log('Got error at frame ', info.frame, info.error)
+      console.error('Got error at frame ', info.frame, info.error)
     }
     // Handle error here
   }
