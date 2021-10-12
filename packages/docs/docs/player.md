@@ -301,6 +301,9 @@ useEffect(() => {
   playerRef.current.addEventListener('play', () => {
     console.log('playing')
   })
+  playerRef.current.addEventListener('ratechange', () => {
+    console.log('ratechange')
+  })
   playerRef.current.addEventListener('pause', () => {
     console.log('pausing')
   })
@@ -346,7 +349,15 @@ Fires when the video has ended and looping is disabled.
 
 ### `play`
 
-Fires when the video has started playing or has resumed from a pause.
+Fires when the video has ended and looping is disabled.
+
+### `slower`
+
+Fires when the video has been slowed down.
+
+### `faster`
+
+Fires when the video has been sped up.
 
 ### `pause`
 
