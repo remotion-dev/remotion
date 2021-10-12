@@ -18,6 +18,12 @@ export default function App() {
 		ref.current?.addEventListener('play', () => {
 			setLogs((l) => [...l, 'playing ' + Date.now()]);
 		});
+		ref.current?.addEventListener('slower', () => {
+			setLogs((l) => [...l, 'ratechange ' + Date.now()]);
+		});
+		ref.current?.addEventListener('faster', () => {
+			setLogs((l) => [...l, 'ratechange ' + Date.now()]);
+		});
 		ref.current?.addEventListener('pause', () => {
 			setLogs((l) => [...l, 'pausing ' + Date.now()]);
 		});

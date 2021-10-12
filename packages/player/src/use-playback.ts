@@ -1,17 +1,52 @@
-import {useEffect, useRef} from 'react';
+import {useCallback, useEffect, useRef} from 'react';
 import {Internals} from 'remotion';
 import {usePlayer} from './use-player';
 
-export const usePlayback = ({loop}: {loop: boolean}) => {
+type usePlaybackType = (args: {loop: boolean}) => {playbackSpeed: number};
+
+export const usePlayback: usePlaybackType = ({loop}) => {
 	const frame = Internals.Timeline.useTimelinePosition();
 	const config = Internals.useUnsafeVideoConfig();
 	const {playing, pause, emitter} = usePlayer();
 	const setFrame = Internals.Timeline.useTimelineSetFrame();
 
+	const playbackSpeed = useRef<number>(1);
+	const timelastSpeedChange = useRef<number>();
+	const nextFrame = useRef(frame);
+	const frameCountBeforeChange = useRef(frame);
 	const frameRef = useRef(frame);
 	frameRef.current = frame;
 
 	const lastTimeUpdateEvent = useRef<number | null>(null);
+
+	const decreasePlaybackSpeed = useCallback(() => {
+		const newSpeed = Math.max(playbackSpeed.current / 2, 1 / 4);
+		if (newSpeed !== playbackSpeed.current) {
+			timelastSpeedChange.current = performance.now();
+			frameCountBeforeChange.current = nextFrame.current;
+		}
+
+		playbackSpeed.current = newSpeed;
+	}, []);
+
+	const increasePlaybackSpeed = useCallback(() => {
+		const newSpeed = Math.min(playbackSpeed.current * 2, 4);
+		if (newSpeed !== playbackSpeed.current) {
+			timelastSpeedChange.current = performance.now();
+			frameCountBeforeChange.current = nextFrame.current;
+		}
+
+		playbackSpeed.current = newSpeed;
+	}, []);
+
+	useEffect(() => {
+		emitter?.addEventListener('slower', decreasePlaybackSpeed);
+		emitter?.addEventListener('faster', increasePlaybackSpeed);
+		return () => {
+			emitter.removeEventListener('slower', decreasePlaybackSpeed);
+			emitter.removeEventListener('faster', increasePlaybackSpeed);
+		};
+	}, [increasePlaybackSpeed, decreasePlaybackSpeed, emitter]);
 
 	useEffect(() => {
 		if (!config) {
@@ -25,7 +60,9 @@ export const usePlayback = ({loop}: {loop: boolean}) => {
 		let hasBeenStopped = false;
 		let reqAnimFrameCall: number | null = null;
 		const startedTime = performance.now();
-		const startedFrame = frameRef.current;
+		if (hasBeenStopped) {
+			timelastSpeedChange.current = undefined;
+		}
 
 		const stop = () => {
 			hasBeenStopped = true;
@@ -35,16 +72,22 @@ export const usePlayback = ({loop}: {loop: boolean}) => {
 		};
 
 		const callback = () => {
-			const time = performance.now() - startedTime;
-			const nextFrame = Math.round(time / (1000 / config.fps)) + startedFrame;
-			if (nextFrame === config.durationInFrames && !loop) {
+			const now = performance.now();
+			const timeSinceLastChange =
+				now - (timelastSpeedChange.current || startedTime);
+			const framesSinceChange = Math.round(
+				(timeSinceLastChange * playbackSpeed.current) / (1000 / config.fps)
+			);
+			nextFrame.current = frameCountBeforeChange.current + framesSinceChange;
+
+			if (nextFrame.current === config.durationInFrames && !loop) {
 				stop();
 				pause();
 				emitter.dispatchEnded();
 				return;
 			}
 
-			const actualNextFrame = nextFrame % config.durationInFrames;
+			const actualNextFrame = nextFrame.current % config.durationInFrames;
 			if (actualNextFrame !== frameRef.current) {
 				setFrame(actualNextFrame);
 			}
@@ -72,5 +115,7 @@ export const usePlayback = ({loop}: {loop: boolean}) => {
 		}, 250);
 
 		return () => clearInterval(interval);
-	}, [emitter]);
+	}, [emitter, config]);
+
+	return {playbackSpeed: playbackSpeed.current};
 };

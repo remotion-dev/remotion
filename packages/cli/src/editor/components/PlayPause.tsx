@@ -12,11 +12,15 @@ import {ControlButton} from './ControlButton';
 export const PlayPause: React.FC = () => {
 	const frame = Internals.Timeline.useTimelinePosition();
 	const video = Internals.useVideo();
-	PlayerInternals.usePlayback({loop: true});
+	const {playbackSpeed} = PlayerInternals.usePlayback({
+		loop: true,
+	});
 
 	const {
 		playing,
 		play,
+		slower,
+		faster,
 		pause,
 		frameBack,
 		frameForward,
@@ -69,6 +73,16 @@ export const PlayPause: React.FC = () => {
 		[frameForward, videoFps]
 	);
 
+	const onJKey = useCallback(() => {
+		slower();
+	}, [slower]);
+	const onKKey = useCallback(() => {
+		pause();
+	}, [pause]);
+	const onLKey = useCallback(() => {
+		faster();
+	}, [faster]);
+
 	const oneFrameBack = useCallback(() => {
 		frameBack(1);
 	}, [frameBack]);
@@ -90,13 +104,19 @@ export const PlayPause: React.FC = () => {
 			onArrowRight
 		);
 		const space = keybindings.registerKeybinding('keydown', ' ', onSpace);
+		const jKey = keybindings.registerKeybinding('keydown', 'j', onJKey);
+		const kKey = keybindings.registerKeybinding('keydown', 'k', onKKey);
+		const lKey = keybindings.registerKeybinding('keydown', 'l', onLKey);
 
 		return () => {
 			arrowLeft.unregister();
 			arrowRight.unregister();
 			space.unregister();
+			jKey.unregister();
+			kKey.unregister();
+			lKey.unregister();
 		};
-	}, [keybindings, onArrowLeft, onArrowRight, onSpace]);
+	}, [keybindings, onArrowLeft, onArrowRight, onSpace, onJKey, onKKey, onLKey]);
 
 	if (isStill) {
 		return null;
@@ -155,6 +175,9 @@ export const PlayPause: React.FC = () => {
 					}}
 				/>
 			</ControlButton>
+			<ControlButton onClick={() => slower()}>-</ControlButton>
+			<div>{playbackSpeed}X</div>
+			<ControlButton onClick={() => faster()}>+</ControlButton>
 		</>
 	);
 };

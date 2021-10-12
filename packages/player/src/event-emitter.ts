@@ -14,6 +14,8 @@ type StateEventMap = {
 	seeked: SeekPayload;
 	pause: undefined;
 	play: undefined;
+	slower: undefined;
+	faster: undefined;
 	ended: undefined;
 	error: ErrorPayload;
 	timeupdate: TimeUpdateEventPayload;
@@ -33,6 +35,8 @@ export class PlayerEmitter {
 		error: [],
 		pause: [],
 		play: [],
+		slower: [],
+		faster: [],
 		seeked: [],
 		timeupdate: [],
 	};
@@ -76,6 +80,14 @@ export class PlayerEmitter {
 
 	dispatchPlay() {
 		this.dispatchEvent('play', undefined);
+	}
+
+	dispatchSlower() {
+		this.dispatchEvent('slower', undefined);
+	}
+
+	dispatchFaster() {
+		this.dispatchEvent('faster', undefined);
 	}
 
 	dispatchEnded() {
