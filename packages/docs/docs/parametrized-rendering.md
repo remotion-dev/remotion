@@ -108,7 +108,7 @@ await renderFrames({
     } else {
       console.error('Got error at frame ', info.frame, info.error)
     }
-  }
+  },
   parallelism: null,
   outputDir: framesDir,
   inputProps: {
