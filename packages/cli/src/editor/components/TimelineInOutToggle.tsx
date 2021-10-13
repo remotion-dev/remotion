@@ -1,5 +1,6 @@
 import React, {useCallback, useContext, useEffect, useState} from 'react';
 import {Internals} from 'remotion';
+import {useKeybinding} from '../helpers/use-keybinding';
 import {TimelineInOutPointer} from '../icons/timelineInOutPointer';
 import {ControlButton} from './ControlButton';
 
@@ -20,6 +21,7 @@ export const TimelineInOutPointToggle: React.FC = () => {
 		setOutFrame,
 	} = Internals.Timeline.useTimelineSetInOutFramePosition();
 	const videoConfig = Internals.useUnsafeVideoConfig();
+	const keybindings = useKeybinding();
 
 	const getValidFrame = useCallback(
 		(type: 'inFrame' | 'outFrame') => {
@@ -111,6 +113,19 @@ export const TimelineInOutPointToggle: React.FC = () => {
 		setOutFrame(null);
 		setOutFrameBtnActiveState(false);
 	}, [currentComposition, setInFrame, setOutFrame]);
+
+	useEffect(() => {
+		const iKey = keybindings.registerKeybinding('keypress', 'i', () => {
+			onInFrameBtnClick();
+		});
+		const oKey = keybindings.registerKeybinding('keypress', 'o', () => {
+			onOutFrameBtnClick();
+		});
+		return () => {
+			oKey.unregister();
+			iKey.unregister();
+		};
+	}, [keybindings, onInFrameBtnClick, onOutFrameBtnClick]);
 
 	return (
 		<>
