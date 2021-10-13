@@ -28,7 +28,7 @@ prompt.separator = (title: string) => ({
 export async function selectAsync(
 	questions: NamelessQuestion,
 	options?: PromptOptions
-): Promise<any> {
+): Promise<unknown> {
 	const {value} = await prompt(
 		{
 			limit: 11,

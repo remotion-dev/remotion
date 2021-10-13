@@ -28,7 +28,7 @@ const MyVideo = () => {
   return (
     <div>
       <Title />
-      <Sequence from={10} durationInFrames={Infinity}>
+      <Sequence from={10}>
         <Subtitle />
       </Sequence>
     </div>

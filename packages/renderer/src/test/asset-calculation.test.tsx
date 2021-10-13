@@ -1,4 +1,5 @@
-import React from 'react';
+import {createEvent, fireEvent} from '@testing-library/dom';
+import React, {useEffect, useRef} from 'react';
 import {Audio, interpolate, Sequence, useCurrentFrame, Video} from 'remotion';
 import {calculateAssetPositions} from '../assets/calculate-asset-positions';
 import {MediaAsset} from '../assets/types';
@@ -21,10 +22,39 @@ const withoutId = (asset: MediaAsset) => {
 	return others;
 };
 
+beforeAll(() => {
+	Object.defineProperty(
+		global.window.HTMLMediaElement.prototype,
+		'currentSrc',
+		{
+			get() {
+				return this.src;
+			},
+		}
+	);
+});
+
 test('Should be able to collect assets', async () => {
-	const assetPositions = await getPositions(() => (
-		<Video src="https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/1080/Big_Buck_Bunny_1080_10s_1MB.mp4" />
-	));
+	const assetPositions = await getPositions(() => {
+		const videoRef = useRef<HTMLVideoElement>(null);
+
+		useEffect(() => {
+			if (!videoRef.current) {
+				return;
+			}
+
+			// Dispatch the `loadedmetadata` event manually
+			// since JSDOM doesn't support these events
+			fireEvent(videoRef.current, createEvent.loadedMetadata(videoRef.current));
+		}, []);
+
+		return (
+			<Video
+				ref={videoRef}
+				src="https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/1080/Big_Buck_Bunny_1080_10s_1MB.mp4"
+			/>
+		);
+	});
 	expect(assetPositions.length).toBe(1);
 	expect(withoutId(assetPositions[0])).toEqual({
 		type: 'video',
@@ -40,12 +70,43 @@ test('Should be able to collect assets', async () => {
 });
 
 test('Should get multiple assets', async () => {
-	const assetPositions = await getPositions(() => (
-		<div>
-			<Video src="https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/1080/Big_Buck_Bunny_1080_10s_1MB.mp4" />
-			<Audio src="https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/1080/Big_Buck_Bunny_1080_10s_1MB.mp3" />
-		</div>
-	));
+	const assetPositions = await getPositions(() => {
+		const audioRef = useRef<HTMLAudioElement>(null);
+		const videoRef = useRef<HTMLVideoElement>(null);
+
+		useEffect(() => {
+			if (!audioRef.current) {
+				return;
+			}
+
+			// Dispatch the `loadedmetadata` event manually
+			// since JSDOM doesn't support these events
+			fireEvent(audioRef.current, createEvent.loadedMetadata(audioRef.current));
+		}, []);
+
+		useEffect(() => {
+			if (!videoRef.current) {
+				return;
+			}
+
+			// Dispatch the `loadedmetadata` event manually
+			// since JSDOM doesn't support these events
+			fireEvent(videoRef.current, createEvent.loadedMetadata(videoRef.current));
+		}, []);
+
+		return (
+			<div>
+				<Video
+					ref={videoRef}
+					src="https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/1080/Big_Buck_Bunny_1080_10s_1MB.mp4"
+				/>
+				<Audio
+					ref={audioRef}
+					src="https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/1080/Big_Buck_Bunny_1080_10s_1MB.mp3"
+				/>
+			</div>
+		);
+	});
 	expect(assetPositions.length).toBe(2);
 	expect(withoutId(assetPositions[0])).toEqual({
 		type: 'video',
@@ -74,10 +135,25 @@ test('Should get multiple assets', async () => {
 test('Should handle jumps inbetween', async () => {
 	const assetPositions = await getPositions(() => {
 		const frame = useCurrentFrame();
+		const videoRef = useRef<HTMLVideoElement>(null);
+
+		useEffect(() => {
+			if (!videoRef.current) {
+				return;
+			}
+
+			// Dispatch the `loadedmetadata` event manually
+			// since JSDOM doesn't support these events
+			fireEvent(videoRef.current, createEvent.loadedMetadata(videoRef.current));
+		}, [frame]);
+
 		return (
 			<div>
 				{frame === 20 ? null : (
-					<Video src="https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/1080/Big_Buck_Bunny_1080_10s_1MB.mp4" />
+					<Video
+						ref={videoRef}
+						src="https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/1080/Big_Buck_Bunny_1080_10s_1MB.mp4"
+					/>
 				)}
 			</div>
 		);
@@ -109,9 +185,24 @@ test('Should handle jumps inbetween', async () => {
 
 test('Should support sequencing', async () => {
 	const assetPositions = await getPositions(() => {
+		const videoRef = useRef<HTMLVideoElement>(null);
+
+		useEffect(() => {
+			if (!videoRef.current) {
+				return;
+			}
+
+			// Dispatch the `loadedmetadata` event manually
+			// since JSDOM doesn't support these events
+			fireEvent(videoRef.current, createEvent.loadedMetadata(videoRef.current));
+		}, []);
+
 		return (
 			<Sequence durationInFrames={30} from={-20}>
-				<Video src="https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/1080/Big_Buck_Bunny_1080_10s_1MB.mp4" />
+				<Video
+					ref={videoRef}
+					src="https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/1080/Big_Buck_Bunny_1080_10s_1MB.mp4"
+				/>
 			</Sequence>
 		);
 	});
@@ -131,14 +222,27 @@ test('Should support sequencing', async () => {
 
 test('Should calculate volumes correctly', async () => {
 	const assetPositions = await getPositions(() => {
+		const videoRef = useRef<HTMLVideoElement>(null);
+
+		useEffect(() => {
+			if (!videoRef.current) {
+				return;
+			}
+
+			// Dispatch the `loadedmetadata` event manually
+			// since JSDOM doesn't support these events
+			fireEvent(videoRef.current, createEvent.loadedMetadata(videoRef.current));
+		}, []);
+
 		return (
 			<Video
+				ref={videoRef}
+				src="https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/1080/Big_Buck_Bunny_1080_10s_1MB.mp4"
 				volume={(f) =>
 					interpolate(f, [0, 4], [0, 1], {
 						extrapolateRight: 'clamp',
 					})
 				}
-				src="https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/1080/Big_Buck_Bunny_1080_10s_1MB.mp4"
 			/>
 		);
 	});
@@ -162,9 +266,23 @@ test('Should calculate volumes correctly', async () => {
 
 test('Should calculate startFrom correctly', async () => {
 	const assetPositions = await getPositions(() => {
+		const frame = useCurrentFrame();
+		const audioRef = useRef<HTMLVideoElement>(null);
+
+		useEffect(() => {
+			if (!audioRef.current) {
+				return;
+			}
+
+			// Dispatch the `loadedmetadata` event manually
+			// since JSDOM doesn't support these events
+			fireEvent(audioRef.current, createEvent.loadedMetadata(audioRef.current));
+		}, [frame]);
+
 		return (
-			<Sequence from={1} durationInFrames={Infinity}>
+			<Sequence from={1}>
 				<Audio
+					ref={audioRef}
 					startFrom={100}
 					endAt={200}
 					src={

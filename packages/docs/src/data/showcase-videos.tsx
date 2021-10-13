@@ -622,28 +622,27 @@ export const showcaseVideos: ShowcaseVideo[] = [
     },
   },
   {
-    title: "ChessExpressed",
+    title: "Podopi - Convert a Blog to Podcast",
     type: "mux_video",
-    muxId: "00kMu8F202f3nS6JJy8UUw8hAkrsoAKdC49bYvCboWN8g",
+    muxId: "wvTZmoaRnhpGuc93nd39vz4MpSeOkXjnS5XFzOK01Lco",
     description:
-      "Videos of classic chess matchups with space domination visualized.",
+      "This promo video is done by using Remotion. It shows you how easily you can extend your blog to a podcast.",
     height: 720,
     width: 1280,
-    submittedOn: new Date("08-05-2021"),
+    submittedOn: new Date("09-10-2021"),
     links: [
       {
         type: "video",
-        url: "https://www.youtube.com/watch?v=477uHt7-0jQ",
+        url: "https://www.youtube.com/watch?v=yYbBVCo0BVw",
       },
       {
         type: "website",
-        url:
-          "https://www.youtube.com/channel/UCM9AuQuwPOLhb07wA3_2a-Q/featured",
+        url: "https://www.podopi.com/",
       },
     ],
     author: {
-      url: "https://twitter.com/ChessExpressed",
-      name: "ChessExpressed",
+      url: "https://twitter.com/Miickel",
+      name: "Mickel Andersson",
     },
   },
   {
@@ -819,7 +818,7 @@ export const showcaseVideos: ShowcaseVideo[] = [
   {
     title: "Liquid Swipe Tutorial Intro",
     type: "mux_video",
-    muxId: "kNJDX8EkZzclZa01SBTCtRbma2fqgPzIJKczHntB01m84",
+    muxId: "01h4QMewhXr0249p1k8buxKgcN86hmS3VgRDPenY6Yyr4",
     description:
       "This intro warms you up for an awesome React Native tutorial on how to recreate a Liquid Swipe animation.",
     height: 360,
@@ -994,6 +993,30 @@ export const showcaseVideos: ShowcaseVideo[] = [
     author: {
       url: "https://bf.wtf/",
       name: "Ben Follington",
+    },
+  },
+  {
+    title: "Feature overview",
+    type: "mux_video",
+    muxId: "d2SvbrhHvyJZb2EmSv441M601UBy1dfEYfToKGqDpV01Y",
+    description: "A showcase of features in the new Bottom Sheet library.",
+    height: 640,
+    width: 1280,
+    submittedOn: new Date("10-04-2021"),
+    links: [
+      {
+        type: "video",
+        url: "https://twitter.com/Gorhom/status/1432363415272558593",
+      },
+      {
+        type: "website",
+        url:
+          "https://gorhom.github.io/react-native-bottom-sheet/blog/bottom-sheet-v4/",
+      },
+    ],
+    author: {
+      url: "https://gorhom.dev/",
+      name: "Mo Gorhim",
     },
   },
 ];
