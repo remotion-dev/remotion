@@ -1,6 +1,8 @@
 import React, {SVGProps} from 'react';
 
-export const TimelineInOutPointer: React.FC<SVGProps<SVGSVGElement>> = (props) => {
+export const TimelineInOutPointer: React.FC<SVGProps<SVGSVGElement>> = (
+	props
+) => {
 	return (
 		<svg viewBox="0 0 50 150" {...props}>
 			<polygon
