@@ -44,6 +44,9 @@ await renderStill({
   composition,
   webpackBundle: bundleLocation,
   output: '/tmp/still.png',
+  onError: (error) => {
+    console.error("The following error occured when rendering the still: ", error.message)
+  },
   inputProps: {
     custom: 'data'
   }

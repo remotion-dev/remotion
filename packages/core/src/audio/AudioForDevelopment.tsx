@@ -62,13 +62,11 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		volume,
 		mediaVolume,
 		mediaRef: audioRef,
-		src: nativeProps.src,
 		mediaType: 'audio',
 	});
 
 	useMediaPlayback({
 		mediaRef: audioRef,
-		src: nativeProps.src,
 		mediaType: 'audio',
 		playbackRate: playbackRate ?? 1,
 	});
