@@ -19,7 +19,7 @@ import {isTrackHidden} from './is-collapsed';
 import {MAX_TIMELINE_TRACKS} from './MaxTimelineTracks';
 import {timelineStateReducer} from './timeline-state-reducer';
 import {TimelineDragHandler} from './TimelineDragHandler';
-import { TimelineInOutPointer } from './TimelineInOutPointer';
+import {TimelineInOutPointer} from './TimelineInOutPointer';
 import {TimelineList} from './TimelineList';
 import {TimelineSlider} from './TimelineSlider';
 import {TimelineTracks} from './TimelineTracks';
