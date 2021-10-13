@@ -72,7 +72,7 @@ const start = async () => {
       } else {
         console.error('Got error at frame ', info.frame, info.error)
       }
-		},
+    },
     onFrameUpdate: (f) => {
       // Log a message whenever 10 frames have rendered.
       if (f % 10 === 0) {
