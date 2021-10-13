@@ -102,6 +102,13 @@ await renderFrames({
   webpackBundle: bundled,
   onStart: () => undefined,
   onFrameUpdate: (f) => undefined,
+  onError: (info) => {
+    if (info.frame === null) {
+      console.error('Got error while initalizing video rendering', info.error)
+    } else {
+      console.error('Got error at frame ', info.frame, info.error)
+    }
+  }
   parallelism: null,
   outputDir: framesDir,
   inputProps: {
