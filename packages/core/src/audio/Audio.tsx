@@ -15,14 +15,10 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 	const audioContext = useContext(SharedAudioContext);
 	const {startFrom, endAt, ...otherProps} = props;
 
-	const onError: React.ReactEventHandler<HTMLAudioElement> = useCallback(
-		(e) => {
-			throw new Error(
-				`Could not play audio with src ${otherProps.src}: ${e.currentTarget.error}`
-			);
-		},
-		[otherProps.src]
-	);
+	const onError = useCallback((e) => {
+		console.error('onError', e);
+		throw new Error(`Could not play audio: ${e.currentTarget.error}`);
+	}, []);
 
 	if (typeof startFrom !== 'undefined' || typeof endAt !== 'undefined') {
 		validateStartFromProps(startFrom, endAt);
