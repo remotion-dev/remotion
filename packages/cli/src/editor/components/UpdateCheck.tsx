@@ -19,6 +19,7 @@ const buttonStyle: React.CSSProperties = {
 	fontWeight: 'bold',
 	backgroundColor: 'transparent',
 	cursor: 'pointer',
+	fontSize: 14,
 };
 
 export const UpdateCheck = () => {
