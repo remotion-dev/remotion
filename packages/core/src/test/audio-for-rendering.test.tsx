@@ -1,4 +1,4 @@
-import {render} from '@testing-library/react';
+import {createEvent, fireEvent, render} from '@testing-library/react';
 import React from 'react';
 import {AudioForRendering} from '../audio/AudioForRendering';
 import {CompositionManagerContext} from '../CompositionManager';
@@ -10,6 +10,7 @@ interface MockCompositionManagerContext {
 	registerAsset: Function;
 	unregisterAsset: Function;
 }
+
 let mockContext: MockCompositionManagerContext;
 
 describe('Register and unregister asset', () => {
@@ -43,17 +44,36 @@ describe('Register and unregister asset', () => {
 		mockContext = createMockContext();
 	});
 
+	// JSDOM doesn't simulate browser events, `currentSrc` is always empty,
+	// so we can't assert the registration and unregistration of assets.
 	test('register and unregister asset', () => {
 		const props = {
 			src: 'test',
 			muted: false,
 			volume: 50,
 		};
-		const {unmount} = render(
+
+		Object.defineProperty(
+			global.window.HTMLMediaElement.prototype,
+			'currentSrc',
+			{
+				get() {
+					return this.src;
+				},
+			}
+		);
+
+		const {container, unmount} = render(
 			<mockContext.MockProvider>
 				<AudioForRendering {...props} />
 			</mockContext.MockProvider>
 		);
+
+		const audioEl = container.querySelector('audio') as HTMLAudioElement;
+
+		// Dispatch the `loadedmetadata` event manually
+		// since JSDOM doesn't support these events
+		fireEvent(audioEl, createEvent.loadedMetadata(audioEl));
 
 		expect(mockContext.registerAsset).toHaveBeenCalled();
 		unmount();
@@ -67,12 +87,18 @@ describe('Register and unregister asset', () => {
 			volume: 50,
 		};
 		expectToThrow(() => {
-			render(
+			const {container} = render(
 				<mockContext.MockProvider>
 					<AudioForRendering {...props} />
 				</mockContext.MockProvider>
 			);
-		}, /No src passed/);
+
+			const audioEl = container.querySelector('audio') as HTMLAudioElement;
+
+			// Dispatch the `loadedmetadata` event manually
+			// since JSDOM doesn't support these events
+			fireEvent(audioEl, createEvent.loadedMetadata(audioEl));
+		}, /No src found/);
 		expect(mockContext.registerAsset).not.toHaveBeenCalled();
 		expect(mockContext.unregisterAsset).not.toHaveBeenCalled();
 	});
