@@ -1,7 +1,10 @@
 import React, {useCallback, useContext, useEffect, useState} from 'react';
 import {Internals} from 'remotion';
 import {useKeybinding} from '../helpers/use-keybinding';
-import {TimelineInOutPointer} from '../icons/timelineInOutPointer';
+import {
+	TimelineInPointer,
+	TimelineOutPointer,
+} from '../icons/timelineInOutPointer';
 import {ControlButton} from './ControlButton';
 
 const MIN_FRAMES_BETWEEN_POINTS = 1;
@@ -134,7 +137,7 @@ export const TimelineInOutPointToggle: React.FC = () => {
 				aria-label={getTooltipText('In')}
 				onClick={onInFrameBtnClick}
 			>
-				<TimelineInOutPointer
+				<TimelineInPointer
 					style={{
 						width: 16,
 						height: 16,
@@ -147,11 +150,10 @@ export const TimelineInOutPointToggle: React.FC = () => {
 				aria-label={getTooltipText('Out')}
 				onClick={onOutFrameBtnClick}
 			>
-				<TimelineInOutPointer
+				<TimelineOutPointer
 					style={{
 						width: 16,
 						height: 16,
-						transform: 'rotate(180deg)',
 						color: outFrameBtnActive ? 'var(--blue)' : 'white',
 					}}
 				/>
