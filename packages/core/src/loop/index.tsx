@@ -25,13 +25,7 @@ export const Loop: React.FC<LoopProps> = ({
 		);
 	}
 
-	if (!Number.isFinite(times)) {
-		throw new TypeError(
-			`The "time" prop of a loop must be finite, but got ${times}.`
-		);
-	}
-
-	if (times % 1 !== 0) {
+	if (times !== Infinity && times % 1 !== 0) {
 		throw new TypeError(
 			`The "times" prop of a loop must be an integer, but got ${times}.`
 		);
