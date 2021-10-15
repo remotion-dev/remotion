@@ -5,7 +5,6 @@ import {
 } from '../timeline-position-state';
 
 export type LoopProps = {
-	children: React.ReactNode;
 	// The duration of the content to be looped
 	durationInFrames: number;
 	// How many times to loop (optional, default Infinity)
