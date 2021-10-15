@@ -1,70 +1,65 @@
-import React, {useContext, useMemo} from 'react';
-import {
-	TimelineContext,
-	TimelineContextValue,
-} from '../timeline-position-state';
+import React from 'react';
+import {Sequence, useVideoConfig} from '..';
+import {validateDurationInFrames} from '../validation/validate-duration-in-frames';
 
 export type LoopProps = {
 	// The duration of the content to be looped
 	durationInFrames: number;
 	// How many times to loop (optional, default Infinity)
 	times?: number;
+	layout?: 'absolute-fill' | 'none';
 };
 
 export const Loop: React.FC<LoopProps> = ({
 	durationInFrames,
 	times = Infinity,
 	children,
+	layout,
 }) => {
-	const context = useContext(TimelineContext);
-	const {frame} = context;
+	const {durationInFrames: compDuration} = useVideoConfig();
+	validateDurationInFrames(durationInFrames, 'of the <Loop /> component');
 
-	if (typeof durationInFrames !== 'number') {
-		throw new TypeError(
-			`You passed to durationInFrames an argument of type ${typeof durationInFrames}, but it must be a number.`
-		);
-	}
-
-	if (durationInFrames <= 0) {
-		throw new TypeError(
-			`durationInFrames must be positive, but got ${durationInFrames}.`
-		);
-	}
-
-	// Infinity is non-integer but allowed!
-	if (durationInFrames % 1 !== 0 && Number.isFinite(durationInFrames)) {
-		throw new TypeError(
-			`The "durationInFrames" of a loop must be an integer, but got ${durationInFrames}.`
-		);
-	}
-
-	if (times && typeof times !== 'number') {
+	if (typeof times !== 'number') {
 		throw new TypeError(
 			`You passed to "times" an argument of type ${typeof times}, but it must be a number.`
 		);
 	}
 
-	if (times !== Infinity && times % 1 !== 0) {
+	if (!Number.isFinite(times)) {
+		throw new TypeError(
+			`The "time" prop of a loop must be finite, but got ${times}.`
+		);
+	}
+
+	if (times % 1 !== 0) {
 		throw new TypeError(
 			`The "times" prop of a loop must be an integer, but got ${times}.`
 		);
 	}
 
-	const value: TimelineContextValue = useMemo(() => {
-		// Number of loops of the durationInFrames to this frame
-		const loopsToThisFrame = Math.floor(frame / durationInFrames);
-		const currentFrame =
-			loopsToThisFrame < times ? frame % durationInFrames : frame;
+	if (times < 0) {
+		throw new TypeError(
+			`The "times" prop of a loop must be at least 0, but got ${times}`
+		);
+	}
 
-		return {
-			...context,
-			frame: currentFrame,
-		};
-	}, [context, frame, durationInFrames, times]);
+	const maxTimes = Math.ceil(durationInFrames / compDuration);
 
 	return (
-		<TimelineContext.Provider value={value}>
-			{children}
-		</TimelineContext.Provider>
+		<>
+			{new Array(Math.min(maxTimes, times)).fill(true).map((_, i) => {
+				return (
+					<Sequence
+						// eslint-disable-next-line react/no-array-index-key
+						key={`loop-${i}`}
+						durationInFrames={durationInFrames}
+						from={i * durationInFrames}
+						layout={layout}
+					>
+						{children}
+					</Sequence>
+				);
+			})}
+		</>
 	);
 };
