@@ -9,6 +9,10 @@ export const usePlayback: usePlaybackType = ({loop}) => {
 	const config = Internals.useUnsafeVideoConfig();
 	const {playing, pause, emitter} = usePlayer();
 	const setFrame = Internals.Timeline.useTimelineSetFrame();
+	const {
+		inFrame,
+		outFrame,
+	} = Internals.Timeline.useTimelineInOutFramePosition();
 
 	const playbackSpeed = useRef<number>(1);
 	const timelastSpeedChange = useRef<number>();
@@ -57,12 +61,41 @@ export const usePlayback: usePlaybackType = ({loop}) => {
 			return;
 		}
 
+		const getFrameInRange = (nextFrame: number) => {
+			if (
+				(inFrame && nextFrame < inFrame) ||
+				(inFrame && outFrame && nextFrame > outFrame)
+			) {
+				return inFrame;
+			}
+
+			if (outFrame && nextFrame > outFrame) {
+				return 0;
+			}
+
+			return nextFrame;
+		};
+
 		let hasBeenStopped = false;
 		let reqAnimFrameCall: number | null = null;
 		const startedTime = performance.now();
-		if (hasBeenStopped) {
-			timelastSpeedChange.current = undefined;
-		}
+		const startedFrame = getFrameInRange(frameRef.current);
+
+		const durationInFrames = (() => {
+			if (inFrame !== null && outFrame !== null) {
+				return outFrame - inFrame + 1;
+			}
+
+			if (inFrame !== null) {
+				return config.durationInFrames - inFrame;
+			}
+
+			if (outFrame !== null) {
+				return outFrame + 1;
+			}
+
+			return config.durationInFrames;
+		})();
 
 		const stop = () => {
 			hasBeenStopped = true;
@@ -72,22 +105,18 @@ export const usePlayback: usePlaybackType = ({loop}) => {
 		};
 
 		const callback = () => {
-			const now = performance.now();
-			const timeSinceLastChange =
-				now - (timelastSpeedChange.current || startedTime);
-			const framesSinceChange = Math.round(
-				(timeSinceLastChange * playbackSpeed.current) / (1000 / config.fps)
-			);
-			nextFrame.current = frameCountBeforeChange.current + framesSinceChange;
-
-			if (nextFrame.current === config.durationInFrames && !loop) {
+			const time = performance.now() - startedTime;
+			const nextFrame =
+				Math.round(time / (1000 / config.fps)) + startedFrame - (inFrame ?? 0);
+			if (nextFrame === config.durationInFrames && !loop) {
 				stop();
 				pause();
 				emitter.dispatchEnded();
 				return;
 			}
 
-			const actualNextFrame = nextFrame.current % config.durationInFrames;
+			const actualNextFrame = (nextFrame % durationInFrames) + (inFrame ?? 0);
+
 			if (actualNextFrame !== frameRef.current) {
 				setFrame(actualNextFrame);
 			}
@@ -102,7 +131,7 @@ export const usePlayback: usePlaybackType = ({loop}) => {
 		return () => {
 			stop();
 		};
-	}, [config, loop, pause, playing, setFrame, emitter]);
+	}, [config, loop, pause, playing, setFrame, emitter, inFrame, outFrame]);
 
 	useEffect(() => {
 		const interval = setInterval(() => {
