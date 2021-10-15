@@ -1,6 +1,7 @@
 import {RefObject, useEffect} from 'react';
 import {useMediaStartsAt} from './audio/use-audio-frame';
 import {usePlayingState} from './timeline-position-state';
+import {useCurrentSrc} from './use-current-src';
 import {useAbsoluteCurrentFrame, useCurrentFrame} from './use-frame';
 import {useMediaHasMetadata} from './use-media-metadata';
 import {useVideoConfig} from './use-video-config';
@@ -38,7 +39,7 @@ export const useMediaPlayback = ({
 	mediaType: 'audio' | 'video';
 	playbackRate: number;
 }) => {
-	const {currentSrc} = mediaRef.current || {};
+	const currentSrc = useCurrentSrc(mediaRef);
 	const frame = useCurrentFrame();
 	const absoluteFrame = useAbsoluteCurrentFrame();
 	const [playing] = usePlayingState();

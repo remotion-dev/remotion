@@ -5,6 +5,7 @@ import {getAssetFileName} from './get-asset-file-name';
 import {useNonce} from './nonce';
 import {SequenceContext} from './sequencing';
 import {TimelineContext} from './timeline-position-state';
+import {useCurrentSrc} from './use-current-src';
 import {useMediaHasMetadata} from './use-media-metadata';
 import {useVideoConfig} from './use-video-config';
 import {evaluateVolume, VolumeProp} from './volume-prop';
@@ -20,7 +21,7 @@ export const useMediaInTimeline = ({
 	mediaRef: RefObject<HTMLAudioElement | HTMLVideoElement>;
 	mediaType: 'audio' | 'video';
 }) => {
-	const {currentSrc} = mediaRef.current || {};
+	const currentSrc = useCurrentSrc(mediaRef);
 	const videoConfig = useVideoConfig();
 	const {rootId} = useContext(TimelineContext);
 	const parentSequence = useContext(SequenceContext);

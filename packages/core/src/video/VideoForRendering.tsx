@@ -17,6 +17,7 @@ import {isRemoteAsset} from '../is-remote-asset';
 import {random} from '../random';
 import {continueRender, delayRender} from '../ready-manager';
 import {SequenceContext} from '../sequencing';
+import {useCurrentSrc} from '../use-current-src';
 import {useAbsoluteCurrentFrame, useCurrentFrame} from '../use-frame';
 import {useMediaHasMetadata} from '../use-media-metadata';
 import {useUnsafeVideoConfig} from '../use-unsafe-video-config';
@@ -29,7 +30,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 	RemotionVideoProps
 > = ({onError, volume: volumeProp, playbackRate, ...props}, ref) => {
 	const videoRef = useRef<HTMLVideoElement>(null);
-	const {currentSrc} = videoRef.current || {};
+	const currentSrc = useCurrentSrc(videoRef);
 	const hasMetadata = useMediaHasMetadata(videoRef);
 	const absoluteFrame = useAbsoluteCurrentFrame();
 

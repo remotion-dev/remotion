@@ -11,6 +11,7 @@ import {CompositionManager} from '../CompositionManager';
 import {isRemoteAsset} from '../is-remote-asset';
 import {random} from '../random';
 import {SequenceContext} from '../sequencing';
+import {useCurrentSrc} from '../use-current-src';
 import {useAbsoluteCurrentFrame, useCurrentFrame} from '../use-frame';
 import {useMediaHasMetadata} from '../use-media-metadata';
 import {evaluateVolume} from '../volume-prop';
@@ -22,7 +23,7 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 	RemotionAudioProps
 > = (props, ref) => {
 	const audioRef = useRef<HTMLAudioElement>(null);
-	const {currentSrc} = audioRef.current || {};
+	const currentSrc = useCurrentSrc(audioRef);
 	const hasMetadata = useMediaHasMetadata(audioRef);
 
 	const absoluteFrame = useAbsoluteCurrentFrame();
