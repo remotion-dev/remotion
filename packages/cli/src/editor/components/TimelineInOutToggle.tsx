@@ -49,17 +49,19 @@ export const TimelineInOutPointToggle: React.FC = () => {
 						validOutFrame = videoConfig.durationInFrames - 1;
 					}
 				}
-			} else {
-				validOutFrame = timelinePosition;
-				if (inFrame !== null && timelinePosition >= inFrame) {
-					validInFrame =
-						timelinePosition === inFrame
-							? timelinePosition - MIN_FRAMES_BETWEEN_POINTS
-							: inFrame;
-					if (validInFrame < 0) {
-						validInFrame = 0;
-						validOutFrame = timelinePosition + MIN_FRAMES_BETWEEN_POINTS;
-					}
+
+				return {validInFrame, validOutFrame};
+			}
+
+			validOutFrame = timelinePosition;
+			if (inFrame !== null && timelinePosition >= inFrame) {
+				validInFrame =
+					timelinePosition === inFrame
+						? timelinePosition - MIN_FRAMES_BETWEEN_POINTS
+						: inFrame;
+				if (validInFrame < 0) {
+					validInFrame = 0;
+					validOutFrame = timelinePosition + MIN_FRAMES_BETWEEN_POINTS;
 				}
 			}
 
@@ -74,7 +76,10 @@ export const TimelineInOutPointToggle: React.FC = () => {
 		}
 
 		const {validInFrame, validOutFrame} = getValidFrame('inFrame');
-		setInFrame(inFrame ? null : validInFrame);
+
+		setInFrame((prev) => {
+			return prev ? null : validInFrame;
+		});
 		if (inFrame) {
 			setOutFrame(validOutFrame);
 		}
@@ -86,8 +91,8 @@ export const TimelineInOutPointToggle: React.FC = () => {
 		}
 
 		const {validOutFrame} = getValidFrame('outFrame');
-		setOutFrame(outFrame ? null : validOutFrame);
-	}, [getValidFrame, outFrame, setOutFrame, videoConfig]);
+		setOutFrame((prev) => (prev ? null : validOutFrame));
+	}, [getValidFrame, setOutFrame, videoConfig]);
 
 	useEffect(() => {
 		const iKey = keybindings.registerKeybinding('keypress', 'i', () => {

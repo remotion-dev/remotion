@@ -276,11 +276,14 @@ export const TimelineDragHandler: React.FC = () => {
 				'extend'
 			);
 			if (inOutDragging.dragging === 'in') {
+				if (frame < 1) {
+					return setInFrame(null);
+				}
+
 				const maxFrame = outFrame === null ? Infinity : outFrame - 1;
 				setInFrame(Math.min(maxFrame, frame));
 			} else {
-				if (frame > videoConfig.durationInFrames - 1) {
-					console.log('out out');
+				if (frame > videoConfig.durationInFrames - 2) {
 					return setOutFrame(null);
 				}
 
