@@ -5,6 +5,7 @@ import {useGetXPositionOfItemInTimeline} from '../../helpers/get-left-of-timelin
 import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
 import {persistCurrentFrame} from '../FramePersistor';
 import {sliderAreaRef} from './timeline-refs';
+import {inMarkerAreaRef, outMarkerAreaRef} from './TimelineInOutPointer';
 import {
 	inPointerHandle,
 	outPointerHandle,
@@ -155,6 +156,10 @@ export const TimelineDragHandler: React.FC = () => {
 					throw new Error('in pointer handle');
 				}
 
+				if (!inMarkerAreaRef.current) {
+					throw new Error('expected inMarkerAreaRef');
+				}
+
 				if (!inFrame) {
 					throw new Error('expected inframes');
 				}
@@ -163,11 +168,17 @@ export const TimelineDragHandler: React.FC = () => {
 				inPointerHandle.current.style.transform = `translateX(${
 					get(inFrame) + offset
 				}px)`;
+				inMarkerAreaRef.current.style.width =
+					String(get(inFrame) + offset) + 'px';
 			}
 
 			if (inOutDragging.dragging === 'out') {
 				if (!outPointerHandle.current) {
 					throw new Error('in pointer handle');
+				}
+
+				if (!outMarkerAreaRef.current) {
+					throw new Error('in outMarkerAreaRef');
 				}
 
 				if (!outFrame) {
@@ -178,9 +189,13 @@ export const TimelineDragHandler: React.FC = () => {
 				outPointerHandle.current.style.transform = `translateX(${
 					get(outFrame) + offset
 				}px)`;
+				outMarkerAreaRef.current.style.left =
+					String(get(outFrame) + offset) + 'px';
+				outMarkerAreaRef.current.style.width =
+					String(width - get(outFrame) - offset) + 'px';
 			}
 		},
-		[get, inFrame, inOutDragging, outFrame, videoConfig]
+		[get, inFrame, inOutDragging, outFrame, videoConfig, width]
 	);
 
 	const onPointerUpScrubbing = useCallback(
