@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {PropsWithChildren} from 'react';
 
 type ReactChildArray = ReturnType<typeof React.Children.toArray>;
 
@@ -7,7 +7,10 @@ export const flattenChildren = (children: React.ReactNode): ReactChildArray => {
 	return childrenArray.reduce((flatChildren: ReactChildArray, child) => {
 		if ((child as React.ReactElement<unknown>).type === React.Fragment) {
 			return flatChildren.concat(
-				flattenChildren((child as React.ReactElement<any>).props.children)
+				flattenChildren(
+					(child as React.ReactElement<PropsWithChildren<unknown>>).props
+						.children
+				)
 			);
 		}
 
