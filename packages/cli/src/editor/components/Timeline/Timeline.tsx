@@ -113,9 +113,9 @@ export const Timeline: React.FC = () => {
 							fps={videoConfig.fps}
 							hasBeenCut={withoutHidden.length > shown.length}
 						/>
-						<TimelineSlider />
 						<TimelineInOutPointer />
 						<TimelineDragHandler />
+						<TimelineSlider />
 					</SplitterElement>
 				</SplitterContainer>
 			</div>

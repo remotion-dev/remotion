@@ -1,4 +1,4 @@
-import {createContext, useContext} from 'react';
+import React, {createContext, useContext} from 'react';
 
 export type TimelineInOutContextValue = {
 	inFrame: number | null;
@@ -6,8 +6,9 @@ export type TimelineInOutContextValue = {
 };
 
 export type SetTimelineInOutContextValue = {
-	setInFrame: (u: React.SetStateAction<number | null>) => void;
-	setOutFrame: (u: React.SetStateAction<number | null>) => void;
+	setInAndOutFrames: (
+		u: React.SetStateAction<TimelineInOutContextValue>
+	) => void;
 };
 
 export const TimelineInOutContext = createContext<TimelineInOutContextValue>({
@@ -18,10 +19,7 @@ export const TimelineInOutContext = createContext<TimelineInOutContextValue>({
 export const SetTimelineInOutContext = createContext<
 	SetTimelineInOutContextValue
 >({
-	setInFrame: () => {
-		throw new Error('default');
-	},
-	setOutFrame: () => {
+	setInAndOutFrames: () => {
 		throw new Error('default');
 	},
 });
@@ -32,6 +30,6 @@ export const useTimelineInOutFramePosition = (): TimelineInOutContextValue => {
 };
 
 export const useTimelineSetInOutFramePosition = (): SetTimelineInOutContextValue => {
-	const {setInFrame, setOutFrame} = useContext(SetTimelineInOutContext);
-	return {setInFrame, setOutFrame};
+	const {setInAndOutFrames} = useContext(SetTimelineInOutContext);
+	return {setInAndOutFrames};
 };

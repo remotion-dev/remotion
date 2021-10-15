@@ -22,77 +22,62 @@ export const TimelineInOutPointToggle: React.FC = () => {
 		outFrame,
 	} = Internals.Timeline.useTimelineInOutFramePosition();
 	const {
-		setInFrame,
-		setOutFrame,
+		setInAndOutFrames,
 	} = Internals.Timeline.useTimelineSetInOutFramePosition();
 	const videoConfig = Internals.useUnsafeVideoConfig();
 	const keybindings = useKeybinding();
-
-	const getValidFrame = useCallback(
-		(type: 'inFrame' | 'outFrame') => {
-			let validInFrame = null;
-			let validOutFrame = null;
-
-			if (!videoConfig) {
-				return {validInFrame, validOutFrame};
-			}
-
-			if (type === 'inFrame') {
-				validInFrame = timelinePosition;
-				if (outFrame !== null && timelinePosition <= outFrame) {
-					validOutFrame =
-						timelinePosition === outFrame
-							? timelinePosition + MIN_FRAMES_BETWEEN_POINTS
-							: outFrame;
-					if (validOutFrame > videoConfig.durationInFrames - 1) {
-						validInFrame = timelinePosition - MIN_FRAMES_BETWEEN_POINTS;
-						validOutFrame = videoConfig.durationInFrames - 1;
-					}
-				}
-
-				return {validInFrame, validOutFrame};
-			}
-
-			validOutFrame = timelinePosition;
-			if (inFrame !== null && timelinePosition >= inFrame) {
-				validInFrame =
-					timelinePosition === inFrame
-						? timelinePosition - MIN_FRAMES_BETWEEN_POINTS
-						: inFrame;
-				if (validInFrame < 0) {
-					validInFrame = 0;
-					validOutFrame = timelinePosition + MIN_FRAMES_BETWEEN_POINTS;
-				}
-			}
-
-			return {validInFrame, validOutFrame};
-		},
-		[inFrame, outFrame, timelinePosition, videoConfig]
-	);
 
 	const onInFrameBtnClick = useCallback(() => {
 		if (!videoConfig) {
 			return null;
 		}
 
-		const {validInFrame, validOutFrame} = getValidFrame('inFrame');
+		setInAndOutFrames((prev) => {
+			const biggestPossible =
+				prev.outFrame === null ? Infinity : prev.outFrame - 1;
+			const selected = Math.min(timelinePosition, biggestPossible);
+			if (prev.inFrame !== null) {
+				// Disable if already at this position
+				if (prev.inFrame === selected) {
+					return {
+						...prev,
+						inFrame: null,
+					};
+				}
+			}
 
-		setInFrame((prev) => {
-			return prev ? null : validInFrame;
+			return {
+				...prev,
+				inFrame: selected,
+			};
 		});
-		if (inFrame) {
-			setOutFrame(validOutFrame);
-		}
-	}, [getValidFrame, inFrame, setInFrame, setOutFrame, videoConfig]);
+	}, [setInAndOutFrames, timelinePosition, videoConfig]);
 
 	const onOutFrameBtnClick = useCallback(() => {
 		if (!videoConfig) {
 			return null;
 		}
 
-		const {validOutFrame} = getValidFrame('outFrame');
-		setOutFrame((prev) => (prev ? null : validOutFrame));
-	}, [getValidFrame, setOutFrame, videoConfig]);
+		setInAndOutFrames((prev) => {
+			const smallestPossible =
+				prev.inFrame === null ? -Infinity : prev.inFrame + 1;
+			const selected = Math.max(timelinePosition, smallestPossible);
+
+			if (prev.outFrame !== null) {
+				if (prev.outFrame === selected) {
+					return {
+						...prev,
+						outFrame: null,
+					};
+				}
+			}
+
+			return {
+				...prev,
+				outFrame: selected,
+			};
+		});
+	}, [setInAndOutFrames, timelinePosition, videoConfig]);
 
 	useEffect(() => {
 		const iKey = keybindings.registerKeybinding('keypress', 'i', () => {

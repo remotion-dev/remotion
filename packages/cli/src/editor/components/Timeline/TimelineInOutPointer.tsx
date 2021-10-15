@@ -5,7 +5,7 @@ import {useGetXPositionOfItemInTimeline} from '../../helpers/get-left-of-timelin
 
 const areaHighlight: React.CSSProperties = {
 	position: 'absolute',
-	backgroundColor: 'rgba(0, 0, 0, 0.3)',
+	backgroundColor: 'rgba(0, 0, 0, 0.5)',
 	height: '100%',
 	bottom: 0,
 	top: 0,
@@ -21,8 +21,7 @@ export const TimelineInOutPointer: React.FC = () => {
 		outFrame,
 	} = Internals.Timeline.useTimelineInOutFramePosition();
 	const {
-		setInFrame,
-		setOutFrame,
+		setInAndOutFrames,
 	} = Internals.Timeline.useTimelineSetInOutFramePosition();
 	const videoConfig = Internals.useUnsafeVideoConfig();
 	const {playing} = PlayerInternals.usePlayer();
@@ -31,12 +30,18 @@ export const TimelineInOutPointer: React.FC = () => {
 	useEffect(() => {
 		if (playing) {
 			if (inFrame && timelinePosition < inFrame) {
-				setInFrame(inFrame);
+				setInAndOutFrames((prev) => ({
+					...prev,
+					inFrame,
+				}));
 			} else if (outFrame && timelinePosition > outFrame) {
-				setOutFrame(outFrame);
+				setInAndOutFrames((prev) => ({
+					...prev,
+					outFrame,
+				}));
 			}
 		}
-	}, [timelinePosition, playing, inFrame, outFrame, setInFrame, setOutFrame]);
+	}, [timelinePosition, playing, inFrame, outFrame, setInAndOutFrames]);
 
 	if (!videoConfig) {
 		return null;
