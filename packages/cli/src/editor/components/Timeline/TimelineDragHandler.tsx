@@ -8,9 +8,13 @@ import {sliderAreaRef} from './timeline-refs';
 import {
 	inPointerHandle,
 	outPointerHandle,
-	TimelineInPointerHandle,
-	TimelineOutPointerHandle,
+	TimelineInOutPointerHandle,
 } from './TimelineInOutPointerHandle';
+
+const inner: React.CSSProperties = {
+	overflowY: 'auto',
+	overflowX: 'hidden',
+};
 
 const container: React.CSSProperties = {
 	userSelect: 'none',
@@ -18,11 +22,6 @@ const container: React.CSSProperties = {
 	position: 'absolute',
 	width: '100%',
 	height: '100%',
-};
-
-const inner: React.CSSProperties = {
-	overflowY: 'auto',
-	overflowX: 'hidden',
 };
 
 const getFrameFromX = (
@@ -49,12 +48,28 @@ export const TimelineDragHandler: React.FC = () => {
 	const size = PlayerInternals.useElementSize(sliderAreaRef, {
 		triggerOnWindowResize: true,
 	});
+	const [inOutDragging, setInOutDragging] = useState<
+		| {
+				dragging: false;
+		  }
+		| {
+				dragging: 'in' | 'out';
+				initialOffset: number;
+		  }
+	>({
+		dragging: false,
+	});
 	const width = size?.width ?? 0;
 	const left = size?.left ?? 0;
 	const {
 		inFrame,
 		outFrame,
 	} = Internals.Timeline.useTimelineInOutFramePosition();
+
+	const {
+		setInFrame,
+		setOutFrame,
+	} = Internals.Timeline.useTimelineSetInOutFramePosition();
 
 	const {get} = useGetXPositionOfItemInTimeline();
 	const [dragging, setDragging] = useState<
@@ -78,12 +93,19 @@ export const TimelineDragHandler: React.FC = () => {
 			}
 
 			if ((e.target as Node) === inPointerHandle.current) {
-				console.log('in');
+				setInOutDragging({
+					dragging: 'in',
+					initialOffset: e.clientX,
+				});
 				return;
 			}
 
 			if ((e.target as Node) === outPointerHandle.current) {
-				console.log('out');
+				setInOutDragging({
+					dragging: 'out',
+					initialOffset: e.clientX,
+				});
+
 				return;
 			}
 
@@ -102,13 +124,13 @@ export const TimelineDragHandler: React.FC = () => {
 		[pause, playing, seek, left, videoConfig, width]
 	);
 
-	const onPointerMove = useCallback(
+	const onPointerMoveScrubbing = useCallback(
 		(e: PointerEvent) => {
-			if (!dragging.dragging) {
+			if (!videoConfig) {
 				return;
 			}
 
-			if (!videoConfig) {
+			if (!dragging.dragging) {
 				return;
 			}
 
@@ -122,18 +144,58 @@ export const TimelineDragHandler: React.FC = () => {
 		[dragging.dragging, seek, left, videoConfig, width]
 	);
 
-	const onPointerUp = useCallback(
+	const onPointerMoveInOut = useCallback(
 		(e: PointerEvent) => {
-			setDragging({
-				dragging: false,
-			});
+			if (!videoConfig) {
+				return;
+			}
+
+			if (inOutDragging.dragging === 'in') {
+				if (!inPointerHandle.current) {
+					throw new Error('in pointer handle');
+				}
+
+				if (!inFrame) {
+					throw new Error('expected inframes');
+				}
+
+				const offset = e.clientX - inOutDragging.initialOffset;
+				inPointerHandle.current.style.transform = `translateX(${
+					get(inFrame) + offset
+				}px)`;
+			}
+
+			if (inOutDragging.dragging === 'out') {
+				if (!outPointerHandle.current) {
+					throw new Error('in pointer handle');
+				}
+
+				if (!outFrame) {
+					throw new Error('expected outframes');
+				}
+
+				const offset = e.clientX - inOutDragging.initialOffset;
+				outPointerHandle.current.style.transform = `translateX(${
+					get(outFrame) + offset
+				}px)`;
+			}
+		},
+		[get, inFrame, inOutDragging, outFrame, videoConfig]
+	);
+
+	const onPointerUpScrubbing = useCallback(
+		(e: PointerEvent) => {
+			if (!videoConfig) {
+				return;
+			}
+
 			if (!dragging.dragging) {
 				return;
 			}
 
-			if (!videoConfig) {
-				return;
-			}
+			setDragging({
+				dragging: false,
+			});
 
 			const frame = getFrameFromX(
 				e.clientX - left,
@@ -150,41 +212,76 @@ export const TimelineDragHandler: React.FC = () => {
 		[dragging, left, play, videoConfig, width]
 	);
 
+	const onPointerUpInOut = useCallback(
+		(e: PointerEvent) => {
+			if (!videoConfig) {
+				return;
+			}
+
+			if (!inOutDragging.dragging) {
+				return;
+			}
+
+			setInOutDragging({
+				dragging: false,
+			});
+
+			const frame = getFrameFromX(
+				e.clientX - left,
+				videoConfig.durationInFrames,
+				width
+			);
+			if (inOutDragging.dragging === 'in') {
+				setInFrame(frame);
+			} else {
+				setOutFrame(frame);
+			}
+		},
+		[inOutDragging.dragging, left, setInFrame, setOutFrame, videoConfig, width]
+	);
+
 	useEffect(() => {
 		if (!dragging.dragging) {
 			return;
 		}
 
-		window.addEventListener('pointermove', onPointerMove);
-		window.addEventListener('pointerup', onPointerUp);
+		window.addEventListener('pointermove', onPointerMoveScrubbing);
+		window.addEventListener('pointerup', onPointerUpScrubbing);
 		return () => {
-			window.removeEventListener('pointermove', onPointerMove);
-			window.removeEventListener('pointerup', onPointerUp);
+			window.removeEventListener('pointermove', onPointerMoveScrubbing);
+			window.removeEventListener('pointerup', onPointerUpScrubbing);
 		};
-	}, [dragging.dragging, onPointerMove, onPointerUp]);
+	}, [dragging.dragging, onPointerMoveScrubbing, onPointerUpScrubbing]);
+
+	useEffect(() => {
+		if (inOutDragging.dragging === false) {
+			return;
+		}
+
+		window.addEventListener('pointermove', onPointerMoveInOut);
+		window.addEventListener('pointerup', onPointerUpInOut);
+		return () => {
+			window.removeEventListener('pointermove', onPointerMoveInOut);
+			window.removeEventListener('pointerup', onPointerUpInOut);
+		};
+	}, [inOutDragging.dragging, onPointerMoveInOut, onPointerUpInOut]);
 
 	return (
 		<div ref={sliderAreaRef} style={container} onPointerDown={onPointerDown}>
 			<div style={inner} />
 			{inFrame !== null && (
-				<div
-					style={{
-						...container,
-						transform: `translateX(${get(inFrame)}px)`,
-					}}
-				>
-					<TimelineInPointerHandle />
-				</div>
+				<TimelineInOutPointerHandle
+					type="in"
+					atFrame={inFrame}
+					dragging={inOutDragging.dragging === 'in'}
+				/>
 			)}
 			{outFrame !== null && (
-				<div
-					style={{
-						...container,
-						transform: `translateX(${get(outFrame)}px)`,
-					}}
-				>
-					<TimelineOutPointerHandle />
-				</div>
+				<TimelineInOutPointerHandle
+					type="out"
+					dragging={inOutDragging.dragging === 'out'}
+					atFrame={outFrame}
+				/>
 			)}
 		</div>
 	);
