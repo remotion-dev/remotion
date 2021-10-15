@@ -47,7 +47,7 @@ describe('Loop-validation render should throw with invalid props', () => {
 							<Loop durationInFrames={'1'}>hi</Loop>
 						</Wrapper>
 					),
-				/You passed to durationInFrames an argument of type string, but it must be a number./
+				/The "durationInFrames" prop of the \<Loop \/\> component must be a number, but you passed a value of type string/
 			);
 		});
 		test('It should throw if Loop has non-integer durationInFrames', () => {
@@ -58,7 +58,7 @@ describe('Loop-validation render should throw with invalid props', () => {
 							<Loop durationInFrames={1.1}>hi</Loop>
 						</Wrapper>
 					),
-				/The "durationInFrames" of a loop must be an integer, but got 1.1./
+				/The \"durationInFrames\" prop of the \<Loop \/\> component must be an integer, but got 1.1./
 			);
 		});
 		test('It should throw if Loop has a negative duration', () => {
@@ -69,7 +69,7 @@ describe('Loop-validation render should throw with invalid props', () => {
 							<Loop durationInFrames={-1}>hi</Loop>
 						</Wrapper>
 					),
-				/durationInFrames must be positive, but got -1./
+				/The \"durationInFrames\" prop of the \<Loop \/> component must be positive, but got -1./
 			);
 		});
 	});
