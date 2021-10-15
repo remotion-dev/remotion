@@ -116,6 +116,12 @@ export const KeyboardShortcuts: React.FC = () => {
 				</Row>
 				<Row align="center">
 					<div style={left}>
+						<kbd style={key}>X</kbd>
+					</div>
+					<div style={right}>Clear In/Out Points</div>
+				</Row>
+				<Row align="center">
+					<div style={left}>
 						<kbd style={key}>?</kbd>
 					</div>
 					<div style={right}>Show keyboard shortcuts</div>

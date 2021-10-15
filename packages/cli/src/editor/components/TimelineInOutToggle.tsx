@@ -1,4 +1,9 @@
-import React, {useCallback, useEffect} from 'react';
+import React, {
+	createRef,
+	useCallback,
+	useEffect,
+	useImperativeHandle,
+} from 'react';
 import {Internals} from 'remotion';
 import {useKeybinding} from '../helpers/use-keybinding';
 import {
@@ -7,13 +12,18 @@ import {
 } from '../icons/timelineInOutPointer';
 import {ControlButton} from './ControlButton';
 
-const MIN_FRAMES_BETWEEN_POINTS = 1;
 const getTooltipText = (pointType: string) => `Mark ${pointType}`;
 
 const style: React.CSSProperties = {
 	width: 16,
 	height: 16,
 };
+
+export const inOutHandles = createRef<{
+	inMarkClick: () => void;
+	outMarkClick: () => void;
+	clearMarks: () => void;
+}>();
 
 export const TimelineInOutPointToggle: React.FC = () => {
 	const timelinePosition = Internals.Timeline.useTimelinePosition();
@@ -27,7 +37,7 @@ export const TimelineInOutPointToggle: React.FC = () => {
 	const videoConfig = Internals.useUnsafeVideoConfig();
 	const keybindings = useKeybinding();
 
-	const onInFrameBtnClick = useCallback(() => {
+	const onInMark = useCallback(() => {
 		if (!videoConfig) {
 			return null;
 		}
@@ -53,7 +63,7 @@ export const TimelineInOutPointToggle: React.FC = () => {
 		});
 	}, [setInAndOutFrames, timelinePosition, videoConfig]);
 
-	const onOutFrameBtnClick = useCallback(() => {
+	const onOutMark = useCallback(() => {
 		if (!videoConfig) {
 			return null;
 		}
@@ -79,25 +89,46 @@ export const TimelineInOutPointToggle: React.FC = () => {
 		});
 	}, [setInAndOutFrames, timelinePosition, videoConfig]);
 
+	const onInOutClear = useCallback(() => {
+		setInAndOutFrames(() => {
+			return {
+				inFrame: null,
+				outFrame: null,
+			};
+		});
+	}, [setInAndOutFrames]);
+
 	useEffect(() => {
 		const iKey = keybindings.registerKeybinding('keypress', 'i', () => {
-			onInFrameBtnClick();
+			onInMark();
 		});
 		const oKey = keybindings.registerKeybinding('keypress', 'o', () => {
-			onOutFrameBtnClick();
+			onOutMark();
+		});
+		const xKey = keybindings.registerKeybinding('keypress', 'x', () => {
+			onInOutClear();
 		});
 		return () => {
 			oKey.unregister();
 			iKey.unregister();
+			xKey.unregister();
 		};
-	}, [keybindings, onInFrameBtnClick, onOutFrameBtnClick]);
+	}, [keybindings, onInMark, onInOutClear, onOutMark]);
+
+	useImperativeHandle(inOutHandles, () => {
+		return {
+			clearMarks: onInOutClear,
+			inMarkClick: onInMark,
+			outMarkClick: onOutMark,
+		};
+	});
 
 	return (
 		<>
 			<ControlButton
-				title={getTooltipText('In')}
-				aria-label={getTooltipText('In')}
-				onClick={onInFrameBtnClick}
+				title={getTooltipText('In (I)')}
+				aria-label={getTooltipText('In (I)')}
+				onClick={onInMark}
 			>
 				<TimelineInPointer
 					color={inFrame === null ? 'white' : 'var(--blue)'}
@@ -105,9 +136,9 @@ export const TimelineInOutPointToggle: React.FC = () => {
 				/>
 			</ControlButton>
 			<ControlButton
-				title={getTooltipText('Out')}
-				aria-label={getTooltipText('Out')}
-				onClick={onOutFrameBtnClick}
+				title={getTooltipText('Out (O)')}
+				aria-label={getTooltipText('Out (O)')}
+				onClick={onOutMark}
 			>
 				<TimelineOutPointer
 					color={outFrame === null ? 'white' : 'var(--blue)'}
