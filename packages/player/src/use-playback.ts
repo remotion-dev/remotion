@@ -46,13 +46,21 @@ export const usePlayback = ({loop}: {loop: boolean}) => {
 		const startedTime = performance.now();
 		const startedFrame = getFrameInRange(frameRef.current);
 
-		const durationInFrames = inFrame
-			? outFrame
-				? outFrame - inFrame + 1
-				: config.durationInFrames - inFrame
-			: outFrame
-			? outFrame + 1
-			: config.durationInFrames;
+		const durationInFrames = (() => {
+			if (inFrame !== null && outFrame !== null) {
+				return outFrame - inFrame + 1;
+			}
+
+			if (inFrame !== null) {
+				return config.durationInFrames - inFrame;
+			}
+
+			if (outFrame !== null) {
+				return outFrame + 1;
+			}
+
+			return config.durationInFrames;
+		})();
 
 		const stop = () => {
 			hasBeenStopped = true;
