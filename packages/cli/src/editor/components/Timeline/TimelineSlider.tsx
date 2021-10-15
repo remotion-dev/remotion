@@ -1,8 +1,6 @@
-import {PlayerInternals} from '@remotion/player';
 import React from 'react';
 import {Internals} from 'remotion';
-import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
-import {sliderAreaRef} from './timeline-refs';
+import {useGetXPositionOfItemInTimeline} from '../../helpers/get-left-of-timeline-slider';
 import {TimelineSliderHandle} from './TimelineSliderHandle';
 
 const container: React.CSSProperties = {
@@ -20,20 +18,9 @@ const line: React.CSSProperties = {
 
 export const TimelineSlider: React.FC = () => {
 	const timelinePosition = Internals.Timeline.useTimelinePosition();
-	const videoConfig = Internals.useUnsafeVideoConfig();
-	const size = PlayerInternals.useElementSize(sliderAreaRef, {
-		triggerOnWindowResize: false,
-	});
-	const width = size?.width ?? 0;
+	const {get} = useGetXPositionOfItemInTimeline();
 
-	if (!videoConfig) {
-		return null;
-	}
-
-	const left =
-		(timelinePosition / (videoConfig.durationInFrames - 1)) *
-			(width - TIMELINE_PADDING * 2) +
-		TIMELINE_PADDING;
+	const left = get(timelinePosition);
 
 	return (
 		<div style={{...container, transform: `translateX(${left}px)`}}>
