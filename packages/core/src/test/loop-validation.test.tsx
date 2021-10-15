@@ -102,24 +102,24 @@ describe('Loop-validation render should throw with invalid props', () => {
 			);
 		});
 	});
-	describe('Should NOT throw with valid props', () => {
-		test('It should allow null as children', () => {
-			expect(() =>
-				render(
-					<Wrapper>
-						<Loop durationInFrames={50}>{null}</Loop>
-					</Wrapper>
-				)
-			).not.toThrow();
-		});
-		test('It should allow undefined as children', () => {
-			expect(() =>
-				render(
-					<Wrapper>
-						<Loop durationInFrames={50}>{undefined}</Loop>
-					</Wrapper>
-				)
-			).not.toThrow();
-		});
+});
+describe('Should NOT throw with valid props', () => {
+	test('It should allow null as children', () => {
+		expect(() =>
+			render(
+				<Wrapper>
+					<Loop durationInFrames={50}>{null}</Loop>
+				</Wrapper>
+			)
+		).not.toThrow();
+	});
+	test('It should allow undefined as children', () => {
+		expect(() =>
+			render(
+				<Wrapper>
+					<Loop durationInFrames={50}>{undefined}</Loop>
+				</Wrapper>
+			)
+		).not.toThrow();
 	});
 });

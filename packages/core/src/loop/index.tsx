@@ -1,5 +1,8 @@
-import React from 'react';
-import {Sequence, useVideoConfig} from '..';
+import React, {useContext, useMemo} from 'react';
+import {
+	TimelineContext,
+	TimelineContextValue,
+} from '../timeline-position-state';
 
 export type LoopProps = {
 	children: React.ReactNode;
@@ -11,10 +14,11 @@ export type LoopProps = {
 
 export const Loop: React.FC<LoopProps> = ({
 	durationInFrames,
-	times,
+	times = Infinity,
 	children,
 }) => {
-	const video = useVideoConfig();
+	const context = useContext(TimelineContext);
+	const {frame} = context;
 
 	if (typeof durationInFrames !== 'number') {
 		throw new TypeError(
@@ -41,27 +45,27 @@ export const Loop: React.FC<LoopProps> = ({
 		);
 	}
 
-	if (times && times % 1 !== 0) {
+	if (times !== Infinity && times % 1 !== 0) {
 		throw new TypeError(
 			`The "times" prop of a loop must be an integer, but got ${times}.`
 		);
 	}
 
-	const loopCount = times
-		? times
-		: Math.floor(video.durationInFrames / durationInFrames);
+	const value: TimelineContextValue = useMemo(() => {
+		// Number of loops of the durationInFrames to this frame
+		const loopsToThisFrame = Math.floor(frame / durationInFrames);
+		const currentFrame =
+			loopsToThisFrame < times ? frame % durationInFrames : frame;
+
+		return {
+			...context,
+			frame: currentFrame,
+		};
+	}, [context, frame, durationInFrames, times]);
+
 	return (
-		<>
-			{new Array(loopCount).fill('').map((_, index) => (
-				<Sequence
-					// eslint-disable-next-line react/no-array-index-key
-					key={index}
-					from={durationInFrames * index}
-					durationInFrames={durationInFrames}
-				>
-					{children}
-				</Sequence>
-			))}
-		</>
+		<TimelineContext.Provider value={value}>
+			{children}
+		</TimelineContext.Provider>
 	);
 };
