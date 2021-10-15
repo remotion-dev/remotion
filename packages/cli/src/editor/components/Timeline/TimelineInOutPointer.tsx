@@ -1,5 +1,5 @@
 import {PlayerInternals} from '@remotion/player';
-import React, {useEffect} from 'react';
+import React, {createRef, useEffect} from 'react';
 import {Internals} from 'remotion';
 import {useGetXPositionOfItemInTimeline} from '../../helpers/get-left-of-timeline-slider';
 
@@ -10,6 +10,9 @@ const areaHighlight: React.CSSProperties = {
 	bottom: 0,
 	top: 0,
 };
+
+export const inMarkerAreaRef = createRef<HTMLDivElement>();
+export const outMarkerAreaRef = createRef<HTMLDivElement>();
 
 export const TimelineInOutPointer: React.FC = () => {
 	const timelinePosition = Internals.Timeline.useTimelinePosition();
@@ -43,6 +46,7 @@ export const TimelineInOutPointer: React.FC = () => {
 		<>
 			{inFrame !== null && (
 				<div
+					ref={inMarkerAreaRef}
 					style={{
 						...areaHighlight,
 						left: 0,
@@ -53,6 +57,7 @@ export const TimelineInOutPointer: React.FC = () => {
 
 			{outFrame !== null && (
 				<div
+					ref={outMarkerAreaRef}
 					style={{
 						...areaHighlight,
 						left: get(outFrame),
