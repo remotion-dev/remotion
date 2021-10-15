@@ -5,6 +5,7 @@ import React, {
 	useImperativeHandle,
 } from 'react';
 import {Internals} from 'remotion';
+import {useIsStill} from '../helpers/is-current-selected-still';
 import {useKeybinding} from '../helpers/use-keybinding';
 import {
 	TimelineInPointer,
@@ -34,6 +35,7 @@ export const TimelineInOutPointToggle: React.FC = () => {
 	const {
 		setInAndOutFrames,
 	} = Internals.Timeline.useTimelineSetInOutFramePosition();
+	const isStill = useIsStill();
 	const videoConfig = Internals.useUnsafeVideoConfig();
 	const keybindings = useKeybinding();
 
@@ -46,6 +48,14 @@ export const TimelineInOutPointToggle: React.FC = () => {
 			const biggestPossible =
 				prev.outFrame === null ? Infinity : prev.outFrame - 1;
 			const selected = Math.min(timelinePosition, biggestPossible);
+
+			if (selected === 0) {
+				return {
+					...prev,
+					inFrame: null,
+				};
+			}
+
 			if (prev.inFrame !== null) {
 				// Disable if already at this position
 				if (prev.inFrame === selected) {
@@ -72,6 +82,13 @@ export const TimelineInOutPointToggle: React.FC = () => {
 			const smallestPossible =
 				prev.inFrame === null ? -Infinity : prev.inFrame + 1;
 			const selected = Math.max(timelinePosition, smallestPossible);
+
+			if (selected === videoConfig.durationInFrames - 1) {
+				return {
+					...prev,
+					outFrame: null,
+				};
+			}
 
 			if (prev.outFrame !== null) {
 				if (prev.outFrame === selected) {
@@ -123,12 +140,21 @@ export const TimelineInOutPointToggle: React.FC = () => {
 		};
 	});
 
+	if (!videoConfig) {
+		return null;
+	}
+
+	if (isStill) {
+		return null;
+	}
+
 	return (
 		<>
 			<ControlButton
 				title={getTooltipText('In (I)')}
 				aria-label={getTooltipText('In (I)')}
 				onClick={onInMark}
+				disabled={timelinePosition === 0}
 			>
 				<TimelineInPointer
 					color={inFrame === null ? 'white' : 'var(--blue)'}
@@ -139,6 +165,7 @@ export const TimelineInOutPointToggle: React.FC = () => {
 				title={getTooltipText('Out (O)')}
 				aria-label={getTooltipText('Out (O)')}
 				onClick={onOutMark}
+				disabled={timelinePosition === videoConfig?.durationInFrames - 1}
 			>
 				<TimelineOutPointer
 					color={outFrame === null ? 'white' : 'var(--blue)'}
