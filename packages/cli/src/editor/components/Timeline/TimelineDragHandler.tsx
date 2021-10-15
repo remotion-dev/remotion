@@ -28,7 +28,8 @@ const container: React.CSSProperties = {
 const getFrameFromX = (
 	clientX: number,
 	durationInFrames: number,
-	width: number
+	width: number,
+	extrapolate: 'clamp' | 'extend'
 ) => {
 	const pos = clientX - TIMELINE_PADDING;
 	const frame = Math.round(
@@ -37,8 +38,8 @@ const getFrameFromX = (
 			[0, width - TIMELINE_PADDING * 2],
 			[0, durationInFrames - 1 ?? 0],
 			{
-				extrapolateLeft: 'clamp',
-				extrapolateRight: 'clamp',
+				extrapolateLeft: extrapolate,
+				extrapolateRight: extrapolate,
 			}
 		)
 	);
@@ -128,7 +129,8 @@ export const TimelineDragHandler: React.FC = () => {
 			const frame = getFrameFromX(
 				e.clientX - left,
 				videoConfig.durationInFrames,
-				width
+				width,
+				'clamp'
 			);
 			seek(frame);
 			setDragging({
@@ -153,7 +155,8 @@ export const TimelineDragHandler: React.FC = () => {
 			const frame = getFrameFromX(
 				e.clientX - left,
 				videoConfig.durationInFrames,
-				width
+				width,
+				'clamp'
 			);
 			seek(frame);
 		},
@@ -239,7 +242,8 @@ export const TimelineDragHandler: React.FC = () => {
 			const frame = getFrameFromX(
 				e.clientX - left,
 				videoConfig.durationInFrames,
-				width
+				width,
+				'clamp'
 			);
 
 			persistCurrentFrame(frame);
@@ -268,12 +272,18 @@ export const TimelineDragHandler: React.FC = () => {
 			const frame = getFrameFromX(
 				e.clientX - left,
 				videoConfig.durationInFrames,
-				width
+				width,
+				'extend'
 			);
 			if (inOutDragging.dragging === 'in') {
 				const maxFrame = outFrame === null ? Infinity : outFrame - 1;
 				setInFrame(Math.min(maxFrame, frame));
 			} else {
+				if (frame > videoConfig.durationInFrames - 1) {
+					console.log('out out');
+					return setOutFrame(null);
+				}
+
 				const minFrame = inFrame === null ? -Infinity : inFrame + 1;
 				setOutFrame(Math.max(minFrame, frame));
 			}
