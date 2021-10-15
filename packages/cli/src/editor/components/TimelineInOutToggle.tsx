@@ -1,6 +1,7 @@
 import React, {
 	createRef,
 	useCallback,
+	useContext,
 	useEffect,
 	useImperativeHandle,
 } from 'react';
@@ -11,6 +12,7 @@ import {
 	TimelineInPointer,
 	TimelineOutPointer,
 } from '../icons/timelineInOutPointer';
+import {persistMarks} from '../state/marks';
 import {ControlButton} from './ControlButton';
 
 const getTooltipText = (pointType: string) => `Mark ${pointType}`;
@@ -24,6 +26,7 @@ export const inOutHandles = createRef<{
 	inMarkClick: () => void;
 	outMarkClick: () => void;
 	clearMarks: () => void;
+	setMarks: (marks: [number | null, number | null]) => void;
 }>();
 
 export const TimelineInOutPointToggle: React.FC = () => {
@@ -35,6 +38,7 @@ export const TimelineInOutPointToggle: React.FC = () => {
 	const {
 		setInAndOutFrames,
 	} = Internals.Timeline.useTimelineSetInOutFramePosition();
+	const {currentComposition} = useContext(Internals.CompositionManager);
 	const isStill = useIsStill();
 	const videoConfig = Internals.useUnsafeVideoConfig();
 	const keybindings = useKeybinding();
@@ -132,11 +136,28 @@ export const TimelineInOutPointToggle: React.FC = () => {
 		};
 	}, [keybindings, onInMark, onInOutClear, onOutMark]);
 
+	useEffect(() => {
+		if (!currentComposition || !videoConfig) {
+			return;
+		}
+
+		persistMarks(currentComposition, videoConfig.durationInFrames, [
+			inFrame,
+			outFrame,
+		]);
+	}, [currentComposition, inFrame, outFrame, videoConfig]);
+
 	useImperativeHandle(inOutHandles, () => {
 		return {
 			clearMarks: onInOutClear,
 			inMarkClick: onInMark,
 			outMarkClick: onOutMark,
+			setMarks: ([newInFrame, newOutFrame]) => {
+				setInAndOutFrames({
+					inFrame: newInFrame,
+					outFrame: newOutFrame,
+				});
+			},
 		};
 	});
 
