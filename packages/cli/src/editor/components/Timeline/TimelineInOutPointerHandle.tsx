@@ -4,7 +4,7 @@ import {useGetXPositionOfItemInTimeline} from '../../helpers/get-left-of-timelin
 const line: React.CSSProperties = {
 	height: '100%',
 	width: 1,
-	position: 'fixed',
+	position: 'absolute',
 	backgroundColor: 'rgba(255, 255, 255, 0.1)',
 	cursor: 'ew-resize',
 	paddingLeft: 1,
