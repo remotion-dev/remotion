@@ -147,6 +147,35 @@ export const TimelineInOutPointToggle: React.FC = () => {
 		]);
 	}, [currentComposition, inFrame, outFrame, videoConfig]);
 
+	// If duration changes and it goes out of range, we reset
+	useEffect(() => {
+		if (outFrame === null) {
+			return;
+		}
+
+		if (!videoConfig) {
+			return;
+		}
+
+		if (outFrame >= videoConfig.durationInFrames - 1) {
+			onInOutClear();
+		}
+	}, [onInOutClear, outFrame, videoConfig]);
+
+	useEffect(() => {
+		if (inFrame === null) {
+			return;
+		}
+
+		if (!videoConfig) {
+			return;
+		}
+
+		if (inFrame >= videoConfig.durationInFrames - 1) {
+			onInOutClear();
+		}
+	}, [onInOutClear, inFrame, videoConfig]);
+
 	useImperativeHandle(inOutHandles, () => {
 		return {
 			clearMarks: onInOutClear,
