@@ -1,4 +1,4 @@
-import React, {useCallback, useContext, useEffect, useState} from 'react';
+import React, {useCallback, useEffect} from 'react';
 import {Internals} from 'remotion';
 import {useKeybinding} from '../helpers/use-keybinding';
 import {
@@ -16,10 +16,7 @@ const style: React.CSSProperties = {
 };
 
 export const TimelineInOutPointToggle: React.FC = () => {
-	const [inFrameBtnActive, setInFrameBtnActiveState] = useState(false);
-	const [outFrameBtnActive, setOutFrameBtnActiveState] = useState(false);
 	const timelinePosition = Internals.Timeline.useTimelinePosition();
-	const {currentComposition} = useContext(Internals.CompositionManager);
 	const {
 		inFrame,
 		outFrame,
@@ -77,50 +74,20 @@ export const TimelineInOutPointToggle: React.FC = () => {
 		}
 
 		const {validInFrame, validOutFrame} = getValidFrame('inFrame');
-		setInFrame(inFrameBtnActive ? null : validInFrame);
-		setOutFrame(inFrameBtnActive ? outFrame : validOutFrame);
-		setInFrameBtnActiveState(!inFrameBtnActive);
-		if (validOutFrame === null) {
-			setOutFrameBtnActiveState(inFrameBtnActive ? outFrameBtnActive : false);
+		setInFrame(inFrame ? null : validInFrame);
+		if (inFrame) {
+			setOutFrame(validOutFrame);
 		}
-	}, [
-		getValidFrame,
-		inFrameBtnActive,
-		outFrame,
-		outFrameBtnActive,
-		setInFrame,
-		setOutFrame,
-		videoConfig,
-	]);
+	}, [getValidFrame, inFrame, setInFrame, setOutFrame, videoConfig]);
 
 	const onOutFrameBtnClick = useCallback(() => {
 		if (!videoConfig) {
 			return null;
 		}
 
-		const {validInFrame, validOutFrame} = getValidFrame('outFrame');
-		setInFrame(outFrameBtnActive ? inFrame : validInFrame);
-		setOutFrame(outFrameBtnActive ? null : validOutFrame);
-		setOutFrameBtnActiveState(!outFrameBtnActive);
-		if (validInFrame === null) {
-			setInFrameBtnActiveState(outFrameBtnActive ? inFrameBtnActive : false);
-		}
-	}, [
-		getValidFrame,
-		inFrame,
-		inFrameBtnActive,
-		outFrameBtnActive,
-		setInFrame,
-		setOutFrame,
-		videoConfig,
-	]);
-
-	useEffect(() => {
-		setInFrame(null);
-		setInFrameBtnActiveState(false);
-		setOutFrame(null);
-		setOutFrameBtnActiveState(false);
-	}, [currentComposition, setInFrame, setOutFrame]);
+		const {validOutFrame} = getValidFrame('outFrame');
+		setOutFrame(outFrame ? null : validOutFrame);
+	}, [getValidFrame, outFrame, setOutFrame, videoConfig]);
 
 	useEffect(() => {
 		const iKey = keybindings.registerKeybinding('keypress', 'i', () => {
@@ -143,7 +110,7 @@ export const TimelineInOutPointToggle: React.FC = () => {
 				onClick={onInFrameBtnClick}
 			>
 				<TimelineInPointer
-					color={inFrameBtnActive ? 'var(--blue)' : 'white'}
+					color={inFrame === null ? 'white' : 'var(--blue)'}
 					style={style}
 				/>
 			</ControlButton>
@@ -153,7 +120,7 @@ export const TimelineInOutPointToggle: React.FC = () => {
 				onClick={onOutFrameBtnClick}
 			>
 				<TimelineOutPointer
-					color={outFrameBtnActive ? 'var(--blue)' : 'white'}
+					color={outFrame === null ? 'white' : 'var(--blue)'}
 					style={style}
 				/>
 			</ControlButton>
