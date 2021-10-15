@@ -70,8 +70,7 @@ export const TimelineDragHandler: React.FC = () => {
 	} = Internals.Timeline.useTimelineInOutFramePosition();
 
 	const {
-		setInFrame,
-		setOutFrame,
+		setInAndOutFrames,
 	} = Internals.Timeline.useTimelineSetInOutFramePosition();
 
 	const {get} = useGetXPositionOfItemInTimeline();
@@ -277,18 +276,30 @@ export const TimelineDragHandler: React.FC = () => {
 			);
 			if (inOutDragging.dragging === 'in') {
 				if (frame < 1) {
-					return setInFrame(null);
+					return setInAndOutFrames((prev) => ({
+						...prev,
+						inFrame: null,
+					}));
 				}
 
 				const maxFrame = outFrame === null ? Infinity : outFrame - 1;
-				setInFrame(Math.min(maxFrame, frame));
+				setInAndOutFrames((prev) => ({
+					...prev,
+					inFrame: Math.min(maxFrame, frame),
+				}));
 			} else {
 				if (frame > videoConfig.durationInFrames - 2) {
-					return setOutFrame(null);
+					return setInAndOutFrames((prev) => ({
+						...prev,
+						outFrame: null,
+					}));
 				}
 
 				const minFrame = inFrame === null ? -Infinity : inFrame + 1;
-				setOutFrame(Math.max(minFrame, frame));
+				setInAndOutFrames((prev) => ({
+					...prev,
+					outFrame: Math.max(minFrame, frame),
+				}));
 			}
 		},
 		[
@@ -296,8 +307,7 @@ export const TimelineDragHandler: React.FC = () => {
 			inOutDragging.dragging,
 			left,
 			outFrame,
-			setInFrame,
-			setOutFrame,
+			setInAndOutFrames,
 			videoConfig,
 			width,
 		]

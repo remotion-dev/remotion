@@ -85,8 +85,12 @@ export const Editor: React.FC = () => {
 		},
 		[]
 	);
-	const [inFrame, setInFrame] = useState<number | null>(null);
-	const [outFrame, setOutFrame] = useState<number | null>(null);
+	const [inAndOutFrames, setInAndOutFrames] = useState<
+		TimelineInOutContextValue
+	>({
+		inFrame: null,
+		outFrame: null,
+	});
 	const [mediaMuted, setMediaMuted] = useState<boolean>(false);
 	const [mediaVolume, setMediaVolume] = useState<number>(1);
 	const [modalContextType, setModalContextType] = useState<ModalState | null>(
@@ -113,18 +117,14 @@ export const Editor: React.FC = () => {
 	}, [richTimeline, setRichTimeline]);
 
 	const timelineInOutContextValue = useMemo((): TimelineInOutContextValue => {
-		return {
-			inFrame,
-			outFrame,
-		};
-	}, [inFrame, outFrame]);
+		return inAndOutFrames;
+	}, [inAndOutFrames]);
 
 	const setTimelineInOutContextValue = useMemo((): SetTimelineInOutContextValue => {
 		return {
-			setInFrame,
-			setOutFrame,
+			setInAndOutFrames,
 		};
-	}, [setInFrame, setOutFrame]);
+	}, []);
 
 	const mediaVolumeContextValue = useMemo((): MediaVolumeContextValue => {
 		return {
