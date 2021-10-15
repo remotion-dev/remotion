@@ -5,6 +5,7 @@ import {getAssetFileName} from './get-asset-file-name';
 import {useNonce} from './nonce';
 import {SequenceContext} from './sequencing';
 import {TimelineContext} from './timeline-position-state';
+import {useMediaHasMetadata} from './use-media-metadata';
 import {useVideoConfig} from './use-video-config';
 import {evaluateVolume, VolumeProp} from './volume-prop';
 
@@ -12,15 +13,14 @@ export const useMediaInTimeline = ({
 	volume,
 	mediaVolume,
 	mediaRef,
-	src,
 	mediaType,
 }: {
 	volume: VolumeProp | undefined;
 	mediaVolume: number;
 	mediaRef: RefObject<HTMLAudioElement | HTMLVideoElement>;
-	src: string | undefined;
 	mediaType: 'audio' | 'video';
 }) => {
+	const {currentSrc} = mediaRef.current || {};
 	const videoConfig = useVideoConfig();
 	const {rootId} = useContext(TimelineContext);
 	const parentSequence = useContext(SequenceContext);
@@ -28,6 +28,7 @@ export const useMediaInTimeline = ({
 		? parentSequence.relativeFrom + parentSequence.cumulatedFrom
 		: 0;
 	const startsAt = useMediaStartsAt();
+	const hasMetadata = useMediaHasMetadata(mediaRef);
 	const {registerSequence, unregisterSequence} = useContext(CompositionManager);
 	const [id] = useState(() => String(Math.random()));
 	const nonce = useNonce();
@@ -58,23 +59,27 @@ export const useMediaInTimeline = ({
 	}, [duration, startsAt, volume, mediaVolume]);
 
 	useEffect(() => {
-		if (!mediaRef.current) {
+		const tagName = mediaType === 'audio' ? '<Audio>' : '<Video>';
+
+		if (!mediaRef.current || !hasMetadata) {
 			return;
 		}
 
-		if (!src) {
-			throw new Error('No src passed');
+		if (!currentSrc) {
+			throw new Error(
+				`No src found. Please provide a src prop or a <source> child to the ${tagName} element.`
+			);
 		}
 
 		registerSequence({
 			type: mediaType,
-			src,
+			src: currentSrc,
 			id,
 			// TODO: Cap to media duration
 			duration,
 			from: 0,
 			parent: parentSequence?.id ?? null,
-			displayName: getAssetFileName(src),
+			displayName: getAssetFileName(currentSrc),
 			rootId,
 			volume: volumes,
 			showInTimeline: true,
@@ -82,13 +87,14 @@ export const useMediaInTimeline = ({
 			startMediaFrom: 0 - startsAt,
 			doesVolumeChange,
 		});
+
 		return () => unregisterSequence(id);
 	}, [
 		actualFrom,
 		duration,
 		id,
 		parentSequence,
-		src,
+		currentSrc,
 		registerSequence,
 		rootId,
 		unregisterSequence,
@@ -96,6 +102,7 @@ export const useMediaInTimeline = ({
 		volumes,
 		doesVolumeChange,
 		nonce,
+		hasMetadata,
 		mediaRef,
 		mediaType,
 		startsAt,
