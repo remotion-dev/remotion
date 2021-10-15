@@ -165,7 +165,7 @@ export const TimelineInOutPointToggle: React.FC = () => {
 				title={getTooltipText('Out (O)')}
 				aria-label={getTooltipText('Out (O)')}
 				onClick={onOutMark}
-				disabled={timelinePosition === videoConfig?.durationInFrames - 1}
+				disabled={timelinePosition === videoConfig.durationInFrames - 1}
 			>
 				<TimelineOutPointer
 					color={outFrame === null ? 'white' : 'var(--blue)'}
