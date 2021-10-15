@@ -10,6 +10,11 @@ import {ControlButton} from './ControlButton';
 const MIN_FRAMES_BETWEEN_POINTS = 1;
 const getTooltipText = (pointType: string) => `Mark ${pointType}`;
 
+const style: React.CSSProperties = {
+	width: 16,
+	height: 16,
+};
+
 export const TimelineInOutPointToggle: React.FC = () => {
 	const [inFrameBtnActive, setInFrameBtnActiveState] = useState(false);
 	const [outFrameBtnActive, setOutFrameBtnActiveState] = useState(false);
@@ -138,11 +143,8 @@ export const TimelineInOutPointToggle: React.FC = () => {
 				onClick={onInFrameBtnClick}
 			>
 				<TimelineInPointer
-					style={{
-						width: 16,
-						height: 16,
-						color: inFrameBtnActive ? 'var(--blue)' : 'white',
-					}}
+					color={inFrameBtnActive ? 'var(--blue)' : 'white'}
+					style={style}
 				/>
 			</ControlButton>
 			<ControlButton
@@ -151,11 +153,8 @@ export const TimelineInOutPointToggle: React.FC = () => {
 				onClick={onOutFrameBtnClick}
 			>
 				<TimelineOutPointer
-					style={{
-						width: 16,
-						height: 16,
-						color: outFrameBtnActive ? 'var(--blue)' : 'white',
-					}}
+					color={outFrameBtnActive ? 'var(--blue)' : 'white'}
+					style={style}
 				/>
 			</ControlButton>
 		</>
