@@ -1,35 +1,22 @@
-import React from 'react';
+import React, {createRef} from 'react';
 
 const line: React.CSSProperties = {
 	height: '100%',
-	width: 2,
+	width: 1,
 	position: 'fixed',
-	backgroundColor: '#06d639',
+	backgroundColor: 'rgba(255, 255, 255, 0.1)',
+	cursor: 'ew-resize',
+	paddingLeft: 1,
+	paddingRight: 1,
 };
 
-const dash: React.CSSProperties = {
-	width: 10,
-	height: 2,
-	position: 'fixed',
-	backgroundColor: '#06d639',
-};
+export const inPointerHandle = createRef<HTMLDivElement>();
+export const outPointerHandle = createRef<HTMLDivElement>();
 
 export const TimelineInPointerHandle: React.FC = () => {
-	return (
-		<>
-			<div style={{...dash, top: 0, left: 0}} />
-			<div style={line} />
-			<div style={{...dash, bottom: 0, left: 0}} />
-		</>
-	);
+	return <div ref={inPointerHandle} style={line} />;
 };
 
 export const TimelineOutPointerHandle: React.FC = () => {
-	return (
-		<>
-			<div style={{...dash, top: 0, right: 0}} />
-			<div style={line} />
-			<div style={{...dash, bottom: 0, right: 0}} />
-		</>
-	);
+	return <div ref={outPointerHandle} style={line} />;
 };

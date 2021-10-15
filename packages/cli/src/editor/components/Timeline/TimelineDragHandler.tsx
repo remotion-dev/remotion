@@ -1,9 +1,16 @@
 import {PlayerInternals} from '@remotion/player';
 import React, {useCallback, useEffect, useState} from 'react';
 import {Internals, interpolate} from 'remotion';
+import {useGetXPositionOfItemInTimeline} from '../../helpers/get-left-of-timeline-slider';
 import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
 import {persistCurrentFrame} from '../FramePersistor';
 import {sliderAreaRef} from './timeline-refs';
+import {
+	inPointerHandle,
+	outPointerHandle,
+	TimelineInPointerHandle,
+	TimelineOutPointerHandle,
+} from './TimelineInOutPointerHandle';
 
 const container: React.CSSProperties = {
 	userSelect: 'none',
@@ -38,12 +45,18 @@ const getFrameFromX = (
 	return frame;
 };
 
-export const TimelineDragHandler: React.FC = ({children}) => {
+export const TimelineDragHandler: React.FC = () => {
 	const size = PlayerInternals.useElementSize(sliderAreaRef, {
 		triggerOnWindowResize: true,
 	});
 	const width = size?.width ?? 0;
 	const left = size?.left ?? 0;
+	const {
+		inFrame,
+		outFrame,
+	} = Internals.Timeline.useTimelineInOutFramePosition();
+
+	const {get} = useGetXPositionOfItemInTimeline();
 	const [dragging, setDragging] = useState<
 		| {
 				dragging: false;
@@ -61,6 +74,16 @@ export const TimelineDragHandler: React.FC = ({children}) => {
 	const onPointerDown = useCallback(
 		(e: React.PointerEvent<HTMLDivElement>) => {
 			if (!videoConfig) {
+				return;
+			}
+
+			if ((e.target as Node) === inPointerHandle.current) {
+				console.log('in');
+				return;
+			}
+
+			if ((e.target as Node) === outPointerHandle.current) {
+				console.log('out');
 				return;
 			}
 
@@ -142,7 +165,27 @@ export const TimelineDragHandler: React.FC = ({children}) => {
 
 	return (
 		<div ref={sliderAreaRef} style={container} onPointerDown={onPointerDown}>
-			<div style={inner}>{children}</div>
+			<div style={inner} />
+			{inFrame !== null && (
+				<div
+					style={{
+						...container,
+						transform: `translateX(${get(inFrame)}px)`,
+					}}
+				>
+					<TimelineInPointerHandle />
+				</div>
+			)}
+			{outFrame !== null && (
+				<div
+					style={{
+						...container,
+						transform: `translateX(${get(outFrame)}px)`,
+					}}
+				>
+					<TimelineOutPointerHandle />
+				</div>
+			)}
 		</div>
 	);
 };

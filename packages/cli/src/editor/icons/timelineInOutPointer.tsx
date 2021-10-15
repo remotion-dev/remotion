@@ -5,7 +5,7 @@ export const TimelineInPointer: React.FC<SVGProps<SVGSVGElement>> = (props) => {
 		<svg viewBox="0 0 256 256" fill="none" {...props}>
 			<path
 				d="M158 25H99V230.5H158"
-				stroke="currentColor"
+				stroke={props.color}
 				strokeWidth="42"
 				strokeLinecap="round"
 				strokeLinejoin="round"
@@ -21,7 +21,7 @@ export const TimelineOutPointer: React.FC<SVGProps<SVGSVGElement>> = (
 		<svg viewBox="0 0 256 256" fill="none" {...props}>
 			<path
 				d="M98 25H157V230.5H98"
-				stroke="currentColor"
+				stroke={props.color}
 				strokeWidth="42"
 				strokeLinecap="round"
 				strokeLinejoin="round"
