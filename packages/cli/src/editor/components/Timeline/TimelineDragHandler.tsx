@@ -56,6 +56,7 @@ export const TimelineDragHandler: React.FC = () => {
 		| {
 				dragging: 'in' | 'out';
 				initialOffset: number;
+				boundaries: [number, number];
 		  }
 	>({
 		dragging: false,
@@ -94,17 +95,31 @@ export const TimelineDragHandler: React.FC = () => {
 			}
 
 			if ((e.target as Node) === inPointerHandle.current) {
+				if (inFrame === null) {
+					throw new Error('expected outframe');
+				}
+
+				const inMarker = get(inFrame);
+				const outMarker = outFrame === null ? Infinity : get(outFrame - 1);
 				setInOutDragging({
 					dragging: 'in',
 					initialOffset: e.clientX,
+					boundaries: [-Infinity, outMarker - inMarker],
 				});
 				return;
 			}
 
 			if ((e.target as Node) === outPointerHandle.current) {
+				if (outFrame === null) {
+					throw new Error('expected outframe');
+				}
+
+				const outMarker = get(outFrame);
+				const inMarker = inFrame === null ? -Infinity : get(inFrame + 1);
 				setInOutDragging({
 					dragging: 'out',
 					initialOffset: e.clientX,
+					boundaries: [inMarker - outMarker, Infinity],
 				});
 
 				return;
@@ -122,7 +137,7 @@ export const TimelineDragHandler: React.FC = () => {
 			});
 			pause();
 		},
-		[pause, playing, seek, left, videoConfig, width]
+		[videoConfig, left, width, seek, playing, pause, outFrame, get, inFrame]
 	);
 
 	const onPointerMoveScrubbing = useCallback(
@@ -151,6 +166,17 @@ export const TimelineDragHandler: React.FC = () => {
 				return;
 			}
 
+			if (!inOutDragging.dragging) {
+				return;
+			}
+
+			const offset = Math.max(
+				inOutDragging.boundaries[0],
+				Math.min(
+					inOutDragging.boundaries[1],
+					e.clientX - inOutDragging.initialOffset
+				)
+			);
 			if (inOutDragging.dragging === 'in') {
 				if (!inPointerHandle.current) {
 					throw new Error('in pointer handle');
@@ -164,7 +190,6 @@ export const TimelineDragHandler: React.FC = () => {
 					throw new Error('expected inframes');
 				}
 
-				const offset = e.clientX - inOutDragging.initialOffset;
 				inPointerHandle.current.style.transform = `translateX(${
 					get(inFrame) + offset
 				}px)`;
@@ -185,7 +210,6 @@ export const TimelineDragHandler: React.FC = () => {
 					throw new Error('expected outframes');
 				}
 
-				const offset = e.clientX - inOutDragging.initialOffset;
 				outPointerHandle.current.style.transform = `translateX(${
 					get(outFrame) + offset
 				}px)`;
@@ -247,12 +271,23 @@ export const TimelineDragHandler: React.FC = () => {
 				width
 			);
 			if (inOutDragging.dragging === 'in') {
-				setInFrame(frame);
+				const maxFrame = outFrame === null ? Infinity : outFrame - 1;
+				setInFrame(Math.min(maxFrame, frame));
 			} else {
-				setOutFrame(frame);
+				const minFrame = inFrame === null ? -Infinity : inFrame + 1;
+				setOutFrame(Math.max(minFrame, frame));
 			}
 		},
-		[inOutDragging.dragging, left, setInFrame, setOutFrame, videoConfig, width]
+		[
+			inFrame,
+			inOutDragging.dragging,
+			left,
+			outFrame,
+			setInFrame,
+			setOutFrame,
+			videoConfig,
+			width,
+		]
 	);
 
 	useEffect(() => {
