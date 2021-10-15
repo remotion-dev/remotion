@@ -1,6 +1,6 @@
 {
   "name": "docs",
-  "version": "2.4.2",
+  "version": "2.4.3",
   "private": true,
   "scripts": {
     "docusaurus": "docusaurus",
@@ -18,13 +18,13 @@
     "@docusaurus/core": "2.0.0-beta.5",
     "@docusaurus/preset-classic": "2.0.0-beta.5",
     "@mdx-js/react": "^1.6.21",
-    "@remotion/babel-loader": "^2.4.2",
-    "@remotion/bundler": "^2.4.2",
-    "@remotion/gif": "^2.4.2",
-    "@remotion/media-utils": "^2.4.2",
-    "@remotion/player": "^2.4.2",
-    "@remotion/renderer": "^2.4.2",
-    "@remotion/three": "^2.4.2",
+    "@remotion/babel-loader": "^2.4.3",
+    "@remotion/bundler": "^2.4.3",
+    "@remotion/gif": "^2.4.3",
+    "@remotion/media-utils": "^2.4.3",
+    "@remotion/player": "^2.4.3",
+    "@remotion/renderer": "^2.4.3",
+    "@remotion/three": "^2.4.3",
     "@splitbee/web": "^0.2.4",
     "chalk": "^4.1.0",
     "clipboard": "^2.0.8",
@@ -36,7 +36,7 @@
     "patch-package": "^6.4.7",
     "polished": "4.1.2",
     "react-player": "^2.9.0",
-    "remotion": "^2.4.2",
+    "remotion": "^2.4.3",
     "ts-jest": "^27.0.3"
   },
   "devDependencies": {
