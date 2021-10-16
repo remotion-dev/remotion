@@ -30,6 +30,7 @@ export * from './Img';
 export * from './internals';
 export * from './interpolate';
 export {interpolateColors} from './interpolateColors';
+export {Loop} from './loop';
 export * from './random';
 export * from './ready-manager';
 export {registerRoot} from './register-root';

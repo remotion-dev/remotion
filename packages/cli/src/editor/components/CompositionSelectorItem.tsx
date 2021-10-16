@@ -1,4 +1,4 @@
-import React, {useCallback, useState} from 'react';
+import React, {MouseEventHandler, useCallback, useMemo, useState} from 'react';
 import {TComposition} from 'remotion';
 import {CLEAR_HOVER, LIGHT_TEXT, SELECTED_BACKGROUND} from '../helpers/colors';
 import {isCompositionStill} from '../helpers/is-composition-still';
@@ -40,27 +40,36 @@ export const CompositionSelectorItem: React.FC<{
 		setHovered(false);
 	}, []);
 
+	const style: React.CSSProperties = useMemo(() => {
+		return {
+			...item,
+			backgroundColor: hovered
+				? selected
+					? SELECTED_BACKGROUND
+					: CLEAR_HOVER
+				: selected
+				? SELECTED_BACKGROUND
+				: 'transparent',
+			color: selected || hovered ? 'white' : LIGHT_TEXT,
+		};
+	}, [hovered, selected]);
+
+	const onClick: MouseEventHandler = useCallback(
+		(evt) => {
+			evt.preventDefault();
+			selectComposition(composition);
+		},
+		[composition, selectComposition]
+	);
+
 	return (
 		<a
-			style={{
-				...item,
-				backgroundColor: hovered
-					? selected
-						? SELECTED_BACKGROUND
-						: CLEAR_HOVER
-					: selected
-					? SELECTED_BACKGROUND
-					: 'transparent',
-				color: selected || hovered ? 'white' : LIGHT_TEXT,
-			}}
+			style={style}
 			onPointerEnter={onPointerEnter}
 			onPointerLeave={onPointerLeave}
 			href={composition.id}
 			tabIndex={tabIndex}
-			onClick={(evt) => {
-				evt.preventDefault();
-				selectComposition(composition);
-			}}
+			onClick={onClick}
 		>
 			{isCompositionStill(composition) ? (
 				<StillIcon style={iconStyle} />
