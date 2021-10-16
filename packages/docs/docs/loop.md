@@ -11,13 +11,19 @@ const BlueSquare: React.FC = () => <div></div>
 // - BlueSquare
 ```
 
+_available from v2.4.4_
+
+The `<Loop />` component allows you to quickly
+
 ## API
 
-The Sequence component is a high order component and accepts, besides it's children, the following props:
+The Loop component is a high order component and accepts, besides it's children, the following props:
 
-- `durationInFrames` _(required)_: How many frames of the content the loop should include. Children are unmounted if they are not within the time range of display.
+- `durationInFrames` _(required)_: How many frames of the content the loop should include.
 
 - `times` _(optional)_: How many times to loop the content. By default it will be `Infinity`.
+
+- `layout`: _(optional)_: Either `"absolute-fill"` _(default)_ or `"none"` By default, your content will be absolutely positioned. If you would like to disable layout side effects, pass `layout="none"`.
 
 :::info
 Good to know: You can nest loops within each other and they will cascade. For example, a loop that has a duration of 30 frames which is inside a loop that has a duration of 75 will play 2 times. However, nested loops are not currently displayed in the timeline.
@@ -48,9 +54,11 @@ const MyVideo = () => {
 import { Loop } from 'remotion'
 // ---cut---
 const MyVideo = () => {
-  return <Loop durationInFrames={50}>
-    <BlueSquare />
-  </Loop>
+  return (
+    <Loop durationInFrames={50}>
+      <BlueSquare />
+    </Loop>
+  );
 }
 ```
 
@@ -64,9 +72,11 @@ const MyVideo = () => {
 import { Loop } from 'remotion'
 // ---cut---
 const MyVideo = () => {
-  return <Loop durationInFrames={50} times={2}>
-    <BlueSquare />
-  </Loop>
+  return (
+    <Loop durationInFrames={50} times={2}>
+      <BlueSquare />
+    </Loop>
+  );
 }
 ```
 
@@ -80,10 +90,12 @@ const MyVideo = () => {
 import { Loop } from 'remotion'
 // ---cut---
 const MyVideo = () => {
-  return <Loop durationInFrames={75}>
-    <Loop durationInFrames={30}>
-      <BlueSquare />
+  return (
+    <Loop durationInFrames={75}>
+      <Loop durationInFrames={30}>
+        <BlueSquare />
+      </Loop>
     </Loop>
-  </Loop>
+  );
 }
 ```

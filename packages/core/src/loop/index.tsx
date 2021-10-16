@@ -8,6 +8,7 @@ export type LoopProps = {
 	// How many times to loop (optional, default Infinity)
 	times?: number;
 	layout?: 'absolute-fill' | 'none';
+	name?: string;
 };
 
 export const Loop: React.FC<LoopProps> = ({
@@ -15,6 +16,7 @@ export const Loop: React.FC<LoopProps> = ({
 	times = Infinity,
 	children,
 	layout,
+	name,
 }) => {
 	const {durationInFrames: compDuration} = useVideoConfig();
 	validateDurationInFrames(durationInFrames, 'of the <Loop /> component');
@@ -37,11 +39,12 @@ export const Loop: React.FC<LoopProps> = ({
 		);
 	}
 
-	const maxTimes = Math.ceil(durationInFrames / compDuration);
+	const maxTimes = Math.ceil(compDuration / durationInFrames);
+	const actualTimes = Math.min(maxTimes, times);
 
 	return (
 		<>
-			{new Array(Math.min(maxTimes, times)).fill(true).map((_, i) => {
+			{new Array(actualTimes).fill(true).map((_, i) => {
 				return (
 					<Sequence
 						// eslint-disable-next-line react/no-array-index-key
@@ -49,6 +52,9 @@ export const Loop: React.FC<LoopProps> = ({
 						durationInFrames={durationInFrames}
 						from={i * durationInFrames}
 						layout={layout}
+						name={name}
+						showLoopTimesInTimeline={actualTimes}
+						showInTimeline={i === 0}
 					>
 						{children}
 					</Sequence>
