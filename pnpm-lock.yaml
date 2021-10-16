@@ -21,6 +21,7 @@ importers:
       prettier-plugin-organize-imports: ^1.1.1
       react: ^17.0.1
       react-dom: ^17.0.1
+      remotion: ^2.4.3
       sharp: ^0.29.0
       three: ^0.128.0
       ts-jest: ^27.0.5
@@ -45,6 +46,7 @@ importers:
       jest-environment-jsdom: 27.2.4
       prettier: 2.4.1
       prettier-plugin-organize-imports: 1.1.1_prettier@2.4.1+typescript@4.4.3
+      remotion: link:packages/core
       sharp: 0.29.1
       ts-jest: 27.0.5_52a571d76319e63aeaa66dc9db9e90cc
       typescript: 4.4.3
@@ -64,7 +66,7 @@ importers:
       prettier: ^2.0.5
       prettier-plugin-organize-imports: ^1.1.1
       react-refresh: ^0.9.0-rc.2
-      remotion: ^2.4.2
+      remotion: ^2.4.3
       typescript: ^4.4.2
       webpack: 5.37.0
     dependencies:
@@ -105,7 +107,7 @@ importers:
       prettier: ^2.0.5
       prettier-plugin-organize-imports: ^1.1.1
       react-refresh: ^0.9.0-rc.2
-      remotion: ^2.4.2
+      remotion: ^2.4.3
       semver: 7.3.4
       style-loader: ^2.0.0
       typescript: ^4.4.2
@@ -140,10 +142,10 @@ importers:
   packages/cli:
     specifiers:
       '@jonny/eslint-config': ^2.1.233
-      '@remotion/bundler': ^2.4.2
-      '@remotion/media-utils': ^2.4.2
-      '@remotion/player': ^2.4.2
-      '@remotion/renderer': ^2.4.2
+      '@remotion/bundler': ^2.4.3
+      '@remotion/media-utils': ^2.4.3
+      '@remotion/player': ^2.4.3
+      '@remotion/renderer': ^2.4.3
       '@types/jest': ^27.0.2
       '@types/node': ^16.7.5
       '@types/react': 17.0.19
@@ -158,7 +160,7 @@ importers:
       minimist: ^1.2.5
       prettier: ^2.0.5
       prettier-plugin-organize-imports: ^1.1.1
-      remotion: ^2.4.2
+      remotion: ^2.4.3
       semver: ^7.3.4
       ts-jest: ^27.0.5
       typescript: ^4.4.2
@@ -263,13 +265,13 @@ importers:
       '@docusaurus/module-type-aliases': ^2.0.0-beta.6
       '@docusaurus/preset-classic': 2.0.0-beta.6
       '@mdx-js/react': ^1.6.21
-      '@remotion/babel-loader': ^2.4.2
-      '@remotion/bundler': ^2.4.2
-      '@remotion/gif': ^2.4.2
-      '@remotion/media-utils': ^2.4.2
-      '@remotion/player': ^2.4.2
-      '@remotion/renderer': ^2.4.2
-      '@remotion/three': ^2.4.2
+      '@remotion/babel-loader': ^2.4.3
+      '@remotion/bundler': ^2.4.3
+      '@remotion/gif': ^2.4.3
+      '@remotion/media-utils': ^2.4.3
+      '@remotion/player': ^2.4.3
+      '@remotion/renderer': ^2.4.3
+      '@remotion/three': ^2.4.3
       '@splitbee/web': ^0.2.4
       '@tsconfig/docusaurus': ^1.0.4
       '@types/color-namer': ^1.3.0
@@ -284,7 +286,7 @@ importers:
       jest: ^27.2.4
       polished: 4.1.2
       react-player: ^2.9.0
-      remotion: ^2.4.2
+      remotion: ^2.4.3
       ts-jest: ^27.0.5
       url-loader: ^4.1.1
     dependencies:
@@ -368,15 +370,15 @@ importers:
       '@babel/preset-react': 7.12.13
       '@mdx-js/react': ^1.6.21
       '@react-three/drei': ^4.3.3
-      '@remotion/babel-loader': ^2.4.2
-      '@remotion/bundler': ^2.4.2
-      '@remotion/cli': ^2.4.2
+      '@remotion/babel-loader': ^2.4.3
+      '@remotion/bundler': ^2.4.3
+      '@remotion/cli': ^2.4.3
       '@remotion/eslint-config': ^2.4.2
       '@remotion/eslint-plugin': ^2.4.2
-      '@remotion/gif': ^2.4.2
-      '@remotion/media-utils': ^2.4.2
-      '@remotion/renderer': ^2.4.2
-      '@remotion/three': ^2.4.2
+      '@remotion/gif': ^2.4.3
+      '@remotion/media-utils': ^2.4.3
+      '@remotion/renderer': ^2.4.3
+      '@remotion/three': ^2.4.3
       '@types/babel__core': ^7.1.12
       '@types/babel__template': ^7.4.0
       '@types/express': ^4.17.11
@@ -390,7 +392,7 @@ importers:
       polished: ^4.0.5
       prettier: ^2.0.5
       prettier-plugin-organize-imports: ^1.1.1
-      remotion: ^2.4.2
+      remotion: ^2.4.3
       styled-components: ^5.1.1
       svg-path-properties: ^1.0.4
       three: '>=0.128.0'
@@ -451,7 +453,7 @@ importers:
       jest: ^27.2.4
       lru_map: ^0.4.1
       prettier-plugin-organize-imports: ^1.1.1
-      remotion: ^2.4.2
+      remotion: ^2.4.3
       ts-jest: ^27.0.5
       typescript: ^4.4.2
       webpack: 5.37.0
@@ -480,7 +482,7 @@ importers:
       eslint: ^7.25.0
       prettier: ^2.0.5
       prettier-plugin-organize-imports: ^1.1.1
-      remotion: ^2.4.2
+      remotion: ^2.4.3
       typescript: ^4.4.2
     dependencies:
       remotion: link:../core
@@ -506,7 +508,7 @@ importers:
       jest: ^27.2.4
       prettier: ^2.0.5
       prettier-plugin-organize-imports: ^1.1.1
-      remotion: ^2.4.2
+      remotion: ^2.4.3
       ts-jest: ^27.0.5
       typescript: ^4.4.2
       webpack: ^5.21.2
@@ -532,7 +534,7 @@ importers:
   packages/player-example:
     specifiers:
       '@craco/craco': ^6.1.1
-      '@remotion/player': ^2.4.2
+      '@remotion/player': ^2.4.3
       '@testing-library/jest-dom': ^5.11.4
       '@testing-library/react': ^11.1.0
       '@testing-library/user-event': ^12.1.10
@@ -543,7 +545,7 @@ importers:
       react: ^17.0.1
       react-dom: ^17.0.1
       react-scripts: 4.0.3
-      remotion: ^2.4.2
+      remotion: ^2.4.3
       typescript: ^4.4.2
     dependencies:
       '@craco/craco': 6.3.0_react-scripts@4.0.3
@@ -564,7 +566,7 @@ importers:
   packages/renderer:
     specifiers:
       '@jonny/eslint-config': ^2.1.233
-      '@remotion/bundler': ^2.4.2
+      '@remotion/bundler': ^2.4.3
       '@testing-library/react': ^11.2.5
       '@types/jest': ^27.0.2
       '@types/node': ^16.7.5
@@ -577,7 +579,7 @@ importers:
       prettier: ^2.0.5
       prettier-plugin-organize-imports: ^1.1.1
       puppeteer-core: ^10.2.0
-      remotion: ^2.4.2
+      remotion: ^2.4.3
       sanitize-filename: ^1.6.3
       serve-handler: ^6.1.3
       ts-jest: 26.5.1
@@ -614,7 +616,7 @@ importers:
       eslint: ^7.4.0
       prettier: ^2.0.5
       prettier-plugin-organize-imports: ^1.1.1
-      remotion: ^2.4.2
+      remotion: ^2.4.3
       three: ^0.133.0
       typescript: ^4.4.2
     dependencies:
@@ -8138,7 +8140,7 @@ packages:
   /axios/0.21.4:
     resolution: {integrity: sha512-ut5vewkiu8jjGBdqpM44XxjuCjq9LAKeHVmoVfHVzy8eHgxxq8SbAVQNovDA8mVi05kP0Ea/n/UzcSHcTJQfNg==}
     dependencies:
-      follow-redirects: 1.14.4_debug@4.3.2
+      follow-redirects: 1.14.4
     transitivePeerDependencies:
       - debug
     dev: false
@@ -12038,7 +12040,7 @@ packages:
       react: 17.0.2
     dev: false
 
-  /follow-redirects/1.14.4_debug@4.3.2:
+  /follow-redirects/1.14.4:
     resolution: {integrity: sha512-zwGkiSXC1MUJG/qmeIFH2HBJx9u0V46QGUe3YR1fXG8bXQxq7fLj0RjLZQ5nubr9qNJUZrH+xUcwXEoXNpfS+g==}
     engines: {node: '>=4.0'}
     peerDependencies:
@@ -12046,8 +12048,6 @@ packages:
     peerDependenciesMeta:
       debug:
         optional: true
-    dependencies:
-      debug: 4.3.2_supports-color@6.1.0
     dev: false
 
   /for-in/1.0.2:
@@ -12976,7 +12976,7 @@ packages:
     engines: {node: '>=8.0.0'}
     dependencies:
       eventemitter3: 4.0.7
-      follow-redirects: 1.14.4_debug@4.3.2
+      follow-redirects: 1.14.4
       requires-port: 1.0.0
     transitivePeerDependencies:
       - debug

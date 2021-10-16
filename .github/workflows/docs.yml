@@ -22,6 +22,9 @@ jobs:
       - name: Install
         run: pnpm recursive install --frozen-lockfile
 
+      - name: Link
+        run: pnpm lerna bootstrap
+
       - run: pnpm run build
 
       - name: Install and Build 🔧
