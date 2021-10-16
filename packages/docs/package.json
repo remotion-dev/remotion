@@ -30,7 +30,7 @@
     "clipboard": "^2.0.8",
     "clsx": "^1.1.1",
     "color-namer": "1.4.0",
-    "docusaurus-preset-shiki-twoslash": "1.1.32",
+    "@jonny/docusaurus-preset-shiki-twoslash": "1.1.36",
     "hls.js": "^0.14.17",
     "jest": "^27.2.4",
     "polished": "4.1.2",
