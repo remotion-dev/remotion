@@ -302,7 +302,7 @@ test("Dynamic duration should work", async () => {
   expect(task.exitCode).toBe(0);
   // FIXME: --props don't work well on windows, this is an edge case for example
   // In this case we should warn the user about it that they should pass a file path instead
-  // expect(fs.existsSync(outputPath)).toBe(process.platform !== "win32");
+  expect(fs.existsSync(outputPath)).toBe(process.platform !== "win32");
 
   if (process.platform !== "win32") {
     const info = await execa("ffprobe", [outputPath]);
