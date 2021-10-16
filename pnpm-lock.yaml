@@ -497,7 +497,6 @@ importers:
   packages/player:
     specifiers:
       '@jonny/eslint-config': ^2.1.233
-      '@testing-library/dom': ^8.7.2
       '@testing-library/react': ^11.2.2
       '@types/jest': ^27.0.2
       '@types/node': ^14.14.14
@@ -516,7 +515,6 @@ importers:
       remotion: link:../core
     devDependencies:
       '@jonny/eslint-config': 2.1.246_eslint@7.32.0+typescript@4.4.3
-      '@testing-library/dom': 8.7.2
       '@testing-library/react': 11.2.7_react-dom@17.0.2+react@17.0.2
       '@types/jest': 27.0.2
       '@types/node': 14.17.20
@@ -567,6 +565,7 @@ importers:
     specifiers:
       '@jonny/eslint-config': ^2.1.233
       '@remotion/bundler': ^2.4.3
+      '@testing-library/dom': ^8.7.2
       '@testing-library/react': ^11.2.5
       '@types/jest': ^27.0.2
       '@types/node': ^16.7.5
@@ -587,6 +586,7 @@ importers:
       xns: ^2.0.7
     dependencies:
       '@remotion/bundler': link:../bundler
+      '@testing-library/dom': 8.7.2
       execa: 4.1.0
       got: 11.8.2
       p-limit: 3.1.0
@@ -6573,7 +6573,7 @@ packages:
       dom-accessibility-api: 0.5.7
       lz-string: 1.4.4
       pretty-format: 27.2.4
-    dev: true
+    dev: false
 
   /@testing-library/jest-dom/5.14.1:
     resolution: {integrity: sha512-dfB7HVIgTNCxH22M1+KU6viG5of2ldoA5ly8Ar8xkezKHKXjRvznCdbMbqjYGgO2xjRbwnR+rR8MLUIqF3kKbQ==}
