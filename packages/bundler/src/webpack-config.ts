@@ -104,7 +104,6 @@ export const webpackConfig = ({
 				'react/jsx-runtime': require.resolve('react/jsx-runtime'),
 				react: require.resolve('react'),
 				remotion: require.resolve('remotion'),
-				'styled-components': require.resolve('styled-components'),
 				'react-native$': 'react-native-web',
 			},
 		},
@@ -156,7 +155,7 @@ export const webpackConfig = ({
 					].filter(truthy),
 				},
 				{
-					test: /\.(woff(2)?|ttf|eot)(\?v=\d+\.\d+\.\d+)?$/,
+					test: /\.(woff(2)?|otf|ttf|eot)(\?v=\d+\.\d+\.\d+)?$/,
 					use: [
 						{
 							loader: require.resolve('file-loader'),

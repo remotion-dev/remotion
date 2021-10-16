@@ -1,57 +1,55 @@
 import React from 'react';
-import styled from 'styled-components';
 import {TIMELINE_PADDING} from '../helpers/timeline-layout';
 import {CheckboardToggle} from './CheckboardToggle';
 import {FpsCounter} from './FpsCounter';
+import {Flex} from './layout';
 import {PlayPause} from './PlayPause';
 import {RichTimelineToggle} from './RichTimelineToggle';
 import {SizeSelector} from './SizeSelector';
+import {TimelineInOutPointToggle} from './TimelineInOutToggle';
 import {TimeValue} from './TimeValue';
 
-const Container = styled.div`
-	display: flex;
-	justify-content: center;
-	border-top: 1px solid rgba(0, 0, 0, 0.5);
-	padding-top: 2px;
-	padding-bottom: 2px;
-	align-items: center;
-	flex-direction: row;
-`;
+const container: React.CSSProperties = {
+	display: 'flex',
+	justifyContent: 'center',
+	borderTop: '1px solid rgba(0, 0, 0, 0.5)',
+	paddingTop: 2,
+	paddingBottom: 2,
+	alignItems: 'center',
+	flexDirection: 'row',
+};
 
-const SideContainer = styled.div`
-	width: 300px;
-	height: 38px;
-	display: flex;
-	flex-direction: row;
-	align-items: center;
-`;
+const sideContainer: React.CSSProperties = {
+	width: 300,
+	height: 38,
+	display: 'flex',
+	flexDirection: 'row',
+	alignItems: 'center',
+};
 
-const Flex = styled.div`
-	flex: 1;
-`;
-
-const Padding = styled.div`
-	width: ${TIMELINE_PADDING}px;
-`;
+const padding: React.CSSProperties = {
+	width: TIMELINE_PADDING,
+};
 
 export const PreviewToolbar: React.FC = () => {
 	return (
-		<Container>
-			<SideContainer>
-				<Padding />
+		<div style={container} className="css-reset">
+			<div style={sideContainer}>
+				<div style={padding} />
 				<TimeValue />
-			</SideContainer>
+			</div>
 			<Flex />
 			<SizeSelector />
 			<PlayPause />
 			<CheckboardToggle />
 			<RichTimelineToggle />
+			<TimelineInOutPointToggle />
 			<Flex />
-			<SideContainer>
+			<div style={sideContainer}>
 				<Flex />
 				<FpsCounter />
-				<Padding />
-			</SideContainer>
-		</Container>
+				<div style={padding} />
+			</div>
+		</div>
 	);
 };

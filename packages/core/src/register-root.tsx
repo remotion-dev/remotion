@@ -19,12 +19,12 @@ export const getRoot = () => {
 	return root;
 };
 
-export const addStaticComposition = <T, >(composition: TComposition<T>) => {
+export const addStaticComposition = <T,>(composition: TComposition<T>) => {
 	staticCompositions = [...staticCompositions, composition];
 };
 
 export const removeStaticComposition = (id: string) => {
-	staticCompositions = staticCompositions.filter(s => {
+	staticCompositions = staticCompositions.filter((s) => {
 		return s.id !== id;
 	});
 };
@@ -51,7 +51,7 @@ export const getIsEvaluation = () => {
 
 if (typeof window !== 'undefined') {
 	window.getStaticCompositions = (): TCompMetadata[] =>
-		staticCompositions.map(c => {
+		staticCompositions.map((c) => {
 			return {
 				durationInFrames: c.durationInFrames,
 				fps: c.fps,

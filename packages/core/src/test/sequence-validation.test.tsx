@@ -5,13 +5,6 @@ import {expectToThrow} from './expect-to-throw';
 
 describe('Composition-validation render should throw with invalid props', () => {
 	describe('Throw with invalid duration props', () => {
-		test('It should throw if Sequence has missing duration', () => {
-			expectToThrow(
-				// @ts-expect-error
-				() => render(<Sequence from={0} />),
-				/You passed to durationInFrames an argument of type undefined, but it must be a number./
-			);
-		});
 		test('It should throw if Sequence has non-integer durationInFrames', () => {
 			expectToThrow(
 				() =>
