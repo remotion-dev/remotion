@@ -14,8 +14,8 @@ Use an import or require to load an video file and pass it as the `src` prop. Al
 `<Video>` has two more helper props: `startFrom` and `endAt` to define when the video should start and end. Both are optional and do not get forwarded to the native `<video>` element but tell Remotion which portion of the video to use.
 
 ```tsx twoslash
-import {Video} from 'remotion'
-import video from './video.webm'
+import { Video } from "remotion";
+import video from "./video.webm";
 
 export const MyVideo = () => {
   return (
@@ -25,11 +25,11 @@ export const MyVideo = () => {
         src={video}
         startFrom={59} // if video is 30fps, then it will start at 2s
         endAt={120} // if video is 30fps, then it will end at 4s
-        style={{height: 1080 / 2, width: 1920 / 2}}
+        style={{ height: 1080 / 2, width: 1920 / 2 }}
       />
     </div>
-  )
-}
+  );
+};
 ```
 
 ## Codec support
@@ -62,24 +62,18 @@ _Available from v2.4.4_
 You can use the browser-native [`<source>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/source) tags to provide different media to support a broader range of browsers. While rendering always happens in Chrome, this feature is useful if you are showing a preview in [`<Player />`](/docs/player).
 
 ```tsx twoslash
-import {Video, interpolate} from 'remotion';
-const source1 = "https://example.com/kid-laugh.mp3"
+import { Video, interpolate } from "remotion";
+const source1 = "https://example.com/kid-laugh.mp3";
 // ---cut---
 
 const Comp: React.FC = () => {
   return (
     <Video>
-      <source
-        src="https://example.com/me-at-the-zoo.mp4"
-        type="video/mp4"
-      />
-      <source
-        src="https://example.com/big-buck-bunny.webm"
-        type="video/webm"
-      />
+      <source src="https://example.com/me-at-the-zoo.mp4" type="video/mp4" />
+      <source src="https://example.com/big-buck-bunny.webm" type="video/webm" />
     </Video>
   );
-}
+};
 ```
 
 ## See also

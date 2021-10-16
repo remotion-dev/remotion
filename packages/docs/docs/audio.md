@@ -14,8 +14,8 @@ The component also accepts a `volume` props which allows you to control the volu
 `<Audio>` has two more helper props: `startFrom` and `endAt` for defining the start frame and end frame. Both are optional and do not get forwarded to the native `<audio>` element but tell Remotion which portion of the audio should be included.
 
 ```tsx twoslash
-import {Audio} from 'remotion'
-import audio from './audio.mp3'
+import { Audio } from "remotion";
+import audio from "./audio.mp3";
 
 export const MyVideo = () => {
   return (
@@ -27,8 +27,8 @@ export const MyVideo = () => {
         endAt={120} // if composition is 30fps, then it will end at 4s
       />
     </div>
-  )
-}
+  );
+};
 ```
 
 ## Controlling volume
@@ -50,23 +50,17 @@ _Available from v2.4.4_
 You can use the browser-native [`<source>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/source) tags to provide different media to support a broader range of browsers. While rendering always happens in Chrome, this feature is useful if you are showing a preview in [`<Player />`](/docs/player).
 
 ```tsx twoslash
-import {Audio, interpolate} from 'remotion';
+import { Audio, interpolate } from "remotion";
 // ---cut---
 
 const Comp: React.FC = () => {
   return (
     <Audio>
-      <source
-        src="https://example.com/kid-laugh.mp3"
-        type="audio/mpeg"
-      />
-      <source
-        src="https://example.com/cow-moo.ogg"
-        type="audio/ogg"
-      />
+      <source src="https://example.com/kid-laugh.mp3" type="audio/mpeg" />
+      <source src="https://example.com/cow-moo.ogg" type="audio/ogg" />
     </Audio>
   );
-}
+};
 ```
 
 ## See also
