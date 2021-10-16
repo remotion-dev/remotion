@@ -32,7 +32,6 @@
 	},
 	"devDependencies": {
 		"@jonny/eslint-config": "^2.1.233",
-		"@testing-library/dom": "^8.7.2",
 		"@testing-library/react": "^11.2.2",
 		"@types/jest": "^27.0.2",
 		"@types/node": "^14.14.14",

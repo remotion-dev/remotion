@@ -16,6 +16,7 @@
 		"url": "https://github.com/remotion-dev/remotion"
 	},
 	"dependencies": {
+		"@testing-library/dom": "^8.7.2",
 		"@remotion/bundler": "^2.4.3",
 		"execa": "^4.0.2",
 		"got": "11.8.2",
