@@ -3,7 +3,7 @@ import {Loop, useCurrentFrame} from 'remotion';
 
 const LoopedVideo: React.FC = () => {
 	return (
-		<Loop durationInFrames={50} times={2}>
+		<Loop durationInFrames={50} times={3} name="MyLoop">
 			<Child />
 		</Loop>
 	);
