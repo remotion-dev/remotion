@@ -6,7 +6,7 @@
     "docusaurus": "docusaurus",
     "start": "docusaurus start",
     "build": "tsc",
-    "build-docs": "node --max_old_space_size=16000 node_modules/@docusaurus/core/bin/docusaurus.js build",
+    "build-docs": "docusaurus build",
     "swizzle": "docusaurus swizzle",
     "deploy": "docusaurus deploy",
     "serve": "docusaurus serve",
@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "@docusaurus/core": "2.0.0-beta.7",
-    "@docusaurus/plugin-content-blog": "^2.0.0-beta.7",
+    "@docusaurus/plugin-content-blog": "2.0.0-beta.7",
     "@docusaurus/preset-classic": "2.0.0-beta.7",
     "@mdx-js/react": "^1.6.21",
     "@remotion/babel-loader": "^2.4.3",
