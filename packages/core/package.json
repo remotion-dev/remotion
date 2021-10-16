@@ -9,8 +9,7 @@
 		"test": "eslint src --ext ts,tsx && jest --coverage && node generate-badges.js",
 		"build": "tsc -d",
 		"watch": "tsc -w",
-		"prerelease": "cp ../../README.md .",
-		"prepare": "rimraf node_modules/@types/react"
+		"prerelease": "cp ../../README.md ."
 	},
 	"repository": {
 		"url": "https://github.com/remotion-dev/remotion"
