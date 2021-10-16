@@ -46,10 +46,7 @@ jobs:
         run: curl -f https://get.pnpm.io/v6.16.js | node - add --global pnpm@6
 
       - name: Install
-        run: pnpm recursive install --frozen-lockfile
-
-      - name: Link
-        run: pnpm lerna bootstrap
+        run: pnpm install --frozen-lockfile
 
       - name: Build & Test
         run: |
