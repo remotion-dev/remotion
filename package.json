@@ -5,7 +5,8 @@
   "scripts": {
     "test": "pnpm run test --recursive && jest --runInBand",
     "build": "pnpm run build --recursive",
-    "watch": "pnpm run watch --recursive --stream --parallel"
+    "watch": "pnpm run watch --recursive --stream --parallel",
+    "postinstall": "lerna bootstrap"
   },
   "engines": {
     "node": ">=12",
