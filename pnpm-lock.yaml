@@ -6,6 +6,7 @@ importers:
     specifiers:
       '@jonny/eslint-config': ^2.1.233
       '@react-three/fiber': ^6.1.2
+      '@remotion/babel-loader': ^2.4.3
       '@remotion/bundler': ^2.4.3
       '@remotion/cli': ^2.4.3
       '@remotion/gif': ^2.4.3
@@ -41,6 +42,7 @@ importers:
       three: 0.128.0
     devDependencies:
       '@jonny/eslint-config': 2.1.246_eslint@7.32.0+typescript@4.4.3
+      '@remotion/babel-loader': link:packages/babel-loader
       '@remotion/bundler': link:packages/bundler
       '@remotion/cli': link:packages/cli
       '@remotion/gif': link:packages/gif
