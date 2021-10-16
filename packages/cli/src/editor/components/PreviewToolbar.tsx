@@ -6,6 +6,7 @@ import {Flex} from './layout';
 import {PlayPause} from './PlayPause';
 import {RichTimelineToggle} from './RichTimelineToggle';
 import {SizeSelector} from './SizeSelector';
+import {TimelineInOutPointToggle} from './TimelineInOutToggle';
 import {TimeValue} from './TimeValue';
 
 const container: React.CSSProperties = {
@@ -42,6 +43,7 @@ export const PreviewToolbar: React.FC = () => {
 			<PlayPause />
 			<CheckboardToggle />
 			<RichTimelineToggle />
+			<TimelineInOutPointToggle />
 			<Flex />
 			<div style={sideContainer}>
 				<Flex />
