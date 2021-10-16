@@ -17,7 +17,7 @@
     "@types/jest": "^27.0.2",
     "@types/minimist": "^1.2.1",
     "@types/node": "^16.7.5",
-    "@types/react": "17.0.19",
+    "@types/react": "17.0.27",
     "@types/react-dom": "^17.0.9",
     "@types/sharp": "^0.28.5",
     "eslint": "^7.25.0",
