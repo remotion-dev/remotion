@@ -86,6 +86,7 @@ export const useMediaInTimeline = ({
 			nonce,
 			startMediaFrom: 0 - startsAt,
 			doesVolumeChange,
+			showLoopTimesInTimeline: undefined,
 		});
 
 		return () => unregisterSequence(id);

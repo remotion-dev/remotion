@@ -8,6 +8,7 @@ import {timelineRef} from '../state/timeline-ref';
 import {Row} from './layout';
 import {Menu, MenuId, MenuItem} from './Menu/MenuItem';
 import {commonPreviewSizes, getPreviewSizeLabel} from './SizeSelector';
+import {inOutHandles} from './TimelineInOutToggle';
 import {UpdateCheck} from './UpdateCheck';
 
 const row: React.CSSProperties = {
@@ -255,6 +256,49 @@ export const MenuToolbar: React.FC = () => {
 						value: 'collapse-all',
 						leftItem: null,
 						subMenu: null,
+					},
+					{
+						id: 'in-out-divider',
+						type: 'divider',
+					},
+					{
+						id: 'in-mark',
+						keyHint: 'I',
+						label: 'In Mark',
+						leftItem: null,
+						onClick: () => {
+							close();
+							inOutHandles.current?.inMarkClick();
+						},
+						subMenu: null,
+						type: 'item',
+						value: 'in-mark',
+					},
+					{
+						id: 'out-mark',
+						keyHint: 'O',
+						label: 'Out Mark',
+						leftItem: null,
+						onClick: () => {
+							close();
+							inOutHandles.current?.outMarkClick();
+						},
+						subMenu: null,
+						type: 'item',
+						value: 'out-mark',
+					},
+					{
+						id: 'x-mark',
+						keyHint: 'X',
+						label: 'Clear In/Out Marks',
+						leftItem: null,
+						onClick: () => {
+							close();
+							inOutHandles.current?.clearMarks();
+						},
+						subMenu: null,
+						type: 'item',
+						value: 'clear-marks',
 					},
 				],
 			},
