@@ -198,6 +198,38 @@ Pauses the video if it's playing. Plays the video if it's paused.
 
 Gets the current postition expressed as the current frame. Divide by the `fps` you passed to get the time in seconds.
 
+### `getContainerNode()`
+
+_Available from v2.4.2_
+
+Gets the container `HTMLDivElement` of the player. Useful if you'd like to manually attach listeners to the player element.
+
+```tsx twoslash
+import {useRef, useEffect} from 'react'
+import {PlayerRef} from '@remotion/player'
+// ---cut---
+const playerRef = useRef<PlayerRef>(null);
+
+useEffect(() => {
+  if (!playerRef.current) {
+    return;
+  }
+  const container = playerRef.current.getContainerNode();
+  if (!container) {
+    return;
+  }
+
+  const onClick = () => {
+    console.log('player got clicked');
+  };
+
+  container.addEventListener('click', onClick)
+  return () => {
+    container.removeEventListener('click', onClick);
+  }
+}, []);
+```
+
 ### `mute()`
 
 Mutes the video.

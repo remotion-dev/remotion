@@ -118,7 +118,7 @@ test('Negative offset edge case', () => {
 	const endAt = 90;
 
 	const content = (
-		<Sequence from={40} durationInFrames={Infinity}>
+		<Sequence from={40}>
 			<Sequence from={0 - startFrom} durationInFrames={endAt}>
 				<NestedChild />
 			</Sequence>
