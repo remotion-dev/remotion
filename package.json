@@ -27,6 +27,7 @@
     "prettier": "^2.2.1",
     "prettier-plugin-organize-imports": "^1.1.1",
     "sharp": "^0.29.0",
+    "@remotion/babel-loader": "^2.4.3",
     "@remotion/three": "^2.4.3",
     "@remotion/player": "^2.4.3",
     "@remotion/gif": "^2.4.3",
