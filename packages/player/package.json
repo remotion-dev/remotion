@@ -35,7 +35,7 @@
 		"@testing-library/react": "^11.2.2",
 		"@types/jest": "^27.0.2",
 		"@types/node": "^14.14.14",
-		"@types/react": "17.0.19",
+		"@types/react": "17.0.27",
 		"@types/react-dom": "^17.0.0",
 		"csstype": "^3.0.9",
 		"eslint": "^7.4.0",
