@@ -11,10 +11,10 @@ Gets the compositions defined in a Remotion project based on a webpack bundle. S
 const getCompositions: (
   bundle: string,
   options: {
-    inputProps?: object | null
-    browserInstance?: puppeteer.Browser
+    inputProps?: object | null;
+    browserInstance?: puppeteer.Browser;
   }
-) => Promise<TComposition[]>
+) => Promise<TComposition[]>;
 ```
 
 ## Arguments
@@ -54,18 +54,18 @@ Returns a promise that resolves to an array of available compositions. Example v
 ```ts twoslash
 [
   {
-    id: 'HelloWorld',
+    id: "HelloWorld",
     width: 1920,
     height: 1080,
     fps: 30,
   },
   {
-    id: 'Title',
+    id: "Title",
     width: 1080,
     height: 1080,
     fps: 30,
   },
-]
+];
 ```
 
 ## See also
