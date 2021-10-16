@@ -29,6 +29,7 @@ export type SequenceProps = {
 	name?: string;
 	layout?: 'absolute-fill' | 'none';
 	showInTimeline?: boolean;
+	showLoopTimesInTimeline?: number;
 };
 
 export const Sequence: React.FC<SequenceProps> = ({
@@ -38,6 +39,7 @@ export const Sequence: React.FC<SequenceProps> = ({
 	name,
 	layout = 'absolute-fill',
 	showInTimeline = true,
+	showLoopTimesInTimeline,
 }) => {
 	const [id] = useState(() => String(Math.random()));
 	const parentSequence = useContext(SequenceContext);
@@ -134,6 +136,7 @@ export const Sequence: React.FC<SequenceProps> = ({
 			rootId,
 			showInTimeline,
 			nonce,
+			showLoopTimesInTimeline,
 		});
 		return () => {
 			unregisterSequence(id);
@@ -152,6 +155,7 @@ export const Sequence: React.FC<SequenceProps> = ({
 		from,
 		showInTimeline,
 		nonce,
+		showLoopTimesInTimeline,
 	]);
 
 	const endThreshold = (() => {
