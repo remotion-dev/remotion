@@ -303,6 +303,7 @@ importers:
       react-player: ^2.9.0
       remotion: ^2.4.3
       ts-jest: ^27.0.5
+      typescript: ^4.4.4
       url-loader: ^4.1.1
     dependencies:
       '@docusaurus/core': 2.0.0-beta.7_react-dom@17.0.2+react@17.0.2
@@ -327,13 +328,14 @@ importers:
       polished: 4.1.2
       react-player: 2.9.0_react@17.0.2
       remotion: link:../core
-      ts-jest: 27.0.5_52a571d76319e63aeaa66dc9db9e90cc
+      ts-jest: 27.0.5_51c11d010e286a135a5a392005601a98
     devDependencies:
       '@docusaurus/module-type-aliases': 2.0.0-beta.7
       '@tsconfig/docusaurus': 1.0.4
       '@types/color-namer': 1.3.0
       '@types/hls.js': 0.13.3
       '@types/jest': 27.0.2
+      typescript: 4.4.4
       url-loader: 4.1.1
 
   packages/eslint-config:
@@ -5261,7 +5263,7 @@ packages:
     resolution: {integrity: sha512-8hobv8ZeIvTVOCFkNi6G7YnkC3jDbS0pZrucCK596uzXhvl98JcPJJ8G1Pu8Ok0kC31/fA9aNiDXaXSl9QywTw==}
     dependencies:
       remark-shiki-twoslash: 3.0.5
-      typescript: 4.4.3
+      typescript: 4.4.4
     transitivePeerDependencies:
       - supports-color
     dev: false
@@ -19429,7 +19431,7 @@ packages:
       shiki: 0.9.11
       shiki-twoslash: 3.0.1
       tslib: 2.1.0
-      typescript: 4.4.3
+      typescript: 4.4.4
       unist-util-visit: 2.0.3
     transitivePeerDependencies:
       - supports-color
@@ -20123,7 +20125,7 @@ packages:
       '@typescript/twoslash': 2.2.0
       '@typescript/vfs': 1.3.4
       shiki: 0.9.3
-      typescript: 4.4.3
+      typescript: 4.4.4
     transitivePeerDependencies:
       - supports-color
     dev: false
@@ -21351,6 +21353,37 @@ packages:
       yargs-parser: 20.2.9
     dev: true
 
+  /ts-jest/27.0.5_51c11d010e286a135a5a392005601a98:
+    resolution: {integrity: sha512-lIJApzfTaSSbtlksfFNHkWOzLJuuSm4faFAfo5kvzOiRAuoN4/eKxVJ2zEAho8aecE04qX6K1pAzfH5QHL1/8w==}
+    engines: {node: ^10.13.0 || ^12.13.0 || ^14.15.0 || >=15.0.0}
+    hasBin: true
+    peerDependencies:
+      '@babel/core': '>=7.0.0-beta.0 <8'
+      '@types/jest': ^27.0.0
+      babel-jest: '>=27.0.0 <28'
+      jest: ^27.0.0
+      typescript: '>=3.8 <5.0'
+    peerDependenciesMeta:
+      '@babel/core':
+        optional: true
+      '@types/jest':
+        optional: true
+      babel-jest:
+        optional: true
+    dependencies:
+      '@types/jest': 27.0.2
+      bs-logger: 0.2.6
+      fast-json-stable-stringify: 2.1.0
+      jest: 27.2.4
+      jest-util: 27.2.4
+      json5: 2.2.0
+      lodash: 4.17.21
+      make-error: 1.3.6
+      semver: 7.3.5
+      typescript: 4.4.4
+      yargs-parser: 20.2.9
+    dev: false
+
   /ts-jest/27.0.5_52a571d76319e63aeaa66dc9db9e90cc:
     resolution: {integrity: sha512-lIJApzfTaSSbtlksfFNHkWOzLJuuSm4faFAfo5kvzOiRAuoN4/eKxVJ2zEAho8aecE04qX6K1pAzfH5QHL1/8w==}
     engines: {node: ^10.13.0 || ^12.13.0 || ^14.15.0 || >=15.0.0}
@@ -21380,6 +21413,7 @@ packages:
       semver: 7.3.5
       typescript: 4.4.3
       yargs-parser: 20.2.9
+    dev: true
 
   /ts-node/9.1.1_typescript@4.4.3:
     resolution: {integrity: sha512-hPlt7ZACERQGf03M253ytLY3dHbGNGrAq9qIHWUY9XHYl1z7wYngSr3OQ5xmui8o2AaxsONxIzjafLUiWBo1Fg==}
@@ -21556,6 +21590,11 @@ packages:
 
   /typescript/4.4.3:
     resolution: {integrity: sha512-4xfscpisVgqqDfPaJo5vkd+Qd/ItkoagnHpufr+i2QCHBsNYp+G7UAoyFl8aPtx879u38wPV65rZ8qbGZijalA==}
+    engines: {node: '>=4.2.0'}
+    hasBin: true
+
+  /typescript/4.4.4:
+    resolution: {integrity: sha512-DqGhF5IKoBl8WNf8C1gu8q0xZSInh9j1kJJMqT3a94w1JzVaBU4EXOSMrz9yDqMT0xt3selp83fuFMQ0uzv6qA==}
     engines: {node: '>=4.2.0'}
     hasBin: true
 
