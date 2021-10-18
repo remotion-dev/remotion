@@ -4,7 +4,7 @@ importers:
 
   .:
     specifiers:
-      '@jonny/eslint-config': ^2.1.233
+      '@jonny/eslint-config': ^2.1.248
       '@react-three/fiber': ^6.1.2
       '@remotion/babel-loader': ^2.4.3
       '@remotion/bundler': ^2.4.3
@@ -41,7 +41,7 @@ importers:
       react-dom: 17.0.2_react@17.0.2
       three: 0.128.0
     devDependencies:
-      '@jonny/eslint-config': 2.1.246_eslint@7.32.0+typescript@4.4.3
+      '@jonny/eslint-config': 2.1.248_eslint@7.32.0+typescript@4.4.3
       '@remotion/babel-loader': link:packages/babel-loader
       '@remotion/bundler': link:packages/bundler
       '@remotion/cli': link:packages/cli
@@ -74,7 +74,7 @@ importers:
       '@babel/preset-env': ^7.12.10
       '@babel/preset-react': ^7.12.10
       '@babel/preset-typescript': ^7.12.7
-      '@jonny/eslint-config': ^2.1.233
+      '@jonny/eslint-config': ^2.1.248
       '@types/node': ^16.7.5
       '@webhotelier/webpack-fast-refresh': ^5.1.0
       babel-loader: ^8.1.0
@@ -96,7 +96,7 @@ importers:
       react-refresh: 0.9.0
       webpack: 5.37.0
     devDependencies:
-      '@jonny/eslint-config': 2.1.246_eslint@7.32.0+typescript@4.4.3
+      '@jonny/eslint-config': 2.1.248_eslint@7.32.0+typescript@4.4.3
       '@types/node': 16.10.2
       eslint: 7.32.0
       prettier: 2.4.1
@@ -106,7 +106,7 @@ importers:
 
   packages/bundler:
     specifiers:
-      '@jonny/eslint-config': ^2.1.233
+      '@jonny/eslint-config': ^2.1.248
       '@jonny/webpack-dev-middleware': ^4.1.3
       '@types/express': ^4.17.7
       '@types/node': ^16.7.5
@@ -144,7 +144,7 @@ importers:
       webpack: 5.37.0
       webpack-hot-middleware: 2.25.1
     devDependencies:
-      '@jonny/eslint-config': 2.1.246_eslint@7.32.0+typescript@4.4.3
+      '@jonny/eslint-config': 2.1.248_eslint@7.32.0+typescript@4.4.3
       '@types/express': 4.17.13
       '@types/node': 16.10.2
       '@types/semver': 7.3.8
@@ -155,7 +155,7 @@ importers:
 
   packages/cli:
     specifiers:
-      '@jonny/eslint-config': ^2.1.233
+      '@jonny/eslint-config': ^2.1.248
       '@remotion/bundler': ^2.4.3
       '@remotion/media-utils': ^2.4.3
       '@remotion/player': ^2.4.3
@@ -196,7 +196,7 @@ importers:
       webpack: 5.37.0
       xns: 2.0.7
     devDependencies:
-      '@jonny/eslint-config': 2.1.246_eslint@7.32.0+typescript@4.4.3
+      '@jonny/eslint-config': 2.1.248_eslint@7.32.0+typescript@4.4.3
       '@types/jest': 27.0.2
       '@types/node': 16.10.2
       '@types/react': 17.0.27
@@ -210,7 +210,7 @@ importers:
 
   packages/core:
     specifiers:
-      '@jonny/eslint-config': ^2.1.233
+      '@jonny/eslint-config': ^2.1.248
       '@testing-library/react': ^11.2.2
       '@testing-library/react-hooks': ^5.1.1
       '@types/jest': ^27.0.2
@@ -225,7 +225,7 @@ importers:
       typescript: ^4.4.2
       webpack: 5.37.0
     devDependencies:
-      '@jonny/eslint-config': 2.1.246_eslint@7.32.0+typescript@4.4.3
+      '@jonny/eslint-config': 2.1.248_eslint@7.32.0+typescript@4.4.3
       '@testing-library/react': 11.2.7_react-dom@17.0.2+react@17.0.2
       '@testing-library/react-hooks': 5.1.3_react-dom@17.0.2+react@17.0.2
       '@types/jest': 27.0.2
@@ -242,7 +242,7 @@ importers:
 
   packages/create-video:
     specifiers:
-      '@jonny/eslint-config': ^2.1.233
+      '@jonny/eslint-config': ^2.1.248
       '@types/degit': ^2.8.3
       '@types/fs-extra': ^9.0.11
       '@types/node': ^16.7.5
@@ -264,7 +264,7 @@ importers:
       prompts: 2.4.1
       strip-ansi: 6.0.1
     devDependencies:
-      '@jonny/eslint-config': 2.1.246_eslint@7.32.0+typescript@4.4.3
+      '@jonny/eslint-config': 2.1.248_eslint@7.32.0+typescript@4.4.3
       '@types/degit': 2.8.3
       '@types/fs-extra': 9.0.13
       '@types/node': 16.10.2
@@ -460,7 +460,7 @@ importers:
 
   packages/gif:
     specifiers:
-      '@jonny/eslint-config': ^2.1.233
+      '@jonny/eslint-config': ^2.1.248
       '@react-gifs/tools': ^0.1.1
       '@testing-library/react': ^11.2.2
       '@types/jest': ^27.0.2
@@ -480,7 +480,7 @@ importers:
       lru_map: 0.4.1
       remotion: link:../core
     devDependencies:
-      '@jonny/eslint-config': 2.1.246_eslint@7.32.0+typescript@4.4.3
+      '@jonny/eslint-config': 2.1.248_eslint@7.32.0+typescript@4.4.3
       '@testing-library/react': 11.2.7_react-dom@17.0.2+react@17.0.2
       '@types/jest': 27.0.2
       '@types/node': 16.10.2
@@ -495,7 +495,7 @@ importers:
 
   packages/media-utils:
     specifiers:
-      '@jonny/eslint-config': ^2.1.233
+      '@jonny/eslint-config': ^2.1.248
       '@types/node': ^16.7.5
       eslint: ^7.25.0
       prettier: ^2.0.5
@@ -505,7 +505,7 @@ importers:
     dependencies:
       remotion: link:../core
     devDependencies:
-      '@jonny/eslint-config': 2.1.246_eslint@7.32.0+typescript@4.4.3
+      '@jonny/eslint-config': 2.1.248_eslint@7.32.0+typescript@4.4.3
       '@types/node': 16.10.2
       eslint: 7.32.0
       prettier: 2.4.1
@@ -514,7 +514,7 @@ importers:
 
   packages/player:
     specifiers:
-      '@jonny/eslint-config': ^2.1.233
+      '@jonny/eslint-config': ^2.1.248
       '@testing-library/react': ^11.2.2
       '@types/jest': ^27.0.2
       '@types/node': ^14.14.14
@@ -532,7 +532,7 @@ importers:
     dependencies:
       remotion: link:../core
     devDependencies:
-      '@jonny/eslint-config': 2.1.246_eslint@7.32.0+typescript@4.4.3
+      '@jonny/eslint-config': 2.1.248_eslint@7.32.0+typescript@4.4.3
       '@testing-library/react': 11.2.7_react-dom@17.0.2+react@17.0.2
       '@types/jest': 27.0.2
       '@types/node': 14.17.20
@@ -581,7 +581,7 @@ importers:
 
   packages/renderer:
     specifiers:
-      '@jonny/eslint-config': ^2.1.233
+      '@jonny/eslint-config': ^2.1.248
       '@remotion/bundler': ^2.4.3
       '@testing-library/dom': ^8.7.2
       '@testing-library/react': ^11.2.5
@@ -614,7 +614,7 @@ importers:
       serve-handler: 6.1.3
       xns: 2.0.7
     devDependencies:
-      '@jonny/eslint-config': 2.1.246_eslint@7.32.0+typescript@4.4.3
+      '@jonny/eslint-config': 2.1.248_eslint@7.32.0+typescript@4.4.3
       '@testing-library/react': 11.2.7_react-dom@17.0.2+react@17.0.2
       '@types/jest': 27.0.2
       '@types/node': 16.10.2
@@ -628,7 +628,7 @@ importers:
 
   packages/three:
     specifiers:
-      '@jonny/eslint-config': ^2.1.210
+      '@jonny/eslint-config': ^2.1.248
       '@types/node': ^14.14.14
       '@types/three': ^0.128.0
       eslint: ^7.4.0
@@ -640,7 +640,7 @@ importers:
     dependencies:
       remotion: link:../core
     devDependencies:
-      '@jonny/eslint-config': 2.1.246_eslint@7.32.0+typescript@4.4.3
+      '@jonny/eslint-config': 2.1.248_eslint@7.32.0+typescript@4.4.3
       '@types/node': 14.17.20
       '@types/three': 0.128.0
       eslint: 7.32.0
@@ -5268,19 +5268,19 @@ packages:
       - supports-color
     dev: false
 
-  /@jonny/eslint-config/2.1.246_eslint@7.32.0+typescript@4.4.3:
-    resolution: {integrity: sha512-PNMb3Wv0PMUfEmUxKL24JqGtbXsJEIn9wDRmnTRr2iio6dTvMROnpP2CSkcHdVU3jvZIHI/QMDibeGdmp/F1Wg==}
+  /@jonny/eslint-config/2.1.248_eslint@7.32.0+typescript@4.4.3:
+    resolution: {integrity: sha512-k9ym6jUOPHQjTEK+rgjnZqSqOW2tzY5gjGKILYNQ/kKAJRZJzjpXeqZIRD2fHBJHu4Jl8ZH+a/BQdzjppH54zg==}
     dependencies:
       '@typescript-eslint/eslint-plugin': 4.33.0_d753869925cce96d3eb2141eeedafe57
       '@typescript-eslint/parser': 4.33.0_eslint@7.32.0+typescript@4.4.3
       babel-eslint: 10.1.0_eslint@7.32.0
       eslint-config-prettier: 8.3.0_eslint@7.32.0
       eslint-config-xo: 0.39.0_eslint@7.32.0
-      eslint-config-xo-react: 0.25.0_4aa9e94627c6bd4f2bd53b956d3d8631
+      eslint-config-xo-react: 0.25.0_619fd791a30680e87cb22972fa901a6f
       eslint-plugin-10x: 1.5.0_eslint@7.32.0
       eslint-plugin-promise: 5.1.0_eslint@7.32.0
       eslint-plugin-react: 7.26.1_eslint@7.32.0
-      eslint-plugin-react-hooks: 4.2.0_eslint@7.32.0
+      eslint-plugin-react-hooks: 4.2.1-alpha-930c9e7ee-20211015_eslint@7.32.0
       eslint-plugin-react-native-normalized: 1.1.2_eslint@7.32.0
     transitivePeerDependencies:
       - eslint
@@ -8243,7 +8243,7 @@ packages:
   /axios/0.21.4:
     resolution: {integrity: sha512-ut5vewkiu8jjGBdqpM44XxjuCjq9LAKeHVmoVfHVzy8eHgxxq8SbAVQNovDA8mVi05kP0Ea/n/UzcSHcTJQfNg==}
     dependencies:
-      follow-redirects: 1.14.4
+      follow-redirects: 1.14.4_debug@4.3.2
     transitivePeerDependencies:
       - debug
     dev: false
@@ -11315,7 +11315,7 @@ packages:
       eslint-plugin-react-hooks: 4.2.0_eslint@7.32.0
     dev: false
 
-  /eslint-config-xo-react/0.25.0_4aa9e94627c6bd4f2bd53b956d3d8631:
+  /eslint-config-xo-react/0.25.0_619fd791a30680e87cb22972fa901a6f:
     resolution: {integrity: sha512-YpABFxnoATAYtxsZQChZEbOkWqzCtcQDRdiUqHhLgG7hzbAEzPDmsRUWnTP8oTVLVFWrbgdf913b8kQJaR1cBA==}
     engines: {node: '>=10'}
     peerDependencies:
@@ -11325,7 +11325,7 @@ packages:
     dependencies:
       eslint: 7.32.0
       eslint-plugin-react: 7.26.1_eslint@7.32.0
-      eslint-plugin-react-hooks: 4.2.0_eslint@7.32.0
+      eslint-plugin-react-hooks: 4.2.1-alpha-930c9e7ee-20211015_eslint@7.32.0
     dev: true
 
   /eslint-config-xo/0.35.0_eslint@7.32.0:
@@ -11460,6 +11460,16 @@ packages:
       eslint: ^3.0.0 || ^4.0.0 || ^5.0.0 || ^6.0.0 || ^7.0.0
     dependencies:
       eslint: 7.32.0
+    dev: false
+
+  /eslint-plugin-react-hooks/4.2.1-alpha-930c9e7ee-20211015_eslint@7.32.0:
+    resolution: {integrity: sha512-JnjbwB6FCjoFOzrEPt0pk/oyck2l5SQTgGw1HtV1b/9vJ1Kyypp+APAWvNQEjlJlGFCQwTiTi2iwr/CRQQxm3Q==}
+    engines: {node: '>=10'}
+    peerDependencies:
+      eslint: ^3.0.0 || ^4.0.0 || ^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0-0
+    dependencies:
+      eslint: 7.32.0
+    dev: true
 
   /eslint-plugin-react-native-normalized/1.1.2_eslint@7.32.0:
     resolution: {integrity: sha512-/YtsqsOnV82SfFi6Pp/pyslFVhO7OQqi+QkgCQgtWwBuvxdxJ5vsnmv4d/Hjvq4I7vXwGjV217Rkm3R4OXQ0Rg==}
@@ -12145,7 +12155,7 @@ packages:
       react: 17.0.2
     dev: false
 
-  /follow-redirects/1.14.4:
+  /follow-redirects/1.14.4_debug@4.3.2:
     resolution: {integrity: sha512-zwGkiSXC1MUJG/qmeIFH2HBJx9u0V46QGUe3YR1fXG8bXQxq7fLj0RjLZQ5nubr9qNJUZrH+xUcwXEoXNpfS+g==}
     engines: {node: '>=4.0'}
     peerDependencies:
@@ -12153,6 +12163,8 @@ packages:
     peerDependenciesMeta:
       debug:
         optional: true
+    dependencies:
+      debug: 4.3.2_supports-color@6.1.0
     dev: false
 
   /for-in/1.0.2:
@@ -13096,7 +13108,7 @@ packages:
     engines: {node: '>=8.0.0'}
     dependencies:
       eventemitter3: 4.0.7
-      follow-redirects: 1.14.4
+      follow-redirects: 1.14.4_debug@4.3.2
       requires-port: 1.0.0
     transitivePeerDependencies:
       - debug
