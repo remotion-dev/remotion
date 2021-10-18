@@ -42,12 +42,12 @@ Type your components using the `React.FC<{}>` type and the `defaultProps` prop w
 ```tsx twoslash
 // @allowUmdGlobalAccess
 // @filename: ./MyComp.tsx
-export const MyComp = () => <></>
+export const MyComp = () => <></>;
 
 // @filename: index.tsx
 // ---cut---
-import {Composition} from 'remotion'
-import {MyComp} from './MyComp'
+import { Composition } from "remotion";
+import { MyComp } from "./MyComp";
 
 export const MyVideo = () => {
   return (
@@ -61,8 +61,8 @@ export const MyVideo = () => {
         durationInFrames={3 * 30}
       />
     </>
-  )
-}
+  );
+};
 ```
 
 ## Example using `lazyComponent`
@@ -73,15 +73,15 @@ export const MyVideo = () => {
     <>
       <Composition
         id="my-comp"
-        lazyComponent={() => import('./LazyComponent')}
+        lazyComponent={() => import("./LazyComponent")}
         width={1080}
         height={1080}
         fps={30}
         durationInFrames={3 * 30}
       />
     </>
-  )
-}
+  );
+};
 ```
 
 ## See also
