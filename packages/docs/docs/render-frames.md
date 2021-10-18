@@ -138,7 +138,7 @@ const renderFrames = (options: {
   onError: (info: {
     frame: null | number;
     error: Error
-  })
+  }) => void;
 }) => {}
 // ---cut---
 renderFrames({

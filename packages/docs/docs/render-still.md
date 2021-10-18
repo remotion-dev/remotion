@@ -119,7 +119,7 @@ Allows you to react to an exception thrown in your React code. The callback has 
 
 ```tsx twoslash
 const renderStill = (options: {
-  onError: (err: Error)
+  onError: (err: Error) => void;
 }) => {}
 // ---cut---
 renderStill({
