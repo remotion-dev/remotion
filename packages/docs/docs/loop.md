@@ -6,7 +6,7 @@ sidebar_label: <Loop />
 
 import { LoopExamples, BlueSquare } from "../components/LoopExamples/LoopExamples";
 
-```twoslash include example
+```
 const BlueSquare: React.FC = () => <div></div>
 // - BlueSquare
 ```

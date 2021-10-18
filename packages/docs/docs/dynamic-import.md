@@ -25,7 +25,7 @@ my-video/
 
 Note that the following pattern doesn't work:
 
-```tsx twoslash
+```tsx
 import { Img, useCurrentFrame } from "remotion";
 
 export const DynamicImports: React.FC = () => {
@@ -41,7 +41,7 @@ Error: Cannot find module './image0.png'
 
 However the following example **does** work:
 
-```tsx twoslash
+```tsx
 import { Img, useCurrentFrame } from "remotion";
 
 export const DynamicImports: React.FC = () => {
@@ -58,7 +58,7 @@ Please read [the Webpack documentation page](https://webpack.js.org/api/module-m
 
 Let's imagine a scenario where the asset that should be imported is completely unknown and will be read at runtime, for example through an [input prop](/docs/get-input-props):
 
-```tsx twoslash
+```tsx
 import { getInputProps, Img } from "remotion";
 
 const DynamicAsset: React.FC = () => {
@@ -70,7 +70,7 @@ const DynamicAsset: React.FC = () => {
 This cannot work because Webpack has no ideas which assets it has to bundle. Therefore the import has to fail.
 Like above, you can force Webpack to bundle the whole assets folder by putting an expression inside the `require()` statement:
 
-```tsx twoslash
+```tsx
 import { getInputProps, Img } from "remotion";
 
 const DynamicAsset: React.FC = () => {
@@ -90,7 +90,7 @@ You can use the following workaround that relies on the fact that Remotion creat
 2. Copy a new asset into this folder.
 3. Rely on the fact that the asset is available via the static HTTP server. Since you only want this during rendering, use the `process.env.NODE_ENV === 'production'` statement to differentiate between development and rendering.
 
-```tsx twoslash
+```tsx
 import { getInputProps, Img } from "remotion";
 
 export const DynamicAsset: React.FC = () => {
@@ -116,7 +116,7 @@ As a last resort, you can spin up your own static HTTP server and import the ass
 npx serve --cors ./src
 ```
 
-```tsx twoslash
+```tsx
 import { getInputProps, Img } from "remotion";
 
 const HttpAsset: React.FC = () => {

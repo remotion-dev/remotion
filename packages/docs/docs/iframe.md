@@ -8,7 +8,7 @@ The difference is that if you use the component from Remotion, that Remotion wil
 
 ## Example
 
-```tsx twoslash
+```tsx
 import { IFrame } from "remotion";
 
 export const MyComp: React.FC = () => {

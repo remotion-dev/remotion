@@ -22,7 +22,7 @@ This method is useful if you for example want to call an API to fetch data befor
 
 ## Example
 
-```tsx twoslash
+```tsx
 import { useEffect, useState } from "react";
 import { continueRender, delayRender } from "remotion";
 

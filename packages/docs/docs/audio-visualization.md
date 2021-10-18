@@ -9,7 +9,7 @@ Using the audio visualization APIs in Remotion 2.0, you can create animations ba
 
 You can import an audio file using an `import` statement:
 
-```ts twoslash
+```ts
 import { Audio } from "remotion";
 // ---cut---
 import audio from "./audio.mp3";
@@ -25,7 +25,7 @@ Using the [`visualizeAudio()`](/docs/visualize-audio) API, you can get an audio 
 
 Refer to the documentation of the above mentioned functions to learn more.
 
-```tsx twoslash
+```tsx
 import { Audio, useCurrentFrame, useVideoConfig } from "remotion";
 import { useAudioData, visualizeAudio } from "@remotion/media-utils";
 import music from "./music.mp3";

@@ -26,7 +26,7 @@ A string pointing to an audio asset.
 
 ## Example
 
-```ts twoslash
+```ts
 // @module: ESNext
 // @target: ESNext
 import { Audio } from "remotion";

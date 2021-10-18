@@ -50,7 +50,7 @@ Allows to pass in custom CSS styles.
 
 ## Example
 
-```tsx twoslash
+```tsx
 import { useVideoConfig } from "remotion";
 // ---cut---
 import { Gif } from "@remotion/gif";

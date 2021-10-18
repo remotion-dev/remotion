@@ -27,7 +27,7 @@ An object with the following arguments:
 
 ## Example
 
-```tsx twoslash
+```tsx
 // @module: ESNext
 // @target: ESNext
 import { Audio } from "remotion";

@@ -22,7 +22,7 @@ At frame 20, we want the opacity to be 1.
 
 Using the following snippet, we can calculate the current opacity for any frame:
 
-```ts twoslash
+```ts
 import { interpolate, useCurrentFrame } from "remotion";
 
 const frame = useCurrentFrame(); // 10
@@ -37,7 +37,7 @@ At the end, the opacity should be 0.
 
 We can interpolate over multiple points in one go and use [`useVideoConfig()`](/docs/use-video-config) to determine the duration of the composition.
 
-```ts twoslash
+```ts
 import { interpolate, useCurrentFrame, useVideoConfig } from "remotion";
 
 const frame = useCurrentFrame();
@@ -57,7 +57,7 @@ Let's assume we want to animate an object on the X axis from 0 to 200 pixels and
 
 Let's create a spring:
 
-```twoslash include example
+```
 import {useCurrentFrame, interpolate, spring, useVideoConfig} from 'remotion';
 
 const frame = useCurrentFrame();
@@ -69,14 +69,14 @@ const driver = spring({
 // - spring
 ```
 
-```ts twoslash
+```ts
 // @include: example-spring
 ```
 
 A [`spring()`](/docs/spring) animation with it's default settings will animate from 0 to 1.
 Given that knowledge, we can interpolate the spring value to go from 0 to 200.
 
-```ts twoslash
+```ts
 // @include: example-spring
 // ---cut---
 const marginLeft = interpolate(driver, [0, 1], [0, 200]);
@@ -84,7 +84,7 @@ const marginLeft = interpolate(driver, [0, 1], [0, 200]);
 
 We can then apply it to an HTML element.
 
-```tsx twoslash {1}
+```
 // @include: example-spring
 const marginLeft = interpolate(driver, [0, 1], [0, 200]);
 // ---cut---
@@ -95,7 +95,7 @@ const Component: React.FC = () => <div style={{ marginLeft }}></div>;
 
 Consider the following interpolation which is supposed to animate the scale over 20 frames:
 
-```tsx twoslash
+```tsx
 import { interpolate, useCurrentFrame } from "remotion";
 const frame = useCurrentFrame();
 // ---cut---
@@ -105,7 +105,7 @@ const scale = interpolate(frame, [0, 20], [0, 1]);
 This works, but after 20 frames, the value keeps growing. For example, at frame 40, the scale will be `2`.
 To prevent this, this we can use the `extrapolateLeft` and `extrapolateRight` options and set them to `'clamp'` to prevent the result going outside the output range.
 
-```tsx twoslash
+```tsx
 import { interpolate, useCurrentFrame } from "remotion";
 const frame = useCurrentFrame();
 // ---cut---
@@ -143,7 +143,7 @@ Same as [extrapolateLeft](#extrapolateleft), except for values outside right the
 
 Example:
 
-```tsx twoslash
+```tsx
 import { interpolate } from "remotion";
 // ---cut---
 interpolate(1.5, [0, 1], [0, 2], { extrapolateRight: "extend" }); // 3
@@ -158,7 +158,7 @@ _Default_: `(x) => x`
 Function which allows you to customize the input, for example to apply a certain easing function.
 By default, the input is left unmodified, resulting in a pure linear interpolation. [Read the documentation for the built-in easing functions](/docs/easing).
 
-```ts twoslash
+```ts
 import { useCurrentFrame } from "remotion";
 const frame = useCurrentFrame();
 // ---cut---

@@ -3,7 +3,7 @@ id: dynamic-metadata
 title: Dynamic duration, FPS & dimensions
 ---
 
-```twoslash include example
+```
 export const MyComponent: React.FC<{
   duration: number;
 }> = ({duration}) => {
@@ -25,7 +25,7 @@ Using [Input props](/docs/parametrized-rendering) you can customize the content 
 Use the `getInputProps()` method to retrieve the props that you have passed as an input.
 For example if you have passed `--props='{"hello": "world"}'` as a command line flag, you can read the value in your Remotion project like this:
 
-```tsx twoslash
+```tsx
 // It's better to fake type here than to import any
 const getInputProps = () => ({ hello: "world" } as const);
 // ---cut---
@@ -35,7 +35,7 @@ console.log(hello); // "world"
 
 You can use this technique to dynamically change the frame rate, dimensions or duration of our video as you render. For example, if you pass `--props={"duration": 100}` during rendering, the video will be 100 frames long if you define your composition as followed:
 
-```tsx twoslash
+```tsx
 // @include: example-MyComponent
 // ---cut---
 import { Composition, getInputProps } from "remotion";
@@ -70,7 +70,7 @@ Sometimes you need to calculate metadata programmatically in a non-synchronous m
 
 In this example, we fetch the duration of "Big Buck Bunny" and use it to make our video just that long:
 
-```tsx twoslash
+```tsx
 // @include: example-VideoTesting
 import { useEffect, useState } from "react";
 import { Composition, continueRender, delayRender } from "remotion";
@@ -109,7 +109,7 @@ export const Index: React.FC = () => {
 
 Both `getCompositions()` and `renderFrames()` functions accept an `inputProps` object as a parameter.
 
-```tsx twoslash
+```tsx
 import { getCompositions } from "@remotion/renderer";
 const bundled: string = "";
 // ---cut---
@@ -120,7 +120,7 @@ getCompositions(bundled, {
 });
 ```
 
-```tsx twoslash
+```tsx
 import { renderFrames as rf } from "@remotion/renderer";
 const renderFrames = (options: { inputProps: {} }) => {};
 // ---cut---

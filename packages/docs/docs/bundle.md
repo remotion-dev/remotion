@@ -29,7 +29,7 @@ A `string` containing an absolute path of the entry point of a Remotion project.
 
 A callback function that notifies about the progress of the Webpack bundling. Passes a number between `0` and `100`. Example function:
 
-```ts twoslash
+```ts
 const onProgressUpdate = (progress: number) => {
   console.log(`Webpack bundling progress: ${progress}%`);
 };
@@ -45,7 +45,7 @@ _optional_
 
 A function to override the webpack config reducer-style. Takes a function which gives you the current webpack config which you can transform and return a modified version of it. For example:
 
-```ts twoslash
+```ts
 import { WebpackOverrideFn } from "remotion";
 // ---cut---
 const webpackOverride: WebpackOverrideFn = (webpackConfig) => {

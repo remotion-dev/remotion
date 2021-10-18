@@ -9,7 +9,7 @@ These options will apply to CLI commands such as `npm start` and `npm run build`
 
 You can control several behaviors of Remotion here.
 
-```ts twoslash
+```ts
 import { Config } from "remotion";
 
 Config.Rendering.setConcurrency(8);
@@ -25,7 +25,7 @@ _Available from Version 1.1._
 
 Allows you to insert your custom Webpack config. [See the page about custom Webpack configs](/docs/webpack) for more information.
 
-```ts twoslash
+```ts
 import { Config } from "remotion";
 // ---cut---
 Config.Bundling.overrideWebpackConfig((currentConfiguration) => {
@@ -43,7 +43,7 @@ _Available from Version 2.0._
 
 Enable or disable webpack caching. Default is `true` which will make the Webpack step in the first run a bit slower but will massively speed up subsequent runs. We recommend to keep this option enabled in all cases and encourage to report issues on GitHub if you encounter some.
 
-```ts twoslash
+```ts
 import { Config } from "remotion";
 // ---cut---
 Config.Bundling.setCachingEnabled(false);
@@ -57,7 +57,7 @@ Define on which port Remotion should start it's HTTP servers during preview and 
 By default, Remotion will try to find a free port.
 If you specify a port, but it's not available, Remotion will throw an error.
 
-```ts twoslash
+```ts
 import { Config } from "remotion";
 // ---cut---
 Config.Bundling.setPort(3003);
@@ -79,7 +79,7 @@ Acceptable values:
 - `info` (_default_): Default output - besides errors and warnings, prints progress and output location.
 - `verbose`: All of the above, plus browser logs and other debug info.
 
-```ts twoslash
+```ts
 import { Config } from "remotion";
 // ---cut---
 Config.Log.setLevel("verbose");
@@ -95,7 +95,7 @@ _Available from Version 2.1.10._
 
 Set how many tracks are being displayed in the timeline at most. This does not affect your video, just the amount of tracks shown when previewing. Default `15`.
 
-```ts twoslash
+```ts
 import { Config } from "remotion";
 // ---cut---
 Config.Preview.setMaxTimelineTracks(20);
@@ -109,7 +109,7 @@ _Available from Version 1.5._
 
 Set a custom Chrome or Chromium executable path. By default Remotion will try to find an existing version of Chrome on your system and if not found, it will download one. This flag is useful if you don't have Chrome installed in a standard location and you want to prevent downloading an additional browser or need [support for the H264 codec](/docs/video#codec-support).
 
-```ts twoslash
+```ts
 import { Config } from "remotion";
 // ---cut---
 Config.Puppeteer.setBrowserExecutable("/usr/bin/google-chrome-stable");
@@ -124,7 +124,7 @@ The [command line flag](/docs/cli#--browser-executable) `--browser-executable` w
 Sets how many Puppeteer instances will work on rendering your video in parallel.
 Default: `null`, meaning **half of the threads** available on your CPU.
 
-```ts twoslash
+```ts
 import { Config } from "remotion";
 // ---cut---
 Config.Rendering.setConcurrency(8);
@@ -146,7 +146,7 @@ Determines which in which image format to render the frames. Either:
 - `png` - slower, but supports transparency
 - `none` - don't render images, just calculate audio information (available from v2.0)
 
-```ts twoslash
+```ts
 import { Config } from "remotion";
 // ---cut---
 Config.Rendering.setImageFormat("png");
@@ -160,7 +160,7 @@ _Available from Version 2.0._
 
 Pass a number to render a still frame or a tuple to render a subset of a video. The frame sequence is zero-indexed.
 
-```ts twoslash
+```ts
 import { Config } from "remotion";
 // ---cut---
 Config.Rendering.setFrameRange(90); // To render only the 91st frame
@@ -168,7 +168,7 @@ Config.Rendering.setFrameRange(90); // To render only the 91st frame
 
 or
 
-```ts twoslash
+```ts
 import { Config } from "remotion";
 // ---cut---
 Config.Rendering.setFrameRange([0, 20]); // Render a video only containing the first 21 frames
@@ -180,7 +180,7 @@ The [command line flag](/docs/cli#--frames) `--frames` will take precedence over
 
 The JPEG quality of each frame. Must be a number between 0 and 100. Will not work if you render PNG frames. [Default: 80](https://github.com/chromium/chromium/blob/99314be8152e688bafbbf9a615536bdbb289ea87/headless/lib/browser/protocol/headless_handler.cc#L32).
 
-```ts twoslash
+```ts
 import { Config } from "remotion";
 // ---cut---
 Config.Rendering.setQuality(90);
@@ -192,7 +192,7 @@ The [command line flag](/docs/cli#--quality) `--quality` will take precedence ov
 
 Set a custom location for a [`.env`](https://www.npmjs.com/package/dotenv) file. You can specify an absolute path or a relative path in which case it gets resolved based on the current working directory.
 
-```ts twoslash
+```ts
 import { Config } from "remotion";
 // ---cut---
 Config.Rendering.setDotEnvLocation(".my-env");
@@ -206,7 +206,7 @@ The [command line flag](/docs/cli#--env-file) `--env-file` will take precedence 
 
 Set this to `false` to prevent overwriting Remotion outputs when they already exists.
 
-```ts twoslash
+```ts
 import { Config } from "remotion";
 // ---cut---
 Config.Output.setOverwriteOutput(false);
@@ -221,7 +221,7 @@ In version 1.x, the default behavior was inverse - Remotion would not override b
 Controls the pixel format in FFMPEG. [Read more about it here.](https://trac.ffmpeg.org/wiki/Chroma%20Subsampling) Acceptable values: `yuv420p`, `yuv422p`, `yuv444p`, `yuv420p10le`, `yuv422p10le`, `yuv444p10le`. Since v1.4, `yuva420p` is also supported for transparent WebM videos. Since v2.1.7, `yuva444p10le` is also supported for transparent ProRes videos
 Default value: `yuv420p`
 
-```ts twoslash
+```ts
 import { Config } from "remotion";
 // ---cut---
 Config.Output.setPixelFormat("yuv420p");
@@ -245,7 +245,7 @@ Choose one of the supported codecs: `h264` _(default)_, `h265`, `vp8`, `vp9`.
 - `aac` will export audio only as an AAC file _(available from v2.0)_
 - `mkv` will export using H264 codec, MKV container format and WAV audio codec. _(available from v2.1.12)_
 
-```ts twoslash
+```ts
 import { Config } from "remotion";
 // ---cut---
 Config.Output.setCodec("h265");
@@ -264,7 +264,7 @@ Possible values: `4444-xq`, `4444`, `hq`, `standard`, `light`, `proxy`.
 See [here](https://video.stackexchange.com/a/14715) for explanation of possible values.
 Default: `hq`
 
-```ts twoslash
+```ts
 import { Config } from "remotion";
 // ---cut---
 Config.Output.setProResProfile("4444");
@@ -280,7 +280,7 @@ _Available from Version 1.4._
 
 Set to true if you want to output an image sequence instead of a video.
 
-```ts twoslash
+```ts
 import { Config } from "remotion";
 // ---cut---
 Config.Output.setImageSequence(true);
@@ -294,7 +294,7 @@ _Deprecated_. Use `setCodec()` and `setImageSequence()` instead.
 
 Either `'mp4'` or `'png-sequence'`.
 
-```ts twoslash
+```ts
 import { Config } from "remotion";
 // ---cut---
 Config.Output.setOutputFormat("mp4");
@@ -323,7 +323,7 @@ The range is exponential, so increasing the CRF value +6 results in roughly half
 
 Choose the highest CRF value that still provides an acceptable quality. If the output looks good, then try a higher value. If it looks bad, choose a lower value.
 
-```ts twoslash
+```ts
 import { Config } from "remotion";
 // ---cut---
 Config.Output.setCrf(16);

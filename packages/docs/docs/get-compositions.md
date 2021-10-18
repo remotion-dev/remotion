@@ -51,7 +51,7 @@ A string defining the absolute path on disk of the browser executable that shoul
 
 Returns a promise that resolves to an array of available compositions. Example value:
 
-```ts twoslash
+```ts
 [
   {
     id: "HelloWorld",

@@ -17,7 +17,7 @@ This should not be necessary in general, it is encouraged to [report issues](htt
 npm i @remotion/babel-loader
 ```
 
-```ts twoslash title="remotion.config.ts"
+```ts
 import { Config } from "remotion";
 // ---cut---
 import { replaceLoadersWithBabel } from "@remotion/babel-loader";

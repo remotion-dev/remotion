@@ -39,7 +39,7 @@ Type your components using the `React.FC<{}>` type and the `defaultProps` prop w
 
 ## Example using `component`
 
-```tsx twoslash
+```tsx
 // @allowUmdGlobalAccess
 // @filename: ./MyComp.tsx
 export const MyComp = () => <></>;

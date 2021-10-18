@@ -25,7 +25,7 @@ In this example, we are interpolating colors from red to yellow. At frame 0 (the
 
 Using the following snippet, we can calculate the current color for any frame:
 
-```tsx twoslash
+```tsx
 import { interpolateColors, useCurrentFrame } from "remotion";
 
 const frame = useCurrentFrame() / 10;
@@ -41,7 +41,7 @@ In this example, we are interpolating colors from red to yellow. At frame 0 (the
 
 Using the following snippet, we can calculate the current color for any frame:
 
-```tsx twoslash
+```tsx
 import { useCurrentFrame, interpolateColors } from "remotion";
 
 const frame = useCurrentFrame(); // 10
@@ -67,7 +67,7 @@ In this example, we are interpolating colors from red to yellow. At frame 0 (the
 
 Using the following snippet, we can calculate the current color for any frame:
 
-```ts twoslash
+```ts
 import { useCurrentFrame, interpolateColors } from "remotion";
 
 const frame = useCurrentFrame(); // 10
@@ -90,7 +90,7 @@ const color2 = interpolateColors(
 
 Interpolating CSS color names is also supported.
 
-```ts twoslash
+```ts
 import { useCurrentFrame, interpolateColors } from "remotion";
 
 const frame = useCurrentFrame(); // 10
