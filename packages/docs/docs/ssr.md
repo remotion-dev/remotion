@@ -16,6 +16,8 @@ The NPM package `@remotion/renderer` provides you with an API for rendering the 
 Follow this commented example to see how to render a video:
 
 ```tsx twoslash
+// @filename: 29.tsx
+
 import fs from "fs";
 import os from "os";
 import path from "path";

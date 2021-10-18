@@ -16,6 +16,8 @@ A browser bug [would normally cause the layout to be broken](https://github.com/
 A spinning, color changing, scaling cube. This example can also be found in the `examples` folder of the Remotion repo.
 
 ```tsx twoslash
+// @filename: 34.tsx
+
 import { interpolate, useCurrentFrame, useVideoConfig } from "remotion";
 import { ThreeCanvas } from "@remotion/three";
 

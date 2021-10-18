@@ -118,6 +118,8 @@ _optional_
 Allows you to react to an exception thrown in your React code. The callback has an argument which is the error.
 
 ```tsx twoslash
+// @filename: 21.tsx
+
 const renderStill = (options: {
   onError: (err: Error)
 }) => {}

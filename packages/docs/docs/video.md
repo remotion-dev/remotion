@@ -14,6 +14,8 @@ Use an import or require to load an video file and pass it as the `src` prop. Al
 `<Video>` has two more helper props: `startFrom` and `endAt` to define when the video should start and end. Both are optional and do not get forwarded to the native `<video>` element but tell Remotion which portion of the video to use.
 
 ```tsx twoslash
+// @filename: 55.tsx
+
 import { Video } from "remotion";
 import video from "./video.webm";
 
@@ -62,6 +64,8 @@ _Available from v2.4.4_
 You can use the browser-native [`<source>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/source) tags to provide different media to support a broader range of browsers. While rendering always happens in Chrome, this feature is useful if you are showing a preview in [`<Player />`](/docs/player).
 
 ```tsx twoslash
+// @filename: 56.tsx
+
 import { Video, interpolate } from "remotion";
 const source1 = "https://example.com/kid-laugh.mp3";
 // ---cut---

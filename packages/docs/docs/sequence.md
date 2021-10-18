@@ -33,6 +33,8 @@ All the examples below are based on the following animation of a blue square:
 <br />
 
 ```tsx twoslash
+// @filename: 22.tsx
+
 const BlueSquare: React.FC = () => <div></div>
 // ---cut---
 const MyVideo = () => {
@@ -48,6 +50,8 @@ If you would like to delay the content by say 30 frames, you can wrap it in <br/
 <br />
 
 ```tsx twoslash
+// @filename: 23.tsx
+
 const BlueSquare: React.FC = () => <div></div>
 import { Sequence } from "remotion";
 // ---cut---
@@ -84,6 +88,8 @@ You need to wrap the videos in two sequences. To the inner one we pass a negativ
 <br />
 
 ```tsx twoslash
+// @filename: 24.tsx
+
 const BlueSquare: React.FC = () => <div></div>
 import { Sequence } from "remotion";
 // ---cut---

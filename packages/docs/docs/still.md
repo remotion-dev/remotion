@@ -10,6 +10,8 @@ A `<Still />` is a [`<Composition />`](/docs/composition) that is only 1 frame l
 The `<Still />` component has the same API as a [`<Composition />`](/docs/composition) except it's not necessary to pass `durationInFrames` and `fps`.
 
 ```tsx twoslash
+// @filename: 30.tsx
+
 // @allowUmdGlobalAccess
 // @filename: ./MyComp.tsx
 export const MyComp = () => <></>;

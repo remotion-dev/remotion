@@ -6,6 +6,8 @@ title: The fundamentals
 The basic idea behind Remotion is that we'll give you a frame number and a blank canvas, and the freedom to render anything you want using **[React.js](https://reactjs.org)**.
 
 ```tsx twoslash
+// @filename: 31.tsx
+
 import { useCurrentFrame } from "remotion";
 
 export const MyVideo = () => {
@@ -32,6 +34,8 @@ A video has 4 properties:
 These properties are variable and you can reuse a component multiple times with different properties. This is why you better not hard-code these properties, but instead derive them from the `useVideoConfig` hook:
 
 ```tsx twoslash
+// @filename: 32.tsx
+
 import { useVideoConfig } from "remotion";
 
 export const MyVideo = () => {
@@ -52,6 +56,8 @@ A video's first frame is `0` and it's last frame is `durationInFrames - 1`.
 Compositions are components with the above mentioned metadata. You can define compositions in `src/Video.tsx` to make them show up in the left sidebar.
 
 ```tsx twoslash
+// @filename: 33.tsx
+
 import { Composition } from "remotion";
 import { useCurrentFrame } from "remotion";
 

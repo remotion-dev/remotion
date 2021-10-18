@@ -10,6 +10,8 @@ Parametrized rendering is the idea of creating a video template once and then re
 To define which props your video accepts, simply give your component the `React.FC` type and pass in a generic argument describing the shape of the props you want to accept.
 
 ```tsx twoslash {1-2}
+// @filename: 8.tsx
+
 import React from 'react';
 export const MyComponent: React.FC<{
   propOne: string;
@@ -26,11 +28,11 @@ export const MyComponent: React.FC<{
 When registering the component as a sequence, you can define the default props:
 
 ```tsx twoslash {13-16}
+// @filename: 8.tsx
 import React from "react";
 export const MyComponent: React.FC<{ propOne: string; propTwo: number }> = () =>
   null;
 
-// @filename: Root.tsx
 // ---cut---
 import { Composition } from "remotion";
 import { MyComponent } from "./MyComponent";
@@ -84,6 +86,7 @@ npx remotion render src/index.tsx HelloWorld out/helloworld.mp4 --props=./path/t
 When server-rendering using `renderFrames`, you can pass props using the `inputProps` option:
 
 ```tsx twoslash {9-11}
+// @filename: 10.tsx
 // @module: esnext
 // @target: es2017
 const video = { fps: 30, durationInFrames: 30, width: 1080, height: 1080 };
@@ -145,6 +148,8 @@ Even if you have registered a component as a sequence,
 you can still use it as normal in your videos and pass it's props directly. Default props don't apply in this case.
 
 ```tsx twoslash
+// @filename: 11.tsx
+
 import React from 'react';
 export const MyComponent: React.FC<{
   propOne: string;

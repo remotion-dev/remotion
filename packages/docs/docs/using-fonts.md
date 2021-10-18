@@ -12,6 +12,8 @@ You can use fonts by loading them in a CSS file using @font-face. Web fonts ofte
 ```
 
 ```tsx twoslash title="MyComp.tsx"
+// @filename: 51.tsx
+
 import "./font.css";
 
 const MyComp: React.FC = () => {
@@ -36,6 +38,8 @@ const MyComp: React.FC = () => {
 ```
 
 ```tsx twoslash title="MyComp.tsx"
+// @filename: 52.tsx
+
 import "./font.css";
 
 const MyComp: React.FC = () => {

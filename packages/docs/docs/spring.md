@@ -8,6 +8,8 @@ Delightful and smooth animation primitive. Calculates a position based on physic
 Example:
 
 ```tsx twoslash
+// @filename: 28.tsx
+
 import { spring, useCurrentFrame, useVideoConfig } from "remotion";
 // ---cut---
 const frame = useCurrentFrame();

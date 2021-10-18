@@ -6,6 +6,8 @@ title: Using randomness
 The following thing is an anti-pattern in Remotion:
 
 ```tsx twoslash
+// @filename: 53.tsx
+
 import { useState } from "react";
 // ---cut---
 const MyComp: React.FC = () => {
@@ -29,6 +31,8 @@ While this will work during preview, it will break while rendering. The reason i
 Use the [`random()`](/docs/random) API from Remotion to get deterministic pseudorandom values. Pass in a seed (number or string) and as long as the seed is the same, the return value will be the same.
 
 ```tsx twoslash {5-6}
+// @filename: 54.tsx
+
 import { random } from "remotion";
 const MyComp: React.FC = () => {
   // No need to use useState

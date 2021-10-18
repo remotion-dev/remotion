@@ -133,6 +133,8 @@ Allows you to react to an exception thrown in your React code. The callback has 
 The `frame` property tells you at which frame the error was thrown. If the error was thrown at startup, `frame` is null.
 
 ```tsx twoslash
+// @filename: 20.tsx
+
 import {renderFrames as rf} from '@remotion/renderer'
 const renderFrames = (options: {
   onError: (info: {

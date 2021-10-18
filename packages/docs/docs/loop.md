@@ -32,6 +32,7 @@ All the examples below are based on the following animation of a blue square:
 <br />
 
 ```tsx twoslash
+// @filename: 3.tsx
 const BlueSquare: React.FC = () => <div></div>
 // ---cut---
 const MyVideo = () => {
@@ -45,6 +46,7 @@ const MyVideo = () => {
 <br />
 
 ```tsx twoslash
+// @filename: 4.tsx
 const BlueSquare: React.FC = () => <div></div>
 import { Loop } from 'remotion'
 // ---cut---
@@ -63,6 +65,7 @@ const MyVideo = () => {
 <br />
 
 ```tsx twoslash
+// @filename: 5.tsx
 const BlueSquare: React.FC = () => <div></div>
 import { Loop } from 'remotion'
 // ---cut---
@@ -81,6 +84,7 @@ const MyVideo = () => {
 <br />
 
 ```tsx twoslash
+// @filename: 6.tsx
 const BlueSquare: React.FC = () => <div></div>
 import { Loop } from 'remotion'
 // ---cut---

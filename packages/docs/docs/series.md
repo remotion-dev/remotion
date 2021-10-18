@@ -15,6 +15,8 @@ Using this component, you can easily stitch together scenes that should play seq
 ### Code
 
 ```tsx twoslash
+// @filename: 27.tsx
+
 const Square: React.FC<{color: string}> = () => <div></div>
 // ---cut---
 import { Series } from "remotion";
