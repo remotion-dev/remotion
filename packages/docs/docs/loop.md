@@ -6,7 +6,7 @@ sidebar_label: <Loop />
 
 import { LoopExamples, BlueSquare } from "../components/LoopExamples/LoopExamples";
 
-```
+```twoslash include example
 const BlueSquare: React.FC = () => <div></div>
 // - BlueSquare
 ```
@@ -36,7 +36,7 @@ All the examples below are based on the following animation of a blue square:
 <LoopExamples />
 <br />
 
-```tsx
+```tsx twoslash
 // @include: example-BlueSquare
 // ---cut---
 const MyVideo = () => {
@@ -49,7 +49,7 @@ const MyVideo = () => {
 <LoopExamples type="base" />
 <br />
 
-```tsx
+```tsx twoslash
 // @include: example-BlueSquare
 import { Loop } from 'remotion'
 // ---cut---
@@ -67,7 +67,7 @@ const MyVideo = () => {
 <LoopExamples type="times" />
 <br />
 
-```tsx
+```tsx twoslash
 // @include: example-BlueSquare
 import { Loop } from 'remotion'
 // ---cut---
@@ -85,7 +85,7 @@ const MyVideo = () => {
 <LoopExamples type="nested" />
 <br />
 
-```tsx
+```tsx twoslash
 // @include: example-BlueSquare
 import { Loop } from 'remotion'
 // ---cut---

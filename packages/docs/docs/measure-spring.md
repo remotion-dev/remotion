@@ -7,7 +7,7 @@ _Available from v2.0.8_
 
 Based on a [spring()](/docs/spring) configuration and the frame rate, return how long it takes for a spring animation to settle.
 
-```tsx
+```tsx twoslash
 import { measureSpring, SpringConfig } from "remotion";
 
 const config: Partial<SpringConfig> = {
