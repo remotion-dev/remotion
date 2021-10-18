@@ -19,8 +19,7 @@ const Square: React.FC<{color: string}> = () => <div></div>
 // - Square
 ```
 
-```tsx twoslash
-// @include: example-Square
+```tsx
 // ---cut---
 import { Series } from "remotion";
 
