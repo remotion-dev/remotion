@@ -53,8 +53,8 @@ A callback that fires after the setup process (validation, browser launch) has f
 
 ```ts twoslash
 const onStart = () => {
-  console.log('Starting rendering...')
-}
+  console.log("Starting rendering...");
+};
 ```
 
 ### `onFrameUpdate`
@@ -63,8 +63,8 @@ A callback function that gets called whenever a frame finished rendering. An arg
 
 ```ts twoslash
 const onFrameUpdate = (frame: number) => {
-  console.log(`${frame} frames rendered.`)
-}
+  console.log(`${frame} frames rendered.`);
+};
 ```
 
 ### `outputDir`
@@ -134,14 +134,19 @@ The `frame` property tells you at which frame the error was thrown. If the error
 
 ```tsx twoslash
 import {renderFrames as rf} from '@remotion/renderer'
-const renderFrames = (options: Partial<Parameters<typeof rf>[0]>) => {}
+const renderFrames = (options: {
+  onError: (info: {
+    frame: null | number;
+    error: Error
+  }) => void;
+}) => {}
 // ---cut---
 renderFrames({
   onError: (info) => {
     if (info.frame === null) {
-      console.log('Got error while initalizing video rendering', info.error)
+      console.error('Got error while initalizing video rendering', info.error)
     } else {
-      console.log('Got error at frame ', info.frame, info.error)
+      console.error('Got error at frame ', info.frame, info.error)
     }
     // Handle error here
   }

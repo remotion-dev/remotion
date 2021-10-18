@@ -26,20 +26,20 @@ A string pointing to an audio asset.
 ## Example
 
 ```tsx twoslash
-import {Audio} from 'remotion'
+import { Audio } from "remotion";
 // ---cut---
-import {useAudioData} from '@remotion/media-utils';
-import music from './music.mp3';
+import { useAudioData } from "@remotion/media-utils";
+import music from "./music.mp3";
 
 export const MyComponent: React.FC = () => {
-  const audioData = useAudioData(music)
+  const audioData = useAudioData(music);
 
   if (!audioData) {
-    return null
+    return null;
   }
 
-  return <div>This file has a {audioData.sampleRate} sampleRate.</div>
-}
+  return <div>This file has a {audioData.sampleRate} sampleRate.</div>;
+};
 ```
 
 ## See also
