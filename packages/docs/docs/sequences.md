@@ -4,7 +4,7 @@ title: Reuse components using Sequences
 sidebar_label: Reuse components
 ---
 
-```
+```tsx twoslash include example
 import {interpolate, useCurrentFrame} from 'remotion'
 
 const Title: React.FC<{title: string}> = ({title}) => {
@@ -22,7 +22,7 @@ Let's say we want to show two titles that both fade in after each other.
 
 In order to make a title reusable, we first factor it out into it's own component.
 
-```tsx
+```tsx twoslash
 // @include: example-Title
 
 export const MyVideo = () => {
@@ -36,7 +36,7 @@ export const MyVideo = () => {
 
 Now we can use the `<Sequence>` component to limit the duration of the first title and time-shift the appearance of the second title.
 
-```tsx
+```tsx twoslash
 // @include: example-Title
 // ---cut---
 import { Sequence } from "remotion";
