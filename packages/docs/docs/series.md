@@ -14,7 +14,7 @@ Using this component, you can easily stitch together scenes that should play seq
 
 ### Code
 
-```twoslash include example
+```
 const Square: React.FC<{color: string}> = () => <div></div>
 // - Square
 ```

@@ -92,7 +92,7 @@ _optional_
 
 Callback function which informs about the encoding progress. The `frameNumber` value is a `number`.
 
-```ts twoslash
+```ts
 const onProgress = (frameNumber: number) => {
   console.log(`Encoding progress: on ${frameNumber} frame`);
 };
@@ -104,7 +104,7 @@ _optional_
 
 Notifies when a remote asset needs to be downloaded in order to extract the audio track.
 
-```ts twoslash
+```ts
 const onDownload = (src: string) => {
   console.log(`Downloading ${src}...`);
 };

@@ -17,7 +17,7 @@ In your `remotion.config.ts` file, you can call `Config.Bundler.overrideWebpackC
 
 Overriding the Webpack config uses the reducer pattern - pass in a function that takes as it's argument a Webpack configuration and return a new Webpack configuration.
 
-```ts twoslash
+```ts
 import { Config } from "remotion";
 
 Config.Bundling.overrideWebpackConfig((currentConfiguration) => {
@@ -44,7 +44,7 @@ Using the reducer pattern will help with type safety, give you auto-complete, en
 
 The following `remotion.config.ts` file shows how to enable support for MDX. Installation of `mdx-loader babel-loader @babel/preset-env @babel/preset-react` is required.
 
-```ts twoslash
+```ts
 import { Config } from "remotion";
 // ---cut---
 Config.Bundling.overrideWebpackConfig((currentConfiguration) => {
@@ -116,7 +116,7 @@ yarn add postcss-loader postcss postcss-preset-env tailwindcss autoprefixer
 
 2. Add the following to your [`remotion.config.ts`](/docs/config) file:
 
-```ts twoslash
+```ts
 import { Config } from "remotion";
 // ---cut---
 Config.Bundling.overrideWebpackConfig((currentConfiguration) => {
@@ -214,7 +214,7 @@ yarn add sass sass-loader
 
 2. Add the following to your [`remotion.config.ts`](/docs/config) file:
 
-```ts twoslash
+```ts
 import { Config } from "remotion";
 // ---cut---
 Config.Bundling.overrideWebpackConfig((currentConfiguration) => {

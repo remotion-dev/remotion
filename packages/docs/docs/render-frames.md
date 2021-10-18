@@ -51,7 +51,7 @@ A `string` specifying the ID of the composition. See: [Defining compositions](/d
 
 A callback that fires after the setup process (validation, browser launch) has finished. Example value
 
-```ts twoslash
+```ts
 const onStart = () => {
   console.log("Starting rendering...");
 };
@@ -61,7 +61,7 @@ const onStart = () => {
 
 A callback function that gets called whenever a frame finished rendering. An argument is passed containing how many frames have been rendered (not the frame number of the rendered frame). Example value
 
-```ts twoslash
+```ts
 const onFrameUpdate = (frame: number) => {
   console.log(`${frame} frames rendered.`);
 };
@@ -132,7 +132,7 @@ _optional - Available since v2.1.0_
 Allows you to react to an exception thrown in your React code. The callback has an argument which is an object containing `error` and `frame` properties.
 The `frame` property tells you at which frame the error was thrown. If the error was thrown at startup, `frame` is null.
 
-```tsx twoslash
+```tsx
 import {renderFrames as rf} from '@remotion/renderer'
 const renderFrames = (options: {
   onError: (info: {

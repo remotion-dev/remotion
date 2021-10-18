@@ -145,7 +145,7 @@ Once you have set this prop, you cannot change it anymore or an error will be th
 
 You may attach a ref to the player and control it in an imperative manner.
 
-```tsx twoslash {15}
+```tsx
 // @allowUmdGlobalAccess
 
 // @filename: MyComposition.tsx
@@ -204,7 +204,7 @@ _Available from v2.4.2_
 
 Gets the container `HTMLDivElement` of the player. Useful if you'd like to manually attach listeners to the player element.
 
-```tsx twoslash
+```tsx
 import { useRef, useEffect } from "react";
 import { PlayerRef } from "@remotion/player";
 // ---cut---
@@ -288,7 +288,7 @@ Stop listening to an event. See the [Events](#events) section to see the functio
 
 Using a [player ref](#playerref), you can bind event listeners to get notified of certain events of the player.
 
-```tsx twoslash
+```tsx
 import { useRef, useEffect } from "react";
 import { PlayerRef } from "@remotion/player";
 // ---cut---
@@ -325,7 +325,7 @@ useEffect(() => {
 
 Fired when the time position changes. You may get the current frame by reading it from `e.detail.frame`.
 
-```tsx twoslash
+```tsx
 import { useRef, useEffect } from "react";
 import { PlayerRef } from "@remotion/player";
 const playerRef = useRef<PlayerRef>(null);
@@ -356,7 +356,7 @@ Fires when the video has paused or ended.
 
 Fires periodically when the video is playing. Unlike the [`seeked`](#seeked) event, frames are skipped, and the event is throttled to only fire a few times a second.
 
-```tsx twoslash
+```tsx
 import { useRef, useEffect } from "react";
 import { PlayerRef } from "@remotion/player";
 const playerRef = useRef<PlayerRef>(null);
@@ -375,7 +375,7 @@ Fires when an error or uncaught exception has happened in the video.
 
 You may get the error by reading the `e.detail.error` value:
 
-```tsx twoslash
+```tsx
 import { useRef, useEffect } from "react";
 import { PlayerRef } from "@remotion/player";
 const ref = useRef<PlayerRef>(null);

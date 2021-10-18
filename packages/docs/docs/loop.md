@@ -36,7 +36,7 @@ All the examples below are based on the following animation of a blue square:
 <LoopExamples />
 <br />
 
-```tsx twoslash
+```tsx
 // @include: example-BlueSquare
 // ---cut---
 const MyVideo = () => {
@@ -49,7 +49,7 @@ const MyVideo = () => {
 <LoopExamples type="base" />
 <br />
 
-```tsx twoslash
+```tsx
 // @include: example-BlueSquare
 import { Loop } from 'remotion'
 // ---cut---
@@ -67,7 +67,7 @@ const MyVideo = () => {
 <LoopExamples type="times" />
 <br />
 
-```tsx twoslash
+```tsx
 // @include: example-BlueSquare
 import { Loop } from 'remotion'
 // ---cut---
@@ -85,7 +85,7 @@ const MyVideo = () => {
 <LoopExamples type="nested" />
 <br />
 
-```tsx twoslash
+```tsx
 // @include: example-BlueSquare
 import { Loop } from 'remotion'
 // ---cut---

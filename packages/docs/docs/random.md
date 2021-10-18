@@ -5,7 +5,7 @@ title: random()
 
 The `random()` API will give your deterministic pseudorandom values. Unlike the `Math.random()` function, Remotions function takes in a seed which can be a `number` or a `string`. If the seed is the same, the output is always the same.
 
-```ts twoslash
+```ts
 import { random } from "remotion";
 
 const rand = random(1); // 0.07301638228818774
@@ -30,7 +30,7 @@ Randomness can be used to create interesting visualizations, such as particle ef
 
 Calling `Math.random()` results in an ESLint warning in Remotion since often it leads to bugs in rendering. If you are sure you want a true random number, and want to bypass this message without adding an ignore comment, use `random(null)`
 
-```ts twoslash
+```ts
 const random = (seed: number | string | null) => Math.random();
 // ---cut---
 // Passing null will result in a different value every time.

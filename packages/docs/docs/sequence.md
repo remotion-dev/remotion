@@ -6,7 +6,7 @@ sidebar_label: <Sequence />
 
 import { SequenceForwardExample } from "../components/SequenceExamples/SequenceForward";
 
-```twoslash include example
+```
 const BlueSquare: React.FC = () => <div></div>
 // - BlueSquare
 ```
@@ -37,7 +37,7 @@ All the examples below are based on the following animation of a blue square:
 
 <br />
 
-```tsx twoslash
+```tsx
 // @include: example-BlueSquare
 // ---cut---
 const MyVideo = () => {
@@ -52,7 +52,7 @@ If you would like to delay the content by say 30 frames, you can wrap it in <br/
 <SequenceForwardExample type="delay" />
 <br />
 
-```tsx twoslash
+```tsx
 // @include: example-BlueSquare
 import { Sequence } from "remotion";
 // ---cut---
@@ -88,7 +88,7 @@ You need to wrap the videos in two sequences. To the inner one we pass a negativ
 <SequenceForwardExample type="trim-and-delay" />
 <br />
 
-```tsx twoslash
+```tsx
 // @include: example-BlueSquare
 import { Sequence } from "remotion";
 // ---cut---
