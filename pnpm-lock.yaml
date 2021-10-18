@@ -275,6 +275,7 @@ importers:
 
   packages/docs:
     specifiers:
+      '@babel/plugin-transform-modules-commonjs': ^7.15.4
       '@docusaurus/core': 2.0.0-beta.7
       '@docusaurus/module-type-aliases': 2.0.0-beta.7
       '@docusaurus/plugin-content-blog': 2.0.0-beta.7
@@ -330,6 +331,7 @@ importers:
       remotion: link:../core
       ts-jest: 27.0.5_51c11d010e286a135a5a392005601a98
     devDependencies:
+      '@babel/plugin-transform-modules-commonjs': 7.15.4
       '@docusaurus/module-type-aliases': 2.0.0-beta.7
       '@tsconfig/docusaurus': 1.0.4
       '@types/color-namer': 1.3.0
@@ -2767,7 +2769,6 @@ packages:
       babel-plugin-dynamic-import-node: 2.3.3
     transitivePeerDependencies:
       - supports-color
-    dev: false
 
   /@babel/plugin-transform-modules-commonjs/7.15.4_@babel+core@7.12.3:
     resolution: {integrity: sha512-qg4DPhwG8hKp4BbVDvX1s8cohM8a6Bvptu4l6Iingq5rW+yRUAhe/YRup/YcW2zCOlrysEWVhftIcKzrEZv3sA==}
@@ -8410,7 +8411,6 @@ packages:
     resolution: {integrity: sha512-jZVI+s9Zg3IqA/kdi0i6UDCybUI3aSBLnglhYbSSjKlV7yF1F/5LWv8MakQmvYpnbJDS6fcBL2KzHSxNCMtWSQ==}
     dependencies:
       object.assign: 4.1.2
-    dev: false
 
   /babel-plugin-extract-import-names/1.6.22:
     resolution: {integrity: sha512-yJ9BsJaISua7d8zNT7oRG1ZLBJCIdZ4PZqmH8qa9N5AK01ifk3fnkc98AXhtzE7UkfCsEumvoQWgoYLhOnJ7jQ==}
