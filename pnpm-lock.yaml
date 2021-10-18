@@ -284,7 +284,7 @@ importers:
       '@remotion/babel-loader': ^2.4.3
       '@remotion/bundler': ^2.4.3
       '@remotion/gif': ^2.4.3
-      '@remotion/lambda': ^2.4.2
+      '@remotion/lambda': ^2.4.3
       '@remotion/media-utils': ^2.4.3
       '@remotion/player': ^2.4.3
       '@remotion/renderer': ^2.4.3
