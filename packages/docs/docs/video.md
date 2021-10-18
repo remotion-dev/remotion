@@ -55,27 +55,6 @@ You can use the `playbackRate` prop to control the speed of the video. `1` is th
 
 While Remotion doesn't limit the range of possible playback speeds, in development mode the [`HTMLMediaElement.playbackRate`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/playbackRate) API is used which throws errors on extreme values. At the time of writing, Google Chrome throws an exception if the playback rate is below `0.0625` or above `16`.
 
-## Using `<source>` tags
-
-_Available from v2.4.4_
-
-You can use the browser-native [`<source>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/source) tags to provide different media to support a broader range of browsers. While rendering always happens in Chrome, this feature is useful if you are showing a preview in [`<Player />`](/docs/player).
-
-```tsx twoslash
-import { Video, interpolate } from "remotion";
-const source1 = "https://example.com/kid-laugh.mp3";
-// ---cut---
-
-const Comp: React.FC = () => {
-  return (
-    <Video>
-      <source src="https://example.com/me-at-the-zoo.mp4" type="video/mp4" />
-      <source src="https://example.com/big-buck-bunny.webm" type="video/webm" />
-    </Video>
-  );
-};
-```
-
 ## See also
 
 - [`<Audio />`](/docs/audio)
