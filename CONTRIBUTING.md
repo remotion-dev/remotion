@@ -70,7 +70,7 @@ in either a subpackage to run tests for that package or in the root to run all t
 
 You can test changes to [@remotion/player](https://remotion.dev/docs/player) using:
 
-```
+```console
 cd packages/player-example
 pnpm start
 ```
