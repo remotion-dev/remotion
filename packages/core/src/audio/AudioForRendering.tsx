@@ -12,7 +12,6 @@ import {isRemoteAsset} from '../is-remote-asset';
 import {random} from '../random';
 import {SequenceContext} from '../sequencing';
 import {useAbsoluteCurrentFrame, useCurrentFrame} from '../use-frame';
-import {useMediaHasMetadata} from '../use-media-metadata';
 import {evaluateVolume} from '../volume-prop';
 import {RemotionAudioProps} from './props';
 import {useFrameForVolumeProp} from './use-audio-frame';
@@ -22,8 +21,6 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 	RemotionAudioProps
 > = (props, ref) => {
 	const audioRef = useRef<HTMLAudioElement>(null);
-	const {currentSrc} = audioRef.current || {};
-	const hasMetadata = useMediaHasMetadata(audioRef);
 
 	const absoluteFrame = useAbsoluteCurrentFrame();
 	const volumePropFrame = useFrameForVolumeProp();
@@ -35,10 +32,10 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 	// but at the same time the same on all threads
 	const id = useMemo(
 		() =>
-			`audio-${random(currentSrc ?? '')}-${sequenceContext?.relativeFrom}-${
+			`audio-${random(props.src ?? '')}-${sequenceContext?.relativeFrom}-${
 				sequenceContext?.cumulatedFrom
 			}-${sequenceContext?.durationInFrames}-muted:${props.muted}`,
-		[props.muted, currentSrc, sequenceContext]
+		[props.muted, props.src, sequenceContext]
 	);
 
 	const {volume: volumeProp, playbackRate, ...nativeProps} = props;
@@ -54,33 +51,28 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 	});
 
 	useEffect(() => {
+		if (!props.src) {
+			throw new Error('No src passed');
+		}
+
 		if (props.muted) {
 			return;
 		}
 
-		if (!audioRef.current || !hasMetadata) {
-			return;
-		}
-
-		if (!currentSrc) {
-			throw new Error(
-				`No src found. Please provide a src prop or a <source> child to the Audio element.`
-			);
-		}
-
 		registerAsset({
 			type: 'audio',
-			src: getAbsoluteSrc(currentSrc),
+			src: getAbsoluteSrc(props.src),
 			id,
 			frame: absoluteFrame,
 			volume,
-			isRemote: isRemoteAsset(getAbsoluteSrc(currentSrc)),
+			isRemote: isRemoteAsset(getAbsoluteSrc(props.src)),
 			mediaFrame: frame,
 			playbackRate: props.playbackRate ?? 1,
 		});
 		return () => unregisterAsset(id);
 	}, [
 		props.muted,
+		props.src,
 		registerAsset,
 		absoluteFrame,
 		id,
@@ -90,8 +82,6 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 		frame,
 		playbackRate,
 		props.playbackRate,
-		hasMetadata,
-		currentSrc,
 	]);
 
 	return <audio ref={audioRef} {...nativeProps} />;
