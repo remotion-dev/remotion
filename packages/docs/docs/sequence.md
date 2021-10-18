@@ -6,11 +6,6 @@ sidebar_label: <Sequence />
 
 import { SequenceForwardExample } from "../components/SequenceExamples/SequenceForward";
 
-```tsx twoslash include example
-const BlueSquare: React.FC = () => <div></div>
-// - BlueSquare
-```
-
 Using a Sequence, you can time-shift certain parts of your animation and therefore make them more reusable. Sequences are also shown in the timeline and help you visually understand the structure of your video.
 
 ## API
@@ -38,7 +33,7 @@ All the examples below are based on the following animation of a blue square:
 <br />
 
 ```tsx twoslash
-// @include: example-BlueSquare
+const BlueSquare: React.FC = () => <div></div>
 // ---cut---
 const MyVideo = () => {
   return <BlueSquare />;
@@ -53,7 +48,7 @@ If you would like to delay the content by say 30 frames, you can wrap it in <br/
 <br />
 
 ```tsx twoslash
-// @include: example-BlueSquare
+const BlueSquare: React.FC = () => <div></div>
 import { Sequence } from "remotion";
 // ---cut---
 const MyVideo = () => {
@@ -89,7 +84,7 @@ You need to wrap the videos in two sequences. To the inner one we pass a negativ
 <br />
 
 ```tsx twoslash
-// @include: example-BlueSquare
+const BlueSquare: React.FC = () => <div></div>
 import { Sequence } from "remotion";
 // ---cut---
 const TrimAndDelayExample: React.FC = () => {

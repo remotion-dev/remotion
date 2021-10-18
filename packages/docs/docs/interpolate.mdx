@@ -57,7 +57,7 @@ Let's assume we want to animate an object on the X axis from 0 to 200 pixels and
 
 Let's create a spring:
 
-```
+```ts
 import {useCurrentFrame, interpolate, spring, useVideoConfig} from 'remotion';
 
 const frame = useCurrentFrame();
@@ -66,26 +66,35 @@ const driver = spring({
   frame,
   fps
 });
-// - spring
-```
-
-```ts
-// @include: example-spring
 ```
 
 A [`spring()`](/docs/spring) animation with it's default settings will animate from 0 to 1.
 Given that knowledge, we can interpolate the spring value to go from 0 to 200.
 
 ```ts
-// @include: example-spring
+import {useCurrentFrame, interpolate, spring, useVideoConfig} from 'remotion';
+
+const frame = useCurrentFrame();
+const {fps} = useVideoConfig();
+const driver = spring({
+  frame,
+  fps
+});
 // ---cut---
 const marginLeft = interpolate(driver, [0, 1], [0, 200]);
 ```
 
 We can then apply it to an HTML element.
 
-```
-// @include: example-spring
+```tsx
+import {useCurrentFrame, interpolate, spring, useVideoConfig} from 'remotion';
+
+const frame = useCurrentFrame();
+const {fps} = useVideoConfig();
+const driver = spring({
+  frame,
+  fps
+});
 const marginLeft = interpolate(driver, [0, 1], [0, 200]);
 // ---cut---
 const Component: React.FC = () => <div style={{ marginLeft }}></div>;

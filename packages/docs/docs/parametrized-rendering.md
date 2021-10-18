@@ -3,7 +3,14 @@ id: parametrized-rendering
 title: Parametrized rendering
 ---
 
-```twoslash include example
+Parametrized rendering is the idea of creating a video template once and then render as many videos as you want with different parameters. Just like in regular React, we use props to reuse and customize components!
+
+## Defining accepted props
+
+To define which props your video accepts, simply give your component the `React.FC` type and pass in a generic argument describing the shape of the props you want to accept.
+
+```tsx twoslash {1-2}
+import React from 'react';
 export const MyComponent: React.FC<{
   propOne: string;
   propTwo: number;
@@ -12,17 +19,6 @@ export const MyComponent: React.FC<{
     <div>props: {propOne}, {propTwo}</div>
   );
 }
-// - MyComponent
-```
-
-Parametrized rendering is the idea of creating a video template once and then render as many videos as you want with different parameters. Just like in regular React, we use props to reuse and customize components!
-
-## Defining accepted props
-
-To define which props your video accepts, simply give your component the `React.FC` type and pass in a generic argument describing the shape of the props you want to accept.
-
-```tsx twoslash {1-2}
-// @include: example-MyComponent
 ```
 
 ## Define default props
@@ -30,13 +26,11 @@ To define which props your video accepts, simply give your component the `React.
 When registering the component as a sequence, you can define the default props:
 
 ```tsx twoslash {13-16}
-// @filename: MyComponent.tsx
 import React from "react";
 export const MyComponent: React.FC<{ propOne: string; propTwo: number }> = () =>
   null;
 
 // @filename: Root.tsx
-import React from "react";
 // ---cut---
 import { Composition } from "remotion";
 import { MyComponent } from "./MyComponent";
@@ -151,7 +145,15 @@ Even if you have registered a component as a sequence,
 you can still use it as normal in your videos and pass it's props directly. Default props don't apply in this case.
 
 ```tsx twoslash
-// @include: example-MyComponent
+import React from 'react';
+export const MyComponent: React.FC<{
+  propOne: string;
+  propTwo: number;
+}> = ({propOne, propTwo}) => {
+  return (
+    <div>props: {propOne}, {propTwo}</div>
+  );
+}
 // ---cut---
 <MyComponent propOne="hi" propTwo={10} />
 ```

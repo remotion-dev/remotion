@@ -3,7 +3,9 @@ id: the-fundamentals
 title: The fundamentals
 ---
 
-```twoslash include example
+The basic idea behind Remotion is that we'll give you a frame number and a blank canvas, and the freedom to render anything you want using **[React.js](https://reactjs.org)**.
+
+```tsx twoslash
 import { useCurrentFrame } from "remotion";
 
 export const MyVideo = () => {
@@ -15,13 +17,6 @@ export const MyVideo = () => {
     </div>
   );
 };
-// - MyVideo
-```
-
-The basic idea behind Remotion is that we'll give you a frame number and a blank canvas, and the freedom to render anything you want using **[React.js](https://reactjs.org)**.
-
-```tsx twoslash
-// @include: example-MyVideo
 ```
 
 A video is a function of images over time. If you change content every frame, you'll end up with an animation.
@@ -58,7 +53,17 @@ Compositions are components with the above mentioned metadata. You can define co
 
 ```tsx twoslash
 import { Composition } from "remotion";
-// @include: example-MyVideo
+import { useCurrentFrame } from "remotion";
+
+export const MyVideo = () => {
+  const frame = useCurrentFrame();
+
+  return (
+    <div style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+      The current frame is {frame}.
+    </div>
+  );
+};
 // ---cut---
 
 export const RemotionVideo: React.FC = () => {

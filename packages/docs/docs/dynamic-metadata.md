@@ -3,19 +3,6 @@ id: dynamic-metadata
 title: Dynamic duration, FPS & dimensions
 ---
 
-```
-export const MyComponent: React.FC<{
-  duration: number;
-}> = ({duration}) => {
-  return (
-    <div>props: {duration}</div>
-  );
-}
-// - MyComponent
-export const VideoTesting: React.FC = () => <></>
-// - VideoTesting
-```
-
 ## Change metadata based on input props
 
 _Available since v2.0._
@@ -36,7 +23,14 @@ console.log(hello); // "world"
 You can use this technique to dynamically change the frame rate, dimensions or duration of our video as you render. For example, if you pass `--props={"duration": 100}` during rendering, the video will be 100 frames long if you define your composition as followed:
 
 ```tsx
-// @include: example-MyComponent
+export const MyComponent: React.FC<{
+  duration: number;
+}> = ({duration}) => {
+  return (
+    <div>props: {duration}</div>
+  );
+}
+export const VideoTesting: React.FC = () => <></>
 // ---cut---
 import { Composition, getInputProps } from "remotion";
 
@@ -71,9 +65,18 @@ Sometimes you need to calculate metadata programmatically in a non-synchronous m
 In this example, we fetch the duration of "Big Buck Bunny" and use it to make our video just that long:
 
 ```tsx
-// @include: example-VideoTesting
 import { useEffect, useState } from "react";
 import { Composition, continueRender, delayRender } from "remotion";
+
+export const MyComponent: React.FC<{
+  duration: number;
+}> = ({duration}) => {
+  return (
+    <div>props: {duration}</div>
+  );
+}
+export const VideoTesting: React.FC = () => <></>
+
 // ---cut---
 export const Index: React.FC = () => {
   const [handle] = useState(() => delayRender());

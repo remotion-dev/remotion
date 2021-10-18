@@ -5,19 +5,6 @@ title: Transparent videos
 
 import { TransparentVideoDemo } from "../components/TransparentVideoDemo";
 
-```twoslash include example
-const MyVideo: React.FC<{
-  transparent: boolean;
-}> = ({transparent}) => {
-  return (
-    <div style={{backgroundColor: transparent ? undefined : 'white', flex: 1}}>
-      {/* Omit opaque background based on `transparent` prop */}
-    </div>
-  )
-}
-// - MyVideo
-```
-
 Chrome and Firefox support WebM videos with alpha channels. That means that on these browsers, you can embed videos with transparency.
 
 If you are lucky enough to visit the website in one of those supported web browsers, check it out:
@@ -75,14 +62,30 @@ You can also set the settings on the command line:
 Given the poor browser support, consider making two versions of a video, one with alpha channel, and an opaque video as a fallback. You can achieve this in Remotion using standard React props:
 
 ```tsx twoslash {1}
-// @include: example-MyVideo
+const MyVideo: React.FC<{
+  transparent: boolean;
+}> = ({transparent}) => {
+  return (
+    <div style={{backgroundColor: transparent ? undefined : 'white', flex: 1}}>
+      {/* Omit opaque background based on `transparent` prop */}
+    </div>
+  )
+}
 ```
 
 It's a good practice to set a default when defining the composition:
 
 ```tsx twoslash {7-9}
 import { Composition } from "remotion";
-// @include: example-MyVideo
+const MyVideo: React.FC<{
+  transparent: boolean;
+}> = ({transparent}) => {
+  return (
+    <div style={{backgroundColor: transparent ? undefined : 'white', flex: 1}}>
+      {/* Omit opaque background based on `transparent` prop */}
+    </div>
+  )
+}
 // ---cut---
 <Composition
   id="my-video"
