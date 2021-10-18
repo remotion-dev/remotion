@@ -3,6 +3,7 @@ import got from 'got';
 import path from 'path';
 import {random, TAsset} from 'remotion';
 import sanitizeFilename from 'sanitize-filename';
+import {convertMp3ToPcm} from '../convert-mp3-to-pcm';
 
 const isDownloadingMap: {[key: string]: boolean} = {};
 const hasBeenDownloadedMap: {[key: string]: boolean} = {};
@@ -125,6 +126,6 @@ export const downloadAndMapAssetsToFileUrl = async ({
 
 	return {
 		...localhostAsset,
-		src: newSrc,
+		src: await convertMp3ToPcm(newSrc),
 	};
 };
