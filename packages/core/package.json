@@ -21,7 +21,7 @@
 		"react-dom": "^17.0.1"
 	},
 	"devDependencies": {
-		"@jonny/eslint-config": "^2.1.233",
+		"@jonny/eslint-config": "^2.1.248",
 		"@testing-library/react": "^11.2.2",
 		"@testing-library/react-hooks": "^5.1.1",
 		"@types/jest": "^27.0.2",
