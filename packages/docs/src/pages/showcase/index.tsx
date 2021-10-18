@@ -46,9 +46,8 @@ const Showcase = () => {
   const mobileLayout = (containerSize?.width ?? Infinity) < 1200;
   const mobileHeight = mobileLayout ? containerSize.width : null;
 
-  const [userHasInteractedWithPage, setUserHasInteractedWithPage] = useState(
-    false
-  );
+  const [userHasInteractedWithPage, setUserHasInteractedWithPage] =
+    useState(false);
   const [video, setVideo] = useState<ShowcaseVideo | null>(() => {
     if (typeof window === "undefined") {
       return null;

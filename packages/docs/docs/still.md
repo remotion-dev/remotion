@@ -12,12 +12,12 @@ The `<Still />` component has the same API as a [`<Composition />`](/docs/compos
 ```tsx twoslash
 // @allowUmdGlobalAccess
 // @filename: ./MyComp.tsx
-export const MyComp = () => <></>
+export const MyComp = () => <></>;
 
 // @filename: index.tsx
 // ---cut---
-import {Composition, Still} from 'remotion'
-import {MyComp} from './MyComp'
+import { Composition, Still } from "remotion";
+import { MyComp } from "./MyComp";
 
 export const MyVideo = () => {
   return (
@@ -30,15 +30,10 @@ export const MyVideo = () => {
         fps={30}
         durationInFrames={3 * 30}
       />
-      <Still
-        id="my-image"
-        component={MyComp}
-        width={1080}
-        height={1080}
-      />
+      <Still id="my-image" component={MyComp} width={1080} height={1080} />
     </>
-  )
-}
+  );
+};
 ```
 
 ## See also

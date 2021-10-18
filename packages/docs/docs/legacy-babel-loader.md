@@ -18,13 +18,13 @@ npm i @remotion/babel-loader
 ```
 
 ```ts twoslash title="remotion.config.ts"
-import {Config} from 'remotion'
+import { Config } from "remotion";
 // ---cut---
-import {replaceLoadersWithBabel} from '@remotion/babel-loader'
+import { replaceLoadersWithBabel } from "@remotion/babel-loader";
 
 Config.Bundling.overrideWebpackConfig((currentConfiguration) => {
-  return replaceLoadersWithBabel(currentConfiguration)
-})
+  return replaceLoadersWithBabel(currentConfiguration);
+});
 ```
 
 ## See also

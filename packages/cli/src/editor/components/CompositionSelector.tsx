@@ -1,5 +1,6 @@
 import React, {useCallback, useContext, useEffect} from 'react';
 import {Internals, TComposition} from 'remotion';
+import {loadMarks} from '../state/marks';
 import {useZIndex} from '../state/z-index';
 import {CompositionSelectorItem} from './CompositionSelectorItem';
 import {CurrentComposition} from './CurrentComposition';
@@ -7,6 +8,7 @@ import {
 	getCurrentCompositionFromUrl,
 	getFrameForComposition,
 } from './FramePersistor';
+import {inOutHandles} from './TimelineInOutToggle';
 
 const container: React.CSSProperties = {
 	borderRight: '1px solid black',
@@ -31,6 +33,7 @@ export const CompositionSelector: React.FC = () => {
 
 	const selectComposition = useCallback(
 		(c: TComposition) => {
+			inOutHandles.current?.setMarks(loadMarks(c.id, c.durationInFrames));
 			window.history.pushState({}, 'Preview', `/${c.id}`);
 			const frame = getFrameForComposition(c.id);
 			const frameInBounds = Math.min(c.durationInFrames - 1, frame);

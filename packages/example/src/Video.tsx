@@ -38,6 +38,14 @@ export const Index: React.FC = () => {
 				width={1080}
 			/>
 			<Composition
+				id="looped"
+				lazyComponent={() => import('./LoopedVideo')}
+				durationInFrames={200}
+				fps={60}
+				height={1080}
+				width={1080}
+			/>
+			<Composition
 				id="beta-text"
 				component={BetaText}
 				width={1080}

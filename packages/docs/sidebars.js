@@ -97,6 +97,7 @@ module.exports = {
         "audio",
         "composition",
         "sequence",
+        "loop",
         "video",
         "absolute-fill",
         "img",

@@ -16,26 +16,23 @@ You first need to bundle the project and fetch the compositions. Read [the code 
 ```ts twoslash
 // @module: ESNext
 // @target: ESNext
-import {bundle} from '@remotion/bundler';
-import {
-  getCompositions,
-  renderStill
-} from '@remotion/renderer';
+import { bundle } from "@remotion/bundler";
+import { getCompositions, renderStill } from "@remotion/renderer";
 
 // The composition you want to render
-const compositionId = 'HelloWorld'
+const compositionId = "HelloWorld";
 
-const bundleLocation = await bundle(require.resolve('./src/index'))
+const bundleLocation = await bundle(require.resolve("./src/index"));
 
 const comps = await getCompositions(bundleLocation, {
   inputProps: {
-    custom: 'data',
+    custom: "data",
   },
-})
-const composition = comps.find((c) => c.id === compositionId)
+});
+const composition = comps.find((c) => c.id === compositionId);
 
 if (!composition) {
-  throw new Error(`No composition with the ID ${compositionId} found`)
+  throw new Error(`No composition with the ID ${compositionId} found`);
 }
 
 // ---cut---
@@ -43,11 +40,17 @@ if (!composition) {
 await renderStill({
   composition,
   serveUrl: bundleLocation,
-  output: '/tmp/still.png',
+  output: "/tmp/still.png",
+  onError: (error) => {
+    console.error(
+      "The following error occured when rendering the still: ",
+      error.message
+    );
+  },
   inputProps: {
-    custom: 'data'
-  }
-})
+    custom: "data",
+  },
+});
 ```
 
 ## Arguments
@@ -115,8 +118,9 @@ _optional_
 Allows you to react to an exception thrown in your React code. The callback has an argument which is the error.
 
 ```tsx twoslash
-import {renderStill as rs} from '@remotion/renderer'
-const renderStill = (options: Partial<Parameters<typeof rs>[0]>) => {}
+const renderStill = (options: {
+  onError: (err: Error) => void;
+}) => {}
 // ---cut---
 renderStill({
   // ... other arguments
