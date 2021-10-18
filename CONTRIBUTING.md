@@ -1,7 +1,3 @@
-Want to watch a tutorial video instead? [Click here](https://www.youtube.com/watch?v=edWIkrjFgoQ)
-
----
-
 ## Contributing
 
 Issues and pull requests of all sorts are welcome!
@@ -16,46 +12,67 @@ Please note that this project is released with a [Contributor Code of Conduct](C
 
 ### Code setup
 
-Remotion uses [`pnpm`](https://pnpm.io/) as the package manager for development in this repository.
+1. Remotion uses [`pnpm`](https://pnpm.io/) as the package manager for development in this repository. Please install the latest version of pnpm globally:
 
-If you are using pnpm for the first time the [pnpm configuration documentation](https://pnpm.io/configuring) may be useful to avoid any potential problems with the following steps.
-
-To begin your development setup, please install the latest version of pnpm globally:
-
-```
-npm i -g pnpm
+```console
+[sudo] npm i -g pnpm
 ```
 
-With pnpm installed, the first step is installing all dependencies:
+2. Clone the Remotion repository
 
+```console
+git clone https://github.com/remotion-dev/remotion.git && cd remotion
 ```
-pnpm install
+
+3. Install all dependencies:
+
+```console
+pnpm i
 ```
 
-### Building the project
+4. Build the project initially:
 
-To build the project run
-
-```
+```console
 pnpm build
 ```
 
-### Watch mode
+5. Rebuild whenever a file changes:
 
-To enable watch mode run
-
-```
+```console
 pnpm watch
 ```
 
-### Running test
+6. You can start making changes!
 
+### Testing your changes
+
+You can start the Testbed using
+
+```console
+cd packages/example
+npm start
 ```
+
+You can render a test video using
+
+```console
+cd packages/example
+pnpm render
+```
+
+You can run tests using
+
+```console
 pnpm test
 ```
 
-As a testbed, you can use the `example` folder. Run `pnpm start` to trigger the preview and `pnpm render` to trigger the render process.
+in either a subpackage to run tests for that package or in the root to run all tests.
 
-### Testing
+You can test changes to [@remotion/player](https://remotion.dev/docs/player) using:
+
+```
+cd packages/player-example
+pnpm start
+```
 
 For information about testing, please consult [TESTING.md](./TESTING.md).
