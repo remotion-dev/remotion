@@ -43,32 +43,6 @@ You can use the `playbackRate` prop to control the speed of the audio. `1` is th
 
 While Remotion doesn't limit the range of possible playback speeds, in development mode the [`HTMLMediaElement.playbackRate`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/playbackRate) API is used which throws errors on extreme values. At the time of writing, Google Chrome throws an exception if the playback rate is below `0.0625` or above `16`.
 
-## Using `<source>` tags
-
-_Available from v2.4.4_
-
-You can use the browser-native [`<source>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/source) tags to provide different media to support a broader range of browsers. While rendering always happens in Chrome, this feature is useful if you are showing a preview in [`<Player />`](/docs/player).
-
-```tsx twoslash
-import {Audio, interpolate} from 'remotion';
-// ---cut---
-
-const Comp: React.FC = () => {
-  return (
-    <Audio>
-      <source
-        src="https://example.com/kid-laugh.mp3"
-        type="audio/mpeg"
-      />
-      <source
-        src="https://example.com/cow-moo.ogg"
-        type="audio/ogg"
-      />
-    </Audio>
-  );
-}
-```
-
 ## See also
 
 - [Using audio](/docs/audio)
