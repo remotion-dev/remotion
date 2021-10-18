@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkdocs=self.webpackChunkdocs||[]).push([[4171],{77204:function(e){e.exports=JSON.parse('{"title":"Success stories","items":[{"title":"How MakeStories uses Remotion to render Web Stories","permalink":"/success-stories/makestories"}]}')}}]);
