@@ -282,4 +282,5 @@ export const render = async () => {
 	Log.info('-', 'Output can be found at:');
 	Log.info(chalk.cyan(`▶️ ${absoluteOutputFile}`));
 	await closeBrowserPromise;
+	close();
 };
