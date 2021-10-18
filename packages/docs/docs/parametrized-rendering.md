@@ -29,13 +29,12 @@ When registering the component as a sequence, you can define the default props:
 
 ```tsx twoslash {13-16}
 // @filename: 8.tsx
-import React from "react";
+// @allowUmdGlobalAccess
 export const MyComponent: React.FC<{ propOne: string; propTwo: number }> = () =>
   null;
 
 // ---cut---
 import { Composition } from "remotion";
-import { MyComponent } from "./MyComponent";
 
 export const Root = () => {
   return (
