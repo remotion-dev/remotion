@@ -174,7 +174,7 @@ npx remotion render --codec=vp8 src/index.tsx HelloWorld out/video.webm
 
 ## Fig.io autocompletion
 
-Fig adds visual apps, shortcuts, and autocomplete to your existing Terminal. The remotion autocompletion is available on Fig, try i  with `npx remotion`, `remotion`, `yarn create video`. Useful if you have a memory lapse.
+Fig adds visual apps, shortcuts, and autocomplete to your existing Terminal. The remotion autocompletion is available on Fig, try i with `npx remotion`, `remotion`, `yarn create video`. Useful if you have a memory lapse.
 
 ## See also
 

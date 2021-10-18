@@ -24,9 +24,9 @@ npx remotion render --props='{"hello": "world"}' src/index.tsx my-composition ou
 You can then access the props in JavaScript:
 
 ```tsx twoslash
-const getInputProps = () => ({hello: 'world'} as const)
+const getInputProps = () => ({ hello: "world" } as const);
 // ---cut---
-const {hello} = getInputProps() // "world"
+const { hello } = getInputProps(); // "world"
 ```
 
 In this example, the props also get passed to the component of the composition with the id `my-composition`.
