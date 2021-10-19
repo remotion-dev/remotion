@@ -1,0 +1,9 @@
+[build]
+command = "npm run build && cd packages/docs && npm run build-docs"
+publish = "packages/docs/build"
+
+[build.environment]
+NPM_FLAGS="--prefix=/dev/null"
+
+[[plugins]]
+package = "/.netlify/netlify-plugin-pnpm"
