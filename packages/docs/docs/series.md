@@ -22,7 +22,7 @@ const Square: React.FC<{color: string}> = () => <div></div>
 ```tsx twoslash
 // @include: example-Square
 // ---cut---
-import {Series} from 'remotion';
+import { Series } from "remotion";
 
 const Example: React.FC = () => {
   return (

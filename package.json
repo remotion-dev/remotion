@@ -3,32 +3,48 @@
   "private": true,
   "license": "SEE LICENSE IN LICENSE.md",
   "scripts": {
-    "test": "lerna run test && npx jest --runInBand",
-    "build": "lerna run build",
-    "watch": "lerna run watch --stream --parallel"
+    "test": "pnpm run test --recursive && jest --runInBand",
+    "build": "pnpm run build --recursive",
+    "watch": "pnpm run watch --recursive --stream --parallel",
+    "postinstall": "lerna bootstrap"
+  },
+  "engines": {
+    "node": ">=12",
+    "pnpm": ">=3"
   },
   "devDependencies": {
-    "@jonny/eslint-config": "^2.1.233",
-    "@types/jest": "^26.0.20",
+    "@jonny/eslint-config": "^2.1.248",
+    "@types/jest": "^27.0.2",
     "@types/minimist": "^1.2.1",
     "@types/node": "^16.7.5",
-    "@types/react": "17.0.19",
+    "@types/react": "17.0.27",
     "@types/react-dom": "^17.0.9",
     "@types/sharp": "^0.28.5",
     "eslint": "^7.25.0",
     "execa": "^5.0.0",
-    "jest": "^26.6.3",
-    "lerna": "^2.11.0",
+    "jest": "^27.2.4",
+    "jest-environment-jsdom": "^27.2.4",
     "prettier": "^2.2.1",
     "prettier-plugin-organize-imports": "^1.1.1",
     "sharp": "^0.29.0",
-    "ts-jest": "^26.5.1",
+    "@remotion/babel-loader": "^2.4.3",
+    "@remotion/three": "^2.4.3",
+    "@remotion/player": "^2.4.3",
+    "@remotion/gif": "^2.4.3",
+    "@remotion/cli": "^2.4.3",
+    "@remotion/media-utils": "^2.4.3",
+    "@remotion/renderer": "^2.4.3",
+    "@remotion/bundler": "^2.4.3",
+    "remotion": "^2.4.3",
+    "ts-jest": "^27.0.5",
     "typescript": "^4.4.2"
   },
   "dependencies": {
     "@react-three/fiber": "^6.1.2",
+    "lerna": "^4.0.0",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
     "three": "^0.128.0"
-  }
+  },
+  "name": "remotion"
 }
