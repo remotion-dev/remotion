@@ -2,7 +2,6 @@ import {RefObject, useEffect} from 'react';
 import {useMediaStartsAt} from './audio/use-audio-frame';
 import {usePlayingState} from './timeline-position-state';
 import {useAbsoluteCurrentFrame, useCurrentFrame} from './use-frame';
-import {useMediaHasMetadata} from './use-media-metadata';
 import {useVideoConfig} from './use-video-config';
 import {getMediaTime} from './video/get-current-time';
 import {warnAboutNonSeekableMedia} from './warn-about-non-seekable-media';
@@ -31,20 +30,20 @@ const playAndHandleNotAllowedError = (
 
 export const useMediaPlayback = ({
 	mediaRef,
+	src,
 	mediaType,
 	playbackRate,
 }: {
 	mediaRef: RefObject<HTMLVideoElement | HTMLAudioElement>;
+	src: string | undefined;
 	mediaType: 'audio' | 'video';
 	playbackRate: number;
 }) => {
-	const {currentSrc} = mediaRef.current || {};
 	const frame = useCurrentFrame();
 	const absoluteFrame = useAbsoluteCurrentFrame();
 	const [playing] = usePlayingState();
 	const {fps} = useVideoConfig();
 	const mediaStartsAt = useMediaStartsAt();
-	const hasMetadata = useMediaHasMetadata(mediaRef);
 
 	useEffect(() => {
 		if (playing && !mediaRef.current?.ended) {
@@ -56,18 +55,13 @@ export const useMediaPlayback = ({
 
 	useEffect(() => {
 		const tagName = mediaType === 'audio' ? '<Audio>' : '<Video>';
-
 		if (!mediaRef.current) {
 			throw new Error(`No ${mediaType} ref found`);
 		}
 
-		if (!hasMetadata) {
-			return;
-		}
-
-		if (!currentSrc) {
+		if (!src) {
 			throw new Error(
-				`No src found. Please provide a src prop or a <source> child to the ${tagName} element.`
+				`No 'src' attribute was passed to the ${tagName} element.`
 			);
 		}
 
@@ -76,8 +70,8 @@ export const useMediaPlayback = ({
 		const shouldBeTime = getMediaTime({
 			fps,
 			frame,
+			src,
 			playbackRate,
-			src: currentSrc,
 			startFrom: -mediaStartsAt,
 		});
 
@@ -119,8 +113,7 @@ export const useMediaPlayback = ({
 		mediaRef,
 		mediaType,
 		playing,
-		hasMetadata,
-		currentSrc,
+		src,
 		mediaStartsAt,
 	]);
 };

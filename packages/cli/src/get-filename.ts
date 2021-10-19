@@ -68,6 +68,15 @@ export const getOutputFilename = ({
 		}
 	}
 
+	if (codec === 'h264-mkv') {
+		if (extension !== 'mkv') {
+			Log.error(
+				'When using the "h264-mkv" codec, the output filename must end in ".mkv".'
+			);
+			process.exit(1);
+		}
+	}
+
 	if (codec === 'h265') {
 		if (extension !== 'mp4' && extension !== 'hevc') {
 			Log.error(

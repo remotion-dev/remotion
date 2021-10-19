@@ -30,6 +30,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		volume,
 		mediaVolume,
 		mediaType: 'video',
+		src: nativeProps.src,
 	});
 
 	useSyncVolumeWithMediaTag({
@@ -42,6 +43,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 
 	useMediaPlayback({
 		mediaRef: videoRef,
+		src: nativeProps.src,
 		mediaType: 'video',
 		playbackRate: props.playbackRate ?? 1,
 	});
