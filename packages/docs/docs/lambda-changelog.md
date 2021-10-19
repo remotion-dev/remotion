@@ -24,6 +24,8 @@ Version hash: `2.0.3-lambda.461+9cd93efaf`
 
 Version hash: `2.5.0-alpha.da8c43b8`
 
+_Note: This version in broken. Don't use it._
+
 - A new `privacy` field determines if the video will be public of private once it's rendered. No default - this field is mandatory
 - New `overallProgress` field in `getRenderProgress()` which can be used to display a progress bar to end users
 - The `getSites()` method returns a property `sizeInBytes` which was previously `size`.
