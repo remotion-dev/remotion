@@ -2,55 +2,67 @@ import {useCallback, useEffect, useRef} from 'react';
 import {Internals} from 'remotion';
 import {usePlayer} from './use-player';
 
-type usePlaybackType = (args: {loop: boolean}) => {playbackSpeed: number};
+const calculateNextFrame = (
+	time: number,
+	startFrame: number,
+	playbackSpeed: number,
+	fps: number,
+	durationInFrames: number
+) => {
+	const op = playbackSpeed < 0 ? Math.ceil : Math.floor;
+	const numberOfFrameChanges = op((time * playbackSpeed) / (1000 / fps));
 
-export const usePlayback: usePlaybackType = ({loop}) => {
+	const nextFrame =
+		(numberOfFrameChanges + startFrame + durationInFrames) % durationInFrames;
+	return nextFrame < 0 ? nextFrame + durationInFrames : nextFrame;
+};
+
+const MAX_PLAYBACKSPEED = 4;
+
+export const usePlayback = ({loop}: {loop: boolean}) => {
 	const frame = Internals.Timeline.useTimelinePosition();
 	const config = Internals.useUnsafeVideoConfig();
 	const {playing, pause, emitter} = usePlayer();
 	const setFrame = Internals.Timeline.useTimelineSetFrame();
-	const {
-		inFrame,
-		outFrame,
-	} = Internals.Timeline.useTimelineInOutFramePosition();
 
 	const playbackSpeed = useRef<number>(1);
-	const timelastSpeedChange = useRef<number>();
-	const nextFrame = useRef(frame);
-	const frameCountBeforeChange = useRef(frame);
+	const playbackChangeTime = useRef<number>();
+	const playbackChangeFrame = useRef<number>(frame);
+	const nextFrame = useRef<number>(frame);
 	const frameRef = useRef(frame);
 	frameRef.current = frame;
 
 	const lastTimeUpdateEvent = useRef<number | null>(null);
 
-	const decreasePlaybackSpeed = useCallback(() => {
-		const newSpeed = Math.max(playbackSpeed.current / 2, 1 / 4);
-		if (newSpeed !== playbackSpeed.current) {
-			timelastSpeedChange.current = performance.now();
-			frameCountBeforeChange.current = nextFrame.current;
-		}
+	const slowerPlayback = useCallback(() => {
+		playbackSpeed.current = Math.max(
+			playbackSpeed.current - 1,
+			-MAX_PLAYBACKSPEED
+		);
+		if (playbackSpeed.current === 0) playbackSpeed.current = -1;
 
-		playbackSpeed.current = newSpeed;
+		playbackChangeFrame.current = nextFrame.current;
+		playbackChangeTime.current = performance.now();
 	}, []);
+	const fasterPlayback = useCallback(() => {
+		playbackSpeed.current = Math.min(
+			playbackSpeed.current + 1,
+			MAX_PLAYBACKSPEED
+		);
+		if (playbackSpeed.current === 0) playbackSpeed.current = 1;
 
-	const increasePlaybackSpeed = useCallback(() => {
-		const newSpeed = Math.min(playbackSpeed.current * 2, 4);
-		if (newSpeed !== playbackSpeed.current) {
-			timelastSpeedChange.current = performance.now();
-			frameCountBeforeChange.current = nextFrame.current;
-		}
-
-		playbackSpeed.current = newSpeed;
+		playbackChangeFrame.current = nextFrame.current;
+		playbackChangeTime.current = performance.now();
 	}, []);
 
 	useEffect(() => {
-		emitter?.addEventListener('slower', decreasePlaybackSpeed);
-		emitter?.addEventListener('faster', increasePlaybackSpeed);
+		emitter?.addEventListener('slower', slowerPlayback);
+		emitter?.addEventListener('faster', fasterPlayback);
 		return () => {
-			emitter.removeEventListener('slower', decreasePlaybackSpeed);
-			emitter.removeEventListener('faster', increasePlaybackSpeed);
+			emitter?.removeEventListener('slower', slowerPlayback);
+			emitter?.removeEventListener('faster', fasterPlayback);
 		};
-	}, [increasePlaybackSpeed, decreasePlaybackSpeed, emitter]);
+	}, [emitter, fasterPlayback, slowerPlayback]);
 
 	useEffect(() => {
 		if (!config) {
@@ -61,62 +73,45 @@ export const usePlayback: usePlaybackType = ({loop}) => {
 			return;
 		}
 
-		const getFrameInRange = (nextFrame: number) => {
-			if (
-				(inFrame && nextFrame < inFrame) ||
-				(inFrame && outFrame && nextFrame > outFrame)
-			) {
-				return inFrame;
-			}
-
-			if (outFrame && nextFrame > outFrame) {
-				return 0;
-			}
-
-			return nextFrame;
-		};
-
 		let hasBeenStopped = false;
 		let reqAnimFrameCall: number | null = null;
 		const startedTime = performance.now();
-		const startedFrame = getFrameInRange(frameRef.current);
-
-		const durationInFrames = (() => {
-			if (inFrame !== null && outFrame !== null) {
-				return outFrame - inFrame + 1;
-			}
-
-			if (inFrame !== null) {
-				return config.durationInFrames - inFrame;
-			}
-
-			if (outFrame !== null) {
-				return outFrame + 1;
-			}
-
-			return config.durationInFrames;
-		})();
+		const startedFrame = frameRef.current;
 
 		const stop = () => {
 			hasBeenStopped = true;
+			playbackChangeTime.current = undefined;
+			playbackChangeFrame.current = nextFrame.current;
 			if (reqAnimFrameCall !== null) {
 				cancelAnimationFrame(reqAnimFrameCall);
 			}
 		};
 
-		const callback = () => {
-			const time = performance.now() - startedTime;
-			const nextFrame =
-				Math.round(time / (1000 / config.fps)) + startedFrame - (inFrame ?? 0);
-			if (nextFrame === config.durationInFrames && !loop) {
+		const callback = (now: DOMHighResTimeStamp) => {
+			// const now = performance.now();
+
+			const time =
+				playbackChangeTime.current === undefined
+					? now - startedTime
+					: now - playbackChangeTime.current;
+			nextFrame.current = calculateNextFrame(
+				time,
+				playbackChangeFrame.current || startedFrame,
+				playbackSpeed.current,
+				config.fps,
+				config.durationInFrames
+			);
+
+			const finalFrame =
+				playbackSpeed.current > 0 ? config.durationInFrames : 0;
+			if (nextFrame.current === finalFrame && !loop) {
 				stop();
 				pause();
 				emitter.dispatchEnded();
 				return;
 			}
 
-			const actualNextFrame = (nextFrame % durationInFrames) + (inFrame ?? 0);
-
+			const actualNextFrame = nextFrame.current % config.durationInFrames;
 			if (actualNextFrame !== frameRef.current) {
 				setFrame(actualNextFrame);
 			}
@@ -131,7 +126,7 @@ export const usePlayback: usePlaybackType = ({loop}) => {
 		return () => {
 			stop();
 		};
-	}, [config, loop, pause, playing, setFrame, emitter, inFrame, outFrame]);
+	}, [config, loop, pause, playing, setFrame, emitter]);
 
 	useEffect(() => {
 		const interval = setInterval(() => {
@@ -144,7 +139,7 @@ export const usePlayback: usePlaybackType = ({loop}) => {
 		}, 250);
 
 		return () => clearInterval(interval);
-	}, [emitter, config]);
+	}, [emitter]);
 
 	return {playbackSpeed: playbackSpeed.current};
 };
