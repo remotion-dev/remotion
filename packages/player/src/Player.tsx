@@ -23,6 +23,7 @@ import {PlayerEmitter} from './event-emitter';
 import {PLAYER_CSS_CLASSNAME} from './player-css-classname';
 import {PlayerRef} from './player-methods';
 import PlayerUI from './PlayerUI';
+import {PlaybackRateType} from './use-playback';
 import {getPreferredVolume, persistVolume} from './volume-persistance';
 
 type PropsIfHasProps<Props> = {} extends Props
@@ -48,6 +49,7 @@ export type PlayerProps<T> = {
 	doubleClickToFullscreen?: boolean;
 	spaceKeyToPlayOrPause?: boolean;
 	numberOfSharedAudioTags?: number;
+	playbackRate?: PlaybackRateType;
 } & PropsIfHasProps<T> &
 	CompProps<T>;
 
@@ -73,6 +75,7 @@ export const PlayerFn = <T,>(
 		doubleClickToFullscreen = false,
 		spaceKeyToPlayOrPause = true,
 		numberOfSharedAudioTags = 5,
+		playbackRate = 1,
 		...componentProps
 	}: PlayerProps<T>,
 	ref: MutableRefObject<PlayerRef>
@@ -188,6 +191,12 @@ export const PlayerFn = <T,>(
 	) {
 		throw new TypeError(
 			`'numberOfSharedAudioTags' must be an integer but got '${numberOfSharedAudioTags}' instead`
+		);
+	}
+
+	if (playbackRate < -4 || playbackRate > 4 || playbackRate % 1 !== 0) {
+		throw new TypeError(
+			`'playbackRate' must be an integer within the bounds of -4 and 4`
 		);
 	}
 
@@ -307,6 +316,7 @@ export const PlayerFn = <T,>(
 										doubleClickToFullscreen={Boolean(doubleClickToFullscreen)}
 										setMediaMuted={setMediaMuted}
 										spaceKeyToPlayOrPause={Boolean(spaceKeyToPlayOrPause)}
+										playbackRate={playbackRate}
 									/>
 								</PlayerEventEmitterContext.Provider>
 							</Internals.SharedAudioContextProvider>

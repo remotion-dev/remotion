@@ -141,6 +141,12 @@ If you'd like to opt out of this behavior, you can pass `0` to mount native audi
 
 Once you have set this prop, you cannot change it anymore or an error will be thrown.
 
+### `playbackRate`
+
+_optional_
+
+An integer between -4 and 4 (excluding 0) for the speed that the Player will run the media.
+
 ## `PlayerRef`
 
 You may attach a ref to the player and control it in an imperative manner.

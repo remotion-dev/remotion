@@ -1,4 +1,4 @@
-import {useCallback, useEffect, useRef} from 'react';
+import {useCallback, useEffect, useRef, useState} from 'react';
 import {Internals} from 'remotion';
 import {usePlayer} from './use-player';
 
@@ -17,15 +17,23 @@ const calculateNextFrame = (
 	return nextFrame < 0 ? nextFrame + durationInFrames : nextFrame;
 };
 
-const MAX_PLAYBACKSPEED = 4;
+const ABSOLUTE_MAX_PLAYBACKSPEED = 4;
 
-export const usePlayback = ({loop}: {loop: boolean}) => {
+export type PlaybackRateType = -4 | -3 | -2 | -1 | 1 | 2 | 3 | 4;
+
+export const usePlayback = ({
+	loop,
+	playbackRate = 1,
+}: {
+	loop: boolean;
+	playbackRate?: PlaybackRateType;
+}) => {
 	const frame = Internals.Timeline.useTimelinePosition();
 	const config = Internals.useUnsafeVideoConfig();
 	const {playing, pause, emitter} = usePlayer();
 	const setFrame = Internals.Timeline.useTimelineSetFrame();
 
-	const playbackSpeed = useRef<number>(1);
+	const [playbackSpeed, setPlaybackSpeed] = useState<number>(playbackRate);
 	const playbackChangeTime = useRef<number>();
 	const playbackChangeFrame = useRef<number>(frame);
 	const nextFrame = useRef<number>(frame);
@@ -35,25 +43,23 @@ export const usePlayback = ({loop}: {loop: boolean}) => {
 	const lastTimeUpdateEvent = useRef<number | null>(null);
 
 	const slowerPlayback = useCallback(() => {
-		playbackSpeed.current = Math.max(
-			playbackSpeed.current - 1,
-			-MAX_PLAYBACKSPEED
-		);
-		if (playbackSpeed.current === 0) playbackSpeed.current = -1;
+		let newSpeed = Math.max(playbackSpeed - 1, -ABSOLUTE_MAX_PLAYBACKSPEED);
+		if (newSpeed === 0) newSpeed = -1;
+
+		setPlaybackSpeed(newSpeed);
 
 		playbackChangeFrame.current = nextFrame.current;
 		playbackChangeTime.current = performance.now();
-	}, []);
+	}, [playbackSpeed, setPlaybackSpeed]);
 	const fasterPlayback = useCallback(() => {
-		playbackSpeed.current = Math.min(
-			playbackSpeed.current + 1,
-			MAX_PLAYBACKSPEED
-		);
-		if (playbackSpeed.current === 0) playbackSpeed.current = 1;
+		let newSpeed = Math.min(playbackSpeed + 1, ABSOLUTE_MAX_PLAYBACKSPEED);
+		if (newSpeed === 0) newSpeed = 1;
+
+		setPlaybackSpeed(newSpeed);
 
 		playbackChangeFrame.current = nextFrame.current;
 		playbackChangeTime.current = performance.now();
-	}, []);
+	}, [playbackSpeed, setPlaybackSpeed]);
 
 	useEffect(() => {
 		emitter?.addEventListener('slower', slowerPlayback);
@@ -97,13 +103,12 @@ export const usePlayback = ({loop}: {loop: boolean}) => {
 			nextFrame.current = calculateNextFrame(
 				time,
 				playbackChangeFrame.current || startedFrame,
-				playbackSpeed.current,
+				playbackSpeed,
 				config.fps,
 				config.durationInFrames
 			);
 
-			const finalFrame =
-				playbackSpeed.current > 0 ? config.durationInFrames : 0;
+			const finalFrame = playbackSpeed > 0 ? config.durationInFrames : 0;
 			if (nextFrame.current === finalFrame && !loop) {
 				stop();
 				pause();
@@ -126,7 +131,7 @@ export const usePlayback = ({loop}: {loop: boolean}) => {
 		return () => {
 			stop();
 		};
-	}, [config, loop, pause, playing, setFrame, emitter]);
+	}, [config, loop, pause, playing, setFrame, emitter, playbackSpeed]);
 
 	useEffect(() => {
 		const interval = setInterval(() => {
@@ -141,5 +146,5 @@ export const usePlayback = ({loop}: {loop: boolean}) => {
 		return () => clearInterval(interval);
 	}, [emitter]);
 
-	return {playbackSpeed: playbackSpeed.current};
+	return {playbackSpeed};
 };

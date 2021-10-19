@@ -3,11 +3,26 @@ import React, {useCallback, useEffect} from 'react';
 import {Internals} from 'remotion';
 import {useIsStill} from '../helpers/is-current-selected-still';
 import {useKeybinding} from '../helpers/use-keybinding';
+import {FastBack} from '../icons/fast-back';
+import {FastForward} from '../icons/fast-forward';
 import {Pause} from '../icons/pause';
 import {Play} from '../icons/play';
 import {StepBack} from '../icons/step-back';
 import {StepForward} from '../icons/step-forward';
 import {ControlButton} from './ControlButton';
+
+const playbackSpeedTextStyle = {
+	height: 16,
+	width: 16,
+	fontSize: '.65rem',
+	lineHeight: '1.1rem',
+};
+
+const forwardBackStyle = {
+	height: 16,
+	width: 16,
+	color: 'white',
+};
 
 export const PlayPause: React.FC = () => {
 	const frame = Internals.Timeline.useTimelinePosition();
@@ -124,18 +139,18 @@ export const PlayPause: React.FC = () => {
 
 	return (
 		<>
+			<div style={playbackSpeedTextStyle}>
+				{playbackSpeed < 0 ? `${-playbackSpeed}X` : null}
+			</div>
+			<ControlButton onClick={slower}>
+				<FastBack style={forwardBackStyle} />
+			</ControlButton>
 			<ControlButton
 				aria-label="Step back one frame"
 				disabled={frame === 0}
 				onClick={oneFrameBack}
 			>
-				<StepBack
-					style={{
-						height: 16,
-						width: 16,
-						color: 'white',
-					}}
-				/>
+				<StepBack style={forwardBackStyle} />
 			</ControlButton>
 
 			<ControlButton
@@ -167,17 +182,14 @@ export const PlayPause: React.FC = () => {
 				disabled={isLastFrame}
 				onClick={oneFrameForward}
 			>
-				<StepForward
-					style={{
-						height: 16,
-						width: 16,
-						color: 'white',
-					}}
-				/>
+				<StepForward style={forwardBackStyle} />
 			</ControlButton>
-			<ControlButton onClick={() => slower()}>-</ControlButton>
-			<div>{playbackSpeed}X</div>
-			<ControlButton onClick={() => faster()}>+</ControlButton>
+			<ControlButton onClick={() => faster()}>
+				<FastForward style={forwardBackStyle} />
+			</ControlButton>
+			<div style={playbackSpeedTextStyle}>
+				{playbackSpeed > 1 ? `${playbackSpeed}X` : null}
+			</div>
 		</>
 	);
 };
