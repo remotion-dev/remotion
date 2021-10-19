@@ -18,7 +18,7 @@ import {PLAYER_CSS_CLASSNAME} from './player-css-classname';
 import {PlayerMethods, PlayerRef} from './player-methods';
 import {Controls} from './PlayerControls';
 import {useHoverState} from './use-hover-state';
-import {usePlayback} from './use-playback';
+import {PlaybackRateType, usePlayback} from './use-playback';
 import {usePlayer} from './use-player';
 import {browserSupportsFullscreen} from './utils/browser-supports-fullscreen';
 import {calculatePlayerSize} from './utils/calculate-player-size';
@@ -43,6 +43,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		setMediaVolume: (v: number) => void;
 		setMediaMuted: (v: boolean) => void;
 		mediaVolume: number;
+		playbackRate: PlaybackRateType;
 	}
 > = (
 	{
@@ -60,6 +61,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		setMediaMuted,
 		setMediaVolume,
 		spaceKeyToPlayOrPause,
+		playbackRate,
 	},
 	ref
 ) => {
@@ -72,7 +74,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 	const [hasPausedToResume, setHasPausedToResume] = useState(false);
 	const [shouldAutoplay, setShouldAutoPlay] = useState(autoPlay);
 	const [isFullscreen, setIsFullscreen] = useState(() => false);
-	usePlayback({loop});
+	usePlayback({loop, playbackRate});
 	const player = usePlayer();
 
 	useEffect(() => {
