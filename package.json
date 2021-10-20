@@ -34,6 +34,7 @@
     "@remotion/cli": "2.4.4",
     "@remotion/media-utils": "2.4.4",
     "@remotion/renderer": "2.4.4",
+    "@remotion/lambda": "2.4.4",
     "@remotion/bundler": "2.4.4",
     "remotion": "2.4.4",
     "ts-jest": "^27.0.5",
