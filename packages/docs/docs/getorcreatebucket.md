@@ -9,13 +9,11 @@ Creates a bucket for Remotion Lambda in your S3 account. If one already exists, 
 **Only 1 bucket per region** is necessary for Remotion Lambda to function.
 
 ```ts twoslash
-// @module: ESNext
-// @target: ESNext
-import {getOrCreateBucket} from '@remotion/lambda';
+import { getOrCreateBucket } from "@remotion/lambda";
 
-const {bucketName} = await getOrCreateBucket({region: 'us-east-1'})
+const { bucketName } = await getOrCreateBucket({ region: "us-east-1" });
 
-console.log(bucketName) // "remtionlambda-32df3p"
+console.log(bucketName); // "remtionlambda-32df3p"
 ```
 
 ## Arguments
