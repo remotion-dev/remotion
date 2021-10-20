@@ -17,6 +17,7 @@ import {renderStillOnLambda} from './api/render-still-on-lambda';
 import {renderVideoOnLambda} from './api/render-video-on-lambda';
 import {LambdaInternals} from './internals';
 import {AwsRegion} from './pricing/aws-regions';
+import type {RenderProgress} from './shared/constants';
 import {estimatePrice} from './pricing/calculate-price';
 
 export {
@@ -38,4 +39,4 @@ export {
 	LambdaInternals,
 	renderStillOnLambda,
 };
-export type {AwsRegion};
+export type {AwsRegion, RenderProgress};
