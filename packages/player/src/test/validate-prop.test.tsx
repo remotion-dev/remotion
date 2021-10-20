@@ -104,6 +104,28 @@ test('No durationInFrames should give errors', () => {
 	}
 });
 
+test.each([-5, 1.3])('Invalid playbackRate should give error', () => {
+	try {
+		render(
+			<Player
+				compositionWidth={500}
+				compositionHeight={400}
+				fps={30}
+				durationInFrames={500}
+				component={HelloWorld}
+				controls
+				showVolumeControls
+				// @ts-expect-error
+				playbackRate={-5}
+			/>
+		);
+	} catch (e) {
+		expect((e as Error).message).toMatch(
+			/'playbackRate' must be an integer within the bounds of -4 and 4/
+		);
+	}
+});
+
 test.each([
 	['controls'],
 	['loop'],
