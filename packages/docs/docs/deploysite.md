@@ -13,24 +13,29 @@ Before calling this function, you should create a bucket, see [`getOrCreateBucke
 ## Example
 
 ```ts twoslash
-// @module: esnext
-// @target: es2017
-import {deploySite} from '@remotion/lambda';
+import { deploySite } from "@remotion/lambda";
 
-const {url} = await deploySite({
-  entryPoint: '/Users/jonnyburger/my-remotion-video/src/index.tsx',
-  bucketName: 'remotionlambda-c7fsl3d',
-  region: 'us-east-1',
+const { url } = await deploySite({
+  entryPoint: "/Users/jonnyburger/my-remotion-video/src/index.tsx",
+  bucketName: "remotionlambda-c7fsl3d",
+  region: "us-east-1",
   options: {
     onBundleProgress: (progress) => {
       // Progress is between 0 and 100
-      console.log(`Bundle progress: ${progress}%`)
+      console.log(`Bundle progress: ${progress}%`);
     },
-    onUploadProgress: ({totalFiles, filesUploaded, totalSize, sizeUploaded}) => {
-      console.log(`Upload progress: Total files ${totalFiles}, Files uploaded ${filesUploaded}, Total size ${totalSize}, Size uploaded ${sizeUploaded}`, )
-    }
-  }
-})
+    onUploadProgress: ({
+      totalFiles,
+      filesUploaded,
+      totalSize,
+      sizeUploaded,
+    }) => {
+      console.log(
+        `Upload progress: Total files ${totalFiles}, Files uploaded ${filesUploaded}, Total size ${totalSize}, Size uploaded ${sizeUploaded}`
+      );
+    },
+  },
+});
 console.log(url);
 ```
 

@@ -13,21 +13,18 @@ To get information about only a single function, use [`getFunctionInfo()`](/docs
 ## Example
 
 ```ts twoslash
-// @module: esnext
-// @target: es2017
-
-import {getFunctions} from '@remotion/lambda';
+import { getFunctions } from "@remotion/lambda";
 
 const info = await getFunctions({
-  region: 'eu-central-1',
-  compatibleOnly: true
+  region: "eu-central-1",
+  compatibleOnly: true,
 });
 
 for (const fn of info) {
-  console.log(fn.functionName) // "remotion-render-d8a03x"
-  console.log(fn.memorySizeInMb) // 1536
-  console.log(fn.timeoutInSeconds) // 120
-  console.log(fn.version) // "2021-07-25"
+  console.log(fn.functionName); // "remotion-render-d8a03x"
+  console.log(fn.memorySizeInMb); // 1536
+  console.log(fn.timeoutInSeconds); // 120
+  console.log(fn.version); // "2021-07-25"
 }
 ```
 

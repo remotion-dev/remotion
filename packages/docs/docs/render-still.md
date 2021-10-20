@@ -14,8 +14,6 @@ If you want to render a full image sequence and possibly encode it to a video la
 You first need to bundle the project and fetch the compositions. Read [the code snippet on the site for server-side rendering](/docs/ssr/#render-a-video-programmatically) for an example how to come up with the `bundleLocation` and `composition` variables.
 
 ```ts twoslash
-// @module: ESNext
-// @target: ESNext
 import { bundle } from "@remotion/bundler";
 import { getCompositions, renderStill } from "@remotion/renderer";
 
@@ -118,16 +116,14 @@ _optional_
 Allows you to react to an exception thrown in your React code. The callback has an argument which is the error.
 
 ```tsx twoslash
-const renderStill = (options: {
-  onError: (err: Error) => void;
-}) => {}
+const renderStill = (options: { onError: (err: Error) => void }) => {};
 // ---cut---
 renderStill({
   // ... other arguments
   onError: (err: Error) => {
     // Handle error here
-  }
-})
+  },
+});
 ```
 
 ### `overwrite?`

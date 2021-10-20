@@ -9,18 +9,16 @@ Gets the current status of a render originally triggered via [`renderVideoOnLamb
 ## Example
 
 ```tsx twoslash
-// @module: esnext
-// @target: es2017
-import {getRenderProgress} from '@remotion/lambda';
+import { getRenderProgress } from "@remotion/lambda";
 
 // ---cut---
 
 const progress = await getRenderProgress({
-  renderId: 'd7nlc2y',
-  bucketName: 'remotionlambda-d9mafgx',
-  functionName: 'remotion-render-la8ffw',
-  region: 'us-east-1'
-})
+  renderId: "d7nlc2y",
+  bucketName: "remotionlambda-d9mafgx",
+  functionName: "remotion-render-la8ffw",
+  region: "us-east-1",
+});
 ```
 
 ## API

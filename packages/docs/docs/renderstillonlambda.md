@@ -13,27 +13,22 @@ If you want to render a still locally instead, use [`renderStill()`](/docs/rende
 ## Example
 
 ```tsx twoslash
-// @module: esnext
-// @target: es2017
-import {renderStillOnLambda} from '@remotion/lambda';
+import { renderStillOnLambda } from "@remotion/lambda";
 // ---cut---
 
-const {
-  estimatedPrice,
-  url,
-  size
-} = await renderStillOnLambda({
-  region: 'us-east-1',
-  functionName: 'remotion-render-bds9aab',
-  serveUrl: 'https://remotionlambda-qg35eyp1s1.s3.eu-central-1.amazonaws.com/sites/bf2jrbfkw',
-  composition: 'MyVideo',
+const { estimatedPrice, url, size } = await renderStillOnLambda({
+  region: "us-east-1",
+  functionName: "remotion-render-bds9aab",
+  serveUrl:
+    "https://remotionlambda-qg35eyp1s1.s3.eu-central-1.amazonaws.com/sites/bf2jrbfkw",
+  composition: "MyVideo",
   inputProps: {},
-  imageFormat: 'png',
+  imageFormat: "png",
   maxRetries: 3,
-  privacy: 'public',
+  privacy: "public",
   envVariables: {},
-  frame: 10
-})
+  frame: 10,
+});
 ```
 
 ## Arguments
