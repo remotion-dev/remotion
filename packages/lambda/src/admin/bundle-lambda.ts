@@ -26,7 +26,7 @@ const bundleLambda = async () => {
 	});
 
 	await zl.archiveFolder(outdir, FUNCTION_ZIP);
-	fs.rmSync(outfile);
+	fs.unlinkSync(outfile);
 };
 
 bundleLambda()
