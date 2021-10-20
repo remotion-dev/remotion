@@ -1,5 +1,5 @@
 [build]
-command = "npm run build && cd packages/docs && npm run build-docs"
+command = "npm run build && npx lerna bootstrap && cd packages/docs && npm run build-docs"
 publish = "packages/docs/build"
 
 [build.environment]

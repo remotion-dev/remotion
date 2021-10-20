@@ -28,8 +28,6 @@ An object with the following arguments:
 ## Example
 
 ```tsx twoslash
-// @module: ESNext
-// @target: ESNext
 import { Audio } from "remotion";
 // ---cut---
 import { getAudioData, getWaveformPortion } from "@remotion/media-utils";
