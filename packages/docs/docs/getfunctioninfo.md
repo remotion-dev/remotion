@@ -13,16 +13,19 @@ To deploy a function, use [`deployFunction()`](/docs/lambda/deployfunction).
 ## Example
 
 ```ts twoslash
-import { getFunctionInfo } from "@remotion/lambda";
+// @module: esnext
+// @target: es2017
+
+import {getFunctionInfo} from '@remotion/lambda';
 
 const info = await getFunctionInfo({
-  functionName: "remotion-render-d7nd2a9f",
-  region: "eu-central-1",
+  functionName: 'remotion-render-d7nd2a9f',
+  region: 'eu-central-1'
 });
-console.log(info.functionName); // remotion-render-d7nd2a9f
-console.log(info.memorySizeInMb); // 1500
-console.log(info.version); // '2021-07-14'
-console.log(info.timeoutInSeconds); // 120
+console.log(info.functionName) // remotion-render-d7nd2a9f
+console.log(info.memorySizeInMb) // 1500
+console.log(info.version) // '2021-07-14'
+console.log(info.timeoutInSeconds) // 120
 ```
 
 ## Arguments

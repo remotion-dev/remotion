@@ -15,15 +15,18 @@ The function does reject with an error if a permission is missing, rather the mi
 ## Example
 
 ```ts twoslash
-import { simulatePermissions } from "@remotion/lambda";
+// @module: esnext
+// @target: es2017
 
-const { results } = await simulatePermissions({
-  region: "us-east-1",
+import {simulatePermissions} from '@remotion/lambda';
+
+const {results} = await simulatePermissions({
+  region: 'us-east-1',
 });
 
 for (const result of results) {
-  console.log(result.decision); // "allowed"
-  console.log(result.name); // "iam:GetUser"
+  console.log(result.decision) // "allowed"
+  console.log(result.name) // "iam:GetUser"
 }
 ```
 
@@ -45,14 +48,14 @@ A callback function that gets called every time a new simulation has been execut
 // @module: esnext
 // @target: es2017
 
-import { simulatePermissions } from "@remotion/lambda";
+import {simulatePermissions} from '@remotion/lambda';
 
-const { results } = await simulatePermissions({
-  region: "us-east-1",
+const {results} = await simulatePermissions({
+  region: 'us-east-1',
   onSimulation: (result) => {
-    console.log(result.decision); // "allowed"
-    console.log(result.name); // "iam:GetUser"
-  },
+    console.log(result.decision) // "allowed"
+    console.log(result.name) // "iam:GetUser"
+  }
 });
 ```
 

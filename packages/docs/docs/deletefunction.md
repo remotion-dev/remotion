@@ -11,16 +11,19 @@ To retrieve a list of functions, call [`getFunctions()`](/docs/lambda/getfunctio
 ## Example
 
 ```ts twoslash
-import { deleteFunction, getFunctions } from "@remotion/lambda";
+// @module: esnext
+// @target: es2017
+
+import {deleteFunction, getFunctions} from '@remotion/lambda';
 
 const functions = await getFunctions({
-  region: "us-east-1",
-  compatibleOnly: false,
+  region: 'us-east-1',
+  compatibleOnly: false
 });
 for (const fn of functions) {
   await deleteFunction({
-    region: "us-east-1",
-    functionName: fn.functionName,
+    region: 'us-east-1',
+    functionName: fn.functionName
   });
 }
 ```

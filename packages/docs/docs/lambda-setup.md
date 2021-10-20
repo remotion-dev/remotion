@@ -104,14 +104,16 @@ npx remotion lambda functions deploy
 You can deploy a function using [`deployFunction()`](/docs/lambda/deployfunction).
 
 ```ts twoslash
-import { deployFunction } from "@remotion/lambda";
+// @module: ESNext
+// @target: ESNext
+import {deployFunction} from '@remotion/lambda';
 
 // ---cut---
-const { functionName } = await deployFunction({
-  region: "us-east-1",
+const {functionName} = await deployFunction({
+  region: 'us-east-1',
   timeoutInSeconds: 120,
-  memorySizeInMb: 1536,
-});
+  memorySizeInMb: 1536
+})
 ```
 
 The function name is returned which you'll need for rendering.
@@ -143,29 +145,33 @@ A URL will be printed pointing to the deployed project.
 First, you need to create an S3 bucket in your preferred region. If one already exists, it will be used instead:
 
 ```ts twoslash
-import path from "path";
-import { deploySite, getOrCreateBucket } from "@remotion/lambda";
+// @module: ESNext
+// @target: ESNext
+import path from 'path';
+import {deploySite, getOrCreateBucket} from '@remotion/lambda';
 
-const { bucketName } = await getOrCreateBucket({
-  region: "us-east-1",
-});
+const {bucketName} = await getOrCreateBucket({
+  region: 'us-east-1'
+})
 ```
 
 Next, upload your Remotion project to an S3 bucket. Specify the entry point of your Remotion project, this is the file where [`registerRoot()`](/docs/register-root) is called.
 
 ```ts twoslash
-import path from "path";
-import { deploySite, getOrCreateBucket } from "@remotion/lambda";
+// @module: ESNext
+// @target: ESNext
+import path from 'path';
+import {deploySite, getOrCreateBucket} from '@remotion/lambda';
 
-const { bucketName } = await getOrCreateBucket({
-  region: "us-east-1",
-});
+const {bucketName} = await getOrCreateBucket({
+  region: 'us-east-1'
+})
 // ---cut---
-const { url } = await deploySite({
+const {url} = await deploySite({
   bucketName,
-  entryPoint: path.resolve(process.cwd(), "src/index.tsx"),
-  region: "us-east-1",
-});
+  entryPoint: path.resolve(process.cwd(), 'src/index.tsx'),
+  region: 'us-east-1'
+})
 ```
 
 You are now ready to render a video.
@@ -198,93 +204,87 @@ Progress will be printed until the video finished rendering. Congrats! You rende
 You already have the function name from a previous step. But since you only need to deploy a function once, it's useful to retrieve the name of your deployed function programmatically before rendering a video in case your Node.JS program restarts. We can call [`getFunctions()`](/docs/lambda/getfunctions) with the `compatibleOnly` flag to get only functions with a matching version.
 
 ```ts twoslash
-import {
-  getFunctions,
-  renderVideoOnLambda,
-  getRenderProgress,
-} from "@remotion/lambda";
+// @module: ESNext
+// @target: ESNext
+import {getFunctions, renderVideoOnLambda, getRenderProgress} from '@remotion/lambda';
 
 const functions = await getFunctions({
-  region: "us-east-1",
-  compatibleOnly: true,
-});
+  region: 'us-east-1',
+  compatibleOnly: true
+})
 
-const functionName = functions[0].functionName;
+const functionName = functions[0].functionName
 ```
 
 We can now trigger a render using the [`renderVideoOnLambda()`](/docs/lambda/rendervideoonlambda) function.
 
 ```ts twoslash
-import {
-  getFunctions,
-  renderVideoOnLambda,
-  getRenderProgress,
-} from "@remotion/lambda";
+// @module: ESNext
+// @target: ESNext
+import {getFunctions, renderVideoOnLambda, getRenderProgress} from '@remotion/lambda';
 
-const url = "string";
+const url = 'string'
 const functions = await getFunctions({
-  region: "us-east-1",
-  compatibleOnly: true,
-});
+  region: 'us-east-1',
+  compatibleOnly: true
+})
 
-const functionName = functions[0].functionName;
+const functionName = functions[0].functionName
 // ---cut---
 
-const { renderId, bucketName } = await renderVideoOnLambda({
-  region: "us-east-1",
+const {renderId, bucketName} = await renderVideoOnLambda({
+  region: 'us-east-1',
   functionName,
   serveUrl: url,
-  composition: "HelloWorld",
+  composition: 'HelloWorld',
   inputProps: {},
-  codec: "h264-mkv",
-  imageFormat: "jpeg",
-  maxRetries: 3,
-});
+  codec: 'h264-mkv',
+  imageFormat: 'jpeg',
+  maxRetries: 3
+})
 ```
 
 The render will now run and after a while the video will be available in your S3 bucket. You can at any time get the status of the video render by calling [`getRenderProgress()`](/docs/lambda/getrenderprogress).
 
 ```ts twoslash
-import {
-  getFunctions,
-  renderVideoOnLambda,
-  getRenderProgress,
-} from "@remotion/lambda";
+// @module: ESNext
+// @target: ESNext
+import {getFunctions, renderVideoOnLambda, getRenderProgress} from '@remotion/lambda';
 
-const url = "string";
+const url = 'string'
 const functions = await getFunctions({
-  region: "us-east-1",
-  compatibleOnly: true,
-});
+  region: 'us-east-1',
+  compatibleOnly: true
+})
 
-const functionName = functions[0].functionName;
+const functionName = functions[0].functionName
 
-const { renderId, bucketName } = await renderVideoOnLambda({
-  region: "us-east-1",
+const {renderId, bucketName} = await renderVideoOnLambda({
+  region: 'us-east-1',
   functionName,
   serveUrl: url,
-  composition: "HelloWorld",
+  composition: 'HelloWorld',
   inputProps: {},
-  codec: "h264-mkv",
-  imageFormat: "jpeg",
-  maxRetries: 3,
-});
+  codec: 'h264-mkv',
+  imageFormat: 'jpeg',
+  maxRetries: 3
+})
 // ---cut---
 while (true) {
-  await new Promise((resolve) => setTimeout(resolve, 1000));
+  await new Promise(resolve => setTimeout(resolve, 1000))
   const progress = await getRenderProgress({
     renderId,
     bucketName,
     functionName,
-    region: "us-east-1",
-  });
+    region: 'us-east-1'
+  })
   if (progress.done) {
-    console.log("Render finished!", progress.outputFile);
-    process.exit(0);
+    console.log('Render finished!', progress.outputFile)
+    process.exit(0)
   }
   if (progress.fatalErrorEncountered) {
-    console.error("Error enountered", progress.errors);
-    process.exit(1);
+    console.error('Error enountered', progress.errors)
+    process.exit(1)
   }
 }
 ```

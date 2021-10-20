@@ -11,22 +11,23 @@ Triggers a render on a lambda given a composition and a lambda function.
 ## Example
 
 ```tsx twoslash
-import { renderVideoOnLambda } from "@remotion/lambda";
+// @module: esnext
+// @target: es2017
+import {renderVideoOnLambda} from '@remotion/lambda';
 // ---cut---
 
-const { bucketName, renderId } = await renderVideoOnLambda({
-  region: "us-east-1",
-  functionName: "remotion-render-bds9aab",
-  composition: "MyVideo",
+const {bucketName, renderId} = await renderVideoOnLambda({
+  region: 'us-east-1',
+  functionName: 'remotion-render-bds9aab',
+  composition: 'MyVideo',
   framesPerLambda: 20,
-  serveUrl:
-    "https://remotionlambda-qg35eyp1s1.s3.eu-central-1.amazonaws.com/sites/bf2jrbfkw",
+  serveUrl: 'https://remotionlambda-qg35eyp1s1.s3.eu-central-1.amazonaws.com/sites/bf2jrbfkw',
   inputProps: {},
-  codec: "h264-mkv",
-  imageFormat: "jpeg",
+  codec: 'h264-mkv',
+  imageFormat: 'jpeg',
   maxRetries: 3,
-  privacy: "public",
-});
+  privacy: 'public'
+})
 ```
 
 ## Arguments

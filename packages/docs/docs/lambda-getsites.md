@@ -13,23 +13,25 @@ The projects are located in the `sites/` subdirectory of your S3 bucket. Remembe
 Gets all sites and logs information about them.
 
 ```ts twoslash
-import { getSites } from "@remotion/lambda";
+// @module: ESNext
+// @target: ESNext
+import {getSites} from '@remotion/lambda';
 
-const { sites, buckets } = await getSites({
-  region: "eu-central-1",
-});
+const {sites, buckets} = await getSites({
+  region: 'eu-central-1'
+})
 
 for (const site of sites) {
-  console.log(site.id); // A unique ID for referring to that project
-  console.log(site.bucketName); // In which bucket the site resides in.
-  console.log(site.lastModified); // A unix timestamp, but may also be null
-  console.log(site.sizeInBytes); // Size of all contents in the folder
+  console.log(site.id) // A unique ID for referring to that project
+  console.log(site.bucketName) // In which bucket the site resides in.
+  console.log(site.lastModified) // A unix timestamp, but may also be null
+  console.log(site.sizeInBytes) // Size of all contents in the folder
 }
 
 for (const bucket of buckets) {
-  console.log(bucket.region); // 'eu-central-1'
-  console.log(bucket.name); // The name of the S3 bucket.
-  console.log(bucket.creationDate); // A unix timestamp of when the site was created.
+  console.log(bucket.region) // 'eu-central-1'
+  console.log(bucket.name) // The name of the S3 bucket.
+  console.log(bucket.creationDate) // A unix timestamp of when the site was created.
 }
 ```
 

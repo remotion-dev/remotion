@@ -9,14 +9,17 @@ Creates an [AWS Lambda](https://aws.amazon.com/lambda/) function in your AWS acc
 ## Example
 
 ```ts twoslash
-import { deployFunction } from "@remotion/lambda";
+// @module: esnext
+// @target: es2017
 
-const { functionName } = await deployFunction({
-  region: "us-east-1",
+import {deployFunction} from '@remotion/lambda';
+
+const {functionName} = await deployFunction({
+  region: 'us-east-1',
   timeoutInSeconds: 120,
-  memorySizeInMb: 1024,
+  memorySizeInMb: 1024
 });
-console.log(functionName);
+console.log(functionName)
 ```
 
 ## Arguments
