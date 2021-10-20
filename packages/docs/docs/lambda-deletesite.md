@@ -13,21 +13,23 @@ Each project is located in the `sites/` subdirectory of your S3 bucket. Calling 
 Gets all sites and deletes them.
 
 ```ts twoslash
-import { AwsRegion, deleteSite, getSites } from "@remotion/lambda";
+// @module: ESNext
+// @target: ESNext
+import {AwsRegion, deleteSite, getSites} from '@remotion/lambda';
 
-const region: AwsRegion = "eu-central-1";
+const region: AwsRegion = 'eu-central-1';
 
-const { sites } = await getSites({
-  region,
+const {sites} = await getSites({
+  region
 });
 
 for (const site of sites) {
   await deleteSite({
     bucketName: site.bucketName,
     siteName: site.id,
-    region,
-  });
-  console.log(`Site ${site.id} deleted.`);
+    region
+  })
+  console.log(`Site ${site.id} deleted.`)
 }
 ```
 
