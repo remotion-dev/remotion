@@ -4,7 +4,7 @@
   "license": "SEE LICENSE IN LICENSE.md",
   "scripts": {
     "test": "cd packages/core && npm test && cd ../babel-loader && npm test && cd ../bundler && npm test && cd ../cli && npm test && cd ../eslint-plugin && npm test && cd ../gif && npm test && cd ../lambda && npm test && cd ../media-utils && npm test && cd ../player && npm test && cd ../renderer && npm test && cd ../three && npm test && cd ../.. && npx jest --runInBand",
-    "build": "pnpm run build --recursive",
+    "build": "pnpm run build --recursive && lerna bootstrap",
     "watch": "pnpm run watch --recursive --stream --parallel",
     "postinstall": "lerna bootstrap"
   },
