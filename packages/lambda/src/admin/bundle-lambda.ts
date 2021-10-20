@@ -26,7 +26,7 @@ const bundleLambda = async () => {
 	});
 
 	await zl.archiveFolder(outdir, FUNCTION_ZIP);
-	await (fs.promises.rm ?? fs.rm)(outfile);
+	await (fs.promises.rm ?? fs.rmSync)(outfile);
 };
 
 bundleLambda()
