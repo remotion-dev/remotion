@@ -196,7 +196,7 @@ export const PlayerFn = <T,>(
 
 	if (playbackRate < -4 || playbackRate > 4 || playbackRate % 1 !== 0) {
 		throw new TypeError(
-			`'playbackRate' must be an integer within the bounds of -4 and 4`
+			"'playbackRate' must be an integer within the bounds of -4 and 4"
 		);
 	}
 
