@@ -10,6 +10,7 @@ importers:
       '@remotion/bundler': 2.4.4
       '@remotion/cli': 2.4.4
       '@remotion/gif': 2.4.4
+      '@remotion/lambda': 2.4.4
       '@remotion/media-utils': 2.4.4
       '@remotion/player': 2.4.4
       '@remotion/renderer': 2.4.4
@@ -46,6 +47,7 @@ importers:
       '@remotion/bundler': link:packages/bundler
       '@remotion/cli': link:packages/cli
       '@remotion/gif': link:packages/gif
+      '@remotion/lambda': link:packages/lambda
       '@remotion/media-utils': link:packages/media-utils
       '@remotion/player': link:packages/player
       '@remotion/renderer': link:packages/renderer
