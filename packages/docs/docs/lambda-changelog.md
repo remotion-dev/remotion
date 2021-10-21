@@ -22,6 +22,7 @@ Version hash: `3.0.0-lambda.25+9573ee628`
 - When rendering a video via the Lambda CLI, FFMPEG is no longer required.
 - From `main` branch: Calling `getInputProps()` from `remotion` package on the server will no longer fail, but warn and return an empty object.
 - Added a way to disable chunk optimization and added some explainer graphics for what chunk optimization is - full doc coming later.
+- Pinned exact Remotion versions to avoid a version mismatch with Yarn
 
 ## October 20th, 2021
 
