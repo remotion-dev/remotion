@@ -130,6 +130,7 @@ export type LambdaPayloads = {
 		quality: number | undefined;
 		maxRetries: number;
 		privacy: Privacy;
+		enableChunkOptimization: boolean | undefined;
 	};
 	launch: {
 		type: LambdaRoutines.launch;
@@ -148,6 +149,7 @@ export type LambdaPayloads = {
 		quality: number | undefined;
 		maxRetries: number;
 		privacy: Privacy;
+		enableChunkOptimization: boolean;
 	};
 	fire: {
 		type: LambdaRoutines.fire;
@@ -226,6 +228,7 @@ export type RenderMetadata = {
 };
 
 export type LambdaVersions =
+	| '2021-10-21'
 	| '2021-10-19'
 	| '2021-10-07'
 	| '2021-10-03'
@@ -239,7 +242,7 @@ export type LambdaVersions =
 	| '2021-06-23'
 	| 'n/a';
 
-export const CURRENT_VERSION: LambdaVersions = '2021-10-19';
+export const CURRENT_VERSION: LambdaVersions = '2021-10-21';
 
 export type PostRenderData = {
 	cost: {

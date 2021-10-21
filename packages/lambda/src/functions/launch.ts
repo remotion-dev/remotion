@@ -109,6 +109,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		framesPerLambda,
 		frameCount: comp.durationInFrames,
 		optimization,
+		shouldUseOptimization: params.enableChunkOptimization,
 	});
 	const sortedChunks = chunks.slice().sort((a, b) => a[0] - b[0]);
 	const invokers = Math.round(Math.sqrt(chunks.length));
@@ -261,7 +262,6 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		encodingStop = Date.now();
 	}
 
-	// TODO: Enable or disable chunk optimization
 	await lambdaWriteFile({
 		bucketName: params.bucketName,
 		key: outName(params.renderId, params.codec),
@@ -270,19 +270,21 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		privacy: params.privacy,
 		expectedBucketOwner: options.expectedBucketOwner,
 	});
-	const chunkData = await collectChunkInformation({
-		bucketName: params.bucketName,
-		renderId: params.renderId,
-		region: getCurrentRegionInFunction(),
-		expectedBucketOwner: options.expectedBucketOwner,
-	});
-	const optimizedProfile = optimizeInvocationOrder(
-		optimizeProfileRecursively(chunkData, 400)
-	);
 
-	const optimizedFrameRange = getFrameRangesFromProfile(optimizedProfile);
-	const [, contents] = await Promise.all([
-		isValidOptimizationProfile(optimizedProfile)
+	let chunkProm: Promise<unknown> = Promise.resolve();
+
+	if (params.enableChunkOptimization) {
+		const chunkData = await collectChunkInformation({
+			bucketName: params.bucketName,
+			renderId: params.renderId,
+			region: getCurrentRegionInFunction(),
+			expectedBucketOwner: options.expectedBucketOwner,
+		});
+		const optimizedProfile = optimizeInvocationOrder(
+			optimizeProfileRecursively(chunkData, 400)
+		);
+		const optimizedFrameRange = getFrameRangesFromProfile(optimizedProfile);
+		chunkProm = isValidOptimizationProfile(optimizedProfile)
 			? writeOptimization({
 					bucketName: params.bucketName,
 					optimization: {
@@ -299,7 +301,11 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 					siteId: getServeUrlHash(params.serveUrl),
 					region: getCurrentRegionInFunction(),
 			  })
-			: Promise.resolve(),
+			: Promise.resolve();
+	}
+
+	const [, contents] = await Promise.all([
+		chunkProm,
 		lambdaLs({
 			bucketName: params.bucketName,
 			prefix: rendersPrefix(params.renderId),

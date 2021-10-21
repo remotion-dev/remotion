@@ -13,21 +13,23 @@ Triggers a render on a lambda given a composition and a lambda function.
 ```tsx twoslash
 // @module: esnext
 // @target: es2017
-import {renderVideoOnLambda} from '@remotion/lambda';
+import { renderVideoOnLambda } from "@remotion/lambda";
 // ---cut---
 
-const {bucketName, renderId} = await renderVideoOnLambda({
-  region: 'us-east-1',
-  functionName: 'remotion-render-bds9aab',
-  composition: 'MyVideo',
+const { bucketName, renderId } = await renderVideoOnLambda({
+  region: "us-east-1",
+  functionName: "remotion-render-bds9aab",
+  composition: "MyVideo",
   framesPerLambda: 20,
-  serveUrl: 'https://remotionlambda-qg35eyp1s1.s3.eu-central-1.amazonaws.com/sites/bf2jrbfkw',
+  serveUrl:
+    "https://remotionlambda-qg35eyp1s1.s3.eu-central-1.amazonaws.com/sites/bf2jrbfkw",
   inputProps: {},
-  codec: 'h264-mkv',
-  imageFormat: 'jpeg',
+  codec: "h264-mkv",
+  imageFormat: "jpeg",
   maxRetries: 3,
-  privacy: 'public'
-})
+  privacy: "public",
+  enableChunkOptimization: true,
+});
 ```
 
 ## Arguments
@@ -102,6 +104,12 @@ See [`renderFrames() -> quality`](/docs/render-frames#quality).
 
 How often a chunk may be retried to render in case the render fails.
 If a rendering of a chunk is failed, the error will be reported in the [`getRenderProgress()`](/docs/lambda/getrenderprogress) object and retried up to as many times as you specify using this option.
+
+### `enableChunkOptimization`
+
+_Default `true`_
+
+If this is enabled, Remotion will use [chunk optimization](/docs/lambda/chunk-optimization) to learn from a rendering and restructure chunks for subsequent renders of the same composition to optimize for overall render time.
 
 ## Return value
 
