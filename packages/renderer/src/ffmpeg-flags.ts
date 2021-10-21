@@ -15,15 +15,21 @@ export const getFfmpegBuildInfo = async () => {
 	return buildConfig;
 };
 
-export const ffmpegHasFeature = async (
-	feature: 'enable-gpl' | 'enable-libx265' | 'enable-libvpx'
-) => {
+export const ffmpegHasFeature = async (factors: {
+	feature: 'enable-gpl' | 'enable-libx265' | 'enable-libvpx';
+	isLambda: boolean;
+}) => {
+	// Lambda should have all features
+	if (factors.isLambda) {
+		return true;
+	}
+
 	if (!binaryExists('ffmpeg')) {
 		return false;
 	}
 
 	const config = await getFfmpegBuildInfo();
-	return config.includes(feature);
+	return config.includes(factors.feature);
 };
 
 export const parseFfmpegVersion = (buildconf: string): FfmpegVersion => {
