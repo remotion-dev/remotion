@@ -5,7 +5,7 @@ export const INPUT_PROPS_KEY = 'remotion.inputProps';
 export const getInputProps = () => {
 	if (getRemotionEnvironment() === 'rendering') {
 		if (typeof window === 'undefined') {
-			return;
+			return {};
 		}
 
 		const param = localStorage.getItem(INPUT_PROPS_KEY);
