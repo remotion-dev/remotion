@@ -7,6 +7,7 @@ export const getInputProps = () => {
 		if (typeof window === 'undefined') {
 			return;
 		}
+
 		const param = localStorage.getItem(INPUT_PROPS_KEY);
 		if (!param) {
 			return {};
