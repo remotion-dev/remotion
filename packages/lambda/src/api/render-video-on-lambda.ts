@@ -23,6 +23,7 @@ import {validateFramesPerLambda} from './validate-frames-per-lambda';
  * @param params.quality JPEG quality if JPEG was selected as the image format.
  * @param params.region The AWS region in which the video should be rendered.
  * @param params.maxRetries How often rendering a chunk may fail before the video render gets aborted.
+ * @param params.enableChunkOptimization Whether Remotion should restructure and optimize chunks for subsequent renders. Default true.
  * @returns `Promise<{renderId: string; bucketName: string}>`
  */
 
@@ -42,6 +43,7 @@ export const renderVideoOnLambda = async ({
 	composition,
 	framesPerLambda,
 	privacy,
+	enableChunkOptimization,
 }: {
 	region: AwsRegion;
 	functionName: string;
@@ -58,6 +60,8 @@ export const renderVideoOnLambda = async ({
 	quality?: number;
 	maxRetries: number;
 	framesPerLambda?: number;
+	// TODO: This should also be a command line flag
+	enableChunkOptimization?: boolean;
 }) => {
 	validateFramesPerLambda(framesPerLambda);
 	const res = await callLambda({
@@ -77,6 +81,7 @@ export const renderVideoOnLambda = async ({
 			quality,
 			maxRetries,
 			privacy,
+			enableChunkOptimization,
 		},
 		region,
 	});

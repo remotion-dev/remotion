@@ -19,6 +19,7 @@ Keep track of changes to the APIs of Remotion Lambda here.
 - You can now import the functions `getRenderProgress()`, `renderVideoOnLambda()`, and `renderStillOnLambda()` via `@remotion/lambda/client` free of Node.JS dependencies. That means they should be importable in the browser and React Native and should be lightweight to bundle. This is not yet tested well, let us know your experiences!
 - When rendering a video via the Lambda CLI, FFMPEG is no longer required.
 - From `main` branch: Calling `getInputProps()` from `remotion` package on the server will no longer fail, but warn and return an empty object.
+- Added a way to disable chunk optimization and added some explainer graphics for what chunk optimization is - full doc coming later.
 
 ## October 20th, 2021
 

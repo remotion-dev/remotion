@@ -12,6 +12,7 @@ module.exports = {
     "lambda-region-selection",
     "lambda-runtime",
     "lambda-faq",
+    "lambda-chunkoptimization",
     {
       collapsed: false,
       type: "category",
