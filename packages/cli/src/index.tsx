@@ -6,6 +6,7 @@ import {printHelp} from './print-help';
 import {render} from './render';
 import {still} from './still';
 import {upgrade} from './upgrade';
+Error.stackTraceLimit = Infinity;
 
 export const cli = async () => {
 	const args = process.argv;
