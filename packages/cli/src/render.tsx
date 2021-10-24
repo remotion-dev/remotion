@@ -66,6 +66,7 @@ export const render = async () => {
 		pixelFormat,
 		imageFormat,
 		browserExecutable,
+		ffmpegExecutable,
 	} = await getCliOptions('series');
 
 	await checkAndValidateFfmpegVersion();
@@ -207,6 +208,7 @@ export const render = async () => {
 			crf,
 			assetsInfo,
 			parallelism,
+			ffmpegExecutable,
 			onProgress: (frame: number) => {
 				stitchingProgress.update(
 					makeStitchingProgress({

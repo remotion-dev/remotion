@@ -1,4 +1,5 @@
 import execa from 'execa';
+import {Internals} from 'remotion';
 import {binaryExists} from './validate-ffmpeg';
 
 let buildConfig: string | null = null;
@@ -10,7 +11,7 @@ export const getFfmpegBuildInfo = async () => {
 		return buildConfig;
 	}
 
-	const data = await execa('ffmpeg', ['-buildconf']);
+	const data = await execa(Internals.getFfmpegExecutable() ?? 'ffmpeg', ['-buildconf']);
 	buildConfig = data.stderr;
 	return buildConfig;
 };
@@ -18,7 +19,7 @@ export const getFfmpegBuildInfo = async () => {
 export const ffmpegHasFeature = async (
 	feature: 'enable-gpl' | 'enable-libx265' | 'enable-libvpx'
 ) => {
-	if (!binaryExists('ffmpeg')) {
+	if (!await binaryExists('ffmpeg')) {
 		return false;
 	}
 
