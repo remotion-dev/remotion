@@ -20,6 +20,7 @@ import {setPort} from './preview-server';
 import {setProResProfile} from './prores-profile';
 import {setQuality} from './quality';
 import {setWebpackCaching} from './webpack-caching';
+import {FfmpegExecutable, setFfmpegExecutable} from './ffmpeg-executable';
 
 export const Config = {
 	Preview: {
@@ -135,6 +136,11 @@ export const Config = {
 		 * See https://avpres.net/FFmpeg/im_ProRes.html for meaning of possible values.
 		 */
 		setProResProfile,
+		/**
+		 * Specify local ffmpeg executable.
+		 * Default: null, which will use ffmpeg available in PATH.
+		 */
+		setFfmpegExecutable,
 	},
 } as const;
 
@@ -144,6 +150,7 @@ export type {
 	WebpackConfiguration,
 	WebpackOverrideFn,
 	BrowserExecutable,
+	FfmpegExecutable,
 	ImageFormat,
 	Codec,
 	Browser,
