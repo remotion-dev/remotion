@@ -27,12 +27,12 @@ export const ffmpegHasFeature = async (
 };
 
 export const parseFfmpegVersion = (buildconf: string): FfmpegVersion => {
-	const match = buildconf.match(/ffmpeg version ([0-9]+).([0-9]+).([0-9]+)/);
+	const match = buildconf.match(/ffmpeg version ([0-9]+).([0-9]+)(?:.([0-9]+))?/);
 	if (!match) {
 		return null;
 	}
 
-	return [Number(match[1]), Number(match[2]), Number(match[3])];
+	return [Number(match[1]), Number(match[2]), Number(match[3] ?? 0)];
 };
 
 export const getFfmpegVersion = async (): Promise<FfmpegVersion> => {
