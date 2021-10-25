@@ -96,7 +96,8 @@ export const PlayPause: React.FC = () => {
 	}, [pause]);
 	const onLKey = useCallback(() => {
 		faster();
-	}, [faster]);
+		play();
+	}, [faster, play]);
 
 	const oneFrameBack = useCallback(() => {
 		frameBack(1);
