@@ -1,6 +1,7 @@
 import {Player, PlayerRef} from '@remotion/player';
 import {useEffect, useRef, useState} from 'react';
-import CarSlideshow from './CarSlideshow';
+import {AbsoluteFill} from 'remotion';
+import CarSlideshow, {playerExampleComp} from './CarSlideshow';
 
 export default function App() {
 	const [title, setTitle] = useState('Hello World');
@@ -60,6 +61,19 @@ export default function App() {
 					title: String(title),
 					bgColor: String(bgColor),
 					color: String(color),
+				}}
+				errorFallback={({error}) => {
+					return (
+						<AbsoluteFill
+							style={{
+								backgroundColor: 'yellow',
+								justifyContent: 'center',
+								alignItems: 'center',
+							}}
+						>
+							Sorry about this! An error occurred: {error.message}
+						</AbsoluteFill>
+					);
 				}}
 				playbackRate={playbackRate}
 				spaceKeyToPlayOrPause={spaceKeyToPlayOrPause}
@@ -204,6 +218,14 @@ export default function App() {
 				}}
 			>
 				-1x speed
+			</button>
+			<button
+				type="button"
+				onClick={() => {
+					playerExampleComp.current?.triggerError();
+				}}
+			>
+				trigger error
 			</button>
 			<br />
 			<br />
