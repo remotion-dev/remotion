@@ -46,8 +46,8 @@ export const usePlayback = ({
 			}
 		};
 
-		const callback = (now: DOMHighResTimeStamp) => {
-			const time = now - startedTime;
+		const callback = () => {
+			const time = performance.now() - startedTime;
 			const actualLastFrame = outFrame ?? config.durationInFrames - 1;
 			const actualFirstFrame = inFrame ?? 0;
 
