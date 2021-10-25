@@ -3,6 +3,7 @@ import {TIMELINE_PADDING} from '../helpers/timeline-layout';
 import {CheckboardToggle} from './CheckboardToggle';
 import {FpsCounter} from './FpsCounter';
 import {Flex, Spacing} from './layout';
+import {LoopToggle} from './LoopToggle';
 import {PlaybackKeyboardShortcutsManager} from './PlaybackKeyboardShortcutsManager';
 import {PlaybackRateSelector} from './PlaybackRateSelector';
 import {PlayPause} from './PlayPause';
@@ -52,6 +53,7 @@ export const PreviewToolbar: React.FC = () => {
 			<Spacing x={2} />
 			<PlayPause loop={loop} playbackRate={playbackRate} />
 			<Spacing x={2} />
+			<LoopToggle loop={loop} setLoop={setLoop} />
 			<CheckboardToggle />
 			<RichTimelineToggle />
 			<TimelineInOutPointToggle />

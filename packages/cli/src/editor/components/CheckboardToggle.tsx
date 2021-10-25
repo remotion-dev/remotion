@@ -2,7 +2,7 @@ import React, {useCallback, useContext} from 'react';
 import {CheckerboardContext} from '../state/checkerboard';
 import {ControlButton} from './ControlButton';
 
-const accessibilityLabel = 'Show transparency as checkerboard';
+const accessibilityLabel = 'Show transparency as checkerboard (T)';
 
 export const CheckboardToggle: React.FC = () => {
 	const {checkerboard, setCheckerboard} = useContext(CheckerboardContext);
