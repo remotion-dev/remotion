@@ -3,9 +3,6 @@ import {Internals} from 'remotion';
 import {calculateNextFrame} from './calculate-next-frame';
 import {usePlayer} from './use-player';
 
-// TODO: validate
-const ABSOLUTE_MAX_PLAYBACKSPEED = 4;
-
 export const usePlayback = ({
 	loop,
 	playbackRate,
