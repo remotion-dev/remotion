@@ -1,5 +1,5 @@
-import { Player } from '../index';
-import { HelloWorld, render } from './test-utils';
+import {Player} from '../index';
+import {HelloWorld, render} from './test-utils';
 
 test('no compositionWidth should give errors', () => {
 	try {
@@ -118,7 +118,7 @@ test.each([
 	['clickToPlay'],
 	['doubleClickToFullscreen'],
 ])('No durationInFrames should give errors %s', (a: string) => {
-	const props: { [name: string]: string } = {};
+	const props: {[name: string]: string} = {};
 	props[a] = 'hey';
 	try {
 		render(
