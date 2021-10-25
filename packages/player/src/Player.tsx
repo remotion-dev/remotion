@@ -18,20 +18,20 @@ import {
 	SetTimelineContextValue,
 	TimelineContextValue,
 } from 'remotion';
-import { PlayerEventEmitterContext } from './emitter-context';
-import { PlayerEmitter } from './event-emitter';
-import { PLAYER_CSS_CLASSNAME } from './player-css-classname';
-import { PlayerRef } from './player-methods';
+import {PlayerEventEmitterContext} from './emitter-context';
+import {PlayerEmitter} from './event-emitter';
+import {PLAYER_CSS_CLASSNAME} from './player-css-classname';
+import {PlayerRef} from './player-methods';
 import PlayerUI from './PlayerUI';
-import { getPreferredVolume, persistVolume } from './volume-persistance';
+import {getPreferredVolume, persistVolume} from './volume-persistance';
 
 type PropsIfHasProps<Props> = {} extends Props
 	? {
-		inputProps?: Props;
-	}
+			inputProps?: Props;
+	  }
 	: {
-		inputProps: Props;
-	};
+			inputProps: Props;
+	  };
 
 export type PlayerProps<T> = {
 	durationInFrames: number;
