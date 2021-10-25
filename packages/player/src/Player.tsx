@@ -2,6 +2,7 @@ import React, {
 	forwardRef,
 	MutableRefObject,
 	useCallback,
+	useEffect,
 	useImperativeHandle,
 	useLayoutEffect,
 	useMemo,
@@ -23,6 +24,7 @@ import {PlayerEmitter} from './event-emitter';
 import {PLAYER_CSS_CLASSNAME} from './player-css-classname';
 import {PlayerRef} from './player-methods';
 import PlayerUI from './PlayerUI';
+import {validatePlaybackRate} from './utils/validate-playbackrate';
 import {getPreferredVolume, persistVolume} from './volume-persistance';
 
 type PropsIfHasProps<Props> = {} extends Props
@@ -49,6 +51,7 @@ export type PlayerProps<T> = {
 	doubleClickToFullscreen?: boolean;
 	spaceKeyToPlayOrPause?: boolean;
 	numberOfSharedAudioTags?: number;
+	playbackRate?: number;
 } & PropsIfHasProps<T> &
 	CompProps<T>;
 
@@ -75,6 +78,7 @@ export const PlayerFn = <T,>(
 		spaceKeyToPlayOrPause = true,
 		numberOfSharedAudioTags = 5,
 		errorMessage = '⚠️',
+		playbackRate = 1,
 		...componentProps
 	}: PlayerProps<T>,
 	ref: MutableRefObject<PlayerRef>
@@ -92,6 +96,7 @@ export const PlayerFn = <T,>(
 	const rootRef = useRef<PlayerRef>(null);
 	const [mediaMuted, setMediaMuted] = useState<boolean>(false);
 	const [mediaVolume, setMediaVolume] = useState<number>(getPreferredVolume());
+	const imperativePlaying = useRef(false);
 
 	if (typeof compositionHeight !== 'number') {
 		throw new TypeError(
@@ -193,6 +198,12 @@ export const PlayerFn = <T,>(
 		);
 	}
 
+	validatePlaybackRate(playbackRate);
+
+	useEffect(() => {
+		emitter.dispatchRatechange(playbackRate);
+	}, [emitter, playbackRate]);
+
 	const setMediaVolumeAndPersist = useCallback((vol: number) => {
 		setMediaVolume(vol);
 		persistVolume(vol);
@@ -208,8 +219,13 @@ export const PlayerFn = <T,>(
 			playing,
 			rootId,
 			shouldRegisterSequences: false,
+			playbackRate,
+			imperativePlaying,
+			setPlaybackRate: () => {
+				throw new Error('playback rate');
+			},
 		};
-	}, [frame, playing, rootId]);
+	}, [frame, playbackRate, playing, rootId]);
 
 	const setTimelineContextValue = useMemo((): SetTimelineContextValue => {
 		return {
@@ -310,6 +326,7 @@ export const PlayerFn = <T,>(
 										doubleClickToFullscreen={Boolean(doubleClickToFullscreen)}
 										setMediaMuted={setMediaMuted}
 										spaceKeyToPlayOrPause={Boolean(spaceKeyToPlayOrPause)}
+										playbackRate={playbackRate}
 									/>
 								</PlayerEventEmitterContext.Provider>
 							</Internals.SharedAudioContextProvider>

@@ -109,6 +109,85 @@ test('No durationInFrames should give errors', () => {
 	}
 });
 
+test('Invalid playbackRate should give error', () => {
+	try {
+		render(
+			<Player
+				compositionWidth={500}
+				compositionHeight={400}
+				fps={30}
+				durationInFrames={500}
+				component={HelloWorld}
+				controls
+				showVolumeControls
+				playbackRate={-5}
+			/>
+		);
+	} catch (e) {
+		expect((e as Error).message).toMatch(
+			/The lowest possible playback rate is -4. You passed: -5/
+		);
+	}
+});
+
+test('playbackRate of 0 should not be possible', () => {
+	try {
+		render(
+			<Player
+				compositionWidth={500}
+				compositionHeight={400}
+				fps={30}
+				durationInFrames={500}
+				component={HelloWorld}
+				controls
+				showVolumeControls
+				playbackRate={0}
+			/>
+		);
+	} catch (e) {
+		expect((e as Error).message).toMatch(
+			/A playback rate of 0 is not supported./
+		);
+	}
+});
+
+test('playbackRate of wrong type should not be possible', () => {
+	try {
+		render(
+			<Player
+				compositionWidth={500}
+				compositionHeight={400}
+				fps={30}
+				durationInFrames={500}
+				component={HelloWorld}
+				controls
+				showVolumeControls
+				// @ts-expect-error
+				playbackRate={'hi'}
+			/>
+		);
+	} catch (e) {
+		expect((e as Error).message).toMatch(
+			/A playback rate of 0 is not supported./
+		);
+	}
+});
+
+test('playbackRate of undefined should be okay', () => {
+	render(
+		<Player
+			compositionWidth={500}
+			compositionHeight={400}
+			fps={30}
+			durationInFrames={500}
+			component={HelloWorld}
+			controls
+			showVolumeControls
+		/>
+	);
+	expect(true).toBe(true);
+});
+
 test.each([
 	['controls'],
 	['loop'],

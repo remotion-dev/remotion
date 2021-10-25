@@ -15,7 +15,7 @@
 		"url": "https://github.com/remotion-dev/remotion"
 	},
 	"dependencies": {
-		"remotion": "^2.4.3"
+		"remotion": "2.4.3"
 	},
 	"peerDependencies": {
 		"react": "^17.0.1",
