@@ -94,17 +94,6 @@ export const useMediaPlayback = ({
 			current.currentTime = shouldBeTime;
 			playAndHandleNotAllowedError(mediaRef, mediaType);
 		}
-
-		if (
-			mediaRef.current.ended &&
-			playing &&
-			// timeShift is greater than 1 frame
-			timeShift > 1 / (mediaRef.current.duration * fps) &&
-			mediaRef.current.currentTime !== shouldBeTime
-		) {
-			mediaRef.current.currentTime = shouldBeTime;
-			playAndHandleNotAllowedError(mediaRef, mediaType);
-		}
 	}, [
 		absoluteFrame,
 		fps,
