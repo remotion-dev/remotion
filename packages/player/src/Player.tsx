@@ -23,6 +23,7 @@ import {PlayerEmitter} from './event-emitter';
 import {PLAYER_CSS_CLASSNAME} from './player-css-classname';
 import {PlayerRef} from './player-methods';
 import PlayerUI from './PlayerUI';
+import {validatePlaybackRate} from './utils/validate-playbackrate';
 import {getPreferredVolume, persistVolume} from './volume-persistance';
 
 type PropsIfHasProps<Props> = {} extends Props
@@ -194,11 +195,7 @@ export const PlayerFn = <T,>(
 		);
 	}
 
-	if (playbackRate < -4 || playbackRate > 4 || playbackRate % 1 !== 0) {
-		throw new TypeError(
-			"'playbackRate' must be an integer within the bounds of -4 and 4"
-		);
-	}
+	validatePlaybackRate(playbackRate);
 
 	const setMediaVolumeAndPersist = useCallback((vol: number) => {
 		setMediaVolume(vol);
