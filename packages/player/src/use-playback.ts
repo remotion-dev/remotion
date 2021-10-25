@@ -2,13 +2,19 @@ import {useCallback, useEffect, useRef, useState} from 'react';
 import {Internals} from 'remotion';
 import {usePlayer} from './use-player';
 
-const calculateNextFrame = (
-	time: number,
-	startFrame: number,
-	playbackSpeed: number,
-	fps: number,
-	durationInFrames: number
-) => {
+const calculateNextFrame = ({
+	time,
+	startFrame,
+	playbackSpeed,
+	fps,
+	durationInFrames,
+}: {
+	time: number;
+	startFrame: number;
+	playbackSpeed: number;
+	fps: number;
+	durationInFrames: number;
+}) => {
 	const op = playbackSpeed < 0 ? Math.ceil : Math.floor;
 	const numberOfFrameChanges = op((time * playbackSpeed) / (1000 / fps));
 
@@ -32,6 +38,8 @@ export const usePlayback = ({
 	const config = Internals.useUnsafeVideoConfig();
 	const {playing, pause, emitter} = usePlayer();
 	const setFrame = Internals.Timeline.useTimelineSetFrame();
+	const {inFrame, outFrame} =
+		Internals.Timeline.useTimelineInOutFramePosition();
 
 	const [playbackSpeed, setPlaybackSpeed] = useState<number>(playbackRate);
 	const playbackChangeTime = useRef<number>();
@@ -79,10 +87,41 @@ export const usePlayback = ({
 			return;
 		}
 
+		const getFrameInRange = (nextFrame: number) => {
+			if (
+				(inFrame && nextFrame < inFrame) ||
+				(inFrame && outFrame && nextFrame > outFrame)
+			) {
+				return inFrame;
+			}
+
+			if (outFrame && nextFrame > outFrame) {
+				return 0;
+			}
+
+			return nextFrame;
+		};
+
 		let hasBeenStopped = false;
 		let reqAnimFrameCall: number | null = null;
 		const startedTime = performance.now();
-		const startedFrame = frameRef.current;
+		const startedFrame = getFrameInRange(frameRef.current);
+
+		const durationInFrames = (() => {
+			if (inFrame !== null && outFrame !== null) {
+				return outFrame - inFrame + 1;
+			}
+
+			if (inFrame !== null) {
+				return config.durationInFrames - inFrame;
+			}
+
+			if (outFrame !== null) {
+				return outFrame + 1;
+			}
+
+			return config.durationInFrames;
+		})();
 
 		const stop = () => {
 			hasBeenStopped = true;
@@ -94,19 +133,17 @@ export const usePlayback = ({
 		};
 
 		const callback = (now: DOMHighResTimeStamp) => {
-			// const now = performance.now();
-
 			const time =
 				playbackChangeTime.current === undefined
 					? now - startedTime
 					: now - playbackChangeTime.current;
-			nextFrame.current = calculateNextFrame(
+			nextFrame.current = calculateNextFrame({
 				time,
-				playbackChangeFrame.current || startedFrame,
+				startFrame: playbackChangeFrame.current || startedFrame,
 				playbackSpeed,
-				config.fps,
-				config.durationInFrames
-			);
+				fps: config.fps,
+				durationInFrames: config.durationInFrames,
+			});
 
 			const finalFrame = playbackSpeed > 0 ? config.durationInFrames : 0;
 			if (nextFrame.current === finalFrame && !loop) {
@@ -116,7 +153,8 @@ export const usePlayback = ({
 				return;
 			}
 
-			const actualNextFrame = nextFrame.current % config.durationInFrames;
+			const actualNextFrame =
+				(nextFrame.current % config.durationInFrames) + (inFrame ?? 0);
 			if (actualNextFrame !== frameRef.current) {
 				setFrame(actualNextFrame);
 			}
@@ -131,7 +169,17 @@ export const usePlayback = ({
 		return () => {
 			stop();
 		};
-	}, [config, loop, pause, playing, setFrame, emitter, playbackSpeed]);
+	}, [
+		config,
+		loop,
+		pause,
+		playing,
+		setFrame,
+		emitter,
+		playbackSpeed,
+		inFrame,
+		outFrame,
+	]);
 
 	useEffect(() => {
 		const interval = setInterval(() => {
