@@ -87,19 +87,19 @@ export const usePlayback = ({
 			return;
 		}
 
-		const getFrameInRange = (nextFrame: number) => {
+		const getFrameInRange = (proposedNextFrame: number) => {
 			if (
-				(inFrame && nextFrame < inFrame) ||
-				(inFrame && outFrame && nextFrame > outFrame)
+				(inFrame && proposedNextFrame < inFrame) ||
+				(inFrame && outFrame && proposedNextFrame > outFrame)
 			) {
 				return inFrame;
 			}
 
-			if (outFrame && nextFrame > outFrame) {
+			if (outFrame && proposedNextFrame > outFrame) {
 				return 0;
 			}
 
-			return nextFrame;
+			return proposedNextFrame;
 		};
 
 		let hasBeenStopped = false;
@@ -142,7 +142,7 @@ export const usePlayback = ({
 				startFrame: playbackChangeFrame.current || startedFrame,
 				playbackSpeed,
 				fps: config.fps,
-				durationInFrames: config.durationInFrames,
+				durationInFrames,
 			});
 
 			const finalFrame = playbackSpeed > 0 ? config.durationInFrames : 0;
