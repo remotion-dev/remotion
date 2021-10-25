@@ -75,9 +75,8 @@ export const webpackConfig = ({
 						new webpack.DefinePlugin({
 							'process.env.MAX_TIMELINE_TRACKS': maxTimelineTracks,
 							'process.env.INPUT_PROPS': JSON.stringify(inputProps ?? {}),
-							[`process.env.${Internals.ENV_VARIABLES_ENV_NAME}`]: JSON.stringify(
-								envVariables ?? {}
-							),
+							[`process.env.${Internals.ENV_VARIABLES_ENV_NAME}`]:
+								JSON.stringify(envVariables ?? {}),
 						}),
 				  ]
 				: [
@@ -88,6 +87,7 @@ export const webpackConfig = ({
 						}),
 				  ],
 		output: {
+			hashFunction: 'xxhash64',
 			globalObject: 'this',
 			filename: 'bundle.js',
 			path: outDir,
