@@ -25,7 +25,8 @@ const calculateNextFrame = ({
 
 	const nextFrame = framesToAdvance + startFrame;
 	if (playbackSpeed > 0) {
-		if (nextFrame > actualLastFrame) {
+		// Play forwards
+		if (nextFrame > actualLastFrame || nextFrame < actualFirstFrame) {
 			return {nextFrame: actualFirstFrame, framesToAdvance};
 		}
 
@@ -33,7 +34,7 @@ const calculateNextFrame = ({
 	}
 
 	// Reverse playback
-	if (nextFrame < actualFirstFrame) {
+	if (nextFrame < actualFirstFrame || nextFrame > actualLastFrame) {
 		return {nextFrame: actualLastFrame, framesToAdvance};
 	}
 
