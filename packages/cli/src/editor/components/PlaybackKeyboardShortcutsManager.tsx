@@ -8,10 +8,14 @@ export const PlaybackKeyboardShortcutsManager: React.FC<{
 }> = ({setPlaybackRate}) => {
 	const keybindings = useKeybinding();
 
-	const {play, pause} = PlayerInternals.usePlayer();
+	const {play, pause, playing} = PlayerInternals.usePlayer();
 
 	const onJKey = useCallback(() => {
 		setPlaybackRate((prevPlaybackRate) => {
+			if (!playing) {
+				return -1;
+			}
+
 			if (prevPlaybackRate > 0) {
 				return -1;
 			}
@@ -33,7 +37,7 @@ export const PlaybackKeyboardShortcutsManager: React.FC<{
 			);
 		});
 		play();
-	}, [play, setPlaybackRate]);
+	}, [play, playing, setPlaybackRate]);
 
 	const onKKey = useCallback(() => {
 		setPlaybackRate(1);
@@ -42,6 +46,10 @@ export const PlaybackKeyboardShortcutsManager: React.FC<{
 
 	const onLKey = useCallback(() => {
 		setPlaybackRate((prevPlaybackRate) => {
+			if (!playing) {
+				return 1;
+			}
+
 			if (prevPlaybackRate < 0) {
 				return 1;
 			}
@@ -59,11 +67,11 @@ export const PlaybackKeyboardShortcutsManager: React.FC<{
 			}
 
 			throw new Error(
-				'unexpected previous playrate when pressing J: ' + prevPlaybackRate
+				'unexpected previous playrate when pressing L: ' + prevPlaybackRate
 			);
 		});
 		play();
-	}, [play, setPlaybackRate]);
+	}, [play, playing, setPlaybackRate]);
 
 	useEffect(() => {
 		const jKey = keybindings.registerKeybinding('keydown', 'j', onJKey);
