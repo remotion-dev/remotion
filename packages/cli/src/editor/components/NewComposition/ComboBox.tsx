@@ -52,7 +52,8 @@ export const Combobox: React.FC<{
 	values: ComboboxValue[];
 	selectedId: string | number;
 	style?: React.CSSProperties;
-}> = ({values, selectedId, style: customStyle}) => {
+	title: string;
+}> = ({values, selectedId, style: customStyle, title}) => {
 	const [hovered, setIsHovered] = useState(false);
 	const [opened, setOpened] = useState(false);
 	const ref = useRef<HTMLButtonElement>(null);
@@ -122,7 +123,13 @@ export const Combobox: React.FC<{
 
 	return (
 		<>
-			<button ref={ref} tabIndex={tabIndex} type="button" style={style}>
+			<button
+				ref={ref}
+				title={title}
+				tabIndex={tabIndex}
+				type="button"
+				style={style}
+			>
 				{selected.label} <Flex /> <Spacing x={1} /> <CaretDown />
 			</button>
 			{portalStyle

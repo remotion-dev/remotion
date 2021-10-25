@@ -1,4 +1,10 @@
-import React, {useEffect, useLayoutEffect, useMemo, useState} from 'react';
+import React, {
+	useEffect,
+	useLayoutEffect,
+	useMemo,
+	useRef,
+	useState,
+} from 'react';
 import {SharedAudioContextProvider} from './audio/shared-audio-tags';
 import {CompositionManagerProvider} from './CompositionManager';
 import {NonceContext, TNonceContext} from './nonce';
@@ -15,7 +21,9 @@ export const RemotionRoot: React.FC = ({children}) => {
 	const [remotionRootId] = useState(() => String(random(null)));
 	const [frame, setFrame] = useState<number>(window.remotion_initialFrame ?? 0);
 	const [playing, setPlaying] = useState<boolean>(false);
+	const imperativePlaying = useRef<boolean>(false);
 	const [fastRefreshes, setFastRefreshes] = useState(0);
+	const [playbackRate, setPlaybackRate] = useState(1);
 
 	useLayoutEffect(() => {
 		if (typeof window !== 'undefined') {
@@ -33,9 +41,12 @@ export const RemotionRoot: React.FC = ({children}) => {
 		return {
 			frame,
 			playing,
+			imperativePlaying,
 			rootId: remotionRootId,
+			playbackRate,
+			setPlaybackRate,
 		};
-	}, [frame, playing, remotionRootId]);
+	}, [frame, playbackRate, playing, remotionRootId]);
 
 	const setTimelineContextValue = useMemo((): SetTimelineContextValue => {
 		return {

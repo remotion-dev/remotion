@@ -7,7 +7,9 @@ export const ControlButton = (
 	props: React.DetailedHTMLProps<
 		React.ButtonHTMLAttributes<HTMLButtonElement>,
 		HTMLButtonElement
-	>
+	> & {
+		title: string;
+	}
 ) => {
 	const style = useMemo((): React.CSSProperties => {
 		return {
