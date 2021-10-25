@@ -90,10 +90,13 @@ export const PlayPause: React.FC = () => {
 
 	const onJKey = useCallback(() => {
 		slower();
-	}, [slower]);
+		play();
+	}, [play, slower]);
+
 	const onKKey = useCallback(() => {
 		pause();
 	}, [pause]);
+
 	const onLKey = useCallback(() => {
 		faster();
 		play();
