@@ -1,5 +1,6 @@
 import React, {useState} from 'react';
 import {TIMELINE_PADDING} from '../helpers/timeline-layout';
+import {loadLoopOption} from '../state/loop';
 import {CheckboardToggle} from './CheckboardToggle';
 import {FpsCounter} from './FpsCounter';
 import {Flex, Spacing} from './layout';
@@ -36,7 +37,7 @@ const padding: React.CSSProperties = {
 
 export const PreviewToolbar: React.FC = () => {
 	const [playbackRate, setPlaybackRate] = useState(1);
-	const [loop, setLoop] = useState(true);
+	const [loop, setLoop] = useState(loadLoopOption());
 
 	return (
 		<div style={container} className="css-reset">
