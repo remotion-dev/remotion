@@ -112,6 +112,7 @@ export const PlayPause: React.FC<{
 		<>
 			<ControlButton
 				aria-label="Step back one frame"
+				title="Step back one frame"
 				disabled={frame === 0}
 				onClick={oneFrameBack}
 			>
@@ -120,6 +121,7 @@ export const PlayPause: React.FC<{
 
 			<ControlButton
 				aria-label={playing ? 'Pause' : 'Play'}
+				title={playing ? 'Pause' : 'Play'}
 				disabled={!video}
 				onClick={playing ? pause : play}
 			>
@@ -144,6 +146,7 @@ export const PlayPause: React.FC<{
 
 			<ControlButton
 				aria-label="Step forward one frame"
+				title="Step forward one frame"
 				disabled={isLastFrame}
 				onClick={oneFrameForward}
 			>
