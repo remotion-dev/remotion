@@ -1,45 +1,7 @@
 import {useEffect, useRef} from 'react';
 import {Internals} from 'remotion';
+import {calculateNextFrame} from './calculate-next-frame';
 import {usePlayer} from './use-player';
-
-const calculateNextFrame = ({
-	time,
-	startFrame,
-	playbackSpeed,
-	fps,
-	actualLastFrame,
-	actualFirstFrame,
-	framesAdvanced,
-}: {
-	time: number;
-	startFrame: number;
-	playbackSpeed: number;
-	fps: number;
-	actualFirstFrame: number;
-	actualLastFrame: number;
-	framesAdvanced: number;
-}): {nextFrame: number; framesToAdvance: number} => {
-	const op = playbackSpeed < 0 ? Math.ceil : Math.floor;
-	const framesToAdvance =
-		op((time * playbackSpeed) / (1000 / fps)) - framesAdvanced;
-
-	const nextFrame = framesToAdvance + startFrame;
-	if (playbackSpeed > 0) {
-		// Play forwards
-		if (nextFrame > actualLastFrame || nextFrame < actualFirstFrame) {
-			return {nextFrame: actualFirstFrame, framesToAdvance};
-		}
-
-		return {nextFrame, framesToAdvance};
-	}
-
-	// Reverse playback
-	if (nextFrame < actualFirstFrame || nextFrame > actualLastFrame) {
-		return {nextFrame: actualLastFrame, framesToAdvance};
-	}
-
-	return {nextFrame, framesToAdvance};
-};
 
 // TODO: validate
 const ABSOLUTE_MAX_PLAYBACKSPEED = 4;
@@ -91,34 +53,27 @@ export const usePlayback = ({
 			const actualLastFrame = outFrame ?? config.durationInFrames - 1;
 			const actualFirstFrame = inFrame ?? 0;
 
-			const {nextFrame, framesToAdvance} = calculateNextFrame({
+			const {nextFrame, framesToAdvance, hasEnded} = calculateNextFrame({
 				time,
-				startFrame: frameRef.current,
+				currentFrame: frameRef.current,
 				playbackSpeed: playbackRate,
 				fps: config.fps,
 				actualFirstFrame,
 				actualLastFrame,
 				framesAdvanced,
+				shouldLoop: loop,
 			});
 			framesAdvanced += framesToAdvance;
 
-			const isNextFrameOutside = (() => {
-				if (playbackRate > 0) {
-					return nextFrame > actualLastFrame;
-				}
+			if (nextFrame !== frameRef.current) {
+				setFrame(nextFrame);
+			}
 
-				// Reverse playback
-				return nextFrame < actualFirstFrame;
-			})();
-			if (isNextFrameOutside && !loop) {
+			if (hasEnded) {
 				stop();
 				pause();
 				emitter.dispatchEnded();
 				return;
-			}
-
-			if (nextFrame !== frameRef.current) {
-				setFrame(nextFrame);
 			}
 
 			if (!hasBeenStopped) {
