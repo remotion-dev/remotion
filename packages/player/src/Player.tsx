@@ -2,6 +2,7 @@ import React, {
 	forwardRef,
 	MutableRefObject,
 	useCallback,
+	useEffect,
 	useImperativeHandle,
 	useLayoutEffect,
 	useMemo,
@@ -196,6 +197,10 @@ export const PlayerFn = <T,>(
 	}
 
 	validatePlaybackRate(playbackRate);
+
+	useEffect(() => {
+		emitter.dispatchRatechange(playbackRate);
+	}, [emitter, playbackRate]);
 
 	const setMediaVolumeAndPersist = useCallback((vol: number) => {
 		setMediaVolume(vol);
