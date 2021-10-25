@@ -200,6 +200,18 @@ Config.Rendering.setDotEnvLocation(".my-env");
 
 The [command line flag](/docs/cli#--env-file) `--env-file` will take precedence over this option.
 
+### setFfmpegExecutable()
+
+Allows you to use a custom FFMPEG binary. Must be an absolute path. By default, this is null and the FFMPEG in `PATH` will be used.
+
+```ts twoslash
+import { Config } from "remotion";
+// ---cut---
+Config.Rendering.setFfmpegExecutable("/path/to/custom/ffmpeg");
+```
+
+The [command line flag](/docs/cli#--ffmpeg-executable) `--ffmpeg-executable` will take precedence over this option.
+
 ## Output
 
 ### setOverwriteOutput()

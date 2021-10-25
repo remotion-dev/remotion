@@ -22,7 +22,9 @@ const pushWithMaxSize = (
 	return arr.slice(-maxSize);
 };
 
-export const FpsCounter: React.FC = () => {
+export const FpsCounter: React.FC<{
+	playbackSpeed: number;
+}> = ({playbackSpeed}) => {
 	const videoConfig = Internals.useUnsafeVideoConfig();
 	const [playing] = Internals.Timeline.usePlayingState();
 	const frame = Internals.Timeline.useTimelinePosition();
@@ -76,11 +78,13 @@ export const FpsCounter: React.FC = () => {
 			return {};
 		}
 
+		const expectedFps = Math.abs(playbackSpeed) * videoConfig.fps;
+
 		return {
 			...label,
-			color: fps < videoConfig.fps * 0.9 ? 'red' : 'white',
+			color: fps < expectedFps * 0.9 ? 'red' : 'white',
 		};
-	}, [fps, videoConfig]);
+	}, [fps, playbackSpeed, videoConfig]);
 
 	if (fps === 0) {
 		return null;

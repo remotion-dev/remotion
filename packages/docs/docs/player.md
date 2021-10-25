@@ -141,6 +141,16 @@ If you'd like to opt out of this behavior, you can pass `0` to mount native audi
 
 Once you have set this prop, you cannot change it anymore or an error will be thrown.
 
+### `playbackRate`
+
+_optional_
+
+A number between -4 and 4 (excluding 0) for the speed that the Player will run the media.
+
+A `playbackRate` of `2` means the video plays twice as fast. A playbackRate of `0.5` means the video plays twice as slow. A playbackRate of `-1` means the video plays in reverse. Note that [`<Audio/>`](/docs/audio) and [`<Video/>`](/docs/video) tags cannot be played in reverse, this is a browser limitation.
+
+Default `1`.
+
 ## `PlayerRef`
 
 You may attach a ref to the player and control it in an imperative manner.
@@ -301,6 +311,9 @@ useEffect(() => {
   playerRef.current.addEventListener("play", () => {
     console.log("playing");
   });
+  playerRef.current.addEventListener("ratechange", () => {
+    console.log("ratechange");
+  });
   playerRef.current.addEventListener("pause", () => {
     console.log("pausing");
   });
@@ -347,6 +360,10 @@ Fires when the video has ended and looping is disabled.
 ### `play`
 
 Fires when the video has started playing or has resumed from a pause.
+
+### `ratechange`
+
+Fires when the [`playbackRate`](#playbackrate) has changed.
 
 ### `pause`
 

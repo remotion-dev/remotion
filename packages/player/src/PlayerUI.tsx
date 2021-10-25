@@ -44,6 +44,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		setMediaMuted: (v: boolean) => void;
 		mediaVolume: number;
 		errorMessage: string;
+		playbackRate: number;
 	}
 > = (
 	{
@@ -62,6 +63,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		setMediaVolume,
 		spaceKeyToPlayOrPause,
 		errorMessage,
+		playbackRate,
 	},
 	ref
 ) => {
@@ -74,7 +76,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 	const [hasPausedToResume, setHasPausedToResume] = useState(false);
 	const [shouldAutoplay, setShouldAutoPlay] = useState(autoPlay);
 	const [isFullscreen, setIsFullscreen] = useState(() => false);
-	usePlayback({loop});
+	usePlayback({loop, playbackRate});
 	const player = usePlayer();
 
 	useEffect(() => {
