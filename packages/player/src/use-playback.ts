@@ -7,20 +7,37 @@ const calculateNextFrame = ({
 	startFrame,
 	playbackSpeed,
 	fps,
-	durationInFrames,
+	actualLastFrame,
+	actualFirstFrame,
+	framesAdvanced,
 }: {
 	time: number;
 	startFrame: number;
 	playbackSpeed: number;
 	fps: number;
-	durationInFrames: number;
-}) => {
+	actualFirstFrame: number;
+	actualLastFrame: number;
+	framesAdvanced: number;
+}): {nextFrame: number; framesToAdvance: number} => {
 	const op = playbackSpeed < 0 ? Math.ceil : Math.floor;
-	const numberOfFrameChanges = op((time * playbackSpeed) / (1000 / fps));
+	const framesToAdvance =
+		op((time * playbackSpeed) / (1000 / fps)) - framesAdvanced;
 
-	const nextFrame =
-		(numberOfFrameChanges + startFrame + durationInFrames) % durationInFrames;
-	return nextFrame < 0 ? nextFrame + durationInFrames : nextFrame;
+	const nextFrame = framesToAdvance + startFrame;
+	if (playbackSpeed > 0) {
+		if (nextFrame > actualLastFrame) {
+			return {nextFrame: actualFirstFrame, framesToAdvance};
+		}
+
+		return {nextFrame, framesToAdvance};
+	}
+
+	// Reverse playback
+	if (nextFrame < actualFirstFrame) {
+		return {nextFrame: actualLastFrame, framesToAdvance};
+	}
+
+	return {nextFrame, framesToAdvance};
 };
 
 // TODO: validate
@@ -41,8 +58,6 @@ export const usePlayback = ({
 		Internals.Timeline.useTimelineInOutFramePosition();
 
 	const playbackChangeTime = useRef<number>();
-	const playbackChangeFrame = useRef<number>(frame);
-	const nextFrame = useRef<number>(frame);
 	const frameRef = useRef(frame);
 	frameRef.current = frame;
 
@@ -57,76 +72,52 @@ export const usePlayback = ({
 			return;
 		}
 
-		const getFrameInRange = (proposedNextFrame: number) => {
-			if (
-				(inFrame && proposedNextFrame < inFrame) ||
-				(inFrame && outFrame && proposedNextFrame > outFrame)
-			) {
-				return inFrame;
-			}
-
-			if (outFrame && proposedNextFrame > outFrame) {
-				return 0;
-			}
-
-			return proposedNextFrame;
-		};
-
 		let hasBeenStopped = false;
 		let reqAnimFrameCall: number | null = null;
 		const startedTime = performance.now();
-		const startedFrame = getFrameInRange(frameRef.current);
-
-		const durationInFrames = (() => {
-			if (inFrame !== null && outFrame !== null) {
-				return outFrame - inFrame + 1;
-			}
-
-			if (inFrame !== null) {
-				return config.durationInFrames - inFrame;
-			}
-
-			if (outFrame !== null) {
-				return outFrame + 1;
-			}
-
-			return config.durationInFrames;
-		})();
+		let framesAdvanced = 0;
 
 		const stop = () => {
 			hasBeenStopped = true;
 			playbackChangeTime.current = undefined;
-			playbackChangeFrame.current = nextFrame.current;
 			if (reqAnimFrameCall !== null) {
 				cancelAnimationFrame(reqAnimFrameCall);
 			}
 		};
 
 		const callback = (now: DOMHighResTimeStamp) => {
-			const time =
-				playbackChangeTime.current === undefined
-					? now - startedTime
-					: now - playbackChangeTime.current;
-			nextFrame.current = calculateNextFrame({
+			const time = now - startedTime;
+			const actualLastFrame = outFrame ?? config.durationInFrames - 1;
+			const actualFirstFrame = inFrame ?? 0;
+
+			const {nextFrame, framesToAdvance} = calculateNextFrame({
 				time,
-				startFrame: playbackChangeFrame.current || startedFrame,
+				startFrame: frameRef.current,
 				playbackSpeed: playbackRate,
 				fps: config.fps,
-				durationInFrames,
+				actualFirstFrame,
+				actualLastFrame,
+				framesAdvanced,
 			});
+			framesAdvanced += framesToAdvance;
 
-			const finalFrame = playbackRate > 0 ? durationInFrames - 1 : 0;
-			if (nextFrame.current === finalFrame && !loop) {
+			const isNextFrameOutside = (() => {
+				if (playbackRate > 0) {
+					return nextFrame > actualLastFrame;
+				}
+
+				// Reverse playback
+				return nextFrame < actualFirstFrame;
+			})();
+			if (isNextFrameOutside && !loop) {
 				stop();
 				pause();
 				emitter.dispatchEnded();
 				return;
 			}
 
-			const actualNextFrame =
-				(nextFrame.current % durationInFrames) + (inFrame ?? 0);
-			if (actualNextFrame !== frameRef.current) {
-				setFrame(actualNextFrame);
+			if (nextFrame !== frameRef.current) {
+				setFrame(nextFrame);
 			}
 
 			if (!hasBeenStopped) {
