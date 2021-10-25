@@ -20,7 +20,6 @@ export const usePlayback = ({
 	const {inFrame, outFrame} =
 		Internals.Timeline.useTimelineInOutFramePosition();
 
-	const playbackChangeTime = useRef<number>();
 	const frameRef = useRef(frame);
 	frameRef.current = frame;
 
@@ -42,7 +41,6 @@ export const usePlayback = ({
 
 		const stop = () => {
 			hasBeenStopped = true;
-			playbackChangeTime.current = undefined;
 			if (reqAnimFrameCall !== null) {
 				cancelAnimationFrame(reqAnimFrameCall);
 			}
