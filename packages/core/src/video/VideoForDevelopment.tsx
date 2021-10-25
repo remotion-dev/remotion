@@ -45,7 +45,6 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		mediaRef: videoRef,
 		src: nativeProps.src,
 		mediaType: 'video',
-		// TODO: Handle with global playbackrate
 		playbackRate: props.playbackRate ?? 1,
 	});
 

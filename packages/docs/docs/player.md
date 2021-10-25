@@ -359,7 +359,7 @@ Fires when the video has ended and looping is disabled.
 
 ### `play`
 
-Fires when the video has ended and looping is disabled.
+Fires when the video has started playing or has resumed from a pause.
 
 ### `ratechange`
 
