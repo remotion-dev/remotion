@@ -1,5 +1,4 @@
 import execa from 'execa';
-import {Internals} from 'remotion';
 import {binaryExists} from './validate-ffmpeg';
 
 let buildConfig: string | null = null;

@@ -1,8 +1,6 @@
 import execa from 'execa';
-import {resolve} from 'path';
 import {
 	Codec,
-	Config,
 	FfmpegExecutable,
 	ImageFormat,
 	Internals,
@@ -27,7 +25,6 @@ import {resolveAssetSrc} from './resolve-asset-src';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
 import {validateFfmpeg} from './validate-ffmpeg';
 
-// eslint-disable-next-line complexity
 export const stitchFramesToVideo = async (options: {
 	dir: string;
 	fps: number;
