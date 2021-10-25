@@ -7,6 +7,7 @@ import {FpsCounter} from './FpsCounter';
 import {Flex, Spacing} from './layout';
 import {LoopToggle} from './LoopToggle';
 import {PlaybackKeyboardShortcutsManager} from './PlaybackKeyboardShortcutsManager';
+import {PlaybackRatePersistor} from './PlaybackRatePersistor';
 import {PlaybackRateSelector} from './PlaybackRateSelector';
 import {PlayPause} from './PlayPause';
 import {RichTimelineToggle} from './RichTimelineToggle';
@@ -40,6 +41,7 @@ export const PreviewToolbar: React.FC = () => {
 	const {playbackRate, setPlaybackRate} = useContext(
 		Internals.Timeline.TimelineContext
 	);
+
 	const [loop, setLoop] = useState(loadLoopOption());
 
 	return (
@@ -68,6 +70,7 @@ export const PreviewToolbar: React.FC = () => {
 				<div style={padding} />
 			</div>
 			<PlaybackKeyboardShortcutsManager setPlaybackRate={setPlaybackRate} />
+			<PlaybackRatePersistor />
 		</div>
 	);
 };

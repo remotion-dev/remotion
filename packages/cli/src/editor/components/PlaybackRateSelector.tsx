@@ -1,5 +1,6 @@
 import React, {useMemo} from 'react';
 import {Checkmark} from '../icons/Checkmark';
+import {persistPlaybackRate} from '../state/playbackrate';
 import {CONTROL_BUTTON_PADDING} from './ControlButton';
 import {Combobox, ComboboxValue} from './NewComposition/ComboBox';
 
@@ -36,6 +37,7 @@ export const PlaybackRateSelector: React.FC<{
 				label: getPlaybackRateLabel(newPlaybackRate),
 				onClick: () => {
 					return setPlaybackRate(() => {
+						persistPlaybackRate(newPlaybackRate);
 						return newPlaybackRate;
 					});
 				},
