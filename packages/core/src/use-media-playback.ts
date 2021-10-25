@@ -13,8 +13,12 @@ const playAndHandleNotAllowedError = (
 	const {current} = mediaRef;
 	const prom = current?.play();
 	if (prom?.catch) {
-		prom?.catch((err) => {
+		prom?.catch((err: Error) => {
 			if (!current) {
+				return;
+			}
+
+			if (err.message.includes('request was interrupted by a call to pause')) {
 				return;
 			}
 
