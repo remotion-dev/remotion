@@ -11,6 +11,7 @@ export default function App() {
 	const [clickToPlay, setClickToPlay] = useState(true);
 	const [logs, setLogs] = useState<string[]>(() => []);
 	const [spaceKeyToPlayOrPause, setspaceKeyToPlayOrPause] = useState(true);
+	const [playbackRate, setPlaybackRate] = useState(1);
 
 	const ref = useRef<PlayerRef>(null);
 
@@ -33,6 +34,12 @@ export default function App() {
 		ref.current?.addEventListener('timeupdate', (e) => {
 			setLogs((l) => [...l, 'timeupdate ' + e.detail.frame]);
 		});
+		ref.current?.addEventListener('ratechange', (e) => {
+			setLogs((l) => [
+				...l,
+				'ratechange ' + e.detail.playbackRate + ' ' + Date.now(),
+			]);
+		});
 	}, []);
 
 	return (
@@ -54,6 +61,7 @@ export default function App() {
 					bgColor: String(bgColor),
 					color: String(color),
 				}}
+				playbackRate={playbackRate}
 				spaceKeyToPlayOrPause={spaceKeyToPlayOrPause}
 			/>
 			<div style={{paddingTop: '0.5rem'}}>
@@ -163,6 +171,7 @@ export default function App() {
 			<button type="button" onClick={() => setspaceKeyToPlayOrPause((l) => !l)}>
 				spaceKeyToPlayOrPause = {String(spaceKeyToPlayOrPause)}
 			</button>
+			<br />
 			<button
 				type="button"
 				onClick={() => {
@@ -171,6 +180,30 @@ export default function App() {
 				}}
 			>
 				pause and seek
+			</button>
+			<button
+				type="button"
+				onClick={() => {
+					setPlaybackRate(0.5);
+				}}
+			>
+				0.5x speed
+			</button>
+			<button
+				type="button"
+				onClick={() => {
+					setPlaybackRate(2);
+				}}
+			>
+				2x speed
+			</button>
+			<button
+				type="button"
+				onClick={() => {
+					setPlaybackRate(-1);
+				}}
+			>
+				-1x speed
 			</button>
 			<br />
 			<br />
