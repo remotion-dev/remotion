@@ -19,10 +19,6 @@ export default function App() {
 		ref.current?.addEventListener('play', () => {
 			setLogs((l) => [...l, 'playing ' + Date.now()]);
 		});
-		// TODO: Implement
-		ref.current?.addEventListener('ratechange', () => {
-			setLogs((l) => [...l, 'ratechange ' + Date.now()]);
-		});
 		ref.current?.addEventListener('pause', () => {
 			setLogs((l) => [...l, 'pausing ' + Date.now()]);
 		});
@@ -37,6 +33,12 @@ export default function App() {
 		});
 		ref.current?.addEventListener('timeupdate', (e) => {
 			setLogs((l) => [...l, 'timeupdate ' + e.detail.frame]);
+		});
+		ref.current?.addEventListener('ratechange', (e) => {
+			setLogs((l) => [
+				...l,
+				'ratechange ' + e.detail.playbackRate + ' ' + Date.now(),
+			]);
 		});
 	}, []);
 

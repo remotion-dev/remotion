@@ -10,11 +10,15 @@ type TimeUpdateEventPayload = {
 	frame: number;
 };
 
+type RateChangeEventPayload = {
+	playbackRate: number;
+};
+
 type StateEventMap = {
 	seeked: SeekPayload;
 	pause: undefined;
 	play: undefined;
-	ratechange: undefined;
+	ratechange: RateChangeEventPayload;
 	ended: undefined;
 	error: ErrorPayload;
 	timeupdate: TimeUpdateEventPayload;
@@ -82,6 +86,12 @@ export class PlayerEmitter {
 
 	dispatchEnded() {
 		this.dispatchEvent('ended', undefined);
+	}
+
+	dispatchRatechange(playbackRate: number) {
+		this.dispatchEvent('ratechange', {
+			playbackRate,
+		});
 	}
 
 	dispatchError(error: Error) {
