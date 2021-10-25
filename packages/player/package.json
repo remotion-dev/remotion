@@ -44,7 +44,7 @@
 		"prettier-plugin-organize-imports": "^1.1.1",
 		"ts-jest": "^27.0.5",
 		"typescript": "^4.4.2",
-		"webpack": "^5.21.2"
+		"webpack": "5.59.1"
 	},
 	"publishConfig": {
 		"access": "public"

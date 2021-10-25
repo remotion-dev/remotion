@@ -32,7 +32,7 @@
 		"remotion": "2.4.3",
 		"semver": "7.3.4",
 		"style-loader": "^2.0.0",
-		"webpack": "5.37.0",
+		"webpack": "5.59.1",
 		"webpack-hot-middleware": "^2.25.0"
 	},
 	"peerDependencies": {
