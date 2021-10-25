@@ -7,7 +7,7 @@ export const commonPlaybackRates: number[] = [
 	-4, -2, -1, -0.5, -0.25, 0.25, 0.5, 1, 2, 4,
 ];
 
-export const getPreviewSizeLabel = (playbackRate: number) => {
+export const getPlaybackRateLabel = (playbackRate: number) => {
 	return `${playbackRate}x`;
 };
 
@@ -26,10 +26,14 @@ export const PlaybackRateSelector: React.FC<{
 	}, []);
 
 	const items: ComboboxValue[] = useMemo(() => {
-		return commonPlaybackRates.map((newPlaybackRate): ComboboxValue => {
+		const divider: ComboboxValue = {
+			type: 'divider',
+			id: 'divider',
+		};
+		const values = commonPlaybackRates.map((newPlaybackRate): ComboboxValue => {
 			return {
 				id: String(newPlaybackRate),
-				label: getPreviewSizeLabel(newPlaybackRate),
+				label: getPlaybackRateLabel(newPlaybackRate),
 				onClick: () => {
 					return setPlaybackRate(() => {
 						return newPlaybackRate;
@@ -45,6 +49,8 @@ export const PlaybackRateSelector: React.FC<{
 				subMenu: null,
 			};
 		});
+		const middle = Math.floor(commonPlaybackRates.length / 2);
+		return [...values.slice(0, middle), divider, ...values.slice(middle)];
 	}, [playbackRate, setPlaybackRate]);
 
 	return (

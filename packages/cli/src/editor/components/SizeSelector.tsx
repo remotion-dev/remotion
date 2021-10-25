@@ -25,7 +25,7 @@ export const getPreviewSizeLabel = (previewSize: PreviewSize) => {
 	}
 };
 
-const accessibilityLabel = 'Select the size of the preview';
+const accessibilityLabel = 'Preview Size';
 
 const comboStyle: React.CSSProperties = {width: 80};
 
