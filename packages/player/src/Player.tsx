@@ -92,6 +92,7 @@ export const PlayerFn = <T,>(
 	const rootRef = useRef<PlayerRef>(null);
 	const [mediaMuted, setMediaMuted] = useState<boolean>(false);
 	const [mediaVolume, setMediaVolume] = useState<number>(getPreferredVolume());
+	const imperativePlaying = useRef(false);
 
 	if (typeof compositionHeight !== 'number') {
 		throw new TypeError(
@@ -214,8 +215,13 @@ export const PlayerFn = <T,>(
 			playing,
 			rootId,
 			shouldRegisterSequences: false,
+			playbackRate,
+			imperativePlaying,
+			setPlaybackRate: () => {
+				throw new Error('playback rate');
+			},
 		};
-	}, [frame, playing, rootId]);
+	}, [frame, playbackRate, playing, rootId]);
 
 	const setTimelineContextValue = useMemo((): SetTimelineContextValue => {
 		return {

@@ -2,7 +2,6 @@ import React, {
 	useEffect,
 	useLayoutEffect,
 	useMemo,
-	useReducer,
 	useRef,
 	useState,
 } from 'react';
@@ -24,6 +23,7 @@ export const RemotionRoot: React.FC = ({children}) => {
 	const [playing, setPlaying] = useState<boolean>(false);
 	const imperativePlaying = useRef<boolean>(false);
 	const [fastRefreshes, setFastRefreshes] = useState(0);
+	const [playbackRate, setPlaybackRate] = useState(1);
 
 	useLayoutEffect(() => {
 		if (typeof window !== 'undefined') {
@@ -43,8 +43,10 @@ export const RemotionRoot: React.FC = ({children}) => {
 			playing,
 			imperativePlaying,
 			rootId: remotionRootId,
+			playbackRate,
+			setPlaybackRate,
 		};
-	}, [frame, playing, remotionRootId]);
+	}, [frame, playbackRate, playing, remotionRootId]);
 
 	const setTimelineContextValue = useMemo((): SetTimelineContextValue => {
 		return {

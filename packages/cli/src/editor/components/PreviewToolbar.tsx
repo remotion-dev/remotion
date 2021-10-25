@@ -1,4 +1,5 @@
-import React, {useState} from 'react';
+import React, {useContext, useState} from 'react';
+import {Internals} from 'remotion';
 import {TIMELINE_PADDING} from '../helpers/timeline-layout';
 import {loadLoopOption} from '../state/loop';
 import {CheckboardToggle} from './CheckboardToggle';
@@ -36,7 +37,9 @@ const padding: React.CSSProperties = {
 };
 
 export const PreviewToolbar: React.FC = () => {
-	const [playbackRate, setPlaybackRate] = useState(1);
+	const {playbackRate, setPlaybackRate} = useContext(
+		Internals.Timeline.TimelineContext
+	);
 	const [loop, setLoop] = useState(loadLoopOption());
 
 	return (
