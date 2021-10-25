@@ -8,7 +8,7 @@ import TabItem from '@theme/TabItem';
 import { PlayerExample } from "../components/Player.tsx";
 import { ExperimentalBadge } from "../components/Experimental.tsx";
 
-<ExperimentalBadge/>
+<ExperimentalBadge message="This player is currently in a beta state. We are done with the most important features we wanted to implement and will promote the Player to stable in the next version, if there is no feedback from users."/>
 
 Using the Remotion Player you can embed Remotion videos in any React app and customize the video content at runtime.
 
@@ -150,6 +150,12 @@ A number between -4 and 4 (excluding 0) for the speed that the Player will run t
 A `playbackRate` of `2` means the video plays twice as fast. A playbackRate of `0.5` means the video plays twice as slow. A playbackRate of `-1` means the video plays in reverse. Note that [`<Audio/>`](/docs/audio) and [`<Video/>`](/docs/video) tags cannot be played in reverse, this is a browser limitation.
 
 Default `1`.
+
+### `errorFallback`
+
+_optional_
+
+A callback for rendering a custom error message. See [Handling errors](#handling-errors) section for an example.
 
 ## `PlayerRef`
 
@@ -411,9 +417,48 @@ It is up to you to handle the error and to re-mount the video (for example by ch
 
 This feature is implemented using an [error boundary](https://reactjs.org/docs/error-boundaries.html), so only errors in the render function will be caught. Errors in event handlers and asynchronous code will not be reported and will not cause the video to unmount.
 
+You can customize the error message that is shown if a video crashes:
+
+```tsx twoslash
+import { Player, ErrorFallback } from "@remotion/player";
+import { useCallback } from "react";
+import { AbsoluteFill } from "remotion";
+
+const Component: React.FC = () => null;
+
+// ---cut---
+
+const MyApp: React.FC = () => {
+  // `ErrorFallback` type can be imported from "@remotion/player"
+  const errorFallback: ErrorFallback = useCallback(({ error }) => {
+    return (
+      <AbsoluteFill
+        style={{
+          backgroundColor: "yellow",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        Sorry about this! An error occurred: {error.message}
+      </AbsoluteFill>
+    );
+  }, []);
+
+  return (
+    <Player
+      fps={30}
+      component={Component}
+      durationInFrames={100}
+      compositionWidth={1080}
+      compositionHeight={1080}
+      errorFallback={errorFallback}
+    />
+  );
+};
+```
+
 ## Known issues
 
 Before we mark the player as stable, we are looking to improve in the following areas:
 
 - Better loading state than the current "Loading..." text.
-- Customize error UI

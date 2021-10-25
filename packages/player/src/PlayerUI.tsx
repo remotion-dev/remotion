@@ -43,6 +43,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		setMediaVolume: (v: number) => void;
 		setMediaMuted: (v: boolean) => void;
 		mediaVolume: number;
+		errorFallback: (info: {error: Error}) => React.ReactNode;
 		playbackRate: number;
 	}
 > = (
@@ -61,6 +62,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		setMediaMuted,
 		setMediaVolume,
 		spaceKeyToPlayOrPause,
+		errorFallback,
 		playbackRate,
 	},
 	ref
@@ -364,7 +366,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 			>
 				<div style={containerStyle} className={PLAYER_CSS_CLASSNAME}>
 					{VideoComponent ? (
-						<ErrorBoundary onError={onError}>
+						<ErrorBoundary onError={onError} errorFallback={errorFallback}>
 							<VideoComponent
 								{...((video?.props as unknown as {}) ?? {})}
 								{...((inputProps as unknown as {}) ?? {})}
