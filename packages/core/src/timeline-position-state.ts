@@ -1,4 +1,10 @@
-import {createContext, useContext} from 'react';
+import {
+	createContext,
+	MutableRefObject,
+	useContext,
+	useMemo,
+	useRef,
+} from 'react';
 
 export type TimelineContextValue = {
 	frame: number;
@@ -40,11 +46,17 @@ export const useTimelineSetFrame = (): ((
 
 type PlayingReturnType = readonly [
 	boolean,
-	(u: React.SetStateAction<boolean>) => void
+	(u: React.SetStateAction<boolean>) => void,
+	MutableRefObject<boolean>
 ];
 
 export const usePlayingState = (): PlayingReturnType => {
 	const {playing} = useContext(TimelineContext);
 	const {setPlaying} = useContext(SetTimelineContext);
-	return [playing, setPlaying];
+	const imperativePlaying = useRef(false);
+
+	return useMemo(
+		() => [playing, setPlaying, imperativePlaying],
+		[playing, setPlaying]
+	);
 };
