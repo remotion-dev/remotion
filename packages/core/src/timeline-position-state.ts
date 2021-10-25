@@ -4,7 +4,9 @@ export type TimelineContextValue = {
 	frame: number;
 	playing: boolean;
 	rootId: string;
+	playbackRate: number;
 	imperativePlaying: MutableRefObject<boolean>;
+	setPlaybackRate: (u: React.SetStateAction<number>) => void;
 };
 
 export type SetTimelineContextValue = {
@@ -15,9 +17,13 @@ export type SetTimelineContextValue = {
 export const TimelineContext = createContext<TimelineContextValue>({
 	frame: 0,
 	playing: false,
+	playbackRate: 1,
 	rootId: '',
 	imperativePlaying: {
 		current: false,
+	},
+	setPlaybackRate: () => {
+		throw new Error('default');
 	},
 });
 
