@@ -1,4 +1,3 @@
-import {PreviewSize} from '@remotion/player';
 import React, {useMemo} from 'react';
 import {Checkmark} from '../icons/Checkmark';
 import {CONTROL_BUTTON_PADDING} from './ControlButton';

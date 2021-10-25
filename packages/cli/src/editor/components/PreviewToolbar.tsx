@@ -58,7 +58,7 @@ export const PreviewToolbar: React.FC = () => {
 			<Flex />
 			<div style={sideContainer}>
 				<Flex />
-				<FpsCounter />
+				<FpsCounter playbackSpeed={playbackRate} />
 				<div style={padding} />
 			</div>
 			<PlaybackKeyboardShortcutsManager setPlaybackRate={setPlaybackRate} />
