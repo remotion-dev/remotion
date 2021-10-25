@@ -115,7 +115,7 @@ export const usePlayback = ({
 				durationInFrames,
 			});
 
-			const finalFrame = playbackRate > 0 ? config.durationInFrames : 0;
+			const finalFrame = playbackRate > 0 ? durationInFrames - 1 : 0;
 			if (nextFrame.current === finalFrame && !loop) {
 				stop();
 				pause();
@@ -124,7 +124,7 @@ export const usePlayback = ({
 			}
 
 			const actualNextFrame =
-				(nextFrame.current % config.durationInFrames) + (inFrame ?? 0);
+				(nextFrame.current % durationInFrames) + (inFrame ?? 0);
 			if (actualNextFrame !== frameRef.current) {
 				setFrame(actualNextFrame);
 			}
