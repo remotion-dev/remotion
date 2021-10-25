@@ -1,6 +1,7 @@
 import execa from 'execa';
 import {
 	Codec,
+	FfmpegExecutable,
 	ImageFormat,
 	Internals,
 	PixelFormat,
@@ -24,7 +25,6 @@ import {resolveAssetSrc} from './resolve-asset-src';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
 import {validateFfmpeg} from './validate-ffmpeg';
 
-// eslint-disable-next-line complexity
 export const stitchFramesToVideo = async (options: {
 	dir: string;
 	fps: number;
@@ -44,6 +44,7 @@ export const stitchFramesToVideo = async (options: {
 	onDownload?: (src: string) => void;
 	proResProfile?: ProResProfile;
 	verbose?: boolean;
+	ffmpegExecutable?: FfmpegExecutable;
 }): Promise<void> => {
 	Internals.validateDimension(
 		options.height,
@@ -75,6 +76,10 @@ export const stitchFramesToVideo = async (options: {
 	const supportsCrf = encoderName && codec !== 'prores';
 
 	if (options.verbose) {
+		console.log(
+			'[verbose] ffmpeg',
+			Internals.getCustomFfmpegExecutable() ?? 'ffmpeg in PATH'
+		);
 		console.log('[verbose] encoder', encoderName);
 		console.log('[verbose] audioCodec', audioCodecName);
 		console.log('[verbose] pixelFormat', pixelFormat);
@@ -179,7 +184,11 @@ export const stitchFramesToVideo = async (options: {
 		.reduce<(string | null)[]>((acc, val) => acc.concat(val), [])
 		.filter(Boolean) as string[];
 
-	const task = execa('ffmpeg', ffmpegString, {cwd: options.dir});
+	const task = execa(
+		Internals.getCustomFfmpegExecutable() ?? 'ffmpeg',
+		ffmpegString,
+		{cwd: options.dir}
+	);
 
 	task.stderr?.on('data', (data: Buffer) => {
 		if (options.onProgress) {

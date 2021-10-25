@@ -15,6 +15,7 @@ import {
 } from './CompositionManager';
 import {DEFAULT_BROWSER, getBrowser} from './config/browser';
 import {getBrowserExecutable} from './config/browser-executable';
+import {getCustomFfmpegExecutable} from './config/ffmpeg-executable';
 import {
 	DEFAULT_CODEC,
 	getFinalOutputCodec,
@@ -135,6 +136,7 @@ export const Internals = {
 	useVideo,
 	getRoot,
 	getBrowserExecutable,
+	getCustomFfmpegExecutable,
 	getCompositionName,
 	getIsEvaluation,
 	getPixelFormat,
