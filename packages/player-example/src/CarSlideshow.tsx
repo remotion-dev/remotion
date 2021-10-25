@@ -1,3 +1,4 @@
+import {createRef, useCallback, useImperativeHandle, useState} from 'react';
 import {interpolate, useCurrentFrame, useVideoConfig} from 'remotion';
 
 type Props = {
@@ -6,10 +7,35 @@ type Props = {
 	color: string;
 };
 
+export const playerExampleComp = createRef<{
+	triggerError: () => void;
+}>();
+
 const CarSlideshow = ({title, bgColor, color}: Props) => {
 	const frame = useCurrentFrame();
 	const {width, height, durationInFrames} = useVideoConfig();
 	const left = interpolate(frame, [0, durationInFrames], [width, width * -1]);
+
+	const [shouldThrowError, setThrowError] = useState(false);
+
+	const dummyText = useCallback(() => {
+		if (shouldThrowError) {
+			throw new Error('some error');
+		}
+		return '';
+	}, [shouldThrowError]);
+
+	useImperativeHandle(
+		playerExampleComp,
+		() => {
+			return {
+				triggerError: () => {
+					setThrowError(true);
+				},
+			};
+		},
+		[]
+	);
 
 	return (
 		<div
@@ -33,7 +59,7 @@ const CarSlideshow = ({title, bgColor, color}: Props) => {
 					whiteSpace: 'nowrap',
 				}}
 			>
-				{title}
+				{title} {dummyText()}
 			</h1>
 		</div>
 	);

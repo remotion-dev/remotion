@@ -7,7 +7,7 @@ test('no compositionWidth should give errors', () => {
 			<Player
 				// @ts-expect-error
 				compositionWidth={null}
-				errorMessage={'something went wrong'}
+				errorFallback={() => 'something went wrong'}
 				compositionHeight={400}
 				fps={30}
 				durationInFrames={500}
@@ -28,7 +28,7 @@ test('no compositionHeight should give errors', () => {
 		render(
 			<Player
 				compositionWidth={400}
-				errorMessage={'something went wrong'}
+				errorFallback={() => 'something went wrong'}
 				// @ts-expect-error
 				compositionHeight={undefined}
 				fps={30}
@@ -51,7 +51,7 @@ test('No fps should give errors', () => {
 			<Player
 				compositionWidth={500}
 				compositionHeight={400}
-				errorMessage={'something went wrong'}
+				errorFallback={() => 'something went wrong'}
 				// @ts-expect-error
 				fps={null}
 				durationInFrames={500}
@@ -71,7 +71,7 @@ test('No fps should give errors', () => {
 			<Player
 				compositionWidth={500}
 				compositionHeight={400}
-				errorMessage={'something went wrong'}
+				errorFallback={() => 'something went wrong'}
 				// @ts-expect-error
 				fps={undefined}
 				durationInFrames={500}
@@ -93,7 +93,7 @@ test('No durationInFrames should give errors', () => {
 			<Player
 				compositionWidth={500}
 				compositionHeight={400}
-				errorMessage={'something went wrong'}
+				errorFallback={() => 'something went wrong'}
 				fps={30}
 				// @ts-expect-error
 				durationInFrames={undefined}
@@ -204,7 +204,7 @@ test.each([
 			<Player
 				compositionWidth={500}
 				compositionHeight={400}
-				errorMessage={'something went wrong'}
+				errorFallback={() => 'something went wrong'}
 				fps={30}
 				durationInFrames={100}
 				component={HelloWorld}
