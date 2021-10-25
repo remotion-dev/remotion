@@ -35,6 +35,8 @@ type PropsIfHasProps<Props> = {} extends Props
 			inputProps: Props;
 	  };
 
+export type ErrorFallback = (info: {error: Error}) => React.ReactNode;
+
 export type PlayerProps<T> = {
 	durationInFrames: number;
 	compositionWidth: number;
@@ -42,7 +44,7 @@ export type PlayerProps<T> = {
 	fps: number;
 	showVolumeControls?: boolean;
 	controls?: boolean;
-	errorMessage: string;
+	errorFallback?: ErrorFallback;
 	style?: React.CSSProperties;
 	loop?: boolean;
 	autoPlay?: boolean;
@@ -77,7 +79,7 @@ export const PlayerFn = <T,>(
 		doubleClickToFullscreen = false,
 		spaceKeyToPlayOrPause = true,
 		numberOfSharedAudioTags = 5,
-		errorMessage = '⚠️',
+		errorFallback = () => '⚠️',
 		playbackRate = 1,
 		...componentProps
 	}: PlayerProps<T>,
@@ -310,7 +312,7 @@ export const PlayerFn = <T,>(
 										autoPlay={Boolean(autoPlay)}
 										loop={Boolean(loop)}
 										controls={Boolean(controls)}
-										errorMessage={errorMessage}
+										errorFallback={errorFallback}
 										style={style}
 										inputProps={passedInputProps}
 										allowFullscreen={Boolean(allowFullscreen)}
