@@ -36,9 +36,10 @@ const getFinalCodec = async () => {
 		fileExtension: getUserPassedFileExtension(),
 		emitWarning: true,
 	});
+	const ffmpegExecutable = Internals.getCustomFfmpegExecutable();
 	if (
 		codec === 'vp8' &&
-		!(await RenderInternals.ffmpegHasFeature('enable-libvpx'))
+		!(await RenderInternals.ffmpegHasFeature(ffmpegExecutable, 'enable-libvpx'))
 	) {
 		Log.error(
 			"The Vp8 codec has been selected, but your FFMPEG binary wasn't compiled with the --enable-lipvpx flag."
@@ -50,7 +51,10 @@ const getFinalCodec = async () => {
 
 	if (
 		codec === 'h265' &&
-		!(await RenderInternals.ffmpegHasFeature('enable-gpl'))
+		!(await RenderInternals.ffmpegHasFeature(
+			Internals.getCustomFfmpegExecutable(),
+			'enable-gpl'
+		))
 	) {
 		Log.error(
 			"The H265 codec has been selected, but your FFMPEG binary wasn't compiled with the --enable-gpl flag."
@@ -62,7 +66,10 @@ const getFinalCodec = async () => {
 
 	if (
 		codec === 'h265' &&
-		!(await RenderInternals.ffmpegHasFeature('enable-libx265'))
+		!(await RenderInternals.ffmpegHasFeature(
+			Internals.getCustomFfmpegExecutable(),
+			'enable-libx265'
+		))
 	) {
 		Log.error(
 			"The H265 codec has been selected, but your FFMPEG binary wasn't compiled with the --enable-libx265 flag."
@@ -97,9 +104,8 @@ const getAndValidateAbsoluteOutputFile = (
 const getAndValidateShouldOutputImageSequence = async (
 	frameRange: FrameRange | null
 ) => {
-	const shouldOutputImageSequence = Internals.getShouldOutputImageSequence(
-		frameRange
-	);
+	const shouldOutputImageSequence =
+		Internals.getShouldOutputImageSequence(frameRange);
 	if (!shouldOutputImageSequence) {
 		await RenderInternals.validateFfmpeg();
 	}
@@ -190,7 +196,7 @@ export const getCliOptions = async (type: 'still' | 'series') => {
 	});
 	const proResProfile = getAndValidateProResProfile(codec);
 	const browserExecutable = Internals.getBrowserExecutable();
-	const ffmpegExecutable = Internals.getFfmpegExecutable();
+	const ffmpegExecutable = Internals.getCustomFfmpegExecutable();
 
 	return {
 		parallelism: Internals.getConcurrency(),

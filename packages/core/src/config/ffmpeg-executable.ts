@@ -2,12 +2,10 @@ export type FfmpegExecutable = string | null;
 
 let currentFfmpegExecutablePath: FfmpegExecutable = null;
 
-export const setFfmpegExecutable = (
-	ffmpegPath: FfmpegExecutable
-) => {
+export const setFfmpegExecutable = (ffmpegPath: FfmpegExecutable) => {
 	currentFfmpegExecutablePath = ffmpegPath;
 };
 
-export const getFfmpegExecutable = () => {
+export const getCustomFfmpegExecutable = () => {
 	return currentFfmpegExecutablePath;
 };

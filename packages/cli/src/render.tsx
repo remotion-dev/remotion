@@ -69,7 +69,9 @@ export const render = async () => {
 		ffmpegExecutable,
 	} = await getCliOptions('series');
 
-	await checkAndValidateFfmpegVersion();
+	await checkAndValidateFfmpegVersion({
+		ffmpegExecutable: Internals.getCustomFfmpegExecutable(),
+	});
 
 	const browserInstance = RenderInternals.openBrowser(browser, {
 		browserExecutable,

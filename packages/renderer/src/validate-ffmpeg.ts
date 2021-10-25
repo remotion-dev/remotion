@@ -10,7 +10,7 @@ export const binaryExists = async (name: 'ffmpeg' | 'brew') => {
 		return existsMap[name];
 	}
 
-	const localFFmpeg = Internals.getFfmpegExecutable();
+	const localFFmpeg = Internals.getCustomFfmpegExecutable();
 	if (name === 'ffmpeg' && localFFmpeg) {
 		try {
 			statSync(localFFmpeg);
@@ -39,11 +39,11 @@ export const isHomebrewInstalled = async (): Promise<boolean> => {
 };
 
 export const validateFfmpeg = async (): Promise<void> => {
-		const ffmpegExists = await binaryExists('ffmpeg');
+	const ffmpegExists = await binaryExists('ffmpeg');
 	if (!ffmpegExists) {
-		if (Internals.getFfmpegExecutable()) {
-			console.error("FFmpeg executable not found:");
-			console.error(Internals.getFfmpegExecutable());
+		if (Internals.getCustomFfmpegExecutable()) {
+			console.error('FFmpeg executable not found:');
+			console.error(Internals.getCustomFfmpegExecutable());
 			process.exit(1);
 		}
 
