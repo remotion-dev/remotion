@@ -1,8 +1,10 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {TIMELINE_PADDING} from '../helpers/timeline-layout';
 import {CheckboardToggle} from './CheckboardToggle';
 import {FpsCounter} from './FpsCounter';
-import {Flex} from './layout';
+import {Flex, Spacing} from './layout';
+import {PlaybackKeyboardShortcutsManager} from './PlaybackKeyboardShortcutsManager';
+import {PlaybackRateSelector} from './PlaybackRateSelector';
 import {PlayPause} from './PlayPause';
 import {RichTimelineToggle} from './RichTimelineToggle';
 import {SizeSelector} from './SizeSelector';
@@ -32,6 +34,9 @@ const padding: React.CSSProperties = {
 };
 
 export const PreviewToolbar: React.FC = () => {
+	const [playbackRate, setPlaybackRate] = useState(1);
+	const [loop, setLoop] = useState(true);
+
 	return (
 		<div style={container} className="css-reset">
 			<div style={sideContainer}>
@@ -40,7 +45,13 @@ export const PreviewToolbar: React.FC = () => {
 			</div>
 			<Flex />
 			<SizeSelector />
-			<PlayPause />
+			<PlaybackRateSelector
+				setPlaybackRate={setPlaybackRate}
+				playbackRate={playbackRate}
+			/>
+			<Spacing x={2} />
+			<PlayPause loop={loop} playbackRate={playbackRate} />
+			<Spacing x={2} />
 			<CheckboardToggle />
 			<RichTimelineToggle />
 			<TimelineInOutPointToggle />
@@ -50,6 +61,7 @@ export const PreviewToolbar: React.FC = () => {
 				<FpsCounter />
 				<div style={padding} />
 			</div>
+			<PlaybackKeyboardShortcutsManager setPlaybackRate={setPlaybackRate} />
 		</div>
 	);
 };

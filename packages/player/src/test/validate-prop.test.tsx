@@ -115,7 +115,6 @@ test.each([-5, 1.3])('Invalid playbackRate should give error', () => {
 				component={HelloWorld}
 				controls
 				showVolumeControls
-				// @ts-expect-error
 				playbackRate={-5}
 			/>
 		);
