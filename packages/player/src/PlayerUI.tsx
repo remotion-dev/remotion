@@ -18,7 +18,7 @@ import {PLAYER_CSS_CLASSNAME} from './player-css-classname';
 import {PlayerMethods, PlayerRef} from './player-methods';
 import {Controls} from './PlayerControls';
 import {useHoverState} from './use-hover-state';
-import {PlaybackRateType, usePlayback} from './use-playback';
+import {usePlayback} from './use-playback';
 import {usePlayer} from './use-player';
 import {browserSupportsFullscreen} from './utils/browser-supports-fullscreen';
 import {calculatePlayerSize} from './utils/calculate-player-size';
@@ -43,7 +43,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		setMediaVolume: (v: number) => void;
 		setMediaMuted: (v: boolean) => void;
 		mediaVolume: number;
-		playbackRate: PlaybackRateType;
+		playbackRate: number;
 	}
 > = (
 	{
@@ -305,21 +305,23 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		[player]
 	);
 
-	const onFullscreenButtonClick: MouseEventHandler<HTMLButtonElement> = useCallback(
-		(e) => {
-			e.stopPropagation();
-			requestFullscreen();
-		},
-		[requestFullscreen]
-	);
+	const onFullscreenButtonClick: MouseEventHandler<HTMLButtonElement> =
+		useCallback(
+			(e) => {
+				e.stopPropagation();
+				requestFullscreen();
+			},
+			[requestFullscreen]
+		);
 
-	const onExitFullscreenButtonClick: MouseEventHandler<HTMLButtonElement> = useCallback(
-		(e) => {
-			e.stopPropagation();
-			exitFullscreen();
-		},
-		[exitFullscreen]
-	);
+	const onExitFullscreenButtonClick: MouseEventHandler<HTMLButtonElement> =
+		useCallback(
+			(e) => {
+				e.stopPropagation();
+				exitFullscreen();
+			},
+			[exitFullscreen]
+		);
 
 	const onSingleClick = useCallback(
 		(e: SyntheticEvent) => {
@@ -364,8 +366,8 @@ const PlayerUI: React.ForwardRefRenderFunction<
 					{VideoComponent ? (
 						<ErrorBoundary onError={onError}>
 							<VideoComponent
-								{...(((video?.props as unknown) as {}) ?? {})}
-								{...(((inputProps as unknown) as {}) ?? {})}
+								{...((video?.props as unknown as {}) ?? {})}
+								{...((inputProps as unknown as {}) ?? {})}
 							/>
 						</ErrorBoundary>
 					) : null}

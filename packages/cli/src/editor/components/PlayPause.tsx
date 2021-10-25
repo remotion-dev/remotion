@@ -1,22 +1,13 @@
 import {PlayerInternals} from '@remotion/player';
-import React, {useCallback, useEffect} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {Internals} from 'remotion';
 import {useIsStill} from '../helpers/is-current-selected-still';
 import {useKeybinding} from '../helpers/use-keybinding';
-import {FastBack} from '../icons/fast-back';
-import {FastForward} from '../icons/fast-forward';
 import {Pause} from '../icons/pause';
 import {Play} from '../icons/play';
 import {StepBack} from '../icons/step-back';
 import {StepForward} from '../icons/step-forward';
 import {ControlButton} from './ControlButton';
-
-const playbackSpeedTextStyle = {
-	height: 16,
-	width: 16,
-	fontSize: '.65rem',
-	lineHeight: '1.1rem',
-};
 
 const forwardBackStyle = {
 	height: 16,
@@ -24,23 +15,19 @@ const forwardBackStyle = {
 	color: 'white',
 };
 
-export const PlayPause: React.FC = () => {
+export const PlayPause: React.FC<{
+	playbackRate: number;
+	loop: boolean;
+}> = ({playbackRate, loop}) => {
 	const frame = Internals.Timeline.useTimelinePosition();
 	const video = Internals.useVideo();
-	const {playbackSpeed} = PlayerInternals.usePlayback({
-		loop: true,
+	PlayerInternals.usePlayback({
+		loop,
+		playbackRate,
 	});
 
-	const {
-		playing,
-		play,
-		slower,
-		faster,
-		pause,
-		frameBack,
-		frameForward,
-		isLastFrame,
-	} = PlayerInternals.usePlayer();
+	const {playing, play, pause, frameBack, frameForward, isLastFrame} =
+		PlayerInternals.usePlayer();
 
 	const isStill = useIsStill();
 
@@ -88,20 +75,6 @@ export const PlayPause: React.FC = () => {
 		[frameForward, videoFps]
 	);
 
-	const onJKey = useCallback(() => {
-		slower();
-		play();
-	}, [play, slower]);
-
-	const onKKey = useCallback(() => {
-		pause();
-	}, [pause]);
-
-	const onLKey = useCallback(() => {
-		faster();
-		play();
-	}, [faster, play]);
-
 	const oneFrameBack = useCallback(() => {
 		frameBack(1);
 	}, [frameBack]);
@@ -123,19 +96,13 @@ export const PlayPause: React.FC = () => {
 			onArrowRight
 		);
 		const space = keybindings.registerKeybinding('keydown', ' ', onSpace);
-		const jKey = keybindings.registerKeybinding('keydown', 'j', onJKey);
-		const kKey = keybindings.registerKeybinding('keydown', 'k', onKKey);
-		const lKey = keybindings.registerKeybinding('keydown', 'l', onLKey);
 
 		return () => {
 			arrowLeft.unregister();
 			arrowRight.unregister();
 			space.unregister();
-			jKey.unregister();
-			kKey.unregister();
-			lKey.unregister();
 		};
-	}, [keybindings, onArrowLeft, onArrowRight, onSpace, onJKey, onKKey, onLKey]);
+	}, [keybindings, onArrowLeft, onArrowRight, onSpace]);
 
 	if (isStill) {
 		return null;
@@ -143,12 +110,6 @@ export const PlayPause: React.FC = () => {
 
 	return (
 		<>
-			<div style={playbackSpeedTextStyle}>
-				{playbackSpeed < 0 ? `${-playbackSpeed}X` : null}
-			</div>
-			<ControlButton onClick={slower}>
-				<FastBack style={forwardBackStyle} />
-			</ControlButton>
 			<ControlButton
 				aria-label="Step back one frame"
 				disabled={frame === 0}
@@ -188,12 +149,6 @@ export const PlayPause: React.FC = () => {
 			>
 				<StepForward style={forwardBackStyle} />
 			</ControlButton>
-			<ControlButton onClick={() => faster()}>
-				<FastForward style={forwardBackStyle} />
-			</ControlButton>
-			<div style={playbackSpeedTextStyle}>
-				{playbackSpeed > 1 ? `${playbackSpeed}X` : null}
-			</div>
 		</>
 	);
 };

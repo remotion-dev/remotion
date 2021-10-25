@@ -23,7 +23,6 @@ import {PlayerEmitter} from './event-emitter';
 import {PLAYER_CSS_CLASSNAME} from './player-css-classname';
 import {PlayerRef} from './player-methods';
 import PlayerUI from './PlayerUI';
-import {PlaybackRateType} from './use-playback';
 import {getPreferredVolume, persistVolume} from './volume-persistance';
 
 type PropsIfHasProps<Props> = {} extends Props
@@ -49,7 +48,7 @@ export type PlayerProps<T> = {
 	doubleClickToFullscreen?: boolean;
 	spaceKeyToPlayOrPause?: boolean;
 	numberOfSharedAudioTags?: number;
-	playbackRate?: PlaybackRateType;
+	playbackRate?: number;
 } & PropsIfHasProps<T> &
 	CompProps<T>;
 

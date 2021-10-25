@@ -10,8 +10,6 @@ export const usePlayer = (): {
 	emitter: PlayerEmitter;
 	playing: boolean;
 	play: (e?: SyntheticEvent) => void;
-	slower: () => void;
-	faster: () => void;
 	pause: () => void;
 	seek: (newFrame: number) => void;
 	getCurrentFrame: () => number;
@@ -19,6 +17,7 @@ export const usePlayer = (): {
 } => {
 	const [playing, setPlaying] = Internals.Timeline.usePlayingState();
 	const imperativePlaying = useRef(false);
+	imperativePlaying.current = playing;
 	const frame = Internals.Timeline.useTimelinePosition();
 	const setFrame = Internals.Timeline.useTimelineSetFrame();
 	const setTimelinePosition = Internals.Timeline.useTimelineSetFrame();
@@ -65,13 +64,6 @@ export const usePlayer = (): {
 		},
 		[isLastFrame, audioContext, setPlaying, emitter, seek]
 	);
-
-	const slower = useCallback(() => {
-		emitter.dispatchSlower();
-	}, [emitter]);
-	const faster = useCallback(() => {
-		emitter.dispatchFaster();
-	}, [emitter]);
 
 	const pause = useCallback(() => {
 		if (imperativePlaying.current) {
@@ -124,8 +116,6 @@ export const usePlayer = (): {
 			emitter,
 			playing,
 			play,
-			slower,
-			faster,
 			pause,
 			seek,
 			getCurrentFrame: () => frameRef.current as number,
@@ -138,8 +128,6 @@ export const usePlayer = (): {
 		isLastFrame,
 		pause,
 		play,
-		slower,
-		faster,
 		playing,
 		seek,
 	]);
