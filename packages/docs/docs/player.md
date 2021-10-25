@@ -145,7 +145,7 @@ Once you have set this prop, you cannot change it anymore or an error will be th
 
 _optional_
 
-An integer between -4 and 4 (excluding 0) for the speed that the Player will run the media.
+An number between -4 and 4 (excluding 0) for the speed that the Player will run the media.
 
 ## `PlayerRef`
 
@@ -307,9 +307,9 @@ useEffect(() => {
   playerRef.current.addEventListener("play", () => {
     console.log("playing");
   });
-    playerRef.current.addEventListener('ratechange', () => {
-      console.log("ratechange");
-    })
+  playerRef.current.addEventListener("ratechange", () => {
+    console.log("ratechange");
+  });
   playerRef.current.addEventListener("pause", () => {
     console.log("pausing");
   });
