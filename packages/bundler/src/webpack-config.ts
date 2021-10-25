@@ -49,7 +49,6 @@ export const webpackConfig = ({
 		cache: enableCaching
 			? {
 					type: 'filesystem',
-					hashAlgorithm: 'md5',
 					name: getWebpackCacheName(environment, inputProps ?? {}),
 			  }
 			: false,
