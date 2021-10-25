@@ -1,5 +1,5 @@
 import {Sequence, useVideoConfig} from 'remotion';
-import {Gif} from '@remotion/gif'
+import {Gif} from '@remotion/gif';
 
 const GifTest: React.FC = () => {
 	const {width, height} = useVideoConfig();
