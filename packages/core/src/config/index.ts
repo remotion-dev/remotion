@@ -96,6 +96,11 @@ export const Config = {
 		 * The frame count starts at 0.
 		 */
 		setFrameRange,
+		/**
+		 * Specify local ffmpeg executable.
+		 * Default: null, which will use ffmpeg available in PATH.
+		 */
+		setFfmpegExecutable,
 	},
 	Output: {
 		/**
@@ -136,11 +141,6 @@ export const Config = {
 		 * See https://avpres.net/FFmpeg/im_ProRes.html for meaning of possible values.
 		 */
 		setProResProfile,
-		/**
-		 * Specify local ffmpeg executable.
-		 * Default: null, which will use ffmpeg available in PATH.
-		 */
-		setFfmpegExecutable,
 	},
 } as const;
 

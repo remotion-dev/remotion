@@ -56,7 +56,9 @@ export const parseCommandLine = (type: 'still' | 'sequence') => {
 	}
 
 	if (parsedCli['ffmpeg-executable']) {
-		Config.Output.setFfmpegExecutable(resolve(parsedCli['ffmpeg-executable']));
+		Config.Rendering.setFfmpegExecutable(
+			resolve(parsedCli['ffmpeg-executable'])
+		);
 	}
 
 	if (typeof parsedCli['bundle-cache'] !== 'undefined') {
