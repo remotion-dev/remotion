@@ -1,10 +1,9 @@
 import path from 'path';
 import {Internals, WebpackConfiguration, WebpackOverrideFn} from 'remotion';
 import webpack, {ProgressPlugin} from 'webpack';
+import {ErrorOverlayPlugin} from './fast-refresh/error-overlay';
+import {ReactFreshWebpackPlugin} from './fast-refresh/fast-refresh';
 import {getWebpackCacheName} from './webpack-cache';
-
-const ErrorOverlayPlugin = require('@webhotelier/webpack-fast-refresh/error-overlay');
-const ReactRefreshPlugin = require('@webhotelier/webpack-fast-refresh');
 
 type Truthy<T> = T extends false | '' | 0 | null | undefined ? never : T;
 function truthy<T>(value: T): value is Truthy<T> {
@@ -35,10 +34,15 @@ export const webpackConfig = ({
 	maxTimelineTracks: number;
 }): WebpackConfiguration => {
 	return webpackOverride({
+		profile: true,
 		optimization: {
+			removeAvailableModules: false,
+			removeEmptyChunks: false,
+			splitChunks: false,
 			minimize: false,
 		},
 		experiments: {
+			layers: true,
 			lazyCompilation:
 				environment === 'production'
 					? false
@@ -46,20 +50,24 @@ export const webpackConfig = ({
 							entries: false,
 					  },
 		},
+		watchOptions: {
+			aggregateTimeout: 0,
+			ignored: ['**/.git/**', '**/node_modules/**'],
+		},
 		cache: enableCaching
 			? {
 					type: 'filesystem',
 					name: getWebpackCacheName(environment, inputProps ?? {}),
 			  }
 			: false,
-		devtool: 'cheap-module-source-map',
+		devtool: environment === 'development' ? 'eval' : 'cheap-module-source-map	',
 		entry: [
 			require.resolve('./setup-environment'),
 			environment === 'development'
 				? require.resolve('webpack-hot-middleware/client') + '?overlay=true'
 				: null,
 			environment === 'development'
-				? require.resolve('@webhotelier/webpack-fast-refresh/runtime.js')
+				? require.resolve('./fast-refresh/runtime')
 				: null,
 			userDefinedComponent,
 			require.resolve('../react-shim.js'),
@@ -70,7 +78,7 @@ export const webpackConfig = ({
 			environment === 'development'
 				? [
 						new ErrorOverlayPlugin(),
-						new ReactRefreshPlugin(),
+						new ReactFreshWebpackPlugin(),
 						new webpack.HotModuleReplacementPlugin(),
 						new webpack.DefinePlugin({
 							'process.env.MAX_TIMELINE_TRACKS': maxTimelineTracks,
@@ -139,17 +147,20 @@ export const webpackConfig = ({
 					test: /\.tsx?$/,
 					use: [
 						{
-							loader: require.resolve('esbuild-loader'),
+							loader: require.resolve('swc-loader'),
 							options: {
-								loader: 'tsx',
-								target: 'chrome85',
+								jsc: {
+									parser: {
+										syntax: 'typescript',
+										tsx: true,
+									},
+									target: 'es2018',
+								},
 							},
 						},
 						environment === 'development'
 							? {
-									loader: require.resolve(
-										'@webhotelier/webpack-fast-refresh/loader.js'
-									),
+									loader: require.resolve('./fast-refresh/loader'),
 							  }
 							: null,
 					].filter(truthy),
@@ -171,17 +182,19 @@ export const webpackConfig = ({
 					exclude: /node_modules/,
 					use: [
 						{
-							loader: require.resolve('esbuild-loader'),
+							loader: require.resolve('swc-loader'),
 							options: {
-								loader: 'jsx',
-								target: 'chrome85',
+								jsc: {
+									parser: {
+										jsx: true,
+									},
+									target: 'es2018',
+								},
 							},
 						},
 						environment === 'development'
 							? {
-									loader: require.resolve(
-										'@webhotelier/webpack-fast-refresh/loader.js'
-									),
+									loader: require.resolve('./fast-refresh/loader'),
 							  }
 							: null,
 					].filter(truthy),
