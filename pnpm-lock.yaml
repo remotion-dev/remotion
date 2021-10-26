@@ -116,7 +116,7 @@ importers:
       '@types/semver': ^7.3.4
       '@types/ws': ^8.2.0
       css-loader: ^5.0.1
-      esbuild-loader: ^2.10.0
+      esbuild-loader: ^2.15.1
       eslint: ^7.25.0
       execa: ^4.0.3
       express: ^4.17.1
