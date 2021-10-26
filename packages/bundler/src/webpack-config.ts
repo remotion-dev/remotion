@@ -139,10 +139,15 @@ export const webpackConfig = ({
 					test: /\.tsx?$/,
 					use: [
 						{
-							loader: require.resolve('esbuild-loader'),
+							loader: require.resolve('swc-loader'),
 							options: {
-								loader: 'tsx',
-								target: 'chrome85',
+								jsc: {
+									parser: {
+										tsx: true,
+										syntax: 'typescript',
+									},
+									target: 'es2016',
+								},
 							},
 						},
 						environment === 'development'
@@ -171,10 +176,14 @@ export const webpackConfig = ({
 					exclude: /node_modules/,
 					use: [
 						{
-							loader: require.resolve('esbuild-loader'),
+							loader: require.resolve('swc-loader'),
 							options: {
-								loader: 'jsx',
-								target: 'chrome85',
+								jsc: {
+									parser: {
+										jsx: true,
+									},
+									target: 'es2016',
+								},
 							},
 						},
 						environment === 'development'
