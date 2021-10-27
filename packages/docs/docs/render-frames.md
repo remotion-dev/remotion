@@ -28,6 +28,7 @@ const renderFrames: (options: {
   dumpBrowserLogs?: boolean;
   puppeteerInstance?: puppeteer.Browser;
   onError?: (info: {error: Error; frame: number | null}) => void;
+  onBrowserLog?: (log: BrowserLog) => void;
 }): Promise<RenderFramesOutput>;
 ```
 
@@ -133,24 +134,93 @@ Allows you to react to an exception thrown in your React code. The callback has 
 The `frame` property tells you at which frame the error was thrown. If the error was thrown at startup, `frame` is null.
 
 ```tsx twoslash
-import {renderFrames as rf} from '@remotion/renderer'
 const renderFrames = (options: {
-  onError: (info: {
-    frame: null | number;
-    error: Error
-  }) => void;
-}) => {}
+  onError: (info: { frame: null | number; error: Error }) => void;
+}) => {};
 // ---cut---
 renderFrames({
   onError: (info) => {
     if (info.frame === null) {
-      console.error('Got error while initalizing video rendering', info.error)
+      console.error("Got error while initalizing video rendering", info.error);
     } else {
-      console.error('Got error at frame ', info.frame, info.error)
+      console.error("Got error at frame ", info.frame, info.error);
     }
     // Handle error here
-  }
-})
+  },
+});
+```
+
+### `onBrowserLog?`
+
+_optional - Available since v3.0.0_
+
+Gets called when your project calls `console.log` or another method from console. A browser log has three properties:
+
+- `text`: The message being printed
+- `stackTrace`: An array of objects containing the following properties:
+  - `url`: URL of the resource that logged.
+  - `lineNumber`: 0-based line number in the file where the log got called.
+  - `columnNumber`: 0-based column number in the file where the log got called.
+- `type`: The console method - one of `log`, `debug`, `info`, `error`, `warning`, `dir`, `dirxml`, `table`, `trace`, `clear`, `startGroup`, `startGroupCollapsed`, `endGroup`, `assert`, `profile`, `profileEnd`, `count`, `timeEnd`, `verbose`
+
+```tsx twoslash
+import { renderFrames as rf } from "@remotion/renderer";
+interface ConsoleMessageLocation {
+  /**
+   * URL of the resource if known or `undefined` otherwise.
+   */
+  url?: string;
+  /**
+   * 0-based line number in the resource if known or `undefined` otherwise.
+   */
+  lineNumber?: number;
+  /**
+   * 0-based column number in the resource if known or `undefined` otherwise.
+   */
+  columnNumber?: number;
+}
+
+type BrowserLog = {
+  text: string;
+  stackTrace: ConsoleMessageLocation[];
+  type:
+    | "log"
+    | "debug"
+    | "info"
+    | "error"
+    | "warning"
+    | "dir"
+    | "dirxml"
+    | "table"
+    | "trace"
+    | "clear"
+    | "startGroup"
+    | "startGroupCollapsed"
+    | "endGroup"
+    | "assert"
+    | "profile"
+    | "profileEnd"
+    | "count"
+    | "timeEnd"
+    | "verbose";
+};
+
+const renderFrames = (options: {
+  onBrowserLog?: (log: BrowserLog) => void;
+}) => {};
+// ---cut---
+renderFrames({
+  onBrowserLog: (info) => {
+    console.log(`${info.type}: ${info.text}`);
+    console.log(
+      info.stackTrace
+        .map((stack) => {
+          return `  ${stack.url}:${stack.lineNumber}:${stack.columnNumber}`;
+        })
+        .join("\n")
+    );
+  },
+});
 ```
 
 ### `browserExecutable?`

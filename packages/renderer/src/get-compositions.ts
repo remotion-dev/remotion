@@ -1,5 +1,6 @@
 import {Browser as PuppeteerBrowser, Page} from 'puppeteer-core';
 import {Browser, BrowserExecutable, Internals, TCompMetadata} from 'remotion';
+import {BrowserLog} from './browser-log';
 import {openBrowser} from './open-browser';
 import {setPropsAndEnv} from './set-props-and-env';
 
@@ -9,6 +10,7 @@ type GetCompositionsConfig = {
 	envVariables?: Record<string, string>;
 	browserInstance?: PuppeteerBrowser;
 	onError?: (errorData: {err: Error}) => void;
+	onBrowserLog?: (log: BrowserLog) => void;
 	browserExecutable?: BrowserExecutable;
 };
 
@@ -75,6 +77,15 @@ export const getCompositions = async (
 		console.log(err);
 		config?.onError?.({err: err as Error});
 	});
+	if (config?.onBrowserLog) {
+		page.on('console', (log) => {
+			config.onBrowserLog?.({
+				stackTrace: log.stackTrace(),
+				text: log.text(),
+				type: log.type(),
+			});
+		});
+	}
 
 	await setPropsAndEnv({
 		inputProps: config?.inputProps,

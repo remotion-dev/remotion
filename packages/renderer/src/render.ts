@@ -1,5 +1,9 @@
 import path from 'path';
-import {Browser as PuppeteerBrowser} from 'puppeteer-core';
+import {
+	Browser as PuppeteerBrowser,
+	ConsoleMessage,
+	ConsoleMessageLocation,
+} from 'puppeteer-core';
 import {
 	Browser,
 	BrowserExecutable,
@@ -8,6 +12,7 @@ import {
 	Internals,
 	VideoConfig,
 } from 'remotion';
+import {BrowserLog} from './browser-log';
 import {cycleBrowserTabs} from './cycle-browser-tabs';
 import {getActualConcurrency} from './get-concurrency';
 import {getFrameCount} from './get-frame-range';
@@ -38,6 +43,7 @@ export const renderFrames = async ({
 	browserExecutable,
 	dumpBrowserLogs,
 	browser,
+	onBrowserLog,
 }: {
 	config: VideoConfig;
 	compositionId: string;
@@ -60,6 +66,7 @@ export const renderFrames = async ({
 	puppeteerInstance?: PuppeteerBrowser;
 	browserExecutable?: BrowserExecutable;
 	onError?: (info: OnErrorInfo) => void;
+	onBrowserLog?: (log: BrowserLog) => void;
 }): Promise<RenderFramesOutput> => {
 	Internals.validateDimension(
 		config.height,
@@ -107,6 +114,18 @@ export const renderFrames = async ({
 			onError?.({error: err, frame: null});
 		};
 
+		const logCallback = (log: ConsoleMessage) => {
+			onBrowserLog?.({
+				stackTrace: log.stackTrace(),
+				text: log.text(),
+				type: log.type(),
+			});
+		};
+
+		if (onBrowserLog) {
+			page.on('console', logCallback);
+		}
+
 		page.on('error', errorCallback);
 		page.on('pageerror', errorCallback);
 
@@ -129,6 +148,7 @@ export const renderFrames = async ({
 		await page.goto(site);
 		page.off('error', errorCallback);
 		page.off('pageerror', errorCallback);
+		page.off('console', logCallback);
 		return page;
 	});
 	const {stopCycling} = cycleBrowserTabs(browserInstance);
