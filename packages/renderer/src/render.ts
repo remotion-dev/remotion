@@ -1,9 +1,5 @@
 import path from 'path';
-import {
-	Browser as PuppeteerBrowser,
-	ConsoleMessage,
-	ConsoleMessageLocation,
-} from 'puppeteer-core';
+import {Browser as PuppeteerBrowser, ConsoleMessage} from 'puppeteer-core';
 import {
 	Browser,
 	BrowserExecutable,
