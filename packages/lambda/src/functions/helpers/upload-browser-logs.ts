@@ -10,6 +10,7 @@ export const uploadBrowserLogs = async ({
 	logs,
 	renderId,
 	startFrame,
+	chunk,
 }: {
 	bucketName: string;
 	logs: BrowserLog[];
@@ -17,12 +18,13 @@ export const uploadBrowserLogs = async ({
 	renderId: string;
 	startFrame: number;
 	endFrame: number;
+	chunk: number;
 }) => {
 	await lambdaWriteFile({
 		bucketName,
 		body: JSON.stringify(logs, null, 2),
 		expectedBucketOwner,
-		key: lambdaLogsPrefix(renderId, startFrame, endFrame),
+		key: lambdaLogsPrefix(renderId, chunk, startFrame, endFrame),
 		privacy: 'private',
 		region: getCurrentRegionInFunction(),
 	});

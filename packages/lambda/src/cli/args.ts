@@ -1,3 +1,4 @@
+import {CliInternals} from '@remotion/cli';
 import minimist from 'minimist';
 import {AwsRegion} from '../pricing/aws-regions';
 
@@ -19,16 +20,7 @@ type LambdaCommandLineOptions = {
 export const parsedLambdaCli = minimist<LambdaCommandLineOptions>(
 	process.argv.slice(2),
 	{
-		boolean: [
-			'q',
-			'quiet',
-			'force',
-			'disable-chunk-optimization',
-			'save-browser-logs',
-			'yes',
-			'y',
-			'help',
-		],
+		boolean: CliInternals.BooleanFlags,
 	}
 );
 

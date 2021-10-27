@@ -280,6 +280,7 @@ export const rendererHandler = async (
 		await closeBrowser();
 		if (params.saveBrowserLogs) {
 			await uploadBrowserLogs({
+				chunk: params.chunk,
 				bucketName: params.bucketName,
 				endFrame: params.frameRange[1],
 				startFrame: params.frameRange[0],

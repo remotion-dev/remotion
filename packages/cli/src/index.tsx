@@ -7,7 +7,7 @@ import {initializeRenderCli} from './initialize-render-cli';
 import {lambdaCommand} from './lambda-command';
 import {loadConfigFile} from './load-config';
 import {Log} from './log';
-import {parseCommandLine, parsedCli} from './parse-command-line';
+import {BooleanFlags, parseCommandLine, parsedCli} from './parse-command-line';
 import {previewCommand} from './preview';
 import {printHelp} from './print-help';
 import {createOverwriteableCliOutput, makeProgressBar} from './progress-bar';
@@ -65,4 +65,5 @@ export const CliInternals = {
 	parseCommandLine,
 	loadConfig,
 	initializeRenderCli,
+	BooleanFlags,
 };

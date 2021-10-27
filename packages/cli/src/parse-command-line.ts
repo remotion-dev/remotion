@@ -40,8 +40,23 @@ export type CommandLineOptions = {
 	siteName: string;
 };
 
+export const BooleanFlags = [
+	'force',
+	'overwrite',
+	'sequence',
+	'help',
+	// Lambda flags
+	'q',
+	'quiet',
+	'force',
+	'disable-chunk-optimization',
+	'save-browser-logs',
+	'yes',
+	'y',
+];
+
 export const parsedCli = minimist<CommandLineOptions>(process.argv.slice(2), {
-	boolean: ['force', 'overwrite', 'sequence', 'help'],
+	boolean: BooleanFlags,
 });
 
 export const parseCommandLine = (
