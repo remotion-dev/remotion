@@ -16,7 +16,12 @@ Keep track of changes to the APIs of Remotion Lambda here.
 
 ## October 27th, 2021
 
-To be released today
+Version hash: `3.0.0-lambda.37+874f731d5`
+Lambda version: '2021-10-27'
+
+- Added a new `saveBrowserLogs` / `--save-browser-logs` option for dumping browser logs to an S3 bucket (you are responsible for cleaning up the logs if you enable this option!)
+- Fixed a bug where `NoSuchKey` exception could be thrown when calling `getRenderProgress()`
+- Merged changes from Remotion 2.5
 
 ## October 21st, 2021
 
