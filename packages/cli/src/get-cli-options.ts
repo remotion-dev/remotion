@@ -107,7 +107,7 @@ const getAndValidateShouldOutputImageSequence = async (
 	const shouldOutputImageSequence =
 		Internals.getShouldOutputImageSequence(frameRange);
 	if (!shouldOutputImageSequence) {
-		await RenderInternals.validateFfmpeg();
+		await RenderInternals.validateFfmpeg(Internals.getCustomFfmpegExecutable());
 	}
 
 	return shouldOutputImageSequence;
