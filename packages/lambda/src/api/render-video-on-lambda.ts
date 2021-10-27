@@ -24,6 +24,7 @@ import {validateFramesPerLambda} from './validate-frames-per-lambda';
  * @param params.region The AWS region in which the video should be rendered.
  * @param params.maxRetries How often rendering a chunk may fail before the video render gets aborted.
  * @param params.enableChunkOptimization Whether Remotion should restructure and optimize chunks for subsequent renders. Default true.
+ * @param params.saveBrowserLogs Whether Remotion should dump browser logs to an S3 bucket. Default false.
  * @returns `Promise<{renderId: string; bucketName: string}>`
  */
 
@@ -44,6 +45,7 @@ export const renderVideoOnLambda = async ({
 	framesPerLambda,
 	privacy,
 	enableChunkOptimization,
+	saveBrowserLogs,
 }: {
 	region: AwsRegion;
 	functionName: string;
@@ -60,8 +62,8 @@ export const renderVideoOnLambda = async ({
 	quality?: number;
 	maxRetries: number;
 	framesPerLambda?: number;
-	// TODO: This should also be a command line flag
 	enableChunkOptimization?: boolean;
+	saveBrowserLogs?: boolean;
 }) => {
 	validateFramesPerLambda(framesPerLambda);
 	const res = await callLambda({
@@ -82,6 +84,7 @@ export const renderVideoOnLambda = async ({
 			maxRetries,
 			privacy,
 			enableChunkOptimization,
+			saveBrowserLogs,
 		},
 		region,
 	});
