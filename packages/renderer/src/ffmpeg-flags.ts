@@ -23,7 +23,7 @@ export const ffmpegHasFeature = async (
 	ffmpegExecutable: string | null,
 	feature: 'enable-gpl' | 'enable-libx265' | 'enable-libvpx'
 ) => {
-	if (!(await binaryExists('ffmpeg'))) {
+	if (!(await binaryExists('ffmpeg', ffmpegExecutable))) {
 		return false;
 	}
 
