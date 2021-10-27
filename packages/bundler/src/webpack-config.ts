@@ -163,7 +163,6 @@ export const webpackConfig = ({
 							loader: require.resolve('file-loader'),
 							options: {
 								// default md4 not available in node17
-								hashType: 'md5',
 								name: '[name].[ext]',
 								outputPath: 'fonts/',
 							},
