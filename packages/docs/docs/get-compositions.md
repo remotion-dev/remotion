@@ -11,8 +11,13 @@ Gets the compositions defined in a Remotion project based on a webpack bundle. S
 const getCompositions: (
   bundle: string,
   options: {
+    browser?: Browser;
     inputProps?: object | null;
-    browserInstance?: puppeteer.Browser;
+    envVariables?: Record<string, string>;
+    browserInstance?: PuppeteerBrowser;
+    onError?: (errorData: { err: Error }) => void;
+    onBrowserLog?: (log: BrowserLog) => void;
+    browserExecutable?: BrowserExecutable;
   }
 ) => Promise<TComposition[]>;
 ```
@@ -46,6 +51,80 @@ An already open Puppeteer [`Browser`](https://pptr.dev/#?product=Puppeteer&versi
 _optional, available from v2.3.1_
 
 A string defining the absolute path on disk of the browser executable that should be used. By default Remotion will try to detect it automatically and download one if none is available. If `browserInstance` is defined, it will take precedence over `browserExecutable`.
+
+#### `onBrowserLog?`
+
+_optional - Available since v3.0.0_
+
+Gets called when your project calls `console.log` or another method from console. A browser log has three properties:
+
+- `text`: The message being printed
+- `stackTrace`: An array of objects containing the following properties:
+  - `url`: URL of the resource that logged.
+  - `lineNumber`: 0-based line number in the file where the log got called.
+  - `columnNumber`: 0-based column number in the file where the log got called.
+- `type`: The console method - one of `log`, `debug`, `info`, `error`, `warning`, `dir`, `dirxml`, `table`, `trace`, `clear`, `startGroup`, `startGroupCollapsed`, `endGroup`, `assert`, `profile`, `profileEnd`, `count`, `timeEnd`, `verbose`
+
+```tsx twoslash
+import { renderFrames as rf } from "@remotion/renderer";
+interface ConsoleMessageLocation {
+  /**
+   * URL of the resource if known or `undefined` otherwise.
+   */
+  url?: string;
+  /**
+   * 0-based line number in the resource if known or `undefined` otherwise.
+   */
+  lineNumber?: number;
+  /**
+   * 0-based column number in the resource if known or `undefined` otherwise.
+   */
+  columnNumber?: number;
+}
+
+type BrowserLog = {
+  text: string;
+  stackTrace: ConsoleMessageLocation[];
+  type:
+    | "log"
+    | "debug"
+    | "info"
+    | "error"
+    | "warning"
+    | "dir"
+    | "dirxml"
+    | "table"
+    | "trace"
+    | "clear"
+    | "startGroup"
+    | "startGroupCollapsed"
+    | "endGroup"
+    | "assert"
+    | "profile"
+    | "profileEnd"
+    | "count"
+    | "timeEnd"
+    | "verbose";
+};
+
+const getCompositions = (options: {
+  onBrowserLog?: (log: BrowserLog) => void;
+}) => {};
+// ---cut---
+getCompositions({
+  // ...
+  onBrowserLog: (info) => {
+    console.log(`${info.type}: ${info.text}`);
+    console.log(
+      info.stackTrace
+        .map((stack) => {
+          return `  ${stack.url}:${stack.lineNumber}:${stack.columnNumber}`;
+        })
+        .join("\n")
+    );
+  },
+});
+```
 
 ## Return value
 
