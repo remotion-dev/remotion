@@ -31,6 +31,7 @@
     "@remotion/three": "2.5.0",
     "@remotion/player": "2.5.0",
     "@remotion/gif": "2.5.0",
+    "@remotion/lambda": "2.5.0",
     "@remotion/cli": "2.5.0",
     "@remotion/media-utils": "2.5.0",
     "@remotion/renderer": "2.5.0",
