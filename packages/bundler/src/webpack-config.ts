@@ -131,7 +131,7 @@ export const webpackConfig = ({
 										return '[path][name].[ext]';
 									}
 
-									return '[contenthash].[ext]';
+									return '[md5:contenthash].[ext]';
 								},
 							},
 						},
