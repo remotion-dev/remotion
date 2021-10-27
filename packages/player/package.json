@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/player",
-	"version": "2.4.4",
+	"version": "2.5.0",
 	"description": "Remotion Player",
 	"main": "dist/index.js",
 	"sideEffects": false,
@@ -24,7 +24,7 @@
 	],
 	"license": "SEE LICENSE IN LICENSE.md",
 	"dependencies": {
-		"remotion": "2.4.4"
+		"remotion": "2.5.0"
 	},
 	"peerDependencies": {
 		"react": ">=16.8.0",
@@ -44,7 +44,7 @@
 		"prettier-plugin-organize-imports": "^1.1.1",
 		"ts-jest": "^27.0.5",
 		"typescript": "^4.4.2",
-		"webpack": "^5.21.2"
+		"webpack": "5.60.0"
 	},
 	"publishConfig": {
 		"access": "public"

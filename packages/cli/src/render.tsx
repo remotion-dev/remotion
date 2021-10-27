@@ -66,6 +66,7 @@ export const render = async () => {
 		pixelFormat,
 		imageFormat,
 		browserExecutable,
+		ffmpegExecutable,
 	} = await getCliOptions({isLambda: false, type: 'series'});
 
 	if (!absoluteOutputFile) {
@@ -74,7 +75,9 @@ export const render = async () => {
 		);
 	}
 
-	await checkAndValidateFfmpegVersion();
+	await checkAndValidateFfmpegVersion({
+		ffmpegExecutable: Internals.getCustomFfmpegExecutable(),
+	});
 
 	const browserInstance = RenderInternals.openBrowser(browser, {
 		browserExecutable,
@@ -221,6 +224,7 @@ export const render = async () => {
 			crf,
 			assetsInfo,
 			parallelism,
+			ffmpegExecutable,
 			onProgress: (frame: number) => {
 				stitchingProgress.update(
 					makeStitchingProgress({

@@ -162,6 +162,12 @@ _available for `preview`, `still`, `render` commands_
 
 [Set a custom HTTP server port](/docs/config#setPort). If not defined, Remotion will try to find a free port.
 
+### `--ffmpeg-executable`
+
+_available for `render` command_
+
+[Set a custom FFMPEG executable](/docs/config#setFfmpegExecutable). If not defined, a `ffmpeg` executable will be searched in `PATH`.
+
 ### `--help`
 
 Print the list of available CLI commands and flags.
