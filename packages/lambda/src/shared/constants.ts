@@ -49,9 +49,14 @@ export const lambdaTimingsPrefixForChunk = (renderId: string, chunk: number) =>
 
 export const lambdaLogsPrefix = (
 	renderId: string,
+	chunk: number,
 	startFrame: number,
 	endFrame: number
-) => `${rendersPrefix(renderId)}/logs/chunk:${startFrame}-${endFrame}.json`;
+) =>
+	`${rendersPrefix(renderId)}/logs/chunk:${String(chunk).padStart(
+		8,
+		'0'
+	)}:frames:${startFrame}-${endFrame}.json`;
 
 export const lambdaTimingsKey = ({
 	renderId,
@@ -238,6 +243,7 @@ export type RenderMetadata = {
 };
 
 export type LambdaVersions =
+	| '2021-10-27'
 	| '2021-10-21'
 	| '2021-10-19'
 	| '2021-10-07'
@@ -252,7 +258,7 @@ export type LambdaVersions =
 	| '2021-06-23'
 	| 'n/a';
 
-export const CURRENT_VERSION: LambdaVersions = '2021-10-21';
+export const CURRENT_VERSION: LambdaVersions = '2021-10-27';
 
 export type PostRenderData = {
 	cost: {
