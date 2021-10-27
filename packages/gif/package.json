@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/gif",
-	"version": "2.4.4",
+	"version": "2.5.0",
 	"description": "Gif component for remotion",
 	"sideEffects": false,
 	"repository": {
@@ -20,7 +20,7 @@
 	"dependencies": {
 		"@react-gifs/tools": "^0.1.1",
 		"lru_map": "^0.4.1",
-		"remotion": "2.4.4"
+		"remotion": "2.5.0"
 	},
 	"devDependencies": {
 		"@jonny/eslint-config": "^2.1.248",
@@ -34,7 +34,7 @@
 		"prettier-plugin-organize-imports": "^1.1.1",
 		"ts-jest": "^27.0.5",
 		"typescript": "^4.4.2",
-		"webpack": "5.37.0"
+		"webpack": "5.60.0"
 	},
 	"peerDependencies": {
 		"react": "^17.0.1",

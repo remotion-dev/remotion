@@ -44,3 +44,25 @@ export const Row: React.FC<{
 		</div>
 	);
 };
+
+export const Column: React.FC<{
+	justify?: 'center';
+	align?: 'center';
+	style?: React.CSSProperties;
+	className?: string;
+}> = ({children, justify, className, align, style = {}}) => {
+	const finalStyle: React.CSSProperties = useMemo(() => {
+		return {
+			...style,
+			display: 'flex',
+			flexDirection: 'column',
+			justifyContent: justify ?? 'flex-start',
+			alignItems: align ?? 'flex-start',
+		};
+	}, [align, justify, style]);
+	return (
+		<div className={className} style={finalStyle}>
+			{children}
+		</div>
+	);
+};

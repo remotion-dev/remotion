@@ -23,6 +23,7 @@ const stitchFramesToVideo: (options: {
   onProgress?: (progress: number) => void;
   onDownload?: (src: number) => void;
   verbose?: boolean;
+  ffmpegExecutable?: FfmpegExecutable;
 }) => Promise<void>;
 ```
 
@@ -118,7 +119,15 @@ const onDownload = (src: string) => {
 
 ### `verbose`
 
-A boolean value that when set to `true`, will log all kinds of debug information. Default `false`
+_optional_
+
+A boolean value that when set to `true`, will log all kinds of debug information. Default `false`.
+
+### `ffmpegExecutable`
+
+_optional_
+
+A custom FFMPEG executable to be used. By default, a binary called `ffmpeg` will be searched in your `PATH`.
 
 ## Return value
 

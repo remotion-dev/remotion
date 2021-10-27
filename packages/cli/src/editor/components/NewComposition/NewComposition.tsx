@@ -194,21 +194,19 @@ const NewComposition: React.FC<{initialCompType: CompType}> = (props) => {
 	}, []);
 
 	const items: ComboboxValue[] = useMemo(() => {
-		return commonFrameRates.map(
-			(frameRate): ComboboxValue => {
-				return {
-					id: String(frameRate),
-					label: `${frameRate}fps`,
-					onClick: () => onFpsChange(frameRate),
-					type: 'item',
-					value: frameRate,
-					keyHint: null,
-					leftItem:
-						String(frameRate) === selectedFrameRate ? <Checkmark /> : null,
-					subMenu: null,
-				};
-			}
-		);
+		return commonFrameRates.map((frameRate): ComboboxValue => {
+			return {
+				id: String(frameRate),
+				label: `${frameRate}fps`,
+				onClick: () => onFpsChange(frameRate),
+				type: 'item',
+				value: frameRate,
+				keyHint: null,
+				leftItem:
+					String(frameRate) === selectedFrameRate ? <Checkmark /> : null,
+				subMenu: null,
+			};
+		});
 	}, [onFpsChange, selectedFrameRate]);
 
 	const compNameErrMessage = validateCompositionName(name, compositions);
@@ -255,6 +253,7 @@ const NewComposition: React.FC<{initialCompType: CompType}> = (props) => {
 								<div style={leftLabel}>Type</div>
 								<div style={inputArea}>
 									<Combobox
+										title="Type of composition"
 										style={comboBoxStyle}
 										values={typeValues}
 										selectedId={type}
@@ -357,6 +356,7 @@ const NewComposition: React.FC<{initialCompType: CompType}> = (props) => {
 								<label>
 									<div style={leftLabel}>Framerate</div>
 									<Combobox
+										title="Framerate"
 										style={comboBoxStyle}
 										values={items}
 										selectedId={selectedFrameRate}

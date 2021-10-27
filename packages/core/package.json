@@ -1,6 +1,6 @@
 {
 	"name": "remotion",
-	"version": "2.4.4",
+	"version": "2.5.0",
 	"description": "Render videos in React",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
@@ -34,7 +34,7 @@
 		"rimraf": "^3.0.2",
 		"ts-jest": "^27.0.5",
 		"typescript": "^4.4.2",
-		"webpack": "5.37.0"
+		"webpack": "5.60.0"
 	},
 	"publishConfig": {
 		"access": "public"

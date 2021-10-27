@@ -5,43 +5,53 @@ let buildConfig: string | null = null;
 
 export type FfmpegVersion = [number, number, number] | null;
 
-export const getFfmpegBuildInfo = async () => {
+export const getFfmpegBuildInfo = async (options: {
+	ffmpegExecutable: string | null;
+}) => {
 	if (buildConfig !== null) {
 		return buildConfig;
 	}
 
-	const data = await execa('ffmpeg', ['-buildconf']);
+	const data = await execa(options.ffmpegExecutable ?? 'ffmpeg', [
+		'-buildconf',
+	]);
 	buildConfig = data.stderr;
 	return buildConfig;
 };
 
-export const ffmpegHasFeature = async (factors: {
+export const ffmpegHasFeature = async (
+{ffmpegExecutable, feature, isLambda} :{	ffmpegExecutable: string | null;
 	feature: 'enable-gpl' | 'enable-libx265' | 'enable-libvpx';
-	isLambda: boolean;
-}) => {
-	// Lambda should have all features
-	if (factors.isLambda) {
-		return true;
+	isLambda: boolean;}
+) => {
+	if (isLambda) {
+		// When rendering in the cloud, we don't need a local binary
+		return true
 	}
-
-	if (!binaryExists('ffmpeg')) {
+	if (!(await binaryExists('ffmpeg'))) {
 		return false;
 	}
 
-	const config = await getFfmpegBuildInfo();
-	return config.includes(factors.feature);
+	const config = await getFfmpegBuildInfo({ffmpegExecutable});
+	return config.includes(feature);
 };
 
 export const parseFfmpegVersion = (buildconf: string): FfmpegVersion => {
-	const match = buildconf.match(/ffmpeg version ([0-9]+).([0-9]+).([0-9]+)/);
+	const match = buildconf.match(
+		/ffmpeg version ([0-9]+).([0-9]+)(?:.([0-9]+))?/
+	);
 	if (!match) {
 		return null;
 	}
 
-	return [Number(match[1]), Number(match[2]), Number(match[3])];
+	return [Number(match[1]), Number(match[2]), Number(match[3] ?? 0)];
 };
 
-export const getFfmpegVersion = async (): Promise<FfmpegVersion> => {
-	const buildInfo = await getFfmpegBuildInfo();
+export const getFfmpegVersion = async (options: {
+	ffmpegExecutable: string | null;
+}): Promise<FfmpegVersion> => {
+	const buildInfo = await getFfmpegBuildInfo({
+		ffmpegExecutable: options.ffmpegExecutable,
+	});
 	return parseFfmpegVersion(buildInfo);
 };

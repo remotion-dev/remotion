@@ -37,11 +37,13 @@ const getFinalCodec = async (options: {isLambda: boolean}) => {
 		emitWarning: true,
 		isLambda: options.isLambda,
 	});
+	const ffmpegExecutable = Internals.getCustomFfmpegExecutable();
 	if (
 		codec === 'vp8' &&
 		!(await RenderInternals.ffmpegHasFeature({
 			feature: 'enable-libvpx',
 			isLambda: options.isLambda,
+			ffmpegExecutable,
 		}))
 	) {
 		Log.error(
@@ -57,6 +59,7 @@ const getFinalCodec = async (options: {isLambda: boolean}) => {
 		!(await RenderInternals.ffmpegHasFeature({
 			feature: 'enable-gpl',
 			isLambda: options.isLambda,
+			ffmpegExecutable,
 		}))
 	) {
 		Log.error(
@@ -72,6 +75,7 @@ const getFinalCodec = async (options: {isLambda: boolean}) => {
 		!(await RenderInternals.ffmpegHasFeature({
 			feature: 'enable-libx265',
 			isLambda: options.isLambda,
+			ffmpegExecutable,
 		}))
 	) {
 		Log.error(
@@ -212,6 +216,7 @@ export const getCliOptions = async (options: {
 	});
 	const proResProfile = getAndValidateProResProfile(codec);
 	const browserExecutable = Internals.getBrowserExecutable();
+	const ffmpegExecutable = Internals.getCustomFfmpegExecutable();
 
 	return {
 		parallelism: Internals.getConcurrency(),
@@ -233,5 +238,6 @@ export const getCliOptions = async (options: {
 		stillFrame: Internals.getStillFrame(),
 		browserExecutable,
 		framesPerLambda: Internals.getFramesPerLambda(),
+		ffmpegExecutable,
 	};
 };
