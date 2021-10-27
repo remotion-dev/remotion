@@ -46,6 +46,13 @@ export const lambdaTimingsPrefix = (renderId: string) =>
 
 export const lambdaTimingsPrefixForChunk = (renderId: string, chunk: number) =>
 	lambdaTimingsPrefix(renderId) + String(chunk).padStart(8, '0');
+
+export const lambdaLogsPrefix = (
+	renderId: string,
+	startFrame: number,
+	endFrame: number
+) => `${rendersPrefix(renderId)}/logs/chunk:${startFrame}-${endFrame}.json`;
+
 export const lambdaTimingsKey = ({
 	renderId,
 	chunk,
@@ -131,6 +138,7 @@ export type LambdaPayloads = {
 		maxRetries: number;
 		privacy: Privacy;
 		enableChunkOptimization: boolean | undefined;
+		saveBrowserLogs?: boolean;
 	};
 	launch: {
 		type: LambdaRoutines.launch;
@@ -150,6 +158,7 @@ export type LambdaPayloads = {
 		maxRetries: number;
 		privacy: Privacy;
 		enableChunkOptimization: boolean;
+		saveBrowserLogs: boolean;
 	};
 	fire: {
 		type: LambdaRoutines.fire;
@@ -183,6 +192,7 @@ export type LambdaPayloads = {
 		quality: number | undefined;
 		envVariables: Record<string, string> | undefined;
 		privacy: Privacy;
+		saveBrowserLogs: boolean;
 	};
 	still: {
 		type: LambdaRoutines.still;

@@ -12,11 +12,24 @@ type LambdaCommandLineOptions = {
 	f: boolean;
 	quiet: boolean;
 	['site-name']: string | undefined;
+	['disable-chunk-optimization']: boolean;
+	['save-browser-logs']: boolean;
 };
 
 export const parsedLambdaCli = minimist<LambdaCommandLineOptions>(
 	process.argv.slice(2),
-	{boolean: ['q', 'quiet', 'force', 'yes', 'y', 'help']}
+	{
+		boolean: [
+			'q',
+			'quiet',
+			'force',
+			'disable-chunk-optimization',
+			'save-browser-logs',
+			'yes',
+			'y',
+			'help',
+		],
+	}
 );
 
 export const forceFlagProvided =

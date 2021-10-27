@@ -19,6 +19,15 @@ export const startHandler = async (params: LambdaPayload) => {
 		);
 	}
 
+	if (
+		typeof params.saveBrowserLogs !== 'boolean' &&
+		typeof params.saveBrowserLogs !== 'undefined'
+	) {
+		throw new Error(
+			'The parameter "saveBrowserLogs" must be a boolean or undefined.'
+		);
+	}
+
 	const {bucketName} = await getOrCreateBucket({
 		region: getCurrentRegionInFunction(),
 	});
@@ -42,6 +51,7 @@ export const startHandler = async (params: LambdaPayload) => {
 		maxRetries: params.maxRetries,
 		privacy: params.privacy,
 		enableChunkOptimization: params.enableChunkOptimization !== false,
+		saveBrowserLogs: Boolean(params.saveBrowserLogs),
 	};
 	await getLambdaClient(getCurrentRegionInFunction()).send(
 		new InvokeCommand({

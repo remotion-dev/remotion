@@ -29,6 +29,7 @@ export {renderFrames} from './render';
 export {renderStill} from './render-still';
 export {stitchFramesToVideo} from './stitcher';
 export {OnErrorInfo, OnStartData, RenderFramesOutput} from './types';
+export {BrowserLog} from './browser-log';
 
 export const RenderInternals = {
 	ensureLocalBrowser,

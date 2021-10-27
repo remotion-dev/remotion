@@ -4,6 +4,7 @@ import {
 	RenderInternals,
 	stitchFramesToVideo,
 } from '@remotion/renderer';
+import {BrowserLog} from '@remotion/renderer';
 import fs from 'fs';
 import path from 'path';
 import {getLambdaClient} from '../shared/aws-clients';
@@ -32,6 +33,7 @@ import {getFolderFiles} from './helpers/get-files-in-folder';
 import {getFolderSizeRecursively} from './helpers/get-folder-size';
 import {lambdaWriteFile} from './helpers/io';
 import {timer} from './helpers/timer';
+import {uploadBrowserLogs} from './helpers/upload-browser-logs';
 import {
 	getTmpDirStateIfENoSp,
 	writeLambdaError,
@@ -42,7 +44,11 @@ type Options = {
 	isWarm: boolean;
 };
 
-const renderHandler = async (params: LambdaPayload, options: Options) => {
+const renderHandler = async (
+	params: LambdaPayload,
+	options: Options,
+	logs: BrowserLog[]
+) => {
 	if (params.type !== LambdaRoutines.renderer) {
 		throw new Error('Params must be renderer');
 	}
@@ -127,6 +133,9 @@ const renderHandler = async (params: LambdaPayload, options: Options) => {
 		},
 		browser: 'chrome',
 		dumpBrowserLogs: false,
+		onBrowserLog: (log) => {
+			logs.push(log);
+		},
 	});
 	const outdir = tmpDir(RENDERER_PATH_TOKEN);
 
@@ -225,8 +234,10 @@ export const rendererHandler = async (
 		throw new Error('Params must be renderer');
 	}
 
+	const logs: BrowserLog[] = [];
+
 	try {
-		await renderHandler(params, options);
+		await renderHandler(params, options, logs);
 	} catch (err) {
 		// If this error is encountered, we can just retry as it
 		// is a very rare error to occur
@@ -267,5 +278,15 @@ export const rendererHandler = async (
 		});
 	} finally {
 		await closeBrowser();
+		if (params.saveBrowserLogs) {
+			await uploadBrowserLogs({
+				bucketName: params.bucketName,
+				endFrame: params.frameRange[1],
+				startFrame: params.frameRange[0],
+				expectedBucketOwner: options.expectedBucketOwner,
+				logs,
+				renderId: params.renderId,
+			});
+		}
 	}
 };

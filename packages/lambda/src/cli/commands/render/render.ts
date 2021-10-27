@@ -7,6 +7,7 @@ import {
 	DEFAULT_FRAMES_PER_LAMBDA,
 } from '../../../shared/constants';
 import {sleep} from '../../../shared/sleep';
+import {parsedLambdaCli} from '../../args';
 import {getAwsRegion} from '../../get-aws-region';
 import {findFunctionName} from '../../helpers/find-function-name';
 import {formatBytes} from '../../helpers/format-bytes';
@@ -66,6 +67,8 @@ export const renderCommand = async (args: string[]) => {
 		framesPerLambda: cliOptions.framesPerLambda ?? DEFAULT_FRAMES_PER_LAMBDA,
 		// TODO: Unhardcode and specify as parameter
 		privacy: 'public',
+		enableChunkOptimization: !parsedLambdaCli['disable-chunk-optimization'],
+		saveBrowserLogs: parsedLambdaCli['save-browser-logs'],
 	});
 
 	const totalSteps = outName ? 5 : 4;

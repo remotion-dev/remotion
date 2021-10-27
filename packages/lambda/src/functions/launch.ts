@@ -138,6 +138,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 			proResProfile: params.proResProfile,
 			quality: params.quality,
 			privacy: params.privacy,
+			saveBrowserLogs: params.saveBrowserLogs,
 		};
 		return payload;
 	});
