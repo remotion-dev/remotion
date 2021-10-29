@@ -28,11 +28,11 @@ There are 3 ways of selection a region:
 
 - When using the CLI, you can set the region using the `AWS_REGION` environment variable. It's best to put it in a `.env` file so you don't forget it sometimes.
 
-:::info
-The AWS_REGION environment variable does not work when using the Node.JS APIs.
-:::
-
 - You can also pass the `--region` flag to all CLI commands to override the region. The flag takes precedence over the environment variable.
+
+:::info
+The AWS_REGION environment variable and `--region` flag do not work when using the Node.JS APIs. You need to pass a region explicitly.
+:::
 
 If you don't set a region, Remotion will use the default region.
 
