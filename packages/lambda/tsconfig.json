@@ -6,7 +6,7 @@
 		"outDir": "dist",
 		"lib": ["es2019", "dom"]
 	},
-	"include": ["src", "../renderer/src/test/serve-url.test.ts"],
+	"include": ["src"],
 	"exclude": ["**/__mocks__/*"],
 	"references": [
 		{"path": "../core"},
