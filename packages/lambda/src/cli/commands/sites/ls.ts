@@ -1,7 +1,6 @@
 import {CliInternals} from '@remotion/cli';
 import {Log} from '@remotion/cli/dist/log';
 import {getSites} from '../../../api/get-sites';
-import {makeS3ServeUrl} from '../../../shared/make-s3-url';
 import {quietFlagProvided} from '../../args';
 import {getAwsRegion} from '../../get-aws-region';
 import {dateString} from '../../helpers/date-string';

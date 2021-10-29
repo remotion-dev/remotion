@@ -1,7 +1,11 @@
 import {deleteFunction} from './api/delete-function';
 import {deleteSite} from './api/delete-site';
 import {deployFunction} from './api/deploy-function';
-import {deploySite} from './api/deploy-site';
+import {
+	deploySite,
+	DeploySiteInput,
+	DeploySiteReturnType,
+} from './api/deploy-site';
 import {downloadVideo} from './api/download-video';
 import {getFunctionInfo} from './api/get-function-info';
 import {getFunctions} from './api/get-functions';
@@ -19,6 +23,7 @@ import {LambdaInternals} from './internals';
 import {AwsRegion} from './pricing/aws-regions';
 import type {RenderProgress} from './shared/constants';
 import {estimatePrice} from './pricing/calculate-price';
+import {LambdaLSInput, LambdaLsReturnType} from './functions/helpers/io';
 
 export {
 	deleteSite,
@@ -39,4 +44,11 @@ export {
 	LambdaInternals,
 	renderStillOnLambda,
 };
-export type {AwsRegion, RenderProgress};
+export type {
+	AwsRegion,
+	RenderProgress,
+	DeploySiteInput,
+	DeploySiteReturnType,
+	LambdaLsReturnType,
+	LambdaLSInput,
+};

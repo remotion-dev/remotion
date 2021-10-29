@@ -51,12 +51,3 @@ export const closeBrowser = async () => {
 		await Promise.all(pages.map((p) => p.close()));
 	}
 };
-
-export const quitBrowser = async () => {
-	if (!_browserInstance) {
-		return;
-	}
-
-	await _browserInstance.close();
-	_browserInstance = null;
-};

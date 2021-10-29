@@ -36,7 +36,7 @@ const layerInfo: {
 	'us-west-2': [],
 };
 
-export const makeLayerPublic = async () => {
+const makeLayerPublic = async () => {
 	const layers = ['remotion', 'ffmpeg', 'chromium'] as const;
 	for (const region of AWS_REGIONS) {
 		for (const layer of layers) {
