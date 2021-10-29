@@ -37,6 +37,7 @@ module.exports = {
       ],
     },
     "lambda-changelog",
+    "lambda-uninstall",
   ],
   someSidebar: [
     {
