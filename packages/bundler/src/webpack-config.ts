@@ -119,6 +119,8 @@ export const webpackConfig = ({
 						{
 							loader: require.resolve('file-loader'),
 							options: {
+								// default md4 not available in node17
+								hashType: 'md5',
 								// So you can do require('hi.png')
 								// instead of require('hi.png').default
 								esModule: false,
@@ -129,7 +131,7 @@ export const webpackConfig = ({
 										return '[path][name].[ext]';
 									}
 
-									return '[contenthash].[ext]';
+									return '[md5:contenthash].[ext]';
 								},
 							},
 						},
@@ -160,6 +162,7 @@ export const webpackConfig = ({
 						{
 							loader: require.resolve('file-loader'),
 							options: {
+								// default md4 not available in node17
 								name: '[name].[ext]',
 								outputPath: 'fonts/',
 							},
