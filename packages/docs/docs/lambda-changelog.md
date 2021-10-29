@@ -19,6 +19,7 @@ Keep track of changes to the APIs of Remotion Lambda here.
 - `renderStillOnLambda()` returns a `renderId` now
 - Documented `downloadVideo()` method
 - `downloadVideo()` return value property renamed from `size` to `sizeInBytes`
+- Command `npx remotion lambda sites ls` now supports `-q` flag
 
 ## October 29th, 2021
 
