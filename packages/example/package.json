@@ -28,7 +28,7 @@
 		"@remotion/bundler": "^2.5.1",
 		"@remotion/cli": "^2.5.1",
 		"@remotion/eslint-config": "^2.5.1",
-		"@remotion/eslint-plugin": "2.5.0",
+		"@remotion/eslint-plugin": "2.5.1",
 		"@remotion/gif": "^2.5.1",
 		"@remotion/media-utils": "^2.5.1",
 		"@remotion/renderer": "^2.5.1",
