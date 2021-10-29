@@ -1,7 +1,6 @@
 import {CliInternals} from '@remotion/cli';
 import {checkCredentials} from '../shared/check-credentials';
 import {parsedLambdaCli} from './args';
-import {cleanupCommand, CLEANUP_COMMAND} from './cleanup';
 import {functionsCommand, FUNCTIONS_COMMAND} from './commands/functions';
 import {policiesCommand, POLICIES_COMMAND} from './commands/policies/policies';
 import {ROLE_SUBCOMMAND} from './commands/policies/role';
@@ -46,10 +45,6 @@ const matchCommand = async (args: string[]) => {
 
 	if (args[0] === FUNCTIONS_COMMAND) {
 		return functionsCommand(args.slice(1));
-	}
-
-	if (args[0] === CLEANUP_COMMAND) {
-		return cleanupCommand(args.slice(1));
 	}
 
 	if (args[0] === POLICIES_COMMAND) {

@@ -1,8 +1,9 @@
 import {getFunctions} from '../../api/get-functions';
 import {BINARY_NAME, CURRENT_VERSION} from '../../shared/constants';
-import {CLEANUP_COMMAND, CLEANUP_LAMBDAS_SUBCOMMAND} from '../cleanup';
 import {FUNCTIONS_COMMAND} from '../commands/functions';
 import {FUNCTIONS_DEPLOY_SUBCOMMAND} from '../commands/functions/deploy';
+import {FUNCTIONS_LS_SUBCOMMAND} from '../commands/functions/ls';
+import {FUNCTIONS_RM_SUBCOMMAND} from '../commands/functions/rm';
 import {getAwsRegion} from '../get-aws-region';
 import {Log} from '../log';
 
@@ -39,7 +40,7 @@ export const findFunctionName = async () => {
 		);
 		Log.info(`Delete extraneous lambda functions in your AWS console or run`);
 		Log.info(
-			`  npx ${BINARY_NAME} ${CLEANUP_COMMAND} ${CLEANUP_LAMBDAS_SUBCOMMAND}`
+			`  npx ${BINARY_NAME} ${FUNCTIONS_COMMAND} ${FUNCTIONS_RM_SUBCOMMAND} $(npx ${BINARY_NAME} ${FUNCTIONS_COMMAND} ${FUNCTIONS_LS_SUBCOMMAND} -q) -y`
 		);
 		Log.info('to delete all lambda functions.');
 		process.exit(1);

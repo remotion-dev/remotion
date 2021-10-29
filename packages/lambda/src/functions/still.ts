@@ -33,7 +33,7 @@ type Options = {
 	expectedBucketOwner: string;
 };
 
-export const innerStillHandler = async (
+const innerStillHandler = async (
 	lambdaParams: LambdaPayload,
 	options: Options
 ) => {

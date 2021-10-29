@@ -21,7 +21,7 @@ export type MultiRenderProgress = {
 	cleanupInfo: CleanupInfo | null;
 };
 
-export const makeInvokeProgress = (
+const makeInvokeProgress = (
 	invokeProgress: LambdaInvokeProgress,
 	totalSteps: number
 ) => {
@@ -42,7 +42,7 @@ export const makeInvokeProgress = (
 	].join(' ');
 };
 
-export const makeChunkProgress = ({
+const makeChunkProgress = ({
 	chunkProgress,
 	invokeProgress,
 	totalSteps,
@@ -70,7 +70,7 @@ export const makeChunkProgress = ({
 	].join(' ');
 };
 
-export const makeEncodingProgress = ({
+const makeEncodingProgress = ({
 	encodingProgress,
 	chunkProgress,
 	totalSteps,
@@ -98,7 +98,7 @@ export const makeEncodingProgress = ({
 	].join(' ');
 };
 
-export const makeCleanupProgress = (
+const makeCleanupProgress = (
 	cleanupInfo: CleanupInfo | null,
 	totalSteps: number
 ) => {
@@ -119,10 +119,7 @@ export const makeCleanupProgress = (
 	].join(' ');
 };
 
-export const makeDownloadProgess = (
-	totalSteps: number,
-	downloadedYet: boolean
-) => {
+const makeDownloadProgess = (totalSteps: number, downloadedYet: boolean) => {
 	return [
 		'💾',
 		`(5/${totalSteps})`,
