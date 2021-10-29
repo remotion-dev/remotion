@@ -46,13 +46,17 @@ export const webpackConfig = ({
 							entries: false,
 					  },
 		},
+		watchOptions: {
+			aggregateTimeout: 0,
+			ignored: ['**/.git/**', '**/node_modules/**'],
+		},
 		cache: enableCaching
 			? {
 					type: 'filesystem',
 					name: getWebpackCacheName(environment, inputProps ?? {}),
 			  }
 			: false,
-		devtool: 'cheap-module-source-map',
+		devtool: environment === 'development' ? 'eval' : 'cheap-module-source-map',
 		entry: [
 			require.resolve('./setup-environment'),
 			environment === 'development'
