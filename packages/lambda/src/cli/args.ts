@@ -12,6 +12,7 @@ type LambdaCommandLineOptions = {
 	force: boolean;
 	f: boolean;
 	quiet: boolean;
+	q: boolean;
 	['site-name']: string | undefined;
 	['disable-chunk-optimization']: boolean;
 	['save-browser-logs']: boolean;
@@ -29,3 +30,5 @@ export const forceFlagProvided =
 	parsedLambdaCli.force ||
 	parsedLambdaCli.yes ||
 	parsedLambdaCli.y;
+
+export const quietFlagProvided = parsedLambdaCli.quiet || parsedLambdaCli.q;
