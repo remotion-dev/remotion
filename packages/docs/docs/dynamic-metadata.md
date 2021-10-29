@@ -75,19 +75,23 @@ In this example, we fetch the duration of "Big Buck Bunny" and use it to make ou
 import { useEffect, useState } from "react";
 import { Composition, continueRender, delayRender } from "remotion";
 // ---cut---
+import { getVideoMetadata } from "@remotion/media-utils";
+
 export const Index: React.FC = () => {
   const [handle] = useState(() => delayRender());
   const [duration, setDuration] = useState(1);
 
   useEffect(() => {
-    const video = document.createElement("video");
-    video.src =
-      "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4";
-
-    video.onloadedmetadata = () => {
-      setDuration(Math.round(video.duration * 30));
-      continueRender(handle);
-    };
+    getVideoMetadata(
+      "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
+    )
+      .then(({ durationInSeconds }) => {
+        setDuration(Math.round(durationInSeconds * 30));
+      })
+      .catch((err) => {
+        console.log(`Error fetching metadata: ${err}`);
+        continueRender(handle);
+      });
   }, [handle]);
 
   return (

@@ -1,12 +1,13 @@
 {
-  "version": "2.5.0",
+  "version": "2.5.1",
   "private": true,
   "license": "SEE LICENSE IN LICENSE.md",
   "scripts": {
     "test": "cd packages/core && npm test && cd ../babel-loader && npm test && cd ../bundler && npm test && cd ../cli && npm test && cd ../eslint-plugin && npm test && cd ../gif && npm test && cd ../lambda && npm test && cd ../media-utils && npm test && cd ../player && npm test && cd ../renderer && npm test && cd ../three && npm test && cd ../.. && npx jest --runInBand",
     "build": "pnpm run build --recursive && lerna bootstrap",
     "watch": "pnpm run watch --recursive --stream --parallel",
-    "postinstall": "lerna bootstrap"
+    "postinstall": "lerna bootstrap",
+    "release": "npx lerna publish --force-publish"
   },
   "engines": {
     "node": ">=12",
@@ -27,16 +28,16 @@
     "prettier": "^2.2.1",
     "prettier-plugin-organize-imports": "^1.1.1",
     "sharp": "^0.29.0",
-    "@remotion/babel-loader": "2.5.0",
-    "@remotion/three": "2.5.0",
-    "@remotion/player": "2.5.0",
-    "@remotion/gif": "2.5.0",
-    "@remotion/lambda": "2.5.0",
-    "@remotion/cli": "2.5.0",
-    "@remotion/media-utils": "2.5.0",
-    "@remotion/renderer": "2.5.0",
-    "@remotion/bundler": "2.5.0",
-    "remotion": "2.5.0",
+    "@remotion/babel-loader": "2.5.1",
+    "@remotion/three": "2.5.1",
+    "@remotion/player": "2.5.1",
+    "@remotion/gif": "2.5.1",
+    "@remotion/lambda": "2.5.1",
+    "@remotion/cli": "2.5.1",
+    "@remotion/media-utils": "2.5.1",
+    "@remotion/renderer": "2.5.1",
+    "@remotion/bundler": "2.5.1",
+    "remotion": "2.5.1",
     "ts-jest": "^27.0.5",
     "typescript": "^4.4.2",
     "esbuild": "^0.13.8"

@@ -117,7 +117,7 @@ const getAndValidateShouldOutputImageSequence = async ({
 		Internals.getShouldOutputImageSequence(frameRange);
 	// When parsing options locally, we don't need FFMPEG because the render will happen on Lambda
 	if (!shouldOutputImageSequence && !isLambda) {
-		await RenderInternals.validateFfmpeg();
+		await RenderInternals.validateFfmpeg(Internals.getCustomFfmpegExecutable());
 	}
 
 	return shouldOutputImageSequence;
