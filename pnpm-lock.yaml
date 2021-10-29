@@ -117,7 +117,7 @@ importers:
       eslint: ^7.25.0
       execa: ^4.0.3
       express: ^4.17.1
-      file-loader: ^6.0.0
+      file-loader: ^6.2.0
       latest-version: ^5.1.0
       prettier: ^2.0.5
       prettier-plugin-organize-imports: ^1.1.1
