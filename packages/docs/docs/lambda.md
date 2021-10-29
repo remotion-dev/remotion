@@ -30,14 +30,6 @@ title: "@remotion/lambda"
 
 [**See here**](/docs/lambda/setup)
 
-## Considerations
-
-Currently hardcoded but you will need to decide in the future:
-
-- Decide memory limit
-- Decide lambda timeout
-- Decide parallelism
-
 ## Region selection
 
 Starting from release `2.2.0-alpha.6c60bafb`, you can select an AWS region (previously `eu-central-1` was hardcoded) using the `AWS_REGION` environment variable. The default value is `us-east-1`.
@@ -95,12 +87,10 @@ Everything you can do using the CLI, you can also control using Node.JS APIs. Re
 
 ## Known issues
 
-- [ ] Sometimes an error `Unable to spawn browser` is shown - you can ignore it
 - [ ] AWS permissions are looser than necessary
 - [ ] Permission validation command sometimes breaks
 - [ ] Costs are not calculated accurately (probably slightly higher than effective)
 - [ ] Rendering using more than 1000 chunks is undefined behavior, things will break
-- [ ] There is no way to disable chunk optimization
 
 ## License
 

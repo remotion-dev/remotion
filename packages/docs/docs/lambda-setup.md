@@ -9,23 +9,31 @@ import TabItem from '@theme/TabItem';
 
 ## 1. Install `@remotion/lambda`
 
-Check the newest version number in the #lambda Discord channel
+Check the newest version number in the #lambda Discord channel (link at the top of the page)
 
 ```
 npm i @remotion/lambda@<version-number>
 ```
 
-Also update **all the other Remotion packages** to have the same version: `remotion`, `@remotion/cli`, `@remotion/bundler` Make sure no package version number has a `^` character in front of it as it will install a different version.
+Also update **all the other Remotion packages** to have the same version: `remotion`, `@remotion/cli`, `@remotion/bundler`
+
+:::tip
+Make sure no package version number has a `^` character in front of it as it will install a different version.
+:::
 
 Your package.json should look like the following:
 
 ```json
-  "@remotion/bundler": "2.4.0-alpha.[versionhash]",
-  "@remotion/cli": "2.4.0-alpha.[versionhash]",
-  "@remotion/lambda": "2.4.0-alpha.[versionhash]",
+  "@remotion/bundler": "3.0.0-lambda.[versionhash]",
+  "@remotion/cli": "3.0.0-lambda.[versionhash]",
+  "@remotion/lambda": "3.0.0-lambda.[versionhash]",
   // ...
-  "remotion": "2.4.0-alpha.[versionhash]",
+  "remotion": "3.0.0-lambda.[versionhash]",
 ```
+
+:::tip
+You can install `@remotion/lambda` in any project, not just a Remotion one, but remember to install `react` and `react-dom` peer dependencies
+:::
 
 ## 2. Create role policy
 

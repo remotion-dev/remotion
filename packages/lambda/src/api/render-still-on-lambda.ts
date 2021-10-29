@@ -65,5 +65,6 @@ export const renderStillOnLambda = async ({
 		url: res.output,
 		size: res.size,
 		bucketName: res.bucketName,
+		renderId: res.renderId,
 	};
 };

@@ -14,6 +14,12 @@ Keep track of changes to the APIs of Remotion Lambda here.
 1. Redeploy your function: `npx remotion lambda functions deploy`
 1. Migrate according to the changelog below:
 
+## Unreleased
+
+- `renderStillOnLambda()` returns a `renderId` now
+- Documented `downloadVideo()` method
+- `downloadVideo()` return value property renamed from `size` to `sizeInBytes`
+
 ## October 29th, 2021
 
 Version hash: `3.0.0-lambda.42+838a7a013`
