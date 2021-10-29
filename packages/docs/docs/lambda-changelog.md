@@ -16,10 +16,12 @@ Keep track of changes to the APIs of Remotion Lambda here.
 
 ## Unreleased
 
-- `renderStillOnLambda()` returns a `renderId` now
+- ⚠️ `deploySite()` now returns `serveUrl` instead of `url`
+- `renderStillOnLambda()` returns a new field: `renderId`
 - Documented `downloadVideo()` method
 - `downloadVideo()` return value property renamed from `size` to `sizeInBytes`
 - Command `npx remotion lambda sites ls` now supports `-q` flag
+- `getSites()` command now returns a `serveUrl` for each site
 
 ## October 29th, 2021
 

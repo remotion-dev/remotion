@@ -62,11 +62,12 @@ test('Should apply name if given', async () => {
 		})
 	).toEqual({
 		siteName: 'testing',
-		url: 'https://remotionlambda-abcdef.s3.ap-northeast-1.amazonaws.com/sites/testing',
+		serveUrl:
+			'https://remotionlambda-abcdef.s3.ap-northeast-1.amazonaws.com/sites/testing/index.html',
 	});
 });
 
-test('Should use random hash if no siteName is given', async () => {
+test('Should use a random hash if no siteName is given', async () => {
 	const {bucketName} = await getOrCreateBucket({
 		region: 'ap-northeast-1',
 	});
@@ -79,7 +80,8 @@ test('Should use random hash if no siteName is given', async () => {
 		})
 	).toEqual({
 		siteName: 'testing',
-		url: 'https://remotionlambda-abcdef.s3.ap-northeast-1.amazonaws.com/sites/testing',
+		serveUrl:
+			'https://remotionlambda-abcdef.s3.ap-northeast-1.amazonaws.com/sites/testing/index.html',
 	});
 });
 

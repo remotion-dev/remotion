@@ -14,6 +14,7 @@ import {getActualConcurrency} from './get-concurrency';
 import {getFrameCount} from './get-frame-range';
 import {getFrameToRender} from './get-frame-to-render';
 import {DEFAULT_IMAGE_FORMAT} from './image-format';
+import {normalizeServeUrl} from './normalize-serve-url';
 import {openBrowser} from './open-browser';
 import {Pool} from './pool';
 import {provideScreenshot} from './provide-screenshot';
@@ -140,7 +141,7 @@ export const renderFrames = async ({
 			initialFrame,
 		});
 
-		const site = `${serveUrl}/index.html?composition=${compositionId}`;
+		const site = `${normalizeServeUrl(serveUrl)}?composition=${compositionId}`;
 		await page.goto(site);
 		page.off('error', errorCallback);
 		page.off('pageerror', errorCallback);
