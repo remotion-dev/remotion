@@ -2,6 +2,7 @@ import {lambdaLs} from '../functions/helpers/io';
 import {AwsRegion} from '../pricing/aws-regions';
 import {getSitesKey} from '../shared/constants';
 import {getAccountId} from '../shared/get-account-id';
+import {makeS3ServeUrl} from '../shared/make-s3-url';
 import {BucketWithLocation, getRemotionS3Buckets} from './get-buckets';
 
 type Site = {
@@ -9,6 +10,7 @@ type Site = {
 	lastModified: number | null;
 	bucketName: string;
 	id: string;
+	serveUrl: string;
 };
 
 type GetSitesReturnValue = {
@@ -51,6 +53,11 @@ export const getSites = async ({
 					bucketName: bucket.name,
 					lastModified: null,
 					id: siteId,
+					serveUrl: makeS3ServeUrl({
+						bucketName: bucket.name,
+						region,
+						subFolder: getSitesKey(siteId),
+					}),
 				};
 			}
 

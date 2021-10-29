@@ -175,7 +175,7 @@ const { bucketName } = await getOrCreateBucket({
   region: "us-east-1",
 });
 // ---cut---
-const { url } = await deploySite({
+const { serveUrl } = await deploySite({
   bucketName,
   entryPoint: path.resolve(process.cwd(), "src/index.tsx"),
   region: "us-east-1",

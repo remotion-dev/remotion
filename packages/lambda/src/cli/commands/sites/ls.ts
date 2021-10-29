@@ -1,8 +1,8 @@
 import {CliInternals} from '@remotion/cli';
 import {Log} from '@remotion/cli/dist/log';
 import {getSites} from '../../../api/get-sites';
-import {makeS3Url} from '../../../shared/make-s3-url';
-import {parsedLambdaCli, quietFlagProvided} from '../../args';
+import {makeS3ServeUrl} from '../../../shared/make-s3-url';
+import {quietFlagProvided} from '../../args';
 import {getAwsRegion} from '../../get-aws-region';
 import {dateString} from '../../helpers/date-string';
 import {formatBytes} from '../../helpers/format-bytes';
@@ -55,13 +55,7 @@ export const sitesLsSubcommand = async () => {
 				site.lastModified ? dateString(new Date(site.lastModified)) : 'n/a',
 			])
 		);
-		Log.info(
-			makeS3Url({
-				bucketName: site.bucketName,
-				region,
-				subFolder: `sites/${site.id}`,
-			})
-		);
+		Log.info(site.serveUrl);
 		Log.info();
 	}
 };

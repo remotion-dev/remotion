@@ -118,7 +118,7 @@ export const renderCommand = async (args: string[]) => {
 				})
 			);
 			if (outName) {
-				const {outputPath, size} = await downloadVideo({
+				const {outputPath, sizeInBytes} = await downloadVideo({
 					bucketName: res.bucketName,
 					outPath: outName,
 					region: getAwsRegion(),
@@ -133,7 +133,7 @@ export const renderCommand = async (args: string[]) => {
 				);
 				Log.info();
 				Log.info();
-				Log.info('Done!', outputPath, formatBytes(size));
+				Log.info('Done!', outputPath, formatBytes(sizeInBytes));
 			} else {
 				Log.info();
 				Log.info();

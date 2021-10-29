@@ -1,6 +1,7 @@
 import {Browser as PuppeteerBrowser, Page} from 'puppeteer-core';
 import {Browser, BrowserExecutable, Internals, TCompMetadata} from 'remotion';
 import {BrowserLog} from './browser-log';
+import {normalizeServeUrl} from './normalize-serve-url';
 import {openBrowser} from './open-browser';
 import {setPropsAndEnv} from './set-props-and-env';
 
@@ -95,7 +96,7 @@ export const getCompositions = async (
 		initialFrame: 0,
 	});
 
-	const urlToVisit = `${serveUrl}/index.html?evaluation=true`;
+	const urlToVisit = `${normalizeServeUrl(serveUrl)}?evaluation=true`;
 	const pageRes = await page.goto(urlToVisit);
 	if (pageRes.status() !== 200) {
 		throw new Error(

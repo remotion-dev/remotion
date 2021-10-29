@@ -8,6 +8,7 @@ import {
 	StillImageFormat,
 	TCompMetadata,
 } from 'remotion';
+import {normalizeServeUrl} from './normalize-serve-url';
 import {openBrowser} from './open-browser';
 import {provideScreenshot} from './provide-screenshot';
 import {seekToFrame} from './seek-to-frame';
@@ -119,7 +120,7 @@ export const renderStill = async ({
 	};
 
 	page.on('pageerror', errorCallback);
-	const site = `${serveUrl}/index.html?composition=${composition.id}`;
+	const site = `${normalizeServeUrl(serveUrl)}?composition=${composition.id}`;
 	await setPropsAndEnv({
 		inputProps,
 		envVariables,
