@@ -16,7 +16,7 @@ Keep track of changes to the APIs of Remotion Lambda here.
 
 ## October 29th, 2021
 
-Version hash: `3.0.0-lambda.41+7af17bde3`
+Version hash: `3.0.0-lambda.42+838a7a013`
 Lambda version: '2021-10-29'
 
 - Merged changes from Remotion 2.5.1
