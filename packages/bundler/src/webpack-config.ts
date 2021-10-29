@@ -56,8 +56,7 @@ export const webpackConfig = ({
 					name: getWebpackCacheName(environment, inputProps ?? {}),
 			  }
 			: false,
-		devtool:
-			environment === 'development' ? 'eval' : 'cheap-module-source-map ',
+		devtool: environment === 'development' ? 'eval' : 'cheap-module-source-map',
 		entry: [
 			require.resolve('./setup-environment'),
 			environment === 'development'
