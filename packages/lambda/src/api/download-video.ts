@@ -15,7 +15,7 @@ type DownloadVideoInput = {
 
 type DownloadVideoOutput = {
 	outputPath: string;
-	size: number;
+	sizeInBytes: number;
 };
 
 export const downloadVideo = async (
@@ -50,6 +50,6 @@ export const downloadVideo = async (
 	const {size} = await fs.promises.stat(outputPath);
 	return {
 		outputPath,
-		size,
+		sizeInBytes: size,
 	};
 };

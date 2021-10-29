@@ -169,6 +169,7 @@ export const innerStillHandler = async (
 		size,
 		bucketName,
 		estimatedPrice: formatCostsInfo(estimatedPrice),
+		renderId,
 	};
 };
 

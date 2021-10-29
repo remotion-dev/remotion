@@ -13,7 +13,7 @@ You can get a list of all commands using `npx remotion lambda --help`.
 
 Selects an AWS region: For example:
 
-```console
+```
 --region=eu-central-1
 ```
 
@@ -29,7 +29,7 @@ Skips confirmation when doing a destructive action.
 
 Uploads a Remotion project to an S3 bucket. You will get a URL which you can pass to the `render` command to render the video.
 
-```console
+```
 npx remotion lambda sites create src/index.ts
 ```
 
@@ -37,7 +37,7 @@ npx remotion lambda sites create src/index.ts
 
 Lists the sites uploaded to the S3 buckets
 
-```console
+```
 npx remotion lambda sites ls
 ```
 
@@ -45,7 +45,7 @@ npx remotion lambda sites ls
 
 Deletes a site from an S3 bucket.
 
-```console
+```
 npx remotion lambda sites rm f87nffa
 ```
 
@@ -113,7 +113,7 @@ npx remotion lambda functions deploy
 
 List the functions deployed to your AWS account.
 
-```console
+```
 npx remotion lambda functions ls
 ```
 
@@ -121,7 +121,7 @@ npx remotion lambda functions ls
 
 Removes a render function from your AWS account.
 
-```console
+```
 npx remotion lambda functions rm remotion lambda-4y2y1aaf
 ```
 

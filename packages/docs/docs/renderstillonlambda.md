@@ -15,25 +15,22 @@ If you want to render a still locally instead, use [`renderStill()`](/docs/rende
 ```tsx twoslash
 // @module: esnext
 // @target: es2017
-import {renderStillOnLambda} from '@remotion/lambda';
+import { renderStillOnLambda } from "@remotion/lambda";
 // ---cut---
 
-const {
-  estimatedPrice,
-  url,
-  size
-} = await renderStillOnLambda({
-  region: 'us-east-1',
-  functionName: 'remotion-render-bds9aab',
-  serveUrl: 'https://remotionlambda-qg35eyp1s1.s3.eu-central-1.amazonaws.com/sites/bf2jrbfkw',
-  composition: 'MyVideo',
+const { estimatedPrice, url, size } = await renderStillOnLambda({
+  region: "us-east-1",
+  functionName: "remotion-render-bds9aab",
+  serveUrl:
+    "https://remotionlambda-qg35eyp1s1.s3.eu-central-1.amazonaws.com/sites/bf2jrbfkw",
+  composition: "MyVideo",
   inputProps: {},
-  imageFormat: 'png',
+  imageFormat: "png",
   maxRetries: 3,
-  privacy: 'public',
+  privacy: "public",
   envVariables: {},
-  frame: 10
-})
+  frame: 10,
+});
 ```
 
 ## Arguments
@@ -113,9 +110,13 @@ An AWS S3 URL where the output is available.
 
 Object containing roughly estimated information about how expensive this operation was.
 
-### `size`
+### `sizeInBytes`
 
 The size of the output image in bytes.
+
+### `renderId`
+
+A unique alphanumeric identifier for this render. Useful for obtaining status and finding the relevant files in the S3 bucket.
 
 ## See also
 
