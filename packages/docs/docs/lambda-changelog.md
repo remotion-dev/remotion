@@ -14,6 +14,13 @@ Keep track of changes to the APIs of Remotion Lambda here.
 1. Redeploy your function: `npx remotion lambda functions deploy`
 1. Migrate according to the changelog below:
 
+## October 29th, 2021
+
+Version hash: `3.0.0-lambda.41+7af17bde3`
+Lambda version: '2021-10-29'
+
+- Merged changes from Remotion 2.5.1
+
 ## October 27th, 2021
 
 Version hash: `3.0.0-lambda.37+874f731d5`
