@@ -75,7 +75,7 @@ export const stitchFramesToVideo = async (options: {
 	const crf = options.crf ?? Internals.getDefaultCrfForCodec(codec);
 	const imageFormat = options.imageFormat ?? DEFAULT_IMAGE_FORMAT;
 	const pixelFormat = options.pixelFormat ?? Internals.DEFAULT_PIXEL_FORMAT;
-	await validateFfmpeg();
+	await validateFfmpeg(options.ffmpegExecutable ?? null);
 
 	const encoderName = getCodecName(codec);
 	const audioCodecName = getAudioCodecName(codec);
@@ -87,7 +87,7 @@ export const stitchFramesToVideo = async (options: {
 	if (options.verbose) {
 		console.log(
 			'[verbose] ffmpeg',
-			Internals.getCustomFfmpegExecutable() ?? 'ffmpeg in PATH'
+			options.ffmpegExecutable ?? 'ffmpeg in PATH'
 		);
 		console.log('[verbose] encoder', encoderName);
 		console.log('[verbose] audioCodec', audioCodecName);
@@ -196,11 +196,9 @@ export const stitchFramesToVideo = async (options: {
 		.reduce<(string | null)[]>((acc, val) => acc.concat(val), [])
 		.filter(Boolean) as string[];
 
-	const task = execa(
-		Internals.getCustomFfmpegExecutable() ?? 'ffmpeg',
-		ffmpegString,
-		{cwd: options.dir}
-	);
+	const task = execa(options.ffmpegExecutable ?? 'ffmpeg', ffmpegString, {
+		cwd: options.dir,
+	});
 
 	task.stderr?.on('data', (data: Buffer) => {
 		if (options.onProgress) {

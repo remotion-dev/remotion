@@ -42,7 +42,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 	// but at the same time the same on all threads
 	const id = useMemo(
 		() =>
-			`audio-${random(props.src ?? '')}-${sequenceContext?.cumulatedFrom}-${
+			`video-${random(props.src ?? '')}-${sequenceContext?.cumulatedFrom}-${
 				sequenceContext?.relativeFrom
 			}-${sequenceContext?.durationInFrames}-muted:${props.muted}`,
 		[

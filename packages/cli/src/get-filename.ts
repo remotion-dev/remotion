@@ -129,7 +129,7 @@ export const getOutputFilename = ({
 	if (codec === 'wav') {
 		if (extension !== 'wav') {
 			Log.error(
-				"When using the 'wav' codec, the output locatio must end in .wav."
+				"When using the 'wav' codec, the output location must end in .wav."
 			);
 			process.exit(1);
 		}

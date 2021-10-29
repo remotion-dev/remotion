@@ -33,7 +33,7 @@ export const ffmpegHasFeature = async ({
 		return true;
 	}
 
-	if (!(await binaryExists('ffmpeg'))) {
+	if (!(await binaryExists('ffmpeg', ffmpegExecutable))) {
 		return false;
 	}
 

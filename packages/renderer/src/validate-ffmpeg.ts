@@ -6,7 +6,10 @@ import {Internals} from 'remotion';
 
 const existsMap: {[key: string]: boolean} = {};
 
-export const binaryExists = async (name: 'ffmpeg' | 'brew') => {
+export const binaryExists = async (
+	name: 'ffmpeg' | 'brew',
+	localFFmpeg: string | null
+) => {
 	if (typeof existsMap[name] !== 'undefined') {
 		return existsMap[name];
 	}
@@ -16,7 +19,6 @@ export const binaryExists = async (name: 'ffmpeg' | 'brew') => {
 		return fs.existsSync('/opt/bin/ffmpeg');
 	}
 
-	const localFFmpeg = Internals.getCustomFfmpegExecutable();
 	if (name === 'ffmpeg' && localFFmpeg) {
 		try {
 			statSync(localFFmpeg);
@@ -41,11 +43,13 @@ export const binaryExists = async (name: 'ffmpeg' | 'brew') => {
 };
 
 export const isHomebrewInstalled = async (): Promise<boolean> => {
-	return binaryExists('brew');
+	return binaryExists('brew', null);
 };
 
-export const validateFfmpeg = async (): Promise<void> => {
-	const ffmpegExists = await binaryExists('ffmpeg');
+export const validateFfmpeg = async (
+	customFfmpegBinary: string | null
+): Promise<void> => {
+	const ffmpegExists = await binaryExists('ffmpeg', customFfmpegBinary);
 	if (!ffmpegExists) {
 		if (Internals.getCustomFfmpegExecutable()) {
 			console.error('FFmpeg executable not found:');
