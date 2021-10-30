@@ -22,6 +22,9 @@ Keep track of changes to the APIs of Remotion Lambda here.
 - `downloadVideo()` return value property renamed from `size` to `sizeInBytes`
 - Command `npx remotion lambda sites ls` now supports `-q` flag
 - `getSites()` command now returns a `serveUrl` for each site
+- Deleted the `cleanup` command
+- Added [/docs/lambda/production-checklist](Production checklist entry)
+- Added [/docs/lambda/uninstall](Uninstall guide)
 
 ## October 29th, 2021
 
