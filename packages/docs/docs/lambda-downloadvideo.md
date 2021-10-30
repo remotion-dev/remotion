@@ -11,7 +11,7 @@ Downloads a rendered video to your local disk.
 // @target: ESNext
 import { downloadVideo } from "@remotion/lambda";
 
-const { outputPath, size } = await downloadVideo({
+const { outputPath, sizeInBytes } = await downloadVideo({
   bucketName: "remotionlambda-r42fs9fk",
   region: "us-east-1",
   renderId: "8hfxlw",
@@ -19,7 +19,7 @@ const { outputPath, size } = await downloadVideo({
 });
 
 console.log(outputPath); // "/Users/yourname/remotion-project/out.mp4"
-console.log(size); // 21249541
+console.log(sizeInBytes); // 21249541
 ```
 
 ## Arguments

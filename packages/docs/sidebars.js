@@ -36,6 +36,7 @@ module.exports = {
         "simulatepermissions",
       ],
     },
+    "lambda-checklist",
     "lambda-changelog",
     "lambda-uninstall",
   ],
