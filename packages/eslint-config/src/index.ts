@@ -43,6 +43,8 @@ const getRules = (typescript: boolean) => {
     "@remotion/warn-native-media-tag": "warn",
     "@remotion/deterministic-randomness": "warn",
     "@remotion/no-string-assets": "warn",
+    "@remotion/even-dimensions": "warn",
+    "@remotion/duration-in-frames": "warn",
     "@typescript-eslint/explicit-module-boundary-types": "off",
   };
 };

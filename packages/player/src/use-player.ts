@@ -1,4 +1,4 @@
-import {useCallback, useContext, useMemo, useRef} from 'react';
+import {SyntheticEvent, useCallback, useContext, useMemo, useRef} from 'react';
 import {Internals} from 'remotion';
 import {PlayerEventEmitterContext} from './emitter-context';
 import {PlayerEmitter} from './event-emitter';
@@ -9,15 +9,18 @@ export const usePlayer = (): {
 	isLastFrame: boolean;
 	emitter: PlayerEmitter;
 	playing: boolean;
-	play: () => void;
+	play: (e?: SyntheticEvent) => void;
 	pause: () => void;
 	seek: (newFrame: number) => void;
 	getCurrentFrame: () => number;
+	isPlaying: () => boolean;
 } => {
-	const [playing, setPlaying] = Internals.Timeline.usePlayingState();
+	const [playing, setPlaying, imperativePlaying] =
+		Internals.Timeline.usePlayingState();
 	const frame = Internals.Timeline.useTimelinePosition();
 	const setFrame = Internals.Timeline.useTimelineSetFrame();
 	const setTimelinePosition = Internals.Timeline.useTimelineSetFrame();
+	const audioContext = useContext(Internals.SharedAudioContext);
 
 	const frameRef = useRef<number>();
 	frameRef.current = frame;
@@ -40,62 +43,68 @@ export const usePlayer = (): {
 		[emitter, setTimelinePosition]
 	);
 
-	const play = useCallback(() => {
-		if (playing) {
-			return;
-		}
-
-		if (isLastFrame) {
-			seek(0);
-		}
-
-		setPlaying(true);
-		emitter.dispatchPlay();
-	}, [playing, isLastFrame, setPlaying, emitter, seek]);
-
-	const pause = useCallback(() => {
-		if (playing) {
-			setPlaying(false);
-			emitter.dispatchPause();
-		}
-	}, [emitter, playing, setPlaying]);
-
-	const frameBack = useCallback(
-		(frames: number) => {
-			if (!video) {
-				return null;
-			}
-
-			if (playing) {
-				return;
-			}
-
-			if (frame === 0) {
-				return;
-			}
-
-			setFrame((f) => Math.max(0, f - frames));
-		},
-		[frame, playing, setFrame, video]
-	);
-
-	const frameForward = useCallback(
-		(frames: number) => {
-			if (!video) {
-				return null;
-			}
-
-			if (playing) {
+	const play = useCallback(
+		(e?: SyntheticEvent) => {
+			if (imperativePlaying.current) {
 				return;
 			}
 
 			if (isLastFrame) {
+				seek(0);
+			}
+
+			if (audioContext && audioContext.numberOfAudioTags > 0 && e) {
+				audioContext.playAllAudios();
+			}
+
+			imperativePlaying.current = true;
+			setPlaying(true);
+			emitter.dispatchPlay();
+		},
+		[imperativePlaying, isLastFrame, audioContext, setPlaying, emitter, seek]
+	);
+
+	const pause = useCallback(() => {
+		if (imperativePlaying.current) {
+			imperativePlaying.current = false;
+
+			setPlaying(false);
+			emitter.dispatchPause();
+		}
+	}, [emitter, imperativePlaying, setPlaying]);
+
+	const hasVideo = Boolean(video);
+
+	const frameBack = useCallback(
+		(frames: number) => {
+			if (!hasVideo) {
+				return null;
+			}
+
+			if (imperativePlaying.current) {
+				return;
+			}
+
+			setFrame((f) => {
+				return Math.max(0, f - frames);
+			});
+		},
+		[hasVideo, imperativePlaying, setFrame]
+	);
+
+	const frameForward = useCallback(
+		(frames: number) => {
+			if (!hasVideo) {
+				return null;
+			}
+
+			if (imperativePlaying.current) {
 				return;
 			}
 
 			setFrame((f) => Math.min(lastFrame, f + frames));
 		},
-		[isLastFrame, lastFrame, playing, setFrame, video]
+		[hasVideo, imperativePlaying, lastFrame, setFrame]
 	);
 
 	const returnValue = useMemo(() => {
@@ -109,11 +118,13 @@ export const usePlayer = (): {
 			pause,
 			seek,
 			getCurrentFrame: () => frameRef.current as number,
+			isPlaying: () => imperativePlaying.current as boolean,
 		};
 	}, [
 		emitter,
 		frameBack,
 		frameForward,
+		imperativePlaying,
 		isLastFrame,
 		pause,
 		play,

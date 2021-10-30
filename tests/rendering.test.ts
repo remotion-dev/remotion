@@ -59,7 +59,7 @@ test("Should fail to render out of range CRF", async () => {
       reject: false,
     }
   );
-  expect(task.exitCode).toBe(process.platform === "win32" ? 0 : 1);
+  expect(task.exitCode).toBe(1);
   expect(task.stderr).toContain("CRF must be between ");
 });
 
@@ -82,7 +82,7 @@ test("Should fail to render out of range frame when range is a number", async ()
       reject: false,
     }
   );
-  expect(task.exitCode).toBe(process.platform === "win32" ? 0 : 1);
+  expect(task.exitCode).toBe(1);
   expect(task.stderr).toContain(
     "Frame number is out of range, must be between 0 and 9"
   );
@@ -104,7 +104,7 @@ test("Should fail to render out of range frame when range is a string", async ()
       reject: false,
     }
   );
-  expect(task.exitCode).toBe(process.platform === "win32" ? 0 : 1);
+  expect(task.exitCode).toBe(1);
   expect(task.stderr).toContain("Frame range 2-10 is not in between 0-9");
 });
 
@@ -258,7 +258,7 @@ test("Should render a video with GIFs", async () => {
   const info = await execa("ffprobe", [outputPath]);
   const data = info.stderr;
   expect(data).toContain("Video: h264");
-  expect(data).toContain("Duration: 00:00:01.57");
+  expect(data).toContain("Duration: 00:00:01.60");
   fs.unlinkSync(outputPath);
 });
 
@@ -299,7 +299,7 @@ test("Dynamic duration should work", async () => {
     }
   );
 
-  expect(task.exitCode).toBe(0);
+  expect(task.exitCode).toBe(Number(process.platform === "win32"));
   // FIXME: --props don't work well on windows, this is an edge case for example
   // In this case we should warn the user about it that they should pass a file path instead
   expect(fs.existsSync(outputPath)).toBe(process.platform !== "win32");

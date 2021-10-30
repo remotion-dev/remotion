@@ -20,6 +20,11 @@ const FEATURED_TEMPLATES: TEMPLATES[] = [
 		description: 'The default starter template (recommended)',
 	},
 	{
+		shortName: 'Blank',
+		name: 'remotion-dev/template-empty',
+		description: 'Nothing except an empty canvas',
+	},
+	{
 		shortName: 'Hello World (Javascript)',
 		name: 'remotion-dev/template-helloworld-javascript',
 		description: 'The default starter template in plain JS',
@@ -97,7 +102,7 @@ const isGitExecutableAvailable = async () => {
 		await execa('git', ['--version']);
 		return true;
 	} catch (e) {
-		if (e.errno === 'ENOENT') {
+		if ((e as {errno: string}).errno === 'ENOENT') {
 			Log.warn('Unable to find `git` command. `git` not in PATH.');
 			return false;
 		}
@@ -118,7 +123,7 @@ const initGitRepoAsync = async (
 				'New project is already inside of a git repo, skipping git init.'
 			);
 	} catch (e) {
-		if (e.errno === 'ENOENT') {
+		if ((e as {errno: string}).errno === 'ENOENT') {
 			!flags.silent &&
 				Log.warn('Unable to initialize git repo. `git` not in PATH.');
 			return false;
@@ -171,7 +176,7 @@ const resolveProjectRootAsync = async () => {
 		}
 	} catch (error) {
 		// Handle the aborted message in a custom way.
-		if (error.code !== 'ABORTED') {
+		if ((error as {code: string}).code !== 'ABORTED') {
 			throw error;
 		}
 	}
@@ -212,7 +217,6 @@ export const init = async () => {
 						title:
 							chalk.bold(padEnd(template.shortName, descriptionColumn)) +
 							template.description.trim(),
-						short: template.name,
 					};
 				}
 			}),

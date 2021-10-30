@@ -104,8 +104,7 @@ export const showcaseVideos: ShowcaseVideo[] = [
       },
       {
         type: "video",
-        url:
-          "https://twitter.com/FlorentPergoud/status/1371874105281159178?s=20",
+        url: "https://twitter.com/FlorentPergoud/status/1371874105281159178?s=20",
       },
     ],
     author: {
@@ -270,8 +269,7 @@ export const showcaseVideos: ShowcaseVideo[] = [
       },
       {
         type: "source_code",
-        url:
-          "https://github.com/c0/remotion-playground/blob/main/src/GooBallCSS.jsx",
+        url: "https://github.com/c0/remotion-playground/blob/main/src/GooBallCSS.jsx",
       },
     ],
     author: {
@@ -315,8 +313,7 @@ export const showcaseVideos: ShowcaseVideo[] = [
       },
       {
         type: "website",
-        url:
-          "https://www.youtube.com/channel/UCRBZkDc7udWuxrvedrFUbCQ/featured",
+        url: "https://www.youtube.com/channel/UCRBZkDc7udWuxrvedrFUbCQ/featured",
       },
     ],
     author: {
@@ -408,8 +405,7 @@ export const showcaseVideos: ShowcaseVideo[] = [
       },
       {
         type: "website",
-        url:
-          "https://www.quantargo.com/blog/2021-02-26-new-course-advanced-data-transformation/",
+        url: "https://www.quantargo.com/blog/2021-02-26-new-course-advanced-data-transformation/",
       },
     ],
     author: {
@@ -622,28 +618,27 @@ export const showcaseVideos: ShowcaseVideo[] = [
     },
   },
   {
-    title: "ChessExpressed",
+    title: "Podopi - Convert a Blog to Podcast",
     type: "mux_video",
-    muxId: "00kMu8F202f3nS6JJy8UUw8hAkrsoAKdC49bYvCboWN8g",
+    muxId: "wvTZmoaRnhpGuc93nd39vz4MpSeOkXjnS5XFzOK01Lco",
     description:
-      "Videos of classic chess matchups with space domination visualized.",
+      "This promo video is done by using Remotion. It shows you how easily you can extend your blog to a podcast.",
     height: 720,
     width: 1280,
-    submittedOn: new Date("08-05-2021"),
+    submittedOn: new Date("09-10-2021"),
     links: [
       {
         type: "video",
-        url: "https://www.youtube.com/watch?v=477uHt7-0jQ",
+        url: "https://www.youtube.com/watch?v=yYbBVCo0BVw",
       },
       {
         type: "website",
-        url:
-          "https://www.youtube.com/channel/UCM9AuQuwPOLhb07wA3_2a-Q/featured",
+        url: "https://www.podopi.com/",
       },
     ],
     author: {
-      url: "https://twitter.com/ChessExpressed",
-      name: "ChessExpressed",
+      url: "https://twitter.com/Miickel",
+      name: "Mickel Andersson",
     },
   },
   {
@@ -658,13 +653,11 @@ export const showcaseVideos: ShowcaseVideo[] = [
     links: [
       {
         type: "video",
-        url:
-          "https://discord.com/channels/809501355504959528/817306292590215181/820365999697952790",
+        url: "https://discord.com/channels/809501355504959528/817306292590215181/820365999697952790",
       },
     ],
     author: {
-      url:
-        "https://discord.com/channels/809501355504959528/817306292590215181/820365999697952790",
+      url: "https://discord.com/channels/809501355504959528/817306292590215181/820365999697952790",
       name: "Suthar",
     },
   },
@@ -754,13 +747,11 @@ export const showcaseVideos: ShowcaseVideo[] = [
     links: [
       {
         type: "video",
-        url:
-          "https://www.udemy.com/course/the-cloud-architects-guide-to-cloudfront/",
+        url: "https://www.udemy.com/course/the-cloud-architects-guide-to-cloudfront/",
       },
       {
         type: "website",
-        url:
-          "https://www.udemy.com/course/the-cloud-architects-guide-to-cloudfront/",
+        url: "https://www.udemy.com/course/the-cloud-architects-guide-to-cloudfront/",
       },
     ],
     author: {
@@ -819,7 +810,7 @@ export const showcaseVideos: ShowcaseVideo[] = [
   {
     title: "Liquid Swipe Tutorial Intro",
     type: "mux_video",
-    muxId: "kNJDX8EkZzclZa01SBTCtRbma2fqgPzIJKczHntB01m84",
+    muxId: "01h4QMewhXr0249p1k8buxKgcN86hmS3VgRDPenY6Yyr4",
     description:
       "This intro warms you up for an awesome React Native tutorial on how to recreate a Liquid Swipe animation.",
     height: 360,
@@ -912,6 +903,26 @@ export const showcaseVideos: ShowcaseVideo[] = [
     },
   },
   {
+    title: "EcoEats",
+    type: "mux_video",
+    muxId: "XJpfsCytTHSoAyVwfObPVXbNN64Thj2Z8pLvoqO1Ocs",
+    description:
+      "A promo video for a zero emission takeaway and grocery delivery service.",
+    height: 1080,
+    width: 1080,
+    submittedOn: new Date("08-28-2021"),
+    links: [
+      {
+        type: "video",
+        url: "https://cdn.ecoeats.uk/videos/merchant-features/06c07944-6d13-4188-8356-d42d744ba54e/raw-pressed-market-street.mp4",
+      },
+    ],
+    author: {
+      url: "https://ecoeats.uk/",
+      name: "EcoEats",
+    },
+  },
+  {
     title: "Lotus App",
     type: "mux_video",
     muxId: "LAtfpU01MnxJc200ccLrLVPanKx7wSv1NNT42027Ptq4VI",
@@ -973,6 +984,29 @@ export const showcaseVideos: ShowcaseVideo[] = [
     author: {
       url: "https://bf.wtf/",
       name: "Ben Follington",
+    },
+  },
+  {
+    title: "Feature overview",
+    type: "mux_video",
+    muxId: "d2SvbrhHvyJZb2EmSv441M601UBy1dfEYfToKGqDpV01Y",
+    description: "A showcase of features in the new Bottom Sheet library.",
+    height: 640,
+    width: 1280,
+    submittedOn: new Date("10-04-2021"),
+    links: [
+      {
+        type: "video",
+        url: "https://twitter.com/Gorhom/status/1432363415272558593",
+      },
+      {
+        type: "website",
+        url: "https://gorhom.github.io/react-native-bottom-sheet/blog/bottom-sheet-v4/",
+      },
+    ],
+    author: {
+      url: "https://gorhom.dev/",
+      name: "Mo Gorhim",
     },
   },
 ];

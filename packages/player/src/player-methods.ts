@@ -1,10 +1,12 @@
+import {SyntheticEvent} from 'react';
 import {PlayerEmitter} from './event-emitter';
 
 export type PlayerMethods = {
-	play: () => void;
+	play: (e?: SyntheticEvent) => void;
 	pause: () => void;
 	toggle: () => void;
 	seekTo: (frame: number) => void;
+	getContainerNode: () => HTMLDivElement | null;
 	getCurrentFrame: () => number;
 	requestFullscreen: () => void;
 	exitFullscreen: () => void;

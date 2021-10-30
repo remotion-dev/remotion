@@ -11,6 +11,7 @@ import fs from 'fs';
 import os from 'os';
 import path from 'path';
 import {Internals} from 'remotion';
+import {deleteDirectory} from './delete-directory';
 import {getCliOptions} from './get-cli-options';
 import {getCompositionId} from './get-composition-id';
 import {handleCommonError} from './handle-common-errors';
@@ -65,9 +66,12 @@ export const render = async () => {
 		pixelFormat,
 		imageFormat,
 		browserExecutable,
+		ffmpegExecutable,
 	} = await getCliOptions('series');
 
-	await checkAndValidateFfmpegVersion();
+	await checkAndValidateFfmpegVersion({
+		ffmpegExecutable: Internals.getCustomFfmpegExecutable(),
+	});
 
 	const browserInstance = RenderInternals.openBrowser(browser, {
 		browserExecutable,
@@ -96,6 +100,12 @@ export const render = async () => {
 	if (!config) {
 		throw new Error(`Cannot find composition with ID ${compositionId}`);
 	}
+
+	RenderInternals.validateEvenDimensionsWithCodec({
+		width: config.width,
+		height: config.height,
+		codec,
+	});
 
 	const outputDir = shouldOutputImageSequence
 		? absoluteOutputFile
@@ -167,6 +177,14 @@ export const render = async () => {
 			throw new TypeError('CRF is unexpectedly not a number');
 		}
 
+		const dirName = path.dirname(absoluteOutputFile);
+
+		if (!fs.existsSync(dirName)) {
+			fs.mkdirSync(dirName, {
+				recursive: true,
+			});
+		}
+
 		const stitchingProgress = createProgressBar();
 
 		stitchingProgress.update(
@@ -192,6 +210,7 @@ export const render = async () => {
 			crf,
 			assetsInfo,
 			parallelism,
+			ffmpegExecutable,
 			onProgress: (frame: number) => {
 				stitchingProgress.update(
 					makeStitchingProgress({
@@ -218,14 +237,20 @@ export const render = async () => {
 
 		Log.verbose('Cleaning up...');
 		try {
-			await Promise.all([
-				(fs.promises.rm ?? fs.promises.rmdir)(outputDir, {
-					recursive: true,
-				}),
-				(fs.promises.rm ?? fs.promises.rmdir)(bundled, {
-					recursive: true,
-				}),
-			]);
+			if (process.platform === 'win32') {
+				// Properly delete directories because Windows doesn't seem to like fs.
+				await deleteDirectory(outputDir);
+				await deleteDirectory(bundled);
+			} else {
+				await Promise.all([
+					(fs.promises.rm ?? fs.promises.rmdir)(outputDir, {
+						recursive: true,
+					}),
+					(fs.promises.rm ?? fs.promises.rmdir)(bundled, {
+						recursive: true,
+					}),
+				]);
+			}
 		} catch (err) {
 			Log.warn('Could not clean up directory.');
 			Log.warn(err);

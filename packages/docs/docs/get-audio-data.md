@@ -29,12 +29,12 @@ A string pointing to an audio asset.
 ```ts twoslash
 // @module: ESNext
 // @target: ESNext
-import {Audio} from "remotion"
+import { Audio } from "remotion";
 // ---cut---
-import {getAudioData} from '@remotion/media-utils'
-import music from './music.mp3'
+import { getAudioData } from "@remotion/media-utils";
+import music from "./music.mp3";
 
-await getAudioData(music) /* {
+await getAudioData(music); /* {
   channelWaveforms: [Float32Array(4410000), Float32Array(4410000)],
   sampleRate: 44100,
   durationInSeconds: 100.0000,
@@ -42,7 +42,7 @@ await getAudioData(music) /* {
   resultId: "0.432878981",
   isRemote: false
 } */
-await getAudioData('https://example.com/remote-audio.aac') /* {
+await getAudioData("https://example.com/remote-audio.aac"); /* {
   channelWaveforms: [Float32Array(4800000)],
   sampleRate: 48000,
   durationInSeconds: 100.0000,
@@ -59,9 +59,9 @@ If you pass in the same argument to `src` multiple times, it will return a cache
 
 ## Alternatives
 
-If you need only the duration, prefer [`getAudioDuration()`](get-audio-duration) which is faster because it doesn't need to read waveform data.
+If you need only the duration, prefer [`getAudioDuration()`](/docs/get-audio-duration) which is faster because it doesn't need to read waveform data.
 
-Use the [`useAudioData()`](use-audio-data) helper hook to not have to do state management yourself and to wrap the call in [`delayRender()`](delay-render).
+Use the [`useAudioData()`](/docs/use-audio-data) helper hook to not have to do state management yourself and to wrap the call in [`delayRender()`](/docs/delay-render).
 
 ## See also
 

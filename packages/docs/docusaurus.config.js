@@ -51,7 +51,7 @@ module.exports = {
       style: "light",
       links: [
         {
-          title: "Docs",
+          title: "Remotion",
           items: [
             {
               label: "Getting started",
@@ -60,6 +60,10 @@ module.exports = {
             {
               label: "API reference",
               to: "docs/cli",
+            },
+            {
+              label: "Changelog",
+              href: "https://github.com/remotion-dev/remotion/releases",
             },
           ],
         },
@@ -95,7 +99,7 @@ module.exports = {
               "data-splitbee-event-target": "Instagram",
             },
             {
-              label: "Tiktok",
+              label: "TikTok",
               href: "https://www.tiktok.com/@remotion.dev",
               "data-splitbee-event": "External Link",
               "data-splitbee-event-target": "TikTok",
@@ -109,7 +113,10 @@ module.exports = {
               label: "Blog",
               to: "blog",
             },
-
+            {
+              label: "Success Stories",
+              to: "success-stories",
+            },
             {
               label: "GitHub",
               href: "https://github.com/remotion-dev/remotion",
@@ -146,12 +153,33 @@ module.exports = {
       },
     ],
     [
-      "docusaurus-preset-shiki-twoslash",
+      "@jonny/docusaurus-preset-shiki-twoslash",
       {
-        themes: ["min-light", "min-dark"],
+        themes: ["github-light", "github-dark"],
         defaultCompilerOptions: {
           types: ["node"],
         },
+      },
+    ],
+  ],
+  plugins: [
+    [
+      "@docusaurus/plugin-content-blog",
+      {
+        /**
+         * Required for any multi-instance plugin
+         */
+        id: "success-stories",
+        /**
+         * URL route for the blog section of your site.
+         * *DO NOT* include a trailing slash.
+         */
+        routeBasePath: "success-stories",
+        /**
+         * Path to data on filesystem relative to site dir.
+         */
+        path: "./success-stories",
+        blogSidebarTitle: "Success stories",
       },
     ],
   ],

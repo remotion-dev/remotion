@@ -1,6 +1,7 @@
 import {Player, PlayerRef} from '@remotion/player';
 import {useEffect, useRef, useState} from 'react';
-import CarSlideshow from './CarSlideshow';
+import {AbsoluteFill} from 'remotion';
+import CarSlideshow, {playerExampleComp} from './CarSlideshow';
 
 export default function App() {
 	const [title, setTitle] = useState('Hello World');
@@ -11,6 +12,7 @@ export default function App() {
 	const [clickToPlay, setClickToPlay] = useState(true);
 	const [logs, setLogs] = useState<string[]>(() => []);
 	const [spaceKeyToPlayOrPause, setspaceKeyToPlayOrPause] = useState(true);
+	const [playbackRate, setPlaybackRate] = useState(1);
 
 	const ref = useRef<PlayerRef>(null);
 
@@ -33,6 +35,12 @@ export default function App() {
 		ref.current?.addEventListener('timeupdate', (e) => {
 			setLogs((l) => [...l, 'timeupdate ' + e.detail.frame]);
 		});
+		ref.current?.addEventListener('ratechange', (e) => {
+			setLogs((l) => [
+				...l,
+				'ratechange ' + e.detail.playbackRate + ' ' + Date.now(),
+			]);
+		});
 	}, []);
 
 	return (
@@ -54,6 +62,20 @@ export default function App() {
 					bgColor: String(bgColor),
 					color: String(color),
 				}}
+				errorFallback={({error}) => {
+					return (
+						<AbsoluteFill
+							style={{
+								backgroundColor: 'yellow',
+								justifyContent: 'center',
+								alignItems: 'center',
+							}}
+						>
+							Sorry about this! An error occurred: {error.message}
+						</AbsoluteFill>
+					);
+				}}
+				playbackRate={playbackRate}
 				spaceKeyToPlayOrPause={spaceKeyToPlayOrPause}
 			/>
 			<div style={{paddingTop: '0.5rem'}}>
@@ -86,7 +108,7 @@ export default function App() {
 			</div>
 
 			<br />
-			<button type="button" onClick={() => ref.current?.play()}>
+			<button type="button" onClick={(e) => ref.current?.play(e)}>
 				Play
 			</button>
 			<button type="button" onClick={() => ref.current?.pause()}>
@@ -162,6 +184,48 @@ export default function App() {
 			</button>
 			<button type="button" onClick={() => setspaceKeyToPlayOrPause((l) => !l)}>
 				spaceKeyToPlayOrPause = {String(spaceKeyToPlayOrPause)}
+			</button>
+			<br />
+			<button
+				type="button"
+				onClick={() => {
+					ref.current?.pause();
+					ref.current?.seekTo(50);
+				}}
+			>
+				pause and seek
+			</button>
+			<button
+				type="button"
+				onClick={() => {
+					setPlaybackRate(0.5);
+				}}
+			>
+				0.5x speed
+			</button>
+			<button
+				type="button"
+				onClick={() => {
+					setPlaybackRate(2);
+				}}
+			>
+				2x speed
+			</button>
+			<button
+				type="button"
+				onClick={() => {
+					setPlaybackRate(-1);
+				}}
+			>
+				-1x speed
+			</button>
+			<button
+				type="button"
+				onClick={() => {
+					playerExampleComp.current?.triggerError();
+				}}
+			>
+				trigger error
 			</button>
 			<br />
 			<br />

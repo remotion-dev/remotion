@@ -35,25 +35,25 @@ export const getOutputFilename = ({
 
 	if (extension === null && !imageSequence) {
 		if (codec === 'h264' || codec === 'h265') {
-			Log.info('No file extension specified, adding .mp4 automatically.');
+			Log.warn('No file extension specified, adding .mp4 automatically.');
 			filename += '.mp4';
 			extension = 'mp4';
 		}
 
 		if (codec === 'h264-mkv') {
-			Log.info('No file extension specified, adding .mkv automatically.');
+			Log.warn('No file extension specified, adding .mkv automatically.');
 			filename += '.mkv';
 			extension = 'mkv';
 		}
 
 		if (codec === 'vp8' || codec === 'vp9') {
-			Log.info('No file extension specified, adding .webm automatically.');
+			Log.warn('No file extension specified, adding .webm automatically.');
 			filename += '.webm';
 			extension = 'webm';
 		}
 
 		if (codec === 'prores') {
-			Log.info('No file extension specified, adding .mov automatically.');
+			Log.warn('No file extension specified, adding .mov automatically.');
 			filename += '.mov';
 			extension = 'mov';
 		}
@@ -63,6 +63,15 @@ export const getOutputFilename = ({
 		if (extension !== 'mp4' && extension !== 'mkv') {
 			Log.error(
 				'When using the H264 codec, the output filename must end in .mp4 or .mkv.'
+			);
+			process.exit(1);
+		}
+	}
+
+	if (codec === 'h264-mkv') {
+		if (extension !== 'mkv') {
+			Log.error(
+				'When using the "h264-mkv" codec, the output filename must end in ".mkv".'
 			);
 			process.exit(1);
 		}
@@ -120,7 +129,7 @@ export const getOutputFilename = ({
 	if (codec === 'wav') {
 		if (extension !== 'wav') {
 			Log.error(
-				"When using the 'wav' codec, the output locatio must end in .wav."
+				"When using the 'wav' codec, the output location must end in .wav."
 			);
 			process.exit(1);
 		}

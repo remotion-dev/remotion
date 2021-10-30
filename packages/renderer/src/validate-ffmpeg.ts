@@ -1,10 +1,26 @@
 import execa from 'execa';
 import os from 'os';
+import {statSync} from 'fs';
+import {Internals} from 'remotion';
 
 const existsMap: {[key: string]: boolean} = {};
 
-export const binaryExists = async (name: 'ffmpeg' | 'brew') => {
+export const binaryExists = async (
+	name: 'ffmpeg' | 'brew',
+	localFFmpeg: string | null
+) => {
 	if (typeof existsMap[name] !== 'undefined') {
+		return existsMap[name];
+	}
+
+	if (name === 'ffmpeg' && localFFmpeg) {
+		try {
+			statSync(localFFmpeg);
+			existsMap[name] = true;
+		} catch (err) {
+			existsMap[name] = false;
+		}
+
 		return existsMap[name];
 	}
 
@@ -21,12 +37,20 @@ export const binaryExists = async (name: 'ffmpeg' | 'brew') => {
 };
 
 export const isHomebrewInstalled = async (): Promise<boolean> => {
-	return binaryExists('brew');
+	return binaryExists('brew', null);
 };
 
-export const validateFfmpeg = async (): Promise<void> => {
-	const ffmpegExists = await binaryExists('ffmpeg');
+export const validateFfmpeg = async (
+	customFfmpegBinary: string | null
+): Promise<void> => {
+	const ffmpegExists = await binaryExists('ffmpeg', customFfmpegBinary);
 	if (!ffmpegExists) {
+		if (Internals.getCustomFfmpegExecutable()) {
+			console.error('FFmpeg executable not found:');
+			console.error(Internals.getCustomFfmpegExecutable());
+			process.exit(1);
+		}
+
 		console.error('It looks like FFMPEG is not installed');
 		if (os.platform() === 'darwin' && (await isHomebrewInstalled())) {
 			console.error('Run `brew install ffmpeg` to install ffmpeg');

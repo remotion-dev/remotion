@@ -1,4 +1,8 @@
 import {LooseAnyComponent} from './any-component';
+import {
+	SharedAudioContext,
+	SharedAudioContextProvider,
+} from './audio/shared-audio-tags';
 import {CompProps} from './Composition';
 import {
 	CompositionManager,
@@ -11,6 +15,7 @@ import {
 } from './CompositionManager';
 import {DEFAULT_BROWSER, getBrowser} from './config/browser';
 import {getBrowserExecutable} from './config/browser-executable';
+import {getCustomFfmpegExecutable} from './config/ffmpeg-executable';
 import {
 	DEFAULT_CODEC,
 	getFinalOutputCodec,
@@ -81,7 +86,12 @@ import {
 	ENV_VARIABLES_LOCAL_STORAGE_KEY,
 	setupEnvVariables,
 } from './setup-env-variables';
-import * as Timeline from './timeline-position-state';
+import * as TimelineInOutPosition from './timeline-inout-position-state';
+import {
+	SetTimelineInOutContextValue,
+	TimelineInOutContextValue,
+} from './timeline-inout-position-state';
+import * as TimelinePosition from './timeline-position-state';
 import {
 	SetTimelineContextValue,
 	TimelineContextValue,
@@ -90,6 +100,10 @@ import {truthy} from './truthy';
 import {useLazyComponent} from './use-lazy-component';
 import {useUnsafeVideoConfig} from './use-unsafe-video-config';
 import {useVideo} from './use-video';
+import {
+	invalidCompositionErrorMessage,
+	isCompositionIdValid,
+} from './validation/validate-composition-id';
 import {validateDimension} from './validation/validate-dimensions';
 import {validateDurationInFrames} from './validation/validate-duration-in-frames';
 import {validateFps} from './validation/validate-fps';
@@ -109,6 +123,8 @@ import {
 	useRemotionContexts,
 } from './wrap-remotion-context';
 
+const Timeline = {...TimelinePosition, ...TimelineInOutPosition};
+
 // Mark them as Internals so use don't assume this is public
 // API and are less likely to use it
 export const Internals = {
@@ -120,6 +136,7 @@ export const Internals = {
 	useVideo,
 	getRoot,
 	getBrowserExecutable,
+	getCustomFfmpegExecutable,
 	getCompositionName,
 	getIsEvaluation,
 	getPixelFormat,
@@ -176,10 +193,14 @@ export const Internals = {
 	setProResProfile,
 	validateSelectedCodecAndProResCombination,
 	getMaxTimelineTracks,
+	SharedAudioContext,
+	SharedAudioContextProvider,
 	validateQuality,
 	validateFrame,
 	setStillFrame,
 	getStillFrame,
+	invalidCompositionErrorMessage,
+	isCompositionIdValid,
 };
 
 export type {
@@ -192,6 +213,8 @@ export type {
 	RenderAssetInfo,
 	TimelineContextValue,
 	SetTimelineContextValue,
+	TimelineInOutContextValue,
+	SetTimelineInOutContextValue,
 	CompProps,
 	CompositionManagerContext,
 	MediaVolumeContextValue,
