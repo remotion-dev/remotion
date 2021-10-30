@@ -57,4 +57,4 @@ The size of the file in bytes.
 ## See also
 
 - [renderVideoOnLambda()](/docs/lambda/rendervideoonlambda)
-- [renderStillOnLambda()](/docs/lambda/render-still-on-lambda)
+- [renderStillOnLambda()](/docs/lambda/renderstillonlambda)
