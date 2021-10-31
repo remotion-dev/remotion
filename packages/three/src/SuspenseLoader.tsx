@@ -1,7 +1,8 @@
 import React, { Suspense, useEffect, useState } from 'react';
 import { continueRender, delayRender } from 'remotion';
 
-const Unblocker: React.FC<{ handle: number }> = ({ handle }) => {
+const Unblocker: React.FC = () => {
+	const [handle] = useState(() => delayRender());
 	useEffect(() => {
 		return () => {
 			continueRender(handle);
@@ -11,9 +12,5 @@ const Unblocker: React.FC<{ handle: number }> = ({ handle }) => {
 };
 
 export const SuspenseLoader: React.FC = ({ children }) => {
-	const [handle] = useState(() => delayRender());
-
-	return (
-		<Suspense fallback={<Unblocker handle={handle} />}>{children}</Suspense>
-	);
+	return <Suspense fallback={<Unblocker />}>{children}</Suspense>;
 };
