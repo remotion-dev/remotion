@@ -1,4 +1,13 @@
 module.exports = {
+  playerSidebar: [
+    {
+      type: "link",
+      label: "← Back to main docs",
+      href: "/docs",
+    },
+    "player",
+    "player-sharing",
+  ],
   someSidebar: [
     {
       collapsed: false,
@@ -88,7 +97,11 @@ module.exports = {
         "visualize-audio",
       ],
     },
-    "player",
+    {
+      type: "link",
+      href: "/docs/player",
+      label: "API - @remotion/player",
+    },
     {
       type: "category",
       label: "API - @remotion/three",
