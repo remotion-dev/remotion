@@ -16,6 +16,7 @@ Keep track of changes to the APIs of Remotion Lambda here.
 
 ## November 1st, 2021
 
+Version hash: `3.0.0-lambda.57+d1dd7ce77`
 Lambda version: '2021-11-01'
 
 - `deploySite()` now returns `serveUrl` instead of `url`
