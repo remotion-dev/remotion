@@ -1,8 +1,8 @@
 ---
-id: player-sharing
+id: player-integration
 sidebar_label: "Integrate into your app"
 title: "Integrating Player into your app"
-slug: /docs/player/sharing
+slug: /player/integration
 ---
 
 import Tabs from "@theme/Tabs";
