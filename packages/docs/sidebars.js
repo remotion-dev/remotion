@@ -6,7 +6,8 @@ module.exports = {
       href: "/docs",
     },
     "player",
-    "player-sharing",
+    "player-examples",
+    "player-integration",
   ],
   someSidebar: [
     {
