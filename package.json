@@ -40,7 +40,7 @@
     "remotion": "2.5.1",
     "ts-jest": "^27.0.5",
     "typescript": "^4.4.2",
-    "esbuild": "^0.13.8"
+    "esbuild": "^0.11.12"
   },
   "dependencies": {
     "@react-three/fiber": "^6.1.2",
