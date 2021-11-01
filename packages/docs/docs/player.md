@@ -1,6 +1,6 @@
 ---
 id: player
-title: API - @remotion/player
+title: "@remotion/player"
 ---
 
 import Tabs from '@theme/Tabs';

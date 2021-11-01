@@ -12,9 +12,13 @@ export const getFfmpegBuildInfo = async (options: {
 		return buildConfig;
 	}
 
-	const data = await execa(options.ffmpegExecutable ?? 'ffmpeg', [
-		'-buildconf',
-	]);
+	const data = await execa(
+		options.ffmpegExecutable ?? 'ffmpeg',
+		['-buildconf'],
+		{
+			reject: false,
+		}
+	);
 	buildConfig = data.stderr;
 	return buildConfig;
 };
