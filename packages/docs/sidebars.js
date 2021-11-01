@@ -1,4 +1,14 @@
 module.exports = {
+  playerSidebar: [
+    {
+      type: "link",
+      label: "← Back to main docs",
+      href: "/docs",
+    },
+    "player",
+    "player-examples",
+    "player-integration",
+  ],
   lambdaSidebar: [
     {
       type: "link",
@@ -134,7 +144,11 @@ module.exports = {
       href: "/docs/lambda",
       label: "API - @remotion/lambda",
     },
-    "player",
+    {
+      type: "link",
+      href: "/docs/player",
+      label: "API - @remotion/player",
+    },
     {
       type: "category",
       label: "API - @remotion/three",
