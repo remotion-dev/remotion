@@ -14,28 +14,30 @@ Keep track of changes to the APIs of Remotion Lambda here.
 1. Redeploy your function: `npx remotion lambda functions deploy`
 1. Migrate according to the changelog below:
 
-## Unreleased
+## November 1st, 2021
 
-- ⚠️ `deploySite()` now returns `serveUrl` instead of `url`
+Lambda version: '2021-11-01'
+
+- `deploySite()` now returns `serveUrl` instead of `url`
 - `renderStillOnLambda()` returns a new field: `renderId`
 - Documented `downloadVideo()` method
 - `downloadVideo()` return value property renamed from `size` to `sizeInBytes`
 - Command `npx remotion lambda sites ls` now supports `-q` flag
 - `getSites()` command now returns a `serveUrl` for each site
-- Deleted the `cleanup` command
-- Added [/docs/lambda/production-checklist](Production checklist entry)
-- Added [/docs/lambda/uninstall](Uninstall guide)
+- Deleted the `cleanup` command - it's obsolete
+- Added [Production checklist page](/docs/lambda/production-checklist)
+- Added [Uninstall guide](/docs/lambda/uninstall)
 
 ## October 29th, 2021
 
-Version hash: `3.0.0-lambda.42+838a7a013`
+Version hash: `3.0.0-lambda.42+838a7a013`  
 Lambda version: '2021-10-29'
 
 - Merged changes from Remotion 2.5.1
 
 ## October 27th, 2021
 
-Version hash: `3.0.0-lambda.37+874f731d5`
+Version hash: `3.0.0-lambda.37+874f731d5`  
 Lambda version: '2021-10-27'
 
 - Added a new `saveBrowserLogs` / `--save-browser-logs` option for dumping browser logs to an S3 bucket (you are responsible for cleaning up the logs if you enable this option!)
