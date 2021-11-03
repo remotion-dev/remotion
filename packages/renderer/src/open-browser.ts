@@ -25,17 +25,12 @@ export const openBrowser = async (
 		options?.browserExecutable ?? null
 	);
 	const browserInstance = await puppeteer.launch({
-		executablePath,
-		product: browser,
+		executablePath: '/Applications/Firefox.app/Contents/MacOS/firefox',
+		product: 'firefox',
+		// executablePath,
+		headless: true,
 		dumpio: options?.shouldDumpIo ?? false,
-		args: [
-			'--no-sandbox',
-			'--disable-setuid-sandbox',
-			'--disable-dev-shm-usage',
-			'--use-gl=egl',
-			'--disable-background-media-suspend',
-			process.platform === 'linux' ? '--single-process' : null,
-		].filter(Boolean) as string[],
+		args: [].filter(Boolean) as string[],
 	});
 	return browserInstance;
 };

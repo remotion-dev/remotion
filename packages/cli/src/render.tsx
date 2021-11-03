@@ -155,8 +155,12 @@ export const render = async () => {
 		dumpBrowserLogs: Internals.Logging.isEqualOrBelowLogLevel('verbose'),
 		puppeteerInstance: openedBrowser,
 	});
+	console.log('done');
 
-	const closeBrowserPromise = openedBrowser.close();
+	const closeBrowserPromise = await openedBrowser.close().catch((err) => {
+		console.log('we dont care');
+	});
+	console.log('closed');
 	renderProgress.update(
 		makeRenderingProgress({
 			frames: totalFrames,
