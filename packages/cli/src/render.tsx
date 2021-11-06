@@ -6,7 +6,7 @@ import {
 	RenderInternals,
 	stitchFramesToVideo,
 } from '@remotion/renderer';
-import {spawnFfmpeg} from '@remotion/renderer/dist/stitcher';
+import {RenderInternals} from '@remotion/renderer';
 import chalk from 'chalk';
 import {ExecaChildProcess} from 'execa';
 import fs from 'fs';
@@ -163,7 +163,7 @@ export const render = async () => {
 			'pre-encode.' + getUserPassedFileExtension()
 		);
 
-		preStitcher = await spawnFfmpeg({
+		preStitcher = await RenderInternals.spawnFfmpeg({
 			dir: outputDir,
 			width: config.width,
 			height: config.height,
