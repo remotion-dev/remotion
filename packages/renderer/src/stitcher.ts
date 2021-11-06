@@ -4,6 +4,7 @@ import os from 'os';
 import path from 'path';
 import {
 	Codec,
+	FfmpegExecutable,
 	ImageFormat,
 	Internals,
 	PixelFormat,
