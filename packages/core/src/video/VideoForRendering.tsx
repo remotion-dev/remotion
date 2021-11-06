@@ -18,7 +18,6 @@ import {random} from '../random';
 import {continueRender, delayRender} from '../ready-manager';
 import {SequenceContext} from '../sequencing';
 import {useAbsoluteCurrentFrame, useCurrentFrame} from '../use-frame';
-import {useMediaHasMetadata} from '../use-media-metadata';
 import {useUnsafeVideoConfig} from '../use-unsafe-video-config';
 import {evaluateVolume} from '../volume-prop';
 import {getMediaTime} from './get-current-time';
@@ -28,14 +27,12 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 	HTMLVideoElement,
 	RemotionVideoProps
 > = ({onError, volume: volumeProp, playbackRate, ...props}, ref) => {
-	const videoRef = useRef<HTMLVideoElement>(null);
-	const {currentSrc} = videoRef.current || {};
-	const hasMetadata = useMediaHasMetadata(videoRef);
 	const absoluteFrame = useAbsoluteCurrentFrame();
 
 	const frame = useCurrentFrame();
 	const volumePropsFrame = useFrameForVolumeProp();
 	const videoConfig = useUnsafeVideoConfig();
+	const videoRef = useRef<HTMLVideoElement>(null);
 	const sequenceContext = useContext(SequenceContext);
 	const mediaStartsAt = useMediaStartsAt();
 
@@ -45,11 +42,11 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 	// but at the same time the same on all threads
 	const id = useMemo(
 		() =>
-			`audio-${random(currentSrc ?? '')}-${sequenceContext?.cumulatedFrom}-${
+			`video-${random(props.src ?? '')}-${sequenceContext?.cumulatedFrom}-${
 				sequenceContext?.relativeFrom
 			}-${sequenceContext?.durationInFrames}-muted:${props.muted}`,
 		[
-			currentSrc,
+			props.src,
 			props.muted,
 			sequenceContext?.cumulatedFrom,
 			sequenceContext?.relativeFrom,
@@ -68,27 +65,21 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 	});
 
 	useEffect(() => {
+		if (!props.src) {
+			throw new Error('No src passed');
+		}
+
 		if (props.muted) {
 			return;
 		}
 
-		if (!videoRef.current || !hasMetadata) {
-			return;
-		}
-
-		if (!currentSrc) {
-			throw new Error(
-				'No src found. Please provide a src prop or a <source> child to the Audio element.'
-			);
-		}
-
 		registerAsset({
 			type: 'video',
-			src: getAbsoluteSrc(currentSrc),
+			src: getAbsoluteSrc(props.src),
 			id,
 			frame: absoluteFrame,
 			volume,
-			isRemote: isRemoteAsset(getAbsoluteSrc(currentSrc)),
+			isRemote: isRemoteAsset(getAbsoluteSrc(props.src)),
 			mediaFrame: frame,
 			playbackRate: playbackRate ?? 1,
 		});
@@ -96,7 +87,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 		return () => unregisterAsset(id);
 	}, [
 		props.muted,
-		currentSrc,
+		props.src,
 		registerAsset,
 		id,
 		unregisterAsset,
@@ -104,7 +95,6 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 		frame,
 		absoluteFrame,
 		playbackRate,
-		hasMetadata,
 	]);
 
 	useImperativeHandle(ref, () => {
@@ -118,10 +108,10 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 
 		const currentTime = (() => {
 			return getMediaTime({
-				frame,
 				fps: videoConfig.fps,
+				frame,
+				src: props.src as string,
 				playbackRate: playbackRate || 1,
-				src: String(currentSrc),
 				startFrom: -mediaStartsAt,
 			});
 		})();
@@ -183,7 +173,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 		);
 	}, [
 		volumePropsFrame,
-		currentSrc,
+		props.src,
 		playbackRate,
 		videoConfig.fps,
 		frame,

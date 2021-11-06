@@ -72,7 +72,6 @@ export type TAsset = {
 
 export type RenderAssetInfo = {
 	assets: TAsset[][];
-	bundleDir: string;
 };
 
 export type CompositionManagerContext = {

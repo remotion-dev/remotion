@@ -12,11 +12,11 @@ You can use fonts by loading them in a CSS file using @font-face. Web fonts ofte
 ```
 
 ```tsx twoslash title="MyComp.tsx"
-import './font.css'
+import "./font.css";
 
 const MyComp: React.FC = () => {
-  return <div style={{fontFamily: 'Bangers'}}>Hello</div>
-}
+  return <div style={{ fontFamily: "Bangers" }}>Hello</div>;
+};
 ```
 
 **Important when using Webfonts:**
@@ -36,11 +36,11 @@ const MyComp: React.FC = () => {
 ```
 
 ```tsx twoslash title="MyComp.tsx"
-import './font.css'
+import "./font.css";
 
 const MyComp: React.FC = () => {
-  return <div style={{fontFamily: 'Bangers'}}>Hello</div>
-}
+  return <div style={{ fontFamily: "Bangers" }}>Hello</div>;
+};
 ```
 
 ### File requirements

@@ -43,6 +43,8 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		setMediaVolume: (v: number) => void;
 		setMediaMuted: (v: boolean) => void;
 		mediaVolume: number;
+		errorFallback: (info: {error: Error}) => React.ReactNode;
+		playbackRate: number;
 	}
 > = (
 	{
@@ -60,6 +62,8 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		setMediaMuted,
 		setMediaVolume,
 		spaceKeyToPlayOrPause,
+		errorFallback,
+		playbackRate,
 	},
 	ref
 ) => {
@@ -72,7 +76,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 	const [hasPausedToResume, setHasPausedToResume] = useState(false);
 	const [shouldAutoplay, setShouldAutoPlay] = useState(autoPlay);
 	const [isFullscreen, setIsFullscreen] = useState(() => false);
-	usePlayback({loop});
+	usePlayback({loop, playbackRate});
 	const player = usePlayer();
 
 	useEffect(() => {
@@ -303,21 +307,23 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		[player]
 	);
 
-	const onFullscreenButtonClick: MouseEventHandler<HTMLButtonElement> = useCallback(
-		(e) => {
-			e.stopPropagation();
-			requestFullscreen();
-		},
-		[requestFullscreen]
-	);
+	const onFullscreenButtonClick: MouseEventHandler<HTMLButtonElement> =
+		useCallback(
+			(e) => {
+				e.stopPropagation();
+				requestFullscreen();
+			},
+			[requestFullscreen]
+		);
 
-	const onExitFullscreenButtonClick: MouseEventHandler<HTMLButtonElement> = useCallback(
-		(e) => {
-			e.stopPropagation();
-			exitFullscreen();
-		},
-		[exitFullscreen]
-	);
+	const onExitFullscreenButtonClick: MouseEventHandler<HTMLButtonElement> =
+		useCallback(
+			(e) => {
+				e.stopPropagation();
+				exitFullscreen();
+			},
+			[exitFullscreen]
+		);
 
 	const onSingleClick = useCallback(
 		(e: SyntheticEvent) => {
@@ -360,10 +366,10 @@ const PlayerUI: React.ForwardRefRenderFunction<
 			>
 				<div style={containerStyle} className={PLAYER_CSS_CLASSNAME}>
 					{VideoComponent ? (
-						<ErrorBoundary onError={onError}>
+						<ErrorBoundary onError={onError} errorFallback={errorFallback}>
 							<VideoComponent
-								{...(((video?.props as unknown) as {}) ?? {})}
-								{...(((inputProps as unknown) as {}) ?? {})}
+								{...((video?.props as unknown as {}) ?? {})}
+								{...((inputProps as unknown as {}) ?? {})}
 							/>
 						</ErrorBoundary>
 					) : null}

@@ -1,4 +1,5 @@
 import {TAsset, TCompMetadata} from 'remotion';
+import {addSilentAudioIfNecessary} from './add-silent-audio-if-necessary';
 import {
 	ffmpegHasFeature,
 	getFfmpegBuildInfo,
@@ -6,7 +7,10 @@ import {
 } from './ffmpeg-flags';
 import {getActualConcurrency} from './get-concurrency';
 import {ensureLocalBrowser} from './get-local-browser-executable';
+import {max, min} from './min-max';
+import {normalizeServeUrl} from './normalize-serve-url';
 import {openBrowser} from './open-browser';
+import {serveStatic} from './serve-static';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
 import {binaryExists, validateFfmpeg} from './validate-ffmpeg';
 
@@ -19,12 +23,15 @@ declare global {
 	}
 }
 
+export {combineVideos} from './combine-videos';
 export {FfmpegVersion} from './ffmpeg-flags';
 export {getCompositions} from './get-compositions';
 export {renderFrames} from './render';
 export {renderStill} from './render-still';
 export {stitchFramesToVideo} from './stitcher';
 export {OnErrorInfo, OnStartData, RenderFramesOutput} from './types';
+export {BrowserLog} from './browser-log';
+
 export const RenderInternals = {
 	ensureLocalBrowser,
 	ffmpegHasFeature,
@@ -34,5 +41,10 @@ export const RenderInternals = {
 	validateFfmpeg,
 	binaryExists,
 	getFfmpegBuildInfo,
+	serveStatic,
+	addSilentAudioIfNecessary,
 	validateEvenDimensionsWithCodec,
+	min,
+	max,
+	normalizeServeUrl,
 };

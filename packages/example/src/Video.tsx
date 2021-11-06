@@ -5,8 +5,8 @@ import {ColorInterpolation} from './ColorInterpolation';
 import {Framer} from './Framer';
 import {MissingImg} from './MissingImg';
 import RemoteVideo from './RemoteVideo';
+import {Scripts} from './Scripts';
 import {SkipZeroFrame} from './SkipZeroFrame';
-import {SourceTesting} from './Source';
 import {SeriesTesting} from './StaggerTesting';
 import {TenFrameTester} from './TenFrameTester';
 import ThreeBasic from './ThreeBasic';
@@ -140,6 +140,10 @@ export const Index: React.FC = () => {
 				height={1920}
 				fps={30}
 				durationInFrames={90}
+				defaultProps={{
+					line1: 'Test',
+					line2: 'text',
+				}}
 			/>
 			<Composition
 				id="mdx-test"
@@ -219,7 +223,7 @@ export const Index: React.FC = () => {
 				width={1080}
 				height={1080}
 				fps={30}
-				durationInFrames={100}
+				durationInFrames={600}
 				defaultProps={{
 					codec: 'mp4',
 				}}
@@ -292,10 +296,10 @@ export const Index: React.FC = () => {
 				durationInFrames={100}
 			/>
 			<Composition
-				id="source-testing"
-				component={SourceTesting}
-				width={1080}
-				height={1080}
+				id="scripts"
+				component={Scripts}
+				width={1280}
+				height={720}
 				fps={30}
 				durationInFrames={100}
 			/>

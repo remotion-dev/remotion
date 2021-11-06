@@ -1,4 +1,7 @@
 import execa from 'execa';
+import fs from 'fs';
+import os from 'os';
+import path from 'path';
 import {
 	Codec,
 	ImageFormat,
@@ -24,6 +27,10 @@ import {resolveAssetSrc} from './resolve-asset-src';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
 import {validateFfmpeg} from './validate-ffmpeg';
 
+const makeAssetsDownloadTmpDir = (): Promise<string> => {
+	return fs.promises.mkdtemp(path.join(os.tmpdir(), 'remotion-assets-dir'));
+};
+
 export type StitcherOptions = {
 	dir: string;
 	fps: number;
@@ -45,6 +52,9 @@ export type StitcherOptions = {
 	verbose?: boolean;
 	parallelEncoding?: boolean;
 	preEncodedFileLocation?: string;
+	webpackBundle: string | null;
+	downloadDir?: string;
+	ffmpegExecutable?: FfmpegExecutable;
 };
 
 const getAssetsData = async (options: StitcherOptions) => {
@@ -61,7 +71,8 @@ const getAssetsData = async (options: StitcherOptions) => {
 			  }),
 		convertAssetsToFileUrls({
 			assets: options.assetsInfo.assets,
-			dir: options.assetsInfo.bundleDir,
+			downloadDir: options.downloadDir ?? (await makeAssetsDownloadTmpDir()),
+			webpackBundle: options.webpackBundle,
 			onDownload: options.onDownload ?? (() => undefined),
 		}),
 	]);
@@ -124,7 +135,7 @@ export const spawnFfmpeg = async (options: StitcherOptions) => {
 	const crf = options.crf ?? Internals.getDefaultCrfForCodec(codec);
 	const imageFormat = options.imageFormat ?? DEFAULT_IMAGE_FORMAT;
 	const pixelFormat = options.pixelFormat ?? Internals.DEFAULT_PIXEL_FORMAT;
-	await validateFfmpeg();
+	await validateFfmpeg(options.ffmpegExecutable ?? null);
 
 	const encoderName = getCodecName(codec);
 	const audioCodecName = getAudioCodecName(codec);
@@ -134,6 +145,10 @@ export const spawnFfmpeg = async (options: StitcherOptions) => {
 	const supportsCrf = encoderName && codec !== 'prores';
 
 	if (options.verbose) {
+		console.log(
+			'[verbose] ffmpeg',
+			options.ffmpegExecutable ?? 'ffmpeg in PATH'
+		);
 		console.log('[verbose] encoder', encoderName);
 		console.log('[verbose] audioCodec', audioCodecName);
 		console.log('[verbose] pixelFormat', pixelFormat);

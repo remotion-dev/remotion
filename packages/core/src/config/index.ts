@@ -2,11 +2,11 @@ import {Browser} from './browser';
 import {BrowserExecutable, setBrowserExecutable} from './browser-executable';
 import {Codec, setCodec, setOutputFormat} from './codec';
 import {Concurrency, setConcurrency} from './concurrency';
-import {ConcurrentMode, setConcurrentMode} from './concurrent-mode';
 import {setCrf} from './crf';
 import {setDotEnvLocation} from './env-file';
 import {FrameRange, setFrameRange} from './frame-range';
-import {ImageFormat, setImageFormat} from './image-format';
+import {setFramesPerLambda} from './frames-per-lambda';
+import {ImageFormat, setImageFormat, StillImageFormat} from './image-format';
 import {setImageSequence} from './image-sequence';
 import {LogLevel, setLogLevel} from './log';
 import {setMaxTimelineTracks} from './max-timeline-tracks';
@@ -22,6 +22,7 @@ import {setPort} from './preview-server';
 import {setProResProfile} from './prores-profile';
 import {setQuality} from './quality';
 import {setWebpackCaching} from './webpack-caching';
+import {FfmpegExecutable, setFfmpegExecutable} from './ffmpeg-executable';
 
 export const Config = {
 	Preview: {
@@ -99,18 +100,15 @@ export const Config = {
 		setFrameRange,
 
 		/**
-		 * Set the concurrent mode.
-		 * Pass in 'tab' and the renderer will launch a single browser and pages will be opened in multiple tabs.
-		 * Pass in 'browser' and the renderer will launch multiple browsers and open one page in each browser.
-		 * Use 'browser' to maximize CPU utilization and render faster.
-		 */
-		setConcurrentMode,
-
-		/**
 		 * Enabling parallel encoding means render frames and encode video at the same time.
 		 * The image will be passed directly into ffmpeg.
 		 */
 		setParallelEncoding,
+		/**
+		 * Specify local ffmpeg executable.
+		 * Default: null, which will use ffmpeg available in PATH.
+		 */
+		setFfmpegExecutable,
 	},
 	Output: {
 		/**
@@ -152,6 +150,13 @@ export const Config = {
 		 */
 		setProResProfile,
 	},
+	Lambda: {
+		/**
+		 * Determine how many frames get rendered per lambda invocation.
+		 * The lower the number, the more lambdas get invoked and the faster the render gets.
+		 */
+		setFramesPerLambda,
+	},
 } as const;
 
 export type {
@@ -160,10 +165,11 @@ export type {
 	WebpackConfiguration,
 	WebpackOverrideFn,
 	BrowserExecutable,
+	FfmpegExecutable,
 	ImageFormat,
 	Codec,
 	Browser,
 	FrameRange,
 	LogLevel,
-	ConcurrentMode,
+	StillImageFormat,
 };

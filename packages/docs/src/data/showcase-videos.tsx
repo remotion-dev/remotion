@@ -104,8 +104,7 @@ export const showcaseVideos: ShowcaseVideo[] = [
       },
       {
         type: "video",
-        url:
-          "https://twitter.com/FlorentPergoud/status/1371874105281159178?s=20",
+        url: "https://twitter.com/FlorentPergoud/status/1371874105281159178?s=20",
       },
     ],
     author: {
@@ -270,8 +269,7 @@ export const showcaseVideos: ShowcaseVideo[] = [
       },
       {
         type: "source_code",
-        url:
-          "https://github.com/c0/remotion-playground/blob/main/src/GooBallCSS.jsx",
+        url: "https://github.com/c0/remotion-playground/blob/main/src/GooBallCSS.jsx",
       },
     ],
     author: {
@@ -315,8 +313,7 @@ export const showcaseVideos: ShowcaseVideo[] = [
       },
       {
         type: "website",
-        url:
-          "https://www.youtube.com/channel/UCRBZkDc7udWuxrvedrFUbCQ/featured",
+        url: "https://www.youtube.com/channel/UCRBZkDc7udWuxrvedrFUbCQ/featured",
       },
     ],
     author: {
@@ -408,8 +405,7 @@ export const showcaseVideos: ShowcaseVideo[] = [
       },
       {
         type: "website",
-        url:
-          "https://www.quantargo.com/blog/2021-02-26-new-course-advanced-data-transformation/",
+        url: "https://www.quantargo.com/blog/2021-02-26-new-course-advanced-data-transformation/",
       },
     ],
     author: {
@@ -657,13 +653,11 @@ export const showcaseVideos: ShowcaseVideo[] = [
     links: [
       {
         type: "video",
-        url:
-          "https://discord.com/channels/809501355504959528/817306292590215181/820365999697952790",
+        url: "https://discord.com/channels/809501355504959528/817306292590215181/820365999697952790",
       },
     ],
     author: {
-      url:
-        "https://discord.com/channels/809501355504959528/817306292590215181/820365999697952790",
+      url: "https://discord.com/channels/809501355504959528/817306292590215181/820365999697952790",
       name: "Suthar",
     },
   },
@@ -753,13 +747,11 @@ export const showcaseVideos: ShowcaseVideo[] = [
     links: [
       {
         type: "video",
-        url:
-          "https://www.udemy.com/course/the-cloud-architects-guide-to-cloudfront/",
+        url: "https://www.udemy.com/course/the-cloud-architects-guide-to-cloudfront/",
       },
       {
         type: "website",
-        url:
-          "https://www.udemy.com/course/the-cloud-architects-guide-to-cloudfront/",
+        url: "https://www.udemy.com/course/the-cloud-architects-guide-to-cloudfront/",
       },
     ],
     author: {
@@ -922,8 +914,7 @@ export const showcaseVideos: ShowcaseVideo[] = [
     links: [
       {
         type: "video",
-        url:
-          "https://cdn.ecoeats.uk/videos/merchant-features/06c07944-6d13-4188-8356-d42d744ba54e/raw-pressed-market-street.mp4",
+        url: "https://cdn.ecoeats.uk/videos/merchant-features/06c07944-6d13-4188-8356-d42d744ba54e/raw-pressed-market-street.mp4",
       },
     ],
     author: {
@@ -1010,8 +1001,7 @@ export const showcaseVideos: ShowcaseVideo[] = [
       },
       {
         type: "website",
-        url:
-          "https://gorhom.github.io/react-native-bottom-sheet/blog/bottom-sheet-v4/",
+        url: "https://gorhom.github.io/react-native-bottom-sheet/blog/bottom-sheet-v4/",
       },
     ],
     author: {
