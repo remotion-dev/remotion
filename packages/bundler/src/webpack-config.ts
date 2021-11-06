@@ -193,6 +193,11 @@ export const webpackConfig = ({
 							: null,
 					].filter(truthy),
 				},
+				{
+					test: /\.js$/,
+					enforce: 'pre',
+					use: [require.resolve('source-map-loader')],
+				},
 			],
 		},
 	});
