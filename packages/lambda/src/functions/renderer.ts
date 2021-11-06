@@ -77,8 +77,8 @@ const renderHandler = async (
 		startDate: start,
 	};
 	const {assetsInfo} = await renderFrames({
-		compositionId: params.composition,
 		config: {
+			id: params.composition,
 			durationInFrames: params.durationInFrames,
 			fps: params.fps,
 			height: params.height,
