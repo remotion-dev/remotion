@@ -30,12 +30,12 @@ An object with the following arguments:
 ```tsx twoslash
 // @module: ESNext
 // @target: ESNext
-import {Audio} from 'remotion'
+import { Audio } from "remotion";
 // ---cut---
-import {getAudioData, getWaveformPortion} from '@remotion/media-utils'
-import music from './music.mp3'
+import { getAudioData, getWaveformPortion } from "@remotion/media-utils";
+import music from "./music.mp3";
 
-const audioData = await getAudioData(music) /* {
+const audioData = await getAudioData(music); /* {
   channelWaveforms: [Float32Array(4410000), Float32Array(4410000)],
   sampleRate: 44100,
   durationInSeconds: 100.0000,
@@ -49,10 +49,10 @@ const waveformPortion = await getWaveformPortion({
   // Will select time range of 20-40 seconds
   startTimeInSeconds: 20,
   durationInSeconds: 20,
-  numberOfSamples: 10
-}) // [{index: 0, amplitude: 1.2203}, ... {index: 9, amplitude: 3.2211}]
+  numberOfSamples: 10,
+}); // [{index: 0, amplitude: 1.2203}, ... {index: 9, amplitude: 3.2211}]
 
-console.log(waveformPortion.length) // 10
+console.log(waveformPortion.length); // 10
 ```
 
 ## Alternatives

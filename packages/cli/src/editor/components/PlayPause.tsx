@@ -9,19 +9,25 @@ import {StepBack} from '../icons/step-back';
 import {StepForward} from '../icons/step-forward';
 import {ControlButton} from './ControlButton';
 
-export const PlayPause: React.FC = () => {
+const forwardBackStyle = {
+	height: 16,
+	width: 16,
+	color: 'white',
+};
+
+export const PlayPause: React.FC<{
+	playbackRate: number;
+	loop: boolean;
+}> = ({playbackRate, loop}) => {
 	const frame = Internals.Timeline.useTimelinePosition();
 	const video = Internals.useVideo();
-	PlayerInternals.usePlayback({loop: true});
+	PlayerInternals.usePlayback({
+		loop,
+		playbackRate,
+	});
 
-	const {
-		playing,
-		play,
-		pause,
-		frameBack,
-		frameForward,
-		isLastFrame,
-	} = PlayerInternals.usePlayer();
+	const {playing, play, pause, frameBack, frameForward, isLastFrame} =
+		PlayerInternals.usePlayer();
 
 	const isStill = useIsStill();
 
@@ -106,20 +112,16 @@ export const PlayPause: React.FC = () => {
 		<>
 			<ControlButton
 				aria-label="Step back one frame"
+				title="Step back one frame"
 				disabled={frame === 0}
 				onClick={oneFrameBack}
 			>
-				<StepBack
-					style={{
-						height: 16,
-						width: 16,
-						color: 'white',
-					}}
-				/>
+				<StepBack style={forwardBackStyle} />
 			</ControlButton>
 
 			<ControlButton
 				aria-label={playing ? 'Pause' : 'Play'}
+				title={playing ? 'Pause' : 'Play'}
 				disabled={!video}
 				onClick={playing ? pause : play}
 			>
@@ -144,16 +146,11 @@ export const PlayPause: React.FC = () => {
 
 			<ControlButton
 				aria-label="Step forward one frame"
+				title="Step forward one frame"
 				disabled={isLastFrame}
 				onClick={oneFrameForward}
 			>
-				<StepForward
-					style={{
-						height: 16,
-						width: 16,
-						color: 'white',
-					}}
-				/>
+				<StepForward style={forwardBackStyle} />
 			</ControlButton>
 		</>
 	);

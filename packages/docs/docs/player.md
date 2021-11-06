@@ -1,6 +1,6 @@
 ---
 id: player
-title: API - @remotion/player
+title: "@remotion/player"
 ---
 
 import Tabs from '@theme/Tabs';
@@ -8,7 +8,7 @@ import TabItem from '@theme/TabItem';
 import { PlayerExample } from "../components/Player.tsx";
 import { ExperimentalBadge } from "../components/Experimental.tsx";
 
-<ExperimentalBadge/>
+<ExperimentalBadge message="This player is currently in a beta state. We are done with the most important features we wanted to implement and will promote the Player to stable in the next version, if there is no feedback from users."/>
 
 Using the Remotion Player you can embed Remotion videos in any React app and customize the video content at runtime.
 
@@ -141,6 +141,22 @@ If you'd like to opt out of this behavior, you can pass `0` to mount native audi
 
 Once you have set this prop, you cannot change it anymore or an error will be thrown.
 
+### `playbackRate`
+
+_optional_
+
+A number between -4 and 4 (excluding 0) for the speed that the Player will run the media.
+
+A `playbackRate` of `2` means the video plays twice as fast. A playbackRate of `0.5` means the video plays twice as slow. A playbackRate of `-1` means the video plays in reverse. Note that [`<Audio/>`](/docs/audio) and [`<Video/>`](/docs/video) tags cannot be played in reverse, this is a browser limitation.
+
+Default `1`.
+
+### `errorFallback`
+
+_optional_
+
+A callback for rendering a custom error message. See [Handling errors](#handling-errors) section for an example.
+
 ## `PlayerRef`
 
 You may attach a ref to the player and control it in an imperative manner.
@@ -149,22 +165,22 @@ You may attach a ref to the player and control it in an imperative manner.
 // @allowUmdGlobalAccess
 
 // @filename: MyComposition.tsx
-export const MyComposition: React.FC = () => null
+export const MyComposition: React.FC = () => null;
 
 // @filename: index.tsx
 // ---cut---
-import {useEffect, useRef} from 'react'
-import {Player, PlayerRef} from '@remotion/player'
-import {MyComposition} from './MyComposition'
+import { useEffect, useRef } from "react";
+import { Player, PlayerRef } from "@remotion/player";
+import { MyComposition } from "./MyComposition";
 
 const MyComp: React.FC = () => {
   const playerRef = useRef<PlayerRef>(null);
 
   useEffect(() => {
     if (playerRef.current) {
-      console.log(playerRef.current.getCurrentFrame())
+      console.log(playerRef.current.getCurrentFrame());
     }
-  }, [])
+  }, []);
 
   return (
     <Player
@@ -176,8 +192,8 @@ const MyComp: React.FC = () => {
       component={MyComposition}
       // Many other optional props are available.
     />
-  )
-}
+  );
+};
 ```
 
 The following methods are available on the player ref:
@@ -205,8 +221,8 @@ _Available from v2.4.2_
 Gets the container `HTMLDivElement` of the player. Useful if you'd like to manually attach listeners to the player element.
 
 ```tsx twoslash
-import {useRef, useEffect} from 'react'
-import {PlayerRef} from '@remotion/player'
+import { useRef, useEffect } from "react";
+import { PlayerRef } from "@remotion/player";
 // ---cut---
 const playerRef = useRef<PlayerRef>(null);
 
@@ -220,13 +236,13 @@ useEffect(() => {
   }
 
   const onClick = () => {
-    console.log('player got clicked');
+    console.log("player got clicked");
   };
 
-  container.addEventListener('click', onClick)
+  container.addEventListener("click", onClick);
   return () => {
-    container.removeEventListener('click', onClick);
-  }
+    container.removeEventListener("click", onClick);
+  };
 }, []);
 ```
 
@@ -289,35 +305,38 @@ Stop listening to an event. See the [Events](#events) section to see the functio
 Using a [player ref](#playerref), you can bind event listeners to get notified of certain events of the player.
 
 ```tsx twoslash
-import {useRef, useEffect} from 'react'
-import {PlayerRef} from '@remotion/player'
+import { useRef, useEffect } from "react";
+import { PlayerRef } from "@remotion/player";
 // ---cut---
 const playerRef = useRef<PlayerRef>(null);
 
 useEffect(() => {
   if (!playerRef.current) {
-    return
+    return;
   }
-  playerRef.current.addEventListener('play', () => {
-    console.log('playing')
-  })
-  playerRef.current.addEventListener('pause', () => {
-    console.log('pausing')
-  })
+  playerRef.current.addEventListener("play", () => {
+    console.log("playing");
+  });
+  playerRef.current.addEventListener("ratechange", () => {
+    console.log("ratechange");
+  });
+  playerRef.current.addEventListener("pause", () => {
+    console.log("pausing");
+  });
 
   // See below for difference between `seeked` and `timeupdate`
-  playerRef.current.addEventListener('seeked', (e) => {
-    console.log('seeked to ' + e.detail.frame)
-  })
-  playerRef.current.addEventListener('timeupdate', (e) => {
-    console.log('time has updated to ' + e.detail.frame)
-  })
-  playerRef.current.addEventListener('ended', (e) => {
-    console.log('ended')
-  })
-  playerRef.current.addEventListener('error', (e) => {
-    console.log('error', e.detail.error)
-  })
+  playerRef.current.addEventListener("seeked", (e) => {
+    console.log("seeked to " + e.detail.frame);
+  });
+  playerRef.current.addEventListener("timeupdate", (e) => {
+    console.log("time has updated to " + e.detail.frame);
+  });
+  playerRef.current.addEventListener("ended", (e) => {
+    console.log("ended");
+  });
+  playerRef.current.addEventListener("error", (e) => {
+    console.log("error", e.detail.error);
+  });
 }, []);
 ```
 
@@ -326,16 +345,16 @@ useEffect(() => {
 Fired when the time position changes. You may get the current frame by reading it from `e.detail.frame`.
 
 ```tsx twoslash
-import {useRef, useEffect} from 'react'
-import {PlayerRef} from '@remotion/player'
-const playerRef = useRef<PlayerRef>(null)
+import { useRef, useEffect } from "react";
+import { PlayerRef } from "@remotion/player";
+const playerRef = useRef<PlayerRef>(null);
 if (!playerRef.current) {
-  throw new Error()
+  throw new Error();
 }
 // ---cut---
-playerRef.current.addEventListener('seeked', (e) => {
-  console.log('seeked to ' + e.detail.frame) // seeked to 120
-})
+playerRef.current.addEventListener("seeked", (e) => {
+  console.log("seeked to " + e.detail.frame); // seeked to 120
+});
 ```
 
 This event fires on every single frame update. Don't update your UI based on this event as it will cause a lot of rerenders. Use the [`timeupdate`](#timeupdate) event instead.
@@ -348,6 +367,10 @@ Fires when the video has ended and looping is disabled.
 
 Fires when the video has started playing or has resumed from a pause.
 
+### `ratechange`
+
+Fires when the [`playbackRate`](#playbackrate) has changed.
+
 ### `pause`
 
 Fires when the video has paused or ended.
@@ -357,16 +380,16 @@ Fires when the video has paused or ended.
 Fires periodically when the video is playing. Unlike the [`seeked`](#seeked) event, frames are skipped, and the event is throttled to only fire a few times a second.
 
 ```tsx twoslash
-import {useRef, useEffect} from 'react'
-import {PlayerRef} from '@remotion/player'
-const playerRef = useRef<PlayerRef>(null)
+import { useRef, useEffect } from "react";
+import { PlayerRef } from "@remotion/player";
+const playerRef = useRef<PlayerRef>(null);
 if (!playerRef.current) {
-  throw new Error()
+  throw new Error();
 }
 // ---cut---
-playerRef.current.addEventListener('timeupdate', (e) => {
-  console.log('current frame is ' + e.detail.frame) // current frame is 120
-})
+playerRef.current.addEventListener("timeupdate", (e) => {
+  console.log("current frame is " + e.detail.frame); // current frame is 120
+});
 ```
 
 ### `error`
@@ -376,13 +399,13 @@ Fires when an error or uncaught exception has happened in the video.
 You may get the error by reading the `e.detail.error` value:
 
 ```tsx twoslash
-import {useRef, useEffect} from 'react'
-import {PlayerRef} from '@remotion/player'
-const ref = useRef<PlayerRef>(null)
+import { useRef, useEffect } from "react";
+import { PlayerRef } from "@remotion/player";
+const ref = useRef<PlayerRef>(null);
 // ---cut---
-ref.current?.addEventListener('error', (e) => {
-  console.log('error ', e.detail.error) // error [Error: undefined is not a function]
-})
+ref.current?.addEventListener("error", (e) => {
+  console.log("error ", e.detail.error); // error [Error: undefined is not a function]
+});
 ```
 
 ## Handling errors
@@ -394,9 +417,48 @@ It is up to you to handle the error and to re-mount the video (for example by ch
 
 This feature is implemented using an [error boundary](https://reactjs.org/docs/error-boundaries.html), so only errors in the render function will be caught. Errors in event handlers and asynchronous code will not be reported and will not cause the video to unmount.
 
+You can customize the error message that is shown if a video crashes:
+
+```tsx twoslash
+import { Player, ErrorFallback } from "@remotion/player";
+import { useCallback } from "react";
+import { AbsoluteFill } from "remotion";
+
+const Component: React.FC = () => null;
+
+// ---cut---
+
+const MyApp: React.FC = () => {
+  // `ErrorFallback` type can be imported from "@remotion/player"
+  const errorFallback: ErrorFallback = useCallback(({ error }) => {
+    return (
+      <AbsoluteFill
+        style={{
+          backgroundColor: "yellow",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        Sorry about this! An error occurred: {error.message}
+      </AbsoluteFill>
+    );
+  }, []);
+
+  return (
+    <Player
+      fps={30}
+      component={Component}
+      durationInFrames={100}
+      compositionWidth={1080}
+      compositionHeight={1080}
+      errorFallback={errorFallback}
+    />
+  );
+};
+```
+
 ## Known issues
 
 Before we mark the player as stable, we are looking to improve in the following areas:
 
 - Better loading state than the current "Loading..." text.
-- Customize error UI

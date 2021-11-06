@@ -1,6 +1,6 @@
 {
 	"name": "create-video",
-	"version": "2.4.2",
+	"version": "2.5.1",
 	"description": "",
 	"main": "index.js",
 	"bin": {
@@ -25,7 +25,7 @@
 		"strip-ansi": "^6.0.0"
 	},
 	"devDependencies": {
-		"@jonny/eslint-config": "^2.1.233",
+		"@jonny/eslint-config": "^2.1.248",
 		"@types/degit": "^2.8.3",
 		"@types/fs-extra": "^9.0.11",
 		"@types/node": "^16.7.5",

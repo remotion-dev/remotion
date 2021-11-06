@@ -21,6 +21,7 @@ export const webpackConfig = ({
 	enableCaching = Internals.DEFAULT_WEBPACK_CACHE_ENABLED,
 	inputProps,
 	envVariables,
+	publicPath,
 	maxTimelineTracks,
 }: {
 	entry: string;
@@ -32,6 +33,7 @@ export const webpackConfig = ({
 	enableCaching?: boolean;
 	inputProps?: object;
 	envVariables?: Record<string, string>;
+	publicPath?: string;
 	maxTimelineTracks: number;
 }): WebpackConfiguration => {
 	return webpackOverride({
@@ -46,13 +48,17 @@ export const webpackConfig = ({
 							entries: false,
 					  },
 		},
+		watchOptions: {
+			aggregateTimeout: 0,
+			ignored: ['**/.git/**', '**/node_modules/**'],
+		},
 		cache: enableCaching
 			? {
 					type: 'filesystem',
 					name: getWebpackCacheName(environment, inputProps ?? {}),
 			  }
 			: false,
-		devtool: 'cheap-module-source-map',
+		devtool: environment === 'development' ? 'eval' : 'cheap-module-source-map',
 		entry: [
 			require.resolve('./setup-environment'),
 			environment === 'development'
@@ -75,9 +81,8 @@ export const webpackConfig = ({
 						new webpack.DefinePlugin({
 							'process.env.MAX_TIMELINE_TRACKS': maxTimelineTracks,
 							'process.env.INPUT_PROPS': JSON.stringify(inputProps ?? {}),
-							[`process.env.${Internals.ENV_VARIABLES_ENV_NAME}`]: JSON.stringify(
-								envVariables ?? {}
-							),
+							[`process.env.${Internals.ENV_VARIABLES_ENV_NAME}`]:
+								JSON.stringify(envVariables ?? {}),
 						}),
 				  ]
 				: [
@@ -88,9 +93,11 @@ export const webpackConfig = ({
 						}),
 				  ],
 		output: {
+			hashFunction: 'xxhash64',
 			globalObject: 'this',
 			filename: 'bundle.js',
 			path: outDir,
+			publicPath: publicPath ?? '/',
 		},
 		devServer: {
 			contentBase: path.resolve(__dirname, '..', 'web'),
@@ -119,6 +126,8 @@ export const webpackConfig = ({
 						{
 							loader: require.resolve('file-loader'),
 							options: {
+								// default md4 not available in node17
+								hashType: 'md5',
 								// So you can do require('hi.png')
 								// instead of require('hi.png').default
 								esModule: false,
@@ -129,7 +138,7 @@ export const webpackConfig = ({
 										return '[path][name].[ext]';
 									}
 
-									return '[contenthash].[ext]';
+									return '[md5:contenthash].[ext]';
 								},
 							},
 						},
@@ -155,11 +164,12 @@ export const webpackConfig = ({
 					].filter(truthy),
 				},
 				{
-					test: /\.(woff(2)?|ttf|eot)(\?v=\d+\.\d+\.\d+)?$/,
+					test: /\.(woff(2)?|otf|ttf|eot)(\?v=\d+\.\d+\.\d+)?$/,
 					use: [
 						{
 							loader: require.resolve('file-loader'),
 							options: {
+								// default md4 not available in node17
 								name: '[name].[ext]',
 								outputPath: 'fonts/',
 							},

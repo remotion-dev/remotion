@@ -19,6 +19,7 @@ import {isTrackHidden} from './is-collapsed';
 import {MAX_TIMELINE_TRACKS} from './MaxTimelineTracks';
 import {timelineStateReducer} from './timeline-state-reducer';
 import {TimelineDragHandler} from './TimelineDragHandler';
+import {TimelineInOutPointer} from './TimelineInOutPointer';
 import {TimelineList} from './TimelineList';
 import {TimelineSlider} from './TimelineSlider';
 import {TimelineTracks} from './TimelineTracks';
@@ -112,8 +113,9 @@ export const Timeline: React.FC = () => {
 							fps={videoConfig.fps}
 							hasBeenCut={withoutHidden.length > shown.length}
 						/>
-						<TimelineSlider />
+						<TimelineInOutPointer />
 						<TimelineDragHandler />
+						<TimelineSlider />
 					</SplitterElement>
 				</SplitterContainer>
 			</div>
