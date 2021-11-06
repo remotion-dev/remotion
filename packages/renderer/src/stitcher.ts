@@ -239,7 +239,9 @@ export const spawnFfmpeg = async (options: StitcherOptions) => {
 		.reduce<(string | null | undefined)[]>((acc, val) => acc.concat(val), [])
 		.filter(Boolean) as string[];
 
-	const task = execa('ffmpeg', ffmpegString, {cwd: options.dir});
+	const task = execa(options.ffmpegExecutable ?? 'ffmpeg', ffmpegString, {
+		cwd: options.dir,
+	});
 	task.stderr?.on('data', (data: Buffer) => {
 		// console.log(data.toString());
 		if (options.onProgress) {
