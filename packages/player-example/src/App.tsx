@@ -256,6 +256,22 @@ export default function App() {
 			>
 				trigger error
 			</button>
+			<button
+				type="button"
+				onClick={() => {
+					ref.current?.seekTo(10000);
+				}}
+			>
+				seek outside
+			</button>
+			<button
+				type="button"
+				onClick={() => {
+					ref.current?.seekTo(-10000);
+				}}
+			>
+				seek outside negative
+			</button>
 			<br />
 			<br />
 			{logs
