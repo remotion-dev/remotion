@@ -182,7 +182,9 @@ export const render = async () => {
 			},
 			verbose: Internals.Logging.isEqualOrBelowLogLevel('verbose'),
 			parallelEncoding,
-			assetsInfo: {assets: [], bundleDir: bundled},
+			webpackBundle: bundled,
+			ffmpegExecutable,
+			assetsInfo: {assets: []},
 		});
 		stitcherFfmpeg = preStitcher.task;
 	}
