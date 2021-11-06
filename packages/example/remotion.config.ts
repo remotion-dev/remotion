@@ -1,9 +1,7 @@
-import os from 'os';
 import path from 'path';
 import {Config, WebpackOverrideFn} from 'remotion';
 
 Config.Output.setOverwriteOutput(true);
-Config.Rendering.setConcurrentMode('browser');
 Config.Rendering.setParallelEncoding(true);
 //Config.Log.setLevel('verbose');
 

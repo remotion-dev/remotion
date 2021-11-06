@@ -87,7 +87,7 @@ const renderHandler = async (
 		imageFormat: params.imageFormat,
 		inputProps: params.inputProps,
 		frameRange: params.frameRange,
-		onFrameUpdate: (i: number, output: string, frameNumber: number) => {
+		onFrameUpdate: (i: number, frameNumber: number) => {
 			chunkTimingData.timings[frameNumber] = Date.now() - start;
 		},
 		parallelism: 1,
