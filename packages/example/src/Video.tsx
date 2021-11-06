@@ -12,7 +12,7 @@ import {TenFrameTester} from './TenFrameTester';
 import ThreeBasic from './ThreeBasic';
 import {VideoSpeed} from './VideoSpeed';
 import {VideoTesting} from './VideoTesting';
-import {HelloWorld} from "./HelloWorld/HelloWorld";
+import {HelloWorld} from './HelloWorld/HelloWorld';
 
 // Use it to test that UI does not regress on weird CSS
 //import './weird-css.css';
@@ -27,7 +27,7 @@ export const Index: React.FC = () => {
 				width={1920}
 				height={1080}
 				fps={60}
-				durationInFrames={60*30}
+				durationInFrames={60 * 30}
 			/>
 			<Composition
 				id="dynamic-duration"
@@ -223,7 +223,7 @@ export const Index: React.FC = () => {
 				width={1080}
 				height={1080}
 				fps={30}
-				durationInFrames={600}
+				durationInFrames={100}
 				defaultProps={{
 					codec: 'mp4',
 				}}
