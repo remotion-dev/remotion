@@ -1,5 +1,5 @@
 import {createRef, useCallback, useImperativeHandle, useState} from 'react';
-import {interpolate, useCurrentFrame, useVideoConfig} from 'remotion';
+import {interpolate, useCurrentFrame, useVideoConfig, Video} from 'remotion';
 
 type Props = {
 	title: string;
@@ -61,6 +61,12 @@ const CarSlideshow = ({title, bgColor, color}: Props) => {
 			>
 				{title} {dummyText()}
 			</h1>
+			<Video
+				style={{
+					height: 200,
+				}}
+				src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
+			/>
 		</div>
 	);
 };
