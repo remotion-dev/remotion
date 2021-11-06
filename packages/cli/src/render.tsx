@@ -146,7 +146,6 @@ export const render = async () => {
 			);
 		},
 		parallelism,
-		compositionId,
 		outputDir,
 		onError,
 		onStart: ({frameCount: fc}: OnStartData) => {

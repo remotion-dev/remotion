@@ -115,7 +115,6 @@ await renderFrames({
   inputProps: {
     titleText: "Hello World",
   },
-  compositionId: "HelloWorld",
   imageFormat: "jpeg",
 });
 ```

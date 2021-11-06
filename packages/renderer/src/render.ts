@@ -26,7 +26,6 @@ export const renderFrames = async ({
 	config,
 	parallelism,
 	onFrameUpdate,
-	compositionId,
 	outputDir,
 	onStart,
 	inputProps,
@@ -43,7 +42,6 @@ export const renderFrames = async ({
 	onBrowserLog,
 }: {
 	config: VideoConfig;
-	compositionId?: string;
 	onStart: (data: OnStartData) => void;
 	onFrameUpdate: (
 		framesRendered: number,
