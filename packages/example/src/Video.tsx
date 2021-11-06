@@ -5,6 +5,7 @@ import {ColorInterpolation} from './ColorInterpolation';
 import {Framer} from './Framer';
 import {MissingImg} from './MissingImg';
 import RemoteVideo from './RemoteVideo';
+import {Scripts} from './Scripts';
 import {SkipZeroFrame} from './SkipZeroFrame';
 import {SeriesTesting} from './StaggerTesting';
 import {TenFrameTester} from './TenFrameTester';
@@ -31,6 +32,14 @@ export const Index: React.FC = () => {
 			<Composition
 				id="nested"
 				lazyComponent={() => import('./NestedSequences')}
+				durationInFrames={200}
+				fps={60}
+				height={1080}
+				width={1080}
+			/>
+			<Composition
+				id="looped"
+				lazyComponent={() => import('./LoopedVideo')}
 				durationInFrames={200}
 				fps={60}
 				height={1080}
@@ -122,6 +131,10 @@ export const Index: React.FC = () => {
 				height={1920}
 				fps={30}
 				durationInFrames={90}
+				defaultProps={{
+					line1: 'Test',
+					line2: 'text',
+				}}
 			/>
 			<Composition
 				id="mdx-test"
@@ -201,7 +214,7 @@ export const Index: React.FC = () => {
 				width={1080}
 				height={1080}
 				fps={30}
-				durationInFrames={100}
+				durationInFrames={600}
 				defaultProps={{
 					codec: 'mp4',
 				}}
@@ -268,6 +281,14 @@ export const Index: React.FC = () => {
 			<Composition
 				id="stagger-test"
 				component={SeriesTesting}
+				width={1280}
+				height={720}
+				fps={30}
+				durationInFrames={100}
+			/>
+			<Composition
+				id="scripts"
+				component={Scripts}
 				width={1280}
 				height={720}
 				fps={30}

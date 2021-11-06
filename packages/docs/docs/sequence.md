@@ -41,8 +41,8 @@ All the examples below are based on the following animation of a blue square:
 // @include: example-BlueSquare
 // ---cut---
 const MyVideo = () => {
-  return <BlueSquare />
-}
+  return <BlueSquare />;
+};
 ```
 
 ### Delay
@@ -54,15 +54,15 @@ If you would like to delay the content by say 30 frames, you can wrap it in <br/
 
 ```tsx twoslash
 // @include: example-BlueSquare
-import {Sequence} from 'remotion'
+import { Sequence } from "remotion";
 // ---cut---
 const MyVideo = () => {
   return (
-    <Sequence from={30} >
+    <Sequence from={30}>
       <BlueSquare />
     </Sequence>
-  )
-}
+  );
+};
 ```
 
 ### Trim end
@@ -90,7 +90,7 @@ You need to wrap the videos in two sequences. To the inner one we pass a negativ
 
 ```tsx twoslash
 // @include: example-BlueSquare
-import {Sequence} from 'remotion'
+import { Sequence } from "remotion";
 // ---cut---
 const TrimAndDelayExample: React.FC = () => {
   return (
@@ -99,8 +99,8 @@ const TrimAndDelayExample: React.FC = () => {
         <BlueSquare />
       </Sequence>
     </Sequence>
-  )
-}
+  );
+};
 ```
 
 ## Play Sequences sequentially

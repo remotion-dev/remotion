@@ -1,0 +1,11 @@
+[build]
+command = "npm run build && npx lerna bootstrap && cd packages/docs && npm run build-docs"
+publish = "packages/docs/build"
+
+[build.environment]
+NPM_FLAGS="--prefix=/dev/null"
+NODE_VERSION = "14.15.3" 
+
+[[plugins]]
+package = "/.netlify/netlify-plugin-pnpm"
+
