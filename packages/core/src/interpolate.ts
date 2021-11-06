@@ -109,12 +109,16 @@ export function interpolate(
 		extrapolateRight?: ExtrapolateType;
 	}
 ): number {
-	if (
-		typeof input === 'undefined' ||
-		typeof inputRange === 'undefined' ||
-		typeof outputRange === 'undefined'
-	) {
-		throw new Error('input or inputRange or outputRange can not be undefined');
+	if (typeof input === 'undefined') {
+		throw new Error('input can not be undefined');
+	}
+
+	if (typeof inputRange === 'undefined') {
+		throw new Error('inputRange can not be undefined');
+	}
+
+	if (typeof outputRange === 'undefined') {
+		throw new Error('outputRange can not be undefined');
 	}
 
 	if (inputRange.length !== outputRange.length) {
@@ -145,7 +149,7 @@ export function interpolate(
 	}
 
 	if (typeof input !== 'number') {
-		throw new TypeError('Cannot interpolation an input which is not a number');
+		throw new TypeError('Cannot interpolate an input which is not a number');
 	}
 
 	const range = findRange(input, inputRange);

@@ -11,9 +11,9 @@ const BlueSquare: React.FC = () => <div></div>
 // - BlueSquare
 ```
 
-_available from v2.4.4_
+_available from v2.5.0_
 
-The `<Loop />` component allows you to quickly
+The `<Loop />` component allows you to quickly lay out an animation so it repeats itself.
 
 ## API
 
@@ -40,8 +40,8 @@ All the examples below are based on the following animation of a blue square:
 // @include: example-BlueSquare
 // ---cut---
 const MyVideo = () => {
-  return <BlueSquare />
-}
+  return <BlueSquare />;
+};
 ```
 
 ### Continuous loop
@@ -51,7 +51,7 @@ const MyVideo = () => {
 
 ```tsx twoslash
 // @include: example-BlueSquare
-import { Loop } from 'remotion'
+import { Loop } from "remotion";
 // ---cut---
 const MyVideo = () => {
   return (
@@ -59,7 +59,7 @@ const MyVideo = () => {
       <BlueSquare />
     </Loop>
   );
-}
+};
 ```
 
 ### Fixed count loop
@@ -69,7 +69,7 @@ const MyVideo = () => {
 
 ```tsx twoslash
 // @include: example-BlueSquare
-import { Loop } from 'remotion'
+import { Loop } from "remotion";
 // ---cut---
 const MyVideo = () => {
   return (
@@ -77,7 +77,7 @@ const MyVideo = () => {
       <BlueSquare />
     </Loop>
   );
-}
+};
 ```
 
 ### Nested loop
@@ -87,7 +87,7 @@ const MyVideo = () => {
 
 ```tsx twoslash
 // @include: example-BlueSquare
-import { Loop } from 'remotion'
+import { Loop } from "remotion";
 // ---cut---
 const MyVideo = () => {
   return (
@@ -97,5 +97,5 @@ const MyVideo = () => {
       </Loop>
     </Loop>
   );
-}
+};
 ```

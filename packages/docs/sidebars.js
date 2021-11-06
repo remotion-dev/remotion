@@ -1,4 +1,55 @@
 module.exports = {
+  playerSidebar: [
+    {
+      type: "link",
+      label: "← Back to main docs",
+      href: "/docs",
+    },
+    "player",
+    "player-examples",
+    "player-integration",
+  ],
+  lambdaSidebar: [
+    {
+      type: "link",
+      label: "← Back to main docs",
+      href: "/docs",
+    },
+    "lambda",
+    "lambda-cli",
+    "lambda-setup",
+    "lambda-permissions",
+    "lambda-region-selection",
+    "lambda-runtime",
+    "lambda-faq",
+    "lambda-chunkoptimization",
+    {
+      collapsed: false,
+      type: "category",
+      label: "Node.JS APIs",
+      items: [
+        "estimateprice",
+        "deployfunction",
+        "deletefunction",
+        "getfunctioninfo",
+        "getfunctions",
+        "deletesite",
+        "deploysite",
+        "getsites",
+        "downloadvideo",
+        "getuserpolicy",
+        "getrolepolicy",
+        "getorcreatebucket",
+        "getrenderprogress",
+        "rendervideoonlambda",
+        "renderstillonlambda",
+        "simulatepermissions",
+      ],
+    },
+    "lambda-checklist",
+    "lambda-changelog",
+    "lambda-uninstall",
+  ],
   someSidebar: [
     {
       collapsed: false,
@@ -88,7 +139,16 @@ module.exports = {
         "visualize-audio",
       ],
     },
-    "player",
+    {
+      type: "link",
+      href: "/docs/lambda",
+      label: "API - @remotion/lambda",
+    },
+    {
+      type: "link",
+      href: "/docs/player",
+      label: "API - @remotion/player",
+    },
     {
       type: "category",
       label: "API - @remotion/three",

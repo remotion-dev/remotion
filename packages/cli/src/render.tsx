@@ -6,7 +6,6 @@ import {
 	RenderInternals,
 	stitchFramesToVideo,
 } from '@remotion/renderer';
-import {getActualConcurrency} from '@remotion/renderer/dist/get-concurrency';
 import {spawnFfmpeg} from '@remotion/renderer/dist/stitcher';
 import chalk from 'chalk';
 import {ExecaChildProcess} from 'execa';
@@ -22,7 +21,7 @@ import {initializeRenderCli} from './initialize-render-cli';
 import {Log} from './log';
 import {parsedCli} from './parse-command-line';
 import {
-	createProgressBar,
+	createOverwriteableCliOutput,
 	makeRenderingProgress,
 	makeStitchingProgress,
 } from './progress-bar';
@@ -58,7 +57,6 @@ export const render = async () => {
 		codec,
 		proResProfile,
 		parallelism,
-		concurrentMode,
 		parallelEncoding,
 		frameRange,
 		shouldOutputImageSequence,
@@ -72,22 +70,24 @@ export const render = async () => {
 		pixelFormat,
 		imageFormat,
 		browserExecutable,
-	} = await getCliOptions('series');
+		ffmpegExecutable,
+	} = await getCliOptions({isLambda: false, type: 'series'});
 
-	await checkAndValidateFfmpegVersion();
+	if (!absoluteOutputFile) {
+		throw new Error(
+			'assertion error - expected absoluteOutputFile to not be null'
+		);
+	}
 
-	const actualParallelism = getActualConcurrency(parallelism ?? null);
+	await checkAndValidateFfmpegVersion({
+		ffmpegExecutable: Internals.getCustomFfmpegExecutable(),
+	});
 
-	const browserInstance = Promise.all(
-		new Array(concurrentMode === 'browser' ? actualParallelism : 1)
-			.fill(true)
-			.map(() =>
-				RenderInternals.openBrowser(browser, {
-					browserExecutable,
-					shouldDumpIo: Internals.Logging.isEqualOrBelowLogLevel('verbose'),
-				})
-			)
-	);
+	const browserInstance = RenderInternals.openBrowser(browser, {
+		browserExecutable,
+		shouldDumpIo: Internals.Logging.isEqualOrBelowLogLevel('verbose'),
+	});
+
 	if (shouldOutputImageSequence) {
 		fs.mkdirSync(absoluteOutputFile, {
 			recursive: true,
@@ -98,11 +98,16 @@ export const render = async () => {
 
 	const bundled = await bundleOnCli(fullPath, steps);
 
+	const {port, close} = await RenderInternals.serveStatic(bundled);
+
+	const serveUrl = `http://localhost:${port}`;
+
 	const openedBrowser = await browserInstance;
-	const comps = await getCompositions(bundled, {
+
+	const comps = await getCompositions(serveUrl, {
 		browser,
 		inputProps,
-		browserInstance: openedBrowser[0],
+		browserInstance: openedBrowser,
 		envVariables,
 	});
 	const compositionId = getCompositionId(comps);
@@ -122,9 +127,13 @@ export const render = async () => {
 		? absoluteOutputFile
 		: await fs.promises.mkdtemp(path.join(os.tmpdir(), 'react-motion-render'));
 
+	if (!outputDir) {
+		throw new Error('Assertion error: Expected outputDir to not be null');
+	}
+
 	Log.verbose('Output dir', outputDir);
 
-	const renderProgress = createProgressBar();
+	const renderProgress = createOverwriteableCliOutput();
 	let totalFrames = 0;
 	const renderStart = Date.now();
 
@@ -185,7 +194,6 @@ export const render = async () => {
 			updateRenderProgress();
 		},
 		parallelism,
-		concurrentMode,
 		parallelEncoding,
 		compositionId,
 		outputDir,
@@ -198,16 +206,15 @@ export const render = async () => {
 		},
 		inputProps,
 		envVariables,
-		webpackBundle: bundled,
 		imageFormat,
 		quality,
 		browser,
 		frameRange: frameRange ?? null,
-		dumpBrowserLogs: Internals.Logging.isEqualOrBelowLogLevel('verbose'),
 		puppeteerInstance: openedBrowser,
 		writeFrame: async (buffer) => {
 			stitcherFfmpeg?.stdin?.write(buffer);
 		},
+		serveUrl,
 	});
 	const {assetsInfo} = await renderer;
 	if (stitcherFfmpeg) {
@@ -216,7 +223,7 @@ export const render = async () => {
 		preStitcher?.cleanup?.();
 	}
 
-	const closeBrowserPromise = openedBrowser.map((o) => o.close());
+	const closeBrowserPromise = openedBrowser.close();
 	renderProgress.update(
 		makeRenderingProgress({
 			frames: totalFrames,
@@ -238,6 +245,7 @@ export const render = async () => {
 			throw new TypeError('CRF is unexpectedly not a number');
 		}
 
+		const stitchingProgress = createOverwriteableCliOutput();
 		const dirName = path.dirname(absoluteOutputFile);
 
 		if (!fs.existsSync(dirName)) {
@@ -245,8 +253,6 @@ export const render = async () => {
 				recursive: true,
 			});
 		}
-
-		const stitchingProgress = createProgressBar();
 
 		stitchingProgress.update(
 			makeStitchingProgress({
@@ -273,6 +279,7 @@ export const render = async () => {
 			crf,
 			assetsInfo,
 			parallelism,
+			ffmpegExecutable,
 			onProgress: (frame: number) => {
 				stitchingProgress.update(
 					makeStitchingProgress({
@@ -287,6 +294,7 @@ export const render = async () => {
 			onDownload: (src: string) => {
 				Log.info('Downloading asset... ', src);
 			},
+			webpackBundle: bundled,
 			verbose: Internals.Logging.isEqualOrBelowLogLevel('verbose'),
 		});
 		stitchingProgress.update(
@@ -335,4 +343,5 @@ export const render = async () => {
 	Log.info('-', 'Output can be found at:');
 	Log.info(chalk.cyan(`▶️ ${absoluteOutputFile}`));
 	await closeBrowserPromise;
+	close();
 };

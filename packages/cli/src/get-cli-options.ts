@@ -28,17 +28,23 @@ const getAndValidateFrameRange = () => {
 	return frameRange;
 };
 
-const getFinalCodec = async () => {
+const getFinalCodec = async (options: {isLambda: boolean}) => {
 	const userCodec = Internals.getOutputCodecOrUndefined();
 
 	const codec = Internals.getFinalOutputCodec({
 		codec: userCodec,
-		fileExtension: getUserPassedFileExtension(),
+		fileExtension: options.isLambda ? null : getUserPassedFileExtension(),
 		emitWarning: true,
+		isLambda: options.isLambda,
 	});
+	const ffmpegExecutable = Internals.getCustomFfmpegExecutable();
 	if (
 		codec === 'vp8' &&
-		!(await RenderInternals.ffmpegHasFeature('enable-libvpx'))
+		!(await RenderInternals.ffmpegHasFeature({
+			feature: 'enable-libvpx',
+			isLambda: options.isLambda,
+			ffmpegExecutable,
+		}))
 	) {
 		Log.error(
 			"The Vp8 codec has been selected, but your FFMPEG binary wasn't compiled with the --enable-lipvpx flag."
@@ -50,7 +56,11 @@ const getFinalCodec = async () => {
 
 	if (
 		codec === 'h265' &&
-		!(await RenderInternals.ffmpegHasFeature('enable-gpl'))
+		!(await RenderInternals.ffmpegHasFeature({
+			feature: 'enable-gpl',
+			isLambda: options.isLambda,
+			ffmpegExecutable,
+		}))
 	) {
 		Log.error(
 			"The H265 codec has been selected, but your FFMPEG binary wasn't compiled with the --enable-gpl flag."
@@ -62,7 +72,11 @@ const getFinalCodec = async () => {
 
 	if (
 		codec === 'h265' &&
-		!(await RenderInternals.ffmpegHasFeature('enable-libx265'))
+		!(await RenderInternals.ffmpegHasFeature({
+			feature: 'enable-libx265',
+			isLambda: options.isLambda,
+			ffmpegExecutable,
+		}))
 	) {
 		Log.error(
 			"The H265 codec has been selected, but your FFMPEG binary wasn't compiled with the --enable-libx265 flag."
@@ -75,9 +89,7 @@ const getFinalCodec = async () => {
 	return codec;
 };
 
-const getBrowser = () => {
-	return Internals.getBrowser() ?? Internals.DEFAULT_BROWSER;
-};
+const getBrowser = () => Internals.getBrowser() ?? Internals.DEFAULT_BROWSER;
 
 const getAndValidateAbsoluteOutputFile = (
 	outputFile: string,
@@ -94,14 +106,18 @@ const getAndValidateAbsoluteOutputFile = (
 	return absoluteOutputFile;
 };
 
-const getAndValidateShouldOutputImageSequence = async (
-	frameRange: FrameRange | null
-) => {
-	const shouldOutputImageSequence = Internals.getShouldOutputImageSequence(
-		frameRange
-	);
-	if (!shouldOutputImageSequence) {
-		await RenderInternals.validateFfmpeg();
+const getAndValidateShouldOutputImageSequence = async ({
+	frameRange,
+	isLambda,
+}: {
+	frameRange: FrameRange | null;
+	isLambda: boolean;
+}) => {
+	const shouldOutputImageSequence =
+		Internals.getShouldOutputImageSequence(frameRange);
+	// When parsing options locally, we don't need FFMPEG because the render will happen on Lambda
+	if (!shouldOutputImageSequence && !isLambda) {
+		await RenderInternals.validateFfmpeg(Internals.getCustomFfmpegExecutable());
 	}
 
 	return shouldOutputImageSequence;
@@ -168,18 +184,28 @@ const getAndValidateBrowser = async (browserExecutable: BrowserExecutable) => {
 	return browser;
 };
 
-export const getCliOptions = async (type: 'still' | 'series') => {
+export const getCliOptions = async (options: {
+	isLambda: boolean;
+	type: 'still' | 'series';
+}) => {
 	const frameRange = getAndValidateFrameRange();
+
+	const codec = await getFinalCodec({isLambda: options.isLambda});
 	const shouldOutputImageSequence =
-		type === 'still'
+		options.type === 'still'
 			? true
-			: await getAndValidateShouldOutputImageSequence(frameRange);
-	const codec = await getFinalCodec();
-	const outputFile = getOutputFilename({
-		codec,
-		imageSequence: shouldOutputImageSequence,
-		type,
-	});
+			: await getAndValidateShouldOutputImageSequence({
+					frameRange,
+					isLambda: options.isLambda,
+			  });
+	const outputFile = options.isLambda
+		? null
+		: getOutputFilename({
+				codec,
+				imageSequence: shouldOutputImageSequence,
+				type: options.type,
+		  });
+
 	const overwrite = Internals.getShouldOverwrite();
 	const crf = getAndValidateCrf(shouldOutputImageSequence, codec);
 	const pixelFormat = getAndValidatePixelFormat(codec);
@@ -190,6 +216,7 @@ export const getCliOptions = async (type: 'still' | 'series') => {
 	});
 	const proResProfile = getAndValidateProResProfile(codec);
 	const browserExecutable = Internals.getBrowserExecutable();
+	const ffmpegExecutable = Internals.getCustomFfmpegExecutable();
 
 	const isAudioOnly = Internals.isAudioCodec(codec);
 	const parallelEncoding =
@@ -208,13 +235,17 @@ export const getCliOptions = async (type: 'still' | 'series') => {
 		inputProps: getInputProps(),
 		envVariables: await getEnvironmentVariables(),
 		quality: Internals.getQuality(),
+		absoluteOutputFile: outputFile
+			? getAndValidateAbsoluteOutputFile(outputFile, overwrite)
+			: null,
 		browser: await getAndValidateBrowser(browserExecutable),
-		absoluteOutputFile: getAndValidateAbsoluteOutputFile(outputFile, overwrite),
 		crf,
 		pixelFormat,
 		imageFormat,
 		proResProfile,
 		stillFrame: Internals.getStillFrame(),
 		browserExecutable,
+		framesPerLambda: Internals.getFramesPerLambda(),
+		ffmpegExecutable,
 	};
 };
