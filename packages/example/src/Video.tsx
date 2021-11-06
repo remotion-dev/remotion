@@ -214,7 +214,7 @@ export const Index: React.FC = () => {
 				width={1080}
 				height={1080}
 				fps={30}
-				durationInFrames={600}
+				durationInFrames={100}
 				defaultProps={{
 					codec: 'mp4',
 				}}
