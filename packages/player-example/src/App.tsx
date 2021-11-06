@@ -29,11 +29,11 @@ export default function App() {
 			setLogs((l) => [...l, 'seeked to ' + e.detail.frame + ' ' + Date.now()]);
 		};
 
-		const endedCallbackLitener: CallbackListener<'ended'> = (e) => {
+		const endedCallbackListener: CallbackListener<'ended'> = (e) => {
 			setLogs((l) => [...l, 'ended ' + Date.now()]);
 		};
 
-		const errorCallbackLitener: CallbackListener<'error'> = (e) => {
+		const errorCallbackListener: CallbackListener<'error'> = (e) => {
 			setLogs((l) => [...l, 'error ' + Date.now()]);
 		};
 
@@ -56,8 +56,8 @@ export default function App() {
 		current.addEventListener('play', playCallbackListener);
 		current.addEventListener('pause', pausedCallbackLitener);
 		current.addEventListener('seeked', seekedCallbackLitener);
-		current.addEventListener('ended', endedCallbackLitener);
-		current.addEventListener('error', errorCallbackLitener);
+		current.addEventListener('ended', endedCallbackListener);
+		current.addEventListener('error', errorCallbackListener);
 		current.addEventListener('timeupdate', timeupdateCallbackLitener);
 		current.addEventListener('ratechange', ratechangeCallbackListener);
 
@@ -65,8 +65,8 @@ export default function App() {
 			current.removeEventListener('play', playCallbackListener);
 			current.removeEventListener('pause', pausedCallbackLitener);
 			current.removeEventListener('seeked', seekedCallbackLitener);
-			current.removeEventListener('ended', endedCallbackLitener);
-			current.removeEventListener('error', errorCallbackLitener);
+			current.removeEventListener('ended', endedCallbackListener);
+			current.removeEventListener('error', errorCallbackListener);
 			current.removeEventListener('timeupdate', timeupdateCallbackLitener);
 			current.removeEventListener('ratechange', ratechangeCallbackListener);
 		};
