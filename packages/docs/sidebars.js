@@ -177,6 +177,7 @@ module.exports = {
         "flickering",
       ],
     },
+    "3-0-migration",
     "2-0-migration",
     "license",
   ],
