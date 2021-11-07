@@ -26,7 +26,6 @@ export const renderFrames = async ({
 	config,
 	parallelism,
 	onFrameUpdate,
-	compositionId,
 	outputDir,
 	onStart,
 	inputProps,
@@ -43,7 +42,6 @@ export const renderFrames = async ({
 	onBrowserLog,
 }: {
 	config: VideoConfig;
-	compositionId: string;
 	onStart: (data: OnStartData) => void;
 	onFrameUpdate: (
 		framesRendered: number,
@@ -141,7 +139,7 @@ export const renderFrames = async ({
 			initialFrame,
 		});
 
-		const site = `${normalizeServeUrl(serveUrl)}?composition=${compositionId}`;
+		const site = `${normalizeServeUrl(serveUrl)}?composition=${config.id}`;
 		await page.goto(site);
 		page.off('error', errorCallback);
 		page.off('pageerror', errorCallback);
