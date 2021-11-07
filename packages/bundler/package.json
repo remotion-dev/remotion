@@ -31,6 +31,7 @@
 		"react-refresh": "^0.9.0-rc.2",
 		"remotion": "^2.5.2",
 		"semver": "7.3.4",
+		"source-map-loader": "^3.0.0",
 		"style-loader": "^2.0.0",
 		"webpack": "5.60.0",
 		"webpack-hot-middleware": "^2.25.0"
