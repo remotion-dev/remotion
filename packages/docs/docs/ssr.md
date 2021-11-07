@@ -32,7 +32,7 @@ const start = async () => {
 
   // Create a webpack bundle of the entry file.
   // TODO: This is wrong in Lambda
-  const bundleLocation = await bundle(require.resolve('./src/index'))
+  const bundleLocation = await bundle(require.resolve("./src/index"));
 
   // Extract all the compositions you have defined in your project
   // from the webpack bundle.
@@ -66,17 +66,6 @@ const start = async () => {
     // Get's called after bundling is finished and the
     // actual rendering starts.
     onStart: () => console.log("Rendering frames..."),
-    // Handle errors in your React code
-    onError: (info) => {
-      if (info.frame === null) {
-        console.error(
-          "Got error while initalizing video rendering",
-          info.error
-        );
-      } else {
-        console.error("Got error at frame ", info.frame, info.error);
-      }
-    },
     onFrameUpdate: (f) => {
       // Log a message whenever 10 frames have rendered.
       if (f % 10 === 0) {
@@ -91,7 +80,6 @@ const start = async () => {
     inputProps: {
       titleText: "Hello World",
     },
-    compositionId,
     // Can be either 'jpeg' or 'png'. JPEG is faster, but has no transparency.
     imageFormat: "jpeg",
   });

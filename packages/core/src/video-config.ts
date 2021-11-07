@@ -3,4 +3,5 @@ export type VideoConfig = {
 	height: number;
 	fps: number;
 	durationInFrames: number;
+	id: string;
 };

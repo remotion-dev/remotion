@@ -76,21 +76,6 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		composition: params.composition,
 		browserInstance: await getBrowserInstance(),
 		inputProps: params.inputProps,
-		onError: ({err}) => {
-			writeLambdaError({
-				bucketName: params.bucketName,
-				errorInfo: {
-					chunk: null,
-					frame: null,
-					isFatal: false,
-					stack: (err.message + ' ' + err.stack) as string,
-					type: 'browser',
-					tmpDir: getTmpDirStateIfENoSp(err.stack as string),
-				},
-				expectedBucketOwner: options.expectedBucketOwner,
-				renderId: params.renderId,
-			});
-		},
 	});
 	Internals.validateDurationInFrames(
 		comp.durationInFrames,

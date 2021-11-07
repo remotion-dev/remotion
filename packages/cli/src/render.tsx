@@ -1,6 +1,5 @@
 import {
 	getCompositions,
-	OnErrorInfo,
 	OnStartData,
 	renderFrames,
 	RenderInternals,
@@ -15,7 +14,6 @@ import {Internals} from 'remotion';
 import {deleteDirectory} from './delete-directory';
 import {getCliOptions} from './get-cli-options';
 import {getCompositionId} from './get-composition-id';
-import {handleCommonError} from './handle-common-errors';
 import {initializeRenderCli} from './initialize-render-cli';
 import {Log} from './log';
 import {parsedCli} from './parse-command-line';
@@ -28,29 +26,12 @@ import {bundleOnCli} from './setup-cache';
 import {getUserPassedFileExtension} from './user-passed-output-location';
 import {checkAndValidateFfmpegVersion} from './validate-ffmpeg-version';
 
-const onError = async (info: OnErrorInfo) => {
-	Log.error();
-	if (info.frame === null) {
-		Log.error(
-			'The following error occured when trying to initialize the video rendering:'
-		);
-	} else {
-		Log.error(
-			`The following error occurred when trying to render frame ${info.frame}:`
-		);
-	}
-
-	handleCommonError(info.error);
-
-	process.exit(1);
-};
-
 export const render = async () => {
 	const startTime = Date.now();
 	const file = parsedCli._[1];
 	const fullPath = path.join(process.cwd(), file);
 
-	initializeRenderCli('sequence');
+	await initializeRenderCli('sequence');
 
 	const {
 		codec,
@@ -196,9 +177,7 @@ export const render = async () => {
 		},
 		parallelism,
 		parallelEncoding,
-		compositionId,
 		outputDir,
-		onError,
 		onStart: ({frameCount: fc}: OnStartData) => {
 			renderedFrames = 0;
 			if (parallelEncoding) encodedFrames = 0;

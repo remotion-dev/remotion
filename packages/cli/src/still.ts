@@ -25,7 +25,7 @@ export const still = async () => {
 	const file = parsedCli._[1];
 	const fullPath = path.join(process.cwd(), file);
 
-	initializeRenderCli('still');
+	await initializeRenderCli('still');
 
 	const userOutput = path.resolve(process.cwd(), getUserPassedOutputLocation());
 
@@ -109,28 +109,26 @@ export const still = async () => {
 	const {port, close} = await RenderInternals.serveStatic(bundled);
 	const serveUrl = `http://localhost:${port}`;
 
-	await renderStill({
-		composition,
-		frame: stillFrame,
-		output: userOutput,
-		serveUrl,
-		quality,
-		browser,
-		dumpBrowserLogs: Internals.Logging.isEqualOrBelowLogLevel('verbose'),
-		envVariables,
-		imageFormat,
-		inputProps,
-		onError: (err: Error) => {
-			Log.error();
-			Log.error('The following error occured when rendering the still:');
+	try {
+		await renderStill({
+			composition,
+			frame: stillFrame,
+			output: userOutput,
+			serveUrl,
+			quality,
+			browser,
+			dumpBrowserLogs: Internals.Logging.isEqualOrBelowLogLevel('verbose'),
+			envVariables,
+			imageFormat,
+			inputProps,
+		});
+	} catch (err) {
+		Log.error();
+		Log.error('The following error occured when rendering the still:');
 
-			handleCommonError(err);
-
-			process.exit(1);
-		},
-		puppeteerInstance: openedBrowser,
-		overwrite: Internals.getShouldOverwrite(),
-	});
+		handleCommonError(err as Error);
+		process.exit(1);
+	}
 
 	const closeBrowserPromise = openedBrowser.close();
 	close().catch((err) => {

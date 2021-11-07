@@ -35,6 +35,7 @@ type Options = {
 
 const innerStillHandler = async (
 	lambdaParams: LambdaPayload,
+	renderId: string,
 	options: Options
 ) => {
 	if (lambdaParams.type !== LambdaRoutines.still) {
@@ -44,8 +45,6 @@ const innerStillHandler = async (
 	validatePrivacy(lambdaParams.privacy);
 
 	const start = Date.now();
-
-	const renderId = randomHash();
 
 	const [{bucketName}, browserInstance] = await Promise.all([
 		getOrCreateBucket({
@@ -68,21 +67,6 @@ const innerStillHandler = async (
 		browserInstance,
 		composition: lambdaParams.composition,
 		inputProps: lambdaParams.inputProps,
-		onError: ({err}) => {
-			writeLambdaError({
-				bucketName,
-				errorInfo: {
-					chunk: null,
-					frame: null,
-					isFatal: false,
-					stack: (err.message + ' ' + err.stack) as string,
-					type: 'browser',
-					tmpDir: getTmpDirStateIfENoSp(err.stack as string),
-				},
-				expectedBucketOwner: options.expectedBucketOwner,
-				renderId,
-			});
-		},
 	});
 
 	const renderMetadata: RenderMetadata = {
@@ -124,21 +108,6 @@ const innerStillHandler = async (
 		frame: lambdaParams.frame,
 		imageFormat: lambdaParams.imageFormat as StillImageFormat,
 		inputProps: lambdaParams.inputProps,
-		onError: (error) => {
-			writeLambdaError({
-				errorInfo: {
-					stack: error.message + ' ' + error.stack,
-					type: 'browser',
-					frame: lambdaParams.frame,
-					chunk: 0,
-					isFatal: false,
-					tmpDir: getTmpDirStateIfENoSp(JSON.stringify(error)),
-				},
-				bucketName,
-				expectedBucketOwner: options.expectedBucketOwner,
-				renderId,
-			});
-		},
 		overwrite: false,
 		puppeteerInstance: browserInstance,
 		quality: lambdaParams.quality,
@@ -181,8 +150,10 @@ export const stillHandler = async (
 		throw new Error('Params must be renderer');
 	}
 
+	const renderId = randomHash();
+
 	try {
-		return innerStillHandler(params, options);
+		return innerStillHandler(params, renderId, options);
 	} catch (err) {
 		// If this error is encountered, we can just retry as it
 		// is a very rare error to occur
@@ -204,6 +175,25 @@ export const stillHandler = async (
 					Payload: JSON.stringify(retryPayload),
 				})
 			);
+			const {bucketName} = await getOrCreateBucket({
+				region: getCurrentRegionInFunction(),
+			});
+
+			writeLambdaError({
+				bucketName,
+				errorInfo: {
+					chunk: null,
+					frame: null,
+					isFatal: false,
+					stack: ((err as Error).message +
+						' ' +
+						(err as Error).stack) as string,
+					type: 'browser',
+					tmpDir: getTmpDirStateIfENoSp((err as Error).stack as string),
+				},
+				expectedBucketOwner: options.expectedBucketOwner,
+				renderId,
+			});
 			const str = JSON.parse(
 				Buffer.from(res.Payload as Uint8Array).toString()
 			) as ReturnType<typeof innerStillHandler>;
