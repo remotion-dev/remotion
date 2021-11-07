@@ -48,7 +48,7 @@ export const render = async () => {
 	const file = parsedCli._[1];
 	const fullPath = path.join(process.cwd(), file);
 
-	initializeRenderCli('sequence');
+	await initializeRenderCli('sequence');
 
 	const {
 		codec,
