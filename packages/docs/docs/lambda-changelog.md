@@ -26,7 +26,7 @@ Lambda version: '2021-11-01'
 - Command `npx remotion lambda sites ls` now supports `-q` flag
 - `getSites()` command now returns a `serveUrl` for each site
 - Deleted the `cleanup` command - it's obsolete
-- Added [Production checklist page](/docs/lambda/production-checklist)
+- Added [Production checklist page](/docs/lambda/checklist)
 - Added [Uninstall guide](/docs/lambda/uninstall)
 
 ## October 29th, 2021
