@@ -4,10 +4,10 @@ For general information concerning contribution, please consult [CONTRIBUTION.md
 
 ### Core Coverage
 
-![statements](https://img.shields.io/badge/Coverage_statements-76.75%25-yellow.svg)
-![branches](https://img.shields.io/badge/Coverage_branches-70.83%25-yellow.svg)
-![functions](https://img.shields.io/badge/Coverage_functions-59.94%25-red.svg)
-![lines](https://img.shields.io/badge/Coverage_lines-75.55%25-yellow.svg)
+![statements](https://img.shields.io/badge/Coverage_statements-76.68%25-yellow.svg)
+![branches](https://img.shields.io/badge/Coverage_branches-70.7%25-yellow.svg)
+![functions](https://img.shields.io/badge/Coverage_functions-59.62%25-red.svg)
+![lines](https://img.shields.io/badge/Coverage_lines-75.49%25-yellow.svg)
 
 ### Running tests
 
