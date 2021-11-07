@@ -1,6 +1,5 @@
 import {
 	getCompositions,
-	OnErrorInfo,
 	OnStartData,
 	renderFrames,
 	RenderInternals,
@@ -14,7 +13,6 @@ import {Internals} from 'remotion';
 import {deleteDirectory} from './delete-directory';
 import {getCliOptions} from './get-cli-options';
 import {getCompositionId} from './get-composition-id';
-import {handleCommonError} from './handle-common-errors';
 import {initializeRenderCli} from './initialize-render-cli';
 import {Log} from './log';
 import {parsedCli} from './parse-command-line';
@@ -25,23 +23,6 @@ import {
 } from './progress-bar';
 import {bundleOnCli} from './setup-cache';
 import {checkAndValidateFfmpegVersion} from './validate-ffmpeg-version';
-
-const onError = async (info: OnErrorInfo) => {
-	Log.error();
-	if (info.frame === null) {
-		Log.error(
-			'The following error occured when trying to initialize the video rendering:'
-		);
-	} else {
-		Log.error(
-			`The following error occurred when trying to render frame ${info.frame}:`
-		);
-	}
-
-	handleCommonError(info.error);
-
-	process.exit(1);
-};
 
 export const render = async () => {
 	const startTime = Date.now();
@@ -147,7 +128,6 @@ export const render = async () => {
 		},
 		parallelism,
 		outputDir,
-		onError,
 		onStart: ({frameCount: fc}: OnStartData) => {
 			renderProgress.update(
 				makeRenderingProgress({

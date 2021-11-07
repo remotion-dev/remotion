@@ -20,27 +20,9 @@ import {Pool} from './pool';
 import {provideScreenshot} from './provide-screenshot';
 import {seekToFrame} from './seek-to-frame';
 import {setPropsAndEnv} from './set-props-and-env';
-import {OnErrorInfo, OnStartData, RenderFramesOutput} from './types';
+import {OnStartData, RenderFramesOutput} from './types';
 
-export const renderFrames = async ({
-	config,
-	parallelism,
-	onFrameUpdate,
-	outputDir,
-	onStart,
-	inputProps,
-	quality,
-	imageFormat = DEFAULT_IMAGE_FORMAT,
-	frameRange,
-	puppeteerInstance,
-	serveUrl,
-	onError,
-	envVariables,
-	browserExecutable,
-	dumpBrowserLogs,
-	browser,
-	onBrowserLog,
-}: {
+type RenderFramesOptions = {
 	config: VideoConfig;
 	onStart: (data: OnStartData) => void;
 	onFrameUpdate: (
@@ -60,8 +42,29 @@ export const renderFrames = async ({
 	dumpBrowserLogs?: boolean;
 	puppeteerInstance?: PuppeteerBrowser;
 	browserExecutable?: BrowserExecutable;
-	onError?: (info: OnErrorInfo) => void;
 	onBrowserLog?: (log: BrowserLog) => void;
+};
+
+export const innerRenderFrames = async ({
+	config,
+	parallelism,
+	onFrameUpdate,
+	outputDir,
+	onStart,
+	inputProps,
+	quality,
+	imageFormat = DEFAULT_IMAGE_FORMAT,
+	frameRange,
+	puppeteerInstance,
+	serveUrl,
+	onError,
+	envVariables,
+	browserExecutable,
+	dumpBrowserLogs,
+	browser,
+	onBrowserLog,
+}: RenderFramesOptions & {
+	onError: (err: Error) => void;
 }): Promise<RenderFramesOutput> => {
 	Internals.validateDimension(
 		config.height,
@@ -105,9 +108,6 @@ export const renderFrames = async ({
 			height: config.height,
 			deviceScaleFactor: 1,
 		});
-		const errorCallback = (err: Error) => {
-			onError?.({error: err, frame: null});
-		};
 
 		const logCallback = (log: ConsoleMessage) => {
 			onBrowserLog?.({
@@ -120,9 +120,6 @@ export const renderFrames = async ({
 		if (onBrowserLog) {
 			page.on('console', logCallback);
 		}
-
-		page.on('error', errorCallback);
-		page.on('pageerror', errorCallback);
 
 		const initialFrame =
 			typeof frameRange === 'number'
@@ -141,8 +138,7 @@ export const renderFrames = async ({
 
 		const site = `${normalizeServeUrl(serveUrl)}?composition=${config.id}`;
 		await page.goto(site);
-		page.off('error', errorCallback);
-		page.off('pageerror', errorCallback);
+
 		page.off('console', logCallback);
 		return page;
 	});
@@ -170,8 +166,8 @@ export const renderFrames = async ({
 				const freePage = await pool.acquire();
 				const paddedIndex = String(frame).padStart(filePadLength, '0');
 
-				const errorCallback = (err: Error) => {
-					onError?.({error: err, frame});
+				const errorCallbackOnFrame = (err: Error) => {
+					onError(new Error(`Error on rendering frame ${frame}: ${err.stack}`));
 				};
 
 				const output = path.join(
@@ -179,7 +175,8 @@ export const renderFrames = async ({
 					`element-${paddedIndex}.${imageFormat}`
 				);
 
-				freePage.on('pageerror', errorCallback);
+				freePage.on('pageerror', errorCallbackOnFrame);
+				freePage.on('error', errorCallbackOnFrame);
 				try {
 					await seekToFrame({frame, page: freePage});
 				} catch (err) {
@@ -188,13 +185,13 @@ export const renderFrames = async ({
 						error.message.includes('timeout') &&
 						error.message.includes('exceeded')
 					) {
-						errorCallback(
+						errorCallbackOnFrame(
 							new Error(
 								'The rendering timed out. See https://www.remotion.dev/docs/timeout/ for possible reasons.'
 							)
 						);
 					} else {
-						errorCallback(error);
+						errorCallbackOnFrame(error);
 					}
 
 					throw error;
@@ -218,7 +215,8 @@ export const renderFrames = async ({
 				pool.release(freePage);
 				framesRendered++;
 				onFrameUpdate(framesRendered, output, frame);
-				freePage.off('pageerror', errorCallback);
+				freePage.off('pageerror', errorCallbackOnFrame);
+				freePage.off('error', errorCallbackOnFrame);
 				return collectedAssets;
 			})
 	);
@@ -243,4 +241,14 @@ export const renderFrames = async ({
 		},
 		frameCount,
 	};
+};
+
+export const renderFrames = (
+	options: RenderFramesOptions
+): Promise<RenderFramesOutput> => {
+	return new Promise<RenderFramesOutput>((resolve, reject) => {
+		innerRenderFrames({...options, onError: (err) => reject(err)})
+			.then((res) => resolve(res))
+			.catch((err) => reject(err));
+	});
 };
