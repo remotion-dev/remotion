@@ -193,8 +193,6 @@ renderFrames({
 });
 ```
 
-> > > > > > > lambda-testing
-
 ### `browserExecutable?`
 
 _optional, available from v2.3.1_
