@@ -35,6 +35,7 @@ type Options = {
 
 const innerStillHandler = async (
 	lambdaParams: LambdaPayload,
+	renderId: string,
 	options: Options
 ) => {
 	if (lambdaParams.type !== LambdaRoutines.still) {
@@ -44,8 +45,6 @@ const innerStillHandler = async (
 	validatePrivacy(lambdaParams.privacy);
 
 	const start = Date.now();
-
-	const renderId = randomHash();
 
 	const [{bucketName}, browserInstance] = await Promise.all([
 		getOrCreateBucket({
@@ -151,8 +150,10 @@ export const stillHandler = async (
 		throw new Error('Params must be renderer');
 	}
 
+	const renderId = randomHash();
+
 	try {
-		return innerStillHandler(params, options);
+		return innerStillHandler(params, renderId, options);
 	} catch (err) {
 		// If this error is encountered, we can just retry as it
 		// is a very rare error to occur
@@ -174,6 +175,25 @@ export const stillHandler = async (
 					Payload: JSON.stringify(retryPayload),
 				})
 			);
+			const {bucketName} = await getOrCreateBucket({
+				region: getCurrentRegionInFunction(),
+			});
+
+			writeLambdaError({
+				bucketName,
+				errorInfo: {
+					chunk: null,
+					frame: null,
+					isFatal: false,
+					stack: ((err as Error).message +
+						' ' +
+						(err as Error).stack) as string,
+					type: 'browser',
+					tmpDir: getTmpDirStateIfENoSp((err as Error).stack as string),
+				},
+				expectedBucketOwner: options.expectedBucketOwner,
+				renderId,
+			});
 			const str = JSON.parse(
 				Buffer.from(res.Payload as Uint8Array).toString()
 			) as ReturnType<typeof innerStillHandler>;
