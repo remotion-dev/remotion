@@ -6,7 +6,6 @@ import {
 	RenderInternals,
 	stitchFramesToVideo,
 } from '@remotion/renderer';
-import {RenderInternals} from '@remotion/renderer';
 import chalk from 'chalk';
 import {ExecaChildProcess} from 'execa';
 import fs from 'fs';
