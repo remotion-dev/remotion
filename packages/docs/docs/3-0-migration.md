@@ -11,3 +11,11 @@ When upgrading from Remotion 2 to Remotion 3, note the following changes and app
 Instead, the composition ID is now embedded in the `config` object.
 
 **Upgrade path:** Remove the `compositionId` property from `renderFrames()`.
+
+## Errors thrown in your app make the render fail
+
+Previously, you could catch errors being thrown in your Remotion code using the `onError` property of `renderFrames()` and `renderStill()`.
+
+The new behavior of Remotion 3.0 is that if an error occurs, these functions reject instead.
+
+**Upgrade path**: Remove the `onError` property from `renderFrames()` and `renderStill()` and wrap them in a try / catch instead. Eliminate any error being thrown in your application.
