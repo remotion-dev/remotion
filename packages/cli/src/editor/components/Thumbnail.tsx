@@ -68,11 +68,18 @@ export const Thumbnail: React.FC<{
 			playing: false,
 			frame: frameToDisplay,
 			rootId: thumbnailId,
+			imperativePlaying: {
+				current: false,
+			},
+			playbackRate: 1,
+			setPlaybackRate: () => {
+				throw new Error('thumbnail');
+			},
 		};
 	}, [frameToDisplay, thumbnailId]);
 
 	const props = useMemo(() => {
-		return ((composition.props as unknown) as {}) ?? {};
+		return (composition.props as unknown as {}) ?? {};
 	}, [composition.props]);
 
 	const ThumbnailComponent = composition.component;

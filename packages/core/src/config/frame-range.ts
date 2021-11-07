@@ -93,7 +93,7 @@ export const setFrameRangeFromCli = (newFrameRange: string | number) => {
 	}
 
 	if (typeof newFrameRange === 'string') {
-		const parsed = newFrameRange.split('-').map(f => Number(f)) as number[];
+		const parsed = newFrameRange.split('-').map((f) => Number(f)) as number[];
 		if (parsed.length > 2 || parsed.length <= 0) {
 			throw new Error(
 				`--frames flag must be a number or 2 numbers separated by '-', instead got ${parsed.length} numbers`

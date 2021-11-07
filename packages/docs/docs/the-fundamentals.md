@@ -37,17 +37,17 @@ A video has 4 properties:
 These properties are variable and you can reuse a component multiple times with different properties. This is why you better not hard-code these properties, but instead derive them from the `useVideoConfig` hook:
 
 ```tsx twoslash
-import {useVideoConfig} from 'remotion'
+import { useVideoConfig } from "remotion";
 
 export const MyVideo = () => {
-  const {fps, durationInFrames, width, height} = useVideoConfig()
+  const { fps, durationInFrames, width, height } = useVideoConfig();
 
   return (
-    <div style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+    <div style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
       This video is {durationInFrames / fps} seconds long.
     </div>
-  )
-}
+  );
+};
 ```
 
 A video's first frame is `0` and it's last frame is `durationInFrames - 1`.
@@ -57,7 +57,7 @@ A video's first frame is `0` and it's last frame is `durationInFrames - 1`.
 Compositions are components with the above mentioned metadata. You can define compositions in `src/Video.tsx` to make them show up in the left sidebar.
 
 ```tsx twoslash
-import {Composition} from 'remotion'
+import { Composition } from "remotion";
 // @include: example-MyVideo
 // ---cut---
 
@@ -73,8 +73,8 @@ export const RemotionVideo: React.FC = () => {
         height={1080}
       />
     </>
-  )
-}
+  );
+};
 ```
 
 Remember that if you like, you can register multiple compositions that rely on the same component. For example, if you like to make a square video for social media feeds, and a portrait video for Stories, you can reuse the component and try to make it 'responsive'.

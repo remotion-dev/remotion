@@ -10,13 +10,14 @@ import fs from 'fs';
 import os from 'os';
 import path from 'path';
 import {Internals} from 'remotion';
+import {deleteDirectory} from './delete-directory';
 import {getCliOptions} from './get-cli-options';
 import {getCompositionId} from './get-composition-id';
 import {initializeRenderCli} from './initialize-render-cli';
 import {Log} from './log';
 import {parsedCli} from './parse-command-line';
 import {
-	createProgressBar,
+	createOverwriteableCliOutput,
 	makeRenderingProgress,
 	makeStitchingProgress,
 } from './progress-bar';
@@ -28,7 +29,7 @@ export const render = async () => {
 	const file = parsedCli._[1];
 	const fullPath = path.join(process.cwd(), file);
 
-	initializeRenderCli('sequence');
+	await initializeRenderCli('sequence');
 
 	const {
 		codec,
@@ -46,14 +47,24 @@ export const render = async () => {
 		pixelFormat,
 		imageFormat,
 		browserExecutable,
-	} = await getCliOptions('series');
+		ffmpegExecutable,
+	} = await getCliOptions({isLambda: false, type: 'series'});
 
-	await checkAndValidateFfmpegVersion();
+	if (!absoluteOutputFile) {
+		throw new Error(
+			'assertion error - expected absoluteOutputFile to not be null'
+		);
+	}
+
+	await checkAndValidateFfmpegVersion({
+		ffmpegExecutable: Internals.getCustomFfmpegExecutable(),
+	});
 
 	const browserInstance = RenderInternals.openBrowser(browser, {
 		browserExecutable,
 		shouldDumpIo: Internals.Logging.isEqualOrBelowLogLevel('verbose'),
 	});
+
 	if (shouldOutputImageSequence) {
 		fs.mkdirSync(absoluteOutputFile, {
 			recursive: true,
@@ -64,8 +75,13 @@ export const render = async () => {
 
 	const bundled = await bundleOnCli(fullPath, steps);
 
+	const {port, close} = await RenderInternals.serveStatic(bundled);
+
+	const serveUrl = `http://localhost:${port}`;
+
 	const openedBrowser = await browserInstance;
-	const comps = await getCompositions(bundled, {
+
+	const comps = await getCompositions(serveUrl, {
 		browser,
 		inputProps,
 		browserInstance: openedBrowser,
@@ -88,9 +104,13 @@ export const render = async () => {
 		? absoluteOutputFile
 		: await fs.promises.mkdtemp(path.join(os.tmpdir(), 'react-motion-render'));
 
+	if (!outputDir) {
+		throw new Error('Assertion error: Expected outputDir to not be null');
+	}
+
 	Log.verbose('Output dir', outputDir);
 
-	const renderProgress = createProgressBar();
+	const renderProgress = createOverwriteableCliOutput();
 	let totalFrames = 0;
 	const renderStart = Date.now();
 	const {assetsInfo} = await renderFrames({
@@ -107,7 +127,6 @@ export const render = async () => {
 			);
 		},
 		parallelism,
-		compositionId,
 		outputDir,
 		onStart: ({frameCount: fc}: OnStartData) => {
 			renderProgress.update(
@@ -123,13 +142,12 @@ export const render = async () => {
 		},
 		inputProps,
 		envVariables,
-		webpackBundle: bundled,
 		imageFormat,
 		quality,
 		browser,
 		frameRange: frameRange ?? null,
-		dumpBrowserLogs: Internals.Logging.isEqualOrBelowLogLevel('verbose'),
 		puppeteerInstance: openedBrowser,
+		serveUrl,
 	});
 
 	const closeBrowserPromise = openedBrowser.close();
@@ -153,7 +171,14 @@ export const render = async () => {
 			throw new TypeError('CRF is unexpectedly not a number');
 		}
 
-		const stitchingProgress = createProgressBar();
+		const stitchingProgress = createOverwriteableCliOutput();
+		const dirName = path.dirname(absoluteOutputFile);
+
+		if (!fs.existsSync(dirName)) {
+			fs.mkdirSync(dirName, {
+				recursive: true,
+			});
+		}
 
 		stitchingProgress.update(
 			makeStitchingProgress({
@@ -178,6 +203,7 @@ export const render = async () => {
 			crf,
 			assetsInfo,
 			parallelism,
+			ffmpegExecutable,
 			onProgress: (frame: number) => {
 				stitchingProgress.update(
 					makeStitchingProgress({
@@ -191,6 +217,7 @@ export const render = async () => {
 			onDownload: (src: string) => {
 				Log.info('Downloading asset... ', src);
 			},
+			webpackBundle: bundled,
 			verbose: Internals.Logging.isEqualOrBelowLogLevel('verbose'),
 		});
 		stitchingProgress.update(
@@ -204,14 +231,20 @@ export const render = async () => {
 
 		Log.verbose('Cleaning up...');
 		try {
-			await Promise.all([
-				(fs.promises.rm ?? fs.promises.rmdir)(outputDir, {
-					recursive: true,
-				}),
-				(fs.promises.rm ?? fs.promises.rmdir)(bundled, {
-					recursive: true,
-				}),
-			]);
+			if (process.platform === 'win32') {
+				// Properly delete directories because Windows doesn't seem to like fs.
+				await deleteDirectory(outputDir);
+				await deleteDirectory(bundled);
+			} else {
+				await Promise.all([
+					(fs.promises.rm ?? fs.promises.rmdir)(outputDir, {
+						recursive: true,
+					}),
+					(fs.promises.rm ?? fs.promises.rmdir)(bundled, {
+						recursive: true,
+					}),
+				]);
+			}
 		} catch (err) {
 			Log.warn('Could not clean up directory.');
 			Log.warn(err);
@@ -232,4 +265,5 @@ export const render = async () => {
 	Log.info('-', 'Output can be found at:');
 	Log.info(chalk.cyan(`▶️ ${absoluteOutputFile}`));
 	await closeBrowserPromise;
+	close();
 };
