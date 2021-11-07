@@ -17,10 +17,10 @@ import {setPropsAndEnv} from './set-props-and-env';
 type RenderStillOptions = {
 	composition: TCompMetadata;
 	output: string;
-	webpackBundle: string;
+	serveUrl: string;
 	frame?: number;
 	inputProps?: unknown;
-	imageFormat?: 'png' | 'jpeg';
+	imageFormat?: StillImageFormat;
 	quality?: number;
 	browser?: Browser;
 	puppeteerInstance?: PuppeteerBrowser;
@@ -118,10 +118,6 @@ const innerRenderStill = async ({
 
 	const cleanup = async () => {
 		page.off('pageerror', errorCallback);
-
-		close().catch((err) => {
-			console.log('Unable to close web server', err);
-		});
 
 		if (puppeteerInstance) {
 			await page.close();

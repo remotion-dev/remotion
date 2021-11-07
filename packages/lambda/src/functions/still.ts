@@ -124,21 +124,6 @@ const innerStillHandler = async (
 		frame: lambdaParams.frame,
 		imageFormat: lambdaParams.imageFormat as StillImageFormat,
 		inputProps: lambdaParams.inputProps,
-		onError: (error) => {
-			writeLambdaError({
-				errorInfo: {
-					stack: error.message + ' ' + error.stack,
-					type: 'browser',
-					frame: lambdaParams.frame,
-					chunk: 0,
-					isFatal: false,
-					tmpDir: getTmpDirStateIfENoSp(JSON.stringify(error)),
-				},
-				bucketName,
-				expectedBucketOwner: options.expectedBucketOwner,
-				renderId,
-			});
-		},
 		overwrite: false,
 		puppeteerInstance: browserInstance,
 		quality: lambdaParams.quality,
