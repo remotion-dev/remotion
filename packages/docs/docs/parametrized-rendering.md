@@ -92,7 +92,13 @@ When server-rendering using `renderFrames`, you can pass props using the `inputP
 ```tsx twoslash {9-11}
 // @module: esnext
 // @target: es2017
-const video = { fps: 30, durationInFrames: 30, width: 1080, height: 1080 };
+const video = {
+  fps: 30,
+  durationInFrames: 30,
+  width: 1080,
+  height: 1080,
+  id: "my-video",
+};
 const bundled = "/path/to/bundle";
 const framesDir = "/path/to/frames";
 // ---cut---
@@ -115,7 +121,6 @@ await renderFrames({
   inputProps: {
     titleText: "Hello World",
   },
-  compositionId: "HelloWorld",
   imageFormat: "jpeg",
 });
 ```

@@ -32,7 +32,7 @@ const start = async () => {
 
   // Create a webpack bundle of the entry file.
   // TODO: This is wrong in Lambda
-  const bundleLocation = await bundle(require.resolve('./src/index'))
+  const bundleLocation = await bundle(require.resolve("./src/index"));
 
   // Extract all the compositions you have defined in your project
   // from the webpack bundle.
@@ -91,7 +91,6 @@ const start = async () => {
     inputProps: {
       titleText: "Hello World",
     },
-    compositionId,
     // Can be either 'jpeg' or 'png'. JPEG is faster, but has no transparency.
     imageFormat: "jpeg",
   });
