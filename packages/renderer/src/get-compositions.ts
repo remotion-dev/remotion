@@ -1,7 +1,8 @@
 import {Browser as PuppeteerBrowser, Page} from 'puppeteer-core';
 import {Browser, BrowserExecutable, Internals, TCompMetadata} from 'remotion';
+import {BrowserLog} from './browser-log';
+import {normalizeServeUrl} from './normalize-serve-url';
 import {openBrowser} from './open-browser';
-import {serveStatic} from './serve-static';
 import {setPropsAndEnv} from './set-props-and-env';
 
 type GetCompositionsConfig = {
@@ -9,6 +10,8 @@ type GetCompositionsConfig = {
 	inputProps?: object | null;
 	envVariables?: Record<string, string>;
 	browserInstance?: PuppeteerBrowser;
+	onError?: (errorData: {err: Error}) => void;
+	onBrowserLog?: (log: BrowserLog) => void;
 	browserExecutable?: BrowserExecutable;
 };
 
@@ -58,7 +61,7 @@ const getPageAndCleanupFn = async ({
 };
 
 export const getCompositions = async (
-	webpackBundle: string,
+	serveUrl: string,
 	config?: GetCompositionsConfig
 ): Promise<TCompMetadata[]> => {
 	const {page, cleanup} = await getPageAndCleanupFn({
@@ -67,27 +70,50 @@ export const getCompositions = async (
 		browserExecutable: config?.browserExecutable ?? null,
 	});
 
-	const {port, close} = await serveStatic(webpackBundle);
-	page.on('error', console.error);
-	page.on('pageerror', console.error);
+	page.on('error', (err) => {
+		console.log(err);
+		config?.onError?.({err: err as Error});
+	});
+	page.on('pageerror', (err) => {
+		console.log(err);
+		config?.onError?.({err: err as Error});
+	});
+	if (config?.onBrowserLog) {
+		page.on('console', (log) => {
+			config.onBrowserLog?.({
+				stackTrace: log.stackTrace(),
+				text: log.text(),
+				type: log.type(),
+			});
+		});
+	}
 
 	await setPropsAndEnv({
 		inputProps: config?.inputProps,
 		envVariables: config?.envVariables,
 		page,
-		port,
+		serveUrl,
 		initialFrame: 0,
 	});
 
-	await page.goto(`http://localhost:${port}/index.html?evaluation=true`);
+	const urlToVisit = `${normalizeServeUrl(serveUrl)}?evaluation=true`;
+	const pageRes = await page.goto(urlToVisit);
+	if (pageRes.status() !== 200) {
+		throw new Error(
+			`Error while getting compositions: Tried to go to ${urlToVisit} but the status code was not 200 as expected, but ${pageRes.status()}. Does the site you specified exist?`
+		);
+	}
+
+	const isRemotionFn = await page.evaluate('window.getStaticCompositions');
+	if (isRemotionFn === undefined) {
+		throw new Error(
+			`Error while getting compositions: Tried to go to ${urlToVisit} and verify that it is a Remotion project by checking if window.getStaticCompositions is defined. However, the function was undefined, which indicates that this is not a valid Remotion project. Please check the URL you passed.`
+		);
+	}
+
 	await page.waitForFunction('window.ready === true');
 	const result = await page.evaluate('window.getStaticCompositions()');
 
-	// Close web server and don't wait for it to finish,
-	// it is slow.
-	close().catch((err) => {
-		console.error('Was not able to close web server', err);
-	});
 	cleanup();
 
 	return result as TCompMetadata[];

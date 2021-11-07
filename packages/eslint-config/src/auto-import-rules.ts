@@ -20,6 +20,8 @@ export const autoImports = {
   Composition: "import {Composition} from 'remotion'",
   Audio: "import {Audio} from 'remotion'",
   Video: "import {Video} from 'remotion'",
+  Series: "import {Series} from 'remotion'",
+  Still: "import {Still} from 'remotion'",
   Config: "import {Config} from 'remotion'",
   Img: "import {Img} from 'remotion'",
   IFrame: "import {IFrame} from 'remotion'",

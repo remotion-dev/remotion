@@ -8,6 +8,7 @@
     "lib": ["es2019", "dom"],
     "jsx": "react-jsx",
     "noEmit": false,
+    "skipLibCheck": true,
     "strict": true,
     "esModuleInterop": true,
     "resolveJsonModule": true
