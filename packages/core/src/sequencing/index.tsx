@@ -25,19 +25,21 @@ export const SequenceContext = createContext<SequenceContextType | null>(null);
 export type SequenceProps = {
 	children: React.ReactNode;
 	from: number;
-	durationInFrames: number;
+	durationInFrames?: number;
 	name?: string;
 	layout?: 'absolute-fill' | 'none';
 	showInTimeline?: boolean;
+	showLoopTimesInTimeline?: number;
 };
 
 export const Sequence: React.FC<SequenceProps> = ({
 	from,
-	durationInFrames,
+	durationInFrames = Infinity,
 	children,
 	name,
 	layout = 'absolute-fill',
 	showInTimeline = true,
+	showLoopTimesInTimeline,
 }) => {
 	const [id] = useState(() => String(Math.random()));
 	const parentSequence = useContext(SequenceContext);
@@ -134,6 +136,7 @@ export const Sequence: React.FC<SequenceProps> = ({
 			rootId,
 			showInTimeline,
 			nonce,
+			showLoopTimesInTimeline,
 		});
 		return () => {
 			unregisterSequence(id);
@@ -152,6 +155,7 @@ export const Sequence: React.FC<SequenceProps> = ({
 		from,
 		showInTimeline,
 		nonce,
+		showLoopTimesInTimeline,
 	]);
 
 	const endThreshold = (() => {

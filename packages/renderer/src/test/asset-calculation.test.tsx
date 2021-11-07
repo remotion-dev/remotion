@@ -9,6 +9,7 @@ const basicConfig = {
 	height: 1080,
 	fps: 30,
 	durationInFrames: 60,
+	id: 'hithere'
 };
 
 const getPositions = async (Markup: React.FC) => {
@@ -163,7 +164,7 @@ test('Should calculate volumes correctly', async () => {
 test('Should calculate startFrom correctly', async () => {
 	const assetPositions = await getPositions(() => {
 		return (
-			<Sequence from={1} durationInFrames={Infinity}>
+			<Sequence from={1}>
 				<Audio
 					startFrom={100}
 					endAt={200}

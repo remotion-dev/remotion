@@ -20,6 +20,11 @@ const FEATURED_TEMPLATES: TEMPLATES[] = [
 		description: 'The default starter template (recommended)',
 	},
 	{
+		shortName: 'Blank',
+		name: 'remotion-dev/template-empty',
+		description: 'Nothing except an empty canvas',
+	},
+	{
 		shortName: 'Hello World (Javascript)',
 		name: 'remotion-dev/template-helloworld-javascript',
 		description: 'The default starter template in plain JS',
@@ -212,7 +217,6 @@ export const init = async () => {
 						title:
 							chalk.bold(padEnd(template.shortName, descriptionColumn)) +
 							template.description.trim(),
-						short: template.name,
 					};
 				}
 			}),

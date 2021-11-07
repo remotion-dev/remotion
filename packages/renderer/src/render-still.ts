@@ -1,11 +1,17 @@
 import fs, {mkdirSync, statSync} from 'fs';
 import path from 'path';
 import {Browser as PuppeteerBrowser} from 'puppeteer-core';
-import {Browser, BrowserExecutable, Internals, TCompMetadata} from 'remotion';
+import {
+	Browser,
+	BrowserExecutable,
+	Internals,
+	StillImageFormat,
+	TCompMetadata,
+} from 'remotion';
+import {normalizeServeUrl} from './normalize-serve-url';
 import {openBrowser} from './open-browser';
 import {provideScreenshot} from './provide-screenshot';
 import {seekToFrame} from './seek-to-frame';
-import {serveStatic} from './serve-static';
 import {setPropsAndEnv} from './set-props-and-env';
 
 type RenderStillOptions = {
@@ -28,7 +34,7 @@ const innerRenderStill = async ({
 	composition,
 	quality,
 	imageFormat = 'png',
-	webpackBundle,
+	serveUrl,
 	browser = Internals.DEFAULT_BROWSER,
 	puppeteerInstance,
 	dumpBrowserLogs = false,
@@ -97,14 +103,12 @@ const innerRenderStill = async ({
 		recursive: true,
 	});
 
-	const [{port, close}, browserInstance] = await Promise.all([
-		serveStatic(webpackBundle),
+	const browserInstance =
 		puppeteerInstance ??
-			openBrowser(browser, {
-				browserExecutable,
-				shouldDumpIo: dumpBrowserLogs,
-			}),
-	]);
+		(await openBrowser(browser, {
+			browserExecutable,
+			shouldDumpIo: dumpBrowserLogs,
+		}));
 	const page = await browserInstance.newPage();
 	page.setViewport({
 		width: composition.width,
@@ -134,15 +138,15 @@ const innerRenderStill = async ({
 	};
 
 	page.on('pageerror', errorCallback);
+	const site = `${normalizeServeUrl(serveUrl)}?composition=${composition.id}`;
 	await setPropsAndEnv({
 		inputProps,
 		envVariables,
 		page,
-		port,
+		serveUrl,
 		initialFrame: frame,
 	});
 
-	const site = `http://localhost:${port}/index.html?composition=${composition.id}`;
 	await page.goto(site);
 	try {
 		await seekToFrame({frame, page});

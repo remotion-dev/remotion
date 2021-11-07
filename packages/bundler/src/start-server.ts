@@ -9,8 +9,14 @@ import webpack from 'webpack';
 // @ts-expect-error
 import webpackHotMiddleware from 'webpack-hot-middleware';
 import {getDesiredPort} from './get-port';
+import {getProjectInfo} from './project-info';
 import {isUpdateAvailableWithTimeout} from './update-available';
 import {webpackConfig} from './webpack-config';
+
+const indexHtml = fs.readFileSync(
+	path.join(__dirname, '..', 'web', 'index.html'),
+	'utf-8'
+);
 
 export const startServer = async (
 	entry: string,
@@ -20,6 +26,7 @@ export const startServer = async (
 		inputProps?: object;
 		envVariables?: Record<string, string>;
 		port?: number;
+		publicPath?: string;
 		maxTimelineTracks?: number;
 	}
 ): Promise<number> => {
@@ -41,7 +48,6 @@ export const startServer = async (
 	});
 	const compiler = webpack(config);
 
-	app.use(express.static(path.join(__dirname, '..', 'web')));
 	app.use(webpackDevMiddleware(compiler));
 	app.use(
 		webpackHotMiddleware(compiler, {
@@ -50,8 +56,20 @@ export const startServer = async (
 		})
 	);
 
-	app.get('/update', (req, res) => {
+	app.get('/api/update', (req, res) => {
 		isUpdateAvailableWithTimeout()
+			.then((data) => {
+				res.json(data);
+			})
+			.catch((err) => {
+				res.status(500).json({
+					err: err.message,
+				});
+			});
+	});
+
+	app.get('/api/project-info', (req, res) => {
+		getProjectInfo()
 			.then((data) => {
 				res.json(data);
 			})
@@ -67,7 +85,8 @@ export const startServer = async (
 	});
 
 	app.use('*', (req, res) => {
-		res.sendFile(path.join(__dirname, '..', 'web', 'index.html'));
+		res.type('text/html');
+		res.end(indexHtml.replace(/%PUBLIC_PATH%/g, options?.publicPath ?? '/'));
 	});
 
 	const desiredPort = options?.port ?? Internals.getServerPort();

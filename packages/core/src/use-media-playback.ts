@@ -1,6 +1,6 @@
-import {RefObject, useEffect} from 'react';
+import {RefObject, useContext, useEffect} from 'react';
 import {useMediaStartsAt} from './audio/use-audio-frame';
-import {usePlayingState} from './timeline-position-state';
+import {TimelineContext, usePlayingState} from './timeline-position-state';
 import {useAbsoluteCurrentFrame, useCurrentFrame} from './use-frame';
 import {useVideoConfig} from './use-video-config';
 import {getMediaTime} from './video/get-current-time';
@@ -13,8 +13,12 @@ const playAndHandleNotAllowedError = (
 	const {current} = mediaRef;
 	const prom = current?.play();
 	if (prom?.catch) {
-		prom?.catch((err) => {
+		prom?.catch((err: Error) => {
 			if (!current) {
+				return;
+			}
+
+			if (err.message.includes('request was interrupted by a call to pause')) {
 				return;
 			}
 
@@ -32,18 +36,21 @@ export const useMediaPlayback = ({
 	mediaRef,
 	src,
 	mediaType,
-	playbackRate,
+	playbackRate: localPlaybackRate,
 }: {
 	mediaRef: RefObject<HTMLVideoElement | HTMLAudioElement>;
 	src: string | undefined;
 	mediaType: 'audio' | 'video';
 	playbackRate: number;
 }) => {
+	const {playbackRate: globalPlaybackRate} = useContext(TimelineContext);
 	const frame = useCurrentFrame();
 	const absoluteFrame = useAbsoluteCurrentFrame();
 	const [playing] = usePlayingState();
 	const {fps} = useVideoConfig();
 	const mediaStartsAt = useMediaStartsAt();
+
+	const playbackRate = localPlaybackRate * globalPlaybackRate;
 
 	useEffect(() => {
 		if (playing && !mediaRef.current?.ended) {
@@ -65,13 +72,13 @@ export const useMediaPlayback = ({
 			);
 		}
 
-		mediaRef.current.playbackRate = playbackRate;
+		mediaRef.current.playbackRate = Math.max(0, playbackRate);
 
 		const shouldBeTime = getMediaTime({
 			fps,
 			frame,
 			src,
-			playbackRate,
+			playbackRate: localPlaybackRate,
 			startFrom: -mediaStartsAt,
 		});
 
@@ -104,5 +111,6 @@ export const useMediaPlayback = ({
 		playing,
 		src,
 		mediaStartsAt,
+		localPlaybackRate,
 	]);
 };

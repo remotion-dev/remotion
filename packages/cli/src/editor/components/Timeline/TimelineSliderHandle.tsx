@@ -1,15 +1,14 @@
 import React from 'react';
-import styled from 'styled-components';
 
-const Container = styled.div`
-	width: 20px;
-	height: 20px;
-	position: fixed;
-`;
+const container: React.CSSProperties = {
+	width: 20,
+	height: 20,
+	position: 'fixed',
+};
 
 export const TimelineSliderHandle: React.FC = () => {
 	return (
-		<Container>
+		<div style={container}>
 			<svg
 				width={17}
 				viewBox="0 0 159 212"
@@ -21,6 +20,6 @@ export const TimelineSliderHandle: React.FC = () => {
 					fill="#f02c00"
 				/>
 			</svg>
-		</Container>
+		</div>
 	);
 };

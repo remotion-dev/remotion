@@ -43,6 +43,8 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		setMediaVolume: (v: number) => void;
 		setMediaMuted: (v: boolean) => void;
 		mediaVolume: number;
+		errorFallback: (info: {error: Error}) => React.ReactNode;
+		playbackRate: number;
 	}
 > = (
 	{
@@ -60,6 +62,8 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		setMediaMuted,
 		setMediaVolume,
 		spaceKeyToPlayOrPause,
+		errorFallback,
+		playbackRate,
 	},
 	ref
 ) => {
@@ -72,7 +76,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 	const [hasPausedToResume, setHasPausedToResume] = useState(false);
 	const [shouldAutoplay, setShouldAutoPlay] = useState(autoPlay);
 	const [isFullscreen, setIsFullscreen] = useState(() => false);
-	usePlayback({loop});
+	usePlayback({loop, playbackRate});
 	const player = usePlayer();
 
 	useEffect(() => {
@@ -109,7 +113,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 
 	const toggle = useCallback(
 		(e?: SyntheticEvent) => {
-			if (player.playing) {
+			if (player.isPlaying()) {
 				player.pause();
 			} else {
 				player.play(e);
@@ -146,61 +150,76 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		}
 	}, []);
 
-	useImperativeHandle(ref, () => {
-		const methods: PlayerMethods = {
-			play: player.play,
-			pause: player.pause,
-			toggle,
-			getCurrentFrame: player.getCurrentFrame,
-			seekTo: (f) => {
-				if (player.playing) {
-					setHasPausedToResume(true);
-					player.pause();
-				}
+	useImperativeHandle(
+		ref,
+		() => {
+			const methods: PlayerMethods = {
+				play: player.play,
+				pause: player.pause,
+				toggle,
+				getContainerNode: () => container.current,
+				getCurrentFrame: player.getCurrentFrame,
+				seekTo: (f) => {
+					if (player.isPlaying()) {
+						setHasPausedToResume(true);
+						player.pause();
+					}
 
-				player.seek(f);
-			},
-			isFullscreen: () => isFullscreen,
-			requestFullscreen,
+					player.seek(f);
+				},
+				isFullscreen: () => isFullscreen,
+				requestFullscreen,
+				exitFullscreen,
+				getVolume: () => {
+					if (mediaMuted) {
+						return 0;
+					}
+
+					return mediaVolume;
+				},
+				setVolume: (vol: number) => {
+					if (typeof vol !== 'number') {
+						throw new TypeError(
+							`setVolume() takes a number, got value of type ${typeof vol}`
+						);
+					}
+
+					if (isNaN(vol)) {
+						throw new TypeError(
+							`setVolume() got a number that is NaN. Volume must be between 0 and 1.`
+						);
+					}
+
+					if (vol < 0 || vol > 1) {
+						throw new TypeError(
+							`setVolume() got a number that is out of range. Must be between 0 and 1, got ${typeof vol}`
+						);
+					}
+
+					setMediaVolume(vol);
+				},
+				isMuted: () => mediaMuted || mediaVolume === 0,
+				mute: () => {
+					setMediaMuted(true);
+				},
+				unmute: () => {
+					setMediaMuted(false);
+				},
+			};
+			return Object.assign(player.emitter, methods);
+		},
+		[
 			exitFullscreen,
-			getVolume: () => {
-				if (mediaMuted) {
-					return 0;
-				}
-
-				return mediaVolume;
-			},
-			setVolume: (vol: number) => {
-				if (typeof vol !== 'number') {
-					throw new TypeError(
-						`setVolume() takes a number, got value of type ${typeof vol}`
-					);
-				}
-
-				if (isNaN(vol)) {
-					throw new TypeError(
-						`setVolume() got a number that is NaN. Volume must be between 0 and 1.`
-					);
-				}
-
-				if (vol < 0 || vol > 1) {
-					throw new TypeError(
-						`setVolume() got a number that is out of range. Must be between 0 and 1, got ${typeof vol}`
-					);
-				}
-
-				setMediaVolume(vol);
-			},
-			isMuted: () => mediaMuted || mediaVolume === 0,
-			mute: () => {
-				setMediaMuted(true);
-			},
-			unmute: () => {
-				setMediaMuted(false);
-			},
-		};
-		return Object.assign(player.emitter, methods);
-	});
+			isFullscreen,
+			mediaMuted,
+			mediaVolume,
+			player,
+			requestFullscreen,
+			setMediaMuted,
+			setMediaVolume,
+			toggle,
+		]
+	);
 
 	const VideoComponent = video ? video.component : null;
 
@@ -288,21 +307,23 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		[player]
 	);
 
-	const onFullscreenButtonClick: MouseEventHandler<HTMLButtonElement> = useCallback(
-		(e) => {
-			e.stopPropagation();
-			requestFullscreen();
-		},
-		[requestFullscreen]
-	);
+	const onFullscreenButtonClick: MouseEventHandler<HTMLButtonElement> =
+		useCallback(
+			(e) => {
+				e.stopPropagation();
+				requestFullscreen();
+			},
+			[requestFullscreen]
+		);
 
-	const onExitFullscreenButtonClick: MouseEventHandler<HTMLButtonElement> = useCallback(
-		(e) => {
-			e.stopPropagation();
-			exitFullscreen();
-		},
-		[exitFullscreen]
-	);
+	const onExitFullscreenButtonClick: MouseEventHandler<HTMLButtonElement> =
+		useCallback(
+			(e) => {
+				e.stopPropagation();
+				exitFullscreen();
+			},
+			[exitFullscreen]
+		);
 
 	const onSingleClick = useCallback(
 		(e: SyntheticEvent) => {
@@ -345,10 +366,10 @@ const PlayerUI: React.ForwardRefRenderFunction<
 			>
 				<div style={containerStyle} className={PLAYER_CSS_CLASSNAME}>
 					{VideoComponent ? (
-						<ErrorBoundary onError={onError}>
+						<ErrorBoundary onError={onError} errorFallback={errorFallback}>
 							<VideoComponent
-								{...(((video?.props as unknown) as {}) ?? {})}
-								{...(((inputProps as unknown) as {}) ?? {})}
+								{...((video?.props as unknown as {}) ?? {})}
+								{...((inputProps as unknown as {}) ?? {})}
 							/>
 						</ErrorBoundary>
 					) : null}
