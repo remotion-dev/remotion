@@ -3,6 +3,8 @@ import evenDimensions from "./rules/even-dimensions";
 import nomp4Import from "./rules/no-mp4-import";
 import noStringAssets from "./rules/no-string-assets";
 import warnNativeMediaTag from "./rules/warn-native-media-tag";
+import durationInFrames from "./rules/no-duration-frames-infinity";
+import volumeCallback from "./rules/volume-callback";
 
 const rules = {
   "no-mp4-import": nomp4Import,
@@ -10,6 +12,8 @@ const rules = {
   "deterministic-randomness": deterministicRandomness,
   "no-string-assets": noStringAssets,
   "even-dimensions": evenDimensions,
+  "duration-in-frames": durationInFrames,
+  "volume-callback": volumeCallback,
 };
 
 export = {

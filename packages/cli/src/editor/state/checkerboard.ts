@@ -2,7 +2,7 @@ import {createContext} from 'react';
 
 type State = {
 	checkerboard: boolean;
-	setCheckerboard: React.Dispatch<React.SetStateAction<boolean>>;
+	setCheckerboard: (cb: (prevState: boolean) => boolean) => void;
 };
 
 export const persistCheckerboardOption = (option: boolean) => {

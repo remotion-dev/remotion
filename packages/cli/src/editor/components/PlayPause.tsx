@@ -2,25 +2,32 @@ import {PlayerInternals} from '@remotion/player';
 import React, {useCallback, useEffect} from 'react';
 import {Internals} from 'remotion';
 import {useIsStill} from '../helpers/is-current-selected-still';
+import {useKeybinding} from '../helpers/use-keybinding';
 import {Pause} from '../icons/pause';
 import {Play} from '../icons/play';
 import {StepBack} from '../icons/step-back';
 import {StepForward} from '../icons/step-forward';
 import {ControlButton} from './ControlButton';
 
-export const PlayPause: React.FC = () => {
+const forwardBackStyle = {
+	height: 16,
+	width: 16,
+	color: 'white',
+};
+
+export const PlayPause: React.FC<{
+	playbackRate: number;
+	loop: boolean;
+}> = ({playbackRate, loop}) => {
 	const frame = Internals.Timeline.useTimelinePosition();
 	const video = Internals.useVideo();
-	PlayerInternals.usePlayback({loop: true});
+	PlayerInternals.usePlayback({
+		loop,
+		playbackRate,
+	});
 
-	const {
-		playing,
-		play,
-		pause,
-		frameBack,
-		frameForward,
-		isLastFrame,
-	} = PlayerInternals.usePlayer();
+	const {playing, play, pause, frameBack, frameForward, isLastFrame} =
+		PlayerInternals.usePlayer();
 
 	const isStill = useIsStill();
 
@@ -30,33 +37,42 @@ export const PlayPause: React.FC = () => {
 		}
 	}, [isStill, pause]);
 
-	const onKeyPress = useCallback(
+	const onSpace = useCallback(
 		(e: KeyboardEvent) => {
-			if (!video) {
-				return;
+			if (playing) {
+				pause();
+			} else {
+				play();
 			}
 
-			if (e.code === 'Space') {
-				if (playing) {
-					pause();
-				} else {
-					play();
-				}
-
-				e.preventDefault();
-			}
-
-			if (e.code === 'ArrowLeft') {
-				frameBack(e.shiftKey ? video.fps : 1);
-				e.preventDefault();
-			}
-
-			if (e.code === 'ArrowRight') {
-				frameForward(e.shiftKey ? video.fps : 1);
-				e.preventDefault();
-			}
+			e.preventDefault();
 		},
-		[frameBack, frameForward, pause, play, playing, video]
+		[pause, play, playing]
+	);
+	const videoFps = video?.fps ?? null;
+
+	const onArrowLeft = useCallback(
+		(e: KeyboardEvent) => {
+			if (!videoFps) {
+				return null;
+			}
+
+			frameBack(e.shiftKey ? videoFps : 1);
+			e.preventDefault();
+		},
+		[frameBack, videoFps]
+	);
+
+	const onArrowRight = useCallback(
+		(e: KeyboardEvent) => {
+			if (!videoFps) {
+				return null;
+			}
+
+			frameForward(e.shiftKey ? videoFps : 1);
+			e.preventDefault();
+		},
+		[frameForward, videoFps]
 	);
 
 	const oneFrameBack = useCallback(() => {
@@ -66,13 +82,27 @@ export const PlayPause: React.FC = () => {
 	const oneFrameForward = useCallback(() => {
 		frameForward(1);
 	}, [frameForward]);
+	const keybindings = useKeybinding();
 
 	useEffect(() => {
-		window.addEventListener('keydown', onKeyPress);
-		return (): void => {
-			window.removeEventListener('keydown', onKeyPress);
+		const arrowLeft = keybindings.registerKeybinding(
+			'keydown',
+			'ArrowLeft',
+			onArrowLeft
+		);
+		const arrowRight = keybindings.registerKeybinding(
+			'keydown',
+			'ArrowRight',
+			onArrowRight
+		);
+		const space = keybindings.registerKeybinding('keydown', ' ', onSpace);
+
+		return () => {
+			arrowLeft.unregister();
+			arrowRight.unregister();
+			space.unregister();
 		};
-	}, [onKeyPress]);
+	}, [keybindings, onArrowLeft, onArrowRight, onSpace]);
 
 	if (isStill) {
 		return null;
@@ -82,20 +112,16 @@ export const PlayPause: React.FC = () => {
 		<>
 			<ControlButton
 				aria-label="Step back one frame"
+				title="Step back one frame"
 				disabled={frame === 0}
 				onClick={oneFrameBack}
 			>
-				<StepBack
-					style={{
-						height: 16,
-						width: 16,
-						color: 'white',
-					}}
-				/>
+				<StepBack style={forwardBackStyle} />
 			</ControlButton>
 
 			<ControlButton
 				aria-label={playing ? 'Pause' : 'Play'}
+				title={playing ? 'Pause' : 'Play'}
 				disabled={!video}
 				onClick={playing ? pause : play}
 			>
@@ -120,16 +146,11 @@ export const PlayPause: React.FC = () => {
 
 			<ControlButton
 				aria-label="Step forward one frame"
+				title="Step forward one frame"
 				disabled={isLastFrame}
 				onClick={oneFrameForward}
 			>
-				<StepForward
-					style={{
-						height: 16,
-						width: 16,
-						color: 'white',
-					}}
-				/>
+				<StepForward style={forwardBackStyle} />
 			</ControlButton>
 		</>
 	);

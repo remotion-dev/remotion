@@ -1,14 +1,13 @@
 import {renderHook} from '@testing-library/react-hooks';
 import React, {RefObject} from 'react';
 import {useMediaTagVolume} from '../use-media-tag-volume';
-import anything = jasmine.anything;
 
 describe('Should update state when volume changes', () => {
 	const setState = jest.fn();
 	const useStateSpy = jest.spyOn(React, 'useState');
 	beforeEach(() => {
 		// @ts-expect-error
-		useStateSpy.mockImplementation(init => [init, setState]);
+		useStateSpy.mockImplementation((init) => [init, setState]);
 	});
 	afterEach(() => {
 		useStateSpy.mockRestore();
@@ -31,8 +30,14 @@ describe('Should update state when volume changes', () => {
 		} as RefObject<HTMLAudioElement>;
 		rerender({mediaRef: audioRef});
 		expect(setState).toHaveBeenCalledWith(0.75);
-		expect(addEventListener).toHaveBeenCalledWith('volumechange', anything());
-		expect(removeEventListener).toHaveBeenCalledWith('volumechange', anything());
+		expect(addEventListener).toHaveBeenCalledWith(
+			'volumechange',
+			expect.anything()
+		);
+		expect(removeEventListener).toHaveBeenCalledWith(
+			'volumechange',
+			expect.anything()
+		);
 	});
 });
 

@@ -1,6 +1,6 @@
 {
 	"name": "player-example",
-	"version": "2.3.3",
+	"version": "2.5.1",
 	"private": true,
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"maintainers": [
@@ -9,23 +9,23 @@
 	],
 	"dependencies": {
 		"@craco/craco": "^6.1.1",
-		"@remotion/player": "^2.3.3",
+		"@remotion/player": "2.5.1",
 		"@testing-library/jest-dom": "^5.11.4",
 		"@testing-library/react": "^11.1.0",
 		"@testing-library/user-event": "^12.1.10",
-		"@types/jest": "^26.0.15",
+		"@types/jest": "^27.0.2",
 		"@types/node": "^12.0.0",
-		"@types/react": "17.0.19",
+		"@types/react": "17.0.27",
 		"@types/react-dom": "^17.0.0",
 		"react": "^17.0.1",
 		"react-dom": "^17.0.1",
 		"react-scripts": "4.0.3",
-		"remotion": "^2.3.3",
+		"remotion": "2.5.1",
 		"typescript": "^4.4.2"
 	},
 	"scripts": {
 		"start": "craco start",
-		"build": "craco build"
+		"build": "exit 0"
 	},
 	"eslintConfig": {
 		"extends": [

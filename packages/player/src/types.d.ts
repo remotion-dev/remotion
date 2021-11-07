@@ -102,6 +102,7 @@ declare class ResizeObserver {
 	 * An options object allowing you to set options for the observation.
 	 * Currently this only has one possible option that can be set.
 	 */
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	observe: (target: Element, options?: ResizeObserverObserveOptions) => void;
 
 	/**
@@ -111,6 +112,7 @@ declare class ResizeObserver {
 	 * [Element](https://developer.mozilla.org/en-US/docs/Web/API/Element) or
 	 * [SVGElement](https://developer.mozilla.org/en-US/docs/Web/API/SVGElement).
 	 */
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	unobserve: (target: Element) => void;
 }
 
