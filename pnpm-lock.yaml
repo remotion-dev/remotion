@@ -172,6 +172,7 @@ importers:
       better-opn: ^2.1.1
       chalk: ^4.1.0
       dotenv: ^9.0.0
+      esbuild: ^0.11.12
       eslint: ^7.25.0
       execa: ^4.0.2
       jest: ^27.2.4
@@ -193,6 +194,7 @@ importers:
       better-opn: 2.1.1
       chalk: 4.1.2
       dotenv: 9.0.2
+      esbuild: 0.11.23
       execa: 4.1.0
       minimist: 1.2.5
       remotion: link:../core
@@ -12165,7 +12167,6 @@ packages:
     resolution: {integrity: sha512-iaiZZ9vUF5wJV8ob1tl+5aJTrwDczlvGP0JoMmnpC2B0ppiMCu8n8gmy5ZTGl5bcG081XBVn+U+jP+mPFm5T5Q==}
     hasBin: true
     requiresBuild: true
-    dev: true
 
   /esbuild/0.12.29:
     resolution: {integrity: sha512-w/XuoBCSwepyiZtIRsKsetiLDUVGPVw1E/R3VTFSecIy8UR7Cq3SOtwKHJMFoVqqVG36aGkzh4e8BvpO1Fdc7g==}
