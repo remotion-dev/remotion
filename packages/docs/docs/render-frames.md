@@ -12,7 +12,6 @@ If you want to render only a still image, use [renderStill()](/docs/render-still
 ```ts
 const renderFrames: (options: {
   config: VideoConfig;
-  compositionId: string;
   onFrameUpdate: (frame: number) => void;
   onStart: (data: {
     frameCount: number;
@@ -27,7 +26,6 @@ const renderFrames: (options: {
   frameRange?: number | [number, number] | null;
   dumpBrowserLogs?: boolean;
   puppeteerInstance?: puppeteer.Browser;
-  onError?: (info: {error: Error; frame: number | null}) => void;
   onBrowserLog?: (log: BrowserLog) => void;
 }): Promise<RenderFramesOutput>;
 ```
@@ -42,11 +40,7 @@ Takes an object with the following keys:
 
 ### `config`
 
-A video config, consisting out of `width`, `height`, `durationInFrames` and `fps`. See: [Defining compositions](/docs/the-fundamentals#defining-compositions) and [useVideoConfig()](/docs/use-video-config).
-
-### `compositionId`
-
-A `string` specifying the ID of the composition. See: [Defining compositions](/docs/the-fundamentals#defining-compositions).
+A video config, consisting out of `id`, `width`, `height`, `durationInFrames` and `fps`, where `id` is the compositions ID. See: [Defining compositions](/docs/the-fundamentals#defining-compositions) and [useVideoConfig()](/docs/use-video-config).
 
 ### `onStart`
 
@@ -125,30 +119,6 @@ An already open Puppeteer [`Browser`](https://pptr.dev/#?product=Puppeteer&versi
 _optional - Available since v2.2.0_
 
 An object containing key-value pairs of environment variables which will be injected into your Remotion projected and which can be accessed by reading the global `process.env` object.
-
-### `onError?`
-
-_optional - Available since v2.1.0_
-
-Allows you to react to an exception thrown in your React code. The callback has an argument which is an object containing `error` and `frame` properties.
-The `frame` property tells you at which frame the error was thrown. If the error was thrown at startup, `frame` is null.
-
-```tsx twoslash
-const renderFrames = (options: {
-  onError: (info: { frame: null | number; error: Error }) => void;
-}) => {};
-// ---cut---
-renderFrames({
-  onError: (info) => {
-    if (info.frame === null) {
-      console.error("Got error while initalizing video rendering", info.error);
-    } else {
-      console.error("Got error at frame ", info.frame, info.error);
-    }
-    // Handle error here
-  },
-});
-```
 
 ### `onBrowserLog?`
 

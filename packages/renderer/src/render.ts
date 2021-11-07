@@ -20,13 +20,33 @@ import {Pool} from './pool';
 import {provideScreenshot} from './provide-screenshot';
 import {seekToFrame} from './seek-to-frame';
 import {setPropsAndEnv} from './set-props-and-env';
-import {OnErrorInfo, OnStartData, RenderFramesOutput} from './types';
+import {OnStartData, RenderFramesOutput} from './types';
 
-export const renderFrames = async ({
+type RenderFramesOptions = {
+	config: VideoConfig;
+	onStart: (data: OnStartData) => void;
+	onFrameUpdate: (framesRendered: number, frameIndex: number) => void;
+	outputDir: string;
+	inputProps: unknown;
+	envVariables?: Record<string, string>;
+	imageFormat: ImageFormat;
+	parallelism?: number | null;
+	quality?: number;
+	browser?: Browser;
+	frameRange?: FrameRange | null;
+	serveUrl: string;
+	dumpBrowserLogs?: boolean;
+	puppeteerInstance?: PuppeteerBrowser;
+	browserExecutable?: BrowserExecutable;
+	onBrowserLog?: (log: BrowserLog) => void;
+	parallelEncoding?: boolean;
+	writeFrame?: (buffer?: Buffer) => void;
+};
+
+export const innerRenderFrames = async ({
 	config,
 	parallelism,
 	onFrameUpdate,
-	compositionId,
 	outputDir,
 	onStart,
 	inputProps,
@@ -43,27 +63,8 @@ export const renderFrames = async ({
 	onBrowserLog,
 	parallelEncoding,
 	writeFrame,
-}: {
-	config: VideoConfig;
-	compositionId: string;
-	onStart: (data: OnStartData) => void;
-	onFrameUpdate: (framesRendered: number, frameIndex: number) => void;
-	outputDir: string;
-	inputProps: unknown;
-	envVariables?: Record<string, string>;
-	imageFormat: ImageFormat;
-	parallelism?: number | null;
-	quality?: number;
-	browser?: Browser;
-	frameRange?: FrameRange | null;
-	serveUrl: string;
-	dumpBrowserLogs?: boolean;
-	puppeteerInstance?: PuppeteerBrowser;
-	browserExecutable?: BrowserExecutable;
-	onError?: (info: OnErrorInfo) => void;
-	onBrowserLog?: (log: BrowserLog) => void;
-	parallelEncoding?: boolean;
-	writeFrame?: (buffer?: Buffer) => void;
+}: RenderFramesOptions & {
+	onError: (err: Error) => void;
 }): Promise<RenderFramesOutput> => {
 	Internals.validateDimension(
 		config.height,
@@ -107,9 +108,6 @@ export const renderFrames = async ({
 			height: config.height,
 			deviceScaleFactor: 1,
 		});
-		const errorCallback = (err: Error) => {
-			onError?.({error: err, frame: null});
-		};
 
 		const logCallback = (log: ConsoleMessage) => {
 			onBrowserLog?.({
@@ -122,9 +120,6 @@ export const renderFrames = async ({
 		if (onBrowserLog) {
 			page.on('console', logCallback);
 		}
-
-		page.on('error', errorCallback);
-		page.on('pageerror', errorCallback);
 
 		const initialFrame =
 			typeof frameRange === 'number'
@@ -141,10 +136,9 @@ export const renderFrames = async ({
 			initialFrame,
 		});
 
-		const site = `${normalizeServeUrl(serveUrl)}?composition=${compositionId}`;
+		const site = `${normalizeServeUrl(serveUrl)}?composition=${config.id}`;
 		await page.goto(site);
-		page.off('error', errorCallback);
-		page.off('pageerror', errorCallback);
+
 		page.off('console', logCallback);
 		return page;
 	});
@@ -172,11 +166,12 @@ export const renderFrames = async ({
 				const freePage = await pool.acquire();
 				const paddedIndex = String(frame).padStart(filePadLength, '0');
 
-				const errorCallback = (err: Error) => {
-					onError?.({error: err, frame});
+				const errorCallbackOnFrame = (err: Error) => {
+					onError(new Error(`Error on rendering frame ${frame}: ${err.stack}`));
 				};
 
-				freePage.on('pageerror', errorCallback);
+				freePage.on('pageerror', errorCallbackOnFrame);
+				freePage.on('error', errorCallbackOnFrame);
 				try {
 					await seekToFrame({frame, page: freePage});
 				} catch (err) {
@@ -185,13 +180,13 @@ export const renderFrames = async ({
 						error.message.includes('timeout') &&
 						error.message.includes('exceeded')
 					) {
-						errorCallback(
+						errorCallbackOnFrame(
 							new Error(
 								'The rendering timed out. See https://www.remotion.dev/docs/timeout/ for possible reasons.'
 							)
 						);
 					} else {
-						errorCallback(error);
+						errorCallbackOnFrame(error);
 					}
 
 					throw error;
@@ -232,7 +227,8 @@ export const renderFrames = async ({
 				pool.release(freePage);
 				framesRendered++;
 				onFrameUpdate(framesRendered, frame);
-				freePage.off('pageerror', errorCallback);
+				freePage.off('pageerror', errorCallbackOnFrame);
+				freePage.off('error', errorCallbackOnFrame);
 				return collectedAssets;
 			})
 	);
@@ -257,4 +253,14 @@ export const renderFrames = async ({
 		},
 		frameCount,
 	};
+};
+
+export const renderFrames = (
+	options: RenderFramesOptions
+): Promise<RenderFramesOutput> => {
+	return new Promise<RenderFramesOutput>((resolve, reject) => {
+		innerRenderFrames({...options, onError: (err) => reject(err)})
+			.then((res) => resolve(res))
+			.catch((err) => reject(err));
+	});
 };

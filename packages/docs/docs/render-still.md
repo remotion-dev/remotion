@@ -41,12 +41,6 @@ await renderStill({
   composition,
   serveUrl: bundleLocation,
   output: "/tmp/still.png",
-  onError: (error) => {
-    console.error(
-      "The following error occured when rendering the still: ",
-      error.message
-    );
-  },
   inputProps: {
     custom: "data",
   },
@@ -110,25 +104,6 @@ An object containing key-value pairs of environment variables which will be inje
 _optional - default `false`_
 
 A boolean value deciding whether Puppeteer logs should be printed to the console, useful for debugging only.
-
-### `onError?`
-
-_optional_
-
-Allows you to react to an exception thrown in your React code. The callback has an argument which is the error.
-
-```tsx twoslash
-const renderStill = (options: {
-  onError: (err: Error) => void;
-}) => {}
-// ---cut---
-renderStill({
-  // ... other arguments
-  onError: (err: Error) => {
-    // Handle error here
-  }
-})
-```
 
 ### `overwrite?`
 

@@ -77,8 +77,8 @@ const renderHandler = async (
 		startDate: start,
 	};
 	const {assetsInfo} = await renderFrames({
-		compositionId: params.composition,
 		config: {
+			id: params.composition,
 			durationInFrames: params.durationInFrames,
 			fps: params.fps,
 			height: params.height,
@@ -116,21 +116,6 @@ const renderHandler = async (
 		serveUrl: params.serveUrl,
 		quality: params.quality,
 		envVariables: params.envVariables,
-		onError: ({error, frame}) => {
-			writeLambdaError({
-				errorInfo: {
-					stack: error.message + ' ' + error.stack,
-					type: 'browser',
-					frame,
-					chunk: params.chunk,
-					isFatal: false,
-					tmpDir: getTmpDirStateIfENoSp(JSON.stringify(error)),
-				},
-				bucketName: params.bucketName,
-				expectedBucketOwner: options.expectedBucketOwner,
-				renderId: params.renderId,
-			});
-		},
 		browser: 'chrome',
 		dumpBrowserLogs: false,
 		onBrowserLog: (log) => {
