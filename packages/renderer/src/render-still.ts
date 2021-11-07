@@ -14,10 +14,23 @@ import {provideScreenshot} from './provide-screenshot';
 import {seekToFrame} from './seek-to-frame';
 import {setPropsAndEnv} from './set-props-and-env';
 
-/**
- * @description Render a still frame from a composition and returns an image path
- */
-export const renderStill = async ({
+type RenderStillOptions = {
+	composition: TCompMetadata;
+	output: string;
+	serveUrl: string;
+	frame?: number;
+	inputProps?: unknown;
+	imageFormat?: StillImageFormat;
+	quality?: number;
+	browser?: Browser;
+	puppeteerInstance?: PuppeteerBrowser;
+	dumpBrowserLogs?: boolean;
+	envVariables?: Record<string, string>;
+	overwrite?: boolean;
+	browserExecutable?: BrowserExecutable;
+};
+
+const innerRenderStill = async ({
 	composition,
 	quality,
 	imageFormat = 'png',
@@ -32,22 +45,9 @@ export const renderStill = async ({
 	frame = 0,
 	overwrite = true,
 	browserExecutable,
-}: {
-	composition: TCompMetadata;
-	output: string;
-	serveUrl: string;
-	frame?: number;
-	inputProps?: unknown;
-	imageFormat?: StillImageFormat;
-	quality?: number;
-	browser?: Browser;
-	puppeteerInstance?: PuppeteerBrowser;
-	dumpBrowserLogs?: boolean;
-	onError?: (err: Error) => void;
-	envVariables?: Record<string, string>;
-	overwrite?: boolean;
-	browserExecutable?: BrowserExecutable;
-}) => {
+}: RenderStillOptions & {
+	onError: (err: Error) => void;
+}): Promise<void> => {
 	Internals.validateDimension(
 		composition.height,
 		'height',
@@ -115,8 +115,22 @@ export const renderStill = async ({
 		height: composition.height,
 		deviceScaleFactor: 1,
 	});
+
+	const cleanup = async () => {
+		page.off('pageerror', errorCallback);
+
+		if (puppeteerInstance) {
+			await page.close();
+		} else {
+			browserInstance.close().catch((err) => {
+				console.log('Unable to close browser', err);
+			});
+		}
+	};
+
 	const errorCallback = (err: Error) => {
-		onError?.(err);
+		onError(err);
+		cleanup();
 	};
 
 	page.on('pageerror', errorCallback);
@@ -138,13 +152,9 @@ export const renderStill = async ({
 			error.message.includes('timeout') &&
 			error.message.includes('exceeded')
 		) {
-			errorCallback(
-				new Error(
-					'The rendering timed out. See https://www.remotion.dev/docs/timeout/ for possible reasons.'
-				)
+			throw new Error(
+				'The rendering timed out. See https://www.remotion.dev/docs/timeout/ for possible reasons.'
 			);
-		} else {
-			errorCallback(error);
 		}
 
 		throw error;
@@ -160,13 +170,17 @@ export const renderStill = async ({
 		},
 	});
 
-	page.off('pageerror', errorCallback);
+	await cleanup();
+};
 
-	if (puppeteerInstance) {
-		await page.close();
-	} else {
-		browserInstance.close().catch((err) => {
-			console.log('Unable to close browser', err);
-		});
-	}
+/**
+ * @description Render a still frame from a composition and returns an image path
+ */
+
+export const renderStill = (options: RenderStillOptions): Promise<void> => {
+	return new Promise((resolve, reject) => {
+		innerRenderStill({...options, onError: (err) => reject(err)})
+			.then((res) => resolve(res))
+			.catch((err) => reject(err));
+	});
 };
