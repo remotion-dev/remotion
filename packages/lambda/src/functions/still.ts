@@ -68,21 +68,6 @@ const innerStillHandler = async (
 		browserInstance,
 		composition: lambdaParams.composition,
 		inputProps: lambdaParams.inputProps,
-		onError: ({err}) => {
-			writeLambdaError({
-				bucketName,
-				errorInfo: {
-					chunk: null,
-					frame: null,
-					isFatal: false,
-					stack: (err.message + ' ' + err.stack) as string,
-					type: 'browser',
-					tmpDir: getTmpDirStateIfENoSp(err.stack as string),
-				},
-				expectedBucketOwner: options.expectedBucketOwner,
-				renderId,
-			});
-		},
 	});
 
 	const renderMetadata: RenderMetadata = {
