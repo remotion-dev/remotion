@@ -5,8 +5,8 @@ import {ColorInterpolation} from './ColorInterpolation';
 import {Framer} from './Framer';
 import {MissingImg} from './MissingImg';
 import RemoteVideo from './RemoteVideo';
+import {Scripts} from './Scripts';
 import {SkipZeroFrame} from './SkipZeroFrame';
-import {SourceTesting} from './Source';
 import {SeriesTesting} from './StaggerTesting';
 import {TenFrameTester} from './TenFrameTester';
 import ThreeBasic from './ThreeBasic';
@@ -32,6 +32,14 @@ export const Index: React.FC = () => {
 			<Composition
 				id="nested"
 				lazyComponent={() => import('./NestedSequences')}
+				durationInFrames={200}
+				fps={60}
+				height={1080}
+				width={1080}
+			/>
+			<Composition
+				id="looped"
+				lazyComponent={() => import('./LoopedVideo')}
 				durationInFrames={200}
 				fps={60}
 				height={1080}
@@ -123,6 +131,10 @@ export const Index: React.FC = () => {
 				height={1920}
 				fps={30}
 				durationInFrames={90}
+				defaultProps={{
+					line1: 'Test',
+					line2: 'text',
+				}}
 			/>
 			<Composition
 				id="mdx-test"
@@ -275,10 +287,10 @@ export const Index: React.FC = () => {
 				durationInFrames={100}
 			/>
 			<Composition
-				id="source-testing"
-				component={SourceTesting}
-				width={1080}
-				height={1080}
+				id="scripts"
+				component={Scripts}
+				width={1280}
+				height={720}
 				fps={30}
 				durationInFrames={100}
 			/>

@@ -5,7 +5,8 @@ import {Concurrency, setConcurrency} from './concurrency';
 import {setCrf} from './crf';
 import {setDotEnvLocation} from './env-file';
 import {FrameRange, setFrameRange} from './frame-range';
-import {ImageFormat, setImageFormat} from './image-format';
+import {setFramesPerLambda} from './frames-per-lambda';
+import {ImageFormat, setImageFormat, StillImageFormat} from './image-format';
 import {setImageSequence} from './image-sequence';
 import {LogLevel, setLogLevel} from './log';
 import {setMaxTimelineTracks} from './max-timeline-tracks';
@@ -20,6 +21,7 @@ import {setPort} from './preview-server';
 import {setProResProfile} from './prores-profile';
 import {setQuality} from './quality';
 import {setWebpackCaching} from './webpack-caching';
+import {FfmpegExecutable, setFfmpegExecutable} from './ffmpeg-executable';
 
 export const Config = {
 	Preview: {
@@ -95,6 +97,11 @@ export const Config = {
 		 * The frame count starts at 0.
 		 */
 		setFrameRange,
+		/**
+		 * Specify local ffmpeg executable.
+		 * Default: null, which will use ffmpeg available in PATH.
+		 */
+		setFfmpegExecutable,
 	},
 	Output: {
 		/**
@@ -136,6 +143,13 @@ export const Config = {
 		 */
 		setProResProfile,
 	},
+	Lambda: {
+		/**
+		 * Determine how many frames get rendered per lambda invocation.
+		 * The lower the number, the more lambdas get invoked and the faster the render gets.
+		 */
+		setFramesPerLambda,
+	},
 } as const;
 
 export type {
@@ -144,9 +158,11 @@ export type {
 	WebpackConfiguration,
 	WebpackOverrideFn,
 	BrowserExecutable,
+	FfmpegExecutable,
 	ImageFormat,
 	Codec,
 	Browser,
 	FrameRange,
 	LogLevel,
+	StillImageFormat,
 };

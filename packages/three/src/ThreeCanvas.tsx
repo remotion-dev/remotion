@@ -1,6 +1,7 @@
 import { Canvas, useThree } from '@react-three/fiber';
 import React, { useLayoutEffect, useState } from 'react';
 import { Internals } from 'remotion';
+import { SuspenseLoader } from './SuspenseLoader';
 
 export type ThreeCanvasProps = React.ComponentProps<typeof Canvas> & {
 	width: number;
@@ -37,11 +38,13 @@ export const ThreeCanvas = (props: ThreeCanvasProps) => {
 		...(style ?? {}),
 	};
 	return (
-		<Canvas style={actualStyle} {...rest}>
-			<Scale width={width} height={height} />
-			<Internals.RemotionContextProvider contexts={contexts}>
-				{children}
-			</Internals.RemotionContextProvider>
-		</Canvas>
+		<SuspenseLoader>
+			<Canvas style={actualStyle} {...rest}>
+				<Scale width={width} height={height} />
+				<Internals.RemotionContextProvider contexts={contexts}>
+					{children}
+				</Internals.RemotionContextProvider>
+			</Canvas>
+		</SuspenseLoader>
 	);
 };
