@@ -20,6 +20,7 @@
 		"url": "https://github.com/JonnyBurger/remotion"
 	},
 	"dependencies": {
+		"@aws-sdk/client-cloudwatch-logs": "^3.18.0",
 		"@aws-sdk/client-iam": "^3.18.0",
 		"@aws-sdk/client-lambda": "^3.18.0",
 		"@aws-sdk/client-s3": "^3.18.0",
@@ -45,9 +46,9 @@
 	},
 	"devDependencies": {
 		"@jonny/eslint-config": "^2.1.210",
+		"@types/jest": "^26.0.23",
 		"@types/node": "^14.14.14",
 		"@types/prompt": "^1.1.0",
-		"@types/jest": "^26.0.23",
 		"eslint": "^7.4.0",
 		"jest": "^26.6.3",
 		"prettier": "^2.0.5",

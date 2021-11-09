@@ -1,4 +1,4 @@
-import {iam, lambda, s3} from 'aws-policies';
+import {iam, lambda, logs, s3} from 'aws-policies';
 import {
 	BINARIES_BUCKET_PREFIX,
 	REMOTION_BUCKET_PREFIX,
@@ -7,7 +7,7 @@ import {
 
 // TODO: Update docs before release
 export const requiredPermissions: {
-	actions: (s3 | iam | lambda)[];
+	actions: (s3 | iam | lambda | logs)[];
 	resource: string[];
 }[] = [
 	{
@@ -71,5 +71,14 @@ export const requiredPermissions: {
 	{
 		actions: [lambda.ListLayers, lambda.ListFunctions],
 		resource: ['*'],
+	},
+	{
+		actions: [
+			logs.CreateLogGroup,
+			logs.CreateLogStream,
+			logs.PutLogEvents,
+			logs.PutRetentionPolicy,
+		],
+		resource: ['arn:aws:logs:*:*:log-group:*'],
 	},
 ];
