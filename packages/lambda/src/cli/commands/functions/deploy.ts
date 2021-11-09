@@ -19,6 +19,7 @@ export const functionsDeploySubcommand = async () => {
 	const region = getAwsRegion();
 	const timeoutInSeconds = parsedLambdaCli.timeout ?? DEFAULT_TIMEOUT;
 	const memorySizeInMb = parsedLambdaCli.memory ?? DEFAULT_MEMORY_SIZE;
+	const createCloudWatchLogGroup = parsedLambdaCli.cloudwatch ?? false;
 	validateMemorySize(memorySizeInMb);
 	validateTimeout(timeoutInSeconds);
 	Log.info(
@@ -32,6 +33,7 @@ export const functionsDeploySubcommand = async () => {
 	const {layerArn} = await ensureLambdaBinaries(getAwsRegion());
 	output.update('Bundling lambda and deploying...');
 	const {functionName} = await deployFunction({
+		createCloudWatchLogGroup,
 		region,
 		timeoutInSeconds,
 		layerArn,

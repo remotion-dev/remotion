@@ -2,6 +2,7 @@ import minimist from 'minimist';
 import {AwsRegion} from '../pricing/aws-regions';
 
 type LambdaCommandLineOptions = {
+	cloudwatch: boolean;
 	help: boolean;
 	region: AwsRegion;
 	memory: number;
