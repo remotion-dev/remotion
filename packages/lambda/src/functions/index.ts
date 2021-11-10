@@ -26,7 +26,6 @@ export const handler = async <T extends LambdaRoutines>(
 		);
 	}
 
-	await closeBrowser();
 	deleteTmpDir();
 	const isWarm = getWarm();
 	setWarm();
