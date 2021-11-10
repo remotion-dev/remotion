@@ -91,6 +91,7 @@ export const renderCommand = async (args: string[]) => {
 		makeProgressString({
 			progress: multiProgress,
 			outName,
+			errors: status.errors,
 			steps: totalSteps,
 			isDownloaded: false,
 		})
@@ -112,6 +113,7 @@ export const renderCommand = async (args: string[]) => {
 				progress: newProgress,
 				steps: totalSteps,
 				isDownloaded: false,
+				errors: status.errors,
 			})
 		);
 
@@ -123,6 +125,7 @@ export const renderCommand = async (args: string[]) => {
 					progress: newProgress,
 					steps: totalSteps,
 					isDownloaded: false,
+					errors: status.errors,
 				})
 			);
 			if (outName) {
@@ -138,6 +141,7 @@ export const renderCommand = async (args: string[]) => {
 						progress: newProgress,
 						steps: totalSteps,
 						isDownloaded: true,
+						errors: status.errors,
 					})
 				);
 				Log.info();
@@ -157,18 +161,18 @@ export const renderCommand = async (args: string[]) => {
 		}
 
 		if (newStatus.fatalErrorEncountered) {
+			Log.error('\n');
 			for (const err of newStatus.errors) {
 				const attemptString = `(Attempt ${err.attempt}/${err.totalAttempts})`;
 				if (err.chunk === null) {
 					Log.error('Error occured while preparing video: ' + attemptString);
 				} else {
-					Log.error('Error occurred when rendering chunk ' + err.chunk);
+					Log.error(`Error occurred when rendering chunk ${err.chunk}:`);
 				}
 
 				Log.error(err.stack);
 			}
 
-			Log.error(JSON.stringify(newStatus.errors));
 			Log.error('Fatal error encountered. Exiting.');
 			process.exit(1);
 		}

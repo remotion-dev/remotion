@@ -182,7 +182,9 @@ export const getProgress = async ({
 		outputFile: outputFile?.url ?? null,
 		timeToFinish,
 		errors: errorExplanations,
-		fatalErrorEncountered: errorExplanations.some((f) => f.isFatal),
+		fatalErrorEncountered: errorExplanations.some(
+			(f) => f.isFatal && !f.willRetry
+		),
 		currentTime: Date.now(),
 		renderSize,
 		lambdasInvoked: lambdasInvokedStats.lambdasInvoked,
