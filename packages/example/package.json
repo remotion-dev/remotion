@@ -14,6 +14,8 @@
 		"start-js": "remotion preview src/entry.jsx",
 		"test": "eslint src --ext ts,tsx,js,jsx && jest",
 		"build": "tsc -d",
+		"deploys3": "npx remotion lambda sites create src/index.tsx --site-name=testbed2",
+		"renderlambda": "npx remotion lambda render https://remotionlambda-qg35eyp1s1.s3.eu-central-1.amazonaws.com/sites/testbed2/index.html gif out.mp4 --save-browser-logs",
 		"render": "remotion render src/index.tsx react-svg out/video.mp4",
 		"render-js": "remotion render src/entry.jsx framer out/video.mp4",
 		"render-transparent": "remotion render src/index.tsx --image-format=png --pixel-format=yuva420p --codec=vp8 react-svg out/video.webm"
