@@ -32,6 +32,7 @@ export const getBrowserInstance = async (
 		if (!_browserInstance) {
 			throw new Error('expected to launch');
 		}
+
 		return _browserInstance;
 	}
 
