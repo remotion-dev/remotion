@@ -60,8 +60,8 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 
 	validateFramesPerLambda(params.framesPerLambda);
 
-	const [, optimization] = await Promise.all([
-		getBrowserInstance(),
+	const [browserInstance, optimization] = await Promise.all([
+		getBrowserInstance(params.saveBrowserLogs),
 		getOptimization({
 			bucketName: params.bucketName,
 			siteId: getServeUrlHash(params.serveUrl),
@@ -74,7 +74,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 	const comp = await validateComposition({
 		serveUrl: params.serveUrl,
 		composition: params.composition,
-		browserInstance: await getBrowserInstance(),
+		browserInstance,
 		inputProps: params.inputProps,
 	});
 	Internals.validateDurationInFrames(

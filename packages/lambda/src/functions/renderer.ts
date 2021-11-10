@@ -53,7 +53,7 @@ const renderHandler = async (
 		throw new Error('Params must be renderer');
 	}
 
-	const browserInstance = await getBrowserInstance();
+	const browserInstance = await getBrowserInstance(params.saveBrowserLogs);
 	const outputPath = OUTPUT_PATH_PREFIX + randomHash();
 	if (fs.existsSync(outputPath)) {
 		(fs.rmSync ?? fs.rmdirSync)(outputPath);
@@ -118,7 +118,7 @@ const renderHandler = async (
 		quality: params.quality,
 		envVariables: params.envVariables,
 		browser: 'chrome',
-		dumpBrowserLogs: false,
+		dumpBrowserLogs: params.saveBrowserLogs,
 		onBrowserLog: (log) => {
 			logs.push(log);
 		},

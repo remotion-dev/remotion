@@ -24,11 +24,15 @@ const waitForLaunched = () => {
 	});
 };
 
-export const getBrowserInstance = async (): ReturnType<
-	typeof RenderInternals.openBrowser
-> => {
+export const getBrowserInstance = async (
+	shouldDumpIo: boolean
+): ReturnType<typeof RenderInternals.openBrowser> => {
 	if (launching) {
 		await waitForLaunched();
+		if (!_browserInstance) {
+			throw new Error('expected to launch');
+		}
+		return _browserInstance;
 	}
 
 	if (_browserInstance) {
@@ -40,6 +44,7 @@ export const getBrowserInstance = async (): ReturnType<
 	const execPath = await executablePath();
 	_browserInstance = await RenderInternals.openBrowser('chrome', {
 		browserExecutable: execPath,
+		shouldDumpIo,
 	});
 	launching = false;
 	return _browserInstance;
