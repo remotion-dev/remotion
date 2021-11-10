@@ -1,6 +1,5 @@
 import {deleteFunction} from '../../api/delete-function';
 import {deployFunction} from '../../api/deploy-function';
-import {ensureLambdaBinaries} from '../../api/ensure-lambda-binaries';
 import {getFunctions} from '../../api/get-functions';
 import {
 	cleanFnStore,
@@ -17,18 +16,13 @@ jest.mock('../../api/create-bucket');
 jest.mock('../../api/upload-dir');
 jest.mock('../../api/bucket-exists');
 jest.mock('../../api/clean-items');
-jest.mock('../../api/ensure-lambda-binaries');
 jest.mock('../../api/create-function');
 jest.mock('../../api/delete-function');
-jest.mock('../../api/bundle-lambda');
 jest.mock('../../api/get-functions');
 jest.mock('../../shared/get-account-id');
 
 test('Should be able to deploy function', async () => {
-	const {layerArn} = await ensureLambdaBinaries('us-east-1');
-
 	const {functionName} = await deployFunction({
-		layerArn,
 		memorySizeInMb: 2048,
 		region: 'us-east-1',
 		timeoutInSeconds: 120,
@@ -36,23 +30,10 @@ test('Should be able to deploy function', async () => {
 	expect(functionName).toBe('remotion-render-abcdef');
 });
 
-test('Should not be able to deploy function if binaries were not ensured', async () => {
-	await expect(() =>
-		deployFunction({
-			layerArn: 'us-east-2',
-			memorySizeInMb: 2048,
-			region: 'us-east-2',
-			timeoutInSeconds: 120,
-		})
-	).rejects.toThrow(/did not ensure layer for/);
-});
-
 test('Should be able to get the function afterwards', async () => {
 	cleanFnStore();
-	const {layerArn} = await ensureLambdaBinaries('us-east-1');
 
 	const {functionName} = await deployFunction({
-		layerArn,
 		memorySizeInMb: 2048,
 		region: 'us-east-1',
 		timeoutInSeconds: 120,
@@ -80,10 +61,8 @@ test('Should be able to get the function afterwards', async () => {
 
 test('Should be able to delete the function', async () => {
 	cleanFnStore();
-	const {layerArn} = await ensureLambdaBinaries('us-east-1');
 
 	const {functionName} = await deployFunction({
-		layerArn,
 		memorySizeInMb: 2048,
 		region: 'us-east-1',
 		timeoutInSeconds: 120,
@@ -102,10 +81,8 @@ test('Should be able to delete the function', async () => {
 
 test('Should be able to get the function afterwards', async () => {
 	cleanFnStore();
-	const {layerArn} = await ensureLambdaBinaries('us-east-1');
 
 	const {functionName} = await deployFunction({
-		layerArn,
 		memorySizeInMb: 2048,
 		region: 'us-east-1',
 		timeoutInSeconds: 120,

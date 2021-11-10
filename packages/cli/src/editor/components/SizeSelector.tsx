@@ -25,6 +25,8 @@ export const getPreviewSizeLabel = (previewSize: PreviewSize) => {
 	}
 };
 
+const accessibilityLabel = 'Preview Size';
+
 const comboStyle: React.CSSProperties = {width: 80};
 
 export const SizeSelector: React.FC = () => {
@@ -37,29 +39,32 @@ export const SizeSelector: React.FC = () => {
 	}, []);
 
 	const items: ComboboxValue[] = useMemo(() => {
-		return commonPreviewSizes.map(
-			(newSize): ComboboxValue => {
-				return {
-					id: String(newSize),
-					label: getPreviewSizeLabel(newSize),
-					onClick: () => {
-						return setSize(() => {
-							return newSize;
-						});
-					},
-					type: 'item',
-					value: newSize,
-					keyHint: null,
-					leftItem: String(size) === String(newSize) ? <Checkmark /> : null,
-					subMenu: null,
-				};
-			}
-		);
+		return commonPreviewSizes.map((newSize): ComboboxValue => {
+			return {
+				id: String(newSize),
+				label: getPreviewSizeLabel(newSize),
+				onClick: () => {
+					return setSize(() => {
+						return newSize;
+					});
+				},
+				type: 'item',
+				value: newSize,
+				keyHint: null,
+				leftItem: String(size) === String(newSize) ? <Checkmark /> : null,
+				subMenu: null,
+			};
+		});
 	}, [setSize, size]);
 
 	return (
-		<div style={style} aria-label="Select the size of the preview">
-			<Combobox style={comboStyle} selectedId={String(size)} values={items} />
+		<div style={style} aria-label={accessibilityLabel}>
+			<Combobox
+				title={accessibilityLabel}
+				style={comboStyle}
+				selectedId={String(size)}
+				values={items}
+			/>
 		</div>
 	);
 };

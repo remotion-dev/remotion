@@ -174,23 +174,21 @@ test('Zig-zag test', () => {
 test('Handle bad types', () => {
 	// @ts-expect-error
 	expect(() => interpolate(undefined, [0, 1], [1, 0])).toThrowError(
-		/input or inputRange or outputRange can not be undefined/
+		/input can not be undefined/
 	);
 	// @ts-expect-error
 	expect(() => interpolate(1, undefined, [1, 0])).toThrowError(
-		/input or inputRange or outputRange can not be undefined/
+		/inputRange can not be undefined/
 	);
 	// @ts-expect-error
 	expect(() => interpolate(1, [1, 0], undefined)).toThrowError(
-		/input or inputRange or outputRange can not be undefined/
+		/outputRange can not be undefined/
 	);
 	// @ts-expect-error
-	expect(() => interpolate(1)).toThrowError(
-		/input or inputRange or outputRange can not be undefined/
-	);
+	expect(() => interpolate(1)).toThrowError(/inputRange can not be undefined/);
 	// @ts-expect-error
 	expect(() => interpolate('1', [0, 1], [1, 0])).toThrowError(
-		/Cannot interpolation an input which is not a number/
+		/Cannot interpolate an input which is not a number/
 	);
 	// @ts-expect-error
 	expect(() => interpolate(1, 'string', 'string')).toThrowError(
@@ -202,10 +200,10 @@ test('Handle bad types', () => {
 	);
 	// @ts-expect-error
 	expect(() => interpolate(1, undefined, 'string')).toThrowError(
-		/input or inputRange or outputRange can not be undefined/
+		/inputRange can not be undefined/
 	);
 	// @ts-expect-error
 	expect(() => interpolate([1, 2], undefined, 'string')).toThrowError(
-		/input or inputRange or outputRange can not be undefined/
+		/inputRange can not be undefined/
 	);
 });

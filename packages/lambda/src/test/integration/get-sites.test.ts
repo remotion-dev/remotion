@@ -4,6 +4,7 @@ import {getSites} from '../../api/get-sites';
 jest.mock('../../api/get-buckets');
 jest.mock('../../functions/helpers/io');
 jest.mock('../../shared/bundle-site');
+jest.mock('../../shared/get-account-id');
 jest.mock('../../api/enable-s3-website');
 jest.mock('../../api/upload-dir');
 jest.mock('../../api/clean-items');
@@ -31,14 +32,15 @@ test('Should have a site after deploying', async () => {
 			siteName: 'testing',
 		})
 	).toEqual({
-		url: 'https://remotionlambda-abcdef.s3.eu-central-1.amazonaws.com/sites/testing',
+		serveUrl:
+			'https://remotionlambda-abcdef.s3.eu-central-1.amazonaws.com/sites/testing/index.html',
 		siteName: 'testing',
 	});
 	expect(await getSites({region: 'eu-central-1'})).toEqual({
 		buckets: [
 			{
-				CreationDate: new Date(0),
-				Name: 'remotionlambda-abcdef',
+				creationDate: 0,
+				name: 'remotionlambda-abcdef',
 				region: 'eu-central-1',
 			},
 		],
@@ -47,7 +49,9 @@ test('Should have a site after deploying', async () => {
 				bucketName: 'remotionlambda-abcdef',
 				id: 'testing',
 				lastModified: 0,
-				size: 48,
+				sizeInBytes: 48,
+				serveUrl:
+					'https://remotionlambda-abcdef.s3.eu-central-1.amazonaws.com/sites/testing/index.html',
 			},
 		],
 	});

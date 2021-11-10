@@ -11,6 +11,9 @@ export type LambdaErrorInfo = {
 	frame: number | null;
 	chunk: number | null;
 	isFatal: boolean;
+	attempt: number;
+	willRetry: boolean;
+	totalAttempts: number;
 	tmpDir: {files: FileNameAndSize[]; total: number} | null;
 };
 
@@ -53,7 +56,7 @@ export const writeLambdaError = async ({
 		key: `${getErrorKeyPrefix(renderId)}${randomHash()}.txt`,
 		body: JSON.stringify(errorInfo),
 		region: getCurrentRegionInFunction(),
-		acl: 'private',
+		privacy: 'private',
 		expectedBucketOwner,
 	});
 };

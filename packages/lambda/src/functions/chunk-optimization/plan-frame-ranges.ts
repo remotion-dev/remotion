@@ -6,13 +6,18 @@ export const planFrameRanges = ({
 	framesPerLambda,
 	frameCount,
 	optimization,
+	shouldUseOptimization,
 }: {
 	chunkCount: number;
 	framesPerLambda: number;
 	frameCount: number;
 	optimization: OptimizationProfile | null;
+	shouldUseOptimization: boolean;
 }): {chunks: [number, number][]; didUseOptimization: boolean} => {
-	if (canUseOptimization({optimization, framesPerLambda, frameCount})) {
+	if (
+		canUseOptimization({optimization, framesPerLambda, frameCount}) &&
+		shouldUseOptimization
+	) {
 		return {
 			chunks: (optimization as OptimizationProfile).frameRange,
 			didUseOptimization: true,

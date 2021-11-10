@@ -2,6 +2,7 @@ import {_Object} from '@aws-sdk/client-s3';
 import {estimatePrice} from '../../pricing/calculate-price';
 import {lambdaTimingsPrefix, RenderMetadata} from '../../shared/constants';
 import {parseLambdaTimingsKey} from '../../shared/parse-lambda-timings-key';
+import {calculateChunkTimes} from './calculate-chunk-times';
 import {findOutputFileInBucket} from './find-output-file-in-bucket';
 import {getCurrentRegionInFunction} from './get-current-region';
 import {getTimeToFinish} from './get-time-to-finish';
@@ -32,18 +33,10 @@ export const estimatePriceFromBucket = ({
 		parseLambdaTimingsKey(f.Key as string)
 	);
 
-	// TODO: Should also calculate invoker functions, and main function
-	const totalEncodingTimings = parsedTimings
-		.map((p) => p.end - p.start)
-		.reduce((a, b) => a + b, 0);
-
 	const outputFile = findOutputFileInBucket({
 		bucketName,
 		contents,
-		renderId,
 		renderMetadata,
-		// TODO: Differentiate better?
-		type: 'video',
 	});
 
 	const timeToFinish = getTimeToFinish({
@@ -68,7 +61,12 @@ export const estimatePriceFromBucket = ({
 	const accruedSoFar = Number(
 		estimatePrice({
 			region: getCurrentRegionInFunction(),
-			durationInMiliseconds: totalEncodingTimings + timeElapsedOfUnfinished,
+			durationInMiliseconds:
+				calculateChunkTimes({
+					contents,
+					renderId,
+					type: 'combined-time-for-cost-calculation',
+				}) + timeElapsedOfUnfinished,
 			memorySizeInMb,
 		}).toPrecision(5)
 	);

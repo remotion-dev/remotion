@@ -4,7 +4,10 @@ import {AwsRegion} from '../../pricing/aws-regions';
 import {getErrorKeyPrefix} from '../../shared/constants';
 import {streamToString} from '../../shared/stream-to-string';
 import {lambdaReadFile} from './io';
-import {errorIsOutOfSpaceError} from './is-enosp-err';
+import {
+	errorIsOutOfSpaceError,
+	isErrInsufficientResourcesErr,
+} from './is-enosp-err';
 import {EnhancedErrorInfo, LambdaErrorInfo} from './write-lambda-error';
 
 const FAILED_TO_LAUNCH_TOKEN = 'Failed to launch browser.';
@@ -26,6 +29,10 @@ const getExplanation = (stack: string) => {
 
 	if (errorIsOutOfSpaceError(stack)) {
 		return 'Your lambda function reached the 512MB storage limit. Reduce the amount of space needed per lambda function. Feel free to reach out to #lambda Discord for help';
+	}
+
+	if (isErrInsufficientResourcesErr(stack)) {
+		return 'The lambda ran out of memory. Deploy a new function with more memory.';
 	}
 
 	return null;

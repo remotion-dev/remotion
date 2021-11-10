@@ -1,11 +1,18 @@
-import React from 'react';
+import React, {useContext, useState} from 'react';
+import {Internals} from 'remotion';
 import {TIMELINE_PADDING} from '../helpers/timeline-layout';
+import {loadLoopOption} from '../state/loop';
 import {CheckboardToggle} from './CheckboardToggle';
 import {FpsCounter} from './FpsCounter';
-import {Flex} from './layout';
+import {Flex, Spacing} from './layout';
+import {LoopToggle} from './LoopToggle';
+import {PlaybackKeyboardShortcutsManager} from './PlaybackKeyboardShortcutsManager';
+import {PlaybackRatePersistor} from './PlaybackRatePersistor';
+import {PlaybackRateSelector} from './PlaybackRateSelector';
 import {PlayPause} from './PlayPause';
 import {RichTimelineToggle} from './RichTimelineToggle';
 import {SizeSelector} from './SizeSelector';
+import {TimelineInOutPointToggle} from './TimelineInOutToggle';
 import {TimeValue} from './TimeValue';
 
 const container: React.CSSProperties = {
@@ -31,23 +38,39 @@ const padding: React.CSSProperties = {
 };
 
 export const PreviewToolbar: React.FC = () => {
+	const {playbackRate, setPlaybackRate} = useContext(
+		Internals.Timeline.TimelineContext
+	);
+
+	const [loop, setLoop] = useState(loadLoopOption());
+
 	return (
-		<div style={container}>
+		<div style={container} className="css-reset">
 			<div style={sideContainer}>
 				<div style={padding} />
 				<TimeValue />
 			</div>
 			<Flex />
 			<SizeSelector />
-			<PlayPause />
+			<PlaybackRateSelector
+				setPlaybackRate={setPlaybackRate}
+				playbackRate={playbackRate}
+			/>
+			<Spacing x={2} />
+			<PlayPause loop={loop} playbackRate={playbackRate} />
+			<Spacing x={2} />
+			<LoopToggle loop={loop} setLoop={setLoop} />
 			<CheckboardToggle />
 			<RichTimelineToggle />
+			<TimelineInOutPointToggle />
 			<Flex />
 			<div style={sideContainer}>
 				<Flex />
-				<FpsCounter />
+				<FpsCounter playbackSpeed={playbackRate} />
 				<div style={padding} />
 			</div>
+			<PlaybackKeyboardShortcutsManager setPlaybackRate={setPlaybackRate} />
+			<PlaybackRatePersistor />
 		</div>
 	);
 };

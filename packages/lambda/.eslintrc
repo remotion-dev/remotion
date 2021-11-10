@@ -2,7 +2,7 @@
 	"extends": "@jonny",
 	"rules": {
 		"no-console": "off",
-		"ts-exports/unused-exports": "off"
+		"arrow-body-style": "off"
 	},
 	"overrides": [
 		{

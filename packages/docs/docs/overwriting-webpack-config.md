@@ -18,7 +18,7 @@ In your `remotion.config.ts` file, you can call `Config.Bundler.overrideWebpackC
 Overriding the Webpack config uses the reducer pattern - pass in a function that takes as it's argument a Webpack configuration and return a new Webpack configuration.
 
 ```ts twoslash
-import {Config} from 'remotion'
+import { Config } from "remotion";
 
 Config.Bundling.overrideWebpackConfig((currentConfiguration) => {
   return {
@@ -30,8 +30,8 @@ Config.Bundling.overrideWebpackConfig((currentConfiguration) => {
         // Add more loaders here
       ],
     },
-  }
-})
+  };
+});
 ```
 
 :::info
@@ -45,7 +45,7 @@ Using the reducer pattern will help with type safety, give you auto-complete, en
 The following `remotion.config.ts` file shows how to enable support for MDX. Installation of `mdx-loader babel-loader @babel/preset-env @babel/preset-react` is required.
 
 ```ts twoslash
-import {Config} from 'remotion'
+import { Config } from "remotion";
 // ---cut---
 Config.Bundling.overrideWebpackConfig((currentConfiguration) => {
   return {
@@ -60,26 +60,26 @@ Config.Bundling.overrideWebpackConfig((currentConfiguration) => {
           test: /\.mdx?$/,
           use: [
             {
-              loader: 'babel-loader',
+              loader: "babel-loader",
               options: {
                 presets: [
-                  '@babel/preset-env',
+                  "@babel/preset-env",
                   [
-                    '@babel/preset-react',
+                    "@babel/preset-react",
                     {
-                      runtime: 'automatic',
+                      runtime: "automatic",
                     },
                   ],
                 ],
               },
             },
-            'mdx-loader',
+            "mdx-loader",
           ],
         },
       ],
     },
-  }
-})
+  };
+});
 ```
 
 :::info
@@ -117,7 +117,7 @@ yarn add postcss-loader postcss postcss-preset-env tailwindcss autoprefixer
 2. Add the following to your [`remotion.config.ts`](/docs/config) file:
 
 ```ts twoslash
-import {Config} from 'remotion'
+import { Config } from "remotion";
 // ---cut---
 Config.Bundling.overrideWebpackConfig((currentConfiguration) => {
   return {
@@ -129,24 +129,28 @@ Config.Bundling.overrideWebpackConfig((currentConfiguration) => {
           ? currentConfiguration.module.rules
           : []
         ).filter((rule) => {
-          if (rule === '...') {
-            return false
+          if (rule === "...") {
+            return false;
           }
-          if (rule.test?.toString().includes('.css')) {
-            return false
+          if (rule.test?.toString().includes(".css")) {
+            return false;
           }
-          return true
+          return true;
         }),
         {
           test: /\.css$/i,
           use: [
-            'style-loader',
-            'css-loader',
+            "style-loader",
+            "css-loader",
             {
-              loader: 'postcss-loader',
+              loader: "postcss-loader",
               options: {
                 postcssOptions: {
-                  plugins: ['postcss-preset-env', 'tailwindcss'],
+                  plugins: [
+                    "postcss-preset-env",
+                    "tailwindcss",
+                    "autoprefixer",
+                  ],
                 },
               },
             },
@@ -154,8 +158,8 @@ Config.Bundling.overrideWebpackConfig((currentConfiguration) => {
         },
       ],
     },
-  }
-})
+  };
+});
 ```
 
 3. Create a file `src/style.css` with the following content:
@@ -176,7 +180,7 @@ import "/style.css";
 
 6.  _Optional_: Add a `tailwind.config.js` file to the root of your project. Add `/* eslint-env node */` to the top of the file to get rid of an ESLint rule complaining that `module` is not defined.
 
-:::warn
+:::warning
 Due to a caching bug, the config file might not be picked up until you remove the `node_modules/.cache` folder - watch this issue: https://github.com/remotion-dev/remotion/issues/315
 :::
 
@@ -211,7 +215,7 @@ yarn add sass sass-loader
 2. Add the following to your [`remotion.config.ts`](/docs/config) file:
 
 ```ts twoslash
-import {Config} from 'remotion'
+import { Config } from "remotion";
 // ---cut---
 Config.Bundling.overrideWebpackConfig((currentConfiguration) => {
   return {
@@ -225,15 +229,15 @@ Config.Bundling.overrideWebpackConfig((currentConfiguration) => {
         {
           test: /\.s[ac]ss$/i,
           use: [
-            {loader: 'style-loader'},
-            {loader: 'css-loader'},
-            {loader: 'sass-loader', options: {sourceMap: true}},
+            { loader: "style-loader" },
+            { loader: "css-loader" },
+            { loader: "sass-loader", options: { sourceMap: true } },
           ],
         },
       ],
     },
-  }
-})
+  };
+});
 ```
 
 3. Restart the preview server.

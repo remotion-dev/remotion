@@ -15,7 +15,7 @@ type DownloadVideoInput = {
 
 type DownloadVideoOutput = {
 	outputPath: string;
-	size: number;
+	sizeInBytes: number;
 };
 
 export const downloadVideo = async (
@@ -25,16 +25,11 @@ export const downloadVideo = async (
 		region: input.region,
 	});
 	const renderMetadata = await getRenderMetadata({
-		// TODO: Weird method
-		exists: true,
 		bucketName: input.bucketName,
 		expectedBucketOwner,
 		region: input.region,
 		renderId: input.renderId,
 	});
-	if (!renderMetadata) {
-		throw new TypeError('Could not find render metadata in the S3 bucket.');
-	}
 
 	const readable = await lambdaReadFile({
 		bucketName: input.bucketName,
@@ -55,6 +50,6 @@ export const downloadVideo = async (
 	const {size} = await fs.promises.stat(outputPath);
 	return {
 		outputPath,
-		size,
+		sizeInBytes: size,
 	};
 };

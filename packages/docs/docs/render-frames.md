@@ -12,7 +12,6 @@ If you want to render only a still image, use [renderStill()](/docs/render-still
 ```ts
 const renderFrames: (options: {
   config: VideoConfig;
-  compositionId: string;
   onFrameUpdate: (frame: number) => void;
   onStart: (data: {
     frameCount: number;
@@ -27,7 +26,7 @@ const renderFrames: (options: {
   frameRange?: number | [number, number] | null;
   dumpBrowserLogs?: boolean;
   puppeteerInstance?: puppeteer.Browser;
-  onError?: (info: {error: Error; frame: number | null}) => void;
+  onBrowserLog?: (log: BrowserLog) => void;
 }): Promise<RenderFramesOutput>;
 ```
 
@@ -41,11 +40,7 @@ Takes an object with the following keys:
 
 ### `config`
 
-A video config, consisting out of `width`, `height`, `durationInFrames` and `fps`. See: [Defining compositions](/docs/the-fundamentals#defining-compositions) and [useVideoConfig()](/docs/use-video-config).
-
-### `compositionId`
-
-A `string` specifying the ID of the composition. See: [Defining compositions](/docs/the-fundamentals#defining-compositions).
+A video config, consisting out of `id`, `width`, `height`, `durationInFrames` and `fps`, where `id` is the compositions ID. See: [Defining compositions](/docs/the-fundamentals#defining-compositions) and [useVideoConfig()](/docs/use-video-config).
 
 ### `onStart`
 
@@ -53,8 +48,8 @@ A callback that fires after the setup process (validation, browser launch) has f
 
 ```ts twoslash
 const onStart = () => {
-  console.log('Starting rendering...')
-}
+  console.log("Starting rendering...");
+};
 ```
 
 ### `onFrameUpdate`
@@ -63,8 +58,8 @@ A callback function that gets called whenever a frame finished rendering. An arg
 
 ```ts twoslash
 const onFrameUpdate = (frame: number) => {
-  console.log(`${frame} frames rendered.`)
-}
+  console.log(`${frame} frames rendered.`);
+};
 ```
 
 ### `outputDir`
@@ -125,27 +120,77 @@ _optional - Available since v2.2.0_
 
 An object containing key-value pairs of environment variables which will be injected into your Remotion projected and which can be accessed by reading the global `process.env` object.
 
-### `onError?`
+### `onBrowserLog?`
 
-_optional - Available since v2.1.0_
+_optional - Available since v3.0.0_
 
-Allows you to react to an exception thrown in your React code. The callback has an argument which is an object containing `error` and `frame` properties.
-The `frame` property tells you at which frame the error was thrown. If the error was thrown at startup, `frame` is null.
+Gets called when your project calls `console.log` or another method from console. A browser log has three properties:
+
+- `text`: The message being printed
+- `stackTrace`: An array of objects containing the following properties:
+  - `url`: URL of the resource that logged.
+  - `lineNumber`: 0-based line number in the file where the log got called.
+  - `columnNumber`: 0-based column number in the file where the log got called.
+- `type`: The console method - one of `log`, `debug`, `info`, `error`, `warning`, `dir`, `dirxml`, `table`, `trace`, `clear`, `startGroup`, `startGroupCollapsed`, `endGroup`, `assert`, `profile`, `profileEnd`, `count`, `timeEnd`, `verbose`
 
 ```tsx twoslash
-import {renderFrames as rf} from '@remotion/renderer'
-const renderFrames = (options: Partial<Parameters<typeof rf>[0]>) => {}
+import { renderFrames as rf } from "@remotion/renderer";
+interface ConsoleMessageLocation {
+  /**
+   * URL of the resource if known or `undefined` otherwise.
+   */
+  url?: string;
+  /**
+   * 0-based line number in the resource if known or `undefined` otherwise.
+   */
+  lineNumber?: number;
+  /**
+   * 0-based column number in the resource if known or `undefined` otherwise.
+   */
+  columnNumber?: number;
+}
+
+type BrowserLog = {
+  text: string;
+  stackTrace: ConsoleMessageLocation[];
+  type:
+    | "log"
+    | "debug"
+    | "info"
+    | "error"
+    | "warning"
+    | "dir"
+    | "dirxml"
+    | "table"
+    | "trace"
+    | "clear"
+    | "startGroup"
+    | "startGroupCollapsed"
+    | "endGroup"
+    | "assert"
+    | "profile"
+    | "profileEnd"
+    | "count"
+    | "timeEnd"
+    | "verbose";
+};
+
+const renderFrames = (options: {
+  onBrowserLog?: (log: BrowserLog) => void;
+}) => {};
 // ---cut---
 renderFrames({
-  onError: (info) => {
-    if (info.frame === null) {
-      console.log('Got error while initalizing video rendering', info.error)
-    } else {
-      console.log('Got error at frame ', info.frame, info.error)
-    }
-    // Handle error here
-  }
-})
+  onBrowserLog: (info) => {
+    console.log(`${info.type}: ${info.text}`);
+    console.log(
+      info.stackTrace
+        .map((stack) => {
+          return `  ${stack.url}:${stack.lineNumber}:${stack.columnNumber}`;
+        })
+        .join("\n")
+    );
+  },
+});
 ```
 
 ### `browserExecutable?`

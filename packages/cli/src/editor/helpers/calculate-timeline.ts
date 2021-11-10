@@ -50,6 +50,7 @@ export const calculateTimeline = ({
 					rootId: '-',
 					showInTimeline: true,
 					nonce: 0,
+					showLoopTimesInTimeline: undefined,
 				},
 				depth: 0,
 				hash: '-',

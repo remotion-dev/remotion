@@ -49,30 +49,45 @@ export const lambdaTimingsPrefix = (renderId: string) =>
 
 export const lambdaTimingsPrefixForChunk = (renderId: string, chunk: number) =>
 	lambdaTimingsPrefix(renderId) + String(chunk).padStart(8, '0');
+
+export const lambdaLogsPrefix = (
+	renderId: string,
+	chunk: number,
+	startFrame: number,
+	endFrame: number
+) =>
+	`${rendersPrefix(renderId)}/logs/chunk:${String(chunk).padStart(
+		8,
+		'0'
+	)}:frames:${startFrame}-${endFrame}.json`;
+
 export const lambdaTimingsKey = ({
 	renderId,
 	chunk,
 	start,
-	end,
+	rendered,
+	encoded,
 }: {
 	renderId: string;
 	chunk: number;
 	start: number;
-	end: number;
+	rendered: number;
+	encoded: number;
 }) =>
 	`${lambdaTimingsPrefixForChunk(
 		renderId,
 		chunk
-	)}-start:${start}-end:${end}.txt`;
+	)}-start:${start}-rendered:${rendered}-encoded:${encoded}.txt`;
 export const chunkKey = (renderId: string) =>
-	`${rendersPrefix(renderId)}/chunks/chunk-`;
+	`${rendersPrefix(renderId)}/chunks/chunk`;
 export const chunkKeyForIndex = ({
 	renderId,
 	index,
 }: {
 	renderId: string;
 	index: number;
-}) => `${chunkKey(renderId)}${String(index).padStart(8, '0')}`;
+}) => `${chunkKey(renderId)}:${String(index).padStart(8, '0')}`;
+
 export const getErrorKeyPrefix = (renderId: string) =>
 	`${rendersPrefix(renderId)}/errors/`;
 export const optimizationProfile = (siteId: string, compositionId: string) =>
@@ -82,10 +97,6 @@ export const outName = (renderId: string, codec: Codec) =>
 	`${rendersPrefix(renderId)}/out.${getFileExtensionFromCodec(codec, 'final')}`;
 export const outStillName = (renderId: string, imageFormat: ImageFormat) =>
 	`${rendersPrefix(renderId)}/out.${imageFormat}`;
-export const BINARIES_BUCKET_PREFIX = 'lambda-remotion-binaries-';
-export const getBinariesBucketName = (region: AwsRegion) => {
-	return BINARIES_BUCKET_PREFIX + region;
-};
 
 export const postRenderDataKey = (renderId: string) => {
 	return `${rendersPrefix(renderId)}/post-render-metadata.json`;
@@ -133,6 +144,9 @@ export type LambdaPayloads = {
 		proResProfile: ProResProfile | undefined;
 		quality: number | undefined;
 		maxRetries: number;
+		privacy: Privacy;
+		enableChunkOptimization: boolean | undefined;
+		saveBrowserLogs?: boolean;
 	};
 	launch: {
 		type: LambdaRoutines.launch;
@@ -150,6 +164,9 @@ export type LambdaPayloads = {
 		proResProfile: ProResProfile | undefined;
 		quality: number | undefined;
 		maxRetries: number;
+		privacy: Privacy;
+		enableChunkOptimization: boolean;
+		saveBrowserLogs: boolean;
 	};
 	fire: {
 		type: LambdaRoutines.fire;
@@ -182,6 +199,9 @@ export type LambdaPayloads = {
 		pixelFormat: PixelFormat | undefined;
 		quality: number | undefined;
 		envVariables: Record<string, string> | undefined;
+		privacy: Privacy;
+		saveBrowserLogs: boolean;
+		attempt: number;
 	};
 	still: {
 		type: LambdaRoutines.still;
@@ -190,10 +210,11 @@ export type LambdaPayloads = {
 		inputProps: unknown;
 		imageFormat: ImageFormat;
 		envVariables: Record<string, string> | undefined;
+		attempt: number;
 		quality: number | undefined;
 		maxRetries: number;
 		frame: number;
-		privacy: 'private' | 'public';
+		privacy: Privacy;
 	};
 };
 
@@ -203,6 +224,7 @@ export type EncodingProgress = {
 	framesEncoded: number;
 	totalFrames: number | null;
 	doneIn: number | null;
+	timeToInvoke: number | null;
 };
 
 export type RenderMetadata = {
@@ -226,6 +248,14 @@ export type RenderMetadata = {
 };
 
 export type LambdaVersions =
+	| '2021-11-10'
+	| '2021-11-01'
+	| '2021-10-29'
+	| '2021-10-27'
+	| '2021-10-21'
+	| '2021-10-19'
+	| '2021-10-07'
+	| '2021-10-03'
 	| '2021-10-01'
 	| '2021-09-15'
 	| '2021-09-06'
@@ -235,7 +265,8 @@ export type LambdaVersions =
 	| '2021-07-02'
 	| '2021-06-23'
 	| 'n/a';
-export const CURRENT_VERSION: LambdaVersions = '2021-10-01';
+
+export const CURRENT_VERSION: LambdaVersions = '2021-11-10';
 
 export type PostRenderData = {
 	cost: {
@@ -253,6 +284,10 @@ export type PostRenderData = {
 	endTime: number;
 	filesCleanedUp: number;
 	renderMetadata: RenderMetadata;
+	timeToEncode: number;
+	timeToCleanUp: number;
+	timeToRenderChunks: number;
+	timeToInvokeLambdas: number;
 };
 
 export type CostsInfo = {
@@ -263,7 +298,7 @@ export type CostsInfo = {
 };
 
 export type CleanupInfo = {
-	done: boolean;
+	doneIn: number | null;
 	filesToDelete: number;
 	filesDeleted: number;
 };
@@ -284,6 +319,9 @@ export type RenderProgress = {
 	renderSize: number;
 	lambdasInvoked: number;
 	cleanup: CleanupInfo | null;
+	timeToFinishChunks: number | null;
+	timeToInvokeLambdas: number | null;
+	overallProgress: number;
 };
 
-export type LambdaAcl = 'public-read' | 'private';
+export type Privacy = 'public' | 'private';

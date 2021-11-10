@@ -15,6 +15,7 @@ import {
 } from './CompositionManager';
 import {DEFAULT_BROWSER, getBrowser} from './config/browser';
 import {getBrowserExecutable} from './config/browser-executable';
+import {getCustomFfmpegExecutable} from './config/ffmpeg-executable';
 import {
 	DEFAULT_CODEC,
 	getFinalOutputCodec,
@@ -89,7 +90,12 @@ import {
 	ENV_VARIABLES_LOCAL_STORAGE_KEY,
 	setupEnvVariables,
 } from './setup-env-variables';
-import * as Timeline from './timeline-position-state';
+import * as TimelineInOutPosition from './timeline-inout-position-state';
+import {
+	SetTimelineInOutContextValue,
+	TimelineInOutContextValue,
+} from './timeline-inout-position-state';
+import * as TimelinePosition from './timeline-position-state';
 import {
 	SetTimelineContextValue,
 	TimelineContextValue,
@@ -121,6 +127,8 @@ import {
 	useRemotionContexts,
 } from './wrap-remotion-context';
 
+const Timeline = {...TimelinePosition, ...TimelineInOutPosition};
+
 // Mark them as Internals so use don't assume this is public
 // API and are less likely to use it
 export const Internals = {
@@ -132,6 +140,7 @@ export const Internals = {
 	useVideo,
 	getRoot,
 	getBrowserExecutable,
+	getCustomFfmpegExecutable,
 	getCompositionName,
 	getIsEvaluation,
 	getPixelFormat,
@@ -210,6 +219,8 @@ export type {
 	RenderAssetInfo,
 	TimelineContextValue,
 	SetTimelineContextValue,
+	TimelineInOutContextValue,
+	SetTimelineInOutContextValue,
 	CompProps,
 	CompositionManagerContext,
 	MediaVolumeContextValue,

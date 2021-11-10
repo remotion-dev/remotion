@@ -1,4 +1,14 @@
 module.exports = {
+  playerSidebar: [
+    {
+      type: "link",
+      label: "← Back to main docs",
+      href: "/docs",
+    },
+    "player",
+    "player-examples",
+    "player-integration",
+  ],
   lambdaSidebar: [
     {
       type: "link",
@@ -12,6 +22,7 @@ module.exports = {
     "lambda-region-selection",
     "lambda-runtime",
     "lambda-faq",
+    "lambda-chunkoptimization",
     {
       collapsed: false,
       type: "category",
@@ -24,11 +35,10 @@ module.exports = {
         "getfunctions",
         "deletesite",
         "deploysite",
+        "getsites",
         "downloadvideo",
-        "ensurelambdabinaries",
         "getuserpolicy",
         "getrolepolicy",
-        "getsites",
         "getorcreatebucket",
         "getrenderprogress",
         "rendervideoonlambda",
@@ -36,7 +46,9 @@ module.exports = {
         "simulatepermissions",
       ],
     },
+    "lambda-checklist",
     "lambda-changelog",
+    "lambda-uninstall",
   ],
   someSidebar: [
     {
@@ -98,6 +110,7 @@ module.exports = {
         "audio",
         "composition",
         "sequence",
+        "loop",
         "video",
         "absolute-fill",
         "img",
@@ -131,7 +144,11 @@ module.exports = {
       href: "/docs/lambda",
       label: "API - @remotion/lambda",
     },
-    "player",
+    {
+      type: "link",
+      href: "/docs/player",
+      label: "API - @remotion/player",
+    },
     {
       type: "category",
       label: "API - @remotion/three",
@@ -160,6 +177,7 @@ module.exports = {
         "flickering",
       ],
     },
+    "3-0-migration",
     "2-0-migration",
     "license",
   ],

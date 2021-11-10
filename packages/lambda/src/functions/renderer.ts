@@ -4,6 +4,7 @@ import {
 	RenderInternals,
 	stitchFramesToVideo,
 } from '@remotion/renderer';
+import {BrowserLog} from '@remotion/renderer';
 import fs from 'fs';
 import path from 'path';
 import {getLambdaClient} from '../shared/aws-clients';
@@ -32,6 +33,7 @@ import {getFolderFiles} from './helpers/get-files-in-folder';
 import {getFolderSizeRecursively} from './helpers/get-folder-size';
 import {lambdaWriteFile} from './helpers/io';
 import {timer} from './helpers/timer';
+import {uploadBrowserLogs} from './helpers/upload-browser-logs';
 import {
 	getTmpDirStateIfENoSp,
 	writeLambdaError,
@@ -42,7 +44,11 @@ type Options = {
 	isWarm: boolean;
 };
 
-const renderHandler = async (params: LambdaPayload, options: Options) => {
+const renderHandler = async (
+	params: LambdaPayload,
+	options: Options,
+	logs: BrowserLog[]
+) => {
 	if (params.type !== LambdaRoutines.renderer) {
 		throw new Error('Params must be renderer');
 	}
@@ -71,8 +77,8 @@ const renderHandler = async (params: LambdaPayload, options: Options) => {
 		startDate: start,
 	};
 	const {assetsInfo} = await renderFrames({
-		compositionId: params.composition,
 		config: {
+			id: params.composition,
 			durationInFrames: params.durationInFrames,
 			fps: params.fps,
 			height: params.height,
@@ -87,7 +93,7 @@ const renderHandler = async (params: LambdaPayload, options: Options) => {
 		parallelism: 1,
 		onStart: () => {
 			lambdaWriteFile({
-				acl: 'private',
+				privacy: 'private',
 				bucketName: params.bucketName,
 				body: JSON.stringify({
 					filesCleaned: deletedFilesSize,
@@ -110,23 +116,11 @@ const renderHandler = async (params: LambdaPayload, options: Options) => {
 		serveUrl: params.serveUrl,
 		quality: params.quality,
 		envVariables: params.envVariables,
-		onError: ({error, frame}) => {
-			writeLambdaError({
-				errorInfo: {
-					stack: error.message + ' ' + error.stack,
-					type: 'browser',
-					frame,
-					chunk: params.chunk,
-					isFatal: false,
-					tmpDir: getTmpDirStateIfENoSp(JSON.stringify(error)),
-				},
-				bucketName: params.bucketName,
-				expectedBucketOwner: options.expectedBucketOwner,
-				renderId: params.renderId,
-			});
-		},
 		browser: 'chrome',
 		dumpBrowserLogs: false,
+		onBrowserLog: (log) => {
+			logs.push(log);
+		},
 	});
 	const outdir = tmpDir(RENDERER_PATH_TOKEN);
 
@@ -142,6 +136,8 @@ const renderHandler = async (params: LambdaPayload, options: Options) => {
 	if (!fs.existsSync(DOWNLOADS_DIR)) {
 		fs.mkdirSync(DOWNLOADS_DIR);
 	}
+
+	const endRendered = Date.now();
 
 	await stitchFramesToVideo({
 		assetsInfo: {
@@ -177,6 +173,7 @@ const renderHandler = async (params: LambdaPayload, options: Options) => {
 	});
 	stitchLabel.end();
 	await RenderInternals.addSilentAudioIfNecessary(outputLocation);
+	const endStitching = Date.now();
 
 	const condensedTimingData: ChunkTimingData = {
 		...chunkTimingData,
@@ -191,8 +188,7 @@ const renderHandler = async (params: LambdaPayload, options: Options) => {
 		}),
 		body: fs.createReadStream(outputLocation),
 		region: getCurrentRegionInFunction(),
-		// TODO: Allow to be private
-		acl: 'public-read',
+		privacy: params.privacy,
 		expectedBucketOwner: options.expectedBucketOwner,
 	});
 	await Promise.all([
@@ -204,11 +200,12 @@ const renderHandler = async (params: LambdaPayload, options: Options) => {
 			key: `${lambdaTimingsKey({
 				renderId: params.renderId,
 				chunk: params.chunk,
-				end: Date.now(),
+				encoded: endStitching,
+				rendered: endRendered,
 				start,
 			})}`,
 			region: getCurrentRegionInFunction(),
-			acl: 'private',
+			privacy: 'private',
 			expectedBucketOwner: options.expectedBucketOwner,
 		}),
 	]);
@@ -222,8 +219,10 @@ export const rendererHandler = async (
 		throw new Error('Params must be renderer');
 	}
 
+	const logs: BrowserLog[] = [];
+
 	try {
-		await renderHandler(params, options);
+		await renderHandler(params, options, logs);
 	} catch (err) {
 		// If this error is encountered, we can just retry as it
 		// is a very rare error to occur
@@ -232,7 +231,8 @@ export const rendererHandler = async (
 			(err as Error).message.includes(
 				'error while loading shared libraries: libnss3.so'
 			);
-		if (isBrowserError || params.retriesLeft > 0) {
+		const willRetry = isBrowserError || params.retriesLeft > 0;
+		if (willRetry) {
 			const retryPayload: LambdaPayloads[LambdaRoutines.renderer] = {
 				...params,
 				retriesLeft: params.retriesLeft - 1,
@@ -258,11 +258,25 @@ export const rendererHandler = async (
 				type: 'renderer',
 				isFatal: !isBrowserError,
 				tmpDir: getTmpDirStateIfENoSp((err as Error).stack as string),
+				attempt: params.attempt,
+				totalAttempts: params.retriesLeft + params.attempt,
+				willRetry,
 			},
 			renderId: params.renderId,
 			expectedBucketOwner: options.expectedBucketOwner,
 		});
 	} finally {
 		await closeBrowser();
+		if (params.saveBrowserLogs) {
+			await uploadBrowserLogs({
+				chunk: params.chunk,
+				bucketName: params.bucketName,
+				endFrame: params.frameRange[1],
+				startFrame: params.frameRange[0],
+				expectedBucketOwner: options.expectedBucketOwner,
+				logs,
+				renderId: params.renderId,
+			});
+		}
 	}
 };

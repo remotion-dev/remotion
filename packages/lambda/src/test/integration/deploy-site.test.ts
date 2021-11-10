@@ -7,6 +7,7 @@ jest.mock('../../api/get-buckets');
 jest.mock('../../functions/helpers/io');
 jest.mock('../../shared/bundle-site');
 jest.mock('../../shared/random-hash');
+jest.mock('../../shared/get-account-id');
 jest.mock('../../api/enable-s3-website');
 jest.mock('../../api/create-bucket');
 jest.mock('../../api/upload-dir');
@@ -43,7 +44,9 @@ test("Should throw if bucket doesn't exist", async () => {
 			region: 'ap-northeast-1',
 			siteName: 'testing',
 		})
-	).rejects.toThrow(/o bucket with the name remotionlambda-non-existed exists/);
+	).rejects.toThrow(
+		/No bucket with the name remotionlambda-non-existed exists/
+	);
 });
 
 test('Should apply name if given', async () => {
@@ -59,11 +62,12 @@ test('Should apply name if given', async () => {
 		})
 	).toEqual({
 		siteName: 'testing',
-		url: 'https://remotionlambda-abcdef.s3.ap-northeast-1.amazonaws.com/sites/testing',
+		serveUrl:
+			'https://remotionlambda-abcdef.s3.ap-northeast-1.amazonaws.com/sites/testing/index.html',
 	});
 });
 
-test('Should use random hash if no siteName is given', async () => {
+test('Should use a random hash if no siteName is given', async () => {
 	const {bucketName} = await getOrCreateBucket({
 		region: 'ap-northeast-1',
 	});
@@ -76,7 +80,8 @@ test('Should use random hash if no siteName is given', async () => {
 		})
 	).toEqual({
 		siteName: 'testing',
-		url: 'https://remotionlambda-abcdef.s3.ap-northeast-1.amazonaws.com/sites/testing',
+		serveUrl:
+			'https://remotionlambda-abcdef.s3.ap-northeast-1.amazonaws.com/sites/testing/index.html',
 	});
 });
 

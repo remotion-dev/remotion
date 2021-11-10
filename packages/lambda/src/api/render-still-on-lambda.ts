@@ -57,6 +57,7 @@ export const renderStillOnLambda = async ({
 			maxRetries: maxRetries ?? 3,
 			frame: frame ?? 0,
 			privacy,
+			attempt: 1,
 		},
 		region,
 	});
@@ -65,5 +66,6 @@ export const renderStillOnLambda = async ({
 		url: res.output,
 		size: res.size,
 		bucketName: res.bucketName,
+		renderId: res.renderId,
 	};
 };

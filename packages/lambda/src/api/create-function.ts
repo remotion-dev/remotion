@@ -2,15 +2,19 @@ import {
 	CreateLogGroupCommand,
 	PutRetentionPolicyCommand,
 } from '@aws-sdk/client-cloudwatch-logs';
-import {CreateFunctionCommand} from '@aws-sdk/client-lambda';
-import {Log} from '@remotion/cli/dist/log';
+import {
+	CreateFunctionCommand,
+	PutFunctionEventInvokeConfigCommand,
+} from '@aws-sdk/client-lambda';
 import {readFileSync} from 'fs';
 import {AwsRegion} from '..';
+import {Log} from '../cli/log';
 import {
 	DEFAULT_CLOUDWATCH_RETENTION_PERIOD,
 	LOG_GROUP_PREFIX,
 } from '../defaults';
 import {getCloudWatchLogsClient, getLambdaClient} from '../shared/aws-clients';
+import {hostedLayers} from '../shared/hosted-layers';
 
 export const createFunction = async ({
 	createCloudWatchLogGroup = false,
@@ -20,7 +24,6 @@ export const createFunction = async ({
 	accountId,
 	memorySizeInMb,
 	timeoutInSeconds,
-	layerArn,
 }: {
 	createCloudWatchLogGroup?: boolean;
 	region: AwsRegion;
@@ -29,7 +32,6 @@ export const createFunction = async ({
 	accountId: string;
 	memorySizeInMb: number;
 	timeoutInSeconds: number;
-	layerArn: string;
 }) => {
 	if (createCloudWatchLogGroup) {
 		Log.info(`Creating CloudWatch Log Group...`);
@@ -61,8 +63,24 @@ export const createFunction = async ({
 			Description: 'Renders a Remotion video.',
 			MemorySize: memorySizeInMb,
 			Timeout: timeoutInSeconds,
-			Layers: [layerArn],
+			Layers: hostedLayers[region].map(
+				({layerArn, version}) => `${layerArn}:${version}`
+			),
 		})
 	);
+	// TODO: Remove try catch in future versions
+	try {
+		await getLambdaClient(region).send(
+			new PutFunctionEventInvokeConfigCommand({
+				MaximumRetryAttempts: 0,
+				FunctionName,
+			})
+		);
+	} catch (err) {
+		Log.warn(
+			'\nWe now require the lambda:PutFunctionEventInvokeConfig permissions for your user. Please run `npx remotion lambda policies user` update your user policy. This will be required for the final version of Remotion Lambda.'
+		);
+	}
+
 	return {FunctionName};
 };

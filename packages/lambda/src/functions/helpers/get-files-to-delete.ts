@@ -5,16 +5,18 @@ import {
 	lambdaTimingsPrefixForChunk,
 } from '../../shared/constants';
 
+export type CleanupJob = {
+	name: string;
+	type: 'exact' | 'prefix';
+};
+
 export const getFilesToDelete = ({
 	chunkCount,
 	renderId,
 }: {
 	chunkCount: number;
 	renderId: string;
-}): {
-	name: string;
-	type: 'exact' | 'prefix';
-}[] => {
+}): CleanupJob[] => {
 	const initialized = new Array(chunkCount).fill(true).map((x, i) =>
 		lambdaInitializedKey({
 			chunk: i,

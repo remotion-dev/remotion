@@ -1,5 +1,4 @@
 import {RenderInternals} from '@remotion/renderer';
-import pRetry from 'p-retry';
 import {Await} from '../../shared/await';
 import {executablePath} from './get-chromium-executable-path';
 
@@ -39,15 +38,9 @@ export const getBrowserInstance = async (): ReturnType<
 	launching = true;
 
 	const execPath = await executablePath();
-	_browserInstance = await pRetry(
-		() =>
-			RenderInternals.openBrowser('chrome', {
-				browserExecutable: execPath,
-			}),
-		{
-			retries: 3,
-		}
-	);
+	_browserInstance = await RenderInternals.openBrowser('chrome', {
+		browserExecutable: execPath,
+	});
 	launching = false;
 	return _browserInstance;
 };
@@ -57,13 +50,4 @@ export const closeBrowser = async () => {
 		const pages = await _browserInstance.pages();
 		await Promise.all(pages.map((p) => p.close()));
 	}
-};
-
-export const quitBrowser = async () => {
-	if (!_browserInstance) {
-		return;
-	}
-
-	await _browserInstance.close();
-	_browserInstance = null;
 };

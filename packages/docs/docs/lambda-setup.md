@@ -9,27 +9,35 @@ import TabItem from '@theme/TabItem';
 
 ## 1. Install `@remotion/lambda`
 
-Check the newest version number in the #lambda Discord channel
+Check the newest version number in the [#lambda Discord channel](https://discord.gg/PzjkKS8S5S)
 
 ```
 npm i @remotion/lambda@<version-number>
 ```
 
-Also update **all the other Remotion packages** to have the same version: `remotion`, `@remotion/cli`, `@remotion/bundler` Make sure no package version number has a `^` character in front of it as it will install a different version.
+Also update **all the other Remotion packages** to have the same version: `remotion`, `@remotion/cli`, `@remotion/bundler`
+
+:::tip
+Make sure no package version number has a `^` character in front of it as it will install a different version.
+:::
 
 Your package.json should look like the following:
 
 ```json
-  "@remotion/bundler": "2.4.0-alpha.[versionhash]",
-  "@remotion/cli": "2.4.0-alpha.[versionhash]",
-  "@remotion/lambda": "2.4.0-alpha.[versionhash]",
+  "@remotion/bundler": "3.0.0-lambda.[versionhash]",
+  "@remotion/cli": "3.0.0-lambda.[versionhash]",
+  "@remotion/lambda": "3.0.0-lambda.[versionhash]",
   // ...
-  "remotion": "2.4.0-alpha.[versionhash]",
+  "remotion": "3.0.0-lambda.[versionhash]",
 ```
+
+:::tip
+You can install `@remotion/lambda` in any project, not just a Remotion one, but remember to install `react` and `react-dom` peer dependencies
+:::
 
 ## 2. Create role policy
 
-- Go to AWS account IAM section
+- Go to [AWS account IAM Policies section](https://console.aws.amazon.com/iamv2/home?#/policies)
 - Create a new policy
 - Click on JSON
 - Type in `npx remotion lambda policies role` and copy it into the JSON field
@@ -38,7 +46,7 @@ Your package.json should look like the following:
 
 ## 3. Create a role
 
-- Go to AWS account IAM section
+- Go to [AWS account IAM Roles section](https://console.aws.amazon.com/iamv2/home#/roles)
 - Create a new role
 - Use case: Select `Lambda`
 - Click next
@@ -47,9 +55,10 @@ Your package.json should look like the following:
 - Tags: Skip it
 - Role name: Name it `remotion-lambda-role` exactly!
 
-## 4. Create an user
+## 4. Create a user
 
-- Click `Create user`
+- Go to [AWS account IAM Users section](https://console.aws.amazon.com/iamv2/home#/users)
+- Click `Add users`
 - Select any username
 - Programmatic access = YES
 - Management console access = NO
@@ -57,7 +66,7 @@ Your package.json should look like the following:
 - Tags: Skip
 - Click "Create user"
 - Copy Access key ID and Secret Access Key
-- Add a `.env` file to your project
+- Add a `.env` file to your project, and add the following, using the credentials you just copied
 
 ```txt title=".env"
 AWS_ACCESS_KEY_ID=xxxxxx
@@ -101,34 +110,19 @@ npx remotion lambda functions deploy
 </TabItem>
 <TabItem value="node">
 
-First create a Lambda layer - it will contain the necessary binaries such as Google Chrome and FFMPEG. If one already exists, it will be used instead.
-
-We'll assume `us-east-1`, but you can choose [any supported region](/docs/lambda/region-selection).
+You can deploy a function using [`deployFunction()`](/docs/lambda/deployfunction).
 
 ```ts twoslash
 // @module: ESNext
 // @target: ESNext
-import {ensureLambdaBinaries, deployFunction} from '@remotion/lambda';
-
-const {layerArn} = await ensureLambdaBinaries('us-east-1')
-```
-
-Now you are ready to deploy the function itself using [`deployFunction()`](/docs/lambda/deployfunction).
-
-```ts twoslash
-// @module: ESNext
-// @target: ESNext
-import {ensureLambdaBinaries, deployFunction} from '@remotion/lambda';
-
-const {layerArn} = await ensureLambdaBinaries('us-east-1')
+import { deployFunction } from "@remotion/lambda";
 
 // ---cut---
-const {functionName} = await deployFunction({
-  layerArn,
-  region: 'us-east-1',
+const { functionName } = await deployFunction({
+  region: "us-east-1",
   timeoutInSeconds: 120,
-  memorySizeInMb: 1536
-})
+  memorySizeInMb: 1536,
+});
 ```
 
 The function name is returned which you'll need for rendering.
@@ -162,12 +156,12 @@ First, you need to create an S3 bucket in your preferred region. If one already 
 ```ts twoslash
 // @module: ESNext
 // @target: ESNext
-import path from 'path';
-import {deploySite, getOrCreateBucket} from '@remotion/lambda';
+import path from "path";
+import { deploySite, getOrCreateBucket } from "@remotion/lambda";
 
-const {bucketName} = await getOrCreateBucket({
-  region: 'us-east-1'
-})
+const { bucketName } = await getOrCreateBucket({
+  region: "us-east-1",
+});
 ```
 
 Next, upload your Remotion project to an S3 bucket. Specify the entry point of your Remotion project, this is the file where [`registerRoot()`](/docs/register-root) is called.
@@ -175,18 +169,18 @@ Next, upload your Remotion project to an S3 bucket. Specify the entry point of y
 ```ts twoslash
 // @module: ESNext
 // @target: ESNext
-import path from 'path';
-import {deploySite, getOrCreateBucket} from '@remotion/lambda';
+import path from "path";
+import { deploySite, getOrCreateBucket } from "@remotion/lambda";
 
-const {bucketName} = await getOrCreateBucket({
-  region: 'us-east-1'
-})
+const { bucketName } = await getOrCreateBucket({
+  region: "us-east-1",
+});
 // ---cut---
-const {url} = await deploySite({
+const { serveUrl } = await deploySite({
   bucketName,
-  entryPoint: path.resolve(process.cwd(), 'src/index.tsx'),
-  region: 'us-east-1'
-})
+  entryPoint: path.resolve(process.cwd(), "src/index.tsx"),
+  region: "us-east-1",
+});
 ```
 
 You are now ready to render a video.
@@ -221,14 +215,18 @@ You already have the function name from a previous step. But since you only need
 ```ts twoslash
 // @module: ESNext
 // @target: ESNext
-import {getFunctions, renderVideoOnLambda, getRenderProgress} from '@remotion/lambda';
+import {
+  getFunctions,
+  renderVideoOnLambda,
+  getRenderProgress,
+} from "@remotion/lambda";
 
 const functions = await getFunctions({
-  region: 'us-east-1',
-  compatibleOnly: true
-})
+  region: "us-east-1",
+  compatibleOnly: true,
+});
 
-const functionName = functions[0].functionName
+const functionName = functions[0].functionName;
 ```
 
 We can now trigger a render using the [`renderVideoOnLambda()`](/docs/lambda/rendervideoonlambda) function.
@@ -236,27 +234,33 @@ We can now trigger a render using the [`renderVideoOnLambda()`](/docs/lambda/ren
 ```ts twoslash
 // @module: ESNext
 // @target: ESNext
-import {getFunctions, renderVideoOnLambda, getRenderProgress} from '@remotion/lambda';
+import {
+  getFunctions,
+  renderVideoOnLambda,
+  getRenderProgress,
+} from "@remotion/lambda";
 
-const url = 'string'
+const url = "string";
 const functions = await getFunctions({
-  region: 'us-east-1',
-  compatibleOnly: true
-})
+  region: "us-east-1",
+  compatibleOnly: true,
+});
 
-const functionName = functions[0].functionName
+const functionName = functions[0].functionName;
 // ---cut---
 
-const {renderId, bucketName} = await renderVideoOnLambda({
-  region: 'us-east-1',
+const { renderId, bucketName } = await renderVideoOnLambda({
+  region: "us-east-1",
   functionName,
   serveUrl: url,
-  composition: 'HelloWorld',
+  composition: "HelloWorld",
   inputProps: {},
-  codec: 'h264-mkv',
-  imageFormat: 'jpeg',
-  maxRetries: 3
-})
+  codec: "h264-mkv",
+  imageFormat: "jpeg",
+  maxRetries: 3,
+  framesPerLambda: 20,
+  privacy: "public",
+});
 ```
 
 The render will now run and after a while the video will be available in your S3 bucket. You can at any time get the status of the video render by calling [`getRenderProgress()`](/docs/lambda/getrenderprogress).
@@ -264,47 +268,53 @@ The render will now run and after a while the video will be available in your S3
 ```ts twoslash
 // @module: ESNext
 // @target: ESNext
-import {getFunctions, renderVideoOnLambda, getRenderProgress} from '@remotion/lambda';
+import {
+  getFunctions,
+  renderVideoOnLambda,
+  getRenderProgress,
+} from "@remotion/lambda";
 
-const url = 'string'
+const url = "string";
 const functions = await getFunctions({
-  region: 'us-east-1',
-  compatibleOnly: true
-})
+  region: "us-east-1",
+  compatibleOnly: true,
+});
 
-const functionName = functions[0].functionName
+const functionName = functions[0].functionName;
 
-const {renderId, bucketName} = await renderVideoOnLambda({
-  region: 'us-east-1',
+const { renderId, bucketName } = await renderVideoOnLambda({
+  region: "us-east-1",
   functionName,
   serveUrl: url,
-  composition: 'HelloWorld',
+  composition: "HelloWorld",
   inputProps: {},
-  codec: 'h264-mkv',
-  imageFormat: 'jpeg',
-  maxRetries: 3
-})
+  codec: "h264-mkv",
+  imageFormat: "jpeg",
+  maxRetries: 3,
+  framesPerLambda: 20,
+  privacy: "public",
+});
 // ---cut---
 while (true) {
-  await new Promise(resolve => setTimeout(resolve, 1000))
+  await new Promise((resolve) => setTimeout(resolve, 1000));
   const progress = await getRenderProgress({
     renderId,
     bucketName,
     functionName,
-    region: 'us-east-1'
-  })
+    region: "us-east-1",
+  });
   if (progress.done) {
-    console.log('Render finished!', progress.outputFile)
-    process.exit(0)
+    console.log("Render finished!", progress.outputFile);
+    process.exit(0);
   }
   if (progress.fatalErrorEncountered) {
-    console.error('Error enountered', progress.errors)
-    process.exit(1)
+    console.error("Error enountered", progress.errors);
+    process.exit(1);
   }
 }
 ```
 
-This code will poll every second to check the progress of the video and exit the script if the render is done. Congrats! You rendered your first video using Remotion Lambda 🚀
+This code will poll every second to check the progress of the video and exit the script if the render is done. Congrats! [Check your S3 Bucket](https://s3.console.aws.amazon.com/s3/) - you just rendered your first video using Remotion Lambda 🚀
 
 </TabItem>
 </Tabs>

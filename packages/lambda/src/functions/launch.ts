@@ -1,6 +1,5 @@
 import {InvokeCommand} from '@aws-sdk/client-lambda';
 import fs from 'fs';
-import pRetry from 'p-retry';
 import {Internals} from 'remotion';
 import {validateFramesPerLambda} from '../api/validate-frames-per-lambda';
 import {getLambdaClient} from '../shared/aws-clients';
@@ -17,6 +16,7 @@ import {
 	rendersPrefix,
 } from '../shared/constants';
 import {getServeUrlHash} from '../shared/make-s3-url';
+import {validatePrivacy} from '../shared/validate-privacy';
 import {collectChunkInformation} from './chunk-optimization/collect-data';
 import {getFrameRangesFromProfile} from './chunk-optimization/get-frame-ranges-from-profile';
 import {getProfileDuration} from './chunk-optimization/get-profile-duration';
@@ -28,18 +28,15 @@ import {
 	getOptimization,
 	writeOptimization,
 } from './chunk-optimization/s3-optimization-file';
-import {deleteTmpDir} from './helpers/clean-tmpdir';
 import {concatVideosS3} from './helpers/concat-videos';
 import {createPostRenderData} from './helpers/create-post-render-data';
-import {deleteChunks} from './helpers/delete-chunks';
-import {
-	closeBrowser,
-	getBrowserInstance,
-	quitBrowser,
-} from './helpers/get-browser-instance';
+import {cleanupFiles} from './helpers/delete-chunks';
+import {closeBrowser, getBrowserInstance} from './helpers/get-browser-instance';
 import {getCurrentRegionInFunction} from './helpers/get-current-region';
+import {getFilesToDelete} from './helpers/get-files-to-delete';
+import {getLambdasInvokedStats} from './helpers/get-lambdas-invoked-stats';
+import {inspectErrors} from './helpers/inspect-errors';
 import {lambdaLs, lambdaWriteFile} from './helpers/io';
-import {isErrInsufficientResourcesErr} from './helpers/is-enosp-err';
 import {timer} from './helpers/timer';
 import {validateComposition} from './helpers/validate-composition';
 import {
@@ -74,52 +71,12 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		}),
 	]);
 
-	const comp = await pRetry(
-		async () =>
-			validateComposition({
-				serveUrl: params.serveUrl,
-				composition: params.composition,
-				browserInstance: await getBrowserInstance(),
-				inputProps: params.inputProps,
-				onError: ({err}) => {
-					writeLambdaError({
-						bucketName: params.bucketName,
-						errorInfo: {
-							chunk: null,
-							frame: null,
-							isFatal: false,
-							stack: (err.message + ' ' + err.stack) as string,
-							type: 'browser',
-							tmpDir: getTmpDirStateIfENoSp(err.stack as string),
-						},
-						expectedBucketOwner: options.expectedBucketOwner,
-						renderId: params.renderId,
-					});
-				},
-			}),
-		{
-			retries: 1,
-			onFailedAttempt: async (err) => {
-				if (isErrInsufficientResourcesErr(err.message)) {
-					await writeLambdaError({
-						bucketName: params.bucketName,
-						errorInfo: {
-							chunk: null,
-							frame: null,
-							isFatal: false,
-							stack: err.stack as string,
-							tmpDir: null,
-							type: 'stitcher',
-						},
-						expectedBucketOwner: options.expectedBucketOwner,
-						renderId: params.renderId,
-					});
-					await quitBrowser();
-					deleteTmpDir();
-				}
-			},
-		}
-	);
+	const comp = await validateComposition({
+		serveUrl: params.serveUrl,
+		composition: params.composition,
+		browserInstance: await getBrowserInstance(),
+		inputProps: params.inputProps,
+	});
 	Internals.validateDurationInFrames(
 		comp.durationInFrames,
 		'passed to <Component />'
@@ -127,6 +84,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 	Internals.validateFps(comp.fps, 'passed to <Component />');
 	Internals.validateDimension(comp.height, 'height', 'passed to <Component />');
 	Internals.validateDimension(comp.width, 'width', 'passed to <Component />');
+	validatePrivacy(params.privacy);
 
 	const {framesPerLambda} = params;
 	const chunkCount = Math.ceil(comp.durationInFrames / framesPerLambda);
@@ -136,6 +94,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		framesPerLambda,
 		frameCount: comp.durationInFrames,
 		optimization,
+		shouldUseOptimization: params.enableChunkOptimization,
 	});
 	const sortedChunks = chunks.slice().sort((a, b) => a[0] - b[0]);
 	const invokers = Math.round(Math.sqrt(chunks.length));
@@ -163,6 +122,9 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 			pixelFormat: params.pixelFormat,
 			proResProfile: params.proResProfile,
 			quality: params.quality,
+			privacy: params.privacy,
+			saveBrowserLogs: params.saveBrowserLogs,
+			attempt: 1,
 		};
 		return payload;
 	});
@@ -197,7 +159,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		key: renderMetadataKey(params.renderId),
 		body: JSON.stringify(renderMetadata),
 		region: getCurrentRegionInFunction(),
-		acl: 'private',
+		privacy: 'private',
 		expectedBucketOwner: options.expectedBucketOwner,
 	});
 
@@ -224,26 +186,59 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 	);
 	reqSend.end();
 
-	// TODO: Should throttle?
-	const onProgress = (framesEncoded: number) => {
+	let lastProgressUploaded = 0;
+	let encodingStop: number | null = null;
+
+	const onProgress = (framesEncoded: number, start: number) => {
+		const relativeProgress = framesEncoded / comp.durationInFrames;
+		const deltaSinceLastProgressUploaded =
+			relativeProgress - lastProgressUploaded;
+		if (relativeProgress === 1) {
+			encodingStop = Date.now();
+		}
+
+		if (deltaSinceLastProgressUploaded < 0.1) {
+			return;
+		}
+
+		lastProgressUploaded = relativeProgress;
+
 		const encodingProgress: EncodingProgress = {
 			framesEncoded,
 			totalFrames: comp.durationInFrames,
-			// TODO: Define doneIn property
-			doneIn: null,
+			doneIn: encodingStop ? encodingStop - start : null,
+			timeToInvoke: null,
 		};
 		lambdaWriteFile({
 			bucketName: params.bucketName,
 			key: encodingProgressKey(params.renderId),
 			body: JSON.stringify(encodingProgress),
 			region: getCurrentRegionInFunction(),
-			acl: 'private',
+			privacy: 'private',
 			expectedBucketOwner: options.expectedBucketOwner,
+		}).catch((err) => {
+			writeLambdaError({
+				bucketName: params.bucketName,
+				errorInfo: {
+					chunk: null,
+					frame: null,
+					isFatal: false,
+					stack: `Could not upload stitching progress ${
+						(err as Error).stack as string
+					}`,
+					tmpDir: null,
+					type: 'stitcher',
+					attempt: 1,
+					totalAttempts: 1,
+					willRetry: false,
+				},
+				renderId: params.renderId,
+				expectedBucketOwner: options.expectedBucketOwner,
+			});
 		});
 	};
 
-	// TODO: Should clean up afterwards
-	const out = await concatVideosS3({
+	const {outfile, cleanupChunksProm, encodingStart} = await concatVideosS3({
 		bucket: params.bucketName,
 		expectedFiles: chunkCount,
 		onProgress,
@@ -253,54 +248,102 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		codec: params.codec,
 		expectedBucketOwner: options.expectedBucketOwner,
 	});
-	// TODO: Enable or disable chunk optimization
+	if (!encodingStop) {
+		encodingStop = Date.now();
+	}
+
 	await lambdaWriteFile({
 		bucketName: params.bucketName,
 		key: outName(params.renderId, params.codec),
-		body: fs.createReadStream(out),
+		body: fs.createReadStream(outfile),
 		region: getCurrentRegionInFunction(),
-		acl: 'public-read',
+		privacy: params.privacy,
 		expectedBucketOwner: options.expectedBucketOwner,
 	});
-	const chunkData = await collectChunkInformation({
-		bucketName: params.bucketName,
-		renderId: params.renderId,
-		region: getCurrentRegionInFunction(),
-		expectedBucketOwner: options.expectedBucketOwner,
-	});
-	const optimizedProfile = optimizeInvocationOrder(
-		optimizeProfileRecursively(chunkData, 400)
-	);
 
-	const optimizedFrameRange = getFrameRangesFromProfile(optimizedProfile);
-	if (isValidOptimizationProfile(optimizedProfile)) {
-		await writeOptimization({
+	let chunkProm: Promise<unknown> = Promise.resolve();
+
+	if (params.enableChunkOptimization) {
+		const chunkData = await collectChunkInformation({
 			bucketName: params.bucketName,
-			optimization: {
-				frameRange: optimizedFrameRange,
-				oldTiming: getProfileDuration(chunkData),
-				newTiming: getProfileDuration(optimizedProfile),
-				frameCount: comp.durationInFrames,
-				createdFromRenderId: params.renderId,
-				framesPerLambda,
-				lambdaVersion: CURRENT_VERSION,
-			},
-			expectedBucketOwner: options.expectedBucketOwner,
-			compositionId: params.composition,
-			siteId: getServeUrlHash(params.serveUrl),
+			renderId: params.renderId,
 			region: getCurrentRegionInFunction(),
+			expectedBucketOwner: options.expectedBucketOwner,
 		});
+		const optimizedProfile = optimizeInvocationOrder(
+			optimizeProfileRecursively(chunkData, 400)
+		);
+		const optimizedFrameRange = getFrameRangesFromProfile(optimizedProfile);
+		chunkProm = isValidOptimizationProfile(optimizedProfile)
+			? writeOptimization({
+					bucketName: params.bucketName,
+					optimization: {
+						frameRange: optimizedFrameRange,
+						oldTiming: getProfileDuration(chunkData),
+						newTiming: getProfileDuration(optimizedProfile),
+						frameCount: comp.durationInFrames,
+						createdFromRenderId: params.renderId,
+						framesPerLambda,
+						lambdaVersion: CURRENT_VERSION,
+					},
+					expectedBucketOwner: options.expectedBucketOwner,
+					compositionId: params.composition,
+					siteId: getServeUrlHash(params.serveUrl),
+					region: getCurrentRegionInFunction(),
+			  })
+			: Promise.resolve();
 	}
 
-	const contents = await lambdaLs({
+	const [, contents] = await Promise.all([
+		chunkProm,
+		lambdaLs({
+			bucketName: params.bucketName,
+			prefix: rendersPrefix(params.renderId),
+			expectedBucketOwner: options.expectedBucketOwner,
+			region: getCurrentRegionInFunction(),
+		}),
+	]);
+	const finalEncodingProgress: EncodingProgress = {
+		framesEncoded: comp.durationInFrames,
+		totalFrames: comp.durationInFrames,
+		doneIn: encodingStop ? encodingStop - encodingStart : null,
+		timeToInvoke: getLambdasInvokedStats(
+			contents,
+			params.renderId,
+			renderMetadata.estimatedRenderLambdaInvokations,
+			renderMetadata.startedDate
+		).timeToInvokeLambdas,
+	};
+	const finalEncodingProgressProm = lambdaWriteFile({
 		bucketName: params.bucketName,
-		prefix: rendersPrefix(params.renderId),
-		expectedBucketOwner: options.expectedBucketOwner,
+		key: encodingProgressKey(params.renderId),
+		body: JSON.stringify(finalEncodingProgress),
 		region: getCurrentRegionInFunction(),
+		privacy: 'private',
+		expectedBucketOwner: options.expectedBucketOwner,
 	});
 
-	// TODO: Opportunity to parallelize
-	const postRenderData = await createPostRenderData({
+	const errorExplanationsProm = inspectErrors({
+		contents,
+		renderId: params.renderId,
+		bucket: params.bucketName,
+		region: getCurrentRegionInFunction(),
+		expectedBucketOwner: options.expectedBucketOwner,
+	});
+
+	const jobs = getFilesToDelete({
+		chunkCount,
+		renderId: params.renderId,
+	});
+
+	const deletProm = cleanupFiles({
+		region: getCurrentRegionInFunction(),
+		bucket: params.bucketName,
+		contents,
+		jobs,
+	});
+
+	const postRenderData = createPostRenderData({
 		bucketName: params.bucketName,
 		expectedBucketOwner: options.expectedBucketOwner,
 		region: getCurrentRegionInFunction(),
@@ -308,7 +351,11 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		memorySizeInMb: Number(process.env.AWS_LAMBDA_FUNCTION_MEMORY_SIZE),
 		renderMetadata,
 		contents,
+		errorExplanations: await errorExplanationsProm,
+		timeToEncode: encodingStop - encodingStart,
+		timeToDelete: await deletProm,
 	});
+	await finalEncodingProgressProm;
 	await writePostRenderData({
 		bucketName: params.bucketName,
 		expectedBucketOwner: options.expectedBucketOwner,
@@ -316,13 +363,8 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		region: getCurrentRegionInFunction(),
 		renderId: params.renderId,
 	});
-	await deleteChunks({
-		region: getCurrentRegionInFunction(),
-		renderId: params.renderId,
-		bucket: params.bucketName,
-		chunkCount,
-		contents,
-	});
+
+	await Promise.all([cleanupChunksProm, fs.promises.rm(outfile)]);
 };
 
 export const launchHandler = async (
@@ -346,6 +388,9 @@ export const launchHandler = async (
 				type: 'stitcher',
 				isFatal: true,
 				tmpDir: getTmpDirStateIfENoSp((err as Error).stack as string),
+				attempt: 1,
+				totalAttempts: 1,
+				willRetry: false,
 			},
 			expectedBucketOwner: options.expectedBucketOwner,
 			renderId: params.renderId,

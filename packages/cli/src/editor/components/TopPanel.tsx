@@ -32,7 +32,7 @@ const leftContainer: React.CSSProperties = {
 
 export const TopPanel: React.FC = () => {
 	return (
-		<div style={container} className="css-reset">
+		<div style={container}>
 			<MenuToolbar />
 			<div style={row}>
 				<SplitterContainer
@@ -43,7 +43,7 @@ export const TopPanel: React.FC = () => {
 					orientation="vertical"
 				>
 					<SplitterElement type="flexer">
-						<div style={leftContainer}>
+						<div style={leftContainer} className="css-reset">
 							<CompositionSelector />
 						</div>
 					</SplitterElement>

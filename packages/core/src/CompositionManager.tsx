@@ -56,6 +56,7 @@ export type TSequence = {
 	rootId: string;
 	showInTimeline: boolean;
 	nonce: number;
+	showLoopTimesInTimeline: number | undefined;
 } & EnhancedTSequenceData;
 
 export type TAsset = {

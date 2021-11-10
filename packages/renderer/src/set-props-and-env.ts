@@ -1,5 +1,6 @@
 import {Page} from 'puppeteer-core';
 import {Internals} from 'remotion';
+import {normalizeServeUrl} from './normalize-serve-url';
 
 export const setPropsAndEnv = async ({
 	inputProps,
@@ -15,7 +16,7 @@ export const setPropsAndEnv = async ({
 	initialFrame: number;
 }) => {
 	if (inputProps || envVariables) {
-		await page.goto(`${serveUrl}/index.html`);
+		await page.goto(normalizeServeUrl(serveUrl));
 
 		if (inputProps) {
 			await page.evaluate(
