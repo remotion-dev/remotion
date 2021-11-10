@@ -57,6 +57,7 @@ export const renderStillOnLambda = async ({
 			maxRetries: maxRetries ?? 3,
 			frame: frame ?? 0,
 			privacy,
+			attempt: 1,
 		},
 		region,
 	});

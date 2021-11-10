@@ -231,7 +231,8 @@ export const rendererHandler = async (
 			(err as Error).message.includes(
 				'error while loading shared libraries: libnss3.so'
 			);
-		if (isBrowserError || params.retriesLeft > 0) {
+		const willRetry = isBrowserError || params.retriesLeft > 0;
+		if (willRetry) {
 			const retryPayload: LambdaPayloads[LambdaRoutines.renderer] = {
 				...params,
 				retriesLeft: params.retriesLeft - 1,
@@ -257,6 +258,9 @@ export const rendererHandler = async (
 				type: 'renderer',
 				isFatal: !isBrowserError,
 				tmpDir: getTmpDirStateIfENoSp((err as Error).stack as string),
+				attempt: params.attempt,
+				totalAttempts: params.retriesLeft + params.attempt,
+				willRetry,
 			},
 			renderId: params.renderId,
 			expectedBucketOwner: options.expectedBucketOwner,

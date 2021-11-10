@@ -157,6 +157,17 @@ export const renderCommand = async (args: string[]) => {
 		}
 
 		if (newStatus.fatalErrorEncountered) {
+			for (const err of newStatus.errors) {
+				const attemptString = `(Attempt ${err.attempt}/${err.totalAttempts})`;
+				if (err.chunk === null) {
+					Log.error('Error occured while preparing video: ' + attemptString);
+				} else {
+					Log.error('Error occurred when rendering chunk ' + err.chunk);
+				}
+
+				Log.error(err.stack);
+			}
+
 			Log.error(JSON.stringify(newStatus.errors));
 			Log.error('Fatal error encountered. Exiting.');
 			process.exit(1);

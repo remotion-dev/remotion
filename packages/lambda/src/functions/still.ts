@@ -162,7 +162,8 @@ export const stillHandler = async (
 			(err as Error).message.includes(
 				'error while loading shared libraries: libnss3.so'
 			);
-		if (isBrowserError || params.maxRetries > 0) {
+		const willRetry = isBrowserError || params.maxRetries > 0;
+		if (willRetry) {
 			const retryPayload: LambdaPayloads[LambdaRoutines.still] = {
 				...params,
 				maxRetries: params.maxRetries - 1,
@@ -190,6 +191,9 @@ export const stillHandler = async (
 						(err as Error).stack) as string,
 					type: 'browser',
 					tmpDir: getTmpDirStateIfENoSp((err as Error).stack as string),
+					attempt: params.attempt,
+					totalAttempts: params.attempt + params.maxRetries,
+					willRetry,
 				},
 				expectedBucketOwner: options.expectedBucketOwner,
 				renderId,

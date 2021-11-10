@@ -11,6 +11,9 @@ export type LambdaErrorInfo = {
 	frame: number | null;
 	chunk: number | null;
 	isFatal: boolean;
+	attempt: number;
+	willRetry: boolean;
+	totalAttempts: number;
 	tmpDir: {files: FileNameAndSize[]; total: number} | null;
 };
 
