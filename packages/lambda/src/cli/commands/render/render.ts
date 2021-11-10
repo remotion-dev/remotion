@@ -75,6 +75,11 @@ export const renderCommand = async (args: string[]) => {
 
 	const progressBar = CliInternals.createOverwriteableCliOutput();
 
+	Log.info(
+		CliInternals.chalk.gray(
+			`renderId = ${res.renderId}, Bucket = ${res.bucketName}`
+		)
+	);
 	const status = await getRenderProgress({
 		functionName,
 		bucketName: res.bucketName,
