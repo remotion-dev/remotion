@@ -4,5 +4,6 @@ tsconfig.tsbuildinfo
 .DS_Store
 coverage
 packages/example/.env
+*/**/.env
 .cache
 packages/example/out
