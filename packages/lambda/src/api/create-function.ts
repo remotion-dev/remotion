@@ -64,9 +64,6 @@ export const createFunction = async ({
 			Layers: hostedLayers[region].map(
 				({layerArn, version}) => `${layerArn}:${version}`
 			),
-			Tags: {
-				'Remotion-Logs': String(createCloudWatchLogGroup),
-			},
 		})
 	);
 	// TODO: Remove try catch in future versions

@@ -5,12 +5,14 @@ import {renderVideoOnLambda} from '../../../api/render-video-on-lambda';
 import {
 	BINARY_NAME,
 	DEFAULT_FRAMES_PER_LAMBDA,
+	LambdaRoutines,
 } from '../../../shared/constants';
 import {sleep} from '../../../shared/sleep';
 import {parsedLambdaCli} from '../../args';
 import {getAwsRegion} from '../../get-aws-region';
 import {findFunctionName} from '../../helpers/find-function-name';
 import {formatBytes} from '../../helpers/format-bytes';
+import {getCloudwatchStreamUrl} from '../../helpers/get-cloudwatch-stream-url';
 import {Log} from '../../log';
 import {makeMultiProgressFromStatus, makeProgressString} from './progress';
 
@@ -49,6 +51,8 @@ export const renderCommand = async (args: string[]) => {
 
 	const functionName = await findFunctionName();
 
+	const region = getAwsRegion();
+
 	const res = await renderVideoOnLambda({
 		functionName,
 		serveUrl,
@@ -60,7 +64,7 @@ export const renderCommand = async (args: string[]) => {
 		pixelFormat: cliOptions.pixelFormat,
 		proResProfile: cliOptions.proResProfile,
 		quality: cliOptions.quality,
-		region: getAwsRegion(),
+		region,
 		// TODO: Unhardcode retries
 		maxRetries: 3,
 		composition,
@@ -79,6 +83,14 @@ export const renderCommand = async (args: string[]) => {
 		CliInternals.chalk.gray(
 			`Bucket = ${res.bucketName}, renderId = ${res.renderId}, functionName = ${functionName}`
 		)
+	);
+	Log.verbose(
+		`CloudWatch logs (if enabled): ${getCloudwatchStreamUrl({
+			functionName,
+			region,
+			renderId: res.renderId,
+			method: LambdaRoutines.renderer,
+		})}`
 	);
 	const status = await getRenderProgress({
 		functionName,
