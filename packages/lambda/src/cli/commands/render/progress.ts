@@ -32,7 +32,7 @@ const makeInvokeProgress = (
 		? 0
 		: lambdasInvoked / totalLambdas;
 	return [
-		'☁️ ',
+		'⚡️',
 		`(1/${totalSteps})`,
 		CliInternals.makeProgressBar(progress),
 		`${doneIn === null ? 'Invoking' : 'Invoked'} lambdas`,
