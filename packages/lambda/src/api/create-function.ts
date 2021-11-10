@@ -1,6 +1,10 @@
-import {CreateFunctionCommand} from '@aws-sdk/client-lambda';
+import {
+	CreateFunctionCommand,
+	PutFunctionEventInvokeConfigCommand,
+} from '@aws-sdk/client-lambda';
 import {readFileSync} from 'fs';
 import {AwsRegion} from '..';
+import {Log} from '../cli/log';
 import {getLambdaClient} from '../shared/aws-clients';
 import {hostedLayers} from '../shared/hosted-layers';
 
@@ -37,5 +41,19 @@ export const createFunction = async ({
 			),
 		})
 	);
+	// TODO: Remove try catch in future versions
+	try {
+		await getLambdaClient(region).send(
+			new PutFunctionEventInvokeConfigCommand({
+				MaximumRetryAttempts: 0,
+				FunctionName,
+			})
+		);
+	} catch (err) {
+		Log.warn(
+			'\nWe now require the lambda:PutFunctionEventInvokeConfig permissions for your user. Please run `npx remotion lambda policies user` update your user policy. This will be required for the final version of Remotion Lambda.'
+		);
+	}
+
 	return {FunctionName};
 };
