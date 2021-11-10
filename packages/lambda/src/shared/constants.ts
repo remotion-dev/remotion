@@ -25,9 +25,12 @@ export const BINARY_NAME = 'remotion lambda';
 export const COMMAND_NOT_FOUND = 'Command not found';
 export const DEFAULT_REGION: AwsRegion = 'us-east-1';
 
+export const DEFAULT_CLOUDWATCH_RETENTION_PERIOD = 14;
+
 // TODO: Rename other buckets in Jonnys accoudn first
 export const REMOTION_BUCKET_PREFIX = 'remotionlambda-';
 export const RENDER_FN_PREFIX = 'remotion-render-';
+export const LOG_GROUP_PREFIX = '/aws/lambda/';
 export const rendersPrefix = (renderId: string) => `renders/${renderId}`;
 export const encodingProgressKey = (renderId: string) =>
 	`${rendersPrefix(renderId)}/encoding-progress.json`;

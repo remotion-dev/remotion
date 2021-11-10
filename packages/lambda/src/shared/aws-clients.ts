@@ -1,12 +1,26 @@
+import {CloudWatchLogsClient} from '@aws-sdk/client-cloudwatch-logs';
 import {IAMClient} from '@aws-sdk/client-iam';
 import {LambdaClient} from '@aws-sdk/client-lambda';
 import {S3Client} from '@aws-sdk/client-s3';
 import {AwsRegion} from '../pricing/aws-regions';
 import {checkCredentials} from './check-credentials';
 
+const _cloudWatchLogsClients: Partial<Record<AwsRegion, CloudWatchLogsClient>> =
+	{};
 const _s3Clients: Partial<Record<AwsRegion, S3Client>> = {};
 const _lambdaClients: Partial<Record<AwsRegion, LambdaClient>> = {};
 const _iamClients: Partial<Record<AwsRegion, IAMClient>> = {};
+
+export const getCloudWatchLogsClient = (
+	region: AwsRegion
+): CloudWatchLogsClient => {
+	if (!_cloudWatchLogsClients[region]) {
+		checkCredentials();
+		_cloudWatchLogsClients[region] = new CloudWatchLogsClient({region});
+	}
+
+	return _cloudWatchLogsClients[region] as CloudWatchLogsClient;
+};
 
 export const getS3Client = (region: AwsRegion) => {
 	if (!_s3Clients[region]) {
