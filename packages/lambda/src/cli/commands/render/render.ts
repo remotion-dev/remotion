@@ -92,6 +92,7 @@ export const renderCommand = async (args: string[]) => {
 			progress: multiProgress,
 			outName,
 			steps: totalSteps,
+			isDownloaded: false,
 		})
 	);
 
@@ -110,6 +111,7 @@ export const renderCommand = async (args: string[]) => {
 				outName,
 				progress: newProgress,
 				steps: totalSteps,
+				isDownloaded: false,
 			})
 		);
 
@@ -120,6 +122,7 @@ export const renderCommand = async (args: string[]) => {
 					outName,
 					progress: newProgress,
 					steps: totalSteps,
+					isDownloaded: false,
 				})
 			);
 			if (outName) {
@@ -134,6 +137,7 @@ export const renderCommand = async (args: string[]) => {
 						outName,
 						progress: newProgress,
 						steps: totalSteps,
+						isDownloaded: true,
 					})
 				);
 				Log.info();
