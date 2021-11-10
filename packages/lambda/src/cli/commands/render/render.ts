@@ -94,6 +94,7 @@ export const renderCommand = async (args: string[]) => {
 			errors: status.errors,
 			steps: totalSteps,
 			isDownloaded: false,
+			retriesInfo: status.retriesInfo,
 		})
 	);
 
@@ -113,7 +114,8 @@ export const renderCommand = async (args: string[]) => {
 				progress: newProgress,
 				steps: totalSteps,
 				isDownloaded: false,
-				errors: status.errors,
+				errors: newStatus.errors,
+				retriesInfo: newStatus.retriesInfo,
 			})
 		);
 
@@ -125,7 +127,8 @@ export const renderCommand = async (args: string[]) => {
 					progress: newProgress,
 					steps: totalSteps,
 					isDownloaded: false,
-					errors: status.errors,
+					errors: newStatus.errors,
+					retriesInfo: newStatus.retriesInfo,
 				})
 			);
 			if (outName) {
@@ -141,7 +144,8 @@ export const renderCommand = async (args: string[]) => {
 						progress: newProgress,
 						steps: totalSteps,
 						isDownloaded: true,
-						errors: status.errors,
+						errors: newStatus.errors,
+						retriesInfo: newStatus.retriesInfo,
 					})
 				);
 				Log.info();

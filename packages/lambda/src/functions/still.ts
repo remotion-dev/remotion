@@ -167,6 +167,7 @@ export const stillHandler = async (
 			const retryPayload: LambdaPayloads[LambdaRoutines.still] = {
 				...params,
 				maxRetries: params.maxRetries - 1,
+				attempt: params.attempt + 1,
 			};
 			// TODO: Test retries by failing sometimes
 			const res = await getLambdaClient(getCurrentRegionInFunction()).send(

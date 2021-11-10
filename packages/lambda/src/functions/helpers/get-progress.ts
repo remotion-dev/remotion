@@ -18,6 +18,7 @@ import {getLambdasInvokedStats} from './get-lambdas-invoked-stats';
 import {getOverallProgress} from './get-overall-progress';
 import {getPostRenderData} from './get-post-render-data';
 import {getRenderMetadata} from './get-render-metadata';
+import {getRetryStats} from './get-retry-stats';
 import {getTimeToFinish} from './get-time-to-finish';
 import {inspectErrors} from './inspect-errors';
 import {lambdaLs} from './io';
@@ -77,6 +78,7 @@ export const getProgress = async ({
 			timeToFinishChunks: postRenderData.timeToRenderChunks,
 			timeToInvokeLambdas: postRenderData.timeToInvokeLambdas,
 			overallProgress: 1,
+			retriesInfo: postRenderData.retriesInfo,
 		};
 	}
 
@@ -161,6 +163,11 @@ export const getProgress = async ({
 		renderMetadata?.startedDate ?? null
 	);
 
+	const retriesInfo = getRetryStats({
+		contents,
+		renderId,
+	});
+
 	const finalEncodingStatus = getFinalEncodingStatus({
 		encodingStatus,
 		outputFileExists: Boolean(outputFile),
@@ -211,5 +218,6 @@ export const getProgress = async ({
 				: 0,
 			rendering: renderMetadata ? chunkCount / renderMetadata.totalChunks : 0,
 		}),
+		retriesInfo,
 	};
 };
