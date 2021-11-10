@@ -50,7 +50,7 @@ const innerStillHandler = async (
 		getOrCreateBucket({
 			region: getCurrentRegionInFunction(),
 		}),
-		getBrowserInstance(),
+		getBrowserInstance(lambdaParams.saveBrowserLogs ?? false),
 	]);
 	const outputDir = OUTPUT_PATH_PREFIX + randomHash();
 

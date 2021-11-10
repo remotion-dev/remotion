@@ -67,6 +67,7 @@ export const handler = async <T extends LambdaRoutines>(
 		printCloudwatchHelper(LambdaRoutines.renderer, {
 			renderId: params.renderId,
 			chunk: String(params.chunk),
+			dumpLogs: String(params.saveBrowserLogs),
 		});
 		return rendererHandler(params, {
 			expectedBucketOwner: currentUserId,

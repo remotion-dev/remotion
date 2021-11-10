@@ -31,6 +31,7 @@ export const renderStillOnLambda = async ({
 	composition,
 	privacy,
 	frame,
+	saveBrowserLogs,
 }: {
 	region: AwsRegion;
 	functionName: string;
@@ -43,6 +44,7 @@ export const renderStillOnLambda = async ({
 	envVariables?: Record<string, string>;
 	quality?: number;
 	frame?: number;
+	saveBrowserLogs?: boolean;
 }) => {
 	const res = await callLambda({
 		functionName,
@@ -58,6 +60,7 @@ export const renderStillOnLambda = async ({
 			frame: frame ?? 0,
 			privacy,
 			attempt: 1,
+			saveBrowserLogs,
 		},
 		region,
 	});

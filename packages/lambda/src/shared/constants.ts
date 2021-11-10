@@ -230,6 +230,7 @@ export type LambdaPayloads = {
 		maxRetries: number;
 		frame: number;
 		privacy: Privacy;
+		saveBrowserLogs?: boolean;
 	};
 };
 

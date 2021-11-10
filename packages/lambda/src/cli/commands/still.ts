@@ -2,6 +2,7 @@ import {CliInternals} from '@remotion/cli';
 import {StillImageFormat} from 'remotion';
 import {renderStillOnLambda} from '../../api/render-still-on-lambda';
 import {BINARY_NAME} from '../../shared/constants';
+import {parsedLambdaCli} from '../args';
 import {getAwsRegion} from '../get-aws-region';
 import {findFunctionName} from '../helpers/find-function-name';
 import {Log} from '../log';
@@ -51,6 +52,7 @@ export const stillCommand = async (args: string[]) => {
 		envVariables: cliOptions.envVariables,
 		frame: cliOptions.stillFrame,
 		quality: cliOptions.quality,
+		saveBrowserLogs: parsedLambdaCli['save-browser-logs'],
 	});
 
 	Log.info(`Finished video!`);
