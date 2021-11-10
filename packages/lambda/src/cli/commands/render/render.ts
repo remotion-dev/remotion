@@ -118,7 +118,6 @@ export const renderCommand = async (args: string[]) => {
 			renderId: res.renderId,
 			region: getAwsRegion(),
 		});
-		CliInternals.Log.verbose(JSON.stringify(newStatus, null, 2));
 		const newProgress = makeMultiProgressFromStatus(newStatus);
 		progressBar.update(
 			makeProgressString({

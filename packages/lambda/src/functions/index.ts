@@ -31,34 +31,43 @@ export const handler = async <T extends LambdaRoutines>(
 
 	const currentUserId = context.invokedFunctionArn.split(':')[4];
 	if (params.type === LambdaRoutines.still) {
-		printCloudwatchHelper(LambdaRoutines.still, null);
+		printCloudwatchHelper(LambdaRoutines.still, {});
 		return stillHandler(params, {
 			expectedBucketOwner: currentUserId,
 		});
 	}
 
 	if (params.type === LambdaRoutines.start) {
-		printCloudwatchHelper(LambdaRoutines.start, null);
+		printCloudwatchHelper(LambdaRoutines.start, {});
 		return startHandler(params);
 	}
 
 	if (params.type === LambdaRoutines.launch) {
-		printCloudwatchHelper(LambdaRoutines.launch, params.renderId);
+		printCloudwatchHelper(LambdaRoutines.launch, {
+			renderId: params.renderId,
+		});
 		return launchHandler(params, {expectedBucketOwner: currentUserId});
 	}
 
 	if (params.type === LambdaRoutines.status) {
-		printCloudwatchHelper(LambdaRoutines.status, params.renderId);
+		printCloudwatchHelper(LambdaRoutines.status, {
+			renderId: params.renderId,
+		});
 		return progressHandler(params, {expectedBucketOwner: currentUserId});
 	}
 
 	if (params.type === LambdaRoutines.fire) {
-		printCloudwatchHelper(LambdaRoutines.fire, null);
+		printCloudwatchHelper(LambdaRoutines.fire, {
+			renderId: params.renderId,
+		});
 		return fireHandler(params);
 	}
 
 	if (params.type === LambdaRoutines.renderer) {
-		printCloudwatchHelper(LambdaRoutines.renderer, params.renderId);
+		printCloudwatchHelper(LambdaRoutines.renderer, {
+			renderId: params.renderId,
+			chunk: String(params.chunk),
+		});
 		return rendererHandler(params, {
 			expectedBucketOwner: currentUserId,
 			isWarm,
@@ -66,7 +75,7 @@ export const handler = async <T extends LambdaRoutines>(
 	}
 
 	if (params.type === LambdaRoutines.info) {
-		printCloudwatchHelper(LambdaRoutines.info, null);
+		printCloudwatchHelper(LambdaRoutines.info, {});
 
 		return infoHandler(params);
 	}
