@@ -18,7 +18,7 @@ import {createFunction} from './create-function';
  * @returns An object that contains the `functionName` property
  */
 export const deployFunction = async (options: {
-	createCloudWatchLogGroup?: boolean;
+	createCloudWatchLogGroup: boolean;
 	region: AwsRegion;
 	timeoutInSeconds: number;
 	memorySizeInMb: number;

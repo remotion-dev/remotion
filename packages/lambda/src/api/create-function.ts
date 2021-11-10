@@ -17,7 +17,7 @@ import {getCloudWatchLogsClient, getLambdaClient} from '../shared/aws-clients';
 import {hostedLayers} from '../shared/hosted-layers';
 
 export const createFunction = async ({
-	createCloudWatchLogGroup = false,
+	createCloudWatchLogGroup,
 	region,
 	zipFile,
 	functionName,
@@ -25,7 +25,7 @@ export const createFunction = async ({
 	memorySizeInMb,
 	timeoutInSeconds,
 }: {
-	createCloudWatchLogGroup?: boolean;
+	createCloudWatchLogGroup: boolean;
 	region: AwsRegion;
 	zipFile: string;
 	functionName: string;
@@ -34,8 +34,6 @@ export const createFunction = async ({
 	timeoutInSeconds: number;
 }) => {
 	if (createCloudWatchLogGroup) {
-		Log.info(`Creating CloudWatch Log Group...`);
-
 		await getCloudWatchLogsClient(region).send(
 			new CreateLogGroupCommand({
 				logGroupName: `${LOG_GROUP_PREFIX}${functionName}`,
@@ -66,6 +64,9 @@ export const createFunction = async ({
 			Layers: hostedLayers[region].map(
 				({layerArn, version}) => `${layerArn}:${version}`
 			),
+			Tags: {
+				'Remotion-Logs': String(createCloudWatchLogGroup),
+			},
 		})
 	);
 	// TODO: Remove try catch in future versions

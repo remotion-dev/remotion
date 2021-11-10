@@ -18,7 +18,9 @@ export const functionsDeploySubcommand = async () => {
 	const region = getAwsRegion();
 	const timeoutInSeconds = parsedLambdaCli.timeout ?? DEFAULT_TIMEOUT;
 	const memorySizeInMb = parsedLambdaCli.memory ?? DEFAULT_MEMORY_SIZE;
-	const createCloudWatchLogGroup = parsedLambdaCli.cloudwatch ?? false;
+	const createCloudWatchLogGroup = parsedLambdaCli['disable-cloudwatch']
+		? false
+		: true;
 	validateMemorySize(memorySizeInMb);
 	validateTimeout(timeoutInSeconds);
 	Log.info(
