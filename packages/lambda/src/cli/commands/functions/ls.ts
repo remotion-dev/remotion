@@ -1,7 +1,7 @@
 import {CliInternals} from '@remotion/cli';
 import {Log} from '@remotion/cli/dist/log';
 import {getFunctions} from '../../../api/get-functions';
-import {parsedLambdaCli} from '../../args';
+import {quietFlagProvided} from '../../args';
 import {getAwsRegion} from '../../get-aws-region';
 
 const NAME_COLS = 32;
@@ -14,8 +14,7 @@ export const FUNCTIONS_LS_SUBCOMMAND = 'ls';
 export const functionsLsCommand = async () => {
 	const region = getAwsRegion();
 	const fetchingOutput = CliInternals.createOverwriteableCliOutput();
-	const quiet = Boolean(parsedLambdaCli.q);
-	if (!quiet) {
+	if (!quietFlagProvided) {
 		fetchingOutput.update('Getting functions...');
 	}
 
@@ -24,7 +23,7 @@ export const functionsLsCommand = async () => {
 		compatibleOnly: false,
 	});
 
-	if (quiet) {
+	if (quietFlagProvided) {
 		Log.info(functions.map((f) => f.functionName).join(' '));
 		return;
 	}
@@ -51,7 +50,9 @@ export const functionsLsCommand = async () => {
 		Log.info(
 			[
 				datapoint.functionName.padEnd(NAME_COLS, ' '),
-				datapoint.version.padEnd(VERSION_COLS, ' '),
+				datapoint.version
+					? datapoint.version.padEnd(VERSION_COLS, ' ')
+					: 'Error'.padEnd(VERSION_COLS, ' '),
 				String(datapoint.memorySizeInMb).padEnd(MEMORY_COLS, ' '),
 				String(datapoint.timeoutInSeconds).padEnd(TIMEOUT_COLS, ' '),
 			].join('')

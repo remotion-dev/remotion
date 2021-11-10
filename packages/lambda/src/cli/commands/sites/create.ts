@@ -4,6 +4,7 @@ import path from 'path';
 import {deploySite} from '../../../api/deploy-site';
 import {getOrCreateBucket} from '../../../api/get-or-create-bucket';
 import {BINARY_NAME} from '../../../shared/constants';
+import {parsedLambdaCli} from '../../args';
 import {getAwsRegion} from '../../get-aws-region';
 import {
 	BucketCreationProgress,
@@ -77,21 +78,27 @@ export const sitesCreateSubcommand = async (args: string[]) => {
 		);
 	};
 
-	const {bucketName} = await getOrCreateBucket({region: getAwsRegion()});
-	multiProgress.bucketProgress = {
-		bucketCreated: true,
-		doneIn: null,
-		websiteEnabled: false,
-	};
+	const bucketStart = Date.now();
 
+	const {bucketName} = await getOrCreateBucket({
+		region: getAwsRegion(),
+		onBucketEnsured: () => {
+			multiProgress.bucketProgress.bucketCreated = true;
+			updateProgress();
+		},
+	});
+
+	multiProgress.bucketProgress.websiteEnabled = true;
+	multiProgress.bucketProgress.doneIn = Date.now() - bucketStart;
 	updateProgress();
 
 	const bundleStart = Date.now();
-	const bucketStart = Date.now();
 	const uploadStart = Date.now();
 
-	const {url} = await deploySite({
+	const {serveUrl} = await deploySite({
 		entryPoint: absoluteFile,
+		// TODO: Make better
+		siteName: parsedLambdaCli['site-name'] ?? undefined,
 		bucketName,
 		options: {
 			onBundleProgress: (progress: number) => {
@@ -105,14 +112,6 @@ export const sitesCreateSubcommand = async (args: string[]) => {
 					sizeUploaded: p.sizeUploaded,
 					totalSize: p.totalSize,
 					doneIn: null,
-				};
-				updateProgress();
-			},
-			onWebsiteActivated: () => {
-				multiProgress.bucketProgress = {
-					bucketCreated: true,
-					doneIn: Date.now() - bucketStart,
-					websiteEnabled: true,
 				};
 				updateProgress();
 			},
@@ -131,5 +130,5 @@ export const sitesCreateSubcommand = async (args: string[]) => {
 	Log.info();
 	Log.info('Deployed to S3!');
 
-	Log.info(url);
+	Log.info(serveUrl);
 };

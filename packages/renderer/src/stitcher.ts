@@ -4,6 +4,7 @@ import os from 'os';
 import path from 'path';
 import {
 	Codec,
+	FfmpegExecutable,
 	ImageFormat,
 	Internals,
 	PixelFormat,
@@ -31,7 +32,6 @@ const makeAssetsDownloadTmpDir = (): Promise<string> => {
 	return fs.promises.mkdtemp(path.join(os.tmpdir(), 'remotion-assets-dir'));
 };
 
-// eslint-disable-next-line complexity
 export const stitchFramesToVideo = async (options: {
 	dir: string;
 	fps: number;
@@ -53,6 +53,7 @@ export const stitchFramesToVideo = async (options: {
 	verbose?: boolean;
 	downloadDir?: string;
 	webpackBundle: string | null;
+	ffmpegExecutable?: FfmpegExecutable;
 }): Promise<void> => {
 	Internals.validateDimension(
 		options.height,
@@ -74,7 +75,7 @@ export const stitchFramesToVideo = async (options: {
 	const crf = options.crf ?? Internals.getDefaultCrfForCodec(codec);
 	const imageFormat = options.imageFormat ?? DEFAULT_IMAGE_FORMAT;
 	const pixelFormat = options.pixelFormat ?? Internals.DEFAULT_PIXEL_FORMAT;
-	await validateFfmpeg();
+	await validateFfmpeg(options.ffmpegExecutable ?? null);
 
 	const encoderName = getCodecName(codec);
 	const audioCodecName = getAudioCodecName(codec);
@@ -84,6 +85,10 @@ export const stitchFramesToVideo = async (options: {
 	const supportsCrf = encoderName && codec !== 'prores';
 
 	if (options.verbose) {
+		console.log(
+			'[verbose] ffmpeg',
+			options.ffmpegExecutable ?? 'ffmpeg in PATH'
+		);
 		console.log('[verbose] encoder', encoderName);
 		console.log('[verbose] audioCodec', audioCodecName);
 		console.log('[verbose] pixelFormat', pixelFormat);
@@ -191,7 +196,9 @@ export const stitchFramesToVideo = async (options: {
 		.reduce<(string | null)[]>((acc, val) => acc.concat(val), [])
 		.filter(Boolean) as string[];
 
-	const task = execa('ffmpeg', ffmpegString, {cwd: options.dir});
+	const task = execa(options.ffmpegExecutable ?? 'ffmpeg', ffmpegString, {
+		cwd: options.dir,
+	});
 
 	task.stderr?.on('data', (data: Buffer) => {
 		if (options.onProgress) {

@@ -1,19 +1,21 @@
 import chalk from 'chalk';
 import xns from 'xns';
 import {checkNodeVersion} from './check-version';
+import {handleCommonError} from './handle-common-errors';
 import {getCliOptions} from './get-cli-options';
 import {loadConfig} from './get-config-file-name';
 import {initializeRenderCli} from './initialize-render-cli';
 import {lambdaCommand} from './lambda-command';
 import {loadConfigFile} from './load-config';
 import {Log} from './log';
-import {parseCommandLine, parsedCli} from './parse-command-line';
+import {BooleanFlags, parseCommandLine, parsedCli} from './parse-command-line';
 import {previewCommand} from './preview';
 import {printHelp} from './print-help';
 import {createOverwriteableCliOutput, makeProgressBar} from './progress-bar';
 import {render} from './render';
 import {still} from './still';
 import {upgrade} from './upgrade';
+Error.stackTraceLimit = Infinity;
 
 export const cli = async () => {
 	const args = process.argv;
@@ -46,7 +48,7 @@ export const cli = async () => {
 			process.exit(1);
 		}
 	} catch (err) {
-		Log.error((err as Error).stack);
+		handleCommonError(err as Error);
 		process.exit(1);
 	}
 };
@@ -64,4 +66,5 @@ export const CliInternals = {
 	parseCommandLine,
 	loadConfig,
 	initializeRenderCli,
+	BooleanFlags,
 };

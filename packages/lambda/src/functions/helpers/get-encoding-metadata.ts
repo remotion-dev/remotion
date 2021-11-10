@@ -20,21 +20,20 @@ export const getEncodingMetadata = async ({
 		return null;
 	}
 
-	const Body = await lambdaReadFile({
-		bucketName,
-		key: encodingProgressKey(renderId),
-		region,
-		expectedBucketOwner,
-	});
-
 	try {
+		const Body = await lambdaReadFile({
+			bucketName,
+			key: encodingProgressKey(renderId),
+			region,
+			expectedBucketOwner,
+		});
 		const encodingProgress = JSON.parse(
 			await streamToString(Body)
 		) as EncodingProgress;
 
 		return encodingProgress;
 	} catch (err) {
-		// The file may not yet have been fully written
+		// The file may not yet have been fully written or already have been cleaned up again
 		return null;
 	}
 };

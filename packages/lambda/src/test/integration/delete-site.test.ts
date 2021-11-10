@@ -3,6 +3,7 @@ import {deleteSite, deploySite, getOrCreateBucket} from '../..';
 jest.mock('../../api/get-buckets');
 jest.mock('../../functions/helpers/io');
 jest.mock('../../shared/bundle-site');
+jest.mock('../../shared/get-account-id');
 jest.mock('../../api/enable-s3-website');
 jest.mock('../../api/create-bucket');
 jest.mock('../../api/upload-dir');
@@ -19,7 +20,7 @@ test('Return 0 total size if site did not exist', async () => {
 			region: 'ap-east-1',
 			siteName: 'non existent',
 		})
-	).toEqual({totalSize: 0});
+	).toEqual({totalSizeInBytes: 0});
 });
 test('Return more than 0 total size if site did not exist', async () => {
 	const {bucketName} = await getOrCreateBucket({
@@ -37,6 +38,6 @@ test('Return more than 0 total size if site did not exist', async () => {
 				region: 'ap-east-1',
 				siteName,
 			})
-		).totalSize
+		).totalSizeInBytes
 	).toBeGreaterThan(0);
 });

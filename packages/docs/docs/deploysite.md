@@ -15,23 +15,30 @@ Before calling this function, you should create a bucket, see [`getOrCreateBucke
 ```ts twoslash
 // @module: esnext
 // @target: es2017
-import {deploySite} from '@remotion/lambda';
+import { deploySite } from "@remotion/lambda";
 
-const {url} = await deploySite({
-  entryPoint: '/Users/jonnyburger/my-remotion-video/src/index.tsx',
-  bucketName: 'remotionlambda-c7fsl3d',
-  region: 'us-east-1',
+const { serveUrl } = await deploySite({
+  entryPoint: "/Users/jonnyburger/my-remotion-video/src/index.tsx",
+  bucketName: "remotionlambda-c7fsl3d",
+  region: "us-east-1",
   options: {
     onBundleProgress: (progress) => {
       // Progress is between 0 and 100
-      console.log(`Bundle progress: ${progress}%`)
+      console.log(`Bundle progress: ${progress}%`);
     },
-    onUploadProgress: ({totalFiles, filesUploaded, totalSize, sizeUploaded}) => {
-      console.log(`Upload progress: Total files ${totalFiles}, Files uploaded ${filesUploaded}, Total size ${totalSize}, Size uploaded ${sizeUploaded}`, )
-    }
-  }
-})
-console.log(url);
+    onUploadProgress: ({
+      totalFiles,
+      filesUploaded,
+      totalSize,
+      sizeUploaded,
+    }) => {
+      console.log(
+        `Upload progress: Total files ${totalFiles}, Files uploaded ${filesUploaded}, Total size ${totalSize}, Size uploaded ${sizeUploaded}`
+      );
+    },
+  },
+});
+console.log(serveUrl);
 ```
 
 ## Arguments
@@ -95,6 +102,11 @@ Whether webpack caching should be enabled. See [`bundle()` -> enableCaching](/do
 
 An object with the following values:
 
-- `url` _(string)_: The URL of the website that has been deployed. You can pass in this URL when rendering videos with Remotion Lambda.
+- `serveUrl` _(string)_: The URL of the website that has been deployed. You can pass in this URL when rendering videos with Remotion Lambda.
 
 - `siteName` _(string)_: The identifier of the site that was given. Is either the site name that you have passed into this function, or a random string that was generated if you didn't pass a site name.
+
+## See also
+
+- [getSites()](/docs/lambda/getsites)
+- [deleteSite()](/docs/lambda/deletesite)

@@ -15,8 +15,8 @@ export const usePlayer = (): {
 	getCurrentFrame: () => number;
 	isPlaying: () => boolean;
 } => {
-	const [playing, setPlaying] = Internals.Timeline.usePlayingState();
-	const imperativePlaying = useRef(false);
+	const [playing, setPlaying, imperativePlaying] =
+		Internals.Timeline.usePlayingState();
 	const frame = Internals.Timeline.useTimelinePosition();
 	const setFrame = Internals.Timeline.useTimelineSetFrame();
 	const setTimelinePosition = Internals.Timeline.useTimelineSetFrame();
@@ -61,7 +61,7 @@ export const usePlayer = (): {
 			setPlaying(true);
 			emitter.dispatchPlay();
 		},
-		[isLastFrame, audioContext, setPlaying, emitter, seek]
+		[imperativePlaying, isLastFrame, audioContext, setPlaying, emitter, seek]
 	);
 
 	const pause = useCallback(() => {
@@ -71,7 +71,7 @@ export const usePlayer = (): {
 			setPlaying(false);
 			emitter.dispatchPause();
 		}
-	}, [emitter, setPlaying]);
+	}, [emitter, imperativePlaying, setPlaying]);
 
 	const hasVideo = Boolean(video);
 
@@ -89,7 +89,7 @@ export const usePlayer = (): {
 				return Math.max(0, f - frames);
 			});
 		},
-		[hasVideo, setFrame]
+		[hasVideo, imperativePlaying, setFrame]
 	);
 
 	const frameForward = useCallback(
@@ -104,7 +104,7 @@ export const usePlayer = (): {
 
 			setFrame((f) => Math.min(lastFrame, f + frames));
 		},
-		[hasVideo, lastFrame, setFrame]
+		[hasVideo, imperativePlaying, lastFrame, setFrame]
 	);
 
 	const returnValue = useMemo(() => {
@@ -124,6 +124,7 @@ export const usePlayer = (): {
 		emitter,
 		frameBack,
 		frameForward,
+		imperativePlaying,
 		isLastFrame,
 		pause,
 		play,

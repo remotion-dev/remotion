@@ -1,9 +1,12 @@
 import {deleteFunction} from './api/delete-function';
 import {deleteSite} from './api/delete-site';
 import {deployFunction} from './api/deploy-function';
-import {deploySite} from './api/deploy-site';
+import {
+	deploySite,
+	DeploySiteInput,
+	DeploySiteReturnType,
+} from './api/deploy-site';
 import {downloadVideo} from './api/download-video';
-import {ensureLambdaBinaries} from './api/ensure-lambda-binaries';
 import {getFunctionInfo} from './api/get-function-info';
 import {getFunctions} from './api/get-functions';
 import {getOrCreateBucket} from './api/get-or-create-bucket';
@@ -18,14 +21,15 @@ import {renderStillOnLambda} from './api/render-still-on-lambda';
 import {renderVideoOnLambda} from './api/render-video-on-lambda';
 import {LambdaInternals} from './internals';
 import {AwsRegion} from './pricing/aws-regions';
+import type {RenderProgress} from './shared/constants';
 import {estimatePrice} from './pricing/calculate-price';
+import {LambdaLSInput, LambdaLsReturnType} from './functions/helpers/io';
 
 export {
 	deleteSite,
 	deployFunction,
 	deploySite,
 	downloadVideo,
-	ensureLambdaBinaries,
 	getFunctions,
 	getUserPolicy,
 	getRolePolicy,
@@ -40,4 +44,11 @@ export {
 	LambdaInternals,
 	renderStillOnLambda,
 };
-export type {AwsRegion};
+export type {
+	AwsRegion,
+	RenderProgress,
+	DeploySiteInput,
+	DeploySiteReturnType,
+	LambdaLsReturnType,
+	LambdaLSInput,
+};

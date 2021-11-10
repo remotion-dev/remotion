@@ -28,6 +28,13 @@ const renderForFrame = (frame: number, markup: React.ReactNode) => {
 				rootId: '',
 				frame,
 				playing: false,
+				imperativePlaying: {
+					current: false,
+				},
+				playbackRate: 1,
+				setPlaybackRate: () => {
+					throw new Error('playback rate');
+				},
 			}}
 		>
 			{markup}

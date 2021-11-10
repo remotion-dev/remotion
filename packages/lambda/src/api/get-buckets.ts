@@ -1,13 +1,11 @@
-import {
-	Bucket,
-	GetBucketLocationCommand,
-	ListBucketsCommand,
-} from '@aws-sdk/client-s3';
+import {GetBucketLocationCommand, ListBucketsCommand} from '@aws-sdk/client-s3';
 import {AwsRegion} from '../pricing/aws-regions';
 import {getS3Client} from '../shared/aws-clients';
 import {REMOTION_BUCKET_PREFIX} from '../shared/constants';
 
-export type BucketWithLocation = Bucket & {
+export type BucketWithLocation = {
+	name: string;
+	creationDate: number;
 	region: AwsRegion;
 };
 
@@ -42,7 +40,8 @@ export const getRemotionS3Buckets = async (
 	const bucketsWithLocation = remotionBuckets.map(
 		(bucket, i): BucketWithLocation => {
 			return {
-				...bucket,
+				creationDate: (bucket.CreationDate as Date).getTime(),
+				name: bucket.Name as string,
 				// AWS docs: Buckets in Region us-east-1 have a LocationConstraint of null!!
 				region: (locations[i].LocationConstraint ?? 'us-east-1') as AwsRegion,
 			};

@@ -1,8 +1,9 @@
 node_modules
 dist
 tsconfig.tsbuildinfo
-lerna-debug.log
 .DS_Store
 coverage
 packages/example/.env
 */**/.env
+.cache
+packages/example/out

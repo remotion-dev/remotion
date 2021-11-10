@@ -1,6 +1,5 @@
 import {
 	getCompositions,
-	OnErrorInfo,
 	OnStartData,
 	renderFrames,
 	RenderInternals,
@@ -11,9 +10,9 @@ import fs from 'fs';
 import os from 'os';
 import path from 'path';
 import {Internals} from 'remotion';
+import {deleteDirectory} from './delete-directory';
 import {getCliOptions} from './get-cli-options';
 import {getCompositionId} from './get-composition-id';
-import {handleCommonError} from './handle-common-errors';
 import {initializeRenderCli} from './initialize-render-cli';
 import {Log} from './log';
 import {parsedCli} from './parse-command-line';
@@ -25,29 +24,12 @@ import {
 import {bundleOnCli} from './setup-cache';
 import {checkAndValidateFfmpegVersion} from './validate-ffmpeg-version';
 
-const onError = async (info: OnErrorInfo) => {
-	Log.error();
-	if (info.frame === null) {
-		Log.error(
-			'The following error occured when trying to initialize the video rendering:'
-		);
-	} else {
-		Log.error(
-			`The following error occurred when trying to render frame ${info.frame}:`
-		);
-	}
-
-	handleCommonError(info.error);
-
-	process.exit(1);
-};
-
 export const render = async () => {
 	const startTime = Date.now();
 	const file = parsedCli._[1];
 	const fullPath = path.join(process.cwd(), file);
 
-	initializeRenderCli('sequence');
+	await initializeRenderCli('sequence');
 
 	const {
 		codec,
@@ -65,6 +47,7 @@ export const render = async () => {
 		pixelFormat,
 		imageFormat,
 		browserExecutable,
+		ffmpegExecutable,
 	} = await getCliOptions({isLambda: false, type: 'series'});
 
 	if (!absoluteOutputFile) {
@@ -73,7 +56,9 @@ export const render = async () => {
 		);
 	}
 
-	await checkAndValidateFfmpegVersion();
+	await checkAndValidateFfmpegVersion({
+		ffmpegExecutable: Internals.getCustomFfmpegExecutable(),
+	});
 
 	const browserInstance = RenderInternals.openBrowser(browser, {
 		browserExecutable,
@@ -95,23 +80,7 @@ export const render = async () => {
 	const serveUrl = `http://localhost:${port}`;
 
 	const openedBrowser = await browserInstance;
-	let i = 0;
 
-	// Cycle through the browser and focus each tabs to activate contexts
-	// like Mapbox GL.
-	// TODO: Move this out of the Lambda branch
-	const interval = setInterval(() => {
-		openedBrowser
-			.pages()
-			.then((pages) => {
-				const currentPage = pages[i % pages.length];
-				i++;
-				if (!currentPage.isClosed()) {
-					currentPage.bringToFront();
-				}
-			})
-			.catch((err) => Log.error(err));
-	}, 100);
 	const comps = await getCompositions(serveUrl, {
 		browser,
 		inputProps,
@@ -158,9 +127,7 @@ export const render = async () => {
 			);
 		},
 		parallelism,
-		compositionId,
 		outputDir,
-		onError,
 		onStart: ({frameCount: fc}: OnStartData) => {
 			renderProgress.update(
 				makeRenderingProgress({
@@ -184,7 +151,6 @@ export const render = async () => {
 	});
 
 	const closeBrowserPromise = openedBrowser.close();
-	clearInterval(interval);
 	renderProgress.update(
 		makeRenderingProgress({
 			frames: totalFrames,
@@ -206,6 +172,13 @@ export const render = async () => {
 		}
 
 		const stitchingProgress = createOverwriteableCliOutput();
+		const dirName = path.dirname(absoluteOutputFile);
+
+		if (!fs.existsSync(dirName)) {
+			fs.mkdirSync(dirName, {
+				recursive: true,
+			});
+		}
 
 		stitchingProgress.update(
 			makeStitchingProgress({
@@ -230,6 +203,7 @@ export const render = async () => {
 			crf,
 			assetsInfo,
 			parallelism,
+			ffmpegExecutable,
 			onProgress: (frame: number) => {
 				stitchingProgress.update(
 					makeStitchingProgress({
@@ -257,15 +231,20 @@ export const render = async () => {
 
 		Log.verbose('Cleaning up...');
 		try {
-			await Promise.all([
-				(fs.promises.rm ?? fs.promises.rmdir)(outputDir, {
-					recursive: true,
-				}),
-				(fs.promises.rm ?? fs.promises.rmdir)(bundled, {
-					recursive: true,
-				}),
-				close(),
-			]);
+			if (process.platform === 'win32') {
+				// Properly delete directories because Windows doesn't seem to like fs.
+				await deleteDirectory(outputDir);
+				await deleteDirectory(bundled);
+			} else {
+				await Promise.all([
+					(fs.promises.rm ?? fs.promises.rmdir)(outputDir, {
+						recursive: true,
+					}),
+					(fs.promises.rm ?? fs.promises.rmdir)(bundled, {
+						recursive: true,
+					}),
+				]);
+			}
 		} catch (err) {
 			Log.warn('Could not clean up directory.');
 			Log.warn(err);
@@ -286,4 +265,5 @@ export const render = async () => {
 	Log.info('-', 'Output can be found at:');
 	Log.info(chalk.cyan(`▶️ ${absoluteOutputFile}`));
 	await closeBrowserPromise;
+	close();
 };

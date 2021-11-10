@@ -10,10 +10,15 @@ type TimeUpdateEventPayload = {
 	frame: number;
 };
 
+type RateChangeEventPayload = {
+	playbackRate: number;
+};
+
 type StateEventMap = {
 	seeked: SeekPayload;
 	pause: undefined;
 	play: undefined;
+	ratechange: RateChangeEventPayload;
 	ended: undefined;
 	error: ErrorPayload;
 	timeupdate: TimeUpdateEventPayload;
@@ -33,6 +38,7 @@ export class PlayerEmitter {
 		error: [],
 		pause: [],
 		play: [],
+		ratechange: [],
 		seeked: [],
 		timeupdate: [],
 	};
@@ -48,9 +54,9 @@ export class PlayerEmitter {
 		name: Q,
 		callback: CallbackListener<Q>
 	) {
-		this.listeners[name] = (this.listeners[
-			name
-		] as CallbackListener<EventTypes>[]).filter((l) => l !== callback);
+		this.listeners[name] = (
+			this.listeners[name] as CallbackListener<EventTypes>[]
+		).filter((l) => l !== callback);
 	}
 
 	private dispatchEvent<T extends EventTypes>(
@@ -80,6 +86,12 @@ export class PlayerEmitter {
 
 	dispatchEnded() {
 		this.dispatchEvent('ended', undefined);
+	}
+
+	dispatchRatechange(playbackRate: number) {
+		this.dispatchEvent('ratechange', {
+			playbackRate,
+		});
 	}
 
 	dispatchError(error: Error) {

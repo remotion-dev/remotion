@@ -1,10 +1,2 @@
-build-render
-build-stitcher
 node_modules
-function.zip
-function-render.zip
-function-stitcher.zip
 ffmpeg
-chromium.zip
-chromium
-src/admin/remotion.zip

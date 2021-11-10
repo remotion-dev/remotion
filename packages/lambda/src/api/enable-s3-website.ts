@@ -9,14 +9,13 @@ export const enableS3Website = async ({
 	region: AwsRegion;
 	bucketName: string;
 }) => {
-	// TODO: shouldn't we do this before
 	await getS3Client(region).send(
 		new PutBucketWebsiteCommand({
 			Bucket: bucketName,
 			WebsiteConfiguration: {
+				// TODO Upload a demo document
 				IndexDocument: {
-					// TODO: but it doesn't exist
-					Suffix: `index.html`,
+					Suffix: 'index.html',
 				},
 			},
 		})

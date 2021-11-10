@@ -1,5 +1,4 @@
 import {CliInternals} from '@remotion/cli';
-import {Internals} from 'remotion';
 import {downloadVideo} from '../../../api/download-video';
 import {getRenderProgress} from '../../../api/get-render-progress';
 import {renderVideoOnLambda} from '../../../api/render-video-on-lambda';
@@ -8,18 +7,12 @@ import {
 	DEFAULT_FRAMES_PER_LAMBDA,
 } from '../../../shared/constants';
 import {sleep} from '../../../shared/sleep';
+import {parsedLambdaCli} from '../../args';
 import {getAwsRegion} from '../../get-aws-region';
 import {findFunctionName} from '../../helpers/find-function-name';
 import {formatBytes} from '../../helpers/format-bytes';
 import {Log} from '../../log';
-import {
-	makeChunkProgress,
-	makeCleanupProgress,
-	makeDownloadProgess,
-	makeEncodingProgress,
-	makeInvokeProgress,
-	makeMultiProgressFromStatus,
-} from './progress';
+import {makeMultiProgressFromStatus, makeProgressString} from './progress';
 
 export const RENDER_COMMAND = 'render';
 
@@ -72,12 +65,21 @@ export const renderCommand = async (args: string[]) => {
 		maxRetries: 3,
 		composition,
 		framesPerLambda: cliOptions.framesPerLambda ?? DEFAULT_FRAMES_PER_LAMBDA,
+		// TODO: Unhardcode and specify as parameter
+		privacy: 'public',
+		enableChunkOptimization: !parsedLambdaCli['disable-chunk-optimization'],
+		saveBrowserLogs: parsedLambdaCli['save-browser-logs'],
 	});
 
 	const totalSteps = outName ? 5 : 4;
 
 	const progressBar = CliInternals.createOverwriteableCliOutput();
 
+	Log.info(
+		CliInternals.chalk.gray(
+			`Bucket = ${res.bucketName}, renderId = ${res.renderId}, functionName = ${functionName}`
+		)
+	);
 	const status = await getRenderProgress({
 		functionName,
 		bucketName: res.bucketName,
@@ -86,12 +88,12 @@ export const renderCommand = async (args: string[]) => {
 	});
 	const multiProgress = makeMultiProgressFromStatus(status);
 	progressBar.update(
-		[
-			makeInvokeProgress(multiProgress.lambdaInvokeProgress, totalSteps),
-			makeChunkProgress(multiProgress.chunkProgress, totalSteps),
-			makeEncodingProgress(multiProgress.encodingProgress, totalSteps),
-			makeCleanupProgress(multiProgress.cleanupInfo, totalSteps),
-		].join('\n')
+		makeProgressString({
+			progress: multiProgress,
+			outName,
+			steps: totalSteps,
+			isDownloaded: false,
+		})
 	);
 
 	for (let i = 0; i < 3000; i++) {
@@ -105,58 +107,68 @@ export const renderCommand = async (args: string[]) => {
 		CliInternals.Log.verbose(JSON.stringify(newStatus, null, 2));
 		const newProgress = makeMultiProgressFromStatus(newStatus);
 		progressBar.update(
-			[
-				makeInvokeProgress(newProgress.lambdaInvokeProgress, totalSteps),
-				makeChunkProgress(newProgress.chunkProgress, totalSteps),
-				makeEncodingProgress(newProgress.encodingProgress, totalSteps),
-				makeCleanupProgress(newProgress.cleanupInfo, totalSteps),
-			]
-				.filter(Internals.truthy)
-				.join('\n')
+			makeProgressString({
+				outName,
+				progress: newProgress,
+				steps: totalSteps,
+				isDownloaded: false,
+			})
 		);
 
 		//	Log.info(newStatus);
 		if (newStatus.done) {
 			progressBar.update(
-				[
-					makeInvokeProgress(newProgress.lambdaInvokeProgress, totalSteps),
-					makeChunkProgress(newProgress.chunkProgress, totalSteps),
-					makeEncodingProgress(newProgress.encodingProgress, totalSteps),
-					makeCleanupProgress(newProgress.cleanupInfo, totalSteps),
-				]
-					.filter(Internals.truthy)
-					.join('\n')
+				makeProgressString({
+					outName,
+					progress: newProgress,
+					steps: totalSteps,
+					isDownloaded: false,
+				})
 			);
 			if (outName) {
-				const {outputPath, size} = await downloadVideo({
+				const {outputPath, sizeInBytes} = await downloadVideo({
 					bucketName: res.bucketName,
 					outPath: outName,
 					region: getAwsRegion(),
 					renderId: res.renderId,
 				});
 				progressBar.update(
-					[
-						makeInvokeProgress(newProgress.lambdaInvokeProgress, totalSteps),
-						makeChunkProgress(newProgress.chunkProgress, totalSteps),
-						makeEncodingProgress(newProgress.encodingProgress, totalSteps),
-						makeCleanupProgress(newProgress.cleanupInfo, totalSteps),
-						outName ? makeDownloadProgess(totalSteps, true) : null,
-					]
-						.filter(Internals.truthy)
-						.join('\n')
+					makeProgressString({
+						outName,
+						progress: newProgress,
+						steps: totalSteps,
+						isDownloaded: true,
+					})
 				);
 				Log.info();
-				Log.info('Done!', outputPath, formatBytes(size));
+				Log.info();
+				Log.info('Done!', outputPath, formatBytes(sizeInBytes));
 			} else {
+				Log.info();
 				Log.info();
 				Log.info('Done! ' + newStatus.outputFile);
 			}
+
+			Log.info(
+				`${newStatus.renderMetadata?.estimatedTotalLambdaInvokations} λ's used, Estimated cost $${newStatus.costs.displayCost}`
+			);
 
 			process.exit(0);
 		}
 
 		if (newStatus.fatalErrorEncountered) {
-			Log.error(newStatus);
+			for (const err of newStatus.errors) {
+				const attemptString = `(Attempt ${err.attempt}/${err.totalAttempts})`;
+				if (err.chunk === null) {
+					Log.error('Error occured while preparing video: ' + attemptString);
+				} else {
+					Log.error('Error occurred when rendering chunk ' + err.chunk);
+				}
+
+				Log.error(err.stack);
+			}
+
+			Log.error(JSON.stringify(newStatus.errors));
 			Log.error('Fatal error encountered. Exiting.');
 			process.exit(1);
 		}

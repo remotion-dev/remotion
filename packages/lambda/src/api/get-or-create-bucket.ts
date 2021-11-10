@@ -2,10 +2,13 @@ import {AwsRegion} from '../pricing/aws-regions';
 import {REMOTION_BUCKET_PREFIX} from '../shared/constants';
 import {randomHash} from '../shared/random-hash';
 import {createBucket} from './create-bucket';
+import {enableS3Website} from './enable-s3-website';
 import {getRemotionS3Buckets} from './get-buckets';
 
 type GetOrCreateBucketInput = {
 	region: AwsRegion;
+	// TODO: Not documented
+	onBucketEnsured?: () => void;
 };
 
 type GetOrCreateBucketResult = {
@@ -24,7 +27,7 @@ export const getOrCreateBucket = async (
 	if (remotionBuckets.length > 1) {
 		throw new Error(
 			`You have multiple buckets (${remotionBuckets.map(
-				(b) => b.Name
+				(b) => b.name
 			)}) in your S3 region (${
 				options.region
 			}) starting with "${REMOTION_BUCKET_PREFIX}". This is an error, please delete buckets so that you have one maximum.`
@@ -32,7 +35,8 @@ export const getOrCreateBucket = async (
 	}
 
 	if (remotionBuckets.length === 1) {
-		return {bucketName: remotionBuckets[0].Name as string};
+		options.onBucketEnsured?.();
+		return {bucketName: remotionBuckets[0].name};
 	}
 
 	const bucketName = REMOTION_BUCKET_PREFIX + randomHash();
@@ -40,6 +44,11 @@ export const getOrCreateBucket = async (
 	await createBucket({
 		bucketName,
 		region: options.region,
+	});
+	options.onBucketEnsured?.();
+	await enableS3Website({
+		region: options.region,
+		bucketName,
 	});
 
 	return {bucketName};

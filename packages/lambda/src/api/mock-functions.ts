@@ -8,7 +8,11 @@ export let mockFunctionsStore: (FunctionInfo & {
 })[] = [];
 
 export const addFunction = (fn: FunctionInfo, region: AwsRegion) => {
-	mockFunctionsStore.push({...fn, region, version: fn.version});
+	mockFunctionsStore.push({
+		...fn,
+		region,
+		version: fn.version as LambdaVersions,
+	});
 };
 
 export const deleteMockFunction = (name: string, region: string) => {

@@ -1,5 +1,7 @@
 import {Browser as PuppeteerBrowser, Page} from 'puppeteer-core';
 import {Browser, BrowserExecutable, Internals, TCompMetadata} from 'remotion';
+import {BrowserLog} from './browser-log';
+import {normalizeServeUrl} from './normalize-serve-url';
 import {openBrowser} from './open-browser';
 import {setPropsAndEnv} from './set-props-and-env';
 
@@ -8,7 +10,7 @@ type GetCompositionsConfig = {
 	inputProps?: object | null;
 	envVariables?: Record<string, string>;
 	browserInstance?: PuppeteerBrowser;
-	onError?: (errorData: {err: Error}) => void;
+	onBrowserLog?: (log: BrowserLog) => void;
 	browserExecutable?: BrowserExecutable;
 };
 
@@ -57,9 +59,11 @@ const getPageAndCleanupFn = async ({
 	};
 };
 
-export const getCompositions = async (
+const innerGetCompositions = async (
 	serveUrl: string,
-	config?: GetCompositionsConfig
+	config: GetCompositionsConfig & {
+		onError: (err: Error) => void;
+	}
 ): Promise<TCompMetadata[]> => {
 	const {page, cleanup} = await getPageAndCleanupFn({
 		passedInInstance: config?.browserInstance,
@@ -69,12 +73,21 @@ export const getCompositions = async (
 
 	page.on('error', (err) => {
 		console.log(err);
-		config?.onError?.({err: err as Error});
+		config.onError(err);
 	});
 	page.on('pageerror', (err) => {
 		console.log(err);
-		config?.onError?.({err: err as Error});
+		config.onError(err);
 	});
+	if (config?.onBrowserLog) {
+		page.on('console', (log) => {
+			config.onBrowserLog?.({
+				stackTrace: log.stackTrace(),
+				text: log.text(),
+				type: log.type(),
+			});
+		});
+	}
 
 	await setPropsAndEnv({
 		inputProps: config?.inputProps,
@@ -84,7 +97,7 @@ export const getCompositions = async (
 		initialFrame: 0,
 	});
 
-	const urlToVisit = `${serveUrl}/index.html?evaluation=true`;
+	const urlToVisit = `${normalizeServeUrl(serveUrl)}?evaluation=true`;
 	const pageRes = await page.goto(urlToVisit);
 	if (pageRes.status() !== 200) {
 		throw new Error(
@@ -105,4 +118,22 @@ export const getCompositions = async (
 	cleanup();
 
 	return result as TCompMetadata[];
+};
+
+export const getCompositions = (
+	serveUrl: string,
+	config?: GetCompositionsConfig
+) => {
+	return new Promise<TCompMetadata[]>((resolve, reject) => {
+		innerGetCompositions(serveUrl, {
+			...(config ?? {}),
+			onError: (err) => {
+				reject(err);
+			},
+		})
+			.then((comp) => resolve(comp))
+			.catch((err) => {
+				reject(err);
+			});
+	});
 };

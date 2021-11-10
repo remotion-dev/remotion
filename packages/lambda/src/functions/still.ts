@@ -18,6 +18,7 @@ import {
 } from '../shared/constants';
 import {getServeUrlHash} from '../shared/make-s3-url';
 import {randomHash} from '../shared/random-hash';
+import {validatePrivacy} from '../shared/validate-privacy';
 import {formatCostsInfo} from './helpers/format-costs-info';
 import {closeBrowser, getBrowserInstance} from './helpers/get-browser-instance';
 import {getCurrentRegionInFunction} from './helpers/get-current-region';
@@ -32,17 +33,18 @@ type Options = {
 	expectedBucketOwner: string;
 };
 
-export const innerStillHandler = async (
+const innerStillHandler = async (
 	lambdaParams: LambdaPayload,
+	renderId: string,
 	options: Options
 ) => {
 	if (lambdaParams.type !== LambdaRoutines.still) {
 		throw new TypeError('Expected still type');
 	}
 
-	const start = Date.now();
+	validatePrivacy(lambdaParams.privacy);
 
-	const renderId = randomHash();
+	const start = Date.now();
 
 	const [{bucketName}, browserInstance] = await Promise.all([
 		getOrCreateBucket({
@@ -65,21 +67,6 @@ export const innerStillHandler = async (
 		browserInstance,
 		composition: lambdaParams.composition,
 		inputProps: lambdaParams.inputProps,
-		onError: ({err}) => {
-			writeLambdaError({
-				bucketName,
-				errorInfo: {
-					chunk: null,
-					frame: null,
-					isFatal: false,
-					stack: (err.message + ' ' + err.stack) as string,
-					type: 'browser',
-					tmpDir: getTmpDirStateIfENoSp(err.stack as string),
-				},
-				expectedBucketOwner: options.expectedBucketOwner,
-				renderId,
-			});
-		},
 	});
 
 	const renderMetadata: RenderMetadata = {
@@ -107,7 +94,7 @@ export const innerStillHandler = async (
 		key: renderMetadataKey(renderId),
 		body: JSON.stringify(renderMetadata),
 		region: getCurrentRegionInFunction(),
-		acl: 'private',
+		privacy: 'private',
 		expectedBucketOwner: options.expectedBucketOwner,
 	});
 
@@ -118,25 +105,9 @@ export const innerStillHandler = async (
 		browser: 'chrome',
 		dumpBrowserLogs: false,
 		envVariables: lambdaParams.envVariables,
-		// TODO: validate
 		frame: lambdaParams.frame,
 		imageFormat: lambdaParams.imageFormat as StillImageFormat,
 		inputProps: lambdaParams.inputProps,
-		onError: (error) => {
-			writeLambdaError({
-				errorInfo: {
-					stack: error.message + ' ' + error.stack,
-					type: 'browser',
-					frame: lambdaParams.frame,
-					chunk: 0,
-					isFatal: false,
-					tmpDir: getTmpDirStateIfENoSp(JSON.stringify(error)),
-				},
-				bucketName,
-				expectedBucketOwner: options.expectedBucketOwner,
-				renderId,
-			});
-		},
 		overwrite: false,
 		puppeteerInstance: browserInstance,
 		quality: lambdaParams.quality,
@@ -149,8 +120,7 @@ export const innerStillHandler = async (
 	await lambdaWriteFile({
 		bucketName,
 		key: outName,
-		// TODO: validate
-		acl: lambdaParams.privacy === 'private' ? 'private' : 'public-read',
+		privacy: lambdaParams.privacy,
 		body: fs.createReadStream(outputPath),
 		expectedBucketOwner: options.expectedBucketOwner,
 		region: getCurrentRegionInFunction(),
@@ -168,6 +138,7 @@ export const innerStillHandler = async (
 		size,
 		bucketName,
 		estimatedPrice: formatCostsInfo(estimatedPrice),
+		renderId,
 	};
 };
 
@@ -179,8 +150,10 @@ export const stillHandler = async (
 		throw new Error('Params must be renderer');
 	}
 
+	const renderId = randomHash();
+
 	try {
-		return innerStillHandler(params, options);
+		return innerStillHandler(params, renderId, options);
 	} catch (err) {
 		// If this error is encountered, we can just retry as it
 		// is a very rare error to occur
@@ -189,7 +162,8 @@ export const stillHandler = async (
 			(err as Error).message.includes(
 				'error while loading shared libraries: libnss3.so'
 			);
-		if (isBrowserError || params.maxRetries > 0) {
+		const willRetry = isBrowserError || params.maxRetries > 0;
+		if (willRetry) {
 			const retryPayload: LambdaPayloads[LambdaRoutines.still] = {
 				...params,
 				maxRetries: params.maxRetries - 1,
@@ -202,6 +176,28 @@ export const stillHandler = async (
 					Payload: JSON.stringify(retryPayload),
 				})
 			);
+			const {bucketName} = await getOrCreateBucket({
+				region: getCurrentRegionInFunction(),
+			});
+
+			writeLambdaError({
+				bucketName,
+				errorInfo: {
+					chunk: null,
+					frame: null,
+					isFatal: false,
+					stack: ((err as Error).message +
+						' ' +
+						(err as Error).stack) as string,
+					type: 'browser',
+					tmpDir: getTmpDirStateIfENoSp((err as Error).stack as string),
+					attempt: params.attempt,
+					totalAttempts: params.attempt + params.maxRetries,
+					willRetry,
+				},
+				expectedBucketOwner: options.expectedBucketOwner,
+				renderId,
+			});
 			const str = JSON.parse(
 				Buffer.from(res.Payload as Uint8Array).toString()
 			) as ReturnType<typeof innerStillHandler>;

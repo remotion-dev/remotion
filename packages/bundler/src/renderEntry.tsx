@@ -86,7 +86,7 @@ const GetVideo = () => {
 	return (
 		<Suspense fallback={<Fallback />}>
 			<div
-				id="canvas"
+				id="remotion-canvas"
 				style={{
 					width: video.width,
 					height: video.height,

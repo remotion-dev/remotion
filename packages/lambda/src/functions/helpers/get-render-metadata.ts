@@ -4,22 +4,16 @@ import {streamToString} from '../../shared/stream-to-string';
 import {lambdaReadFile} from './io';
 
 export const getRenderMetadata = async ({
-	exists,
 	bucketName,
 	renderId,
 	region,
 	expectedBucketOwner,
 }: {
-	exists: boolean;
 	bucketName: string;
 	renderId: string;
 	region: AwsRegion;
 	expectedBucketOwner: string;
 }) => {
-	if (!exists) {
-		return null;
-	}
-
 	const Body = await lambdaReadFile({
 		bucketName,
 		key: renderMetadataKey(renderId),

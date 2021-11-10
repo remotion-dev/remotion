@@ -7,6 +7,8 @@ import {
 } from './ffmpeg-flags';
 import {getActualConcurrency} from './get-concurrency';
 import {ensureLocalBrowser} from './get-local-browser-executable';
+import {max, min} from './min-max';
+import {normalizeServeUrl} from './normalize-serve-url';
 import {openBrowser} from './open-browser';
 import {serveStatic} from './serve-static';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
@@ -27,7 +29,8 @@ export {getCompositions} from './get-compositions';
 export {renderFrames} from './render';
 export {renderStill} from './render-still';
 export {stitchFramesToVideo} from './stitcher';
-export {OnErrorInfo, OnStartData, RenderFramesOutput} from './types';
+export {OnStartData, RenderFramesOutput} from './types';
+export {BrowserLog} from './browser-log';
 
 export const RenderInternals = {
 	ensureLocalBrowser,
@@ -41,4 +44,7 @@ export const RenderInternals = {
 	serveStatic,
 	addSilentAudioIfNecessary,
 	validateEvenDimensionsWithCodec,
+	min,
+	max,
+	normalizeServeUrl,
 };

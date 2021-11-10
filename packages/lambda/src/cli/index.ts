@@ -1,7 +1,6 @@
 import {CliInternals} from '@remotion/cli';
 import {checkCredentials} from '../shared/check-credentials';
 import {parsedLambdaCli} from './args';
-import {cleanupCommand, CLEANUP_COMMAND} from './cleanup';
 import {functionsCommand, FUNCTIONS_COMMAND} from './commands/functions';
 import {policiesCommand, POLICIES_COMMAND} from './commands/policies/policies';
 import {ROLE_SUBCOMMAND} from './commands/policies/role';
@@ -48,10 +47,6 @@ const matchCommand = async (args: string[]) => {
 		return functionsCommand(args.slice(1));
 	}
 
-	if (args[0] === CLEANUP_COMMAND) {
-		return cleanupCommand(args.slice(1));
-	}
-
 	if (args[0] === POLICIES_COMMAND) {
 		return policiesCommand(args.slice(1));
 	}
@@ -72,6 +67,21 @@ const matchCommand = async (args: string[]) => {
 		Log.info('Before: remotion-lambda deploy');
 		Log.info('After: remotion lambda functions deploy');
 		process.exit(1);
+	}
+
+	if (args[0] === 'ls') {
+		Log.info(`The "ls" command does not exist.`);
+		Log.info(`Did you mean "functions ls" or "sites ls"?`);
+	}
+
+	if (args[0] === 'rm') {
+		Log.info(`The "rm" command does not exist.`);
+		Log.info(`Did you mean "functions rm" or "sites rm"?`);
+	}
+
+	if (args[0] === 'deploy') {
+		Log.info(`The "deploy" command does not exist.`);
+		Log.info(`Did you mean "functions deploy"?`);
 	}
 
 	Log.error(`Command ${args[0]} not found.`);

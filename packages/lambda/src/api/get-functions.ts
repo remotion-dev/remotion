@@ -27,11 +27,16 @@ export const getFunctions = async (options: {
 	});
 
 	const configs = await Promise.all(
-		remotionLambdas.map((fn) => {
-			return getFunctionVersion({
-				functionName: fn.FunctionName as string,
-				region: options.region,
-			});
+		remotionLambdas.map(async (fn) => {
+			try {
+				const version = await getFunctionVersion({
+					functionName: fn.FunctionName as string,
+					region: options.region,
+				});
+				return version;
+			} catch (err) {
+				return null;
+			}
 		})
 	);
 

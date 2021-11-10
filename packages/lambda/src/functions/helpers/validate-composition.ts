@@ -2,31 +2,23 @@ import {getCompositions, RenderInternals} from '@remotion/renderer';
 import {TCompMetadata} from 'remotion';
 import {Await} from '../../shared/await';
 
+type ValidateCompositionOptions = {
+	serveUrl: string;
+	composition: string;
+	browserInstance: Await<ReturnType<typeof RenderInternals.openBrowser>>;
+	inputProps: unknown;
+};
+
 export const validateComposition = async ({
 	serveUrl,
 	composition,
 	browserInstance,
 	inputProps,
-	onError,
-}: {
-	serveUrl: string;
-	composition: string;
-	browserInstance: Await<ReturnType<typeof RenderInternals.openBrowser>>;
-	inputProps: unknown;
-	onError: (onError: {err: Error}) => void;
-}): Promise<TCompMetadata> => {
-	const errors: Error[] = [];
+}: ValidateCompositionOptions): Promise<TCompMetadata> => {
 	const compositions = await getCompositions(serveUrl, {
 		browserInstance,
 		inputProps: inputProps as object,
-		onError: ({err}) => {
-			errors.push(err);
-			onError({err});
-		},
 	});
-	if (errors.length > 0) {
-		throw errors[0];
-	}
 
 	const found = compositions.find((c) => c.id === composition);
 	if (!found) {

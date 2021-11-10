@@ -3,7 +3,8 @@ import {deleteSite} from '../api/delete-site';
 import {AwsRegion} from '../pricing/aws-regions';
 import {bundleSite} from '../shared/bundle-site';
 import {getSitesKey, REMOTION_BUCKET_PREFIX} from '../shared/constants';
-import {makeS3Url} from '../shared/make-s3-url';
+import {getAccountId} from '../shared/get-account-id';
+import {makeS3ServeUrl} from '../shared/make-s3-url';
 import {randomHash} from '../shared/random-hash';
 import {validateAwsRegion} from '../shared/validate-aws-region';
 import {bucketExistsInRegion} from './bucket-exists';
@@ -17,16 +18,14 @@ export type DeploySiteInput = {
 	siteName?: string;
 	options?: {
 		onBundleProgress?: (progress: number) => void;
-		onWebsiteActivated?: () => void;
 		onUploadProgress?: (upload: UploadDirProgress) => void;
 		webpackOverride?: WebpackOverrideFn;
 		enableCaching?: boolean;
 	};
 };
 
-// TODO: Return site ID
 export type DeploySiteReturnType = Promise<{
-	url: string;
+	serveUrl: string;
 	siteName: string;
 }>;
 
@@ -62,8 +61,7 @@ export const deploySite = async ({
 	const bucketExists = await bucketExistsInRegion({
 		bucketName,
 		region,
-		// TODO: Pass actual bucket owner
-		expectedBucketOwner: null,
+		expectedBucketOwner: await getAccountId({region}),
 	});
 	if (!bucketExists) {
 		throw new Error(`No bucket with the name ${bucketName} exists`);
@@ -96,16 +94,16 @@ export const deploySite = async ({
 			dir: bundled,
 			onProgress: options?.onUploadProgress ?? (() => undefined),
 			folder: subFolder,
+			privacy: 'public',
 		}),
 		enableS3Website({
 			region,
 			bucketName,
-		}) // TODO if we decide to keep it, add callback to docs
-			.then(() => options?.onWebsiteActivated?.()),
+		}),
 	]);
 
 	return {
-		url: makeS3Url({bucketName, subFolder, region}),
+		serveUrl: makeS3ServeUrl({bucketName, subFolder, region}),
 		siteName: siteId,
 	};
 };

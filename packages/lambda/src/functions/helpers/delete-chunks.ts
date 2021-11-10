@@ -1,30 +1,25 @@
 import {_Object} from '@aws-sdk/client-s3';
 import {AwsRegion} from '../..';
 import {cleanItems} from '../../api/clean-items';
-import {getFilesToDelete} from './get-files-to-delete';
+import {CleanupJob} from './get-files-to-delete';
 
-export const deleteChunks = async ({
-	renderId,
-	chunkCount,
+export const cleanupFiles = async ({
 	bucket,
 	region,
 	contents,
+	jobs,
 }: {
-	renderId: string;
-	chunkCount: number;
 	bucket: string;
 	region: AwsRegion;
 	contents: _Object[];
+	jobs: CleanupJob[];
 }) => {
-	const toDelete = getFilesToDelete({
-		chunkCount,
-		renderId,
-	});
+	const start = Date.now();
 
 	await cleanItems({
 		bucket,
 		region,
-		list: toDelete.map((item) => {
+		list: jobs.map((item) => {
 			if (item.type === 'exact') {
 				return item.name;
 			}
@@ -39,4 +34,5 @@ export const deleteChunks = async ({
 		onAfterItemDeleted: () => undefined,
 		onBeforeItemDeleted: () => undefined,
 	});
+	return Date.now() - start;
 };

@@ -1,10 +1,11 @@
 import {AwsRegion} from '..';
 import {getSitesKey} from '../defaults';
 import {lambdaLs} from '../functions/helpers/io';
+import {getAccountId} from '../shared/get-account-id';
 import {cleanItems} from './clean-items';
 
 type DeleteSiteReturnData = {
-	totalSize: number;
+	totalSizeInBytes: number;
 };
 
 // TODO: Write JSDoc annotations
@@ -15,20 +16,23 @@ export const deleteSite = async ({
 	onAfterItemDeleted,
 }: {
 	bucketName: string;
+	// TODO: Make siteName / siteId consistent
 	siteName: string;
 	region: AwsRegion;
 	onAfterItemDeleted?: (data: {bucketName: string; itemName: string}) => void;
 }): Promise<DeleteSiteReturnData> => {
+	const accountId = await getAccountId({region});
+
 	let files = await lambdaLs({
 		bucketName,
 		prefix: getSitesKey(siteName),
 		region,
-		expectedBucketOwner: null,
+		expectedBucketOwner: accountId,
 	});
 
 	if (files.length === 0) {
 		return {
-			totalSize: 0,
+			totalSizeInBytes: 0,
 		};
 	}
 
@@ -49,11 +53,11 @@ export const deleteSite = async ({
 			bucketName,
 			prefix: getSitesKey(siteName),
 			region,
-			expectedBucketOwner: null,
+			expectedBucketOwner: accountId,
 		});
 	}
 
 	return {
-		totalSize,
+		totalSizeInBytes: totalSize,
 	};
 };

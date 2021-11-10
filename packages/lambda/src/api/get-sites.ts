@@ -1,44 +1,63 @@
 import {lambdaLs} from '../functions/helpers/io';
 import {AwsRegion} from '../pricing/aws-regions';
 import {getSitesKey} from '../shared/constants';
-import {getRemotionS3Buckets} from './get-buckets';
+import {getAccountId} from '../shared/get-account-id';
+import {makeS3ServeUrl} from '../shared/make-s3-url';
+import {BucketWithLocation, getRemotionS3Buckets} from './get-buckets';
 
 type Site = {
-	size: number;
+	sizeInBytes: number;
 	lastModified: number | null;
 	bucketName: string;
 	id: string;
+	serveUrl: string;
 };
 
+type GetSitesReturnValue = {
+	sites: Site[];
+	buckets: BucketWithLocation[];
+};
+
+// TODO: Return the `serveUrl` as well
 // TODO: Add JSDoc comments
-export const getSites = async ({region}: {region: AwsRegion}) => {
+export const getSites = async ({
+	region,
+}: {
+	region: AwsRegion;
+}): Promise<GetSitesReturnValue> => {
 	const {remotionBuckets} = await getRemotionS3Buckets(region);
+	const accountId = await getAccountId({region});
 
 	const sites: {[key: string]: Site} = {};
 
 	for (const bucket of remotionBuckets) {
 		const ls = await lambdaLs({
-			bucketName: bucket.Name as string,
+			bucketName: bucket.name,
 			prefix: getSitesKey(''),
 			region,
-			expectedBucketOwner: null,
+			expectedBucketOwner: accountId,
 		});
 
 		for (const file of ls) {
-			const siteKeyMatch = file.Key?.match(/sites\/(.*)\/(.*)$/);
+			const siteKeyMatch = file.Key?.match(/sites\/([0-9a-zA-Z]+)\/(.*)$/);
 			if (!siteKeyMatch) {
 				throw new Error(
-					`An file was found in the bucket "${bucket.Name}" with the key ${file.Key} which is an unexpected folder structure. Delete this file.`
+					`A file was found in the bucket "${bucket.name}" with the key ${file.Key} which is an unexpected folder structure. Delete this file.`
 				);
 			}
 
 			const [, siteId] = siteKeyMatch;
 			if (!sites[siteId]) {
 				sites[siteId] = {
-					size: 0,
-					bucketName: bucket.Name as string,
+					sizeInBytes: 0,
+					bucketName: bucket.name,
 					lastModified: null,
 					id: siteId,
+					serveUrl: makeS3ServeUrl({
+						bucketName: bucket.name,
+						region,
+						subFolder: getSitesKey(siteId),
+					}),
 				};
 			}
 
@@ -53,7 +72,7 @@ export const getSites = async ({region}: {region: AwsRegion}) => {
 			}
 
 			if (file.Size) {
-				sites[siteId].size += file.Size;
+				sites[siteId].sizeInBytes += file.Size;
 			}
 		}
 	}

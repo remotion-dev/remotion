@@ -1,9 +1,5 @@
 import {iam, lambda, logs, s3} from 'aws-policies';
-import {
-	BINARIES_BUCKET_PREFIX,
-	REMOTION_BUCKET_PREFIX,
-	RENDER_FN_PREFIX,
-} from '../../shared/constants';
+import {REMOTION_BUCKET_PREFIX, RENDER_FN_PREFIX} from '../../shared/constants';
 
 // TODO: Update docs before release
 export const requiredPermissions: {
@@ -20,7 +16,7 @@ export const requiredPermissions: {
 		resource: ['*'],
 	},
 	{
-		// TODO: arn:aws:iam::976210361945:role/lambda-admin, can it be locked down more?
+		// TODO: arn:aws:iam::678892195805:role/lambda-admin, can it be locked down more?
 		actions: [iam.PassRole],
 		resource: ['*'],
 	},
@@ -38,11 +34,6 @@ export const requiredPermissions: {
 		resource: [`arn:aws:s3:::${REMOTION_BUCKET_PREFIX}*`],
 	},
 	{
-		// To download layers
-		actions: [s3.GetObject],
-		resource: [`arn:aws:s3:::${BINARIES_BUCKET_PREFIX}*`],
-	},
-	{
 		actions: [s3.CreateBucket, s3.ListBucket, s3.PutBucketAcl],
 		resource: [`arn:aws:s3:::*`],
 	},
@@ -57,19 +48,17 @@ export const requiredPermissions: {
 			lambda.InvokeFunction,
 			lambda.CreateFunction,
 			lambda.DeleteFunction,
+			lambda.PutFunctionEventInvokeConfig,
 		],
 		resource: [`arn:aws:lambda:*:*:function:${RENDER_FN_PREFIX}*`],
 	},
 	{
-		actions: [lambda.PublishLayerVersion],
-		resource: ['arn:aws:lambda:*:*:layer:remotion-binaries'],
+		actions: [lambda.GetLayerVersion],
+		// TODO: Tighten up
+		resource: [`*`],
 	},
 	{
-		actions: [lambda.DeleteLayerVersion, lambda.GetLayerVersion],
-		resource: ['arn:aws:lambda:*:*:layer:*:*'],
-	},
-	{
-		actions: [lambda.ListLayers, lambda.ListFunctions],
+		actions: [lambda.ListFunctions],
 		resource: ['*'],
 	},
 	{

@@ -1,8 +1,10 @@
 import minimist from 'minimist';
+import {resolve} from 'path';
 import {
 	BrowserExecutable,
 	Codec,
 	Config,
+	FfmpegExecutable,
 	ImageFormat,
 	Internals,
 	LogLevel,
@@ -13,6 +15,7 @@ import {Log} from './log';
 
 export type CommandLineOptions = {
 	['browser-executable']: BrowserExecutable;
+	['ffmpeg-executable']: FfmpegExecutable;
 	['pixel-format']: PixelFormat;
 	['image-format']: ImageFormat;
 	['prores-profile']: ProResProfile;
@@ -34,10 +37,26 @@ export type CommandLineOptions = {
 	help: boolean;
 	port: number;
 	frame: string | number;
+	siteName: string;
 };
 
+export const BooleanFlags = [
+	'force',
+	'overwrite',
+	'sequence',
+	'help',
+	// Lambda flags
+	'q',
+	'quiet',
+	'force',
+	'disable-chunk-optimization',
+	'save-browser-logs',
+	'yes',
+	'y',
+];
+
 export const parsedCli = minimist<CommandLineOptions>(process.argv.slice(2), {
-	boolean: ['force', 'overwrite', 'sequence', 'help'],
+	boolean: BooleanFlags,
 });
 
 export const parseCommandLine = (
@@ -53,6 +72,12 @@ export const parseCommandLine = (
 
 	if (parsedCli['browser-executable']) {
 		Config.Puppeteer.setBrowserExecutable(parsedCli['browser-executable']);
+	}
+
+	if (parsedCli['ffmpeg-executable']) {
+		Config.Rendering.setFfmpegExecutable(
+			resolve(parsedCli['ffmpeg-executable'])
+		);
 	}
 
 	if (typeof parsedCli['bundle-cache'] !== 'undefined') {
