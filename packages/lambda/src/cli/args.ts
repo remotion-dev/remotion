@@ -3,7 +3,6 @@ import minimist from 'minimist';
 import {AwsRegion} from '../pricing/aws-regions';
 
 type LambdaCommandLineOptions = {
-	cloudwatch: boolean;
 	help: boolean;
 	region: AwsRegion;
 	memory: number;
@@ -17,6 +16,7 @@ type LambdaCommandLineOptions = {
 	['site-name']: string | undefined;
 	['disable-chunk-optimization']: boolean;
 	['save-browser-logs']: boolean;
+	['disable-cloudwatch']: boolean;
 };
 
 export const parsedLambdaCli = minimist<LambdaCommandLineOptions>(

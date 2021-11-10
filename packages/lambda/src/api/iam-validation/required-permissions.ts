@@ -62,12 +62,7 @@ export const requiredPermissions: {
 		resource: ['*'],
 	},
 	{
-		actions: [
-			logs.CreateLogGroup,
-			logs.CreateLogStream,
-			logs.PutLogEvents,
-			logs.PutRetentionPolicy,
-		],
-		resource: ['arn:aws:logs:*:*:log-group:*'],
+		actions: [logs.CreateLogGroup, logs.PutRetentionPolicy],
+		resource: ['*'],
 	},
 ];

@@ -1,8 +1,8 @@
-import {iam, lambda, s3} from 'aws-policies';
+import {iam, lambda, logs, s3} from 'aws-policies';
 import {REMOTION_BUCKET_PREFIX, RENDER_FN_PREFIX} from '../../shared/constants';
 
 export const rolePermissions: {
-	actions: (s3 | iam | lambda)[];
+	actions: (s3 | iam | lambda | logs)[];
 	resource: string[];
 }[] = [
 	{
@@ -26,5 +26,9 @@ export const rolePermissions: {
 	{
 		actions: [lambda.InvokeFunction],
 		resource: [`arn:aws:lambda:*:*:function:${RENDER_FN_PREFIX}*`],
+	},
+	{
+		actions: [logs.CreateLogStream, logs.PutLogEvents],
+		resource: ['*'],
 	},
 ];

@@ -26,6 +26,7 @@ test('Should be able to deploy function', async () => {
 		memorySizeInMb: 2048,
 		region: 'us-east-1',
 		timeoutInSeconds: 120,
+		createCloudWatchLogGroup: true,
 	});
 	expect(functionName).toBe('remotion-render-abcdef');
 });
@@ -37,6 +38,7 @@ test('Should be able to get the function afterwards', async () => {
 		memorySizeInMb: 2048,
 		region: 'us-east-1',
 		timeoutInSeconds: 120,
+		createCloudWatchLogGroup: true,
 	});
 	expect(functionName).toBe('remotion-render-abcdef');
 	const fns = await getFunctions({
@@ -66,6 +68,7 @@ test('Should be able to delete the function', async () => {
 		memorySizeInMb: 2048,
 		region: 'us-east-1',
 		timeoutInSeconds: 120,
+		createCloudWatchLogGroup: true,
 	});
 	expect(functionName).toBe('remotion-render-abcdef');
 	await deleteFunction({
@@ -86,6 +89,7 @@ test('Should be able to get the function afterwards', async () => {
 		memorySizeInMb: 2048,
 		region: 'us-east-1',
 		timeoutInSeconds: 120,
+		createCloudWatchLogGroup: true,
 	});
 	expect(functionName).toBe('remotion-render-abcdef');
 	const fns = await getFunctions({

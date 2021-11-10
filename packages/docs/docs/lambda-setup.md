@@ -122,6 +122,7 @@ const { functionName } = await deployFunction({
   region: "us-east-1",
   timeoutInSeconds: 120,
   memorySizeInMb: 1536,
+  createCloudWatchLogGroup: true,
 });
 ```
 
