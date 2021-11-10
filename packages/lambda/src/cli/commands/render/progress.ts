@@ -1,6 +1,7 @@
 import {CliInternals} from '@remotion/cli';
 import {Internals} from 'remotion';
 import {CleanupInfo, EncodingProgress, RenderProgress} from '../../../defaults';
+import {EnhancedErrorInfo} from '../../../functions/helpers/write-lambda-error';
 
 type LambdaInvokeProgress = {
 	totalLambdas: number | null;
@@ -156,16 +157,41 @@ export const makeMultiProgressFromStatus = (
 	};
 };
 
+const makeErrors = (errors: EnhancedErrorInfo[]) => {
+	if (errors.length === 0) {
+		return null;
+	}
+
+	return errors.map((err) => {
+		const shortStack = `${err.stack.substr(0, 60)}...`;
+		if (err.willRetry) {
+			if (err.chunk === null) {
+				return `Error while preparing render: ${shortStack}... will retry.`;
+			}
+
+			return `Error in chunk ${err.chunk}: ${shortStack}... will retry.`;
+		}
+
+		if (err.chunk === null) {
+			return `Error during preparation: ${shortStack}.`;
+		}
+
+		return `Error in chunk ${err.chunk}: ${shortStack}`;
+	});
+};
+
 export const makeProgressString = ({
 	outName,
 	progress,
 	steps,
 	isDownloaded,
+	errors,
 }: {
 	outName: string | null;
 	progress: MultiRenderProgress;
 	steps: number;
 	isDownloaded: boolean;
+	errors: EnhancedErrorInfo[];
 }) => {
 	return [
 		makeInvokeProgress(progress.lambdaInvokeProgress, steps),
@@ -174,6 +200,7 @@ export const makeProgressString = ({
 			invokeProgress: progress.lambdaInvokeProgress,
 			totalSteps: steps,
 		}),
+		makeErrors(errors),
 		makeEncodingProgress({
 			encodingProgress: progress.encodingProgress,
 			chunkProgress: progress.chunkProgress,
