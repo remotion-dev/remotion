@@ -1,14 +1,23 @@
 import {
+	CreateLogGroupCommand,
+	PutRetentionPolicyCommand,
+} from '@aws-sdk/client-cloudwatch-logs';
+import {
 	CreateFunctionCommand,
 	PutFunctionEventInvokeConfigCommand,
 } from '@aws-sdk/client-lambda';
 import {readFileSync} from 'fs';
 import {AwsRegion} from '..';
 import {Log} from '../cli/log';
-import {getLambdaClient} from '../shared/aws-clients';
+import {
+	DEFAULT_CLOUDWATCH_RETENTION_PERIOD,
+	LOG_GROUP_PREFIX,
+} from '../defaults';
+import {getCloudWatchLogsClient, getLambdaClient} from '../shared/aws-clients';
 import {hostedLayers} from '../shared/hosted-layers';
 
 export const createFunction = async ({
+	createCloudWatchLogGroup = false,
 	region,
 	zipFile,
 	functionName,
@@ -16,6 +25,7 @@ export const createFunction = async ({
 	memorySizeInMb,
 	timeoutInSeconds,
 }: {
+	createCloudWatchLogGroup?: boolean;
 	region: AwsRegion;
 	zipFile: string;
 	functionName: string;
@@ -23,6 +33,23 @@ export const createFunction = async ({
 	memorySizeInMb: number;
 	timeoutInSeconds: number;
 }) => {
+	if (createCloudWatchLogGroup) {
+		Log.info(`Creating CloudWatch Log Group...`);
+
+		await getCloudWatchLogsClient(region).send(
+			new CreateLogGroupCommand({
+				logGroupName: `${LOG_GROUP_PREFIX}${functionName}`,
+			})
+		);
+
+		await getCloudWatchLogsClient(region).send(
+			new PutRetentionPolicyCommand({
+				logGroupName: `${LOG_GROUP_PREFIX}${functionName}`,
+				retentionInDays: DEFAULT_CLOUDWATCH_RETENTION_PERIOD,
+			})
+		);
+	}
+
 	const {FunctionName} = await getLambdaClient(region).send(
 		new CreateFunctionCommand({
 			Code: {

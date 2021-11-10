@@ -18,6 +18,7 @@ export const functionsDeploySubcommand = async () => {
 	const region = getAwsRegion();
 	const timeoutInSeconds = parsedLambdaCli.timeout ?? DEFAULT_TIMEOUT;
 	const memorySizeInMb = parsedLambdaCli.memory ?? DEFAULT_MEMORY_SIZE;
+	const createCloudWatchLogGroup = parsedLambdaCli.cloudwatch ?? false;
 	validateMemorySize(memorySizeInMb);
 	validateTimeout(timeoutInSeconds);
 	Log.info(
@@ -28,6 +29,7 @@ export const functionsDeploySubcommand = async () => {
 	const output = CliInternals.createOverwriteableCliOutput();
 	output.update('Deploying Lambda...');
 	const {functionName} = await deployFunction({
+		createCloudWatchLogGroup,
 		region,
 		timeoutInSeconds,
 		memorySizeInMb,
