@@ -31,7 +31,7 @@ import {
 import {concatVideosS3} from './helpers/concat-videos';
 import {createPostRenderData} from './helpers/create-post-render-data';
 import {cleanupFiles} from './helpers/delete-chunks';
-import {closeBrowser, getBrowserInstance} from './helpers/get-browser-instance';
+import {getBrowserInstance} from './helpers/get-browser-instance';
 import {getCurrentRegionInFunction} from './helpers/get-current-region';
 import {getFilesToDelete} from './helpers/get-files-to-delete';
 import {getLambdasInvokedStats} from './helpers/get-lambdas-invoked-stats';
