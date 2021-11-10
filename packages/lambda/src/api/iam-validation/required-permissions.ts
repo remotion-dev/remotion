@@ -48,6 +48,7 @@ export const requiredPermissions: {
 			lambda.InvokeFunction,
 			lambda.CreateFunction,
 			lambda.DeleteFunction,
+			lambda.PutFunctionEventInvokeConfig,
 		],
 		resource: [`arn:aws:lambda:*:*:function:${RENDER_FN_PREFIX}*`],
 	},
