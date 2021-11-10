@@ -20,7 +20,7 @@ import {getServeUrlHash} from '../shared/make-s3-url';
 import {randomHash} from '../shared/random-hash';
 import {validatePrivacy} from '../shared/validate-privacy';
 import {formatCostsInfo} from './helpers/format-costs-info';
-import {closeBrowser, getBrowserInstance} from './helpers/get-browser-instance';
+import {getBrowserInstance} from './helpers/get-browser-instance';
 import {getCurrentRegionInFunction} from './helpers/get-current-region';
 import {lambdaWriteFile} from './helpers/io';
 import {validateComposition} from './helpers/validate-composition';

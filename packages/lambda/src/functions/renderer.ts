@@ -27,7 +27,7 @@ import {
 	ObjectChunkTimingData,
 } from './chunk-optimization/types';
 import {deletedFiles, deletedFilesSize} from './helpers/clean-tmpdir';
-import {closeBrowser, getBrowserInstance} from './helpers/get-browser-instance';
+import {getBrowserInstance} from './helpers/get-browser-instance';
 import {getCurrentRegionInFunction} from './helpers/get-current-region';
 import {getFolderFiles} from './helpers/get-files-in-folder';
 import {getFolderSizeRecursively} from './helpers/get-folder-size';

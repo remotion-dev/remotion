@@ -6,7 +6,6 @@ import {
 import {LambdaReturnValues} from '../shared/return-values';
 import {fireHandler} from './fire';
 import {deleteTmpDir} from './helpers/clean-tmpdir';
-import {closeBrowser} from './helpers/get-browser-instance';
 import {getWarm, setWarm} from './helpers/is-warm';
 import {printCloudwatchHelper} from './helpers/print-cloudwatch-helper';
 import {infoHandler} from './info';
