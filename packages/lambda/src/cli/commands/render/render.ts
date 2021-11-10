@@ -77,7 +77,7 @@ export const renderCommand = async (args: string[]) => {
 
 	Log.info(
 		CliInternals.chalk.gray(
-			`renderId = ${res.renderId}, Bucket = ${res.bucketName}`
+			`Bucket = ${res.bucketName}, renderId = ${res.renderId}, functionName = ${functionName}`
 		)
 	);
 	const status = await getRenderProgress({
