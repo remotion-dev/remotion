@@ -119,7 +119,7 @@ const makeCleanupProgress = (
 	].join(' ');
 };
 
-const makeDownloadProgess = (totalSteps: number, downloadedYet: boolean) => {
+const makeDownloadProgress = (totalSteps: number, downloadedYet: boolean) => {
 	return [
 		'💾',
 		`(5/${totalSteps})`,
@@ -160,10 +160,12 @@ export const makeProgressString = ({
 	outName,
 	progress,
 	steps,
+	isDownloaded,
 }: {
 	outName: string | null;
 	progress: MultiRenderProgress;
 	steps: number;
+	isDownloaded: boolean;
 }) => {
 	return [
 		makeInvokeProgress(progress.lambdaInvokeProgress, steps),
@@ -178,7 +180,9 @@ export const makeProgressString = ({
 			totalSteps: steps,
 		}),
 		makeCleanupProgress(progress.cleanupInfo, steps),
-		outName ? makeDownloadProgess(steps, true) : null,
+		outName && progress.encodingProgress.doneIn
+			? makeDownloadProgress(steps, isDownloaded)
+			: null,
 	]
 		.filter(Internals.truthy)
 		.join('\n');
