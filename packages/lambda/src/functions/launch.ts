@@ -395,7 +395,5 @@ export const launchHandler = async (
 			expectedBucketOwner: options.expectedBucketOwner,
 			renderId: params.renderId,
 		});
-	} finally {
-		await closeBrowser();
 	}
 };

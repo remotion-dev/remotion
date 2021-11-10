@@ -279,7 +279,5 @@ export const rendererHandler = async (
 				renderId: params.renderId,
 			});
 		}
-
-		await closeBrowser();
 	}
 };

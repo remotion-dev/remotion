@@ -207,7 +207,5 @@ export const stillHandler = async (
 		}
 
 		throw err;
-	} finally {
-		await closeBrowser();
 	}
 };
