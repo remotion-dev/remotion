@@ -124,6 +124,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 			quality: params.quality,
 			privacy: params.privacy,
 			saveBrowserLogs: params.saveBrowserLogs,
+			attempt: 1,
 		};
 		return payload;
 	});
@@ -227,6 +228,9 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 					}`,
 					tmpDir: null,
 					type: 'stitcher',
+					attempt: 1,
+					totalAttempts: 1,
+					willRetry: false,
 				},
 				renderId: params.renderId,
 				expectedBucketOwner: options.expectedBucketOwner,
@@ -384,6 +388,9 @@ export const launchHandler = async (
 				type: 'stitcher',
 				isFatal: true,
 				tmpDir: getTmpDirStateIfENoSp((err as Error).stack as string),
+				attempt: 1,
+				totalAttempts: 1,
+				willRetry: false,
 			},
 			expectedBucketOwner: options.expectedBucketOwner,
 			renderId: params.renderId,

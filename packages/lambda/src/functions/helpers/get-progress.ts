@@ -21,7 +21,6 @@ import {getRenderMetadata} from './get-render-metadata';
 import {getTimeToFinish} from './get-time-to-finish';
 import {inspectErrors} from './inspect-errors';
 import {lambdaLs} from './io';
-import {isFatalError} from './is-fatal-error';
 
 export const getProgress = async ({
 	bucketName,
@@ -183,7 +182,7 @@ export const getProgress = async ({
 		outputFile: outputFile?.url ?? null,
 		timeToFinish,
 		errors: errorExplanations,
-		fatalErrorEncountered: errorExplanations.some(isFatalError),
+		fatalErrorEncountered: errorExplanations.some((f) => f.isFatal),
 		currentTime: Date.now(),
 		renderSize,
 		lambdasInvoked: lambdasInvokedStats.lambdasInvoked,

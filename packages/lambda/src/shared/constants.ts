@@ -198,6 +198,7 @@ export type LambdaPayloads = {
 		envVariables: Record<string, string> | undefined;
 		privacy: Privacy;
 		saveBrowserLogs: boolean;
+		attempt: number;
 	};
 	still: {
 		type: LambdaRoutines.still;
@@ -206,6 +207,7 @@ export type LambdaPayloads = {
 		inputProps: unknown;
 		imageFormat: ImageFormat;
 		envVariables: Record<string, string> | undefined;
+		attempt: number;
 		quality: number | undefined;
 		maxRetries: number;
 		frame: number;
