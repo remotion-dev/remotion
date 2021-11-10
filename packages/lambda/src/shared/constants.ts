@@ -5,6 +5,7 @@ import {
 	ProResProfile,
 	VideoConfig,
 } from 'remotion';
+import {ChunkRetry} from '../functions/helpers/get-retry-stats';
 import {EnhancedErrorInfo} from '../functions/helpers/write-lambda-error';
 import {AwsRegion} from '../pricing/aws-regions';
 import {getFileExtensionFromCodec} from './get-file-extension-from-codec';
@@ -37,10 +38,13 @@ export const lambdaInitializedPrefix = (renderId: string) =>
 export const lambdaInitializedKey = ({
 	renderId,
 	chunk,
+	attempt,
 }: {
+	attempt: number;
 	renderId: string;
 	chunk: number;
-}) => `${lambdaInitializedPrefix(renderId)}-${chunk}.txt`;
+}) =>
+	`${lambdaInitializedPrefix(renderId)}-chunk:${chunk}-attempt:${attempt}.txt`;
 export const lambdaTimingsPrefix = (renderId: string) =>
 	`${rendersPrefix(renderId)}/lambda-timings/chunk:`;
 
@@ -87,6 +91,17 @@ export const chunkKeyForIndex = ({
 
 export const getErrorKeyPrefix = (renderId: string) =>
 	`${rendersPrefix(renderId)}/errors/`;
+
+export const getErrorFileName = ({
+	renderId,
+	chunk,
+	attempt,
+}: {
+	renderId: string;
+	chunk: number | null;
+	attempt: number;
+}) => getErrorKeyPrefix(renderId) + ':chunk-' + chunk + ':attempt-' + attempt;
+
 export const optimizationProfile = (siteId: string, compositionId: string) =>
 	`optimization-profiles/${siteId}/${compositionId}/optimization-profile`;
 export const getSitesKey = (siteId: string) => `sites/${siteId}`;
@@ -285,6 +300,7 @@ export type PostRenderData = {
 	timeToCleanUp: number;
 	timeToRenderChunks: number;
 	timeToInvokeLambdas: number;
+	retriesInfo: ChunkRetry[];
 };
 
 export type CostsInfo = {
@@ -319,6 +335,7 @@ export type RenderProgress = {
 	timeToFinishChunks: number | null;
 	timeToInvokeLambdas: number | null;
 	overallProgress: number;
+	retriesInfo: ChunkRetry[];
 };
 
 export type Privacy = 'public' | 'private';

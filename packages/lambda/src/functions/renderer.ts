@@ -106,6 +106,7 @@ const renderHandler = async (
 				key: lambdaInitializedKey({
 					renderId: params.renderId,
 					chunk: params.chunk,
+					attempt: params.attempt,
 				}),
 				region: getCurrentRegionInFunction(),
 				expectedBucketOwner: options.expectedBucketOwner,
@@ -232,20 +233,6 @@ export const rendererHandler = async (
 				'error while loading shared libraries: libnss3.so'
 			);
 		const willRetry = isBrowserError || params.retriesLeft > 0;
-		if (willRetry) {
-			const retryPayload: LambdaPayloads[LambdaRoutines.renderer] = {
-				...params,
-				retriesLeft: params.retriesLeft - 1,
-			};
-			await getLambdaClient(getCurrentRegionInFunction()).send(
-				new InvokeCommand({
-					FunctionName: process.env.AWS_LAMBDA_FUNCTION_NAME,
-					// @ts-expect-error
-					Payload: JSON.stringify(retryPayload),
-					InvocationType: 'Event',
-				})
-			);
-		}
 
 		console.log('Error occurred');
 		console.log(err);
@@ -265,8 +252,22 @@ export const rendererHandler = async (
 			renderId: params.renderId,
 			expectedBucketOwner: options.expectedBucketOwner,
 		});
+		if (willRetry) {
+			const retryPayload: LambdaPayloads[LambdaRoutines.renderer] = {
+				...params,
+				retriesLeft: params.retriesLeft - 1,
+				attempt: params.attempt + 1,
+			};
+			await getLambdaClient(getCurrentRegionInFunction()).send(
+				new InvokeCommand({
+					FunctionName: process.env.AWS_LAMBDA_FUNCTION_NAME,
+					// @ts-expect-error
+					Payload: JSON.stringify(retryPayload),
+					InvocationType: 'Event',
+				})
+			);
+		}
 	} finally {
-		await closeBrowser();
 		if (params.saveBrowserLogs) {
 			await uploadBrowserLogs({
 				chunk: params.chunk,
@@ -278,5 +279,7 @@ export const rendererHandler = async (
 				renderId: params.renderId,
 			});
 		}
+
+		await closeBrowser();
 	}
 };
