@@ -13,11 +13,7 @@ export const cycleBrowserTabs = (
 				const currentPage = pages[i % pages.length];
 				i++;
 				if (!currentPage.isClosed()) {
-					try {
-						currentPage.bringToFront();
-					} catch (err) {
-						// Ignore is closed
-					}
+					return currentPage.bringToFront();
 				}
 			})
 			.catch((err) => console.log(err));
