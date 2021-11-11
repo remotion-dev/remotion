@@ -99,10 +99,6 @@ export const Config = {
 		setFrameRange,
 
 		/**
-		 * Enabling parallel encoding means render frames and encode video at the same time.
-		 * The image will be passed directly into ffmpeg.
-		 */
-		/**
 		 * Specify local ffmpeg executable.
 		 * Default: null, which will use ffmpeg available in PATH.
 		 */
