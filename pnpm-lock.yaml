@@ -10,6 +10,7 @@ importers:
       '@remotion/bundler': 2.5.4
       '@remotion/cli': 2.5.4
       '@remotion/gif': 2.5.4
+      '@remotion/lambda': 2.5.4
       '@remotion/media-utils': 2.5.4
       '@remotion/player': 2.5.4
       '@remotion/renderer': 2.5.4
@@ -47,6 +48,7 @@ importers:
       '@remotion/bundler': link:packages/bundler
       '@remotion/cli': link:packages/cli
       '@remotion/gif': link:packages/gif
+      '@remotion/lambda': link:packages/lambda
       '@remotion/media-utils': link:packages/media-utils
       '@remotion/player': link:packages/player
       '@remotion/renderer': link:packages/renderer
@@ -402,6 +404,7 @@ importers:
       '@remotion/eslint-config': ^2.5.4
       '@remotion/eslint-plugin': ^2.5.4
       '@remotion/gif': ^2.5.4
+      '@remotion/lambda': ^2.5.4
       '@remotion/media-utils': ^2.5.4
       '@remotion/renderer': ^2.5.4
       '@remotion/three': ^2.5.4
@@ -439,6 +442,7 @@ importers:
       '@remotion/eslint-config': link:../eslint-config
       '@remotion/eslint-plugin': link:../eslint-plugin
       '@remotion/gif': link:../gif
+      '@remotion/lambda': link:../lambda
       '@remotion/media-utils': link:../media-utils
       '@remotion/renderer': link:../renderer
       '@remotion/three': link:../three
