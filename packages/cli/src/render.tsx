@@ -136,7 +136,7 @@ export const render = async () => {
 				stitching: {
 					doneIn: null,
 					frames: encodedFrames ?? 0,
-					parallelEncoding,
+					stage: 'encoding',
 					steps,
 					totalFrames,
 				},
@@ -227,7 +227,7 @@ export const render = async () => {
 				doneIn: null,
 				frames: encodedFrames ?? 0,
 				steps: 0,
-				parallelEncoding,
+				stage: 'encoding',
 				totalFrames,
 			},
 		}) + '\n'
@@ -276,7 +276,7 @@ export const render = async () => {
 						frames: frame,
 						steps,
 						totalFrames,
-						parallelEncoding,
+						stage: 'encoding',
 					},
 				});
 			},
@@ -295,7 +295,7 @@ export const render = async () => {
 					frames: totalFrames,
 					steps,
 					totalFrames,
-					parallelEncoding,
+					stage: 'muxing',
 				},
 			}) + '\n'
 		);
