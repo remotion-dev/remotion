@@ -24,9 +24,9 @@ type StateEventMap = {
 	timeupdate: TimeUpdateEventPayload;
 };
 
-type EventTypes = keyof StateEventMap;
+export type EventTypes = keyof StateEventMap;
 
-type CallbackListener<T extends EventTypes> = (data: {
+export type CallbackListener<T extends EventTypes> = (data: {
 	detail: StateEventMap[T];
 }) => void;
 
