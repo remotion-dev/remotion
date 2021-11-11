@@ -219,10 +219,7 @@ export const getCliOptions = async (options: {
 	const ffmpegExecutable = Internals.getCustomFfmpegExecutable();
 
 	const isAudioOnly = Internals.isAudioCodec(codec);
-	const parallelEncoding =
-		Internals.getParallelEncoding() &&
-		!shouldOutputImageSequence &&
-		!isAudioOnly;
+	const parallelEncoding = !shouldOutputImageSequence && !isAudioOnly;
 
 	return {
 		parallelism: Internals.getConcurrency(),
