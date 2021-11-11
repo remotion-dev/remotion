@@ -32,6 +32,7 @@
 		"@remotion/gif": "^2.5.4",
 		"@remotion/media-utils": "^2.5.4",
 		"@remotion/renderer": "^2.5.4",
+		"@remotion/lambda": "^2.5.4",
 		"@remotion/three": "^2.5.4",
 		"@types/express": "^4.17.11",
 		"@types/node": "^16.7.5",

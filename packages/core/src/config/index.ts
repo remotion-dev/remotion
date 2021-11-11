@@ -97,6 +97,7 @@ export const Config = {
 		 * The frame count starts at 0.
 		 */
 		setFrameRange,
+
 		/**
 		 * Specify local ffmpeg executable.
 		 * Default: null, which will use ffmpeg available in PATH.
