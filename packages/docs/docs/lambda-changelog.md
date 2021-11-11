@@ -14,6 +14,12 @@ Keep track of changes to the APIs of Remotion Lambda here.
 1. Redeploy your function: `npx remotion lambda functions deploy`
 1. Migrate according to the changelog below:
 
+## Unreleased
+
+- **Breaking change**: Update your AWS User policy to include the `lambda:PutFunctionEventInvokeConfig` permission. We will now prevent AWS from retrying failed Lambda functions and only use our own retry system.
+
+Read [Step 4](https://remotion-lambda-alpha.netlify.app/docs/lambda/setup#4-create-a-user) of the setup guide and update the user with the newest policy (`npx remotion lambda policies user`).
+
 ## November 1st, 2021
 
 Version hash: `3.0.0-lambda.57+d1dd7ce77`

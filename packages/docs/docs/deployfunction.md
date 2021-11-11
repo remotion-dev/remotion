@@ -12,14 +12,15 @@ Creates an [AWS Lambda](https://aws.amazon.com/lambda/) function in your AWS acc
 // @module: esnext
 // @target: es2017
 
-import {deployFunction} from '@remotion/lambda';
+import { deployFunction } from "@remotion/lambda";
 
-const {functionName} = await deployFunction({
-  region: 'us-east-1',
+const { functionName } = await deployFunction({
+  region: "us-east-1",
   timeoutInSeconds: 120,
-  memorySizeInMb: 1024
+  memorySizeInMb: 1024,
+  createCloudWatchLogGroup: true,
 });
-console.log(functionName)
+console.log(functionName);
 ```
 
 ## Arguments
@@ -38,6 +39,10 @@ We recommend a timeout of 120 seconds or lower - remember, Remotion Lambda is th
 ### `memorySizeInMb`
 
 How many megabytes of RAM the Lambda function should have. By default we recommend a value of 1024MB. You may increase or decrease it depending on how memory-consuming your video is. The minimum allowed number is `512`, the maximum allowed number is `10240`. Since the costs of Remotion Lambda is directly proportional to the amount of RAM, we recommend to keep this amount as low as possible.
+
+### `createCloudWatchLogGroup`
+
+Whether logs should be saved into CloudWatch. We recommend enabling this option.
 
 ## Return value
 

@@ -11,6 +11,7 @@ import {calculateChunkTimes} from './calculate-chunk-times';
 import {findOutputFileInBucket} from './find-output-file-in-bucket';
 import {getFilesToDelete} from './get-files-to-delete';
 import {getLambdasInvokedStats} from './get-lambdas-invoked-stats';
+import {getRetryStats} from './get-retry-stats';
 import {EnhancedErrorInfo} from './write-lambda-error';
 
 const OVERHEAD_TIME_PER_LAMBDA = 100;
@@ -79,6 +80,7 @@ export const createPostRenderData = ({
 		renderMetadata?.estimatedRenderLambdaInvokations ?? null,
 		renderMetadata.startedDate
 	);
+	const retriesInfo = getRetryStats({contents, renderId});
 
 	if (timeToInvokeLambdas === null) {
 		throw new Error('should have timing for all lambdas');
@@ -115,6 +117,7 @@ export const createPostRenderData = ({
 			type: 'absolute-time',
 		}),
 		timeToInvokeLambdas,
+		retriesInfo,
 	};
 
 	return data;

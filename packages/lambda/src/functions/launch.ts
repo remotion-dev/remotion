@@ -31,7 +31,7 @@ import {
 import {concatVideosS3} from './helpers/concat-videos';
 import {createPostRenderData} from './helpers/create-post-render-data';
 import {cleanupFiles} from './helpers/delete-chunks';
-import {closeBrowser, getBrowserInstance} from './helpers/get-browser-instance';
+import {getBrowserInstance} from './helpers/get-browser-instance';
 import {getCurrentRegionInFunction} from './helpers/get-current-region';
 import {getFilesToDelete} from './helpers/get-files-to-delete';
 import {getLambdasInvokedStats} from './helpers/get-lambdas-invoked-stats';
@@ -60,8 +60,8 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 
 	validateFramesPerLambda(params.framesPerLambda);
 
-	const [, optimization] = await Promise.all([
-		getBrowserInstance(),
+	const [browserInstance, optimization] = await Promise.all([
+		getBrowserInstance(params.saveBrowserLogs),
 		getOptimization({
 			bucketName: params.bucketName,
 			siteId: getServeUrlHash(params.serveUrl),
@@ -74,7 +74,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 	const comp = await validateComposition({
 		serveUrl: params.serveUrl,
 		composition: params.composition,
-		browserInstance: await getBrowserInstance(),
+		browserInstance,
 		inputProps: params.inputProps,
 	});
 	Internals.validateDurationInFrames(
@@ -124,6 +124,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 			quality: params.quality,
 			privacy: params.privacy,
 			saveBrowserLogs: params.saveBrowserLogs,
+			attempt: 1,
 		};
 		return payload;
 	});
@@ -227,6 +228,9 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 					}`,
 					tmpDir: null,
 					type: 'stitcher',
+					attempt: 1,
+					totalAttempts: 1,
+					willRetry: false,
 				},
 				renderId: params.renderId,
 				expectedBucketOwner: options.expectedBucketOwner,
@@ -384,11 +388,12 @@ export const launchHandler = async (
 				type: 'stitcher',
 				isFatal: true,
 				tmpDir: getTmpDirStateIfENoSp((err as Error).stack as string),
+				attempt: 1,
+				totalAttempts: 1,
+				willRetry: false,
 			},
 			expectedBucketOwner: options.expectedBucketOwner,
 			renderId: params.renderId,
 		});
-	} finally {
-		await closeBrowser();
 	}
 };

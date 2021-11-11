@@ -3,7 +3,7 @@ dist
 tsconfig.tsbuildinfo
 .DS_Store
 coverage
-packages/example/.env
 /.idea/
+*/**/.env
 .cache
 packages/example/out

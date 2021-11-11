@@ -5,6 +5,7 @@ import {
 	ProResProfile,
 	VideoConfig,
 } from 'remotion';
+import {ChunkRetry} from '../functions/helpers/get-retry-stats';
 import {EnhancedErrorInfo} from '../functions/helpers/write-lambda-error';
 import {AwsRegion} from '../pricing/aws-regions';
 import {getFileExtensionFromCodec} from './get-file-extension-from-codec';
@@ -24,9 +25,12 @@ export const BINARY_NAME = 'remotion lambda';
 export const COMMAND_NOT_FOUND = 'Command not found';
 export const DEFAULT_REGION: AwsRegion = 'us-east-1';
 
+export const DEFAULT_CLOUDWATCH_RETENTION_PERIOD = 14;
+
 // TODO: Rename other buckets in Jonnys accoudn first
 export const REMOTION_BUCKET_PREFIX = 'remotionlambda-';
 export const RENDER_FN_PREFIX = 'remotion-render-';
+export const LOG_GROUP_PREFIX = '/aws/lambda/';
 export const rendersPrefix = (renderId: string) => `renders/${renderId}`;
 export const encodingProgressKey = (renderId: string) =>
 	`${rendersPrefix(renderId)}/encoding-progress.json`;
@@ -37,10 +41,13 @@ export const lambdaInitializedPrefix = (renderId: string) =>
 export const lambdaInitializedKey = ({
 	renderId,
 	chunk,
+	attempt,
 }: {
+	attempt: number;
 	renderId: string;
 	chunk: number;
-}) => `${lambdaInitializedPrefix(renderId)}-${chunk}.txt`;
+}) =>
+	`${lambdaInitializedPrefix(renderId)}-chunk:${chunk}-attempt:${attempt}.txt`;
 export const lambdaTimingsPrefix = (renderId: string) =>
 	`${rendersPrefix(renderId)}/lambda-timings/chunk:`;
 
@@ -87,6 +94,17 @@ export const chunkKeyForIndex = ({
 
 export const getErrorKeyPrefix = (renderId: string) =>
 	`${rendersPrefix(renderId)}/errors/`;
+
+export const getErrorFileName = ({
+	renderId,
+	chunk,
+	attempt,
+}: {
+	renderId: string;
+	chunk: number | null;
+	attempt: number;
+}) => getErrorKeyPrefix(renderId) + ':chunk-' + chunk + ':attempt-' + attempt;
+
 export const optimizationProfile = (siteId: string, compositionId: string) =>
 	`optimization-profiles/${siteId}/${compositionId}/optimization-profile`;
 export const getSitesKey = (siteId: string) => `sites/${siteId}`;
@@ -198,6 +216,7 @@ export type LambdaPayloads = {
 		envVariables: Record<string, string> | undefined;
 		privacy: Privacy;
 		saveBrowserLogs: boolean;
+		attempt: number;
 	};
 	still: {
 		type: LambdaRoutines.still;
@@ -206,10 +225,12 @@ export type LambdaPayloads = {
 		inputProps: unknown;
 		imageFormat: ImageFormat;
 		envVariables: Record<string, string> | undefined;
+		attempt: number;
 		quality: number | undefined;
 		maxRetries: number;
 		frame: number;
 		privacy: Privacy;
+		saveBrowserLogs?: boolean;
 	};
 };
 
@@ -243,6 +264,7 @@ export type RenderMetadata = {
 };
 
 export type LambdaVersions =
+	| '2021-11-10'
 	| '2021-11-01'
 	| '2021-10-29'
 	| '2021-10-27'
@@ -260,7 +282,7 @@ export type LambdaVersions =
 	| '2021-06-23'
 	| 'n/a';
 
-export const CURRENT_VERSION: LambdaVersions = '2021-11-01';
+export const CURRENT_VERSION: LambdaVersions = '2021-11-10';
 
 export type PostRenderData = {
 	cost: {
@@ -282,6 +304,7 @@ export type PostRenderData = {
 	timeToCleanUp: number;
 	timeToRenderChunks: number;
 	timeToInvokeLambdas: number;
+	retriesInfo: ChunkRetry[];
 };
 
 export type CostsInfo = {
@@ -316,6 +339,7 @@ export type RenderProgress = {
 	timeToFinishChunks: number | null;
 	timeToInvokeLambdas: number | null;
 	overallProgress: number;
+	retriesInfo: ChunkRetry[];
 };
 
 export type Privacy = 'public' | 'private';

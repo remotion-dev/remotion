@@ -21,6 +21,7 @@
 		"url": "https://github.com/JonnyBurger/remotion"
 	},
 	"dependencies": {
+		"@aws-sdk/client-cloudwatch-logs": "^3.18.0",
 		"@aws-sdk/client-iam": "^3.18.0",
 		"@aws-sdk/client-lambda": "^3.18.0",
 		"@aws-sdk/client-s3": "^3.18.0",

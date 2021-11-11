@@ -9,7 +9,7 @@ import TabItem from '@theme/TabItem';
 
 ## 1. Install `@remotion/lambda`
 
-Check the newest version number in the #lambda Discord channel (link at the top of the page)
+Check the newest version number in the [#lambda Discord channel](https://discord.gg/PzjkKS8S5S)
 
 ```
 npm i @remotion/lambda@<version-number>
@@ -37,7 +37,7 @@ You can install `@remotion/lambda` in any project, not just a Remotion one, but 
 
 ## 2. Create role policy
 
-- Go to AWS account IAM section
+- Go to [AWS account IAM Policies section](https://console.aws.amazon.com/iamv2/home?#/policies)
 - Create a new policy
 - Click on JSON
 - Type in `npx remotion lambda policies role` and copy it into the JSON field
@@ -46,7 +46,7 @@ You can install `@remotion/lambda` in any project, not just a Remotion one, but 
 
 ## 3. Create a role
 
-- Go to AWS account IAM section
+- Go to [AWS account IAM Roles section](https://console.aws.amazon.com/iamv2/home#/roles)
 - Create a new role
 - Use case: Select `Lambda`
 - Click next
@@ -55,9 +55,10 @@ You can install `@remotion/lambda` in any project, not just a Remotion one, but 
 - Tags: Skip it
 - Role name: Name it `remotion-lambda-role` exactly!
 
-## 4. Create an user
+## 4. Create a user
 
-- Click `Create user`
+- Go to [AWS account IAM Users section](https://console.aws.amazon.com/iamv2/home#/users)
+- Click `Add users`
 - Select any username
 - Programmatic access = YES
 - Management console access = NO
@@ -65,7 +66,7 @@ You can install `@remotion/lambda` in any project, not just a Remotion one, but 
 - Tags: Skip
 - Click "Create user"
 - Copy Access key ID and Secret Access Key
-- Add a `.env` file to your project
+- Add a `.env` file to your project, and add the following, using the credentials you just copied
 
 ```txt title=".env"
 AWS_ACCESS_KEY_ID=xxxxxx
@@ -121,6 +122,7 @@ const { functionName } = await deployFunction({
   region: "us-east-1",
   timeoutInSeconds: 120,
   memorySizeInMb: 1536,
+  createCloudWatchLogGroup: true,
 });
 ```
 
@@ -313,7 +315,7 @@ while (true) {
 }
 ```
 
-This code will poll every second to check the progress of the video and exit the script if the render is done. Congrats! You rendered your first video using Remotion Lambda 🚀
+This code will poll every second to check the progress of the video and exit the script if the render is done. Congrats! [Check your S3 Bucket](https://s3.console.aws.amazon.com/s3/) - you just rendered your first video using Remotion Lambda 🚀
 
 </TabItem>
 </Tabs>

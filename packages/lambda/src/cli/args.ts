@@ -16,6 +16,7 @@ type LambdaCommandLineOptions = {
 	['site-name']: string | undefined;
 	['disable-chunk-optimization']: boolean;
 	['save-browser-logs']: boolean;
+	['disable-cloudwatch']: boolean;
 };
 
 export const parsedLambdaCli = minimist<LambdaCommandLineOptions>(
