@@ -27,7 +27,7 @@ import {
 	ObjectChunkTimingData,
 } from './chunk-optimization/types';
 import {deletedFiles, deletedFilesSize} from './helpers/clean-tmpdir';
-import {closeBrowser, getBrowserInstance} from './helpers/get-browser-instance';
+import {getBrowserInstance} from './helpers/get-browser-instance';
 import {getCurrentRegionInFunction} from './helpers/get-current-region';
 import {getFolderFiles} from './helpers/get-files-in-folder';
 import {getFolderSizeRecursively} from './helpers/get-folder-size';
@@ -53,7 +53,7 @@ const renderHandler = async (
 		throw new Error('Params must be renderer');
 	}
 
-	const browserInstance = await getBrowserInstance();
+	const browserInstance = await getBrowserInstance(params.saveBrowserLogs);
 	const outputPath = OUTPUT_PATH_PREFIX + randomHash();
 	if (fs.existsSync(outputPath)) {
 		(fs.rmSync ?? fs.rmdirSync)(outputPath);
@@ -106,6 +106,7 @@ const renderHandler = async (
 				key: lambdaInitializedKey({
 					renderId: params.renderId,
 					chunk: params.chunk,
+					attempt: params.attempt,
 				}),
 				region: getCurrentRegionInFunction(),
 				expectedBucketOwner: options.expectedBucketOwner,
@@ -117,7 +118,7 @@ const renderHandler = async (
 		quality: params.quality,
 		envVariables: params.envVariables,
 		browser: 'chrome',
-		dumpBrowserLogs: false,
+		dumpBrowserLogs: params.saveBrowserLogs,
 		onBrowserLog: (log) => {
 			logs.push(log);
 		},
@@ -231,20 +232,7 @@ export const rendererHandler = async (
 			(err as Error).message.includes(
 				'error while loading shared libraries: libnss3.so'
 			);
-		if (isBrowserError || params.retriesLeft > 0) {
-			const retryPayload: LambdaPayloads[LambdaRoutines.renderer] = {
-				...params,
-				retriesLeft: params.retriesLeft - 1,
-			};
-			await getLambdaClient(getCurrentRegionInFunction()).send(
-				new InvokeCommand({
-					FunctionName: process.env.AWS_LAMBDA_FUNCTION_NAME,
-					// @ts-expect-error
-					Payload: JSON.stringify(retryPayload),
-					InvocationType: 'Event',
-				})
-			);
-		}
+		const willRetry = isBrowserError || params.retriesLeft > 0;
 
 		console.log('Error occurred');
 		console.log(err);
@@ -257,12 +245,29 @@ export const rendererHandler = async (
 				type: 'renderer',
 				isFatal: !isBrowserError,
 				tmpDir: getTmpDirStateIfENoSp((err as Error).stack as string),
+				attempt: params.attempt,
+				totalAttempts: params.retriesLeft + params.attempt,
+				willRetry,
 			},
 			renderId: params.renderId,
 			expectedBucketOwner: options.expectedBucketOwner,
 		});
+		if (willRetry) {
+			const retryPayload: LambdaPayloads[LambdaRoutines.renderer] = {
+				...params,
+				retriesLeft: params.retriesLeft - 1,
+				attempt: params.attempt + 1,
+			};
+			await getLambdaClient(getCurrentRegionInFunction()).send(
+				new InvokeCommand({
+					FunctionName: process.env.AWS_LAMBDA_FUNCTION_NAME,
+					// @ts-expect-error
+					Payload: JSON.stringify(retryPayload),
+					InvocationType: 'Event',
+				})
+			);
+		}
 	} finally {
-		await closeBrowser();
 		if (params.saveBrowserLogs) {
 			await uploadBrowserLogs({
 				chunk: params.chunk,

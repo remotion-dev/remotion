@@ -1,6 +1,8 @@
 import {CliInternals} from '@remotion/cli';
 import {Internals} from 'remotion';
 import {CleanupInfo, EncodingProgress, RenderProgress} from '../../../defaults';
+import {ChunkRetry} from '../../../functions/helpers/get-retry-stats';
+import {EnhancedErrorInfo} from '../../../functions/helpers/write-lambda-error';
 
 type LambdaInvokeProgress = {
 	totalLambdas: number | null;
@@ -23,7 +25,8 @@ export type MultiRenderProgress = {
 
 const makeInvokeProgress = (
 	invokeProgress: LambdaInvokeProgress,
-	totalSteps: number
+	totalSteps: number,
+	retriesInfo: ChunkRetry[]
 ) => {
 	const {lambdasInvoked, totalLambdas, doneIn} = invokeProgress;
 	const progress = doneIn
@@ -32,13 +35,14 @@ const makeInvokeProgress = (
 		? 0
 		: lambdasInvoked / totalLambdas;
 	return [
-		'☁️ ',
+		'⚡️',
 		`(1/${totalSteps})`,
 		CliInternals.makeProgressBar(progress),
 		`${doneIn === null ? 'Invoking' : 'Invoked'} lambdas`,
 		doneIn === null
 			? `${Math.round(progress * 100)}%`
 			: CliInternals.chalk.gray(`${doneIn}ms`),
+		retriesInfo.length > 0 ? `(+${retriesInfo.length} retries)` : [],
 	].join(' ');
 };
 
@@ -119,7 +123,7 @@ const makeCleanupProgress = (
 	].join(' ');
 };
 
-const makeDownloadProgess = (totalSteps: number, downloadedYet: boolean) => {
+const makeDownloadProgress = (totalSteps: number, downloadedYet: boolean) => {
 	return [
 		'💾',
 		`(5/${totalSteps})`,
@@ -156,29 +160,63 @@ export const makeMultiProgressFromStatus = (
 	};
 };
 
+const makeErrors = (errors: EnhancedErrorInfo[]) => {
+	if (errors.length === 0) {
+		return null;
+	}
+
+	return errors
+		.map((err) => {
+			const shortStack = `${err.stack.substr(0, 90)}...`;
+			if (err.willRetry) {
+				if (err.chunk === null) {
+					return `Error while preparing render (will retry): ${shortStack}`;
+				}
+
+				return `Error in chunk (will retry) ${err.chunk}: ${shortStack}`;
+			}
+
+			if (err.chunk === null) {
+				return `Error during preparation: ${shortStack}.`;
+			}
+
+			return `Error in chunk ${err.chunk}: ${shortStack}`;
+		})
+		.join('\n');
+};
+
 export const makeProgressString = ({
 	outName,
 	progress,
 	steps,
+	isDownloaded,
+	errors,
+	retriesInfo,
 }: {
 	outName: string | null;
 	progress: MultiRenderProgress;
 	steps: number;
+	isDownloaded: boolean;
+	errors: EnhancedErrorInfo[];
+	retriesInfo: ChunkRetry[];
 }) => {
 	return [
-		makeInvokeProgress(progress.lambdaInvokeProgress, steps),
+		makeInvokeProgress(progress.lambdaInvokeProgress, steps, retriesInfo),
 		makeChunkProgress({
 			chunkProgress: progress.chunkProgress,
 			invokeProgress: progress.lambdaInvokeProgress,
 			totalSteps: steps,
 		}),
+		makeErrors(errors),
 		makeEncodingProgress({
 			encodingProgress: progress.encodingProgress,
 			chunkProgress: progress.chunkProgress,
 			totalSteps: steps,
 		}),
 		makeCleanupProgress(progress.cleanupInfo, steps),
-		outName ? makeDownloadProgess(steps, true) : null,
+		outName && progress.encodingProgress.doneIn
+			? makeDownloadProgress(steps, isDownloaded)
+			: null,
 	]
 		.filter(Internals.truthy)
 		.join('\n');

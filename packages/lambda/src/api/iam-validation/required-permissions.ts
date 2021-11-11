@@ -1,9 +1,9 @@
-import {iam, lambda, s3} from 'aws-policies';
+import {iam, lambda, logs, s3} from 'aws-policies';
 import {REMOTION_BUCKET_PREFIX, RENDER_FN_PREFIX} from '../../shared/constants';
 
 // TODO: Update docs before release
 export const requiredPermissions: {
-	actions: (s3 | iam | lambda)[];
+	actions: (s3 | iam | lambda | logs)[];
 	resource: string[];
 }[] = [
 	{
@@ -48,6 +48,7 @@ export const requiredPermissions: {
 			lambda.InvokeFunction,
 			lambda.CreateFunction,
 			lambda.DeleteFunction,
+			lambda.PutFunctionEventInvokeConfig,
 		],
 		resource: [`arn:aws:lambda:*:*:function:${RENDER_FN_PREFIX}*`],
 	},
@@ -58,6 +59,10 @@ export const requiredPermissions: {
 	},
 	{
 		actions: [lambda.ListFunctions],
+		resource: ['*'],
+	},
+	{
+		actions: [logs.CreateLogGroup, logs.PutRetentionPolicy],
 		resource: ['*'],
 	},
 ];

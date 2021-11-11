@@ -51,6 +51,7 @@ export const BooleanFlags = [
 	'force',
 	'disable-chunk-optimization',
 	'save-browser-logs',
+	'disable-cloudwatch',
 	'yes',
 	'y',
 ];

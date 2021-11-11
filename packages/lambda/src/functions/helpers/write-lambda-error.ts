@@ -1,5 +1,4 @@
-import {getErrorKeyPrefix} from '../../shared/constants';
-import {randomHash} from '../../shared/random-hash';
+import {getErrorFileName} from '../../shared/constants';
 import {getCurrentRegionInFunction} from './get-current-region';
 import {FileNameAndSize, getFolderFiles} from './get-files-in-folder';
 import {lambdaWriteFile} from './io';
@@ -11,6 +10,9 @@ export type LambdaErrorInfo = {
 	frame: number | null;
 	chunk: number | null;
 	isFatal: boolean;
+	attempt: number;
+	willRetry: boolean;
+	totalAttempts: number;
 	tmpDir: {files: FileNameAndSize[]; total: number} | null;
 };
 
@@ -50,7 +52,11 @@ export const writeLambdaError = async ({
 }) => {
 	await lambdaWriteFile({
 		bucketName,
-		key: `${getErrorKeyPrefix(renderId)}${randomHash()}.txt`,
+		key: `${getErrorFileName({
+			renderId,
+			chunk: errorInfo.chunk,
+			attempt: errorInfo.attempt,
+		})}.txt`,
 		body: JSON.stringify(errorInfo),
 		region: getCurrentRegionInFunction(),
 		privacy: 'private',

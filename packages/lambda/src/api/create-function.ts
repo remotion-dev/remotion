@@ -1,10 +1,23 @@
-import {CreateFunctionCommand} from '@aws-sdk/client-lambda';
+import {
+	CreateLogGroupCommand,
+	PutRetentionPolicyCommand,
+} from '@aws-sdk/client-cloudwatch-logs';
+import {
+	CreateFunctionCommand,
+	PutFunctionEventInvokeConfigCommand,
+} from '@aws-sdk/client-lambda';
 import {readFileSync} from 'fs';
 import {AwsRegion} from '..';
-import {getLambdaClient} from '../shared/aws-clients';
+import {Log} from '../cli/log';
+import {
+	DEFAULT_CLOUDWATCH_RETENTION_PERIOD,
+	LOG_GROUP_PREFIX,
+} from '../defaults';
+import {getCloudWatchLogsClient, getLambdaClient} from '../shared/aws-clients';
 import {hostedLayers} from '../shared/hosted-layers';
 
 export const createFunction = async ({
+	createCloudWatchLogGroup,
 	region,
 	zipFile,
 	functionName,
@@ -12,6 +25,7 @@ export const createFunction = async ({
 	memorySizeInMb,
 	timeoutInSeconds,
 }: {
+	createCloudWatchLogGroup: boolean;
 	region: AwsRegion;
 	zipFile: string;
 	functionName: string;
@@ -19,6 +33,21 @@ export const createFunction = async ({
 	memorySizeInMb: number;
 	timeoutInSeconds: number;
 }) => {
+	if (createCloudWatchLogGroup) {
+		await getCloudWatchLogsClient(region).send(
+			new CreateLogGroupCommand({
+				logGroupName: `${LOG_GROUP_PREFIX}${functionName}`,
+			})
+		);
+
+		await getCloudWatchLogsClient(region).send(
+			new PutRetentionPolicyCommand({
+				logGroupName: `${LOG_GROUP_PREFIX}${functionName}`,
+				retentionInDays: DEFAULT_CLOUDWATCH_RETENTION_PERIOD,
+			})
+		);
+	}
+
 	const {FunctionName} = await getLambdaClient(region).send(
 		new CreateFunctionCommand({
 			Code: {
@@ -37,5 +66,19 @@ export const createFunction = async ({
 			),
 		})
 	);
+	// TODO: Remove try catch in future versions
+	try {
+		await getLambdaClient(region).send(
+			new PutFunctionEventInvokeConfigCommand({
+				MaximumRetryAttempts: 0,
+				FunctionName,
+			})
+		);
+	} catch (err) {
+		Log.warn(
+			'\nWe now require the lambda:PutFunctionEventInvokeConfig permissions for your user. Please run `npx remotion lambda policies user` update your user policy. This will be required for the final version of Remotion Lambda.'
+		);
+	}
+
 	return {FunctionName};
 };

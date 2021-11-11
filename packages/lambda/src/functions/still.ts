@@ -20,7 +20,7 @@ import {getServeUrlHash} from '../shared/make-s3-url';
 import {randomHash} from '../shared/random-hash';
 import {validatePrivacy} from '../shared/validate-privacy';
 import {formatCostsInfo} from './helpers/format-costs-info';
-import {closeBrowser, getBrowserInstance} from './helpers/get-browser-instance';
+import {getBrowserInstance} from './helpers/get-browser-instance';
 import {getCurrentRegionInFunction} from './helpers/get-current-region';
 import {lambdaWriteFile} from './helpers/io';
 import {validateComposition} from './helpers/validate-composition';
@@ -50,7 +50,7 @@ const innerStillHandler = async (
 		getOrCreateBucket({
 			region: getCurrentRegionInFunction(),
 		}),
-		getBrowserInstance(),
+		getBrowserInstance(lambdaParams.saveBrowserLogs ?? false),
 	]);
 	const outputDir = OUTPUT_PATH_PREFIX + randomHash();
 
@@ -162,10 +162,12 @@ export const stillHandler = async (
 			(err as Error).message.includes(
 				'error while loading shared libraries: libnss3.so'
 			);
-		if (isBrowserError || params.maxRetries > 0) {
+		const willRetry = isBrowserError || params.maxRetries > 0;
+		if (willRetry) {
 			const retryPayload: LambdaPayloads[LambdaRoutines.still] = {
 				...params,
 				maxRetries: params.maxRetries - 1,
+				attempt: params.attempt + 1,
 			};
 			// TODO: Test retries by failing sometimes
 			const res = await getLambdaClient(getCurrentRegionInFunction()).send(
@@ -190,6 +192,9 @@ export const stillHandler = async (
 						(err as Error).stack) as string,
 					type: 'browser',
 					tmpDir: getTmpDirStateIfENoSp((err as Error).stack as string),
+					attempt: params.attempt,
+					totalAttempts: params.attempt + params.maxRetries,
+					willRetry,
 				},
 				expectedBucketOwner: options.expectedBucketOwner,
 				renderId,
@@ -202,7 +207,5 @@ export const stillHandler = async (
 		}
 
 		throw err;
-	} finally {
-		await closeBrowser();
 	}
 };

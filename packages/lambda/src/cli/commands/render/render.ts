@@ -5,12 +5,14 @@ import {renderVideoOnLambda} from '../../../api/render-video-on-lambda';
 import {
 	BINARY_NAME,
 	DEFAULT_FRAMES_PER_LAMBDA,
+	LambdaRoutines,
 } from '../../../shared/constants';
 import {sleep} from '../../../shared/sleep';
 import {parsedLambdaCli} from '../../args';
 import {getAwsRegion} from '../../get-aws-region';
 import {findFunctionName} from '../../helpers/find-function-name';
 import {formatBytes} from '../../helpers/format-bytes';
+import {getCloudwatchStreamUrl} from '../../helpers/get-cloudwatch-stream-url';
 import {Log} from '../../log';
 import {makeMultiProgressFromStatus, makeProgressString} from './progress';
 
@@ -49,6 +51,8 @@ export const renderCommand = async (args: string[]) => {
 
 	const functionName = await findFunctionName();
 
+	const region = getAwsRegion();
+
 	const res = await renderVideoOnLambda({
 		functionName,
 		serveUrl,
@@ -60,7 +64,7 @@ export const renderCommand = async (args: string[]) => {
 		pixelFormat: cliOptions.pixelFormat,
 		proResProfile: cliOptions.proResProfile,
 		quality: cliOptions.quality,
-		region: getAwsRegion(),
+		region,
 		// TODO: Unhardcode retries
 		maxRetries: 3,
 		composition,
@@ -75,6 +79,19 @@ export const renderCommand = async (args: string[]) => {
 
 	const progressBar = CliInternals.createOverwriteableCliOutput();
 
+	Log.info(
+		CliInternals.chalk.gray(
+			`Bucket = ${res.bucketName}, renderId = ${res.renderId}, functionName = ${functionName}`
+		)
+	);
+	Log.verbose(
+		`CloudWatch logs (if enabled): ${getCloudwatchStreamUrl({
+			functionName,
+			region,
+			renderId: res.renderId,
+			method: LambdaRoutines.renderer,
+		})}`
+	);
 	const status = await getRenderProgress({
 		functionName,
 		bucketName: res.bucketName,
@@ -86,7 +103,10 @@ export const renderCommand = async (args: string[]) => {
 		makeProgressString({
 			progress: multiProgress,
 			outName,
+			errors: status.errors,
 			steps: totalSteps,
+			isDownloaded: false,
+			retriesInfo: status.retriesInfo,
 		})
 	);
 
@@ -98,13 +118,15 @@ export const renderCommand = async (args: string[]) => {
 			renderId: res.renderId,
 			region: getAwsRegion(),
 		});
-		CliInternals.Log.verbose(JSON.stringify(newStatus, null, 2));
 		const newProgress = makeMultiProgressFromStatus(newStatus);
 		progressBar.update(
 			makeProgressString({
 				outName,
 				progress: newProgress,
 				steps: totalSteps,
+				isDownloaded: false,
+				errors: newStatus.errors,
+				retriesInfo: newStatus.retriesInfo,
 			})
 		);
 
@@ -115,6 +137,9 @@ export const renderCommand = async (args: string[]) => {
 					outName,
 					progress: newProgress,
 					steps: totalSteps,
+					isDownloaded: false,
+					errors: newStatus.errors,
+					retriesInfo: newStatus.retriesInfo,
 				})
 			);
 			if (outName) {
@@ -129,6 +154,9 @@ export const renderCommand = async (args: string[]) => {
 						outName,
 						progress: newProgress,
 						steps: totalSteps,
+						isDownloaded: true,
+						errors: newStatus.errors,
+						retriesInfo: newStatus.retriesInfo,
 					})
 				);
 				Log.info();
@@ -148,7 +176,18 @@ export const renderCommand = async (args: string[]) => {
 		}
 
 		if (newStatus.fatalErrorEncountered) {
-			Log.error(JSON.stringify(newStatus.errors));
+			Log.error('\n');
+			for (const err of newStatus.errors) {
+				const attemptString = `(Attempt ${err.attempt}/${err.totalAttempts})`;
+				if (err.chunk === null) {
+					Log.error('Error occured while preparing video: ' + attemptString);
+				} else {
+					Log.error(`Error occurred when rendering chunk ${err.chunk}:`);
+				}
+
+				Log.error(err.stack);
+			}
+
 			Log.error('Fatal error encountered. Exiting.');
 			process.exit(1);
 		}
