@@ -200,5 +200,6 @@ export const webpackConfig = ({
 				},
 			],
 		},
+		ignoreWarnings: [/Failed to parse source map/],
 	});
 };
