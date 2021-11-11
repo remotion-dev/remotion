@@ -10,6 +10,7 @@ importers:
       '@remotion/bundler': 2.5.4
       '@remotion/cli': 2.5.4
       '@remotion/gif': 2.5.4
+      '@remotion/lambda': 2.5.4
       '@remotion/media-utils': 2.5.4
       '@remotion/player': 2.5.4
       '@remotion/renderer': 2.5.4
@@ -323,7 +324,6 @@ importers:
       '@remotion/babel-loader': link:../babel-loader
       '@remotion/bundler': link:../bundler
       '@remotion/gif': link:../gif
-      '@remotion/lambda': link:../lambda
       '@remotion/media-utils': link:../media-utils
       '@remotion/player': link:../player
       '@remotion/renderer': link:../renderer
@@ -404,6 +404,7 @@ importers:
       '@remotion/eslint-config': ^2.5.4
       '@remotion/eslint-plugin': ^2.5.4
       '@remotion/gif': ^2.5.4
+      '@remotion/lambda': ^2.5.4
       '@remotion/media-utils': ^2.5.4
       '@remotion/renderer': ^2.5.4
       '@remotion/three': ^2.5.4
@@ -441,6 +442,7 @@ importers:
       '@remotion/eslint-config': link:../eslint-config
       '@remotion/eslint-plugin': link:../eslint-plugin
       '@remotion/gif': link:../gif
+      '@remotion/lambda': link:../lambda
       '@remotion/media-utils': link:../media-utils
       '@remotion/renderer': link:../renderer
       '@remotion/three': link:../three
@@ -511,9 +513,9 @@ importers:
       '@aws-sdk/client-s3': ^3.18.0
       '@aws-sdk/lib-storage': ^3.18.0
       '@jonny/eslint-config': ^2.1.242
-      '@remotion/bundler': 2.5.1
-      '@remotion/cli': 2.5.1
-      '@remotion/renderer': 2.5.1
+      '@remotion/bundler': 2.5.4
+      '@remotion/cli': 2.5.4
+      '@remotion/renderer': 2.5.4
       '@types/jest': ^27.0.2
       '@types/node': ^14.14.14
       '@types/prompt': ^1.1.0
@@ -527,7 +529,7 @@ importers:
       prettier: ^2.4.1
       prettier-plugin-organize-imports: ^2.3.4
       prompt: ^1.1.0
-      remotion: 2.5.1
+      remotion: 2.5.4
       ts-jest: ^27.0.5
       ts-node: ^9.1.1
       typescript: ^4.4.3
@@ -21817,7 +21819,7 @@ packages:
       abab: 2.0.5
       iconv-lite: 0.6.3
       source-map-js: 0.6.2
-      webpack: 5.60.0
+      webpack: 5.60.0_esbuild@0.11.23
     dev: false
 
   /source-map-resolve/0.5.3:

@@ -11,6 +11,7 @@ import {max, min} from './min-max';
 import {normalizeServeUrl} from './normalize-serve-url';
 import {openBrowser} from './open-browser';
 import {serveStatic} from './serve-static';
+import {spawnFfmpeg} from './stitcher';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
 import {binaryExists, validateFfmpeg} from './validate-ffmpeg';
 
@@ -28,7 +29,7 @@ export {FfmpegVersion} from './ffmpeg-flags';
 export {getCompositions} from './get-compositions';
 export {renderFrames} from './render';
 export {renderStill} from './render-still';
-export {stitchFramesToVideo} from './stitcher';
+export {stitchFramesToVideo, StitcherOptions} from './stitcher';
 export {OnStartData, RenderFramesOutput} from './types';
 export {BrowserLog} from './browser-log';
 
@@ -47,4 +48,5 @@ export const RenderInternals = {
 	min,
 	max,
 	normalizeServeUrl,
+	spawnFfmpeg,
 };

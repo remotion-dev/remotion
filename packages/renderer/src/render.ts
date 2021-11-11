@@ -25,11 +25,7 @@ import {OnStartData, RenderFramesOutput} from './types';
 type RenderFramesOptions = {
 	config: VideoConfig;
 	onStart: (data: OnStartData) => void;
-	onFrameUpdate: (
-		framesRendered: number,
-		src: string,
-		frameIndex: number
-	) => void;
+	onFrameUpdate: (framesRendered: number, frameIndex: number) => void;
 	outputDir: string;
 	inputProps: unknown;
 	envVariables?: Record<string, string>;
@@ -43,6 +39,8 @@ type RenderFramesOptions = {
 	puppeteerInstance?: PuppeteerBrowser;
 	browserExecutable?: BrowserExecutable;
 	onBrowserLog?: (log: BrowserLog) => void;
+	parallelEncoding?: boolean;
+	writeFrame?: (buffer?: Buffer) => void;
 };
 
 export const innerRenderFrames = async ({
@@ -63,6 +61,8 @@ export const innerRenderFrames = async ({
 	dumpBrowserLogs,
 	browser,
 	onBrowserLog,
+	parallelEncoding,
+	writeFrame,
 }: RenderFramesOptions & {
 	onError: (err: Error) => void;
 }): Promise<RenderFramesOutput> => {
@@ -170,11 +170,6 @@ export const innerRenderFrames = async ({
 					onError(new Error(`Error on rendering frame ${frame}: ${err.stack}`));
 				};
 
-				const output = path.join(
-					outputDir,
-					`element-${paddedIndex}.${imageFormat}`
-				);
-
 				freePage.on('pageerror', errorCallbackOnFrame);
 				freePage.on('error', errorCallbackOnFrame);
 				try {
@@ -198,15 +193,32 @@ export const innerRenderFrames = async ({
 				}
 
 				if (imageFormat !== 'none') {
-					await provideScreenshot({
-						page: freePage,
-						imageFormat,
-						quality,
-						options: {
-							frame,
-							output,
-						},
-					});
+					if (parallelEncoding) {
+						const buffer = await provideScreenshot({
+							page: freePage,
+							imageFormat,
+							quality,
+							options: {
+								frame,
+								output: undefined,
+							},
+						});
+						writeFrame?.(buffer);
+					} else {
+						const output = path.join(
+							outputDir,
+							`element-${paddedIndex}.${imageFormat}`
+						);
+						await provideScreenshot({
+							page: freePage,
+							imageFormat,
+							quality,
+							options: {
+								frame,
+								output,
+							},
+						});
+					}
 				}
 
 				const collectedAssets = await freePage.evaluate(() => {
@@ -214,7 +226,7 @@ export const innerRenderFrames = async ({
 				});
 				pool.release(freePage);
 				framesRendered++;
-				onFrameUpdate(framesRendered, output, frame);
+				onFrameUpdate(framesRendered, frame);
 				freePage.off('pageerror', errorCallbackOnFrame);
 				freePage.off('error', errorCallbackOnFrame);
 				return collectedAssets;

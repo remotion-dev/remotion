@@ -6,6 +6,7 @@ import {
 	stitchFramesToVideo,
 } from '@remotion/renderer';
 import chalk from 'chalk';
+import {ExecaChildProcess} from 'execa';
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
@@ -18,10 +19,10 @@ import {Log} from './log';
 import {parsedCli} from './parse-command-line';
 import {
 	createOverwriteableCliOutput,
-	makeRenderingProgress,
-	makeStitchingProgress,
+	makeRenderingAndStitchingProgress,
 } from './progress-bar';
 import {bundleOnCli} from './setup-cache';
+import {getUserPassedFileExtension} from './user-passed-output-location';
 import {checkAndValidateFfmpegVersion} from './validate-ffmpeg-version';
 
 export const render = async () => {
@@ -35,6 +36,7 @@ export const render = async () => {
 		codec,
 		proResProfile,
 		parallelism,
+		parallelEncoding,
 		frameRange,
 		shouldOutputImageSequence,
 		absoluteOutputFile,
@@ -71,7 +73,9 @@ export const render = async () => {
 		});
 	}
 
-	const steps = shouldOutputImageSequence ? 2 : 3;
+	const hasStitching = !shouldOutputImageSequence;
+
+	const steps = hasStitching ? 3 : 2;
 
 	const bundled = await bundleOnCli(fullPath, steps);
 
@@ -113,32 +117,81 @@ export const render = async () => {
 	const renderProgress = createOverwriteableCliOutput();
 	let totalFrames = 0;
 	const renderStart = Date.now();
-	const {assetsInfo} = await renderFrames({
-		config,
-		onFrameUpdate: (frame: number) => {
-			renderProgress.update(
-				makeRenderingProgress({
-					frames: frame,
+
+	let stitcherFfmpeg: ExecaChildProcess<string> | undefined;
+	let preStitcher;
+	let encodedFrames: number | null = null;
+	let renderedFrames = 0;
+	let preEncodedFileLocation: string | undefined;
+	const updateRenderProgress = () =>
+		renderProgress.update(
+			makeRenderingAndStitchingProgress({
+				rendering: {
+					frames: renderedFrames,
 					totalFrames,
 					concurrency: RenderInternals.getActualConcurrency(parallelism),
 					doneIn: null,
 					steps,
-				})
-			);
+				},
+				stitching: {
+					doneIn: null,
+					frames: encodedFrames ?? 0,
+					stage: 'encoding',
+					steps,
+					totalFrames,
+				},
+			})
+		);
+	if (parallelEncoding) {
+		if (typeof crf !== 'number') {
+			throw new TypeError('CRF is unexpectedly not a number');
+		}
+
+		preEncodedFileLocation = path.join(
+			outputDir,
+			'pre-encode.' + getUserPassedFileExtension()
+		);
+
+		preStitcher = await RenderInternals.spawnFfmpeg({
+			dir: outputDir,
+			width: config.width,
+			height: config.height,
+			fps: config.fps,
+			outputLocation: preEncodedFileLocation,
+			force: true,
+			imageFormat,
+			pixelFormat,
+			codec,
+			proResProfile,
+			crf,
+			parallelism,
+			onProgress: (frame: number) => {
+				encodedFrames = frame;
+				updateRenderProgress();
+			},
+			verbose: Internals.Logging.isEqualOrBelowLogLevel('verbose'),
+			parallelEncoding,
+			webpackBundle: bundled,
+			ffmpegExecutable,
+			assetsInfo: {assets: []},
+		});
+		stitcherFfmpeg = preStitcher.task;
+	}
+
+	const renderer = renderFrames({
+		config,
+		onFrameUpdate: (frame: number) => {
+			renderedFrames = frame;
+			updateRenderProgress();
 		},
 		parallelism,
+		parallelEncoding,
 		outputDir,
 		onStart: ({frameCount: fc}: OnStartData) => {
-			renderProgress.update(
-				makeRenderingProgress({
-					frames: 0,
-					totalFrames: fc,
-					concurrency: RenderInternals.getActualConcurrency(parallelism),
-					doneIn: null,
-					steps,
-				})
-			);
+			renderedFrames = 0;
+			if (parallelEncoding) encodedFrames = 0;
 			totalFrames = fc;
+			updateRenderProgress();
 		},
 		inputProps,
 		envVariables,
@@ -147,17 +200,36 @@ export const render = async () => {
 		browser,
 		frameRange: frameRange ?? null,
 		puppeteerInstance: openedBrowser,
+		writeFrame: async (buffer) => {
+			stitcherFfmpeg?.stdin?.write(buffer);
+		},
 		serveUrl,
 	});
+	const {assetsInfo} = await renderer;
+	if (stitcherFfmpeg) {
+		stitcherFfmpeg?.stdin?.end();
+		await stitcherFfmpeg;
+		preStitcher?.cleanup?.();
+	}
 
 	const closeBrowserPromise = openedBrowser.close();
+	const finalizedRenderProgress = {
+		frames: totalFrames,
+		totalFrames,
+		steps,
+		concurrency: RenderInternals.getActualConcurrency(parallelism),
+		doneIn: Date.now() - renderStart,
+	};
 	renderProgress.update(
-		makeRenderingProgress({
-			frames: totalFrames,
-			totalFrames,
-			steps,
-			concurrency: RenderInternals.getActualConcurrency(parallelism),
-			doneIn: Date.now() - renderStart,
+		makeRenderingAndStitchingProgress({
+			rendering: finalizedRenderProgress,
+			stitching: {
+				doneIn: null,
+				frames: encodedFrames ?? 0,
+				steps: 0,
+				stage: 'encoding',
+				totalFrames,
+			},
 		}) + '\n'
 	);
 	if (process.env.DEBUG) {
@@ -171,7 +243,6 @@ export const render = async () => {
 			throw new TypeError('CRF is unexpectedly not a number');
 		}
 
-		const stitchingProgress = createOverwriteableCliOutput();
 		const dirName = path.dirname(absoluteOutputFile);
 
 		if (!fs.existsSync(dirName)) {
@@ -180,14 +251,6 @@ export const render = async () => {
 			});
 		}
 
-		stitchingProgress.update(
-			makeStitchingProgress({
-				doneIn: null,
-				frames: 0,
-				steps,
-				totalFrames,
-			})
-		);
 		const stitchStart = Date.now();
 		await stitchFramesToVideo({
 			dir: outputDir,
@@ -195,6 +258,7 @@ export const render = async () => {
 			height: config.height,
 			fps: config.fps,
 			outputLocation: absoluteOutputFile,
+			preEncodedFileLocation,
 			force: overwrite,
 			imageFormat,
 			pixelFormat,
@@ -205,14 +269,16 @@ export const render = async () => {
 			parallelism,
 			ffmpegExecutable,
 			onProgress: (frame: number) => {
-				stitchingProgress.update(
-					makeStitchingProgress({
+				makeRenderingAndStitchingProgress({
+					rendering: finalizedRenderProgress,
+					stitching: {
 						doneIn: null,
 						frames: frame,
 						steps,
 						totalFrames,
-					})
-				);
+						stage: 'encoding',
+					},
+				});
 			},
 			onDownload: (src: string) => {
 				Log.info('Downloading asset... ', src);
@@ -220,12 +286,17 @@ export const render = async () => {
 			webpackBundle: bundled,
 			verbose: Internals.Logging.isEqualOrBelowLogLevel('verbose'),
 		});
-		stitchingProgress.update(
-			makeStitchingProgress({
-				doneIn: Date.now() - stitchStart,
-				frames: totalFrames,
-				steps,
-				totalFrames,
+		renderProgress.update(
+			makeRenderingAndStitchingProgress({
+				rendering: finalizedRenderProgress,
+
+				stitching: {
+					doneIn: Date.now() - stitchStart,
+					frames: totalFrames,
+					steps,
+					totalFrames,
+					stage: 'muxing',
+				},
 			}) + '\n'
 		);
 
