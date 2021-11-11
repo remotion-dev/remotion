@@ -66,11 +66,7 @@ export const makeRenderingProgress = ({
 		[doneIn ? 'Rendered' : 'Rendering', `frames (${concurrency}x)`]
 			.filter(Internals.truthy)
 			.join(' '),
-		doneIn === null
-			? `${frames
-					.toString()
-					.padStart(String(totalFrames).length, '0')}/${totalFrames}`
-			: chalk.gray(`${doneIn}ms`),
+		doneIn === null ? `${frames}/${totalFrames}` : chalk.gray(`${doneIn}ms`),
 	].join(' ');
 };
 
@@ -79,7 +75,7 @@ type StitchingProgressInput = {
 	totalFrames: number;
 	steps: number;
 	doneIn: number | null;
-	parallelEncoding: boolean;
+	stage: 'encoding' | 'muxing';
 };
 
 export const makeStitchingProgress = ({
@@ -87,13 +83,13 @@ export const makeStitchingProgress = ({
 	totalFrames,
 	steps,
 	doneIn,
-	parallelEncoding,
+	stage,
 }: StitchingProgressInput) => {
 	const progress = frames / totalFrames;
 	return [
 		`(3/${steps})`,
 		makeProgressBar(progress),
-		parallelEncoding
+		stage === 'muxing'
 			? `${doneIn ? 'Muxed' : 'Muxing'} audio`
 			: `${doneIn ? 'Encoded' : 'Encoding'} video`,
 		doneIn === null ? `${frames}/${totalFrames}` : chalk.gray(`${doneIn}ms`),
