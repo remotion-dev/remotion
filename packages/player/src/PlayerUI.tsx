@@ -150,6 +150,8 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		}
 	}, []);
 
+	const durationInFrames = config?.durationInFrames ?? 1;
+
 	useImperativeHandle(
 		ref,
 		() => {
@@ -160,12 +162,19 @@ const PlayerUI: React.ForwardRefRenderFunction<
 				getContainerNode: () => container.current,
 				getCurrentFrame: player.getCurrentFrame,
 				seekTo: (f) => {
+					const lastFrame = durationInFrames - 1;
+					const frameToSeekTo = Math.max(0, Math.min(lastFrame, f));
 					if (player.isPlaying()) {
-						setHasPausedToResume(true);
+						const pauseToResume = frameToSeekTo !== lastFrame || loop;
+						setHasPausedToResume(pauseToResume);
 						player.pause();
 					}
 
-					player.seek(f);
+					if (frameToSeekTo === lastFrame) {
+						player.pause();
+					}
+
+					player.seek(frameToSeekTo);
 				},
 				isFullscreen: () => isFullscreen,
 				requestFullscreen,
@@ -209,8 +218,10 @@ const PlayerUI: React.ForwardRefRenderFunction<
 			return Object.assign(player.emitter, methods);
 		},
 		[
+			durationInFrames,
 			exitFullscreen,
 			isFullscreen,
+			loop,
 			mediaMuted,
 			mediaVolume,
 			player,
