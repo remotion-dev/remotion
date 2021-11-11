@@ -50,7 +50,6 @@ import {
 	WebpackOverrideFn,
 } from './config/override-webpack';
 import {getShouldOverwrite} from './config/overwrite';
-import {getParallelEncoding} from './config/parallel-encoding';
 import {
 	DEFAULT_PIXEL_FORMAT,
 	getPixelFormat,
@@ -146,7 +145,6 @@ export const Internals = {
 	getIsEvaluation,
 	getPixelFormat,
 	getConcurrency,
-	getParallelEncoding,
 	getRange,
 	getShouldOverwrite,
 	getOutputCodecOrUndefined,

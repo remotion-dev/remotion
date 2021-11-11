@@ -16,7 +16,6 @@ import {
 	WebpackOverrideFn,
 } from './override-webpack';
 import {setOverwriteOutput} from './overwrite';
-import {setParallelEncoding} from './parallel-encoding';
 import {PixelFormat, setPixelFormat} from './pixel-format';
 import {setPort} from './preview-server';
 import {setProResProfile} from './prores-profile';
@@ -103,7 +102,6 @@ export const Config = {
 		 * Enabling parallel encoding means render frames and encode video at the same time.
 		 * The image will be passed directly into ffmpeg.
 		 */
-		setParallelEncoding,
 		/**
 		 * Specify local ffmpeg executable.
 		 * Default: null, which will use ffmpeg available in PATH.
