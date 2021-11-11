@@ -20,7 +20,6 @@ export const screenshotDOMElement = async ({
 	const {selector} = opts;
 
 	if (!selector) throw Error('Please provide a selector.');
-	// if (!path) throw Error('Please provide a path.');
 
 	if (imageFormat === 'png') {
 		await page.evaluate(() => {

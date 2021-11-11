@@ -36,7 +36,6 @@ export const makeBundlingProgress = ({
 	doneIn: number | null;
 }) =>
 	[
-		'📦',
 		`(1/${steps})`,
 		makeProgressBar(progress),
 		`${doneIn ? 'Bundled' : 'Bundling'} code`,
@@ -45,29 +44,42 @@ export const makeBundlingProgress = ({
 			: chalk.gray(`${doneIn}ms`),
 	].join(' ');
 
+type RenderingProgressInput = {
+	frames: number;
+	totalFrames: number;
+	steps: number;
+	concurrency: number;
+	doneIn: number | null;
+};
+
 export const makeRenderingProgress = ({
 	frames,
 	totalFrames,
 	steps,
 	concurrency,
 	doneIn,
-}: {
-	frames: number;
-	totalFrames: number;
-	steps: number;
-	concurrency: number;
-	doneIn: number | null;
-}) => {
+}: RenderingProgressInput) => {
 	const progress = frames / totalFrames;
 	return [
-		'🖼 ',
 		`(2/${steps})`,
 		makeProgressBar(progress),
 		[doneIn ? 'Rendered' : 'Rendering', `frames (${concurrency}x)`]
 			.filter(Internals.truthy)
 			.join(' '),
-		doneIn === null ? `${frames}/${totalFrames}` : chalk.gray(`${doneIn}ms`),
+		doneIn === null
+			? `${frames
+					.toString()
+					.padStart(String(totalFrames).length, '0')}/${totalFrames}`
+			: chalk.gray(`${doneIn}ms`),
 	].join(' ');
+};
+
+type StitchingProgressInput = {
+	frames: number;
+	totalFrames: number;
+	steps: number;
+	doneIn: number | null;
+	parallelEncoding: boolean;
 };
 
 export const makeStitchingProgress = ({
@@ -76,16 +88,9 @@ export const makeStitchingProgress = ({
 	steps,
 	doneIn,
 	parallelEncoding,
-}: {
-	frames: number;
-	totalFrames: number;
-	steps: number;
-	doneIn: number | null;
-	parallelEncoding?: boolean;
-}) => {
+}: StitchingProgressInput) => {
 	const progress = frames / totalFrames;
 	return [
-		'🎞 ',
 		`(3/${steps})`,
 		makeProgressBar(progress),
 		parallelEncoding
@@ -93,4 +98,17 @@ export const makeStitchingProgress = ({
 			: `${doneIn ? 'Encoded' : 'Encoding'} video`,
 		doneIn === null ? `${frames}/${totalFrames}` : chalk.gray(`${doneIn}ms`),
 	].join(' ');
+};
+
+export const makeRenderingAndStitchingProgress = ({
+	rendering,
+	stitching,
+}: {
+	rendering: RenderingProgressInput;
+	stitching: StitchingProgressInput | null;
+}) => {
+	return [
+		makeRenderingProgress(rendering),
+		stitching === null ? null : makeStitchingProgress(stitching),
+	].join('\n');
 };

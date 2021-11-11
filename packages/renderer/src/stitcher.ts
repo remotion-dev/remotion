@@ -62,7 +62,6 @@ const getAssetsData = async (options: StitcherOptions) => {
 	const codec = options.codec ?? Internals.DEFAULT_CODEC;
 	const encoderName = getCodecName(codec);
 	const isAudioOnly = encoderName === null;
-	// eslint-disable-next-line @typescript-eslint/no-shadow
 	const [frameInfo, fileUrlAssets] = await Promise.all([
 		options.preEncodedFileLocation
 			? undefined
@@ -81,7 +80,6 @@ const getAssetsData = async (options: StitcherOptions) => {
 	markAllAssetsAsDownloaded();
 	const assetPositions = calculateAssetPositions(fileUrlAssets);
 
-	// eslint-disable-next-line @typescript-eslint/no-shadow
 	const assetPaths = assetPositions.map((asset) => resolveAssetSrc(asset.src));
 
 	const assetAudioDetails = await getAssetAudioDetails({
@@ -103,7 +101,6 @@ const getAssetsData = async (options: StitcherOptions) => {
 		console.log('filters', filters);
 	}
 
-	// eslint-disable-next-line @typescript-eslint/no-shadow
 	const {complexFilterFlag, cleanup} = await createFfmpegComplexFilter(filters);
 
 	return {
@@ -114,7 +111,6 @@ const getAssetsData = async (options: StitcherOptions) => {
 	};
 };
 
-// eslint-disable-next-line complexity
 export const spawnFfmpeg = async (options: StitcherOptions) => {
 	Internals.validateDimension(
 		options.height,
@@ -243,7 +239,6 @@ export const spawnFfmpeg = async (options: StitcherOptions) => {
 		cwd: options.dir,
 	});
 	task.stderr?.on('data', (data: Buffer) => {
-		// console.log(data.toString());
 		if (options.onProgress) {
 			const parsed = parseFfmpegProgress(data.toString());
 			if (parsed !== undefined) {
@@ -254,7 +249,6 @@ export const spawnFfmpeg = async (options: StitcherOptions) => {
 	return {task, cleanup};
 };
 
-// eslint-disable-next-line complexity
 export const stitchFramesToVideo = async (
 	options: StitcherOptions
 ): Promise<void> => {

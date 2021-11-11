@@ -15,7 +15,7 @@ import express from 'express';
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
-import {webpackOverride} from './remotion.config';
+import {webpackOverride} from './webpack-override';
 
 const app = express();
 const port = process.env.PORT || 8000;
@@ -72,11 +72,10 @@ app.get('/', async (req, res) => {
 			inputProps: {
 				duration: 100,
 			},
-			compositionId,
 			imageFormat: 'jpeg',
 			// TODO: Update or remove server
 			serveUrl: 'fsdf',
-			puppeteerInstance: null,
+			puppeteerInstance: undefined,
 		});
 
 		const finalOutput = path.join(tmpDir, 'out.mp4');
