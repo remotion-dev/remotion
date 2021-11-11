@@ -119,7 +119,7 @@ export const render = async () => {
 
 	let stitcherFfmpeg: ExecaChildProcess<string> | undefined;
 	let preStitcher;
-	let encodedFrames: number | undefined;
+	let encodedFrames: number | null = null;
 	let renderedFrames: number;
 	let preEncodedFileLocation: string | undefined;
 	const updateRenderProgress = () =>
@@ -207,7 +207,6 @@ export const render = async () => {
 	renderProgress.update(
 		makeRenderingProgress({
 			frames: totalFrames,
-			encodedFrames: parallelEncoding ? totalFrames : undefined,
 			totalFrames,
 			steps,
 			concurrency: RenderInternals.getActualConcurrency(parallelism),
