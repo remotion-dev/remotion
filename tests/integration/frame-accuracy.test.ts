@@ -3,7 +3,7 @@ import fs from "fs";
 import os from "os";
 import path from "path";
 import sharp from "sharp";
-import { selectColor } from "../packages/example/src/Framer";
+import { selectColor } from "../../packages/example/src/Framer";
 
 const getMissedFramesforCodec = async (codec: "mp4" | "webm") => {
   const outputPath = await fs.promises.mkdtemp(
