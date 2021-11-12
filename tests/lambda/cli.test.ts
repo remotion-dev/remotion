@@ -1,4 +1,5 @@
-import { LambdaInternals, getFunctions } from "../../packages/lambda/src/index";
+import { cleanFnStore } from "../../packages/lambda/src/api/mock-functions";
+import { LambdaInternals } from "../../packages/lambda/src/index";
 
 const getConsoleOutput = () => {
   // @ts-expect-error
@@ -12,6 +13,7 @@ test("Deploy function", async () => {
 });
 
 test("Deploy function and list it", async () => {
+  cleanFnStore();
   await LambdaInternals.executeCommand(["functions", "deploy"]);
   process.stdout.write = jest.fn();
   await LambdaInternals.executeCommand(["functions", "ls"]);
@@ -19,5 +21,17 @@ test("Deploy function and list it", async () => {
   expect(getConsoleOutput()).toContain("Memory (MB)");
   expect(getConsoleOutput()).toMatch(
     /remotion-render-abcdef\s+(.*)\s+1024\s+120/g
+  );
+});
+
+test("Deploy function and it already exists should fail", async () => {
+  cleanFnStore();
+  await LambdaInternals.executeCommand(["functions", "deploy"]);
+  await expect(() =>
+    LambdaInternals.executeCommand(["functions", "deploy"])
+  ).rejects.toThrow(/Exited process with code 1/);
+
+  expect(getConsoleOutput()).toMatch(
+    /A function with version (.*) is already deployed in region us-east-1, it is called remotion-render-abcdef/
   );
 });

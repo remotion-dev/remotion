@@ -5,6 +5,7 @@ import {BINARY_NAME} from '../../shared/constants';
 import {parsedLambdaCli} from '../args';
 import {getAwsRegion} from '../get-aws-region';
 import {findFunctionName} from '../helpers/find-function-name';
+import {quit} from '../helpers/quit';
 import {Log} from '../log';
 
 export const STILL_COMMAND = 'still';
@@ -18,7 +19,7 @@ export const stillCommand = async (args: string[]) => {
 		);
 		Log.info();
 		Log.info(`${BINARY_NAME} ${STILL_COMMAND} <serve-url> <composition-id>`);
-		process.exit(1);
+		quit(1);
 	}
 
 	const composition = args[1];
@@ -28,7 +29,7 @@ export const stillCommand = async (args: string[]) => {
 		Log.info();
 		// TODO: Rename serveURL
 		Log.info(`${BINARY_NAME} ${STILL_COMMAND} <serve-url> <composition-id>`);
-		process.exit(1);
+		quit(1);
 	}
 
 	const cliOptions = await CliInternals.getCliOptions({

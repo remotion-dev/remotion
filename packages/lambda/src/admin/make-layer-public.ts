@@ -4,6 +4,7 @@ import {
 } from '@aws-sdk/client-lambda';
 import {lambda} from 'aws-policies';
 import {AwsRegion} from '..';
+import {quit} from '../cli/helpers/quit';
 import {AWS_REGIONS} from '../regions';
 import {getLambdaClient} from '../shared/aws-clients';
 import {CURRENT_VERSION} from '../shared/constants';
@@ -95,5 +96,5 @@ makeLayerPublic()
 	})
 	.catch((err) => {
 		console.log(err);
-		process.exit(1);
+		quit(1);
 	});

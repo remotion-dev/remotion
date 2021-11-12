@@ -1,5 +1,6 @@
 import prompt from 'prompt';
 import {forceFlagProvided} from '../args';
+import {quit} from './quit';
 
 export const confirmCli = async ({
 	delMessage,
@@ -28,7 +29,7 @@ export const confirmCli = async ({
 		}
 
 		if ((result[delMessage] as string).trim() === 'n') {
-			process.exit(1);
+			quit(1);
 		}
 	}
 };

@@ -3,6 +3,7 @@ import path from 'path';
 import {FUNCTION_ZIP} from '../shared/function-zip-path';
 import esbuild = require('esbuild');
 import zl = require('zip-lib');
+import {quit} from '../cli/helpers/quit';
 
 const bundleLambda = async () => {
 	const outdir = path.join(__dirname, '..', `build-render`);
@@ -35,5 +36,5 @@ bundleLambda()
 	})
 	.catch((err) => {
 		console.log(err);
-		process.exit(1);
+		quit(1);
 	});

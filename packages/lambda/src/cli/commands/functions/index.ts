@@ -1,6 +1,7 @@
 import {CliInternals} from '@remotion/cli';
 import {Log} from '@remotion/cli/dist/log';
 import {BINARY_NAME} from '../../../shared/constants';
+import {quit} from '../../helpers/quit';
 import {functionsDeploySubcommand, FUNCTIONS_DEPLOY_SUBCOMMAND} from './deploy';
 import {functionsLsCommand, FUNCTIONS_LS_SUBCOMMAND} from './ls';
 import {functionsRmCommand, FUNCTIONS_RM_SUBCOMMAND} from './rm';
@@ -42,7 +43,7 @@ export const functionsCommand = (args: string[]) => {
 	if (args[0]) {
 		Log.error(`Subcommand ${args[0]} not found.`);
 		printFunctionsHelp();
-		process.exit(1);
+		quit(1);
 	}
 
 	printFunctionsHelp();

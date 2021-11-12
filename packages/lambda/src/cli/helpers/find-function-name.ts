@@ -6,6 +6,7 @@ import {FUNCTIONS_LS_SUBCOMMAND} from '../commands/functions/ls';
 import {FUNCTIONS_RM_SUBCOMMAND} from '../commands/functions/rm';
 import {getAwsRegion} from '../get-aws-region';
 import {Log} from '../log';
+import {quit} from './quit';
 
 export const findFunctionName = async () => {
 	const remotionLambdas = await getFunctions({
@@ -31,7 +32,7 @@ export const findFunctionName = async () => {
 			`  npx ${BINARY_NAME} ${FUNCTIONS_COMMAND} ${FUNCTIONS_DEPLOY_SUBCOMMAND}`
 		);
 		Log.info(`to deploy a new lambda function.`);
-		process.exit(1);
+		quit(1);
 	}
 
 	if (lambdasWithMatchingVersion.length > 1) {
@@ -43,7 +44,7 @@ export const findFunctionName = async () => {
 			`  npx ${BINARY_NAME} ${FUNCTIONS_COMMAND} ${FUNCTIONS_RM_SUBCOMMAND} $(npx ${BINARY_NAME} ${FUNCTIONS_COMMAND} ${FUNCTIONS_LS_SUBCOMMAND} -q) -y`
 		);
 		Log.info('to delete all lambda functions.');
-		process.exit(1);
+		quit(1);
 	}
 
 	const {functionName} = lambdasWithMatchingVersion[0];
