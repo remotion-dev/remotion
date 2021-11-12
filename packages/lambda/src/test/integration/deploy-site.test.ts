@@ -3,17 +3,6 @@ import {deploySite} from '../../api/deploy-site';
 import {getDirFiles} from '../../api/upload-dir';
 import {lambdaLs} from '../../functions/helpers/io';
 
-jest.mock('../../api/get-buckets');
-jest.mock('../../functions/helpers/io');
-jest.mock('../../shared/bundle-site');
-jest.mock('../../shared/random-hash');
-jest.mock('../../shared/get-account-id');
-jest.mock('../../api/enable-s3-website');
-jest.mock('../../api/create-bucket');
-jest.mock('../../api/upload-dir');
-jest.mock('../../api/bucket-exists');
-jest.mock('../../api/clean-items');
-
 test('Should throw on wrong prefix', async () => {
 	await expect(() =>
 		deploySite({
