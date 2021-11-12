@@ -16,6 +16,9 @@ Keep track of changes to the APIs of Remotion Lambda here.
 
 ## November 12th, 2021
 
+Version hash: `3.0.0-lambda.91+64e6b73a8`
+Lambda version: '2021-11-12'
+
 - **Breaking change**: Update your AWS user and role policies
 
 1. Update to the newest version of Remotion Lambda.
