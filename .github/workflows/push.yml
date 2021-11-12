@@ -32,7 +32,9 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Test
-        run: npx jest --root-dir tests/lambda
+        run: |
+          pnpm build
+          npx jest --root-dir tests/lambda
   build:
     name: Build Node ${{ matrix.node_version }} - ffmpeg ${{ matrix.ffmpeg_version }} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
