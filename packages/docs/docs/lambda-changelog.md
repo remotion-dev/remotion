@@ -30,7 +30,7 @@ Lambda version: '2021-11-12'
 - Switched to new rendering mechanism which renders + encodes the video in parallel, saving a significant amount of render time!
 - Improved CLI output of `npx remotion lambda render`
 - Added changes from 2.5.1 - 2.5.4
-- Disabled automatic AWS Lamdba retrying in favor of our own retry mechanism
+- Disabled automatic AWS Lambda retrying in favor of our own retry mechanism
 
 ## November 1st, 2021
 
