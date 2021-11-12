@@ -29,7 +29,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Test
-        run: npx jest --root-dir lambda-tests
+        run: npx jest --root-dir tests/lambda
   build:
     if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name != 'remotion-dev/remotion'
     name: Build Node ${{ matrix.node_version }} - ffmpeg ${{ matrix.ffmpeg_version }} on ${{ matrix.os }}
