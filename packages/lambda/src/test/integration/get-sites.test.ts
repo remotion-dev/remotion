@@ -1,17 +1,6 @@
 import {deploySite, getOrCreateBucket} from '../..';
 import {getSites} from '../../api/get-sites';
 
-jest.mock('../../api/get-buckets');
-jest.mock('../../functions/helpers/io');
-jest.mock('../../shared/bundle-site');
-jest.mock('../../shared/get-account-id');
-jest.mock('../../api/enable-s3-website');
-jest.mock('../../api/upload-dir');
-jest.mock('../../api/clean-items');
-jest.mock('../../api/create-bucket');
-jest.mock('../../api/bucket-exists');
-jest.mock('../../shared/random-hash');
-
 test('Should have no buckets at first', async () => {
 	expect(
 		await getSites({

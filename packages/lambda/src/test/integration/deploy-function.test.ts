@@ -7,20 +7,6 @@ import {
 } from '../../api/mock-functions';
 import {CURRENT_VERSION} from '../../shared/constants';
 
-jest.mock('../../api/get-buckets');
-jest.mock('../../functions/helpers/io');
-jest.mock('../../shared/bundle-site');
-jest.mock('../../shared/random-hash');
-jest.mock('../../api/enable-s3-website');
-jest.mock('../../api/create-bucket');
-jest.mock('../../api/upload-dir');
-jest.mock('../../api/bucket-exists');
-jest.mock('../../api/clean-items');
-jest.mock('../../api/create-function');
-jest.mock('../../api/delete-function');
-jest.mock('../../api/get-functions');
-jest.mock('../../shared/get-account-id');
-
 test('Should be able to deploy function', async () => {
 	const {functionName} = await deployFunction({
 		memorySizeInMb: 2048,

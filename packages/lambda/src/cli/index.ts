@@ -94,10 +94,7 @@ export const executeCommand = async (args: string[]) => {
 		await matchCommand(args);
 	} catch (err) {
 		const error = err as Error;
-		if (
-			error.stack?.includes('AccessDenied') ||
-			error.stack?.includes('AccessDeniedException')
-		) {
+		if (error.stack?.includes('AccessDenied')) {
 			// TODO: Explain permission problem
 			Log.error('PERMISSION PROBLEM PUT HELPFUL MESSAGE HERE');
 		}
