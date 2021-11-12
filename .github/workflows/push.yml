@@ -1,4 +1,7 @@
-on: [push, pull_request]
+push:
+  branches:
+    - main
+pull_request:
 name: Install and Test
 jobs:
   lambda-tests:
