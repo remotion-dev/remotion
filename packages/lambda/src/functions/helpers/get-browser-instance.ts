@@ -47,6 +47,10 @@ export const getBrowserInstance = async (
 		browserExecutable: execPath,
 		shouldDumpIo,
 	});
+	_browserInstance.on('disconnected', () => {
+		_browserInstance?.close().catch(() => undefined);
+		_browserInstance = null;
+	});
 	launching = false;
 	return _browserInstance;
 };
