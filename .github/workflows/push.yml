@@ -34,7 +34,7 @@ jobs:
       - name: Test
         run: |
           pnpm build
-          npx jest --root-dir tests/lambda
+          pnpm run testlambda
   build:
     name: Build Node ${{ matrix.node_version }} - ffmpeg ${{ matrix.ffmpeg_version }} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}

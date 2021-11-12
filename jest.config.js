@@ -3,5 +3,4 @@ module.exports = {
   testEnvironment: "node",
   rootDir: "tests",
   testTimeout: 240000,
-  resetMocks: true,
 };
