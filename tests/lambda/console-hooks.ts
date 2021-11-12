@@ -11,6 +11,7 @@ export const getProcessStdErrOutput = () => {
 };
 
 const originalStdout = process.stdout.write;
+const originalConsoleLog = console.log;
 const originalStderr = process.stderr.write;
 
 beforeEach(() => {
@@ -19,6 +20,11 @@ beforeEach(() => {
   cleanFnStore();
   // @ts-expect-error
   process.stdout.write = (str: string) => {
+    // originalStdout(str);
+    stdoutOutput.push(str);
+  };
+  // @ts-expect-error
+  console.log.write = (str: string) => {
     // originalStdout(str);
     stdoutOutput.push(str);
   };
@@ -33,4 +39,5 @@ beforeEach(() => {
 afterEach(() => {
   process.stdout.write = originalStdout;
   process.stderr.write = originalStderr;
+  console.log = originalConsoleLog;
 });

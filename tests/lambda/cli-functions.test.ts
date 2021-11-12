@@ -1,4 +1,4 @@
-import { LambdaInternals } from "../../packages/lambda/src/index";
+import { LambdaInternals } from "@remotion/lambda/src";
 import { getProcessWriteOutput } from "./console-hooks";
 
 test("Deploy function", async () => {
