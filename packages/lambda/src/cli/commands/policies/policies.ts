@@ -1,5 +1,6 @@
 import {CliInternals} from '@remotion/cli';
 import {BINARY_NAME} from '../../../shared/constants';
+import {quit} from '../../helpers/quit';
 import {Log} from '../../log';
 import {roleSubcommand, ROLE_SUBCOMMAND} from './role';
 import {userSubcommand, USER_SUBCOMMAND} from './user';
@@ -50,7 +51,7 @@ export const policiesCommand = (args: string[]) => {
 	if (args[0]) {
 		Log.error(`Subcommand ${args[0]} not found.`);
 		printPoliciesHelp();
-		process.exit(1);
+		quit(1);
 	}
 
 	printPoliciesHelp();

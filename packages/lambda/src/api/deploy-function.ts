@@ -1,5 +1,6 @@
+import {getFunctions} from '..';
 import {AwsRegion} from '../pricing/aws-regions';
-import {RENDER_FN_PREFIX} from '../shared/constants';
+import {CURRENT_VERSION, RENDER_FN_PREFIX} from '../shared/constants';
 import {FUNCTION_ZIP} from '../shared/function-zip-path';
 import {getAccountId} from '../shared/get-account-id';
 import {randomHash} from '../shared/random-hash';
@@ -22,13 +23,28 @@ export const deployFunction = async (options: {
 	region: AwsRegion;
 	timeoutInSeconds: number;
 	memorySizeInMb: number;
-}) => {
+}): Promise<{
+	functionName: string;
+}> => {
 	validateMemorySize(options.memorySizeInMb);
 	validateTimeout(options.timeoutInSeconds);
 	validateAwsRegion(options.region);
 
 	const fnNameRender = RENDER_FN_PREFIX + randomHash();
 	const accountId = await getAccountId({region: options.region});
+
+	const fns = await getFunctions({
+		compatibleOnly: true,
+		region: options.region,
+	});
+
+	const alreadyDeployed = fns.find((f) => f.version === CURRENT_VERSION);
+
+	if (alreadyDeployed) {
+		throw new Error(
+			`A function with version ${CURRENT_VERSION} is already deployed in region ${options.region}, it is called ${alreadyDeployed.functionName}`
+		);
+	}
 
 	const created = await createFunction({
 		createCloudWatchLogGroup: options.createCloudWatchLogGroup,

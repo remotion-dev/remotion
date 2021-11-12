@@ -4,6 +4,7 @@ import {getFunctionInfo} from '../../../api/get-function-info';
 import {BINARY_NAME} from '../../../shared/constants';
 import {getAwsRegion} from '../../get-aws-region';
 import {confirmCli} from '../../helpers/confirm';
+import {quit} from '../../helpers/quit';
 import {Log} from '../../log';
 import {FUNCTIONS_COMMAND} from './index';
 import {FUNCTIONS_LS_SUBCOMMAND} from './ls';
@@ -21,7 +22,7 @@ export const functionsRmCommand = async (args: string[]) => {
 		Log.info(
 			`You can run \`${BINARY_NAME} ${FUNCTIONS_COMMAND} ${FUNCTIONS_LS_SUBCOMMAND}\` to see a list of deployed Lambda functions.`
 		);
-		process.exit(1);
+		quit(1);
 	}
 
 	for (const functionName of args) {

@@ -13,6 +13,7 @@ import {getAwsRegion} from '../../get-aws-region';
 import {findFunctionName} from '../../helpers/find-function-name';
 import {formatBytes} from '../../helpers/format-bytes';
 import {getCloudwatchStreamUrl} from '../../helpers/get-cloudwatch-stream-url';
+import {quit} from '../../helpers/quit';
 import {Log} from '../../log';
 import {makeMultiProgressFromStatus, makeProgressString} from './progress';
 
@@ -27,7 +28,7 @@ export const renderCommand = async (args: string[]) => {
 		);
 		Log.info();
 		Log.info(`${BINARY_NAME} ${RENDER_COMMAND} <serve-url> <composition-id>`);
-		process.exit(1);
+		quit(1);
 	}
 
 	const composition = args[1];
@@ -37,7 +38,7 @@ export const renderCommand = async (args: string[]) => {
 		Log.info();
 		// TODO: Rename serveURL
 		Log.info(`${BINARY_NAME} ${RENDER_COMMAND} <serve-url> <composition-id>`);
-		process.exit(1);
+		quit(1);
 	}
 
 	const outName = args[2] ?? null;
@@ -172,7 +173,7 @@ export const renderCommand = async (args: string[]) => {
 				`${newStatus.renderMetadata?.estimatedTotalLambdaInvokations} λ's used, Estimated cost $${newStatus.costs.displayCost}`
 			);
 
-			process.exit(0);
+			quit(0);
 		}
 
 		if (newStatus.fatalErrorEncountered) {
@@ -189,7 +190,7 @@ export const renderCommand = async (args: string[]) => {
 			}
 
 			Log.error('Fatal error encountered. Exiting.');
-			process.exit(1);
+			quit(1);
 		}
 	}
 };

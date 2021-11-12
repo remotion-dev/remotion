@@ -9,6 +9,7 @@ import {renderCommand, RENDER_COMMAND} from './commands/render/render';
 import {sitesCommand, SITES_COMMAND} from './commands/sites';
 import {stillCommand, STILL_COMMAND} from './commands/still';
 import {printHelp} from './help';
+import {quit} from './helpers/quit';
 import {Log} from './log';
 
 const requiresCredentials = (args: string[]) => {
@@ -28,7 +29,7 @@ const requiresCredentials = (args: string[]) => {
 const matchCommand = async (args: string[]) => {
 	if (parsedLambdaCli.help || args.length === 0) {
 		printHelp();
-		process.exit(0);
+		quit(0);
 	}
 
 	if (requiresCredentials(args)) {
@@ -59,14 +60,14 @@ const matchCommand = async (args: string[]) => {
 		Log.info('The command has been renamed.');
 		Log.info('Before: remotion-lambda upload <entry-point>');
 		Log.info('After: remotion lambda sites create <entry-point>');
-		process.exit(1);
+		quit(1);
 	}
 
 	if (args[0] === 'deploy') {
 		Log.info('The command has been renamed.');
 		Log.info('Before: remotion-lambda deploy');
 		Log.info('After: remotion lambda functions deploy');
-		process.exit(1);
+		quit(1);
 	}
 
 	if (args[0] === 'ls') {
@@ -86,7 +87,7 @@ const matchCommand = async (args: string[]) => {
 
 	Log.error(`Command ${args[0]} not found.`);
 	printHelp();
-	process.exit(1);
+	quit(1);
 };
 
 export const executeCommand = async (args: string[]) => {
@@ -100,7 +101,7 @@ export const executeCommand = async (args: string[]) => {
 		}
 
 		Log.error(error.stack);
-		process.exit(1);
+		quit(1);
 	}
 };
 

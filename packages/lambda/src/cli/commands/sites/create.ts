@@ -14,6 +14,7 @@ import {
 	makeBundleProgress,
 	makeDeployProgressBar,
 } from '../../helpers/progress-bar';
+import {quit} from '../../helpers/quit';
 import {Log} from '../../log';
 
 export const SITES_CREATE_SUBCOMMAND = 'create';
@@ -27,7 +28,7 @@ export const sitesCreateSubcommand = async (args: string[]) => {
 		);
 		Log.info();
 		Log.info(`${BINARY_NAME} deploy <entry-file.ts>`);
-		process.exit(1);
+		quit(1);
 	}
 
 	const absoluteFile = path.join(process.cwd(), fileName);
@@ -35,14 +36,14 @@ export const sitesCreateSubcommand = async (args: string[]) => {
 		Log.error(
 			`No file exists at ${absoluteFile}. Make sure the path exists and try again.`
 		);
-		process.exit(1);
+		quit(1);
 	}
 
 	if (lstatSync(absoluteFile).isDirectory()) {
 		Log.error(
 			`You passed a path ${absoluteFile} but it is a directory. Pass a file instead.`
 		);
-		process.exit(1);
+		quit(1);
 	}
 
 	const progressBar = CliInternals.createOverwriteableCliOutput();
