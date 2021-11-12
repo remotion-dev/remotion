@@ -14,11 +14,21 @@ Keep track of changes to the APIs of Remotion Lambda here.
 1. Redeploy your function: `npx remotion lambda functions deploy`
 1. Migrate according to the changelog below:
 
-## Unreleased
+## November 12th, 2021
 
-- **Breaking change**: Update your AWS User policy to include the `lambda:PutFunctionEventInvokeConfig` permission. We will now prevent AWS from retrying failed Lambda functions and only use our own retry system.
+- **Breaking change**: Update your AWS user and role policies
 
-Read [Step 4](https://remotion-lambda-alpha.netlify.app/docs/lambda/setup#4-create-a-user) of the setup guide and update the user with the newest policy (`npx remotion lambda policies user`).
+1. Update to the newest version of Remotion Lambda.
+1. Read [Step 2](/docs/lambda/setup#2-create-role-policy) of the setup guide and update the role with the newest policy (`npx remotion lambda policies role`).
+1. Read [Step 5](/docs/lambda/setup#5-add-permissions-to-your-user) of the setup guide and update the user with the newest policy (`npx remotion lambda policies user`).
+
+- **Breaking change**: If your application throws an error or exception, the render will now fail. This will be the default behavior of Remotion 3.0.
+
+- Added CloudWatch support, now you can read the logs inside the Lambda function. When you execute `npx remotion lambda render`, add the `--log=verbose` flag to print out an URL to CloudWatch.
+- Switched to new rendering mechanism which renders + encodes the video in parallel, saving a significant amount of render time!
+- Improved CLI output of `npx remotion lambda render`
+- Added changes from 2.5.1 - 2.5.4
+- Disabled automatic AWS Lamdba retrying in favor of our own retry mechanism
 
 ## November 1st, 2021
 
