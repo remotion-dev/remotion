@@ -2,7 +2,6 @@ on: [push, pull_request]
 name: Install and Test
 jobs:
   lambda-tests:
-    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name != 'remotion-dev/remotion'
     runs-on: ubuntu-latest
     name: Lambda integration
     steps:
