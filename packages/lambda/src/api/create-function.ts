@@ -15,6 +15,7 @@ import {
 } from '../defaults';
 import {getCloudWatchLogsClient, getLambdaClient} from '../shared/aws-clients';
 import {hostedLayers} from '../shared/hosted-layers';
+import {ROLE_NAME} from './iam-validation/suggested-policy';
 
 export const createFunction = async ({
 	createCloudWatchLogGroup,
@@ -55,8 +56,7 @@ export const createFunction = async ({
 			},
 			FunctionName: functionName,
 			Handler: 'index.handler',
-			// TODO: Give helpful suggestion if user did not create role
-			Role: `arn:aws:iam::${accountId}:role/remotion-lambda-role`,
+			Role: `arn:aws:iam::${accountId}:role/${ROLE_NAME}`,
 			Runtime: 'nodejs14.x',
 			Description: 'Renders a Remotion video.',
 			MemorySize: memorySizeInMb,

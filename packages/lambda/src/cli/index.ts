@@ -1,5 +1,7 @@
 import {CliInternals} from '@remotion/cli';
+import {ROLE_NAME} from '../api/iam-validation/suggested-policy';
 import {checkCredentials} from '../shared/check-credentials';
+import {DOCS_URL} from '../shared/docs-url';
 import {parsedLambdaCli} from './args';
 import {functionsCommand, FUNCTIONS_COMMAND} from './commands/functions';
 import {policiesCommand, POLICIES_COMMAND} from './commands/policies/policies';
@@ -95,6 +97,22 @@ export const executeCommand = async (args: string[]) => {
 		await matchCommand(args);
 	} catch (err) {
 		const error = err as Error;
+		if (
+			error.message.includes(
+				'The role defined for the function cannot be assumed by Lambda'
+			)
+		) {
+			Log.error(
+				`
+The role "${ROLE_NAME}" does not exist in your AWS account or has the wrong policy assigned to it. Common reasons:
+- The name of the role is not "${ROLE_NAME}"
+- The policy is not exactly as specified in the setup guide
+
+Revisit ${DOCS_URL}/docs/lambda/setup and make sure you set up the role and role policy correctly. The original error message is:
+`.trim()
+			);
+		}
+
 		if (error.stack?.includes('AccessDenied')) {
 			// TODO: Explain permission problem
 			Log.error('PERMISSION PROBLEM PUT HELPFUL MESSAGE HERE');
