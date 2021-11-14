@@ -57,15 +57,16 @@ export const innerRenderFrames = async ({
 	serveUrl,
 	onError,
 	envVariables,
-	browserExecutable,
-	dumpBrowserLogs,
-	browser,
 	onBrowserLog,
 	parallelEncoding,
 	writeFrame,
 }: RenderFramesOptions & {
 	onError: (err: Error) => void;
 }): Promise<RenderFramesOutput> => {
+	if (!puppeteerInstance) {
+		throw new Error('weird');
+	}
+
 	Internals.validateDimension(
 		config.height,
 		'height',
@@ -94,15 +95,8 @@ export const innerRenderFrames = async ({
 
 	const actualParallelism = getActualConcurrency(parallelism ?? null);
 
-	const browserInstance =
-		puppeteerInstance ??
-		(await openBrowser(browser ?? Internals.DEFAULT_BROWSER, {
-			shouldDumpIo: dumpBrowserLogs,
-			browserExecutable,
-		}));
-
 	const pages = new Array(actualParallelism).fill(true).map(async () => {
-		const page = await browserInstance.newPage();
+		const page = await puppeteerInstance.newPage();
 		page.setViewport({
 			width: config.width,
 			height: config.height,
@@ -142,7 +136,6 @@ export const innerRenderFrames = async ({
 		page.off('console', logCallback);
 		return page;
 	});
-	const {stopCycling} = cycleBrowserTabs(browserInstance);
 
 	const puppeteerPages = await Promise.all(pages);
 	const pool = new Pool(puppeteerPages);
@@ -232,20 +225,6 @@ export const innerRenderFrames = async ({
 				return collectedAssets;
 			})
 	);
-	stopCycling();
-	// If browser instance was passed in, we close all the pages
-	// we opened.
-	// If new browser was opened, then closing the browser as a cleanup.
-
-	if (puppeteerInstance) {
-		await Promise.all(puppeteerPages.map((p) => p.close())).catch((err) => {
-			console.log('Unable to close browser tab', err);
-		});
-	} else {
-		browserInstance.close().catch((err) => {
-			console.log('Unable to close browser', err);
-		});
-	}
 
 	return {
 		assetsInfo: {
@@ -255,12 +234,47 @@ export const innerRenderFrames = async ({
 	};
 };
 
-export const renderFrames = (
+export const renderFrames = async (
 	options: RenderFramesOptions
 ): Promise<RenderFramesOutput> => {
+	const browserInstance =
+		options.puppeteerInstance ??
+		(await openBrowser(options.browser ?? Internals.DEFAULT_BROWSER, {
+			shouldDumpIo: options.dumpBrowserLogs,
+			browserExecutable: options.browserExecutable,
+		}));
+	const {stopCycling} = cycleBrowserTabs(browserInstance);
+
 	return new Promise<RenderFramesOutput>((resolve, reject) => {
-		innerRenderFrames({...options, onError: (err) => reject(err)})
+		// eslint-disable-next-line promise/catch-or-return
+		innerRenderFrames({
+			...options,
+			puppeteerInstance: browserInstance,
+			onError: (err) => reject(err),
+		})
 			.then((res) => resolve(res))
-			.catch((err) => reject(err));
+			.catch((err) => reject(err))
+			.finally(() => {
+				// If browser instance was passed in, we close all the pages
+				// we opened.
+				// If new browser was opened, then closing the browser as a cleanup.
+
+				if (options.puppeteerInstance) {
+					browserInstance
+						.pages()
+						.then((pages) => {
+							return Promise.all(pages.map((p) => p.close()));
+						})
+						.catch((err) => {
+							console.log('Unable to close browser tab', err);
+						});
+				} else {
+					browserInstance.close().catch((err) => {
+						console.log('Unable to close browser', err);
+					});
+				}
+
+				stopCycling();
+			});
 	});
 };

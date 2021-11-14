@@ -8,7 +8,6 @@ import {
 } from '@aws-sdk/client-lambda';
 import {readFileSync} from 'fs';
 import {AwsRegion} from '..';
-import {Log} from '../cli/log';
 import {
 	DEFAULT_CLOUDWATCH_RETENTION_PERIOD,
 	LOG_GROUP_PREFIX,

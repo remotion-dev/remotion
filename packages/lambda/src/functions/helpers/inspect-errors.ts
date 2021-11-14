@@ -6,6 +6,7 @@ import {streamToString} from '../../shared/stream-to-string';
 import {lambdaReadFile} from './io';
 import {
 	errorIsOutOfSpaceError,
+	isBrowserCrashedError,
 	isErrInsufficientResourcesErr,
 } from './is-enosp-err';
 import {EnhancedErrorInfo, LambdaErrorInfo} from './write-lambda-error';
@@ -33,6 +34,10 @@ const getExplanation = (stack: string) => {
 
 	if (isErrInsufficientResourcesErr(stack)) {
 		return 'The lambda ran out of memory. Deploy a new function with more memory.';
+	}
+
+	if (isBrowserCrashedError(stack)) {
+		return 'The browser crashed while rendering the video. Deploy a new function with memory to give the browser more resources.';
 	}
 
 	return null;
