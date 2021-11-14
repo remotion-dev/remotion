@@ -1,6 +1,7 @@
 import {getFunctions} from '..';
 import {AwsRegion} from '../pricing/aws-regions';
 import {CURRENT_VERSION, RENDER_FN_PREFIX} from '../shared/constants';
+import {DOCS_URL} from '../shared/docs-url';
 import {FUNCTION_ZIP} from '../shared/function-zip-path';
 import {getAccountId} from '../shared/get-account-id';
 import {randomHash} from '../shared/random-hash';
@@ -42,7 +43,7 @@ export const deployFunction = async (options: {
 
 	if (alreadyDeployed) {
 		throw new Error(
-			`A function with version ${CURRENT_VERSION} is already deployed in region ${options.region}, it is called ${alreadyDeployed.functionName}`
+			`Already found a function (${alreadyDeployed.functionName}) with version ${CURRENT_VERSION} deployed in region ${options.region}. You only need 1 function per region, see ${DOCS_URL}/docs/lambda/faq#do-i-need-to-deploy-a-function-for-each-render `
 		);
 	}
 
