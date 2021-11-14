@@ -51,7 +51,7 @@ export const getProgress = async ({
 			cleanup: {
 				doneIn: postRenderData.timeToCleanUp,
 				filesDeleted: postRenderData.filesCleanedUp,
-				filesToDelete: postRenderData.filesCleanedUp,
+				minFilesToDelete: postRenderData.filesCleanedUp,
 			},
 			costs: {
 				accruedSoFar: postRenderData.cost.estimatedCost,
@@ -206,7 +206,7 @@ export const getProgress = async ({
 		timeToInvokeLambdas:
 			encodingStatus?.timeToInvoke ?? lambdasInvokedStats.timeToInvokeLambdas,
 		overallProgress: getOverallProgress({
-			cleanup: cleanup ? cleanup.filesDeleted / cleanup.filesToDelete : 0,
+			cleanup: cleanup ? cleanup.filesDeleted / cleanup.minFilesToDelete : 0,
 			encoding:
 				finalEncodingStatus && renderMetadata
 					? finalEncodingStatus.framesEncoded /

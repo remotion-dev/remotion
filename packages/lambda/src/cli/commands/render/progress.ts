@@ -110,8 +110,8 @@ const makeCleanupProgress = (
 		return '';
 	}
 
-	const {doneIn, filesDeleted, filesToDelete} = cleanupInfo;
-	const progress = filesDeleted / filesToDelete;
+	const {doneIn, filesDeleted, minFilesToDelete} = cleanupInfo;
+	const progress = filesDeleted / minFilesToDelete;
 	return [
 		'🪣 ',
 		`(4/${totalSteps})`,
