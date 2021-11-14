@@ -186,6 +186,10 @@ export const renderCommand = async (args: string[]) => {
 					Log.error(`Error occurred when rendering chunk ${err.chunk}:`);
 				}
 
+				if (err.explanation) {
+					Log.error(err.explanation);
+				}
+
 				Log.error(err.stack);
 			}
 
