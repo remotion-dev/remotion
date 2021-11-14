@@ -8,3 +8,7 @@ export const errorIsOutOfSpaceError = (err: string) => {
 export const isErrInsufficientResourcesErr = (err: string) => {
 	return err.includes('net::ERR_INSUFFICIENT_RESOURCES');
 };
+
+export const isBrowserCrashedError = (err: string) => {
+	return err.includes('Target closed.');
+};

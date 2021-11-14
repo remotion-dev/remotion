@@ -61,16 +61,11 @@ const getPageAndCleanupFn = async ({
 
 const innerGetCompositions = async (
 	serveUrl: string,
+	page: Page,
 	config: GetCompositionsConfig & {
 		onError: (err: Error) => void;
 	}
 ): Promise<TCompMetadata[]> => {
-	const {page, cleanup} = await getPageAndCleanupFn({
-		passedInInstance: config?.browserInstance,
-		browser: config?.browser ?? Internals.DEFAULT_BROWSER,
-		browserExecutable: config?.browserExecutable ?? null,
-	});
-
 	page.on('error', (err) => {
 		console.log(err);
 		config.onError(err);
@@ -115,17 +110,22 @@ const innerGetCompositions = async (
 	await page.waitForFunction('window.ready === true');
 	const result = await page.evaluate('window.getStaticCompositions()');
 
-	cleanup();
-
 	return result as TCompMetadata[];
 };
 
-export const getCompositions = (
+export const getCompositions = async (
 	serveUrl: string,
 	config?: GetCompositionsConfig
 ) => {
+	const {page, cleanup} = await getPageAndCleanupFn({
+		passedInInstance: config?.browserInstance,
+		browser: config?.browser ?? Internals.DEFAULT_BROWSER,
+		browserExecutable: config?.browserExecutable ?? null,
+	});
+
 	return new Promise<TCompMetadata[]>((resolve, reject) => {
-		innerGetCompositions(serveUrl, {
+		// eslint-disable-next-line promise/catch-or-return
+		innerGetCompositions(serveUrl, page, {
 			...(config ?? {}),
 			onError: (err) => {
 				reject(err);
@@ -134,6 +134,7 @@ export const getCompositions = (
 			.then((comp) => resolve(comp))
 			.catch((err) => {
 				reject(err);
-			});
+			})
+			.finally(() => cleanup());
 	});
 };

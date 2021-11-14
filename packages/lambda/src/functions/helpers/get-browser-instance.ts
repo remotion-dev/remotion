@@ -48,6 +48,7 @@ export const getBrowserInstance = async (
 		shouldDumpIo,
 	});
 	_browserInstance.on('disconnected', () => {
+		console.log('Browser disconnected / crashed');
 		_browserInstance?.close().catch(() => undefined);
 		_browserInstance = null;
 	});
