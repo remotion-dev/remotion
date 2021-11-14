@@ -25,6 +25,6 @@ test("Deploy function and it already exists should fail", async () => {
   ).rejects.toThrow(/Exited process with code 1/);
 
   expect(getProcessStdErrOutput()).toMatch(
-    /Error: Already found a function remotion-render-abcdef with version (.*) deployed in region us-east-1/
+    /Error: Already found a function \(remotion-render-abcdef\) with version (.*) deployed in region us-east-1/
   );
 });
