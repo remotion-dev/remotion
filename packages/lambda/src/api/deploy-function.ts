@@ -12,7 +12,7 @@ import {createFunction} from './create-function';
 
 /**
  * @description Creates an AWS Lambda function in your account that will be able to render a video in the cloud.
- * @link https://remotion.dev/docs/lambda/deployfunction
+ * @link https://remotion-lambda-alpha.netlify.app/docs/lambda/deployfunction
  * @param options.createCloudWatchLogGroup Whether you'd like to create a CloudWatch Log Group to store the logs for this function.
  * @param options.region The region you want to deploy your function to.
  * @param options.timeoutInSeconds After how many seconds the lambda function should be killed if it does not end itself.
