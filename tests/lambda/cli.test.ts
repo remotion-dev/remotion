@@ -1,5 +1,5 @@
-import { LambdaInternals } from "@remotion/lambda/src";
-import { getProcessWriteOutput } from "./console-hooks";
+import { LambdaInternals } from "../../packages/lambda/src/index";
+import { getProcessStdErrOutput, getProcessWriteOutput } from "./console-hooks";
 
 test("Deploy function", async () => {
   await LambdaInternals.executeCommand(["functions", "deploy"]);
@@ -24,7 +24,7 @@ test("Deploy function and it already exists should fail", async () => {
     LambdaInternals.executeCommand(["functions", "deploy"])
   ).rejects.toThrow(/Exited process with code 1/);
 
-  expect(getProcessWriteOutput()).toMatch(
+  expect(getProcessStdErrOutput()).toMatch(
     /A function with version (.*) is already deployed in region us-east-1, it is called remotion-render-abcdef/
   );
 });
