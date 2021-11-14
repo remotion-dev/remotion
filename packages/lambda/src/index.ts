@@ -1,5 +1,9 @@
 import {deleteFunction} from './api/delete-function';
-import {deleteSite} from './api/delete-site';
+import {
+	deleteSite,
+	DeleteSiteInputData,
+	DeleteSiteReturnData,
+} from './api/delete-site';
 import {deployFunction} from './api/deploy-function';
 import {
 	deploySite,
@@ -51,4 +55,6 @@ export type {
 	DeploySiteReturnType,
 	LambdaLsReturnType,
 	LambdaLSInput,
+	DeleteSiteInputData,
+	DeleteSiteReturnData,
 };

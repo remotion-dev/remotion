@@ -66,19 +66,12 @@ export const createFunction = async ({
 			),
 		})
 	);
-	// TODO: Remove try catch in future versions
-	try {
-		await getLambdaClient(region).send(
-			new PutFunctionEventInvokeConfigCommand({
-				MaximumRetryAttempts: 0,
-				FunctionName,
-			})
-		);
-	} catch (err) {
-		Log.warn(
-			'\nWe now require the lambda:PutFunctionEventInvokeConfig permissions for your user. Please run `npx remotion lambda policies user` update your user policy. This will be required for the final version of Remotion Lambda.'
-		);
-	}
+	await getLambdaClient(region).send(
+		new PutFunctionEventInvokeConfigCommand({
+			MaximumRetryAttempts: 0,
+			FunctionName,
+		})
+	);
 
 	return {FunctionName};
 };

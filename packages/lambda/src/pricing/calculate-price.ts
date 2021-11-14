@@ -11,7 +11,7 @@ type EstimatePriceInput = {
 /**
  *
  * @description Calculates the AWS costs incurred for AWS Lambda given the region, execution duration and memory size.
- * @link https://remotion.dev/docs/lambda/estimateprice
+ * @link https://remotion-lambda-alpha.netlify.app/docs/lambda/estimateprice
  * @returns `number` Price in USD
  */
 export const estimatePrice = ({

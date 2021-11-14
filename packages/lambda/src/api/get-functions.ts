@@ -9,7 +9,7 @@ import {FunctionInfo} from './get-function-info';
  *
  *
  * @description Lists Remotion Lambda render functions deployed to AWS Lambda.
- * @link https://remotion.dev/docs/lambda/getfunctions
+ * @link https://remotion-lambda-alpha.netlify.app/docs/lambda/getfunctions
  * @param options.region The region of which the functions should be listed.
  * @param options.compatibleOnly Whether only functions compatible with the installed version of Remotion Lambda should be returned.
  * @returns An array with the objects containing information about the deployed functions.

@@ -4,7 +4,7 @@ import {callLambda} from '../shared/call-lambda';
 import {LambdaRoutines} from '../shared/constants';
 /**
  * @description Renders a still frame on Lambda
- * @link https://remotion.dev/docs/lambda/renderstillonlambda
+ * @link https://remotion-lambda-alpha.netlify.app/docs/lambda/renderstillonlambda
  * @param params.functionName The name of the Lambda function that should be used
  * @param params.serveUrl The URL of the deployed project
  * @param params.composition The ID of the composition which should be rendered.
