@@ -36,6 +36,8 @@ const suggestedRolePolicy = {
 
 export const getUserPolicy = () => JSON.stringify(suggestedPolicy, null, 2);
 
+export const ROLE_NAME = 'remotion-lambda-role';
+
 /**
  * @description Returns an inline JSON policy to be assigned to the 'remotion-lambda-role' role that needs to be created in your AWS account.
  * @link https://remotion.dev/docs/lambda/getrolepolicy
