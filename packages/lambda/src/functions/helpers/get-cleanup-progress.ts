@@ -32,10 +32,13 @@ export const getCleanupProgress = ({
 		});
 	});
 
-	const filesDeleted = filesToDelete.length - filesStillThere.length;
+	const filesDeleted = Math.max(
+		0,
+		filesToDelete.length - filesStillThere.length
+	);
 
 	return {
-		filesToDelete: filesToDelete.length,
+		minFilesToDelete: filesToDelete.length,
 		filesDeleted,
 		// We don't know. Only if post render data is saved, we know the timing
 		doneIn: null,

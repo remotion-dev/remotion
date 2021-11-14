@@ -317,7 +317,7 @@ export type CostsInfo = {
 
 export type CleanupInfo = {
 	doneIn: number | null;
-	filesToDelete: number;
+	minFilesToDelete: number;
 	filesDeleted: number;
 };
 
