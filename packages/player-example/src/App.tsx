@@ -3,6 +3,8 @@ import {useEffect, useRef, useState} from 'react';
 import {AbsoluteFill} from 'remotion';
 import CarSlideshow, {playerExampleComp} from './CarSlideshow';
 
+const fps = 30;
+
 export default function App() {
 	const [title, setTitle] = useState('Hello World');
 	const [color, setColor] = useState('#ffffff');
@@ -78,7 +80,7 @@ export default function App() {
 				ref={ref}
 				compositionWidth={500}
 				compositionHeight={432}
-				fps={30}
+				fps={fps}
 				durationInFrames={500}
 				component={CarSlideshow}
 				controls
@@ -271,6 +273,14 @@ export default function App() {
 				}}
 			>
 				seek outside negative
+			</button>
+			<button
+				type="button"
+				onClick={() => {
+					ref.current?.seekTo(ref.current.getCurrentFrame() + fps * 5);
+				}}
+			>
+				5 seconds forward
 			</button>
 			<br />
 			<br />
