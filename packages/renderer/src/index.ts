@@ -10,6 +10,7 @@ import {ensureLocalBrowser} from './get-local-browser-executable';
 import {max, min} from './min-max';
 import {normalizeServeUrl} from './normalize-serve-url';
 import {openBrowser} from './open-browser';
+import {renderVideo} from './render-video';
 import {serveStatic} from './serve-static';
 import {spawnFfmpeg} from './stitcher';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
@@ -24,6 +25,7 @@ declare global {
 	}
 }
 
+export {renderVideo, RenderVideoOnProgress} from './render-video';
 export {combineVideos} from './combine-videos';
 export {FfmpegVersion} from './ffmpeg-flags';
 export {getCompositions} from './get-compositions';

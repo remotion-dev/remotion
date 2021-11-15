@@ -1,12 +1,10 @@
 import {
 	getCompositions,
-	OnStartData,
-	renderFrames,
 	RenderInternals,
-	stitchFramesToVideo,
+	renderVideo,
+	RenderVideoOnProgress,
 } from '@remotion/renderer';
 import chalk from 'chalk';
-import {ExecaChildProcess} from 'execa';
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
@@ -115,191 +113,74 @@ export const render = async () => {
 	Log.verbose('Output dir', outputDir);
 
 	const renderProgress = createOverwriteableCliOutput();
-	let totalFrames = 0;
-	const renderStart = Date.now();
-
-	let stitcherFfmpeg: ExecaChildProcess<string> | undefined;
-	let preStitcher;
-	let encodedFrames: number | null = null;
-	let renderedFrames = 0;
-	let preEncodedFileLocation: string | undefined;
-	const updateRenderProgress = () =>
+	const totalFrames = config.durationInFrames;
+	const updateRenderProgress: RenderVideoOnProgress = ({
+		encodedFrames,
+		renderedFrames,
+		encodedDoneIn,
+		renderedDoneIn,
+		stitchStage,
+	}) =>
 		renderProgress.update(
 			makeRenderingAndStitchingProgress({
 				rendering: {
 					frames: renderedFrames,
 					totalFrames,
 					concurrency: RenderInternals.getActualConcurrency(parallelism),
-					doneIn: null,
+					doneIn: renderedDoneIn,
 					steps,
 				},
 				stitching: {
-					doneIn: null,
+					doneIn: encodedDoneIn,
 					frames: encodedFrames ?? 0,
-					stage: 'encoding',
+					stage: stitchStage,
 					steps,
 					totalFrames,
 				},
 			})
 		);
-	if (parallelEncoding) {
-		if (typeof crf !== 'number') {
-			throw new TypeError('CRF is unexpectedly not a number');
-		}
-
-		preEncodedFileLocation = path.join(
-			outputDir,
-			'pre-encode.' + getUserPassedFileExtension()
-		);
-
-		preStitcher = await RenderInternals.spawnFfmpeg({
-			dir: outputDir,
-			width: config.width,
-			height: config.height,
-			fps: config.fps,
-			outputLocation: preEncodedFileLocation,
-			force: true,
-			imageFormat,
-			pixelFormat,
-			codec,
-			proResProfile,
-			crf,
-			parallelism,
-			onProgress: (frame: number) => {
-				encodedFrames = frame;
-				updateRenderProgress();
-			},
-			verbose: Internals.Logging.isEqualOrBelowLogLevel('verbose'),
-			parallelEncoding,
-			webpackBundle: bundled,
-			ffmpegExecutable,
-			assetsInfo: {assets: []},
-		});
-		stitcherFfmpeg = preStitcher.task;
-	}
-
-	const renderer = renderFrames({
-		config,
-		onFrameUpdate: (frame: number) => {
-			renderedFrames = frame;
-			updateRenderProgress();
-		},
-		parallelism,
-		parallelEncoding,
-		outputDir,
-		onStart: ({frameCount: fc}: OnStartData) => {
-			renderedFrames = 0;
-			if (parallelEncoding) encodedFrames = 0;
-			totalFrames = fc;
-			updateRenderProgress();
-		},
-		inputProps,
-		envVariables,
-		imageFormat,
-		quality,
+	renderVideo({
+		absoluteOutputFile,
 		browser,
-		frameRange: frameRange ?? null,
-		puppeteerInstance: openedBrowser,
-		writeFrame: async (buffer) => {
-			stitcherFfmpeg?.stdin?.write(buffer);
-		},
+		codec,
+		config,
+		crf,
+		envVariables,
+		ffmpegExecutable,
+		frameRange,
+		imageFormat,
+		inputProps,
+		onProgress: updateRenderProgress,
+		openedBrowser,
+		outputDir,
+		overwrite,
+		parallelEncoding,
+		parallelism,
+		pixelFormat,
+		proResProfile,
+		quality,
 		serveUrl,
+		shouldOutputImageSequence,
+		fileExtension: getUserPassedFileExtension(),
+		bundled,
+		onDownload: (src) => {
+			Log.info('Downloading asset... ', src);
+		},
 	});
-	const {assetsInfo} = await renderer;
-	if (stitcherFfmpeg) {
-		stitcherFfmpeg?.stdin?.end();
-		await stitcherFfmpeg;
-		preStitcher?.cleanup?.();
-	}
-
-	const closeBrowserPromise = openedBrowser.close();
-	const finalizedRenderProgress = {
-		frames: totalFrames,
-		totalFrames,
-		steps,
-		concurrency: RenderInternals.getActualConcurrency(parallelism),
-		doneIn: Date.now() - renderStart,
-	};
-	renderProgress.update(
-		makeRenderingAndStitchingProgress({
-			rendering: finalizedRenderProgress,
-			stitching: {
-				doneIn: null,
-				frames: encodedFrames ?? 0,
-				steps: 0,
-				stage: 'encoding',
-				totalFrames,
-			},
-		}) + '\n'
-	);
-	if (process.env.DEBUG) {
-		Internals.perf.logPerf();
-	}
-
+	const seconds = Math.round((Date.now() - startTime) / 1000);
 	if (shouldOutputImageSequence) {
 		Log.info(chalk.green('\nYour image sequence is ready!'));
 	} else {
-		if (typeof crf !== 'number') {
-			throw new TypeError('CRF is unexpectedly not a number');
-		}
-
-		const dirName = path.dirname(absoluteOutputFile);
-
-		if (!fs.existsSync(dirName)) {
-			fs.mkdirSync(dirName, {
-				recursive: true,
-			});
-		}
-
-		const stitchStart = Date.now();
-		await stitchFramesToVideo({
-			dir: outputDir,
-			width: config.width,
-			height: config.height,
-			fps: config.fps,
-			outputLocation: absoluteOutputFile,
-			preEncodedFileLocation,
-			force: overwrite,
-			imageFormat,
-			pixelFormat,
-			codec,
-			proResProfile,
-			crf,
-			assetsInfo,
-			parallelism,
-			ffmpegExecutable,
-			onProgress: (frame: number) => {
-				makeRenderingAndStitchingProgress({
-					rendering: finalizedRenderProgress,
-					stitching: {
-						doneIn: null,
-						frames: frame,
-						steps,
-						totalFrames,
-						stage: 'encoding',
-					},
-				});
-			},
-			onDownload: (src: string) => {
-				Log.info('Downloading asset... ', src);
-			},
-			webpackBundle: bundled,
-			verbose: Internals.Logging.isEqualOrBelowLogLevel('verbose'),
-		});
-		renderProgress.update(
-			makeRenderingAndStitchingProgress({
-				rendering: finalizedRenderProgress,
-
-				stitching: {
-					doneIn: Date.now() - stitchStart,
-					frames: totalFrames,
-					steps,
-					totalFrames,
-					stage: 'muxing',
-				},
-			}) + '\n'
+		Log.info(
+			[
+				'- Total render time:',
+				seconds,
+				seconds === 1 ? 'second' : 'seconds',
+			].join(' ')
 		);
-
+		Log.info('-', 'Output can be found at:');
+		Log.info(chalk.cyan(`▶️ ${absoluteOutputFile}`));
+		close();
 		Log.verbose('Cleaning up...');
 		try {
 			if (process.platform === 'win32') {
@@ -324,17 +205,4 @@ export const render = async () => {
 
 		Log.info(chalk.green('\nYour video is ready!'));
 	}
-
-	const seconds = Math.round((Date.now() - startTime) / 1000);
-	Log.info(
-		[
-			'- Total render time:',
-			seconds,
-			seconds === 1 ? 'second' : 'seconds',
-		].join(' ')
-	);
-	Log.info('-', 'Output can be found at:');
-	Log.info(chalk.cyan(`▶️ ${absoluteOutputFile}`));
-	await closeBrowserPromise;
-	close();
 };
