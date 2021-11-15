@@ -35,4 +35,5 @@ export const forceFlagProvided =
 	parsedLambdaCli.yes ||
 	parsedLambdaCli.y;
 
-export const quietFlagProvided = parsedLambdaCli.quiet || parsedLambdaCli.q;
+export const quietFlagProvided = () =>
+	parsedLambdaCli.quiet || parsedLambdaCli.q;

@@ -14,7 +14,7 @@ export const FUNCTIONS_LS_SUBCOMMAND = 'ls';
 export const functionsLsCommand = async () => {
 	const region = getAwsRegion();
 	const fetchingOutput = CliInternals.createOverwriteableCliOutput();
-	if (!quietFlagProvided) {
+	if (!quietFlagProvided()) {
 		fetchingOutput.update('Getting functions...');
 	}
 
@@ -23,7 +23,12 @@ export const functionsLsCommand = async () => {
 		compatibleOnly: false,
 	});
 
-	if (quietFlagProvided) {
+	if (quietFlagProvided()) {
+		if (functions.length === 0) {
+			Log.info('()');
+			return;
+		}
+
 		Log.info(functions.map((f) => f.functionName).join(' '));
 		return;
 	}

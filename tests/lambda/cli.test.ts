@@ -1,3 +1,4 @@
+import { parsedLambdaCli } from "../../packages/lambda/src/cli/args";
 import { LambdaInternals } from "../../packages/lambda/src/index";
 import { getProcessStdErrOutput, getProcessWriteOutput } from "./console-hooks";
 
@@ -27,4 +28,15 @@ test("Deploy function and it already exists should fail", async () => {
   expect(getProcessStdErrOutput()).toMatch(
     /Error: Already found a function \(remotion-render-abcdef\) with version (.*) deployed in region us-east-1/
   );
+});
+
+test('If no functions are there and is quiet, should return "()"', async () => {
+  parsedLambdaCli.q = true;
+  await LambdaInternals.executeCommand(["functions", "ls"]);
+  expect(getProcessWriteOutput()).toBe("()");
+});
+
+test("Should handle functions rm called with no functions", async () => {
+  await LambdaInternals.executeCommand(["functions", "rm", "()"]);
+  expect(getProcessWriteOutput()).toBe("No functions to remove.");
 });

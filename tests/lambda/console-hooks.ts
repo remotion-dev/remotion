@@ -28,15 +28,15 @@ beforeEach(() => {
   cleanFnStore();
   // @ts-expect-error
   process.stdout.write = (str: string) => {
-    // originalStdout(str);
+    //originalStdout(str);
     stdoutOutput.push(str);
   };
   console.log = (str: string) => {
-    // originalStdout(str);
+    //originalStdout(str);
     stdoutOutput.push(str);
   };
   console.error = (str: string) => {
-    // originalStdErr(str);
+    //originalStderr(str);
     stderrOutput.push(str);
   };
 
