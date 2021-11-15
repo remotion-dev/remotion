@@ -1,6 +1,7 @@
 import {CliInternals} from '@remotion/cli';
 import minimist from 'minimist';
 import {AwsRegion} from '../pricing/aws-regions';
+import {Privacy} from '../shared/constants';
 
 type LambdaCommandLineOptions = {
 	help: boolean;
@@ -18,6 +19,7 @@ type LambdaCommandLineOptions = {
 	['save-browser-logs']: boolean;
 	['disable-cloudwatch']: boolean;
 	['max-retries']: number;
+	privacy: Privacy;
 };
 
 export const parsedLambdaCli = minimist<LambdaCommandLineOptions>(
