@@ -139,7 +139,7 @@ export const render = async () => {
 				},
 			})
 		);
-	renderVideo({
+	await renderVideo({
 		absoluteOutputFile,
 		browser,
 		codec,
@@ -167,6 +167,9 @@ export const render = async () => {
 			Log.info('Downloading asset... ', src);
 		},
 	});
+
+	Log.info();
+	Log.info();
 	const seconds = Math.round((Date.now() - startTime) / 1000);
 	if (shouldOutputImageSequence) {
 		Log.info(chalk.green('\nYour image sequence is ready!'));
