@@ -13,7 +13,6 @@ export const FUNCTIONS_RM_SUBCOMMAND = 'rm';
 const LEFT_COL = 16;
 
 export const functionsRmCommand = async (args: string[]) => {
-	const region = getAwsRegion();
 	if (args.length === 0) {
 		Log.error('No function name passed.');
 		Log.error(
@@ -24,6 +23,13 @@ export const functionsRmCommand = async (args: string[]) => {
 		);
 		quit(1);
 	}
+
+	if (args[0] === '()') {
+		Log.info('No functions to remove.');
+		return;
+	}
+
+	const region = getAwsRegion();
 
 	for (const functionName of args) {
 		const infoOutput = CliInternals.createOverwriteableCliOutput();

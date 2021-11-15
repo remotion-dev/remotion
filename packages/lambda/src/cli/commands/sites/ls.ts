@@ -23,18 +23,18 @@ export const sitesLsSubcommand = async () => {
 	const region = getAwsRegion();
 	const {sites, buckets} = await getSites({region});
 
-	if (buckets.length > 1 && !quietFlagProvided) {
+	if (buckets.length > 1 && !quietFlagProvided()) {
 		Log.warn(
 			'Warning: You have more than one Remotion S3 bucket, but only one is needed. This can lead to conflicts. Remove all but one of them.'
 		);
 	}
 
 	const sitesPluralized = sites.length === 1 ? 'site' : 'sites';
-	if (!quietFlagProvided) {
+	if (!quietFlagProvided()) {
 		Log.info(`${sites.length} ${sitesPluralized} in the ${region} region.`);
 	}
 
-	if (quietFlagProvided) {
+	if (quietFlagProvided()) {
 		return Log.info(sites.map((s) => s.id).join(' '));
 	}
 
