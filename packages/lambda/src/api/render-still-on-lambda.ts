@@ -1,7 +1,7 @@
 import {StillImageFormat} from 'remotion';
 import {AwsRegion} from '../pricing/aws-regions';
 import {callLambda} from '../shared/call-lambda';
-import {LambdaRoutines} from '../shared/constants';
+import {DEFAULT_MAX_RETRIES, LambdaRoutines} from '../shared/constants';
 /**
  * @description Renders a still frame on Lambda
  * @link https://remotion-lambda-alpha.netlify.app/docs/lambda/renderstillonlambda
@@ -56,7 +56,7 @@ export const renderStillOnLambda = async ({
 			imageFormat,
 			envVariables,
 			quality,
-			maxRetries: maxRetries ?? 3,
+			maxRetries: maxRetries ?? DEFAULT_MAX_RETRIES,
 			frame: frame ?? 0,
 			privacy,
 			attempt: 1,

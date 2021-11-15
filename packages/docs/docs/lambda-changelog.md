@@ -14,6 +14,10 @@ Keep track of changes to the APIs of Remotion Lambda here.
 1. Redeploy your function: `npx remotion lambda functions deploy`
 1. Migrate according to the changelog below:
 
+## Unreleased
+
+- The default number of max retries is now 1 (previously 3). A new CLI flag `--max-retries` was introduced which can be used for `npx remotion lambda render` and `npx remotion lambda still`
+
 ## November 12th, 2021
 
 Version hash: `3.0.0-lambda.99+bd5d55651`

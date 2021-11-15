@@ -26,7 +26,7 @@ const { bucketName, renderId } = await renderVideoOnLambda({
   inputProps: {},
   codec: "h264-mkv",
   imageFormat: "jpeg",
-  maxRetries: 3,
+  maxRetries: 1,
   privacy: "public",
   enableChunkOptimization: true,
 });
@@ -101,6 +101,8 @@ See [`stitchFramesToVideo() -> proResProfile`](/docs/stitch-frames-to-video#pror
 See [`renderFrames() -> quality`](/docs/render-frames#quality).
 
 ### `maxRetries`
+
+_optional, default `1`_
 
 How often a chunk may be retried to render in case the render fails.
 If a rendering of a chunk is failed, the error will be reported in the [`getRenderProgress()`](/docs/lambda/getrenderprogress) object and retried up to as many times as you specify using this option.

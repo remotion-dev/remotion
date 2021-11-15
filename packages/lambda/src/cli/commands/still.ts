@@ -1,7 +1,7 @@
 import {CliInternals} from '@remotion/cli';
 import {StillImageFormat} from 'remotion';
 import {renderStillOnLambda} from '../../api/render-still-on-lambda';
-import {BINARY_NAME} from '../../shared/constants';
+import {BINARY_NAME, DEFAULT_MAX_RETRIES} from '../../shared/constants';
 import {parsedLambdaCli} from '../args';
 import {getAwsRegion} from '../get-aws-region';
 import {findFunctionName} from '../helpers/find-function-name';
@@ -39,6 +39,11 @@ export const stillCommand = async (args: string[]) => {
 
 	const functionName = await findFunctionName();
 
+	const maxRetries = parsedLambdaCli['max-retries'] ?? DEFAULT_MAX_RETRIES;
+	if (typeof maxRetries !== 'number') {
+		throw new TypeError('max retries should be a number, but is ' + maxRetries);
+	}
+
 	const res = await renderStillOnLambda({
 		functionName,
 		serveUrl,
@@ -48,8 +53,7 @@ export const stillCommand = async (args: string[]) => {
 		// TODO: Make configurable
 		privacy: 'public',
 		region: getAwsRegion(),
-		// TODO: Unhardcdoe retries
-		maxRetries: 3,
+		maxRetries,
 		envVariables: cliOptions.envVariables,
 		frame: cliOptions.stillFrame,
 		quality: cliOptions.quality,

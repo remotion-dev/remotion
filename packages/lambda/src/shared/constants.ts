@@ -24,6 +24,7 @@ export const DEFAULT_FRAMES_PER_LAMBDA = 20;
 export const BINARY_NAME = 'remotion lambda';
 export const COMMAND_NOT_FOUND = 'Command not found';
 export const DEFAULT_REGION: AwsRegion = 'us-east-1';
+export const DEFAULT_MAX_RETRIES = 1;
 
 export const DEFAULT_CLOUDWATCH_RETENTION_PERIOD = 14;
 
