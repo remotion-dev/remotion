@@ -5,9 +5,13 @@ import {renderVideoOnLambda} from '../../../api/render-video-on-lambda';
 import {
 	BINARY_NAME,
 	DEFAULT_FRAMES_PER_LAMBDA,
+	DEFAULT_MAX_RETRIES,
+	DEFAULT_OUTPUT_PRIVACY,
 	LambdaRoutines,
 } from '../../../shared/constants';
 import {sleep} from '../../../shared/sleep';
+import {validatePrivacy} from '../../../shared/validate-privacy';
+import {validateMaxRetries} from '../../../shared/validate-retries';
 import {parsedLambdaCli} from '../../args';
 import {getAwsRegion} from '../../get-aws-region';
 import {findFunctionName} from '../../helpers/find-function-name';
@@ -54,6 +58,11 @@ export const renderCommand = async (args: string[]) => {
 
 	const region = getAwsRegion();
 
+	const maxRetries = parsedLambdaCli['max-retries'] ?? DEFAULT_MAX_RETRIES;
+	validateMaxRetries(maxRetries);
+
+	const privacy = parsedLambdaCli.privacy ?? DEFAULT_OUTPUT_PRIVACY;
+	validatePrivacy(privacy);
 	const res = await renderVideoOnLambda({
 		functionName,
 		serveUrl,
@@ -66,12 +75,10 @@ export const renderCommand = async (args: string[]) => {
 		proResProfile: cliOptions.proResProfile,
 		quality: cliOptions.quality,
 		region,
-		// TODO: Unhardcode retries
-		maxRetries: 3,
+		maxRetries,
 		composition,
 		framesPerLambda: cliOptions.framesPerLambda ?? DEFAULT_FRAMES_PER_LAMBDA,
-		// TODO: Unhardcode and specify as parameter
-		privacy: 'public',
+		privacy,
 		enableChunkOptimization: !parsedLambdaCli['disable-chunk-optimization'],
 		saveBrowserLogs: parsedLambdaCli['save-browser-logs'],
 	});
