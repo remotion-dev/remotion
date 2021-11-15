@@ -1006,7 +1006,35 @@ export const showcaseVideos: ShowcaseVideo[] = [
     ],
     author: {
       url: "https://gorhom.dev/",
-      name: "Mo Gorhim",
+      name: "Mo Gorhom",
+    },
+  },
+  {
+    title: "AnySticker Announcement",
+    type: "mux_video",
+    muxId: "GhK5YXKrtWTa2kEf7HajaE6DG2FtTNsZfW7mfIzQBJ00",
+    description:
+      "A hyped up announcement trailer for the new AnySticker app, made using React Three Fiber.",
+    height: 1080,
+    width: 1080,
+    submittedOn: new Date("11-15-2021"),
+    links: [
+      {
+        type: "source_code",
+        url: "https://github.com/JonnyBurger/anysticker-tutorials/blob/main/src/Announcement/index.tsx",
+      },
+      {
+        type: "video",
+        url: "https://twitter.com/JNYBGR/status/1458375456965763075",
+      },
+      {
+        type: "website",
+        url: "https://anysticker.com",
+      },
+    ],
+    author: {
+      url: "https://twitter.com/JNYBGR",
+      name: "JNYBGR",
     },
   },
 ];
