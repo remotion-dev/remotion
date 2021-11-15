@@ -17,6 +17,7 @@ Keep track of changes to the APIs of Remotion Lambda here.
 ## Unreleased
 
 - The default number of max retries is now 1 (previously 3). A new CLI flag `--max-retries` was introduced which can be used for `npx remotion lambda render` and `npx remotion lambda still`
+- You can now pass `--privacy=public` or `--privacy=private` in the CLi to determine if the output video should be publicly accessible. The default is and was `public`.
 
 ## November 12th, 2021
 

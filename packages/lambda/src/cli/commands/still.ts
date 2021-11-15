@@ -1,7 +1,13 @@
 import {CliInternals} from '@remotion/cli';
 import {StillImageFormat} from 'remotion';
 import {renderStillOnLambda} from '../../api/render-still-on-lambda';
-import {BINARY_NAME, DEFAULT_MAX_RETRIES} from '../../shared/constants';
+import {
+	BINARY_NAME,
+	DEFAULT_MAX_RETRIES,
+	DEFAULT_OUTPUT_PRIVACY,
+} from '../../shared/constants';
+import {validatePrivacy} from '../../shared/validate-privacy';
+import {validateMaxRetries} from '../../shared/validate-retries';
 import {parsedLambdaCli} from '../args';
 import {getAwsRegion} from '../get-aws-region';
 import {findFunctionName} from '../helpers/find-function-name';
@@ -40,9 +46,10 @@ export const stillCommand = async (args: string[]) => {
 	const functionName = await findFunctionName();
 
 	const maxRetries = parsedLambdaCli['max-retries'] ?? DEFAULT_MAX_RETRIES;
-	if (typeof maxRetries !== 'number') {
-		throw new TypeError('max retries should be a number, but is ' + maxRetries);
-	}
+	validateMaxRetries(maxRetries);
+
+	const privacy = parsedLambdaCli.privacy ?? DEFAULT_OUTPUT_PRIVACY;
+	validatePrivacy(privacy);
 
 	const res = await renderStillOnLambda({
 		functionName,
@@ -50,8 +57,7 @@ export const stillCommand = async (args: string[]) => {
 		inputProps: cliOptions.inputProps,
 		imageFormat: cliOptions.imageFormat as StillImageFormat,
 		composition,
-		// TODO: Make configurable
-		privacy: 'public',
+		privacy,
 		region: getAwsRegion(),
 		maxRetries,
 		envVariables: cliOptions.envVariables,
