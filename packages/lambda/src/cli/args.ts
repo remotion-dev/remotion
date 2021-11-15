@@ -17,6 +17,7 @@ type LambdaCommandLineOptions = {
 	['disable-chunk-optimization']: boolean;
 	['save-browser-logs']: boolean;
 	['disable-cloudwatch']: boolean;
+	['max-retries']: number;
 };
 
 export const parsedLambdaCli = minimist<LambdaCommandLineOptions>(

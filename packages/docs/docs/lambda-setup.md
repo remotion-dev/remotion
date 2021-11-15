@@ -258,7 +258,7 @@ const { renderId, bucketName } = await renderVideoOnLambda({
   inputProps: {},
   codec: "h264-mkv",
   imageFormat: "jpeg",
-  maxRetries: 3,
+  maxRetries: 1,
   framesPerLambda: 20,
   privacy: "public",
 });
@@ -291,7 +291,7 @@ const { renderId, bucketName } = await renderVideoOnLambda({
   inputProps: {},
   codec: "h264-mkv",
   imageFormat: "jpeg",
-  maxRetries: 3,
+  maxRetries: 1,
   framesPerLambda: 20,
   privacy: "public",
 });

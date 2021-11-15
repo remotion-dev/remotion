@@ -26,7 +26,7 @@ const { estimatedPrice, url, size } = await renderStillOnLambda({
   composition: "MyVideo",
   inputProps: {},
   imageFormat: "png",
-  maxRetries: 3,
+  maxRetries: 1,
   privacy: "public",
   envVariables: {},
   frame: 10,
@@ -84,7 +84,7 @@ Only applies if `imageFormat` is `"jpeg"`, otherwise this option is invalid.
 
 ### `maxRetries?`
 
-_optional - default `3`_
+_optional - default `1`_
 
 How often a frame render may be retried until it fails.
 
