@@ -5,7 +5,6 @@ import path from 'path';
 import {
 	Codec,
 	FfmpegExecutable,
-	ImageFormat,
 	Internals,
 	PixelFormat,
 	ProResProfile,
@@ -22,7 +21,6 @@ import {getAudioCodecName} from './get-audio-codec-name';
 import {getCodecName} from './get-codec-name';
 import {getFrameInfo} from './get-frame-number-length';
 import {getProResProfileName} from './get-prores-profile-name';
-import {DEFAULT_IMAGE_FORMAT} from './image-format';
 import {parseFfmpegProgress} from './parse-ffmpeg-progress';
 import {resolveAssetSrc} from './resolve-asset-src';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
@@ -40,12 +38,9 @@ export type StitcherOptions = {
 	outputLocation: string;
 	force: boolean;
 	assetsInfo: RenderAssetInfo;
-	// TODO: Let's make this parameter mandatory in the next major release
-	imageFormat?: ImageFormat;
 	pixelFormat?: PixelFormat;
 	codec?: Codec;
 	crf?: number;
-	parallelism?: number | null;
 	onProgress?: (progress: number) => void;
 	onDownload?: (src: string) => void;
 	proResProfile?: ProResProfile;
