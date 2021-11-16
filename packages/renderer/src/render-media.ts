@@ -14,6 +14,8 @@ import {
 } from 'remotion';
 import {stitchFramesToVideo, spawnFfmpeg} from './stitcher';
 import {renderFrames} from './render';
+import {BrowserLog} from './browser-log';
+import {OnStartData} from './types';
 
 export type RenderMediaOnDownload = (src: string) => void;
 
@@ -30,16 +32,17 @@ export type RenderMediaOnProgress = (progress: {
 export type RenderMediaOptions = {
 	proResProfile: ProResProfile | undefined;
 	parallelism: number | null;
+	// TODO: Should rename to better signify that it's preencoding...
 	parallelEncoding: boolean;
 	crf: number | null;
 	outputDir: string;
 	config: TCompMetadata;
 	imageFormat: 'png' | 'jpeg' | 'none';
 	ffmpegExecutable: FfmpegExecutable;
-	inputProps: object;
-	pixelFormat: PixelFormat;
+	inputProps: unknown;
+	pixelFormat?: PixelFormat;
 	codec: Codec;
-	envVariables: Record<string, string>;
+	envVariables?: Record<string, string>;
 	quality: number | undefined;
 	frameRange: FrameRange | null;
 	browser: Browser;
@@ -48,12 +51,16 @@ export type RenderMediaOptions = {
 	overwrite: boolean;
 	absoluteOutputFile: string;
 	onProgress?: RenderMediaOnProgress;
+	// TODO: Do we really need it? Can't we derive it from codec?
 	fileExtension: string | null;
-	bundled: string;
 	onDownload: (src: string) => void;
 	dumpBrowserLogs: boolean;
+	onBrowserLog?: ((log: BrowserLog) => void) | undefined;
+	onStart: (data: OnStartData) => void;
+	downloadDir?: string;
 };
 
+// TODO: outputDir and `absoluteOutputFile` are redundant
 export const renderMedia = async ({
 	parallelism,
 	proResProfile,
@@ -76,9 +83,11 @@ export const renderMedia = async ({
 	onProgress,
 	overwrite,
 	fileExtension,
-	bundled,
 	onDownload,
 	dumpBrowserLogs,
+	onBrowserLog,
+	onStart,
+	downloadDir,
 }: RenderMediaOptions) => {
 	let stitchStage: StitchingState = 'encoding';
 	let stitcherFfmpeg: ExecaChildProcess<string> | undefined;
@@ -117,7 +126,6 @@ export const renderMedia = async ({
 			fps: config.fps,
 			outputLocation: preEncodedFileLocation,
 			force: true,
-			imageFormat,
 			pixelFormat,
 			codec,
 			proResProfile,
@@ -128,7 +136,6 @@ export const renderMedia = async ({
 			},
 			verbose: Internals.Logging.isEqualOrBelowLogLevel('verbose'),
 			parallelEncoding,
-			webpackBundle: bundled,
 			ffmpegExecutable,
 			assetsInfo: {assets: [], imageSequenceName: ''},
 		});
@@ -143,9 +150,10 @@ export const renderMedia = async ({
 		},
 		parallelism,
 		outputDir,
-		onStart: () => {
+		onStart: (data) => {
 			renderedFrames = 0;
 			callUpdate();
+			onStart(data);
 		},
 		inputProps,
 		envVariables,
@@ -159,6 +167,7 @@ export const renderMedia = async ({
 		},
 		serveUrl,
 		dumpBrowserLogs,
+		onBrowserLog,
 	});
 	if (stitcherFfmpeg) {
 		stitcherFfmpeg?.stdin?.end();
@@ -191,7 +200,6 @@ export const renderMedia = async ({
 		outputLocation: absoluteOutputFile,
 		preEncodedFileLocation,
 		force: overwrite,
-		imageFormat,
 		pixelFormat,
 		codec,
 		proResProfile,
@@ -205,11 +213,13 @@ export const renderMedia = async ({
 		},
 		// TODO: Optimization, Now can download before!
 		onDownload,
-		webpackBundle: bundled,
 		verbose: Internals.Logging.isEqualOrBelowLogLevel('verbose'),
+		parallelEncoding: false,
+		downloadDir,
 	});
 	encodedFrames = config.durationInFrames;
 	encodedDoneIn = Date.now() - stitchStart;
 	callUpdate();
+	// TODO: Cleanup
 	await closeBrowserPromise;
 };

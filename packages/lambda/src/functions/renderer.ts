@@ -1,9 +1,5 @@
 import {InvokeCommand} from '@aws-sdk/client-lambda';
-import {
-	renderFrames,
-	RenderInternals,
-	stitchFramesToVideo,
-} from '@remotion/renderer';
+import {RenderInternals, renderMedia} from '@remotion/renderer';
 import {BrowserLog} from '@remotion/renderer';
 import fs from 'fs';
 import path from 'path';
@@ -32,7 +28,6 @@ import {getCurrentRegionInFunction} from './helpers/get-current-region';
 import {getFolderFiles} from './helpers/get-files-in-folder';
 import {getFolderSizeRecursively} from './helpers/get-folder-size';
 import {lambdaWriteFile} from './helpers/io';
-import {timer} from './helpers/timer';
 import {uploadBrowserLogs} from './helpers/upload-browser-logs';
 import {
 	getTmpDirStateIfENoSp,
@@ -59,6 +54,10 @@ const renderHandler = async (
 		(fs.rmSync ?? fs.rmdirSync)(outputPath);
 	}
 
+	if (!fs.existsSync(DOWNLOADS_DIR)) {
+		fs.mkdirSync(DOWNLOADS_DIR);
+	}
+
 	fs.mkdirSync(outputPath);
 
 	if (typeof params.chunk !== 'number') {
@@ -76,7 +75,18 @@ const renderHandler = async (
 		frameRange: params.frameRange,
 		startDate: start,
 	};
-	const {assetsInfo} = await renderFrames({
+
+	const outdir = tmpDir(RENDERER_PATH_TOKEN);
+
+	const outputLocation = path.join(
+		outdir,
+		`localchunk-${String(params.chunk).padStart(
+			8,
+			'0'
+		)}.${getFileExtensionFromCodec(params.codec, 'chunk')}`
+	);
+
+	await renderMedia({
 		config: {
 			id: params.composition,
 			durationInFrames: params.durationInFrames,
@@ -87,8 +97,8 @@ const renderHandler = async (
 		imageFormat: params.imageFormat,
 		inputProps: params.inputProps,
 		frameRange: params.frameRange,
-		onFrameUpdate: (i: number, frameNumber: number) => {
-			chunkTimingData.timings[frameNumber] = Date.now() - start;
+		onProgress: ({renderedFrames}) => {
+			chunkTimingData.timings[renderedFrames] = Date.now() - start;
 		},
 		parallelism: 1,
 		onStart: () => {
@@ -113,7 +123,7 @@ const renderHandler = async (
 			});
 		},
 		outputDir: outputPath,
-		puppeteerInstance: browserInstance,
+		openedBrowser: browserInstance,
 		serveUrl: params.serveUrl,
 		quality: params.quality,
 		envVariables: params.envVariables,
@@ -122,45 +132,22 @@ const renderHandler = async (
 		onBrowserLog: (log) => {
 			logs.push(log);
 		},
+		absoluteOutputFile: outputLocation,
+		codec: params.codec,
+		crf: params.crf ?? null,
+		ffmpegExecutable: null,
+		fileExtension: null,
+		pixelFormat: params.pixelFormat,
+		proResProfile: params.proResProfile,
+		parallelEncoding: false,
+		onDownload: (src: string) => {
+			console.log('Downloading', src);
+		},
+		overwrite: false,
 	});
-	const outdir = tmpDir(RENDERER_PATH_TOKEN);
-
-	const outputLocation = path.join(
-		outdir,
-		`localchunk-${String(params.chunk).padStart(
-			8,
-			'0'
-		)}.${getFileExtensionFromCodec(params.codec, 'chunk')}`
-	);
-
-	const stitchLabel = timer('stitcher');
-	if (!fs.existsSync(DOWNLOADS_DIR)) {
-		fs.mkdirSync(DOWNLOADS_DIR);
-	}
 
 	const endRendered = Date.now();
 
-	await stitchFramesToVideo({
-		assetsInfo,
-		downloadDir: DOWNLOADS_DIR,
-		dir: outputPath,
-		force: true,
-		fps: params.fps,
-		height: params.height,
-		width: params.width,
-		outputLocation,
-		codec: params.codec,
-		imageFormat: params.imageFormat,
-		crf: params.crf,
-		pixelFormat: params.pixelFormat,
-		proResProfile: params.proResProfile,
-		verbose: false,
-		onProgress: () => {
-			// TODO: upload progress from time to time
-		},
-		webpackBundle: null,
-	});
-	stitchLabel.end();
 	await RenderInternals.addSilentAudioIfNecessary(outputLocation);
 
 	const condensedTimingData: ChunkTimingData = {
