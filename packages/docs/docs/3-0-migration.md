@@ -25,3 +25,9 @@ The new behavior of Remotion 3.0 is that if an error occurs, these functions rej
 This parameter did probably not to what you thought it would. To avoid any confusion, we removed it without any replacement.
 
 **Upgrade path**: If you added the `parallelism` property to the `stitchFramesToVideo()`, remove it.
+
+## Removed `imageFormat` parameter from `stitchFramesToVideo` API
+
+The necessary information is not embedded in `assetsInfo`, embedded in the return value of `renderFrames()`. The parameter `imageFormat` is not necessary anymore to pass into `stitchFramesToVideo()`.
+
+**Upgrade path**: Remove the `imageFormat` option from `stitchFramesToVideo()`.
