@@ -108,16 +108,19 @@ export const render = async () => {
 	Log.verbose('Output dir', outputDir);
 
 	const renderProgress = createOverwriteableCliOutput();
-	// TODO: This is not right
-	const totalFrames = config.durationInFrames;
+	let totalFrames: number | null = 0;
 	const updateRenderProgress: RenderMediaOnProgress = ({
 		encodedFrames,
 		renderedFrames,
 		encodedDoneIn,
 		renderedDoneIn,
 		stitchStage,
-	}) =>
-		renderProgress.update(
+	}) => {
+		if (totalFrames === null) {
+			throw new Error('totalFrames should not be 0');
+		}
+
+		return renderProgress.update(
 			makeRenderingAndStitchingProgress({
 				rendering: {
 					frames: renderedFrames,
@@ -137,6 +140,8 @@ export const render = async () => {
 					  },
 			})
 		);
+	};
+
 	if (shouldOutputImageSequence) {
 		fs.mkdirSync(absoluteOutputFile, {
 			recursive: true,
@@ -162,14 +167,16 @@ export const render = async () => {
 					stitchStage: 'encoding',
 				});
 			},
-			onStart: () =>
-				updateRenderProgress({
+			onStart: ({frameCount}) => {
+				totalFrames = frameCount;
+				return updateRenderProgress({
 					encodedDoneIn: null,
 					encodedFrames: 0,
 					renderedDoneIn: null,
 					renderedFrames: 0,
 					stitchStage: 'encoding',
-				}),
+				});
+			},
 			outputDir,
 			serveUrl,
 			browser,
@@ -185,8 +192,7 @@ export const render = async () => {
 			encodedDoneIn: doneIn,
 			encodedFrames: 0,
 			renderedDoneIn: null,
-			// TODO: This is not right how about frameRange
-			renderedFrames: config.durationInFrames,
+			renderedFrames: totalFrames,
 			stitchStage: 'encoding',
 		});
 		Log.info();
@@ -217,11 +223,13 @@ export const render = async () => {
 		quality,
 		serveUrl,
 		fileExtension: getUserPassedFileExtension(),
-		bundled,
 		onDownload: (src) => {
 			Log.info('Downloading asset... ', src);
 		},
 		dumpBrowserLogs: Internals.Logging.isEqualOrBelowLogLevel('verbose'),
+		onStart: ({frameCount}) => {
+			totalFrames = frameCount;
+		},
 	});
 
 	Log.info();

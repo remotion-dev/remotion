@@ -47,7 +47,7 @@ export const createPostRenderData = ({
 	);
 
 	const times = parsedTimings
-		.map((p) => p.encoded - p.start + OVERHEAD_TIME_PER_LAMBDA)
+		.map((p) => p.rendered - p.start + OVERHEAD_TIME_PER_LAMBDA)
 		.reduce((a, b) => a + b);
 
 	const cost = estimatePrice({
