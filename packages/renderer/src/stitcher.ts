@@ -155,11 +155,11 @@ export const spawnFfmpeg = async (options: StitcherOptions) => {
 		['-r', String(options.fps)],
 		...(options.preEncodedFileLocation
 			? [['-i', options.preEncodedFileLocation]]
+			: isAudioOnly
+			? []
 			: [
-					isAudioOnly
-						? null
-						: ['-f', options.parallelEncoding ? 'image2pipe' : 'image2'],
-					isAudioOnly ? null : ['-s', `${options.width}x${options.height}`],
+					['-f', options.parallelEncoding ? 'image2pipe' : 'image2'],
+					['-s', `${options.width}x${options.height}`],
 					options.assetsInfo
 						? ['-start_number', String(options.assetsInfo.firstFrameIndex)]
 						: null,
