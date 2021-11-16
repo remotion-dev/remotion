@@ -108,6 +108,7 @@ export const render = async () => {
 	Log.verbose('Output dir', outputDir);
 
 	const renderProgress = createOverwriteableCliOutput();
+	// TODO: This is not right
 	const totalFrames = config.durationInFrames;
 	const updateRenderProgress: RenderMediaOnProgress = ({
 		encodedFrames,
@@ -184,6 +185,7 @@ export const render = async () => {
 			encodedDoneIn: doneIn,
 			encodedFrames: 0,
 			renderedDoneIn: null,
+			// TODO: This is not right how about frameRange
 			renderedFrames: config.durationInFrames,
 			stitchStage: 'encoding',
 		});
