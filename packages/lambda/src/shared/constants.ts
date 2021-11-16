@@ -73,18 +73,16 @@ export const lambdaTimingsKey = ({
 	chunk,
 	start,
 	rendered,
-	encoded,
 }: {
 	renderId: string;
 	chunk: number;
 	start: number;
 	rendered: number;
-	encoded: number;
 }) =>
 	`${lambdaTimingsPrefixForChunk(
 		renderId,
 		chunk
-	)}-start:${start}-rendered:${rendered}-encoded:${encoded}.txt`;
+	)}-start:${start}-rendered:${rendered}.txt`;
 export const chunkKey = (renderId: string) =>
 	`${rendersPrefix(renderId)}/chunks/chunk`;
 export const chunkKeyForIndex = ({

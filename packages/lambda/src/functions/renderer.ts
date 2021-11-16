@@ -141,18 +141,7 @@ const renderHandler = async (
 	const endRendered = Date.now();
 
 	await stitchFramesToVideo({
-		assetsInfo: {
-			...assetsInfo,
-			// Make all assets remote
-			assets: assetsInfo.assets.map((asset) => {
-				return asset.map((a) => {
-					return {
-						...a,
-						isRemote: true,
-					};
-				});
-			}),
-		},
+		assetsInfo,
 		downloadDir: DOWNLOADS_DIR,
 		dir: outputPath,
 		force: true,
@@ -165,7 +154,6 @@ const renderHandler = async (
 		crf: params.crf,
 		pixelFormat: params.pixelFormat,
 		proResProfile: params.proResProfile,
-		parallelism: 1,
 		verbose: false,
 		onProgress: () => {
 			// TODO: upload progress from time to time
@@ -174,7 +162,6 @@ const renderHandler = async (
 	});
 	stitchLabel.end();
 	await RenderInternals.addSilentAudioIfNecessary(outputLocation);
-	const endStitching = Date.now();
 
 	const condensedTimingData: ChunkTimingData = {
 		...chunkTimingData,
@@ -201,7 +188,6 @@ const renderHandler = async (
 			key: `${lambdaTimingsKey({
 				renderId: params.renderId,
 				chunk: params.chunk,
-				encoded: endStitching,
 				rendered: endRendered,
 				start,
 			})}`,

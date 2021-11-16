@@ -29,7 +29,7 @@ export const convertAssetsToFileUrls = async ({
 				return Promise.all(
 					assetsForFrame.map((a) => {
 						return downloadAndMapAssetsToFileUrl({
-							localhostAsset: a,
+							asset: a,
 							downloadDir,
 							onDownload,
 							webpackBundle,

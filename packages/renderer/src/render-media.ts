@@ -122,7 +122,6 @@ export const renderMedia = async ({
 			codec,
 			proResProfile,
 			crf,
-			parallelism,
 			onProgress: (frame: number) => {
 				encodedFrames = frame;
 				callUpdate();
@@ -131,7 +130,7 @@ export const renderMedia = async ({
 			parallelEncoding,
 			webpackBundle: bundled,
 			ffmpegExecutable,
-			assetsInfo: {assets: []},
+			assetsInfo: {assets: [], imageSequenceName: ''},
 		});
 		stitcherFfmpeg = preStitcher.task;
 	}
@@ -198,7 +197,6 @@ export const renderMedia = async ({
 		proResProfile,
 		crf,
 		assetsInfo,
-		parallelism,
 		ffmpegExecutable,
 		onProgress: (frame: number) => {
 			stitchStage = 'muxing';
