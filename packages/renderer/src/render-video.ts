@@ -17,12 +17,14 @@ import {renderFrames} from './render';
 
 export type RenderVideoOnDownload = (src: string) => void;
 
+export type StitchingState = 'encoding' | 'muxing';
+
 export type RenderVideoOnProgress = (progress: {
 	renderedFrames: number;
 	encodedFrames: number;
 	encodedDoneIn: number | null;
 	renderedDoneIn: number | null;
-	stitchStage: 'encoding' | 'muxing';
+	stitchStage: StitchingState;
 }) => void;
 
 export type RenderVideoOptions = {
@@ -45,7 +47,7 @@ export type RenderVideoOptions = {
 	openedBrowser: PuppeteerBrowser;
 	overwrite: boolean;
 	absoluteOutputFile: string;
-	onProgress: RenderVideoOnProgress;
+	onProgress?: RenderVideoOnProgress;
 	shouldOutputImageSequence: boolean;
 	fileExtension: string | null;
 	bundled: string;
@@ -78,6 +80,7 @@ export const renderVideo = async ({
 	bundled,
 	onDownload,
 }: RenderVideoOptions) => {
+	let stitchStage: StitchingState = 'encoding';
 	let stitcherFfmpeg: ExecaChildProcess<string> | undefined;
 	let preStitcher;
 	let encodedFrames = 0;
@@ -86,6 +89,16 @@ export const renderVideo = async ({
 	let renderedDoneIn: number | null = null;
 	let encodedDoneIn: number | null = null;
 	const renderStart = Date.now();
+
+	const callUpdate = () => {
+		onProgress?.({
+			encodedDoneIn,
+			encodedFrames,
+			renderedDoneIn,
+			renderedFrames,
+			stitchStage,
+		});
+	};
 
 	if (parallelEncoding) {
 		if (typeof crf !== 'number') {
@@ -112,13 +125,7 @@ export const renderVideo = async ({
 			parallelism,
 			onProgress: (frame: number) => {
 				encodedFrames = frame;
-				onProgress({
-					encodedFrames,
-					renderedFrames,
-					encodedDoneIn: null,
-					renderedDoneIn: null,
-					stitchStage: 'encoding',
-				});
+				callUpdate();
 			},
 			verbose: Internals.Logging.isEqualOrBelowLogLevel('verbose'),
 			parallelEncoding,
@@ -133,27 +140,14 @@ export const renderVideo = async ({
 		config,
 		onFrameUpdate: (frame: number) => {
 			renderedFrames = frame;
-			onProgress({
-				encodedFrames,
-				renderedFrames,
-				encodedDoneIn,
-				renderedDoneIn,
-				stitchStage: 'encoding',
-			});
+			callUpdate();
 		},
 		parallelism,
 		parallelEncoding,
 		outputDir,
 		onStart: () => {
 			renderedFrames = 0;
-			onProgress({
-				encodedDoneIn,
-				encodedFrames,
-				renderedDoneIn,
-				renderedFrames,
-				// TODO: Keep a state
-				stitchStage: 'encoding',
-			});
+			callUpdate();
 		},
 		inputProps,
 		envVariables,
@@ -176,16 +170,7 @@ export const renderVideo = async ({
 
 	const closeBrowserPromise = openedBrowser.close();
 	renderedDoneIn = Date.now() - renderStart;
-	onProgress({
-		encodedFrames,
-		renderedFrames,
-		renderedDoneIn,
-		encodedDoneIn,
-		stitchStage: 'encoding',
-	});
-	if (process.env.DEBUG) {
-		Internals.perf.logPerf();
-	}
+	callUpdate();
 
 	if (shouldOutputImageSequence) {
 		return;
@@ -221,27 +206,17 @@ export const renderVideo = async ({
 		parallelism,
 		ffmpegExecutable,
 		onProgress: (frame: number) => {
-			onProgress({
-				encodedFrames: frame,
-				renderedFrames,
-				renderedDoneIn,
-				encodedDoneIn,
-				stitchStage: 'muxing',
-			});
+			stitchStage = 'muxing';
+			encodedFrames = frame;
+			callUpdate();
 		},
 		// TODO: Optimization, Now can download before!
 		onDownload,
 		webpackBundle: bundled,
 		verbose: Internals.Logging.isEqualOrBelowLogLevel('verbose'),
 	});
+	encodedFrames = config.durationInFrames;
 	encodedDoneIn = Date.now() - stitchStart;
-	onProgress({
-		encodedDoneIn,
-		encodedFrames,
-		renderedDoneIn,
-		renderedFrames,
-		stitchStage: 'muxing',
-	});
-
+	callUpdate();
 	await closeBrowserPromise;
 };

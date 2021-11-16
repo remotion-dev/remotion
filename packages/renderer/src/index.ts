@@ -24,7 +24,13 @@ declare global {
 	}
 }
 
-export {renderVideo, RenderVideoOnProgress} from './render-video';
+export {
+	renderVideo,
+	RenderVideoOnProgress,
+	StitchingState,
+	RenderVideoOnDownload,
+	RenderVideoOptions,
+} from './render-video';
 export {combineVideos} from './combine-videos';
 export {FfmpegVersion} from './ffmpeg-flags';
 export {getCompositions} from './get-compositions';

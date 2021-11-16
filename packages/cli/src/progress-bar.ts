@@ -1,4 +1,5 @@
 // @ts-expect-error
+import {StitchingState} from '@remotion/renderer';
 import ansiDiff from 'ansi-diff';
 import chalk from 'chalk';
 import {Internals} from 'remotion';
@@ -75,7 +76,7 @@ type StitchingProgressInput = {
 	totalFrames: number;
 	steps: number;
 	doneIn: number | null;
-	stage: 'encoding' | 'muxing';
+	stage: StitchingState;
 };
 
 export const makeStitchingProgress = ({
