@@ -15,11 +15,11 @@ import {calculateAssetPositions} from './assets/calculate-asset-positions';
 import {convertAssetsToFileUrls} from './assets/convert-assets-to-file-urls';
 import {markAllAssetsAsDownloaded} from './assets/download-and-map-assets-to-file';
 import {getAssetAudioDetails} from './assets/get-asset-audio-details';
+import {Assets} from './assets/types';
 import {calculateFfmpegFilters} from './calculate-ffmpeg-filters';
 import {createFfmpegComplexFilter} from './create-ffmpeg-complex-filter';
 import {getAudioCodecName} from './get-audio-codec-name';
 import {getCodecName} from './get-codec-name';
-import {getFrameInfo} from './get-frame-number-length';
 import {getProResProfileName} from './get-prores-profile-name';
 import {parseFfmpegProgress} from './parse-ffmpeg-progress';
 import {resolveAssetSrc} from './resolve-asset-src';
@@ -37,7 +37,7 @@ export type StitcherOptions = {
 	height: number;
 	outputLocation: string;
 	force: boolean;
-	assetsInfo: RenderAssetInfo;
+	assetsInfo: RenderAssetInfo | null;
 	pixelFormat?: PixelFormat;
 	codec?: Codec;
 	crf?: number;
@@ -55,22 +55,17 @@ const getAssetsData = async (options: StitcherOptions) => {
 	const codec = options.codec ?? Internals.DEFAULT_CODEC;
 	const encoderName = getCodecName(codec);
 	const isAudioOnly = encoderName === null;
-	const [frameInfo, fileUrlAssets] = await Promise.all([
-		options.preEncodedFileLocation
-			? undefined
-			: getFrameInfo({
-					dir: options.dir,
-					isAudioOnly,
-			  }),
-		convertAssetsToFileUrls({
-			assets: options.assetsInfo.assets,
-			downloadDir: options.downloadDir ?? (await makeAssetsDownloadTmpDir()),
-			onDownload: options.onDownload ?? (() => undefined),
-		}),
-	]);
+	const fileUrlAssets = await (options.assetsInfo
+		? convertAssetsToFileUrls({
+				assets: options.assetsInfo.assets,
+				downloadDir: options.downloadDir ?? (await makeAssetsDownloadTmpDir()),
+				onDownload: options.onDownload ?? (() => undefined),
+		  })
+		: null);
 
 	markAllAssetsAsDownloaded();
-	const assetPositions = calculateAssetPositions(fileUrlAssets);
+	const assetPositions: Assets =
+		fileUrlAssets === null ? [] : calculateAssetPositions(fileUrlAssets);
 
 	const assetPaths = assetPositions.map((asset) => resolveAssetSrc(asset.src));
 
@@ -97,7 +92,6 @@ const getAssetsData = async (options: StitcherOptions) => {
 	return {
 		complexFilterFlag,
 		cleanup,
-		frameInfo,
 		assetPaths,
 	};
 };
@@ -154,7 +148,6 @@ export const spawnFfmpeg = async (options: StitcherOptions) => {
 	const {
 		complexFilterFlag = undefined,
 		cleanup = undefined,
-		frameInfo = undefined,
 		assetPaths = undefined,
 	} = options.parallelEncoding ? {} : await getAssetsData(options);
 
@@ -167,11 +160,15 @@ export const spawnFfmpeg = async (options: StitcherOptions) => {
 						? null
 						: ['-f', options.parallelEncoding ? 'image2pipe' : 'image2'],
 					isAudioOnly ? null : ['-s', `${options.width}x${options.height}`],
-					frameInfo ? ['-start_number', String(frameInfo.startNumber)] : null,
-					frameInfo ? ['-i', options.assetsInfo.imageSequenceName] : null,
+					options.assetsInfo
+						? ['-start_number', String(options.assetsInfo.firstFrameIndex)]
+						: null,
+					options.assetsInfo
+						? ['-i', options.assetsInfo.imageSequenceName]
+						: null,
 					options.parallelEncoding ? ['-i', '-'] : null,
 			  ]),
-		...(assetPaths
+		...(options.assetsInfo && assetPaths
 			? assetsToFfmpegInputs({
 					assets: assetPaths,
 					isAudioOnly,

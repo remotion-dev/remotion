@@ -16,6 +16,7 @@ import {stitchFramesToVideo, spawnFfmpeg} from './stitcher';
 import {renderFrames} from './render';
 import {BrowserLog} from './browser-log';
 import {OnStartData} from './types';
+import {RenderInternals} from '.';
 
 export type RenderMediaOnDownload = (src: string) => void;
 
@@ -32,7 +33,6 @@ export type RenderMediaOnProgress = (progress: {
 export type RenderMediaOptions = {
 	proResProfile: ProResProfile | undefined;
 	parallelism: number | null;
-	// TODO: Should rename to better signify that it's preencoding...
 	parallelEncoding: boolean;
 	crf: number | null;
 	outputDir: string;
@@ -51,8 +51,6 @@ export type RenderMediaOptions = {
 	overwrite: boolean;
 	absoluteOutputFile: string;
 	onProgress?: RenderMediaOnProgress;
-	// TODO: Do we really need it? Can't we derive it from codec?
-	fileExtension: string | null;
 	onDownload: (src: string) => void;
 	dumpBrowserLogs: boolean;
 	onBrowserLog?: ((log: BrowserLog) => void) | undefined;
@@ -82,7 +80,6 @@ export const renderMedia = async ({
 	absoluteOutputFile,
 	onProgress,
 	overwrite,
-	fileExtension,
 	onDownload,
 	dumpBrowserLogs,
 	onBrowserLog,
@@ -116,7 +113,7 @@ export const renderMedia = async ({
 
 		preEncodedFileLocation = path.join(
 			outputDir,
-			'pre-encode.' + fileExtension
+			'pre-encode.' + RenderInternals.getFileExtensionFromCodec(codec, 'chunk')
 		);
 
 		preStitcher = await spawnFfmpeg({
@@ -137,7 +134,7 @@ export const renderMedia = async ({
 			verbose: Internals.Logging.isEqualOrBelowLogLevel('verbose'),
 			parallelEncoding,
 			ffmpegExecutable,
-			assetsInfo: {assets: [], imageSequenceName: ''},
+			assetsInfo: null,
 		});
 		stitcherFfmpeg = preStitcher.task;
 	}

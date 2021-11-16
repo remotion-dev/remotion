@@ -1,3 +1,4 @@
+import {RenderInternals} from '@remotion/renderer';
 import {
 	Codec,
 	ImageFormat,
@@ -8,7 +9,6 @@ import {
 import {ChunkRetry} from '../functions/helpers/get-retry-stats';
 import {EnhancedErrorInfo} from '../functions/helpers/write-lambda-error';
 import {AwsRegion} from '../pricing/aws-regions';
-import {getFileExtensionFromCodec} from './get-file-extension-from-codec';
 
 export const MIN_MEMORY = 512;
 export const MAX_MEMORY = 10240;
@@ -110,7 +110,10 @@ export const optimizationProfile = (siteId: string, compositionId: string) =>
 	`optimization-profiles/${siteId}/${compositionId}/optimization-profile`;
 export const getSitesKey = (siteId: string) => `sites/${siteId}`;
 export const outName = (renderId: string, codec: Codec) =>
-	`${rendersPrefix(renderId)}/out.${getFileExtensionFromCodec(codec, 'final')}`;
+	`${rendersPrefix(renderId)}/out.${RenderInternals.getFileExtensionFromCodec(
+		codec,
+		'final'
+	)}`;
 export const outStillName = (renderId: string, imageFormat: ImageFormat) =>
 	`${rendersPrefix(renderId)}/out.${imageFormat}`;
 
