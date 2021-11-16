@@ -1,5 +1,5 @@
-// @ts-expect-error
 import {StitchingState} from '@remotion/renderer';
+// @ts-expect-error
 import ansiDiff from 'ansi-diff';
 import chalk from 'chalk';
 import {Internals} from 'remotion';

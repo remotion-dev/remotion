@@ -4,7 +4,6 @@ test('Should sanitize weird file names when downloading', async () => {
 	const newSrc = getSanitizedFilenameForAssetUrl({
 		src: 'http://gtts-api.miniggiodev.fr/Ici+Japon+Corp.?lang=ja',
 		downloadDir: '/var/tmp',
-		webpackBundle: '/var/tmp',
 	});
 	expect(newSrc).toBe(
 		process.platform === 'win32'
@@ -17,17 +16,14 @@ test('Should give different file names based on different url query parameters',
 	const asset1 = getSanitizedFilenameForAssetUrl({
 		src: 'https://gtts-api.miniggiodev.fr/Ici+Japon+Corp.mp4?hi=1',
 		downloadDir: '',
-		webpackBundle: '/var/tmp',
 	});
 	const sameAgain = getSanitizedFilenameForAssetUrl({
 		src: 'https://gtts-api.miniggiodev.fr/Ici+Japon+Corp.mp4?hi=1',
 		downloadDir: '',
-		webpackBundle: '/var/tmp',
 	});
 	const differentAsset = getSanitizedFilenameForAssetUrl({
 		src: 'https://gtts-api.miniggiodev.fr/Ici+Japon+Corp.mp4?hi=2',
 		downloadDir: '',
-		webpackBundle: '/var/tmp',
 	});
 	expect(asset1).toEqual(sameAgain);
 	expect(asset1).not.toEqual(differentAsset);

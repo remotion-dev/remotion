@@ -23,7 +23,7 @@ export const calculateChunkTimes = ({
 	if (type === 'combined-time-for-cost-calculation') {
 		// TODO: Should also calculate invoker functions, and main function
 		const totalEncodingTimings = parsedTimings
-			.map((p) => p.encoded - p.start)
+			.map((p) => p.rendered - p.start)
 			.reduce((a, b) => a + b, 0);
 
 		return totalEncodingTimings;
@@ -34,7 +34,7 @@ export const calculateChunkTimes = ({
 			return 0;
 		}
 
-		const allEnds = parsedTimings.map((p) => p.encoded);
+		const allEnds = parsedTimings.map((p) => p.rendered);
 		const allStarts = parsedTimings.map((p) => p.start);
 
 		const biggestEnd = RenderInternals.max(allEnds);
