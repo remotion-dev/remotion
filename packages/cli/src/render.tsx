@@ -2,8 +2,8 @@ import {
 	getCompositions,
 	renderFrames,
 	RenderInternals,
-	renderVideo,
-	RenderVideoOnProgress,
+	renderMedia,
+	RenderMediaOnProgress,
 } from '@remotion/renderer';
 import chalk from 'chalk';
 import fs from 'fs';
@@ -109,7 +109,7 @@ export const render = async () => {
 
 	const renderProgress = createOverwriteableCliOutput();
 	const totalFrames = config.durationInFrames;
-	const updateRenderProgress: RenderVideoOnProgress = ({
+	const updateRenderProgress: RenderMediaOnProgress = ({
 		encodedFrames,
 		renderedFrames,
 		encodedDoneIn,
@@ -167,7 +167,7 @@ export const render = async () => {
 			quality,
 		});
 	} else {
-		await renderVideo({
+		await renderMedia({
 			absoluteOutputFile,
 			browser,
 			codec,

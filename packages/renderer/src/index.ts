@@ -25,11 +25,11 @@ declare global {
 }
 
 export {
-	renderVideo,
-	RenderVideoOnProgress,
+	renderMedia,
+	RenderMediaOnProgress,
 	StitchingState,
-	RenderVideoOnDownload,
-	RenderVideoOptions,
+	RenderMediaOnDownload,
+	RenderMediaOptions,
 } from './render-video';
 export {combineVideos} from './combine-videos';
 export {FfmpegVersion} from './ffmpeg-flags';
