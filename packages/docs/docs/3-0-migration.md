@@ -31,3 +31,5 @@ This parameter did probably not to what you thought it would. To avoid any confu
 The necessary information is not embedded in `assetsInfo`, embedded in the return value of `renderFrames()`. The parameter `imageFormat` is not necessary anymore to pass into `stitchFramesToVideo()`.
 
 **Upgrade path**: Remove the `imageFormat` option from `stitchFramesToVideo()`.
+
+## Removed `webpackBundle` from `stitchFramesToVideo` API

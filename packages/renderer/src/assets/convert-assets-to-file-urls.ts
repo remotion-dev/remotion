@@ -13,12 +13,10 @@ export const convertAssetsToFileUrls = async ({
 	assets,
 	downloadDir,
 	onDownload,
-	webpackBundle,
 }: {
 	assets: TAsset[][];
 	downloadDir: string;
 	onDownload: (src: string) => void;
-	webpackBundle: string | null;
 }): Promise<TAsset[][]> => {
 	const chunks = chunk(assets, 1000);
 	const results: TAsset[][][] = [];
@@ -32,7 +30,6 @@ export const convertAssetsToFileUrls = async ({
 							asset: a,
 							downloadDir,
 							onDownload,
-							webpackBundle,
 						});
 					})
 				);

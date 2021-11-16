@@ -47,7 +47,6 @@ export type StitcherOptions = {
 	verbose?: boolean;
 	parallelEncoding?: boolean;
 	preEncodedFileLocation?: string;
-	webpackBundle: string | null;
 	downloadDir?: string;
 	ffmpegExecutable?: FfmpegExecutable;
 };
@@ -66,7 +65,6 @@ const getAssetsData = async (options: StitcherOptions) => {
 		convertAssetsToFileUrls({
 			assets: options.assetsInfo.assets,
 			downloadDir: options.downloadDir ?? (await makeAssetsDownloadTmpDir()),
-			webpackBundle: options.webpackBundle,
 			onDownload: options.onDownload ?? (() => undefined),
 		}),
 	]);
