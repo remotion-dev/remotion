@@ -3,7 +3,6 @@ import {getSanitizedFilenameForAssetUrl} from '../assets/download-and-map-assets
 test('Should sanitize weird file names when downloading', async () => {
 	const newSrc = getSanitizedFilenameForAssetUrl({
 		src: 'http://gtts-api.miniggiodev.fr/Ici+Japon+Corp.?lang=ja',
-		isRemote: true,
 		downloadDir: '/var/tmp',
 		webpackBundle: '/var/tmp',
 	});
@@ -17,19 +16,16 @@ test('Should sanitize weird file names when downloading', async () => {
 test('Should give different file names based on different url query parameters', async () => {
 	const asset1 = getSanitizedFilenameForAssetUrl({
 		src: 'https://gtts-api.miniggiodev.fr/Ici+Japon+Corp.mp4?hi=1',
-		isRemote: true,
 		downloadDir: '',
 		webpackBundle: '/var/tmp',
 	});
 	const sameAgain = getSanitizedFilenameForAssetUrl({
 		src: 'https://gtts-api.miniggiodev.fr/Ici+Japon+Corp.mp4?hi=1',
-		isRemote: true,
 		downloadDir: '',
 		webpackBundle: '/var/tmp',
 	});
 	const differentAsset = getSanitizedFilenameForAssetUrl({
 		src: 'https://gtts-api.miniggiodev.fr/Ici+Japon+Corp.mp4?hi=2',
-		isRemote: true,
 		downloadDir: '',
 		webpackBundle: '/var/tmp',
 	});

@@ -13,7 +13,6 @@ import {
 } from '../audio/use-audio-frame';
 import {CompositionManager} from '../CompositionManager';
 import {isApproximatelyTheSame} from '../is-approximately-the-same';
-import {isRemoteAsset} from '../is-remote-asset';
 import {random} from '../random';
 import {continueRender, delayRender} from '../ready-manager';
 import {SequenceContext} from '../sequencing';
@@ -79,7 +78,6 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 			id,
 			frame: absoluteFrame,
 			volume,
-			isRemote: isRemoteAsset(getAbsoluteSrc(props.src)),
 			mediaFrame: frame,
 			playbackRate: playbackRate ?? 1,
 		});

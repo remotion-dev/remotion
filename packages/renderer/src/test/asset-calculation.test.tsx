@@ -9,7 +9,7 @@ const basicConfig = {
 	height: 1080,
 	fps: 30,
 	durationInFrames: 60,
-	id: 'hithere'
+	id: 'hithere',
 };
 
 const getPositions = async (Markup: React.FC) => {
@@ -29,13 +29,11 @@ test('Should be able to collect assets', async () => {
 	expect(assetPositions.length).toBe(1);
 	expect(withoutId(assetPositions[0])).toEqual({
 		type: 'video',
-		src:
-			'https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/1080/Big_Buck_Bunny_1080_10s_1MB.mp4',
+		src: 'https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/1080/Big_Buck_Bunny_1080_10s_1MB.mp4',
 		duration: 60,
 		startInVideo: 0,
 		trimLeft: 0,
 		volume: 1,
-		isRemote: true,
 		playbackRate: 1,
 	});
 });
@@ -50,24 +48,20 @@ test('Should get multiple assets', async () => {
 	expect(assetPositions.length).toBe(2);
 	expect(withoutId(assetPositions[0])).toEqual({
 		type: 'video',
-		src:
-			'https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/1080/Big_Buck_Bunny_1080_10s_1MB.mp4',
+		src: 'https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/1080/Big_Buck_Bunny_1080_10s_1MB.mp4',
 		duration: 60,
 		startInVideo: 0,
 		trimLeft: 0,
 		volume: 1,
-		isRemote: true,
 		playbackRate: 1,
 	});
 	expect(withoutId(assetPositions[1])).toEqual({
 		type: 'audio',
-		src:
-			'https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/1080/Big_Buck_Bunny_1080_10s_1MB.mp3',
+		src: 'https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/1080/Big_Buck_Bunny_1080_10s_1MB.mp3',
 		duration: 60,
 		startInVideo: 0,
 		trimLeft: 0,
 		volume: 1,
-		isRemote: true,
 		playbackRate: 1,
 	});
 });
@@ -86,25 +80,21 @@ test('Should handle jumps inbetween', async () => {
 	expect(assetPositions.length).toBe(2);
 	expect(withoutId(assetPositions[0])).toEqual({
 		type: 'video',
-		src:
-			'https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/1080/Big_Buck_Bunny_1080_10s_1MB.mp4',
+		src: 'https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/1080/Big_Buck_Bunny_1080_10s_1MB.mp4',
 		duration: 20,
 		startInVideo: 0,
 		trimLeft: 0,
 		volume: 1,
 		playbackRate: 1,
-		isRemote: true,
 	});
 	expect(withoutId(assetPositions[1])).toEqual({
 		type: 'video',
-		src:
-			'https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/1080/Big_Buck_Bunny_1080_10s_1MB.mp4',
+		src: 'https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/1080/Big_Buck_Bunny_1080_10s_1MB.mp4',
 		duration: 39,
 		startInVideo: 21,
 		trimLeft: 21,
 		volume: 1,
 		playbackRate: 1,
-		isRemote: true,
 	});
 });
 
@@ -119,14 +109,12 @@ test('Should support sequencing', async () => {
 	expect(assetPositions.length).toBe(1);
 	expect(withoutId(assetPositions[0])).toEqual({
 		type: 'video',
-		src:
-			'https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/1080/Big_Buck_Bunny_1080_10s_1MB.mp4',
+		src: 'https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/1080/Big_Buck_Bunny_1080_10s_1MB.mp4',
 		duration: 10,
 		startInVideo: 0,
 		trimLeft: 20,
 		volume: 1,
 		playbackRate: 1,
-		isRemote: true,
 	});
 });
 
@@ -146,12 +134,10 @@ test('Should calculate volumes correctly', async () => {
 	expect(assetPositions.length).toBe(1);
 	expect(withoutId(assetPositions[0])).toEqual({
 		type: 'video',
-		src:
-			'https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/1080/Big_Buck_Bunny_1080_10s_1MB.mp4',
+		src: 'https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/1080/Big_Buck_Bunny_1080_10s_1MB.mp4',
 		duration: 60,
 		startInVideo: 0,
 		trimLeft: 0,
-		isRemote: true,
 		playbackRate: 1,
 		volume: new Array(60)
 			.fill(true)
@@ -184,12 +170,10 @@ test('Should calculate startFrom correctly', async () => {
 	expect(assetPositions.length).toBe(1);
 	expect(withoutId(assetPositions[0])).toEqual({
 		type: 'audio',
-		src:
-			'https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/1080/Big_Buck_Bunny_1080_10s_1MB.mp4',
+		src: 'https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/1080/Big_Buck_Bunny_1080_10s_1MB.mp4',
 		duration: 59,
 		startInVideo: 1,
 		trimLeft: 100,
-		isRemote: true,
 		playbackRate: 1,
 		volume: new Array(59).fill(true).map((_, i) =>
 			interpolate(i, [0, 50, 100], [0, 1, 0], {

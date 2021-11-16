@@ -11,7 +11,6 @@ test('Should give true is asset is used at time', () => {
 				type: 'audio',
 				volume: 1,
 				id: '1',
-				isRemote: false,
 				playbackRate: 1,
 			},
 			1
@@ -27,7 +26,6 @@ test('Should give true is asset is used at time', () => {
 				type: 'audio',
 				volume: 1,
 				id: '1',
-				isRemote: false,
 				playbackRate: 1,
 			},
 			1
@@ -46,7 +44,6 @@ test('Should give false if asset is not used at time', () => {
 				type: 'audio',
 				volume: 1,
 				id: '1',
-				isRemote: false,
 				playbackRate: 1,
 			},
 			0
@@ -62,7 +59,6 @@ test('Should give false if asset is not used at time', () => {
 				type: 'audio',
 				volume: 1,
 				id: '1',
-				isRemote: false,
 				playbackRate: 1,
 			},
 			3

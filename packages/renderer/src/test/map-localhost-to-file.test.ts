@@ -4,13 +4,12 @@ import {fileNameInOs} from './os-file';
 test('Should correctly map a localhost URL to an asset', async () => {
 	expect(
 		await downloadAndMapAssetsToFileUrl({
-			localhostAsset: {
+			asset: {
 				type: 'video',
 				src: 'http://localhost:3000/5f25ba62771d1f8195f858ec5ff8e8d6.mp4',
 				id: '0.8331499681195862',
 				frame: 2045,
 				volume: 1,
-				isRemote: false,
 				mediaFrame: 2045,
 				playbackRate: 1,
 			},
@@ -29,7 +28,6 @@ test('Should correctly map a localhost URL to an asset', async () => {
 		frame: 2045,
 		mediaFrame: 2045,
 		volume: 1,
-		isRemote: false,
 		playbackRate: 1,
 	});
 });

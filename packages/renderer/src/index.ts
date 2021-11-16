@@ -30,7 +30,7 @@ export {
 	StitchingState,
 	RenderMediaOnDownload,
 	RenderMediaOptions,
-} from './render-video';
+} from './render-media';
 export {combineVideos} from './combine-videos';
 export {FfmpegVersion} from './ffmpeg-flags';
 export {getCompositions} from './get-compositions';

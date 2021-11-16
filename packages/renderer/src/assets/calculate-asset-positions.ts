@@ -45,7 +45,6 @@ export const calculateAssetPositions = (frames: TAsset[][]): Assets => {
 					startInVideo: frame,
 					trimLeft: asset.mediaFrame,
 					volume: [],
-					isRemote: asset.isRemote,
 					playbackRate: asset.playbackRate,
 				});
 			}
