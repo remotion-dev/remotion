@@ -15,11 +15,11 @@ import {
 import {stitchFramesToVideo, spawnFfmpeg} from './stitcher';
 import {renderFrames} from './render';
 
-export type RenderVideoOnDownload = (src: string) => void;
+export type RenderMediaOnDownload = (src: string) => void;
 
 export type StitchingState = 'encoding' | 'muxing';
 
-export type RenderVideoOnProgress = (progress: {
+export type RenderMediaOnProgress = (progress: {
 	renderedFrames: number;
 	encodedFrames: number;
 	encodedDoneIn: number | null;
@@ -27,7 +27,7 @@ export type RenderVideoOnProgress = (progress: {
 	stitchStage: StitchingState;
 }) => void;
 
-export type RenderVideoOptions = {
+export type RenderMediaOptions = {
 	proResProfile: ProResProfile | undefined;
 	parallelism: number | null;
 	parallelEncoding: boolean;
@@ -47,14 +47,14 @@ export type RenderVideoOptions = {
 	openedBrowser: PuppeteerBrowser;
 	overwrite: boolean;
 	absoluteOutputFile: string;
-	onProgress?: RenderVideoOnProgress;
+	onProgress?: RenderMediaOnProgress;
 	fileExtension: string | null;
 	bundled: string;
 	onDownload: (src: string) => void;
 	dumpBrowserLogs: boolean;
 };
 
-export const renderVideo = async ({
+export const renderMedia = async ({
 	parallelism,
 	proResProfile,
 	parallelEncoding,
@@ -79,7 +79,7 @@ export const renderVideo = async ({
 	bundled,
 	onDownload,
 	dumpBrowserLogs,
-}: RenderVideoOptions) => {
+}: RenderMediaOptions) => {
 	let stitchStage: StitchingState = 'encoding';
 	let stitcherFfmpeg: ExecaChildProcess<string> | undefined;
 	let preStitcher;
