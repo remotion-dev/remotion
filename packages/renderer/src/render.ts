@@ -224,12 +224,14 @@ export const innerRenderFrames = async ({
 			})
 	);
 
-	return {
+	const returnValue: RenderFramesOutput = {
 		assetsInfo: {
 			assets,
+			imageSequenceName: `element-%0${filePadLength}d.${imageFormat}`,
 		},
 		frameCount,
 	};
+	return returnValue;
 };
 
 export const renderFrames = async (

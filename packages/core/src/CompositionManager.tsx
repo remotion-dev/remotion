@@ -65,13 +65,13 @@ export type TAsset = {
 	id: string;
 	frame: number;
 	volume: number;
-	isRemote: boolean;
 	mediaFrame: number;
 	playbackRate: number;
 };
 
 export type RenderAssetInfo = {
 	assets: TAsset[][];
+	imageSequenceName: string;
 };
 
 export type CompositionManagerContext = {
