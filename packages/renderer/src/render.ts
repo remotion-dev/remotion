@@ -139,6 +139,7 @@ export const innerRenderFrames = async ({
 	const pool = new Pool(puppeteerPages);
 
 	const frameCount = getFrameCount(config.durationInFrames, frameRange ?? null);
+	const firstFrameIndex = getFrameToRender(frameRange ?? null, 0);
 	const lastFrameIndex = getFrameToRender(frameRange ?? null, frameCount - 1);
 	// Substract one because 100 frames will be 00-99
 	// --> 2 digits
@@ -227,6 +228,7 @@ export const innerRenderFrames = async ({
 	const returnValue: RenderFramesOutput = {
 		assetsInfo: {
 			assets,
+			firstFrameIndex,
 			imageSequenceName: `element-%0${filePadLength}d.${imageFormat}`,
 		},
 		frameCount,

@@ -21,7 +21,6 @@ import {
 	makeRenderingAndStitchingProgress,
 } from './progress-bar';
 import {bundleOnCli} from './setup-cache';
-import {getUserPassedFileExtension} from './user-passed-output-location';
 import {checkAndValidateFfmpegVersion} from './validate-ffmpeg-version';
 
 export const render = async () => {
@@ -35,7 +34,6 @@ export const render = async () => {
 		codec,
 		proResProfile,
 		parallelism,
-		parallelEncoding,
 		frameRange,
 		shouldOutputImageSequence,
 		absoluteOutputFile,
@@ -49,6 +47,7 @@ export const render = async () => {
 		imageFormat,
 		browserExecutable,
 		ffmpegExecutable,
+		parallelEncoding,
 	} = await getCliOptions({isLambda: false, type: 'series'});
 
 	if (!absoluteOutputFile) {
@@ -216,13 +215,11 @@ export const render = async () => {
 		openedBrowser,
 		outputDir,
 		overwrite,
-		parallelEncoding,
 		parallelism,
 		pixelFormat,
 		proResProfile,
 		quality,
 		serveUrl,
-		fileExtension: getUserPassedFileExtension(),
 		onDownload: (src) => {
 			Log.info('Downloading asset... ', src);
 		},
@@ -230,6 +227,7 @@ export const render = async () => {
 		onStart: ({frameCount}) => {
 			totalFrames = frameCount;
 		},
+		parallelEncoding,
 	});
 
 	Log.info();

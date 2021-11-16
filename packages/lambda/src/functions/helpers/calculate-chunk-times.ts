@@ -2,6 +2,7 @@ import {_Object} from '@aws-sdk/client-s3';
 import {RenderInternals} from '@remotion/renderer';
 import {lambdaTimingsPrefix} from '../../shared/constants';
 import {parseLambdaTimingsKey} from '../../shared/parse-lambda-timings-key';
+import {max, min} from './min-max';
 
 export const calculateChunkTimes = ({
 	contents,
@@ -37,8 +38,8 @@ export const calculateChunkTimes = ({
 		const allEnds = parsedTimings.map((p) => p.rendered);
 		const allStarts = parsedTimings.map((p) => p.start);
 
-		const biggestEnd = RenderInternals.max(allEnds);
-		const smallestStart = RenderInternals.min(allStarts);
+		const biggestEnd = max(allEnds);
+		const smallestStart = min(allStarts);
 
 		return biggestEnd - smallestStart;
 	}

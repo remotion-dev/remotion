@@ -72,6 +72,7 @@ export type TAsset = {
 export type RenderAssetInfo = {
 	assets: TAsset[][];
 	imageSequenceName: string;
+	firstFrameIndex: number;
 };
 
 export type CompositionManagerContext = {

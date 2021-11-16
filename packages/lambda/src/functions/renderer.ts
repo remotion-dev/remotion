@@ -15,7 +15,6 @@ import {
 	OUTPUT_PATH_PREFIX,
 	RENDERER_PATH_TOKEN,
 } from '../shared/constants';
-import {getFileExtensionFromCodec} from '../shared/get-file-extension-from-codec';
 import {randomHash} from '../shared/random-hash';
 import {tmpDir} from '../shared/tmpdir';
 import {
@@ -83,7 +82,7 @@ const renderHandler = async (
 		`localchunk-${String(params.chunk).padStart(
 			8,
 			'0'
-		)}.${getFileExtensionFromCodec(params.codec, 'chunk')}`
+		)}.${RenderInternals.getFileExtensionFromCodec(params.codec, 'chunk')}`
 	);
 
 	await renderMedia({
@@ -136,14 +135,13 @@ const renderHandler = async (
 		codec: params.codec,
 		crf: params.crf ?? null,
 		ffmpegExecutable: null,
-		fileExtension: null,
 		pixelFormat: params.pixelFormat,
 		proResProfile: params.proResProfile,
-		parallelEncoding: false,
 		onDownload: (src: string) => {
 			console.log('Downloading', src);
 		},
 		overwrite: false,
+		parallelEncoding: true,
 	});
 
 	const endRendered = Date.now();
