@@ -16,7 +16,6 @@ const stitchFramesToVideo: (options: {
   outputLocation: string;
   force: boolean;
   assetsInfo: RenderAssetInfo;
-  imageFormat?: "png" | "jpeg" | "none";
   pixelFormat?: PixelFormat;
   codec?: Codec;
   crf?: number;
@@ -58,16 +57,6 @@ Whether in case of an existing file in `outputLocation` it should be overwritten
 ### `assetsInfo`
 
 Information about the audio mix. This is part of the return value of [renderFrames()](/docs/render-frames#return-value).
-
-### `imageFormat?`
-
-_optional_
-
-Either `jpeg`, `png` or `none`. It should match what you passed into the [renderFrames()](/docs/render-frames#imageformat) function.
-
-:::info
-For backwards compatibility, if you omit this parameter, it will use `'png'`. Make sure to explicitly set this to `jpeg` to take advantage of faster rendering.
-:::
 
 ### `pixelFormat?`
 
