@@ -45,7 +45,6 @@ export type StitcherOptions = {
 	pixelFormat?: PixelFormat;
 	codec?: Codec;
 	crf?: number;
-	// TODO: Do we want a parallelism flag for stitcher?
 	parallelism?: number | null;
 	onProgress?: (progress: number) => void;
 	onDownload?: (src: string) => void;
@@ -84,7 +83,6 @@ const getAssetsData = async (options: StitcherOptions) => {
 
 	const assetAudioDetails = await getAssetAudioDetails({
 		assetPaths,
-		parallelism: options.parallelism,
 	});
 
 	const filters = calculateFfmpegFilters({
@@ -130,7 +128,6 @@ export const spawnFfmpeg = async (options: StitcherOptions) => {
 		codec,
 	});
 	const crf = options.crf ?? Internals.getDefaultCrfForCodec(codec);
-	const imageFormat = options.imageFormat ?? DEFAULT_IMAGE_FORMAT;
 	const pixelFormat = options.pixelFormat ?? Internals.DEFAULT_PIXEL_FORMAT;
 	await validateFfmpeg(options.ffmpegExecutable ?? null);
 
@@ -149,7 +146,6 @@ export const spawnFfmpeg = async (options: StitcherOptions) => {
 		console.log('[verbose] encoder', encoderName);
 		console.log('[verbose] audioCodec', audioCodecName);
 		console.log('[verbose] pixelFormat', pixelFormat);
-		console.log('[verbose] imageFormat', imageFormat);
 		if (supportsCrf) {
 			console.log('[verbose] crf', crf);
 		}
@@ -160,10 +156,6 @@ export const spawnFfmpeg = async (options: StitcherOptions) => {
 	}
 
 	Internals.validateSelectedCrfAndCodecCombination(crf, codec);
-	Internals.validateSelectedPixelFormatAndImageFormatCombination(
-		pixelFormat,
-		imageFormat
-	);
 	Internals.validateSelectedPixelFormatAndCodecCombination(pixelFormat, codec);
 
 	const {
@@ -183,9 +175,7 @@ export const spawnFfmpeg = async (options: StitcherOptions) => {
 						: ['-f', options.parallelEncoding ? 'image2pipe' : 'image2'],
 					isAudioOnly ? null : ['-s', `${options.width}x${options.height}`],
 					frameInfo ? ['-start_number', String(frameInfo.startNumber)] : null,
-					frameInfo
-						? ['-i', `element-%0${frameInfo.numberLength}d.${imageFormat}`]
-						: null,
+					frameInfo ? ['-i', options.assetsInfo.imageSequenceName] : null,
 					options.parallelEncoding ? ['-i', '-'] : null,
 			  ]),
 		...(assetPaths
