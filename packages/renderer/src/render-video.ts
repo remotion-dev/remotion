@@ -48,10 +48,10 @@ export type RenderVideoOptions = {
 	overwrite: boolean;
 	absoluteOutputFile: string;
 	onProgress?: RenderVideoOnProgress;
-	shouldOutputImageSequence: boolean;
 	fileExtension: string | null;
 	bundled: string;
 	onDownload: (src: string) => void;
+	dumpBrowserLogs: boolean;
 };
 
 export const renderVideo = async ({
@@ -75,10 +75,10 @@ export const renderVideo = async ({
 	absoluteOutputFile,
 	onProgress,
 	overwrite,
-	shouldOutputImageSequence,
 	fileExtension,
 	bundled,
 	onDownload,
+	dumpBrowserLogs,
 }: RenderVideoOptions) => {
 	let stitchStage: StitchingState = 'encoding';
 	let stitcherFfmpeg: ExecaChildProcess<string> | undefined;
@@ -136,14 +136,13 @@ export const renderVideo = async ({
 		stitcherFfmpeg = preStitcher.task;
 	}
 
-	const renderer = renderFrames({
+	const {assetsInfo} = await renderFrames({
 		config,
 		onFrameUpdate: (frame: number) => {
 			renderedFrames = frame;
 			callUpdate();
 		},
 		parallelism,
-		parallelEncoding,
 		outputDir,
 		onStart: () => {
 			renderedFrames = 0;
@@ -160,8 +159,8 @@ export const renderVideo = async ({
 			stitcherFfmpeg?.stdin?.write(buffer);
 		},
 		serveUrl,
+		dumpBrowserLogs,
 	});
-	const {assetsInfo} = await renderer;
 	if (stitcherFfmpeg) {
 		stitcherFfmpeg?.stdin?.end();
 		await stitcherFfmpeg;
@@ -171,10 +170,6 @@ export const renderVideo = async ({
 	const closeBrowserPromise = openedBrowser.close();
 	renderedDoneIn = Date.now() - renderStart;
 	callUpdate();
-
-	if (shouldOutputImageSequence) {
-		return;
-	}
 
 	if (typeof crf !== 'number') {
 		throw new TypeError('CRF is unexpectedly not a number');

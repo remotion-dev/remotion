@@ -39,7 +39,6 @@ type RenderFramesOptions = {
 	puppeteerInstance?: PuppeteerBrowser;
 	browserExecutable?: BrowserExecutable;
 	onBrowserLog?: (log: BrowserLog) => void;
-	parallelEncoding?: boolean;
 	writeFrame?: (buffer?: Buffer) => void;
 };
 
@@ -58,7 +57,6 @@ export const innerRenderFrames = async ({
 	onError,
 	envVariables,
 	onBrowserLog,
-	parallelEncoding,
 	writeFrame,
 }: RenderFramesOptions & {
 	onError: (err: Error) => void;
@@ -186,7 +184,7 @@ export const innerRenderFrames = async ({
 				}
 
 				if (imageFormat !== 'none') {
-					if (parallelEncoding) {
+					if (writeFrame) {
 						const buffer = await provideScreenshot({
 							page: freePage,
 							imageFormat,
@@ -196,7 +194,7 @@ export const innerRenderFrames = async ({
 								output: undefined,
 							},
 						});
-						writeFrame?.(buffer);
+						writeFrame(buffer);
 					} else {
 						const output = path.join(
 							outputDir,

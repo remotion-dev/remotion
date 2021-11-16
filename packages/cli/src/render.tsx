@@ -1,5 +1,6 @@
 import {
 	getCompositions,
+	renderFrames,
 	RenderInternals,
 	renderVideo,
 	RenderVideoOnProgress,
@@ -65,12 +66,6 @@ export const render = async () => {
 		shouldDumpIo: Internals.Logging.isEqualOrBelowLogLevel('verbose'),
 	});
 
-	if (shouldOutputImageSequence) {
-		fs.mkdirSync(absoluteOutputFile, {
-			recursive: true,
-		});
-	}
-
 	const hasStitching = !shouldOutputImageSequence;
 
 	const steps = hasStitching ? 3 : 2;
@@ -130,43 +125,77 @@ export const render = async () => {
 					doneIn: renderedDoneIn,
 					steps,
 				},
-				stitching: {
-					doneIn: encodedDoneIn,
-					frames: encodedFrames ?? 0,
-					stage: stitchStage,
-					steps,
-					totalFrames,
-				},
+				stitching: shouldOutputImageSequence
+					? null
+					: {
+							doneIn: encodedDoneIn,
+							frames: encodedFrames,
+							stage: stitchStage,
+							steps,
+							totalFrames,
+					  },
 			})
 		);
-	await renderVideo({
-		absoluteOutputFile,
-		browser,
-		codec,
-		config,
-		crf,
-		envVariables,
-		ffmpegExecutable,
-		frameRange,
-		imageFormat,
-		inputProps,
-		onProgress: updateRenderProgress,
-		openedBrowser,
-		outputDir,
-		overwrite,
-		parallelEncoding,
-		parallelism,
-		pixelFormat,
-		proResProfile,
-		quality,
-		serveUrl,
-		shouldOutputImageSequence,
-		fileExtension: getUserPassedFileExtension(),
-		bundled,
-		onDownload: (src) => {
-			Log.info('Downloading asset... ', src);
-		},
-	});
+	if (shouldOutputImageSequence) {
+		fs.mkdirSync(absoluteOutputFile, {
+			recursive: true,
+		});
+		if (imageFormat === 'none') {
+			Log.error(
+				'Cannot render an image sequence with a codec that renders no images.'
+			);
+			Log.error(`codec = ${codec}, imageFormat = ${imageFormat}`);
+			process.exit(1);
+		}
+
+		await renderFrames({
+			config,
+			imageFormat,
+			inputProps,
+			// TODO
+			onFrameUpdate: () => void 0,
+			// TODO
+			onStart: () => void 0,
+			outputDir,
+			serveUrl,
+			browser,
+			dumpBrowserLogs: Internals.Logging.isEqualOrBelowLogLevel('verbose'),
+			envVariables,
+			frameRange,
+			parallelism,
+			puppeteerInstance: openedBrowser,
+			quality,
+		});
+	} else {
+		await renderVideo({
+			absoluteOutputFile,
+			browser,
+			codec,
+			config,
+			crf,
+			envVariables,
+			ffmpegExecutable,
+			frameRange,
+			imageFormat,
+			inputProps,
+			onProgress: updateRenderProgress,
+			openedBrowser,
+			outputDir,
+			overwrite,
+			parallelEncoding,
+			parallelism,
+			pixelFormat,
+			proResProfile,
+			quality,
+			serveUrl,
+			fileExtension: getUserPassedFileExtension(),
+			bundled,
+			onDownload: (src) => {
+				Log.info('Downloading asset... ', src);
+			},
+			dumpBrowserLogs: Internals.Logging.isEqualOrBelowLogLevel('verbose'),
+		});
+	}
 
 	Log.info();
 	Log.info();
