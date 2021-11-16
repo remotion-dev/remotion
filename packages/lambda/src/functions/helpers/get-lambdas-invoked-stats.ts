@@ -1,5 +1,4 @@
 import {_Object} from '@aws-sdk/client-s3';
-import {RenderInternals} from '@remotion/renderer';
 import {lambdaInitializedPrefix} from '../../shared/constants';
 import {parseLambdaInitializedKey} from '../../shared/parse-lambda-initialized-key';
 import {max} from './min-max';

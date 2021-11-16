@@ -1,5 +1,4 @@
 import {_Object} from '@aws-sdk/client-s3';
-import {RenderInternals} from '@remotion/renderer';
 import {lambdaTimingsPrefix} from '../../shared/constants';
 import {parseLambdaTimingsKey} from '../../shared/parse-lambda-timings-key';
 import {max, min} from './min-max';
