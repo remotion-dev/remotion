@@ -109,11 +109,8 @@ export const getErrorFileName = ({
 export const optimizationProfile = (siteId: string, compositionId: string) =>
 	`optimization-profiles/${siteId}/${compositionId}/optimization-profile`;
 export const getSitesKey = (siteId: string) => `sites/${siteId}`;
-export const outName = (renderId: string, codec: Codec) =>
-	`${rendersPrefix(renderId)}/out.${RenderInternals.getFileExtensionFromCodec(
-		codec,
-		'final'
-	)}`;
+export const outName = (renderId: string, extension: string) =>
+	`${rendersPrefix(renderId)}/out.${extension}`;
 export const outStillName = (renderId: string, imageFormat: ImageFormat) =>
 	`${rendersPrefix(renderId)}/out.${imageFormat}`;
 
