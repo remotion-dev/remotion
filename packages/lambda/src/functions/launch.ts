@@ -1,4 +1,5 @@
 import {InvokeCommand} from '@aws-sdk/client-lambda';
+import {RenderInternals} from '@remotion/renderer';
 import fs from 'fs';
 import {Internals} from 'remotion';
 import {validateFramesPerLambda} from '../api/validate-frames-per-lambda';
@@ -254,7 +255,10 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 
 	await lambdaWriteFile({
 		bucketName: params.bucketName,
-		key: outName(params.renderId, params.codec),
+		key: outName(
+			params.renderId,
+			RenderInternals.getFileExtensionFromCodec(params.codec, 'final')
+		),
 		body: fs.createReadStream(outfile),
 		region: getCurrentRegionInFunction(),
 		privacy: params.privacy,
