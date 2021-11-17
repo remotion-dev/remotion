@@ -29,7 +29,7 @@
 		"file-loader": "^6.2.0",
 		"latest-version": "^5.1.0",
 		"react-refresh": "^0.9.0-rc.2",
-		"remotion": "^2.5.4",
+		"remotion": "2.5.4",
 		"semver": "7.3.4",
 		"source-map-loader": "^3.0.0",
 		"style-loader": "^2.0.0",
