@@ -18,6 +18,7 @@ import {BrowserLog} from './browser-log';
 import {OnStartData} from './types';
 import {RenderInternals} from '.';
 import {makeAssetsDownloadTmpDir} from './make-assets-download-dir';
+import {OnDownload} from './assets/download-and-map-assets-to-file';
 
 export type RenderMediaOnDownload = (src: string) => void;
 
@@ -52,7 +53,7 @@ export type RenderMediaOptions = {
 	overwrite: boolean;
 	absoluteOutputFile: string;
 	onProgress?: RenderMediaOnProgress;
-	onDownload: (src: string) => void;
+	onDownload: OnDownload;
 	dumpBrowserLogs: boolean;
 	onBrowserLog?: ((log: BrowserLog) => void) | undefined;
 	onStart: (data: OnStartData) => void;

@@ -1,5 +1,8 @@
 import {TAsset} from 'remotion';
-import {downloadAndMapAssetsToFileUrl} from './download-and-map-assets-to-file';
+import {
+	downloadAndMapAssetsToFileUrl,
+	OnDownload,
+} from './download-and-map-assets-to-file';
 
 const chunk = <T>(input: T[], size: number) => {
 	return input.reduce<T[][]>((arr, item, idx) => {
@@ -16,7 +19,7 @@ export const convertAssetsToFileUrls = async ({
 }: {
 	assets: TAsset[][];
 	downloadDir: string;
-	onDownload: (src: string) => void;
+	onDownload: OnDownload;
 }): Promise<TAsset[][]> => {
 	const chunks = chunk(assets, 1000);
 	const results: TAsset[][][] = [];

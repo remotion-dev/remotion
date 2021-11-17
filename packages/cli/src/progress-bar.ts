@@ -79,6 +79,14 @@ type StitchingProgressInput = {
 	stage: StitchingState;
 };
 
+export const makeDownloadProgress = (progress: DownloadProgress) => {
+	return [
+		`(-/-)`,
+		makeProgressBar(progress.progress),
+		`Downloading ${progress.name}`,
+	].join(' ');
+};
+
 export const makeStitchingProgress = ({
 	frames,
 	totalFrames,
@@ -97,15 +105,24 @@ export const makeStitchingProgress = ({
 	].join(' ');
 };
 
+export type DownloadProgress = {
+	name: string;
+	id: number;
+	progress: number;
+};
+
 export const makeRenderingAndStitchingProgress = ({
 	rendering,
 	stitching,
+	downloads,
 }: {
 	rendering: RenderingProgressInput;
 	stitching: StitchingProgressInput | null;
+	downloads: DownloadProgress[];
 }) => {
 	return [
 		makeRenderingProgress(rendering),
+		...downloads.map((d) => makeDownloadProgress(d)),
 		stitching === null ? null : makeStitchingProgress(stitching),
 	].join('\n');
 };

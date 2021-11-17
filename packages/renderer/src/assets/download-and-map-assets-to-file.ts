@@ -4,6 +4,8 @@ import path from 'path';
 import {random, TAsset} from 'remotion';
 import sanitizeFilename from 'sanitize-filename';
 
+export type OnDownload = (src: string) => (progress: {percent: number}) => void;
+
 const isDownloadingMap: {[key: string]: boolean} = {};
 const hasBeenDownloadedMap: {[key: string]: boolean} = {};
 const listeners: {[key: string]: (() => void)[]} = {};
@@ -31,7 +33,7 @@ const notifyAssetIsDownloaded = (src: string) => {
 const downloadAsset = async (
 	src: string,
 	to: string,
-	onDownload: (src: string) => void
+	onDownload: (src: string) => (progress: {percent: number}) => void
 ) => {
 	if (hasBeenDownloadedMap[src]) {
 		return;
@@ -42,7 +44,8 @@ const downloadAsset = async (
 	}
 
 	isDownloadingMap[src] = true;
-	onDownload(src);
+
+	const onProgress = onDownload(src);
 	mkdirSync(path.resolve(to, '..'), {
 		recursive: true,
 	});
@@ -56,10 +59,13 @@ const downloadAsset = async (
 		writeStream.on('close', () => resolve());
 		writeStream.on('error', (err) => reject(err));
 
-		got
-			.stream(src)
-			.pipe(writeStream)
-			.on('error', (err) => reject(err));
+		const stream = got.stream(src);
+		stream.on('downloadProgress', ({percent}) => {
+			onProgress({
+				percent,
+			});
+		});
+		stream.pipe(writeStream).on('error', (err) => reject(err));
 	});
 	notifyAssetIsDownloaded(src);
 };
@@ -105,7 +111,7 @@ export const downloadAndMapAssetsToFileUrl = async ({
 }: {
 	asset: TAsset;
 	downloadDir: string;
-	onDownload: (src: string) => void;
+	onDownload: OnDownload;
 }): Promise<TAsset> => {
 	const newSrc = getSanitizedFilenameForAssetUrl({
 		src: asset.src,
