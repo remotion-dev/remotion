@@ -8,6 +8,7 @@ import {
 import {getActualConcurrency} from './get-concurrency';
 import {getFileExtensionFromCodec} from './get-extension-from-codec';
 import {ensureLocalBrowser} from './get-local-browser-executable';
+import {makeAssetsDownloadTmpDir} from './make-assets-download-dir';
 import {normalizeServeUrl} from './normalize-serve-url';
 import {openBrowser} from './open-browser';
 import {serveStatic} from './serve-static';
@@ -55,4 +56,5 @@ export const RenderInternals = {
 	normalizeServeUrl,
 	spawnFfmpeg,
 	getFileExtensionFromCodec,
+	makeAssetsDownloadTmpDir,
 };

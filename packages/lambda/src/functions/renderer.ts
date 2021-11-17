@@ -140,8 +140,11 @@ const renderHandler = async (
 		onDownload: (src: string) => {
 			console.log('Downloading', src);
 		},
+
 		overwrite: false,
 		parallelEncoding: true,
+
+		downloadDir: DOWNLOADS_DIR,
 	});
 
 	const endRendered = Date.now();

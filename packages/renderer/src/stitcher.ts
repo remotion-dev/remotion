@@ -1,7 +1,4 @@
 import execa from 'execa';
-import fs from 'fs';
-import os from 'os';
-import path from 'path';
 import {
 	Codec,
 	FfmpegExecutable,
@@ -26,10 +23,6 @@ import {resolveAssetSrc} from './resolve-asset-src';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
 import {validateFfmpeg} from './validate-ffmpeg';
 
-const makeAssetsDownloadTmpDir = (): Promise<string> => {
-	return fs.promises.mkdtemp(path.join(os.tmpdir(), 'remotion-assets-dir'));
-};
-
 export type StitcherOptions = {
 	dir: string;
 	fps: number;
@@ -47,7 +40,7 @@ export type StitcherOptions = {
 	verbose?: boolean;
 	parallelEncoding?: boolean;
 	preEncodedFileLocation?: string;
-	downloadDir?: string;
+	downloadDir: string;
 	ffmpegExecutable?: FfmpegExecutable;
 };
 
@@ -58,7 +51,7 @@ const getAssetsData = async (options: StitcherOptions) => {
 	const fileUrlAssets = await (options.assetsInfo
 		? convertAssetsToFileUrls({
 				assets: options.assetsInfo.assets,
-				downloadDir: options.downloadDir ?? (await makeAssetsDownloadTmpDir()),
+				downloadDir: options.downloadDir,
 				onDownload: options.onDownload ?? (() => undefined),
 		  })
 		: null);
