@@ -8,6 +8,7 @@ import {
 	Internals,
 	VideoConfig,
 } from 'remotion';
+import {downloadAndMapAssetsToFileUrl} from './assets/download-and-map-assets-to-file';
 import {BrowserLog} from './browser-log';
 import {cycleBrowserTabs} from './cycle-browser-tabs';
 import {getActualConcurrency} from './get-concurrency';
@@ -40,6 +41,8 @@ type RenderFramesOptions = {
 	browserExecutable?: BrowserExecutable;
 	onBrowserLog?: (log: BrowserLog) => void;
 	writeFrame?: (buffer?: Buffer) => void;
+	onDownload?: (src: string) => void;
+	downloadDir: string;
 };
 
 export const innerRenderFrames = async ({
@@ -58,6 +61,8 @@ export const innerRenderFrames = async ({
 	envVariables,
 	onBrowserLog,
 	writeFrame,
+	downloadDir,
+	onDownload,
 }: RenderFramesOptions & {
 	onError: (err: Error) => void;
 }): Promise<RenderFramesOutput> => {
@@ -215,6 +220,13 @@ export const innerRenderFrames = async ({
 
 				const collectedAssets = await freePage.evaluate(() => {
 					return window.remotion_collectAssets();
+				});
+				collectedAssets.forEach((asset) => {
+					downloadAndMapAssetsToFileUrl({
+						asset,
+						downloadDir,
+						onDownload: onDownload ?? (() => undefined),
+					});
 				});
 				pool.release(freePage);
 				framesRendered++;

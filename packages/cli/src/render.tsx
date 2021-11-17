@@ -185,6 +185,7 @@ export const render = async () => {
 			parallelism,
 			puppeteerInstance: openedBrowser,
 			quality,
+			downloadDir: await RenderInternals.makeAssetsDownloadTmpDir(),
 		});
 		const doneIn = Date.now() - startTime;
 		updateRenderProgress({

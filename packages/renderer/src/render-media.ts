@@ -17,6 +17,7 @@ import {renderFrames} from './render';
 import {BrowserLog} from './browser-log';
 import {OnStartData} from './types';
 import {RenderInternals} from '.';
+import {makeAssetsDownloadTmpDir} from './make-assets-download-dir';
 
 export type RenderMediaOnDownload = (src: string) => void;
 
@@ -84,7 +85,7 @@ export const renderMedia = async ({
 	dumpBrowserLogs,
 	onBrowserLog,
 	onStart,
-	downloadDir,
+	downloadDir: userDownloadDir,
 }: RenderMediaOptions) => {
 	let stitchStage: StitchingState = 'encoding';
 	let stitcherFfmpeg: ExecaChildProcess<string> | undefined;
@@ -105,6 +106,8 @@ export const renderMedia = async ({
 			stitchStage,
 		});
 	};
+
+	const downloadDir = userDownloadDir ?? (await makeAssetsDownloadTmpDir());
 
 	if (parallelEncoding) {
 		if (typeof crf !== 'number') {
@@ -135,6 +138,7 @@ export const renderMedia = async ({
 			parallelEncoding,
 			ffmpegExecutable,
 			assetsInfo: null,
+			downloadDir,
 		});
 		stitcherFfmpeg = preStitcher.task;
 	}
@@ -165,6 +169,8 @@ export const renderMedia = async ({
 		serveUrl,
 		dumpBrowserLogs,
 		onBrowserLog,
+		downloadDir,
+		onDownload,
 	});
 	if (stitcherFfmpeg) {
 		stitcherFfmpeg?.stdin?.end();
@@ -208,7 +214,6 @@ export const renderMedia = async ({
 			encodedFrames = frame;
 			callUpdate();
 		},
-		// TODO: Optimization, Now can download before!
 		onDownload,
 		verbose: Internals.Logging.isEqualOrBelowLogLevel('verbose'),
 		parallelEncoding: false,
