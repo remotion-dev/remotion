@@ -139,6 +139,7 @@ const renderHandler = async (
 		proResProfile: params.proResProfile,
 		onDownload: (src: string) => {
 			console.log('Downloading', src);
+			return () => undefined;
 		},
 
 		overwrite: false,

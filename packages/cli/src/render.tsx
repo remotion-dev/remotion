@@ -4,6 +4,7 @@ import {
 	RenderInternals,
 	renderMedia,
 	RenderMediaOnProgress,
+	StitchingState,
 } from '@remotion/renderer';
 import chalk from 'chalk';
 import fs from 'fs';
@@ -18,6 +19,7 @@ import {Log} from './log';
 import {parsedCli} from './parse-command-line';
 import {
 	createOverwriteableCliOutput,
+	DownloadProgress,
 	makeRenderingAndStitchingProgress,
 } from './progress-bar';
 import {bundleOnCli} from './setup-cache';
@@ -108,13 +110,14 @@ export const render = async () => {
 
 	const renderProgress = createOverwriteableCliOutput();
 	let totalFrames: number | null = 0;
-	const updateRenderProgress: RenderMediaOnProgress = ({
-		encodedFrames,
-		renderedFrames,
-		encodedDoneIn,
-		renderedDoneIn,
-		stitchStage,
-	}) => {
+	let encodedFrames = 0;
+	let renderedFrames = 0;
+	let encodedDoneIn: number | null = null;
+	let renderedDoneIn: number | null = null;
+	let stitchStage: StitchingState = 'encoding';
+	const downloads: DownloadProgress[] = [];
+
+	const updateRenderProgress = () => {
 		if (totalFrames === null) {
 			throw new Error('totalFrames should not be 0');
 		}
@@ -137,6 +140,7 @@ export const render = async () => {
 							steps,
 							totalFrames,
 					  },
+				downloads,
 			})
 		);
 	};
@@ -157,24 +161,13 @@ export const render = async () => {
 			config,
 			imageFormat,
 			inputProps,
-			onFrameUpdate: (renderedFrames) => {
-				updateRenderProgress({
-					encodedDoneIn: null,
-					encodedFrames: 0,
-					renderedDoneIn: null,
-					renderedFrames,
-					stitchStage: 'encoding',
-				});
+			onFrameUpdate: (rendered) => {
+				renderedFrames = rendered;
+				updateRenderProgress();
 			},
 			onStart: ({frameCount}) => {
 				totalFrames = frameCount;
-				return updateRenderProgress({
-					encodedDoneIn: null,
-					encodedFrames: 0,
-					renderedDoneIn: null,
-					renderedFrames: 0,
-					stitchStage: 'encoding',
-				});
+				return updateRenderProgress();
 			},
 			outputDir,
 			serveUrl,
@@ -187,14 +180,9 @@ export const render = async () => {
 			quality,
 			downloadDir: await RenderInternals.makeAssetsDownloadTmpDir(),
 		});
-		const doneIn = Date.now() - startTime;
-		updateRenderProgress({
-			encodedDoneIn: doneIn,
-			encodedFrames: 0,
-			renderedDoneIn: null,
-			renderedFrames: totalFrames,
-			stitchStage: 'encoding',
-		});
+		renderedDoneIn = Date.now() - startTime;
+
+		updateRenderProgress();
 		Log.info();
 		Log.info();
 		Log.info(chalk.green('\nYour image sequence is ready!'));
@@ -212,7 +200,14 @@ export const render = async () => {
 		frameRange,
 		imageFormat,
 		inputProps,
-		onProgress: updateRenderProgress,
+		onProgress: (update) => {
+			encodedDoneIn = update.encodedDoneIn;
+			encodedFrames = update.encodedFrames;
+			renderedDoneIn = update.renderedDoneIn;
+			stitchStage = update.stitchStage;
+			renderedFrames = update.renderedFrames;
+			updateRenderProgress();
+		},
 		openedBrowser,
 		outputDir,
 		overwrite,
@@ -222,7 +217,19 @@ export const render = async () => {
 		quality,
 		serveUrl,
 		onDownload: (src) => {
-			Log.info('Downloading asset... ', src);
+			const id = Math.random();
+			const download: DownloadProgress = {
+				id,
+				name: src,
+				progress: 0,
+			};
+			downloads.push(download);
+			updateRenderProgress();
+
+			return ({percent}) => {
+				download.progress = percent;
+				updateRenderProgress();
+			};
 		},
 		dumpBrowserLogs: Internals.Logging.isEqualOrBelowLogLevel('verbose'),
 		onStart: ({frameCount}) => {

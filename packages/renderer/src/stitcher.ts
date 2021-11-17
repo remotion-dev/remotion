@@ -10,7 +10,10 @@ import {
 import {assetsToFfmpegInputs} from './assets-to-ffmpeg-inputs';
 import {calculateAssetPositions} from './assets/calculate-asset-positions';
 import {convertAssetsToFileUrls} from './assets/convert-assets-to-file-urls';
-import {markAllAssetsAsDownloaded} from './assets/download-and-map-assets-to-file';
+import {
+	markAllAssetsAsDownloaded,
+	OnDownload,
+} from './assets/download-and-map-assets-to-file';
 import {getAssetAudioDetails} from './assets/get-asset-audio-details';
 import {Assets} from './assets/types';
 import {calculateFfmpegFilters} from './calculate-ffmpeg-filters';
@@ -35,7 +38,7 @@ export type StitcherOptions = {
 	codec?: Codec;
 	crf?: number;
 	onProgress?: (progress: number) => void;
-	onDownload?: (src: string) => void;
+	onDownload?: OnDownload;
 	proResProfile?: ProResProfile;
 	verbose?: boolean;
 	parallelEncoding?: boolean;
@@ -52,7 +55,7 @@ const getAssetsData = async (options: StitcherOptions) => {
 		? convertAssetsToFileUrls({
 				assets: options.assetsInfo.assets,
 				downloadDir: options.downloadDir,
-				onDownload: options.onDownload ?? (() => undefined),
+				onDownload: options.onDownload ?? (() => () => undefined),
 		  })
 		: null);
 
