@@ -1,4 +1,3 @@
-import {RenderInternals} from '@remotion/renderer';
 import {
 	Codec,
 	ImageFormat,
