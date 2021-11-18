@@ -6,7 +6,6 @@ import path from 'path';
 import {getLambdaClient} from '../shared/aws-clients';
 import {
 	chunkKeyForIndex,
-	DOWNLOADS_DIR,
 	lambdaInitializedKey,
 	LambdaPayload,
 	LambdaPayloads,
@@ -16,7 +15,6 @@ import {
 	RENDERER_PATH_TOKEN,
 } from '../shared/constants';
 import {randomHash} from '../shared/random-hash';
-import {tmpDir} from '../shared/tmpdir';
 import {
 	ChunkTimingData,
 	ObjectChunkTimingData,
@@ -53,10 +51,6 @@ const renderHandler = async (
 		(fs.rmSync ?? fs.rmdirSync)(outputPath);
 	}
 
-	if (!fs.existsSync(DOWNLOADS_DIR)) {
-		fs.mkdirSync(DOWNLOADS_DIR);
-	}
-
 	fs.mkdirSync(outputPath);
 
 	if (typeof params.chunk !== 'number') {
@@ -75,7 +69,7 @@ const renderHandler = async (
 		startDate: start,
 	};
 
-	const outdir = tmpDir(RENDERER_PATH_TOKEN);
+	const outdir = RenderInternals.tmpDir(RENDERER_PATH_TOKEN);
 
 	const outputLocation = path.join(
 		outdir,
@@ -144,8 +138,6 @@ const renderHandler = async (
 
 		overwrite: false,
 		parallelEncoding: true,
-
-		downloadDir: DOWNLOADS_DIR,
 	});
 
 	const endRendered = Date.now();

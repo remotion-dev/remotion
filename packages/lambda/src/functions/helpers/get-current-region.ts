@@ -1,5 +1,5 @@
 import {AwsRegion} from '../../pricing/aws-regions';
-import {isInLambda} from '../../shared/tmpdir';
+import {isInLambda} from '../../shared/is-in-lambda';
 
 export const getCurrentRegionInFunction = () => {
 	if (!isInLambda) {

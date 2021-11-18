@@ -16,7 +16,6 @@ import {
 	REMOTION_CONCATED_TOKEN,
 	REMOTION_FILELIST_TOKEN,
 } from '../../shared/constants';
-import {tmpDir} from '../../shared/tmpdir';
 import {lambdaLs, lambdaReadFile} from './io';
 import {timer} from './timer';
 
@@ -164,7 +163,7 @@ export const concatVideosS3 = async ({
 	codec: Codec;
 	expectedBucketOwner: string;
 }) => {
-	const outdir = join(tmpDir(CONCAT_FOLDER_TOKEN), 'bucket');
+	const outdir = join(RenderInternals.tmpDir(CONCAT_FOLDER_TOKEN), 'bucket');
 	if (existsSync(outdir)) {
 		(rmSync ?? rmdirSync)(outdir, {
 			recursive: true,
@@ -182,11 +181,11 @@ export const concatVideosS3 = async ({
 	});
 
 	const outfile = join(
-		tmpDir(REMOTION_CONCATED_TOKEN),
+		RenderInternals.tmpDir(REMOTION_CONCATED_TOKEN),
 		'concat.' + RenderInternals.getFileExtensionFromCodec(codec, 'final')
 	);
 	const combine = timer('Combine videos');
-	const filelistDir = tmpDir(REMOTION_FILELIST_TOKEN);
+	const filelistDir = RenderInternals.tmpDir(REMOTION_FILELIST_TOKEN);
 	const encodingStart = Date.now();
 	await combineVideos({
 		files,

@@ -43,7 +43,6 @@ export type StitcherOptions = {
 	verbose?: boolean;
 	parallelEncoding?: boolean;
 	preEncodedFileLocation?: string;
-	downloadDir: string;
 	ffmpegExecutable?: FfmpegExecutable;
 };
 
@@ -54,7 +53,7 @@ const getAssetsData = async (options: StitcherOptions) => {
 	const fileUrlAssets = await (options.assetsInfo
 		? convertAssetsToFileUrls({
 				assets: options.assetsInfo.assets,
-				downloadDir: options.downloadDir,
+				downloadDir: options.assetsInfo.downloadDir,
 				onDownload: options.onDownload ?? (() => () => undefined),
 		  })
 		: null);

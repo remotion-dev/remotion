@@ -1,5 +1,6 @@
 import {
 	getCompositions,
+	openBrowser,
 	RenderInternals,
 	renderStill,
 } from '@remotion/renderer';
@@ -76,7 +77,7 @@ export const still = async () => {
 		);
 	}
 
-	const browserInstance = RenderInternals.openBrowser(browser, {
+	const browserInstance = openBrowser(browser, {
 		browserExecutable,
 		shouldDumpIo: Internals.Logging.isEqualOrBelowLogLevel('verbose'),
 	});

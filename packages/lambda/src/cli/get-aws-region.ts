@@ -1,6 +1,6 @@
 import {AwsRegion} from '../pricing/aws-regions';
 import {DEFAULT_REGION} from '../shared/constants';
-import {isInLambda} from '../shared/tmpdir';
+import {isInLambda} from '../shared/is-in-lambda';
 import {validateAwsRegion} from '../shared/validate-aws-region';
 import {parsedLambdaCli} from './args';
 
