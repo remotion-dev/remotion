@@ -37,7 +37,7 @@ jobs:
           pnpm run testlambda
   ssr-tests:
     runs-on: ubuntu-latest
-    name: Lambda integration
+    name: SSR integration
     steps:
       - uses: actions/checkout@main
       - uses: actions/setup-node@v2
