@@ -15,6 +15,7 @@ import {spawnFfmpeg} from './stitcher';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
 import {binaryExists, validateFfmpeg} from './validate-ffmpeg';
 import {tmpDir} from './tmp-dir';
+import {deleteDirectory} from './delete-directory';
 
 declare global {
 	interface Window {
@@ -58,4 +59,5 @@ export const RenderInternals = {
 	getFileExtensionFromCodec,
 	makeAssetsDownloadTmpDir,
 	tmpDir,
+	deleteDirectory,
 };

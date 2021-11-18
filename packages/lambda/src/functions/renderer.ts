@@ -115,7 +115,6 @@ const renderHandler = async (
 				expectedBucketOwner: options.expectedBucketOwner,
 			});
 		},
-		outputDir: outputPath,
 		openedBrowser: browserInstance,
 		serveUrl: params.serveUrl,
 		quality: params.quality,
