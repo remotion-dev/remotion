@@ -16,11 +16,12 @@ Keep track of changes to the APIs of Remotion Lambda here.
 
 ## November 18th, 2021
 
-Version hash: `3.0.0-lambda.99+bd5d55651`
+Version hash: `3.0.0-lambda.122+a588a81b9`
 Lambda version: '2021-11-18'
 
 - The default number of max retries is now 1 (previously 3). A new CLI flag `--max-retries` was introduced which can be used for `npx remotion lambda render` and `npx remotion lambda still`
 - You can now pass `--privacy=public` or `--privacy=private` in the CLi to determine if the output video should be publicly accessible. The default is and was `public`.
+- Fixes an issue where a Remotion version mismatch could happen.
 
 ## November 12th, 2021
 
