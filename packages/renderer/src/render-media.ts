@@ -20,6 +20,7 @@ import {OnDownload} from './assets/download-and-map-assets-to-file';
 import {tmpDir} from './tmp-dir';
 import {getFileExtensionFromCodec} from './get-extension-from-codec';
 import {isAudioCodec} from 'remotion/src/is-audio-codec';
+import {deleteDirectory} from './delete-directory';
 
 export type RenderMediaOnDownload = (src: string) => void;
 
@@ -37,7 +38,6 @@ export type RenderMediaOptions = {
 	proResProfile: ProResProfile | undefined;
 	parallelism: number | null;
 	crf: number | null;
-	outputDir: string;
 	config: TCompMetadata;
 	imageFormat: 'png' | 'jpeg' | 'none';
 	ffmpegExecutable: FfmpegExecutable;
@@ -59,12 +59,13 @@ export type RenderMediaOptions = {
 	onStart: (data: OnStartData) => void;
 };
 
+type Await<T> = T extends PromiseLike<infer U> ? U : T;
+
 // TODO: outputDir and `absoluteOutputFile` are redundant
 export const renderMedia = async ({
 	parallelism,
 	proResProfile,
 	crf,
-	outputDir,
 	config,
 	imageFormat,
 	ffmpegExecutable,
@@ -87,13 +88,14 @@ export const renderMedia = async ({
 }: RenderMediaOptions) => {
 	let stitchStage: StitchingState = 'encoding';
 	let stitcherFfmpeg: ExecaChildProcess<string> | undefined;
-	let preStitcher;
+	let preStitcher: Await<ReturnType<typeof spawnFfmpeg>> | null = null;
 	let encodedFrames = 0;
 	let renderedFrames = 0;
 	let renderedDoneIn: number | null = null;
 	let encodedDoneIn: number | null = null;
 	const renderStart = Date.now();
 	const tmpdir = tmpDir('pre-encode');
+	const outputDir = tmpDir('frames ' + Math.random());
 	const parallelEncoding = !isAudioCodec(codec);
 	const preEncodedFileLocation = parallelEncoding
 		? path.join(
@@ -175,7 +177,6 @@ export const renderMedia = async ({
 			preStitcher?.cleanup?.();
 		}
 
-		const closeBrowserPromise = openedBrowser.close();
 		renderedDoneIn = Date.now() - renderStart;
 		callUpdate();
 
@@ -218,8 +219,6 @@ export const renderMedia = async ({
 		encodedFrames = config.durationInFrames;
 		encodedDoneIn = Date.now() - stitchStart;
 		callUpdate();
-		// TODO: Cleanup
-		await closeBrowserPromise;
 	} finally {
 		if (
 			preEncodedFileLocation !== null &&
@@ -227,5 +226,7 @@ export const renderMedia = async ({
 		) {
 			fs.unlinkSync(preEncodedFileLocation);
 		}
+
+		await deleteDirectory(outputDir);
 	}
 };
