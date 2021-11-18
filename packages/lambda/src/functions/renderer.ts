@@ -137,7 +137,6 @@ const renderHandler = async (
 		},
 
 		overwrite: false,
-		parallelEncoding: true,
 	});
 
 	const endRendered = Date.now();

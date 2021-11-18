@@ -39,7 +39,6 @@ test("Render video", async () => {
     openedBrowser: browserInstance,
     outputDir: tmpDir,
     overwrite: true,
-    parallelEncoding: true,
     parallelism: null,
     quality: undefined,
   });
