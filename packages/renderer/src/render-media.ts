@@ -61,7 +61,6 @@ export type RenderMediaOptions = {
 
 type Await<T> = T extends PromiseLike<infer U> ? U : T;
 
-// TODO: outputDir and `absoluteOutputFile` are redundant
 export const renderMedia = async ({
 	parallelism,
 	proResProfile,
