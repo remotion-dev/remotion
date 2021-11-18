@@ -1,5 +1,6 @@
 import {
 	getCompositions,
+	openBrowser,
 	renderFrames,
 	RenderInternals,
 	renderMedia,
@@ -61,7 +62,7 @@ export const render = async () => {
 		ffmpegExecutable: Internals.getCustomFfmpegExecutable(),
 	});
 
-	const browserInstance = RenderInternals.openBrowser(browser, {
+	const browserInstance = openBrowser(browser, {
 		browserExecutable,
 		shouldDumpIo: Internals.Logging.isEqualOrBelowLogLevel('verbose'),
 	});
@@ -177,7 +178,6 @@ export const render = async () => {
 			parallelism,
 			puppeteerInstance: openedBrowser,
 			quality,
-			downloadDir: await RenderInternals.makeAssetsDownloadTmpDir(),
 		});
 		renderedDoneIn = Date.now() - startTime;
 

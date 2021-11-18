@@ -18,6 +18,7 @@ import {getActualConcurrency} from './get-concurrency';
 import {getFrameCount} from './get-frame-range';
 import {getFrameToRender} from './get-frame-to-render';
 import {DEFAULT_IMAGE_FORMAT} from './image-format';
+import {makeAssetsDownloadTmpDir} from './make-assets-download-dir';
 import {normalizeServeUrl} from './normalize-serve-url';
 import {openBrowser} from './open-browser';
 import {Pool} from './pool';
@@ -45,7 +46,6 @@ type RenderFramesOptions = {
 	onBrowserLog?: (log: BrowserLog) => void;
 	writeFrame?: (buffer?: Buffer) => void;
 	onDownload?: OnDownload;
-	downloadDir: string;
 };
 
 export const innerRenderFrames = async ({
@@ -64,7 +64,6 @@ export const innerRenderFrames = async ({
 	envVariables,
 	onBrowserLog,
 	writeFrame,
-	downloadDir,
 	onDownload,
 }: RenderFramesOptions & {
 	onError: (err: Error) => void;
@@ -157,6 +156,7 @@ export const innerRenderFrames = async ({
 	onStart({
 		frameCount,
 	});
+	const downloadDir = makeAssetsDownloadTmpDir();
 	const assets = await Promise.all(
 		new Array(frameCount)
 			.fill(Boolean)
@@ -243,6 +243,7 @@ export const innerRenderFrames = async ({
 	const returnValue: RenderFramesOutput = {
 		assetsInfo: {
 			assets,
+			downloadDir,
 			firstFrameIndex,
 			imageSequenceName: `element-%0${filePadLength}d.${imageFormat}`,
 		},

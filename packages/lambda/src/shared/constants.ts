@@ -117,7 +117,6 @@ export const postRenderDataKey = (renderId: string) => {
 	return `${rendersPrefix(renderId)}/post-render-metadata.json`;
 };
 
-export const DOWNLOADS_DIR = '/tmp/downloads';
 export const OUTPUT_PATH_PREFIX = '/tmp/remotion-render-';
 export const RENDERER_PATH_TOKEN = 'remotion-bucket';
 export const RENDERER_PATH_PREFIX = '/tmp/' + RENDERER_PATH_TOKEN;
