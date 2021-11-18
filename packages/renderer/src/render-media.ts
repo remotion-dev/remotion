@@ -94,7 +94,7 @@ export const renderMedia = async ({
 	let encodedDoneIn: number | null = null;
 	const renderStart = Date.now();
 	const tmpdir = tmpDir('pre-encode');
-	const parallelEncoding = isAudioCodec(codec);
+	const parallelEncoding = !isAudioCodec(codec);
 	const preEncodedFileLocation = parallelEncoding
 		? path.join(
 				tmpdir,
