@@ -35,7 +35,7 @@ export type RenderMediaOnProgress = (progress: {
 }) => void;
 
 export type RenderMediaOptions = {
-	proResProfile: ProResProfile | undefined;
+	proResProfile?: ProResProfile;
 	parallelism: number | null;
 	crf: number | null;
 	config: TCompMetadata;
@@ -47,7 +47,7 @@ export type RenderMediaOptions = {
 	envVariables?: Record<string, string>;
 	quality: number | undefined;
 	frameRange: FrameRange | null;
-	browser: Browser;
+	browser?: Browser;
 	serveUrl: string;
 	openedBrowser: PuppeteerBrowser;
 	overwrite: boolean;

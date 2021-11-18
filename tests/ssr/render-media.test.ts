@@ -20,11 +20,9 @@ test("Render video", async () => {
 
   await renderMedia({
     absoluteOutputFile: outPath,
-    browser: "chrome",
     codec: "h264",
     serveUrl:
       "https://remotionlambda-qg35eyp1s1.s3.eu-central-1.amazonaws.com/sites/mlqtbgiywr/index.html",
-    proResProfile: undefined,
     config: reactSvg,
     crf: 15,
     dumpBrowserLogs: false,
@@ -37,7 +35,6 @@ test("Render video", async () => {
     },
     onStart: () => undefined,
     openedBrowser: browserInstance,
-    outputDir: tmpDir,
     overwrite: true,
     parallelism: null,
     quality: undefined,
