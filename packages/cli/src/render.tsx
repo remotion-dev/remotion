@@ -3,7 +3,6 @@ import {
 	renderFrames,
 	RenderInternals,
 	renderMedia,
-	RenderMediaOnProgress,
 	StitchingState,
 } from '@remotion/renderer';
 import chalk from 'chalk';
