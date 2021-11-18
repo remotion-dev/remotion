@@ -42,7 +42,7 @@ export type StitcherOptions = {
 	proResProfile?: ProResProfile;
 	verbose?: boolean;
 	parallelEncoding?: boolean;
-	preEncodedFileLocation?: string;
+	preEncodedFileLocation?: string | null;
 	ffmpegExecutable?: FfmpegExecutable;
 };
 

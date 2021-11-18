@@ -19,6 +19,7 @@ import {OnStartData} from './types';
 import {OnDownload} from './assets/download-and-map-assets-to-file';
 import {tmpDir} from './tmp-dir';
 import {getFileExtensionFromCodec} from './get-extension-from-codec';
+import {isAudioCodec} from 'remotion/src/is-audio-codec';
 
 export type RenderMediaOnDownload = (src: string) => void;
 
@@ -35,7 +36,6 @@ export type RenderMediaOnProgress = (progress: {
 export type RenderMediaOptions = {
 	proResProfile: ProResProfile | undefined;
 	parallelism: number | null;
-	parallelEncoding: boolean;
 	crf: number | null;
 	outputDir: string;
 	config: TCompMetadata;
@@ -63,7 +63,6 @@ export type RenderMediaOptions = {
 export const renderMedia = async ({
 	parallelism,
 	proResProfile,
-	parallelEncoding,
 	crf,
 	outputDir,
 	config,
@@ -95,10 +94,13 @@ export const renderMedia = async ({
 	let encodedDoneIn: number | null = null;
 	const renderStart = Date.now();
 	const tmpdir = tmpDir('pre-encode');
-	const preEncodedFileLocation = path.join(
-		tmpdir,
-		'pre-encode.' + getFileExtensionFromCodec(codec, 'chunk')
-	);
+	const parallelEncoding = isAudioCodec(codec);
+	const preEncodedFileLocation = parallelEncoding
+		? path.join(
+				tmpdir,
+				'pre-encode.' + getFileExtensionFromCodec(codec, 'chunk')
+		  )
+		: null;
 
 	try {
 		const callUpdate = () => {
@@ -111,7 +113,7 @@ export const renderMedia = async ({
 			});
 		};
 
-		if (parallelEncoding) {
+		if (preEncodedFileLocation) {
 			if (typeof crf !== 'number') {
 				throw new TypeError('CRF is unexpectedly not a number');
 			}
@@ -219,7 +221,10 @@ export const renderMedia = async ({
 		// TODO: Cleanup
 		await closeBrowserPromise;
 	} finally {
-		if (fs.existsSync(preEncodedFileLocation)) {
+		if (
+			preEncodedFileLocation !== null &&
+			fs.existsSync(preEncodedFileLocation)
+		) {
 			fs.unlinkSync(preEncodedFileLocation);
 		}
 	}

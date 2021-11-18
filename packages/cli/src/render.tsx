@@ -49,7 +49,6 @@ export const render = async () => {
 		imageFormat,
 		browserExecutable,
 		ffmpegExecutable,
-		parallelEncoding,
 	} = await getCliOptions({isLambda: false, type: 'series'});
 
 	if (!absoluteOutputFile) {
@@ -234,7 +233,6 @@ export const render = async () => {
 		onStart: ({frameCount}) => {
 			totalFrames = frameCount;
 		},
-		parallelEncoding,
 	});
 
 	Log.info();

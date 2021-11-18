@@ -5,6 +5,7 @@
   "scripts": {
     "test": "cd packages/core && npm test && cd ../babel-loader && npm test && cd ../bundler && npm test && cd ../cli && npm test && cd ../eslint-plugin && npm test && cd ../gif && npm test && cd ../lambda && npm test && cd ../media-utils && npm test && cd ../player && npm test && cd ../renderer && npm test && cd ../three && npm test && cd ../.. && npx jest --runInBand --root-dir=tests/integration",
     "testlambda": "npx jest  --runInBand --root-dir=tests/lambda --setup-files=../../packages/lambda/src/test/setup.ts",
+    "testssr": "npx jest  --runInBand --root-dir=tests/ssr --setup-files=../../packages/lambda/src/test/setup.ts",
     "build": "pnpm run build --recursive && lerna bootstrap",
     "watch": "pnpm run watch --recursive --stream --parallel",
     "postinstall": "lerna bootstrap",
