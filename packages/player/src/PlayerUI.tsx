@@ -170,8 +170,8 @@ const PlayerUI: React.ForwardRefRenderFunction<
 						player.pause();
 					}
 
-					if (frameToSeekTo === lastFrame) {
-						player.pause();
+					if (frameToSeekTo === lastFrame && !loop) {
+						player.emitter.dispatchEnded();
 					}
 
 					player.seek(frameToSeekTo);

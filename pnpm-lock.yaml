@@ -404,7 +404,6 @@ importers:
       '@remotion/eslint-config': 2.5.4
       '@remotion/eslint-plugin': 2.5.4
       '@remotion/gif': 2.5.4
-      '@remotion/lambda': 2.5.4
       '@remotion/media-utils': 2.5.4
       '@remotion/renderer': 2.5.4
       '@remotion/three': 2.5.4
