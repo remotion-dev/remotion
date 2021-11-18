@@ -19,7 +19,6 @@ import {OnStartData} from './types';
 import {OnDownload} from './assets/download-and-map-assets-to-file';
 import {tmpDir} from './tmp-dir';
 import {getFileExtensionFromCodec} from './get-extension-from-codec';
-import {isAudioCodec} from 'remotion/src/is-audio-codec';
 import {deleteDirectory} from './delete-directory';
 
 export type RenderMediaOnDownload = (src: string) => void;
@@ -95,7 +94,7 @@ export const renderMedia = async ({
 	const renderStart = Date.now();
 	const tmpdir = tmpDir('pre-encode');
 	const outputDir = tmpDir('frames ' + Math.random());
-	const parallelEncoding = !isAudioCodec(codec);
+	const parallelEncoding = !Internals.isAudioCodec(codec);
 	const preEncodedFileLocation = parallelEncoding
 		? path.join(
 				tmpdir,
