@@ -74,9 +74,15 @@ export const getValidCrfRanges = (codec: Codec): [number, number] => {
 };
 
 export const validateSelectedCrfAndCodecCombination = (
-	crf: number,
+	crf: unknown,
 	codec: Codec
 ) => {
+	if (typeof crf !== 'number') {
+		throw new TypeError(
+			'Expected CRF to be a number, but is ' + JSON.stringify(crf)
+		);
+	}
+
 	const range = getValidCrfRanges(codec);
 	if (crf === 0 && (codec === 'h264' || codec === 'h264-mkv')) {
 		throw new TypeError(
