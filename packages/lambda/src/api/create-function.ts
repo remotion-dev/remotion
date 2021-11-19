@@ -63,6 +63,7 @@ export const createFunction = async ({
 			Layers: hostedLayers[region].map(
 				({layerArn, version}) => `${layerArn}:${version}`
 			),
+			Architectures: ['arm64'],
 		})
 	);
 	await getLambdaClient(region).send(

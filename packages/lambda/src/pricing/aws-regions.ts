@@ -1,4 +1,5 @@
 export const AWS_REGIONS = [
+	'eu-central-1',
 	'us-east-1', // N. Virginia
 	'us-east-2', // Ohio;
 	'us-west-1', // N. California
@@ -12,7 +13,6 @@ export const AWS_REGIONS = [
 	'ap-southeast-2',
 	'ap-northeast-1',
 	'ca-central-1',
-	'eu-central-1',
 	'eu-west-1',
 	'eu-west-2',
 	'eu-south-1',
