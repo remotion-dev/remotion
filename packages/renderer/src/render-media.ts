@@ -49,7 +49,7 @@ export type RenderMediaOptions = {
 	browser?: Browser;
 	serveUrl: string;
 	openedBrowser: PuppeteerBrowser;
-	overwrite: boolean;
+	overwrite?: boolean;
 	absoluteOutputFile: string;
 	onProgress?: RenderMediaOnProgress;
 	onDownload?: OnDownload;
@@ -198,7 +198,7 @@ export const renderMedia = async ({
 			fps: config.fps,
 			outputLocation: absoluteOutputFile,
 			preEncodedFileLocation,
-			force: overwrite,
+			force: overwrite ?? Internals.DEFAULT_OVERWRITE,
 			pixelFormat,
 			codec,
 			proResProfile,

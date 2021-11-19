@@ -31,7 +31,6 @@ test("Render video", async () => {
     imageFormat: "jpeg",
     inputProps: {},
     openedBrowser: browserInstance,
-    overwrite: true,
     parallelism: null,
     quality: undefined,
   });

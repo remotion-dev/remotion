@@ -49,7 +49,7 @@ import {
 	getWebpackOverrideFn,
 	WebpackOverrideFn,
 } from './config/override-webpack';
-import {getShouldOverwrite} from './config/overwrite';
+import {DEFAULT_OVERWRITE, getShouldOverwrite} from './config/overwrite';
 import {
 	DEFAULT_PIXEL_FORMAT,
 	getPixelFormat,
@@ -207,6 +207,7 @@ export const Internals = {
 	setFramesPerLambda,
 	invalidCompositionErrorMessage,
 	isCompositionIdValid,
+	DEFAULT_OVERWRITE,
 };
 
 export type {
