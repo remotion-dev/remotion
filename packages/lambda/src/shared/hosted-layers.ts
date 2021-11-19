@@ -163,17 +163,17 @@ export const hostedLayers: {
 		{
 			layerArn:
 				'arn:aws:lambda:eu-central-1:678892195805:layer:remotion-binaries-remotion',
-			version: 1,
+			version: 4,
 		},
 		{
 			layerArn:
 				'arn:aws:lambda:eu-central-1:678892195805:layer:remotion-binaries-ffmpeg',
-			version: 1,
+			version: 4,
 		},
 		{
 			layerArn:
 				'arn:aws:lambda:eu-central-1:678892195805:layer:remotion-binaries-chromium',
-			version: 1,
+			version: 4,
 		},
 	],
 	'eu-north-1': [
@@ -299,17 +299,17 @@ export const hostedLayers: {
 		{
 			layerArn:
 				'arn:aws:lambda:us-east-1:678892195805:layer:remotion-binaries-remotion',
-			version: 1,
+			version: 2,
 		},
 		{
 			layerArn:
 				'arn:aws:lambda:us-east-1:678892195805:layer:remotion-binaries-ffmpeg',
-			version: 1,
+			version: 2,
 		},
 		{
 			layerArn:
 				'arn:aws:lambda:us-east-1:678892195805:layer:remotion-binaries-chromium',
-			version: 1,
+			version: 2,
 		},
 	],
 	'us-east-2': [
