@@ -32,6 +32,5 @@ test("Render video", async () => {
     inputProps: {},
     openedBrowser: browserInstance,
     parallelism: null,
-    quality: undefined,
   });
 });
