@@ -1,5 +1,9 @@
 import path from 'path';
-import {Browser as PuppeteerBrowser, ConsoleMessage} from 'puppeteer-core';
+import {
+	Browser as PuppeteerBrowser,
+	ConsoleMessage,
+	Page,
+} from 'puppeteer-core';
 import {
 	Browser,
 	BrowserExecutable,
@@ -65,43 +69,20 @@ export const innerRenderFrames = async ({
 	onBrowserLog,
 	writeFrame,
 	onDownload,
+	pagesArray,
 }: RenderFramesOptions & {
 	onError: (err: Error) => void;
+	pagesArray: Page[];
 }): Promise<RenderFramesOutput> => {
 	if (!puppeteerInstance) {
 		throw new Error('weird');
 	}
 
-	Internals.validateDimension(
-		config.height,
-		'height',
-		'in the `config` object passed to `renderFrames()`'
-	);
-	Internals.validateDimension(
-		config.width,
-		'width',
-		'in the `config` object passed to `renderFrames()`'
-	);
-	Internals.validateFps(
-		config.fps,
-		'in the `config` object of `renderFrames()`'
-	);
-	Internals.validateDurationInFrames(
-		config.durationInFrames,
-		'in the `config` object passed to `renderFrames()`'
-	);
-	if (quality !== undefined && imageFormat !== 'jpeg') {
-		throw new Error(
-			"You can only pass the `quality` option if `imageFormat` is 'jpeg'."
-		);
-	}
-
-	Internals.validateQuality(quality);
-
 	const actualParallelism = getActualConcurrency(parallelism ?? null);
 
 	const pages = new Array(actualParallelism).fill(true).map(async () => {
 		const page = await puppeteerInstance.newPage();
+		pagesArray.push(page);
 		page.setViewport({
 			width: config.width,
 			height: config.height,
@@ -255,6 +236,32 @@ export const innerRenderFrames = async ({
 export const renderFrames = async (
 	options: RenderFramesOptions
 ): Promise<RenderFramesOutput> => {
+	Internals.validateDimension(
+		options.config.height,
+		'height',
+		'in the `config` object passed to `renderFrames()`'
+	);
+	Internals.validateDimension(
+		options.config.width,
+		'width',
+		'in the `config` object passed to `renderFrames()`'
+	);
+	Internals.validateFps(
+		options.config.fps,
+		'in the `config` object of `renderFrames()`'
+	);
+	Internals.validateDurationInFrames(
+		options.config.durationInFrames,
+		'in the `config` object passed to `renderFrames()`'
+	);
+	if (options.quality !== undefined && options.imageFormat !== 'jpeg') {
+		throw new Error(
+			"You can only pass the `quality` option if `imageFormat` is 'jpeg'."
+		);
+	}
+
+	Internals.validateQuality(options.quality);
+
 	const browserInstance =
 		options.puppeteerInstance ??
 		(await openBrowser(options.browser ?? Internals.DEFAULT_BROWSER, {
@@ -263,12 +270,15 @@ export const renderFrames = async (
 		}));
 	const {stopCycling} = cycleBrowserTabs(browserInstance);
 
+	const openedPages: Page[] = [];
+
 	return new Promise<RenderFramesOutput>((resolve, reject) => {
 		// eslint-disable-next-line promise/catch-or-return
 		innerRenderFrames({
 			...options,
 			puppeteerInstance: browserInstance,
 			onError: (err) => reject(err),
+			pagesArray: openedPages,
 		})
 			.then((res) => resolve(res))
 			.catch((err) => reject(err))
@@ -278,14 +288,9 @@ export const renderFrames = async (
 				// If new browser was opened, then closing the browser as a cleanup.
 
 				if (options.puppeteerInstance) {
-					browserInstance
-						.pages()
-						.then((pages) => {
-							return Promise.all(pages.map((p) => p.close()));
-						})
-						.catch((err) => {
-							console.log('Unable to close browser tab', err);
-						});
+					Promise.all(openedPages.map((p) => p.close())).catch((err) => {
+						console.log('Unable to close browser tab', err);
+					});
 				} else {
 					browserInstance.close().catch((err) => {
 						console.log('Unable to close browser', err);
