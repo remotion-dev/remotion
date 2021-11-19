@@ -52,7 +52,7 @@ export type RenderMediaOptions = {
 	overwrite: boolean;
 	absoluteOutputFile: string;
 	onProgress?: RenderMediaOnProgress;
-	onDownload: OnDownload;
+	onDownload?: OnDownload;
 	dumpBrowserLogs: boolean;
 	onBrowserLog?: ((log: BrowserLog) => void) | undefined;
 	onStart: (data: OnStartData) => void;
