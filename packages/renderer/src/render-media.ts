@@ -55,7 +55,7 @@ export type RenderMediaOptions = {
 	onDownload?: OnDownload;
 	dumpBrowserLogs: boolean;
 	onBrowserLog?: ((log: BrowserLog) => void) | undefined;
-	onStart: (data: OnStartData) => void;
+	onStart?: (data: OnStartData) => void;
 };
 
 type Await<T> = T extends PromiseLike<infer U> ? U : T;
@@ -152,7 +152,7 @@ export const renderMedia = async ({
 			onStart: (data) => {
 				renderedFrames = 0;
 				callUpdate();
-				onStart(data);
+				onStart?.(data);
 			},
 			inputProps,
 			envVariables,
