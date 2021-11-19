@@ -36,7 +36,7 @@ export type RenderMediaOnProgress = (progress: {
 export type RenderMediaOptions = {
 	proResProfile?: ProResProfile;
 	parallelism: number | null;
-	crf: number | null;
+	crf?: number;
 	config: TCompMetadata;
 	imageFormat: 'png' | 'jpeg' | 'none';
 	ffmpegExecutable: FfmpegExecutable;
@@ -85,6 +85,10 @@ export const renderMedia = async ({
 	onStart,
 }: RenderMediaOptions) => {
 	Internals.validateQuality(quality);
+	if (typeof crf !== 'undefined') {
+		Internals.validateSelectedCrfAndCodecCombination(crf, codec);
+	}
+
 	let stitchStage: StitchingState = 'encoding';
 	let stitcherFfmpeg: ExecaChildProcess<string> | undefined;
 	let preStitcher: Await<ReturnType<typeof spawnFfmpeg>> | null = null;
@@ -115,10 +119,6 @@ export const renderMedia = async ({
 		};
 
 		if (preEncodedFileLocation) {
-			if (typeof crf !== 'number') {
-				throw new TypeError('CRF is unexpectedly not a number');
-			}
-
 			preStitcher = await spawnFfmpeg({
 				dir: outputDir,
 				width: config.width,
@@ -178,10 +178,6 @@ export const renderMedia = async ({
 
 		renderedDoneIn = Date.now() - renderStart;
 		callUpdate();
-
-		if (typeof crf !== 'number') {
-			throw new TypeError('CRF is unexpectedly not a number');
-		}
 
 		const dirName = path.dirname(absoluteOutputFile);
 
