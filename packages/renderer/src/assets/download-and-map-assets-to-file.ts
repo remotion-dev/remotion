@@ -4,7 +4,9 @@ import path from 'path';
 import {random, TAsset} from 'remotion';
 import sanitizeFilename from 'sanitize-filename';
 
-export type OnDownload = (src: string) => (progress: {percent: number}) => void;
+export type OnDownload = (
+	src: string
+) => ((progress: {percent: number}) => void) | undefined | void;
 
 const isDownloadingMap: {[key: string]: boolean} = {};
 const hasBeenDownloadedMap: {[key: string]: boolean} = {};
@@ -33,7 +35,7 @@ const notifyAssetIsDownloaded = (src: string) => {
 const downloadAsset = async (
 	src: string,
 	to: string,
-	onDownload: (src: string) => (progress: {percent: number}) => void
+	onDownload: OnDownload
 ) => {
 	if (hasBeenDownloadedMap[src]) {
 		return;
@@ -61,7 +63,7 @@ const downloadAsset = async (
 
 		const stream = got.stream(src);
 		stream.on('downloadProgress', ({percent}) => {
-			onProgress({
+			onProgress?.({
 				percent,
 			});
 		});

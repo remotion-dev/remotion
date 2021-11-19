@@ -30,9 +30,6 @@ test("Render video", async () => {
     frameRange: [0, 2],
     imageFormat: "jpeg",
     inputProps: {},
-    onDownload: () => {
-      return () => undefined;
-    },
     onStart: () => undefined,
     openedBrowser: browserInstance,
     overwrite: true,
