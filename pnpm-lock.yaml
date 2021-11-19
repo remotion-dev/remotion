@@ -200,7 +200,7 @@ importers:
       minimist: 1.2.5
       remotion: link:../core
       semver: 7.3.5
-      webpack: 5.60.0
+      webpack: 5.60.0_esbuild@0.11.23
     devDependencies:
       '@jonny/eslint-config': 2.1.248_eslint@7.32.0+typescript@4.4.3
       '@types/jest': 27.0.2
