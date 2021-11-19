@@ -48,8 +48,7 @@
 		"three": ">=0.128.0",
 		"ts-node": "^9.1.1",
 		"ts-unused-exports": "^7.0.1",
-		"typescript": "^4.4.2",
-		"xns": "^2.0.7"
+		"typescript": "^4.4.2"
 	},
 	"devDependencies": {
 		"@types/babel__core": "^7.1.12",
