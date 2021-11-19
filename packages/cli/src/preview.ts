@@ -4,7 +4,6 @@ import {BundlerInternals} from '@remotion/bundler';
 import betterOpn from 'better-opn';
 import path from 'path';
 import {Internals} from 'remotion';
-import xns from 'xns';
 import {loadConfig} from './get-config-file-name';
 import {getEnvironmentVariables} from './get-env';
 import {getInputProps} from './get-input-props';
@@ -13,7 +12,7 @@ import {parsedCli} from './parse-command-line';
 
 const noop = () => undefined;
 
-export const previewCommand = xns(async () => {
+export const previewCommand = async () => {
 	const file = parsedCli._[1];
 	const {port: desiredPort} = parsedCli;
 	const fullPath = path.join(process.cwd(), file);
@@ -40,4 +39,4 @@ export const previewCommand = xns(async () => {
 	);
 	betterOpn(`http://localhost:${port}`);
 	await new Promise(noop);
-});
+};
