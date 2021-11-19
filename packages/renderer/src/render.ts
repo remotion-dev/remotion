@@ -3,7 +3,6 @@ import {
 	Browser as PuppeteerBrowser,
 	ConsoleMessage,
 	Page,
-	Puppeteer,
 } from 'puppeteer-core';
 import {
 	Browser,
