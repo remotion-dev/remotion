@@ -44,7 +44,7 @@ export type RenderMediaOptions = {
 	pixelFormat?: PixelFormat;
 	codec: Codec;
 	envVariables?: Record<string, string>;
-	quality: number | undefined;
+	quality?: number;
 	frameRange: FrameRange | null;
 	browser?: Browser;
 	serveUrl: string;
@@ -84,6 +84,7 @@ export const renderMedia = async ({
 	onBrowserLog,
 	onStart,
 }: RenderMediaOptions) => {
+	Internals.validateQuality(quality);
 	let stitchStage: StitchingState = 'encoding';
 	let stitcherFfmpeg: ExecaChildProcess<string> | undefined;
 	let preStitcher: Await<ReturnType<typeof spawnFfmpeg>> | null = null;
