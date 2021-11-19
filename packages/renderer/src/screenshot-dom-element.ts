@@ -24,7 +24,8 @@ export const screenshotDOMElement = async ({
 
 	if (imageFormat === 'png') {
 		await page.evaluate(() => {
-			document.body.style.background = 'transparent';
+			document.body.style.background =
+				imageFormat === 'png' ? 'transparent' : 'black';
 		});
 	}
 
