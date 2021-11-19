@@ -1,5 +1,4 @@
 import chalk from 'chalk';
-import xns from 'xns';
 import {checkNodeVersion} from './check-version';
 import {handleCommonError} from './handle-common-errors';
 import {getCliOptions} from './get-cli-options';
@@ -57,7 +56,6 @@ export * from './render';
 export const CliInternals = {
 	createOverwriteableCliOutput,
 	chalk,
-	xns,
 	makeProgressBar,
 	Log,
 	loadConfigFile,

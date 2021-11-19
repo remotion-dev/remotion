@@ -85,11 +85,13 @@ export const PlayerFn = <T,>(
 	}: PlayerProps<T>,
 	ref: MutableRefObject<PlayerRef>
 ) => {
-	useLayoutEffect(() => {
-		if (typeof window !== 'undefined') {
+	if (typeof window !== 'undefined') {
+		// eslint-disable-next-line react-hooks/rules-of-hooks
+		useLayoutEffect(() => {
 			window.remotion_isPlayer = true;
-		}
-	}, []);
+		}, []);
+	}
+
 	const component = Internals.useLazyComponent(componentProps);
 	const [frame, setFrame] = useState(0);
 	const [playing, setPlaying] = useState<boolean>(false);
