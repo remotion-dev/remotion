@@ -1,15 +1,17 @@
 ---
-id: ssr
-title: Server-Side Rendering
+id: ssr-legacy
+title: Server-Side Rendering (v1 and v2)
 ---
 
 :::info
-This documentation is how server-side rendering works in Remotion v3 and above. To see rendering in [2.0 and below, click here.](/docs/ssr-legacy)
+This documentation is how server-side rendering worked in Remotion v1 and Remotion v2. To see rendering in [3.0 and above, click here.](/docs/ssr)
 :::
 
-Remotion's rendering engine is built upon Node.JS, which makes it easy to render a video in the cloud.
+Remotion's rendering engine is built upon Node.JS, which makes it exceptionally easy to render a video in the cloud.
 
 Since Remotion is built with tech (_Node.JS, FFMPEG, Puppeteer_) that works well cross-platform, you can without much hassle run it on a Linux-based system or even dockerize your video.
+
+On this page, we demonstrate the server-rendering capabilities or Remotion using examples [built into the template](/docs#installation)!
 
 ## Render a video programmatically
 
@@ -17,7 +19,7 @@ The NPM package `@remotion/renderer` provides you with an API for rendering the 
 
 Follow this commented example to see how to render a video:
 
-```tsx twoslash
+```tsx
 import fs from "fs";
 import os from "os";
 import path from "path";
