@@ -48,17 +48,7 @@ const visualizeAudioWaveformFrame = ({
 	});
 };
 
-export const visualizeAudioWaveform = ({
-	smoothing = true,
-	...parameters
-}: FnParameters & {
-	smoothing?: boolean;
-}) => {
-	if (smoothing) {
-		// TODO: Add bezier manipulation?
-		console.log('nice');
-	}
-
+export const visualizeAudioWaveform = ({...parameters}: FnParameters) => {
 	const data = visualizeAudioWaveformFrame(parameters);
 	return data.map((value) => value.amplitude);
 };

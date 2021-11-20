@@ -86,6 +86,7 @@ module.exports = {
         "get-waveform-portion",
         "use-audio-data",
         "visualize-audio",
+        "visualize-audio-waveform"
       ],
     },
     "player",

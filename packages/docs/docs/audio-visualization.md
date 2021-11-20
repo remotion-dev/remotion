@@ -68,3 +68,4 @@ export const MyComponent: React.FC = () => {
 - [Using audio](/docs/using-audio)
 - [`useAudioData()`](/docs/use-audio-data)
 - [`visualizeAudio()`](/docs/visualize-audio)
+- [`visualizeAudioWaveform()`](/docs/visualize-audio-waveform)

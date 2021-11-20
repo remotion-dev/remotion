@@ -143,7 +143,6 @@ const AudioVisualization: React.FC<{isWaveform: boolean}> = ({isWaveform}) => {
 		waveformDuration: 1 / fps,
 	});
 
-	console.log(waveform, frame, 'waveform visualization');
 	const scale =
 		1 +
 		interpolate(visualization[1], [0.14, 1], [0, 0.6], {
