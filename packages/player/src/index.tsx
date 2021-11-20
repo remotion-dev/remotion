@@ -1,6 +1,6 @@
 import {calculateScale} from './calculate-scale';
 import {PlayerEventEmitterContext} from './emitter-context';
-import {PlayerEmitter} from './event-emitter';
+import {CallbackListener, EventTypes, PlayerEmitter} from './event-emitter';
 import {ErrorFallback} from './Player';
 import {useHoverState} from './use-hover-state';
 import {usePlayback} from './use-playback';
@@ -22,4 +22,4 @@ export const PlayerInternals = {
 	useHoverState,
 };
 
-export type {ErrorFallback};
+export type {ErrorFallback, CallbackListener, EventTypes};

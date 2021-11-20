@@ -42,13 +42,9 @@ jobs:
           path: ~/.pnpm-store
           key: ${{ runner.os }}-node${{ matrix.node-version }}-${{ hashFiles('**/pnpm-lock.yaml') }}
 
-      - name: Install pnpm windows
-        if: runner.os == 'windows'
-        run: Invoke-WebRequest 'https://get.pnpm.io/v6.16.js' -UseBasicParsing -o pnpm.js; node pnpm.js add --global pnpm; Remove-Item pnpm.js
-
-      - name: Install pnpm a
+      - name: Install pnpm
         run: curl -f https://get.pnpm.io/v6.16.js | node - add --global pnpm@6
-        if: runner.os != 'windows'
+        shell: bash
 
       - name: Install
         run: pnpm install --frozen-lockfile

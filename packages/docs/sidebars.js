@@ -1,4 +1,14 @@
 module.exports = {
+  playerSidebar: [
+    {
+      type: "link",
+      label: "← Back to main docs",
+      href: "/docs",
+    },
+    "player",
+    "player-examples",
+    "player-integration",
+  ],
   someSidebar: [
     {
       collapsed: false,
@@ -89,7 +99,11 @@ module.exports = {
         "visualize-audio-waveform"
       ],
     },
-    "player",
+    {
+      type: "link",
+      href: "/docs/player",
+      label: "API - @remotion/player",
+    },
     {
       type: "category",
       label: "API - @remotion/three",

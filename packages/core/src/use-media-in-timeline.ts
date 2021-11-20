@@ -8,6 +8,17 @@ import {TimelineContext} from './timeline-position-state';
 import {useVideoConfig} from './use-video-config';
 import {evaluateVolume, VolumeProp} from './volume-prop';
 
+const didWarn: {[key: string]: boolean} = {};
+
+const warnOnce = (message: string) => {
+	if (didWarn[message]) {
+		return;
+	}
+
+	console.warn(message);
+	didWarn[message] = true;
+};
+
 export const useMediaInTimeline = ({
 	volume,
 	mediaVolume,
@@ -30,6 +41,8 @@ export const useMediaInTimeline = ({
 	const startsAt = useMediaStartsAt();
 	const {registerSequence, unregisterSequence} = useContext(CompositionManager);
 	const [id] = useState(() => String(Math.random()));
+	const [initialVolume] = useState<VolumeProp | undefined>(() => volume);
+
 	const nonce = useNonce();
 
 	const duration = (() => {
@@ -58,6 +71,14 @@ export const useMediaInTimeline = ({
 	}, [duration, startsAt, volume, mediaVolume]);
 
 	useEffect(() => {
+		if (typeof volume === 'number' && volume !== initialVolume) {
+			warnOnce(
+				`Remotion: The ${mediaType} with src ${src} has changed it's volume. Prefer the callback syntax for setting volume to get better timeline display: https://www.remotion.dev/docs/using-audio/#controlling-volume`
+			);
+		}
+	}, [initialVolume, mediaType, src, volume]);
+
+	useEffect(() => {
 		if (!mediaRef.current) {
 			return;
 		}
@@ -83,7 +104,9 @@ export const useMediaInTimeline = ({
 			doesVolumeChange,
 			showLoopTimesInTimeline: undefined,
 		});
-		return () => unregisterSequence(id);
+		return () => {
+			unregisterSequence(id);
+		};
 	}, [
 		actualFrom,
 		duration,

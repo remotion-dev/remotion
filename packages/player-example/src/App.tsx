@@ -1,7 +1,9 @@
-import {Player, PlayerRef} from '@remotion/player';
+import {Player, PlayerRef, CallbackListener} from '@remotion/player';
 import {useEffect, useRef, useState} from 'react';
 import {AbsoluteFill} from 'remotion';
 import CarSlideshow, {playerExampleComp} from './CarSlideshow';
+
+const fps = 30;
 
 export default function App() {
 	const [title, setTitle] = useState('Hello World');
@@ -17,30 +19,59 @@ export default function App() {
 	const ref = useRef<PlayerRef>(null);
 
 	useEffect(() => {
-		ref.current?.addEventListener('play', () => {
+		const playCallbackListener: CallbackListener<'play'> = () => {
 			setLogs((l) => [...l, 'playing ' + Date.now()]);
-		});
-		ref.current?.addEventListener('pause', () => {
+		};
+
+		const pausedCallbackLitener: CallbackListener<'pause'> = () => {
 			setLogs((l) => [...l, 'pausing ' + Date.now()]);
-		});
-		ref.current?.addEventListener('seeked', (e) => {
+		};
+
+		const seekedCallbackLitener: CallbackListener<'seeked'> = (e) => {
 			setLogs((l) => [...l, 'seeked to ' + e.detail.frame + ' ' + Date.now()]);
-		});
-		ref.current?.addEventListener('ended', (e) => {
+		};
+
+		const endedCallbackListener: CallbackListener<'ended'> = (e) => {
 			setLogs((l) => [...l, 'ended ' + Date.now()]);
-		});
-		ref.current?.addEventListener('error', (e) => {
+		};
+
+		const errorCallbackListener: CallbackListener<'error'> = (e) => {
 			setLogs((l) => [...l, 'error ' + Date.now()]);
-		});
-		ref.current?.addEventListener('timeupdate', (e) => {
+		};
+
+		const timeupdateCallbackLitener: CallbackListener<'timeupdate'> = (e) => {
 			setLogs((l) => [...l, 'timeupdate ' + e.detail.frame]);
-		});
-		ref.current?.addEventListener('ratechange', (e) => {
+		};
+
+		const ratechangeCallbackListener: CallbackListener<'ratechange'> = (e) => {
 			setLogs((l) => [
 				...l,
 				'ratechange ' + e.detail.playbackRate + ' ' + Date.now(),
 			]);
-		});
+		};
+
+		const {current} = ref;
+		if (!current) {
+			return;
+		}
+
+		current.addEventListener('play', playCallbackListener);
+		current.addEventListener('pause', pausedCallbackLitener);
+		current.addEventListener('seeked', seekedCallbackLitener);
+		current.addEventListener('ended', endedCallbackListener);
+		current.addEventListener('error', errorCallbackListener);
+		current.addEventListener('timeupdate', timeupdateCallbackLitener);
+		current.addEventListener('ratechange', ratechangeCallbackListener);
+
+		return () => {
+			current.removeEventListener('play', playCallbackListener);
+			current.removeEventListener('pause', pausedCallbackLitener);
+			current.removeEventListener('seeked', seekedCallbackLitener);
+			current.removeEventListener('ended', endedCallbackListener);
+			current.removeEventListener('error', errorCallbackListener);
+			current.removeEventListener('timeupdate', timeupdateCallbackLitener);
+			current.removeEventListener('ratechange', ratechangeCallbackListener);
+		};
 	}, []);
 
 	return (
@@ -49,7 +80,7 @@ export default function App() {
 				ref={ref}
 				compositionWidth={500}
 				compositionHeight={432}
-				fps={30}
+				fps={fps}
 				durationInFrames={500}
 				component={CarSlideshow}
 				controls
@@ -226,6 +257,30 @@ export default function App() {
 				}}
 			>
 				trigger error
+			</button>
+			<button
+				type="button"
+				onClick={() => {
+					ref.current?.seekTo(10000);
+				}}
+			>
+				seek outside
+			</button>
+			<button
+				type="button"
+				onClick={() => {
+					ref.current?.seekTo(-10000);
+				}}
+			>
+				seek outside negative
+			</button>
+			<button
+				type="button"
+				onClick={() => {
+					ref.current?.seekTo(ref.current.getCurrentFrame() + fps * 5);
+				}}
+			>
+				5 seconds forward
 			</button>
 			<br />
 			<br />
