@@ -173,7 +173,12 @@ const renderHandler = async (
 		webpackBundle: null,
 	});
 	stitchLabel.end();
-	await RenderInternals.addSilentAudioIfNecessary(outputLocation);
+	console.info('Adding silent audio, chunk', params.chunk);
+	await RenderInternals.addSilentAudioIfNecessary(
+		outputLocation,
+		params.frameRange[1] - params.frameRange[0] + 1,
+		params.fps
+	);
 	const endStitching = Date.now();
 
 	const condensedTimingData: ChunkTimingData = {

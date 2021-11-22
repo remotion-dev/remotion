@@ -3,7 +3,9 @@ import {renameSync, unlinkSync} from 'fs';
 import {getAudioChannels} from './assets/get-audio-channels';
 
 export const addSilentAudioIfNecessary = async (
-	videoFile: string
+	videoFile: string,
+	durationInFrames: number,
+	fps: number
 ): Promise<void> => {
 	const audioChannels = await getAudioChannels(videoFile);
 	if (audioChannels > 0) {
@@ -28,7 +30,8 @@ export const addSilentAudioIfNecessary = async (
 		'-c:v',
 		'copy',
 		'-y',
-		'-shortest',
+		'-t',
+		(durationInFrames / fps).toFixed(4),
 		'-f',
 		'matroska',
 		out,
