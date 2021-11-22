@@ -16,7 +16,7 @@ export const validateComposition = async ({
 	inputProps,
 }: ValidateCompositionOptions): Promise<TCompMetadata> => {
 	const compositions = await getCompositions(serveUrl, {
-		browserInstance,
+		puppeteerInstance: browserInstance,
 		inputProps: inputProps as object,
 	});
 

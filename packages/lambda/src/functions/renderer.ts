@@ -115,7 +115,7 @@ const renderHandler = async (
 				expectedBucketOwner: options.expectedBucketOwner,
 			});
 		},
-		openedBrowser: browserInstance,
+		puppeteerInstance: browserInstance,
 		serveUrl: params.serveUrl,
 		quality: params.quality,
 		envVariables: params.envVariables,

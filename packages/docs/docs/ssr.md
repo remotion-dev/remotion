@@ -89,6 +89,6 @@ Note that running the workflow may incur costs. However, the workflow will only 
 ## API reference
 
 - [bundle()](/docs/bundle)
-- [getCompositions()](/docs/get-compositions)
-- [renderMedia()](/docs/render-media)
-- [stitchFramesToVideo()](/docs/stitch-frames-to-video)
+- [getCompositions()](/docs/renderer/get-compositions)
+- [renderMedia()](/docs/renderer/render-media)
+- [stitchFramesToVideo()](/docs/renderer/stitch-frames-to-video)

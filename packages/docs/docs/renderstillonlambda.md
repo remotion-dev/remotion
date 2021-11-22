@@ -8,7 +8,7 @@ Renders a still image inside a lambda function and writes it to the specified ou
 
 If you want to render a video instead, use [`renderVideoOnLamda()`](/docs/lambda/rendervideoonlambda) instead.
 
-If you want to render a still locally instead, use [`renderStill()`](/docs/render-still) instead.
+If you want to render a still locally instead, use [`renderStill()`](/docs/renderer/render-still) instead.
 
 ## Example
 
@@ -92,7 +92,7 @@ How often a frame render may be retried until it fails.
 
 _optional - default `{}`_
 
-See [`renderFrames() -> envVariables`](/docs/render-frames#envvariables).
+See [`renderMedia() -> envVariables`](/docs/renderer/render-media#envvariables).
 
 ## Return value
 
@@ -121,4 +121,4 @@ A unique alphanumeric identifier for this render. Useful for obtaining status an
 ## See also
 
 - [renderVideoOnLambda()](/docs/lambda/rendervideoonlambda)
-- [renderStill()](/docs/render-still)
+- [renderStill()](/docs/renderer/render-still)

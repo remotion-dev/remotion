@@ -101,10 +101,10 @@ export const still = async () => {
 		await urlOrBundle
 	);
 
-	const openedBrowser = await browserInstance;
+	const puppeteerInstance = await browserInstance;
 	const comps = await getCompositions(serveUrl, {
 		inputProps,
-		browserInstance: openedBrowser,
+		puppeteerInstance,
 		envVariables,
 	});
 	const compositionId = getCompositionId(comps);
@@ -137,7 +137,7 @@ export const still = async () => {
 		process.exit(1);
 	}
 
-	const closeBrowserPromise = openedBrowser.close();
+	const closeBrowserPromise = puppeteerInstance.close();
 	closeServer().catch((err) => {
 		Log.error('Could not close web server', err);
 	});

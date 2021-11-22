@@ -9,7 +9,8 @@ import {setPropsAndEnv} from './set-props-and-env';
 type GetCompositionsConfig = {
 	inputProps?: object | null;
 	envVariables?: Record<string, string>;
-	browserInstance?: Browser;
+	// TODO: Document change
+	puppeteerInstance?: Browser;
 	onBrowserLog?: (log: BrowserLog) => void;
 	browserExecutable?: BrowserExecutable;
 };
@@ -74,7 +75,7 @@ export const getCompositions = async (
 ) => {
 	const {serveUrl, closeServer} = await prepareServer(serveUrlOrWebpackUrl);
 	const {page, cleanup} = await getPageAndCleanupFn({
-		passedInInstance: config?.browserInstance,
+		passedInInstance: config?.puppeteerInstance,
 		browserExecutable: config?.browserExecutable ?? null,
 	});
 
