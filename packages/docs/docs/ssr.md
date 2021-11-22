@@ -11,7 +11,11 @@ Remotion's rendering engine is built upon Node.JS, which makes it easy to render
 
 Since Remotion is built with tech (_Node.JS, FFMPEG, Puppeteer_) that works well cross-platform, you can without much hassle run it on a Linux-based system or even dockerize your video.
 
-## Render a video programmatically
+## Render a video on AWS Lambda
+
+The easiest and fastest way to render videos in the cloud is to use `@remotion/lambda`. [Click here to read the documentation for it](/docs/lambda).
+
+## Render a video using Node.JS APIs
 
 The NPM package `@remotion/renderer` provides you with an API for rendering the videos programmatically. You can make a video in three steps: creating a Webpack bundle, rendering the frames, and stitching them together to an MP4. This gives you more independence and allows you to for example skip the stitching process, if you just want a PNG sequence.
 
@@ -57,7 +61,6 @@ const start = async () => {
     serveUrl: bundleLocation,
     codec: "h264",
     outputLocation: "out/video.mp4",
-    // React props passed to the root component of the sequence. Will be merged with the `defaultProps` of a composition.
     inputProps,
   });
 };
@@ -66,27 +69,6 @@ start();
 ```
 
 [See also: Passing props in GitHub Actions](/docs/parametrized-rendering#passing-props-in-github-actions)
-
-## Render using a HTTP server
-
-In the [template](/docs#installation), we added a minimal example of an HTTP server that dynamically returns a video whenever you call the URL.
-
-The server is located under `server.tsx`, and you can run it using `npm run server`. Call the default URL with parameters, and it will return a video after some time! Try it out in the browser or using cURL:
-
-```bash
-curl "http://localhost:8000?titleText=Hello,+World!&titleColor=red" > output.mp4
-```
-
-Note that we only added a minimal example. For production, you should consider adding a queueing system and rate limiting.
-
-## Render using a HTTP server (Dockerized)
-
-We added a Dockerfile that includes FFMPEG and added it to the template. That means you can also run the server described in the section above using Docker.
-
-```bash
-docker build -t my-video .
-docker run -p 8000:8000 --privileged my-video
-```
 
 ## Render using GitHub Actions
 
@@ -104,13 +86,9 @@ Note that running the workflow may incur costs. However, the workflow will only 
 
 [See also: Passing props in GitHub Actions](/docs/parametrized-rendering#passing-props-in-github-actions)
 
-## Rendering a video using serverless
-
-We are working on a library which will help you render videos using AWS Lambda. Contact us if you are interested in testing an early version or read the `#lambda` channel on our Discord server.
-
 ## API reference
 
 - [bundle()](/docs/bundle)
 - [getCompositions()](/docs/get-compositions)
-- [renderFrames()](/docs/render-frames)
+- [renderMedia()](/docs/render-media)
 - [stitchFramesToVideo()](/docs/stitch-frames-to-video)
