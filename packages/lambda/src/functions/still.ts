@@ -102,7 +102,6 @@ const innerStillHandler = async (
 		composition,
 		output: outputPath,
 		serveUrl: lambdaParams.serveUrl,
-		browser: 'chrome',
 		dumpBrowserLogs: false,
 		envVariables: lambdaParams.envVariables,
 		frame: lambdaParams.frame,

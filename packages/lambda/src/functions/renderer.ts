@@ -119,7 +119,6 @@ const renderHandler = async (
 		serveUrl: params.serveUrl,
 		quality: params.quality,
 		envVariables: params.envVariables,
-		browser: 'chrome',
 		dumpBrowserLogs: params.saveBrowserLogs,
 		onBrowserLog: (log) => {
 			logs.push(log);

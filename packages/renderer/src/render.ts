@@ -41,7 +41,6 @@ type RenderFramesOptions = {
 	imageFormat: ImageFormat;
 	parallelism?: number | null;
 	quality?: number;
-	browser?: Browser;
 	frameRange?: FrameRange | null;
 	serveUrl: string;
 	dumpBrowserLogs?: boolean;

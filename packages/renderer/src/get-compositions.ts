@@ -6,7 +6,6 @@ import {openBrowser} from './open-browser';
 import {setPropsAndEnv} from './set-props-and-env';
 
 type GetCompositionsConfig = {
-	browser?: Browser;
 	inputProps?: object | null;
 	envVariables?: Record<string, string>;
 	browserInstance?: PuppeteerBrowser;
@@ -119,7 +118,7 @@ export const getCompositions = async (
 ) => {
 	const {page, cleanup} = await getPageAndCleanupFn({
 		passedInInstance: config?.browserInstance,
-		browser: config?.browser ?? Internals.DEFAULT_BROWSER,
+		browser: Internals.DEFAULT_BROWSER,
 		browserExecutable: config?.browserExecutable ?? null,
 	});
 

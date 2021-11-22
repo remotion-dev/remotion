@@ -11,7 +11,6 @@ Gets the compositions defined in a Remotion project based on a webpack bundle. S
 const getCompositions: (
   bundle: string,
   options: {
-    browser?: Browser;
     inputProps?: object | null;
     envVariables?: Record<string, string>;
     browserInstance?: PuppeteerBrowser;
@@ -137,12 +136,14 @@ Returns a promise that resolves to an array of available compositions. Example v
     width: 1920,
     height: 1080,
     fps: 30,
+    durationInFrames: 120,
   },
   {
     id: "Title",
     width: 1080,
     height: 1080,
     fps: 30,
+    durationInFrames: 90,
   },
 ];
 ```

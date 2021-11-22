@@ -78,7 +78,6 @@ export const render = async () => {
 	const openedBrowser = await browserInstance;
 
 	const comps = await getCompositions(serveUrl, {
-		browser,
 		inputProps,
 		browserInstance: openedBrowser,
 		envVariables,
@@ -165,7 +164,6 @@ export const render = async () => {
 			},
 			outputDir,
 			serveUrl,
-			browser,
 			dumpBrowserLogs: Internals.Logging.isEqualOrBelowLogLevel('verbose'),
 			envVariables,
 			frameRange,
@@ -184,7 +182,6 @@ export const render = async () => {
 
 	await renderMedia({
 		absoluteOutputFile,
-		browser,
 		codec,
 		config,
 		crf,

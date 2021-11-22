@@ -92,7 +92,6 @@ export const still = async () => {
 
 	const openedBrowser = await browserInstance;
 	const comps = await getCompositions(bundled, {
-		browser,
 		inputProps,
 		browserInstance: openedBrowser,
 		envVariables,
@@ -117,7 +116,6 @@ export const still = async () => {
 			output: userOutput,
 			serveUrl,
 			quality,
-			browser,
 			dumpBrowserLogs: Internals.Logging.isEqualOrBelowLogLevel('verbose'),
 			envVariables,
 			imageFormat,
