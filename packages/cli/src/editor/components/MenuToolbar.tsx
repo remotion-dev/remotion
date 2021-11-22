@@ -387,7 +387,7 @@ export const MenuToolbar: React.FC = () => {
 						label: 'Twitter',
 						onClick: () => {
 							close();
-							openExternal('https://twitter.com/JNYBGR');
+							openExternal('https://twitter.com/remotion_dev');
 						},
 						type: 'item',
 						keyHint: null,
