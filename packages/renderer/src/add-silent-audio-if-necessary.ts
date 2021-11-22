@@ -1,6 +1,7 @@
 import execa from 'execa';
 import {renameSync, unlinkSync} from 'fs';
 import {getAudioChannels} from './assets/get-audio-channels';
+import {DEFAULT_SAMPLE_RATE} from './sample-rate';
 
 export const addSilentAudioIfNecessary = async (
 	videoFile: string,
@@ -29,6 +30,8 @@ export const addSilentAudioIfNecessary = async (
 		'pcm_s16le',
 		'-c:v',
 		'copy',
+		'-ar',
+		String(DEFAULT_SAMPLE_RATE),
 		'-y',
 		'-t',
 		(durationInFrames / fps).toFixed(4),

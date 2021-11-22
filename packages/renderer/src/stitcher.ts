@@ -25,6 +25,7 @@ import {getProResProfileName} from './get-prores-profile-name';
 import {DEFAULT_IMAGE_FORMAT} from './image-format';
 import {parseFfmpegProgress} from './parse-ffmpeg-progress';
 import {resolveAssetSrc} from './resolve-asset-src';
+import {DEFAULT_SAMPLE_RATE} from './sample-rate';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
 import {validateFfmpeg} from './validate-ffmpeg';
 
@@ -216,6 +217,8 @@ export const spawnFfmpeg = async (options: StitcherOptions) => {
 					pixelFormat === 'yuva420p' ? ['-auto-alt-ref', '0'] : null,
 					isAudioOnly ? null : ['-b:v', '1M'],
 			  ]),
+		'-ar',
+		String(DEFAULT_SAMPLE_RATE),
 		audioCodecName ? ['-c:a', audioCodecName] : null,
 		complexFilterFlag,
 		// Ignore audio from image sequence
