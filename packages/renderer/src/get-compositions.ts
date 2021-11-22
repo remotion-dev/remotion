@@ -3,6 +3,7 @@ import {Browser, BrowserExecutable, Internals, TCompMetadata} from 'remotion';
 import {BrowserLog} from './browser-log';
 import {normalizeServeUrl} from './normalize-serve-url';
 import {openBrowser} from './open-browser';
+import {prepareServer} from './prepare-server';
 import {setPropsAndEnv} from './set-props-and-env';
 
 type GetCompositionsConfig = {
@@ -113,9 +114,10 @@ const innerGetCompositions = async (
 };
 
 export const getCompositions = async (
-	serveUrl: string,
+	serveUrlOrWebpackUrl: string,
 	config?: GetCompositionsConfig
 ) => {
+	const {serveUrl, closeServer} = await prepareServer(serveUrlOrWebpackUrl);
 	const {page, cleanup} = await getPageAndCleanupFn({
 		passedInInstance: config?.browserInstance,
 		browser: Internals.DEFAULT_BROWSER,
@@ -134,6 +136,9 @@ export const getCompositions = async (
 			.catch((err) => {
 				reject(err);
 			})
-			.finally(() => cleanup());
+			.finally(() => {
+				cleanup();
+				closeServer();
+			});
 	});
 };

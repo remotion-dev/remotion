@@ -22,12 +22,15 @@ import {
 	makeRenderingAndStitchingProgress,
 } from './progress-bar';
 import {bundleOnCli} from './setup-cache';
+import {RenderStep} from './step';
 import {checkAndValidateFfmpegVersion} from './validate-ffmpeg-version';
 
 export const render = async () => {
 	const startTime = Date.now();
 	const file = parsedCli._[1];
-	const fullPath = path.join(process.cwd(), file);
+	const fullPath = RenderInternals.isServeUrl(file)
+		? file
+		: path.join(process.cwd(), file);
 
 	await initializeRenderCli('sequence');
 
@@ -65,15 +68,18 @@ export const render = async () => {
 		shouldDumpIo: Internals.Logging.isEqualOrBelowLogLevel('verbose'),
 	});
 
-	const hasStitching = !shouldOutputImageSequence;
+	const steps: RenderStep[] = [
+		RenderInternals.isServeUrl(fullPath) ? null : ('bundling' as const),
+		'rendering' as const,
+		shouldOutputImageSequence ? null : ('stitching' as const),
+	].filter(Internals.truthy);
 
-	const steps = hasStitching ? 3 : 2;
-
-	const bundled = await bundleOnCli(fullPath, steps);
-
-	const {port, close} = await RenderInternals.serveStatic(bundled);
-
-	const serveUrl = `http://localhost:${port}`;
+	const urlOrBundle = RenderInternals.isServeUrl(fullPath)
+		? Promise.resolve(fullPath)
+		: await bundleOnCli(fullPath, steps);
+	const {serveUrl, closeServer} = await RenderInternals.prepareServer(
+		await urlOrBundle
+	);
 
 	const openedBrowser = await browserInstance;
 
@@ -163,7 +169,7 @@ export const render = async () => {
 				return updateRenderProgress();
 			},
 			outputDir,
-			serveUrl,
+			url: serveUrl,
 			dumpBrowserLogs: Internals.Logging.isEqualOrBelowLogLevel('verbose'),
 			envVariables,
 			frameRange,
@@ -238,10 +244,9 @@ export const render = async () => {
 	);
 	Log.info('-', 'Output can be found at:');
 	Log.info(chalk.cyan(`▶️ ${absoluteOutputFile}`));
-	close();
 	Log.verbose('Cleaning up...');
 	try {
-		await RenderInternals.deleteDirectory(bundled);
+		await RenderInternals.deleteDirectory(await urlOrBundle);
 	} catch (err) {
 		Log.warn('Could not clean up directory.');
 		Log.warn(err);
@@ -249,4 +254,7 @@ export const render = async () => {
 	}
 
 	Log.info(chalk.green('\nYour video is ready!'));
+	closeServer().catch((err) => {
+		Log.error('Could not close web server', err);
+	});
 };

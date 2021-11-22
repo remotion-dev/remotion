@@ -16,6 +16,8 @@ import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-c
 import {binaryExists, validateFfmpeg} from './validate-ffmpeg';
 import {tmpDir} from './tmp-dir';
 import {deleteDirectory} from './delete-directory';
+import {prepareServer} from './prepare-server';
+import {isServeUrl} from './is-serve-url';
 
 declare global {
 	interface Window {
@@ -60,4 +62,6 @@ export const RenderInternals = {
 	makeAssetsDownloadTmpDir,
 	tmpDir,
 	deleteDirectory,
+	prepareServer,
+	isServeUrl,
 };

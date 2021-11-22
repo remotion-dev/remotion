@@ -1,7 +1,12 @@
 import fs from 'fs';
 import execa from 'execa';
+import {isServeUrl} from './is-serve-url';
 
-export const deleteDirectory = async (directory: string) => {
+export const deleteDirectory = async (directory: string): Promise<void> => {
+	if (isServeUrl(directory)) {
+		return;
+	}
+
 	if (process.platform === 'win32') {
 		// We use del before to remove all files inside the directories otherwise
 		// rmdir will throw an error.

@@ -161,7 +161,7 @@ export const renderMedia = async ({
 			writeFrame: async (buffer) => {
 				stitcherFfmpeg?.stdin?.write(buffer);
 			},
-			serveUrl,
+			url: serveUrl,
 			dumpBrowserLogs,
 			onBrowserLog,
 			onDownload,
