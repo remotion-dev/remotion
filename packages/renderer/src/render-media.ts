@@ -36,7 +36,7 @@ export type RenderMediaOnProgress = (progress: {
 export type RenderMediaOptions = {
 	proResProfile?: ProResProfile;
 	parallelism: number | null;
-	crf?: number;
+	crf?: number | null;
 	config: TCompMetadata;
 	imageFormat: 'png' | 'jpeg' | 'none';
 	ffmpegExecutable: FfmpegExecutable;
