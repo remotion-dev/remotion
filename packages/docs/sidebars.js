@@ -1,4 +1,22 @@
 module.exports = {
+  rendererSidebar: [
+    {
+      type: "link",
+      label: "← Back to main docs",
+      href: "/docs",
+    },
+    {
+      type: "link",
+      label: "@remotion/renderer",
+      href: "#",
+    },
+    "renderer",
+    "get-compositions",
+    "render-media",
+    "render-frames",
+    "render-still",
+    "stitch-frames-to-video",
+  ],
   playerSidebar: [
     {
       type: "link",
@@ -155,14 +173,9 @@ module.exports = {
       items: ["three", "three-canvas", "use-video-texture"],
     },
     {
-      type: "category",
+      type: "link",
+      href: "/docs/renderer",
       label: "API - @remotion/renderer",
-      items: [
-        "get-compositions",
-        "render-frames",
-        "stitch-frames-to-video",
-        "render-still",
-      ],
     },
     {
       type: "category",

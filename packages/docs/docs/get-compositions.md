@@ -1,6 +1,7 @@
 ---
 title: getCompositions()
 id: get-compositions
+slug: /renderer/get-compositions
 ---
 
 _Part of the `@remotion/renderer` package._
