@@ -82,7 +82,7 @@ See [`renderMedia() -> imageFormat`](/docs/renderer/render-media#imageformat).
 
 ### `crf`
 
-See [`renderMedia() -> crf`](/docs/renderer/renderMedia#crf).
+See [`renderMedia() -> crf`](/docs/renderer/render-media#crf).
 
 ### `envVariables`
 
@@ -90,7 +90,7 @@ See [`renderMedia() -> envVariables`](/docs/renderer/render-media#envvariables).
 
 ### `pixelFormat`
 
-See [`renderMedia() -> pixelFormat`](/docs/renderer/renderMedia#pixelformat).
+See [`renderMedia() -> pixelFormat`](/docs/renderer/render-media#pixelformat).
 
 ### `proResProfile`
 

@@ -169,7 +169,7 @@ export const render = async () => {
 				return updateRenderProgress();
 			},
 			outputDir,
-			url: serveUrl,
+			serveUrl,
 			dumpBrowserLogs: Internals.Logging.isEqualOrBelowLogLevel('verbose'),
 			envVariables,
 			frameRange,

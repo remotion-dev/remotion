@@ -3,11 +3,8 @@ id: render-still
 title: renderStill()
 ---
 
+import Redirect from '../components/Redirect';
+
 This page has moved. Redirecting...
 
-<script>
-if (typeof window !== "undefined" && typeof window.location !== "undefined") {
-window.location.href =
-"/docs/renderer/render-still"
-}
-</script>
+<Redirect redirect="/docs/renderer/render-still"/>
