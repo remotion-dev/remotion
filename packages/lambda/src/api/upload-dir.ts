@@ -2,7 +2,7 @@ import {PutObjectCommand} from '@aws-sdk/client-s3';
 import {Upload} from '@aws-sdk/lib-storage';
 import {createReadStream, promises as fs} from 'fs';
 import path from 'path';
-import {AwsRegion} from '..';
+import {AwsRegion} from '../pricing/aws-regions';
 import {Privacy} from '../defaults';
 import {getS3Client} from '../shared/aws-clients';
 

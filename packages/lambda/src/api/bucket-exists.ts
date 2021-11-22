@@ -1,5 +1,5 @@
 import {GetBucketLocationCommand} from '@aws-sdk/client-s3';
-import {AwsRegion} from '..';
+import {AwsRegion} from '../pricing/aws-regions';
 import {getS3Client} from '../shared/aws-clients';
 
 export const bucketExistsInRegion = async ({

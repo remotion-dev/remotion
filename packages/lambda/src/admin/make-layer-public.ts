@@ -3,7 +3,7 @@ import {
 	PublishLayerVersionCommand,
 } from '@aws-sdk/client-lambda';
 import {lambda} from 'aws-policies';
-import {AwsRegion} from '..';
+import {AwsRegion} from '../pricing/aws-regions';
 import {quit} from '../cli/helpers/quit';
 import {AWS_REGIONS} from '../regions';
 import {getLambdaClient} from '../shared/aws-clients';

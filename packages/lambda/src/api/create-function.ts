@@ -7,7 +7,7 @@ import {
 	PutFunctionEventInvokeConfigCommand,
 } from '@aws-sdk/client-lambda';
 import {readFileSync} from 'fs';
-import {AwsRegion} from '..';
+import {AwsRegion} from '../pricing/aws-regions';
 import {
 	DEFAULT_CLOUDWATCH_RETENTION_PERIOD,
 	LOG_GROUP_PREFIX,

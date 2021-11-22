@@ -1,4 +1,4 @@
-import {AwsRegion} from '..';
+import {AwsRegion} from '../pricing/aws-regions';
 
 export const hostedLayers: {
 	[key in AwsRegion]: {
