@@ -1,9 +1,12 @@
 import execa from 'execa';
 import {renameSync, unlinkSync} from 'fs';
 import {getAudioChannels} from './assets/get-audio-channels';
+import {DEFAULT_SAMPLE_RATE} from './sample-rate';
 
 export const addSilentAudioIfNecessary = async (
-	videoFile: string
+	videoFile: string,
+	durationInFrames: number,
+	fps: number
 ): Promise<void> => {
 	const audioChannels = await getAudioChannels(videoFile);
 	if (audioChannels > 0) {
@@ -27,8 +30,11 @@ export const addSilentAudioIfNecessary = async (
 		'pcm_s16le',
 		'-c:v',
 		'copy',
+		'-ar',
+		String(DEFAULT_SAMPLE_RATE),
 		'-y',
-		'-shortest',
+		'-t',
+		(durationInFrames / fps).toFixed(4),
 		'-f',
 		'matroska',
 		out,
