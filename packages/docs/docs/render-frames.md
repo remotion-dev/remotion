@@ -1,6 +1,7 @@
 ---
 id: render-frames
 title: renderFrames()
+slug: /renderer/render-frames
 ---
 
 _Part of the `@remotion/renderer` package._
