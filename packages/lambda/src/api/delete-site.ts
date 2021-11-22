@@ -1,4 +1,4 @@
-import {AwsRegion} from '..';
+import {AwsRegion} from '../pricing/aws-regions';
 import {getSitesKey} from '../defaults';
 import {lambdaLs} from '../functions/helpers/io';
 import {getAccountId} from '../shared/get-account-id';
