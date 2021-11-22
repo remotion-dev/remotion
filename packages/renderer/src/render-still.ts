@@ -22,7 +22,6 @@ type RenderStillOptions = {
 	inputProps?: unknown;
 	imageFormat?: StillImageFormat;
 	quality?: number;
-	browser?: Browser;
 	puppeteerInstance?: PuppeteerBrowser;
 	dumpBrowserLogs?: boolean;
 	envVariables?: Record<string, string>;

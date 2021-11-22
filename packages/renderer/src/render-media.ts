@@ -46,7 +46,6 @@ export type RenderMediaOptions = {
 	envVariables?: Record<string, string>;
 	quality?: number;
 	frameRange: FrameRange | null;
-	browser?: Browser;
 	serveUrl: string;
 	openedBrowser: PuppeteerBrowser;
 	overwrite?: boolean;
