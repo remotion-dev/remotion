@@ -1,6 +1,9 @@
 {
-  "packages": [
-    "packages/*"
-  ],
-  "version": "2.5.4"
+  "packages": ["packages/*"],
+  "version": "2.5.4",
+  "command": {
+    "publish": {
+      "exact": true
+    }
+  }
 }
