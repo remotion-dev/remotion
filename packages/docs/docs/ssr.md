@@ -22,19 +22,18 @@ import fs from "fs";
 import os from "os";
 import path from "path";
 import { bundle } from "@remotion/bundler";
-import {
-  getCompositions,
-  renderFrames,
-  stitchFramesToVideo,
-} from "@remotion/renderer";
+import { getCompositions, renderMedia } from "@remotion/renderer";
 
 const start = async () => {
   // The composition you want to render
   const compositionId = "HelloWorld";
 
   // Create a webpack bundle of the entry file.
-  // TODO: This is wrong in Lambda
   const bundleLocation = await bundle(require.resolve("./src/index"));
+
+  const inputProps = {
+    custom: "data",
+  };
 
   // Extract all the compositions you have defined in your project
   // from the webpack bundle.
@@ -42,9 +41,7 @@ const start = async () => {
     // You can pass custom input props that you can retrieve using getInputProps()
     // in the composition list. Use this if you want to dynamically set the duration or
     // dimensions of the video.
-    inputProps: {
-      custom: "data",
-    },
+    inputProps,
   });
 
   // Select the composition you want to render.
@@ -55,69 +52,18 @@ const start = async () => {
     throw new Error(`No composition with the ID ${compositionId} found`);
   }
 
-  // We create a temporary directory for storing the frames
-  const framesDir = await fs.promises.mkdtemp(
-    path.join(os.tmpdir(), "remotion-")
-  );
-
-  // We create JPEGs for all frames
-  const { assetsInfo } = await renderFrames({
+  await renderMedia({
     config: composition,
-    // Path of the webpack bundle you have created
     serveUrl: bundleLocation,
-    // Get's called after bundling is finished and the
-    // actual rendering starts.
-    onStart: () => console.log("Rendering frames..."),
-    onFrameUpdate: (f) => {
-      // Log a message whenever 10 frames have rendered.
-      if (f % 10 === 0) {
-        console.log(`Rendered frame ${f}`);
-      }
-    },
-    // How many CPU threads to use. `null` will use a sane default (half of the available threads)
-    // See 'CLI options' section for concurrency options.
-    parallelism: null,
-    outputDir: framesDir,
+    codec: "h264",
+    outputLocation: "out/video.mp4",
     // React props passed to the root component of the sequence. Will be merged with the `defaultProps` of a composition.
-    inputProps: {
-      titleText: "Hello World",
-    },
-    // Can be either 'jpeg' or 'png'. JPEG is faster, but has no transparency.
-    imageFormat: "jpeg",
-  });
-
-  // Add this step if you want to make an MP4 out of the rendered frames.
-  await stitchFramesToVideo({
-    // Input directory of the frames
-    dir: framesDir,
-    // Overwrite existing video
-    force: true,
-    // Possible overwrite of video metadata,
-    // we suggest to just fill in the data from the
-    // video variable
-    fps: composition.fps,
-    height: composition.height,
-    width: composition.width,
-    // Must match the value above for the image format
-    imageFormat: "jpeg",
-    // Pass in the desired output path of the video. Et voilà!
-    outputLocation: path.join(framesDir, "out.mp4"),
-    // FFMPEG pixel format
-    pixelFormat: "yuv420p",
-    // Information needed to construct audio correctly.
-    assetsInfo,
-    webpackBundle: bundleLocation,
-    // Hook into the FFMPEG progress
-    onProgress: (frame) => undefined,
+    inputProps,
   });
 };
 
 start();
 ```
-
-:::warning
-Many projects created before April 27th are missing the extra parameter for `getCompositions()`. Make sure to add it if you want to use input props to control duration or dimensions of the video.
-:::
 
 [See also: Passing props in GitHub Actions](/docs/parametrized-rendering#passing-props-in-github-actions)
 
