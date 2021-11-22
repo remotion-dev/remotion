@@ -25,6 +25,7 @@ import {makeAssetsDownloadTmpDir} from './make-assets-download-dir';
 import {normalizeServeUrl} from './normalize-serve-url';
 import {openBrowser} from './open-browser';
 import {Pool} from './pool';
+import {prepareServer} from './prepare-server';
 import {provideScreenshot} from './provide-screenshot';
 import {seekToFrame} from './seek-to-frame';
 import {setPropsAndEnv} from './set-props-and-env';
@@ -41,7 +42,7 @@ type RenderFramesOptions = {
 	parallelism?: number | null;
 	quality?: number;
 	frameRange?: FrameRange | null;
-	serveUrl: string;
+	url: string;
 	dumpBrowserLogs?: boolean;
 	puppeteerInstance?: PuppeteerBrowser;
 	browserExecutable?: BrowserExecutable;
@@ -68,9 +69,10 @@ export const innerRenderFrames = async ({
 	writeFrame,
 	onDownload,
 	pagesArray,
-}: RenderFramesOptions & {
+}: Omit<RenderFramesOptions, 'url'> & {
 	onError: (err: Error) => void;
 	pagesArray: Page[];
+	serveUrl: string;
 }): Promise<RenderFramesOutput> => {
 	if (!puppeteerInstance) {
 		throw new Error('weird');
@@ -260,6 +262,8 @@ export const renderFrames = async (
 
 	Internals.validateQuality(options.quality);
 
+	const {closeServer, serveUrl} = await prepareServer(options.url);
+
 	const browserInstance =
 		options.puppeteerInstance ??
 		(await openBrowser(Internals.DEFAULT_BROWSER, {
@@ -277,6 +281,7 @@ export const renderFrames = async (
 			puppeteerInstance: browserInstance,
 			onError: (err) => reject(err),
 			pagesArray: openedPages,
+			serveUrl,
 		})
 			.then((res) => resolve(res))
 			.catch((err) => reject(err))
@@ -296,6 +301,7 @@ export const renderFrames = async (
 				}
 
 				stopCycling();
+				closeServer();
 			});
 	});
 };

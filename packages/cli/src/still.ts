@@ -19,12 +19,15 @@ import {
 	makeRenderingProgress,
 } from './progress-bar';
 import {bundleOnCli} from './setup-cache';
+import {RenderStep} from './step';
 import {getUserPassedOutputLocation} from './user-passed-output-location';
 
 export const still = async () => {
 	const startTime = Date.now();
 	const file = parsedCli._[1];
-	const fullPath = path.join(process.cwd(), file);
+	const fullPath = RenderInternals.isServeUrl(file)
+		? file
+		: path.join(process.cwd(), file);
 
 	await initializeRenderCli('still');
 
@@ -86,12 +89,20 @@ export const still = async () => {
 		recursive: true,
 	});
 
-	const steps = 2;
+	const steps: RenderStep[] = [
+		RenderInternals.isServeUrl(fullPath) ? null : ('bundling' as const),
+		'rendering' as const,
+	].filter(Internals.truthy);
 
-	const bundled = await bundleOnCli(fullPath, steps);
+	const urlOrBundle = RenderInternals.isServeUrl(fullPath)
+		? Promise.resolve(fullPath)
+		: await bundleOnCli(fullPath, steps);
+	const {serveUrl, closeServer} = await RenderInternals.prepareServer(
+		await urlOrBundle
+	);
 
 	const openedBrowser = await browserInstance;
-	const comps = await getCompositions(bundled, {
+	const comps = await getCompositions(serveUrl, {
 		inputProps,
 		browserInstance: openedBrowser,
 		envVariables,
@@ -105,9 +116,6 @@ export const still = async () => {
 
 	const renderProgress = createOverwriteableCliOutput();
 	const renderStart = Date.now();
-
-	const {port, close} = await RenderInternals.serveStatic(bundled);
-	const serveUrl = `http://localhost:${port}`;
 
 	try {
 		await renderStill({
@@ -130,7 +138,7 @@ export const still = async () => {
 	}
 
 	const closeBrowserPromise = openedBrowser.close();
-	close().catch((err) => {
+	closeServer().catch((err) => {
 		Log.error('Could not close web server', err);
 	});
 	renderProgress.update(
