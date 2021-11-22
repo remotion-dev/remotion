@@ -4,6 +4,8 @@ sidebar_label: Overview
 title: "@remotion/lambda"
 ---
 
+import {LambdaRegionList} from '../components/lambda/regions.tsx';
+
 :::warning
 **Experimental**: APIs might undergo major changes and the framework still has rough edges and hardcoded values - see known issues section. Updates will be provided on the #lambda channel on Discord.
 
@@ -38,27 +40,7 @@ In this release, a new `s3:GetBucketRegion` permission is needed, so you need to
 
 The following regions are available for Remotion Lambda:
 
-- `us-east-1`
-- `us-east-2`
-- `us-west-1`
-- `us-west-2`
-- `af-south-1`
-- `ap-east-1`
-- `ap-south-1`
-- `ap-northeast-3`
-- `ap-northeast-2`
-- `ap-southeast-1`
-- `ap-southeast-2`
-- `ap-northeast-1`
-- `ca-central-1`
-- `eu-central-1`
-- `eu-west-1`
-- `eu-west-2`
-- `eu-south-1`
-- `eu-west-3`
-- `eu-north-1`
-- `me-south-1`
-- `sa-east-1`
+<LambdaRegionList />
 
 ## Limitations
 
