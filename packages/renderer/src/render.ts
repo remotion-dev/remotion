@@ -42,7 +42,7 @@ type RenderFramesOptions = {
 	parallelism?: number | null;
 	quality?: number;
 	frameRange?: FrameRange | null;
-	url: string;
+	serveUrl: string;
 	dumpBrowserLogs?: boolean;
 	puppeteerInstance?: PuppeteerBrowser;
 	browserExecutable?: BrowserExecutable;
@@ -262,7 +262,7 @@ export const renderFrames = async (
 
 	Internals.validateQuality(options.quality);
 
-	const {closeServer, serveUrl} = await prepareServer(options.url);
+	const {closeServer, serveUrl} = await prepareServer(options.serveUrl);
 
 	const browserInstance =
 		options.puppeteerInstance ??

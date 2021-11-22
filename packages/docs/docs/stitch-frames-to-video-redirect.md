@@ -3,11 +3,8 @@ id: stitch-frames-to-video
 title: stitchFramesToVideo()
 ---
 
+import Redirect from '../components/Redirect';
+
 This page has moved. Redirecting...
 
-<script>
-if (typeof window !== "undefined" && typeof window.location !== "undefined") {
-window.location.href =
-"/docs/renderer/stitch-frames-to-video"
-}
-</script>
+<Redirect redirect="/docs/renderer/stitch-frames-to-video"/>

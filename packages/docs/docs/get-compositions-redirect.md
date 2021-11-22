@@ -3,11 +3,8 @@ id: get-compositions
 title: getCompositions()
 ---
 
+import Redirect from '../components/Redirect';
+
 This page has moved. Redirecting...
 
-<script>
-if (typeof window !== "undefined" && typeof window.location !== "undefined") {
-window.location.href =
-"/docs/renderer/get-compositions"
-}
-</script>
+<Redirect redirect="/docs/renderer/get-compositions"/>
