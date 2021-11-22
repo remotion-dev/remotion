@@ -2,7 +2,6 @@ import fs, {mkdirSync, statSync} from 'fs';
 import path from 'path';
 import {Browser as PuppeteerBrowser} from 'puppeteer-core';
 import {
-	Browser,
 	BrowserExecutable,
 	Internals,
 	StillImageFormat,
@@ -34,7 +33,6 @@ const innerRenderStill = async ({
 	quality,
 	imageFormat = 'png',
 	serveUrl,
-	browser = Internals.DEFAULT_BROWSER,
 	puppeteerInstance,
 	dumpBrowserLogs = false,
 	onError,
@@ -104,7 +102,7 @@ const innerRenderStill = async ({
 
 	const browserInstance =
 		puppeteerInstance ??
-		(await openBrowser(browser, {
+		(await openBrowser(Internals.DEFAULT_BROWSER, {
 			browserExecutable,
 			shouldDumpIo: dumpBrowserLogs,
 		}));
