@@ -8,7 +8,7 @@ _Part of the `@remotion/renderer` package. Available from v2.3._
 
 Renders a single frame to an image and writes it to the specified output location.
 
-If you want to render a full image sequence and possibly encode it to a video later, use [renderFrames()](/docs/render-frames) instead.
+If you want to render a video, use [renderMedia()](/docs/renderer/render-media) instead.
 
 ## Example usage
 
@@ -54,7 +54,7 @@ Takes an object with the following properties:
 
 ### `composition`
 
-A video composition object, consisting of `id`, `height`, `width`, `durationInFrames` and `fps`. Use [`getCompositions()`](/docs/get-compositions) to get a list of available video configs.
+A video composition object, consisting of `id`, `height`, `width`, `durationInFrames` and `fps`. Use [`getCompositions()`](/docs/renderer/get-compositions) to get a list of available video configs.
 
 ### `serveUrl`
 
@@ -124,5 +124,5 @@ A promise with no value. If the render succeeded, the still has been saved to `o
 
 - [bundle()](/docs/bundle)
 - [Server-Side rendering](/docs/ssr)
-- [getCompositions()](/docs/get-compositions)
-- [renderFrames()](/docs/render-frames)
+- [getCompositions()](/docs/renderer/get-compositions)
+- [renderMedia()](/docs/renderer/render-media)

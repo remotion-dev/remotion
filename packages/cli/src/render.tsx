@@ -81,11 +81,11 @@ export const render = async () => {
 		await urlOrBundle
 	);
 
-	const openedBrowser = await browserInstance;
+	const puppeteerInstance = await browserInstance;
 
 	const comps = await getCompositions(serveUrl, {
 		inputProps,
-		browserInstance: openedBrowser,
+		puppeteerInstance,
 		envVariables,
 	});
 	const compositionId = getCompositionId(comps);
@@ -174,7 +174,7 @@ export const render = async () => {
 			envVariables,
 			frameRange,
 			parallelism,
-			puppeteerInstance: openedBrowser,
+			puppeteerInstance,
 			quality,
 		});
 		renderedDoneIn = Date.now() - startTime;
@@ -204,7 +204,7 @@ export const render = async () => {
 			renderedFrames = update.renderedFrames;
 			updateRenderProgress();
 		},
-		openedBrowser,
+		puppeteerInstance,
 		overwrite,
 		parallelism,
 		pixelFormat,

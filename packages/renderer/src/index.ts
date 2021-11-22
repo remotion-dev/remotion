@@ -32,9 +32,9 @@ export {
 	renderMedia,
 	RenderMediaOnProgress,
 	StitchingState,
-	RenderMediaOnDownload,
 	RenderMediaOptions,
 } from './render-media';
+export type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 export {combineVideos} from './combine-videos';
 export {FfmpegVersion} from './ffmpeg-flags';
 export {getCompositions} from './get-compositions';

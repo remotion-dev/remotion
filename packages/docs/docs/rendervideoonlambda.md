@@ -74,31 +74,31 @@ Which codec should be used to encode the video. At the moment the only supported
 
 Audio codecs `mp3`, `aac` and `wav` are also supported.
 
-See also [`stitchFramesToVideo() -> codec`](/docs/stitch-frames-to-video#codec).
+See also [`renderMedia() -> codec`](/docs/renderer/render-media#codec).
 
 ### `imageFormat`
 
-See [`renderFrames() -> imageFormat`](/docs/render-frames#imageformat).
+See [`renderMedia() -> imageFormat`](/docs/renderer/render-media#imageformat).
 
 ### `crf`
 
-See [`stitchFramesToVideo() -> crf`](/docs/stitch-frames-to-video#crf).
+See [`renderMedia() -> crf`](/docs/renderer/renderMedia#crf).
 
 ### `envVariables`
 
-See [`renderFrames() -> envVariables`](/docs/render-frames#envvariables).
+See [`renderMedia() -> envVariables`](/docs/renderer/render-media#envvariables).
 
 ### `pixelFormat`
 
-See [`stitchFramesToVideo() -> pixelFormat`](/docs/stitch-frames-to-video#pixelformat).
+See [`renderMedia() -> pixelFormat`](/docs/renderer/renderMedia#pixelformat).
 
 ### `proResProfile`
 
-See [`stitchFramesToVideo() -> proResProfile`](/docs/stitch-frames-to-video#proresprofile).
+See [`renderMedia() -> proResProfile`](/docs/renderer/render-media#proresprofile).
 
 ### `quality`
 
-See [`renderFrames() -> quality`](/docs/render-frames#quality).
+See [`renderMedia() -> quality`](/docs/renderer/render-media#quality).
 
 ### `maxRetries`
 

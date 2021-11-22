@@ -15,12 +15,10 @@ import {stitchFramesToVideo, spawnFfmpeg} from './stitcher';
 import {renderFrames} from './render';
 import {BrowserLog} from './browser-log';
 import {OnStartData} from './types';
-import {OnDownload} from './assets/download-and-map-assets-to-file';
+import {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 import {tmpDir} from './tmp-dir';
 import {getFileExtensionFromCodec} from './get-extension-from-codec';
 import {deleteDirectory} from './delete-directory';
-
-export type RenderMediaOnDownload = (src: string) => void;
 
 export type StitchingState = 'encoding' | 'muxing';
 
@@ -33,24 +31,24 @@ export type RenderMediaOnProgress = (progress: {
 }) => void;
 
 export type RenderMediaOptions = {
-	proResProfile?: ProResProfile;
+	serveUrl: string;
+	outputLocation: string;
+	codec: Codec;
+	config: TCompMetadata;
+	inputProps?: unknown;
 	parallelism?: number | null;
 	crf?: number | null;
-	config: TCompMetadata;
 	imageFormat?: 'png' | 'jpeg' | 'none';
 	ffmpegExecutable?: FfmpegExecutable;
-	inputProps?: unknown;
 	pixelFormat?: PixelFormat;
-	codec: Codec;
 	envVariables?: Record<string, string>;
 	quality?: number;
 	frameRange?: FrameRange | null;
-	serveUrl: string;
-	openedBrowser?: PuppeteerBrowser;
+	puppeteerInstance?: PuppeteerBrowser;
 	overwrite?: boolean;
-	outputLocation: string;
 	onProgress?: RenderMediaOnProgress;
-	onDownload?: OnDownload;
+	onDownload?: RenderMediaOnDownload;
+	proResProfile?: ProResProfile;
 	dumpBrowserLogs?: boolean;
 	onBrowserLog?: ((log: BrowserLog) => void) | undefined;
 	onStart?: (data: OnStartData) => void;
@@ -72,7 +70,7 @@ export const renderMedia = async ({
 	quality,
 	frameRange,
 	serveUrl,
-	openedBrowser,
+	puppeteerInstance,
 	outputLocation,
 	onProgress,
 	overwrite,
@@ -157,7 +155,7 @@ export const renderMedia = async ({
 			imageFormat: imageFormat ?? 'jpeg',
 			quality,
 			frameRange: frameRange ?? null,
-			puppeteerInstance: openedBrowser,
+			puppeteerInstance,
 			writeFrame: async (buffer) => {
 				stitcherFfmpeg?.stdin?.write(buffer);
 			},

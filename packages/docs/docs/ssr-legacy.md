@@ -167,6 +167,6 @@ We are working on a library which will help you render videos using AWS Lambda. 
 ## API reference
 
 - [bundle()](/docs/bundle)
-- [getCompositions()](/docs/get-compositions)
-- [renderFrames()](/docs/render-frames)
-- [stitchFramesToVideo()](/docs/stitch-frames-to-video)
+- [getCompositions()](/docs/renderer/get-compositions)
+- [renderMedia()](/docs/renderer/render-media)
+- [stitchFramesToVideo()](/docs/renderer/stitch-frames-to-video)

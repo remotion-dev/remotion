@@ -4,11 +4,11 @@ import { getCompositions, renderMedia, openBrowser } from "@remotion/renderer";
 import { existsSync } from "fs";
 
 test("Render video with browser instance open", async () => {
-  const browserInstance = await openBrowser("chrome");
+  const puppeteerInstance = await openBrowser("chrome");
   const compositions = await getCompositions(
     "https://remotionlambda-qg35eyp1s1.s3.eu-central-1.amazonaws.com/sites/mlqtbgiywr/index.html",
     {
-      browserInstance,
+      puppeteerInstance,
     }
   );
 
@@ -29,7 +29,7 @@ test("Render video with browser instance open", async () => {
       "https://remotionlambda-qg35eyp1s1.s3.eu-central-1.amazonaws.com/sites/mlqtbgiywr/index.html",
     config: reactSvg,
     frameRange: [0, 2],
-    openedBrowser: browserInstance,
+    puppeteerInstance,
   });
 });
 
@@ -81,7 +81,7 @@ test("should fail on invalid CRF", async () => {
         width: 1080,
       },
       frameRange: [0, 2],
-      openedBrowser: browserInstance,
+      puppeteerInstance: browserInstance,
     });
   }).rejects.toThrow(/Expected CRF to be a number, but is "wrong"/);
 });

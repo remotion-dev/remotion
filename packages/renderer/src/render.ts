@@ -13,7 +13,7 @@ import {
 } from 'remotion';
 import {
 	downloadAndMapAssetsToFileUrl,
-	OnDownload,
+	RenderMediaOnDownload,
 } from './assets/download-and-map-assets-to-file';
 import {BrowserLog} from './browser-log';
 import {cycleBrowserTabs} from './cycle-browser-tabs';
@@ -48,7 +48,7 @@ type RenderFramesOptions = {
 	browserExecutable?: BrowserExecutable;
 	onBrowserLog?: (log: BrowserLog) => void;
 	writeFrame?: (buffer?: Buffer) => void;
-	onDownload?: OnDownload;
+	onDownload?: RenderMediaOnDownload;
 };
 
 export const innerRenderFrames = async ({

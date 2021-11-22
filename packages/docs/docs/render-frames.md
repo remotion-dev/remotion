@@ -8,7 +8,11 @@ _Part of the `@remotion/renderer` package._
 
 Renders a series of images using Puppeteer and computes information for mixing audio.
 
-If you want to render only a still image, use [renderStill()](/docs/render-still).
+If you want to render only a still image, use [renderStill()](/docs/renderer/render-still).
+
+:::info
+In Remotion 3.0, we added the [`renderMedia()`](/docs/renderer/render-media) API which combines `renderFrames()` and `stitchFramesToVideo()` into one simplified step and performs the render faster. Prefer this API if you can.
+:::
 
 ```ts
 const renderFrames: (options: {
@@ -101,7 +105,7 @@ Only applies if `imageFormat` is `'jpeg'`, otherwise this option is invalid.
 
 _optional_
 
-Specify a single frame (passing a `number`) or a range of frames (passsing a tuple `[number, number]`) to be rendered. By passing `null` (default) all frames of a composition get rendered.
+Specify a single frame (passing a `number`) or a range of frames (passing a tuple `[number, number]`) to be rendered. By passing `null` (default) all frames of a composition get rendered.
 
 ### `dumpBrowserLogs?`
 
@@ -209,8 +213,9 @@ A promise resolving to an object containing the following properties:
 
 ## See also
 
+- [renderMedia()](/docs/renderer/render-media)
 - [bundle()](/docs/bundle)
 - [Server-Side rendering](/docs/ssr)
-- [getCompositions()](/docs/get-compositions)
-- [stitchFramesToVideo()](/docs/stitch-frames-to-video)
-- [renderStill()](/docs/render-still)
+- [getCompositions()](/docs/renderer/get-compositions)
+- [stitchFramesToVideo()](/docs/renderer/stitch-frames-to-video)
+- [renderStill()](/docs/renderer/render-still)

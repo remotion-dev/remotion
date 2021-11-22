@@ -14,7 +14,7 @@ const getCompositions: (
   options: {
     inputProps?: object | null;
     envVariables?: Record<string, string>;
-    browserInstance?: PuppeteerBrowser;
+    puppeteerInstance?: PuppeteerBrowser;
     onError?: (errorData: { err: Error }) => void;
     onBrowserLog?: (log: BrowserLog) => void;
     browserExecutable?: BrowserExecutable;
@@ -40,7 +40,7 @@ _optional_
 
 Define custom props that can be retrieved using [`getInputProps()`](/docs/get-input-props) at runtime. Useful for [setting a dynamic duration or dimensions](/docs/dynamic-metadata) for your video.
 
-#### `browserInstance?`
+#### `puppeteerInstance?`
 
 _optional_
 
@@ -50,7 +50,7 @@ An already open Puppeteer [`Browser`](https://pptr.dev/#?product=Puppeteer&versi
 
 _optional, available from v2.3.1_
 
-A string defining the absolute path on disk of the browser executable that should be used. By default Remotion will try to detect it automatically and download one if none is available. If `browserInstance` is defined, it will take precedence over `browserExecutable`.
+A string defining the absolute path on disk of the browser executable that should be used. By default Remotion will try to detect it automatically and download one if none is available. If `puppeteerInstance` is defined, it will take precedence over `browserExecutable`.
 
 #### `onBrowserLog?`
 
@@ -153,5 +153,4 @@ Returns a promise that resolves to an array of available compositions. Example v
 
 - [Server-Side rendering](/docs/ssr)
 - [bundle()](/docs/bundle)
-- [renderFrames()](/docs/render-frames)
-- [stitchFramesToVideo()](/docs/stitch-frames-to-video)
+- [renderMedia()](/docs/renderer/render-media)

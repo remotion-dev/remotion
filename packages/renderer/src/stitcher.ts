@@ -12,7 +12,7 @@ import {calculateAssetPositions} from './assets/calculate-asset-positions';
 import {convertAssetsToFileUrls} from './assets/convert-assets-to-file-urls';
 import {
 	markAllAssetsAsDownloaded,
-	OnDownload,
+	RenderMediaOnDownload,
 } from './assets/download-and-map-assets-to-file';
 import {getAssetAudioDetails} from './assets/get-asset-audio-details';
 import {Assets} from './assets/types';
@@ -39,7 +39,7 @@ export type StitcherOptions = {
 	codec?: Codec;
 	crf?: number | null;
 	onProgress?: (progress: number) => void;
-	onDownload?: OnDownload;
+	onDownload?: RenderMediaOnDownload;
 	proResProfile?: ProResProfile;
 	verbose?: boolean;
 	parallelEncoding?: boolean;

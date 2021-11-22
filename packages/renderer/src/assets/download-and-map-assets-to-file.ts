@@ -4,7 +4,7 @@ import path from 'path';
 import {random, TAsset} from 'remotion';
 import sanitizeFilename from 'sanitize-filename';
 
-export type OnDownload = (
+export type RenderMediaOnDownload = (
 	src: string
 ) => ((progress: {percent: number}) => void) | undefined | void;
 
@@ -35,7 +35,7 @@ const notifyAssetIsDownloaded = (src: string) => {
 const downloadAsset = async (
 	src: string,
 	to: string,
-	onDownload: OnDownload
+	onDownload: RenderMediaOnDownload
 ) => {
 	if (hasBeenDownloadedMap[src]) {
 		return;
@@ -113,7 +113,7 @@ export const downloadAndMapAssetsToFileUrl = async ({
 }: {
 	asset: TAsset;
 	downloadDir: string;
-	onDownload: OnDownload;
+	onDownload: RenderMediaOnDownload;
 }): Promise<TAsset> => {
 	const newSrc = getSanitizedFilenameForAssetUrl({
 		src: asset.src,
