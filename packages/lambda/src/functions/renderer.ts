@@ -123,7 +123,7 @@ const renderHandler = async (
 		onBrowserLog: (log) => {
 			logs.push(log);
 		},
-		absoluteOutputFile: outputLocation,
+		outputLocation,
 		codec: params.codec,
 		crf: params.crf ?? null,
 		ffmpegExecutable: null,

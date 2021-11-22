@@ -34,24 +34,24 @@ export type RenderMediaOnProgress = (progress: {
 
 export type RenderMediaOptions = {
 	proResProfile?: ProResProfile;
-	parallelism: number | null;
+	parallelism?: number | null;
 	crf?: number | null;
 	config: TCompMetadata;
-	imageFormat: 'png' | 'jpeg' | 'none';
-	ffmpegExecutable: FfmpegExecutable;
-	inputProps: unknown;
+	imageFormat?: 'png' | 'jpeg' | 'none';
+	ffmpegExecutable?: FfmpegExecutable;
+	inputProps?: unknown;
 	pixelFormat?: PixelFormat;
 	codec: Codec;
 	envVariables?: Record<string, string>;
 	quality?: number;
-	frameRange: FrameRange | null;
+	frameRange?: FrameRange | null;
 	serveUrl: string;
-	openedBrowser: PuppeteerBrowser;
+	openedBrowser?: PuppeteerBrowser;
 	overwrite?: boolean;
-	absoluteOutputFile: string;
+	outputLocation: string;
 	onProgress?: RenderMediaOnProgress;
 	onDownload?: OnDownload;
-	dumpBrowserLogs: boolean;
+	dumpBrowserLogs?: boolean;
 	onBrowserLog?: ((log: BrowserLog) => void) | undefined;
 	onStart?: (data: OnStartData) => void;
 };
@@ -73,7 +73,7 @@ export const renderMedia = async ({
 	frameRange,
 	serveUrl,
 	openedBrowser,
-	absoluteOutputFile,
+	outputLocation,
 	onProgress,
 	overwrite,
 	onDownload,
@@ -154,7 +154,7 @@ export const renderMedia = async ({
 			},
 			inputProps,
 			envVariables,
-			imageFormat,
+			imageFormat: imageFormat ?? 'jpeg',
 			quality,
 			frameRange: frameRange ?? null,
 			puppeteerInstance: openedBrowser,
@@ -175,7 +175,7 @@ export const renderMedia = async ({
 		renderedDoneIn = Date.now() - renderStart;
 		callUpdate();
 
-		const dirName = path.dirname(absoluteOutputFile);
+		const dirName = path.dirname(outputLocation);
 
 		if (!fs.existsSync(dirName)) {
 			fs.mkdirSync(dirName, {
@@ -189,7 +189,7 @@ export const renderMedia = async ({
 			width: config.width,
 			height: config.height,
 			fps: config.fps,
-			outputLocation: absoluteOutputFile,
+			outputLocation,
 			preEncodedFileLocation,
 			force: overwrite ?? Internals.DEFAULT_OVERWRITE,
 			pixelFormat,
