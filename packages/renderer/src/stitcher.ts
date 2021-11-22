@@ -36,7 +36,7 @@ export type StitcherOptions = {
 	assetsInfo: RenderAssetInfo | null;
 	pixelFormat?: PixelFormat;
 	codec?: Codec;
-	crf?: number;
+	crf?: number | null;
 	onProgress?: (progress: number) => void;
 	onDownload?: OnDownload;
 	proResProfile?: ProResProfile;
