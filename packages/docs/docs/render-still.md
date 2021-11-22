@@ -1,6 +1,7 @@
 ---
 id: render-still
 title: renderStill()
+slug: /renderer/render-still
 ---
 
 _Part of the `@remotion/renderer` package. Available from v2.3._
