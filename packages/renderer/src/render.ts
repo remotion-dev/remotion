@@ -5,7 +5,6 @@ import {
 	Page,
 } from 'puppeteer-core';
 import {
-	Browser,
 	BrowserExecutable,
 	FrameRange,
 	ImageFormat,
@@ -263,7 +262,7 @@ export const renderFrames = async (
 
 	const browserInstance =
 		options.puppeteerInstance ??
-		(await openBrowser(options.browser ?? Internals.DEFAULT_BROWSER, {
+		(await openBrowser(Internals.DEFAULT_BROWSER, {
 			shouldDumpIo: options.dumpBrowserLogs,
 			browserExecutable: options.browserExecutable,
 		}));

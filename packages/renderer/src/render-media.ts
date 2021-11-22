@@ -3,7 +3,6 @@ import fs from 'fs';
 import path from 'path';
 import type {Browser as PuppeteerBrowser} from 'puppeteer-core';
 import {
-	Browser,
 	Codec,
 	FfmpegExecutable,
 	FrameRange,
@@ -72,7 +71,6 @@ export const renderMedia = async ({
 	envVariables,
 	quality,
 	frameRange,
-	browser,
 	serveUrl,
 	openedBrowser,
 	absoluteOutputFile,
@@ -158,7 +156,6 @@ export const renderMedia = async ({
 			envVariables,
 			imageFormat,
 			quality,
-			browser,
 			frameRange: frameRange ?? null,
 			puppeteerInstance: openedBrowser,
 			writeFrame: async (buffer) => {
