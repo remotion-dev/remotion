@@ -1,6 +1,7 @@
 import os from "os";
 import path from "path";
 import { getCompositions, renderMedia, openBrowser } from "@remotion/renderer";
+import { existsSync } from "fs";
 
 test("Render video with browser instance open", async () => {
   const browserInstance = await openBrowser("chrome");
@@ -45,7 +46,7 @@ test("Render video with browser instance not open", async () => {
 
   const tmpDir = os.tmpdir();
 
-  const outPath = path.join(tmpDir, "out.mp4");
+  const outPath = path.join(tmpDir, "subdir", "out.mp4");
 
   await renderMedia({
     outputLocation: outPath,
@@ -55,6 +56,7 @@ test("Render video with browser instance not open", async () => {
     config: reactSvg,
     frameRange: [0, 2],
   });
+  expect(existsSync(outPath)).toBe(true);
 });
 
 test("should fail on invalid CRF", async () => {
