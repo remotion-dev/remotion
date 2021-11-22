@@ -19,18 +19,13 @@ test("Render video", async () => {
   const outPath = path.join(tmpDir, "out.mp4");
 
   await renderMedia({
-    absoluteOutputFile: outPath,
+    outputLocation: outPath,
     codec: "h264",
     serveUrl:
       "https://remotionlambda-qg35eyp1s1.s3.eu-central-1.amazonaws.com/sites/mlqtbgiywr/index.html",
     config: reactSvg,
-    dumpBrowserLogs: false,
-    ffmpegExecutable: null,
     frameRange: [0, 2],
-    imageFormat: "jpeg",
-    inputProps: {},
     openedBrowser: browserInstance,
-    parallelism: null,
   });
 });
 
@@ -42,7 +37,7 @@ test("should fail on invalid CRF", async () => {
 
   await expect(() => {
     return renderMedia({
-      absoluteOutputFile: outPath,
+      outputLocation: outPath,
       codec: "h264",
       serveUrl:
         "https://remotionlambda-qg35eyp1s1.s3.eu-central-1.amazonaws.com/sites/mlqtbgiywr/index.html",
@@ -55,13 +50,8 @@ test("should fail on invalid CRF", async () => {
         id: "hitehre",
         width: 1080,
       },
-      dumpBrowserLogs: false,
-      ffmpegExecutable: null,
       frameRange: [0, 2],
-      imageFormat: "jpeg",
-      inputProps: {},
       openedBrowser: browserInstance,
-      parallelism: null,
     });
   }).rejects.toThrow(/Expected CRF to be a number, but is "wrong"/);
 });
