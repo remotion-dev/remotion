@@ -1037,6 +1037,30 @@ export const showcaseVideos: ShowcaseVideo[] = [
       name: "JNYBGR",
     },
   },
+  {
+    title: "Outro Cards",
+    type: "mux_video",
+    muxId: "Rzmd76Rry7hQAAvTREyaLLT4wSAuc9zouk3ZxOmybq4",
+    description:
+      "Animated playing cards. Used as a background for an outro thanking subscribers for their support.",
+    height: 1080,
+    width: 1920,
+    submittedOn: new Date("11-24-2021"),
+    links: [
+      {
+        type: "video",
+        url: "https://www.youtube.com/watch?v=xPbRsca_l7c",
+      },
+      {
+        type: "website",
+        url: "https://start-react-native.dev/",
+      },
+    ],
+    author: {
+      url: "https://twitter.com/wcandillon",
+      name: "William Candillon",
+    },
+  },
 ];
 
 const dateString = (date: Date) =>
