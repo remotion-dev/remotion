@@ -14,7 +14,10 @@ Keep track of changes to the APIs of Remotion Lambda here.
 1. Redeploy your function: `npx remotion lambda functions deploy`
 1. Migrate according to the changelog below:
 
-## Unreleased
+## November 24th, 2021
+
+Version hash: `3.0.0-lambda.143+08ebdfa17`
+Lambda version: '2021-11-24'
 
 - **Breaking**: Migrated to **ARM architecture**! This means 34% better cost/performance ratio. However, only the following 10 regions support ARM architectures: `eu-central-1`, `eu-west-1`, `eu-west-2`, `us-east-1`, `us-east-2`, `us-west-2`, `ap-south-1`, `ap-southeast-1`, `ap-southeast-2`, `ap-northeast-1`.
 
