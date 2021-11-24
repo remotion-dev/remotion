@@ -22,6 +22,9 @@ That means that the previously supported regions `us-west-1`, `af-south-1`, `ap-
 
 We will add those regions back again once AWS adds support for Lambda.
 
+- Fixes an issue where multiple versions of Remotion could appear in a project even though they were pinned down in your `package.json`.
+- Fixes an issue where audio could become out of sync if audio with different sample rates was appearing in the video
+
 ## November 18th, 2021
 
 Version hash: `3.0.0-lambda.122+a588a81b9`
