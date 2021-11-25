@@ -17,6 +17,7 @@ export const Orb = () => {
 					clearcoat={1}
 					clearcoatRoughness={0}
 					metalness={0.1}
+					// @ts-expect-error wrong types
 					mass={2}
 					tenstion={1000}
 					friction={10}
