@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/lambda",
-	"version": "2.5.4",
+	"version": "2.5.5",
 	"description": "Utility functions for audio and video",
 	"main": "dist/index.js",
 	"sideEffects": false,
@@ -26,15 +26,15 @@
 		"@aws-sdk/client-lambda": "^3.18.0",
 		"@aws-sdk/client-s3": "^3.18.0",
 		"@aws-sdk/lib-storage": "^3.18.0",
-		"@remotion/bundler": "2.5.4",
-		"@remotion/cli": "2.5.4",
-		"@remotion/renderer": "2.5.4",
+		"@remotion/bundler": "2.5.5",
+		"@remotion/cli": "2.5.5",
+		"@remotion/renderer": "2.5.5",
 		"aws-policies": "^1.0.1",
 		"dotenv": "^10.0.0",
 		"minimist": "^1.2.5",
 		"p-limit": "^3.1.0",
 		"prompt": "^1.1.0",
-		"remotion": "2.5.4"
+		"remotion": "2.5.5"
 	},
 	"peerDependencies": {
 		"react": "^17.0.1",
