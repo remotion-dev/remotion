@@ -47,7 +47,7 @@ type RenderFramesOptions = {
 	puppeteerInstance?: PuppeteerBrowser;
 	browserExecutable?: BrowserExecutable;
 	onBrowserLog?: (log: BrowserLog) => void;
-	writeFrame?: (buffer?: Buffer) => void;
+	writeFrame?: (buffer: Buffer, frame: number) => void;
 	onDownload?: RenderMediaOnDownload;
 };
 
@@ -188,7 +188,7 @@ export const innerRenderFrames = async ({
 								output: undefined,
 							},
 						});
-						writeFrame(buffer);
+						writeFrame(buffer, frame);
 					} else {
 						const output = path.join(
 							outputDir,

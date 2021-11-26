@@ -137,6 +137,29 @@ export const renderMedia = async ({
 			stitcherFfmpeg = preStitcher.task;
 		}
 
+		let frameToStitch =
+			typeof frameRange === 'number'
+				? frameRange
+				: frameRange === null || frameRange === undefined
+				? 0
+				: frameRange[0];
+
+		const waitForRightTimeOfFrameToBeInserted = async (frameToBe: number) => {
+			return new Promise<void>((resolve) => {
+				if (frameToStitch === frameToBe) {
+					resolve();
+					return;
+				}
+
+				const interval = setInterval(() => {
+					if (frameToStitch === frameToBe) {
+						resolve();
+						clearInterval(interval);
+					}
+				}, 10);
+			});
+		};
+
 		const {assetsInfo} = await renderFrames({
 			config,
 			onFrameUpdate: (frame: number) => {
@@ -156,8 +179,10 @@ export const renderMedia = async ({
 			quality,
 			frameRange: frameRange ?? null,
 			puppeteerInstance,
-			writeFrame: async (buffer) => {
+			writeFrame: async (buffer, frame) => {
+				await waitForRightTimeOfFrameToBeInserted(frame);
 				stitcherFfmpeg?.stdin?.write(buffer);
+				frameToStitch = frame + 1;
 			},
 			serveUrl,
 			dumpBrowserLogs,
