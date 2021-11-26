@@ -149,6 +149,8 @@ export const renderMedia = async ({
 				? 0
 				: frameRange[0];
 
+		let lastFrame = 0;
+
 		const waitForRightTimeOfFrameToBeInserted = async (frameToBe: number) => {
 			return new Promise<void>((resolve) => {
 				if (frameToStitch === frameToBe) {
@@ -185,6 +187,7 @@ export const renderMedia = async ({
 			frameRange: frameRange ?? null,
 			puppeteerInstance,
 			writeFrame: async (buffer, frame) => {
+				lastFrame = frame;
 				await waitForRightTimeOfFrameToBeInserted(frame);
 				stitcherFfmpeg?.stdin?.write(buffer);
 				frameToStitch = frame + 1;
@@ -195,6 +198,7 @@ export const renderMedia = async ({
 			onDownload,
 		});
 		if (stitcherFfmpeg) {
+			await waitForRightTimeOfFrameToBeInserted(lastFrame + 1);
 			stitcherFfmpeg?.stdin?.end();
 			await stitcherFfmpeg;
 			preStitcher?.cleanup?.();

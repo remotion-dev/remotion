@@ -27,7 +27,7 @@ test("Render video with browser instance open", async () => {
     codec: "h264",
     serveUrl:
       "https://remotionlambda-qg35eyp1s1.s3.eu-central-1.amazonaws.com/sites/mlqtbgiywr/index.html",
-    config: reactSvg,
+    composition: reactSvg,
     frameRange: [0, 2],
     puppeteerInstance,
   });
@@ -53,7 +53,7 @@ test("Render video with browser instance not open", async () => {
     codec: "h264",
     serveUrl:
       "https://remotionlambda-qg35eyp1s1.s3.eu-central-1.amazonaws.com/sites/mlqtbgiywr/index.html",
-    config: reactSvg,
+    composition: reactSvg,
     frameRange: [0, 2],
   });
   expect(existsSync(outPath)).toBe(true);
