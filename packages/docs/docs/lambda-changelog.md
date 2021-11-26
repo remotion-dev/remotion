@@ -14,13 +14,19 @@ Keep track of changes to the APIs of Remotion Lambda here.
 1. Redeploy your function: `npx remotion lambda functions deploy`
 1. Migrate according to the changelog below:
 
-## Unreleased
+## November 24th, 2021
+
+Version hash: `3.0.0-lambda.143+08ebdfa17`
+Lambda version: '2021-11-24'
 
 - **Breaking**: Migrated to **ARM architecture**! This means 34% better cost/performance ratio. However, only the following 10 regions support ARM architectures: `eu-central-1`, `eu-west-1`, `eu-west-2`, `us-east-1`, `us-east-2`, `us-west-2`, `ap-south-1`, `ap-southeast-1`, `ap-southeast-2`, `ap-northeast-1`.
 
 That means that the previously supported regions `us-west-1`, `af-south-1`, `ap-east-1`, `ap-northeast-2`, `ap-northeast-3`, `ca-central-1`, `eu-west-1`, `eu-west-2`, `eu-south-1`, `eu-west-3`, `eu-north-1`, `me-south-1`, `sa-east-1` are not supported anymore.
 
 We will add those regions back again once AWS adds support for Lambda.
+
+- Fixes an issue where multiple versions of Remotion could appear in a project even though they were pinned down in your `package.json`.
+- Fixes an issue where audio could become out of sync if audio with different sample rates was appearing in the video
 
 ## November 18th, 2021
 
