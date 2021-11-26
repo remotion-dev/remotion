@@ -19,6 +19,10 @@ import {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 import {tmpDir} from './tmp-dir';
 import {getFileExtensionFromCodec} from './get-extension-from-codec';
 import {deleteDirectory} from './delete-directory';
+import {
+	getServeUrlWithFallback,
+	ServeUrlOrWebpackBundle,
+} from './legacy-webpack-config';
 
 export type StitchingState = 'encoding' | 'muxing';
 
@@ -31,10 +35,9 @@ export type RenderMediaOnProgress = (progress: {
 }) => void;
 
 export type RenderMediaOptions = {
-	serveUrl: string;
 	outputLocation: string;
 	codec: Codec;
-	config: TCompMetadata;
+	composition: TCompMetadata;
 	inputProps?: unknown;
 	parallelism?: number | null;
 	crf?: number | null;
@@ -52,7 +55,7 @@ export type RenderMediaOptions = {
 	dumpBrowserLogs?: boolean;
 	onBrowserLog?: ((log: BrowserLog) => void) | undefined;
 	onStart?: (data: OnStartData) => void;
-};
+} & ServeUrlOrWebpackBundle;
 
 type Await<T> = T extends PromiseLike<infer U> ? U : T;
 
@@ -60,7 +63,7 @@ export const renderMedia = async ({
 	parallelism,
 	proResProfile,
 	crf,
-	config,
+	composition,
 	imageFormat,
 	ffmpegExecutable,
 	inputProps,
@@ -69,7 +72,6 @@ export const renderMedia = async ({
 	envVariables,
 	quality,
 	frameRange,
-	serveUrl,
 	puppeteerInstance,
 	outputLocation,
 	onProgress,
@@ -78,11 +80,14 @@ export const renderMedia = async ({
 	dumpBrowserLogs,
 	onBrowserLog,
 	onStart,
+	...options
 }: RenderMediaOptions) => {
 	Internals.validateQuality(quality);
 	if (typeof crf !== 'undefined') {
 		Internals.validateSelectedCrfAndCodecCombination(crf, codec);
 	}
+
+	const serveUrl = getServeUrlWithFallback(options);
 
 	let stitchStage: StitchingState = 'encoding';
 	let stitcherFfmpeg: ExecaChildProcess<string> | undefined;
@@ -116,9 +121,9 @@ export const renderMedia = async ({
 		if (preEncodedFileLocation) {
 			preStitcher = await spawnFfmpeg({
 				dir: outputDir,
-				width: config.width,
-				height: config.height,
-				fps: config.fps,
+				width: composition.width,
+				height: composition.height,
+				fps: composition.fps,
 				outputLocation: preEncodedFileLocation,
 				force: true,
 				pixelFormat,
@@ -161,7 +166,7 @@ export const renderMedia = async ({
 		};
 
 		const {assetsInfo} = await renderFrames({
-			config,
+			config: composition,
 			onFrameUpdate: (frame: number) => {
 				renderedFrames = frame;
 				callUpdate();
@@ -209,9 +214,9 @@ export const renderMedia = async ({
 		const stitchStart = Date.now();
 		await stitchFramesToVideo({
 			dir: outputDir,
-			width: config.width,
-			height: config.height,
-			fps: config.fps,
+			width: composition.width,
+			height: composition.height,
+			fps: composition.fps,
 			outputLocation,
 			preEncodedFileLocation,
 			force: overwrite ?? Internals.DEFAULT_OVERWRITE,
@@ -230,7 +235,7 @@ export const renderMedia = async ({
 			verbose: Internals.Logging.isEqualOrBelowLogLevel('verbose'),
 			parallelEncoding: false,
 		});
-		encodedFrames = config.durationInFrames;
+		encodedFrames = composition.durationInFrames;
 		encodedDoneIn = Date.now() - stitchStart;
 		callUpdate();
 	} finally {

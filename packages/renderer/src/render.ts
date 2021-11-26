@@ -21,6 +21,10 @@ import {getActualConcurrency} from './get-concurrency';
 import {getFrameCount} from './get-frame-range';
 import {getFrameToRender} from './get-frame-to-render';
 import {DEFAULT_IMAGE_FORMAT} from './image-format';
+import {
+	getServeUrlWithFallback,
+	ServeUrlOrWebpackBundle,
+} from './legacy-webpack-config';
 import {makeAssetsDownloadTmpDir} from './make-assets-download-dir';
 import {normalizeServeUrl} from './normalize-serve-url';
 import {openBrowser} from './open-browser';
@@ -42,14 +46,13 @@ type RenderFramesOptions = {
 	parallelism?: number | null;
 	quality?: number;
 	frameRange?: FrameRange | null;
-	serveUrl: string;
 	dumpBrowserLogs?: boolean;
 	puppeteerInstance?: PuppeteerBrowser;
 	browserExecutable?: BrowserExecutable;
 	onBrowserLog?: (log: BrowserLog) => void;
 	writeFrame?: (buffer: Buffer, frame: number) => void;
 	onDownload?: RenderMediaOnDownload;
-};
+} & ServeUrlOrWebpackBundle;
 
 export const innerRenderFrames = async ({
 	config,
@@ -62,13 +65,13 @@ export const innerRenderFrames = async ({
 	imageFormat = DEFAULT_IMAGE_FORMAT,
 	frameRange,
 	puppeteerInstance,
-	serveUrl,
 	onError,
 	envVariables,
 	onBrowserLog,
 	writeFrame,
 	onDownload,
 	pagesArray,
+	serveUrl,
 }: Omit<RenderFramesOptions, 'url'> & {
 	onError: (err: Error) => void;
 	pagesArray: Page[];
@@ -264,9 +267,11 @@ export const renderFrames = async (
 		);
 	}
 
+	const selectedServeUrl = getServeUrlWithFallback(options);
+
 	Internals.validateQuality(options.quality);
 
-	const {closeServer, serveUrl} = await prepareServer(options.serveUrl);
+	const {closeServer, serveUrl} = await prepareServer(selectedServeUrl);
 
 	const browserInstance =
 		options.puppeteerInstance ??

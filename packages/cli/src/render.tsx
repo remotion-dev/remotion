@@ -189,7 +189,7 @@ export const render = async () => {
 	await renderMedia({
 		outputLocation: absoluteOutputFile,
 		codec,
-		config,
+		composition: config,
 		crf,
 		envVariables,
 		ffmpegExecutable,
