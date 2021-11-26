@@ -148,7 +148,11 @@ export const innerRenderFrames = async ({
 				const paddedIndex = String(frame).padStart(filePadLength, '0');
 
 				const errorCallbackOnFrame = (err: Error) => {
-					onError(new Error(`Error on rendering frame ${frame}: ${err.stack}`));
+					onError(
+						new Error(
+							`Error on rendering frame ${frame}: ${err.stack || err.message}`
+						)
+					);
 				};
 
 				freePage.on('pageerror', errorCallbackOnFrame);
