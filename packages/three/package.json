@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/three",
-	"version": "2.5.4",
+	"version": "2.5.5",
 	"description": "Utility functions for using react-three-fiber with remotion",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
@@ -17,22 +17,22 @@
 		"url": "https://github.com/remotion-dev/remotion"
 	},
 	"dependencies": {
-		"remotion": "2.5.4"
+		"remotion": "^2.5.5"
 	},
 	"peerDependencies": {
-		"@react-three/fiber": ">=6.0.14",
+		"@react-three/fiber": ">=7.0.19",
 		"react": ">=17.0.1",
 		"react-dom": ">=17.0.1",
-		"three": ">=0.129.0"
+		"three": ">=0.134.0"
 	},
 	"devDependencies": {
 		"@jonny/eslint-config": "^2.1.248",
 		"@types/node": "^14.14.14",
-		"@types/three": "^0.128.0",
+		"@types/three": "^0.134.0",
 		"eslint": "^7.4.0",
 		"prettier": "^2.0.5",
 		"prettier-plugin-organize-imports": "^1.1.1",
-		"three": "^0.133.0",
+		"three": "^0.134.0",
 		"typescript": "^4.4.2"
 	},
 	"publishConfig": {

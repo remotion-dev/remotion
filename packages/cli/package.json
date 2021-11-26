@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/cli",
-	"version": "2.5.4",
+	"version": "2.5.5",
 	"description": "CLI for Remotion",
 	"main": "dist/index.js",
 	"sideEffects": false,
@@ -19,10 +19,10 @@
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"license": "SEE LICENSE IN LICENSE.md",
 	"dependencies": {
-		"@remotion/bundler": "2.5.4",
-		"@remotion/media-utils": "2.5.4",
-		"@remotion/player": "2.5.4",
-		"@remotion/renderer": "2.5.4",
+		"@remotion/bundler": "^2.5.5",
+		"@remotion/media-utils": "^2.5.5",
+		"@remotion/player": "^2.5.5",
+		"@remotion/renderer": "^2.5.5",
 		"ansi-diff": "^1.1.1",
 		"better-opn": "^2.1.1",
 		"chalk": "^4.1.0",
@@ -30,7 +30,7 @@
 		"esbuild": "^0.11.12",
 		"execa": "^4.0.2",
 		"minimist": "^1.2.5",
-		"remotion": "2.5.4",
+		"remotion": "^2.5.5",
 		"semver": "^7.3.4",
 		"webpack": "5.60.0"
 	},

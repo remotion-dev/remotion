@@ -25,6 +25,10 @@ export const screenshotDOMElement = async ({
 		await page.evaluate(() => {
 			document.body.style.background = 'transparent';
 		});
+	} else {
+		await page.evaluate(() => {
+			document.body.style.background = 'black';
+		});
 	}
 
 	if (imageFormat === 'none') {
