@@ -32,9 +32,11 @@ const start = async () => {
   // The composition you want to render
   const compositionId = "HelloWorld";
 
-  // Create a webpack bundle of the entry file.
+  // Create a webpack bundle of the video.
+  // You only have to do this, you can reuse the bundle.
   const bundleLocation = await bundle(require.resolve("./src/index"));
 
+  // Parametrize the video by passing arbitrary props to your component.
   const inputProps = {
     custom: "data",
   };
@@ -57,7 +59,7 @@ const start = async () => {
   }
 
   await renderMedia({
-    config: composition,
+    composition,
     serveUrl: bundleLocation,
     codec: "h264",
     outputLocation: "out/video.mp4",

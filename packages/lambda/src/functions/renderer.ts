@@ -80,7 +80,7 @@ const renderHandler = async (
 	);
 
 	await renderMedia({
-		config: {
+		composition: {
 			id: params.composition,
 			durationInFrames: params.durationInFrames,
 			fps: params.fps,

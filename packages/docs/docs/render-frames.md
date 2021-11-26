@@ -77,7 +77,7 @@ A `string` specifying the directory (absolute path) to which frames should be sa
 
 ### `serveUrl`
 
-TODO: Update API for serveUrl
+Either a Webpack bundle or a URL pointing to a bundled Remotion project. Call [`bundle()`](/docs/bundle) to generate a bundle. You can either pass the file location or deploy it as a website and pass the URL.
 
 ### `imageFormat`
 

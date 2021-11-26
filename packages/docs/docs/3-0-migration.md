@@ -28,7 +28,7 @@ This parameter did probably not to what you thought it would. To avoid any confu
 
 ## Removed `imageFormat` parameter from `stitchFramesToVideo` API
 
-The necessary information is not embedded in `assetsInfo`, embedded in the return value of `renderFrames()`. The parameter `imageFormat` is not necessary anymore to pass into `stitchFramesToVideo()`.
+The necessary information is now embedded in `assetsInfo`, in the return value of `renderFrames()`. The parameter `imageFormat` is not necessary anymore to pass into `stitchFramesToVideo()`.
 
 **Upgrade path**: Remove the `imageFormat` option from `stitchFramesToVideo()`.
 
