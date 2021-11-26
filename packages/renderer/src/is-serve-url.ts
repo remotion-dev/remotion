@@ -8,6 +8,6 @@ export const isServeUrl = (potentialUrl: string) => {
 	}
 
 	return (
-		potentialUrl.startsWith('https://') || !potentialUrl.startsWith('http://')
+		potentialUrl.startsWith('https://') || potentialUrl.startsWith('http://')
 	);
 };
