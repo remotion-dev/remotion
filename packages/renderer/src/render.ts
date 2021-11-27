@@ -35,8 +35,18 @@ import {seekToFrame} from './seek-to-frame';
 import {setPropsAndEnv} from './set-props-and-env';
 import {OnStartData, RenderFramesOutput} from './types';
 
+type ConfigOrComposition =
+	| {
+			/**
+			 * @deprecated This field has been renamed to `composition`
+			 */
+			config: VideoConfig;
+	  }
+	| {
+			composition: VideoConfig;
+	  };
+
 type RenderFramesOptions = {
-	config: VideoConfig;
 	onStart: (data: OnStartData) => void;
 	onFrameUpdate: (framesRendered: number, frameIndex: number) => void;
 	outputDir: string;
@@ -52,10 +62,22 @@ type RenderFramesOptions = {
 	onBrowserLog?: (log: BrowserLog) => void;
 	writeFrame?: (buffer: Buffer, frame: number) => void;
 	onDownload?: RenderMediaOnDownload;
-} & ServeUrlOrWebpackBundle;
+} & ConfigOrComposition &
+	ServeUrlOrWebpackBundle;
+
+const getComposition = (others: ConfigOrComposition) => {
+	if ('composition' in others) {
+		return others.composition;
+	}
+
+	if ('config' in others) {
+		return others.config;
+	}
+
+	return undefined;
+};
 
 export const innerRenderFrames = async ({
-	config,
 	parallelism,
 	onFrameUpdate,
 	outputDir,
@@ -72,10 +94,12 @@ export const innerRenderFrames = async ({
 	onDownload,
 	pagesArray,
 	serveUrl,
+	composition,
 }: Omit<RenderFramesOptions, 'url'> & {
 	onError: (err: Error) => void;
 	pagesArray: Page[];
 	serveUrl: string;
+	composition: VideoConfig;
 }): Promise<RenderFramesOutput> => {
 	if (!puppeteerInstance) {
 		throw new Error('weird');
@@ -87,8 +111,8 @@ export const innerRenderFrames = async ({
 		const page = await puppeteerInstance.newPage();
 		pagesArray.push(page);
 		page.setViewport({
-			width: config.width,
-			height: config.height,
+			width: composition.width,
+			height: composition.height,
 			deviceScaleFactor: 1,
 		});
 
@@ -119,7 +143,7 @@ export const innerRenderFrames = async ({
 			initialFrame,
 		});
 
-		const site = `${normalizeServeUrl(serveUrl)}?composition=${config.id}`;
+		const site = `${normalizeServeUrl(serveUrl)}?composition=${composition.id}`;
 		await page.goto(site);
 
 		page.off('console', logCallback);
@@ -129,7 +153,10 @@ export const innerRenderFrames = async ({
 	const puppeteerPages = await Promise.all(pages);
 	const pool = new Pool(puppeteerPages);
 
-	const frameCount = getFrameCount(config.durationInFrames, frameRange ?? null);
+	const frameCount = getFrameCount(
+		composition.durationInFrames,
+		frameRange ?? null
+	);
 	const firstFrameIndex = getFrameToRender(frameRange ?? null, 0);
 	const lastFrameIndex = getFrameToRender(frameRange ?? null, frameCount - 1);
 	// Substract one because 100 frames will be 00-99
@@ -243,22 +270,30 @@ export const innerRenderFrames = async ({
 export const renderFrames = async (
 	options: RenderFramesOptions
 ): Promise<RenderFramesOutput> => {
+	const composition = getComposition(options);
+
+	if (!composition) {
+		throw new Error(
+			'No `composition` option has been specified for renderFrames()'
+		);
+	}
+
 	Internals.validateDimension(
-		options.config.height,
+		composition.height,
 		'height',
 		'in the `config` object passed to `renderFrames()`'
 	);
 	Internals.validateDimension(
-		options.config.width,
+		composition.width,
 		'width',
 		'in the `config` object passed to `renderFrames()`'
 	);
 	Internals.validateFps(
-		options.config.fps,
+		composition.fps,
 		'in the `config` object of `renderFrames()`'
 	);
 	Internals.validateDurationInFrames(
-		options.config.durationInFrames,
+		composition.durationInFrames,
 		'in the `config` object passed to `renderFrames()`'
 	);
 	if (options.quality !== undefined && options.imageFormat !== 'jpeg') {
@@ -291,6 +326,7 @@ export const renderFrames = async (
 			onError: (err) => reject(err),
 			pagesArray: openedPages,
 			serveUrl,
+			composition,
 		})
 			.then((res) => resolve(res))
 			.catch((err) => reject(err))

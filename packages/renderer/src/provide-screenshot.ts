@@ -16,7 +16,6 @@ export const provideScreenshot = async ({
 		output?: string;
 	};
 }): Promise<Buffer> => {
-	// console.log(options.output);
 	return screenshotDOMElement({
 		page,
 		opts: {
