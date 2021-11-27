@@ -5,7 +5,7 @@ title: bundle()
 
 _Part of the `@remotion/bundler` package._
 
-Bundles a Remotion project using Webpack and prepares it for render using [`renderFrames()`](/docs/render-frames).
+Bundles a Remotion project using Webpack and prepares it for render using [`renderMedia()`](/docs/renderer/render-media).
 
 ```ts
 const bundle: (
@@ -75,6 +75,6 @@ A promise which will resolve into a `string` specifying the output directory.
 ## See also
 
 - [Server-Side rendering](/docs/ssr)
-- [getCompositions()](/docs/get-compositions)
-- [renderFrames()](/docs/render-frames)
-- [stitchFramesToVideo()](/docs/stitch-frames-to-video)
+- [getCompositions()](/docs/renderer/get-compositions)
+- [renderMedia()](/docs/renderer/render-media)
+- [stitchFramesToVideo()](/docs/renderer/stitch-frames-to-video)

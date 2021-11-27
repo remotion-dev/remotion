@@ -1,7 +1,7 @@
 import {_Object} from '@aws-sdk/client-s3';
-import {RenderInternals} from '@remotion/renderer';
 import {lambdaTimingsPrefix} from '../../shared/constants';
 import {parseLambdaTimingsKey} from '../../shared/parse-lambda-timings-key';
+import {max, min} from './min-max';
 
 export const calculateChunkTimes = ({
 	contents,
@@ -23,7 +23,7 @@ export const calculateChunkTimes = ({
 	if (type === 'combined-time-for-cost-calculation') {
 		// TODO: Should also calculate invoker functions, and main function
 		const totalEncodingTimings = parsedTimings
-			.map((p) => p.encoded - p.start)
+			.map((p) => p.rendered - p.start)
 			.reduce((a, b) => a + b, 0);
 
 		return totalEncodingTimings;
@@ -34,11 +34,11 @@ export const calculateChunkTimes = ({
 			return 0;
 		}
 
-		const allEnds = parsedTimings.map((p) => p.encoded);
+		const allEnds = parsedTimings.map((p) => p.rendered);
 		const allStarts = parsedTimings.map((p) => p.start);
 
-		const biggestEnd = RenderInternals.max(allEnds);
-		const smallestStart = RenderInternals.min(allStarts);
+		const biggestEnd = max(allEnds);
+		const smallestStart = min(allStarts);
 
 		return biggestEnd - smallestStart;
 	}

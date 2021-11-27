@@ -8,16 +8,20 @@ _Part of the `@remotion/renderer` package._
 
 Renders a series of images using Puppeteer and computes information for mixing audio.
 
-If you want to render only a still image, use [renderStill()](/docs/render-still).
+If you want to render only a still image, use [renderStill()](/docs/renderer/render-still).
+
+:::info
+In Remotion 3.0, we added the [`renderMedia()`](/docs/renderer/render-media) API which combines `renderFrames()` and `stitchFramesToVideo()` into one simplified step and performs the render faster. Prefer this API if you can.
+:::
 
 ```ts
 const renderFrames: (options: {
-  config: VideoConfig;
+  composition: VideoConfig;
   onFrameUpdate: (frame: number) => void;
   onStart: (data: {
     frameCount: number;
   }) => void;
-  outputDir: string;
+  outputDir: string | null;
   inputProps: unknown;
   serveUrl: string;
   imageFormat: "png" | "jpeg" | "none";
@@ -39,9 +43,9 @@ Configuration in `remotion.config.ts` and CLI flags do not apply to this functio
 
 Takes an object with the following keys:
 
-### `config`
+### `composition`
 
-A video config, consisting out of `id`, `width`, `height`, `durationInFrames` and `fps`, where `id` is the compositions ID. See: [Defining compositions](/docs/the-fundamentals#defining-compositions) and [useVideoConfig()](/docs/use-video-config).
+A video config, consisting out of `id`, `width`, `height`, `durationInFrames` and `fps`, where `id` is the composition ID. You can obtain an array of available compositions using [`getCompositions()`](/docs/renderer/get-compositions).
 
 ### `onStart`
 
@@ -65,7 +69,7 @@ const onFrameUpdate = (frame: number) => {
 
 ### `outputDir`
 
-A `string` specifying the directory (absolute path) to which frames should be saved.
+A `string` specifying the directory (absolute path) to which frames should be saved. Pass `null` and a `writeFrame` callback instead to get a `Buffer` of the frame rather than to write it to any location-
 
 ### `inputProps`
 
@@ -73,7 +77,7 @@ A `string` specifying the directory (absolute path) to which frames should be sa
 
 ### `serveUrl`
 
-TODO: Update API for serveUrl
+Either a Webpack bundle or a URL pointing to a bundled Remotion project. Call [`bundle()`](/docs/bundle) to generate a bundle. You can either pass the file location or deploy it as a website and pass the URL.
 
 ### `imageFormat`
 
@@ -101,7 +105,7 @@ Only applies if `imageFormat` is `'jpeg'`, otherwise this option is invalid.
 
 _optional_
 
-Specify a single frame (passing a `number`) or a range of frames (passsing a tuple `[number, number]`) to be rendered. By passing `null` (default) all frames of a composition get rendered.
+Specify a single frame (passing a `number`) or a range of frames (passing a tuple `[number, number]`) to be rendered. By passing `null` (default) all frames of a composition get rendered.
 
 ### `dumpBrowserLogs?`
 
@@ -113,7 +117,7 @@ Passes the `dumpio` flag to Puppeteer which will log all browser logs to the con
 
 _optional_
 
-An already open Puppeteer [`Browser`](https://pptr.dev/#?product=Puppeteer&version=main&show=api-class-browser) instance. Reusing a browser across multiple function calls can speed up the rendering process. You are responsible for opening and closing the browser yourself. If you don't specify this option, a new browser will be opened and closed at the end.
+An already open Puppeteer [`Browser`](https://pptr.dev/#?product=Puppeteer&version=main&show=api-class-browser) instance. Use [`openBrowser()`](/docs/renderer/open-browser) to create a new instance. Reusing a browser across multiple function calls can speed up the rendering process. You are responsible for opening and closing the browser yourself. If you don't specify this option, a new browser will be opened and closed at the end.
 
 ### `envVariables?`
 
@@ -209,8 +213,9 @@ A promise resolving to an object containing the following properties:
 
 ## See also
 
+- [renderMedia()](/docs/renderer/render-media)
 - [bundle()](/docs/bundle)
 - [Server-Side rendering](/docs/ssr)
-- [getCompositions()](/docs/get-compositions)
-- [stitchFramesToVideo()](/docs/stitch-frames-to-video)
-- [renderStill()](/docs/render-still)
+- [getCompositions()](/docs/renderer/get-compositions)
+- [stitchFramesToVideo()](/docs/renderer/stitch-frames-to-video)
+- [renderStill()](/docs/renderer/render-still)

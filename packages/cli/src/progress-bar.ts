@@ -1,7 +1,9 @@
+import {StitchingState} from '@remotion/renderer';
 // @ts-expect-error
 import ansiDiff from 'ansi-diff';
 import chalk from 'chalk';
 import {Internals} from 'remotion';
+import {RenderStep} from './step';
 
 export const createProgressBar = (): {
 	update: (str: string) => boolean;
@@ -32,11 +34,11 @@ export const makeBundlingProgress = ({
 	doneIn,
 }: {
 	progress: number;
-	steps: number;
+	steps: RenderStep[];
 	doneIn: number | null;
 }) =>
 	[
-		`(1/${steps})`,
+		`(${steps.indexOf('bundling') + 1}/${steps.length})`,
 		makeProgressBar(progress),
 		`${doneIn ? 'Bundled' : 'Bundling'} code`,
 		doneIn === null
@@ -47,7 +49,7 @@ export const makeBundlingProgress = ({
 type RenderingProgressInput = {
 	frames: number;
 	totalFrames: number;
-	steps: number;
+	steps: RenderStep[];
 	concurrency: number;
 	doneIn: number | null;
 };
@@ -61,7 +63,7 @@ export const makeRenderingProgress = ({
 }: RenderingProgressInput) => {
 	const progress = frames / totalFrames;
 	return [
-		`(2/${steps})`,
+		`(${steps.indexOf('rendering') + 1}/${steps.length})`,
 		makeProgressBar(progress),
 		[doneIn ? 'Rendered' : 'Rendering', `frames (${concurrency}x)`]
 			.filter(Internals.truthy)
@@ -73,9 +75,17 @@ export const makeRenderingProgress = ({
 type StitchingProgressInput = {
 	frames: number;
 	totalFrames: number;
-	steps: number;
+	steps: RenderStep[];
 	doneIn: number | null;
-	stage: 'encoding' | 'muxing';
+	stage: StitchingState;
+};
+
+export const makeDownloadProgress = (progress: DownloadProgress) => {
+	return [
+		`(-/-)`,
+		makeProgressBar(progress.progress),
+		`Downloading ${progress.name}`,
+	].join(' ');
 };
 
 export const makeStitchingProgress = ({
@@ -87,7 +97,7 @@ export const makeStitchingProgress = ({
 }: StitchingProgressInput) => {
 	const progress = frames / totalFrames;
 	return [
-		`(3/${steps})`,
+		`(${steps.indexOf('stitching') + 1}/${steps.length})`,
 		makeProgressBar(progress),
 		stage === 'muxing'
 			? `${doneIn ? 'Muxed' : 'Muxing'} audio`
@@ -96,15 +106,24 @@ export const makeStitchingProgress = ({
 	].join(' ');
 };
 
+export type DownloadProgress = {
+	name: string;
+	id: number;
+	progress: number;
+};
+
 export const makeRenderingAndStitchingProgress = ({
 	rendering,
 	stitching,
+	downloads,
 }: {
 	rendering: RenderingProgressInput;
 	stitching: StitchingProgressInput | null;
+	downloads: DownloadProgress[];
 }) => {
 	return [
 		makeRenderingProgress(rendering),
+		...downloads.map((d) => makeDownloadProgress(d)),
 		stitching === null ? null : makeStitchingProgress(stitching),
 	].join('\n');
 };

@@ -3,11 +3,8 @@ id: render-frames
 title: renderFrames()
 ---
 
+import Redirect from '../components/Redirect';
+
 This page has moved. Redirecting...
 
-<script>
-if (typeof window !== "undefined" && typeof window.location !== "undefined") {
-window.location.href =
-"/docs/renderer/render-frames"
-}
-</script>
+<Redirect redirect="/docs/renderer/render-frames"/>

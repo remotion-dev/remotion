@@ -1,7 +1,7 @@
 import {_Object} from '@aws-sdk/client-s3';
-import {RenderInternals} from '@remotion/renderer';
 import {lambdaInitializedPrefix} from '../../shared/constants';
 import {parseLambdaInitializedKey} from '../../shared/parse-lambda-initialized-key';
+import {max} from './min-max';
 
 export type LambdaInvokeStats = {
 	timeToInvokeLambdas: number | null;
@@ -23,9 +23,8 @@ export const getLambdasInvokedStats = (
 
 	const timeToInvokeLambdas =
 		allLambdasInvoked && startDate
-			? RenderInternals.max(
-					lambdasInvoked.map((l) => l.LastModified?.getTime() as number)
-			  ) - startDate
+			? max(lambdasInvoked.map((l) => l.LastModified?.getTime() as number)) -
+			  startDate
 			: null;
 
 	return {

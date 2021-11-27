@@ -1,4 +1,6 @@
-let shouldOverwrite = true;
+export const DEFAULT_OVERWRITE = true;
+
+let shouldOverwrite = DEFAULT_OVERWRITE;
 
 export const setOverwriteOutput = (newOverwrite: boolean) => {
 	if (typeof newOverwrite !== 'boolean') {

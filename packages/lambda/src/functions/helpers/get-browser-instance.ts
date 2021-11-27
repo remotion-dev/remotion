@@ -1,10 +1,8 @@
-import {RenderInternals} from '@remotion/renderer';
+import {openBrowser} from '@remotion/renderer';
 import {Await} from '../../shared/await';
 import {executablePath} from './get-chromium-executable-path';
 
-let _browserInstance: Await<
-	ReturnType<typeof RenderInternals.openBrowser>
-> | null;
+let _browserInstance: Await<ReturnType<typeof openBrowser>> | null;
 
 let launching = false;
 
@@ -26,7 +24,7 @@ const waitForLaunched = () => {
 
 export const getBrowserInstance = async (
 	shouldDumpIo: boolean
-): ReturnType<typeof RenderInternals.openBrowser> => {
+): ReturnType<typeof openBrowser> => {
 	if (launching) {
 		await waitForLaunched();
 		if (!_browserInstance) {
@@ -43,7 +41,7 @@ export const getBrowserInstance = async (
 	launching = true;
 
 	const execPath = await executablePath();
-	_browserInstance = await RenderInternals.openBrowser('chrome', {
+	_browserInstance = await openBrowser('chrome', {
 		browserExecutable: execPath,
 		shouldDumpIo,
 	});

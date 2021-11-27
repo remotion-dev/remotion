@@ -2,27 +2,29 @@ import fs, {mkdirSync, statSync} from 'fs';
 import path from 'path';
 import {Browser as PuppeteerBrowser} from 'puppeteer-core';
 import {
-	Browser,
 	BrowserExecutable,
 	Internals,
 	StillImageFormat,
 	TCompMetadata,
 } from 'remotion';
+import {
+	getServeUrlWithFallback,
+	ServeUrlOrWebpackBundle,
+} from './legacy-webpack-config';
 import {normalizeServeUrl} from './normalize-serve-url';
 import {openBrowser} from './open-browser';
+import {prepareServer} from './prepare-server';
 import {provideScreenshot} from './provide-screenshot';
 import {seekToFrame} from './seek-to-frame';
 import {setPropsAndEnv} from './set-props-and-env';
 
-type RenderStillOptions = {
+type InnerStillOptions = {
 	composition: TCompMetadata;
 	output: string;
-	serveUrl: string;
 	frame?: number;
 	inputProps?: unknown;
 	imageFormat?: StillImageFormat;
 	quality?: number;
-	browser?: Browser;
 	puppeteerInstance?: PuppeteerBrowser;
 	dumpBrowserLogs?: boolean;
 	envVariables?: Record<string, string>;
@@ -30,12 +32,13 @@ type RenderStillOptions = {
 	browserExecutable?: BrowserExecutable;
 };
 
+export type RenderStillOptions = InnerStillOptions & ServeUrlOrWebpackBundle;
+
 const innerRenderStill = async ({
 	composition,
 	quality,
 	imageFormat = 'png',
 	serveUrl,
-	browser = Internals.DEFAULT_BROWSER,
 	puppeteerInstance,
 	dumpBrowserLogs = false,
 	onError,
@@ -45,7 +48,8 @@ const innerRenderStill = async ({
 	frame = 0,
 	overwrite = true,
 	browserExecutable,
-}: RenderStillOptions & {
+}: InnerStillOptions & {
+	serveUrl: string;
 	onError: (err: Error) => void;
 }): Promise<void> => {
 	Internals.validateDimension(
@@ -105,7 +109,7 @@ const innerRenderStill = async ({
 
 	const browserInstance =
 		puppeteerInstance ??
-		(await openBrowser(browser, {
+		(await openBrowser(Internals.DEFAULT_BROWSER, {
 			browserExecutable,
 			shouldDumpIo: dumpBrowserLogs,
 		}));
@@ -177,10 +181,22 @@ const innerRenderStill = async ({
  * @description Render a still frame from a composition and returns an image path
  */
 
-export const renderStill = (options: RenderStillOptions): Promise<void> => {
+export const renderStill = async (
+	options: RenderStillOptions
+): Promise<void> => {
+	const selectedServeUrl = getServeUrlWithFallback(options);
+
+	const {closeServer, serveUrl} = await prepareServer(selectedServeUrl);
+
 	return new Promise((resolve, reject) => {
-		innerRenderStill({...options, onError: (err) => reject(err)})
+		// eslint-disable-next-line promise/catch-or-return
+		innerRenderStill({
+			...options,
+			serveUrl,
+			onError: (err) => reject(err),
+		})
 			.then((res) => resolve(res))
-			.catch((err) => reject(err));
+			.catch((err) => reject(err))
+			.finally(() => closeServer());
 	});
 };

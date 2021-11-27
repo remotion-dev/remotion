@@ -8,5 +8,7 @@ export const BundlerInternals = {
 	clearCache,
 };
 
+export type {ProjectInfo} from './project-info';
+
 export {bundle} from './bundler';
 export {overrideWebpackConfig};

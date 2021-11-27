@@ -1,4 +1,4 @@
-import {getFunctions} from '..';
+import {getFunctions} from '../api/get-functions';
 import {AwsRegion} from '../pricing/aws-regions';
 import {CURRENT_VERSION, RENDER_FN_PREFIX} from '../shared/constants';
 import {DOCS_URL} from '../shared/docs-url';

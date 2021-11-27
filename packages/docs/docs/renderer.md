@@ -20,7 +20,8 @@ The following APIs are available in the `@remotion/renderer` package:
 - [`renderFrames()`](/docs/renderer/render-frames) - Render an image sequence
 - [`renderStill()`](/docs/renderer/render-still) - Render a still image
 - [`stitchFramesToVideo()`](/docs/renderer/stitch-frames-to-video) - Encode a video based on an image sequence
+- [`openBrowser()`](/docs/renderer/open-browser) - Share a browser instance across function calls for even better performance.
 
-:::info
+## What's the difference between `renderMedia()` and `renderFrames()`?
+
 In Remotion 3.0, we added the [`renderMedia()`](/docs/renderer/render-media) API which combines `renderFrames()` and `stitchFramesToVideo()` into one simplified step and performs the render faster. Prefer this API if you can.
-:::

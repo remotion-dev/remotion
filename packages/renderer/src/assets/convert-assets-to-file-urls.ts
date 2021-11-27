@@ -1,5 +1,8 @@
 import {TAsset} from 'remotion';
-import {downloadAndMapAssetsToFileUrl} from './download-and-map-assets-to-file';
+import {
+	downloadAndMapAssetsToFileUrl,
+	RenderMediaOnDownload,
+} from './download-and-map-assets-to-file';
 
 const chunk = <T>(input: T[], size: number) => {
 	return input.reduce<T[][]>((arr, item, idx) => {
@@ -13,12 +16,10 @@ export const convertAssetsToFileUrls = async ({
 	assets,
 	downloadDir,
 	onDownload,
-	webpackBundle,
 }: {
 	assets: TAsset[][];
 	downloadDir: string;
-	onDownload: (src: string) => void;
-	webpackBundle: string | null;
+	onDownload: RenderMediaOnDownload;
 }): Promise<TAsset[][]> => {
 	const chunks = chunk(assets, 1000);
 	const results: TAsset[][][] = [];
@@ -29,10 +30,9 @@ export const convertAssetsToFileUrls = async ({
 				return Promise.all(
 					assetsForFrame.map((a) => {
 						return downloadAndMapAssetsToFileUrl({
-							localhostAsset: a,
+							asset: a,
 							downloadDir,
 							onDownload,
-							webpackBundle,
 						});
 					})
 				);

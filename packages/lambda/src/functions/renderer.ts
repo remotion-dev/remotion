@@ -1,16 +1,11 @@
 import {InvokeCommand} from '@aws-sdk/client-lambda';
-import {
-	renderFrames,
-	RenderInternals,
-	stitchFramesToVideo,
-} from '@remotion/renderer';
+import {RenderInternals, renderMedia} from '@remotion/renderer';
 import {BrowserLog} from '@remotion/renderer';
 import fs from 'fs';
 import path from 'path';
 import {getLambdaClient} from '../shared/aws-clients';
 import {
 	chunkKeyForIndex,
-	DOWNLOADS_DIR,
 	lambdaInitializedKey,
 	LambdaPayload,
 	LambdaPayloads,
@@ -19,9 +14,7 @@ import {
 	OUTPUT_PATH_PREFIX,
 	RENDERER_PATH_TOKEN,
 } from '../shared/constants';
-import {getFileExtensionFromCodec} from '../shared/get-file-extension-from-codec';
 import {randomHash} from '../shared/random-hash';
-import {tmpDir} from '../shared/tmpdir';
 import {
 	ChunkTimingData,
 	ObjectChunkTimingData,
@@ -32,7 +25,6 @@ import {getCurrentRegionInFunction} from './helpers/get-current-region';
 import {getFolderFiles} from './helpers/get-files-in-folder';
 import {getFolderSizeRecursively} from './helpers/get-folder-size';
 import {lambdaWriteFile} from './helpers/io';
-import {timer} from './helpers/timer';
 import {uploadBrowserLogs} from './helpers/upload-browser-logs';
 import {
 	getTmpDirStateIfENoSp,
@@ -76,8 +68,19 @@ const renderHandler = async (
 		frameRange: params.frameRange,
 		startDate: start,
 	};
-	const {assetsInfo} = await renderFrames({
-		config: {
+
+	const outdir = RenderInternals.tmpDir(RENDERER_PATH_TOKEN);
+
+	const outputLocation = path.join(
+		outdir,
+		`localchunk-${String(params.chunk).padStart(
+			8,
+			'0'
+		)}.${RenderInternals.getFileExtensionFromCodec(params.codec, 'chunk')}`
+	);
+
+	await renderMedia({
+		composition: {
 			id: params.composition,
 			durationInFrames: params.durationInFrames,
 			fps: params.fps,
@@ -87,8 +90,8 @@ const renderHandler = async (
 		imageFormat: params.imageFormat,
 		inputProps: params.inputProps,
 		frameRange: params.frameRange,
-		onFrameUpdate: (i: number, frameNumber: number) => {
-			chunkTimingData.timings[frameNumber] = Date.now() - start;
+		onProgress: ({renderedFrames}) => {
+			chunkTimingData.timings[renderedFrames] = Date.now() - start;
 		},
 		parallelism: 1,
 		onStart: () => {
@@ -112,74 +115,36 @@ const renderHandler = async (
 				expectedBucketOwner: options.expectedBucketOwner,
 			});
 		},
-		outputDir: outputPath,
 		puppeteerInstance: browserInstance,
 		serveUrl: params.serveUrl,
 		quality: params.quality,
 		envVariables: params.envVariables,
-		browser: 'chrome',
 		dumpBrowserLogs: params.saveBrowserLogs,
 		onBrowserLog: (log) => {
 			logs.push(log);
 		},
+		outputLocation,
+		codec: params.codec,
+		crf: params.crf ?? null,
+		ffmpegExecutable: null,
+		pixelFormat: params.pixelFormat,
+		proResProfile: params.proResProfile,
+		onDownload: (src: string) => {
+			console.log('Downloading', src);
+			return () => undefined;
+		},
+
+		overwrite: false,
 	});
-	const outdir = tmpDir(RENDERER_PATH_TOKEN);
-
-	const outputLocation = path.join(
-		outdir,
-		`localchunk-${String(params.chunk).padStart(
-			8,
-			'0'
-		)}.${getFileExtensionFromCodec(params.codec, 'chunk')}`
-	);
-
-	const stitchLabel = timer('stitcher');
-	if (!fs.existsSync(DOWNLOADS_DIR)) {
-		fs.mkdirSync(DOWNLOADS_DIR);
-	}
 
 	const endRendered = Date.now();
 
-	await stitchFramesToVideo({
-		assetsInfo: {
-			...assetsInfo,
-			// Make all assets remote
-			assets: assetsInfo.assets.map((asset) => {
-				return asset.map((a) => {
-					return {
-						...a,
-						isRemote: true,
-					};
-				});
-			}),
-		},
-		downloadDir: DOWNLOADS_DIR,
-		dir: outputPath,
-		force: true,
-		fps: params.fps,
-		height: params.height,
-		width: params.width,
-		outputLocation,
-		codec: params.codec,
-		imageFormat: params.imageFormat,
-		crf: params.crf,
-		pixelFormat: params.pixelFormat,
-		proResProfile: params.proResProfile,
-		parallelism: 1,
-		verbose: false,
-		onProgress: () => {
-			// TODO: upload progress from time to time
-		},
-		webpackBundle: null,
-	});
-	stitchLabel.end();
 	console.info('Adding silent audio, chunk', params.chunk);
 	await RenderInternals.addSilentAudioIfNecessary(
 		outputLocation,
 		params.frameRange[1] - params.frameRange[0] + 1,
 		params.fps
 	);
-	const endStitching = Date.now();
 
 	const condensedTimingData: ChunkTimingData = {
 		...chunkTimingData,
@@ -206,7 +171,6 @@ const renderHandler = async (
 			key: `${lambdaTimingsKey({
 				renderId: params.renderId,
 				chunk: params.chunk,
-				encoded: endStitching,
 				rendered: endRendered,
 				start,
 			})}`,

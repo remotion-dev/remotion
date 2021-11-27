@@ -4,6 +4,10 @@ import path from 'path';
 import {random, TAsset} from 'remotion';
 import sanitizeFilename from 'sanitize-filename';
 
+export type RenderMediaOnDownload = (
+	src: string
+) => ((progress: {percent: number}) => void) | undefined | void;
+
 const isDownloadingMap: {[key: string]: boolean} = {};
 const hasBeenDownloadedMap: {[key: string]: boolean} = {};
 const listeners: {[key: string]: (() => void)[]} = {};
@@ -31,7 +35,7 @@ const notifyAssetIsDownloaded = (src: string) => {
 const downloadAsset = async (
 	src: string,
 	to: string,
-	onDownload: (src: string) => void
+	onDownload: RenderMediaOnDownload
 ) => {
 	if (hasBeenDownloadedMap[src]) {
 		return;
@@ -42,7 +46,8 @@ const downloadAsset = async (
 	}
 
 	isDownloadingMap[src] = true;
-	onDownload(src);
+
+	const onProgress = onDownload(src);
 	mkdirSync(path.resolve(to, '..'), {
 		recursive: true,
 	});
@@ -56,10 +61,13 @@ const downloadAsset = async (
 		writeStream.on('close', () => resolve());
 		writeStream.on('error', (err) => reject(err));
 
-		got
-			.stream(src)
-			.pipe(writeStream)
-			.on('error', (err) => reject(err));
+		const stream = got.stream(src);
+		stream.on('downloadProgress', ({percent}) => {
+			onProgress?.({
+				percent,
+			});
+		});
+		stream.pipe(writeStream).on('error', (err) => reject(err));
 	});
 	notifyAssetIsDownloaded(src);
 };
@@ -76,29 +84,12 @@ export const markAllAssetsAsDownloaded = () => {
 
 export const getSanitizedFilenameForAssetUrl = ({
 	src,
-	isRemote,
-	webpackBundle,
 	downloadDir,
 }: {
 	src: string;
-	isRemote: boolean;
-	webpackBundle: string | null;
 	downloadDir: string;
 }) => {
 	const {pathname, search} = new URL(src);
-
-	// There is always a webpack bundle, except when we are
-	// in Lambda. Also in Lambda, all assets are remote.
-
-	// Therefore we assert that if an asset is local and no Webpack bundle
-	// is available, it is an error
-	if (!isRemote) {
-		if (!webpackBundle) {
-			throw new TypeError('Expected webpack bundle');
-		}
-
-		return path.join(webpackBundle, sanitizeFilename(pathname));
-	}
 
 	const split = pathname.split('.');
 	const fileExtension =
@@ -116,29 +107,23 @@ export const getSanitizedFilenameForAssetUrl = ({
 };
 
 export const downloadAndMapAssetsToFileUrl = async ({
-	localhostAsset,
+	asset,
 	downloadDir,
 	onDownload,
-	webpackBundle,
 }: {
-	localhostAsset: TAsset;
+	asset: TAsset;
 	downloadDir: string;
-	onDownload: (src: string) => void;
-	webpackBundle: string | null;
+	onDownload: RenderMediaOnDownload;
 }): Promise<TAsset> => {
 	const newSrc = getSanitizedFilenameForAssetUrl({
-		src: localhostAsset.src,
-		isRemote: localhostAsset.isRemote,
-		webpackBundle,
+		src: asset.src,
 		downloadDir,
 	});
 
-	if (localhostAsset.isRemote) {
-		await downloadAsset(localhostAsset.src, newSrc, onDownload);
-	}
+	await downloadAsset(asset.src, newSrc, onDownload);
 
 	return {
-		...localhostAsset,
+		...asset,
 		src: newSrc,
 	};
 };
