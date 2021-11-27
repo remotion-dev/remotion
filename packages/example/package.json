@@ -42,7 +42,7 @@
 		"mdx-loader": "3.0.2",
 		"polished": "^4.0.5",
 		"prettier": "^2.0.5",
-		"remotion": "^2.5.5",
+		"remotion": "2.5.5",
 		"styled-components": "^5.1.1",
 		"svg-path-properties": "^1.0.4",
 		"ts-node": "^9.1.1",
