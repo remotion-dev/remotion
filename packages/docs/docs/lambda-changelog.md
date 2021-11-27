@@ -14,9 +14,13 @@ Keep track of changes to the APIs of Remotion Lambda here.
 1. Redeploy your function: `npx remotion lambda functions deploy`
 1. Migrate according to the changelog below:
 
-## Unreleased
+## November 27th, 2021
 
-Render Lambda videos locally
+Remotion 3.0 Rendering pipeline refactor merged into this branch!
+
+- **Parallel encoding**: Now rendering and encoding happens at the same time! You should see a speed improvement. Also, if you embedded videos with audio, these are now downloaded earlier in the rendering process, which will give the rendering times another boost.
+- **Breaking**: Server-side rendering APIs have been refactored. See the separate [3.0 Migration](/docs/3-0-migration) page for it. New `openBrowser()` and `renderMedia()` APIs are now available.
+- Downloading a video using the CLI now shows a progress bar.
 
 ## November 24th, 2021
 
