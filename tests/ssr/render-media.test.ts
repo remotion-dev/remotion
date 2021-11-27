@@ -85,4 +85,6 @@ test("should fail on invalid CRF", async () => {
       puppeteerInstance: browserInstance,
     });
   }).rejects.toThrow(/Expected CRF to be a number, but is "wrong"/);
+
+  await browserInstance.close();
 });
