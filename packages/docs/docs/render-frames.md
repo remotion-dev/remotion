@@ -16,7 +16,7 @@ In Remotion 3.0, we added the [`renderMedia()`](/docs/renderer/render-media) API
 
 ```ts
 const renderFrames: (options: {
-  config: VideoConfig;
+  composition: VideoConfig;
   onFrameUpdate: (frame: number) => void;
   onStart: (data: {
     frameCount: number;
@@ -43,9 +43,9 @@ Configuration in `remotion.config.ts` and CLI flags do not apply to this functio
 
 Takes an object with the following keys:
 
-### `config`
+### `composition`
 
-A video config, consisting out of `id`, `width`, `height`, `durationInFrames` and `fps`, where `id` is the compositions ID. See: [Defining compositions](/docs/the-fundamentals#defining-compositions) and [useVideoConfig()](/docs/use-video-config).
+A video config, consisting out of `id`, `width`, `height`, `durationInFrames` and `fps`, where `id` is the composition ID. You can obtain an array of available compositions using [`getCompositions()`](/docs/renderer/get-compositions).
 
 ### `onStart`
 
