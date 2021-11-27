@@ -1,9 +1,12 @@
 import {RenderInternals} from '@remotion/renderer';
-import fs, {createWriteStream} from 'fs';
+import {createWriteStream} from 'fs';
 import path from 'path';
 import {getExpectedOutName} from '../functions/helpers/expected-out-name';
 import {getRenderMetadata} from '../functions/helpers/get-render-metadata';
-import {lambdaReadFile} from '../functions/helpers/io';
+import {
+	LambdaReadFileProgress,
+	lambdaReadFileWithProgress,
+} from '../functions/helpers/read-with-progress';
 import {AwsRegion} from '../pricing/aws-regions';
 import {getAccountId} from '../shared/get-account-id';
 
@@ -12,6 +15,7 @@ type DownloadVideoInput = {
 	bucketName: string;
 	renderId: string;
 	outPath: string;
+	onProgress?: LambdaReadFileProgress;
 };
 
 type DownloadVideoOutput = {
@@ -32,27 +36,32 @@ export const downloadVideo = async (
 		renderId: input.renderId,
 	});
 
-	const readable = await lambdaReadFile({
+	const readable = await lambdaReadFileWithProgress({
 		bucketName: input.bucketName,
 		expectedBucketOwner,
 		key: getExpectedOutName(renderMetadata),
 		region: input.region,
+		onProgress: input.onProgress ?? (() => undefined),
 	});
 
 	const outputPath = path.resolve(process.cwd(), input.outPath);
 
 	RenderInternals.ensureOutputDirectory(outputPath);
 
+	const writeStream = createWriteStream(outputPath);
+	let sizeInBytes = 0;
 	await new Promise<void>((resolve, reject) => {
 		readable
-			.pipe(createWriteStream(outputPath))
+			.on('data', (d) => {
+				sizeInBytes += d.length;
+			})
+			.pipe(writeStream)
 			.on('error', (err) => reject(err))
 			.on('close', () => resolve());
 	});
 
-	const {size} = await fs.promises.stat(outputPath);
 	return {
 		outputPath,
-		sizeInBytes: size,
+		sizeInBytes,
 	};
 };
