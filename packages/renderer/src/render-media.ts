@@ -18,7 +18,6 @@ import {OnStartData} from './types';
 import {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 import {tmpDir} from './tmp-dir';
 import {getFileExtensionFromCodec} from './get-extension-from-codec';
-import {deleteDirectory} from './delete-directory';
 import {
 	getServeUrlWithFallback,
 	ServeUrlOrWebpackBundle,
