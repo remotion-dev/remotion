@@ -21,7 +21,7 @@ const renderFrames: (options: {
   onStart: (data: {
     frameCount: number;
   }) => void;
-  outputDir: string;
+  outputDir: string | null;
   inputProps: unknown;
   serveUrl: string;
   imageFormat: "png" | "jpeg" | "none";
@@ -69,7 +69,7 @@ const onFrameUpdate = (frame: number) => {
 
 ### `outputDir`
 
-A `string` specifying the directory (absolute path) to which frames should be saved.
+A `string` specifying the directory (absolute path) to which frames should be saved. Pass `null` and a `writeFrame` callback instead to get a `Buffer` of the frame rather than to write it to any location-
 
 ### `inputProps`
 

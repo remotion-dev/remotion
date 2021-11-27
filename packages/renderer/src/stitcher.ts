@@ -28,7 +28,6 @@ import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-c
 import {validateFfmpeg} from './validate-ffmpeg';
 
 export type StitcherOptions = {
-	dir: string;
 	fps: number;
 	width: number;
 	height: number;
@@ -213,9 +212,7 @@ export const spawnFfmpeg = async (options: StitcherOptions) => {
 		.reduce<(string | null | undefined)[]>((acc, val) => acc.concat(val), [])
 		.filter(Boolean) as string[];
 
-	const task = execa(options.ffmpegExecutable ?? 'ffmpeg', ffmpegString, {
-		cwd: options.dir,
-	});
+	const task = execa(options.ffmpegExecutable ?? 'ffmpeg', ffmpegString);
 	task.stderr?.on('data', (data: Buffer) => {
 		if (options.onProgress) {
 			const parsed = parseFfmpegProgress(data.toString());

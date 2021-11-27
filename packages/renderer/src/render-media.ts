@@ -98,7 +98,6 @@ export const renderMedia = async ({
 	let encodedDoneIn: number | null = null;
 	const renderStart = Date.now();
 	const tmpdir = tmpDir('pre-encode');
-	const outputDir = tmpDir('frames ' + Math.random());
 	const parallelEncoding = !Internals.isAudioCodec(codec);
 	const preEncodedFileLocation = parallelEncoding
 		? path.join(
@@ -120,7 +119,6 @@ export const renderMedia = async ({
 
 		if (preEncodedFileLocation) {
 			preStitcher = await spawnFfmpeg({
-				dir: outputDir,
 				width: composition.width,
 				height: composition.height,
 				fps: composition.fps,
@@ -174,7 +172,7 @@ export const renderMedia = async ({
 				callUpdate();
 			},
 			parallelism,
-			outputDir,
+			outputDir: null,
 			onStart: (data) => {
 				renderedFrames = 0;
 				callUpdate();
@@ -217,7 +215,6 @@ export const renderMedia = async ({
 
 		const stitchStart = Date.now();
 		await stitchFramesToVideo({
-			dir: outputDir,
 			width: composition.width,
 			height: composition.height,
 			fps: composition.fps,
@@ -249,7 +246,5 @@ export const renderMedia = async ({
 		) {
 			fs.unlinkSync(preEncodedFileLocation);
 		}
-
-		await deleteDirectory(outputDir);
 	}
 };

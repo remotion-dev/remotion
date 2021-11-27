@@ -49,7 +49,7 @@ type ConfigOrComposition =
 type RenderFramesOptions = {
 	onStart: (data: OnStartData) => void;
 	onFrameUpdate: (framesRendered: number, frameIndex: number) => void;
-	outputDir: string;
+	outputDir: string | null;
 	inputProps: unknown;
 	envVariables?: Record<string, string>;
 	imageFormat: ImageFormat;
@@ -220,6 +220,12 @@ export const innerRenderFrames = async ({
 						});
 						writeFrame(buffer, frame);
 					} else {
+						if (!outputDir) {
+							throw new Error(
+								'Called renderFrames() without specifying either `outputDir` or `writeFrame`'
+							);
+						}
+
 						const output = path.join(
 							outputDir,
 							`element-${paddedIndex}.${imageFormat}`
