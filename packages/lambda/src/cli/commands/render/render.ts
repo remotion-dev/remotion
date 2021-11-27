@@ -110,10 +110,9 @@ export const renderCommand = async (args: string[]) => {
 	progressBar.update(
 		makeProgressString({
 			progress: multiProgress,
-			outName,
 			errors: status.errors,
 			steps: totalSteps,
-			isDownloaded: false,
+			downloadInfo: null,
 			retriesInfo: status.retriesInfo,
 		})
 	);
@@ -129,12 +128,11 @@ export const renderCommand = async (args: string[]) => {
 		const newProgress = makeMultiProgressFromStatus(newStatus);
 		progressBar.update(
 			makeProgressString({
-				outName,
 				progress: newProgress,
 				steps: totalSteps,
-				isDownloaded: false,
 				errors: newStatus.errors,
 				retriesInfo: newStatus.retriesInfo,
+				downloadInfo: null,
 			})
 		);
 
@@ -142,29 +140,47 @@ export const renderCommand = async (args: string[]) => {
 		if (newStatus.done) {
 			progressBar.update(
 				makeProgressString({
-					outName,
 					progress: newProgress,
 					steps: totalSteps,
-					isDownloaded: false,
+					downloadInfo: null,
 					errors: newStatus.errors,
 					retriesInfo: newStatus.retriesInfo,
 				})
 			);
 			if (outName) {
+				const downloadStart = Date.now();
 				const {outputPath, sizeInBytes} = await downloadVideo({
 					bucketName: res.bucketName,
 					outPath: outName,
 					region: getAwsRegion(),
 					renderId: res.renderId,
+					onProgress: ({downloaded, totalSize}) => {
+						progressBar.update(
+							makeProgressString({
+								progress: newProgress,
+								steps: totalSteps,
+								errors: newStatus.errors,
+								retriesInfo: newStatus.retriesInfo,
+								downloadInfo: {
+									doneIn: null,
+									downloaded,
+									totalSize,
+								},
+							})
+						);
+					},
 				});
 				progressBar.update(
 					makeProgressString({
-						outName,
 						progress: newProgress,
 						steps: totalSteps,
-						isDownloaded: true,
 						errors: newStatus.errors,
 						retriesInfo: newStatus.retriesInfo,
+						downloadInfo: {
+							doneIn: Date.now() - downloadStart,
+							downloaded: sizeInBytes,
+							totalSize: sizeInBytes,
+						},
 					})
 				);
 				Log.info();

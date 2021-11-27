@@ -3,6 +3,7 @@ import {Internals} from 'remotion';
 import {CleanupInfo, EncodingProgress, RenderProgress} from '../../../defaults';
 import {ChunkRetry} from '../../../functions/helpers/get-retry-stats';
 import {EnhancedErrorInfo} from '../../../functions/helpers/write-lambda-error';
+import {formatBytes} from '../../helpers/format-bytes';
 
 type LambdaInvokeProgress = {
 	totalLambdas: number | null;
@@ -123,15 +124,22 @@ const makeCleanupProgress = (
 	].join(' ');
 };
 
-const makeDownloadProgress = (totalSteps: number, downloadedYet: boolean) => {
+const makeDownloadProgress = (
+	downloadInfo: DownloadedInfo,
+	totalSteps: number
+) => {
 	return [
 		'💾',
 		`(5/${totalSteps})`,
-		// TODO: More granularly
-		CliInternals.makeProgressBar(Number(downloadedYet)),
-		`${downloadedYet ? 'Downloaded' : 'Downloading'} video`,
-		// TODO
-		downloadedYet ? CliInternals.chalk.gray('TODOms') : '0%',
+		CliInternals.makeProgressBar(
+			downloadInfo.downloaded / downloadInfo.totalSize
+		),
+		`${downloadInfo.doneIn === null ? 'Downloading' : 'Downloaded'} video`,
+		downloadInfo.doneIn === null
+			? `${formatBytes(downloadInfo.downloaded)}/${formatBytes(
+					downloadInfo.totalSize
+			  )}`
+			: CliInternals.chalk.gray(`${downloadInfo.doneIn}ms`),
 	].join(' ');
 };
 
@@ -185,18 +193,22 @@ const makeErrors = (errors: EnhancedErrorInfo[]) => {
 		.join('\n');
 };
 
+type DownloadedInfo = {
+	totalSize: number;
+	downloaded: number;
+	doneIn: number | null;
+};
+
 export const makeProgressString = ({
-	outName,
 	progress,
 	steps,
-	isDownloaded,
+	downloadInfo,
 	errors,
 	retriesInfo,
 }: {
-	outName: string | null;
 	progress: MultiRenderProgress;
 	steps: number;
-	isDownloaded: boolean;
+	downloadInfo: DownloadedInfo | null;
 	errors: EnhancedErrorInfo[];
 	retriesInfo: ChunkRetry[];
 }) => {
@@ -214,9 +226,7 @@ export const makeProgressString = ({
 			totalSteps: steps,
 		}),
 		makeCleanupProgress(progress.cleanupInfo, steps),
-		outName && progress.encodingProgress.doneIn
-			? makeDownloadProgress(steps, isDownloaded)
-			: null,
+		downloadInfo ? makeDownloadProgress(downloadInfo, steps) : null,
 	]
 		.filter(Internals.truthy)
 		.join('\n');

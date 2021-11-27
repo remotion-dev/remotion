@@ -1,4 +1,4 @@
-import {createWriteStream, mkdirSync} from 'fs';
+import {createWriteStream} from 'fs';
 import got from 'got';
 import path from 'path';
 import {random, TAsset} from 'remotion';

@@ -19,6 +19,7 @@ import {deleteDirectory} from './delete-directory';
 import {prepareServer} from './prepare-server';
 import {isServeUrl} from './is-serve-url';
 import {ensureOutputDirectory} from './ensure-output-directory';
+import got from 'got';
 
 declare global {
 	interface Window {
@@ -66,4 +67,5 @@ export const RenderInternals = {
 	prepareServer,
 	isServeUrl,
 	ensureOutputDirectory,
+	gotStream: got.stream,
 };
