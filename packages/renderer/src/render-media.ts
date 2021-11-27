@@ -187,7 +187,7 @@ export const renderMedia = async ({
 			frameRange: frameRange ?? null,
 			puppeteerInstance,
 			writeFrame: async (buffer, frame) => {
-				lastFrame = frame;
+				lastFrame = Math.max(lastFrame, frame);
 				await waitForRightTimeOfFrameToBeInserted(frame);
 				stitcherFfmpeg?.stdin?.write(buffer);
 				frameToStitch = frame + 1;
