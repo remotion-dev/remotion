@@ -5,50 +5,79 @@ import {
 	Page,
 } from 'puppeteer-core';
 import {
-	Browser,
 	BrowserExecutable,
 	FrameRange,
 	ImageFormat,
 	Internals,
 	VideoConfig,
 } from 'remotion';
+import {
+	downloadAndMapAssetsToFileUrl,
+	RenderMediaOnDownload,
+} from './assets/download-and-map-assets-to-file';
 import {BrowserLog} from './browser-log';
 import {cycleBrowserTabs} from './cycle-browser-tabs';
 import {getActualConcurrency} from './get-concurrency';
 import {getFrameCount} from './get-frame-range';
 import {getFrameToRender} from './get-frame-to-render';
 import {DEFAULT_IMAGE_FORMAT} from './image-format';
+import {
+	getServeUrlWithFallback,
+	ServeUrlOrWebpackBundle,
+} from './legacy-webpack-config';
+import {makeAssetsDownloadTmpDir} from './make-assets-download-dir';
 import {normalizeServeUrl} from './normalize-serve-url';
 import {openBrowser} from './open-browser';
 import {Pool} from './pool';
+import {prepareServer} from './prepare-server';
 import {provideScreenshot} from './provide-screenshot';
 import {seekToFrame} from './seek-to-frame';
 import {setPropsAndEnv} from './set-props-and-env';
 import {OnStartData, RenderFramesOutput} from './types';
 
+type ConfigOrComposition =
+	| {
+			/**
+			 * @deprecated This field has been renamed to `composition`
+			 */
+			config: VideoConfig;
+	  }
+	| {
+			composition: VideoConfig;
+	  };
+
 type RenderFramesOptions = {
-	config: VideoConfig;
 	onStart: (data: OnStartData) => void;
 	onFrameUpdate: (framesRendered: number, frameIndex: number) => void;
-	outputDir: string;
+	outputDir: string | null;
 	inputProps: unknown;
 	envVariables?: Record<string, string>;
 	imageFormat: ImageFormat;
 	parallelism?: number | null;
 	quality?: number;
-	browser?: Browser;
 	frameRange?: FrameRange | null;
-	serveUrl: string;
 	dumpBrowserLogs?: boolean;
 	puppeteerInstance?: PuppeteerBrowser;
 	browserExecutable?: BrowserExecutable;
 	onBrowserLog?: (log: BrowserLog) => void;
-	parallelEncoding?: boolean;
-	writeFrame?: (buffer?: Buffer) => void;
+	writeFrame?: (buffer: Buffer, frame: number) => void;
+	onDownload?: RenderMediaOnDownload;
+} & ConfigOrComposition &
+	ServeUrlOrWebpackBundle;
+
+const getComposition = (others: ConfigOrComposition) => {
+	if ('composition' in others) {
+		return others.composition;
+	}
+
+	if ('config' in others) {
+		return others.config;
+	}
+
+	return undefined;
 };
 
 export const innerRenderFrames = async ({
-	config,
 	parallelism,
 	onFrameUpdate,
 	outputDir,
@@ -58,16 +87,19 @@ export const innerRenderFrames = async ({
 	imageFormat = DEFAULT_IMAGE_FORMAT,
 	frameRange,
 	puppeteerInstance,
-	serveUrl,
 	onError,
 	envVariables,
 	onBrowserLog,
-	parallelEncoding,
 	writeFrame,
+	onDownload,
 	pagesArray,
-}: RenderFramesOptions & {
+	serveUrl,
+	composition,
+}: Omit<RenderFramesOptions, 'url'> & {
 	onError: (err: Error) => void;
 	pagesArray: Page[];
+	serveUrl: string;
+	composition: VideoConfig;
 }): Promise<RenderFramesOutput> => {
 	if (!puppeteerInstance) {
 		throw new Error('weird');
@@ -79,8 +111,8 @@ export const innerRenderFrames = async ({
 		const page = await puppeteerInstance.newPage();
 		pagesArray.push(page);
 		page.setViewport({
-			width: config.width,
-			height: config.height,
+			width: composition.width,
+			height: composition.height,
 			deviceScaleFactor: 1,
 		});
 
@@ -111,7 +143,7 @@ export const innerRenderFrames = async ({
 			initialFrame,
 		});
 
-		const site = `${normalizeServeUrl(serveUrl)}?composition=${config.id}`;
+		const site = `${normalizeServeUrl(serveUrl)}?composition=${composition.id}`;
 		await page.goto(site);
 
 		page.off('console', logCallback);
@@ -121,7 +153,11 @@ export const innerRenderFrames = async ({
 	const puppeteerPages = await Promise.all(pages);
 	const pool = new Pool(puppeteerPages);
 
-	const frameCount = getFrameCount(config.durationInFrames, frameRange ?? null);
+	const frameCount = getFrameCount(
+		composition.durationInFrames,
+		frameRange ?? null
+	);
+	const firstFrameIndex = getFrameToRender(frameRange ?? null, 0);
 	const lastFrameIndex = getFrameToRender(frameRange ?? null, frameCount - 1);
 	// Substract one because 100 frames will be 00-99
 	// --> 2 digits
@@ -131,6 +167,7 @@ export const innerRenderFrames = async ({
 	onStart({
 		frameCount,
 	});
+	const downloadDir = makeAssetsDownloadTmpDir();
 	const assets = await Promise.all(
 		new Array(frameCount)
 			.fill(Boolean)
@@ -141,7 +178,11 @@ export const innerRenderFrames = async ({
 				const paddedIndex = String(frame).padStart(filePadLength, '0');
 
 				const errorCallbackOnFrame = (err: Error) => {
-					onError(new Error(`Error on rendering frame ${frame}: ${err.stack}`));
+					onError(
+						new Error(
+							`Error on rendering frame ${frame}: ${err.stack || err.message}`
+						)
+					);
 				};
 
 				freePage.on('pageerror', errorCallbackOnFrame);
@@ -167,7 +208,7 @@ export const innerRenderFrames = async ({
 				}
 
 				if (imageFormat !== 'none') {
-					if (parallelEncoding) {
+					if (writeFrame) {
 						const buffer = await provideScreenshot({
 							page: freePage,
 							imageFormat,
@@ -177,8 +218,14 @@ export const innerRenderFrames = async ({
 								output: undefined,
 							},
 						});
-						writeFrame?.(buffer);
+						writeFrame(buffer, frame);
 					} else {
+						if (!outputDir) {
+							throw new Error(
+								'Called renderFrames() without specifying either `outputDir` or `writeFrame`'
+							);
+						}
+
 						const output = path.join(
 							outputDir,
 							`element-${paddedIndex}.${imageFormat}`
@@ -198,6 +245,13 @@ export const innerRenderFrames = async ({
 				const collectedAssets = await freePage.evaluate(() => {
 					return window.remotion_collectAssets();
 				});
+				collectedAssets.forEach((asset) => {
+					downloadAndMapAssetsToFileUrl({
+						asset,
+						downloadDir,
+						onDownload: onDownload ?? (() => () => undefined),
+					});
+				});
 				pool.release(freePage);
 				framesRendered++;
 				onFrameUpdate(framesRendered, frame);
@@ -207,33 +261,45 @@ export const innerRenderFrames = async ({
 			})
 	);
 
-	return {
+	const returnValue: RenderFramesOutput = {
 		assetsInfo: {
 			assets,
+			downloadDir,
+			firstFrameIndex,
+			imageSequenceName: `element-%0${filePadLength}d.${imageFormat}`,
 		},
 		frameCount,
 	};
+	return returnValue;
 };
 
 export const renderFrames = async (
 	options: RenderFramesOptions
 ): Promise<RenderFramesOutput> => {
+	const composition = getComposition(options);
+
+	if (!composition) {
+		throw new Error(
+			'No `composition` option has been specified for renderFrames()'
+		);
+	}
+
 	Internals.validateDimension(
-		options.config.height,
+		composition.height,
 		'height',
 		'in the `config` object passed to `renderFrames()`'
 	);
 	Internals.validateDimension(
-		options.config.width,
+		composition.width,
 		'width',
 		'in the `config` object passed to `renderFrames()`'
 	);
 	Internals.validateFps(
-		options.config.fps,
+		composition.fps,
 		'in the `config` object of `renderFrames()`'
 	);
 	Internals.validateDurationInFrames(
-		options.config.durationInFrames,
+		composition.durationInFrames,
 		'in the `config` object passed to `renderFrames()`'
 	);
 	if (options.quality !== undefined && options.imageFormat !== 'jpeg') {
@@ -242,11 +308,15 @@ export const renderFrames = async (
 		);
 	}
 
+	const selectedServeUrl = getServeUrlWithFallback(options);
+
 	Internals.validateQuality(options.quality);
+
+	const {closeServer, serveUrl} = await prepareServer(selectedServeUrl);
 
 	const browserInstance =
 		options.puppeteerInstance ??
-		(await openBrowser(options.browser ?? Internals.DEFAULT_BROWSER, {
+		(await openBrowser(Internals.DEFAULT_BROWSER, {
 			shouldDumpIo: options.dumpBrowserLogs,
 			browserExecutable: options.browserExecutable,
 		}));
@@ -261,6 +331,8 @@ export const renderFrames = async (
 			puppeteerInstance: browserInstance,
 			onError: (err) => reject(err),
 			pagesArray: openedPages,
+			serveUrl,
+			composition,
 		})
 			.then((res) => resolve(res))
 			.catch((err) => reject(err))
@@ -280,6 +352,7 @@ export const renderFrames = async (
 				}
 
 				stopCycling();
+				closeServer();
 			});
 	});
 };

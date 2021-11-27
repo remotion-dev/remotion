@@ -1,7 +1,7 @@
 import fs from 'fs';
-import os from 'os';
 import path from 'path';
 import {FfmpegFilterCalculation} from './calculate-ffmpeg-filters';
+import {tmpDir} from './tmp-dir';
 
 const createMix = (filters: FfmpegFilterCalculation[]) => {
 	const baseFilter = filters
@@ -34,9 +34,7 @@ export const createFfmpegComplexFilter = async (
 		...filters.map((f) => f.filter),
 		createMix(filters),
 	].join(';');
-	const tempPath = await fs.promises.mkdtemp(
-		path.join(os.tmpdir(), 'remotion-complex-filter')
-	);
+	const tempPath = tmpDir('remotion-complex-filter');
 	const filterFile = path.join(tempPath, 'complex-filter.txt');
 	await fs.promises.writeFile(filterFile, complexFilter);
 

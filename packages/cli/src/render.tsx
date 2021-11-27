@@ -1,17 +1,16 @@
 import {
 	getCompositions,
-	OnStartData,
+	openBrowser,
 	renderFrames,
 	RenderInternals,
-	stitchFramesToVideo,
+	renderMedia,
+	StitchingState,
 } from '@remotion/renderer';
 import chalk from 'chalk';
-import {ExecaChildProcess} from 'execa';
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
 import {Internals} from 'remotion';
-import {deleteDirectory} from './delete-directory';
 import {getCliOptions} from './get-cli-options';
 import {getCompositionId} from './get-composition-id';
 import {initializeRenderCli} from './initialize-render-cli';
@@ -19,16 +18,19 @@ import {Log} from './log';
 import {parsedCli} from './parse-command-line';
 import {
 	createOverwriteableCliOutput,
+	DownloadProgress,
 	makeRenderingAndStitchingProgress,
 } from './progress-bar';
 import {bundleOnCli} from './setup-cache';
-import {getUserPassedFileExtension} from './user-passed-output-location';
+import {RenderStep} from './step';
 import {checkAndValidateFfmpegVersion} from './validate-ffmpeg-version';
 
 export const render = async () => {
 	const startTime = Date.now();
 	const file = parsedCli._[1];
-	const fullPath = path.join(process.cwd(), file);
+	const fullPath = RenderInternals.isServeUrl(file)
+		? file
+		: path.join(process.cwd(), file);
 
 	await initializeRenderCli('sequence');
 
@@ -36,7 +38,6 @@ export const render = async () => {
 		codec,
 		proResProfile,
 		parallelism,
-		parallelEncoding,
 		frameRange,
 		shouldOutputImageSequence,
 		absoluteOutputFile,
@@ -62,33 +63,29 @@ export const render = async () => {
 		ffmpegExecutable: Internals.getCustomFfmpegExecutable(),
 	});
 
-	const browserInstance = RenderInternals.openBrowser(browser, {
+	const browserInstance = openBrowser(browser, {
 		browserExecutable,
 		shouldDumpIo: Internals.Logging.isEqualOrBelowLogLevel('verbose'),
 	});
 
-	if (shouldOutputImageSequence) {
-		fs.mkdirSync(absoluteOutputFile, {
-			recursive: true,
-		});
-	}
+	const steps: RenderStep[] = [
+		RenderInternals.isServeUrl(fullPath) ? null : ('bundling' as const),
+		'rendering' as const,
+		shouldOutputImageSequence ? null : ('stitching' as const),
+	].filter(Internals.truthy);
 
-	const hasStitching = !shouldOutputImageSequence;
+	const urlOrBundle = RenderInternals.isServeUrl(fullPath)
+		? Promise.resolve(fullPath)
+		: await bundleOnCli(fullPath, steps);
+	const {serveUrl, closeServer} = await RenderInternals.prepareServer(
+		await urlOrBundle
+	);
 
-	const steps = hasStitching ? 3 : 2;
-
-	const bundled = await bundleOnCli(fullPath, steps);
-
-	const {port, close} = await RenderInternals.serveStatic(bundled);
-
-	const serveUrl = `http://localhost:${port}`;
-
-	const openedBrowser = await browserInstance;
+	const puppeteerInstance = await browserInstance;
 
 	const comps = await getCompositions(serveUrl, {
-		browser,
 		inputProps,
-		browserInstance: openedBrowser,
+		puppeteerInstance,
 		envVariables,
 	});
 	const compositionId = getCompositionId(comps);
@@ -108,223 +105,135 @@ export const render = async () => {
 		? absoluteOutputFile
 		: await fs.promises.mkdtemp(path.join(os.tmpdir(), 'react-motion-render'));
 
-	if (!outputDir) {
-		throw new Error('Assertion error: Expected outputDir to not be null');
-	}
-
 	Log.verbose('Output dir', outputDir);
 
 	const renderProgress = createOverwriteableCliOutput();
-	let totalFrames = 0;
-	const renderStart = Date.now();
-
-	let stitcherFfmpeg: ExecaChildProcess<string> | undefined;
-	let preStitcher;
-	let encodedFrames: number | null = null;
+	let totalFrames: number | null = 0;
+	let encodedFrames = 0;
 	let renderedFrames = 0;
-	let preEncodedFileLocation: string | undefined;
-	const updateRenderProgress = () =>
-		renderProgress.update(
+	let encodedDoneIn: number | null = null;
+	let renderedDoneIn: number | null = null;
+	let stitchStage: StitchingState = 'encoding';
+	const downloads: DownloadProgress[] = [];
+
+	const updateRenderProgress = () => {
+		if (totalFrames === null) {
+			throw new Error('totalFrames should not be 0');
+		}
+
+		return renderProgress.update(
 			makeRenderingAndStitchingProgress({
 				rendering: {
 					frames: renderedFrames,
 					totalFrames,
 					concurrency: RenderInternals.getActualConcurrency(parallelism),
-					doneIn: null,
+					doneIn: renderedDoneIn,
 					steps,
 				},
-				stitching: {
-					doneIn: null,
-					frames: encodedFrames ?? 0,
-					stage: 'encoding',
-					steps,
-					totalFrames,
-				},
+				stitching: shouldOutputImageSequence
+					? null
+					: {
+							doneIn: encodedDoneIn,
+							frames: encodedFrames,
+							stage: stitchStage,
+							steps,
+							totalFrames,
+					  },
+				downloads,
 			})
 		);
-	if (parallelEncoding) {
-		if (typeof crf !== 'number') {
-			throw new TypeError('CRF is unexpectedly not a number');
-		}
-
-		preEncodedFileLocation = path.join(
-			outputDir,
-			'pre-encode.' + getUserPassedFileExtension()
-		);
-
-		preStitcher = await RenderInternals.spawnFfmpeg({
-			dir: outputDir,
-			width: config.width,
-			height: config.height,
-			fps: config.fps,
-			outputLocation: preEncodedFileLocation,
-			force: true,
-			imageFormat,
-			pixelFormat,
-			codec,
-			proResProfile,
-			crf,
-			parallelism,
-			onProgress: (frame: number) => {
-				encodedFrames = frame;
-				updateRenderProgress();
-			},
-			verbose: Internals.Logging.isEqualOrBelowLogLevel('verbose'),
-			parallelEncoding,
-			webpackBundle: bundled,
-			ffmpegExecutable,
-			assetsInfo: {assets: []},
-		});
-		stitcherFfmpeg = preStitcher.task;
-	}
-
-	const renderer = renderFrames({
-		config,
-		onFrameUpdate: (frame: number) => {
-			renderedFrames = frame;
-			updateRenderProgress();
-		},
-		parallelism,
-		parallelEncoding,
-		outputDir,
-		onStart: ({frameCount: fc}: OnStartData) => {
-			renderedFrames = 0;
-			if (parallelEncoding) encodedFrames = 0;
-			totalFrames = fc;
-			updateRenderProgress();
-		},
-		inputProps,
-		envVariables,
-		imageFormat,
-		quality,
-		browser,
-		frameRange: frameRange ?? null,
-		puppeteerInstance: openedBrowser,
-		writeFrame: async (buffer) => {
-			stitcherFfmpeg?.stdin?.write(buffer);
-		},
-		serveUrl,
-	});
-	const {assetsInfo} = await renderer;
-	if (stitcherFfmpeg) {
-		stitcherFfmpeg?.stdin?.end();
-		await stitcherFfmpeg;
-		preStitcher?.cleanup?.();
-	}
-
-	const closeBrowserPromise = openedBrowser.close();
-	const finalizedRenderProgress = {
-		frames: totalFrames,
-		totalFrames,
-		steps,
-		concurrency: RenderInternals.getActualConcurrency(parallelism),
-		doneIn: Date.now() - renderStart,
 	};
-	renderProgress.update(
-		makeRenderingAndStitchingProgress({
-			rendering: finalizedRenderProgress,
-			stitching: {
-				doneIn: null,
-				frames: encodedFrames ?? 0,
-				steps: 0,
-				stage: 'encoding',
-				totalFrames,
-			},
-		}) + '\n'
-	);
-	if (process.env.DEBUG) {
-		Internals.perf.logPerf();
-	}
 
 	if (shouldOutputImageSequence) {
-		Log.info(chalk.green('\nYour image sequence is ready!'));
-	} else {
-		if (typeof crf !== 'number') {
-			throw new TypeError('CRF is unexpectedly not a number');
-		}
-
-		const dirName = path.dirname(absoluteOutputFile);
-
-		if (!fs.existsSync(dirName)) {
-			fs.mkdirSync(dirName, {
-				recursive: true,
-			});
-		}
-
-		const stitchStart = Date.now();
-		await stitchFramesToVideo({
-			dir: outputDir,
-			width: config.width,
-			height: config.height,
-			fps: config.fps,
-			outputLocation: absoluteOutputFile,
-			preEncodedFileLocation,
-			force: overwrite,
-			imageFormat,
-			pixelFormat,
-			codec,
-			proResProfile,
-			crf,
-			assetsInfo,
-			parallelism,
-			ffmpegExecutable,
-			onProgress: (frame: number) => {
-				makeRenderingAndStitchingProgress({
-					rendering: finalizedRenderProgress,
-					stitching: {
-						doneIn: null,
-						frames: frame,
-						steps,
-						totalFrames,
-						stage: 'encoding',
-					},
-				});
-			},
-			onDownload: (src: string) => {
-				Log.info('Downloading asset... ', src);
-			},
-			webpackBundle: bundled,
-			verbose: Internals.Logging.isEqualOrBelowLogLevel('verbose'),
+		fs.mkdirSync(absoluteOutputFile, {
+			recursive: true,
 		});
-		renderProgress.update(
-			makeRenderingAndStitchingProgress({
-				rendering: finalizedRenderProgress,
-
-				stitching: {
-					doneIn: Date.now() - stitchStart,
-					frames: totalFrames,
-					steps,
-					totalFrames,
-					stage: 'muxing',
-				},
-			}) + '\n'
-		);
-
-		Log.verbose('Cleaning up...');
-		try {
-			if (process.platform === 'win32') {
-				// Properly delete directories because Windows doesn't seem to like fs.
-				await deleteDirectory(outputDir);
-				await deleteDirectory(bundled);
-			} else {
-				await Promise.all([
-					(fs.promises.rm ?? fs.promises.rmdir)(outputDir, {
-						recursive: true,
-					}),
-					(fs.promises.rm ?? fs.promises.rmdir)(bundled, {
-						recursive: true,
-					}),
-				]);
-			}
-		} catch (err) {
-			Log.warn('Could not clean up directory.');
-			Log.warn(err);
-			Log.warn('Do you have minimum required Node.js version?');
+		if (imageFormat === 'none') {
+			Log.error(
+				'Cannot render an image sequence with a codec that renders no images.'
+			);
+			Log.error(`codec = ${codec}, imageFormat = ${imageFormat}`);
+			process.exit(1);
 		}
 
-		Log.info(chalk.green('\nYour video is ready!'));
+		await renderFrames({
+			config,
+			imageFormat,
+			inputProps,
+			onFrameUpdate: (rendered) => {
+				renderedFrames = rendered;
+				updateRenderProgress();
+			},
+			onStart: ({frameCount}) => {
+				totalFrames = frameCount;
+				return updateRenderProgress();
+			},
+			outputDir,
+			serveUrl,
+			dumpBrowserLogs: Internals.Logging.isEqualOrBelowLogLevel('verbose'),
+			envVariables,
+			frameRange,
+			parallelism,
+			puppeteerInstance,
+			quality,
+		});
+		renderedDoneIn = Date.now() - startTime;
+
+		updateRenderProgress();
+		Log.info();
+		Log.info();
+		Log.info(chalk.green('\nYour image sequence is ready!'));
+		return;
 	}
 
+	await renderMedia({
+		outputLocation: absoluteOutputFile,
+		codec,
+		composition: config,
+		crf,
+		envVariables,
+		ffmpegExecutable,
+		frameRange,
+		imageFormat,
+		inputProps,
+		onProgress: (update) => {
+			encodedDoneIn = update.encodedDoneIn;
+			encodedFrames = update.encodedFrames;
+			renderedDoneIn = update.renderedDoneIn;
+			stitchStage = update.stitchStage;
+			renderedFrames = update.renderedFrames;
+			updateRenderProgress();
+		},
+		puppeteerInstance,
+		overwrite,
+		parallelism,
+		pixelFormat,
+		proResProfile,
+		quality,
+		serveUrl,
+		onDownload: (src) => {
+			const id = Math.random();
+			const download: DownloadProgress = {
+				id,
+				name: src,
+				progress: 0,
+			};
+			downloads.push(download);
+			updateRenderProgress();
+
+			return ({percent}) => {
+				download.progress = percent;
+				updateRenderProgress();
+			};
+		},
+		dumpBrowserLogs: Internals.Logging.isEqualOrBelowLogLevel('verbose'),
+		onStart: ({frameCount}) => {
+			totalFrames = frameCount;
+		},
+	});
+
+	Log.info();
+	Log.info();
 	const seconds = Math.round((Date.now() - startTime) / 1000);
 	Log.info(
 		[
@@ -335,6 +244,17 @@ export const render = async () => {
 	);
 	Log.info('-', 'Output can be found at:');
 	Log.info(chalk.cyan(`▶️ ${absoluteOutputFile}`));
-	await closeBrowserPromise;
-	close();
+	Log.verbose('Cleaning up...');
+	try {
+		await RenderInternals.deleteDirectory(await urlOrBundle);
+	} catch (err) {
+		Log.warn('Could not clean up directory.');
+		Log.warn(err);
+		Log.warn('Do you have minimum required Node.js version?');
+	}
+
+	Log.info(chalk.green('\nYour video is ready!'));
+	closeServer().catch((err) => {
+		Log.error('Could not close web server', err);
+	});
 };

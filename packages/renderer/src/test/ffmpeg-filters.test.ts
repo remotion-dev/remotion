@@ -6,14 +6,12 @@ const src =
 
 const asset: MediaAsset = {
 	type: 'video',
-	src:
-		'/var/folders/hl/p8pg9kw15dbg3l7dbpn0scc80000gn/T/react-motion-graphicsh871Pk/1fe4a495500e1658167982183be07231.mp4',
+	src: '/var/folders/hl/p8pg9kw15dbg3l7dbpn0scc80000gn/T/react-motion-graphicsh871Pk/1fe4a495500e1658167982183be07231.mp4',
 	duration: 20,
 	startInVideo: 0,
 	trimLeft: 0,
 	volume: 1,
 	id: '1',
-	isRemote: false,
 	playbackRate: 1,
 };
 
@@ -120,7 +118,6 @@ test('Should calculate correct indices even if some muted channels are removed b
 					startInVideo: 80,
 					duration: 100,
 					id: 'any',
-					isRemote: false,
 					src: mutedSrc,
 					type: 'video',
 					volume: 1,

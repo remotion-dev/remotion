@@ -21,7 +21,7 @@ By default the frame with number of a composition is being rendered, you can con
 
 ## Rendering using Node.JS
 
-You can use the [`renderStill()`](/docs/render-still) Node.JS API to render a still frame programmatically.
+You can use the [`renderStill()`](/docs/renderer/render-still) Node.JS API to render a still frame programmatically.
 
 ## Rendering using serverless
 

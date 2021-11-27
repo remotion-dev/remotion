@@ -5,8 +5,9 @@ import {
 	createOverwriteableCliOutput,
 	makeBundlingProgress,
 } from './progress-bar';
+import {RenderStep} from './step';
 
-export const bundleOnCli = async (fullPath: string, steps: number) => {
+export const bundleOnCli = async (fullPath: string, steps: RenderStep[]) => {
 	const shouldCache = Internals.getWebpackCaching();
 	const cacheExistedBefore = BundlerInternals.cacheExists('production', null);
 	if (cacheExistedBefore && !shouldCache) {
@@ -20,7 +21,11 @@ export const bundleOnCli = async (fullPath: string, steps: number) => {
 		fullPath,
 		(progress) => {
 			bundlingProgress.update(
-				makeBundlingProgress({progress: progress / 100, steps, doneIn: null})
+				makeBundlingProgress({
+					progress: progress / 100,
+					steps,
+					doneIn: null,
+				})
 			);
 		},
 		{

@@ -8,7 +8,6 @@ import {
 import {ChunkRetry} from '../functions/helpers/get-retry-stats';
 import {EnhancedErrorInfo} from '../functions/helpers/write-lambda-error';
 import {AwsRegion} from '../pricing/aws-regions';
-import {getFileExtensionFromCodec} from './get-file-extension-from-codec';
 
 export const MIN_MEMORY = 512;
 export const MAX_MEMORY = 10240;
@@ -73,18 +72,16 @@ export const lambdaTimingsKey = ({
 	chunk,
 	start,
 	rendered,
-	encoded,
 }: {
 	renderId: string;
 	chunk: number;
 	start: number;
 	rendered: number;
-	encoded: number;
 }) =>
 	`${lambdaTimingsPrefixForChunk(
 		renderId,
 		chunk
-	)}-start:${start}-rendered:${rendered}-encoded:${encoded}.txt`;
+	)}-start:${start}-rendered:${rendered}.txt`;
 export const chunkKey = (renderId: string) =>
 	`${rendersPrefix(renderId)}/chunks/chunk`;
 export const chunkKeyForIndex = ({
@@ -111,8 +108,8 @@ export const getErrorFileName = ({
 export const optimizationProfile = (siteId: string, compositionId: string) =>
 	`optimization-profiles/${siteId}/${compositionId}/optimization-profile`;
 export const getSitesKey = (siteId: string) => `sites/${siteId}`;
-export const outName = (renderId: string, codec: Codec) =>
-	`${rendersPrefix(renderId)}/out.${getFileExtensionFromCodec(codec, 'final')}`;
+export const outName = (renderId: string, extension: string) =>
+	`${rendersPrefix(renderId)}/out.${extension}`;
 export const outStillName = (renderId: string, imageFormat: ImageFormat) =>
 	`${rendersPrefix(renderId)}/out.${imageFormat}`;
 
@@ -120,7 +117,6 @@ export const postRenderDataKey = (renderId: string) => {
 	return `${rendersPrefix(renderId)}/post-render-metadata.json`;
 };
 
-export const DOWNLOADS_DIR = '/tmp/downloads';
 export const OUTPUT_PATH_PREFIX = '/tmp/remotion-render-';
 export const RENDERER_PATH_TOKEN = 'remotion-bucket';
 export const RENDERER_PATH_PREFIX = '/tmp/' + RENDERER_PATH_TOKEN;

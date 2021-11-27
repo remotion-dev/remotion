@@ -1,62 +1,17 @@
-import {Browser as PuppeteerBrowser, Page} from 'puppeteer-core';
-import {Browser, BrowserExecutable, Internals, TCompMetadata} from 'remotion';
+import {Browser, Page} from 'puppeteer-core';
+import {BrowserExecutable, TCompMetadata} from 'remotion';
 import {BrowserLog} from './browser-log';
+import {getPageAndCleanupFn} from './get-browser-instance';
 import {normalizeServeUrl} from './normalize-serve-url';
-import {openBrowser} from './open-browser';
+import {prepareServer} from './prepare-server';
 import {setPropsAndEnv} from './set-props-and-env';
 
 type GetCompositionsConfig = {
-	browser?: Browser;
 	inputProps?: object | null;
 	envVariables?: Record<string, string>;
-	browserInstance?: PuppeteerBrowser;
+	puppeteerInstance?: Browser;
 	onBrowserLog?: (log: BrowserLog) => void;
 	browserExecutable?: BrowserExecutable;
-};
-
-const getPageAndCleanupFn = async ({
-	passedInInstance,
-	browser,
-	browserExecutable,
-}: {
-	passedInInstance: PuppeteerBrowser | undefined;
-	browser: Browser;
-	browserExecutable: BrowserExecutable | null;
-}): Promise<{
-	cleanup: () => void;
-	page: Page;
-}> => {
-	if (passedInInstance) {
-		const page = await passedInInstance.newPage();
-		return {
-			page,
-			cleanup: () => {
-				// Close puppeteer page and don't wait for it to finish.
-				// Keep browser open.
-				page.close().catch((err) => {
-					console.error('Was not able to close puppeteer page', err);
-				});
-			},
-		};
-	}
-
-	const browserInstance = await openBrowser(
-		browser || Internals.DEFAULT_BROWSER,
-		{
-			browserExecutable,
-		}
-	);
-	const browserPage = await browserInstance.newPage();
-
-	return {
-		page: browserPage,
-		cleanup: () => {
-			// Close whole browser that was just created and don't wait for it to finish.
-			browserInstance.close().catch((err) => {
-				console.error('Was not able to close puppeteer page', err);
-			});
-		},
-	};
 };
 
 const innerGetCompositions = async (
@@ -114,12 +69,12 @@ const innerGetCompositions = async (
 };
 
 export const getCompositions = async (
-	serveUrl: string,
+	serveUrlOrWebpackUrl: string,
 	config?: GetCompositionsConfig
 ) => {
+	const {serveUrl, closeServer} = await prepareServer(serveUrlOrWebpackUrl);
 	const {page, cleanup} = await getPageAndCleanupFn({
-		passedInInstance: config?.browserInstance,
-		browser: config?.browser ?? Internals.DEFAULT_BROWSER,
+		passedInInstance: config?.puppeteerInstance,
 		browserExecutable: config?.browserExecutable ?? null,
 	});
 
@@ -135,6 +90,9 @@ export const getCompositions = async (
 			.catch((err) => {
 				reject(err);
 			})
-			.finally(() => cleanup());
+			.finally(() => {
+				cleanup();
+				closeServer();
+			});
 	});
 };

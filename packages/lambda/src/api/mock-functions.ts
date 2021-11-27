@@ -1,4 +1,4 @@
-import {AwsRegion} from '..';
+import {AwsRegion} from '../pricing/aws-regions';
 import {LambdaVersions} from '../shared/constants';
 import {FunctionInfo} from './get-function-info';
 
