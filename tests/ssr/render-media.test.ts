@@ -31,6 +31,7 @@ test("Render video with browser instance open", async () => {
     frameRange: [0, 2],
     puppeteerInstance,
   });
+  await puppeteerInstance.close();
 });
 
 test("Render video with browser instance not open", async () => {

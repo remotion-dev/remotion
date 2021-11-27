@@ -29,6 +29,7 @@ test("Render video with browser instance open", async () => {
     composition: reactSvg,
     puppeteerInstance,
   });
+  await puppeteerInstance.close();
 });
 
 test("Render still with browser instance not open and legacy webpack config", async () => {
