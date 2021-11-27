@@ -33,3 +33,7 @@ The necessary information is now embedded in `assetsInfo`, in the return value o
 **Upgrade path**: Remove the `imageFormat` option from `stitchFramesToVideo()`.
 
 ## Removed `webpackBundle` from `stitchFramesToVideo` API
+
+## Renamed `browserInstance` to `puppeteerInstance` in `getCompositions()`
+
+## Renamed `config` in `renderFrames()` to `composition`

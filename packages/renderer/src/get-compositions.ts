@@ -9,7 +9,6 @@ import {setPropsAndEnv} from './set-props-and-env';
 type GetCompositionsConfig = {
 	inputProps?: object | null;
 	envVariables?: Record<string, string>;
-	// TODO: Document change
 	puppeteerInstance?: Browser;
 	onBrowserLog?: (log: BrowserLog) => void;
 	browserExecutable?: BrowserExecutable;
