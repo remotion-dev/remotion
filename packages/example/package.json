@@ -23,7 +23,7 @@
 		"@babel/preset-env": "7.12.13",
 		"@babel/preset-react": "7.12.13",
 		"@mdx-js/react": "^1.6.21",
-		"@react-three/drei": "^7.22.7",
+		"@react-three/drei": "^4.3.3",
 		"@remotion/babel-loader": "2.5.5",
 		"@remotion/bundler": "2.5.5",
 		"@remotion/cli": "2.5.5",
