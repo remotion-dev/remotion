@@ -11,11 +11,19 @@ module.exports = {
       href: "#",
     },
     "renderer",
-    "get-compositions",
-    "render-media",
-    "render-frames",
-    "render-still",
-    "stitch-frames-to-video",
+    {
+      collapsed: false,
+      type: "category",
+      label: "Node.JS APIs",
+      items: [
+        "get-compositions",
+        "render-media",
+        "render-frames",
+        "render-still",
+        "open-browser",
+        "stitch-frames-to-video",
+      ],
+    },
   ],
   playerSidebar: [
     {

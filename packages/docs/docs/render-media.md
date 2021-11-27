@@ -112,7 +112,7 @@ Specify a single frame (passing a `number`) or a range of frames (passing a tupl
 
 _puppeteer.Browser - optional_
 
-An already opened browser. You can open a browser beforehand and share it between function calls that accept the `puppeteerInstance` property, making operations faster by not having to launch and quit browsers for each function call.
+An already open Puppeteer [`Browser`](https://pptr.dev/#?product=Puppeteer&version=main&show=api-class-browser) instance. Use [`openBrowser()`](/docs/renderer/open-browser) to create a new instance. Reusing a browser across multiple function calls can speed up the rendering process. You are responsible for opening and closing the browser yourself. If you don't specify this option, a new browser will be opened and closed at the end.
 
 ### `overwrite`
 
