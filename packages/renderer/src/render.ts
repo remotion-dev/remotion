@@ -18,7 +18,6 @@ import {
 } from './assets/download-and-map-assets-to-file';
 import {BrowserLog} from './browser-log';
 import {cycleBrowserTabs} from './cycle-browser-tabs';
-import {ensureOutputDirectory} from './ensure-output-directory';
 import {getActualConcurrency} from './get-concurrency';
 import {getFrameCount} from './get-frame-range';
 import {getFrameToRender} from './get-frame-to-render';
