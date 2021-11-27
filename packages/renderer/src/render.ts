@@ -1,3 +1,4 @@
+import fs from 'fs';
 import path from 'path';
 import {
 	Browser as PuppeteerBrowser,
@@ -17,6 +18,7 @@ import {
 } from './assets/download-and-map-assets-to-file';
 import {BrowserLog} from './browser-log';
 import {cycleBrowserTabs} from './cycle-browser-tabs';
+import {ensureOutputDirectory} from './ensure-output-directory';
 import {getActualConcurrency} from './get-concurrency';
 import {getFrameCount} from './get-frame-range';
 import {getFrameToRender} from './get-frame-to-render';
@@ -106,6 +108,14 @@ export const innerRenderFrames = async ({
 	}
 
 	const actualParallelism = getActualConcurrency(parallelism ?? null);
+
+	if (outputDir) {
+		if (!fs.existsSync(outputDir)) {
+			fs.mkdirSync(outputDir, {
+				recursive: true,
+			});
+		}
+	}
 
 	const pages = new Array(actualParallelism).fill(true).map(async () => {
 		const page = await puppeteerInstance.newPage();

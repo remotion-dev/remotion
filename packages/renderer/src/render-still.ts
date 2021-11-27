@@ -1,4 +1,4 @@
-import fs, {mkdirSync, statSync} from 'fs';
+import fs, {statSync} from 'fs';
 import path from 'path';
 import {Browser as PuppeteerBrowser} from 'puppeteer-core';
 import {
@@ -7,6 +7,7 @@ import {
 	StillImageFormat,
 	TCompMetadata,
 } from 'remotion';
+import {ensureOutputDirectory} from './ensure-output-directory';
 import {
 	getServeUrlWithFallback,
 	ServeUrlOrWebpackBundle,
@@ -103,9 +104,7 @@ const innerRenderStill = async ({
 		}
 	}
 
-	mkdirSync(path.resolve(output, '..'), {
-		recursive: true,
-	});
+	ensureOutputDirectory(output);
 
 	const browserInstance =
 		puppeteerInstance ??
