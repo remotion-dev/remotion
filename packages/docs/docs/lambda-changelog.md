@@ -16,6 +16,9 @@ Keep track of changes to the APIs of Remotion Lambda here.
 
 ## November 27th, 2021
 
+Version hash: `3.0.0-lambda.151+ba8c212b9`
+Lambda version: '2021-11-27'
+
 Remotion 3.0 Rendering pipeline refactor merged into this branch!
 
 - **Parallel encoding**: Now rendering and encoding happens at the same time! You should see a speed improvement. Also, if you embedded videos with audio, these are now downloaded earlier in the rendering process, which will give the rendering times another boost.
