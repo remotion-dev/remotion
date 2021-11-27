@@ -3,6 +3,7 @@ import got from 'got';
 import path from 'path';
 import {random, TAsset} from 'remotion';
 import sanitizeFilename from 'sanitize-filename';
+import {ensureOutputDirectory} from '../ensure-output-directory';
 
 export type RenderMediaOnDownload = (
 	src: string
@@ -48,9 +49,7 @@ const downloadAsset = async (
 	isDownloadingMap[src] = true;
 
 	const onProgress = onDownload(src);
-	mkdirSync(path.resolve(to, '..'), {
-		recursive: true,
-	});
+	ensureOutputDirectory(to);
 
 	// Listen to 'close' event instead of more
 	// concise method to avoid this problem
