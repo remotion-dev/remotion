@@ -18,6 +18,7 @@ import {tmpDir} from './tmp-dir';
 import {deleteDirectory} from './delete-directory';
 import {prepareServer} from './prepare-server';
 import {isServeUrl} from './is-serve-url';
+import {ensureOutputDirectory} from './ensure-output-directory';
 
 declare global {
 	interface Window {
@@ -64,4 +65,5 @@ export const RenderInternals = {
 	deleteDirectory,
 	prepareServer,
 	isServeUrl,
+	ensureOutputDirectory,
 };

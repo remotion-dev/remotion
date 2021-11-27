@@ -22,6 +22,7 @@ import {
 	getServeUrlWithFallback,
 	ServeUrlOrWebpackBundle,
 } from './legacy-webpack-config';
+import {ensureOutputDirectory} from './ensure-output-directory';
 
 export type StitchingState = 'encoding' | 'muxing';
 
@@ -204,13 +205,7 @@ export const renderMedia = async ({
 		renderedDoneIn = Date.now() - renderStart;
 		callUpdate();
 
-		const dirName = path.dirname(outputLocation);
-
-		if (!fs.existsSync(dirName)) {
-			fs.mkdirSync(dirName, {
-				recursive: true,
-			});
-		}
+		ensureOutputDirectory(outputLocation);
 
 		const stitchStart = Date.now();
 		await stitchFramesToVideo({

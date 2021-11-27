@@ -1,3 +1,4 @@
+import {RenderInternals} from '@remotion/renderer';
 import fs, {createWriteStream} from 'fs';
 import path from 'path';
 import {getExpectedOutName} from '../functions/helpers/expected-out-name';
@@ -39,6 +40,8 @@ export const downloadVideo = async (
 	});
 
 	const outputPath = path.resolve(process.cwd(), input.outPath);
+
+	RenderInternals.ensureOutputDirectory(outputPath);
 
 	await new Promise<void>((resolve, reject) => {
 		readable
