@@ -14,6 +14,13 @@ Keep track of changes to the APIs of Remotion Lambda here.
 1. Redeploy your function: `npx remotion lambda functions deploy`
 1. Migrate according to the changelog below:
 
+## November 28th, 2021
+
+Version hash: `3.0.0-lambda.158+f214b5355`
+Lambda version: '2021-11-29'
+
+- Fixes a bug with `renderVideoOnLambda()`
+
 ## November 27th, 2021
 
 Version hash: `3.0.0-lambda.151+ba8c212b9`
