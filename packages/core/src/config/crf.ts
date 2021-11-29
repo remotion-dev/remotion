@@ -77,6 +77,10 @@ export const validateSelectedCrfAndCodecCombination = (
 	crf: unknown,
 	codec: Codec
 ) => {
+	if (crf === null) {
+		return;
+	}
+
 	if (typeof crf !== 'number') {
 		throw new TypeError(
 			'Expected CRF to be a number, but is ' + JSON.stringify(crf)
