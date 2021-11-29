@@ -1,6 +1,5 @@
 import {InvokeCommand} from '@aws-sdk/client-lambda';
-import {RenderInternals, renderMedia} from '@remotion/renderer';
-import {BrowserLog} from '@remotion/renderer';
+import {BrowserLog, RenderInternals, renderMedia} from '@remotion/renderer';
 import fs from 'fs';
 import path from 'path';
 import {getLambdaClient} from '../shared/aws-clients';
@@ -125,7 +124,7 @@ const renderHandler = async (
 		},
 		outputLocation,
 		codec: params.codec,
-		crf: params.crf ?? null,
+		crf: params.crf ?? undefined,
 		ffmpegExecutable: null,
 		pixelFormat: params.pixelFormat,
 		proResProfile: params.proResProfile,

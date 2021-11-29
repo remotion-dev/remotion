@@ -83,7 +83,7 @@ export const renderMedia = async ({
 	...options
 }: RenderMediaOptions) => {
 	Internals.validateQuality(quality);
-	if (typeof crf !== 'undefined') {
+	if (typeof crf !== 'undefined' && crf !== null) {
 		Internals.validateSelectedCrfAndCodecCombination(crf, codec);
 	}
 
