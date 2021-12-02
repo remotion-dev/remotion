@@ -97,7 +97,6 @@ Currently the permissions are too loose. They will be made stricter to only requ
       <code>lambda:DeleteFunction</code> <br/>
       <code>lambda:PublishLayerVersion</code> <br/>
       <code>lambda:DeleteLayerVersion</code> <br/>
-      <code>lambda:GetLayerVersion</code>
     </td>
     <td>
       <code>{'arn:aws:lambda:*::remotion-*'}</code>

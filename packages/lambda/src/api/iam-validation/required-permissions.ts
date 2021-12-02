@@ -52,11 +52,6 @@ export const requiredPermissions: {
 		resource: [`arn:aws:lambda:*:*:function:${RENDER_FN_PREFIX}*`],
 	},
 	{
-		actions: [lambda.GetLayerVersion],
-		// TODO: Tighten up
-		resource: [`*`],
-	},
-	{
 		actions: [lambda.ListFunctions],
 		resource: ['*'],
 	},
