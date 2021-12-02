@@ -16,6 +16,13 @@ const { outputPath, sizeInBytes } = await downloadVideo({
   region: "us-east-1",
   renderId: "8hfxlw",
   outPath: "out.mp4",
+  onProgress: ({ totalSize, downloaded, progress }) => {
+    console.log(
+      `Download progress: ${totalSize}/${downloaded} bytes (${(
+        progress * 100
+      ).toFixed(0)}%)`
+    );
+  },
 });
 
 console.log(outputPath); // "/Users/yourname/remotion-project/out.mp4"
@@ -53,6 +60,8 @@ The absolute path of where the file got saved.
 ### `sizeInBytes`
 
 The size of the file in bytes.
+
+### `onProgress`
 
 ## See also
 
