@@ -38,49 +38,48 @@ You can install `@remotion/lambda` in any project, not just a Remotion one, but 
 ## 2. Create role policy
 
 - Go to [AWS account IAM Policies section](https://console.aws.amazon.com/iamv2/home?#/policies)
-- Create a new policy
+- Click on "Create policy"
 - Click on JSON
-- Type in `npx remotion lambda policies role` and copy it into the JSON field
-- Go to tags, no tags are needed
-- Give the policy the name `remotion-lambda-policy`!
+- In your project, type `npx remotion lambda policies role` in the command line and copy it into the "JSON" field on AWS.
+- Click next. On the tags page, you don't need to fill in anything. Click next again.
+- Give the policy **exactly** the name `remotion-lambda-policy`. The other fields can be left as they are.
 
 ## 3. Create a role
 
 - Go to [AWS account IAM Roles section](https://console.aws.amazon.com/iamv2/home#/roles)
-- Create a new role
-- Use case: Select `Lambda`
-- Click next
-- Attach permissions role: `remotion-lambda-policy`
-- Permissions boundary: Skip it
+- Under "Common use cases", select "Lambda". Click next.
+- Under "Attach permissions policies", filter for `remotion-lambda-policy` and click the checkbox to assign this policy.
+- Click next. No need to add tags. Click next again.
 - Tags: Skip it
-- Role name: Name it `remotion-lambda-role` exactly!
+- In the final screen, name the role `remotion-lambda-role` **exactly**. You can leave the other fields as is.
+- Click "Create role" to confirm.
 
 ## 4. Create a user
 
 - Go to [AWS account IAM Users section](https://console.aws.amazon.com/iamv2/home#/users)
 - Click `Add users`
-- Select any username
-- Programmatic access = YES
-- Management console access = NO
-- Click next
-- Tags: Skip
-- Click "Create user"
-- Copy Access key ID and Secret Access Key
-- Add a `.env` file to your project, and add the following, using the credentials you just copied
+- Enter any username, such as `remotion-user`.
+- **Check** the "Access key - Programmatic access" option.
+- **Don't check** the Management console access option. You don't need it.
+- Click "Next: Permissions", then "Next: Tags", then "Next: Review" without changing any settings.
+- Click "Create user", and ignore the warning that might appear.
+- Reveal the Secret access key.
+- Add a `.env` file to your project, and insert the following contents, using the credentials you just copied:
 
 ```txt title=".env"
-AWS_ACCESS_KEY_ID=xxxxxx
-AWS_SECRET_ACCESS_KEY=xxx
+AWS_ACCESS_KEY_ID=<Access key ID>
+AWS_SECRET_ACCESS_KEY=<Secret access key>
 ```
 
 ## 5. Add permissions to your user
 
-- Click on your user
-- Click "Add inline policy"
-- Click JSON
-- Enter in your terminal: `npx remotion lambda policies user` and copy it in
-- Give the policy a name, can be anything
-- Click "Create policy"
+- Go to [AWS account IAM Users section](https://console.aws.amazon.com/iamv2/home#/users)
+- Select the user you just created.
+- Click "Add inline policy" on the right of the screen.
+- Click the tab "JSON".
+- Enter in your terminal: `npx remotion lambda policies user` and copy into the AWS text field what gets printed.
+- Give the policy a name. For example `remotion-user-policy`, but it can be anything..
+- Click "Create policy" to confirm.
 
 ## 6. Optional: Validate the permission setup
 
