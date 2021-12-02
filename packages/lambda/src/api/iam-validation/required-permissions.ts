@@ -16,9 +16,8 @@ export const requiredPermissions: {
 		resource: ['*'],
 	},
 	{
-		// TODO: arn:aws:iam::678892195805:role/lambda-admin, can it be locked down more?
 		actions: [iam.PassRole],
-		resource: ['*'],
+		resource: ['arn:aws:iam:::role/remotion-lambda-role'],
 	},
 	{
 		actions: [
