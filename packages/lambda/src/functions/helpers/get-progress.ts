@@ -124,7 +124,6 @@ export const getProgress = async ({
 
 	const accruedSoFar = Number(
 		estimatePriceFromBucket({
-			renderId,
 			contents,
 			renderMetadata,
 			bucketName,
