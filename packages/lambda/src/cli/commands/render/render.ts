@@ -80,7 +80,6 @@ export const renderCommand = async (args: string[]) => {
 		framesPerLambda: cliOptions.framesPerLambda ?? DEFAULT_FRAMES_PER_LAMBDA,
 		privacy,
 		enableChunkOptimization: !parsedLambdaCli['disable-chunk-optimization'],
-		saveBrowserLogs: parsedLambdaCli['save-browser-logs'],
 	});
 
 	const totalSteps = outName ? 5 : 4;

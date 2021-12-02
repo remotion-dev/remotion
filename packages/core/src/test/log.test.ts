@@ -1,3 +1,4 @@
+import {Internals} from '..';
 import {
 	getLogLevel,
 	isEqualOrBelowLogLevel,
@@ -47,7 +48,9 @@ describe('loglevel comparison', () => {
 		['error', 'error'],
 	])('%s is equal or below %s', (level1, level2) => {
 		setLogLevel(level1);
-		expect(isEqualOrBelowLogLevel(level2)).toEqual(true);
+		expect(
+			isEqualOrBelowLogLevel(Internals.Logging.getLogLevel(), level2)
+		).toEqual(true);
 	});
 
 	test.each<[LogLevel, LogLevel]>([
@@ -59,6 +62,8 @@ describe('loglevel comparison', () => {
 		['error', 'warn'],
 	])('%s is not equal or below %s', (level1, level2) => {
 		setLogLevel(level1);
-		expect(isEqualOrBelowLogLevel(level2)).toEqual(false);
+		expect(
+			isEqualOrBelowLogLevel(Internals.Logging.getLogLevel(), level2)
+		).toEqual(false);
 	});
 });

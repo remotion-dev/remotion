@@ -1,6 +1,7 @@
 import {
 	Codec,
 	ImageFormat,
+	LogLevel,
 	PixelFormat,
 	ProResProfile,
 	VideoConfig,
@@ -160,7 +161,7 @@ export type LambdaPayloads = {
 		maxRetries: number;
 		privacy: Privacy;
 		enableChunkOptimization: boolean | undefined;
-		saveBrowserLogs?: boolean;
+		logLevel?: LogLevel;
 	};
 	launch: {
 		type: LambdaRoutines.launch;
@@ -180,7 +181,7 @@ export type LambdaPayloads = {
 		maxRetries: number;
 		privacy: Privacy;
 		enableChunkOptimization: boolean;
-		saveBrowserLogs: boolean;
+		logLevel: LogLevel;
 	};
 	fire: {
 		type: LambdaRoutines.fire;
@@ -214,8 +215,8 @@ export type LambdaPayloads = {
 		quality: number | undefined;
 		envVariables: Record<string, string> | undefined;
 		privacy: Privacy;
-		saveBrowserLogs: boolean;
 		attempt: number;
+		logLevel: LogLevel;
 	};
 	still: {
 		type: LambdaRoutines.still;
@@ -229,7 +230,7 @@ export type LambdaPayloads = {
 		maxRetries: number;
 		frame: number;
 		privacy: Privacy;
-		saveBrowserLogs?: boolean;
+		logLevel?: LogLevel;
 	};
 };
 

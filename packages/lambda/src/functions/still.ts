@@ -2,7 +2,7 @@ import {InvokeCommand} from '@aws-sdk/client-lambda';
 import {renderStill} from '@remotion/renderer';
 import fs from 'fs';
 import path from 'path';
-import {StillImageFormat} from 'remotion';
+import {Internals, StillImageFormat} from 'remotion';
 import {getOrCreateBucket} from '../api/get-or-create-bucket';
 import {estimatePrice} from '../pricing/calculate-price';
 import {getLambdaClient} from '../shared/aws-clients';
@@ -50,7 +50,12 @@ const innerStillHandler = async (
 		getOrCreateBucket({
 			region: getCurrentRegionInFunction(),
 		}),
-		getBrowserInstance(lambdaParams.saveBrowserLogs ?? false),
+		getBrowserInstance(
+			Internals.Logging.isEqualOrBelowLogLevel(
+				lambdaParams.logLevel ?? Internals.Logging.DEFAULT_LOG_LEVEL,
+				'verbose'
+			)
+		),
 	]);
 	const outputDir = OUTPUT_PATH_PREFIX + randomHash();
 
@@ -168,7 +173,6 @@ export const stillHandler = async (
 				maxRetries: params.maxRetries - 1,
 				attempt: params.attempt + 1,
 			};
-			// TODO: Test retries by failing sometimes
 			const res = await getLambdaClient(getCurrentRegionInFunction()).send(
 				new InvokeCommand({
 					FunctionName: process.env.AWS_LAMBDA_FUNCTION_NAME,

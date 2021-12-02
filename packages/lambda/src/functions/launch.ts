@@ -62,7 +62,12 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 	validateFramesPerLambda(params.framesPerLambda);
 
 	const [browserInstance, optimization] = await Promise.all([
-		getBrowserInstance(params.saveBrowserLogs),
+		getBrowserInstance(
+			Internals.Logging.isEqualOrBelowLogLevel(
+				Internals.Logging.getLogLevel(),
+				'verbose'
+			)
+		),
 		getOptimization({
 			bucketName: params.bucketName,
 			siteId: getServeUrlHash(params.serveUrl),
@@ -124,7 +129,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 			proResProfile: params.proResProfile,
 			quality: params.quality,
 			privacy: params.privacy,
-			saveBrowserLogs: params.saveBrowserLogs,
+			logLevel: params.logLevel ?? Internals.Logging.DEFAULT_LOG_LEVEL,
 			attempt: 1,
 		};
 		return payload;

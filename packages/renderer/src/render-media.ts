@@ -132,7 +132,10 @@ export const renderMedia = async ({
 					encodedFrames = frame;
 					callUpdate();
 				},
-				verbose: Internals.Logging.isEqualOrBelowLogLevel('verbose'),
+				verbose: Internals.Logging.isEqualOrBelowLogLevel(
+					Internals.Logging.getLogLevel(),
+					'verbose'
+				),
 				parallelEncoding,
 				ffmpegExecutable,
 				assetsInfo: null,
@@ -227,7 +230,10 @@ export const renderMedia = async ({
 				callUpdate();
 			},
 			onDownload,
-			verbose: Internals.Logging.isEqualOrBelowLogLevel('verbose'),
+			verbose: Internals.Logging.isEqualOrBelowLogLevel(
+				Internals.Logging.getLogLevel(),
+				'verbose'
+			),
 			parallelEncoding: false,
 		});
 		encodedFrames = composition.durationInFrames;

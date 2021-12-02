@@ -63,7 +63,6 @@ export const stillCommand = async (args: string[]) => {
 		envVariables: cliOptions.envVariables,
 		frame: cliOptions.stillFrame,
 		quality: cliOptions.quality,
-		saveBrowserLogs: parsedLambdaCli['save-browser-logs'],
 	});
 
 	Log.info(`Finished video!`);

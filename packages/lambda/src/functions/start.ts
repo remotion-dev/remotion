@@ -1,4 +1,5 @@
 import {InvokeCommand} from '@aws-sdk/client-lambda';
+import {Internals} from 'remotion';
 import {getOrCreateBucket} from '../api/get-or-create-bucket';
 import {getLambdaClient} from '../shared/aws-clients';
 import {LambdaPayload, LambdaRoutines} from '../shared/constants';
@@ -16,15 +17,6 @@ export const startHandler = async (params: LambdaPayload) => {
 	) {
 		throw new Error(
 			'The parameter "enableChunkOptimization" must be a boolean or undefined.'
-		);
-	}
-
-	if (
-		typeof params.saveBrowserLogs !== 'boolean' &&
-		typeof params.saveBrowserLogs !== 'undefined'
-	) {
-		throw new Error(
-			'The parameter "saveBrowserLogs" must be a boolean or undefined.'
 		);
 	}
 
@@ -51,7 +43,7 @@ export const startHandler = async (params: LambdaPayload) => {
 		maxRetries: params.maxRetries,
 		privacy: params.privacy,
 		enableChunkOptimization: params.enableChunkOptimization !== false,
-		saveBrowserLogs: Boolean(params.saveBrowserLogs),
+		logLevel: params.logLevel ?? Internals.Logging.DEFAULT_LOG_LEVEL,
 	};
 	await getLambdaClient(getCurrentRegionInFunction()).send(
 		new InvokeCommand({

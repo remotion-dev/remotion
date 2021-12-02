@@ -65,7 +65,12 @@ export const upgrade = async () => {
 	].filter((u) => dependencies.includes(u));
 
 	const prom = execa(tool, ['upgrade', ...toUpgrade]);
-	if (Internals.Logging.isEqualOrBelowLogLevel('info')) {
+	if (
+		Internals.Logging.isEqualOrBelowLogLevel(
+			Internals.Logging.getLogLevel(),
+			'info'
+		)
+	) {
 		prom.stdout?.pipe(process.stdout);
 	}
 

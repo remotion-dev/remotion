@@ -8,7 +8,12 @@ import {RenderStep} from './step';
 export const createProgressBar = (): {
 	update: (str: string) => boolean;
 } => {
-	if (!Internals.Logging.isEqualOrBelowLogLevel('info')) {
+	if (
+		!Internals.Logging.isEqualOrBelowLogLevel(
+			Internals.Logging.getLogLevel(),
+			'info'
+		)
+	) {
 		return {update: () => false};
 	}
 
