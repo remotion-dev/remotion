@@ -1,5 +1,7 @@
 import {AwsRegion} from '../pricing/aws-regions';
 
+export const REMOTION_HOSTED_LAYER_ARN = `arn:aws:lambda:*:678892195805:layer:remotion-binaries-*`;
+
 export const hostedLayers: {
 	[key in AwsRegion]: {
 		layerArn: string;

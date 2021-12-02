@@ -1,5 +1,9 @@
 import {iam, lambda, logs, s3} from 'aws-policies';
-import {REMOTION_BUCKET_PREFIX, RENDER_FN_PREFIX} from '../../shared/constants';
+import {
+	LOG_GROUP_PREFIX,
+	REMOTION_BUCKET_PREFIX,
+	RENDER_FN_PREFIX,
+} from '../../shared/constants';
 
 export const rolePermissions: {
 	actions: (s3 | iam | lambda | logs)[];
@@ -11,7 +15,7 @@ export const rolePermissions: {
 	},
 	{
 		actions: [s3.CreateBucket, s3.ListBucket, s3.PutBucketAcl],
-		resource: [`arn:aws:s3:::*`],
+		resource: [`arn:aws:s3:::${REMOTION_BUCKET_PREFIX}*`],
 	},
 	{
 		actions: [
@@ -29,6 +33,8 @@ export const rolePermissions: {
 	},
 	{
 		actions: [logs.CreateLogStream, logs.PutLogEvents],
-		resource: ['*'],
+		resource: [
+			`arn:aws:logs:*:*:log-group:${LOG_GROUP_PREFIX}${RENDER_FN_PREFIX}*`,
+		],
 	},
 ];
