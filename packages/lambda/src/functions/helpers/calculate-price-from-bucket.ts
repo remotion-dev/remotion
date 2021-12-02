@@ -9,13 +9,11 @@ import {getTimeToFinish} from './get-time-to-finish';
 
 // TODO: Should differentiate between finished and in progress
 export const estimatePriceFromBucket = ({
-	renderId,
 	contents,
 	renderMetadata,
 	bucketName,
 	memorySizeInMb,
 }: {
-	renderId: string;
 	contents: _Object[];
 	renderMetadata: RenderMetadata | null;
 	bucketName: string;
@@ -26,7 +24,7 @@ export const estimatePriceFromBucket = ({
 	}
 
 	const finishedTimings = contents.filter((c) =>
-		c.Key?.startsWith(lambdaTimingsPrefix(renderId))
+		c.Key?.startsWith(lambdaTimingsPrefix(renderMetadata.renderId))
 	);
 
 	const parsedTimings = finishedTimings.map((f) =>
@@ -64,7 +62,7 @@ export const estimatePriceFromBucket = ({
 			durationInMiliseconds:
 				calculateChunkTimes({
 					contents,
-					renderId,
+					renderId: renderMetadata.renderId,
 					type: 'combined-time-for-cost-calculation',
 				}) + timeElapsedOfUnfinished,
 			memorySizeInMb,
