@@ -208,6 +208,7 @@ export const Internals = {
 	invalidCompositionErrorMessage,
 	isCompositionIdValid,
 	DEFAULT_OVERWRITE,
+	isInLambda: () => Boolean(process?.env?.LAMBDA_TASK_ROOT),
 };
 
 export type {

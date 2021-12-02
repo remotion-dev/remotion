@@ -1,11 +1,11 @@
+import {Internals} from 'remotion';
 import {AwsRegion} from '../pricing/aws-regions';
 import {DEFAULT_REGION} from '../shared/constants';
-import {isInLambda} from '../shared/is-in-lambda';
 import {validateAwsRegion} from '../shared/validate-aws-region';
 import {parsedLambdaCli} from './args';
 
 export const getAwsRegion = (): AwsRegion => {
-	if (isInLambda) {
+	if (Internals.isInLambda()) {
 		throw new Error('Should not call getAwsRegion() if in lambda');
 	}
 

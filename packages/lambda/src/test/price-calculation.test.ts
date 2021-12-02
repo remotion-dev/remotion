@@ -2,6 +2,7 @@ import {estimatePriceFromBucket} from '../functions/helpers/calculate-price-from
 
 test('Should not throw while calculating prices when time shifts occur', () => {
 	const aDate = Date.now();
+	process.env.LAMBDA_TASK_ROOT = 'true';
 	process.env.AWS_REGION = 'us-east-1';
 
 	const price = estimatePriceFromBucket({

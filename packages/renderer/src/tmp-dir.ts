@@ -1,6 +1,7 @@
 import {mkdirSync} from 'fs';
 import os from 'os';
 import path from 'path';
+import {Internals} from 'remotion';
 
 const alphabet = 'abcdefghijklmnopqrstuvwxyz0123456789';
 
@@ -13,10 +14,8 @@ const randomHash = (): string => {
 		.join('');
 };
 
-const isInLambda = Boolean(process.env.LAMBDA_TASK_ROOT);
-
 export const tmpDir = (str: string) => {
-	if (isInLambda) {
+	if (Internals.isInLambda()) {
 		const dir = '/tmp/' + str + randomHash();
 		mkdirSync(dir);
 		return dir;
