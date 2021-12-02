@@ -70,7 +70,6 @@ Everything you can do using the CLI, you can also control using Node.JS APIs. Re
 ## Known issues
 
 - [ ] AWS permissions are looser than necessary
-- [ ] Permission validation command sometimes breaks
 - [ ] Costs are not calculated accurately (probably slightly higher than effective)
 - [ ] Rendering using more than 1000 chunks is undefined behavior, things will break
 
