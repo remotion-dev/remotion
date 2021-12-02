@@ -6,7 +6,6 @@ import {
 } from '../../shared/constants';
 import {REMOTION_HOSTED_LAYER_ARN} from '../../shared/hosted-layers';
 
-// TODO: Update docs before release
 export const requiredPermissions: {
 	actions: (s3 | iam | lambda | logs)[];
 	resource: string[];
@@ -33,12 +32,15 @@ export const requiredPermissions: {
 		actions: [
 			s3.GetObject,
 			s3.DeleteObject,
+			s3.PutObjectAcl,
+			s3.PutObject,
+			s3.CreateBucket,
+			s3.ListBucket,
+			s3.GetBucketLocation,
+			s3.PutBucketAcl,
 			s3.DeleteBucket,
 			s3.PutBucketWebsite,
 			s3.DeleteBucketWebsite,
-			s3.PutObjectAcl,
-			s3.PutObject,
-			s3.GetBucketLocation,
 		],
 		resource: [`arn:aws:s3:::${REMOTION_BUCKET_PREFIX}*`],
 	},
@@ -46,11 +48,6 @@ export const requiredPermissions: {
 		id: 'BucketListing',
 		actions: [s3.ListAllMyBuckets],
 		resource: ['*'],
-	},
-	{
-		id: 'BucketManagement',
-		actions: [s3.CreateBucket, s3.ListBucket, s3.PutBucketAcl],
-		resource: [`arn:aws:s3:::${REMOTION_BUCKET_PREFIX}*`],
 	},
 	{
 		id: 'FunctionListing',
@@ -69,15 +66,8 @@ export const requiredPermissions: {
 		resource: [`arn:aws:lambda:*:*:function:${RENDER_FN_PREFIX}*`],
 	},
 	{
-		id: 'LogCreation',
-		actions: [logs.CreateLogGroup],
-		resource: [
-			`arn:aws:logs:*:*:log-group:${LOG_GROUP_PREFIX}${RENDER_FN_PREFIX}*`,
-		],
-	},
-	{
-		id: 'LogManagement',
-		actions: [logs.PutRetentionPolicy],
+		id: 'logs.PutRetentionPolicy',
+		actions: [logs.CreateLogGroup, logs.PutRetentionPolicy],
 		resource: [
 			`arn:aws:logs:*:*:log-group:${LOG_GROUP_PREFIX}${RENDER_FN_PREFIX}*`,
 		],

@@ -14,11 +14,10 @@ export const rolePermissions: {
 		resource: ['*'],
 	},
 	{
-		actions: [s3.CreateBucket, s3.ListBucket, s3.PutBucketAcl],
-		resource: [`arn:aws:s3:::${REMOTION_BUCKET_PREFIX}*`],
-	},
-	{
 		actions: [
+			s3.CreateBucket,
+			s3.ListBucket,
+			s3.PutBucketAcl,
 			s3.GetObject,
 			s3.DeleteObject,
 			s3.PutObjectAcl,
