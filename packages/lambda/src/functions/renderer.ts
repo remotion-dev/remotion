@@ -2,6 +2,7 @@ import {InvokeCommand} from '@aws-sdk/client-lambda';
 import {BrowserLog, RenderInternals, renderMedia} from '@remotion/renderer';
 import fs from 'fs';
 import path from 'path';
+import {Internals} from 'remotion';
 import {getLambdaClient} from '../shared/aws-clients';
 import {
 	chunkKeyForIndex,
@@ -24,7 +25,6 @@ import {getCurrentRegionInFunction} from './helpers/get-current-region';
 import {getFolderFiles} from './helpers/get-files-in-folder';
 import {getFolderSizeRecursively} from './helpers/get-folder-size';
 import {lambdaWriteFile} from './helpers/io';
-import {uploadBrowserLogs} from './helpers/upload-browser-logs';
 import {
 	getTmpDirStateIfENoSp,
 	writeLambdaError,
@@ -44,7 +44,9 @@ const renderHandler = async (
 		throw new Error('Params must be renderer');
 	}
 
-	const browserInstance = await getBrowserInstance(params.saveBrowserLogs);
+	const browserInstance = await getBrowserInstance(
+		Internals.Logging.isEqualOrBelowLogLevel(params.logLevel, 'verbose')
+	);
 	const outputPath = OUTPUT_PATH_PREFIX + randomHash();
 	if (fs.existsSync(outputPath)) {
 		(fs.rmSync ?? fs.rmdirSync)(outputPath);
@@ -118,7 +120,10 @@ const renderHandler = async (
 		serveUrl: params.serveUrl,
 		quality: params.quality,
 		envVariables: params.envVariables,
-		dumpBrowserLogs: params.saveBrowserLogs,
+		dumpBrowserLogs: Internals.Logging.isEqualOrBelowLogLevel(
+			Internals.Logging.DEFAULT_LOG_LEVEL,
+			'verbose'
+		),
 		onBrowserLog: (log) => {
 			logs.push(log);
 		},
@@ -234,18 +239,6 @@ export const rendererHandler = async (
 					InvocationType: 'Event',
 				})
 			);
-		}
-	} finally {
-		if (params.saveBrowserLogs) {
-			await uploadBrowserLogs({
-				chunk: params.chunk,
-				bucketName: params.bucketName,
-				endFrame: params.frameRange[1],
-				startFrame: params.frameRange[0],
-				expectedBucketOwner: options.expectedBucketOwner,
-				logs,
-				renderId: params.renderId,
-			});
 		}
 	}
 };

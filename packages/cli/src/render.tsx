@@ -65,7 +65,10 @@ export const render = async () => {
 
 	const browserInstance = openBrowser(browser, {
 		browserExecutable,
-		shouldDumpIo: Internals.Logging.isEqualOrBelowLogLevel('verbose'),
+		shouldDumpIo: Internals.Logging.isEqualOrBelowLogLevel(
+			Internals.Logging.getLogLevel(),
+			'verbose'
+		),
 	});
 
 	const steps: RenderStep[] = [
@@ -170,7 +173,10 @@ export const render = async () => {
 			},
 			outputDir,
 			serveUrl,
-			dumpBrowserLogs: Internals.Logging.isEqualOrBelowLogLevel('verbose'),
+			dumpBrowserLogs: Internals.Logging.isEqualOrBelowLogLevel(
+				Internals.Logging.getLogLevel(),
+				'verbose'
+			),
 			envVariables,
 			frameRange,
 			parallelism,
@@ -226,7 +232,10 @@ export const render = async () => {
 				updateRenderProgress();
 			};
 		},
-		dumpBrowserLogs: Internals.Logging.isEqualOrBelowLogLevel('verbose'),
+		dumpBrowserLogs: Internals.Logging.isEqualOrBelowLogLevel(
+			Internals.Logging.getLogLevel(),
+			'verbose'
+		),
 		onStart: ({frameCount}) => {
 			totalFrames = frameCount;
 		},

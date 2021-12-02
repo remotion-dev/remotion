@@ -82,7 +82,10 @@ export const still = async () => {
 
 	const browserInstance = openBrowser(browser, {
 		browserExecutable,
-		shouldDumpIo: Internals.Logging.isEqualOrBelowLogLevel('verbose'),
+		shouldDumpIo: Internals.Logging.isEqualOrBelowLogLevel(
+			Internals.Logging.getLogLevel(),
+			'verbose'
+		),
 	});
 
 	mkdirSync(path.join(userOutput, '..'), {
@@ -124,7 +127,10 @@ export const still = async () => {
 			output: userOutput,
 			serveUrl,
 			quality,
-			dumpBrowserLogs: Internals.Logging.isEqualOrBelowLogLevel('verbose'),
+			dumpBrowserLogs: Internals.Logging.isEqualOrBelowLogLevel(
+				Internals.Logging.getLogLevel(),
+				'verbose'
+			),
 			envVariables,
 			imageFormat,
 			inputProps,

@@ -1,3 +1,4 @@
+import {Internals} from 'remotion';
 import {
 	COMMAND_NOT_FOUND,
 	LambdaPayload,
@@ -67,7 +68,9 @@ export const handler = async <T extends LambdaRoutines>(
 		printCloudwatchHelper(LambdaRoutines.renderer, {
 			renderId: params.renderId,
 			chunk: String(params.chunk),
-			dumpLogs: String(params.saveBrowserLogs),
+			dumpLogs: String(
+				Internals.Logging.isEqualOrBelowLogLevel(params.logLevel, 'verbose')
+			),
 		});
 		return rendererHandler(params, {
 			expectedBucketOwner: currentUserId,

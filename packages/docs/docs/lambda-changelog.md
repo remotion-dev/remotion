@@ -14,6 +14,10 @@ Keep track of changes to the APIs of Remotion Lambda here.
 1. Redeploy your function: `npx remotion lambda functions deploy`
 1. Migrate according to the changelog below:
 
+## Unreleased
+
+- Deleted `save-browser-logs` function in favour of the new CloudWatch solution. Pass `--log=verbose` instead and see CloudWatch for more detailed logs.
+
 ## November 28th, 2021
 
 Version hash: `3.0.0-lambda.158+f214b5355`
