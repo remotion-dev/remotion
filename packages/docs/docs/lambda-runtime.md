@@ -56,6 +56,17 @@ The function includes the following fonts:
 - Noto Sans Tamil Regular
 - Noto Sans Thai Regular
 
+Since December 2021 the following fonts are also available
+
+- Noto Sans Simplified Chinese Regular
+- Noto Sans Simplified Chinese Bold
+- Noto Sans Traditional Chinese Regular
+- Noto Sans Traditional Chinese Bold
+- Noto Sans Korean Regular
+- Noto Sans Korean Bold
+- Noto Sans Japanese Regular
+- Noto Sans Japanese Bold
+
 If you'd like to use different fonts, we recommend using Webfonts.
 
 While the set of default fonts that we can include must be kept small in order to save space, we are happy to hear feedback if you encounter a scenario where characters cannot be rendered.
