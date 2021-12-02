@@ -1,4 +1,4 @@
-import {StillImageFormat} from 'remotion';
+import {LogLevel, StillImageFormat} from 'remotion';
 import {AwsRegion} from '../pricing/aws-regions';
 import {callLambda} from '../shared/call-lambda';
 import {DEFAULT_MAX_RETRIES, LambdaRoutines} from '../shared/constants';
@@ -31,6 +31,7 @@ export const renderStillOnLambda = async ({
 	composition,
 	privacy,
 	frame,
+	logLevel,
 }: {
 	region: AwsRegion;
 	functionName: string;
@@ -43,6 +44,7 @@ export const renderStillOnLambda = async ({
 	envVariables?: Record<string, string>;
 	quality?: number;
 	frame?: number;
+	logLevel?: LogLevel;
 }) => {
 	const res = await callLambda({
 		functionName,
@@ -58,6 +60,7 @@ export const renderStillOnLambda = async ({
 			frame: frame ?? 0,
 			privacy,
 			attempt: 1,
+			logLevel,
 		},
 		region,
 	});

@@ -239,5 +239,6 @@ export const getCliOptions = async (options: {
 		browserExecutable,
 		framesPerLambda: Internals.getFramesPerLambda(),
 		ffmpegExecutable,
+		logLevel: Internals.Logging.getLogLevel(),
 	};
 };
