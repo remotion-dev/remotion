@@ -12,6 +12,7 @@ import {findOutputFileInBucket} from './find-output-file-in-bucket';
 import {getFilesToDelete} from './get-files-to-delete';
 import {getLambdasInvokedStats} from './get-lambdas-invoked-stats';
 import {getRetryStats} from './get-retry-stats';
+import {getTimeToFinish} from './get-time-to-finish';
 import {EnhancedErrorInfo} from './write-lambda-error';
 
 const OVERHEAD_TIME_PER_LAMBDA = 100;
@@ -67,8 +68,15 @@ export const createPostRenderData = ({
 	}
 
 	const endTime = Date.now();
-	const startTime = renderMetadata.startedDate;
-	const timeToFinish = endTime - startTime;
+
+	const timeToFinish = getTimeToFinish({
+		renderMetadata,
+		lastModified: endTime,
+	});
+
+	if (!timeToFinish) {
+		throw new TypeError(`Cannot calculate timeToFinish value`);
+	}
 
 	const renderSize = contents
 		.map((c) => c.Size ?? 0)
