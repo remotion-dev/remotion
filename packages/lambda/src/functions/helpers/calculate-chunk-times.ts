@@ -12,13 +12,9 @@ export const calculateChunkTimes = ({
 	renderId: string;
 	type: 'combined-time-for-cost-calculation' | 'absolute-time';
 }) => {
-	const finishedTimings = contents.filter((c) =>
-		c.Key?.startsWith(lambdaTimingsPrefix(renderId))
-	);
-
-	const parsedTimings = finishedTimings.map((f) =>
-		parseLambdaTimingsKey(f.Key as string)
-	);
+	const parsedTimings = contents
+		.filter((c) => c.Key?.startsWith(lambdaTimingsPrefix(renderId)))
+		.map((f) => parseLambdaTimingsKey(f.Key as string));
 
 	if (type === 'combined-time-for-cost-calculation') {
 		// TODO: Should also calculate invoker functions, and main function

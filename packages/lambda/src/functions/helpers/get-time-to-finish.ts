@@ -15,5 +15,5 @@ export const getTimeToFinish = ({
 		return null;
 	}
 
-	return lastModified - renderMetadata.startedDate;
+	return Math.max(0, lastModified - renderMetadata.startedDate);
 };

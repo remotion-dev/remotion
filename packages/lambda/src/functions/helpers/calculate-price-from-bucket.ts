@@ -7,7 +7,6 @@ import {findOutputFileInBucket} from './find-output-file-in-bucket';
 import {getCurrentRegionInFunction} from './get-current-region';
 import {getTimeToFinish} from './get-time-to-finish';
 
-// TODO: Should differentiate between finished and in progress
 export const estimatePriceFromBucket = ({
 	contents,
 	renderMetadata,
@@ -23,13 +22,11 @@ export const estimatePriceFromBucket = ({
 		return null;
 	}
 
-	const finishedTimings = contents.filter((c) =>
-		c.Key?.startsWith(lambdaTimingsPrefix(renderMetadata.renderId))
-	);
-
-	const parsedTimings = finishedTimings.map((f) =>
-		parseLambdaTimingsKey(f.Key as string)
-	);
+	const parsedTimings = contents
+		.filter((c) =>
+			c.Key?.startsWith(lambdaTimingsPrefix(renderMetadata.renderId))
+		)
+		.map((f) => parseLambdaTimingsKey(f.Key as string));
 
 	const outputFile = findOutputFileInBucket({
 		bucketName,
