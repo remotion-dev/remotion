@@ -57,7 +57,7 @@ The following regions are available for Remotion Lambda:
 
 ## Cost
 
-Most of our users render multiple minutes of video for just a few pennies. The exact cost is dependent on the region, type of video, parallelization and other parameters. For each render, we estimate a cost and display it to you. You might also need a Remotion license (see below).
+Most of our users render multiple minutes of video for just a few pennies. The exact cost is dependent on the region, assigned memory, type of video, parallelization and other parameters. For each render, we estimate a cost and display it to you. You might also need a Remotion license (see below).
 
 ## Chunk optimization
 
@@ -92,3 +92,9 @@ Everything you can do using the CLI, you can also control using Node.JS APIs. Re
 The standard Remotion license applies. https://github.com/remotion-dev/remotion/blob/main/LICENSE.md
 
 Companies need to buy 1 cloud rendering seat per 2000 renders per month - see https://companies.remotion.dev/
+
+## Uninstalling
+
+We make it easy to remove all Remotion resources from your AWS account without leaving any traces or causing further costs.
+
+[**How to uninstall Remotion Lambda**](/docs/lambda/uninstall)
