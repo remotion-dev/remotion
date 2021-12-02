@@ -63,6 +63,7 @@ export const stillCommand = async (args: string[]) => {
 		envVariables: cliOptions.envVariables,
 		frame: cliOptions.stillFrame,
 		quality: cliOptions.quality,
+		logLevel: cliOptions.logLevel,
 	});
 
 	Log.info(`Finished video!`);

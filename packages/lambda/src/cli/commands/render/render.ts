@@ -79,6 +79,7 @@ export const renderCommand = async (args: string[]) => {
 		composition,
 		framesPerLambda: cliOptions.framesPerLambda ?? DEFAULT_FRAMES_PER_LAMBDA,
 		privacy,
+		logLevel: cliOptions.logLevel,
 		enableChunkOptimization: !parsedLambdaCli['disable-chunk-optimization'],
 	});
 
