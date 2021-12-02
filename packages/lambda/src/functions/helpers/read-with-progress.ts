@@ -8,7 +8,7 @@ import {getS3Client} from '../../shared/aws-clients';
 export type LambdaReadFileProgress = (progress: {
 	totalSize: number;
 	downloaded: number;
-	percent: number;
+	progress: number;
 }) => unknown;
 
 export const lambdaReadFileWithProgress = async ({
@@ -37,7 +37,7 @@ export const lambdaReadFileWithProgress = async ({
 	stream.on('downloadProgress', ({percent, transferred, total}) => {
 		onProgress({
 			downloaded: transferred,
-			percent,
+			progress: percent,
 			totalSize: total,
 		});
 	});
