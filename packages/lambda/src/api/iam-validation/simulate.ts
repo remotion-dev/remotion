@@ -1,5 +1,4 @@
 import {GetUserCommand} from '@aws-sdk/client-iam';
-import {Log} from '../../cli/log';
 import {AwsRegion} from '../../pricing/aws-regions';
 import {getIamClient} from '../../shared/aws-clients';
 import {requiredPermissions} from './required-permissions';
@@ -15,7 +14,7 @@ const getEmojiForStatus = (decision: EvalDecision) => {
 };
 
 export const logPermissionOutput = (output: SimulationResult) => {
-	Log.info([getEmojiForStatus(output.decision), output.name].join(' '));
+	return [getEmojiForStatus(output.decision), output.name].join(' ');
 };
 
 export const simulatePermissions = async (options: {
@@ -38,6 +37,7 @@ export const simulatePermissions = async (options: {
 			arn: user.User.Arn as string,
 			region: options.region,
 			resource: per.resource,
+			retries: 2,
 		});
 		for (const res of result) {
 			results.push(res);
