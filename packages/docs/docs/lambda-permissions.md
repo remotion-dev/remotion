@@ -15,7 +15,15 @@ Before configuring permissions, [follow the setup guide first](/docs/lambda/setu
 
 This policy should be assigned to the **AWS user**. To do so, go to the [AWS console](https://console.aws.amazon.com/console/home) ➞ [IAM](https://console.aws.amazon.com/iam/home) ➞ [Users](https://console.aws.amazon.com/iamv2/home#/users) ➞ Your created Remotion user ➞ Permissions tab ➞ Add inline policy ➞ JSON.
 
+<details>
+<summary>Show full user permissions JSON file for latest Remotion Lambda version
+</summary>
 <LambdaRegionList />
+</details>
+
+:::info
+You can always get the suitable permission file for your Remotion Lambda version by typing `npx remotion lambda policies user`.
+:::
 
 ## Role permissions
 
@@ -23,7 +31,15 @@ This policy should be assigned to the **role `remotion-lambda-role`** in your AW
 
 To assign, go to [AWS console](https://console.aws.amazon.com/console/home) ➞ [IAM](https://console.aws.amazon.com/iam/home) ➞ [Roles](https://console.aws.amazon.com/iamv2/home#/roles) ➞ [`remotion-lambda-role`](https://console.aws.amazon.com/iam/home#/roles/remotion-lambda-role) ➞ Permissions tab ➞ [Add inline policy](https://console.aws.amazon.com/iam/home#/roles/remotion-lambda-role$createPolicy?step=edit).
 
-<RolePolicy />
+<details>
+<summary>Show full role permissions JSON file for latest Remotion Lambda version
+  </summary>
+  <RolePolicy />
+</details>
+
+:::info
+You can always get the suitable permission file for your Remotion Lambda version by typing `npx remotion lambda policies role`.
+:::
 
 ## Explanation
 

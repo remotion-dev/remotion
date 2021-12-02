@@ -1,8 +1,8 @@
 import {GetUserCommand} from '@aws-sdk/client-iam';
 import {AwsRegion} from '../../pricing/aws-regions';
 import {getIamClient} from '../../shared/aws-clients';
-import {requiredPermissions} from './required-permissions';
 import {EvalDecision, simulateRule, SimulationResult} from './simulate-rule';
+import {requiredPermissions} from './user-permissions';
 
 const getEmojiForStatus = (decision: EvalDecision) => {
 	switch (decision) {

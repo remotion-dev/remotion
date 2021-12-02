@@ -1,12 +1,12 @@
-import {requiredPermissions} from './required-permissions';
 import {rolePermissions} from './role-permissions';
+import {requiredPermissions} from './user-permissions';
 
 const suggestedPolicy = {
 	Version: '2012-10-17',
 	Statement: [
 		...requiredPermissions.map((per, i) => {
 			return {
-				Sid: String(i),
+				Sid: per.id,
 				Effect: 'Allow',
 				Action: per.actions,
 				Resource: per.resource,

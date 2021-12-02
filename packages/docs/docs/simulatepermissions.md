@@ -6,11 +6,11 @@ slug: /lambda/simulatepermissions
 
 Runs tests through the AWS Simulator ensuring that all the necessary permissions are set for the authenticated user.
 
-Makes a lot of requests to AWS. Avoid calling the function many times in quick succession to hit a rate limit.
-
 The CLI equivalent is `npx remotion lambda policies validate`.
 
-The function does reject with an error if a permission is missing, rather the missing permission is indicated in the return value.
+The function does not reject with an error if a permission is missing, rather the missing permission is indicated in the return value.
+
+This function does only validate the validity of the **user policy**, not the **role policy**.
 
 ## Example
 
@@ -18,15 +18,15 @@ The function does reject with an error if a permission is missing, rather the mi
 // @module: esnext
 // @target: es2017
 
-import {simulatePermissions} from '@remotion/lambda';
+import { simulatePermissions } from "@remotion/lambda";
 
-const {results} = await simulatePermissions({
-  region: 'us-east-1',
+const { results } = await simulatePermissions({
+  region: "us-east-1",
 });
 
 for (const result of results) {
-  console.log(result.decision) // "allowed"
-  console.log(result.name) // "iam:GetUser"
+  console.log(result.decision); // "allowed"
+  console.log(result.name); // "iam:GetUser"
 }
 ```
 
@@ -48,14 +48,14 @@ A callback function that gets called every time a new simulation has been execut
 // @module: esnext
 // @target: es2017
 
-import {simulatePermissions} from '@remotion/lambda';
+import { simulatePermissions } from "@remotion/lambda";
 
-const {results} = await simulatePermissions({
-  region: 'us-east-1',
+const { results } = await simulatePermissions({
+  region: "us-east-1",
   onSimulation: (result) => {
-    console.log(result.decision) // "allowed"
-    console.log(result.name) // "iam:GetUser"
-  }
+    console.log(result.decision); // "allowed"
+    console.log(result.name); // "iam:GetUser"
+  },
 });
 ```
 
