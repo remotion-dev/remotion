@@ -2,6 +2,7 @@ import {LogLevel, StillImageFormat} from 'remotion';
 import {AwsRegion} from '../pricing/aws-regions';
 import {callLambda} from '../shared/call-lambda';
 import {DEFAULT_MAX_RETRIES, LambdaRoutines} from '../shared/constants';
+import {convertToServeUrl} from '../shared/convert-to-serve-url';
 /**
  * @description Renders a still frame on Lambda
  * @link https://remotion-lambda-alpha.netlify.app/docs/lambda/renderstillonlambda
@@ -46,12 +47,14 @@ export const renderStillOnLambda = async ({
 	frame?: number;
 	logLevel?: LogLevel;
 }) => {
+	const realServeUrl = await convertToServeUrl(serveUrl, region);
+
 	const res = await callLambda({
 		functionName,
 		type: LambdaRoutines.still,
 		payload: {
 			composition,
-			serveUrl,
+			serveUrl: realServeUrl,
 			inputProps,
 			imageFormat,
 			envVariables,
