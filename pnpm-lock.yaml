@@ -395,6 +395,7 @@ importers:
       '@remotion/eslint-plugin': 2.5.5
       '@remotion/gif': 2.5.5
       '@remotion/media-utils': 2.5.5
+      '@remotion/p5': 2.5.5
       '@remotion/renderer': 2.5.5
       '@remotion/three': 2.5.5
       '@types/babel__core': ^7.1.12
@@ -430,6 +431,7 @@ importers:
       '@remotion/eslint-plugin': link:../eslint-plugin
       '@remotion/gif': link:../gif
       '@remotion/media-utils': link:../media-utils
+      '@remotion/p5': link:../p5
       '@remotion/renderer': link:../renderer
       '@remotion/three': link:../three
       '@types/express': 4.17.13

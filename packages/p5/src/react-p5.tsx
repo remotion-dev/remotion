@@ -1,5 +1,11 @@
-import React, { forwardRef, useEffect, useState } from "react";
+import React, {
+  forwardRef,
+  useEffect,
+  useImperativeHandle,
+  useState,
+} from "react";
 import P5 from "p5";
+import { Internals, useCurrentFrame } from "remotion";
 
 export const p5Events = [
   "draw",
@@ -24,12 +30,16 @@ export const p5Events = [
 ] as const;
 
 export type P5Canvas = {
-  getSketch: () => P5;
+  getSketch: () => P5 | null;
 };
 
 const P5ForwardRefFunction: React.ForwardRefRenderFunction<
   P5Canvas,
-  React.DetailedHTMLProps<
+  {
+    renderer: P5.RENDERER;
+    width: number;
+    height: number;
+  } & React.DetailedHTMLProps<
     React.HTMLAttributes<HTMLDivElement>,
     HTMLDivElement
   > &
@@ -39,16 +49,48 @@ const P5ForwardRefFunction: React.ForwardRefRenderFunction<
 > = (props, ref) => {
   const canvasParentRef = React.useRef<HTMLDivElement>(null);
 
-  const [p5] = useState(() => {
+  const {
+    draw,
+    windowResized,
+    preload,
+    mouseClicked,
+    doubleClicked,
+    mouseMoved,
+    mousePressed,
+    mouseWheel,
+    mouseDragged,
+    mouseReleased,
+    keyPressed,
+    keyReleased,
+    keyTyped,
+    touchStarted,
+    touchMoved,
+    touchEnded,
+    deviceMoved,
+    deviceTurned,
+    deviceShaken,
+    width,
+    height,
+    ...restProps
+  } = props;
+
+  const frame = useCurrentFrame();
+
+  const [p5, setP5] = useState<P5 | null>(null);
+
+  useEffect(() => {
     const instance = new P5((p5: P5) => {
       p5.setup = () => {
-        p5.createCanvas(200, 200).parent(
+        p5.createCanvas(width, height, props.renderer).parent(
           canvasParentRef.current as HTMLDivElement
         );
       };
 
+      p5.noLoop();
+
       p5Events.forEach((event) => {
         const ev = props[event];
+
         if (ev) {
           p5[event] = (...rest) => {
             ev(p5, ...rest);
@@ -56,16 +98,23 @@ const P5ForwardRefFunction: React.ForwardRefRenderFunction<
         }
       });
     });
-    return instance;
-  });
-
-  useEffect(() => {
+    setP5(instance);
     return () => {
-      p5.remove();
+      instance.remove();
     };
   }, []);
 
-  return <div ref={canvasParentRef} {...props} />;
+  useEffect(() => {
+    props.draw?.(p5!);
+  }, [frame]);
+
+  useImperativeHandle(ref, () => {
+    return {
+      getSketch: () => p5,
+    };
+  });
+
+  return <div ref={canvasParentRef} {...restProps} />;
 };
 
 export const ProcessingCanvas = forwardRef(P5ForwardRefFunction);

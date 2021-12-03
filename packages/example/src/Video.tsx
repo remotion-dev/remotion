@@ -5,6 +5,8 @@ import {ColorInterpolation} from './ColorInterpolation';
 import {Framer} from './Framer';
 import {MissingImg} from './MissingImg';
 import {OrbScene} from './Orb';
+import {P5Demo} from './P5';
+import {P5Global} from './P5/global';
 import RemoteVideo from './RemoteVideo';
 import {SkipZeroFrame} from './SkipZeroFrame';
 import {SeriesTesting} from './StaggerTesting';
@@ -277,6 +279,22 @@ export const Index: React.FC = () => {
 			<Composition
 				id="stagger-test"
 				component={SeriesTesting}
+				width={1280}
+				height={720}
+				fps={30}
+				durationInFrames={100}
+			/>
+			<Composition
+				id="p5-demo"
+				component={P5Demo}
+				width={1280}
+				height={720}
+				fps={30}
+				durationInFrames={100}
+			/>
+			<Composition
+				id="p5-global"
+				component={P5Global}
 				width={1280}
 				height={720}
 				fps={30}
