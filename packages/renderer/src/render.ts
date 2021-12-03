@@ -119,6 +119,7 @@ export const innerRenderFrames = async ({
 		composition.durationInFrames,
 		frameRange ?? null
 	);
+
 	const frameCount = realFrameRange[1] - realFrameRange[0] + 1;
 
 	const pages = new Array(actualParallelism).fill(true).map(async () => {

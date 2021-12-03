@@ -124,7 +124,7 @@ Revisit ${DOCS_URL}/docs/lambda/setup and make sure you set up the role and role
 };
 
 export const cli = async () => {
-	CliInternals.initializeRenderCli('lambda');
+	await CliInternals.initializeRenderCli('lambda');
 
 	await executeCommand(parsedLambdaCli._);
 };

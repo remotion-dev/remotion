@@ -8,7 +8,7 @@ export const lambdaCommand = async () => {
 			paths: [process.cwd()],
 		});
 		const {LambdaInternals} = require(path);
-		initializeRenderCli('lambda');
+		await initializeRenderCli('lambda');
 
 		await LambdaInternals.executeCommand(parsedCli._.slice(1));
 		process.exit(0);

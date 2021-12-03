@@ -20,7 +20,6 @@ export type OptimizationProfile = {
 	frameRange: [number, number];
 	oldTiming: number;
 	newTiming: number;
-	frameCount: number;
 	createdFromRenderId: string;
 	framesPerLambda: number;
 	lambdaVersion: LambdaVersions;
