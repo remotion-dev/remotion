@@ -36,7 +36,7 @@ export type P5Canvas = {
 const P5ForwardRefFunction: React.ForwardRefRenderFunction<
   P5Canvas,
   {
-    renderer: P5.RENDERER;
+    renderer?: P5.RENDERER;
     width: number;
     height: number;
   } & React.DetailedHTMLProps<
