@@ -1,4 +1,4 @@
-import {useCallback, useEffect} from 'react';
+import {useCallback} from 'react';
 import {useRef} from 'react';
 import React from 'react';
 import {ProcessingCanvas, P5Canvas} from '@remotion/p5';
@@ -14,18 +14,11 @@ export const P5Global: React.FC = () => {
 		if (!p5) {
 			return;
 		}
-		console.log(frame);
+		p5.clear();
 
-		p5.background(250);
-
-		p5.translate(0, 0, 0);
-		p5.normalMaterial();
-		p5.push();
-		p5.rotateZ(frame * 0.01);
-		p5.rotateX(frame * 0.01);
-		p5.rotateY(frame * 0.01);
-		p5.plane(70);
-		p5.pop();
+		p5.rotateZ(frame * 0.1);
+		p5.rotateX(frame * 0.1);
+		p5.torus(120, 20);
 	}, [frame]);
 
 	return (

@@ -105,7 +105,15 @@ const P5ForwardRefFunction: React.ForwardRefRenderFunction<
   }, []);
 
   useEffect(() => {
-    props.draw?.(p5!);
+    if (!p5) return;
+    if (!draw) return;
+    p5.draw = (...rest) => {
+      draw(p5, ...rest);
+    };
+  }, [draw]);
+
+  useEffect(() => {
+    p5?.redraw?.();
   }, [frame]);
 
   useImperativeHandle(ref, () => {
