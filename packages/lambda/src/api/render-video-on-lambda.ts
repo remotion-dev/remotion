@@ -13,6 +13,7 @@ import {
 	LambdaRoutines,
 	Privacy,
 } from '../shared/constants';
+import {convertToServeUrl} from '../shared/convert-to-serve-url';
 import {validateFramesPerLambda} from './validate-frames-per-lambda';
 
 /**
@@ -75,13 +76,14 @@ export const renderVideoOnLambda = async ({
 	frameRange?: FrameRange;
 }) => {
 	validateFramesPerLambda(framesPerLambda);
+	const realServeUrl = await convertToServeUrl(serveUrl, region);
 	const res = await callLambda({
 		functionName,
 		type: LambdaRoutines.start,
 		payload: {
 			framesPerLambda: framesPerLambda ?? DEFAULT_FRAMES_PER_LAMBDA,
 			composition,
-			serveUrl,
+			serveUrl: realServeUrl,
 			inputProps,
 			codec,
 			imageFormat,
