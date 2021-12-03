@@ -5,7 +5,12 @@ import React, {
   useState,
 } from "react";
 import P5 from "p5";
-import { Internals, useCurrentFrame } from "remotion";
+import {
+  continueRender,
+  delayRender,
+  Internals,
+  useCurrentFrame,
+} from "remotion";
 
 export const p5Events = [
   "draw",
@@ -74,7 +79,7 @@ const P5ForwardRefFunction: React.ForwardRefRenderFunction<
     ...restProps
   } = props;
 
-  const frame = useCurrentFrame();
+  const [handle] = useState(() => delayRender());
 
   const [p5, setP5] = useState<P5 | null>(null);
 
@@ -111,7 +116,8 @@ const P5ForwardRefFunction: React.ForwardRefRenderFunction<
       draw(p5, ...rest);
     };
     p5.redraw();
-  }, [draw]);
+    continueRender(handle);
+  }, [draw, p5]);
 
   useImperativeHandle(ref, () => {
     return {
