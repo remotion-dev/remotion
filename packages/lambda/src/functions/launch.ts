@@ -90,17 +90,25 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 	Internals.validateFps(comp.fps, 'passed to <Component />');
 	Internals.validateDimension(comp.height, 'height', 'passed to <Component />');
 	Internals.validateDimension(comp.width, 'width', 'passed to <Component />');
+
 	validatePrivacy(params.privacy);
 
+	// TODO: Validate frame range
 	const {framesPerLambda} = params;
-	const chunkCount = Math.ceil(comp.durationInFrames / framesPerLambda);
+
+	const realFrameRange = RenderInternals.getRealFrameRange(
+		comp.durationInFrames,
+		params.frameRange
+	);
+	const durationInFrames = realFrameRange[1] - realFrameRange[0] + 1;
+	const chunkCount = Math.ceil(durationInFrames / framesPerLambda);
 
 	const {chunks, didUseOptimization} = planFrameRanges({
 		chunkCount,
 		framesPerLambda,
-		frameCount: comp.durationInFrames,
 		optimization,
 		shouldUseOptimization: params.enableChunkOptimization,
+		frameRange: realFrameRange,
 	});
 	const sortedChunks = chunks.slice().sort((a, b) => a[0] - b[0]);
 	const invokers = Math.round(Math.sqrt(chunks.length));
@@ -116,7 +124,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 			fps: comp.fps,
 			height: comp.height,
 			width: comp.width,
-			durationInFrames: comp.durationInFrames,
+			durationInFrames,
 			bucketName: params.bucketName,
 			retriesLeft: params.maxRetries,
 			inputProps: params.inputProps,
@@ -196,7 +204,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 	let encodingStop: number | null = null;
 
 	const onProgress = (framesEncoded: number, start: number) => {
-		const relativeProgress = framesEncoded / comp.durationInFrames;
+		const relativeProgress = framesEncoded / durationInFrames;
 		const deltaSinceLastProgressUploaded =
 			relativeProgress - lastProgressUploaded;
 		if (relativeProgress === 1) {
@@ -211,7 +219,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 
 		const encodingProgress: EncodingProgress = {
 			framesEncoded,
-			totalFrames: comp.durationInFrames,
+			totalFrames: durationInFrames,
 			doneIn: encodingStop ? encodingStop - start : null,
 			timeToInvoke: null,
 		};
@@ -248,7 +256,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		bucket: params.bucketName,
 		expectedFiles: chunkCount,
 		onProgress,
-		numberOfFrames: comp.durationInFrames,
+		numberOfFrames: durationInFrames,
 		renderId: params.renderId,
 		region: getCurrentRegionInFunction(),
 		codec: params.codec,
@@ -287,13 +295,14 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 			? writeOptimization({
 					bucketName: params.bucketName,
 					optimization: {
-						frameRange: optimizedFrameRange,
+						ranges: optimizedFrameRange,
 						oldTiming: getProfileDuration(chunkData),
 						newTiming: getProfileDuration(optimizedProfile),
-						frameCount: comp.durationInFrames,
+						frameCount: durationInFrames,
 						createdFromRenderId: params.renderId,
 						framesPerLambda,
 						lambdaVersion: CURRENT_VERSION,
+						frameRange: realFrameRange,
 					},
 					expectedBucketOwner: options.expectedBucketOwner,
 					compositionId: params.composition,
@@ -313,8 +322,8 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		}),
 	]);
 	const finalEncodingProgress: EncodingProgress = {
-		framesEncoded: comp.durationInFrames,
-		totalFrames: comp.durationInFrames,
+		framesEncoded: durationInFrames,
+		totalFrames: durationInFrames,
 		doneIn: encodingStop ? encodingStop - encodingStart : null,
 		timeToInvoke: getLambdasInvokedStats(
 			contents,

@@ -1,4 +1,11 @@
-import {ImageFormat, LogLevel, PixelFormat, ProResProfile} from 'remotion';
+import {
+	FrameRange,
+	ImageFormat,
+	LogLevel,
+	PixelFormat,
+	ProResProfile,
+} from 'remotion';
+import {DEFAULT_LOG_LEVEL} from 'remotion/src/config/log';
 import {AwsRegion} from '../pricing/aws-regions';
 import {callLambda} from '../shared/call-lambda';
 import {
@@ -46,6 +53,7 @@ export const renderVideoOnLambda = async ({
 	privacy,
 	enableChunkOptimization,
 	logLevel,
+	frameRange,
 }: {
 	region: AwsRegion;
 	functionName: string;
@@ -64,6 +72,7 @@ export const renderVideoOnLambda = async ({
 	framesPerLambda?: number;
 	enableChunkOptimization?: boolean;
 	logLevel?: LogLevel;
+	frameRange?: FrameRange;
 }) => {
 	validateFramesPerLambda(framesPerLambda);
 	const res = await callLambda({
@@ -84,7 +93,8 @@ export const renderVideoOnLambda = async ({
 			maxRetries,
 			privacy,
 			enableChunkOptimization,
-			logLevel,
+			logLevel: logLevel ?? DEFAULT_LOG_LEVEL,
+			frameRange: frameRange ?? null,
 		},
 		region,
 	});

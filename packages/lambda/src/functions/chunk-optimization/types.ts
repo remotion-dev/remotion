@@ -16,7 +16,8 @@ export type ChunkTimingData = Omit<ObjectChunkTimingData, 'timings'> & {
 export type TimingProfile = ChunkTimingData[];
 
 export type OptimizationProfile = {
-	frameRange: [number, number][];
+	ranges: [number, number][];
+	frameRange: [number, number];
 	oldTiming: number;
 	newTiming: number;
 	frameCount: number;

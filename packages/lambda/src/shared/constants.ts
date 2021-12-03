@@ -1,5 +1,6 @@
 import {
 	Codec,
+	FrameRange,
 	ImageFormat,
 	LogLevel,
 	PixelFormat,
@@ -160,7 +161,8 @@ export type LambdaPayloads = {
 		maxRetries: number;
 		privacy: Privacy;
 		enableChunkOptimization: boolean | undefined;
-		logLevel?: LogLevel;
+		logLevel: LogLevel;
+		frameRange: FrameRange | null;
 	};
 	launch: {
 		type: LambdaRoutines.launch;
@@ -181,6 +183,7 @@ export type LambdaPayloads = {
 		privacy: Privacy;
 		enableChunkOptimization: boolean;
 		logLevel: LogLevel;
+		frameRange: FrameRange | null;
 	};
 	fire: {
 		type: LambdaRoutines.fire;

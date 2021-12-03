@@ -19,8 +19,7 @@ import {
 import {BrowserLog} from './browser-log';
 import {cycleBrowserTabs} from './cycle-browser-tabs';
 import {getActualConcurrency} from './get-concurrency';
-import {getFrameCount} from './get-frame-range';
-import {getFrameToRender} from './get-frame-to-render';
+import {getRealFrameRange} from './get-frame-to-render';
 import {DEFAULT_IMAGE_FORMAT} from './image-format';
 import {
 	getServeUrlWithFallback,
@@ -116,6 +115,12 @@ export const innerRenderFrames = async ({
 		}
 	}
 
+	const realFrameRange = getRealFrameRange(
+		composition.durationInFrames,
+		frameRange ?? null
+	);
+	const frameCount = realFrameRange[1] - realFrameRange[0] + 1;
+
 	const pages = new Array(actualParallelism).fill(true).map(async () => {
 		const page = await puppeteerInstance.newPage();
 		pagesArray.push(page);
@@ -162,12 +167,7 @@ export const innerRenderFrames = async ({
 	const puppeteerPages = await Promise.all(pages);
 	const pool = new Pool(puppeteerPages);
 
-	const frameCount = getFrameCount(
-		composition.durationInFrames,
-		frameRange ?? null
-	);
-	const firstFrameIndex = getFrameToRender(frameRange ?? null, 0);
-	const lastFrameIndex = getFrameToRender(frameRange ?? null, frameCount - 1);
+	const [firstFrameIndex, lastFrameIndex] = realFrameRange;
 	// Substract one because 100 frames will be 00-99
 	// --> 2 digits
 	const filePadLength = String(lastFrameIndex).length;
@@ -182,7 +182,7 @@ export const innerRenderFrames = async ({
 			.fill(Boolean)
 			.map((x, i) => i)
 			.map(async (index) => {
-				const frame = getFrameToRender(frameRange ?? null, index);
+				const frame = realFrameRange[0] + index;
 				const freePage = await pool.acquire();
 				const paddedIndex = String(frame).padStart(filePadLength, '0');
 

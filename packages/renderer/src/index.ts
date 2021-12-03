@@ -20,6 +20,7 @@ import {prepareServer} from './prepare-server';
 import {isServeUrl} from './is-serve-url';
 import {ensureOutputDirectory} from './ensure-output-directory';
 import got from 'got';
+import {getRealFrameRange} from './get-frame-to-render';
 
 declare global {
 	interface Window {
@@ -68,4 +69,5 @@ export const RenderInternals = {
 	isServeUrl,
 	ensureOutputDirectory,
 	gotStream: got.stream,
+	getRealFrameRange,
 };

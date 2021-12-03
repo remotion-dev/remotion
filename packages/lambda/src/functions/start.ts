@@ -44,6 +44,7 @@ export const startHandler = async (params: LambdaPayload) => {
 		privacy: params.privacy,
 		enableChunkOptimization: params.enableChunkOptimization !== false,
 		logLevel: params.logLevel ?? Internals.Logging.DEFAULT_LOG_LEVEL,
+		frameRange: params.frameRange,
 	};
 	await getLambdaClient(getCurrentRegionInFunction()).send(
 		new InvokeCommand({
