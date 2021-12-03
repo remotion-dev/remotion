@@ -18,7 +18,7 @@ export const P5Global: React.FC = () => {
 
 		p5.rotateZ(frame * 0.1);
 		p5.rotateX(frame * 0.1);
-		p5.torus(120, 20);
+		p5.torus(100, 20);
 	}, [frame]);
 
 	return (

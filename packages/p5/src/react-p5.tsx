@@ -110,11 +110,8 @@ const P5ForwardRefFunction: React.ForwardRefRenderFunction<
     p5.draw = (...rest) => {
       draw(p5, ...rest);
     };
+    p5.redraw();
   }, [draw]);
-
-  useEffect(() => {
-    p5?.redraw?.();
-  }, [frame]);
 
   useImperativeHandle(ref, () => {
     return {
