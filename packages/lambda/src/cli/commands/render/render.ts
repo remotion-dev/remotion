@@ -81,6 +81,7 @@ export const renderCommand = async (args: string[]) => {
 		privacy,
 		logLevel: cliOptions.logLevel,
 		enableChunkOptimization: !parsedLambdaCli['disable-chunk-optimization'],
+		frameRange: cliOptions.frameRange ?? undefined,
 	});
 
 	const totalSteps = outName ? 5 : 4;

@@ -4,11 +4,11 @@ import {OptimizationProfile} from './types';
 export const canUseOptimization = ({
 	optimization,
 	framesPerLambda,
-	frameCount,
+	frameRange,
 }: {
 	optimization: OptimizationProfile | null;
 	framesPerLambda: number;
-	frameCount: number;
+	frameRange: [number, number];
 }) => {
 	if (!optimization) {
 		return false;
@@ -18,11 +18,15 @@ export const canUseOptimization = ({
 		return false;
 	}
 
-	if (optimization.frameCount !== frameCount) {
+	if (optimization.lambdaVersion !== CURRENT_VERSION) {
 		return false;
 	}
 
-	if (optimization.lambdaVersion !== CURRENT_VERSION) {
+	if (optimization.frameRange[0] !== frameRange[0]) {
+		return false;
+	}
+
+	if (optimization.frameRange[1] !== frameRange[1]) {
 		return false;
 	}
 
