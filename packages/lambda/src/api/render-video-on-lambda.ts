@@ -1,11 +1,11 @@
 import {
 	FrameRange,
 	ImageFormat,
+	Internals,
 	LogLevel,
 	PixelFormat,
 	ProResProfile,
 } from 'remotion';
-import {DEFAULT_LOG_LEVEL} from 'remotion/src/config/log';
 import {AwsRegion} from '../pricing/aws-regions';
 import {callLambda} from '../shared/call-lambda';
 import {
@@ -93,7 +93,7 @@ export const renderVideoOnLambda = async ({
 			maxRetries,
 			privacy,
 			enableChunkOptimization,
-			logLevel: logLevel ?? DEFAULT_LOG_LEVEL,
+			logLevel: logLevel ?? Internals.Logging.DEFAULT_LOG_LEVEL,
 			frameRange: frameRange ?? null,
 		},
 		region,
