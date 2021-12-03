@@ -19,6 +19,7 @@ Keep track of changes to the APIs of Remotion Lambda here.
 - Deleted `save-browser-logs` function in favour of the new CloudWatch solution. Pass `--log=verbose` instead and see CloudWatch for more detailed logs.
 - Retry if the AWS rate limit is exceeded for `npx remotion lambda permissions validate` command and for `validatePermissions()` function.
 - Improve Setup guide
+- New Fonts: `Noto Sans JP`, `Noto Sans Simplified Chinese`, `Noto Sans Traditional Chinese`, `Noto Sans Korean` both in Regular and Bold.
 
 ## November 28th, 2021
 
