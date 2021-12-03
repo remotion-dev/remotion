@@ -16,7 +16,7 @@ export const previewCommand = async () => {
 	const {port: desiredPort} = parsedCli;
 	const fullPath = path.join(process.cwd(), file);
 
-	initializeRenderCli('preview');
+	await initializeRenderCli('preview');
 
 	const inputProps = getInputProps();
 	const envVariables = await getEnvironmentVariables();

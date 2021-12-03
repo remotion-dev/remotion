@@ -100,8 +100,9 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		comp.durationInFrames,
 		params.frameRange
 	);
-	const durationInFrames = realFrameRange[1] - realFrameRange[0] + 1;
-	const chunkCount = Math.ceil(durationInFrames / framesPerLambda);
+
+	const frameCount = realFrameRange[1] - realFrameRange[0] + 1;
+	const chunkCount = Math.ceil(frameCount / framesPerLambda);
 
 	const {chunks, didUseOptimization} = planFrameRanges({
 		chunkCount,
@@ -124,7 +125,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 			fps: comp.fps,
 			height: comp.height,
 			width: comp.width,
-			durationInFrames,
+			durationInFrames: comp.durationInFrames,
 			bucketName: params.bucketName,
 			retriesLeft: params.maxRetries,
 			inputProps: params.inputProps,
@@ -204,7 +205,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 	let encodingStop: number | null = null;
 
 	const onProgress = (framesEncoded: number, start: number) => {
-		const relativeProgress = framesEncoded / durationInFrames;
+		const relativeProgress = framesEncoded / frameCount;
 		const deltaSinceLastProgressUploaded =
 			relativeProgress - lastProgressUploaded;
 		if (relativeProgress === 1) {
@@ -219,7 +220,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 
 		const encodingProgress: EncodingProgress = {
 			framesEncoded,
-			totalFrames: durationInFrames,
+			totalFrames: frameCount,
 			doneIn: encodingStop ? encodingStop - start : null,
 			timeToInvoke: null,
 		};
@@ -256,7 +257,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		bucket: params.bucketName,
 		expectedFiles: chunkCount,
 		onProgress,
-		numberOfFrames: durationInFrames,
+		numberOfFrames: frameCount,
 		renderId: params.renderId,
 		region: getCurrentRegionInFunction(),
 		codec: params.codec,
@@ -298,7 +299,6 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 						ranges: optimizedFrameRange,
 						oldTiming: getProfileDuration(chunkData),
 						newTiming: getProfileDuration(optimizedProfile),
-						frameCount: durationInFrames,
 						createdFromRenderId: params.renderId,
 						framesPerLambda,
 						lambdaVersion: CURRENT_VERSION,
@@ -322,8 +322,8 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		}),
 	]);
 	const finalEncodingProgress: EncodingProgress = {
-		framesEncoded: durationInFrames,
-		totalFrames: durationInFrames,
+		framesEncoded: frameCount,
+		totalFrames: frameCount,
 		doneIn: encodingStop ? encodingStop - encodingStart : null,
 		timeToInvoke: getLambdasInvokedStats(
 			contents,
