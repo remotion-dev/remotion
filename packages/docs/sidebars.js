@@ -42,7 +42,12 @@ module.exports = {
       href: "/docs",
     },
     "lambda",
-    "lambda-cli",
+    {
+      collapsed: false,
+      type: "category",
+      label: "CLI",
+      items: ["lambda-cli", "lambda-cli-sites", "lambda-cli-render"],
+    },
     "lambda-setup",
     "lambda-permissions",
     "lambda-region-selection",

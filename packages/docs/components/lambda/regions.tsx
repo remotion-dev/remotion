@@ -3,14 +3,14 @@ import React from "react";
 
 export const LambdaRegionList: React.FC = () => {
   return (
-    <div>
+    <ul>
       {AWS_REGIONS.map((region) => {
         return (
-          <span key={region}>
+          <li key={region}>
             <code>{region}</code>{" "}
-          </span>
+          </li>
         );
       })}
-    </div>
+    </ul>
   );
 };
