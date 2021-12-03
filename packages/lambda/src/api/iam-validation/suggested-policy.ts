@@ -4,7 +4,7 @@ import {requiredPermissions} from './user-permissions';
 const suggestedPolicy = {
 	Version: '2012-10-17',
 	Statement: [
-		...requiredPermissions.map((per, i) => {
+		...requiredPermissions.map((per) => {
 			return {
 				Sid: per.id,
 				Effect: 'Allow',
