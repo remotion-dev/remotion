@@ -48,5 +48,7 @@ export const openBrowser = async (
 			'--no-zygote', // https://source.chromium.org/search?q=lang:cpp+symbol:kNoZygote&ss=chromium
 		].filter(Boolean) as string[],
 	});
+	const pages = await browserInstance.pages();
+	pages.forEach((p) => p.close());
 	return browserInstance;
 };
