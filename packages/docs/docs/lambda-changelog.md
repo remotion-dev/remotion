@@ -14,7 +14,10 @@ Keep track of changes to the APIs of Remotion Lambda here.
 1. Redeploy your function: `npx remotion lambda functions deploy`
 1. Migrate according to the changelog below:
 
-## Unreleased
+## December 4th, 2021
+
+Version hash: `3.0.0-alpha.192+8e7345b69`
+Lambda version: '2021-12-04'
 
 - Support rendering a video partially using `frameRange` / `--frame-range` option
 - Improve Setup guide
