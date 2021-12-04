@@ -1,4 +1,4 @@
-import {getOrCreateBucket} from '..';
+import {getOrCreateBucket} from '../api/get-or-create-bucket';
 import {AwsRegion} from '../pricing/aws-regions';
 import {DOCS_URL} from './docs-url';
 
