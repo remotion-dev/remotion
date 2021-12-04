@@ -7,7 +7,7 @@ type FnParameters = {
 	audioData: AudioData;
 	frame: number;
 	fps: number;
-	waveformDuration: number;
+	windowInSeconds: number;
 	numberOfSamples: number;
 };
 
@@ -16,14 +16,14 @@ const visualizeAudioWaveformFrame = ({
 	frame,
 	fps,
 	numberOfSamples,
-	waveformDuration,
+	windowInSeconds,
 }: FnParameters) => {
-	if (waveformDuration * audioData.sampleRate < numberOfSamples) {
+	if (windowInSeconds * audioData.sampleRate < numberOfSamples) {
 		throw new TypeError(
-			waveformDuration +
+			windowInSeconds +
 				's audiodata does not have ' +
 				numberOfSamples +
-				' bars. Increase waveformDuration or decrease numberOfSamples'
+				' bars. Increase windowInSeconds or decrease numberOfSamples'
 		);
 	}
 
@@ -33,18 +33,22 @@ const visualizeAudioWaveformFrame = ({
 		return cache[cacheKey];
 	}
 
-	const startTimeInSeconds =
-		frame / fps < waveformDuration
-			? 0
-			: frame / fps + waveformDuration / 2 >= audioData.durationInSeconds
-			? audioData.durationInSeconds - waveformDuration
-			: frame / fps - waveformDuration / 2;
+	const time = frame / fps;
+
+	const max = audioData.durationInSeconds - windowInSeconds / 2;
+	const min = windowInSeconds / 2;
+
+	const startTimeInSeconds = Math.min(
+		max,
+		Math.max(min, time - windowInSeconds / 2)
+	);
+
 	return getWaveformPortion({
 		audioData,
 		startTimeInSeconds,
-		durationInSeconds: waveformDuration,
+		durationInSeconds: windowInSeconds,
 		numberOfSamples,
-		normalize: false,
+		normalize: true,
 	});
 };
 

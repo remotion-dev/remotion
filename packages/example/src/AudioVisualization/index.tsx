@@ -140,7 +140,7 @@ const AudioVisualization: React.FC<{isWaveform: boolean}> = ({isWaveform}) => {
 		frame,
 		audioData: audioDataVoice,
 		numberOfSamples: WAVEFORM_SAMPLES,
-		waveformDuration: 1 / fps,
+		windowInSeconds: 1 / fps,
 	});
 
 	const scale =

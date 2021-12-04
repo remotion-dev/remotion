@@ -7,3 +7,4 @@ export type {AudioData, VideoMetadata as VideoData} from './types';
 export {useAudioData} from './use-audio-metadata';
 export {visualizeAudio} from './visualize-audio';
 export {visualizeAudioWaveform} from './visualize-audio-waveform';
+export {createSmoothSvgPath} from './create-smooth-svg-path';
