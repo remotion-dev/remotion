@@ -14,6 +14,13 @@ Keep track of changes to the APIs of Remotion Lambda here.
 1. Redeploy your function: `npx remotion lambda functions deploy`
 1. Migrate according to the changelog below:
 
+## December 7th, 2021
+
+Version hash: `xxx`
+Lambda version: '2021-12-07'
+
+Fix Korean/Chinese/Japanese fonts from last release where it did not work as expected. Due to space constraints, only Regular weight is supported.
+
 ## December 4th, 2021
 
 Version hash: `3.0.0-alpha.192+8e7345b69`
