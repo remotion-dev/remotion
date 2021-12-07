@@ -3,8 +3,8 @@ import {
 	PublishLayerVersionCommand,
 } from '@aws-sdk/client-lambda';
 import {lambda} from 'aws-policies';
-import {AwsRegion} from '../pricing/aws-regions';
 import {quit} from '../cli/helpers/quit';
+import {AwsRegion} from '../pricing/aws-regions';
 import {AWS_REGIONS} from '../regions';
 import {getLambdaClient} from '../shared/aws-clients';
 import {CURRENT_VERSION} from '../shared/constants';
@@ -35,7 +35,7 @@ const makeLayerPublic = async () => {
 				new PublishLayerVersionCommand({
 					Content: {
 						S3Bucket: 'remotionlambda-binaries-' + region,
-						S3Key: `remotion-layer-${layer}-v2.zip`,
+						S3Key: `remotion-layer-${layer}-v3.zip`,
 					},
 					LayerName: layerName,
 					LicenseInfo:
