@@ -85,6 +85,7 @@ module.exports = {
     },
     "lambda-checklist",
     "lambda-changelog",
+    "lambda-upgrading",
     "lambda-uninstall",
   ],
   someSidebar: [
