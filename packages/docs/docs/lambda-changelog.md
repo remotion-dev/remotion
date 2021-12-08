@@ -8,11 +8,7 @@ Keep track of changes to the APIs of Remotion Lambda here.
 
 ## How to upgrade
 
-1. Get the newest version from the `#lambda` Discord channel.
-1. Upgrade all packages to the newest version (`@remotion/lambda`, but also `remotion`, `@remotion/cli` etc.)
-1. (Optional) Remove all existing lambdas: `npx remotion-lambda functions ls` and then `npx remotion-lambda functions rm <function-name>`
-1. Redeploy your function: `npx remotion lambda functions deploy`
-1. Migrate according to the changelog below:
+[Upgrading](/docs/lambda/upgrading)
 
 ## December 7th, 2021
 

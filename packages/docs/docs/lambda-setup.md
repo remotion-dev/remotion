@@ -323,5 +323,6 @@ This code will poll every second to check the progress of the video and exit the
 
 - Select [which region(s)](/docs/lambda/region-selection) you want to run Remotion Lambda in.
 - Familiarize yourself with the CLI and the Node.JS APIs (list in sidebar).
+- Learn how to [upgrade Remotion Lambda](/docs/lambda/upgrading).
 - Before going live, go through the [Production checklist](/docs/lambda/checklist).
 - If you have any questions, go through the [FAQ](/docs/lambda/faq) or ask in our [Discord channel](https://discord.gg/PzjkKS8S5S)
