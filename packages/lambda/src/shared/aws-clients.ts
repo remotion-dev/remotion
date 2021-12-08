@@ -11,6 +11,15 @@ const _s3Clients: Partial<Record<AwsRegion, S3Client>> = {};
 const _lambdaClients: Partial<Record<AwsRegion, LambdaClient>> = {};
 const _iamClients: Partial<Record<AwsRegion, IAMClient>> = {};
 
+const credentials =
+	process.env.REMOTION_AWS_ACCESS_KEY_ID &&
+	process.env.REMOTION_AWS_SECRET_ACCESS_KEY
+		? {
+				accessKeyId: process.env.REMOTION_AWS_ACCESS_KEY_ID,
+				secretAccessKey: process.env.REMOTION_AWS_SECRET_ACCESS_KEY,
+		  }
+		: undefined;
+
 export const getCloudWatchLogsClient = (
 	region: AwsRegion
 ): CloudWatchLogsClient => {
@@ -25,7 +34,7 @@ export const getCloudWatchLogsClient = (
 export const getS3Client = (region: AwsRegion) => {
 	if (!_s3Clients[region]) {
 		checkCredentials();
-		_s3Clients[region] = new S3Client({region});
+		_s3Clients[region] = new S3Client({region, credentials});
 	}
 
 	return _s3Clients[region] as S3Client;
@@ -34,7 +43,7 @@ export const getS3Client = (region: AwsRegion) => {
 export const getLambdaClient = (region: AwsRegion) => {
 	if (!_lambdaClients[region]) {
 		checkCredentials();
-		_lambdaClients[region] = new LambdaClient({region});
+		_lambdaClients[region] = new LambdaClient({region, credentials});
 	}
 
 	return _lambdaClients[region] as LambdaClient;
@@ -43,7 +52,7 @@ export const getLambdaClient = (region: AwsRegion) => {
 export const getIamClient = (region: AwsRegion) => {
 	if (!_iamClients[region]) {
 		checkCredentials();
-		_iamClients[region] = new IAMClient({region});
+		_iamClients[region] = new IAMClient({region, credentials});
 	}
 
 	return _iamClients[region] as IAMClient;
