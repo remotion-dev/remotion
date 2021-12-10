@@ -266,6 +266,7 @@ export type RenderMetadata = {
 };
 
 export type LambdaVersions =
+	| '2021-12-11'
 	| '2021-12-10'
 	| '2021-12-04'
 	| '2021-11-29'
