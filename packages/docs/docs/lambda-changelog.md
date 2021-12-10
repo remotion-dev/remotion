@@ -12,12 +12,10 @@ Keep track of changes to the APIs of Remotion Lambda here.
 
 ## December 10th, 2021
 
-Version hash: `3.0.0-lambda.196+d4d99a5b8`
+Version hash: `3.0.0-lambda.203+6e2dfd14e`
 Lambda version: '2021-12-10'
 
-_We mistakenly didn't increase the version number in this release. Sorry about this and we will fix this issue._
-
-Fix Korean/Chinese/Japanese fonts from last release where it did not work as expected. Due to space constraints, only Regular weight is supported.
+The Lambda function now prints inputProps that you can read in your CloudWatch logs for easier debugging.
 
 ## December 7th, 2021
 
