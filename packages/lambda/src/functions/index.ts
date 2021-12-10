@@ -32,20 +32,25 @@ export const handler = async <T extends LambdaRoutines>(
 
 	const currentUserId = context.invokedFunctionArn.split(':')[4];
 	if (params.type === LambdaRoutines.still) {
-		printCloudwatchHelper(LambdaRoutines.still, {});
+		printCloudwatchHelper(LambdaRoutines.still, {
+			inputProps: JSON.stringify(params.inputProps),
+		});
 		return stillHandler(params, {
 			expectedBucketOwner: currentUserId,
 		});
 	}
 
 	if (params.type === LambdaRoutines.start) {
-		printCloudwatchHelper(LambdaRoutines.start, {});
+		printCloudwatchHelper(LambdaRoutines.start, {
+			inputProps: JSON.stringify(params.inputProps),
+		});
 		return startHandler(params);
 	}
 
 	if (params.type === LambdaRoutines.launch) {
 		printCloudwatchHelper(LambdaRoutines.launch, {
 			renderId: params.renderId,
+			inputProps: JSON.stringify(params.inputProps),
 		});
 		return launchHandler(params, {expectedBucketOwner: currentUserId});
 	}
@@ -71,6 +76,7 @@ export const handler = async <T extends LambdaRoutines>(
 			dumpLogs: String(
 				Internals.Logging.isEqualOrBelowLogLevel(params.logLevel, 'verbose')
 			),
+			inputProps: JSON.stringify(params.inputProps),
 		});
 		return rendererHandler(params, {
 			expectedBucketOwner: currentUserId,

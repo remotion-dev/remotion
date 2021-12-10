@@ -27,7 +27,7 @@ npx remotion lambda functions rm $(npx remotion lambda functions ls -q) -y
 npx remotion lambda functions deploy
 ```
 
-- Update your API calls according to the [changelog](/docs/lambda/upgrading). While Remotion Lambda is in Alpha, breaking changes may occur in every version. Once it hits stable, breaking changes will only occur in major version bumps.
+- Update your API calls according to the [changelog](/docs/lambda/changelog). While Remotion Lambda is in Alpha, breaking changes may occur in every version. Once it hits stable, breaking changes will only occur in major version bumps.
 
 ## Separating production and testing environments
 
