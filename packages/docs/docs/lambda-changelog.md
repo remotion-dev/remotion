@@ -10,10 +10,21 @@ Keep track of changes to the APIs of Remotion Lambda here.
 
 [Upgrading](/docs/lambda/upgrading)
 
+## December 10th, 2021
+
+Version hash: `3.0.0-lambda.196+d4d99a5b8`
+Lambda version: '2021-12-10'
+
+_We mistakenly didn't increase the version number in this release. Sorry about this and we will fix this issue._
+
+Fix Korean/Chinese/Japanese fonts from last release where it did not work as expected. Due to space constraints, only Regular weight is supported.
+
 ## December 7th, 2021
 
 Version hash: `3.0.0-lambda.196+d4d99a5b8`
-Lambda version: '2021-12-07'
+Lambda version: '2021-12-04'
+
+_We mistakenly didn't increase the version number in this release. Sorry about this and we will fix this issue._
 
 Fix Korean/Chinese/Japanese fonts from last release where it did not work as expected. Due to space constraints, only Regular weight is supported.
 
