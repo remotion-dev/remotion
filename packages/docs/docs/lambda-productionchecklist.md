@@ -31,6 +31,10 @@ Make sure your AWS permissions only have as many permissions as needed and store
 
 Familiarize yourself with the [AWS burst limit](https://docs.aws.amazon.com/lambda/latest/dg/invocation-scaling.html). Essentially, you need to avoid a quick spike in video renders that will cause the burst limit to take effect. If you need to scale beyond the burst limit, consider scaling across multiple regions as the burst limit only applies for a certain region. Another strategy to consider is creating multiple sub-accounts in your AWS organization as the burst limit only affects a single account.
 
+## AWS payload limit
+
+The maximum payload for invoking a Lambda function is 256KB. Ensure that in your application, the `inputProps` payload does not exceed this amount and introduce validation and error handling if necessary.
+
 ### Bucket privacy
 
 By default the rendered videos are publicly accessible in your bucket. Use the `privacy` setting in [`renderVideoOnLambda()`](/docs/lambda/rendervideoonlambda) to make renders private if you'd like so.
