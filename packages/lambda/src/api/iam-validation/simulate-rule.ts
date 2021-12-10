@@ -64,7 +64,7 @@ export const simulateRule = async (options: {
 		}
 
 		await new Promise((resolve) => {
-			setTimeout(() => resolve, 2000);
+			setTimeout(resolve, 2000);
 		});
 		return simulateRule({...options, retries: options.retries - 1});
 	}
