@@ -25,7 +25,10 @@ export const getCloudWatchLogsClient = (
 ): CloudWatchLogsClient => {
 	if (!_cloudWatchLogsClients[region]) {
 		checkCredentials();
-		_cloudWatchLogsClients[region] = new CloudWatchLogsClient({region});
+		_cloudWatchLogsClients[region] = new CloudWatchLogsClient({
+			region,
+			credentials,
+		});
 	}
 
 	return _cloudWatchLogsClients[region] as CloudWatchLogsClient;
