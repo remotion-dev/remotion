@@ -7,7 +7,7 @@ export type UseSyncVolumeWithMediaTagOptions = {
 	actualVolume: number;
 	volume?: VolumeProp;
 	mediaVolume: number;
-	mediaRef: RefObject<HTMLVideoElement | HTMLAudioElement>;
+	mediaRef: RefObject<HTMLVideoElement | HTMLAudioElement> | null;
 };
 
 export const useSyncVolumeWithMediaTag = ({
@@ -23,6 +23,10 @@ export const useSyncVolumeWithMediaTag = ({
 			volume,
 			mediaVolume,
 		});
+		if (!mediaRef) {
+			return;
+		}
+
 		if (
 			!isApproximatelyTheSame(userPreferredVolume, actualVolume) &&
 			mediaRef.current

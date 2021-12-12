@@ -28,7 +28,7 @@ export const useMediaInTimeline = ({
 }: {
 	volume: VolumeProp | undefined;
 	mediaVolume: number;
-	mediaRef: RefObject<HTMLAudioElement | HTMLVideoElement>;
+	mediaRef: RefObject<HTMLAudioElement | HTMLVideoElement> | null;
 	src: string | undefined;
 	mediaType: 'audio' | 'video';
 }) => {
@@ -79,7 +79,7 @@ export const useMediaInTimeline = ({
 	}, [initialVolume, mediaType, src, volume]);
 
 	useEffect(() => {
-		if (!mediaRef.current) {
+		if (!mediaRef || !mediaRef.current) {
 			return;
 		}
 

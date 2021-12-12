@@ -38,7 +38,7 @@ export const useMediaPlayback = ({
 	mediaType,
 	playbackRate: localPlaybackRate,
 }: {
-	mediaRef: RefObject<HTMLVideoElement | HTMLAudioElement>;
+	mediaRef: RefObject<HTMLVideoElement | HTMLAudioElement> | null;
 	src: string | undefined;
 	mediaType: 'audio' | 'video';
 	playbackRate: number;
@@ -53,6 +53,10 @@ export const useMediaPlayback = ({
 	const playbackRate = localPlaybackRate * globalPlaybackRate;
 
 	useEffect(() => {
+		if (!mediaRef) {
+			return;
+		}
+
 		if (playing && !mediaRef.current?.ended) {
 			playAndHandleNotAllowedError(mediaRef, mediaType);
 		} else {
@@ -62,7 +66,7 @@ export const useMediaPlayback = ({
 
 	useEffect(() => {
 		const tagName = mediaType === 'audio' ? '<Audio>' : '<Video>';
-		if (!mediaRef.current) {
+		if (!mediaRef || !mediaRef.current) {
 			throw new Error(`No ${mediaType} ref found`);
 		}
 

@@ -12,7 +12,7 @@ import {useSharedAudio} from './shared-audio-tags';
 import {useFrameForVolumeProp} from './use-audio-frame';
 
 const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
-	HTMLAudioElement,
+	HTMLAudioElement | null,
 	RemotionAudioProps & {
 		shouldPreMountAudioTags: boolean;
 	}
@@ -31,13 +31,8 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 
 	const volumePropFrame = useFrameForVolumeProp();
 
-	const {
-		volume,
-		muted,
-		playbackRate,
-		shouldPreMountAudioTags,
-		...nativeProps
-	} = props;
+	const {volume, muted, playbackRate, shouldPreMountAudioTags, ...nativeProps} =
+		props;
 
 	const propsToPass = useMemo((): RemotionAudioProps => {
 		return {
@@ -46,7 +41,7 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		};
 	}, [mediaMuted, muted, nativeProps]);
 
-	const audioRef = useSharedAudio(propsToPass).el;
+	const audioRef = useSharedAudio(propsToPass);
 
 	const actualVolume = useMediaTagVolume(audioRef);
 
@@ -73,9 +68,18 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		playbackRate: playbackRate ?? 1,
 	});
 
-	useImperativeHandle(ref, () => {
-		return audioRef.current as HTMLAudioElement;
-	});
+	useImperativeHandle(
+		ref,
+		// @ts-expect-error
+		() => {
+			if (!audioRef) {
+				return null;
+			}
+
+			return audioRef.current as HTMLAudioElement;
+		},
+		[audioRef]
+	);
 
 	if (initialShouldPreMountAudioElements) {
 		return null;

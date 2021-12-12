@@ -31,16 +31,11 @@ const EMPTY_AUDIO =
 	'data:audio/mp3;base64,/+MYxAAJcAV8AAgAABn//////+/gQ5BAMA+D4Pg+BAQBAEAwD4Pg+D4EBAEAQDAPg++hYBH///hUFQVBUFREDQNHmf///////+MYxBUGkAGIMAAAAP/29Xt6lUxBTUUzLjEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV/+MYxDUAAANIAAAAAFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV';
 
 type SharedContext = {
-	registerAudio: (aud: RemotionAudioProps) => AudioElem;
+	registerAudio: (aud: RemotionAudioProps) => Promise<AudioElem>;
 	unregisterAudio: (id: number) => void;
 	updateAudio: (id: number, aud: RemotionAudioProps) => void;
 	playAllAudios: () => void;
 	numberOfAudioTags: number;
-};
-
-type Ref = {
-	id: number;
-	ref: React.RefObject<HTMLAudioElement>;
 };
 
 export const SharedAudioContext = createContext<SharedContext | null>(null);
@@ -48,16 +43,17 @@ export const SharedAudioContext = createContext<SharedContext | null>(null);
 export const SharedAudioContextProvider: React.FC<{
 	numberOfAudioTags: number;
 }> = ({children, numberOfAudioTags}) => {
+	const [refs] = useState(() => {
+		return new Array(numberOfAudioTags).fill(true).map(() => {
+			return {id: Math.random(), ref: createRef<HTMLAudioElement>()};
+		});
+	});
 	const [state, setState] = useState<{
 		audios: AudioElem[];
-		refs: Ref[];
 		takenAudios: (false | number)[];
 	}>(() => {
 		return {
 			audios: [],
-			refs: new Array(numberOfAudioTags).fill(true).map(() => {
-				return {id: Math.random(), ref: createRef<HTMLAudioElement>()};
-			}),
 			takenAudios: new Array(numberOfAudioTags).fill(false),
 		};
 	});
@@ -70,22 +66,23 @@ export const SharedAudioContextProvider: React.FC<{
 	}
 
 	const registerAudio = useCallback(
-		(aud: RemotionAudioProps) => {
+		(aud: RemotionAudioProps): Promise<AudioElem> => {
 			// We need a timeout because this state setting is triggered by another state being set, causing React to throw an error.
 			// By setting a timeout, we are bypassing the error and allowing the state
 			// to be updated in the next tick.
 			// This can lead to a tiny delay of audio playback, improvement ideas are welcome.
 
-			const firstFreeAudio = state.takenAudios.findIndex((a) => a === false);
-			const {id} = state.refs[firstFreeAudio];
-			const newElem: AudioElem = {
-				props: aud,
-				id,
-				el: state.refs[firstFreeAudio].ref,
-			};
-
-			setTimeout(() => {
+			return new Promise((resolve) => {
 				setState((prevState) => {
+					const firstFreeAudio = prevState.takenAudios.findIndex(
+						(a) => a === false
+					);
+					const {id} = refs[firstFreeAudio];
+					const newElem: AudioElem = {
+						props: aud,
+						id,
+						el: refs[firstFreeAudio].ref,
+					};
 					if (firstFreeAudio === -1) {
 						throw new Error(
 							`Tried to simultaneously mount ${
@@ -94,37 +91,39 @@ export const SharedAudioContextProvider: React.FC<{
 						);
 					}
 
-					const cloned = [...state.takenAudios];
+					const cloned = [...prevState.takenAudios];
 					cloned[firstFreeAudio] = id;
+
+					resolve(newElem);
 
 					return {
 						audios: [...prevState.audios, newElem],
-						refs: prevState.refs,
 						takenAudios: cloned,
 					};
 				});
-			}, 4);
-			return newElem;
+			});
 		},
-		[numberOfAudioTags, state.refs, state.takenAudios]
+		[numberOfAudioTags, refs]
 	);
 
-	const unregisterAudio = useCallback((id: number) => {
-		setState((prevState) => {
-			const cloned = [...prevState.takenAudios];
-			const index = prevState.refs.findIndex((r) => r.id === id);
-			if (index === -1) {
-				throw new TypeError('Error occured in ');
-			}
+	const unregisterAudio = useCallback(
+		(id: number) => {
+			setState((prevState) => {
+				const cloned = [...prevState.takenAudios];
+				const index = refs.findIndex((r) => r.id === id);
+				if (index === -1) {
+					throw new TypeError('Error occured in ');
+				}
 
-			cloned[index] = false;
-			return {
-				audios: prevState.audios.filter((a) => a.id !== id),
-				refs: prevState.refs,
-				takenAudios: cloned,
-			};
-		});
-	}, []);
+				cloned[index] = false;
+				return {
+					audios: prevState.audios.filter((a) => a.id !== id),
+					takenAudios: cloned,
+				};
+			});
+		},
+		[refs]
+	);
 
 	const updateAudio = useCallback((id: number, aud: RemotionAudioProps) => {
 		setState((prevState) => {
@@ -145,10 +144,10 @@ export const SharedAudioContextProvider: React.FC<{
 	}, []);
 
 	const playAllAudios = useCallback(() => {
-		state.refs.forEach((ref) => {
+		refs.forEach((ref) => {
 			ref.ref.current?.play();
 		});
-	}, [state.refs]);
+	}, [refs]);
 
 	const value: SharedContext = useMemo(() => {
 		return {
@@ -167,7 +166,7 @@ export const SharedAudioContextProvider: React.FC<{
 	]);
 	return (
 		<SharedAudioContext.Provider value={value}>
-			{state.refs.map(({id, ref}) => {
+			{refs.map(({id, ref}) => {
 				const data = state.audios.find((a) => a.id === id);
 				if (data === undefined) {
 					return <audio key={id} ref={ref} src={EMPTY_AUDIO} />;
@@ -187,31 +186,41 @@ export const SharedAudioContextProvider: React.FC<{
 export const useSharedAudio = (aud: RemotionAudioProps) => {
 	const ctx = useContext(SharedAudioContext);
 
-	const [elem] = useState((): AudioElem => {
+	const [elem, setElem] = useState<AudioElem | null>(null);
+
+	useEffect(() => {
 		if (ctx && ctx.numberOfAudioTags > 0) {
-			return ctx.registerAudio(aud);
+			ctx
+				.registerAudio(aud)
+				.then((el) => {
+					setElem(el);
+				})
+				.catch((err) => {
+					console.log(err);
+				});
+			return;
 		}
 
-		return {
+		setElem({
 			el: React.createRef<HTMLAudioElement>(),
 			id: Math.random(),
 			props: aud,
-		};
-	});
+		});
+	}, [aud, ctx]);
 
 	useEffect(() => {
 		return () => {
-			if (ctx && ctx.numberOfAudioTags > 0) {
+			if (ctx && ctx.numberOfAudioTags > 0 && elem) {
 				ctx.unregisterAudio(elem.id);
 			}
 		};
-	}, [ctx, elem.id]);
+	}, [ctx, elem]);
 
 	useEffect(() => {
-		if (ctx && ctx.numberOfAudioTags > 0) {
+		if (ctx && ctx.numberOfAudioTags > 0 && elem) {
 			ctx.updateAudio(elem.id, aud);
 		}
-	}, [aud, ctx, elem.id]);
+	}, [aud, ctx, elem]);
 
-	return elem;
+	return elem?.el ?? null;
 };
