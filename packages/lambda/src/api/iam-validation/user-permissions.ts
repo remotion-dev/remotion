@@ -66,7 +66,7 @@ export const requiredPermissions: {
 		resource: [`arn:aws:lambda:*:*:function:${RENDER_FN_PREFIX}*`],
 	},
 	{
-		id: 'logs.PutRetentionPolicy',
+		id: 'LogsRetention',
 		actions: [logs.CreateLogGroup, logs.PutRetentionPolicy],
 		resource: [
 			`arn:aws:logs:*:*:log-group:${LOG_GROUP_PREFIX}${RENDER_FN_PREFIX}*`,

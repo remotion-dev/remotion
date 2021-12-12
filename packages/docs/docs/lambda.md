@@ -20,7 +20,7 @@ import {LambdaRegionList} from '../components/lambda/regions.tsx';
 - You are rendering less than 1 hour of video per minute. <sub>(AWS Lambda Burst Limit / Concurrency constraint)</sub>
 - You are fine with using Amazon Web Services in one of the [supported regions](/docs/lambda/region-selection).
 
-If one of those those constraints are a dealbreaker for you, resort to normal [server-side rendering](/docs/ssr).
+If one of those those constraints is a dealbreaker for you, resort to normal [server-side rendering](/docs/ssr).
 
 ## How it works
 
