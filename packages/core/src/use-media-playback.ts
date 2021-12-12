@@ -67,7 +67,7 @@ export const useMediaPlayback = ({
 	useEffect(() => {
 		const tagName = mediaType === 'audio' ? '<Audio>' : '<Video>';
 		if (!mediaRef || !mediaRef.current) {
-			throw new Error(`No ${mediaType} ref found`);
+			return;
 		}
 
 		if (!src) {
