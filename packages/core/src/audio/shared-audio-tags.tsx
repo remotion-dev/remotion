@@ -39,12 +39,29 @@ type SharedContext = {
 	numberOfAudioTags: number;
 };
 
+type Ref = {
+	id: number;
+	ref: React.RefObject<HTMLAudioElement>;
+};
+
 export const SharedAudioContext = createContext<SharedContext | null>(null);
 
 export const SharedAudioContextProvider: React.FC<{
 	numberOfAudioTags: number;
 }> = ({children, numberOfAudioTags}) => {
-	const [audios, setAudios] = useState<AudioElem[]>([]);
+	const [state, setState] = useState<{
+		audios: AudioElem[];
+		refs: Ref[];
+		takenAudios: (false | number)[];
+	}>(() => {
+		return {
+			audios: [],
+			refs: new Array(numberOfAudioTags).fill(true).map(() => {
+				return {id: Math.random(), ref: createRef<HTMLAudioElement>()};
+			}),
+			takenAudios: new Array(numberOfAudioTags).fill(false),
+		};
+	});
 	const [initialNumberOfAudioTags] = useState(numberOfAudioTags);
 
 	if (numberOfAudioTags !== initialNumberOfAudioTags) {
@@ -53,71 +70,68 @@ export const SharedAudioContextProvider: React.FC<{
 		);
 	}
 
-	const refs = useMemo(() => {
-		return new Array(numberOfAudioTags).fill(true).map(() => {
-			return {id: Math.random(), ref: createRef<HTMLAudioElement>()};
-		});
-	}, [numberOfAudioTags]);
-
-	const takenAudios = useRef<(false | number)[]>(
-		new Array(numberOfAudioTags).fill(false)
-	);
-
 	const registerAudio = useCallback(
 		(aud: RemotionAudioProps) => {
-			const firstFreeAudio = takenAudios.current.findIndex((a) => a === false);
-			if (firstFreeAudio === -1) {
-				throw new Error(
-					`Tried to simultaneously mount ${
-						numberOfAudioTags + 1
-					} <Audio /> tags at the same time. With the current settings, the maximum amount of <Audio /> tags is limited to ${numberOfAudioTags} at the same time. Remotion pre-mounts silent audio tags to help avoid browser autoplay restrictions. See https://remotion.dev/docs/player#numberofsharedaudiotags for more information on how to increase this limit.`
-				);
-			}
-
-			const {id, ref} = refs[firstFreeAudio];
-			const cloned = [...takenAudios.current];
-			cloned[firstFreeAudio] = id;
-			takenAudios.current = cloned;
-
-			const newElem: AudioElem = {
-				props: aud,
-				id,
-				el: ref,
-			};
 			// We need a timeout because this state setting is triggered by another state being set, causing React to throw an error.
 			// By setting a timeout, we are bypassing the error and allowing the state
 			// to be updated in the next tick.
 			// This can lead to a tiny delay of audio playback, improvement ideas are welcome.
+
+			const firstFreeAudio = state.takenAudios.findIndex((a) => a === false);
+			const {id} = state.refs[firstFreeAudio];
+			const newElem: AudioElem = {
+				props: aud,
+				id,
+				el: state.refs[firstFreeAudio].ref,
+			};
+
 			setTimeout(() => {
-				setAudios((prevAudios) => [...prevAudios, newElem]);
+				setState((prevState) => {
+					if (firstFreeAudio === -1) {
+						throw new Error(
+							`Tried to simultaneously mount ${
+								numberOfAudioTags + 1
+							} <Audio /> tags at the same time. With the current settings, the maximum amount of <Audio /> tags is limited to ${numberOfAudioTags} at the same time. Remotion pre-mounts silent audio tags to help avoid browser autoplay restrictions. See https://remotion.dev/docs/player#numberofsharedaudiotags for more information on how to increase this limit.`
+						);
+					}
+
+					const cloned = [...state.takenAudios];
+					cloned[firstFreeAudio] = id;
+
+					return {
+						audios: [...prevState.audios, newElem],
+						refs: prevState.refs,
+						takenAudios: cloned,
+					};
+				});
 			}, 4);
 			return newElem;
 		},
-		[numberOfAudioTags, refs]
+		[numberOfAudioTags, state.refs, state.takenAudios]
 	);
 
-	const unregisterAudio = useCallback(
-		(id: number) => {
-			const cloned = [...takenAudios.current];
-			const index = refs.findIndex((r) => r.id === id);
+	const unregisterAudio = useCallback((id: number) => {
+		setState((prevState) => {
+			const cloned = [...prevState.takenAudios];
+			const index = prevState.refs.findIndex((r) => r.id === id);
 			if (index === -1) {
 				throw new TypeError('Error occured in ');
 			}
 
 			cloned[index] = false;
-
-			takenAudios.current = cloned;
-			setAudios((prevAudios) => {
-				return prevAudios.filter((a) => a.id !== id);
-			});
-		},
-		[refs]
-	);
+			return {
+				audios: prevState.audios.filter((a) => a.id !== id),
+				refs: prevState.refs,
+				takenAudios: cloned,
+			};
+		});
+	}, []);
 
 	const updateAudio = useCallback((id: number, aud: RemotionAudioProps) => {
-		setAudios((prevAudios) => {
-			return prevAudios.map(
-				(prevA): AudioElem => {
+		setState((prevState) => {
+			return {
+				...prevState,
+				audios: prevState.audios.map((prevA): AudioElem => {
 					if (prevA.id === id) {
 						return {
 							...prevA,
@@ -126,16 +140,16 @@ export const SharedAudioContextProvider: React.FC<{
 					}
 
 					return prevA;
-				}
-			);
+				}),
+			};
 		});
 	}, []);
 
 	const playAllAudios = useCallback(() => {
-		refs.forEach((ref) => {
+		state.refs.forEach((ref) => {
 			ref.ref.current?.play();
 		});
-	}, [refs]);
+	}, [state.refs]);
 
 	const value: SharedContext = useMemo(() => {
 		return {
@@ -152,11 +166,10 @@ export const SharedAudioContextProvider: React.FC<{
 		unregisterAudio,
 		updateAudio,
 	]);
-
 	return (
 		<SharedAudioContext.Provider value={value}>
-			{refs.map(({id, ref}) => {
-				const data = audios.find((a) => a.id === id);
+			{state.refs.map(({id, ref}) => {
+				const data = state.audios.find((a) => a.id === id);
 				if (data === undefined) {
 					return <audio key={id} ref={ref} src={EMPTY_AUDIO} />;
 				}
@@ -175,19 +188,17 @@ export const SharedAudioContextProvider: React.FC<{
 export const useSharedAudio = (aud: RemotionAudioProps) => {
 	const ctx = useContext(SharedAudioContext);
 
-	const [elem] = useState(
-		(): AudioElem => {
-			if (ctx && ctx.numberOfAudioTags > 0) {
-				return ctx.registerAudio(aud);
-			}
-
-			return {
-				el: React.createRef<HTMLAudioElement>(),
-				id: Math.random(),
-				props: aud,
-			};
+	const [elem] = useState((): AudioElem => {
+		if (ctx && ctx.numberOfAudioTags > 0) {
+			return ctx.registerAudio(aud);
 		}
-	);
+
+		return {
+			el: React.createRef<HTMLAudioElement>(),
+			id: Math.random(),
+			props: aud,
+		};
+	});
 
 	useEffect(() => {
 		return () => {
