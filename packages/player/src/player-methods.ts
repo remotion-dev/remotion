@@ -14,6 +14,7 @@ export type PlayerMethods = {
 	setVolume: (num: number) => void;
 	getVolume: () => number;
 	isMuted: () => boolean;
+	isPlaying: () => boolean;
 	mute: () => void;
 	unmute: () => void;
 };

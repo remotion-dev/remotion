@@ -161,6 +161,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 				toggle,
 				getContainerNode: () => container.current,
 				getCurrentFrame: player.getCurrentFrame,
+				isPlaying: () => player.playing,
 				seekTo: (f) => {
 					const lastFrame = durationInFrames - 1;
 					const frameToSeekTo = Math.max(0, Math.min(lastFrame, f));

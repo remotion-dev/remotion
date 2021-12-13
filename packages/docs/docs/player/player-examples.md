@@ -1,5 +1,5 @@
 ---
-id: player-examples
+id: examples
 sidebar_label: "Examples"
 title: "Examples for @remotion/player"
 slug: /player/examples
