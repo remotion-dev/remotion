@@ -1,5 +1,5 @@
 import {CURRENT_VERSION, LambdaRoutines} from '../../defaults';
-import {handler} from '../../functions/_index';
+import {handler} from '../../functions/index';
 
 test('Call function locally', async () => {
 	expect(
