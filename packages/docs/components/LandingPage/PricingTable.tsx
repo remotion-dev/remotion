@@ -49,9 +49,13 @@ export const PricingTable: React.FC<{}> = () => {
               </li>
             </ul>
             <div style={{ flex: 1 }} />
-            <BlueButton fullWidth disabled loading={false} size="bg">
-              No signup required
-            </BlueButton>
+            <a className={styles.pricinga} href="/docs">
+              <div>
+                <BlueButton fullWidth loading={false} size="bg">
+                  Get started
+                </BlueButton>
+              </div>
+            </a>
           </div>
         </div>
         <Spacer />
