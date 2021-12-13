@@ -1,12 +1,13 @@
 ---
 id: player
 title: "@remotion/player"
+slug: /player
 ---
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
-import { PlayerExample } from "../components/Player.tsx";
-import { ExperimentalBadge } from "../components/Experimental.tsx";
+import { PlayerExample } from "../../components/Player.tsx";
+import { ExperimentalBadge } from "../../components/Experimental.tsx";
 
 <ExperimentalBadge message="This player is currently in a beta state. We are done with the most important features we wanted to implement and will promote the Player to stable in the next version, if there is no feedback from users."/>
 
@@ -206,13 +207,23 @@ Pause the video. Nothing happens if the video is already paused.
 
 Play the video. Nothing happens if the video is already playing.
 
+If you play the video from a user gesture, pass the `SyntheticEvent` in as an argument so [browser autoplay restrictions do not apply](/docs/player/autoplay).
+
 ### `toggle()`
 
 Pauses the video if it's playing. Plays the video if it's paused.
 
+If you play the video from a user gesture, pass the `SyntheticEvent` in as an argument so [browser autoplay restrictions do not apply](/docs/player/autoplay).
+
 ### `getCurrentFrame()`
 
 Gets the current postition expressed as the current frame. Divide by the `fps` you passed to get the time in seconds.
+
+### `isPlaying()`
+
+_Available from v2.5.6_
+
+Returns a boolean indicating whether the video is playing.
 
 ### `getContainerNode()`
 

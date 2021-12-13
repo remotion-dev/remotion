@@ -1,5 +1,5 @@
 ---
-id: player-integration
+id: integration
 sidebar_label: "Integrate into your app"
 title: "Integrating Player into your app"
 slug: /player/integration
