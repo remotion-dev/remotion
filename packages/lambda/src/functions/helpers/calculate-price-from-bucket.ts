@@ -41,7 +41,7 @@ export const estimatePriceFromBucket = ({
 
 	const elapsedTime =
 		timeToFinish === null
-			? Date.now() - (renderMetadata?.startedDate ?? 0)
+			? Math.max(0, Date.now() - (renderMetadata?.startedDate ?? 0))
 			: timeToFinish;
 
 	const unfinished = Math.max(
@@ -67,14 +67,12 @@ export const estimatePriceFromBucket = ({
 	const accruedSoFar = Number(
 		estimatePrice({
 			region: getCurrentRegionInFunction(),
-			durationInMiliseconds: Math.max(
-				0,
+			durationInMiliseconds:
 				calculateChunkTimes({
 					contents,
 					renderId: renderMetadata.renderId,
 					type: 'combined-time-for-cost-calculation',
-				}) + timeElapsedOfUnfinished
-			),
+				}) + timeElapsedOfUnfinished,
 			memorySizeInMb,
 		}).toPrecision(5)
 	);
