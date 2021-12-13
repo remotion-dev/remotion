@@ -53,17 +53,6 @@ export const estimatePriceFromBucket = ({
 		.map(() => elapsedTime)
 		.reduce((a, b) => a + b, 0);
 
-	console.log(
-		`chunk times`,
-		calculateChunkTimes({
-			contents,
-			renderId: renderMetadata.renderId,
-			type: 'combined-time-for-cost-calculation',
-		}),
-		`unfinished`,
-		timeElapsedOfUnfinished
-	);
-
 	const accruedSoFar = Number(
 		estimatePrice({
 			region: getCurrentRegionInFunction(),
