@@ -47,7 +47,7 @@ export const App: React.FC = () => {
 
 If your audio does not enter the video immediately (say the few seconds of the video are silent, but then the audio fades in), it technically doesn't start based on an user interation. To combat this issue, you can use the [`numberOfSharedAudioTags`](/docs/player#numberofsharedaudiotags) property. This will play some silent audio on the first play with user interaction, and then reuse that tag to play your deferred audio playback.
 
-You can have as many silent audio tags as you want. Set `numberOfSharedAudioTags={2}` to prepare two shared audio tags. Be mindful: If you set this props and you render more [`<Audio/>`](/docs/player/audio) than there are shared audio tags, an exception will be thrown.
+You can have as many silent audio tags as you want. Set `numberOfSharedAudioTags={2}` to prepare two shared audio tags. Be mindful: If you set this props and you render more [`<Audio/>`](/docs/audio) than there are shared audio tags, an exception will be thrown.
 
 :::warning
 Due to a bug on our side, this prop does not work with React Strict Mode. If you use Next.JS, set `reactStrictMode: false,` in your `next.config.js` to `false`. Remove any `<React.StrictMode/>` tags in your app if you intend to use this prop. You can follow this bug on [GitHub](https://github.com/remotion-dev/remotion/issues/723).
