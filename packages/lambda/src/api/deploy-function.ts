@@ -4,7 +4,6 @@ import {CURRENT_VERSION, RENDER_FN_PREFIX} from '../shared/constants';
 import {DOCS_URL} from '../shared/docs-url';
 import {FUNCTION_ZIP} from '../shared/function-zip-path';
 import {getAccountId} from '../shared/get-account-id';
-import {randomHash} from '../shared/random-hash';
 import {validateAwsRegion} from '../shared/validate-aws-region';
 import {validateMemorySize} from '../shared/validate-memory-size';
 import {validateTimeout} from '../shared/validate-timeout';
@@ -31,7 +30,7 @@ export const deployFunction = async (options: {
 	validateTimeout(options.timeoutInSeconds);
 	validateAwsRegion(options.region);
 
-	const fnNameRender = RENDER_FN_PREFIX + randomHash();
+	const fnNameRender = RENDER_FN_PREFIX + CURRENT_VERSION;
 	const accountId = await getAccountId({region: options.region});
 
 	const fns = await getFunctions({
