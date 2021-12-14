@@ -30,7 +30,7 @@ export const deployFunction = async (options: {
 	validateTimeout(options.timeoutInSeconds);
 	validateAwsRegion(options.region);
 
-	const fnNameRender = `${RENDER_FN_PREFIX}-${CURRENT_VERSION}-${options.memorySizeInMb}mb-${options.timeoutInSeconds}sec`;
+	const fnNameRender = `${RENDER_FN_PREFIX}${CURRENT_VERSION}-${options.memorySizeInMb}mb-${options.timeoutInSeconds}sec`;
 	const accountId = await getAccountId({region: options.region});
 
 	const fns = await getFunctions({
