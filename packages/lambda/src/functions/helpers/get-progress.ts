@@ -1,3 +1,4 @@
+import {Internals} from 'remotion';
 import {AwsRegion} from '../..';
 import {
 	chunkKey,
@@ -22,6 +23,7 @@ import {getRetryStats} from './get-retry-stats';
 import {getTimeToFinish} from './get-time-to-finish';
 import {inspectErrors} from './inspect-errors';
 import {lambdaLs} from './io';
+import {EnhancedErrorInfo} from './write-lambda-error';
 
 export const getProgress = async ({
 	bucketName,
@@ -29,12 +31,14 @@ export const getProgress = async ({
 	expectedBucketOwner,
 	region,
 	memorySizeInMb,
+	timeoutInMiliseconds,
 }: {
 	bucketName: string;
 	renderId: string;
 	expectedBucketOwner: string;
 	region: AwsRegion;
 	memorySizeInMb: number;
+	timeoutInMiliseconds: number;
 }): Promise<RenderProgress> => {
 	const postRenderData = await getPostRenderData({
 		bucketName,
@@ -177,6 +181,31 @@ export const getProgress = async ({
 	const chunkCount = outputFile
 		? renderMetadata?.totalChunks ?? 0
 		: chunks.length;
+
+	// We add a 20 second buffer for it, since AWS timeshifts can be quite a lot. Once it's 20sec over the limit, we consider it timed out
+	const isBeyondTimeout =
+		renderMetadata &&
+		Date.now() > renderMetadata.startedDate + timeoutInMiliseconds + 20000;
+
+	const allErrors: EnhancedErrorInfo[] = [
+		isBeyondTimeout
+			? ({
+					attempt: 1,
+					chunk: null,
+					explanation: `The main function timed out after ${timeoutInMiliseconds}ms. Consider increasing the timeout of your function.`,
+					frame: null,
+					isFatal: true,
+					s3Location: '',
+					stack: new Error().stack,
+					tmpDir: null,
+					totalAttempts: 1,
+					type: 'stitcher',
+					willRetry: false,
+			  } as EnhancedErrorInfo)
+			: null,
+		...errorExplanations,
+	].filter(Internals.truthy);
+
 	return {
 		chunks: chunkCount,
 		done: false,
@@ -187,10 +216,8 @@ export const getProgress = async ({
 		bucket: bucketName,
 		outputFile: outputFile?.url ?? null,
 		timeToFinish,
-		errors: errorExplanations,
-		fatalErrorEncountered: errorExplanations.some(
-			(f) => f.isFatal && !f.willRetry
-		),
+		errors: allErrors,
+		fatalErrorEncountered: allErrors.some((f) => f.isFatal && !f.willRetry),
 		currentTime: Date.now(),
 		renderSize,
 		lambdasInvoked: lambdasInvokedStats.lambdasInvoked,

@@ -7,6 +7,7 @@ test('Call function locally', async () => {
 			{type: LambdaRoutines.info},
 			{
 				invokedFunctionArn: 'arn',
+				getRemainingTimeInMillis: () => 1000,
 			}
 		)
 	).toEqual({version: CURRENT_VERSION});

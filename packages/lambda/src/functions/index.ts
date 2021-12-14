@@ -18,8 +18,10 @@ import {stillHandler} from './still';
 
 export const handler = async <T extends LambdaRoutines>(
 	params: LambdaPayload,
-	context: {invokedFunctionArn: string}
+	context: {invokedFunctionArn: string; getRemainingTimeInMillis: () => number}
 ): Promise<LambdaReturnValues[T]> => {
+	const timeoutInMiliseconds = context.getRemainingTimeInMillis();
+
 	if (!context || !context.invokedFunctionArn) {
 		throw new Error(
 			'Lambda function unexpectedly does not have context.invokedFunctionArn'
@@ -59,7 +61,10 @@ export const handler = async <T extends LambdaRoutines>(
 		printCloudwatchHelper(LambdaRoutines.status, {
 			renderId: params.renderId,
 		});
-		return progressHandler(params, {expectedBucketOwner: currentUserId});
+		return progressHandler(params, {
+			expectedBucketOwner: currentUserId,
+			timeoutInMiliseconds,
+		});
 	}
 
 	if (params.type === LambdaRoutines.fire) {

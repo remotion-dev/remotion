@@ -10,7 +10,7 @@ test('Info handler should return version', async () => {
 		{
 			type: LambdaRoutines.info,
 		},
-		{invokedFunctionArn: '::::::'}
+		{invokedFunctionArn: '::::::', getRemainingTimeInMillis: () => 1000}
 	);
 
 	expect(
