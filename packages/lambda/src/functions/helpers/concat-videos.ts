@@ -99,7 +99,13 @@ const getAllFilesS3 = async ({
 			const checkFinish = () => {
 				const areAllFilesDownloaded =
 					Object.keys(downloaded).length === expectedFiles;
+				console.log(
+					'Checking for finish... ',
+					Object.keys(downloaded),
+					expectedFiles + ' files expected'
+				);
 				if (areAllFilesDownloaded) {
+					console.log('All files are downloaded!');
 					resolve(
 						filesInBucket.map((file) =>
 							getChunkDownloadOutputLocation({outdir, file})
@@ -107,6 +113,8 @@ const getAllFilesS3 = async ({
 					);
 				}
 			};
+
+			console.log('Found ', filesInBucket);
 
 			filesInBucket.forEach(async (key) => {
 				if (alreadyDownloading[key]) {
@@ -123,6 +131,7 @@ const getAllFilesS3 = async ({
 						region,
 						expectedBucketOwner,
 					});
+					console.log('Successfully downloaded', key);
 					downloadTimer.end();
 					downloaded[key] = true;
 					checkFinish();
