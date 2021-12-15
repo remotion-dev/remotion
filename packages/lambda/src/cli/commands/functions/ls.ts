@@ -3,7 +3,7 @@ import {Log} from '@remotion/cli/dist/log';
 import {getFunctions} from '../../../api/get-functions';
 import {getAwsRegion} from '../../get-aws-region';
 
-const NAME_COLS = 32;
+const NAME_COLS = 50;
 const MEMORY_COLS = 15;
 const TIMEOUT_COLS = 15;
 const VERSION_COLS = 15;
