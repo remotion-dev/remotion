@@ -10,9 +10,9 @@ Keep track of changes to the APIs of Remotion Lambda here.
 
 [Upgrading](/docs/lambda/upgrading)
 
-## December 16th, 2021
+## December 15th, 2021
 
-Version hash: `xxxx`  
+Version hash: `3.0.0-lambda.233+869dd7218`  
 Lambda version: '2021-12-16'
 
 Stability and ease of use improvements that we implemented from our learnings from https://githubwrapped.com!
