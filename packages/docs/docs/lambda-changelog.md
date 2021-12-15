@@ -25,6 +25,8 @@ Stability and ease of use improvements that we implemented from our learnings fr
 - You can now deploy another function with the same region and version, but with a different memory size or timeout. This allows you to increase memory size or timeout without causing downtime. [Read more about it here.](/docs/lambda/faq#do-i-need-to-deploy-a-function-for-each-render)
 - Improved compatibility with Vercel: Since `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` are reserved environment variables on Vercel and are already occupied, you can now set `REMOTION_AWS_ACCESS_KEY_ID` and `REMOTION_AWS_SECRET_ACCESS_KEY` instead for calling any Remotion Lambda Node.JS API.
 - Multi-account load balancing: The environment variables `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `REMOTION_AWS_ACCESS_KEY_ID` and `REMOTION_AWS_SECRET_ACCESS_KEY` can now be switched before making a call to Lambda. (Previously there was a bug that would cache the clients.)
+- If the render is not completed 20 seconds after the timeout of the initial invocation, the render will automatically be marked as failed. No more stuck renders!
+- catch errors occuring while assets are being downloaded and trigger a retry (previously would fail the chunk render and make the whole render time out)
 
 ## December 10th, 2021 (2)
 
