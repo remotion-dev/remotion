@@ -21,18 +21,31 @@ export const functionsDeploySubcommand = async () => {
 
 	validateMemorySize(memorySizeInMb);
 	validateTimeout(timeoutInSeconds);
-	Log.info(
-		CliInternals.chalk.gray(
-			`Region = ${region}, Memory = ${memorySizeInMb}MB, Timeout = ${timeoutInSeconds}sec, Version = ${CURRENT_VERSION}`
-		)
+	if (!CliInternals.quietFlagProvided()) {
+		Log.info(
+			CliInternals.chalk.gray(
+				`Region = ${region}, Memory = ${memorySizeInMb}MB, Timeout = ${timeoutInSeconds}sec, Version = ${CURRENT_VERSION}`
+			)
+		);
+	}
+
+	const output = CliInternals.createOverwriteableCliOutput(
+		CliInternals.quietFlagProvided()
 	);
-	const output = CliInternals.createOverwriteableCliOutput();
 	output.update('Deploying Lambda...');
-	const {functionName} = await deployFunction({
+	const {functionName, alreadyExisted} = await deployFunction({
 		createCloudWatchLogGroup,
 		region,
 		timeoutInSeconds,
 		memorySizeInMb,
 	});
-	output.update(`Deployed as ${functionName}\n`);
+	if (CliInternals.quietFlagProvided()) {
+		Log.info(functionName);
+	}
+
+	if (alreadyExisted) {
+		output.update(`Already exists as ${functionName}\n`);
+	} else {
+		output.update(`Deployed as ${functionName}\n`);
+	}
 };

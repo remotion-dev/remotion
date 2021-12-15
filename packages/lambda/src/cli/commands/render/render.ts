@@ -86,7 +86,9 @@ export const renderCommand = async (args: string[]) => {
 
 	const totalSteps = outName ? 5 : 4;
 
-	const progressBar = CliInternals.createOverwriteableCliOutput();
+	const progressBar = CliInternals.createOverwriteableCliOutput(
+		CliInternals.quietFlagProvided()
+	);
 
 	Log.info(
 		CliInternals.chalk.gray(

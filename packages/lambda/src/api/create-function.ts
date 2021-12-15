@@ -24,6 +24,7 @@ export const createFunction = async ({
 	accountId,
 	memorySizeInMb,
 	timeoutInSeconds,
+	alreadyCreated,
 }: {
 	createCloudWatchLogGroup: boolean;
 	region: AwsRegion;
@@ -32,13 +33,21 @@ export const createFunction = async ({
 	accountId: string;
 	memorySizeInMb: number;
 	timeoutInSeconds: number;
-}) => {
+	alreadyCreated: boolean;
+}): Promise<{FunctionName: string}> => {
 	if (createCloudWatchLogGroup) {
-		await getCloudWatchLogsClient(region).send(
-			new CreateLogGroupCommand({
-				logGroupName: `${LOG_GROUP_PREFIX}${functionName}`,
-			})
-		);
+		try {
+			await getCloudWatchLogsClient(region).send(
+				new CreateLogGroupCommand({
+					logGroupName: `${LOG_GROUP_PREFIX}${functionName}`,
+				})
+			);
+		} catch (_err) {
+			const err = _err as Error;
+			if (!err.message.includes('log group already exists')) {
+				throw err;
+			}
+		}
 
 		await getCloudWatchLogsClient(region).send(
 			new PutRetentionPolicyCommand({
@@ -46,6 +55,10 @@ export const createFunction = async ({
 				retentionInDays: DEFAULT_CLOUDWATCH_RETENTION_PERIOD,
 			})
 		);
+	}
+
+	if (alreadyCreated) {
+		return {FunctionName: functionName};
 	}
 
 	const {FunctionName} = await getLambdaClient(region).send(
@@ -73,5 +86,5 @@ export const createFunction = async ({
 		})
 	);
 
-	return {FunctionName};
+	return {FunctionName: FunctionName as string};
 };

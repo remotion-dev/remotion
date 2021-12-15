@@ -1,6 +1,7 @@
 import {bundle, BundlerInternals} from '@remotion/bundler';
 import {Internals} from 'remotion';
 import {Log} from './log';
+import {quietFlagProvided} from './parse-command-line';
 import {
 	createOverwriteableCliOutput,
 	makeBundlingProgress,
@@ -16,7 +17,7 @@ export const bundleOnCli = async (fullPath: string, steps: RenderStep[]) => {
 	}
 
 	const bundleStartTime = Date.now();
-	const bundlingProgress = createOverwriteableCliOutput();
+	const bundlingProgress = createOverwriteableCliOutput(quietFlagProvided());
 	const bundled = await bundle(
 		fullPath,
 		(progress) => {

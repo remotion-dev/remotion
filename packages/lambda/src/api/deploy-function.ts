@@ -1,7 +1,6 @@
 import {getFunctions} from '../api/get-functions';
 import {AwsRegion} from '../pricing/aws-regions';
 import {CURRENT_VERSION, RENDER_FN_PREFIX} from '../shared/constants';
-import {DOCS_URL} from '../shared/docs-url';
 import {FUNCTION_ZIP} from '../shared/function-zip-path';
 import {getAccountId} from '../shared/get-account-id';
 import {validateAwsRegion} from '../shared/validate-aws-region';
@@ -25,6 +24,7 @@ export const deployFunction = async (options: {
 	memorySizeInMb: number;
 }): Promise<{
 	functionName: string;
+	alreadyExisted: boolean;
 }> => {
 	validateMemorySize(options.memorySizeInMb);
 	validateTimeout(options.timeoutInSeconds);
@@ -38,13 +38,12 @@ export const deployFunction = async (options: {
 		region: options.region,
 	});
 
-	const alreadyDeployed = fns.find((f) => f.version === CURRENT_VERSION);
-
-	if (alreadyDeployed) {
-		throw new Error(
-			`Already found a function (${alreadyDeployed.functionName}) with version ${CURRENT_VERSION} deployed in region ${options.region}. You only need 1 function per region, see ${DOCS_URL}/docs/lambda/faq#do-i-need-to-deploy-a-function-for-each-render `
-		);
-	}
+	const alreadyDeployed = fns.find(
+		(f) =>
+			f.version === CURRENT_VERSION &&
+			f.memorySizeInMb === options.memorySizeInMb &&
+			f.timeoutInSeconds === options.timeoutInSeconds
+	);
 
 	const created = await createFunction({
 		createCloudWatchLogGroup: options.createCloudWatchLogGroup,
@@ -54,6 +53,7 @@ export const deployFunction = async (options: {
 		accountId,
 		memorySizeInMb: options.memorySizeInMb,
 		timeoutInSeconds: options.timeoutInSeconds,
+		alreadyCreated: Boolean(alreadyDeployed),
 	});
 
 	if (!created.FunctionName) {
@@ -62,5 +62,6 @@ export const deployFunction = async (options: {
 
 	return {
 		functionName: created.FunctionName,
+		alreadyExisted: Boolean(alreadyDeployed),
 	};
 };
