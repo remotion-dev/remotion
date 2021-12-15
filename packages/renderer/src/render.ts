@@ -260,6 +260,12 @@ export const innerRenderFrames = async ({
 						asset,
 						downloadDir,
 						onDownload: onDownload ?? (() => () => undefined),
+					}).catch((err) => {
+						onError(
+							new Error(
+								`Error while downloading asset: ${(err as Error).stack}`
+							)
+						);
 					});
 				});
 				pool.release(freePage);
