@@ -10,6 +10,22 @@ Keep track of changes to the APIs of Remotion Lambda here.
 
 [Upgrading](/docs/lambda/upgrading)
 
+## December 16th, 2021
+
+Version hash: `xxxx`  
+Lambda version: '2021-12-16'
+
+Stability and ease of use improvements that we implemented from our learnings from https://githubwrapped.com!
+
+- Fixed an error `Parameter 'durationInMiliseconds' must be over 0 but is [negative number]`
+- The function name of a deployed function is not random anymore. Instead it has the format of `remotion-render-2021-12-16-2048mb-120sec`
+- More CLI commands support the `-q` (quiet) flag.
+- Calling `npx remotion lambda functions deploy` if a suitable function already exists will not throw an error anymore but log the existing function.
+- Calling `deployFunction()` if a suitable function already exists will not throw an error anymore but return the existing function.
+- You can now deploy another function with the same region and version, but with a different memory size or timeout. This allows you to increase memory size or timeout without causing downtime. [Read more about it here.](/docs/lambda/faq#do-i-need-to-deploy-a-function-for-each-render)
+- Improved compatibility with Vercel: Since `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` are reserved environment variables on Vercel and are already occupied, you can now set `REMOTION_AWS_ACCESS_KEY_ID` and `REMOTION_AWS_SECRET_ACCESS_KEY` instead for calling any Remotion Lambda Node.JS API.
+- Multi-account load balancing: The environment variables `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `REMOTION_AWS_ACCESS_KEY_ID` and `REMOTION_AWS_SECRET_ACCESS_KEY` can now be switched before making a call to Lambda. (Previously there was a bug that would cache the clients.)
+
 ## December 10th, 2021 (2)
 
 Version hash: `3.0.0-lambda.206+161f56853`

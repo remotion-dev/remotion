@@ -6,6 +6,8 @@ slug: /lambda/deployfunction
 
 Creates an [AWS Lambda](https://aws.amazon.com/lambda/) function in your AWS account that will be able to render a video in the cloud.
 
+If a function with the same version, memory size and timeout already existed, it will be returned instead without a new one being created. This means this function can be treated as idempotent.
+
 ## Example
 
 ```ts twoslash
@@ -49,6 +51,7 @@ Whether logs should be saved into CloudWatch. We recommend enabling this option.
 An object with the following values:
 
 - `functionName` (_string_): The name of the function just created.
+- `alreadyExisted`: (_boolean_): Whether the creation was skipped because the function already existed.
 
 ## See also
 

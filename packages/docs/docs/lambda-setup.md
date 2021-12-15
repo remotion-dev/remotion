@@ -67,8 +67,8 @@ You can install `@remotion/lambda` in any project, not just a Remotion one, but 
 - Add a `.env` file to your project, and insert the following contents, using the credentials you just copied:
 
 ```txt title=".env"
-AWS_ACCESS_KEY_ID=<Access key ID>
-AWS_SECRET_ACCESS_KEY=<Secret access key>
+REMOTION_AWS_ACCESS_KEY_ID=<Access key ID>
+REMOTION_AWS_SECRET_ACCESS_KEY=<Secret access key>
 ```
 
 ## 5. Add permissions to your user
