@@ -70,4 +70,5 @@ export const CliInternals = {
 	initializeRenderCli,
 	BooleanFlags,
 	quietFlagProvided,
+	parsedCli,
 };
