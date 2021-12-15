@@ -8,12 +8,13 @@ Some commonly asked questions about Remotion Lambda.
 
 ### Do I need to deploy a function for each render?
 
-No, in general you only need to deploy one function and it will be capable of rendering multiple videos, even across different projects. Trying to deploy multiple functions with the same version and region will result in an error.
+No, in general you only need to deploy one function and it will be capable of rendering multiple videos, even across different projects. Trying to deploy multiple functions with the same version and region will result in the existing function being returned instead.
 
-There are two exceptions when it is possible to deploy multiple functions:
+There are three exceptions when it is possible to deploy multiple functions:
 
 - If you are using multiple regions, you need to deploy a function for each region.
 - If you are upgrading to a newer version of Remotion Lambda, you need to deploy a new function. You can then run the new and the old function side-by-side. The `@remotion/lambda` CLI will always choose the function in your AWS account that has the same version as the client package. If you use the [`getFunctions()`](/docs/lambda/getfunctions) Node.JS API, set the [`compatibleOnly`](/docs/lambda/getfunctions#compatibleonly) flag to `true` to filter out functions that don't match the version of the `@remotion/lambda` package.
+- If you are deploying a function with a different memory size or timeout, a new function can be created. However, currently if multiple suitable functions are available, Remotion will choose one at random. So you should only use this strategy to change the parameters of the function without causing downtime.
 
 ### Do I need to create multiple buckets?
 
