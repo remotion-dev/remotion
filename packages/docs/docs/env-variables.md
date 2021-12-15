@@ -1,5 +1,5 @@
 ---
-id: env-variables
+id: envvariables
 title: Environment variables
 ---
 
@@ -36,10 +36,11 @@ You can override the location of your dotenv file using the [configuration file 
 
 ## Setting via `renderMedia()`
 
-The above two methods only work when rendering from the CLI. To pass environment variables while server-side-rendering, pass an object to the [`envVariables` option of `renderMedia()`](/docs/renderer/render-media#env-variables).
+The above two methods only work when rendering from the CLI. To pass environment variables while server-side-rendering, pass an object to the [`envVariables` option of `renderMedia()`](/docs/renderer/render-media#envvariables).
 
 ## See also
 
-- [`renderMedia()` - envVariables](/docs/renderer/render-media#env-variables)
-- [`renderFrames()` - envVariables](/docs/renderer/render-frames#env-variables)
+- [`renderMedia()` - envVariables](/docs/renderer/render-media#envvariables)
+- [`renderFrames()` - envVariables](/docs/renderer/render-frames#envvariables)
+- [`renderStill()` - envVariables](/docs/renderer/render-still#envvariables)
 - [dotenv](https://www.npmjs.com/package/dotenv)
