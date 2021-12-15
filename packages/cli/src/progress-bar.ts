@@ -5,7 +5,9 @@ import chalk from 'chalk';
 import {Internals} from 'remotion';
 import {RenderStep} from './step';
 
-export const createProgressBar = (): {
+export const createProgressBar = (
+	quiet: boolean
+): {
 	update: (str: string) => boolean;
 } => {
 	if (
@@ -17,10 +19,16 @@ export const createProgressBar = (): {
 		return {update: () => false};
 	}
 
-	return createOverwriteableCliOutput();
+	return createOverwriteableCliOutput(quiet);
 };
 
-export const createOverwriteableCliOutput = () => {
+export const createOverwriteableCliOutput = (quiet: boolean) => {
+	if (quiet) {
+		return {
+			update: () => false,
+		};
+	}
+
 	const diff = ansiDiff();
 	return {
 		update: (up: string): boolean => process.stdout.write(diff.update(up)),
