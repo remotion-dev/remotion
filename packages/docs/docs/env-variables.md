@@ -1,5 +1,5 @@
 ---
-id: envvariables
+id: env-variables
 title: Environment variables
 ---
 
