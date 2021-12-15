@@ -10,6 +10,13 @@ Keep track of changes to the APIs of Remotion Lambda here.
 
 [Upgrading](/docs/lambda/upgrading)
 
+## December 15th, 2021 (2)
+
+Version hash: `3.0.0-lambda.236+b35e791d5`
+Lambda version: '2021-12-17'
+
+Fixes an error being thrown in the Lambda function: `The AWS access Key ID you provided does not exist in your records`.
+
 ## December 15th, 2021
 
 Version hash: `3.0.0-lambda.233+869dd7218`  
