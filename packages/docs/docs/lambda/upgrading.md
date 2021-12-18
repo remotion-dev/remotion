@@ -1,10 +1,10 @@
 ---
-id: lambda-upgrading
+id: upgrading
 title: Upgrading
 slug: /lambda/upgrading
 ---
 
-import {Prerelease} from "../components/PrereleaseVersion"
+import {Prerelease} from "../../components/PrereleaseVersion"
 
 - Get the newest version from the [changelog](/docs/lambda/changelog) page.
 - Upgrade all packages to the newest version (`@remotion/lambda`, but also `remotion`, `@remotion/cli` etc.)

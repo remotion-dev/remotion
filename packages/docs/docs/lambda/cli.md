@@ -1,5 +1,5 @@
 ---
-id: lambda-cli
+id: cli
 sidebar_label: Overview
 title: "@remotion/lambda - CLI"
 slug: /lambda/cli

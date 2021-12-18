@@ -1,5 +1,5 @@
 ---
-id: lambda-uninstall
+id: uninstall
 title: Uninstall Lambda
 slug: /lambda/uninstall
 ---

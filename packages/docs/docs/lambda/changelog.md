@@ -1,5 +1,5 @@
 ---
-id: lambda-changelog
+id: changelog
 title: Changelog
 slug: /lambda/changelog
 ---

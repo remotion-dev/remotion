@@ -4,8 +4,8 @@ title: Lambda - Permissions
 slug: /lambda/permissions
 ---
 
-import {LambdaRegionList} from '../components/lambda/user-permissions.tsx';
-import {RolePolicy} from '../components/lambda/role-permissions.tsx';
+import {LambdaRegionList} from '../../components/lambda/user-permissions.tsx';
+import {RolePolicy} from '../../components/lambda/role-permissions.tsx';
 
 This document describes the necessary permissions for Remotion Lambda and explains to those interested why the permissions are necessary.
 

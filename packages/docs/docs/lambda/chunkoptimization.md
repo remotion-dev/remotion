@@ -1,5 +1,5 @@
 ---
-id: lambda-chunkoptimization
+id: chunkoptimization
 title: Chunk optimization
 slug: /lambda/chunk-optimization
 ---

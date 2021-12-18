@@ -4,7 +4,7 @@ title: renderVideoOnLambda()
 slug: /lambda/rendervideoonlambda
 ---
 
-import { DefaultFramesPerLambda, MinimumFramesPerLambda } from "../components/lambda/default-frames-per-lambda";
+import { DefaultFramesPerLambda, MinimumFramesPerLambda } from "../../components/lambda/default-frames-per-lambda";
 
 Triggers a render on a lambda given a composition and a lambda function.
 
