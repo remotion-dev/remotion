@@ -4,7 +4,7 @@ import {PlayerEmitter} from './event-emitter';
 export type PlayerMethods = {
 	play: (e?: SyntheticEvent) => void;
 	pause: () => void;
-	toggle: () => void;
+	toggle: (e?: SyntheticEvent) => void;
 	seekTo: (frame: number) => void;
 	getContainerNode: () => HTMLDivElement | null;
 	getCurrentFrame: () => number;
@@ -14,6 +14,7 @@ export type PlayerMethods = {
 	setVolume: (num: number) => void;
 	getVolume: () => number;
 	isMuted: () => boolean;
+	isPlaying: () => boolean;
 	mute: () => void;
 	unmute: () => void;
 };

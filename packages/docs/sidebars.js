@@ -31,9 +31,10 @@ module.exports = {
       label: "← Back to main docs",
       href: "/docs",
     },
-    "player",
-    "player-examples",
-    "player-integration",
+    "player/player",
+    "player/examples",
+    "player/integration",
+    "player/autoplay",
   ],
   lambdaSidebar: [
     {
