@@ -19,6 +19,17 @@ npx remotion lambda sites create src/index.tsx
 
 Bundle and upload a Remotion video to an S3 bucket.
 
+The result will be a URL such as `https://remotionlambda-12345.s3.eu-central-1.amazonaws.com/sites/abcdef/index.html`.
+
+You can use this "Serve URL" to render a video on Remotion Lambda using:
+
+- The [`npx remotion lambda render`](/docs/lambda/cli/render) and [`npx remotion lambda still`](/docs/lambda/cli/still) commands
+- The [`renderVideoOnLambda()`](/docs/lambda/rendervideoonlambda) and [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda) functions.
+- Locally using the [`renderMedia()`](/docs/renderer/rendermedia) and [`renderStill()`](/docs/renderer/renderstill) functions.
+- Locally using the [`npx remotion render`](/docs/cli) and [`npx remotion still`](/docs/cli) commands
+
+If you are rendering on Lambda, you can also pass the site Name (in this case `abcdef`) as an abbreviation.
+
 <details>
 <summary>
 Example output
@@ -30,7 +41,6 @@ Example output
 <br/>
 Deployed to S3!<br/>
 https://remotionlambda-12345.s3.eu-central-1.amazonaws.com/sites/abcdef/index.html<br/>
-
 </pre>
 </details>
 
@@ -74,7 +84,7 @@ Get a list of sites. The URL that is printed can be passed to the `render` comma
 Example output
 </summary>
 <pre>
-Site ID             Bucket                        Size      Last updated<br/>
+Site Name             Bucket                        Size      Last updated<br/>
 pr6fwglz05          remotionlambda-abcdefg        14.7 MB   2021-12-02<br/>     
 https://remotionlambda-abcdefg.s3.eu-central-1.amazonaws.com/sites/pr6fwglz05/index.html<br/><br/>   
 testbed             remotionlambda-abcdefg        14.7 MB   2021-12-02  <br/>
