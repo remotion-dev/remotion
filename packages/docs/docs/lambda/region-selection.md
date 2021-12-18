@@ -1,10 +1,10 @@
 ---
-id: lambda-region-selection
+id: region-selection
 title: Region selection
 slug: /lambda/region-selection
 ---
 
-import {LambdaRegionList} from '../components/lambda/regions.tsx';
+import {LambdaRegionList} from '../../components/lambda/regions.tsx';
 
 Before starting with Remotion Lambda, you need to think about into which AWS region you are deploying your function and bucket.
 

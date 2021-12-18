@@ -1,5 +1,5 @@
 ---
-id: lambda-cli-sites
+id: cli-sites
 sidebar_label: sites
 title: "npx remotion lambda sites"
 slug: /lambda/cli/sites

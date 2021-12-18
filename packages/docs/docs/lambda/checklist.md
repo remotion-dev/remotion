@@ -1,11 +1,11 @@
 ---
-id: lambda-checklist
+id: checklist
 sidebar_label: Production Checklist
 title: Production Checklist
 slug: /lambda/checklist
 ---
 
-import {DefaultTimeout} from '../components/lambda/default-timeout';
+import {DefaultTimeout} from '../../components/lambda/default-timeout';
 
 You have implemented your solution with Remotion Lambda are are ready to launch your project into the world. Congrats!
 Before you go live, go through this checklist to make sure Lambda is running stable.

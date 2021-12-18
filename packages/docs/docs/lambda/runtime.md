@@ -1,11 +1,11 @@
 ---
-id: lambda-runtime
+id: runtime
 title: Runtime
 slug: /lambda/runtime
 ---
 
-import {DefaultMemorySize} from '../components/lambda/default-memory-size';
-import {DefaultTimeout} from '../components/lambda/default-timeout';
+import {DefaultMemorySize} from '../../components/lambda/default-memory-size';
+import {DefaultTimeout} from '../../components/lambda/default-timeout';
 
 This page describes the environment that the Lambda function is running in.
 
