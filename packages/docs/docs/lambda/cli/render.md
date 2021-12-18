@@ -94,3 +94,7 @@ How many frames should be rendered in a single Lambda function. Increase it to r
 ### `--env-file`
 
 Specify a location for a dotenv file. Default `.env`.
+
+### `--frames`
+
+[Render a subset of a video](/docs/config#setframerange). Example: `--frames=0-9` to select the first 10 frames. To render a still, use the [`still`](/docs/lambda/cli/still) command.
