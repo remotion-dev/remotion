@@ -31,7 +31,9 @@ export const renderCommand = async (args: string[]) => {
 			'Pass an additional argument specifying a URL where your Remotion project is hosted.'
 		);
 		Log.info();
-		Log.info(`${BINARY_NAME} ${RENDER_COMMAND} <serve-url> <composition-id>`);
+		Log.info(
+			`${BINARY_NAME} ${RENDER_COMMAND} <serve-url> <composition-id> [output-location]`
+		);
 		quit(1);
 	}
 
@@ -40,8 +42,9 @@ export const renderCommand = async (args: string[]) => {
 		Log.error('No composition ID passed.');
 		Log.info('Pass an additional argument specifying the composition ID.');
 		Log.info();
-		// TODO: Rename serveURL
-		Log.info(`${BINARY_NAME} ${RENDER_COMMAND} <serve-url> <composition-id>`);
+		Log.info(
+			`${BINARY_NAME} ${RENDER_COMMAND} <serve-url> <composition-id> [output-location]`
+		);
 		quit(1);
 	}
 

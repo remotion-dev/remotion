@@ -20,11 +20,8 @@ export const getRemotionS3Buckets = async (
 		return {remotionBuckets: []};
 	}
 
-	const remotionBuckets = Buckets.filter(
-		(b) =>
-			b.Name?.startsWith(REMOTION_BUCKET_PREFIX) &&
-			// TODO: Rename other buckets in Jonnys account bucket first
-			!b.Name.startsWith('remotion-binaries')
+	const remotionBuckets = Buckets.filter((b) =>
+		b.Name?.startsWith(REMOTION_BUCKET_PREFIX)
 	);
 
 	const locations = await Promise.all(
