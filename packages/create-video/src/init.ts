@@ -47,7 +47,7 @@ const FEATURED_TEMPLATES: TEMPLATES[] = [
 	{
 		shortName: 'Audiogram',
 		name: 'marcusstenbeck/remotion-template-audiogram',
-		description: 'Turns text into speech and makes a video',
+		description: 'Text and waveform visualization for podcasts',
 	},
 ];
 
