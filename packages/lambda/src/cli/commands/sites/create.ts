@@ -98,7 +98,7 @@ export const sitesCreateSubcommand = async (args: string[]) => {
 	const bundleStart = Date.now();
 	const uploadStart = Date.now();
 
-	const {serveUrl} = await deploySite({
+	const {serveUrl, siteName} = await deploySite({
 		entryPoint: absoluteFile,
 		// TODO: Make better
 		siteName: parsedLambdaCli['site-name'] ?? undefined,
@@ -133,5 +133,6 @@ export const sitesCreateSubcommand = async (args: string[]) => {
 	Log.info();
 	Log.info('Deployed to S3!');
 
-	Log.info(serveUrl);
+	Log.info(`Serve URL: ${serveUrl}`);
+	Log.info(`Site Name: ${siteName}`);
 };
