@@ -40,7 +40,7 @@ export const sitesLsSubcommand = async () => {
 	Log.info();
 	Log.info(
 		CliInternals.chalk.gray(
-			logRow(['Site ID', 'Bucket', 'Size', 'Last updated'])
+			logRow(['Site Name', 'Bucket', 'Size', 'Last updated'])
 		)
 	);
 

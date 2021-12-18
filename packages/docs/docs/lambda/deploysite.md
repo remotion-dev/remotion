@@ -102,7 +102,16 @@ Whether webpack caching should be enabled. See [`bundle()` -> enableCaching](/do
 
 An object with the following values:
 
-- `serveUrl` _(string)_: The URL of the website that has been deployed. You can pass in this URL when rendering videos with Remotion Lambda.
+- `serveUrl` _(string)_: An URL such as `https://remotionlambda-12345.s3.eu-central-1.amazonaws.com/sites/abcdef/index.html`.
+
+  You can use this "Serve URL" to render a video on Remotion Lambda using:
+
+  - The [`npx remotion lambda render`](/docs/lambda/cli/render) and [`npx remotion lambda still`](/docs/lambda/cli/still) commands
+  - The [`renderVideoOnLambda()`](/docs/lambda/rendervideoonlambda) and [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda) functions.
+  - Locally using the [`renderMedia()`](/docs/renderer/rendermedia) and [`renderStill()`](/docs/renderer/renderstill) functions.
+  - Locally using the [`npx remotion render`](/docs/cli) and [`npx remotion still`](/docs/cli) commands
+
+  If you are rendering on Lambda, you can also pass the site name (in this case `abcdef`) as an abbreviation.
 
 - `siteName` _(string)_: The identifier of the site that was given. Is either the site name that you have passed into this function, or a random string that was generated if you didn't pass a site name.
 
