@@ -62,6 +62,7 @@ module.exports = {
     "lambda/runtime",
     "lambda/faq",
     "lambda/chunkoptimization",
+    "lambda/light-client",
     {
       collapsed: false,
       type: "category",

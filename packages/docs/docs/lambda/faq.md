@@ -1,6 +1,6 @@
 ---
 sidebar_label: FAQ
-title: Lambda - FAQ
+title: FAQ
 slug: /lambda/faq
 ---
 
