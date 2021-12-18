@@ -4,7 +4,7 @@ title: Lambda - Permissions
 slug: /lambda/permissions
 ---
 
-import {LambdaRegionList} from '../../components/lambda/user-permissions.tsx';
+import {UserPolicy} from '../../components/lambda/user-permissions.tsx';
 import {RolePolicy} from '../../components/lambda/role-permissions.tsx';
 
 This document describes the necessary permissions for Remotion Lambda and explains to those interested why the permissions are necessary.
@@ -18,7 +18,7 @@ This policy should be assigned to the **AWS user**. To do so, go to the [AWS con
 <details>
 <summary>Show full user permissions JSON file for latest Remotion Lambda version
 </summary>
-<LambdaRegionList />
+<UserPolicy />
 </details>
 
 :::info

@@ -53,6 +53,7 @@ module.exports = {
         "lambda/cli/functions",
         "lambda/cli/render",
         "lambda/cli/still",
+        "lambda/cli/policies",
       ],
     },
     "lambda/setup",

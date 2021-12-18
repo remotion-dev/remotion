@@ -15,23 +15,51 @@ npx remotion lambda render <serve-url> <composition-id> [<output-location>]
 
 - The serve URL is obtained by deploying a project to Remotion using the [`sites create`](/docs/lambda/cli/sites#create) command or calling [`deploySite()`](/docs/lambda/deploysite).
 - The composition ID is the [`id` of your `<Composition/>`](/docs/the-fundamentals#defining-compositions).
-- The `output-location` parameter is optional. If you don't specify it, the video is stored in your S3 bucket. If you specify a location, it gets downloaded to your device as an additional step.
+- The `output-location` parameter is optional. If you don't specify it, the video is stored in your S3 bucket. If you specify a location, it gets downloaded to your device in an additional step.
 
 ## Example commands
 
 Rendering a video:
 
 ```
-npx remotion lambda render https://remotionlambda-abcdef.s3.eu-central-1.amazonaws.com/sites/testbed/index.html react-svg
+npx remotion lambda render https://remotionlambda-abcdef.s3.eu-central-1.amazonaws.com/sites/testbed/index.html my-comp
 ```
 
 Rendering a video and saving it to `out/video.mp4`:
 
 ```
-npx remotion lambda render https://remotionlambda-abcdef.s3.eu-central-1.amazonaws.com/sites/testbed/index.html react-svg out/video.mp4
+npx remotion lambda render https://remotionlambda-abcdef.s3.eu-central-1.amazonaws.com/sites/testbed/index.html my-comp out/video.mp4
 ```
 
-TODO: Add more example commands
+Using the shorthand serve URL:
+
+```
+npx remotion lambda render testbed my-comp
+```
+
+Passing in input props:
+
+```
+npx remotion lambda render --props='{"hi": "there"}' testbed my-comp
+```
+
+Printing debug information including a CloudWatch link:
+
+```
+npx remotion lambda render --log=verbose testbed my-comp
+```
+
+Keeping the output video private:
+
+```
+npx remotion lambda render --privacy=private testbed my-comp
+```
+
+Rendering only the audio:
+
+```
+npx remotion lambda render --codec=mp3 testbed my-comp
+```
 
 ## Flags
 
@@ -45,7 +73,7 @@ The [AWS region](/docs/lambda/region-selection) to select. Both project and func
 
 ### `--log`
 
-The log level that will be used in the Lambda functions, either `verbose`, `info`, `warn` or `error`. Default `info`. Logs will be available in CloudWatch, if enabled.
+Log level to be used inside the Lambda function. Also, if you set it to `verbose`, a link to CloudWatch will be printed where you can inspect logs.
 
 ### `--privacy`
 
@@ -78,10 +106,6 @@ How many frames should be rendered in a single Lambda function. Increase it to r
 ### `--crf`
 
 [To set Constant Rate Factor (CRF) of the output](/docs/config#setcrf). Minimum 0. Use this rate control mode if you want to keep the best quality and care less about the file size.
-
-### `--frames`
-
-[Render a still frame or a subset of a video](/docs/config#setframerange). Example: `--frames=0-9` (To select the first 10 frames) or `--frames=50` (To render a still of the 51st frame).
 
 ### `--pixel-format`
 

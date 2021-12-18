@@ -34,6 +34,10 @@ Deployed as remotion-render-2021-12-17-2048mb-120sec
 </pre>
 </details>
 
+### `--region`
+
+The [AWS region](/docs/lambda/region-selection) to select. Both project and function should be in this region.
+
 ### `--memory`
 
 Memory size in megabytes. Default: <DefaultMemorySize /> MB.
@@ -73,6 +77,10 @@ remotion-render-2021-12-15-2048mb-240sec          2021-12-15     2048           
 </pre>
 </details>
 
+### `--region`
+
+The [AWS region](/docs/lambda/region-selection) to select. Both project and function should be in this region.
+
 ### `--quiet`, `-q`
 
 Prints only the function names in a space-separated list. If no functions exist, prints `()`
@@ -101,6 +109,10 @@ Deleted!
 
 </pre>
 </details>
+
+### `--region`
+
+The [AWS region](/docs/lambda/region-selection) to select. Both project and function should be in this region.
 
 ### `--yes`, `-y`
 

@@ -34,6 +34,10 @@ https://remotionlambda-12345.s3.eu-central-1.amazonaws.com/sites/abcdef/index.ht
 </pre>
 </details>
 
+### `--region`
+
+The [AWS region](/docs/lambda/region-selection) to select. Both project and function should be in this region.
+
 ### `--site-name`
 
 Uploads the project to a specific directory and returns a deterministic URL. If a site already existed under this name, it will be overwritten.
@@ -78,7 +82,11 @@ https://remotionlambda-abcdefg.s3.eu-central-1.amazonaws.com/sites/testbed/index
 </pre>
 </details>
 
-### `-q`
+### `--region`
+
+The [AWS region](/docs/lambda/region-selection) to select. Both project and function should be in this region.
+
+### `--quiet`, `-q`
 
 Returns only a list of space-separated sites.
 
@@ -157,7 +165,11 @@ Example output
 </pre>
 </details>
 
-### `-y`
+### `--region`
+
+The [AWS region](/docs/lambda/region-selection) to select. Both project and function should be in this region.
+
+### `--yes`, `-y`
 
 Removes a site without asking for confirmation.
 

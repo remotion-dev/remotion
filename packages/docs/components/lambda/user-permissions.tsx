@@ -1,7 +1,7 @@
 import { getUserPolicy } from "@remotion/lambda/dist/api/iam-validation/suggested-policy";
 import React from "react";
 
-export const LambdaRegionList: React.FC = () => {
+export const UserPolicy: React.FC = () => {
   return (
     <div>
       <pre>{getUserPolicy()}</pre>
