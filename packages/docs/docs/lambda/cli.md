@@ -7,11 +7,11 @@ slug: /lambda/cli
 
 ## Commands
 
-- [sites](/docs/lambda/sites)
-- [functions](/docs/lambda/functions)
-- [render](/docs/lambda/render)
-- [still](/docs/lambda/still)
-- [policies](/docs/lambda/policies)
+- [sites](/docs/lambda/cli/sites)
+- [functions](/docs/lambda/cli/functions)
+- [render](/docs/lambda/cli/render)
+- [still](/docs/lambda/cli/still)
+- [policies](/docs/lambda/cli/policies)
 
 ## Global options
 
