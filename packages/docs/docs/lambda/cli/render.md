@@ -1,5 +1,5 @@
 ---
-id: cli-render
+id: render
 sidebar_label: render
 title: "npx remotion lambda render"
 slug: /lambda/cli/render
