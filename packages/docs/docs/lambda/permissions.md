@@ -43,13 +43,17 @@ You can always get the suitable permission file for your Remotion Lambda version
 
 ## Validation
 
-There are two ways in which you can test if the permissions have been correctly set up. Either you execute the following command:
+There are two ways in which you can test if the permissions for the user have been correctly set up. Either you execute the following command:
 
 ```bash
 npx remotion lambda policies validate
 ```
 
-or if you want to validate it programmatically, the [`simulatePermissions()`](/docs/lambda/simulatepermissions).
+or if you want to validate it programmatically, using the [`simulatePermissions()`](/docs/lambda/simulatepermissions) function.
+
+:::info
+Policies for the role cannot be validated.
+:::
 
 ## Explanation
 
