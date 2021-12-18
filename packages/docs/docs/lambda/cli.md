@@ -25,6 +25,8 @@ Selects an AWS region: For example:
 
 The default region is `us-east-1`. You may also set a `AWS_REGION` environment variable directly or via `.env` file.
 
+See: [Region selection](/docs/lambda/region-selection)
+
 ### `--yes`, `-y`
 
 Skips confirmation when doing a destructive action.
