@@ -1,7 +1,6 @@
 ---
 sidebar_label: Permissions
-title: Lambda - Permissions
-slug: /lambda/permissions
+title: Permissions
 ---
 
 import {UserPolicy} from '../../components/lambda/user-permissions.tsx';
