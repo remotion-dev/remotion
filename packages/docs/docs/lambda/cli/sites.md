@@ -40,7 +40,8 @@ Example output
 (3/3) [====================] Uploaded to S3 25118ms<br/>
 <br/>
 Deployed to S3!<br/>
-https://remotionlambda-12345.s3.eu-central-1.amazonaws.com/sites/abcdef/index.html<br/>
+Serve URL: https://remotionlambda-12345.s3.eu-central-1.amazonaws.com/sites/abcdef/index.html<br/>
+Site Name: abcdef<br/>
 </pre>
 </details>
 
