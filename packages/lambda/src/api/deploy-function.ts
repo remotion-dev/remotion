@@ -8,6 +8,18 @@ import {validateMemorySize} from '../shared/validate-memory-size';
 import {validateTimeout} from '../shared/validate-timeout';
 import {createFunction} from './create-function';
 
+export type DeployFunctionInput = {
+	createCloudWatchLogGroup: boolean;
+	region: AwsRegion;
+	timeoutInSeconds: number;
+	memorySizeInMb: number;
+};
+
+export type DeployFunctionOutput = {
+	functionName: string;
+	alreadyExisted: boolean;
+};
+
 /**
  * @description Creates an AWS Lambda function in your account that will be able to render a video in the cloud.
  * @link https://remotion-3.vercel.app/docs/lambda/deployfunction
@@ -15,17 +27,11 @@ import {createFunction} from './create-function';
  * @param options.region The region you want to deploy your function to.
  * @param options.timeoutInSeconds After how many seconds the lambda function should be killed if it does not end itself.
  * @param options.memorySizeInMb How much memory should be allocated to the Lambda function.
- * @returns An object that contains the `functionName` property
+ * @returns {Promise<DeployFunctionOutput>} An object that contains the `functionName` property
  */
-export const deployFunction = async (options: {
-	createCloudWatchLogGroup: boolean;
-	region: AwsRegion;
-	timeoutInSeconds: number;
-	memorySizeInMb: number;
-}): Promise<{
-	functionName: string;
-	alreadyExisted: boolean;
-}> => {
+export const deployFunction = async (
+	options: DeployFunctionInput
+): Promise<DeployFunctionOutput> => {
 	validateMemorySize(options.memorySizeInMb);
 	validateTimeout(options.timeoutInSeconds);
 	validateAwsRegion(options.region);

@@ -12,7 +12,7 @@ export type FunctionInfo = {
 	version: LambdaVersions | null;
 };
 
-type GetFunctionInfoArgs = {
+export type GetFunctionInfoInput = {
 	region: AwsRegion;
 	functionName: string;
 };
@@ -27,7 +27,7 @@ type GetFunctionInfoArgs = {
 export const getFunctionInfo = async ({
 	region,
 	functionName,
-}: GetFunctionInfoArgs): Promise<FunctionInfo> => {
+}: GetFunctionInfoInput): Promise<FunctionInfo> => {
 	validateAwsRegion(region);
 
 	const [functionInfo, version] = await Promise.all([

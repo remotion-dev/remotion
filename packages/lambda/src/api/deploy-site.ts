@@ -25,7 +25,7 @@ export type DeploySiteInput = {
 	};
 };
 
-export type DeploySiteReturnType = Promise<{
+export type DeploySiteOutput = Promise<{
 	serveUrl: string;
 	siteName: string;
 }>;
@@ -45,7 +45,7 @@ export const deploySite = async ({
 	siteName,
 	options,
 	region,
-}: DeploySiteInput): DeploySiteReturnType => {
+}: DeploySiteInput): DeploySiteOutput => {
 	validateAwsRegion(region);
 	if (!bucketName.startsWith(REMOTION_BUCKET_PREFIX)) {
 		throw new Error(

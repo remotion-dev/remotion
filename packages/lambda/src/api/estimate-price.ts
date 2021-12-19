@@ -3,7 +3,7 @@ import {pricing} from '../pricing/price-per-1-s';
 import {validateAwsRegion} from '../shared/validate-aws-region';
 import {validateMemorySize} from '../shared/validate-memory-size';
 
-type EstimatePriceInput = {
+export type EstimatePriceInput = {
 	region: AwsRegion;
 	durationInMiliseconds: number;
 	memorySizeInMb: number;
@@ -12,13 +12,13 @@ type EstimatePriceInput = {
  *
  * @description Calculates the AWS costs incurred for AWS Lambda given the region, execution duration and memory size.
  * @link https://remotion-3.vercel.app/docs/lambda/estimateprice
- * @returns `number` Price in USD
+ * @returns {number} Price in USD
  */
 export const estimatePrice = ({
 	region,
 	durationInMiliseconds,
 	memorySizeInMb,
-}: EstimatePriceInput) => {
+}: EstimatePriceInput): number => {
 	validateMemorySize(memorySizeInMb);
 	validateAwsRegion(region);
 	if (typeof durationInMiliseconds !== 'number') {

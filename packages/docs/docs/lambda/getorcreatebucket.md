@@ -11,11 +11,11 @@ Creates a bucket for Remotion Lambda in your S3 account. If one already exists, 
 ```ts twoslash
 // @module: ESNext
 // @target: ESNext
-import {getOrCreateBucket} from '@remotion/lambda';
+import { getOrCreateBucket } from "@remotion/lambda";
 
-const {bucketName} = await getOrCreateBucket({region: 'us-east-1'})
+const { bucketName } = await getOrCreateBucket({ region: "us-east-1" });
 
-console.log(bucketName) // "remtionlambda-32df3p"
+console.log(bucketName); // "remotionlambda-32df3p"
 ```
 
 ## Arguments
@@ -25,6 +25,12 @@ An object with the following property:
 ### `region`
 
 The [AWS region](/docs/lambda/region-selection) which you want to create a bucket in.
+
+### `onBucketEnsured?`
+
+_optional_
+
+Allows to pass a callback after the bucket was created and before the S3 website option was enabled. This option exists so the CLI can better visualize the progress.
 
 ## Return value
 

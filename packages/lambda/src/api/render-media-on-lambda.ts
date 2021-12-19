@@ -16,6 +16,32 @@ import {
 import {convertToServeUrl} from '../shared/convert-to-serve-url';
 import {validateFramesPerLambda} from '../shared/validate-frames-per-lambda';
 
+export type RenderMediaOnLambdaInput = {
+	region: AwsRegion;
+	functionName: string;
+	serveUrl: string;
+	composition: string;
+	inputProps: unknown;
+	codec: 'h264-mkv' | 'mp3' | 'aac' | 'wav';
+	imageFormat: ImageFormat;
+	crf?: number | undefined;
+	envVariables?: Record<string, string>;
+	pixelFormat?: PixelFormat;
+	proResProfile?: ProResProfile;
+	privacy: Privacy;
+	quality?: number;
+	maxRetries: number;
+	framesPerLambda?: number;
+	enableChunkOptimization?: boolean;
+	logLevel?: LogLevel;
+	frameRange?: FrameRange;
+};
+
+export type RenderMediaOnLambdaOutput = {
+	renderId: string;
+	bucketName: string;
+};
+
 /**
  * @description Triggers a render on a lambda given a composition and a lambda function.
  * @link https://remotion-3.vercel.app/docs/lambda/rendermediaonlambda
@@ -33,7 +59,7 @@ import {validateFramesPerLambda} from '../shared/validate-frames-per-lambda';
  * @param params.maxRetries How often rendering a chunk may fail before the video render gets aborted.
  * @param params.enableChunkOptimization Whether Remotion should restructure and optimize chunks for subsequent renders. Default true.
  * @param params.logLevel Level of logging that Lambda function should perform. Default "info".
- * @returns `Promise<{renderId: string; bucketName: string}>`
+ * @returns {Promise<RenderMediaOnLambdaOutput>} See documentation for detailed structure
  */
 
 export const renderMediaOnLambda = async ({
@@ -55,26 +81,7 @@ export const renderMediaOnLambda = async ({
 	enableChunkOptimization,
 	logLevel,
 	frameRange,
-}: {
-	region: AwsRegion;
-	functionName: string;
-	serveUrl: string;
-	composition: string;
-	inputProps: unknown;
-	codec: 'h264-mkv' | 'mp3' | 'aac' | 'wav';
-	imageFormat: ImageFormat;
-	crf?: number | undefined;
-	envVariables?: Record<string, string>;
-	pixelFormat?: PixelFormat;
-	proResProfile?: ProResProfile;
-	privacy: Privacy;
-	quality?: number;
-	maxRetries: number;
-	framesPerLambda?: number;
-	enableChunkOptimization?: boolean;
-	logLevel?: LogLevel;
-	frameRange?: FrameRange;
-}) => {
+}: RenderMediaOnLambdaInput): Promise<RenderMediaOnLambdaOutput> => {
 	validateFramesPerLambda(framesPerLambda);
 	const realServeUrl = await convertToServeUrl(serveUrl, region);
 	const res = await callLambda({

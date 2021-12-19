@@ -1,7 +1,7 @@
 import {CliInternals} from '@remotion/cli';
-import {downloadMedia} from '../../../api/download-video';
+import {downloadMedia} from '../../../api/download-media';
 import {getRenderProgress} from '../../../api/get-render-progress';
-import {renderMediaOnLambda} from '../../../api/render-video-on-lambda';
+import {renderMediaOnLambda} from '../../../api/render-media-on-lambda';
 import {
 	BINARY_NAME,
 	DEFAULT_FRAMES_PER_LAMBDA,
