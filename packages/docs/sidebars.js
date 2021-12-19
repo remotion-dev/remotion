@@ -76,7 +76,7 @@ module.exports = {
         "lambda/deletesite",
         "lambda/deploysite",
         "lambda/getsites",
-        "lambda/downloadvideo",
+        "lambda/downloadmedia",
         "lambda/getuserpolicy",
         "lambda/getrolepolicy",
         "lambda/getorcreatebucket",

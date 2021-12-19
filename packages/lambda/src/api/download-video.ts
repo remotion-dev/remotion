@@ -10,7 +10,7 @@ import {
 import {AwsRegion} from '../pricing/aws-regions';
 import {getAccountId} from '../shared/get-account-id';
 
-type DownloadVideoInput = {
+type DownloadMediaInput = {
 	region: AwsRegion;
 	bucketName: string;
 	renderId: string;
@@ -18,14 +18,14 @@ type DownloadVideoInput = {
 	onProgress?: LambdaReadFileProgress;
 };
 
-type DownloadVideoOutput = {
+type DownloadMediaOutput = {
 	outputPath: string;
 	sizeInBytes: number;
 };
 
-export const downloadVideo = async (
-	input: DownloadVideoInput
-): Promise<DownloadVideoOutput> => {
+export const downloadMedia = async (
+	input: DownloadMediaInput
+): Promise<DownloadMediaOutput> => {
 	const expectedBucketOwner = await getAccountId({
 		region: input.region,
 	});
@@ -65,3 +65,8 @@ export const downloadVideo = async (
 		sizeInBytes,
 	};
 };
+
+/**
+ * @deprecated Renamed to downloadMedia()
+ */
+export const downloadVideo = downloadMedia;
