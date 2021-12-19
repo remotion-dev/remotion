@@ -72,7 +72,7 @@ The combined size of all files in that project.
 
 #### `serveUrl`
 
-URL of the deployed site. You can pass it into `renderMediaOnLambda()` to render a video or audio.
+URL of the deployed site. You can pass it into [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda) to render a video or audio.
 
 ### `buckets`
 
