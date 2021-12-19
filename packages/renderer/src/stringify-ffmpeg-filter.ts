@@ -35,8 +35,6 @@ export const stringifyFfmpegFilter = ({
 	return (
 		`[${streamIndex}:a]` +
 		[
-			// TODO: This will solve the issue of stitching videos together reported by Olli
-			// on Discord. But will it introduce other problems where the audio is not right? Pending investigation
 			'apad',
 			`atrim=${trimLeft}:${trimRight}`,
 			// For n channels, we delay n + 1 channels.
