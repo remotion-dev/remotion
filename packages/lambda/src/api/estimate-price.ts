@@ -1,7 +1,7 @@
+import {AwsRegion} from '../pricing/aws-regions';
+import {pricing} from '../pricing/price-per-1-s';
 import {validateAwsRegion} from '../shared/validate-aws-region';
 import {validateMemorySize} from '../shared/validate-memory-size';
-import {AwsRegion} from './aws-regions';
-import {pricing} from './price-per-1-s';
 
 type EstimatePriceInput = {
 	region: AwsRegion;

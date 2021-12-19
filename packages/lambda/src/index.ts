@@ -11,6 +11,7 @@ import {
 	DeploySiteReturnType,
 } from './api/deploy-site';
 import {downloadMedia, downloadVideo} from './api/download-video';
+import {estimatePrice} from './api/estimate-price';
 import {getFunctionInfo} from './api/get-function-info';
 import {getFunctions} from './api/get-functions';
 import {getOrCreateBucket} from './api/get-or-create-bucket';
@@ -30,7 +31,6 @@ import {
 import {LambdaLSInput, LambdaLsReturnType} from './functions/helpers/io';
 import {LambdaInternals} from './internals';
 import {AwsRegion} from './pricing/aws-regions';
-import {estimatePrice} from './pricing/calculate-price';
 import type {RenderProgress} from './shared/constants';
 
 export {

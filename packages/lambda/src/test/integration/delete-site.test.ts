@@ -1,4 +1,6 @@
-import {deleteSite, deploySite, getOrCreateBucket} from '../..';
+import {deleteSite} from '../../api/delete-site';
+import {deploySite} from '../../api/deploy-site';
+import {getOrCreateBucket} from '../../api/get-or-create-bucket';
 
 test('Return 0 total size if site did not exist', async () => {
 	const {bucketName} = await getOrCreateBucket({
