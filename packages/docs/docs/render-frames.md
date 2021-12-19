@@ -31,6 +31,7 @@ const renderFrames: (options: {
   frameRange?: number | [number, number] | null;
   dumpBrowserLogs?: boolean;
   puppeteerInstance?: puppeteer.Browser;
+  onFrameBuffer?: (buffer: Buffer, frame: number) => Promise<void>
   onBrowserLog?: (log: BrowserLog) => void;
 }): Promise<RenderFramesOutput>;
 ```
@@ -69,7 +70,7 @@ const onFrameUpdate = (frame: number) => {
 
 ### `outputDir`
 
-A `string` specifying the directory (absolute path) to which frames should be saved. Pass `null` and a `writeFrame` callback instead to get a `Buffer` of the frame rather than to write it to any location-
+A `string` specifying the directory (absolute path) to which frames should be saved. Pass `null` and a `onFrameBuffer` callback instead to get a `Buffer` of the frame rather than to write it to any location-
 
 ### `inputProps`
 
@@ -203,6 +204,12 @@ renderFrames({
 _optional, available from v2.3.1_
 
 A string defining the absolute path on disk of the browser executable that should be used. By default Remotion will try to detect it automatically and download one if none is available. If `puppeteerInstance` is defined, it will take precedence over `browserExecutable`.
+
+### `onFrameBuffer?`
+
+_optional, available from 3.0_
+
+If you passed `null` to `outputDir`, this method will be called passing a buffer of the current frame. This is mostly used internally by Remotion to implement [`renderMedia()`](/docs/render-media) and might have limited usefulness for end users.
 
 ## Return value
 
