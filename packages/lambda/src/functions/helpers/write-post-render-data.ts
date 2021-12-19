@@ -1,4 +1,4 @@
-import {AwsRegion} from '../..';
+import {AwsRegion} from '../../pricing/aws-regions';
 import {PostRenderData, postRenderDataKey} from '../../shared/constants';
 import {lambdaWriteFile} from './io';
 

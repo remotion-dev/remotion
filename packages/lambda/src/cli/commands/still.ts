@@ -1,6 +1,6 @@
 import {CliInternals} from '@remotion/cli';
 import {StillImageFormat} from 'remotion';
-import {downloadMedia} from '../..';
+import {downloadMedia} from '../../api/download-video';
 import {renderStillOnLambda} from '../../api/render-still-on-lambda';
 import {
 	BINARY_NAME,

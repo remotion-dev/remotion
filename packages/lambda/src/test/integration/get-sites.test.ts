@@ -1,4 +1,5 @@
-import {deploySite, getOrCreateBucket} from '../..';
+import {deploySite} from '../../api/deploy-site';
+import {getOrCreateBucket} from '../../api/get-or-create-bucket';
 import {getSites} from '../../api/get-sites';
 
 test('Should have no buckets at first', async () => {
