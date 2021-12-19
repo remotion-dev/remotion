@@ -10,7 +10,7 @@ import {
 	DeploySiteInput,
 	DeploySiteReturnType,
 } from './api/deploy-site';
-import {downloadVideo} from './api/download-video';
+import {downloadMedia, downloadVideo} from './api/download-video';
 import {getFunctionInfo} from './api/get-function-info';
 import {getFunctions} from './api/get-functions';
 import {getOrCreateBucket} from './api/get-or-create-bucket';
@@ -23,16 +23,17 @@ import {
 } from './api/iam-validation/suggested-policy';
 import {renderStillOnLambda} from './api/render-still-on-lambda';
 import {renderVideoOnLambda} from './api/render-video-on-lambda';
+import {LambdaLSInput, LambdaLsReturnType} from './functions/helpers/io';
 import {LambdaInternals} from './internals';
 import {AwsRegion} from './pricing/aws-regions';
-import type {RenderProgress} from './shared/constants';
 import {estimatePrice} from './pricing/calculate-price';
-import {LambdaLSInput, LambdaLsReturnType} from './functions/helpers/io';
+import type {RenderProgress} from './shared/constants';
 
 export {
 	deleteSite,
 	deployFunction,
 	deploySite,
+	downloadMedia,
 	downloadVideo,
 	getFunctions,
 	getUserPolicy,

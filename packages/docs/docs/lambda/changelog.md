@@ -10,6 +10,12 @@ Keep track of changes to the APIs of Remotion Lambda here.
 
 [Upgrading](/docs/lambda/upgrading)
 
+## Unreleased
+
+- Visiting a Serve URL in the browser shows a FAQ
+- Vast improvements to documentation, CLI documentation complete
+- `downloadVideo()` was renamed to `downloadMedia()`
+
 ## December 15th, 2021 (2)
 
 Version hash: `3.0.0-lambda.236+b35e791d5`

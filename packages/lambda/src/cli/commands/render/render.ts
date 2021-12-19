@@ -1,5 +1,5 @@
 import {CliInternals} from '@remotion/cli';
-import {downloadVideo} from '../../../api/download-video';
+import {downloadMedia} from '../../../api/download-video';
 import {getRenderProgress} from '../../../api/get-render-progress';
 import {renderVideoOnLambda} from '../../../api/render-video-on-lambda';
 import {
@@ -153,7 +153,7 @@ export const renderCommand = async (args: string[]) => {
 			);
 			if (outName) {
 				const downloadStart = Date.now();
-				const {outputPath, sizeInBytes} = await downloadVideo({
+				const {outputPath, sizeInBytes} = await downloadMedia({
 					bucketName: res.bucketName,
 					outPath: outName,
 					region: getAwsRegion(),

@@ -1,6 +1,6 @@
 import {CliInternals} from '@remotion/cli';
 import {StillImageFormat} from 'remotion';
-import {downloadVideo} from '../..';
+import {downloadMedia} from '../..';
 import {renderStillOnLambda} from '../../api/render-still-on-lambda';
 import {
 	BINARY_NAME,
@@ -92,7 +92,7 @@ export const stillCommand = async (args: string[]) => {
 
 	if (outName) {
 		Log.info('Finished rendering. Downloading...');
-		const {outputPath, sizeInBytes} = await downloadVideo({
+		const {outputPath, sizeInBytes} = await downloadMedia({
 			bucketName: res.bucketName,
 			outPath: outName,
 			region: getAwsRegion(),
