@@ -10,6 +10,7 @@ The `npx remotion lambda sites` command allows to create, view and delete Remoti
 - [`create`](#create)
 - [`ls`](#ls)
 - [`rm`](#rm)
+- [`rmall`](#rmall)
 
 ## create
 
@@ -51,7 +52,7 @@ The [AWS region](/docs/lambda/region-selection) to select. Both project and func
 
 ### `--site-name`
 
-Uploads the project to a specific directory and returns a deterministic URL. If a site already existed under this name, it will be overwritten.
+Uploads the project to a specific directory and returns a deterministic URL. If a site already existed under this name, it will be overwritten. Can only contain the following characters: `0-9`, `a-z`, `A-Z`, `-`, `!`, `_`, `.`, `*`, `'`, `(`, `)`
 
 ```
 npx remotion lambda sites create src/index.tsx --site-name=my-project

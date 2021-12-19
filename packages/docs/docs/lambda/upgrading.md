@@ -18,7 +18,7 @@ You only should do this if the function is not being used anymore. If you are st
 :::
 
 ```
-npx remotion lambda functions rm $(npx remotion lambda functions ls -q) -y
+npx remotion lambda functions rmall -y
 ```
 
 - Deploy the newest version of the Remotion Lambda function:
