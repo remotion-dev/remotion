@@ -13,7 +13,6 @@ export const enableS3Website = async ({
 		new PutBucketWebsiteCommand({
 			Bucket: bucketName,
 			WebsiteConfiguration: {
-				// TODO Upload a demo document
 				IndexDocument: {
 					Suffix: 'index.html',
 				},

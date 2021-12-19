@@ -26,8 +26,13 @@ export const sitesRmSubcommand = async (args: string[]) => {
 		const {remotionBuckets} = await getRemotionS3Buckets(region);
 
 		if (remotionBuckets.length > 1) {
+			Log.error('You have more than one Remotion Lambda bucket:');
+			for (const bucket of remotionBuckets) {
+				Log.error(`- ${bucket.name}`);
+			}
+
 			Log.error(
-				'You have more than one Remotion Lambda bucket. You should only have one - delete all but one before continuing.'
+				'You should only have one - delete all but one before continuing.'
 			);
 			quit(1);
 		}

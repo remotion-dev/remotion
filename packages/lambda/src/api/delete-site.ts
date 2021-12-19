@@ -18,7 +18,7 @@ export type DeleteSiteReturnData = {
 /**
  *
  * @description Deletes a deployed site from your S3 bucket. The opposite of deploySite().
- * @link https://remotion-lambda-alpha.netlify.app/docs/lambda/deletesite
+ * @link https://remotion-3.vercel.app/docs/lambda/deletesite
  * @param options.bucketName The S3 bucket name where the site resides in.
  * @param options.siteName The ID of the site that you want to delete.
  * @param {AwsRegion} options.region The region in where the S3 bucket resides in.

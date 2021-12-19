@@ -50,8 +50,6 @@ export const renderCommand = async (args: string[]) => {
 
 	const outName = args[2] ?? null;
 
-	// TODO: Further validate serveUrl
-
 	const cliOptions = await CliInternals.getCliOptions({
 		type: 'series',
 		isLambda: true,
