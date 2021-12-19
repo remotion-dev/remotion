@@ -111,10 +111,10 @@ if (!Internals.isPlainIndex()) {
 			<Root />
 			<GetVideo />
 		</Internals.RemotionRoot>,
-		document.getElementById('container')
+		document.getElementById('video-container')
 	);
 }
 
 if (Internals.isPlainIndex() || Internals.getIsEvaluation()) {
-	render(<Homepage />, document.getElementById('container'));
+	render(<Homepage />, document.getElementById('explainer-container'));
 }
