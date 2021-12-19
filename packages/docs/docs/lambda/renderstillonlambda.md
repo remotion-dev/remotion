@@ -18,7 +18,7 @@ If you want to render a still locally instead, use [`renderStill()`](/docs/rende
 import { renderStillOnLambda } from "@remotion/lambda";
 // ---cut---
 
-const { estimatedPrice, url, size } = await renderStillOnLambda({
+const { estimatedPrice, url, sizeInBytes } = await renderStillOnLambda({
   region: "us-east-1",
   functionName: "remotion-render-bds9aab",
   serveUrl:
