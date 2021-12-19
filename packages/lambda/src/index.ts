@@ -14,6 +14,7 @@ import {downloadMedia, downloadVideo} from './api/download-video';
 import {getFunctionInfo} from './api/get-function-info';
 import {getFunctions} from './api/get-functions';
 import {getOrCreateBucket} from './api/get-or-create-bucket';
+import {getRegions} from './api/get-regions';
 import {getRenderProgress} from './api/get-render-progress';
 import {getSites} from './api/get-sites';
 import {simulatePermissions} from './api/iam-validation/simulate';
@@ -52,6 +53,7 @@ export {
 	estimatePrice,
 	LambdaInternals,
 	renderStillOnLambda,
+	getRegions,
 };
 export type {
 	AwsRegion,

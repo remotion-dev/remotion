@@ -75,6 +75,7 @@ module.exports = {
         "lambda/getfunctions",
         "lambda/deletesite",
         "lambda/deploysite",
+        "lambda/getregions",
         "lambda/getsites",
         "lambda/downloadmedia",
         "lambda/getuserpolicy",
