@@ -209,7 +209,7 @@ A string defining the absolute path on disk of the browser executable that shoul
 
 _optional, available from 3.0_
 
-If you passed `null` to `outputDir`, this method will be called passing a buffer of the current frame. This is mostly used internally by Remotion to implement [`renderMedia()`](/docs/lambda/render-media) and might have limited usefulness for end users.
+If you passed `null` to `outputDir`, this method will be called passing a buffer of the current frame. This is mostly used internally by Remotion to implement [`renderMedia()`](/docs/render-media) and might have limited usefulness for end users.
 
 ## Return value
 
