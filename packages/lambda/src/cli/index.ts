@@ -13,6 +13,7 @@ import {sitesCommand, SITES_COMMAND} from './commands/sites';
 import {stillCommand, STILL_COMMAND} from './commands/still';
 import {printHelp} from './help';
 import {quit} from './helpers/quit';
+import {setIsCli} from './is-cli';
 import {Log} from './log';
 
 const requiresCredentials = (args: string[]) => {
@@ -103,6 +104,7 @@ const matchCommand = async (args: string[]) => {
 
 export const executeCommand = async (args: string[]) => {
 	try {
+		setIsCli(true);
 		await matchCommand(args);
 	} catch (err) {
 		const error = err as Error;
