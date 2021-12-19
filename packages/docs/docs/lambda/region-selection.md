@@ -16,6 +16,8 @@ The following AWS regions are available:
 
 <LambdaRegionList />
 
+You can call [`getRegions()`](/docs/lambda/getregions) or type [`npx remotion lambda regions`](/docs/lambda/cli/regions) to get this list programmatically.
+
 ## Default region
 
 The default region is `us-east-1`.
