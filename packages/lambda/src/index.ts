@@ -22,7 +22,10 @@ import {
 	getUserPolicy,
 } from './api/iam-validation/suggested-policy';
 import {renderStillOnLambda} from './api/render-still-on-lambda';
-import {renderVideoOnLambda} from './api/render-video-on-lambda';
+import {
+	renderMediaOnLambda,
+	renderVideoOnLambda,
+} from './api/render-video-on-lambda';
 import {LambdaLSInput, LambdaLsReturnType} from './functions/helpers/io';
 import {LambdaInternals} from './internals';
 import {AwsRegion} from './pricing/aws-regions';
@@ -42,6 +45,7 @@ export {
 	getOrCreateBucket,
 	getRenderProgress,
 	renderVideoOnLambda,
+	renderMediaOnLambda,
 	simulatePermissions,
 	deleteFunction,
 	getFunctionInfo,

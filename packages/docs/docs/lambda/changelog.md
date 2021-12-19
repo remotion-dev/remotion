@@ -14,7 +14,8 @@ Keep track of changes to the APIs of Remotion Lambda here.
 
 - Visiting a Serve URL in the browser shows a FAQ
 - Vast improvements to documentation, CLI documentation complete
-- `downloadVideo()` was renamed to `downloadMedia()`
+- `downloadVideo()` was renamed to `downloadMedia()`. The previous API continues to be available.
+- `renderVideoOnLambda()` was renamed to `renderMediaOnLambda()`. The previous API continues to be available.
 
 ## December 15th, 2021 (2)
 

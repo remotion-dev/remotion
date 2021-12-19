@@ -39,11 +39,11 @@ The [AWS region](/docs/lambda/region-selection) in which the render has performe
 
 ### `bucketName`
 
-The bucket name in which you the render was stored. This should be the same variable you used for `renderVideoOnLambda()`.
+The bucket name in which you the render was stored. This should be the same variable you used for `renderMediaOnLambda()`.
 
 ### `renderId`
 
-The ID of the render. You can retrieve this ID by calling [`renderVideoOnLambda()`](/docs/lambda/rendervideoonlambda) or [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda).
+The ID of the render. You can retrieve this ID by calling [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda) or [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda).
 
 ### `outPath`
 
@@ -65,5 +65,5 @@ The size of the file in bytes.
 
 ## See also
 
-- [renderVideoOnLambda()](/docs/lambda/rendervideoonlambda)
+- [renderMediaOnLambda()](/docs/lambda/rendermediaonlambda)
 - [renderStillOnLambda()](/docs/lambda/renderstillonlambda)

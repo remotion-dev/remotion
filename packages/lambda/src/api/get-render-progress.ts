@@ -3,11 +3,11 @@ import {callLambda} from '../shared/call-lambda';
 import {LambdaRoutines} from '../shared/constants';
 
 /**
- * @description Gets the current status of a render originally triggered via renderVideoOnLambda().
+ * @description Gets the current status of a render originally triggered via renderMediaOnLambda().
  * @link https://remotion-3.vercel.app/docs/lambda/getrenderprogress
  * @param {string} params.functionName The name of the function used to trigger the render.
  * @param {string} params.bucketName The name of the bucket that was used in the render.
- * @param {string} params.renderId The ID of the render that was returned by `renderVideoOnLambda()`.
+ * @param {string} params.renderId The ID of the render that was returned by `renderMediaOnLambda()`.
  * @param {AwsRegion} params.region The region in which the render was triggered.
  * @returns See documentation for this function to see all properties on the return object.
  */

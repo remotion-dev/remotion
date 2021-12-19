@@ -18,7 +18,7 @@ import {validateFramesPerLambda} from '../shared/validate-frames-per-lambda';
 
 /**
  * @description Triggers a render on a lambda given a composition and a lambda function.
- * @link https://remotion-3.vercel.app/docs/lambda/rendervideoonlambda
+ * @link https://remotion-3.vercel.app/docs/lambda/rendermediaonlambda
  * @param params.functionName The name of the Lambda function that should be used
  * @param params.serveUrl The URL of the deployed project
  * @param params.composition The ID of the composition which should be rendered.
@@ -36,7 +36,7 @@ import {validateFramesPerLambda} from '../shared/validate-frames-per-lambda';
  * @returns `Promise<{renderId: string; bucketName: string}>`
  */
 
-export const renderVideoOnLambda = async ({
+export const renderMediaOnLambda = async ({
 	functionName,
 	serveUrl,
 	inputProps,
@@ -105,3 +105,8 @@ export const renderVideoOnLambda = async ({
 		bucketName: res.bucketName,
 	};
 };
+
+/**
+ * @deprecated Renamed to renderMediaOnLambda()
+ */
+export const renderVideoOnLambda = renderMediaOnLambda;

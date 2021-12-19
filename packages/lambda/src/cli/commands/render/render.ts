@@ -1,7 +1,7 @@
 import {CliInternals} from '@remotion/cli';
 import {downloadMedia} from '../../../api/download-video';
 import {getRenderProgress} from '../../../api/get-render-progress';
-import {renderVideoOnLambda} from '../../../api/render-video-on-lambda';
+import {renderMediaOnLambda} from '../../../api/render-video-on-lambda';
 import {
 	BINARY_NAME,
 	DEFAULT_FRAMES_PER_LAMBDA,
@@ -64,7 +64,7 @@ export const renderCommand = async (args: string[]) => {
 
 	const privacy = parsedLambdaCli.privacy ?? DEFAULT_OUTPUT_PRIVACY;
 	validatePrivacy(privacy);
-	const res = await renderVideoOnLambda({
+	const res = await renderMediaOnLambda({
 		functionName,
 		serveUrl,
 		inputProps: cliOptions.inputProps,

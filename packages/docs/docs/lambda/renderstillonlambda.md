@@ -6,7 +6,7 @@ slug: /lambda/renderstillonlambda
 
 Renders a still image inside a lambda function and writes it to the specified output location.
 
-If you want to render a video instead, use [`renderVideoOnLamda()`](/docs/lambda/rendervideoonlambda) instead.
+If you want to render a video or audio instead, use [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda) instead.
 
 If you want to render a still locally instead, use [`renderStill()`](/docs/renderer/render-still) instead.
 
@@ -120,5 +120,5 @@ A unique alphanumeric identifier for this render. Useful for obtaining status an
 
 ## See also
 
-- [renderVideoOnLambda()](/docs/lambda/rendervideoonlambda)
+- [renderMediaOnLambda()](/docs/lambda/rendermediaonlambda)
 - [renderStill()](/docs/renderer/render-still)

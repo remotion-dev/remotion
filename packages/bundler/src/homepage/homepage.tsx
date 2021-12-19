@@ -97,7 +97,7 @@ export const Homepage: React.FC = () => {
 			<p>
 				You can also render still images, and use the Node.JS APIs{' '}
 				<code>getCompositions()</code>, <code>renderMedia()</code>,{' '}
-				<code>renderVideoOnLambda()</code>, <code>renderStill()</code> and{' '}
+				<code>renderMediaOnLambda()</code>, <code>renderStill()</code> and{' '}
 				<code>renderStillOnLambda()</code> with this URL.
 			</p>
 			<p>

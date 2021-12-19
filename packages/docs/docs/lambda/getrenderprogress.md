@@ -4,23 +4,23 @@ title: getRenderProgress()
 slug: /lambda/getrenderprogress
 ---
 
-Gets the current status of a render originally triggered via [`renderVideoOnLambda()`](/docs/lambda/rendervideoonlambda).
+Gets the current status of a render originally triggered via [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda).
 
 ## Example
 
 ```tsx twoslash
 // @module: esnext
 // @target: es2017
-import {getRenderProgress} from '@remotion/lambda';
+import { getRenderProgress } from "@remotion/lambda";
 
 // ---cut---
 
 const progress = await getRenderProgress({
-  renderId: 'd7nlc2y',
-  bucketName: 'remotionlambda-d9mafgx',
-  functionName: 'remotion-render-la8ffw',
-  region: 'us-east-1'
-})
+  renderId: "d7nlc2y",
+  bucketName: "remotionlambda-d9mafgx",
+  functionName: "remotion-render-la8ffw",
+  region: "us-east-1",
+});
 ```
 
 ## API
@@ -29,11 +29,11 @@ Call the function by passing an object with the following properties:
 
 ### `renderId`
 
-The unique identifier for the render that you want to get the progress for. You can get the renderId from the return value of [`renderVideoOnLambda()`](/docs/lambda/rendervideoonlambda).
+The unique identifier for the render that you want to get the progress for. You can get the renderId from the return value of [`renderMediaOnLambda()`](/docs/lambda/renderMediaonlambda).
 
 ### `bucketName`
 
-The bucket in which information about the render is saved. You can get the bucket name from the return value of [`renderVideoOnLambda()`](/docs/lambda/rendervideoonlambda).
+The bucket in which information about the render is saved. You can get the bucket name from the return value of [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda).
 
 ### `region`
 
@@ -118,4 +118,4 @@ TODO
 
 ## See also
 
-- [renderVideoOnLambda()](/docs/lambda/rendervideoonlambda)
+- [renderMediaOnLambda()](/docs/lambda/rendermediaonlambda)
