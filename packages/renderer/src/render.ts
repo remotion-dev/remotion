@@ -60,7 +60,7 @@ type RenderFramesOptions = {
 	puppeteerInstance?: PuppeteerBrowser;
 	browserExecutable?: BrowserExecutable;
 	onBrowserLog?: (log: BrowserLog) => void;
-	writeFrame?: (buffer: Buffer, frame: number) => void;
+	onFrameBuffer?: (buffer: Buffer, frame: number) => void;
 	onDownload?: RenderMediaOnDownload;
 } & ConfigOrComposition &
 	ServeUrlOrWebpackBundle;
@@ -90,7 +90,7 @@ export const innerRenderFrames = async ({
 	onError,
 	envVariables,
 	onBrowserLog,
-	writeFrame,
+	onFrameBuffer,
 	onDownload,
 	pagesArray,
 	serveUrl,
@@ -218,7 +218,7 @@ export const innerRenderFrames = async ({
 				}
 
 				if (imageFormat !== 'none') {
-					if (writeFrame) {
+					if (onFrameBuffer) {
 						const buffer = await provideScreenshot({
 							page: freePage,
 							imageFormat,
@@ -228,11 +228,11 @@ export const innerRenderFrames = async ({
 								output: undefined,
 							},
 						});
-						writeFrame(buffer, frame);
+						onFrameBuffer(buffer, frame);
 					} else {
 						if (!outputDir) {
 							throw new Error(
-								'Called renderFrames() without specifying either `outputDir` or `writeFrame`'
+								'Called renderFrames() without specifying either `outputDir` or `onFrameBuffer`'
 							);
 						}
 
