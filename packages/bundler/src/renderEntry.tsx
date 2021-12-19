@@ -14,6 +14,7 @@ import {
 	LooseAnyComponent,
 	TComposition,
 } from 'remotion';
+import {Homepage} from './homepage/homepage';
 
 Internals.CSSUtils.injectCSS(Internals.CSSUtils.makeDefaultCSS(null));
 
@@ -49,9 +50,11 @@ const GetVideo = () => {
 
 		if (!video && compositions.compositions.length > 0) {
 			compositions.setCurrentComposition(
-				(compositions.compositions.find(
-					(c) => c.id === Internals.getCompositionName()
-				) as TComposition)?.id ?? null
+				(
+					compositions.compositions.find(
+						(c) => c.id === Internals.getCompositionName()
+					) as TComposition
+				)?.id ?? null
 			);
 		}
 	}, [compositions, compositions.compositions, video]);
@@ -110,4 +113,8 @@ if (!Internals.isPlainIndex()) {
 		</Internals.RemotionRoot>,
 		document.getElementById('container')
 	);
+}
+
+if (Internals.isPlainIndex() || Internals.getIsEvaluation()) {
+	render(<Homepage />, document.getElementById('container'));
 }
