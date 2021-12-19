@@ -18,8 +18,13 @@ type GetSitesReturnValue = {
 	buckets: BucketWithLocation[];
 };
 
-// TODO: Return the `serveUrl` as well
-// TODO: Add JSDoc comments
+/**
+ *
+ * @description Gets all the deployed sites for a certain AWS region.
+ * @link https://remotion-3.vercel.app/docs/lambda/getsites
+ * @param {AwsRegion} params.region The AWS region that you want to query for.
+ * @returns A Promise containing an object with `sites` and `bucket` keys. Consult documentation for details.
+ */
 export const getSites = async ({
 	region,
 }: {
