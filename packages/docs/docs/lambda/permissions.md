@@ -261,3 +261,4 @@ Allows to write the function logs to CloudWatch for easier debugging.
 
 - [Set up guide](/docs/lambda/setup)
 - [`simulatePermissions()`](/docs/lambda/simulatepermissions)
+- [Permissions Troubleshooting](/docs/lambda/troubleshooting/permissions)

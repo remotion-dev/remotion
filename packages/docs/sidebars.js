@@ -89,6 +89,12 @@ module.exports = {
       ],
     },
     "lambda/checklist",
+    {
+      collapsed: false,
+      type: "category",
+      label: "Troubleshooting",
+      items: ["lambda/troubleshooting/permissions"],
+    },
     "lambda/changelog",
     "lambda/upgrading",
     "lambda/uninstall",
