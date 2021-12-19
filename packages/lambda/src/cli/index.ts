@@ -7,6 +7,7 @@ import {functionsCommand, FUNCTIONS_COMMAND} from './commands/functions';
 import {policiesCommand, POLICIES_COMMAND} from './commands/policies/policies';
 import {ROLE_SUBCOMMAND} from './commands/policies/role';
 import {USER_SUBCOMMAND} from './commands/policies/user';
+import {regionsCommand, REGIONS_COMMAND} from './commands/regions';
 import {renderCommand, RENDER_COMMAND} from './commands/render/render';
 import {sitesCommand, SITES_COMMAND} from './commands/sites';
 import {stillCommand, STILL_COMMAND} from './commands/still';
@@ -21,6 +22,10 @@ const requiresCredentials = (args: string[]) => {
 		}
 
 		if (args[1] === ROLE_SUBCOMMAND) {
+			return false;
+		}
+
+		if (args[1] === REGIONS_COMMAND) {
 			return false;
 		}
 	}
@@ -52,6 +57,10 @@ const matchCommand = async (args: string[]) => {
 
 	if (args[0] === POLICIES_COMMAND) {
 		return policiesCommand(args.slice(1));
+	}
+
+	if (args[0] === REGIONS_COMMAND) {
+		return regionsCommand();
 	}
 
 	if (args[0] === SITES_COMMAND) {

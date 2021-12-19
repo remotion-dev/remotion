@@ -18,6 +18,7 @@ Keep track of changes to the APIs of Remotion Lambda here.
 - `renderVideoOnLambda()` was renamed to `renderMediaOnLambda()`. The previous API continues to be available.
 - Limited the maximum amount of functions that you can invoke for one render to 200 functions. That means, if your render is 1000 frames, your `framesPerLambda` parameter must be at least `5`. Rendering with a higher concurrency will reduce the amount of videos you can render in parallel and diminish the benefits of concurrency.
 - Added [`getRegions()`](/docs/lambda/getregions) API
+- Added [`npx remotion lambda regions`](/docs/lambda/cli/regions) command
 
 ## December 15th, 2021 (2)
 
