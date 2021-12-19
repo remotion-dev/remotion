@@ -5,24 +5,23 @@ import {createBucket} from './create-bucket';
 import {enableS3Website} from './enable-s3-website';
 import {getRemotionS3Buckets} from './get-buckets';
 
-type GetOrCreateBucketInput = {
+export type GetOrCreateBucketInput = {
 	region: AwsRegion;
-	// TODO: Not documented
 	onBucketEnsured?: () => void;
 };
 
-type GetOrCreateBucketResult = {
+export type GetOrCreateBucketOutput = {
 	bucketName: string;
 };
 /**
  * @description Creates a bucket for Remotion Lambda in your S3 account. If one already exists, it will get returned instead.
- * @link http://remotion.dev/docs/lambda/getorcreatebucket
+ * @link https://remotion-3.vercel.app/docs/lambda/getorcreatebucket
  * @param options.region The region in which you want your S3 bucket to reside in.
- * @returns `Promise<{region: AwsRegion}>`
+ * @returns {Promise<GetOrCreateBucketOutput>} An object containing the `bucketName`.
  */
 export const getOrCreateBucket = async (
 	options: GetOrCreateBucketInput
-): Promise<GetOrCreateBucketResult> => {
+): Promise<GetOrCreateBucketOutput> => {
 	const {remotionBuckets} = await getRemotionS3Buckets(options.region);
 	if (remotionBuckets.length > 1) {
 		throw new Error(

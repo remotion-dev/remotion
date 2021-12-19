@@ -10,7 +10,7 @@ import {
 import {AwsRegion} from '../pricing/aws-regions';
 import {getAccountId} from '../shared/get-account-id';
 
-type DownloadMediaInput = {
+export type DownloadMediaInput = {
 	region: AwsRegion;
 	bucketName: string;
 	renderId: string;
@@ -18,7 +18,7 @@ type DownloadMediaInput = {
 	onProgress?: LambdaReadFileProgress;
 };
 
-type DownloadMediaOutput = {
+export type DownloadMediaOutput = {
 	outputPath: string;
 	sizeInBytes: number;
 };

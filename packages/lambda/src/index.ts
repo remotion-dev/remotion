@@ -1,33 +1,52 @@
-import {deleteFunction} from './api/delete-function';
+import {deleteFunction, DeleteFunctionInput} from './api/delete-function';
+import {deleteSite, DeleteSiteInput, DeleteSiteOutput} from './api/delete-site';
 import {
-	deleteSite,
-	DeleteSiteInputData,
-	DeleteSiteReturnData,
-} from './api/delete-site';
-import {deployFunction} from './api/deploy-function';
+	deployFunction,
+	DeployFunctionInput,
+	DeployFunctionOutput,
+} from './api/deploy-function';
+import {deploySite, DeploySiteInput, DeploySiteOutput} from './api/deploy-site';
 import {
-	deploySite,
-	DeploySiteInput,
-	DeploySiteReturnType,
-} from './api/deploy-site';
-import {downloadMedia, downloadVideo} from './api/download-video';
-import {estimatePrice} from './api/estimate-price';
-import {getFunctionInfo} from './api/get-function-info';
-import {getFunctions} from './api/get-functions';
-import {getOrCreateBucket} from './api/get-or-create-bucket';
+	downloadMedia,
+	DownloadMediaInput,
+	DownloadMediaOutput,
+	downloadVideo,
+} from './api/download-media';
+import {estimatePrice, EstimatePriceInput} from './api/estimate-price';
+import {
+	FunctionInfo,
+	getFunctionInfo,
+	GetFunctionInfoInput,
+} from './api/get-function-info';
+import {getFunctions, GetFunctionsInput} from './api/get-functions';
+import {
+	getOrCreateBucket,
+	GetOrCreateBucketInput,
+	GetOrCreateBucketOutput,
+} from './api/get-or-create-bucket';
 import {getRegions} from './api/get-regions';
-import {getRenderProgress} from './api/get-render-progress';
-import {getSites} from './api/get-sites';
-import {simulatePermissions} from './api/iam-validation/simulate';
+import {GetRenderInput, getRenderProgress} from './api/get-render-progress';
+import {getSites, GetSitesInput, GetSitesOutput} from './api/get-sites';
+import {
+	simulatePermissions,
+	SimulatePermissionsInput,
+	SimulatePermissionsOutput,
+} from './api/iam-validation/simulate';
 import {
 	getRolePolicy,
 	getUserPolicy,
 } from './api/iam-validation/suggested-policy';
-import {renderStillOnLambda} from './api/render-still-on-lambda';
 import {
 	renderMediaOnLambda,
+	RenderMediaOnLambdaInput,
+	RenderMediaOnLambdaOutput,
 	renderVideoOnLambda,
-} from './api/render-video-on-lambda';
+} from './api/render-media-on-lambda';
+import {
+	renderStillOnLambda,
+	RenderStillOnLambdaInput,
+	RenderStillOnLambdaOutput,
+} from './api/render-still-on-lambda';
 import {LambdaLSInput, LambdaLsReturnType} from './functions/helpers/io';
 import {LambdaInternals} from './internals';
 import {AwsRegion} from './pricing/aws-regions';
@@ -59,9 +78,29 @@ export type {
 	AwsRegion,
 	RenderProgress,
 	DeploySiteInput,
-	DeploySiteReturnType,
+	DeploySiteOutput,
 	LambdaLsReturnType,
 	LambdaLSInput,
-	DeleteSiteInputData,
-	DeleteSiteReturnData,
+	DeleteSiteInput,
+	DeleteSiteOutput,
+	EstimatePriceInput,
+	DeployFunctionInput,
+	DeployFunctionOutput,
+	DeleteFunctionInput,
+	GetFunctionInfoInput,
+	FunctionInfo,
+	GetFunctionsInput,
+	GetSitesInput,
+	GetSitesOutput,
+	DownloadMediaInput,
+	DownloadMediaOutput,
+	GetOrCreateBucketInput,
+	GetOrCreateBucketOutput,
+	GetRenderInput,
+	RenderMediaOnLambdaInput,
+	RenderMediaOnLambdaOutput,
+	RenderStillOnLambdaInput,
+	RenderStillOnLambdaOutput,
+	SimulatePermissionsInput,
+	SimulatePermissionsOutput,
 };

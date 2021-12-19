@@ -4,14 +4,14 @@ import {AwsRegion} from '../pricing/aws-regions';
 import {getAccountId} from '../shared/get-account-id';
 import {cleanItems} from './clean-items';
 
-export type DeleteSiteInputData = {
+export type DeleteSiteInput = {
 	bucketName: string;
 	siteName: string;
 	region: AwsRegion;
 	onAfterItemDeleted?: (data: {bucketName: string; itemName: string}) => void;
 };
 
-export type DeleteSiteReturnData = {
+export type DeleteSiteOutput = {
 	totalSizeInBytes: number;
 };
 
@@ -23,14 +23,14 @@ export type DeleteSiteReturnData = {
  * @param options.siteName The ID of the site that you want to delete.
  * @param {AwsRegion} options.region The region in where the S3 bucket resides in.
  * @param options.onAfterItemDeleted Function that gets called after each file that gets deleted, useful for showing progress.
- * @returns `Promise<{totalSizeInBytes: number}>` How much space was freed.
+ * @returns {Promise<DeleteSiteOutput>} Object containing info about how much space was freed.
  */
 export const deleteSite = async ({
 	bucketName,
 	siteName,
 	region,
 	onAfterItemDeleted,
-}: DeleteSiteInputData): Promise<DeleteSiteReturnData> => {
+}: DeleteSiteInput): Promise<DeleteSiteOutput> => {
 	const accountId = await getAccountId({region});
 
 	let files = await lambdaLs({

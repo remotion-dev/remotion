@@ -1,5 +1,5 @@
 import {_Object} from '@aws-sdk/client-s3';
-import {estimatePrice} from '../..';
+import {estimatePrice} from '../../api/estimate-price';
 import {lambdaTimingsPrefix, RenderMetadata} from '../../shared/constants';
 import {parseLambdaTimingsKey} from '../../shared/parse-lambda-timings-key';
 import {calculateChunkTimes} from './calculate-chunk-times';
