@@ -43,7 +43,7 @@ Remotion will look for a version of the lambda function that matches the Node.JS
 If you don't rely on the old function anymore, you can first delete all existing functions:
 
 ```bash
-npx remotion lambda functions rm $(npx remotion lambda functions ls -q) -y
+npx remotion lambda functions rmall
 ```
 
 You can deploy a new function using:

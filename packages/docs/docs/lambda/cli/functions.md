@@ -10,6 +10,11 @@ import {DefaultTimeout} from '../../../components/lambda/default-timeout';
 
 The `npx remotion lambda functions` command allows you to deploy, view and delete AWS lambda functions that can render videos.
 
+- [`deploy`](#deploy)
+- [`ls`](#ls)
+- [`rm`](#rm)
+- [`rmall`](#rmall)
+
 You only need one function per AWS region and Remotion version. Suggested reading: [Do I need to deploy a function for each render?](/docs/lambda/faq#do-i-need-to-deploy-a-function-for-each-render)
 
 ## deploy

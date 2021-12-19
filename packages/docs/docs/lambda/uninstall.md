@@ -17,13 +17,13 @@ This will remove all videos already rendered, and break your programs that are u
 You can delete all functions using the following command. The `yes` flag is already included, if you run this, it will delete all functions without confirmation.
 
 ```
-npx remotion lambda functions rm $(npx remotion lambda functions ls -q) -y
+npx remotion lambda functions rmall -y
 ```
 
 ## Delete projects
 
 ```
-npx remotion lambda sites rm $(npx remotion lambda sites ls -q) -y
+npx remotion lambda sites rmall -y
 ```
 
 ## Delete renders and artifacts

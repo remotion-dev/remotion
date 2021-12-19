@@ -10,6 +10,10 @@ import {UserPolicy} from '../../../components/lambda/user-permissions.tsx';
 
 Prints the necessary permissions to be inserted into the AWS console during [setup](/docs/lambda/setup).
 
+- [`role`](#role)
+- [`user`](#user)
+- [`validate`](#validate)
+
 :::tip
 On macOS, add `| pbcopy` to the end of the command to copy the output.
 :::
