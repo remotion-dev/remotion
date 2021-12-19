@@ -117,14 +117,17 @@ The role "${ROLE_NAME}" does not exist in your AWS account or has the wrong poli
 - The name of the role is not "${ROLE_NAME}"
 - The policy is not exactly as specified in the setup guide
 
-Revisit ${DOCS_URL}/docs/lambda/setup and make sure you set up the role and role policy correctly. The original error message is:
+Revisit ${DOCS_URL}/docs/lambda/setup and make sure you set up the role and role policy correctly. Also see the troubleshooting page: ${DOCS_URL}/docs/lambda/troubleshooting/permissions. The original error message is:
 `.trim()
 			);
 		}
 
 		if (error.stack?.includes('AccessDenied')) {
-			// TODO: Explain permission problem
-			Log.error('PERMISSION PROBLEM PUT HELPFUL MESSAGE HERE');
+			Log.error(
+				`
+AWS returned an "AccessDenied" error message meaning a permission is missing. Read the permissions troubleshooting page: ${DOCS_URL}/docs/lambda/troubleshooting/permissions. The original error message is:
+`.trim()
+			);
 		}
 
 		Log.error(error.stack);
