@@ -217,7 +217,7 @@ You already have the function name from a previous step. But since you only need
 // @target: ESNext
 import {
   getFunctions,
-  renderVideoOnLambda,
+  renderMediaOnLambda,
   getRenderProgress,
 } from "@remotion/lambda";
 
@@ -229,14 +229,14 @@ const functions = await getFunctions({
 const functionName = functions[0].functionName;
 ```
 
-We can now trigger a render using the [`renderVideoOnLambda()`](/docs/lambda/rendervideoonlambda) function.
+We can now trigger a render using the [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda) function.
 
 ```ts twoslash
 // @module: ESNext
 // @target: ESNext
 import {
   getFunctions,
-  renderVideoOnLambda,
+  renderMediaOnLambda,
   getRenderProgress,
 } from "@remotion/lambda";
 
@@ -249,7 +249,7 @@ const functions = await getFunctions({
 const functionName = functions[0].functionName;
 // ---cut---
 
-const { renderId, bucketName } = await renderVideoOnLambda({
+const { renderId, bucketName } = await renderMediaOnLambda({
   region: "us-east-1",
   functionName,
   serveUrl: url,
@@ -270,7 +270,7 @@ The render will now run and after a while the video will be available in your S3
 // @target: ESNext
 import {
   getFunctions,
-  renderVideoOnLambda,
+  renderMediaOnLambda,
   getRenderProgress,
 } from "@remotion/lambda";
 
@@ -282,7 +282,7 @@ const functions = await getFunctions({
 
 const functionName = functions[0].functionName;
 
-const { renderId, bucketName } = await renderVideoOnLambda({
+const { renderId, bucketName } = await renderMediaOnLambda({
   region: "us-east-1",
   functionName,
   serveUrl: url,

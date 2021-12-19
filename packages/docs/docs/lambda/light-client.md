@@ -7,7 +7,7 @@ The following methods and types can be imported from `@remotion/lambda/client`:
 
 ```tsx twoslash
 import {
-  renderVideoOnLambda,
+  renderMediaOnLambda,
   renderStillOnLambda,
   getRenderProgress,
   getFunctions,

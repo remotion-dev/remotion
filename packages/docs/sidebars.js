@@ -81,7 +81,7 @@ module.exports = {
         "lambda/getrolepolicy",
         "lambda/getorcreatebucket",
         "lambda/getrenderprogress",
-        "lambda/rendervideoonlambda",
+        "lambda/rendermediaonlambda",
         "lambda/renderstillonlambda",
         "lambda/simulatepermissions",
       ],

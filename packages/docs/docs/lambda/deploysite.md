@@ -107,7 +107,7 @@ An object with the following values:
   You can use this "Serve URL" to render a video on Remotion Lambda using:
 
   - The [`npx remotion lambda render`](/docs/lambda/cli/render) and [`npx remotion lambda still`](/docs/lambda/cli/still) commands
-  - The [`renderVideoOnLambda()`](/docs/lambda/rendervideoonlambda) and [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda) functions.
+  - The [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda) and [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda) functions.
   - Locally using the [`renderMedia()`](/docs/renderer/render-media) and [`renderStill()`](/docs/renderer/render-still) functions.
   - Locally using the [`npx remotion render`](/docs/cli) and [`npx remotion still`](/docs/cli) commands
 

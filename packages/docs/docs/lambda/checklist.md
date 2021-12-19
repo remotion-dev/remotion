@@ -37,7 +37,7 @@ The maximum payload for invoking a Lambda function is 256KB. Ensure that in your
 
 ### Bucket privacy
 
-By default the rendered videos are publicly accessible in your bucket. Use the `privacy` setting in [`renderVideoOnLambda()`](/docs/lambda/rendervideoonlambda) to make renders private if you'd like so.
+By default the rendered videos are publicly accessible in your bucket. Use the `privacy` setting in [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda) to make renders private if you'd like so.
 
 ### Rate limiting
 

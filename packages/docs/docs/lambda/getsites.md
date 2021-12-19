@@ -26,7 +26,7 @@ for (const site of sites) {
   console.log(site.bucketName); // In which bucket the site resides in.
   console.log(site.lastModified); // A unix timestamp, but may also be null
   console.log(site.sizeInBytes); // Size of all contents in the folder
-  console.log(site.serveUrl); // URL of the deployed site that you can pass to `renderVideoOnLambda()`
+  console.log(site.serveUrl); // URL of the deployed site that you can pass to `renderMediaOnLambda()`
 }
 
 for (const bucket of buckets) {
@@ -72,7 +72,7 @@ The combined size of all files in that project.
 
 #### `serveUrl`
 
-URL of the deployed site. You can pass it into `renderVideoOnLambda()` to render a video.
+URL of the deployed site. You can pass it into `renderMediaOnLambda()` to render a video or audio.
 
 ### `buckets`
 
