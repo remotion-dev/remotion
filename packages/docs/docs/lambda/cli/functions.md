@@ -36,7 +36,7 @@ Deployed as remotion-render-2021-12-17-2048mb-120sec
 
 ### `--region`
 
-The [AWS region](/docs/lambda/region-selection) to select. Both project and function should be in this region.
+The [AWS region](/docs/lambda/region-selection) to select.
 
 ### `--memory`
 
@@ -79,7 +79,7 @@ remotion-render-2021-12-15-2048mb-240sec          2021-12-15     2048           
 
 ### `--region`
 
-The [AWS region](/docs/lambda/region-selection) to select. Both project and function should be in this region.
+The [AWS region](/docs/lambda/region-selection) to select.
 
 ### `--quiet`, `-q`
 
@@ -112,7 +112,47 @@ Deleted!
 
 ### `--region`
 
-The [AWS region](/docs/lambda/region-selection) to select. Both project and function should be in this region.
+The [AWS region](/docs/lambda/region-selection) to select.
+
+### `--yes`, `-y`
+
+Skips confirmation.
+
+## rmall
+
+```
+npx remotion lambda functions rmall
+```
+
+Removes all functions in a region from your AWS infrastructure.
+
+<details>
+<summary>
+Example output
+</summary>
+<pre>
+<br/>
+Function name:   remotion-render-2021-12-16-2048mb-240sec<br/>
+Memory:          2048MB<br/>
+Timeout:         120sec<br/>
+Version:         2021-12-16<br/>
+Delete? (Y/n):  Y<br/>
+Deleted!
+<br/>
+Function name:   remotion-render-2021-12-18-2048mb-240sec<br/>
+Memory:          2048MB<br/>
+Timeout:         120sec<br/>
+Version:         2021-12-16<br/>
+Delete? (Y/n):  Y<br/>
+Deleted!
+<br/>
+
+</pre>
+</details>
+
+### `--region`
+
+The [AWS region](/docs/lambda/region-selection) to select.
 
 ### `--yes`, `-y`
 
