@@ -1,1 +1,1 @@
-https://remotion-lambda-alpha.netlify.app https://remotion-git-lambda-testing-remotion.vercel.app 301!
+https://remotion-lambda-alpha.netlify.app/* https://remotion-git-lambda-testing-remotion.vercel.app/:splat 301!
