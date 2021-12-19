@@ -108,7 +108,7 @@ An object with the following values:
 
   - The [`npx remotion lambda render`](/docs/lambda/cli/render) and [`npx remotion lambda still`](/docs/lambda/cli/still) commands
   - The [`renderVideoOnLambda()`](/docs/lambda/rendervideoonlambda) and [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda) functions.
-  - Locally using the [`renderMedia()`](/docs/renderer/rendermedia) and [`renderStill()`](/docs/renderer/renderstill) functions.
+  - Locally using the [`renderMedia()`](/docs/renderer/render-media) and [`renderStill()`](/docs/renderer/render-still) functions.
   - Locally using the [`npx remotion render`](/docs/cli) and [`npx remotion still`](/docs/cli) commands
 
   If you are rendering on Lambda, you can also pass the site name (in this case `abcdef`) as an abbreviation.
