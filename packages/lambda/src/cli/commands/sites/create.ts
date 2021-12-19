@@ -4,6 +4,7 @@ import path from 'path';
 import {deploySite} from '../../../api/deploy-site';
 import {getOrCreateBucket} from '../../../api/get-or-create-bucket';
 import {BINARY_NAME} from '../../../shared/constants';
+import {validateSiteName} from '../../../shared/validate-site-name';
 import {parsedLambdaCli} from '../../args';
 import {getAwsRegion} from '../../get-aws-region';
 import {
@@ -44,6 +45,11 @@ export const sitesCreateSubcommand = async (args: string[]) => {
 			`You passed a path ${absoluteFile} but it is a directory. Pass a file instead.`
 		);
 		quit(1);
+	}
+
+	const desiredSiteName = parsedLambdaCli['site-name'] ?? undefined;
+	if (desiredSiteName !== undefined) {
+		validateSiteName(desiredSiteName);
 	}
 
 	const progressBar = CliInternals.createOverwriteableCliOutput(
@@ -100,8 +106,7 @@ export const sitesCreateSubcommand = async (args: string[]) => {
 
 	const {serveUrl, siteName} = await deploySite({
 		entryPoint: absoluteFile,
-		// TODO: Make better
-		siteName: parsedLambdaCli['site-name'] ?? undefined,
+		siteName: desiredSiteName,
 		bucketName,
 		options: {
 			onBundleProgress: (progress: number) => {
