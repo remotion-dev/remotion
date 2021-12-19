@@ -17,6 +17,11 @@ export const sitesRmSubcommand = async (args: string[]) => {
 		quit(1);
 	}
 
+	if (args[0] === '()') {
+		Log.info('No sites to remove.');
+		return;
+	}
+
 	const region = getAwsRegion();
 	const deployedSites = await getSites({
 		region,

@@ -34,6 +34,11 @@ export const sitesLsSubcommand = async () => {
 	}
 
 	if (CliInternals.quietFlagProvided()) {
+		if (sites.length === 0) {
+			Log.info('()');
+			return;
+		}
+
 		return Log.info(sites.map((s) => s.id).join(' '));
 	}
 
