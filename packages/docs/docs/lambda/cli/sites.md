@@ -188,6 +188,14 @@ Removes a site without asking for confirmation.
 npx remotion lambda sites rm abcdef -y
 ```
 
+## rmall
+
+Remove all sites in the selected AWS region.
+
+```bash
+npx remotion lambda sites rmall
+```
+
 <details>
 <summary>
 Example output
@@ -241,6 +249,14 @@ Example output
 </pre>
 </details>
 
-:::tip
-With the `npx remotion lambda sites rm -f $(npx remotion lambda sites ls -q)` command, you can delete all your sites at once (on most UNIX shells like `zsh`).
-:::
+### `--region`
+
+The [AWS region](/docs/lambda/region-selection) to select. Both project and function should be in this region.
+
+### `--yes`, `-y`
+
+Removes all sites without asking for confirmation.
+
+```
+npx remotion lambda sites rmall -y
+```
