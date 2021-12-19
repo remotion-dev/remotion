@@ -23,6 +23,7 @@ import {
 	ServeUrlOrWebpackBundle,
 } from './legacy-webpack-config';
 import {ensureOutputDirectory} from './ensure-output-directory';
+import {ensureFramesInOrder} from './ensure-frames-in-order';
 
 export type StitchingState = 'encoding' | 'muxing';
 
@@ -143,30 +144,11 @@ export const renderMedia = async ({
 			stitcherFfmpeg = preStitcher.task;
 		}
 
-		let frameToStitch =
-			typeof frameRange === 'number'
-				? frameRange
-				: frameRange === null || frameRange === undefined
-				? 0
-				: frameRange[0];
-
-		let lastFrame = 0;
-
-		const waitForRightTimeOfFrameToBeInserted = async (frameToBe: number) => {
-			return new Promise<void>((resolve) => {
-				if (frameToStitch === frameToBe) {
-					resolve();
-					return;
-				}
-
-				const interval = setInterval(() => {
-					if (frameToStitch === frameToBe) {
-						resolve();
-						clearInterval(interval);
-					}
-				}, 10);
-			});
-		};
+		const {
+			waitForRightTimeOfFrameToBeInserted,
+			setFrameToStitch,
+			waitForFinish,
+		} = ensureFramesInOrder(frameRange ?? null);
 
 		const {assetsInfo} = await renderFrames({
 			config: composition,
@@ -188,10 +170,9 @@ export const renderMedia = async ({
 			frameRange: frameRange ?? null,
 			puppeteerInstance,
 			writeFrame: async (buffer, frame) => {
-				lastFrame = Math.max(lastFrame, frame);
 				await waitForRightTimeOfFrameToBeInserted(frame);
 				stitcherFfmpeg?.stdin?.write(buffer);
-				frameToStitch = frame + 1;
+				setFrameToStitch(frame + 1);
 			},
 			serveUrl,
 			dumpBrowserLogs,
@@ -199,7 +180,7 @@ export const renderMedia = async ({
 			onDownload,
 		});
 		if (stitcherFfmpeg) {
-			await waitForRightTimeOfFrameToBeInserted(lastFrame + 1);
+			await waitForFinish();
 			stitcherFfmpeg?.stdin?.end();
 			await stitcherFfmpeg;
 			preStitcher?.cleanup?.();
