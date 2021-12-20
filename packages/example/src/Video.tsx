@@ -8,6 +8,7 @@ import {OrbScene} from './Orb';
 import RemoteVideo from './RemoteVideo';
 import {SkipZeroFrame} from './SkipZeroFrame';
 import {SeriesTesting} from './StaggerTesting';
+import {StaticDemo} from './StaticServer';
 import {TenFrameTester} from './TenFrameTester';
 import ThreeBasic from './ThreeBasic';
 import {VideoSpeed} from './VideoSpeed';
@@ -283,6 +284,12 @@ export const Index: React.FC = () => {
 				durationInFrames={100}
 			/>
 			<Still id="Orb" component={OrbScene} width={2000} height={2000} />
+			<Still
+				id="static-file"
+				component={StaticDemo}
+				width={2000}
+				height={2000}
+			/>
 		</>
 	);
 };

@@ -5,6 +5,7 @@ import path from 'path';
 import {Internals, WebpackOverrideFn} from 'remotion';
 import {promisify} from 'util';
 import webpack from 'webpack';
+import {indexHtml} from './static-preview';
 import {webpackConfig} from './webpack-config';
 
 const entry = require.resolve('./renderEntry');
@@ -53,12 +54,10 @@ export const bundle = async (
 		throw new Error(errors[0].message + '\n' + errors[0].details);
 	}
 
-	const indexHtmlDir = path.join(__dirname, '..', 'web', 'index.html');
-	if (process.platform === 'win32') {
-		await execa('copy', [indexHtmlDir, outDir]);
-	} else {
-		await execa('cp', [indexHtmlDir, outDir]);
-	}
+	// TODO: Make this better in Lambda
+	// TODO: Copy /public folder
+	const html = indexHtml(`/`);
+	fs.writeFileSync(path.join(outDir, 'index.html'), html);
 
 	return outDir;
 };
