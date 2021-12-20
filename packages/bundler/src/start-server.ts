@@ -12,6 +12,8 @@ import {getDesiredPort} from './get-port';
 import {getProjectInfo} from './project-info';
 import {isUpdateAvailableWithTimeout} from './update-available';
 import {webpackConfig} from './webpack-config';
+import crypto from 'crypto';
+import {indexHtml} from './static-preview';
 
 export const startServer = async (
 	entry: string,
@@ -42,7 +44,12 @@ export const startServer = async (
 	});
 	const compiler = webpack(config);
 
-	app.use(express.static(path.join(__dirname, '..', 'web')));
+	const hash = crypto.randomBytes(6).toString('hex');
+
+	app.use(
+		`/static-${hash}`,
+		express.static(path.join(process.cwd(), 'public'))
+	);
 	app.use(webpackDevMiddleware(compiler));
 	app.use(
 		webpackHotMiddleware(compiler, {
@@ -79,8 +86,9 @@ export const startServer = async (
 		res.sendFile(path.join(__dirname, '..', 'web', 'favicon.png'));
 	});
 
-	app.use('*', (req, res) => {
-		res.sendFile(path.join(__dirname, '..', 'web', 'index.html'));
+	app.use('*', (_, res) => {
+		res.set('content-type', 'text/html');
+		res.end(indexHtml(hash));
 	});
 
 	const desiredPort = options?.port ?? Internals.getServerPort();
