@@ -39,12 +39,11 @@ export const Composition = <T,>({
 	fps,
 	durationInFrames,
 	id,
-	defaultProps: props,
+	defaultProps,
 	...compProps
 }: CompositionProps<T>) => {
-	const {registerComposition, unregisterComposition} = useContext(
-		CompositionManager
-	);
+	const {registerComposition, unregisterComposition} =
+		useContext(CompositionManager);
 
 	const lazy = useLazyComponent(compProps);
 	const nonce = useNonce();
@@ -70,7 +69,7 @@ export const Composition = <T,>({
 			width,
 			id,
 			component: lazy,
-			props,
+			defaultProps,
 			nonce,
 		});
 
@@ -83,6 +82,7 @@ export const Composition = <T,>({
 				id,
 				width,
 				nonce,
+				defaultProps,
 			});
 		}
 
@@ -96,7 +96,7 @@ export const Composition = <T,>({
 		height,
 		lazy,
 		id,
-		props,
+		defaultProps,
 		registerComposition,
 		unregisterComposition,
 		width,
