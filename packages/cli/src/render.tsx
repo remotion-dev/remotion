@@ -222,7 +222,14 @@ export const render = async () => {
 				);
 			},
 			onDownload: (src: string) => {
-				Log.info('Downloading asset... ', src);
+				if (src.startsWith('data:')) {
+					Log.info(
+						'\nWriting data URL to file: ',
+						src.substring(0, 30) + '...'
+					);
+				} else {
+					Log.info('\nDownloading asset... ', src);
+				}
 			},
 			verbose: Internals.Logging.isEqualOrBelowLogLevel('verbose'),
 		});

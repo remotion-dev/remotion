@@ -1,6 +1,7 @@
-import {createWriteStream, mkdirSync} from 'fs';
+import {createWriteStream, mkdirSync, writeFileSync} from 'fs';
 import got from 'got';
 import path from 'path';
+
 import {random, TAsset} from 'remotion';
 import sanitizeFilename from 'sanitize-filename';
 
@@ -47,20 +48,30 @@ const downloadAsset = async (
 		recursive: true,
 	});
 
-	// Listen to 'close' event instead of more
-	// concise method to avoid this problem
-	// https://github.com/remotion-dev/remotion/issues/384#issuecomment-844398183
-	await new Promise<void>((resolve, reject) => {
-		const writeStream = createWriteStream(to);
+	// This is probably too specific and
+	// unnecessarily hard-coded.
+	if(src.startsWith('data:audio/wav;base64')) {
+		const base64AudioData = src.split(',')[1];
 
-		writeStream.on('close', () => resolve());
-		writeStream.on('error', (err) => reject(err));
+		const buff = Buffer.from(base64AudioData, 'base64');
+		writeFileSync(to, buff);
+	} else {
+		// Listen to 'close' event instead of more
+		// concise method to avoid this problem
+		// https://github.com/remotion-dev/remotion/issues/384#issuecomment-844398183
+		await new Promise<void>((resolve, reject) => {
+			const writeStream = createWriteStream(to);
 
-		got
-			.stream(src)
-			.pipe(writeStream)
-			.on('error', (err) => reject(err));
-	});
+			writeStream.on('close', () => resolve());
+			writeStream.on('error', (err) => reject(err));
+
+			got
+				.stream(src)
+				.pipe(writeStream)
+				.on('error', (err) => reject(err));
+		});
+	}
+
 	notifyAssetIsDownloaded(src);
 };
 

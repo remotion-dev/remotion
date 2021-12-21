@@ -21,6 +21,14 @@ export const Index: React.FC = () => {
 	return (
 		<>
 			<Composition
+				id="tone-js-testing"
+				lazyComponent={() => import('./ToneJSTesting')}
+				width={1080}
+				height={1080}
+				fps={30}
+				durationInFrames={150}
+			/>
+			<Composition
 				id="dynamic-duration"
 				component={VideoTesting}
 				width={1080}
