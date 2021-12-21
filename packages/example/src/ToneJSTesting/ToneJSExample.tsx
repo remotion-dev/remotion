@@ -21,8 +21,11 @@ export const ToneJSExample: React.FC = () => {
 	const renderAudio = async () => {
 		const buffer = await Tone.Offline(() => {
 			const synth = new Tone.Synth().toDestination();
-			synth.triggerAttackRelease('B4', '4n');
-		}, 4);
+			const now = Tone.now()
+			synth.triggerAttackRelease("C4", "8n", now + .5)
+			synth.triggerAttackRelease("E4", "8n", now + 1)
+			synth.triggerAttackRelease("G4", "8n", now + 1.5)
+		}, 5);
 
 		// This should probably be moved to the Audio component.
 		const nativeAudioBuffer = buffer.get() as AudioBuffer;
