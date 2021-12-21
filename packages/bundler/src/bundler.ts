@@ -55,9 +55,19 @@ export const bundle = async (
 	}
 
 	// TODO: Make this better in Lambda
-	// TODO: Copy /public folder
-	const html = indexHtml(`/`);
+	const html = indexHtml(`/public`);
 	fs.writeFileSync(path.join(outDir, 'index.html'), html);
+	if (process.platform === 'win32') {
+		await execa('xcopy', [
+			path.join(process.cwd(), 'public'),
+			outDir,
+			'/s',
+			'/e',
+			'/y',
+		]);
+	} else {
+		await execa('cp', ['-a', path.join(process.cwd(), 'public'), outDir]);
+	}
 
 	return outDir;
 };

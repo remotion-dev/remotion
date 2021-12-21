@@ -8,7 +8,7 @@ const trimLeadingSlash = (path: string) => {
 
 const inner = (path: string): string => {
 	if (window.remotion_staticBase) {
-		return `/static-${window.remotion_staticBase}/${trimLeadingSlash(path)}`;
+		return `${window.remotion_staticBase}/${trimLeadingSlash(path)}`;
 	}
 
 	return `/${trimLeadingSlash(path)}`;
