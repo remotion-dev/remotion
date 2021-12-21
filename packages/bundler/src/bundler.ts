@@ -1,10 +1,10 @@
-import execa from 'execa';
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
 import {Internals, WebpackOverrideFn} from 'remotion';
 import {promisify} from 'util';
 import webpack from 'webpack';
+import {copyDir} from './copy-dir';
 import {indexHtml} from './static-preview';
 import {webpackConfig} from './webpack-config';
 
@@ -54,20 +54,14 @@ export const bundle = async (
 		throw new Error(errors[0].message + '\n' + errors[0].details);
 	}
 
+	// TODO: What if public folder does not exist?
+
 	// TODO: Make this better in Lambda
 	const html = indexHtml(`/public`);
 	fs.writeFileSync(path.join(outDir, 'index.html'), html);
-	if (process.platform === 'win32') {
-		await execa('xcopy', [
-			path.join(process.cwd(), 'public'),
-			path.join(outDir, 'public'),
-			'/s',
-			'/e',
-			'/y',
-		]);
-	} else {
-		await execa('cp', ['-a', path.join(process.cwd(), 'public'), outDir]);
-	}
+	const from = path.join(process.cwd(), 'public');
+	const to = path.join(outDir, 'public');
+	await copyDir(from, to);
 
 	return outDir;
 };
