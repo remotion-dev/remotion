@@ -65,7 +65,9 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 			id,
 			frame: absoluteFrame,
 			volume,
-			isRemote: isRemoteAsset(getAbsoluteSrc(props.src)),
+			isRemote: props.fromAudioBuffer
+				? true
+				: isRemoteAsset(getAbsoluteSrc(props.src)),
 			mediaFrame: frame,
 			playbackRate: props.playbackRate ?? 1,
 		});
@@ -82,6 +84,7 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 		frame,
 		playbackRate,
 		props.playbackRate,
+		props.fromAudioBuffer,
 	]);
 
 	return <audio ref={audioRef} {...nativeProps} />;
