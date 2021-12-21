@@ -2,6 +2,7 @@ import React from 'react';
 import {Composition, getInputProps, Still} from 'remotion';
 import BetaText from './BetaText';
 import {ColorInterpolation} from './ColorInterpolation';
+import {FontDemo} from './Fonts';
 import {Framer} from './Framer';
 import {MissingImg} from './MissingImg';
 import {OrbScene} from './Orb';
@@ -287,9 +288,10 @@ export const Index: React.FC = () => {
 			<Still
 				id="static-demo"
 				component={StaticDemo}
-				width={2000}
-				height={2000}
+				width={1000}
+				height={1000}
 			/>
+			<Still id="font-demo" component={FontDemo} width={1000} height={1000} />
 		</>
 	);
 };
