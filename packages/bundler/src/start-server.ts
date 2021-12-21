@@ -44,7 +44,7 @@ export const startServer = async (
 	});
 	const compiler = webpack(config);
 
-	const hash = `static-${crypto.randomBytes(6).toString('hex')}`;
+	const hash = `/static-${crypto.randomBytes(6).toString('hex')}`;
 
 	app.use(hash, express.static(path.join(process.cwd(), 'public')));
 	app.use(webpackDevMiddleware(compiler));
