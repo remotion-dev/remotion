@@ -1,7 +1,7 @@
+import {bundle} from '@remotion/bundler';
 import {Internals, WebpackOverrideFn} from 'remotion';
 import {deleteSite} from '../api/delete-site';
 import {AwsRegion} from '../pricing/aws-regions';
-import {bundleSite} from '../shared/bundle-site';
 import {getSitesKey, REMOTION_BUCKET_PREFIX} from '../shared/constants';
 import {getAccountId} from '../shared/get-account-id';
 import {makeS3ServeUrl} from '../shared/make-s3-url';
@@ -79,7 +79,7 @@ export const deploySite = async ({
 		region,
 		siteName: siteId,
 	});
-	const bundled = await bundleSite(
+	const bundled = await bundle(
 		entryPoint,
 		options?.onBundleProgress ?? (() => undefined),
 		{
