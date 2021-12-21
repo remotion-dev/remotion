@@ -1,6 +1,9 @@
 import {useEffect, useState} from 'react';
 import {Audio, continueRender, delayRender} from 'remotion';
 
+// Can we use this? :thinking:
+import { getRemotionEnvironment } from '../../../core/dist/get-environment';
+
 import * as Tone from 'tone';
 import toWav from 'audiobuffer-to-wav';
 
@@ -17,6 +20,7 @@ function uint8ToBase64(buffer: ArrayBuffer) {
 export const ToneJSExample: React.FC = () => {
 	const [handle] = useState(() => delayRender());
 	const [audioDataURL, setAudioDataURL] = useState('');
+	const remotionEnv = getRemotionEnvironment();
 
 	const renderAudio = async () => {
 		const buffer = await Tone.Offline(() => {
@@ -26,6 +30,13 @@ export const ToneJSExample: React.FC = () => {
 			synth.triggerAttackRelease("E4", "8n", now + 1)
 			synth.triggerAttackRelease("G4", "8n", now + 1.5)
 		}, 5);
+
+		if (remotionEnv !== 'rendering') {
+			const player = new Tone.Player().toDestination();
+			player.buffer = buffer;
+			player.start();
+			return;
+		}
 
 		// This should probably be moved to the Audio component.
 		const nativeAudioBuffer = buffer.get() as AudioBuffer;
