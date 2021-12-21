@@ -61,11 +61,9 @@ export const bundle = async (
 		await execa('xcopy', [
 			path.join(process.cwd(), 'public'),
 			path.join(outDir, 'public'),
-			'/S',
-			'/E',
-			'/C',
-			'/H',
-			'/Y',
+			'/s',
+			'/e',
+			'/y',
 		]);
 	} else {
 		await execa('cp', ['-a', path.join(process.cwd(), 'public'), outDir]);
