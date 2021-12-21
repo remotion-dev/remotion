@@ -60,10 +60,12 @@ export const bundle = async (
 	if (process.platform === 'win32') {
 		await execa('xcopy', [
 			path.join(process.cwd(), 'public'),
-			outDir,
-			'/s',
-			'/e',
-			'/y',
+			path.join(outDir, 'public'),
+			'/S',
+			'/E',
+			'/C',
+			'/H',
+			'/Y',
 		]);
 	} else {
 		await execa('cp', ['-a', path.join(process.cwd(), 'public'), outDir]);
