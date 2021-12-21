@@ -285,7 +285,7 @@ export const Index: React.FC = () => {
 			/>
 			<Still id="Orb" component={OrbScene} width={2000} height={2000} />
 			<Still
-				id="static-file"
+				id="static-demo"
 				component={StaticDemo}
 				width={2000}
 				height={2000}

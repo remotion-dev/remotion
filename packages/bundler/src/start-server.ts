@@ -44,12 +44,9 @@ export const startServer = async (
 	});
 	const compiler = webpack(config);
 
-	const hash = crypto.randomBytes(6).toString('hex');
+	const hash = `static-${crypto.randomBytes(6).toString('hex')}`;
 
-	app.use(
-		`/static-${hash}`,
-		express.static(path.join(process.cwd(), 'public'))
-	);
+	app.use(hash, express.static(path.join(process.cwd(), 'public')));
 	app.use(webpackDevMiddleware(compiler));
 	app.use(
 		webpackHotMiddleware(compiler, {
