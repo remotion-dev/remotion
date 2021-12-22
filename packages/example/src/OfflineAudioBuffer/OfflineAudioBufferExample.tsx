@@ -1,9 +1,6 @@
 import {useEffect, useState} from 'react';
 import {Audio, continueRender, delayRender} from 'remotion';
 
-// Can we use this? :thinking:
-import { getRemotionEnvironment } from '../../../core/dist/get-environment';
-
 import toWav from 'audiobuffer-to-wav';
 
 function uint8ToBase64(buffer: ArrayBuffer) {
@@ -19,7 +16,6 @@ function uint8ToBase64(buffer: ArrayBuffer) {
 export const OfflineAudioBufferExample: React.FC = () => {
 	const [handle] = useState(() => delayRender());
 	const [audioDataURL, setAudioDataURL] = useState('');
-	const remotionEnv = getRemotionEnvironment();
 	const C4_FREQUENCY = 261.63;
 	const sampleRate = 44100;
 	const lengthInSeconds = 5;
@@ -44,16 +40,6 @@ export const OfflineAudioBufferExample: React.FC = () => {
 		oscillatorNode.stop(currentTime + 3);
 
 		const buffer = await offlineContext.startRendering();
-
-		if (remotionEnv !== 'rendering') {
-			const audioContext = new AudioContext();
-			const bufferSource = audioContext.createBufferSource();
-			bufferSource.buffer = buffer;
-			bufferSource.connect(audioContext.destination);
-			bufferSource.start();
-
-			return;
-		}
 
 		const wavAsArrayBuffer = toWav(buffer);
 		const arrayBufferAsBase64 = uint8ToBase64(wavAsArrayBuffer);
