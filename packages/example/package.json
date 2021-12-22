@@ -45,7 +45,6 @@
 		"remotion": "2.5.5",
 		"styled-components": "^5.1.1",
 		"svg-path-properties": "^1.0.4",
-		"tone": "^14.7.77",
 		"ts-node": "^9.1.1",
 		"ts-unused-exports": "^7.0.1",
 		"typescript": "^4.4.2"
