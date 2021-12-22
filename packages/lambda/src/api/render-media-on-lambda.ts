@@ -44,7 +44,7 @@ export type RenderMediaOnLambdaOutput = {
 
 /**
  * @description Triggers a render on a lambda given a composition and a lambda function.
- * @link https://remotion-3.vercel.app/docs/lambda/rendermediaonlambda
+ * @link https://v3.remotion.dev/docs/lambda/rendermediaonlambda
  * @param params.functionName The name of the Lambda function that should be used
  * @param params.serveUrl The URL of the deployed project
  * @param params.composition The ID of the composition which should be rendered.

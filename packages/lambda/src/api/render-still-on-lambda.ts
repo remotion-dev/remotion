@@ -33,7 +33,7 @@ export type RenderStillOnLambdaOutput = {
 
 /**
  * @description Renders a still frame on Lambda
- * @link https://remotion-3.vercel.app/docs/lambda/renderstillonlambda
+ * @link https://v3.remotion.dev/docs/lambda/renderstillonlambda
  * @param params.functionName The name of the Lambda function that should be used
  * @param params.serveUrl The URL of the deployed project
  * @param params.composition The ID of the composition which should be rendered.
