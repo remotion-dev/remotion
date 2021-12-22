@@ -34,6 +34,7 @@ export const OfflineAudioBufferExample: React.FC = () => {
 		const gainNode = offlineContext.createGain();
 		oscillatorNode.connect(gainNode);
 		gainNode.connect(offlineContext.destination);
+		gainNode.gain.setValueAtTime(.5, offlineContext.currentTime);
 
 		oscillatorNode.type = "sine";
 		oscillatorNode.frequency.value = C4_FREQUENCY;
