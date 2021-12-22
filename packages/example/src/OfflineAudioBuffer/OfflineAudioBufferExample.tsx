@@ -22,7 +22,7 @@ export const OfflineAudioBufferExample: React.FC = () => {
 	const remotionEnv = getRemotionEnvironment();
 	const C4_FREQUENCY = 261.63;
 	const sampleRate = 44100;
-	const lengthInSeconds = 2;
+	const lengthInSeconds = 5;
 
 	const renderAudio = async () => {
 		const offlineContext = new OfflineAudioContext({
@@ -40,7 +40,7 @@ export const OfflineAudioBufferExample: React.FC = () => {
 
 		const {currentTime} = offlineContext;
 		oscillatorNode.start(currentTime);
-		oscillatorNode.stop(currentTime + 1);
+		oscillatorNode.stop(currentTime + 3);
 
 		const buffer = await offlineContext.startRendering();
 
