@@ -4,19 +4,9 @@ import {Audio, Sequence, continueRender, delayRender, useVideoConfig} from 'remo
 
 import toWav from 'audiobuffer-to-wav';
 
-function uint8ToBase64(buffer: ArrayBuffer) {
-	let binary = '';
-	const bytes = new Uint8Array(buffer);
-	const len = bytes.byteLength;
-	for (let i = 0; i < len; i++) {
-		binary += String.fromCharCode(bytes[i]);
-	}
-	return window.btoa(binary);
-}
-
 export const OfflineAudioBufferExample: React.FC = () => {
 	const [handle] = useState(() => delayRender());
-	const [audioDataURL, setAudioDataURL] = useState('');
+	const [audioBuffer, setAudioBuffer] = useState<ArrayBuffer | null>(null);
 	const { fps } = useVideoConfig();
 	const C4_FREQUENCY = 261.63;
 	const sampleRate = 44100;
@@ -45,8 +35,7 @@ export const OfflineAudioBufferExample: React.FC = () => {
 		const buffer = await offlineContext.startRendering();
 
 		const wavAsArrayBuffer = toWav(buffer);
-		const arrayBufferAsBase64 = uint8ToBase64(wavAsArrayBuffer);
-		setAudioDataURL('data:audio/wav;base64,' + arrayBufferAsBase64);
+		setAudioBuffer(wavAsArrayBuffer);
 
 		continueRender(handle);
 	};
@@ -70,12 +59,12 @@ export const OfflineAudioBufferExample: React.FC = () => {
 				width: '100%'
 			}}
 		>
-			{audioDataURL !== '' &&
+			{audioBuffer &&
 				<Sequence from={100} durationInFrames={100}>
 					<Audio
+						fromAudioBuffer={audioBuffer}
 						startFrom={0}
 						endAt={100}
-						src={audioDataURL}
 						volume={(f) =>
 					interpolate(f, [0, 50, 100], [0, 1, 0], {
 						extrapolateLeft: 'clamp',

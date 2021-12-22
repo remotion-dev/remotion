@@ -15,6 +15,7 @@ import {useAbsoluteCurrentFrame, useCurrentFrame} from '../use-frame';
 import {evaluateVolume} from '../volume-prop';
 import {RemotionAudioProps} from './props';
 import {useFrameForVolumeProp} from './use-audio-frame';
+import {uint8ToBase64} from './audio-url-helpers';
 
 const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 	HTMLAudioElement,
@@ -27,6 +28,7 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 	const frame = useCurrentFrame();
 	const sequenceContext = useContext(SequenceContext);
 	const {registerAsset, unregisterAsset} = useContext(CompositionManager);
+	const { fromAudioBuffer } = props;
 
 	// Generate a string that's as unique as possible for this asset
 	// but at the same time the same on all threads
@@ -37,6 +39,15 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 			}-${sequenceContext?.durationInFrames}-muted:${props.muted}`,
 		[props.muted, props.src, sequenceContext]
 	);
+
+	const audioSrc = useMemo(() => {
+		if (fromAudioBuffer) {
+			const arrayBufferAsBase64 = uint8ToBase64(fromAudioBuffer);
+			return 'data:audio/wav;base64,' + arrayBufferAsBase64;
+		}
+
+		return props.src;
+	}, [fromAudioBuffer, props.src])
 
 	const {volume: volumeProp, playbackRate, ...nativeProps} = props;
 
@@ -51,7 +62,7 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 	});
 
 	useEffect(() => {
-		if (!props.src) {
+		if (!audioSrc) {
 			throw new Error('No src passed');
 		}
 
@@ -61,20 +72,20 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 
 		registerAsset({
 			type: 'audio',
-			src: getAbsoluteSrc(props.src),
+			src: getAbsoluteSrc(audioSrc),
 			id,
 			frame: absoluteFrame,
 			volume,
 			isRemote: props.fromAudioBuffer
 				? true
-				: isRemoteAsset(getAbsoluteSrc(props.src)),
+				: isRemoteAsset(getAbsoluteSrc(audioSrc)),
 			mediaFrame: frame,
 			playbackRate: props.playbackRate ?? 1,
 		});
 		return () => unregisterAsset(id);
 	}, [
 		props.muted,
-		props.src,
+		audioSrc,
 		registerAsset,
 		absoluteFrame,
 		id,
@@ -87,7 +98,12 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 		props.fromAudioBuffer,
 	]);
 
-	return <audio ref={audioRef} {...nativeProps} />;
+	const propsToPass = {
+		...nativeProps,
+		src: audioSrc
+	}
+
+	return <audio ref={audioRef} {...propsToPass} />;
 };
 
 export const AudioForRendering = forwardRef(

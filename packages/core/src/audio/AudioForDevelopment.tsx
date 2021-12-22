@@ -10,6 +10,7 @@ import {
 import {RemotionAudioProps} from './props';
 import {useSharedAudio} from './shared-audio-tags';
 import {useFrameForVolumeProp} from './use-audio-frame';
+import {getBlobURL} from './audio-url-helpers';
 
 const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 	HTMLAudioElement,
@@ -40,12 +41,21 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		...nativeProps
 	} = props;
 
+	const audioSrc = useMemo(() => {
+		if (fromAudioBuffer) {
+			return getBlobURL(fromAudioBuffer)
+		}
+
+		return nativeProps.src;
+	}, [fromAudioBuffer, nativeProps.src])
+
 	const propsToPass = useMemo((): RemotionAudioProps => {
 		return {
 			muted: muted || mediaMuted,
 			...nativeProps,
+			src: audioSrc,
 		};
-	}, [mediaMuted, muted, nativeProps]);
+	}, [mediaMuted, muted, nativeProps, audioSrc]);
 
 	const audioRef = useSharedAudio(propsToPass).el;
 
@@ -63,13 +73,13 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		volume,
 		mediaVolume,
 		mediaRef: audioRef,
-		src: nativeProps.src,
+		src: audioSrc,
 		mediaType: 'audio',
 	});
 
 	useMediaPlayback({
 		mediaRef: audioRef,
-		src: nativeProps.src,
+		src: audioSrc,
 		mediaType: 'audio',
 		playbackRate: playbackRate ?? 1,
 	});
