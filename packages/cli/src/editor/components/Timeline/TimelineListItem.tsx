@@ -112,10 +112,14 @@ export const TimelineListItem: React.FC<{
 			});
 		}
 	}, [collapsed, dispatchStateChange, hash]);
-	const text =
+	const displayName =
 		sequence.displayName.length > 80
 			? sequence.displayName.slice(0, 80) + '...'
 			: sequence.displayName;
+
+	const text = sequence.type === 'audio' && sequence.src.startsWith('data:')
+		? 'From Audio Buffer'
+		: displayName;
 
 	return (
 		<div style={outer}>
