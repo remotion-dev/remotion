@@ -10,7 +10,10 @@ Keep track of changes to the APIs of Remotion Lambda here.
 
 [Upgrading](/docs/lambda/upgrading)
 
-## Unreleased
+## December 22nd, 2021
+
+Version hash: `3.0.0-lambda.288+6ab6c681d`
+Lambda version: '2021-12-22'
 
 - Visiting a Serve URL in the browser shows a FAQ
 - Vast improvements to documentation, CLI documentation is now complete!
