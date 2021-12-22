@@ -36,6 +36,7 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		muted,
 		playbackRate,
 		shouldPreMountAudioTags,
+		fromAudioBuffer,
 		...nativeProps
 	} = props;
 
