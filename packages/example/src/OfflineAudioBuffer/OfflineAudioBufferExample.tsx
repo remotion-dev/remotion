@@ -21,12 +21,14 @@ export const OfflineAudioBufferExample: React.FC = () => {
 	const [audioDataURL, setAudioDataURL] = useState('');
 	const remotionEnv = getRemotionEnvironment();
 	const C4_FREQUENCY = 261.63;
+	const sampleRate = 44100;
+	const lengthInSeconds = 2;
 
 	const renderAudio = async () => {
 		const offlineContext = new OfflineAudioContext({
 			numberOfChannels: 2,
-			length: 44100 * 40,
-			sampleRate: 44100,
+			length: sampleRate * lengthInSeconds,
+			sampleRate,
 		});
 		const oscillatorNode = offlineContext.createOscillator();
 		const gainNode = offlineContext.createGain();
@@ -78,11 +80,7 @@ export const OfflineAudioBufferExample: React.FC = () => {
 				width: '100%'
 			}}
 		>
-			{audioDataURL !== '' && (
-				<>
-					<Audio fromAudioBuffer src={audioDataURL} />
-				</>
-			)}
+			{audioDataURL !== '' && <Audio fromAudioBuffer src={audioDataURL} /> }
 			Render sound from offline audio buffer
 		</div>
 	);
