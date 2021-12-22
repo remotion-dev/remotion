@@ -4,7 +4,6 @@ import {Audio, continueRender, delayRender} from 'remotion';
 // Can we use this? :thinking:
 import { getRemotionEnvironment } from '../../../core/dist/get-environment';
 
-import * as Tone from 'tone';
 import toWav from 'audiobuffer-to-wav';
 
 function uint8ToBase64(buffer: ArrayBuffer) {
@@ -17,34 +16,45 @@ function uint8ToBase64(buffer: ArrayBuffer) {
 	return window.btoa(binary);
 }
 
-export const ToneJSExample: React.FC = () => {
+export const OfflineAudioBufferExample: React.FC = () => {
 	const [handle] = useState(() => delayRender());
 	const [audioDataURL, setAudioDataURL] = useState('');
 	const remotionEnv = getRemotionEnvironment();
+	const C4_FREQUENCY = 261.63;
 
 	const renderAudio = async () => {
-		const buffer = await Tone.Offline(() => {
-			const synth = new Tone.Synth().toDestination();
-			const now = Tone.now()
-			synth.triggerAttackRelease("C4", "8n", now + .5)
-			synth.triggerAttackRelease("E4", "8n", now + 1)
-			synth.triggerAttackRelease("G4", "8n", now + 1.5)
-		}, 5);
+		const offlineContext = new OfflineAudioContext({
+			numberOfChannels: 2,
+			length: 44100 * 40,
+			sampleRate: 44100,
+		});
+		const oscillatorNode = offlineContext.createOscillator();
+		const gainNode = offlineContext.createGain();
+		oscillatorNode.connect(gainNode);
+		gainNode.connect(offlineContext.destination);
+
+		oscillatorNode.type = "sine";
+		oscillatorNode.frequency.value = C4_FREQUENCY;
+
+		const {currentTime} = offlineContext;
+		oscillatorNode.start(currentTime);
+		oscillatorNode.stop(currentTime + 1);
+
+		const buffer = await offlineContext.startRendering();
 
 		if (remotionEnv !== 'rendering') {
-			const player = new Tone.Player().toDestination();
-			player.buffer = buffer;
-			player.start();
+			const audioContext = new AudioContext();
+			const bufferSource = audioContext.createBufferSource();
+			bufferSource.buffer = buffer;
+			bufferSource.connect(audioContext.destination);
+			bufferSource.start();
+
 			return;
 		}
 
-		// This should probably be moved to the Audio component.
-		const nativeAudioBuffer = buffer.get() as AudioBuffer;
-		if (nativeAudioBuffer) {
-			const wavAsArrayBuffer = toWav(nativeAudioBuffer);
-			const arrayBufferAsBase64 = uint8ToBase64(wavAsArrayBuffer);
-			setAudioDataURL('data:audio/wav;base64,' + arrayBufferAsBase64);
-		}
+		const wavAsArrayBuffer = toWav(buffer);
+		const arrayBufferAsBase64 = uint8ToBase64(wavAsArrayBuffer);
+		setAudioDataURL('data:audio/wav;base64,' + arrayBufferAsBase64);
 
 		continueRender(handle);
 	};
@@ -73,7 +83,7 @@ export const ToneJSExample: React.FC = () => {
 					<Audio fromAudioBuffer src={audioDataURL} />
 				</>
 			)}
-			Rendering sound with ToneJS.Offline
+			Render sound from offline audio buffer
 		</div>
 	);
 };

@@ -48,13 +48,14 @@ const downloadAsset = async (
 		recursive: true,
 	});
 
-	// This is probably too specific and
-	// unnecessarily hard-coded.
-	if(src.startsWith('data:audio/wav;base64')) {
-		const base64AudioData = src.split(',')[1];
+	if(src.startsWith('data:')) {
+		const [ assetDetails, assetData ] = src.substring('data:'.length).split(',');
+		const [ mimeType, encoding ] = assetDetails.split(';');
 
-		const buff = Buffer.from(base64AudioData, 'base64');
-		writeFileSync(to, buff);
+		if (mimeType === 'audio/wav') {
+			const buff = Buffer.from(assetData, encoding as BufferEncoding);
+			writeFileSync(to, buff);
+		}
 	} else {
 		// Listen to 'close' event instead of more
 		// concise method to avoid this problem
