@@ -40,7 +40,7 @@ export const OfflineAudioBufferExample: React.FC = () => {
 
 		const {currentTime} = offlineContext;
 		oscillatorNode.start(currentTime);
-		oscillatorNode.stop(currentTime + 3);
+		oscillatorNode.stop(currentTime + lengthInSeconds);
 
 		const buffer = await offlineContext.startRendering();
 
