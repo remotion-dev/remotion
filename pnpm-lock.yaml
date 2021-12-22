@@ -397,11 +397,13 @@ importers:
       '@remotion/media-utils': 2.5.5
       '@remotion/renderer': 2.5.5
       '@remotion/three': 2.5.5
+      '@types/audiobuffer-to-wav': ^1.0.1
       '@types/babel__core': ^7.1.12
       '@types/babel__template': ^7.4.0
       '@types/express': ^4.17.11
       '@types/node': ^16.7.5
       '@types/styled-components': ^5.1.1
+      audiobuffer-to-wav: ^1.0.0
       babel-loader: ^8.2.2
       eslint: ^7.25.0
       express: ^4.17.1
@@ -435,6 +437,7 @@ importers:
       '@types/express': 4.17.13
       '@types/node': 16.10.2
       '@types/styled-components': 5.1.14
+      audiobuffer-to-wav: 1.0.0
       babel-loader: 8.2.2
       express: 4.17.1
       mdx-loader: 3.0.2_react@17.0.2
@@ -447,6 +450,7 @@ importers:
       ts-unused-exports: 7.0.3_typescript@4.4.3
       typescript: 4.4.3
     devDependencies:
+      '@types/audiobuffer-to-wav': 1.0.1
       '@types/babel__core': 7.1.16
       '@types/babel__template': 7.4.1
       eslint: 7.32.0
@@ -6652,6 +6656,10 @@ packages:
   /@types/aria-query/4.2.2:
     resolution: {integrity: sha512-HnYpAE1Y6kRyKM/XkEuiRQhTHvkzMBurTHnpFLYLBGPIylZNPs9jJcuOOYWxPLJCSEtmZT0Y8rHDokKN7rRTig==}
 
+  /@types/audiobuffer-to-wav/1.0.1:
+    resolution: {integrity: sha512-55YMxBf9BgL9ICdhBzumYwxSbqbyhbA8DgRACud3C2AZlZCS86tm9kkJ+tRs/6zAGLLBMpn1Vuv4FNoYMgeINw==}
+    dev: true
+
   /@types/babel__core/7.1.16:
     resolution: {integrity: sha512-EAEHtisTMM+KaKwfWdC3oyllIqswlznXCIVCt7/oRNrh+DhgT4UEBNC/jlADNjvw7UnfbcdkGQcPVZ1xYiLcrQ==}
     dependencies:
@@ -8047,6 +8055,10 @@ packages:
     resolution: {integrity: sha512-Wm6ukoaOGJi/73p/cl2GvLjTI5JM1k/O14isD73YML8StrH/7/lRFgmg8nICZgD3bZZvjwCGxtMOD3wWNAu8cg==}
     engines: {node: '>= 4.5.0'}
     hasBin: true
+
+  /audiobuffer-to-wav/1.0.0:
+    resolution: {integrity: sha1-1bQyJxRV5/7laxEc0PjWINf54QU=}
+    dev: false
 
   /autoprefixer/10.3.7_postcss@8.3.9:
     resolution: {integrity: sha512-EmGpu0nnQVmMhX8ROoJ7Mx8mKYPlcUHuxkwrRYEYMz85lu7H09v8w6R1P0JPdn/hKU32GjpLBFEOuIlDWCRWvg==}
