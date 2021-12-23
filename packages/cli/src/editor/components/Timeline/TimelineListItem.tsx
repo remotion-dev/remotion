@@ -117,11 +117,6 @@ export const TimelineListItem: React.FC<{
 			? sequence.displayName.slice(0, 80) + '...'
 			: sequence.displayName;
 
-	const isURLObject = sequence.type === 'audio' && /data:|blob:/.test(sequence.src.substring(0, 5));
-	const text = isURLObject
-		? 'From Audio Buffer'
-		: displayName;
-
 	return (
 		<div style={outer}>
 			<div style={padder} />
@@ -147,7 +142,7 @@ export const TimelineListItem: React.FC<{
 				</>
 			) : null}
 			<div style={textStyle}>
-				{text || 'Untitled'}
+				{displayName || 'Untitled'}
 				<TimelineSequenceFrame
 					duration={sequence.duration}
 					from={sequence.from}

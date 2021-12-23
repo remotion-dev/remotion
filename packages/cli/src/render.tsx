@@ -224,7 +224,7 @@ export const render = async () => {
 			onDownload: (src: string) => {
 				if (src.startsWith('data:')) {
 					Log.info(
-						'\nWriting data URL to file: ',
+						'\nWriting Data URL to file: ',
 						src.substring(0, 30) + '...'
 					);
 				} else {
