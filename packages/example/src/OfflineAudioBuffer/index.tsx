@@ -2,11 +2,9 @@ import {interpolate} from 'remotion'
 import {useEffect, useState} from 'react';
 import {Audio, Sequence, continueRender, delayRender, useVideoConfig} from 'remotion';
 
-import toWav from 'audiobuffer-to-wav';
-
 export const OfflineAudioBufferExample: React.FC = () => {
 	const [handle] = useState(() => delayRender());
-	const [audioBuffer, setAudioBuffer] = useState<ArrayBuffer | null>(null);
+	const [audioBuffer, setAudioBuffer] = useState<AudioBuffer | null>(null);
 	const { fps } = useVideoConfig();
 	const C4_FREQUENCY = 261.63;
 	const sampleRate = 44100;
@@ -33,9 +31,7 @@ export const OfflineAudioBufferExample: React.FC = () => {
 		oscillatorNode.stop(currentTime + lengthInSeconds);
 
 		const buffer = await offlineContext.startRendering();
-
-		const wavAsArrayBuffer = toWav(buffer);
-		setAudioBuffer(wavAsArrayBuffer);
+		setAudioBuffer(buffer);
 
 		continueRender(handle);
 	};
@@ -62,7 +58,7 @@ export const OfflineAudioBufferExample: React.FC = () => {
 			{audioBuffer &&
 				<Sequence from={100} durationInFrames={100}>
 					<Audio
-						fromAudioBuffer={audioBuffer}
+						audioBuffer={audioBuffer}
 						startFrom={0}
 						endAt={100}
 						volume={(f) =>

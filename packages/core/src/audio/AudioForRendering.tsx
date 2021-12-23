@@ -28,7 +28,7 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 	const frame = useCurrentFrame();
 	const sequenceContext = useContext(SequenceContext);
 	const {registerAsset, unregisterAsset} = useContext(CompositionManager);
-	const { fromAudioBuffer } = props;
+	const { audioBuffer } = props;
 
 	// Generate a string that's as unique as possible for this asset
 	// but at the same time the same on all threads
@@ -41,13 +41,13 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 	);
 
 	const audioSrc = useMemo(() => {
-		if (fromAudioBuffer) {
-			const arrayBufferAsBase64 = uint8ToBase64(fromAudioBuffer);
+		if (audioBuffer) {
+			const arrayBufferAsBase64 = uint8ToBase64(audioBuffer);
 			return 'data:audio/wav;base64,' + arrayBufferAsBase64;
 		}
 
 		return props.src;
-	}, [fromAudioBuffer, props.src])
+	}, [audioBuffer, props.src])
 
 	const {volume: volumeProp, playbackRate, ...nativeProps} = props;
 
@@ -76,7 +76,7 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 			id,
 			frame: absoluteFrame,
 			volume,
-			isRemote: props.fromAudioBuffer
+			isRemote: props.audioBuffer
 				? true
 				: isRemoteAsset(getAbsoluteSrc(audioSrc)),
 			mediaFrame: frame,
@@ -95,7 +95,7 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 		frame,
 		playbackRate,
 		props.playbackRate,
-		props.fromAudioBuffer,
+		props.audioBuffer,
 	]);
 
 	const propsToPass = {

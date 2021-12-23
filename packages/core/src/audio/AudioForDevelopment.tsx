@@ -37,17 +37,17 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		muted,
 		playbackRate,
 		shouldPreMountAudioTags,
-		fromAudioBuffer,
+		audioBuffer,
 		...nativeProps
 	} = props;
 
 	const audioSrc = useMemo(() => {
-		if (fromAudioBuffer) {
-			return getBlobURL(fromAudioBuffer)
+		if (audioBuffer) {
+			return getBlobURL(audioBuffer)
 		}
 
 		return nativeProps.src;
-	}, [fromAudioBuffer, nativeProps.src])
+	}, [audioBuffer, nativeProps.src])
 
 	const propsToPass = useMemo((): RemotionAudioProps => {
 		return {
