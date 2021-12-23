@@ -49,9 +49,11 @@ const GetVideo = () => {
 
 		if (!video && compositions.compositions.length > 0) {
 			compositions.setCurrentComposition(
-				(compositions.compositions.find(
-					(c) => c.id === Internals.getCompositionName()
-				) as TComposition)?.id ?? null
+				(
+					compositions.compositions.find(
+						(c) => c.id === Internals.getCompositionName()
+					) as TComposition
+				)?.id ?? null
 			);
 		}
 	}, [compositions, compositions.compositions, video]);
@@ -95,7 +97,7 @@ const GetVideo = () => {
 				}}
 			>
 				{Component ? (
-					<Component {...((video?.props as {}) ?? {})} {...inputProps} />
+					<Component {...((video?.defaultProps as {}) ?? {})} {...inputProps} />
 				) : null}
 			</div>
 		</Suspense>
