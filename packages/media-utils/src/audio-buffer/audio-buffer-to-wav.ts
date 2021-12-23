@@ -1,6 +1,4 @@
-module.exports = audioBufferToWav;
-
-function audioBufferToWav(
+export function audioBufferToWav(
 	buffer: AudioBuffer,
 	opt: {
 		float32: boolean;
