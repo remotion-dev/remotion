@@ -6,3 +6,4 @@ export * from './types';
 export type {AudioData, VideoMetadata as VideoData} from './types';
 export {useAudioData} from './use-audio-metadata';
 export {visualizeAudio} from './visualize-audio';
+export {audioBufferToDataUrl} from './audio-buffer/audio-url-helpers';
