@@ -3,7 +3,7 @@ title: getAudioData()
 id: get-audio-data
 ---
 
-_Part of the `@remotion/media-utils`_ package of helper functions.
+_Part of the `@remotion/media-utils` package of helper functions._
 
 Takes an audio `src`, loads it and returns data and metadata for the specified source.
 

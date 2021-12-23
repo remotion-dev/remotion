@@ -79,7 +79,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 			id,
 			frame: absoluteFrame,
 			volume,
-			isRemote: isRemoteAsset(getAbsoluteSrc(props.src)),
+			isRemote: isRemoteAsset(getAbsoluteSrc(props.src), false),
 			mediaFrame: frame,
 			playbackRate: playbackRate ?? 1,
 		});
