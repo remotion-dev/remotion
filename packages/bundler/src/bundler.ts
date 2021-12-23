@@ -54,14 +54,15 @@ export const bundle = async (
 		throw new Error(errors[0].message + '\n' + errors[0].details);
 	}
 
-	// TODO: What if public folder does not exist?
+	const from = path.join(process.cwd(), 'public');
+	const to = path.join(outDir, 'public');
+	if (fs.existsSync(from)) {
+		await copyDir(from, to);
+	}
 
 	// TODO: Make this better in Lambda
 	const html = indexHtml(`/public`);
 	fs.writeFileSync(path.join(outDir, 'index.html'), html);
-	const from = path.join(process.cwd(), 'public');
-	const to = path.join(outDir, 'public');
-	await copyDir(from, to);
 
 	return outDir;
 };
