@@ -45,7 +45,7 @@ export const OfflineAudioBufferExample: React.FC = () => {
 			style={{
 				fontFamily: 'Helvetica, Arial',
 				fontSize: 50,
-				background: '#908800',
+				background: '#DC136C',
 				color: 'white',
 				textAlign: 'center',
 				position: 'absolute',
