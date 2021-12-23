@@ -301,6 +301,19 @@ test("Should fail to render an audio file that doesn't have any audio inputs", a
   fs.unlinkSync(out);
 });
 
+test.only("Should render a still that uses the staticFile() API", async () => {
+  const out = outputPath.replace(".mp4", ".png");
+  const task = await execa(
+    "npx",
+    ["remotion", "still", "src/index.tsx", "static-demo", out, "--log=verbose"],
+    {
+      cwd: "packages/example",
+      reject: false,
+    }
+  );
+  expect(task.exitCode).toBe(0);
+});
+
 test("Dynamic duration should work", async () => {
   const randomDuration = Math.round(Math.random() * 18 + 2);
   const task = await execa(
