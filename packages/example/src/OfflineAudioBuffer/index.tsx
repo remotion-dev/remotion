@@ -1,17 +1,24 @@
-import {interpolate} from 'remotion'
-import {useEffect, useState} from 'react';
-import {Audio, Sequence, continueRender, delayRender, useVideoConfig} from 'remotion';
+import {interpolate} from 'remotion';
+import {useCallback, useEffect, useState} from 'react';
+import {
+	Audio,
+	Sequence,
+	continueRender,
+	delayRender,
+	useVideoConfig,
+} from 'remotion';
+
+const C4_FREQUENCY = 261.63;
+const sampleRate = 44100;
+const audioDurationInFrames = 300;
 
 export const OfflineAudioBufferExample: React.FC = () => {
 	const [handle] = useState(() => delayRender());
 	const [audioBuffer, setAudioBuffer] = useState<AudioBuffer | null>(null);
-	const { fps } = useVideoConfig();
-	const C4_FREQUENCY = 261.63;
-	const sampleRate = 44100;
-	const audioDurationInFrames = 300;
+	const {fps} = useVideoConfig();
 	const lengthInSeconds = audioDurationInFrames / fps;
 
-	const renderAudio = async () => {
+	const renderAudio = useCallback(async () => {
 		const offlineContext = new OfflineAudioContext({
 			numberOfChannels: 2,
 			length: sampleRate * lengthInSeconds,
@@ -21,9 +28,9 @@ export const OfflineAudioBufferExample: React.FC = () => {
 		const gainNode = offlineContext.createGain();
 		oscillatorNode.connect(gainNode);
 		gainNode.connect(offlineContext.destination);
-		gainNode.gain.setValueAtTime(.5, offlineContext.currentTime);
+		gainNode.gain.setValueAtTime(0.5, offlineContext.currentTime);
 
-		oscillatorNode.type = "sine";
+		oscillatorNode.type = 'sine';
 		oscillatorNode.frequency.value = C4_FREQUENCY;
 
 		const {currentTime} = offlineContext;
@@ -34,11 +41,11 @@ export const OfflineAudioBufferExample: React.FC = () => {
 		setAudioBuffer(buffer);
 
 		continueRender(handle);
-	};
+	}, [handle, lengthInSeconds]);
 
 	useEffect(() => {
 		renderAudio();
-	}, []);
+	}, [renderAudio]);
 
 	return (
 		<div
@@ -52,24 +59,24 @@ export const OfflineAudioBufferExample: React.FC = () => {
 				bottom: 50,
 				zIndex: 99999,
 				padding: '20px',
-				width: '100%'
+				width: '100%',
 			}}
 		>
-			{audioBuffer &&
+			{audioBuffer && (
 				<Sequence from={100} durationInFrames={100}>
 					<Audio
 						audioBuffer={audioBuffer}
 						startFrom={0}
 						endAt={100}
 						volume={(f) =>
-					interpolate(f, [0, 50, 100], [0, 1, 0], {
-						extrapolateLeft: 'clamp',
-						extrapolateRight: 'clamp',
-					})
-				}
-			/>
+							interpolate(f, [0, 50, 100], [0, 1, 0], {
+								extrapolateLeft: 'clamp',
+								extrapolateRight: 'clamp',
+							})
+						}
+					/>
 				</Sequence>
-			}
+			)}
 			Render sound from offline audio buffer
 		</div>
 	);
