@@ -23,7 +23,7 @@ const MyComp: React.FC = () => {
 
 ## Example using local fonts
 
-Put the font into your `/public` folder and use the [`staticFile()`](/docs/staticfile) API to load the font. Use the `FontFace` browser API to load the font. [Click here](https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face) to read the syntax that can be used for the Font Face API.
+Put the font into your `public/` folder and use the [`staticFile()`](/docs/staticfile) API to load the font. Use the `FontFace` browser API to load the font. [Click here](https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face) to read the syntax that can be used for the Font Face API.
 
 Put this somewhere in your app where it gets executed:
 
