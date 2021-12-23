@@ -2,7 +2,7 @@ import {audioBufferToWav} from './audio-buffer-to-wav';
 
 export const audioBufferToDataUrl = (buffer: AudioBuffer) => {
 	const wavAsArrayBuffer = audioBufferToWav(buffer, {
-		float32: false,
+		float32: true,
 	});
 	let binary = '';
 	const bytes = new Uint8Array(wavAsArrayBuffer);
