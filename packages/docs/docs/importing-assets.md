@@ -88,4 +88,4 @@ See the [dedicated page about fonts](/docs/fonts).
 
 ## Importing arbitrary files
 
-Create a `/public` folder in your project and use the [`staticFile()`](/docs/staticfile) API to get a URL reference of the asset that you can load into your project.
+Create a `public/` folder in your project and use the [`staticFile()`](/docs/staticfile) API to get a URL reference of the asset that you can load into your project.
