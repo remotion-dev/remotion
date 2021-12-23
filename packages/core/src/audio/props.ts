@@ -14,5 +14,4 @@ export type RemotionAudioProps = Omit<
 > & {
 	volume?: VolumeProp;
 	playbackRate?: number;
-	audioBuffer?: AudioBuffer | null;
 };

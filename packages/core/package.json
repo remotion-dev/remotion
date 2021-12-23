@@ -38,6 +38,5 @@
 	},
 	"publishConfig": {
 		"access": "public"
-	},
-	"dependencies": {}
+	}
 }

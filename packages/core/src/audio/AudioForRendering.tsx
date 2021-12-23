@@ -82,7 +82,6 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 		frame,
 		playbackRate,
 		props.playbackRate,
-		props.audioBuffer,
 	]);
 
 	const propsToPass = {
