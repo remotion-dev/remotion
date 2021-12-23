@@ -1,7 +1,7 @@
-import toWav from 'audiobuffer-to-wav';
-
 export const uint8ToBase64 = (buffer: AudioBuffer) => {
-	const wavAsArrayBuffer = toWav(buffer);
+	const wavAsArrayBuffer = audioBufferToWav(buffer, {
+		float32: false,
+	});
 	let binary = '';
 	const bytes = new Uint8Array(wavAsArrayBuffer);
 	const len = bytes.byteLength;
@@ -10,11 +10,11 @@ export const uint8ToBase64 = (buffer: AudioBuffer) => {
 	}
 
 	return window.btoa(binary);
-}
+};
 
 export const getBlobURL = (buffer: AudioBuffer) => {
-	const wavAsArrayBuffer = toWav(buffer);
-	const blob = new Blob([wavAsArrayBuffer], { type: "audio/wav" });
+	const wavAsArrayBuffer = audioBufferToWav(buffer, {float32: false});
+	const blob = new Blob([wavAsArrayBuffer], {type: 'audio/wav'});
 	const url = URL.createObjectURL(blob);
-	return url
-}
+	return url;
+};
