@@ -112,7 +112,7 @@ export const TimelineListItem: React.FC<{
 			});
 		}
 	}, [collapsed, dispatchStateChange, hash]);
-	const displayName =
+	const text =
 		sequence.displayName.length > 80
 			? sequence.displayName.slice(0, 80) + '...'
 			: sequence.displayName;
@@ -142,7 +142,7 @@ export const TimelineListItem: React.FC<{
 				</>
 			) : null}
 			<div style={textStyle}>
-				{displayName || 'Untitled'}
+				{text || 'Untitled'}
 				<TimelineSequenceFrame
 					duration={sequence.duration}
 					from={sequence.from}
