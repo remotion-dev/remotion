@@ -117,7 +117,8 @@ export const TimelineListItem: React.FC<{
 			? sequence.displayName.slice(0, 80) + '...'
 			: sequence.displayName;
 
-	const text = sequence.type === 'audio' && sequence.src.startsWith('data:')
+	const isURLObject = sequence.type === 'audio' && /data:|blob:/.test(sequence.src.substring(0, 5));
+	const text = isURLObject
 		? 'From Audio Buffer'
 		: displayName;
 
