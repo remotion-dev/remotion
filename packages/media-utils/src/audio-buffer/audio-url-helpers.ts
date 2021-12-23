@@ -11,5 +11,5 @@ export const audioBufferToDataUrl = (buffer: AudioBuffer) => {
 		binary += String.fromCharCode(bytes[i]);
 	}
 
-	return window.btoa(binary);
+	return 'data:audio/wav;base64,' + window.btoa(binary);
 };
