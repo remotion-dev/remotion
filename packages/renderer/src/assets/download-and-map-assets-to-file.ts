@@ -95,7 +95,7 @@ const downloadAsset = async (
 
 	if (src.startsWith('data:')) {
 		const [assetDetails, assetData] = src.substring('data:'.length).split(',');
-		if (!assetData.includes(';')) {
+		if (!assetDetails.includes(';')) {
 			const errMessage = [
 				'A data URL was passed but did not have the correct format so that Remotion could convert it for the video to be rendered.',
 				'The format of the data URL must be `data:[mime-type];[encoding],[data]`.',
