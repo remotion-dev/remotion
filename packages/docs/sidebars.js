@@ -91,6 +91,7 @@ module.exports = {
       type: "category",
       label: "API - @remotion/media-utils",
       items: [
+        "audio-buffer-to-data-url",
         "get-audio-data",
         "get-audio-duration",
         "get-video-metadata",

@@ -180,6 +180,16 @@ While Remotion doesn't limit the range of possible playback speeds, in developme
 
 You can obtain audio data and create visualizations based on it. See the page [Audio visualization](/docs/audio-visualization) for more info.
 
+## Rendering audio only
+
+Exporting as `mp3`, `aac` and `wav` is supported. To render only the audio, specify an extension when exporting via CLI:
+
+```
+npx remotion render src/index.tsx my-comp audio.mp3
+```
+
+To render audio using the Node.JS APIs, set the `codec` property to one of the supported audio codecs.
+
 ## See also
 
 - [Importing assets](/docs/assets)
