@@ -47,7 +47,7 @@ export const OfflineAudioBufferExample: React.FC = () => {
 	const audioBufferSrc = useMemo(() => {
 		if (audioBuffer) {
 			const arrayBufferAsBase64 = audioBufferToDataUrl(audioBuffer);
-			return 'data:audio/wav;base64,' + arrayBufferAsBase64;
+			return arrayBufferAsBase64;
 		}
 		return null;
 	}, [audioBuffer]);
