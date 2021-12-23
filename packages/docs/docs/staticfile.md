@@ -33,6 +33,10 @@ my-video/
 ├─ package.json
 ```
 
+:::info
+The `public/` folder should always be in the same folder as your `package.json` that contains the `remotion` dependency, even if your Remotion code lives in a subdirectory.
+:::
+
 Get an URL reference of your asset:
 
 ```tsx twoslash
