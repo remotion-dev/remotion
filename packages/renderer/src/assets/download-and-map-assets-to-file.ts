@@ -1,4 +1,5 @@
-import {createWriteStream, mkdirSync, writeFileSync} from 'fs';
+import fs from 'fs';
+import {createWriteStream, mkdirSync} from 'fs';
 import got from 'got';
 import path from 'path';
 
@@ -29,6 +30,50 @@ const notifyAssetIsDownloaded = (src: string) => {
 	hasBeenDownloadedMap[src] = true;
 };
 
+export const validateMimeType = (mimeType: string, src: string) => {
+	if (!mimeType.includes('/')) {
+		const errMessage = [
+			'A data URL was passed but did not have the correct format so that Remotion could convert it for the video to be rendered.',
+			'The format of the data URL must be `data:[mime-type];[encoding],[data]`.',
+			'The `mime-type` parameter must be a valid mime type.',
+			'The data that was received is (truncated to 100 characters):',
+			src.substr(0, 100),
+		].join(' ');
+		throw new TypeError(errMessage);
+	}
+};
+
+function validateBufferEncoding(
+	potentialEncoding: string,
+	dataUrl: string
+): asserts potentialEncoding is BufferEncoding {
+	const asserted = potentialEncoding as BufferEncoding;
+	const validEncodings: BufferEncoding[] = [
+		'ascii',
+		'base64',
+		'base64url',
+		'binary',
+		'hex',
+		'latin1',
+		'ucs-2',
+		'ucs2',
+		'utf-8',
+		'utf16le',
+		'utf8',
+	];
+	if (!validEncodings.find((en) => asserted === en)) {
+		const errMessage = [
+			'A data URL was passed but did not have the correct format so that Remotion could convert it for the video to be rendered.',
+			'The format of the data URL must be `data:[mime-type];[encoding],[data]`.',
+			'The `encoding` parameter must be one of the following:',
+			`${validEncodings.join(' ')}.`,
+			'The data that was received is (truncated to 100 characters):',
+			dataUrl.substr(0, 100),
+		].join(' ');
+		throw new TypeError(errMessage);
+	}
+}
+
 const downloadAsset = async (
 	src: string,
 	to: string,
@@ -48,31 +93,43 @@ const downloadAsset = async (
 		recursive: true,
 	});
 
-	if(src.startsWith('data:')) {
-		const [ assetDetails, assetData ] = src.substring('data:'.length).split(',');
-		const [ mimeType, encoding ] = assetDetails.split(';');
-
-		if (mimeType === 'audio/wav') {
-			const buff = Buffer.from(assetData, encoding as BufferEncoding);
-			writeFileSync(to, buff);
+	if (src.startsWith('data:')) {
+		const [assetDetails, assetData] = src.substring('data:'.length).split(',');
+		if (!assetData.includes(';')) {
+			const errMessage = [
+				'A data URL was passed but did not have the correct format so that Remotion could convert it for the video to be rendered.',
+				'The format of the data URL must be `data:[mime-type];[encoding],[data]`.',
+				'The data that was received is (truncated to 100 characters):',
+				src.substr(0, 100),
+			].join(' ');
+			throw new TypeError(errMessage);
 		}
-	} else {
-		// Listen to 'close' event instead of more
-		// concise method to avoid this problem
-		// https://github.com/remotion-dev/remotion/issues/384#issuecomment-844398183
-		await new Promise<void>((resolve, reject) => {
-			const writeStream = createWriteStream(to);
 
-			writeStream.on('close', () => resolve());
-			writeStream.on('error', (err) => reject(err));
+		const [mimeType, encoding] = assetDetails.split(';');
 
-			got
-				.stream(src)
-				.pipe(writeStream)
-				.on('error', (err) => reject(err));
-		});
+		validateMimeType(mimeType, src);
+		validateBufferEncoding(encoding, src);
+
+		const buff = Buffer.from(assetData, encoding);
+		await fs.promises.writeFile(to, buff);
+		notifyAssetIsDownloaded(src);
+		return;
 	}
 
+	// Listen to 'close' event instead of more
+	// concise method to avoid this problem
+	// https://github.com/remotion-dev/remotion/issues/384#issuecomment-844398183
+	await new Promise<void>((resolve, reject) => {
+		const writeStream = createWriteStream(to);
+
+		writeStream.on('close', () => resolve());
+		writeStream.on('error', (err) => reject(err));
+
+		got
+			.stream(src)
+			.pipe(writeStream)
+			.on('error', (err) => reject(err));
+	});
 	notifyAssetIsDownloaded(src);
 };
 
