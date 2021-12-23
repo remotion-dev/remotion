@@ -88,6 +88,10 @@ Create a file which contains `declare module '*.mdx';` in your project to fix a 
 
 ### Enable TailwindCSS support
 
+:::info
+This documentation concerns TailwindCSS v2. [Help us update it to v3!](https://github.com/remotion-dev/remotion/issues/737)
+:::
+
 1. Install the following dependencies:
 
 <Tabs

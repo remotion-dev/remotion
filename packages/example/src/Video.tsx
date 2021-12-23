@@ -284,6 +284,14 @@ export const Index: React.FC = () => {
 				fps={30}
 				durationInFrames={100}
 			/>
+			<Composition
+				id="offline-audio-buffer"
+				lazyComponent={() => import('./OfflineAudioBuffer')}
+				width={1080}
+				height={1080}
+				fps={30}
+				durationInFrames={100}
+			/>
 			<Still id="Orb" component={OrbScene} width={2000} height={2000} />
 			<Still
 				id="static-demo"
