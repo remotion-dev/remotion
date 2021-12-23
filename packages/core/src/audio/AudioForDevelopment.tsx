@@ -10,7 +10,6 @@ import {
 import {RemotionAudioProps} from './props';
 import {useSharedAudio} from './shared-audio-tags';
 import {useFrameForVolumeProp} from './use-audio-frame';
-import {getBlobURL} from './audio-url-helpers';
 
 const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 	HTMLAudioElement,
@@ -32,30 +31,15 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 
 	const volumePropFrame = useFrameForVolumeProp();
 
-	const {
-		volume,
-		muted,
-		playbackRate,
-		shouldPreMountAudioTags,
-		audioBuffer,
-		...nativeProps
-	} = props;
-
-	const audioSrc = useMemo(() => {
-		if (audioBuffer) {
-			return getBlobURL(audioBuffer)
-		}
-
-		return nativeProps.src;
-	}, [audioBuffer, nativeProps.src])
+	const {volume, muted, playbackRate, shouldPreMountAudioTags, ...nativeProps} =
+		props;
 
 	const propsToPass = useMemo((): RemotionAudioProps => {
 		return {
 			muted: muted || mediaMuted,
 			...nativeProps,
-			src: audioSrc,
 		};
-	}, [mediaMuted, muted, nativeProps, audioSrc]);
+	}, [mediaMuted, muted, nativeProps]);
 
 	const audioRef = useSharedAudio(propsToPass).el;
 
@@ -73,13 +57,13 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		volume,
 		mediaVolume,
 		mediaRef: audioRef,
-		src: audioSrc,
+		src: nativeProps.src,
 		mediaType: 'audio',
 	});
 
 	useMediaPlayback({
 		mediaRef: audioRef,
-		src: audioSrc,
+		src: nativeProps.src,
 		mediaType: 'audio',
 		playbackRate: playbackRate ?? 1,
 	});

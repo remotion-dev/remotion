@@ -1,5 +1,5 @@
 import {interpolate} from 'remotion';
-import {useCallback, useEffect, useState} from 'react';
+import {useCallback, useEffect, useMemo, useState} from 'react';
 import {
 	Audio,
 	Sequence,
@@ -7,6 +7,7 @@ import {
 	delayRender,
 	useVideoConfig,
 } from 'remotion';
+import {audioBufferToDataUrl} from '@remotion/media-utils';
 
 const C4_FREQUENCY = 261.63;
 const sampleRate = 44100;
@@ -43,6 +44,14 @@ export const OfflineAudioBufferExample: React.FC = () => {
 		continueRender(handle);
 	}, [handle, lengthInSeconds]);
 
+	const audioBufferSrc = useMemo(() => {
+		if (audioBuffer) {
+			const arrayBufferAsBase64 = audioBufferToDataUrl(audioBuffer);
+			return 'data:audio/wav;base64,' + arrayBufferAsBase64;
+		}
+		return null;
+	}, [audioBuffer]);
+
 	useEffect(() => {
 		renderAudio();
 	}, [renderAudio]);
@@ -62,10 +71,10 @@ export const OfflineAudioBufferExample: React.FC = () => {
 				width: '100%',
 			}}
 		>
-			{audioBuffer && (
+			{audioBufferSrc && (
 				<Sequence from={100} durationInFrames={100}>
 					<Audio
-						audioBuffer={audioBuffer}
+						src={audioBufferSrc}
 						startFrom={0}
 						endAt={100}
 						volume={(f) =>
