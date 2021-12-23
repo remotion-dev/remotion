@@ -49,7 +49,6 @@
 		"typescript": "^4.4.2"
 	},
 	"devDependencies": {
-		"@types/audiobuffer-to-wav": "^1.0.1",
 		"@types/babel__core": "^7.1.12",
 		"@types/babel__template": "^7.4.0",
 		"eslint": "^7.25.0",
