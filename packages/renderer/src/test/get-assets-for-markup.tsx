@@ -76,6 +76,7 @@ export const getAssetsForMarkup = async (
 							})
 						),
 						nonce: 0,
+						defaultProps: undefined,
 					},
 				],
 				currentComposition: 'markup',

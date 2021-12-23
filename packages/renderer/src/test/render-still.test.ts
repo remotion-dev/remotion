@@ -9,6 +9,7 @@ test('Need to pass valid metadata', async () => {
 				fps: 30,
 				durationInFrames: 30,
 				id: 'hithere',
+				defaultProps: undefined,
 			},
 			frame: 0,
 			output: '/file/output.png',
@@ -26,6 +27,7 @@ test('Need to pass valid metadata', async () => {
 				fps: 30,
 				durationInFrames: 30,
 				id: 'hithere',
+				defaultProps: undefined,
 			},
 			frame: 200,
 			output: '/file/output.png',
@@ -45,6 +47,7 @@ test('Catches invalid image format', async () => {
 				fps: 30,
 				durationInFrames: 30,
 				id: 'hithere',
+				defaultProps: undefined,
 			},
 			// @ts-expect-error
 			imageFormat: 'jjj',
