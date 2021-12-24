@@ -7,7 +7,6 @@ import React, {
 	useState,
 } from 'react';
 import {LooseAnyComponent} from './any-component';
-import {compressAsset} from './compress-assets';
 
 export type TComposition<T = unknown> = {
 	width: number;
