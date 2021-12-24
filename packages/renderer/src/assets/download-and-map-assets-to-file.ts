@@ -3,7 +3,7 @@ import {createWriteStream, mkdirSync} from 'fs';
 import got from 'got';
 import path from 'path';
 
-import {random, TAsset} from 'remotion';
+import {Internals, random, TAsset} from 'remotion';
 import sanitizeFilename from 'sanitize-filename';
 
 const isDownloadingMap: {[key: string]: boolean} = {};
@@ -152,6 +152,10 @@ export const getSanitizedFilenameForAssetUrl = ({
 	isRemote: boolean;
 	webpackBundle: string;
 }) => {
+	if (Internals.AssetCompression.isAssetCompressed(src)) {
+		return src;
+	}
+
 	const {pathname, search} = new URL(src);
 
 	if (!isRemote) {

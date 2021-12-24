@@ -13,6 +13,7 @@ import {calculateAssetPositions} from './assets/calculate-asset-positions';
 import {convertAssetsToFileUrls} from './assets/convert-assets-to-file-urls';
 import {markAllAssetsAsDownloaded} from './assets/download-and-map-assets-to-file';
 import {getAssetAudioDetails} from './assets/get-asset-audio-details';
+import {uncompressMediaAsset} from './assets/types';
 import {calculateFfmpegFilters} from './calculate-ffmpeg-filters';
 import {createFfmpegComplexFilter} from './create-ffmpeg-complex-filter';
 import {getAudioCodecName} from './get-audio-codec-name';
@@ -115,7 +116,11 @@ export const stitchFramesToVideo = async (options: {
 	markAllAssetsAsDownloaded();
 	const assetPositions = calculateAssetPositions(fileUrlAssets);
 
-	const assetPaths = assetPositions.map((asset) => resolveAssetSrc(asset.src));
+	const assetPaths = assetPositions.map((asset) =>
+		resolveAssetSrc(
+			uncompressMediaAsset(options.assetsInfo.assets.flat(1), asset).src
+		)
+	);
 
 	const assetAudioDetails = await getAssetAudioDetails({
 		assetPaths,
