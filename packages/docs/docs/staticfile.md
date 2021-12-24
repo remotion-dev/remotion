@@ -3,7 +3,7 @@ id: staticfile
 title: staticFile()
 ---
 
-_Available from v2.5.6._
+_Available from v2.5.7._
 
 Turns a file in your `public/` folder into an URL which you can then load into your project.
 
