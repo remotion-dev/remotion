@@ -7,6 +7,7 @@ import React, {
 	useState,
 } from 'react';
 import {LooseAnyComponent} from './any-component';
+import {compressAsset} from './compress-assets';
 
 export type TComposition<T = unknown> = {
 	width: number;
@@ -144,7 +145,7 @@ export const CompositionManagerProvider: React.FC = ({children}) => {
 
 	const registerAsset = useCallback((asset: TAsset) => {
 		setAssets((assts) => {
-			return [...assts, asset];
+			return [...assts, compressAsset(assts, asset)];
 		});
 	}, []);
 	const unregisterAsset = useCallback((id: string) => {
