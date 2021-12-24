@@ -3,7 +3,7 @@ id: audio-buffer-to-data-url
 title: audioBufferToDataUrl()
 ---
 
-_Part of the `@remotion/media-utils`package of helper functions. Available from v2.5.6._
+_Part of the `@remotion/media-utils`package of helper functions. Available from v2.5.7._
 
 This API takes an [`AudioBuffer`](https://developer.mozilla.org/en-US/docs/Web/API/AudioBuffer) instance and converts it to a Base 64 Data URL so it can be passed to an [`<Audio />`](/docs/audio) tag.
 

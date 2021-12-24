@@ -72,7 +72,7 @@ Returns a promise that resolves to an array of available compositions. Example v
 ];
 ```
 
-The `defaultProps` only get returned since v2.5.6.
+The `defaultProps` only get returned since v2.5.7.
 
 ## See also
 
