@@ -145,7 +145,7 @@ export const CompositionManagerProvider: React.FC = ({children}) => {
 
 	const registerAsset = useCallback((asset: TAsset) => {
 		setAssets((assts) => {
-			return [...assts, compressAsset(assts, asset)];
+			return [...assts, asset];
 		});
 	}, []);
 	const unregisterAsset = useCallback((id: string) => {
