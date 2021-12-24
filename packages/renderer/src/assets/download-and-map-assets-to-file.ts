@@ -5,7 +5,6 @@ import path from 'path';
 
 import {Internals, random, TAsset} from 'remotion';
 import sanitizeFilename from 'sanitize-filename';
-import {SrcAlphaFactor} from 'three';
 
 const isDownloadingMap: {[key: string]: boolean} = {};
 const hasBeenDownloadedMap: {[key: string]: boolean} = {};
