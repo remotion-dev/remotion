@@ -6,6 +6,7 @@ import {
 	FrameRange,
 	ImageFormat,
 	Internals,
+	TAsset,
 	VideoConfig,
 } from 'remotion';
 import {cycleBrowserTabs} from './cycle-browser-tabs';
@@ -145,7 +146,8 @@ export const renderFrames = async ({
 	onStart({
 		frameCount,
 	});
-	const assets = await Promise.all(
+	const assets: TAsset[][] = new Array(frameCount).fill(undefined);
+	await Promise.all(
 		new Array(frameCount)
 			.fill(Boolean)
 			.map((x, i) => i)
@@ -197,11 +199,17 @@ export const renderFrames = async ({
 				const collectedAssets = await freePage.evaluate(() => {
 					return window.remotion_collectAssets();
 				});
+				const compressedAssets = collectedAssets.map((asset) =>
+					Internals.AssetCompression.compressAsset(
+						assets.filter(Internals.truthy).flat(1),
+						asset
+					)
+				);
+				assets[index] = compressedAssets;
 				pool.release(freePage);
 				framesRendered++;
 				onFrameUpdate(framesRendered);
 				freePage.off('pageerror', errorCallback);
-				return collectedAssets;
 			})
 	);
 	close().catch((err) => {
