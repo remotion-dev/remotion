@@ -1,11 +1,17 @@
 import {Player, PlayerRef, CallbackListener} from '@remotion/player';
 import {useEffect, useRef, useState} from 'react';
 import {AbsoluteFill} from 'remotion';
-import CarSlideshow, {playerExampleComp} from './CarSlideshow';
+import {playerExampleComp} from './CarSlideshow';
 
 const fps = 30;
 
-export default function App() {
+export default function App({
+	comp: Comp,
+	durationInFrames,
+}: {
+	comp: React.ComponentType<any>;
+	durationInFrames: number;
+}) {
 	const [title, setTitle] = useState('Hello World');
 	const [color, setColor] = useState('#ffffff');
 	const [bgColor, setBgColor] = useState('#000000');
@@ -81,8 +87,8 @@ export default function App() {
 				compositionWidth={500}
 				compositionHeight={432}
 				fps={fps}
-				durationInFrames={500}
-				component={CarSlideshow}
+				durationInFrames={durationInFrames}
+				component={Comp}
 				controls
 				doubleClickToFullscreen={doubleClickToFullscreen}
 				loop={loop}
