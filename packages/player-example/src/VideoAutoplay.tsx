@@ -1,4 +1,4 @@
-import {Series, Video, AbsoluteFill} from 'remotion';
+import {Series, Video, AbsoluteFill, Audio} from 'remotion';
 
 export const VideoautoplayDemo = () => {
 	return (
@@ -7,6 +7,10 @@ export const VideoautoplayDemo = () => {
 				backgroundColor: 'red',
 			}}
 		>
+			<Audio
+				src={'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3'}
+				volume={0.2}
+			/>
 			<Series>
 				<Series.Sequence name="Video 1" key={'video-1'} durationInFrames={450}>
 					<Video
