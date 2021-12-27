@@ -1,6 +1,6 @@
-const trimLeadingSlash = (path: string) => {
+const trimLeadingSlash = (path: string): string => {
 	if (path.startsWith('/')) {
-		return path.substr(1);
+		return trimLeadingSlash(path.substr(1));
 	}
 
 	return path;
