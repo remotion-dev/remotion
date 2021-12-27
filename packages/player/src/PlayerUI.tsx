@@ -380,7 +380,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 					{VideoComponent ? (
 						<ErrorBoundary onError={onError} errorFallback={errorFallback}>
 							<VideoComponent
-								{...((video?.props as unknown as {}) ?? {})}
+								{...((video?.defaultProps as unknown as {}) ?? {})}
 								{...((inputProps as unknown as {}) ?? {})}
 							/>
 						</ErrorBoundary>

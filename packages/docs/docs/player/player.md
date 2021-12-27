@@ -221,7 +221,7 @@ Gets the current postition expressed as the current frame. Divide by the `fps` y
 
 ### `isPlaying()`
 
-_Available from v2.5.6_
+_Available from v2.5.7_
 
 Returns a boolean indicating whether the video is playing.
 

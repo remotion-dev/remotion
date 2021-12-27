@@ -16,6 +16,7 @@ import {
 } from './assets/download-and-map-assets-to-file';
 import {getAssetAudioDetails} from './assets/get-asset-audio-details';
 import {Assets} from './assets/types';
+import {uncompressMediaAsset} from './assets/types';
 import {calculateFfmpegFilters} from './calculate-ffmpeg-filters';
 import {createFfmpegComplexFilter} from './create-ffmpeg-complex-filter';
 import {getAudioCodecName} from './get-audio-codec-name';
@@ -62,7 +63,14 @@ const getAssetsData = async (options: StitcherOptions) => {
 	const assetPositions: Assets =
 		fileUrlAssets === null ? [] : calculateAssetPositions(fileUrlAssets);
 
-	const assetPaths = assetPositions.map((asset) => resolveAssetSrc(asset.src));
+	markAllAssetsAsDownloaded();
+
+	const assetPaths = assetPositions.map((asset) =>
+		resolveAssetSrc(
+			uncompressMediaAsset((options.assetsInfo?.assets ?? []).flat(1), asset)
+				.src
+		)
+	);
 
 	const assetAudioDetails = await getAssetAudioDetails({
 		assetPaths,

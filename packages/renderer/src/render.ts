@@ -10,6 +10,7 @@ import {
 	FrameRange,
 	ImageFormat,
 	Internals,
+	TAsset,
 	VideoConfig,
 } from 'remotion';
 import {
@@ -178,7 +179,8 @@ export const innerRenderFrames = async ({
 		frameCount,
 	});
 	const downloadDir = makeAssetsDownloadTmpDir();
-	const assets = await Promise.all(
+	const assets: TAsset[][] = new Array(frameCount).fill(undefined);
+	await Promise.all(
 		new Array(frameCount)
 			.fill(Boolean)
 			.map((x, i) => i)
@@ -255,7 +257,14 @@ export const innerRenderFrames = async ({
 				const collectedAssets = await freePage.evaluate(() => {
 					return window.remotion_collectAssets();
 				});
-				collectedAssets.forEach((asset) => {
+				const compressedAssets = collectedAssets.map((asset) =>
+					Internals.AssetCompression.compressAsset(
+						assets.filter(Internals.truthy).flat(1),
+						asset
+					)
+				);
+				assets[index] = compressedAssets;
+				compressedAssets.forEach((asset) => {
 					downloadAndMapAssetsToFileUrl({
 						asset,
 						downloadDir,
@@ -273,7 +282,7 @@ export const innerRenderFrames = async ({
 				onFrameUpdate(framesRendered, frame);
 				freePage.off('pageerror', errorCallbackOnFrame);
 				freePage.off('error', errorCallbackOnFrame);
-				return collectedAssets;
+				return compressedAssets;
 			})
 	);
 

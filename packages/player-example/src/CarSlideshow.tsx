@@ -1,5 +1,12 @@
 import {createRef, useCallback, useImperativeHandle, useState} from 'react';
-import {interpolate, useCurrentFrame, useVideoConfig, Video} from 'remotion';
+import {
+	Img,
+	interpolate,
+	useCurrentFrame,
+	useVideoConfig,
+	Video,
+	staticFile,
+} from 'remotion';
 
 type Props = {
 	title: string;
@@ -61,6 +68,13 @@ const CarSlideshow = ({title, bgColor, color}: Props) => {
 			>
 				{title} {dummyText()}
 			</h1>
+			<Img
+				src={staticFile('/logo.png')}
+				style={{
+					height: 40,
+					width: 40,
+				}}
+			/>
 			<Video
 				style={{
 					height: 200,

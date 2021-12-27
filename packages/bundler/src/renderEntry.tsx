@@ -98,7 +98,7 @@ const GetVideo = () => {
 				}}
 			>
 				{Component ? (
-					<Component {...((video?.props as {}) ?? {})} {...inputProps} />
+					<Component {...((video?.defaultProps as {}) ?? {})} {...inputProps} />
 				) : null}
 			</div>
 		</Suspense>
