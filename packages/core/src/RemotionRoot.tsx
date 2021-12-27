@@ -11,6 +11,7 @@ import {NonceContext, TNonceContext} from './nonce';
 import {random} from './random';
 import {continueRender, delayRender} from './ready-manager';
 import {
+	PlayableMediaTag,
 	SetTimelineContext,
 	SetTimelineContextValue,
 	TimelineContext,
@@ -24,6 +25,7 @@ export const RemotionRoot: React.FC = ({children}) => {
 	const imperativePlaying = useRef<boolean>(false);
 	const [fastRefreshes, setFastRefreshes] = useState(0);
 	const [playbackRate, setPlaybackRate] = useState(1);
+	const audioAndVideoTags = useRef<PlayableMediaTag[]>([]);
 
 	useLayoutEffect(() => {
 		if (typeof window !== 'undefined') {
@@ -45,6 +47,7 @@ export const RemotionRoot: React.FC = ({children}) => {
 			rootId: remotionRootId,
 			playbackRate,
 			setPlaybackRate,
+			audioAndVideoTags,
 		};
 	}, [frame, playbackRate, playing, remotionRootId]);
 

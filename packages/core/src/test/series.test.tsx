@@ -35,6 +35,7 @@ const renderForFrame = (frame: number, markup: React.ReactNode) => {
 				setPlaybackRate: () => {
 					throw new Error('playback rate');
 				},
+				audioAndVideoTags: {current: []},
 			}}
 		>
 			{markup}
