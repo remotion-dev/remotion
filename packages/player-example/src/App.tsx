@@ -1,5 +1,5 @@
 import {Player, PlayerRef, CallbackListener} from '@remotion/player';
-import {useEffect, useRef, useState} from 'react';
+import {useEffect, useMemo, useRef, useState} from 'react';
 import {AbsoluteFill} from 'remotion';
 import {playerExampleComp} from './CarSlideshow';
 
@@ -80,6 +80,14 @@ export default function App({
 		};
 	}, []);
 
+	const inputProps = useMemo(() => {
+		return {
+			title: String(title),
+			bgColor: String(bgColor),
+			color: String(color),
+		};
+	}, [bgColor, color, title]);
+
 	return (
 		<div style={{margin: '2rem'}}>
 			<Player
@@ -94,11 +102,7 @@ export default function App({
 				loop={loop}
 				showVolumeControls={true}
 				clickToPlay={clickToPlay}
-				inputProps={{
-					title: String(title),
-					bgColor: String(bgColor),
-					color: String(color),
-				}}
+				inputProps={inputProps}
 				errorFallback={({error}) => {
 					return (
 						<AbsoluteFill
