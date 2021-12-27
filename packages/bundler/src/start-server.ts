@@ -12,11 +12,8 @@ import {getDesiredPort} from './get-port';
 import {getProjectInfo} from './project-info';
 import {isUpdateAvailableWithTimeout} from './update-available';
 import {webpackConfig} from './webpack-config';
-
-const indexHtml = fs.readFileSync(
-	path.join(__dirname, '..', 'web', 'index.html'),
-	'utf-8'
-);
+import crypto from 'crypto';
+import {indexHtml} from './static-preview';
 
 export const startServer = async (
 	entry: string,
@@ -26,7 +23,6 @@ export const startServer = async (
 		inputProps?: object;
 		envVariables?: Record<string, string>;
 		port?: number;
-		publicPath?: string;
 		maxTimelineTracks?: number;
 	}
 ): Promise<number> => {
@@ -48,6 +44,9 @@ export const startServer = async (
 	});
 	const compiler = webpack(config);
 
+	const hash = `/static-${crypto.randomBytes(6).toString('hex')}`;
+
+	app.use(hash, express.static(path.join(process.cwd(), 'public')));
 	app.use(webpackDevMiddleware(compiler));
 	app.use(
 		webpackHotMiddleware(compiler, {
@@ -84,9 +83,9 @@ export const startServer = async (
 		res.sendFile(path.join(__dirname, '..', 'web', 'favicon.png'));
 	});
 
-	app.use('*', (req, res) => {
-		res.type('text/html');
-		res.end(indexHtml.replace(/%PUBLIC_PATH%/g, options?.publicPath ?? '/'));
+	app.use('*', (_, res) => {
+		res.set('content-type', 'text/html');
+		res.end(indexHtml(hash, '/'));
 	});
 
 	const desiredPort = options?.port ?? Internals.getServerPort();

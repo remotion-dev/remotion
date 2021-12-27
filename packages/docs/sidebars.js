@@ -154,6 +154,7 @@ module.exports = {
         "random",
         "register-root",
         "spring",
+        "staticfile",
         "use-current-frame",
         "use-video-config",
         "audio",
@@ -180,6 +181,7 @@ module.exports = {
       type: "category",
       label: "API - @remotion/media-utils",
       items: [
+        "audio-buffer-to-data-url",
         "get-audio-data",
         "get-audio-duration",
         "get-video-metadata",

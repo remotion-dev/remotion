@@ -26,6 +26,7 @@ const Wrapper: React.FC = ({children}) => {
 									default: (() => null) as LooseAnyComponent<unknown>,
 								})
 							),
+							defaultProps: undefined,
 						},
 					],
 					currentComposition: 'markup',

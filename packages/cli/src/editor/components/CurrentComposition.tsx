@@ -56,7 +56,7 @@ export const CurrentComposition = () => {
 							targetWidth={targetWidth}
 							frameToDisplay={frameToDisplay}
 						/>
-						<Spacing />
+						<Spacing x={1} />
 					</>
 				) : null}
 				<div>

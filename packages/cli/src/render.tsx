@@ -171,6 +171,16 @@ export const render = async () => {
 				totalFrames = frameCount;
 				return updateRenderProgress();
 			},
+			onDownload: (src: string) => {
+				if (src.startsWith('data:')) {
+					Log.info(
+						'\nWriting Data URL to file: ',
+						src.substring(0, 30) + '...'
+					);
+				} else {
+					Log.info('\nDownloading asset... ', src);
+				}
+			},
 			outputDir,
 			serveUrl,
 			dumpBrowserLogs: Internals.Logging.isEqualOrBelowLogLevel(

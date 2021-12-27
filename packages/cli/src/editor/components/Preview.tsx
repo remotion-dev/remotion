@@ -31,12 +31,12 @@ const containerStyle = (options: {
 		position: 'absolute',
 		backgroundColor: checkerboardBackgroundColor(options.checkerboard),
 		backgroundImage: checkerboardBackgroundImage(options.checkerboard),
-		backgroundSize: getCheckerboardBackgroundSize(
-			checkerboardSize
-		) /* Must be a square */,
-		backgroundPosition: getCheckerboardBackgroundPos(
-			checkerboardSize
-		) /* Must be half of one side of the square */,
+		backgroundSize:
+			getCheckerboardBackgroundSize(checkerboardSize) /* Must be a square */,
+		backgroundPosition:
+			getCheckerboardBackgroundPos(
+				checkerboardSize
+			) /* Must be half of one side of the square */,
 	};
 };
 
@@ -49,18 +49,13 @@ const Inner: React.FC<{
 	const config = useVideoConfig();
 	const {checkerboard} = useContext(CheckerboardContext);
 
-	const {
-		centerX,
-		centerY,
-		yCorrection,
-		xCorrection,
-		scale,
-	} = PlayerInternals.calculateScale({
-		canvasSize,
-		compositionHeight: config.height,
-		compositionWidth: config.width,
-		previewSize,
-	});
+	const {centerX, centerY, yCorrection, xCorrection, scale} =
+		PlayerInternals.calculateScale({
+			canvasSize,
+			compositionHeight: config.height,
+			compositionWidth: config.width,
+			previewSize,
+		});
 
 	const outer: React.CSSProperties = useMemo(() => {
 		return {
@@ -102,7 +97,7 @@ const Inner: React.FC<{
 				<div style={style}>
 					{Component ? (
 						<Component
-							{...(((video?.props as unknown) as {}) ?? {})}
+							{...((video?.defaultProps as unknown as {}) ?? {})}
 							{...inputProps}
 						/>
 					) : null}

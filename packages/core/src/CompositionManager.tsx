@@ -15,13 +15,13 @@ export type TComposition<T = unknown> = {
 	durationInFrames: number;
 	id: string;
 	component: LazyExoticComponent<LooseAnyComponent<T>>;
-	props?: T;
+	defaultProps: T | undefined;
 	nonce: number;
 };
 
 export type TCompMetadata = Pick<
 	TComposition,
-	'id' | 'height' | 'width' | 'fps' | 'durationInFrames'
+	'id' | 'height' | 'width' | 'fps' | 'durationInFrames' | 'defaultProps'
 >;
 
 type EnhancedTSequenceData =
