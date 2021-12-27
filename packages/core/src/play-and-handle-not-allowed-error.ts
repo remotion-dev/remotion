@@ -12,7 +12,22 @@ export const playAndHandleNotAllowedError = (
 				return;
 			}
 
+			// Pause was called after play in Chrome
 			if (err.message.includes('request was interrupted by a call to pause')) {
+				return;
+			}
+
+			// Pause was called after play in Safari
+			if (err.message.includes('The operation was aborted.')) {
+				return;
+			}
+
+			// Pause was called after play in Firefox
+			if (
+				err.message.includes(
+					'The fetching process for the media resource was aborted by the user agent'
+				)
+			) {
 				return;
 			}
 
