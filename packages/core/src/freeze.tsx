@@ -35,6 +35,9 @@ const Freeze: React.FC<FreezeProps> = ({frame, children}) => {
 		return {
 			...context,
 			playing: false,
+			imperativePlaying: {
+				current: false,
+			},
 			frame,
 		};
 	}, [context, frame]);
