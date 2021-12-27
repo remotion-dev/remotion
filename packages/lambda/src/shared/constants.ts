@@ -219,6 +219,7 @@ export type LambdaPayloads = {
 		privacy: Privacy;
 		attempt: number;
 		logLevel: LogLevel;
+		defaultProps: unknown;
 	};
 	still: {
 		type: LambdaRoutines.still;
