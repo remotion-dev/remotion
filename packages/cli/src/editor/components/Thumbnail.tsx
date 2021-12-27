@@ -75,6 +75,7 @@ export const Thumbnail: React.FC<{
 			setPlaybackRate: () => {
 				throw new Error('thumbnail');
 			},
+			audioAndVideoTags: {current: []},
 		};
 	}, [frameToDisplay, thumbnailId]);
 
