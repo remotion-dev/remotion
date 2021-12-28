@@ -3,6 +3,7 @@ import {ScriptLine} from '../react-overlay/utils/stack-frame';
 
 const frame: React.CSSProperties = {
 	backgroundColor: '#070707',
+	marginBottom: 20,
 };
 
 const lineNumber: React.CSSProperties = {

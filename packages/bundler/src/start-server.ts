@@ -14,6 +14,11 @@ import {isUpdateAvailableWithTimeout} from './update-available';
 import {webpackConfig} from './webpack-config';
 import crypto from 'crypto';
 import {indexHtml} from './static-preview';
+import {
+	guessEditor,
+	launchEditor,
+} from './error-overlay/react-overlay/utils/open-in-editor';
+import {StackFrame} from './error-overlay/react-overlay/utils/stack-frame';
 
 export const startServer = async (
 	entry: string,
@@ -79,6 +84,18 @@ export const startServer = async (
 			});
 	});
 
+	app.post('/api/open-in-editor', (req, res) => {
+		const body = req.body as StackFrame;
+		launchEditor(
+			body._originalFileName as string,
+			body._originalLineNumber as number,
+			body._originalColumnNumber as number
+		);
+		res.json({
+			success: true,
+		});
+	});
+
 	app.use('favicon.png', (req, res) => {
 		res.sendFile(path.join(__dirname, '..', 'web', 'favicon.png'));
 	});
@@ -91,6 +108,10 @@ export const startServer = async (
 	const desiredPort = options?.port ?? Internals.getServerPort();
 
 	const port = await getDesiredPort(desiredPort, 3000, 3100);
+
+	console.log(guessEditor);
+	const edit = guessEditor();
+	console.log(edit);
 
 	app.listen(port);
 	return port;

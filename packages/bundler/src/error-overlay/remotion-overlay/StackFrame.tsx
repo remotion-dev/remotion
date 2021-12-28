@@ -17,6 +17,8 @@ const header: React.CSSProperties = {
 	display: 'flex',
 	flexDirection: 'row',
 	alignItems: 'center',
+	borderBottom: '1px solid rgb(66, 144, 245)',
+	backgroundColor: 'black',
 };
 
 const left: React.CSSProperties = {
