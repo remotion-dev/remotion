@@ -1,5 +1,6 @@
 import React, {useCallback, useState} from 'react';
 import {StackFrame} from '../react-overlay/utils/stack-frame';
+import {Button} from './Button';
 import {CaretDown, CaretRight} from './carets';
 import {CodeFrame} from './CodeFrame';
 import {formatLocation} from './format-location';
@@ -30,25 +31,6 @@ const fnName: React.CSSProperties = {
 	fontSize: 14,
 };
 
-const INPUT_BORDER_COLOR_UNHOVERED = 'rgba(0, 0, 0, 0.6)';
-const INPUT_BACKGROUND = '#2f363d';
-
-const button: React.CSSProperties = {
-	border: `1px solid ${INPUT_BORDER_COLOR_UNHOVERED}`,
-	borderRadius: 4,
-	backgroundColor: INPUT_BACKGROUND,
-	appearance: 'none',
-	fontFamily: 'inherit',
-	fontSize: 14,
-	color: 'white',
-};
-
-const buttonContainer: React.CSSProperties = {
-	padding: 10,
-	cursor: 'pointer',
-	fontSize: 14,
-};
-
 export const StackElement: React.FC<{
 	s: StackFrame;
 	lineNumberWidth: number;
@@ -70,11 +52,9 @@ export const StackElement: React.FC<{
 					</div>
 				</div>
 				{s._originalScriptCode ? (
-					<button style={button} type="button" onClick={toggleCodeFrame}>
-						<div style={buttonContainer}>
-							{showCodeFrame ? <CaretDown /> : <CaretRight />}
-						</div>
-					</button>
+					<Button onClick={toggleCodeFrame}>
+						{showCodeFrame ? <CaretDown /> : <CaretRight />}
+					</Button>
 				) : null}
 			</div>
 			<div>

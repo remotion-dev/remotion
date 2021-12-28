@@ -1,10 +1,15 @@
 import React from 'react';
 import {ErrorRecord} from '../react-overlay/listen-to-runtime-errors';
+import {AskOnDiscord} from './AskOnDiscord';
+import {OpenInEditor} from './OpenInEditor';
+import {SearchGithubIssues} from './SearchGitHubIssues';
 import {StackElement} from './StackFrame';
 
 const container: React.CSSProperties = {
 	width: '100%',
 	maxWidth: 1000,
+	paddingLeft: 14,
+	paddingRight: 14,
 	marginLeft: 'auto',
 	marginRight: 'auto',
 	fontFamily: 'SF Pro Text, sans-serif',
@@ -15,6 +20,7 @@ const title: React.CSSProperties = {
 	fontSize: '1.5em',
 	fontWeight: 'bold',
 	lineHeight: 1.5,
+	marginBottom: 8,
 };
 
 const errName: React.CSSProperties = {
@@ -29,6 +35,11 @@ const stack: React.CSSProperties = {
 	marginTop: 17,
 	overflowX: 'scroll',
 	marginBottom: '10vh',
+};
+
+const spacer: React.CSSProperties = {
+	width: 5,
+	display: 'inline-block',
 };
 
 export const ErrorDisplay: React.FC<{
@@ -49,6 +60,15 @@ export const ErrorDisplay: React.FC<{
 				<br />
 				{display.error.message}
 			</div>
+			{display.stackFrames.length > 0 ? (
+				<>
+					<OpenInEditor stack={display.stackFrames[0]} />
+					<div style={spacer} />
+				</>
+			) : null}
+			<SearchGithubIssues message={display.error.message} />
+			<div style={spacer} />
+			<AskOnDiscord />
 			<div style={stack}>
 				{display.stackFrames.map((s, i) => {
 					return (

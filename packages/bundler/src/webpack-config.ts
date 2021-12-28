@@ -99,6 +99,7 @@ export const webpackConfig = ({
 			globalObject: 'this',
 			filename: 'bundle.js',
 			path: outDir,
+			devtoolModuleFilenameTemplate: '[resource-path]',
 		},
 		devServer: {
 			contentBase: path.resolve(__dirname, '..', 'web'),

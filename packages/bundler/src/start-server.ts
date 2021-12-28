@@ -84,12 +84,19 @@ export const startServer = async (
 			});
 	});
 
+	app.use(express.json());
 	app.post('/api/open-in-editor', (req, res) => {
-		const body = req.body as StackFrame;
+		const body = req.body as {stack: StackFrame};
+		if (!('stack' in body)) {
+			throw new TypeError('Need to pass stack');
+		}
+
+		const stack = body.stack as StackFrame;
+
 		launchEditor(
-			body._originalFileName as string,
-			body._originalLineNumber as number,
-			body._originalColumnNumber as number
+			path.resolve(process.cwd(), stack._originalFileName as string),
+			stack._originalLineNumber as number,
+			stack._originalColumnNumber as number
 		);
 		res.json({
 			success: true,
