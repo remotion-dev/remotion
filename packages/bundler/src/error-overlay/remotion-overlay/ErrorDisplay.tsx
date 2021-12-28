@@ -1,5 +1,7 @@
 import React from 'react';
 import {ErrorRecord} from '../react-overlay/listen-to-runtime-errors';
+import {CodeFrame} from './CodeFrame';
+import {formatLocation} from './format-location';
 
 const container: React.CSSProperties = {
 	width: '100%',
@@ -18,18 +20,34 @@ const title: React.CSSProperties = {
 const stack: React.CSSProperties = {
 	backgroundColor: 'black',
 	marginTop: 17,
+	overflowX: 'scroll',
 };
 
-const stackLine: React.CSSProperties = {
+const location: React.CSSProperties = {
+	color: 'rgba(255, 255, 255, 0.6)',
+	fontFamily: 'monospace',
+};
+
+const stackLine: React.CSSProperties = {};
+
+const header: React.CSSProperties = {
+	paddingLeft: 14,
 	paddingTop: 8,
 	paddingBottom: 8,
-	paddingLeft: 14,
 	paddingRight: 14,
 };
 
 export const ErrorDisplay: React.FC<{
 	display: ErrorRecord;
 }> = ({display}) => {
+	const highestLineNumber = Math.max(
+		...display.stackFrames
+			.map((s) => s._originalScriptCode)
+			.flat(1)
+			.map((s) => s?.lineNumber ?? 0)
+	);
+	const lineNumberWidth = String(highestLineNumber).length;
+
 	return (
 		<div style={container}>
 			<div style={title}>
@@ -40,27 +58,20 @@ export const ErrorDisplay: React.FC<{
 					return (
 						// eslint-disable-next-line react/no-array-index-key
 						<div key={i} style={stackLine}>
-							<div>{s.functionName}</div>
-							<div>
-								{s._originalFileName}:{s.columnNumber}
+							<div style={header}>
+								<div>{s.functionName}</div>
+								<div style={location}>
+									{formatLocation(s._originalFileName as string)}:
+									{s.columnNumber}
+								</div>
 							</div>
 							<div>
-								{s._originalScriptCode?.map((s, j) => {
-									return (
-										<div
-											// eslint-disable-next-line react/no-array-index-key
-											key={j}
-											style={{
-												fontFamily: 'monospace',
-												whiteSpace: 'pre',
-												tabSize: 2,
-												color: s.highlight ? 'red' : 'inherit',
-											}}
-										>
-											{s.content}
-										</div>
-									);
-								})}
+								{s._originalScriptCode ? (
+									<CodeFrame
+										lineNumberWidth={lineNumberWidth}
+										source={s._originalScriptCode}
+									/>
+								) : null}
 							</div>
 						</div>
 					);

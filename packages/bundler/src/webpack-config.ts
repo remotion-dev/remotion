@@ -64,11 +64,12 @@ export const webpackConfig = ({
 				? require.resolve('webpack-hot-middleware/client')
 				: null,
 			environment === 'development'
-				? require.resolve('./error-overlay/entry-basic.js')
-				: null,
-			environment === 'development'
 				? require.resolve('./fast-refresh/runtime.js')
 				: null,
+			environment === 'development'
+				? require.resolve('./error-overlay/entry-basic.js')
+				: null,
+
 			userDefinedComponent,
 			require.resolve('../react-shim.js'),
 			entry,
