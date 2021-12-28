@@ -179,7 +179,7 @@ function getArgumentsForLineNumber(
 	}
 }
 
-function guessEditor(): [string | null, ...string[]] {
+export function guessEditor(): [string | null, ...string[]] {
 	// We can find out which editor is currently running by:
 	// `ps x` on macOS and Linux
 	// `Get-Process` on Windows
@@ -241,7 +241,11 @@ function guessEditor(): [string | null, ...string[]] {
 }
 
 let _childProcess: ChildProcess | null = null;
-function launchEditor(fileName: string, lineNumber: number, colNumber: number) {
+export function launchEditor(
+	fileName: string,
+	lineNumber: number,
+	colNumber: number
+) {
 	if (!fs.existsSync(fileName)) {
 		return;
 	}
@@ -345,5 +349,3 @@ function launchEditor(fileName: string, lineNumber: number, colNumber: number) {
 		console.log('Error opening file in editor', fileName, error.message);
 	});
 }
-
-module.exports = launchEditor;

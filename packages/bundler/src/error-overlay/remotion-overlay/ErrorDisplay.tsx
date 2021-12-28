@@ -7,17 +7,25 @@ const container: React.CSSProperties = {
 	maxWidth: 1000,
 	marginLeft: 'auto',
 	marginRight: 'auto',
-	fontFamily: 'sans-serif',
+	fontFamily: 'SF Pro Text, sans-serif',
 	paddingTop: '5vh',
 };
 
 const title: React.CSSProperties = {
 	fontSize: '1.5em',
 	fontWeight: 'bold',
+	lineHeight: 1.5,
+};
+
+const errName: React.CSSProperties = {
+	fontSize: '0.8em',
+	background: 'linear-gradient(90deg,#4290f5,#42e9f5)',
+	WebkitBackgroundClip: 'text',
+	WebkitTextFillColor: 'transparent',
+	display: 'inline-block',
 };
 
 const stack: React.CSSProperties = {
-	backgroundColor: 'black',
 	marginTop: 17,
 	overflowX: 'scroll',
 	marginBottom: '10vh',
@@ -37,7 +45,9 @@ export const ErrorDisplay: React.FC<{
 	return (
 		<div style={container}>
 			<div style={title}>
-				{display.error.name}: {display.error.message}
+				<span style={errName}>{display.error.name}</span>
+				<br />
+				{display.error.message}
 			</div>
 			<div style={stack}>
 				{display.stackFrames.map((s, i) => {
