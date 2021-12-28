@@ -13,7 +13,7 @@ type SockOptions = {
 	sockPort?: string;
 };
 
-class ErrorOverlayPlugin {
+export class ErrorOverlayPlugin {
 	apply(compiler: webpack.Compiler) {
 		const className = this.constructor.name;
 
@@ -107,5 +107,3 @@ class ErrorOverlayPlugin {
 		});
 	}
 }
-
-module.exports = ErrorOverlayPlugin;

@@ -1,10 +1,9 @@
 import path from 'path';
 import {Internals, WebpackConfiguration, WebpackOverrideFn} from 'remotion';
 import webpack, {ProgressPlugin} from 'webpack';
+import {ErrorOverlayPlugin} from './error-overlay';
+import {ReactFreshWebpackPlugin} from './fast-refresh';
 import {getWebpackCacheName} from './webpack-cache';
-
-const ErrorOverlayPlugin = require('@webhotelier/webpack-fast-refresh/error-overlay');
-const ReactRefreshPlugin = require('@webhotelier/webpack-fast-refresh');
 
 type Truthy<T> = T extends false | '' | 0 | null | undefined ? never : T;
 function truthy<T>(value: T): value is Truthy<T> {
@@ -74,7 +73,7 @@ export const webpackConfig = ({
 			environment === 'development'
 				? [
 						new ErrorOverlayPlugin(),
-						new ReactRefreshPlugin(),
+						new ReactFreshWebpackPlugin(),
 						new webpack.HotModuleReplacementPlugin(),
 						new webpack.DefinePlugin({
 							'process.env.MAX_TIMELINE_TRACKS': maxTimelineTracks,
@@ -153,9 +152,7 @@ export const webpackConfig = ({
 						},
 						environment === 'development'
 							? {
-									loader: require.resolve(
-										'@webhotelier/webpack-fast-refresh/loader.js'
-									),
+									loader: require.resolve('./fast-refresh/loader.js'),
 							  }
 							: null,
 					].filter(truthy),
@@ -186,9 +183,7 @@ export const webpackConfig = ({
 						},
 						environment === 'development'
 							? {
-									loader: require.resolve(
-										'@webhotelier/webpack-fast-refresh/loader.js'
-									),
+									loader: require.resolve('./fast-refresh/loader.js'),
 							  }
 							: null,
 					].filter(truthy),
