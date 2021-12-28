@@ -14,7 +14,7 @@ import {SourceMapConsumer} from 'source-map';
  *
  * This exposes methods which will be indifferent to changes made in <code>{@link https://github.com/mozilla/source-map source-map}</code>.
  */
-class SourceMap {
+export class SourceMap {
 	__source_map: SourceMapConsumer;
 
 	constructor(sourceMap: SourceMapConsumer) {
