@@ -60,7 +60,7 @@ export const ErrorDisplay: React.FC<{
 				<br />
 				{display.error.message}
 			</div>
-			{display.stackFrames.length > 0 ? (
+			{display.stackFrames.length > 0 && window.remotion_editorName ? (
 				<>
 					<OpenInEditor stack={display.stackFrames[0]} />
 					<div style={spacer} />

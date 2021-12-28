@@ -29,6 +29,7 @@ const left: React.CSSProperties = {
 
 const fnName: React.CSSProperties = {
 	fontSize: 14,
+	marginBottom: 3,
 };
 
 export const StackElement: React.FC<{

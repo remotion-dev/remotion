@@ -15,6 +15,7 @@ import {webpackConfig} from './webpack-config';
 import crypto from 'crypto';
 import {indexHtml} from './static-preview';
 import {
+	getDisplayNameForEditor,
 	guessEditor,
 	launchEditor,
 } from './error-overlay/react-overlay/utils/open-in-editor';
@@ -32,6 +33,7 @@ export const startServer = async (
 	}
 ): Promise<number> => {
 	const app = express();
+	const editorGuess = guessEditor();
 	const tmpDir = await fs.promises.mkdtemp(
 		path.join(os.tmpdir(), 'react-motion-graphics')
 	);
@@ -85,40 +87,47 @@ export const startServer = async (
 	});
 
 	app.use(express.json());
-	app.post('/api/open-in-editor', (req, res) => {
-		const body = req.body as {stack: StackFrame};
-		if (!('stack' in body)) {
-			throw new TypeError('Need to pass stack');
+	app.post('/api/open-in-editor', async (req, res) => {
+		try {
+			const body = req.body as {stack: StackFrame};
+			if (!('stack' in body)) {
+				throw new TypeError('Need to pass stack');
+			}
+
+			const stack = body.stack as StackFrame;
+
+			const guess = await editorGuess;
+			const didOpen = await launchEditor(
+				path.resolve(process.cwd(), stack._originalFileName as string),
+				stack._originalLineNumber as number,
+				stack._originalColumnNumber as number,
+				guess[0]
+			);
+			res.json({
+				success: didOpen,
+			});
+		} catch (err) {
+			res.json({
+				success: false,
+			});
 		}
-
-		const stack = body.stack as StackFrame;
-
-		launchEditor(
-			path.resolve(process.cwd(), stack._originalFileName as string),
-			stack._originalLineNumber as number,
-			stack._originalColumnNumber as number
-		);
-		res.json({
-			success: true,
-		});
 	});
 
 	app.use('favicon.png', (req, res) => {
 		res.sendFile(path.join(__dirname, '..', 'web', 'favicon.png'));
 	});
 
+	const edit = await editorGuess;
+	const displayName = getDisplayNameForEditor(edit[0]);
+
 	app.use('*', (_, res) => {
 		res.set('content-type', 'text/html');
-		res.end(indexHtml(hash));
+		res.end(indexHtml(hash, displayName));
 	});
 
 	const desiredPort = options?.port ?? Internals.getServerPort();
 
 	const port = await getDesiredPort(desiredPort, 3000, 3100);
-
-	console.log(guessEditor);
-	const edit = guessEditor();
-	console.log(edit);
 
 	app.listen(port);
 	return port;
