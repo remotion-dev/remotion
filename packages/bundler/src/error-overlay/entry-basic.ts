@@ -8,7 +8,9 @@ startReportingRuntimeErrors({
 			module.hot.addStatusHandler((status) => {
 				if (status === 'apply') {
 					dismissErrors();
-					setErrorsRef.current?.setErrors([]);
+					setErrorsRef.current?.setErrors({
+						type: 'clear',
+					});
 				}
 			});
 		}
