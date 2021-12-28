@@ -12,7 +12,7 @@ const HackerLogo: React.FC = () => {
 				fontFamily: 'Roboto Condensed',
 			}}
 		>
-			<span style={{color: 'white'}}>HACKER</span>
+			<span style={{color: 'white'}}>HACK</span>
 		</div>
 	);
 };
