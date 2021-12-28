@@ -38,6 +38,7 @@ export class ErrorOverlayPlugin {
 
 		compiler.hooks.entryOption.tap(
 			className,
+			// @ts-expect-error
 			(context: unknown, entry: webpack.EntryNormalized) => {
 				if (typeof entry !== 'function') {
 					Object.keys(entry).forEach((entryName) => {
@@ -88,8 +89,6 @@ export class ErrorOverlayPlugin {
 						entry[entryName] = adjustEntry(devServerEnabled);
 					});
 				}
-
-				return false;
 			}
 		);
 
