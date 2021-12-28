@@ -62,7 +62,7 @@ export const webpackConfig = ({
 				? require.resolve('webpack-hot-middleware/client') + '?overlay=true'
 				: null,
 			environment === 'development'
-				? require.resolve('@webhotelier/webpack-fast-refresh/runtime.js')
+				? require.resolve('./fast-refresh/runtime.js')
 				: null,
 			userDefinedComponent,
 			require.resolve('../react-shim.js'),
