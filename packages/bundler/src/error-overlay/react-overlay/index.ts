@@ -42,7 +42,10 @@ export function startReportingRuntimeErrors(options: RuntimeReportingOptions) {
 		};
 
 	function update() {
-		setErrorsRef.current?.setErrors(currentRuntimeErrorRecords);
+		setErrorsRef.current?.setErrors({
+			type: 'errors',
+			errors: currentRuntimeErrorRecords,
+		});
 	}
 
 	stopListeningToRuntimeErrors = listenToRuntimeErrors(

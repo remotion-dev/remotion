@@ -27,6 +27,7 @@ export const makeDefaultCSS = (scope: string | null) => {
     }
     body {
       margin: 0;
+			background-color: #1f2428
     }
     `;
 	}

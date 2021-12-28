@@ -47,7 +47,7 @@ export const StackElement: React.FC<{
 		<div>
 			<div style={header}>
 				<div style={left}>
-					<div style={fnName}>{s.functionName}</div>
+					<div style={fnName}>{s.functionName ?? '(anonymous function)'}</div>
 					<div style={location}>
 						{formatLocation(s._originalFileName as string)}:{s.columnNumber}
 					</div>

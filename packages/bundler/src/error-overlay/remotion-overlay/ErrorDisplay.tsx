@@ -1,9 +1,12 @@
+import {useCallback} from 'react';
 import React from 'react';
 import {ErrorRecord} from '../react-overlay/listen-to-runtime-errors';
 import {AskOnDiscord} from './AskOnDiscord';
+import {Button} from './Button';
 import {OpenInEditor} from './OpenInEditor';
 import {SearchGithubIssues} from './SearchGitHubIssues';
 import {StackElement} from './StackFrame';
+import {DismissButton} from './DismissButton';
 
 const container: React.CSSProperties = {
 	width: '100%',
@@ -17,10 +20,10 @@ const container: React.CSSProperties = {
 };
 
 const title: React.CSSProperties = {
-	fontSize: '1.5em',
-	fontWeight: 'bold',
-	lineHeight: 1.5,
 	marginBottom: 8,
+	display: 'flex',
+	flexDirection: 'row',
+	justifyContent: 'center',
 };
 
 const errName: React.CSSProperties = {
@@ -42,6 +45,14 @@ const spacer: React.CSSProperties = {
 	display: 'inline-block',
 };
 
+const left: React.CSSProperties = {
+	flex: 1,
+	paddingRight: 14,
+	lineHeight: 1.5,
+	fontSize: '1.5em',
+	fontWeight: 'bold',
+};
+
 export const ErrorDisplay: React.FC<{
 	display: ErrorRecord;
 }> = ({display}) => {
@@ -56,9 +67,12 @@ export const ErrorDisplay: React.FC<{
 	return (
 		<div style={container}>
 			<div style={title}>
-				<span style={errName}>{display.error.name}</span>
-				<br />
-				{display.error.message}
+				<div style={left}>
+					<span style={errName}>{display.error.name}</span>
+					<br />
+					{display.error.message}
+				</div>
+				<DismissButton />
 			</div>
 			{display.stackFrames.length > 0 && window.remotion_editorName ? (
 				<>
