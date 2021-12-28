@@ -28,16 +28,31 @@ export const UpdateCheck = () => {
 	const {tabIndex} = useZIndex();
 
 	const checkForUpdates = useCallback(() => {
-		fetch('/api/update')
+		const controller = new AbortController();
+
+		fetch('/api/update', {
+			signal: controller.signal,
+		})
 			.then((res) => res.json())
-			.then((d) => setInfo(d))
-			.catch((err) => {
+			.then((d) => {
+				setInfo(d);
+			})
+			.catch((err: Error) => {
+				if (err.message.includes('aborted')) {
+					return;
+				}
+
 				console.log('Could not check for updates', err);
 			});
+
+		return controller;
 	}, []);
 
 	useEffect(() => {
-		checkForUpdates();
+		const abortController = checkForUpdates();
+		return () => {
+			abortController.abort();
+		};
 	}, [checkForUpdates]);
 
 	const openModal = useCallback(() => {
