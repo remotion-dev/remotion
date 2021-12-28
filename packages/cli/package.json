@@ -23,7 +23,6 @@
 		"@remotion/media-utils": "2.5.7",
 		"@remotion/player": "2.5.7",
 		"@remotion/renderer": "2.5.7",
-		"ansi-diff": "^1.1.1",
 		"better-opn": "^2.1.1",
 		"chalk": "^4.1.0",
 		"dotenv": "^9.0.0",
