@@ -110,7 +110,6 @@ export const OpenInEditor: React.FC<{
 
 	useEffect(() => {
 		return () => {
-			console.log('unmounted');
 			isMounted.current = false;
 		};
 	}, []);
