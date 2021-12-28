@@ -111,6 +111,7 @@ importers:
       '@types/express': ^4.17.7
       '@types/node': ^16.7.5
       '@types/semver': ^7.3.4
+      '@types/source-map': ^0.5.7
       css-loader: ^5.0.1
       esbuild-loader: ^2.10.0
       eslint: ^7.25.0
@@ -154,6 +155,7 @@ importers:
       '@types/express': 4.17.13
       '@types/node': 16.10.2
       '@types/semver': 7.3.8
+      '@types/source-map': 0.5.7
       eslint: 7.32.0
       prettier: 2.4.1
       prettier-plugin-organize-imports: 1.1.1_prettier@2.4.1+typescript@4.4.3
@@ -7015,6 +7017,13 @@ packages:
 
   /@types/source-list-map/0.1.2:
     resolution: {integrity: sha512-K5K+yml8LTo9bWJI/rECfIPrGgxdpeNbj+d53lwN4QjW1MCwlkhUms+gtdzigTeUyBr09+u8BwOIY3MXvHdcsA==}
+
+  /@types/source-map/0.5.7:
+    resolution: {integrity: sha512-LrnsgZIfJaysFkv9rRJp4/uAyqw87oVed3s1hhF83nwbo9c7MG9g5DqR0seHP+lkX4ldmMrVolPjQSe2ZfD0yA==}
+    deprecated: This is a stub types definition for source-map (https://github.com/mozilla/source-map). source-map provides its own type definitions, so you don't need @types/source-map installed!
+    dependencies:
+      source-map: 0.7.3
+    dev: true
 
   /@types/stack-utils/2.0.1:
     resolution: {integrity: sha512-Hl219/BT5fLAaz6NDkSuhzasy49dwQS/DSdu4MdggFB8zcXv7vflBI3xp7FEmkmdDkBUI2bPUNeMttp2knYdxw==}
