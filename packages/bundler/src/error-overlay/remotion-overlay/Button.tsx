@@ -21,9 +21,10 @@ const buttonContainer: React.CSSProperties = {
 
 export const Button: React.FC<{
 	onClick: () => void;
-}> = ({children, onClick}) => {
+	disabled?: boolean;
+}> = ({children, onClick, disabled}) => {
 	return (
-		<button style={button} type="button" onClick={onClick}>
+		<button style={button} type="button" disabled={disabled} onClick={onClick}>
 			<div style={buttonContainer}>{children}</div>
 		</button>
 	);
