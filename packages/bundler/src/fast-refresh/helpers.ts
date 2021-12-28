@@ -143,36 +143,28 @@ function getRefreshBoundarySignature(moduleExports: unknown) {
 	return signature;
 }
 
-let isUpdateScheduled = false;
 function scheduleUpdate() {
-	if (isUpdateScheduled) {
+	const execute = () => {
+		try {
+			RefreshRuntime.performReactRefresh();
+		} catch (err) {
+			console.warn(
+				'Warning: Failed to re-render. We will retry on the next Fast Refresh event.\n' +
+					err
+			);
+		}
+	};
+
+	// Only trigger refresh if the webpack HMR state is idle
+	if (module.hot?.status() === 'idle') {
 		return;
 	}
 
-	function canApplyUpdate() {
-		return module.hot?.status() === 'idle';
-	}
-
-	isUpdateScheduled = true;
-	setTimeout(() => {
-		isUpdateScheduled = false;
-
-		// Only trigger refresh if the webpack HMR state is idle
-		if (canApplyUpdate()) {
-			try {
-				RefreshRuntime.performReactRefresh();
-			} catch (err) {
-				console.warn(
-					'Warning: Failed to re-render. We will retry on the next Fast Refresh event.\n' +
-						err
-				);
-			}
-
-			return;
+	module.hot?.addStatusHandler((status) => {
+		if (status === 'idle') {
+			execute();
 		}
-
-		return scheduleUpdate();
-	}, 30);
+	});
 }
 
 export default {
