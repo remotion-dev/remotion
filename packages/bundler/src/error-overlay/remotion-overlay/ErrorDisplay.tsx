@@ -1,7 +1,6 @@
 import React from 'react';
 import {ErrorRecord} from '../react-overlay/listen-to-runtime-errors';
-import {CodeFrame} from './CodeFrame';
-import {formatLocation} from './format-location';
+import {StackElement} from './StackFrame';
 
 const container: React.CSSProperties = {
 	width: '100%',
@@ -21,20 +20,7 @@ const stack: React.CSSProperties = {
 	backgroundColor: 'black',
 	marginTop: 17,
 	overflowX: 'scroll',
-};
-
-const location: React.CSSProperties = {
-	color: 'rgba(255, 255, 255, 0.6)',
-	fontFamily: 'monospace',
-};
-
-const stackLine: React.CSSProperties = {};
-
-const header: React.CSSProperties = {
-	paddingLeft: 14,
-	paddingTop: 8,
-	paddingBottom: 8,
-	paddingRight: 14,
+	marginBottom: '10vh',
 };
 
 export const ErrorDisplay: React.FC<{
@@ -56,24 +42,13 @@ export const ErrorDisplay: React.FC<{
 			<div style={stack}>
 				{display.stackFrames.map((s, i) => {
 					return (
-						// eslint-disable-next-line react/no-array-index-key
-						<div key={i} style={stackLine}>
-							<div style={header}>
-								<div>{s.functionName}</div>
-								<div style={location}>
-									{formatLocation(s._originalFileName as string)}:
-									{s.columnNumber}
-								</div>
-							</div>
-							<div>
-								{s._originalScriptCode ? (
-									<CodeFrame
-										lineNumberWidth={lineNumberWidth}
-										source={s._originalScriptCode}
-									/>
-								) : null}
-							</div>
-						</div>
+						<StackElement
+							// eslint-disable-next-line react/no-array-index-key
+							key={i}
+							isFirst={i === 0}
+							s={s}
+							lineNumberWidth={lineNumberWidth}
+						/>
 					);
 				})}
 			</div>
