@@ -33,8 +33,7 @@
 		"source-map": "^0.5.7",
 		"source-map-loader": "^3.0.0",
 		"style-loader": "^2.0.0",
-		"webpack": "5.60.0",
-		"webpack-hot-middleware": "^2.25.0"
+		"webpack": "5.60.0"
 	},
 	"peerDependencies": {
 		"react": "^17.0.1",

@@ -1,8 +1,15 @@
+import {Request, Response} from 'express';
 import webpack from 'webpack';
+import {
+	HotMiddlewareMessage,
+	hotMiddlewareOptions,
+	HotMiddlewareOptions,
+	ModuleMap,
+	WebpackStats,
+} from './types';
+import {parse} from 'url';
 
-const {parse} = require('url');
-
-exports.pathMatch = function (url, path) {
+const pathMatch = function (url: string, path: string) {
 	try {
 		return parse(url).pathname === path;
 	} catch (e) {
@@ -10,15 +17,11 @@ exports.pathMatch = function (url, path) {
 	}
 };
 
-export function webpackHotMiddleware(compiler: webpack.Compiler, opts) {
-	opts = opts || {};
-	opts.log =
-		typeof opts.log === 'undefined' ? console.log.bind(console) : opts.log;
-	opts.path = opts.path || '/__webpack_hmr';
-	opts.heartbeat = opts.heartbeat || 10 * 1000;
-
-	let eventStream = createEventStream(opts.heartbeat);
-	let latestStats = null;
+export function webpackHotMiddleware(compiler: webpack.Compiler) {
+	let eventStream: EventStream | null = createEventStream(
+		hotMiddlewareOptions.heartbeat
+	);
+	let latestStats: webpack.Stats | null = null;
 	let closed = false;
 
 	compiler.hooks.invalid.tap('webpack-hot-middleware', onInvalid);
@@ -27,33 +30,34 @@ export function webpackHotMiddleware(compiler: webpack.Compiler, opts) {
 	function onInvalid() {
 		if (closed) return;
 		latestStats = null;
-		if (opts.log) opts.log('webpack building...');
-		eventStream.publish({
+		hotMiddlewareOptions.log('webpack building...');
+		eventStream?.publish({
 			action: 'building',
 		});
 	}
 
-	function onDone(statsResult) {
+	function onDone(statsResult: webpack.Stats) {
 		if (closed) return;
 		// Keep hold of latest stats so they can be propagated to new clients
 		latestStats = statsResult;
-		publishStats('built', latestStats, eventStream, opts.log);
+		publishStats('built', latestStats, eventStream, hotMiddlewareOptions.log);
 	}
 
-	const middleware = function (req, res, next) {
+	const middleware = function (req: Request, res: Response, next: () => void) {
 		if (closed) return next();
-		if (!pathMatch(req.url, opts.path)) return next();
-		eventStream.handler(req, res);
+
+		if (!pathMatch(req.url, hotMiddlewareOptions.path)) return next();
+		eventStream?.handler(req, res);
 		if (latestStats) {
 			// Explicitly not passing in `log` fn as we don't want to log again on
 			// the server
-			publishStats('sync', latestStats, eventStream);
+			publishStats('sync', latestStats, eventStream, hotMiddlewareOptions.log);
 		}
 	};
 
-	middleware.publish = function (payload) {
+	middleware.publish = function (payload: HotMiddlewareMessage) {
 		if (closed) return;
-		eventStream.publish(payload);
+		eventStream?.publish(payload);
 	};
 
 	middleware.close = function () {
@@ -61,37 +65,39 @@ export function webpackHotMiddleware(compiler: webpack.Compiler, opts) {
 		// Can't remove compiler plugins, so we just set a flag and noop if closed
 		// https://github.com/webpack/tapable/issues/32#issuecomment-350644466
 		closed = true;
-		eventStream.close();
+		eventStream?.close();
 		eventStream = null;
 	};
 
 	return middleware;
 }
 
-function createEventStream(heartbeat) {
-	let clientId = 0;
-	let clients = {};
+type EventStream = ReturnType<typeof createEventStream>;
 
-	function everyClient(fn) {
+function createEventStream(heartbeat: number) {
+	let clientId = 0;
+	let clients: {[key: string]: Response} = {};
+
+	function everyClient(fn: (client: Response) => void) {
 		Object.keys(clients).forEach((id) => {
 			fn(clients[id]);
 		});
 	}
 
-	const interval = setInterval(function heartbeatTick() {
-		everyClient((client) => {
+	const interval = setInterval(() => {
+		everyClient((client: Response) => {
 			client.write('data: \uD83D\uDC93\n\n');
 		});
 	}, heartbeat).unref();
 	return {
 		close() {
 			clearInterval(interval);
-			everyClient((client) => {
+			everyClient((client: Response) => {
 				if (!client.finished) client.end();
 			});
 			clients = {};
 		},
-		handler(req, res) {
+		handler(req: Request, res: Response) {
 			const headers = {
 				'Access-Control-Allow-Origin': '*',
 				'Content-Type': 'text/event-stream;charset=utf-8',
@@ -101,7 +107,7 @@ function createEventStream(heartbeat) {
 				'X-Accel-Buffering': 'no',
 			};
 
-			const isHttp1 = !(parseInt(req.httpVersion) >= 2);
+			const isHttp1 = !(parseInt(req.httpVersion, 10) >= 2);
 			if (isHttp1) {
 				req.socket.setKeepAlive(true);
 				Object.assign(headers, {
@@ -118,7 +124,7 @@ function createEventStream(heartbeat) {
 				delete clients[id];
 			});
 		},
-		publish(payload) {
+		publish(payload: HotMiddlewareMessage) {
 			everyClient((client) => {
 				client.write('data: ' + JSON.stringify(payload) + '\n\n');
 			});
@@ -126,7 +132,12 @@ function createEventStream(heartbeat) {
 	};
 }
 
-function publishStats(action, statsResult, eventStream, log) {
+function publishStats(
+	action: HotMiddlewareMessage['action'],
+	statsResult: webpack.Stats,
+	eventStream: EventStream | null,
+	log: HotMiddlewareOptions['log']
+) {
 	const stats = statsResult.toJson({
 		all: false,
 		cached: true,
@@ -137,8 +148,8 @@ function publishStats(action, statsResult, eventStream, log) {
 	});
 	// For multi-compiler, stats will be an object with a 'children' array of stats
 	const bundles = extractBundles(stats);
-	bundles.forEach((stats) => {
-		let name = stats.name || '';
+	bundles.forEach((_stats: WebpackStats) => {
+		let name = _stats.name || '';
 
 		// Fallback to compilation name in case of 1 bundle (if it exists)
 		if (bundles.length === 1 && !name && statsResult.compilation) {
@@ -149,40 +160,45 @@ function publishStats(action, statsResult, eventStream, log) {
 			log(
 				'webpack built ' +
 					(name ? name + ' ' : '') +
-					stats.hash +
+					_stats.hash +
 					' in ' +
-					stats.time +
+					_stats.time +
 					'ms'
 			);
 		}
 
-		eventStream.publish({
+		eventStream?.publish({
 			name,
 			action,
-			time: stats.time,
-			hash: stats.hash,
-			warnings: stats.warnings || [],
-			errors: stats.errors || [],
-			modules: buildModuleMap(stats.modules),
+			time: _stats.time,
+			hash: _stats.hash,
+			warnings: _stats.warnings || [],
+			errors: _stats.errors || [],
+			modules: buildModuleMap(_stats.modules),
 		});
 	});
 }
 
-function extractBundles(stats) {
+function extractBundles(stats: WebpackStats) {
 	// Stats has modules, single bundle
 	if (stats.modules) return [stats];
 
 	// Stats has children, multiple bundles
-	if (stats.children && stats.children.length) return stats.children;
+	if (stats.children?.length) return stats.children;
 
 	// Not sure, assume single
 	return [stats];
 }
 
-function buildModuleMap(modules) {
-	const map = {};
+function buildModuleMap(modules: WebpackStats['modules']): ModuleMap {
+	const map: {[key: string]: string} = {};
+	if (!modules) {
+		return map;
+	}
+
 	modules.forEach((module) => {
-		map[module.id] = module.name;
+		const id = module.id as string;
+		map[id] = module.name as string;
 	});
 	return map;
 }

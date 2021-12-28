@@ -61,7 +61,7 @@ export const webpackConfig = ({
 		entry: [
 			require.resolve('./setup-environment'),
 			environment === 'development'
-				? require.resolve('webpack-hot-middleware/client')
+				? require.resolve('./hot-middleware/client')
 				: null,
 			environment === 'development'
 				? require.resolve('./fast-refresh/runtime.js')

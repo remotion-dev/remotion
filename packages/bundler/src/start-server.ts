@@ -6,8 +6,6 @@ import os from 'os';
 import path from 'path';
 import {Internals, WebpackOverrideFn} from 'remotion';
 import webpack from 'webpack';
-// @ts-expect-error
-import webpackHotMiddleware from 'webpack-hot-middleware';
 import {getDesiredPort} from './get-port';
 import {getProjectInfo} from './project-info';
 import {isUpdateAvailableWithTimeout} from './update-available';
@@ -20,6 +18,7 @@ import {
 	launchEditor,
 } from './error-overlay/react-overlay/utils/open-in-editor';
 import {StackFrame} from './error-overlay/react-overlay/utils/stack-frame';
+import {webpackHotMiddleware} from './hot-middleware';
 
 export const startServer = async (
 	entry: string,
@@ -55,12 +54,7 @@ export const startServer = async (
 
 	app.use(hash, express.static(path.join(process.cwd(), 'public')));
 	app.use(webpackDevMiddleware(compiler));
-	app.use(
-		webpackHotMiddleware(compiler, {
-			path: '/__webpack_hmr',
-			heartbeat: 10 * 1000,
-		})
-	);
+	app.use(webpackHotMiddleware(compiler));
 
 	app.get('/api/update', (req, res) => {
 		isUpdateAvailableWithTimeout()
