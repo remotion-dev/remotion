@@ -22,6 +22,8 @@
  * SOFTWARE.
  */
 
+import {LoaderDefinition} from 'webpack';
+
 // This file is copied from the @vercel/next.js, with removed TS annotations
 //
 // https://github.com/vercel/next.js/blob/canary/packages/react-refresh-utils/loader.ts
@@ -37,6 +39,8 @@ function RefreshModuleRuntime() {
 		// AMP / No-JS mode does not inject these helpers:
 		'$RefreshHelpers$' in self
 	) {
+		// @ts-expect-error
+		// eslint-disable-next-line no-proto
 		const currentExports = module.__proto__.exports;
 		let prevExports = null;
 
@@ -80,6 +84,7 @@ function RefreshModuleRuntime() {
 						currentExports
 					)
 				) {
+					// @ts-expect-error
 					module.hot?.invalidate();
 				} else {
 					self.$RefreshHelpers$.scheduleUpdate();
@@ -92,6 +97,7 @@ function RefreshModuleRuntime() {
 			// because we already accepted this update (accidental side effect).
 			const isNoLongerABoundary = prevExports !== null;
 			if (isNoLongerABoundary) {
+				// @ts-expect-error
 				module.hot?.invalidate();
 			}
 		}
@@ -104,6 +110,8 @@ refreshModuleRuntime = refreshModuleRuntime.slice(
 	refreshModuleRuntime.lastIndexOf('}')
 );
 
-module.exports = function ReactRefreshLoader(source, inputSourceMap) {
+const ReactRefreshLoader: LoaderDefinition = function (source, inputSourceMap) {
 	this.callback(null, `${source}\n\n;${refreshModuleRuntime}`, inputSourceMap);
 };
+
+export default ReactRefreshLoader;

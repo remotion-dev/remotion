@@ -64,7 +64,7 @@ class ReactRefreshRuntimeModule extends RuntimeModule {
 	}
 }
 
-class ReactFreshWebpackPlugin {
+export class ReactFreshWebpackPlugin {
 	apply(compiler: webpack.Compiler) {
 		const webpackMajorVersion = parseInt(version ?? '', 10);
 
@@ -102,5 +102,3 @@ class ReactFreshWebpackPlugin {
 		});
 	}
 }
-
-module.exports = ReactFreshWebpackPlugin;
