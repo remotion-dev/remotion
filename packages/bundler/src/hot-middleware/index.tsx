@@ -49,8 +49,6 @@ export function webpackHotMiddleware(compiler: webpack.Compiler) {
 		if (!pathMatch(req.url, hotMiddlewareOptions.path)) return next();
 		eventStream?.handler(req, res);
 		if (latestStats) {
-			// Explicitly not passing in `log` fn as we don't want to log again on
-			// the server
 			publishStats('sync', latestStats, eventStream, hotMiddlewareOptions.log);
 		}
 	};
