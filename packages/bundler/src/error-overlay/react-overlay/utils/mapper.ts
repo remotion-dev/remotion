@@ -6,7 +6,7 @@
  */
 
 import {StackFrame} from './stack-frame';
-import {getSourceMap} from './get-source-map';
+import {getSourceMap, SourceMap} from './get-source-map';
 import {getLinesAround} from './get-lines-around';
 import {settle} from './settle-promise';
 
@@ -19,7 +19,7 @@ async function map(
 	frames: StackFrame[],
 	contextLines = 3
 ): Promise<StackFrame[]> {
-	const cache: any = {};
+	const cache: {[key: string]: {fileSource: string; map: SourceMap}} = {};
 	const files: string[] = [];
 	frames.forEach((frame) => {
 		const {fileName} = frame;
@@ -51,6 +51,8 @@ async function map(
 		if (
 			_map === null ||
 			_map === undefined ||
+			columnNumber === null ||
+			columnNumber === undefined ||
 			lineNumber === null ||
 			lineNumber === undefined
 		) {
