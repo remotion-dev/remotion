@@ -62,7 +62,10 @@ export const webpackConfig = ({
 		entry: [
 			require.resolve('./setup-environment'),
 			environment === 'development'
-				? require.resolve('webpack-hot-middleware/client') + '?overlay=true'
+				? require.resolve('webpack-hot-middleware/client')
+				: null,
+			environment === 'development'
+				? require.resolve('./error-overlay/entry-basic.js')
 				: null,
 			environment === 'development'
 				? require.resolve('./fast-refresh/runtime.js')
@@ -75,7 +78,6 @@ export const webpackConfig = ({
 		plugins:
 			environment === 'development'
 				? [
-						new ErrorOverlayPlugin(),
 						new ReactFreshWebpackPlugin(),
 						new webpack.HotModuleReplacementPlugin(),
 						new webpack.DefinePlugin({
