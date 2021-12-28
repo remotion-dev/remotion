@@ -32,6 +32,7 @@
 		"react-error-overlay": "^6.0.10",
 		"remotion": "2.5.7",
 		"semver": "7.3.4",
+		"source-map": "^0.5.7",
 		"source-map-loader": "^3.0.0",
 		"style-loader": "^2.0.0",
 		"webpack": "5.60.0",

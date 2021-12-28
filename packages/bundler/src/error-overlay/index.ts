@@ -100,6 +100,7 @@ export class ErrorOverlayPlugin {
 						originalBefore(app, server);
 					}
 
+					console.log('use');
 					app.use(errorOverlayMiddleware());
 				};
 			}
