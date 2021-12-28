@@ -11,6 +11,7 @@ const lineNumber: React.CSSProperties = {
 	backgroundColor: '#121212',
 	paddingLeft: 10,
 	paddingRight: 12,
+	marginRight: 12,
 };
 
 export const CodeFrame: React.FC<{
@@ -29,7 +30,7 @@ export const CodeFrame: React.FC<{
 							whiteSpace: 'pre',
 							tabSize: 2,
 							color: s.highlight ? 'white' : 'rgba(255, 255, 255, 0.6)',
-							lineHeight: 1.5,
+							lineHeight: 1.7,
 						}}
 					>
 						<div style={lineNumber}>
