@@ -7,7 +7,11 @@ type RuntimeReportingOptions = {
 	filename?: string;
 };
 
-let currentRuntimeErrorRecords: Array<ErrorRecord> = [];
+let currentRuntimeErrorRecords: ErrorRecord[] = [];
+
+export const dismissErrors = () => {
+	currentRuntimeErrorRecords = [];
+};
 
 export function startReportingRuntimeErrors(options: RuntimeReportingOptions) {
 	if (stopListeningToRuntimeErrors !== null) {
