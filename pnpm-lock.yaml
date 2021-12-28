@@ -125,6 +125,7 @@ importers:
       react-refresh: ^0.9.0-rc.2
       remotion: 2.5.7
       semver: 7.3.4
+      source-map: ^0.5.7
       source-map-loader: ^3.0.0
       style-loader: ^2.0.0
       typescript: ^4.4.2
@@ -143,6 +144,7 @@ importers:
       react-refresh: 0.9.0
       remotion: link:../core
       semver: 7.3.4
+      source-map: 0.5.7
       source-map-loader: 3.0.0_webpack@5.60.0
       style-loader: 2.0.0_webpack@5.60.0
       webpack: 5.60.0
