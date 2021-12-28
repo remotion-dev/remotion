@@ -18,6 +18,7 @@ export const indexHtml = (staticHash: string) =>
 		<div id="menuportal-3"></div>
 		<div id="menuportal-4"></div>
 		<div id="menuportal-5"></div>
+		<div id="remotion-error-overlay"></div>
 		<script src="/bundle.js"></script>
 	</body>
 </html>

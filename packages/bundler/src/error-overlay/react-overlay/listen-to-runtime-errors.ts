@@ -64,7 +64,7 @@ export const crashWithFrames =
 
 export function listenToRuntimeErrors(
 	crash: (rec: ErrorRecord) => void,
-	filename = '/static/js/bundle.js'
+	filename: string
 ) {
 	const crashWithFramesRunTime = crashWithFrames(crash);
 
@@ -73,6 +73,7 @@ export function listenToRuntimeErrors(
 	registerStackTraceLimit();
 	registerReactStack();
 	permanentRegisterConsole('error', (warning, stack) => {
+		console.log('errrr');
 		const data = massageWarning(warning, stack);
 		crashWithFramesRunTime(
 			{

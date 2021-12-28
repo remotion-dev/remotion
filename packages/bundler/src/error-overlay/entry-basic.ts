@@ -1,16 +1,15 @@
 import {startReportingRuntimeErrors} from './react-overlay';
+import {mountRemotionOverlay} from './remotion-overlay';
 
 startReportingRuntimeErrors({
 	onError() {
 		if (module.hot) {
-			console.log('error occurred');
 			module.hot.addStatusHandler((status) => {
 				if (status === 'apply') {
-					console.log('apply');
-					// window.location.reload();
-					// dismissRuntimeErrors();
+					window.location.reload();
 				}
 			});
 		}
 	},
 });
+mountRemotionOverlay();

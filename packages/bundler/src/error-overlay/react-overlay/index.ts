@@ -1,3 +1,4 @@
+import {setErrorsRef} from '../remotion-overlay/Overlay';
 import {ErrorRecord, listenToRuntimeErrors} from './listen-to-runtime-errors';
 
 let stopListeningToRuntimeErrors: null | (() => void) = null;
@@ -15,6 +16,7 @@ export function startReportingRuntimeErrors(options: RuntimeReportingOptions) {
 
 	const handleRuntimeError =
 		(opts: RuntimeReportingOptions) => (errorRecord: ErrorRecord) => {
+			console.log('err');
 			try {
 				if (typeof opts.onError === 'function') {
 					opts.onError.call(null);
@@ -37,11 +39,12 @@ export function startReportingRuntimeErrors(options: RuntimeReportingOptions) {
 		};
 
 	function update() {
+		setErrorsRef.current?.setErrors(currentRuntimeErrorRecords);
 		console.log('do something', currentRuntimeErrorRecords);
 	}
 
 	stopListeningToRuntimeErrors = listenToRuntimeErrors(
 		handleRuntimeError(options),
-		options.filename
+		options.filename as string
 	);
 }
