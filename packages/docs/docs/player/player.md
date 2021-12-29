@@ -467,9 +467,3 @@ const MyApp: React.FC = () => {
   );
 };
 ```
-
-## Known issues
-
-Before we mark the player as stable, we are looking to improve in the following areas:
-
-- Better loading state than the current "Loading..." text.

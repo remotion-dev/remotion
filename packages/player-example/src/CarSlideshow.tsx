@@ -1,5 +1,4 @@
 import {lazy} from 'react';
-import {interpolate, useCurrentFrame, useVideoConfig} from 'remotion';
 import {createRef, useCallback, useImperativeHandle, useState} from 'react';
 import {
 	Img,
@@ -16,17 +15,15 @@ type Props = {
 	color: string;
 	loading: boolean;
 };
-
-const TriggerLoading = lazy(() => {
-	return new Promise(() => () =>
-		import('./trigger-loading').then(() => () => null as never)
-	);
-});
-
-const CarSlideshow = ({title, bgColor, color, loading}: Props) => {
 export const playerExampleComp = createRef<{
 	triggerError: () => void;
 }>();
+
+const TriggerLoading = lazy(() => {
+	return new Promise(
+		() => () => import('./trigger-loading').then(() => () => null as never)
+	);
+});
 
 const CarSlideshow = ({title, bgColor, color}: Props) => {
 	const frame = useCurrentFrame();
