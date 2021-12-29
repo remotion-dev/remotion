@@ -164,6 +164,8 @@ _optional_
 
 A callback function that allows you to return a custom UI that gets displayed while the player is loading.
 
+The first parameter contains the `height` and `width` of the player as it gets rendered.
+
 ```tsx twoslash
 import { Player, RenderLoading } from "@remotion/player";
 import { useCallback } from "react";
@@ -175,8 +177,12 @@ const Component: React.FC = () => null;
 
 const MyApp: React.FC = () => {
   // `RenderLoading` type can be imported from "@remotion/player"
-  const renderLoading: RenderLoading = useCallback(() => {
-    return <AbsoluteFill>Loading player...</AbsoluteFill>;
+  const renderLoading: RenderLoading = useCallback(({ height, width }) => {
+    return (
+      <AbsoluteFill style={{ backgroundColor: "gray" }}>
+        Loading player ({height}x{width})
+      </AbsoluteFill>
+    );
   }, []);
 
   return (
@@ -191,6 +197,10 @@ const MyApp: React.FC = () => {
   );
 };
 ```
+
+:::info
+A player needs to be loaded if it contains elements that use React Suspense, or if the `lazyComponent` props is being used.
+:::
 
 ## `PlayerRef`
 
