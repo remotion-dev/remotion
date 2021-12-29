@@ -19,6 +19,7 @@ import {
 	SetTimelineContextValue,
 	TimelineContextValue,
 } from 'remotion';
+import {PlayableMediaTag} from 'remotion/src/timeline-position-state';
 import {PlayerEventEmitterContext} from './emitter-context';
 import {PlayerEmitter} from './event-emitter';
 import {PLAYER_CSS_CLASSNAME} from './player-css-classname';
@@ -100,6 +101,7 @@ export const PlayerFn = <T,>(
 	const rootRef = useRef<PlayerRef>(null);
 	const [mediaMuted, setMediaMuted] = useState<boolean>(false);
 	const [mediaVolume, setMediaVolume] = useState<number>(getPreferredVolume());
+	const audioAndVideoTags = useRef<PlayableMediaTag[]>([]);
 	const imperativePlaying = useRef(false);
 
 	if (typeof compositionHeight !== 'number') {
@@ -228,6 +230,7 @@ export const PlayerFn = <T,>(
 			setPlaybackRate: () => {
 				throw new Error('playback rate');
 			},
+			audioAndVideoTags,
 		};
 	}, [frame, playbackRate, playing, rootId]);
 

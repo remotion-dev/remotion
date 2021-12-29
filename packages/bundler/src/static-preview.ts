@@ -1,4 +1,8 @@
-export const indexHtml = (staticHash: string, baseDir: string) =>
+export const indexHtml = (
+	staticHash: string,
+	baseDir: string,
+	editorName: string | null
+) =>
 	`
 <!DOCTYPE html>
 <html lang="en">
@@ -13,12 +17,19 @@ export const indexHtml = (staticHash: string, baseDir: string) =>
     <script>window.remotion_staticBase = "${staticHash}";</script>
 		<div id="video-container"></div>
 		<div id="explainer-container"></div>
+		${
+			editorName
+				? `<script>window.remotion_editorName = "${editorName}";</script>`
+				: '<script>window.remotion_editorName = null;</script>'
+		}
+		<div id="container"></div>
 		<div id="menuportal-0"></div>
 		<div id="menuportal-1"></div>
 		<div id="menuportal-2"></div>
 		<div id="menuportal-3"></div>
 		<div id="menuportal-4"></div>
 		<div id="menuportal-5"></div>
+		<div id="remotion-error-overlay"></div>
 		<script src="${baseDir}bundle.js"></script>
 	</body>
 </html>

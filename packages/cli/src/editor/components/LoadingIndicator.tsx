@@ -9,6 +9,7 @@ const ICON_SIZE = 40;
 const label: React.CSSProperties = {
 	color: '#555',
 	fontSize: 14,
+	fontFamily: 'sans-serif',
 };
 
 const container: React.CSSProperties = {
