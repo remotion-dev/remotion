@@ -1,4 +1,3 @@
-import {lazy} from 'react';
 import {createRef, useCallback, useImperativeHandle, useState} from 'react';
 import {
 	Img,
@@ -18,12 +17,6 @@ type Props = {
 export const playerExampleComp = createRef<{
 	triggerError: () => void;
 }>();
-
-const TriggerLoading = lazy(() => {
-	return new Promise(
-		() => () => import('./trigger-loading').then(() => () => null as never)
-	);
-});
 
 const CarSlideshow = ({title, bgColor, color}: Props) => {
 	const frame = useCurrentFrame();
