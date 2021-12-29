@@ -97,7 +97,11 @@ export default function App({
 	}, [bgColor, color, title]);
 
 	const renderLoading: RenderLoading = useCallback(() => {
-		return <Loading size={Number(300)} />;
+		return (
+			<AbsoluteFill style={{backgroundColor: 'yellow'}}>
+				<Loading size={200} />
+			</AbsoluteFill>
+		);
 	}, []);
 
 	const errorFallback: ErrorFallback = useCallback(({error}) => {

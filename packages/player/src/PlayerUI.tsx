@@ -27,7 +27,10 @@ import {useClickPreventionOnDoubleClick} from './utils/use-click-prevention-on-d
 import {useElementSize} from './utils/use-element-size';
 
 export type ErrorFallback = (info: {error: Error}) => React.ReactNode;
-export type RenderLoading = () => React.ReactChild;
+export type RenderLoading = (canvas: {
+	height: number;
+	width: number;
+}) => React.ReactChild;
 
 const PlayerUI: React.ForwardRefRenderFunction<
 	PlayerRef,
@@ -413,7 +416,16 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		return content;
 	}
 
-	const loadingMarkup = renderLoading ? renderLoading() : null;
+	const loadingMarkup = renderLoading ? (
+		<div style={outerStyle}>
+			{renderLoading({
+				height: outerStyle.height as number,
+				width: outerStyle.width as number,
+			})}
+		</div>
+	) : (
+		<div style={outerStyle} />
+	);
 
 	return <Suspense fallback={loadingMarkup}>{content}</Suspense>;
 };
