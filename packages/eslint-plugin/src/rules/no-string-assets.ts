@@ -9,7 +9,7 @@ type Options = [];
 type MessageIds = "NoStringAssets";
 
 const NoStringAssets = [
-  "Don't reference local assets by string, use an import statement instead.",
+  "Don't reference local assets by string, use an import statement or staticFile() instead.",
   "See: https://www.remotion.dev/docs/assets",
 ].join("\n");
 

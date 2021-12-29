@@ -33,6 +33,16 @@ test('It should calculate the correct offset in nested sequences', () => {
 				rootId: 'hi',
 				frame: 40,
 				playing: false,
+				imperativePlaying: {
+					current: false,
+				},
+				playbackRate: 1,
+				setPlaybackRate: () => {
+					throw new Error('playback rate');
+				},
+				audioAndVideoTags: {
+					current: [],
+				},
 			}}
 		>
 			<Sequence from={20} durationInFrames={100}>
@@ -55,6 +65,16 @@ test('Negative offset test', () => {
 				frame: 40,
 				playing: false,
 				rootId: 'hi',
+				imperativePlaying: {
+					current: false,
+				},
+				playbackRate: 1,
+				setPlaybackRate: () => {
+					throw new Error('playback rate');
+				},
+				audioAndVideoTags: {
+					current: [],
+				},
 			}}
 		>
 			<Sequence from={-200} durationInFrames={300}>
@@ -92,6 +112,16 @@ test('Nested negative offset test', () => {
 					frame,
 					playing: false,
 					rootId: 'hi',
+					imperativePlaying: {
+						current: false,
+					},
+					playbackRate: 1,
+					setPlaybackRate: () => {
+						throw new Error('playback rate');
+					},
+					audioAndVideoTags: {
+						current: [],
+					},
 				}}
 			>
 				{content}
@@ -118,7 +148,7 @@ test('Negative offset edge case', () => {
 	const endAt = 90;
 
 	const content = (
-		<Sequence from={40} durationInFrames={Infinity}>
+		<Sequence from={40}>
 			<Sequence from={0 - startFrom} durationInFrames={endAt}>
 				<NestedChild />
 			</Sequence>
@@ -132,6 +162,16 @@ test('Negative offset edge case', () => {
 					frame,
 					playing: false,
 					rootId: 'hi',
+					imperativePlaying: {
+						current: false,
+					},
+					playbackRate: 1,
+					setPlaybackRate: () => {
+						throw new Error('playback rate');
+					},
+					audioAndVideoTags: {
+						current: [],
+					},
 				}}
 			>
 				{content}

@@ -1,51 +1,39 @@
 import React, {useCallback, useContext, useEffect} from 'react';
 import {Internals, TComposition} from 'remotion';
-import styled from 'styled-components';
+import {loadMarks} from '../state/marks';
+import {useZIndex} from '../state/z-index';
+import {CompositionSelectorItem} from './CompositionSelectorItem';
 import {CurrentComposition} from './CurrentComposition';
 import {
 	getCurrentCompositionFromUrl,
 	getFrameForComposition,
 } from './FramePersistor';
+import {inOutHandles} from './TimelineInOutToggle';
 
-const Container = styled.div`
-	border-right: 1px solid black;
-	position: absolute;
-	height: 100%;
-	width: 100%;
-	flex: 1;
-`;
+const container: React.CSSProperties = {
+	borderRight: '1px solid black',
+	position: 'absolute',
+	height: '100%',
+	width: '100%',
+	flex: 1,
+};
 
-const List = styled.div`
-	padding: 8px;
-	height: calc(100% - 100px);
-	overflow-y: auto;
-`;
-
-const Item = styled.a<{
-	selected: boolean;
-}>`
-	background: ${(props) => (props.selected ? 'white' : 'transparent')};
-	color: ${(props) => (props.selected ? 'black' : 'white')};
-	padding-left: 8px;
-	padding-right: 8px;
-	padding-top: 6px;
-	padding-bottom: 6px;
-	font-size: 13px;
-	font-family: Arial, Helvetica, sans-serif;
-	display: block;
-	border-radius: 2px;
-	text-decoration: none;
-	cursor: default;
-`;
+const list: React.CSSProperties = {
+	padding: 5,
+	height: 'calc(100% - 100px)',
+	overflowY: 'auto',
+};
 
 export const CompositionSelector: React.FC = () => {
 	const {compositions, setCurrentComposition, currentComposition} = useContext(
 		Internals.CompositionManager
 	);
+	const {tabIndex} = useZIndex();
 	const setCurrentFrame = Internals.Timeline.useTimelineSetFrame();
 
 	const selectComposition = useCallback(
 		(c: TComposition) => {
+			inOutHandles.current?.setMarks(loadMarks(c.id, c.durationInFrames));
 			window.history.pushState({}, 'Preview', `/${c.id}`);
 			const frame = getFrameForComposition(c.id);
 			const frameInBounds = Math.min(c.durationInFrames - 1, frame);
@@ -75,25 +63,21 @@ export const CompositionSelector: React.FC = () => {
 	}, [compositions, currentComposition, selectComposition]);
 
 	return (
-		<Container>
+		<div style={container}>
 			<CurrentComposition />
-			<List>
+			<div style={list}>
 				{compositions.map((c) => {
 					return (
-						<Item
+						<CompositionSelectorItem
 							key={c.id}
-							href={c.id}
-							selected={currentComposition === c.id}
-							onClick={(evt) => {
-								evt.preventDefault();
-								selectComposition(c);
-							}}
-						>
-							{c.id}
-						</Item>
+							currentComposition={currentComposition}
+							selectComposition={selectComposition}
+							tabIndex={tabIndex}
+							composition={c}
+						/>
 					);
 				})}
-			</List>
-		</Container>
+			</div>
+		</div>
 	);
 };

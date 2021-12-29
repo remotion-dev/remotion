@@ -452,11 +452,11 @@ const interpolateColorsRGB = (
 	inputRange: readonly number[],
 	colors: readonly number[]
 ) => {
-	const [r, g, b, a] = [red, green, blue, opacity].map(f => {
+	const [r, g, b, a] = [red, green, blue, opacity].map((f) => {
 		const unrounded = interpolate(
 			value,
 			inputRange,
-			colors.map(c => f(c)),
+			colors.map((c) => f(c)),
 			{
 				extrapolateLeft: 'clamp',
 				extrapolateRight: 'clamp',
@@ -498,7 +498,7 @@ export const interpolateColors = (
 		);
 	}
 
-	const processedOutputRange = outputRange.map(c => processColor(c));
+	const processedOutputRange = outputRange.map((c) => processColor(c));
 
 	return interpolateColorsRGB(input, inputRange, processedOutputRange);
 };

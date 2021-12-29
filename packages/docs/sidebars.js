@@ -1,4 +1,15 @@
 module.exports = {
+  playerSidebar: [
+    {
+      type: "link",
+      label: "← Back to main docs",
+      href: "/docs",
+    },
+    "player/player",
+    "player/examples",
+    "player/integration",
+    "player/autoplay",
+  ],
   someSidebar: [
     {
       collapsed: false,
@@ -35,6 +46,7 @@ module.exports = {
         "legacy-babel",
         "env-variables",
         "third-party",
+        "stills",
       ],
     },
     "cli",
@@ -53,16 +65,20 @@ module.exports = {
         "random",
         "register-root",
         "spring",
+        "staticfile",
         "use-current-frame",
         "use-video-config",
         "audio",
         "composition",
         "sequence",
+        "loop",
         "video",
         "absolute-fill",
         "img",
         "iframe",
         "freeze",
+        "still",
+        "series",
         "easing",
       ],
     },
@@ -76,6 +92,7 @@ module.exports = {
       type: "category",
       label: "API - @remotion/media-utils",
       items: [
+        "audio-buffer-to-data-url",
         "get-audio-data",
         "get-audio-duration",
         "get-video-metadata",
@@ -84,7 +101,11 @@ module.exports = {
         "visualize-audio",
       ],
     },
-    "player",
+    {
+      type: "link",
+      href: "/docs/player",
+      label: "API - @remotion/player",
+    },
     {
       type: "category",
       label: "API - @remotion/three",
@@ -93,7 +114,12 @@ module.exports = {
     {
       type: "category",
       label: "API - @remotion/renderer",
-      items: ["get-compositions", "render-frames", "stitch-frames-to-video"],
+      items: [
+        "get-compositions",
+        "render-frames",
+        "stitch-frames-to-video",
+        "render-still",
+      ],
     },
     {
       type: "category",

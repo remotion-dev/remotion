@@ -8,7 +8,7 @@ export type Size = {
 };
 
 export const useElementSize = (
-	ref: React.RefObject<HTMLDivElement>,
+	ref: React.RefObject<HTMLElement>,
 	options: {
 		triggerOnWindowResize: boolean;
 	}

@@ -4,7 +4,7 @@ sidebar_label: API - @remotion/gif
 title: "@remotion/gif"
 ---
 
-You can install this package from NPM to get a component for displaying GIFs that synchronize with Remotions [`useCurrentFrame()`](use-current-frame).
+You can install this package from NPM to get a component for displaying GIFs that synchronize with Remotions [`useCurrentFrame()`](/docs/use-current-frame).
 
 ```bash
 npm i @remotion/gif
@@ -16,7 +16,7 @@ npm i @remotion/gif
 
 _required_
 
-The source of the GIF. Can be an URL or a local image - see [Importing assets](assets).
+The source of the GIF. Can be an URL or a local image - see [Importing assets](/docs/assets).
 
 ### `width`
 
@@ -51,12 +51,12 @@ Allows to pass in custom CSS styles.
 ## Example
 
 ```tsx twoslash
-import {useVideoConfig} from 'remotion'
+import { useVideoConfig } from "remotion";
 // ---cut---
-import {Gif} from '@remotion/gif'
+import { Gif } from "@remotion/gif";
 
 export const MyComponent: React.FC = () => {
-  const {width, height} = useVideoConfig()
+  const { width, height } = useVideoConfig();
 
   return (
     <Gif
@@ -65,6 +65,6 @@ export const MyComponent: React.FC = () => {
       height={height}
       fit="fill"
     />
-  )
-}
+  );
+};
 ```

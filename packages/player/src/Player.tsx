@@ -2,6 +2,7 @@ import React, {
 	forwardRef,
 	MutableRefObject,
 	useCallback,
+	useEffect,
 	useImperativeHandle,
 	useLayoutEffect,
 	useMemo,
@@ -18,11 +19,13 @@ import {
 	SetTimelineContextValue,
 	TimelineContextValue,
 } from 'remotion';
+import {PlayableMediaTag} from 'remotion/src/timeline-position-state';
 import {PlayerEventEmitterContext} from './emitter-context';
 import {PlayerEmitter} from './event-emitter';
 import {PLAYER_CSS_CLASSNAME} from './player-css-classname';
 import {PlayerRef} from './player-methods';
 import PlayerUI from './PlayerUI';
+import {validatePlaybackRate} from './utils/validate-playbackrate';
 import {getPreferredVolume, persistVolume} from './volume-persistance';
 
 type PropsIfHasProps<Props> = {} extends Props
@@ -33,6 +36,8 @@ type PropsIfHasProps<Props> = {} extends Props
 			inputProps: Props;
 	  };
 
+export type ErrorFallback = (info: {error: Error}) => React.ReactNode;
+
 export type PlayerProps<T> = {
 	durationInFrames: number;
 	compositionWidth: number;
@@ -40,6 +45,7 @@ export type PlayerProps<T> = {
 	fps: number;
 	showVolumeControls?: boolean;
 	controls?: boolean;
+	errorFallback?: ErrorFallback;
 	style?: React.CSSProperties;
 	loop?: boolean;
 	autoPlay?: boolean;
@@ -47,6 +53,8 @@ export type PlayerProps<T> = {
 	clickToPlay?: boolean;
 	doubleClickToFullscreen?: boolean;
 	spaceKeyToPlayOrPause?: boolean;
+	numberOfSharedAudioTags?: number;
+	playbackRate?: number;
 } & PropsIfHasProps<T> &
 	CompProps<T>;
 
@@ -54,6 +62,7 @@ Internals.CSSUtils.injectCSS(
 	Internals.CSSUtils.makeDefaultCSS(`.${PLAYER_CSS_CLASSNAME}`)
 );
 
+// eslint-disable-next-line complexity
 export const PlayerFn = <T,>(
 	{
 		durationInFrames,
@@ -70,15 +79,20 @@ export const PlayerFn = <T,>(
 		clickToPlay,
 		doubleClickToFullscreen = false,
 		spaceKeyToPlayOrPause = true,
+		numberOfSharedAudioTags = 5,
+		errorFallback = () => '⚠️',
+		playbackRate = 1,
 		...componentProps
 	}: PlayerProps<T>,
 	ref: MutableRefObject<PlayerRef>
 ) => {
-	useLayoutEffect(() => {
-		if (typeof window !== 'undefined') {
+	if (typeof window !== 'undefined') {
+		// eslint-disable-next-line react-hooks/rules-of-hooks
+		useLayoutEffect(() => {
 			window.remotion_isPlayer = true;
-		}
-	}, []);
+		}, []);
+	}
+
 	const component = Internals.useLazyComponent(componentProps);
 	const [frame, setFrame] = useState(0);
 	const [playing, setPlaying] = useState<boolean>(false);
@@ -87,6 +101,8 @@ export const PlayerFn = <T,>(
 	const rootRef = useRef<PlayerRef>(null);
 	const [mediaMuted, setMediaMuted] = useState<boolean>(false);
 	const [mediaVolume, setMediaVolume] = useState<number>(getPreferredVolume());
+	const audioAndVideoTags = useRef<PlayableMediaTag[]>([]);
+	const imperativePlaying = useRef(false);
 
 	if (typeof compositionHeight !== 'number') {
 		throw new TypeError(
@@ -176,6 +192,24 @@ export const PlayerFn = <T,>(
 		);
 	}
 
+	if (
+		typeof numberOfSharedAudioTags !== 'number' ||
+		numberOfSharedAudioTags % 1 !== 0 ||
+		!Number.isFinite(numberOfSharedAudioTags) ||
+		Number.isNaN(numberOfSharedAudioTags) ||
+		numberOfSharedAudioTags < 0
+	) {
+		throw new TypeError(
+			`'numberOfSharedAudioTags' must be an integer but got '${numberOfSharedAudioTags}' instead`
+		);
+	}
+
+	validatePlaybackRate(playbackRate);
+
+	useEffect(() => {
+		emitter.dispatchRatechange(playbackRate);
+	}, [emitter, playbackRate]);
+
 	const setMediaVolumeAndPersist = useCallback((vol: number) => {
 		setMediaVolume(vol);
 		persistVolume(vol);
@@ -191,8 +225,14 @@ export const PlayerFn = <T,>(
 			playing,
 			rootId,
 			shouldRegisterSequences: false,
+			playbackRate,
+			imperativePlaying,
+			setPlaybackRate: () => {
+				throw new Error('playback rate');
+			},
+			audioAndVideoTags,
 		};
-	}, [frame, playing, rootId]);
+	}, [frame, playbackRate, playing, rootId]);
 
 	const setTimelineContextValue = useMemo((): SetTimelineContextValue => {
 		return {
@@ -228,6 +268,7 @@ export const PlayerFn = <T,>(
 					id: 'player-comp',
 					props: inputProps as unknown,
 					nonce: 777,
+					defaultProps: undefined,
 				},
 			],
 			currentComposition: 'player-comp',
@@ -268,29 +309,35 @@ export const PlayerFn = <T,>(
 						<Internals.SetMediaVolumeContext.Provider
 							value={setMediaVolumeContextValue}
 						>
-							<PlayerEventEmitterContext.Provider value={emitter}>
-								<PlayerUI
-									ref={rootRef}
-									autoPlay={Boolean(autoPlay)}
-									loop={Boolean(loop)}
-									controls={Boolean(controls)}
-									style={style}
-									inputProps={passedInputProps}
-									allowFullscreen={Boolean(allowFullscreen)}
-									clickToPlay={
-										typeof clickToPlay === 'boolean'
-											? clickToPlay
-											: Boolean(controls)
-									}
-									showVolumeControls={Boolean(showVolumeControls)}
-									setMediaVolume={setMediaVolumeAndPersist}
-									mediaVolume={mediaVolume}
-									mediaMuted={mediaMuted}
-									doubleClickToFullscreen={Boolean(doubleClickToFullscreen)}
-									setMediaMuted={setMediaMuted}
-									spaceKeyToPlayOrPause={Boolean(spaceKeyToPlayOrPause)}
-								/>
-							</PlayerEventEmitterContext.Provider>
+							<Internals.SharedAudioContextProvider
+								numberOfAudioTags={numberOfSharedAudioTags}
+							>
+								<PlayerEventEmitterContext.Provider value={emitter}>
+									<PlayerUI
+										ref={rootRef}
+										autoPlay={Boolean(autoPlay)}
+										loop={Boolean(loop)}
+										controls={Boolean(controls)}
+										errorFallback={errorFallback}
+										style={style}
+										inputProps={passedInputProps}
+										allowFullscreen={Boolean(allowFullscreen)}
+										clickToPlay={
+											typeof clickToPlay === 'boolean'
+												? clickToPlay
+												: Boolean(controls)
+										}
+										showVolumeControls={Boolean(showVolumeControls)}
+										setMediaVolume={setMediaVolumeAndPersist}
+										mediaVolume={mediaVolume}
+										mediaMuted={mediaMuted}
+										doubleClickToFullscreen={Boolean(doubleClickToFullscreen)}
+										setMediaMuted={setMediaMuted}
+										spaceKeyToPlayOrPause={Boolean(spaceKeyToPlayOrPause)}
+										playbackRate={playbackRate}
+									/>
+								</PlayerEventEmitterContext.Provider>
+							</Internals.SharedAudioContextProvider>
 						</Internals.SetMediaVolumeContext.Provider>
 					</Internals.MediaVolumeContext.Provider>
 				</Internals.CompositionManager.Provider>

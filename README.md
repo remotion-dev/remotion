@@ -9,7 +9,7 @@
 [![NPM Downloads](https://img.shields.io/npm/dm/remotion.svg?style=flat)](https://npmcharts.com/compare/remotion?minimal=true)
 [![Install Size](https://packagephobia.now.sh/badge?p=remotion)](https://packagephobia.now.sh/result?p=remotion)
 
-Remotion is a suite of libraries building a fundament for **creating videos programmatically using React.**
+Remotion is a suite of libraries building a foundation for **creating videos programmatically using React.**
 
 ## Why create videos in React?
 

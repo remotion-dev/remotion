@@ -1,4 +1,8 @@
 import {LooseAnyComponent} from './any-component';
+import {
+	SharedAudioContext,
+	SharedAudioContextProvider,
+} from './audio/shared-audio-tags';
 import {CompProps} from './Composition';
 import {
 	CompositionManager,
@@ -11,6 +15,7 @@ import {
 } from './CompositionManager';
 import {DEFAULT_BROWSER, getBrowser} from './config/browser';
 import {getBrowserExecutable} from './config/browser-executable';
+import {getCustomFfmpegExecutable} from './config/ffmpeg-executable';
 import {
 	DEFAULT_CODEC,
 	getFinalOutputCodec,
@@ -54,6 +59,7 @@ import {
 	validateSelectedCodecAndProResCombination,
 } from './config/prores-profile';
 import {getQuality} from './config/quality';
+import {getStillFrame, setStillFrame} from './config/still-frame';
 import {
 	DEFAULT_WEBPACK_CACHE_ENABLED,
 	getWebpackCaching,
@@ -61,6 +67,10 @@ import {
 import * as CSSUtils from './default-css';
 import {FEATURE_FLAG_FIREFOX_SUPPORT} from './feature-flags';
 import {getRemotionEnvironment, RemotionEnvironment} from './get-environment';
+import {
+	INITIAL_FRAME_LOCAL_STORAGE_KEY,
+	setupInitialFrame,
+} from './initial-frame';
 import {isAudioCodec} from './is-audio-codec';
 import * as perf from './perf';
 import {
@@ -76,7 +86,12 @@ import {
 	ENV_VARIABLES_LOCAL_STORAGE_KEY,
 	setupEnvVariables,
 } from './setup-env-variables';
-import * as Timeline from './timeline-position-state';
+import * as TimelineInOutPosition from './timeline-inout-position-state';
+import {
+	SetTimelineInOutContextValue,
+	TimelineInOutContextValue,
+} from './timeline-inout-position-state';
+import * as TimelinePosition from './timeline-position-state';
 import {
 	SetTimelineContextValue,
 	TimelineContextValue,
@@ -85,9 +100,16 @@ import {truthy} from './truthy';
 import {useLazyComponent} from './use-lazy-component';
 import {useUnsafeVideoConfig} from './use-unsafe-video-config';
 import {useVideo} from './use-video';
+import {
+	invalidCompositionErrorMessage,
+	isCompositionIdValid,
+} from './validation/validate-composition-id';
 import {validateDimension} from './validation/validate-dimensions';
 import {validateDurationInFrames} from './validation/validate-duration-in-frames';
 import {validateFps} from './validation/validate-fps';
+import {validateFrame} from './validation/validate-frame';
+import {validateNonNullImageFormat} from './validation/validate-image-format';
+import {validateQuality} from './validation/validate-quality';
 import {
 	MediaVolumeContext,
 	MediaVolumeContextValue,
@@ -100,6 +122,8 @@ import {
 	RemotionContextProvider,
 	useRemotionContexts,
 } from './wrap-remotion-context';
+import * as AssetCompression from './compress-assets';
+const Timeline = {...TimelinePosition, ...TimelineInOutPosition};
 
 // Mark them as Internals so use don't assume this is public
 // API and are less likely to use it
@@ -112,6 +136,7 @@ export const Internals = {
 	useVideo,
 	getRoot,
 	getBrowserExecutable,
+	getCustomFfmpegExecutable,
 	getCompositionName,
 	getIsEvaluation,
 	getPixelFormat,
@@ -139,6 +164,7 @@ export const Internals = {
 	validateSelectedPixelFormatAndImageFormatCombination,
 	validateSelectedPixelFormatAndCodecCombination,
 	validateFrameRange,
+	validateNonNullImageFormat,
 	getWebpackCaching,
 	useLazyComponent,
 	truthy,
@@ -151,8 +177,10 @@ export const Internals = {
 	isPlainIndex,
 	CSSUtils,
 	setupEnvVariables,
+	setupInitialFrame,
 	ENV_VARIABLES_ENV_NAME,
 	ENV_VARIABLES_LOCAL_STORAGE_KEY,
+	INITIAL_FRAME_LOCAL_STORAGE_KEY,
 	getDotEnvLocation,
 	getServerPort,
 	MediaVolumeContext,
@@ -165,6 +193,15 @@ export const Internals = {
 	setProResProfile,
 	validateSelectedCodecAndProResCombination,
 	getMaxTimelineTracks,
+	SharedAudioContext,
+	SharedAudioContextProvider,
+	validateQuality,
+	validateFrame,
+	setStillFrame,
+	getStillFrame,
+	invalidCompositionErrorMessage,
+	isCompositionIdValid,
+	AssetCompression,
 };
 
 export type {
@@ -177,6 +214,8 @@ export type {
 	RenderAssetInfo,
 	TimelineContextValue,
 	SetTimelineContextValue,
+	TimelineInOutContextValue,
+	SetTimelineInOutContextValue,
 	CompProps,
 	CompositionManagerContext,
 	MediaVolumeContextValue,

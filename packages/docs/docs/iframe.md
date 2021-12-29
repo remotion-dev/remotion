@@ -9,11 +9,11 @@ The difference is that if you use the component from Remotion, that Remotion wil
 ## Example
 
 ```tsx twoslash
-import {IFrame} from 'remotion'
+import { IFrame } from "remotion";
 
 export const MyComp: React.FC = () => {
-  return <IFrame src="https://remotion.dev" />
-}
+  return <IFrame src="https://remotion.dev" />;
+};
 ```
 
 ## See also

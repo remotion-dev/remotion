@@ -9,6 +9,7 @@ export const openBrowser = async (
 	browser: Browser,
 	options?: {
 		shouldDumpIo?: boolean;
+		browserExecutable?: string | null;
 	}
 ): Promise<puppeteer.Browser> => {
 	if (browser === 'firefox' && !Internals.FEATURE_FLAG_FIREFOX_SUPPORT) {
@@ -17,9 +18,12 @@ export const openBrowser = async (
 		);
 	}
 
-	await ensureLocalBrowser(browser);
+	await ensureLocalBrowser(browser, options?.browserExecutable ?? null);
 
-	const executablePath = await getLocalBrowserExecutable(browser);
+	const executablePath = await getLocalBrowserExecutable(
+		browser,
+		options?.browserExecutable ?? null
+	);
 	const browserInstance = await puppeteer.launch({
 		executablePath,
 		product: browser,
@@ -28,6 +32,8 @@ export const openBrowser = async (
 			'--no-sandbox',
 			'--disable-setuid-sandbox',
 			'--disable-dev-shm-usage',
+			'--use-gl=angle',
+			'--disable-background-media-suspend',
 			process.platform === 'linux' ? '--single-process' : null,
 		].filter(Boolean) as string[],
 	});

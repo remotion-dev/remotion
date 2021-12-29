@@ -14,8 +14,8 @@ Use an import or require to load an video file and pass it as the `src` prop. Al
 `<Video>` has two more helper props: `startFrom` and `endAt` to define when the video should start and end. Both are optional and do not get forwarded to the native `<video>` element but tell Remotion which portion of the video to use.
 
 ```tsx twoslash
-import {Video} from 'remotion'
-import video from './video.webm'
+import { Video } from "remotion";
+import video from "./video.webm";
 
 export const MyVideo = () => {
   return (
@@ -25,11 +25,11 @@ export const MyVideo = () => {
         src={video}
         startFrom={59} // if video is 30fps, then it will start at 2s
         endAt={120} // if video is 30fps, then it will end at 4s
-        style={{height: 1080 / 2, width: 1920 / 2}}
+        style={{ height: 1080 / 2, width: 1920 / 2 }}
       />
     </div>
-  )
-}
+  );
+};
 ```
 
 ## Codec support

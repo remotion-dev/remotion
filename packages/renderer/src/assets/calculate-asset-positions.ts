@@ -16,13 +16,24 @@ const findFrom = (target: TAsset[], asset: TAsset) => {
 	return true;
 };
 
+const copyAndDeduplicateAssets = (assets: TAsset[]) => {
+	const deduplicated: TAsset[] = [];
+	for (const asset of assets) {
+		if (!deduplicated.find((d) => d.id === asset.id)) {
+			deduplicated.push(asset);
+		}
+	}
+
+	return deduplicated;
+};
+
 export const calculateAssetPositions = (frames: TAsset[][]): Assets => {
 	const assets: UnsafeAsset[] = [];
 
 	for (let frame = 0; frame < frames.length; frame++) {
-		const prev = (frames[frame - 1] ?? []).slice();
-		const current = frames[frame];
-		const next = (frames[frame + 1] ?? []).slice();
+		const prev = copyAndDeduplicateAssets(frames[frame - 1] ?? []);
+		const current = copyAndDeduplicateAssets(frames[frame]);
+		const next = copyAndDeduplicateAssets(frames[frame + 1] ?? []);
 
 		for (const asset of current) {
 			if (!findFrom(prev, asset)) {

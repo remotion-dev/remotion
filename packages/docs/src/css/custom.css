@@ -51,11 +51,11 @@
 }
 
 /* Hide code blocks according to theme */
-[data-theme="light"] .shiki.min-dark {
+[data-theme="light"] .shiki.github-dark {
   display: none;
 }
 
-[data-theme="dark"] .shiki.min-light {
+[data-theme="dark"] .shiki.github-light {
   display: none;
 }
 

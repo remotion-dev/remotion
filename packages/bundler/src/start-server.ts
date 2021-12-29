@@ -1,16 +1,23 @@
-// @ts-expect-error
-import webpackDevMiddleware from '@jonny/webpack-dev-middleware';
 import express from 'express';
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
 import {Internals, WebpackOverrideFn} from 'remotion';
 import webpack from 'webpack';
-// @ts-expect-error
-import webpackHotMiddleware from 'webpack-hot-middleware';
 import {getDesiredPort} from './get-port';
+import {getProjectInfo} from './project-info';
 import {isUpdateAvailableWithTimeout} from './update-available';
 import {webpackConfig} from './webpack-config';
+import crypto from 'crypto';
+import {indexHtml} from './static-preview';
+import {
+	getDisplayNameForEditor,
+	guessEditor,
+	launchEditor,
+} from './error-overlay/react-overlay/utils/open-in-editor';
+import {StackFrame} from './error-overlay/react-overlay/utils/stack-frame';
+import {webpackHotMiddleware} from './hot-middleware';
+import {wdm} from './dev-middleware';
 
 export const startServer = async (
 	entry: string,
@@ -24,6 +31,7 @@ export const startServer = async (
 	}
 ): Promise<number> => {
 	const app = express();
+	const editorGuess = guessEditor();
 	const tmpDir = await fs.promises.mkdtemp(
 		path.join(os.tmpdir(), 'react-motion-graphics')
 	);
@@ -41,16 +49,13 @@ export const startServer = async (
 	});
 	const compiler = webpack(config);
 
-	app.use(express.static(path.join(__dirname, '..', 'web')));
-	app.use(webpackDevMiddleware(compiler));
-	app.use(
-		webpackHotMiddleware(compiler, {
-			path: '/__webpack_hmr',
-			heartbeat: 10 * 1000,
-		})
-	);
+	const hash = `/static-${crypto.randomBytes(6).toString('hex')}`;
 
-	app.get('/update', (req, res) => {
+	app.use(hash, express.static(path.join(process.cwd(), 'public')));
+	app.use(wdm(compiler));
+	app.use(webpackHotMiddleware(compiler));
+
+	app.get('/api/update', (req, res) => {
 		isUpdateAvailableWithTimeout()
 			.then((data) => {
 				res.json(data);
@@ -62,12 +67,55 @@ export const startServer = async (
 			});
 	});
 
+	app.get('/api/project-info', (req, res) => {
+		getProjectInfo()
+			.then((data) => {
+				res.json(data);
+			})
+			.catch((err) => {
+				res.status(500).json({
+					err: err.message,
+				});
+			});
+	});
+
+	app.use(express.json());
+	app.post('/api/open-in-editor', async (req, res) => {
+		try {
+			const body = req.body as {stack: StackFrame};
+			if (!('stack' in body)) {
+				throw new TypeError('Need to pass stack');
+			}
+
+			const stack = body.stack as StackFrame;
+
+			const guess = await editorGuess;
+			const didOpen = await launchEditor(
+				path.resolve(process.cwd(), stack._originalFileName as string),
+				stack._originalLineNumber as number,
+				stack._originalColumnNumber as number,
+				guess[0]
+			);
+			res.json({
+				success: didOpen,
+			});
+		} catch (err) {
+			res.json({
+				success: false,
+			});
+		}
+	});
+
 	app.use('favicon.png', (req, res) => {
 		res.sendFile(path.join(__dirname, '..', 'web', 'favicon.png'));
 	});
 
-	app.use('*', (req, res) => {
-		res.sendFile(path.join(__dirname, '..', 'web', 'index.html'));
+	const edit = await editorGuess;
+	const displayName = getDisplayNameForEditor(edit[0]);
+
+	app.use('*', (_, res) => {
+		res.set('content-type', 'text/html');
+		res.end(indexHtml(hash, displayName));
 	});
 
 	const desiredPort = options?.port ?? Internals.getServerPort();

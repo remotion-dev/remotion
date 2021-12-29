@@ -3,6 +3,7 @@ import React, {
 	forwardRef,
 	MouseEventHandler,
 	Suspense,
+	SyntheticEvent,
 	useCallback,
 	useEffect,
 	useImperativeHandle,
@@ -43,6 +44,8 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		setMediaVolume: (v: number) => void;
 		setMediaMuted: (v: boolean) => void;
 		mediaVolume: number;
+		errorFallback: (info: {error: Error}) => React.ReactNode;
+		playbackRate: number;
 	}
 > = (
 	{
@@ -60,6 +63,8 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		setMediaMuted,
 		setMediaVolume,
 		spaceKeyToPlayOrPause,
+		errorFallback,
+		playbackRate,
 	},
 	ref
 ) => {
@@ -72,7 +77,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 	const [hasPausedToResume, setHasPausedToResume] = useState(false);
 	const [shouldAutoplay, setShouldAutoPlay] = useState(autoPlay);
 	const [isFullscreen, setIsFullscreen] = useState(() => false);
-	usePlayback({loop});
+	usePlayback({loop, playbackRate});
 	const player = usePlayer();
 
 	useEffect(() => {
@@ -107,13 +112,16 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		};
 	}, []);
 
-	const toggle = useCallback(() => {
-		if (player.playing) {
-			player.pause();
-		} else {
-			player.play();
-		}
-	}, [player]);
+	const toggle = useCallback(
+		(e?: SyntheticEvent) => {
+			if (player.isPlaying()) {
+				player.pause();
+			} else {
+				player.play(e);
+			}
+		},
+		[player]
+	);
 
 	const requestFullscreen = useCallback(() => {
 		if (!allowFullscreen) {
@@ -143,61 +151,88 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		}
 	}, []);
 
-	useImperativeHandle(ref, () => {
-		const methods: PlayerMethods = {
-			play: player.play,
-			pause: player.pause,
-			toggle,
-			getCurrentFrame: player.getCurrentFrame,
-			seekTo: (f) => {
-				if (player.playing) {
-					setHasPausedToResume(true);
-					player.pause();
-				}
+	const durationInFrames = config?.durationInFrames ?? 1;
 
-				player.seek(f);
-			},
-			isFullscreen: () => isFullscreen,
-			requestFullscreen,
+	useImperativeHandle(
+		ref,
+		() => {
+			const methods: PlayerMethods = {
+				play: player.play,
+				pause: player.pause,
+				toggle,
+				getContainerNode: () => container.current,
+				getCurrentFrame: player.getCurrentFrame,
+				isPlaying: () => player.playing,
+				seekTo: (f) => {
+					const lastFrame = durationInFrames - 1;
+					const frameToSeekTo = Math.max(0, Math.min(lastFrame, f));
+					if (player.isPlaying()) {
+						const pauseToResume = frameToSeekTo !== lastFrame || loop;
+						setHasPausedToResume(pauseToResume);
+						player.pause();
+					}
+
+					if (frameToSeekTo === lastFrame && !loop) {
+						player.emitter.dispatchEnded();
+					}
+
+					player.seek(frameToSeekTo);
+				},
+				isFullscreen: () => isFullscreen,
+				requestFullscreen,
+				exitFullscreen,
+				getVolume: () => {
+					if (mediaMuted) {
+						return 0;
+					}
+
+					return mediaVolume;
+				},
+				setVolume: (vol: number) => {
+					if (typeof vol !== 'number') {
+						throw new TypeError(
+							`setVolume() takes a number, got value of type ${typeof vol}`
+						);
+					}
+
+					if (isNaN(vol)) {
+						throw new TypeError(
+							`setVolume() got a number that is NaN. Volume must be between 0 and 1.`
+						);
+					}
+
+					if (vol < 0 || vol > 1) {
+						throw new TypeError(
+							`setVolume() got a number that is out of range. Must be between 0 and 1, got ${typeof vol}`
+						);
+					}
+
+					setMediaVolume(vol);
+				},
+				isMuted: () => mediaMuted || mediaVolume === 0,
+				mute: () => {
+					setMediaMuted(true);
+				},
+				unmute: () => {
+					setMediaMuted(false);
+				},
+			};
+			return Object.assign(player.emitter, methods);
+		},
+		[
+			durationInFrames,
 			exitFullscreen,
-			getVolume: () => {
-				if (mediaMuted) {
-					return 0;
-				}
-
-				return mediaVolume;
-			},
-			setVolume: (vol: number) => {
-				if (typeof vol !== 'number') {
-					throw new TypeError(
-						`setVolume() takes a number, got value of type ${typeof vol}`
-					);
-				}
-
-				if (isNaN(vol)) {
-					throw new TypeError(
-						`setVolume() got a number that is NaN. Volume must be between 0 and 1.`
-					);
-				}
-
-				if (vol < 0 || vol > 1) {
-					throw new TypeError(
-						`setVolume() got a number that is out of range. Must be between 0 and 1, got ${typeof vol}`
-					);
-				}
-
-				setMediaVolume(vol);
-			},
-			isMuted: () => mediaMuted || mediaVolume === 0,
-			mute: () => {
-				setMediaMuted(true);
-			},
-			unmute: () => {
-				setMediaMuted(false);
-			},
-		};
-		return Object.assign(player.emitter, methods);
-	});
+			isFullscreen,
+			loop,
+			mediaMuted,
+			mediaVolume,
+			player,
+			requestFullscreen,
+			setMediaMuted,
+			setMediaVolume,
+			toggle,
+		]
+	);
 
 	const VideoComponent = video ? video.component : null;
 
@@ -285,25 +320,30 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		[player]
 	);
 
-	const onFullscreenButtonClick: MouseEventHandler<HTMLButtonElement> = useCallback(
-		(e) => {
-			e.stopPropagation();
-			requestFullscreen();
-		},
-		[requestFullscreen]
-	);
+	const onFullscreenButtonClick: MouseEventHandler<HTMLButtonElement> =
+		useCallback(
+			(e) => {
+				e.stopPropagation();
+				requestFullscreen();
+			},
+			[requestFullscreen]
+		);
 
-	const onExitFullscreenButtonClick: MouseEventHandler<HTMLButtonElement> = useCallback(
-		(e) => {
-			e.stopPropagation();
-			exitFullscreen();
-		},
-		[exitFullscreen]
-	);
+	const onExitFullscreenButtonClick: MouseEventHandler<HTMLButtonElement> =
+		useCallback(
+			(e) => {
+				e.stopPropagation();
+				exitFullscreen();
+			},
+			[exitFullscreen]
+		);
 
-	const onSingleClick = useCallback(() => {
-		toggle();
-	}, [toggle]);
+	const onSingleClick = useCallback(
+		(e: SyntheticEvent) => {
+			toggle(e);
+		},
+		[toggle]
+	);
 
 	const onDoubleClick = useCallback(() => {
 		if (isFullscreen) {
@@ -339,10 +379,10 @@ const PlayerUI: React.ForwardRefRenderFunction<
 			>
 				<div style={containerStyle} className={PLAYER_CSS_CLASSNAME}>
 					{VideoComponent ? (
-						<ErrorBoundary onError={onError}>
+						<ErrorBoundary onError={onError} errorFallback={errorFallback}>
 							<VideoComponent
-								{...(((video?.props as unknown) as {}) ?? {})}
-								{...(((inputProps as unknown) as {}) ?? {})}
+								{...((video?.defaultProps as unknown as {}) ?? {})}
+								{...((inputProps as unknown as {}) ?? {})}
 							/>
 						</ErrorBoundary>
 					) : null}

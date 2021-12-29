@@ -60,9 +60,7 @@ export const replaceLoadersWithBabel = (
 							},
 							conf.mode === 'development'
 								? {
-										loader: require.resolve(
-											'@webhotelier/webpack-fast-refresh/loader.js'
-										),
+										loader: require.resolve('./fast-refresh/loader.js'),
 								  }
 								: null,
 						].filter(truthy),

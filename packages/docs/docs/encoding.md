@@ -148,7 +148,7 @@ VP9
 </tr>
 </table>
 
-You can [set a CRF in the config file using the `Config.Output.setCrf()`](config#setcrf) function or use the [`--crf`](/docs/cli#flags) command line flag.
+You can [set a CRF in the config file using the `Config.Output.setCrf()`](/docs/config#setcrf) function or use the [`--crf`](/docs/cli#flags) command line flag.
 
 ## Controlling quality using ProRes profile
 

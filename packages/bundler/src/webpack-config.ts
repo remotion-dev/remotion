@@ -1,10 +1,8 @@
 import path from 'path';
 import {Internals, WebpackConfiguration, WebpackOverrideFn} from 'remotion';
 import webpack, {ProgressPlugin} from 'webpack';
+import {ReactFreshWebpackPlugin} from './fast-refresh';
 import {getWebpackCacheName} from './webpack-cache';
-
-const ErrorOverlayPlugin = require('@webhotelier/webpack-fast-refresh/error-overlay');
-const ReactRefreshPlugin = require('@webhotelier/webpack-fast-refresh');
 
 type Truthy<T> = T extends false | '' | 0 | null | undefined ? never : T;
 function truthy<T>(value: T): value is Truthy<T> {
@@ -46,21 +44,32 @@ export const webpackConfig = ({
 							entries: false,
 					  },
 		},
+		watchOptions: {
+			aggregateTimeout: 0,
+			ignored: ['**/.git/**', '**/node_modules/**'],
+		},
 		cache: enableCaching
 			? {
 					type: 'filesystem',
 					name: getWebpackCacheName(environment, inputProps ?? {}),
 			  }
 			: false,
-		devtool: 'cheap-module-source-map',
+		devtool:
+			environment === 'development'
+				? 'cheap-module-source-map'
+				: 'cheap-module-source-map',
 		entry: [
-			require.resolve('./setup-env-variables'),
+			require.resolve('./setup-environment'),
 			environment === 'development'
-				? require.resolve('webpack-hot-middleware/client') + '?overlay=true'
+				? require.resolve('./hot-middleware/client')
 				: null,
 			environment === 'development'
-				? require.resolve('@webhotelier/webpack-fast-refresh/runtime.js')
+				? require.resolve('./fast-refresh/runtime.js')
 				: null,
+			environment === 'development'
+				? require.resolve('./error-overlay/entry-basic.js')
+				: null,
+
 			userDefinedComponent,
 			require.resolve('../react-shim.js'),
 			entry,
@@ -69,15 +78,13 @@ export const webpackConfig = ({
 		plugins:
 			environment === 'development'
 				? [
-						new ErrorOverlayPlugin(),
-						new ReactRefreshPlugin(),
+						new ReactFreshWebpackPlugin(),
 						new webpack.HotModuleReplacementPlugin(),
 						new webpack.DefinePlugin({
 							'process.env.MAX_TIMELINE_TRACKS': maxTimelineTracks,
 							'process.env.INPUT_PROPS': JSON.stringify(inputProps ?? {}),
-							[`process.env.${Internals.ENV_VARIABLES_ENV_NAME}`]: JSON.stringify(
-								envVariables ?? {}
-							),
+							[`process.env.${Internals.ENV_VARIABLES_ENV_NAME}`]:
+								JSON.stringify(envVariables ?? {}),
 						}),
 				  ]
 				: [
@@ -88,9 +95,11 @@ export const webpackConfig = ({
 						}),
 				  ],
 		output: {
+			hashFunction: 'xxhash64',
 			globalObject: 'this',
 			filename: 'bundle.js',
 			path: outDir,
+			devtoolModuleFilenameTemplate: '[resource-path]',
 		},
 		devServer: {
 			contentBase: path.resolve(__dirname, '..', 'web'),
@@ -104,7 +113,6 @@ export const webpackConfig = ({
 				'react/jsx-runtime': require.resolve('react/jsx-runtime'),
 				react: require.resolve('react'),
 				remotion: require.resolve('remotion'),
-				'styled-components': require.resolve('styled-components'),
 				'react-native$': 'react-native-web',
 			},
 		},
@@ -120,6 +128,8 @@ export const webpackConfig = ({
 						{
 							loader: require.resolve('file-loader'),
 							options: {
+								// default md4 not available in node17
+								hashType: 'md5',
 								// So you can do require('hi.png')
 								// instead of require('hi.png').default
 								esModule: false,
@@ -130,7 +140,7 @@ export const webpackConfig = ({
 										return '[path][name].[ext]';
 									}
 
-									return '[contenthash].[ext]';
+									return '[md5:contenthash].[ext]';
 								},
 							},
 						},
@@ -148,19 +158,18 @@ export const webpackConfig = ({
 						},
 						environment === 'development'
 							? {
-									loader: require.resolve(
-										'@webhotelier/webpack-fast-refresh/loader.js'
-									),
+									loader: require.resolve('./fast-refresh/loader.js'),
 							  }
 							: null,
 					].filter(truthy),
 				},
 				{
-					test: /\.(woff(2)?|ttf|eot)(\?v=\d+\.\d+\.\d+)?$/,
+					test: /\.(woff(2)?|otf|ttf|eot)(\?v=\d+\.\d+\.\d+)?$/,
 					use: [
 						{
 							loader: require.resolve('file-loader'),
 							options: {
+								// default md4 not available in node17
 								name: '[name].[ext]',
 								outputPath: 'fonts/',
 							},
@@ -180,14 +189,18 @@ export const webpackConfig = ({
 						},
 						environment === 'development'
 							? {
-									loader: require.resolve(
-										'@webhotelier/webpack-fast-refresh/loader.js'
-									),
+									loader: require.resolve('./fast-refresh/loader.js'),
 							  }
 							: null,
 					].filter(truthy),
 				},
+				{
+					test: /\.js$/,
+					enforce: 'pre',
+					use: [require.resolve('source-map-loader')],
+				},
 			],
 		},
+		ignoreWarnings: [/Failed to parse source map/],
 	});
 };

@@ -40,6 +40,7 @@ export const Button: React.FC<Props> = (props) => {
 
   return (
     <button
+      type="button"
       className={styles.buttoncontainer}
       disabled={actualDisabled}
       {...other}
@@ -49,6 +50,7 @@ export const Button: React.FC<Props> = (props) => {
         color: props.color,
         cursor: props.disabled ? "default" : "pointer",
         backgroundColor: props.background,
+        // @ts-expect-error
         "--hover-color": props.hoverColor,
         ...(props.fullWidth ? { width: "100%" } : {}),
         opacity: props.disabled ? 0.7 : 1,

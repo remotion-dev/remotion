@@ -6,6 +6,7 @@ import { FreePricing } from "../../components/LandingPage/FreePricing";
 import { IfYouKnowReact } from "../../components/LandingPage/if-you-know-react";
 import { Parametrize } from "../../components/LandingPage/parametrize";
 import { RealMP4Videos } from "../../components/LandingPage/real-mp4-videos";
+import { SuccessFeatures } from "../../components/LandingPage/SuccessFeatures";
 import { WriteInReact } from "../../components/LandingPage/WriteInReact";
 import styles from "./landing.module.css";
 
@@ -20,34 +21,37 @@ const NewLanding: React.FC = () => {
       description="Create MP4 motion graphics in React. Leverage CSS, SVG, WebGL and more technologies to render videos programmatically!"
     >
       <div className={styles.content}>
-        <WriteInReact></WriteInReact>
+        <WriteInReact />
         <br />
         <br />
         <br />
         <br />
         <br />
-        <IfYouKnowReact></IfYouKnowReact>
+        <IfYouKnowReact />
         <br />
         <br />
         <br />
         <br />
         <br />
-        <RealMP4Videos></RealMP4Videos>
+        <RealMP4Videos />
         <br />
         <br />
         <br />
         <br />
-        <LightningFastEditor></LightningFastEditor>
+        <LightningFastEditor />
         <br />
         <br />
         <br />
         <br />
-        <Parametrize></Parametrize>
+        <Parametrize />
         <br />
         <br />
         <br />
         <br />
-        <FreePricing></FreePricing>
+        <FreePricing />
+        <SuccessFeatures />
+        <br />
+        <br />
       </div>
     </Layout>
   );

@@ -5,7 +5,7 @@ export const getFrameToRender = (
 	index: number
 ) => {
 	if (typeof frameRange === 'object' && frameRange !== null) {
-		return index + frameRange[0] - 1;
+		return index + frameRange[0];
 	}
 
 	if (typeof frameRange === 'number') {

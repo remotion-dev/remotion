@@ -4,7 +4,7 @@ import {expectToThrow} from './expect-to-throw';
 describe('Test valid setQuality inputs', () => {
 	test('Integers within accepted range', () => {
 		const validInputes = [1, 50, 100];
-		validInputes.forEach(entry => {
+		validInputes.forEach((entry) => {
 			setQuality(entry);
 			expect(getQuality()).toEqual(entry);
 		});
@@ -24,7 +24,7 @@ describe('Test valid setQuality inputs', () => {
 describe('Test invalid setQuality inputs ', () => {
 	test('invalid input type', () => {
 		const invalidInputQuality = ['abc', null];
-		invalidInputQuality.forEach(entry =>
+		invalidInputQuality.forEach((entry) =>
 			expectToThrow(
 				// @ts-expect-error
 				() => setQuality(entry),
@@ -37,10 +37,10 @@ describe('Test invalid setQuality inputs ', () => {
 
 	test('out of range inputs', () => {
 		const outOfRangeInput = [-1, 101, 150];
-		outOfRangeInput.forEach(entry =>
+		outOfRangeInput.forEach((entry) =>
 			expectToThrow(
 				() => setQuality(entry),
-				/Quality option must be between 1 and 100./
+				/Quality option must be between 0 and 100./
 			)
 		);
 	});

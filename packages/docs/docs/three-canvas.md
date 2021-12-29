@@ -16,12 +16,12 @@ A browser bug [would normally cause the layout to be broken](https://github.com/
 A spinning, color changing, scaling cube. This example can also be found in the `examples` folder of the Remotion repo.
 
 ```tsx twoslash
-import {interpolate, useCurrentFrame, useVideoConfig} from 'remotion'
-import {ThreeCanvas} from '@remotion/three'
+import { interpolate, useCurrentFrame, useVideoConfig } from "remotion";
+import { ThreeCanvas } from "@remotion/three";
 
 const ThreeBasic: React.FC = () => {
-  const frame = useCurrentFrame()
-  const {width, height} = useVideoConfig()
+  const frame = useCurrentFrame();
+  const { width, height } = useVideoConfig();
 
   return (
     <ThreeCanvas
@@ -29,9 +29,9 @@ const ThreeBasic: React.FC = () => {
       width={width}
       height={height}
       style={{
-        backgroundColor: 'white',
+        backgroundColor: "white",
       }}
-      camera={{fov: 75, position: [0, 0, 470]}}
+      camera={{ fov: 75, position: [0, 0, 470] }}
     >
       <ambientLight intensity={0.15} />
       <pointLight args={[undefined, 0.4]} position={[200, 200, 0]} />
@@ -50,8 +50,8 @@ const ThreeBasic: React.FC = () => {
         />
       </mesh>
     </ThreeCanvas>
-  )
-}
+  );
+};
 
-export default ThreeBasic
+export default ThreeBasic;
 ```
