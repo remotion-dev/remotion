@@ -8,6 +8,7 @@ module.exports = {
     "player/player",
     "player/api",
     "player/examples",
+    "player/scaling",
     "player/integration",
     "player/autoplay",
   ],

@@ -5,7 +5,7 @@ title: "API"
 
 ## `<Player />`
 
-A React component which takes the following props
+A React component which takes the following props:
 
 ### `component` or `lazyComponent`
 
