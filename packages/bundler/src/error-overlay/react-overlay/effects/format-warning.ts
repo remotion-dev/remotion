@@ -39,7 +39,6 @@ function massage(
 			continue;
 		}
 
-		// TODO: instead, collapse them in the UI
 		if (
 			fileName === lastFilename &&
 			typeof lineNumber === 'number' &&
