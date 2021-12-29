@@ -1,3 +1,9 @@
+/**
+ * Source code is adapted from
+ * https://github.com/webpack-contrib/webpack-hot-middleware#readme
+ * and rewritten in TypeScript. This file is MIT licensed
+ */
+
 import {Request, Response} from 'express';
 import webpack from 'webpack';
 import {
