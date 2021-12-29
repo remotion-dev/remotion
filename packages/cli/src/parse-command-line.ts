@@ -1,8 +1,10 @@
 import minimist from 'minimist';
+import {resolve} from 'path';
 import {
 	BrowserExecutable,
 	Codec,
 	Config,
+	FfmpegExecutable,
 	ImageFormat,
 	Internals,
 	LogLevel,
@@ -13,6 +15,7 @@ import {Log} from './log';
 
 export type CommandLineOptions = {
 	['browser-executable']: BrowserExecutable;
+	['ffmpeg-executable']: FfmpegExecutable;
 	['pixel-format']: PixelFormat;
 	['image-format']: ImageFormat;
 	['prores-profile']: ProResProfile;
@@ -32,11 +35,14 @@ export type CommandLineOptions = {
 	log: string;
 	help: boolean;
 	port: number;
+	frame: string | number;
 };
 
-export const parsedCli = minimist<CommandLineOptions>(process.argv.slice(2));
+export const parsedCli = minimist<CommandLineOptions>(process.argv.slice(2), {
+	boolean: ['force', 'overwrite', 'sequence', 'help'],
+});
 
-export const parseCommandLine = () => {
+export const parseCommandLine = (type: 'still' | 'sequence') => {
 	if (parsedCli['pixel-format']) {
 		Config.Output.setPixelFormat(parsedCli['pixel-format']);
 	}
@@ -47,6 +53,12 @@ export const parseCommandLine = () => {
 
 	if (parsedCli['browser-executable']) {
 		Config.Puppeteer.setBrowserExecutable(parsedCli['browser-executable']);
+	}
+
+	if (parsedCli['ffmpeg-executable']) {
+		Config.Rendering.setFfmpegExecutable(
+			resolve(parsedCli['ffmpeg-executable'])
+		);
 	}
 
 	if (typeof parsedCli['bundle-cache'] !== 'undefined') {
@@ -72,7 +84,25 @@ export const parseCommandLine = () => {
 	}
 
 	if (parsedCli.frames) {
+		if (type === 'still') {
+			Log.error(
+				'--frames flag was passed to the `still` command. This flag only works with the `render` command. Did you mean `--frame`? See reference: https://www.remotion.dev/docs/cli/'
+			);
+			process.exit(1);
+		}
+
 		Internals.setFrameRangeFromCli(parsedCli.frames);
+	}
+
+	if (parsedCli.frame) {
+		if (type === 'sequence') {
+			Log.error(
+				'--frame flag was passed to the `render` command. This flag only works with the `still` command. Did you mean `--frames`? See reference: https://www.remotion.dev/docs/cli/'
+			);
+			process.exit(1);
+		}
+
+		Internals.setStillFrame(Number(parsedCli.frame));
 	}
 
 	if (parsedCli.png) {
@@ -101,7 +131,7 @@ export const parseCommandLine = () => {
 		);
 	}
 
-	if (typeof parsedCli.overwrite !== 'undefined') {
+	if (parsedCli.overwrite) {
 		Config.Output.setOverwriteOutput(parsedCli.overwrite);
 	}
 

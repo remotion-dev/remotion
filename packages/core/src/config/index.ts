@@ -20,6 +20,7 @@ import {setPort} from './preview-server';
 import {setProResProfile} from './prores-profile';
 import {setQuality} from './quality';
 import {setWebpackCaching} from './webpack-caching';
+import {FfmpegExecutable, setFfmpegExecutable} from './ffmpeg-executable';
 
 export const Config = {
 	Preview: {
@@ -95,6 +96,11 @@ export const Config = {
 		 * The frame count starts at 0.
 		 */
 		setFrameRange,
+		/**
+		 * Specify local ffmpeg executable.
+		 * Default: null, which will use ffmpeg available in PATH.
+		 */
+		setFfmpegExecutable,
 	},
 	Output: {
 		/**
@@ -144,6 +150,7 @@ export type {
 	WebpackConfiguration,
 	WebpackOverrideFn,
 	BrowserExecutable,
+	FfmpegExecutable,
 	ImageFormat,
 	Codec,
 	Browser,

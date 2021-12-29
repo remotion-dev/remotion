@@ -1,8 +1,17 @@
-import {Player, PlayerRef} from '@remotion/player';
-import {useEffect, useRef, useState} from 'react';
-import CarSlideshow from './CarSlideshow';
+import {Player, PlayerRef, CallbackListener} from '@remotion/player';
+import {useEffect, useMemo, useRef, useState} from 'react';
+import {AbsoluteFill} from 'remotion';
+import {playerExampleComp} from './CarSlideshow';
 
-export default function App() {
+const fps = 30;
+
+export default function App({
+	comp: Comp,
+	durationInFrames,
+}: {
+	comp: React.ComponentType<any>;
+	durationInFrames: number;
+}) {
 	const [title, setTitle] = useState('Hello World');
 	const [color, setColor] = useState('#ffffff');
 	const [bgColor, setBgColor] = useState('#000000');
@@ -12,29 +21,73 @@ export default function App() {
 	const [logs, setLogs] = useState<string[]>(() => []);
 	const [spaceKeyToPlayOrPause, setspaceKeyToPlayOrPause] = useState(true);
 	const [loading, setLoading] = useState(false);
+	const [playbackRate, setPlaybackRate] = useState(1);
 
 	const ref = useRef<PlayerRef>(null);
 
 	useEffect(() => {
-		ref.current?.addEventListener('play', () => {
+		const playCallbackListener: CallbackListener<'play'> = () => {
 			setLogs((l) => [...l, 'playing ' + Date.now()]);
-		});
-		ref.current?.addEventListener('pause', () => {
+		};
+
+		const pausedCallbackLitener: CallbackListener<'pause'> = () => {
 			setLogs((l) => [...l, 'pausing ' + Date.now()]);
-		});
-		ref.current?.addEventListener('seeked', (e) => {
+		};
+
+		const seekedCallbackLitener: CallbackListener<'seeked'> = (e) => {
 			setLogs((l) => [...l, 'seeked to ' + e.detail.frame + ' ' + Date.now()]);
-		});
-		ref.current?.addEventListener('ended', (e) => {
+		};
+
+		const endedCallbackListener: CallbackListener<'ended'> = (e) => {
 			setLogs((l) => [...l, 'ended ' + Date.now()]);
-		});
-		ref.current?.addEventListener('error', (e) => {
+		};
+
+		const errorCallbackListener: CallbackListener<'error'> = (e) => {
 			setLogs((l) => [...l, 'error ' + Date.now()]);
-		});
-		ref.current?.addEventListener('timeupdate', (e) => {
+		};
+
+		const timeupdateCallbackLitener: CallbackListener<'timeupdate'> = (e) => {
 			setLogs((l) => [...l, 'timeupdate ' + e.detail.frame]);
-		});
+		};
+
+		const ratechangeCallbackListener: CallbackListener<'ratechange'> = (e) => {
+			setLogs((l) => [
+				...l,
+				'ratechange ' + e.detail.playbackRate + ' ' + Date.now(),
+			]);
+		};
+
+		const {current} = ref;
+		if (!current) {
+			return;
+		}
+
+		current.addEventListener('play', playCallbackListener);
+		current.addEventListener('pause', pausedCallbackLitener);
+		current.addEventListener('seeked', seekedCallbackLitener);
+		current.addEventListener('ended', endedCallbackListener);
+		current.addEventListener('error', errorCallbackListener);
+		current.addEventListener('timeupdate', timeupdateCallbackLitener);
+		current.addEventListener('ratechange', ratechangeCallbackListener);
+
+		return () => {
+			current.removeEventListener('play', playCallbackListener);
+			current.removeEventListener('pause', pausedCallbackLitener);
+			current.removeEventListener('seeked', seekedCallbackLitener);
+			current.removeEventListener('ended', endedCallbackListener);
+			current.removeEventListener('error', errorCallbackListener);
+			current.removeEventListener('timeupdate', timeupdateCallbackLitener);
+			current.removeEventListener('ratechange', ratechangeCallbackListener);
+		};
 	}, []);
+
+	const inputProps = useMemo(() => {
+		return {
+			title: String(title),
+			bgColor: String(bgColor),
+			color: String(color),
+		};
+	}, [bgColor, color, title]);
 
 	return (
 		<div style={{margin: '2rem'}}>
@@ -42,20 +95,29 @@ export default function App() {
 				ref={ref}
 				compositionWidth={500}
 				compositionHeight={432}
-				fps={30}
-				durationInFrames={500}
-				component={CarSlideshow}
+				fps={fps}
+				durationInFrames={durationInFrames}
+				component={Comp}
 				controls
 				doubleClickToFullscreen={doubleClickToFullscreen}
 				loop={loop}
 				showVolumeControls={true}
 				clickToPlay={clickToPlay}
-				inputProps={{
-					title: String(title),
-					bgColor: String(bgColor),
-					color: String(color),
-					loading: Boolean(loading)
+				inputProps={inputProps}
+				errorFallback={({error}) => {
+					return (
+						<AbsoluteFill
+							style={{
+								backgroundColor: 'yellow',
+								justifyContent: 'center',
+								alignItems: 'center',
+							}}
+						>
+							Sorry about this! An error occurred: {error.message}
+						</AbsoluteFill>
+					);
 				}}
+				playbackRate={playbackRate}
 				spaceKeyToPlayOrPause={spaceKeyToPlayOrPause}
 			/>
 			<div style={{paddingTop: '0.5rem'}}>
@@ -88,7 +150,7 @@ export default function App() {
 			</div>
 
 			<br />
-			<button type="button" onClick={() => ref.current?.play()}>
+			<button type="button" onClick={(e) => ref.current?.play(e)}>
 				Play
 			</button>
 			<button type="button" onClick={() => ref.current?.pause()}>
@@ -167,6 +229,72 @@ export default function App() {
 			</button>
 			<button type="button" onClick={() => setLoading(!loading)}>
 				Toggle loading
+			</button>
+			<br />
+			<button
+				type="button"
+				onClick={() => {
+					ref.current?.pause();
+					ref.current?.seekTo(50);
+				}}
+			>
+				pause and seek
+			</button>
+			<button
+				type="button"
+				onClick={() => {
+					setPlaybackRate(0.5);
+				}}
+			>
+				0.5x speed
+			</button>
+			<button
+				type="button"
+				onClick={() => {
+					setPlaybackRate(2);
+				}}
+			>
+				2x speed
+			</button>
+			<button
+				type="button"
+				onClick={() => {
+					setPlaybackRate(-1);
+				}}
+			>
+				-1x speed
+			</button>
+			<button
+				type="button"
+				onClick={() => {
+					playerExampleComp.current?.triggerError();
+				}}
+			>
+				trigger error
+			</button>
+			<button
+				type="button"
+				onClick={() => {
+					ref.current?.seekTo(10000);
+				}}
+			>
+				seek outside
+			</button>
+			<button
+				type="button"
+				onClick={() => {
+					ref.current?.seekTo(-10000);
+				}}
+			>
+				seek outside negative
+			</button>
+			<button
+				type="button"
+				onClick={() => {
+					ref.current?.seekTo(ref.current.getCurrentFrame() + fps * 5);
+				}}
+			>
+				5 seconds forward
 			</button>
 			<br />
 			<br />

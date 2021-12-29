@@ -39,7 +39,7 @@ test('bezier - fail with wrong params', () => {
 		[2, 0.5, 0.5, 0.5],
 	];
 
-	valuesToTest.forEach(entry => {
+	valuesToTest.forEach((entry) => {
 		expect(() => bezier(entry[0], entry[1], entry[2], entry[3])).toThrow();
 	});
 });

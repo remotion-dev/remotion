@@ -1,14 +1,22 @@
 import React from 'react';
-import {Composition, getInputProps} from 'remotion';
+import {Composition, getInputProps, Still} from 'remotion';
 import BetaText from './BetaText';
 import {ColorInterpolation} from './ColorInterpolation';
+import {FontDemo} from './Fonts';
 import {Framer} from './Framer';
 import {MissingImg} from './MissingImg';
+import {OrbScene} from './Orb';
 import RemoteVideo from './RemoteVideo';
+import {SkipZeroFrame} from './SkipZeroFrame';
+import {SeriesTesting} from './StaggerTesting';
+import {StaticDemo} from './StaticServer';
 import {TenFrameTester} from './TenFrameTester';
 import ThreeBasic from './ThreeBasic';
 import {VideoSpeed} from './VideoSpeed';
 import {VideoTesting} from './VideoTesting';
+
+// Use it to test that UI does not regress on weird CSS
+//import './weird-css.css';
 
 export const Index: React.FC = () => {
 	const inputProps = getInputProps();
@@ -26,6 +34,14 @@ export const Index: React.FC = () => {
 			<Composition
 				id="nested"
 				lazyComponent={() => import('./NestedSequences')}
+				durationInFrames={200}
+				fps={60}
+				height={1080}
+				width={1080}
+			/>
+			<Composition
+				id="looped"
+				lazyComponent={() => import('./LoopedVideo')}
 				durationInFrames={200}
 				fps={60}
 				height={1080}
@@ -252,6 +268,38 @@ export const Index: React.FC = () => {
 				fps={30}
 				durationInFrames={100}
 			/>
+			<Composition
+				id="skip-zero-frame"
+				component={SkipZeroFrame}
+				width={1280}
+				height={720}
+				fps={30}
+				durationInFrames={100}
+			/>
+			<Composition
+				id="stagger-test"
+				component={SeriesTesting}
+				width={1280}
+				height={720}
+				fps={30}
+				durationInFrames={100}
+			/>
+			<Composition
+				id="offline-audio-buffer"
+				lazyComponent={() => import('./OfflineAudioBuffer')}
+				width={1080}
+				height={1080}
+				fps={30}
+				durationInFrames={100}
+			/>
+			<Still id="Orb" component={OrbScene} width={2000} height={2000} />
+			<Still
+				id="static-demo"
+				component={StaticDemo}
+				width={1000}
+				height={1000}
+			/>
+			<Still id="font-demo" component={FontDemo} width={1000} height={1000} />
 		</>
 	);
 };

@@ -1,6 +1,7 @@
-import { Canvas, useThree } from '@react-three/fiber';
-import React, { useLayoutEffect, useState } from 'react';
-import { Internals } from 'remotion';
+import { Canvas, RootState, useThree } from '@react-three/fiber';
+import React, { useCallback, useLayoutEffect, useState } from 'react';
+import { continueRender, delayRender, Internals } from 'remotion';
+import { SuspenseLoader } from './SuspenseLoader';
 
 export type ThreeCanvasProps = React.ComponentProps<typeof Canvas> & {
 	width: number;
@@ -19,7 +20,9 @@ const Scale = ({ width, height }: { width: number; height: number }) => {
 };
 
 export const ThreeCanvas = (props: ThreeCanvasProps) => {
-	const { children, width, height, style, ...rest } = props;
+	const { children, width, height, style, onCreated, ...rest } = props;
+	const [waitForCreated] = useState(() => delayRender());
+
 	Internals.validateDimension(
 		width,
 		'width',
@@ -36,12 +39,23 @@ export const ThreeCanvas = (props: ThreeCanvasProps) => {
 		height: props.height,
 		...(style ?? {}),
 	};
+
+	const remotion_onCreated: typeof onCreated = useCallback(
+		(state: RootState) => {
+			continueRender(waitForCreated);
+			onCreated?.(state);
+		},
+		[onCreated, waitForCreated]
+	);
+
 	return (
-		<Canvas style={actualStyle} {...rest}>
-			<Scale width={width} height={height} />
-			<Internals.RemotionContextProvider contexts={contexts}>
-				{children}
-			</Internals.RemotionContextProvider>
-		</Canvas>
+		<SuspenseLoader>
+			<Canvas style={actualStyle} {...rest} onCreated={remotion_onCreated}>
+				<Scale width={width} height={height} />
+				<Internals.RemotionContextProvider contexts={contexts}>
+					{children}
+				</Internals.RemotionContextProvider>
+			</Canvas>
+		</SuspenseLoader>
 	);
 };

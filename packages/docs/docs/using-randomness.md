@@ -6,7 +6,7 @@ title: Using randomness
 The following thing is an anti-pattern in Remotion:
 
 ```tsx twoslash
-import {useState} from 'react'
+import { useState } from "react";
 // ---cut---
 const MyComp: React.FC = () => {
   const [randomValues] = useState(() =>
@@ -14,12 +14,12 @@ const MyComp: React.FC = () => {
       return {
         x: Math.random(),
         y: Math.random(),
-      }
+      };
     })
-  )
+  );
   // Do something with coordinates
-  return <></>
-}
+  return <></>;
+};
 ```
 
 While this will work during preview, it will break while rendering. The reason is that Remotion is spinning up multiple instances of the webpage to render frames in parallel, and the random values will be different on every instance.
@@ -29,18 +29,18 @@ While this will work during preview, it will break while rendering. The reason i
 Use the [`random()`](/docs/random) API from Remotion to get deterministic pseudorandom values. Pass in a seed (number or string) and as long as the seed is the same, the return value will be the same.
 
 ```tsx twoslash {5-6}
-import {random} from 'remotion'
+import { random } from "remotion";
 const MyComp: React.FC = () => {
   // No need to use useState
   const randomValues = new Array(10).fill(true).map((a, i) => {
     return {
       x: random(`x-${i}`),
       y: random(`y-${i}`),
-    }
-  })
+    };
+  });
 
-  return <></>
-}
+  return <></>;
+};
 ```
 
 Now the random values will be the same on all threads.

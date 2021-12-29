@@ -140,7 +140,8 @@ export const PlayerSeekBar: React.FC<{
 			backgroundColor: 'white',
 			left: Math.max(
 				0,
-				(frame / (durationInFrames - 1)) * (size?.width ?? 0) - KNOB_SIZE / 2
+				(frame / Math.max(1, durationInFrames - 1)) * (size?.width ?? 0) -
+					KNOB_SIZE / 2
 			),
 			boxShadow: '0 0 2px black',
 			opacity: Number(barHovered),

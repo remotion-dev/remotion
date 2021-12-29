@@ -12,11 +12,13 @@ const makeRequest = async (username: string): Promise<GithubResponse> => {
   if (cache[username]) {
     return cache[username];
   }
+
   const response = await fetch(`https://api.github.com/users/${username}`);
   const json = await response.json();
   if (response.status !== 200) {
     throw new Error(json.message);
   }
+
   cache[username] = json;
   return json;
 };
@@ -110,7 +112,7 @@ export const Parametrize: React.FC = () => {
         <span style={{ fontSize: 13 }}>
           Customize the video by entering your GitHub username.
         </span>
-        <div style={{ height: 10 }}></div>
+        <div style={{ height: 10 }} />
         <div>
           <form
             onSubmit={(e) => {
@@ -126,11 +128,10 @@ export const Parametrize: React.FC = () => {
             <input
               ref={ref}
               className={styles.parametrizeinput}
-              autoFocus
               type="text"
               placeholder="Your GitHub username"
-            />{' '}
-            <div style={{ width: 8, display: 'inline-block' }} />
+            />{" "}
+            <div style={{ width: 8, display: "inline-block" }} />
             <BlueButton
               loading={state.type === "loading"}
               fullWidth={false}
@@ -139,6 +140,7 @@ export const Parametrize: React.FC = () => {
                 if (!ref.current?.value) {
                   return;
                 }
+
                 setUsername(ref.current?.value as string);
               }}
             >

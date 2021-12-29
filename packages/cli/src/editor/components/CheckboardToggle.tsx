@@ -1,23 +1,22 @@
 import React, {useCallback, useContext} from 'react';
-import {
-	CheckerboardContext,
-	persistCheckerboardOption,
-} from '../state/checkerboard';
+import {CheckerboardContext} from '../state/checkerboard';
 import {ControlButton} from './ControlButton';
+
+const accessibilityLabel = 'Show transparency as checkerboard (T)';
 
 export const CheckboardToggle: React.FC = () => {
 	const {checkerboard, setCheckerboard} = useContext(CheckerboardContext);
 
 	const onClick = useCallback(() => {
 		setCheckerboard((c) => {
-			persistCheckerboardOption(!c);
 			return !c;
 		});
 	}, [setCheckerboard]);
 
 	return (
 		<ControlButton
-			aria-label="Show transparency as checkerboard"
+			title={accessibilityLabel}
+			aria-label={accessibilityLabel}
 			onClick={onClick}
 		>
 			<svg

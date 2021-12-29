@@ -1,5 +1,14 @@
 import {lazy} from 'react';
 import {interpolate, useCurrentFrame, useVideoConfig} from 'remotion';
+import {createRef, useCallback, useImperativeHandle, useState} from 'react';
+import {
+	Img,
+	interpolate,
+	useCurrentFrame,
+	useVideoConfig,
+	Video,
+	staticFile,
+} from 'remotion';
 
 type Props = {
 	title: string;
@@ -15,9 +24,35 @@ const TriggerLoading = lazy(() => {
 });
 
 const CarSlideshow = ({title, bgColor, color, loading}: Props) => {
+export const playerExampleComp = createRef<{
+	triggerError: () => void;
+}>();
+
+const CarSlideshow = ({title, bgColor, color}: Props) => {
 	const frame = useCurrentFrame();
 	const {width, height, durationInFrames} = useVideoConfig();
 	const left = interpolate(frame, [0, durationInFrames], [width, width * -1]);
+
+	const [shouldThrowError, setThrowError] = useState(false);
+
+	const dummyText = useCallback(() => {
+		if (shouldThrowError) {
+			throw new Error('some error');
+		}
+		return '';
+	}, [shouldThrowError]);
+
+	useImperativeHandle(
+		playerExampleComp,
+		() => {
+			return {
+				triggerError: () => {
+					setThrowError(true);
+				},
+			};
+		},
+		[]
+	);
 
 	return (
 		<div
@@ -41,9 +76,21 @@ const CarSlideshow = ({title, bgColor, color, loading}: Props) => {
 					whiteSpace: 'nowrap',
 				}}
 			>
-				{title}
+				{title} {dummyText()}
 			</h1>
-			{loading && <TriggerLoading />}
+			<Img
+				src={staticFile('/logo.png')}
+				style={{
+					height: 40,
+					width: 40,
+				}}
+			/>
+			<Video
+				style={{
+					height: 200,
+				}}
+				src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
+			/>
 		</div>
 	);
 };
