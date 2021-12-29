@@ -1,3 +1,8 @@
+/**
+ * Source code is adapted from
+ * https://github.com/webpack-contrib/webpack-hot-middleware#readme
+ * and rewritten in TypeScript. This file is MIT licensed
+ */
 import {processUpdate} from './process-update';
 import {stripAnsi} from './strip-ansi';
 import {HotMiddlewareMessage, hotMiddlewareOptions} from './types';

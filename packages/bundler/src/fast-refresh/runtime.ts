@@ -1,4 +1,8 @@
 /**
+ * Source code is adapted from https://github.com/WebHotelier/webpack-fast-refresh#readme and rewritten in Typescript. This file is MIT licensed.
+ */
+
+/**
  * The MIT License (MIT)
  *
  * Copyright (c) 2020 Vercel, Inc.

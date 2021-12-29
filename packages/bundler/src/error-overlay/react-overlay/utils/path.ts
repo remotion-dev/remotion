@@ -1,3 +1,7 @@
+/*
+	Source code adapted from https://github.com/browserify/path-browserify and refactored in Typescript. This file is MIT-licensed.
+*/
+
 function normalizeStringPosix(path: string, allowAboveRoot: boolean) {
 	let res = '';
 	let lastSegmentLength = 0;
