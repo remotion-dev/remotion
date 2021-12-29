@@ -12,8 +12,8 @@ type Props = {
 	title: string;
 	bgColor: string;
 	color: string;
-	loading: boolean;
 };
+
 export const playerExampleComp = createRef<{
 	triggerError: () => void;
 }>();
