@@ -158,6 +158,50 @@ _optional_
 
 A callback for rendering a custom error message. See [Handling errors](#handling-errors) section for an example.
 
+### `renderLoading`
+
+_optional_
+
+A callback function that allows you to return a custom UI that gets displayed while the player is loading.
+
+The first parameter contains the `height` and `width` of the player as it gets rendered.
+
+```tsx twoslash
+import { Player, RenderLoading } from "@remotion/player";
+import { useCallback } from "react";
+import { AbsoluteFill } from "remotion";
+
+const Component: React.FC = () => null;
+
+// ---cut---
+
+const MyApp: React.FC = () => {
+  // `RenderLoading` type can be imported from "@remotion/player"
+  const renderLoading: RenderLoading = useCallback(({ height, width }) => {
+    return (
+      <AbsoluteFill style={{ backgroundColor: "gray" }}>
+        Loading player ({height}x{width})
+      </AbsoluteFill>
+    );
+  }, []);
+
+  return (
+    <Player
+      fps={30}
+      component={Component}
+      durationInFrames={100}
+      compositionWidth={1080}
+      compositionHeight={1080}
+      renderLoading={renderLoading}
+    />
+  );
+};
+```
+
+:::info
+A player needs to be loaded if it contains elements that use React Suspense, or if the `lazyComponent` props is being used.
+:::
+
 ## `PlayerRef`
 
 You may attach a ref to the player and control it in an imperative manner.
@@ -467,9 +511,3 @@ const MyApp: React.FC = () => {
   );
 };
 ```
-
-## Known issues
-
-Before we mark the player as stable, we are looking to improve in the following areas:
-
-- Better loading state than the current "Loading..." text.
