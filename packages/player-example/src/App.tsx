@@ -1,7 +1,14 @@
-import {Player, PlayerRef, CallbackListener} from '@remotion/player';
-import {useEffect, useMemo, useRef, useState} from 'react';
+import {
+	Player,
+	PlayerRef,
+	CallbackListener,
+	RenderLoading,
+	ErrorFallback,
+} from '@remotion/player';
+import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {AbsoluteFill} from 'remotion';
 import {playerExampleComp} from './CarSlideshow';
+import {Loading} from './Loading';
 
 const fps = 30;
 
@@ -88,6 +95,28 @@ export default function App({
 		};
 	}, [bgColor, color, title]);
 
+	const renderLoading: RenderLoading = useCallback(() => {
+		return (
+			<AbsoluteFill style={{backgroundColor: 'yellow'}}>
+				<Loading size={200} />
+			</AbsoluteFill>
+		);
+	}, []);
+
+	const errorFallback: ErrorFallback = useCallback(({error}) => {
+		return (
+			<AbsoluteFill
+				style={{
+					backgroundColor: 'yellow',
+					justifyContent: 'center',
+					alignItems: 'center',
+				}}
+			>
+				Sorry about this! An error occurred: {error.message}
+			</AbsoluteFill>
+		);
+	}, []);
+
 	return (
 		<div style={{margin: '2rem'}}>
 			<Player
@@ -103,19 +132,8 @@ export default function App({
 				showVolumeControls={true}
 				clickToPlay={clickToPlay}
 				inputProps={inputProps}
-				errorFallback={({error}) => {
-					return (
-						<AbsoluteFill
-							style={{
-								backgroundColor: 'yellow',
-								justifyContent: 'center',
-								alignItems: 'center',
-							}}
-						>
-							Sorry about this! An error occurred: {error.message}
-						</AbsoluteFill>
-					);
-				}}
+				renderLoading={renderLoading}
+				errorFallback={errorFallback}
 				playbackRate={playbackRate}
 				spaceKeyToPlayOrPause={spaceKeyToPlayOrPause}
 			/>
