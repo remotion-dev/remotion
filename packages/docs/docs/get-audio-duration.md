@@ -3,7 +3,7 @@ title: getAudioDuration()
 id: get-audio-duration
 ---
 
-_Part of the `@remotion/media-utils`_ package of helper functions.
+_Part of the `@remotion/media-utils` package of helper functions._
 
 Gets the duration in seconds of an audio source. Remotion will create an invisible `<audio>` tag, load the audio and return the duration.
 

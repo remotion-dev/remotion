@@ -161,6 +161,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 				toggle,
 				getContainerNode: () => container.current,
 				getCurrentFrame: player.getCurrentFrame,
+				isPlaying: () => player.playing,
 				seekTo: (f) => {
 					const lastFrame = durationInFrames - 1;
 					const frameToSeekTo = Math.max(0, Math.min(lastFrame, f));
@@ -379,7 +380,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 					{VideoComponent ? (
 						<ErrorBoundary onError={onError} errorFallback={errorFallback}>
 							<VideoComponent
-								{...((video?.props as unknown as {}) ?? {})}
+								{...((video?.defaultProps as unknown as {}) ?? {})}
 								{...((inputProps as unknown as {}) ?? {})}
 							/>
 						</ErrorBoundary>

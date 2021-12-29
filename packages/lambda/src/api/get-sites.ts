@@ -13,18 +13,25 @@ type Site = {
 	serveUrl: string;
 };
 
-type GetSitesReturnValue = {
+export type GetSitesInput = {
+	region: AwsRegion;
+};
+
+export type GetSitesOutput = {
 	sites: Site[];
 	buckets: BucketWithLocation[];
 };
 
-// TODO: Return the `serveUrl` as well
-// TODO: Add JSDoc comments
+/**
+ *
+ * @description Gets all the deployed sites for a certain AWS region.
+ * @link https://v3.remotion.dev/docs/lambda/getsites
+ * @param {AwsRegion} params.region The AWS region that you want to query for.
+ * @returns {Promise<GetSitesOutput>} A Promise containing an object with `sites` and `bucket` keys. Consult documentation for details.
+ */
 export const getSites = async ({
 	region,
-}: {
-	region: AwsRegion;
-}): Promise<GetSitesReturnValue> => {
+}: GetSitesInput): Promise<GetSitesOutput> => {
 	const {remotionBuckets} = await getRemotionS3Buckets(region);
 	const accountId = await getAccountId({region});
 
@@ -39,7 +46,9 @@ export const getSites = async ({
 		});
 
 		for (const file of ls) {
-			const siteKeyMatch = file.Key?.match(/sites\/([0-9a-zA-Z]+)\/(.*)$/);
+			const siteKeyMatch = file.Key?.match(
+				/sites\/([0-9a-zA-Z-!_.*'()]+)\/(.*)$/
+			);
 			if (!siteKeyMatch) {
 				throw new Error(
 					`A file was found in the bucket "${bucket.name}" with the key ${file.Key} which is an unexpected folder structure. Delete this file.`

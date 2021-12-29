@@ -1,7 +1,7 @@
 import {CliInternals} from '@remotion/cli';
-import {getSites} from '../../..';
 import {deleteSite} from '../../../api/delete-site';
 import {getRemotionS3Buckets} from '../../../api/get-buckets';
+import {getSites} from '../../../api/get-sites';
 import {getAwsRegion} from '../../get-aws-region';
 import {confirmCli} from '../../helpers/confirm';
 import {formatBytes} from '../../helpers/format-bytes';
@@ -17,6 +17,11 @@ export const sitesRmSubcommand = async (args: string[]) => {
 		quit(1);
 	}
 
+	if (args[0] === '()') {
+		Log.info('No sites to remove.');
+		return;
+	}
+
 	const region = getAwsRegion();
 	const deployedSites = await getSites({
 		region,
@@ -26,8 +31,13 @@ export const sitesRmSubcommand = async (args: string[]) => {
 		const {remotionBuckets} = await getRemotionS3Buckets(region);
 
 		if (remotionBuckets.length > 1) {
+			Log.error('You have more than one Remotion Lambda bucket:');
+			for (const bucket of remotionBuckets) {
+				Log.error(`- ${bucket.name}`);
+			}
+
 			Log.error(
-				'You have more than one Remotion Lambda bucket. You should only have one - delete all but one before continuing.'
+				'You should only have one - delete all but one before continuing.'
 			);
 			quit(1);
 		}

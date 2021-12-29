@@ -2,7 +2,6 @@ import {InvokeCommand} from '@aws-sdk/client-lambda';
 import {RenderInternals} from '@remotion/renderer';
 import fs from 'fs';
 import {Internals} from 'remotion';
-import {validateFramesPerLambda} from '../api/validate-frames-per-lambda';
 import {getLambdaClient} from '../shared/aws-clients';
 import {chunk} from '../shared/chunk';
 import {
@@ -17,6 +16,7 @@ import {
 	rendersPrefix,
 } from '../shared/constants';
 import {getServeUrlHash} from '../shared/make-s3-url';
+import {validateFramesPerLambda} from '../shared/validate-frames-per-lambda';
 import {validatePrivacy} from '../shared/validate-privacy';
 import {collectChunkInformation} from './chunk-optimization/collect-data';
 import {getFrameRangesFromProfile} from './chunk-optimization/get-frame-ranges-from-profile';
@@ -91,22 +91,23 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 	Internals.validateDimension(comp.height, 'height', 'passed to <Component />');
 	Internals.validateDimension(comp.width, 'width', 'passed to <Component />');
 
-	validatePrivacy(params.privacy);
-
-	// TODO: Validate frame range
-	const {framesPerLambda} = params;
-
 	const realFrameRange = RenderInternals.getRealFrameRange(
 		comp.durationInFrames,
 		params.frameRange
 	);
 
 	const frameCount = realFrameRange[1] - realFrameRange[0] + 1;
-	const chunkCount = Math.ceil(frameCount / framesPerLambda);
+	const chunkCount = Math.ceil(frameCount / params.framesPerLambda);
+
+	if (chunkCount > 200) {
+		throw new Error(`Too many functions: A value `);
+	}
+
+	validatePrivacy(params.privacy);
 
 	const {chunks, didUseOptimization} = planFrameRanges({
 		chunkCount,
-		framesPerLambda,
+		framesPerLambda: params.framesPerLambda,
 		optimization,
 		shouldUseOptimization: params.enableChunkOptimization,
 		frameRange: realFrameRange,
@@ -140,6 +141,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 			privacy: params.privacy,
 			logLevel: params.logLevel ?? Internals.Logging.DEFAULT_LOG_LEVEL,
 			attempt: 1,
+			defaultProps: comp.defaultProps,
 		};
 		return payload;
 	});
@@ -300,7 +302,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 						oldTiming: getProfileDuration(chunkData),
 						newTiming: getProfileDuration(optimizedProfile),
 						createdFromRenderId: params.renderId,
-						framesPerLambda,
+						framesPerLambda: params.framesPerLambda,
 						lambdaVersion: CURRENT_VERSION,
 						frameRange: realFrameRange,
 					},

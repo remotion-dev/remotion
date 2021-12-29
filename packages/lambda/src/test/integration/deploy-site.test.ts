@@ -1,5 +1,5 @@
-import {getOrCreateBucket} from '../..';
 import {deploySite} from '../../api/deploy-site';
+import {getOrCreateBucket} from '../../api/get-or-create-bucket';
 import {getDirFiles} from '../../api/upload-dir';
 import {lambdaLs} from '../../functions/helpers/io';
 

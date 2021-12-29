@@ -5,6 +5,7 @@ import {quit} from '../../helpers/quit';
 import {functionsDeploySubcommand, FUNCTIONS_DEPLOY_SUBCOMMAND} from './deploy';
 import {functionsLsCommand, FUNCTIONS_LS_SUBCOMMAND} from './ls';
 import {functionsRmCommand, FUNCTIONS_RM_SUBCOMMAND} from './rm';
+import {functionsRmallCommand, FUNCTIONS_RMALL_SUBCOMMAND} from './rmall';
 
 export const FUNCTIONS_COMMAND = 'functions';
 
@@ -25,6 +26,9 @@ const printFunctionsHelp = () => {
 		`${BINARY_NAME} ${FUNCTIONS_COMMAND} ${FUNCTIONS_RM_SUBCOMMAND} <function-name>`
 	);
 	Log.info(CliInternals.chalk.gray('Delete a Lambda function'));
+	Log.info('');
+	Log.info(`${BINARY_NAME} ${FUNCTIONS_COMMAND} ${FUNCTIONS_RMALL_SUBCOMMAND}`);
+	Log.info(CliInternals.chalk.gray('Delete all functions in selected region'));
 };
 
 export const functionsCommand = (args: string[]) => {
@@ -34,6 +38,10 @@ export const functionsCommand = (args: string[]) => {
 
 	if (args[0] === FUNCTIONS_RM_SUBCOMMAND) {
 		return functionsRmCommand(args.slice(1));
+	}
+
+	if (args[0] === FUNCTIONS_RMALL_SUBCOMMAND) {
+		return functionsRmallCommand();
 	}
 
 	if (args[0] === FUNCTIONS_DEPLOY_SUBCOMMAND) {

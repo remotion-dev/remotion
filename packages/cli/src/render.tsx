@@ -15,7 +15,7 @@ import {getCliOptions} from './get-cli-options';
 import {getCompositionId} from './get-composition-id';
 import {initializeRenderCli} from './initialize-render-cli';
 import {Log} from './log';
-import {parsedCli} from './parse-command-line';
+import {parsedCli, quietFlagProvided} from './parse-command-line';
 import {
 	createOverwriteableCliOutput,
 	DownloadProgress,
@@ -110,7 +110,7 @@ export const render = async () => {
 
 	Log.verbose('Output dir', outputDir);
 
-	const renderProgress = createOverwriteableCliOutput();
+	const renderProgress = createOverwriteableCliOutput(quietFlagProvided());
 	let totalFrames: number | null = 0;
 	let encodedFrames = 0;
 	let renderedFrames = 0;
@@ -170,6 +170,16 @@ export const render = async () => {
 			onStart: ({frameCount}) => {
 				totalFrames = frameCount;
 				return updateRenderProgress();
+			},
+			onDownload: (src: string) => {
+				if (src.startsWith('data:')) {
+					Log.info(
+						'\nWriting Data URL to file: ',
+						src.substring(0, 30) + '...'
+					);
+				} else {
+					Log.info('\nDownloading asset... ', src);
+				}
 			},
 			outputDir,
 			serveUrl,

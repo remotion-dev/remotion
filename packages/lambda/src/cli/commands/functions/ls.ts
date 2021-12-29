@@ -1,10 +1,9 @@
 import {CliInternals} from '@remotion/cli';
 import {Log} from '@remotion/cli/dist/log';
 import {getFunctions} from '../../../api/get-functions';
-import {quietFlagProvided} from '../../args';
 import {getAwsRegion} from '../../get-aws-region';
 
-const NAME_COLS = 32;
+const NAME_COLS = 50;
 const MEMORY_COLS = 15;
 const TIMEOUT_COLS = 15;
 const VERSION_COLS = 15;
@@ -13,17 +12,17 @@ export const FUNCTIONS_LS_SUBCOMMAND = 'ls';
 
 export const functionsLsCommand = async () => {
 	const region = getAwsRegion();
-	const fetchingOutput = CliInternals.createOverwriteableCliOutput();
-	if (!quietFlagProvided()) {
-		fetchingOutput.update('Getting functions...');
-	}
+	const fetchingOutput = CliInternals.createOverwriteableCliOutput(
+		CliInternals.quietFlagProvided()
+	);
+	fetchingOutput.update('Getting functions...');
 
 	const functions = await getFunctions({
 		region,
 		compatibleOnly: false,
 	});
 
-	if (quietFlagProvided()) {
+	if (CliInternals.quietFlagProvided()) {
 		if (functions.length === 0) {
 			Log.info('()');
 			return;

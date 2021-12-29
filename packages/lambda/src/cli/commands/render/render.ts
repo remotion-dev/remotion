@@ -1,7 +1,7 @@
 import {CliInternals} from '@remotion/cli';
-import {downloadVideo} from '../../../api/download-video';
+import {downloadMedia} from '../../../api/download-media';
 import {getRenderProgress} from '../../../api/get-render-progress';
-import {renderVideoOnLambda} from '../../../api/render-video-on-lambda';
+import {renderMediaOnLambda} from '../../../api/render-media-on-lambda';
 import {
 	BINARY_NAME,
 	DEFAULT_FRAMES_PER_LAMBDA,
@@ -31,7 +31,9 @@ export const renderCommand = async (args: string[]) => {
 			'Pass an additional argument specifying a URL where your Remotion project is hosted.'
 		);
 		Log.info();
-		Log.info(`${BINARY_NAME} ${RENDER_COMMAND} <serve-url> <composition-id>`);
+		Log.info(
+			`${BINARY_NAME} ${RENDER_COMMAND} <serve-url> <composition-id> [output-location]`
+		);
 		quit(1);
 	}
 
@@ -40,14 +42,13 @@ export const renderCommand = async (args: string[]) => {
 		Log.error('No composition ID passed.');
 		Log.info('Pass an additional argument specifying the composition ID.');
 		Log.info();
-		// TODO: Rename serveURL
-		Log.info(`${BINARY_NAME} ${RENDER_COMMAND} <serve-url> <composition-id>`);
+		Log.info(
+			`${BINARY_NAME} ${RENDER_COMMAND} <serve-url> <composition-id> [output-location]`
+		);
 		quit(1);
 	}
 
 	const outName = args[2] ?? null;
-
-	// TODO: Further validate serveUrl
 
 	const cliOptions = await CliInternals.getCliOptions({
 		type: 'series',
@@ -63,7 +64,7 @@ export const renderCommand = async (args: string[]) => {
 
 	const privacy = parsedLambdaCli.privacy ?? DEFAULT_OUTPUT_PRIVACY;
 	validatePrivacy(privacy);
-	const res = await renderVideoOnLambda({
+	const res = await renderMediaOnLambda({
 		functionName,
 		serveUrl,
 		inputProps: cliOptions.inputProps,
@@ -86,7 +87,9 @@ export const renderCommand = async (args: string[]) => {
 
 	const totalSteps = outName ? 5 : 4;
 
-	const progressBar = CliInternals.createOverwriteableCliOutput();
+	const progressBar = CliInternals.createOverwriteableCliOutput(
+		CliInternals.quietFlagProvided()
+	);
 
 	Log.info(
 		CliInternals.chalk.gray(
@@ -150,7 +153,7 @@ export const renderCommand = async (args: string[]) => {
 			);
 			if (outName) {
 				const downloadStart = Date.now();
-				const {outputPath, sizeInBytes} = await downloadVideo({
+				const {outputPath, sizeInBytes} = await downloadMedia({
 					bucketName: res.bucketName,
 					outPath: outName,
 					region: getAwsRegion(),

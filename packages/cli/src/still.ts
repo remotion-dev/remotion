@@ -8,6 +8,7 @@ import chalk from 'chalk';
 import {mkdirSync} from 'fs';
 import path from 'path';
 import {Config, Internals} from 'remotion';
+import {CliInternals} from '.';
 import {getCliOptions} from './get-cli-options';
 import {getCompositionId} from './get-composition-id';
 import {handleCommonError} from './handle-common-errors';
@@ -117,7 +118,9 @@ export const still = async () => {
 		throw new Error(`Cannot find composition with ID ${compositionId}`);
 	}
 
-	const renderProgress = createOverwriteableCliOutput();
+	const renderProgress = createOverwriteableCliOutput(
+		CliInternals.quietFlagProvided()
+	);
 	const renderStart = Date.now();
 
 	try {

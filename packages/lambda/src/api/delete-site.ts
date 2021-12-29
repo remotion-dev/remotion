@@ -1,37 +1,36 @@
-import {AwsRegion} from '../pricing/aws-regions';
 import {getSitesKey} from '../defaults';
 import {lambdaLs} from '../functions/helpers/io';
+import {AwsRegion} from '../pricing/aws-regions';
 import {getAccountId} from '../shared/get-account-id';
 import {cleanItems} from './clean-items';
 
-export type DeleteSiteInputData = {
+export type DeleteSiteInput = {
 	bucketName: string;
-	// TODO: Make siteName / siteId consistent
 	siteName: string;
 	region: AwsRegion;
 	onAfterItemDeleted?: (data: {bucketName: string; itemName: string}) => void;
 };
 
-export type DeleteSiteReturnData = {
+export type DeleteSiteOutput = {
 	totalSizeInBytes: number;
 };
 
 /**
  *
  * @description Deletes a deployed site from your S3 bucket. The opposite of deploySite().
- * @link https://remotion-lambda-alpha.netlify.app/docs/lambda/deletesite
+ * @link https://v3.remotion.dev/docs/lambda/deletesite
  * @param options.bucketName The S3 bucket name where the site resides in.
  * @param options.siteName The ID of the site that you want to delete.
  * @param {AwsRegion} options.region The region in where the S3 bucket resides in.
  * @param options.onAfterItemDeleted Function that gets called after each file that gets deleted, useful for showing progress.
- * @returns `Promise<{totalSizeInBytes: number}>` How much space was freed.
+ * @returns {Promise<DeleteSiteOutput>} Object containing info about how much space was freed.
  */
 export const deleteSite = async ({
 	bucketName,
 	siteName,
 	region,
 	onAfterItemDeleted,
-}: DeleteSiteInputData): Promise<DeleteSiteReturnData> => {
+}: DeleteSiteInput): Promise<DeleteSiteOutput> => {
 	const accountId = await getAccountId({region});
 
 	let files = await lambdaLs({

@@ -7,6 +7,9 @@ import {
 } from '../../api/mock-functions';
 import {CURRENT_VERSION} from '../../shared/constants';
 
+const expectedFunctionName = (memory: number, timeout: number) =>
+	`remotion-render-${CURRENT_VERSION}-${memory}mb-${timeout}sec`;
+
 test('Should be able to deploy function', async () => {
 	const {functionName} = await deployFunction({
 		memorySizeInMb: 2048,
@@ -14,7 +17,7 @@ test('Should be able to deploy function', async () => {
 		timeoutInSeconds: 120,
 		createCloudWatchLogGroup: true,
 	});
-	expect(functionName).toBe('remotion-render-abcdef');
+	expect(functionName).toBe(expectedFunctionName(2048, 120));
 });
 
 test('Should be able to get the function afterwards', async () => {
@@ -26,15 +29,15 @@ test('Should be able to get the function afterwards', async () => {
 		timeoutInSeconds: 120,
 		createCloudWatchLogGroup: true,
 	});
-	expect(functionName).toBe('remotion-render-abcdef');
+	expect(functionName).toBe(expectedFunctionName(2048, 120));
 	const fns = await getFunctions({
 		region: 'us-east-1',
 		compatibleOnly: true,
 	});
 	expect(fns).toEqual([
 		{
-			functionName: 'remotion-render-abcdef',
-			memorySizeInMb: 1024,
+			functionName: expectedFunctionName(2048, 120),
+			memorySizeInMb: 2048,
 			timeoutInSeconds: 120,
 			version: CURRENT_VERSION,
 			region: 'us-east-1',
@@ -56,10 +59,10 @@ test('Should be able to delete the function', async () => {
 		timeoutInSeconds: 120,
 		createCloudWatchLogGroup: true,
 	});
-	expect(functionName).toBe('remotion-render-abcdef');
+	expect(functionName).toBe(expectedFunctionName(2048, 120));
 	await deleteFunction({
 		region: 'us-east-1',
-		functionName: 'remotion-render-abcdef',
+		functionName: expectedFunctionName(2048, 120),
 	});
 	const fns = await getFunctions({
 		region: 'us-east-1',
@@ -77,21 +80,21 @@ test('Should be able to get the function afterwards', async () => {
 		timeoutInSeconds: 120,
 		createCloudWatchLogGroup: true,
 	});
-	expect(functionName).toBe('remotion-render-abcdef');
+	expect(functionName).toBe(expectedFunctionName(2048, 120));
 	const fns = await getFunctions({
 		region: 'us-east-1',
 		compatibleOnly: true,
 	});
 	expect(fns).toEqual([
 		{
-			functionName: 'remotion-render-abcdef',
-			memorySizeInMb: 1024,
+			functionName: expectedFunctionName(2048, 120),
+			memorySizeInMb: 2048,
 			timeoutInSeconds: 120,
 			version: CURRENT_VERSION,
 			region: 'us-east-1',
 		},
 	]);
-	markFunctionAsIncompatible('remotion-render-abcdef');
+	markFunctionAsIncompatible(expectedFunctionName(2048, 120));
 	const compatibleFns = await getFunctions({
 		region: 'us-east-1',
 		compatibleOnly: true,
@@ -103,8 +106,8 @@ test('Should be able to get the function afterwards', async () => {
 	expect(compatibleFns).toEqual([]);
 	expect(incompatibleFns).toEqual([
 		{
-			functionName: 'remotion-render-abcdef',
-			memorySizeInMb: 1024,
+			functionName: expectedFunctionName(2048, 120),
+			memorySizeInMb: 2048,
 			timeoutInSeconds: 120,
 			version: '2021-06-23',
 			region: 'us-east-1',

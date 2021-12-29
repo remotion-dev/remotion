@@ -5,6 +5,7 @@ import {quit} from '../../helpers/quit';
 import {sitesCreateSubcommand, SITES_CREATE_SUBCOMMAND} from './create';
 import {sitesLsSubcommand, SITES_LS_SUBCOMMAND} from './ls';
 import {sitesRmSubcommand, SITES_RM_COMMAND} from './rm';
+import {sitesRmallSubcommand, SITES_RMALL_COMMAND} from './rmall';
 
 export const SITES_COMMAND = 'sites';
 
@@ -34,6 +35,10 @@ export const sitesCommand = (args: string[]) => {
 
 	if (args[0] === SITES_RM_COMMAND) {
 		return sitesRmSubcommand(args.slice(1));
+	}
+
+	if (args[0] === SITES_RMALL_COMMAND) {
+		return sitesRmallSubcommand();
 	}
 
 	if (args[0] === SITES_CREATE_SUBCOMMAND) {

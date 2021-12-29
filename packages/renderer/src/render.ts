@@ -10,6 +10,7 @@ import {
 	FrameRange,
 	ImageFormat,
 	Internals,
+	TAsset,
 	VideoConfig,
 } from 'remotion';
 import {
@@ -60,7 +61,7 @@ type RenderFramesOptions = {
 	puppeteerInstance?: PuppeteerBrowser;
 	browserExecutable?: BrowserExecutable;
 	onBrowserLog?: (log: BrowserLog) => void;
-	writeFrame?: (buffer: Buffer, frame: number) => void;
+	onFrameBuffer?: (buffer: Buffer, frame: number) => void;
 	onDownload?: RenderMediaOnDownload;
 } & ConfigOrComposition &
 	ServeUrlOrWebpackBundle;
@@ -90,7 +91,7 @@ export const innerRenderFrames = async ({
 	onError,
 	envVariables,
 	onBrowserLog,
-	writeFrame,
+	onFrameBuffer,
 	onDownload,
 	pagesArray,
 	serveUrl,
@@ -178,7 +179,8 @@ export const innerRenderFrames = async ({
 		frameCount,
 	});
 	const downloadDir = makeAssetsDownloadTmpDir();
-	const assets = await Promise.all(
+	const assets: TAsset[][] = new Array(frameCount).fill(undefined);
+	await Promise.all(
 		new Array(frameCount)
 			.fill(Boolean)
 			.map((x, i) => i)
@@ -218,7 +220,7 @@ export const innerRenderFrames = async ({
 				}
 
 				if (imageFormat !== 'none') {
-					if (writeFrame) {
+					if (onFrameBuffer) {
 						const buffer = await provideScreenshot({
 							page: freePage,
 							imageFormat,
@@ -228,11 +230,11 @@ export const innerRenderFrames = async ({
 								output: undefined,
 							},
 						});
-						writeFrame(buffer, frame);
+						onFrameBuffer(buffer, frame);
 					} else {
 						if (!outputDir) {
 							throw new Error(
-								'Called renderFrames() without specifying either `outputDir` or `writeFrame`'
+								'Called renderFrames() without specifying either `outputDir` or `onFrameBuffer`'
 							);
 						}
 
@@ -255,11 +257,24 @@ export const innerRenderFrames = async ({
 				const collectedAssets = await freePage.evaluate(() => {
 					return window.remotion_collectAssets();
 				});
-				collectedAssets.forEach((asset) => {
+				const compressedAssets = collectedAssets.map((asset) =>
+					Internals.AssetCompression.compressAsset(
+						assets.filter(Internals.truthy).flat(1),
+						asset
+					)
+				);
+				assets[index] = compressedAssets;
+				compressedAssets.forEach((asset) => {
 					downloadAndMapAssetsToFileUrl({
 						asset,
 						downloadDir,
 						onDownload: onDownload ?? (() => () => undefined),
+					}).catch((err) => {
+						onError(
+							new Error(
+								`Error while downloading asset: ${(err as Error).stack}`
+							)
+						);
 					});
 				});
 				pool.release(freePage);
@@ -267,7 +282,7 @@ export const innerRenderFrames = async ({
 				onFrameUpdate(framesRendered, frame);
 				freePage.off('pageerror', errorCallbackOnFrame);
 				freePage.off('error', errorCallbackOnFrame);
-				return collectedAssets;
+				return compressedAssets;
 			})
 	);
 

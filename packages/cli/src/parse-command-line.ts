@@ -33,6 +33,8 @@ export type CommandLineOptions = {
 	quality: number;
 	frames: string | number;
 	sequence: boolean;
+	quiet: boolean;
+	q: boolean;
 	log: string;
 	help: boolean;
 	port: number;
@@ -45,9 +47,9 @@ export const BooleanFlags = [
 	'overwrite',
 	'sequence',
 	'help',
-	// Lambda flags
-	'q',
 	'quiet',
+	'q',
+	// Lambda flags
 	'force',
 	'disable-chunk-optimization',
 	'save-browser-logs',
@@ -163,3 +165,5 @@ export const parseCommandLine = (
 		Config.Rendering.setQuality(parsedCli.quality);
 	}
 };
+
+export const quietFlagProvided = () => parsedCli.quiet || parsedCli.q;

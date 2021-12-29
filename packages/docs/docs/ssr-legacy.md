@@ -35,7 +35,6 @@ const start = async () => {
   const compositionId = "HelloWorld";
 
   // Create a webpack bundle of the entry file.
-  // TODO: This is wrong in Lambda
   const bundleLocation = await bundle(require.resolve("./src/index"));
 
   // Extract all the compositions you have defined in your project
@@ -66,7 +65,7 @@ const start = async () => {
   const { assetsInfo } = await renderFrames({
     config: composition,
     // Path of the webpack bundle you have created
-    serveUrl: bundleLocation,
+    bundle: bundleLocation,
     // Get's called after bundling is finished and the
     // actual rendering starts.
     onStart: () => console.log("Rendering frames..."),

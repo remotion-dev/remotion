@@ -1,7 +1,6 @@
 import {CliInternals} from '@remotion/cli';
 import {Log} from '@remotion/cli/dist/log';
 import {getSites} from '../../../api/get-sites';
-import {quietFlagProvided} from '../../args';
 import {getAwsRegion} from '../../get-aws-region';
 import {dateString} from '../../helpers/date-string';
 import {formatBytes} from '../../helpers/format-bytes';
@@ -23,25 +22,30 @@ export const sitesLsSubcommand = async () => {
 	const region = getAwsRegion();
 	const {sites, buckets} = await getSites({region});
 
-	if (buckets.length > 1 && !quietFlagProvided()) {
+	if (buckets.length > 1 && !CliInternals.quietFlagProvided()) {
 		Log.warn(
 			'Warning: You have more than one Remotion S3 bucket, but only one is needed. This can lead to conflicts. Remove all but one of them.'
 		);
 	}
 
 	const sitesPluralized = sites.length === 1 ? 'site' : 'sites';
-	if (!quietFlagProvided()) {
+	if (!CliInternals.quietFlagProvided()) {
 		Log.info(`${sites.length} ${sitesPluralized} in the ${region} region.`);
 	}
 
-	if (quietFlagProvided()) {
+	if (CliInternals.quietFlagProvided()) {
+		if (sites.length === 0) {
+			Log.info('()');
+			return;
+		}
+
 		return Log.info(sites.map((s) => s.id).join(' '));
 	}
 
 	Log.info();
 	Log.info(
 		CliInternals.chalk.gray(
-			logRow(['Site ID', 'Bucket', 'Size', 'Last updated'])
+			logRow(['Site Name', 'Bucket', 'Size', 'Last updated'])
 		)
 	);
 
