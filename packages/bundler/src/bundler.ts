@@ -61,7 +61,7 @@ export const bundle = async (
 	}
 
 	// TODO: Make this better in Lambda
-	const html = indexHtml(`/public`);
+	const html = indexHtml(`/public`, null);
 	fs.writeFileSync(path.join(outDir, 'index.html'), html);
 
 	return outDir;

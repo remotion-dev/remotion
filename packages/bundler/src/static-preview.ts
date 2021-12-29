@@ -1,4 +1,4 @@
-export const indexHtml = (staticHash: string) =>
+export const indexHtml = (staticHash: string, editorName: string | null) =>
 	`
 <!DOCTYPE html>
 <html lang="en">
@@ -11,6 +11,11 @@ export const indexHtml = (staticHash: string) =>
 	</head>
 	<body>
     <script>window.remotion_staticBase = "${staticHash}";</script>
+		${
+			editorName
+				? `<script>window.remotion_editorName = "${editorName}";</script>`
+				: '<script>window.remotion_editorName = null;</script>'
+		}
 		<div id="container"></div>
 		<div id="menuportal-0"></div>
 		<div id="menuportal-1"></div>
@@ -18,6 +23,7 @@ export const indexHtml = (staticHash: string) =>
 		<div id="menuportal-3"></div>
 		<div id="menuportal-4"></div>
 		<div id="menuportal-5"></div>
+		<div id="remotion-error-overlay"></div>
 		<script src="/bundle.js"></script>
 	</body>
 </html>
