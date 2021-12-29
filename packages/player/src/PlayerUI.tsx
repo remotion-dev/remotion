@@ -14,7 +14,6 @@ import React, {
 import {Internals} from 'remotion';
 import {calculateScale} from './calculate-scale';
 import {ErrorBoundary} from './error-boundary';
-import {Loading} from './Loading';
 import {PLAYER_CSS_CLASSNAME} from './player-css-classname';
 import {PlayerMethods, PlayerRef} from './player-methods';
 import {Controls} from './PlayerControls';
@@ -26,6 +25,9 @@ import {calculatePlayerSize} from './utils/calculate-player-size';
 import {IS_NODE} from './utils/is-node';
 import {useClickPreventionOnDoubleClick} from './utils/use-click-prevention-on-double-click';
 import {useElementSize} from './utils/use-element-size';
+
+export type ErrorFallback = (info: {error: Error}) => React.ReactNode;
+export type RenderLoading = () => React.ReactChild;
 
 const PlayerUI: React.ForwardRefRenderFunction<
 	PlayerRef,
@@ -44,8 +46,9 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		setMediaVolume: (v: number) => void;
 		setMediaMuted: (v: boolean) => void;
 		mediaVolume: number;
-		errorFallback: (info: {error: Error}) => React.ReactNode;
+		errorFallback: ErrorFallback;
 		playbackRate: number;
+		renderLoading?: RenderLoading;
 	}
 > = (
 	{
@@ -65,6 +68,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		spaceKeyToPlayOrPause,
 		errorFallback,
 		playbackRate,
+		renderLoading,
 	},
 	ref
 ) => {
@@ -409,19 +413,9 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		return content;
 	}
 
-	const loading = (
-		<Loading
-			size={Number(
-				Math.min(Number(outerStyle.width), Number(outerStyle.height))
-			)}
-		/>
-	);
+	const loadingMarkup = renderLoading ? renderLoading() : null;
 
-	return (
-		<Suspense fallback={<div style={outerStyle}>{loading}</div>}>
-			{content}
-		</Suspense>
-	);
+	return <Suspense fallback={loadingMarkup}>{content}</Suspense>;
 };
 
 export default forwardRef(PlayerUI);
