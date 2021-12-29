@@ -1,8 +1,6 @@
 ---
 id: integration
-sidebar_label: "Code sharing"
 title: "Code sharing"
-slug: /player/integration
 ---
 
 import Tabs from "@theme/Tabs";
