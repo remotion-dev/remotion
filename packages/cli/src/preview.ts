@@ -28,7 +28,6 @@ export const previewCommand = async () => {
 			inputProps,
 			envVariables,
 			port: desiredPort,
-			publicPath: '',
 			maxTimelineTracks: Internals.getMaxTimelineTracks(),
 		}
 	);

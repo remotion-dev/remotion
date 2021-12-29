@@ -17,12 +17,25 @@ export const logPermissionOutput = (output: SimulationResult) => {
 	return [getEmojiForStatus(output.decision), output.name].join(' ');
 };
 
-export const simulatePermissions = async (options: {
+export type SimulatePermissionsInput = {
 	region: AwsRegion;
 	onSimulation?: (result: SimulationResult) => void;
-}): Promise<{
+};
+
+export type SimulatePermissionsOutput = {
 	results: SimulationResult[];
-}> => {
+};
+
+/**
+ * @description Simulates calls using the AWS Simulator to validate the correct permissions.
+ * @link http://v3.remotion.dev/docs/lambda/simulatepermissions
+ * @param {AwsRegion} options.region The region which you would like to validate
+ * @param {(result: SimulationResult) => void} options.onSimulation The region which you would like to validate
+ * @returns {Promise<SimulatePermissionsOutput>} See documentation for detailed response structure.
+ */
+export const simulatePermissions = async (
+	options: SimulatePermissionsInput
+): Promise<SimulatePermissionsOutput> => {
 	const user = await getIamClient(options.region).send(new GetUserCommand({}));
 
 	if (!user || !user.User) {

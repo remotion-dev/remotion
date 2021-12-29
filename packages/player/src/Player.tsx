@@ -265,6 +265,7 @@ export const PlayerFn = <T,>(
 					id: 'player-comp',
 					props: inputProps as unknown,
 					nonce: 777,
+					defaultProps: undefined,
 				},
 			],
 			currentComposition: 'player-comp',

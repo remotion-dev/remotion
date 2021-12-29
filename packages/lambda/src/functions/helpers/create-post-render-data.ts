@@ -1,6 +1,6 @@
 import {_Object} from '@aws-sdk/client-s3';
-import {AwsRegion} from '../..';
-import {estimatePrice} from '../../pricing/calculate-price';
+import {estimatePrice} from '../../api/estimate-price';
+import {AwsRegion} from '../../pricing/aws-regions';
 import {
 	lambdaTimingsPrefix,
 	PostRenderData,

@@ -1,5 +1,5 @@
 import {Internals} from 'remotion';
-import {AwsRegion} from '../..';
+import {AwsRegion} from '../../pricing/aws-regions';
 import {
 	chunkKey,
 	encodingProgressKey,

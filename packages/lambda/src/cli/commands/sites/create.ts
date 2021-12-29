@@ -4,6 +4,7 @@ import path from 'path';
 import {deploySite} from '../../../api/deploy-site';
 import {getOrCreateBucket} from '../../../api/get-or-create-bucket';
 import {BINARY_NAME} from '../../../shared/constants';
+import {validateSiteName} from '../../../shared/validate-site-name';
 import {parsedLambdaCli} from '../../args';
 import {getAwsRegion} from '../../get-aws-region';
 import {
@@ -46,7 +47,14 @@ export const sitesCreateSubcommand = async (args: string[]) => {
 		quit(1);
 	}
 
-	const progressBar = CliInternals.createOverwriteableCliOutput();
+	const desiredSiteName = parsedLambdaCli['site-name'] ?? undefined;
+	if (desiredSiteName !== undefined) {
+		validateSiteName(desiredSiteName);
+	}
+
+	const progressBar = CliInternals.createOverwriteableCliOutput(
+		CliInternals.quietFlagProvided()
+	);
 
 	const multiProgress: {
 		bundleProgress: BundleProgress;
@@ -96,10 +104,9 @@ export const sitesCreateSubcommand = async (args: string[]) => {
 	const bundleStart = Date.now();
 	const uploadStart = Date.now();
 
-	const {serveUrl} = await deploySite({
+	const {serveUrl, siteName} = await deploySite({
 		entryPoint: absoluteFile,
-		// TODO: Make better
-		siteName: parsedLambdaCli['site-name'] ?? undefined,
+		siteName: desiredSiteName,
 		bucketName,
 		options: {
 			onBundleProgress: (progress: number) => {
@@ -131,5 +138,6 @@ export const sitesCreateSubcommand = async (args: string[]) => {
 	Log.info();
 	Log.info('Deployed to S3!');
 
-	Log.info(serveUrl);
+	Log.info(`Serve URL: ${serveUrl}`);
+	Log.info(`Site Name: ${siteName}`);
 };

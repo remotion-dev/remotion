@@ -44,6 +44,11 @@ const FEATURED_TEMPLATES: TEMPLATES[] = [
 		name: 'FelippeChemello/Remotion-TTS-Example',
 		description: 'Turns text into speech and makes a video',
 	},
+	{
+		shortName: 'Audiogram',
+		name: 'marcusstenbeck/remotion-template-audiogram',
+		description: 'Text and waveform visualization for podcasts',
+	},
 ];
 
 function padEnd(str: string, width: number): string {
@@ -56,9 +61,11 @@ function validateName(name?: string): string | true {
 	if (typeof name !== 'string' || name === '') {
 		return 'The project name can not be empty.';
 	}
+
 	if (!/^[a-z0-9@.\-_]+$/i.test(name)) {
 		return 'The project name can only contain URL-friendly characters (alphanumeric and @ . -  _)';
 	}
+
 	return true;
 }
 
@@ -146,6 +153,7 @@ const initGitRepoAsync = async (
 				stdio: 'ignore',
 			});
 		}
+
 		return true;
 	} catch (e) {
 		Log.verbose('git error:', e);
@@ -167,6 +175,7 @@ const resolveProjectRootAsync = async () => {
 				if (typeof validation === 'string') {
 					return 'Invalid project name: ' + validation;
 				}
+
 				return true;
 			},
 		});
@@ -211,14 +220,14 @@ export const init = async () => {
 			choices: FEATURED_TEMPLATES.map((template) => {
 				if (typeof template === 'string') {
 					return prompts.separator(template);
-				} else {
-					return {
-						value: template.name,
-						title:
-							chalk.bold(padEnd(template.shortName, descriptionColumn)) +
-							template.description.trim(),
-					};
 				}
+
+				return {
+					value: template.name,
+					title:
+						chalk.bold(padEnd(template.shortName, descriptionColumn)) +
+						template.description.trim(),
+				};
 			}),
 		},
 		{}
@@ -230,6 +239,7 @@ export const init = async () => {
 
 		Log.info(`Cloned template into ${projectRoot}`);
 	} catch (e) {
+		Log.error(e);
 		Log.error('Error with template cloning. Aborting');
 		process.exit(1);
 	}

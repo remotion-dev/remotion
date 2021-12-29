@@ -7,11 +7,13 @@ import {functionsCommand, FUNCTIONS_COMMAND} from './commands/functions';
 import {policiesCommand, POLICIES_COMMAND} from './commands/policies/policies';
 import {ROLE_SUBCOMMAND} from './commands/policies/role';
 import {USER_SUBCOMMAND} from './commands/policies/user';
+import {regionsCommand, REGIONS_COMMAND} from './commands/regions';
 import {renderCommand, RENDER_COMMAND} from './commands/render/render';
 import {sitesCommand, SITES_COMMAND} from './commands/sites';
 import {stillCommand, STILL_COMMAND} from './commands/still';
 import {printHelp} from './help';
 import {quit} from './helpers/quit';
+import {setIsCli} from './is-cli';
 import {Log} from './log';
 
 const requiresCredentials = (args: string[]) => {
@@ -21,6 +23,10 @@ const requiresCredentials = (args: string[]) => {
 		}
 
 		if (args[1] === ROLE_SUBCOMMAND) {
+			return false;
+		}
+
+		if (args[1] === REGIONS_COMMAND) {
 			return false;
 		}
 	}
@@ -52,6 +58,10 @@ const matchCommand = async (args: string[]) => {
 
 	if (args[0] === POLICIES_COMMAND) {
 		return policiesCommand(args.slice(1));
+	}
+
+	if (args[0] === REGIONS_COMMAND) {
+		return regionsCommand();
 	}
 
 	if (args[0] === SITES_COMMAND) {
@@ -94,6 +104,7 @@ const matchCommand = async (args: string[]) => {
 
 export const executeCommand = async (args: string[]) => {
 	try {
+		setIsCli(true);
 		await matchCommand(args);
 	} catch (err) {
 		const error = err as Error;
@@ -108,14 +119,17 @@ The role "${ROLE_NAME}" does not exist in your AWS account or has the wrong poli
 - The name of the role is not "${ROLE_NAME}"
 - The policy is not exactly as specified in the setup guide
 
-Revisit ${DOCS_URL}/docs/lambda/setup and make sure you set up the role and role policy correctly. The original error message is:
+Revisit ${DOCS_URL}/docs/lambda/setup and make sure you set up the role and role policy correctly. Also see the troubleshooting page: ${DOCS_URL}/docs/lambda/troubleshooting/permissions. The original error message is:
 `.trim()
 			);
 		}
 
 		if (error.stack?.includes('AccessDenied')) {
-			// TODO: Explain permission problem
-			Log.error('PERMISSION PROBLEM PUT HELPFUL MESSAGE HERE');
+			Log.error(
+				`
+AWS returned an "AccessDenied" error message meaning a permission is missing. Read the permissions troubleshooting page: ${DOCS_URL}/docs/lambda/troubleshooting/permissions. The original error message is:
+`.trim()
+			);
 		}
 
 		Log.error(error.stack);

@@ -1,7 +1,7 @@
 import {RefObject, useContext, useEffect, useMemo, useState} from 'react';
 import {useMediaStartsAt} from './audio/use-audio-frame';
 import {CompositionManager} from './CompositionManager';
-import {getAssetFileName} from './get-asset-file-name';
+import {getAssetDisplayName} from './get-asset-file-name';
 import {useNonce} from './nonce';
 import {SequenceContext} from './sequencing';
 import {TimelineContext} from './timeline-position-state';
@@ -95,7 +95,7 @@ export const useMediaInTimeline = ({
 			duration,
 			from: 0,
 			parent: parentSequence?.id ?? null,
-			displayName: getAssetFileName(src),
+			displayName: getAssetDisplayName(src),
 			rootId,
 			volume: volumes,
 			showInTimeline: true,

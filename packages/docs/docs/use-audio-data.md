@@ -3,7 +3,7 @@ title: useAudioData()
 id: use-audio-data
 ---
 
-_Part of the `@remotion/media-utils`_ package of helper functions.
+_Part of the `@remotion/media-utils` package of helper functions._
 
 This convienience function wraps the [`getAudioData()`](/docs/get-audio-data) function into a hook and does 3 things:
 

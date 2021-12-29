@@ -34,6 +34,4 @@ export const deleteTmpDir = () => {
 	if (typeof jest === 'undefined') {
 		deleteAllFilesInAFolderRecursively('/tmp');
 	}
-
-	console.log('Deleted tmpdir files: ', deletedFilesSize);
 };

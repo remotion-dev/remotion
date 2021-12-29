@@ -1,5 +1,5 @@
 [build]
-command = "npm run build && npx lerna bootstrap && cd packages/docs && npm run build-docs"
+command = "mkdir packages/docs/build && touch packages/docs/build/index.html && cp packages/docs/_redirects packages/docs/build/_redirects"
 publish = "packages/docs/build"
 
 [build.environment]

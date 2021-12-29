@@ -1,1 +1,1 @@
-export const DOCS_URL = 'https://remotion-lambda-alpha.netlify.app';
+export const DOCS_URL = 'https://v3.remotion.dev';

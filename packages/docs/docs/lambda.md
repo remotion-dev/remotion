@@ -81,10 +81,6 @@ You can control Remotion Lambda using the `npx remotion lambda` command.
 
 Everything you can do using the CLI, you can also control using Node.JS APIs. Refer to the left sidebar to see the list of available APIs.
 
-## Known issues
-
-- [ ] Rendering using more than 1000 chunks is undefined behavior, things will break
-
 ## License
 
 The standard Remotion license applies. https://github.com/remotion-dev/remotion/blob/main/LICENSE.md

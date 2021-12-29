@@ -9,7 +9,6 @@ export type BucketWithLocation = {
 	region: AwsRegion;
 };
 
-// TODO: In the CLI, warn everytime this function gets called about more than 1 bucket.
 export const getRemotionS3Buckets = async (
 	region: AwsRegion
 ): Promise<{
@@ -20,11 +19,8 @@ export const getRemotionS3Buckets = async (
 		return {remotionBuckets: []};
 	}
 
-	const remotionBuckets = Buckets.filter(
-		(b) =>
-			b.Name?.startsWith(REMOTION_BUCKET_PREFIX) &&
-			// TODO: Rename other buckets in Jonnys account bucket first
-			!b.Name.startsWith('remotion-binaries')
+	const remotionBuckets = Buckets.filter((b) =>
+		b.Name?.startsWith(REMOTION_BUCKET_PREFIX)
 	);
 
 	const locations = await Promise.all(

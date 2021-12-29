@@ -7,6 +7,7 @@ import {getAccountId} from '../shared/get-account-id';
 import {makeS3ServeUrl} from '../shared/make-s3-url';
 import {randomHash} from '../shared/random-hash';
 import {validateAwsRegion} from '../shared/validate-aws-region';
+import {validateSiteName} from '../shared/validate-site-name';
 import {bucketExistsInRegion} from './bucket-exists';
 import {enableS3Website} from './enable-s3-website';
 import {uploadDir, UploadDirProgress} from './upload-dir';
@@ -24,14 +25,14 @@ export type DeploySiteInput = {
 	};
 };
 
-export type DeploySiteReturnType = Promise<{
+export type DeploySiteOutput = Promise<{
 	serveUrl: string;
 	siteName: string;
 }>;
 
 /**
  * @description Deploys a Remotion project to an S3 bucket to prepare it for rendering on AWS Lambda.
- * @link https://remotion-lambda-alpha.netlify.app/docs/lambda/deploysite
+ * @link https://v3.remotion.dev/docs/lambda/deploysite
  * @param {AwsRegion} params.region The region in which the S3 bucket resides in.
  * @param {string} params.entryPoint An absolute path to the entry file of your Remotion project.
  * @param {string} params.bucketName The name of the bucket to deploy your project into.
@@ -44,7 +45,7 @@ export const deploySite = async ({
 	siteName,
 	options,
 	region,
-}: DeploySiteInput): DeploySiteReturnType => {
+}: DeploySiteInput): DeploySiteOutput => {
 	validateAwsRegion(region);
 	if (!bucketName.startsWith(REMOTION_BUCKET_PREFIX)) {
 		throw new Error(
@@ -58,6 +59,10 @@ export const deploySite = async ({
 		);
 	}
 
+	const siteId = siteName ?? randomHash();
+
+	validateSiteName(siteId);
+
 	const bucketExists = await bucketExistsInRegion({
 		bucketName,
 		region,
@@ -66,8 +71,6 @@ export const deploySite = async ({
 	if (!bucketExists) {
 		throw new Error(`No bucket with the name ${bucketName} exists`);
 	}
-
-	const siteId = siteName ?? randomHash();
 
 	const subFolder = getSitesKey(siteId);
 	await deleteSite({

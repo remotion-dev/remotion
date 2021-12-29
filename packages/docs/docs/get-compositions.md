@@ -137,6 +137,9 @@ Returns a promise that resolves to an array of available compositions. Example v
     height: 1080,
     fps: 30,
     durationInFrames: 120,
+    defaultProps: {
+      title: "Hello World",
+    },
   },
   {
     id: "Title",
@@ -144,9 +147,12 @@ Returns a promise that resolves to an array of available compositions. Example v
     height: 1080,
     fps: 30,
     durationInFrames: 90,
+    defaultProps: undefined,
   },
 ];
 ```
+
+The `defaultProps` only get returned since v2.5.7.
 
 ## See also
 

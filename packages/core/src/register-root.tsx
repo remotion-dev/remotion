@@ -58,6 +58,7 @@ if (typeof window !== 'undefined') {
 				height: c.height,
 				id: c.id,
 				width: c.width,
+				defaultProps: c.defaultProps,
 			};
 		});
 }

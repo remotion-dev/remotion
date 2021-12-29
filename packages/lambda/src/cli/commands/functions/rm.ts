@@ -32,7 +32,9 @@ export const functionsRmCommand = async (args: string[]) => {
 	const region = getAwsRegion();
 
 	for (const functionName of args) {
-		const infoOutput = CliInternals.createOverwriteableCliOutput();
+		const infoOutput = CliInternals.createOverwriteableCliOutput(
+			CliInternals.quietFlagProvided()
+		);
 		infoOutput.update('Getting function info...');
 		const info = await getFunctionInfo({
 			region,
@@ -50,7 +52,9 @@ export const functionsRmCommand = async (args: string[]) => {
 		Log.info();
 
 		await confirmCli({delMessage: 'Delete? (Y/n)', allowForceFlag: true});
-		const output = CliInternals.createOverwriteableCliOutput();
+		const output = CliInternals.createOverwriteableCliOutput(
+			CliInternals.quietFlagProvided()
+		);
 		output.update('Deleting...');
 		await deleteFunction({region, functionName});
 		output.update('Deleted!\n');

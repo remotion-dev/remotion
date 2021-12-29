@@ -3,8 +3,8 @@ import {renderStill} from '@remotion/renderer';
 import fs from 'fs';
 import path from 'path';
 import {Internals, StillImageFormat} from 'remotion';
+import {estimatePrice} from '../api/estimate-price';
 import {getOrCreateBucket} from '../api/get-or-create-bucket';
-import {estimatePrice} from '../pricing/calculate-price';
 import {getLambdaClient} from '../shared/aws-clients';
 import {
 	CURRENT_VERSION,

@@ -5,19 +5,23 @@ import {CURRENT_VERSION, RENDER_FN_PREFIX} from '../shared/constants';
 import {getFunctionVersion} from '../shared/get-function-version';
 import {FunctionInfo} from './get-function-info';
 
+export type GetFunctionsInput = {
+	region: AwsRegion;
+	compatibleOnly: boolean;
+};
+
 /**
  *
  *
  * @description Lists Remotion Lambda render functions deployed to AWS Lambda.
- * @link https://remotion-lambda-alpha.netlify.app/docs/lambda/getfunctions
+ * @link https://v3.remotion.dev/docs/lambda/getfunctions
  * @param options.region The region of which the functions should be listed.
  * @param options.compatibleOnly Whether only functions compatible with the installed version of Remotion Lambda should be returned.
- * @returns An array with the objects containing information about the deployed functions.
+ * @returns {Promise<FunctionInfo[]>} An array with the objects containing information about the deployed functions.
  */
-export const getFunctions = async (options: {
-	region: AwsRegion;
-	compatibleOnly: boolean;
-}): Promise<FunctionInfo[]> => {
+export const getFunctions = async (
+	options: GetFunctionsInput
+): Promise<FunctionInfo[]> => {
 	const lambdas = await getLambdaClient(options.region).send(
 		new ListFunctionsCommand({})
 	);

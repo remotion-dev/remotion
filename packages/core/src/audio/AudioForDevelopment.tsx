@@ -31,13 +31,8 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 
 	const volumePropFrame = useFrameForVolumeProp();
 
-	const {
-		volume,
-		muted,
-		playbackRate,
-		shouldPreMountAudioTags,
-		...nativeProps
-	} = props;
+	const {volume, muted, playbackRate, shouldPreMountAudioTags, ...nativeProps} =
+		props;
 
 	const propsToPass = useMemo((): RemotionAudioProps => {
 		return {

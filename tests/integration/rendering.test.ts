@@ -262,6 +262,27 @@ test("Should render a video with GIFs", async () => {
   fs.unlinkSync(outputPath);
 });
 
+test("Should render a video with Offline Audio-context", async () => {
+  const out = outputPath.replace(".mp4", ".mp3");
+
+  const task = await execa(
+    "npx",
+    ["remotion", "render", "src/index.tsx", "offline-audio-buffer", out],
+    {
+      cwd: "packages/example",
+      reject: false,
+    }
+  );
+  expect(task.exitCode).toBe(0);
+  expect(fs.existsSync(out)).toBe(true);
+
+  const info = await execa("ffprobe", [out]);
+  const data = info.stderr;
+  expect(data).toContain("Stream #0:0: Audio: mp3");
+  expect(data).toContain("44100 Hz, stereo");
+  fs.unlinkSync(out);
+});
+
 test("Should fail to render an audio file that doesn't have any audio inputs", async () => {
   const out = outputPath.replace(".mp4", ".mp3");
   const task = await execa(
@@ -278,6 +299,19 @@ test("Should fail to render an audio file that doesn't have any audio inputs", a
   expect(data).toContain("Duration: 00:00:00.37");
   expect(data).toContain("Audio: mp3, 44100 Hz");
   fs.unlinkSync(out);
+});
+
+test.only("Should render a still that uses the staticFile() API", async () => {
+  const out = outputPath.replace(".mp4", ".png");
+  const task = await execa(
+    "npx",
+    ["remotion", "still", "src/index.tsx", "static-demo", out, "--log=verbose"],
+    {
+      cwd: "packages/example",
+      reject: false,
+    }
+  );
+  expect(task.exitCode).toBe(0);
 });
 
 test("Dynamic duration should work", async () => {
