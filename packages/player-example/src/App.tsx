@@ -27,7 +27,6 @@ export default function App({
 	const [clickToPlay, setClickToPlay] = useState(true);
 	const [logs, setLogs] = useState<string[]>(() => []);
 	const [spaceKeyToPlayOrPause, setspaceKeyToPlayOrPause] = useState(true);
-	const [loading, setLoading] = useState(false);
 	const [playbackRate, setPlaybackRate] = useState(1);
 
 	const ref = useRef<PlayerRef>(null);
@@ -244,9 +243,6 @@ export default function App({
 			</button>
 			<button type="button" onClick={() => setspaceKeyToPlayOrPause((l) => !l)}>
 				spaceKeyToPlayOrPause = {String(spaceKeyToPlayOrPause)}
-			</button>
-			<button type="button" onClick={() => setLoading(!loading)}>
-				Toggle loading
 			</button>
 			<br />
 			<button
