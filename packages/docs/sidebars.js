@@ -6,6 +6,7 @@ module.exports = {
       href: "/docs",
     },
     "player/player",
+    "player/api",
     "player/examples",
     "player/integration",
     "player/autoplay",

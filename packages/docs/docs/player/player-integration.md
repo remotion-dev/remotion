@@ -1,7 +1,7 @@
 ---
 id: integration
-sidebar_label: "Integrate into your app"
-title: "Integrating Player into your app"
+sidebar_label: "Code sharing"
+title: "Code sharing"
 slug: /player/integration
 ---
 
