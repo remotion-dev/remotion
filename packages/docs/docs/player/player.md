@@ -158,6 +158,40 @@ _optional_
 
 A callback for rendering a custom error message. See [Handling errors](#handling-errors) section for an example.
 
+### `renderLoading`
+
+_optional_
+
+A callback function that allows you to return a custom UI that gets displayed while the player is loading.
+
+```tsx twoslash
+import { Player, RenderLoading } from "@remotion/player";
+import { useCallback } from "react";
+import { AbsoluteFill } from "remotion";
+
+const Component: React.FC = () => null;
+
+// ---cut---
+
+const MyApp: React.FC = () => {
+  // `RenderLoading` type can be imported from "@remotion/player"
+  const renderLoading: RenderLoading = useCallback(() => {
+    return <AbsoluteFill>Loading player...</AbsoluteFill>;
+  }, []);
+
+  return (
+    <Player
+      fps={30}
+      component={Component}
+      durationInFrames={100}
+      compositionWidth={1080}
+      compositionHeight={1080}
+      renderLoading={renderLoading}
+    />
+  );
+};
+```
+
 ## `PlayerRef`
 
 You may attach a ref to the player and control it in an imperative manner.
