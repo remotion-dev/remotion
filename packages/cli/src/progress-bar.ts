@@ -1,8 +1,7 @@
 import {StitchingState} from '@remotion/renderer';
-// @ts-expect-error
-import ansiDiff from 'ansi-diff';
 import chalk from 'chalk';
 import {Internals} from 'remotion';
+import {AnsiDiff} from './ansi/ansi-diff';
 import {RenderStep} from './step';
 
 export const createProgressBar = (
@@ -29,7 +28,7 @@ export const createOverwriteableCliOutput = (quiet: boolean) => {
 		};
 	}
 
-	const diff = ansiDiff();
+	const diff = new AnsiDiff();
 	return {
 		update: (up: string): boolean => process.stdout.write(diff.update(up)),
 	};

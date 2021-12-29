@@ -40,6 +40,9 @@ test('It should calculate the correct offset in nested sequences', () => {
 				setPlaybackRate: () => {
 					throw new Error('playback rate');
 				},
+				audioAndVideoTags: {
+					current: [],
+				},
 			}}
 		>
 			<Sequence from={20} durationInFrames={100}>
@@ -68,6 +71,9 @@ test('Negative offset test', () => {
 				playbackRate: 1,
 				setPlaybackRate: () => {
 					throw new Error('playback rate');
+				},
+				audioAndVideoTags: {
+					current: [],
 				},
 			}}
 		>
@@ -112,6 +118,9 @@ test('Nested negative offset test', () => {
 					playbackRate: 1,
 					setPlaybackRate: () => {
 						throw new Error('playback rate');
+					},
+					audioAndVideoTags: {
+						current: [],
 					},
 				}}
 			>
@@ -159,6 +168,9 @@ test('Negative offset edge case', () => {
 					playbackRate: 1,
 					setPlaybackRate: () => {
 						throw new Error('playback rate');
+					},
+					audioAndVideoTags: {
+						current: [],
 					},
 				}}
 			>

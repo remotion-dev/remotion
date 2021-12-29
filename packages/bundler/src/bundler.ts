@@ -50,7 +50,6 @@ export const bundle = async (
 				options?.webpackOverride ?? Internals.getWebpackOverrideFn(),
 			onProgressUpdate,
 			enableCaching: options?.enableCaching ?? Internals.getWebpackCaching(),
-			publicPath: options?.publicPath ?? '/',
 			maxTimelineTracks: 15,
 		}),
 	]);
@@ -73,7 +72,7 @@ export const bundle = async (
 		await copyDir(from, to);
 	}
 
-	const html = indexHtml(publicDir, baseDir);
+	const html = indexHtml(publicDir, baseDir, null);
 	fs.writeFileSync(path.join(outDir, 'index.html'), html);
 
 	return outDir;
