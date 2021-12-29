@@ -1,5 +1,3 @@
-// @ts-expect-error
-import webpackDevMiddleware from '@jonny/webpack-dev-middleware';
 import express from 'express';
 import fs from 'fs';
 import os from 'os';
@@ -19,6 +17,7 @@ import {
 } from './error-overlay/react-overlay/utils/open-in-editor';
 import {StackFrame} from './error-overlay/react-overlay/utils/stack-frame';
 import {webpackHotMiddleware} from './hot-middleware';
+import {wdm} from './dev-middleware';
 
 export const startServer = async (
 	entry: string,
@@ -53,7 +52,7 @@ export const startServer = async (
 	const hash = `/static-${crypto.randomBytes(6).toString('hex')}`;
 
 	app.use(hash, express.static(path.join(process.cwd(), 'public')));
-	app.use(webpackDevMiddleware(compiler));
+	app.use(wdm(compiler));
 	app.use(webpackHotMiddleware(compiler));
 
 	app.get('/api/update', (req, res) => {

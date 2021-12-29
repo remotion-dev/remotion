@@ -1,6 +1,6 @@
 /**
  * Code inlined from https://github.com/chalk/strip-ansi#readme
- * This file is MIT licensed
+ * This file is MIT licensed.
  */
 export const ansiRegex = () => {
 	const pattern = [
