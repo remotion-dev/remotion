@@ -1,3 +1,7 @@
+/**
+ * Code inlined from https://github.com/chalk/strip-ansi#readme
+ * This file is MIT licensed.
+ */
 export const ansiRegex = () => {
 	const pattern = [
 		'[\\u001B\\u009B][[\\]()#;?]*(?:(?:(?:(?:;[-a-zA-Z\\d\\/#&.:=?%@~_]+)*|[a-zA-Z\\d]+(?:;[-a-zA-Z\\d\\/#&.:=?%@~_]*)*)?\\u0007)',
