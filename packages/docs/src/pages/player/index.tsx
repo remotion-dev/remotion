@@ -1,6 +1,7 @@
 import React from "react";
 import Layout from "@theme/Layout";
 import { LandingHeader } from "../../../components/Player/LandingHeader";
+import { PlayerFeatures } from "../../../components/Player/features";
 import { PoweredByRemotion } from "../../../components/Player/PoweredByRemotion";
 
 const container: React.CSSProperties = {
@@ -20,6 +21,9 @@ export default () => {
         <LandingHeader />
       </div>
       <PoweredByRemotion />
+      <div style={container}>
+        <PlayerFeatures />
+      </div>
     </Layout>
   );
 };
