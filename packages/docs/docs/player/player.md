@@ -9,8 +9,6 @@ import TabItem from '@theme/TabItem';
 import { PlayerExample } from "../../components/Player.tsx";
 import { ExperimentalBadge } from "../../components/Experimental.tsx";
 
-<ExperimentalBadge message="This player is currently in a beta state. We are done with the most important features we wanted to implement and will promote the Player to stable in the next version, if there is no feedback from users."/>
-
 Using the Remotion Player you can embed Remotion videos in any React app and customize the video content at runtime.
 
 ## Demo

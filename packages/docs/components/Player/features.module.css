@@ -16,3 +16,17 @@
   margin-top: 80px;
   margin-bottom: 80px;
 }
+
+.row {
+  display: flex;
+  flex-direction: row;
+  padding-top: 40px;
+  padding-bottom: 40px;
+  align-items: center;
+}
+
+@media (max-width: 1000px) {
+  .row {
+    flex-direction: column;
+  }
+}

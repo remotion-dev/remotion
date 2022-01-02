@@ -3,6 +3,7 @@ import Layout from "@theme/Layout";
 import { LandingHeader } from "../../../components/Player/LandingHeader";
 import { PlayerFeatures } from "../../../components/Player/features";
 import { PoweredByRemotion } from "../../../components/Player/PoweredByRemotion";
+import { PlayerPageFooter } from "../../../components/Player/Footer";
 
 const container: React.CSSProperties = {
   maxWidth: 1000,
@@ -24,6 +25,7 @@ export default () => {
       <div style={container}>
         <PlayerFeatures />
       </div>
+      <PlayerPageFooter />
     </Layout>
   );
 };
