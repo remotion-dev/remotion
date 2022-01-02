@@ -1,21 +1,17 @@
+import useThemeContext from "@theme/hooks/useThemeContext";
 import React from "react";
 import styles from "./features.module.css";
-
-const row: React.CSSProperties = {
-  display: "flex",
-  flexDirection: "row",
-  paddingTop: 40,
-  paddingBottom: 40,
-};
 
 const half: React.CSSProperties = {
   flex: 1,
 };
 
 export const PlayerFeatures: React.FC = () => {
+  const { isDarkTheme } = useThemeContext();
+
   return (
     <div className={styles.container}>
-      <div style={row}>
+      <div className={styles.row}>
         <div style={half}>
           <h2 className={styles.title}>
             <span className={styles.keyword}>Reactive</span> to data
@@ -26,9 +22,17 @@ export const PlayerFeatures: React.FC = () => {
           </p>
         </div>
         <div style={{ width: 20 }} />
-        <div style={half} />
+        <div style={half}>
+          <video
+            src={isDarkTheme ? "/img/reactive-dark.mp4" : "/img/reactive.mp4"}
+            playsInline
+            muted
+            autoPlay
+            loop
+          />
+        </div>
       </div>
-      <div style={row}>
+      <div className={styles.row}>
         <div style={half}>
           <h2 className={styles.title}>
             Extremely <span className={styles.keyword}>customizable</span>
@@ -41,12 +45,24 @@ export const PlayerFeatures: React.FC = () => {
           </p>
         </div>
         <div style={{ width: 20 }} />
-        <div style={half} />
+        <div style={half}>
+          <video
+            src={
+              isDarkTheme
+                ? "/img/customizable-dark.mp4"
+                : "/img/customizable-light.mp4"
+            }
+            playsInline
+            muted
+            autoPlay
+            loop
+          />
+        </div>
       </div>
-      <div style={row}>
+      <div className={styles.row}>
         <div style={half}>
           <h2 className={styles.title}>
-            Turn it into <span className={styles.keyword}>real videos</span>
+            Turn it into real <span className={styles.keyword}> videos</span>
           </h2>
           <p>
             Connect to the Remotion server-side rendering APIs to turn the
@@ -55,7 +71,17 @@ export const PlayerFeatures: React.FC = () => {
           </p>
         </div>
         <div style={{ width: 20 }} />
-        <div style={half} />
+        <div style={half}>
+          <video
+            src={
+              isDarkTheme ? "/img/pipeline-dark.mp4" : "/img/pipeline-light.mp4"
+            }
+            playsInline
+            muted
+            autoPlay
+            loop
+          />
+        </div>
       </div>
     </div>
   );

@@ -1,22 +1,12 @@
 import React from "react";
-
-const btn: React.CSSProperties = {
-  backgroundColor: "white",
-  padding: "10px 16px",
-  appearance: "none",
-  color: "#0B84F3",
-  border: "none",
-  fontFamily: "inherit",
-  fontWeight: "bold",
-  borderRadius: 8,
-  cursor: "pointer",
-  fontSize: 16,
-};
+import { Button } from "../layout/Button";
+import styles from "./powered.module.css";
 
 export const PoweredByRemotion: React.FC = () => {
   return (
     <div style={{ background: `#0B84F3` }}>
       <div
+        className={styles.responsiverow}
         style={{
           maxWidth: 1000,
           paddingLeft: 16,
@@ -26,8 +16,6 @@ export const PoweredByRemotion: React.FC = () => {
           paddingBottom: 30,
           color: `#fff`,
           display: "flex",
-          flexDirection: "row",
-          alignItems: "center",
         }}
       >
         <div>
@@ -41,12 +29,19 @@ export const PoweredByRemotion: React.FC = () => {
             perfect, before you embed it in a website.
           </p>
         </div>
-        <div style={{ flex: 1 }} />
+        <div className={styles.flexer} />
         <div>
-          <a href="/">
-            <button style={btn} type="button">
+          <a href="/" style={{ textDecoration: "none" }}>
+            <Button
+              background="white"
+              hoverColor="white"
+              color="#0B84F3"
+              loading={false}
+              fullWidth={false}
+              size="sm"
+            >
               Learn more
-            </button>
+            </Button>
           </a>
         </div>
       </div>

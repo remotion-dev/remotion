@@ -21,6 +21,11 @@
   -webkit-background-clip: text;
   max-width: 600px;
 }
+@media screen and (max-width: 1000px) {
+  .title {
+    font-size: 2em;
+  }
+}
 
 .p {
   text-align: center;

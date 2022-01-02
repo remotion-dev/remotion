@@ -27,9 +27,9 @@ export const LandingHeader: React.FC = () => {
         React, and change them at runtime. Connect it to server-side rendering
         to turn them into real MP4 videos.
       </p>
-      <a className={styles.a} href="/docs">
+      <a className={styles.a} href="/docs/player">
         <BlueButton size="sm" loading={false} fullWidth={false}>
-          Get started
+          Documentation
         </BlueButton>
       </a>
       <br />
