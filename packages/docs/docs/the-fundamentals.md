@@ -34,7 +34,7 @@ A video has 4 properties:
 - `durationInFrames`: The number of frames which the video is long.
 - `fps`: The amount of frames per second. The duration in frames divided by FPS results in the duration in seconds.
 
-These properties are variable and you can reuse a component multiple times with different properties. This is why you better not hard-code these properties, but instead derive them from the `useVideoConfig` hook:
+These properties are variable and you can reuse a component multiple times with different properties. This is why you better not hard-code these properties, but instead derive them from the [`useVideoConfig()`](/docs/use-video-config) hook:
 
 ```tsx twoslash
 import { useVideoConfig } from "remotion";
@@ -79,4 +79,4 @@ export const RemotionVideo: React.FC = () => {
 
 Remember that if you like, you can register multiple compositions that rely on the same component. For example, if you like to make a square video for social media feeds, and a portrait video for Stories, you can reuse the component and try to make it 'responsive'.
 
-Besides the `<Composition />` component, you can also render a [`<Still />`](/docs/still) component and define a still image rather than a video.
+Besides the [`<Composition />`](/docs/composition) component, you can also use a [`<Still />`](/docs/still) component and define a still image rather than a video.
