@@ -25,8 +25,16 @@
   align-items: center;
 }
 
+.half {
+  flex: 1;
+}
+
 @media (max-width: 1000px) {
   .row {
+    width: 100%;
     flex-direction: column;
+  }
+  .half {
+    width: 100%;
   }
 }

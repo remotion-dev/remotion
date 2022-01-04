@@ -6,7 +6,7 @@ slug: /player
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
-import { PlayerExample } from "../../components/Player.tsx";
+import { PlayerExampleWithControls } from "../../components/PlayerExampleWithControls.tsx";
 import { ExperimentalBadge } from "../../components/Experimental.tsx";
 
 Using the Remotion Player you can embed Remotion videos in any React app and customize the video content at runtime.
@@ -14,7 +14,7 @@ Using the Remotion Player you can embed Remotion videos in any React app and cus
 ## Demo
 
 Play the video, then tweak the parameters below the video.
-<PlayerExample />
+<PlayerExampleWithControls />
 
 ## Installation
 
