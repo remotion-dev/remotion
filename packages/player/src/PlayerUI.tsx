@@ -26,6 +26,12 @@ import {IS_NODE} from './utils/is-node';
 import {useClickPreventionOnDoubleClick} from './utils/use-click-prevention-on-double-click';
 import {useElementSize} from './utils/use-element-size';
 
+export type ErrorFallback = (info: {error: Error}) => React.ReactNode;
+export type RenderLoading = (canvas: {
+	height: number;
+	width: number;
+}) => React.ReactChild;
+
 const PlayerUI: React.ForwardRefRenderFunction<
 	PlayerRef,
 	{
@@ -43,8 +49,9 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		setMediaVolume: (v: number) => void;
 		setMediaMuted: (v: boolean) => void;
 		mediaVolume: number;
-		errorFallback: (info: {error: Error}) => React.ReactNode;
+		errorFallback: ErrorFallback;
 		playbackRate: number;
+		renderLoading?: RenderLoading;
 	}
 > = (
 	{
@@ -64,6 +71,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		spaceKeyToPlayOrPause,
 		errorFallback,
 		playbackRate,
+		renderLoading,
 	},
 	ref
 ) => {
@@ -408,7 +416,18 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		return content;
 	}
 
-	return <Suspense fallback={<h1>Loading...</h1>}>{content}</Suspense>;
+	const loadingMarkup = renderLoading ? (
+		<div style={outerStyle}>
+			{renderLoading({
+				height: outerStyle.height as number,
+				width: outerStyle.width as number,
+			})}
+		</div>
+	) : (
+		<div style={outerStyle} />
+	);
+
+	return <Suspense fallback={loadingMarkup}>{content}</Suspense>;
 };
 
 export default forwardRef(PlayerUI);

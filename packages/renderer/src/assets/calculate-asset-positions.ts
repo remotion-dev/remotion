@@ -1,6 +1,7 @@
 import {TAsset} from 'remotion';
+import {resolveAssetSrc} from '../resolve-asset-src';
 import {splitAssetsIntoSegments} from './split-assets-into-segments';
-import {Assets, MediaAsset, UnsafeAsset} from './types';
+import {Assets, MediaAsset, uncompressMediaAsset, UnsafeAsset} from './types';
 
 const areEqual = (a: TAsset | UnsafeAsset, b: TAsset) => {
 	return a.id === b.id;
@@ -38,7 +39,7 @@ export const calculateAssetPositions = (frames: TAsset[][]): Assets => {
 		for (const asset of current) {
 			if (!findFrom(prev, asset)) {
 				assets.push({
-					src: asset.src,
+					src: resolveAssetSrc(uncompressMediaAsset(frames.flat(1), asset).src),
 					type: asset.type,
 					duration: null,
 					id: asset.id,

@@ -2,7 +2,6 @@
 id: examples
 sidebar_label: "Examples"
 title: "Examples for @remotion/player"
-slug: /player/examples
 ---
 
 ## Bare example
@@ -114,8 +113,8 @@ export const App: React.FC = () => {
 };
 ```
 
-:::tip
-You can also use percentages and other units. We'll publish a guide for sizing the `<Player />` before the official release.
+:::note
+See [Scaling](/docs/player/scaling) for more ways to scale the Player.
 :::
 
 ## Adding autoplay

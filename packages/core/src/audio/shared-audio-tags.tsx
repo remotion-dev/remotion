@@ -70,7 +70,7 @@ export const SharedAudioContextProvider: React.FC<{
 				throw new Error(
 					`Tried to simultaneously mount ${
 						numberOfAudioTags + 1
-					} <Audio /> tags at the same time. With the current settings, the maximum amount of <Audio /> tags is limited to ${numberOfAudioTags} at the same time. Remotion pre-mounts silent audio tags to help avoid browser autoplay restrictions. See https://remotion.dev/docs/player#numberofsharedaudiotags for more information on how to increase this limit.`
+					} <Audio /> tags at the same time. With the current settings, the maximum amount of <Audio /> tags is limited to ${numberOfAudioTags} at the same time. Remotion pre-mounts silent audio tags to help avoid browser autoplay restrictions. See /docs/player/autoplay#use-the-numberofsharedaudiotags-property for more information on how to increase this limit.`
 				);
 			}
 
@@ -116,18 +116,16 @@ export const SharedAudioContextProvider: React.FC<{
 
 	const updateAudio = useCallback((id: number, aud: RemotionAudioProps) => {
 		setAudios((prevAudios) => {
-			return prevAudios.map(
-				(prevA): AudioElem => {
-					if (prevA.id === id) {
-						return {
-							...prevA,
-							props: aud,
-						};
-					}
-
-					return prevA;
+			return prevAudios.map((prevA): AudioElem => {
+				if (prevA.id === id) {
+					return {
+						...prevA,
+						props: aud,
+					};
 				}
-			);
+
+				return prevA;
+			});
 		});
 	}, []);
 
@@ -175,19 +173,17 @@ export const SharedAudioContextProvider: React.FC<{
 export const useSharedAudio = (aud: RemotionAudioProps) => {
 	const ctx = useContext(SharedAudioContext);
 
-	const [elem] = useState(
-		(): AudioElem => {
-			if (ctx && ctx.numberOfAudioTags > 0) {
-				return ctx.registerAudio(aud);
-			}
-
-			return {
-				el: React.createRef<HTMLAudioElement>(),
-				id: Math.random(),
-				props: aud,
-			};
+	const [elem] = useState((): AudioElem => {
+		if (ctx && ctx.numberOfAudioTags > 0) {
+			return ctx.registerAudio(aud);
 		}
-	);
+
+		return {
+			el: React.createRef<HTMLAudioElement>(),
+			id: Math.random(),
+			props: aud,
+		};
+	});
 
 	useEffect(() => {
 		return () => {
