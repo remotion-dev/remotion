@@ -26,8 +26,8 @@ export type MediaAsset = Omit<UnsafeAsset, 'duration' | 'volume'> & {
 
 export const uncompressMediaAsset = (
 	allAssets: TAsset[],
-	assetToUncompress: MediaAsset
-): MediaAsset => {
+	assetToUncompress: TAsset
+): TAsset => {
 	const isCompressed = assetToUncompress.src.match(/same-as-(.*)-([0-9]+)$/);
 	if (!isCompressed) {
 		return assetToUncompress;
