@@ -4,6 +4,7 @@ import { LandingHeader } from "../../../components/Player/LandingHeader";
 import { PlayerFeatures } from "../../../components/Player/features";
 import { PoweredByRemotion } from "../../../components/Player/PoweredByRemotion";
 import { PlayerPageFooter } from "../../../components/Player/Footer";
+import { WrappedBanner } from "../../../components/Player/Wrapped";
 import Head from "@docusaurus/Head";
 
 const container: React.CSSProperties = {
@@ -32,6 +33,7 @@ export default () => {
       <div style={container}>
         <PlayerFeatures />
       </div>
+      <WrappedBanner />
       <PlayerPageFooter />
     </Layout>
   );
