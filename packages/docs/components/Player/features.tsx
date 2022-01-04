@@ -1,18 +1,35 @@
 import useThemeContext from "@theme/hooks/useThemeContext";
-import React from "react";
+import React, { useState } from "react";
 import styles from "./features.module.css";
-
-const half: React.CSSProperties = {
-  flex: 1,
-};
+import { PlayerExample } from "../PlayerExample";
+import { CoolInput } from "../TextInput";
+import { ColorPicker, colorPickerColors } from "../Player/ColorPicker";
 
 export const PlayerFeatures: React.FC = () => {
   const { isDarkTheme } = useThemeContext();
+  const [name, setName] = useState("");
+  const [color, setColor] = useState(colorPickerColors[0]);
 
   return (
     <div className={styles.container}>
       <div className={styles.row}>
-        <div style={half}>
+        <div className={styles.half}>
+          <h2 className={styles.title}>Demo</h2>
+          <p>Enter a name and pick a color and watch the video adapt.</p>
+          <CoolInput
+            placeholder="Enter your name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
+          <ColorPicker selected={color} onSelected={setColor} />
+        </div>
+        <div style={{ width: 20, height: 30 }} />
+        <div className={styles.half}>
+          <PlayerExample name={name} color={color} />
+        </div>
+      </div>
+      <div className={styles.row}>
+        <div className={styles.half}>
           <h2 className={styles.title}>
             <span className={styles.keyword}>Reactive</span> to data
           </h2>
@@ -22,7 +39,7 @@ export const PlayerFeatures: React.FC = () => {
           </p>
         </div>
         <div style={{ width: 20 }} />
-        <div style={half}>
+        <div className={styles.half}>
           <video
             src={isDarkTheme ? "/img/reactive-dark.mp4" : "/img/reactive.mp4"}
             playsInline
@@ -33,7 +50,7 @@ export const PlayerFeatures: React.FC = () => {
         </div>
       </div>
       <div className={styles.row}>
-        <div style={half}>
+        <div className={styles.half}>
           <h2 className={styles.title}>
             Extremely <span className={styles.keyword}>customizable</span>
           </h2>
@@ -45,7 +62,7 @@ export const PlayerFeatures: React.FC = () => {
           </p>
         </div>
         <div style={{ width: 20 }} />
-        <div style={half}>
+        <div className={styles.half}>
           <video
             src={
               isDarkTheme
@@ -60,7 +77,7 @@ export const PlayerFeatures: React.FC = () => {
         </div>
       </div>
       <div className={styles.row}>
-        <div style={half}>
+        <div className={styles.half}>
           <h2 className={styles.title}>
             Turn it into real <span className={styles.keyword}> videos</span>
           </h2>
@@ -71,7 +88,7 @@ export const PlayerFeatures: React.FC = () => {
           </p>
         </div>
         <div style={{ width: 20 }} />
-        <div style={half}>
+        <div className={styles.half}>
           <video
             src={
               isDarkTheme ? "/img/pipeline-dark.mp4" : "/img/pipeline-light.mp4"
