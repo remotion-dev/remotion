@@ -13,7 +13,6 @@ import {calculateAssetPositions} from './assets/calculate-asset-positions';
 import {convertAssetsToFileUrls} from './assets/convert-assets-to-file-urls';
 import {markAllAssetsAsDownloaded} from './assets/download-and-map-assets-to-file';
 import {getAssetAudioDetails} from './assets/get-asset-audio-details';
-import {uncompressMediaAsset} from './assets/types';
 import {calculateFfmpegFilters} from './calculate-ffmpeg-filters';
 import {createFfmpegComplexFilter} from './create-ffmpeg-complex-filter';
 import {getAudioCodecName} from './get-audio-codec-name';
@@ -22,7 +21,6 @@ import {getFrameInfo} from './get-frame-number-length';
 import {getProResProfileName} from './get-prores-profile-name';
 import {DEFAULT_IMAGE_FORMAT} from './image-format';
 import {parseFfmpegProgress} from './parse-ffmpeg-progress';
-import {resolveAssetSrc} from './resolve-asset-src';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
 import {validateFfmpeg} from './validate-ffmpeg';
 
