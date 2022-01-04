@@ -1,7 +1,7 @@
 import { useState } from "react";
 import React from "react";
 import { PlayerExample } from "./PlayerExample";
-import { CoolInput, inputStyle } from "./TextInput";
+import { CoolInput } from "./TextInput";
 
 export const PlayerExampleWithControls: React.FC = () => {
   const [name, setName] = useState("");

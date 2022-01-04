@@ -1,11 +1,12 @@
 import React from "react";
-import { Button } from "../layout/Button";
+import { BlueButton, Button } from "../layout/Button";
 import styles from "./footer.module.css";
 
 const container: React.CSSProperties = {
-  width: "100%",
-  backgroundColor: "#0B84F3",
-  color: "white",
+  maxWidth: 1000,
+  paddingLeft: 16,
+  paddingRight: 16,
+  margin: "auto",
 };
 
 const half: React.CSSProperties = {
@@ -17,63 +18,51 @@ const half: React.CSSProperties = {
 const inner: React.CSSProperties = {
   textAlign: "center",
   display: "flex",
-  justifyContent: "center",
-  alignItems: "center",
   flexDirection: "column",
-  paddingTop: 40,
-  paddingBottom: 40,
+  padding: 16,
+  paddingTop: 80,
+  borderRadius: 10,
   flex: 1,
+  backgroundColor: "white",
+  width: "100%",
 };
 
 export const PlayerPageFooter: React.FC = () => {
   return (
-    <div className={styles.footerrow} style={container}>
-      <div
-        style={{
-          ...half,
-          justifyContent: "flex-end",
-        }}
-      >
-        <div style={inner}>
-          <h2 className={styles.title}>New to Remotion?</h2>
-          <p>Learn about how to make videos in React.</p>
-          <a href="/" style={{ textDecoration: "none" }}>
-            <Button
-              background="white"
-              hoverColor="white"
-              color="#0B84F3"
-              loading={false}
-              fullWidth={false}
-              size="sm"
-            >
-              Learn Remotion
-            </Button>
-          </a>
+    <div
+      style={{ backgroundColor: "#0B84F3", paddingTop: 20, paddingBottom: 20 }}
+    >
+      <div className={styles.footerrow} style={container}>
+        <div
+          style={{
+            ...half,
+            justifyContent: "flex-end",
+          }}
+        >
+          <div style={inner}>
+            <h2 className={styles.title}>New to Remotion?</h2>
+            <p>Learn about how to make videos in React.</p>
+            <div style={{ height: 100 }} />
+
+            <a href="/" style={{ textDecoration: "none" }}>
+              <BlueButton loading={false} fullWidth size="sm">
+                Learn Remotion
+              </BlueButton>
+            </a>
+          </div>
         </div>
-      </div>
-      <div style={{ ...half, backgroundColor: "#0B84F3" }}>
-        <div style={inner}>
-          <h2
-            className={styles.title}
-            style={{
-              color: "white",
-            }}
-          >
-            Already used Remotion?
-          </h2>
-          <p style={{ color: "white" }}>Let{"'"}s get setup with the Player.</p>
-          <a href="/docs/player" style={{ textDecoration: "none" }}>
-            <Button
-              background="white"
-              hoverColor="white"
-              color="#0B84F3"
-              loading={false}
-              fullWidth={false}
-              size="sm"
-            >
-              Installation
-            </Button>
-          </a>
+        <div style={{ width: 20, height: 20 }} />
+        <div style={{ ...half, backgroundColor: "#0B84F3" }}>
+          <div style={inner}>
+            <h2 className={styles.title}>Already used Remotion?</h2>
+            <p>Let{"'"}s get setup with the Player.</p>
+            <div style={{ height: 100 }} />
+            <a href="/docs/player" style={{ textDecoration: "none" }}>
+              <BlueButton loading={false} fullWidth size="sm">
+                Installation
+              </BlueButton>
+            </a>
+          </div>
         </div>
       </div>
     </div>
