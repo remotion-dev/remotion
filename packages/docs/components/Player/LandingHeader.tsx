@@ -13,13 +13,24 @@ export const LandingHeader: React.FC = () => {
         <br />
         videos in React.
       </h1>
-      <video
-        src={isDarkTheme ? "/img/player-dark.mp4" : "/img/player-light.mp4"}
-        playsInline
-        muted
-        autoPlay
-        loop
-      />
+      <div
+        style={{
+          width: "100%",
+          aspectRatio: String(16 / 9),
+        }}
+      >
+        <video
+          src={isDarkTheme ? "/img/player-dark.mp4" : "/img/player-light.mp4"}
+          playsInline
+          muted
+          autoPlay
+          loop
+          style={{
+            display: "inline",
+          }}
+        />
+      </div>
+
       <br />
       <br />
       <p className={styles.p}>
