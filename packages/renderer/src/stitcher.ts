@@ -116,14 +116,8 @@ export const stitchFramesToVideo = async (options: {
 	markAllAssetsAsDownloaded();
 	const assetPositions = calculateAssetPositions(fileUrlAssets);
 
-	const assetPaths = assetPositions.map((asset) =>
-		resolveAssetSrc(
-			uncompressMediaAsset(options.assetsInfo.assets.flat(1), asset).src
-		)
-	);
-
 	const assetAudioDetails = await getAssetAudioDetails({
-		assetPaths,
+		assetPaths: assetPositions.map((a) => a.src),
 		parallelism: options.parallelism,
 	});
 
@@ -151,7 +145,7 @@ export const stitchFramesToVideo = async (options: {
 			? ['-i', `element-%0${frameInfo.numberLength}d.${imageFormat}`]
 			: null,
 		...assetsToFfmpegInputs({
-			assets: assetPaths,
+			assets: assetPositions.map((a) => a.src),
 			isAudioOnly,
 			fps: options.fps,
 			frameCount: options.assetsInfo.assets.length,
