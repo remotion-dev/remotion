@@ -25,7 +25,7 @@ export const PlayerFeatures: React.FC = () => {
         </div>
         <div style={{ width: 20, height: 30 }} />
         <div className={styles.half}>
-          <PlayerExample name={name} color={color} />
+          <PlayerExample name={name} color={color} autoPlayOnFocus />
         </div>
       </div>
       <div className={styles.row}>
