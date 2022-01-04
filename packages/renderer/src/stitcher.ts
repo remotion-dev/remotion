@@ -16,14 +16,12 @@ import {
 } from './assets/download-and-map-assets-to-file';
 import {getAssetAudioDetails} from './assets/get-asset-audio-details';
 import {Assets} from './assets/types';
-import {uncompressMediaAsset} from './assets/types';
 import {calculateFfmpegFilters} from './calculate-ffmpeg-filters';
 import {createFfmpegComplexFilter} from './create-ffmpeg-complex-filter';
 import {getAudioCodecName} from './get-audio-codec-name';
 import {getCodecName} from './get-codec-name';
 import {getProResProfileName} from './get-prores-profile-name';
 import {parseFfmpegProgress} from './parse-ffmpeg-progress';
-import {resolveAssetSrc} from './resolve-asset-src';
 import {DEFAULT_SAMPLE_RATE} from './sample-rate';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
 import {validateFfmpeg} from './validate-ffmpeg';
@@ -65,15 +63,8 @@ const getAssetsData = async (options: StitcherOptions) => {
 
 	markAllAssetsAsDownloaded();
 
-	const assetPaths = assetPositions.map((asset) =>
-		resolveAssetSrc(
-			uncompressMediaAsset((options.assetsInfo?.assets ?? []).flat(1), asset)
-				.src
-		)
-	);
-
 	const assetAudioDetails = await getAssetAudioDetails({
-		assetPaths,
+		assetPaths: assetPositions.map((a) => a.src),
 	});
 
 	const filters = calculateFfmpegFilters({
@@ -95,7 +86,7 @@ const getAssetsData = async (options: StitcherOptions) => {
 	return {
 		complexFilterFlag,
 		cleanup,
-		assetPaths,
+		assetPositions,
 	};
 };
 
@@ -151,7 +142,7 @@ export const spawnFfmpeg = async (options: StitcherOptions) => {
 	const {
 		complexFilterFlag = undefined,
 		cleanup = undefined,
-		assetPaths = undefined,
+		assetPositions = undefined,
 	} = options.parallelEncoding ? {} : await getAssetsData(options);
 
 	const ffmpegArgs = [
@@ -171,9 +162,9 @@ export const spawnFfmpeg = async (options: StitcherOptions) => {
 						: null,
 					options.parallelEncoding ? ['-i', '-'] : null,
 			  ]),
-		...(options.assetsInfo && assetPaths
+		...(options.assetsInfo && assetPositions
 			? assetsToFfmpegInputs({
-					assets: assetPaths,
+					assets: assetPositions.map((a) => a.src),
 					isAudioOnly,
 					fps: options.fps,
 					frameCount: options.assetsInfo.assets.length,
