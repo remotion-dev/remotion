@@ -1,7 +1,7 @@
 import { useState } from "react";
 import React from "react";
 import { PlayerExample } from "./PlayerExample";
-import { inputStyle } from "./TextInput";
+import { CoolInput, inputStyle } from "./TextInput";
 
 export const PlayerExampleWithControls: React.FC = () => {
   const [name, setName] = useState("");
@@ -9,18 +9,23 @@ export const PlayerExampleWithControls: React.FC = () => {
   return (
     <div>
       <PlayerExample name={name} color={color} />
-      <p>
-        Enter your name:{" "}
-        <input
-          type="text"
+      <br />
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "row",
+          alignItems: "center",
+        }}
+      >
+        <div>Enter your name: </div>
+        <div style={{ width: 8 }} />
+        <CoolInput
           placeholder="Your name"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          style={{
-            ...inputStyle,
-          }}
         />
-      </p>
+      </div>
+      <br />
       <p>
         Select your favorite color:{" "}
         <input
