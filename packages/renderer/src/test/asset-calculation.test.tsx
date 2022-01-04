@@ -28,8 +28,7 @@ test('Should be able to collect assets', async () => {
 	expect(assetPositions.length).toBe(1);
 	expect(withoutId(assetPositions[0])).toEqual({
 		type: 'video',
-		src:
-			'https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/1080/Big_Buck_Bunny_1080_10s_1MB.mp4',
+		src: 'https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/1080/Big_Buck_Bunny_1080_10s_1MB.mp4',
 		duration: 60,
 		startInVideo: 0,
 		trimLeft: 0,
@@ -49,8 +48,7 @@ test('Should get multiple assets', async () => {
 	expect(assetPositions.length).toBe(2);
 	expect(withoutId(assetPositions[0])).toEqual({
 		type: 'video',
-		src:
-			'https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/1080/Big_Buck_Bunny_1080_10s_1MB.mp4',
+		src: 'https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/1080/Big_Buck_Bunny_1080_10s_1MB.mp4',
 		duration: 60,
 		startInVideo: 0,
 		trimLeft: 0,
@@ -60,8 +58,7 @@ test('Should get multiple assets', async () => {
 	});
 	expect(withoutId(assetPositions[1])).toEqual({
 		type: 'audio',
-		src:
-			'https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/1080/Big_Buck_Bunny_1080_10s_1MB.mp3',
+		src: 'https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/1080/Big_Buck_Bunny_1080_10s_1MB.mp3',
 		duration: 60,
 		startInVideo: 0,
 		trimLeft: 0,
@@ -85,8 +82,7 @@ test('Should handle jumps inbetween', async () => {
 	expect(assetPositions.length).toBe(2);
 	expect(withoutId(assetPositions[0])).toEqual({
 		type: 'video',
-		src:
-			'https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/1080/Big_Buck_Bunny_1080_10s_1MB.mp4',
+		src: 'https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/1080/Big_Buck_Bunny_1080_10s_1MB.mp4',
 		duration: 20,
 		startInVideo: 0,
 		trimLeft: 0,
@@ -96,8 +92,7 @@ test('Should handle jumps inbetween', async () => {
 	});
 	expect(withoutId(assetPositions[1])).toEqual({
 		type: 'video',
-		src:
-			'https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/1080/Big_Buck_Bunny_1080_10s_1MB.mp4',
+		src: 'https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/1080/Big_Buck_Bunny_1080_10s_1MB.mp4',
 		duration: 39,
 		startInVideo: 21,
 		trimLeft: 21,
@@ -118,8 +113,7 @@ test('Should support sequencing', async () => {
 	expect(assetPositions.length).toBe(1);
 	expect(withoutId(assetPositions[0])).toEqual({
 		type: 'video',
-		src:
-			'https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/1080/Big_Buck_Bunny_1080_10s_1MB.mp4',
+		src: 'https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/1080/Big_Buck_Bunny_1080_10s_1MB.mp4',
 		duration: 10,
 		startInVideo: 0,
 		trimLeft: 20,
@@ -145,8 +139,7 @@ test('Should calculate volumes correctly', async () => {
 	expect(assetPositions.length).toBe(1);
 	expect(withoutId(assetPositions[0])).toEqual({
 		type: 'video',
-		src:
-			'https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/1080/Big_Buck_Bunny_1080_10s_1MB.mp4',
+		src: 'https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/1080/Big_Buck_Bunny_1080_10s_1MB.mp4',
 		duration: 60,
 		startInVideo: 0,
 		trimLeft: 0,
@@ -183,8 +176,7 @@ test('Should calculate startFrom correctly', async () => {
 	expect(assetPositions.length).toBe(1);
 	expect(withoutId(assetPositions[0])).toEqual({
 		type: 'audio',
-		src:
-			'https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/1080/Big_Buck_Bunny_1080_10s_1MB.mp4',
+		src: 'https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/1080/Big_Buck_Bunny_1080_10s_1MB.mp4',
 		duration: 59,
 		startInVideo: 1,
 		trimLeft: 100,
