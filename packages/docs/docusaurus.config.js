@@ -55,11 +55,15 @@ module.exports = {
           items: [
             {
               label: "Getting started",
-              to: "docs/",
+              to: "/docs/",
             },
             {
-              label: "API reference",
-              to: "docs/cli",
+              label: "API Reference",
+              to: "/docs/cli",
+            },
+            {
+              label: "Player",
+              to: "/player",
             },
             {
               label: "Changelog",

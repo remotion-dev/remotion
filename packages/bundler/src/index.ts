@@ -12,3 +12,4 @@ export type {ProjectInfo} from './project-info';
 
 export {bundle} from './bundler';
 export {overrideWebpackConfig};
+export {ProjectInfo} from './project-info';
