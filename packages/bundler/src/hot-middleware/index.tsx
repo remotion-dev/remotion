@@ -23,7 +23,7 @@ const pathMatch = function (url: string, path: string) {
 	}
 };
 
-export function webpackHotMiddleware(compiler: webpack.Compiler) {
+export const webpackHotMiddleware = (compiler: webpack.Compiler) => {
 	let eventStream: EventStream | null = createEventStream(
 		hotMiddlewareOptions.heartbeat
 	);
@@ -74,7 +74,7 @@ export function webpackHotMiddleware(compiler: webpack.Compiler) {
 	};
 
 	return middleware;
-}
+};
 
 type EventStream = ReturnType<typeof createEventStream>;
 

@@ -1,0 +1,24 @@
+.responsiverow {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+@media (max-width: 1000px) {
+  .responsiverow {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+.flexer {
+  flex: 1;
+}
+
+@media (max-width: 1000px) {
+  .flexer {
+    flex: none;
+    height: 20px;
+    display: block;
+  }
+}

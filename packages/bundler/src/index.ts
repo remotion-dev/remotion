@@ -10,3 +10,4 @@ export const BundlerInternals = {
 
 export {bundle} from './bundler';
 export {overrideWebpackConfig};
+export {ProjectInfo} from './project-info';
