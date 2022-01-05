@@ -4,7 +4,7 @@ import styles from "./powered.module.css";
 
 export const PoweredByRemotion: React.FC = () => {
   return (
-    <div style={{ background: `#0B84F3` }}>
+    <div style={{ background: "#0B84F3" }}>
       <div
         className={styles.responsiverow}
         style={{
