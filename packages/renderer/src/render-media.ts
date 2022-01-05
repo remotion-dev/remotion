@@ -24,6 +24,7 @@ import {
 } from './legacy-webpack-config';
 import {ensureOutputDirectory} from './ensure-output-directory';
 import {ensureFramesInOrder} from './ensure-frames-in-order';
+import {getRealFrameRange} from './get-frame-to-render';
 
 export type StitchingState = 'encoding' | 'muxing';
 
@@ -148,7 +149,9 @@ export const renderMedia = async ({
 			waitForRightTimeOfFrameToBeInserted,
 			setFrameToStitch,
 			waitForFinish,
-		} = ensureFramesInOrder(frameRange ?? null);
+		} = ensureFramesInOrder(
+			getRealFrameRange(composition.durationInFrames, frameRange ?? null)
+		);
 
 		const {assetsInfo} = await renderFrames({
 			config: composition,
@@ -172,6 +175,7 @@ export const renderMedia = async ({
 			onFrameBuffer: async (buffer, frame) => {
 				await waitForRightTimeOfFrameToBeInserted(frame);
 				stitcherFfmpeg?.stdin?.write(buffer);
+
 				setFrameToStitch(frame + 1);
 			},
 			serveUrl,

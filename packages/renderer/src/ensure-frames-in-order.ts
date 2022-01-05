@@ -1,19 +1,11 @@
-import {FrameRange} from 'remotion';
-
 type Waiter = {
 	id: string;
 	forFrame: number;
 	resolve: () => void;
 };
 
-export const ensureFramesInOrder = (frameRange: FrameRange | null) => {
-	let lastFrame = 0;
-	let frameToStitch =
-		typeof frameRange === 'number'
-			? frameRange
-			: frameRange === null
-			? 0
-			: frameRange[0];
+export const ensureFramesInOrder = (frameRange: [number, number]) => {
+	let [frameToStitch, finalFrame] = frameRange;
 
 	let waiters: Waiter[] = [];
 
@@ -27,11 +19,10 @@ export const ensureFramesInOrder = (frameRange: FrameRange | null) => {
 	};
 
 	const waitForRightTimeOfFrameToBeInserted = async (frameToBe: number) => {
-		lastFrame = Math.max(frameToBe, lastFrame);
 		return new Promise<void>((resolve) => {
 			waiters.push({
 				id: String(Math.random()),
-				forFrame: lastFrame,
+				forFrame: frameToBe,
 				resolve,
 			});
 			resolveWaiters();
@@ -44,7 +35,7 @@ export const ensureFramesInOrder = (frameRange: FrameRange | null) => {
 	};
 
 	const waitForFinish = async () => {
-		await waitForRightTimeOfFrameToBeInserted(lastFrame + 1);
+		await waitForRightTimeOfFrameToBeInserted(finalFrame + 1);
 	};
 
 	return {
