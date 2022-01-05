@@ -63,3 +63,15 @@
 pre.shiki > .code-title {
   color: var(--ifm-color-emphasis-900) !important;
 }
+
+code {
+  background-color: transparent;
+  border-width: 0;
+  color: #0b84f3;
+  padding: 0;
+}
+
+.markdown a {
+  text-underline-position: under;
+  text-decoration: underline;
+}

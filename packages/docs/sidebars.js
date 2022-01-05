@@ -37,6 +37,7 @@ module.exports = {
     "player/scaling",
     "player/integration",
     "player/autoplay",
+    "player/preloading",
   ],
   lambdaSidebar: [
     {
