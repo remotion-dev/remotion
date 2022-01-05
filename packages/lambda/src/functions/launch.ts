@@ -10,6 +10,7 @@ import {
 	encodingProgressKey,
 	LambdaPayload,
 	LambdaRoutines,
+	MAX_FUNCTIONS_PER_RENDER,
 	outName,
 	RenderMetadata,
 	renderMetadataKey,
@@ -99,8 +100,11 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 	const frameCount = realFrameRange[1] - realFrameRange[0] + 1;
 	const chunkCount = Math.ceil(frameCount / params.framesPerLambda);
 
-	if (chunkCount > 200) {
-		throw new Error(`Too many functions: A value `);
+	if (chunkCount > MAX_FUNCTIONS_PER_RENDER) {
+		throw new Error(
+			// TODO: Document better
+			`Too many functions: This render would cause ${chunkCount} functions to spawn. We limit this amount to ${MAX_FUNCTIONS_PER_RENDER} functions as more would result in diminishing returns. Calculation = ceil(frameCount / framesPerLambda). Values set: frameCount = ${frameCount}, framesPerLambda=${params.framesPerLambda}`
+		);
 	}
 
 	validatePrivacy(params.privacy);

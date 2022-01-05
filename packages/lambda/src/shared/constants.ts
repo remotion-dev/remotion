@@ -27,6 +27,8 @@ export const COMMAND_NOT_FOUND = 'Command not found';
 export const DEFAULT_REGION: AwsRegion = 'us-east-1';
 export const DEFAULT_MAX_RETRIES = 1;
 
+export const MAX_FUNCTIONS_PER_RENDER = 200;
+
 export const DEFAULT_OUTPUT_PRIVACY: Privacy = 'public';
 
 export const DEFAULT_CLOUDWATCH_RETENTION_PERIOD = 14;
