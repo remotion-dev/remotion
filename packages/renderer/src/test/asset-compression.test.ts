@@ -9,7 +9,6 @@ test('Should compress and uncompress assets', () => {
 				frame: 0,
 				id: 'my-id',
 				src: String('x').repeat(1000),
-				isRemote: true,
 				mediaFrame: 0,
 				playbackRate: 1,
 				type: 'video' as const,
@@ -21,7 +20,6 @@ test('Should compress and uncompress assets', () => {
 				frame: 1,
 				id: 'my-id',
 				src: String('x').repeat(1000),
-				isRemote: true,
 				mediaFrame: 0,
 				playbackRate: 1,
 				type: 'video' as const,
@@ -42,7 +40,6 @@ test('Should compress and uncompress assets', () => {
 		{
 			duration: 1,
 			id: 'my-id',
-			isRemote: true,
 			playbackRate: 1,
 			src: String('x').repeat(1000),
 			startInVideo: 0,
