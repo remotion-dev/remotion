@@ -1,4 +1,11 @@
 /**
+ * ⚠️ Be careful when refactoring this file!
+ * This gets injected into every file of the browser.
+ * You cannot have returns, optional chains, inverse the if statement etc.
+ * Check the Typescript output in dist/ to see that no extra `var` statements were produced
+ */
+
+/**
  * Source code is adapted from https://github.com/WebHotelier/webpack-fast-refresh#readme and rewritten in Typescript. This file is MIT licensed.
  */
 
@@ -48,7 +55,8 @@ function RefreshModuleRuntime() {
 		const currentExports = module.__proto__.exports;
 		let prevExports = null;
 
-		if (module.hot?.data?.prevExports) {
+		// eslint-disable-next-line @typescript-eslint/prefer-optional-chain
+		if (module.hot && module.hot.data && module.hot.data.prevExports) {
 			prevExports = module.hot.data.prevExports;
 		}
 
@@ -64,12 +72,12 @@ function RefreshModuleRuntime() {
 		if (self.$RefreshHelpers$.isReactRefreshBoundary(currentExports)) {
 			// Save the previous exports on update so we can compare the boundary
 			// signatures.
-			module.hot?.dispose((data) => {
+			(module.hot as __WebpackModuleApi.Hot).dispose((data) => {
 				data.prevExports = currentExports;
 			});
 			// Unconditionally accept an update to this module, we'll check if it's
 			// still a Refresh Boundary later.
-			module.hot?.accept();
+			(module.hot as __WebpackModuleApi.Hot).accept();
 
 			// This field is set when the previous version of this module was a
 			// Refresh Boundary, letting us know we need to check for invalidation or
@@ -89,7 +97,7 @@ function RefreshModuleRuntime() {
 					)
 				) {
 					// @ts-expect-error
-					module.hot?.invalidate();
+					(module.hot as __WebpackModuleApi.Hot).invalidate();
 				} else {
 					self.$RefreshHelpers$.scheduleUpdate();
 				}
@@ -102,7 +110,7 @@ function RefreshModuleRuntime() {
 			const isNoLongerABoundary = prevExports !== null;
 			if (isNoLongerABoundary) {
 				// @ts-expect-error
-				module.hot?.invalidate();
+				(module.hot as __WebpackModuleApi).invalidate();
 			}
 		}
 	}

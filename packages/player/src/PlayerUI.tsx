@@ -417,14 +417,14 @@ const PlayerUI: React.ForwardRefRenderFunction<
 	}
 
 	const loadingMarkup = renderLoading ? (
-		<div style={outerStyle}>
+		<div ref={container} style={outerStyle}>
 			{renderLoading({
 				height: outerStyle.height as number,
 				width: outerStyle.width as number,
 			})}
 		</div>
 	) : (
-		<div style={outerStyle} />
+		<div ref={container} style={outerStyle} />
 	);
 
 	return <Suspense fallback={loadingMarkup}>{content}</Suspense>;
