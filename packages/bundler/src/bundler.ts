@@ -29,6 +29,14 @@ const trimLeadingSlash = (p: string): string => {
 	return p;
 };
 
+const trimTrailingSlash = (p: string): string => {
+	if (p.endsWith('/')) {
+		return trimTrailingSlash(p.substr(0, p.length - 1));
+	}
+
+	return p;
+};
+
 export const bundle = async (
 	entryPoint: string,
 	onProgressUpdate?: (progress: number) => void,
@@ -64,7 +72,10 @@ export const bundle = async (
 
 	const baseDir = options?.publicPath ?? '/';
 	const publicDir =
-		'/' + [trimLeadingSlash(baseDir), 'public'].filter(Boolean).join('/');
+		'/' +
+		[trimTrailingSlash(trimLeadingSlash(baseDir)), 'public']
+			.filter(Boolean)
+			.join('/');
 
 	const from = path.join(process.cwd(), 'public');
 	const to = path.join(outDir, 'public');
