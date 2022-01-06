@@ -10,6 +10,17 @@ Keep track of changes to the APIs of Remotion Lambda here.
 
 [Upgrading](/docs/lambda/upgrading)
 
+## January 6th, 2022
+
+Version hash: `xxxx`
+Lambda version: '2022-01-06'
+
+- Added changes from Remotion 2.6
+- Improved error message when spawning more than 200 functions
+- Fixes
+
+Beware of not spawning over 200 functions. `functionCount = frameCount / framesPerLambda` (by default `framesPerLambda` is 20). We will make it smarter or document it better before the official launch.
+
 ## January 5th, 2022
 
 **Release possibly breaks render, don't upgrade yet!**
