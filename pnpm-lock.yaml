@@ -47,6 +47,7 @@ importers:
       '@remotion/bundler': link:packages/bundler
       '@remotion/cli': link:packages/cli
       '@remotion/gif': link:packages/gif
+      '@remotion/lambda': link:packages/lambda
       '@remotion/media-utils': link:packages/media-utils
       '@remotion/player': link:packages/player
       '@remotion/renderer': link:packages/renderer
