@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useMemo} from 'react';
 import {Internals} from 'remotion';
 import {useGetXPositionOfItemInTimeline} from '../../helpers/get-left-of-timeline-slider';
 import {TimelineSliderHandle} from './TimelineSliderHandle';
@@ -7,6 +7,7 @@ const container: React.CSSProperties = {
 	position: 'absolute',
 	bottom: 0,
 	top: 0,
+	pointerEvents: 'none',
 };
 
 const line: React.CSSProperties = {
@@ -20,10 +21,16 @@ export const TimelineSlider: React.FC = () => {
 	const timelinePosition = Internals.Timeline.useTimelinePosition();
 	const {get} = useGetXPositionOfItemInTimeline();
 
-	const left = get(timelinePosition);
+	const style: React.CSSProperties = useMemo(() => {
+		const left = get(timelinePosition);
+		return {
+			...container,
+			transform: `translateX(${left}px)`,
+		};
+	}, [timelinePosition, get]);
 
 	return (
-		<div style={{...container, transform: `translateX(${left}px)`}}>
+		<div style={style}>
 			<div style={line}>
 				<TimelineSliderHandle />
 			</div>
