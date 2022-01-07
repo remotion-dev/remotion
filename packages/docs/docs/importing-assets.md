@@ -54,7 +54,7 @@ Avoid writing a require statement that requires a file that doesn't exist. If yo
 
 ## Using videos
 
-Import your files using an import statement. Use the [`<Video />`/docs/video) component to keep the timeline and your video in sync.
+Import your files using an import statement. Use the [`<Video />`](/docs/video) component to keep the timeline and your video in sync.
 
 ```tsx twoslash
 import { Video } from "remotion";
