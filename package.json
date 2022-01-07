@@ -35,6 +35,7 @@
     "@remotion/player": "2.6.1",
     "@remotion/gif": "2.6.1",
     "@remotion/cli": "2.6.1",
+    "@remotion/lambda": "2.6.1",
     "@remotion/media-utils": "2.6.1",
     "@remotion/renderer": "2.6.1",
     "@remotion/bundler": "2.6.1",
