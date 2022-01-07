@@ -5,20 +5,37 @@ import {
 	RenderLoading,
 	ErrorFallback,
 } from '@remotion/player';
-import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import {
+	ComponentType,
+	ReactNode,
+	useCallback,
+	useEffect,
+	useMemo,
+	useRef,
+	useState,
+} from 'react';
 import {AbsoluteFill} from 'remotion';
 import {playerExampleComp} from './CarSlideshow';
 import {Loading} from './Loading';
 
 const fps = 30;
 
+type AnyComponent<T> = ComponentType<T> | ((props: T) => ReactNode);
+
+type CompProps<T> =
+	| {
+			lazyComponent: () => Promise<{default: AnyComponent<T>}>;
+	  }
+	| {
+			component: AnyComponent<T>;
+	  };
+
 export default function App({
-	comp: Comp,
 	durationInFrames,
+	...props
 }: {
-	comp: React.ComponentType<any>;
 	durationInFrames: number;
-}) {
+} & CompProps<any>) {
 	const [title, setTitle] = useState('Hello World');
 	const [color, setColor] = useState('#ffffff');
 	const [bgColor, setBgColor] = useState('#000000');
@@ -99,6 +116,7 @@ export default function App({
 		return (
 			<AbsoluteFill style={{backgroundColor: 'yellow'}}>
 				<Loading size={200} />
+				<div>Loading for 3 seconds...</div>
 			</AbsoluteFill>
 		);
 	}, []);
@@ -125,7 +143,7 @@ export default function App({
 				compositionHeight={432}
 				fps={fps}
 				durationInFrames={durationInFrames}
-				component={Comp}
+				{...props}
 				controls
 				doubleClickToFullscreen={doubleClickToFullscreen}
 				loop={loop}

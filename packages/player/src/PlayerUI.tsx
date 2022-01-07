@@ -378,7 +378,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 	}
 
 	const content = (
-		<div ref={container} style={outerStyle}>
+		<>
 			<div
 				style={outer}
 				onClick={clickToPlay ? handleClick : undefined}
@@ -409,25 +409,25 @@ const PlayerUI: React.ForwardRefRenderFunction<
 					spaceKeyToPlayOrPause={spaceKeyToPlayOrPause}
 				/>
 			) : null}
-		</div>
+		</>
 	);
 	// Don't render suspense on Node.js
 	if (IS_NODE) {
 		return content;
 	}
 
-	const loadingMarkup = renderLoading ? (
-		<div ref={container} style={outerStyle}>
-			{renderLoading({
+	const loadingMarkup = renderLoading
+		? renderLoading({
 				height: outerStyle.height as number,
 				width: outerStyle.width as number,
-			})}
-		</div>
-	) : (
-		<div ref={container} style={outerStyle} />
-	);
+		  })
+		: null;
 
-	return <Suspense fallback={loadingMarkup}>{content}</Suspense>;
+	return (
+		<div ref={container} style={outerStyle}>
+			<Suspense fallback={loadingMarkup}>{content}</Suspense>
+		</div>
+	);
 };
 
 export default forwardRef(PlayerUI);
