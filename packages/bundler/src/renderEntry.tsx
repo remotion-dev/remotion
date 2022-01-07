@@ -16,7 +16,7 @@ import {
 } from 'remotion';
 import {Homepage} from './homepage/homepage';
 
-Internals.CSSUtils.injectCSS(Internals.CSSUtils.makeDefaultCSS(null));
+Internals.CSSUtils.injectCSS(Internals.CSSUtils.makeDefaultCSS(null, '#fff'));
 
 const Root = Internals.getRoot();
 

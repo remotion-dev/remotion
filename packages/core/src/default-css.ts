@@ -19,7 +19,10 @@ export const injectCSS = (css: string) => {
 	injected[css] = true;
 };
 
-export const makeDefaultCSS = (scope: string | null) => {
+export const makeDefaultCSS = (
+	scope: string | null,
+	backgroundColor: string
+) => {
 	if (!scope) {
 		return `
     * {
@@ -27,7 +30,7 @@ export const makeDefaultCSS = (scope: string | null) => {
     }
     body {
       margin: 0;
-			background-color: #1f2428
+	    background-color: ${backgroundColor};
     }
     `;
 	}

@@ -60,7 +60,7 @@ export type PlayerProps<T> = {
 	CompProps<T>;
 
 Internals.CSSUtils.injectCSS(
-	Internals.CSSUtils.makeDefaultCSS(`.${PLAYER_CSS_CLASSNAME}`)
+	Internals.CSSUtils.makeDefaultCSS(`.${PLAYER_CSS_CLASSNAME}`, '#fff')
 );
 
 // eslint-disable-next-line complexity
