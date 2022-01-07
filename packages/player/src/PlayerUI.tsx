@@ -415,7 +415,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 	if (IS_NODE) {
 		return (
 			<div ref={container} style={outerStyle}>
-				content
+				{content}
 			</div>
 		);
 	}
