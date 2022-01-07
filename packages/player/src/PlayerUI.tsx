@@ -413,7 +413,11 @@ const PlayerUI: React.ForwardRefRenderFunction<
 	);
 	// Don't render suspense on Node.js
 	if (IS_NODE) {
-		return content;
+		return (
+			<div ref={container} style={outerStyle}>
+				{content}
+			</div>
+		);
 	}
 
 	const loadingMarkup = renderLoading
