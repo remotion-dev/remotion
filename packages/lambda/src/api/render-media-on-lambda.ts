@@ -8,11 +8,7 @@ import {
 } from 'remotion';
 import {AwsRegion} from '../pricing/aws-regions';
 import {callLambda} from '../shared/call-lambda';
-import {
-	DEFAULT_FRAMES_PER_LAMBDA,
-	LambdaRoutines,
-	Privacy,
-} from '../shared/constants';
+import {LambdaRoutines, Privacy} from '../shared/constants';
 import {convertToServeUrl} from '../shared/convert-to-serve-url';
 import {validateFramesPerLambda} from '../shared/validate-frames-per-lambda';
 
@@ -88,7 +84,7 @@ export const renderMediaOnLambda = async ({
 		functionName,
 		type: LambdaRoutines.start,
 		payload: {
-			framesPerLambda: framesPerLambda ?? DEFAULT_FRAMES_PER_LAMBDA,
+			framesPerLambda: framesPerLambda ?? null,
 			composition,
 			serveUrl: realServeUrl,
 			inputProps,

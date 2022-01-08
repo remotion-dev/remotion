@@ -11,6 +11,9 @@ import {ChunkRetry} from '../functions/helpers/get-retry-stats';
 import {EnhancedErrorInfo} from '../functions/helpers/write-lambda-error';
 import {AwsRegion} from '../pricing/aws-regions';
 
+// 10 minutes at 30fps
+export const MAX_VIDEO_LENGTH = 18000;
+
 export const MIN_MEMORY = 512;
 export const MAX_MEMORY = 10240;
 export const DEFAULT_MEMORY_SIZE = 2048;
@@ -151,7 +154,7 @@ export type LambdaPayloads = {
 		type: LambdaRoutines.start;
 		serveUrl: string;
 		composition: string;
-		framesPerLambda: number;
+		framesPerLambda: number | null;
 		inputProps: unknown;
 		codec: Codec;
 		imageFormat: ImageFormat;
@@ -170,7 +173,7 @@ export type LambdaPayloads = {
 		type: LambdaRoutines.launch;
 		serveUrl: string;
 		composition: string;
-		framesPerLambda: number;
+		framesPerLambda: number | null;
 		bucketName: string;
 		inputProps: unknown;
 		renderId: string;

@@ -1,4 +1,10 @@
+import {MINIMUM_FRAMES_PER_LAMBDA} from './constants';
+
 export const validateFramesPerLambda = (framesPerLambda: unknown) => {
+	if (framesPerLambda === null) {
+		return;
+	}
+
 	if (typeof framesPerLambda !== 'number') {
 		throw new TypeError(
 			`'framesPerLambda' needs to be a number, passed ${JSON.stringify(
@@ -25,7 +31,7 @@ export const validateFramesPerLambda = (framesPerLambda: unknown) => {
 		);
 	}
 
-	if (framesPerLambda < 4) {
+	if (framesPerLambda < MINIMUM_FRAMES_PER_LAMBDA) {
 		throw new TypeError('The framesPerLambda needs to be at least 4.');
 	}
 };
