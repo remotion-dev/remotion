@@ -1,8 +1,17 @@
 import {RenderInternals} from '@remotion/renderer';
 import {Codec} from 'remotion';
-import {outName, outStillName, RenderMetadata} from '../../defaults';
+import {
+	customOutName,
+	outName,
+	outStillName,
+	RenderMetadata,
+} from '../../defaults';
 
 export const getExpectedOutName = (renderMetadata: RenderMetadata) => {
+	if (renderMetadata.outName) {
+		return customOutName(renderMetadata.renderId, renderMetadata.outName);
+	}
+
 	if (renderMetadata.type === 'still') {
 		return outStillName(renderMetadata.renderId, renderMetadata.imageFormat);
 	}

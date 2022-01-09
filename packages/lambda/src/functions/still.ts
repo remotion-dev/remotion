@@ -12,13 +12,14 @@ import {
 	LambdaPayloads,
 	LambdaRoutines,
 	OUTPUT_PATH_PREFIX,
-	outStillName,
 	RenderMetadata,
 	renderMetadataKey,
 } from '../shared/constants';
 import {getServeUrlHash} from '../shared/make-s3-url';
 import {randomHash} from '../shared/random-hash';
+import {validateOutname} from '../shared/validate-outname';
 import {validatePrivacy} from '../shared/validate-privacy';
+import {getExpectedOutName} from './helpers/expected-out-name';
 import {formatCostsInfo} from './helpers/format-costs-info';
 import {getBrowserInstance} from './helpers/get-browser-instance';
 import {getCurrentRegionInFunction} from './helpers/get-current-region';
@@ -43,6 +44,7 @@ const innerStillHandler = async (
 	}
 
 	validatePrivacy(lambdaParams.privacy);
+	validateOutname(lambdaParams.outName);
 
 	const start = Date.now();
 
@@ -92,6 +94,7 @@ const innerStillHandler = async (
 		memorySizeInMb: Number(process.env.AWS_LAMBDA_FUNCTION_MEMORY_SIZE),
 		region: getCurrentRegionInFunction(),
 		renderId,
+		outName: lambdaParams.outName ?? undefined,
 	};
 
 	await lambdaWriteFile({
@@ -117,7 +120,7 @@ const innerStillHandler = async (
 		quality: lambdaParams.quality,
 	});
 
-	const outName = outStillName(renderId, lambdaParams.imageFormat);
+	const outName = getExpectedOutName(renderMetadata);
 
 	const {size} = await fs.promises.stat(outputPath);
 
