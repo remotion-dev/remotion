@@ -63,6 +63,7 @@ module.exports = {
     "lambda/setup",
     "lambda/permissions",
     "lambda/region-selection",
+    "lambda/concurrency",
     "lambda/runtime",
     "lambda/faq",
     "lambda/chunkoptimization",

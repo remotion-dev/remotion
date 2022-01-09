@@ -5,6 +5,8 @@ title: "npx remotion lambda render"
 slug: /lambda/cli/render
 ---
 
+import { MinimumFramesPerLambda } from "../../../components/lambda/default-frames-per-lambda";
+
 Using the `npx remotion lambda render` command, you can render a video in the cloud.
 
 The structure of a command is as follows:
@@ -89,7 +91,14 @@ Disables [chunk optimization](/docs/lambda/chunk-optimization). By default this 
 
 ### `--frames-per-lambda`
 
-How many frames should be rendered in a single Lambda function. Increase it to require less Lambda functions to render the video, decrease it to make the render faster. Default `20`.
+How many frames should be rendered in a single Lambda function. Increase it to require less Lambda functions to render the video, decrease it to make the render faster.
+
+Default value: [Dependant on video length](/docs/lambda/concurrency)  
+Minimum value: <MinimumFramesPerLambda />
+
+:::note
+The `framesPerLambda` parameter cannot result in more than 200 functions being spawned. See: [Concurrency](/docs/lambda/concurrency)
+:::
 
 ### `--quality`
 

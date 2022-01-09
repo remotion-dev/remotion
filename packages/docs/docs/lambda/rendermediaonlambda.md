@@ -3,7 +3,7 @@ id: rendermediaonlambda
 title: renderMediaOnLambda()
 ---
 
-import { DefaultFramesPerLambda, MinimumFramesPerLambda } from "../../components/lambda/default-frames-per-lambda";
+import { MinimumFramesPerLambda } from "../../components/lambda/default-frames-per-lambda";
 
 Triggers a render on a lambda given a composition and a lambda function.
 
@@ -52,8 +52,12 @@ Use [`deployFunction()`](/docs/lambda/deployfunction) to create a new function a
 
 The video rendering process gets distributed across multiple Lambda functions. This setting controls how many frames are rendered per Lambda invocation. The lower the number you pass, the more Lambdas get spawned.
 
-Default value: <DefaultFramesPerLambda /> <br/>
+Default value: [Dependant on video length](/docs/lambda/concurrency)  
 Minimum value: <MinimumFramesPerLambda />
+
+:::note
+The `framesPerLambda` parameter cannot result in more than 200 functions being spawned. See: [Concurrency](/docs/lambda/concurrency)
+:::
 
 ### `serveUrl`
 

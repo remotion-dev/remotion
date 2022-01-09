@@ -9,7 +9,7 @@ Render Remotion videos on [AWS Lambda](https://aws.amazon.com/lambda/). This is 
 import {LambdaRegionList} from '../components/lambda/regions.tsx';
 
 :::warning
-**Experimental**: APIs might undergo major changes and the framework still has rough edges and hardcoded values - see known issues section. Updates will be provided on the #lambda channel on Discord.
+**Beta**: APIs might undergo minor changes. Updates will be provided on the #lambda channel on Discord.
 
 **No release timeline**: The project is in active development but will not be rushed to a release but instead we want to ensure it's futureproof.
 :::
