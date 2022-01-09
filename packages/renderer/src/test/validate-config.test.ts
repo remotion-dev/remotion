@@ -11,6 +11,7 @@ describe('Should validate invalid data passed to renderFrames', () => {
 					height: 1000,
 					width: 1000,
 					id: 'hithere',
+					defaultProps: {},
 				},
 			})
 		).rejects.toThrow(
@@ -27,6 +28,7 @@ describe('Should validate invalid data passed to renderFrames', () => {
 					height: 1000,
 					width: 1000,
 					id: 'hithere',
+					defaultProps: {},
 				},
 			})
 		).rejects.toThrow(
@@ -43,6 +45,7 @@ describe('Should validate invalid data passed to renderFrames', () => {
 					height: 1000.5,
 					width: 1000,
 					id: 'hithere',
+					defaultProps: {},
 				},
 			})
 		).rejects.toThrow(
@@ -59,6 +62,7 @@ describe('Should validate invalid data passed to renderFrames', () => {
 					width: 1000.5,
 					height: 1000,
 					id: 'hithere',
+					defaultProps: {},
 				},
 			})
 		).rejects.toThrow(
