@@ -6,6 +6,11 @@ import path from 'path';
 import stripAnsi from 'strip-ansi';
 import {Log} from './log';
 import {openInEditorFlow} from './open-in-editor-flow';
+import {
+	getRenderCommand,
+	getStartCommand,
+	selectPackageManager,
+} from './pkg-managers';
 import prompts, {selectAsync} from './prompts';
 
 type TEMPLATES = {
@@ -96,13 +101,6 @@ function assertFolderEmptyAsync(projectRoot: string): {exists: boolean} {
 
 	return {exists: false};
 }
-
-const shouldUseYarn = (): boolean => {
-	return Boolean(
-		process.env.npm_execpath?.includes('yarn.js') ||
-			process.env.npm_config_user_agent?.includes('yarn')
-	);
-};
 
 const isGitExecutableAvailable = async () => {
 	try {
@@ -255,9 +253,21 @@ export const init = async () => {
 		)}. Installing dependencies...`
 	);
 
-	if (shouldUseYarn()) {
+	const pkgManager = selectPackageManager();
+
+	if (pkgManager === 'yarn') {
 		Log.info('> yarn');
 		const promise = execa('yarn', [], {
+			cwd: projectRoot,
+			stdio: 'inherit',
+			env: {...process.env, ADBLOCK: '1', DISABLE_OPENCOLLECTIVE: '1'},
+		});
+		promise.stderr?.pipe(process.stderr);
+		promise.stdout?.pipe(process.stdout);
+		await promise;
+	} else if (pkgManager === 'pnpm') {
+		Log.info('> pnpm i');
+		const promise = execa('pnpm', ['i'], {
 			cwd: projectRoot,
 			stdio: 'inherit',
 			env: {...process.env, ADBLOCK: '1', DISABLE_OPENCOLLECTIVE: '1'},
@@ -291,10 +301,10 @@ export const init = async () => {
 
 	Log.info('Get started by running');
 	Log.info(chalk.blueBright(`cd ${folderName}`));
-	Log.info(chalk.blueBright(shouldUseYarn() ? 'yarn start' : 'npm start'));
+	Log.info(chalk.blueBright(getStartCommand(pkgManager)));
 	Log.info('');
 	Log.info('To render a video, run');
-	Log.info(chalk.blueBright(shouldUseYarn() ? 'yarn build' : 'npm run build'));
+	Log.info(chalk.blueBright(getRenderCommand(pkgManager)));
 	Log.info('');
 	Log.info(
 		'Docs to get you started:',

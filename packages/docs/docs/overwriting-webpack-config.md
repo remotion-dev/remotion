@@ -99,6 +99,7 @@ defaultValue="npm"
 values={[
 { label: 'npm', value: 'npm', },
 { label: 'yarn', value: 'yarn', },
+{ label: 'pnpm', value: 'pnpm', },
 ]
 }>
 <TabItem value="npm">
@@ -113,6 +114,13 @@ npm i postcss-loader postcss postcss-preset-env tailwindcss autoprefixer
 
 ```bash
 yarn add postcss-loader postcss postcss-preset-env tailwindcss autoprefixer
+```
+
+  </TabItem>
+  <TabItem value="pnpm">
+
+```bash
+pnpm i postcss-loader postcss postcss-preset-env tailwindcss autoprefixer
 ```
 
   </TabItem>
@@ -197,6 +205,7 @@ defaultValue="npm"
 values={[
 { label: 'npm', value: 'npm', },
 { label: 'yarn', value: 'yarn', },
+{ label: 'pnpm', value: 'pnpm', },
 ]
 }>
 <TabItem value="npm">
@@ -211,6 +220,13 @@ npm i sass sass-loader
 
 ```bash
 yarn add sass sass-loader
+```
+
+  </TabItem>
+  <TabItem value="pnpm">
+
+```bash
+pnpm i sass sass-loader
 ```
 
   </TabItem>
