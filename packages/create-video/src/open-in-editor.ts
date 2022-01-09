@@ -1,4 +1,4 @@
-// Duplicated in create-video/src/open-in-editor.ts
+// Duplicated in bundler/src/error-overlay/react-overlay/utils/open-in-editor.ts
 
 /*
 	Source code adapted from https://github.com/facebook/create-react-app/tree/main/packages/react-error-overlay and refactored in Typescript. This file is MIT-licensed.
