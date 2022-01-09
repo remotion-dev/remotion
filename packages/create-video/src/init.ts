@@ -80,21 +80,20 @@ function assertValidName(folderName: string) {
 	}
 }
 
-async function assertFolderEmptyAsync(
-	projectRoot: string,
-	folderName?: string
-) {
+function assertFolderEmptyAsync(projectRoot: string): {exists: boolean} {
 	const conflicts = fs
 		.readdirSync(projectRoot)
 		.filter((file: string) => !/\.iml$/.test(file));
 
-	if (conflicts.length) {
-		const message = 'Try using a new directory name, or moving these files.';
+	if (conflicts.length > 0) {
 		Log.newLine();
-		Log.error(message);
+		Log.error(`Something already exists at "${projectRoot}"`);
+		Log.error('Try using a new directory name, or moving these files.');
 		Log.newLine();
-		process.exit(1);
+		return {exists: true};
 	}
+
+	return {exists: false};
 }
 
 const shouldUseYarn = (): boolean => {
@@ -125,14 +124,17 @@ const initGitRepoAsync = async (
 		await execa('git', ['rev-parse', '--is-inside-work-tree'], {
 			cwd: root,
 		});
-		!flags.silent &&
+		if (!flags.silent) {
 			Log.info(
 				'New project is already inside of a git repo, skipping git init.'
 			);
+		}
 	} catch (e) {
 		if ((e as {errno: string}).errno === 'ENOENT') {
-			!flags.silent &&
+			if (!flags.silent) {
 				Log.warn('Unable to initialize git repo. `git` not in PATH.');
+			}
+
 			return false;
 		}
 	}
@@ -140,7 +142,9 @@ const initGitRepoAsync = async (
 	// not in git tree, so let's init
 	try {
 		await execa('git', ['init'], {cwd: root});
-		!flags.silent && Log.info('Initialized a git repository.');
+		if (!flags.silent) {
+			Log.info('Initialized a git repository.');
+		}
 
 		if (flags.commit) {
 			await execa('git', ['add', '--all'], {cwd: root, stdio: 'ignore'});
@@ -162,7 +166,7 @@ const initGitRepoAsync = async (
 	}
 };
 
-const resolveProjectRootAsync = async () => {
+const resolveProjectRootAsync = async (): Promise<[string, string]> => {
 	let projectName = '';
 	try {
 		const {answer} = await prompts({
@@ -197,7 +201,9 @@ const resolveProjectRootAsync = async () => {
 
 	await fs.ensureDir(projectRoot);
 
-	await assertFolderEmptyAsync(projectRoot, folderName);
+	if (assertFolderEmptyAsync(projectRoot).exists) {
+		return resolveProjectRootAsync();
+	}
 
 	return [projectRoot, folderName];
 };
@@ -213,7 +219,7 @@ export const init = async () => {
 			)
 		) + 2;
 
-	const template = await selectAsync(
+	const selectedTemplate = await selectAsync(
 		{
 			message: 'Choose a template:',
 			optionsPerPage: 20,
@@ -234,7 +240,7 @@ export const init = async () => {
 	);
 
 	try {
-		const emitter = degit(`https://github.com/${template}`);
+		const emitter = degit(`https://github.com/${selectedTemplate}`);
 		await emitter.clone(projectRoot);
 
 		Log.info(`Cloned template into ${projectRoot}`);
@@ -251,14 +257,18 @@ export const init = async () => {
 		Log.info('> yarn');
 		const promise = execa('yarn', [], {
 			cwd: projectRoot,
+			stdio: 'inherit',
+			env: {...process.env, ADBLOCK: '1', DISABLE_OPENCOLLECTIVE: '1'},
 		});
 		promise.stderr?.pipe(process.stderr);
 		promise.stdout?.pipe(process.stdout);
 		await promise;
 	} else {
 		Log.info('> npm install');
-		const promise = execa('npm', ['install'], {
+		const promise = execa('npm', ['install', '--no-fund'], {
+			stdio: 'inherit',
 			cwd: projectRoot,
+			env: {...process.env, ADBLOCK: '1', DISABLE_OPENCOLLECTIVE: '1'},
 		});
 		promise.stderr?.pipe(process.stderr);
 		promise.stdout?.pipe(process.stdout);
@@ -266,10 +276,14 @@ export const init = async () => {
 	}
 
 	await initGitRepoAsync(projectRoot, {
-		silent: false,
+		silent: true,
 		commit: true,
 	});
 
+	Log.info();
+	Log.info();
+	Log.info();
+	Log.info();
 	Log.info(`Welcome to ${chalk.blue('Remotion')}!`);
 	Log.info(`✨ Your video has been created at ${chalk.blue(folderName)}.\n`);
 
@@ -281,8 +295,8 @@ export const init = async () => {
 	Log.info(chalk.blue(shouldUseYarn() ? 'yarn build' : 'npm run build'));
 	Log.info('');
 	Log.info(
-		'Read the documentation at',
-		chalk.underline('https://remotion.dev')
+		'Docs to get you started:',
+		chalk.underline('https://www.remotion.dev/docs/the-fundamentals')
 	);
 	Log.info('Enjoy Remotion!');
 };

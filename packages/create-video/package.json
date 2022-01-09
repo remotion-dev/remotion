@@ -12,7 +12,8 @@
 	],
 	"scripts": {
 		"build": "tsc -d",
-		"watch": "tsc -w"
+		"watch": "tsc -w",
+		"test": "eslint src --ext ts,tsx"
 	},
 	"author": "",
 	"license": "SEE LICENSE IN LICENSE.md",

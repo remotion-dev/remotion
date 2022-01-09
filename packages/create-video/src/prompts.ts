@@ -33,7 +33,7 @@ export async function selectAsync(
 		{
 			limit: 11,
 			...questions,
-			// @ts-ignore: onRender not in the types
+			// @ts-expect-error: onRender not in the types
 			onRender(this: {
 				cursor: number;
 				firstRender: boolean;
@@ -53,6 +53,7 @@ export async function selectAsync(
 						this.cursor++;
 						if (this.cursor > this.choices.length - 1) break;
 					}
+
 					this.fire();
 					// Without this, the value will be `0` instead of a string.
 					this.value = (this.choices[this.cursor] || {}).value;
@@ -60,11 +61,13 @@ export async function selectAsync(
 					// Support up arrow and `k` key -- no looping
 					this.up = () => {
 						let next = this.cursor;
+						// eslint-disable-next-line no-constant-condition
 						while (true) {
 							if (next <= 0) break;
 							next--;
 							if (!this.choices[next].disabled) break;
 						}
+
 						if (!this.choices[next].disabled && next !== this.cursor) {
 							this.moveCursor(next);
 							this.render();
@@ -76,11 +79,13 @@ export async function selectAsync(
 					// Support down arrow and `j` key -- no looping
 					this.down = () => {
 						let next = this.cursor;
+						// eslint-disable-next-line no-constant-condition
 						while (true) {
 							if (next >= this.choices.length - 1) break;
 							next++;
 							if (!this.choices[next].disabled) break;
 						}
+
 						if (!this.choices[next].disabled && next !== this.cursor) {
 							this.moveCursor(next);
 							this.render();
@@ -98,12 +103,13 @@ export async function selectAsync(
 							next = (next + 1) % this.choices.length;
 							if (!this.choices[next].disabled) break;
 						}
-						if (!this.choices[next].disabled) {
-							this.moveCursor(next);
-							this.render();
-						} else {
+
+						if (this.choices[next].disabled) {
 							// unexpected
 							this.bell();
+						} else {
+							this.moveCursor(next);
+							this.render();
 						}
 					};
 				}
