@@ -11,13 +11,13 @@ import {
 	LambdaPayload,
 	LambdaRoutines,
 	MAX_FUNCTIONS_PER_RENDER,
-	outName,
 	RenderMetadata,
 	renderMetadataKey,
 	rendersPrefix,
 } from '../shared/constants';
 import {getServeUrlHash} from '../shared/make-s3-url';
 import {validateFramesPerLambda} from '../shared/validate-frames-per-lambda';
+import {validateOutname} from '../shared/validate-outname';
 import {validatePrivacy} from '../shared/validate-privacy';
 import {collectChunkInformation} from './chunk-optimization/collect-data';
 import {getFrameRangesFromProfile} from './chunk-optimization/get-frame-ranges-from-profile';
@@ -33,6 +33,7 @@ import {
 import {concatVideosS3} from './helpers/concat-videos';
 import {createPostRenderData} from './helpers/create-post-render-data';
 import {cleanupFiles} from './helpers/delete-chunks';
+import {getExpectedOutName} from './helpers/expected-out-name';
 import {getBrowserInstance} from './helpers/get-browser-instance';
 import {getCurrentRegionInFunction} from './helpers/get-current-region';
 import {getFilesToDelete} from './helpers/get-files-to-delete';
@@ -107,6 +108,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		);
 	}
 
+	validateOutname(params.outName);
 	validatePrivacy(params.privacy);
 
 	const {chunks, didUseOptimization} = planFrameRanges({
@@ -173,6 +175,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		memorySizeInMb: Number(process.env.AWS_LAMBDA_FUNCTION_MEMORY_SIZE),
 		region: getCurrentRegionInFunction(),
 		renderId: params.renderId,
+		outName: params.outName ?? undefined,
 	};
 
 	await lambdaWriteFile({
@@ -275,10 +278,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 
 	await lambdaWriteFile({
 		bucketName: params.bucketName,
-		key: outName(
-			params.renderId,
-			RenderInternals.getFileExtensionFromCodec(params.codec, 'final')
-		),
+		key: getExpectedOutName(renderMetadata),
 		body: fs.createReadStream(outfile),
 		region: getCurrentRegionInFunction(),
 		privacy: params.privacy,
