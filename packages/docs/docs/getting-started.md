@@ -26,6 +26,7 @@ defaultValue="npm"
 values={[
 { label: 'npm', value: 'npm', },
 { label: 'yarn', value: 'yarn', },
+{ label: 'pnpm', value: 'pnpm', },
 ]
 }>
 <TabItem value="npm">
@@ -40,6 +41,13 @@ npm init video
 
 ```bash
 yarn create video
+```
+
+  </TabItem>
+  <TabItem value="pnpm">
+
+```bash
+pnpm dlx create-video
 ```
 
   </TabItem>
