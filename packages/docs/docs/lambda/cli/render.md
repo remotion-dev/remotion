@@ -93,7 +93,7 @@ Disables [chunk optimization](/docs/lambda/chunk-optimization). By default this 
 
 How many frames should be rendered in a single Lambda function. Increase it to require less Lambda functions to render the video, decrease it to make the render faster.
 
-Default value: [Dependant on video length](/docs/concurrency)  
+Default value: [Dependant on video length](/docs/lambda/concurrency)  
 Minimum value: <MinimumFramesPerLambda />
 
 :::note
