@@ -24,7 +24,6 @@ export const getOutputCodecOrUndefined = (): CodecOrUndefined => {
 export const DEFAULT_CODEC: Codec = 'h264';
 const DEFAULT_LAMBDA_CODEC: Codec = 'h264-mkv';
 
-// eslint-disable-next-line complexity
 export const getFinalOutputCodec = ({
 	codec: inputCodec,
 	fileExtension,
