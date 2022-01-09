@@ -38,6 +38,7 @@ test('Should not throw while calculating prices when time shifts occur', () => {
 				height: 1080,
 				id: 'react-svg',
 				width: 1080,
+				defaultProps: {},
 			},
 			outName: 'out.mp4',
 		},
