@@ -5,7 +5,6 @@ import {
 import {lambda} from 'aws-policies';
 import {quit} from '../cli/helpers/quit';
 import {AwsRegion} from '../pricing/aws-regions';
-import {AWS_REGIONS} from '../regions';
 import {getLambdaClient} from '../shared/aws-clients';
 import {CURRENT_VERSION} from '../shared/constants';
 
@@ -26,55 +25,54 @@ const layerInfo: {
 	'us-west-2': [],
 };
 
+const region = 'eu-central-1';
 const makeLayerPublic = async () => {
 	const layers = ['remotion', 'ffmpeg', 'chromium'] as const;
-	for (const region of AWS_REGIONS) {
-		for (const layer of layers) {
-			const layerName = `remotion-binaries-${layer}`;
-			const {Version, LayerArn} = await getLambdaClient(region).send(
-				new PublishLayerVersionCommand({
-					Content: {
-						S3Bucket: 'remotionlambda-binaries-' + region,
-						S3Key: `remotion-layer-${layer}-v3.zip`,
-					},
-					LayerName: layerName,
-					LicenseInfo:
-						layer === 'chromium'
-							? 'Compiled from Chromium source. Read Chromium License: https://chromium.googlesource.com/chromium/src/+/refs/heads/main/LICENSE'
-							: layer === 'ffmpeg'
-							? 'Compiled from FFMPEG source. Read FFMPEG license: https://ffmpeg.org/legal.html'
-							: 'Contains UNIX .so files and Noto Sans font. Read Noto Sans License: https://fonts.google.com/noto/specimen/Noto+Sans/about',
-					CompatibleRuntimes: runtimes,
-					Description: CURRENT_VERSION,
-				})
-			);
-			await getLambdaClient(region).send(
-				new AddLayerVersionPermissionCommand({
-					Action: lambda.GetLayerVersion,
-					LayerName: layerName,
-					Principal: '*',
-					VersionNumber: Version,
-					StatementId: 'public-layer',
-				})
-			);
-			if (!layerInfo[region]) {
-				layerInfo[region] = [];
-			}
-
-			if (!LayerArn) {
-				throw new Error('layerArn is null');
-			}
-
-			if (!Version) {
-				throw new Error('Version is null');
-			}
-
-			layerInfo[region].push({
-				layerArn: LayerArn,
-				version: Version,
-			});
-			console.log({LayerArn, Version});
+	for (const layer of layers) {
+		const layerName = `remotion-binaries-${layer}`;
+		const {Version, LayerArn} = await getLambdaClient(region).send(
+			new PublishLayerVersionCommand({
+				Content: {
+					S3Bucket: 'remotionlambda-binaries-' + region,
+					S3Key: `remotion-layer-${layer}-v3.zip`,
+				},
+				LayerName: layerName,
+				LicenseInfo:
+					layer === 'chromium'
+						? 'Compiled from Chromium source. Read Chromium License: https://chromium.googlesource.com/chromium/src/+/refs/heads/main/LICENSE'
+						: layer === 'ffmpeg'
+						? 'Compiled from FFMPEG source. Read FFMPEG license: https://ffmpeg.org/legal.html'
+						: 'Contains UNIX .so files and Noto Sans font. Read Noto Sans License: https://fonts.google.com/noto/specimen/Noto+Sans/about',
+				CompatibleRuntimes: runtimes,
+				Description: CURRENT_VERSION,
+			})
+		);
+		await getLambdaClient(region).send(
+			new AddLayerVersionPermissionCommand({
+				Action: lambda.GetLayerVersion,
+				LayerName: layerName,
+				Principal: '*',
+				VersionNumber: Version,
+				StatementId: 'public-layer',
+			})
+		);
+		if (!layerInfo[region]) {
+			layerInfo[region] = [];
 		}
+
+		if (!LayerArn) {
+			throw new Error('layerArn is null');
+		}
+
+		if (!Version) {
+			throw new Error('Version is null');
+		}
+
+		layerInfo[region].push({
+			layerArn: LayerArn,
+			version: Version,
+		});
+		console.log({LayerArn, Version});
 	}
 };
 

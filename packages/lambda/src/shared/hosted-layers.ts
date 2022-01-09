@@ -80,17 +80,17 @@ export const hostedLayers: {
 		{
 			layerArn:
 				'arn:aws:lambda:eu-central-1:678892195805:layer:remotion-binaries-remotion',
-			version: 20,
+			version: 28,
 		},
 		{
 			layerArn:
 				'arn:aws:lambda:eu-central-1:678892195805:layer:remotion-binaries-ffmpeg',
-			version: 20,
+			version: 28,
 		},
 		{
 			layerArn:
 				'arn:aws:lambda:eu-central-1:678892195805:layer:remotion-binaries-chromium',
-			version: 20,
+			version: 28,
 		},
 	],
 	'eu-west-1': [

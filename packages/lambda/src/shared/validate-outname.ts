@@ -1,5 +1,5 @@
 export const validateOutname = (outName: string | null) => {
-	if (outName === null) {
+	if (outName === null || outName === undefined) {
 		return;
 	}
 

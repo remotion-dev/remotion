@@ -45,7 +45,10 @@ export const openBrowser = async (
 			'--hide-scrollbars', // https://source.chromium.org/search?q=lang:cpp+symbol:kHideScrollbars&ss=chromium
 			'--no-default-browser-check', // https://source.chromium.org/search?q=lang:cpp+symbol:kNoDefaultBrowserCheck&ss=chromium
 			'--no-pings', // https://source.chromium.org/search?q=lang:cpp+symbol:kNoPings&ss=chromium
-			'--no-zygote', // https://source.chromium.org/search?q=lang:cpp+symbol:kNoZygote&ss=chromium
+			'--no-zygote', // https://source.chromium.org/search?q=lang:cpp+symbol:kNoZygote&ss=chromium,
+			'--ignore-gpu-blacklist',
+			'--enable-webgl',
+			'--in-process-gpu',
 		].filter(Boolean) as string[],
 	});
 	const pages = await browserInstance.pages();
