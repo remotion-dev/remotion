@@ -35,6 +35,7 @@ export type RenderMediaOnLambdaInput = {
 	enableChunkOptimization?: boolean;
 	logLevel?: LogLevel;
 	frameRange?: FrameRange;
+	outName?: string;
 };
 
 export type RenderMediaOnLambdaOutput = {
@@ -81,6 +82,7 @@ export const renderMediaOnLambda = async ({
 	enableChunkOptimization,
 	logLevel,
 	frameRange,
+	outName,
 }: RenderMediaOnLambdaInput): Promise<RenderMediaOnLambdaOutput> => {
 	validateFramesPerLambda(framesPerLambda);
 	const realServeUrl = await convertToServeUrl(serveUrl, region);
@@ -104,6 +106,7 @@ export const renderMediaOnLambda = async ({
 			enableChunkOptimization,
 			logLevel: logLevel ?? Internals.Logging.DEFAULT_LOG_LEVEL,
 			frameRange: frameRange ?? null,
+			outName: outName ?? null,
 		},
 		region,
 	});

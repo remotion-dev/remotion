@@ -112,6 +112,12 @@ _Default `true`_
 
 If this is enabled, Remotion will use [chunk optimization](/docs/lambda/chunk-optimization) to learn from a rendering and restructure chunks for subsequent renders of the same composition to optimize for overall render time.
 
+### `outName`
+
+_optional_
+
+The file name of the media output. By default, it is `out` plus the appropriate file extension, for example: `out.mp4`. Must match `/([0-9a-zA-Z-!_.*'()]+)/g`.
+
 ## Return value
 
 Returns a promise resolving to an object containing two properties: `renderId` and `bucketName`. Those are useful for passing to `getRenderProgress()`
