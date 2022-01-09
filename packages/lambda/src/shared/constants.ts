@@ -11,6 +11,9 @@ import {ChunkRetry} from '../functions/helpers/get-retry-stats';
 import {EnhancedErrorInfo} from '../functions/helpers/write-lambda-error';
 import {AwsRegion} from '../pricing/aws-regions';
 
+// 10 minutes at 30fps
+export const MAX_VIDEO_LENGTH = 18000;
+
 export const MIN_MEMORY = 512;
 export const MAX_MEMORY = 10240;
 export const DEFAULT_MEMORY_SIZE = 2048;
@@ -153,7 +156,7 @@ export type LambdaPayloads = {
 		type: LambdaRoutines.start;
 		serveUrl: string;
 		composition: string;
-		framesPerLambda: number;
+		framesPerLambda: number | null;
 		inputProps: unknown;
 		codec: Codec;
 		imageFormat: ImageFormat;
@@ -173,7 +176,7 @@ export type LambdaPayloads = {
 		type: LambdaRoutines.launch;
 		serveUrl: string;
 		composition: string;
-		framesPerLambda: number;
+		framesPerLambda: number | null;
 		bucketName: string;
 		inputProps: unknown;
 		renderId: string;
@@ -275,6 +278,7 @@ export type RenderMetadata = {
 };
 
 export type LambdaVersions =
+	| '2022-01-09'
 	| '2022-01-06'
 	| '2022-01-05'
 	| '2021-12-22'
@@ -312,7 +316,7 @@ export type LambdaVersions =
 	| '2021-06-23'
 	| 'n/a';
 
-export const CURRENT_VERSION: LambdaVersions = '2022-01-06';
+export const CURRENT_VERSION: LambdaVersions = '2022-01-09';
 
 export type PostRenderData = {
 	cost: {

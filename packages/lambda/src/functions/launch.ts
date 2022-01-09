@@ -15,6 +15,7 @@ import {
 	renderMetadataKey,
 	rendersPrefix,
 } from '../shared/constants';
+import {DOCS_URL} from '../shared/docs-url';
 import {getServeUrlHash} from '../shared/make-s3-url';
 import {validateFramesPerLambda} from '../shared/validate-frames-per-lambda';
 import {validateOutname} from '../shared/validate-outname';
@@ -30,6 +31,7 @@ import {
 	getOptimization,
 	writeOptimization,
 } from './chunk-optimization/s3-optimization-file';
+import {bestFramesPerLambdaParam} from './helpers/best-frames-per-lambda-param';
 import {concatVideosS3} from './helpers/concat-videos';
 import {createPostRenderData} from './helpers/create-post-render-data';
 import {cleanupFiles} from './helpers/delete-chunks';
@@ -56,12 +58,6 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 	if (params.type !== LambdaRoutines.launch) {
 		throw new Error('Expected launch type');
 	}
-
-	if (!params.framesPerLambda) {
-		throw new Error('You need to pass "framesPerLambda" parameter');
-	}
-
-	validateFramesPerLambda(params.framesPerLambda);
 
 	const [browserInstance, optimization] = await Promise.all([
 		getBrowserInstance(
@@ -99,12 +95,17 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 	);
 
 	const frameCount = realFrameRange[1] - realFrameRange[0] + 1;
-	const chunkCount = Math.ceil(frameCount / params.framesPerLambda);
+
+	const framesPerLambda =
+		params.framesPerLambda ?? bestFramesPerLambdaParam(frameCount);
+
+	validateFramesPerLambda(framesPerLambda);
+
+	const chunkCount = Math.ceil(frameCount / framesPerLambda);
 
 	if (chunkCount > MAX_FUNCTIONS_PER_RENDER) {
 		throw new Error(
-			// TODO: Document better
-			`Too many functions: This render would cause ${chunkCount} functions to spawn. We limit this amount to ${MAX_FUNCTIONS_PER_RENDER} functions as more would result in diminishing returns. Calculation = ceil(frameCount / framesPerLambda). Values set: frameCount = ${frameCount}, framesPerLambda=${params.framesPerLambda}`
+			`Too many functions: This render would cause ${chunkCount} functions to spawn. We limit this amount to ${MAX_FUNCTIONS_PER_RENDER} functions as more would result in diminishing returns. Values set: frameCount = ${frameCount}, framesPerLambda=${framesPerLambda}. See ${DOCS_URL}/docs/lambda/concurrency for how this parameter is calculated.`
 		);
 	}
 
@@ -113,7 +114,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 
 	const {chunks, didUseOptimization} = planFrameRanges({
 		chunkCount,
-		framesPerLambda: params.framesPerLambda,
+		framesPerLambda,
 		optimization,
 		shouldUseOptimization: params.enableChunkOptimization,
 		frameRange: realFrameRange,
@@ -171,7 +172,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		imageFormat: params.imageFormat,
 		inputProps: params.inputProps,
 		lambdaVersion: CURRENT_VERSION,
-		framesPerLambda: params.framesPerLambda,
+		framesPerLambda,
 		memorySizeInMb: Number(process.env.AWS_LAMBDA_FUNCTION_MEMORY_SIZE),
 		region: getCurrentRegionInFunction(),
 		renderId: params.renderId,
@@ -306,7 +307,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 						oldTiming: getProfileDuration(chunkData),
 						newTiming: getProfileDuration(optimizedProfile),
 						createdFromRenderId: params.renderId,
-						framesPerLambda: params.framesPerLambda,
+						framesPerLambda,
 						lambdaVersion: CURRENT_VERSION,
 						frameRange: realFrameRange,
 					},
