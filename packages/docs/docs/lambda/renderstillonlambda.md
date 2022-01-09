@@ -94,6 +94,12 @@ _optional - default `{}`_
 
 See [`renderMedia() -> envVariables`](/docs/renderer/render-media#envvariables).
 
+### `outName`
+
+_optional_
+
+The file name of the media output. By default, it is `out` plus the appropriate file extension, for example: `out.png`. Must match `/([0-9a-zA-Z-!_.*'()]+)/g`.
+
 ## Return value
 
 Returns a promise resolving to an object with the following properties:

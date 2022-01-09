@@ -74,6 +74,7 @@ export const stillCommand = async (args: string[]) => {
 		frame: cliOptions.stillFrame,
 		quality: cliOptions.quality,
 		logLevel: cliOptions.logLevel,
+		outName: parsedLambdaCli['out-name'],
 	});
 
 	Log.verbose(
