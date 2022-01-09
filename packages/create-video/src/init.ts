@@ -5,6 +5,11 @@ import fs from 'fs-extra';
 import path from 'path';
 import stripAnsi from 'strip-ansi';
 import {Log} from './log';
+import {
+	getDisplayNameForEditor,
+	guessEditor,
+	launchEditor,
+} from './open-in-editor';
 import prompts, {selectAsync} from './prompts';
 
 type TEMPLATES = {
@@ -251,8 +256,13 @@ export const init = async () => {
 	}
 
 	Log.info(
-		`Created project at ${chalk.blue(folderName)}. Installing dependencies...`
+		`Created project at ${chalk.blueBright(
+			folderName
+		)}. Installing dependencies...`
 	);
+	const [editor] = await guessEditor();
+	await launchEditor(projectRoot, 1, 1, editor);
+
 	if (shouldUseYarn()) {
 		Log.info('> yarn');
 		const promise = execa('yarn', [], {
@@ -284,15 +294,17 @@ export const init = async () => {
 	Log.info();
 	Log.info();
 	Log.info();
-	Log.info(`Welcome to ${chalk.blue('Remotion')}!`);
-	Log.info(`✨ Your video has been created at ${chalk.blue(folderName)}.\n`);
+	Log.info(`Welcome to ${chalk.blueBright('Remotion')}!`);
+	Log.info(
+		`✨ Your video has been created at ${chalk.blueBright(folderName)}.\n`
+	);
 
 	Log.info('Get started by running');
-	Log.info(chalk.blue(`cd ${folderName}`));
-	Log.info(chalk.blue(shouldUseYarn() ? 'yarn start' : 'npm start'));
+	Log.info(chalk.blueBright(`cd ${folderName}`));
+	Log.info(chalk.blueBright(shouldUseYarn() ? 'yarn start' : 'npm start'));
 	Log.info('');
-	Log.info('To render an MP4 video, run');
-	Log.info(chalk.blue(shouldUseYarn() ? 'yarn build' : 'npm run build'));
+	Log.info('To render a video, run');
+	Log.info(chalk.blueBright(shouldUseYarn() ? 'yarn build' : 'npm run build'));
 	Log.info('');
 	Log.info(
 		'Docs to get you started:',
