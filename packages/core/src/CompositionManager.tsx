@@ -14,6 +14,7 @@ export type TComposition<T = unknown> = {
 	fps: number;
 	durationInFrames: number;
 	id: string;
+	deviceScaleFactor?: number;
 	component: LazyExoticComponent<LooseAnyComponent<T>>;
 	defaultProps: T | undefined;
 	nonce: number;
@@ -21,7 +22,13 @@ export type TComposition<T = unknown> = {
 
 export type TCompMetadata = Pick<
 	TComposition,
-	'id' | 'height' | 'width' | 'fps' | 'durationInFrames' | 'defaultProps'
+	| 'id'
+	| 'height'
+	| 'width'
+	| 'fps'
+	| 'durationInFrames'
+	| 'defaultProps'
+	| 'deviceScaleFactor'
 >;
 
 type EnhancedTSequenceData =

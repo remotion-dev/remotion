@@ -6,3 +6,4 @@ coverage
 packages/example/.env
 .cache
 packages/example/out
+.env
