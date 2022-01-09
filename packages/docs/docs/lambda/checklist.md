@@ -35,6 +35,10 @@ Familiarize yourself with the [AWS burst limit](https://docs.aws.amazon.com/lamb
 
 The maximum payload for invoking a Lambda function is 256KB. Ensure that in your application, the `inputProps` payload does not exceed this amount and introduce validation and error handling if necessary.
 
+### Selecting the right concurrency
+
+If you are using the [`framesPerLambda`](/docs/lambda/rendermediaonlambda#framesperlambda) option, make sure that for each video you render, the parameter is set in a way that it stays within the allowed bounds (no more than 200 lambda functions per render).
+
 ### Bucket privacy
 
 By default the rendered videos are publicly accessible in your bucket. Use the `privacy` setting in [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda) to make renders private if you'd like so.
