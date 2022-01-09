@@ -98,6 +98,7 @@ const video = {
   width: 1080,
   height: 1080,
   id: "my-video",
+  defaultProps: {},
 };
 const bundled = "/path/to/bundle";
 const framesDir = "/path/to/frames";
