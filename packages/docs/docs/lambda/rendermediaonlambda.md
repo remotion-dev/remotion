@@ -52,7 +52,7 @@ Use [`deployFunction()`](/docs/lambda/deployfunction) to create a new function a
 
 The video rendering process gets distributed across multiple Lambda functions. This setting controls how many frames are rendered per Lambda invocation. The lower the number you pass, the more Lambdas get spawned.
 
-Default value: [Dependant on video length](/docs/concurrency)  
+Default value: [Dependant on video length](/docs/lambda/concurrency)  
 Minimum value: <MinimumFramesPerLambda />
 
 :::note
