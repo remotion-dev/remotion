@@ -10,6 +10,11 @@ Keep track of changes to the APIs of Remotion Lambda here.
 
 [Upgrading](/docs/lambda/upgrading)
 
+## Unreleased
+
+- New algorithm for determining default concurrency: https://v3.remotion.dev/docs/lambda/concurrency
+- Better error message if concurrency is too high
+
 ## January 6th, 2022
 
 Version hash: `3.0.0-lambda.244+d055311e8`
