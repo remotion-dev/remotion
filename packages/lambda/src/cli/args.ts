@@ -18,6 +18,7 @@ type LambdaCommandLineOptions = {
 	['save-browser-logs']: boolean;
 	['disable-cloudwatch']: boolean;
 	['max-retries']: number;
+	['out-name']: string | undefined;
 	privacy: Privacy;
 };
 
