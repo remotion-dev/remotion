@@ -7,6 +7,9 @@ const shouldUseYarn = (): boolean => {
 	);
 };
 
+// TODO: reverse
+console.log(process.env);
+
 const shouldUsePnpm = (): boolean => {
 	return Boolean(process.env.npm_config_user_agent?.includes('pnpm'));
 };
