@@ -4,4 +4,5 @@ export type VideoConfig = {
 	fps: number;
 	durationInFrames: number;
 	id: string;
+	defaultProps: unknown;
 };
