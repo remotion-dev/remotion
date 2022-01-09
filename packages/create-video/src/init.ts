@@ -5,11 +5,7 @@ import fs from 'fs-extra';
 import path from 'path';
 import stripAnsi from 'strip-ansi';
 import {Log} from './log';
-import {
-	getDisplayNameForEditor,
-	guessEditor,
-	launchEditor,
-} from './open-in-editor';
+import {openInEditorFlow} from './open-in-editor-flow';
 import prompts, {selectAsync} from './prompts';
 
 type TEMPLATES = {
@@ -247,8 +243,6 @@ export const init = async () => {
 	try {
 		const emitter = degit(`https://github.com/${selectedTemplate}`);
 		await emitter.clone(projectRoot);
-
-		Log.info(`Cloned template into ${projectRoot}`);
 	} catch (e) {
 		Log.error(e);
 		Log.error('Error with template cloning. Aborting');
@@ -260,8 +254,6 @@ export const init = async () => {
 			folderName
 		)}. Installing dependencies...`
 	);
-	const [editor] = await guessEditor();
-	await launchEditor(projectRoot, 1, 1, editor);
 
 	if (shouldUseYarn()) {
 		Log.info('> yarn');
@@ -291,13 +283,11 @@ export const init = async () => {
 	});
 
 	Log.info();
-	Log.info();
-	Log.info();
-	Log.info();
 	Log.info(`Welcome to ${chalk.blueBright('Remotion')}!`);
 	Log.info(
-		`✨ Your video has been created at ${chalk.blueBright(folderName)}.\n`
+		`✨ Your video has been created at ${chalk.blueBright(folderName)}.`
 	);
+	await openInEditorFlow(projectRoot);
 
 	Log.info('Get started by running');
 	Log.info(chalk.blueBright(`cd ${folderName}`));

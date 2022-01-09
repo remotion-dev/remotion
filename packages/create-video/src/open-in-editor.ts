@@ -19,7 +19,18 @@ import os from 'os';
 
 const execProm = util.promisify(exec);
 
-function isTerminalEditor(editor: string) {
+export const isVsCodeDerivative = (editor: Editor) => {
+	return (
+		editor === 'code' ||
+		editor === 'code-insiders' ||
+		editor === 'Code.exe' ||
+		editor === 'vscodium' ||
+		editor === 'VSCodium.exe' ||
+		editor === 'Code - Insiders.exe'
+	);
+};
+
+export function isTerminalEditor(editor: Editor) {
 	switch (editor) {
 		case 'vim':
 		case 'emacs':
@@ -85,6 +96,7 @@ const editorNames = [
 	'goland64.exe',
 	'rider.exe',
 	'rider64.exe',
+	'nano',
 ] as const;
 
 const displayNameForEditor: {[key in Editor]: string} = {
@@ -145,6 +157,7 @@ const displayNameForEditor: {[key in Editor]: string} = {
 	vim: 'vim',
 	vscodium: 'VS Codium',
 	webstorm: 'WebStorm',
+	nano: 'nano',
 };
 
 export const getDisplayNameForEditor = (
@@ -390,12 +403,19 @@ export async function guessEditor(): Promise<Editor[]> {
 
 let _childProcess: ChildProcess | null = null;
 
-export async function launchEditor(
-	fileName: string,
-	lineNumber: number,
-	colNumber: number,
-	editor: Editor
-): Promise<boolean> {
+export async function launchEditor({
+	colNumber,
+	editor,
+	fileName,
+	lineNumber,
+	vsCodeNewWindow,
+}: {
+	fileName: string;
+	lineNumber: number;
+	colNumber: number;
+	editor: Editor;
+	vsCodeNewWindow: boolean;
+}): Promise<boolean> {
 	if (!fs.existsSync(fileName)) {
 		return false;
 	}
@@ -454,7 +474,12 @@ export async function launchEditor(
 		return false;
 	}
 
-	const args = lineNumber
+	const shouldOpenVsCodeNewWindow =
+		isVsCodeDerivative(editor) && vsCodeNewWindow;
+
+	const args = shouldOpenVsCodeNewWindow
+		? ['--new-window', fileName]
+		: lineNumber
 		? getArgumentsForLineNumber(editor, fileName, String(lineNumber), colNumber)
 		: [fileName];
 
