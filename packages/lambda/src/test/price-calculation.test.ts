@@ -39,6 +39,7 @@ test('Should not throw while calculating prices when time shifts occur', () => {
 				id: 'react-svg',
 				width: 1080,
 			},
+			outName: 'out.mp4',
 		},
 	});
 	expect(price).toBeGreaterThanOrEqual(0);

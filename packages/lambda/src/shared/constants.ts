@@ -118,6 +118,8 @@ export const outName = (renderId: string, extension: string) =>
 	`${rendersPrefix(renderId)}/out.${extension}`;
 export const outStillName = (renderId: string, imageFormat: ImageFormat) =>
 	`${rendersPrefix(renderId)}/out.${imageFormat}`;
+export const customOutName = (renderId: string, name: string) =>
+	`${rendersPrefix(renderId)}/${name}`;
 
 export const postRenderDataKey = (renderId: string) => {
 	return `${rendersPrefix(renderId)}/post-render-metadata.json`;
@@ -168,6 +170,7 @@ export type LambdaPayloads = {
 		enableChunkOptimization: boolean | undefined;
 		logLevel: LogLevel;
 		frameRange: FrameRange | null;
+		outName: string | null;
 	};
 	launch: {
 		type: LambdaRoutines.launch;
@@ -189,6 +192,7 @@ export type LambdaPayloads = {
 		enableChunkOptimization: boolean;
 		logLevel: LogLevel;
 		frameRange: FrameRange | null;
+		outName: string | null;
 	};
 	fire: {
 		type: LambdaRoutines.fire;
@@ -239,6 +243,7 @@ export type LambdaPayloads = {
 		frame: number;
 		privacy: Privacy;
 		logLevel?: LogLevel;
+		outName: string | null;
 	};
 };
 
@@ -269,6 +274,7 @@ export type RenderMetadata = {
 	lambdaVersion: LambdaVersions;
 	region: AwsRegion;
 	renderId: string;
+	outName: string | undefined;
 };
 
 export type LambdaVersions =

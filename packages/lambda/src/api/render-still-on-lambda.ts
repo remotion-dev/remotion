@@ -21,6 +21,7 @@ export type RenderStillOnLambdaInput = {
 	quality?: number;
 	frame?: number;
 	logLevel?: LogLevel;
+	outName?: string;
 };
 
 export type RenderStillOnLambdaOutput = {
@@ -61,6 +62,7 @@ export const renderStillOnLambda = async ({
 	privacy,
 	frame,
 	logLevel,
+	outName,
 }: RenderStillOnLambdaInput): Promise<RenderStillOnLambdaOutput> => {
 	const realServeUrl = await convertToServeUrl(serveUrl, region);
 
@@ -79,6 +81,7 @@ export const renderStillOnLambda = async ({
 			privacy,
 			attempt: 1,
 			logLevel,
+			outName: outName ?? null,
 		},
 		region,
 	});
