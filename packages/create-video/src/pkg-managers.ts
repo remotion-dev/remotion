@@ -7,11 +7,17 @@ const shouldUseYarn = (): boolean => {
 	);
 };
 
-// TODO: reverse
-console.log(process.env);
-
 const shouldUsePnpm = (): boolean => {
-	return Boolean(process.env.npm_config_user_agent?.includes('pnpm'));
+	if (!process.env.npm_config_argv) {
+		return false;
+	}
+
+	try {
+		const conf = JSON.parse(process.env.npm_config_argv);
+		return conf.remain[0] === 'dlx';
+	} catch (err) {
+		return false;
+	}
 };
 
 export const selectPackageManager = (): PackageManager => {
