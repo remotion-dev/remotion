@@ -89,6 +89,7 @@ export const Index: React.FC = () => {
 				width={1080}
 				height={1920}
 				fps={30}
+				deviceScaleFactor={3}
 				durationInFrames={7 * 30}
 			/>
 			<Composition
