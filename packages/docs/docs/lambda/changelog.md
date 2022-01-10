@@ -10,6 +10,13 @@ Keep track of changes to the APIs of Remotion Lambda here.
 
 [Upgrading](/docs/lambda/upgrading)
 
+## January 10th, 2022 (2)
+
+Version hash: `3.0.0-lambda.277+6ca1f0eac`
+Lambda version: '2022-01-11'
+
+- Fixes the render erroring if `framesPerLambda` is not specified. To be clear, this parameter stays optional.
+
 ## January 10th, 2022
 
 Version hash: `3.0.0-lambda.274+a3183304a`
