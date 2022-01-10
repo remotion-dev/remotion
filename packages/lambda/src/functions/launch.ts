@@ -148,7 +148,6 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 			privacy: params.privacy,
 			logLevel: params.logLevel ?? Internals.Logging.DEFAULT_LOG_LEVEL,
 			attempt: 1,
-			defaultProps: comp.defaultProps,
 		};
 		return payload;
 	});

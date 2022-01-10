@@ -24,6 +24,11 @@ export type TCompMetadata = Pick<
 	'id' | 'height' | 'width' | 'fps' | 'durationInFrames' | 'defaultProps'
 >;
 
+export type SmallTCompMetadata = Pick<
+	TComposition,
+	'id' | 'height' | 'width' | 'fps' | 'durationInFrames'
+>;
+
 type EnhancedTSequenceData =
 	| {
 			type: 'sequence';

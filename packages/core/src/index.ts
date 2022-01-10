@@ -22,7 +22,7 @@ export * from './AbsoluteFill';
 export {AnyComponent} from './any-component';
 export * from './audio';
 export * from './Composition';
-export {TAsset} from './CompositionManager';
+export {TAsset, TCompMetadata, SmallTCompMetadata} from './CompositionManager';
 export * from './config';
 export {getInputProps} from './config/input-props';
 export * from './easing';
