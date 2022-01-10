@@ -12,14 +12,16 @@ Keep track of changes to the APIs of Remotion Lambda here.
 
 ## January 10th, 2022
 
-Version hash: `3.0.0-lambda.271+b3f35bd3f`
 Lambda version: '2022-01-10'
 
 - New option to allow the filename of the output: `outName` in `renderMedia` / `renderStill` and `--out-name` in CLI flags
+- Reenable WebGL support
+- Update to Chromium 97
 - New algorithm for determining default concurrency: https://v3.remotion.dev/docs/lambda/concurrency
 - Better error message if concurrency is too high
 - Remove `colors` module
 - Fixes an error where payload limit would be reached because `defaultProps` had a big size
+- Add @aws-sdk/abort-controller peer dependency explicitly to fix npm7 error
 
 ## January 6th, 2022
 

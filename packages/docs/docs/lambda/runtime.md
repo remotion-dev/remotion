@@ -32,7 +32,7 @@ The function only has 512MB of storage space in total. available for video rende
 The function already includes a running version of Chromium.
 The browser was compiled including the proprietary codecs, so you can include MP4 videos into your project.
 
-**Chromium revision**: `884014` (`92.0.4512.0`)
+**Chromium revision**: `97.0.4692.65`
 
 ## FFMPEG
 
