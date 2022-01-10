@@ -16,6 +16,7 @@ Keep track of changes to the APIs of Remotion Lambda here.
 - New algorithm for determining default concurrency: https://v3.remotion.dev/docs/lambda/concurrency
 - Better error message if concurrency is too high
 - Remove `colors` module
+- Fixes an error where payload limit would be reached because `defaultProps` had a big size
 
 ## January 6th, 2022
 
