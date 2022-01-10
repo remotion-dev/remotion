@@ -3,7 +3,7 @@ title: getVideoMetadata()
 id: get-video-metadata
 ---
 
-_Part of the `@remotion/media-utils`_ package of helper functions.
+_Part of the `@remotion/media-utils` package of helper functions._
 
 Takes a `src` to a video, loads it and returns metadata for the specified source.
 

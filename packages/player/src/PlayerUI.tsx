@@ -26,6 +26,12 @@ import {IS_NODE} from './utils/is-node';
 import {useClickPreventionOnDoubleClick} from './utils/use-click-prevention-on-double-click';
 import {useElementSize} from './utils/use-element-size';
 
+export type ErrorFallback = (info: {error: Error}) => React.ReactNode;
+export type RenderLoading = (canvas: {
+	height: number;
+	width: number;
+}) => React.ReactChild;
+
 const PlayerUI: React.ForwardRefRenderFunction<
 	PlayerRef,
 	{
@@ -43,8 +49,9 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		setMediaVolume: (v: number) => void;
 		setMediaMuted: (v: boolean) => void;
 		mediaVolume: number;
-		errorFallback: (info: {error: Error}) => React.ReactNode;
+		errorFallback: ErrorFallback;
 		playbackRate: number;
+		renderLoading?: RenderLoading;
 	}
 > = (
 	{
@@ -64,6 +71,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		spaceKeyToPlayOrPause,
 		errorFallback,
 		playbackRate,
+		renderLoading,
 	},
 	ref
 ) => {
@@ -161,6 +169,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 				toggle,
 				getContainerNode: () => container.current,
 				getCurrentFrame: player.getCurrentFrame,
+				isPlaying: () => player.playing,
 				seekTo: (f) => {
 					const lastFrame = durationInFrames - 1;
 					const frameToSeekTo = Math.max(0, Math.min(lastFrame, f));
@@ -369,7 +378,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 	}
 
 	const content = (
-		<div ref={container} style={outerStyle}>
+		<>
 			<div
 				style={outer}
 				onClick={clickToPlay ? handleClick : undefined}
@@ -379,7 +388,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 					{VideoComponent ? (
 						<ErrorBoundary onError={onError} errorFallback={errorFallback}>
 							<VideoComponent
-								{...((video?.props as unknown as {}) ?? {})}
+								{...((video?.defaultProps as unknown as {}) ?? {})}
 								{...((inputProps as unknown as {}) ?? {})}
 							/>
 						</ErrorBoundary>
@@ -400,14 +409,29 @@ const PlayerUI: React.ForwardRefRenderFunction<
 					spaceKeyToPlayOrPause={spaceKeyToPlayOrPause}
 				/>
 			) : null}
-		</div>
+		</>
 	);
 	// Don't render suspense on Node.js
 	if (IS_NODE) {
-		return content;
+		return (
+			<div ref={container} style={outerStyle}>
+				{content}
+			</div>
+		);
 	}
 
-	return <Suspense fallback={<h1>Loading...</h1>}>{content}</Suspense>;
+	const loadingMarkup = renderLoading
+		? renderLoading({
+				height: outerStyle.height as number,
+				width: outerStyle.width as number,
+		  })
+		: null;
+
+	return (
+		<div ref={container} style={outerStyle}>
+			<Suspense fallback={loadingMarkup}>{content}</Suspense>
+		</div>
+	);
 };
 
 export default forwardRef(PlayerUI);

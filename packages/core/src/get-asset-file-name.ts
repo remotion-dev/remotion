@@ -1,4 +1,8 @@
-export const getAssetFileName = (filename: string): string => {
+export const getAssetDisplayName = (filename: string): string => {
+	if (/data:|blob:/.test(filename.substring(0, 5))) {
+		return 'Data URL';
+	}
+
 	const splitted = filename
 		.split('/')
 		.map((s) => s.split('\\'))

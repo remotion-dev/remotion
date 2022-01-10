@@ -55,11 +55,15 @@ module.exports = {
           items: [
             {
               label: "Getting started",
-              to: "docs/",
+              to: "/docs/",
             },
             {
-              label: "API reference",
-              to: "docs/cli",
+              label: "API Reference",
+              to: "/docs/cli",
+            },
+            {
+              label: "Player",
+              to: "/player",
             },
             {
               label: "Changelog",
@@ -88,7 +92,7 @@ module.exports = {
             },
             {
               label: "Twitter",
-              href: "https://twitter.com/JNYBGR",
+              href: "https://twitter.com/remotion_dev",
               "data-splitbee-event": "External Link",
               "data-splitbee-event-target": "Twitter",
             },

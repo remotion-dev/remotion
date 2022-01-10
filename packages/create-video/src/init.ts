@@ -5,6 +5,12 @@ import fs from 'fs-extra';
 import path from 'path';
 import stripAnsi from 'strip-ansi';
 import {Log} from './log';
+import {openInEditorFlow} from './open-in-editor-flow';
+import {
+	getRenderCommand,
+	getStartCommand,
+	selectPackageManager,
+} from './pkg-managers';
 import prompts, {selectAsync} from './prompts';
 
 type TEMPLATES = {
@@ -44,6 +50,11 @@ const FEATURED_TEMPLATES: TEMPLATES[] = [
 		name: 'FelippeChemello/Remotion-TTS-Example',
 		description: 'Turns text into speech and makes a video',
 	},
+	{
+		shortName: 'Audiogram',
+		name: 'marcusstenbeck/remotion-template-audiogram',
+		description: 'Text and waveform visualization for podcasts',
+	},
 ];
 
 function padEnd(str: string, width: number): string {
@@ -56,9 +67,11 @@ function validateName(name?: string): string | true {
 	if (typeof name !== 'string' || name === '') {
 		return 'The project name can not be empty.';
 	}
+
 	if (!/^[a-z0-9@.\-_]+$/i.test(name)) {
 		return 'The project name can only contain URL-friendly characters (alphanumeric and @ . -  _)';
 	}
+
 	return true;
 }
 
@@ -73,29 +86,21 @@ function assertValidName(folderName: string) {
 	}
 }
 
-async function assertFolderEmptyAsync(
-	projectRoot: string,
-	folderName?: string
-) {
+function assertFolderEmptyAsync(projectRoot: string): {exists: boolean} {
 	const conflicts = fs
 		.readdirSync(projectRoot)
 		.filter((file: string) => !/\.iml$/.test(file));
 
-	if (conflicts.length) {
-		const message = 'Try using a new directory name, or moving these files.';
+	if (conflicts.length > 0) {
 		Log.newLine();
-		Log.error(message);
+		Log.error(`Something already exists at "${projectRoot}"`);
+		Log.error('Try using a new directory name, or moving these files.');
 		Log.newLine();
-		process.exit(1);
+		return {exists: true};
 	}
-}
 
-const shouldUseYarn = (): boolean => {
-	return Boolean(
-		process.env.npm_execpath?.includes('yarn.js') ||
-			process.env.npm_config_user_agent?.includes('yarn')
-	);
-};
+	return {exists: false};
+}
 
 const isGitExecutableAvailable = async () => {
 	try {
@@ -118,14 +123,17 @@ const initGitRepoAsync = async (
 		await execa('git', ['rev-parse', '--is-inside-work-tree'], {
 			cwd: root,
 		});
-		!flags.silent &&
+		if (!flags.silent) {
 			Log.info(
 				'New project is already inside of a git repo, skipping git init.'
 			);
+		}
 	} catch (e) {
 		if ((e as {errno: string}).errno === 'ENOENT') {
-			!flags.silent &&
+			if (!flags.silent) {
 				Log.warn('Unable to initialize git repo. `git` not in PATH.');
+			}
+
 			return false;
 		}
 	}
@@ -133,7 +141,9 @@ const initGitRepoAsync = async (
 	// not in git tree, so let's init
 	try {
 		await execa('git', ['init'], {cwd: root});
-		!flags.silent && Log.info('Initialized a git repository.');
+		if (!flags.silent) {
+			Log.info('Initialized a git repository.');
+		}
 
 		if (flags.commit) {
 			await execa('git', ['add', '--all'], {cwd: root, stdio: 'ignore'});
@@ -146,6 +156,7 @@ const initGitRepoAsync = async (
 				stdio: 'ignore',
 			});
 		}
+
 		return true;
 	} catch (e) {
 		Log.verbose('git error:', e);
@@ -154,7 +165,7 @@ const initGitRepoAsync = async (
 	}
 };
 
-const resolveProjectRootAsync = async () => {
+const resolveProjectRootAsync = async (): Promise<[string, string]> => {
 	let projectName = '';
 	try {
 		const {answer} = await prompts({
@@ -167,6 +178,7 @@ const resolveProjectRootAsync = async () => {
 				if (typeof validation === 'string') {
 					return 'Invalid project name: ' + validation;
 				}
+
 				return true;
 			},
 		});
@@ -188,7 +200,9 @@ const resolveProjectRootAsync = async () => {
 
 	await fs.ensureDir(projectRoot);
 
-	await assertFolderEmptyAsync(projectRoot, folderName);
+	if (assertFolderEmptyAsync(projectRoot).exists) {
+		return resolveProjectRootAsync();
+	}
 
 	return [projectRoot, folderName];
 };
@@ -204,51 +218,69 @@ export const init = async () => {
 			)
 		) + 2;
 
-	const template = await selectAsync(
+	const selectedTemplate = await selectAsync(
 		{
 			message: 'Choose a template:',
 			optionsPerPage: 20,
 			choices: FEATURED_TEMPLATES.map((template) => {
 				if (typeof template === 'string') {
 					return prompts.separator(template);
-				} else {
-					return {
-						value: template.name,
-						title:
-							chalk.bold(padEnd(template.shortName, descriptionColumn)) +
-							template.description.trim(),
-					};
 				}
+
+				return {
+					value: template.name,
+					title:
+						chalk.bold(padEnd(template.shortName, descriptionColumn)) +
+						template.description.trim(),
+				};
 			}),
 		},
 		{}
 	);
 
 	try {
-		const emitter = degit(`https://github.com/${template}`);
+		const emitter = degit(`https://github.com/${selectedTemplate}`);
 		await emitter.clone(projectRoot);
-
-		Log.info(`Cloned template into ${projectRoot}`);
 	} catch (e) {
+		Log.error(e);
 		Log.error('Error with template cloning. Aborting');
 		process.exit(1);
 	}
 
 	Log.info(
-		`Created project at ${chalk.blue(folderName)}. Installing dependencies...`
+		`Created project at ${chalk.blueBright(
+			folderName
+		)}. Installing dependencies...`
 	);
-	if (shouldUseYarn()) {
+
+	const pkgManager = selectPackageManager();
+
+	if (pkgManager === 'yarn') {
 		Log.info('> yarn');
 		const promise = execa('yarn', [], {
 			cwd: projectRoot,
+			stdio: 'inherit',
+			env: {...process.env, ADBLOCK: '1', DISABLE_OPENCOLLECTIVE: '1'},
+		});
+		promise.stderr?.pipe(process.stderr);
+		promise.stdout?.pipe(process.stdout);
+		await promise;
+	} else if (pkgManager === 'pnpm') {
+		Log.info('> pnpm i');
+		const promise = execa('pnpm', ['i'], {
+			cwd: projectRoot,
+			stdio: 'inherit',
+			env: {...process.env, ADBLOCK: '1', DISABLE_OPENCOLLECTIVE: '1'},
 		});
 		promise.stderr?.pipe(process.stderr);
 		promise.stdout?.pipe(process.stdout);
 		await promise;
 	} else {
 		Log.info('> npm install');
-		const promise = execa('npm', ['install'], {
+		const promise = execa('npm', ['install', '--no-fund'], {
+			stdio: 'inherit',
 			cwd: projectRoot,
+			env: {...process.env, ADBLOCK: '1', DISABLE_OPENCOLLECTIVE: '1'},
 		});
 		promise.stderr?.pipe(process.stderr);
 		promise.stdout?.pipe(process.stdout);
@@ -256,23 +288,27 @@ export const init = async () => {
 	}
 
 	await initGitRepoAsync(projectRoot, {
-		silent: false,
+		silent: true,
 		commit: true,
 	});
 
-	Log.info(`Welcome to ${chalk.blue('Remotion')}!`);
-	Log.info(`✨ Your video has been created at ${chalk.blue(folderName)}.\n`);
+	Log.info();
+	Log.info(`Welcome to ${chalk.blueBright('Remotion')}!`);
+	Log.info(
+		`✨ Your video has been created at ${chalk.blueBright(folderName)}.`
+	);
+	await openInEditorFlow(projectRoot);
 
 	Log.info('Get started by running');
-	Log.info(chalk.blue(`cd ${folderName}`));
-	Log.info(chalk.blue(shouldUseYarn() ? 'yarn start' : 'npm start'));
+	Log.info(chalk.blueBright(`cd ${folderName}`));
+	Log.info(chalk.blueBright(getStartCommand(pkgManager)));
 	Log.info('');
-	Log.info('To render an MP4 video, run');
-	Log.info(chalk.blue(shouldUseYarn() ? 'yarn build' : 'npm run build'));
+	Log.info('To render a video, run');
+	Log.info(chalk.blueBright(getRenderCommand(pkgManager)));
 	Log.info('');
 	Log.info(
-		'Read the documentation at',
-		chalk.underline('https://remotion.dev')
+		'Docs to get you started:',
+		chalk.underline('https://www.remotion.dev/docs/the-fundamentals')
 	);
 	Log.info('Enjoy Remotion!');
 };

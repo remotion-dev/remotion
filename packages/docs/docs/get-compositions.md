@@ -58,15 +58,21 @@ Returns a promise that resolves to an array of available compositions. Example v
     width: 1920,
     height: 1080,
     fps: 30,
+    defaultProps: {
+      title: "Hello World",
+    },
   },
   {
     id: "Title",
     width: 1080,
     height: 1080,
     fps: 30,
+    defaultProps: undefined,
   },
 ];
 ```
+
+The `defaultProps` only get returned since v2.5.7.
 
 ## See also
 

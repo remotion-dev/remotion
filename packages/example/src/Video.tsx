@@ -1,12 +1,15 @@
 import React from 'react';
-import {Composition, getInputProps} from 'remotion';
+import {Composition, getInputProps, Still} from 'remotion';
 import BetaText from './BetaText';
 import {ColorInterpolation} from './ColorInterpolation';
+import {FontDemo} from './Fonts';
 import {Framer} from './Framer';
 import {MissingImg} from './MissingImg';
+import {OrbScene} from './Orb';
 import RemoteVideo from './RemoteVideo';
 import {SkipZeroFrame} from './SkipZeroFrame';
 import {SeriesTesting} from './StaggerTesting';
+import {StaticDemo} from './StaticServer';
 import {TenFrameTester} from './TenFrameTester';
 import ThreeBasic from './ThreeBasic';
 import {VideoSpeed} from './VideoSpeed';
@@ -306,6 +309,22 @@ export const Index: React.FC = () => {
 				fps={30}
 				durationInFrames={100}
 			/>
+			<Composition
+				id="offline-audio-buffer"
+				lazyComponent={() => import('./OfflineAudioBuffer')}
+				width={1080}
+				height={1080}
+				fps={30}
+				durationInFrames={100}
+			/>
+			<Still id="Orb" component={OrbScene} width={2000} height={2000} />
+			<Still
+				id="static-demo"
+				component={StaticDemo}
+				width={1000}
+				height={1000}
+			/>
+			<Still id="font-demo" component={FontDemo} width={1000} height={1000} />
 		</>
 	);
 };

@@ -1,6 +1,6 @@
 {
 	"name": "create-video",
-	"version": "2.5.4",
+	"version": "2.6.1",
 	"description": "",
 	"main": "index.js",
 	"bin": {
@@ -12,7 +12,8 @@
 	],
 	"scripts": {
 		"build": "tsc -d",
-		"watch": "tsc -w"
+		"watch": "tsc -w",
+		"test": "eslint src --ext ts,tsx"
 	},
 	"author": "",
 	"license": "SEE LICENSE IN LICENSE.md",
@@ -32,6 +33,7 @@
 		"@types/prompts": "^2.0.12",
 		"eslint": "^7.15.0",
 		"ts-node": "^9.1.1",
-		"typescript": "^4.4.2"
+		"typescript": "^4.4.2",
+		"prettier-plugin-organize-imports": "^1.1.1"
 	}
 }

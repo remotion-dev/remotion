@@ -5,9 +5,13 @@ module.exports = {
       label: "← Back to main docs",
       href: "/docs",
     },
-    "player",
-    "player-examples",
-    "player-integration",
+    "player/player",
+    "player/api",
+    "player/examples",
+    "player/scaling",
+    "player/integration",
+    "player/autoplay",
+    "player/preloading",
   ],
   someSidebar: [
     {
@@ -64,6 +68,7 @@ module.exports = {
         "random",
         "register-root",
         "spring",
+        "staticfile",
         "use-current-frame",
         "use-video-config",
         "audio",
@@ -90,6 +95,7 @@ module.exports = {
       type: "category",
       label: "API - @remotion/media-utils",
       items: [
+        "audio-buffer-to-data-url",
         "get-audio-data",
         "get-audio-duration",
         "get-video-metadata",

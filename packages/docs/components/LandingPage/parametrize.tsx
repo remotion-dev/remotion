@@ -107,6 +107,8 @@ export const Parametrize: React.FC = () => {
         </h2>
         <p>
           Fetch data from an API and use it as the content. <br />
+          Display it in real-time with the{" "}
+          <a href="/player">@remotion/player</a>.<br />
           Render videos programmatically using our server-side APIs.
         </p>
         <span style={{ fontSize: 13 }}>

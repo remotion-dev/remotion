@@ -1,4 +1,4 @@
-import {ProjectInfo} from '@remotion/bundler/src/project-info';
+import {ProjectInfo} from '@remotion/bundler';
 import React, {useEffect, useState} from 'react';
 import {LIGHT_TEXT} from '../../helpers/colors';
 

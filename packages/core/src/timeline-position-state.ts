@@ -1,5 +1,10 @@
 import {createContext, MutableRefObject, useContext, useMemo} from 'react';
 
+export type PlayableMediaTag = {
+	play: () => void;
+	id: string;
+};
+
 export type TimelineContextValue = {
 	frame: number;
 	playing: boolean;
@@ -7,6 +12,7 @@ export type TimelineContextValue = {
 	playbackRate: number;
 	imperativePlaying: MutableRefObject<boolean>;
 	setPlaybackRate: (u: React.SetStateAction<number>) => void;
+	audioAndVideoTags: MutableRefObject<PlayableMediaTag[]>;
 };
 
 export type SetTimelineContextValue = {
@@ -25,6 +31,7 @@ export const TimelineContext = createContext<TimelineContextValue>({
 	setPlaybackRate: () => {
 		throw new Error('default');
 	},
+	audioAndVideoTags: {current: []},
 });
 
 export const SetTimelineContext = createContext<SetTimelineContextValue>({

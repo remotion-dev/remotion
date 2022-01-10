@@ -6,6 +6,8 @@ declare global {
 	interface Window {
 		ready: boolean;
 		getStaticCompositions: () => TCompMetadata[];
+		remotion_staticBase: string;
+		remotion_editorName: string | null;
 		remotion_setFrame: (frame: number) => void;
 		remotion_initialFrame: number;
 		remotion_collectAssets: () => TAsset[];
@@ -42,3 +44,4 @@ export * from './use-frame';
 export * from './use-video-config';
 export * from './video';
 export * from './video-config';
+export {staticFile} from './static-file';

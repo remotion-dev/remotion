@@ -1,10 +1,11 @@
 import {RefObject, useContext, useEffect, useMemo, useState} from 'react';
 import {useMediaStartsAt} from './audio/use-audio-frame';
 import {CompositionManager} from './CompositionManager';
-import {getAssetFileName} from './get-asset-file-name';
+import {getAssetDisplayName} from './get-asset-file-name';
 import {useNonce} from './nonce';
+import {playAndHandleNotAllowedError} from './play-and-handle-not-allowed-error';
 import {SequenceContext} from './sequencing';
-import {TimelineContext} from './timeline-position-state';
+import {PlayableMediaTag, TimelineContext} from './timeline-position-state';
 import {useVideoConfig} from './use-video-config';
 import {evaluateVolume, VolumeProp} from './volume-prop';
 
@@ -33,7 +34,7 @@ export const useMediaInTimeline = ({
 	mediaType: 'audio' | 'video';
 }) => {
 	const videoConfig = useVideoConfig();
-	const {rootId} = useContext(TimelineContext);
+	const {rootId, audioAndVideoTags} = useContext(TimelineContext);
 	const parentSequence = useContext(SequenceContext);
 	const actualFrom = parentSequence
 		? parentSequence.relativeFrom + parentSequence.cumulatedFrom
@@ -95,7 +96,7 @@ export const useMediaInTimeline = ({
 			duration,
 			from: 0,
 			parent: parentSequence?.id ?? null,
-			displayName: getAssetFileName(src),
+			displayName: getAssetDisplayName(src),
 			rootId,
 			volume: volumes,
 			showInTimeline: true,
@@ -124,4 +125,18 @@ export const useMediaInTimeline = ({
 		mediaType,
 		startsAt,
 	]);
+
+	useEffect(() => {
+		const tag: PlayableMediaTag = {
+			id,
+			play: () => playAndHandleNotAllowedError(mediaRef, mediaType),
+		};
+		audioAndVideoTags.current.push(tag);
+
+		return () => {
+			audioAndVideoTags.current = audioAndVideoTags.current.filter(
+				(a) => a.id !== id
+			);
+		};
+	}, [audioAndVideoTags, id, mediaRef, mediaType]);
 };

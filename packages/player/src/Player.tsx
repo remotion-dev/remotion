@@ -19,11 +19,12 @@ import {
 	SetTimelineContextValue,
 	TimelineContextValue,
 } from 'remotion';
+import {PlayableMediaTag} from 'remotion/src/timeline-position-state';
 import {PlayerEventEmitterContext} from './emitter-context';
 import {PlayerEmitter} from './event-emitter';
 import {PLAYER_CSS_CLASSNAME} from './player-css-classname';
 import {PlayerRef} from './player-methods';
-import PlayerUI from './PlayerUI';
+import PlayerUI, {RenderLoading} from './PlayerUI';
 import {validatePlaybackRate} from './utils/validate-playbackrate';
 import {getPreferredVolume, persistVolume} from './volume-persistance';
 
@@ -54,6 +55,7 @@ export type PlayerProps<T> = {
 	spaceKeyToPlayOrPause?: boolean;
 	numberOfSharedAudioTags?: number;
 	playbackRate?: number;
+	renderLoading?: RenderLoading;
 } & PropsIfHasProps<T> &
 	CompProps<T>;
 
@@ -81,6 +83,7 @@ export const PlayerFn = <T,>(
 		numberOfSharedAudioTags = 5,
 		errorFallback = () => '⚠️',
 		playbackRate = 1,
+		renderLoading,
 		...componentProps
 	}: PlayerProps<T>,
 	ref: MutableRefObject<PlayerRef>
@@ -100,6 +103,7 @@ export const PlayerFn = <T,>(
 	const rootRef = useRef<PlayerRef>(null);
 	const [mediaMuted, setMediaMuted] = useState<boolean>(false);
 	const [mediaVolume, setMediaVolume] = useState<number>(getPreferredVolume());
+	const audioAndVideoTags = useRef<PlayableMediaTag[]>([]);
 	const imperativePlaying = useRef(false);
 
 	if (typeof compositionHeight !== 'number') {
@@ -228,6 +232,7 @@ export const PlayerFn = <T,>(
 			setPlaybackRate: () => {
 				throw new Error('playback rate');
 			},
+			audioAndVideoTags,
 		};
 	}, [frame, playbackRate, playing, rootId]);
 
@@ -265,6 +270,7 @@ export const PlayerFn = <T,>(
 					id: 'player-comp',
 					props: inputProps as unknown,
 					nonce: 777,
+					defaultProps: undefined,
 				},
 			],
 			currentComposition: 'player-comp',
@@ -311,6 +317,7 @@ export const PlayerFn = <T,>(
 								<PlayerEventEmitterContext.Provider value={emitter}>
 									<PlayerUI
 										ref={rootRef}
+										renderLoading={renderLoading}
 										autoPlay={Boolean(autoPlay)}
 										loop={Boolean(loop)}
 										controls={Boolean(controls)}

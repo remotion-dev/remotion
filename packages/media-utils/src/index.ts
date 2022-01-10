@@ -8,3 +8,4 @@ export {useAudioData} from './use-audio-metadata';
 export {visualizeAudio} from './visualize-audio';
 export {visualizeAudioWaveform} from './visualize-audio-waveform';
 export {createSmoothSvgPath} from './create-smooth-svg-path';
+export {audioBufferToDataUrl} from './audio-buffer/audio-url-helpers';

@@ -8,7 +8,8 @@ Remotion allows you to include several types of files in your project:
 - Images (`.png`, `.svg`, `.jpg`, `.jpeg`, `.webp`, `.gif`, `.bmp`)
 - Videos (`.webm`, `.mp4`)
 - Audio (`.mp3`, `.wav`, `.aac`)
-- [Fonts (`.woff` and `.woff2`) - read the separate page for fonts](/docs/fonts)
+- [Webfonts - read the separate page for fonts](/docs/fonts)
+- Arbitrary files using the `staticFile()` API
 
 ## Using images
 
@@ -53,7 +54,7 @@ Avoid writing a require statement that requires a file that doesn't exist. If yo
 
 ## Using videos
 
-Import your files using an import statement. Use the [`<Video />`/docs/video) component to keep the timeline and your video in sync.
+Import your files using an import statement. Use the [`<Video />`](/docs/video) component to keep the timeline and your video in sync.
 
 ```tsx twoslash
 import { Video } from "remotion";
@@ -84,3 +85,7 @@ See the [audio guide](/docs/using-audio) for guidance on including audio.
 ## Using fonts
 
 See the [dedicated page about fonts](/docs/fonts).
+
+## Importing arbitrary files
+
+Create a `public/` folder in your project and use the [`staticFile()`](/docs/staticfile) API to get a URL reference of the asset that you can load into your project.

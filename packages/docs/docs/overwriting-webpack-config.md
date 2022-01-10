@@ -88,6 +88,10 @@ Create a file which contains `declare module '*.mdx';` in your project to fix a 
 
 ### Enable TailwindCSS support
 
+:::info
+This documentation concerns TailwindCSS v2. [Help us update it to v3!](https://github.com/remotion-dev/remotion/issues/737)
+:::
+
 1. Install the following dependencies:
 
 <Tabs
@@ -95,6 +99,7 @@ defaultValue="npm"
 values={[
 { label: 'npm', value: 'npm', },
 { label: 'yarn', value: 'yarn', },
+{ label: 'pnpm', value: 'pnpm', },
 ]
 }>
 <TabItem value="npm">
@@ -109,6 +114,13 @@ npm i postcss-loader postcss postcss-preset-env tailwindcss autoprefixer
 
 ```bash
 yarn add postcss-loader postcss postcss-preset-env tailwindcss autoprefixer
+```
+
+  </TabItem>
+  <TabItem value="pnpm">
+
+```bash
+pnpm i postcss-loader postcss postcss-preset-env tailwindcss autoprefixer
 ```
 
   </TabItem>
@@ -193,6 +205,7 @@ defaultValue="npm"
 values={[
 { label: 'npm', value: 'npm', },
 { label: 'yarn', value: 'yarn', },
+{ label: 'pnpm', value: 'pnpm', },
 ]
 }>
 <TabItem value="npm">
@@ -207,6 +220,13 @@ npm i sass sass-loader
 
 ```bash
 yarn add sass sass-loader
+```
+
+  </TabItem>
+  <TabItem value="pnpm">
+
+```bash
+pnpm i sass sass-loader
 ```
 
   </TabItem>
