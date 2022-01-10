@@ -2,7 +2,6 @@ import fs from 'fs';
 import os from 'os';
 import path from 'path';
 import {Internals, WebpackOverrideFn} from 'remotion';
-import {defaultOverrideFunction} from 'remotion/src/config/override-webpack';
 import {promisify} from 'util';
 import webpack from 'webpack';
 import {copyDir} from './copy-dir';
@@ -55,7 +54,8 @@ export const bundle = async (
 			userDefinedComponent: entryPoint,
 			outDir,
 			environment: 'production',
-			webpackOverride: options?.webpackOverride ?? defaultOverrideFunction,
+			webpackOverride:
+				options?.webpackOverride ?? Internals.defaultOverrideFunction,
 			onProgressUpdate,
 			enableCaching:
 				options?.enableCaching ?? Internals.DEFAULT_WEBPACK_CACHE_ENABLED,

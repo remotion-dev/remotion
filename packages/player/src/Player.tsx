@@ -15,11 +15,11 @@ import {
 	Internals,
 	LooseAnyComponent,
 	MediaVolumeContextValue,
+	PlayableMediaTag,
 	SetMediaVolumeContextValue,
 	SetTimelineContextValue,
 	TimelineContextValue,
 } from 'remotion';
-import {PlayableMediaTag} from 'remotion/src/timeline-position-state';
 import {PlayerEventEmitterContext} from './emitter-context';
 import {PlayerEmitter} from './event-emitter';
 import {PLAYER_CSS_CLASSNAME} from './player-css-classname';
