@@ -9,7 +9,7 @@ import {
 	Internals,
 	PixelFormat,
 	ProResProfile,
-	TCompMetadata,
+	SmallTCompMetadata,
 } from 'remotion';
 import {stitchFramesToVideo, spawnFfmpeg} from './stitcher';
 import {renderFrames} from './render';
@@ -39,7 +39,7 @@ export type RenderMediaOnProgress = (progress: {
 export type RenderMediaOptions = {
 	outputLocation: string;
 	codec: Codec;
-	composition: TCompMetadata;
+	composition: SmallTCompMetadata;
 	inputProps?: unknown;
 	parallelism?: number | null;
 	crf?: number | null;
