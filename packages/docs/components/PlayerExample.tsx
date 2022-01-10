@@ -51,6 +51,7 @@ export const PlayerExample: React.FC<{
         compositionWidth={1280}
         compositionHeight={720}
         controls
+        spaceKeyToPlayOrPause={false}
         durationInFrames={350}
         fps={30}
         inputProps={{
