@@ -1,6 +1,6 @@
-import prompt from 'prompt';
 import {forceFlagProvided} from '../args';
 import {quit} from './quit';
+import {yesOrNo} from './yes-or-no';
 
 export const confirmCli = async ({
 	delMessage,
@@ -9,27 +9,13 @@ export const confirmCli = async ({
 	delMessage: string;
 	allowForceFlag: boolean;
 }) => {
-	prompt.message = '';
-	prompt.start();
-
 	if (allowForceFlag && forceFlagProvided) {
 		return;
 	}
 
-	let didAnswer = false;
-	while (!didAnswer) {
-		const result = await prompt.get([delMessage]);
+	const result = await yesOrNo({question: delMessage, defaultValue: true});
 
-		if ((result[delMessage] as string).toLowerCase() === 'y') {
-			didAnswer = true;
-		}
-
-		if ((result[delMessage] as string).trim() === '') {
-			didAnswer = true;
-		}
-
-		if ((result[delMessage] as string).trim() === 'n') {
-			quit(1);
-		}
+	if (result === false) {
+		quit(1);
 	}
 };
