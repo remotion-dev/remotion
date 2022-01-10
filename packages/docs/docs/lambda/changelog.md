@@ -12,8 +12,10 @@ Keep track of changes to the APIs of Remotion Lambda here.
 
 ## Unreleased
 
+- New option to allow the filename of the output: `outName` in `renderMedia` / `renderStill` and `--out-name` in CLI flags
 - New algorithm for determining default concurrency: https://v3.remotion.dev/docs/lambda/concurrency
 - Better error message if concurrency is too high
+- Remove `colors` module
 
 ## January 6th, 2022
 
