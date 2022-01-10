@@ -1,5 +1,3 @@
-// Duplicated in Lambda
-
 import readline from 'readline';
 
 const options = {
