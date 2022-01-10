@@ -46,6 +46,7 @@ import {INPUT_PROPS_KEY} from './config/input-props';
 import * as Logging from './config/log';
 import {getMaxTimelineTracks} from './config/max-timeline-tracks';
 import {
+	defaultOverrideFunction,
 	getWebpackOverrideFn,
 	WebpackOverrideFn,
 } from './config/override-webpack';
@@ -210,6 +211,7 @@ export const Internals = {
 	DEFAULT_OVERWRITE,
 	isInLambda: () => Boolean(process?.env?.LAMBDA_TASK_ROOT),
 	AssetCompression,
+	defaultOverrideFunction,
 };
 
 export type {

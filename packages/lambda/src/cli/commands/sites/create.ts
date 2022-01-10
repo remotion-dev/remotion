@@ -2,7 +2,6 @@ import {CliInternals} from '@remotion/cli';
 import {existsSync, lstatSync} from 'fs';
 import path from 'path';
 import {Internals} from 'remotion';
-import {defaultOverrideFunction} from 'remotion/src/config/override-webpack';
 import {deploySite} from '../../../api/deploy-site';
 import {getOrCreateBucket} from '../../../api/get-or-create-bucket';
 import {BINARY_NAME} from '../../../shared/constants';
@@ -128,7 +127,7 @@ export const sitesCreateSubcommand = async (args: string[]) => {
 			},
 			enableCaching: Internals.getWebpackCaching(),
 			webpackOverride:
-				Internals.getWebpackOverrideFn() ?? defaultOverrideFunction,
+				Internals.getWebpackOverrideFn() ?? Internals.defaultOverrideFunction,
 		},
 		region: getAwsRegion(),
 	});
