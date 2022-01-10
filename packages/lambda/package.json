@@ -21,6 +21,7 @@
 		"url": "https://github.com/JonnyBurger/remotion"
 	},
 	"dependencies": {
+		"@aws-sdk/abort-controller": "3.40.0",
 		"@aws-sdk/client-cloudwatch-logs": "3.42.0",
 		"@aws-sdk/client-iam": "3.42.0",
 		"@aws-sdk/client-lambda": "3.42.0",

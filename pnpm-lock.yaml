@@ -507,6 +507,7 @@ importers:
 
   packages/lambda:
     specifiers:
+      '@aws-sdk/abort-controller': 3.40.0
       '@aws-sdk/client-cloudwatch-logs': 3.42.0
       '@aws-sdk/client-iam': 3.42.0
       '@aws-sdk/client-lambda': 3.42.0
@@ -535,11 +536,12 @@ importers:
       typescript: ^4.4.3
       zip-lib: ^0.7.2
     dependencies:
+      '@aws-sdk/abort-controller': 3.40.0
       '@aws-sdk/client-cloudwatch-logs': 3.42.0
       '@aws-sdk/client-iam': 3.42.0
       '@aws-sdk/client-lambda': 3.42.0
       '@aws-sdk/client-s3': 3.42.0
-      '@aws-sdk/lib-storage': 3.42.0_@aws-sdk+client-s3@3.42.0
+      '@aws-sdk/lib-storage': 3.42.0_ed4f376b350c0d63a41a72f2ea3ac6e2
       '@aws-sdk/s3-request-presigner': 3.42.0
       '@remotion/bundler': link:../bundler
       '@remotion/cli': link:../cli
@@ -1333,13 +1335,14 @@ packages:
       tslib: 2.3.1
     dev: false
 
-  /@aws-sdk/lib-storage/3.42.0_@aws-sdk+client-s3@3.42.0:
+  /@aws-sdk/lib-storage/3.42.0_ed4f376b350c0d63a41a72f2ea3ac6e2:
     resolution: {integrity: sha512-gf2r51sz/r204WCqnIAwOOv+0GtXogYIo0iuCjvG5BDSswT8xiF7yhLO0wp9mroMPZsKz9ydholB9TQbLRoUKw==}
     engines: {node: '>= 10.0.0'}
     peerDependencies:
       '@aws-sdk/abort-controller': ^3.0.0
       '@aws-sdk/client-s3': ^3.0.0
     dependencies:
+      '@aws-sdk/abort-controller': 3.40.0
       '@aws-sdk/client-s3': 3.42.0
       buffer: 5.6.0
       events: 3.3.0
