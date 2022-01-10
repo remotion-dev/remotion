@@ -90,12 +90,16 @@ export const startServer = async (
 			const stack = body.stack as StackFrame;
 
 			const guess = await editorGuess;
-			const didOpen = await launchEditor(
-				path.resolve(process.cwd(), stack._originalFileName as string),
-				stack._originalLineNumber as number,
-				stack._originalColumnNumber as number,
-				guess[0]
-			);
+			const didOpen = await launchEditor({
+				colNumber: stack._originalColumnNumber as number,
+				editor: guess[0],
+				fileName: path.resolve(
+					process.cwd(),
+					stack._originalFileName as string
+				),
+				lineNumber: stack._originalLineNumber as number,
+				vsCodeNewWindow: false,
+			});
 			res.json({
 				success: didOpen,
 			});

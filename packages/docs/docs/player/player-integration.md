@@ -18,6 +18,7 @@ defaultValue="npm"
 values={[
 { label: 'npm', value: 'npm', },
 { label: 'yarn', value: 'yarn', },
+{ label: 'pnpm', value: 'pnpm', },
 ]
 }>
 <TabItem value="npm">
@@ -32,6 +33,13 @@ npm i remotion @remotion/renderer @remotion/cli @remotion/bundler @remotion/play
 
 ```bash
 yarn add remotion @remotion/renderer @remotion/cli @remotion/bundler @remotion/player
+```
+
+  </TabItem>
+  <TabItem value="pnpm">
+
+```bash
+pnpm i remotion @remotion/renderer @remotion/cli @remotion/bundler @remotion/player
 ```
 
   </TabItem>
