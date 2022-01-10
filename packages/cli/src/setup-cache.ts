@@ -1,5 +1,6 @@
 import {bundle, BundlerInternals} from '@remotion/bundler';
 import {Internals} from 'remotion';
+import {defaultOverrideFunction} from 'remotion/src/config/override-webpack';
 import {Log} from './log';
 import {quietFlagProvided} from './parse-command-line';
 import {
@@ -31,6 +32,8 @@ export const bundleOnCli = async (fullPath: string, steps: RenderStep[]) => {
 		},
 		{
 			enableCaching: shouldCache,
+			webpackOverride:
+				Internals.getWebpackOverrideFn() ?? defaultOverrideFunction,
 		}
 	);
 	bundlingProgress.update(
