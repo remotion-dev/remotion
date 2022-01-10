@@ -12,6 +12,7 @@ Keep track of changes to the APIs of Remotion Lambda here.
 
 ## January 10th, 2022
 
+Version hash: `3.0.0-lambda.274+a3183304a`
 Lambda version: '2022-01-10'
 
 - New option to allow the filename of the output: `outName` in `renderMedia` / `renderStill` and `--out-name` in CLI flags
