@@ -80,7 +80,7 @@ export const renderMediaOnLambda = async ({
 	frameRange,
 	outName,
 }: RenderMediaOnLambdaInput): Promise<RenderMediaOnLambdaOutput> => {
-	validateFramesPerLambda(framesPerLambda);
+	validateFramesPerLambda(framesPerLambda ?? null);
 	const realServeUrl = await convertToServeUrl(serveUrl, region);
 	const res = await callLambda({
 		functionName,
