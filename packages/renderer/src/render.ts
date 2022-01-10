@@ -10,8 +10,8 @@ import {
 	FrameRange,
 	ImageFormat,
 	Internals,
+	SmallTCompMetadata,
 	TAsset,
-	VideoConfig,
 } from 'remotion';
 import {
 	downloadAndMapAssetsToFileUrl,
@@ -41,10 +41,10 @@ type ConfigOrComposition =
 			/**
 			 * @deprecated This field has been renamed to `composition`
 			 */
-			config: VideoConfig;
+			config: SmallTCompMetadata;
 	  }
 	| {
-			composition: VideoConfig;
+			composition: SmallTCompMetadata;
 	  };
 
 type RenderFramesOptions = {
@@ -100,7 +100,7 @@ export const innerRenderFrames = async ({
 	onError: (err: Error) => void;
 	pagesArray: Page[];
 	serveUrl: string;
-	composition: VideoConfig;
+	composition: SmallTCompMetadata;
 }): Promise<RenderFramesOutput> => {
 	if (!puppeteerInstance) {
 		throw new Error('weird');
