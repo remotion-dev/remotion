@@ -1,6 +1,8 @@
 import {CliInternals} from '@remotion/cli';
 import {existsSync, lstatSync} from 'fs';
 import path from 'path';
+import {Internals} from 'remotion';
+import {defaultOverrideFunction} from 'remotion/src/config/override-webpack';
 import {deploySite} from '../../../api/deploy-site';
 import {getOrCreateBucket} from '../../../api/get-or-create-bucket';
 import {BINARY_NAME} from '../../../shared/constants';
@@ -108,6 +110,7 @@ export const sitesCreateSubcommand = async (args: string[]) => {
 		entryPoint: absoluteFile,
 		siteName: desiredSiteName,
 		bucketName,
+
 		options: {
 			onBundleProgress: (progress: number) => {
 				multiProgress.bundleProgress = {
@@ -123,6 +126,9 @@ export const sitesCreateSubcommand = async (args: string[]) => {
 				};
 				updateProgress();
 			},
+			enableCaching: Internals.getWebpackCaching(),
+			webpackOverride:
+				Internals.getWebpackOverrideFn() ?? defaultOverrideFunction,
 		},
 		region: getAwsRegion(),
 	});
