@@ -123,6 +123,7 @@ import {
 	useRemotionContexts,
 } from './wrap-remotion-context';
 import * as AssetCompression from './compress-assets';
+import {DEFAULT_TIMEOUT} from './timeout';
 const Timeline = {...TimelinePosition, ...TimelineInOutPosition};
 
 // Mark them as Internals so use don't assume this is public
@@ -202,6 +203,7 @@ export const Internals = {
 	invalidCompositionErrorMessage,
 	isCompositionIdValid,
 	AssetCompression,
+	DEFAULT_TIMEOUT,
 };
 
 export type {

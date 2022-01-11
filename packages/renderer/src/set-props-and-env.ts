@@ -1,5 +1,6 @@
 import {Page} from 'puppeteer-core';
 import {Internals} from 'remotion';
+import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
 
 export const setPropsAndEnv = async ({
 	inputProps,
@@ -7,13 +8,20 @@ export const setPropsAndEnv = async ({
 	page,
 	port,
 	initialFrame,
+	timeoutInMilliseconds,
 }: {
 	inputProps: unknown;
 	envVariables: Record<string, string> | undefined;
 	page: Page;
 	port: number;
 	initialFrame: number;
+	timeoutInMilliseconds: number | undefined;
 }) => {
+	validatePuppeteerTimeout(timeoutInMilliseconds);
+	const actualTimeout = timeoutInMilliseconds ?? Internals.DEFAULT_TIMEOUT;
+	page.setDefaultTimeout(actualTimeout);
+	page.setDefaultNavigationTimeout(actualTimeout);
+
 	if (inputProps || envVariables) {
 		await page.goto(`http://localhost:${port}/index.html`);
 
