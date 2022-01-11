@@ -118,16 +118,14 @@ _optional_
 Allows you to react to an exception thrown in your React code. The callback has an argument which is the error.
 
 ```tsx twoslash
-const renderStill = (options: {
-  onError: (err: Error) => void;
-}) => {}
+const renderStill = (options: { onError: (err: Error) => void }) => {};
 // ---cut---
 renderStill({
   // ... other arguments
   onError: (err: Error) => {
     // Handle error here
-  }
-})
+  },
+});
 ```
 
 ### `overwrite?`
@@ -141,6 +139,12 @@ Whether the file should be overwritten if the output already exists.
 _optional, available from v2.3.1_
 
 A string defining the absolute path on disk of the browser executable that should be used. By default Remotion will try to detect it automatically and download one if none is available. If `puppeteerInstance` is defined, it will take precedence over `browserExecutable`.
+
+### `timeoutInMilliseconds?`
+
+_optional, available from v2.6.2_
+
+A number describing how long the render may take to resolve all `delayRender()` calls before it times out. Default: `30000`
 
 ## Return value
 
