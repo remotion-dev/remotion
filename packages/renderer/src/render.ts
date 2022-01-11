@@ -21,6 +21,7 @@ import {seekToFrame} from './seek-to-frame';
 import {serveStatic} from './serve-static';
 import {setPropsAndEnv} from './set-props-and-env';
 import {OnErrorInfo, OnStartData, RenderFramesOutput} from './types';
+import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
 
 export const renderFrames = async ({
 	config,
@@ -40,6 +41,7 @@ export const renderFrames = async ({
 	puppeteerInstance,
 	onError,
 	browserExecutable,
+	timeoutInMilliseconds,
 }: {
 	config: VideoConfig;
 	compositionId: string;
@@ -58,6 +60,7 @@ export const renderFrames = async ({
 	puppeteerInstance?: PuppeteerBrowser;
 	browserExecutable?: BrowserExecutable;
 	onError?: (info: OnErrorInfo) => void;
+	timeoutInMilliseconds?: number;
 }): Promise<RenderFramesOutput> => {
 	Internals.validateDimension(
 		config.height,
@@ -84,6 +87,7 @@ export const renderFrames = async ({
 	}
 
 	Internals.validateQuality(quality);
+	validatePuppeteerTimeout(timeoutInMilliseconds);
 
 	const actualParallelism = getActualConcurrency(parallelism ?? null);
 
@@ -121,6 +125,7 @@ export const renderFrames = async ({
 			page,
 			port,
 			initialFrame,
+			timeoutInMilliseconds,
 		});
 
 		const site = `http://localhost:${port}/index.html?composition=${compositionId}`;

@@ -3,6 +3,7 @@ import {Browser, BrowserExecutable, Internals, TCompMetadata} from 'remotion';
 import {openBrowser} from './open-browser';
 import {serveStatic} from './serve-static';
 import {setPropsAndEnv} from './set-props-and-env';
+import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
 
 type GetCompositionsConfig = {
 	browser?: Browser;
@@ -10,6 +11,7 @@ type GetCompositionsConfig = {
 	envVariables?: Record<string, string>;
 	browserInstance?: PuppeteerBrowser;
 	browserExecutable?: BrowserExecutable;
+	timeoutInMilliseconds?: number;
 };
 
 const getPageAndCleanupFn = async ({
@@ -61,6 +63,7 @@ export const getCompositions = async (
 	webpackBundle: string,
 	config?: GetCompositionsConfig
 ): Promise<TCompMetadata[]> => {
+	validatePuppeteerTimeout(config?.timeoutInMilliseconds);
 	const {page, cleanup} = await getPageAndCleanupFn({
 		passedInInstance: config?.browserInstance,
 		browser: config?.browser ?? Internals.DEFAULT_BROWSER,
@@ -77,6 +80,7 @@ export const getCompositions = async (
 		page,
 		port,
 		initialFrame: 0,
+		timeoutInMilliseconds: config?.timeoutInMilliseconds,
 	});
 
 	await page.goto(`http://localhost:${port}/index.html?evaluation=true`);
