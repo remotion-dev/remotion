@@ -133,24 +133,21 @@ Allows you to react to an exception thrown in your React code. The callback has 
 The `frame` property tells you at which frame the error was thrown. If the error was thrown at startup, `frame` is null.
 
 ```tsx twoslash
-import {renderFrames as rf} from '@remotion/renderer'
+import { renderFrames as rf } from "@remotion/renderer";
 const renderFrames = (options: {
-  onError: (info: {
-    frame: null | number;
-    error: Error
-  }) => void;
-}) => {}
+  onError: (info: { frame: null | number; error: Error }) => void;
+}) => {};
 // ---cut---
 renderFrames({
   onError: (info) => {
     if (info.frame === null) {
-      console.error('Got error while initalizing video rendering', info.error)
+      console.error("Got error while initalizing video rendering", info.error);
     } else {
-      console.error('Got error at frame ', info.frame, info.error)
+      console.error("Got error at frame ", info.frame, info.error);
     }
     // Handle error here
-  }
-})
+  },
+});
 ```
 
 ### `browserExecutable?`
@@ -158,6 +155,12 @@ renderFrames({
 _optional, available from v2.3.1_
 
 A string defining the absolute path on disk of the browser executable that should be used. By default Remotion will try to detect it automatically and download one if none is available. If `puppeteerInstance` is defined, it will take precedence over `browserExecutable`.
+
+### `timeoutInMilliseconds?`
+
+_optional, available from v2.6.2_
+
+A number describing how long one frame may take to resolve all `delayRender()` calls before the render times out and fails. Default: `30000`
 
 ## Return value
 

@@ -47,6 +47,12 @@ _optional, available from v2.3.1_
 
 A string defining the absolute path on disk of the browser executable that should be used. By default Remotion will try to detect it automatically and download one if none is available. If `browserInstance` is defined, it will take precedence over `browserExecutable`.
 
+#### `timeoutInMilliseconds?`
+
+_optional, available from v2.6.2_
+
+A number describing how long one frame may take to resolve all `delayRender()` calls before the render times out and fails. Default: `30000`
+
 ## Return value
 
 Returns a promise that resolves to an array of available compositions. Example value:
