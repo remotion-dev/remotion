@@ -100,7 +100,7 @@ function advance({
 
 const calculationCache: {[key: string]: AnimationNode} = {};
 
-export function springCalculation({
+export const springCalculation = ({
 	from = 0,
 	to = 1,
 	frame,
@@ -112,7 +112,7 @@ export function springCalculation({
 	frame: number;
 	fps: number;
 	config?: Partial<SpringConfig>;
-}): AnimationNode {
+}): AnimationNode => {
 	const cacheKey = [
 		from,
 		to,
@@ -154,4 +154,4 @@ export function springCalculation({
 
 	calculationCache[cacheKey] = animation;
 	return animation;
-}
+};

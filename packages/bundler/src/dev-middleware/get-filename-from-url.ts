@@ -33,10 +33,10 @@ const mem = (fn: Function, {cache = new Map()} = {}) => {
 
 const memoizedParse = mem(parse);
 
-export function getFilenameFromUrl(
+export const getFilenameFromUrl = (
 	context: DevMiddlewareContext,
 	url: string | undefined
-) {
+) => {
 	const paths = getPaths(context);
 
 	let foundFilename;
@@ -113,4 +113,4 @@ export function getFilenameFromUrl(
 	}
 
 	return foundFilename;
-}
+};

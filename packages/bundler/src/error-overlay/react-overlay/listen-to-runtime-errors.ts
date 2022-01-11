@@ -67,10 +67,10 @@ export const crashWithFrames =
 		}
 	};
 
-export function listenToRuntimeErrors(
+export const listenToRuntimeErrors = (
 	crash: (rec: ErrorRecord) => void,
 	filename: string
-) {
+) => {
 	const crashWithFramesRunTime = crashWithFrames(crash);
 
 	registerError(window, (error) => crashWithFramesRunTime(error, false));
@@ -90,10 +90,10 @@ export function listenToRuntimeErrors(
 		);
 	});
 
-	return function () {
+	return () => {
 		unregisterStackTraceLimit();
 		unregisterPromise(window);
 		unregisterError(window);
 		unregisterReactStack();
 	};
-}
+};

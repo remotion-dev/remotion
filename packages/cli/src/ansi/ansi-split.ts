@@ -1,6 +1,6 @@
 import {ansiRegex} from './ansi-regex';
 
-export function splitAnsi(str: string): string[] {
+export const splitAnsi = (str: string): string[] => {
 	const parts = str.match(ansiRegex());
 	if (!parts) return [str];
 
@@ -24,4 +24,4 @@ export function splitAnsi(str: string): string[] {
 
 	result.push(str.slice(ptr));
 	return result;
-}
+};

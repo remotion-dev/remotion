@@ -99,7 +99,7 @@ function checkInfiniteRange(name: string, arr: readonly number[]) {
 	}
 }
 
-export function interpolate(
+export const interpolate = (
 	input: number,
 	inputRange: readonly number[],
 	outputRange: readonly number[],
@@ -108,7 +108,7 @@ export function interpolate(
 		extrapolateLeft?: ExtrapolateType;
 		extrapolateRight?: ExtrapolateType;
 	}
-): number {
+): number => {
 	if (typeof input === 'undefined') {
 		throw new Error('input can not be undefined');
 	}
@@ -163,4 +163,4 @@ export function interpolate(
 			extrapolateRight,
 		}
 	);
-}
+};

@@ -20,7 +20,7 @@ type Ordered = {
 	index: number;
 };
 
-export function parseRange(size: number, str: string | string[]) {
+export const parseRange = (size: number, str: string | string[]) => {
 	if (typeof str !== 'string') {
 		throw new TypeError('argument str must be a string');
 	}
@@ -75,9 +75,9 @@ export function parseRange(size: number, str: string | string[]) {
 	}
 
 	return combineRanges(ranges);
-}
+};
 
-function combineRanges(ranges: Ranges) {
+const combineRanges = (ranges: Ranges) => {
 	const ordered: Ordered[] = ranges.map(mapWithIndex).sort(sortByRangeStart);
 
 	let j = 0;
@@ -102,27 +102,27 @@ function combineRanges(ranges: Ranges) {
 	combined.type = ranges.type;
 
 	return combined;
-}
+};
 
-function mapWithIndex(range: Range, index: number) {
+const mapWithIndex = (range: Range, index: number) => {
 	return {
 		start: range.start,
 		end: range.end,
 		index,
 	};
-}
+};
 
-function mapWithoutIndex(range: Range) {
+const mapWithoutIndex = (range: Range) => {
 	return {
 		start: range.start,
 		end: range.end,
 	};
-}
+};
 
-function sortByRangeIndex(a: Ordered, b: Ordered) {
+const sortByRangeIndex = (a: Ordered, b: Ordered) => {
 	return a.index - b.index;
-}
+};
 
-function sortByRangeStart(a: Ordered, b: Ordered) {
+const sortByRangeStart = (a: Ordered, b: Ordered) => {
 	return a.start - b.start;
-}
+};

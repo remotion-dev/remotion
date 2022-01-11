@@ -2,11 +2,11 @@ import {IncomingMessage} from 'http';
 import webpack from 'webpack';
 import {DevMiddlewareContext} from './types';
 
-export function ready(
+export const ready = (
 	context: DevMiddlewareContext,
 	callback: (stats: webpack.Stats | undefined) => undefined | Promise<void>,
 	req?: IncomingMessage
-) {
+) => {
 	if (context.state) {
 		callback(context.stats);
 
@@ -18,4 +18,4 @@ export function ready(
 	context.logger.info(`wait until bundle finished${name ? `: ${name}` : ''}`);
 
 	context.callbacks.push(callback);
-}
+};

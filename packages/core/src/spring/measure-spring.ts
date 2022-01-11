@@ -1,7 +1,7 @@
 import {validateFps} from '../validation/validate-fps';
 import {springCalculation, SpringConfig} from './spring-utils';
 
-export function measureSpring({
+export const measureSpring = ({
 	fps,
 	config = {},
 	threshold = 0.005,
@@ -13,7 +13,7 @@ export function measureSpring({
 	threshold?: number;
 	from?: number;
 	to?: number;
-}): number {
+}): number => {
 	if (typeof threshold !== 'number') {
 		throw new TypeError(
 			`threshold must be a number, got ${threshold} of type ${typeof threshold}`
@@ -85,4 +85,4 @@ export function measureSpring({
 	}
 
 	return finishedFrame;
-}
+};

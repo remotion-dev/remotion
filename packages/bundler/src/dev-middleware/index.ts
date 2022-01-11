@@ -9,7 +9,7 @@ import {middleware} from './middleware';
 
 const noop = () => undefined;
 
-export function wdm(compiler: webpack.Compiler) {
+export const wdm = (compiler: webpack.Compiler) => {
 	const context: DevMiddlewareContext = {
 		state: false,
 		stats: undefined,
@@ -66,4 +66,4 @@ export function wdm(compiler: webpack.Compiler) {
 	instance.context = context;
 
 	return instance;
-}
+};

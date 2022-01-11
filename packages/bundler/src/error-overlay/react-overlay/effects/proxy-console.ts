@@ -44,14 +44,11 @@ const unregisterReactStack = () => {
 };
 
 type ConsoleProxyCallback = (message: string, frames: ReactFrame[]) => void;
-const permanentRegister = function (
-	type: 'error',
-	callback: ConsoleProxyCallback
-) {
+const permanentRegister = (type: 'error', callback: ConsoleProxyCallback) => {
 	if (typeof console !== 'undefined') {
 		const orig = console[type];
 		if (typeof orig === 'function') {
-			console[type] = function (...args) {
+			console[type] = (...args) => {
 				try {
 					const message = args[0];
 					if (typeof message === 'string' && reactFrameStack.length > 0) {

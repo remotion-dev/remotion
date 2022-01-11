@@ -2,12 +2,12 @@
  * Inlined from https://github.com/Jam3/audiobuffer-to-wav/commit/2272eb09bd46a05e50a6d684d908aa6f13c58f63#diff-e727e4bdf3657fd1d798edcd6b099d6e092f8573cba266154583a746bba0f346
  */
 
-export function audioBufferToWav(
+export const audioBufferToWav = (
 	buffer: AudioBuffer,
 	opt: {
 		float32: boolean;
 	}
-) {
+) => {
 	const numChannels = buffer.numberOfChannels;
 	const {sampleRate} = buffer;
 	const format = opt.float32 ? 3 : 1;
@@ -27,7 +27,7 @@ export function audioBufferToWav(
 		numChannels,
 		bitDepth,
 	});
-}
+};
 
 function encodeWAV({
 	samples,

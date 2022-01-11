@@ -13,7 +13,9 @@ export const dismissErrors = () => {
 	currentRuntimeErrorRecords = [];
 };
 
-export function startReportingRuntimeErrors(options: RuntimeReportingOptions) {
+export const startReportingRuntimeErrors = (
+	options: RuntimeReportingOptions
+) => {
 	if (stopListeningToRuntimeErrors !== null) {
 		throw new Error('Already listening');
 	}
@@ -41,15 +43,15 @@ export function startReportingRuntimeErrors(options: RuntimeReportingOptions) {
 			}
 		};
 
-	function update() {
+	const update = () => {
 		setErrorsRef.current?.setErrors({
 			type: 'errors',
 			errors: currentRuntimeErrorRecords,
 		});
-	}
+	};
 
 	stopListeningToRuntimeErrors = listenToRuntimeErrors(
 		handleRuntimeError(options),
 		options.filename as string
 	);
-}
+};

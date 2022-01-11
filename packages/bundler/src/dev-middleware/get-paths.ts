@@ -5,7 +5,7 @@ type PublicPath = {
 	publicPath: string;
 };
 
-export function getPaths(context: DevMiddlewareContext) {
+export const getPaths = (context: DevMiddlewareContext) => {
 	const {stats} = context;
 
 	const publicPaths: PublicPath[] = [];
@@ -24,4 +24,4 @@ export function getPaths(context: DevMiddlewareContext) {
 	publicPaths.push({outputPath, publicPath});
 
 	return publicPaths;
-}
+};

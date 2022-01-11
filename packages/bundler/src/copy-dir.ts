@@ -1,7 +1,7 @@
 import path from 'path';
 import fs from 'fs';
 
-export async function copyDir(src: string, dest: string) {
+export const copyDir = async (src: string, dest: string) => {
 	await fs.promises.mkdir(dest, {recursive: true});
 	const entries = await fs.promises.readdir(src, {withFileTypes: true});
 
@@ -15,4 +15,4 @@ export async function copyDir(src: string, dest: string) {
 			await fs.promises.copyFile(srcPath, destPath);
 		}
 	}
-}
+};

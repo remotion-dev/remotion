@@ -5,9 +5,9 @@ import {ReactFreshWebpackPlugin} from './fast-refresh';
 import {getWebpackCacheName} from './webpack-cache';
 
 type Truthy<T> = T extends false | '' | 0 | null | undefined ? never : T;
-function truthy<T>(value: T): value is Truthy<T> {
+export const truthy = <T>(value: T): value is Truthy<T> => {
 	return Boolean(value);
-}
+};
 
 export const webpackConfig = ({
 	entry,

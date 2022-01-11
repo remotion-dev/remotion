@@ -8,7 +8,7 @@ import {NonceContext} from './nonce';
 import {SequenceContext} from './sequencing';
 import {SetTimelineContext, TimelineContext} from './timeline-position-state';
 
-export function useRemotionContexts() {
+export const useRemotionContexts = () => {
 	const compositionManagerCtx = React.useContext(CompositionManager);
 	const timelineContext = React.useContext(TimelineContext);
 	const setTimelineContext = React.useContext(SetTimelineContext);
@@ -30,7 +30,7 @@ export function useRemotionContexts() {
 			timelineContext,
 		]
 	);
-}
+};
 
 export interface RemotionContextProviderProps {
 	contexts: ReturnType<typeof useRemotionContexts>;

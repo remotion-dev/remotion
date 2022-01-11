@@ -1,8 +1,8 @@
 import {useCurrentFrame, random} from 'remotion';
 
-export function selectColor(color, frame) {
+export const selectColor = (color, frame) => {
 	return Math.floor((random(`${color}-${frame}`) * 255) % 255);
-}
+};
 
 export const Framer = () => {
 	const frame = useCurrentFrame();

@@ -71,7 +71,7 @@ function normalizeStringPosix(path: string, allowAboveRoot: boolean) {
 	return res;
 }
 
-export function pathNormalize(path: string) {
+export const pathNormalize = (path: string) => {
 	if (path.length === 0) return '.';
 
 	const isAbsolute = path.charCodeAt(0) === 47; /* / */
@@ -85,4 +85,4 @@ export function pathNormalize(path: string) {
 
 	if (isAbsolute) return '/' + path;
 	return path;
-}
+};

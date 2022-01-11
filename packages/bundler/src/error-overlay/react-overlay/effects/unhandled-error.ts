@@ -13,7 +13,7 @@ let boundErrorHandler: EventListenerObject | null = null;
 
 type ErrorCallback = (error: Error) => void;
 
-function errorHandler(callback: ErrorCallback, e: Event): void {
+const errorHandler = (callback: ErrorCallback, e: Event): void => {
 	// @ts-expect-error
 	if (!e.error) {
 		return;
@@ -28,9 +28,12 @@ function errorHandler(callback: ErrorCallback, e: Event): void {
 		// Look in your browser's devtools for more information
 		callback(new Error(error));
 	}
-}
+};
 
-function registerUnhandledError(target: EventTarget, callback: ErrorCallback) {
+const registerUnhandledError = (
+	target: EventTarget,
+	callback: ErrorCallback
+) => {
 	if (boundErrorHandler !== null) {
 		return;
 	}
@@ -40,16 +43,16 @@ function registerUnhandledError(target: EventTarget, callback: ErrorCallback) {
 		callback
 	) as unknown as EventListenerObject;
 	target.addEventListener('error', boundErrorHandler);
-}
+};
 
-function unregisterUnhandledError(target: EventTarget) {
+const unregisterUnhandledError = (target: EventTarget) => {
 	if (boundErrorHandler === null) {
 		return;
 	}
 
 	target.removeEventListener('error', boundErrorHandler);
 	boundErrorHandler = null;
-}
+};
 
 export {
 	registerUnhandledError as register,

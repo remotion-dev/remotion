@@ -30,7 +30,7 @@ export const isVsCodeDerivative = (editor: Editor) => {
 	);
 };
 
-export function isTerminalEditor(editor: Editor) {
+export const isTerminalEditor = (editor: Editor) => {
 	switch (editor) {
 		case 'vim':
 		case 'emacs':
@@ -39,7 +39,7 @@ export function isTerminalEditor(editor: Editor) {
 		default:
 			return false;
 	}
-}
+};
 
 const editorNames = [
 	'atom',

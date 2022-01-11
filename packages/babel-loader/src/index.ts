@@ -10,9 +10,9 @@ const envPreset = [
 ] as const;
 
 type Truthy<T> = T extends false | '' | 0 | null | undefined ? never : T;
-function truthy<T>(value: T): value is Truthy<T> {
+const truthy = <T>(value: T): value is Truthy<T> => {
 	return Boolean(value);
-}
+};
 
 export const replaceLoadersWithBabel = (
 	conf: WebpackConfiguration

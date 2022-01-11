@@ -11,17 +11,17 @@
 
 import {ReactFrame} from './proxy-console';
 
-function stripInlineStacktrace(message: string): string {
+const stripInlineStacktrace = (message: string): string => {
 	return message
 		.split('\n')
 		.filter((line) => !line.match(/^\s*in/))
 		.join('\n'); // "  in Foo"
-}
+};
 
-function massage(
+const massage = (
 	warning: string,
 	frames: ReactFrame[]
-): {message: string; stack: string} {
+): {message: string; stack: string} => {
 	const message = stripInlineStacktrace(warning);
 
 	// Reassemble the stack with full filenames provided by React
@@ -57,6 +57,6 @@ function massage(
 	}
 
 	return {message, stack};
-}
+};
 
 export {massage};

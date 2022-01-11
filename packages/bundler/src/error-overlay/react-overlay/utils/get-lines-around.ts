@@ -17,11 +17,11 @@ import {ScriptLine} from './stack-frame';
  * @param {number} count The number of lines you'd like for context.
  * @param {string[] | string} lines The source code.
  */
-export function getLinesAround(
+export const getLinesAround = (
 	line: number,
 	count: number,
 	lines: string[] | string
-): ScriptLine[] {
+): ScriptLine[] => {
 	if (typeof lines === 'string') {
 		lines = lines.split('\n');
 	}
@@ -36,4 +36,4 @@ export function getLinesAround(
 	}
 
 	return result;
-}
+};

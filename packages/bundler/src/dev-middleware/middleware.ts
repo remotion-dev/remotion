@@ -17,18 +17,18 @@ import {ReadStream} from 'fs';
 import mime from 'mime-types';
 import {parseRange} from './range-parser';
 
-function getValueContentRangeHeader(
+const getValueContentRangeHeader = (
 	type: string,
 	size: number,
 	range?: {
 		start: number;
 		end: number;
 	}
-) {
+) => {
 	return `${type} ${range ? `${range.start}-${range.end}` : '*'}/${size}`;
-}
+};
 
-function createHtmlDocument(title: number, body: string) {
+const createHtmlDocument = (title: number, body: string) => {
 	return (
 		`${
 			'<!DOCTYPE html>\n' +
@@ -43,12 +43,12 @@ function createHtmlDocument(title: number, body: string) {
 		`</body>\n` +
 		`</html>\n`
 	);
-}
+};
 
 const BYTES_RANGE_REGEXP = /^ *bytes/i;
 
-export function middleware(context: DevMiddlewareContext) {
-	return async function (req: Request, res: Response, next: NextFunction) {
+export const middleware = (context: DevMiddlewareContext) => {
+	return async (req: Request, res: Response, next: NextFunction) => {
 		const acceptedMethods = ['GET', 'HEAD'];
 
 		// fixes #282. credit @cexoso. in certain edge situations res.locals is undefined.
@@ -62,11 +62,11 @@ export function middleware(context: DevMiddlewareContext) {
 
 		ready(context, processRequest, req);
 
-		async function goNext() {
+		goNext = async () => {
 			return next();
-		}
+		};
 
-		async function processRequest() {
+		processRequest = async () => {
 			const filename = getFilenameFromUrl(context, req.url);
 
 			if (!filename) {
@@ -206,6 +206,6 @@ export function middleware(context: DevMiddlewareContext) {
 			if (bufferOtStream) {
 				send(req, res, bufferOtStream, byteLength);
 			}
-		}
+		};
 	};
-}
+};

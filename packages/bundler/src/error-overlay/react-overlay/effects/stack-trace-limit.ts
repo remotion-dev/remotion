@@ -15,7 +15,7 @@ let restoreStackTraceValue = 10;
 
 const MAX_STACK_LENGTH = 50;
 
-function registerStackTraceLimit(limit: number = MAX_STACK_LENGTH) {
+const registerStackTraceLimit = (limit: number = MAX_STACK_LENGTH) => {
 	if (stackTraceRegistered) {
 		return;
 	}
@@ -27,9 +27,9 @@ function registerStackTraceLimit(limit: number = MAX_STACK_LENGTH) {
 	} catch (e) {
 		// Not all browsers support this so we don't care if it errors
 	}
-}
+};
 
-function unregisterStackTraceLimit() {
+const unregisterStackTraceLimit = () => {
 	if (!stackTraceRegistered) {
 		return;
 	}
@@ -40,7 +40,7 @@ function unregisterStackTraceLimit() {
 	} catch (e) {
 		// Not all browsers support this so we don't care if it errors
 	}
-}
+};
 
 export {
 	registerStackTraceLimit as register,

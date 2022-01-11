@@ -2,8 +2,8 @@ import webpack from 'webpack';
 import {isColorSupported} from './is-color-supported';
 import {DevMiddlewareContext} from './types';
 
-export function setupHooks(context: DevMiddlewareContext) {
-	function invalid() {
+export const setupHooks = (context: DevMiddlewareContext) => {
+	const invalid = () => {
 		if (context.state) {
 			context.logger.log('Compilation starting...');
 		}
@@ -11,9 +11,9 @@ export function setupHooks(context: DevMiddlewareContext) {
 		// We are now in invalid state
 		context.state = false;
 		context.stats = undefined;
-	}
+	};
 
-	function done(stats: webpack.Stats | undefined) {
+	const done = (stats: webpack.Stats | undefined) => {
 		context.state = true;
 		context.stats = stats;
 
@@ -46,9 +46,9 @@ export function setupHooks(context: DevMiddlewareContext) {
 				callback(stats);
 			});
 		});
-	}
+	};
 
 	context.compiler.hooks.watchRun.tap('webpack-dev-middleware', invalid);
 	context.compiler.hooks.invalid.tap('webpack-dev-middleware', invalid);
 	context.compiler.hooks.done.tap('webpack-dev-middleware', done);
-}
+};

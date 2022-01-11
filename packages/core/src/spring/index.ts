@@ -1,6 +1,6 @@
 import {springCalculation, SpringConfig} from './spring-utils';
 
-export function spring({
+export const spring = ({
 	frame,
 	fps,
 	config = {},
@@ -12,7 +12,7 @@ export function spring({
 	config?: Partial<SpringConfig>;
 	from?: number;
 	to?: number;
-}): number {
+}): number => {
 	const spr = springCalculation({
 		fps,
 		frame,
@@ -29,7 +29,7 @@ export function spring({
 	}
 
 	return Math.max(spr.current, to);
-}
+};
 
 export {measureSpring} from './measure-spring';
 export {SpringConfig} from './spring-utils';
