@@ -18,7 +18,8 @@ export const setPropsAndEnv = async ({
 	timeoutInMilliseconds: number | undefined;
 }) => {
 	validatePuppeteerTimeout(timeoutInMilliseconds);
-	const actualTimeout = timeoutInMilliseconds ?? Internals.DEFAULT_TIMEOUT;
+	const actualTimeout =
+		timeoutInMilliseconds ?? Internals.DEFAULT_PUPPETEER_TIMEOUT;
 	page.setDefaultTimeout(actualTimeout);
 	page.setDefaultNavigationTimeout(actualTimeout);
 
@@ -51,6 +52,14 @@ export const setPropsAndEnv = async ({
 			},
 			Internals.INITIAL_FRAME_LOCAL_STORAGE_KEY,
 			initialFrame
+		);
+
+		await page.evaluate(
+			(key, value) => {
+				window.localStorage.setItem(key, value);
+			},
+			Internals.PUPPETEER_TIMEOUT_KEY,
+			actualTimeout
 		);
 	}
 };
