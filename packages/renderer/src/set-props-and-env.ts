@@ -18,13 +18,13 @@ export const setPropsAndEnv = async ({
 	initialFrame: number;
 	timeoutInMilliseconds: number | undefined;
 }) => {
-	await page.goto(normalizeServeUrl(serveUrl));
 	validatePuppeteerTimeout(timeoutInMilliseconds);
 	const actualTimeout =
 		timeoutInMilliseconds ?? Internals.DEFAULT_PUPPETEER_TIMEOUT;
 	page.setDefaultTimeout(actualTimeout);
 	page.setDefaultNavigationTimeout(actualTimeout);
-	await page.goto(`http://localhost:${port}/index.html`);
+
+	await page.goto(normalizeServeUrl(serveUrl));
 	await page.evaluate(
 		(key, value) => {
 			window.localStorage.setItem(key, value);
