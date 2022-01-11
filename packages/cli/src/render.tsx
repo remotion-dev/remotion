@@ -90,6 +90,7 @@ export const render = async () => {
 		inputProps,
 		puppeteerInstance,
 		envVariables,
+		timeoutInMilliseconds: Internals.getCurrentPuppeteerTimeout(),
 	});
 	const compositionId = getCompositionId(comps);
 
@@ -192,6 +193,7 @@ export const render = async () => {
 			parallelism,
 			puppeteerInstance,
 			quality,
+			timeoutInMilliseconds: Internals.getCurrentPuppeteerTimeout(),
 		});
 		renderedDoneIn = Date.now() - startTime;
 

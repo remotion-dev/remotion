@@ -109,6 +109,7 @@ export const still = async () => {
 		inputProps,
 		puppeteerInstance,
 		envVariables,
+		timeoutInMilliseconds: Internals.getCurrentPuppeteerTimeout(),
 	});
 	const compositionId = getCompositionId(comps);
 
@@ -134,6 +135,7 @@ export const still = async () => {
 			envVariables,
 			imageFormat,
 			inputProps,
+			timeoutInMilliseconds: Internals.getCurrentPuppeteerTimeout(),
 		});
 	} catch (err) {
 		Log.error();

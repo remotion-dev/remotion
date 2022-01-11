@@ -219,6 +219,7 @@ export const getCliOptions = async (options: {
 	const ffmpegExecutable = Internals.getCustomFfmpegExecutable();
 
 	return {
+		puppeteerTimeout: Internals.getCurrentPuppeteerTimeout(),
 		parallelism: Internals.getConcurrency(),
 		frameRange,
 		shouldOutputImageSequence,

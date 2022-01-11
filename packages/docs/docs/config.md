@@ -117,6 +117,20 @@ Config.Puppeteer.setBrowserExecutable("/usr/bin/google-chrome-stable");
 
 The [command line flag](/docs/cli#--browser-executable) `--browser-executable` will take precedence over this option.
 
+### setTimeoutInMilliseconds()
+
+_Available from Version 2.6.2._
+
+Define how long a single frame may take to resolve all [`delayRender()`](/docs/delay-render) calls before it times out. Default: `30000`
+
+```ts twoslash
+import { Config } from "remotion";
+// ---cut---
+Config.Puppeteer.setTimeoutInMilliseconds(60000);
+```
+
+The [command line flag](/docs/cli#--timeout) `--timeout` will take precedence over this option.
+
 ## Rendering
 
 ### setConcurrency()

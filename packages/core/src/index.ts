@@ -10,6 +10,7 @@ declare global {
 		remotion_editorName: string | null;
 		remotion_setFrame: (frame: number) => void;
 		remotion_initialFrame: number;
+		remotion_puppeteerTimeout: number;
 		remotion_collectAssets: () => TAsset[];
 		remotion_isPlayer: boolean;
 		remotion_imported: boolean;

@@ -128,6 +128,15 @@ import {
 	useRemotionContexts,
 } from './wrap-remotion-context';
 import * as AssetCompression from './compress-assets';
+import {
+	DEFAULT_PUPPETEER_TIMEOUT,
+	PUPPETEER_TIMEOUT_KEY,
+	setupPuppeteerTimeout,
+} from './timeout';
+import {
+	getCurrentPuppeteerTimeout,
+	setPuppeteerTimeout,
+} from './config/timeout';
 const Timeline = {...TimelinePosition, ...TimelineInOutPosition};
 
 // Mark them as Internals so use don't assume this is public
@@ -212,6 +221,11 @@ export const Internals = {
 	isInLambda: () => Boolean(process?.env?.LAMBDA_TASK_ROOT),
 	AssetCompression,
 	defaultOverrideFunction,
+	DEFAULT_PUPPETEER_TIMEOUT,
+	PUPPETEER_TIMEOUT_KEY,
+	setupPuppeteerTimeout,
+	setPuppeteerTimeout,
+	getCurrentPuppeteerTimeout,
 };
 
 export type {
