@@ -34,6 +34,10 @@ Render a still frame basd on the entry point, the composition ID and save it to 
 npx remotion still <entry-file> <composition-id> <output-location>
 ```
 
+### `npx remotion versions`
+
+Prints and validates versions of all Remotion packages.
+
 ### `npx remotion upgrade`
 
 Upgrade all Remotion-related dependencies to the newest version.
