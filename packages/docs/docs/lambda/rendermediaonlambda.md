@@ -122,6 +122,12 @@ _optional_
 
 The file name of the media output. By default, it is `out` plus the appropriate file extension, for example: `out.mp4`. Must match `/([0-9a-zA-Z-!_.*'()]+)/g`.
 
+### `timeoutInMilliseconds?`
+
+_optional_
+
+A number describing how long the render may take to resolve all `delayRender()` calls before it times out. Default: `30000`
+
 ## Return value
 
 Returns a promise resolving to an object containing two properties: `renderId` and `bucketName`. Those are useful for passing to `getRenderProgress()`

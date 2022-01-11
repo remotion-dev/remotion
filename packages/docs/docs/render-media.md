@@ -104,7 +104,7 @@ Only applies if `imageFormat` is `'jpeg'`, otherwise this option is invalid.
 
 ### `frameRange`
 
-_number | [number, number] - optional_
+_number | [number, number] - optional_
 
 Specify a single frame (passing a `number`) or a range of frames (passing a tuple `[number, number]`) to be rendered. By passing `null` (default) all frames of a composition get rendered.
 
@@ -217,6 +217,12 @@ const onBrowserLog = (log: BrowserLog) => {
   console.log(`at ${log.stackTrace}`);
 };
 ```
+
+### `timeoutInMilliseconds?`
+
+_optional_
+
+A number describing how long the render may take to resolve all `delayRender()` calls before it times out. Default: `30000`
 
 ## See also
 
