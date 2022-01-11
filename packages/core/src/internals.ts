@@ -128,6 +128,10 @@ import {
 	PUPPETEER_TIMEOUT_KEY,
 	setupPuppeteerTimeout,
 } from './timeout';
+import {
+	getCurrentPuppeteerTimeout,
+	setPuppeteerTimeout,
+} from './config/timeout';
 const Timeline = {...TimelinePosition, ...TimelineInOutPosition};
 
 // Mark them as Internals so use don't assume this is public
@@ -210,6 +214,8 @@ export const Internals = {
 	DEFAULT_PUPPETEER_TIMEOUT,
 	PUPPETEER_TIMEOUT_KEY,
 	setupPuppeteerTimeout,
+	setPuppeteerTimeout,
+	getCurrentPuppeteerTimeout,
 };
 
 export type {
