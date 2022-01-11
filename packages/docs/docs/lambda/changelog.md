@@ -10,6 +10,10 @@ Keep track of changes to the APIs of Remotion Lambda here.
 
 [Upgrading](/docs/lambda/upgrading)
 
+## Unreleased
+
+- Added `timeoutInMilliseconds` to `renderMediaOnLambda`, `renderStillOnLambda` and `renderMedia`
+
 ## January 10th, 2022 (2)
 
 Version hash: `3.0.0-lambda.279+ee1497f24`
