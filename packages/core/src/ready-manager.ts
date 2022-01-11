@@ -1,4 +1,5 @@
 import {getRemotionEnvironment} from './get-environment';
+import {DEFAULT_PUPPETEER_TIMEOUT} from './timeout';
 
 if (typeof window !== 'undefined') {
 	window.ready = false;
@@ -13,13 +14,15 @@ export const delayRender = (): number => {
 	const called = Error().stack?.replace(/^Error/g, '') ?? '';
 
 	if (getRemotionEnvironment() === 'rendering') {
+		const timeoutToUse =
+			typeof window === 'undefined'
+				? DEFAULT_PUPPETEER_TIMEOUT
+				: window.remotion_puppeteerTimeout - 2000;
 		timeouts[handle] = setTimeout(() => {
 			throw new Error(
-				`A delayRender was called but not cleared after ${
-					window.remotion_puppeteerTimeout - 2000
-				}ms. See https://remotion.dev/docs/timeout for help. The delayRender was called: ${called}`
+				`A delayRender was called but not cleared after ${timeoutToUse}ms. See https://remotion.dev/docs/timeout for help. The delayRender was called: ${called}`
 			);
-		}, window.remotion_puppeteerTimeout - 2000);
+		}, timeoutToUse);
 	}
 
 	if (typeof window !== 'undefined') {
