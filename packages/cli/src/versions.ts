@@ -1,4 +1,4 @@
-import {readFile} from 'fs/promises';
+import fs from 'fs';
 import {Internals} from 'remotion';
 import {Log} from './log';
 import {parseCommandLine} from './parse-command-line';
@@ -20,7 +20,7 @@ const packages = [
 const getVersion = async (p: string): Promise<string | null> => {
 	try {
 		const remotionPkgJson = resolveFrom(process.cwd(), `${p}/package.json`);
-		const file = await readFile(remotionPkgJson, 'utf-8');
+		const file = await fs.promises.readFile(remotionPkgJson, 'utf-8');
 		const packageJson = JSON.parse(file);
 		return packageJson.version;
 	} catch (err) {
