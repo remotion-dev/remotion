@@ -19,6 +19,11 @@ import {createOverwriteableCliOutput, makeProgressBar} from './progress-bar';
 import {render} from './render';
 import {still} from './still';
 import {upgrade} from './upgrade';
+import {
+	validateVersionsBeforeCommand,
+	versionsCommand,
+	VERSIONS_COMMAND,
+} from './versions';
 
 export const cli = async () => {
 	const args = process.argv;
@@ -31,6 +36,10 @@ export const cli = async () => {
 
 	// To check node version and to warn if node version is <12.10.0
 	checkNodeVersion();
+	if (command !== VERSIONS_COMMAND) {
+		await validateVersionsBeforeCommand();
+	}
+
 	try {
 		if (command === 'preview') {
 			await previewCommand();
@@ -42,6 +51,8 @@ export const cli = async () => {
 			await still();
 		} else if (command === 'upgrade') {
 			await upgrade();
+		} else if (command === VERSIONS_COMMAND) {
+			await versionsCommand();
 		} else if (command === 'help') {
 			printHelp();
 			process.exit(0);
