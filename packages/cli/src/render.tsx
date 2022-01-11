@@ -93,6 +93,7 @@ export const render = async () => {
 		inputProps,
 		browserInstance: openedBrowser,
 		envVariables,
+		timeoutInMilliseconds: Internals.getCurrentPuppeteerTimeout(),
 	});
 	const compositionId = getCompositionId(comps);
 
@@ -154,6 +155,7 @@ export const render = async () => {
 		frameRange: frameRange ?? null,
 		dumpBrowserLogs: Internals.Logging.isEqualOrBelowLogLevel('verbose'),
 		puppeteerInstance: openedBrowser,
+		timeoutInMilliseconds: Internals.getCurrentPuppeteerTimeout(),
 	});
 
 	const closeBrowserPromise = openedBrowser.close();

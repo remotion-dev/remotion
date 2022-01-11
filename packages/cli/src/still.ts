@@ -92,6 +92,7 @@ export const still = async () => {
 		inputProps,
 		browserInstance: openedBrowser,
 		envVariables,
+		timeoutInMilliseconds: Internals.getCurrentPuppeteerTimeout(),
 	});
 	const compositionId = getCompositionId(comps);
 
@@ -124,6 +125,7 @@ export const still = async () => {
 		},
 		puppeteerInstance: openedBrowser,
 		overwrite: Internals.getShouldOverwrite(),
+		timeoutInMilliseconds: Internals.getCurrentPuppeteerTimeout(),
 	});
 
 	const closeBrowserPromise = openedBrowser.close();

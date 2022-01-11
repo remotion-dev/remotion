@@ -50,6 +50,19 @@ Especially 1.x releases could timeout when importing large assets
 
 [Open an issue](https://github.com/remotion-dev/remotion/issues/new) and try to describe your issue in a way that is reproducible for us. We will try to help you out.
 
+## Increase timeout
+
+Sometimes, you cannot avoid a render taking longer than 30 seconds. For example:
+
+- Expensive WebGL scenes
+- Expensive preprocessing of data
+
+You can increase the default timeout from v2.6.2 on:
+
+- Using the [`--timeout`](/docs/cli#--timeout) CLI flag
+- Using the `timeoutInMilliseconds` option in [`renderStill()`](/docs/render-still#timeoutinmilliseconds), [`renderFrames()`](/docs/render-frames#timeoutinmilliseconds) and [`getCompositions()`](/docs/get-compositions#timeoutinmilliseconds)
+- Using the [`Config.Puppeteer.setTimeoutInMilliseconds()`](/docs/config#settimeoutinmilliseconds) option in the config file
+
 ## See also
 
 - [delayRender()](/docs/delay-render)

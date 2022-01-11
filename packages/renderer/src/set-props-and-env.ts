@@ -1,5 +1,6 @@
 import {Page} from 'puppeteer-core';
 import {Internals} from 'remotion';
+import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
 
 export const setPropsAndEnv = async ({
 	inputProps,
@@ -7,42 +8,54 @@ export const setPropsAndEnv = async ({
 	page,
 	port,
 	initialFrame,
+	timeoutInMilliseconds,
 }: {
 	inputProps: unknown;
 	envVariables: Record<string, string> | undefined;
 	page: Page;
 	port: number;
 	initialFrame: number;
+	timeoutInMilliseconds: number | undefined;
 }) => {
-	if (inputProps || envVariables) {
-		await page.goto(`http://localhost:${port}/index.html`);
+	validatePuppeteerTimeout(timeoutInMilliseconds);
+	const actualTimeout =
+		timeoutInMilliseconds ?? Internals.DEFAULT_PUPPETEER_TIMEOUT;
+	page.setDefaultTimeout(actualTimeout);
+	page.setDefaultNavigationTimeout(actualTimeout);
 
-		if (inputProps) {
-			await page.evaluate(
-				(key, input) => {
-					window.localStorage.setItem(key, input);
-				},
-				Internals.INPUT_PROPS_KEY,
-				JSON.stringify(inputProps)
-			);
-		}
-
-		if (envVariables) {
-			await page.evaluate(
-				(key, input) => {
-					window.localStorage.setItem(key, input);
-				},
-				Internals.ENV_VARIABLES_LOCAL_STORAGE_KEY,
-				JSON.stringify(envVariables)
-			);
-		}
-
+	await page.goto(`http://localhost:${port}/index.html`);
+	await page.evaluate(
+		(key, value) => {
+			window.localStorage.setItem(key, value);
+		},
+		Internals.PUPPETEER_TIMEOUT_KEY,
+		actualTimeout
+	);
+	if (inputProps) {
 		await page.evaluate(
-			(key, value) => {
-				window.localStorage.setItem(key, value);
+			(key, input) => {
+				window.localStorage.setItem(key, input);
 			},
-			Internals.INITIAL_FRAME_LOCAL_STORAGE_KEY,
-			initialFrame
+			Internals.INPUT_PROPS_KEY,
+			JSON.stringify(inputProps)
 		);
 	}
+
+	if (envVariables) {
+		await page.evaluate(
+			(key, input) => {
+				window.localStorage.setItem(key, input);
+			},
+			Internals.ENV_VARIABLES_LOCAL_STORAGE_KEY,
+			JSON.stringify(envVariables)
+		);
+	}
+
+	await page.evaluate(
+		(key, value) => {
+			window.localStorage.setItem(key, value);
+		},
+		Internals.INITIAL_FRAME_LOCAL_STORAGE_KEY,
+		initialFrame
+	);
 };
