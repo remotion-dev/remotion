@@ -1,5 +1,4 @@
 import {getRemotionEnvironment} from './get-environment';
-import {DEFAULT_PUPPETEER_TIMEOUT} from './timeout';
 
 if (typeof window !== 'undefined') {
 	window.ready = false;
