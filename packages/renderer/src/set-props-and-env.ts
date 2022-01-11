@@ -23,6 +23,14 @@ export const setPropsAndEnv = async ({
 	page.setDefaultTimeout(actualTimeout);
 	page.setDefaultNavigationTimeout(actualTimeout);
 
+	await page.evaluate(
+		(key, value) => {
+			window.localStorage.setItem(key, value);
+		},
+		Internals.PUPPETEER_TIMEOUT_KEY,
+		actualTimeout
+	);
+
 	if (inputProps || envVariables) {
 		await page.goto(`http://localhost:${port}/index.html`);
 
@@ -52,14 +60,6 @@ export const setPropsAndEnv = async ({
 			},
 			Internals.INITIAL_FRAME_LOCAL_STORAGE_KEY,
 			initialFrame
-		);
-
-		await page.evaluate(
-			(key, value) => {
-				window.localStorage.setItem(key, value);
-			},
-			Internals.PUPPETEER_TIMEOUT_KEY,
-			actualTimeout
 		);
 	}
 };
