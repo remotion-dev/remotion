@@ -21,6 +21,7 @@ import {isServeUrl} from './is-serve-url';
 import {ensureOutputDirectory} from './ensure-output-directory';
 import got from 'got';
 import {getRealFrameRange} from './get-frame-to-render';
+import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
 
 declare global {
 	interface Window {
@@ -70,4 +71,5 @@ export const RenderInternals = {
 	ensureOutputDirectory,
 	gotStream: got.stream,
 	getRealFrameRange,
+	validatePuppeteerTimeout,
 };

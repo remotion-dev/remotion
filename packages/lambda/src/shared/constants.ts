@@ -171,6 +171,7 @@ export type LambdaPayloads = {
 		logLevel: LogLevel;
 		frameRange: FrameRange | null;
 		outName: string | null;
+		timeoutInMilliseconds: number;
 	};
 	launch: {
 		type: LambdaRoutines.launch;
@@ -193,6 +194,7 @@ export type LambdaPayloads = {
 		logLevel: LogLevel;
 		frameRange: FrameRange | null;
 		outName: string | null;
+		timeoutInMilliseconds: number;
 	};
 	fire: {
 		type: LambdaRoutines.fire;
@@ -228,6 +230,7 @@ export type LambdaPayloads = {
 		privacy: Privacy;
 		attempt: number;
 		logLevel: LogLevel;
+		timeoutInMilliseconds: number;
 	};
 	still: {
 		type: LambdaRoutines.still;
@@ -243,6 +246,7 @@ export type LambdaPayloads = {
 		privacy: Privacy;
 		logLevel?: LogLevel;
 		outName: string | null;
+		timeoutInMilliseconds: number;
 	};
 };
 

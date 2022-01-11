@@ -32,6 +32,7 @@ export type RenderMediaOnLambdaInput = {
 	logLevel?: LogLevel;
 	frameRange?: FrameRange;
 	outName?: string;
+	timeoutInMilliseconds?: number;
 };
 
 export type RenderMediaOnLambdaOutput = {
@@ -79,6 +80,7 @@ export const renderMediaOnLambda = async ({
 	logLevel,
 	frameRange,
 	outName,
+	timeoutInMilliseconds,
 }: RenderMediaOnLambdaInput): Promise<RenderMediaOnLambdaOutput> => {
 	validateFramesPerLambda(framesPerLambda ?? null);
 	const realServeUrl = await convertToServeUrl(serveUrl, region);
@@ -103,6 +105,8 @@ export const renderMediaOnLambda = async ({
 			logLevel: logLevel ?? Internals.Logging.DEFAULT_LOG_LEVEL,
 			frameRange: frameRange ?? null,
 			outName: outName ?? null,
+			timeoutInMilliseconds:
+				timeoutInMilliseconds ?? Internals.DEFAULT_PUPPETEER_TIMEOUT,
 		},
 		region,
 	});

@@ -57,6 +57,7 @@ export type RenderMediaOptions = {
 	dumpBrowserLogs?: boolean;
 	onBrowserLog?: ((log: BrowserLog) => void) | undefined;
 	onStart?: (data: OnStartData) => void;
+	timeoutInMilliseconds?: number;
 } & ServeUrlOrWebpackBundle;
 
 type Await<T> = T extends PromiseLike<infer U> ? U : T;
@@ -82,6 +83,7 @@ export const renderMedia = async ({
 	dumpBrowserLogs,
 	onBrowserLog,
 	onStart,
+	timeoutInMilliseconds,
 	...options
 }: RenderMediaOptions) => {
 	Internals.validateQuality(quality);
@@ -182,6 +184,7 @@ export const renderMedia = async ({
 			dumpBrowserLogs,
 			onBrowserLog,
 			onDownload,
+			timeoutInMilliseconds,
 		});
 		if (stitcherFfmpeg) {
 			await waitForFinish();
