@@ -1,5 +1,6 @@
 import chalk from 'chalk';
 import {Log} from './log';
+import {VERSIONS_COMMAND} from './versions';
 
 const packagejson = require('../package.json');
 
@@ -42,6 +43,7 @@ export const printHelp = () => {
 		['--port', 'Custom port to use for the HTTP server'],
 		['--env-file', 'Specify a location for a dotenv file'],
 	]);
+	Log.info();
 	Log.info('remotion still <index-file.ts> <comp-name> <still.png>');
 	Log.info(chalk.gray('Render a still frame and save it as an image.'));
 	printFlags([
@@ -57,6 +59,11 @@ export const printHelp = () => {
 		['--port', 'Custom port to use for the HTTP server'],
 		['--env-file', 'Specify a location for a dotenv file'],
 	]);
+	Log.info();
+	Log.info('remotion ' + VERSIONS_COMMAND);
+	Log.info(
+		chalk.gray('Prints and validates versions of all Remotion packages.')
+	);
 	Log.info();
 	Log.info('remotion upgrade');
 	Log.info(chalk.gray('Ensure Remotion is on the newest version.'));
