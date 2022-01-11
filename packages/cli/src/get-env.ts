@@ -5,7 +5,7 @@ import {Internals} from 'remotion';
 import {Log} from './log';
 import {parsedCli} from './parse-command-line';
 
-function getProcessEnv(): Record<string, string> {
+const getProcessEnv = (): Record<string, string> => {
 	const env: Record<string, string> = {};
 
 	const validKeys = Object.keys(process.env).filter((key) =>
@@ -17,7 +17,7 @@ function getProcessEnv(): Record<string, string> {
 	}
 
 	return env;
-}
+};
 
 const getEnvForEnvFile = async (
 	processEnv: ReturnType<typeof getProcessEnv>,

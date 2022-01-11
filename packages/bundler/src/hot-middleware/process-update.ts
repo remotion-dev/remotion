@@ -49,27 +49,23 @@ const applyOptions: __WebpackModuleApi.AcceptOptions = {
 	},
 };
 
-function upToDate(hash?: string) {
+const upToDate = (hash?: string) => {
 	if (hash) lastHash = hash;
 	return lastHash === __webpack_hash__;
-}
+};
 
-export const processUpdate = function (
+export const processUpdate = (
 	hash: string | undefined,
 	moduleMap: ModuleMap,
 	options: HotMiddlewareOptions
-) {
+) => {
 	const {reload} = options;
-	if (!upToDate(hash) && module.hot?.status() === 'idle') {
-		console.log('[Fast refresh] Checking for updates on the server...');
-		check();
-	}
 
-	async function check() {
-		const cb = function (
+	const check = async () => {
+		const cb = (
 			err: Error | null,
 			updatedModules: __WebpackModuleApi.ModuleId[]
-		) {
+		) => {
 			if (err) return handleError(err);
 
 			if (!updatedModules) {
@@ -86,10 +82,10 @@ export const processUpdate = function (
 				return null;
 			}
 
-			const applyCallback = function (
+			const applyCallback = (
 				applyErr: Error | null,
 				renewedModules: __WebpackModuleApi.ModuleId[]
-			) {
+			) => {
 				if (applyErr) return handleError(applyErr);
 
 				if (!upToDate()) check();
@@ -117,12 +113,17 @@ export const processUpdate = function (
 		} catch (err) {
 			cb(err as Error, []);
 		}
+	};
+
+	if (!upToDate(hash) && module.hot?.status() === 'idle') {
+		console.log('[Fast refresh] Checking for updates on the server...');
+		check();
 	}
 
-	function logUpdates(
+	const logUpdates = (
 		updatedModules: __WebpackModuleApi.ModuleId[],
 		renewedModules: __WebpackModuleApi.ModuleId[]
-	) {
+	) => {
 		const unacceptedModules =
 			updatedModules?.filter((moduleId) => {
 				return renewedModules && renewedModules.indexOf(moduleId) < 0;
@@ -162,9 +163,9 @@ export const processUpdate = function (
 		if (upToDate()) {
 			console.log('[Fast refresh] App is up to date.');
 		}
-	}
+	};
 
-	function handleError(err: Error) {
+	const handleError = (err: Error) => {
 		if ((module.hot?.status() ?? 'nope') in failureStatuses) {
 			if (options.warn) {
 				console.warn(
@@ -182,12 +183,12 @@ export const processUpdate = function (
 				'[Fast refresh] Update check failed: ' + (err.stack || err.message)
 			);
 		}
-	}
+	};
 
-	function performReload() {
+	const performReload = () => {
 		if (reload) {
 			if (options.warn) console.warn('[Fast refresh] Reloading page');
 			window.location.reload();
 		}
-	}
+	};
 };

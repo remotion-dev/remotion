@@ -57,13 +57,13 @@ const FEATURED_TEMPLATES: TEMPLATES[] = [
 	},
 ];
 
-function padEnd(str: string, width: number): string {
+const padEnd = (str: string, width: number): string => {
 	// Pulled from commander for overriding
 	const len = Math.max(0, width - stripAnsi(str).length);
 	return str + Array(len + 1).join(' ');
-}
+};
 
-function validateName(name?: string): string | true {
+const validateName = (name?: string): string | true => {
 	if (typeof name !== 'string' || name === '') {
 		return 'The project name can not be empty.';
 	}
@@ -73,9 +73,9 @@ function validateName(name?: string): string | true {
 	}
 
 	return true;
-}
+};
 
-function assertValidName(folderName: string) {
+const assertValidName = (folderName: string) => {
 	const validation = validateName(folderName);
 	if (typeof validation === 'string') {
 		throw new Error(
@@ -84,9 +84,9 @@ function assertValidName(folderName: string) {
 			)}. ${validation}`
 		);
 	}
-}
+};
 
-function assertFolderEmptyAsync(projectRoot: string): {exists: boolean} {
+const assertFolderEmptyAsync = (projectRoot: string): {exists: boolean} => {
 	const conflicts = fs
 		.readdirSync(projectRoot)
 		.filter((file: string) => !/\.iml$/.test(file));
@@ -100,7 +100,7 @@ function assertFolderEmptyAsync(projectRoot: string): {exists: boolean} {
 	}
 
 	return {exists: false};
-}
+};
 
 const isGitExecutableAvailable = async () => {
 	try {

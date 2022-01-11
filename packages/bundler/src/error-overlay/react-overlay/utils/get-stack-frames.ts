@@ -14,10 +14,10 @@ import {parse} from './parser';
 import {map} from './mapper';
 import {unmap} from './unmapper';
 
-function getStackFrames(
+const getStackFrames = (
 	error: Error & {__unmap_source?: string},
 	contextSize = 3
-): Promise<StackFrame[] | null> {
+): Promise<StackFrame[] | null> => {
 	const parsedFrames = parse(error);
 	let enhancedFramesPromise;
 	if (error.__unmap_source) {
@@ -49,7 +49,7 @@ function getStackFrames(
 				functionName.indexOf('__stack_frame_overlay_proxy_console__') === -1
 		);
 	});
-}
+};
 
 export default getStackFrames;
 export {getStackFrames};

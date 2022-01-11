@@ -30,12 +30,12 @@ type CompProps<T> =
 			component: AnyComponent<T>;
 	  };
 
-export default function App({
+const App = ({
 	durationInFrames,
 	...props
 }: {
 	durationInFrames: number;
-} & CompProps<any>) {
+} & CompProps<any>) => {
 	const [title, setTitle] = useState('Hello World');
 	const [color, setColor] = useState('#ffffff');
 	const [bgColor, setBgColor] = useState('#000000');
@@ -340,4 +340,6 @@ export default function App({
 				})}
 		</div>
 	);
-}
+};
+
+export default App;

@@ -1,6 +1,6 @@
 import execa from 'execa';
 
-export async function getAudioChannels(path: string) {
+export const getAudioChannels = async (path: string) => {
 	const args = [
 		['-v', 'error'],
 		['-show_entries', 'stream=channels'],
@@ -21,4 +21,4 @@ export async function getAudioChannels(path: string) {
 	}
 
 	return channels;
-}
+};

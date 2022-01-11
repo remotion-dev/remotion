@@ -32,19 +32,19 @@
 
 const RefreshRuntime = require('react-refresh/runtime');
 
-function isSafeExport(key: string) {
+export const isSafeExport = (key: string) => {
 	return (
 		key === '__esModule' ||
 		key === '__N_SSG' ||
 		key === '__N_SSP' ||
 		key === 'config'
 	);
-}
+};
 
-function registerExportsForReactRefresh(
+export const registerExportsForReactRefresh = (
 	moduleExports: unknown,
 	moduleID: unknown
-) {
+) => {
 	RefreshRuntime.register(moduleExports, moduleID + ' %exports%');
 	if (
 		moduleExports === null ||
@@ -66,9 +66,9 @@ function registerExportsForReactRefresh(
 		const typeID = moduleID + ' %exports% ' + key;
 		RefreshRuntime.register(exportValue, typeID);
 	}
-}
+};
 
-function isReactRefreshBoundary(moduleExports: unknown) {
+export const isReactRefreshBoundary = (moduleExports: unknown) => {
 	if (RefreshRuntime.isLikelyComponentType(moduleExports)) {
 		return true;
 	}
@@ -98,12 +98,12 @@ function isReactRefreshBoundary(moduleExports: unknown) {
 	}
 
 	return hasExports && areAllExportsComponents;
-}
+};
 
-function shouldInvalidateReactRefreshBoundary(
+export const shouldInvalidateReactRefreshBoundary = (
 	prevExports: unknown,
 	nextExports: unknown
-) {
+) => {
 	const prevSignature = getRefreshBoundarySignature(prevExports);
 	const nextSignature = getRefreshBoundarySignature(nextExports);
 	if (prevSignature.length !== nextSignature.length) {
@@ -117,9 +117,9 @@ function shouldInvalidateReactRefreshBoundary(
 	}
 
 	return false;
-}
+};
 
-function getRefreshBoundarySignature(moduleExports: unknown) {
+export const getRefreshBoundarySignature = (moduleExports: unknown) => {
 	const signature = [];
 	signature.push(RefreshRuntime.getFamilyByType(moduleExports));
 	if (
@@ -144,9 +144,9 @@ function getRefreshBoundarySignature(moduleExports: unknown) {
 	}
 
 	return signature;
-}
+};
 
-function scheduleUpdate() {
+export const scheduleUpdate = () => {
 	const execute = () => {
 		try {
 			RefreshRuntime.performReactRefresh();
@@ -168,7 +168,7 @@ function scheduleUpdate() {
 			execute();
 		}
 	});
-}
+};
 
 export default {
 	registerExportsForReactRefresh,

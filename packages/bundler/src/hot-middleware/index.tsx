@@ -15,7 +15,7 @@ import {
 } from './types';
 import {parse} from 'url';
 
-const pathMatch = function (url: string, path: string) {
+const pathMatch = (url: string, path: string) => {
 	try {
 		return parse(url).pathname === path;
 	} catch (e) {
@@ -30,26 +30,26 @@ export const webpackHotMiddleware = (compiler: webpack.Compiler) => {
 	let latestStats: webpack.Stats | null = null;
 	let closed = false;
 
-	compiler.hooks.invalid.tap('webpack-hot-middleware', onInvalid);
-	compiler.hooks.done.tap('webpack-hot-middleware', onDone);
-
-	function onInvalid() {
+	const onInvalid = () => {
 		if (closed) return;
 		latestStats = null;
 		hotMiddlewareOptions.log('webpack building...');
 		eventStream?.publish({
 			action: 'building',
 		});
-	}
+	};
 
-	function onDone(statsResult: webpack.Stats) {
+	const onDone = (statsResult: webpack.Stats) => {
 		if (closed) return;
 		// Keep hold of latest stats so they can be propagated to new clients
 		latestStats = statsResult;
 		publishStats('built', latestStats, eventStream, hotMiddlewareOptions.log);
-	}
+	};
 
-	const middleware = function (req: Request, res: Response, next: () => void) {
+	compiler.hooks.invalid.tap('webpack-hot-middleware', onInvalid);
+	compiler.hooks.done.tap('webpack-hot-middleware', onDone);
+
+	const middleware = (req: Request, res: Response, next: () => void) => {
 		if (closed) return next();
 
 		if (!pathMatch(req.url, hotMiddlewareOptions.path)) return next();
@@ -59,12 +59,12 @@ export const webpackHotMiddleware = (compiler: webpack.Compiler) => {
 		}
 	};
 
-	middleware.publish = function (payload: HotMiddlewareMessage) {
+	middleware.publish = (payload: HotMiddlewareMessage) => {
 		if (closed) return;
 		eventStream?.publish(payload);
 	};
 
-	middleware.close = function () {
+	middleware.close = () => {
 		if (closed) return;
 		// Can't remove compiler plugins, so we just set a flag and noop if closed
 		// https://github.com/webpack/tapable/issues/32#issuecomment-350644466
@@ -78,15 +78,15 @@ export const webpackHotMiddleware = (compiler: webpack.Compiler) => {
 
 type EventStream = ReturnType<typeof createEventStream>;
 
-function createEventStream(heartbeat: number) {
+const createEventStream = (heartbeat: number) => {
 	let clientId = 0;
 	let clients: {[key: string]: Response} = {};
 
-	function everyClient(fn: (client: Response) => void) {
+	const everyClient = (fn: (client: Response) => void) => {
 		Object.keys(clients).forEach((id) => {
 			fn(clients[id]);
 		});
-	}
+	};
 
 	const interval = setInterval(() => {
 		everyClient((client: Response) => {
@@ -134,14 +134,14 @@ function createEventStream(heartbeat: number) {
 			});
 		},
 	};
-}
+};
 
-function publishStats(
+const publishStats = (
 	action: HotMiddlewareMessage['action'],
 	statsResult: webpack.Stats,
 	eventStream: EventStream | null,
 	log: HotMiddlewareOptions['log']
-) {
+) => {
 	const stats = statsResult.toJson({
 		all: false,
 		cached: true,
@@ -181,9 +181,9 @@ function publishStats(
 			modules: buildModuleMap(_stats.modules),
 		});
 	});
-}
+};
 
-function extractBundles(stats: WebpackStats) {
+const extractBundles = (stats: WebpackStats) => {
 	// Stats has modules, single bundle
 	if (stats.modules) return [stats];
 
@@ -192,9 +192,9 @@ function extractBundles(stats: WebpackStats) {
 
 	// Not sure, assume single
 	return [stats];
-}
+};
 
-function buildModuleMap(modules: WebpackStats['modules']): ModuleMap {
+const buildModuleMap = (modules: WebpackStats['modules']): ModuleMap => {
 	const map: {[key: string]: string} = {};
 	if (!modules) {
 		return map;
@@ -205,4 +205,4 @@ function buildModuleMap(modules: WebpackStats['modules']): ModuleMap {
 		map[id] = module.name as string;
 	});
 	return map;
-}
+};

@@ -53,7 +53,7 @@ self.$RefreshSig$ = () => (type: unknown) => type;
 self.$RefreshHelpers$ = RefreshHelpers;
 
 // Register a helper for module execution interception
-self.$RefreshInterceptModuleExecution$ = function (webpackModuleId: unknown) {
+self.$RefreshInterceptModuleExecution$ = (webpackModuleId: unknown) => {
 	const prevRefreshReg = self.$RefreshReg$;
 	const prevRefreshSig = self.$RefreshSig$;
 

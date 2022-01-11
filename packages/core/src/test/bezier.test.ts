@@ -19,13 +19,13 @@ const allEquals = (
 	}
 };
 
-function repeat(n: number) {
-	return function (f: Function) {
+const repeat = (n: number) => {
+	return (f: Function) => {
 		for (let i = 0; i < n; ++i) {
 			f();
 		}
 	};
-}
+};
 
 test('bezier - should create an object', () => {
 	expect(typeof bezier(0, 0, 1, 1) === 'function').toBe(true);

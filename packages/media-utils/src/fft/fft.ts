@@ -4,7 +4,7 @@
 import {complexAdd, complexMultiply, complexSubtract} from './complex';
 import {exponent} from './exponent';
 
-export const fft = function (vector: Int16Array): [number, number][] {
+export const fft = (vector: Int16Array): [number, number][] => {
 	const X: [number, number][] = [];
 	const N = vector.length;
 

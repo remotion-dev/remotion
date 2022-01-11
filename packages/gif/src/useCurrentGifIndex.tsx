@@ -1,7 +1,7 @@
 import {useMemo} from 'react';
 import {Internals, useCurrentFrame} from 'remotion';
 
-function useCurrentGifIndex(delays: number[]): number {
+const useCurrentGifIndex = (delays: number[]): number => {
 	const currentFrame = useCurrentFrame();
 	const videoConfig = Internals.useUnsafeVideoConfig();
 
@@ -28,6 +28,6 @@ function useCurrentGifIndex(delays: number[]): number {
 	}, [delays, duration, currentFrame, videoConfig]);
 
 	return index;
-}
+};
 
 export {useCurrentGifIndex};

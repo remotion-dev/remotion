@@ -6,10 +6,10 @@ export type Question<V extends string = string> = PromptObject<V> & {
 export type NamelessQuestion = Omit<Question<'value'>, 'name' | 'type'>;
 type PromptOptions = {nonInteractiveHelp?: string} & Options;
 
-export default function prompt(
+const prompt = (
 	questions: Question | Question[],
 	{nonInteractiveHelp, ...options}: PromptOptions = {}
-) {
+) => {
 	questions = Array.isArray(questions) ? questions : [questions];
 	return prompts(questions, {
 		onCancel() {
@@ -17,7 +17,9 @@ export default function prompt(
 		},
 		...options,
 	});
-}
+};
+
+export default prompt;
 
 prompt.separator = (title: string) => ({
 	title,
@@ -25,10 +27,10 @@ prompt.separator = (title: string) => ({
 	value: undefined,
 });
 
-export async function selectAsync(
+export const selectAsync = async (
 	questions: NamelessQuestion,
 	options?: PromptOptions
-): Promise<unknown> {
+): Promise<unknown> => {
 	const {value} = await prompt(
 		{
 			limit: 11,
@@ -120,4 +122,4 @@ export async function selectAsync(
 		options
 	);
 	return value ?? null;
-}
+};

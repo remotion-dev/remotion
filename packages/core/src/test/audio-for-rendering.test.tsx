@@ -13,7 +13,7 @@ interface MockCompositionManagerContext {
 let mockContext: MockCompositionManagerContext;
 
 describe('Register and unregister asset', () => {
-	function createMockContext(): MockCompositionManagerContext {
+	const createMockContext = (): MockCompositionManagerContext => {
 		const registerAsset = jest.fn();
 		const unregisterAsset = jest.fn();
 		const MockProvider: React.FC = ({children}) => {
@@ -21,10 +21,10 @@ describe('Register and unregister asset', () => {
 				<Internals.CompositionManager.Provider
 					value={
 						// eslint-disable-next-line react/jsx-no-constructed-context-values
-						({
+						{
 							registerAsset,
 							unregisterAsset,
-						} as unknown) as CompositionManagerContext
+						} as unknown as CompositionManagerContext
 					}
 				>
 					{children}
@@ -37,7 +37,7 @@ describe('Register and unregister asset', () => {
 			registerAsset,
 			unregisterAsset,
 		};
-	}
+	};
 
 	beforeEach(() => {
 		mockContext = createMockContext();

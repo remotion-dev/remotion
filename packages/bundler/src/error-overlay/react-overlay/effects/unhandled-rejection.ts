@@ -13,10 +13,10 @@ let boundRejectionHandler: EventListener | null = null;
 
 type ErrorCallback = (error: Error) => void;
 
-function rejectionHandler(
+const rejectionHandler = (
 	callback: ErrorCallback,
 	e: PromiseRejectionEvent
-): void {
+): void => {
 	if (!e?.reason) {
 		return callback(new Error('Unknown'));
 	}
@@ -29,12 +29,12 @@ function rejectionHandler(
 	// A non-error was rejected, we don't have a trace :(
 	// Look in your browser's devtools for more information
 	return callback(new Error(reason));
-}
+};
 
-function registerUnhandledRejection(
+const registerUnhandledRejection = (
 	target: EventTarget,
 	callback: ErrorCallback
-) {
+) => {
 	if (boundRejectionHandler !== null) {
 		return;
 	}
@@ -44,16 +44,16 @@ function registerUnhandledRejection(
 		callback
 	) as unknown as EventListener;
 	target.addEventListener('unhandledrejection', boundRejectionHandler);
-}
+};
 
-function unregisterUnhandledRejection(target: EventTarget) {
+const unregisterUnhandledRejection = (target: EventTarget) => {
 	if (boundRejectionHandler === null) {
 		return;
 	}
 
 	target.removeEventListener('unhandledrejection', boundRejectionHandler);
 	boundRejectionHandler = null;
-}
+};
 
 export {
 	registerUnhandledRejection as register,

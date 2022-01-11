@@ -81,10 +81,10 @@ export class SourceMap {
 	}
 }
 
-function extractSourceMapUrl(
+const extractSourceMapUrl = (
 	fileUri: string,
 	fileContents: string
-): Promise<string> {
+): Promise<string> => {
 	const regex = /\/\/[#@] ?sourceMappingURL=([^\s'"]+)\s*$/gm;
 	let match = null;
 	for (;;) {
@@ -103,17 +103,17 @@ function extractSourceMapUrl(
 	}
 
 	return Promise.resolve(match[1].toString());
-}
+};
 
 /**
  * Returns an instance of <code>{@link SourceMap}</code> for a given fileUri and fileContents.
  * @param {string} fileUri The URI of the source file.
  * @param {string} fileContents The contents of the source file.
  */
-async function getSourceMap(
+const getSourceMap = async (
 	fileUri: string,
 	fileContents: string
-): Promise<SourceMap> {
+): Promise<SourceMap> => {
 	let sm = await extractSourceMapUrl(fileUri, fileContents);
 	if (sm.indexOf('data:') === 0) {
 		const base64 = /^data:application\/json;([\w=:"-]+;)*base64,/;
@@ -134,7 +134,7 @@ async function getSourceMap(
 	const url = fileUri.substring(0, index + 1) + sm;
 	const obj = await fetch(url).then((res) => res.json());
 	return new SourceMap(await new SourceMapConsumer(obj));
-}
+};
 
 export {extractSourceMapUrl, getSourceMap};
 export default getSourceMap;

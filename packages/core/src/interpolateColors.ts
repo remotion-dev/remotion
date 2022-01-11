@@ -12,9 +12,9 @@ type MatcherType = RegExp | undefined;
 const NUMBER = '[-+]?\\d*\\.?\\d+';
 const PERCENTAGE = NUMBER + '%';
 
-function call(...args: unknown[]): string {
+const call = (...args: unknown[]): string => {
 	return '\\(\\s*(' + args.join(')\\s*,\\s*(') + ')\\s*\\)';
-}
+};
 
 // matchers use RegExp objects which needs to be created separately on JS and on
 // the UI thread. We keep separate cache of Regexes for UI and JS using the below
@@ -30,7 +30,7 @@ type Matchers = {
 	hex6: MatcherType;
 	hex8: MatcherType;
 };
-function getMatchers(): Matchers {
+const getMatchers = (): Matchers => {
 	const cachedMatchers: Matchers = {
 		rgb: undefined,
 		rgba: undefined,
@@ -54,15 +54,16 @@ function getMatchers(): Matchers {
 			'hsla' + call(NUMBER, PERCENTAGE, PERCENTAGE, NUMBER)
 		);
 		cachedMatchers.hex3 = /^#([0-9a-fA-F]{1})([0-9a-fA-F]{1})([0-9a-fA-F]{1})$/;
-		cachedMatchers.hex4 = /^#([0-9a-fA-F]{1})([0-9a-fA-F]{1})([0-9a-fA-F]{1})([0-9a-fA-F]{1})$/;
+		cachedMatchers.hex4 =
+			/^#([0-9a-fA-F]{1})([0-9a-fA-F]{1})([0-9a-fA-F]{1})([0-9a-fA-F]{1})$/;
 		cachedMatchers.hex6 = /^#([0-9a-fA-F]{6})$/;
 		cachedMatchers.hex8 = /^#([0-9a-fA-F]{8})$/;
 	}
 
 	return cachedMatchers;
-}
+};
 
-function hue2rgb(p: number, q: number, t: number): number {
+const hue2rgb = (p: number, q: number, t: number): number => {
 	if (t < 0) {
 		t += 1;
 	}
@@ -84,9 +85,9 @@ function hue2rgb(p: number, q: number, t: number): number {
 	}
 
 	return p;
-}
+};
 
-function hslToRgb(h: number, s: number, l: number): number {
+const hslToRgb = (h: number, s: number, l: number): number => {
 	const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
 	const p = 2 * l - q;
 	const r = hue2rgb(p, q, h + 1 / 3);
@@ -98,9 +99,9 @@ function hslToRgb(h: number, s: number, l: number): number {
 		(Math.round(g * 255) << 16) |
 		(Math.round(b * 255) << 8)
 	);
-}
+};
 
-function parse255(str: string): number {
+const parse255 = (str: string): number => {
 	const int = Number.parseInt(str, 10);
 	if (int < 0) {
 		return 0;
@@ -111,14 +112,14 @@ function parse255(str: string): number {
 	}
 
 	return int;
-}
+};
 
-function parse360(str: string): number {
+const parse360 = (str: string): number => {
 	const int = Number.parseFloat(str);
 	return (((int % 360) + 360) % 360) / 360;
-}
+};
 
-function parse1(str: string): number {
+const parse1 = (str: string): number => {
 	const num = Number.parseFloat(str);
 	if (num < 0) {
 		return 0;
@@ -129,9 +130,9 @@ function parse1(str: string): number {
 	}
 
 	return Math.round(num * 255);
-}
+};
 
-function parsePercentage(str: string): number {
+const parsePercentage = (str: string): number => {
 	// parseFloat conveniently ignores the final %
 	const int = Number.parseFloat(str);
 	if (int < 0) {
@@ -143,7 +144,7 @@ function parsePercentage(str: string): number {
 	}
 
 	return int / 100;
-}
+};
 
 const names: {[key: string]: number} = {
 	transparent: 0x00000000,
@@ -300,7 +301,7 @@ const names: {[key: string]: number} = {
 	yellowgreen: 0x9acd32ff,
 };
 
-function normalizeColor(color: string): number {
+const normalizeColor = (color: string): number => {
 	const matchers = getMatchers();
 
 	let match: RegExpExecArray | null;
@@ -321,7 +322,7 @@ function normalizeColor(color: string): number {
 			return (
 				// b
 				((parse255(match[1]) << 24) | // r
-				(parse255(match[2]) << 16) | // g
+					(parse255(match[2]) << 16) | // g
 					(parse255(match[3]) << 8) |
 					0x000000ff) >>> // a
 				0
@@ -334,7 +335,7 @@ function normalizeColor(color: string): number {
 			return (
 				// b
 				((parse255(match[1]) << 24) | // r
-				(parse255(match[2]) << 16) | // g
+					(parse255(match[2]) << 16) | // g
 					(parse255(match[3]) << 8) |
 					parse1(match[4])) >>> // a
 				0
@@ -347,11 +348,11 @@ function normalizeColor(color: string): number {
 			return (
 				Number.parseInt(
 					match[1] +
-					match[1] + // r
-					match[2] +
-					match[2] + // g
-					match[3] +
-					match[3] + // b
+						match[1] + // r
+						match[2] +
+						match[2] + // g
+						match[3] +
+						match[3] + // b
 						'ff', // a
 					16
 				) >>> 0
@@ -371,11 +372,11 @@ function normalizeColor(color: string): number {
 			return (
 				Number.parseInt(
 					match[1] +
-					match[1] + // r
-					match[2] +
-					match[2] + // g
-					match[3] +
-					match[3] + // b
+						match[1] + // r
+						match[2] +
+						match[2] + // g
+						match[3] +
+						match[3] + // b
 						match[4] +
 						match[4], // a
 					16
@@ -413,7 +414,7 @@ function normalizeColor(color: string): number {
 	}
 
 	throw new Error(`invalid color string ${color} provided`);
-}
+};
 
 const opacity = (c: number): number => {
 	return ((c >> 24) & 255) / 255;
@@ -435,17 +436,17 @@ const rgbaColor = (r: number, g: number, b: number, alpha: number): string => {
 	return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 };
 
-function processColorInitially(color: string): number {
+const processColorInitially = (color: string): number => {
 	let normalizedColor = normalizeColor(color);
 
 	normalizedColor = ((normalizedColor << 24) | (normalizedColor >>> 8)) >>> 0; // argb
 	return normalizedColor;
-}
+};
 
-function processColor(color: string): number {
+const processColor = (color: string): number => {
 	const normalizedColor = processColorInitially(color);
 	return normalizedColor;
-}
+};
 
 const interpolateColorsRGB = (
 	value: number,

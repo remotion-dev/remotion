@@ -22,7 +22,7 @@ const defaultSpringConfig: SpringConfig = {
 
 const advanceCache: {[key: string]: AnimationNode} = {};
 
-function advance({
+const advance = ({
 	animation,
 	now,
 	config,
@@ -30,7 +30,7 @@ function advance({
 	animation: AnimationNode;
 	now: number;
 	config: SpringConfig;
-}): AnimationNode {
+}): AnimationNode => {
 	const {toValue, lastTimestamp, current, velocity} = animation;
 
 	const deltaTime = Math.min(now - lastTimestamp, 64);
@@ -96,7 +96,7 @@ function advance({
 	};
 	advanceCache[cacheKey] = animationNode;
 	return animationNode;
-}
+};
 
 const calculationCache: {[key: string]: AnimationNode} = {};
 

@@ -1,6 +1,6 @@
-function settle(
+export const settle = (
 	val: Array<Promise<unknown>> | Promise<unknown>
-): Promise<unknown> {
+): Promise<unknown> => {
 	if (!Array.isArray(val)) val = [val];
 	return Promise.all(
 		val.map((p) =>
@@ -17,6 +17,4 @@ function settle(
 				}))
 		)
 	);
-}
-
-export {settle};
+};

@@ -10,29 +10,29 @@ const kSampleStepSize = 1.0 / (kSplineTableSize - 1.0);
 
 const float32ArraySupported = typeof Float32Array === 'function';
 
-function a(aA1: number, aA2: number): number {
+const a = (aA1: number, aA2: number): number => {
 	return 1.0 - 3.0 * aA2 + 3.0 * aA1;
-}
+};
 
-function b(aA1: number, aA2: number): number {
+const b = (aA1: number, aA2: number): number => {
 	return 3.0 * aA2 - 6.0 * aA1;
-}
+};
 
-function c(aA1: number): number {
+const c = (aA1: number): number => {
 	return 3.0 * aA1;
-}
+};
 
 // Returns x(t) given t, x1, and x2, or y(t) given t, y1, and y2.
-function calcBezier(aT: number, aA1: number, aA2: number): number {
+const calcBezier = (aT: number, aA1: number, aA2: number): number => {
 	return ((a(aA1, aA2) * aT + b(aA1, aA2)) * aT + c(aA1)) * aT;
-}
+};
 
 // Returns dx/dt given t, x1, and x2, or dy/dt given t, y1, and y2.
-function getSlope(aT: number, aA1: number, aA2: number): number {
+const getSlope = (aT: number, aA1: number, aA2: number): number => {
 	return 3.0 * a(aA1, aA2) * aT * aT + 2.0 * b(aA1, aA2) * aT + c(aA1);
-}
+};
 
-function binarySubdivide({
+const binarySubdivide = ({
 	aX,
 	_aA,
 	_aB,
@@ -44,7 +44,7 @@ function binarySubdivide({
 	_aB: number;
 	mX1: number;
 	mX2: number;
-}): number {
+}): number => {
 	let currentX;
 	let currentT;
 	let i = 0;
@@ -64,14 +64,14 @@ function binarySubdivide({
 	);
 
 	return currentT;
-}
+};
 
-function newtonRaphsonIterate(
+const newtonRaphsonIterate = (
 	aX: number,
 	_aGuessT: number,
 	mX1: number,
 	mX2: number
-): number {
+): number => {
 	let aGuessT = _aGuessT;
 	for (let i = 0; i < NEWTON_ITERATIONS; ++i) {
 		const currentSlope = getSlope(aGuessT, mX1, mX2);
@@ -84,7 +84,7 @@ function newtonRaphsonIterate(
 	}
 
 	return aGuessT;
-}
+};
 
 export const bezier = (
 	mX1: number,
@@ -106,7 +106,7 @@ export const bezier = (
 		}
 	}
 
-	function getTForX(aX: number): number {
+	const getTForX = (aX: number): number => {
 		let intervalStart = 0.0;
 		let currentSample = 1;
 		const lastSample = kSplineTableSize - 1;
@@ -143,9 +143,9 @@ export const bezier = (
 			mX1,
 			mX2,
 		});
-	}
+	};
 
-	return function (x: number): number {
+	return (x: number): number => {
 		if (mX1 === mY1 && mX2 === mY2) {
 			return x; // linear
 		}

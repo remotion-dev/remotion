@@ -4,7 +4,7 @@
 const smoothingPasses = 3;
 const smoothingPoints = 3;
 
-export const smoothen = function (array: number[]) {
+export const smoothen = (array: number[]) => {
 	let lastArray = array;
 	const newArr = [];
 	for (let pass = 0; pass < smoothingPasses; pass++) {

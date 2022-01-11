@@ -7,18 +7,18 @@ const options = {
 	no: ['no', 'n'],
 };
 
-function defaultInvalidHandler({
+const defaultInvalidHandler = ({
 	yesValues,
 	noValues,
 }: {
 	question: string;
 	yesValues: string[];
 	noValues: string[];
-}) {
+}) => {
 	process.stdout.write('\nInvalid Response.\n');
 	process.stdout.write('Answer either yes : (' + yesValues.join(', ') + ') \n');
 	process.stdout.write('Or no: (' + noValues.join(', ') + ') \n\n');
-}
+};
 
 export const yesOrNo = async ({
 	question,

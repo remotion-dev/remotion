@@ -159,18 +159,18 @@ export class AnsiDiff {
 	};
 }
 
-function same(a: Line, b: Line) {
+const same = (a: Line, b: Line) => {
 	return (
 		a.y === b.y &&
 		a.width === b.width &&
 		a.raw === b.raw &&
 		a.newline === b.newline
 	);
-}
+};
 
-function top(list: Line[]) {
+const top = (list: Line[]) => {
 	return list.length ? list[list.length - 1] : null;
-}
+};
 
 class Line {
 	y: number;
@@ -220,7 +220,7 @@ class Line {
 	};
 }
 
-function inlineDiff(a: Line, b: Line) {
+const inlineDiff = (a: Line, b: Line) => {
 	return (
 		a.length === b.length &&
 		a.parts.length === 1 &&
@@ -230,9 +230,9 @@ function inlineDiff(a: Line, b: Line) {
 		b.newline &&
 		a.width === b.width
 	);
-}
+};
 
-function split(str: string, term: AnsiDiff) {
+const split = (str: string, term: AnsiDiff) => {
 	let y = 0;
 	const lines = str.split('\n');
 	const wrapped = [];
@@ -245,33 +245,33 @@ function split(str: string, term: AnsiDiff) {
 	}
 
 	return wrapped;
-}
+};
 
-function moveUp(n: number) {
+const moveUp = (n: number) => {
 	return Buffer.from('1b5b' + toHex(n) + '41', 'hex');
-}
+};
 
-function moveDown(n: number) {
+const moveDown = (n: number) => {
 	return Buffer.from('1b5b' + toHex(n) + '42', 'hex');
-}
+};
 
-function moveRight(n: number) {
+const moveRight = (n: number) => {
 	return Buffer.from('1b5b' + toHex(n) + '43', 'hex');
-}
+};
 
-function moveLeft(n: number) {
+const moveLeft = (n: number) => {
 	return Buffer.from('1b5b' + toHex(n) + '44', 'hex');
-}
+};
 
-function length(parts: string[]) {
+const length = (parts: string[]) => {
 	let len = 0;
 	for (let i = 0; i < parts.length; i += 2) {
 		len += parts[i].length;
 	}
 
 	return len;
-}
+};
 
-function toHex(n: number) {
+const toHex = (n: number) => {
 	return Buffer.from(String(n)).toString('hex');
-}
+};

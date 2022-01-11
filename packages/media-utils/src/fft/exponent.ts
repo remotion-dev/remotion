@@ -7,7 +7,7 @@ const mapExponent: {
 	};
 } = {};
 
-export const exponent = function (k: number, N: number): [number, number] {
+export const exponent = (k: number, N: number): [number, number] => {
 	const x = -2 * Math.PI * (k / N);
 
 	mapExponent[N] = mapExponent[N] || {};

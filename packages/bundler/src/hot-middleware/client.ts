@@ -7,24 +7,21 @@ import {processUpdate} from './process-update';
 import {stripAnsi} from './strip-ansi';
 import {HotMiddlewareMessage, hotMiddlewareOptions} from './types';
 
-if (typeof window === 'undefined') {
-	// do nothing
-} else if (typeof window.EventSource === 'undefined') {
-	console.warn(
-		'Unsupported browser: You need a browser that supports EventSource '
-	);
-} else if (hotMiddlewareOptions.autoConnect) {
+const setOptionsAndConnect = () => {
 	connect();
-}
+};
 
-function setOptionsAndConnect() {
-	connect();
-}
-
-function eventSourceWrapper() {
+const eventSourceWrapper = () => {
 	let source: EventSource;
 	let lastActivity = Date.now();
 	const listeners: ((ev: MessageEvent) => void)[] = [];
+
+	const init = () => {
+		source = new window.EventSource(hotMiddlewareOptions.path);
+		source.onopen = handleOnline;
+		source.onerror = handleDisconnect;
+		source.onmessage = handleMessage;
+	};
 
 	init();
 	const timer = setInterval(() => {
@@ -33,37 +30,30 @@ function eventSourceWrapper() {
 		}
 	}, hotMiddlewareOptions.timeout / 2);
 
-	function init() {
-		source = new window.EventSource(hotMiddlewareOptions.path);
-		source.onopen = handleOnline;
-		source.onerror = handleDisconnect;
-		source.onmessage = handleMessage;
-	}
-
-	function handleOnline() {
+	const handleOnline = () => {
 		console.log('[Fast Refresh] connected');
 		lastActivity = Date.now();
-	}
+	};
 
-	function handleMessage(event: MessageEvent) {
+	const handleMessage = (event: MessageEvent) => {
 		lastActivity = Date.now();
 		for (let i = 0; i < listeners.length; i++) {
 			listeners[i](event);
 		}
-	}
+	};
 
-	function handleDisconnect() {
+	const handleDisconnect = () => {
 		clearInterval(timer);
 		source.close();
 		setTimeout(init, hotMiddlewareOptions.timeout);
-	}
+	};
 
 	return {
 		addMessageListener(fn: (msg: MessageEvent) => void) {
 			listeners.push(fn);
 		},
 	};
-}
+};
 
 declare global {
 	interface Window {
@@ -74,7 +64,7 @@ declare global {
 	}
 }
 
-function getEventSourceWrapper() {
+const getEventSourceWrapper = () => {
 	if (!window.__whmEventSourceWrapper) {
 		window.__whmEventSourceWrapper = {};
 	}
@@ -87,12 +77,10 @@ function getEventSourceWrapper() {
 	}
 
 	return window.__whmEventSourceWrapper[hotMiddlewareOptions.path];
-}
+};
 
-function connect() {
-	getEventSourceWrapper().addMessageListener(handleMessage);
-
-	function handleMessage(event: MessageEvent) {
+const connect = () => {
+	const handleMessage = (event: MessageEvent) => {
 		if (event.data === '\uD83D\uDC93') {
 			return;
 		}
@@ -104,7 +92,19 @@ function connect() {
 				console.warn('Invalid HMR message: ' + event.data + '\n' + ex);
 			}
 		}
-	}
+	};
+
+	getEventSourceWrapper().addMessageListener(handleMessage);
+};
+
+if (typeof window === 'undefined') {
+	// do nothing
+} else if (typeof window.EventSource === 'undefined') {
+	console.warn(
+		'Unsupported browser: You need a browser that supports EventSource '
+	);
+} else if (hotMiddlewareOptions.autoConnect) {
+	connect();
 }
 
 // the reporter needs to be a singleton on the page
@@ -113,24 +113,15 @@ function connect() {
 // all the errors will go to all clients
 const singletonKey = '__webpack_hot_middleware_reporter__' as const;
 let reporter: Reporter;
-if (typeof window !== 'undefined') {
-	if (!window[singletonKey]) {
-		window[singletonKey] = createReporter();
-	}
 
-	reporter = window[singletonKey];
-}
-
-type Reporter = ReturnType<typeof createReporter>;
-
-function createReporter() {
+const createReporter = () => {
 	const styles = {
 		errors: 'color: #ff0000;',
 		warnings: 'color: #999933;',
 	};
 	let previousProblems: string | null = null;
 
-	function log(type: 'errors' | 'warnings', obj: HotMiddlewareMessage) {
+	const log = (type: 'errors' | 'warnings', obj: HotMiddlewareMessage) => {
 		if (obj.action === 'building') {
 			console.log('[Fast Refresh] Building');
 			return;
@@ -164,7 +155,7 @@ function createReporter() {
 				style + 'font-weight: normal;'
 			);
 		}
-	}
+	};
 
 	return {
 		cleanProblemsCache() {
@@ -179,12 +170,22 @@ function createReporter() {
 		},
 		success: () => undefined,
 	};
+};
+
+if (typeof window !== 'undefined') {
+	if (!window[singletonKey]) {
+		window[singletonKey] = createReporter();
+	}
+
+	reporter = window[singletonKey];
 }
+
+type Reporter = ReturnType<typeof createReporter>;
 
 let customHandler: ((msg: HotMiddlewareMessage) => void) | undefined;
 let subscribeAllHandler: ((msg: HotMiddlewareMessage) => void) | undefined;
 
-function processMessage(obj: HotMiddlewareMessage) {
+const processMessage = (obj: HotMiddlewareMessage) => {
 	switch (obj.action) {
 		case 'building':
 			console.log(
@@ -243,7 +244,7 @@ function processMessage(obj: HotMiddlewareMessage) {
 	if (subscribeAllHandler) {
 		subscribeAllHandler(obj);
 	}
-}
+};
 
 module.exports = {
 	subscribeAll(handler: (msg: HotMiddlewareMessage) => void) {

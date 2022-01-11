@@ -2,7 +2,7 @@
 	Source code adapted from https://github.com/browserify/path-browserify and refactored in Typescript. This file is MIT-licensed.
 */
 
-function normalizeStringPosix(path: string, allowAboveRoot: boolean) {
+export const normalizeStringPosix = (path: string, allowAboveRoot: boolean) => {
 	let res = '';
 	let lastSegmentLength = 0;
 	let lastSlash = -1;
@@ -69,7 +69,7 @@ function normalizeStringPosix(path: string, allowAboveRoot: boolean) {
 	}
 
 	return res;
-}
+};
 
 export const pathNormalize = (path: string) => {
 	if (path.length === 0) return '.';

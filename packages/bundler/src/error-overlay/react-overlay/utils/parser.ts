@@ -13,7 +13,7 @@ import {StackFrame} from './stack-frame';
 
 const regexExtractLocation = /\(?(.+?)(?::(\d+))?(?::(\d+))?\)?$/;
 
-function extractLocation(token: string): [string, number, number] {
+const extractLocation = (token: string): [string, number, number] => {
 	const execed = regexExtractLocation.exec(token);
 	if (!execed) {
 		throw new Error('Could not match in extractLocation');
@@ -27,13 +27,13 @@ function extractLocation(token: string): [string, number, number] {
 
 		return v;
 	}) as [string, number, number];
-}
+};
 
 const regexValidFrame_Chrome = /^\s*(at|in)\s.+(:\d+)/;
 const regexValidFrame_FireFox =
 	/(^|@)\S+:\d+|.+line\s+\d+\s+>\s+(eval|Function).+/;
 
-function parseStack(stack: string[]): StackFrame[] {
+export const parseStack = (stack: string[]): StackFrame[] => {
 	const frames = stack
 		.filter(
 			(e) => regexValidFrame_Chrome.test(e) || regexValidFrame_FireFox.test(e)
@@ -80,13 +80,13 @@ function parseStack(stack: string[]): StackFrame[] {
 			return new StackFrame(data.join(' ') || null, ...extractLocation(last));
 		});
 	return frames;
-}
+};
 
 /**
  * Turns an <code>Error</code>, or similar object, into a set of <code>StackFrame</code>s.
  * @alias parse
  */
-function parseError(error: Error | string | string[]): StackFrame[] {
+export const parseError = (error: Error | string | string[]): StackFrame[] => {
 	if (error === null) {
 		throw new Error('You cannot pass a null object.');
 	}
@@ -104,7 +104,7 @@ function parseError(error: Error | string | string[]): StackFrame[] {
 	}
 
 	throw new Error('The error you provided does not contain a stack trace.');
-}
+};
 
 export {parseError as parse};
 export default parseError;

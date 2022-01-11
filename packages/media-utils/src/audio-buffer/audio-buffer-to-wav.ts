@@ -29,7 +29,7 @@ export const audioBufferToWav = (
 	});
 };
 
-function encodeWAV({
+const encodeWAV = ({
 	samples,
 	format,
 	sampleRate,
@@ -41,7 +41,7 @@ function encodeWAV({
 	sampleRate: number;
 	numChannels: number;
 	bitDepth: 32 | 16;
-}) {
+}) => {
 	const bytesPerSample = bitDepth / 8;
 	const blockAlign = numChannels * bytesPerSample;
 
@@ -82,9 +82,9 @@ function encodeWAV({
 	}
 
 	return buffer;
-}
+};
 
-function interleave(inputL: Float32Array, inputR: Float32Array) {
+const interleave = (inputL: Float32Array, inputR: Float32Array) => {
 	const length = inputL.length + inputR.length;
 	const result = new Float32Array(length);
 
@@ -98,27 +98,31 @@ function interleave(inputL: Float32Array, inputR: Float32Array) {
 	}
 
 	return result;
-}
+};
 
-function writeFloat32(output: DataView, offset: number, input: Float32Array) {
-	for (let i = 0; i < input.length; i++, offset += 4) {
-		output.setFloat32(offset, input[i], true);
-	}
-}
-
-function floatTo16BitPCM(
+const writeFloat32 = (
 	output: DataView,
 	offset: number,
 	input: Float32Array
-) {
+) => {
+	for (let i = 0; i < input.length; i++, offset += 4) {
+		output.setFloat32(offset, input[i], true);
+	}
+};
+
+const floatTo16BitPCM = (
+	output: DataView,
+	offset: number,
+	input: Float32Array
+) => {
 	for (let i = 0; i < input.length; i++, offset += 2) {
 		const s = Math.max(-1, Math.min(1, input[i]));
 		output.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7fff, true);
 	}
-}
+};
 
-function writeString(view: DataView, offset: number, string: string) {
+const writeString = (view: DataView, offset: number, string: string) => {
 	for (let i = 0; i < string.length; i++) {
 		view.setUint8(offset + i, string.charCodeAt(i));
 	}
-}
+};

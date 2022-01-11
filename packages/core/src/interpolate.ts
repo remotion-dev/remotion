@@ -2,7 +2,7 @@
 
 type ExtrapolateType = 'extend' | 'identity' | 'clamp';
 
-function interpolateFunction(
+const interpolateFunction = (
 	input: number,
 	inputRange: [number, number],
 	outputRange: [number, number],
@@ -11,7 +11,7 @@ function interpolateFunction(
 		extrapolateLeft: ExtrapolateType;
 		extrapolateRight: ExtrapolateType;
 	}
-): number {
+): number => {
 	const {extrapolateLeft, extrapolateRight, easing} = options;
 
 	let result = input;
@@ -56,9 +56,9 @@ function interpolateFunction(
 	result = result * (outputMax - outputMin) + outputMin;
 
 	return result;
-}
+};
 
-function findRange(input: number, inputRange: readonly number[]) {
+const findRange = (input: number, inputRange: readonly number[]) => {
 	let i;
 	for (i = 1; i < inputRange.length - 1; ++i) {
 		if (inputRange[i] >= input) {
@@ -67,9 +67,9 @@ function findRange(input: number, inputRange: readonly number[]) {
 	}
 
 	return i - 1;
-}
+};
 
-function checkValidInputRange(arr: readonly number[]) {
+const checkValidInputRange = (arr: readonly number[]) => {
 	for (let i = 1; i < arr.length; ++i) {
 		if (!(arr[i] > arr[i - 1])) {
 			throw new Error(
@@ -79,9 +79,9 @@ function checkValidInputRange(arr: readonly number[]) {
 			);
 		}
 	}
-}
+};
 
-function checkInfiniteRange(name: string, arr: readonly number[]) {
+const checkInfiniteRange = (name: string, arr: readonly number[]) => {
 	if (arr.length < 2) {
 		throw new Error(name + ' must have at least 2 elements');
 	}
@@ -97,7 +97,7 @@ function checkInfiniteRange(name: string, arr: readonly number[]) {
 			);
 		}
 	}
-}
+};
 
 export const interpolate = (
 	input: number,

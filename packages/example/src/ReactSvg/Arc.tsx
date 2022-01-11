@@ -8,7 +8,7 @@ const ry = 400;
 
 const arcLength = Math.PI * 2 * Math.sqrt((rx * rx + ry * ry) / 2);
 
-function ellipseToPath(cx: number, cy: number): string {
+const ellipseToPath = (cx: number, cy: number): string => {
 	let output = 'M' + (cx - rx).toString() + ',' + cy.toString();
 	output +=
 		'a' +
@@ -27,7 +27,7 @@ function ellipseToPath(cx: number, cy: number): string {
 		(-2 * rx).toString() +
 		',0';
 	return output;
-}
+};
 
 const electronRadius = 6;
 

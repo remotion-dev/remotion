@@ -19,10 +19,10 @@ import {settle} from './settle-promise';
  * @param {StackFrame[]} frames A set of <code>StackFrame</code>s which contain (generated) code positions.
  * @param {number} [contextLines=3] The number of lines to provide before and after the line specified in the <code>StackFrame</code>.
  */
-async function map(
+const map = async (
 	frames: StackFrame[],
 	contextLines = 3
-): Promise<StackFrame[]> {
+): Promise<StackFrame[]> => {
 	const cache: {[key: string]: {fileSource: string; map: SourceMap}} = {};
 	const files: string[] = [];
 	frames.forEach((frame) => {
@@ -82,7 +82,7 @@ async function map(
 			getLinesAround(line, contextLines, originalSource)
 		);
 	});
-}
+};
 
 export {map};
 export default map;
