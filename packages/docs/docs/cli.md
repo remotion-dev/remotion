@@ -172,6 +172,12 @@ _available for `render` command_
 
 [Set a custom FFMPEG executable](/docs/config#setFfmpegExecutable). If not defined, a `ffmpeg` executable will be searched in `PATH`.
 
+### `--timeout`
+
+_available for `still`, `render` command_
+
+Define how long a single frame may take to resolve all [`delayRender()`](/docs/delay-render) calls before it times out. Default: `30000`
+
 ### `--help`
 
 Print the list of available CLI commands and flags.

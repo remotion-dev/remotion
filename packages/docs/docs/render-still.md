@@ -118,6 +118,12 @@ _optional, available from v2.3.1_
 
 A string defining the absolute path on disk of the browser executable that should be used. By default Remotion will try to detect it automatically and download one if none is available.
 
+### `timeoutInMilliseconds?`
+
+_optional, available from v2.6.2_
+
+A number describing how long the render may take to resolve all `delayRender()` calls before it times out. Default: `30000`
+
 ## Return value
 
 A promise with no value. If the render succeeded, the still has been saved to `output`. If the render failed, the promise rejects.

@@ -211,6 +211,12 @@ _optional, available from 3.0_
 
 If you passed `null` to `outputDir`, this method will be called passing a buffer of the current frame. This is mostly used internally by Remotion to implement [`renderMedia()`](/docs/renderer/render-media) and might have limited usefulness for end users.
 
+### `timeoutInMilliseconds?`
+
+_optional, available from v2.6.2_
+
+A number describing how long one frame may take to resolve all `delayRender()` calls before the render times out and fails. Default: `30000`
+
 ## Return value
 
 A promise resolving to an object containing the following properties:

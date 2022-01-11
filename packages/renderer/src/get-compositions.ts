@@ -5,6 +5,7 @@ import {getPageAndCleanupFn} from './get-browser-instance';
 import {normalizeServeUrl} from './normalize-serve-url';
 import {prepareServer} from './prepare-server';
 import {setPropsAndEnv} from './set-props-and-env';
+import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
 
 type GetCompositionsConfig = {
 	inputProps?: object | null;
@@ -12,6 +13,7 @@ type GetCompositionsConfig = {
 	puppeteerInstance?: Browser;
 	onBrowserLog?: (log: BrowserLog) => void;
 	browserExecutable?: BrowserExecutable;
+	timeoutInMilliseconds?: number;
 };
 
 const innerGetCompositions = async (
@@ -39,12 +41,15 @@ const innerGetCompositions = async (
 		});
 	}
 
+	validatePuppeteerTimeout(config?.timeoutInMilliseconds);
+
 	await setPropsAndEnv({
 		inputProps: config?.inputProps,
 		envVariables: config?.envVariables,
 		page,
 		serveUrl,
 		initialFrame: 0,
+		timeoutInMilliseconds: config?.timeoutInMilliseconds,
 	});
 
 	const urlToVisit = `${normalizeServeUrl(serveUrl)}?evaluation=true`;

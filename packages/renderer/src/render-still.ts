@@ -18,6 +18,7 @@ import {prepareServer} from './prepare-server';
 import {provideScreenshot} from './provide-screenshot';
 import {seekToFrame} from './seek-to-frame';
 import {setPropsAndEnv} from './set-props-and-env';
+import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
 
 type InnerStillOptions = {
 	composition: TCompMetadata;
@@ -31,6 +32,7 @@ type InnerStillOptions = {
 	envVariables?: Record<string, string>;
 	overwrite?: boolean;
 	browserExecutable?: BrowserExecutable;
+	timeoutInMilliseconds?: number;
 };
 
 export type RenderStillOptions = InnerStillOptions & ServeUrlOrWebpackBundle;
@@ -49,6 +51,7 @@ const innerRenderStill = async ({
 	frame = 0,
 	overwrite = true,
 	browserExecutable,
+	timeoutInMilliseconds,
 }: InnerStillOptions & {
 	serveUrl: string;
 	onError: (err: Error) => void;
@@ -73,6 +76,7 @@ const innerRenderStill = async ({
 	);
 	Internals.validateNonNullImageFormat(imageFormat);
 	Internals.validateFrame(frame, composition.durationInFrames);
+	validatePuppeteerTimeout(timeoutInMilliseconds);
 
 	if (typeof output !== 'string') {
 		throw new TypeError('`output` parameter was not passed or is not a string');
@@ -144,6 +148,7 @@ const innerRenderStill = async ({
 		page,
 		serveUrl,
 		initialFrame: frame,
+		timeoutInMilliseconds,
 	});
 
 	await page.goto(site);

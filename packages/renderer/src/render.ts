@@ -63,6 +63,7 @@ type RenderFramesOptions = {
 	onBrowserLog?: (log: BrowserLog) => void;
 	onFrameBuffer?: (buffer: Buffer, frame: number) => void;
 	onDownload?: RenderMediaOnDownload;
+	timeoutInMilliseconds?: number;
 } & ConfigOrComposition &
 	ServeUrlOrWebpackBundle;
 
@@ -96,6 +97,7 @@ export const innerRenderFrames = async ({
 	pagesArray,
 	serveUrl,
 	composition,
+	timeoutInMilliseconds,
 }: Omit<RenderFramesOptions, 'url'> & {
 	onError: (err: Error) => void;
 	pagesArray: Page[];
@@ -157,6 +159,7 @@ export const innerRenderFrames = async ({
 			page,
 			serveUrl,
 			initialFrame,
+			timeoutInMilliseconds,
 		});
 
 		const site = `${normalizeServeUrl(serveUrl)}?composition=${composition.id}`;

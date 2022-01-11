@@ -24,6 +24,7 @@ export type CommandLineOptions = {
 	['frames-per-lambda']: number;
 	codec: Codec;
 	concurrency: number;
+	timeout: number;
 	config: string;
 	crf: number;
 	force: boolean;
@@ -103,6 +104,10 @@ export const parseCommandLine = (
 
 	if (parsedCli.concurrency) {
 		Config.Rendering.setConcurrency(parsedCli.concurrency);
+	}
+
+	if (parsedCli.timeout) {
+		Config.Puppeteer.setTimeoutInMilliseconds(parsedCli.timeout);
 	}
 
 	if (parsedCli.frames) {

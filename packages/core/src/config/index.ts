@@ -22,6 +22,7 @@ import {setProResProfile} from './prores-profile';
 import {setQuality} from './quality';
 import {setWebpackCaching} from './webpack-caching';
 import {FfmpegExecutable, setFfmpegExecutable} from './ffmpeg-executable';
+import {setPuppeteerTimeout} from './timeout';
 
 export const Config = {
 	Preview: {
@@ -67,6 +68,11 @@ export const Config = {
 		 * Default: null, which will make Remotion find or download a version of said browser.
 		 */
 		setBrowserExecutable,
+		/**
+		 * Set how many milliseconds a frame may take to render before it times out.
+		 * Default: `30000`
+		 */
+		setTimeoutInMilliseconds: setPuppeteerTimeout,
 	},
 	Rendering: {
 		/**

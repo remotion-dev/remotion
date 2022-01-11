@@ -125,6 +125,12 @@ getCompositions({
 });
 ```
 
+#### `timeoutInMilliseconds?`
+
+_optional, available from v2.6.2_
+
+A number describing how long one frame may take to resolve all `delayRender()` calls before the render times out and fails. Default: `30000`
+
 ## Return value
 
 Returns a promise that resolves to an array of available compositions. Example value:
