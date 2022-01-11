@@ -1,4 +1,4 @@
-import {LogLevel, StillImageFormat} from 'remotion';
+import {Internals, LogLevel, StillImageFormat} from 'remotion';
 import {AwsRegion} from '../pricing/aws-regions';
 import {callLambda} from '../shared/call-lambda';
 import {
@@ -22,6 +22,7 @@ export type RenderStillOnLambdaInput = {
 	frame?: number;
 	logLevel?: LogLevel;
 	outName?: string;
+	timeoutInMilliseconds?: number;
 };
 
 export type RenderStillOnLambdaOutput = {
@@ -63,6 +64,7 @@ export const renderStillOnLambda = async ({
 	frame,
 	logLevel,
 	outName,
+	timeoutInMilliseconds,
 }: RenderStillOnLambdaInput): Promise<RenderStillOnLambdaOutput> => {
 	const realServeUrl = await convertToServeUrl(serveUrl, region);
 
@@ -82,6 +84,8 @@ export const renderStillOnLambda = async ({
 			attempt: 1,
 			logLevel,
 			outName: outName ?? null,
+			timeoutInMilliseconds:
+				timeoutInMilliseconds ?? Internals.DEFAULT_PUPPETEER_TIMEOUT,
 		},
 		region,
 	});

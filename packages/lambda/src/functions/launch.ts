@@ -111,6 +111,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 
 	validateOutname(params.outName);
 	validatePrivacy(params.privacy);
+	RenderInternals.validatePuppeteerTimeout(params.timeoutInMilliseconds);
 
 	const {chunks, didUseOptimization} = planFrameRanges({
 		chunkCount,
@@ -148,6 +149,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 			privacy: params.privacy,
 			logLevel: params.logLevel ?? Internals.Logging.DEFAULT_LOG_LEVEL,
 			attempt: 1,
+			timeoutInMilliseconds: params.timeoutInMilliseconds,
 		};
 		return payload;
 	});

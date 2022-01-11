@@ -1,4 +1,5 @@
 import {InvokeCommand} from '@aws-sdk/client-lambda';
+import {RenderInternals} from '@remotion/renderer';
 import {Internals} from 'remotion';
 import {getOrCreateBucket} from '../api/get-or-create-bucket';
 import {getLambdaClient} from '../shared/aws-clients';
@@ -19,6 +20,8 @@ export const startHandler = async (params: LambdaPayload) => {
 			'The parameter "enableChunkOptimization" must be a boolean or undefined.'
 		);
 	}
+
+	RenderInternals.validatePuppeteerTimeout(params.timeoutInMilliseconds);
 
 	const {bucketName} = await getOrCreateBucket({
 		region: getCurrentRegionInFunction(),
@@ -46,6 +49,7 @@ export const startHandler = async (params: LambdaPayload) => {
 		logLevel: params.logLevel ?? Internals.Logging.DEFAULT_LOG_LEVEL,
 		frameRange: params.frameRange,
 		outName: params.outName,
+		timeoutInMilliseconds: params.timeoutInMilliseconds,
 	};
 	await getLambdaClient(getCurrentRegionInFunction()).send(
 		new InvokeCommand({
