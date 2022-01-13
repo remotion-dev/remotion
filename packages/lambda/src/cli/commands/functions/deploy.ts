@@ -2,7 +2,7 @@ import {CliInternals} from '@remotion/cli';
 import {Log} from '@remotion/cli/dist/log';
 import {deployFunction} from '../../../api/deploy-function';
 import {
-	CURRENT_VERSION,
+	CURRENT_VERSION, DEFAULT_CLOUDWATCH_RETENTION_PERIOD,
 	DEFAULT_MEMORY_SIZE,
 	DEFAULT_TIMEOUT,
 } from '../../../shared/constants';
@@ -18,6 +18,7 @@ export const functionsDeploySubcommand = async () => {
 	const timeoutInSeconds = parsedLambdaCli.timeout ?? DEFAULT_TIMEOUT;
 	const memorySizeInMb = parsedLambdaCli.memory ?? DEFAULT_MEMORY_SIZE;
 	const createCloudWatchLogGroup = !parsedLambdaCli['disable-cloudwatch'];
+	const cloudWatchLogRetentionPeriodInDays = parsedLambdaCli['retention-period'] ?? DEFAULT_CLOUDWATCH_RETENTION_PERIOD;
 
 	validateMemorySize(memorySizeInMb);
 	validateTimeout(timeoutInSeconds);
@@ -38,6 +39,7 @@ export const functionsDeploySubcommand = async () => {
 		region,
 		timeoutInSeconds,
 		memorySizeInMb,
+		cloudWatchLogRetentionPeriodInDays,
 	});
 	if (CliInternals.quietFlagProvided()) {
 		Log.info(functionName);
