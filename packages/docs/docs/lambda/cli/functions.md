@@ -7,6 +7,7 @@ slug: /lambda/cli/functions
 
 import {DefaultMemorySize} from '../../../components/lambda/default-memory-size';
 import {DefaultTimeout} from '../../../components/lambda/default-timeout';
+import {DefaultLogRetention} from '../../../components/lambda/default-log-retention';
 
 The `npx remotion lambda functions` command allows you to deploy, view and delete AWS lambda functions that can render videos.
 
@@ -25,14 +26,20 @@ npx remotion lambda functions deploy
 
 Creates a new function in your AWS account. If a function in the same region, from the same Remotion version, with the same amount of memory and the same timeout already exists, the name of the already deployed function will be returned instead.
 
-By default, a CloudWatch Log Group will be created that will log debug information to CloudWatch that you can consult in the case something is going wrong.
+By default, a CloudWatch Log Group will be created that will log debug information to CloudWatch that you can consult in the case something is going wrong. The default retention period for these logs is 14 days, which can be changed.
 
 <details>
 <summary>
 Example output
 </summary>
 <pre>
-Region = eu-central-1, Memory = 2048MB, Timeout = 120sec, Version = 2021-12-17<br/>
+Region = eu-central-1,
+Memory = 2048MB,
+Timeout = 120sec,
+Version = 2021-12-17,
+CloudWatch Enabled = true,
+CloudWatch Retention Period = 14 days
+<br/>
 Deployed as remotion-render-2021-12-17-2048mb-120sec
 <br/>
 
@@ -54,6 +61,10 @@ Memory size in megabytes. Default: <DefaultTimeout /> seconds.
 ### `--disable-cloudwatch`
 
 Does not create a CloudWatch log group.
+
+### `--retention-period`
+
+Retention period for the CloudWatch Logs. Default: <DefaultLogRetention /> days.
 
 ### `--quiet`, `-q`
 
