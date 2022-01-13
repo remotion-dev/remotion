@@ -25,7 +25,14 @@ export const functionsDeploySubcommand = async () => {
 	if (!CliInternals.quietFlagProvided()) {
 		Log.info(
 			CliInternals.chalk.gray(
-				`Region = ${region}, Memory = ${memorySizeInMb}MB, Timeout = ${timeoutInSeconds}sec, Version = ${CURRENT_VERSION}`
+				`
+				Region = ${region},
+				Memory = ${memorySizeInMb}MB,
+				Timeout = ${timeoutInSeconds}sec,
+				Version = ${CURRENT_VERSION},
+				CloudWatch Enabled = ${createCloudWatchLogGroup},
+				CloudWatch Retention Period = ${cloudWatchLogRetentionPeriodInDays} days
+				`
 			)
 		);
 	}
