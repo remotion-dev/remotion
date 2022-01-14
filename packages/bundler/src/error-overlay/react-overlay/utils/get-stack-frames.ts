@@ -14,41 +14,52 @@ import {parse} from './parser';
 import {map} from './mapper';
 import {unmap} from './unmapper';
 
-function getStackFrames(
-	error: Error & {__unmap_source?: string},
+type UnmappedError = Error & {
+	__unmap_source?: string | undefined;
+};
+
+const getEnhancedFrames = (
+	error: UnmappedError,
+	parsedFrames: StackFrame[],
+	contextSize: number
+) => {
+	if (error.__unmap_source) {
+		return unmap(error.__unmap_source, parsedFrames, contextSize);
+	}
+
+	return map(parsedFrames, contextSize);
+};
+
+async function getStackFrames(
+	error: UnmappedError,
 	contextSize = 3
 ): Promise<StackFrame[] | null> {
 	const parsedFrames = parse(error);
-	let enhancedFramesPromise;
-	if (error.__unmap_source) {
-		enhancedFramesPromise = unmap(
-			error.__unmap_source,
-			parsedFrames,
-			contextSize
-		);
-	} else {
-		enhancedFramesPromise = map(parsedFrames, contextSize);
+
+	const enhancedFrames = await getEnhancedFrames(
+		error,
+		parsedFrames,
+		contextSize
+	);
+	if (
+		enhancedFrames
+			.map((f) => f._originalFileName)
+			.filter(
+				(f_1) =>
+					f_1 !== null &&
+					f_1 !== undefined &&
+					f_1.indexOf('node_modules') === -1
+			).length === 0
+	) {
+		return null;
 	}
 
-	return enhancedFramesPromise.then((enhancedFrames) => {
-		if (
-			enhancedFrames
-				.map((f) => f._originalFileName)
-				.filter(
-					(f) =>
-						f !== null && f !== undefined && f.indexOf('node_modules') === -1
-				).length === 0
-		) {
-			return null;
-		}
-
-		return enhancedFrames.filter(
-			({functionName}) =>
-				functionName === null ||
-				functionName === undefined ||
-				functionName.indexOf('__stack_frame_overlay_proxy_console__') === -1
-		);
-	});
+	return enhancedFrames.filter(
+		({functionName}) =>
+			functionName === null ||
+			functionName === undefined ||
+			functionName.indexOf('__stack_frame_overlay_proxy_console__') === -1
+	);
 }
 
 export default getStackFrames;

@@ -2,6 +2,8 @@
 	Source code adapted from https://github.com/facebook/create-react-app/tree/main/packages/react-error-overlay and refactored in Typescript. This file is MIT-licensed.
 */
 
+import {mapErrorToReactStack} from './map-error-to-react-stack';
+
 /**
  * Copyright (c) 2015-present, Facebook, Inc.
  *
@@ -9,14 +11,12 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-type ReactFrame = {
+export type ReactFrame = {
 	fileName: string | null;
 	lineNumber: number | null;
 	name: string | null;
 };
-const reactFrameStack: Array<ReactFrame[]> = [];
-
-export type {ReactFrame};
+const reactFrameStack: ReactFrame[][] = [];
 
 // This is a stripped down barebones version of this proposal:
 // https://gist.github.com/sebmarkbage/bdefa100f19345229d526d0fdd22830f
@@ -56,6 +56,10 @@ const permanentRegister = function (
 					const message = args[0];
 					if (typeof message === 'string' && reactFrameStack.length > 0) {
 						callback(message, reactFrameStack[reactFrameStack.length - 1]);
+					}
+
+					if (message instanceof Error) {
+						callback(message.message, mapErrorToReactStack(message));
 					}
 				} catch (err) {
 					// Warnings must never crash. Rethrow with a clean stack.

@@ -1,5 +1,5 @@
 import React, {useCallback, useState} from 'react';
-import {StackFrame} from '../react-overlay/utils/stack-frame';
+import {ScriptLine, StackFrame} from '../react-overlay/utils/stack-frame';
 import {Button} from './Button';
 import {CaretDown, CaretRight} from './carets';
 import {CodeFrame} from './CodeFrame';
@@ -48,19 +48,27 @@ export const StackElement: React.FC<{
 			<div style={header}>
 				<div style={left}>
 					<div style={fnName}>{s.functionName ?? '(anonymous function)'}</div>
-					<div style={location}>
-						{formatLocation(s._originalFileName as string)}:
-						{s._originalLineNumber}
-					</div>
+					{s._originalFileName ? (
+						<div style={location}>
+							{formatLocation(s._originalFileName as string)}:
+							{s._originalLineNumber}
+						</div>
+					) : s.fileName ? (
+						<div style={location}>
+							{formatLocation(s.fileName as string)}:{s.lineNumber}
+						</div>
+					) : null}
 				</div>
-				{s._originalScriptCode ? (
+				{s._originalScriptCode && s._originalScriptCode.length > 0 ? (
 					<Button onClick={toggleCodeFrame}>
 						{showCodeFrame ? <CaretDown /> : <CaretRight />}
 					</Button>
 				) : null}
 			</div>
 			<div>
-				{s._originalScriptCode && showCodeFrame ? (
+				{s._originalScriptCode &&
+				s._originalScriptCode.length > 0 &&
+				showCodeFrame ? (
 					<CodeFrame
 						lineNumberWidth={lineNumberWidth}
 						source={s._originalScriptCode}
