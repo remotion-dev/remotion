@@ -21,6 +21,7 @@ export const PlayPause: React.FC<{
 }> = ({playbackRate, loop}) => {
 	const frame = Internals.Timeline.useTimelinePosition();
 	const video = Internals.useVideo();
+
 	PlayerInternals.usePlayback({
 		loop,
 		playbackRate,
