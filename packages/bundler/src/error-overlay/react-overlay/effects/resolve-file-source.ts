@@ -36,7 +36,6 @@ export const resolveFileSource = async (
 		_originalFileName: location.fileName,
 		_originalLineNumber: location.lineNumber,
 		_scriptCode: scriptCode,
-		getFunctionName: () => '',
 		_originalFunctionName: null,
 		columnNumber: location.columnNumber,
 		fileName: location.fileName,

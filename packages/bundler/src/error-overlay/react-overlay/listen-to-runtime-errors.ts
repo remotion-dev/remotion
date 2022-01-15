@@ -32,13 +32,13 @@ import {
 	registerReactStack,
 	unregisterReactStack,
 } from './effects/proxy-console';
-import {massage as massageWarning} from './effects/format-warning';
+import {massageWarning} from './effects/format-warning';
 import {getStackFrames} from './utils/get-stack-frames';
 import {setErrorsRef} from '../remotion-overlay/Overlay';
 
 const CONTEXT_SIZE = 3;
 
-export const crashWithFrames =
+const crashWithFrames =
 	(crash: (rec: ErrorRecord) => void) =>
 	async (
 		error: Error & {
