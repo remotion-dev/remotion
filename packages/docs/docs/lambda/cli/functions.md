@@ -64,7 +64,7 @@ Does not create a CloudWatch log group.
 
 ### `--retention-period`
 
-Retention period for the CloudWatch Logs. Default: <DefaultLogRetention /> days.
+Retention period for the CloudWatch Logs in days. Default: <DefaultLogRetention /> days.
 
 ### `--quiet`, `-q`
 
