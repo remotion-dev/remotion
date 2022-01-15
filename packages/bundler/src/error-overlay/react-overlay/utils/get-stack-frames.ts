@@ -11,32 +11,45 @@
 
 import type {StackFrame} from './stack-frame';
 import {parse} from './parser';
-import {map} from './mapper';
 import {unmap} from './unmapper';
+import {getLocationFromBuildError} from '../effects/map-error-to-react-stack';
+import {resolveFileSource} from '../effects/resolve-file-source';
 
 type UnmappedError = Error & {
 	__unmap_source?: string | undefined;
 };
 
-const getEnhancedFrames = (
+const getEnhancedFrames = async (
 	error: UnmappedError,
 	parsedFrames: StackFrame[],
 	contextSize: number
-) => {
+): Promise<{
+	frames: StackFrame[];
+	type: 'exception' | 'syntax';
+}> => {
 	if (error.__unmap_source) {
-		return unmap(error.__unmap_source, parsedFrames, contextSize);
+		return {
+			frames: await unmap(error.__unmap_source, parsedFrames, contextSize),
+			type: 'exception',
+		};
 	}
 
-	return map(parsedFrames, contextSize);
+	const location = getLocationFromBuildError(error);
+	if (location === null) {
+		return {frames: [], type: 'exception'};
+	}
+
+	const frames = await resolveFileSource(location, contextSize);
+
+	return {frames: [frames], type: 'syntax'};
 };
 
 async function getStackFrames(
 	error: UnmappedError,
 	contextSize = 3
-): Promise<StackFrame[] | null> {
+): Promise<{frames: StackFrame[] | null; type: 'exception' | 'syntax'}> {
 	const parsedFrames = parse(error);
-
-	const enhancedFrames = await getEnhancedFrames(
+	const {frames: enhancedFrames, type} = await getEnhancedFrames(
 		error,
 		parsedFrames,
 		contextSize
@@ -51,15 +64,18 @@ async function getStackFrames(
 					f_1.indexOf('node_modules') === -1
 			).length === 0
 	) {
-		return null;
+		return {type, frames: null};
 	}
 
-	return enhancedFrames.filter(
-		({functionName}) =>
-			functionName === null ||
-			functionName === undefined ||
-			functionName.indexOf('__stack_frame_overlay_proxy_console__') === -1
-	);
+	return {
+		type,
+		frames: enhancedFrames.filter(
+			({functionName}) =>
+				functionName === null ||
+				functionName === undefined ||
+				functionName.indexOf('__stack_frame_overlay_proxy_console__') === -1
+		),
+	};
 }
 
 export default getStackFrames;

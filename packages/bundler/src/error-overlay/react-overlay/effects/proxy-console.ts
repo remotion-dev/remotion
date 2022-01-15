@@ -2,8 +2,6 @@
 	Source code adapted from https://github.com/facebook/create-react-app/tree/main/packages/react-error-overlay and refactored in Typescript. This file is MIT-licensed.
 */
 
-import {mapErrorToReactStack} from './map-error-to-react-stack';
-
 /**
  * Copyright (c) 2015-present, Facebook, Inc.
  *
@@ -43,7 +41,14 @@ const unregisterReactStack = () => {
 	}
 };
 
-type ConsoleProxyCallback = (message: string, frames: ReactFrame[]) => void;
+type ErrorData =
+	| {type: 'webpack-error'; message: string; frames: ReactFrame[]}
+	| {
+			type: 'build-error';
+			error: Error;
+	  };
+
+type ConsoleProxyCallback = (data: ErrorData) => void;
 const permanentRegister = function (
 	type: 'error',
 	callback: ConsoleProxyCallback
@@ -55,11 +60,18 @@ const permanentRegister = function (
 				try {
 					const message = args[0];
 					if (typeof message === 'string' && reactFrameStack.length > 0) {
-						callback(message, reactFrameStack[reactFrameStack.length - 1]);
+						callback({
+							type: 'webpack-error',
+							message,
+							frames: reactFrameStack[reactFrameStack.length - 1],
+						});
 					}
 
 					if (message instanceof Error) {
-						callback(message.message, mapErrorToReactStack(message));
+						callback({
+							type: 'build-error',
+							error: message,
+						});
 					}
 				} catch (err) {
 					// Warnings must never crash. Rethrow with a clean stack.
