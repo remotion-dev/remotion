@@ -5,6 +5,7 @@ export type ErrorRecord = {
 	unhandledRejection: boolean;
 	contextSize: number;
 	stackFrames: StackFrame[];
+	type: 'exception' | 'syntax';
 };
 
 /**
@@ -43,14 +44,17 @@ export const crashWithFrames =
 		error: Error & {
 			__unmap_source?: string;
 		},
-		unhandledRejection = false
+		unhandledRejection: boolean
 	) => {
 		try {
 			setErrorsRef.current?.setErrors({
 				type: 'symbolicating',
 			});
 
-			const stackFrames = await getStackFrames(error, CONTEXT_SIZE);
+			const {frames: stackFrames, type} = await getStackFrames(
+				error,
+				CONTEXT_SIZE
+			);
 
 			if (stackFrames === null || stackFrames === undefined) {
 				return;
@@ -61,6 +65,7 @@ export const crashWithFrames =
 				unhandledRejection,
 				contextSize: CONTEXT_SIZE,
 				stackFrames,
+				type,
 			});
 		} catch (e) {
 			console.log('Could not get the stack frames of error:', e);
@@ -73,21 +78,32 @@ export function listenToRuntimeErrors(
 ) {
 	const crashWithFramesRunTime = crashWithFrames(crash);
 
-	registerError(window, (error) => crashWithFramesRunTime(error, false));
-	registerPromise(window, (error) => crashWithFramesRunTime(error, true));
+	registerError(window, (error) => {
+		return crashWithFramesRunTime(error, false);
+	});
+	registerPromise(window, (error) => {
+		return crashWithFramesRunTime(error, true);
+	});
 	registerStackTraceLimit();
 	registerReactStack();
-	permanentRegisterConsole('error', (warning, stack) => {
-		const data = massageWarning(warning, stack);
-		crashWithFramesRunTime(
-			{
-				message: data.message,
-				stack: data.stack,
-				__unmap_source: filename,
-				name: '',
-			},
-			false
-		);
+	permanentRegisterConsole('error', (d) => {
+		if (d.type === 'webpack-error') {
+			const {message, frames} = d;
+			const data = massageWarning(message, frames);
+			crashWithFramesRunTime(
+				{
+					message: data.message,
+					stack: data.stack,
+					__unmap_source: filename,
+					name: '',
+				},
+				false
+			);
+		}
+
+		if (d.type === 'build-error') {
+			crashWithFramesRunTime(d.error, false);
+		}
 	});
 
 	return function () {
