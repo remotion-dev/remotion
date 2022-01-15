@@ -13,6 +13,10 @@ export const dismissErrors = () => {
 	currentRuntimeErrorRecords = [];
 };
 
+export const shouldReload = () => {
+	return currentRuntimeErrorRecords.some((e) => e.type === 'syntax');
+};
+
 export function startReportingRuntimeErrors(options: RuntimeReportingOptions) {
 	if (stopListeningToRuntimeErrors !== null) {
 		throw new Error('Already listening');
