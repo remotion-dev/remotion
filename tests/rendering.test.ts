@@ -301,7 +301,7 @@ test("Should fail to render an audio file that doesn't have any audio inputs", a
   fs.unlinkSync(out);
 });
 
-test.only("Should render a still that uses the staticFile() API", async () => {
+test("Should render a still that uses the staticFile() API", async () => {
   const out = outputPath.replace(".mp4", ".png");
   const task = await execa(
     "npx",
