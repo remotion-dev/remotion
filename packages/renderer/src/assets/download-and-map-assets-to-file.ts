@@ -4,7 +4,6 @@ import got from 'got';
 import path from 'path';
 
 import {Internals, random, TAsset} from 'remotion';
-import {sanitizeFilename} from './sanitize-filename';
 import {sanitizeFilePath} from './sanitize-filepath';
 
 const isDownloadingMap: {[key: string]: boolean} = {};
