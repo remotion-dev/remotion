@@ -4,12 +4,12 @@ import got from 'got';
 import path from 'path';
 
 import {Internals, random, TAsset} from 'remotion';
-import sanitizeFilename from 'sanitize-filename';
 import {ensureOutputDirectory} from '../ensure-output-directory';
 
 export type RenderMediaOnDownload = (
 	src: string
 ) => ((progress: {percent: number}) => void) | undefined | void;
+import {sanitizeFilePath} from './sanitize-filepath';
 
 const isDownloadingMap: {[key: string]: boolean} = {};
 const hasBeenDownloadedMap: {[key: string]: boolean} = {};
@@ -174,7 +174,7 @@ export const getSanitizedFilenameForAssetUrl = ({
 	);
 	return path.join(
 		downloadDir,
-		sanitizeFilename(hashedFileName + fileExtension)
+		sanitizeFilePath(hashedFileName + fileExtension)
 	);
 };
 
