@@ -40,7 +40,7 @@ function count(search: string, string: string): number {
 async function unmap(
 	_fileUri: string | {uri: string; contents: string},
 	frames: StackFrame[],
-	contextLines = 3
+	contextLines: number
 ): Promise<StackFrame[]> {
 	let fileContents = typeof _fileUri === 'object' ? _fileUri.contents : null;
 	const fileUri = typeof _fileUri === 'object' ? _fileUri.uri : _fileUri;

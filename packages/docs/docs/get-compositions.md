@@ -127,7 +127,7 @@ getCompositions({
 
 #### `timeoutInMilliseconds?`
 
-_optional, available from v2.6.2_
+_optional, available from v2.6.3_
 
 A number describing how long one frame may take to resolve all `delayRender()` calls before the render times out and fails. Default: `30000`
 

@@ -57,7 +57,7 @@ Sometimes, you cannot avoid a render taking longer than 30 seconds. For example:
 - Expensive WebGL scenes
 - Expensive preprocessing of data
 
-You can increase the default timeout from v2.6.2 on:
+You can increase the default timeout from v2.6.3 on:
 
 - Using the [`--timeout`](/docs/cli#--timeout) CLI flag
 - Using the `timeoutInMilliseconds` option in [`renderStill()`](/docs/render-still#timeoutinmilliseconds), [`renderFrames()`](/docs/render-frames#timeoutinmilliseconds), [`getCompositions()`](/docs/get-compositions#timeoutinmilliseconds), [`renderMedia()`](/docs/renderer/render-media#timeoutinmilliseconds), [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#timeoutinmilliseconds) and [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda#timeoutinmilliseconds)
