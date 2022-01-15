@@ -106,5 +106,4 @@ function parseError(error: Error | string | string[]): StackFrame[] {
 	throw new Error('The error you provided does not contain a stack trace.');
 }
 
-export {parseError as parse};
-export default parseError;
+export {parseError};

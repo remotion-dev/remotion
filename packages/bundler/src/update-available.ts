@@ -5,7 +5,7 @@ import semver from 'semver';
 
 type PackageManager = 'npm' | 'yarn' | 'unknown';
 
-export type Info = {
+type Info = {
 	currentVersion: string;
 	latestVersion: string;
 	updateAvailable: boolean;
