@@ -12,11 +12,11 @@ test('Parse error stack', () => {
 			message,
 			name: 'Error',
 		})
-	).toEqual([
-		{
-			fileName: '/Users/jonathanburger/remotion/packages/example/src/Video.tsx',
-			lineNumber: 31,
-			name: ' error: Expected ">" but found "\\": 100}\'`\\n\\t\\t\\t\\tdurationInFrames={inputProps?.duration ?? 20}\\n\\t\\t\\t/>\\n\\t\\t\\t<Composition\\n\\t\\t\\t\\tid=\\""',
-		},
-	]);
+	).toEqual({
+		fileName: '/Users/jonathanburger/remotion/packages/example/src/Video.tsx',
+		lineNumber: 31,
+		columnNumber: 83,
+		message:
+			'error: Expected ">" but found "\\": 100}\'`\\n\\t\\t\\t\\tdurationInFrames={inputProps?.duration ?? 20}\\n\\t\\t\\t/>\\n\\t\\t\\t<Composition\\n\\t\\t\\t\\tid=\\""',
+	});
 });
