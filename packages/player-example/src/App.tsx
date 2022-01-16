@@ -186,124 +186,30 @@ export default function App({
 
 			<br />
 			<button type="button" onClick={(e) => ref.current?.play(e)}>
-				Play
+				▶️ Play
 			</button>
 			<button type="button" onClick={() => ref.current?.pause()}>
-				Pause
+				⏸️ Pause
 			</button>
-			<button type="button" onClick={() => ref.current?.mute()}>
-				Mute
-			</button>
-			<button type="button" onClick={() => ref.current?.unmute()}>
-				Unmute
-			</button>
-
 			<button type="button" onClick={() => ref.current?.toggle()}>
-				toggle
-			</button>
-			<button type="button" onClick={() => ref.current?.seekTo(50)}>
-				seekTo 50
+				⏯️ Toggle
 			</button>
 			<button type="button" onClick={() => ref.current?.seekTo(10)}>
 				seekTo 10
 			</button>
-			<br />
-			<button type="button" onClick={() => ref.current?.setVolume(0)}>
-				set volume to 0
-			</button>
-			<button type="button" onClick={() => ref.current?.setVolume(0.5)}>
-				set volume to 0.5
-			</button>
-			<button type="button" onClick={() => ref.current?.setVolume(1)}>
-				set volume to 1
-			</button>
-			<button type="button" onClick={() => setLoop((l) => !l)}>
-				loop = {String(loop)}
-			</button>
-			<br />
-			<button type="button" onClick={() => setClickToPlay((l) => !l)}>
-				clickToPlay = {String(clickToPlay)}
+			<button type="button" onClick={() => ref.current?.seekTo(50)}>
+				seekTo 50
 			</button>
 			<button
 				type="button"
-				onClick={() => setDoubleClickToFullscreen((l) => !l)}
+				onClick={() => {
+					ref.current?.seekTo(ref.current.getCurrentFrame() + fps * 5);
+				}}
 			>
-				doubleClickToFullscreen = {String(doubleClickToFullscreen)}
+				5 seconds forward
 			</button>
-			<button
-				type="button"
-				onClick={() =>
-					setLogs((l) => [
-						...l,
-						`currentFrame = ${ref.current?.getCurrentFrame()}`,
-					])
-				}
-			>
-				log currentFrame
-			</button>
-			<br />
 
-			<button
-				type="button"
-				onClick={() =>
-					setLogs((l) => [...l, `muted = ${ref.current?.isMuted()}`])
-				}
-			>
-				log muted
-			</button>
-			<button
-				type="button"
-				onClick={() =>
-					setLogs((l) => [...l, `volume = ${ref.current?.getVolume()}`])
-				}
-			>
-				log volume
-			</button>
-			<button type="button" onClick={() => setspaceKeyToPlayOrPause((l) => !l)}>
-				spaceKeyToPlayOrPause = {String(spaceKeyToPlayOrPause)}
-			</button>
 			<br />
-			<button
-				type="button"
-				onClick={() => {
-					ref.current?.pause();
-					ref.current?.seekTo(50);
-				}}
-			>
-				pause and seek
-			</button>
-			<button
-				type="button"
-				onClick={() => {
-					setPlaybackRate(0.5);
-				}}
-			>
-				0.5x speed
-			</button>
-			<button
-				type="button"
-				onClick={() => {
-					setPlaybackRate(2);
-				}}
-			>
-				2x speed
-			</button>
-			<button
-				type="button"
-				onClick={() => {
-					setPlaybackRate(-1);
-				}}
-			>
-				-1x speed
-			</button>
-			<button
-				type="button"
-				onClick={() => {
-					playerExampleComp.current?.triggerError();
-				}}
-			>
-				trigger error
-			</button>
 			<button
 				type="button"
 				onClick={() => {
@@ -323,11 +229,118 @@ export default function App({
 			<button
 				type="button"
 				onClick={() => {
-					ref.current?.seekTo(ref.current.getCurrentFrame() + fps * 5);
+					ref.current?.pause();
+					ref.current?.seekTo(50);
 				}}
 			>
-				5 seconds forward
+				pause and seek
 			</button>
+
+			<br />
+			<button
+				type="button"
+				onClick={() => {
+					setPlaybackRate(0.5);
+				}}
+			>
+				0.5x speed
+			</button>
+			<button
+				type="button"
+				onClick={() => {
+					setPlaybackRate(1);
+				}}
+			>
+				1x speed
+			</button>
+			<button
+				type="button"
+				onClick={() => {
+					setPlaybackRate(2);
+				}}
+			>
+				2x speed
+			</button>
+			<button
+				type="button"
+				onClick={() => {
+					setPlaybackRate(-1);
+				}}
+			>
+				-1x speed
+			</button>
+
+			<br/>
+			<button type="button" onClick={() => ref.current?.mute()}>
+				🔇 Mute
+			</button>
+			<button type="button" onClick={() => ref.current?.unmute()}>
+				🔉 Unmute
+			</button>
+			<button type="button" onClick={() => ref.current?.setVolume(0)}>
+				set volume to 0
+			</button>
+			<button type="button" onClick={() => ref.current?.setVolume(0.5)}>
+				set volume to 0.5
+			</button>
+			<button type="button" onClick={() => ref.current?.setVolume(1)}>
+				set volume to 1
+			</button>
+			<br />
+
+			<button type="button" onClick={() => setLoop((l) => !l)}>
+				loop = {String(loop)}
+			</button>
+			<button type="button" onClick={() => setClickToPlay((l) => !l)}>
+				clickToPlay = {String(clickToPlay)}
+			</button>
+			<button
+				type="button"
+				onClick={() => setDoubleClickToFullscreen((l) => !l)}
+			>
+				doubleClickToFullscreen = {String(doubleClickToFullscreen)}
+			</button>
+			<button type="button" onClick={() => setspaceKeyToPlayOrPause((l) => !l)}>
+				spaceKeyToPlayOrPause = {String(spaceKeyToPlayOrPause)}
+			</button>
+			<br />
+			<button
+				type="button"
+				onClick={() =>
+					setLogs((l) => [
+						...l,
+						`currentFrame = ${ref.current?.getCurrentFrame()}`,
+					])
+				}
+			>
+				log currentFrame
+			</button>
+
+			<button
+				type="button"
+				onClick={() =>
+					setLogs((l) => [...l, `muted = ${ref.current?.isMuted()}`])
+				}
+			>
+				log muted
+			</button>
+			<button
+				type="button"
+				onClick={() =>
+					setLogs((l) => [...l, `volume = ${ref.current?.getVolume()}`])
+				}
+			>
+				log volume
+			</button>
+			<button
+				type="button"
+				onClick={() => {
+					playerExampleComp.current?.triggerError();
+				}}
+			>
+				trigger error
+			</button>
+
 			<br />
 			<br />
 			{logs

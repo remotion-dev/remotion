@@ -6,3 +6,5 @@ coverage
 packages/example/.env
 .cache
 packages/example/out
+.pnpm-debug.log
+.vscode/taskmarks.json
