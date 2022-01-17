@@ -14,6 +14,11 @@ import {
 } from './api/download-media';
 import {estimatePrice, EstimatePriceInput} from './api/estimate-price';
 import {
+	getAwsClient,
+	GetAwsClientInput,
+	GetAwsClientOutput,
+} from './api/get-aws-client';
+import {
 	FunctionInfo,
 	getFunctionInfo,
 	GetFunctionInfoInput,
@@ -36,6 +41,7 @@ import {
 	getRolePolicy,
 	getUserPolicy,
 } from './api/iam-validation/suggested-policy';
+import {presignUrl} from './api/presign-url';
 import {
 	renderMediaOnLambda,
 	RenderMediaOnLambdaInput,
@@ -73,6 +79,8 @@ export {
 	LambdaInternals,
 	renderStillOnLambda,
 	getRegions,
+	getAwsClient,
+	presignUrl,
 };
 export type {
 	AwsRegion,
@@ -103,4 +111,6 @@ export type {
 	RenderStillOnLambdaOutput,
 	SimulatePermissionsInput,
 	SimulatePermissionsOutput,
+	GetAwsClientInput,
+	GetAwsClientOutput,
 };

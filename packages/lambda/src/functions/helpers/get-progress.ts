@@ -9,6 +9,7 @@ import {
 } from '../../shared/constants';
 import {calculateChunkTimes} from './calculate-chunk-times';
 import {estimatePriceFromBucket} from './calculate-price-from-bucket';
+import {getExpectedOutName} from './expected-out-name';
 import {findOutputFileInBucket} from './find-output-file-in-bucket';
 import {formatCostsInfo} from './format-costs-info';
 import {getCleanupProgress} from './get-cleanup-progress';
@@ -83,6 +84,7 @@ export const getProgress = async ({
 			timeToInvokeLambdas: postRenderData.timeToInvokeLambdas,
 			overallProgress: 1,
 			retriesInfo: postRenderData.retriesInfo,
+			outKey: getExpectedOutName(postRenderData.renderMetadata),
 		};
 	}
 
@@ -245,5 +247,7 @@ export const getProgress = async ({
 			rendering: renderMetadata ? chunkCount / renderMetadata.totalChunks : 0,
 		}),
 		retriesInfo,
+		outKey:
+			outputFile && renderMetadata ? getExpectedOutName(renderMetadata) : null,
 	};
 };

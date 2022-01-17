@@ -2,11 +2,12 @@ import {Internals, WebpackOverrideFn} from 'remotion';
 import {deleteSite} from '../api/delete-site';
 import {AwsRegion} from '../pricing/aws-regions';
 import {bundleSite} from '../shared/bundle-site';
-import {getSitesKey, REMOTION_BUCKET_PREFIX} from '../shared/constants';
+import {getSitesKey} from '../shared/constants';
 import {getAccountId} from '../shared/get-account-id';
 import {makeS3ServeUrl} from '../shared/make-s3-url';
 import {randomHash} from '../shared/random-hash';
 import {validateAwsRegion} from '../shared/validate-aws-region';
+import {validateBucketName} from '../shared/validate-bucketname';
 import {validateSiteName} from '../shared/validate-site-name';
 import {bucketExistsInRegion} from './bucket-exists';
 import {enableS3Website} from './enable-s3-website';
@@ -47,20 +48,9 @@ export const deploySite = async ({
 	region,
 }: DeploySiteInput): DeploySiteOutput => {
 	validateAwsRegion(region);
-	if (!bucketName.startsWith(REMOTION_BUCKET_PREFIX)) {
-		throw new Error(
-			`The bucketName parameter must start with ${REMOTION_BUCKET_PREFIX}.`
-		);
-	}
-
-	if (typeof siteName !== 'string' && typeof siteName !== 'undefined') {
-		throw new TypeError(
-			'The `projectName` argument must be a string if provided.'
-		);
-	}
+	validateBucketName(bucketName);
 
 	const siteId = siteName ?? randomHash();
-
 	validateSiteName(siteId);
 
 	const bucketExists = await bucketExistsInRegion({
