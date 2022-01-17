@@ -1,7 +1,6 @@
-import {VolumeOnIcon} from '@remotion/player/src/icons';
-import React, {useCallback} from 'react';
 import {useIsStill} from '../helpers/is-current-selected-still';
-import {VolumeOffIcon} from '../icons/media-volume';
+import {useCallback} from 'react';
+import {VolumeOffIcon, VolumeOnIcon} from '../icons/media-volume';
 import {persistMuteOption} from '../state/mute';
 import {ControlButton} from './ControlButton';
 
