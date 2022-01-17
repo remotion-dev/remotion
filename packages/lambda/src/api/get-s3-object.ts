@@ -2,7 +2,7 @@ import {GetObjectCommand} from '@aws-sdk/client-s3';
 import {Readable} from 'stream';
 import {AwsRegion} from '../pricing/aws-regions';
 import {getS3Client} from '../shared/aws-clients';
-import {REMOTION_BUCKET_PREFIX} from '../shared/constants';
+import {validateBucketName} from '../shared/validate-bucketname';
 
 export type GetS3ObjectInput = {
 	region: AwsRegion;
@@ -23,11 +23,7 @@ export const getS3Object = async ({
 	bucketName,
 	objectKey,
 }: GetS3ObjectInput): Promise<Readable> => {
-	if (!bucketName.startsWith(REMOTION_BUCKET_PREFIX)) {
-		throw new Error(
-			`The bucketName parameter must start with ${REMOTION_BUCKET_PREFIX}.`
-		);
-	}
+	validateBucketName(bucketName);
 
 	const s3Client = getS3Client(region);
 
