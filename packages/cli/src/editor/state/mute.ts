@@ -6,5 +6,5 @@ export const persistMuteOption = (option: boolean) => {
 
 export const loadMuteOption = (): boolean => {
 	const item = localStorage.getItem(key);
-	return item !== 'false';
+	return item === 'true';
 };
