@@ -2,14 +2,15 @@ import {GetObjectCommand, HeadObjectCommand} from '@aws-sdk/client-s3';
 import {getSignedUrl} from '@aws-sdk/s3-request-presigner';
 import {AwsRegion} from '../pricing/aws-regions';
 import {getS3Client} from '../shared/aws-clients';
-import {REMOTION_BUCKET_PREFIX} from '../shared/constants';
+import {validateBucketName} from '../shared/validate-bucketname';
+import {validatePresignExpiration} from '../shared/validate-presign-expiration';
 
 export type PresignURLInput = {
 	region: AwsRegion;
 	bucketName: string;
 	objectKey: string;
 	checkIfObjectExists?: boolean;
-	expiresIn?: number;
+	expiresInSeconds: number;
 };
 
 /**
@@ -27,24 +28,21 @@ export const presignUrl = async ({
 	bucketName,
 	objectKey,
 	checkIfObjectExists = false,
-	expiresIn = 120,
+	expiresInSeconds,
 }: PresignURLInput): Promise<string | null> => {
-	if (!bucketName.startsWith(REMOTION_BUCKET_PREFIX)) {
-		throw new Error(
-			`The bucketName parameter must start with ${REMOTION_BUCKET_PREFIX}.`
-		);
-	}
+	validateBucketName(bucketName);
+	validatePresignExpiration(expiresInSeconds);
 
 	const s3Client = getS3Client(region);
 
-	const params = {
-		Bucket: bucketName,
-		Key: objectKey,
-	};
-
 	if (checkIfObjectExists) {
 		try {
-			await s3Client.send(new HeadObjectCommand(params));
+			await s3Client.send(
+				new HeadObjectCommand({
+					Bucket: bucketName,
+					Key: objectKey,
+				})
+			);
 		} catch (err) {
 			if ((err as {name: string}).name === 'NotFound') {
 				return null;
@@ -54,10 +52,13 @@ export const presignUrl = async ({
 		}
 	}
 
-	const objCommand = new GetObjectCommand(params);
+	const objCommand = new GetObjectCommand({
+		Bucket: bucketName,
+		Key: objectKey,
+	});
 
 	const publicUrl = await getSignedUrl(s3Client, objCommand, {
-		expiresIn,
+		expiresIn: expiresInSeconds,
 	});
 
 	return publicUrl;

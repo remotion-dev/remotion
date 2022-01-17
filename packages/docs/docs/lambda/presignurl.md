@@ -12,10 +12,11 @@ Returns a presigned url for public access of an object stored in Remotion's S3 b
 import { presignUrl } from "@remotion/lambda";
 
 const url = await presignUrl({
-	region: "us-east-1",
-	bucketName: "remotionlambda-c7fsl3d",
-	objectKey: "assets/sample.png",
-	checkIfObjectExists: true,
+  region: "us-east-1",
+  bucketName: "remotionlambda-c7fsl3d",
+  objectKey: "assets/sample.png",
+  checkIfObjectExists: true,
+  expiresInSeconds: 900,
 });
 
 console.log(url); // `null` if object doesn't exist
@@ -41,9 +42,10 @@ They key that uniquely identifies the object stored in the bucket.
 
 Whether the function should check if the object exists in the bucket before generating the presigned url. Default false.
 
-### `expiresIn`
+### `expiresInSeconds`
 
-The number of seconds before the presigned URL expires. Default 120.
+The number of seconds before the presigned URL expires.
+Must be an integer and `>=1` and `<=604800` (maximum of 7 days)
 
 ## See also
 
