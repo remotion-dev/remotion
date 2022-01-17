@@ -35,31 +35,17 @@ const getCredentials = () => {
 
 const getCredentialsKey = () => JSON.stringify(getCredentials());
 
-type ServiceMapping =
-	| {
-			type: 'cloudwatch';
-			client: CloudWatchLogsClient;
-	  }
-	| {
-			type: 'lambda';
-			client: LambdaClient;
-	  }
-	| {
-			type: 's3';
-			client: S3Client;
-	  }
-	| {
-			type: 'iam';
-			client: IAMClient;
-	  };
+export type ServiceMapping = {
+	s3: S3Client;
+	cloudwatch: CloudWatchLogsClient;
+	iam: IAMClient;
+	lambda: LambdaClient;
+};
 
-export const getServiceClient = <
-	T extends ServiceMapping,
-	V extends T['type'] = 's3'
->(
+export const getServiceClient = <T extends keyof ServiceMapping>(
 	region: AwsRegion,
-	service: V
-): T['client'] => {
+	service: T
+): ServiceMapping[T] => {
 	if (!_clients[region]) {
 		_clients[region] = {};
 	}
@@ -107,17 +93,17 @@ export const getServiceClient = <
 export const getCloudWatchLogsClient = (
 	region: AwsRegion
 ): CloudWatchLogsClient => {
-	return getServiceClient(region, 'cloudwatch') as CloudWatchLogsClient;
+	return getServiceClient(region, 'cloudwatch');
 };
 
 export const getS3Client = (region: AwsRegion): S3Client => {
-	return getServiceClient(region, 's3') as S3Client;
+	return getServiceClient(region, 's3');
 };
 
 export const getLambdaClient = (region: AwsRegion): LambdaClient => {
-	return getServiceClient(region, 'lambda') as LambdaClient;
+	return getServiceClient(region, 'lambda');
 };
 
 export const getIamClient = (region: AwsRegion): IAMClient => {
-	return getServiceClient(region, 'iam') as IAMClient;
+	return getServiceClient(region, 'iam');
 };
