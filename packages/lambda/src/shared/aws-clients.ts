@@ -35,10 +35,31 @@ const getCredentials = () => {
 
 const getCredentialsKey = () => JSON.stringify(getCredentials());
 
-export const getServiceClient = (
+type ServiceMapping =
+	| {
+			type: 'cloudwatch';
+			client: CloudWatchLogsClient;
+	  }
+	| {
+			type: 'lambda';
+			client: LambdaClient;
+	  }
+	| {
+			type: 's3';
+			client: S3Client;
+	  }
+	| {
+			type: 'iam';
+			client: IAMClient;
+	  };
+
+export const getServiceClient = <
+	T extends ServiceMapping,
+	V extends T['type'] = 's3'
+>(
 	region: AwsRegion,
-	service: 'cloudwatch' | 'lambda' | 's3' | 'iam'
-): CloudWatchLogsClient => {
+	service: V
+): T['client'] => {
 	if (!_clients[region]) {
 		_clients[region] = {};
 	}

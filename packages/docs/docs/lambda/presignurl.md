@@ -48,5 +48,3 @@ The number of seconds before the presigned URL expires.
 Must be an integer and `>=1` and `<=604800` (maximum of 7 days)
 
 ## See also
-
-- [`getS3Object()`](/docs/lambda/gets3object)
