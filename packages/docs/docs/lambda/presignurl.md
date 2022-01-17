@@ -1,7 +1,6 @@
 ---
 id: presignurl
 title: presignUrl()
-slug: /lambda/presignurl
 ---
 
 Returns a presigned url for public access of an object stored in Remotion's S3 bucket.
@@ -9,6 +8,8 @@ Returns a presigned url for public access of an object stored in Remotion's S3 b
 ## Example
 
 ```ts twoslash
+// @module: ESNext
+// @target: ESNext
 import { presignUrl } from "@remotion/lambda";
 
 const url = await presignUrl({
@@ -48,3 +49,5 @@ The number of seconds before the presigned URL expires.
 Must be an integer and `>=1` and `<=604800` (maximum of 7 days)
 
 ## See also
+
+- [`downloadMedia()`](/docs/lambda/downloadmedia)

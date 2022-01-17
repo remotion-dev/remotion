@@ -368,6 +368,7 @@ export type RenderProgress = {
 	renderMetadata: RenderMetadata | null;
 	bucket: string;
 	outputFile: string | null;
+	outKey: string | null;
 	timeToFinish: number | null;
 	errors: EnhancedErrorInfo[];
 	fatalErrorEncountered: boolean;

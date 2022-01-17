@@ -13,7 +13,11 @@ import {
 	downloadVideo,
 } from './api/download-media';
 import {estimatePrice, EstimatePriceInput} from './api/estimate-price';
-import {getAwsClients} from './api/get-aws-clients';
+import {
+	getAwsClient,
+	GetAwsClientInput,
+	GetAwsClientOutput,
+} from './api/get-aws-client';
 import {
 	FunctionInfo,
 	getFunctionInfo,
@@ -75,7 +79,7 @@ export {
 	LambdaInternals,
 	renderStillOnLambda,
 	getRegions,
-	getAwsClients,
+	getAwsClient,
 	presignUrl,
 };
 export type {
@@ -107,4 +111,6 @@ export type {
 	RenderStillOnLambdaOutput,
 	SimulatePermissionsInput,
 	SimulatePermissionsOutput,
+	GetAwsClientInput,
+	GetAwsClientOutput,
 };
