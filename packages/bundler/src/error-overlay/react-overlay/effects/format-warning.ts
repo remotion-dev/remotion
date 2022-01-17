@@ -18,7 +18,7 @@ function stripInlineStacktrace(message: string): string {
 		.join('\n'); // "  in Foo"
 }
 
-function massage(
+export function massageWarning(
 	warning: string,
 	frames: ReactFrame[]
 ): {message: string; stack: string} {
@@ -58,5 +58,3 @@ function massage(
 
 	return {message, stack};
 }
-
-export {massage};

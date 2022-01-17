@@ -10,7 +10,7 @@
  */
 
 import type {StackFrame} from './stack-frame';
-import {parse} from './parser';
+import {parseError} from './parser';
 import {unmap} from './unmapper';
 import {getLocationFromBuildError} from '../effects/map-error-to-react-stack';
 import {resolveFileSource} from '../effects/resolve-file-source';
@@ -48,7 +48,7 @@ async function getStackFrames(
 	error: UnmappedError,
 	contextSize = 3
 ): Promise<{frames: StackFrame[] | null; type: 'exception' | 'syntax'}> {
-	const parsedFrames = parse(error);
+	const parsedFrames = parseError(error);
 	const {frames: enhancedFrames, type} = await getEnhancedFrames(
 		error,
 		parsedFrames,
@@ -78,5 +78,4 @@ async function getStackFrames(
 	};
 }
 
-export default getStackFrames;
 export {getStackFrames};
