@@ -18,6 +18,7 @@ import {
 import {StackFrame} from './error-overlay/react-overlay/utils/stack-frame';
 import {webpackHotMiddleware} from './hot-middleware';
 import {wdm} from './dev-middleware';
+import {getFileSource} from './error-overlay/react-overlay/utils/get-file-source';
 
 export const startServer = async (
 	entry: string,
@@ -71,6 +72,23 @@ export const startServer = async (
 		getProjectInfo()
 			.then((data) => {
 				res.json(data);
+			})
+			.catch((err) => {
+				res.status(500).json({
+					err: err.message,
+				});
+			});
+	});
+	app.get('/api/file-source', (req, res) => {
+		const {f} = req.query;
+		if (typeof f !== 'string') {
+			throw new Error('must pass `f` parameter');
+		}
+
+		getFileSource(decodeURIComponent(f))
+			.then((data) => {
+				res.write(data);
+				return res.end();
 			})
 			.catch((err) => {
 				res.status(500).json({

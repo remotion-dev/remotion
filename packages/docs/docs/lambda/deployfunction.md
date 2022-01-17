@@ -46,6 +46,10 @@ How many megabytes of RAM the Lambda function should have. By default we recomme
 
 Whether logs should be saved into CloudWatch. We recommend enabling this option.
 
+### `cloudWatchLogRetentionPeriodInDays`
+
+Optional. Retention period for the CloudWatch Logs. Default: 14 days.
+
 ## Return value
 
 An object with the following values:

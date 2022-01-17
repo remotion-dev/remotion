@@ -6,15 +6,15 @@ importers:
     specifiers:
       '@jonny/eslint-config': ^2.1.248
       '@react-three/fiber': ^7.0.19
-      '@remotion/babel-loader': 2.6.1
-      '@remotion/bundler': 2.6.1
-      '@remotion/cli': 2.6.1
-      '@remotion/gif': 2.6.1
-      '@remotion/lambda': 2.6.1
-      '@remotion/media-utils': 2.6.1
-      '@remotion/player': 2.6.1
-      '@remotion/renderer': 2.6.1
-      '@remotion/three': 2.6.1
+      '@remotion/babel-loader': 2.6.3
+      '@remotion/bundler': 2.6.3
+      '@remotion/cli': 2.6.3
+      '@remotion/gif': 2.6.3
+      '@remotion/lambda': 2.6.3
+      '@remotion/media-utils': 2.6.3
+      '@remotion/player': 2.6.3
+      '@remotion/renderer': 2.6.3
+      '@remotion/three': 2.6.3
       '@types/jest': ^27.0.2
       '@types/minimist': ^1.2.1
       '@types/node': ^16.7.5
@@ -31,7 +31,7 @@ importers:
       prettier-plugin-organize-imports: ^1.1.1
       react: ^17.0.1
       react-dom: ^17.0.1
-      remotion: 2.6.1
+      remotion: 2.6.3
       sharp: ^0.29.0
       three: ^0.134.0
       ts-jest: ^27.0.5
@@ -86,7 +86,7 @@ importers:
       prettier: ^2.0.5
       prettier-plugin-organize-imports: ^1.1.1
       react-refresh: ^0.9.0-rc.2
-      remotion: 2.6.1
+      remotion: 2.6.3
       typescript: ^4.4.2
       webpack: 5.60.0
     dependencies:
@@ -122,17 +122,19 @@ importers:
       execa: ^4.0.3
       express: ^4.17.1
       file-loader: ^6.2.0
+      jest: ^27.2.4
       latest-version: ^5.1.0
       memfs: ^3.4.0
       mime-types: ^2.1.34
       prettier: ^2.0.5
       prettier-plugin-organize-imports: ^1.1.1
       react-refresh: ^0.9.0-rc.2
-      remotion: 2.6.1
+      remotion: 2.6.3
       semver: 7.3.4
       source-map: ^0.5.7
       source-map-loader: ^3.0.0
       style-loader: ^2.0.0
+      ts-jest: ^27.0.5
       typescript: ^4.4.2
       webpack: 5.60.0
     dependencies:
@@ -159,17 +161,19 @@ importers:
       '@types/semver': 7.3.8
       '@types/source-map': 0.5.2
       eslint: 7.32.0
+      jest: 27.2.4
       prettier: 2.4.1
       prettier-plugin-organize-imports: 1.1.1_prettier@2.4.1+typescript@4.4.3
+      ts-jest: 27.0.5_52a571d76319e63aeaa66dc9db9e90cc
       typescript: 4.4.3
 
   packages/cli:
     specifiers:
       '@jonny/eslint-config': ^2.1.248
-      '@remotion/bundler': 2.6.1
-      '@remotion/media-utils': 2.6.1
-      '@remotion/player': 2.6.1
-      '@remotion/renderer': 2.6.1
+      '@remotion/bundler': 2.6.3
+      '@remotion/media-utils': 2.6.3
+      '@remotion/player': 2.6.3
+      '@remotion/renderer': 2.6.3
       '@types/jest': ^27.0.2
       '@types/node': ^16.7.5
       '@types/react': 17.0.27
@@ -184,7 +188,7 @@ importers:
       minimist: ^1.2.5
       prettier: ^2.0.5
       prettier-plugin-organize-imports: ^1.1.1
-      remotion: 2.6.1
+      remotion: 2.6.3
       semver: ^7.3.4
       ts-jest: ^27.0.5
       typescript: ^4.4.2
@@ -292,13 +296,13 @@ importers:
       '@docusaurus/preset-classic': 2.0.0-beta.7
       '@jonny/docusaurus-preset-shiki-twoslash': 1.1.36
       '@mdx-js/react': ^1.6.21
-      '@remotion/babel-loader': 2.6.1
-      '@remotion/bundler': 2.6.1
-      '@remotion/gif': 2.6.1
-      '@remotion/media-utils': 2.6.1
-      '@remotion/player': 2.6.1
-      '@remotion/renderer': 2.6.1
-      '@remotion/three': 2.6.1
+      '@remotion/babel-loader': 2.6.3
+      '@remotion/bundler': 2.6.3
+      '@remotion/gif': 2.6.3
+      '@remotion/media-utils': 2.6.3
+      '@remotion/player': 2.6.3
+      '@remotion/renderer': 2.6.3
+      '@remotion/three': 2.6.3
       '@splitbee/web': ^0.2.4
       '@tsconfig/docusaurus': ^1.0.4
       '@types/color-namer': ^1.3.0
@@ -312,7 +316,7 @@ importers:
       jest: ^27.2.4
       polished: 4.1.2
       react-player: ^2.9.0
-      remotion: 2.6.1
+      remotion: 2.6.3
       ts-jest: ^27.0.5
       typescript: ^4.4.4
       url-loader: ^4.1.1
@@ -352,7 +356,7 @@ importers:
 
   packages/eslint-config:
     specifiers:
-      '@remotion/eslint-plugin': 2.6.1
+      '@remotion/eslint-plugin': 2.6.3
       '@types/babel__core': ^7.1.12
       '@types/babel__template': ^7.4.0
       '@typescript-eslint/eslint-plugin': ^4.22.0
@@ -399,17 +403,17 @@ importers:
       '@babel/preset-env': 7.12.13
       '@babel/preset-react': 7.12.13
       '@mdx-js/react': ^1.6.21
-      '@react-three/drei': ^7.22.9
-      '@remotion/babel-loader': 2.6.1
-      '@remotion/bundler': 2.6.1
-      '@remotion/cli': 2.6.1
-      '@remotion/eslint-config': 2.6.1
-      '@remotion/eslint-plugin': 2.6.1
-      '@remotion/gif': 2.6.1
-      '@remotion/lambda': 2.6.1
-      '@remotion/media-utils': 2.6.1
-      '@remotion/renderer': 2.6.1
-      '@remotion/three': 2.6.1
+      '@react-three/drei': ^7.22.79
+      '@remotion/babel-loader': 2.6.3
+      '@remotion/bundler': 2.6.3
+      '@remotion/cli': 2.6.3
+      '@remotion/eslint-config': 2.6.3
+      '@remotion/eslint-plugin': 2.6.3
+      '@remotion/gif': 2.6.3
+      '@remotion/lambda': 2.6.3
+      '@remotion/media-utils': 2.6.3
+      '@remotion/renderer': 2.6.3
+      '@remotion/three': 2.6.3
       '@types/babel__core': ^7.1.12
       '@types/babel__template': ^7.4.0
       '@types/express': ^4.17.11
@@ -424,7 +428,7 @@ importers:
       polished: ^4.0.5
       prettier: ^2.0.5
       prettier-plugin-organize-imports: ^1.1.1
-      remotion: 2.6.1
+      remotion: 2.6.3
       styled-components: ^5.1.1
       svg-path-properties: ^1.0.4
       ts-jest: ^27.0.5
@@ -436,7 +440,7 @@ importers:
       '@babel/preset-env': 7.12.13
       '@babel/preset-react': 7.12.13
       '@mdx-js/react': 1.6.22_react@17.0.2
-      '@react-three/drei': 7.22.9_97399ed2f1f8f5fafe21a20596301067
+      '@react-three/drei': 7.27.5_97399ed2f1f8f5fafe21a20596301067
       '@remotion/babel-loader': link:../babel-loader
       '@remotion/bundler': link:../bundler
       '@remotion/cli': link:../cli
@@ -483,7 +487,7 @@ importers:
       jest: ^27.2.4
       lru_map: ^0.4.1
       prettier-plugin-organize-imports: ^1.1.1
-      remotion: 2.6.1
+      remotion: 2.6.3
       ts-jest: ^27.0.5
       typescript: ^4.4.2
       webpack: 5.60.0
@@ -515,9 +519,9 @@ importers:
       '@aws-sdk/lib-storage': 3.42.0
       '@aws-sdk/s3-request-presigner': 3.42.0
       '@jonny/eslint-config': ^2.1.242
-      '@remotion/bundler': 2.6.1
-      '@remotion/cli': 2.6.1
-      '@remotion/renderer': 2.6.1
+      '@remotion/bundler': 2.6.3
+      '@remotion/cli': 2.6.3
+      '@remotion/renderer': 2.6.3
       '@types/jest': ^27.0.2
       '@types/node': ^14.14.14
       '@types/prompt': ^1.1.0
@@ -530,7 +534,7 @@ importers:
       p-limit: ^3.1.0
       prettier: ^2.4.1
       prettier-plugin-organize-imports: ^2.3.4
-      remotion: 2.6.1
+      remotion: 2.6.3
       ts-jest: ^27.0.5
       ts-node: ^9.1.1
       typescript: ^4.4.3
@@ -573,7 +577,7 @@ importers:
       eslint: ^7.25.0
       prettier: ^2.0.5
       prettier-plugin-organize-imports: ^1.1.1
-      remotion: 2.6.1
+      remotion: 2.6.3
       typescript: ^4.4.2
     dependencies:
       remotion: link:../core
@@ -598,7 +602,7 @@ importers:
       jest: ^27.2.4
       prettier: ^2.0.5
       prettier-plugin-organize-imports: ^1.1.1
-      remotion: 2.6.1
+      remotion: 2.6.3
       ts-jest: ^27.0.5
       typescript: ^4.4.2
       webpack: 5.60.0
@@ -623,7 +627,7 @@ importers:
   packages/player-example:
     specifiers:
       '@craco/craco': ^6.1.1
-      '@remotion/player': 2.6.1
+      '@remotion/player': 2.6.3
       '@testing-library/jest-dom': ^5.11.4
       '@testing-library/react': ^11.1.0
       '@testing-library/user-event': ^12.1.10
@@ -634,7 +638,7 @@ importers:
       react: ^17.0.1
       react-dom: ^17.0.1
       react-scripts: 4.0.3
-      remotion: 2.6.1
+      remotion: 2.6.3
       typescript: ^4.4.2
     dependencies:
       '@craco/craco': 6.3.0_react-scripts@4.0.3
@@ -655,7 +659,7 @@ importers:
   packages/renderer:
     specifiers:
       '@jonny/eslint-config': ^2.1.248
-      '@remotion/bundler': 2.6.1
+      '@remotion/bundler': 2.6.3
       '@testing-library/dom': ^8.7.2
       '@testing-library/react': ^11.2.5
       '@types/jest': ^27.0.2
@@ -669,8 +673,7 @@ importers:
       prettier: ^2.0.5
       prettier-plugin-organize-imports: ^1.1.1
       puppeteer-core: ^10.2.0
-      remotion: 2.6.1
-      sanitize-filename: ^1.6.3
+      remotion: 2.6.3
       serve-handler: ^6.1.3
       ts-jest: 26.5.1
       typescript: ^4.4.2
@@ -682,7 +685,6 @@ importers:
       p-limit: 3.1.0
       puppeteer-core: 10.4.0
       remotion: link:../core
-      sanitize-filename: 1.6.3
       serve-handler: 6.1.3
     devDependencies:
       '@jonny/eslint-config': 2.1.248_eslint@7.32.0+typescript@4.4.3
@@ -705,7 +707,7 @@ importers:
       eslint: ^7.4.0
       prettier: ^2.0.5
       prettier-plugin-organize-imports: ^1.1.1
-      remotion: 2.6.1
+      remotion: 2.6.3
       three: ^0.134.0
       typescript: ^4.4.2
     dependencies:
@@ -7311,8 +7313,64 @@ packages:
       react-dom: 17.0.2_react@17.0.2
     dev: false
 
-  /@react-three/drei/7.22.9_97399ed2f1f8f5fafe21a20596301067:
-    resolution: {integrity: sha512-+SJZlrkU9XCnpSxgbrH93E8WHIPF6oysorku5dV3ppQ7xcvmQ664Dzd3k6Q1WuIgMwuci9sjqhVeEI+6mx215A==}
+  /@react-spring/animated/9.4.2_react@17.0.2:
+    resolution: {integrity: sha512-Dzum5Ho8e+LIAegAqRyoQFakD2IVH3ZQ2nsFXJorAFq3Xjv6IVPz/+TNxb/wSvnsMludfoF+ZIf319FSFmgD5w==}
+    peerDependencies:
+      react: ^16.8.0  || ^17.0.0
+    dependencies:
+      '@react-spring/shared': 9.4.2_react@17.0.2
+      '@react-spring/types': 9.4.2
+      react: 17.0.2
+    dev: false
+
+  /@react-spring/core/9.4.2_react@17.0.2:
+    resolution: {integrity: sha512-Ej/ULwdx8rQtMAWEpLgwbKcQEx6vPfjyG3cxLP05zAInpCoWkYpl+sXOp9tn3r99mTNQPTTt7BgQsSnmQA8+rQ==}
+    peerDependencies:
+      react: ^16.8.0  || ^17.0.0
+    dependencies:
+      '@react-spring/animated': 9.4.2_react@17.0.2
+      '@react-spring/rafz': 9.4.2
+      '@react-spring/shared': 9.4.2_react@17.0.2
+      '@react-spring/types': 9.4.2
+      react: 17.0.2
+    dev: false
+
+  /@react-spring/rafz/9.4.2:
+    resolution: {integrity: sha512-rSm+G8E/XEEpnCGtT/xYN6o8VvEXlU8wN/hyKp4Q44XAZzGSMHLIFP7pY94/MmWsxCxjkw1AxUWhiFYxWrnI5Q==}
+    dev: false
+
+  /@react-spring/shared/9.4.2_react@17.0.2:
+    resolution: {integrity: sha512-mZtbQLpMm6Vy5+O1MSlY9KuAcMO8rdUQvtdnC7Or7y7xiZlnzj8oAILyO6Y2rD2ZC1PmgVS0gMev/8T+MykW+Q==}
+    peerDependencies:
+      react: ^16.8.0  || ^17.0.0
+    dependencies:
+      '@react-spring/rafz': 9.4.2
+      '@react-spring/types': 9.4.2
+      react: 17.0.2
+    dev: false
+
+  /@react-spring/three/9.4.2_d666031339b56f8d2964a0706e6252a7:
+    resolution: {integrity: sha512-qAPHOMjQjl9V3Eh4Xbdsdx9mAMe+rtSBfEuZGfoF5l8P8zC42gxggbyM1sKUOip3yyz76YTPiosWkmvgCVxMng==}
+    peerDependencies:
+      '@react-three/fiber': '>=6.0'
+      react: '>=16.11'
+      three: '>=0.126'
+    dependencies:
+      '@react-spring/animated': 9.4.2_react@17.0.2
+      '@react-spring/core': 9.4.2_react@17.0.2
+      '@react-spring/shared': 9.4.2_react@17.0.2
+      '@react-spring/types': 9.4.2
+      '@react-three/fiber': 7.0.19_907a6f2f9ddb15de374f8d77b33fd4f4
+      react: 17.0.2
+      three: 0.134.0
+    dev: false
+
+  /@react-spring/types/9.4.2:
+    resolution: {integrity: sha512-GGiIscTM+CEUNV52anj3g5FqAZKL2+eRKtvBOAlC99qGBbvJ3qTLImrUR/I3lXY7PRuLgzI6kh34quA1oUxWYQ==}
+    dev: false
+
+  /@react-three/drei/7.27.5_97399ed2f1f8f5fafe21a20596301067:
+    resolution: {integrity: sha512-LD0BvN+toHnyn7TV+M50+MbtVIX1PXwHX9RXRa6wgBBDFWBRXNUQb37401+vgzqYV61/JZtxd+b4kM+OYZGpkg==}
     peerDependencies:
       '@react-three/fiber': '>=6.0'
       react: '>=17.0'
@@ -7323,8 +7381,10 @@ packages:
         optional: true
     dependencies:
       '@babel/runtime': 7.15.4
+      '@react-spring/three': 9.4.2_d666031339b56f8d2964a0706e6252a7
       '@react-three/fiber': 7.0.19_907a6f2f9ddb15de374f8d77b33fd4f4
-      detect-gpu: 3.1.27
+      '@use-gesture/react': 10.2.4_react@17.0.2
+      detect-gpu: 3.1.30
       glsl-noise: 0.0.0
       lodash.omit: 4.5.0
       lodash.pick: 4.4.0
@@ -7335,8 +7395,8 @@ packages:
       stats.js: 0.17.0
       three: 0.134.0
       three-mesh-bvh: 0.5.2_three@0.134.0
-      three-stdlib: 2.5.9_three@0.134.0
-      troika-three-text: 0.43.0_three@0.134.0
+      three-stdlib: 2.6.4_three@0.134.0
+      troika-three-text: 0.44.0_three@0.134.0
       use-asset: 1.0.4_react@17.0.2
       utility-types: 3.10.0
       zustand: 3.6.5_react@17.0.2
@@ -8376,6 +8436,19 @@ packages:
       debug: 4.3.2
     transitivePeerDependencies:
       - supports-color
+    dev: false
+
+  /@use-gesture/core/10.2.4:
+    resolution: {integrity: sha512-fk1LjCBj43BKb8NE05qkdtPOR0ngA7PwgvEqfFap/h+s7QHi+JTv4/mtDQ4wI9zzem+Ry5EKrHS/cVdBehI4wA==}
+    dev: false
+
+  /@use-gesture/react/10.2.4_react@17.0.2:
+    resolution: {integrity: sha512-CbqyRj+qNbRBOGmS8OWtaOa29fxEr7bKTYHvPuMQ1wsgQDh2/DqQxbp7cFxAg6WZ8oZjppDj/EkWnw22WpIIWQ==}
+    peerDependencies:
+      react: '>= 16.8.0'
+    dependencies:
+      '@use-gesture/core': 10.2.4
+      react: 17.0.2
     dev: false
 
   /@webassemblyjs/ast/1.11.1:
@@ -11596,8 +11669,8 @@ packages:
       repeat-string: 1.6.1
     dev: false
 
-  /detect-gpu/3.1.27:
-    resolution: {integrity: sha512-uIZUG25pt0ArIJjFEBYYzigoWe4gyEa4MzHpi9wXIVJw9LvznSHimvfjchOQJ6oJ55oMlEIt3WJ+Mt58nDm8qg==}
+  /detect-gpu/3.1.30:
+    resolution: {integrity: sha512-WUOk8imHH56AWVt6iHry69qbNEFsPjtS6qsinurfxeI3bVYQZzFk8zECTaodLxfeRad7QspDjjkJWkp5vBo8WA==}
     dependencies:
       webgl-constants: 1.1.1
     dev: false
@@ -13057,7 +13130,7 @@ packages:
     dependencies:
       asynckit: 0.4.0
       combined-stream: 1.0.8
-      mime-types: 2.1.33
+      mime-types: 2.1.34
     dev: false
 
   /form-data/3.0.1:
@@ -15252,7 +15325,7 @@ packages:
     resolution: {integrity: sha512-wbKT/BNGnBVB9nzi+IoaLkXt6fbSvqUxx+IYY66YFh96J3goY33BAaNG3uPqaw/Sh/FR9YpXGVDfd5DJdbh4nA==}
     engines: {node: ^10.13.0 || ^12.13.0 || ^14.15.0 || >=15.0.0}
     dependencies:
-      '@babel/code-frame': 7.14.5
+      '@babel/code-frame': 7.16.0
       '@jest/types': 27.2.4
       '@types/stack-utils': 2.0.1
       chalk: 4.1.2
@@ -20390,7 +20463,7 @@ packages:
       is-typedarray: 1.0.0
       isstream: 0.1.2
       json-stringify-safe: 5.0.1
-      mime-types: 2.1.33
+      mime-types: 2.1.34
       oauth-sign: 0.9.0
       performance-now: 2.1.0
       qs: 6.5.2
@@ -20686,12 +20759,6 @@ packages:
       micromatch: 3.1.10
       minimist: 1.2.5
       walker: 1.0.7
-
-  /sanitize-filename/1.6.3:
-    resolution: {integrity: sha512-y/52Mcy7aw3gRm7IrcGDFx/bCk4AhRh2eI9luHOQM86nZsqwiRkkq2GekHXBBD+SmPidc8i2PqtYZl+pWJ8Oeg==}
-    dependencies:
-      truncate-utf8-bytes: 1.0.2
-    dev: false
 
   /sanitize.css/10.0.0:
     resolution: {integrity: sha512-vTxrZz4dX5W86M6oVWVdOVe72ZiPs41Oi7Z6Km4W5Turyz28mrXSJhhEBZoRtzJWIv3833WKVwLSDWWkEfupMg==}
@@ -21989,8 +22056,8 @@ packages:
       three: 0.134.0
     dev: false
 
-  /three-stdlib/2.5.9_three@0.134.0:
-    resolution: {integrity: sha512-z9lqprjZLIu2lTd9+ux2208uNPY7ZXJoo7Q/ObcT1YFfJKrm0kOCKa09GDt9CpB75ddUKhgAaJm6T9T3o1ofgA==}
+  /three-stdlib/2.6.4_three@0.134.0:
+    resolution: {integrity: sha512-vc+/op2LYGnSN4y2QhxyyFm6WvdLQ/M0vpPxT0anB40lpA3t5+B9R9so/X53BOP8SiENG5YKVNQGXhqwTJJHGw==}
     peerDependencies:
       three: '>=0.128.0'
     dependencies:
@@ -22176,37 +22243,31 @@ packages:
     resolution: {integrity: sha1-WFhUf2spB1fulczMZm+1AITEYN0=}
     dev: false
 
-  /troika-three-text/0.43.0_three@0.134.0:
-    resolution: {integrity: sha512-lZcTImvd5VkrZGA1qQx8zRs20Eel5Ue4ZpxnHtvgpGHi+lJemNIpkwtGOgk73DmLAkBm6it3nG5RCE5IxufqCg==}
+  /troika-three-text/0.44.0_three@0.134.0:
+    resolution: {integrity: sha512-YwqXczjXQ4yq2a2ufO9icOIjeJutE/ODS8PHmmt/WAzVFqoiqeemclp/Ewiqm0+sdI1KnWRm6lj8df/zmhU3Og==}
     peerDependencies:
       three: '>=0.103.0'
     dependencies:
       bidi-js: 1.0.2
       three: 0.134.0
-      troika-three-utils: 0.43.0_three@0.134.0
-      troika-worker-utils: 0.43.0
+      troika-three-utils: 0.44.0_three@0.134.0
+      troika-worker-utils: 0.44.0
     dev: false
 
-  /troika-three-utils/0.43.0_three@0.134.0:
-    resolution: {integrity: sha512-UVc4jOob1VjrX0awA0dHxmHZ8yvgq8W/kmtihMnMeObm0HNOobPKAWm/N6o34/k/FPgOtUMDHYgkw+TG2RNouA==}
+  /troika-three-utils/0.44.0_three@0.134.0:
+    resolution: {integrity: sha512-gaEpqrlWnkrVU5UgUx+YZTC8NrhsA2Tt6zEIbn3WNuom7pLtrgjuHpAM72gif7DoYdOWEyFco3Zb6rpJh9Fodg==}
     peerDependencies:
       three: '>=0.103.0'
     dependencies:
       three: 0.134.0
     dev: false
 
-  /troika-worker-utils/0.43.0:
-    resolution: {integrity: sha512-8YXWwfviJ1N/9+nuE5dT9RFttmDsIF8CP7d6rRsBBhH55il3fBqpFSuzTlOcdgC1yq8Hmhi6GgIl6eK4Zt+hTw==}
+  /troika-worker-utils/0.44.0:
+    resolution: {integrity: sha512-/ETcH1rUoO9hVBL6Ifea2WOoGPw90ncrk8b8SJKTLtzcQvEWRIZ4eUxlVCtU93fLechCV+DWPs1y8+Bjh1WaJg==}
     dev: false
 
   /trough/1.0.5:
     resolution: {integrity: sha512-rvuRbTarPXmMb79SmzEp8aqXNKcK+y0XaB298IXueQ8I2PsrATcPBCSPyK/dDNa2iWOhKlfNnOjdAOTBU/nkFA==}
-    dev: false
-
-  /truncate-utf8-bytes/1.0.2:
-    resolution: {integrity: sha1-QFkjkJWS1W94pYGENLC3hInKXys=}
-    dependencies:
-      utf8-byte-length: 1.0.4
     dev: false
 
   /tryer/1.0.1:
@@ -22956,10 +23017,6 @@ packages:
   /use/3.1.1:
     resolution: {integrity: sha512-cwESVXlO3url9YWlFW/TA9cshCEhtu7IKJ/p5soJ/gGpj7vbvFrAY/eIioQ6Dw23KjZhYgiIo8HOs1nQ2vr/oQ==}
     engines: {node: '>=0.10.0'}
-
-  /utf8-byte-length/1.0.4:
-    resolution: {integrity: sha1-9F8VDExm7uloGGUFq5P8u4rWv2E=}
-    dev: false
 
   /util-deprecate/1.0.2:
     resolution: {integrity: sha1-RQ1Nyfpw3nMnYvvS1KKJgUGaDM8=}

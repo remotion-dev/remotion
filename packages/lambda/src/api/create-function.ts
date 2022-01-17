@@ -7,10 +7,7 @@ import {
 	PutFunctionEventInvokeConfigCommand,
 } from '@aws-sdk/client-lambda';
 import {readFileSync} from 'fs';
-import {
-	DEFAULT_CLOUDWATCH_RETENTION_PERIOD,
-	LOG_GROUP_PREFIX,
-} from '../defaults';
+import { LOG_GROUP_PREFIX } from '../defaults';
 import {AwsRegion} from '../pricing/aws-regions';
 import {getCloudWatchLogsClient, getLambdaClient} from '../shared/aws-clients';
 import {hostedLayers} from '../shared/hosted-layers';
@@ -25,6 +22,7 @@ export const createFunction = async ({
 	memorySizeInMb,
 	timeoutInSeconds,
 	alreadyCreated,
+	retentionInDays,
 }: {
 	createCloudWatchLogGroup: boolean;
 	region: AwsRegion;
@@ -34,6 +32,7 @@ export const createFunction = async ({
 	memorySizeInMb: number;
 	timeoutInSeconds: number;
 	alreadyCreated: boolean;
+	retentionInDays: number;
 }): Promise<{FunctionName: string}> => {
 	if (createCloudWatchLogGroup) {
 		try {
@@ -52,7 +51,7 @@ export const createFunction = async ({
 		await getCloudWatchLogsClient(region).send(
 			new PutRetentionPolicyCommand({
 				logGroupName: `${LOG_GROUP_PREFIX}${functionName}`,
-				retentionInDays: DEFAULT_CLOUDWATCH_RETENTION_PERIOD,
+				retentionInDays,
 			})
 		);
 	}
