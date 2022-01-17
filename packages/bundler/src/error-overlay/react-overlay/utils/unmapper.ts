@@ -129,4 +129,3 @@ async function unmap(
 }
 
 export {unmap};
-export default unmap;

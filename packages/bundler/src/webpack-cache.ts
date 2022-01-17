@@ -15,7 +15,7 @@ declare global {
 
 // Inlined from https://github.com/webpack/webpack/blob/4c2ee7a4ddb8db2362ca83b6c4190523387ba7ee/lib/config/defaults.js#L265
 // An algorithm to determine where Webpack will cache the depencies
-export const getWebpackCacheDir = () => {
+const getWebpackCacheDir = () => {
 	const cwd = process.cwd();
 	let dir: string | undefined = cwd;
 	for (;;) {

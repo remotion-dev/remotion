@@ -18,7 +18,7 @@ import {SourceMapConsumer} from 'source-map';
  *
  * This exposes methods which will be indifferent to changes made in <code>{@link https://github.com/mozilla/source-map source-map}</code>.
  */
-export class SourceMap {
+class SourceMap {
 	__source_map: SourceMapConsumer;
 
 	constructor(sourceMap: SourceMapConsumer) {
@@ -136,5 +136,4 @@ async function getSourceMap(
 	return new SourceMap(await new SourceMapConsumer(obj));
 }
 
-export {extractSourceMapUrl, getSourceMap};
-export default getSourceMap;
+export {getSourceMap};

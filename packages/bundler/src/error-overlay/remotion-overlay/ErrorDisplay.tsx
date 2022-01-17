@@ -110,6 +110,11 @@ export const ErrorDisplay: React.FC<{
 							isFirst={i === 0}
 							s={s}
 							lineNumberWidth={lineNumberWidth}
+							defaultFunctionName={
+								display.type === 'exception'
+									? '(anonymous function)'
+									: 'Syntax error'
+							}
 						/>
 					);
 				})}

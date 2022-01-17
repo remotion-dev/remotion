@@ -17,6 +17,7 @@ import {
 import {HighestZIndexProvider} from '../state/highest-z-index';
 import {KeybindingContextProvider} from '../state/keybindings';
 import {ModalContextType, ModalsContext, ModalState} from '../state/modals';
+import {loadMuteOption} from '../state/mute';
 import {
 	loadPreviewSizeOption,
 	persistPreviewSizeOption,
@@ -85,13 +86,12 @@ export const Editor: React.FC = () => {
 		},
 		[]
 	);
-	const [inAndOutFrames, setInAndOutFrames] = useState<
-		TimelineInOutContextValue
-	>({
-		inFrame: null,
-		outFrame: null,
-	});
-	const [mediaMuted, setMediaMuted] = useState<boolean>(false);
+	const [inAndOutFrames, setInAndOutFrames] =
+		useState<TimelineInOutContextValue>({
+			inFrame: null,
+			outFrame: null,
+		});
+	const [mediaMuted, setMediaMuted] = useState<boolean>(() => loadMuteOption());
 	const [mediaVolume, setMediaVolume] = useState<number>(1);
 	const [modalContextType, setModalContextType] = useState<ModalState | null>(
 		null
@@ -120,11 +120,12 @@ export const Editor: React.FC = () => {
 		return inAndOutFrames;
 	}, [inAndOutFrames]);
 
-	const setTimelineInOutContextValue = useMemo((): SetTimelineInOutContextValue => {
-		return {
-			setInAndOutFrames,
-		};
-	}, []);
+	const setTimelineInOutContextValue =
+		useMemo((): SetTimelineInOutContextValue => {
+			return {
+				setInAndOutFrames,
+			};
+		}, []);
 
 	const mediaVolumeContextValue = useMemo((): MediaVolumeContextValue => {
 		return {
