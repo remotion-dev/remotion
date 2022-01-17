@@ -45,7 +45,7 @@ An object with two mandatory parameters:
 
 ### `region`
 
-One of the [supported regions](/docs/lambda/region-selection) of Remotion Lambda, for which the client should be instantiated
+One of the [supported regions](/docs/lambda/region-selection) of Remotion Lambda, for which the client should be instantiated.
 
 ### `service`
 
@@ -74,5 +74,5 @@ The full SDK JavaScript module for the service you specified.
 - For `lambda`: The [`@aws-sdk/client-lambda`](https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/clients/client-lambda/index.html#aws-sdkclient-lambda) package
 
 :::note
-You don't need to create a new client from the SDK and instead reuse the `client` that is also returned and being used by Remotion, in order to save memory.
+You don't need to create a new client from the SDK and should instead reuse the `client` that is also returned and being used by Remotion, in order to save memory.
 :::

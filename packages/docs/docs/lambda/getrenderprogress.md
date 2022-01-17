@@ -90,7 +90,7 @@ Which bucket the render and other artifacts get saved.
 
 ### `outKey`
 
-`null` if the video is not yet rendered, a `string` containi ng the S3 key where the final artifact is stored.
+`null` if the video is not yet rendered, a `string` containing the S3 key where the final artifact is stored.
 
 ### `timeToFinish`
 
