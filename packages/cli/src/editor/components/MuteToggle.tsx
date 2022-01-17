@@ -4,8 +4,6 @@ import {VolumeOffIcon, VolumeOnIcon} from '../icons/media-volume';
 import {persistMuteOption} from '../state/mute';
 import {ControlButton} from './ControlButton';
 
-const accessibilityLabel = 'Mute player';
-
 export const MuteToggle: React.FC<{
 	muted: boolean;
 	setMuted: React.Dispatch<React.SetStateAction<boolean>>;
@@ -16,6 +14,7 @@ export const MuteToggle: React.FC<{
 			return !m;
 		});
 	}, [setMuted]);
+	const accessibilityLabel = muted ? 'Unmute video' : 'Mute video';
 
 	const isStill = useIsStill();
 
