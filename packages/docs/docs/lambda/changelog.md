@@ -13,6 +13,8 @@ Keep track of changes to the APIs of Remotion Lambda here.
 ## Unreleased
 
 - Added `timeoutInMilliseconds` to `renderMediaOnLambda`, `renderStillOnLambda` and `renderMedia`
+- New APIs: [`presignUrl()`](/docs/lambda/presignurl) and [`getAwsClient()`](/docs/lambda/getawsclient)
+- Added `outKey` which returns the S3 Key for the output artifact of a render
 
 ## January 10th, 2022 (2)
 
