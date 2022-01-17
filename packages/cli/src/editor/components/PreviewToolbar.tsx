@@ -41,10 +41,10 @@ const padding: React.CSSProperties = {
 export const PreviewToolbar: React.FC = () => {
 	const {playbackRate, setPlaybackRate} = useContext(
 		Internals.Timeline.TimelineContext
-  );
-  
-  const { mediaMuted } = useContext(Internals.MediaVolumeContext);
-  const { setMediaMuted } = useContext(Internals.SetMediaVolumeContext);
+	);
+
+	const {mediaMuted} = useContext(Internals.MediaVolumeContext);
+	const {setMediaMuted} = useContext(Internals.SetMediaVolumeContext);
 
 	const [loop, setLoop] = useState(loadLoopOption());
 
