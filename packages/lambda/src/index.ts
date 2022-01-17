@@ -13,6 +13,7 @@ import {
 	downloadVideo,
 } from './api/download-media';
 import {estimatePrice, EstimatePriceInput} from './api/estimate-price';
+import {getAwsClients} from './api/get-aws-clients';
 import {
 	FunctionInfo,
 	getFunctionInfo,
@@ -36,6 +37,7 @@ import {
 	getRolePolicy,
 	getUserPolicy,
 } from './api/iam-validation/suggested-policy';
+import {presignUrl} from './api/presign-url';
 import {
 	renderMediaOnLambda,
 	RenderMediaOnLambdaInput,
@@ -73,6 +75,8 @@ export {
 	LambdaInternals,
 	renderStillOnLambda,
 	getRegions,
+	getAwsClients,
+	presignUrl,
 };
 export type {
 	AwsRegion,
