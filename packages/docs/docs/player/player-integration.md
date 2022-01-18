@@ -103,9 +103,9 @@ export const Video: React.FC<{ text: string }> = () => <></>;
 
 // ---cut---
 import { registerRoot } from "remotion";
-import { Video } from "./Video";
+import { MyVideo } from "./Video";
 
-registerRoot(Video);
+registerRoot(MyVideo);
 ```
 
 :::tip
