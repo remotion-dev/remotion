@@ -146,6 +146,7 @@ export const App: React.FC = () => {
   return (
     <Player
       component={MyComp}
+      inputProps={{ text: "World" }}
       durationInFrames={120}
       compositionWidth={1920}
       compositionHeight={1080}
