@@ -19,7 +19,7 @@ import os from 'os';
 
 const execProm = util.promisify(exec);
 
-export const isVsCodeDerivative = (editor: Editor) => {
+const isVsCodeDerivative = (editor: Editor) => {
 	return (
 		editor === 'code' ||
 		editor === 'code-insiders' ||
@@ -30,7 +30,7 @@ export const isVsCodeDerivative = (editor: Editor) => {
 	);
 };
 
-export function isTerminalEditor(editor: Editor) {
+function isTerminalEditor(editor: Editor) {
 	switch (editor) {
 		case 'vim':
 		case 'emacs':

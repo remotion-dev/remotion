@@ -181,13 +181,16 @@ export const processUpdate = function (
 			console.warn(
 				'[Fast refresh] Update check failed: ' + (err.stack || err.message)
 			);
+			window.location.reload();
 		}
 	}
 
 	function performReload() {
-		if (reload) {
-			if (options.warn) console.warn('[Fast refresh] Reloading page');
-			window.location.reload();
+		if (!reload) {
+			return;
 		}
+
+		if (options.warn) console.warn('[Fast refresh] Reloading page');
+		window.location.reload();
 	}
 };
