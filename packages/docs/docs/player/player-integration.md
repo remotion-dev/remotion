@@ -99,7 +99,7 @@ Your index file (`remotion/index.tsx` in the example) could look like this:
 
 ```tsx twoslash
 // @filename: ./Video.tsx
-export const Video: React.FC<{ text: string }> = () => <></>;
+export const MyVideo: React.FC<{ text: string }> = () => <></>;
 
 // ---cut---
 import { registerRoot } from "remotion";
