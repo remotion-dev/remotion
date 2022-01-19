@@ -74,16 +74,6 @@ export const getCompositions = async (
 	page.on('error', console.error);
 	page.on('pageerror', console.error);
 
-	await page.goto('chrome://gpu');
-	await new Promise((resolve) => {
-		setTimeout(resolve, 1000);
-	});
-	await page.screenshot({
-		path: '/Users/jonathanburger/remotion/gpu.png',
-		fullPage: false,
-		type: 'png',
-	});
-
 	await setPropsAndEnv({
 		inputProps: config?.inputProps,
 		envVariables: config?.envVariables,
