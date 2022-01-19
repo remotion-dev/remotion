@@ -18,11 +18,14 @@ export const openBrowser = async (
 		);
 	}
 
-	await ensureLocalBrowser(browser, options?.browserExecutable ?? null);
+	await ensureLocalBrowser(
+		browser,
+		'/Users/jonathanburger/chromium/src/out/Default/Chromium.app/Contents/MacOS/Chromium'
+	);
 
 	const executablePath = await getLocalBrowserExecutable(
 		browser,
-		options?.browserExecutable ?? null
+		'/Users/jonathanburger/chromium/src/out/Default/Chromium.app/Contents/MacOS/Chromium'
 	);
 	const browserInstance = await puppeteer.launch({
 		executablePath,
@@ -32,7 +35,8 @@ export const openBrowser = async (
 			'--no-sandbox',
 			'--disable-setuid-sandbox',
 			'--disable-dev-shm-usage',
-			'--use-gl=angle',
+			'--use-angle=default',
+			'--single-process',
 			'--disable-background-media-suspend',
 			process.platform === 'linux' ? '--single-process' : null,
 		].filter(Boolean) as string[],
