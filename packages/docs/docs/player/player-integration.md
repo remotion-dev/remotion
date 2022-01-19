@@ -99,13 +99,13 @@ Your index file (`remotion/index.tsx` in the example) could look like this:
 
 ```tsx twoslash
 // @filename: ./Video.tsx
-export const Video: React.FC<{ text: string }> = () => <></>;
+export const MyVideo: React.FC<{ text: string }> = () => <></>;
 
 // ---cut---
 import { registerRoot } from "remotion";
-import { Video } from "./Video";
+import { MyVideo } from "./Video";
 
-registerRoot(Video);
+registerRoot(MyVideo);
 ```
 
 :::tip
@@ -146,6 +146,7 @@ export const App: React.FC = () => {
   return (
     <Player
       component={MyComp}
+      inputProps={{ text: "World" }}
       durationInFrames={120}
       compositionWidth={1920}
       compositionHeight={1080}
