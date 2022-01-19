@@ -12,6 +12,9 @@ Keep track of changes to the APIs of Remotion Lambda here.
 
 ## January 19th, 2022
 
+Version hash: `3.0.0-lambda.297+0a5487655`
+Lambda version: '2022-01-19'
+
 - Added `timeoutInMilliseconds` to `renderMediaOnLambda`, `renderStillOnLambda` and `renderMedia`
 - New APIs: [`presignUrl()`](/docs/lambda/presignurl) and [`getAwsClient()`](/docs/lambda/getawsclient)
 - Added `outKey` which returns the S3 Key for the output artifact of a render
