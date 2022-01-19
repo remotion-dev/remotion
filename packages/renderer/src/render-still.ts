@@ -7,6 +7,7 @@ import {provideScreenshot} from './provide-screenshot';
 import {seekToFrame} from './seek-to-frame';
 import {serveStatic} from './serve-static';
 import {setPropsAndEnv} from './set-props-and-env';
+import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
 
 /**
  * @description Render a still frame from a composition and returns an image path
@@ -26,6 +27,7 @@ export const renderStill = async ({
 	frame = 0,
 	overwrite = true,
 	browserExecutable,
+	timeoutInMilliseconds,
 }: {
 	composition: TCompMetadata;
 	output: string;
@@ -41,6 +43,7 @@ export const renderStill = async ({
 	envVariables?: Record<string, string>;
 	overwrite?: boolean;
 	browserExecutable?: BrowserExecutable;
+	timeoutInMilliseconds?: number;
 }) => {
 	Internals.validateDimension(
 		composition.height,
@@ -62,6 +65,7 @@ export const renderStill = async ({
 	);
 	Internals.validateNonNullImageFormat(imageFormat);
 	Internals.validateFrame(frame, composition.durationInFrames);
+	validatePuppeteerTimeout(timeoutInMilliseconds);
 
 	if (typeof output !== 'string') {
 		throw new TypeError('`output` parameter was not passed or is not a string');
@@ -122,6 +126,7 @@ export const renderStill = async ({
 		page,
 		port,
 		initialFrame: frame,
+		timeoutInMilliseconds,
 	});
 
 	const site = `http://localhost:${port}/index.html?composition=${composition.id}`;

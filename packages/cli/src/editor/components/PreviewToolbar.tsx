@@ -6,6 +6,7 @@ import {CheckboardToggle} from './CheckboardToggle';
 import {FpsCounter} from './FpsCounter';
 import {Flex, Spacing} from './layout';
 import {LoopToggle} from './LoopToggle';
+import {MuteToggle} from './MuteToggle';
 import {PlaybackKeyboardShortcutsManager} from './PlaybackKeyboardShortcutsManager';
 import {PlaybackRatePersistor} from './PlaybackRatePersistor';
 import {PlaybackRateSelector} from './PlaybackRateSelector';
@@ -42,6 +43,9 @@ export const PreviewToolbar: React.FC = () => {
 		Internals.Timeline.TimelineContext
 	);
 
+	const {mediaMuted} = useContext(Internals.MediaVolumeContext);
+	const {setMediaMuted} = useContext(Internals.SetMediaVolumeContext);
+
 	const [loop, setLoop] = useState(loadLoopOption());
 
 	return (
@@ -63,6 +67,7 @@ export const PreviewToolbar: React.FC = () => {
 			<CheckboardToggle />
 			<RichTimelineToggle />
 			<TimelineInOutPointToggle />
+			<MuteToggle muted={mediaMuted} setMuted={setMediaMuted} />
 			<Flex />
 			<div style={sideContainer}>
 				<Flex />
