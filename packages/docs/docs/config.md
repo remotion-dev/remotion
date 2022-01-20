@@ -177,7 +177,7 @@ import { Config } from "remotion";
 Config.Puppeteer.setChromiumHeadlessMode(false);
 ```
 
-The [command line flag](/docs/cli#--headless) `--headless` will take precedence over this option.
+The [command line flag](/docs/cli#--disable-headless) `--disable-headless` will take precedence over this option.
 
 ## Rendering
 
