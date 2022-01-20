@@ -1,3 +1,6 @@
+import os from 'os';
+import path from 'path';
+import fs from 'fs';
 import puppeteer from 'puppeteer-core';
 import {Browser, Internals} from 'remotion';
 import {
@@ -10,6 +13,10 @@ export const openBrowser = async (
 	options?: {
 		shouldDumpIo?: boolean;
 		browserExecutable?: string | null;
+		chromiumOptions?: {
+			ignoreCertificateErrors?: boolean;
+			disableWebSecurity?: boolean;
+		};
 	}
 ): Promise<puppeteer.Browser> => {
 	if (browser === 'firefox' && !Internals.FEATURE_FLAG_FIREFOX_SUPPORT) {
@@ -35,6 +42,18 @@ export const openBrowser = async (
 			'--use-gl=angle',
 			'--disable-background-media-suspend',
 			process.platform === 'linux' ? '--single-process' : null,
+			options?.chromiumOptions?.ignoreCertificateErrors
+				? '--ignore-certificate-errors'
+				: null,
+			...(options?.chromiumOptions?.disableWebSecurity
+				? [
+						'--ignore-certificate-errors',
+						'--user-data-dir=' +
+							(await fs.promises.mkdtemp(
+								path.join(os.tmpdir(), 'chrome-user-dir')
+							)),
+				  ]
+				: []),
 		].filter(Boolean) as string[],
 	});
 	return browserInstance;
