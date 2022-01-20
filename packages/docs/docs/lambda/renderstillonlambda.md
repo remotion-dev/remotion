@@ -106,6 +106,34 @@ _optional, available from v2.6.2_
 
 A number describing how long the render may take to resolve all `delayRender()` calls before it times out. Default: `30000`
 
+### `chromiumOptions?`
+
+_optional, available from v2.6.5_
+
+Allows you to set certain Chromium / Google Chrome flags. See: [Chromium flags](/docs/chromium-flags).
+
+#### `disableWebSecurity`
+
+_boolean - default `false`_
+
+This will most notably disable CORS among other security features.
+
+#### `ignoreCertificateErrors`
+
+_boolean - default `false`_
+
+Results in invalid SSL certificates, such as self-signed ones, being ignored.
+
+#### `gl`
+
+_string_
+
+Select the OpenGL renderer backend for Chromium. Accepted values: `angle`, `egl`, `swiftshader`. Default: `swiftshader`.
+
+:::note
+The default for Lambda is `swiftshader`, but `angle` elsewhere.
+:::
+
 ## Return value
 
 Returns a promise resolving to an object with the following properties:

@@ -233,7 +233,7 @@ This will most notably disable CORS among other security features.
 
 _boolean - default `false`_
 
-Results in invalid SSL certificates, such as self-signed ones being ignored.
+Results in invalid SSL certificates, such as self-signed ones, being ignored.
 
 #### `headless`
 
@@ -245,9 +245,7 @@ If disabled, the render will open an actual Chrome window where you can see the 
 
 _string_
 
-<!-- TODO: Update for lambda -->
-
-Select the OpenGL renderer backend for Chromium. Accepted values: `angle`, `egl`, `swiftshader`. Default: `angle`.
+Select the OpenGL renderer backend for Chromium. Accepted values: `angle`, `egl`, `swiftshader`. Default: `swiftshader` for Lambda functions, `angle` elsewhere.
 
 ## Return value
 
