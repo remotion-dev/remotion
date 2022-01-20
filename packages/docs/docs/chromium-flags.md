@@ -15,9 +15,11 @@ In [`getCompositions()`](/docs/get-compositions), [`renderStill()`](/docs/render
 
 ### Enabling via CLI
 
-Pass [`--disable-web-security`](/docs/cli#--disable-web-security) in a `remotion render` or `remotion still` command.
+Pass [`--disable-web-security`](/docs/cli#--disable-web-securityr) in a `remotion render` or `remotion still` command.
 
 ### Enabling via config file
+
+Use [setChromiumDisableWebSecurity()](/docs/config#setchromiumdisablewebsecurity).
 
 ```tsx twoslash
 import { Config } from "remotion";
@@ -40,6 +42,8 @@ In [`getCompositions()`](/docs/get-compositions), [`renderStill()`](/docs/render
 Pass [`--ignore-certificate-errors`](/docs/cli#--ignore-certificate-errors) in a `remotion render` or `remotion still` command.
 
 ### Enabling via config file
+
+Use [setChromiumIgnoreCertificateErrors()](/docs/config#setchromiumignorecertificateerrors).
 
 ```tsx twoslash
 import { Config } from "remotion";
