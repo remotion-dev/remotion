@@ -140,6 +140,7 @@ import {
 	getIgnoreCertificateErrors,
 } from './config/chromium-flags';
 import {validateOpenGlRenderer} from './validation/validate-opengl-renderer';
+import {OpenGlRenderer} from './validation/validate-opengl-renderer';
 const Timeline = {...TimelinePosition, ...TimelineInOutPosition};
 
 // Mark them as Internals so use don't assume this is public
@@ -251,4 +252,5 @@ export type {
 	LooseAnyComponent,
 	RemotionEnvironment,
 	ProResProfile,
+	OpenGlRenderer,
 };
