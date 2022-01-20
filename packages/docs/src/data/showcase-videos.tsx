@@ -1061,6 +1061,34 @@ export const showcaseVideos: ShowcaseVideo[] = [
       name: "William Candillon",
     },
   },
+  {
+    title: 'Mux stats tutorial',
+    type: 'mux_video',
+    muxId: 'DDgXb2KfPk7xdvxEoyPkrl7GcybohNon',
+    description:
+      'An article on how to showcase your video stats by creating a dynamic animated video using Remotion and the Mux Data API.',
+    height: 270,
+    width: 480,
+    submittedOn: new Date('19-01-2022'),
+    links: [
+      {
+        type: 'source_code',
+        url: 'https://github.com/davekiss/mux-remotion-demo/',
+      },
+      {
+        type: 'video',
+        url: 'https://twitter.com/MuxHQ/status/1483514610380644357',
+      },
+      {
+        type: 'tutorial',
+        url: 'https://mux.com/blog/visualize-mux-data-with-remotion/',
+      },
+    ],
+    author: {
+      url: 'https://davekiss.com/',
+      name: 'Dave Kiss',
+    },
+  },
 ];
 
 const dateString = (date: Date) =>

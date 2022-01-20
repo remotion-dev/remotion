@@ -3,6 +3,7 @@ import {BrowserExecutable, TCompMetadata} from 'remotion';
 import {BrowserLog} from './browser-log';
 import {getPageAndCleanupFn} from './get-browser-instance';
 import {normalizeServeUrl} from './normalize-serve-url';
+import {ChromiumOptions} from './open-browser';
 import {prepareServer} from './prepare-server';
 import {setPropsAndEnv} from './set-props-and-env';
 import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
@@ -14,6 +15,7 @@ type GetCompositionsConfig = {
 	onBrowserLog?: (log: BrowserLog) => void;
 	browserExecutable?: BrowserExecutable;
 	timeoutInMilliseconds?: number;
+	chromiumOptions?: ChromiumOptions;
 };
 
 const innerGetCompositions = async (
@@ -81,6 +83,7 @@ export const getCompositions = async (
 	const {page, cleanup} = await getPageAndCleanupFn({
 		passedInInstance: config?.puppeteerInstance,
 		browserExecutable: config?.browserExecutable ?? null,
+		chromiumOptions: config?.chromiumOptions ?? {},
 	});
 
 	return new Promise<TCompMetadata[]>((resolve, reject) => {

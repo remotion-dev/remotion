@@ -95,6 +95,13 @@ export const PlayerFn = <T,>(
 		}, []);
 	}
 
+	// @ts-expect-error
+	if (componentProps.defaultProps !== undefined) {
+		throw new Error(
+			'The <Player /> component does not accept `defaultProps`, but some were passed. Use `inputProps` instead.'
+		);
+	}
+
 	const component = Internals.useLazyComponent(componentProps);
 	const [frame, setFrame] = useState(0);
 	const [playing, setPlaying] = useState<boolean>(false);
