@@ -2,7 +2,7 @@ import fs, {mkdirSync, statSync} from 'fs';
 import path from 'path';
 import {Browser as PuppeteerBrowser} from 'puppeteer-core';
 import {Browser, BrowserExecutable, Internals, TCompMetadata} from 'remotion';
-import {openBrowser} from './open-browser';
+import {ChromiumOptions, openBrowser} from './open-browser';
 import {provideScreenshot} from './provide-screenshot';
 import {seekToFrame} from './seek-to-frame';
 import {serveStatic} from './serve-static';
@@ -28,6 +28,7 @@ export const renderStill = async ({
 	overwrite = true,
 	browserExecutable,
 	timeoutInMilliseconds,
+	chromiumOptions,
 }: {
 	composition: TCompMetadata;
 	output: string;
@@ -44,6 +45,7 @@ export const renderStill = async ({
 	overwrite?: boolean;
 	browserExecutable?: BrowserExecutable;
 	timeoutInMilliseconds?: number;
+	chromiumOptions?: ChromiumOptions;
 }) => {
 	Internals.validateDimension(
 		composition.height,
@@ -107,6 +109,7 @@ export const renderStill = async ({
 			openBrowser(browser, {
 				browserExecutable,
 				shouldDumpIo: dumpBrowserLogs,
+				chromiumOptions,
 			}),
 	]);
 	const page = await browserInstance.newPage();
