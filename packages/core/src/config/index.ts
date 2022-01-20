@@ -24,7 +24,7 @@ import {FfmpegExecutable, setFfmpegExecutable} from './ffmpeg-executable';
 import {setPuppeteerTimeout} from './timeout';
 import {
 	setChromiumDisableWebSecurity,
-	setIgnoreCertificateErrors,
+	setChromiumIgnoreCertificateErrors,
 } from './chromium-flags';
 
 export const Config = {
@@ -85,7 +85,7 @@ export const Config = {
 		 * Setting whether to ignore any invalid SSL certificates, such as self-signed ones.
 		 * Default: false
 		 */
-		setIgnoreCertificateErrors,
+		setChromiumIgnoreCertificateErrors,
 	},
 	Rendering: {
 		/**
