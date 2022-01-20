@@ -20,7 +20,7 @@ export type ChromiumOptions = {
 };
 
 const getOpenGlRenderer = (option?: OpenGlRenderer): OpenGlRenderer => {
-	const renderer = option ?? 'angle';
+	const renderer = option ?? Internals.DEFAULT_OPENGL_RENDERER;
 	Internals.validateOpenGlRenderer(renderer);
 	return renderer;
 };
