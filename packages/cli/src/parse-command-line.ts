@@ -8,11 +8,10 @@ import {
 	ImageFormat,
 	Internals,
 	LogLevel,
+	OpenGlRenderer,
 	PixelFormat,
 	ProResProfile,
 } from 'remotion';
-import {OpenGlRenderer} from 'remotion/src/validation/validate-opengl-renderer';
-import {ContextReplacementPlugin} from 'webpack';
 import {Log} from './log';
 
 export type CommandLineOptions = {

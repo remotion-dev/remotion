@@ -7,7 +7,6 @@ import {
 	ensureLocalBrowser,
 	getLocalBrowserExecutable,
 } from './get-local-browser-executable';
-import {validateOpenGlRenderer} from 'remotion/src/validation/validate-opengl-renderer';
 
 const validRenderers = ['angle', 'egl', 'swiftshader'] as const;
 
@@ -22,7 +21,7 @@ export type ChromiumOptions = {
 
 const getOpenGlRenderer = (option?: OpenGlRenderer): OpenGlRenderer => {
 	const renderer = option ?? 'angle';
-	validateOpenGlRenderer(renderer);
+	Internals.validateOpenGlRenderer(renderer);
 	return renderer;
 };
 
