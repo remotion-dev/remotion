@@ -64,7 +64,8 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 			Internals.Logging.isEqualOrBelowLogLevel(
 				Internals.Logging.getLogLevel(),
 				'verbose'
-			)
+			),
+			params.chromiumOptions
 		),
 		getOptimization({
 			bucketName: params.bucketName,
@@ -150,6 +151,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 			logLevel: params.logLevel ?? Internals.Logging.DEFAULT_LOG_LEVEL,
 			attempt: 1,
 			timeoutInMilliseconds: params.timeoutInMilliseconds,
+			chromiumOptions: params.chromiumOptions,
 		};
 		return payload;
 	});

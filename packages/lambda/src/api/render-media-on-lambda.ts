@@ -1,3 +1,4 @@
+import {ChromiumOptions} from '@remotion/renderer/src/open-browser';
 import {
 	FrameRange,
 	ImageFormat,
@@ -33,6 +34,7 @@ export type RenderMediaOnLambdaInput = {
 	frameRange?: FrameRange;
 	outName?: string;
 	timeoutInMilliseconds?: number;
+	chromiumOptions?: ChromiumOptions;
 };
 
 export type RenderMediaOnLambdaOutput = {
@@ -81,6 +83,7 @@ export const renderMediaOnLambda = async ({
 	frameRange,
 	outName,
 	timeoutInMilliseconds,
+	chromiumOptions,
 }: RenderMediaOnLambdaInput): Promise<RenderMediaOnLambdaOutput> => {
 	validateFramesPerLambda(framesPerLambda ?? null);
 	const realServeUrl = await convertToServeUrl(serveUrl, region);
@@ -107,6 +110,7 @@ export const renderMediaOnLambda = async ({
 			outName: outName ?? null,
 			timeoutInMilliseconds:
 				timeoutInMilliseconds ?? Internals.DEFAULT_PUPPETEER_TIMEOUT,
+			chromiumOptions: chromiumOptions ?? {},
 		},
 		region,
 	});

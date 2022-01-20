@@ -15,9 +15,7 @@ Remotion will automatically append the `--user-data-dir` flag.
 
 ### Enabling in Node.JS APIs
 
-<!-- TODO: Adapt for lambda -->
-
-In [`getCompositions()`](/docs/get-compositions), [`renderStill()`](/docs/render-still) and [`renderFrames()`](/docs/render-frames), you can pass [`chromiumOptions.disableWebSecurity`](/docs/render-still#disablewebsecurity).
+In [`getCompositions()`](/docs/renderer/get-compositions), [`renderStill()`](/docs/renderer/render-still), [`renderMedia()`](/docs/renderer/render-media) and [`renderFrames()`](/docs/renderer/render-frames), you can pass [`chromiumOptions.disableWebSecurity`](/docs/renderer/render-still#disablewebsecurity).
 
 ### Enabling via CLI
 

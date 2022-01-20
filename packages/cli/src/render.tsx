@@ -198,6 +198,7 @@ export const render = async () => {
 			puppeteerInstance,
 			quality,
 			timeoutInMilliseconds: Internals.getCurrentPuppeteerTimeout(),
+			chromiumOptions,
 		});
 		renderedDoneIn = Date.now() - startTime;
 
@@ -255,6 +256,8 @@ export const render = async () => {
 		onStart: ({frameCount}) => {
 			totalFrames = frameCount;
 		},
+		chromiumOptions,
+		timeoutInMilliseconds: Internals.getCurrentPuppeteerTimeout(),
 	});
 
 	Log.info();

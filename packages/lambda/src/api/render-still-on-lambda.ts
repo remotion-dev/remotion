@@ -1,3 +1,4 @@
+import {ChromiumOptions} from '@remotion/renderer/src/open-browser';
 import {Internals, LogLevel, StillImageFormat} from 'remotion';
 import {AwsRegion} from '../pricing/aws-regions';
 import {callLambda} from '../shared/call-lambda';
@@ -23,6 +24,7 @@ export type RenderStillOnLambdaInput = {
 	logLevel?: LogLevel;
 	outName?: string;
 	timeoutInMilliseconds?: number;
+	chromiumOptions?: ChromiumOptions;
 };
 
 export type RenderStillOnLambdaOutput = {
@@ -65,6 +67,7 @@ export const renderStillOnLambda = async ({
 	logLevel,
 	outName,
 	timeoutInMilliseconds,
+	chromiumOptions,
 }: RenderStillOnLambdaInput): Promise<RenderStillOnLambdaOutput> => {
 	const realServeUrl = await convertToServeUrl(serveUrl, region);
 
@@ -82,10 +85,11 @@ export const renderStillOnLambda = async ({
 			frame: frame ?? 0,
 			privacy,
 			attempt: 1,
-			logLevel,
+			logLevel: logLevel ?? Internals.Logging.DEFAULT_LOG_LEVEL,
 			outName: outName ?? null,
 			timeoutInMilliseconds:
 				timeoutInMilliseconds ?? Internals.DEFAULT_PUPPETEER_TIMEOUT,
+			chromiumOptions: chromiumOptions ?? {},
 		},
 		region,
 	});

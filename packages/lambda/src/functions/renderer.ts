@@ -45,7 +45,8 @@ const renderHandler = async (
 	}
 
 	const browserInstance = await getBrowserInstance(
-		Internals.Logging.isEqualOrBelowLogLevel(params.logLevel, 'verbose')
+		Internals.Logging.isEqualOrBelowLogLevel(params.logLevel, 'verbose'),
+		params.chromiumOptions ?? {}
 	);
 	const outputPath = OUTPUT_PATH_PREFIX + randomHash();
 	if (fs.existsSync(outputPath)) {
@@ -139,6 +140,7 @@ const renderHandler = async (
 		},
 
 		overwrite: false,
+		chromiumOptions: params.chromiumOptions,
 	});
 
 	const endRendered = Date.now();
