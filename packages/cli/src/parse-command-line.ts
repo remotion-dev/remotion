@@ -80,7 +80,7 @@ export const parseCommandLine = (type: 'still' | 'sequence' | 'versions') => {
 	}
 
 	if (parsedCli['ignore-certificate-errors']) {
-		Config.Puppeteer.setIgnoreCertificateErrors(true);
+		Config.Puppeteer.setChromiumIgnoreCertificateErrors(true);
 	}
 
 	if (parsedCli.log) {
