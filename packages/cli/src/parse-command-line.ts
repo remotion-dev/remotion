@@ -8,6 +8,7 @@ import {
 	ImageFormat,
 	Internals,
 	LogLevel,
+	OpenGlRenderer,
 	PixelFormat,
 	ProResProfile,
 } from 'remotion';
@@ -21,6 +22,8 @@ export type CommandLineOptions = {
 	['prores-profile']: ProResProfile;
 	['bundle-cache']: string;
 	['env-file']: string;
+	['ignore-certificate-errors']: string;
+	['disable-web-security']: string;
 	codec: Codec;
 	concurrency: number;
 	timeout: number;
@@ -37,10 +40,20 @@ export type CommandLineOptions = {
 	help: boolean;
 	port: number;
 	frame: string | number;
+	['disable-headless']: boolean;
+	gl: OpenGlRenderer;
 };
 
 export const parsedCli = minimist<CommandLineOptions>(process.argv.slice(2), {
-	boolean: ['force', 'overwrite', 'sequence', 'help'],
+	boolean: [
+		'force',
+		'overwrite',
+		'sequence',
+		'help',
+		'disable-web-security',
+		'ignore-certificate-errors',
+		'disable-headless',
+	],
 });
 
 export const parseCommandLine = (type: 'still' | 'sequence' | 'versions') => {
@@ -64,6 +77,22 @@ export const parseCommandLine = (type: 'still' | 'sequence' | 'versions') => {
 
 	if (typeof parsedCli['bundle-cache'] !== 'undefined') {
 		Config.Bundling.setCachingEnabled(parsedCli['bundle-cache'] !== 'false');
+	}
+
+	if (parsedCli['disable-web-security']) {
+		Config.Puppeteer.setChromiumDisableWebSecurity(true);
+	}
+
+	if (parsedCli['ignore-certificate-errors']) {
+		Config.Puppeteer.setChromiumIgnoreCertificateErrors(true);
+	}
+
+	if (parsedCli['disable-headless']) {
+		Config.Puppeteer.setChromiumHeadlessMode(false);
+	}
+
+	if (parsedCli.gl) {
+		Config.Puppeteer.setChromiumOpenGlRenderer(parsedCli.gl);
 	}
 
 	if (parsedCli.log) {

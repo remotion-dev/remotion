@@ -1,4 +1,5 @@
 import {RenderInternals} from '@remotion/renderer';
+import {ChromiumOptions} from '@remotion/renderer/src/open-browser';
 import fs from 'fs';
 import path from 'path';
 import {
@@ -198,6 +199,13 @@ export const getCliOptions = async (type: 'still' | 'series') => {
 	const browserExecutable = Internals.getBrowserExecutable();
 	const ffmpegExecutable = Internals.getCustomFfmpegExecutable();
 
+	const chromiumOptions: ChromiumOptions = {
+		disableWebSecurity: Internals.getChromiumDisableWebSecurity(),
+		ignoreCertificateErrors: Internals.getIgnoreCertificateErrors(),
+		headless: Internals.getChromiumHeadlessMode(),
+		gl: Internals.getChromiumOpenGlRenderer(),
+	};
+
 	return {
 		puppeteerTimeout: Internals.getCurrentPuppeteerTimeout(),
 		parallelism: Internals.getConcurrency(),
@@ -217,5 +225,6 @@ export const getCliOptions = async (type: 'still' | 'series') => {
 		stillFrame: Internals.getStillFrame(),
 		browserExecutable,
 		ffmpegExecutable,
+		chromiumOptions,
 	};
 };

@@ -48,6 +48,7 @@ export const still = async () => {
 		imageFormat,
 		stillFrame,
 		browserExecutable,
+		chromiumOptions,
 	} = await getCliOptions('still');
 
 	if (imageFormat === 'none') {
@@ -76,6 +77,7 @@ export const still = async () => {
 	const browserInstance = RenderInternals.openBrowser(browser, {
 		browserExecutable,
 		shouldDumpIo: Internals.Logging.isEqualOrBelowLogLevel('verbose'),
+		chromiumOptions,
 	});
 
 	mkdirSync(path.join(userOutput, '..'), {
@@ -93,6 +95,7 @@ export const still = async () => {
 		browserInstance: openedBrowser,
 		envVariables,
 		timeoutInMilliseconds: Internals.getCurrentPuppeteerTimeout(),
+		chromiumOptions,
 	});
 	const compositionId = getCompositionId(comps);
 
@@ -126,6 +129,8 @@ export const still = async () => {
 		puppeteerInstance: openedBrowser,
 		overwrite: Internals.getShouldOverwrite(),
 		timeoutInMilliseconds: Internals.getCurrentPuppeteerTimeout(),
+		chromiumOptions,
+		browserExecutable,
 	});
 
 	const closeBrowserPromise = openedBrowser.close();
