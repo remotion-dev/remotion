@@ -163,6 +163,22 @@ Config.Puppeteer.setChromiumIgnoreCertificateErrors(true);
 
 The [command line flag](/docs/cli#--ignore-certificate-errors) `--ignore-certificate-errors` will take precedence over this option.
 
+### setChromiumHeadlessMode()
+
+_Available from Version 2.6.5._
+
+By default `true`. Disabling it will open an actual Chrome window where you can see the render happen.
+
+```tsx twoslash
+import { Config } from "remotion";
+
+// ---cut---
+
+Config.Puppeteer.setChromiumHeadlessMode(false);
+```
+
+The [command line flag](/docs/cli#--headless) `--headless` will take precedence over this option.
+
 ## Rendering
 
 ### setConcurrency()

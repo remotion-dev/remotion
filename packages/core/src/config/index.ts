@@ -24,7 +24,9 @@ import {FfmpegExecutable, setFfmpegExecutable} from './ffmpeg-executable';
 import {setPuppeteerTimeout} from './timeout';
 import {
 	setChromiumDisableWebSecurity,
+	setChromiumHeadlessMode,
 	setChromiumIgnoreCertificateErrors,
+	setChromiumOpenGlRenderer,
 } from './chromium-flags';
 
 export const Config = {
@@ -86,6 +88,16 @@ export const Config = {
 		 * Default: false
 		 */
 		setChromiumIgnoreCertificateErrors,
+		/**
+		 * If false, will open an actual browser during rendering to observe progress.
+		 * Default: true
+		 */
+		setChromiumHeadlessMode,
+		/**
+		 * Set the OpenGL rendering backend for Chrome. Possible values: 'egl', 'angle' and 'swiftshader'.
+		 * Default: 'swiftshader' in Lambda, 'angle' elsewhere.
+		 */
+		setChromiumOpenGlRenderer,
 	},
 	Rendering: {
 		/**

@@ -164,6 +164,12 @@ _boolean - default `false`_
 
 Results in invalid SSL certificates, such as self-signed ones being ignored.
 
+#### `headless`
+
+_boolean - default `true`_
+
+If disabled, the render will open an actual Chrome window where you can see the render happen.
+
 ## Return value
 
 A promise with no value. If the render succeeded, the still has been saved to `output`. If the render failed, the promise rejects.

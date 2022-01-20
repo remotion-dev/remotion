@@ -7,10 +7,23 @@ import {
 	ensureLocalBrowser,
 	getLocalBrowserExecutable,
 } from './get-local-browser-executable';
+import {validateOpenGlRenderer} from 'remotion/src/validation/validate-opengl-renderer';
+
+const validRenderers = ['angle', 'egl', 'swiftshader'] as const;
+
+type OpenGlRenderer = typeof validRenderers[number];
 
 export type ChromiumOptions = {
 	ignoreCertificateErrors?: boolean;
 	disableWebSecurity?: boolean;
+	gl?: OpenGlRenderer;
+	headless?: boolean;
+};
+
+const getOpenGlRenderer = (option?: OpenGlRenderer): OpenGlRenderer => {
+	const renderer = option ?? 'angle';
+	validateOpenGlRenderer(renderer);
+	return renderer;
 };
 
 export const openBrowser = async (
@@ -37,11 +50,12 @@ export const openBrowser = async (
 		executablePath,
 		product: browser,
 		dumpio: options?.shouldDumpIo ?? false,
+		headless: options?.chromiumOptions?.headless ?? true,
 		args: [
 			'--no-sandbox',
 			'--disable-setuid-sandbox',
 			'--disable-dev-shm-usage',
-			'--use-gl=angle',
+			`--use-gl=${getOpenGlRenderer(options?.chromiumOptions?.gl)}`,
 			'--disable-background-media-suspend',
 			process.platform === 'linux' ? '--single-process' : null,
 			options?.chromiumOptions?.ignoreCertificateErrors
@@ -49,7 +63,7 @@ export const openBrowser = async (
 				: null,
 			...(options?.chromiumOptions?.disableWebSecurity
 				? [
-						'--ignore-certificate-errors',
+						'--disable-web-security',
 						'--user-data-dir=' +
 							(await fs.promises.mkdtemp(
 								path.join(os.tmpdir(), 'chrome-user-dir')

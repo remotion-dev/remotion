@@ -191,6 +191,13 @@ _available for `still`, `render` command_
 This will most notably disable CORS in Chrome among other security features.
 Available since v2.6.5.
 
+### `--headless`
+
+_available for `still`, `render` command_
+
+Enabled by default. Pass `--headless=false` to open an actual browser during rendering to observe the render.
+Available since v2.6.5.
+
 ### `--help`
 
 Print the list of available CLI commands and flags.
