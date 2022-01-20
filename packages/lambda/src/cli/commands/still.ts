@@ -48,7 +48,16 @@ export const stillCommand = async (args: string[]) => {
 
 	const outName = args[2] ?? null;
 
-	const cliOptions = await CliInternals.getCliOptions({
+	const {
+		chromiumOptions,
+		envVariables,
+		imageFormat,
+		inputProps,
+		logLevel,
+		puppeteerTimeout,
+		quality,
+		stillFrame,
+	} = await CliInternals.getCliOptions({
 		type: 'still',
 		isLambda: true,
 	});
@@ -64,17 +73,19 @@ export const stillCommand = async (args: string[]) => {
 	const res = await renderStillOnLambda({
 		functionName,
 		serveUrl,
-		inputProps: cliOptions.inputProps,
-		imageFormat: cliOptions.imageFormat as StillImageFormat,
+		inputProps,
+		imageFormat: imageFormat as StillImageFormat,
 		composition,
 		privacy,
 		region: getAwsRegion(),
 		maxRetries,
-		envVariables: cliOptions.envVariables,
-		frame: cliOptions.stillFrame,
-		quality: cliOptions.quality,
-		logLevel: cliOptions.logLevel,
+		envVariables,
+		frame: stillFrame,
+		quality,
+		logLevel,
 		outName: parsedLambdaCli['out-name'],
+		chromiumOptions,
+		timeoutInMilliseconds: puppeteerTimeout,
 	});
 
 	Log.verbose(

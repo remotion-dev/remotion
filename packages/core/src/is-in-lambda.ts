@@ -1,1 +1,2 @@
-export const isInLambda = () => Boolean(process?.env?.LAMBDA_TASK_ROOT);
+export const isInLambda = () =>
+	Boolean(typeof process !== 'undefined' && process?.env?.LAMBDA_TASK_ROOT);

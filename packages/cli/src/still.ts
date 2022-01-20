@@ -140,7 +140,6 @@ export const still = async () => {
 			imageFormat,
 			inputProps,
 			chromiumOptions,
-
 			timeoutInMilliseconds: Internals.getCurrentPuppeteerTimeout(),
 		});
 	} catch (err) {

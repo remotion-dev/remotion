@@ -1,3 +1,4 @@
+import {ChromiumOptions} from '@remotion/renderer/src/open-browser';
 import {
 	Codec,
 	FrameRange,
@@ -172,6 +173,7 @@ export type LambdaPayloads = {
 		frameRange: FrameRange | null;
 		outName: string | null;
 		timeoutInMilliseconds: number;
+		chromiumOptions: ChromiumOptions;
 	};
 	launch: {
 		type: LambdaRoutines.launch;
@@ -195,6 +197,7 @@ export type LambdaPayloads = {
 		frameRange: FrameRange | null;
 		outName: string | null;
 		timeoutInMilliseconds: number;
+		chromiumOptions: ChromiumOptions;
 	};
 	fire: {
 		type: LambdaRoutines.fire;
@@ -231,6 +234,7 @@ export type LambdaPayloads = {
 		attempt: number;
 		logLevel: LogLevel;
 		timeoutInMilliseconds: number;
+		chromiumOptions: ChromiumOptions;
 	};
 	still: {
 		type: LambdaRoutines.still;
@@ -244,9 +248,10 @@ export type LambdaPayloads = {
 		maxRetries: number;
 		frame: number;
 		privacy: Privacy;
-		logLevel?: LogLevel;
+		logLevel: LogLevel;
 		outName: string | null;
 		timeoutInMilliseconds: number;
+		chromiumOptions: ChromiumOptions;
 	};
 };
 

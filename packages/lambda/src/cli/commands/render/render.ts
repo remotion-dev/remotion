@@ -50,7 +50,21 @@ export const renderCommand = async (args: string[]) => {
 
 	const outName = args[2] ?? null;
 
-	const cliOptions = await CliInternals.getCliOptions({
+	const {
+		chromiumOptions,
+		codec,
+		crf,
+		envVariables,
+		frameRange,
+		framesPerLambda,
+		imageFormat,
+		inputProps,
+		logLevel,
+		pixelFormat,
+		proResProfile,
+		puppeteerTimeout,
+		quality,
+	} = await CliInternals.getCliOptions({
 		type: 'series',
 		isLambda: true,
 	});
@@ -67,23 +81,25 @@ export const renderCommand = async (args: string[]) => {
 	const res = await renderMediaOnLambda({
 		functionName,
 		serveUrl,
-		inputProps: cliOptions.inputProps,
-		codec: cliOptions.codec as 'h264-mkv' | 'mp3' | 'aac' | 'wav',
-		imageFormat: cliOptions.imageFormat,
-		crf: cliOptions.crf ?? undefined,
-		envVariables: cliOptions.envVariables,
-		pixelFormat: cliOptions.pixelFormat,
-		proResProfile: cliOptions.proResProfile,
-		quality: cliOptions.quality,
+		inputProps,
+		codec: codec as 'h264-mkv' | 'mp3' | 'aac' | 'wav',
+		imageFormat,
+		crf: crf ?? undefined,
+		envVariables,
+		pixelFormat,
+		proResProfile,
+		quality,
 		region,
 		maxRetries,
 		composition,
-		framesPerLambda: cliOptions.framesPerLambda ?? DEFAULT_FRAMES_PER_LAMBDA,
+		framesPerLambda: framesPerLambda ?? DEFAULT_FRAMES_PER_LAMBDA,
 		privacy,
-		logLevel: cliOptions.logLevel,
+		logLevel,
 		enableChunkOptimization: !parsedLambdaCli['disable-chunk-optimization'],
-		frameRange: cliOptions.frameRange ?? undefined,
+		frameRange: frameRange ?? undefined,
 		outName: parsedLambdaCli['out-name'],
+		timeoutInMilliseconds: puppeteerTimeout,
+		chromiumOptions,
 	});
 
 	const totalSteps = outName ? 5 : 4;

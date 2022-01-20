@@ -1,4 +1,5 @@
 import {openBrowser} from '@remotion/renderer';
+import {ChromiumOptions} from '@remotion/renderer/src/open-browser';
 import {Await} from '../../shared/await';
 import {executablePath} from './get-chromium-executable-path';
 
@@ -23,7 +24,8 @@ const waitForLaunched = () => {
 };
 
 export const getBrowserInstance = async (
-	shouldDumpIo: boolean
+	shouldDumpIo: boolean,
+	chromiumOptions: ChromiumOptions
 ): ReturnType<typeof openBrowser> => {
 	if (launching) {
 		await waitForLaunched();
@@ -44,6 +46,7 @@ export const getBrowserInstance = async (
 	_browserInstance = await openBrowser('chrome', {
 		browserExecutable: execPath,
 		shouldDumpIo,
+		chromiumOptions,
 	});
 	_browserInstance.on('disconnected', () => {
 		console.log('Browser disconnected / crashed');

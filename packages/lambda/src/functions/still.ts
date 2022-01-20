@@ -56,7 +56,8 @@ const innerStillHandler = async (
 			Internals.Logging.isEqualOrBelowLogLevel(
 				lambdaParams.logLevel ?? Internals.Logging.DEFAULT_LOG_LEVEL,
 				'verbose'
-			)
+			),
+			lambdaParams.chromiumOptions ?? {}
 		),
 	]);
 	const outputDir = OUTPUT_PATH_PREFIX + randomHash();
@@ -118,6 +119,7 @@ const innerStillHandler = async (
 		overwrite: false,
 		puppeteerInstance: browserInstance,
 		quality: lambdaParams.quality,
+		chromiumOptions: lambdaParams.chromiumOptions,
 	});
 
 	const outName = getExpectedOutName(renderMetadata);
