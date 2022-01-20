@@ -146,6 +146,7 @@ import {
 } from './config/chromium-flags';
 import {validateOpenGlRenderer} from './validation/validate-opengl-renderer';
 import {OpenGlRenderer} from './validation/validate-opengl-renderer';
+import {isInLambda} from './is-in-lambda';
 const Timeline = {...TimelinePosition, ...TimelineInOutPosition};
 
 // Mark them as Internals so use don't assume this is public
@@ -227,7 +228,7 @@ export const Internals = {
 	invalidCompositionErrorMessage,
 	isCompositionIdValid,
 	DEFAULT_OVERWRITE,
-	isInLambda: () => Boolean(process?.env?.LAMBDA_TASK_ROOT),
+	isInLambda,
 	AssetCompression,
 	defaultOverrideFunction,
 	DEFAULT_PUPPETEER_TIMEOUT,
