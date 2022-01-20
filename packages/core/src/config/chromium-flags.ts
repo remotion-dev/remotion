@@ -7,6 +7,6 @@ export const setChromiumDisableWebSecurity = (should: boolean) => {
 	chromiumDisableWebSecurity = should;
 };
 
-export const setIgnoreCertificateErrors = (should: boolean) => {
+export const setChromiumIgnoreCertificateErrors = (should: boolean) => {
 	ignoreCertificateErrors = should;
 };

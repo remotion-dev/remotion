@@ -56,3 +56,4 @@ export const webpackOverride: WebpackOverrideFn = (currentConfiguration) => {
 };
 
 Config.Bundling.overrideWebpackConfig(webpackOverride);
+Config.Puppeteer.setChromiumIgnoreCertificateErrors(true);

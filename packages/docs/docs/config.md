@@ -131,6 +131,38 @@ Config.Puppeteer.setTimeoutInMilliseconds(60000);
 
 The [command line flag](/docs/cli#--timeout) `--timeout` will take precedence over this option.
 
+### setChromiumDisableWebSecurity()
+
+_Available from Version 2.6.5._
+
+This will most notably disable CORS among other security features.
+
+```tsx twoslash
+import { Config } from "remotion";
+
+// ---cut---
+
+Config.Puppeteer.setChromiumDisableWebSecurity(true);
+```
+
+The [command line flag](/docs/cli#--disable-web-security) `--disable-web-security` will take precedence over this option.
+
+### setChromiumIgnoreCertificateErrors()
+
+_Available from Version 2.6.5._
+
+Results in invalid SSL certificates, such as self-signed ones being ignored.
+
+```tsx twoslash
+import { Config } from "remotion";
+
+// ---cut---
+
+Config.Puppeteer.setChromiumIgnoreCertificateErrors(true);
+```
+
+The [command line flag](/docs/cli#--ignore-certificate-errors) `--ignore-certificate-errors` will take precedence over this option.
+
 ## Rendering
 
 ### setConcurrency()
