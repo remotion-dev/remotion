@@ -27,6 +27,7 @@ const getEnhancedFrames = async (
 	frames: StackFrame[];
 	type: 'exception' | 'syntax';
 }> => {
+	console.log({error});
 	if (error.__unmap_source) {
 		return {
 			frames: await unmap(error.__unmap_source, parsedFrames, contextSize),

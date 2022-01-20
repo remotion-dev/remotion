@@ -4,7 +4,7 @@ import {ErrorRecord, listenToRuntimeErrors} from './listen-to-runtime-errors';
 let stopListeningToRuntimeErrors: null | (() => void) = null;
 type RuntimeReportingOptions = {
 	onError: () => void;
-	filename?: string;
+	filename: string;
 };
 
 let currentRuntimeErrorRecords: ErrorRecord[] = [];
@@ -25,8 +25,9 @@ export function startReportingRuntimeErrors(options: RuntimeReportingOptions) {
 	const handleRuntimeError =
 		(opts: RuntimeReportingOptions) => (errorRecord: ErrorRecord) => {
 			try {
+				console.log({errorRecord});
 				if (typeof opts.onError === 'function') {
-					opts.onError.call(null);
+					opts.onError();
 				}
 			} finally {
 				if (
@@ -54,6 +55,6 @@ export function startReportingRuntimeErrors(options: RuntimeReportingOptions) {
 
 	stopListeningToRuntimeErrors = listenToRuntimeErrors(
 		handleRuntimeError(options),
-		options.filename as string
+		options.filename
 	);
 }

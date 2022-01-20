@@ -48,7 +48,9 @@ export const StackElement: React.FC<{
 		<div>
 			<div style={header}>
 				<div style={left}>
-					<div style={fnName}>{s.functionName ?? defaultFunctionName}</div>
+					<div style={fnName}>
+						{s.functionName ?? s._originalFunctionName ?? defaultFunctionName}
+					</div>
 					{s._originalFileName ? (
 						<div style={location}>
 							{formatLocation(s._originalFileName as string)}:
