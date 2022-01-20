@@ -1,13 +1,15 @@
 import {Browser, Page} from 'puppeteer-core';
 import {BrowserExecutable, Internals} from 'remotion';
-import {openBrowser} from './open-browser';
+import {ChromiumOptions, openBrowser} from './open-browser';
 
 export const getPageAndCleanupFn = async ({
 	passedInInstance,
 	browserExecutable,
+	chromiumOptions,
 }: {
 	passedInInstance: Browser | undefined;
 	browserExecutable: BrowserExecutable | null;
+	chromiumOptions: ChromiumOptions;
 }): Promise<{
 	cleanup: () => void;
 	page: Page;
@@ -28,6 +30,7 @@ export const getPageAndCleanupFn = async ({
 
 	const browserInstance = await openBrowser(Internals.DEFAULT_BROWSER, {
 		browserExecutable,
+		chromiumOptions,
 	});
 	const browserPage = await browserInstance.newPage();
 
