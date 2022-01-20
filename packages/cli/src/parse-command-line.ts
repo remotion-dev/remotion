@@ -64,7 +64,7 @@ export const BooleanFlags = [
 	'y',
 	'disable-web-security',
 	'ignore-certificate-errors',
-	'headless',
+	'disable-headless',
 ];
 
 export const parsedCli = minimist<CommandLineOptions>(process.argv.slice(2), {
