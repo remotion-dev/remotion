@@ -55,6 +55,7 @@ export const still = async () => {
 		imageFormat,
 		stillFrame,
 		browserExecutable,
+		chromiumOptions,
 	} = await getCliOptions({isLambda: false, type: 'still'});
 
 	if (imageFormat === 'none') {
@@ -82,6 +83,8 @@ export const still = async () => {
 
 	const browserInstance = openBrowser(browser, {
 		browserExecutable,
+		chromiumOptions,
+
 		shouldDumpIo: Internals.Logging.isEqualOrBelowLogLevel(
 			Internals.Logging.getLogLevel(),
 			'verbose'
@@ -110,6 +113,7 @@ export const still = async () => {
 		puppeteerInstance,
 		envVariables,
 		timeoutInMilliseconds: Internals.getCurrentPuppeteerTimeout(),
+		chromiumOptions,
 	});
 	const compositionId = getCompositionId(comps);
 
@@ -135,6 +139,8 @@ export const still = async () => {
 			envVariables,
 			imageFormat,
 			inputProps,
+			chromiumOptions,
+
 			timeoutInMilliseconds: Internals.getCurrentPuppeteerTimeout(),
 		});
 	} catch (err) {

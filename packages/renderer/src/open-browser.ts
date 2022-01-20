@@ -1,3 +1,6 @@
+import os from 'os';
+import path from 'path';
+import fs from 'fs';
 import puppeteer from 'puppeteer-core';
 import {Browser, Internals} from 'remotion';
 import {
@@ -5,11 +8,29 @@ import {
 	getLocalBrowserExecutable,
 } from './get-local-browser-executable';
 
+const validRenderers = ['angle', 'egl', 'swiftshader'] as const;
+
+type OpenGlRenderer = typeof validRenderers[number];
+
+export type ChromiumOptions = {
+	ignoreCertificateErrors?: boolean;
+	disableWebSecurity?: boolean;
+	gl?: OpenGlRenderer;
+	headless?: boolean;
+};
+
+const getOpenGlRenderer = (option?: OpenGlRenderer): OpenGlRenderer => {
+	const renderer = option ?? Internals.DEFAULT_OPENGL_RENDERER;
+	Internals.validateOpenGlRenderer(renderer);
+	return renderer;
+};
+
 export const openBrowser = async (
 	browser: Browser,
 	options?: {
 		shouldDumpIo?: boolean;
 		browserExecutable?: string | null;
+		chromiumOptions?: ChromiumOptions;
 	}
 ): Promise<puppeteer.Browser> => {
 	if (browser === 'firefox' && !Internals.FEATURE_FLAG_FIREFOX_SUPPORT) {
@@ -28,11 +49,11 @@ export const openBrowser = async (
 		executablePath,
 		product: browser,
 		dumpio: options?.shouldDumpIo ?? false,
+		headless: options?.chromiumOptions?.headless ?? true,
 		args: [
 			'--no-sandbox',
 			'--disable-setuid-sandbox',
 			'--disable-dev-shm-usage',
-			Internals.isInLambda() ? '--use-gl=swiftshader' : '--use-gl=angle',
 			'--disable-background-media-suspend',
 			process.platform === 'linux' ? '--single-process' : null,
 			'--allow-running-insecure-content', // https://source.chromium.org/search?q=lang:cpp+symbol:kAllowRunningInsecureContent&ss=chromium
@@ -46,6 +67,20 @@ export const openBrowser = async (
 			'--no-default-browser-check', // https://source.chromium.org/search?q=lang:cpp+symbol:kNoDefaultBrowserCheck&ss=chromium
 			'--no-pings', // https://source.chromium.org/search?q=lang:cpp+symbol:kNoPings&ss=chromium
 			'--no-zygote', // https://source.chromium.org/search?q=lang:cpp+symbol:kNoZygote&ss=chromium,
+			`--use-gl=${getOpenGlRenderer(options?.chromiumOptions?.gl)}`,
+			'--disable-background-media-suspend',
+			options?.chromiumOptions?.ignoreCertificateErrors
+				? '--ignore-certificate-errors'
+				: null,
+			...(options?.chromiumOptions?.disableWebSecurity
+				? [
+						'--disable-web-security',
+						'--user-data-dir=' +
+							(await fs.promises.mkdtemp(
+								path.join(os.tmpdir(), 'chrome-user-dir')
+							)),
+				  ]
+				: []),
 		].filter(Boolean) as string[],
 	});
 	const pages = await browserInstance.pages();

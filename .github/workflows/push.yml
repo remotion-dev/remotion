@@ -88,6 +88,9 @@ jobs:
             ffmpeg_version: 4.4
           - os: ubuntu-latest
             node_version: 14
+            ffmpeg_version: 5.0
+          - os: ubuntu-latest
+            node_version: 14
             ffmpeg_version: 4.1
     steps:
       - uses: actions/checkout@main
@@ -97,7 +100,7 @@ jobs:
       - uses: Iamshankhadeep/setup-ffmpeg@v1.1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          version: ${{ matrix.versionffmpeg_version }}
+          version: ${{ matrix.ffmpeg_version }}
 
       - name: Cache .pnpm-store
         uses: actions/cache@v1

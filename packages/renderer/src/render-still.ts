@@ -13,7 +13,7 @@ import {
 	ServeUrlOrWebpackBundle,
 } from './legacy-webpack-config';
 import {normalizeServeUrl} from './normalize-serve-url';
-import {openBrowser} from './open-browser';
+import {ChromiumOptions, openBrowser} from './open-browser';
 import {prepareServer} from './prepare-server';
 import {provideScreenshot} from './provide-screenshot';
 import {seekToFrame} from './seek-to-frame';
@@ -33,6 +33,7 @@ type InnerStillOptions = {
 	overwrite?: boolean;
 	browserExecutable?: BrowserExecutable;
 	timeoutInMilliseconds?: number;
+	chromiumOptions?: ChromiumOptions;
 };
 
 export type RenderStillOptions = InnerStillOptions & ServeUrlOrWebpackBundle;
@@ -52,6 +53,7 @@ const innerRenderStill = async ({
 	overwrite = true,
 	browserExecutable,
 	timeoutInMilliseconds,
+	chromiumOptions,
 }: InnerStillOptions & {
 	serveUrl: string;
 	onError: (err: Error) => void;
@@ -115,6 +117,7 @@ const innerRenderStill = async ({
 		(await openBrowser(Internals.DEFAULT_BROWSER, {
 			browserExecutable,
 			shouldDumpIo: dumpBrowserLogs,
+			chromiumOptions,
 		}));
 	const page = await browserInstance.newPage();
 	page.setViewport({

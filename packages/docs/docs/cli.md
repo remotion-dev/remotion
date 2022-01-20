@@ -178,6 +178,32 @@ _available for `still`, `render` command_
 
 Define how long a single frame may take to resolve all [`delayRender()`](/docs/delay-render) calls before it times out. Default: `30000`
 
+### `--ignore-certificate-errors`
+
+_available for `still`, `render` command_
+
+Results in invalid SSL certificates in Chrome, such as self-signed ones being ignored. Available since v2.6.5.
+
+### `--disable-web-security`
+
+_available for `still`, `render` command_
+
+This will most notably disable CORS in Chrome among other security features.
+Available since v2.6.5.
+
+### `--headless`
+
+_available for `still`, `render` command_
+
+Enabled by default. Pass `--headless=false` to open an actual browser during rendering to observe the render.
+Available since v2.6.5.
+
+### `--gl`
+
+_available for `still`, `render` command_
+
+Select the OpenGL renderer backend for Chromium. Accepted values: `angle`, `egl`, `swiftshader`. Default: `angle`. Available since v2.6.5.
+
 ### `--help`
 
 Print the list of available CLI commands and flags.
@@ -190,7 +216,7 @@ npx remotion render --codec=vp8 src/index.tsx HelloWorld out/video.webm
 
 ## Fig.io autocompletion
 
-Fig adds visual apps, shortcuts, and autocomplete to your existing Terminal. The remotion autocompletion is available on Fig, try i with `npx remotion`, `remotion`, `yarn create video`. Useful if you have a memory lapse.
+Install [Fig](https://fig.io) (macOS only) to add Remotion autocomplete to your terminal. Type `npx remotion` to start get suggestions.
 
 ## See also
 

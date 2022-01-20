@@ -28,7 +28,7 @@ import {
 } from './legacy-webpack-config';
 import {makeAssetsDownloadTmpDir} from './make-assets-download-dir';
 import {normalizeServeUrl} from './normalize-serve-url';
-import {openBrowser} from './open-browser';
+import {ChromiumOptions, openBrowser} from './open-browser';
 import {Pool} from './pool';
 import {prepareServer} from './prepare-server';
 import {provideScreenshot} from './provide-screenshot';
@@ -64,6 +64,7 @@ type RenderFramesOptions = {
 	onFrameBuffer?: (buffer: Buffer, frame: number) => void;
 	onDownload?: RenderMediaOnDownload;
 	timeoutInMilliseconds?: number;
+	chromiumOptions?: ChromiumOptions;
 } & ConfigOrComposition &
 	ServeUrlOrWebpackBundle;
 
@@ -347,6 +348,7 @@ export const renderFrames = async (
 		(await openBrowser(Internals.DEFAULT_BROWSER, {
 			shouldDumpIo: options.dumpBrowserLogs,
 			browserExecutable: options.browserExecutable,
+			chromiumOptions: options.chromiumOptions,
 		}));
 	const {stopCycling} = cycleBrowserTabs(browserInstance);
 

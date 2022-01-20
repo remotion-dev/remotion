@@ -51,6 +51,7 @@ export const render = async () => {
 		imageFormat,
 		browserExecutable,
 		ffmpegExecutable,
+		chromiumOptions,
 	} = await getCliOptions({isLambda: false, type: 'series'});
 
 	if (!absoluteOutputFile) {
@@ -69,6 +70,7 @@ export const render = async () => {
 			Internals.Logging.getLogLevel(),
 			'verbose'
 		),
+		chromiumOptions,
 	});
 
 	const steps: RenderStep[] = [
@@ -91,6 +93,8 @@ export const render = async () => {
 		puppeteerInstance,
 		envVariables,
 		timeoutInMilliseconds: Internals.getCurrentPuppeteerTimeout(),
+		chromiumOptions,
+		browserExecutable,
 	});
 	const compositionId = getCompositionId(comps);
 
