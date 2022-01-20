@@ -44,7 +44,7 @@ export type CommandLineOptions = {
 	port: number;
 	frame: string | number;
 	siteName: string;
-	headless: boolean;
+	['disable-headless']: boolean;
 	gl: OpenGlRenderer;
 };
 
@@ -104,7 +104,7 @@ export const parseCommandLine = (
 		Config.Puppeteer.setChromiumIgnoreCertificateErrors(true);
 	}
 
-	if (parsedCli.headless === false) {
+	if (parsedCli['disable-headless']) {
 		Config.Puppeteer.setChromiumHeadlessMode(false);
 	}
 

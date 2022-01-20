@@ -59,9 +59,9 @@ import { Config } from "remotion";
 Config.Puppeteer.setChromiumIgnoreCertificateErrors(true);
 ```
 
-## `--headless`
+## `--disable-headless`
 
-By default `true`. Disabling it will open an actual Chrome window where you can see the render happen.
+Setting this flag will open an actual Chrome during render where you can see the render happen.
 
 ### Enabling in Node.JS APIs
 
@@ -69,7 +69,7 @@ In [`getCompositions()`](/docs/get-compositions), [`renderStill()`](/docs/render
 
 ### Enabling via CLI
 
-Pass [`--headless=false`](/docs/cli#headless) in a `remotion render` or `remotion still` command.
+Pass [`--disable-headless`](/docs/cli#--disable-headless) in a `remotion render` or `remotion still` command.
 
 ### Enabling via config file
 
