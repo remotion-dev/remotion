@@ -79,7 +79,15 @@ export function listenToRuntimeErrors(
 	const crashWithFramesRunTime = crashWithFrames(crash);
 
 	registerError(window, (error) => {
-		return crashWithFramesRunTime(error, false);
+		return crashWithFramesRunTime(
+			{
+				message: error.message,
+				stack: error.stack,
+				__unmap_source: filename,
+				name: error.name,
+			},
+			false
+		);
 	});
 	registerPromise(window, (error) => {
 		return crashWithFramesRunTime(error, true);
@@ -90,6 +98,7 @@ export function listenToRuntimeErrors(
 		if (d.type === 'webpack-error') {
 			const {message, frames} = d;
 			const data = massageWarning(message, frames);
+
 			crashWithFramesRunTime(
 				{
 					message: data.message,

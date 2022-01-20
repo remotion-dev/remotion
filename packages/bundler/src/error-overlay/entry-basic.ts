@@ -6,6 +6,8 @@ import {
 import {mountRemotionOverlay} from './remotion-overlay';
 import {setErrorsRef} from './remotion-overlay/Overlay';
 
+console.log(__filename);
+
 startReportingRuntimeErrors({
 	onError() {
 		if (module.hot) {
@@ -23,5 +25,7 @@ startReportingRuntimeErrors({
 			});
 		}
 	},
+	// TODO: Adapt to dynamic base in Lambda
+	filename: '/bundle.js',
 });
 mountRemotionOverlay();

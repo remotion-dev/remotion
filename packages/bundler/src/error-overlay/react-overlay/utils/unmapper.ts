@@ -49,7 +49,14 @@ async function unmap(
 	}
 
 	const map = await getSourceMap(fileUri, fileContents as string);
+	console.log({map, fileContents, frames});
+
 	return frames.map((frame) => {
+		const pos = map.getOriginalPosition(
+			frame.lineNumber as number,
+			frame.columnNumber as number
+		);
+		console.log(map.getSource(pos.source).split('\n')[pos.line - 1]);
 		const {functionName, lineNumber, columnNumber, _originalLineNumber} = frame;
 		if (_originalLineNumber != null) {
 			return frame;
