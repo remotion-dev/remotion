@@ -1,6 +1,6 @@
 import {Browser as PuppeteerBrowser, Page} from 'puppeteer-core';
 import {Browser, BrowserExecutable, Internals, TCompMetadata} from 'remotion';
-import {openBrowser} from './open-browser';
+import {ChromiumOptions, openBrowser} from './open-browser';
 import {serveStatic} from './serve-static';
 import {setPropsAndEnv} from './set-props-and-env';
 import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
@@ -12,16 +12,19 @@ type GetCompositionsConfig = {
 	browserInstance?: PuppeteerBrowser;
 	browserExecutable?: BrowserExecutable;
 	timeoutInMilliseconds?: number;
+	chromiumOptions?: ChromiumOptions;
 };
 
 const getPageAndCleanupFn = async ({
 	passedInInstance,
 	browser,
 	browserExecutable,
+	chromiumOptions,
 }: {
 	passedInInstance: PuppeteerBrowser | undefined;
 	browser: Browser;
 	browserExecutable: BrowserExecutable | null;
+	chromiumOptions?: ChromiumOptions;
 }): Promise<{
 	cleanup: () => void;
 	page: Page;
@@ -44,6 +47,7 @@ const getPageAndCleanupFn = async ({
 		browser || Internals.DEFAULT_BROWSER,
 		{
 			browserExecutable,
+			chromiumOptions,
 		}
 	);
 	const browserPage = await browserInstance.newPage();

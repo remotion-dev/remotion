@@ -132,6 +132,10 @@ import {
 	getCurrentPuppeteerTimeout,
 	setPuppeteerTimeout,
 } from './config/timeout';
+import {
+	getChromiumDisableWebSecurity,
+	getIgnoreCertificateErrors,
+} from './config/chromium-flags';
 const Timeline = {...TimelinePosition, ...TimelineInOutPosition};
 
 // Mark them as Internals so use don't assume this is public
@@ -216,6 +220,8 @@ export const Internals = {
 	setupPuppeteerTimeout,
 	setPuppeteerTimeout,
 	getCurrentPuppeteerTimeout,
+	getChromiumDisableWebSecurity,
+	getIgnoreCertificateErrors,
 };
 
 export type {

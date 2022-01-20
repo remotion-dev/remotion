@@ -67,6 +67,8 @@ export const render = async () => {
 		imageFormat,
 		browserExecutable,
 		ffmpegExecutable,
+		chromiumDisableWebSecurity,
+		chromiumIgnoreCertificateErrors,
 	} = await getCliOptions('series');
 
 	await checkAndValidateFfmpegVersion({
@@ -76,6 +78,10 @@ export const render = async () => {
 	const browserInstance = RenderInternals.openBrowser(browser, {
 		browserExecutable,
 		shouldDumpIo: Internals.Logging.isEqualOrBelowLogLevel('verbose'),
+		chromiumOptions: {
+			disableWebSecurity: chromiumDisableWebSecurity,
+			ignoreCertificateErrors: chromiumIgnoreCertificateErrors,
+		},
 	});
 	if (shouldOutputImageSequence) {
 		fs.mkdirSync(absoluteOutputFile, {
@@ -94,6 +100,11 @@ export const render = async () => {
 		browserInstance: openedBrowser,
 		envVariables,
 		timeoutInMilliseconds: Internals.getCurrentPuppeteerTimeout(),
+		chromiumOptions: {
+			disableWebSecurity: chromiumDisableWebSecurity,
+			ignoreCertificateErrors: chromiumIgnoreCertificateErrors,
+		},
+		browserExecutable,
 	});
 	const compositionId = getCompositionId(comps);
 

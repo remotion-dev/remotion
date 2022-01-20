@@ -217,5 +217,7 @@ export const getCliOptions = async (type: 'still' | 'series') => {
 		stillFrame: Internals.getStillFrame(),
 		browserExecutable,
 		ffmpegExecutable,
+		chromiumDisableWebSecurity: Internals.getChromiumDisableWebSecurity(),
+		chromiumIgnoreCertificateErrors: Internals.getIgnoreCertificateErrors(),
 	};
 };

@@ -8,15 +8,17 @@ import {
 	getLocalBrowserExecutable,
 } from './get-local-browser-executable';
 
+export type ChromiumOptions = {
+	ignoreCertificateErrors?: boolean;
+	disableWebSecurity?: boolean;
+};
+
 export const openBrowser = async (
 	browser: Browser,
 	options?: {
 		shouldDumpIo?: boolean;
 		browserExecutable?: string | null;
-		chromiumOptions?: {
-			ignoreCertificateErrors?: boolean;
-			disableWebSecurity?: boolean;
-		};
+		chromiumOptions?: ChromiumOptions;
 	}
 ): Promise<puppeteer.Browser> => {
 	if (browser === 'firefox' && !Internals.FEATURE_FLAG_FIREFOX_SUPPORT) {

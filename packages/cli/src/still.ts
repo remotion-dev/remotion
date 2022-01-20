@@ -48,6 +48,8 @@ export const still = async () => {
 		imageFormat,
 		stillFrame,
 		browserExecutable,
+		chromiumDisableWebSecurity,
+		chromiumIgnoreCertificateErrors,
 	} = await getCliOptions('still');
 
 	if (imageFormat === 'none') {
@@ -76,6 +78,10 @@ export const still = async () => {
 	const browserInstance = RenderInternals.openBrowser(browser, {
 		browserExecutable,
 		shouldDumpIo: Internals.Logging.isEqualOrBelowLogLevel('verbose'),
+		chromiumOptions: {
+			disableWebSecurity: chromiumDisableWebSecurity,
+			ignoreCertificateErrors: chromiumIgnoreCertificateErrors,
+		},
 	});
 
 	mkdirSync(path.join(userOutput, '..'), {
@@ -93,6 +99,10 @@ export const still = async () => {
 		browserInstance: openedBrowser,
 		envVariables,
 		timeoutInMilliseconds: Internals.getCurrentPuppeteerTimeout(),
+		chromiumOptions: {
+			disableWebSecurity: chromiumDisableWebSecurity,
+			ignoreCertificateErrors: chromiumIgnoreCertificateErrors,
+		},
 	});
 	const compositionId = getCompositionId(comps);
 
@@ -126,6 +136,11 @@ export const still = async () => {
 		puppeteerInstance: openedBrowser,
 		overwrite: Internals.getShouldOverwrite(),
 		timeoutInMilliseconds: Internals.getCurrentPuppeteerTimeout(),
+		chromiumOptions: {
+			disableWebSecurity: chromiumDisableWebSecurity,
+			ignoreCertificateErrors: chromiumIgnoreCertificateErrors,
+		},
+		browserExecutable,
 	});
 
 	const closeBrowserPromise = openedBrowser.close();

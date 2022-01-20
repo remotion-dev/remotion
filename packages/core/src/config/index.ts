@@ -22,6 +22,10 @@ import {setQuality} from './quality';
 import {setWebpackCaching} from './webpack-caching';
 import {FfmpegExecutable, setFfmpegExecutable} from './ffmpeg-executable';
 import {setPuppeteerTimeout} from './timeout';
+import {
+	setChromiumDisableWebSecurity,
+	setIgnoreCertificateErrors,
+} from './chromium-flags';
 
 export const Config = {
 	Preview: {
@@ -72,6 +76,16 @@ export const Config = {
 		 * Default: `30000`
 		 */
 		setTimeoutInMilliseconds: setPuppeteerTimeout,
+		/**
+		 * Setting deciding whether to disable CORS and other Chrome security features.
+		 * Default: false
+		 */
+		setChromiumDisableWebSecurity,
+		/**
+		 * Setting whether to ignore any invalid SSL certificates, such as self-signed ones.
+		 * Default: false
+		 */
+		setIgnoreCertificateErrors,
 	},
 	Rendering: {
 		/**
