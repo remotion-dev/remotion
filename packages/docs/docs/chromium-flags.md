@@ -15,6 +15,8 @@ Remotion will automatically append the `--user-data-dir` flag.
 
 ### Enabling in Node.JS APIs
 
+<!-- TODO: Adapt for lambda -->
+
 In [`getCompositions()`](/docs/get-compositions), [`renderStill()`](/docs/render-still) and [`renderFrames()`](/docs/render-frames), you can pass [`chromiumOptions.disableWebSecurity`](/docs/render-still#disablewebsecurity).
 
 ### Enabling via CLI
@@ -61,15 +63,15 @@ Config.Puppeteer.setChromiumIgnoreCertificateErrors(true);
 
 By default `true`. Disabling it will open an actual Chrome window where you can see the render happen.
 
-## Enabling in Node.JS APIs
+### Enabling in Node.JS APIs
 
 In [`getCompositions()`](/docs/get-compositions), [`renderStill()`](/docs/render-still) and [`renderFrames()`](/docs/render-frames), you can pass [`chromiumOptions.headless`](/docs/render-still#headless).
 
-## Enabling via CLI
+### Enabling via CLI
 
 Pass [`--headless=false`](/docs/cli#headless) in a `remotion render` or `remotion still` command.
 
-## Enabling via config file
+### Enabling via config file
 
 Use [setChromiumHeadlessMode()](/docs/config#setchromiumheadlessmode).
 
@@ -79,4 +81,28 @@ import { Config } from "remotion";
 // ---cut---
 
 Config.Puppeteer.setChromiumHeadlessMode(false);
+```
+
+## `--gl`
+
+<!-- TODO: Update for lambda -->
+
+Select the OpenGL renderer backend for Chromium. Accepted values: `angle`, `egl`, `swiftshader`. Default: `angle`.
+
+### Enabling in Node.JS APIs
+
+In [`getCompositions()`](/docs/get-compositions), [`renderStill()`](/docs/render-still) and [`renderFrames()`](/docs/render-frames), you can pass [`chromiumOptions.gl`](/docs/render-still#gl).
+
+### Enabling via CLI
+
+Pass [`--gl=swiftshader`](/docs/cli#gl) in a `remotion render` or `remotion still` command.
+
+### Enabling via config file
+
+```tsx twoslash
+import { Config } from "remotion";
+
+// ---cut---
+
+Config.Puppeteer.setChromiumOpenGlRenderer("swiftshader");
 ```

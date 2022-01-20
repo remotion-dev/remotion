@@ -11,6 +11,8 @@ import {
 	PixelFormat,
 	ProResProfile,
 } from 'remotion';
+import {OpenGlRenderer} from 'remotion/src/validation/validate-opengl-renderer';
+import {ContextReplacementPlugin} from 'webpack';
 import {Log} from './log';
 
 export type CommandLineOptions = {
@@ -39,6 +41,8 @@ export type CommandLineOptions = {
 	help: boolean;
 	port: number;
 	frame: string | number;
+	headless: boolean;
+	gl: OpenGlRenderer;
 };
 
 export const parsedCli = minimist<CommandLineOptions>(process.argv.slice(2), {
@@ -49,6 +53,7 @@ export const parsedCli = minimist<CommandLineOptions>(process.argv.slice(2), {
 		'help',
 		'disable-web-security',
 		'ignore-certificate-errors',
+		'headless',
 	],
 });
 
@@ -81,6 +86,14 @@ export const parseCommandLine = (type: 'still' | 'sequence' | 'versions') => {
 
 	if (parsedCli['ignore-certificate-errors']) {
 		Config.Puppeteer.setChromiumIgnoreCertificateErrors(true);
+	}
+
+	if (parsedCli.headless === false) {
+		Config.Puppeteer.setChromiumHeadlessMode(false);
+	}
+
+	if (parsedCli.gl) {
+		Config.Puppeteer.setChromiumOpenGlRenderer(parsedCli.gl);
 	}
 
 	if (parsedCli.log) {

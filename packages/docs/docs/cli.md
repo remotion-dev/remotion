@@ -198,6 +198,12 @@ _available for `still`, `render` command_
 Enabled by default. Pass `--headless=false` to open an actual browser during rendering to observe the render.
 Available since v2.6.5.
 
+### `--gl`
+
+_available for `still`, `render` command_
+
+Select the OpenGL renderer backend for Chromium. Accepted values: `angle`, `egl`, `swiftshader`. Default: `angle`. Available since v2.6.5.
+
 ### `--help`
 
 Print the list of available CLI commands and flags.
