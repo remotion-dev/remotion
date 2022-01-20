@@ -52,7 +52,7 @@ export const parsedCli = minimist<CommandLineOptions>(process.argv.slice(2), {
 		'help',
 		'disable-web-security',
 		'ignore-certificate-errors',
-		'headless',
+		'disable-headless',
 	],
 });
 
