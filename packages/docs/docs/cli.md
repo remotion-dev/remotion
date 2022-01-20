@@ -182,7 +182,7 @@ Define how long a single frame may take to resolve all [`delayRender()`](/docs/d
 
 _available for `still`, `render` command_
 
-Results in invalid SSL certificates in Chrome, such as self-signed ones being ignored. Available since v2.6.5.
+Results in invalid SSL certificates in Chrome, such as self-signed ones, being ignored. Available since v2.6.5.
 
 ### `--disable-web-security`
 

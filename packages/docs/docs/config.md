@@ -151,7 +151,7 @@ The [command line flag](/docs/cli#--disable-web-security) `--disable-web-securit
 
 _Available from Version 2.6.5._
 
-Results in invalid SSL certificates, such as self-signed ones being ignored.
+Results in invalid SSL certificates, such as self-signed ones, being ignored.
 
 ```tsx twoslash
 import { Config } from "remotion";
