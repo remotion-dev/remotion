@@ -1,3 +1,4 @@
+import {Internals} from 'remotion';
 import {setErrorsRef} from '../remotion-overlay/Overlay';
 import {ErrorRecord, listenToRuntimeErrors} from './listen-to-runtime-errors';
 
@@ -13,7 +14,7 @@ export const dismissErrors = () => {
 };
 
 export const shouldReload = () => {
-	return currentRuntimeErrorRecords.some((e) => e.type === 'syntax');
+	return !Internals.getPreviewDomElement()?.hasChildNodes();
 };
 
 const errorsAreTheSame = (first: Error, second: Error) => {

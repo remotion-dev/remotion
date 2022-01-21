@@ -64,6 +64,7 @@ function parseStack(stack: string[]): StackFrame[] {
 					fileName: _fileName,
 					lineNumber: _lineNumber,
 					columnNumber: _columnNumber,
+					symbolicated: false,
 				});
 			}
 
@@ -88,6 +89,7 @@ function parseStack(stack: string[]): StackFrame[] {
 				fileName,
 				lineNumber,
 				columnNumber,
+				symbolicated: false,
 			});
 		});
 	return frames;

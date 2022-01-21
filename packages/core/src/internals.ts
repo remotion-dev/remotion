@@ -141,6 +141,7 @@ import {
 } from './config/chromium-flags';
 import {validateOpenGlRenderer} from './validation/validate-opengl-renderer';
 import {OpenGlRenderer} from './validation/validate-opengl-renderer';
+import {getPreviewDomElement} from './get-preview-dom-element';
 const Timeline = {...TimelinePosition, ...TimelineInOutPosition};
 
 // Mark them as Internals so use don't assume this is public
@@ -231,6 +232,7 @@ export const Internals = {
 	getChromiumOpenGlRenderer,
 	getChromiumHeadlessMode,
 	DEFAULT_OPENGL_RENDERER,
+	getPreviewDomElement,
 };
 
 export type {

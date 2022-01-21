@@ -28,6 +28,7 @@ export const unmap = async (
 	contextLines: number
 ): Promise<StackFrame[]> => {
 	const uniqueFileNames = frames
+		.filter((s) => !s.symbolicated)
 		.map((f) => f.fileName)
 		.filter(Internals.truthy);
 	const maps = await Promise.all(
@@ -42,6 +43,10 @@ export const unmap = async (
 	}
 
 	return frames.map((frame) => {
+		if (frame.symbolicated) {
+			return frame;
+		}
+
 		const map = mapValues[frame.fileName as string];
 		const pos = map.getOriginalPosition(
 			frame.lineNumber as number,
@@ -66,6 +71,7 @@ export const unmap = async (
 			originalLineNumber: pos.line,
 			originalColumnNumber: pos.column,
 			originalScriptCode: scriptCode,
+			symbolicated: true,
 		});
 	});
 };
