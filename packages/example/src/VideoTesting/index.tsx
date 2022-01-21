@@ -8,7 +8,7 @@ export const VideoTesting: React.FC<{
 	const videoWebm = staticFile('./framer.webm');
 	return (
 		<div>
-			<Sequence from={0} durationInFrames={-10000}>
+			<Sequence from={0} durationInFrames={durationInFrames}>
 				<Video src={codec === 'mp4' ? videoMp4 : videoWebm} />
 			</Sequence>
 		</div>
