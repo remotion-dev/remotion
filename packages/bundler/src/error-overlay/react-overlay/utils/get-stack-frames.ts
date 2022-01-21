@@ -13,26 +13,12 @@ import type {StackFrame} from './stack-frame';
 import {parseError} from './parser';
 import {unmap} from './unmapper';
 
-const getEnhancedFrames = async (
-	parsedFrames: StackFrame[],
-	contextSize: number
-): Promise<{
-	frames: StackFrame[];
-}> => {
-	return {
-		frames: await unmap(parsedFrames, contextSize),
-	};
-};
-
 export const getStackFrames = async (
 	error: Error,
 	contextSize: number
 ): Promise<{frames: StackFrame[] | null}> => {
 	const parsedFrames = await parseError(error, contextSize);
-	const {frames: enhancedFrames} = await getEnhancedFrames(
-		parsedFrames,
-		contextSize
-	);
+	const enhancedFrames = await unmap(parsedFrames, contextSize);
 	if (
 		enhancedFrames
 			.map((f) => f.originalFileName)
@@ -48,10 +34,7 @@ export const getStackFrames = async (
 
 	return {
 		frames: enhancedFrames.filter(
-			({functionName}) =>
-				functionName === null ||
-				functionName === undefined ||
-				functionName.indexOf('__stack_frame_overlay_proxy_console__') === -1
+			({functionName}) => functionName === null || functionName === undefined
 		),
 	};
 };
