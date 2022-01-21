@@ -84,13 +84,11 @@ export const ErrorDisplay: React.FC<{
 		<div style={container}>
 			<div style={title}>
 				<div style={left}>
-					<span style={errName}>
-						{display.type === 'syntax' ? 'Syntax error' : display.error.name}
-					</span>
+					<span style={errName}>{display.error.name}</span>
 					<br />
 					{message}
 				</div>
-				{display.type === 'exception' ? <DismissButton /> : null}
+				<DismissButton />
 			</div>
 			{display.stackFrames.length > 0 && window.remotion_editorName ? (
 				<>
@@ -110,11 +108,7 @@ export const ErrorDisplay: React.FC<{
 							isFirst={i === 0}
 							s={s}
 							lineNumberWidth={lineNumberWidth}
-							defaultFunctionName={
-								display.type === 'exception'
-									? '(anonymous function)'
-									: 'Syntax error'
-							}
+							defaultFunctionName={'(anonymous function)'}
 						/>
 					);
 				})}

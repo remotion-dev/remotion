@@ -41,5 +41,6 @@ export const resolveFileSource = async (
 		fileName: location.fileName,
 		functionName: null,
 		lineNumber: location.lineNumber,
+		symbolicated: true,
 	});
 };

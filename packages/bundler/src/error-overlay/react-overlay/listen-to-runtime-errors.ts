@@ -5,7 +5,6 @@ export type ErrorRecord = {
 	unhandledRejection: boolean;
 	contextSize: number;
 	stackFrames: StackFrame[];
-	type: 'exception' | 'syntax';
 };
 
 /**
@@ -46,10 +45,7 @@ const crashWithFrames =
 				type: 'symbolicating',
 			});
 
-			const {frames: stackFrames, type} = await getStackFrames(
-				error,
-				CONTEXT_SIZE
-			);
+			const {frames: stackFrames} = await getStackFrames(error, CONTEXT_SIZE);
 
 			if (stackFrames === null || stackFrames === undefined) {
 				return;
@@ -60,7 +56,6 @@ const crashWithFrames =
 				unhandledRejection,
 				contextSize: CONTEXT_SIZE,
 				stackFrames,
-				type,
 			});
 		} catch (e) {
 			console.log('Could not get the stack frames of error:', e);

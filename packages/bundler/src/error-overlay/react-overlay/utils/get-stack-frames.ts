@@ -18,20 +18,18 @@ const getEnhancedFrames = async (
 	contextSize: number
 ): Promise<{
 	frames: StackFrame[];
-	type: 'exception' | 'syntax';
 }> => {
 	return {
 		frames: await unmap(parsedFrames, contextSize),
-		type: 'exception',
 	};
 };
 
 export const getStackFrames = async (
 	error: Error,
 	contextSize: number
-): Promise<{frames: StackFrame[] | null; type: 'exception' | 'syntax'}> => {
+): Promise<{frames: StackFrame[] | null}> => {
 	const parsedFrames = await parseError(error, contextSize);
-	const {frames: enhancedFrames, type} = await getEnhancedFrames(
+	const {frames: enhancedFrames} = await getEnhancedFrames(
 		parsedFrames,
 		contextSize
 	);
@@ -45,11 +43,10 @@ export const getStackFrames = async (
 					f_1.indexOf('node_modules') === -1
 			).length === 0
 	) {
-		return {type, frames: null};
+		return {frames: null};
 	}
 
 	return {
-		type,
 		frames: enhancedFrames.filter(
 			({functionName}) =>
 				functionName === null ||

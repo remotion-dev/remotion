@@ -20,6 +20,7 @@ export type StackFrame = {
 	fileName: string;
 	lineNumber: number;
 	columnNumber: number;
+	symbolicated: boolean;
 
 	originalFunctionName: string | null;
 	originalFileName: string | null;
@@ -39,6 +40,7 @@ export const makeStackFrame = ({
 	fileName,
 	lineNumber,
 	columnNumber,
+	symbolicated,
 	scriptCode = null,
 	originalFunctionName = null,
 	originalFileName = null,
@@ -50,6 +52,7 @@ export const makeStackFrame = ({
 	fileName: string;
 	lineNumber: number;
 	columnNumber: number;
+	symbolicated: boolean;
 	scriptCode?: ScriptLine[] | null;
 	originalFunctionName?: string | null;
 	originalFileName?: string | null;
@@ -84,5 +87,6 @@ export const makeStackFrame = ({
 		fileName,
 		functionName,
 		lineNumber,
+		symbolicated,
 	};
 };
