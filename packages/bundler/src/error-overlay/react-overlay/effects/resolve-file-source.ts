@@ -1,4 +1,4 @@
-import {StackFrame} from '../utils/stack-frame';
+import {makeStackFrame, StackFrame} from '../utils/stack-frame';
 import {ErrorLocation} from './map-error-to-react-stack';
 
 export const resolveFileSource = async (
@@ -30,17 +30,16 @@ export const resolveFileSource = async (
 		};
 	});
 
-	return {
-		_originalScriptCode: scriptCode,
-		_originalColumnNumber: location.columnNumber,
-		_originalFileName: location.fileName,
-		_originalLineNumber: location.lineNumber,
-		_scriptCode: scriptCode,
-		_originalFunctionName: null,
+	return makeStackFrame({
+		originalScriptCode: scriptCode,
+		originalColumnNumber: location.columnNumber,
+		originalFileName: location.fileName,
+		originalLineNumber: location.lineNumber,
+		scriptCode,
+		originalFunctionName: null,
 		columnNumber: location.columnNumber,
 		fileName: location.fileName,
 		functionName: null,
-		getSource: () => lines.map((_, l) => l).join('\n'),
 		lineNumber: location.lineNumber,
-	};
+	});
 };

@@ -9,7 +9,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import {StackFrame} from './stack-frame';
+import {getLocationFromBuildError} from '../effects/map-error-to-react-stack';
+import {resolveFileSource} from '../effects/resolve-file-source';
+import {makeStackFrame, StackFrame} from './stack-frame';
 
 const regexExtractLocation = /\(?(.+?)(?::(\d+))?(?::(\d+))?\)?$/;
 
@@ -56,10 +58,13 @@ function parseStack(stack: string[]): StackFrame[] {
 					throw new Error('could not get last');
 				}
 
-				return new StackFrame(
-					_data.join('@') || (isEval ? 'eval' : null),
-					...extractLocation(_last)
-				);
+				const [_fileName, _lineNumber, _columnNumber] = extractLocation(_last);
+				return makeStackFrame({
+					functionName: _data.join('@') || (isEval ? 'eval' : null),
+					fileName: _fileName,
+					lineNumber: _lineNumber,
+					columnNumber: _columnNumber,
+				});
 			}
 
 			// Strip eval, we don't care about it
@@ -77,16 +82,21 @@ function parseStack(stack: string[]): StackFrame[] {
 				throw new Error('could not get last');
 			}
 
-			return new StackFrame(data.join(' ') || null, ...extractLocation(last));
+			const [fileName, lineNumber, columnNumber] = extractLocation(last);
+			return makeStackFrame({
+				functionName: data.join(' ') || null,
+				fileName,
+				lineNumber,
+				columnNumber,
+			});
 		});
 	return frames;
 }
 
-/**
- * Turns an <code>Error</code>, or similar object, into a set of <code>StackFrame</code>s.
- * @alias parse
- */
-function parseError(error: Error | string | string[]): StackFrame[] {
+export const parseError = async (
+	error: Error | string | string[],
+	contextLines: number
+): Promise<StackFrame[]> => {
 	if (error === null) {
 		throw new Error('You cannot pass a null object.');
 	}
@@ -99,11 +109,15 @@ function parseError(error: Error | string | string[]): StackFrame[] {
 		return parseStack(error);
 	}
 
+	const errorLocation = getLocationFromBuildError(error);
+
+	if (errorLocation) {
+		return [await resolveFileSource(errorLocation, contextLines)];
+	}
+
 	if (typeof error.stack === 'string') {
 		return parseStack(error.stack.split('\n'));
 	}
 
 	throw new Error('The error you provided does not contain a stack trace.');
-}
-
-export {parseError};
+};

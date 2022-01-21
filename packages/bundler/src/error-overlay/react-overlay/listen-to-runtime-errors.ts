@@ -40,12 +40,7 @@ const CONTEXT_SIZE = 3;
 
 const crashWithFrames =
 	(crash: (rec: ErrorRecord) => void) =>
-	async (
-		error: Error & {
-			__unmap_source?: string;
-		},
-		unhandledRejection: boolean
-	) => {
+	async (error: Error, unhandledRejection: boolean) => {
 		try {
 			setErrorsRef.current?.setErrors({
 				type: 'symbolicating',
@@ -72,10 +67,7 @@ const crashWithFrames =
 		}
 	};
 
-export function listenToRuntimeErrors(
-	crash: (rec: ErrorRecord) => void,
-	filename: string
-) {
+export function listenToRuntimeErrors(crash: (rec: ErrorRecord) => void) {
 	const crashWithFramesRunTime = crashWithFrames(crash);
 
 	registerError(window, (error) => {
@@ -83,7 +75,6 @@ export function listenToRuntimeErrors(
 			{
 				message: error.message,
 				stack: error.stack,
-				__unmap_source: filename,
 				name: error.name,
 			},
 			false
@@ -103,7 +94,6 @@ export function listenToRuntimeErrors(
 				{
 					message: data.message,
 					stack: data.stack,
-					__unmap_source: filename,
 					name: '',
 				},
 				false
