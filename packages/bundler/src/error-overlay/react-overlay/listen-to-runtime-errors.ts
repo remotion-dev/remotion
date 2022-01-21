@@ -2,7 +2,6 @@ import {StackFrame} from './utils/stack-frame';
 
 export type ErrorRecord = {
 	error: Error;
-	unhandledRejection: boolean;
 	contextSize: number;
 	stackFrames: StackFrame[];
 };
@@ -37,46 +36,40 @@ import {setErrorsRef} from '../remotion-overlay/Overlay';
 
 const CONTEXT_SIZE = 3;
 
-const crashWithFrames =
-	(crash: (rec: ErrorRecord) => void) =>
-	async (error: Error, unhandledRejection: boolean) => {
-		try {
-			setErrorsRef.current?.setErrors({
-				type: 'symbolicating',
-			});
+export const getErrorRecord = async (
+	error: Error
+): Promise<ErrorRecord | null> => {
+	const stackFrames = await getStackFrames(error, CONTEXT_SIZE);
 
-			const {frames: stackFrames} = await getStackFrames(error, CONTEXT_SIZE);
+	if (stackFrames === null || stackFrames === undefined) {
+		return null;
+	}
 
-			if (stackFrames === null || stackFrames === undefined) {
-				return;
-			}
-
-			crash({
-				error,
-				unhandledRejection,
-				contextSize: CONTEXT_SIZE,
-				stackFrames,
-			});
-		} catch (e) {
-			console.log('Could not get the stack frames of error:', e);
-		}
+	return {
+		error,
+		contextSize: CONTEXT_SIZE,
+		stackFrames,
 	};
+};
 
-export function listenToRuntimeErrors(crash: (rec: ErrorRecord) => void) {
+const crashWithFrames = (crash: () => void) => async (error: Error) => {
+	setErrorsRef.current?.addError(error);
+
+	crash();
+};
+
+export function listenToRuntimeErrors(crash: () => void) {
 	const crashWithFramesRunTime = crashWithFrames(crash);
 
 	registerError(window, (error) => {
-		return crashWithFramesRunTime(
-			{
-				message: error.message,
-				stack: error.stack,
-				name: error.name,
-			},
-			false
-		);
+		return crashWithFramesRunTime({
+			message: error.message,
+			stack: error.stack,
+			name: error.name,
+		});
 	});
 	registerPromise(window, (error) => {
-		return crashWithFramesRunTime(error, true);
+		return crashWithFramesRunTime(error);
 	});
 	registerStackTraceLimit();
 	registerReactStack();
@@ -85,18 +78,15 @@ export function listenToRuntimeErrors(crash: (rec: ErrorRecord) => void) {
 			const {message, frames} = d;
 			const data = massageWarning(message, frames);
 
-			crashWithFramesRunTime(
-				{
-					message: data.message,
-					stack: data.stack,
-					name: '',
-				},
-				false
-			);
+			crashWithFramesRunTime({
+				message: data.message,
+				stack: data.stack,
+				name: '',
+			});
 		}
 
 		if (d.type === 'build-error') {
-			crashWithFramesRunTime(d.error, false);
+			crashWithFramesRunTime(d.error);
 		}
 	});
 

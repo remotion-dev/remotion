@@ -16,7 +16,7 @@ import {unmap} from './unmapper';
 export const getStackFrames = async (
 	error: Error,
 	contextSize: number
-): Promise<{frames: StackFrame[] | null}> => {
+): Promise<StackFrame[] | null> => {
 	const parsedFrames = await parseError(error, contextSize);
 	const enhancedFrames = await unmap(parsedFrames, contextSize);
 	if (
@@ -29,12 +29,8 @@ export const getStackFrames = async (
 					f_1.indexOf('node_modules') === -1
 			).length === 0
 	) {
-		return {frames: null};
+		return null;
 	}
 
-	return {
-		frames: enhancedFrames.filter(
-			({functionName}) => functionName === null || functionName === undefined
-		),
-	};
+	return enhancedFrames;
 };
