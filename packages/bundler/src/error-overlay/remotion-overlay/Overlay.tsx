@@ -5,7 +5,6 @@ import React, {
 	useState,
 } from 'react';
 import {AbsoluteFill} from 'remotion';
-import {ErrorDisplay} from './ErrorDisplay';
 import {ErrorLoader} from './ErrorLoader';
 
 type SetErrors = {
