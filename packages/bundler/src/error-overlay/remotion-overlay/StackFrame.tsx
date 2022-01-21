@@ -39,7 +39,7 @@ export const StackElement: React.FC<{
 	defaultFunctionName: string;
 }> = ({s, lineNumberWidth, isFirst, defaultFunctionName}) => {
 	const [showCodeFrame, setShowCodeFrame] = useState(
-		() => !s._originalFileName?.includes('node_modules') || isFirst
+		() => !s.originalFileName?.includes('node_modules') || isFirst
 	);
 	const toggleCodeFrame = useCallback(() => {
 		setShowCodeFrame((f) => !f);
@@ -49,12 +49,12 @@ export const StackElement: React.FC<{
 			<div style={header}>
 				<div style={left}>
 					<div style={fnName}>
-						{s.functionName ?? s._originalFunctionName ?? defaultFunctionName}
+						{s.functionName ?? s.originalFunctionName ?? defaultFunctionName}
 					</div>
-					{s._originalFileName ? (
+					{s.originalFileName ? (
 						<div style={location}>
-							{formatLocation(s._originalFileName as string)}:
-							{s._originalLineNumber}
+							{formatLocation(s.originalFileName as string)}:
+							{s.originalLineNumber}
 						</div>
 					) : s.fileName ? (
 						<div style={location}>
@@ -62,19 +62,19 @@ export const StackElement: React.FC<{
 						</div>
 					) : null}
 				</div>
-				{s._originalScriptCode && s._originalScriptCode.length > 0 ? (
+				{s.originalScriptCode && s.originalScriptCode.length > 0 ? (
 					<Button onClick={toggleCodeFrame}>
 						{showCodeFrame ? <CaretDown /> : <CaretRight />}
 					</Button>
 				) : null}
 			</div>
 			<div>
-				{s._originalScriptCode &&
-				s._originalScriptCode.length > 0 &&
+				{s.originalScriptCode &&
+				s.originalScriptCode.length > 0 &&
 				showCodeFrame ? (
 					<CodeFrame
 						lineNumberWidth={lineNumberWidth}
-						source={s._originalScriptCode}
+						source={s.originalScriptCode}
 					/>
 				) : null}
 			</div>

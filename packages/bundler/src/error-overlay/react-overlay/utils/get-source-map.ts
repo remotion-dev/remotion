@@ -18,7 +18,7 @@ import {SourceMapConsumer} from 'source-map';
  *
  * This exposes methods which will be indifferent to changes made in <code>{@link https://github.com/mozilla/source-map source-map}</code>.
  */
-class SourceMap {
+export class SourceMap {
 	__source_map: SourceMapConsumer;
 
 	constructor(sourceMap: SourceMapConsumer) {
@@ -127,13 +127,13 @@ async function getSourceMap(
 		sm = sm.substring(match2[0].length);
 		sm = window.atob(sm);
 		sm = JSON.parse(sm);
-		return new SourceMap(await new SourceMapConsumer(sm));
+		return new SourceMap(new SourceMapConsumer(sm));
 	}
 
 	const index = fileUri.lastIndexOf('/');
 	const url = fileUri.substring(0, index + 1) + sm;
 	const obj = await fetch(url).then((res) => res.json());
-	return new SourceMap(await new SourceMapConsumer(obj));
+	return new SourceMap(new SourceMapConsumer(obj));
 }
 
 export {getSourceMap};

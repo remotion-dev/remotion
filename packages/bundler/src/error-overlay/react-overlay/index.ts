@@ -4,7 +4,6 @@ import {ErrorRecord, listenToRuntimeErrors} from './listen-to-runtime-errors';
 let stopListeningToRuntimeErrors: null | (() => void) = null;
 type RuntimeReportingOptions = {
 	onError: () => void;
-	filename: string;
 };
 
 let currentRuntimeErrorRecords: ErrorRecord[] = [];
@@ -17,6 +16,10 @@ export const shouldReload = () => {
 	return currentRuntimeErrorRecords.some((e) => e.type === 'syntax');
 };
 
+const errorsAreTheSame = (first: Error, second: Error) => {
+	return first.stack === second.stack && first.message === second.message;
+};
+
 export function startReportingRuntimeErrors(options: RuntimeReportingOptions) {
 	if (stopListeningToRuntimeErrors !== null) {
 		throw new Error('Already listening');
@@ -25,14 +28,13 @@ export function startReportingRuntimeErrors(options: RuntimeReportingOptions) {
 	const handleRuntimeError =
 		(opts: RuntimeReportingOptions) => (errorRecord: ErrorRecord) => {
 			try {
-				console.log({errorRecord});
 				if (typeof opts.onError === 'function') {
 					opts.onError();
 				}
 			} finally {
 				if (
-					currentRuntimeErrorRecords.some(
-						({error}) => error === errorRecord.error
+					currentRuntimeErrorRecords.some(({error}) =>
+						errorsAreTheSame(error, errorRecord.error)
 					)
 				) {
 					// Deduplicate identical errors.
@@ -54,7 +56,6 @@ export function startReportingRuntimeErrors(options: RuntimeReportingOptions) {
 	}
 
 	stopListeningToRuntimeErrors = listenToRuntimeErrors(
-		handleRuntimeError(options),
-		options.filename
+		handleRuntimeError(options)
 	);
 }
