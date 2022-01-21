@@ -4,34 +4,8 @@ import {AskOnDiscord} from './AskOnDiscord';
 import {OpenInEditor} from './OpenInEditor';
 import {SearchGithubIssues} from './SearchGitHubIssues';
 import {StackElement} from './StackFrame';
-import {DismissButton} from './DismissButton';
 import {getLocationFromBuildError} from '../react-overlay/effects/map-error-to-react-stack';
-
-const container: React.CSSProperties = {
-	width: '100%',
-	maxWidth: 1000,
-	paddingLeft: 14,
-	paddingRight: 14,
-	marginLeft: 'auto',
-	marginRight: 'auto',
-	fontFamily: 'SF Pro Text, sans-serif',
-	paddingTop: '5vh',
-};
-
-const title: React.CSSProperties = {
-	marginBottom: 8,
-	display: 'flex',
-	flexDirection: 'row',
-	justifyContent: 'center',
-};
-
-const errName: React.CSSProperties = {
-	fontSize: '0.8em',
-	background: 'linear-gradient(90deg,#4290f5,#42e9f5)',
-	WebkitBackgroundClip: 'text',
-	WebkitTextFillColor: 'transparent',
-	display: 'inline-block',
-};
+import {ErrorTitle} from './ErrorTitle';
 
 const stack: React.CSSProperties = {
 	marginTop: 17,
@@ -42,16 +16,6 @@ const stack: React.CSSProperties = {
 const spacer: React.CSSProperties = {
 	width: 5,
 	display: 'inline-block',
-};
-
-const left: React.CSSProperties = {
-	flex: 1,
-	paddingRight: 14,
-	lineHeight: 1.5,
-	whiteSpace: 'pre',
-	fontSize: '1.5em',
-	fontWeight: 'bold',
-	overflowX: 'auto',
 };
 
 export const ErrorDisplay: React.FC<{
@@ -81,15 +45,12 @@ export const ErrorDisplay: React.FC<{
 	const lineNumberWidth = String(highestLineNumber).length;
 
 	return (
-		<div style={container}>
-			<div style={title}>
-				<div style={left}>
-					<span style={errName}>{display.error.name}</span>
-					<br />
-					{message}
-				</div>
-				<DismissButton />
-			</div>
+		<div>
+			<ErrorTitle
+				symbolicating={false}
+				name={display.error.name}
+				message={message}
+			/>
 			{display.stackFrames.length > 0 && window.remotion_editorName ? (
 				<>
 					<OpenInEditor stack={display.stackFrames[0]} />

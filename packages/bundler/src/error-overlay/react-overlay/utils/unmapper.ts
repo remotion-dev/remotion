@@ -27,10 +27,14 @@ export const unmap = async (
 	frames: StackFrame[],
 	contextLines: number
 ): Promise<StackFrame[]> => {
-	const uniqueFileNames = frames
-		.filter((s) => !s.symbolicated)
-		.map((f) => f.fileName)
-		.filter(Internals.truthy);
+	const uniqueFileNames = [
+		...new Set(
+			frames
+				.filter((s) => !s.symbolicated)
+				.map((f) => f.fileName)
+				.filter(Internals.truthy)
+		),
+	];
 	const maps = await Promise.all(
 		uniqueFileNames.map(async (fileName) => {
 			const fileContents = await getFileContents(fileName);
