@@ -3,9 +3,6 @@ import {setErrorsRef} from '../remotion-overlay/Overlay';
 import {ErrorRecord, listenToRuntimeErrors} from './listen-to-runtime-errors';
 
 let stopListeningToRuntimeErrors: null | (() => void) = null;
-type RuntimeReportingOptions = {
-	onError: () => void;
-};
 
 let currentRuntimeErrorRecords: ErrorRecord[] = [];
 
@@ -21,33 +18,30 @@ const errorsAreTheSame = (first: Error, second: Error) => {
 	return first.stack === second.stack && first.message === second.message;
 };
 
-export function startReportingRuntimeErrors(options: RuntimeReportingOptions) {
+export function startReportingRuntimeErrors(onError: () => void) {
 	if (stopListeningToRuntimeErrors !== null) {
 		throw new Error('Already listening');
 	}
 
-	const handleRuntimeError =
-		(opts: RuntimeReportingOptions) => (errorRecord: ErrorRecord) => {
-			try {
-				if (typeof opts.onError === 'function') {
-					opts.onError();
-				}
-			} finally {
-				if (
-					currentRuntimeErrorRecords.some(({error}) =>
-						errorsAreTheSame(error, errorRecord.error)
-					)
-				) {
-					// Deduplicate identical errors.
-					// This fixes https://github.com/facebook/create-react-app/issues/3011.
-				} else {
-					currentRuntimeErrorRecords = currentRuntimeErrorRecords.concat([
-						errorRecord,
-					]);
-					update();
-				}
+	const handleRuntimeError = (errorRecord: ErrorRecord) => {
+		try {
+			onError();
+		} finally {
+			if (
+				currentRuntimeErrorRecords.some(({error}) =>
+					errorsAreTheSame(error, errorRecord.error)
+				)
+			) {
+				// Deduplicate identical errors.
+				// This fixes https://github.com/facebook/create-react-app/issues/3011.
+			} else {
+				currentRuntimeErrorRecords = currentRuntimeErrorRecords.concat([
+					errorRecord,
+				]);
+				update();
 			}
-		};
+		}
+	};
 
 	function update() {
 		setErrorsRef.current?.setErrors({
@@ -56,7 +50,5 @@ export function startReportingRuntimeErrors(options: RuntimeReportingOptions) {
 		});
 	}
 
-	stopListeningToRuntimeErrors = listenToRuntimeErrors(
-		handleRuntimeError(options)
-	);
+	stopListeningToRuntimeErrors = listenToRuntimeErrors(handleRuntimeError);
 }
