@@ -11,7 +11,12 @@
 
 import {getLocationFromBuildError} from '../effects/map-error-to-react-stack';
 import {resolveFileSource} from '../effects/resolve-file-source';
-import {makeStackFrame, StackFrame} from './stack-frame';
+import {
+	makeStackFrame,
+	SomeStackFrame,
+	StackFrame,
+	SymbolicatedStackFrame,
+} from './stack-frame';
 
 const regexExtractLocation = /\(?(.+?)(?::(\d+))?(?::(\d+))?\)?$/;
 
@@ -64,7 +69,6 @@ function parseStack(stack: string[]): StackFrame[] {
 					fileName: _fileName,
 					lineNumber: _lineNumber,
 					columnNumber: _columnNumber,
-					symbolicated: false,
 				});
 			}
 
@@ -89,7 +93,6 @@ function parseStack(stack: string[]): StackFrame[] {
 				fileName,
 				lineNumber,
 				columnNumber,
-				symbolicated: false,
 			});
 		});
 	return frames;
@@ -98,27 +101,47 @@ function parseStack(stack: string[]): StackFrame[] {
 export const parseError = async (
 	error: Error | string | string[],
 	contextLines: number
-): Promise<StackFrame[]> => {
+): Promise<SomeStackFrame[]> => {
 	if (error === null) {
 		throw new Error('You cannot pass a null object.');
 	}
 
 	if (typeof error === 'string') {
-		return parseStack(error.split('\n'));
+		return parseStack(error.split('\n')).map((frame): SomeStackFrame => {
+			return {
+				type: 'transpiled',
+				frame,
+			};
+		});
 	}
 
 	if (Array.isArray(error)) {
-		return parseStack(error);
+		return parseStack(error).map((frame): SomeStackFrame => {
+			return {
+				type: 'transpiled',
+				frame,
+			};
+		});
 	}
 
 	const errorLocation = getLocationFromBuildError(error);
 
 	if (errorLocation) {
-		return [await resolveFileSource(errorLocation, contextLines)];
+		return [
+			{
+				type: 'symbolicated',
+				frame: await resolveFileSource(errorLocation, contextLines),
+			},
+		];
 	}
 
 	if (typeof error.stack === 'string') {
-		return parseStack(error.stack.split('\n'));
+		return parseStack(error.stack.split('\n')).map((frame): SomeStackFrame => {
+			return {
+				type: 'transpiled',
+				frame,
+			};
+		});
 	}
 
 	throw new Error('The error you provided does not contain a stack trace.');

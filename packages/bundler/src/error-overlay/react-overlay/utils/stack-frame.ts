@@ -15,21 +15,30 @@ export type ScriptLine = {
 	highlight: boolean;
 };
 
+export type SymbolicatedStackFrame = {
+	originalFunctionName: string | null;
+	originalFileName: string | null;
+	originalLineNumber: number | null;
+	originalColumnNumber: number | null;
+	originalScriptCode: ScriptLine[] | null;
+};
+
 export type StackFrame = {
 	functionName: string | null;
 	fileName: string;
 	lineNumber: number;
 	columnNumber: number;
-	symbolicated: boolean;
-
-	originalFunctionName: string | null;
-	originalFileName: string | null;
-	originalLineNumber: number | null;
-	originalColumnNumber: number | null;
-
-	scriptCode: ScriptLine[] | null;
-	originalScriptCode: ScriptLine[] | null;
 };
+
+export type SomeStackFrame =
+	| {
+			type: 'symbolicated';
+			frame: SymbolicatedStackFrame;
+	  }
+	| {
+			type: 'transpiled';
+			frame: StackFrame;
+	  };
 
 /**
  * A representation of a stack frame.
@@ -40,25 +49,11 @@ export const makeStackFrame = ({
 	fileName,
 	lineNumber,
 	columnNumber,
-	symbolicated,
-	scriptCode = null,
-	originalFunctionName = null,
-	originalFileName = null,
-	originalLineNumber = null,
-	originalColumnNumber = null,
-	originalScriptCode = null,
 }: {
 	functionName: string | null;
 	fileName: string;
 	lineNumber: number;
 	columnNumber: number;
-	symbolicated: boolean;
-	scriptCode?: ScriptLine[] | null;
-	originalFunctionName?: string | null;
-	originalFileName?: string | null;
-	originalLineNumber?: number | null;
-	originalColumnNumber?: number | null;
-	originalScriptCode?: ScriptLine[] | null;
 }): StackFrame => {
 	if (functionName && functionName.indexOf('Object.') === 0) {
 		functionName = functionName.slice('Object.'.length);
@@ -77,16 +72,9 @@ export const makeStackFrame = ({
 	}
 
 	return {
-		originalColumnNumber,
-		scriptCode,
-		originalScriptCode,
-		originalFileName,
-		originalFunctionName,
-		originalLineNumber,
 		columnNumber,
 		fileName,
 		functionName,
 		lineNumber,
-		symbolicated,
 	};
 };
