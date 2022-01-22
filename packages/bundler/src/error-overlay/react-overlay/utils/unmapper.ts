@@ -14,7 +14,11 @@
 import {Internals} from 'remotion';
 import {getLinesAround} from './get-lines-around';
 import {getSourceMap, SourceMap} from './get-source-map';
-import {makeStackFrame, StackFrame} from './stack-frame';
+import {
+	SomeStackFrame,
+	StackFrame,
+	SymbolicatedStackFrame,
+} from './stack-frame';
 
 const getFileContents = async (fileName: string) => {
 	const res = await fetch(fileName as string);
@@ -24,16 +28,14 @@ const getFileContents = async (fileName: string) => {
 };
 
 export const unmap = async (
-	frames: StackFrame[],
+	frames: SomeStackFrame[],
 	contextLines: number
-): Promise<StackFrame[]> => {
+): Promise<SymbolicatedStackFrame[]> => {
+	const transpiled = frames
+		.filter((s) => s.type === 'transpiled')
+		.map((s) => s.frame) as StackFrame[];
 	const uniqueFileNames = [
-		...new Set(
-			frames
-				.filter((s) => !s.symbolicated)
-				.map((f) => f.fileName)
-				.filter(Internals.truthy)
-		),
+		...new Set(transpiled.map((f) => f.fileName).filter(Internals.truthy)),
 	];
 	const maps = await Promise.all(
 		uniqueFileNames.map(async (fileName) => {
@@ -46,36 +48,30 @@ export const unmap = async (
 		mapValues[uniqueFileNames[i]] = maps[i];
 	}
 
-	return frames.map((frame) => {
-		if (frame.symbolicated) {
-			return frame;
+	return frames.map((frame): SymbolicatedStackFrame => {
+		if (frame.type === 'symbolicated') {
+			return frame.frame;
 		}
 
-		const map = mapValues[frame.fileName as string];
+		const map = mapValues[frame.frame.fileName as string];
 		const pos = map.getOriginalPosition(
-			frame.lineNumber as number,
-			frame.columnNumber as number
+			frame.frame.lineNumber as number,
+			frame.frame.columnNumber as number
 		);
 
-		const {functionName, lineNumber, columnNumber, fileName} = frame;
+		const {functionName} = frame.frame;
 		const scriptCode = getLinesAround(
 			pos.line,
 			contextLines,
 			map.getSource(pos.source).split('\n')
 		);
 
-		return makeStackFrame({
-			functionName,
-			fileName,
-			lineNumber,
-			columnNumber,
-			scriptCode,
-			originalFunctionName: functionName,
-			originalFileName: pos.source,
-			originalLineNumber: pos.line,
+		return {
 			originalColumnNumber: pos.column,
+			originalFileName: pos.source,
+			originalFunctionName: functionName,
+			originalLineNumber: pos.line,
 			originalScriptCode: scriptCode,
-			symbolicated: true,
-		});
+		};
 	});
 };

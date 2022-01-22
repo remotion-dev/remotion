@@ -1,10 +1,14 @@
-import {makeStackFrame, StackFrame} from '../utils/stack-frame';
+import {
+	makeStackFrame,
+	StackFrame,
+	SymbolicatedStackFrame,
+} from '../utils/stack-frame';
 import {ErrorLocation} from './map-error-to-react-stack';
 
 export const resolveFileSource = async (
 	location: ErrorLocation,
 	contextLines: number
-): Promise<StackFrame> => {
+): Promise<SymbolicatedStackFrame> => {
 	const res = await fetch(
 		`/api/file-source?f=${encodeURIComponent(location.fileName)}`
 	);
@@ -30,17 +34,11 @@ export const resolveFileSource = async (
 		};
 	});
 
-	return makeStackFrame({
-		originalScriptCode: scriptCode,
+	return {
 		originalColumnNumber: location.columnNumber,
+		originalFunctionName: null,
 		originalFileName: location.fileName,
 		originalLineNumber: location.lineNumber,
-		scriptCode,
-		originalFunctionName: null,
-		columnNumber: location.columnNumber,
-		fileName: location.fileName,
-		functionName: null,
-		lineNumber: location.lineNumber,
-		symbolicated: true,
-	});
+		originalScriptCode: scriptCode,
+	};
 };

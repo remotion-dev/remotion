@@ -1,5 +1,8 @@
 import React, {useCallback, useState} from 'react';
-import {StackFrame} from '../react-overlay/utils/stack-frame';
+import {
+	StackFrame,
+	SymbolicatedStackFrame,
+} from '../react-overlay/utils/stack-frame';
 import {Button} from './Button';
 import {CaretDown, CaretRight} from './carets';
 import {CodeFrame} from './CodeFrame';
@@ -33,7 +36,7 @@ const fnName: React.CSSProperties = {
 };
 
 export const StackElement: React.FC<{
-	s: StackFrame;
+	s: SymbolicatedStackFrame;
 	lineNumberWidth: number;
 	isFirst: boolean;
 	defaultFunctionName: string;
@@ -49,16 +52,12 @@ export const StackElement: React.FC<{
 			<div style={header}>
 				<div style={left}>
 					<div style={fnName}>
-						{s.functionName ?? s.originalFunctionName ?? defaultFunctionName}
+						{s.originalFunctionName ?? defaultFunctionName}
 					</div>
 					{s.originalFileName ? (
 						<div style={location}>
 							{formatLocation(s.originalFileName as string)}:
 							{s.originalLineNumber}
-						</div>
-					) : s.fileName ? (
-						<div style={location}>
-							{formatLocation(s.fileName as string)}:{s.lineNumber}
 						</div>
 					) : null}
 				</div>

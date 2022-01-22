@@ -5,7 +5,10 @@ import React, {
 	useReducer,
 	useRef,
 } from 'react';
-import {StackFrame} from '../react-overlay/utils/stack-frame';
+import {
+	StackFrame,
+	SymbolicatedStackFrame,
+} from '../react-overlay/utils/stack-frame';
 import {Button} from './Button';
 
 type State =
@@ -67,7 +70,7 @@ const reducer = (state: State, action: Action): State => {
 };
 
 export const OpenInEditor: React.FC<{
-	stack: StackFrame;
+	stack: SymbolicatedStackFrame;
 }> = ({stack}) => {
 	const isMounted = useRef(true);
 	const [state, dispatch] = useReducer(reducer, initialState);

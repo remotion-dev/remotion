@@ -9,14 +9,14 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import type {StackFrame} from './stack-frame';
+import type {SymbolicatedStackFrame} from './stack-frame';
 import {parseError} from './parser';
 import {unmap} from './unmapper';
 
 export const getStackFrames = async (
 	error: Error,
 	contextSize: number
-): Promise<StackFrame[] | null> => {
+): Promise<SymbolicatedStackFrame[] | null> => {
 	const parsedFrames = await parseError(error, contextSize);
 	const enhancedFrames = await unmap(parsedFrames, contextSize);
 	if (

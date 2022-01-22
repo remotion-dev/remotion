@@ -1,9 +1,9 @@
-import {StackFrame} from './utils/stack-frame';
+import {SymbolicatedStackFrame} from './utils/stack-frame';
 
 export type ErrorRecord = {
 	error: Error;
 	contextSize: number;
-	stackFrames: StackFrame[];
+	stackFrames: SymbolicatedStackFrame[];
 };
 
 /**
