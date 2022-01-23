@@ -17,23 +17,58 @@ const container: React.CSSProperties = {
 	paddingTop: '5vh',
 };
 
+const errorWhileErrorStyle: React.CSSProperties = {
+	color: 'white',
+	lineHeight: 1.5,
+	whiteSpace: 'pre',
+};
+
+type State =
+	| {
+			type: 'loading';
+	  }
+	| {
+			type: 'symbolicated';
+			record: ErrorRecord;
+	  }
+	| {
+			type: 'no-record';
+	  }
+	| {
+			type: 'error';
+			err: Error;
+	  };
+
 export const ErrorLoader: React.FC<{
 	error: Error;
 }> = ({error}) => {
-	const [symbolicated, setSymbolicated] = useState<ErrorRecord | null>(null);
+	const [state, setState] = useState<State>({
+		type: 'loading',
+	});
 
 	useEffect(() => {
 		getErrorRecord(error)
-			.then((err) => {
-				return setSymbolicated(err);
+			.then((record) => {
+				if (record) {
+					setState({
+						type: 'symbolicated',
+						record,
+					});
+				} else {
+					setState({
+						type: 'no-record',
+					});
+				}
 			})
 			.catch((err) => {
-				// TODO Handle
-				console.log(err);
+				setState({
+					err,
+					type: 'error',
+				});
 			});
 	}, [error]);
 
-	if (!symbolicated) {
+	if (state.type === 'loading') {
 		return (
 			<div style={container}>
 				<ErrorTitle symbolicating name={error.name} message={error.message} />
@@ -41,9 +76,39 @@ export const ErrorLoader: React.FC<{
 		);
 	}
 
+	if (state.type === 'error') {
+		return (
+			<div style={container}>
+				<ErrorTitle
+					symbolicating={false}
+					name={error.name}
+					message={error.message}
+				/>
+				<div style={errorWhileErrorStyle}>Error while getting stack trace:</div>
+				<div style={errorWhileErrorStyle}>{state.err.stack}</div>
+				<div style={errorWhileErrorStyle}>
+					Report this in the Remotion repo.
+				</div>
+			</div>
+		);
+	}
+
+	if (state.type === 'no-record') {
+		return (
+			<div style={container}>
+				<ErrorTitle
+					symbolicating={false}
+					name={error.name}
+					message={error.message}
+				/>
+				<div style={errorWhileErrorStyle}>Could not get a stack trace.</div>
+			</div>
+		);
+	}
+
 	return (
 		<div style={container}>
-			<ErrorDisplay display={symbolicated} />
+			<ErrorDisplay display={state.record} />
 		</div>
 	);
 };
