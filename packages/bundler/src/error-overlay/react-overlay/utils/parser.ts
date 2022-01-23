@@ -11,12 +11,7 @@
 
 import {getLocationFromBuildError} from '../effects/map-error-to-react-stack';
 import {resolveFileSource} from '../effects/resolve-file-source';
-import {
-	makeStackFrame,
-	SomeStackFrame,
-	StackFrame,
-	SymbolicatedStackFrame,
-} from './stack-frame';
+import {makeStackFrame, SomeStackFrame, StackFrame} from './stack-frame';
 
 const regexExtractLocation = /\(?(.+?)(?::(\d+))?(?::(\d+))?\)?$/;
 

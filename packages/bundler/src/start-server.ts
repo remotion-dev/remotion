@@ -15,10 +15,7 @@ import {
 	guessEditor,
 	launchEditor,
 } from './error-overlay/react-overlay/utils/open-in-editor';
-import {
-	StackFrame,
-	SymbolicatedStackFrame,
-} from './error-overlay/react-overlay/utils/stack-frame';
+import {SymbolicatedStackFrame} from './error-overlay/react-overlay/utils/stack-frame';
 import {webpackHotMiddleware} from './hot-middleware';
 import {wdm} from './dev-middleware';
 import {getFileSource} from './error-overlay/react-overlay/utils/get-file-source';
