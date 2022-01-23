@@ -1,40 +1,80 @@
+import {BundlerInternals} from '@remotion/bundler';
 import execa from 'execa';
 import fs from 'fs';
 import path from 'path';
 import {Internals} from 'remotion';
 import {Log} from './log';
 
-const npmOrYarn = (): 'npm' | 'yarn' => {
-	const packageLockJsonFilePath = path.join(process.cwd(), 'package-lock.json');
-	const yarnLockFilePath = path.join(process.cwd(), 'yarn.lock');
+type Manager = 'npm' | 'yarn' | 'pnpm';
 
-	const npmExists = fs.existsSync(packageLockJsonFilePath);
-	const yarnExists = fs.existsSync(yarnLockFilePath);
+type LockfilePath = {
+	manager: Manager;
+	path: string;
+};
 
-	if (npmExists && !yarnExists) {
-		return 'npm';
-	}
+const getPkgManager = (): Manager => {
+	const paths: LockfilePath[] = [
+		{path: path.join(process.cwd(), 'package-lock.json'), manager: 'npm'},
+		{
+			path: path.join(process.cwd(), 'yarn.lock'),
+			manager: 'yarn',
+		},
+		{
+			path: path.join(process.cwd(), 'pnpm-lock.yaml'),
+			manager: 'pnpm',
+		},
+	];
 
-	if (!npmExists && yarnExists) {
-		return 'yarn';
-	}
+	const existingPkgManagers = paths.filter((p) => fs.existsSync(p.path));
 
-	if (npmExists && yarnExists) {
+	if (existingPkgManagers.length === 0) {
 		Log.error(
-			'Found both a package-lock.json and a yarn.lock file in your project.'
+			`No lockfile was found in your project (one of ${existingPkgManagers
+				.map((p) => p.manager)
+				.join(', ')}). Install dependencies using your favorite manager!`
 		);
-		Log.error(
-			'This can lead to bugs, delete one of the two files and settle on 1 package manager.'
-		);
-		Log.error('Afterwards, run this command again.');
 		process.exit(1);
 	}
 
-	Log.error('Did not find a package-lock.json or yarn.lock file.');
-	Log.error('Cannot determine how to update dependencies.');
-	Log.error('Did you run `npm install` yet?');
-	Log.error('Make sure either file exists and run this command again.');
-	process.exit(1);
+	if (existingPkgManagers.length > 1) {
+		Log.error(`Found multiple lockfiles:`);
+		for (const pkgManager of existingPkgManagers) {
+			Log.error(`- ${pkgManager.path}`);
+		}
+
+		Log.error();
+		Log.error(
+			'This can lead to bugs, delete all but one of these files and run this command again.'
+		);
+		process.exit(1);
+	}
+
+	return existingPkgManagers[0].manager;
+};
+
+const getUpgradeCommand = ({
+	manager,
+	packages,
+	version,
+}: {
+	manager: Manager;
+	packages: string[];
+	version: string;
+}): string[] => {
+	const pkgList = packages.map((p) => `^${p}@${version}`).join(' ');
+	if (manager === 'npm') {
+		return ['i', ...pkgList];
+	}
+
+	if (manager === 'yarn') {
+		return ['add', ...pkgList];
+	}
+
+	if (manager === 'pnpm') {
+		return ['i', ...pkgList];
+	}
+
+	throw new Error('Invalid pkg manager ' + manager);
 };
 
 export const upgrade = async () => {
@@ -48,8 +88,10 @@ export const upgrade = async () => {
 
 	const packageJson = require(packageJsonFilePath);
 	const dependencies = Object.keys(packageJson.dependencies);
+	const latestRemotionVersion =
+		await BundlerInternals.getLatestRemotionVersion();
 
-	const tool = npmOrYarn();
+	const manager = getPkgManager();
 
 	const toUpgrade = [
 		'@remotion/bundler',
@@ -64,7 +106,14 @@ export const upgrade = async () => {
 		'remotion',
 	].filter((u) => dependencies.includes(u));
 
-	const prom = execa(tool, ['upgrade', ...toUpgrade]);
+	const prom = execa(
+		manager,
+		getUpgradeCommand({
+			manager,
+			packages: toUpgrade,
+			version: latestRemotionVersion,
+		})
+	);
 	if (Internals.Logging.isEqualOrBelowLogLevel('info')) {
 		prom.stdout?.pipe(process.stdout);
 	}
