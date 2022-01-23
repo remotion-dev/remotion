@@ -87,13 +87,11 @@ export const Index: React.FC = () => {
     )
       .then(({ durationInSeconds }) => {
         setDuration(Math.round(durationInSeconds * 30));
+        continueRender(handle);
       })
       .catch((err) => {
         console.log(`Error fetching metadata: ${err}`);
       })
-      .finally(() => {
-        continueRender(handle);
-      });
   }, [handle]);
 
   return (
