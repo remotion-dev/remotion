@@ -91,7 +91,7 @@ export const Index: React.FC = () => {
       })
       .catch((err) => {
         console.log(`Error fetching metadata: ${err}`);
-      })
+      });
   }, [handle]);
 
   return (
