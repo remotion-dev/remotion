@@ -10,9 +10,15 @@ Keep track of changes to the APIs of Remotion Lambda here.
 
 [Upgrading](/docs/lambda/upgrading)
 
+## January 23rd, 2022
+
+Lambda version: '2022-01-23'
+
+- Update with improvements from v2.6.5
+
 ## January 19th, 2022
 
-Version hash: `3.0.0-lambda.297+0a5487655`
+Version hash: `3.0.0-lambda.297+0a5487655`  
 Lambda version: '2022-01-19'
 
 - Added `timeoutInMilliseconds` to `renderMediaOnLambda`, `renderStillOnLambda` and `renderMedia`
@@ -21,14 +27,14 @@ Lambda version: '2022-01-19'
 
 ## January 10th, 2022 (2)
 
-Version hash: `3.0.0-lambda.279+ee1497f24`
+Version hash: `3.0.0-lambda.279+ee1497f24`  
 Lambda version: '2022-01-11'
 
 - Fixes the render erroring if `framesPerLambda` is not specified. To be clear, this parameter stays optional.
 
 ## January 10th, 2022
 
-Version hash: `3.0.0-lambda.274+a3183304a`
+Version hash: `3.0.0-lambda.274+a3183304a`  
 Lambda version: '2022-01-10'
 
 - New option to allow the filename of the output: `outName` in `renderMedia` / `renderStill` and `--out-name` in CLI flags
@@ -42,7 +48,7 @@ Lambda version: '2022-01-10'
 
 ## January 6th, 2022
 
-Version hash: `3.0.0-lambda.244+d055311e8`
+Version hash: `3.0.0-lambda.244+d055311e8`  
 Lambda version: '2022-01-06'
 
 - Added changes from Remotion 2.6.0 and 2.6.1
