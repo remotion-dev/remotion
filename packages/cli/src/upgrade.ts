@@ -1,40 +1,28 @@
+import {BundlerInternals, PackageManager} from '@remotion/bundler';
 import execa from 'execa';
 import fs from 'fs';
 import path from 'path';
 import {Internals} from 'remotion';
 import {Log} from './log';
 
-const npmOrYarn = (): 'npm' | 'yarn' => {
-	const packageLockJsonFilePath = path.join(process.cwd(), 'package-lock.json');
-	const yarnLockFilePath = path.join(process.cwd(), 'yarn.lock');
+const getUpgradeCommand = ({
+	manager,
+	packages,
+	version,
+}: {
+	manager: PackageManager;
+	packages: string[];
+	version: string;
+}): string[] => {
+	const pkgList = packages.map((p) => `${p}@^${version}`);
 
-	const npmExists = fs.existsSync(packageLockJsonFilePath);
-	const yarnExists = fs.existsSync(yarnLockFilePath);
+	const commands: {[key in PackageManager]: string[]} = {
+		npm: ['i', ...pkgList],
+		pnpm: ['i', ...pkgList],
+		yarn: ['add', ...pkgList],
+	};
 
-	if (npmExists && !yarnExists) {
-		return 'npm';
-	}
-
-	if (!npmExists && yarnExists) {
-		return 'yarn';
-	}
-
-	if (npmExists && yarnExists) {
-		Log.error(
-			'Found both a package-lock.json and a yarn.lock file in your project.'
-		);
-		Log.error(
-			'This can lead to bugs, delete one of the two files and settle on 1 package manager.'
-		);
-		Log.error('Afterwards, run this command again.');
-		process.exit(1);
-	}
-
-	Log.error('Did not find a package-lock.json or yarn.lock file.');
-	Log.error('Cannot determine how to update dependencies.');
-	Log.error('Did you run `npm install` yet?');
-	Log.error('Make sure either file exists and run this command again.');
-	process.exit(1);
+	return commands[manager];
 };
 
 export const upgrade = async () => {
@@ -48,8 +36,10 @@ export const upgrade = async () => {
 
 	const packageJson = require(packageJsonFilePath);
 	const dependencies = Object.keys(packageJson.dependencies);
+	const latestRemotionVersion =
+		await BundlerInternals.getLatestRemotionVersion();
 
-	const tool = npmOrYarn();
+	const manager = BundlerInternals.getPackageManager();
 
 	const toUpgrade = [
 		'@remotion/bundler',
@@ -64,7 +54,17 @@ export const upgrade = async () => {
 		'remotion',
 	].filter((u) => dependencies.includes(u));
 
-	const prom = execa(tool, ['upgrade', ...toUpgrade]);
+	const prom = execa(
+		manager,
+		getUpgradeCommand({
+			manager,
+			packages: toUpgrade,
+			version: latestRemotionVersion,
+		}),
+		{
+			stdio: 'inherit',
+		}
+	);
 	if (
 		Internals.Logging.isEqualOrBelowLogLevel(
 			Internals.Logging.getLogLevel(),

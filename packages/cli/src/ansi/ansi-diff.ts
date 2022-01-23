@@ -45,11 +45,11 @@ export class AnsiDiff {
 		}
 	};
 
-	toString = () => {
+	toString() {
 		return this._buffer;
-	};
+	}
 
-	update = (buffer: string | Buffer, opts?: {moveTo?: [number, number]}) => {
+	update(buffer: string | Buffer, opts?: {moveTo?: [number, number]}) {
 		this._buffer = Buffer.isBuffer(buffer) ? buffer.toString() : buffer;
 
 		const other = this._buffer;
@@ -118,30 +118,30 @@ export class AnsiDiff {
 		}
 
 		return Buffer.concat(this._out);
-	};
+	}
 
-	_clearDown = (y: number) => {
+	_clearDown(y: number) {
 		let {x} = this;
 		for (let i = this.y; i <= y; i++) {
 			this._moveTo(x, i);
 			this._push(CLEAR_LINE);
 			x = 0;
 		}
-	};
+	}
 
-	_newline = () => {
+	_newline() {
 		this._push(NEWLINE);
 		this.x = 0;
 		this.y++;
-	};
+	}
 
-	_write = (line: Line) => {
+	_write(line: Line) {
 		this._out.push(line.toBuffer());
 		this.x = line.remainder;
 		this.y += line.height;
-	};
+	}
 
-	_moveTo = (x: number, y: number) => {
+	_moveTo(x: number, y: number) {
 		const dx = x - this.x;
 		const dy = y - this.y;
 
@@ -152,7 +152,7 @@ export class AnsiDiff {
 
 		this.x = x;
 		this.y = y;
-	};
+	}
 
 	_push = (buf: Buffer) => {
 		this._out.push(buf);
@@ -196,16 +196,16 @@ class Line {
 		}
 	}
 
-	diffLeft = (other: Line) => {
+	diffLeft(other: Line) {
 		let left = 0;
 		for (; left < this.length; left++) {
 			if (this.raw[left] !== other.raw[left]) return left;
 		}
 
 		return left;
-	};
+	}
 
-	diffRight = (other: Line) => {
+	diffRight(other: Line) {
 		let right = 0;
 		for (; right < this.length; right++) {
 			const r = this.length - right - 1;
@@ -213,11 +213,11 @@ class Line {
 		}
 
 		return right;
-	};
+	}
 
-	toBuffer = () => {
+	toBuffer() {
 		return Buffer.from(this.raw);
-	};
+	}
 }
 
 function inlineDiff(a: Line, b: Line) {

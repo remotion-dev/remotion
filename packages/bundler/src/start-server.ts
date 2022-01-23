@@ -15,7 +15,7 @@ import {
 	guessEditor,
 	launchEditor,
 } from './error-overlay/react-overlay/utils/open-in-editor';
-import {StackFrame} from './error-overlay/react-overlay/utils/stack-frame';
+import {SymbolicatedStackFrame} from './error-overlay/react-overlay/utils/stack-frame';
 import {webpackHotMiddleware} from './hot-middleware';
 import {wdm} from './dev-middleware';
 import {getFileSource} from './error-overlay/react-overlay/utils/get-file-source';
@@ -100,22 +100,19 @@ export const startServer = async (
 	app.use(express.json());
 	app.post('/api/open-in-editor', async (req, res) => {
 		try {
-			const body = req.body as {stack: StackFrame};
+			const body = req.body as {stack: SymbolicatedStackFrame};
 			if (!('stack' in body)) {
 				throw new TypeError('Need to pass stack');
 			}
 
-			const stack = body.stack as StackFrame;
+			const stack = body.stack as SymbolicatedStackFrame;
 
 			const guess = await editorGuess;
 			const didOpen = await launchEditor({
-				colNumber: stack._originalColumnNumber as number,
+				colNumber: stack.originalColumnNumber as number,
 				editor: guess[0],
-				fileName: path.resolve(
-					process.cwd(),
-					stack._originalFileName as string
-				),
-				lineNumber: stack._originalLineNumber as number,
+				fileName: path.resolve(process.cwd(), stack.originalFileName as string),
+				lineNumber: stack.originalLineNumber as number,
 				vsCodeNewWindow: false,
 			});
 			res.json({
