@@ -90,10 +90,10 @@ export const Index: React.FC = () => {
       })
       .catch((err) => {
         console.log(`Error fetching metadata: ${err}`);
-			})
-			.finally(() => {
-				continueRender(handle);
-			});
+      })
+      .finally(() => {
+        continueRender(handle);
+      });
   }, [handle]);
 
   return (
