@@ -1,8 +1,7 @@
+import {PackageManager} from '@remotion/bundler';
 import React, {useCallback, useContext, useEffect, useState} from 'react';
 import {ModalsContext} from '../state/modals';
 import {useZIndex} from '../state/z-index';
-
-type PackageManager = 'npm' | 'yarn' | 'unknown';
 
 export type UpdateInfo = {
 	currentVersion: string;
