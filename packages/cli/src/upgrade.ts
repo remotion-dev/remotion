@@ -63,7 +63,7 @@ const getUpgradeCommand = ({
 	packages: string[];
 	version: string;
 }): string[] => {
-	const pkgList = packages.map((p) => `^${p}@${version}`).join(' ');
+	const pkgList = packages.map((p) => `${p}@^${version}`);
 	if (manager === 'npm') {
 		return ['i', ...pkgList];
 	}
@@ -114,7 +114,10 @@ export const upgrade = async () => {
 			manager,
 			packages: toUpgrade,
 			version: latestRemotionVersion,
-		})
+		}),
+		{
+			stdio: 'inherit',
+		}
 	);
 	if (Internals.Logging.isEqualOrBelowLogLevel('info')) {
 		prom.stdout?.pipe(process.stdout);
