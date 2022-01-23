@@ -1,10 +1,15 @@
-import React, {createRef, useImperativeHandle, useState} from 'react';
+import React, {
+	createRef,
+	useCallback,
+	useImperativeHandle,
+	useState,
+} from 'react';
 import {AbsoluteFill} from 'remotion';
-import {ErrorRecord} from '../react-overlay/listen-to-runtime-errors';
-import {ErrorDisplay} from './ErrorDisplay';
+import {ErrorLoader} from './ErrorLoader';
 
 type SetErrors = {
 	setErrors: (errs: State) => void;
+	addError: (err: Error) => void;
 };
 
 export const setErrorsRef = createRef<SetErrors>();
@@ -14,37 +19,48 @@ type State =
 			type: 'clear';
 	  }
 	| {
-			type: 'symbolicating';
-	  }
-	| {
 			type: 'errors';
-			errors: ErrorRecord[];
+			errors: Error[];
 	  };
+
+const errorsAreTheSame = (first: Error, second: Error) => {
+	return first.stack === second.stack && first.message === second.message;
+};
 
 const BACKGROUND_COLOR = '#1f2428';
 export const Overlay: React.FC = () => {
 	const [errors, setErrors] = useState<State>({type: 'clear'});
 
+	const addError = useCallback((err: Error) => {
+		setErrors((state) => {
+			if (state.type === 'errors') {
+				if (state.errors.some((e) => errorsAreTheSame(e, err))) {
+					return state;
+				}
+
+				return {
+					...state,
+					errors: [...state.errors, err],
+				};
+			}
+
+			return {
+				type: 'errors',
+				errors: [err],
+			};
+		});
+	}, []);
+
 	useImperativeHandle(
 		setErrorsRef,
 		() => {
-			return {setErrors};
+			return {setErrors, addError};
 		},
-		[]
+		[addError]
 	);
 
 	if (errors.type === 'clear') {
 		return null;
-	}
-
-	if (errors.type === 'symbolicating') {
-		return (
-			<AbsoluteFill
-				style={{
-					backgroundColor: BACKGROUND_COLOR,
-				}}
-			/>
-		);
 	}
 
 	if (errors.errors.length === 0) {
@@ -60,7 +76,7 @@ export const Overlay: React.FC = () => {
 			}}
 		>
 			{errors.errors.map((err) => {
-				return <ErrorDisplay key={err.error.stack} display={err} />;
+				return <ErrorLoader key={err.stack} error={err} />;
 			})}
 		</AbsoluteFill>
 	);
