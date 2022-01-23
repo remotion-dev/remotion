@@ -1,8 +1,15 @@
+import React from 'react';
+import {Sequence} from '../index';
+import {
+	TimelineContext,
+	TimelineContextValue,
+} from '../timeline-position-state';
+import {useCurrentFrame} from '../use-frame';
 import {render} from '@testing-library/react';
 import {Freeze} from '../freeze';
 import {expectToThrow} from './expect-to-throw';
 
-describe('Throw with invalid duration props', () => {
+describe('Prop validation', () => {
 	test('It should throw if Freeze has string as frame prop value', () => {
 		expectToThrow(
 			// @ts-expect-error
@@ -18,15 +25,6 @@ describe('Throw with invalid duration props', () => {
 		);
 	});
 });
-
-/* eslint-disable react/jsx-no-constructed-context-values */
-import React from 'react';
-import {Sequence} from '../index';
-import {
-	TimelineContext,
-	TimelineContextValue,
-} from '../timeline-position-state';
-import {useCurrentFrame} from '../use-frame';
 
 const timelineCtxValue = (frame: number): TimelineContextValue => ({
 	rootId: '',
@@ -75,12 +73,14 @@ const TestComponent: React.FC = () => {
 	return <div>{frame}</div>;
 };
 
-test('Basic test', () => {
-	const {container} = renderForFrame(0, <Basic />);
-	expect(container.innerHTML).toBe('<div>300</div>');
-});
+describe('Integration tests', () => {
+	test('Basic test', () => {
+		const {container} = renderForFrame(0, <Basic />);
+		expect(container.innerHTML).toBe('<div>300</div>');
+	});
 
-test('Should ignore a Sequence', () => {
-	const {container} = renderForFrame(300, <WithSequence />);
-	expect(container.innerHTML).toBe('<div>100</div>');
+	test('Should ignore a Sequence', () => {
+		const {container} = renderForFrame(300, <WithSequence />);
+		expect(container.innerHTML).toBe('<div>100</div>');
+	});
 });
