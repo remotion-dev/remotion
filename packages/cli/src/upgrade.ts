@@ -64,19 +64,14 @@ const getUpgradeCommand = ({
 	version: string;
 }): string[] => {
 	const pkgList = packages.map((p) => `${p}@^${version}`);
-	if (manager === 'npm') {
-		return ['i', ...pkgList];
-	}
 
-	if (manager === 'yarn') {
-		return ['add', ...pkgList];
-	}
+	const commands: {[key in Manager]: string[]} = {
+		npm: ['i', ...pkgList],
+		pnpm: ['i', ...pkgList],
+		yarn: ['add', ...pkgList],
+	};
 
-	if (manager === 'pnpm') {
-		return ['i', ...pkgList];
-	}
-
-	throw new Error('Invalid pkg manager ' + manager);
+	return commands[manager];
 };
 
 export const upgrade = async () => {
