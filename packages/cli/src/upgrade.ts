@@ -1,71 +1,22 @@
-import {BundlerInternals} from '@remotion/bundler';
+import {BundlerInternals, PackageManager} from '@remotion/bundler';
 import execa from 'execa';
 import fs from 'fs';
 import path from 'path';
 import {Internals} from 'remotion';
 import {Log} from './log';
 
-type Manager = 'npm' | 'yarn' | 'pnpm';
-
-type LockfilePath = {
-	manager: Manager;
-	path: string;
-};
-
-const getPkgManager = (): Manager => {
-	const paths: LockfilePath[] = [
-		{path: 'package-lock.json', manager: 'npm'},
-		{
-			path: 'yarn.lock',
-			manager: 'yarn',
-		},
-		{
-			path: 'pnpm-lock.yaml',
-			manager: 'pnpm',
-		},
-	];
-
-	const existingPkgManagers = paths.filter((p) =>
-		fs.existsSync(path.join(process.cwd(), p.path))
-	);
-
-	if (existingPkgManagers.length === 0) {
-		Log.error(
-			`No lockfile was found in your project (one of ${paths
-				.map((p) => p.path)
-				.join(', ')}). Install dependencies using your favorite manager!`
-		);
-		process.exit(1);
-	}
-
-	if (existingPkgManagers.length > 1) {
-		Log.error(`Found multiple lockfiles:`);
-		for (const pkgManager of existingPkgManagers) {
-			Log.error(`- ${pkgManager.path}`);
-		}
-
-		Log.error();
-		Log.error(
-			'This can lead to bugs, delete all but one of these files and run this command again.'
-		);
-		process.exit(1);
-	}
-
-	return existingPkgManagers[0].manager;
-};
-
 const getUpgradeCommand = ({
 	manager,
 	packages,
 	version,
 }: {
-	manager: Manager;
+	manager: PackageManager;
 	packages: string[];
 	version: string;
 }): string[] => {
 	const pkgList = packages.map((p) => `${p}@^${version}`);
 
-	const commands: {[key in Manager]: string[]} = {
+	const commands: {[key in PackageManager]: string[]} = {
 		npm: ['i', ...pkgList],
 		pnpm: ['i', ...pkgList],
 		yarn: ['add', ...pkgList],
@@ -88,7 +39,7 @@ export const upgrade = async () => {
 	const latestRemotionVersion =
 		await BundlerInternals.getLatestRemotionVersion();
 
-	const manager = getPkgManager();
+	const manager = BundlerInternals.getPackageManager();
 
 	const toUpgrade = [
 		'@remotion/bundler',
