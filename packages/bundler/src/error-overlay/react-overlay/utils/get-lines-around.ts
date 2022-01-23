@@ -20,19 +20,19 @@ import {ScriptLine} from './stack-frame';
 export function getLinesAround(
 	line: number,
 	count: number,
-	lines: string[] | string
+	lines: string[]
 ): ScriptLine[] {
-	if (typeof lines === 'string') {
-		lines = lines.split('\n');
-	}
-
-	const result = [];
+	const result: ScriptLine[] = [];
 	for (
 		let index = Math.max(0, line - 1 - count);
 		index <= Math.min(lines.length - 1, line - 1 + count);
 		++index
 	) {
-		result.push(new ScriptLine(index + 1, lines[index], index === line - 1));
+		result.push({
+			lineNumber: index + 1,
+			content: lines[index],
+			highlight: index === line - 1,
+		});
 	}
 
 	return result;

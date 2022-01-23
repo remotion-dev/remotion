@@ -12,7 +12,10 @@ export const getLocationFromBuildError = (err: Error): ErrorLocation | null => {
 		return null;
 	}
 
-	if (!err.stack.startsWith('Error: Module build failed')) {
+	if (
+		!err.stack.startsWith('Error: Module build failed') &&
+		!err.stack.startsWith('Error: Cannot find module')
+	) {
 		return null;
 	}
 
@@ -25,21 +28,33 @@ export const getLocationFromBuildError = (err: Error): ErrorLocation | null => {
 					return null;
 				}
 
-				if (s.match(/^\s+at/g)) {
-					return null;
-				}
-
 				const matchWebpackOrEsbuild = s.match(/(.*):([0-9]+):([0-9]+): (.*)/);
 
-				if (!matchWebpackOrEsbuild) {
+				if (matchWebpackOrEsbuild) {
+					return {
+						fileName: matchWebpackOrEsbuild[1],
+						lineNumber: Number(matchWebpackOrEsbuild[2]),
+						columnNumber: Number(matchWebpackOrEsbuild[3]),
+						message: matchWebpackOrEsbuild[4],
+					};
+				}
+
+				const matchMissingModule = s.match(/\s+at(.*)\s\((.*)\)/);
+				if (!matchMissingModule) {
 					return null;
 				}
 
+				if (s.includes('webpackMissingModule')) {
+					return null;
+				}
+
+				const [, filename] = matchMissingModule;
+
 				return {
-					fileName: matchWebpackOrEsbuild[1],
-					lineNumber: Number(matchWebpackOrEsbuild[2]),
-					columnNumber: Number(matchWebpackOrEsbuild[3]),
-					message: matchWebpackOrEsbuild[4],
+					columnNumber: 0,
+					lineNumber: 1,
+					message: split[0],
+					fileName: filename.trim(),
 				};
 			})
 			.filter(Internals.truthy)[0] ?? null
