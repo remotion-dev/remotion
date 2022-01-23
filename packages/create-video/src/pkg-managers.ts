@@ -1,3 +1,5 @@
+import path from 'path';
+
 type PackageManager = 'npm' | 'yarn' | 'pnpm';
 
 const shouldUseYarn = (): boolean => {
@@ -8,7 +10,10 @@ const shouldUseYarn = (): boolean => {
 };
 
 const shouldUsePnpm = (): boolean => {
-	console.log(process.env, process.cwd(), __dirname, __filename);
+	if (__dirname.includes(path.join('.pnpm', 'create-video'))) {
+		return true;
+	}
+
 	if (!process.env.npm_config_argv) {
 		return false;
 	}
