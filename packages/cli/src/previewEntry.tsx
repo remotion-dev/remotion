@@ -11,5 +11,5 @@ render(
 	<Internals.RemotionRoot>
 		<Editor />
 	</Internals.RemotionRoot>,
-	document.getElementById('container')
+	Internals.getPreviewDomElement()
 );
