@@ -8,6 +8,7 @@ const shouldUseYarn = (): boolean => {
 };
 
 const shouldUsePnpm = (): boolean => {
+	console.log(process.env, process.cwd());
 	if (!process.env.npm_config_argv) {
 		return false;
 	}
