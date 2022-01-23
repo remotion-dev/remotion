@@ -5,10 +5,7 @@ import React, {
 	useReducer,
 	useRef,
 } from 'react';
-import {
-	StackFrame,
-	SymbolicatedStackFrame,
-} from '../react-overlay/utils/stack-frame';
+import {SymbolicatedStackFrame} from '../react-overlay/utils/stack-frame';
 import {Button} from './Button';
 
 type State =

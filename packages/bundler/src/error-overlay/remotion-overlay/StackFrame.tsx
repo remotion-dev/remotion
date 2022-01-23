@@ -1,8 +1,5 @@
 import React, {useCallback, useState} from 'react';
-import {
-	StackFrame,
-	SymbolicatedStackFrame,
-} from '../react-overlay/utils/stack-frame';
+import {SymbolicatedStackFrame} from '../react-overlay/utils/stack-frame';
 import {Button} from './Button';
 import {CaretDown, CaretRight} from './carets';
 import {CodeFrame} from './CodeFrame';
