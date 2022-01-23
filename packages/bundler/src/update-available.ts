@@ -1,7 +1,7 @@
 import {existsSync} from 'fs';
-import latestVersion from 'latest-version';
 import {join} from 'path';
 import semver from 'semver';
+import {getLatestRemotionVersion} from './get-latest-remotion-version';
 
 type PackageManager = 'npm' | 'yarn' | 'unknown';
 
@@ -20,7 +20,7 @@ const packageManager = existsSync(join(__dirname, '..', 'yarn.lock'))
 	: 'unknown';
 
 const isUpdateAvailable = async (currentVersion: string): Promise<Info> => {
-	const latest = await latestVersion('@remotion/bundler');
+	const latest = await getLatestRemotionVersion();
 	return {
 		updateAvailable: semver.lt(currentVersion, latest),
 		currentVersion,
