@@ -27,6 +27,12 @@ const link: React.CSSProperties = {
 	textDecoration: 'none',
 };
 
+const commands: {[key in UpdateInfo['packageManager']]: string} = {
+	npm: 'npm run upgrade',
+	yarn: 'yarn upgrade',
+	pnpm: 'pnpm run upgrade',
+};
+
 export const UpdateModal: React.FC<{
 	info: UpdateInfo;
 }> = ({info}) => {
@@ -36,8 +42,7 @@ export const UpdateModal: React.FC<{
 		setSelectedModal(null);
 	}, [setSelectedModal]);
 
-	const command =
-		info.packageManager === 'yarn' ? 'yarn upgrade' : 'npm run upgrade';
+	const command = commands[info.packageManager];
 
 	return (
 		<ModalContainer onOutsideClick={onQuit} onEscape={onQuit}>
