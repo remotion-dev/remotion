@@ -45,8 +45,8 @@ export class SourceMap {
 		return {line: l as number, column: c as number, source: s as string};
 	}
 
-	getSource(sourceName: string): string {
-		return this.__source_map.sourceContentFor(sourceName) as string;
+	getSource(sourceName: string): string | null {
+		return this.__source_map.sourceContentFor(sourceName);
 	}
 }
 

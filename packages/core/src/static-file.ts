@@ -7,7 +7,7 @@ const trimLeadingSlash = (path: string): string => {
 };
 
 const inner = (path: string): string => {
-	if (window.remotion_staticBase) {
+	if (typeof window !== 'undefined' && window.remotion_staticBase) {
 		return `${window.remotion_staticBase}/${trimLeadingSlash(path)}`;
 	}
 
