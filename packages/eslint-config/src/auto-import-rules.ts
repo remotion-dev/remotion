@@ -8,6 +8,7 @@ export const autoImports = {
   useCurrentFrame: "import {useCurrentFrame} from 'remotion'",
   useVideoConfig: "import {useVideoConfig} from 'remotion'",
   spring: "import {spring} from 'remotion'",
+  measureSpring: "import {measureSpring} from 'remotion'",
   random: "import {random} from 'remotion'",
   interpolate: "import {interpolate} from 'remotion'",
   interpolateColors: "import {interpolateColors} from 'remotion'",
