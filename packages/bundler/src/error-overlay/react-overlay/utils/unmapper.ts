@@ -60,11 +60,10 @@ export const unmap = async (
 		);
 
 		const {functionName} = frame.frame;
-		const scriptCode = getLinesAround(
-			pos.line,
-			contextLines,
-			map.getSource(pos.source).split('\n')
-		);
+		const hasSource = map.getSource(pos.source);
+		const scriptCode = hasSource
+			? getLinesAround(pos.line, contextLines, hasSource.split('\n'))
+			: null;
 
 		return {
 			originalColumnNumber: pos.column,
