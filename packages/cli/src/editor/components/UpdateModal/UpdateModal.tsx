@@ -31,6 +31,7 @@ const commands: {[key in UpdateInfo['packageManager']]: string} = {
 	npm: 'npm run upgrade',
 	yarn: 'yarn upgrade',
 	pnpm: 'pnpm run upgrade',
+	unknown: 'npm run upgrade',
 };
 
 export const UpdateModal: React.FC<{
