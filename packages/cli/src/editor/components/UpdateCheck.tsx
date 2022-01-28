@@ -8,7 +8,7 @@ export type UpdateInfo = {
 	latestVersion: string;
 	updateAvailable: boolean;
 	timedOut: boolean;
-	packageManager: PackageManager;
+	packageManager: PackageManager | 'unknown';
 };
 
 const buttonStyle: React.CSSProperties = {

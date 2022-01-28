@@ -41,6 +41,14 @@ export const upgrade = async () => {
 
 	const manager = BundlerInternals.getPackageManager();
 
+	if (manager === 'unknown') {
+		throw new Error(
+			`No lockfile was found in your project (one of ${BundlerInternals.lockFilePaths
+				.map((p) => p.path)
+				.join(', ')}). Install dependencies using your favorite manager!`
+		);
+	}
+
 	const toUpgrade = [
 		'@remotion/bundler',
 		'@remotion/cli',

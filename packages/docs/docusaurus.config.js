@@ -9,14 +9,6 @@ module.exports = {
   organizationName: "remotion-dev", // Usually your GitHub org/user name.
   projectName: "remotion", // Usually your repo name.
   themeConfig: {
-    announcementBar: {
-      id: "A Company",
-      content:
-        "<a href='https://www.youtube.com/watch?v=DsF4sXkdPeE' target='_blank'>Remotion is now a company!</a>",
-      backgroundColor: "var(--ifm-hero-background-color)",
-      textColor: "var(--text-color)",
-      isCloseable: true,
-    },
     algolia: {
       apiKey: "f63f08c037745da5269569bfbd91cd59",
       indexName: "remotion",

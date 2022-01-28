@@ -1,6 +1,4 @@
 import fs from 'fs';
-import {createWriteStream} from 'fs';
-import got from 'got';
 import path from 'path';
 
 import {Internals, random, TAsset} from 'remotion';
@@ -10,6 +8,7 @@ export type RenderMediaOnDownload = (
 	src: string
 ) => ((progress: {percent: number}) => void) | undefined | void;
 import {sanitizeFilePath} from './sanitize-filepath';
+import {downloadFile} from './download-file';
 
 const isDownloadingMap: {[key: string]: boolean} = {};
 const hasBeenDownloadedMap: {[key: string]: boolean} = {};
@@ -120,22 +119,10 @@ const downloadAsset = async (
 		return;
 	}
 
-	// Listen to 'close' event instead of more
-	// concise method to avoid this problem
-	// https://github.com/remotion-dev/remotion/issues/384#issuecomment-844398183
-	await new Promise<void>((resolve, reject) => {
-		const writeStream = createWriteStream(to);
-
-		writeStream.on('close', () => resolve());
-		writeStream.on('error', (err) => reject(err));
-
-		const stream = got.stream(src);
-		stream.on('downloadProgress', ({percent}) => {
-			onProgress?.({
-				percent,
-			});
+	await downloadFile(src, to, ({progress}) => {
+		onProgress?.({
+			percent: progress,
 		});
-		stream.pipe(writeStream).on('error', (err) => reject(err));
 	});
 	notifyAssetIsDownloaded(src);
 };
