@@ -18,25 +18,27 @@ export const lockFilePaths: LockfilePath[] = [
 	},
 ];
 
-const discoverPkgManager = (currentPath: string): PackageManager | "unknown" => {
-	if (currentPath === "/") {
-		return "unknown";
+const discoverPkgManager = (
+	currentPath: string
+): PackageManager | 'unknown' => {
+	if (currentPath === '/') {
+		return 'unknown';
 	}
 
 	const existingPkgManagers = lockFilePaths.filter((p) =>
-		fs.existsSync(path.join(process.cwd(), p.path))
+		fs.existsSync(path.join(currentPath, p.path))
 	);
 
 	if (existingPkgManagers.length > 1) {
 		const error = [
-				`Found multiple lockfiles:`,
-				...existingPkgManagers.map((m) => {
-					return `- ${m.path}`;
-				}),
-				'',
-				'This can lead to bugs, delete all but one of these files and run this command again.',
-			].join('\n');
-	
+			`Found multiple lockfiles:`,
+			...existingPkgManagers.map((m) => {
+				return `- ${m.path}`;
+			}),
+			'',
+			'This can lead to bugs, delete all but one of these files and run this command again.',
+		].join('\n');
+
 		throw new Error(error);
 	}
 
@@ -45,7 +47,7 @@ const discoverPkgManager = (currentPath: string): PackageManager | "unknown" => 
 	}
 
 	return discoverPkgManager(path.dirname(currentPath));
-}
+};
 
 export const getPackageManager = (): PackageManager | 'unknown' => {
 	return discoverPkgManager(process.cwd());
