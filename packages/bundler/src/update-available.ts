@@ -7,7 +7,7 @@ type Info = {
 	latestVersion: string;
 	updateAvailable: boolean;
 	timedOut: boolean;
-	packageManager: PackageManager;
+	packageManager: PackageManager | 'unknown';
 };
 
 const isUpdateAvailable = async (currentVersion: string): Promise<Info> => {
