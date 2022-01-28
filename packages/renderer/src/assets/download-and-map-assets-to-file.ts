@@ -1,10 +1,11 @@
 import fs from 'fs';
 import {createWriteStream, mkdirSync} from 'fs';
-import got from 'got';
 import path from 'path';
+import https from 'https';
 
 import {Internals, random, TAsset} from 'remotion';
 import {sanitizeFilePath} from './sanitize-filepath';
+import {downloadFile} from './download-file';
 
 const isDownloadingMap: {[key: string]: boolean} = {};
 const hasBeenDownloadedMap: {[key: string]: boolean} = {};
@@ -116,20 +117,7 @@ const downloadAsset = async (
 		return;
 	}
 
-	// Listen to 'close' event instead of more
-	// concise method to avoid this problem
-	// https://github.com/remotion-dev/remotion/issues/384#issuecomment-844398183
-	await new Promise<void>((resolve, reject) => {
-		const writeStream = createWriteStream(to);
-
-		writeStream.on('close', () => resolve());
-		writeStream.on('error', (err) => reject(err));
-
-		got
-			.stream(src)
-			.pipe(writeStream)
-			.on('error', (err) => reject(err));
-	});
+	await downloadFile(src, to);
 	notifyAssetIsDownloaded(src);
 };
 
