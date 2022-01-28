@@ -19,9 +19,9 @@ import {deleteDirectory} from './delete-directory';
 import {prepareServer} from './prepare-server';
 import {isServeUrl} from './is-serve-url';
 import {ensureOutputDirectory} from './ensure-output-directory';
-import got from 'got';
-import {getRealFrameRange} from './get-frame-to-render';
 import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
+import {getRealFrameRange} from './get-frame-to-render';
+import {downloadFile} from './assets/download-file';
 
 declare global {
 	interface Window {
@@ -69,7 +69,7 @@ export const RenderInternals = {
 	prepareServer,
 	isServeUrl,
 	ensureOutputDirectory,
-	gotStream: got.stream,
 	getRealFrameRange,
 	validatePuppeteerTimeout,
+	downloadFile,
 };
