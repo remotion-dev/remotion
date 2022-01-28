@@ -1,7 +1,6 @@
 import fs from 'fs';
-import {createWriteStream, mkdirSync} from 'fs';
+import {mkdirSync} from 'fs';
 import path from 'path';
-import https from 'https';
 
 import {Internals, random, TAsset} from 'remotion';
 import {sanitizeFilePath} from './sanitize-filepath';
