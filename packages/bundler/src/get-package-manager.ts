@@ -6,30 +6,25 @@ type LockfilePath = {
 	manager: PackageManager;
 	path: string;
 };
+export const lockFilePaths: LockfilePath[] = [
+	{path: 'package-lock.json', manager: 'npm'},
+	{
+		path: 'yarn.lock',
+		manager: 'yarn',
+	},
+	{
+		path: 'pnpm-lock.yaml',
+		manager: 'pnpm',
+	},
+];
 
-export const getPackageManager = (): PackageManager => {
-	const paths: LockfilePath[] = [
-		{path: 'package-lock.json', manager: 'npm'},
-		{
-			path: 'yarn.lock',
-			manager: 'yarn',
-		},
-		{
-			path: 'pnpm-lock.yaml',
-			manager: 'pnpm',
-		},
-	];
-
-	const existingPkgManagers = paths.filter((p) =>
+export const getPackageManager = (): PackageManager | 'unknown' => {
+	const existingPkgManagers = lockFilePaths.filter((p) =>
 		fs.existsSync(path.join(process.cwd(), p.path))
 	);
 
 	if (existingPkgManagers.length === 0) {
-		throw new Error(
-			`No lockfile was found in your project (one of ${paths
-				.map((p) => p.path)
-				.join(', ')}). Install dependencies using your favorite manager!`
-		);
+		return 'unknown';
 	}
 
 	if (existingPkgManagers.length > 1) {
