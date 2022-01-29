@@ -131,6 +131,7 @@ module.exports = {
       collapsed: false,
       items: [
         "timeout",
+        "target-closed",
         "media-playback-error",
         "performance",
         "webpack-dynamic-imports",

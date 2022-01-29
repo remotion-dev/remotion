@@ -51,6 +51,8 @@ export const still = async () => {
 		chromiumOptions,
 	} = await getCliOptions('still');
 
+	Log.verbose('Browser executable: ', browserExecutable);
+
 	if (imageFormat === 'none') {
 		Log.error(
 			'No image format was selected - this is probably an error in Remotion - please post your command on Github Issues for help.'
