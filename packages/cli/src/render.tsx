@@ -70,6 +70,8 @@ export const render = async () => {
 		chromiumOptions,
 	} = await getCliOptions('series');
 
+	Log.verbose('Browser executable: ', browserExecutable);
+
 	await checkAndValidateFfmpegVersion({
 		ffmpegExecutable: Internals.getCustomFfmpegExecutable(),
 	});
