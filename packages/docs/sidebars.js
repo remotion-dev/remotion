@@ -139,6 +139,12 @@ module.exports = {
         "flickering",
       ],
     },
+    {
+      type: "category",
+      label: "Miscellaneous",
+      collapsed: false,
+      items: ["chromium-flags", "prereleases", "gpu"],
+    },
     "2-0-migration",
     "license",
   ],
