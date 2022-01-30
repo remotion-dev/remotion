@@ -4,7 +4,7 @@ import got from 'got';
 import path from 'path';
 
 import {Internals, random, TAsset} from 'remotion';
-import sanitizeFilename from 'sanitize-filename';
+import {sanitizeFilePath} from './sanitize-filepath';
 
 const isDownloadingMap: {[key: string]: boolean} = {};
 const hasBeenDownloadedMap: {[key: string]: boolean} = {};
@@ -159,7 +159,7 @@ export const getSanitizedFilenameForAssetUrl = ({
 	const {pathname, search} = new URL(src);
 
 	if (!isRemote) {
-		return path.join(webpackBundle, sanitizeFilename(pathname));
+		return path.join(webpackBundle, sanitizeFilePath(pathname));
 	}
 
 	const split = pathname.split('.');
@@ -173,7 +173,7 @@ export const getSanitizedFilenameForAssetUrl = ({
 	);
 	return path.join(
 		webpackBundle,
-		sanitizeFilename(hashedFileName + fileExtension)
+		sanitizeFilePath(hashedFileName + fileExtension)
 	);
 };
 

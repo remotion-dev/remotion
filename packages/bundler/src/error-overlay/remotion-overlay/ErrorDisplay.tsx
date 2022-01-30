@@ -1,10 +1,11 @@
-import React from 'react';
+import React, {useMemo} from 'react';
 import {ErrorRecord} from '../react-overlay/listen-to-runtime-errors';
 import {AskOnDiscord} from './AskOnDiscord';
 import {OpenInEditor} from './OpenInEditor';
 import {SearchGithubIssues} from './SearchGitHubIssues';
 import {StackElement} from './StackFrame';
 import {DismissButton} from './DismissButton';
+import {getLocationFromBuildError} from '../react-overlay/effects/map-error-to-react-stack';
 
 const container: React.CSSProperties = {
 	width: '100%',
@@ -47,8 +48,10 @@ const left: React.CSSProperties = {
 	flex: 1,
 	paddingRight: 14,
 	lineHeight: 1.5,
+	whiteSpace: 'pre',
 	fontSize: '1.5em',
 	fontWeight: 'bold',
+	overflowX: 'auto',
 };
 
 export const ErrorDisplay: React.FC<{
@@ -60,17 +63,34 @@ export const ErrorDisplay: React.FC<{
 			.flat(1)
 			.map((s) => s?.lineNumber ?? 0)
 	);
+
+	const message = useMemo(() => {
+		// Format compilation errors
+		const location = getLocationFromBuildError(display.error);
+		if (!location) {
+			return display.error.message;
+		}
+
+		return location.message
+			.replace(/\\n/g, '\n')
+			.replace(/\\t/g, '  ')
+			.replace(/^error:/, '')
+			.trim();
+	}, [display.error]);
+
 	const lineNumberWidth = String(highestLineNumber).length;
 
 	return (
 		<div style={container}>
 			<div style={title}>
 				<div style={left}>
-					<span style={errName}>{display.error.name}</span>
+					<span style={errName}>
+						{display.type === 'syntax' ? 'Syntax error' : display.error.name}
+					</span>
 					<br />
-					{display.error.message}
+					{message}
 				</div>
-				<DismissButton />
+				{display.type === 'exception' ? <DismissButton /> : null}
 			</div>
 			{display.stackFrames.length > 0 && window.remotion_editorName ? (
 				<>
@@ -90,6 +110,11 @@ export const ErrorDisplay: React.FC<{
 							isFirst={i === 0}
 							s={s}
 							lineNumberWidth={lineNumberWidth}
+							defaultFunctionName={
+								display.type === 'exception'
+									? '(anonymous function)'
+									: 'Syntax error'
+							}
 						/>
 					);
 				})}

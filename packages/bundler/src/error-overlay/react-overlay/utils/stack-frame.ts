@@ -87,13 +87,6 @@ export class StackFrame {
 	}
 
 	/**
-	 * Returns the name of this function.
-	 */
-	getFunctionName(): string {
-		return this.functionName || '(anonymous function)';
-	}
-
-	/**
 	 * Returns the source of the frame.
 	 * This contains the file name, line number, and column number when available.
 	 */
@@ -112,14 +105,5 @@ export class StackFrame {
 		}
 
 		return str.slice(0, -1);
-	}
-
-	/**
-	 * Returns a pretty version of this stack frame.
-	 */
-	toString(): string {
-		const functionName = this.getFunctionName();
-		const source = this.getSource();
-		return `${functionName}${source ? ` (${source})` : ``}`;
 	}
 }

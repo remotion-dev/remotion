@@ -185,7 +185,7 @@ Config.Bundling.overrideWebpackConfig((currentConfiguration) => {
 4. Import the stylesheet in your `src/Video.tsx` file. Add to the top of the file:
 
 ```js
-import "/style.css";
+import "./style.css";
 ```
 
 5.  Start using TailwindCSS! You can verify that it's working by adding `className="bg-red-900"` to any element.
