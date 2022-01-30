@@ -67,6 +67,7 @@ export const render = async () => {
 		imageFormat,
 		browserExecutable,
 		ffmpegExecutable,
+		scale,
 	} = await getCliOptions('series');
 
 	await checkAndValidateFfmpegVersion({
@@ -98,6 +99,10 @@ export const render = async () => {
 	const compositionId = getCompositionId(comps);
 
 	const config = comps.find((c) => c.id === compositionId);
+	if (scale !== undefined) {
+		config!.scale = scale;
+	}
+
 	if (!config) {
 		throw new Error(`Cannot find composition with ID ${compositionId}`);
 	}
