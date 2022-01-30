@@ -270,6 +270,7 @@ export const PlayerFn = <T,>(
 					id: 'player-comp',
 					props: inputProps as unknown,
 					nonce: 777,
+					scale: 1,
 					defaultProps: undefined,
 				},
 			],

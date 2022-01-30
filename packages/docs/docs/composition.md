@@ -31,7 +31,7 @@ If you use `lazyComponent`, Remotion will use React Suspense to load the compone
 If you use `lazyComponent`, you need to use a default export for your component. This is a restriction of React Suspense.
 :::
 
-- `deviceScaleFactor` _optional_: Specify device scale factor (can be thought of as dpr). Defaults to 1
+- `scale` _optional_: Specify device scale factor (can be thought of as dpr). Defaults to 1
 
 - `defaultProps` _optional_: Give your component default props that will be shown in the preview. You can override these props during render using a CLI flag.
 

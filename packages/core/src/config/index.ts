@@ -21,6 +21,7 @@ import {setProResProfile} from './prores-profile';
 import {setQuality} from './quality';
 import {setWebpackCaching} from './webpack-caching';
 import {FfmpegExecutable, setFfmpegExecutable} from './ffmpeg-executable';
+import {setScale} from './scale';
 
 export const Config = {
 	Preview: {
@@ -101,6 +102,11 @@ export const Config = {
 		 * Default: null, which will use ffmpeg available in PATH.
 		 */
 		setFfmpegExecutable,
+		/**
+		 * Specify scale for puppeteer.
+		 * Default: null, which will use scale as 1.
+		 */
+		setScale,
 	},
 	Output: {
 		/**
