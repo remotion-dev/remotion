@@ -34,6 +34,10 @@ Render a still frame basd on the entry point, the composition ID and save it to 
 npx remotion still <entry-file> <composition-id> <output-location>
 ```
 
+### `npx remotion versions`
+
+Prints and validates versions of all Remotion packages.
+
 ### `npx remotion upgrade`
 
 Upgrade all Remotion-related dependencies to the newest version.
@@ -167,6 +171,12 @@ _available for `preview`, `still`, `render` commands_
 _available for `render` command_
 
 [Set a custom FFMPEG executable](/docs/config#setFfmpegExecutable). If not defined, a `ffmpeg` executable will be searched in `PATH`.
+
+### `--timeout`
+
+_available for `still`, `render` command_
+
+Define how long a single frame may take to resolve all [`delayRender()`](/docs/delay-render) calls before it times out. Default: `30000`
 
 ### `--help`
 

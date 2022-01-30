@@ -59,6 +59,7 @@ export const getAssetsForMarkup = async (
 				};
 			}
 		}, [assets]);
+		Internals.setupPuppeteerTimeout();
 		const compositions = useContext(Internals.CompositionManager);
 
 		const value = useMemo(() => {

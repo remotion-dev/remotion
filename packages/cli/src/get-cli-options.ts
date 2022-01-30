@@ -200,6 +200,7 @@ export const getCliOptions = async (type: 'still' | 'series') => {
 	const scale = Internals.getScale();
 
 	return {
+		puppeteerTimeout: Internals.getCurrentPuppeteerTimeout(),
 		parallelism: Internals.getConcurrency(),
 		frameRange,
 		shouldOutputImageSequence,

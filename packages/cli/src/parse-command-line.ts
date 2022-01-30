@@ -23,6 +23,7 @@ export type CommandLineOptions = {
 	['env-file']: string;
 	codec: Codec;
 	concurrency: number;
+	timeout: number;
 	config: string;
 	crf: number;
 	force: boolean;
@@ -43,7 +44,7 @@ export const parsedCli = minimist<CommandLineOptions>(process.argv.slice(2), {
 	boolean: ['force', 'overwrite', 'sequence', 'help'],
 });
 
-export const parseCommandLine = (type: 'still' | 'sequence') => {
+export const parseCommandLine = (type: 'still' | 'sequence' | 'versions') => {
 	if (parsedCli['pixel-format']) {
 		Config.Output.setPixelFormat(parsedCli['pixel-format']);
 	}
@@ -82,6 +83,10 @@ export const parseCommandLine = (type: 'still' | 'sequence') => {
 
 	if (parsedCli.concurrency) {
 		Config.Rendering.setConcurrency(parsedCli.concurrency);
+	}
+
+	if (parsedCli.timeout) {
+		Config.Puppeteer.setTimeoutInMilliseconds(parsedCli.timeout);
 	}
 
 	if (parsedCli.frames) {
