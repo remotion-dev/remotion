@@ -59,6 +59,7 @@ if (typeof window !== 'undefined') {
 				id: c.id,
 				width: c.width,
 				defaultProps: c.defaultProps,
+				scale: c.scale ?? 1,
 			};
 		});
 }

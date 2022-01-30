@@ -3,5 +3,5 @@ export type VideoConfig = {
 	height: number;
 	fps: number;
 	durationInFrames: number;
-	deviceScaleFactor?: number;
+	scale?: number;
 };

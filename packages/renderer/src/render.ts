@@ -100,7 +100,7 @@ export const renderFrames = async ({
 		page.setViewport({
 			width: config.width,
 			height: config.height,
-			deviceScaleFactor: config.deviceScaleFactor ?? 1,
+			deviceScaleFactor: config.scale ?? 1,
 		});
 		const errorCallback = (err: Error) => {
 			onError?.({error: err, frame: null});

@@ -109,7 +109,7 @@ export const renderStill = async ({
 	page.setViewport({
 		width: composition.width,
 		height: composition.height,
-		deviceScaleFactor: composition.deviceScaleFactor ?? 1,
+		deviceScaleFactor: composition.scale ?? 1,
 	});
 	const errorCallback = (err: Error) => {
 		onError?.(err);
