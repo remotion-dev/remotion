@@ -23,6 +23,12 @@ import {setWebpackCaching} from './webpack-caching';
 import {FfmpegExecutable, setFfmpegExecutable} from './ffmpeg-executable';
 import {setScale} from './scale';
 import {setPuppeteerTimeout} from './timeout';
+import {
+	setChromiumDisableWebSecurity,
+	setChromiumHeadlessMode,
+	setChromiumIgnoreCertificateErrors,
+	setChromiumOpenGlRenderer,
+} from './chromium-flags';
 
 export const Config = {
 	Preview: {
@@ -73,6 +79,26 @@ export const Config = {
 		 * Default: `30000`
 		 */
 		setTimeoutInMilliseconds: setPuppeteerTimeout,
+		/**
+		 * Setting deciding whether to disable CORS and other Chrome security features.
+		 * Default: false
+		 */
+		setChromiumDisableWebSecurity,
+		/**
+		 * Setting whether to ignore any invalid SSL certificates, such as self-signed ones.
+		 * Default: false
+		 */
+		setChromiumIgnoreCertificateErrors,
+		/**
+		 * If false, will open an actual browser during rendering to observe progress.
+		 * Default: true
+		 */
+		setChromiumHeadlessMode,
+		/**
+		 * Set the OpenGL rendering backend for Chrome. Possible values: 'egl', 'angle' and 'swiftshader'.
+		 * Default: 'swiftshader' in Lambda, 'angle' elsewhere.
+		 */
+		setChromiumOpenGlRenderer,
 	},
 	Rendering: {
 		/**

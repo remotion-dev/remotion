@@ -18,7 +18,7 @@ import {SourceMapConsumer} from 'source-map';
  *
  * This exposes methods which will be indifferent to changes made in <code>{@link https://github.com/mozilla/source-map source-map}</code>.
  */
-class SourceMap {
+export class SourceMap {
 	__source_map: SourceMapConsumer;
 
 	constructor(sourceMap: SourceMapConsumer) {
@@ -45,39 +45,8 @@ class SourceMap {
 		return {line: l as number, column: c as number, source: s as string};
 	}
 
-	/**
-	 * Returns the generated code position for an original position.
-	 * @param {string} source The source file of the original code position.
-	 * @param {number} line The line of the original code position.
-	 * @param {number} column The column of the original code position.
-	 */
-	getGeneratedPosition(
-		source: string,
-		line: number,
-		column: number
-	): {line: number; column: number} {
-		const {line: l, column: c} = this.__source_map.generatedPositionFor({
-			source,
-			line,
-			column,
-		});
-		return {
-			line: l as number,
-			column: c as number,
-		};
-	}
-
-	/**
-	 * Returns the code for a given source file name.
-	 * @param {string} sourceName The name of the source file.
-	 */
-	getSource(sourceName: string): string {
-		return this.__source_map.sourceContentFor(sourceName) as string;
-	}
-
-	getSources(): string[] {
-		// @ts-expect-error
-		return this.__source_map.sources;
+	getSource(sourceName: string): string | null {
+		return this.__source_map.sourceContentFor(sourceName);
 	}
 }
 
@@ -127,13 +96,13 @@ async function getSourceMap(
 		sm = sm.substring(match2[0].length);
 		sm = window.atob(sm);
 		sm = JSON.parse(sm);
-		return new SourceMap(await new SourceMapConsumer(sm));
+		return new SourceMap(new SourceMapConsumer(sm));
 	}
 
 	const index = fileUri.lastIndexOf('/');
 	const url = fileUri.substring(0, index + 1) + sm;
 	const obj = await fetch(url).then((res) => res.json());
-	return new SourceMap(await new SourceMapConsumer(obj));
+	return new SourceMap(new SourceMapConsumer(obj));
 }
 
 export {getSourceMap};
