@@ -68,7 +68,10 @@ export const render = async () => {
 		browserExecutable,
 		ffmpegExecutable,
 		scale,
+		chromiumOptions,
 	} = await getCliOptions('series');
+
+	Log.verbose('Browser executable: ', browserExecutable);
 
 	await checkAndValidateFfmpegVersion({
 		ffmpegExecutable: Internals.getCustomFfmpegExecutable(),
@@ -77,6 +80,7 @@ export const render = async () => {
 	const browserInstance = RenderInternals.openBrowser(browser, {
 		browserExecutable,
 		shouldDumpIo: Internals.Logging.isEqualOrBelowLogLevel('verbose'),
+		chromiumOptions,
 	});
 	if (shouldOutputImageSequence) {
 		fs.mkdirSync(absoluteOutputFile, {
@@ -95,6 +99,8 @@ export const render = async () => {
 		browserInstance: openedBrowser,
 		envVariables,
 		timeoutInMilliseconds: Internals.getCurrentPuppeteerTimeout(),
+		chromiumOptions,
+		browserExecutable,
 	});
 	const compositionId = getCompositionId(comps);
 

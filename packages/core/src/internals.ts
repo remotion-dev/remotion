@@ -133,6 +133,16 @@ import {
 	getCurrentPuppeteerTimeout,
 	setPuppeteerTimeout,
 } from './config/timeout';
+import {
+	DEFAULT_OPENGL_RENDERER,
+	getChromiumDisableWebSecurity,
+	getChromiumHeadlessMode,
+	getChromiumOpenGlRenderer,
+	getIgnoreCertificateErrors,
+} from './config/chromium-flags';
+import {validateOpenGlRenderer} from './validation/validate-opengl-renderer';
+import {OpenGlRenderer} from './validation/validate-opengl-renderer';
+import {getPreviewDomElement} from './get-preview-dom-element';
 const Timeline = {...TimelinePosition, ...TimelineInOutPosition};
 
 // Mark them as Internals so use don't assume this is public
@@ -218,6 +228,13 @@ export const Internals = {
 	setupPuppeteerTimeout,
 	setPuppeteerTimeout,
 	getCurrentPuppeteerTimeout,
+	getChromiumDisableWebSecurity,
+	getIgnoreCertificateErrors,
+	validateOpenGlRenderer,
+	getChromiumOpenGlRenderer,
+	getChromiumHeadlessMode,
+	DEFAULT_OPENGL_RENDERER,
+	getPreviewDomElement,
 };
 
 export type {
@@ -239,4 +256,5 @@ export type {
 	LooseAnyComponent,
 	RemotionEnvironment,
 	ProResProfile,
+	OpenGlRenderer,
 };

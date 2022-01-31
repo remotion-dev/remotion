@@ -1,4 +1,5 @@
 import React, {useContext, useMemo} from 'react';
+import {SequenceContext} from './sequencing';
 import {TimelineContext, TimelineContextValue} from './timeline-position-state';
 
 type FreezeProps = {
@@ -44,7 +45,9 @@ const Freeze: React.FC<FreezeProps> = ({frame, children}) => {
 
 	return (
 		<TimelineContext.Provider value={value}>
-			{children}
+			<SequenceContext.Provider value={null}>
+				{children}
+			</SequenceContext.Provider>
 		</TimelineContext.Provider>
 	);
 };
