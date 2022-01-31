@@ -105,9 +105,6 @@ export const render = async () => {
 	const compositionId = getCompositionId(comps);
 
 	const config = comps.find((c) => c.id === compositionId);
-	if (scale !== undefined) {
-		config!.scale = scale;
-	}
 
 	if (!config) {
 		throw new Error(`Cannot find composition with ID ${compositionId}`);
@@ -117,7 +114,7 @@ export const render = async () => {
 		width: config.width,
 		height: config.height,
 		codec,
-		scale: config.scale ?? 1,
+		scale,
 	});
 
 	const outputDir = shouldOutputImageSequence
@@ -212,8 +209,8 @@ export const render = async () => {
 		const stitchStart = Date.now();
 		await stitchFramesToVideo({
 			dir: outputDir,
-			width: config.width * (config.scale ?? 1),
-			height: config.height * (config.scale ?? 1),
+			width: config.width * scale,
+			height: config.height * scale,
 			fps: config.fps,
 			outputLocation: absoluteOutputFile,
 			force: overwrite,

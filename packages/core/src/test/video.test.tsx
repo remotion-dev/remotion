@@ -21,7 +21,6 @@ const Wrapper: React.FC = ({children}) => {
 							durationInFrames: 30,
 							id: 'markup',
 							nonce: 0,
-							scale: 1,
 							component: React.lazy(() =>
 								Promise.resolve({
 									default: (() => null) as LooseAnyComponent<unknown>,

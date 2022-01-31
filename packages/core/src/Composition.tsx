@@ -24,7 +24,6 @@ export type CompProps<T> =
 export type StillProps<T> = {
 	width: number;
 	height: number;
-	scale?: number;
 	id: string;
 	defaultProps?: T;
 } & CompProps<T>;
@@ -40,7 +39,6 @@ export const Composition = <T,>({
 	fps,
 	durationInFrames,
 	id,
-	scale,
 	defaultProps,
 	...compProps
 }: CompositionProps<T>) => {
@@ -69,7 +67,6 @@ export const Composition = <T,>({
 			fps,
 			height,
 			width,
-			scale,
 			id,
 			component: lazy,
 			defaultProps,
@@ -82,7 +79,6 @@ export const Composition = <T,>({
 				durationInFrames,
 				fps,
 				height,
-				scale,
 				id,
 				width,
 				nonce,
@@ -98,7 +94,6 @@ export const Composition = <T,>({
 		durationInFrames,
 		fps,
 		height,
-		scale,
 		lazy,
 		id,
 		defaultProps,
