@@ -135,8 +135,8 @@ export const Config = {
 		 */
 		setFfmpegExecutable,
 		/**
-		 * Specify scale for puppeteer.
-		 * Default: null, which will use scale as 1.
+		 * Scales the output dimensions by a factor.
+		 * Default: 1.
 		 */
 		setScale,
 	},

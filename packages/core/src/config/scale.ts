@@ -1,6 +1,6 @@
 export type Scale = number;
 
-let currentScale: Scale;
+let currentScale: Scale = 1;
 
 export const setScale = (newScale: Scale) => {
 	if (typeof newScale !== 'number') {
