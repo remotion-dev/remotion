@@ -19,6 +19,7 @@ import {provideScreenshot} from './provide-screenshot';
 import {seekToFrame} from './seek-to-frame';
 import {setPropsAndEnv} from './set-props-and-env';
 import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
+import {validateScale} from './validate-scale';
 
 type InnerStillOptions = {
 	composition: TCompMetadata;
@@ -55,6 +56,7 @@ const innerRenderStill = async ({
 	browserExecutable,
 	timeoutInMilliseconds,
 	chromiumOptions,
+	scale,
 }: InnerStillOptions & {
 	serveUrl: string;
 	onError: (err: Error) => void;
@@ -80,6 +82,7 @@ const innerRenderStill = async ({
 	Internals.validateNonNullImageFormat(imageFormat);
 	Internals.validateFrame(frame, composition.durationInFrames);
 	validatePuppeteerTimeout(timeoutInMilliseconds);
+	validateScale(scale);
 
 	if (typeof output !== 'string') {
 		throw new TypeError('`output` parameter was not passed or is not a string');
