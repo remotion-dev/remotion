@@ -70,6 +70,8 @@ export const renderCommand = async (args: string[]) => {
 		isLambda: true,
 	});
 
+	console.log({codec, pixelFormat});
+
 	const functionName = await findFunctionName();
 
 	const region = getAwsRegion();

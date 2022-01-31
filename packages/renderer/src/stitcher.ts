@@ -177,18 +177,15 @@ export const spawnFfmpeg = async (options: StitcherOptions) => {
 			  ['-c:v', encoderName]
 			: // If only exporting audio, we drop the video explicitly
 			  ['-vn'],
+		isAudioOnly ? null : ['-pix_fmt', pixelFormat],
+		// Without explicitly disabling auto-alt-ref,
+		// transparent WebM generation doesn't work
+		pixelFormat === 'yuva420p' ? ['-auto-alt-ref', '0'] : null,
+		isAudioOnly ? null : ['-b:v', '1M'],
+		supportsCrf ? ['-crf', String(crf)] : null,
 		...(options.preEncodedFileLocation
 			? []
-			: [
-					proResProfileName ? ['-profile:v', proResProfileName] : null,
-					supportsCrf ? ['-crf', String(crf)] : null,
-					isAudioOnly ? null : ['-pix_fmt', pixelFormat],
-
-					// Without explicitly disabling auto-alt-ref,
-					// transparent WebM generation doesn't work
-					pixelFormat === 'yuva420p' ? ['-auto-alt-ref', '0'] : null,
-					isAudioOnly ? null : ['-b:v', '1M'],
-			  ]),
+			: [proResProfileName ? ['-profile:v', proResProfileName] : null]),
 		'-ar',
 		String(DEFAULT_SAMPLE_RATE),
 		audioCodecName ? ['-c:a', audioCodecName] : null,
@@ -201,10 +198,8 @@ export const spawnFfmpeg = async (options: StitcherOptions) => {
 		options.outputLocation,
 	];
 
-	if (options.verbose) {
-		console.log('Generated FFMPEG command:');
-		console.log(ffmpegArgs);
-	}
+	console.log('Generated FFMPEG command:');
+	console.log(ffmpegArgs);
 
 	const ffmpegString = ffmpegArgs
 		.reduce<(string | null | undefined)[]>((acc, val) => acc.concat(val), [])
@@ -213,6 +208,7 @@ export const spawnFfmpeg = async (options: StitcherOptions) => {
 	const task = execa(options.ffmpegExecutable ?? 'ffmpeg', ffmpegString);
 	task.stderr?.on('data', (data: Buffer) => {
 		if (options.onProgress) {
+			console.log('ffmpeg output', data.toString());
 			const parsed = parseFfmpegProgress(data.toString());
 			if (parsed !== undefined) {
 				options.onProgress(parsed);

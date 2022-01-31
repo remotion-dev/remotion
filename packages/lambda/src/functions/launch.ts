@@ -38,7 +38,6 @@ import {cleanupFiles} from './helpers/delete-chunks';
 import {getExpectedOutName} from './helpers/expected-out-name';
 import {getBrowserInstance} from './helpers/get-browser-instance';
 import {getCurrentRegionInFunction} from './helpers/get-current-region';
-import {getFilesToDelete} from './helpers/get-files-to-delete';
 import {getLambdasInvokedStats} from './helpers/get-lambdas-invoked-stats';
 import {inspectErrors} from './helpers/inspect-errors';
 import {lambdaLs, lambdaWriteFile} from './helpers/io';
@@ -360,16 +359,11 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		expectedBucketOwner: options.expectedBucketOwner,
 	});
 
-	const jobs = getFilesToDelete({
-		chunkCount,
-		renderId: params.renderId,
-	});
-
 	const deletProm = cleanupFiles({
 		region: getCurrentRegionInFunction(),
 		bucket: params.bucketName,
 		contents,
-		jobs,
+		jobs: [],
 	});
 
 	const postRenderData = createPostRenderData({
