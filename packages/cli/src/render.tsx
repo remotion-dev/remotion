@@ -165,6 +165,7 @@ export const render = async () => {
 		dumpBrowserLogs: Internals.Logging.isEqualOrBelowLogLevel('verbose'),
 		puppeteerInstance: openedBrowser,
 		timeoutInMilliseconds: Internals.getCurrentPuppeteerTimeout(),
+		scale,
 	});
 
 	const closeBrowserPromise = openedBrowser.close();
