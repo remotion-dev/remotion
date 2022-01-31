@@ -64,6 +64,7 @@ export const renderCommand = async (args: string[]) => {
 		proResProfile,
 		puppeteerTimeout,
 		quality,
+		scale,
 	} = await CliInternals.getCliOptions({
 		type: 'series',
 		isLambda: true,
@@ -78,6 +79,7 @@ export const renderCommand = async (args: string[]) => {
 
 	const privacy = parsedLambdaCli.privacy ?? DEFAULT_OUTPUT_PRIVACY;
 	validatePrivacy(privacy);
+
 	const res = await renderMediaOnLambda({
 		functionName,
 		serveUrl,
@@ -100,6 +102,7 @@ export const renderCommand = async (args: string[]) => {
 		outName: parsedLambdaCli['out-name'],
 		timeoutInMilliseconds: puppeteerTimeout,
 		chromiumOptions,
+		scale,
 	});
 
 	const totalSteps = outName ? 5 : 4;
