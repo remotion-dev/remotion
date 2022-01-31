@@ -57,6 +57,7 @@ export const stillCommand = async (args: string[]) => {
 		puppeteerTimeout,
 		quality,
 		stillFrame,
+		scale,
 	} = await CliInternals.getCliOptions({
 		type: 'still',
 		isLambda: true,
@@ -86,6 +87,7 @@ export const stillCommand = async (args: string[]) => {
 		outName: parsedLambdaCli['out-name'],
 		chromiumOptions,
 		timeoutInMilliseconds: puppeteerTimeout,
+		scale,
 	});
 
 	Log.verbose(

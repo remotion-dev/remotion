@@ -122,7 +122,11 @@ The `framesPerLambda` parameter cannot result in more than 200 functions being s
 
 ### `--image-format`
 
-[`jpeg` or `png` - JPEG is faster, but doesn't support transparency.](/docs/config#setimageformat) The default image format is `jpeg` since v1.1.
+[`jpeg` or `png` - JPEG is faster, but doesn't support transparency.](/docs/config#setimageformat) The default image format is `jpeg`.
+
+### `--scale`
+
+Scales the output frames by the factor you pass in. For example, a 1280x720px frame will become a 1920x1080px frame with a scale factor of `1.5`. Vector elements like fonts and HTML markups will be rendered with extra details.
 
 ### `--env-file`
 
