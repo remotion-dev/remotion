@@ -1,3 +1,4 @@
+import {RenderInternals} from '@remotion/renderer';
 import {ChromiumOptions} from '@remotion/renderer/src/open-browser';
 import {
 	FrameRange,
@@ -35,6 +36,7 @@ export type RenderMediaOnLambdaInput = {
 	outName?: string;
 	timeoutInMilliseconds?: number;
 	chromiumOptions?: ChromiumOptions;
+	scale?: number;
 };
 
 export type RenderMediaOnLambdaOutput = {
@@ -84,8 +86,10 @@ export const renderMediaOnLambda = async ({
 	outName,
 	timeoutInMilliseconds,
 	chromiumOptions,
+	scale,
 }: RenderMediaOnLambdaInput): Promise<RenderMediaOnLambdaOutput> => {
 	validateFramesPerLambda(framesPerLambda ?? null);
+	RenderInternals.validateScale(scale);
 	const realServeUrl = await convertToServeUrl(serveUrl, region);
 	const res = await callLambda({
 		functionName,
@@ -111,6 +115,7 @@ export const renderMediaOnLambda = async ({
 			timeoutInMilliseconds:
 				timeoutInMilliseconds ?? Internals.DEFAULT_PUPPETEER_TIMEOUT,
 			chromiumOptions: chromiumOptions ?? {},
+			scale: scale ?? 1,
 		},
 		region,
 	});

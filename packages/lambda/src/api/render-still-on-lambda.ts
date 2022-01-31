@@ -1,3 +1,4 @@
+import {RenderInternals} from '@remotion/renderer';
 import {ChromiumOptions} from '@remotion/renderer/src/open-browser';
 import {Internals, LogLevel, StillImageFormat} from 'remotion';
 import {AwsRegion} from '../pricing/aws-regions';
@@ -25,6 +26,7 @@ export type RenderStillOnLambdaInput = {
 	outName?: string;
 	timeoutInMilliseconds?: number;
 	chromiumOptions?: ChromiumOptions;
+	scale?: number;
 };
 
 export type RenderStillOnLambdaOutput = {
@@ -68,9 +70,10 @@ export const renderStillOnLambda = async ({
 	outName,
 	timeoutInMilliseconds,
 	chromiumOptions,
+	scale,
 }: RenderStillOnLambdaInput): Promise<RenderStillOnLambdaOutput> => {
 	const realServeUrl = await convertToServeUrl(serveUrl, region);
-
+	RenderInternals.validateScale(scale);
 	const res = await callLambda({
 		functionName,
 		type: LambdaRoutines.still,
@@ -90,6 +93,7 @@ export const renderStillOnLambda = async ({
 			timeoutInMilliseconds:
 				timeoutInMilliseconds ?? Internals.DEFAULT_PUPPETEER_TIMEOUT,
 			chromiumOptions: chromiumOptions ?? {},
+			scale: scale ?? 1,
 		},
 		region,
 	});

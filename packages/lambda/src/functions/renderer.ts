@@ -141,6 +141,7 @@ const renderHandler = async (
 
 		overwrite: false,
 		chromiumOptions: params.chromiumOptions,
+		scale: params.scale,
 	});
 
 	const endRendered = Date.now();

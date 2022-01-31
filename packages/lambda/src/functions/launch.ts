@@ -152,6 +152,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 			attempt: 1,
 			timeoutInMilliseconds: params.timeoutInMilliseconds,
 			chromiumOptions: params.chromiumOptions,
+			scale: params.scale,
 		};
 		return payload;
 	});

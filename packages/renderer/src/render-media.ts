@@ -26,6 +26,7 @@ import {ensureOutputDirectory} from './ensure-output-directory';
 import {ensureFramesInOrder} from './ensure-frames-in-order';
 import {getRealFrameRange} from './get-frame-to-render';
 import {ChromiumOptions} from './open-browser';
+import {validateScale} from './validate-scale';
 
 export type StitchingState = 'encoding' | 'muxing';
 
@@ -60,6 +61,7 @@ export type RenderMediaOptions = {
 	onStart?: (data: OnStartData) => void;
 	timeoutInMilliseconds?: number;
 	chromiumOptions?: ChromiumOptions;
+	scale?: number;
 } & ServeUrlOrWebpackBundle;
 
 type Await<T> = T extends PromiseLike<infer U> ? U : T;
@@ -87,12 +89,15 @@ export const renderMedia = async ({
 	onStart,
 	timeoutInMilliseconds,
 	chromiumOptions,
+	scale,
 	...options
 }: RenderMediaOptions) => {
 	Internals.validateQuality(quality);
 	if (typeof crf !== 'undefined' && crf !== null) {
 		Internals.validateSelectedCrfAndCodecCombination(crf, codec);
 	}
+
+	validateScale(scale);
 
 	const serveUrl = getServeUrlWithFallback(options);
 
@@ -189,6 +194,7 @@ export const renderMedia = async ({
 			onDownload,
 			timeoutInMilliseconds,
 			chromiumOptions,
+			scale,
 		});
 		if (stitcherFfmpeg) {
 			await waitForFinish();

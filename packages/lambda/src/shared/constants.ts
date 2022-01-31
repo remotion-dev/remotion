@@ -174,6 +174,7 @@ export type LambdaPayloads = {
 		outName: string | null;
 		timeoutInMilliseconds: number;
 		chromiumOptions: ChromiumOptions;
+		scale: number;
 	};
 	launch: {
 		type: LambdaRoutines.launch;
@@ -198,6 +199,7 @@ export type LambdaPayloads = {
 		outName: string | null;
 		timeoutInMilliseconds: number;
 		chromiumOptions: ChromiumOptions;
+		scale: number;
 	};
 	fire: {
 		type: LambdaRoutines.fire;
@@ -235,6 +237,7 @@ export type LambdaPayloads = {
 		logLevel: LogLevel;
 		timeoutInMilliseconds: number;
 		chromiumOptions: ChromiumOptions;
+		scale: number;
 	};
 	still: {
 		type: LambdaRoutines.still;
@@ -252,6 +255,7 @@ export type LambdaPayloads = {
 		outName: string | null;
 		timeoutInMilliseconds: number;
 		chromiumOptions: ChromiumOptions;
+		scale: number;
 	};
 };
 
