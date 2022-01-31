@@ -171,9 +171,7 @@ export const spawnFfmpeg = async (options: StitcherOptions) => {
 					frameCount: options.assetsInfo.assets.length,
 			  })
 			: []),
-		options.preEncodedFileLocation
-			? ['-c:v', 'copy']
-			: encoderName
+		encoderName
 			? // -c:v is the same as -vcodec as -codec:video
 			  // and specified the video codec.
 			  ['-c:v', encoderName]
