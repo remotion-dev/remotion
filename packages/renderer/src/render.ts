@@ -35,6 +35,7 @@ import {provideScreenshot} from './provide-screenshot';
 import {seekToFrame} from './seek-to-frame';
 import {setPropsAndEnv} from './set-props-and-env';
 import {OnStartData, RenderFramesOutput} from './types';
+import {validateScale} from './validate-scale';
 
 type ConfigOrComposition =
 	| {
@@ -100,6 +101,7 @@ export const innerRenderFrames = async ({
 	serveUrl,
 	composition,
 	timeoutInMilliseconds,
+	scale,
 }: Omit<RenderFramesOptions, 'url'> & {
 	onError: (err: Error) => void;
 	pagesArray: Page[];
@@ -341,6 +343,7 @@ export const renderFrames = async (
 	const selectedServeUrl = getServeUrlWithFallback(options);
 
 	Internals.validateQuality(options.quality);
+	validateScale(options.scale);
 
 	const {closeServer, serveUrl} = await prepareServer(selectedServeUrl);
 
