@@ -61,6 +61,7 @@ export const stitchFramesToVideo = async (options: {
 		width: options.width,
 		height: options.height,
 		codec,
+		scale: 1,
 	});
 	const crf = options.crf ?? Internals.getDefaultCrfForCodec(codec);
 	const imageFormat = options.imageFormat ?? DEFAULT_IMAGE_FORMAT;
