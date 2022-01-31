@@ -28,6 +28,7 @@ const renderFrames: (options: {
   dumpBrowserLogs?: boolean;
   puppeteerInstance?: puppeteer.Browser;
   onError?: (info: {error: Error; frame: number | null}) => void;
+  scale?: number;
 }): Promise<RenderFramesOutput>;
 ```
 
@@ -92,6 +93,12 @@ A `string` which must be either `png`, `jpeg` or `none`.
 _optional_
 
 A `number` specifying how many frames should be rendered in parallel or `null` to let Remotion decide based on the CPU of the host machine. Default is half of the CPU threads available.
+
+### `scale?`
+
+_number - default: 1 - available from v2.6.7_
+
+Scales the output frames by the factor you pass in. For example, a 1280x720px frame will become a 1920x1080px frame with a scale factor of `1.5`. Vector elements like fonts and HTML markups will be rendered with extra details.
 
 ### `quality?`
 
