@@ -32,6 +32,7 @@ export const getAssetsForMarkup = async (
 		width: number;
 		height: number;
 		fps: number;
+		scale: number;
 	}
 ) => {
 	const collectedAssets: TAsset[][] = [];

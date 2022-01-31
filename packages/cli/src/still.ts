@@ -49,6 +49,7 @@ export const still = async () => {
 		stillFrame,
 		browserExecutable,
 		chromiumOptions,
+		scale,
 	} = await getCliOptions('still');
 
 	Log.verbose('Browser executable: ', browserExecutable);
@@ -133,6 +134,7 @@ export const still = async () => {
 		timeoutInMilliseconds: Internals.getCurrentPuppeteerTimeout(),
 		chromiumOptions,
 		browserExecutable,
+		scale,
 	});
 
 	const closeBrowserPromise = openedBrowser.close();

@@ -9,6 +9,7 @@ const basicConfig = {
 	height: 1080,
 	fps: 30,
 	durationInFrames: 60,
+	scale: 1,
 };
 
 const getPositions = async (Markup: React.FC) => {

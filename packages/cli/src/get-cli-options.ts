@@ -198,6 +198,7 @@ export const getCliOptions = async (type: 'still' | 'series') => {
 	const proResProfile = getAndValidateProResProfile(codec);
 	const browserExecutable = Internals.getBrowserExecutable();
 	const ffmpegExecutable = Internals.getCustomFfmpegExecutable();
+	const scale = Internals.getScale();
 
 	const chromiumOptions: ChromiumOptions = {
 		disableWebSecurity: Internals.getChromiumDisableWebSecurity(),
@@ -225,6 +226,7 @@ export const getCliOptions = async (type: 'still' | 'series') => {
 		stillFrame: Internals.getStillFrame(),
 		browserExecutable,
 		ffmpegExecutable,
+		scale,
 		chromiumOptions,
 	};
 };
