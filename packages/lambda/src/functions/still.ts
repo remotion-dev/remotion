@@ -120,6 +120,7 @@ const innerStillHandler = async (
 		puppeteerInstance: browserInstance,
 		quality: lambdaParams.quality,
 		chromiumOptions: lambdaParams.chromiumOptions,
+		scale: lambdaParams.scale,
 	});
 
 	const outName = getExpectedOutName(renderMetadata);

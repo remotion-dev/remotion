@@ -22,6 +22,7 @@ import {ensureOutputDirectory} from './ensure-output-directory';
 import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
 import {getRealFrameRange} from './get-frame-to-render';
 import {downloadFile} from './assets/download-file';
+import {validateScale} from './validate-scale';
 
 declare global {
 	interface Window {
@@ -72,4 +73,5 @@ export const RenderInternals = {
 	getRealFrameRange,
 	validatePuppeteerTimeout,
 	downloadFile,
+	validateScale,
 };
