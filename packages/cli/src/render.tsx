@@ -111,6 +111,7 @@ export const render = async () => {
 		width: config.width,
 		height: config.height,
 		codec,
+		scale: config.scale ?? 1,
 	});
 
 	const outputDir = shouldOutputImageSequence
@@ -205,8 +206,8 @@ export const render = async () => {
 		const stitchStart = Date.now();
 		await stitchFramesToVideo({
 			dir: outputDir,
-			width: config.width,
-			height: config.height,
+			width: config.width * (config.scale ?? 1),
+			height: config.height * (config.scale ?? 1),
 			fps: config.fps,
 			outputLocation: absoluteOutputFile,
 			force: overwrite,
@@ -283,6 +284,6 @@ export const render = async () => {
 		].join(' ')
 	);
 	Log.info('-', 'Output can be found at:');
-	Log.info(chalk.cyan(`▶️ ${absoluteOutputFile}`));
+	Log.info(chalk.cyan(`▶ ${absoluteOutputFile}`));
 	await closeBrowserPromise;
 };
