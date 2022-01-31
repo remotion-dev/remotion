@@ -65,6 +65,7 @@ type RenderFramesOptions = {
 	onDownload?: RenderMediaOnDownload;
 	timeoutInMilliseconds?: number;
 	chromiumOptions?: ChromiumOptions;
+	scale?: number;
 } & ConfigOrComposition &
 	ServeUrlOrWebpackBundle;
 
@@ -132,7 +133,7 @@ export const innerRenderFrames = async ({
 		page.setViewport({
 			width: composition.width,
 			height: composition.height,
-			deviceScaleFactor: 1,
+			deviceScaleFactor: scale ?? 1,
 		});
 
 		const logCallback = (log: ConsoleMessage) => {

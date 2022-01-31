@@ -7,5 +7,6 @@ coverage
 */**/.env
 .cache
 packages/example/out
+.env
 .pnpm-debug.log
 .vscode/taskmarks.json

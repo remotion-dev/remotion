@@ -218,6 +218,7 @@ export const getCliOptions = async (options: {
 	const proResProfile = getAndValidateProResProfile(codec);
 	const browserExecutable = Internals.getBrowserExecutable();
 	const ffmpegExecutable = Internals.getCustomFfmpegExecutable();
+	const scale = Internals.getScale();
 
 	const chromiumOptions: ChromiumOptions = {
 		disableWebSecurity: Internals.getChromiumDisableWebSecurity(),
@@ -249,6 +250,7 @@ export const getCliOptions = async (options: {
 		framesPerLambda: Internals.getFramesPerLambda(),
 		ffmpegExecutable,
 		logLevel: Internals.Logging.getLogLevel(),
+		scale,
 		chromiumOptions,
 	};
 };
