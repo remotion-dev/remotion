@@ -64,6 +64,7 @@ import {
 	validateSelectedCodecAndProResCombination,
 } from './config/prores-profile';
 import {getQuality} from './config/quality';
+import {getScale} from './config/scale';
 import {getStillFrame, setStillFrame} from './config/still-frame';
 import {
 	DEFAULT_WEBPACK_CACHE_ENABLED,
@@ -171,6 +172,7 @@ export const Internals = {
 	getOutputCodecOrUndefined,
 	getWebpackOverrideFn,
 	getQuality,
+	getScale,
 	getShouldOutputImageSequence,
 	validateSelectedCrfAndCodecCombination,
 	getFinalOutputCodec,

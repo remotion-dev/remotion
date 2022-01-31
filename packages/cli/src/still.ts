@@ -56,7 +56,10 @@ export const still = async () => {
 		stillFrame,
 		browserExecutable,
 		chromiumOptions,
+		scale,
 	} = await getCliOptions({isLambda: false, type: 'still'});
+
+	Log.verbose('Browser executable: ', browserExecutable);
 
 	if (imageFormat === 'none') {
 		Log.error(

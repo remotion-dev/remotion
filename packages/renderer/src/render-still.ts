@@ -34,6 +34,7 @@ type InnerStillOptions = {
 	browserExecutable?: BrowserExecutable;
 	timeoutInMilliseconds?: number;
 	chromiumOptions?: ChromiumOptions;
+	scale?: number;
 };
 
 export type RenderStillOptions = InnerStillOptions & ServeUrlOrWebpackBundle;
@@ -123,7 +124,7 @@ const innerRenderStill = async ({
 	page.setViewport({
 		width: composition.width,
 		height: composition.height,
-		deviceScaleFactor: 1,
+		deviceScaleFactor: scale ?? 1,
 	});
 
 	const cleanup = async () => {

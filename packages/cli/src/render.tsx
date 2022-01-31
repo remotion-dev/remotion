@@ -51,6 +51,7 @@ export const render = async () => {
 		imageFormat,
 		browserExecutable,
 		ffmpegExecutable,
+		scale,
 		chromiumOptions,
 	} = await getCliOptions({isLambda: false, type: 'series'});
 
@@ -59,6 +60,8 @@ export const render = async () => {
 			'assertion error - expected absoluteOutputFile to not be null'
 		);
 	}
+
+	Log.verbose('Browser executable: ', browserExecutable);
 
 	await checkAndValidateFfmpegVersion({
 		ffmpegExecutable: Internals.getCustomFfmpegExecutable(),
@@ -99,6 +102,7 @@ export const render = async () => {
 	const compositionId = getCompositionId(comps);
 
 	const config = comps.find((c) => c.id === compositionId);
+
 	if (!config) {
 		throw new Error(`Cannot find composition with ID ${compositionId}`);
 	}
@@ -107,6 +111,7 @@ export const render = async () => {
 		width: config.width,
 		height: config.height,
 		codec,
+		scale,
 	});
 
 	const outputDir = shouldOutputImageSequence
@@ -199,6 +204,7 @@ export const render = async () => {
 			quality,
 			timeoutInMilliseconds: Internals.getCurrentPuppeteerTimeout(),
 			chromiumOptions,
+			scale,
 		});
 		renderedDoneIn = Date.now() - startTime;
 
@@ -271,7 +277,7 @@ export const render = async () => {
 		].join(' ')
 	);
 	Log.info('-', 'Output can be found at:');
-	Log.info(chalk.cyan(`▶️ ${absoluteOutputFile}`));
+	Log.info(chalk.cyan(`▶ ${absoluteOutputFile}`));
 	Log.verbose('Cleaning up...');
 	try {
 		await RenderInternals.deleteDirectory(await urlOrBundle);

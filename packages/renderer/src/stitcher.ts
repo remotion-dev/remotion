@@ -107,6 +107,7 @@ export const spawnFfmpeg = async (options: StitcherOptions) => {
 		width: options.width,
 		height: options.height,
 		codec,
+		scale: 1,
 	});
 	const crf = options.crf ?? Internals.getDefaultCrfForCodec(codec);
 	const pixelFormat = options.pixelFormat ?? Internals.DEFAULT_PIXEL_FORMAT;
