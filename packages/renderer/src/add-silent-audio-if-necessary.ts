@@ -3,17 +3,21 @@ import {renameSync, unlinkSync} from 'fs';
 import {getAudioChannels} from './assets/get-audio-channels';
 import {DEFAULT_SAMPLE_RATE} from './sample-rate';
 
-export const addSilentAudioIfNecessary = async (
-	videoFile: string,
-	durationInFrames: number,
-	fps: number
-): Promise<void> => {
-	const audioChannels = await getAudioChannels(videoFile);
+export const addSilentAudioIfNecessary = async ({
+	durationInFrames,
+	fps,
+	outputLocation,
+}: {
+	outputLocation: string;
+	durationInFrames: number;
+	fps: number;
+}): Promise<void> => {
+	const audioChannels = await getAudioChannels(outputLocation);
 	if (audioChannels > 0) {
 		return;
 	}
 
-	const out = videoFile + '-n';
+	const out = outputLocation + '-n';
 
 	await execa('ffmpeg', [
 		'-f',
@@ -21,7 +25,7 @@ export const addSilentAudioIfNecessary = async (
 		'-i',
 		'anullsrc',
 		'-i',
-		videoFile,
+		outputLocation,
 		'-map',
 		'0:a:0',
 		'-map',
@@ -39,6 +43,6 @@ export const addSilentAudioIfNecessary = async (
 		'matroska',
 		out,
 	]);
-	unlinkSync(videoFile);
-	renameSync(out, videoFile);
+	unlinkSync(outputLocation);
+	renameSync(out, outputLocation);
 };
