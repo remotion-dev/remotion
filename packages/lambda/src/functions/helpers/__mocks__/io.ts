@@ -1,10 +1,50 @@
 import {_Object} from '@aws-sdk/client-s3';
-import {getS3FilesInBucket} from '../../../api/__mocks__/mock-s3';
+import {Readable} from 'stream';
+import {
+	getS3FilesInBucket,
+	readMockS3File,
+	writeMockS3File,
+} from '../../../api/__mocks__/mock-s3';
+import {
+	lambdaLs as lsOriginal,
+	lambdaReadFile as readOriginal,
+	lambdaWriteFile as writeOriginal,
+} from '../../../functions/helpers/io';
 import {LambdaLSInput, LambdaLsReturnType} from '../io';
 
-export const lambdaLs = async (
+export const lambdaReadFile: typeof readOriginal = ({
+	bucketName,
+	key,
+	region,
+}) => {
+	const file = readMockS3File({region, key, bucketName});
+	if (!file) {
+		throw new Error('no file');
+	}
+
+	return Promise.resolve(Readable.from(Buffer.from(file.content)));
+};
+
+export const lambdaWriteFile: typeof writeOriginal = ({
+	body,
+	bucketName,
+	key,
+	privacy,
+	region,
+}) => {
+	writeMockS3File({
+		body: body.toString(),
+		bucketName,
+		key,
+		privacy,
+		region,
+	});
+	return Promise.resolve(undefined);
+};
+
+export const lambdaLs: typeof lsOriginal = async (
 	input: LambdaLSInput
-): Promise<LambdaLsReturnType> => {
+): LambdaLsReturnType => {
 	if (!input) {
 		throw new Error('need to pass input');
 	}

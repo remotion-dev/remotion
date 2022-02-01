@@ -50,7 +50,9 @@ const renderHandler = async (
 	);
 	const outputPath = OUTPUT_PATH_PREFIX + randomHash();
 	if (fs.existsSync(outputPath)) {
-		(fs.rmSync ?? fs.rmdirSync)(outputPath);
+		(fs.rmSync ?? fs.rmdirSync)(outputPath, {
+			recursive: true,
+		});
 	}
 
 	fs.mkdirSync(outputPath);
@@ -169,6 +171,7 @@ const renderHandler = async (
 		privacy: params.privacy,
 		expectedBucketOwner: options.expectedBucketOwner,
 	});
+	console.log({outputLocation});
 	await Promise.all([
 		fs.promises.rm(outputLocation, {recursive: true}),
 		fs.promises.rm(outputPath, {recursive: true}),

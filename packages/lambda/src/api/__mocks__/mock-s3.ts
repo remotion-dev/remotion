@@ -1,3 +1,4 @@
+import {Privacy} from '../../defaults';
 import {AwsRegion} from '../../pricing/aws-regions';
 
 type S3MockFile = {
@@ -12,6 +13,42 @@ let mockS3Store: S3MockFile[] = [];
 
 export const mockS3Upload = (file: S3MockFile) => {
 	mockS3Store.push(file);
+};
+
+export const writeMockS3File = ({
+	body,
+	privacy,
+	bucketName,
+	key,
+	region,
+}: {
+	body: string;
+	privacy: Privacy;
+	bucketName: string;
+	key: string;
+	region: AwsRegion;
+}) => {
+	mockS3Store.push({
+		content: body,
+		acl: privacy === 'public' ? 'public-read' : 'private',
+		bucketName,
+		key,
+		region,
+	});
+};
+
+export const readMockS3File = ({
+	region,
+	key,
+	bucketName,
+}: {
+	region: AwsRegion;
+	key: string;
+	bucketName: string;
+}) => {
+	return mockS3Store.find(
+		(s) => s.key === key && s.region === region && s.bucketName === bucketName
+	);
 };
 
 export const getS3FilesInBucket = ({
