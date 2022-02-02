@@ -22,7 +22,11 @@ export const lambdaReadFile: typeof readOriginal = ({
 		throw new Error('no file');
 	}
 
-	return Promise.resolve(Readable.from(Buffer.from(file.content)));
+	if (typeof file.content === 'string') {
+		return Promise.resolve(Readable.from(Buffer.from(file.content)));
+	}
+
+	return Promise.resolve(file.content);
 };
 
 export const lambdaWriteFile: typeof writeOriginal = ({
@@ -33,7 +37,7 @@ export const lambdaWriteFile: typeof writeOriginal = ({
 	region,
 }) => {
 	writeMockS3File({
-		body: body.toString(),
+		body,
 		bucketName,
 		key,
 		privacy,
@@ -53,15 +57,17 @@ export const lambdaLs: typeof lsOriginal = async (
 		bucketName: input.bucketName,
 		region: input.region,
 	});
+
 	return files
 		.filter((p) => p.key.startsWith(input.prefix))
 		.map((file): _Object => {
+			const size = typeof file.content === 'string' ? file.content.length : 0;
 			return {
 				Key: file.key,
 				ETag: undefined,
 				LastModified: new Date(0),
 				Owner: undefined,
-				Size: file.content.length,
+				Size: size,
 				StorageClass: undefined,
 			};
 		});
