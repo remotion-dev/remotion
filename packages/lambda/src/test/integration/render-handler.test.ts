@@ -1,7 +1,7 @@
+import {RenderInternals} from '@remotion/renderer';
 import execa from 'execa';
 import {LambdaRoutines} from '../../defaults';
 import {handler} from '../../functions';
-import {killBrowserInstancesForIntegrationTest} from '../../functions/helpers/get-browser-instance';
 import {lambdaReadFile} from '../../functions/helpers/io';
 import {LambdaReturnValues} from '../../shared/return-values';
 import {disableLogs, enableLogs} from '../disable-logs';
@@ -21,7 +21,8 @@ beforeAll(() => {
 
 afterAll(async () => {
 	enableLogs();
-	await killBrowserInstancesForIntegrationTest();
+
+	await RenderInternals.killAllBrowsers();
 });
 
 test('Render handler manually', async () => {

@@ -25,6 +25,16 @@ const getOpenGlRenderer = (option?: OpenGlRenderer): OpenGlRenderer => {
 	return renderer;
 };
 
+const browserInstances: puppeteer.Browser[] = [];
+
+export const killAllBrowsers = async () => {
+	for (const browser of browserInstances) {
+		try {
+			await browser.close();
+		} catch (err) {}
+	}
+};
+
 export const openBrowser = async (
 	browser: Browser,
 	options?: {
@@ -85,5 +95,6 @@ export const openBrowser = async (
 	});
 	const pages = await browserInstance.pages();
 	pages.forEach((p) => p.close());
+	browserInstances.push(browserInstance);
 	return browserInstance;
 };

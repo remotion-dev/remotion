@@ -56,11 +56,3 @@ export const getBrowserInstance = async (
 	launching = false;
 	return _browserInstance;
 };
-
-export const killBrowserInstancesForIntegrationTest = (): Promise<void> => {
-	if (_browserInstance) {
-		return _browserInstance.close();
-	}
-
-	return Promise.resolve();
-};
