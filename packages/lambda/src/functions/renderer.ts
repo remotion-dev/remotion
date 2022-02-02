@@ -11,10 +11,8 @@ import {
 	LambdaPayloads,
 	LambdaRoutines,
 	lambdaTimingsKey,
-	OUTPUT_PATH_PREFIX,
 	RENDERER_PATH_TOKEN,
 } from '../shared/constants';
-import {randomHash} from '../shared/random-hash';
 import {
 	ChunkTimingData,
 	ObjectChunkTimingData,
@@ -48,7 +46,8 @@ const renderHandler = async (
 		Internals.Logging.isEqualOrBelowLogLevel(params.logLevel, 'verbose'),
 		params.chromiumOptions ?? {}
 	);
-	const outputPath = OUTPUT_PATH_PREFIX + randomHash({randomInTests: true});
+
+	const outputPath = RenderInternals.tmpDir('remotion-render-');
 	if (fs.existsSync(outputPath)) {
 		(fs.rmSync ?? fs.rmdirSync)(outputPath, {
 			recursive: true,
