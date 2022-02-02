@@ -196,13 +196,16 @@ export const concatVideosS3 = async ({
 	const combine = timer('Combine videos');
 	const filelistDir = RenderInternals.tmpDir(REMOTION_FILELIST_TOKEN);
 	const encodingStart = Date.now();
+
+	const codecForCombining: Codec = codec === 'h264-mkv' ? 'h264' : codec;
+
 	await combineVideos({
 		files,
 		filelistDir,
 		output: outfile,
 		onProgress: (p) => onProgress(p, encodingStart),
 		numberOfFrames,
-		codec,
+		codec: codecForCombining,
 	});
 	combine.end();
 

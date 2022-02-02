@@ -153,6 +153,7 @@ const renderHandler = async (
 		outputLocation,
 		durationInFrames: params.frameRange[1] - params.frameRange[0] + 1,
 		fps: params.fps,
+		chunkCodec: params.codec,
 	});
 
 	const condensedTimingData: ChunkTimingData = {
