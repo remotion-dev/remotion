@@ -148,7 +148,7 @@ const renderHandler = async (
 
 	const endRendered = Date.now();
 
-	console.info('Adding silent audio, chunk', params.chunk);
+	console.log('Adding silent audio, chunk', params.chunk);
 	await RenderInternals.addSilentAudioIfNecessary({
 		outputLocation,
 		durationInFrames: params.frameRange[1] - params.frameRange[0] + 1,
