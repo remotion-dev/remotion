@@ -132,6 +132,7 @@ test("Should render a ProRes video", async () => {
 
   const info = await execa("ffprobe", [out]);
   const data = info.stderr;
+  console.log({ data });
   expect(data.includes("prores (4444)") || data.includes("prores (ap4h")).toBe(
     true
   );
