@@ -19,7 +19,7 @@ export const validateScale = (scale: unknown) => {
 		throw new Error(`"scale" must be finite, but is ${scale}`);
 	}
 
-	if (scale <= 0) {
-		throw new Error(`"scale" must be bigger than 0, but is ${scale}`);
+	if (scale <= 0 || scale > 16) {
+		throw new Error(`"scale" must be between 1 to 16 , but is ${scale}`);
 	}
 };
