@@ -1,21 +1,21 @@
 import {
 	getFrameRangesFromProfile,
 	sortProfileByFrameRanges,
-} from '../functions/chunk-optimization/get-frame-ranges-from-profile';
-import {getProfileDuration} from '../functions/chunk-optimization/get-profile-duration';
-import {optimizeInvocationOrder} from '../functions/chunk-optimization/optimize-invocation-order';
+} from '../../functions/chunk-optimization/get-frame-ranges-from-profile';
+import {getProfileDuration} from '../../functions/chunk-optimization/get-profile-duration';
+import {optimizeInvocationOrder} from '../../functions/chunk-optimization/optimize-invocation-order';
 import {
 	assignFrameToOther,
 	optimizeProfile,
 	optimizeProfileRecursively,
-} from '../functions/chunk-optimization/optimize-profile';
+} from '../../functions/chunk-optimization/optimize-profile';
 import {
 	getSimulatedTimingForFrameRange,
 	getTimingForFrame,
 	simulateFrameRanges,
-} from '../functions/chunk-optimization/simulate-frame-ranges';
-import {demoProfiles} from './demo-profile';
-import {demoProfile2} from './demo-profile-2';
+} from '../../functions/chunk-optimization/simulate-frame-ranges';
+import {demoProfiles} from '../demo-profile';
+import {demoProfile2} from '../demo-profile-2';
 
 test('Should measure demo profile correctly', () => {
 	expect(getProfileDuration(demoProfiles)).toEqual(29202);

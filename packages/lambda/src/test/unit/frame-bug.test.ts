@@ -1,5 +1,5 @@
-import {isValidOptimizationProfile} from '../functions/chunk-optimization/is-valid-profile';
-import {optimizeProfile} from '../functions/chunk-optimization/optimize-profile';
+import {isValidOptimizationProfile} from '../../functions/chunk-optimization/is-valid-profile';
+import {optimizeProfile} from '../../functions/chunk-optimization/optimize-profile';
 
 test('Should not throw ongetSimulated', () => {
 	expect(
