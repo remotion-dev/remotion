@@ -4,6 +4,9 @@ jest.mock('../api/get-buckets', () =>
 jest.mock('../cli/helpers/quit', () =>
 	jest.requireActual('../cli/helpers/__mocks__/quit')
 );
+jest.mock('../functions/helpers/timer', () =>
+	jest.requireActual('../functions/helpers/__mocks__/timer')
+);
 jest.mock('../functions/helpers/io', () =>
 	jest.requireActual('../functions/helpers/__mocks__/io')
 );
