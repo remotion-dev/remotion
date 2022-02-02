@@ -7,6 +7,9 @@ jest.mock('../cli/helpers/quit', () =>
 jest.mock('../functions/helpers/io', () =>
 	jest.requireActual('../functions/helpers/__mocks__/io')
 );
+jest.mock('../functions/helpers/timer', () =>
+	jest.requireActual('../functions/helpers/__mocks__/timer')
+);
 jest.mock('../functions/helpers/print-cloudwatch-helper', () =>
 	jest.requireActual('../functions/helpers/__mocks__/print-cloudwatch-helper')
 );
