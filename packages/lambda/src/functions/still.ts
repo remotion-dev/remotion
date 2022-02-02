@@ -1,5 +1,5 @@
 import {InvokeCommand} from '@aws-sdk/client-lambda';
-import {renderStill} from '@remotion/renderer';
+import {RenderInternals, renderStill} from '@remotion/renderer';
 import fs from 'fs';
 import path from 'path';
 import {Internals, StillImageFormat} from 'remotion';
@@ -11,7 +11,6 @@ import {
 	LambdaPayload,
 	LambdaPayloads,
 	LambdaRoutines,
-	OUTPUT_PATH_PREFIX,
 	RenderMetadata,
 	renderMetadataKey,
 } from '../shared/constants';
@@ -60,7 +59,7 @@ const innerStillHandler = async (
 			lambdaParams.chromiumOptions ?? {}
 		),
 	]);
-	const outputDir = OUTPUT_PATH_PREFIX + randomHash();
+	const outputDir = RenderInternals.tmpDir('remotion-render-');
 
 	if (fs.existsSync(outputDir)) {
 		(fs.rmSync ?? fs.rmdirSync)(outputDir);
