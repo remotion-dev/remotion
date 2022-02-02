@@ -14,8 +14,6 @@ const extraContext = {
 
 type Await<T> = T extends PromiseLike<infer U> ? U : T;
 
-beforeAll(() => {});
-
 afterAll(async () => {
 	await killBrowserInstancesForIntegrationTest();
 });
