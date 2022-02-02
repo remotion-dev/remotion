@@ -43,6 +43,7 @@ export type StitcherOptions = {
 	parallelEncoding?: boolean;
 	preEncodedFileLocation?: string | null;
 	ffmpegExecutable?: FfmpegExecutable;
+	dir?: string;
 };
 
 const getAssetsData = async (options: StitcherOptions) => {
@@ -210,7 +211,9 @@ export const spawnFfmpeg = async (options: StitcherOptions) => {
 		.reduce<(string | null | undefined)[]>((acc, val) => acc.concat(val), [])
 		.filter(Boolean) as string[];
 
-	const task = execa(options.ffmpegExecutable ?? 'ffmpeg', ffmpegString);
+	const task = execa(options.ffmpegExecutable ?? 'ffmpeg', ffmpegString, {
+		cwd: options.parallelEncoding ? undefined : options.dir,
+	});
 	task.stderr?.on('data', (data: Buffer) => {
 		if (options.onProgress) {
 			const parsed = parseFfmpegProgress(data.toString());

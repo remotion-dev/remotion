@@ -1,4 +1,5 @@
 import {ExecaChildProcess} from 'execa';
+import os from 'os';
 import fs from 'fs';
 import path from 'path';
 import type {Browser as PuppeteerBrowser} from 'puppeteer-core';
@@ -110,13 +111,17 @@ export const renderMedia = async ({
 	let encodedDoneIn: number | null = null;
 	const renderStart = Date.now();
 	const tmpdir = tmpDir('pre-encode');
-	const parallelEncoding = !Internals.isAudioCodec(codec);
+	const parallelEncoding = false;
 	const preEncodedFileLocation = parallelEncoding
 		? path.join(
 				tmpdir,
 				'pre-encode.' + getFileExtensionFromCodec(codec, 'chunk')
 		  )
 		: null;
+
+	const outputDir = await fs.promises.mkdtemp(
+		path.join(os.tmpdir(), 'react-motion-render')
+	);
 
 	try {
 		const callUpdate = () => {
@@ -170,7 +175,7 @@ export const renderMedia = async ({
 				callUpdate();
 			},
 			parallelism,
-			outputDir: null,
+			outputDir: parallelEncoding ? null : outputDir,
 			onStart: (data) => {
 				renderedFrames = 0;
 				callUpdate();
@@ -182,12 +187,14 @@ export const renderMedia = async ({
 			quality,
 			frameRange: frameRange ?? null,
 			puppeteerInstance,
-			onFrameBuffer: async (buffer, frame) => {
-				await waitForRightTimeOfFrameToBeInserted(frame);
-				stitcherFfmpeg?.stdin?.write(buffer);
+			onFrameBuffer: parallelEncoding
+				? async (buffer, frame) => {
+						await waitForRightTimeOfFrameToBeInserted(frame);
+						stitcherFfmpeg?.stdin?.write(buffer);
 
-				setFrameToStitch(frame + 1);
-			},
+						setFrameToStitch(frame + 1);
+				  }
+				: undefined,
 			serveUrl,
 			dumpBrowserLogs,
 			onBrowserLog,
@@ -209,6 +216,7 @@ export const renderMedia = async ({
 		ensureOutputDirectory(outputLocation);
 
 		const stitchStart = Date.now();
+
 		await stitchFramesToVideo({
 			width: composition.width,
 			height: composition.height,
@@ -232,7 +240,8 @@ export const renderMedia = async ({
 				Internals.Logging.getLogLevel(),
 				'verbose'
 			),
-			parallelEncoding: false,
+			parallelEncoding,
+			dir: outputDir,
 		});
 		encodedFrames = composition.durationInFrames;
 		encodedDoneIn = Date.now() - stitchStart;
