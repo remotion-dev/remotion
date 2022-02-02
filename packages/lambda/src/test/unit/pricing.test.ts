@@ -1,4 +1,4 @@
-import {estimatePrice} from '../api/estimate-price';
+import {estimatePrice} from '../../api/estimate-price';
 
 test('Should calculate costs accurately', () => {
 	expect(

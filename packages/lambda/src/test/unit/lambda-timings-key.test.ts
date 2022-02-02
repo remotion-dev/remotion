@@ -1,5 +1,5 @@
-import {lambdaInitializedKey} from '../shared/constants';
-import {parseLambdaInitializedKey} from '../shared/parse-lambda-initialized-key';
+import {lambdaInitializedKey} from '../../shared/constants';
+import {parseLambdaInitializedKey} from '../../shared/parse-lambda-initialized-key';
 
 test('Lambda timinings key', () => {
 	const key = lambdaInitializedKey({

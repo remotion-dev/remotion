@@ -1,5 +1,5 @@
-import {lambdaTimingsKey} from '../shared/constants';
-import {parseLambdaTimingsKey} from '../shared/parse-lambda-timings-key';
+import {lambdaTimingsKey} from '../../shared/constants';
+import {parseLambdaTimingsKey} from '../../shared/parse-lambda-timings-key';
 
 const EXPECTED =
 	'renders/8dakdd/lambda-timings/chunk:00000088-start:1625579377044-rendered:1625579387219.txt';
