@@ -1,3 +1,4 @@
+import {ReadStream} from 'fs';
 import {Privacy} from '../../defaults';
 import {AwsRegion} from '../../pricing/aws-regions';
 
@@ -6,7 +7,7 @@ type S3MockFile = {
 	region: AwsRegion;
 	acl: 'public-read' | 'private';
 	key: string;
-	content: string;
+	content: string | ReadStream;
 };
 
 let mockS3Store: S3MockFile[] = [];
@@ -22,7 +23,7 @@ export const writeMockS3File = ({
 	key,
 	region,
 }: {
-	body: string;
+	body: string | ReadStream;
 	privacy: Privacy;
 	bucketName: string;
 	key: string;

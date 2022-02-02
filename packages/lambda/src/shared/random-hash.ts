@@ -1,6 +1,6 @@
 const alphabet = 'abcdefghijklmnopqrstuvwxyz0123456789';
 
-export const randomHash = (): string => {
+export const randomHash = (options?: {randomInTests: boolean}): string => {
 	return new Array(10)
 		.fill(1)
 		.map(() => {

@@ -160,7 +160,7 @@ export const stillHandler = async (
 		throw new Error('Params must be renderer');
 	}
 
-	const renderId = randomHash();
+	const renderId = randomHash({randomInTests: true});
 
 	try {
 		return innerStillHandler(params, renderId, options);
