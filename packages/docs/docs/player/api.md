@@ -11,6 +11,8 @@ A React component which takes the following props:
 
 Pass a React component in directly **or** pass a function that returns a dynamic import. Passing neither or both of the props is an error.
 
+:::info The component you pass in should not render the [`<Composition />`](/docs/composition) component, but rather your custom video component instead - the component you would pass into the `component` prop of the [`<Composition />`](/docs/composition) component. :::
+
 ### `durationInFrames`
 
 The duration of the video in frames. Must be an integer and greater than 0.
