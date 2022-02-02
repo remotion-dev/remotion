@@ -32,6 +32,7 @@ test("Render video with browser instance open", async () => {
     puppeteerInstance,
   });
   await puppeteerInstance.close();
+  expect(existsSync(outPath)).toBe(true);
 });
 
 test("Render video with browser instance not open", async () => {
@@ -47,7 +48,7 @@ test("Render video with browser instance not open", async () => {
 
   const tmpDir = os.tmpdir();
 
-  const outPath = path.join(tmpDir, "hii.mp4");
+  const outPath = path.join(tmpDir, "subdir", "hii.mp4");
 
   await renderMedia({
     outputLocation: outPath,
@@ -57,7 +58,6 @@ test("Render video with browser instance not open", async () => {
     composition: reactSvg,
     frameRange: [0, 2],
   });
-  console.log({ outPath });
   expect(existsSync(outPath)).toBe(true);
 });
 
