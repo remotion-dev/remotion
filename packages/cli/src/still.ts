@@ -144,6 +144,7 @@ export const still = async () => {
 			inputProps,
 			chromiumOptions,
 			timeoutInMilliseconds: Internals.getCurrentPuppeteerTimeout(),
+			scale,
 		});
 	} catch (err) {
 		Log.error();

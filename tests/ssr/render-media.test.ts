@@ -57,6 +57,7 @@ test("Render video with browser instance not open", async () => {
     composition: reactSvg,
     frameRange: [0, 2],
   });
+  console.log({ outPath });
   expect(existsSync(outPath)).toBe(true);
 });
 

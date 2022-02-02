@@ -264,6 +264,7 @@ export const render = async () => {
 		},
 		chromiumOptions,
 		timeoutInMilliseconds: Internals.getCurrentPuppeteerTimeout(),
+		scale,
 	});
 
 	Log.info();
