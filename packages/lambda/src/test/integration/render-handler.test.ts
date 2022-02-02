@@ -4,7 +4,6 @@ import {handler} from '../../functions';
 import {killBrowserInstancesForIntegrationTest} from '../../functions/helpers/get-browser-instance';
 import {lambdaReadFile} from '../../functions/helpers/io';
 import {LambdaReturnValues} from '../../shared/return-values';
-import {disableLogs, enableLogs} from '../disable-logs';
 
 jest.setTimeout(30000);
 
@@ -15,13 +14,10 @@ const extraContext = {
 
 type Await<T> = T extends PromiseLike<infer U> ? U : T;
 
-beforeAll(() => {
-	disableLogs();
-});
+beforeAll(() => {});
 
 afterAll(async () => {
 	await killBrowserInstancesForIntegrationTest();
-	enableLogs();
 });
 
 test('Render handler manually', async () => {
