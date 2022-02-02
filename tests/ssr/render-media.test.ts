@@ -47,7 +47,7 @@ test("Render video with browser instance not open", async () => {
 
   const tmpDir = os.tmpdir();
 
-  const outPath = path.join(tmpDir, "subdir", "out.mp4");
+  const outPath = path.join(tmpDir, "hii.mp4");
 
   await renderMedia({
     outputLocation: outPath,
