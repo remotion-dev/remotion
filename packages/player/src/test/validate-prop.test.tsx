@@ -190,16 +190,7 @@ test('playbackRate of undefined should be okay', () => {
 });
 
 test('passing in <Composition /> instance should not be possible', () => {
-	const compositionProps = {
-		id: 'HelloWorld',
-		width: 500,
-		height: 400,
-		fps: 30,
-		durationInFrames: 500,
-		component: HelloWorld,
-	};
-	let threwError = false;
-	try {
+	expect(() => {
 		render(
 			<Player
 				compositionWidth={500}
@@ -219,26 +210,9 @@ test('passing in <Composition /> instance should not be possible', () => {
 				}}
 			/>
 		);
-		render(
-			<Player
-				compositionWidth={500}
-				compositionHeight={400}
-				fps={30}
-				durationInFrames={500}
-				component={() => <Composition {...compositionProps} />}
-				controls
-				showVolumeControls
-				inputProps={compositionProps}
-			/>
-		);
-	} catch (e) {
-		threwError = true;
-		expect((e as Error).message).toMatch(
-			/'component' must not be an instance of the '<Composition \\>' component./
-		);
-	} finally {
-		expect(threwError).toBe(true);
-	}
+	}).toThrow(
+		/'component' must not be an instance of the '<Composition \\>' component./
+	);
 });
 
 test.each([
