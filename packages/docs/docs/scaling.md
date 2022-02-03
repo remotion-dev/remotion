@@ -36,3 +36,16 @@ Values between and 1 are allowed. For example, `0.5` will half each dimension.
 The scale must result in a value that will result in even pixels. A value of `1.00000001` for a composition with a width of `1920` pixels is now allowed.
 
 If you would like to downscale a composition from `1920` to `1280` pixels, pass a scale of `2/3` to avoid rounding errors. This does not currently work as a CLI flag.
+
+## Scalable elements
+
+Elements that can be upscaled and that will enhance increased resolution are:
+
+- Text elements
+- SVG elements
+- Images (if their resolution is sufficient to display in a higher resolution)
+
+Elements that **cannot** be upscaled for increased resolution are:
+
+- Videos
+- Canvas and WebGL elements
