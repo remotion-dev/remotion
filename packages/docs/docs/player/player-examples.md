@@ -8,18 +8,18 @@ title: "Examples for @remotion/player"
 
 ```tsx twoslash
 // @allowUmdGlobalAccess
-// @filename: ./remotion/MyComp.tsx
-export const MyComp = () => <></>;
+// @filename: ./remotion/MyVideo.tsx
+export const MyVideo = () => <></>;
 
 // @filename: index.tsx
 // ---cut---
 import { Player } from "@remotion/player";
-import { MyComp } from "./remotion/MyComp";
+import { MyVideo } from "./remotion/MyVideo";
 
 export const App: React.FC = () => {
   return (
     <Player
-      component={MyComp}
+      component={MyVideo}
       durationInFrames={120}
       compositionWidth={1920}
       compositionHeight={1080}
@@ -33,18 +33,18 @@ export const App: React.FC = () => {
 
 ```tsx twoslash {12}
 // @allowUmdGlobalAccess
-// @filename: ./remotion/MyComp.tsx
-export const MyComp = () => <></>;
+// @filename: ./remotion/MyVideo.tsx
+export const MyVideo = () => <></>;
 
 // @filename: index.tsx
 // ---cut---
 import { Player } from "@remotion/player";
-import { MyComp } from "./remotion/MyComp";
+import { MyVideo } from "./remotion/MyVideo";
 
 export const App: React.FC = () => {
   return (
     <Player
-      component={MyComp}
+      component={MyVideo}
       durationInFrames={120}
       compositionWidth={1920}
       compositionHeight={1080}
@@ -59,18 +59,18 @@ export const App: React.FC = () => {
 
 ```tsx twoslash {13}
 // @allowUmdGlobalAccess
-// @filename: ./remotion/MyComp.tsx
-export const MyComp = () => <></>;
+// @filename: ./remotion/MyVideo.tsx
+export const MyVideo = () => <></>;
 
 // @filename: index.tsx
 // ---cut---
 import { Player } from "@remotion/player";
-import { MyComp } from "./remotion/MyComp";
+import { MyVideo } from "./remotion/MyVideo";
 
 export const App: React.FC = () => {
   return (
     <Player
-      component={MyComp}
+      component={MyVideo}
       durationInFrames={120}
       compositionWidth={1920}
       compositionHeight={1080}
@@ -86,18 +86,18 @@ export const App: React.FC = () => {
 
 ```tsx twoslash {14-17}
 // @allowUmdGlobalAccess
-// @filename: ./remotion/MyComp.tsx
-export const MyComp = () => <></>;
+// @filename: ./remotion/MyVideo.tsx
+export const MyVideo = () => <></>;
 
 // @filename: index.tsx
 // ---cut---
 import { Player } from "@remotion/player";
-import { MyComp } from "./remotion/MyComp";
+import { MyVideo } from "./remotion/MyVideo";
 
 export const App: React.FC = () => {
   return (
     <Player
-      component={MyComp}
+      component={MyVideo}
       durationInFrames={120}
       compositionWidth={1920}
       compositionHeight={1080}
@@ -121,18 +121,18 @@ See [Scaling](/docs/player/scaling) for more ways to scale the Player.
 
 ```tsx twoslash {18}
 // @allowUmdGlobalAccess
-// @filename: ./remotion/MyComp.tsx
-export const MyComp = () => <></>;
+// @filename: ./remotion/MyVideo.tsx
+export const MyVideo = () => <></>;
 
 // @filename: index.tsx
 // ---cut---
 import { Player } from "@remotion/player";
-import { MyComp } from "./remotion/MyComp";
+import { MyVideo } from "./remotion/MyVideo";
 
 export const App: React.FC = () => {
   return (
     <Player
-      component={MyComp}
+      component={MyVideo}
       durationInFrames={120}
       compositionWidth={1920}
       compositionHeight={1080}
@@ -157,13 +157,13 @@ You need to be vary of the browser's autoplay policy. In most browsers, you cann
 
 ```tsx twoslash {1, 6-15, 18}
 // @allowUmdGlobalAccess
-// @filename: ./remotion/MyComp.tsx
-export const MyComp = () => <></>;
+// @filename: ./remotion/MyVideo.tsx
+export const MyVideo = () => <></>;
 
 // @filename: index.tsx
 // ---cut---
 import { Player, PlayerRef } from "@remotion/player";
-import { MyComp } from "./remotion/MyComp";
+import { MyVideo } from "./remotion/MyVideo";
 import { useCallback, useRef } from "react";
 
 export const App: React.FC = () => {
@@ -180,7 +180,7 @@ export const App: React.FC = () => {
   return (
     <Player
       ref={playerRef}
-      component={MyComp}
+      component={MyVideo}
       durationInFrames={120}
       compositionWidth={1920}
       compositionHeight={1080}
@@ -194,13 +194,13 @@ export const App: React.FC = () => {
 
 ```tsx twoslash {1, 6-21, 25}
 // @allowUmdGlobalAccess
-// @filename: ./remotion/MyComp.tsx
-export const MyComp = () => <></>;
+// @filename: ./remotion/MyVideo.tsx
+export const MyVideo = () => <></>;
 
 // @filename: index.tsx
 // ---cut---
 import { Player, PlayerRef } from "@remotion/player";
-import { MyComp } from "./remotion/MyComp";
+import { MyVideo } from "./remotion/MyVideo";
 import { useEffect, useRef } from "react";
 
 export const App: React.FC = () => {
@@ -224,7 +224,7 @@ export const App: React.FC = () => {
   return (
     <Player
       ref={playerRef}
-      component={MyComp}
+      component={MyVideo}
       durationInFrames={120}
       compositionWidth={1920}
       compositionHeight={1080}
@@ -238,14 +238,14 @@ export const App: React.FC = () => {
 
 ```tsx twoslash {6-7, 16-18}
 // @allowUmdGlobalAccess
-// @filename: ./remotion/MyComp.tsx
-export const MyComp = () => <></>;
+// @filename: ./remotion/MyVideo.tsx
+export const MyVideo = () => <></>;
 
 // @filename: index.tsx
 // ---cut---
 import { useState } from "react";
 import { Player } from "@remotion/player";
-import { MyComp } from "./remotion/MyComp";
+import { MyVideo } from "./remotion/MyVideo";
 
 export const App: React.FC = () => {
   // Connect the state to a text field
@@ -253,7 +253,7 @@ export const App: React.FC = () => {
 
   return (
     <Player
-      component={MyComp}
+      component={MyVideo}
       durationInFrames={120}
       compositionWidth={1920}
       compositionHeight={1080}
