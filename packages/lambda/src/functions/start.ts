@@ -1,5 +1,4 @@
 import {InvokeCommand} from '@aws-sdk/client-lambda';
-import {RenderInternals} from '@remotion/renderer';
 import {Internals} from 'remotion';
 import {getOrCreateBucket} from '../api/get-or-create-bucket';
 import {getLambdaClient} from '../shared/aws-clients';
@@ -21,12 +20,10 @@ export const startHandler = async (params: LambdaPayload) => {
 		);
 	}
 
-	RenderInternals.validatePuppeteerTimeout(params.timeoutInMilliseconds);
-
 	const {bucketName} = await getOrCreateBucket({
 		region: getCurrentRegionInFunction(),
 	});
-	const renderId = randomHash();
+	const renderId = randomHash({randomInTests: true});
 
 	const payload: LambdaPayload = {
 		type: LambdaRoutines.launch,

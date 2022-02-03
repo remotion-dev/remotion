@@ -1,4 +1,4 @@
-import {bestFramesPerLambdaParam} from '../functions/helpers/best-frames-per-lambda-param';
+import {bestFramesPerLambdaParam} from '../../functions/helpers/best-frames-per-lambda-param';
 
 test('Get reasonable framesPerLambda defaults', () => {
 	expect(bestFramesPerLambdaParam(20)).toEqual(20);

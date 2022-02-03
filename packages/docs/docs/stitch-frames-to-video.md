@@ -117,7 +117,7 @@ _optional_
 
 A boolean value that when set to `true`, will log all kinds of debug information. Default `false`.
 
-### `ffmpegExecutable`
+### `ffmpegExecutable`
 
 _optional_
 

@@ -11,10 +11,8 @@ import {
 	LambdaPayloads,
 	LambdaRoutines,
 	lambdaTimingsKey,
-	OUTPUT_PATH_PREFIX,
 	RENDERER_PATH_TOKEN,
 } from '../shared/constants';
-import {randomHash} from '../shared/random-hash';
 import {
 	ChunkTimingData,
 	ObjectChunkTimingData,
@@ -48,9 +46,12 @@ const renderHandler = async (
 		Internals.Logging.isEqualOrBelowLogLevel(params.logLevel, 'verbose'),
 		params.chromiumOptions ?? {}
 	);
-	const outputPath = OUTPUT_PATH_PREFIX + randomHash();
+
+	const outputPath = RenderInternals.tmpDir('remotion-render-');
 	if (fs.existsSync(outputPath)) {
-		(fs.rmSync ?? fs.rmdirSync)(outputPath);
+		(fs.rmSync ?? fs.rmdirSync)(outputPath, {
+			recursive: true,
+		});
 	}
 
 	fs.mkdirSync(outputPath);
@@ -146,11 +147,12 @@ const renderHandler = async (
 
 	const endRendered = Date.now();
 
-	console.info('Adding silent audio, chunk', params.chunk);
+	console.log('Adding silent audio, chunk', params.chunk);
 	await RenderInternals.addSilentAudioIfNecessary({
 		outputLocation,
 		durationInFrames: params.frameRange[1] - params.frameRange[0] + 1,
 		fps: params.fps,
+		chunkCodec: params.codec,
 	});
 
 	const condensedTimingData: ChunkTimingData = {

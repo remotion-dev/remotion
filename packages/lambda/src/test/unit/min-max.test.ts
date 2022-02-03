@@ -1,5 +1,5 @@
-import {max, min} from '../functions/helpers/min-max';
-import {expectToThrow} from './helpers/expect-to-throw';
+import {max, min} from '../../functions/helpers/min-max';
+import {expectToThrow} from '../helpers/expect-to-throw';
 
 describe('min() and max()', () => {
 	test('Implemented min() functions correctly', () => {

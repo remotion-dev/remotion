@@ -196,17 +196,20 @@ export const concatVideosS3 = async ({
 	const combine = timer('Combine videos');
 	const filelistDir = RenderInternals.tmpDir(REMOTION_FILELIST_TOKEN);
 	const encodingStart = Date.now();
+
+	const codecForCombining: Codec = codec === 'h264-mkv' ? 'h264' : codec;
+
 	await combineVideos({
 		files,
 		filelistDir,
 		output: outfile,
 		onProgress: (p) => onProgress(p, encodingStart),
 		numberOfFrames,
-		codec,
+		codec: codecForCombining,
 	});
 	combine.end();
 
-	const cleanupChunksProm = fs.promises.rmdir(outdir, {
+	const cleanupChunksProm = (fs.promises.rm ?? fs.promises.rmdir)(outdir, {
 		recursive: true,
 	});
 	return {outfile, cleanupChunksProm, encodingStart};

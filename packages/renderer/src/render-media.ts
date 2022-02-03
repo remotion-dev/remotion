@@ -1,4 +1,5 @@
 import {ExecaChildProcess} from 'execa';
+import os from 'os';
 import fs from 'fs';
 import path from 'path';
 import type {Browser as PuppeteerBrowser} from 'puppeteer-core';
@@ -27,6 +28,7 @@ import {ensureFramesInOrder} from './ensure-frames-in-order';
 import {getRealFrameRange} from './get-frame-to-render';
 import {ChromiumOptions} from './open-browser';
 import {validateScale} from './validate-scale';
+import {canUseParallelEncoding} from './can-use-parallel-encoding';
 
 export type StitchingState = 'encoding' | 'muxing';
 
@@ -110,13 +112,18 @@ export const renderMedia = async ({
 	let encodedDoneIn: number | null = null;
 	const renderStart = Date.now();
 	const tmpdir = tmpDir('pre-encode');
-	const parallelEncoding = !Internals.isAudioCodec(codec);
+	const parallelEncoding = canUseParallelEncoding(codec);
+
 	const preEncodedFileLocation = parallelEncoding
 		? path.join(
 				tmpdir,
 				'pre-encode.' + getFileExtensionFromCodec(codec, 'chunk')
 		  )
 		: null;
+
+	const outputDir = parallelEncoding
+		? null
+		: await fs.promises.mkdtemp(path.join(os.tmpdir(), 'react-motion-render'));
 
 	try {
 		const callUpdate = () => {
@@ -148,8 +155,11 @@ export const renderMedia = async ({
 					Internals.Logging.getLogLevel(),
 					'verbose'
 				),
-				parallelEncoding,
 				ffmpegExecutable,
+				internalOptions: {
+					parallelEncoding,
+					preEncodedFileLocation: null,
+				},
 				assetsInfo: null,
 			});
 			stitcherFfmpeg = preStitcher.task;
@@ -170,7 +180,7 @@ export const renderMedia = async ({
 				callUpdate();
 			},
 			parallelism,
-			outputDir: null,
+			outputDir,
 			onStart: (data) => {
 				renderedFrames = 0;
 				callUpdate();
@@ -182,12 +192,14 @@ export const renderMedia = async ({
 			quality,
 			frameRange: frameRange ?? null,
 			puppeteerInstance,
-			onFrameBuffer: async (buffer, frame) => {
-				await waitForRightTimeOfFrameToBeInserted(frame);
-				stitcherFfmpeg?.stdin?.write(buffer);
+			onFrameBuffer: parallelEncoding
+				? async (buffer, frame) => {
+						await waitForRightTimeOfFrameToBeInserted(frame);
+						stitcherFfmpeg?.stdin?.write(buffer);
 
-				setFrameToStitch(frame + 1);
-			},
+						setFrameToStitch(frame + 1);
+				  }
+				: undefined,
 			serveUrl,
 			dumpBrowserLogs,
 			onBrowserLog,
@@ -209,12 +221,16 @@ export const renderMedia = async ({
 		ensureOutputDirectory(outputLocation);
 
 		const stitchStart = Date.now();
+
 		await stitchFramesToVideo({
 			width: composition.width,
 			height: composition.height,
 			fps: composition.fps,
 			outputLocation,
-			preEncodedFileLocation,
+			internalOptions: {
+				parallelEncoding,
+				preEncodedFileLocation,
+			},
 			force: overwrite ?? Internals.DEFAULT_OVERWRITE,
 			pixelFormat,
 			codec,
@@ -232,7 +248,7 @@ export const renderMedia = async ({
 				Internals.Logging.getLogLevel(),
 				'verbose'
 			),
-			parallelEncoding: false,
+			dir: outputDir ?? undefined,
 		});
 		encodedFrames = composition.durationInFrames;
 		encodedDoneIn = Date.now() - stitchStart;

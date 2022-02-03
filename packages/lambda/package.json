@@ -9,7 +9,8 @@
 	},
 	"module": "true",
 	"scripts": {
-		"test": "eslint src --ext ts,tsx && tsc -d && jest",
+		"testintegration": "jest src/test/integration --runInBand",
+		"test": "eslint src --ext ts,tsx && tsc -d && jest src/test/unit",
 		"watch": "tsc -w",
 		"build": "tsc -d && pnpm run buildlambda",
 		"buildlambda": "ts-node src/admin/bundle-lambda.ts",
