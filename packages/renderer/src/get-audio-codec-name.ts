@@ -8,6 +8,10 @@ export const getAudioCodecName = (codec: Codec): string | null => {
 			return 'pcm_s16le';
 		}
 
+		if (codec === 'vp8' || codec === 'vp9') {
+			return 'libvorbis';
+		}
+
 		return 'aac';
 	}
 

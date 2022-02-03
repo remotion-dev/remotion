@@ -7,14 +7,34 @@ jest.mock('../cli/helpers/quit', () =>
 jest.mock('../functions/helpers/io', () =>
 	jest.requireActual('../functions/helpers/__mocks__/io')
 );
+jest.mock('../functions/helpers/timer', () =>
+	jest.requireActual('../functions/helpers/__mocks__/timer')
+);
 jest.mock('../functions/helpers/print-cloudwatch-helper', () =>
 	jest.requireActual('../functions/helpers/__mocks__/print-cloudwatch-helper')
+);
+jest.mock('../functions/helpers/get-current-region', () =>
+	jest.requireActual('../functions/helpers/__mocks__/get-current-region')
+);
+jest.mock('../functions/helpers/get-browser-instance', () =>
+	jest.requireActual('../functions/helpers/__mocks__/get-browser-instance')
+);
+jest.mock('../functions/helpers/get-files-in-folder', () =>
+	jest.requireActual('../functions/helpers/__mocks__/get-files-in-folder')
+);
+jest.mock('../functions/helpers/get-chromium-executable-path', () =>
+	jest.requireActual(
+		'../functions/helpers/__mocks__/get-chromium-executable-path'
+	)
 );
 jest.mock('../shared/bundle-site', () =>
 	jest.requireActual('../shared/__mocks__/bundle-site')
 );
 jest.mock('../shared/get-account-id', () =>
 	jest.requireActual('../shared/__mocks__/get-account-id')
+);
+jest.mock('../shared/aws-clients', () =>
+	jest.requireActual('../shared/__mocks__/aws-clients')
 );
 jest.mock('../api/enable-s3-website', () =>
 	jest.requireActual('../api/__mocks__/enable-s3-website')

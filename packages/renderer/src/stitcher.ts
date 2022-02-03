@@ -40,9 +40,12 @@ export type StitcherOptions = {
 	onDownload?: RenderMediaOnDownload;
 	proResProfile?: ProResProfile;
 	verbose?: boolean;
-	parallelEncoding?: boolean;
-	preEncodedFileLocation?: string | null;
 	ffmpegExecutable?: FfmpegExecutable;
+	dir?: string;
+	internalOptions?: {
+		preEncodedFileLocation: string | null;
+		parallelEncoding: boolean;
+	};
 };
 
 const getAssetsData = async (options: StitcherOptions) => {
@@ -144,16 +147,21 @@ export const spawnFfmpeg = async (options: StitcherOptions) => {
 		complexFilterFlag = undefined,
 		cleanup = undefined,
 		assetPositions = undefined,
-	} = options.parallelEncoding ? {} : await getAssetsData(options);
+	} = options.internalOptions?.parallelEncoding
+		? {}
+		: await getAssetsData(options);
 
 	const ffmpegArgs = [
 		['-r', String(options.fps)],
-		...(options.preEncodedFileLocation
-			? [['-i', options.preEncodedFileLocation]]
+		...(options.internalOptions?.preEncodedFileLocation
+			? [['-i', options.internalOptions?.preEncodedFileLocation]]
 			: isAudioOnly
 			? []
 			: [
-					['-f', options.parallelEncoding ? 'image2pipe' : 'image2'],
+					[
+						'-f',
+						options.internalOptions?.parallelEncoding ? 'image2pipe' : 'image2',
+					],
 					['-s', `${options.width}x${options.height}`],
 					options.assetsInfo
 						? ['-start_number', String(options.assetsInfo.firstFrameIndex)]
@@ -161,7 +169,7 @@ export const spawnFfmpeg = async (options: StitcherOptions) => {
 					options.assetsInfo
 						? ['-i', options.assetsInfo.imageSequenceName]
 						: null,
-					options.parallelEncoding ? ['-i', '-'] : null,
+					options.internalOptions?.parallelEncoding ? ['-i', '-'] : null,
 			  ]),
 		...(options.assetsInfo && assetPositions
 			? assetsToFfmpegInputs({
@@ -177,7 +185,7 @@ export const spawnFfmpeg = async (options: StitcherOptions) => {
 			  ['-c:v', encoderName]
 			: // If only exporting audio, we drop the video explicitly
 			  ['-vn'],
-		...(options.preEncodedFileLocation
+		...(options.internalOptions?.preEncodedFileLocation
 			? []
 			: [
 					proResProfileName ? ['-profile:v', proResProfileName] : null,
@@ -210,7 +218,9 @@ export const spawnFfmpeg = async (options: StitcherOptions) => {
 		.reduce<(string | null | undefined)[]>((acc, val) => acc.concat(val), [])
 		.filter(Boolean) as string[];
 
-	const task = execa(options.ffmpegExecutable ?? 'ffmpeg', ffmpegString);
+	const task = execa(options.ffmpegExecutable ?? 'ffmpeg', ffmpegString, {
+		cwd: options.internalOptions?.parallelEncoding ? undefined : options.dir,
+	});
 	task.stderr?.on('data', (data: Buffer) => {
 		if (options.onProgress) {
 			const parsed = parseFfmpegProgress(data.toString());

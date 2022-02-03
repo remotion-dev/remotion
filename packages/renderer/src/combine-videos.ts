@@ -40,7 +40,7 @@ export const combineVideos = async ({
 				Internals.isAudioCodec(codec) ? null : '-c:v',
 				Internals.isAudioCodec(codec) ? null : 'copy',
 				'-c:a',
-				Internals.isAudioCodec(codec) ? getAudioCodecName(codec) : 'aac',
+				getAudioCodecName(codec),
 				'-shortest',
 				'-y',
 				output,

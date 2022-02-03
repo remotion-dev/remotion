@@ -32,6 +32,7 @@ test("Render video with browser instance open", async () => {
     puppeteerInstance,
   });
   await puppeteerInstance.close();
+  expect(existsSync(outPath)).toBe(true);
 });
 
 test("Render video with browser instance not open", async () => {

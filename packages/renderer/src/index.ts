@@ -23,6 +23,7 @@ import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
 import {getRealFrameRange} from './get-frame-to-render';
 import {downloadFile} from './assets/download-file';
 import {validateScale} from './validate-scale';
+import {killAllBrowsers} from './open-browser';
 
 declare global {
 	interface Window {
@@ -74,4 +75,5 @@ export const RenderInternals = {
 	validatePuppeteerTimeout,
 	downloadFile,
 	validateScale,
+	killAllBrowsers,
 };

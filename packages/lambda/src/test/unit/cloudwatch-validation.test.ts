@@ -1,5 +1,5 @@
-import {validateCloudWatchRetentionPeriod} from '../shared/validate-retention-period';
-import {expectToThrow} from './helpers/expect-to-throw';
+import {validateCloudWatchRetentionPeriod} from '../../shared/validate-retention-period';
+import {expectToThrow} from '../helpers/expect-to-throw';
 
 test('Should be a valid cloudwatch retention period', () => {
 	expect(validateCloudWatchRetentionPeriod(1)).toBe(undefined);

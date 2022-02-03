@@ -1,4 +1,4 @@
-import {estimatePriceFromBucket} from '../functions/helpers/calculate-price-from-bucket';
+import {estimatePriceFromBucket} from '../../functions/helpers/calculate-price-from-bucket';
 
 test('Should not throw while calculating prices when time shifts occur', () => {
 	const aDate = Date.now();
