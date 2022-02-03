@@ -211,7 +211,42 @@ test('passing in <Composition /> instance should not be possible', () => {
 			/>
 		);
 	}).toThrow(
-		/'component' must not be an instance of the '<Composition \\>' component./
+		/'component' must not be the 'Composition' component\. Pass your own React/
+	);
+});
+test('passing in <Composition /> instance should not be possible', () => {
+	expect(() => {
+		render(
+			<Player
+				compositionWidth={500}
+				compositionHeight={400}
+				fps={30}
+				durationInFrames={500}
+				// @ts-expect-error
+				component={
+					<Composition
+						durationInFrames={30}
+						fps={30}
+						height={10}
+						width={10}
+						id="hello"
+						component={HelloWorld}
+					/>
+				}
+				controls
+				showVolumeControls
+				inputProps={{
+					id: 'HelloWorld',
+					width: 500,
+					height: 400,
+					fps: 30,
+					durationInFrames: 500,
+					component: HelloWorld,
+				}}
+			/>
+		);
+	}).toThrow(
+		/'component' should not be an instance of <Composition\/>\. Pass the React component dir/
 	);
 });
 
