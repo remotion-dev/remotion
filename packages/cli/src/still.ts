@@ -49,7 +49,10 @@ export const still = async () => {
 		stillFrame,
 		browserExecutable,
 		chromiumOptions,
+		scale,
 	} = await getCliOptions('still');
+
+	Log.verbose('Browser executable: ', browserExecutable);
 
 	if (imageFormat === 'none') {
 		Log.error(
@@ -131,6 +134,7 @@ export const still = async () => {
 		timeoutInMilliseconds: Internals.getCurrentPuppeteerTimeout(),
 		chromiumOptions,
 		browserExecutable,
+		scale,
 	});
 
 	const closeBrowserPromise = openedBrowser.close();
