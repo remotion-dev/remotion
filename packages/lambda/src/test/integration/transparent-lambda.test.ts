@@ -1,5 +1,8 @@
 import {RenderInternals} from '@remotion/renderer';
-import {createWriteStream} from 'fs';
+import execa from 'execa';
+import fs, {createWriteStream} from 'fs';
+import os from 'os';
+import path from 'path';
 import {LambdaRoutines} from '../../defaults';
 import {handler} from '../../functions';
 import {lambdaReadFile} from '../../functions/helpers/io';
@@ -70,5 +73,19 @@ test('Render handler manually', async () => {
 		expectedBucketOwner: 'abc',
 		region: 'eu-central-1',
 	});
-	file.pipe(createWriteStream('hi.webm'));
+
+	// We create a temporary directory for storing the frames
+	const out = path.join(
+		await fs.promises.mkdtemp(path.join(os.tmpdir(), 'remotion-')),
+		'hithere.webm'
+	);
+	file.pipe(createWriteStream(out));
+
+	await new Promise<void>((resolve) => {
+		file.on('close', () => resolve());
+	});
+	const probe = await execa('ffprobe', [out]);
+	expect(probe.stderr).toMatch(/ALPHA_MODE(\s+): 1/);
+	expect(probe.stderr).toMatch(/Video: vp8, yuv420p/);
+	fs.unlinkSync(out);
 });

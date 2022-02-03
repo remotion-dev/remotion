@@ -28,6 +28,7 @@ import {ensureFramesInOrder} from './ensure-frames-in-order';
 import {getRealFrameRange} from './get-frame-to-render';
 import {ChromiumOptions} from './open-browser';
 import {validateScale} from './validate-scale';
+import {canUseParallelEncoding} from './can-use-parallel-encoding';
 
 export type StitchingState = 'encoding' | 'muxing';
 
@@ -111,7 +112,7 @@ export const renderMedia = async ({
 	let encodedDoneIn: number | null = null;
 	const renderStart = Date.now();
 	const tmpdir = tmpDir('pre-encode');
-	const parallelEncoding = false;
+	const parallelEncoding = canUseParallelEncoding(codec);
 	const preEncodedFileLocation = parallelEncoding
 		? path.join(
 				tmpdir,
