@@ -136,7 +136,7 @@ _available for `still`, `render` commands_
 
 _available for `render` and `still` command._
 
-Scales the output frames by the factor you pass in. For example, a 1280x720px frame will become a 1920x1080px frame with a scale factor of `1.5`. Vector elements like fonts and HTML markups will be rendered with extra details. `scale` must be between 1 to 16. Default: `1`.
+Scales the output frames by the factor you pass in. For example, a 1280x720px frame will become a 1920x1080px frame with a scale factor of `1.5`. Vector elements like fonts and HTML markups will be rendered with extra details. `scale` must be greater than 0 and less than equal to 16. Default: `1`.
 
 ### `--frames`
 
