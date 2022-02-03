@@ -113,6 +113,7 @@ export const renderMedia = async ({
 	const renderStart = Date.now();
 	const tmpdir = tmpDir('pre-encode');
 	const parallelEncoding = canUseParallelEncoding(codec);
+
 	const preEncodedFileLocation = parallelEncoding
 		? path.join(
 				tmpdir,
@@ -120,9 +121,9 @@ export const renderMedia = async ({
 		  )
 		: null;
 
-	const outputDir = await fs.promises.mkdtemp(
-		path.join(os.tmpdir(), 'react-motion-render')
-	);
+	const outputDir = parallelEncoding
+		? null
+		: await fs.promises.mkdtemp(path.join(os.tmpdir(), 'react-motion-render'));
 
 	try {
 		const callUpdate = () => {
@@ -176,7 +177,7 @@ export const renderMedia = async ({
 				callUpdate();
 			},
 			parallelism,
-			outputDir: parallelEncoding ? null : outputDir,
+			outputDir,
 			onStart: (data) => {
 				renderedFrames = 0;
 				callUpdate();
@@ -223,7 +224,10 @@ export const renderMedia = async ({
 			height: composition.height,
 			fps: composition.fps,
 			outputLocation,
-			preEncodedFileLocation,
+			internalOptions: {
+				parallelEncoding,
+				preEncodedFileLocation,
+			},
 			force: overwrite ?? Internals.DEFAULT_OVERWRITE,
 			pixelFormat,
 			codec,
@@ -241,8 +245,7 @@ export const renderMedia = async ({
 				Internals.Logging.getLogLevel(),
 				'verbose'
 			),
-			parallelEncoding,
-			dir: outputDir,
+			dir: outputDir ?? undefined,
 		});
 		encodedFrames = composition.durationInFrames;
 		encodedDoneIn = Date.now() - stitchStart;
