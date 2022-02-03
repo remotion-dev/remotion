@@ -104,9 +104,16 @@ export const PlayerFn = <T,>(
 	}
 
 	// @ts-expect-error
+	if (componentProps.component.type === Composition) {
+		throw new TypeError(
+			`'component' should not be an instance of <Composition/>. Pass the React component directly, and set the duration, fps and dimensions as separate props. See https://www.remotion.dev/docs/player/examples for an example.`
+		);
+	}
+
+	// @ts-expect-error
 	if (componentProps.component === Composition) {
 		throw new TypeError(
-			`'component' must not be an instance of the '<Composition \\>' component.`
+			`'component' must not be the 'Composition' component. Pass your own React component directly, and set the duration, fps and dimensions as separate props. See https://www.remotion.dev/docs/player/examples for an example.`
 		);
 	}
 
