@@ -143,6 +143,7 @@ module.exports = {
         "env-variables",
         "third-party",
         "stills",
+        "scaling",
       ],
     },
     "cli",
