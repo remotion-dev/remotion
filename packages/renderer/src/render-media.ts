@@ -156,6 +156,10 @@ export const renderMedia = async ({
 					'verbose'
 				),
 				ffmpegExecutable,
+				internalOptions: {
+					parallelEncoding,
+					preEncodedFileLocation: null,
+				},
 				assetsInfo: null,
 			});
 			stitcherFfmpeg = preStitcher.task;
