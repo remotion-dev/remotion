@@ -10,6 +10,7 @@ import React, {
 	useState,
 } from 'react';
 import {
+	Composition,
 	CompositionManagerContext,
 	CompProps,
 	Internals,
@@ -99,6 +100,20 @@ export const PlayerFn = <T,>(
 	if (componentProps.defaultProps !== undefined) {
 		throw new Error(
 			'The <Player /> component does not accept `defaultProps`, but some were passed. Use `inputProps` instead.'
+		);
+	}
+
+	// @ts-expect-error
+	if (componentProps.component.type === Composition) {
+		throw new TypeError(
+			`'component' should not be an instance of <Composition/>. Pass the React component directly, and set the duration, fps and dimensions as separate props. See https://www.remotion.dev/docs/player/examples for an example.`
+		);
+	}
+
+	// @ts-expect-error
+	if (componentProps.component === Composition) {
+		throw new TypeError(
+			`'component' must not be the 'Composition' component. Pass your own React component directly, and set the duration, fps and dimensions as separate props. See https://www.remotion.dev/docs/player/examples for an example.`
 		);
 	}
 
