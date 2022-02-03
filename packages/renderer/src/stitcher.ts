@@ -43,7 +43,7 @@ export type StitcherOptions = {
 	ffmpegExecutable?: FfmpegExecutable;
 	dir?: string;
 	internalOptions?: {
-		preEncodedFileLocation?: string | null;
+		preEncodedFileLocation: string | null;
 		parallelEncoding: boolean;
 	};
 };
