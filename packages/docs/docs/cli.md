@@ -132,6 +132,12 @@ _available for `still`, `render` commands_
 
 [Path to a Chrome executable](/docs/config#setbrowserexecutable). If not specified and Remotion cannot find one, it will download one during rendering. Available since v1.5.
 
+### `--scale`
+
+_available for `render` and `still` command._
+
+Scales the output frames by the factor you pass in. For example, a 1280x720px frame will become a 1920x1080px frame with a scale factor of `1.5`. Vector elements like fonts and HTML markups will be rendered with extra details. Default: `1`.
+
 ### `--frames`
 
 _available for `render` command_

@@ -13,4 +13,11 @@ export const handleCommonError = (err: Error) => {
 		Log.info();
 		Log.info('💡 Get help for this issue at https://remotion.dev/docs/timeout');
 	}
+
+	if (err.message.includes('Target closed')) {
+		Log.info();
+		Log.info(
+			'💡 Get help for this issue at https://remotion.dev/docs/target-closed'
+		);
+	}
 };
