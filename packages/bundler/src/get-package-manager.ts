@@ -18,16 +18,14 @@ export const lockFilePaths: LockfilePath[] = [
 	},
 ];
 
-const discoverPkgManager = (
-	currentPath: string
-): PackageManager | 'unknown' => {
-	if (currentPath === '/') {
+export const getPackageManager = (): PackageManager | 'unknown' => {
+	const existingPkgManagers = lockFilePaths.filter((p) =>
+		fs.existsSync(path.join(process.cwd(), p.path))
+	);
+
+	if (existingPkgManagers.length === 0) {
 		return 'unknown';
 	}
-
-	const existingPkgManagers = lockFilePaths.filter((p) =>
-		fs.existsSync(path.join(currentPath, p.path))
-	);
 
 	if (existingPkgManagers.length > 1) {
 		const error = [
@@ -42,13 +40,5 @@ const discoverPkgManager = (
 		throw new Error(error);
 	}
 
-	if (existingPkgManagers.length === 1) {
-		return existingPkgManagers[0].manager;
-	}
-
-	return discoverPkgManager(path.dirname(currentPath));
-};
-
-export const getPackageManager = (): PackageManager | 'unknown' => {
-	return discoverPkgManager(process.cwd());
+	return existingPkgManagers[0].manager;
 };
