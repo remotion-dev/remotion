@@ -10,6 +10,15 @@ Keep track of changes to the APIs of Remotion Lambda here.
 
 [Upgrading](/docs/lambda/upgrading)
 
+## February 3rd, 2022
+
+Version hash: `3.0.0-lambda.327+85d431c9c`
+Lambda version: '2022-02-03'
+
+- fix transparent webm rendering
+- all changes from 2.6.5 through 2.6.7: including new scale option also for lambda! https://www.remotion.dev/docs/scaling
+- chromium flags can now be set on lambda as well: https://www.remotion.dev/docs/chromium-flags
+
 ## January 23rd, 2022
 
 Version hash: `3.0.0-lambda.310+7b7d16823`  
