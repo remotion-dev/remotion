@@ -62,11 +62,14 @@ const getMissedFramesforCodec = async (codec: "mp4" | "webm") => {
 
     // encoding sometimes shifts the color slightly - so measure the distance between the expected and actual
     // colors and consider any frame not within an acceptable range to be wrong
-    const combinedDistance =
-      colorDistance.red + colorDistance.green + colorDistance.blue;
-    const threshold = codec === "mp4" ? 49 : 12;
-    if (combinedDistance > threshold) {
-      console.log(colorDistance);
+    const highestDistance = Math.max(
+      colorDistance.red,
+      colorDistance.blue,
+      colorDistance.green
+    );
+    const threshold = process.platform === "darwin" ? 40 : 18;
+    if (highestDistance > threshold) {
+      console.log(colorDistance, { threshold, frame, filename });
       missedFrames++;
     }
   }
