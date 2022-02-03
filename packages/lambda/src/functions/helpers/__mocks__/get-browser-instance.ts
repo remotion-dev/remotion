@@ -8,11 +8,3 @@ export const getBrowserInstance: typeof original = async () => {
 	_browserInstance = await openBrowser('chrome');
 	return _browserInstance;
 };
-
-export const killBrowserInstancesForIntegrationTest = (): Promise<void> => {
-	if (_browserInstance) {
-		return _browserInstance.close();
-	}
-
-	return Promise.resolve();
-};
