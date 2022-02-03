@@ -10,6 +10,7 @@ import React, {
 	useState,
 } from 'react';
 import {
+	Composition,
 	CompositionManagerContext,
 	CompProps,
 	Internals,
@@ -99,6 +100,13 @@ export const PlayerFn = <T,>(
 	if (componentProps.defaultProps !== undefined) {
 		throw new Error(
 			'The <Player /> component does not accept `defaultProps`, but some were passed. Use `inputProps` instead.'
+		);
+	}
+
+	// @ts-expect-error
+	if (componentProps.component === Composition) {
+		throw new TypeError(
+			`'component' must not be an instance of the '<Composition \\>' component.`
 		);
 	}
 
