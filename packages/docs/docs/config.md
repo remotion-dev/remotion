@@ -220,7 +220,7 @@ The [command line flag](/docs/cli#--image-format) `--image-format` will take pre
 
 _Available from Version 2.6.7._
 
-Scales the output frames by the factor you pass in. For example, a 1280x720px frame will become a 1920x1080px frame with a scale factor of `1.5`. Vector elements like fonts and HTML markups will be rendered with extra details. Default: `1`.
+[Scales the output frames by the factor you pass in.](/docs/scaling) For example, a 1280x720px frame will become a 1920x1080px frame with a scale factor of `1.5`. Vector elements like fonts and HTML markups will be rendered with extra details. Default: `1`.
 
 ```ts twoslash
 import { Config } from "remotion";
