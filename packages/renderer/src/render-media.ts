@@ -155,7 +155,6 @@ export const renderMedia = async ({
 					Internals.Logging.getLogLevel(),
 					'verbose'
 				),
-				parallelEncoding,
 				ffmpegExecutable,
 				assetsInfo: null,
 			});
