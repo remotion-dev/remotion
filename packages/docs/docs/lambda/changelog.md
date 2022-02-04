@@ -10,6 +10,15 @@ Keep track of changes to the APIs of Remotion Lambda here.
 
 [Upgrading](/docs/lambda/upgrading)
 
+## February 4th, 2022 (3)
+
+Version hash: `xxx`
+Lambda version: '2022-02-06'
+
+Fixes regressions:
+
+- Fixes not being able to render transparent WebM on Lamba.
+
 ## February 4th, 2022 (2)
 
 Version hash: `3.0.0-lambda.329+f23080b59`

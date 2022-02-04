@@ -187,7 +187,7 @@ test("Should be able to render a WAV audio file", async () => {
   expect(data).toContain("pcm_s16le");
   expect(data).toContain("2 channels");
   expect(data).toContain("Kevin MacLeod");
-  expect(data).toContain("bitrate: 1411 kb/s");
+  expect(data).toContain("bitrate: 1536 kb/s");
   expect(data).toContain("Stream #0");
   expect(data).not.toContain("Stream #1");
   fs.unlinkSync(out);
@@ -239,7 +239,7 @@ test("Should be able to render a AAC audio file", async () => {
   expect(data).toContain("stereo");
   expect(data).toContain("fltp");
   expect(data).not.toContain("Kevin MacLeod");
-  expect(data).toContain("4 kb/s");
+  expect(data).toContain("5 kb/s");
   expect(data).toContain("Stream #0");
   expect(data).not.toContain("Stream #1");
   fs.unlinkSync(out);
@@ -281,7 +281,7 @@ test("Should render a video with Offline Audio-context", async () => {
   const info = await execa("ffprobe", [out]);
   const data = info.stderr;
   expect(data).toContain("Stream #0:0: Audio: mp3");
-  expect(data).toContain("44100 Hz, stereo");
+  expect(data).toContain("48000 Hz, stereo");
   fs.unlinkSync(out);
 });
 
@@ -298,8 +298,8 @@ test("Should fail to render an audio file that doesn't have any audio inputs", a
   expect(task.exitCode).toBe(0);
   const info = await execa("ffprobe", [out]);
   const data = info.stderr;
-  expect(data).toContain("Duration: 00:00:00.37");
-  expect(data).toContain("Audio: mp3, 44100 Hz");
+  expect(data).toContain("Duration: 00:00:00.36");
+  expect(data).toContain("Audio: mp3, 48000 Hz");
   fs.unlinkSync(out);
 });
 

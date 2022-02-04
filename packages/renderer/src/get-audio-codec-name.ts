@@ -9,7 +9,7 @@ export const getAudioCodecName = (codec: Codec): string | null => {
 		}
 
 		if (codec === 'vp8' || codec === 'vp9') {
-			return 'libvorbis';
+			return 'libopus';
 		}
 
 		return 'aac';
