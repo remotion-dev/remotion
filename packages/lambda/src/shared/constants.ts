@@ -11,6 +11,7 @@ import {
 import {ChunkRetry} from '../functions/helpers/get-retry-stats';
 import {EnhancedErrorInfo} from '../functions/helpers/write-lambda-error';
 import {AwsRegion} from '../pricing/aws-regions';
+import {LambdaArchitecture} from './validate-architecture';
 
 // 10 minutes at 30fps
 export const MAX_VIDEO_LENGTH = 18000;
@@ -18,6 +19,8 @@ export const MAX_VIDEO_LENGTH = 18000;
 export const MIN_MEMORY = 512;
 export const MAX_MEMORY = 10240;
 export const DEFAULT_MEMORY_SIZE = 2048;
+
+export const DEFAULT_ARCHITECTURE: LambdaArchitecture = 'arm64';
 
 export const DEFAULT_TIMEOUT = 120;
 export const MIN_TIMEOUT = 15;
@@ -282,6 +285,7 @@ export type RenderMetadata = {
 };
 
 export type LambdaVersions =
+	| '2022-02-04'
 	| '2022-02-03'
 	| '2022-01-23'
 	| '2022-01-19'
@@ -325,7 +329,7 @@ export type LambdaVersions =
 	| '2021-06-23'
 	| 'n/a';
 
-export const CURRENT_VERSION: LambdaVersions = '2022-02-03';
+export const CURRENT_VERSION: LambdaVersions = '2022-02-04';
 
 export type PostRenderData = {
 	cost: {
