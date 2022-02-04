@@ -1,3 +1,4 @@
+import type {ChromiumOptions} from '@remotion/renderer';
 import {
 	FrameRange,
 	ImageFormat,
