@@ -96,6 +96,7 @@ module.exports = {
       ],
     },
     "lambda/checklist",
+    "lambda/feb-2022-outage",
     {
       collapsed: false,
       type: "category",
