@@ -13,6 +13,7 @@ import {callLambda} from '../shared/call-lambda';
 import {LambdaRoutines, Privacy} from '../shared/constants';
 import {convertToServeUrl} from '../shared/convert-to-serve-url';
 import {validateFramesPerLambda} from '../shared/validate-frames-per-lambda';
+import {validateServeUrl} from '../shared/validate-serveurl';
 
 export type RenderMediaOnLambdaInput = {
 	region: AwsRegion;
@@ -88,6 +89,7 @@ export const renderMediaOnLambda = async ({
 	chromiumOptions,
 	scale,
 }: RenderMediaOnLambdaInput): Promise<RenderMediaOnLambdaOutput> => {
+	validateServeUrl(serveUrl);
 	validateFramesPerLambda(framesPerLambda ?? null);
 	RenderInternals.validateScale(scale);
 	const realServeUrl = await convertToServeUrl(serveUrl, region);

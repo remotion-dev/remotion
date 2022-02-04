@@ -48,13 +48,6 @@ const renderHandler = async (
 	);
 
 	const outputPath = RenderInternals.tmpDir('remotion-render-');
-	if (fs.existsSync(outputPath)) {
-		(fs.rmSync ?? fs.rmdirSync)(outputPath, {
-			recursive: true,
-		});
-	}
-
-	fs.mkdirSync(outputPath);
 
 	if (typeof params.chunk !== 'number') {
 		throw new Error('must pass chunk');

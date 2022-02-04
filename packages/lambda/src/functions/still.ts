@@ -61,12 +61,6 @@ const innerStillHandler = async (
 	]);
 	const outputDir = RenderInternals.tmpDir('remotion-render-');
 
-	if (fs.existsSync(outputDir)) {
-		(fs.rmSync ?? fs.rmdirSync)(outputDir);
-	}
-
-	fs.mkdirSync(outputDir);
-
 	const outputPath = path.join(outputDir, 'output');
 
 	const composition = await validateComposition({
