@@ -1,5 +1,4 @@
-import {RenderInternals} from '@remotion/renderer';
-import {ChromiumOptions} from '@remotion/renderer/src/open-browser';
+import {RenderInternals, ChromiumOptions} from '@remotion/renderer';
 import fs from 'fs';
 import path from 'path';
 import {

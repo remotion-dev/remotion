@@ -1,5 +1,4 @@
-import {RenderInternals} from '@remotion/renderer';
-import {ChromiumOptions} from '@remotion/renderer/src/open-browser';
+import {ChromiumOptions, RenderInternals} from '@remotion/renderer';
 import {
 	FrameRange,
 	ImageFormat,

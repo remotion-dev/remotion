@@ -49,6 +49,7 @@ export {renderStill} from './render-still';
 export {stitchFramesToVideo, StitcherOptions} from './stitcher';
 export {OnStartData, RenderFramesOutput} from './types';
 export {BrowserLog} from './browser-log';
+export type {ChromiumOptions} from './open-browser';
 export {openBrowser} from './open-browser';
 
 export const RenderInternals = {
