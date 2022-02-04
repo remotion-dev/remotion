@@ -61,7 +61,7 @@ Memory size in megabytes. Default: <DefaultTimeout /> seconds.
 
 ### `--architecture`
 
-Retention period for the CloudWatch Logs in days. Default: <DefaultLogRetention /> days.
+Architecture to be used for the Lambda. One of `arm64` and `x86_64`. Default: <DefaultArchitecture />.
 
 ### `--disable-cloudwatch`
 
