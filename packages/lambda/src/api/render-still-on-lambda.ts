@@ -1,4 +1,4 @@
-import {ChromiumOptions, RenderInternals} from '@remotion/renderer';
+import {ChromiumOptions} from '@remotion/renderer';
 import {Internals, LogLevel, StillImageFormat} from 'remotion';
 import {AwsRegion} from '../pricing/aws-regions';
 import {callLambda} from '../shared/call-lambda';
@@ -72,7 +72,6 @@ export const renderStillOnLambda = async ({
 	scale,
 }: RenderStillOnLambdaInput): Promise<RenderStillOnLambdaOutput> => {
 	const realServeUrl = await convertToServeUrl(serveUrl, region);
-	RenderInternals.validateScale(scale);
 	const res = await callLambda({
 		functionName,
 		type: LambdaRoutines.still,
