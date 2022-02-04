@@ -7,10 +7,11 @@ import {
 	PutFunctionEventInvokeConfigCommand,
 } from '@aws-sdk/client-lambda';
 import {readFileSync} from 'fs';
-import { LOG_GROUP_PREFIX } from '../defaults';
+import {LOG_GROUP_PREFIX} from '../defaults';
 import {AwsRegion} from '../pricing/aws-regions';
 import {getCloudWatchLogsClient, getLambdaClient} from '../shared/aws-clients';
 import {hostedLayers} from '../shared/hosted-layers';
+import {LambdaArchitecture} from '../shared/validate-architecture';
 import {ROLE_NAME} from './iam-validation/suggested-policy';
 
 export const createFunction = async ({
@@ -23,6 +24,7 @@ export const createFunction = async ({
 	timeoutInSeconds,
 	alreadyCreated,
 	retentionInDays,
+	architecture,
 }: {
 	createCloudWatchLogGroup: boolean;
 	region: AwsRegion;
@@ -33,6 +35,7 @@ export const createFunction = async ({
 	timeoutInSeconds: number;
 	alreadyCreated: boolean;
 	retentionInDays: number;
+	architecture: LambdaArchitecture;
 }): Promise<{FunctionName: string}> => {
 	if (createCloudWatchLogGroup) {
 		try {
@@ -72,10 +75,10 @@ export const createFunction = async ({
 			Description: 'Renders a Remotion video.',
 			MemorySize: memorySizeInMb,
 			Timeout: timeoutInSeconds,
-			Layers: hostedLayers[region].map(
+			Layers: hostedLayers[architecture][region].map(
 				({layerArn, version}) => `${layerArn}:${version}`
 			),
-			Architectures: ['arm64'],
+			Architectures: [architecture],
 		})
 	);
 	await getLambdaClient(region).send(

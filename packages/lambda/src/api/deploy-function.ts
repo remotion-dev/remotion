@@ -7,6 +7,10 @@ import {
 } from '../shared/constants';
 import {FUNCTION_ZIP} from '../shared/function-zip-path';
 import {getAccountId} from '../shared/get-account-id';
+import {
+	LambdaArchitecture,
+	validateArchitecture,
+} from '../shared/validate-architecture';
 import {validateAwsRegion} from '../shared/validate-aws-region';
 import {validateMemorySize} from '../shared/validate-memory-size';
 import {validateCloudWatchRetentionPeriod} from '../shared/validate-retention-period';
@@ -19,6 +23,7 @@ export type DeployFunctionInput = {
 	region: AwsRegion;
 	timeoutInSeconds: number;
 	memorySizeInMb: number;
+	architecture: LambdaArchitecture;
 };
 
 export type DeployFunctionOutput = {
@@ -34,6 +39,7 @@ export type DeployFunctionOutput = {
  * @param options.region The region you want to deploy your function to.
  * @param options.timeoutInSeconds After how many seconds the lambda function should be killed if it does not end itself.
  * @param options.memorySizeInMb How much memory should be allocated to the Lambda function.
+ * @param options.architecture The architecture Lambda should run on. One of x86_64 and x64
  * @returns {Promise<DeployFunctionOutput>} An object that contains the `functionName` property
  */
 export const deployFunction = async (
@@ -43,6 +49,7 @@ export const deployFunction = async (
 	validateTimeout(options.timeoutInSeconds);
 	validateAwsRegion(options.region);
 	validateCloudWatchRetentionPeriod(options.cloudWatchLogRetentionPeriodInDays);
+	validateArchitecture(options.architecture);
 
 	const fnNameRender = `${RENDER_FN_PREFIX}${CURRENT_VERSION}-${options.memorySizeInMb}mb-${options.timeoutInSeconds}sec`;
 	const accountId = await getAccountId({region: options.region});
@@ -71,6 +78,7 @@ export const deployFunction = async (
 			options.cloudWatchLogRetentionPeriodInDays ??
 			DEFAULT_CLOUDWATCH_RETENTION_PERIOD,
 		alreadyCreated: Boolean(alreadyDeployed),
+		architecture: options.architecture,
 	});
 
 	if (!created.FunctionName) {
