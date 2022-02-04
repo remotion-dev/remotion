@@ -12,7 +12,7 @@ Keep track of changes to the APIs of Remotion Lambda here.
 
 ## February 4th, 2022
 
-Version hash: ``
+Version hash: `3.0.0-lambda.338+118ffe2e9`
 Lambda version: '2022-02-04'
 
 Attention: Some Lambda functions are breaking from an AWS change, especially on `us-east-1` and `us-east-2`. We are worried that AWS is slowly rolling out a broken update to their Lambda functions. If you are affected or want to be on the safe side, [read these instructions](/docs/lambda/feb-2022-outage) to avoid the AWS issues.
