@@ -10,6 +10,11 @@ Keep track of changes to the APIs of Remotion Lambda here.
 
 [Upgrading](/docs/lambda/upgrading)
 
+## February 4th, 2022
+
+Version hash: ``
+Lambda version: '2022-02-04'
+
 ## February 3rd, 2022
 
 Version hash: `3.0.0-lambda.327+85d431c9c`
