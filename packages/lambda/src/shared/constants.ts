@@ -285,6 +285,7 @@ export type RenderMetadata = {
 };
 
 export type LambdaVersions =
+	| '2022-02-04'
 	| '2022-02-03'
 	| '2022-01-23'
 	| '2022-01-19'
@@ -328,7 +329,7 @@ export type LambdaVersions =
 	| '2021-06-23'
 	| 'n/a';
 
-export const CURRENT_VERSION: LambdaVersions = '2022-02-03';
+export const CURRENT_VERSION: LambdaVersions = '2022-02-04';
 
 export type PostRenderData = {
 	cost: {
