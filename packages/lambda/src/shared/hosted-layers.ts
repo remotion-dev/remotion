@@ -22,17 +22,17 @@ export const hostedLayers: HostedLayers = {
 			{
 				layerArn:
 					'arn:aws:lambda:us-east-1:678892195805:layer:remotion-binaries-remotion-arm64',
-				version: 2,
+				version: 4,
 			},
 			{
 				layerArn:
 					'arn:aws:lambda:us-east-1:678892195805:layer:remotion-binaries-ffmpeg-arm64',
-				version: 2,
+				version: 4,
 			},
 			{
 				layerArn:
 					'arn:aws:lambda:us-east-1:678892195805:layer:remotion-binaries-chromium-arm64',
-				version: 2,
+				version: 4,
 			},
 		],
 		'us-east-2': [],
@@ -50,17 +50,17 @@ export const hostedLayers: HostedLayers = {
 			{
 				layerArn:
 					'arn:aws:lambda:us-east-1:678892195805:layer:remotion-binaries-remotion-x86_64',
-				version: 2,
+				version: 4,
 			},
 			{
 				layerArn:
 					'arn:aws:lambda:us-east-1:678892195805:layer:remotion-binaries-ffmpeg-x86_64',
-				version: 2,
+				version: 4,
 			},
 			{
 				layerArn:
 					'arn:aws:lambda:us-east-1:678892195805:layer:remotion-binaries-chromium-x86_64',
-				version: 2,
+				version: 4,
 			},
 		],
 		'us-east-2': [],
