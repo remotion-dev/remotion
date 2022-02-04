@@ -57,6 +57,7 @@ import {LambdaLSInput, LambdaLsReturnType} from './functions/helpers/io';
 import {LambdaInternals} from './internals';
 import {AwsRegion} from './pricing/aws-regions';
 import type {RenderProgress} from './shared/constants';
+import {LambdaArchitecture} from './shared/validate-architecture';
 
 export {
 	deleteSite,
@@ -113,4 +114,5 @@ export type {
 	SimulatePermissionsOutput,
 	GetAwsClientInput,
 	GetAwsClientOutput,
+	LambdaArchitecture,
 };
