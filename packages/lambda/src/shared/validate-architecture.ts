@@ -10,7 +10,7 @@ export const validateArchitecture = (architecture: unknown) => {
 		);
 	}
 
-	if (validArchitectures.find((a) => a === architecture)) {
+	if (!validArchitectures.find((a) => a === architecture)) {
 		throw new TypeError(
 			`You must pass an "architecture" when deploying a function: either "arm64" or "x86_64"`
 		);

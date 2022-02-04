@@ -75,7 +75,7 @@ export const createFunction = async ({
 			Description: 'Renders a Remotion video.',
 			MemorySize: memorySizeInMb,
 			Timeout: timeoutInSeconds,
-			Layers: hostedLayers[region].map(
+			Layers: hostedLayers[architecture][region].map(
 				({layerArn, version}) => `${layerArn}:${version}`
 			),
 			Architectures: [architecture],
