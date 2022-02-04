@@ -16,6 +16,7 @@ test('Should be able to deploy function', async () => {
 		region: 'us-east-1',
 		timeoutInSeconds: 120,
 		createCloudWatchLogGroup: true,
+		architecture: 'arm64',
 	});
 	expect(functionName).toBe(expectedFunctionName(2048, 120));
 });
@@ -28,6 +29,7 @@ test('Should be able to get the function afterwards', async () => {
 		region: 'us-east-1',
 		timeoutInSeconds: 120,
 		createCloudWatchLogGroup: true,
+		architecture: 'arm64',
 	});
 	expect(functionName).toBe(expectedFunctionName(2048, 120));
 	const fns = await getFunctions({
@@ -58,6 +60,7 @@ test('Should be able to delete the function', async () => {
 		region: 'us-east-1',
 		timeoutInSeconds: 120,
 		createCloudWatchLogGroup: true,
+		architecture: 'arm64',
 	});
 	expect(functionName).toBe(expectedFunctionName(2048, 120));
 	await deleteFunction({
@@ -79,6 +82,7 @@ test('Should be able to get the function afterwards', async () => {
 		region: 'us-east-1',
 		timeoutInSeconds: 120,
 		createCloudWatchLogGroup: true,
+		architecture: 'arm64',
 	});
 	expect(functionName).toBe(expectedFunctionName(2048, 120));
 	const fns = await getFunctions({

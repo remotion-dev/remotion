@@ -8,6 +8,7 @@ slug: /lambda/cli/functions
 import {DefaultMemorySize} from '../../../components/lambda/default-memory-size';
 import {DefaultTimeout} from '../../../components/lambda/default-timeout';
 import {DefaultLogRetention} from '../../../components/lambda/default-log-retention';
+import {DefaultArchitecture} from '../../../components/lambda/default-architecture';
 
 The `npx remotion lambda functions` command allows you to deploy, view and delete AWS lambda functions that can render videos.
 
@@ -57,6 +58,10 @@ Memory size in megabytes. Default: <DefaultMemorySize /> MB.
 ### `--timeout`
 
 Memory size in megabytes. Default: <DefaultTimeout /> seconds.
+
+### `--architecture`
+
+Architecture to be used for the Lambda. One of `arm64` and `x86_64`. Default: <DefaultArchitecture />.
 
 ### `--disable-cloudwatch`
 
