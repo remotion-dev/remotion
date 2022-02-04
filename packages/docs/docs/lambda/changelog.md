@@ -10,6 +10,16 @@ Keep track of changes to the APIs of Remotion Lambda here.
 
 [Upgrading](/docs/lambda/upgrading)
 
+## February 4th, 2022 (2)
+
+Version hash: `3.0.0-lambda.329+f23080b59`
+Lambda version: '2022-02-05'
+
+Fixes regressions:
+
+- Fixes Lambda returning an `EISDIR` error when rendering stills.
+- Better error message when not passing `serveUrl` to `renderMediaOnLambda()`.
+
 ## February 4th, 2022
 
 Version hash: `3.0.0-lambda.338+118ffe2e9`

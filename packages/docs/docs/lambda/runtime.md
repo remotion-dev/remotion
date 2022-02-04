@@ -56,7 +56,7 @@ The function includes the following fonts:
 - Noto Sans Tamil Regular
 - Noto Sans Thai Regular
 
-Since December 2021 the following fonts are also available
+Since December 2021 the following fonts are also available **only on the `arm64` version of Remotion Lambda:**
 
 - Noto Sans Simplified Chinese Regular
 - Noto Sans Simplified Chinese Bold
