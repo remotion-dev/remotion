@@ -1,5 +1,4 @@
-import {RenderInternals} from '@remotion/renderer';
-import {ChromiumOptions} from '@remotion/renderer/src/open-browser';
+import {ChromiumOptions, RenderInternals} from '@remotion/renderer';
 import {Internals, LogLevel, StillImageFormat} from 'remotion';
 import {AwsRegion} from '../pricing/aws-regions';
 import {callLambda} from '../shared/call-lambda';

@@ -1,4 +1,4 @@
-import {ChromiumOptions} from '@remotion/renderer/src/open-browser';
+import {ChromiumOptions} from '@remotion/renderer';
 import {
 	Codec,
 	FrameRange,

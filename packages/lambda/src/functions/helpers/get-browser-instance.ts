@@ -1,5 +1,4 @@
-import {openBrowser} from '@remotion/renderer';
-import {ChromiumOptions} from '@remotion/renderer/src/open-browser';
+import {ChromiumOptions, openBrowser} from '@remotion/renderer';
 import {Await} from '../../shared/await';
 import {executablePath} from './get-chromium-executable-path';
 
