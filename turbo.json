@@ -13,7 +13,7 @@
       "outputs": []
     },
     "@remotion/example#lint": {
-      "dependsOn": ["eslint-config#build"]
+      "dependsOn": ["@remotion/eslint-config#build"]
     }
   },
   "npmClient": "pnpm"
