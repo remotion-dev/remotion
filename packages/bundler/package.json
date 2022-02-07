@@ -8,7 +8,8 @@
 		"url": "https://github.com/remotion-dev/remotion"
 	},
 	"scripts": {
-		"test": "eslint src --ext ts,tsx && jest",
+		"lint": "eslint src --ext ts,tsx",
+		"test": "jest",
 		"build": "tsc -d",
 		"watch": "tsc -w"
 	},

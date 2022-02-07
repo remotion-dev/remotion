@@ -4,7 +4,7 @@
 	"description": "babel-loader polyfill for Remotion",
 	"main": "dist/index.js",
 	"scripts": {
-		"test": "eslint src --ext ts,tsx",
+		"lint": "eslint src --ext ts,tsx",
 		"watch": "tsc -w",
 		"build": "tsc -d"
 	},

@@ -54,5 +54,4 @@ jobs:
 
       - name: Build & Test
         run: |
-          pnpm run build
-          pnpm test
+          pnpm run ci

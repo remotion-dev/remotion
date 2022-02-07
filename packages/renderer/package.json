@@ -6,7 +6,8 @@
 	"types": "dist/index.d.ts",
 	"sideEffects": false,
 	"scripts": {
-		"test": "eslint src --ext ts,tsx && jest",
+		"lint": "eslint src --ext ts,tsx",
+		"test": "jest",
 		"watch": "tsc -w",
 		"build": "tsc -d"
 	},
