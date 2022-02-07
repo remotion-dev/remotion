@@ -223,7 +223,9 @@ export const getCliOptions = async (options: {
 		disableWebSecurity: Internals.getChromiumDisableWebSecurity(),
 		ignoreCertificateErrors: Internals.getIgnoreCertificateErrors(),
 		headless: Internals.getChromiumHeadlessMode(),
-		gl: Internals.getChromiumOpenGlRenderer(),
+		gl:
+			Internals.getChromiumOpenGlRenderer() ??
+			Internals.DEFAULT_OPENGL_RENDERER,
 	};
 
 	return {
