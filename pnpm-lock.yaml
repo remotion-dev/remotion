@@ -29,7 +29,7 @@ importers:
       prettier-plugin-organize-imports: ^1.1.1
       react: ^17.0.1
       react-dom: ^17.0.1
-      remotion: workspace:*
+      remotion: 2.6.6
       sharp: ^0.29.0
       three: ^0.134.0
       ts-jest: ^27.0.5
@@ -126,7 +126,7 @@ importers:
       prettier: ^2.0.5
       prettier-plugin-organize-imports: ^1.1.1
       react-refresh: ^0.9.0-rc.2
-      remotion: workspace:*
+      remotion: 2.6.6
       semver: 7.3.4
       source-map: ^0.5.7
       source-map-loader: ^3.0.0

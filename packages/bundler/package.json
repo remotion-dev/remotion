@@ -29,7 +29,7 @@
 		"memfs": "^3.4.0",
 		"mime-types": "^2.1.34",
 		"react-refresh": "^0.9.0-rc.2",
-		"remotion": "workspace:*",
+		"remotion": "2.6.6",
 		"semver": "7.3.4",
 		"source-map": "^0.5.7",
 		"source-map-loader": "^3.0.0",
