@@ -1,16 +1,13 @@
-import {isInLambda} from '../is-in-lambda';
 import {
 	OpenGlRenderer,
 	validateOpenGlRenderer,
 } from '../validation/validate-opengl-renderer';
 
-export const DEFAULT_OPENGL_RENDERER: OpenGlRenderer = isInLambda()
-	? 'swiftshader'
-	: 'angle';
+export const DEFAULT_OPENGL_RENDERER: OpenGlRenderer = 'angle';
 
 let chromiumDisableWebSecurity = false;
 let ignoreCertificateErrors = false;
-let openGlRenderer: OpenGlRenderer = DEFAULT_OPENGL_RENDERER;
+let openGlRenderer: OpenGlRenderer | null;
 let headlessMode = true;
 
 export const getChromiumDisableWebSecurity = () => chromiumDisableWebSecurity;
