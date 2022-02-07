@@ -12,7 +12,7 @@
     "lint": {
       "outputs": []
     },
-    "example#lint": {
+    "@remotion/example#lint": {
       "dependsOn": ["eslint-config#build"]
     }
   },
