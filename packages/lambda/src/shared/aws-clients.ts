@@ -16,21 +16,31 @@ const _clients: Partial<
 	>
 > = {};
 
-const getCredentials = () => {
-	return process.env.REMOTION_AWS_ACCESS_KEY_ID &&
+type CredentialPair = {accessKeyId: string; secretAccessKey: string};
+
+const getCredentials = (): CredentialPair | undefined => {
+	if (
+		process.env.REMOTION_AWS_ACCESS_KEY_ID &&
 		process.env.REMOTION_AWS_SECRET_ACCESS_KEY
-		? {
-				accessKeyId: process.env.REMOTION_AWS_ACCESS_KEY_ID,
-				secretAccessKey: process.env.REMOTION_AWS_SECRET_ACCESS_KEY,
-		  }
-		: isInLambda()
-		? undefined
-		: process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY
-		? {
-				accessKeyId: process.env.AWS_ACCESS_KEY_ID as string,
-				secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY as string,
-		  }
-		: undefined;
+	) {
+		return {
+			accessKeyId: process.env.REMOTION_AWS_ACCESS_KEY_ID,
+			secretAccessKey: process.env.REMOTION_AWS_SECRET_ACCESS_KEY,
+		};
+	}
+
+	if (isInLambda()) {
+		return undefined;
+	}
+
+	if (process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY) {
+		return {
+			accessKeyId: process.env.AWS_ACCESS_KEY_ID as string,
+			secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY as string,
+		};
+	}
+
+	return undefined;
 };
 
 const getCredentialsKey = () => JSON.stringify(getCredentials());
