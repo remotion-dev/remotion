@@ -4,7 +4,7 @@
   "private": true,
   "license": "SEE LICENSE IN LICENSE.md",
   "scripts": {
-    "test": "turbo run lint test",
+    "test": "turbo run lint test --concurrency=4",
     "build": "turbo run build",
     "ci": "turbo run build lint test --concurrency=4 && jest --runInBand",
     "watch": "pnpm run watch --recursive --stream --parallel",
@@ -19,7 +19,8 @@
     "remotion": "2.6.6"
   },
   "dependencies": {
-    "lerna": "^4.0.0"
+    "lerna": "^4.0.0",
+    "turbo": "^1.1.2"
   },
   "workspaces": [
     "packages/*"
