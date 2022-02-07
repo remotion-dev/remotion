@@ -2,9 +2,9 @@ import {CloudWatchLogsClient} from '@aws-sdk/client-cloudwatch-logs';
 import {IAMClient} from '@aws-sdk/client-iam';
 import {LambdaClient} from '@aws-sdk/client-lambda';
 import {S3Client} from '@aws-sdk/client-s3';
-import {Internals} from 'remotion';
 import {AwsRegion} from '../pricing/aws-regions';
 import {checkCredentials} from './check-credentials';
+import {isInLambda} from './is-in-lambda';
 
 const _clients: Partial<
 	Record<
@@ -23,7 +23,7 @@ const getCredentials = () => {
 				accessKeyId: process.env.REMOTION_AWS_ACCESS_KEY_ID,
 				secretAccessKey: process.env.REMOTION_AWS_SECRET_ACCESS_KEY,
 		  }
-		: Internals.isInLambda()
+		: isInLambda()
 		? undefined
 		: process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY
 		? {

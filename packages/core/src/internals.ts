@@ -147,7 +147,6 @@ import {
 } from './config/chromium-flags';
 import {validateOpenGlRenderer} from './validation/validate-opengl-renderer';
 import {OpenGlRenderer} from './validation/validate-opengl-renderer';
-import {isInLambda} from './is-in-lambda';
 import {getPreviewDomElement} from './get-preview-dom-element';
 const Timeline = {...TimelinePosition, ...TimelineInOutPosition};
 
@@ -231,7 +230,6 @@ export const Internals = {
 	invalidCompositionErrorMessage,
 	isCompositionIdValid,
 	DEFAULT_OVERWRITE,
-	isInLambda,
 	AssetCompression,
 	defaultOverrideFunction,
 	DEFAULT_PUPPETEER_TIMEOUT,

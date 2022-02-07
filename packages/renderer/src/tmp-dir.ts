@@ -16,21 +16,15 @@ const randomHash = (): string => {
 };
 
 export const tmpDir = (str: string) => {
-	if (Internals.isInLambda()) {
-		const dir = '/tmp/' + str + randomHash();
+	const newDir = path.join(os.tmpdir(), str + randomHash());
 
-		if (fs.existsSync(dir)) {
-			(fs.rmSync ?? fs.rmdirSync)(dir, {
-				recursive: true,
-				force: true,
-			});
-		}
-
-		mkdirSync(dir);
-		return dir;
+	if (fs.existsSync(newDir)) {
+		(fs.rmSync ?? fs.rmdirSync)(newDir, {
+			recursive: true,
+			force: true,
+		});
 	}
 
-	const newDir = path.join(os.tmpdir(), str + randomHash());
 	mkdirSync(newDir);
 	return newDir;
 };
