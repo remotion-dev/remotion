@@ -1,13 +1,10 @@
 import {RenderInternals} from '@remotion/renderer';
 import execa from 'execa';
-import fs, {createWriteStream} from 'fs';
-import os from 'os';
-import path from 'path';
-import {LambdaRoutines} from '../../defaults';
-import {handler} from '../../functions';
-import {lambdaReadFile} from '../../functions/helpers/io';
-import {LambdaReturnValues} from '../../shared/return-values';
-import {disableLogs, enableLogs} from '../disable-logs';
+import {LambdaRoutines} from '../../../defaults';
+import {handler} from '../../../functions';
+import {lambdaReadFile} from '../../../functions/helpers/io';
+import {LambdaReturnValues} from '../../../shared/return-values';
+import {disableLogs, enableLogs} from '../../disable-logs';
 
 jest.setTimeout(30000);
 
@@ -24,10 +21,11 @@ beforeAll(() => {
 
 afterAll(async () => {
 	enableLogs();
+
 	await RenderInternals.killAllBrowsers();
 });
 
-test('Render handler manually', async () => {
+test('Should add silent audio if there is no audio', async () => {
 	process.env.AWS_LAMBDA_FUNCTION_MEMORY_SIZE = '2048';
 
 	const res = await handler(
@@ -35,7 +33,7 @@ test('Render handler manually', async () => {
 			type: LambdaRoutines.start,
 			serveUrl: 'https://competent-mccarthy-56f7c9.netlify.app/',
 			chromiumOptions: {},
-			codec: 'vp8',
+			codec: 'h264-mkv',
 			composition: 'react-svg',
 			crf: 9,
 			enableChunkOptimization: false,
@@ -47,7 +45,7 @@ test('Render handler manually', async () => {
 			logLevel: 'warn',
 			maxRetries: 3,
 			outName: 'out.mp4',
-			pixelFormat: 'yuva420p',
+			pixelFormat: 'yuv420p',
 			privacy: 'public',
 			proResProfile: undefined,
 			quality: undefined,
@@ -73,19 +71,11 @@ test('Render handler manually', async () => {
 		expectedBucketOwner: 'abc',
 		region: 'eu-central-1',
 	});
-
-	// We create a temporary directory for storing the frames
-	const out = path.join(
-		await fs.promises.mkdtemp(path.join(os.tmpdir(), 'remotion-')),
-		'hithere.webm'
-	);
-	file.pipe(createWriteStream(out));
-
-	await new Promise<void>((resolve) => {
-		file.on('close', () => resolve());
+	const probe = await execa('ffprobe', ['-'], {
+		stdin: file,
 	});
-	const probe = await execa('ffprobe', [out]);
-	expect(probe.stderr).toMatch(/ALPHA_MODE(\s+): 1/);
-	expect(probe.stderr).toMatch(/Video: vp8, yuv420p/);
-	fs.unlinkSync(out);
+	expect(probe.stderr).toMatch(/Stream #0:0/);
+	expect(probe.stderr).toMatch(/Video: h264/);
+	expect(probe.stderr).toMatch(/Stream #0:1/);
+	expect(probe.stderr).toMatch(/Audio: aac/);
 });
