@@ -2,7 +2,6 @@ import fs from 'fs';
 import {mkdirSync} from 'fs';
 import os from 'os';
 import path from 'path';
-import {Internals} from 'remotion';
 
 const alphabet = 'abcdefghijklmnopqrstuvwxyz0123456789';
 
