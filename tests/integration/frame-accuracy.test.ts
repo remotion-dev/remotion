@@ -67,7 +67,7 @@ const getMissedFramesforCodec = async (codec: "mp4" | "webm") => {
       colorDistance.blue,
       colorDistance.green
     );
-    const threshold = process.platform === "darwin" ? 40 : 40;
+    const threshold = 40;
     if (highestDistance > threshold) {
       console.log(colorDistance, { threshold, frame, filename });
       missedFrames++;
