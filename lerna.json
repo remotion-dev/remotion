@@ -1,11 +1,10 @@
 {
-  "packages": [
-    "packages/*"
-  ],
+  "packages": ["packages/*"],
   "version": "2.6.6",
   "command": {
     "publish": {
       "exact": true
     }
-  }
+  },
+  "useWorkspaces": true
 }
