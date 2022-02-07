@@ -46,7 +46,7 @@ export const serveStatic = async (
 
 		return {port, close};
 	} catch (err) {
-		console.log({err, msg: err.message});
+		console.log({err, msg: (err as Error).message});
 		if ((err as Error).message.includes('EADDRINUSE')) {
 			return serveStatic(path, options);
 		}
