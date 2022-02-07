@@ -5,6 +5,5 @@
     "publish": {
       "exact": true
     }
-  },
-  "useWorkspaces": true
+  }
 }

@@ -8,7 +8,8 @@
     "build": "turbo run build",
     "ci": "turbo run build lint test",
     "watch": "pnpm run watch --recursive --stream --parallel",
-    "release": "npx lerna publish --force-publish"
+    "release": "npx lerna publish --force-publish",
+    "postinstall": "lerna bootstrap"
   },
   "engines": {
     "node": ">=12",
@@ -36,7 +37,7 @@
     "jest-environment-jsdom": "^27.2.4",
     "prettier": "^2.2.1",
     "prettier-plugin-organize-imports": "^1.1.1",
-    "remotion": "workspace:*",
+    "remotion": "2.6.6",
     "sharp": "^0.29.0",
     "ts-jest": "^27.0.5",
     "turbo": "^1.1.2",
