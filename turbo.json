@@ -12,5 +12,6 @@
     "lint": {
       "outputs": []
     }
-  }
+  },
+  "npmClient": "pnpm"
 }
