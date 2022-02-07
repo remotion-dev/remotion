@@ -49,5 +49,6 @@
   },
   "workspaces": [
     "packages/*"
-  ]
+  ],
+  "packageManager": "pnpm@6.26.1"
 }
