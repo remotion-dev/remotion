@@ -10,6 +10,18 @@ Keep track of changes to the APIs of Remotion Lambda here.
 
 [Upgrading](/docs/lambda/upgrading)
 
+## February 6th, 2022
+
+Version hash: `xxx`
+Lambda version: '2022-02-08'
+
+Fixes the following regressions and adds tests for it:
+
+- Fixes error where Output media has no audio
+- Importing `@remotion/lambda/client` no longer triggers a puppeteer error inside a Lambda function.
+- Fixes an error coming up during deploy saying ESBuild binaries are missing
+- Upgrade ESBuild fo 0.14.9
+
 ## February 4th, 2022 (4)
 
 Version hash: `3.0.0-lambda.337+bde12456c`
