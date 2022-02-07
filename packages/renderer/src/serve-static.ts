@@ -8,7 +8,10 @@ export const serveStatic = async (
 	options?: {
 		port?: number;
 	}
-) => {
+): Promise<{
+	port: number;
+	close: () => Promise<void>;
+}> => {
 	const port = await getDesiredPort(
 		options?.port ?? Internals.getServerPort() ?? undefined,
 		3000,
@@ -46,6 +49,7 @@ export const serveStatic = async (
 		if ((err as Error).message.includes('EADDRINUSE')) {
 			return serveStatic(path, options);
 		}
+
 		throw err;
 	}
 };

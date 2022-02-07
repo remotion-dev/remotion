@@ -5,6 +5,7 @@
   "license": "SEE LICENSE IN LICENSE.md",
   "scripts": {
     "test": "turbo run lint test --concurrency=4",
+    "lint": "turbo run lint",
     "build": "turbo run build",
     "ci": "turbo run build lint test --concurrency=2",
     "watch": "pnpm run watch --recursive --stream --parallel",
