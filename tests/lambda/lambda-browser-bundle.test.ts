@@ -36,11 +36,6 @@ describe("Should be able to bundle @remotion/lambda/client with ESBuild", () => 
     expect(file.length).toBeLessThanOrEqual(6000000);
   });
 
-  test("Bundle should not include core Remotion", async () => {
-    const file = await fs.promises.readFile(outfile, "utf-8");
-    expect(file).not.toContain("AbsoluteFill");
-  });
-
   test("Bundle should not include Renderer", async () => {
     const file = await fs.promises.readFile(outfile, "utf-8");
     expect(file).not.toContain("@remotion/renderer");
