@@ -8,6 +8,7 @@
     "lint": "turbo run lint",
     "build": "turbo run build",
     "ci": "turbo run build lint test --concurrency=2",
+    "ci:windows": "turbo run build lint test --concurrency=1",
     "watch": "pnpm run watch --recursive --stream --parallel",
     "release": "lerna publish --force-publish",
     "postinstall": "lerna bootstrap"
