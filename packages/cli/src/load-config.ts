@@ -1,8 +1,8 @@
+import {BundlerInternals} from '@remotion/bundler';
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
 import {Log} from './log';
-import esbuild = require('esbuild');
 
 export const loadConfigFile = async (
 	configFileName: string,
@@ -22,7 +22,7 @@ export const loadConfigFile = async (
 		await fs.promises.mkdtemp(path.join(os.tmpdir(), 'remotion-')),
 		'bundle.js'
 	);
-	const result = await esbuild.build({
+	const result = await BundlerInternals.esbuild.build({
 		platform: 'node',
 		target: 'node12',
 		bundle: true,

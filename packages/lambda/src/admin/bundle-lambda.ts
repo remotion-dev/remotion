@@ -1,9 +1,9 @@
+import {BundlerInternals} from '@remotion/bundler';
 import fs from 'fs';
 import path from 'path';
-import {FUNCTION_ZIP} from '../shared/function-zip-path';
-import esbuild = require('esbuild');
-import zl = require('zip-lib');
 import {quit} from '../cli/helpers/quit';
+import {FUNCTION_ZIP} from '../shared/function-zip-path';
+import zl = require('zip-lib');
 
 const bundleLambda = async () => {
 	const outdir = path.join(__dirname, '..', `build-render`);
@@ -18,7 +18,7 @@ const bundleLambda = async () => {
 		path.join(__dirname, '..', 'functions', 'index')
 	);
 
-	await esbuild.build({
+	await BundlerInternals.esbuild.build({
 		platform: 'node',
 		target: 'node14',
 		bundle: true,
