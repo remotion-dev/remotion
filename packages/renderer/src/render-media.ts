@@ -228,7 +228,7 @@ export const renderMedia = async ({
 			fps: composition.fps,
 			outputLocation,
 			internalOptions: {
-				parallelEncoding,
+				parallelEncoding: false,
 				preEncodedFileLocation,
 			},
 			force: overwrite ?? Internals.DEFAULT_OVERWRITE,
