@@ -4,7 +4,7 @@ import {LambdaClient} from '@aws-sdk/client-lambda';
 import {S3Client} from '@aws-sdk/client-s3';
 import {AwsRegion} from '../pricing/aws-regions';
 import {checkCredentials} from './check-credentials';
-import {isInLambda} from './is-in-lambda';
+import {isInsideLambda} from './is-in-lambda';
 
 const _clients: Partial<
 	Record<
@@ -19,6 +19,10 @@ const _clients: Partial<
 type CredentialPair = {accessKeyId: string; secretAccessKey: string};
 
 const getCredentials = (): CredentialPair | undefined => {
+	if (isInsideLambda()) {
+		return undefined;
+	}
+
 	if (
 		process.env.REMOTION_AWS_ACCESS_KEY_ID &&
 		process.env.REMOTION_AWS_SECRET_ACCESS_KEY
@@ -27,10 +31,6 @@ const getCredentials = (): CredentialPair | undefined => {
 			accessKeyId: process.env.REMOTION_AWS_ACCESS_KEY_ID,
 			secretAccessKey: process.env.REMOTION_AWS_SECRET_ACCESS_KEY,
 		};
-	}
-
-	if (isInLambda()) {
-		return undefined;
 	}
 
 	if (process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY) {
