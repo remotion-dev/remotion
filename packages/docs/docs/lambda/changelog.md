@@ -20,7 +20,7 @@ Fixes the following regressions and adds tests for it:
 - Fixes error where Output media has no audio
 - Importing `@remotion/lambda/client` no longer triggers a puppeteer error inside a Lambda function.
 - Fixes an error coming up during deploy saying ESBuild binaries are missing
-- Upgrade ESBuild fo 0.14.9
+- Upgrade ESBuild to 0.14.9
 
 ## February 4th, 2022 (4)
 
