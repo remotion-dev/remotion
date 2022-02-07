@@ -37,6 +37,7 @@ test("Should be able to render video", async () => {
   expect(data).toContain("yuv420p");
   expect(data).toContain("1080x1080");
   expect(data).toContain("30 fps");
+  expect(data).toContain("Audio: aac");
 });
 
 test("Should fail to render out of range CRF", async () => {

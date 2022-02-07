@@ -36,7 +36,7 @@ test('Should make a transparent video', async () => {
 			serveUrl: 'https://competent-mccarthy-56f7c9.netlify.app/',
 			chromiumOptions: {},
 			codec: 'vp8',
-			composition: 'react-svg',
+			composition: 'ten-frame-tester',
 			crf: 9,
 			enableChunkOptimization: false,
 			envVariables: {},
