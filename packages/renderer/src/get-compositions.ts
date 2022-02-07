@@ -58,7 +58,7 @@ const innerGetCompositions = async (
 	const pageRes = await page.goto(urlToVisit);
 	if (pageRes.status() !== 200) {
 		throw new Error(
-			`Error while getting compositions: Tried to go to ${urlToVisit} but the status code was not 200 as expected, but ${pageRes.status()}. Does the site you specified exist?`
+			`Error while getting compositions: Tried to go to ${urlToVisit} but the status code was ${pageRes.status()} instead of 200. Does the site you specified exist?`
 		);
 	}
 
