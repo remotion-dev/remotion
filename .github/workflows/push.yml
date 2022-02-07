@@ -52,6 +52,12 @@ jobs:
       - name: Install
         run: pnpm install --frozen-lockfile
 
+      - name: Cache node_modules/.cache
+        uses: actions/cache@v1
+        with:
+          path: node_modules/.cache
+          key: ${{ runner.os }}-node${{ matrix.node-version }}
+
       - name: Build & Test
         run: |
           pnpm run ci
