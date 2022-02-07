@@ -40,8 +40,8 @@ test('Should make a transparent video', async () => {
 			crf: 9,
 			enableChunkOptimization: false,
 			envVariables: {},
-			frameRange: [0, 12],
-			framesPerLambda: 8,
+			frameRange: [0, 9],
+			framesPerLambda: 5,
 			imageFormat: 'png',
 			inputProps: {},
 			logLevel: 'warn',
@@ -87,5 +87,6 @@ test('Should make a transparent video', async () => {
 	const probe = await execa('ffprobe', [out]);
 	expect(probe.stderr).toMatch(/ALPHA_MODE(\s+): 1/);
 	expect(probe.stderr).toMatch(/Video: vp8, yuv420p/);
+	expect(probe.stderr).toMatch(/Audio: opus, 48000 Hz/);
 	fs.unlinkSync(out);
 });
