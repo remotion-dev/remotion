@@ -4,6 +4,12 @@ sidebar_label: 02/2022 Outage
 title: February 2022 Outage
 ---
 
+:::tip
+**Update 2022/02/06:**
+
+The problem is now solved. Your Lambda functions should work as normal. We recommend everyone to go back to use ARM64 Lambdas. We will consult with AWS support on how to prevent issues like this in the future.
+:::
+
 On February 3rd 2022, AWS made a change to their Lambda micro-VMs that breaks Remotion Lambda. This document contains information for affected users.
 
 ## Hotfix solution
