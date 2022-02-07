@@ -314,6 +314,7 @@ test("Should render a still that uses the staticFile() API", async () => {
     }
   );
   expect(task.exitCode).toBe(0);
+  fs.unlinkSync(out);
 });
 
 test("Dynamic duration should work", async () => {
@@ -367,6 +368,7 @@ test("Should be able to render if remotion.config.js is not provided", async () 
   );
 
   expect(task.exitCode).toBe(0);
+  fs.unlinkSync(outputPath);
 });
 
 test("Should be able to render if remotion.config.ts is not provided", async () => {

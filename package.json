@@ -6,7 +6,7 @@
   "scripts": {
     "test": "turbo run lint test --concurrency=4",
     "build": "turbo run build",
-    "ci": "turbo run build lint test --concurrency=4 && jest --runInBand",
+    "ci": "turbo run build lint test --concurrency=2",
     "watch": "pnpm run watch --recursive --stream --parallel",
     "release": "lerna publish --force-publish",
     "postinstall": "lerna bootstrap"
