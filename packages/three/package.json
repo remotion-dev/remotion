@@ -17,7 +17,7 @@
 		"url": "https://github.com/remotion-dev/remotion"
 	},
 	"dependencies": {
-		"remotion": "workspace:2.6.6"
+		"remotion": "2.6.6"
 	},
 	"peerDependencies": {
 		"@react-three/fiber": ">=7.0.19",
