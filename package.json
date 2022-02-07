@@ -21,7 +21,7 @@
   },
   "dependencies": {
     "lerna": "^4.0.0",
-    "turbo": "^1.1.2"
+    "turbo": "1.1.3-canary.0"
   },
   "workspaces": [
     "packages/*"
