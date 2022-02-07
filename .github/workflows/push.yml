@@ -57,6 +57,11 @@ jobs:
         with:
           path: node_modules/.cache
           key: turbo-${{ runner.os }}-${{ matrix.ffmpeg_version }}-node${{ matrix.node_version }}
+      - name: Cache dist/ folders
+        uses: actions/cache@v2
+        with:
+          path: packages/**/dist
+          key: dist-${{ runner.os }}-${{ matrix.ffmpeg_version }}-node${{ matrix.node_version }}
 
       - name: Build & Test
         run: |
