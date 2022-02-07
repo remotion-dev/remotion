@@ -40,20 +40,20 @@ jobs:
           version: ${{ matrix.ffmpeg_version }}
 
       - name: Cache .pnpm-store
-        uses: actions/cache@v1
+        uses: actions/cache@v2
         with:
           path: ~/.pnpm-store
           key: ${{ runner.os }}-node${{ matrix.node-version }}-${{ hashFiles('**/pnpm-lock.yaml') }}
 
       - name: Install pnpm
-        run: curl -f https://get.pnpm.io/v6.16.js | node - add --global pnpm@6
+        run: curl -f https://get.pnpm.io/v6.26.js | node - add --global pnpm@6
         shell: bash
 
       - name: Install
         run: pnpm install --frozen-lockfile
 
       - name: Cache node_modules/.cache
-        uses: actions/cache@v1
+        uses: actions/cache@v2
         with:
           path: node_modules/.cache
           key: ${{ runner.os }}-node${{ matrix.node-version }}
