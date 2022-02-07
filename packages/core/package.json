@@ -6,7 +6,8 @@
 	"types": "dist/index.d.ts",
 	"sideEffects": false,
 	"scripts": {
-		"test": "eslint src --ext ts,tsx && jest --coverage && node generate-badges.js",
+		"lint": "eslint src --ext ts,tsx",
+		"test": "jest --coverage && node generate-badges.js",
 		"build": "tsc -d",
 		"watch": "tsc -w",
 		"prerelease": "cp ../../README.md ."

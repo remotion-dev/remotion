@@ -11,7 +11,8 @@
     "deploy": "docusaurus deploy",
     "serve": "docusaurus serve",
     "clear": "docusaurus clear",
-    "test": "eslint src && jest"
+    "lint": "eslint src",
+    "test": "jest"
   },
   "dependencies": {
     "@docusaurus/core": "2.0.0-beta.7",
