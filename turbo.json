@@ -11,6 +11,9 @@
     },
     "lint": {
       "outputs": []
+    },
+    "example#lint": {
+      "dependsOn": ["eslint-config#build"]
     }
   },
   "npmClient": "pnpm"
