@@ -42,10 +42,16 @@ export const getBrowserInstance = async (
 	launching = true;
 
 	const execPath = await executablePath();
+
+	const actualChromiumOptions: ChromiumOptions = {
+		gl: 'swiftshader',
+		...chromiumOptions,
+	};
+
 	_browserInstance = await openBrowser('chrome', {
 		browserExecutable: execPath,
 		shouldDumpIo,
-		chromiumOptions,
+		chromiumOptions: actualChromiumOptions,
 	});
 	_browserInstance.on('disconnected', () => {
 		console.log('Browser disconnected / crashed');
