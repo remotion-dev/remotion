@@ -26,7 +26,7 @@ export const getDefaultCrfForCodec = (codec: Codec): number => {
 		return 18; // FFMPEG default 23
 	}
 
-	if (codec === 'h265') {
+	if (codec === 'h265' || codec === 'gif') {
 		return 23; // FFMPEG default 28
 	}
 
