@@ -135,6 +135,12 @@ export const stitchFramesToVideo = async (options: {
 	}
 
 	const {complexFilterFlag, cleanup} = await createFfmpegComplexFilter(filters);
+	const {ffmpegAssetFlag, assetCleanUp} = await assetsToFfmpegInputs({
+		assets: assetPositions.map((a) => a.src),
+		isAudioOnly,
+		fps: options.fps,
+		frameCount: options.assetsInfo.assets.length,
+	});
 	const ffmpegArgs = [
 		['-r', String(options.fps)],
 		isAudioOnly ? null : ['-f', 'image2'],
@@ -143,12 +149,7 @@ export const stitchFramesToVideo = async (options: {
 		frameInfo
 			? ['-i', `element-%0${frameInfo.numberLength}d.${imageFormat}`]
 			: null,
-		...assetsToFfmpegInputs({
-			assets: assetPositions.map((a) => a.src),
-			isAudioOnly,
-			fps: options.fps,
-			frameCount: options.assetsInfo.assets.length,
-		}),
+		ffmpegAssetFlag,
 		encoderName
 			? // -c:v is the same as -vcodec as -codec:video
 			  // and specified the video codec.
@@ -196,4 +197,5 @@ export const stitchFramesToVideo = async (options: {
 	});
 	await task;
 	cleanup();
+	assetCleanUp();
 };
