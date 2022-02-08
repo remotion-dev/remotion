@@ -1,12 +1,20 @@
 import path from 'path';
 import {transform as defaultEsbuildTransform} from 'esbuild';
-import typescript from 'typescript';
 import webpack from 'webpack';
 import {LoaderOptions} from './interfaces';
 
 const tsConfigPath = path.join(process.cwd(), 'tsconfig.json');
 
 const isTsExtensionPtrn = /\.ts$/i;
+
+const isTypescriptInstalled = () => {
+	try {
+		require.resolve('typescript');
+		return true;
+	} catch (err) {
+		return false;
+	}
+};
 
 async function ESBuildLoader(
 	this: webpack.LoaderContext<LoaderOptions>,
@@ -36,7 +44,8 @@ async function ESBuildLoader(
 		sourcefile: this.resourcePath,
 	};
 
-	if (!('tsconfigRaw' in transformOptions)) {
+	if (!('tsconfigRaw' in transformOptions) && isTypescriptInstalled()) {
+		const typescript = require('typescript') as typeof import('typescript');
 		const tsConfig = typescript.readConfigFile(
 			tsConfigPath,
 			typescript.sys.readFile
