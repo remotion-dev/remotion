@@ -12,7 +12,7 @@ Keep track of changes to the APIs of Remotion Lambda here.
 
 ## February 8th, 2022
 
-Version hash: `xxxxx`
+Version hash: `3.0.0-lambda.359+59cc0e49b`
 Lambda version: '2022-02-09'
 
 - Fixes an error not being able to bundle using Webpack if not using Typescript.
