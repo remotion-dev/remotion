@@ -4,6 +4,8 @@ sidebar_label: CLI reference
 id: cli
 ---
 
+import {AngleChangelog} from '../components/AngleChangelog';
+
 ## Commands
 
 The following commands are available - you can always run them using `npx remotion` or even without the `npx` prefix if you put the command inside an npm script.
@@ -208,7 +210,10 @@ Available since v2.6.5.
 
 _available for `still`, `render` command_
 
-Select the OpenGL renderer backend for Chromium. Accepted values: `angle`, `egl`, `swiftshader`. Default: `angle`. Available since v2.6.5.
+<!-- TODO: Update for lambda -->
+<AngleChangelog />
+
+Select the OpenGL renderer backend for Chromium. Accepted values: `"angle"`, `"egl"`, `"swiftshader"` and `null`. `null` means Chromiums default. Default: `null`.
 
 ### `--help`
 
