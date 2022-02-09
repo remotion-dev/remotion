@@ -4,6 +4,8 @@ title: renderFrames()
 slug: /renderer/render-frames
 ---
 
+import {AngleChangelog} from '../components/AngleChangelog';
+
 _Part of the `@remotion/renderer` package._
 
 Renders a series of images using Puppeteer and computes information for mixing audio.
@@ -252,7 +254,9 @@ If disabled, the render will open an actual Chrome window where you can see the 
 
 _string_
 
-Select the OpenGL renderer backend for Chromium. Accepted values: `angle`, `egl`, `swiftshader`. Default: `swiftshader` for Lambda functions, `angle` elsewhere.
+<AngleChangelog />
+
+Select the OpenGL renderer backend for Chromium. Accepted values: `"angle"`, `"egl"`, `"swiftshader"` and `null`. `null` means Chromiums default. Default: `swiftshader` for Lambda functions, `null` elsewhere.
 
 ## Return value
 
