@@ -3,6 +3,8 @@ id: render-still
 title: renderStill()
 ---
 
+import {AngleChangelog} from '../components/AngleChangelog';
+
 _Part of the `@remotion/renderer` package. Available from v2.3._
 
 Renders a single frame to an image and writes it to the specified output location.
@@ -181,8 +183,9 @@ If disabled, the render will open an actual Chrome window where you can see the 
 _string_
 
 <!-- TODO: Update for lambda -->
+<AngleChangelog />
 
-Select the OpenGL renderer backend for Chromium. Accepted values: `angle`, `egl`, `swiftshader`. Default: `angle`.
+Select the OpenGL renderer backend for Chromium. Accepted values: `"angle"`, `"egl"`, `"swiftshader"` and `null`. `null` means Chromiums default. Default: `null`.
 
 ## Return value
 
