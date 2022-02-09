@@ -1,14 +1,13 @@
 ---
 id: enametoolong
-title: "ENAMETOOLONG"
-sidebar_label: Target closed
+title: ENAMETOOLONG
 ---
 
 ```
 Command failed with ENAMETOOLONG: ffmpeg ...
 ```
 
-This error occurs if Remotion is used on Windows and too many audio layers are in the video so that an FFMPEG command gets generated that is longer than the maximum allowed Windows command length (8192 characters)
+This error occurs if Remotion is used on Windows and too many audio layers are in the video so that an FFMPEG command gets generated that is longer than the maximum allowed Windows command length (8192 characters).
 
 Unfortunately, FFMPEG does not have any other alternative way to specify a massive amount of inputs, so Remotion can not fix this issue. Here are some recommendations instead:
 
