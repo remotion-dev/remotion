@@ -23,7 +23,7 @@ test("Should be able to render video", async () => {
       outputPath,
     ],
     {
-      cwd: "packages/example",
+      cwd: path.join(process.cwd(), "..", "example"),
     }
   );
   task.stderr?.pipe(process.stderr);
@@ -56,7 +56,7 @@ test("Should fail to render out of range CRF", async () => {
       outputPath.replace("mp4", "webm"),
     ],
     {
-      cwd: "packages/example",
+      cwd: path.join(process.cwd(), "..", "example"),
       reject: false,
     }
   );
@@ -79,7 +79,7 @@ test("Should fail to render out of range frame when range is a number", async ()
       out,
     ],
     {
-      cwd: "packages/example",
+      cwd: path.join(process.cwd(), "..", "example"),
       reject: false,
     }
   );
@@ -101,7 +101,7 @@ test("Should fail to render out of range frame when range is a string", async ()
       outputPath,
     ],
     {
-      cwd: "packages/example",
+      cwd: path.join(process.cwd(), "..", "example"),
       reject: false,
     }
   );
@@ -122,7 +122,7 @@ test("Should render a ProRes video", async () => {
       out,
     ],
     {
-      cwd: "packages/example",
+      cwd: path.join(process.cwd(), "..", "example"),
       reject: false,
     }
   );
@@ -153,7 +153,7 @@ test("Should render a still image if single frame specified", async () => {
       outDir,
     ],
     {
-      cwd: "packages/example",
+      cwd: path.join(process.cwd(), "..", "example"),
       reject: false,
     }
   );
@@ -175,7 +175,7 @@ test("Should be able to render a WAV audio file", async () => {
     "npx",
     ["remotion", "render", "src/index.tsx", "audio-testing", out],
     {
-      cwd: "packages/example",
+      cwd: path.join(process.cwd(), "..", "example"),
     }
   );
   task.stderr?.pipe(process.stderr);
@@ -200,7 +200,7 @@ test("Should be able to render a MP3 audio file", async () => {
     "npx",
     ["remotion", "render", "src/index.tsx", "audio-testing", out],
     {
-      cwd: "packages/example",
+      cwd: path.join(process.cwd(), "..", "example"),
     }
   );
   task.stderr?.pipe(process.stderr);
@@ -226,7 +226,7 @@ test("Should be able to render a AAC audio file", async () => {
     "npx",
     ["remotion", "render", "src/index.tsx", "audio-testing", out],
     {
-      cwd: "packages/example",
+      cwd: path.join(process.cwd(), "..", "example"),
     }
   );
   task.stderr?.pipe(process.stderr);
@@ -251,7 +251,7 @@ test("Should render a video with GIFs", async () => {
     "npx",
     ["remotion", "render", "src/index.tsx", "gif", "--frames=0-47", outputPath],
     {
-      cwd: "packages/example",
+      cwd: path.join(process.cwd(), "..", "example"),
       reject: false,
     }
   );
@@ -272,7 +272,7 @@ test("Should render a video with Offline Audio-context", async () => {
     "npx",
     ["remotion", "render", "src/index.tsx", "offline-audio-buffer", out],
     {
-      cwd: "packages/example",
+      cwd: path.join(process.cwd(), "..", "example"),
       reject: false,
     }
   );
@@ -292,7 +292,7 @@ test("Should fail to render an audio file that doesn't have any audio inputs", a
     "npx",
     ["remotion", "render", "src/index.tsx", "ten-frame-tester", out],
     {
-      cwd: "packages/example",
+      cwd: path.join(process.cwd(), "..", "example"),
       reject: false,
     }
   );
@@ -310,11 +310,12 @@ test("Should render a still that uses the staticFile() API", async () => {
     "npx",
     ["remotion", "still", "src/index.tsx", "static-demo", out, "--log=verbose"],
     {
-      cwd: "packages/example",
+      cwd: path.join(process.cwd(), "..", "example"),
       reject: false,
     }
   );
   expect(task.exitCode).toBe(0);
+  fs.unlinkSync(out);
 });
 
 test("Dynamic duration should work", async () => {
@@ -331,7 +332,7 @@ test("Dynamic duration should work", async () => {
       outputPath,
     ],
     {
-      cwd: "packages/example",
+      cwd: path.join(process.cwd(), "..", "example"),
       reject: false,
     }
   );
@@ -363,10 +364,12 @@ test("Should be able to render if remotion.config.js is not provided", async () 
     ],
     {
       reject: false,
+      cwd: path.join(process.cwd(), "..", ".."),
     }
   );
 
   expect(task.exitCode).toBe(0);
+  fs.unlinkSync(outputPath);
 });
 
 test("Should be able to render if remotion.config.ts is not provided", async () => {
@@ -380,6 +383,7 @@ test("Should be able to render if remotion.config.ts is not provided", async () 
       outputPath,
     ],
     {
+      cwd: path.join(process.cwd(), "..", ".."),
       reject: false,
     }
   );

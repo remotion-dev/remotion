@@ -159,6 +159,7 @@ module.exports = {
     [
       "@jonny/docusaurus-preset-shiki-twoslash",
       {
+        vfsRoot: process.cwd(),
         themes: ["github-light", "github-dark"],
         defaultCompilerOptions: {
           types: ["node"],

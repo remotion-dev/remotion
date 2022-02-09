@@ -8,36 +8,49 @@ export const serveStatic = async (
 	options?: {
 		port?: number;
 	}
-) => {
+): Promise<{
+	port: number;
+	close: () => Promise<void>;
+}> => {
 	const port = await getDesiredPort(
 		options?.port ?? Internals.getServerPort() ?? undefined,
 		3000,
 		3100
 	);
 
-	const server = http
-		.createServer((request, response) => {
-			handler(request, response, {
-				public: path,
-				directoryListing: false,
-				cleanUrls: false,
-			}).catch(() => {
-				response.statusCode = 500;
-				response.end('Error serving file');
-			});
-		})
-		.listen(port);
-	const close = () => {
-		return new Promise<void>((resolve, reject) => {
-			server.close((err) => {
-				if (err) {
-					reject(err);
-				} else {
-					resolve();
-				}
-			});
-		});
-	};
+	try {
+		const server = http
+			.createServer((request, response) => {
+				handler(request, response, {
+					public: path,
+					directoryListing: false,
+					cleanUrls: false,
+				}).catch(() => {
+					response.statusCode = 500;
+					response.end('Error serving file');
+				});
+			})
+			.listen(port);
 
-	return {port, close};
+		const close = () => {
+			return new Promise<void>((resolve, reject) => {
+				server.close((err) => {
+					if (err) {
+						reject(err);
+					} else {
+						resolve();
+					}
+				});
+			});
+		};
+
+		return {port, close};
+	} catch (err) {
+		console.log({err, msg: (err as Error).message});
+		if ((err as Error).message.includes('EADDRINUSE')) {
+			return serveStatic(path, options);
+		}
+
+		throw err;
+	}
 };
