@@ -15,11 +15,13 @@ type OpenGlRenderer = typeof validRenderers[number];
 export type ChromiumOptions = {
 	ignoreCertificateErrors?: boolean;
 	disableWebSecurity?: boolean;
-	gl?: OpenGlRenderer;
+	gl?: OpenGlRenderer | null;
 	headless?: boolean;
 };
 
-const getOpenGlRenderer = (option?: OpenGlRenderer): OpenGlRenderer => {
+const getOpenGlRenderer = (
+	option?: OpenGlRenderer | null
+): OpenGlRenderer | null => {
 	const renderer = option ?? Internals.DEFAULT_OPENGL_RENDERER;
 	Internals.validateOpenGlRenderer(renderer);
 	return renderer;
@@ -55,6 +57,11 @@ export const openBrowser = async (
 		browser,
 		options?.browserExecutable ?? null
 	);
+
+	const customGlRenderer = getOpenGlRenderer(
+		options?.chromiumOptions?.gl ?? null
+	);
+
 	const browserInstance = await puppeteer.launch({
 		executablePath,
 		product: browser,
@@ -64,6 +71,7 @@ export const openBrowser = async (
 			'--no-sandbox',
 			'--disable-setuid-sandbox',
 			'--disable-dev-shm-usage',
+			customGlRenderer ? `--use-gl=${customGlRenderer}` : null,
 			'--disable-background-media-suspend',
 			process.platform === 'linux' ? '--single-process' : null,
 			'--allow-running-insecure-content', // https://source.chromium.org/search?q=lang:cpp+symbol:kAllowRunningInsecureContent&ss=chromium
@@ -77,7 +85,6 @@ export const openBrowser = async (
 			'--no-default-browser-check', // https://source.chromium.org/search?q=lang:cpp+symbol:kNoDefaultBrowserCheck&ss=chromium
 			'--no-pings', // https://source.chromium.org/search?q=lang:cpp+symbol:kNoPings&ss=chromium
 			'--no-zygote', // https://source.chromium.org/search?q=lang:cpp+symbol:kNoZygote&ss=chromium,
-			`--use-gl=${getOpenGlRenderer(options?.chromiumOptions?.gl)}`,
 			'--disable-background-media-suspend',
 			options?.chromiumOptions?.ignoreCertificateErrors
 				? '--ignore-certificate-errors'

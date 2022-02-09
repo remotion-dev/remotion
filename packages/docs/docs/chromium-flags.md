@@ -3,6 +3,8 @@ id: chromium-flags
 title: Chromium flags
 ---
 
+import {AngleChangelog} from '../components/AngleChangelog';
+
 We allow you to set the following flags in Chromium and Google Chrome since Remotion 2.6.5:
 
 ## `--disable-web-security`
@@ -83,7 +85,9 @@ Config.Puppeteer.setChromiumHeadlessMode(false);
 
 ## `--gl`
 
-Select the OpenGL renderer backend for Chromium. Accepted values: `angle`, `egl`, `swiftshader`. Default: `swiftshader` for Lambda functions, `angle` elsewhere.
+<AngleChangelog />
+
+Select the OpenGL renderer backend for Chromium. Accepted values: `"angle"`, `"egl"`, `"swiftshader"` and `null`. `null` means Chromiums default. Default: `swiftshader` for Lambda functions, `null` elsewhere.
 
 ### Via Node.JS APIs
 
