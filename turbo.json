@@ -16,7 +16,11 @@
       "dependsOn": ["@remotion/eslint-config#build"]
     },
     "@remotion/it-tests#test": {
-      "dependsOn": ["^build", "@remotion/example#build"]
+      "dependsOn": [
+        "^build",
+        "@remotion/example#test",
+        "@remotion/example#build"
+      ]
     }
   },
   "npmClient": "pnpm"
