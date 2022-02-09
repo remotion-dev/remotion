@@ -27,7 +27,7 @@ test("Should be able to render video with scale 2", async () => {
       outputPath,
     ],
     {
-      cwd: "packages/example",
+      cwd: path.join(process.cwd(), "..", "example"),
     }
   );
   task.stderr?.pipe(process.stderr);
@@ -60,7 +60,7 @@ test("Should be able to render video with scale 0.1", async () => {
       outputPath,
     ],
     {
-      cwd: "packages/example",
+      cwd: path.join(process.cwd(), "..", "example"),
     }
   );
   task.stderr?.pipe(process.stderr);

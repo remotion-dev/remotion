@@ -24,8 +24,7 @@
 		"typescript": "^4.4.2"
 	},
 	"scripts": {
-		"start": "craco start",
-		"build": "exit 0"
+		"start": "craco start"
 	},
 	"eslintConfig": {
 		"extends": [

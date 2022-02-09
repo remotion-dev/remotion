@@ -13,7 +13,7 @@
 		"dist"
 	],
 	"scripts": {
-		"test": "eslint src --ext ts,tsx ",
+		"lint": "eslint src --ext ts,tsx",
 		"build": "tsc -d",
 		"watch": "tsc -w"
 	},
