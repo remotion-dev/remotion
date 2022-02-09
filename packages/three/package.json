@@ -6,7 +6,7 @@
 	"types": "dist/index.d.ts",
 	"sideEffects": false,
 	"scripts": {
-		"test": "eslint src --ext ts,tsx",
+		"lint": "eslint src --ext ts,tsx",
 		"watch": "tsc -w",
 		"build": "tsc -d"
 	},
@@ -29,11 +29,12 @@
 		"@jonny/eslint-config": "^2.1.248",
 		"@types/node": "^14.14.14",
 		"@types/three": "^0.134.0",
-		"eslint": "^7.4.0",
+		"eslint": "^7.25.0",
 		"prettier": "^2.0.5",
 		"prettier-plugin-organize-imports": "^1.1.1",
 		"three": "^0.134.0",
-		"typescript": "^4.4.2"
+		"typescript": "^4.4.2",
+		"@react-three/fiber": ">=7.0.19"
 	},
 	"publishConfig": {
 		"access": "public"
