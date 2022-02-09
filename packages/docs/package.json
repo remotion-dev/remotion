@@ -37,6 +37,8 @@
     "polished": "4.1.2",
     "react-player": "^2.9.0",
     "remotion": "2.6.6",
+    "three": "0.134.0",
+    "@react-three/fiber": "7.0.19",
     "ts-jest": "^27.0.5"
   },
   "devDependencies": {
