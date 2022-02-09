@@ -18,7 +18,7 @@
     "pnpm": ">=3"
   },
   "devDependencies": {
-    "remotion": "2.6.6"
+    "remotion": "2.6.7"
   },
   "dependencies": {
     "lerna": "^4.0.0",

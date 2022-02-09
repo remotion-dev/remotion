@@ -3,6 +3,8 @@ title: getCompositions()
 id: get-compositions
 ---
 
+import {AngleChangelog} from '../components/AngleChangelog';
+
 _Part of the `@remotion/renderer` package._
 
 Gets the compositions defined in a Remotion project based on a webpack bundle. Spins up a browser with Puppeteer and evaluates the Remotion root.
@@ -83,7 +85,9 @@ _string_
 
 <!-- TODO: Update for lambda -->
 
-Select the OpenGL renderer backend for Chromium. Accepted values: `angle`, `egl`, `swiftshader`. Default: `angle`.
+<AngleChangelog />
+
+Select the OpenGL renderer backend for Chromium. Accepted values: `"angle"`, `"egl"`, `"swiftshader"` and `null`. `null` means Chromiums default. Default: `null`.
 
 ## Return value
 
