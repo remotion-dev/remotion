@@ -2,7 +2,7 @@ import fs from "fs";
 import path from "path";
 
 test("Should not have carets in Remotion versions", async () => {
-  const packagesDir = path.join(process.cwd(), "packages");
+  const packagesDir = path.join(process.cwd(), "..");
   const packages = await fs.promises.readdir(packagesDir);
   for (const pkg of packages) {
     const stat = fs.statSync(path.join(packagesDir, pkg));
