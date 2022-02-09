@@ -20,4 +20,11 @@ export const handleCommonError = (err: Error) => {
 			'💡 Get help for this issue at https://remotion.dev/docs/target-closed'
 		);
 	}
+
+	if (err.message.includes('ENAMETOOLONG')) {
+		Log.info();
+		Log.info(
+			'💡 Get help for this issue at https://remotion.dev/docs/enametoolong'
+		);
+	}
 };

@@ -138,6 +138,7 @@ module.exports = {
         "webpack-dynamic-imports",
         "non-seekable-media",
         "flickering",
+        "enametoolong",
       ],
     },
     {
