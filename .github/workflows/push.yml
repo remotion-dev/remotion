@@ -59,7 +59,6 @@ jobs:
           key: turbo-${{ runner.os }}-${{ matrix.ffmpeg_version }}-node${{ matrix.node_version }}
       - name: Cache dist/ folders
         uses: actions/cache@v2
-        if: runner.os != 'windows'
         with:
           path: packages/**/dist
           key: dist-${{ runner.os }}-${{ matrix.ffmpeg_version }}-node${{ matrix.node_version }}
