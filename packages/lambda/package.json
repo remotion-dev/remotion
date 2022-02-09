@@ -10,7 +10,8 @@
 	"module": "true",
 	"scripts": {
 		"testintegration": "jest src/test/integration --runInBand",
-		"test": "eslint src --ext ts,tsx && tsc -d && jest src/test/unit",
+		"lint": "eslint src --ext ts,tsx",
+		"test": "jest src/test/unit",
 		"watch": "tsc -w",
 		"build": "tsc -d && pnpm run buildlambda",
 		"buildlambda": "ts-node src/admin/bundle-lambda.ts",
@@ -49,6 +50,7 @@
 		"@types/prompt": "^1.1.0",
 		"eslint": "^7.32.0",
 		"jest": "^27.2.4",
+		"execa": "^6.0.0",
 		"prettier": "^2.4.1",
 		"prettier-plugin-organize-imports": "^2.3.4",
 		"ts-jest": "^27.0.5",

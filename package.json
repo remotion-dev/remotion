@@ -10,8 +10,6 @@
     "ci": "turbo run build lint test --concurrency=2",
     "ci:windows": "turbo run build lint test --concurrency=1",
     "watch": "pnpm run watch --recursive --stream --parallel",
-    "testlambda": "npx jest --runInBand --root-dir=tests/lambda --setup-files=../../packages/lambda/src/test/setup.ts && cd packages/lambda && npm run testintegration",
-    "testssr": "npx jest --runInBand --root-dir=tests/ssr --setup-files=../../packages/lambda/src/test/setup.ts",
     "release": "lerna publish --force-publish",
     "postinstall": "lerna bootstrap"
   },

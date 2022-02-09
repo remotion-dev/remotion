@@ -1,5 +1,5 @@
 import {RenderInternals} from '@remotion/renderer';
-import execa from 'execa';
+import {execa} from 'execa';
 import fs, {createWriteStream} from 'fs';
 import os from 'os';
 import path from 'path';

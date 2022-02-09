@@ -34,7 +34,7 @@ jobs:
       - name: Test
         run: |
           pnpm build
-          pnpm run testlambda
+          cd packages/it-tests && pnpm run testlambda
   ssr-tests:
     runs-on: ubuntu-latest
     name: SSR integration
@@ -64,7 +64,7 @@ jobs:
       - name: Test
         run: |
           pnpm build
-          pnpm run testssr
+          cd packages/it-tests && pnpm run testssr
   build:
     name: Build Node ${{ matrix.node_version }} - ffmpeg ${{ matrix.ffmpeg_version }} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
