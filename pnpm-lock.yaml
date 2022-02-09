@@ -466,6 +466,9 @@ importers:
   packages/it-tests:
     specifiers:
       '@remotion/bundler': ^2.6.7
+      '@remotion/cli': ^2.6.7
+      '@remotion/lambda': ^2.6.7
+      '@remotion/renderer': ^2.6.7
       '@types/jest': ^27.0.2
       '@types/sharp': ^0.28.5
       execa: ^5.0.0
@@ -474,6 +477,9 @@ importers:
       typescript: ^4.4.2
     devDependencies:
       '@remotion/bundler': link:../bundler
+      '@remotion/cli': link:../cli
+      '@remotion/lambda': link:../lambda
+      '@remotion/renderer': link:../renderer
       '@types/jest': 27.0.2
       '@types/sharp': 0.28.6
       execa: 5.1.1

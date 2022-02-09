@@ -1,5 +1,5 @@
-import { Internals } from "../../packages/babel-loader/node_modules/remotion/dist";
-import { cleanFnStore } from "../../packages/lambda/src/api/mock-functions";
+import { Internals } from "remotion";
+import { cleanFnStore } from "../../../lambda/src/api/mock-functions";
 
 let stdoutOutput: string[] = [];
 let stderrOutput: string[] = [];

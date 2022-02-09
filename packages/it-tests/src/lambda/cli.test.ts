@@ -3,10 +3,9 @@ import {
   DEFAULT_MEMORY_SIZE,
   DEFAULT_TIMEOUT,
 } from "@remotion/lambda/dist/defaults";
-import { CliInternals } from "../../packages/lambda/node_modules/@remotion/cli/dist";
-import { parsedLambdaCli } from "../../packages/lambda/src/cli/args";
-import { LambdaInternals } from "../../packages/lambda/src/index";
-import { getProcessStdErrOutput, getProcessWriteOutput } from "./console-hooks";
+import { CliInternals } from "@remotion/cli";
+import { LambdaInternals } from "@remotion/lambda";
+import { getProcessWriteOutput } from "./console-hooks";
 
 test("Deploy function", async () => {
   await LambdaInternals.executeCommand(["functions", "deploy"]);

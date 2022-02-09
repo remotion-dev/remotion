@@ -29,6 +29,7 @@ import {getRealFrameRange} from './get-frame-to-render';
 import {ChromiumOptions} from './open-browser';
 import {validateScale} from './validate-scale';
 import {canUseParallelEncoding} from './can-use-parallel-encoding';
+import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
 
 export type StitchingState = 'encoding' | 'muxing';
 
@@ -125,6 +126,13 @@ export const renderMedia = async ({
 		? null
 		: await fs.promises.mkdtemp(path.join(os.tmpdir(), 'react-motion-render'));
 
+	validateEvenDimensionsWithCodec({
+		codec,
+		height: composition.height,
+		scale: scale ?? 1,
+		width: composition.width,
+	});
+
 	try {
 		const callUpdate = () => {
 			onProgress?.({
@@ -138,8 +146,8 @@ export const renderMedia = async ({
 
 		if (preEncodedFileLocation) {
 			preStitcher = await spawnFfmpeg({
-				width: composition.width,
-				height: composition.height,
+				width: composition.width * (scale ?? 1),
+				height: composition.height * (scale ?? 1),
 				fps: composition.fps,
 				outputLocation: preEncodedFileLocation,
 				force: true,
@@ -223,8 +231,8 @@ export const renderMedia = async ({
 		const stitchStart = Date.now();
 
 		await stitchFramesToVideo({
-			width: composition.width,
-			height: composition.height,
+			width: composition.width * (scale ?? 1),
+			height: composition.height * (scale ?? 1),
 			fps: composition.fps,
 			outputLocation,
 			internalOptions: {
