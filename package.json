@@ -4,11 +4,10 @@
   "private": true,
   "license": "SEE LICENSE IN LICENSE.md",
   "scripts": {
-    "test": "turbo run lint test --concurrency=4",
+    "test": "turbo run lint test",
     "lint": "turbo run lint",
     "build": "turbo run build",
-    "ci": "turbo run build lint test --concurrency=2",
-    "ci:windows": "turbo run build lint test --concurrency=1",
+    "ci": "turbo run build lint test",
     "watch": "pnpm run watch --recursive --stream --parallel",
     "release": "lerna publish --force-publish",
     "postinstall": "lerna bootstrap"
