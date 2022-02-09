@@ -179,9 +179,7 @@ export const stitchFramesToVideo = async (options: {
 		console.log(ffmpegArgs);
 	}
 
-	const ffmpegString = ffmpegArgs
-		.reduce<(string | null)[]>((acc, val) => acc.concat(val), [])
-		.filter(Boolean) as string[];
+	const ffmpegString = ffmpegArgs.flat(2).filter(Internals.truthy);
 
 	const task = execa(options.ffmpegExecutable ?? 'ffmpeg', ffmpegString, {
 		cwd: options.dir,
