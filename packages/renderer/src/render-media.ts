@@ -114,6 +114,7 @@ export const renderMedia = async ({
 	const renderStart = Date.now();
 	const tmpdir = tmpDir('pre-encode');
 	const parallelEncoding = canUseParallelEncoding(codec);
+	const actualImageFormat = imageFormat ?? 'jpeg';
 
 	const preEncodedFileLocation = parallelEncoding
 		? path.join(
@@ -167,6 +168,7 @@ export const renderMedia = async ({
 				internalOptions: {
 					parallelEncoding,
 					preEncodedFileLocation: null,
+					imageFormat: actualImageFormat,
 				},
 				assetsInfo: null,
 			});
@@ -196,7 +198,7 @@ export const renderMedia = async ({
 			},
 			inputProps,
 			envVariables,
-			imageFormat: imageFormat ?? 'jpeg',
+			imageFormat: actualImageFormat,
 			quality,
 			frameRange: frameRange ?? null,
 			puppeteerInstance,
@@ -219,8 +221,13 @@ export const renderMedia = async ({
 		if (stitcherFfmpeg) {
 			await waitForFinish();
 			stitcherFfmpeg?.stdin?.end();
-			await stitcherFfmpeg;
-			preStitcher?.cleanup?.();
+			try {
+				await stitcherFfmpeg;
+			} catch (err) {
+				throw new Error(preStitcher?.getLogs());
+			} finally {
+				preStitcher?.cleanup?.();
+			}
 		}
 
 		renderedDoneIn = Date.now() - renderStart;
@@ -238,6 +245,7 @@ export const renderMedia = async ({
 			internalOptions: {
 				parallelEncoding: false,
 				preEncodedFileLocation,
+				imageFormat: actualImageFormat,
 			},
 			force: overwrite ?? Internals.DEFAULT_OVERWRITE,
 			pixelFormat,

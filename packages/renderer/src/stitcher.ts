@@ -2,6 +2,7 @@ import execa from 'execa';
 import {
 	Codec,
 	FfmpegExecutable,
+	ImageFormat,
 	Internals,
 	PixelFormat,
 	ProResProfile,
@@ -45,6 +46,7 @@ export type StitcherOptions = {
 	internalOptions?: {
 		preEncodedFileLocation: string | null;
 		parallelEncoding: boolean;
+		imageFormat: ImageFormat;
 	};
 };
 
@@ -160,7 +162,9 @@ export const spawnFfmpeg = async (options: StitcherOptions) => {
 			: [
 					[
 						'-f',
-						options.internalOptions?.parallelEncoding ? 'image2pipe' : 'image2',
+						options.internalOptions?.parallelEncoding
+							? ['image2pipe']
+							: 'image2',
 					],
 					['-s', `${options.width}x${options.height}`],
 					options.assetsInfo
@@ -168,6 +172,16 @@ export const spawnFfmpeg = async (options: StitcherOptions) => {
 						: null,
 					options.assetsInfo
 						? ['-i', options.assetsInfo.imageSequenceName]
+						: null,
+					// If scale is very small (like 0.1), FFMPEG cannot figure out the image
+					// format on it's own and we need to hint the format
+					options.internalOptions?.parallelEncoding
+						? [
+								'-vcodec',
+								options.internalOptions.imageFormat === 'jpeg'
+									? 'mjpeg'
+									: 'png',
+						  ]
 						: null,
 					options.internalOptions?.parallelEncoding ? ['-i', '-'] : null,
 			  ]),
@@ -214,28 +228,34 @@ export const spawnFfmpeg = async (options: StitcherOptions) => {
 		console.log(ffmpegArgs);
 	}
 
-	const ffmpegString = ffmpegArgs
-		.reduce<(string | null | undefined)[]>((acc, val) => acc.concat(val), [])
-		.filter(Boolean) as string[];
+	const ffmpegString = ffmpegArgs.flat(2).filter(Boolean) as string[];
 
 	const task = execa(options.ffmpegExecutable ?? 'ffmpeg', ffmpegString, {
 		cwd: options.internalOptions?.parallelEncoding ? undefined : options.dir,
 	});
+	let ffmpegOutput = '';
 	task.stderr?.on('data', (data: Buffer) => {
+		const str = data.toString();
+		ffmpegOutput += str;
 		if (options.onProgress) {
-			const parsed = parseFfmpegProgress(data.toString());
+			const parsed = parseFfmpegProgress(str);
 			if (parsed !== undefined) {
 				options.onProgress(parsed);
 			}
 		}
 	});
-	return {task, cleanup};
+	return {task, cleanup, getLogs: () => ffmpegOutput};
 };
 
 export const stitchFramesToVideo = async (
 	options: StitcherOptions
 ): Promise<void> => {
-	const {task, cleanup} = await spawnFfmpeg(options);
-	await task;
-	cleanup?.();
+	const {task, cleanup, getLogs} = await spawnFfmpeg(options);
+	try {
+		await task;
+	} catch (err) {
+		throw new Error(getLogs());
+	} finally {
+		cleanup?.();
+	}
 };
