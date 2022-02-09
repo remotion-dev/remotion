@@ -1,4 +1,3 @@
-import useThemeContext from "@theme/hooks/useThemeContext";
 import React, { useState } from "react";
 import styles from "./features.module.css";
 import { PlayerExample } from "../PlayerExample";
@@ -6,7 +5,7 @@ import { CoolInput } from "../TextInput";
 import { ColorPicker, colorPickerColors } from "../Player/ColorPicker";
 
 export const PlayerFeatures: React.FC = () => {
-  const { isDarkTheme } = useThemeContext();
+  const isDarkTheme = false;
   const [name, setName] = useState("");
   const [color, setColor] = useState(colorPickerColors[0]);
 

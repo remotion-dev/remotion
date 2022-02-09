@@ -1,10 +1,9 @@
 import React from "react";
 import { BlueButton } from "../layout/Button";
 import styles from "./landing.module.css";
-import useThemeContext from "@theme/hooks/useThemeContext";
 
 export const LandingHeader: React.FC = () => {
-  const { isDarkTheme } = useThemeContext();
+  const isDarkTheme = true;
 
   return (
     <div className={styles.container}>

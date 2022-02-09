@@ -157,7 +157,7 @@ module.exports = {
       },
     ],
     [
-      "@jonny/docusaurus-preset-shiki-twoslash",
+      "docusaurus-preset-shiki-twoslash",
       {
         themes: ["github-light", "github-dark"],
         defaultCompilerOptions: {
