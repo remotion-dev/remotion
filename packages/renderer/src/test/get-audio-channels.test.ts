@@ -50,7 +50,7 @@ test('Get audio channels for video without music', async () => {
 	expect(channels).toBe(2);
 });
 
-test('Throw error if parsing a non video file', async () => {
+test('Throw error if parsing a non video file', () => {
 	const tsFile = path.join(__dirname, '..', 'ffmpeg-flags.ts');
 	expect(existsSync(tsFile)).toBe(true);
 	expect(() => getAudioChannels(tsFile)).rejects.toThrow(

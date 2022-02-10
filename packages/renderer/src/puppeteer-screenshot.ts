@@ -2,7 +2,7 @@ import * as assert from 'assert';
 import {Page, ScreenshotOptions} from 'puppeteer-core';
 import {_screenshotTask} from './screenshot-task';
 
-export const screenshot = async (
+export const screenshot = (
 	page: Page,
 	options: ScreenshotOptions = {}
 ): Promise<Buffer | string | void> => {
