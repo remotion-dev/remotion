@@ -20,7 +20,7 @@
 		"@remotion/bundler": "2.6.7",
 		"execa": "^4.0.2",
 		"p-limit": "^3.1.0",
-		"puppeteer-core": "^13.1.2",
+		"puppeteer-core": "13.1.2",
 		"remotion": "2.6.7",
 		"serve-handler": "^6.1.3"
 	},
