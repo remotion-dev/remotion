@@ -20,7 +20,6 @@
     "@docusaurus/preset-classic": "2.0.0-beta.7",
     "@jonny/docusaurus-preset-shiki-twoslash": "1.1.36",
     "@mdx-js/react": "^1.6.21",
-    "@react-three/fiber": "7.0.19",
     "@remotion/babel-loader": "2.6.8",
     "@remotion/bundler": "2.6.8",
     "@remotion/gif": "2.6.8",
