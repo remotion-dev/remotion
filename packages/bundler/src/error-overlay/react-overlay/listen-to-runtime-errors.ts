@@ -52,7 +52,7 @@ export const getErrorRecord = async (
 	};
 };
 
-const crashWithFrames = (crash: () => void) => async (error: Error) => {
+const crashWithFrames = (crash: () => void) => (error: Error) => {
 	setErrorsRef.current?.addError(error);
 
 	crash();

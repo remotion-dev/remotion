@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/player",
-	"version": "2.6.7",
+	"version": "2.6.8",
 	"description": "Remotion Player",
 	"main": "dist/index.js",
 	"sideEffects": false,
@@ -25,14 +25,14 @@
 	],
 	"license": "SEE LICENSE IN LICENSE.md",
 	"dependencies": {
-		"remotion": "2.6.7"
+		"remotion": "2.6.8"
 	},
 	"peerDependencies": {
 		"react": ">=16.8.0",
 		"react-dom": ">=16.8.0"
 	},
 	"devDependencies": {
-		"@jonny/eslint-config": "^2.1.248",
+		"@jonny/eslint-config": "^2.1.250",
 		"@testing-library/react": "^11.2.2",
 		"@types/jest": "^27.0.2",
 		"@types/node": "^14.14.14",

@@ -1,6 +1,6 @@
 {
 	"name": "remotion",
-	"version": "2.6.7",
+	"version": "2.6.8",
 	"description": "Render videos in React",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
@@ -22,7 +22,7 @@
 		"react-dom": "^17.0.1"
 	},
 	"devDependencies": {
-		"@jonny/eslint-config": "^2.1.248",
+		"@jonny/eslint-config": "^2.1.250",
 		"@testing-library/react": "^11.2.2",
 		"@testing-library/react-hooks": "^5.1.1",
 		"@types/jest": "^27.0.2",
