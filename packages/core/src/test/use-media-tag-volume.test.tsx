@@ -13,12 +13,12 @@ describe('Should update state when volume changes', () => {
 		useStateSpy.mockRestore();
 	});
 
-	test('has the volume been set', async () => {
+	test('has the volume been set', () => {
 		const addEventListener = jest.fn();
 		const removeEventListener = jest.fn();
-		let audioRef = ({
+		let audioRef = {
 			current: {volume: 0.5, addEventListener, removeEventListener},
-		} as unknown) as RefObject<HTMLAudioElement>;
+		} as unknown as RefObject<HTMLAudioElement>;
 
 		const {rerender} = renderHook(({mediaRef}) => useMediaTagVolume(mediaRef), {
 			initialProps: {mediaRef: audioRef},
@@ -44,9 +44,9 @@ describe('Should update state when volume changes', () => {
 test('Should listen for volume changes', () => {
 	const addEventListener = jest.fn();
 	const removeEventListener = jest.fn();
-	const audioRef = ({
+	const audioRef = {
 		current: {volume: 0.5, addEventListener, removeEventListener},
-	} as unknown) as RefObject<HTMLAudioElement>;
+	} as unknown as RefObject<HTMLAudioElement>;
 
 	renderHook(({mediaRef}) => useMediaTagVolume(mediaRef), {
 		initialProps: {mediaRef: audioRef},

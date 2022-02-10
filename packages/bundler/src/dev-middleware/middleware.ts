@@ -62,7 +62,7 @@ export function middleware(context: DevMiddlewareContext) {
 
 		ready(context, processRequest, req);
 
-		async function goNext() {
+		function goNext() {
 			return next();
 		}
 
