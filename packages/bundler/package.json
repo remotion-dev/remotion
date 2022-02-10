@@ -41,7 +41,7 @@
 		"react-dom": "^17.0.1"
 	},
 	"devDependencies": {
-		"@jonny/eslint-config": "^2.1.250",
+		"@jonny/eslint-config": "^2.1.251",
 		"@types/express": "^4.17.7",
 		"@types/mime-types": "^2.1.1",
 		"@types/node": "^16.7.5",

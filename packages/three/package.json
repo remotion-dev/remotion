@@ -26,7 +26,7 @@
 		"three": ">=0.134.0"
 	},
 	"devDependencies": {
-		"@jonny/eslint-config": "^2.1.250",
+		"@jonny/eslint-config": "^2.1.251",
 		"@react-three/fiber": ">=7.0.19",
 		"@types/node": "^14.14.14",
 		"@types/three": "^0.134.0",
