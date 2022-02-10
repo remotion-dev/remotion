@@ -27,15 +27,8 @@ type PrestyledProps = DetailedHTMLProps<
   MandatoryProps;
 
 export const Button: React.FC<Props> = (props) => {
-  const {
-    children,
-    loading,
-    hoverColor,
-    fullWidth,
-    color,
-    size,
-    ...other
-  } = props;
+  const { children, loading, hoverColor, fullWidth, color, size, ...other } =
+    props;
   const actualDisabled = other.disabled || loading;
 
   return (
