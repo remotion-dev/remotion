@@ -47,7 +47,7 @@
 		"@types/mime-types": "^2.1.1",
 		"@types/node": "^16.7.5",
 		"@types/semver": "^7.3.4",
-		"@types/react": "^17.0.39",
+		"@types/react": "17.0.39",
 		"@types/react-dom": "^17.0.11",
 		"@types/source-map": "0.5.2",
 		"@types/webpack-env": "^1.16.0",

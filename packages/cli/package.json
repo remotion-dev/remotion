@@ -40,6 +40,7 @@
 	"devDependencies": {
 		"@jonny/eslint-config": "^2.1.251",
 		"@types/jest": "^27.0.2",
+		"@types/minimist": "^1.2.2",
 		"@types/node": "^16.7.5",
 		"@types/react": "17.0.39",
 		"@types/react-dom": "^17.0.11",
