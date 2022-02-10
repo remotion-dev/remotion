@@ -29,7 +29,7 @@
 		"react-dom": "^17.0.1"
 	},
 	"devDependencies": {
-		"@jonny/eslint-config": "^2.1.248",
+		"@jonny/eslint-config": "^2.1.250",
 		"@testing-library/dom": "^8.7.2",
 		"@testing-library/react": "^11.2.5",
 		"@types/jest": "^27.0.2",
