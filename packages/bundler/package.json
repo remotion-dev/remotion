@@ -51,7 +51,7 @@
 		"@types/react-dom": "^17.0.11",
 		"@types/source-map": "0.5.2",
 		"@types/webpack-env": "^1.16.0",
-		"eslint": "^7.25.0",
+		"eslint": "^8.8.0",
 		"jest": "^27.2.4",
 		"prettier": "^2.0.5",
 		"prettier-plugin-organize-imports": "^1.1.1",
