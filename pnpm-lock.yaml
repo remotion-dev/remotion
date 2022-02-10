@@ -20,7 +20,7 @@ importers:
       '@babel/preset-env': ^7.12.10
       '@babel/preset-react': ^7.12.10
       '@babel/preset-typescript': ^7.12.7
-      '@jonny/eslint-config': ^2.1.250
+      '@jonny/eslint-config': ^2.1.251
       '@types/node': ^16.7.5
       '@webhotelier/webpack-fast-refresh': ^5.1.0
       babel-loader: ^8.1.0
@@ -42,7 +42,7 @@ importers:
       react-refresh: 0.9.0
       webpack: 5.60.0
     devDependencies:
-      '@jonny/eslint-config': 2.1.250_eslint@7.32.0
+      '@jonny/eslint-config': 2.1.251_eslint@7.32.0+typescript@4.4.3
       '@types/node': 16.10.2
       eslint: 7.32.0
       prettier: 2.4.1
@@ -52,7 +52,7 @@ importers:
 
   packages/bundler:
     specifiers:
-      '@jonny/eslint-config': ^2.1.250
+      '@jonny/eslint-config': ^2.1.251
       '@types/express': ^4.17.7
       '@types/mime-types': ^2.1.1
       '@types/node': ^16.7.5
@@ -96,7 +96,7 @@ importers:
       style-loader: 2.0.0_webpack@5.60.0
       webpack: 5.60.0
     devDependencies:
-      '@jonny/eslint-config': 2.1.250_eslint@7.32.0
+      '@jonny/eslint-config': 2.1.251_eslint@7.32.0+typescript@4.4.3
       '@types/express': 4.17.13
       '@types/mime-types': 2.1.1
       '@types/node': 16.10.2
@@ -113,7 +113,7 @@ importers:
 
   packages/cli:
     specifiers:
-      '@jonny/eslint-config': ^2.1.250
+      '@jonny/eslint-config': ^2.1.251
       '@remotion/bundler': 2.6.8
       '@remotion/media-utils': 2.6.8
       '@remotion/player': 2.6.8
@@ -150,7 +150,7 @@ importers:
       semver: 7.3.5
       webpack: 5.60.0
     devDependencies:
-      '@jonny/eslint-config': 2.1.250_eslint@7.32.0
+      '@jonny/eslint-config': 2.1.251_eslint@7.32.0+typescript@4.4.3
       '@types/jest': 27.0.2
       '@types/node': 16.10.2
       '@types/react': 17.0.27
@@ -164,7 +164,7 @@ importers:
 
   packages/core:
     specifiers:
-      '@jonny/eslint-config': ^2.1.250
+      '@jonny/eslint-config': ^2.1.251
       '@testing-library/react': ^11.2.2
       '@testing-library/react-hooks': ^5.1.1
       '@types/jest': ^27.0.2
@@ -181,7 +181,7 @@ importers:
       typescript: ^4.4.2
       webpack: 5.60.0
     devDependencies:
-      '@jonny/eslint-config': 2.1.250_eslint@7.32.0
+      '@jonny/eslint-config': 2.1.251_eslint@7.32.0+typescript@4.4.3
       '@testing-library/react': 11.2.7_react-dom@17.0.2+react@17.0.2
       '@testing-library/react-hooks': 5.1.3_react-dom@17.0.2+react@17.0.2
       '@types/jest': 27.0.2
@@ -200,7 +200,7 @@ importers:
 
   packages/create-video:
     specifiers:
-      '@jonny/eslint-config': ^2.1.250
+      '@jonny/eslint-config': ^2.1.251
       '@types/degit': ^2.8.3
       '@types/fs-extra': ^9.0.11
       '@types/node': ^16.7.5
@@ -223,7 +223,7 @@ importers:
       prompts: 2.4.1
       strip-ansi: 6.0.1
     devDependencies:
-      '@jonny/eslint-config': 2.1.250_eslint@7.32.0
+      '@jonny/eslint-config': 2.1.251_eslint@7.32.0+typescript@4.4.3
       '@types/degit': 2.8.3
       '@types/fs-extra': 9.0.13
       '@types/node': 16.10.2
@@ -428,7 +428,7 @@ importers:
 
   packages/gif:
     specifiers:
-      '@jonny/eslint-config': ^2.1.250
+      '@jonny/eslint-config': ^2.1.251
       '@react-gifs/tools': ^0.1.1
       '@testing-library/react': ^11.2.2
       '@types/jest': ^27.0.2
@@ -448,7 +448,7 @@ importers:
       lru_map: 0.4.1
       remotion: link:../core
     devDependencies:
-      '@jonny/eslint-config': 2.1.250_eslint@7.32.0
+      '@jonny/eslint-config': 2.1.251_eslint@7.32.0+typescript@4.4.3
       '@testing-library/react': 11.2.7
       '@types/jest': 27.0.2
       '@types/node': 16.10.2
@@ -479,7 +479,7 @@ importers:
 
   packages/media-utils:
     specifiers:
-      '@jonny/eslint-config': ^2.1.250
+      '@jonny/eslint-config': ^2.1.251
       '@types/node': ^16.7.5
       eslint: ^7.25.0
       prettier: ^2.0.5
@@ -489,7 +489,7 @@ importers:
     dependencies:
       remotion: link:../core
     devDependencies:
-      '@jonny/eslint-config': 2.1.250_eslint@7.32.0
+      '@jonny/eslint-config': 2.1.251_eslint@7.32.0+typescript@4.4.3
       '@types/node': 16.10.2
       eslint: 7.32.0
       prettier: 2.4.1
@@ -498,7 +498,7 @@ importers:
 
   packages/player:
     specifiers:
-      '@jonny/eslint-config': ^2.1.250
+      '@jonny/eslint-config': ^2.1.251
       '@testing-library/react': ^11.2.2
       '@types/jest': ^27.0.2
       '@types/node': ^14.14.14
@@ -518,7 +518,7 @@ importers:
     dependencies:
       remotion: link:../core
     devDependencies:
-      '@jonny/eslint-config': 2.1.250_eslint@7.32.0
+      '@jonny/eslint-config': 2.1.251_eslint@7.32.0+typescript@4.4.3
       '@testing-library/react': 11.2.7_react-dom@17.0.2+react@17.0.2
       '@types/jest': 27.0.2
       '@types/node': 14.17.20
@@ -569,7 +569,7 @@ importers:
 
   packages/renderer:
     specifiers:
-      '@jonny/eslint-config': ^2.1.250
+      '@jonny/eslint-config': ^2.1.251
       '@remotion/bundler': 2.6.8
       '@testing-library/dom': ^8.7.2
       '@testing-library/react': ^11.2.5
@@ -595,7 +595,7 @@ importers:
       remotion: link:../core
       serve-handler: 6.1.3
     devDependencies:
-      '@jonny/eslint-config': 2.1.250_eslint@7.32.0
+      '@jonny/eslint-config': 2.1.251_eslint@7.32.0+typescript@4.4.3
       '@testing-library/dom': 8.7.2
       '@testing-library/react': 11.2.7
       '@types/jest': 27.0.2
@@ -610,7 +610,7 @@ importers:
 
   packages/three:
     specifiers:
-      '@jonny/eslint-config': ^2.1.250
+      '@jonny/eslint-config': ^2.1.251
       '@react-three/fiber': '>=7.0.19'
       '@types/node': ^14.14.14
       '@types/three': ^0.134.0
@@ -623,7 +623,7 @@ importers:
     dependencies:
       remotion: link:../core
     devDependencies:
-      '@jonny/eslint-config': 2.1.250_eslint@7.32.0
+      '@jonny/eslint-config': 2.1.251_eslint@7.32.0+typescript@4.4.3
       '@react-three/fiber': 7.0.19_three@0.134.0
       '@types/node': 14.17.20
       '@types/three': 0.134.0
@@ -5276,9 +5276,11 @@ packages:
       - supports-color
     dev: false
 
-  /@jonny/eslint-config/2.1.250_eslint@7.32.0:
-    resolution: {integrity: sha512-5yDDAftJyCrjRI58hhqVh74GW1CqDaxcvIQiAbPtg7o1KcHckW/YTr8pbhMGzNOu07q5rD5Baauy+geUOT8Eww==}
+  /@jonny/eslint-config/2.1.251_eslint@7.32.0+typescript@4.4.3:
+    resolution: {integrity: sha512-P2tXkK7aewv4CAQd44nxaGHtqQ3g1i/XWQVRl8Sw3BtEk2s62ts7FIMtTju4zF+1A9aAMnU1MkX1z5QBm+JHmw==}
     dependencies:
+      '@typescript-eslint/eslint-plugin': 4.33.0_d753869925cce96d3eb2141eeedafe57
+      '@typescript-eslint/parser': 4.33.0_eslint@7.32.0+typescript@4.4.3
       babel-eslint: 10.1.0_eslint@7.32.0
       eslint-config-prettier: 8.3.0_eslint@7.32.0
       eslint-config-xo: 0.39.0_eslint@7.32.0
@@ -5291,6 +5293,7 @@ packages:
     transitivePeerDependencies:
       - eslint
       - supports-color
+      - typescript
     dev: true
 
   /@lerna/add/4.0.0:
@@ -7121,7 +7124,6 @@ packages:
       typescript: 4.4.3
     transitivePeerDependencies:
       - supports-color
-    dev: false
 
   /@typescript-eslint/experimental-utils/3.10.1_eslint@7.32.0+typescript@4.4.3:
     resolution: {integrity: sha512-DewqIgscDzmAfd5nOGe4zm6Bl7PKtMG2Ad0KG8CUZAHlXfAKTF9Ol5PXhiMh39yRL2ChRH1cuuUGOcVyyrhQIw==}
@@ -7173,7 +7175,6 @@ packages:
     transitivePeerDependencies:
       - supports-color
       - typescript
-    dev: false
 
   /@typescript-eslint/experimental-utils/4.33.0_eslint@7.32.0+typescript@4.4.4:
     resolution: {integrity: sha512-zeQjOoES5JFjTnAhI5QY7ZviczMzDptls15GFsI6jyUOq0kOf9+WonkhtlIhh0RgHRnqj5gdNxW5j1EvAyYg6Q==}
@@ -7230,7 +7231,6 @@ packages:
       typescript: 4.4.3
     transitivePeerDependencies:
       - supports-color
-    dev: false
 
   /@typescript-eslint/scope-manager/4.22.0:
     resolution: {integrity: sha512-OcCO7LTdk6ukawUM40wo61WdeoA7NM/zaoq1/2cs13M7GyiF+T4rxuA4xM+6LeHWjWbss7hkGXjFDRcKD4O04Q==}
@@ -7323,7 +7323,6 @@ packages:
       typescript: 4.4.3
     transitivePeerDependencies:
       - supports-color
-    dev: false
 
   /@typescript-eslint/typescript-estree/4.33.0_typescript@4.4.4:
     resolution: {integrity: sha512-rkWRY1MPFzjwnEVHsxGemDzqqddw2QbTJlICPD9p9I9LfsO8fdmfQPOX3uKfUaGRDFJbfrtm/sXhVXN4E+bzCA==}
@@ -21462,7 +21461,6 @@ packages:
     dependencies:
       tslib: 1.14.1
       typescript: 4.4.3
-    dev: false
 
   /tsutils/3.21.0_typescript@4.4.4:
     resolution: {integrity: sha512-mHKK3iUXL+3UF6xL5k0PEhKRUBKPBCv/+RkEOpjRWxxx27KKRBmmA60A9pgOUvMi8GKhRMPEmjBRPzs2W7O1OA==}
