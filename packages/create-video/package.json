@@ -31,7 +31,7 @@
 		"@types/fs-extra": "^9.0.11",
 		"@types/node": "^16.7.5",
 		"@types/prompts": "^2.0.12",
-		"eslint": "^8.8.0",
+		"eslint": "^7.25.0",
 		"prettier-plugin-organize-imports": "^1.1.1",
 		"ts-node": "^9.1.1",
 		"typescript": "^4.4.2"
