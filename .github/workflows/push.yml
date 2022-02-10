@@ -56,7 +56,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: node_modules/.cache
-          key: turbo-${{ runner.os }}-${{ matrix.ffmpeg_version }}-node${{ matrix.node_version }}
+          key: deps-${{ runner.os }}-${{ matrix.ffmpeg_version }}-node${{ matrix.node_version }}
       - name: Cache dist/ folders
         uses: actions/cache@v2
         with:
