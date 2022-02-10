@@ -54,10 +54,14 @@ importers:
     specifiers:
       '@jonny/eslint-config': ^2.1.251
       '@types/express': ^4.17.7
+      '@types/jest': ^27.4.0
       '@types/mime-types': ^2.1.1
       '@types/node': ^16.7.5
+      '@types/react': ^17.0.39
+      '@types/react-dom': ^17.0.11
       '@types/semver': ^7.3.4
       '@types/source-map': 0.5.2
+      '@types/webpack-env': ^1.16.0
       css-loader: ^5.0.1
       esbuild-loader: ^2.10.0
       eslint: ^7.25.0
@@ -98,17 +102,21 @@ importers:
     devDependencies:
       '@jonny/eslint-config': 2.1.251_eslint@7.32.0+typescript@4.4.3
       '@types/express': 4.17.13
+      '@types/jest': 27.4.0
       '@types/mime-types': 2.1.1
       '@types/node': 16.10.2
+      '@types/react': 17.0.39
+      '@types/react-dom': 17.0.11
       '@types/semver': 7.3.8
       '@types/source-map': 0.5.2
+      '@types/webpack-env': 1.16.2
       eslint: 7.32.0
       jest: 27.2.4
       prettier: 2.4.1
       prettier-plugin-organize-imports: 1.1.1_prettier@2.4.1+typescript@4.4.3
       react: 17.0.2
       react-dom: 17.0.2_react@17.0.2
-      ts-jest: 27.0.5_jest@27.2.4+typescript@4.4.3
+      ts-jest: 27.0.5_79dde48077e8c3caddf1a0a2a2807263
       typescript: 4.4.3
 
   packages/cli:
@@ -120,8 +128,8 @@ importers:
       '@remotion/renderer': 2.6.8
       '@types/jest': ^27.0.2
       '@types/node': ^16.7.5
-      '@types/react': 17.0.27
-      '@types/react-dom': ^17.0.0
+      '@types/react': 17.0.39
+      '@types/react-dom': ^17.0.11
       better-opn: ^2.1.1
       chalk: ^4.1.0
       dotenv: ^9.0.0
@@ -153,8 +161,8 @@ importers:
       '@jonny/eslint-config': 2.1.251_eslint@7.32.0+typescript@4.4.3
       '@types/jest': 27.0.2
       '@types/node': 16.10.2
-      '@types/react': 17.0.27
-      '@types/react-dom': 17.0.9
+      '@types/react': 17.0.39
+      '@types/react-dom': 17.0.11
       eslint: 7.32.0
       jest: 27.2.4
       prettier: 2.4.1
@@ -169,6 +177,8 @@ importers:
       '@testing-library/react-hooks': ^5.1.1
       '@types/jest': ^27.0.2
       '@types/node': ^16.7.5
+      '@types/react': 17.0.39
+      '@types/react-dom': ^17.0.11
       '@types/webpack-env': ^1.16.0
       eslint: ^7.25.0
       jest: ^27.2.4
@@ -186,6 +196,8 @@ importers:
       '@testing-library/react-hooks': 5.1.3_react-dom@17.0.2+react@17.0.2
       '@types/jest': 27.0.2
       '@types/node': 16.10.2
+      '@types/react': 17.0.39
+      '@types/react-dom': 17.0.11
       '@types/webpack-env': 1.16.2
       eslint: 7.32.0
       jest: 27.2.4
@@ -253,6 +265,7 @@ importers:
       '@types/color-namer': ^1.3.0
       '@types/hls.js': ^0.13.3
       '@types/jest': ^27.0.2
+      '@types/node': ^17.0.17
       chalk: ^4.1.0
       clipboard: ^2.0.8
       clsx: ^1.1.1
@@ -300,6 +313,7 @@ importers:
       '@types/color-namer': 1.3.0
       '@types/hls.js': 0.13.3
       '@types/jest': 27.0.2
+      '@types/node': 17.0.17
       eslint: 7.32.0
       react: 17.0.2
       react-dom: 17.0.2_react@17.0.2
@@ -431,8 +445,8 @@ importers:
       '@testing-library/react': ^11.2.2
       '@types/jest': ^27.0.2
       '@types/node': ^16.7.5
-      '@types/react': 17.0.27
-      '@types/react-dom': ^17.0.0
+      '@types/react': 17.0.39
+      '@types/react-dom': ^17.0.11
       eslint: ^7.25.0
       jest: ^27.2.4
       lru_map: ^0.4.1
@@ -450,8 +464,8 @@ importers:
       '@testing-library/react': 11.2.7
       '@types/jest': 27.0.2
       '@types/node': 16.10.2
-      '@types/react': 17.0.27
-      '@types/react-dom': 17.0.9
+      '@types/react': 17.0.39
+      '@types/react-dom': 17.0.11
       eslint: 7.32.0
       jest: 27.2.4
       prettier-plugin-organize-imports: 1.1.1_typescript@4.4.3
@@ -479,6 +493,7 @@ importers:
     specifiers:
       '@jonny/eslint-config': ^2.1.251
       '@types/node': ^16.7.5
+      '@types/react': ^17.0.39
       eslint: ^7.25.0
       prettier: ^2.0.5
       prettier-plugin-organize-imports: ^1.1.1
@@ -489,6 +504,7 @@ importers:
     devDependencies:
       '@jonny/eslint-config': 2.1.251_eslint@7.32.0+typescript@4.4.3
       '@types/node': 16.10.2
+      '@types/react': 17.0.39
       eslint: 7.32.0
       prettier: 2.4.1
       prettier-plugin-organize-imports: 1.1.1_prettier@2.4.1+typescript@4.4.3
@@ -500,8 +516,8 @@ importers:
       '@testing-library/react': ^11.2.2
       '@types/jest': ^27.0.2
       '@types/node': ^14.14.14
-      '@types/react': 17.0.27
-      '@types/react-dom': ^17.0.0
+      '@types/react': 17.0.39
+      '@types/react-dom': ^17.0.11
       csstype: ^3.0.9
       eslint: ^7.25.0
       jest: ^27.2.4
@@ -520,8 +536,8 @@ importers:
       '@testing-library/react': 11.2.7_react-dom@17.0.2+react@17.0.2
       '@types/jest': 27.0.2
       '@types/node': 14.17.20
-      '@types/react': 17.0.27
-      '@types/react-dom': 17.0.9
+      '@types/react': 17.0.39
+      '@types/react-dom': 17.0.11
       csstype: 3.0.9
       eslint: 7.32.0
       jest: 27.2.4
@@ -542,8 +558,8 @@ importers:
       '@testing-library/user-event': ^12.1.10
       '@types/jest': ^27.0.2
       '@types/node': ^12.0.0
-      '@types/react': 17.0.27
-      '@types/react-dom': ^17.0.0
+      '@types/react': 17.0.39
+      '@types/react-dom': ^17.0.11
       react: ^17.0.1
       react-dom: ^17.0.1
       react-scripts: 4.0.3
@@ -557,8 +573,8 @@ importers:
       '@testing-library/user-event': 12.8.3
       '@types/jest': 27.0.2
       '@types/node': 12.20.27
-      '@types/react': 17.0.27
-      '@types/react-dom': 17.0.9
+      '@types/react': 17.0.39
+      '@types/react-dom': 17.0.11
       react: 17.0.2
       react-dom: 17.0.2_react@17.0.2
       react-scripts: 4.0.3_react@17.0.2+typescript@4.4.3
@@ -611,6 +627,7 @@ importers:
       '@jonny/eslint-config': ^2.1.251
       '@react-three/fiber': '>=7.0.19'
       '@types/node': ^14.14.14
+      '@types/react': ^17.0.39
       '@types/three': ^0.134.0
       eslint: ^7.25.0
       prettier: ^2.0.5
@@ -624,6 +641,7 @@ importers:
       '@jonny/eslint-config': 2.1.251_eslint@7.32.0+typescript@4.4.3
       '@react-three/fiber': 7.0.19_three@0.134.0
       '@types/node': 14.17.20
+      '@types/react': 17.0.39
       '@types/three': 0.134.0
       eslint: 7.32.0
       prettier: 2.4.1
@@ -6590,8 +6608,8 @@ packages:
         optional: true
     dependencies:
       '@babel/runtime': 7.15.4
-      '@types/react': 17.0.27
-      '@types/react-dom': 17.0.9
+      '@types/react': 17.0.39
+      '@types/react-dom': 17.0.11
       '@types/react-test-renderer': 17.0.1
       filter-console: 0.1.1
       react: 17.0.2
@@ -6795,6 +6813,13 @@ packages:
       jest-diff: 27.2.4
       pretty-format: 27.2.4
 
+  /@types/jest/27.4.0:
+    resolution: {integrity: sha512-gHl8XuC1RZ8H2j5sHv/JqsaxXkDDM9iDOgu0Wp8sjs4u/snb2PVehyWXJPr+ORA0RPpgw231mnutWI1+0hgjIQ==}
+    dependencies:
+      jest-diff: 27.2.4
+      pretty-format: 27.2.4
+    dev: true
+
   /@types/json-schema/7.0.9:
     resolution: {integrity: sha512-qcUXuemtEu+E5wZSJHNxUXeCZhAfXKQ41D+duX+VYPde7xyEVZci+/oXKJL13tnRs9lR2pr4fod59GT6/X1/yQ==}
 
@@ -6837,6 +6862,9 @@ packages:
   /@types/node/16.10.2:
     resolution: {integrity: sha512-zCclL4/rx+W5SQTzFs9wyvvyCwoK9QtBpratqz2IYJ3O8Umrn0m3nsTv0wQBk9sRGpvUe9CwPDrQFB10f1FIjQ==}
 
+  /@types/node/17.0.17:
+    resolution: {integrity: sha512-e8PUNQy1HgJGV3iU/Bp2+D/DXh3PYeyli8LgIwsQcs1Ar1LoaWHSIT6Rw+H2rNJmiq6SNWiDytfx8+gYj7wDHw==}
+
   /@types/normalize-package-data/2.4.1:
     resolution: {integrity: sha512-Gj7cI7z+98M282Tqmp2K5EIsoouUEzbBJhQQzDE3jSIRk6r9gsz0oUokqIUR4u1R3dMHo0pDHM7sNOHyhulypw==}
     dev: false
@@ -6871,10 +6899,10 @@ packages:
   /@types/range-parser/1.2.4:
     resolution: {integrity: sha512-EEhsLsD6UsDM1yFhAvy0Cjr6VwmpMWqFBCb9w07wVugF7w9nfajxLuVmngTIpgS6svCnm6Vaw+MZhoDCKnOfsw==}
 
-  /@types/react-dom/17.0.9:
-    resolution: {integrity: sha512-wIvGxLfgpVDSAMH5utdL9Ngm5Owu0VsGmldro3ORLXV8CShrL8awVj06NuEXFQ5xyaYfdca7Sgbk/50Ri1GdPg==}
+  /@types/react-dom/17.0.11:
+    resolution: {integrity: sha512-f96K3k+24RaLGVu/Y2Ng3e1EbZ8/cVJvypZWd7cy0ofCBaf2lcM46xNhycMZ2xGwbBjRql7hOlZ+e2WlJ5MH3Q==}
     dependencies:
-      '@types/react': 17.0.27
+      '@types/react': 17.0.39
 
   /@types/react-helmet/6.1.4:
     resolution: {integrity: sha512-jyx50RNZXVaTGHY3MsoRPNpeiVk8b0XTPgD/O6KHF6COTDnG/+lRjPYvTK5nfWtR3xDOux0w6bHLAsaHo2ZLTA==}
@@ -6915,11 +6943,18 @@ packages:
   /@types/react-test-renderer/17.0.1:
     resolution: {integrity: sha512-3Fi2O6Zzq/f3QR9dRnlnHso9bMl7weKCviFmfF6B4LS1Uat6Hkm15k0ZAQuDz+UBq6B3+g+NM6IT2nr5QgPzCw==}
     dependencies:
-      '@types/react': 17.0.27
+      '@types/react': 17.0.39
     dev: true
 
   /@types/react/17.0.27:
     resolution: {integrity: sha512-zgiJwtsggVGtr53MndV7jfiUESTqrbxOcBvwfe6KS/9bzaVPCTDieTWnFNecVNx6EAaapg5xsLLWFfHHR437AA==}
+    dependencies:
+      '@types/prop-types': 15.7.4
+      '@types/scheduler': 0.16.2
+      csstype: 3.0.9
+
+  /@types/react/17.0.39:
+    resolution: {integrity: sha512-UVavlfAxDd/AgAacMa60Azl7ygyQNRwC/DsHZmKgNvPmRR5p70AJ5Q9EAmL2NWOJmeV+vVUI4IAP7GZrN8h8Ug==}
     dependencies:
       '@types/prop-types': 15.7.4
       '@types/scheduler': 0.16.2
@@ -6934,7 +6969,7 @@ packages:
   /@types/sax/1.2.3:
     resolution: {integrity: sha512-+QSw6Tqvs/KQpZX8DvIl3hZSjNFLW/OqE5nlyHXtTwODaJvioN2rOWpBNEWZp2HZUFhOh+VohmJku/WxEXU2XA==}
     dependencies:
-      '@types/node': 16.10.2
+      '@types/node': 17.0.17
     dev: false
 
   /@types/scheduler/0.16.2:
@@ -8880,7 +8915,7 @@ packages:
       chownr: 1.1.4
       figgy-pudding: 3.5.2
       glob: 7.2.0
-      graceful-fs: registry.npmjs.org/graceful-fs/4.2.8
+      graceful-fs: 4.2.8
       infer-owner: 1.0.4
       lru-cache: 5.1.1
       mississippi: 3.0.0
@@ -9162,7 +9197,7 @@ packages:
       readdirp: 2.2.1
       upath: 1.2.0
     optionalDependencies:
-      fsevents: registry.npmjs.org/fsevents/1.2.13
+      fsevents: 1.2.13
     dev: false
 
   /chokidar/3.5.2:
@@ -12133,7 +12168,7 @@ packages:
     resolution: {integrity: sha512-yhlQgA6mnOJUKOsRUFsgJdQCvkKhcz8tlZG5HBQfReYZy46OwLcY+Zia0mtdHsOo9y/hP+CxMN0TU9QxoOtG4g==}
     engines: {node: '>=6 <7 || >=8'}
     dependencies:
-      graceful-fs: registry.npmjs.org/graceful-fs/4.2.8
+      graceful-fs: 4.2.8
       jsonfile: 4.0.0
       universalify: 0.1.2
     dev: false
@@ -12168,7 +12203,7 @@ packages:
   /fs-write-stream-atomic/1.0.10:
     resolution: {integrity: sha1-tH31NJPvkR33VzHnCp3tAYnbQMk=}
     dependencies:
-      graceful-fs: registry.npmjs.org/graceful-fs/4.2.8
+      graceful-fs: 4.2.8
       iferr: 0.1.5
       imurmurhash: 0.1.4
       readable-stream: 2.3.7
@@ -12176,6 +12211,18 @@ packages:
 
   /fs.realpath/1.0.0:
     resolution: {integrity: sha1-FQStJSMVjKpA20onh8sBQRmU6k8=}
+
+  /fsevents/1.2.13:
+    resolution: {integrity: sha512-oWb1Z6mkHIskLzEJ/XWX0srkpkTQ7vaopMQkyaEIoq0fmtFVxOthb8cCxeT+p3ynTdkk/RZwbgG4brR5BeWECw==}
+    engines: {node: '>= 4.0'}
+    os: [darwin]
+    deprecated: fsevents 1 will break on node v14+ and could be using insecure binaries. Upgrade to fsevents 2.
+    requiresBuild: true
+    dependencies:
+      bindings: 1.5.0
+      nan: 2.15.0
+    dev: false
+    optional: true
 
   /fsevents/2.3.2:
     resolution: {integrity: sha512-xiqMQR4xAeHTuB9uWm+fFRcIOgKBMiOBP+eXiyT7jsgVCq1bkVygt00oASowB7EdtpOHaaPgKt812P9ab+DDKA==}
@@ -14141,7 +14188,7 @@ packages:
       sane: 4.1.0
       walker: 1.0.7
     optionalDependencies:
-      fsevents: registry.npmjs.org/fsevents/2.3.2
+      fsevents: 2.3.2
     dev: false
 
   /jest-haste-map/27.2.4:
@@ -14545,7 +14592,7 @@ packages:
     engines: {node: '>= 10.14.2'}
     dependencies:
       '@types/node': 16.10.2
-      graceful-fs: registry.npmjs.org/graceful-fs/4.2.8
+      graceful-fs: 4.2.8
     dev: false
 
   /jest-serializer/27.0.6:
@@ -14921,7 +14968,7 @@ packages:
   /jsonfile/4.0.0:
     resolution: {integrity: sha1-h3Gq4HmbZAdrdmQPygWPnBDjPss=}
     optionalDependencies:
-      graceful-fs: registry.npmjs.org/graceful-fs/4.2.8
+      graceful-fs: 4.2.8
     dev: false
 
   /jsonfile/6.1.0:
@@ -19084,7 +19131,7 @@ packages:
     resolution: {integrity: sha512-1JU/8q+VgFZyxwrJ+SVIOsh+KywWGpds3NTqikiKpDMZWScmAYyKIgqkO+ARvNWJfXeXR1zxz7aHF4u4CyH6vQ==}
     engines: {node: '>=0.10'}
     dependencies:
-      graceful-fs: registry.npmjs.org/graceful-fs/4.2.8
+      graceful-fs: 4.2.8
       micromatch: 3.1.10
       readable-stream: 2.3.7
     dev: false
@@ -21288,6 +21335,37 @@ packages:
       yargs-parser: 20.2.9
     dev: true
 
+  /ts-jest/27.0.5_79dde48077e8c3caddf1a0a2a2807263:
+    resolution: {integrity: sha512-lIJApzfTaSSbtlksfFNHkWOzLJuuSm4faFAfo5kvzOiRAuoN4/eKxVJ2zEAho8aecE04qX6K1pAzfH5QHL1/8w==}
+    engines: {node: ^10.13.0 || ^12.13.0 || ^14.15.0 || >=15.0.0}
+    hasBin: true
+    peerDependencies:
+      '@babel/core': '>=7.0.0-beta.0 <8'
+      '@types/jest': ^27.0.0
+      babel-jest: '>=27.0.0 <28'
+      jest: ^27.0.0
+      typescript: '>=3.8 <5.0'
+    peerDependenciesMeta:
+      '@babel/core':
+        optional: true
+      '@types/jest':
+        optional: true
+      babel-jest:
+        optional: true
+    dependencies:
+      '@types/jest': 27.4.0
+      bs-logger: 0.2.6
+      fast-json-stable-stringify: 2.1.0
+      jest: 27.2.4
+      jest-util: 27.2.4
+      json5: 2.2.0
+      lodash: 4.17.21
+      make-error: 1.3.6
+      semver: 7.3.5
+      typescript: 4.4.3
+      yargs-parser: 20.2.9
+    dev: true
+
   /ts-jest/27.0.5_jest@27.2.4+typescript@4.4.3:
     resolution: {integrity: sha512-lIJApzfTaSSbtlksfFNHkWOzLJuuSm4faFAfo5kvzOiRAuoN4/eKxVJ2zEAho8aecE04qX6K1pAzfH5QHL1/8w==}
     engines: {node: ^10.13.0 || ^12.13.0 || ^14.15.0 || >=15.0.0}
@@ -21308,7 +21386,7 @@ packages:
     dependencies:
       bs-logger: 0.2.6
       fast-json-stable-stringify: 2.1.0
-      jest: 27.2.4
+      jest: 27.2.4_ts-node@9.1.1
       jest-util: 27.2.4
       json5: 2.2.0
       lodash: 4.17.21
@@ -22303,14 +22381,22 @@ packages:
     dependencies:
       makeerror: 1.0.11
 
+  /watchpack-chokidar2/2.0.1:
+    resolution: {integrity: sha512-nCFfBIPKr5Sh61s4LPpy1Wtfi0HE8isJ3d2Yb5/Ppw2P2B/3eVSEBjKfN0fmHJSK14+31KwMKmcrzs2GM4P0Ww==}
+    requiresBuild: true
+    dependencies:
+      chokidar: 2.1.8
+    dev: false
+    optional: true
+
   /watchpack/1.7.5:
     resolution: {integrity: sha512-9P3MWk6SrKjHsGkLT2KHXdQ/9SNkyoJbabxnKOoJepsvJjJG8uYTR3yTPxPQvNDI3w4Nz1xnE0TLHK4RIVe/MQ==}
     dependencies:
       graceful-fs: 4.2.8
       neo-async: 2.6.2
     optionalDependencies:
-      chokidar: registry.npmjs.org/chokidar/3.5.2
-      watchpack-chokidar2: registry.npmjs.org/watchpack-chokidar2/2.0.1
+      chokidar: 3.5.2
+      watchpack-chokidar2: 2.0.1
     dev: false
 
   /watchpack/2.2.0:
@@ -23146,83 +23232,3 @@ packages:
   /zwitch/1.0.5:
     resolution: {integrity: sha512-V50KMwwzqJV0NpZIZFwfOD5/lyny3WlSzRiXgA0G7VUnRlqttta1L6UQIHzd6EuBY/cHGfwTIck7w1yH6Q5zUw==}
     dev: false
-
-  registry.npmjs.org/chokidar/2.1.8:
-    resolution: {integrity: sha512-ZmZUazfOzf0Nve7duiCKD23PFSCs4JPoYyccjUFF3aQkQadqBhfzhjkwBH2mNOG9cTBwhamM37EIsIkZw3nRgg==, registry: https://registry.yarnpkg.com/, tarball: https://registry.npmjs.org/chokidar/-/chokidar-2.1.8.tgz}
-    name: chokidar
-    version: 2.1.8
-    deprecated: Chokidar 2 does not receive security updates since 2019. Upgrade to chokidar 3 with 15x fewer dependencies
-    dependencies:
-      anymatch: 2.0.0
-      async-each: 1.0.3
-      braces: 2.3.2
-      glob-parent: 3.1.0
-      inherits: 2.0.4
-      is-binary-path: 1.0.1
-      is-glob: 4.0.3
-      normalize-path: 3.0.0
-      path-is-absolute: 1.0.1
-      readdirp: 2.2.1
-      upath: 1.2.0
-    optionalDependencies:
-      fsevents: registry.npmjs.org/fsevents/1.2.13
-    dev: false
-    optional: true
-
-  registry.npmjs.org/chokidar/3.5.2:
-    resolution: {integrity: sha512-ekGhOnNVPgT77r4K/U3GDhu+FQ2S8TnK/s2KbIGXi0SZWuwkZ2QNyfWdZW+TVfn84DpEP7rLeCt2UI6bJ8GwbQ==, registry: https://registry.yarnpkg.com/, tarball: https://registry.npmjs.org/chokidar/-/chokidar-3.5.2.tgz}
-    name: chokidar
-    version: 3.5.2
-    engines: {node: '>= 8.10.0'}
-    dependencies:
-      anymatch: 3.1.2
-      braces: 3.0.2
-      glob-parent: 5.1.2
-      is-binary-path: 2.1.0
-      is-glob: 4.0.3
-      normalize-path: 3.0.0
-      readdirp: 3.6.0
-    optionalDependencies:
-      fsevents: registry.npmjs.org/fsevents/2.3.2
-    dev: false
-    optional: true
-
-  registry.npmjs.org/fsevents/1.2.13:
-    resolution: {integrity: sha512-oWb1Z6mkHIskLzEJ/XWX0srkpkTQ7vaopMQkyaEIoq0fmtFVxOthb8cCxeT+p3ynTdkk/RZwbgG4brR5BeWECw==, registry: https://registry.yarnpkg.com/, tarball: https://registry.npmjs.org/fsevents/-/fsevents-1.2.13.tgz}
-    name: fsevents
-    version: 1.2.13
-    engines: {node: '>= 4.0'}
-    os: [darwin]
-    deprecated: fsevents 1 will break on node v14+ and could be using insecure binaries. Upgrade to fsevents 2.
-    requiresBuild: true
-    dependencies:
-      bindings: 1.5.0
-      nan: 2.15.0
-    dev: false
-    optional: true
-
-  registry.npmjs.org/fsevents/2.3.2:
-    resolution: {integrity: sha512-xiqMQR4xAeHTuB9uWm+fFRcIOgKBMiOBP+eXiyT7jsgVCq1bkVygt00oASowB7EdtpOHaaPgKt812P9ab+DDKA==, registry: https://registry.yarnpkg.com/, tarball: https://registry.npmjs.org/fsevents/-/fsevents-2.3.2.tgz}
-    name: fsevents
-    version: 2.3.2
-    engines: {node: ^8.16.0 || ^10.6.0 || >=11.0.0}
-    os: [darwin]
-    requiresBuild: true
-    dev: false
-    optional: true
-
-  registry.npmjs.org/graceful-fs/4.2.8:
-    resolution: {integrity: sha512-qkIilPUYcNhJpd33n0GBXTB1MMPp14TxEsEs0pTrsSVucApsYzW5V+Q8Qxhik6KU3evy+qkAAowTByymK0avdg==, registry: https://registry.yarnpkg.com/, tarball: https://registry.npmjs.org/graceful-fs/-/graceful-fs-4.2.8.tgz}
-    name: graceful-fs
-    version: 4.2.8
-    dev: false
-
-  registry.npmjs.org/watchpack-chokidar2/2.0.1:
-    resolution: {integrity: sha512-nCFfBIPKr5Sh61s4LPpy1Wtfi0HE8isJ3d2Yb5/Ppw2P2B/3eVSEBjKfN0fmHJSK14+31KwMKmcrzs2GM4P0Ww==, registry: https://registry.yarnpkg.com/, tarball: https://registry.npmjs.org/watchpack-chokidar2/-/watchpack-chokidar2-2.0.1.tgz}
-    name: watchpack-chokidar2
-    version: 2.0.1
-    requiresBuild: true
-    dependencies:
-      chokidar: registry.npmjs.org/chokidar/2.1.8
-    dev: false
-    optional: true
