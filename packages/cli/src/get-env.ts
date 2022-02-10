@@ -36,9 +36,7 @@ const getEnvForEnvFile = async (
 	}
 };
 
-export const getEnvironmentVariables = async (): Promise<
-	Record<string, string>
-> => {
+export const getEnvironmentVariables = (): Promise<Record<string, string>> => {
 	const processEnv = getProcessEnv();
 
 	if (parsedCli['env-file']) {
@@ -70,7 +68,7 @@ export const getEnvironmentVariables = async (): Promise<
 
 	const defaultEnvFile = path.resolve(process.cwd(), '.env');
 	if (!fs.existsSync(defaultEnvFile)) {
-		return processEnv;
+		return Promise.resolve(processEnv);
 	}
 
 	return getEnvForEnvFile(processEnv, defaultEnvFile);
