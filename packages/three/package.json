@@ -31,7 +31,7 @@
 		"@types/node": "^14.14.14",
 		"@types/three": "^0.134.0",
 		"@types/react": "17.0.39",
-		"eslint": "^8.8.0",
+		"eslint": "^7.25.0",
 		"prettier": "^2.0.5",
 		"prettier-plugin-organize-imports": "^1.1.1",
 		"three": "^0.134.0",
