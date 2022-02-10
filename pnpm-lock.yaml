@@ -4,10 +4,12 @@ importers:
 
   .:
     specifiers:
+      '@jonny/eslint-config': ^2.1.250
       lerna: ^4.0.0
       remotion: 2.6.8
       turbo: ^1.1.2
     dependencies:
+      '@jonny/eslint-config': 2.1.250
       lerna: 4.0.0
       turbo: 1.1.2
     devDependencies:
@@ -5274,6 +5276,23 @@ packages:
       - supports-color
     dev: false
 
+  /@jonny/eslint-config/2.1.250:
+    resolution: {integrity: sha512-5yDDAftJyCrjRI58hhqVh74GW1CqDaxcvIQiAbPtg7o1KcHckW/YTr8pbhMGzNOu07q5rD5Baauy+geUOT8Eww==}
+    dependencies:
+      babel-eslint: 10.1.0
+      eslint-config-prettier: 8.3.0
+      eslint-config-xo: 0.39.0
+      eslint-config-xo-react: 0.25.0_e2bcaa83b0a12332e0464086d1114760
+      eslint-plugin-10x: 1.5.0
+      eslint-plugin-promise: 5.1.0
+      eslint-plugin-react: 7.26.1
+      eslint-plugin-react-hooks: 4.2.1-alpha-930c9e7ee-20211015
+      eslint-plugin-react-native-normalized: 1.1.2
+    transitivePeerDependencies:
+      - eslint
+      - supports-color
+    dev: false
+
   /@jonny/eslint-config/2.1.250_eslint@7.32.0:
     resolution: {integrity: sha512-5yDDAftJyCrjRI58hhqVh74GW1CqDaxcvIQiAbPtg7o1KcHckW/YTr8pbhMGzNOu07q5rD5Baauy+geUOT8Eww==}
     dependencies:
@@ -8146,6 +8165,23 @@ packages:
     resolution: {integrity: sha512-Td525n+iPOOyUQIeBfcASuG6uJsDOITl7Mds5gFyerkWiX7qhUTdYUBlSgNMyVqtSJqwpt1kXGLdUt6SykLMRA==}
     dev: false
 
+  /babel-eslint/10.1.0:
+    resolution: {integrity: sha512-ifWaTHQ0ce+448CYop8AdrQiBsGrnC+bMgfyKFdi6EsPLTAWG+QfyDeM6OH+FmWnKvEq5NnBMLvlBUPKQZoDSg==}
+    engines: {node: '>=6'}
+    deprecated: babel-eslint is now @babel/eslint-parser. This package will no longer receive updates.
+    peerDependencies:
+      eslint: '>= 4.12.1'
+    dependencies:
+      '@babel/code-frame': 7.14.5
+      '@babel/parser': 7.15.7
+      '@babel/traverse': 7.15.4
+      '@babel/types': 7.15.6
+      eslint-visitor-keys: 1.3.0
+      resolve: 1.20.0
+    transitivePeerDependencies:
+      - supports-color
+    dev: false
+
   /babel-eslint/10.1.0_eslint@7.32.0:
     resolution: {integrity: sha512-ifWaTHQ0ce+448CYop8AdrQiBsGrnC+bMgfyKFdi6EsPLTAWG+QfyDeM6OH+FmWnKvEq5NnBMLvlBUPKQZoDSg==}
     engines: {node: '>=6'}
@@ -10915,6 +10951,14 @@ packages:
     engines: {node: '>= 0.8'}
     dev: false
 
+  /encoding/0.1.13:
+    resolution: {integrity: sha512-ETBauow1T35Y/WZMkio9jiM0Z5xjHHmJ4XmjZOq1l/dXz3lr2sRn87nJy20RupqSh1F2m3HHPSp8ShIPQJrJ3A==}
+    requiresBuild: true
+    dependencies:
+      iconv-lite: 0.6.3
+    dev: false
+    optional: true
+
   /end-of-stream/1.4.4:
     resolution: {integrity: sha512-+uw1inIHVPQoaVuHzRyXd21icM+cnt4CzD5rW+NC1wjOUSTOs+Te7FOv7AhN7vS9x/oIyhLP5PR1H+phQAHu5Q==}
     dependencies:
@@ -11186,8 +11230,29 @@ packages:
       eslint-plugin-react-hooks: 4.2.1-alpha-930c9e7ee-20211015_eslint@7.32.0
     dev: true
 
+  /eslint-config-xo-react/0.25.0_e2bcaa83b0a12332e0464086d1114760:
+    resolution: {integrity: sha512-YpABFxnoATAYtxsZQChZEbOkWqzCtcQDRdiUqHhLgG7hzbAEzPDmsRUWnTP8oTVLVFWrbgdf913b8kQJaR1cBA==}
+    engines: {node: '>=10'}
+    peerDependencies:
+      eslint: '>=7'
+      eslint-plugin-react: '>=7.22.0'
+      eslint-plugin-react-hooks: '>=4.2.0'
+    dependencies:
+      eslint-plugin-react: 7.26.1
+      eslint-plugin-react-hooks: 4.2.1-alpha-930c9e7ee-20211015
+    dev: false
+
   /eslint-config-xo/0.35.0:
     resolution: {integrity: sha512-+WyZTLWUJlvExFrBU/Ldw8AB/S0d3x+26JQdBWbcqig2ZaWh0zinYcHok+ET4IoPaEcRRf3FE9kjItNVjBwnAg==}
+    engines: {node: '>=10'}
+    peerDependencies:
+      eslint: '>=7.20.0'
+    dependencies:
+      confusing-browser-globals: 1.0.10
+    dev: false
+
+  /eslint-config-xo/0.39.0:
+    resolution: {integrity: sha512-QX+ZnQgzy/UtgF8dksIiIBzpYoEKmiL0CmZ8O0Gnby7rGXg8Cny1CXirmHp1zKYIpO7BuTmtWj8eUYOsGr0IGQ==}
     engines: {node: '>=10'}
     peerDependencies:
       eslint: '>=7.20.0'
@@ -11310,6 +11375,13 @@ packages:
       language-tags: 1.0.5
     dev: false
 
+  /eslint-plugin-promise/5.1.0:
+    resolution: {integrity: sha512-NGmI6BH5L12pl7ScQHbg7tvtk4wPxxj8yPHH47NvSmMtFneC077PSeY3huFj06ZWZvtbfxSPt3RuOQD5XcR4ng==}
+    engines: {node: ^10.12.0 || >=12.0.0}
+    peerDependencies:
+      eslint: ^7.0.0
+    dev: false
+
   /eslint-plugin-promise/5.1.0_eslint@7.32.0:
     resolution: {integrity: sha512-NGmI6BH5L12pl7ScQHbg7tvtk4wPxxj8yPHH47NvSmMtFneC077PSeY3huFj06ZWZvtbfxSPt3RuOQD5XcR4ng==}
     engines: {node: ^10.12.0 || >=12.0.0}
@@ -11335,6 +11407,13 @@ packages:
       eslint: 7.32.0
     dev: false
 
+  /eslint-plugin-react-hooks/4.2.1-alpha-930c9e7ee-20211015:
+    resolution: {integrity: sha512-JnjbwB6FCjoFOzrEPt0pk/oyck2l5SQTgGw1HtV1b/9vJ1Kyypp+APAWvNQEjlJlGFCQwTiTi2iwr/CRQQxm3Q==}
+    engines: {node: '>=10'}
+    peerDependencies:
+      eslint: ^3.0.0 || ^4.0.0 || ^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0-0
+    dev: false
+
   /eslint-plugin-react-hooks/4.2.1-alpha-930c9e7ee-20211015_eslint@7.32.0:
     resolution: {integrity: sha512-JnjbwB6FCjoFOzrEPt0pk/oyck2l5SQTgGw1HtV1b/9vJ1Kyypp+APAWvNQEjlJlGFCQwTiTi2iwr/CRQQxm3Q==}
     engines: {node: '>=10'}
@@ -11343,6 +11422,12 @@ packages:
     dependencies:
       eslint: 7.32.0
     dev: true
+
+  /eslint-plugin-react-native-normalized/1.1.2:
+    resolution: {integrity: sha512-/YtsqsOnV82SfFi6Pp/pyslFVhO7OQqi+QkgCQgtWwBuvxdxJ5vsnmv4d/Hjvq4I7vXwGjV217Rkm3R4OXQ0Rg==}
+    peerDependencies:
+      eslint: '>=6.1.0'
+    dev: false
 
   /eslint-plugin-react-native-normalized/1.1.2_eslint@7.32.0:
     resolution: {integrity: sha512-/YtsqsOnV82SfFi6Pp/pyslFVhO7OQqi+QkgCQgtWwBuvxdxJ5vsnmv4d/Hjvq4I7vXwGjV217Rkm3R4OXQ0Rg==}
@@ -12530,7 +12615,7 @@ packages:
       source-map: 0.6.1
       wordwrap: 1.0.0
     optionalDependencies:
-      uglify-js: registry.npmjs.org/uglify-js/3.14.2
+      uglify-js: 3.14.2
     dev: false
 
   /har-schema/2.0.0:
@@ -15132,7 +15217,7 @@ packages:
     resolution: {integrity: sha1-L19Fq5HjMhYjT9U62rZo607AmTs=}
     engines: {node: '>=4'}
     dependencies:
-      graceful-fs: registry.npmjs.org/graceful-fs/4.2.8
+      graceful-fs: 4.2.8
       parse-json: 4.0.0
       pify: 3.0.0
       strip-bom: 3.0.0
@@ -15841,7 +15926,7 @@ packages:
       minipass-sized: 1.0.3
       minizlib: 2.1.2
     optionalDependencies:
-      encoding: registry.npmjs.org/encoding/0.1.13
+      encoding: 0.1.13
     dev: false
 
   /minipass-flush/1.0.5:
@@ -21714,6 +21799,14 @@ packages:
     resolution: {integrity: sha512-6Gurc1n//gjp9eQNXjD9O3M/sMwVtN5S8Lv9bvOYBfKfDNiIIhqiyi01vMBO45u4zkDE420w/e0se7Vs+sIg+g==}
     dev: false
 
+  /uglify-js/3.14.2:
+    resolution: {integrity: sha512-rtPMlmcO4agTUfz10CbgJ1k6UAoXM2gWb3GoMPPZB/+/Ackf8lNWk11K4rYi2D0apgoFRLtQOZhb+/iGNJq26A==}
+    engines: {node: '>=0.8.0'}
+    hasBin: true
+    requiresBuild: true
+    dev: false
+    optional: true
+
   /uid-number/0.0.6:
     resolution: {integrity: sha1-DqEOgDXo61uOREnwbaHHMGY7qoE=}
     dev: false
@@ -23239,16 +23332,6 @@ packages:
     dev: false
     optional: true
 
-  registry.npmjs.org/encoding/0.1.13:
-    resolution: {integrity: sha512-ETBauow1T35Y/WZMkio9jiM0Z5xjHHmJ4XmjZOq1l/dXz3lr2sRn87nJy20RupqSh1F2m3HHPSp8ShIPQJrJ3A==, registry: https://registry.yarnpkg.com/, tarball: https://registry.npmjs.org/encoding/-/encoding-0.1.13.tgz}
-    name: encoding
-    version: 0.1.13
-    requiresBuild: true
-    dependencies:
-      iconv-lite: 0.6.3
-    dev: false
-    optional: true
-
   registry.npmjs.org/fsevents/1.2.13:
     resolution: {integrity: sha512-oWb1Z6mkHIskLzEJ/XWX0srkpkTQ7vaopMQkyaEIoq0fmtFVxOthb8cCxeT+p3ynTdkk/RZwbgG4brR5BeWECw==, registry: https://registry.yarnpkg.com/, tarball: https://registry.npmjs.org/fsevents/-/fsevents-1.2.13.tgz}
     name: fsevents
@@ -23278,16 +23361,6 @@ packages:
     name: graceful-fs
     version: 4.2.8
     dev: false
-
-  registry.npmjs.org/uglify-js/3.14.2:
-    resolution: {integrity: sha512-rtPMlmcO4agTUfz10CbgJ1k6UAoXM2gWb3GoMPPZB/+/Ackf8lNWk11K4rYi2D0apgoFRLtQOZhb+/iGNJq26A==, registry: https://registry.yarnpkg.com/, tarball: https://registry.npmjs.org/uglify-js/-/uglify-js-3.14.2.tgz}
-    name: uglify-js
-    version: 3.14.2
-    engines: {node: '>=0.8.0'}
-    hasBin: true
-    requiresBuild: true
-    dev: false
-    optional: true
 
   registry.npmjs.org/watchpack-chokidar2/2.0.1:
     resolution: {integrity: sha512-nCFfBIPKr5Sh61s4LPpy1Wtfi0HE8isJ3d2Yb5/Ppw2P2B/3eVSEBjKfN0fmHJSK14+31KwMKmcrzs2GM4P0Ww==, registry: https://registry.yarnpkg.com/, tarball: https://registry.npmjs.org/watchpack-chokidar2/-/watchpack-chokidar2-2.0.1.tgz}
