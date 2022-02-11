@@ -11,15 +11,6 @@ export const startHandler = async (params: LambdaPayload) => {
 		throw new TypeError('Expected type start');
 	}
 
-	if (
-		typeof params.enableChunkOptimization !== 'boolean' &&
-		typeof params.enableChunkOptimization !== 'undefined'
-	) {
-		throw new Error(
-			'The parameter "enableChunkOptimization" must be a boolean or undefined.'
-		);
-	}
-
 	const {bucketName} = await getOrCreateBucket({
 		region: getCurrentRegionInFunction(),
 	});
@@ -42,7 +33,6 @@ export const startHandler = async (params: LambdaPayload) => {
 		quality: params.quality,
 		maxRetries: params.maxRetries,
 		privacy: params.privacy,
-		enableChunkOptimization: params.enableChunkOptimization !== false,
 		logLevel: params.logLevel ?? Internals.Logging.DEFAULT_LOG_LEVEL,
 		frameRange: params.frameRange,
 		outName: params.outName,

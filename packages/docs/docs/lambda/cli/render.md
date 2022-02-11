@@ -85,10 +85,6 @@ Defines if the output media is accessible for everyone or not. Either `public` o
 
 How many times a single chunk is being retried if it fails to render. Default `1`.
 
-### `--disable-chunk-optimization`
-
-Disables [chunk optimization](/docs/lambda/chunk-optimization). By default this flag is false, meaning chunk optimization is enabled.
-
 ### `--frames-per-lambda`
 
 How many frames should be rendered in a single Lambda function. Increase it to require less Lambda functions to render the video, decrease it to make the render faster.

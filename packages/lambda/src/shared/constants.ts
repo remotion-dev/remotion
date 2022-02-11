@@ -163,7 +163,6 @@ export type LambdaPayloads = {
 		quality: number | undefined;
 		maxRetries: number;
 		privacy: Privacy;
-		enableChunkOptimization: boolean | undefined;
 		logLevel: LogLevel;
 		frameRange: FrameRange | null;
 		outName: string | null;
@@ -188,7 +187,6 @@ export type LambdaPayloads = {
 		quality: number | undefined;
 		maxRetries: number;
 		privacy: Privacy;
-		enableChunkOptimization: boolean;
 		logLevel: LogLevel;
 		frameRange: FrameRange | null;
 		outName: string | null;
