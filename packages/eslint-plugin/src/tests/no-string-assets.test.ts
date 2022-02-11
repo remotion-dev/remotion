@@ -1,4 +1,4 @@
-import { ESLintUtils } from "@typescript-eslint/experimental-utils";
+import { ESLintUtils } from "@typescript-eslint/utils";
 import rule from "../rules/no-string-assets";
 
 const ruleTester = new ESLintUtils.RuleTester({
