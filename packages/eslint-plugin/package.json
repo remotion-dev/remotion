@@ -14,7 +14,7 @@
   "author": "Jonny Burger <jonny@remotion.dev>",
   "license": "ISC",
   "devDependencies": {
-    "@typescript-eslint/experimental-utils": "^4.14.1",
+    "@typescript-eslint/utils": "5.11.0",
     "eslint": "^7.25.0",
     "jest": "^27.2.4",
     "ts-jest": "^27.0.5",

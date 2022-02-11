@@ -1,4 +1,4 @@
-import { ESLintUtils } from "@typescript-eslint/experimental-utils";
+import { ESLintUtils } from "@typescript-eslint/utils";
 import rule from "../rules/warn-native-media-tag";
 const ruleTester = new ESLintUtils.RuleTester({
   parser: "@typescript-eslint/parser",
