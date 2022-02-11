@@ -62,14 +62,14 @@ importers:
       '@types/semver': ^7.3.4
       '@types/source-map': 0.5.2
       '@types/webpack-env': ^1.16.0
-      css-loader: ^5.0.1
-      esbuild-loader: ^2.10.0
+      css-loader: 5.2.7
+      esbuild-loader: 2.15.1
       eslint: ^7.25.0
-      execa: ^4.0.3
-      express: ^4.17.1
-      file-loader: ^6.2.0
+      execa: 4.1.0
+      express: 4.17.1
+      file-loader: 6.2.0
       jest: ^27.2.4
-      memfs: ^3.4.0
+      memfs: 3.4.0
       mime-types: ^2.1.34
       prettier: ^2.0.5
       prettier-plugin-organize-imports: ^1.1.1
@@ -621,14 +621,14 @@ importers:
       '@types/react-dom': ^17.0.11
       '@types/serve-handler': ^6.1.0
       eslint: ^7.25.0
-      execa: ^4.0.2
+      execa: 4.1.0
       jest: ^27.2.4
-      p-limit: ^3.1.0
+      p-limit: 3.1.0
       prettier: ^2.0.5
       prettier-plugin-organize-imports: ^1.1.1
       puppeteer-core: 13.1.2
       remotion: 2.6.8
-      serve-handler: ^6.1.3
+      serve-handler: 6.1.3
       ts-jest: ^27.0.5
       typescript: ^4.4.2
     dependencies:
@@ -11193,7 +11193,7 @@ packages:
       webpack: ^4.40.0 || ^5.0.0
     dependencies:
       esbuild: 0.12.29
-      joycon: 3.0.1
+      joycon: 3.1.1
       json5: 2.2.0
       loader-utils: 2.0.0
       tapable: 2.2.1
@@ -12426,7 +12426,7 @@ packages:
     dev: false
 
   /get-stream/5.2.0:
-    resolution: {integrity: sha512-nBF+F1rAZVCu/p7rjzgA+Yb4lfYXrpl7a6VmJrU8wF9I1CKvP/QwPNZHnOlwbTkY6dvtFIzFMSyQXbLoTQPRpA==, registry: https://registry.yarnpkg.com/, tarball: https://registry.yarnpkg.com/get-stream/-/get-stream-5.2.0.tgz}
+    resolution: {integrity: sha512-nBF+F1rAZVCu/p7rjzgA+Yb4lfYXrpl7a6VmJrU8wF9I1CKvP/QwPNZHnOlwbTkY6dvtFIzFMSyQXbLoTQPRpA==}
     engines: {node: '>=8'}
     dependencies:
       pump: 3.0.0
@@ -14964,8 +14964,8 @@ packages:
       '@sideway/pinpoint': 2.0.0
     dev: false
 
-  /joycon/3.0.1:
-    resolution: {integrity: sha512-SJcJNBg32dGgxhPtM0wQqxqV0ax9k/9TaUskGDSJkSFSQOEWWvQ3zzWdGQRIUry2j1zA5+ReH13t0Mf3StuVZA==}
+  /joycon/3.1.1:
+    resolution: {integrity: sha512-34wB/Y7MW7bzjKRjUKTa46I2Z7eV62Rkhva+KkopW7Qvv/OSWBqvkSY7vusOPrNuZcUG3tApvdVgNB8POj3SPw==}
     engines: {node: '>=10'}
     dev: false
 
