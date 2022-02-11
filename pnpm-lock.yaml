@@ -447,7 +447,7 @@ importers:
   packages/gif:
     specifiers:
       '@jonny/eslint-config': ^2.1.251
-      '@react-gifs/tools': ^0.1.1
+      '@react-gifs/tools': 0.1.2
       '@testing-library/react': ^11.2.2
       '@types/jest': ^27.4.0
       '@types/node': ^16.7.5
@@ -465,7 +465,7 @@ importers:
       eslint-plugin-react-hooks: 4.2.1-alpha-930c9e7ee-20211015
       eslint-plugin-react-native-normalized: ^1.1.2
       jest: ^27.2.4
-      lru_map: ^0.4.1
+      lru_map: 0.4.1
       prettier-plugin-organize-imports: ^1.1.1
       remotion: 2.6.8
       ts-jest: ^27.0.5
