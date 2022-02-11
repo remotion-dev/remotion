@@ -47,11 +47,11 @@ const getLocalBrowser = (product: puppeteer.Product) => {
 const getBrowserRevision = (
 	product: Product
 ): puppeteer.BrowserFetcherRevisionInfo => {
-	const browserFetcher = ((puppeteer as unknown) as PuppeteerNode).createBrowserFetcher(
-		{
-			product,
-		}
-	);
+	const browserFetcher = (
+		puppeteer as unknown as PuppeteerNode
+	).createBrowserFetcher({
+		product,
+	});
 	const revisionInfo = browserFetcher.revisionInfo(
 		product === 'firefox'
 			? PUPPETEER_REVISIONS.firefox
@@ -121,10 +121,10 @@ export const ensureLocalBrowser = async (
 	}
 };
 
-export const getLocalBrowserExecutable = async (
+export const getLocalBrowserExecutable = (
 	browser: Browser,
 	preferredBrowserExecutable: BrowserExecutable
-): Promise<string> => {
+): string => {
 	const status = getBrowserStatus(
 		mapBrowserToProduct(browser),
 		preferredBrowserExecutable

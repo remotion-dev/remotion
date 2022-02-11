@@ -53,7 +53,7 @@ export const openBrowser = async (
 
 	await ensureLocalBrowser(browser, options?.browserExecutable ?? null);
 
-	const executablePath = await getLocalBrowserExecutable(
+	const executablePath = getLocalBrowserExecutable(
 		browser,
 		options?.browserExecutable ?? null
 	);
