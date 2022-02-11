@@ -52,7 +52,7 @@ Note that different regions have a different limit on how many Lambda functions 
 
 - The function and S3 bucket must be in the same region to eliminate latency across datacenters. Rendering with functions and buckets that ahave mismatching regions is not supported
 
-- You may deploy your whole architecture to different regions to further increase the amount of renders you can make concurrently. The tradeoff is higher redundancy, and not being able to benefit less from already warm functions and chunk optimization.
+- You may deploy your whole architecture to different regions to further increase the amount of renders you can make concurrently. The tradeoff is higher redundancy, and not being able to benefit less from already warm functions.
 
 - Some regions are more expensive than others (for example `af-south-1`).
   Consult the [Lambda Pricing page](https://aws.amazon.com/lambda/pricing/) from AWS.

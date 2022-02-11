@@ -78,7 +78,6 @@ Contains the following information about the render:
 - `estimatedRenderLambdaInvokations`: The estimated amount of Lambdas that will render chunks of the video.`.
 - `compositionId`: The ID of the composition that is being rendered.
 - `codec`: The selected codec into which the video gets encoded.
-- `usesOptimizationProfile`: If chunk optimization was applied to the render.
 
 ### `bucket`
 
