@@ -9,7 +9,7 @@
   "devDependencies": {
     "@types/jest": "^27.4.0",
     "@types/sharp": "^0.28.5",
-    "execa": "^5.0.0",
+    "execa": "5.1.1",
     "jest": "^27.2.4",
     "sharp": "0.30.0",
     "ts-jest": "^27.0.5",
