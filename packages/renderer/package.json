@@ -18,11 +18,11 @@
 	},
 	"dependencies": {
 		"@remotion/bundler": "2.6.8",
-		"execa": "^4.0.2",
-		"p-limit": "^3.1.0",
+		"execa": "4.1.0",
+		"p-limit": "3.1.0",
 		"puppeteer-core": "13.1.2",
 		"remotion": "2.6.8",
-		"serve-handler": "^6.1.3"
+		"serve-handler": "6.1.3"
 	},
 	"peerDependencies": {
 		"react": "^17.0.1",
