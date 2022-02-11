@@ -42,7 +42,7 @@ export const binaryExists = async (
 	}
 };
 
-export const isHomebrewInstalled = async (): Promise<boolean> => {
+export const isHomebrewInstalled = (): Promise<boolean> => {
 	return binaryExists('brew', null);
 };
 

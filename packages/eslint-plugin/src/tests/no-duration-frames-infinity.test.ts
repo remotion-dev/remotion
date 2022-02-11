@@ -1,4 +1,4 @@
-import { ESLintUtils } from "@typescript-eslint/experimental-utils";
+import { ESLintUtils } from "@typescript-eslint/utils";
 import rule from "../rules//no-duration-frames-infinity";
 
 const ruleTester = new ESLintUtils.RuleTester({

@@ -1,6 +1,6 @@
 import {renderStill} from '../render-still';
 
-test('Need to pass valid metadata', async () => {
+test('Need to pass valid metadata', () => {
 	return expect(() =>
 		renderStill({
 			composition: {
@@ -18,7 +18,7 @@ test('Need to pass valid metadata', async () => {
 	).rejects.toThrow(/not be NaN, but is NaN/);
 });
 
-test('Need to pass valid metadata', async () => {
+test('Need to pass valid metadata', () => {
 	return expect(() =>
 		renderStill({
 			composition: {
@@ -38,7 +38,7 @@ test('Need to pass valid metadata', async () => {
 	);
 });
 
-test('Catches invalid image format', async () => {
+test('Catches invalid image format', () => {
 	return expect(() =>
 		renderStill({
 			composition: {

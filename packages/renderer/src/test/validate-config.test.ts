@@ -17,7 +17,7 @@ describe('Should validate invalid data passed to renderFrames', () => {
 			/"fps" must be positive, but got -1 in the `config` object of `renderFrames\(\)`/
 		);
 	});
-	test('Invalid durationInFrames', async () => {
+	test('Invalid durationInFrames', () => {
 		return expect(
 			// @ts-expect-error
 			renderFrames({
@@ -33,7 +33,7 @@ describe('Should validate invalid data passed to renderFrames', () => {
 			/The "durationInFrames" prop in the `config` object passed to `renderFrames\(\)` must be an integer, but got 0.5./
 		);
 	});
-	test('Invalid height', async () => {
+	test('Invalid height', () => {
 		return expect(
 			// @ts-expect-error
 			renderFrames({
@@ -49,7 +49,7 @@ describe('Should validate invalid data passed to renderFrames', () => {
 			/The "height" prop in the `config` object passed to `renderFrames\(\)` must be an integer, but is 1000.5./
 		);
 	});
-	test('Invalid width', async () => {
+	test('Invalid width', () => {
 		return expect(
 			// @ts-expect-error
 			renderFrames({

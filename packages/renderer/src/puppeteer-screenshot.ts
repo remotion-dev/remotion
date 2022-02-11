@@ -3,7 +3,7 @@ import {Page, ScreenshotOptions} from 'puppeteer-core';
 import {StillImageFormat} from 'remotion';
 import {_screenshotTask} from './screenshot-task';
 
-export const screenshot = async (
+export const screenshot = (
 	page: Page,
 	options: ScreenshotOptions = {}
 ): Promise<Buffer | string | void> => {

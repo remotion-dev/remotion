@@ -1,4 +1,4 @@
-import { ESLintUtils } from "@typescript-eslint/experimental-utils";
+import { ESLintUtils } from "@typescript-eslint/utils";
 import rule from "../rules/deterministic-randomness";
 const ruleTester = new ESLintUtils.RuleTester({
   parser: "@typescript-eslint/parser",
