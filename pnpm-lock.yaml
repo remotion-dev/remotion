@@ -427,8 +427,7 @@ importers:
   packages/eslint-config:
     specifiers:
       '@remotion/eslint-plugin': 2.6.8
-      '@types/babel__core': ^7.1.12
-      '@types/babel__template': ^7.4.0
+      '@types/node': 17.0.17
       '@typescript-eslint/eslint-plugin': 5.11.0
       '@typescript-eslint/parser': 5.11.0
       eslint-config-prettier: ^8.2.0
@@ -449,8 +448,7 @@ importers:
       eslint-plugin-react: 7.26.1
       eslint-plugin-react-hooks: 4.2.0
     devDependencies:
-      '@types/babel__core': 7.1.16
-      '@types/babel__template': 7.4.1
+      '@types/node': 17.0.17
       typescript: 4.4.4
 
   packages/eslint-plugin:
