@@ -330,12 +330,12 @@ importers:
       '@types/node': 17.0.17
       '@typescript-eslint/eslint-plugin': 5.11.0
       '@typescript-eslint/parser': 5.11.0
-      eslint-config-prettier: ^8.2.0
-      eslint-config-xo: ^0.35.0
-      eslint-config-xo-react: ^0.24.0
-      eslint-plugin-10x: ^1.5.0
-      eslint-plugin-react: ^7.23.2
-      eslint-plugin-react-hooks: ^4.2.0
+      eslint-config-prettier: 8.3.0
+      eslint-config-xo: 0.35.0
+      eslint-config-xo-react: 0.24.0
+      eslint-plugin-10x: 1.5.0
+      eslint-plugin-react: 7.26.1
+      eslint-plugin-react-hooks: 4.3.0
       typescript: ^4.4.2
     dependencies:
       '@remotion/eslint-plugin': link:../eslint-plugin
@@ -343,10 +343,10 @@ importers:
       '@typescript-eslint/parser': 5.11.0_typescript@4.4.4
       eslint-config-prettier: 8.3.0
       eslint-config-xo: 0.35.0
-      eslint-config-xo-react: 0.24.0_1583b959ea68904f56da9f83fbfedb43
+      eslint-config-xo-react: 0.24.0_2c54d852e52d7b865ace652dae274235
       eslint-plugin-10x: 1.5.0
       eslint-plugin-react: 7.26.1
-      eslint-plugin-react-hooks: 4.2.0
+      eslint-plugin-react-hooks: 4.3.0
     devDependencies:
       '@types/node': 17.0.17
       typescript: 4.4.4
@@ -11296,7 +11296,7 @@ packages:
       eslint-plugin-testing-library: 3.10.2_eslint@7.32.0+typescript@4.4.3
     dev: false
 
-  /eslint-config-xo-react/0.24.0_1583b959ea68904f56da9f83fbfedb43:
+  /eslint-config-xo-react/0.24.0_2c54d852e52d7b865ace652dae274235:
     resolution: {integrity: sha512-Hc6pHDJf8y71Uo1jwWJ85CaFGTPxHp26L+49H5jgALB1rTmmxMUA70sDv6qj3icPgSWbkiOvuHM6tis+ws3stQ==}
     engines: {node: '>=10'}
     peerDependencies:
@@ -11305,7 +11305,7 @@ packages:
       eslint-plugin-react-hooks: '>=4.2.0'
     dependencies:
       eslint-plugin-react: 7.26.1
-      eslint-plugin-react-hooks: 4.2.0
+      eslint-plugin-react-hooks: 4.3.0
     dev: false
 
   /eslint-config-xo-react/0.25.0_619fd791a30680e87cb22972fa901a6f:
@@ -11454,13 +11454,6 @@ packages:
       eslint: 7.32.0
     dev: true
 
-  /eslint-plugin-react-hooks/4.2.0:
-    resolution: {integrity: sha512-623WEiZJqxR7VdxFCKLI6d6LLpwJkGPYKODnkH3D7WpOG5KM8yWueBd8TLsNAetEJNF5iJmolaAKO3F8yzyVBQ==}
-    engines: {node: '>=10'}
-    peerDependencies:
-      eslint: ^3.0.0 || ^4.0.0 || ^5.0.0 || ^6.0.0 || ^7.0.0
-    dev: false
-
   /eslint-plugin-react-hooks/4.2.0_eslint@7.32.0:
     resolution: {integrity: sha512-623WEiZJqxR7VdxFCKLI6d6LLpwJkGPYKODnkH3D7WpOG5KM8yWueBd8TLsNAetEJNF5iJmolaAKO3F8yzyVBQ==}
     engines: {node: '>=10'}
@@ -11478,6 +11471,13 @@ packages:
     dependencies:
       eslint: 7.32.0
     dev: true
+
+  /eslint-plugin-react-hooks/4.3.0:
+    resolution: {integrity: sha512-XslZy0LnMn+84NEG9jSGR6eGqaZB3133L8xewQo3fQagbQuGt7a63gf+P1NGKZavEYEC3UXaWEAA/AqDkuN6xA==}
+    engines: {node: '>=10'}
+    peerDependencies:
+      eslint: ^3.0.0 || ^4.0.0 || ^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0-0
+    dev: false
 
   /eslint-plugin-react-native-normalized/1.1.2_eslint@7.32.0:
     resolution: {integrity: sha512-/YtsqsOnV82SfFi6Pp/pyslFVhO7OQqi+QkgCQgtWwBuvxdxJ5vsnmv4d/Hjvq4I7vXwGjV217Rkm3R4OXQ0Rg==}
