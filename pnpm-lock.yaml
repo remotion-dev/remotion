@@ -260,6 +260,7 @@ importers:
       '@remotion/babel-loader': 2.6.8
       '@remotion/bundler': 2.6.8
       '@remotion/gif': 2.6.8
+      '@remotion/lambda': 2.6.8
       '@remotion/media-utils': 2.6.8
       '@remotion/player': 2.6.8
       '@remotion/renderer': 2.6.8
@@ -298,6 +299,7 @@ importers:
       '@remotion/babel-loader': link:../babel-loader
       '@remotion/bundler': link:../bundler
       '@remotion/gif': link:../gif
+      '@remotion/lambda': link:../lambda
       '@remotion/media-utils': link:../media-utils
       '@remotion/player': link:../player
       '@remotion/renderer': link:../renderer
@@ -22825,7 +22827,7 @@ packages:
       '@types/jest': 27.4.0
       bs-logger: 0.2.6
       fast-json-stable-stringify: 2.1.0
-      jest: 27.2.4
+      jest: 27.2.4_ts-node@9.1.1
       jest-util: 27.2.4
       json5: 2.2.0
       lodash: 4.17.21
