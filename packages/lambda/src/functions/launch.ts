@@ -118,7 +118,8 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		chunkCount,
 		framesPerLambda,
 		optimization,
-		shouldUseOptimization: params.enableChunkOptimization,
+		// TODO: Re-enable chunk optimization later
+		shouldUseOptimization: false,
 		frameRange: realFrameRange,
 	});
 	const sortedChunks = chunks.slice().sort((a, b) => a[0] - b[0]);
@@ -292,7 +293,10 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 
 	let chunkProm: Promise<unknown> = Promise.resolve();
 
-	if (params.enableChunkOptimization) {
+	// TODO: Enable in a later release
+	const enableChunkOptimization = false;
+
+	if (enableChunkOptimization) {
 		const chunkData = await collectChunkInformation({
 			bucketName: params.bucketName,
 			renderId: params.renderId,

@@ -38,7 +38,6 @@ test('Should make a transparent video', async () => {
 			codec: 'vp8',
 			composition: 'ten-frame-tester',
 			crf: 9,
-			enableChunkOptimization: false,
 			envVariables: {},
 			frameRange: [0, 9],
 			framesPerLambda: 5,

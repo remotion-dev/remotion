@@ -27,7 +27,6 @@ const { bucketName, renderId } = await renderVideoOnLambda({
   imageFormat: "jpeg",
   maxRetries: 1,
   privacy: "public",
-  enableChunkOptimization: true,
 });
 ```
 
@@ -109,12 +108,6 @@ _optional, default `1`_
 
 How often a chunk may be retried to render in case the render fails.
 If a rendering of a chunk is failed, the error will be reported in the [`getRenderProgress()`](/docs/lambda/getrenderprogress) object and retried up to as many times as you specify using this option.
-
-### `enableChunkOptimization`
-
-_Default `true`_
-
-If this is enabled, Remotion will use [chunk optimization](/docs/lambda/chunk-optimization) to learn from a rendering and restructure chunks for subsequent renders of the same composition to optimize for overall render time.
 
 ### `outName`
 

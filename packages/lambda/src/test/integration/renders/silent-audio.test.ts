@@ -36,7 +36,6 @@ test('Should add silent audio if there is no audio', async () => {
 			codec: 'h264-mkv',
 			composition: 'react-svg',
 			crf: 9,
-			enableChunkOptimization: false,
 			envVariables: {},
 			frameRange: [0, 12],
 			framesPerLambda: 8,
