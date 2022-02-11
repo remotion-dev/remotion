@@ -47,6 +47,12 @@ function createHtmlDocument(title: number, body: string) {
 
 const BYTES_RANGE_REGEXP = /^ *bytes/i;
 
+export type MiddleWare = (
+	req: Request,
+	res: Response,
+	next: NextFunction
+) => Promise<void>;
+
 export function middleware(context: DevMiddlewareContext) {
 	return async function (req: Request, res: Response, next: NextFunction) {
 		const acceptedMethods = ['GET', 'HEAD'];

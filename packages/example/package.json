@@ -36,6 +36,8 @@
 		"@remotion/three": "2.6.8",
 		"@types/express": "^4.17.11",
 		"@types/node": "^16.7.5",
+		"@types/jest": "^27.4.0",
+		"@types/react": "17.0.39",
 		"@types/styled-components": "^5.1.1",
 		"@types/web": "^0.0.48",
 		"babel-loader": "^8.2.2",
