@@ -30,7 +30,6 @@ export type RenderMediaOnLambdaInput = {
 	quality?: number;
 	maxRetries: number;
 	framesPerLambda?: number;
-	enableChunkOptimization?: boolean;
 	logLevel?: LogLevel;
 	frameRange?: FrameRange;
 	outName?: string;
@@ -59,7 +58,6 @@ export type RenderMediaOnLambdaOutput = {
  * @param params.quality JPEG quality if JPEG was selected as the image format.
  * @param params.region The AWS region in which the video should be rendered.
  * @param params.maxRetries How often rendering a chunk may fail before the video render gets aborted.
- * @param params.enableChunkOptimization Whether Remotion should restructure and optimize chunks for subsequent renders. Default true.
  * @param params.logLevel Level of logging that Lambda function should perform. Default "info".
  * @returns {Promise<RenderMediaOnLambdaOutput>} See documentation for detailed structure
  */
@@ -80,7 +78,6 @@ export const renderMediaOnLambda = async ({
 	composition,
 	framesPerLambda,
 	privacy,
-	enableChunkOptimization,
 	logLevel,
 	frameRange,
 	outName,
@@ -108,7 +105,6 @@ export const renderMediaOnLambda = async ({
 			quality,
 			maxRetries,
 			privacy,
-			enableChunkOptimization,
 			logLevel: logLevel ?? Internals.Logging.DEFAULT_LOG_LEVEL,
 			frameRange: frameRange ?? null,
 			outName: outName ?? null,

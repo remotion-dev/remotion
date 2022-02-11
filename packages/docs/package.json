@@ -25,6 +25,7 @@
     "@remotion/babel-loader": "2.6.8",
     "@remotion/bundler": "2.6.8",
     "@remotion/gif": "2.6.8",
+    "@remotion/lambda": "2.6.8",
     "@remotion/media-utils": "2.6.8",
     "@remotion/player": "2.6.8",
     "@remotion/renderer": "2.6.8",

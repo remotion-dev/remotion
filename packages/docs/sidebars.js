@@ -67,7 +67,6 @@ module.exports = {
     "lambda/concurrency",
     "lambda/runtime",
     "lambda/faq",
-    "lambda/chunkoptimization",
     "lambda/light-client",
     {
       collapsed: false,

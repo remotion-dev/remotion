@@ -34,7 +34,7 @@ If one of those those constraints is a dealbreaker for you, resort to normal [se
 ## Architecture
 
 - **Lambda function**: Requires a layer with Chromium and FFMPEG, currently hosted by Remotion. Only one lambda function is required, but it can execute different actions.
-- **S3 bucket**: Stores the projects, the renders, render metadata and chunk optimization data.
+- **S3 bucket**: Stores the projects, the renders, and render metadata.
 - **CLI**: Allows to control the overall architecture from the command line. Is installed by adding `@remotion/lambda` to a project.
 - **Node.JS API**: Has the same features as the CLI but is easier to use programmatically
 
@@ -58,12 +58,6 @@ The following regions are available for Remotion Lambda:
 ## Cost
 
 Most of our users render multiple minutes of video for just a few pennies. The exact cost is dependent on the region, assigned memory, type of video, parallelization and other parameters. For each render, we estimate a cost and display it to you. You might also need a Remotion license (see below).
-
-## Chunk optimization
-
-A mechanism that determines after a render which frames rendered the slowest optimizes the batching sizes for the next render. This can optimize subsequent render times by up to 50%.
-
-[**Read more about chunk optimization**](/docs/lambda/chunk-optimization)
 
 ## AWS permissions
 

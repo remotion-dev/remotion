@@ -97,7 +97,6 @@ export const renderCommand = async (args: string[]) => {
 		framesPerLambda: framesPerLambda ?? DEFAULT_FRAMES_PER_LAMBDA,
 		privacy,
 		logLevel,
-		enableChunkOptimization: !parsedLambdaCli['disable-chunk-optimization'],
 		frameRange: frameRange ?? undefined,
 		outName: parsedLambdaCli['out-name'],
 		timeoutInMilliseconds: puppeteerTimeout,
