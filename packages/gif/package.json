@@ -18,8 +18,8 @@
 		"watch": "tsc -w"
 	},
 	"dependencies": {
-		"@react-gifs/tools": "^0.1.1",
-		"lru_map": "^0.4.1",
+		"@react-gifs/tools": "0.1.2",
+		"lru_map": "0.4.1",
 		"remotion": "2.6.8"
 	},
 	"devDependencies": {
