@@ -491,8 +491,18 @@ importers:
       '@types/react': 17.0.39
       '@types/styled-components': ^5.1.1
       '@types/web': ^0.0.48
+      '@typescript-eslint/eslint-plugin': ^4.33.0
+      '@typescript-eslint/parser': ^4.33.0
       babel-loader: ^8.2.2
       eslint: ^7.25.0
+      eslint-config-prettier: ^8.3.0
+      eslint-config-xo: ^0.39.0
+      eslint-config-xo-react: ^0.25.0
+      eslint-plugin-10x: ^1.5.0
+      eslint-plugin-promise: ^5.1.0
+      eslint-plugin-react: ^7.26.1
+      eslint-plugin-react-hooks: 4.2.1-alpha-930c9e7ee-20211015
+      eslint-plugin-react-native-normalized: ^1.1.2
       express: ^4.17.1
       jest: ^27.2.4
       mdx-loader: 3.0.2
@@ -541,7 +551,17 @@ importers:
     devDependencies:
       '@types/babel__core': 7.1.16
       '@types/babel__template': 7.4.1
+      '@typescript-eslint/eslint-plugin': 4.33.0_d753869925cce96d3eb2141eeedafe57
+      '@typescript-eslint/parser': 4.33.0_eslint@7.32.0+typescript@4.4.3
       eslint: 7.32.0
+      eslint-config-prettier: 8.3.0_eslint@7.32.0
+      eslint-config-xo: 0.39.0_eslint@7.32.0
+      eslint-config-xo-react: 0.25.0_619fd791a30680e87cb22972fa901a6f
+      eslint-plugin-10x: 1.5.0_eslint@7.32.0
+      eslint-plugin-promise: 5.1.0_eslint@7.32.0
+      eslint-plugin-react: 7.26.1_eslint@7.32.0
+      eslint-plugin-react-hooks: 4.2.1-alpha-930c9e7ee-20211015_eslint@7.32.0
+      eslint-plugin-react-native-normalized: 1.1.2_eslint@7.32.0
       jest: 27.2.4_ts-node@9.1.1
       prettier-plugin-organize-imports: 1.1.1_prettier@2.4.1+typescript@4.4.3
       ts-jest: 27.0.5_79dde48077e8c3caddf1a0a2a2807263
