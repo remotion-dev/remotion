@@ -42,17 +42,7 @@
 		"prettier": "^2.0.5",
 		"prettier-plugin-organize-imports": "^1.1.1",
 		"ts-jest": "^27.0.5",
-		"typescript": "^4.4.2",
-		"@typescript-eslint/eslint-plugin": "5.11.0",
-		"@typescript-eslint/parser": "5.11.0",
-		"eslint-config-prettier": "^8.3.0",
-		"eslint-config-xo": "^0.39.0",
-		"eslint-config-xo-react": "^0.25.0",
-		"eslint-plugin-10x": "^1.5.0",
-		"eslint-plugin-promise": "^5.1.0",
-		"eslint-plugin-react": "^7.26.1",
-		"eslint-plugin-react-hooks": "4.2.1-alpha-930c9e7ee-20211015",
-		"eslint-plugin-react-native-normalized": "^1.1.2"
+		"typescript": "^4.4.2"
 	},
 	"publishConfig": {
 		"access": "public"
