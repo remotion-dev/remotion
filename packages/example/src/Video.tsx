@@ -4,6 +4,7 @@ import BetaText from './BetaText';
 import {ColorInterpolation} from './ColorInterpolation';
 import {FontDemo} from './Fonts';
 import {Framer} from './Framer';
+import {FreezeExample} from './Freeze/FreezeExample';
 import {MissingImg} from './MissingImg';
 import {OrbScene} from './Orb';
 import RemoteVideo from './RemoteVideo';
@@ -283,6 +284,14 @@ export const Index: React.FC = () => {
 				height={720}
 				fps={30}
 				durationInFrames={100}
+			/>
+			<Composition
+				id="freeze-example"
+				component={FreezeExample}
+				width={1280}
+				height={720}
+				fps={30}
+				durationInFrames={300}
 			/>
 			<Composition
 				id="offline-audio-buffer"
