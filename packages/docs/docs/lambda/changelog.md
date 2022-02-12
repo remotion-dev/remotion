@@ -12,8 +12,13 @@ Keep track of changes to the APIs of Remotion Lambda here.
 
 ## February 12th, 2022
 
-Version hash: `xxxx`
+Version hash: `3.0.0-lambda.381+2a6cb78f1`
 Lambda version: '2022-02-12'
+
+Update focused on stability:
+
+- Chunk optimization has been removed, since it sometimes breaks renders. We hope to add it back after launch.
+- All npm dependencies have been pinned to their exact version.
 
 ## February 8th, 2022
 
