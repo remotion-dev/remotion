@@ -44,7 +44,7 @@ export const downloadMedia = async (
 	const {sizeInBytes} = await lambdaDownloadFileWithProgress({
 		bucketName: renderBucketName,
 		expectedBucketOwner,
-		key: renderBucketName,
+		key,
 		region: input.region,
 		onProgress: input.onProgress ?? (() => undefined),
 		outputPath,

@@ -65,7 +65,7 @@ test('Should add silent audio if there is no audio', async () => {
 	)) as Await<LambdaReturnValues[LambdaRoutines.status]>;
 
 	const file = await lambdaReadFile({
-		bucketName: startRes.bucketName,
+		bucketName: progress.outBucket as string,
 		key: progress.outKey as string,
 		expectedBucketOwner: 'abc',
 		region: 'eu-central-1',
