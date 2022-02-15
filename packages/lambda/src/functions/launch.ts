@@ -282,9 +282,14 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		encodingStop = Date.now();
 	}
 
+	const {key, renderBucketName} = getExpectedOutName(
+		renderMetadata,
+		params.bucketName
+	);
+
 	await lambdaWriteFile({
-		bucketName: params.bucketName,
-		key: getExpectedOutName(renderMetadata),
+		bucketName: renderBucketName,
+		key,
 		body: fs.createReadStream(outfile),
 		region: getCurrentRegionInFunction(),
 		privacy: params.privacy,

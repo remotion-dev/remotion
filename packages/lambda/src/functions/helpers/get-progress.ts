@@ -49,6 +49,10 @@ export const getProgress = async ({
 	});
 
 	if (postRenderData) {
+		const outData = getExpectedOutName(
+			postRenderData.renderMetadata,
+			bucketName
+		);
 		return {
 			bucket: bucketName,
 			renderSize: postRenderData.renderSize,
@@ -84,7 +88,8 @@ export const getProgress = async ({
 			timeToInvokeLambdas: postRenderData.timeToInvokeLambdas,
 			overallProgress: 1,
 			retriesInfo: postRenderData.retriesInfo,
-			outKey: getExpectedOutName(postRenderData.renderMetadata),
+			outKey: outData.key,
+			outBucket: outData.renderBucketName,
 		};
 	}
 
@@ -248,6 +253,12 @@ export const getProgress = async ({
 		}),
 		retriesInfo,
 		outKey:
-			outputFile && renderMetadata ? getExpectedOutName(renderMetadata) : null,
+			outputFile && renderMetadata
+				? getExpectedOutName(renderMetadata, bucketName).key
+				: null,
+		outBucket:
+			outputFile && renderMetadata
+				? getExpectedOutName(renderMetadata, bucketName).renderBucketName
+				: null,
 	};
 };

@@ -37,10 +37,14 @@ export const downloadMedia = async (
 
 	const outputPath = path.resolve(process.cwd(), input.outPath);
 	RenderInternals.ensureOutputDirectory(outputPath);
+	const {key, renderBucketName} = getExpectedOutName(
+		renderMetadata,
+		input.bucketName
+	);
 	const {sizeInBytes} = await lambdaDownloadFileWithProgress({
-		bucketName: input.bucketName,
+		bucketName: renderBucketName,
 		expectedBucketOwner,
-		key: getExpectedOutName(renderMetadata),
+		key: renderBucketName,
 		region: input.region,
 		onProgress: input.onProgress ?? (() => undefined),
 		outputPath,
