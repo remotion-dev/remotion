@@ -22,6 +22,7 @@ import {getExpectedOutName} from './helpers/expected-out-name';
 import {formatCostsInfo} from './helpers/format-costs-info';
 import {getBrowserInstance} from './helpers/get-browser-instance';
 import {getCurrentRegionInFunction} from './helpers/get-current-region';
+import {getOutputUrlFromMetadata} from './helpers/get-output-url-from-metadata';
 import {lambdaWriteFile} from './helpers/io';
 import {validateComposition} from './helpers/validate-composition';
 import {
@@ -116,12 +117,15 @@ const innerStillHandler = async (
 		scale: lambdaParams.scale,
 	});
 
-	const outName = getExpectedOutName(renderMetadata);
+	const {key: outName, renderBucketName} = getExpectedOutName(
+		renderMetadata,
+		bucketName
+	);
 
 	const {size} = await fs.promises.stat(outputPath);
 
 	await lambdaWriteFile({
-		bucketName,
+		bucketName: renderBucketName,
 		key: outName,
 		privacy: lambdaParams.privacy,
 		body: fs.createReadStream(outputPath),
@@ -137,7 +141,7 @@ const innerStillHandler = async (
 	});
 
 	return {
-		output: `https://s3.${getCurrentRegionInFunction()}.amazonaws.com/${bucketName}/${outName}`,
+		output: getOutputUrlFromMetadata(renderMetadata, bucketName),
 		size,
 		bucketName,
 		estimatedPrice: formatCostsInfo(estimatedPrice),

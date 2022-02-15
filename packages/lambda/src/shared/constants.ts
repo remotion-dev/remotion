@@ -115,6 +115,18 @@ export const getErrorFileName = ({
 	attempt: number;
 }) => getErrorKeyPrefix(renderId) + ':chunk-' + chunk + ':attempt-' + attempt;
 
+export type OutNameInput =
+	| string
+	| {
+			bucketName: string;
+			key: string;
+	  };
+
+export type OutNameOutput = {
+	renderBucketName: string;
+	key: string;
+};
+
 export const optimizationProfile = (siteId: string, compositionId: string) =>
 	`optimization-profiles/${siteId}/${compositionId}/optimization-profile`;
 export const getSitesKey = (siteId: string) => `sites/${siteId}`;
@@ -122,8 +134,20 @@ export const outName = (renderId: string, extension: string) =>
 	`${rendersPrefix(renderId)}/out.${extension}`;
 export const outStillName = (renderId: string, imageFormat: ImageFormat) =>
 	`${rendersPrefix(renderId)}/out.${imageFormat}`;
-export const customOutName = (renderId: string, name: string) =>
-	`${rendersPrefix(renderId)}/${name}`;
+export const customOutName = (
+	renderId: string,
+	bucketName: string,
+	name: OutNameInput
+): OutNameOutput => {
+	if (typeof name === 'string') {
+		return {
+			renderBucketName: bucketName,
+			key: `${rendersPrefix(renderId)}/${name}`,
+		};
+	}
+
+	return {key: name.key, renderBucketName: name.bucketName};
+};
 
 export const postRenderDataKey = (renderId: string) => {
 	return `${rendersPrefix(renderId)}/post-render-metadata.json`;
@@ -165,7 +189,7 @@ export type LambdaPayloads = {
 		privacy: Privacy;
 		logLevel: LogLevel;
 		frameRange: FrameRange | null;
-		outName: string | null;
+		outName: OutNameInput | null;
 		timeoutInMilliseconds: number;
 		chromiumOptions: ChromiumOptions;
 		scale: number;
@@ -189,7 +213,7 @@ export type LambdaPayloads = {
 		privacy: Privacy;
 		logLevel: LogLevel;
 		frameRange: FrameRange | null;
-		outName: string | null;
+		outName: OutNameInput | null;
 		timeoutInMilliseconds: number;
 		chromiumOptions: ChromiumOptions;
 		scale: number;
@@ -279,7 +303,7 @@ export type RenderMetadata = {
 	lambdaVersion: LambdaVersions;
 	region: AwsRegion;
 	renderId: string;
-	outName: string | undefined;
+	outName: OutNameInput | undefined;
 };
 
 export type LambdaVersions =
@@ -382,6 +406,7 @@ export type RenderProgress = {
 	bucket: string;
 	outputFile: string | null;
 	outKey: string | null;
+	outBucket: string | null;
 	timeToFinish: number | null;
 	errors: EnhancedErrorInfo[];
 	fatalErrorEncountered: boolean;

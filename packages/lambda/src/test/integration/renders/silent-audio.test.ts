@@ -1,5 +1,5 @@
 import {RenderInternals} from '@remotion/renderer';
-import {execa} from 'execa';
+import execa from 'execa';
 import {LambdaRoutines} from '../../../defaults';
 import {handler} from '../../../functions';
 import {lambdaReadFile} from '../../../functions/helpers/io';
@@ -65,7 +65,7 @@ test('Should add silent audio if there is no audio', async () => {
 	)) as Await<LambdaReturnValues[LambdaRoutines.status]>;
 
 	const file = await lambdaReadFile({
-		bucketName: startRes.bucketName,
+		bucketName: progress.outBucket as string,
 		key: progress.outKey as string,
 		expectedBucketOwner: 'abc',
 		region: 'eu-central-1',
