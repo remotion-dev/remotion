@@ -31,10 +31,15 @@ jobs:
       - name: Install
         run: pnpm install --frozen-lockfile
 
-      - name: Test
+      - name: Build
         run: |
           pnpm build
+      - name: Test Lambda IT
+        run: |
           cd packages/it-tests && pnpm run testlambda
+      - name: Test Lambda E2E
+        run: |
+          cd packages/lambda && pnpm run testintegration
   ssr-tests:
     runs-on: ubuntu-latest
     name: SSR integration
@@ -61,9 +66,11 @@ jobs:
       - name: Install
         run: pnpm install --frozen-lockfile
 
-      - name: Test
+      - name: build
         run: |
           pnpm build
+      - name: Test SSR
+        run: |
           cd packages/it-tests && pnpm run testssr
   build:
     name: Build Node ${{ matrix.node_version }} - ffmpeg ${{ matrix.ffmpeg_version }} on ${{ matrix.os }}

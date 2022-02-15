@@ -1,44 +1,48 @@
-import {_Object} from '@aws-sdk/client-s3';
+import {HeadObjectCommand} from '@aws-sdk/client-s3';
+import {AwsRegion} from '../..';
+import {getS3Client} from '../../shared/aws-clients';
 import {RenderMetadata} from '../../shared/constants';
 import {getExpectedOutName} from './expected-out-name';
 import {getOutputUrlFromMetadata} from './get-output-url-from-metadata';
 
-export const findOutputFileInBucket = ({
-	contents,
-	renderMetadata,
-	bucketName,
-}: {
-	contents: _Object[];
-	renderMetadata: RenderMetadata | null;
-	bucketName: string;
-}): {
+export type OutputFileMetadata = {
 	url: string;
 	size: number;
 	lastModified: number;
-} | null => {
-	// TODO: Should query output bucket
-	const expectedOutName =
-		renderMetadata === null
-			? null
-			: getExpectedOutName(renderMetadata, bucketName);
+};
 
-	const output = expectedOutName
-		? renderMetadata
-			? contents.find((c) => c.Key?.includes(expectedOutName.key)) ?? null
-			: null
-		: null;
-
-	if (!output) {
-		return null;
-	}
-
+export const findOutputFileInBucket = async ({
+	region,
+	renderMetadata,
+	bucketName,
+}: {
+	region: AwsRegion;
+	renderMetadata: RenderMetadata;
+	bucketName: string;
+}): Promise<OutputFileMetadata | null> => {
 	if (!renderMetadata) {
 		throw new Error('unexpectedly did not get renderMetadata');
 	}
 
-	return {
-		lastModified: output.LastModified?.getTime() as number,
-		size: output.Size as number,
-		url: getOutputUrlFromMetadata(renderMetadata, bucketName),
-	};
+	const expectedOutData = getExpectedOutName(renderMetadata, bucketName);
+
+	try {
+		const head = await getS3Client(region).send(
+			new HeadObjectCommand({
+				Bucket: expectedOutData.renderBucketName,
+				Key: expectedOutData.key,
+			})
+		);
+		return {
+			lastModified: head.LastModified?.getTime() as number,
+			size: head.ContentLength as number,
+			url: getOutputUrlFromMetadata(renderMetadata, bucketName),
+		};
+	} catch (err) {
+		if ((err as {name: string}).name === 'NotFound') {
+			return null;
+		}
+
+		throw err;
+	}
 };

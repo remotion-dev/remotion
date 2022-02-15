@@ -133,20 +133,22 @@ export const getProgress = async ({
 		]
 	);
 
+	const outputFile = renderMetadata
+		? await findOutputFileInBucket({
+				bucketName,
+				renderMetadata,
+				region,
+		  })
+		: null;
+
 	const accruedSoFar = Number(
 		estimatePriceFromBucket({
 			contents,
 			renderMetadata,
-			bucketName,
 			memorySizeInMb,
+			outputFileMetadata: outputFile,
 		})
 	);
-
-	const outputFile = findOutputFileInBucket({
-		bucketName,
-		contents,
-		renderMetadata,
-	});
 
 	const cleanup = getCleanupProgress({
 		chunkCount: renderMetadata?.totalChunks ?? 0,
