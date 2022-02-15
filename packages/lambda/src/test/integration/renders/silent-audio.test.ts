@@ -1,5 +1,5 @@
 import {RenderInternals} from '@remotion/renderer';
-import {execa} from 'execa';
+import execa from 'execa';
 import {LambdaRoutines} from '../../../defaults';
 import {handler} from '../../../functions';
 import {lambdaReadFile} from '../../../functions/helpers/io';

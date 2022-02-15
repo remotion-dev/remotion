@@ -51,7 +51,7 @@
 		"@types/prompt": "^1.1.0",
 		"eslint": "^7.32.0",
 		"jest": "^27.2.4",
-		"execa": "^6.0.0",
+		"execa": "5.1.1",
 		"prettier": "^2.4.1",
 		"prettier-plugin-organize-imports": "^2.3.4",
 		"ts-jest": "^27.0.5",

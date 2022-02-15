@@ -20,6 +20,7 @@ export const validateBucketName = (
 			`The bucketName parameter must start with ${REMOTION_BUCKET_PREFIX}.`
 		);
 	}
+
 	if (
 		!bucketName.match(
 			/^(?=^.{3,63}$)(?!^(\d+\.)+\d+$)(^(([a-z0-9]|[a-z0-9][a-z0-9\-]*[a-z0-9])\.)*([a-z0-9]|[a-z0-9][a-z0-9\-]*[a-z0-9])$)/
