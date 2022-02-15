@@ -48,7 +48,7 @@ export const deploySite = async ({
 	region,
 }: DeploySiteInput): DeploySiteOutput => {
 	validateAwsRegion(region);
-	validateBucketName(bucketName);
+	validateBucketName(bucketName, {mustStartWithRemotion: true});
 
 	const siteId = siteName ?? randomHash();
 	validateSiteName(siteId);

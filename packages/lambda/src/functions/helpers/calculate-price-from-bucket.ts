@@ -3,20 +3,20 @@ import {estimatePrice} from '../../api/estimate-price';
 import {lambdaTimingsPrefix, RenderMetadata} from '../../shared/constants';
 import {parseLambdaTimingsKey} from '../../shared/parse-lambda-timings-key';
 import {calculateChunkTimes} from './calculate-chunk-times';
-import {findOutputFileInBucket} from './find-output-file-in-bucket';
+import {OutputFileMetadata} from './find-output-file-in-bucket';
 import {getCurrentRegionInFunction} from './get-current-region';
 import {getTimeToFinish} from './get-time-to-finish';
 
 export const estimatePriceFromBucket = ({
 	contents,
 	renderMetadata,
-	bucketName,
 	memorySizeInMb,
+	outputFileMetadata,
 }: {
 	contents: _Object[];
 	renderMetadata: RenderMetadata | null;
-	bucketName: string;
 	memorySizeInMb: number;
+	outputFileMetadata: OutputFileMetadata | null;
 }) => {
 	if (!renderMetadata) {
 		return null;
@@ -28,14 +28,8 @@ export const estimatePriceFromBucket = ({
 		)
 		.map((f) => parseLambdaTimingsKey(f.Key as string));
 
-	const outputFile = findOutputFileInBucket({
-		bucketName,
-		contents,
-		renderMetadata,
-	});
-
 	const timeToFinish = getTimeToFinish({
-		lastModified: outputFile?.lastModified ?? null,
+		lastModified: outputFileMetadata?.lastModified ?? null,
 		renderMetadata,
 	});
 
