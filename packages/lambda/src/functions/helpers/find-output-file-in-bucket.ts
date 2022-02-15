@@ -16,12 +16,15 @@ export const findOutputFileInBucket = ({
 	size: number;
 	lastModified: number;
 } | null => {
+	// TODO: Should query output bucket
 	const expectedOutName =
-		renderMetadata === null ? null : getExpectedOutName(renderMetadata);
+		renderMetadata === null
+			? null
+			: getExpectedOutName(renderMetadata, bucketName);
 
 	const output = expectedOutName
 		? renderMetadata
-			? contents.find((c) => c.Key?.includes(expectedOutName)) ?? null
+			? contents.find((c) => c.Key?.includes(expectedOutName.key)) ?? null
 			: null
 		: null;
 

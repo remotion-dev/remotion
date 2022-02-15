@@ -116,12 +116,15 @@ const innerStillHandler = async (
 		scale: lambdaParams.scale,
 	});
 
-	const outName = getExpectedOutName(renderMetadata);
+	const {key: outName, renderBucketName} = getExpectedOutName(
+		renderMetadata,
+		bucketName
+	);
 
 	const {size} = await fs.promises.stat(outputPath);
 
 	await lambdaWriteFile({
-		bucketName,
+		bucketName: renderBucketName,
 		key: outName,
 		privacy: lambdaParams.privacy,
 		body: fs.createReadStream(outputPath),
@@ -137,7 +140,7 @@ const innerStillHandler = async (
 	});
 
 	return {
-		output: `https://s3.${getCurrentRegionInFunction()}.amazonaws.com/${bucketName}/${outName}`,
+		output: `https://s3.${getCurrentRegionInFunction()}.amazonaws.com/${renderBucketName}/${outName}`,
 		size,
 		bucketName,
 		estimatedPrice: formatCostsInfo(estimatedPrice),
