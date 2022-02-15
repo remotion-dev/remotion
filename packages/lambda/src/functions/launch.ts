@@ -40,6 +40,7 @@ import {getBrowserInstance} from './helpers/get-browser-instance';
 import {getCurrentRegionInFunction} from './helpers/get-current-region';
 import {getFilesToDelete} from './helpers/get-files-to-delete';
 import {getLambdasInvokedStats} from './helpers/get-lambdas-invoked-stats';
+import {getOutputUrlFromMetadata} from './helpers/get-output-url-from-metadata';
 import {inspectErrors} from './helpers/inspect-errors';
 import {lambdaLs, lambdaWriteFile} from './helpers/io';
 import {timer} from './helpers/timer';
@@ -287,6 +288,8 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		params.bucketName
 	);
 
+	const outputSize = fs.statSync(outfile);
+
 	await lambdaWriteFile({
 		bucketName: renderBucketName,
 		key,
@@ -381,8 +384,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		jobs,
 	});
 
-	const postRenderData = createPostRenderData({
-		bucketName: params.bucketName,
+	const postRenderData = await createPostRenderData({
 		expectedBucketOwner: options.expectedBucketOwner,
 		region: getCurrentRegionInFunction(),
 		renderId: params.renderId,
@@ -392,6 +394,11 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		errorExplanations: await errorExplanationsProm,
 		timeToEncode: encodingStop - encodingStart,
 		timeToDelete: await deletProm,
+		outputFile: {
+			lastModified: Date.now(),
+			size: outputSize.size,
+			url: getOutputUrlFromMetadata(renderMetadata, params.bucketName),
+		},
 	});
 	await finalEncodingProgressProm;
 	await writePostRenderData({

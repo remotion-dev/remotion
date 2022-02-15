@@ -8,7 +8,7 @@ import {
 } from '../../shared/constants';
 import {parseLambdaTimingsKey} from '../../shared/parse-lambda-timings-key';
 import {calculateChunkTimes} from './calculate-chunk-times';
-import {findOutputFileInBucket} from './find-output-file-in-bucket';
+import {OutputFileMetadata} from './find-output-file-in-bucket';
 import {getFilesToDelete} from './get-files-to-delete';
 import {getLambdasInvokedStats} from './get-lambdas-invoked-stats';
 import {getRetryStats} from './get-retry-stats';
@@ -17,9 +17,8 @@ import {EnhancedErrorInfo} from './write-lambda-error';
 
 const OVERHEAD_TIME_PER_LAMBDA = 100;
 
-export const createPostRenderData = ({
+export const createPostRenderData = async ({
 	renderId,
-	bucketName,
 	region,
 	memorySizeInMb,
 	renderMetadata,
@@ -27,9 +26,9 @@ export const createPostRenderData = ({
 	timeToEncode,
 	errorExplanations,
 	timeToDelete,
+	outputFile,
 }: {
 	renderId: string;
-	bucketName: string;
 	expectedBucketOwner: string;
 	region: AwsRegion;
 	memorySizeInMb: number;
@@ -38,6 +37,7 @@ export const createPostRenderData = ({
 	timeToEncode: number;
 	timeToDelete: number;
 	errorExplanations: EnhancedErrorInfo[];
+	outputFile: OutputFileMetadata;
 }) => {
 	const initializedKeys = contents.filter((c) =>
 		c.Key?.startsWith(lambdaTimingsPrefix(renderId))
@@ -55,12 +55,6 @@ export const createPostRenderData = ({
 		durationInMiliseconds: times,
 		memorySizeInMb,
 		region,
-	});
-
-	const outputFile = findOutputFileInBucket({
-		contents,
-		bucketName,
-		renderMetadata,
 	});
 
 	if (!outputFile) {

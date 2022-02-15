@@ -13,7 +13,6 @@ test('Should not throw while calculating prices when time shifts occur', () => {
 				LastModified: new Date(aDate - 10000),
 			},
 		],
-		bucketName: 'my-bucket',
 		memorySizeInMb: 1024,
 		renderMetadata: {
 			codec: 'h264',
@@ -41,6 +40,11 @@ test('Should not throw while calculating prices when time shifts occur', () => {
 				defaultProps: {},
 			},
 			outName: 'out.mp4',
+		},
+		outputFileMetadata: {
+			url: 'out.mp4',
+			lastModified: Date.now() - 2000,
+			size: 1000000,
 		},
 	});
 	expect(price).toBeGreaterThanOrEqual(0);
