@@ -145,6 +145,7 @@ export const customOutName = (
 			key: `${rendersPrefix(renderId)}/${name}`,
 		};
 	}
+
 	return {key: name.key, renderBucketName: name.bucketName};
 };
 
@@ -212,7 +213,7 @@ export type LambdaPayloads = {
 		privacy: Privacy;
 		logLevel: LogLevel;
 		frameRange: FrameRange | null;
-		outName: string | null;
+		outName: OutNameInput | null;
 		timeoutInMilliseconds: number;
 		chromiumOptions: ChromiumOptions;
 		scale: number;

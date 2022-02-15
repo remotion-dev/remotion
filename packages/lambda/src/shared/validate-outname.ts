@@ -7,6 +7,7 @@ const validateS3Key = (s3Key: string) => {
 			'The S3 key must be a string. Passed an object of type ' + typeof s3Key
 		);
 	}
+
 	if (!s3Key.match(/^([0-9a-zA-Z-!_.*'()]+)$/g)) {
 		throw new Error(
 			"The S3 Key must match the RegExp `/([0-9a-zA-Z-!_.*'()]+)/g`. You passed: " +
