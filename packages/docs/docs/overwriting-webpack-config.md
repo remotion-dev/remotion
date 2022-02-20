@@ -105,7 +105,7 @@ values={[
 <TabItem value="npm">
 
 ```bash
-npm i postcss-loader postcss postcss-preset-env tailwindcss autoprefixer
+npm i postcss-loader postcss postcss-preset-env tailwindcss@2 autoprefixer
 ```
 
   </TabItem>
@@ -113,14 +113,14 @@ npm i postcss-loader postcss postcss-preset-env tailwindcss autoprefixer
   <TabItem value="yarn">
 
 ```bash
-yarn add postcss-loader postcss postcss-preset-env tailwindcss autoprefixer
+yarn add postcss-loader postcss postcss-preset-env tailwindcss@2 autoprefixer
 ```
 
   </TabItem>
   <TabItem value="pnpm">
 
 ```bash
-pnpm i postcss-loader postcss postcss-preset-env tailwindcss autoprefixer
+pnpm i postcss-loader postcss postcss-preset-env tailwindcss@2 autoprefixer
 ```
 
   </TabItem>
