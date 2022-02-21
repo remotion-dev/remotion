@@ -10,6 +10,21 @@ Keep track of changes to the APIs of Remotion Lambda here.
 
 [Upgrading](/docs/lambda/upgrading)
 
+## February 14th, 2022
+
+Version hash: `3.0.0-lambda.388+6e1372eca`
+Lambda version: '2022-02-14'
+
+This update addresses an issue where Lambda functions would crash with the following error message:
+
+```
+Error: Failed to launch the browser process!\n/opt/bin/chromium: relocation error: /lib64/librt.so.1: symbol \_\_pthread_attr_copy, version GLIBC_PRIVATE not defined in file libpthread.so.0 with link time reference
+```
+
+We recommend all Remotion Lambda users to upgrade, as AWS Lambda is slowly rolling out a new environment for the Node.JS 14 stack and you will see elevated error rates with the old versions. Their new stack upgrades the glibc library in Amazon Linux 2, which requires new symbols in the libpthread shared object. We also shipped this shared object in our Lambda layer and it was taking precedence over the preinstalled one, leading to this error. We recommend the default arm64 deployment.
+
+We have removed this file and also reviewed our layer for other files that could potentially lead to similar issues in the future. So we hope this issue will never come back!
+
 ## February 12th, 2022
 
 Version hash: `3.0.0-lambda.381+2a6cb78f1`
