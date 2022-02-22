@@ -1,6 +1,6 @@
 {
   "name": "@remotion/eslint-config",
-  "version": "2.6.6",
+  "version": "2.6.9",
   "description": "",
   "main": "dist/index.js",
   "scripts": {
@@ -16,20 +16,19 @@
   "author": "Jonny Burger <jonny@remotion.dev>",
   "license": "ISC",
   "dependencies": {
-    "@remotion/eslint-plugin": "2.6.6",
-    "@typescript-eslint/eslint-plugin": "^4.22.0",
-    "@typescript-eslint/parser": "^4.22.0",
-    "eslint-config-prettier": "^8.2.0",
-    "eslint-config-xo": "^0.35.0",
-    "eslint-config-xo-react": "^0.24.0",
-    "eslint-plugin-10x": "^1.5.0",
-    "eslint-plugin-react": "^7.23.2",
-    "eslint-plugin-react-hooks": "^4.2.0"
+    "@remotion/eslint-plugin": "2.6.9",
+    "@typescript-eslint/eslint-plugin": "5.11.0",
+    "@typescript-eslint/parser": "5.11.0",
+    "eslint-config-prettier": "8.3.0",
+    "eslint-config-xo": "0.35.0",
+    "eslint-config-xo-react": "0.24.0",
+    "eslint-plugin-10x": "1.5.0",
+    "eslint-plugin-react": "7.26.1",
+    "eslint-plugin-react-hooks": "4.3.0"
   },
   "devDependencies": {
-    "@types/babel__core": "^7.1.12",
-    "@types/babel__template": "^7.4.0",
-    "typescript": "^4.4.2"
+    "@types/node": "17.0.17",
+    "typescript": "^4.5.5"
   },
   "publishConfig": {
     "access": "public"

@@ -1,6 +1,6 @@
 import http from 'https';
 
-const getPackageJsonForRemotion = async (): Promise<string> => {
+const getPackageJsonForRemotion = (): Promise<string> => {
 	return new Promise<string>((resolve, reject) => {
 		const req = http.get(
 			'https://registry.npmjs.org/remotion',

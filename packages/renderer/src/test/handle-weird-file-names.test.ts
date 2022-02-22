@@ -1,6 +1,6 @@
 import {getSanitizedFilenameForAssetUrl} from '../assets/download-and-map-assets-to-file';
 
-test('Should sanitize weird file names when downloading', async () => {
+test('Should sanitize weird file names when downloading', () => {
 	const newSrc = getSanitizedFilenameForAssetUrl({
 		src: 'http://gtts-api.miniggiodev.fr/Ici+Japon+Corp.?lang=ja',
 		isRemote: true,
@@ -13,7 +13,7 @@ test('Should sanitize weird file names when downloading', async () => {
 	);
 });
 
-test('Should give different file names based on different url query parameters', async () => {
+test('Should give different file names based on different url query parameters', () => {
 	const asset1 = getSanitizedFilenameForAssetUrl({
 		src: 'https://gtts-api.miniggiodev.fr/Ici+Japon+Corp.mp4?hi=1',
 		isRemote: true,

@@ -1,6 +1,6 @@
 {
 	"name": "create-video",
-	"version": "2.6.6",
+	"version": "2.6.9",
 	"description": "",
 	"main": "index.js",
 	"bin": {
@@ -13,27 +13,27 @@
 	"scripts": {
 		"build": "tsc -d",
 		"watch": "tsc -w",
-		"test": "eslint src --ext ts,tsx"
+		"lint": "eslint src --ext ts,tsx"
 	},
 	"author": "",
 	"license": "SEE LICENSE IN LICENSE.md",
 	"dependencies": {
-		"chalk": "^4.1.0",
-		"degit": "^2.8.4",
-		"execa": "^5.0.0",
-		"fs-extra": "^9.1.0",
-		"prompts": "^2.4.1",
-		"strip-ansi": "^6.0.0"
+		"chalk": "4.1.2",
+		"degit": "2.8.4",
+		"execa": "5.1.1",
+		"fs-extra": "9.1.0",
+		"prompts": "2.4.1",
+		"strip-ansi": "6.0.1"
 	},
 	"devDependencies": {
-		"@jonny/eslint-config": "^2.1.248",
+		"@jonny/eslint-config": "^2.1.251",
 		"@types/degit": "^2.8.3",
 		"@types/fs-extra": "^9.0.11",
 		"@types/node": "^16.7.5",
 		"@types/prompts": "^2.0.12",
-		"eslint": "^7.15.0",
+		"eslint": "^7.25.0",
 		"prettier-plugin-organize-imports": "^1.1.1",
 		"ts-node": "^9.1.1",
-		"typescript": "^4.4.2"
+		"typescript": "^4.5.5"
 	}
 }

@@ -77,7 +77,7 @@ export const OpenInEditor: React.FC<{
 		dispatch(payload);
 	}, []);
 
-	const openInBrowser = useCallback(async () => {
+	const openInBrowser = useCallback(() => {
 		dispatch({type: 'start'});
 		// eslint-disable-next-line promise/catch-or-return
 		fetch(`/api/open-in-editor`, {

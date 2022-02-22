@@ -29,7 +29,7 @@ A string pointing to an audio asset.
 ```ts twoslash
 // @module: ESNext
 // @target: ESNext
-import { Audio } from "remotion";
+import { Audio, staticFile } from "remotion";
 // ---cut---
 import { getAudioData } from "@remotion/media-utils";
 import music from "./music.mp3";
@@ -49,6 +49,14 @@ await getAudioData("https://example.com/remote-audio.aac"); /* {
   numberOfChannels: 1,
   resultId: "0.432324444",
   isRemote: true
+} */
+await getAudioData(staticFile("my-file.wav")); /* {
+  channelWaveforms: [Float32Array(4800000)],
+  sampleRate: 48000,
+  durationInSeconds: 100.0000,
+  numberOfChannels: 1,
+  resultId: "0.6891332223",
+  isRemote: false
 } */
 ```
 

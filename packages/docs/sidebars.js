@@ -52,6 +52,7 @@ module.exports = {
         "third-party",
         "stills",
         "scaling",
+        "video-manipulation",
       ],
     },
     "cli",
@@ -138,6 +139,7 @@ module.exports = {
         "webpack-dynamic-imports",
         "non-seekable-media",
         "flickering",
+        "enametoolong",
       ],
     },
     {

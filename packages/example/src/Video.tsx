@@ -4,6 +4,7 @@ import BetaText from './BetaText';
 import {ColorInterpolation} from './ColorInterpolation';
 import {FontDemo} from './Fonts';
 import {Framer} from './Framer';
+import {FreezeExample} from './Freeze/FreezeExample';
 import {MissingImg} from './MissingImg';
 import {OrbScene} from './Orb';
 import RemoteVideo from './RemoteVideo';
@@ -12,6 +13,8 @@ import {SeriesTesting} from './StaggerTesting';
 import {StaticDemo} from './StaticServer';
 import {TenFrameTester} from './TenFrameTester';
 import ThreeBasic from './ThreeBasic';
+import {VideoOnCanvas} from './VideoOnCanvas';
+import {Greenscreen} from './VideoOnCanvas/greenscreen';
 import {VideoSpeed} from './VideoSpeed';
 import {VideoTesting} from './VideoTesting';
 
@@ -285,9 +288,33 @@ export const Index: React.FC = () => {
 				durationInFrames={100}
 			/>
 			<Composition
+				id="freeze-example"
+				component={FreezeExample}
+				width={1280}
+				height={720}
+				fps={30}
+				durationInFrames={300}
+			/>
+			<Composition
 				id="offline-audio-buffer"
 				lazyComponent={() => import('./OfflineAudioBuffer')}
 				width={1080}
+				height={1080}
+				fps={30}
+				durationInFrames={100}
+			/>
+			<Composition
+				id="video-on-canvas"
+				component={VideoOnCanvas}
+				width={1920}
+				height={1080}
+				fps={30}
+				durationInFrames={100}
+			/>
+			<Composition
+				id="greenscreen"
+				component={Greenscreen}
+				width={1920}
 				height={1080}
 				fps={30}
 				durationInFrames={100}

@@ -3,7 +3,11 @@ import fs from "fs";
 import os from "os";
 import path from "path";
 import sharp from "sharp";
-import { selectColor } from "../../packages/example/src/Framer";
+import { random } from "remotion";
+
+function selectColor(color: string, frame: number) {
+  return Math.floor((random(`${color}-${frame}`) * 255) % 255);
+}
 
 const getMissedFramesforCodec = async (codec: "mp4" | "webm") => {
   const outputPath = await fs.promises.mkdtemp(
@@ -27,7 +31,7 @@ const getMissedFramesforCodec = async (codec: "mp4" | "webm") => {
       "--sequence",
     ],
     {
-      cwd: "packages/example",
+      cwd: path.join(process.cwd(), "..", "example"),
       reject: false,
     }
   );

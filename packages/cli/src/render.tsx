@@ -26,7 +26,7 @@ import {
 import {bundleOnCli} from './setup-cache';
 import {checkAndValidateFfmpegVersion} from './validate-ffmpeg-version';
 
-const onError = async (info: OnErrorInfo) => {
+const onError = (info: OnErrorInfo) => {
 	Log.error();
 	if (info.frame === null) {
 		Log.error(
