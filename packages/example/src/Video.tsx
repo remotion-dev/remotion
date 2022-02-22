@@ -13,6 +13,7 @@ import {SeriesTesting} from './StaggerTesting';
 import {StaticDemo} from './StaticServer';
 import {TenFrameTester} from './TenFrameTester';
 import ThreeBasic from './ThreeBasic';
+import {VideoOnCanvas} from './VideoOnCanvas';
 import {VideoSpeed} from './VideoSpeed';
 import {VideoTesting} from './VideoTesting';
 
@@ -297,6 +298,14 @@ export const Index: React.FC = () => {
 				id="offline-audio-buffer"
 				lazyComponent={() => import('./OfflineAudioBuffer')}
 				width={1080}
+				height={1080}
+				fps={30}
+				durationInFrames={100}
+			/>
+			<Composition
+				id="video-on-canvas"
+				component={VideoOnCanvas}
+				width={1920}
 				height={1080}
 				fps={30}
 				durationInFrames={100}
