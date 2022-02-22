@@ -27,15 +27,16 @@
 	},
 	"devDependencies": {
 		"@jonny/eslint-config": "^2.1.251",
-		"@react-three/fiber": ">=7.0.19",
+		"@react-three/fiber": ">=7.0.26",
 		"@types/node": "^14.14.14",
 		"@types/react": "17.0.39",
+		"@types/react-reconciler": "^0.26.4",
 		"@types/three": "^0.134.0",
 		"eslint": "^7.25.0",
 		"prettier": "^2.0.5",
 		"prettier-plugin-organize-imports": "^1.1.1",
 		"three": "^0.134.0",
-		"typescript": "^4.4.2"
+		"typescript": "^4.5.5"
 	},
 	"publishConfig": {
 		"access": "public"
