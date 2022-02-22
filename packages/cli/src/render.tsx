@@ -205,6 +205,7 @@ export const render = async () => {
 				frames: 0,
 				steps,
 				totalFrames,
+				isGif: codec === 'gif',
 			})
 		);
 		const stitchStart = Date.now();
@@ -230,6 +231,7 @@ export const render = async () => {
 						frames: frame,
 						steps,
 						totalFrames,
+						isGif: codec === 'gif',
 					})
 				);
 			},
@@ -251,6 +253,7 @@ export const render = async () => {
 				frames: totalFrames,
 				steps,
 				totalFrames,
+				isGif: codec === 'gif',
 			}) + '\n'
 		);
 
@@ -276,7 +279,9 @@ export const render = async () => {
 			Log.warn('Do you have minimum required Node.js version?');
 		}
 
-		Log.info(chalk.green('\nYour video is ready!'));
+		Log.info(
+			chalk.green(`\nYour ${codec === 'gif' ? 'gif' : 'video'} is ready!`)
+		);
 	}
 
 	const seconds = Math.round((Date.now() - startTime) / 1000);

@@ -68,6 +68,15 @@ export const getOutputFilename = ({
 		}
 	}
 
+	if (codec === 'gif') {
+		if (extension !== 'gif') {
+			Log.error(
+				'When using the GIF codec, the output filename must end in .gif.'
+			);
+			process.exit(1);
+		}
+	}
+
 	if (codec === 'h264-mkv') {
 		if (extension !== 'mkv') {
 			Log.error(

@@ -174,15 +174,14 @@ export const stitchFramesToVideo = async (options: {
 	];
 
 	const ffmpegArgsGif = [
-		['-r', String(options.fps)],
+		['-framerate', String(options.fps)],
 		['-f', 'image2'],
-		['-s', `${options.width}x${options.height}`],
 		frameInfo ? ['-start_number', String(frameInfo.startNumber)] : null,
 		frameInfo
 			? ['-i', `element-%0${frameInfo.numberLength}d.${imageFormat}`]
 			: null,
 		supportsCrf ? ['-crf', String(crf)] : null,
-		isAudioOnly ? null : ['-pix_fmt', pixelFormat],
+		['-pix_fmt', pixelFormat],
 		pixelFormat === 'yuva420p' ? ['-auto-alt-ref', '0'] : null,
 		options.force ? '-y' : null,
 		options.outputLocation,
@@ -190,7 +189,7 @@ export const stitchFramesToVideo = async (options: {
 
 	if (options.verbose) {
 		console.log('Generated FFMPEG command:');
-		console.log(ffmpegArgs);
+		console.log(encoderName === 'gif' ? ffmpegArgsGif : ffmpegArgs);
 	}
 
 	const ffmpegString = ffmpegArgs

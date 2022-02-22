@@ -69,18 +69,20 @@ export const makeStitchingProgress = ({
 	totalFrames,
 	steps,
 	doneIn,
+	isGif,
 }: {
 	frames: number;
 	totalFrames: number;
 	steps: number;
 	doneIn: number | null;
+	isGif: boolean;
 }) => {
 	const progress = frames / totalFrames;
 	return [
 		'🎞 ',
 		`(3/${steps})`,
 		makeProgressBar(progress),
-		`${doneIn ? 'Encoded' : 'Encoding'} video`,
+		`${doneIn ? 'Encoded' : 'Encoding'} ${isGif ? 'gif' : 'video'}`,
 		doneIn === null ? `${frames}/${totalFrames}` : chalk.gray(`${doneIn}ms`),
 	].join(' ');
 };
