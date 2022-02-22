@@ -96,27 +96,11 @@ export const VideoOnCanvas: React.FC = () => {
 <br/>
 
 ```tsx twoslash
-declare global {
-  interface VideoFrameMetadata {
-    presentationTime: DOMHighResTimeStamp;
-    expectedDisplayTime: DOMHighResTimeStamp;
-    width: number;
-    height: number;
-    mediaTime: number;
-    presentedFrames: number;
-    processingDuration?: number;
-    captureTime?: DOMHighResTimeStamp;
-    receiveTime?: DOMHighResTimeStamp;
-    rtpTimestamp?: number;
-  }
-  type VideoFrameRequestCallbackId = number;
-  interface HTMLVideoElement extends HTMLMediaElement {
-    requestVideoFrameCallback(
-      callback: (now: DOMHighResTimeStamp, metadata: VideoFrameMetadata) => any
-    ): VideoFrameRequestCallbackId;
-    cancelVideoFrameCallback(handle: VideoFrameRequestCallbackId): void;
-  }
-}
+import { useVideoConfig, Video } from "remotion";
+import { useCallback, useEffect, useRef } from "react";
+import React from "react";
+import { AbsoluteFill } from "remotion";
+
 // ---cut---
 export const Greenscreen: React.FC<{
   opacity: number;
@@ -127,11 +111,7 @@ export const Greenscreen: React.FC<{
 
   const onVideoFrame = useCallback(
     (opacity: number) => {
-      if (
-        !canvas.current ||
-        !video.current ||
-        !video.current.requestVideoFrameCallback
-      ) {
+      if (!canvas.current || !video.current) {
         return;
       }
       const context = canvas.current.getContext("2d");
@@ -158,10 +138,10 @@ export const Greenscreen: React.FC<{
   );
 
   useEffect(() => {
-    if (!video.current || !video.current.requestVideoFrameCallback) {
+    const { current } = video;
+    if (!current || !current.requestVideoFrameCallback) {
       return;
     }
-    const { current } = video;
     let handle = 0;
     const callback = () => {
       onVideoFrame(opacity);
