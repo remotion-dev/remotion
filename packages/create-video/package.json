@@ -34,6 +34,6 @@
 		"eslint": "^7.25.0",
 		"prettier-plugin-organize-imports": "^1.1.1",
 		"ts-node": "^9.1.1",
-		"typescript": "^4.4.2"
+		"typescript": "^4.5.5"
 	}
 }

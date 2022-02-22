@@ -1,123 +1,50 @@
----
-id: video-manipulation
-title: Video manipulation
----
+import { Player } from "@remotion/player";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import {
+  AbsoluteFill,
+  interpolate,
+  Loop,
+  spring,
+  useCurrentFrame,
+  useVideoConfig,
+  Video,
+} from "remotion";
 
-import { VideoCanvasExamples } from "../components/GreenscreenExamples/index";
-
-You can manipulate a video buffer by rendering it on a Canvas.
-
-## Rendering a video on a Canvas - basic example
-
-<VideoCanvasExamples type="base"/>
-<br/>
-
-```tsx twoslash
-declare global {
-  interface VideoFrameMetadata {
-    presentationTime: DOMHighResTimeStamp;
-    expectedDisplayTime: DOMHighResTimeStamp;
-    width: number;
-    height: number;
-    mediaTime: number;
-    presentedFrames: number;
-    processingDuration?: number;
-    captureTime?: DOMHighResTimeStamp;
-    receiveTime?: DOMHighResTimeStamp;
-    rtpTimestamp?: number;
-  }
-  type VideoFrameRequestCallbackId = number;
-  interface HTMLVideoElement extends HTMLMediaElement {
-    requestVideoFrameCallback(
-      callback: (now: DOMHighResTimeStamp, metadata: VideoFrameMetadata) => any
-    ): VideoFrameRequestCallbackId;
-    cancelVideoFrameCallback(handle: VideoFrameRequestCallbackId): void;
-  }
-}
-// ---cut---
-import { useVideoConfig, Video } from "remotion";
-import { useCallback, useEffect, useRef } from "react";
-import React from "react";
-import { AbsoluteFill } from "remotion";
-
-export const VideoOnCanvas: React.FC = () => {
-  const video = useRef<HTMLVideoElement>(null);
-  const canvas = useRef<HTMLCanvasElement>(null);
-  const { width, height } = useVideoConfig();
-
-  const onVideoFrame = useCallback(() => {
-    if (
-      !canvas.current ||
-      !video.current ||
-      !video.current.requestVideoFrameCallback
-    ) {
-      return;
-    }
-    const context = canvas.current.getContext("2d");
-
-    if (!context) {
-      return;
-    }
-
-    context.filter = "grayscale(100%)";
-    context.drawImage(video.current, 0, 0, width, height);
-
-    video.current.requestVideoFrameCallback(() => onVideoFrame());
-  }, [height, width]);
-
-  useEffect(() => {
-    if (!video.current || !video.current.requestVideoFrameCallback) {
-      return;
-    }
-    video.current.requestVideoFrameCallback(() => onVideoFrame());
-  }, [onVideoFrame]);
-
+const BlueSquare: React.FC = () => {
+  const frame = useCurrentFrame();
+  const animation = spring({
+    fps: 30,
+    frame,
+    config: {
+      damping: 400,
+    },
+  });
   return (
-    <AbsoluteFill>
-      <AbsoluteFill>
-        <Video
-          ref={video}
-          style={{ opacity: 0 }}
-          startFrom={300}
-          src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
-        />
-      </AbsoluteFill>
-      <AbsoluteFill>
-        <canvas ref={canvas} width={width} height={height} />
-      </AbsoluteFill>
+    <AbsoluteFill style={{ justifyContent: "center", alignItems: "center" }}>
+      <div
+        style={{
+          height: 200,
+          width: 200,
+          backgroundColor: "#3498db",
+          borderRadius: 20,
+          transform: `translateY(${interpolate(
+            animation,
+            [0, 1],
+            [600, 0]
+          )}px)`,
+          justifyContent: "center",
+          alignItems: "center",
+          display: "flex",
+          color: "rgba(255, 255, 255, 0.7)",
+          fontSize: 50,
+        }}
+      >
+        {frame}
+      </div>
     </AbsoluteFill>
   );
 };
-```
 
-## Video manipulation example - Greenscreen
-
-<VideoCanvasExamples type="greenscreen"/>
-<br/>
-
-```tsx twoslash
-declare global {
-  interface VideoFrameMetadata {
-    presentationTime: DOMHighResTimeStamp;
-    expectedDisplayTime: DOMHighResTimeStamp;
-    width: number;
-    height: number;
-    mediaTime: number;
-    presentedFrames: number;
-    processingDuration?: number;
-    captureTime?: DOMHighResTimeStamp;
-    receiveTime?: DOMHighResTimeStamp;
-    rtpTimestamp?: number;
-  }
-  type VideoFrameRequestCallbackId = number;
-  interface HTMLVideoElement extends HTMLMediaElement {
-    requestVideoFrameCallback(
-      callback: (now: DOMHighResTimeStamp, metadata: VideoFrameMetadata) => any
-    ): VideoFrameRequestCallbackId;
-    cancelVideoFrameCallback(handle: VideoFrameRequestCallbackId): void;
-  }
-}
-// ---cut---
 export const Greenscreen: React.FC<{
   opacity: number;
 }> = ({ opacity }) => {
@@ -242,4 +169,58 @@ export const VideoOnCanvas: React.FC = () => {
     </AbsoluteFill>
   );
 };
-```
+
+export const VideoCanvasExamples: React.FC<{
+  type: "base" | "greenscreen";
+}> = ({ type }) => {
+  const component = (() => {
+    if (type === "greenscreen") {
+      return Greenscreen;
+    }
+
+    return VideoOnCanvas;
+  })();
+  const [effect, setEffect] = useState(0);
+  return (
+    <div>
+      <Player
+        component={component}
+        compositionWidth={1280}
+        compositionHeight={720}
+        controls
+        durationInFrames={150}
+        fps={30}
+        style={{
+          width: "100%",
+        }}
+        loop
+        inputProps={{
+          opacity: 1 - effect,
+        }}
+      />
+      {type === "greenscreen" ? (
+        <>
+          <br />
+          <div
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              display: "flex",
+            }}
+          >
+            Slide to adjust transparency:
+            <input
+              onChange={(e) => setEffect(Number(e.target.value))}
+              type="range"
+              min={0}
+              max={1}
+              step={1 / 255}
+              value={effect}
+              style={{ marginLeft: 10 }}
+            ></input>
+          </div>
+        </>
+      ) : null}
+    </div>
+  );
+};
