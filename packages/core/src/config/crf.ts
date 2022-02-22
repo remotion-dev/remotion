@@ -58,7 +58,7 @@ export const getValidCrfRanges = (codec: Codec): [number, number] => {
 		return [1, 51];
 	}
 
-	if (codec === 'h265') {
+	if (codec === 'h265' || codec === 'gif') {
 		return [0, 51];
 	}
 

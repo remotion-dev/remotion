@@ -5,6 +5,10 @@ export const getCodecName = (codec: Codec): string | null => {
 		return null;
 	}
 
+	if (codec === 'gif') {
+		return null;
+	}
+
 	if (codec === 'h264' || codec === 'h264-mkv') {
 		return 'libx264';
 	}
