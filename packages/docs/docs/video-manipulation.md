@@ -5,9 +5,9 @@ title: Video manipulation
 
 import { VideoCanvasExamples } from "../components/GreenscreenExamples/index";
 
-You can manipulate a video buffer by rendering it on a Canvas.
+You can manipulate a video buffer by rendering a `<Video>`
 
-## Rendering a video on a Canvas - basic example
+## Basic example
 
 <VideoCanvasExamples type="base"/>
 <br/>
@@ -61,15 +61,24 @@ export const VideoOnCanvas: React.FC = () => {
 
     context.filter = "grayscale(100%)";
     context.drawImage(video.current, 0, 0, width, height);
-
-    video.current.requestVideoFrameCallback(() => onVideoFrame());
   }, [height, width]);
 
   useEffect(() => {
-    if (!video.current || !video.current.requestVideoFrameCallback) {
+    const { current } = video;
+    if (!current || !current.requestVideoFrameCallback) {
       return;
     }
-    video.current.requestVideoFrameCallback(() => onVideoFrame());
+    let handle = 0;
+    const callback = () => {
+      onVideoFrame();
+      handle = current.requestVideoFrameCallback(callback) as unknown as number;
+    };
+
+    callback();
+
+    return () => {
+      current.cancelVideoFrameCallback(handle);
+    };
   }, [onVideoFrame]);
 
   return (
@@ -96,6 +105,27 @@ export const VideoOnCanvas: React.FC = () => {
 <br/>
 
 ```tsx twoslash
+declare global {
+  interface VideoFrameMetadata {
+    presentationTime: DOMHighResTimeStamp;
+    expectedDisplayTime: DOMHighResTimeStamp;
+    width: number;
+    height: number;
+    mediaTime: number;
+    presentedFrames: number;
+    processingDuration?: number;
+    captureTime?: DOMHighResTimeStamp;
+    receiveTime?: DOMHighResTimeStamp;
+    rtpTimestamp?: number;
+  }
+  type VideoFrameRequestCallbackId = number;
+  interface HTMLVideoElement extends HTMLMediaElement {
+    requestVideoFrameCallback(
+      callback: (now: DOMHighResTimeStamp, metadata: VideoFrameMetadata) => any
+    ): VideoFrameRequestCallbackId;
+    cancelVideoFrameCallback(handle: VideoFrameRequestCallbackId): void;
+  }
+}
 import { useVideoConfig, Video } from "remotion";
 import { useCallback, useEffect, useRef } from "react";
 import React from "react";
@@ -151,7 +181,6 @@ export const Greenscreen: React.FC<{
     callback();
 
     return () => {
-      // @ts-expect-error
       current.cancelVideoFrameCallback(handle);
     };
   }, [onVideoFrame, opacity]);
