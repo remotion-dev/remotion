@@ -143,6 +143,7 @@ module.exports = {
         "third-party",
         "stills",
         "scaling",
+        "video-manipulation",
       ],
     },
     "cli",

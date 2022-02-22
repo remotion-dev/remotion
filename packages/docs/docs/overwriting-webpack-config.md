@@ -105,7 +105,7 @@ values={[
 <TabItem value="npm">
 
 ```bash
-npm i postcss-loader postcss postcss-preset-env tailwindcss autoprefixer
+npm i postcss-loader postcss postcss-preset-env tailwindcss@2 autoprefixer
 ```
 
   </TabItem>
@@ -113,14 +113,14 @@ npm i postcss-loader postcss postcss-preset-env tailwindcss autoprefixer
   <TabItem value="yarn">
 
 ```bash
-yarn add postcss-loader postcss postcss-preset-env tailwindcss autoprefixer
+yarn add postcss-loader postcss postcss-preset-env tailwindcss@2 autoprefixer
 ```
 
   </TabItem>
   <TabItem value="pnpm">
 
 ```bash
-pnpm i postcss-loader postcss postcss-preset-env tailwindcss autoprefixer
+pnpm i postcss-loader postcss postcss-preset-env tailwindcss@2 autoprefixer
 ```
 
   </TabItem>
@@ -261,6 +261,79 @@ Config.Bundling.overrideWebpackConfig((currentConfiguration) => {
 ```
 
 3. Restart the preview server.
+
+### Enable support for GLSL imports
+
+1. Install the following dependencies:
+
+<Tabs
+defaultValue="npm"
+values={[
+{ label: 'npm', value: 'npm', },
+{ label: 'yarn', value: 'yarn', },
+{ label: 'pnpm', value: 'pnpm', },
+]
+}>
+<TabItem value="npm">
+
+```bash
+npm i glsl-shader-loader glslify glslify-import-loader raw-roader
+```
+
+  </TabItem>
+
+  <TabItem value="yarn">
+
+```bash
+yarn add glsl-shader-loader glslify glslify-import-loader raw-roader
+```
+
+  </TabItem>
+  <TabItem value="pnpm">
+
+```bash
+pnpm i glsl-shader-loader glslify glslify-import-loader raw-roader
+```
+
+  </TabItem>
+</Tabs>
+
+2. Add the following to your [`remotion.config.ts`](/docs/config) file:
+
+```ts twoslash
+import { Config } from "remotion";
+// ---cut---
+Config.Bundling.overrideWebpackConfig((currentConfiguration) => {
+  return {
+    ...currentConfiguration,
+    module: {
+      ...currentConfiguration.module,
+      rules: [
+        ...(currentConfiguration.module?.rules
+          ? currentConfiguration.module.rules
+          : []),
+        {
+          test: /\.(glsl|vs|fs|vert|frag)$/,
+          exclude: /node_modules/,
+          use: ["glslify-import-loader", "raw-loader", "glslify-loader"],
+        },
+      ],
+    },
+  };
+});
+```
+
+3. Add the following to your entry file (e.g. `src/index.tsx`):
+
+```ts
+declare module "*.glsl" {
+  const value: string;
+  export default value;
+}
+```
+
+4. Reset the webpack cache by deleting the `node_modules/.cache` folder.
+5. Restart the preview server.
 
 ### Use legacy babel loader
 
