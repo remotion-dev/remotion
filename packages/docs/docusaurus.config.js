@@ -162,7 +162,7 @@ module.exports = {
         vfsRoot: process.cwd(),
         themes: ["github-light", "github-dark"],
         defaultCompilerOptions: {
-          types: ["node"],
+          types: ["node", "web"],
         },
       },
     ],

@@ -48,6 +48,7 @@
     "@types/jest": "^27.4.0",
     "@types/node": "^17.0.17",
     "@types/react": "17.0.39",
+    "@types/web": "^0.0.48",
     "eslint": "^7.25.0",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
