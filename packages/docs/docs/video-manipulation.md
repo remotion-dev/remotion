@@ -7,6 +7,10 @@ import { VideoCanvasExamples } from "../components/GreenscreenExamples/index";
 
 You can manipulate a video buffer by rendering a [`<Video>`](/docs/video) onto a `<canvas>` element using the [`drawImage()`](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/drawImage) API and keeping it in sync using the [`requestVideoFrameCallback()`](https://blog.tomayac.com/2020/05/15/the-requestvideoframecallback-api/) API.
 
+:::note
+This API currently [only works in Chrome](https://caniuse.com/mdn-api_htmlvideoelement_requestvideoframecallback).
+:::
+
 ## Basic example
 
 In this example, a Video is rendered and made invisible. Then it is rendered onto a Canvas and a grayscale [`filter`](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/filter) is applied.
