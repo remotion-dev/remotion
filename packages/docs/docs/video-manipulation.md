@@ -5,7 +5,7 @@ title: Video manipulation
 
 import { VideoCanvasExamples } from "../components/GreenscreenExamples/index";
 
-You can manipulate a video buffer by rendering a `<Video>`
+You can manipulate a video buffer by rendering a [`<Video>`](/docs/video) onto a `<canvas>` element using the [`drawImage()`](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/drawImage) API and keeping it in sync using [`requestVideoFrameCallback`](https://blog.tomayac.com/2020/05/15/the-requestvideoframecallback-api/).
 
 ## Basic example
 
@@ -13,6 +13,10 @@ You can manipulate a video buffer by rendering a `<Video>`
 <br/>
 
 ```tsx twoslash
+import { useVideoConfig, Video } from "remotion";
+import { useCallback, useEffect, useRef } from "react";
+import React from "react";
+import { AbsoluteFill } from "remotion";
 declare global {
   interface VideoFrameMetadata {
     presentationTime: DOMHighResTimeStamp;
@@ -35,11 +39,6 @@ declare global {
   }
 }
 // ---cut---
-import { useVideoConfig, Video } from "remotion";
-import { useCallback, useEffect, useRef } from "react";
-import React from "react";
-import { AbsoluteFill } from "remotion";
-
 export const VideoOnCanvas: React.FC = () => {
   const video = useRef<HTMLVideoElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
@@ -99,7 +98,7 @@ export const VideoOnCanvas: React.FC = () => {
 };
 ```
 
-## Video manipulation example - Greenscreen
+## Greenscreen example
 
 <VideoCanvasExamples type="greenscreen"/>
 <br/>
