@@ -273,6 +273,7 @@ importers:
       '@types/jest': ^27.4.0
       '@types/node': ^17.0.17
       '@types/react': 17.0.39
+      '@types/web': ^0.0.48
       chalk: 4.1.2
       clipboard: ^2.0.8
       clsx: ^1.1.1
@@ -322,6 +323,7 @@ importers:
       '@types/jest': 27.4.0
       '@types/node': 17.0.17
       '@types/react': 17.0.39
+      '@types/web': 0.0.48
       eslint: 7.32.0
       react: 17.0.2
       react-dom: 17.0.2_react@17.0.2
@@ -7061,7 +7063,6 @@ packages:
 
   /@types/web/0.0.48:
     resolution: {integrity: sha512-X5KKfR0MNm5ujo7421tVTF6n9MXh58DfWOuvPnuMAlr12vloTtyxJEC0rHVKIvcpqqoOJSrlkW2dMJjl9eK3Dg==}
-    dev: false
 
   /@types/webpack-env/1.16.2:
     resolution: {integrity: sha512-vKx7WNQNZDyJveYcHAm9ZxhqSGLYwoyLhrHjLBOkw3a7cT76sTdjgtwyijhk1MaHyRIuSztcVwrUOO/NEu68Dw==}
