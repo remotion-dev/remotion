@@ -173,6 +173,21 @@ export const stitchFramesToVideo = async (options: {
 		options.outputLocation,
 	];
 
+	const ffmpegArgsGif = [
+		['-r', String(options.fps)],
+		['-f', 'image2'],
+		['-s', `${options.width}x${options.height}`],
+		frameInfo ? ['-start_number', String(frameInfo.startNumber)] : null,
+		frameInfo
+			? ['-i', `element-%0${frameInfo.numberLength}d.${imageFormat}`]
+			: null,
+		supportsCrf ? ['-crf', String(crf)] : null,
+		isAudioOnly ? null : ['-pix_fmt', pixelFormat],
+		pixelFormat === 'yuva420p' ? ['-auto-alt-ref', '0'] : null,
+		options.force ? '-y' : null,
+		options.outputLocation,
+	];
+
 	if (options.verbose) {
 		console.log('Generated FFMPEG command:');
 		console.log(ffmpegArgs);
@@ -182,9 +197,17 @@ export const stitchFramesToVideo = async (options: {
 		.reduce<(string | null)[]>((acc, val) => acc.concat(val), [])
 		.filter(Boolean) as string[];
 
-	const task = execa(options.ffmpegExecutable ?? 'ffmpeg', ffmpegString, {
-		cwd: options.dir,
-	});
+	const ffmpegStringGif = ffmpegArgsGif
+		.reduce<(string | null)[]>((acc, val) => acc.concat(val), [])
+		.filter(Boolean) as string[];
+
+	const task = execa(
+		options.ffmpegExecutable ?? 'ffmpeg',
+		encoderName === 'gif' ? ffmpegStringGif : ffmpegString,
+		{
+			cwd: options.dir,
+		}
+	);
 
 	task.stderr?.on('data', (data: Buffer) => {
 		if (options.onProgress) {
