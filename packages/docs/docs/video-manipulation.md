@@ -5,9 +5,11 @@ title: Video manipulation
 
 import { VideoCanvasExamples } from "../components/GreenscreenExamples/index";
 
-You can manipulate a video buffer by rendering a [`<Video>`](/docs/video) onto a `<canvas>` element using the [`drawImage()`](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/drawImage) API and keeping it in sync using [`requestVideoFrameCallback`](https://blog.tomayac.com/2020/05/15/the-requestvideoframecallback-api/).
+You can manipulate a video buffer by rendering a [`<Video>`](/docs/video) onto a `<canvas>` element using the [`drawImage()`](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/drawImage) API and keeping it in sync using the [`requestVideoFrameCallback()`](https://blog.tomayac.com/2020/05/15/the-requestvideoframecallback-api/) API.
 
 ## Basic example
+
+In this example, a Video is rendered and made invisible. Then it is rendered onto a Canvas and a grayscale [`filter`](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/filter) is applied.
 
 <VideoCanvasExamples type="base"/>
 <br/>
@@ -44,12 +46,9 @@ export const VideoOnCanvas: React.FC = () => {
   const canvas = useRef<HTMLCanvasElement>(null);
   const { width, height } = useVideoConfig();
 
+  // Process a frame
   const onVideoFrame = useCallback(() => {
-    if (
-      !canvas.current ||
-      !video.current ||
-      !video.current.requestVideoFrameCallback
-    ) {
+    if (!canvas.current || !video.current) {
       return;
     }
     const context = canvas.current.getContext("2d");
@@ -62,15 +61,17 @@ export const VideoOnCanvas: React.FC = () => {
     context.drawImage(video.current, 0, 0, width, height);
   }, [height, width]);
 
+  // Synchronize the video with the canvas
   useEffect(() => {
     const { current } = video;
-    if (!current || !current.requestVideoFrameCallback) {
+    if (!current?.requestVideoFrameCallback) {
       return;
     }
+
     let handle = 0;
     const callback = () => {
       onVideoFrame();
-      handle = current.requestVideoFrameCallback(callback) as unknown as number;
+      handle = current.requestVideoFrameCallback(callback);
     };
 
     callback();
@@ -85,6 +86,7 @@ export const VideoOnCanvas: React.FC = () => {
       <AbsoluteFill>
         <Video
           ref={video}
+          // Hide the original video tag
           style={{ opacity: 0 }}
           startFrom={300}
           src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
@@ -99,6 +101,8 @@ export const VideoOnCanvas: React.FC = () => {
 ```
 
 ## Greenscreen example
+
+In this example, we loop over each pixel in the image buffer and if it's green, we transparentize it. Drag the slider below to turn the video transparent.
 
 <VideoCanvasExamples type="greenscreen"/>
 <br/>
@@ -138,6 +142,7 @@ export const Greenscreen: React.FC<{
   const canvas = useRef<HTMLCanvasElement>(null);
   const { width, height } = useVideoConfig();
 
+  // Process a frame
   const onVideoFrame = useCallback(
     (opacity: number) => {
       if (!canvas.current || !video.current) {
@@ -153,6 +158,7 @@ export const Greenscreen: React.FC<{
       const imageFrame = context.getImageData(0, 0, width, height);
       const { length } = imageFrame.data;
 
+      // If the pixel is very green, reduce the alpha channel
       for (let i = 0; i < length; i += 4) {
         const red = imageFrame.data[i + 0];
         const green = imageFrame.data[i + 1];
@@ -174,7 +180,7 @@ export const Greenscreen: React.FC<{
     let handle = 0;
     const callback = () => {
       onVideoFrame(opacity);
-      handle = current.requestVideoFrameCallback(callback) as unknown as number;
+      handle = current.requestVideoFrameCallback(callback);
     };
 
     callback();
@@ -191,6 +197,7 @@ export const Greenscreen: React.FC<{
           ref={video}
           style={{ opacity: 0 }}
           startFrom={300}
+          // If we access the data of a remote video, we must add this prop, and the remote video must have CORS enabled
           crossOrigin="anonymous"
           src="https://remotion-assets.s3.eu-central-1.amazonaws.com/just-do-it.mp4"
         />
@@ -202,3 +209,8 @@ export const Greenscreen: React.FC<{
   );
 };
 ```
+
+## TypeScript issues
+
+In our experience, the types for `requestVideoFrameCallback` and `cancelVideoFrameCallback` are missing or wrong by default. Install the newest version for [`@types/web`](https://www.npmjs.com/package/@types/web)
+or add a `// @ts-expect-error` comment to suppress the errors.
