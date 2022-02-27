@@ -13,8 +13,8 @@ export const MyVideo = () => {
     <div
       style={{
         flex: 1,
-        textAlign: 'center',
-        fontSize: '7em',
+        textAlign: "center",
+        fontSize: "em",
       }}
     >
       The current frame is {frame}.
@@ -52,8 +52,8 @@ export const MyVideo = () => {
     <div
       style={{
         flex: 1,
-        textAlign: 'center',
-        fontSize: '7em',
+        textAlign: "center",
+        fontSize: "7em",
        }}
       >
       This {width}px x {height}px video is {durationInFrames / fps} seconds long.
