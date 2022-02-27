@@ -1,7 +1,5 @@
 import {getRemotionEnvironment} from '../get-environment';
 
-export const INPUT_PROPS_KEY = 'remotion.inputProps';
-
 let didWarnSSRImport = false;
 
 const warnOnceSSRImport = () => {

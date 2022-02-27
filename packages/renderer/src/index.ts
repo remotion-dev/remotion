@@ -1,4 +1,3 @@
-import {TAsset, TCompMetadata} from 'remotion';
 import {addSilentAudioIfNecessary} from './add-silent-audio-if-necessary';
 import {
 	ffmpegHasFeature,
@@ -24,15 +23,6 @@ import {getRealFrameRange} from './get-frame-to-render';
 import {downloadFile} from './assets/download-file';
 import {validateScale} from './validate-scale';
 import {killAllBrowsers} from './open-browser';
-
-declare global {
-	interface Window {
-		ready: boolean;
-		getStaticCompositions: () => TCompMetadata[];
-		remotion_setFrame: (frame: number) => void;
-		remotion_collectAssets: () => TAsset[];
-	}
-}
 
 export {
 	renderMedia,
