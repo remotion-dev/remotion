@@ -180,7 +180,7 @@ export const CompositionManagerProvider: React.FC = ({children}) => {
 				getCompositions: () => compositions,
 			};
 		},
-		[]
+		[compositions]
 	);
 
 	const contextValue = useMemo((): CompositionManagerContext => {
