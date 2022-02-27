@@ -38,7 +38,7 @@ const Fallback: React.FC = () => {
 
 const inputProps = getInputProps();
 
-const GetVideo = () => {
+const GetVideo: React.FC<{state: BundleState}> = ({state}) => {
 	const video = Internals.useVideo();
 	const compositions = useContext(Internals.CompositionManager);
 	const [Component, setComponent] = useState<LooseAnyComponent<unknown> | null>(
@@ -46,7 +46,7 @@ const GetVideo = () => {
 	);
 
 	useEffect(() => {
-		if (getIsEvaluation()) {
+		if (state.type !== 'composition') {
 			return;
 		}
 
@@ -54,12 +54,12 @@ const GetVideo = () => {
 			compositions.setCurrentComposition(
 				(
 					compositions.compositions.find(
-						(c) => c.id === getCompositionName()
+						(c) => c.id === state.compositionName
 					) as TComposition
 				)?.id ?? null
 			);
 		}
-	}, [compositions, compositions.compositions, video]);
+	}, [compositions, compositions.compositions, state, video]);
 
 	const fetchComponent = useCallback(() => {
 		if (!video) {
@@ -77,7 +77,7 @@ const GetVideo = () => {
 	}, [fetchComponent, video]);
 
 	useEffect(() => {
-		if (getIsEvaluation()) {
+		if (state.type === 'evaluation') {
 			continueRender(handle);
 		} else if (Component) {
 			continueRender(handle);
@@ -115,11 +115,11 @@ const renderContent = () => {
 		'explainer-container'
 	) as HTMLElement;
 
-	if (!isPlainIndex()) {
+	if (bundleMode.type === 'composition' || bundleMode.type === 'evaluation') {
 		render(
 			<Internals.RemotionRoot>
 				<Root />
-				<GetVideo />
+				<GetVideo state={bundleMode} />
 			</Internals.RemotionRoot>,
 			videoContainer
 		);
@@ -127,33 +127,18 @@ const renderContent = () => {
 		videoContainer.innerHTML = '';
 	}
 
-	if (isPlainIndex() || getIsEvaluation()) {
+	if (bundleMode.type === 'index' || bundleMode.type === 'evaluation') {
 		render(<Homepage />, explainerContainer);
 	} else {
 		explainerContainer.innerHTML = '';
 	}
 };
 
-renderContent();
-
 let bundleMode: BundleState = {
 	type: 'index',
 };
 
-export const isPlainIndex = () => {
-	return bundleMode.type === 'index';
-};
-
-export const getCompositionName = () => {
-	if (bundleMode.type !== 'composition') {
-		return null;
-	}
-	return bundleMode.compositionName;
-};
-
-export const getIsEvaluation = () => {
-	return bundleMode.type === 'evaluation';
-};
+renderContent();
 
 export const setBundleMode = (state: BundleState) => {
 	bundleMode = state;

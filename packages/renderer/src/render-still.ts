@@ -12,7 +12,6 @@ import {
 	getServeUrlWithFallback,
 	ServeUrlOrWebpackBundle,
 } from './legacy-webpack-config';
-import {normalizeServeUrl} from './normalize-serve-url';
 import {ChromiumOptions, openBrowser} from './open-browser';
 import {prepareServer} from './prepare-server';
 import {provideScreenshot} from './provide-screenshot';
