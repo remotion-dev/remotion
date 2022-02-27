@@ -158,5 +158,6 @@ if (typeof window !== 'undefined') {
 		return Internals.compositionsRef.current.getCompositions();
 	};
 
+	window.siteVersion = '2';
 	window.setBundleMode = setBundleMode;
 }

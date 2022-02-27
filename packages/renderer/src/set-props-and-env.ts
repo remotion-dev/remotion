@@ -33,7 +33,19 @@ export const setPropsAndEnv = async ({
 		);
 	}
 
-	const isRemotionFn = await page.evaluate('window.getStaticCompositions');
+	const siteVersion = await page.evaluate(() => {
+		return window.siteVersion;
+	});
+
+	if (siteVersion !== '2') {
+		throw new Error(
+			`Incompatible site: When visiting ${urlToVisit}, a bundle was found, but one that is not compatible with this version of Remotion. Please bundle again to resolve this error.`
+		);
+	}
+
+	const isRemotionFn = await page.evaluate(() => {
+		return window.getStaticCompositions;
+	});
 	if (isRemotionFn === undefined) {
 		throw new Error(
 			`Error while getting compositions: Tried to go to ${urlToVisit} and verify that it is a Remotion project by checking if window.getStaticCompositions is defined. However, the function was undefined, which indicates that this is not a valid Remotion project. Please check the URL you passed.`
