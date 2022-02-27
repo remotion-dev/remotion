@@ -39,7 +39,7 @@ export const setPropsAndEnv = async ({
 
 	if (siteVersion !== '2') {
 		throw new Error(
-			`Incompatible site: When visiting ${urlToVisit}, a bundle was found, but one that is not compatible with this version of Remotion. Please bundle again to resolve this error.`
+			`Incompatible site: When visiting ${urlToVisit}, a bundle was found, but one that is not compatible with this version of Remotion. The bundle format changed in versions from March 2022 onwards. To resolve this error, please bundle and deploy again.`
 		);
 	}
 
