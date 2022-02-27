@@ -11,12 +11,12 @@ export const MyVideo = () => {
 
   return (
     <div
-			style={{
-				flex: 1,
-				textAlign: 'center',
-				fontSize: '7em',
-			}}
-		>
+      style={{
+        flex: 1,
+        textAlign: 'center',
+        fontSize: '7em',
+      }}
+    >
       The current frame is {frame}.
     </div>
   );
