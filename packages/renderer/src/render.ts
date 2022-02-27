@@ -165,12 +165,12 @@ export const innerRenderFrames = async ({
 			timeoutInMilliseconds,
 		});
 
-		await page.evaluate(() => {
+		await page.evaluate((id) => {
 			window.setBundleMode({
 				type: 'composition',
-				compositionName: composition.id,
+				compositionName: id,
 			});
-		});
+		}, composition.id);
 
 		page.off('console', logCallback);
 		return page;

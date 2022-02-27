@@ -60,7 +60,9 @@ const innerGetCompositions = async (
 	});
 
 	await page.waitForFunction('window.ready === true');
-	const result = await page.evaluate('window.getStaticCompositions()');
+	const result = await page.evaluate(() => {
+		return window.getStaticCompositions();
+	});
 
 	return result as TCompMetadata[];
 };
