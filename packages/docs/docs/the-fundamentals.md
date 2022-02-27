@@ -14,7 +14,7 @@ export const MyVideo = () => {
       style={{
         flex: 1,
         textAlign: "center",
-        fontSize: "em",
+        fontSize: "7em",
       }}
     >
       The current frame is {frame}.
