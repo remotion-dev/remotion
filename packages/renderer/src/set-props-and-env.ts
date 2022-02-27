@@ -52,31 +52,20 @@ export const setPropsAndEnv = async ({
 		);
 	}
 
-	await page.evaluate(
-		(key, value) => {
-			window.localStorage.setItem(key, value);
-		},
-		Internals.PUPPETEER_TIMEOUT_KEY,
-		actualTimeout
-	);
+	await page.evaluate((timeout) => {
+		window.remotion_puppeteerTimeout = timeout;
+	}, actualTimeout);
+
 	if (inputProps) {
-		await page.evaluate(
-			(key, input) => {
-				window.localStorage.setItem(key, input);
-			},
-			Internals.INPUT_PROPS_KEY,
-			JSON.stringify(inputProps)
-		);
+		await page.evaluate((input) => {
+			window.remotion_inputProps = input;
+		}, JSON.stringify(inputProps));
 	}
 
 	if (envVariables) {
-		await page.evaluate(
-			(key, input) => {
-				window.localStorage.setItem(key, input);
-			},
-			Internals.ENV_VARIABLES_LOCAL_STORAGE_KEY,
-			JSON.stringify(envVariables)
-		);
+		await page.evaluate((input) => {
+			window.remotion_envVariables = input;
+		}, JSON.stringify(envVariables));
 	}
 
 	await page.evaluate(
