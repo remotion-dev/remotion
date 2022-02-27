@@ -10,6 +10,19 @@ Keep track of changes to the APIs of Remotion Lambda here.
 
 [Upgrading](/docs/lambda/upgrading)
 
+## February 27th, 2022
+
+:::note
+Experimental: Prefer '2022-02-14' version for stability.
+You need to rebundle and redeploy your projects for this version.
+:::
+
+Version hash: `3.0.0-lambda.295+67a488af4`
+Lambda version: '2022-02-27'
+
+- Allows to store an output in a different bucket - see documentation for [`outName`](/docs/lambda/rendermediaonlambda#outname)
+- Rearchitecture to lift the 5MB input props/environment variable limit.
+
 ## February 14th, 2022
 
 Version hash: `3.0.0-lambda.388+6e1372eca`
