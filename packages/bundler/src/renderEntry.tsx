@@ -7,13 +7,16 @@ import React, {
 } from 'react';
 import {render} from 'react-dom';
 import {
+	BundleState,
 	continueRender,
 	delayRender,
 	getInputProps,
 	Internals,
 	LooseAnyComponent,
+	TCompMetadata,
 	TComposition,
 } from 'remotion';
+import {getBundleMode, setBundleMode} from './bundle-mode';
 import {Homepage} from './homepage/homepage';
 
 Internals.CSSUtils.injectCSS(Internals.CSSUtils.makeDefaultCSS(null, '#fff'));
@@ -36,7 +39,7 @@ const Fallback: React.FC = () => {
 
 const inputProps = getInputProps();
 
-const GetVideo = () => {
+const GetVideo: React.FC<{state: BundleState}> = ({state}) => {
 	const video = Internals.useVideo();
 	const compositions = useContext(Internals.CompositionManager);
 	const [Component, setComponent] = useState<LooseAnyComponent<unknown> | null>(
@@ -44,7 +47,7 @@ const GetVideo = () => {
 	);
 
 	useEffect(() => {
-		if (Internals.getIsEvaluation()) {
+		if (state.type !== 'composition') {
 			return;
 		}
 
@@ -52,12 +55,12 @@ const GetVideo = () => {
 			compositions.setCurrentComposition(
 				(
 					compositions.compositions.find(
-						(c) => c.id === Internals.getCompositionName()
+						(c) => c.id === state.compositionName
 					) as TComposition
 				)?.id ?? null
 			);
 		}
-	}, [compositions, compositions.compositions, video]);
+	}, [compositions, compositions.compositions, state, video]);
 
 	const fetchComponent = useCallback(() => {
 		if (!video) {
@@ -75,12 +78,12 @@ const GetVideo = () => {
 	}, [fetchComponent, video]);
 
 	useEffect(() => {
-		if (Internals.getIsEvaluation()) {
+		if (state.type === 'evaluation') {
 			continueRender(handle);
 		} else if (Component) {
 			continueRender(handle);
 		}
-	}, [Component]);
+	}, [Component, state.type]);
 
 	if (!video) {
 		return null;
@@ -105,16 +108,61 @@ const GetVideo = () => {
 	);
 };
 
-if (!Internals.isPlainIndex()) {
-	render(
-		<Internals.RemotionRoot>
-			<Root />
-			<GetVideo />
-		</Internals.RemotionRoot>,
-		document.getElementById('video-container')
-	);
-}
+const renderContent = () => {
+	const bundleMode = getBundleMode();
+	const videoContainer = document.getElementById(
+		'video-container'
+	) as HTMLElement;
+	const explainerContainer = document.getElementById(
+		'explainer-container'
+	) as HTMLElement;
 
-if (Internals.isPlainIndex() || Internals.getIsEvaluation()) {
-	render(<Homepage />, document.getElementById('explainer-container'));
+	if (bundleMode.type === 'composition' || bundleMode.type === 'evaluation') {
+		render(
+			<Internals.RemotionRoot>
+				<Root />
+				<GetVideo state={bundleMode} />
+			</Internals.RemotionRoot>,
+			videoContainer
+		);
+	} else {
+		videoContainer.innerHTML = '';
+	}
+
+	if (bundleMode.type === 'index' || bundleMode.type === 'evaluation') {
+		render(<Homepage />, explainerContainer);
+	} else {
+		explainerContainer.innerHTML = '';
+	}
+};
+
+renderContent();
+
+export const setBundleModeAndUpdate = (state: BundleState) => {
+	setBundleMode(state);
+	renderContent();
+};
+
+if (typeof window !== 'undefined') {
+	window.getStaticCompositions = (): TCompMetadata[] => {
+		if (!Internals.compositionsRef.current) {
+			throw new Error('Unexpectedly did not have a CompositionManager');
+		}
+
+		return Internals.compositionsRef.current
+			.getCompositions()
+			.map((c): TCompMetadata => {
+				return {
+					defaultProps: c.defaultProps,
+					durationInFrames: c.durationInFrames,
+					fps: c.fps,
+					height: c.height,
+					id: c.id,
+					width: c.width,
+				};
+			});
+	};
+
+	window.siteVersion = '2';
+	window.setBundleMode = setBundleModeAndUpdate;
 }

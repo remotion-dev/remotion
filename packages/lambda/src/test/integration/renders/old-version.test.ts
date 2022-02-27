@@ -1,8 +1,6 @@
 import {RenderInternals} from '@remotion/renderer';
-import execa from 'execa';
 import {LambdaRoutines} from '../../../defaults';
 import {handler} from '../../../functions';
-import {lambdaReadFile} from '../../../functions/helpers/io';
 import {LambdaReturnValues} from '../../../shared/return-values';
 import {disableLogs, enableLogs} from '../../disable-logs';
 
@@ -31,7 +29,7 @@ test('Should be able to render to another bucket', async () => {
 	const res = await handler(
 		{
 			type: LambdaRoutines.start,
-			serveUrl: 'https://quizzical-jackson-ad3285.netlify.app/',
+			serveUrl: 'https://competent-mccarthy-56f7c9.netlify.app/',
 			chromiumOptions: {},
 			codec: 'h264-mkv',
 			composition: 'react-svg',
@@ -43,10 +41,7 @@ test('Should be able to render to another bucket', async () => {
 			inputProps: {},
 			logLevel: 'warn',
 			maxRetries: 3,
-			outName: {
-				bucketName: 'my-other-bucket',
-				key: 'my-key',
-			},
+			outName: null,
 			pixelFormat: 'yuv420p',
 			privacy: 'public',
 			proResProfile: undefined,
@@ -66,18 +61,7 @@ test('Should be able to render to another bucket', async () => {
 		},
 		extraContext
 	)) as Await<LambdaReturnValues[LambdaRoutines.status]>;
-
-	const file = await lambdaReadFile({
-		bucketName: progress.outBucket as string,
-		key: progress.outKey as string,
-		expectedBucketOwner: 'abc',
-		region: 'eu-central-1',
-	});
-	const probe = await execa('ffprobe', ['-'], {
-		stdin: file,
-	});
-	expect(probe.stderr).toMatch(/Stream #0:0/);
-	expect(probe.stderr).toMatch(/Video: h264/);
-	expect(probe.stderr).toMatch(/Stream #0:1/);
-	expect(probe.stderr).toMatch(/Audio: aac/);
+	expect(progress.errors[0].stack).toContain(
+		'Incompatible site: When visiting'
+	);
 });

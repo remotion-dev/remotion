@@ -2,6 +2,7 @@ import React, {
 	createContext,
 	LazyExoticComponent,
 	useCallback,
+	useImperativeHandle,
 	useLayoutEffect,
 	useMemo,
 	useState,
@@ -109,6 +110,10 @@ export const CompositionManager = createContext<CompositionManagerContext>({
 	assets: [],
 });
 
+export const compositionsRef = React.createRef<{
+	getCompositions: () => TCompMetadata[];
+}>();
+
 export const CompositionManagerProvider: React.FC = ({children}) => {
 	// Wontfix, expected to have
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -167,6 +172,16 @@ export const CompositionManagerProvider: React.FC = ({children}) => {
 			};
 		}
 	}, [assets]);
+
+	useImperativeHandle(
+		compositionsRef,
+		() => {
+			return {
+				getCompositions: () => compositions,
+			};
+		},
+		[compositions]
+	);
 
 	const contextValue = useMemo((): CompositionManagerContext => {
 		return {

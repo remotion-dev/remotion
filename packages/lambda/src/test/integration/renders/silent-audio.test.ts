@@ -31,7 +31,7 @@ test('Should add silent audio if there is no audio', async () => {
 	const res = await handler(
 		{
 			type: LambdaRoutines.start,
-			serveUrl: 'https://competent-mccarthy-56f7c9.netlify.app/',
+			serveUrl: 'https://quizzical-jackson-ad3285.netlify.app/',
 			chromiumOptions: {},
 			codec: 'h264-mkv',
 			composition: 'react-svg',

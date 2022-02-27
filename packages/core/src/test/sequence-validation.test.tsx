@@ -1,5 +1,4 @@
 import {render} from '@testing-library/react';
-import React from 'react';
 import {Sequence} from '../sequencing';
 import {expectToThrow} from './expect-to-throw';
 
