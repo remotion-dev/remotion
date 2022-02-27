@@ -1,9 +1,7 @@
 export const DEFAULT_PUPPETEER_TIMEOUT = 30000;
 
-export const PUPPETEER_TIMEOUT_KEY = 'remotion.puppeteerTimeout';
-
 const getPuppeteerTimeout = (): number => {
-	const param = localStorage.getItem(PUPPETEER_TIMEOUT_KEY);
+	const param = window.remotion_puppeteerTimeout;
 	return param ? Number(param) : DEFAULT_PUPPETEER_TIMEOUT;
 };
 

@@ -12,7 +12,6 @@ import {
 	getServeUrlWithFallback,
 	ServeUrlOrWebpackBundle,
 } from './legacy-webpack-config';
-import {normalizeServeUrl} from './normalize-serve-url';
 import {ChromiumOptions, openBrowser} from './open-browser';
 import {prepareServer} from './prepare-server';
 import {provideScreenshot} from './provide-screenshot';
@@ -148,7 +147,6 @@ const innerRenderStill = async ({
 	};
 
 	page.on('pageerror', errorCallback);
-	const site = `${normalizeServeUrl(serveUrl)}?composition=${composition.id}`;
 	await setPropsAndEnv({
 		inputProps,
 		envVariables,
@@ -158,7 +156,12 @@ const innerRenderStill = async ({
 		timeoutInMilliseconds,
 	});
 
-	await page.goto(site);
+	await page.evaluate((id) => {
+		window.setBundleMode({
+			type: 'composition',
+			compositionName: id,
+		});
+	}, composition.id);
 	try {
 		await seekToFrame({frame, page});
 	} catch (err) {

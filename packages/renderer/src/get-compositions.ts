@@ -2,7 +2,6 @@ import {Browser, Page} from 'puppeteer-core';
 import {BrowserExecutable, TCompMetadata} from 'remotion';
 import {BrowserLog} from './browser-log';
 import {getPageAndCleanupFn} from './get-browser-instance';
-import {normalizeServeUrl} from './normalize-serve-url';
 import {ChromiumOptions} from './open-browser';
 import {prepareServer} from './prepare-server';
 import {setPropsAndEnv} from './set-props-and-env';
@@ -54,23 +53,16 @@ const innerGetCompositions = async (
 		timeoutInMilliseconds: config?.timeoutInMilliseconds,
 	});
 
-	const urlToVisit = `${normalizeServeUrl(serveUrl)}?evaluation=true`;
-	const pageRes = await page.goto(urlToVisit);
-	if (pageRes.status() !== 200) {
-		throw new Error(
-			`Error while getting compositions: Tried to go to ${urlToVisit} but the status code was ${pageRes.status()} instead of 200. Does the site you specified exist?`
-		);
-	}
-
-	const isRemotionFn = await page.evaluate('window.getStaticCompositions');
-	if (isRemotionFn === undefined) {
-		throw new Error(
-			`Error while getting compositions: Tried to go to ${urlToVisit} and verify that it is a Remotion project by checking if window.getStaticCompositions is defined. However, the function was undefined, which indicates that this is not a valid Remotion project. Please check the URL you passed.`
-		);
-	}
+	await page.evaluate(() => {
+		window.setBundleMode({
+			type: 'evaluation',
+		});
+	});
 
 	await page.waitForFunction('window.ready === true');
-	const result = await page.evaluate('window.getStaticCompositions()');
+	const result = await page.evaluate(() => {
+		return window.getStaticCompositions();
+	});
 
 	return result as TCompMetadata[];
 };

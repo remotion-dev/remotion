@@ -27,7 +27,6 @@ import {
 	ServeUrlOrWebpackBundle,
 } from './legacy-webpack-config';
 import {makeAssetsDownloadTmpDir} from './make-assets-download-dir';
-import {normalizeServeUrl} from './normalize-serve-url';
 import {ChromiumOptions, openBrowser} from './open-browser';
 import {Pool} from './pool';
 import {prepareServer} from './prepare-server';
@@ -166,8 +165,12 @@ export const innerRenderFrames = async ({
 			timeoutInMilliseconds,
 		});
 
-		const site = `${normalizeServeUrl(serveUrl)}?composition=${composition.id}`;
-		await page.goto(site);
+		await page.evaluate((id) => {
+			window.setBundleMode({
+				type: 'composition',
+				compositionName: id,
+			});
+		}, composition.id);
 
 		page.off('console', logCallback);
 		return page;

@@ -2,11 +2,6 @@ import {useContext, useEffect} from 'react';
 import {AnyComponent} from './any-component';
 import {CompositionManager} from './CompositionManager';
 import {useNonce} from './nonce';
-import {
-	addStaticComposition,
-	getIsEvaluation,
-	removeStaticComposition,
-} from './register-root';
 import {useLazyComponent} from './use-lazy-component';
 import {validateCompositionId} from './validation/validate-composition-id';
 import {validateDimension} from './validation/validate-dimensions';
@@ -73,22 +68,8 @@ export const Composition = <T,>({
 			nonce,
 		});
 
-		if (getIsEvaluation()) {
-			addStaticComposition({
-				component: lazy,
-				durationInFrames,
-				fps,
-				height,
-				id,
-				width,
-				nonce,
-				defaultProps,
-			});
-		}
-
 		return () => {
 			unregisterComposition(id);
-			removeStaticComposition(id);
 		};
 	}, [
 		durationInFrames,
