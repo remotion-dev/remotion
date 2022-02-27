@@ -20,8 +20,8 @@ export const MyVideo = () => {
     <div
       style={{
         flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
+        textAlign: "center",
+        fontSize: "7em",
         opacity: opacity,
       }}
     >
@@ -55,8 +55,8 @@ export const MyVideo = () => {
     <div
       style={{
         flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
+        textAlign: "center",
+        fontSize: "7em",
         opacity: opacity,
       }}
     >
@@ -90,8 +90,8 @@ export const MyVideo = () => {
     <div
       style={{
         flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
+        textAlign: "center",
+        fontSize: "7em",
       }}
     >
       <div style={{ transform: `scale(${scale})` }}>Hello World!</div>
@@ -104,6 +104,8 @@ You should see the text 'jump in'. The default spring configuration leads to a l
 
 ## Always animate using `useCurrentFrame()`
 
+:::caution
 Watch out for flickering issues during rendering that arise if you write animations that are not driven by [`useCurrentFrame()`](/docs/use-current-frame) - for example CSS transitions.
 
 [Read more about how Remotion's rendering works](/docs/flickering) - understanding it will help you avoid issues down the road.
+:::

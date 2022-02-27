@@ -27,7 +27,13 @@ In order to make a title reusable, we first factor it out into it's own componen
 
 export const MyVideo = () => {
   return (
-    <div style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+    <div
+      style={{
+        flex: 1,
+        textAlign: "center",
+        fontSize: "7em",
+      }}
+    >
       <Title title="Hello World" />
     </div>
   );
@@ -46,8 +52,8 @@ export const MyVideo = () => {
     <div
       style={{
         flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
+        textAlign: "center",
+        fontSize: "7em",
         backgroundColor: "white",
       }}
     >
