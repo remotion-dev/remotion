@@ -50,12 +50,12 @@ export const MyVideo = () => {
 
   return (
     <div
-			style={{
-				flex: 1,
-				textAlign: 'center',
-				fontSize: '7em',
-			}}
-		>
+      style={{
+        flex: 1,
+        textAlign: 'center',
+        fontSize: '7em',
+       }}
+      >
       This {width}px x {height}px video is {durationInFrames / fps} seconds long.
     </div>
   );
