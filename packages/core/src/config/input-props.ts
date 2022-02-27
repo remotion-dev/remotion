@@ -22,7 +22,7 @@ export const getInputProps = () => {
 			return {};
 		}
 
-		const param = localStorage.getItem(INPUT_PROPS_KEY);
+		const param = window.remotion_inputProps;
 		if (!param) {
 			return {};
 		}
