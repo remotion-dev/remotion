@@ -16,6 +16,7 @@ import {
 	TCompMetadata,
 	TComposition,
 } from 'remotion';
+import {getBundleMode, setBundleMode} from './bundle-mode';
 import {Homepage} from './homepage/homepage';
 
 Internals.CSSUtils.injectCSS(Internals.CSSUtils.makeDefaultCSS(null, '#fff'));
@@ -82,7 +83,7 @@ const GetVideo: React.FC<{state: BundleState}> = ({state}) => {
 		} else if (Component) {
 			continueRender(handle);
 		}
-	}, [Component]);
+	}, [Component, state.type]);
 
 	if (!video) {
 		return null;
@@ -108,6 +109,7 @@ const GetVideo: React.FC<{state: BundleState}> = ({state}) => {
 };
 
 const renderContent = () => {
+	const bundleMode = getBundleMode();
 	const videoContainer = document.getElementById(
 		'video-container'
 	) as HTMLElement;
@@ -134,19 +136,11 @@ const renderContent = () => {
 	}
 };
 
-let bundleMode: BundleState = {
-	type: 'index',
-};
-
 renderContent();
 
-export const setBundleMode = (state: BundleState) => {
-	bundleMode = state;
+export const setBundleModeAndUpdate = (state: BundleState) => {
+	setBundleMode(state);
 	renderContent();
-};
-
-export const getBundleMode = () => {
-	return bundleMode;
 };
 
 if (typeof window !== 'undefined') {
@@ -155,9 +149,20 @@ if (typeof window !== 'undefined') {
 			throw new Error('Unexpectedly did not have a CompositionManager');
 		}
 
-		return Internals.compositionsRef.current.getCompositions();
+		return Internals.compositionsRef.current
+			.getCompositions()
+			.map((c): TCompMetadata => {
+				return {
+					defaultProps: c.defaultProps,
+					durationInFrames: c.durationInFrames,
+					fps: c.fps,
+					height: c.height,
+					id: c.id,
+					width: c.width,
+				};
+			});
 	};
 
 	window.siteVersion = '2';
-	window.setBundleMode = setBundleMode;
+	window.setBundleMode = setBundleModeAndUpdate;
 }

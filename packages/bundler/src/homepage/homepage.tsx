@@ -1,6 +1,7 @@
 import React, {useCallback, useEffect, useState} from 'react';
 import {TCompMetadata} from 'remotion';
-import {getBundleMode, setBundleMode} from '../renderEntry';
+import {getBundleMode} from '../bundle-mode';
+import {setBundleModeAndUpdate} from '../renderEntry';
 
 const container: React.CSSProperties = {
 	width: 800,
@@ -47,7 +48,7 @@ export const AvailableCompositions: React.FC = () => {
 	}, []);
 
 	const showComps = useCallback(() => {
-		setBundleMode({type: 'evaluation'});
+		setBundleModeAndUpdate({type: 'evaluation'});
 	}, []);
 
 	if (getBundleMode().type !== 'evaluation') {

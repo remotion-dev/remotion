@@ -156,12 +156,12 @@ const innerRenderStill = async ({
 		timeoutInMilliseconds,
 	});
 
-	await page.evaluate(() => {
+	await page.evaluate((id) => {
 		window.setBundleMode({
 			type: 'composition',
-			compositionName: composition.id,
+			compositionName: id,
 		});
-	});
+	}, composition.id);
 	try {
 		await seekToFrame({frame, page});
 	} catch (err) {
