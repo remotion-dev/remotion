@@ -1,5 +1,6 @@
 import React, {useCallback, useEffect, useState} from 'react';
 import {Internals, TCompMetadata} from 'remotion';
+import {getIsEvaluation, setBundleMode} from '../renderEntry';
 
 const container: React.CSSProperties = {
 	width: 800,
@@ -46,10 +47,10 @@ export const AvailableCompositions: React.FC = () => {
 	}, []);
 
 	const showComps = useCallback(() => {
-		window.location.search = '?evaluation=true';
+		setBundleMode({type: 'evaluation'});
 	}, []);
 
-	if (!Internals.getIsEvaluation()) {
+	if (!getIsEvaluation()) {
 		return (
 			<button type="button" onClick={showComps}>
 				Click here to see a list of available compositions.

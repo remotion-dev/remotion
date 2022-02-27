@@ -7,6 +7,7 @@ import {CompProps} from './Composition';
 import {
 	CompositionManager,
 	CompositionManagerContext,
+	compositionsRef,
 	RenderAssetInfo,
 	TAsset,
 	TCompMetadata,
@@ -79,12 +80,7 @@ import {
 } from './initial-frame';
 import {isAudioCodec} from './is-audio-codec';
 import * as perf from './perf';
-import {
-	getCompositionName,
-	getIsEvaluation,
-	getRoot,
-	isPlainIndex,
-} from './register-root';
+import {getRoot} from './register-root';
 import {RemotionRoot} from './RemotionRoot';
 import {SequenceContext} from './sequencing';
 import {
@@ -162,8 +158,6 @@ export const Internals = {
 	getRoot,
 	getBrowserExecutable,
 	getCustomFfmpegExecutable,
-	getCompositionName,
-	getIsEvaluation,
 	getPixelFormat,
 	getConcurrency,
 	getRange,
@@ -200,7 +194,6 @@ export const Internals = {
 	SequenceContext,
 	useRemotionContexts,
 	RemotionContextProvider,
-	isPlainIndex,
 	CSSUtils,
 	setupEnvVariables,
 	setupInitialFrame,
@@ -244,6 +237,7 @@ export const Internals = {
 	getChromiumHeadlessMode,
 	DEFAULT_OPENGL_RENDERER,
 	getPreviewDomElement,
+	compositionsRef,
 };
 
 export type {

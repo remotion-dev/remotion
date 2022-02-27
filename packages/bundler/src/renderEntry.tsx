@@ -7,11 +7,13 @@ import React, {
 } from 'react';
 import {render} from 'react-dom';
 import {
+	BundleState,
 	continueRender,
 	delayRender,
 	getInputProps,
 	Internals,
 	LooseAnyComponent,
+	TCompMetadata,
 	TComposition,
 } from 'remotion';
 import {Homepage} from './homepage/homepage';
@@ -44,7 +46,7 @@ const GetVideo = () => {
 	);
 
 	useEffect(() => {
-		if (Internals.getIsEvaluation()) {
+		if (getIsEvaluation()) {
 			return;
 		}
 
@@ -52,7 +54,7 @@ const GetVideo = () => {
 			compositions.setCurrentComposition(
 				(
 					compositions.compositions.find(
-						(c) => c.id === Internals.getCompositionName()
+						(c) => c.id === getCompositionName()
 					) as TComposition
 				)?.id ?? null
 			);
@@ -75,7 +77,7 @@ const GetVideo = () => {
 	}, [fetchComponent, video]);
 
 	useEffect(() => {
-		if (Internals.getIsEvaluation()) {
+		if (getIsEvaluation()) {
 			continueRender(handle);
 		} else if (Component) {
 			continueRender(handle);
@@ -105,16 +107,67 @@ const GetVideo = () => {
 	);
 };
 
-if (!Internals.isPlainIndex()) {
-	render(
-		<Internals.RemotionRoot>
-			<Root />
-			<GetVideo />
-		</Internals.RemotionRoot>,
-		document.getElementById('video-container')
-	);
-}
+const renderContent = () => {
+	const videoContainer = document.getElementById(
+		'video-container'
+	) as HTMLElement;
+	const explainerContainer = document.getElementById(
+		'explainer-container'
+	) as HTMLElement;
 
-if (Internals.isPlainIndex() || Internals.getIsEvaluation()) {
-	render(<Homepage />, document.getElementById('explainer-container'));
+	if (!isPlainIndex()) {
+		render(
+			<Internals.RemotionRoot>
+				<Root />
+				<GetVideo />
+			</Internals.RemotionRoot>,
+			videoContainer
+		);
+	} else {
+		videoContainer.innerHTML = '';
+	}
+
+	if (isPlainIndex() || getIsEvaluation()) {
+		render(<Homepage />, explainerContainer);
+	} else {
+		explainerContainer.innerHTML = '';
+	}
+};
+
+renderContent();
+
+let bundleMode: BundleState = {
+	type: 'index',
+};
+
+export const isPlainIndex = () => {
+	return bundleMode.type === 'index';
+};
+
+export const getCompositionName = () => {
+	if (bundleMode.type !== 'composition') {
+		return null;
+	}
+	return bundleMode.compositionName;
+};
+
+export const getIsEvaluation = () => {
+	return bundleMode.type === 'evaluation';
+};
+
+export const setBundleMode = (state: BundleState) => {
+	bundleMode = state;
+	renderContent();
+};
+
+if (typeof window !== 'undefined') {
+	window.getStaticCompositions = (): TCompMetadata[] => {
+		if (!Internals.compositionsRef.current) {
+			throw new Error('Unexpectedly did not have a CompositionManager');
+		}
+
+		return Internals.compositionsRef.current.getCompositions();
+	};
+
+	window.setBundleMode = setBundleMode;
 }

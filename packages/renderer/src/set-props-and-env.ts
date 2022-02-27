@@ -24,7 +24,22 @@ export const setPropsAndEnv = async ({
 	page.setDefaultTimeout(actualTimeout);
 	page.setDefaultNavigationTimeout(actualTimeout);
 
-	await page.goto(normalizeServeUrl(serveUrl));
+	const urlToVisit = normalizeServeUrl(serveUrl);
+	const pageRes = await page.goto(urlToVisit);
+
+	if (pageRes.status() !== 200) {
+		throw new Error(
+			`Error while getting compositions: Tried to go to ${urlToVisit} but the status code was ${pageRes.status()} instead of 200. Does the site you specified exist?`
+		);
+	}
+
+	const isRemotionFn = await page.evaluate('window.getStaticCompositions');
+	if (isRemotionFn === undefined) {
+		throw new Error(
+			`Error while getting compositions: Tried to go to ${urlToVisit} and verify that it is a Remotion project by checking if window.getStaticCompositions is defined. However, the function was undefined, which indicates that this is not a valid Remotion project. Please check the URL you passed.`
+		);
+	}
+
 	await page.evaluate(
 		(key, value) => {
 			window.localStorage.setItem(key, value);
