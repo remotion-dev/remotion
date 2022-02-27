@@ -10,7 +10,13 @@ export const MyVideo = () => {
   const frame = useCurrentFrame();
 
   return (
-    <div style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+    <div
+      style={{
+        flex: 1,
+        textAlign: "center",
+        fontSize: "7em",
+      }}
+    >
       The current frame is {frame}.
     </div>
   );
@@ -43,8 +49,14 @@ export const MyVideo = () => {
   const { fps, durationInFrames, width, height } = useVideoConfig();
 
   return (
-    <div style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-      This video is {durationInFrames / fps} seconds long.
+    <div
+      style={{
+        flex: 1,
+        textAlign: "center",
+        fontSize: "7em",
+       }}
+      >
+      This {width}px x {height}px video is {durationInFrames / fps} seconds long.
     </div>
   );
 };
