@@ -145,6 +145,10 @@ export const setBundleMode = (state: BundleState) => {
 	renderContent();
 };
 
+export const getBundleMode = () => {
+	return bundleMode;
+};
+
 if (typeof window !== 'undefined') {
 	window.getStaticCompositions = (): TCompMetadata[] => {
 		if (!Internals.compositionsRef.current) {
