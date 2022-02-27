@@ -15,6 +15,7 @@ declare global {
 		remotion_collectAssets: () => TAsset[];
 		remotion_isPlayer: boolean;
 		remotion_imported: boolean;
+		siteVersion: '2';
 	}
 }
 
