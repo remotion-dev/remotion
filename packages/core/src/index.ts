@@ -6,6 +6,7 @@ declare global {
 	interface Window {
 		ready: boolean;
 		getStaticCompositions: () => TCompMetadata[];
+		setBundleMode: (bundleMode: BundleState) => void;
 		remotion_staticBase: string;
 		remotion_editorName: string | null;
 		remotion_setFrame: (frame: number) => void;
@@ -16,6 +17,18 @@ declare global {
 		remotion_imported: boolean;
 	}
 }
+
+export type BundleState =
+	| {
+			type: 'index';
+	  }
+	| {
+			type: 'evaluation';
+	  }
+	| {
+			type: 'composition';
+			compositionName: string;
+	  };
 
 checkMultipleRemotionVersions();
 

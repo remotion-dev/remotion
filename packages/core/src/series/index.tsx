@@ -1,4 +1,4 @@
-import React, {Children, FC, PropsWithChildren, useMemo} from 'react';
+import {Children, FC, PropsWithChildren, useMemo} from 'react';
 import {Sequence, SequenceProps} from '../sequencing';
 import {validateDurationInFrames} from '../validation/validate-duration-in-frames';
 import {flattenChildren} from './flatten-children';
@@ -21,7 +21,7 @@ const Series: FC & {
 	const childrenValue = useMemo(() => {
 		let startFrame = 0;
 		return Children.map(flattenChildren(children), (child, i) => {
-			const castedChild = (child as unknown) as
+			const castedChild = child as unknown as
 				| {
 						props: SeriesSequenceProps;
 						type: typeof SeriesSequence;

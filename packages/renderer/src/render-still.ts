@@ -148,7 +148,6 @@ const innerRenderStill = async ({
 	};
 
 	page.on('pageerror', errorCallback);
-	const site = `${normalizeServeUrl(serveUrl)}?composition=${composition.id}`;
 	await setPropsAndEnv({
 		inputProps,
 		envVariables,
@@ -158,7 +157,12 @@ const innerRenderStill = async ({
 		timeoutInMilliseconds,
 	});
 
-	await page.goto(site);
+	await page.evaluate(() => {
+		window.setBundleMode({
+			type: 'composition',
+			compositionName: composition.id,
+		});
+	});
 	try {
 		await seekToFrame({frame, page});
 	} catch (err) {
