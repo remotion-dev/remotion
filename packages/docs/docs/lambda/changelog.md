@@ -17,7 +17,7 @@ Experimental: Prefer '2022-02-14' version for stability.
 You need to rebundle and redeploy your projects for this version.
 :::
 
-Version hash: `3.0.0-lambda.295+67a488af4`
+Version hash: `3.0.0-lambda.400+3b736b911`
 Lambda version: '2022-03-01'
 
 - Fixes an issue where the `<Player />` would display the video smaller if the parent element of the player had a `scale()` transform applied to it
