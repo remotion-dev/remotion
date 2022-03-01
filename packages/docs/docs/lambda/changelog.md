@@ -10,6 +10,19 @@ Keep track of changes to the APIs of Remotion Lambda here.
 
 [Upgrading](/docs/lambda/upgrading)
 
+## March 1st, 2022
+
+:::note
+Experimental: Prefer '2022-02-14' version for stability.
+You need to rebundle and redeploy your projects for this version.
+:::
+
+Version hash: `3.0.0-lambda.295+67a488af4`
+Lambda version: '2022-03-01'
+
+- Fixes an issue where the `<Player />` would display the video smaller if the parent element of the player had a `scale()` transform applied to it
+- Bug fixed: Would not recognize a deployed Remotion function if there are a lot of functions in one AWS account.
+
 ## February 27th, 2022
 
 :::note
