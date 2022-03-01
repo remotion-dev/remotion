@@ -64,7 +64,16 @@ Internals.CSSUtils.injectCSS(
 	Internals.CSSUtils.makeDefaultCSS(`.${PLAYER_CSS_CLASSNAME}`, '#fff')
 );
 
-// eslint-disable-next-line complexity
+export const componentOrNullIfLazy = <T,>(
+	props: CompProps<T>
+): LooseAnyComponent<T> | null => {
+	if ('component' in props) {
+		return props.component as LooseAnyComponent<T>;
+	}
+
+	return null;
+};
+
 export const PlayerFn = <T,>(
 	{
 		durationInFrames,
@@ -103,21 +112,25 @@ export const PlayerFn = <T,>(
 		);
 	}
 
+	const componentForValidation = componentOrNullIfLazy(
+		componentProps
+	) as LooseAnyComponent<unknown> | null;
+
 	// @ts-expect-error
-	if (componentProps.component.type === Composition) {
+	if (componentForValidation?.type === Composition) {
 		throw new TypeError(
 			`'component' should not be an instance of <Composition/>. Pass the React component directly, and set the duration, fps and dimensions as separate props. See https://www.remotion.dev/docs/player/examples for an example.`
 		);
 	}
 
-	// @ts-expect-error
-	if (componentProps.component === Composition) {
+	if (componentForValidation === Composition) {
 		throw new TypeError(
 			`'component' must not be the 'Composition' component. Pass your own React component directly, and set the duration, fps and dimensions as separate props. See https://www.remotion.dev/docs/player/examples for an example.`
 		);
 	}
 
 	const component = Internals.useLazyComponent(componentProps);
+
 	const [frame, setFrame] = useState(0);
 	const [playing, setPlaying] = useState<boolean>(false);
 	const [rootId] = useState<string>('player-comp');

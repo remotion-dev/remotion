@@ -60,6 +60,7 @@ export const Combobox: React.FC<{
 	const {tabIndex, currentZIndex} = useZIndex();
 	const size = PlayerInternals.useElementSize(ref, {
 		triggerOnWindowResize: true,
+		shouldApplyCssTransforms: true,
 	});
 
 	const onHide = useCallback(() => {
