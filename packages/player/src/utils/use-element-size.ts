@@ -11,6 +11,7 @@ export const useElementSize = (
 	ref: React.RefObject<HTMLElement>,
 	options: {
 		triggerOnWindowResize: boolean;
+		shouldApplyCssTransforms: boolean;
 	}
 ): Size | null => {
 	const [size, setSize] = useState<Size | null>(null);
@@ -20,20 +21,33 @@ export const useElementSize = (
 		}
 
 		return new ResizeObserver((entries) => {
+			// The contentRect returns the width without any `scale()`'s being applied. The height is wrong
+			const {contentRect} = entries[0];
+			// The clientRect returns the size with `scale()` being applied.
 			const newSize = entries[0].target.getClientRects();
+
 			if (!newSize || !newSize[0]) {
 				setSize(null);
 				return;
 			}
 
+			const probableCssParentScale = newSize[0].width / contentRect.width;
+
+			const width = options.shouldApplyCssTransforms
+				? newSize[0].width
+				: newSize[0].width * (1 / probableCssParentScale);
+			const height = options.shouldApplyCssTransforms
+				? newSize[0].height
+				: newSize[0].height * (1 / probableCssParentScale);
+
 			setSize({
-				width: newSize[0].width,
-				height: newSize[0].height,
+				width,
+				height,
 				left: newSize[0].x,
 				top: newSize[0].y,
 			});
 		});
-	}, []);
+	}, [options.shouldApplyCssTransforms]);
 	const updateSize = useCallback(() => {
 		if (!ref.current) {
 			return;

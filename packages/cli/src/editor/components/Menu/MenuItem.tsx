@@ -55,6 +55,7 @@ export const MenuItem: React.FC<{
 	const ref = useRef<HTMLButtonElement>(null);
 	const size = PlayerInternals.useElementSize(ref, {
 		triggerOnWindowResize: true,
+		shouldApplyCssTransforms: true,
 	});
 	const {tabIndex, currentZIndex} = useZIndex();
 
