@@ -62,4 +62,4 @@ export * from './use-video-config';
 export * from './video';
 export * from './video-config';
 export {staticFile} from './static-file';
-export {PlayableMediaTag} from './timeline-position-state';
+export type {PlayableMediaTag} from './timeline-position-state';

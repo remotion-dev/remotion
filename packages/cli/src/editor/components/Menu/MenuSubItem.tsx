@@ -75,6 +75,7 @@ export const MenuSubItem: React.FC<{
 	const ref = useRef<HTMLDivElement>(null);
 	const size = PlayerInternals.useElementSize(ref, {
 		triggerOnWindowResize: true,
+		shouldApplyCssTransforms: true,
 	});
 	const {currentZIndex} = useZIndex();
 
