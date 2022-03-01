@@ -31,6 +31,13 @@ export const playAndHandleNotAllowedError = (
 				return;
 			}
 
+			// Got replaced by a different audio source in Chromium
+			if (
+				err.message.includes('request was interrupted by a new load request')
+			) {
+				return;
+			}
+
 			console.log(`Could not play ${mediaType} due to following error: `, err);
 			if (!current.muted) {
 				console.log(`The video will be muted and we'll retry playing it.`, err);
