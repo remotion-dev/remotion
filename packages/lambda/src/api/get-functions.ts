@@ -1,4 +1,7 @@
-import {ListFunctionsCommand} from '@aws-sdk/client-lambda';
+import {
+	FunctionConfiguration,
+	ListFunctionsCommand,
+} from '@aws-sdk/client-lambda';
 import {AwsRegion} from '../pricing/aws-regions';
 import {getLambdaClient} from '../shared/aws-clients';
 import {CURRENT_VERSION, RENDER_FN_PREFIX} from '../shared/constants';
@@ -8,6 +11,40 @@ import {FunctionInfo} from './get-function-info';
 export type GetFunctionsInput = {
 	region: AwsRegion;
 	compatibleOnly: boolean;
+};
+
+const getAllFunctions = async ({
+	existing,
+	nextMarker,
+	region,
+}: {
+	existing: FunctionConfiguration[];
+	nextMarker: string | null;
+	region: AwsRegion;
+}): Promise<FunctionConfiguration[]> => {
+	const allLambdas: FunctionConfiguration[] = [...existing];
+	const lambdas = await getLambdaClient(region).send(
+		new ListFunctionsCommand({
+			Marker: nextMarker ?? undefined,
+		})
+	);
+	if (!lambdas.Functions) {
+		return allLambdas;
+	}
+
+	for (const lambda of lambdas.Functions) {
+		allLambdas.push(lambda);
+	}
+
+	if (lambdas.NextMarker) {
+		return getAllFunctions({
+			existing: allLambdas,
+			nextMarker: lambdas.NextMarker,
+			region,
+		});
+	}
+
+	return allLambdas;
 };
 
 /**
@@ -22,11 +59,13 @@ export type GetFunctionsInput = {
 export const getFunctions = async (
 	options: GetFunctionsInput
 ): Promise<FunctionInfo[]> => {
-	const lambdas = await getLambdaClient(options.region).send(
-		new ListFunctionsCommand({})
-	);
+	const lambdas = await getAllFunctions({
+		existing: [],
+		nextMarker: null,
+		region: options.region,
+	});
 
-	const remotionLambdas = (lambdas.Functions || []).filter((f) => {
+	const remotionLambdas = lambdas.filter((f) => {
 		return f.FunctionName?.startsWith(RENDER_FN_PREFIX);
 	});
 
