@@ -14,6 +14,7 @@ export const Canvas: React.FC = () => {
 
 	const size = PlayerInternals.useElementSize(ref, {
 		triggerOnWindowResize: false,
+		shouldApplyCssTransforms: true,
 	});
 
 	return (

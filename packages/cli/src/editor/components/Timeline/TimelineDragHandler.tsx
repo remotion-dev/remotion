@@ -49,6 +49,7 @@ const getFrameFromX = (
 export const TimelineDragHandler: React.FC = () => {
 	const size = PlayerInternals.useElementSize(sliderAreaRef, {
 		triggerOnWindowResize: true,
+		shouldApplyCssTransforms: true,
 	});
 	const [inOutDragging, setInOutDragging] = useState<
 		| {
@@ -64,14 +65,11 @@ export const TimelineDragHandler: React.FC = () => {
 	});
 	const width = size?.width ?? 0;
 	const left = size?.left ?? 0;
-	const {
-		inFrame,
-		outFrame,
-	} = Internals.Timeline.useTimelineInOutFramePosition();
+	const {inFrame, outFrame} =
+		Internals.Timeline.useTimelineInOutFramePosition();
 
-	const {
-		setInAndOutFrames,
-	} = Internals.Timeline.useTimelineSetInOutFramePosition();
+	const {setInAndOutFrames} =
+		Internals.Timeline.useTimelineSetInOutFramePosition();
 
 	const {get} = useGetXPositionOfItemInTimeline();
 	const [dragging, setDragging] = useState<
