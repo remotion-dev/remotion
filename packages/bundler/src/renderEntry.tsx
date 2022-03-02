@@ -37,8 +37,6 @@ const Fallback: React.FC = () => {
 	return null;
 };
 
-const inputProps = getInputProps();
-
 const GetVideo: React.FC<{state: BundleState}> = ({state}) => {
 	const video = Internals.useVideo();
 	const compositions = useContext(Internals.CompositionManager);
@@ -101,7 +99,10 @@ const GetVideo: React.FC<{state: BundleState}> = ({state}) => {
 				}}
 			>
 				{Component ? (
-					<Component {...((video?.defaultProps as {}) ?? {})} {...inputProps} />
+					<Component
+						{...((video?.defaultProps as {}) ?? {})}
+						{...getInputProps()}
+					/>
 				) : null}
 			</div>
 		</Suspense>
