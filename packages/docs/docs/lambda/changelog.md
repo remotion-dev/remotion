@@ -10,6 +10,15 @@ Keep track of changes to the APIs of Remotion Lambda here.
 
 [Upgrading](/docs/lambda/upgrading)
 
+## March 3rd, 2022
+
+Version hash: `3.0.0-lambda.404+70a7d3fec`
+Lambda version: '2022-03-02'
+
+_✅ Tested again and now recommended to upgrade_
+
+- Fixed a regression where input props would not be passed into the component while rendering.
+
 ## March 1st, 2022
 
 :::note
