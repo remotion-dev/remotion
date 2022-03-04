@@ -12,6 +12,7 @@ import {
 	selectPackageManager,
 } from './pkg-managers';
 import prompts, {selectAsync} from './prompts';
+import {homedir, tmpdir} from 'os';
 
 type TEMPLATES = {
 	shortName: string;
@@ -218,7 +219,7 @@ export const init = async () => {
 			)
 		) + 2;
 
-	const selectedTemplate = await selectAsync(
+	const selectedTemplate = (await selectAsync(
 		{
 			message: 'Choose a template:',
 			optionsPerPage: 20,
@@ -236,9 +237,26 @@ export const init = async () => {
 			}),
 		},
 		{}
-	);
+	)) as string;
 
 	try {
+		const homeOrTmp = homedir() || tmpdir();
+
+		// Remove degit cache because of https://github.com/remotion-dev/remotion/issues/852
+		// https://github.com/Rich-Harris/degit/issues/313
+		const degitFolder = path.join(
+			homeOrTmp,
+			'.degit',
+			'github',
+			...selectedTemplate.split('/')
+		);
+
+		if (fs.existsSync(degitFolder)) {
+			await (fs.promises.rm ?? fs.promises.rmdir)(degitFolder, {
+				recursive: true,
+			});
+		}
+
 		const emitter = degit(`https://github.com/${selectedTemplate}`);
 		await emitter.clone(projectRoot);
 	} catch (e) {
