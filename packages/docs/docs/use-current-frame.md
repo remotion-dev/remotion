@@ -58,12 +58,9 @@ const MyVideo = () => {
   const frame = useCurrentFrame(); // 25
 
   return (
-    <div>
-      <Title />
-      <Sequence from={10}>
-        <Subtitle absoluteFrame={frame} />
-      </Sequence>
-    </div>
+    <Sequence from={10}>
+      <Subtitle absoluteFrame={frame} />
+    </Sequence>
   );
 };
 ```
