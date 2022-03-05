@@ -43,6 +43,10 @@ Using `<Sequence />`'s, you can compose multiple elements together and time-shif
 In rare circumstances, you want access to the absolute frame of the timeline inside a sequence, use `useCurrentFrame()` at the top-level component and then pass it down as a prop to the children of the `<Sequence />`.
 
 ```tsx twoslash
+import { Sequence, useCurrentFrame } from "remotion";
+
+// ---cut---
+
 const Subtitle: React.FC<{ absoluteFrame: number }> = ({ absoluteFrame }) => {
   console.log(useCurrentFrame()); // 15
   console.log(absoluteFrame); // 25
