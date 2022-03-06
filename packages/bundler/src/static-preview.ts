@@ -16,6 +16,8 @@ export const indexHtml = (staticHash: string, editorName: string | null) =>
 				? `<script>window.remotion_editorName = "${editorName}";</script>`
 				: '<script>window.remotion_editorName = null;</script>'
 		}
+		<script>window.remotion_projectPath = "${process.cwd()}";</script>
+		
 		<div id="container"></div>
 		<div id="menuportal-0"></div>
 		<div id="menuportal-1"></div>
