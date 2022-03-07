@@ -43,7 +43,7 @@ export const CurrentComposition = () => {
 
 	useEffect(() => {
 		window.document.title = `${video?.id || 'Composition'} - ${
-			window.remotion_projectPath
+			window.remotion_projectName
 		} - Remotion Preview`;
 	}, [video]);
 
