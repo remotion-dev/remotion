@@ -100,7 +100,10 @@ module.exports = {
       collapsed: false,
       type: "category",
       label: "Troubleshooting",
-      items: ["lambda/troubleshooting/permissions"],
+      items: [
+        "lambda/troubleshooting/permissions",
+        "lambda/troubleshooting/rate-limit",
+      ],
     },
     "lambda/changelog",
     "lambda/upgrading",

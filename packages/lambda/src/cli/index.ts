@@ -137,6 +137,14 @@ AWS returned an "AccessDenied" error message meaning a permission is missing. Re
 			);
 		}
 
+		if (error.stack?.includes('TooManyRequestsException')) {
+			Log.error(
+				`
+AWS returned an "TooManyRequestsException" error message which could mean you reached the concurrency limit of AWS Lambda. You can increase the limit - read this troubleshooting page: ${DOCS_URL}/docs/lambda/troubleshooting/rate-limit. The original error message is:
+`.trim()
+			);
+		}
+
 		Log.error(error.stack);
 		quit(1);
 	}
