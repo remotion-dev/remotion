@@ -59,6 +59,7 @@ module.exports = {
         "lambda/cli/still",
         "lambda/cli/policies",
         "lambda/cli/regions",
+        "lambda/cli/quotas",
       ],
     },
     "lambda/setup",
