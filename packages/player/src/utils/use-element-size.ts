@@ -7,6 +7,20 @@ export type Size = {
 	top: number;
 };
 
+// If a pane has been moved, it will cause a layout shift without
+// the window having been resized. Those UI elements can call this API to
+// force an update
+
+type ElementSizeForceUpdate = () => void;
+
+let elementSizeHooks: ElementSizeForceUpdate[] = [];
+
+export const updateAllElementsSizes = () => {
+	for (const listener of elementSizeHooks) {
+		listener();
+	}
+};
+
 export const useElementSize = (
 	ref: React.RefObject<HTMLElement>,
 	options: {
@@ -96,6 +110,14 @@ export const useElementSize = (
 			window.removeEventListener('resize', updateSize);
 		};
 	}, [options.triggerOnWindowResize, updateSize]);
+
+	useEffect(() => {
+		elementSizeHooks.push(updateSize);
+
+		return () => {
+			elementSizeHooks = elementSizeHooks.filter((e) => e !== updateSize);
+		};
+	}, [updateSize]);
 
 	return size;
 };
