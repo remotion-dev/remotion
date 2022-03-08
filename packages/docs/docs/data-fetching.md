@@ -17,17 +17,17 @@ export const MyVideo = () => {
   const [data, setData] = useState(null);
   const [handle] = useState(() => delayRender());
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     const response = await fetch("http://example.com/api");
     const json = await response.json();
     setData(json);
 
     continueRender(handle);
-  };
+  }, [handle]);
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [fetchData]);
 
   return (
     <div>
