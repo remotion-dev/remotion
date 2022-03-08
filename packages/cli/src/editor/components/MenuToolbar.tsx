@@ -20,6 +20,16 @@ const row: React.CSSProperties = {
 
 	fontSize: 13,
 	paddingLeft: 6,
+	paddingRight: 10,
+};
+
+const flex: React.CSSProperties = {
+	flex: 1,
+};
+
+const cwd: React.CSSProperties = {
+	fontSize: 13,
+	opacity: 0.8,
 };
 
 type Structure = Menu[];
@@ -473,6 +483,10 @@ export const MenuToolbar: React.FC = () => {
 				);
 			})}
 			<UpdateCheck />
+			<div style={flex}></div>
+			<div style={cwd} title={window.remotion_cwd}>
+				{window.remotion_projectName}
+			</div>
 		</Row>
 	);
 };
