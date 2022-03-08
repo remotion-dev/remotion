@@ -12,6 +12,7 @@ slug: /lambda/cli
 - [render](/docs/lambda/cli/render)
 - [still](/docs/lambda/cli/still)
 - [policies](/docs/lambda/cli/policies)
+- [quotas](/docs/lambda/cli/quotas)
 
 ## Global options
 
