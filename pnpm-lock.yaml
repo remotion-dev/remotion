@@ -544,6 +544,7 @@ importers:
       '@aws-sdk/client-iam': 3.42.0
       '@aws-sdk/client-lambda': 3.42.0
       '@aws-sdk/client-s3': 3.42.0
+      '@aws-sdk/client-service-quotas': 3.42.0
       '@aws-sdk/lib-storage': 3.42.0
       '@aws-sdk/s3-request-presigner': 3.42.0
       '@jonny/eslint-config': ^2.1.242
@@ -574,6 +575,7 @@ importers:
       '@aws-sdk/client-iam': 3.42.0
       '@aws-sdk/client-lambda': 3.42.0
       '@aws-sdk/client-s3': 3.42.0
+      '@aws-sdk/client-service-quotas': 3.42.0
       '@aws-sdk/lib-storage': 3.42.0_ed4f376b350c0d63a41a72f2ea3ac6e2
       '@aws-sdk/s3-request-presigner': 3.42.0
       '@remotion/bundler': link:../bundler
@@ -1116,6 +1118,43 @@ packages:
       tslib: 2.3.1
     transitivePeerDependencies:
       - '@aws-sdk/signature-v4-crt'
+    dev: false
+
+  /@aws-sdk/client-service-quotas/3.42.0:
+    resolution: {integrity: sha512-KJK12+H5c8EncydCMzRax4D+uDMoC9lS9aZcunW1qr47oA2uXrfSqDFra8EJdXq9+RS/l0V47/wpBbQWM5IvJA==}
+    engines: {node: '>=10.0.0'}
+    dependencies:
+      '@aws-crypto/sha256-browser': 2.0.0
+      '@aws-crypto/sha256-js': 2.0.0
+      '@aws-sdk/client-sts': 3.42.0
+      '@aws-sdk/config-resolver': 3.40.0
+      '@aws-sdk/credential-provider-node': 3.41.0
+      '@aws-sdk/fetch-http-handler': 3.40.0
+      '@aws-sdk/hash-node': 3.40.0
+      '@aws-sdk/invalid-dependency': 3.40.0
+      '@aws-sdk/middleware-content-length': 3.40.0
+      '@aws-sdk/middleware-host-header': 3.40.0
+      '@aws-sdk/middleware-logger': 3.40.0
+      '@aws-sdk/middleware-retry': 3.40.0
+      '@aws-sdk/middleware-serde': 3.40.0
+      '@aws-sdk/middleware-signing': 3.40.0
+      '@aws-sdk/middleware-stack': 3.40.0
+      '@aws-sdk/middleware-user-agent': 3.40.0
+      '@aws-sdk/node-config-provider': 3.40.0
+      '@aws-sdk/node-http-handler': 3.40.0
+      '@aws-sdk/protocol-http': 3.40.0
+      '@aws-sdk/smithy-client': 3.41.0
+      '@aws-sdk/types': 3.40.0
+      '@aws-sdk/url-parser': 3.40.0
+      '@aws-sdk/util-base64-browser': 3.37.0
+      '@aws-sdk/util-base64-node': 3.37.0
+      '@aws-sdk/util-body-length-browser': 3.37.0
+      '@aws-sdk/util-body-length-node': 3.37.0
+      '@aws-sdk/util-user-agent-browser': 3.40.0
+      '@aws-sdk/util-user-agent-node': 3.40.0
+      '@aws-sdk/util-utf8-browser': 3.37.0
+      '@aws-sdk/util-utf8-node': 3.37.0
+      tslib: 2.3.1
     dev: false
 
   /@aws-sdk/client-sso/3.41.0:

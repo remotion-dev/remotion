@@ -7,6 +7,7 @@ import {functionsCommand, FUNCTIONS_COMMAND} from './commands/functions';
 import {policiesCommand, POLICIES_COMMAND} from './commands/policies/policies';
 import {ROLE_SUBCOMMAND} from './commands/policies/role';
 import {USER_SUBCOMMAND} from './commands/policies/user';
+import {quotasCommand, QUOTAS_COMMAND} from './commands/quotas';
 import {regionsCommand, REGIONS_COMMAND} from './commands/regions';
 import {renderCommand, RENDER_COMMAND} from './commands/render/render';
 import {sitesCommand, SITES_COMMAND} from './commands/sites';
@@ -34,7 +35,7 @@ const requiresCredentials = (args: string[]) => {
 	return true;
 };
 
-const matchCommand = async (args: string[]) => {
+const matchCommand = (args: string[]) => {
 	if (parsedLambdaCli.help || args.length === 0) {
 		printHelp();
 		quit(0);
@@ -54,6 +55,10 @@ const matchCommand = async (args: string[]) => {
 
 	if (args[0] === FUNCTIONS_COMMAND) {
 		return functionsCommand(args.slice(1));
+	}
+
+	if (args[0] === QUOTAS_COMMAND) {
+		return quotasCommand();
 	}
 
 	if (args[0] === POLICIES_COMMAND) {

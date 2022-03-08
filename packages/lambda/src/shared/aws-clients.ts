@@ -2,6 +2,7 @@ import {CloudWatchLogsClient} from '@aws-sdk/client-cloudwatch-logs';
 import {IAMClient} from '@aws-sdk/client-iam';
 import {LambdaClient} from '@aws-sdk/client-lambda';
 import {S3Client} from '@aws-sdk/client-s3';
+import {ServiceQuotasClient} from '@aws-sdk/client-service-quotas';
 import {AwsRegion} from '../pricing/aws-regions';
 import {checkCredentials} from './check-credentials';
 import {isInsideLambda} from './is-in-lambda';
@@ -50,6 +51,7 @@ export type ServiceMapping = {
 	cloudwatch: CloudWatchLogsClient;
 	iam: IAMClient;
 	lambda: LambdaClient;
+	servicequotas: ServiceQuotasClient;
 };
 
 export const getServiceClient = <T extends keyof ServiceMapping>(
@@ -75,6 +77,10 @@ export const getServiceClient = <T extends keyof ServiceMapping>(
 
 		if (service === 'iam') {
 			return IAMClient;
+		}
+
+		if (service === 'servicequotas') {
+			return ServiceQuotasClient;
 		}
 	})();
 
@@ -116,4 +122,10 @@ export const getLambdaClient = (region: AwsRegion): LambdaClient => {
 
 export const getIamClient = (region: AwsRegion): IAMClient => {
 	return getServiceClient(region, 'iam');
+};
+
+export const getServiceQuotasClient = (
+	region: AwsRegion
+): ServiceQuotasClient => {
+	return getServiceClient(region, 'servicequotas');
 };
