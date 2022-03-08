@@ -42,9 +42,12 @@ export const CurrentComposition = () => {
 	const video = Internals.useVideo();
 
 	useEffect(() => {
-		window.document.title = `${video?.id || 'Composition'} - ${
-			window.remotion_projectName
-		} - Remotion Preview`;
+		if (!video) {
+			document.title = 'Remotion Preview';
+			return;
+		}
+
+		document.title = `${video.id} / ${window.remotion_projectName} - Remotion Preview`;
 	}, [video]);
 
 	if (!video) {
