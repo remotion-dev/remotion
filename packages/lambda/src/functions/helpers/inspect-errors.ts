@@ -2,6 +2,7 @@ import {_Object} from '@aws-sdk/client-s3';
 import {Internals} from 'remotion';
 import {AwsRegion} from '../../pricing/aws-regions';
 import {getErrorKeyPrefix} from '../../shared/constants';
+import {DOCS_URL} from '../../shared/docs-url';
 import {streamToString} from '../../shared/stream-to-string';
 import {lambdaReadFile} from './io';
 import {
@@ -26,6 +27,10 @@ const getExplanation = (stack: string) => {
 			FAILED_TO_LAUNCH_TOKEN +
 			' Will be retried - you can probably ignore this error.'
 		);
+	}
+
+	if (stack.includes('TooManyRequestsException')) {
+		return `AWS returned an "TooManyRequestsException" error message which could mean you reached the concurrency limit of AWS Lambda. You can increase the limit - read this troubleshooting page: ${DOCS_URL}/docs/lambda/troubleshooting/rate-limit`;
 	}
 
 	if (errorIsOutOfSpaceError(stack)) {

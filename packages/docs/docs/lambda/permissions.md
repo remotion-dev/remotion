@@ -184,6 +184,20 @@ The following table is a breakdown of why Remotion Lambda requires the permissio
     Allows to create CloudWatch group, so logs can be saved in there later. Simplifies debugging.
     </td>
   </tr>
+  <tr>
+    <td>
+      <code>servicequotas:GetServiceQuota</code> <br/>
+      <code>servicequotas:GetAWSDefaultServiceQuota</code> <br/>
+      <code>servicequotas:RequestServiceQuotaIncrease</code> <br/>
+      <code style={{wordBreak: 'break-all'}}>servicequotas:ListRequestedServiceQuotaChangeHistoryByQuota</code> <br/>
+    </td>
+    <td>
+      <code>{"*"}</code>
+    </td>
+    <td>
+    Powers the <code>lambda quotas</code> CLI command.
+    </td>
+  </tr>
 </table>
 
 ### Role policies

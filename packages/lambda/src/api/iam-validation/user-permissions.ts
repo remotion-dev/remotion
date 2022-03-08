@@ -1,4 +1,4 @@
-import {iam, lambda, logs, s3} from 'aws-policies';
+import {iam, lambda, logs, s3, servicequotas} from 'aws-policies';
 import {
 	LOG_GROUP_PREFIX,
 	REMOTION_BUCKET_PREFIX,
@@ -7,10 +7,20 @@ import {
 import {REMOTION_HOSTED_LAYER_ARN} from '../../shared/hosted-layers';
 
 export const requiredPermissions: {
-	actions: (s3 | iam | lambda | logs)[];
+	actions: (s3 | iam | lambda | logs | servicequotas)[];
 	resource: string[];
 	id: string;
 }[] = [
+	{
+		id: 'HandleQuotas',
+		actions: [
+			servicequotas.GetServiceQuota,
+			servicequotas.GetAWSDefaultServiceQuota,
+			servicequotas.RequestServiceQuotaIncrease,
+			servicequotas.ListRequestedServiceQuotaChangeHistoryByQuota,
+		],
+		resource: ['*'],
+	},
 	{
 		id: 'Identity',
 		actions: [iam.GetUser],

@@ -424,3 +424,6 @@ export type RenderProgress = {
 };
 
 export type Privacy = 'public' | 'private';
+
+export const LAMBDA_CONCURRENCY_LIMIT_QUOTA = 'L-B99A9384';
+export const LAMBDA_BURST_LIMIT_QUOTA = 'L-548AE339';
