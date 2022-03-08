@@ -2,6 +2,7 @@ import {CliInternals} from '@remotion/cli';
 import {BINARY_NAME} from '../shared/constants';
 import {FUNCTIONS_COMMAND} from './commands/functions';
 import {POLICIES_COMMAND} from './commands/policies/policies';
+import {QUOTAS_COMMAND} from './commands/quotas';
 import {REGIONS_COMMAND} from './commands/regions';
 import {RENDER_COMMAND} from './commands/render/render';
 import {SITES_COMMAND} from './commands/sites';
@@ -41,4 +42,10 @@ export const printHelp = () => {
 	Log.info();
 	Log.info(`${BINARY_NAME} ${REGIONS_COMMAND}`);
 	Log.info(CliInternals.chalk.gray('Show the list of AWS regions supported.'));
+
+	Log.info();
+	Log.info(`${BINARY_NAME} ${QUOTAS_COMMAND}`);
+	Log.info(
+		CliInternals.chalk.gray('Shows AWS quotas and allows to increase them.')
+	);
 };

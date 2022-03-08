@@ -58,7 +58,7 @@ const matchCommand = (args: string[]) => {
 	}
 
 	if (args[0] === QUOTAS_COMMAND) {
-		return quotasCommand();
+		return quotasCommand(args.slice(1));
 	}
 
 	if (args[0] === POLICIES_COMMAND) {

@@ -17,6 +17,7 @@ export const requiredPermissions: {
 			servicequotas.GetServiceQuota,
 			servicequotas.GetAWSDefaultServiceQuota,
 			servicequotas.RequestServiceQuotaIncrease,
+			servicequotas.ListRequestedServiceQuotaChangeHistoryByQuota,
 		],
 		resource: ['*'],
 	},
