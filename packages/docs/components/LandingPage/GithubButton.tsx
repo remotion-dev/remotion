@@ -21,10 +21,10 @@ export const GithubButton: React.FC = () => {
 
   useEffect(() => {
     fetch(`https://api.github.com/repos/remotion-dev/remotion`)
-      .then(res => res.json())
-      .then(json => json.watchers)
-      .then(setStars)
-      .catch(err => {
+      .then((res) => res.json())
+      .then((json) => json.watchers)
+      .then((w) => setStars(w))
+      .catch((err) => {
         console.log(err);
         setStars(null);
       });
@@ -32,10 +32,9 @@ export const GithubButton: React.FC = () => {
 
   return (
     <div className={styles.container}>
-      <GithubIcon /> <span>GitHub</span>{' '}
+      <GithubIcon /> <span>GitHub</span>{" "}
       <div className={styles.stars}>
-        <div style={{ width: 8, display: "inline-block" }}></div>{" "}
-        {stars ? stars : null}
+        {stars ? Math.floor(stars / 1000) + "k" : null}
       </div>
     </div>
   );

@@ -9,13 +9,15 @@ You can start the preview server of Remotion using
 npm start
 ```
 
-If you are using a custom template, use
+This is a shorthand for
 
 ```bash
 npx remotion preview src/index.tsx
 ```
 
-where `src/index.tsx` is the file where `registerRoot()` is called.
+where `src/index.tsx` is the file where [`registerRoot()`](/docs/registerroot) is called.
+
+A server will be started on port 3000 (or 3001 if it's not available, and so on) and the preview should open in the browser.
 
 <img src="/img/timeline.png"></img>
 
