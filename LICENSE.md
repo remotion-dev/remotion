@@ -7,7 +7,7 @@ Depending on the type of your legal entity, you are granted permission to use Re
 
 ## Free license
 
-Copyright © 2021 [Jonny Burger](https://jonny.io)
+Copyright © 2022 [Jonny Burger](https://jonny.io)
 
 ### Eligibility
 
@@ -32,7 +32,7 @@ The software is provided "as is", without warranty of any kind, express or impli
 
 ### Support
 
-Support is provided on a best-we-can-do basis via GitHub Issues.
+Support is provided on a best-we-can-do basis via GitHub Issues and Discord.
 
 ## Company license
 
