@@ -403,7 +403,7 @@ export async function guessEditor(): Promise<Editor[]> {
 
 let _childProcess: ChildProcess | null = null;
 
-export async function launchEditor({
+export function launchEditor({
 	colNumber,
 	editor,
 	fileName,

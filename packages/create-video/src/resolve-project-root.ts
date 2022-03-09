@@ -59,6 +59,7 @@ export const resolveProjectRoot = async (): Promise<[string, string]> => {
 			throw error;
 		}
 	}
+
 	const projectRoot = path.resolve(projectName);
 	const folderName = path.basename(projectRoot);
 
