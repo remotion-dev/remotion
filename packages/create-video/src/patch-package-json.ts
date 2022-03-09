@@ -1,0 +1,13 @@
+import path from 'path';
+import fs from 'fs';
+
+export const patchPackageJson = (projectRoot: string, projectName) => {
+	const fileName = path.join(projectRoot, 'package.json');
+
+	const contents = fs.readFileSync(fileName, 'utf-8');
+	const packageJson = JSON.parse(contents);
+	const newPackageJson = JSON.stringify({
+		...packageJson,
+		name: projectName,
+	});
+};

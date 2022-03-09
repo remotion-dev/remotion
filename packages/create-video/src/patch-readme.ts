@@ -8,7 +8,7 @@ import {
 	PackageManager,
 } from './pkg-managers';
 
-export const patchReadmeMD = async (
+export const patchReadmeMd = (
 	projectRoot: string,
 	packageManager: PackageManager
 ) => {
