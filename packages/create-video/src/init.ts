@@ -16,6 +16,7 @@ import {homedir, tmpdir} from 'os';
 import {validateName} from './validate-name';
 import {resolveProjectRoot} from './resolve-project-root';
 import {patchReadmeMd} from './patch-readme';
+import {patchPackageJson} from './patch-package-json';
 
 type TEMPLATES = {
 	shortName: string;
@@ -184,6 +185,7 @@ export const init = async () => {
 		const emitter = degit(`https://github.com/${selectedTemplate}`);
 		await emitter.clone(projectRoot);
 		patchReadmeMd(projectRoot, pkgManager);
+		patchPackageJson(projectRoot, folderName);
 	} catch (e) {
 		Log.error(e);
 		Log.error('Error with template cloning. Aborting');
