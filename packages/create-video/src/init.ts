@@ -13,6 +13,9 @@ import {
 } from './pkg-managers';
 import prompts, {selectAsync} from './prompts';
 import {homedir, tmpdir} from 'os';
+import {resolveProjectRoot} from './resolve-project-root';
+import {patchReadmeMd} from './patch-readme';
+import {patchPackageJson} from './patch-package-json';
 
 type TEMPLATES = {
 	shortName: string;
@@ -62,45 +65,6 @@ function padEnd(str: string, width: number): string {
 	// Pulled from commander for overriding
 	const len = Math.max(0, width - stripAnsi(str).length);
 	return str + Array(len + 1).join(' ');
-}
-
-function validateName(name?: string): string | true {
-	if (typeof name !== 'string' || name === '') {
-		return 'The project name can not be empty.';
-	}
-
-	if (!/^[a-z0-9@.\-_]+$/i.test(name)) {
-		return 'The project name can only contain URL-friendly characters (alphanumeric and @ . -  _)';
-	}
-
-	return true;
-}
-
-function assertValidName(folderName: string) {
-	const validation = validateName(folderName);
-	if (typeof validation === 'string') {
-		throw new Error(
-			`Cannot create an app named ${chalk.red(
-				`"${folderName}"`
-			)}. ${validation}`
-		);
-	}
-}
-
-function assertFolderEmptyAsync(projectRoot: string): {exists: boolean} {
-	const conflicts = fs
-		.readdirSync(projectRoot)
-		.filter((file: string) => !/\.iml$/.test(file));
-
-	if (conflicts.length > 0) {
-		Log.newLine();
-		Log.error(`Something already exists at "${projectRoot}"`);
-		Log.error('Try using a new directory name, or moving these files.');
-		Log.newLine();
-		return {exists: true};
-	}
-
-	return {exists: false};
 }
 
 const isGitExecutableAvailable = async () => {
@@ -166,50 +130,8 @@ const initGitRepoAsync = async (
 	}
 };
 
-const resolveProjectRootAsync = async (): Promise<[string, string]> => {
-	let projectName = '';
-	try {
-		const {answer} = await prompts({
-			type: 'text',
-			name: 'answer',
-			message: 'What would you like to name your video?',
-			initial: 'my-video',
-			validate: (name) => {
-				const validation = validateName(path.basename(path.resolve(name)));
-				if (typeof validation === 'string') {
-					return 'Invalid project name: ' + validation;
-				}
-
-				return true;
-			},
-		});
-
-		if (typeof answer === 'string') {
-			projectName = answer.trim();
-		}
-	} catch (error) {
-		// Handle the aborted message in a custom way.
-		if ((error as {code: string}).code !== 'ABORTED') {
-			throw error;
-		}
-	}
-
-	const projectRoot = path.resolve(projectName);
-	const folderName = path.basename(projectRoot);
-
-	assertValidName(folderName);
-
-	await fs.ensureDir(projectRoot);
-
-	if (assertFolderEmptyAsync(projectRoot).exists) {
-		return resolveProjectRootAsync();
-	}
-
-	return [projectRoot, folderName];
-};
-
 export const init = async () => {
-	const [projectRoot, folderName] = await resolveProjectRootAsync();
+	const [projectRoot, folderName] = await resolveProjectRoot();
 	await isGitExecutableAvailable();
 
 	const descriptionColumn =
@@ -239,6 +161,8 @@ export const init = async () => {
 		{}
 	)) as string;
 
+	const pkgManager = selectPackageManager();
+
 	try {
 		const homeOrTmp = homedir() || tmpdir();
 
@@ -259,6 +183,8 @@ export const init = async () => {
 
 		const emitter = degit(`https://github.com/${selectedTemplate}`);
 		await emitter.clone(projectRoot);
+		patchReadmeMd(projectRoot, pkgManager);
+		patchPackageJson(projectRoot, folderName);
 	} catch (e) {
 		Log.error(e);
 		Log.error('Error with template cloning. Aborting');
@@ -270,8 +196,6 @@ export const init = async () => {
 			folderName
 		)}. Installing dependencies...`
 	);
-
-	const pkgManager = selectPackageManager();
 
 	if (pkgManager === 'yarn') {
 		Log.info('> yarn');
