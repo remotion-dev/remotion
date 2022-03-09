@@ -15,7 +15,7 @@ import prompts, {selectAsync} from './prompts';
 import {homedir, tmpdir} from 'os';
 import {validateName} from './validate-name';
 import {resolveProjectRoot} from './resolve-project-root';
-import {patchReadmeMD} from './patch-readme';
+import {patchReadmeMd} from './patch-readme';
 
 type TEMPLATES = {
 	shortName: string;
@@ -161,6 +161,8 @@ export const init = async () => {
 		{}
 	)) as string;
 
+	const pkgManager = selectPackageManager();
+
 	try {
 		const homeOrTmp = homedir() || tmpdir();
 
@@ -181,6 +183,7 @@ export const init = async () => {
 
 		const emitter = degit(`https://github.com/${selectedTemplate}`);
 		await emitter.clone(projectRoot);
+		patchReadmeMd(projectRoot, pkgManager);
 	} catch (e) {
 		Log.error(e);
 		Log.error('Error with template cloning. Aborting');
@@ -192,8 +195,6 @@ export const init = async () => {
 			folderName
 		)}. Installing dependencies...`
 	);
-
-	const pkgManager = selectPackageManager();
 
 	if (pkgManager === 'yarn') {
 		Log.info('> yarn');
@@ -226,8 +227,6 @@ export const init = async () => {
 		promise.stdout?.pipe(process.stdout);
 		await promise;
 	}
-
-	patchReadmeMD(projectRoot, pkgManager);
 
 	await initGitRepoAsync(projectRoot, {
 		silent: true,
