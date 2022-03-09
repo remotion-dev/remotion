@@ -3,7 +3,7 @@ id: register-root
 title: registerRoot()
 ---
 
-`registerRoot` is a function that the root component of the Remotion project. In the root component, one or multiple compositions should be returned (in the case of multiple compositions, they should be wrapped in a React Fragment).
+`registerRoot` is a function that registers the root component of the Remotion project. In the root component, one or multiple compositions should be returned (in the case of multiple compositions, they should be wrapped in a React Fragment).
 
 :::info
 The list of compositions can be updated without reloading the page, but calling `registerRoot()` multiple times is an error. This is why the root component should be placed in a different file than `registerRoot()` itself.
