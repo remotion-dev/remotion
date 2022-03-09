@@ -415,16 +415,16 @@ export function launchEditor({
 	colNumber: number;
 	editor: Editor;
 	vsCodeNewWindow: boolean;
-}): Promise<boolean> {
+}): boolean {
 	if (!fs.existsSync(fileName)) {
-		return Promise.resolve(false);
+		return false;
 	}
 
 	// Sanitize lineNumber to prevent malicious use on win32
 	// via: https://github.com/nodejs/node/blob/c3bb4b1aa5e907d489619fb43d233c3336bfc03d/lib/child_process.js#L333
 	// and it should be a positive integer
 	if (!(Number.isInteger(lineNumber) && lineNumber > 0)) {
-		return Promise.resolve(false);
+		return false;
 	}
 
 	// colNumber is optional, but should be a positive integer too
@@ -434,7 +434,7 @@ export function launchEditor({
 	}
 
 	if (editor.toLowerCase() === 'none') {
-		return Promise.resolve(false);
+		return false;
 	}
 
 	if (
@@ -471,7 +471,7 @@ export function launchEditor({
 				'dashes, slashes, and underscores.'
 		);
 		console.log();
-		return Promise.resolve(false);
+		return false;
 	}
 
 	const shouldOpenVsCodeNewWindow =
@@ -513,5 +513,5 @@ export function launchEditor({
 	_childProcess.on('error', (error) => {
 		console.log('Error opening file in editor', fileName, error.message);
 	});
-	return Promise.resolve(true);
+	return true;
 }
