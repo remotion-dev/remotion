@@ -15,7 +15,7 @@ This is a shorthand for
 npx remotion preview src/index.tsx
 ```
 
-where `src/index.tsx` is the file where [`registerRoot()`](/docs/registerroot) is called.
+where `src/index.tsx` is the file where [`registerRoot()`](/docs/register-root) is called.
 
 A server will be started on port 3000 (or 3001 if it's not available, and so on) and the preview should open in the browser.
 
