@@ -1,6 +1,6 @@
 import path from 'path';
 
-type PackageManager = 'npm' | 'yarn' | 'pnpm';
+export type PackageManager = 'npm' | 'yarn' | 'pnpm';
 
 const shouldUseYarn = (): boolean => {
 	return Boolean(
@@ -38,6 +38,19 @@ export const selectPackageManager = (): PackageManager => {
 	return 'npm';
 };
 
+export const getInstallCommand = (manager: PackageManager) => {
+	if (manager === 'npm') {
+		return `npm i`;
+	}
+
+	if (manager === 'yarn') {
+		return `yarn`;
+	}
+
+	if (manager === 'pnpm') {
+		return `pnpm i`;
+	}
+};
 export const getStartCommand = (manager: PackageManager) => {
 	if (manager === 'npm') {
 		return `npm start`;
@@ -63,5 +76,18 @@ export const getRenderCommand = (manager: PackageManager) => {
 
 	if (manager === 'pnpm') {
 		return `pnpm build`;
+	}
+};
+export const getUpgradeCommand = (manager: PackageManager) => {
+	if (manager === 'npm') {
+		return `npm run upgrade`;
+	}
+
+	if (manager === 'yarn') {
+		return `yarn run upgrade`;
+	}
+
+	if (manager === 'pnpm') {
+		return `pnpm run upgrade`;
 	}
 };
