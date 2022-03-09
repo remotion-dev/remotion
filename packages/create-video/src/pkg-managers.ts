@@ -51,6 +51,7 @@ export const getInstallCommand = (manager: PackageManager) => {
 		return `pnpm i`;
 	}
 };
+
 export const getStartCommand = (manager: PackageManager) => {
 	if (manager === 'npm') {
 		return `npm start`;
@@ -78,6 +79,7 @@ export const getRenderCommand = (manager: PackageManager) => {
 		return `pnpm build`;
 	}
 };
+
 export const getUpgradeCommand = (manager: PackageManager) => {
 	if (manager === 'npm') {
 		return `npm run upgrade`;

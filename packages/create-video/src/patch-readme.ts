@@ -21,15 +21,19 @@ export const patchReadmeMd = (
 			if (c.startsWith('npm install') || c.startsWith('npm i')) {
 				return getInstallCommand(packageManager);
 			}
+
 			if (c.startsWith('npm start')) {
 				return getStartCommand(packageManager);
 			}
+
 			if (c.startsWith('npm run build')) {
 				return getRenderCommand(packageManager);
 			}
+
 			if (c.startsWith('npm run upgrade')) {
 				return getUpgradeCommand(packageManager);
 			}
+
 			return c;
 		})
 		.join('\n');

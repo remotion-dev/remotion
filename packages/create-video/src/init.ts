@@ -13,7 +13,6 @@ import {
 } from './pkg-managers';
 import prompts, {selectAsync} from './prompts';
 import {homedir, tmpdir} from 'os';
-import {validateName} from './validate-name';
 import {resolveProjectRoot} from './resolve-project-root';
 import {patchReadmeMd} from './patch-readme';
 import {patchPackageJson} from './patch-package-json';
