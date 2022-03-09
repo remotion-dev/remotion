@@ -12,10 +12,10 @@ import TabItem from '@theme/TabItem';
 
 The only dependencies for Remotion are FFMPEG and Node.js.
 
-Please read these guides to install them in case you haven't yet.
+See:
 
-- [Installing FFMPEG](https://github.com/adaptlearning/adapt_authoring/wiki/Installing-FFmpeg) - Supported: >=4.1.0, >5.0.0
 - [Installing Node.js](https://nodejs.org/en/download/) - Minimum: Version 12.10.0
+- [Installing FFMPEG](https://github.com/adaptlearning/adapt_authoring/wiki/Installing-FFmpeg) - Minimum version: 4.1.0 - you will only need it for rendering.
 
 ## Installation
 
