@@ -6,12 +6,12 @@ title: registerRoot()
 `registerRoot` is a function that registers the root component of the Remotion project. In the root component, one or multiple compositions should be returned (in the case of multiple compositions, they should be wrapped in a React Fragment).
 
 :::info
-The list of compositions can be updated without reloading the page, but calling `registerRoot()` multiple times is an error. This is why the root component should be placed in a different file than `registerRoot()` itself.
+`registerRoot()` should live in a file that is separarate from the list of compositions. This is because when using React Fast Refresh, all the code in the file that gets refreshed gets executed again, however, this function should only be called once.
 :::
 
 ## Example
 
-```tsx twoslash title="index.ts"
+```tsx twoslash title="src/index.ts"
 // @filename: ./Video.tsx
 export const RemotionVideo = () => <></>;
 
@@ -23,7 +23,7 @@ import { RemotionVideo } from "./Video";
 registerRoot(RemotionVideo);
 ```
 
-```tsx twoslash title="Video.tsx"
+```tsx twoslash title="src/Video.tsx"
 // @allowUmdGlobalAccess
 // @filename: MyComponent.tsx
 export default () => <></>;
