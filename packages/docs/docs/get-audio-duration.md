@@ -22,11 +22,25 @@ A string pointing to an audio asset
 ```tsx twoslash
 // @module: ESNext
 // @target: ESNext
-import { Audio } from "remotion";
+import { useCallback, useEffect } from "react";
+import { Audio, staticFile } from "remotion";
 // ---cut---
 import { getAudioDuration } from "@remotion/media-utils";
 import music from "./music.mp3";
 
-await getAudioDuration(music); // 127.452
-await getAudioDuration("https://example.com/remote-audio.aac"); // 50.24
+const MyComp: React.FC = () => {
+  const getDuration = useCallback(async () => {
+    const imported = await getAudioDuration(music); // 127.452
+    const publicFile = await getAudioDuration(staticFile("voiceover.wav")); // 33.221
+    const remote = await getAudioDuration(
+      "https://example.com/remote-audio.aac"
+    ); // 50.24
+  }, []);
+
+  useEffect(() => {
+    getDuration();
+  }, []);
+
+  return null;
+};
 ```
