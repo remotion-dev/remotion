@@ -38,4 +38,4 @@ There is no integration available but Remotion shares some code with Reanimated,
 
 ## Other libraries
 
-Are you interested in using other libraries with Remotion? You can [file a GitHub issue](https://github.com/remotion-dev/remotion/issues/new) to inquire it. While we cannot guarantee to help you, you can register interest and kick of the discussion.
+Are you interested in using other libraries with Remotion? You can [file a GitHub issue](https://github.com/remotion-dev/remotion/issues/new) to inquire it. While we cannot guarantee to help, you can register interest and kick off the discussion.
