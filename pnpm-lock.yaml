@@ -220,7 +220,6 @@ importers:
     specifiers:
       '@jonny/eslint-config': ^2.1.251
       '@types/degit': ^2.8.3
-      '@types/fs-extra': ^9.0.11
       '@types/node': ^16.7.5
       '@types/prompts': ^2.0.12
       '@types/tar': 6.1.1
@@ -240,7 +239,6 @@ importers:
     devDependencies:
       '@jonny/eslint-config': 2.1.251_eslint@7.32.0+typescript@4.5.5
       '@types/degit': 2.8.3
-      '@types/fs-extra': 9.0.13
       '@types/node': 16.10.2
       '@types/prompts': 2.0.14
       '@types/tar': 6.1.1
@@ -6779,12 +6777,6 @@ packages:
       '@types/express-serve-static-core': 4.17.24
       '@types/qs': 6.9.7
       '@types/serve-static': 1.13.10
-
-  /@types/fs-extra/9.0.13:
-    resolution: {integrity: sha512-nEnwB++1u5lVDM2UI4c1+5R+FYaKfaAzS4OococimjVm3nQw3TuzH5UNsocrcTBbhnerblyHj4A49qXbIiZdpA==}
-    dependencies:
-      '@types/node': 16.10.2
-    dev: true
 
   /@types/github-slugger/1.3.0:
     resolution: {integrity: sha512-J/rMZa7RqiH/rT29TEVZO4nBoDP9XJOjnbbIofg7GQKs4JIduEO3WLpte+6WeUz/TcrXKlY+bM7FYrp8yFB+3g==}
