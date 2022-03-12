@@ -1,5 +1,5 @@
-import React from 'react';
-import {shouldReload} from '../react-overlay';
+import React, {useMemo, useState} from 'react';
+import {didUnmountReactApp} from '../react-overlay';
 import {DismissButton} from './DismissButton';
 import {Symbolicating} from './Symbolicating';
 
@@ -58,7 +58,7 @@ export const ErrorTitle: React.FC<{
 					<div>{message}</div>
 				</div>
 			</div>
-			{shouldReload() ? null : <DismissButton />}
+			{didUnmountReactApp() ? null : <DismissButton />}
 		</div>
 	);
 };
