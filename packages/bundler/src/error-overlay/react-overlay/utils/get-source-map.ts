@@ -17,16 +17,12 @@ export const getOriginalPosition = (
 	source_map: SourceMapConsumer,
 	line: number,
 	column: number
-): {source: string; line: number; column: number} => {
-	const {
-		line: l,
-		column: c,
-		source: s,
-	} = source_map.originalPositionFor({
+): {source: string | null; line: number | null; column: number | null} => {
+	const result = source_map.originalPositionFor({
 		line,
 		column,
 	});
-	return {line: l as number, column: c as number, source: s as string};
+	return {line: result.line, column: result.column, source: result.source};
 };
 
 function extractSourceMapUrl(
