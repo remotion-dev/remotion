@@ -12,8 +12,9 @@
  */
 
 import {Internals} from 'remotion';
+import {SourceMapConsumer} from 'source-map';
 import {getLinesAround} from './get-lines-around';
-import {getSourceMap, SourceMap} from './get-source-map';
+import {getOriginalPosition, getSource, getSourceMap} from './get-source-map';
 import {
 	SomeStackFrame,
 	StackFrame,
@@ -43,7 +44,7 @@ export const unmap = async (
 			return getSourceMap(fileName as string, fileContents as string);
 		})
 	);
-	const mapValues: Record<string, SourceMap> = {};
+	const mapValues: Record<string, SourceMapConsumer> = {};
 	for (let i = 0; i < uniqueFileNames.length; i++) {
 		mapValues[uniqueFileNames[i]] = maps[i];
 	}
@@ -54,13 +55,16 @@ export const unmap = async (
 		}
 
 		const map = mapValues[frame.frame.fileName as string];
-		const pos = map.getOriginalPosition(
+		const pos = getOriginalPosition(
+			map,
 			frame.frame.lineNumber as number,
 			frame.frame.columnNumber as number
 		);
 
 		const {functionName} = frame.frame;
-		const hasSource = map.getSource(pos.source);
+		let hasSource: string | null = null;
+		hasSource = pos.source ? map.sourceContentFor(pos.source, false) : null;
+
 		const scriptCode = hasSource
 			? getLinesAround(pos.line, contextLines, hasSource.split('\n'))
 			: null;
