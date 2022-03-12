@@ -223,25 +223,27 @@ importers:
       '@types/fs-extra': ^9.0.11
       '@types/node': ^16.7.5
       '@types/prompts': ^2.0.12
+      '@types/tar': 6.1.1
       chalk: 4.1.2
-      degit: 2.8.4
       eslint: ^7.25.0
       execa: 5.1.1
       prettier-plugin-organize-imports: ^1.1.1
       prompts: 2.4.1
+      tar: 6.1.0
       ts-node: ^9.1.1
       typescript: ^4.5.5
     dependencies:
       chalk: 4.1.2
-      degit: 2.8.4
       execa: 5.1.1
       prompts: 2.4.1
+      tar: 6.1.0
     devDependencies:
       '@jonny/eslint-config': 2.1.251_eslint@7.32.0+typescript@4.5.5
       '@types/degit': 2.8.3
       '@types/fs-extra': 9.0.13
       '@types/node': 16.10.2
       '@types/prompts': 2.0.14
+      '@types/tar': 6.1.1
       eslint: 7.32.0
       prettier-plugin-organize-imports: 1.1.1_typescript@4.5.5
       ts-node: 9.1.1_typescript@4.5.5
@@ -6875,6 +6877,12 @@ packages:
   /@types/minimist/1.2.2:
     resolution: {integrity: sha512-jhuKLIRrhvCPLqwPcx6INqmKeiA5EWrsCOPhrlFSrbrmU4ZMPjj5Ul/oLCMDO98XRUIwVm78xICz4EPCektzeQ==}
 
+  /@types/minipass/3.1.2:
+    resolution: {integrity: sha512-foLGjgrJkUjLG/o2t2ymlZGEoBNBa/TfoUZ7oCTkOjP1T43UGBJspovJou/l3ZuHvye2ewR5cZNtp2zyWgILMA==}
+    dependencies:
+      '@types/node': 17.0.17
+    dev: true
+
   /@types/node/12.20.27:
     resolution: {integrity: sha512-qZdePUDSLAZRXXV234bLBEUM0nAQjoxbcSwp1rqSMUe1rZ47mwU6OjciR/JvF1Oo8mc0ys6GE0ks0HGgqAZoGg==}
 
@@ -7043,6 +7051,13 @@ packages:
 
   /@types/tapable/1.0.8:
     resolution: {integrity: sha512-ipixuVrh2OdNmauvtT51o3d8z12p6LtFW9in7U79der/kwejjdNchQC5UMn5u/KxNoM7VHHOs/l8KS8uHxhODQ==}
+
+  /@types/tar/6.1.1:
+    resolution: {integrity: sha512-8mto3YZfVpqB1CHMaYz1TUYIQfZFbh/QbEq5Hsn6D0ilCfqRVCdalmc89B7vi3jhl9UYIk+dWDABShNfOkv5HA==}
+    dependencies:
+      '@types/minipass': 3.1.2
+      '@types/node': 17.0.17
+    dev: true
 
   /@types/testing-library__jest-dom/5.14.1:
     resolution: {integrity: sha512-Gk9vaXfbzc5zCXI9eYE9BI5BNHEp4D3FWjgqBE/ePGYElLAP+KvxBcsdkwfIVvezs605oiyd/VrpiHe3Oeg+Aw==}
@@ -10615,12 +10630,6 @@ packages:
     dependencies:
       is-descriptor: 1.0.2
       isobject: 3.0.1
-    dev: false
-
-  /degit/2.8.4:
-    resolution: {integrity: sha512-vqYuzmSA5I50J882jd+AbAhQtgK6bdKUJIex1JNfEUPENCgYsxugzKVZlFyMwV4i06MmnV47/Iqi5Io86zf3Ng==}
-    engines: {node: '>=8.0.0'}
-    hasBin: true
     dev: false
 
   /del/4.1.1:
@@ -20997,6 +21006,18 @@ packages:
       mkdirp: 0.5.5
       safe-buffer: 5.2.1
       yallist: 3.1.1
+    dev: false
+
+  /tar/6.1.0:
+    resolution: {integrity: sha512-DUCttfhsnLCjwoDoFcI+B2iJgYa93vBnDUATYEeRx6sntCTdN01VnqsIuTlALXla/LWooNg0yEGeB+Y8WdFxGA==}
+    engines: {node: '>= 10'}
+    dependencies:
+      chownr: 2.0.0
+      fs-minipass: 2.1.0
+      minipass: 3.1.5
+      minizlib: 2.1.2
+      mkdirp: 1.0.4
+      yallist: 4.0.0
     dev: false
 
   /tar/6.1.11:
