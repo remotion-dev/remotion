@@ -1,4 +1,4 @@
-import React, {useMemo, useState} from 'react';
+import React from 'react';
 import {didUnmountReactApp} from '../react-overlay';
 import {DismissButton} from './DismissButton';
 import {Symbolicating} from './Symbolicating';
