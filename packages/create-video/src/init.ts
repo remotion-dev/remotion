@@ -1,8 +1,5 @@
 import chalk from 'chalk';
-import degit from 'degit';
 import execa from 'execa';
-import fs from 'fs';
-import path from 'path';
 import {stripAnsi} from './strip-ansi';
 import {Log} from './log';
 import {openInEditorFlow} from './open-in-editor-flow';
@@ -12,51 +9,59 @@ import {
 	selectPackageManager,
 } from './pkg-managers';
 import prompts, {selectAsync} from './prompts';
-import {homedir, tmpdir} from 'os';
 import {resolveProjectRoot} from './resolve-project-root';
 import {patchReadmeMd} from './patch-readme';
 import {patchPackageJson} from './patch-package-json';
+import {degit} from './degit';
 
 type TEMPLATES = {
 	shortName: string;
-	name: string;
 	description: string;
+	org: string;
+	repoName: string;
 };
 
 const FEATURED_TEMPLATES: TEMPLATES[] = [
 	{
 		shortName: 'Hello World',
-		name: 'remotion-dev/template-helloworld',
+		org: 'remotion-dev',
+		repoName: 'template-helloworld',
 		description: 'The default starter template (recommended)',
 	},
 	{
 		shortName: 'Blank',
-		name: 'remotion-dev/template-empty',
 		description: 'Nothing except an empty canvas',
+		org: 'remotion-dev',
+		repoName: 'template-empty',
 	},
 	{
 		shortName: 'Hello World (Javascript)',
-		name: 'remotion-dev/template-helloworld-javascript',
+		org: 'remotion-dev',
+		repoName: 'template-helloworld-javascript',
 		description: 'The default starter template in plain JS',
 	},
 	{
 		shortName: 'React Three Fiber',
-		name: 'remotion-dev/template-three',
+		org: 'remotion-dev',
+		repoName: 'template-three',
 		description: 'Remotion + React Three Fiber Starter Template',
 	},
 	{
 		shortName: 'Still images',
-		name: 'remotion-dev/template-still',
+		org: 'remotion-dev',
+		repoName: 'template-still',
 		description: 'Dynamic PNG/JPEG template with built-in server',
 	},
 	{
 		shortName: 'Text To Speech',
-		name: 'FelippeChemello/Remotion-TTS-Example',
+		org: 'FelippeChemello',
+		repoName: 'Remotion-TTS-Example',
 		description: 'Turns text into speech and makes a video',
 	},
 	{
 		shortName: 'Audiogram',
-		name: 'marcusstenbeck/remotion-template-audiogram',
+		org: 'marcusstenbeck',
+		repoName: 'remotion-template-audiogram',
 		description: 'Text and waveform visualization for podcasts',
 	},
 ];
@@ -79,54 +84,23 @@ const isGitExecutableAvailable = async () => {
 	}
 };
 
-const initGitRepoAsync = async (
-	root: string,
-	flags: {silent: boolean; commit: boolean} = {silent: false, commit: true}
-) => {
-	// let's see if we're in a git tree
-	try {
-		await execa('git', ['rev-parse', '--is-inside-work-tree'], {
-			cwd: root,
-		});
-		if (!flags.silent) {
-			Log.info(
-				'New project is already inside of a git repo, skipping git init.'
-			);
-		}
-	} catch (e) {
-		if ((e as {errno: string}).errno === 'ENOENT') {
-			if (!flags.silent) {
-				Log.warn('Unable to initialize git repo. `git` not in PATH.');
-			}
-
-			return false;
-		}
-	}
-
+const initGitRepoAsync = async (root: string): Promise<void> => {
 	// not in git tree, so let's init
 	try {
 		await execa('git', ['init'], {cwd: root});
-		if (!flags.silent) {
-			Log.info('Initialized a git repository.');
-		}
-
-		if (flags.commit) {
-			await execa('git', ['add', '--all'], {cwd: root, stdio: 'ignore'});
-			await execa('git', ['commit', '-m', 'Create a new Remotion video'], {
-				cwd: root,
-				stdio: 'ignore',
-			});
-			await execa('git', ['branch', '-M', 'main'], {
-				cwd: root,
-				stdio: 'ignore',
-			});
-		}
-
-		return true;
+		await execa('git', ['add', '--all'], {cwd: root, stdio: 'ignore'});
+		await execa('git', ['commit', '-m', 'Create new Remotion video'], {
+			cwd: root,
+			stdio: 'ignore',
+		});
+		await execa('git', ['branch', '-M', 'main'], {
+			cwd: root,
+			stdio: 'ignore',
+		});
 	} catch (e) {
-		Log.verbose('git error:', e);
+		Log.error('Error creating git repository:', e);
+		Log.error('Project has been created nonetheless.');
 		// no-op -- this is just a convenience and we don't care if it fails
-		return false;
 	}
 };
 
@@ -151,7 +125,7 @@ export const init = async () => {
 				}
 
 				return {
-					value: template.name,
+					value: template,
 					title:
 						chalk.bold(padEnd(template.shortName, descriptionColumn)) +
 						template.description.trim(),
@@ -159,30 +133,16 @@ export const init = async () => {
 			}),
 		},
 		{}
-	)) as string;
+	)) as TEMPLATES;
 
 	const pkgManager = selectPackageManager();
 
 	try {
-		const homeOrTmp = homedir() || tmpdir();
-
-		// Remove degit cache because of https://github.com/remotion-dev/remotion/issues/852
-		// https://github.com/Rich-Harris/degit/issues/313
-		const degitFolder = path.join(
-			homeOrTmp,
-			'.degit',
-			'github',
-			...selectedTemplate.split('/')
-		);
-
-		if (fs.existsSync(degitFolder)) {
-			await (fs.promises.rm ?? fs.promises.rmdir)(degitFolder, {
-				recursive: true,
-			});
-		}
-
-		const emitter = degit(`https://github.com/${selectedTemplate}`);
-		await emitter.clone(projectRoot);
+		await degit({
+			repoOrg: selectedTemplate.org,
+			repoName: selectedTemplate.repoName,
+			dest: projectRoot,
+		});
 		patchReadmeMd(projectRoot, pkgManager);
 		patchPackageJson(projectRoot, folderName);
 	} catch (e) {
@@ -229,10 +189,7 @@ export const init = async () => {
 		await promise;
 	}
 
-	await initGitRepoAsync(projectRoot, {
-		silent: true,
-		commit: true,
-	});
+	await initGitRepoAsync(projectRoot);
 
 	Log.info();
 	Log.info(`Welcome to ${chalk.blueBright('Remotion')}!`);
