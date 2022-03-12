@@ -79,54 +79,23 @@ const isGitExecutableAvailable = async () => {
 	}
 };
 
-const initGitRepoAsync = async (
-	root: string,
-	flags: {silent: boolean; commit: boolean} = {silent: false, commit: true}
-) => {
-	// let's see if we're in a git tree
-	try {
-		await execa('git', ['rev-parse', '--is-inside-work-tree'], {
-			cwd: root,
-		});
-		if (!flags.silent) {
-			Log.info(
-				'New project is already inside of a git repo, skipping git init.'
-			);
-		}
-	} catch (e) {
-		if ((e as {errno: string}).errno === 'ENOENT') {
-			if (!flags.silent) {
-				Log.warn('Unable to initialize git repo. `git` not in PATH.');
-			}
-
-			return false;
-		}
-	}
-
+const initGitRepoAsync = async (root: string): Promise<void> => {
 	// not in git tree, so let's init
 	try {
 		await execa('git', ['init'], {cwd: root});
-		if (!flags.silent) {
-			Log.info('Initialized a git repository.');
-		}
-
-		if (flags.commit) {
-			await execa('git', ['add', '--all'], {cwd: root, stdio: 'ignore'});
-			await execa('git', ['commit', '-m', 'Create a new Remotion video'], {
-				cwd: root,
-				stdio: 'ignore',
-			});
-			await execa('git', ['branch', '-M', 'main'], {
-				cwd: root,
-				stdio: 'ignore',
-			});
-		}
-
-		return true;
+		await execa('git', ['add', '--all'], {cwd: root, stdio: 'ignore'});
+		await execa('git', ['commit', '-m', 'Create new Remotion video'], {
+			cwd: root,
+			stdio: 'ignore',
+		});
+		await execa('git', ['branch', '-M', 'main'], {
+			cwd: root,
+			stdio: 'ignore',
+		});
 	} catch (e) {
-		Log.verbose('git error:', e);
+		Log.error('Error creating git repository:', e);
+		Log.error('Project has been created nonetheless.');
 		// no-op -- this is just a convenience and we don't care if it fails
-		return false;
 	}
 };
 
@@ -229,10 +198,7 @@ export const init = async () => {
 		await promise;
 	}
 
-	await initGitRepoAsync(projectRoot, {
-		silent: true,
-		commit: true,
-	});
+	await initGitRepoAsync(projectRoot);
 
 	Log.info();
 	Log.info(`Welcome to ${chalk.blueBright('Remotion')}!`);
