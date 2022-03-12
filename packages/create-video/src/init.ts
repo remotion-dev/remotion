@@ -1,9 +1,9 @@
 import chalk from 'chalk';
 import degit from 'degit';
 import execa from 'execa';
-import fs from 'fs-extra';
+import fs from 'fs';
 import path from 'path';
-import stripAnsi from 'strip-ansi';
+import {stripAnsi} from './strip-ansi';
 import {Log} from './log';
 import {openInEditorFlow} from './open-in-editor-flow';
 import {
