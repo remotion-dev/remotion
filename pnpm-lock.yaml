@@ -228,14 +228,14 @@ importers:
       execa: 5.1.1
       prettier-plugin-organize-imports: ^1.1.1
       prompts: 2.4.1
-      tar: 6.1.0
+      tar: 6.1.11
       ts-node: ^9.1.1
       typescript: ^4.5.5
     dependencies:
       chalk: 4.1.2
       execa: 5.1.1
       prompts: 2.4.1
-      tar: 6.1.0
+      tar: 6.1.11
     devDependencies:
       '@jonny/eslint-config': 2.1.251_eslint@7.32.0+typescript@4.5.5
       '@types/degit': 2.8.3
@@ -20998,18 +20998,6 @@ packages:
       mkdirp: 0.5.5
       safe-buffer: 5.2.1
       yallist: 3.1.1
-    dev: false
-
-  /tar/6.1.0:
-    resolution: {integrity: sha512-DUCttfhsnLCjwoDoFcI+B2iJgYa93vBnDUATYEeRx6sntCTdN01VnqsIuTlALXla/LWooNg0yEGeB+Y8WdFxGA==}
-    engines: {node: '>= 10'}
-    dependencies:
-      chownr: 2.0.0
-      fs-minipass: 2.1.0
-      minipass: 3.1.5
-      minizlib: 2.1.2
-      mkdirp: 1.0.4
-      yallist: 4.0.0
     dev: false
 
   /tar/6.1.11:
