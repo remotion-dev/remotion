@@ -12,6 +12,7 @@
 	"scripts": {
 		"start": "remotion preview src/index.tsx",
 		"start-js": "remotion preview src/entry.jsx",
+        "comps": "remotion compositions src/index.tsx",
 		"lint": "eslint src --ext ts,tsx,js,jsx",
 		"test": "jest",
 		"build": "tsc -d",
