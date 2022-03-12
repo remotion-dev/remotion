@@ -3,6 +3,7 @@ import {bundle} from '@remotion/bundler';
 import {getCompositions} from "@remotion/renderer";
 import {loadConfig} from "./get-config-file-name";
 import {parsedCli} from "./parse-command-line";
+import {Log} from "./log";
 
 export const listCompositionsCommand = async () => {
     const file = parsedCli._[1];
@@ -14,5 +15,5 @@ export const listCompositionsCommand = async () => {
 
     const compositions = await getCompositions(bundled);
 
-    console.log(compositions.map(({ id }) => id).join('\n'))
+    Log.info(compositions.map(({ id }) => id).join('\n'))
 }
