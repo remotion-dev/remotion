@@ -138,12 +138,11 @@ export const init = async () => {
 	const pkgManager = selectPackageManager();
 
 	try {
-		await degit(
-			selectedTemplate.org,
-			selectedTemplate.repoName,
-			`https://github.com/${selectedTemplate}`,
-			projectRoot
-		);
+		await degit({
+			repoOrg: selectedTemplate.org,
+			repoName: selectedTemplate.repoName,
+			dest: projectRoot,
+		});
 		patchReadmeMd(projectRoot, pkgManager);
 		patchPackageJson(projectRoot, folderName);
 	} catch (e) {

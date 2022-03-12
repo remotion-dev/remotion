@@ -1,9 +1,10 @@
-import fs from 'fs-extra';
+import fs from 'fs';
 import chalk from 'chalk';
 import path from 'path';
 import {Log} from './log';
 import prompts from './prompts';
 import {validateName} from './validate-name';
+import {mkdirp} from './mkdirp';
 
 function assertValidName(folderName: string) {
 	const validation = validateName(folderName);
@@ -65,7 +66,7 @@ export const resolveProjectRoot = async (): Promise<[string, string]> => {
 
 	assertValidName(folderName);
 
-	await fs.ensureDir(projectRoot);
+	mkdirp(projectRoot);
 
 	if (assertFolderEmptyAsync(projectRoot).exists) {
 		return resolveProjectRoot();

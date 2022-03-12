@@ -1,25 +1,10 @@
 import fs from 'fs';
 import path from 'path';
 import tar from 'tar';
-import {Log} from '../log';
 
 import https from 'https';
-import {homedir, tmpdir} from 'os';
-
-const homeOrTemp = homedir() || tmpdir();
-
-export function mkdirp(dir: string) {
-	const parent = path.dirname(dir);
-	if (parent === dir) return;
-
-	mkdirp(parent);
-
-	try {
-		fs.mkdirSync(dir);
-	} catch (err) {
-		if ((err as {code: string}).code !== 'EEXIST') throw err;
-	}
-}
+import {tmpdir} from 'os';
+import {mkdirp} from './mkdirp';
 
 export function fetch(url: string, dest: string) {
 	return new Promise<void>((resolve, reject) => {
@@ -47,40 +32,27 @@ export function fetch(url: string, dest: string) {
 	});
 }
 
-const base = path.join(homeOrTemp, '.degit');
-
-export const degit = async (
-	repoOrg: string,
-	repoName: string,
-	src: string,
-	dest: string
-) => {
+export const degit = async ({
+	repoOrg,
+	repoName,
+	dest,
+}: {
+	repoOrg: string;
+	repoName: string;
+	dest: string;
+}) => {
+	const base = path.join(tmpdir(), '.degit');
 	const dir = path.join(base, repoOrg, repoName);
-
-	await cloneWithTar(src, dir, dest);
-};
-
-async function cloneWithTar(src: string, dir: string, dest: string) {
 	const file = `${dir}/HEAD.tar.gz`;
-	const url = `${src}/archive/HEAD.tar.gz`;
+	const url = `https://github.com/${repoOrg}/${repoName}/archive/HEAD.tar.gz`;
 
-	try {
-		try {
-			fs.statSync(file);
-		} catch (err) {
-			mkdirp(path.dirname(file));
-
-			await fetch(url, file);
-		}
-	} catch (err) {
-		Log.error('Could not download ' + url);
-		Log.error(err);
-		process.exit(1);
-	}
+	mkdirp(path.dirname(file));
+	await fetch(url, file);
 
 	mkdirp(dest);
 	await untar(file, dest);
-}
+	fs.unlinkSync(file);
+};
 
 function untar(file: string, dest: string) {
 	return tar.extract(
