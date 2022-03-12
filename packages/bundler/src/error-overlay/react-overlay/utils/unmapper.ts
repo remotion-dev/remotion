@@ -14,7 +14,7 @@
 import {Internals} from 'remotion';
 import {SourceMapConsumer} from 'source-map';
 import {getLinesAround} from './get-lines-around';
-import {getOriginalPosition, getSource, getSourceMap} from './get-source-map';
+import {getOriginalPosition, getSourceMap} from './get-source-map';
 import {
 	SomeStackFrame,
 	StackFrame,
@@ -65,9 +65,10 @@ export const unmap = async (
 		let hasSource: string | null = null;
 		hasSource = pos.source ? map.sourceContentFor(pos.source, false) : null;
 
-		const scriptCode = hasSource
-			? getLinesAround(pos.line, contextLines, hasSource.split('\n'))
-			: null;
+		const scriptCode =
+			hasSource && pos.line
+				? getLinesAround(pos.line, contextLines, hasSource.split('\n'))
+				: null;
 
 		return {
 			originalColumnNumber: pos.column,
