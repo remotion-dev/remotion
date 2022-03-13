@@ -23,6 +23,7 @@ export const flattenVolumeArray = (volume: AssetVolume): AssetVolume => {
 export const convertAssetToFlattenedVolume = (
 	asset: MediaAsset
 ): MediaAsset => {
+	console.log(asset);
 	return {
 		...asset,
 		volume: flattenVolumeArray(asset.volume),
