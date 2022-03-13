@@ -19,8 +19,6 @@ export const printHelp = () => {
 	Log.info();
 	Log.info('Available commands:');
 	Log.info('');
-	Log.info('remotion compositions <index-file.ts>');
-	Log.info(chalk.gray('Prints the available compositions.'));
 	Log.info('remotion preview <index-file.ts>');
 	Log.info(chalk.gray('Start the preview server.'));
 	printFlags([['--props', 'Pass input props as filename or as JSON']]);
@@ -63,11 +61,7 @@ export const printHelp = () => {
 	]);
 	Log.info();
 	Log.info('remotion compositions <index-file.ts>');
-	Log.info(
-		chalk.gray(
-			'Print list of composition ids from the index file provided separated by line break'
-		)
-	);
+	Log.info(chalk.gray('Prints the available compositions.'));
 	Log.info();
 	Log.info('remotion ' + VERSIONS_COMMAND);
 	Log.info(
