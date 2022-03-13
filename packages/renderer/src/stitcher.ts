@@ -112,6 +112,9 @@ export const stitchFramesToVideo = async (options: {
 		}),
 	]);
 
+	console.log('File URL Assets:');
+	console.log(JSON.stringify(fileUrlAssets));
+
 	markAllAssetsAsDownloaded();
 	const assetPositions = calculateAssetPositions(fileUrlAssets);
 
