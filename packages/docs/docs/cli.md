@@ -38,6 +38,8 @@ npx remotion still <entry-file> <composition-id> <output-location>
 
 ### `npx remotion compositions`
 
+_Available from v2.6.12._
+
 Print list of composition ids from the index file provided separated by line break.
 
 ```bash
