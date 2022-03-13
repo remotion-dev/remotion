@@ -41,7 +41,6 @@ function eventSourceWrapper() {
 	}
 
 	function handleOnline() {
-		console.log('[Fast Refresh] connected');
 		lastActivity = Date.now();
 	}
 
