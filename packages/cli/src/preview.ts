@@ -7,6 +7,7 @@ import {Internals} from 'remotion';
 import {getEnvironmentVariables} from './get-env';
 import {getInputProps} from './get-input-props';
 import {initializeRenderCli} from './initialize-render-cli';
+import {Log} from './log';
 import {parsedCli} from './parse-command-line';
 
 const noop = () => undefined;
