@@ -3,7 +3,7 @@
 	"compilerOptions": {
 		"composite": true,
 		"rootDir": "src",
-		"outDir": "dist"
+		"outDir": "dist/cjs"
 	},
 	"include": ["src"],
 	"references": [{"path": "../core"}]

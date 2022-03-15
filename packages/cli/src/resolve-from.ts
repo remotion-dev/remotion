@@ -1,5 +1,5 @@
 import path from 'path';
-import Module = require('module');
+import Module from 'module';
 import fs from 'fs';
 
 export const resolveFrom = (
