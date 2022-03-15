@@ -5,6 +5,9 @@
       "dependsOn": ["^build"],
       "outputs": ["dist/**"]
     },
+    "build:esm": {
+      "outputs": ["dist/esm/**"]
+    },
     "test": {
       "dependsOn": ["^build"],
       "outputs": []

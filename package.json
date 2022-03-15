@@ -7,6 +7,7 @@
     "test": "turbo run lint test",
     "lint": "turbo run lint",
     "build": "turbo run build",
+    "postbuild": "turbo run build:esm",
     "ci": "turbo run build lint test",
     "watch": "pnpm run watch --recursive --stream --parallel",
     "release": "lerna publish --force-publish",

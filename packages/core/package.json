@@ -2,13 +2,15 @@
 	"name": "remotion",
 	"version": "2.6.11",
 	"description": "Render videos in React",
-	"main": "dist/index.js",
-	"types": "dist/index.d.ts",
+    "main": "dist/cjs/index.js",
+    "types": "dist/cjs/index.d.ts",
+    "module": "dist/esm/index.js",
 	"sideEffects": false,
 	"scripts": {
 		"lint": "eslint src --ext ts,tsx",
 		"test": "jest --coverage && node generate-badges.js",
 		"build": "tsc -d",
+        "build:esm": "tsc -d -p tsconfig-esm.json",
 		"watch": "tsc -w",
 		"prerelease": "cp ../../README.md ."
 	},

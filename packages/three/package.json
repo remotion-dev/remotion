@@ -2,14 +2,16 @@
 	"name": "@remotion/three",
 	"version": "2.6.11",
 	"description": "Utility functions for using react-three-fiber with remotion",
-	"main": "dist/index.js",
-	"types": "dist/index.d.ts",
+	"main": "dist/cjs/index.js",
+	"types": "dist/cjs/index.d.ts",
+    "module": "dist/esm/index.js",
 	"sideEffects": false,
 	"scripts": {
 		"lint": "eslint src --ext ts,tsx",
 		"watch": "tsc -w",
-		"build": "tsc -d"
-	},
+		"build": "tsc -d",
+        "build:esm": "tsc -d -p tsconfig-esm.json"
+    },
 	"author": "Björn Zeutzheim",
 	"contributors": [],
 	"license": "MIT",
