@@ -11,6 +11,8 @@ import {makeAssetsDownloadTmpDir} from './make-assets-download-dir';
 import {normalizeServeUrl} from './normalize-serve-url';
 import {serveStatic} from './serve-static';
 import {spawnFfmpeg} from './stitcher';
+import {max, min} from './min-max';
+import {openBrowser} from './open-browser';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
 import {binaryExists, validateFfmpeg} from './validate-ffmpeg';
 import {tmpDir} from './tmp-dir';
@@ -67,4 +69,6 @@ export const RenderInternals = {
 	downloadFile,
 	validateScale,
 	killAllBrowsers,
+	min,
+	max,
 };

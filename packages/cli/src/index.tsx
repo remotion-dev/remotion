@@ -13,6 +13,7 @@ import {
 	parsedCli,
 	quietFlagProvided,
 } from './parse-command-line';
+import {listCompositionsCommand} from './compositions';
 import {previewCommand} from './preview';
 import {printHelp} from './print-help';
 import {createOverwriteableCliOutput, makeProgressBar} from './progress-bar';
@@ -41,7 +42,9 @@ export const cli = async () => {
 	}
 
 	try {
-		if (command === 'preview') {
+		if (command === 'compositions') {
+			await listCompositionsCommand();
+		} else if (command === 'preview') {
 			await previewCommand();
 		} else if (command === 'lambda') {
 			await lambdaCommand();
