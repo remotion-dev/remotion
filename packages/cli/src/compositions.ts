@@ -1,5 +1,5 @@
 import path from 'path';
-import {getCompositions, RenderInternals} from '@remotion/renderer';
+import {getCompositions} from '@remotion/renderer';
 import {loadConfig} from './get-config-file-name';
 import {parsedCli} from './parse-command-line';
 import {Log} from './log';
