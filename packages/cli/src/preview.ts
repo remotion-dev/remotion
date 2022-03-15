@@ -13,6 +13,18 @@ const noop = () => undefined;
 
 export const previewCommand = async () => {
 	const file = parsedCli._[1];
+
+	if (!file) {
+		Log.error(
+			'The preview command requires you to specify a root file. For example'
+		);
+		Log.error('  npx remotion preview src/index.tsx');
+		Log.error(
+			'See https://www.remotion.dev/docs/register-root for more information.'
+		);
+		process.exit(1);
+	}
+
 	const {port: desiredPort} = parsedCli;
 	const fullPath = path.join(process.cwd(), file);
 

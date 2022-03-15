@@ -39,7 +39,10 @@ export const StackElement: React.FC<{
 	defaultFunctionName: string;
 }> = ({s, lineNumberWidth, isFirst, defaultFunctionName}) => {
 	const [showCodeFrame, setShowCodeFrame] = useState(
-		() => !s.originalFileName?.includes('node_modules') || isFirst
+		() =>
+			(!s.originalFileName?.includes('node_modules') &&
+				!s.originalFileName?.startsWith('webpack/')) ||
+			isFirst
 	);
 	const toggleCodeFrame = useCallback(() => {
 		setShowCodeFrame((f) => !f);

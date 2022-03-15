@@ -25,7 +25,7 @@ export const openInEditorFlow = async (projectRoot: string) => {
 	});
 
 	if (should) {
-		await launchEditor({
+		launchEditor({
 			colNumber: 1,
 			editor: guiEditor,
 			fileName: projectRoot,
@@ -36,7 +36,7 @@ export const openInEditorFlow = async (projectRoot: string) => {
 			await new Promise((resolve) => {
 				setTimeout(resolve, 1000);
 			});
-			await launchEditor({
+			launchEditor({
 				colNumber: 1,
 				editor: guiEditor,
 				fileName: path.join(projectRoot, 'README.md'),

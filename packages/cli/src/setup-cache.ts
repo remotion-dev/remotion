@@ -45,7 +45,7 @@ export const bundleOnCli = async (fullPath: string, steps: RenderStep[]) => {
 	Log.verbose('Bundled under', bundled);
 	const cacheExistedAfter = BundlerInternals.cacheExists('production', null);
 	if (cacheExistedAfter && !cacheExistedBefore) {
-		Log.info('⚡️ Cached bundle. Subsequent builds will be faster.');
+		Log.info('⚡️ Cached bundle. Subsequent renders will be faster.');
 	}
 
 	return bundled;

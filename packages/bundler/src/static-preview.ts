@@ -1,3 +1,4 @@
+import path from 'path';
 export const indexHtml = (
 	staticHash: string,
 	baseDir: string,
@@ -22,6 +23,11 @@ export const indexHtml = (
 				? `<script>window.remotion_editorName = "${editorName}";</script>`
 				: '<script>window.remotion_editorName = null;</script>'
 		}
+		<script>window.remotion_projectName = "${path.basename(
+			process.cwd()
+		)}";</script>
+		<script>window.remotion_cwd = "${process.cwd()}";</script>
+		
 		<div id="container"></div>
 		<div id="menuportal-0"></div>
 		<div id="menuportal-1"></div>
