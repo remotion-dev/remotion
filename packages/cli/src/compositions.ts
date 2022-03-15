@@ -5,6 +5,22 @@ import {parsedCli} from './parse-command-line';
 import {Log} from './log';
 import {bundleOnCli} from './setup-cache';
 
+const max = (arr: number[]) => {
+	if (arr.length === 0) {
+		throw new Error('Array of 0 length');
+	}
+
+	let biggest = arr[0];
+	for (let i = 0; i < arr.length; i++) {
+		const elem = arr[i];
+		if (elem > biggest) {
+			biggest = elem;
+		}
+	}
+
+	return biggest;
+};
+
 export const listCompositionsCommand = async () => {
 	const file = parsedCli._[1];
 
@@ -23,15 +39,14 @@ export const listCompositionsCommand = async () => {
 
 	loadConfig();
 
-	const bundled = await bundleOnCli(fullPath, 1);
+	const bundled = await bundleOnCli(fullPath, ['bundling']);
 
 	const compositions = await getCompositions(bundled);
 	Log.info();
 	Log.info('The following compositions are available:');
 	Log.info();
 
-	const firstColumnLength =
-		RenderInternals.max(compositions.map(({id}) => id.length)) + 4;
+	const firstColumnLength = max(compositions.map(({id}) => id.length)) + 4;
 	const secondColumnLength = 8;
 	const thirdColumnLength = 15;
 
