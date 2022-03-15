@@ -6,6 +6,9 @@
 	"repository": {
 		"url": "https://github.com/remotion-dev/remotion"
 	},
+    "bugs": {
+      "url": "https://github.com/remotion-dev/remotion/issues"
+    },
 	"license": "SEE LICENSE IN LICENSE.md",
 	"author": "",
 	"main": "dist/index.js",

@@ -17,6 +17,9 @@
 	"repository": {
 		"url": "https://github.com/remotion-dev/remotion"
 	},
+    "bugs": {
+      "url": "https://github.com/remotion-dev/remotion/issues"
+    },
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"license": "SEE LICENSE IN LICENSE.md",
 	"dependencies": {
