@@ -14,9 +14,9 @@
 	"repository": {
 		"url": "https://github.com/remotion-dev/remotion"
 	},
-    "bugs": {
-      "url": "https://github.com/remotion-dev/remotion/issues"
-    },
+	"bugs": {
+		"url": "https://github.com/remotion-dev/remotion/issues"
+	},
 	"dependencies": {
 		"remotion": "2.6.11"
 	},

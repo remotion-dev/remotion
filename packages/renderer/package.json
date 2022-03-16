@@ -16,9 +16,9 @@
 	"repository": {
 		"url": "https://github.com/remotion-dev/remotion"
 	},
-    "bugs": {
-      "url": "https://github.com/remotion-dev/remotion/issues"
-    },
+	"bugs": {
+		"url": "https://github.com/remotion-dev/remotion/issues"
+	},
 	"dependencies": {
 		"@remotion/bundler": "2.6.11",
 		"execa": "5.1.1",
