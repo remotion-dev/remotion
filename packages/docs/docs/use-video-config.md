@@ -11,7 +11,24 @@ Namely, `useVideoConfig` will return an object with the following properties:
 - `fps`: The frame rate of the composition, in frames per seconds.
 - `durationInFrames` The duration of the composition in frames.
 
-Remember that you control these properties by passing them as props to `<Composition>`. Read the page about [the fundamentals](/docs/the-fundamentals) to learn how to define a composition.
+These properties are controlled by passing them as props to [`<Composition>`](/docs/composition). Read the page about [the fundamentals](/docs/the-fundamentals) to read how to setup a Remotion project.
+
+### Example
+
+```tsx twoslash
+import React from "react";
+import { useVideoConfig } from "remotion";
+
+export const MyComp: React.FC = () => {
+  const { width, height, fps, durationInFrames } = useVideoConfig();
+  console.log(width); // 1920
+  console.log(height); // 1080
+  console.log(fps); // 30;
+  console.log(durationInFrames); // 300
+
+  return <div>Hello World!</div>;
+};
+```
 
 ## See also
 
