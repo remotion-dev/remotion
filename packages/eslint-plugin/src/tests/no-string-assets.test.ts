@@ -67,6 +67,22 @@ export const Re = () => {
     },
     {
       code: `
+import {Img} from 'remotion';
+
+export const Re = () => {
+  return (
+    <Img src={"curly"} />
+  );
+}
+      `,
+      errors: [
+        {
+          messageId: "NoStringAssets",
+        },
+      ],
+    },
+    {
+      code: `
 import {Audio} from 'remotion';
 
 export const Re = () => {
