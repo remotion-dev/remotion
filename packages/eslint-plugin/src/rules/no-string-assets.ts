@@ -38,13 +38,26 @@ export default createRule<Options, MessageIds>({
           return;
         }
         const value = node.value;
-        if (!value || value.type !== "Literal") {
+        // src={"some string"}
+        const insideCurlyBraces =
+          value &&
+          value.type === "JSXExpressionContainer" &&
+          value.expression.type === "Literal";
+        if (!value || (value.type !== "Literal" && !insideCurlyBraces)) {
           return;
         }
-        const stringValue = value.value;
+        const stringValue =
+          value &&
+          value.type === "JSXExpressionContainer" &&
+          value.expression.type === "Literal"
+            ? value.expression.value
+            : value.type === "Literal"
+            ? value.value
+            : null;
         if (typeof stringValue !== "string") {
           return;
         }
+
         const parent = node.parent;
         if (!parent) {
           return;
