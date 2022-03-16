@@ -53,6 +53,14 @@
 		"react": "^17.0.1",
 		"react-dom": "^17.0.1"
 	},
+	"keywords": [
+		"remotion",
+		"ffmpeg",
+		"video",
+		"react",
+		"pupeteer",
+		"player"
+	],
 	"publishConfig": {
 		"access": "public"
 	}
