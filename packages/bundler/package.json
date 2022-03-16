@@ -7,6 +7,9 @@
 	"repository": {
 		"url": "https://github.com/remotion-dev/remotion"
 	},
+	"bugs": {
+		"url": "https://github.com/remotion-dev/remotion/issues"
+	},
 	"scripts": {
 		"lint": "eslint src --ext ts,tsx",
 		"test": "jest",
