@@ -1,10 +1,19 @@
 import path from 'path';
 import {Internals, WebpackConfiguration, WebpackOverrideFn} from 'remotion';
 import webpack, {ProgressPlugin} from 'webpack';
+import {LoaderOptions} from './esbuild-loader/interfaces';
 import {ReactFreshWebpackPlugin} from './fast-refresh';
 import {getWebpackCacheName} from './webpack-cache';
+import esbuild = require('esbuild');
+
+const esbuildLoaderOptions: LoaderOptions = {
+	target: 'chrome85',
+	loader: 'tsx',
+	implementation: esbuild,
+};
 
 type Truthy<T> = T extends false | '' | 0 | null | undefined ? never : T;
+
 function truthy<T>(value: T): value is Truthy<T> {
 	return Boolean(value);
 }
@@ -150,11 +159,8 @@ export const webpackConfig = ({
 					test: /\.tsx?$/,
 					use: [
 						{
-							loader: require.resolve('esbuild-loader'),
-							options: {
-								loader: 'tsx',
-								target: 'chrome85',
-							},
+							loader: require.resolve('./esbuild-loader/index.js'),
+							options: esbuildLoaderOptions,
 						},
 						environment === 'development'
 							? {
@@ -181,11 +187,8 @@ export const webpackConfig = ({
 					exclude: /node_modules/,
 					use: [
 						{
-							loader: require.resolve('esbuild-loader'),
-							options: {
-								loader: 'jsx',
-								target: 'chrome85',
-							},
+							loader: require.resolve('./esbuild-loader/index.js'),
+							options: esbuildLoaderOptions,
 						},
 						environment === 'development'
 							? {

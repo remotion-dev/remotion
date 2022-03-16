@@ -11,6 +11,8 @@ beforeAll(() => {
 		height: 10,
 		fps: 30,
 		durationInFrames: 100,
+		id: 'hithere',
+		defaultProps: () => ({}),
 	}));
 });
 afterAll(() => {
@@ -24,19 +26,19 @@ test('useMediaInTimeline registers and unregisters new sequence', () => {
 		<Internals.CompositionManager.Provider
 			value={
 				// eslint-disable-next-line react/jsx-no-constructed-context-values
-				({
+				{
 					registerSequence,
 					unregisterSequence,
-				} as unknown) as CompositionManagerContext
+				} as unknown as CompositionManagerContext
 			}
 		>
 			{children}
 		</Internals.CompositionManager.Provider>
 	);
 
-	const audioRef = ({
+	const audioRef = {
 		current: {volume: 0.5},
-	} as unknown) as RefObject<HTMLAudioElement>;
+	} as unknown as RefObject<HTMLAudioElement>;
 
 	const {unmount} = renderHook(
 		() =>

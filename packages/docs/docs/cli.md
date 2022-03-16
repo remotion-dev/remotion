@@ -154,7 +154,7 @@ _available for `render` and `still` command._
 
 _available for `render` command_
 
-[Render a still frame or a subset of a video](/docs/config#setframerange). Example: `--frames=0-9` (To select the first 10 frames) or `--frames=50` (To render a still of the 51st frame). Available since v2.0.
+[Render a subset of a video](/docs/config#setframerange). Example: `--frames=0-9` to select the first 10 frames. To render a still, use the `still` command. Available since v2.0.
 
 ### `--frame`
 
@@ -200,7 +200,7 @@ Define how long a single frame may take to resolve all [`delayRender()`](/docs/d
 
 _available for `still`, `render` command_
 
-Results in invalid SSL certificates in Chrome, such as self-signed ones being ignored. Available since v2.6.5.
+Results in invalid SSL certificates in Chrome, such as self-signed ones, being ignored. Available since v2.6.5.
 
 ### `--disable-web-security`
 

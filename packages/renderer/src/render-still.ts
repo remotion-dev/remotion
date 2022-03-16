@@ -1,23 +1,49 @@
-import fs, {mkdirSync, statSync} from 'fs';
+import fs, {statSync} from 'fs';
 import path from 'path';
 import {Browser as PuppeteerBrowser} from 'puppeteer-core';
-import {Browser, BrowserExecutable, Internals, TCompMetadata} from 'remotion';
+import {
+	BrowserExecutable,
+	Internals,
+	StillImageFormat,
+	TCompMetadata,
+} from 'remotion';
+import {ensureOutputDirectory} from './ensure-output-directory';
+import {
+	getServeUrlWithFallback,
+	ServeUrlOrWebpackBundle,
+} from './legacy-webpack-config';
 import {ChromiumOptions, openBrowser} from './open-browser';
+import {prepareServer} from './prepare-server';
 import {provideScreenshot} from './provide-screenshot';
 import {seekToFrame} from './seek-to-frame';
-import {serveStatic} from './serve-static';
 import {setPropsAndEnv} from './set-props-and-env';
 import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
+import {validateScale} from './validate-scale';
 
-/**
- * @description Render a still frame from a composition and returns an image path
- */
-export const renderStill = async ({
+type InnerStillOptions = {
+	composition: TCompMetadata;
+	output: string;
+	frame?: number;
+	inputProps?: unknown;
+	imageFormat?: StillImageFormat;
+	quality?: number;
+	puppeteerInstance?: PuppeteerBrowser;
+	dumpBrowserLogs?: boolean;
+	envVariables?: Record<string, string>;
+	overwrite?: boolean;
+	browserExecutable?: BrowserExecutable;
+	timeoutInMilliseconds?: number;
+	chromiumOptions?: ChromiumOptions;
+	scale?: number;
+};
+
+export type RenderStillOptions = InnerStillOptions & ServeUrlOrWebpackBundle;
+
+const innerRenderStill = async ({
 	composition,
 	quality,
 	imageFormat = 'png',
-	webpackBundle,
-	browser = Internals.DEFAULT_BROWSER,
+	serveUrl,
 	puppeteerInstance,
 	dumpBrowserLogs = false,
 	onError,
@@ -30,25 +56,10 @@ export const renderStill = async ({
 	timeoutInMilliseconds,
 	chromiumOptions,
 	scale,
-}: {
-	composition: TCompMetadata;
-	output: string;
-	webpackBundle: string;
-	frame?: number;
-	inputProps?: unknown;
-	imageFormat?: 'png' | 'jpeg';
-	quality?: number;
-	browser?: Browser;
-	puppeteerInstance?: PuppeteerBrowser;
-	dumpBrowserLogs?: boolean;
-	onError?: (err: Error) => void;
-	envVariables?: Record<string, string>;
-	overwrite?: boolean;
-	browserExecutable?: BrowserExecutable;
-	timeoutInMilliseconds?: number;
-	chromiumOptions?: ChromiumOptions;
-	scale?: number;
-}) => {
+}: InnerStillOptions & {
+	serveUrl: string;
+	onError: (err: Error) => void;
+}): Promise<void> => {
 	Internals.validateDimension(
 		composition.height,
 		'height',
@@ -70,6 +81,7 @@ export const renderStill = async ({
 	Internals.validateNonNullImageFormat(imageFormat);
 	Internals.validateFrame(frame, composition.durationInFrames);
 	validatePuppeteerTimeout(timeoutInMilliseconds);
+	validateScale(scale);
 
 	if (typeof output !== 'string') {
 		throw new TypeError('`output` parameter was not passed or is not a string');
@@ -101,27 +113,37 @@ export const renderStill = async ({
 		}
 	}
 
-	mkdirSync(path.resolve(output, '..'), {
-		recursive: true,
-	});
+	ensureOutputDirectory(output);
 
-	const [{port, close}, browserInstance] = await Promise.all([
-		serveStatic(webpackBundle),
+	const browserInstance =
 		puppeteerInstance ??
-			openBrowser(browser, {
-				browserExecutable,
-				shouldDumpIo: dumpBrowserLogs,
-				chromiumOptions,
-			}),
-	]);
+		(await openBrowser(Internals.DEFAULT_BROWSER, {
+			browserExecutable,
+			shouldDumpIo: dumpBrowserLogs,
+			chromiumOptions,
+		}));
 	const page = await browserInstance.newPage();
 	page.setViewport({
 		width: composition.width,
 		height: composition.height,
 		deviceScaleFactor: scale ?? 1,
 	});
+
+	const cleanup = async () => {
+		page.off('pageerror', errorCallback);
+
+		if (puppeteerInstance) {
+			await page.close();
+		} else {
+			browserInstance.close().catch((err) => {
+				console.log('Unable to close browser', err);
+			});
+		}
+	};
+
 	const errorCallback = (err: Error) => {
-		onError?.(err);
+		onError(err);
+		cleanup();
 	};
 
 	page.on('pageerror', errorCallback);
@@ -129,13 +151,17 @@ export const renderStill = async ({
 		inputProps,
 		envVariables,
 		page,
-		port,
+		serveUrl,
 		initialFrame: frame,
 		timeoutInMilliseconds,
 	});
 
-	const site = `http://localhost:${port}/index.html?composition=${composition.id}`;
-	await page.goto(site);
+	await page.evaluate((id) => {
+		window.setBundleMode({
+			type: 'composition',
+			compositionName: id,
+		});
+	}, composition.id);
 	try {
 		await seekToFrame({frame, page});
 	} catch (err) {
@@ -144,13 +170,9 @@ export const renderStill = async ({
 			error.message.includes('timeout') &&
 			error.message.includes('exceeded')
 		) {
-			errorCallback(
-				new Error(
-					'The rendering timed out. See https://www.remotion.dev/docs/timeout/ for possible reasons.'
-				)
+			throw new Error(
+				'The rendering timed out. See https://www.remotion.dev/docs/timeout/ for possible reasons.'
 			);
-		} else {
-			errorCallback(error);
 		}
 
 		throw error;
@@ -166,17 +188,29 @@ export const renderStill = async ({
 		},
 	});
 
-	page.off('pageerror', errorCallback);
+	await cleanup();
+};
 
-	close().catch((err) => {
-		console.log('Unable to close web server', err);
+/**
+ * @description Render a still frame from a composition and returns an image path
+ */
+
+export const renderStill = async (
+	options: RenderStillOptions
+): Promise<void> => {
+	const selectedServeUrl = getServeUrlWithFallback(options);
+
+	const {closeServer, serveUrl} = await prepareServer(selectedServeUrl);
+
+	return new Promise((resolve, reject) => {
+		// eslint-disable-next-line promise/catch-or-return
+		innerRenderStill({
+			...options,
+			serveUrl,
+			onError: (err) => reject(err),
+		})
+			.then((res) => resolve(res))
+			.catch((err) => reject(err))
+			.finally(() => closeServer());
 	});
-
-	if (puppeteerInstance) {
-		await page.close();
-	} else {
-		browserInstance.close().catch((err) => {
-			console.log('Unable to close browser', err);
-		});
-	}
 };

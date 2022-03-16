@@ -13,10 +13,10 @@ export const provideScreenshot = async ({
 	quality: number | undefined;
 	options: {
 		frame: number;
-		output: string;
+		output?: string;
 	};
-}): Promise<void> => {
-	await screenshotDOMElement({
+}): Promise<Buffer> => {
+	return screenshotDOMElement({
 		page,
 		opts: {
 			path: options.output,

@@ -22,6 +22,7 @@ export type CommandLineOptions = {
 	['prores-profile']: ProResProfile;
 	['bundle-cache']: string;
 	['env-file']: string;
+	['frames-per-lambda']: number;
 	['ignore-certificate-errors']: string;
 	['disable-web-security']: string;
 	codec: Codec;
@@ -37,27 +38,43 @@ export type CommandLineOptions = {
 	frames: string | number;
 	scale: number;
 	sequence: boolean;
+	quiet: boolean;
+	q: boolean;
 	log: string;
 	help: boolean;
 	port: number;
 	frame: string | number;
+	siteName: string;
 	['disable-headless']: boolean;
 	gl: OpenGlRenderer;
 };
 
+export const BooleanFlags = [
+	'force',
+	'overwrite',
+	'sequence',
+	'help',
+	'quiet',
+	'q',
+	// Lambda flags
+	'force',
+	'disable-chunk-optimization',
+	'save-browser-logs',
+	'disable-cloudwatch',
+	'yes',
+	'y',
+	'disable-web-security',
+	'ignore-certificate-errors',
+	'disable-headless',
+];
+
 export const parsedCli = minimist<CommandLineOptions>(process.argv.slice(2), {
-	boolean: [
-		'force',
-		'overwrite',
-		'sequence',
-		'help',
-		'disable-web-security',
-		'ignore-certificate-errors',
-		'disable-headless',
-	],
+	boolean: BooleanFlags,
 });
 
-export const parseCommandLine = (type: 'still' | 'sequence' | 'versions') => {
+export const parseCommandLine = (
+	type: 'still' | 'sequence' | 'lambda' | 'preview' | 'versions'
+) => {
 	if (parsedCli['pixel-format']) {
 		Config.Output.setPixelFormat(parsedCli['pixel-format']);
 	}
@@ -140,6 +157,10 @@ export const parseCommandLine = (type: 'still' | 'sequence' | 'versions') => {
 		Internals.setStillFrame(Number(parsedCli.frame));
 	}
 
+	if (parsedCli['frames-per-lambda']) {
+		Internals.setFramesPerLambda(parsedCli['frames-per-lambda']);
+	}
+
 	if (parsedCli.png) {
 		Log.warn(
 			'The --png flag has been deprecrated. Use --sequence --image-format=png from now on.'
@@ -178,3 +199,5 @@ export const parseCommandLine = (type: 'still' | 'sequence' | 'versions') => {
 		Config.Rendering.setScale(parsedCli.scale);
 	}
 };
+
+export const quietFlagProvided = () => parsedCli.quiet || parsedCli.q;

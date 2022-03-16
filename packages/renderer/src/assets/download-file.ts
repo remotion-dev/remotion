@@ -1,36 +1,41 @@
-import http from 'http';
-import https from 'https';
 import {createWriteStream} from 'fs';
+import {readFile} from './read-file';
 
-const getHttpClient = (url: string) => {
-	if (url.startsWith('http://')) {
-		return http.get;
-	}
+export const downloadFile = (
+	url: string,
+	to: string,
+	onProgress:
+		| ((progress: {
+				progress: number;
+				downloaded: number;
+				totalSize: number;
+		  }) => void)
+		| undefined
+) => {
+	return new Promise<{sizeInBytes: number}>((resolve, reject) => {
+		readFile(url)
+			.then((res) => {
+				const totalSize = Number(res.headers['content-length']);
+				const writeStream = createWriteStream(to);
 
-	if (url.startsWith('https://')) {
-		return https.get;
-	}
-
-	throw new Error(
-		'URL must start with http:// or https:// for it to be downloaded. Passed: ' +
-			url
-	);
-};
-
-export const downloadFile = (url: string, to: string) => {
-	return new Promise<void>((resolve, reject) => {
-		const writeStream = createWriteStream(to);
-
-		// Listen to 'close' event instead of more
-		// concise method to avoid this problem
-		// https://github.com/remotion-dev/remotion/issues/384#issuecomment-844398183
-		writeStream.on('close', () => resolve());
-		writeStream.on('error', (err) => reject(err));
-
-		getHttpClient(url)(url, (res) => {
-			res.pipe(writeStream).on('error', (err) => reject(err));
-		}).on('error', (err) => {
-			return reject(err);
-		});
+				// Listen to 'close' event instead of more
+				// concise method to avoid this problem
+				// https://github.com/remotion-dev/remotion/issues/384#issuecomment-844398183
+				writeStream.on('close', () => resolve({sizeInBytes: totalSize}));
+				writeStream.on('error', (err) => reject(err));
+				let downloaded = 0;
+				res.pipe(writeStream).on('error', (err) => reject(err));
+				res.on('data', (d) => {
+					downloaded += d.length;
+					onProgress?.({
+						downloaded,
+						progress: downloaded / totalSize,
+						totalSize,
+					});
+				});
+			})
+			.catch((err) => {
+				reject(err);
+			});
 	});
 };

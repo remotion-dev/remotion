@@ -1,5 +1,6 @@
 import {
 	getCompositions,
+	openBrowser,
 	RenderInternals,
 	renderStill,
 } from '@remotion/renderer';
@@ -12,17 +13,23 @@ import {getCompositionId} from './get-composition-id';
 import {handleCommonError} from './handle-common-errors';
 import {initializeRenderCli} from './initialize-render-cli';
 import {Log} from './log';
-import {parsedCli} from './parse-command-line';
-import {createProgressBar, makeRenderingProgress} from './progress-bar';
+import {parsedCli, quietFlagProvided} from './parse-command-line';
+import {
+	createOverwriteableCliOutput,
+	makeRenderingProgress,
+} from './progress-bar';
 import {bundleOnCli} from './setup-cache';
+import {RenderStep} from './step';
 import {getUserPassedOutputLocation} from './user-passed-output-location';
 
 export const still = async () => {
 	const startTime = Date.now();
 	const file = parsedCli._[1];
-	const fullPath = path.join(process.cwd(), file);
+	const fullPath = RenderInternals.isServeUrl(file)
+		? file
+		: path.join(process.cwd(), file);
 
-	initializeRenderCli('still');
+	await initializeRenderCli('still');
 
 	const userOutput = path.resolve(process.cwd(), getUserPassedOutputLocation());
 
@@ -50,7 +57,7 @@ export const still = async () => {
 		browserExecutable,
 		chromiumOptions,
 		scale,
-	} = await getCliOptions('still');
+	} = await getCliOptions({isLambda: false, type: 'still'});
 
 	Log.verbose('Browser executable: ', browserExecutable);
 
@@ -77,25 +84,36 @@ export const still = async () => {
 		);
 	}
 
-	const browserInstance = RenderInternals.openBrowser(browser, {
+	const browserInstance = openBrowser(browser, {
 		browserExecutable,
-		shouldDumpIo: Internals.Logging.isEqualOrBelowLogLevel('verbose'),
 		chromiumOptions,
+
+		shouldDumpIo: Internals.Logging.isEqualOrBelowLogLevel(
+			Internals.Logging.getLogLevel(),
+			'verbose'
+		),
 	});
 
 	mkdirSync(path.join(userOutput, '..'), {
 		recursive: true,
 	});
 
-	const steps = 2;
+	const steps: RenderStep[] = [
+		RenderInternals.isServeUrl(fullPath) ? null : ('bundling' as const),
+		'rendering' as const,
+	].filter(Internals.truthy);
 
-	const bundled = await bundleOnCli(fullPath, steps);
+	const urlOrBundle = RenderInternals.isServeUrl(fullPath)
+		? Promise.resolve(fullPath)
+		: await bundleOnCli(fullPath, steps);
+	const {serveUrl, closeServer} = await RenderInternals.prepareServer(
+		await urlOrBundle
+	);
 
-	const openedBrowser = await browserInstance;
-	const comps = await getCompositions(bundled, {
-		browser,
+	const puppeteerInstance = await browserInstance;
+	const comps = await getCompositions(serveUrl, {
 		inputProps,
-		browserInstance: openedBrowser,
+		puppeteerInstance,
 		envVariables,
 		timeoutInMilliseconds: Internals.getCurrentPuppeteerTimeout(),
 		chromiumOptions,
@@ -107,37 +125,39 @@ export const still = async () => {
 		throw new Error(`Cannot find composition with ID ${compositionId}`);
 	}
 
-	const renderProgress = createProgressBar();
+	const renderProgress = createOverwriteableCliOutput(quietFlagProvided());
 	const renderStart = Date.now();
 
-	await renderStill({
-		composition,
-		frame: stillFrame,
-		output: userOutput,
-		webpackBundle: bundled,
-		quality,
-		browser,
-		dumpBrowserLogs: Internals.Logging.isEqualOrBelowLogLevel('verbose'),
-		envVariables,
-		imageFormat,
-		inputProps,
-		onError: (err: Error) => {
-			Log.error();
-			Log.error('The following error occured when rendering the still:');
+	try {
+		await renderStill({
+			composition,
+			frame: stillFrame,
+			output: userOutput,
+			serveUrl,
+			quality,
+			dumpBrowserLogs: Internals.Logging.isEqualOrBelowLogLevel(
+				Internals.Logging.getLogLevel(),
+				'verbose'
+			),
+			envVariables,
+			imageFormat,
+			inputProps,
+			chromiumOptions,
+			timeoutInMilliseconds: Internals.getCurrentPuppeteerTimeout(),
+			scale,
+		});
+	} catch (err) {
+		Log.error();
+		Log.error('The following error occured when rendering the still:');
 
-			handleCommonError(err);
+		handleCommonError(err as Error);
+		process.exit(1);
+	}
 
-			process.exit(1);
-		},
-		puppeteerInstance: openedBrowser,
-		overwrite: Internals.getShouldOverwrite(),
-		timeoutInMilliseconds: Internals.getCurrentPuppeteerTimeout(),
-		chromiumOptions,
-		browserExecutable,
-		scale,
+	const closeBrowserPromise = puppeteerInstance.close();
+	closeServer().catch((err) => {
+		Log.error('Could not close web server', err);
 	});
-
-	const closeBrowserPromise = openedBrowser.close();
 	renderProgress.update(
 		makeRenderingProgress({
 			frames: 1,

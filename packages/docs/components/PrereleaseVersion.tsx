@@ -1,8 +1,10 @@
 import React from "react";
 
-const FALLBACK_VERSION = "2.4.0-alpha.b886f9bc";
+const FALLBACK_VERSION = "3.0.0-alpha.b886f9bc";
 
-export const Prerelease: React.FC = () => {
+export const Prerelease: React.FC<{
+  onlySnippet: boolean;
+}> = ({ onlySnippet }) => {
   const version =
     typeof URLSearchParams === "undefined"
       ? FALLBACK_VERSION
@@ -10,16 +12,20 @@ export const Prerelease: React.FC = () => {
         FALLBACK_VERSION;
   return (
     <div>
-      <p>
-        If you have received a prerelease version of Remotion, such as
-        <code>{version}</code>, this is how you install it:
-      </p>
-      <p>
-        Replace all packages that are part of Remotion, such as{" "}
-        <code>remotion</code>, <code>@remotion/renderer</code>,
-        <code>@remotion/lambda</code>, etc with the version that you have
-        received:
-      </p>
+      {onlySnippet ? null : (
+        <div>
+          <p>
+            If you have received a prerelease version of Remotion, such as
+            <code>{version}</code>, this is how you install it:
+          </p>
+          <p>
+            Replace all packages that are part of Remotion, such as{" "}
+            <code>remotion</code>, <code>@remotion/renderer</code>,
+            <code>@remotion/lambda</code>, etc with the version that you have
+            received:
+          </p>
+        </div>
+      )}
       <pre className="code-container">
         {["@remotion/bundler", "@remotion/renderer", "remotion"].map((r) => {
           return (

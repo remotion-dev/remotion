@@ -1,4 +1,4 @@
-'use strict';
+// Duplicated in Lambda
 
 import readline from 'readline';
 

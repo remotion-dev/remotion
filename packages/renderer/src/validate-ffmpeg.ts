@@ -1,4 +1,5 @@
 import execa from 'execa';
+import fs from 'fs';
 import os from 'os';
 import {statSync} from 'fs';
 import {Internals} from 'remotion';
@@ -11,6 +12,11 @@ export const binaryExists = async (
 ) => {
 	if (typeof existsMap[name] !== 'undefined') {
 		return existsMap[name];
+	}
+
+	// On AWS lambda, look for a specific path
+	if (name === 'ffmpeg' && process.env.LAMBDA_TASK_ROOT) {
+		return fs.existsSync('/opt/bin/ffmpeg');
 	}
 
 	if (name === 'ffmpeg' && localFFmpeg) {

@@ -1,123 +1,153 @@
+import fs from 'fs';
 import path from 'path';
-import {Browser as PuppeteerBrowser} from 'puppeteer-core';
 import {
-	Browser,
+	Browser as PuppeteerBrowser,
+	ConsoleMessage,
+	Page,
+} from 'puppeteer-core';
+import {
 	BrowserExecutable,
 	FrameRange,
 	ImageFormat,
 	Internals,
+	SmallTCompMetadata,
 	TAsset,
-	VideoConfig,
 } from 'remotion';
+import {
+	downloadAndMapAssetsToFileUrl,
+	RenderMediaOnDownload,
+} from './assets/download-and-map-assets-to-file';
+import {BrowserLog} from './browser-log';
 import {cycleBrowserTabs} from './cycle-browser-tabs';
 import {getActualConcurrency} from './get-concurrency';
-import {getFrameCount} from './get-frame-range';
-import {getFrameToRender} from './get-frame-to-render';
+import {getRealFrameRange} from './get-frame-to-render';
 import {DEFAULT_IMAGE_FORMAT} from './image-format';
+import {
+	getServeUrlWithFallback,
+	ServeUrlOrWebpackBundle,
+} from './legacy-webpack-config';
+import {makeAssetsDownloadTmpDir} from './make-assets-download-dir';
 import {ChromiumOptions, openBrowser} from './open-browser';
 import {Pool} from './pool';
+import {prepareServer} from './prepare-server';
 import {provideScreenshot} from './provide-screenshot';
 import {seekToFrame} from './seek-to-frame';
-import {serveStatic} from './serve-static';
 import {setPropsAndEnv} from './set-props-and-env';
-import {OnErrorInfo, OnStartData, RenderFramesOutput} from './types';
-import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
+import {OnStartData, RenderFramesOutput} from './types';
 import {validateScale} from './validate-scale';
 
-export const renderFrames = async ({
-	config,
-	parallelism,
-	onFrameUpdate,
-	compositionId,
-	outputDir,
-	onStart,
-	inputProps,
-	envVariables = {},
-	webpackBundle,
-	quality,
-	imageFormat = DEFAULT_IMAGE_FORMAT,
-	browser = Internals.DEFAULT_BROWSER,
-	frameRange,
-	dumpBrowserLogs = false,
-	puppeteerInstance,
-	onError,
-	browserExecutable,
-	timeoutInMilliseconds,
-	chromiumOptions,
-	scale,
-}: {
-	config: VideoConfig;
-	compositionId: string;
+type ConfigOrComposition =
+	| {
+			/**
+			 * @deprecated This field has been renamed to `composition`
+			 */
+			config: SmallTCompMetadata;
+	  }
+	| {
+			composition: SmallTCompMetadata;
+	  };
+
+type RenderFramesOptions = {
 	onStart: (data: OnStartData) => void;
-	onFrameUpdate: (f: number) => void;
-	outputDir: string;
+	onFrameUpdate: (framesRendered: number, frameIndex: number) => void;
+	outputDir: string | null;
 	inputProps: unknown;
 	envVariables?: Record<string, string>;
-	webpackBundle: string;
 	imageFormat: ImageFormat;
 	parallelism?: number | null;
 	quality?: number;
-	browser?: Browser;
 	frameRange?: FrameRange | null;
 	dumpBrowserLogs?: boolean;
 	puppeteerInstance?: PuppeteerBrowser;
 	browserExecutable?: BrowserExecutable;
-	onError?: (info: OnErrorInfo) => void;
+	onBrowserLog?: (log: BrowserLog) => void;
+	onFrameBuffer?: (buffer: Buffer, frame: number) => void;
+	onDownload?: RenderMediaOnDownload;
 	timeoutInMilliseconds?: number;
 	chromiumOptions?: ChromiumOptions;
 	scale?: number;
-}): Promise<RenderFramesOutput> => {
-	Internals.validateDimension(
-		config.height,
-		'height',
-		'in the `config` object passed to `renderFrames()`'
-	);
-	Internals.validateDimension(
-		config.width,
-		'width',
-		'in the `config` object passed to `renderFrames()`'
-	);
-	Internals.validateFps(
-		config.fps,
-		'in the `config` object of `renderFrames()`'
-	);
-	Internals.validateDurationInFrames(
-		config.durationInFrames,
-		'in the `config` object passed to `renderFrames()`'
-	);
-	if (quality !== undefined && imageFormat !== 'jpeg') {
-		throw new Error(
-			"You can only pass the `quality` option if `imageFormat` is 'jpeg'."
-		);
+} & ConfigOrComposition &
+	ServeUrlOrWebpackBundle;
+
+const getComposition = (others: ConfigOrComposition) => {
+	if ('composition' in others) {
+		return others.composition;
 	}
 
-	Internals.validateQuality(quality);
-	validatePuppeteerTimeout(timeoutInMilliseconds);
-	validateScale(scale);
+	if ('config' in others) {
+		return others.config;
+	}
+
+	return undefined;
+};
+
+export const innerRenderFrames = async ({
+	parallelism,
+	onFrameUpdate,
+	outputDir,
+	onStart,
+	inputProps,
+	quality,
+	imageFormat = DEFAULT_IMAGE_FORMAT,
+	frameRange,
+	puppeteerInstance,
+	onError,
+	envVariables,
+	onBrowserLog,
+	onFrameBuffer,
+	onDownload,
+	pagesArray,
+	serveUrl,
+	composition,
+	timeoutInMilliseconds,
+	scale,
+}: Omit<RenderFramesOptions, 'url'> & {
+	onError: (err: Error) => void;
+	pagesArray: Page[];
+	serveUrl: string;
+	composition: SmallTCompMetadata;
+}): Promise<RenderFramesOutput> => {
+	if (!puppeteerInstance) {
+		throw new Error('weird');
+	}
 
 	const actualParallelism = getActualConcurrency(parallelism ?? null);
 
-	const [{port, close}, browserInstance] = await Promise.all([
-		serveStatic(webpackBundle),
-		puppeteerInstance ??
-			openBrowser(browser, {
-				shouldDumpIo: dumpBrowserLogs,
-				browserExecutable,
-				chromiumOptions,
-			}),
-	]);
+	if (outputDir) {
+		if (!fs.existsSync(outputDir)) {
+			fs.mkdirSync(outputDir, {
+				recursive: true,
+			});
+		}
+	}
+
+	const realFrameRange = getRealFrameRange(
+		composition.durationInFrames,
+		frameRange ?? null
+	);
+
+	const frameCount = realFrameRange[1] - realFrameRange[0] + 1;
+
 	const pages = new Array(actualParallelism).fill(true).map(async () => {
-		const page = await browserInstance.newPage();
+		const page = await puppeteerInstance.newPage();
+		pagesArray.push(page);
 		page.setViewport({
-			width: config.width,
-			height: config.height,
+			width: composition.width,
+			height: composition.height,
 			deviceScaleFactor: scale ?? 1,
 		});
-		const errorCallback = (err: Error) => {
-			onError?.({error: err, frame: null});
+
+		const logCallback = (log: ConsoleMessage) => {
+			onBrowserLog?.({
+				stackTrace: log.stackTrace(),
+				text: log.text(),
+				type: log.type(),
+			});
 		};
 
-		page.on('pageerror', errorCallback);
+		if (onBrowserLog) {
+			page.on('console', logCallback);
+		}
 
 		const initialFrame =
 			typeof frameRange === 'number'
@@ -130,49 +160,55 @@ export const renderFrames = async ({
 			inputProps,
 			envVariables,
 			page,
-			port,
+			serveUrl,
 			initialFrame,
 			timeoutInMilliseconds,
 		});
 
-		const site = `http://localhost:${port}/index.html?composition=${compositionId}`;
-		await page.goto(site);
-		page.off('pageerror', errorCallback);
+		await page.evaluate((id) => {
+			window.setBundleMode({
+				type: 'composition',
+				compositionName: id,
+			});
+		}, composition.id);
+
+		page.off('console', logCallback);
 		return page;
 	});
-	const {stopCycling} = cycleBrowserTabs(browserInstance);
 
 	const puppeteerPages = await Promise.all(pages);
 	const pool = new Pool(puppeteerPages);
 
-	const frameCount = getFrameCount(config.durationInFrames, frameRange ?? null);
+	const [firstFrameIndex, lastFrameIndex] = realFrameRange;
 	// Substract one because 100 frames will be 00-99
 	// --> 2 digits
-	let filePadLength = 0;
-	if (frameCount) {
-		filePadLength = String(frameCount - 1).length;
-	}
-
+	const filePadLength = String(lastFrameIndex).length;
 	let framesRendered = 0;
 
 	onStart({
 		frameCount,
 	});
+	const downloadDir = makeAssetsDownloadTmpDir();
 	const assets: TAsset[][] = new Array(frameCount).fill(undefined);
 	await Promise.all(
 		new Array(frameCount)
 			.fill(Boolean)
 			.map((x, i) => i)
 			.map(async (index) => {
-				const frame = getFrameToRender(frameRange ?? null, index);
+				const frame = realFrameRange[0] + index;
 				const freePage = await pool.acquire();
 				const paddedIndex = String(frame).padStart(filePadLength, '0');
 
-				const errorCallback = (err: Error) => {
-					onError?.({error: err, frame});
+				const errorCallbackOnFrame = (err: Error) => {
+					onError(
+						new Error(
+							`Error on rendering frame ${frame}: ${err.stack || err.message}`
+						)
+					);
 				};
 
-				freePage.on('pageerror', errorCallback);
+				freePage.on('pageerror', errorCallbackOnFrame);
+				freePage.on('error', errorCallbackOnFrame);
 				try {
 					await seekToFrame({frame, page: freePage});
 				} catch (err) {
@@ -181,31 +217,51 @@ export const renderFrames = async ({
 						error.message.includes('timeout') &&
 						error.message.includes('exceeded')
 					) {
-						errorCallback(
+						errorCallbackOnFrame(
 							new Error(
 								'The rendering timed out. See https://www.remotion.dev/docs/timeout/ for possible reasons.'
 							)
 						);
 					} else {
-						errorCallback(error);
+						errorCallbackOnFrame(error);
 					}
 
 					throw error;
 				}
 
 				if (imageFormat !== 'none') {
-					await provideScreenshot({
-						page: freePage,
-						imageFormat,
-						quality,
-						options: {
-							frame,
-							output: path.join(
-								outputDir,
-								`element-${paddedIndex}.${imageFormat}`
-							),
-						},
-					});
+					if (onFrameBuffer) {
+						const buffer = await provideScreenshot({
+							page: freePage,
+							imageFormat,
+							quality,
+							options: {
+								frame,
+								output: undefined,
+							},
+						});
+						onFrameBuffer(buffer, frame);
+					} else {
+						if (!outputDir) {
+							throw new Error(
+								'Called renderFrames() without specifying either `outputDir` or `onFrameBuffer`'
+							);
+						}
+
+						const output = path.join(
+							outputDir,
+							`element-${paddedIndex}.${imageFormat}`
+						);
+						await provideScreenshot({
+							page: freePage,
+							imageFormat,
+							quality,
+							options: {
+								frame,
+								output,
+							},
+						});
+					}
 				}
 
 				const collectedAssets = await freePage.evaluate(() => {
@@ -218,35 +274,122 @@ export const renderFrames = async ({
 					)
 				);
 				assets[index] = compressedAssets;
+				compressedAssets.forEach((asset) => {
+					downloadAndMapAssetsToFileUrl({
+						asset,
+						downloadDir,
+						onDownload: onDownload ?? (() => () => undefined),
+					}).catch((err) => {
+						onError(
+							new Error(
+								`Error while downloading asset: ${(err as Error).stack}`
+							)
+						);
+					});
+				});
 				pool.release(freePage);
 				framesRendered++;
-				onFrameUpdate(framesRendered);
-				freePage.off('pageerror', errorCallback);
+				onFrameUpdate(framesRendered, frame);
+				freePage.off('pageerror', errorCallbackOnFrame);
+				freePage.off('error', errorCallbackOnFrame);
+				return compressedAssets;
 			})
 	);
-	close().catch((err) => {
-		console.log('Unable to close web server', err);
-	});
-	stopCycling();
-	// If browser instance was passed in, we close all the pages
-	// we opened.
-	// If new browser was opened, then closing the browser as a cleanup.
 
-	if (puppeteerInstance) {
-		await Promise.all(puppeteerPages.map((p) => p.close())).catch((err) => {
-			console.log('Unable to close browser tab', err);
-		});
-	} else {
-		browserInstance.close().catch((err) => {
-			console.log('Unable to close browser', err);
-		});
-	}
-
-	return {
+	const returnValue: RenderFramesOutput = {
 		assetsInfo: {
 			assets,
-			bundleDir: webpackBundle,
+			downloadDir,
+			firstFrameIndex,
+			imageSequenceName: `element-%0${filePadLength}d.${imageFormat}`,
 		},
 		frameCount,
 	};
+	return returnValue;
+};
+
+export const renderFrames = async (
+	options: RenderFramesOptions
+): Promise<RenderFramesOutput> => {
+	const composition = getComposition(options);
+
+	if (!composition) {
+		throw new Error(
+			'No `composition` option has been specified for renderFrames()'
+		);
+	}
+
+	Internals.validateDimension(
+		composition.height,
+		'height',
+		'in the `config` object passed to `renderFrames()`'
+	);
+	Internals.validateDimension(
+		composition.width,
+		'width',
+		'in the `config` object passed to `renderFrames()`'
+	);
+	Internals.validateFps(
+		composition.fps,
+		'in the `config` object of `renderFrames()`'
+	);
+	Internals.validateDurationInFrames(
+		composition.durationInFrames,
+		'in the `config` object passed to `renderFrames()`'
+	);
+	if (options.quality !== undefined && options.imageFormat !== 'jpeg') {
+		throw new Error(
+			"You can only pass the `quality` option if `imageFormat` is 'jpeg'."
+		);
+	}
+
+	const selectedServeUrl = getServeUrlWithFallback(options);
+
+	Internals.validateQuality(options.quality);
+	validateScale(options.scale);
+
+	const {closeServer, serveUrl} = await prepareServer(selectedServeUrl);
+
+	const browserInstance =
+		options.puppeteerInstance ??
+		(await openBrowser(Internals.DEFAULT_BROWSER, {
+			shouldDumpIo: options.dumpBrowserLogs,
+			browserExecutable: options.browserExecutable,
+			chromiumOptions: options.chromiumOptions,
+		}));
+	const {stopCycling} = cycleBrowserTabs(browserInstance);
+
+	const openedPages: Page[] = [];
+
+	return new Promise<RenderFramesOutput>((resolve, reject) => {
+		// eslint-disable-next-line promise/catch-or-return
+		innerRenderFrames({
+			...options,
+			puppeteerInstance: browserInstance,
+			onError: (err) => reject(err),
+			pagesArray: openedPages,
+			serveUrl,
+			composition,
+		})
+			.then((res) => resolve(res))
+			.catch((err) => reject(err))
+			.finally(() => {
+				// If browser instance was passed in, we close all the pages
+				// we opened.
+				// If new browser was opened, then closing the browser as a cleanup.
+
+				if (options.puppeteerInstance) {
+					Promise.all(openedPages.map((p) => p.close())).catch((err) => {
+						console.log('Unable to close browser tab', err);
+					});
+				} else {
+					browserInstance.close().catch((err) => {
+						console.log('Unable to close browser', err);
+					});
+				}
+
+				stopCycling();
+				closeServer();
+			});
+	});
 };

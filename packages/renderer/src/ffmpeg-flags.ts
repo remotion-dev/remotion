@@ -23,10 +23,20 @@ export const getFfmpegBuildInfo = async (options: {
 	return buildConfig;
 };
 
-export const ffmpegHasFeature = async (
-	ffmpegExecutable: string | null,
-	feature: 'enable-gpl' | 'enable-libx265' | 'enable-libvpx'
-) => {
+export const ffmpegHasFeature = async ({
+	ffmpegExecutable,
+	feature,
+	isLambda,
+}: {
+	ffmpegExecutable: string | null;
+	feature: 'enable-gpl' | 'enable-libx265' | 'enable-libvpx';
+	isLambda: boolean;
+}) => {
+	if (isLambda) {
+		// When rendering in the cloud, we don't need a local binary
+		return true;
+	}
+
 	if (!(await binaryExists('ffmpeg', ffmpegExecutable))) {
 		return false;
 	}

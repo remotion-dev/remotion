@@ -6,6 +6,7 @@ declare global {
 	interface Window {
 		ready: boolean;
 		getStaticCompositions: () => TCompMetadata[];
+		setBundleMode: (bundleMode: BundleState) => void;
 		remotion_staticBase: string;
 		remotion_editorName: string | null;
 		remotion_projectName: string;
@@ -13,11 +14,26 @@ declare global {
 		remotion_setFrame: (frame: number) => void;
 		remotion_initialFrame: number;
 		remotion_puppeteerTimeout: number;
+		remotion_inputProps: string;
+		remotion_envVariables: string;
 		remotion_collectAssets: () => TAsset[];
 		remotion_isPlayer: boolean;
 		remotion_imported: boolean;
+		siteVersion: '2';
 	}
 }
+
+export type BundleState =
+	| {
+			type: 'index';
+	  }
+	| {
+			type: 'evaluation';
+	  }
+	| {
+			type: 'composition';
+			compositionName: string;
+	  };
 
 checkMultipleRemotionVersions();
 
@@ -25,7 +41,7 @@ export * from './AbsoluteFill';
 export {AnyComponent} from './any-component';
 export * from './audio';
 export * from './Composition';
-export {TAsset} from './CompositionManager';
+export {TAsset, TCompMetadata, SmallTCompMetadata} from './CompositionManager';
 export * from './config';
 export {getInputProps} from './config/input-props';
 export * from './easing';

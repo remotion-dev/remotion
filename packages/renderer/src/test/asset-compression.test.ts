@@ -1,5 +1,4 @@
-import {TAsset} from 'remotion';
-import {compressAsset} from 'remotion/src/compress-assets';
+import {Internals, TAsset} from 'remotion';
 import {calculateAssetPositions} from '../assets/calculate-asset-positions';
 
 test('Should compress and uncompress assets', () => {
@@ -9,7 +8,6 @@ test('Should compress and uncompress assets', () => {
 				frame: 0,
 				id: 'my-id',
 				src: String('x').repeat(1000),
-				isRemote: true,
 				mediaFrame: 0,
 				playbackRate: 1,
 				type: 'video' as const,
@@ -21,7 +19,6 @@ test('Should compress and uncompress assets', () => {
 				frame: 1,
 				id: 'my-id',
 				src: String('x').repeat(1000),
-				isRemote: true,
 				mediaFrame: 0,
 				playbackRate: 1,
 				type: 'video' as const,
@@ -31,7 +28,10 @@ test('Should compress and uncompress assets', () => {
 	].flat(1);
 
 	const compressedAssets = uncompressed.map((asset, i) => {
-		return compressAsset(uncompressed.slice(0, i), asset);
+		return Internals.AssetCompression.compressAsset(
+			uncompressed.slice(0, i),
+			asset
+		);
 	});
 
 	expect(compressedAssets[0].src).toBe(String('x').repeat(1000));
@@ -42,7 +42,6 @@ test('Should compress and uncompress assets', () => {
 		{
 			duration: 1,
 			id: 'my-id',
-			isRemote: true,
 			playbackRate: 1,
 			src: String('x').repeat(1000),
 			startInVideo: 0,
