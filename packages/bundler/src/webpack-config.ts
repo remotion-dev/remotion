@@ -71,7 +71,7 @@ export const webpackConfig = ({
 				: null,
 
 			userDefinedComponent,
-			require.resolve('../react-shim.js'),
+			require.resolve('./react-shim.js'),
 			entry,
 		].filter(Boolean) as [string, ...string[]],
 		mode: environment,
