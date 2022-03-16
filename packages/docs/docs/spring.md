@@ -44,7 +44,7 @@ The end value of the animation. Note that depending on the parameters, spring an
 
 ### fps
 
-For how many frames per second the spring animation should be calculated. This should always be the `fps` property of the return value of `useVideoConfig()`.
+For how many frames per second the spring animation should be calculated. This should always be the `fps` property of the return value of [`useVideoConfig()`](/docs/use-video-config).
 
 ### config
 
