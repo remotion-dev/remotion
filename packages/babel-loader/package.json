@@ -16,6 +16,9 @@
 	"repository": {
 		"url": "https://github.com/remotion-dev/remotion"
 	},
+	"bugs": {
+		"url": "https://github.com/remotion-dev/remotion/issues"
+	},
 	"dependencies": {
 		"@babel/core": "7.15.5",
 		"@babel/plugin-proposal-class-properties": "7.14.5",
