@@ -41,6 +41,14 @@
 		"three": "^0.134.0",
 		"typescript": "^4.5.5"
 	},
+	"keywords": [
+		"remotion",
+		"ffmpeg",
+		"video",
+		"react",
+		"pupeteer",
+		"player"
+	],
 	"publishConfig": {
 		"access": "public"
 	}
