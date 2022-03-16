@@ -8,6 +8,10 @@ export const getAudioCodecName = (codec: Codec): string | null => {
 			return 'pcm_s16le';
 		}
 
+		if (codec === 'vp8' || codec === 'vp9') {
+			return 'libopus';
+		}
+
 		return 'aac';
 	}
 
@@ -17,6 +21,10 @@ export const getAudioCodecName = (codec: Codec): string | null => {
 
 	if (codec === 'mp3') {
 		return 'libmp3lame';
+	}
+
+	if (codec === 'wav') {
+		return 'pcm_s16le';
 	}
 
 	return null;

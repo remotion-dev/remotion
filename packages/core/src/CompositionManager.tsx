@@ -2,6 +2,7 @@ import React, {
 	createContext,
 	LazyExoticComponent,
 	useCallback,
+	useImperativeHandle,
 	useLayoutEffect,
 	useMemo,
 	useState,
@@ -22,6 +23,11 @@ export type TComposition<T = unknown> = {
 export type TCompMetadata = Pick<
 	TComposition,
 	'id' | 'height' | 'width' | 'fps' | 'durationInFrames' | 'defaultProps'
+>;
+
+export type SmallTCompMetadata = Pick<
+	TComposition,
+	'id' | 'height' | 'width' | 'fps' | 'durationInFrames'
 >;
 
 type EnhancedTSequenceData =
@@ -65,14 +71,15 @@ export type TAsset = {
 	id: string;
 	frame: number;
 	volume: number;
-	isRemote: boolean;
 	mediaFrame: number;
 	playbackRate: number;
 };
 
 export type RenderAssetInfo = {
 	assets: TAsset[][];
-	bundleDir: string;
+	imageSequenceName: string;
+	firstFrameIndex: number;
+	downloadDir: string;
 };
 
 export type CompositionManagerContext = {
@@ -102,6 +109,10 @@ export const CompositionManager = createContext<CompositionManagerContext>({
 	sequences: [],
 	assets: [],
 });
+
+export const compositionsRef = React.createRef<{
+	getCompositions: () => TCompMetadata[];
+}>();
 
 export const CompositionManagerProvider: React.FC = ({children}) => {
 	// Wontfix, expected to have
@@ -161,6 +172,16 @@ export const CompositionManagerProvider: React.FC = ({children}) => {
 			};
 		}
 	}, [assets]);
+
+	useImperativeHandle(
+		compositionsRef,
+		() => {
+			return {
+				getCompositions: () => compositions,
+			};
+		},
+		[compositions]
+	);
 
 	const contextValue = useMemo((): CompositionManagerContext => {
 		return {

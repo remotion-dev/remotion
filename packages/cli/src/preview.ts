@@ -4,9 +4,9 @@ import {BundlerInternals} from '@remotion/bundler';
 import betterOpn from 'better-opn';
 import path from 'path';
 import {Internals} from 'remotion';
-import {loadConfig} from './get-config-file-name';
 import {getEnvironmentVariables} from './get-env';
 import {getInputProps} from './get-input-props';
+import {initializeRenderCli} from './initialize-render-cli';
 import {Log} from './log';
 import {parsedCli} from './parse-command-line';
 
@@ -29,12 +29,7 @@ export const previewCommand = async () => {
 	const {port: desiredPort} = parsedCli;
 	const fullPath = path.join(process.cwd(), file);
 
-	const appliedName = loadConfig();
-	if (appliedName) {
-		Log.verbose(`Applied configuration from ${appliedName}.`);
-	} else {
-		Log.verbose('No config file loaded.');
-	}
+	await initializeRenderCli('preview');
 
 	const inputProps = getInputProps();
 	const envVariables = await getEnvironmentVariables();

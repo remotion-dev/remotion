@@ -32,6 +32,7 @@
 		"@remotion/eslint-config": "2.6.11",
 		"@remotion/eslint-plugin": "2.6.11",
 		"@remotion/gif": "2.6.11",
+		"@remotion/lambda": "2.6.11",
 		"@remotion/media-utils": "2.6.11",
 		"@remotion/renderer": "2.6.11",
 		"@remotion/three": "2.6.11",

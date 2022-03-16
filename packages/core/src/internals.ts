@@ -7,6 +7,7 @@ import {CompProps} from './Composition';
 import {
 	CompositionManager,
 	CompositionManagerContext,
+	compositionsRef,
 	RenderAssetInfo,
 	TAsset,
 	TCompMetadata,
@@ -34,18 +35,22 @@ import {
 	validateFrameRange,
 } from './config/frame-range';
 import {
+	getFramesPerLambda,
+	setFramesPerLambda,
+} from './config/frames-per-lambda';
+import {
 	getUserPreferredImageFormat,
 	validateSelectedPixelFormatAndImageFormatCombination,
 } from './config/image-format';
 import {getShouldOutputImageSequence} from './config/image-sequence';
-import {INPUT_PROPS_KEY} from './config/input-props';
 import * as Logging from './config/log';
 import {getMaxTimelineTracks} from './config/max-timeline-tracks';
 import {
+	defaultOverrideFunction,
 	getWebpackOverrideFn,
 	WebpackOverrideFn,
 } from './config/override-webpack';
-import {getShouldOverwrite} from './config/overwrite';
+import {DEFAULT_OVERWRITE, getShouldOverwrite} from './config/overwrite';
 import {
 	DEFAULT_PIXEL_FORMAT,
 	getPixelFormat,
@@ -74,19 +79,10 @@ import {
 } from './initial-frame';
 import {isAudioCodec} from './is-audio-codec';
 import * as perf from './perf';
-import {
-	getCompositionName,
-	getIsEvaluation,
-	getRoot,
-	isPlainIndex,
-} from './register-root';
+import {getRoot} from './register-root';
 import {RemotionRoot} from './RemotionRoot';
 import {SequenceContext} from './sequencing';
-import {
-	ENV_VARIABLES_ENV_NAME,
-	ENV_VARIABLES_LOCAL_STORAGE_KEY,
-	setupEnvVariables,
-} from './setup-env-variables';
+import {ENV_VARIABLES_ENV_NAME, setupEnvVariables} from './setup-env-variables';
 import * as TimelineInOutPosition from './timeline-inout-position-state';
 import {
 	SetTimelineInOutContextValue,
@@ -124,11 +120,7 @@ import {
 	useRemotionContexts,
 } from './wrap-remotion-context';
 import * as AssetCompression from './compress-assets';
-import {
-	DEFAULT_PUPPETEER_TIMEOUT,
-	PUPPETEER_TIMEOUT_KEY,
-	setupPuppeteerTimeout,
-} from './timeout';
+import {DEFAULT_PUPPETEER_TIMEOUT, setupPuppeteerTimeout} from './timeout';
 import {
 	getCurrentPuppeteerTimeout,
 	setPuppeteerTimeout,
@@ -157,8 +149,6 @@ export const Internals = {
 	getRoot,
 	getBrowserExecutable,
 	getCustomFfmpegExecutable,
-	getCompositionName,
-	getIsEvaluation,
 	getPixelFormat,
 	getConcurrency,
 	getRange,
@@ -190,17 +180,14 @@ export const Internals = {
 	useLazyComponent,
 	truthy,
 	isAudioCodec,
-	INPUT_PROPS_KEY,
 	Logging,
 	SequenceContext,
 	useRemotionContexts,
 	RemotionContextProvider,
-	isPlainIndex,
 	CSSUtils,
 	setupEnvVariables,
 	setupInitialFrame,
 	ENV_VARIABLES_ENV_NAME,
-	ENV_VARIABLES_LOCAL_STORAGE_KEY,
 	INITIAL_FRAME_LOCAL_STORAGE_KEY,
 	getDotEnvLocation,
 	getServerPort,
@@ -220,11 +207,14 @@ export const Internals = {
 	validateFrame,
 	setStillFrame,
 	getStillFrame,
+	getFramesPerLambda,
+	setFramesPerLambda,
 	invalidCompositionErrorMessage,
 	isCompositionIdValid,
+	DEFAULT_OVERWRITE,
 	AssetCompression,
+	defaultOverrideFunction,
 	DEFAULT_PUPPETEER_TIMEOUT,
-	PUPPETEER_TIMEOUT_KEY,
 	setupPuppeteerTimeout,
 	setPuppeteerTimeout,
 	getCurrentPuppeteerTimeout,
@@ -235,6 +225,7 @@ export const Internals = {
 	getChromiumHeadlessMode,
 	DEFAULT_OPENGL_RENDERER,
 	getPreviewDomElement,
+	compositionsRef,
 };
 
 export type {

@@ -15,17 +15,15 @@ This will most notably disable CORS among other security features.
 Remotion will automatically append the `--user-data-dir` flag.
 :::
 
-### Enabling in Node.JS APIs
+### Via Node.JS APIs
 
-<!-- TODO: Adapt for lambda -->
+In [`getCompositions()`](/docs/renderer/get-compositions#disablewebsecurity), [`renderStill()`](/docs/renderer/render-still#disablewebsecurity), [`renderMedia()`](/docs/renderer/render-media#disablewebsecurity), [`renderFrames()`](/docs/renderer/render-frames#disablewebsecurity), [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda#disablewebsecurity) and [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#disablewebsecurity), you can pass [`chromiumOptions.disableWebSecurity`](/docs/renderer/render-still#disablewebsecurity).
 
-In [`getCompositions()`](/docs/get-compositions), [`renderStill()`](/docs/render-still) and [`renderFrames()`](/docs/render-frames), you can pass [`chromiumOptions.disableWebSecurity`](/docs/render-still#disablewebsecurity).
+### Via CLI flag
 
-### Enabling via CLI
+Pass [`--disable-web-security`](/docs/cli#--disable-web-security) in one of the following commands: `remotion render`, `remotion still`, `remotion lambda render`, `remotion lambda still`.
 
-Pass [`--disable-web-security`](/docs/cli#--disable-web-security) in a `remotion render` or `remotion still` command.
-
-### Enabling via config file
+### Via config file
 
 Use [setChromiumDisableWebSecurity()](/docs/config#setchromiumdisablewebsecurity).
 
@@ -39,17 +37,17 @@ Config.Puppeteer.setChromiumDisableWebSecurity(true);
 
 ## `--ignore-certificate-errors`
 
-Results in invalid SSL certificates, such as self-signed ones being ignored.
+Results in invalid SSL certificates, such as self-signed ones, being ignored.
 
-### Enabling in Node.JS APIs
+### Via Node.JS APIs
 
-In [`getCompositions()`](/docs/get-compositions), [`renderStill()`](/docs/render-still) and [`renderFrames()`](/docs/render-frames), you can pass [`chromiumOptions.ignoreCertificateErrors`](/docs/render-still#ignorecertificateerrors).
+In [`getCompositions()`](/docs/renderer/get-compositions#ignorecertificateerrors), [`renderStill()`](/docs/renderer/render-still#ignorecertificateerrors), [`renderMedia()`](/docs/renderer/render-media#ignorecertificateerrors), [`renderFrames()`](/docs/renderer/render-frames#ignorecertificateerrors), [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda#ignorecertificateerrors) and [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#ignorecertificateerrors), you can pass [`chromiumOptions.ignoreCertificateErrors`](/docs/renderer/render-still#ignorecertificateerrors).
 
-### Enabling via CLI
+### Via CLI flag
 
-Pass [`--ignore-certificate-errors`](/docs/cli#--ignore-certificate-errors) in a `remotion render` or `remotion still` command.
+Pass [`--ignore-certificate-errors`](/docs/cli#--ignore-certificate-errors) in one of the following commands: `remotion render`, `remotion still`, `remotion lambda render`, `remotion lambda still`.
 
-### Enabling via config file
+### Via config file
 
 Use [setChromiumIgnoreCertificateErrors()](/docs/config#setchromiumignorecertificateerrors).
 
@@ -65,15 +63,15 @@ Config.Puppeteer.setChromiumIgnoreCertificateErrors(true);
 
 Setting this flag will open an actual Chrome during render where you can see the render happen.
 
-### Enabling in Node.JS APIs
+### Via Node.JS APIs
 
-In [`getCompositions()`](/docs/get-compositions), [`renderStill()`](/docs/render-still) and [`renderFrames()`](/docs/render-frames), you can pass [`chromiumOptions.headless`](/docs/render-still#headless).
+In [`getCompositions()`](/docs/renderer/get-compositions#headless), [`renderStill()`](/docs/renderer/render-still#headless), [`renderMedia()`](/docs/renderer/render-media#headless) and [`renderFrames()`](/docs/renderer/render-frames#headless), you can pass [`chromiumOptions.headless`](/docs/renderer/render-still#headless). You cannot set this option in Lambda.
 
-### Enabling via CLI
+### Via CLI flag
 
-Pass [`--disable-headless`](/docs/cli#--disable-headless) in a `remotion render` or `remotion still` command.
+Pass [`--disable-headless`](/docs/cli#--disable-headless) in one of the following commands: `remotion render`, `remotion still`.
 
-### Enabling via config file
+### Via config file
 
 Use [setChromiumHeadlessMode()](/docs/config#setchromiumheadlessmode).
 
@@ -87,20 +85,19 @@ Config.Puppeteer.setChromiumHeadlessMode(false);
 
 ## `--gl`
 
-<!-- TODO: Update for lambda -->
 <AngleChangelog />
 
-Select the OpenGL renderer backend for Chromium. Accepted values: `"angle"`, `"egl"`, `"swiftshader"` and `null`. `null` means Chromiums default. Default: `null`.
+Select the OpenGL renderer backend for Chromium. Accepted values: `"angle"`, `"egl"`, `"swiftshader"` and `null`. `null` means Chromiums default. Default: `swiftshader` for Lambda functions, `null` elsewhere.
 
-### Enabling in Node.JS APIs
+### Via Node.JS APIs
 
-In [`getCompositions()`](/docs/get-compositions), [`renderStill()`](/docs/render-still) and [`renderFrames()`](/docs/render-frames), you can pass [`chromiumOptions.gl`](/docs/render-still#gl).
+In [`getCompositions()`](/docs/renderer/get-compositions#gl), [`renderStill()`](/docs/renderer/render-still#gl), [`renderMedia()`](/docs/renderer/render-media#gl), [`renderFrames()`](/docs/renderer/render-frames#gl), [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda#gl) and [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#gl), you can pass [`chromiumOptions.gl`](/docs/renderer/render-still#gl).
 
-### Enabling via CLI
+### Via CLI flag
 
-Pass [`--gl=swiftshader`](/docs/cli#gl) in a `remotion render` or `remotion still` command.
+Pass [`--gl=swiftshader`](/docs/cli#gl) in one of the following commands: `remotion render`, `remotion still`, `remotion lambda render`, `remotion lambda still`.
 
-### Enabling via config file
+### Via config file
 
 ```tsx twoslash
 import { Config } from "remotion";
@@ -109,3 +106,7 @@ import { Config } from "remotion";
 
 Config.Puppeteer.setChromiumOpenGlRenderer("swiftshader");
 ```
+
+## Need more flags?
+
+Open a [GitHub issue](https://github.com/remotion-dev/remotion/issues/new?assignees=&labels=&template=feature_request.md&title=) to request it.

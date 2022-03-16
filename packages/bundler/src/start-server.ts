@@ -134,7 +134,7 @@ export const startServer = async (
 
 	app.use('*', (_, res) => {
 		res.set('content-type', 'text/html');
-		res.end(indexHtml(hash, displayName));
+		res.end(indexHtml(hash, '/', displayName));
 	});
 
 	const desiredPort = options?.port ?? Internals.getServerPort();

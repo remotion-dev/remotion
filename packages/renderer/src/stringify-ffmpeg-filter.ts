@@ -35,6 +35,7 @@ export const stringifyFfmpegFilter = ({
 	return (
 		`[${streamIndex}:a]` +
 		[
+			'apad',
 			`atrim=${trimLeft}:${trimRight}`,
 			// For n channels, we delay n + 1 channels.
 			// This is because `ffprobe` for some audio files reports the wrong amount

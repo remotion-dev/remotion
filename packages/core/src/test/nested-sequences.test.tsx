@@ -1,6 +1,5 @@
 /* eslint-disable react/jsx-no-constructed-context-values */
 import {render} from '@testing-library/react';
-import React from 'react';
 import {Sequence} from '../sequencing';
 import {TimelineContext} from '../timeline-position-state';
 import {useCurrentFrame} from '../use-frame';

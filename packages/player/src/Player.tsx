@@ -16,11 +16,11 @@ import {
 	Internals,
 	LooseAnyComponent,
 	MediaVolumeContextValue,
+	PlayableMediaTag,
 	SetMediaVolumeContextValue,
 	SetTimelineContextValue,
 	TimelineContextValue,
 } from 'remotion';
-import {PlayableMediaTag} from 'remotion';
 import {PlayerEventEmitterContext} from './emitter-context';
 import {PlayerEmitter} from './event-emitter';
 import {PLAYER_CSS_CLASSNAME} from './player-css-classname';
@@ -61,7 +61,7 @@ export type PlayerProps<T> = {
 	CompProps<T>;
 
 Internals.CSSUtils.injectCSS(
-	Internals.CSSUtils.makeDefaultCSS(`.${PLAYER_CSS_CLASSNAME}`)
+	Internals.CSSUtils.makeDefaultCSS(`.${PLAYER_CSS_CLASSNAME}`, '#fff')
 );
 
 export const componentOrNullIfLazy = <T,>(

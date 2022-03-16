@@ -5,8 +5,8 @@
   "scripts": {
     "docusaurus": "docusaurus",
     "start": "docusaurus start",
-    "build": "tsc",
-    "build-docs": "docusaurus build",
+    "build": "tsc -d",
+    "build-docs": "node --max_old_space_size=16000 node_modules/@docusaurus/core/bin/docusaurus.js build",
     "swizzle": "docusaurus swizzle",
     "deploy": "docusaurus deploy",
     "serve": "docusaurus serve",
@@ -15,6 +15,8 @@
     "test": "jest"
   },
   "dependencies": {
+    "@jonny/eslint-config": "^2.1.248",
+    "@babel/plugin-transform-modules-commonjs": "^7.15.4",
     "@docusaurus/core": "2.0.0-beta.7",
     "@docusaurus/plugin-content-blog": "2.0.0-beta.7",
     "@docusaurus/preset-classic": "2.0.0-beta.7",
@@ -23,6 +25,7 @@
     "@remotion/babel-loader": "2.6.11",
     "@remotion/bundler": "2.6.11",
     "@remotion/gif": "2.6.11",
+    "@remotion/lambda": "2.6.11",
     "@remotion/media-utils": "2.6.11",
     "@remotion/player": "2.6.11",
     "@remotion/renderer": "2.6.11",

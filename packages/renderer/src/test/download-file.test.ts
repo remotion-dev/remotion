@@ -5,7 +5,7 @@ import {downloadFile} from '../assets/download-file';
 
 test('Should be able to download file', async () => {
 	const output = path.join(tmpdir(), 'tmp.html');
-	await downloadFile('https://example.com/', output);
+	await downloadFile('https://example.com/', output, () => undefined);
 	const data = await fs.promises.readFile(output, 'utf8');
 
 	expect(data).toMatch(
@@ -16,6 +16,6 @@ test('Should be able to download file', async () => {
 test('Should fail to download invalid files', async () => {
 	const output = path.join(tmpdir(), 'invalid.html');
 	await expect(() =>
-		downloadFile('https://thisdomain.doesnotexist', output)
+		downloadFile('https://thisdomain.doesnotexist', output, () => undefined)
 	).rejects.toThrow(/ENOTFOUND/);
 });

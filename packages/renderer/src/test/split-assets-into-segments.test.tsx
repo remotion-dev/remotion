@@ -12,7 +12,6 @@ test('Should create segments of audio clips correctly', () => {
 			type: 'video',
 			volume: 1,
 			id: '1',
-			isRemote: false,
 			playbackRate: 1,
 		},
 		// Clip from 5-15 seconds
@@ -24,7 +23,6 @@ test('Should create segments of audio clips correctly', () => {
 			type: 'video',
 			volume: 1,
 			id: '2',
-			isRemote: false,
 			playbackRate: 1,
 		},
 	];
@@ -37,7 +35,6 @@ test('Should create segments of audio clips correctly', () => {
 			type: 'video',
 			volume: 1,
 			id: '1',
-			isRemote: false,
 			playbackRate: 1,
 		},
 		{
@@ -48,7 +45,6 @@ test('Should create segments of audio clips correctly', () => {
 			type: 'video',
 			volume: 1,
 			id: '1',
-			isRemote: false,
 			playbackRate: 1,
 		},
 		{
@@ -59,7 +55,6 @@ test('Should create segments of audio clips correctly', () => {
 			type: 'video',
 			volume: 1,
 			id: '2',
-			isRemote: false,
 			playbackRate: 1,
 		},
 		{
@@ -70,7 +65,6 @@ test('Should create segments of audio clips correctly', () => {
 			type: 'video',
 			volume: 1,
 			id: '2',
-			isRemote: false,
 			playbackRate: 1,
 		},
 	]);
@@ -87,7 +81,6 @@ test('Should leave single clip untouched', () => {
 			type: 'video',
 			volume: 1,
 			id: '1',
-			isRemote: false,
 			playbackRate: 1,
 		},
 	];
@@ -100,7 +93,6 @@ test('Should leave single clip untouched', () => {
 			type: 'video',
 			volume: 1,
 			id: '1',
-			isRemote: false,
 			playbackRate: 1,
 		},
 	]);
@@ -117,7 +109,6 @@ test('Should leave two identical clips the same', () => {
 			type: 'video',
 			volume: 1,
 			id: '1',
-			isRemote: false,
 			playbackRate: 1,
 		},
 		{
@@ -128,7 +119,6 @@ test('Should leave two identical clips the same', () => {
 			type: 'video',
 			volume: 1,
 			id: '2',
-			isRemote: false,
 			playbackRate: 1,
 		},
 	];
@@ -141,7 +131,6 @@ test('Should leave two identical clips the same', () => {
 			type: 'video',
 			volume: 1,
 			id: '1',
-			isRemote: false,
 			playbackRate: 1,
 		},
 		{
@@ -152,7 +141,6 @@ test('Should leave two identical clips the same', () => {
 			type: 'video',
 			volume: 1,
 			id: '2',
-			isRemote: false,
 			playbackRate: 1,
 		},
 	]);
@@ -169,7 +157,6 @@ test('Should not have one-off errors', () => {
 			type: 'video',
 			volume: 1,
 			id: '1',
-			isRemote: false,
 			playbackRate: 1,
 		},
 		{
@@ -180,7 +167,6 @@ test('Should not have one-off errors', () => {
 			type: 'video',
 			volume: 1,
 			id: '2',
-			isRemote: false,
 			playbackRate: 1,
 		},
 		{
@@ -191,7 +177,6 @@ test('Should not have one-off errors', () => {
 			type: 'video',
 			volume: 1,
 			id: '3',
-			isRemote: false,
 			playbackRate: 1,
 		},
 	];
@@ -204,7 +189,6 @@ test('Should not have one-off errors', () => {
 			type: 'video',
 			volume: 1,
 			id: '1',
-			isRemote: false,
 			playbackRate: 1,
 		},
 		{
@@ -215,7 +199,6 @@ test('Should not have one-off errors', () => {
 			type: 'video',
 			volume: 1,
 			id: '1',
-			isRemote: false,
 			playbackRate: 1,
 		},
 		{
@@ -226,7 +209,6 @@ test('Should not have one-off errors', () => {
 			type: 'video',
 			volume: 1,
 			id: '2',
-			isRemote: false,
 			playbackRate: 1,
 		},
 		{
@@ -237,7 +219,6 @@ test('Should not have one-off errors', () => {
 			type: 'video',
 			volume: 1,
 			id: '2',
-			isRemote: false,
 			playbackRate: 1,
 		},
 		{
@@ -248,7 +229,6 @@ test('Should not have one-off errors', () => {
 			type: 'video',
 			volume: 1,
 			id: '3',
-			isRemote: false,
 			playbackRate: 1,
 		},
 		{
@@ -259,7 +239,6 @@ test('Should not have one-off errors', () => {
 			type: 'video',
 			volume: 1,
 			id: '3',
-			isRemote: false,
 			playbackRate: 1,
 		},
 	]);
@@ -277,7 +256,6 @@ test('Should have correct volume arrays', () => {
 					type: 'video',
 					volume: new Array(100).fill(1).map((_, i) => (i === 0 ? 0 : 1)),
 					id: '1',
-					isRemote: false,
 					playbackRate: 1,
 				},
 				{
@@ -288,7 +266,6 @@ test('Should have correct volume arrays', () => {
 					type: 'video',
 					volume: new Array(100).fill(1).map((_, i) => (i === 0 ? 0 : 1)),
 					id: 'breaker',
-					isRemote: false,
 					playbackRate: 1,
 				},
 			],
@@ -303,7 +280,6 @@ test('Should have correct volume arrays', () => {
 			type: 'video',
 			volume: new Array(50).fill(1).map((_, i) => (i === 0 ? 0 : 1)),
 			id: '1',
-			isRemote: false,
 			playbackRate: 1,
 		},
 		{
@@ -314,7 +290,6 @@ test('Should have correct volume arrays', () => {
 			type: 'video',
 			volume: 1,
 			id: '1',
-			isRemote: false,
 			playbackRate: 1,
 		},
 		{
@@ -325,7 +300,6 @@ test('Should have correct volume arrays', () => {
 			type: 'video',
 			volume: new Array(100).fill(1).map((_, i) => (i === 0 ? 0 : 1)),
 			id: 'breaker',
-			isRemote: false,
 			playbackRate: 1,
 		},
 	]);

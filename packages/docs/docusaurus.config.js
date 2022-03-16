@@ -6,7 +6,7 @@ module.exports = {
   onBrokenLinks: "throw",
   onBrokenMarkdownLinks: "warn",
   favicon: "img/logo-small.png",
-  organizationName: "JonnyBurger", // Usually your GitHub org/user name.
+  organizationName: "remotion-dev", // Usually your GitHub org/user name.
   projectName: "remotion", // Usually your repo name.
   themeConfig: {
     algolia: {

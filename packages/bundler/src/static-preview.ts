@@ -1,6 +1,9 @@
 import path from 'path';
-
-export const indexHtml = (staticHash: string, editorName: string | null) =>
+export const indexHtml = (
+	staticHash: string,
+	baseDir: string,
+	editorName: string | null
+) =>
 	`
 <!DOCTYPE html>
 <html lang="en">
@@ -13,6 +16,8 @@ export const indexHtml = (staticHash: string, editorName: string | null) =>
 	</head>
 	<body>
     <script>window.remotion_staticBase = "${staticHash}";</script>
+		<div id="video-container"></div>
+		<div id="explainer-container"></div>
 		${
 			editorName
 				? `<script>window.remotion_editorName = "${editorName}";</script>`
@@ -31,7 +36,7 @@ export const indexHtml = (staticHash: string, editorName: string | null) =>
 		<div id="menuportal-4"></div>
 		<div id="menuportal-5"></div>
 		<div id="remotion-error-overlay"></div>
-		<script src="/bundle.js"></script>
+		<script src="${baseDir}bundle.js"></script>
 	</body>
 </html>
 `.trim();

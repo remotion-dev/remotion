@@ -1,102 +1,98 @@
-import {Browser as PuppeteerBrowser, Page} from 'puppeteer-core';
-import {Browser, BrowserExecutable, Internals, TCompMetadata} from 'remotion';
-import {ChromiumOptions, openBrowser} from './open-browser';
-import {serveStatic} from './serve-static';
+import {Browser, Page} from 'puppeteer-core';
+import {BrowserExecutable, TCompMetadata} from 'remotion';
+import {BrowserLog} from './browser-log';
+import {getPageAndCleanupFn} from './get-browser-instance';
+import {ChromiumOptions} from './open-browser';
+import {prepareServer} from './prepare-server';
 import {setPropsAndEnv} from './set-props-and-env';
 import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
 
 type GetCompositionsConfig = {
-	browser?: Browser;
 	inputProps?: object | null;
 	envVariables?: Record<string, string>;
-	browserInstance?: PuppeteerBrowser;
+	puppeteerInstance?: Browser;
+	onBrowserLog?: (log: BrowserLog) => void;
 	browserExecutable?: BrowserExecutable;
 	timeoutInMilliseconds?: number;
 	chromiumOptions?: ChromiumOptions;
 };
 
-const getPageAndCleanupFn = async ({
-	passedInInstance,
-	browser,
-	browserExecutable,
-	chromiumOptions,
-}: {
-	passedInInstance: PuppeteerBrowser | undefined;
-	browser: Browser;
-	browserExecutable: BrowserExecutable | null;
-	chromiumOptions?: ChromiumOptions;
-}): Promise<{
-	cleanup: () => void;
-	page: Page;
-}> => {
-	if (passedInInstance) {
-		const page = await passedInInstance.newPage();
-		return {
-			page,
-			cleanup: () => {
-				// Close puppeteer page and don't wait for it to finish.
-				// Keep browser open.
-				page.close().catch((err) => {
-					console.error('Was not able to close puppeteer page', err);
-				});
-			},
-		};
+const innerGetCompositions = async (
+	serveUrl: string,
+	page: Page,
+	config: GetCompositionsConfig & {
+		onError: (err: Error) => void;
+	}
+): Promise<TCompMetadata[]> => {
+	page.on('error', (err) => {
+		console.log(err);
+		config.onError(err);
+	});
+	page.on('pageerror', (err) => {
+		console.log(err);
+		config.onError(err);
+	});
+	if (config?.onBrowserLog) {
+		page.on('console', (log) => {
+			config.onBrowserLog?.({
+				stackTrace: log.stackTrace(),
+				text: log.text(),
+				type: log.type(),
+			});
+		});
 	}
 
-	const browserInstance = await openBrowser(
-		browser || Internals.DEFAULT_BROWSER,
-		{
-			browserExecutable,
-			chromiumOptions,
-		}
-	);
-	const browserPage = await browserInstance.newPage();
-
-	return {
-		page: browserPage,
-		cleanup: () => {
-			// Close whole browser that was just created and don't wait for it to finish.
-			browserInstance.close().catch((err) => {
-				console.error('Was not able to close puppeteer page', err);
-			});
-		},
-	};
-};
-
-export const getCompositions = async (
-	webpackBundle: string,
-	config?: GetCompositionsConfig
-): Promise<TCompMetadata[]> => {
 	validatePuppeteerTimeout(config?.timeoutInMilliseconds);
-	const {page, cleanup} = await getPageAndCleanupFn({
-		passedInInstance: config?.browserInstance,
-		browser: config?.browser ?? Internals.DEFAULT_BROWSER,
-		browserExecutable: config?.browserExecutable ?? null,
-	});
-
-	const {port, close} = await serveStatic(webpackBundle);
-	page.on('error', console.error);
-	page.on('pageerror', console.error);
 
 	await setPropsAndEnv({
 		inputProps: config?.inputProps,
 		envVariables: config?.envVariables,
 		page,
-		port,
+		serveUrl,
 		initialFrame: 0,
 		timeoutInMilliseconds: config?.timeoutInMilliseconds,
 	});
 
-	await page.goto(`http://localhost:${port}/index.html?evaluation=true`);
-	await page.waitForFunction('window.ready === true');
-	const result = await page.evaluate('window.getStaticCompositions()');
-
-	// Close web server and don't wait for it to finish,
-	// it is slow.
-	close().catch((err) => {
-		console.error('Was not able to close web server', err);
+	await page.evaluate(() => {
+		window.setBundleMode({
+			type: 'evaluation',
+		});
 	});
-	cleanup();
+
+	await page.waitForFunction('window.ready === true');
+	const result = await page.evaluate(() => {
+		return window.getStaticCompositions();
+	});
 
 	return result as TCompMetadata[];
+};
+
+export const getCompositions = async (
+	serveUrlOrWebpackUrl: string,
+	config?: GetCompositionsConfig
+) => {
+	const {serveUrl, closeServer} = await prepareServer(serveUrlOrWebpackUrl);
+	const {page, cleanup} = await getPageAndCleanupFn({
+		passedInInstance: config?.puppeteerInstance,
+		browserExecutable: config?.browserExecutable ?? null,
+		chromiumOptions: config?.chromiumOptions ?? {},
+	});
+
+	return new Promise<TCompMetadata[]>((resolve, reject) => {
+		// eslint-disable-next-line promise/catch-or-return
+		innerGetCompositions(serveUrl, page, {
+			...(config ?? {}),
+			onError: (err) => {
+				reject(err);
+			},
+		})
+			.then((comp) => resolve(comp))
+			.catch((err) => {
+				reject(err);
+			})
+			.finally(() => {
+				cleanup();
+				closeServer();
+			});
+	});
 };
