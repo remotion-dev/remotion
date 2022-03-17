@@ -1,5 +1,6 @@
 import React from 'react';
 import {Composition, getInputProps, Still} from 'remotion';
+import {TwentyTwoKHzAudio} from './22KhzAudio';
 import BetaText from './BetaText';
 import {ColorInterpolation} from './ColorInterpolation';
 import {FontDemo} from './Fonts';
@@ -331,6 +332,14 @@ export const Index: React.FC = () => {
 				height={1080}
 				fps={30}
 				durationInFrames={100}
+			/>
+			<Composition
+				id="22khz"
+				component={TwentyTwoKHzAudio}
+				width={1920}
+				height={1080}
+				fps={30}
+				durationInFrames={90}
 			/>
 			<Still id="Orb" component={OrbScene} width={2000} height={2000} />
 			<Still
