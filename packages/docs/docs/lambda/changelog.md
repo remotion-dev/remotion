@@ -12,8 +12,17 @@ Keep track of changes to the APIs of Remotion Lambda here.
 
 ## March 17th, 2022
 
-Version hash: `3.0.0-lambda.413+d8d5466af`
+Version hash: `3.0.0-lambda.414+163634f42`
 Lambda version: '2022-03-17'
+
+- Added a new [`npx remotion lambda quotas`](/docs/lambda/cli/quotas) command which allows you to see your current AWS Lambda concurrency limit
+- Added a new [`npx remotion lambdas quotas increase`](/docs/lambda/cli/quotas) command which allows you to bump your AWS Lambda concurrency limit
+
+:::info
+For these commands to work, you have to re-setup the AWS policies as described in the [setup](/docs/lambda/setup)
+:::
+
+- Fixed a bug where combining mono and stereo audio would cause the mono audio to speed up
 
 ## March 3rd, 2022
 
