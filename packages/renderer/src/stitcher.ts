@@ -213,6 +213,10 @@ export const spawnFfmpeg = async (options: StitcherOptions) => {
 			  ]),
 		'-ar',
 		String(DEFAULT_SAMPLE_RATE),
+		// Stereo sound, even force mono to be stereo
+		// Otherwise mixing mono + stereo ends up speeding up the audio
+		'-ac',
+		'2',
 		audioCodecName ? ['-c:a', audioCodecName] : null,
 		complexFilterFlag,
 		// Ignore audio from image sequence
