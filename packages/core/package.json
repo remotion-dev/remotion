@@ -44,6 +44,14 @@
 		"typescript": "^4.5.5",
 		"webpack": "5.60.0"
 	},
+	"keywords": [
+		"remotion",
+		"ffmpeg",
+		"video",
+		"react",
+		"puppeteer",
+		"player"
+	],
 	"publishConfig": {
 		"access": "public"
 	}
