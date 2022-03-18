@@ -87,3 +87,13 @@ test('Should throw on invalid names', () => {
 		});
 	}, /The S3 Key must match the RegExp/);
 });
+test('Should allow outName an outname with a slash', () => {
+	const newRenderMetadata: RenderMetadata = {
+		...testRenderMetadata,
+		outName: 'justa/name.jpeg',
+	};
+	expect(getExpectedOutName(newRenderMetadata, bucketName)).toEqual({
+		key: 'renders/9n8dsfafs/justa/name.jpeg',
+		renderBucketName: 'remotionlambda-98fsduf',
+	});
+});
