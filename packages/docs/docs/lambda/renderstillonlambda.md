@@ -102,7 +102,7 @@ The file name of the media output.
 
 It can either be:
 
-- `undefined` - it will default to `out` plus the appropriate file extension, for example: `renders/${renderId}/out.mp4`. The outName must match `/^([0-9a-zA-Z-!_.*'()]+)$/g`.
+- `undefined` - it will default to `out` plus the appropriate file extension, for example: `renders/${renderId}/out.mp4`. The outName must match `/^([0-9a-zA-Z-!_.*'()/]+)$/g`.
 - A `string` - it will get saved to the same S3 bucket as your site under the key `renders/{renderId}/{outName}`.
 - An object of shape `{ key: string; bucketName: string }`. This will save the render to an arbitrary bucket with an arbitrary key. Note the following restrictions:
   - You must extend the default Remotion policy to allow read and write access to that bucket.
