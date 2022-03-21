@@ -3,6 +3,7 @@ import {TComposition} from 'remotion';
 import {CLEAR_HOVER, LIGHT_TEXT, SELECTED_BACKGROUND} from '../helpers/colors';
 import {isCompositionStill} from '../helpers/is-composition-still';
 import {FilmIcon} from '../icons/film';
+import {CollapsedFolderIcon, ExpandedFolderIcon} from '../icons/folder';
 import {StillIcon} from '../icons/still';
 import {Spacing} from './layout';
 
