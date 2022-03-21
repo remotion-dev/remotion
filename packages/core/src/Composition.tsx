@@ -1,4 +1,4 @@
-import {useContext, useEffect} from 'react';
+import {createContext, FC, useContext, useEffect, useMemo} from 'react';
 import {AnyComponent} from './any-component';
 import {CompositionManager} from './CompositionManager';
 import {useNonce} from './nonce';
@@ -63,6 +63,8 @@ export const Composition = <T,>({
 	const lazy = useLazyComponent(compProps);
 	const nonce = useNonce();
 
+	const {folderName} = useContext(FolderContext)
+
 	useEffect(() => {
 		// Ensure it's a URL safe id
 		if (!id) {
@@ -85,6 +87,7 @@ export const Composition = <T,>({
 			height,
 			width,
 			id,
+			folderName,
 			component: lazy,
 			defaultProps,
 			nonce,
@@ -97,6 +100,7 @@ export const Composition = <T,>({
 				fps,
 				height,
 				id,
+				folderName,
 				width,
 				nonce,
 				defaultProps,
@@ -113,6 +117,7 @@ export const Composition = <T,>({
 		height,
 		lazy,
 		id,
+		folderName,
 		defaultProps,
 		registerComposition,
 		unregisterComposition,
