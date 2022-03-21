@@ -12,6 +12,7 @@ import {validateCompositionId} from './validation/validate-composition-id';
 import {validateDimension} from './validation/validate-dimensions';
 import {validateDurationInFrames} from './validation/validate-duration-in-frames';
 import {validateFps} from './validation/validate-fps';
+import {validateFolderName} from './validation/validate-folder-name';
 
 const FolderContext = createContext<{folderName: string | null}>({
 	folderName: null,
@@ -69,6 +70,8 @@ export const Composition = <T,>({
 		}
 
 		validateCompositionId(id);
+		// TODO
+		// validateFolderName(folderName);
 		validateDimension(width, 'width', 'of the <Composition/> component');
 		validateDimension(height, 'height', 'of the <Composition/> component');
 		validateDurationInFrames(
