@@ -1,5 +1,5 @@
 import React from 'react';
-import {Composition, getInputProps, Still} from 'remotion';
+import { Composition, Folder, getInputProps, Still } from 'remotion';
 import BetaText from './BetaText';
 import {ColorInterpolation} from './ColorInterpolation';
 import {FontDemo} from './Fonts';
@@ -25,13 +25,34 @@ export const Index: React.FC = () => {
 	const inputProps = getInputProps();
 	return (
 		<>
+			<Folder name="This-is-a-folder">
+				<Composition
+					id="dynamic-duration-in-folder"
+					component={VideoTesting}
+					width={1080}
+					height={1080}
+					fps={30}
+					// Change the duration of the video dynamically by passing
+					// `--props='{"duration": 100}'`
+					durationInFrames={inputProps?.duration ?? 20}
+				/>
+				<Composition
+					id="nested-in-folder"
+					lazyComponent={() => import('./NestedSequences')}
+					durationInFrames={200}
+					fps={60}
+					height={1080}
+					width={1080}
+				/>
+			</Folder>
 			<Composition
 				id="dynamic-duration"
 				component={VideoTesting}
 				width={1080}
 				height={1080}
 				fps={30}
-				// Change the duration of the video dynamically by passing `--props='{"duration": 100}'`
+				// Change the duration of the video dynamically by passing
+				// `--props='{"duration": 100}'`
 				durationInFrames={inputProps?.duration ?? 20}
 			/>
 			<Composition
