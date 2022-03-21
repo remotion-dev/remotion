@@ -13,6 +13,20 @@ import {validateDimension} from './validation/validate-dimensions';
 import {validateDurationInFrames} from './validation/validate-duration-in-frames';
 import {validateFps} from './validation/validate-fps';
 
+const FolderContext = createContext<{folderName: string | null}>({
+	folderName: null,
+});
+
+export const Folder: FC<{name: string}> = ({name, children}) => {
+	const value = useMemo(() => {
+		return {folderName: name};
+	}, [name]);
+
+	return (
+		<FolderContext.Provider value={value}>{children}</FolderContext.Provider>
+	);
+};
+
 export type CompProps<T> =
 	| {
 			lazyComponent: () => Promise<{default: AnyComponent<T>}>;
