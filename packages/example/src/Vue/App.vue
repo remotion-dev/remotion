@@ -23,12 +23,9 @@ import Child from './Child.vue';
 </template>
 
 <style scoped>
-button {
-	font-weight: bold;
-	font-size: 100px;
-}
 .container {
 	font-size: 50px;
 	font-family: sans-serif;
+	background-color: white;
 }
 </style>

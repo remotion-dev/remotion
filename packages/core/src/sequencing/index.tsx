@@ -94,7 +94,15 @@ export const Sequence: React.FC<SequenceProps> = (props) => {
 	const actualFrom = cumulatedFrom + from;
 	const nonce = useNonce();
 
-	validateSequenceProps(props);
+	validateSequenceProps({
+		children,
+		from,
+		durationInFrames,
+		layout,
+		name,
+		showInTimeline,
+		showLoopTimesInTimeline,
+	});
 
 	const absoluteFrame = useAbsoluteCurrentFrame();
 	const unsafeVideoConfig = useUnsafeVideoConfig();
