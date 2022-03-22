@@ -1,5 +1,13 @@
 <script setup lang="ts">
-import {computed, inject, onBeforeUnmount, onMounted, ref, Ref} from 'vue';
+import {
+	computed,
+	inject,
+	onBeforeUnmount,
+	onMounted,
+	provide,
+	ref,
+	Ref,
+} from 'vue';
 
 import {useVideoConfig} from './use-video-config';
 import {
@@ -73,13 +81,16 @@ const actualDurationInFrames = Math.min(
 		: durationInFrames
 );
 const {registerSequence, unregisterSequence} = compositionManager.value;
-const contextValue: SequenceContextType = {
-	cumulatedFrom,
-	relativeFrom: from,
-	parentFrom: parentSequence?.relativeFrom ?? 0,
-	durationInFrames: actualDurationInFrames,
-	id: id.value,
-};
+const contextValue: Ref<SequenceContextType> = computed(() => {
+	return {
+		cumulatedFrom,
+		relativeFrom: from,
+		parentFrom: parentSequence?.relativeFrom ?? 0,
+		durationInFrames: actualDurationInFrames,
+		id: id.value,
+	};
+});
+provide('remotion.sequenceContext', contextValue);
 // TODO: Inspect children
 const timelineClipName = name ?? Internals.getTimelineClipName(null);
 
