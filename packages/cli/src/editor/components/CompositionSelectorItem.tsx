@@ -74,22 +74,6 @@ export const CompositionSelectorItem: React.FC<{
 		return comp.folderName !== null;
 	};
 
-	type TFolder<T = unknown> = {
-		id: string;
-		compositions: LazyExoticComponent<LooseAnyComponent<T>>;
-		nonce: number;
-	};
-
-	const [folders, setFolders] = useState<Array<TFolder>>([]);
-
-	const addToFolder = (composition: TComposition) => {
-		// TODO
-	};
-
-	const createNewFolder = (name: string) => {
-		//	TODO
-	};
-
 	if (isInFolder(composition)) {
 		/*	TODO
      if folder does not exist
@@ -191,7 +175,7 @@ export const CompositionSelectorItem: React.FC<{
 							<FilmIcon style={iconStyle} />
 						)}
 						<Spacing x={1} />
-						{composition.folderName}
+						{composition.id}
 					</a>
 				)}
 			</div>
