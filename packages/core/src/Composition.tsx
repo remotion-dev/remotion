@@ -63,7 +63,7 @@ export const Composition = <T,>({
 	const lazy = useLazyComponent(compProps);
 	const nonce = useNonce();
 
-	const {folderName} = useContext(FolderContext)
+	const {folderName} = useContext(FolderContext);
 
 	useEffect(() => {
 		// Ensure it's a URL safe id
@@ -80,6 +80,9 @@ export const Composition = <T,>({
 			durationInFrames,
 			'of the <Composition/> component'
 		);
+		if (folderName) {
+			validateFolderName(folderName);
+		}
 		validateFps(fps, 'as a prop of the <Composition/> component');
 		registerComposition<T>({
 			durationInFrames,
