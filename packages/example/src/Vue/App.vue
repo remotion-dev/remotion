@@ -4,6 +4,7 @@ const {width, height, fps, durationInFrames} = useVideoConfig()
 const frame = useCurrentFrame()
 import { useVideoConfig } from "./use-video-config"
 import { useCurrentFrame } from "./use-current-frame"
+import Sequence from './Sequence.vue'
 </script>
 
 <template>
@@ -13,6 +14,7 @@ import { useCurrentFrame } from "./use-current-frame"
     <div>Height: {{ height }}</div>
     <div>Duration: {{ durationInFrames }}</div>
     <div>FPS: {{ fps }}</div>
+    <Sequence></Sequence>
   </div>
 </template>
 

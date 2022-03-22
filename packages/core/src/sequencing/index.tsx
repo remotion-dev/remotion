@@ -32,24 +32,11 @@ export type SequenceProps = {
 	showLoopTimesInTimeline?: number;
 };
 
-export const Sequence: React.FC<SequenceProps> = ({
+export const validateSequenceProps = ({
+	layout,
+	durationInFrames,
 	from,
-	durationInFrames = Infinity,
-	children,
-	name,
-	layout = 'absolute-fill',
-	showInTimeline = true,
-	showLoopTimesInTimeline,
-}) => {
-	const [id] = useState(() => String(Math.random()));
-	const parentSequence = useContext(SequenceContext);
-	const {rootId} = useContext(TimelineContext);
-	const cumulatedFrom = parentSequence
-		? parentSequence.cumulatedFrom + parentSequence.relativeFrom
-		: 0;
-	const actualFrom = cumulatedFrom + from;
-	const nonce = useNonce();
-
+}: SequenceProps) => {
 	if (layout !== 'absolute-fill' && layout !== 'none') {
 		throw new TypeError(
 			`The layout prop of <Sequence /> expects either "absolute-fill" or "none", but you passed: ${layout}`
@@ -86,6 +73,28 @@ export const Sequence: React.FC<SequenceProps> = ({
 			`The "from" prop of a sequence must be an integer, but got ${from}.`
 		);
 	}
+};
+
+export const Sequence: React.FC<SequenceProps> = (props) => {
+	const {
+		from,
+		durationInFrames = Infinity,
+		children,
+		name,
+		layout = 'absolute-fill',
+		showInTimeline = true,
+		showLoopTimesInTimeline,
+	} = props;
+	const [id] = useState(() => String(Math.random()));
+	const parentSequence = useContext(SequenceContext);
+	const {rootId} = useContext(TimelineContext);
+	const cumulatedFrom = parentSequence
+		? parentSequence.cumulatedFrom + parentSequence.relativeFrom
+		: 0;
+	const actualFrom = cumulatedFrom + from;
+	const nonce = useNonce();
+
+	validateSequenceProps(props);
 
 	const absoluteFrame = useAbsoluteCurrentFrame();
 	const unsafeVideoConfig = useUnsafeVideoConfig();

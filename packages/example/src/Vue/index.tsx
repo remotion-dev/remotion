@@ -1,5 +1,5 @@
-import React, {useEffect, useMemo, useRef} from 'react';
-import {useCurrentFrame, useVideoConfig} from 'remotion';
+import React, {useContext, useEffect, useMemo, useRef} from 'react';
+import {Internals, useCurrentFrame, useVideoConfig} from 'remotion';
 import {createApp, ref} from 'vue';
 import App from './RootApp.vue';
 
@@ -13,6 +13,8 @@ export const VueApp: React.FC = () => {
 	const domRef = useRef<HTMLDivElement>(null);
 	const {fps, height, width, durationInFrames} = useVideoConfig();
 	const frame = useCurrentFrame();
+	const sequenceContext = useContext(Internals.SequenceContext);
+	const timelineContext = useContext(Internals.Timeline.TimelineContext);
 
 	const fpsRef = useMemo(() => {
 		return ref(fps);
@@ -28,6 +30,12 @@ export const VueApp: React.FC = () => {
 	}, []);
 	const durationInFramesRef = useMemo(() => {
 		return ref(durationInFrames);
+	}, []);
+	const sequenceContextRef = useMemo(() => {
+		return ref(sequenceContext);
+	}, []);
+	const timelineContextRef = useMemo(() => {
+		return ref(timelineContext);
 	}, []);
 
 	useEffect(() => {
@@ -51,12 +59,21 @@ export const VueApp: React.FC = () => {
 	}, [height]);
 
 	useEffect(() => {
+		sequenceContextRef.value = sequenceContext;
+	}, [sequenceContext]);
+	useEffect(() => {
+		timelineContextRef.value = timelineContext;
+	}, [timelineContext]);
+
+	useEffect(() => {
 		const app = createApp(App, {
 			fps: fpsRef,
 			frame: frameRef,
 			height: heightRef,
 			width: widthRef,
 			durationInFrames: durationInFramesRef,
+			sequenceContext: sequenceContextRef,
+			timelineContext: timelineContextRef,
 		});
 
 		app.mount(domRef.current as HTMLDivElement);
