@@ -17,6 +17,7 @@ import {VideoOnCanvas} from './VideoOnCanvas';
 import {Greenscreen} from './VideoOnCanvas/greenscreen';
 import {VideoSpeed} from './VideoSpeed';
 import {VideoTesting} from './VideoTesting';
+import {VueApp} from './Vue';
 
 // Use it to test that UI does not regress on weird CSS
 //import './weird-css.css';
@@ -327,6 +328,7 @@ export const Index: React.FC = () => {
 				height={1000}
 			/>
 			<Still id="font-demo" component={FontDemo} width={1000} height={1000} />
+			<Still id="vue" component={VueApp} width={1000} height={1000} />
 		</>
 	);
 };

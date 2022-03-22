@@ -1,6 +1,8 @@
 import path from 'path';
 import {Internals, WebpackConfiguration, WebpackOverrideFn} from 'remotion';
 import webpack, {ProgressPlugin} from 'webpack';
+import {VueLoaderPlugin} from 'vue-loader';
+
 import {ReactFreshWebpackPlugin} from './fast-refresh';
 import {getWebpackCacheName} from './webpack-cache';
 
@@ -78,6 +80,7 @@ export const webpackConfig = ({
 		plugins:
 			environment === 'development'
 				? [
+						new VueLoaderPlugin(),
 						new ReactFreshWebpackPlugin(),
 						new webpack.HotModuleReplacementPlugin(),
 						new webpack.DefinePlugin({
@@ -88,6 +91,7 @@ export const webpackConfig = ({
 						}),
 				  ]
 				: [
+						new VueLoaderPlugin(),
 						new ProgressPlugin((p) => {
 							if (onProgressUpdate) {
 								onProgressUpdate(Number((p * 100).toFixed(2)));
@@ -198,6 +202,10 @@ export const webpackConfig = ({
 					test: /\.js$/,
 					enforce: 'pre',
 					use: [require.resolve('source-map-loader')],
+				},
+				{
+					test: /\.vue$/,
+					loader: require.resolve('vue-loader'),
 				},
 			],
 		},

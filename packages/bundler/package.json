@@ -37,6 +37,8 @@
 		"source-map": "0.6.1",
 		"source-map-loader": "3.0.0",
 		"style-loader": "2.0.0",
+		"vue-loader": "^17.0.0",
+		"vue-template-compiler": "^2.6.14",
 		"webpack": "5.60.0"
 	},
 	"peerDependencies": {
