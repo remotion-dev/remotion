@@ -3,12 +3,6 @@ import {Internals, useCurrentFrame, useVideoConfig} from 'remotion';
 import {createApp, ref} from 'vue';
 import App from './RootApp.vue';
 
-const fps = ref(30);
-
-setInterval(() => {
-	fps.value++;
-}, 1000);
-
 export const VueApp: React.FC = () => {
 	const domRef = useRef<HTMLDivElement>(null);
 	const {fps, height, width, durationInFrames} = useVideoConfig();
