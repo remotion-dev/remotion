@@ -328,7 +328,14 @@ export const Index: React.FC = () => {
 				height={1000}
 			/>
 			<Still id="font-demo" component={FontDemo} width={1000} height={1000} />
-			<Still id="vue" component={VueApp} width={1000} height={1000} />
+			<Composition
+				id="vue"
+				durationInFrames={20}
+				fps={30}
+				component={VueApp}
+				width={1000}
+				height={1000}
+			/>
 		</>
 	);
 };
