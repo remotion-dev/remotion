@@ -6,7 +6,6 @@ import App from './RootApp.vue';
 export const VueApp: React.FC = () => {
 	const domRef = useRef<HTMLDivElement>(null);
 	const {fps, height, width, durationInFrames} = useVideoConfig();
-	const frame = useCurrentFrame();
 	const sequenceContext = useContext(Internals.SequenceContext);
 	const timelineContext = useContext(Internals.Timeline.TimelineContext);
 	const nonceContext = useContext(Internals.NonceContext);
@@ -14,9 +13,6 @@ export const VueApp: React.FC = () => {
 
 	const fpsRef = useMemo(() => {
 		return ref(fps);
-	}, []);
-	const frameRef = useMemo(() => {
-		return ref(frame);
 	}, []);
 	const widthRef = useMemo(() => {
 		return ref(width);
@@ -43,10 +39,6 @@ export const VueApp: React.FC = () => {
 	useEffect(() => {
 		fpsRef.value = fps;
 	}, [fps]);
-
-	useEffect(() => {
-		frameRef.value = frame;
-	}, [frame]);
 
 	useEffect(() => {
 		durationInFramesRef.value = durationInFrames;
@@ -79,7 +71,6 @@ export const VueApp: React.FC = () => {
 	useEffect(() => {
 		const app = createApp(App, {
 			fps: fpsRef,
-			frame: frameRef,
 			height: heightRef,
 			width: widthRef,
 			durationInFrames: durationInFramesRef,
