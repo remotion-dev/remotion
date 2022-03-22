@@ -15,6 +15,8 @@ export const VueApp: React.FC = () => {
 	const frame = useCurrentFrame();
 	const sequenceContext = useContext(Internals.SequenceContext);
 	const timelineContext = useContext(Internals.Timeline.TimelineContext);
+	const nonceContext = useContext(Internals.NonceContext);
+	const compositionManager = useContext(Internals.CompositionManager);
 
 	const fpsRef = useMemo(() => {
 		return ref(fps);
@@ -36,6 +38,12 @@ export const VueApp: React.FC = () => {
 	}, []);
 	const timelineContextRef = useMemo(() => {
 		return ref(timelineContext);
+	}, []);
+	const nonceContextRef = useMemo(() => {
+		return ref(nonceContext);
+	}, []);
+	const compositionManagerRef = useMemo(() => {
+		return ref(compositionManager);
 	}, []);
 
 	useEffect(() => {
@@ -61,9 +69,18 @@ export const VueApp: React.FC = () => {
 	useEffect(() => {
 		sequenceContextRef.value = sequenceContext;
 	}, [sequenceContext]);
+
 	useEffect(() => {
 		timelineContextRef.value = timelineContext;
 	}, [timelineContext]);
+
+	useEffect(() => {
+		nonceContextRef.value = nonceContext;
+	}, [nonceContext]);
+
+	useEffect(() => {
+		compositionManagerRef.value = compositionManager;
+	}, [compositionManager]);
 
 	useEffect(() => {
 		const app = createApp(App, {
@@ -74,6 +91,8 @@ export const VueApp: React.FC = () => {
 			durationInFrames: durationInFramesRef,
 			sequenceContext: sequenceContextRef,
 			timelineContext: timelineContextRef,
+			nonceContext: nonceContextRef,
+			compositionManager: compositionManagerRef,
 		});
 
 		app.mount(domRef.current as HTMLDivElement);

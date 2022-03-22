@@ -81,7 +81,11 @@ import {
 	isPlainIndex,
 } from './register-root';
 import {RemotionRoot} from './RemotionRoot';
-import {SequenceContext} from './sequencing';
+import {
+	SequenceContext,
+	SequenceContextType,
+	validateSequenceProps,
+} from './sequencing';
 import {
 	ENV_VARIABLES_ENV_NAME,
 	ENV_VARIABLES_LOCAL_STORAGE_KEY,
@@ -143,6 +147,8 @@ import {
 import {validateOpenGlRenderer} from './validation/validate-opengl-renderer';
 import {OpenGlRenderer} from './validation/validate-opengl-renderer';
 import {getPreviewDomElement} from './get-preview-dom-element';
+import {NonceContext, TNonceContext} from './nonce';
+import {getTimelineClipName} from './get-timeline-clip-name';
 const Timeline = {...TimelinePosition, ...TimelineInOutPosition};
 
 // Mark them as Internals so use don't assume this is public
@@ -235,6 +241,9 @@ export const Internals = {
 	getChromiumHeadlessMode,
 	DEFAULT_OPENGL_RENDERER,
 	getPreviewDomElement,
+	NonceContext,
+	getTimelineClipName,
+	validateSequenceProps,
 };
 
 export type {
@@ -257,4 +266,6 @@ export type {
 	RemotionEnvironment,
 	ProResProfile,
 	OpenGlRenderer,
+	TNonceContext,
+	SequenceContextType,
 };

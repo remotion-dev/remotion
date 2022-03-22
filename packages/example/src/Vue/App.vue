@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import {inject} from "vue"
+import { useCurrentFrame } from "./use-current-frame"
+import { useVideoConfig } from "./use-video-config"
 const {width, height, fps, durationInFrames} = useVideoConfig()
 const frame = useCurrentFrame()
-import { useVideoConfig } from "./use-video-config"
-import { useCurrentFrame } from "./use-current-frame"
 import Sequence from './Sequence.vue'
+import Child from './Child.vue'
 </script>
 
 <template>
@@ -14,7 +15,10 @@ import Sequence from './Sequence.vue'
     <div>Height: {{ height }}</div>
     <div>Duration: {{ durationInFrames }}</div>
     <div>FPS: {{ fps }}</div>
-    <Sequence></Sequence>
+    <Sequence :from="10" >
+      <div>Woah</div>
+      <Child></Child>
+    </Sequence>
   </div>
 </template>
 

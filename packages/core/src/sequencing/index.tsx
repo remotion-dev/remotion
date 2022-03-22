@@ -98,6 +98,7 @@ export const Sequence: React.FC<SequenceProps> = (props) => {
 
 	const absoluteFrame = useAbsoluteCurrentFrame();
 	const unsafeVideoConfig = useUnsafeVideoConfig();
+	// TODO: Why need unsafe?
 	const compositionDuration = unsafeVideoConfig
 		? unsafeVideoConfig.durationInFrames
 		: 0;
