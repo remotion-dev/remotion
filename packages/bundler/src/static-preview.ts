@@ -12,16 +12,16 @@ export const indexHtml = (staticHash: string, editorName: string | null) =>
 		<title>Remotion Preview</title>
 	</head>
 	<body>
-    <script>window.remotion_staticBase = "${staticHash}";</script>
+		<script>window.remotion_staticBase = "${staticHash}";</script>
 		${
 			editorName
 				? `<script>window.remotion_editorName = "${editorName}";</script>`
 				: '<script>window.remotion_editorName = null;</script>'
 		}
-		<script>window.remotion_projectName = "${path.basename(
-			process.cwd()
-		)}";</script>
-		<script>window.remotion_cwd = "${process.cwd()}";</script>
+		<script>window.remotion_projectName = ${JSON.stringify(
+			path.basename(process.cwd())
+		)};</script>
+		<script>window.remotion_cwd = ${JSON.stringify(process.cwd())};</script>
 		
 		<div id="container"></div>
 		<div id="menuportal-0"></div>
