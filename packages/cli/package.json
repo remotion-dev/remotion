@@ -31,7 +31,7 @@
 		"chalk": "4.1.2",
 		"dotenv": "9.0.2",
 		"execa": "5.1.1",
-		"minimist": "1.2.5",
+		"minimist": "1.2.6",
 		"remotion": "2.6.11",
 		"semver": "7.3.5",
 		"webpack": "5.60.0"
