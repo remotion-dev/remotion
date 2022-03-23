@@ -335,6 +335,48 @@ declare module "*.glsl" {
 4. Reset the webpack cache by deleting the `node_modules/.cache` folder.
 5. Restart the preview server.
 
+### Enable WebAssembly
+
+There are two WebAssembly modes: asynchronous and synchronous. We recommend testing both and seeing which one works for the WASM library you are trying to use.
+
+```ts twoslash title="remotion.config.ts - synchronous"
+import { Config } from "remotion";
+
+Config.Bundling.overrideWebpackConfig((conf) => {
+  return {
+    ...conf,
+    experiments: {
+      syncWebAssembly: true,
+    },
+  };
+});
+```
+
+:::note
+Since Webpack does not allow synchronous WebAssembly code in the main chunk, you most likely need to declare your composition using [`lazyComponent`](/docs/composition#example-using-lazycomponent) instead of `component`. Check out a [demo project](https://github.com/remotion-dev/id3-tags) for an example.
+:::
+
+```ts twoslash title="remotion.config.ts - asynchronous"
+import { Config } from "remotion";
+
+Config.Bundling.overrideWebpackConfig((conf) => {
+  return {
+    ...conf,
+    experiments: {
+      asyncWebAssembly: true,
+    },
+  };
+});
+```
+
+After you've done that, clear the Webpack cache:
+
+```bash
+rm -rf node_modules/.cache
+```
+
+After restarting, you can import `.wasm` files using an import statement.
+
 ### Use legacy babel loader
 
 See [Using legacy Babel transpilation](/docs/legacy-babel).
