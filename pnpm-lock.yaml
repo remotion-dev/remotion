@@ -135,7 +135,7 @@ importers:
       eslint: ^7.25.0
       execa: 5.1.1
       jest: ^27.2.4
-      minimist: 1.2.5
+      minimist: 1.2.6
       prettier: ^2.0.5
       prettier-plugin-organize-imports: ^1.1.1
       react: 17.0.2
@@ -154,7 +154,7 @@ importers:
       chalk: 4.1.2
       dotenv: 9.0.2
       execa: 5.1.1
-      minimist: 1.2.5
+      minimist: 1.2.6
       remotion: link:../core
       semver: 7.3.5
       webpack: 5.60.0
@@ -15949,6 +15949,10 @@ packages:
 
   /minimist/1.2.5:
     resolution: {integrity: sha512-FM9nNUYrRBAELZQT3xeZQ7fmMOBg6nWNmJKTcgsJeaLstP/UODVpGsr5OhXhhXg6f+qtJ8uiZ+PUxkDWcgIXLw==}
+
+  /minimist/1.2.6:
+    resolution: {integrity: sha512-Jsjnk4bw3YJqYzbdyBiNsPWHPfO++UGG749Cxs6peCu5Xg4nrena6OVxOYxrQTqww0Jmwt+Ref8rggumkTLz9Q==}
+    dev: false
 
   /minipass-collect/1.0.2:
     resolution: {integrity: sha512-6T6lH0H8OG9kITm/Jm6tdooIbogG9e0tLgpY6mphXSm/A9u8Nq1ryBG+Qspiub9LjWlBPsPS3tWQ/Botq4FdxA==}
