@@ -1,4 +1,4 @@
-import {useContext, useEffect} from 'react';
+import {createContext, FC, useContext, useEffect, useMemo} from 'react';
 import {AnyComponent} from './any-component';
 import {CompositionManager} from './CompositionManager';
 import {useNonce} from './nonce';
@@ -12,6 +12,21 @@ import {validateCompositionId} from './validation/validate-composition-id';
 import {validateDimension} from './validation/validate-dimensions';
 import {validateDurationInFrames} from './validation/validate-duration-in-frames';
 import {validateFps} from './validation/validate-fps';
+import {validateFolderName} from './validation/validate-folder-name';
+
+const FolderContext = createContext<{folderName: string | null}>({
+	folderName: null,
+});
+
+export const Folder: FC<{name: string}> = ({name, children}) => {
+	const value = useMemo(() => {
+		return {folderName: name};
+	}, [name]);
+
+	return (
+		<FolderContext.Provider value={value}>{children}</FolderContext.Provider>
+	);
+};
 
 export type CompProps<T> =
 	| {
@@ -48,6 +63,8 @@ export const Composition = <T,>({
 	const lazy = useLazyComponent(compProps);
 	const nonce = useNonce();
 
+	const {folderName} = useContext(FolderContext);
+
 	useEffect(() => {
 		// Ensure it's a URL safe id
 		if (!id) {
@@ -55,12 +72,17 @@ export const Composition = <T,>({
 		}
 
 		validateCompositionId(id);
+		// TODO
+		// validateFolderName(folderName);
 		validateDimension(width, 'width', 'of the <Composition/> component');
 		validateDimension(height, 'height', 'of the <Composition/> component');
 		validateDurationInFrames(
 			durationInFrames,
 			'of the <Composition/> component'
 		);
+		if (folderName) {
+			validateFolderName(folderName);
+		}
 		validateFps(fps, 'as a prop of the <Composition/> component');
 		registerComposition<T>({
 			durationInFrames,
@@ -68,6 +90,7 @@ export const Composition = <T,>({
 			height,
 			width,
 			id,
+			folderName,
 			component: lazy,
 			defaultProps,
 			nonce,
@@ -80,6 +103,7 @@ export const Composition = <T,>({
 				fps,
 				height,
 				id,
+				folderName,
 				width,
 				nonce,
 				defaultProps,
@@ -96,6 +120,7 @@ export const Composition = <T,>({
 		height,
 		lazy,
 		id,
+		folderName,
 		defaultProps,
 		registerComposition,
 		unregisterComposition,
