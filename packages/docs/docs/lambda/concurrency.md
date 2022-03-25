@@ -9,7 +9,7 @@ Remotion Lambda is a highly concurrent distributed video rendering system. That 
 
 You can set the concurrency via the [`framesPerLambda`](/docs/lambda/rendermediaonlambda#framesperlambda) option (or [`--frames-per-lambda`](/docs/lambda/cli/render#--frames-per-lambda) via CLI).
 
-The concurrency is defined as `framesPerLambda / frameCount`. That means that the higher you set `framesPerLambda`, the lower the concurrency gets.
+The concurrency is defined as `frameCount / framesPerLambda`. That means that the higher you set `framesPerLambda`, the lower the concurrency gets.
 
 :::note
 Example: You render a video that has a `durationInFrames` of `300` with a `framePerLambda` setting of `15`. The concurrency is `300 / 15 = 20`.
