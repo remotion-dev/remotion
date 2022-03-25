@@ -70,7 +70,14 @@ const start = async () => {
 start();
 ```
 
-[See also: Passing props in GitHub Actions](/docs/parametrized-rendering#passing-props-in-github-actions)
+This flow is highly customizable. Click on one of the SSR APIs to read about it's options:
+
+- [`getCompositions()`](/docs/renderer/get-compositions) - Get a list of available compositions from a Remotion project.
+- [`renderMedia()`](/docs/renderer/render-media) - Render a video or audio
+- [`renderFrames()`](/docs/renderer/render-frames) - Render an image sequence
+- [`renderStill()`](/docs/renderer/render-still) - Render a still image
+- [`stitchFramesToVideo()`](/docs/renderer/stitch-frames-to-video) - Encode a video based on an image sequence
+- [`openBrowser()`](/docs/renderer/open-browser) - Share a browser instance across function calls for even better performance.
 
 ## Render using GitHub Actions
 
