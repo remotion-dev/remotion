@@ -14,6 +14,7 @@ export type TComposition<T = unknown> = {
 	fps: number;
 	durationInFrames: number;
 	id: string;
+	folderName: string | null;
 	component: LazyExoticComponent<LooseAnyComponent<T>>;
 	defaultProps: T | undefined;
 	nonce: number;

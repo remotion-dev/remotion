@@ -1,8 +1,16 @@
-import React, {MouseEventHandler, useCallback, useMemo, useState} from 'react';
-import {TComposition} from 'remotion';
+import React, {
+	FC,
+	LazyExoticComponent,
+	MouseEventHandler,
+	useCallback,
+	useMemo,
+	useState,
+} from 'react';
+import {LooseAnyComponent, TComposition} from 'remotion';
 import {CLEAR_HOVER, LIGHT_TEXT, SELECTED_BACKGROUND} from '../helpers/colors';
 import {isCompositionStill} from '../helpers/is-composition-still';
 import {FilmIcon} from '../icons/film';
+import {CollapsedFolderIcon, ExpandedFolderIcon} from '../icons/folder';
 import {StillIcon} from '../icons/still';
 import {Spacing} from './layout';
 
@@ -62,7 +70,24 @@ export const CompositionSelectorItem: React.FC<{
 		[composition, selectComposition]
 	);
 
-	return (
+	const isInFolder = (comp: TComposition) => {
+		return comp.folderName !== null;
+	};
+
+	if (isInFolder(composition)) {
+		/*	TODO
+     if folder does not exist
+     if (!folders.find((f) => f.id === composition.folderName) {
+     createNewFolder(composition.folderName ?? 'Unnamed Folder');
+     }
+     add composition to folder
+     addToFolder(composition, composition.folderName);
+     OR
+     addToFolder(composition);
+     */
+	}
+
+	const CompositionRow = () => (
 		<a
 			style={style}
 			onPointerEnter={onPointerEnter}
@@ -71,13 +96,97 @@ export const CompositionSelectorItem: React.FC<{
 			tabIndex={tabIndex}
 			onClick={onClick}
 		>
-			{isCompositionStill(composition) ? (
-				<StillIcon style={iconStyle} />
-			) : (
-				<FilmIcon style={iconStyle} />
-			)}
+			<FilmIcon style={iconStyle} />
 			<Spacing x={1} />
 			{composition.id}
 		</a>
 	);
+
+	const StillRow = () => (
+		<a
+			style={style}
+			onPointerEnter={onPointerEnter}
+			onPointerLeave={onPointerLeave}
+			href={composition.id}
+			tabIndex={tabIndex}
+			onClick={onClick}
+		>
+			<StillIcon style={iconStyle} />
+			<Spacing x={1} />
+			{composition.id}
+		</a>
+	);
+
+	const FolderRow = () => {
+		const folderStyle: React.CSSProperties = useMemo(() => {
+			return {
+				...item,
+				display: 'block',
+				backgroundColor: hovered
+					? selected
+						? SELECTED_BACKGROUND
+						: CLEAR_HOVER
+					: selected
+					? SELECTED_BACKGROUND
+					: 'transparent',
+				color: selected || hovered ? 'white' : LIGHT_TEXT,
+			};
+		}, [hovered, selected]);
+
+		const [isFolderOpen, setIsFolderOpen] = useState<boolean>(() => false);
+
+		// const onFolderClick:
+		const onFolderClick: MouseEventHandler = useCallback(
+			(evt) => {
+				evt.preventDefault();
+				setIsFolderOpen((prev) => !prev);
+			},
+			[isFolderOpen, setIsFolderOpen]
+		);
+		return (
+			<div
+				style={folderStyle}
+				onPointerEnter={onPointerEnter}
+				onPointerLeave={onPointerLeave}
+				tabIndex={tabIndex}
+				onClick={onFolderClick}
+			>
+				{/* TODO: replace string with an icon*/}
+				{/*{isFolderOpen ? <CollapsedFolderIcon style={iconStyle} />
+         : <ExpandedFolderIcon style={iconStyle} />}*/}
+
+				{isFolderOpen ? <em>-</em> : <em>+</em>}
+				<Spacing x={1} />
+				{composition.folderName}
+
+				{isFolderOpen && (
+					<a
+						style={folderStyle}
+						onPointerEnter={onPointerEnter}
+						onPointerLeave={onPointerLeave}
+						href={composition.id}
+						tabIndex={tabIndex}
+						onClick={onClick}
+					>
+						<Spacing x={2} />
+						{isCompositionStill(composition) ? (
+							<StillIcon style={iconStyle} />
+						) : (
+							<FilmIcon style={iconStyle} />
+						)}
+						<Spacing x={1} />
+						{composition.id}
+					</a>
+				)}
+			</div>
+		);
+	};
+
+	if (isInFolder(composition)) {
+		return <FolderRow />;
+	} else if (isCompositionStill(composition)) {
+		return <StillRow />;
+	} else {
+		return <CompositionRow />;
+	}
 };

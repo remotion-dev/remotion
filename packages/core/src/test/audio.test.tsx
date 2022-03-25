@@ -26,6 +26,7 @@ const Wrapper: React.FC = ({children}) => {
 								})
 							),
 							defaultProps: undefined,
+							folderName: null,
 						},
 					],
 					currentComposition: 'markup',
