@@ -73,7 +73,7 @@ export const App = () => {
 ## The props in Player and their roles
 
 - `component`: the component prop takes in a component, a javascript function or a class when it is exported from its module
-- `durationInFrames`: represents the amount of time a frame will take to render
+- `durationInFrames`: The duration of the video in frames.
 - `compositionHeight`: The height of the composition in pixels.
 - `compositionWidth`: represents the width that video component will occupy in the viewport
 - `fps`: The frame rate of the video.
