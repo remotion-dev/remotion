@@ -74,6 +74,6 @@ export const App = () => {
 
 - `component`: the component prop takes in a component, a javascript function or a class when it is exported from its module
 - `durationInFrames`: represents the amount of time a frame will take to render
-- `compositionHeight`: represents the height that video component will occupy in the viewport
+- `compositionHeight`: The height of the composition in pixels.
 - `compositionWidth`: represents the width that video component will occupy in the viewport
 - `fps`: **Frame Per Seconds** respresents the time, in seconds, that any number of frmae will be rendered in the video. The snippet above has 30 `fps`, which means the video will render 30 frames in a second throughout the whole duration of the video
