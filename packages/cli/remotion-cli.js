@@ -1,5 +1,5 @@
 #! /usr/bin/env node
-const {cli} = require('./dist/index');
+const {cli} = require('./dist/cjs/index');
 
 cli()
 	.then(() => process.exit(0))
