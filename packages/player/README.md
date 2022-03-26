@@ -72,8 +72,12 @@ export const App = () => {
 
 ## The props in Player and their roles
 
-- `component`: the component prop takes in a React component or a function that returns a dynamic import.
-- `durationInFrames`: The duration of the video in frames.
-- `compositionHeight`: The height of the composition in pixels.
-- `compositionWidth`: The width of the composition in pixels.
-- `fps`: The frame rate of the video.
+Props | Function |
+--- | --- | 
+component | the component prop takes in a React component or a function that returns a dynamic import. | 
+durationInFrames | The duration of the video in frames
+compositionHeight | The height of the composition in pixels
+compositionWidth | The width of the composition in pixels
+fps | The frame rate of the video
+
+For a complete reference of the available props, refer to [@remotion/player API](https://www.remotion.dev/docs/player/api).
