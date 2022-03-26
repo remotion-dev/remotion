@@ -15,7 +15,7 @@ The command below does that for you.
 npm install @remotion/player
 ```
 
-Although there are other packagem managers that you can use to get this depedency in your projects. We have [yarn](https://yarnpkg.com/) and [pnpm](https://pnpm.io/). You can go whichever one is most convenient for you. Below are the commands that will get the package into your project.
+There are other package managers that you can use to get this dependency in your projects. We have [yarn](https://yarnpkg.com/) and [pnpm](https://pnpm.io/). You can go with whichever one is the most convenient for you. Below are the commands that will get the package into your project.
 
 ```bash
 yarn add @remotion/player
