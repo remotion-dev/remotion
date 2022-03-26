@@ -75,5 +75,5 @@ export const App = () => {
 - `component`: the component prop takes in a React component or a function that returns a dynamic import.
 - `durationInFrames`: The duration of the video in frames.
 - `compositionHeight`: The height of the composition in pixels.
-- `compositionWidth`: represents the width that video component will occupy in the viewport
+- `compositionWidth`: The width of the composition in pixels.
 - `fps`: The frame rate of the video.
