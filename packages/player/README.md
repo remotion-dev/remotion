@@ -72,7 +72,7 @@ export const App = () => {
 
 ## The props in Player and their roles
 
-- `component`: the component prop takes in a component, a javascript function or a class when it is exported from its module
+- `component`: the component prop takes in a React component or a function that returns a dynamic import.
 - `durationInFrames`: The duration of the video in frames.
 - `compositionHeight`: The height of the composition in pixels.
 - `compositionWidth`: represents the width that video component will occupy in the viewport
