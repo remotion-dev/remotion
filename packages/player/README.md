@@ -4,7 +4,7 @@
 [![NPM Downloads](https://img.shields.io/npm/dm/@remotion/player.svg?style=flat)](https://npmcharts.com/compare/@remotion/player?minimal=true)
 [![Install Size](https://packagephobia.now.sh/badge?p=@remotion/player)](https://packagephobia.now.sh/result?p=@remotion/player)
 
-To use this package, we'll be asssuming you already have the required setup to use remotion to create awesome videos with React. The dependecies that remotion requires you have pre-installed on your machine are Node.js and FFMPEG. you can take a look at this [guide](https://github.com/adaptlearning/adapt_authoring/wiki/Installing-FFmpeg) on how to get FFMPEG on your machine.
+To use this package, we'll be assuming you already have the required setup to use Remotion. The dependencies that Remotion requires you to have pre-installed on your machine are Node.js and FFMPEG. You can take a look at this [guide](https://github.com/adaptlearning/adapt_authoring/wiki/Installing-FFmpeg) on how to get FFMPEG on your machine.
 
 
 The `@remotion/player` package allows you to include a video powered by Remotion in a React application. To get started with using this package, you need to have this package installed as a dependency in your project. 
