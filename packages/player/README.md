@@ -29,7 +29,7 @@ pnpm install @remotion/player
 
 Now that you have this package as a dependency in your React project. It is time to see some of the basic examples that you can spin up with this package.
 
-The `player` package can be imported as a react component from the library, which you can make use of in your components, either by nesting it in a custom component of yours, or simply making it a standalaone component of its own.
+The `player` package can be imported as a React component from the library, which you can make use of in your components, either by nesting it in a custom component of yours or simply making it a standalone component.
 
 ```javascript
 // components/MyVideo
