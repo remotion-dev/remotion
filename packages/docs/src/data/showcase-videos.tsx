@@ -1061,6 +1061,33 @@ export const showcaseVideos: ShowcaseVideo[] = [
       name: 'Dave Kiss',
     },
   },
+  {
+    title: "Product Hunt Today",
+    type: "mux_video",
+    muxId: "9vegqVB2n02YrTL3c38HoOyd7Smytz01Hl3qaXI5KCOZM",
+    description: "Fully automated Twitter bot that tweets trending Product Hunt products every day.",
+    height: 720,
+    width: 720,
+    submittedOn: new Date("03-27-2022"),
+    links: [
+      {
+        type: "source_code",
+        url: "https://github.com/Kamigami55/product-hunt-today",
+      },
+      {
+        type: "video",
+        url: "https://twitter.com/ProductHunToday/status/1507997707008417792",
+      },
+      {
+        type: "website",
+        url: "https://twitter.com/ProductHunToday",
+      },
+    ],
+    author: {
+      "url": "https://easonchang.com/",
+      "name": "Eason Chang"
+    }
+  },
 ];
 
 const dateString = (date: Date) =>
