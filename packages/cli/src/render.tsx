@@ -26,7 +26,7 @@ import {
 import {bundleOnCli} from './setup-cache';
 import {checkAndValidateFfmpegVersion} from './validate-ffmpeg-version';
 
-const onError = async (info: OnErrorInfo) => {
+const onError = (info: OnErrorInfo) => {
 	Log.error();
 	if (info.frame === null) {
 		Log.error(
@@ -67,8 +67,11 @@ export const render = async () => {
 		imageFormat,
 		browserExecutable,
 		ffmpegExecutable,
+		scale,
 		chromiumOptions,
 	} = await getCliOptions('series');
+
+	Log.verbose('Browser executable: ', browserExecutable);
 
 	await checkAndValidateFfmpegVersion({
 		ffmpegExecutable: Internals.getCustomFfmpegExecutable(),
@@ -102,6 +105,7 @@ export const render = async () => {
 	const compositionId = getCompositionId(comps);
 
 	const config = comps.find((c) => c.id === compositionId);
+
 	if (!config) {
 		throw new Error(`Cannot find composition with ID ${compositionId}`);
 	}
@@ -110,6 +114,7 @@ export const render = async () => {
 		width: config.width,
 		height: config.height,
 		codec,
+		scale,
 	});
 
 	const outputDir = shouldOutputImageSequence
@@ -160,6 +165,7 @@ export const render = async () => {
 		dumpBrowserLogs: Internals.Logging.isEqualOrBelowLogLevel('verbose'),
 		puppeteerInstance: openedBrowser,
 		timeoutInMilliseconds: Internals.getCurrentPuppeteerTimeout(),
+		scale,
 	});
 
 	const closeBrowserPromise = openedBrowser.close();
@@ -204,8 +210,8 @@ export const render = async () => {
 		const stitchStart = Date.now();
 		await stitchFramesToVideo({
 			dir: outputDir,
-			width: config.width,
-			height: config.height,
+			width: config.width * scale,
+			height: config.height * scale,
 			fps: config.fps,
 			outputLocation: absoluteOutputFile,
 			force: overwrite,
@@ -282,6 +288,6 @@ export const render = async () => {
 		].join(' ')
 	);
 	Log.info('-', 'Output can be found at:');
-	Log.info(chalk.cyan(`▶️ ${absoluteOutputFile}`));
+	Log.info(chalk.cyan(`▶ ${absoluteOutputFile}`));
 	await closeBrowserPromise;
 };

@@ -3,7 +3,11 @@ import fs from "fs";
 import os from "os";
 import path from "path";
 import sharp from "sharp";
-import { selectColor } from "../packages/example/src/Framer";
+import { random } from "remotion";
+
+function selectColor(color: string, frame: number) {
+  return Math.floor((random(`${color}-${frame}`) * 255) % 255);
+}
 
 const getMissedFramesforCodec = async (codec: "mp4" | "webm") => {
   const outputPath = await fs.promises.mkdtemp(
@@ -27,7 +31,7 @@ const getMissedFramesforCodec = async (codec: "mp4" | "webm") => {
       "--sequence",
     ],
     {
-      cwd: "packages/example",
+      cwd: path.join(process.cwd(), "..", "example"),
       reject: false,
     }
   );
@@ -62,11 +66,14 @@ const getMissedFramesforCodec = async (codec: "mp4" | "webm") => {
 
     // encoding sometimes shifts the color slightly - so measure the distance between the expected and actual
     // colors and consider any frame not within an acceptable range to be wrong
-    const combinedDistance =
-      colorDistance.red + colorDistance.green + colorDistance.blue;
-    const threshold = codec === "mp4" ? 49 : 12;
-    if (combinedDistance > threshold) {
-      console.log(colorDistance);
+    const highestDistance = Math.max(
+      colorDistance.red,
+      colorDistance.blue,
+      colorDistance.green
+    );
+    const threshold = 40;
+    if (highestDistance > threshold) {
+      console.log(colorDistance, { threshold, frame, filename });
       missedFrames++;
     }
   }

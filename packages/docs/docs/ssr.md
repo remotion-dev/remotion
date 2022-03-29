@@ -123,12 +123,6 @@ const start = async () => {
 start();
 ```
 
-:::warning
-Many projects created before April 27th are missing the extra parameter for `getCompositions()`. Make sure to add it if you want to use input props to control duration or dimensions of the video.
-:::
-
-[See also: Passing props in GitHub Actions](/docs/parametrized-rendering#passing-props-in-github-actions)
-
 ## Render using a HTTP server
 
 In the [template](/docs#installation), we added a minimal example of an HTTP server that dynamically returns a video whenever you call the URL.

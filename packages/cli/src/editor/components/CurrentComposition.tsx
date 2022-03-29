@@ -1,4 +1,4 @@
-import React, {useContext} from 'react';
+import React, {useContext, useEffect} from 'react';
 import {Internals} from 'remotion';
 import {isCompositionStill} from '../helpers/is-composition-still';
 import {renderFrame} from '../state/render-frame';
@@ -40,6 +40,16 @@ const targetWidth = (targetHeight * 16) / 9;
 export const CurrentComposition = () => {
 	const richTimelineContext = useContext(RichTimelineContext);
 	const video = Internals.useVideo();
+
+	useEffect(() => {
+		if (!video) {
+			document.title = 'Remotion Preview';
+			return;
+		}
+
+		document.title = `${video.id} / ${window.remotion_projectName} - Remotion Preview`;
+	}, [video]);
+
 	if (!video) {
 		return <div style={container} />;
 	}

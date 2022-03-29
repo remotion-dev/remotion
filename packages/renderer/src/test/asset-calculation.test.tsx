@@ -4,11 +4,14 @@ import {calculateAssetPositions} from '../assets/calculate-asset-positions';
 import {MediaAsset} from '../assets/types';
 import {getAssetsForMarkup} from './get-assets-for-markup';
 
+jest.setTimeout(30000);
+
 const basicConfig = {
 	width: 1080,
 	height: 1080,
 	fps: 30,
 	durationInFrames: 60,
+	scale: 1,
 };
 
 const getPositions = async (Markup: React.FC) => {

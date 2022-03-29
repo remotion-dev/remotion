@@ -23,6 +23,7 @@ export const TimelineSequence: React.FC<{
 }> = ({s, fps}) => {
 	const size = PlayerInternals.useElementSize(sliderAreaRef, {
 		triggerOnWindowResize: false,
+		shouldApplyCssTransforms: true,
 	});
 	const {richTimeline} = useContext(RichTimelineContext);
 

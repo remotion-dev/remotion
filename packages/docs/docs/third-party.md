@@ -10,7 +10,7 @@ On this page, we maintain a list of integrations for popular ways of animating o
 
 ## CSS animations
 
-You can synchronize animations with Remotions time using the `animation-play-state` and `animation-delay` CSS properties. Check out [example code](https://github.com/ahgsql/remotion-animation/blob/main/src/index.js) or use the [remotion-animation](https://github.com/ahgsql/remotion-animation/blob/main/src/index.js) library directly (_inofficial library_).
+You can synchronize animations with Remotions time using the `animation-play-state` and `animation-delay` CSS properties. Check out [example code](https://github.com/ahgsql/remotion-animation/blob/main/src/index.js) or use the [remotion-animation](https://github.com/ahgsql/remotion-animation/blob/main/src/index.js) library directly (_unofficial library_).
 
 ## GIFs
 
@@ -22,7 +22,7 @@ At the moment, we don't have a Framer Motion integration, but are discussing the
 
 ## Lottie
 
-Use the [`remotion-lottie`](https://github.com/ahgsql/remotion-lottie) package (_inofficial library_).
+Use the [`remotion-lottie`](https://github.com/ahgsql/remotion-lottie) package (_unofficial library_).
 
 ## Three.JS
 
@@ -38,4 +38,4 @@ There is no integration available but Remotion shares some code with Reanimated,
 
 ## Other libraries
 
-Are you interested in using other libraries with Remotion? You can [file a GitHub issue](https://github.com/remotion-dev/remotion/issues/new) to inquire it. While we cannot guarantee to help you, you can register interest and kick of the discussion.
+Are you interested in using other libraries with Remotion? You can [file a GitHub issue](https://github.com/remotion-dev/remotion/issues/new) to inquire it. While we cannot guarantee to help, you can register interest and kick off the discussion.

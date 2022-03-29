@@ -29,6 +29,7 @@ export const renderStill = async ({
 	browserExecutable,
 	timeoutInMilliseconds,
 	chromiumOptions,
+	scale,
 }: {
 	composition: TCompMetadata;
 	output: string;
@@ -46,6 +47,7 @@ export const renderStill = async ({
 	browserExecutable?: BrowserExecutable;
 	timeoutInMilliseconds?: number;
 	chromiumOptions?: ChromiumOptions;
+	scale?: number;
 }) => {
 	Internals.validateDimension(
 		composition.height,
@@ -116,7 +118,7 @@ export const renderStill = async ({
 	page.setViewport({
 		width: composition.width,
 		height: composition.height,
-		deviceScaleFactor: 1,
+		deviceScaleFactor: scale ?? 1,
 	});
 	const errorCallback = (err: Error) => {
 		onError?.(err);

@@ -7,6 +7,7 @@ import {TIMELINE_PADDING} from './timeline-layout';
 export const useGetXPositionOfItemInTimeline = () => {
 	const size = PlayerInternals.useElementSize(sliderAreaRef, {
 		triggerOnWindowResize: false,
+		shouldApplyCssTransforms: true,
 	});
 
 	const videoConfig = Internals.useUnsafeVideoConfig();

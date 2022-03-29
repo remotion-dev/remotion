@@ -22,6 +22,7 @@ import {serveStatic} from './serve-static';
 import {setPropsAndEnv} from './set-props-and-env';
 import {OnErrorInfo, OnStartData, RenderFramesOutput} from './types';
 import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
+import {validateScale} from './validate-scale';
 
 export const renderFrames = async ({
 	config,
@@ -43,6 +44,7 @@ export const renderFrames = async ({
 	browserExecutable,
 	timeoutInMilliseconds,
 	chromiumOptions,
+	scale,
 }: {
 	config: VideoConfig;
 	compositionId: string;
@@ -63,6 +65,7 @@ export const renderFrames = async ({
 	onError?: (info: OnErrorInfo) => void;
 	timeoutInMilliseconds?: number;
 	chromiumOptions?: ChromiumOptions;
+	scale?: number;
 }): Promise<RenderFramesOutput> => {
 	Internals.validateDimension(
 		config.height,
@@ -90,6 +93,7 @@ export const renderFrames = async ({
 
 	Internals.validateQuality(quality);
 	validatePuppeteerTimeout(timeoutInMilliseconds);
+	validateScale(scale);
 
 	const actualParallelism = getActualConcurrency(parallelism ?? null);
 
@@ -107,7 +111,7 @@ export const renderFrames = async ({
 		page.setViewport({
 			width: config.width,
 			height: config.height,
-			deviceScaleFactor: 1,
+			deviceScaleFactor: scale ?? 1,
 		});
 		const errorCallback = (err: Error) => {
 			onError?.({error: err, frame: null});

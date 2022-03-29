@@ -403,7 +403,7 @@ export async function guessEditor(): Promise<Editor[]> {
 
 let _childProcess: ChildProcess | null = null;
 
-export async function launchEditor({
+export function launchEditor({
 	colNumber,
 	editor,
 	fileName,
@@ -415,7 +415,7 @@ export async function launchEditor({
 	colNumber: number;
 	editor: Editor;
 	vsCodeNewWindow: boolean;
-}): Promise<boolean> {
+}): boolean {
 	if (!fs.existsSync(fileName)) {
 		return false;
 	}

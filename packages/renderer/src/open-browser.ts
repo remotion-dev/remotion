@@ -15,11 +15,13 @@ type OpenGlRenderer = typeof validRenderers[number];
 export type ChromiumOptions = {
 	ignoreCertificateErrors?: boolean;
 	disableWebSecurity?: boolean;
-	gl?: OpenGlRenderer;
+	gl?: OpenGlRenderer | null;
 	headless?: boolean;
 };
 
-const getOpenGlRenderer = (option?: OpenGlRenderer): OpenGlRenderer => {
+const getOpenGlRenderer = (
+	option?: OpenGlRenderer | null
+): OpenGlRenderer | null => {
 	const renderer = option ?? Internals.DEFAULT_OPENGL_RENDERER;
 	Internals.validateOpenGlRenderer(renderer);
 	return renderer;
@@ -41,10 +43,15 @@ export const openBrowser = async (
 
 	await ensureLocalBrowser(browser, options?.browserExecutable ?? null);
 
-	const executablePath = await getLocalBrowserExecutable(
+	const executablePath = getLocalBrowserExecutable(
 		browser,
 		options?.browserExecutable ?? null
 	);
+
+	const customGlRenderer = getOpenGlRenderer(
+		options?.chromiumOptions?.gl ?? null
+	);
+
 	const browserInstance = await puppeteer.launch({
 		executablePath,
 		product: browser,
@@ -54,7 +61,7 @@ export const openBrowser = async (
 			'--no-sandbox',
 			'--disable-setuid-sandbox',
 			'--disable-dev-shm-usage',
-			`--use-gl=${getOpenGlRenderer(options?.chromiumOptions?.gl)}`,
+			customGlRenderer ? `--use-gl=${customGlRenderer}` : null,
 			'--disable-background-media-suspend',
 			process.platform === 'linux' ? '--single-process' : null,
 			options?.chromiumOptions?.ignoreCertificateErrors

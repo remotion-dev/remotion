@@ -35,6 +35,7 @@ export type CommandLineOptions = {
 	props: string;
 	quality: number;
 	frames: string | number;
+	scale: number;
 	sequence: boolean;
 	log: string;
 	help: boolean;
@@ -171,5 +172,9 @@ export const parseCommandLine = (type: 'still' | 'sequence' | 'versions') => {
 
 	if (typeof parsedCli.quality !== 'undefined') {
 		Config.Rendering.setQuality(parsedCli.quality);
+	}
+
+	if (typeof parsedCli.scale !== 'undefined') {
+		Config.Rendering.setScale(parsedCli.scale);
 	}
 };
