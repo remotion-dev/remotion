@@ -4,7 +4,6 @@ import {getRenderProgress} from '../../../api/get-render-progress';
 import {renderMediaOnLambda} from '../../../api/render-media-on-lambda';
 import {
 	BINARY_NAME,
-	DEFAULT_FRAMES_PER_LAMBDA,
 	DEFAULT_MAX_RETRIES,
 	DEFAULT_OUTPUT_PRIVACY,
 	LambdaRoutines,
@@ -94,7 +93,7 @@ export const renderCommand = async (args: string[]) => {
 		region,
 		maxRetries,
 		composition,
-		framesPerLambda: framesPerLambda ?? DEFAULT_FRAMES_PER_LAMBDA,
+		framesPerLambda: framesPerLambda ?? undefined,
 		privacy,
 		logLevel,
 		frameRange: frameRange ?? undefined,
