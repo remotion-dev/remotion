@@ -136,6 +136,7 @@ module.exports = {
         "webpack-dynamic-imports",
         "non-seekable-media",
         "flickering",
+        "version-mismatch"
       ],
     },
     "2-0-migration",
