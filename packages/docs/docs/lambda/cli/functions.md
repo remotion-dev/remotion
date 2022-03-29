@@ -26,7 +26,7 @@ You only need one function per AWS region and Remotion version. Suggested readin
 npx remotion lambda functions deploy
 ```
 
-Creates a new function in your AWS account. If a function in the same region, from the same Remotion version, with the same amount of memory and the same timeout already exists, the name of the already deployed function will be returned instead.
+Creates a new function in your AWS account. If a function in the same region, with the same Remotion version, with the same amount of memory, disk space and timeout already exists, the name of the already deployed function will be returned instead.
 
 By default, a CloudWatch Log Group will be created that will log debug information to CloudWatch that you can consult in the case something is going wrong. The default retention period for these logs is 14 days, which can be changed.
 
