@@ -49,13 +49,14 @@ export type DeployFunctionOutput = {
 export const deployFunction = async (
 	options: DeployFunctionInput
 ): Promise<DeployFunctionOutput> => {
+	const diskSizeInMb = options.diskSizeInMb ?? DEFAULT_EPHEMERAL_STORAGE_IN_MB;
+
 	validateMemorySize(options.memorySizeInMb);
 	validateTimeout(options.timeoutInSeconds);
 	validateAwsRegion(options.region);
 	validateCloudWatchRetentionPeriod(options.cloudWatchLogRetentionPeriodInDays);
 	validateArchitecture(options.architecture);
-	validateDiskSizeInMb(options.diskSizeInMb);
-	const diskSizeInMb = options.diskSizeInMb ?? DEFAULT_EPHEMERAL_STORAGE_IN_MB;
+	validateDiskSizeInMb(diskSizeInMb);
 
 	const fnNameRender = [
 		`${RENDER_FN_PREFIX}${CURRENT_VERSION}`,
@@ -75,7 +76,7 @@ export const deployFunction = async (
 			f.version === CURRENT_VERSION &&
 			f.memorySizeInMb === options.memorySizeInMb &&
 			f.timeoutInSeconds === options.timeoutInSeconds &&
-			f.diskSizeInMb === options.diskSizeInMb
+			f.diskSizeInMb === diskSizeInMb
 	);
 
 	const created = await createFunction({

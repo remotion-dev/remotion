@@ -4,9 +4,6 @@ import {
 } from './constants';
 
 export const validateDiskSizeInMb = (diskSizeInMb: unknown) => {
-	if (typeof diskSizeInMb === 'undefined') {
-		return;
-	}
 	if (typeof diskSizeInMb !== 'number') {
 		throw new TypeError(
 			`parameter 'diskSizeInMb' must be a number, got a ${typeof diskSizeInMb}`

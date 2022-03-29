@@ -2,7 +2,6 @@ import {validateDiskSizeInMb} from '../../shared/validate-disk-size-in-mb';
 import {expectToThrow} from '../helpers/expect-to-throw';
 
 test('Disk size tests', () => {
-	expect(() => validateDiskSizeInMb(undefined)).not.toThrow();
 	expect(() => validateDiskSizeInMb(512)).not.toThrow();
 	expect(() => validateDiskSizeInMb(10240)).not.toThrow();
 	expectToThrow(() => {
