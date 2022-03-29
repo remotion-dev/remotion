@@ -1061,6 +1061,25 @@ export const showcaseVideos: ShowcaseVideo[] = [
       name: 'Dave Kiss',
     },
   },
+  {
+	  title: "An Audio Player",
+	  type: "mux_video",
+	  muxId: "eKnHTDXWCBsQgm00vOl59ZVF300otry3STKzFe025O7M5E",
+	  description: "A Resuable audio player template created using Remotion.",
+	  height: 1920,
+	  width: 1080,
+	  submittedOn: new Date("03-29-2022"),
+	  links: [
+		  {
+		  	type: "video",
+			  url: "https://bardwaj.me/remotion/neenaadena/",
+		  },
+	],
+	author: {
+		"url": "https://bardwaj.me/",
+		"name": "Varun Bardwaj"
+	}
+},
 ];
 
 const dateString = (date: Date) =>
