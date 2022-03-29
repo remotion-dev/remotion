@@ -1,7 +1,7 @@
 import {Log} from './log';
 
 export const handleCommonError = (err: Error) => {
-	Log.error(err.message);
+	Log.error(err.stack);
 	if (err.message.includes('Could not play video with')) {
 		Log.info();
 		Log.info(
