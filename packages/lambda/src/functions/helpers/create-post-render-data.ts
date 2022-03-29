@@ -2,6 +2,7 @@ import {_Object} from '@aws-sdk/client-s3';
 import {estimatePrice} from '../../api/estimate-price';
 import {AwsRegion} from '../../pricing/aws-regions';
 import {
+	DEFAULT_EPHEMERAL_STORAGE_IN_MB,
 	lambdaTimingsPrefix,
 	PostRenderData,
 	RenderMetadata,
@@ -9,6 +10,7 @@ import {
 import {parseLambdaTimingsKey} from '../../shared/parse-lambda-timings-key';
 import {calculateChunkTimes} from './calculate-chunk-times';
 import {OutputFileMetadata} from './find-output-file-in-bucket';
+import {getCurrentArchitecture} from './get-current-architecture';
 import {getFilesToDelete} from './get-files-to-delete';
 import {getLambdasInvokedStats} from './get-lambdas-invoked-stats';
 import {getRetryStats} from './get-retry-stats';
@@ -55,6 +57,10 @@ export const createPostRenderData = async ({
 		durationInMiliseconds: times,
 		memorySizeInMb,
 		region,
+		architecture: getCurrentArchitecture(),
+		lambdasInvoked: renderMetadata.estimatedTotalLambdaInvokations,
+		// TODO: Cannot yet access disk size via env variable
+		diskSizeInMb: DEFAULT_EPHEMERAL_STORAGE_IN_MB,
 	});
 
 	if (!outputFile) {
