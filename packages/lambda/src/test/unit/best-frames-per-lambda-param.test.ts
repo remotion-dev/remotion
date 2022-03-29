@@ -10,4 +10,5 @@ test('Get reasonable framesPerLambda defaults', () => {
 	expect(bestFramesPerLambdaParam(10000)).toEqual(86);
 	expect(bestFramesPerLambdaParam(14000)).toEqual(105);
 	expect(bestFramesPerLambdaParam(18000)).toEqual(120);
+	expect(bestFramesPerLambdaParam(216000)).toEqual(1440);
 });

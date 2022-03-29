@@ -36,6 +36,10 @@ export const DEFAULT_MAX_RETRIES = 1;
 
 export const MAX_FUNCTIONS_PER_RENDER = 200;
 
+export const DEFAULT_EPHEMERAL_STORAGE_IN_MB = 512;
+export const MIN_EPHEMERAL_STORAGE_IN_MB = 512;
+export const MAX_EPHEMERAL_STORAGE_IN_MB = 10240;
+
 export const DEFAULT_OUTPUT_PRIVACY: Privacy = 'public';
 
 export const DEFAULT_CLOUDWATCH_RETENTION_PERIOD = 14;
@@ -307,6 +311,7 @@ export type RenderMetadata = {
 };
 
 export type LambdaVersions =
+	| '2022-03-29'
 	| '2022-03-17'
 	| '2022-03-02'
 	| '2022-03-01'
@@ -362,7 +367,7 @@ export type LambdaVersions =
 	| '2021-06-23'
 	| 'n/a';
 
-export const CURRENT_VERSION: LambdaVersions = '2022-03-17';
+export const CURRENT_VERSION: LambdaVersions = '2022-03-29';
 
 export type PostRenderData = {
 	cost: {

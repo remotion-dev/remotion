@@ -16,7 +16,7 @@ import {LambdaRegionList} from '../components/lambda/regions.tsx';
 
 ## When should I use it?
 
-- Your videos are less than 8 minutes long. <sub>(AWS Lambda storage constraint)</sub>
+- Your videos are less than 2 hours long. <sub>(AWS Lambda storage constraint)</sub>
 - You are rendering less than 1 hour of video per minute. <sub>(AWS Lambda Burst Limit / Concurrency constraint)</sub>
 - You are fine with using Amazon Web Services in one of the [supported regions](/docs/lambda/region-selection).
 

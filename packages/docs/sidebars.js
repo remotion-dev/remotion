@@ -67,6 +67,7 @@ module.exports = {
     "lambda/region-selection",
     "lambda/concurrency",
     "lambda/runtime",
+    "lambda/disk-size",
     "lambda/faq",
     "lambda/light-client",
     {

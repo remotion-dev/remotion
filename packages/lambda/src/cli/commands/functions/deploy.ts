@@ -5,10 +5,12 @@ import {
 	CURRENT_VERSION,
 	DEFAULT_ARCHITECTURE,
 	DEFAULT_CLOUDWATCH_RETENTION_PERIOD,
+	DEFAULT_EPHEMERAL_STORAGE_IN_MB,
 	DEFAULT_MEMORY_SIZE,
 	DEFAULT_TIMEOUT,
 } from '../../../shared/constants';
 import {validateArchitecture} from '../../../shared/validate-architecture';
+import {validateDiskSizeInMb} from '../../../shared/validate-disk-size-in-mb';
 import {validateMemorySize} from '../../../shared/validate-memory-size';
 import {validateTimeout} from '../../../shared/validate-timeout';
 import {parsedLambdaCli} from '../../args';
@@ -20,6 +22,7 @@ export const functionsDeploySubcommand = async () => {
 	const region = getAwsRegion();
 	const timeoutInSeconds = parsedLambdaCli.timeout ?? DEFAULT_TIMEOUT;
 	const memorySizeInMb = parsedLambdaCli.memory ?? DEFAULT_MEMORY_SIZE;
+	const diskSizeInMb = parsedLambdaCli.disk ?? DEFAULT_EPHEMERAL_STORAGE_IN_MB;
 	const architecture = parsedLambdaCli.architecture ?? DEFAULT_ARCHITECTURE;
 	const createCloudWatchLogGroup = !parsedLambdaCli['disable-cloudwatch'];
 	const cloudWatchLogRetentionPeriodInDays =
@@ -28,12 +31,14 @@ export const functionsDeploySubcommand = async () => {
 	validateMemorySize(memorySizeInMb);
 	validateTimeout(timeoutInSeconds);
 	validateArchitecture(architecture);
+	validateDiskSizeInMb(diskSizeInMb);
 	if (!CliInternals.quietFlagProvided()) {
 		Log.info(
 			CliInternals.chalk.gray(
 				`
 Region = ${region}
 Memory = ${memorySizeInMb}MB
+Disk size = ${diskSizeInMb}MB
 Timeout = ${timeoutInSeconds}sec
 Version = ${CURRENT_VERSION}
 Architecture = ${architecture}
@@ -55,6 +60,7 @@ CloudWatch Retention Period = ${cloudWatchLogRetentionPeriodInDays} days
 		memorySizeInMb,
 		cloudWatchLogRetentionPeriodInDays,
 		architecture,
+		diskSizeInMb,
 	});
 	if (CliInternals.quietFlagProvided()) {
 		Log.info(functionName);

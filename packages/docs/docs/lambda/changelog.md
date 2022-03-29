@@ -10,6 +10,20 @@ Keep track of changes to the APIs of Remotion Lambda here.
 
 [Upgrading](/docs/lambda/upgrading)
 
+## Unreleased
+
+_Experimental version, stay with '2022-03-17' for well-tested version_
+
+Version hash: `3.0.0-xxxx`
+Lambda version: '2022-03-29'
+
+Added the option to increase the Lambda disk space and therefore enable rendering of longer videos: [/docs/lambda/disk-space]
+
+- You can set a disk space of up to 10GB
+- Adding more storage has a miniscule effect on price. According to our calculation, having 10GB of storage instead of the default 512MB adds only ~0.2% to the cost of Lambda.
+- Breaking change: The `estimatePrice()` method now takes CPU architecture, disk size and number of lambdas invoked into account. These parameters have been added to the function and been made mandatory.
+- Fixes a bug where `--frames-per-lambda` would be set to 20 instead of the dynamic value suggested by the docs, if rendered via CLI.
+
 ## March 17th, 2022
 
 Version hash: `3.0.0-lambda.414+163634f42`

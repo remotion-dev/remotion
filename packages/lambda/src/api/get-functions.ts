@@ -4,7 +4,11 @@ import {
 } from '@aws-sdk/client-lambda';
 import {AwsRegion} from '../pricing/aws-regions';
 import {getLambdaClient} from '../shared/aws-clients';
-import {CURRENT_VERSION, RENDER_FN_PREFIX} from '../shared/constants';
+import {
+	CURRENT_VERSION,
+	DEFAULT_EPHEMERAL_STORAGE_IN_MB,
+	RENDER_FN_PREFIX,
+} from '../shared/constants';
 import {getFunctionVersion} from '../shared/get-function-version';
 import {FunctionInfo} from './get-function-info';
 
@@ -89,6 +93,8 @@ export const getFunctions = async (
 			version: configs[i],
 			memorySizeInMb: lambda.MemorySize as number,
 			timeoutInSeconds: lambda.Timeout as number,
+			diskSizeInMb:
+				lambda.EphemeralStorage?.Size ?? DEFAULT_EPHEMERAL_STORAGE_IN_MB,
 		};
 	});
 	if (!options.compatibleOnly) {

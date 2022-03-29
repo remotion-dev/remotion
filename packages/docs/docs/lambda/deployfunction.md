@@ -22,6 +22,7 @@ const { functionName } = await deployFunction({
   memorySizeInMb: 1024,
   createCloudWatchLogGroup: true,
   architecture: "arm64",
+  diskSizeInMb: 512,
 });
 console.log(functionName);
 ```
@@ -54,6 +55,10 @@ Whether logs should be saved into CloudWatch. We recommend enabling this option.
 ### `cloudWatchLogRetentionPeriodInDays`
 
 Optional. Retention period for the CloudWatch Logs. Default: 14 days.
+
+### `diskSizeInMb`
+
+Optional. Sets the amount of disk storage that is available in the Lambda function. Must be between 512MB and 10240MB (10GB). Set this higher if you want to render longer videos. See also: [Disk size](/docs/lambda/disk-size)
 
 ## Return value
 

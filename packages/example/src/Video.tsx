@@ -8,6 +8,7 @@ import {Framer} from './Framer';
 import {FreezeExample} from './Freeze/FreezeExample';
 import {MissingImg} from './MissingImg';
 import {OrbScene} from './Orb';
+import InfinityVideo from './ReallyLongVideo';
 import RemoteVideo from './RemoteVideo';
 import {Scripts} from './Scripts';
 import {SkipZeroFrame} from './SkipZeroFrame';
@@ -252,6 +253,14 @@ export const Index: React.FC = () => {
 				height={720}
 				fps={30}
 				durationInFrames={600}
+			/>
+			<Composition
+				id="2hrvideo"
+				component={InfinityVideo}
+				width={1920}
+				height={1080}
+				fps={30}
+				durationInFrames={2 * 60 * 60 * 30}
 			/>
 			<Composition
 				id="three-basic"
