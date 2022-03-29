@@ -7,8 +7,8 @@ import {
 } from '../../api/mock-functions';
 import {CURRENT_VERSION} from '../../shared/constants';
 
-const expectedFunctionName = (memory: number, timeout: number) =>
-	`remotion-render-${CURRENT_VERSION}-${memory}mb-${timeout}sec`;
+const expectedFunctionName = (memory: number, timeout: number, disk: number) =>
+	`remotion-render-${CURRENT_VERSION}-ram${memory}mb-disk${disk}-${timeout}sec`;
 
 test('Should be able to deploy function', async () => {
 	const {functionName} = await deployFunction({
@@ -62,10 +62,10 @@ test('Should be able to delete the function', async () => {
 		createCloudWatchLogGroup: true,
 		architecture: 'arm64',
 	});
-	expect(functionName).toBe(expectedFunctionName(2048, 120));
+	expect(functionName).toBe(expectedFunctionName(2048, 120, 512));
 	await deleteFunction({
 		region: 'us-east-1',
-		functionName: expectedFunctionName(2048, 120),
+		functionName: expectedFunctionName(2048, 120, 512),
 	});
 	const fns = await getFunctions({
 		region: 'us-east-1',
