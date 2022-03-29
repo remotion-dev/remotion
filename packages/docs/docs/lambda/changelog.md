@@ -22,6 +22,7 @@ Added the option to increase the Lambda disk space and therefore enable renderin
 - You can set a disk space of up to 10GB
 - Adding more storage has a miniscule effect on price. According to our calculation, having 10GB of storage instead of the default 512MB adds only ~0.2% to the cost of Lambda.
 - Breaking change: The `estimatePrice()` method now takes CPU architecture, disk size and number of lambdas invoked into account. These parameters have been added to the function and been made mandatory.
+- Fixes a bug where `--frames-per-lambda` would be set to 20 instead of the dynamic value suggested by the docs, if rendered via CLI.
 
 ## March 17th, 2022
 
