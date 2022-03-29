@@ -1,5 +1,5 @@
-import xo = require("eslint-config-xo/esnext");
-import xoReact = require("eslint-config-xo-react");
+import xo from "eslint-config-xo/esnext";
+import xoReact from "eslint-config-xo-react";
 import { autoImports } from "./auto-import-rules";
 
 const baseExtends = ["eslint:recommended", "prettier"];

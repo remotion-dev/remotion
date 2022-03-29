@@ -129,6 +129,7 @@ importers:
       '@types/node': ^16.7.5
       '@types/react': 17.0.39
       '@types/react-dom': ^17.0.11
+      '@types/semver': ^7.3.9
       better-opn: 2.1.1
       chalk: 4.1.2
       dotenv: 9.0.2
@@ -165,6 +166,7 @@ importers:
       '@types/node': 16.10.2
       '@types/react': 17.0.39
       '@types/react-dom': 17.0.11
+      '@types/semver': 7.3.9
       eslint: 7.32.0
       jest: 27.2.4
       prettier: 2.4.1
@@ -7001,6 +7003,10 @@ packages:
 
   /@types/semver/7.3.8:
     resolution: {integrity: sha512-D/2EJvAlCEtYFEYmmlGwbGXuK886HzyCc3nZX/tkFTQdEU8jZDAgiv08P162yB17y4ZXZoq7yFAnW4GDBb9Now==}
+    dev: true
+
+  /@types/semver/7.3.9:
+    resolution: {integrity: sha512-L/TMpyURfBkf+o/526Zb6kd/tchUP3iBDEPjqjb+U2MAJhVRxxrmr2fwpe08E7QsV7YLcpq0tUaQ9O9x97ZIxQ==}
     dev: true
 
   /@types/serve-handler/6.1.1:

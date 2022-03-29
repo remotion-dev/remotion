@@ -1,6 +1,7 @@
 import semver from 'semver';
 import {getLatestRemotionVersion} from './get-latest-remotion-version';
 import {getPackageManager, PackageManager} from './get-package-manager';
+import fs from 'fs';
 
 type Info = {
 	currentVersion: string;
@@ -22,9 +23,9 @@ const isUpdateAvailable = async (currentVersion: string): Promise<Info> => {
 };
 
 export const isUpdateAvailableWithTimeout = () => {
-	const packageJson = require('../package.json');
+	const packagejson = JSON.parse(fs.readFileSync('../package.json', 'utf-8'));
 
-	const {version} = packageJson;
+	const {version} = packagejson;
 	const threeSecTimeout = new Promise<Info>((resolve) => {
 		setTimeout(() => {
 			resolve({

@@ -1,6 +1,6 @@
 import {Log} from './log';
 
-const semver = require('semver');
+import semver from 'semver';
 
 const current = process.version;
 const supported = '>=12.10.0';

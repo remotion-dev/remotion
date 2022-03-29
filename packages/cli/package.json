@@ -2,9 +2,9 @@
 	"name": "@remotion/cli",
 	"version": "2.6.12",
 	"description": "CLI for Remotion",
-    "main": "dist/cjs/index.js",
-    "types": "dist/cjs/index.d.ts",
-    "module": "dist/esm/index.js",
+	"main": "dist/cjs/index.js",
+	"types": "dist/cjs/index.d.ts",
+	"module": "dist/esm/index.js",
 	"sideEffects": false,
 	"bin": {
 		"remotion": "remotion-cli.js"
@@ -13,7 +13,7 @@
 		"lint": "eslint src --ext ts,tsx",
 		"test": "jest",
 		"build": "tsc -d",
-        "build:esm": "tsc -d -p tsconfig-esm.json",
+		"build:esm": "tsc -d -p tsconfig-esm.json",
 		"watch": "tsc -w"
 	},
 	"repository": {
@@ -49,6 +49,7 @@
 		"@types/node": "^16.7.5",
 		"@types/react": "17.0.39",
 		"@types/react-dom": "^17.0.11",
+		"@types/semver": "^7.3.9",
 		"eslint": "^7.25.0",
 		"jest": "^27.2.4",
 		"prettier": "^2.0.5",
