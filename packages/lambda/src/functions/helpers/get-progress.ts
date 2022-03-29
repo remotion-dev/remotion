@@ -2,8 +2,8 @@ import {Internals} from 'remotion';
 import {AwsRegion} from '../../pricing/aws-regions';
 import {
 	chunkKey,
-	DEFAULT_EPHEMERAL_STORAGE_IN_MB,
 	encodingProgressKey,
+	MAX_EPHEMERAL_STORAGE_IN_MB,
 	renderMetadataKey,
 	RenderProgress,
 	rendersPrefix,
@@ -151,8 +151,9 @@ export const getProgress = async ({
 			outputFileMetadata: outputFile,
 			architecture: getCurrentArchitecture(),
 			lambdasInvoked: renderMetadata?.estimatedRenderLambdaInvokations ?? 0,
-			// TODO: Get from outside Lambda fn
-			diskSizeInMb: DEFAULT_EPHEMERAL_STORAGE_IN_MB,
+			// We cannot determine the ephemeral storage size, so we
+			// overestimate the price, but will only have a miniscule effect (~0.2%)
+			diskSizeInMb: MAX_EPHEMERAL_STORAGE_IN_MB,
 		})
 	);
 

@@ -83,7 +83,6 @@ export const estimatePrice = ({
 		chargedDiskSize *
 		Number(diskSizePrice) *
 		(durationInMiliseconds / 1000 / 1024);
-	console.log({diskSizeDollars, chargedDiskSize});
 
 	const invocationCost =
 		Number(pricing[region]['Lambda Requests'].price) * lambdasInvoked;
