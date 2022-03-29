@@ -6,6 +6,19 @@ test('Should calculate costs accurately', () => {
 			region: 'us-east-1',
 			durationInMiliseconds: 20000,
 			memorySizeInMb: 2048,
+			architecture: 'x86_64',
+			diskSizeInMb: 512,
+			lambdasInvoked: 1,
+		})
+	).toEqual(0.00067);
+	expect(
+		estimatePrice({
+			region: 'us-east-1',
+			durationInMiliseconds: 20000,
+			memorySizeInMb: 2048,
+			architecture: 'x86_64',
+			diskSizeInMb: 10240,
+			lambdasInvoked: 1,
 		})
 	).toEqual(0.00067);
 	expect(
@@ -13,6 +26,9 @@ test('Should calculate costs accurately', () => {
 			region: 'us-east-1',
 			durationInMiliseconds: 20000,
 			memorySizeInMb: 1024,
+			architecture: 'x86_64',
+			diskSizeInMb: 512,
+			lambdasInvoked: 1,
 		})
 	).toEqual(0.00033);
 });

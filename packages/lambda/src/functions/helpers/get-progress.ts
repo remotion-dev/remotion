@@ -2,6 +2,7 @@ import {Internals} from 'remotion';
 import {AwsRegion} from '../../pricing/aws-regions';
 import {
 	chunkKey,
+	DEFAULT_EPHEMERAL_STORAGE_IN_MB,
 	encodingProgressKey,
 	renderMetadataKey,
 	RenderProgress,
@@ -13,6 +14,7 @@ import {getExpectedOutName} from './expected-out-name';
 import {findOutputFileInBucket} from './find-output-file-in-bucket';
 import {formatCostsInfo} from './format-costs-info';
 import {getCleanupProgress} from './get-cleanup-progress';
+import {getCurrentArchitecture} from './get-current-architecture';
 import {getCurrentRegionInFunction} from './get-current-region';
 import {getEncodingMetadata} from './get-encoding-metadata';
 import {getFinalEncodingStatus} from './get-final-encoding-status';
@@ -147,6 +149,10 @@ export const getProgress = async ({
 			renderMetadata,
 			memorySizeInMb,
 			outputFileMetadata: outputFile,
+			architecture: getCurrentArchitecture(),
+			lambdasInvoked: renderMetadata?.estimatedRenderLambdaInvokations ?? 0,
+			// TODO: Get from outside Lambda fn
+			diskSizeInMb: DEFAULT_EPHEMERAL_STORAGE_IN_MB,
 		})
 	);
 

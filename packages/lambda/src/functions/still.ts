@@ -8,6 +8,7 @@ import {getOrCreateBucket} from '../api/get-or-create-bucket';
 import {getLambdaClient} from '../shared/aws-clients';
 import {
 	CURRENT_VERSION,
+	DEFAULT_EPHEMERAL_STORAGE_IN_MB,
 	LambdaPayload,
 	LambdaPayloads,
 	LambdaRoutines,
@@ -21,6 +22,7 @@ import {validatePrivacy} from '../shared/validate-privacy';
 import {getExpectedOutName} from './helpers/expected-out-name';
 import {formatCostsInfo} from './helpers/format-costs-info';
 import {getBrowserInstance} from './helpers/get-browser-instance';
+import {getCurrentArchitecture} from './helpers/get-current-architecture';
 import {getCurrentRegionInFunction} from './helpers/get-current-region';
 import {getOutputUrlFromMetadata} from './helpers/get-output-url-from-metadata';
 import {lambdaWriteFile} from './helpers/io';
@@ -138,6 +140,10 @@ const innerStillHandler = async (
 		durationInMiliseconds: Date.now() - start + 100,
 		memorySizeInMb: Number(process.env.AWS_LAMBDA_FUNCTION_MEMORY_SIZE),
 		region: getCurrentRegionInFunction(),
+		lambdasInvoked: 1,
+		architecture: getCurrentArchitecture(),
+		// TODO: Get from outside function
+		diskSizeInMb: DEFAULT_EPHEMERAL_STORAGE_IN_MB,
 	});
 
 	return {
