@@ -79,6 +79,18 @@ This flow is highly customizable. Click on one of the SSR APIs to read about it'
 - [`stitchFramesToVideo()`](/docs/renderer/stitch-frames-to-video) - Encode a video based on an image sequence
 - [`openBrowser()`](/docs/renderer/open-browser) - Share a browser instance across function calls for even better performance.
 
+## Render using a HTTP server
+
+In the [template](/docs#installation), we added a minimal example of an HTTP server that dynamically returns a video whenever you call the URL.
+
+The server is located under `server.tsx`, and you can run it using `npm run server`. Call the default URL with parameters, and it will return a video after some time! Try it out in the browser or using cURL:
+
+```bash
+curl "http://localhost:8000?titleText=Hello,+World!&titleColor=red" > output.mp4
+```
+
+Note that we only added a minimal example. For production, you should consider adding a queueing system and rate limiting.
+
 ## Render using GitHub Actions
 
 The template includes a GitHub Actions workflow file
