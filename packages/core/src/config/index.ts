@@ -21,6 +21,7 @@ import {setProResProfile} from './prores-profile';
 import {setQuality} from './quality';
 import {setWebpackCaching} from './webpack-caching';
 import {FfmpegExecutable, setFfmpegExecutable} from './ffmpeg-executable';
+import {setScale} from './scale';
 import {setPuppeteerTimeout} from './timeout';
 import {
 	setChromiumDisableWebSecurity,
@@ -133,6 +134,11 @@ export const Config = {
 		 * Default: null, which will use ffmpeg available in PATH.
 		 */
 		setFfmpegExecutable,
+		/**
+		 * Scales the output dimensions by a factor.
+		 * Default: 1.
+		 */
+		setScale,
 	},
 	Output: {
 		/**

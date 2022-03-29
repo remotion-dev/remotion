@@ -8,6 +8,8 @@ declare global {
 		getStaticCompositions: () => TCompMetadata[];
 		remotion_staticBase: string;
 		remotion_editorName: string | null;
+		remotion_projectName: string;
+		remotion_cwd: string;
 		remotion_setFrame: (frame: number) => void;
 		remotion_initialFrame: number;
 		remotion_puppeteerTimeout: number;
@@ -46,3 +48,4 @@ export * from './use-video-config';
 export * from './video';
 export * from './video-config';
 export {staticFile} from './static-file';
+export type {PlayableMediaTag} from './timeline-position-state';

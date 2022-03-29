@@ -1,4 +1,4 @@
-import { ESLintUtils } from "@typescript-eslint/experimental-utils";
+import { ESLintUtils } from "@typescript-eslint/utils";
 import rule from "../rules/no-string-assets";
 
 const ruleTester = new ESLintUtils.RuleTester({
@@ -56,6 +56,22 @@ import {Img} from 'remotion';
 export const Re = () => {
   return (
     <Img src="hithere" />
+  );
+}
+      `,
+      errors: [
+        {
+          messageId: "NoStringAssets",
+        },
+      ],
+    },
+    {
+      code: `
+import {Img} from 'remotion';
+
+export const Re = () => {
+  return (
+    <Img src={"curly"} />
   );
 }
       `,

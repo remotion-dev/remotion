@@ -1,6 +1,7 @@
 import {checkNodeVersion} from './check-version';
 import {Log} from './log';
 import {parsedCli} from './parse-command-line';
+import {listCompositionsCommand} from './compositions';
 import {previewCommand} from './preview';
 import {printHelp} from './print-help';
 import {render} from './render';
@@ -29,7 +30,9 @@ export const cli = async () => {
 	}
 
 	try {
-		if (command === 'preview') {
+		if (command === 'compositions') {
+			await listCompositionsCommand();
+		} else if (command === 'preview') {
 			await previewCommand();
 		} else if (command === 'render') {
 			await render();

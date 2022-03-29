@@ -60,6 +60,9 @@ export const printHelp = () => {
 		['--env-file', 'Specify a location for a dotenv file'],
 	]);
 	Log.info();
+	Log.info('remotion compositions <index-file.ts>');
+	Log.info(chalk.gray('Prints the available compositions.'));
+	Log.info();
 	Log.info('remotion ' + VERSIONS_COMMAND);
 	Log.info(
 		chalk.gray('Prints and validates versions of all Remotion packages.')

@@ -4,6 +4,8 @@ sidebar_label: CLI reference
 id: cli
 ---
 
+import {AngleChangelog} from '../components/AngleChangelog';
+
 ## Commands
 
 The following commands are available - you can always run them using `npx remotion` or even without the `npx` prefix if you put the command inside an npm script.
@@ -32,6 +34,16 @@ Render a still frame basd on the entry point, the composition ID and save it to 
 
 ```bash
 npx remotion still <entry-file> <composition-id> <output-location>
+```
+
+### `npx remotion compositions`
+
+_Available from v2.6.12._
+
+Print list of composition ids from the index file provided separated by line break.
+
+```bash
+npx remotion compositions <entry-file>
 ```
 
 ### `npx remotion versions`
@@ -132,6 +144,12 @@ _available for `still`, `render` commands_
 
 [Path to a Chrome executable](/docs/config#setbrowserexecutable). If not specified and Remotion cannot find one, it will download one during rendering. Available since v1.5.
 
+### `--scale`
+
+_available for `render` and `still` command._
+
+[Scales the output frames by the factor you pass in.](/docs/scaling) For example, a 1280x720px frame will become a 1920x1080px frame with a scale factor of `1.5`. Vector elements like fonts and HTML markups will be rendered with extra details. `scale` must be greater than 0 and less than equal to 16. Default: `1`.
+
 ### `--frames`
 
 _available for `render` command_
@@ -202,7 +220,10 @@ Available since v2.6.5.
 
 _available for `still`, `render` command_
 
-Select the OpenGL renderer backend for Chromium. Accepted values: `angle`, `egl`, `swiftshader`. Default: `angle`. Available since v2.6.5.
+<!-- TODO: Update for lambda -->
+<AngleChangelog />
+
+Select the OpenGL renderer backend for Chromium. Accepted values: `"angle"`, `"egl"`, `"swiftshader"` and `null`. `null` means Chromiums default. Default: `null`.
 
 ### `--help`
 

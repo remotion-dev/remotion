@@ -3,6 +3,8 @@ id: render-still
 title: renderStill()
 ---
 
+import {AngleChangelog} from '../components/AngleChangelog';
+
 _Part of the `@remotion/renderer` package. Available from v2.3._
 
 Renders a single frame to an image and writes it to the specified output location.
@@ -86,6 +88,12 @@ Which frame should be rendered based on its number.
 _optional - default: "png"_
 
 Which output format the image should have, either `png` or `jpeg`.
+
+### `scale?`
+
+_number - default: 1 - available from v2.6.7_
+
+[Scales the output frames by the factor you pass in.](/docs/scaling) For example, a 1280x720px frame will become a 1920x1080px frame with a scale factor of `1.5`. Vector elements like fonts and HTML markups will be rendered with extra details.
 
 ### `quality?`
 
@@ -175,8 +183,9 @@ If disabled, the render will open an actual Chrome window where you can see the 
 _string_
 
 <!-- TODO: Update for lambda -->
+<AngleChangelog />
 
-Select the OpenGL renderer backend for Chromium. Accepted values: `angle`, `egl`, `swiftshader`. Default: `angle`.
+Select the OpenGL renderer backend for Chromium. Accepted values: `"angle"`, `"egl"`, `"swiftshader"` and `null`. `null` means Chromiums default. Default: `null`.
 
 ## Return value
 

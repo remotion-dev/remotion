@@ -9,13 +9,15 @@ You can start the preview server of Remotion using
 npm start
 ```
 
-If you are using a custom template, use
+This is a shorthand for
 
 ```bash
 npx remotion preview src/index.tsx
 ```
 
-where `src/index.tsx` is the file where `registerRoot()` is called.
+where `src/index.tsx` is the file where [`registerRoot()`](/docs/register-root) is called.
+
+A server will be started on port 3000 (or 3001 if it's not available, and so on) and the preview should open in the browser.
 
 <img src="/img/timeline.png"></img>
 
@@ -95,7 +97,7 @@ Generally, the rich timeline mode will provide you with a more accurate timeline
 
 More renders also mean slower rendering. If you are suffering from slow playback and timeline scrubbing performance, consider disabling the rich timeline mode.
 
-The rich timline will become the default in the future, but right now it is disabled by default.
+The rich timeline will become the default in the future, but right now it is disabled by default.
 
 We encourage you to try out the rich timeline mode and [letting us know about any issues you will face](https://github.com/remotion-dev/remotion/issues/new).
 

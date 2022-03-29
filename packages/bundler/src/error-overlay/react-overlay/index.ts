@@ -3,7 +3,7 @@ import {listenToRuntimeErrors} from './listen-to-runtime-errors';
 
 let stopListeningToRuntimeErrors: null | (() => void) = null;
 
-export const shouldReload = () => {
+export const didUnmountReactApp = () => {
 	return !Internals.getPreviewDomElement()?.hasChildNodes();
 };
 

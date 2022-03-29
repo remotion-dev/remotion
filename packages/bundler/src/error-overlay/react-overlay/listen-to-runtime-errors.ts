@@ -52,10 +52,19 @@ export const getErrorRecord = async (
 	};
 };
 
-const crashWithFrames = (crash: () => void) => async (error: Error) => {
-	setErrorsRef.current?.addError(error);
+const crashWithFrames = (crash: () => void) => (error: Error) => {
+	const didHookOrderChange =
+		error.message.startsWith('Rendered fewer hooks') ||
+		error.message.startsWith('Rendered more hooks');
 
-	crash();
+	if (didHookOrderChange) {
+		console.log('Hook order changed. Reloading app...');
+		window.location.reload();
+	} else {
+		setErrorsRef.current?.addError(error);
+
+		crash();
+	}
 };
 
 export function listenToRuntimeErrors(crash: () => void) {
