@@ -36,6 +36,10 @@ export const DEFAULT_MAX_RETRIES = 1;
 
 export const MAX_FUNCTIONS_PER_RENDER = 200;
 
+export const DEFAULT_EPHEMERAL_STORAGE_IN_MB = 512;
+export const MIN_EPHEMERAL_STORAGE_IN_MB = 512;
+export const MAX_EPHEMERAL_STORAGE_IN_MB = 10240;
+
 export const DEFAULT_OUTPUT_PRIVACY: Privacy = 'public';
 
 export const DEFAULT_CLOUDWATCH_RETENTION_PERIOD = 14;

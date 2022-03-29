@@ -1,7 +1,10 @@
 import {GetFunctionCommand} from '@aws-sdk/client-lambda';
 import {AwsRegion} from '../pricing/aws-regions';
 import {getLambdaClient} from '../shared/aws-clients';
-import {LambdaVersions} from '../shared/constants';
+import {
+	DEFAULT_EPHEMERAL_STORAGE_IN_MB,
+	LambdaVersions,
+} from '../shared/constants';
 import {getFunctionVersion} from '../shared/get-function-version';
 import {validateAwsRegion} from '../shared/validate-aws-region';
 
@@ -10,6 +13,7 @@ export type FunctionInfo = {
 	timeoutInSeconds: number;
 	memorySizeInMb: number;
 	version: LambdaVersions | null;
+	diskSizeInMb: number;
 };
 
 export type GetFunctionInfoInput = {
@@ -47,5 +51,8 @@ export const getFunctionInfo = async ({
 		timeoutInSeconds: functionInfo.Configuration?.Timeout as number,
 		memorySizeInMb: functionInfo.Configuration?.MemorySize as number,
 		version,
+		diskSizeInMb:
+			functionInfo.Configuration?.EphemeralStorage?.Size ??
+			DEFAULT_EPHEMERAL_STORAGE_IN_MB,
 	};
 };
