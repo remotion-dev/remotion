@@ -3,12 +3,14 @@ import {estimatePrice} from '../../api/estimate-price';
 import {AwsRegion} from '../../pricing/aws-regions';
 import {
 	lambdaTimingsPrefix,
+	MAX_EPHEMERAL_STORAGE_IN_MB,
 	PostRenderData,
 	RenderMetadata,
 } from '../../shared/constants';
 import {parseLambdaTimingsKey} from '../../shared/parse-lambda-timings-key';
 import {calculateChunkTimes} from './calculate-chunk-times';
 import {OutputFileMetadata} from './find-output-file-in-bucket';
+import {getCurrentArchitecture} from './get-current-architecture';
 import {getFilesToDelete} from './get-files-to-delete';
 import {getLambdasInvokedStats} from './get-lambdas-invoked-stats';
 import {getRetryStats} from './get-retry-stats';
@@ -55,6 +57,11 @@ export const createPostRenderData = async ({
 		durationInMiliseconds: times,
 		memorySizeInMb,
 		region,
+		architecture: getCurrentArchitecture(),
+		lambdasInvoked: renderMetadata.estimatedTotalLambdaInvokations,
+		// We cannot determine the ephemeral storage size, so we
+		// overestimate the price, but will only have a miniscule effect (~0.2%)
+		diskSizeInMb: MAX_EPHEMERAL_STORAGE_IN_MB,
 	});
 
 	if (!outputFile) {

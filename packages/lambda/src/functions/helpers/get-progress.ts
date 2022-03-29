@@ -3,6 +3,7 @@ import {AwsRegion} from '../../pricing/aws-regions';
 import {
 	chunkKey,
 	encodingProgressKey,
+	MAX_EPHEMERAL_STORAGE_IN_MB,
 	renderMetadataKey,
 	RenderProgress,
 	rendersPrefix,
@@ -13,6 +14,7 @@ import {getExpectedOutName} from './expected-out-name';
 import {findOutputFileInBucket} from './find-output-file-in-bucket';
 import {formatCostsInfo} from './format-costs-info';
 import {getCleanupProgress} from './get-cleanup-progress';
+import {getCurrentArchitecture} from './get-current-architecture';
 import {getCurrentRegionInFunction} from './get-current-region';
 import {getEncodingMetadata} from './get-encoding-metadata';
 import {getFinalEncodingStatus} from './get-final-encoding-status';
@@ -147,6 +149,11 @@ export const getProgress = async ({
 			renderMetadata,
 			memorySizeInMb,
 			outputFileMetadata: outputFile,
+			architecture: getCurrentArchitecture(),
+			lambdasInvoked: renderMetadata?.estimatedRenderLambdaInvokations ?? 0,
+			// We cannot determine the ephemeral storage size, so we
+			// overestimate the price, but will only have a miniscule effect (~0.2%)
+			diskSizeInMb: MAX_EPHEMERAL_STORAGE_IN_MB,
 		})
 	);
 

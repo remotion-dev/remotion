@@ -25,6 +25,7 @@ export const createFunction = async ({
 	alreadyCreated,
 	retentionInDays,
 	architecture,
+	ephemerealStorageInMb,
 }: {
 	createCloudWatchLogGroup: boolean;
 	region: AwsRegion;
@@ -35,6 +36,7 @@ export const createFunction = async ({
 	timeoutInSeconds: number;
 	alreadyCreated: boolean;
 	retentionInDays: number;
+	ephemerealStorageInMb: number;
 	architecture: LambdaArchitecture;
 }): Promise<{FunctionName: string}> => {
 	if (createCloudWatchLogGroup) {
@@ -79,6 +81,9 @@ export const createFunction = async ({
 				({layerArn, version}) => `${layerArn}:${version}`
 			),
 			Architectures: [architecture],
+			EphemeralStorage: {
+				Size: ephemerealStorageInMb,
+			},
 		})
 	);
 	await getLambdaClient(region).send(

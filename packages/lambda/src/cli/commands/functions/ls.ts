@@ -5,6 +5,7 @@ import {getAwsRegion} from '../../get-aws-region';
 
 const NAME_COLS = 50;
 const MEMORY_COLS = 15;
+const DISK_COLS = 15;
 const TIMEOUT_COLS = 15;
 const VERSION_COLS = 15;
 
@@ -44,6 +45,7 @@ export const functionsLsCommand = async () => {
 			[
 				'Name'.padEnd(NAME_COLS, ' '),
 				'Version'.padEnd(VERSION_COLS, ' '),
+				'Disk (MB)'.padEnd(MEMORY_COLS, ' '),
 				'Memory (MB)'.padEnd(MEMORY_COLS, ' '),
 				'Timeout (sec)'.padEnd(TIMEOUT_COLS, ' '),
 			].join('')
@@ -57,6 +59,7 @@ export const functionsLsCommand = async () => {
 				datapoint.version
 					? datapoint.version.padEnd(VERSION_COLS, ' ')
 					: 'Error'.padEnd(VERSION_COLS, ' '),
+				String(datapoint.diskSizeInMb).padEnd(DISK_COLS, ' '),
 				String(datapoint.memorySizeInMb).padEnd(MEMORY_COLS, ' '),
 				String(datapoint.timeoutInSeconds).padEnd(TIMEOUT_COLS, ' '),
 			].join('')

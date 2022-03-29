@@ -87,6 +87,10 @@ const renderHandler = async (
 		inputProps: params.inputProps,
 		frameRange: params.frameRange,
 		onProgress: ({renderedFrames}) => {
+			if (renderedFrames % 100 === 0) {
+				console.log(`Rendered ${renderedFrames} frames`);
+			}
+
 			chunkTimingData.timings[renderedFrames] = Date.now() - start;
 		},
 		parallelism: 1,

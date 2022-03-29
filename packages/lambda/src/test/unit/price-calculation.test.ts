@@ -46,6 +46,9 @@ test('Should not throw while calculating prices when time shifts occur', () => {
 			lastModified: Date.now() - 2000,
 			size: 1000000,
 		},
+		architecture: 'x86_64',
+		diskSizeInMb: 512,
+		lambdasInvoked: 1,
 	});
 	expect(price).toBeGreaterThanOrEqual(0);
 });
