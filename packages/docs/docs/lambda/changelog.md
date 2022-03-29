@@ -17,7 +17,7 @@ _Experimental version, stay with '2022-03-17' for well-tested version!_
 Version hash: `3.0.0-lambda.419+1ae289d8c`
 Lambda version: '2022-03-29'
 
-Added the option to increase the Lambda disk space and therefore enable rendering of longer videos: [/docs/lambda/disk-space]
+Added the option to increase the Lambda disk space and therefore enable rendering of longer videos: [/docs/lambda/disk-size]
 
 - You can set a disk space of up to 10GB
 - Adding more storage has a miniscule effect on price. According to our calculation, having 10GB of storage instead of the default 512MB adds only ~0.2% to the cost of Lambda.
