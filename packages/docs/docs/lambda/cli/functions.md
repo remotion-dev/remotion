@@ -6,6 +6,7 @@ slug: /lambda/cli/functions
 ---
 
 import {DefaultMemorySize} from '../../../components/lambda/default-memory-size';
+import {DefaultEphemerealStorageInMb} from '../../../components/lambda/default-disk-size';
 import {DefaultTimeout} from '../../../components/lambda/default-timeout';
 import {DefaultLogRetention} from '../../../components/lambda/default-log-retention';
 import {DefaultArchitecture} from '../../../components/lambda/default-architecture';
@@ -36,6 +37,7 @@ Example output
 <pre>
 Region = eu-central-1,
 Memory = 2048MB,
+Disk = 512MB,
 Timeout = 120sec,
 Version = 2021-12-17,
 CloudWatch Enabled = true,
@@ -54,6 +56,10 @@ The [AWS region](/docs/lambda/region-selection) to select.
 ### `--memory`
 
 Memory size in megabytes. Default: <DefaultMemorySize /> MB.
+
+### `--disk`
+
+Disk size in megabytes. Default: <DefaultEphemerealStorageInMb /> MB. See also: [Disk size](/docs/lambda/disk-size).
 
 ### `--timeout`
 

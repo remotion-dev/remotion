@@ -8,6 +8,7 @@ type LambdaCommandLineOptions = {
 	help: boolean;
 	region: AwsRegion;
 	memory: number;
+	disk: number;
 	timeout: number;
 	['retention-period']: number;
 	y: boolean;

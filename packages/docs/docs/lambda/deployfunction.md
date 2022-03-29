@@ -56,9 +56,9 @@ Whether logs should be saved into CloudWatch. We recommend enabling this option.
 
 Optional. Retention period for the CloudWatch Logs. Default: 14 days.
 
-### `diskSizeInMb`
+### `diskSizeInMb`
 
-Optional. Sets the amount of disk storage that is available in the Lambda function. Must be between 512MB and 10240MB (10GB). Set this higher if you want to render longer videos.
+Optional. Sets the amount of disk storage that is available in the Lambda function. Must be between 512MB and 10240MB (10GB). Set this higher if you want to render longer videos. See also: [Disk size](/docs/lambda/disk-size)
 
 ## Return value
 
