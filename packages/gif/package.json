@@ -1,10 +1,13 @@
 {
 	"name": "@remotion/gif",
-	"version": "2.6.11",
+	"version": "2.6.12",
 	"description": "Gif component for remotion",
 	"sideEffects": false,
 	"repository": {
 		"url": "https://github.com/remotion-dev/remotion"
+	},
+	"bugs": {
+		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
 	"license": "SEE LICENSE IN LICENSE.md",
 	"author": "",
@@ -23,7 +26,7 @@
 	"dependencies": {
 		"@react-gifs/tools": "0.1.2",
 		"lru_map": "0.4.1",
-		"remotion": "2.6.11"
+		"remotion": "2.6.12"
 	},
 	"devDependencies": {
 		"@jonny/eslint-config": "^2.1.251",
@@ -53,6 +56,14 @@
 		"react": "^17.0.1",
 		"react-dom": "^17.0.1"
 	},
+	"keywords": [
+		"remotion",
+		"ffmpeg",
+		"video",
+		"react",
+		"puppeteer",
+		"player"
+	],
 	"publishConfig": {
 		"access": "public"
 	}

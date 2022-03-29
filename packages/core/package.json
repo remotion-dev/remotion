@@ -1,6 +1,6 @@
 {
 	"name": "remotion",
-	"version": "2.6.11",
+	"version": "2.6.12",
 	"description": "Render videos in React",
     "main": "dist/cjs/index.js",
     "types": "dist/cjs/index.d.ts",
@@ -16,6 +16,9 @@
 	},
 	"repository": {
 		"url": "https://github.com/remotion-dev/remotion"
+	},
+	"bugs": {
+		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
 	"author": "",
 	"license": "SEE LICENSE IN LICENSE.md",
@@ -43,6 +46,14 @@
 		"typescript": "^4.5.5",
 		"webpack": "5.60.0"
 	},
+	"keywords": [
+		"remotion",
+		"ffmpeg",
+		"video",
+		"react",
+		"puppeteer",
+		"player"
+	],
 	"publishConfig": {
 		"access": "public"
 	}

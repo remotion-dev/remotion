@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/bundler",
-	"version": "2.6.11",
+	"version": "2.6.12",
 	"description": "Bundler for Remotion",
     "main": "dist/cjs/index.js",
     "types": "dist/cjs/index.d.ts",
@@ -8,6 +8,9 @@
 	"sideEffects": false,
 	"repository": {
 		"url": "https://github.com/remotion-dev/remotion"
+	},
+	"bugs": {
+		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
 	"scripts": {
 		"lint": "eslint src --ext ts,tsx",
@@ -32,7 +35,7 @@
 		"memfs": "3.4.0",
 		"mime-types": "2.1.34",
 		"react-refresh": "0.9.0",
-		"remotion": "2.6.11",
+		"remotion": "2.6.12",
 		"semver": "7.3.4",
 		"source-map": "0.6.1",
 		"source-map-loader": "3.0.0",
@@ -62,6 +65,14 @@
 		"ts-jest": "^27.0.5",
 		"typescript": "^4.5.5"
 	},
+	"keywords": [
+		"remotion",
+		"ffmpeg",
+		"video",
+		"react",
+		"puppeteer",
+		"player"
+	],
 	"publishConfig": {
 		"access": "public"
 	}
