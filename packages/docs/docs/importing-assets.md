@@ -6,7 +6,7 @@ title: Importing assets
 Remotion allows you to include several types of files in your project:
 
 - Images (`.png`, `.svg`, `.jpg`, `.jpeg`, `.webp`, `.gif`, `.bmp`)
-- Videos (`.webm`, `.mp4`)
+- Videos (`.webm`, `.mov`, `.mp4`)
 - Audio (`.mp3`, `.wav`, `.aac`)
 - [Webfonts - read the separate page for fonts](/docs/fonts)
 - Arbitrary files using the `staticFile()` API
