@@ -1062,23 +1062,27 @@ export const showcaseVideos: ShowcaseVideo[] = [
     },
   },
   {
-	  title: "An Audio Player",
-	  type: "mux_video",
-	  muxId: "eKnHTDXWCBsQgm00vOl59ZVF300otry3STKzFe025O7M5E",
-	  description: "A Reusable audio player template created using Remotion.",
-	  height: 1920,
-	  width: 1080,
-	  submittedOn: new Date("03-29-2022"),
-	  links: [
-		  {
-		  	type: "video",
-			  url: "https://bardwaj.me/remotion/neenaadena/",
-		  },
-	],
-	author: {
-		"url": "https://bardwaj.me/",
-		"name": "Varun Bardwaj"
-	}
+    title: "Audio Player",
+    type: "mux_video",
+    muxId: "eKnHTDXWCBsQgm00vOl59ZVF300otry3STKzFe025O7M5E",
+    description: "A Reusable audio player template created using Remotion.",
+    height: 1920,
+    width: 1080,
+    submittedOn: new Date("03-29-2022"),
+    links: [
+      {
+        type: 'source_code',
+        url: 'https://github.com/varunpbardwaj/remotion-audio-player-template/',
+      },
+      {
+        type: "video",
+	url: "https://bardwaj.me/remotion/neenaadena/",
+      },
+    ],
+    author: {
+      "url": "https://bardwaj.me/",
+      "name": "Varun Bardwaj"
+    }
 },
 {
     title: "Product Hunt Today",
