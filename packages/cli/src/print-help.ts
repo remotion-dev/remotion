@@ -1,8 +1,8 @@
 import chalk from 'chalk';
+import fs from 'fs';
+
 import {Log} from './log';
 import {VERSIONS_COMMAND} from './versions';
-
-const packagejson = require('../package.json');
 
 const printFlags = (flags: [string, string][]) => {
 	flags.forEach(([flag, description]) => {
@@ -11,6 +11,7 @@ const printFlags = (flags: [string, string][]) => {
 };
 
 export const printHelp = () => {
+	const packagejson = JSON.parse(fs.readFileSync('../package.json', 'utf-8'));
 	Log.info(
 		`@remotion/cli ${
 			packagejson.version
