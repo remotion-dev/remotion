@@ -18,7 +18,7 @@ test('Should be able to deploy function', async () => {
 		createCloudWatchLogGroup: true,
 		architecture: 'arm64',
 	});
-	expect(functionName).toBe(expectedFunctionName(2048, 120));
+	expect(functionName).toBe(expectedFunctionName(2048, 120, 512));
 });
 
 test('Should be able to get the function afterwards', async () => {
@@ -31,14 +31,14 @@ test('Should be able to get the function afterwards', async () => {
 		createCloudWatchLogGroup: true,
 		architecture: 'arm64',
 	});
-	expect(functionName).toBe(expectedFunctionName(2048, 120));
+	expect(functionName).toBe(expectedFunctionName(2048, 120, 512));
 	const fns = await getFunctions({
 		region: 'us-east-1',
 		compatibleOnly: true,
 	});
 	expect(fns).toEqual([
 		{
-			functionName: expectedFunctionName(2048, 120),
+			functionName: expectedFunctionName(2048, 120, 512),
 			memorySizeInMb: 2048,
 			timeoutInSeconds: 120,
 			version: CURRENT_VERSION,
@@ -84,21 +84,21 @@ test('Should be able to get the function afterwards', async () => {
 		createCloudWatchLogGroup: true,
 		architecture: 'arm64',
 	});
-	expect(functionName).toBe(expectedFunctionName(2048, 120));
+	expect(functionName).toBe(expectedFunctionName(2048, 120, 512));
 	const fns = await getFunctions({
 		region: 'us-east-1',
 		compatibleOnly: true,
 	});
 	expect(fns).toEqual([
 		{
-			functionName: expectedFunctionName(2048, 120),
+			functionName: expectedFunctionName(2048, 120, 512),
 			memorySizeInMb: 2048,
 			timeoutInSeconds: 120,
 			version: CURRENT_VERSION,
 			region: 'us-east-1',
 		},
 	]);
-	markFunctionAsIncompatible(expectedFunctionName(2048, 120));
+	markFunctionAsIncompatible(expectedFunctionName(2048, 120, 512));
 	const compatibleFns = await getFunctions({
 		region: 'us-east-1',
 		compatibleOnly: true,
@@ -110,7 +110,7 @@ test('Should be able to get the function afterwards', async () => {
 	expect(compatibleFns).toEqual([]);
 	expect(incompatibleFns).toEqual([
 		{
-			functionName: expectedFunctionName(2048, 120),
+			functionName: expectedFunctionName(2048, 120, 512),
 			memorySizeInMb: 2048,
 			timeoutInSeconds: 120,
 			version: '2021-06-23',
