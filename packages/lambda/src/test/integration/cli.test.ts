@@ -11,7 +11,7 @@ import {getProcessWriteOutput} from './console-hooks';
 test('Deploy function', async () => {
 	await LambdaInternals.executeCommand(['functions', 'deploy']);
 	expect(getProcessWriteOutput()).toContain(
-		`Deployed as remotion-render-${CURRENT_VERSION}-mem${DEFAULT_MEMORY_SIZE}.mb-disk${DEFAULT_EPHEMERAL_STORAGE_IN_MB}mb-${DEFAULT_TIMEOUT}sec\n`
+		`Deployed as remotion-render-${CURRENT_VERSION}-mem${DEFAULT_MEMORY_SIZE}mb-disk${DEFAULT_EPHEMERAL_STORAGE_IN_MB}mb-${DEFAULT_TIMEOUT}sec\n`
 	);
 });
 
