@@ -16,6 +16,9 @@ jest.mock('../functions/helpers/print-cloudwatch-helper', () =>
 jest.mock('../functions/helpers/get-current-region', () =>
 	jest.requireActual('../functions/helpers/__mocks__/get-current-region')
 );
+jest.mock('../functions/helpers/get-current-architecture', () =>
+	jest.requireActual('../functions/helpers/__mocks__/get-current-architecture')
+);
 jest.mock('../functions/helpers/get-browser-instance', () =>
 	jest.requireActual('../functions/helpers/__mocks__/get-browser-instance')
 );
