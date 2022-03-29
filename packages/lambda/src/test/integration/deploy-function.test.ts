@@ -8,7 +8,7 @@ import {
 import {CURRENT_VERSION} from '../../shared/constants';
 
 const expectedFunctionName = (memory: number, timeout: number, disk: number) =>
-	`remotion-render-${CURRENT_VERSION}-ram${memory}mb-disk${disk}-${timeout}sec`;
+	`remotion-render-${CURRENT_VERSION}-ram${memory}mb-disk${disk}mb-${timeout}sec`;
 
 test('Should be able to deploy function', async () => {
 	const {functionName} = await deployFunction({
