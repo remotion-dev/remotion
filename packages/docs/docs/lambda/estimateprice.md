@@ -20,15 +20,18 @@ The calculated duration does not include costs for S3 and Remotion licensing fee
 ## Example
 
 ```ts twoslash
-import {estimatePrice} from '@remotion/lambda';
+import { estimatePrice } from "@remotion/lambda";
 
 console.log(
   estimatePrice({
-    region: 'us-east-1',
+    region: "us-east-1",
     durationInMiliseconds: 20000,
     memorySizeInMb: 2048,
+    diskSizeInMb: 512,
+    architecture: "x86_64",
+    lambdasInvoked: 1,
   })
-) // 0.00067
+); // 0.00067
 ```
 
 ## Arguments
@@ -45,7 +48,19 @@ The amount of memory that has been given to the Lambda function. May be received
 
 ### `durationInMiliseconds`
 
-The estimated total execution duration in miliseconds. See the top of this page for a guide on how to approximate the duration.
+The estimated total execution duration in miliseconds of all Lambdas combined. See the top of this page for a guide on how to approximate the duration.
+
+### `architecture`
+
+The architecture of the deployed Lambda (either `arm64` or `x86_64`).
+
+### `lambdasInvoked`
+
+The number of lambdas that were invoked in the rendering process.
+
+### `diskSizeInMb`
+
+The amount of disk space allocated in megabytes.
 
 ## Return value
 
