@@ -2,8 +2,8 @@ import {_Object} from '@aws-sdk/client-s3';
 import {estimatePrice} from '../../api/estimate-price';
 import {AwsRegion} from '../../pricing/aws-regions';
 import {
-	DEFAULT_EPHEMERAL_STORAGE_IN_MB,
 	lambdaTimingsPrefix,
+	MAX_EPHEMERAL_STORAGE_IN_MB,
 	PostRenderData,
 	RenderMetadata,
 } from '../../shared/constants';
@@ -59,8 +59,9 @@ export const createPostRenderData = async ({
 		region,
 		architecture: getCurrentArchitecture(),
 		lambdasInvoked: renderMetadata.estimatedTotalLambdaInvokations,
-		// TODO: Cannot yet access disk size via env variable
-		diskSizeInMb: DEFAULT_EPHEMERAL_STORAGE_IN_MB,
+		// We cannot determine the ephemeral storage size, so we
+		// overestimate the price, but will only have a miniscule effect (~0.2%)
+		diskSizeInMb: MAX_EPHEMERAL_STORAGE_IN_MB,
 	});
 
 	if (!outputFile) {

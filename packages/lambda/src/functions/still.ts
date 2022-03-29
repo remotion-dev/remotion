@@ -8,10 +8,10 @@ import {getOrCreateBucket} from '../api/get-or-create-bucket';
 import {getLambdaClient} from '../shared/aws-clients';
 import {
 	CURRENT_VERSION,
-	DEFAULT_EPHEMERAL_STORAGE_IN_MB,
 	LambdaPayload,
 	LambdaPayloads,
 	LambdaRoutines,
+	MAX_EPHEMERAL_STORAGE_IN_MB,
 	RenderMetadata,
 	renderMetadataKey,
 } from '../shared/constants';
@@ -142,8 +142,9 @@ const innerStillHandler = async (
 		region: getCurrentRegionInFunction(),
 		lambdasInvoked: 1,
 		architecture: getCurrentArchitecture(),
-		// TODO: Get from outside function
-		diskSizeInMb: DEFAULT_EPHEMERAL_STORAGE_IN_MB,
+		// We cannot determine the ephemeral storage size, so we
+		// overestimate the price, but will only have a miniscule effect (~0.2%)
+		diskSizeInMb: MAX_EPHEMERAL_STORAGE_IN_MB,
 	});
 
 	return {
