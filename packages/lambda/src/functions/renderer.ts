@@ -3,7 +3,6 @@ import {BrowserLog, RenderInternals, renderMedia} from '@remotion/renderer';
 import fs from 'fs';
 import path from 'path';
 import {Internals} from 'remotion';
-import {Log} from '../cli/log';
 import {getLambdaClient} from '../shared/aws-clients';
 import {
 	chunkKeyForIndex,
@@ -89,7 +88,7 @@ const renderHandler = async (
 		frameRange: params.frameRange,
 		onProgress: ({renderedFrames}) => {
 			if (renderedFrames % 100 === 0) {
-				Log.verbose(`Rendered ${renderedFrames} frames`);
+				console.log(`Rendered ${renderedFrames} frames`);
 			}
 
 			chunkTimingData.timings[renderedFrames] = Date.now() - start;
