@@ -14,7 +14,7 @@ Keep track of changes to the APIs of Remotion Lambda here.
 
 _Experimental version, stay with '2022-03-17' for well-tested version!_
 
-Version hash: `3.0.0-lambda.xxxxx`
+Version hash: `3.0.0-lambda.424+994a31b6b`
 Lambda version: '2022-04-02'
 
 Added the option to increase the Lambda disk space and therefore enable rendering of longer videos: [/docs/lambda/disk-size]
