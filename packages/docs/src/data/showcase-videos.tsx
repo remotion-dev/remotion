@@ -1111,6 +1111,20 @@ export const showcaseVideos: ShowcaseVideo[] = [
       "name": "Eason Chang"
     }
   },
+  {
+	title: "Old french TV trailer (tribute)",
+	type: "mux_video",
+	muxId: "7tmF019NZLRuazoq5I7WFdacYz8bjJb4BTDEQ5cEkFe4",
+	description: "Video tribute to an old TV jingle called \"La trilogie du samedi\" broadcasted in the early 2000s in France on the channel M6.",
+	height: 1080,
+	width: 1920,
+	submittedOn: new Date("04-01-2022"),
+	links: [],
+	author: {
+		"url": "https://twitter.com/Slashgear_",
+		"name": "Antoine Caron & Mickaël Alves"
+	}
+},
 ];
 
 const dateString = (date: Date) =>
