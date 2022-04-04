@@ -11,7 +11,37 @@ const BlueSquare: React.FC = () => <div></div>
 // - BlueSquare
 ```
 
-Using a Sequence, you can time-shift certain parts of your animation and therefore make them more reusable. Sequences are also shown in the timeline and help you visually understand the structure of your video.
+Sequences are small individual sections in finite time that make up your video clip. By using a sequence, you can time-shift the display of your components or parts of your animation in the video. 
+
+_For example, in a video trailer composed of an intro, a video clip and an outro, each part of it will be a Sequence, as each represents a sub-part of the video that should be displayed with a time-shift. (The intro should be displayed at the beginning plus disappear, same for the outro at the end...)_
+
+```tsx twoslash
+import { Sequence } from "remotion";
+
+export const Intro = () => <></>;
+export const Clip = () => <></>;
+export const Outro = () => <></>;
+
+// ---cut---
+
+const MyTrailer = () => {
+  return (
+    <>
+      <Sequence from={0}>
+        <Intro />
+      </Sequence>
+      <Sequence from={10}>
+        <Clip />
+      </Sequence>
+      <Sequence from={20}>
+        <Outro />
+      </Sequence>
+    </>
+  );
+};
+```
+
+Sequences usually appear as subparts of a composition, they are also displayed on the timeline on the Remotion development interface and help you to visually understand the structure of your video.
 
 ## API
 
@@ -110,4 +140,5 @@ See the [`<Series />`](/docs/series) helper component, which helps you calculate
 ## See also
 
 - [Reuse components using Sequences](/docs/reusability)
+- [`<Composition />`](/docs/composition)
 - [`<Series />`](/docs/series)
