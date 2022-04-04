@@ -1,9 +1,10 @@
 import {PutObjectCommand} from '@aws-sdk/client-s3';
 import {Upload} from '@aws-sdk/lib-storage';
+import {BundlerInternals} from '@remotion/bundler';
 import {createReadStream, promises as fs} from 'fs';
 import path from 'path';
-import {AwsRegion} from '../pricing/aws-regions';
 import {Privacy} from '../defaults';
+import {AwsRegion} from '../pricing/aws-regions';
 import {getS3Client} from '../shared/aws-clients';
 
 type FileInfo = {
@@ -84,6 +85,9 @@ export const uploadDir = async ({
 					Bucket: bucket,
 					Body,
 					ACL: privacy === 'private' ? 'private' : 'public-read',
+					ContentType:
+						BundlerInternals.mimeTypes.contentType(Key) ||
+						'application/octet-stream',
 				},
 			});
 			paralellUploads3.on('httpUploadProgress', (progress) => {
