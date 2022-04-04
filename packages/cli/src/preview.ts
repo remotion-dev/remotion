@@ -1,5 +1,3 @@
-// eslint-disable-next-line @typescript-eslint/prefer-ts-expect-error
-// @ts-ignore
 import {BundlerInternals} from '@remotion/bundler';
 import betterOpn from 'better-opn';
 import path from 'path';
