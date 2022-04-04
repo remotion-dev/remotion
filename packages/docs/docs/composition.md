@@ -3,7 +3,9 @@ id: composition
 title: <Composition />
 ---
 
-This is the component to use to register a video to make it renderable and make it show up in the sidebar of the Remotion Player.
+This is the component to use to register a video to make it renderable and make it show up in the sidebar of the Remotion development interface.
+
+A composition represents the video you want to create, as a collection of clips (for example, several `<Sequence>`) that will play back to back to form your video.
 
 ## API
 
@@ -89,4 +91,5 @@ export const MyVideo = () => {
 - [registerRoot()](/docs/register-root)
 - [The fundamentals](/docs/the-fundamentals)
 - [CLI options](/docs/cli)
+- [`<Sequence />`](/docs/sequence)
 - [`<Still />`](/docs/still)
