@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {Audio, continueRender, delayRender, Img, staticFile} from 'remotion';
+import {continueRender, delayRender, Img, staticFile} from 'remotion';
 
 export const StaticDemo: React.FC = () => {
 	const [handle1] = useState(() => delayRender());
