@@ -2,6 +2,7 @@ import {Protocol} from 'puppeteer-core';
 import {Internals} from 'remotion';
 import {readFile} from './assets/read-file';
 import {RawSourceMap, SourceMapConsumer} from 'source-map';
+import {StackFrame} from './parse-browser-error-stack';
 
 function extractSourceMapUrl(
 	fileUri: string,
@@ -73,7 +74,7 @@ export type ScriptLine = {
 };
 
 export type SymbolicatedStackFrame = {
-	originalFunctionName: string;
+	originalFunctionName: string | null;
 	originalFileName: string | null;
 	originalLineNumber: number | null;
 	originalColumnNumber: number | null;
@@ -87,14 +88,14 @@ function getLinesAround(
 ): ScriptLine[] {
 	const result: ScriptLine[] = [];
 	for (
-		let index = Math.max(0, line - 1 - count);
+		let index = Math.max(0, line - 1 - count) + 1;
 		index <= Math.min(lines.length - 1, line - 1 + count);
 		++index
 	) {
 		result.push({
 			lineNumber: index + 1,
 			content: lines[index],
-			highlight: index === line,
+			highlight: index + 1 === line,
 		});
 	}
 
@@ -114,10 +115,10 @@ const getOriginalPosition = (
 };
 
 export const symbolicateStackTrace = async (
-	frames: Protocol.Runtime.CallFrame[]
+	frames: StackFrame[]
 ): Promise<SymbolicatedStackFrame[]> => {
 	const uniqueFileNames = [
-		...new Set(frames.map((f) => f.url).filter(Internals.truthy)),
+		...new Set(frames.map((f) => f.fileName).filter(Internals.truthy)),
 	];
 	const maps = await Promise.all(
 		uniqueFileNames.map(async (fileName) => {
@@ -131,7 +132,7 @@ export const symbolicateStackTrace = async (
 	}
 
 	return frames.map((frame): SymbolicatedStackFrame => {
-		const map = mapValues[frame.url];
+		const map = mapValues[frame.fileName];
 		const pos = getOriginalPosition(map, frame.lineNumber, frame.columnNumber);
 
 		const {functionName} = frame;
@@ -147,7 +148,7 @@ export const symbolicateStackTrace = async (
 			originalColumnNumber: pos.column,
 			originalFileName: pos.source,
 			originalFunctionName: functionName,
-			originalLineNumber: pos.line ? pos.line + 1 : null,
+			originalLineNumber: pos.line ? pos.line : null,
 			originalScriptCode: scriptCode,
 		};
 	});

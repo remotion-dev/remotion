@@ -19,11 +19,11 @@ const printCodeFrame = (frame: SymbolicatedStackFrame) => {
 	if (!frame.originalScriptCode) {
 		return;
 	}
+	Log.info();
 	const longestLineNumber = Math.max(
 		...frame.originalScriptCode.map((script) => script.lineNumber)
 	).toString().length;
-	Log.info(chalk.underline(makeFileName(frame)));
-	Log.info();
+	Log.info('at', chalk.underline(makeFileName(frame)));
 	Log.info(
 		`${frame.originalScriptCode
 			.map((c) => {
@@ -38,6 +38,16 @@ const printCodeFrame = (frame: SymbolicatedStackFrame) => {
 	);
 };
 
+const logLine = (frame: SymbolicatedStackFrame) => {
+	Log.info(
+		chalk.gray(
+			`at ${frame.originalFunctionName} ${chalk.blueBright(
+				`(${makeFileName(frame)})`
+			)}`
+		)
+	);
+};
+
 export const printCodeFrameAndStack = (err: ErrorWithStackFrame) => {
 	const firstFrame = err.stackFrames[0];
 	Log.error(
@@ -45,13 +55,32 @@ export const printCodeFrameAndStack = (err: ErrorWithStackFrame) => {
 		err.message
 	);
 	printCodeFrame(firstFrame);
-	if (err.stackFrames.length > 1) {
-		Log.info();
-	}
+	Log.info();
 	for (const frame of err.stackFrames) {
 		if (frame === firstFrame) {
 			continue;
 		}
-		Log.info(`at ${frame.originalFunctionName} (${makeFileName(frame)})`);
+		logLine(frame);
+	}
+
+	if (err.delayRenderCall) {
+		Log.error();
+		Log.error('The delayRender() call is located at:');
+		for (const frame of err.delayRenderCall) {
+			const showCodeFrame =
+				(!frame.originalFileName?.includes('node_modules') &&
+					!frame.originalFileName?.startsWith('webpack/')) ||
+				frame === err.delayRenderCall[0] ||
+				frame.originalScriptCode
+					?.map((c) => c.content)
+					.join('')
+					.includes('delayRender');
+
+			if (showCodeFrame) {
+				printCodeFrame(frame);
+			} else {
+				logLine(frame);
+			}
+		}
 	}
 };
