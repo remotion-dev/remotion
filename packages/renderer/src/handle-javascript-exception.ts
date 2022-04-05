@@ -13,14 +13,15 @@ export class ErrorWithStackFrame extends Error {
 	errorType: string;
 	delayRenderCall: SymbolicatedStackFrame[] | null;
 
+	// eslint-disable-next-line max-params
 	constructor(
-		m: string,
+		message: string,
 		_stackFrames: SymbolicatedStackFrame[],
 		_frame: number | null,
 		_errorType: string,
 		_delayRenderCall: SymbolicatedStackFrame[] | null
 	) {
-		super(m);
+		super(message);
 		this.stackFrames = _stackFrames;
 		this.frame = _frame;
 		this.errorType = _errorType;
@@ -39,6 +40,7 @@ const cleanUpErrorMessage = (
 	if (errorMessage.startsWith(prefix)) {
 		errorMessage = errorMessage.substring(prefix.length);
 	}
+
 	const frames = exception.exceptionDetails.stackTrace?.callFrames.length ?? 0;
 	const split = errorMessage.split('\n');
 	return split.slice(0, split.length - frames).join('\n');
@@ -85,6 +87,7 @@ export const handleJavascriptException = ({
 			onError(err);
 			return;
 		}
+
 		const errorType = exception.exceptionDetails.exception?.className as string;
 		const delayRenderStack = await parseDelayRenderEmbeddedStack(
 			cleanErrorMessage
@@ -110,6 +113,7 @@ export const handleJavascriptException = ({
 			onError(err);
 		}
 	};
+
 	client.on('Runtime.exceptionThrown', handler);
 
 	return () => {
