@@ -115,7 +115,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 				startFrom: -mediaStartsAt,
 			});
 		})();
-		const handle = delayRender();
+		const handle = delayRender(`Rendering <Video /> with src="${props.src}"`);
 		if (process.env.NODE_ENV === 'test') {
 			continueRender(handle);
 			return;

@@ -8,7 +8,9 @@ const IFrameRefForwarding: React.ForwardRefRenderFunction<
 		HTMLIFrameElement
 	>
 > = ({onLoad, onError, ...props}, ref) => {
-	const [handle] = useState(() => delayRender());
+	const [handle] = useState(() =>
+		delayRender(`Loading <IFrame> with source ${props.src}`)
+	);
 
 	const didLoad = useCallback(
 		(e: React.SyntheticEvent<HTMLIFrameElement, Event>) => {
