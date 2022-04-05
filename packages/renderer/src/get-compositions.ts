@@ -25,11 +25,7 @@ const innerGetCompositions = async (
 	}
 ): Promise<TCompMetadata[]> => {
 	page.on('error', (err) => {
-		console.log(err);
-		config.onError(err);
-	});
-	page.on('pageerror', (err) => {
-		console.log(err);
+		console.log('errror', err);
 		config.onError(err);
 	});
 	if (config?.onBrowserLog) {

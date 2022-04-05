@@ -21,6 +21,7 @@ import {BrowserLog} from './browser-log';
 import {cycleBrowserTabs} from './cycle-browser-tabs';
 import {getActualConcurrency} from './get-concurrency';
 import {getRealFrameRange} from './get-frame-to-render';
+import {handleJavascriptException} from './handle-javascript-exception';
 import {DEFAULT_IMAGE_FORMAT} from './image-format';
 import {
 	getServeUrlWithFallback,
@@ -207,7 +208,10 @@ export const innerRenderFrames = async ({
 					);
 				};
 
-				freePage.on('pageerror', errorCallbackOnFrame);
+				const cleanupPageError = handleJavascriptException(
+					freePage,
+					errorCallbackOnFrame
+				);
 				freePage.on('error', errorCallbackOnFrame);
 				try {
 					await seekToFrame({frame, page: freePage});
@@ -290,7 +294,7 @@ export const innerRenderFrames = async ({
 				pool.release(freePage);
 				framesRendered++;
 				onFrameUpdate(framesRendered, frame);
-				freePage.off('pageerror', errorCallbackOnFrame);
+				cleanupPageError();
 				freePage.off('error', errorCallbackOnFrame);
 				return compressedAssets;
 			})

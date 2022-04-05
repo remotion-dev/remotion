@@ -128,31 +128,23 @@ export const still = async () => {
 	const renderProgress = createOverwriteableCliOutput(quietFlagProvided());
 	const renderStart = Date.now();
 
-	try {
-		await renderStill({
-			composition,
-			frame: stillFrame,
-			output: userOutput,
-			serveUrl,
-			quality,
-			dumpBrowserLogs: Internals.Logging.isEqualOrBelowLogLevel(
-				Internals.Logging.getLogLevel(),
-				'verbose'
-			),
-			envVariables,
-			imageFormat,
-			inputProps,
-			chromiumOptions,
-			timeoutInMilliseconds: Internals.getCurrentPuppeteerTimeout(),
-			scale,
-		});
-	} catch (err) {
-		Log.error();
-		Log.error('The following error occured when rendering the still:');
-
-		handleCommonError(err as Error);
-		process.exit(1);
-	}
+	await renderStill({
+		composition,
+		frame: stillFrame,
+		output: userOutput,
+		serveUrl,
+		quality,
+		dumpBrowserLogs: Internals.Logging.isEqualOrBelowLogLevel(
+			Internals.Logging.getLogLevel(),
+			'verbose'
+		),
+		envVariables,
+		imageFormat,
+		inputProps,
+		chromiumOptions,
+		timeoutInMilliseconds: Internals.getCurrentPuppeteerTimeout(),
+		scale,
+	});
 
 	const closeBrowserPromise = puppeteerInstance.close();
 	closeServer().catch((err) => {
