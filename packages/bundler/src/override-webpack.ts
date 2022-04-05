@@ -1,7 +1,7 @@
 import {Config, WebpackOverrideFn} from 'remotion';
 
 /**
- * Please use Config.Bundling.overrideWebpack() from now on.
+ * Please use Config.Bundling.overrideWebpackConfig() from now on.
  * See: https://www.remotion.dev/docs/webpack/
  * @deprecated
  */
