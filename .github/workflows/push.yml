@@ -10,7 +10,7 @@ jobs:
     name: Lambda integration
     steps:
       - uses: actions/checkout@main
-      - uses: actions/setup-node@v2
+      - uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node_version }}
       - uses: Iamshankhadeep/setup-ffmpeg@v1.1
@@ -45,7 +45,7 @@ jobs:
     name: SSR integration
     steps:
       - uses: actions/checkout@main
-      - uses: actions/setup-node@v2
+      - uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node_version }}
       - uses: Iamshankhadeep/setup-ffmpeg@v1.1
@@ -101,7 +101,7 @@ jobs:
             ffmpeg_version: 4.1
     steps:
       - uses: actions/checkout@main
-      - uses: actions/setup-node@v2
+      - uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node_version }}
       - uses: Iamshankhadeep/setup-ffmpeg@v1.1
