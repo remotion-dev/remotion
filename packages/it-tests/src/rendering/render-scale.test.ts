@@ -12,7 +12,7 @@ beforeEach(() => {
 
 test("Should be able to render video with scale 2", async () => {
   const task = execa(
-    "npx",
+    "pnpx",
     [
       "remotion",
       "render",
