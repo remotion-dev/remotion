@@ -75,6 +75,9 @@ export const uploadDir = async ({
 	const uploads = files.map(async (filePath) => {
 		const Key = `${folder}/${path.relative(dir, filePath.name)}`;
 		const Body = createReadStream(filePath.name);
+		const ContentType =
+			BundlerInternals.mimeTypes.lookup(Key) || 'application/octet-stream';
+		const ACL = privacy === 'private' ? 'private' : 'public-read';
 		if (filePath.size > 5 * 1024 * 1024) {
 			const paralellUploads3 = new Upload({
 				client,
@@ -84,10 +87,8 @@ export const uploadDir = async ({
 					Key,
 					Bucket: bucket,
 					Body,
-					ACL: privacy === 'private' ? 'private' : 'public-read',
-					ContentType:
-						BundlerInternals.mimeTypes.contentType(Key) ||
-						'application/octet-stream',
+					ACL,
+					ContentType,
 				},
 			});
 			paralellUploads3.on('httpUploadProgress', (progress) => {
@@ -101,10 +102,8 @@ export const uploadDir = async ({
 				Key,
 				Bucket: bucket,
 				Body,
-				ACL: privacy === 'private' ? 'private' : 'public-read',
-				ContentType: filePath.name.includes('index.html')
-					? 'text/html'
-					: undefined,
+				ACL,
+				ContentType,
 			})
 		);
 		progresses[filePath.name] = filePath.size;
