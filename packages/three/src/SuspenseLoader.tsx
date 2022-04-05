@@ -2,7 +2,9 @@ import React, { Suspense, useEffect, useState } from 'react';
 import { continueRender, delayRender } from 'remotion';
 
 const Unblocker: React.FC = () => {
-	const [handle] = useState(() => delayRender());
+	const [handle] = useState(() =>
+		delayRender(`Waiting for <Suspense /> of <ThreeCanvas /> to resolve`)
+	);
 	useEffect(() => {
 		return () => {
 			continueRender(handle);
