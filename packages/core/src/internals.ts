@@ -135,6 +135,7 @@ import {
 import {validateOpenGlRenderer} from './validation/validate-opengl-renderer';
 import {OpenGlRenderer} from './validation/validate-opengl-renderer';
 import {getPreviewDomElement} from './get-preview-dom-element';
+import {DELAY_RENDER_CALLSTACK_TOKEN} from './ready-manager';
 const Timeline = {...TimelinePosition, ...TimelineInOutPosition};
 
 // Mark them as Internals so use don't assume this is public
@@ -226,6 +227,7 @@ export const Internals = {
 	DEFAULT_OPENGL_RENDERER,
 	getPreviewDomElement,
 	compositionsRef,
+	DELAY_RENDER_CALLSTACK_TOKEN,
 };
 
 export type {
