@@ -9,6 +9,12 @@ if (typeof window !== 'undefined') {
 let handles: number[] = [];
 const timeouts: {[key: string]: number | NodeJS.Timeout} = {};
 
+/**
+ * Call this function to tell Remotion to wait before capturing this frame until data has loaded. Use continueRender() to unblock the render.
+ * @param description _optional_ A description to identify the call in case it does time out.
+ * @returns {number} An identifier to be passed to continueRender().
+ * @link https://www.remotion.dev/docs/delay-render
+ */
 export const delayRender = (description?: string): number => {
 	if (typeof description !== 'string' && typeof description !== 'undefined') {
 		throw new Error(
@@ -46,6 +52,11 @@ export const delayRender = (description?: string): number => {
 	return handle;
 };
 
+/**
+ * Unblock a render that has been blocked by delayRender()
+ * @param handle The return value of delayRender().
+ * @link https://www.remotion.dev/docs/continue-render
+ */
 export const continueRender = (handle: number): void => {
 	if (typeof handle === 'undefined') {
 		throw new TypeError(
