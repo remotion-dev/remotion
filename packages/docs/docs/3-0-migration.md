@@ -47,3 +47,21 @@ TODO
 ## Renamed `config` in `renderFrames()` to `composition`
 
 TODO
+
+## Deprecated `overrideWebpackConfig()` is removed
+
+```ts
+import { overrideWebpackConfig } from "@remotion/bundler";
+```
+
+in the config file is deprecated.
+
+Use
+
+```ts
+import { Config } from "remotion";
+
+Config.Bundling.overrideWebpackConfig();
+```
+
+instead.
