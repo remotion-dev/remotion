@@ -12,7 +12,7 @@ beforeEach(() => {
 
 test("Should be able to render video", async () => {
   const task = execa(
-    "npx",
+    "pnpx",
     [
       "remotion",
       "render",
@@ -42,7 +42,7 @@ test("Should be able to render video", async () => {
 
 test("Should fail to render out of range CRF", async () => {
   const task = await execa(
-    "npx",
+    "pnpx",
     [
       "remotion",
       "render",
@@ -68,7 +68,7 @@ test("Should fail to render out of range frame when range is a number", async ()
   const out = outputPath.replace(".mp4", "");
 
   const task = await execa(
-    "npx",
+    "pnpx",
     [
       "remotion",
       "render",
@@ -91,7 +91,7 @@ test("Should fail to render out of range frame when range is a number", async ()
 
 test("Should fail to render out of range frame when range is a string", async () => {
   const task = await execa(
-    "npx",
+    "pnpx",
     [
       "remotion",
       "render",
@@ -112,7 +112,7 @@ test("Should fail to render out of range frame when range is a string", async ()
 test("Should render a ProRes video", async () => {
   const out = outputPath.replace(".mp4", ".mov");
   const task = await execa(
-    "npx",
+    "pnpx",
     [
       "remotion",
       "render",
@@ -143,7 +143,7 @@ test("Should render a still image if single frame specified", async () => {
   const outDir = outputPath.replace(".mp4", "");
   const outImg = path.join(outDir, "element-2.png");
   const task = await execa(
-    "npx",
+    "pnpx",
     [
       "remotion",
       "render",
@@ -172,7 +172,7 @@ test("Should render a still image if single frame specified", async () => {
 test("Should be able to render a WAV audio file", async () => {
   const out = outputPath.replace("mp4", "wav");
   const task = execa(
-    "npx",
+    "pnpx",
     ["remotion", "render", "src/index.tsx", "audio-testing", out],
     {
       cwd: path.join(process.cwd(), "..", "example"),
@@ -197,7 +197,7 @@ test("Should be able to render a WAV audio file", async () => {
 test("Should be able to render a MP3 audio file", async () => {
   const out = outputPath.replace("mp4", "mp3");
   const task = execa(
-    "npx",
+    "pnpx",
     ["remotion", "render", "src/index.tsx", "audio-testing", out],
     {
       cwd: path.join(process.cwd(), "..", "example"),
@@ -223,7 +223,7 @@ test("Should be able to render a MP3 audio file", async () => {
 test("Should be able to render a AAC audio file", async () => {
   const out = outputPath.replace("mp4", "aac");
   const task = execa(
-    "npx",
+    "pnpx",
     ["remotion", "render", "src/index.tsx", "audio-testing", out],
     {
       cwd: path.join(process.cwd(), "..", "example"),
@@ -248,7 +248,7 @@ test("Should be able to render a AAC audio file", async () => {
 
 test("Should render a video with GIFs", async () => {
   const task = await execa(
-    "npx",
+    "pnpx",
     ["remotion", "render", "src/index.tsx", "gif", "--frames=0-47", outputPath],
     {
       cwd: path.join(process.cwd(), "..", "example"),
@@ -269,7 +269,7 @@ test("Should render a video with Offline Audio-context", async () => {
   const out = outputPath.replace(".mp4", ".mp3");
 
   const task = await execa(
-    "npx",
+    "pnpx",
     ["remotion", "render", "src/index.tsx", "offline-audio-buffer", out],
     {
       cwd: path.join(process.cwd(), "..", "example"),
@@ -289,7 +289,7 @@ test("Should render a video with Offline Audio-context", async () => {
 test("Should fail to render an audio file that doesn't have any audio inputs", async () => {
   const out = outputPath.replace(".mp4", ".mp3");
   const task = await execa(
-    "npx",
+    "pnpx",
     ["remotion", "render", "src/index.tsx", "ten-frame-tester", out],
     {
       cwd: path.join(process.cwd(), "..", "example"),
@@ -307,7 +307,7 @@ test("Should fail to render an audio file that doesn't have any audio inputs", a
 test("Should render a still that uses the staticFile() API", async () => {
   const out = outputPath.replace(".mp4", ".png");
   const task = await execa(
-    "npx",
+    "pnpx",
     ["remotion", "still", "src/index.tsx", "static-demo", out, "--log=verbose"],
     {
       cwd: path.join(process.cwd(), "..", "example"),
@@ -321,7 +321,7 @@ test("Should render a still that uses the staticFile() API", async () => {
 test("Dynamic duration should work", async () => {
   const randomDuration = Math.round(Math.random() * 18 + 2);
   const task = await execa(
-    "npx",
+    "pnpx",
     [
       "remotion",
       "render",

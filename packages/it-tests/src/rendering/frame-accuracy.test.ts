@@ -17,7 +17,7 @@ const getMissedFramesforCodec = async (codec: "mp4" | "webm") => {
   // render the VideoTesting example (which contains the Framer composition embedded with <Video>) to an image
   // sequence which can be checked for accuracy
   await execa(
-    "npx",
+    "pnpx",
     [
       "remotion",
       "render",
