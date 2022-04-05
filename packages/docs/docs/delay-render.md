@@ -56,6 +56,8 @@ See the [Timeout](/docs/timeout) page to troubleshoot timeouts.
 
 ## Adding a label
 
+_Available from v2.6.13_
+
 If you encounter a timeout and don't know where it came from, you can add a label as a parameter:
 
 ```tsx twoslash
