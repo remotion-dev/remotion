@@ -63,12 +63,14 @@ export const continueRender = (handle: number): void => {
 			'The continueRender() method must be called with a parameter that is the return value of delayRender(). No value was passed.'
 		);
 	}
+
 	if (typeof handle !== 'number') {
 		throw new TypeError(
 			'The parameter passed into continueRender() must be the return value of delayRender() which is a number. Got: ' +
 				JSON.stringify(handle)
 		);
 	}
+
 	handles = handles.filter((h) => {
 		if (h === handle) {
 			if (getRemotionEnvironment() === 'rendering') {
