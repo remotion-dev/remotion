@@ -65,6 +65,7 @@ export const cli = async () => {
 			process.exit(1);
 		}
 	} catch (err) {
+		Log.error('An error occurred:');
 		handleCommonError(err as Error);
 		process.exit(1);
 	}

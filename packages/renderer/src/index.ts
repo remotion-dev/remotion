@@ -23,7 +23,8 @@ import {getRealFrameRange} from './get-frame-to-render';
 import {downloadFile} from './assets/download-file';
 import {validateScale} from './validate-scale';
 import {killAllBrowsers} from './open-browser';
-
+export {ErrorWithStackFrame} from './handle-javascript-exception';
+export {SymbolicatedStackFrame} from './symbolicate-stacktrace';
 export {
 	renderMedia,
 	RenderMediaOnProgress,

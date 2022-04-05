@@ -8,6 +8,7 @@ import {
 	TCompMetadata,
 } from 'remotion';
 import {ensureOutputDirectory} from './ensure-output-directory';
+import {handleJavascriptException} from './handle-javascript-exception';
 import {
 	getServeUrlWithFallback,
 	ServeUrlOrWebpackBundle,
@@ -130,7 +131,7 @@ const innerRenderStill = async ({
 	});
 
 	const cleanup = async () => {
-		page.off('pageerror', errorCallback);
+		cleanUpJSException();
 
 		if (puppeteerInstance) {
 			await page.close();
@@ -146,7 +147,7 @@ const innerRenderStill = async ({
 		cleanup();
 	};
 
-	page.on('pageerror', errorCallback);
+	const cleanUpJSException = handleJavascriptException(page, errorCallback);
 	await setPropsAndEnv({
 		inputProps,
 		envVariables,
