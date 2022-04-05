@@ -21,7 +21,9 @@ export const useAudioData = (src: string): AudioData | null => {
 	const [metadata, setMetadata] = useState<AudioData | null>(null);
 
 	const fetchMetadata = useCallback(async () => {
-		const handle = delayRender();
+		const handle = delayRender(
+			`Waiting for audio metadata with src="${src}" to be loaded`
+		);
 		const data = await getAudioData(src);
 		if (mountState.current.isMounted) {
 			setMetadata(data);
