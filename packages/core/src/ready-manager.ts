@@ -11,15 +11,15 @@ const timeouts: {[key: string]: number | NodeJS.Timeout} = {};
 
 /**
  * Call this function to tell Remotion to wait before capturing this frame until data has loaded. Use continueRender() to unblock the render.
- * @param description _optional_ A description to identify the call in case it does time out.
+ * @param label _optional_ A label to identify the call in case it does time out.
  * @returns {number} An identifier to be passed to continueRender().
  * @link https://www.remotion.dev/docs/delay-render
  */
-export const delayRender = (description?: string): number => {
-	if (typeof description !== 'string' && typeof description !== 'undefined') {
+export const delayRender = (label?: string): number => {
+	if (typeof label !== 'string' && typeof label !== 'undefined') {
 		throw new Error(
-			'The description parameter of delayRender() must be a string or undefined, got: ' +
-				JSON.stringify(description)
+			'The label parameter of delayRender() must be a string or undefined, got: ' +
+				JSON.stringify(label)
 		);
 	}
 
@@ -35,7 +35,7 @@ export const delayRender = (description?: string): number => {
 		timeouts[handle] = setTimeout(() => {
 			const message = [
 				`A delayRender()`,
-				description ? `"${description}"` : null,
+				label ? `"${label}"` : null,
 				`was called but not cleared after ${timeoutToUse}ms. See https://remotion.dev/docs/timeout for help. The delayRender was called: ${called}`,
 			]
 				.filter(truthy)
