@@ -147,7 +147,7 @@ export const symbolicateStackTrace = async (
 			originalColumnNumber: pos.column,
 			originalFileName: pos.source,
 			originalFunctionName: functionName,
-			originalLineNumber: pos.line,
+			originalLineNumber: pos.line ? pos.line + 1 : null,
 			originalScriptCode: scriptCode,
 		};
 	});

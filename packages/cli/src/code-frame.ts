@@ -39,13 +39,19 @@ const printCodeFrame = (frame: SymbolicatedStackFrame) => {
 };
 
 export const printCodeFrameAndStack = (err: ErrorWithStackFrame) => {
-	const firstFrame = err.frames[0];
+	const firstFrame = err.stackFrames[0];
+	Log.error(
+		chalk.bgRed(chalk.white(` ${err.errorType} `.toUpperCase())),
+		err.message
+	);
 	printCodeFrame(firstFrame);
-	Log.info();
-	for (const frame of err.frames) {
+	if (err.stackFrames.length > 1) {
+		Log.info();
+	}
+	for (const frame of err.stackFrames) {
 		if (frame === firstFrame) {
 			continue;
 		}
-		console.log(`at ${frame.originalFunctionName} (${makeFileName(frame)})`);
+		Log.info(`at ${frame.originalFunctionName} (${makeFileName(frame)})`);
 	}
 };

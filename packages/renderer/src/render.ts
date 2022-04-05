@@ -201,17 +201,14 @@ export const innerRenderFrames = async ({
 				const paddedIndex = String(frame).padStart(filePadLength, '0');
 
 				const errorCallbackOnFrame = (err: Error) => {
-					onError(
-						new Error(
-							`Error on rendering frame ${frame}: ${err.stack || err.message}`
-						)
-					);
+					onError(err);
 				};
 
-				const cleanupPageError = handleJavascriptException(
-					freePage,
-					errorCallbackOnFrame
-				);
+				const cleanupPageError = handleJavascriptException({
+					page: freePage,
+					onError: errorCallbackOnFrame,
+					frame,
+				});
 				freePage.on('error', errorCallbackOnFrame);
 				try {
 					await seekToFrame({frame, page: freePage});

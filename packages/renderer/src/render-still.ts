@@ -147,7 +147,11 @@ const innerRenderStill = async ({
 		cleanup();
 	};
 
-	const cleanUpJSException = handleJavascriptException(page, errorCallback);
+	const cleanUpJSException = handleJavascriptException({
+		page,
+		onError: errorCallback,
+		frame: null,
+	});
 	await setPropsAndEnv({
 		inputProps,
 		envVariables,
