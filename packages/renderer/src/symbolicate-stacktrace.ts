@@ -1,4 +1,3 @@
-import {Protocol} from 'puppeteer-core';
 import {Internals} from 'remotion';
 import {readFile} from './assets/read-file';
 import {RawSourceMap, SourceMapConsumer} from 'source-map';
@@ -12,7 +11,7 @@ function extractSourceMapUrl(
 	let match = null;
 	for (;;) {
 		const next = regex.exec(fileContents);
-		if (next == null) {
+		if (next === null || next === undefined) {
 			break;
 		}
 
