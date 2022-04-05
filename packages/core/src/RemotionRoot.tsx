@@ -30,7 +30,7 @@ export const RemotionRoot: React.FC = ({children}) => {
 	useLayoutEffect(() => {
 		if (typeof window !== 'undefined') {
 			window.remotion_setFrame = (f: number) => {
-				const id = delayRender();
+				const id = delayRender(`Setting the current frame to ${f}`);
 				setFrame(f);
 				requestAnimationFrame(() => continueRender(id));
 			};
