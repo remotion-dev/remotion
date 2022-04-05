@@ -27,11 +27,11 @@ if (!Root) {
 	throw new Error('Root has not been registered.');
 }
 
-const handle = delayRender();
+const handle = delayRender('Loading root component');
 
 const Fallback: React.FC = () => {
 	useEffect(() => {
-		const fallback = delayRender();
+		const fallback = delayRender('Waiting for Root component to unsuspend');
 		return () => continueRender(fallback);
 	}, []);
 	return null;
