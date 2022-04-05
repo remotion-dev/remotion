@@ -11,7 +11,7 @@ For general information concerning contribution, please consult [CONTRIBUTION.md
 
 ### Running tests
 
-There are tests in each package as well as end-to-end tests in the root of the monorepo. Run `npm test` in a package, or in the root to run all tests. Run `npx jest` to only run unit tests and skip linting.
+There are tests in each package as well as end-to-end tests in the root of the monorepo. Run `npm test` in a package, or in the root to run all tests. Run `pnpx jest` to only run unit tests and skip linting.
 
 ### Mutation Testing
 
@@ -39,7 +39,7 @@ To setup mutation testing in the core package, cd to the `packages/core`director
     }
 
 Under `"mutate"` you can specify the files you want stryker to mutate for you.
-Then to run the mutation tests use `npx stryker run`.
+Then to run the mutation tests use `pnpx stryker run`.
 In case you run into error on _Windows_ where Stryker and Jest won't run any test cases, try one of these [workarounds](https://github.com/stryker-mutator/stryker-js/issues/2122#issuecomment-605783668).
 After running Stryker you can find the report under `packages/core/reports/mutation` and see how many mutants have been killed by your test cases and how many have survived.
 
