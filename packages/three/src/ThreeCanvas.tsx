@@ -21,7 +21,9 @@ const Scale = ({ width, height }: { width: number; height: number }) => {
 
 export const ThreeCanvas = (props: ThreeCanvasProps) => {
 	const { children, width, height, style, onCreated, ...rest } = props;
-	const [waitForCreated] = useState(() => delayRender());
+	const [waitForCreated] = useState(() =>
+		delayRender('Waiting for <ThreeCanvas/> to be created')
+	);
 
 	Internals.validateDimension(
 		width,

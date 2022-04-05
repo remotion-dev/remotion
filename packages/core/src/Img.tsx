@@ -8,7 +8,9 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 		HTMLImageElement
 	>
 > = ({onLoad, onError, ...props}, ref) => {
-	const [handle] = useState(() => delayRender());
+	const [handle] = useState(() =>
+		delayRender('Loading <Img> with src=' + props.src)
+	);
 
 	useEffect(() => {
 		if (
