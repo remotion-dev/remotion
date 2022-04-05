@@ -1,6 +1,6 @@
 {
   "name": "@remotion/it-tests",
-  "version": "2.6.12",
+  "version": "2.6.13",
   "license": "SEE LICENSE IN LICENSE.md",
   "scripts": {
     "test": "jest --runInBand"
