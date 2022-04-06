@@ -48,13 +48,15 @@ const GetVideo = () => {
 		}
 
 		if (!video && compositions.compositions.length > 0) {
-			compositions.setCurrentComposition(
-				(
-					compositions.compositions.find(
-						(c) => c.id === Internals.getCompositionName()
-					) as TComposition
-				)?.id ?? null
-			);
+			const foundComposition = compositions.compositions.find(
+				(c) => c.id === Internals.getCompositionName()
+			) as TComposition;
+			if (!foundComposition) {
+				throw new Error(
+					'Found no composition with the name ' + Internals.getCompositionName()
+				);
+			}
+			compositions.setCurrentComposition(foundComposition?.id ?? null);
 		}
 	}, [compositions, compositions.compositions, video]);
 
