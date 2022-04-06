@@ -56,6 +56,7 @@ const GetVideo = () => {
 					'Found no composition with the name ' + Internals.getCompositionName()
 				);
 			}
+
 			compositions.setCurrentComposition(foundComposition?.id ?? null);
 		}
 	}, [compositions, compositions.compositions, video]);
