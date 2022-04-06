@@ -9,6 +9,12 @@ import {VideoConfig} from './video-config';
 export const useVideoConfig = (): VideoConfig => {
 	const videoConfig = useUnsafeVideoConfig();
 
+	if (typeof window !== 'undefined' && window.remotion_isPlayer) {
+		throw new Error(
+			'No video config found. You are probably calling useVideoConfig() from outside the component passed to <Player />. See https://www.remotion.dev/docs/player/examples for how to set up the Player correctly.'
+		);
+	}
+
 	if (!videoConfig) {
 		throw new Error(
 			'No video config found. You are probably calling useVideoConfig() from a component which has not been registered as a <Composition />. See https://www.remotion.dev/docs/the-fundamentals#defining-compositions for more information.'
