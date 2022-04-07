@@ -496,7 +496,7 @@ export function launchEditor({
 		_childProcess = child_process.spawn(
 			'cmd.exe',
 			['/C', editor].concat(args),
-			{stdio: 'inherit'}
+			{stdio: 'inherit', detached: true}
 		);
 	} else {
 		_childProcess = child_process.spawn(editor, args, {stdio: 'inherit'});
