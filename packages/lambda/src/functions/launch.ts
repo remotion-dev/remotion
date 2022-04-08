@@ -59,6 +59,8 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		throw new Error('Expected launch type');
 	}
 
+	const startedDate = Date.now();
+
 	const [browserInstance, optimization] = await Promise.all([
 		getBrowserInstance(
 			Internals.Logging.isEqualOrBelowLogLevel(
@@ -158,7 +160,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		return payload;
 	});
 	const renderMetadata: RenderMetadata = {
-		startedDate: Date.now(),
+		startedDate,
 		videoConfig: comp,
 		totalChunks: chunks.length,
 		estimatedTotalLambdaInvokations: [
