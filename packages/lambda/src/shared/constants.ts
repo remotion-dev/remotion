@@ -167,7 +167,6 @@ export enum LambdaRoutines {
 	start = 'start',
 	launch = 'launch',
 	status = 'status',
-	fire = 'fire',
 	renderer = 'renderer',
 	still = 'still',
 }
@@ -221,11 +220,6 @@ export type LambdaPayloads = {
 		timeoutInMilliseconds: number;
 		chromiumOptions: ChromiumOptions;
 		scale: number;
-	};
-	fire: {
-		type: LambdaRoutines.fire;
-		payloads: unknown[];
-		renderId: string;
 	};
 	status: {
 		type: LambdaRoutines.status;
@@ -311,6 +305,7 @@ export type RenderMetadata = {
 };
 
 export type LambdaVersions =
+	| '2022-04-08'
 	| '2022-04-05'
 	| '2022-04-02'
 	| '2022-03-29'
@@ -369,7 +364,7 @@ export type LambdaVersions =
 	| '2021-06-23'
 	| 'n/a';
 
-export const CURRENT_VERSION: LambdaVersions = '2022-04-05';
+export const CURRENT_VERSION: LambdaVersions = '2022-04-08';
 
 export type PostRenderData = {
 	cost: {
