@@ -225,7 +225,7 @@ export const renderCommand = async (args: string[]) => {
 					`Estimated cost $${newStatus.costs.displayCost}`,
 				]
 					.filter(Boolean)
-					.join(' ')
+					.join(', ')
 			);
 
 			quit(0);
