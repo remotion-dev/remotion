@@ -3,7 +3,6 @@ import {RenderInternals} from '@remotion/renderer';
 import fs from 'fs';
 import {Internals} from 'remotion';
 import {getLambdaClient} from '../shared/aws-clients';
-import {chunk} from '../shared/chunk';
 import {
 	CURRENT_VERSION,
 	EncodingProgress,
@@ -59,6 +58,8 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 	if (params.type !== LambdaRoutines.launch) {
 		throw new Error('Expected launch type');
 	}
+
+	const startedDate = Date.now();
 
 	const [browserInstance, optimization] = await Promise.all([
 		getBrowserInstance(
@@ -159,7 +160,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		return payload;
 	});
 	const renderMetadata: RenderMetadata = {
-		startedDate: Date.now(),
+		startedDate,
 		videoConfig: comp,
 		totalChunks: chunks.length,
 		estimatedTotalLambdaInvokations: [
@@ -194,20 +195,15 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		expectedBucketOwner: options.expectedBucketOwner,
 	});
 
-	const payloadChunks = chunk(lambdaPayloads, invokers);
 	await Promise.all(
-		payloadChunks.map(async (payloads, index) => {
+		lambdaPayloads.map(async (payload, index) => {
 			const callingLambdaTimer = timer('Calling chunk ' + index);
-			const firePayload: LambdaPayload = {
-				type: LambdaRoutines.fire,
-				payloads,
-				renderId: params.renderId,
-			};
+
 			await getLambdaClient(getCurrentRegionInFunction()).send(
 				new InvokeCommand({
 					FunctionName: process.env.AWS_LAMBDA_FUNCTION_NAME,
 					// @ts-expect-error
-					Payload: JSON.stringify(firePayload),
+					Payload: JSON.stringify(payload),
 					InvocationType: 'Event',
 				}),
 				{}
