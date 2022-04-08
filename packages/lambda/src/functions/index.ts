@@ -5,7 +5,6 @@ import {
 	LambdaRoutines,
 } from '../shared/constants';
 import {LambdaReturnValues} from '../shared/return-values';
-import {fireHandler} from './fire';
 import {deleteTmpDir} from './helpers/clean-tmpdir';
 import {getWarm, setWarm} from './helpers/is-warm';
 import {printCloudwatchHelper} from './helpers/print-cloudwatch-helper';
@@ -65,13 +64,6 @@ export const handler = async <T extends LambdaRoutines>(
 			expectedBucketOwner: currentUserId,
 			timeoutInMiliseconds,
 		});
-	}
-
-	if (params.type === LambdaRoutines.fire) {
-		printCloudwatchHelper(LambdaRoutines.fire, {
-			renderId: params.renderId,
-		});
-		return fireHandler(params);
 	}
 
 	if (params.type === LambdaRoutines.renderer) {
