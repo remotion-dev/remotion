@@ -167,7 +167,15 @@ export const getDisplayNameForEditor = (
 		return null;
 	}
 
-	return displayNameForEditor[editor] ?? editor;
+	const endsIn = Object.keys(displayNameForEditor).find((displayNameKey) => {
+		return editor.endsWith(displayNameKey);
+	});
+
+	return (
+		displayNameForEditor[editor] ??
+		displayNameForEditor[endsIn as keyof typeof displayNameForEditor] ??
+		editor
+	);
 };
 
 type Editor = typeof editorNames[number];
