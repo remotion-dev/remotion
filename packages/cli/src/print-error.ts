@@ -4,10 +4,10 @@ import {Log} from './log';
 
 export const printError = (err: Error) => {
 	if (err instanceof ErrorWithStackFrame) {
-		if (err.frame !== null) {
-			Log.error(`An error occurred while rendering frame ${err.frame}:`);
-		} else {
+		if (err.frame === null) {
 			Log.error('An error occurred:');
+		} else {
+			Log.error(`An error occurred while rendering frame ${err.frame}:`);
 		}
 
 		printCodeFrameAndStack(err);
@@ -15,5 +15,5 @@ export const printError = (err: Error) => {
 	}
 
 	Log.error('An error occurred:');
-	Log.error(err.stack);
+	Log.error(err.stack || err);
 };
