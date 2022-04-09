@@ -10,7 +10,7 @@ When upgrading from Remotion 2 to Remotion 3, note the following changes and app
 
 Instead, the composition ID is now embedded in the `config` object.
 
-**Upgrade path:** Remove the `compositionId` property from `renderFrames()`.
+**Upgrade path:** Remove the `compositionId` property from `renderFrames()`. Add the `composition.id` property to `renderFrames()` or pull the object from `getCompositions()`.
 
 ## Errors thrown in your app make the render fail
 

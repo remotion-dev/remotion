@@ -11,7 +11,7 @@ import {LambdaRegionList} from '../components/lambda/regions.tsx';
 :::warning
 **Beta**: APIs might undergo minor changes. Updates will be provided on the #lambda channel on Discord.
 
-**No release timeline**: The project is in active development but will not be rushed to a release but instead we want to ensure it's futureproof.
+**Not released yet**: We are in the process of cleaning up code and docs and preparing marketing material.
 :::
 
 ## When should I use it?
@@ -26,9 +26,9 @@ If one of those those constraints is a dealbreaker for you, resort to normal [se
 
 - A Lambda function and a S3 bucket is created on AWS.
 - A Remotion project gets deployed to a S3 bucket as a website.
-- The lambda function can invoke a render.
-- A lot of lambda functions are created in parallel which each render a small part of the video
-- The initial lambda function downloads the videos and stitches them together.
+- The Lambda function can invoke a render.
+- A lot of Lambda functions are created in parallel which each render a small part of the video
+- The initial Lambda function downloads the videos and stitches them together.
 - The final video gets uploaded to S3 and is available for download.
 
 ## Architecture
@@ -52,7 +52,7 @@ The following regions are available for Remotion Lambda:
 
 ## Limitations
 
-- You only have 512MB of storage available in lambda function. This must be sufficient for both the chunks and the output, therefore the output file can only be about ~250MB maximum.
+- You only have up to 10GB of storage available in a Lambda function. This must be sufficient for both the chunks and the output, therefore the output file can only be about 5GB maximum, limiting the maximum video length to around 2 hours of Full HD video.
 - Lambda has a global limit of 1000 concurrent lambdas per region by default, although it can be increased.
 
 ## Cost
