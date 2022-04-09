@@ -138,6 +138,10 @@ _optional, available from v2.6.5_
 
 Allows you to set certain Chromium / Google Chrome flags. See: [Chromium flags](/docs/chromium-flags).
 
+:::note
+Chromium flags need to be set at browser launch. If you pass an instance using [`puppeteerInstance`](#puppeteerinstance), options passed to `renderStill()` will not apply, but rather the flags that have been passed to [`openBrowser()`](/docs/renderer/open-browser).
+:::
+
 #### `disableWebSecurity`
 
 _boolean - default `false`_
