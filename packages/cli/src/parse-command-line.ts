@@ -156,10 +156,6 @@ export const parseCommandLine = (
 		Internals.setStillFrame(Number(parsedCli.frame));
 	}
 
-	if (parsedCli['frames-per-lambda']) {
-		Internals.setFramesPerLambda(parsedCli['frames-per-lambda']);
-	}
-
 	if (parsedCli.png) {
 		Log.warn(
 			'The --png flag has been deprecrated. Use --sequence --image-format=png from now on.'
