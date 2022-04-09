@@ -49,7 +49,7 @@ One of the [supported regions](/docs/lambda/region-selection) of Remotion Lambda
 
 ### `service`
 
-One of `lambda`, `cloudwatch`, `iam` and `s3`.
+One of `lambda`, `cloudwatch`, `iam`, `servicequotas` and `s3`.
 
 ## Return value
 
@@ -62,6 +62,7 @@ An AWS SDK client instantiated with the region you passed and the credentials yo
 - For `s3`: An instance of [S3Client](https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/clients/client-s3/classes/s3client.html)
 - For `iam`: An instance of [IAMClient](https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/clients/client-iam/classes/iamclient.html)
 - For `cloudwatch`: An instance of [CloudWatchLogsClient](https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/clients/client-cloudwatch-logs/classes/cloudwatchlogsclient.html)
+- For `servicequotas`: An instance of [ServiceQuotasClient](https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/clients/client-service-quotas/classes/servicequotasclient.html)
 - For `lambda`: An instance of [LambdaClient](https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/clients/client-lambda/classes/lambdaclient.html)
 
 ### sdk
@@ -71,6 +72,7 @@ The full SDK JavaScript module for the service you specified.
 - For `s3`: The [`@aws-sdk/client-s3`](https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/clients/client-s3/index.html#aws-sdkclient-s3) package
 - For `iam`: The [`@aws-sdk/client-iam`](https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/clients/client-iam/index.html#aws-sdkclient-iam) package
 - For `cloudwatch`: The [`@aws-sdk/client-cloudwatch-logs`](https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/clients/client-cloudwatch-logs/index.html#aws-sdkclient-cloudwatch-logs) package
+- For `servicequotas`: The [`@aws-sdk/client-service-quotas`](https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/clients/client-service-quotas/index.html) package
 - For `lambda`: The [`@aws-sdk/client-lambda`](https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/clients/client-lambda/index.html#aws-sdkclient-lambda) package
 
 :::note
