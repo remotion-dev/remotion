@@ -215,7 +215,17 @@ export const renderCommand = async (args: string[]) => {
 			}
 
 			Log.info(
-				`${newStatus.renderMetadata?.estimatedTotalLambdaInvokations} λ's used, Estimated cost $${newStatus.costs.displayCost}`
+				[
+					newStatus.renderMetadata
+						? `${newStatus.renderMetadata.estimatedTotalLambdaInvokations} λ's used`
+						: null,
+					newStatus.timeToFinish
+						? `${(newStatus.timeToFinish / 1000).toFixed(2)}sec`
+						: null,
+					`Estimated cost $${newStatus.costs.displayCost}`,
+				]
+					.filter(Boolean)
+					.join(', ')
 			);
 
 			quit(0);
