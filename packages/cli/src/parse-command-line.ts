@@ -44,7 +44,6 @@ export type CommandLineOptions = {
 	help: boolean;
 	port: number;
 	frame: string | number;
-	siteName: string;
 	['disable-headless']: boolean;
 	gl: OpenGlRenderer;
 };
