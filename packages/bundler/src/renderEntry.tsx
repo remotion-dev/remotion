@@ -50,13 +50,16 @@ const GetVideo: React.FC<{state: BundleState}> = ({state}) => {
 		}
 
 		if (!video && compositions.compositions.length > 0) {
-			compositions.setCurrentComposition(
-				(
-					compositions.compositions.find(
-						(c) => c.id === state.compositionName
-					) as TComposition
-				)?.id ?? null
-			);
+			const foundComposition = compositions.compositions.find(
+				(c) => c.id === state.compositionName
+			) as TComposition;
+			if (!foundComposition) {
+				throw new Error(
+					'Found no composition with the name ' + state.compositionName
+				);
+			}
+
+			compositions.setCurrentComposition(foundComposition?.id ?? null);
 		}
 	}, [compositions, compositions.compositions, state, video]);
 

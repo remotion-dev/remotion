@@ -10,6 +10,16 @@ Keep track of changes to the APIs of Remotion Lambda here.
 
 [Upgrading](/docs/lambda/upgrading)
 
+## April 5th, 2022
+
+_Experimental version, stay with '2022-03-17' for well-tested version!_
+
+Version hash: `3.0.0-lambda.439+8583491c7`
+Lambda version: '2022-04-05'
+
+- When uploading files to S3, add the appropriate MIME type to every file. For example an .mp3 file has an `audio/mpeg` Content-Type.
+- Changes from 2.6.13
+
 ## April 2nd, 2022
 
 _Experimental version, stay with '2022-03-17' for well-tested version!_
