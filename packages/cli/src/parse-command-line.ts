@@ -22,7 +22,6 @@ export type CommandLineOptions = {
 	['prores-profile']: ProResProfile;
 	['bundle-cache']: string;
 	['env-file']: string;
-	['frames-per-lambda']: number;
 	['ignore-certificate-errors']: string;
 	['disable-web-security']: string;
 	codec: Codec;
