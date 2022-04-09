@@ -17,7 +17,7 @@ Example: You render a video that has a `durationInFrames` of `300` with a `frame
 
 ## Default values
 
-By default, Remotion chooses a value between 20 and 120 for `framesPerLambda`. The longer the video, the higher the concurrency. As a baseline, no matter how short the video, always at least 20 frames are rendered per Lambda.
+By default, Remotion chooses a value between 20 and ∞ for `framesPerLambda`. The longer the video, the higher the concurrency. As a baseline, no matter how short the video, always at least 20 frames are rendered per Lambda.
 
 The following chart shows how the `framesPerLambda` and the implied concurrency is chosen based on the frame count:
 

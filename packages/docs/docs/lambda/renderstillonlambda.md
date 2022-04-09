@@ -112,13 +112,9 @@ It can either be:
 
 ### `timeoutInMilliseconds?`
 
-_optional, available from v2.6.2_
-
 A number describing how long the render may take to resolve all `delayRender()` calls before it times out. Default: `30000`
 
 ### `chromiumOptions?`
-
-_optional, available from v2.6.5_
 
 Allows you to set certain Chromium / Google Chrome flags. See: [Chromium flags](/docs/chromium-flags).
 
