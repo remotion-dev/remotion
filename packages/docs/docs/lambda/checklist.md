@@ -20,12 +20,12 @@ Adding too much memory to your Lambda functions can make rendering more costly. 
 
 ### Maximum file size
 
-Lambda is constrained to a maximum output file size of approximately 250MB. Test the file sizes of your outputs and make sure they don't run at risk of exceeding the limit.
+Lambda is constrained to a maximum output file size of approximately [half the disk space](/docs/lambda/disk-size). Adjust the disk space parameter of Lambda to accomodate for the maximum video length that you would like to support. Test the file sizes of your outputs and make sure they don't run at risk of exceeding the limit.
 If your video is based on user input, prevent your users from rendering very long videos that would exceed the space available in Remotion Lambda.
 
 ### Permissions
 
-Make sure your AWS permissions only have as many permissions as needed and store your credentials as environment variables. Review the [Permissions](/docs/lambda/permissions) page to see what the minimum amount of permissions is.
+Make sure your AWS user only has as many permissions as needed and store your credentials as environment variables. Review the [Permissions](/docs/lambda/permissions) page to see what the minimum amount of permissions is.
 
 ### AWS burst limit
 
@@ -37,11 +37,11 @@ The maximum payload for invoking a Lambda function is 256KB. Ensure that in your
 
 ### Selecting the right concurrency
 
-If you are using the [`framesPerLambda`](/docs/lambda/rendermediaonlambda#framesperlambda) option, make sure that for each video you render, the parameter is set in a way that it stays within the allowed bounds (no more than 200 lambda functions per render).
+If you are using the [`framesPerLambda`](/docs/lambda/rendermediaonlambda#framesperlambda) option, make sure that for each video you render, the parameter is set in a way that it stays within the allowed bounds (no more than 200 lambda functions per render). See: [Concurrency](/docs/lambda/concurrency)
 
 ### Bucket privacy
 
-By default the rendered videos are publicly accessible in your bucket. Use the `privacy` setting in [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda) to make renders private if you'd like so.
+By default the rendered videos are publicly accessible in your bucket. Use the `privacy` setting in [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda) and [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda) to make renders private if you'd like so.
 
 ### Rate limiting
 
