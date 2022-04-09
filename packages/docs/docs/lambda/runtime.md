@@ -25,14 +25,14 @@ Note that you probably don't need to increase it - Since the video is rendered b
 
 ## Storage space
 
-The function only has 512MB of storage space in total. available for video rendering. Keep in mind that the concatenations of various chunks into one video takes place within a Lambda function, so the space must suffice for both the chunks and the output video.
+The function has between [512MB and 10GB of storage space](/docs/lambda/disk-size) in total available for video rendering depending on your configuration. Keep in mind that the concatenations of various chunks into one video takes place within a Lambda function, so the space must suffice for both the chunks and the output video.
 
 ## Chromium
 
 The function already includes a running version of Chromium.
 The browser was compiled including the proprietary codecs, so you can include MP4 videos into your project.
 
-**Chromium revision**: `97.0.4692.65`
+**Chromium revision**: `98.0.4758.139`
 
 ## FFMPEG
 
