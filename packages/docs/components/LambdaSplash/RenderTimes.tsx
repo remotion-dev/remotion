@@ -11,11 +11,15 @@ export const RenderTimes: React.FC = () => {
     >
       <div className={styles.stat}>
         <p>80 sec video rendered in</p>
-        <h1>15 sec</h1>
+        <h1>
+          15 sec<sup>1)</sup>
+        </h1>
       </div>
       <div className={styles.stat}>
         <p>2 hr video rendered in</p>
-        <h1>12 min</h1>
+        <h1>
+          12 min<sup>2)</sup>
+        </h1>
       </div>
       <div className={styles.stat}>
         <p>Concurrency up to</p>
@@ -24,7 +28,7 @@ export const RenderTimes: React.FC = () => {
       <div className={styles.stat}>
         <p>Cost per minute</p>
         <h1>
-          $0.01 <sup>1)</sup>
+          $0.01<sup>3)</sup>
         </h1>
       </div>
     </div>

@@ -39,3 +39,7 @@
   height: 50px;
   width: 50px;
 }
+
+.a:hover {
+  text-decoration: none;
+}

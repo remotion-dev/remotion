@@ -2,6 +2,7 @@ import React from "react";
 import Layout from "@theme/Layout";
 import { LambdaHeader } from "../../../components/LambdaSplash/LambdaHeader";
 import { RenderTimes } from "../../../components/LambdaSplash/RenderTimes";
+import { Disclaimers } from "../../../components/LambdaSplash/Disclaimers";
 import Head from "@docusaurus/Head";
 
 const container: React.CSSProperties = {
@@ -33,6 +34,9 @@ export default () => {
         <br />
         <div>
           <RenderTimes />
+        </div>
+        <div>
+          <Disclaimers />
         </div>
       </div>
     </Layout>
