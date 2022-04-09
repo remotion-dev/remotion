@@ -21,6 +21,7 @@ type LambdaCommandLineOptions = {
 	['save-browser-logs']: boolean;
 	['disable-cloudwatch']: boolean;
 	['max-retries']: number;
+	['frames-per-lambda']: number;
 	['out-name']: string | undefined;
 	['architecture']: LambdaArchitecture;
 	privacy: Privacy;

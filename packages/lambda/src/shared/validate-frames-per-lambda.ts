@@ -5,6 +5,10 @@ export const validateFramesPerLambda = (framesPerLambda: unknown) => {
 		return;
 	}
 
+	if (framesPerLambda === undefined) {
+		return;
+	}
+
 	if (typeof framesPerLambda !== 'number') {
 		throw new TypeError(
 			`'framesPerLambda' needs to be a number, passed ${JSON.stringify(

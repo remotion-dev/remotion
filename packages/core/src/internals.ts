@@ -35,10 +35,6 @@ import {
 	validateFrameRange,
 } from './config/frame-range';
 import {
-	getFramesPerLambda,
-	setFramesPerLambda,
-} from './config/frames-per-lambda';
-import {
 	getUserPreferredImageFormat,
 	validateSelectedPixelFormatAndImageFormatCombination,
 } from './config/image-format';
@@ -207,8 +203,6 @@ export const Internals = {
 	validateFrame,
 	setStillFrame,
 	getStillFrame,
-	getFramesPerLambda,
-	setFramesPerLambda,
 	invalidCompositionErrorMessage,
 	isCompositionIdValid,
 	DEFAULT_OVERWRITE,
