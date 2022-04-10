@@ -14,7 +14,7 @@ import { getRegions } from "@remotion/lambda";
 
 // ---cut---
 
-const regions = await getRegions();
+const regions = getRegions();
 // ["eu-central-1", "us-east-1"]
 ```
 

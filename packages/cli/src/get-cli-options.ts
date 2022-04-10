@@ -248,7 +248,6 @@ export const getCliOptions = async (options: {
 		proResProfile,
 		stillFrame: Internals.getStillFrame(),
 		browserExecutable,
-		framesPerLambda: Internals.getFramesPerLambda(),
 		ffmpegExecutable,
 		logLevel: Internals.Logging.getLogLevel(),
 		scale,

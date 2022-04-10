@@ -14,7 +14,7 @@ There are three exceptions when it is possible to deploy multiple functions:
 
 - If you are using multiple regions, you need to deploy a function for each region.
 - If you are upgrading to a newer version of Remotion Lambda, you need to deploy a new function. You can then run the new and the old function side-by-side. The `@remotion/lambda` CLI will always choose the function in your AWS account that has the same version as the client package. If you use the [`getFunctions()`](/docs/lambda/getfunctions) Node.JS API, set the [`compatibleOnly`](/docs/lambda/getfunctions#compatibleonly) flag to `true` to filter out functions that don't match the version of the `@remotion/lambda` package.
-- If you are deploying a function with a different memory size or timeout, a new function can be created. However, currently if multiple suitable functions are available, Remotion will choose one at random. So you should only use this strategy to change the parameters of the function without causing downtime.
+- If you are deploying a function with a different memory size, disk size or timeout, a new function can be created. However, currently if multiple suitable functions are available, Remotion will choose one at random. So you should only use this strategy to change the parameters of the function without causing downtime.
 
 ### Do I need to create multiple buckets?
 
@@ -22,11 +22,11 @@ Only one bucket per region is required.
 
 ### Do I need to deploy multiple sites?
 
-You can render one project and use it for as many renders as you need. If you have multiple projects, you can deploy all of them and reuse the same Lambda function.
+You can deploy one site and use it for as many renders as you need. If you have multiple sites, you can deploy all of them and reuse the same Lambda function.
 
 ### What if I want to render longer videos?
 
-You don't need to worry about the timeout of a Lambda function because Remotion splits the video in many parts and renders them in parallel. However, you need to be aware of the 512MB storage limit that may not be exceeded. See: [Storage space](/docs/lambda/runtime#storage-space)
+You don't need to worry about the timeout of a Lambda function because Remotion splits the video in many parts and renders them in parallel. However, you need to be aware of the storages limit that may not be exceeded. See: [Disk size](/docs/lambda/disk-size)
 
 ### Why are you not using Amazon EFS?
 

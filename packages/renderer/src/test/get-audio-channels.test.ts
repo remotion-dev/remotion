@@ -3,6 +3,7 @@ import path from 'path';
 import {getAudioChannels} from '../assets/get-audio-channels';
 
 test('Get audio channels for video', async () => {
+	jest.setTimeout(10000);
 	const videoWithoutAudio = path.join(
 		__dirname,
 		'..',
@@ -19,6 +20,7 @@ test('Get audio channels for video', async () => {
 });
 
 test('Get audio channels for video without music', async () => {
+	jest.setTimeout(10000);
 	const videoWithAudio = path.join(
 		__dirname,
 		'..',
@@ -35,6 +37,7 @@ test('Get audio channels for video without music', async () => {
 });
 
 test('Get audio channels for video without music', async () => {
+	jest.setTimeout(10000);
 	const audio = path.join(
 		__dirname,
 		'..',

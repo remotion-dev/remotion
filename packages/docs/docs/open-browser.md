@@ -6,14 +6,15 @@ slug: /renderer/open-browser
 
 _Available since v3.0 - Part of the `@remotion/renderer` package._
 
-Opens a Chrome or Chromium browser instance. By reusing an instance across [`renderFrames()`](/docs/renderer/render-frames), [`renderStill()`](/docs/renderer/render-still) and [`getCompositions()`](/docs/get-compositions) calls
+Opens a Chrome or Chromium browser instance. By reusing an instance across [`renderFrames()`](/docs/renderer/render-frames), [`renderStill()`](/docs/renderer/render-still), [`renderMedia()`](/docs/renderer/render-media) and [`getCompositions()`](/docs/get-compositions) calls, you can save time by not opening and closing browsers for each call.
 
 ```ts
 const openBrowser: (
   browser: Browser,
   options: {
     shouldDumpIo?: boolean;
-    browserExecutable?: BrowserExecutable;
+    browserExecutable?: string | null;
+    chromiumOptions?: ChromiumOptions;
   }
 ) => Promise<puppeteer.Browser>;
 ```
@@ -41,6 +42,16 @@ If set to `true`, logs and other browser diagnostics are being printed to standa
 _optional_
 
 A string defining the absolute path on disk of the browser executable that should be used. By default Remotion will try to detect it automatically and download one if none is available. If `puppeteerInstance` is defined, it will take precedence over `browserExecutable`.
+
+#### `chromiumOptions?`
+
+_optional_
+
+Allows you to set certain Chromium / Google Chrome flags. See: [Chromium flags](/docs/chromium-flags).
+
+:::note
+Chromium flags need to be set at browser launch. If you pass an instance to SSR APIs like [`renderMedia()`](/docs/renderer/render-media), the `chromiumOptions` option of that API will not apply, but rather the flags that have been passed to `openBrowser()`.
+:::
 
 ## See also
 

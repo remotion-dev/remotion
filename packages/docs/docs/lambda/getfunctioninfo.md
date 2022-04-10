@@ -16,16 +16,17 @@ To deploy a function, use [`deployFunction()`](/docs/lambda/deployfunction).
 // @module: esnext
 // @target: es2017
 
-import {getFunctionInfo} from '@remotion/lambda';
+import { getFunctionInfo } from "@remotion/lambda";
 
 const info = await getFunctionInfo({
-  functionName: 'remotion-render-d7nd2a9f',
-  region: 'eu-central-1'
+  functionName: "remotion-render-d7nd2a9f",
+  region: "eu-central-1",
 });
-console.log(info.functionName) // remotion-render-d7nd2a9f
-console.log(info.memorySizeInMb) // 1500
-console.log(info.version) // '2021-07-14'
-console.log(info.timeoutInSeconds) // 120
+console.log(info.functionName); // remotion-render-d7nd2a9f
+console.log(info.memorySizeInMb); // 1500
+console.log(info.diskSizeInMb); // 512
+console.log(info.version); // '2021-07-14'
+console.log(info.timeoutInSeconds); // 120
 ```
 
 ## Arguments
@@ -47,6 +48,10 @@ A promise resolving to an object with the following properties:
 ### `memorySizeInMb`
 
 The amount of memory allocated to the function.
+
+### `diskSizeInMb`
+
+The amount of disk space allocated to the function.
 
 ### `functionName`
 
