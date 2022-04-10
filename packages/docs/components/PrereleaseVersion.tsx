@@ -8,6 +8,8 @@ export const Prerelease: React.FC<{
   const version =
     typeof URLSearchParams === "undefined"
       ? FALLBACK_VERSION
+      : typeof window === "undefined"
+      ? FALLBACK_VERSION
       : new URLSearchParams(window.location.search).get("version") ??
         FALLBACK_VERSION;
   return (
