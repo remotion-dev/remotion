@@ -66,6 +66,10 @@ module.exports = {
               to: "/player",
             },
             {
+              label: "Lambda",
+              to: "/lambda",
+            },
+            {
               label: "Changelog",
               href: "https://github.com/remotion-dev/remotion/releases",
             },

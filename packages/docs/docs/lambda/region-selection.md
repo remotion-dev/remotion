@@ -46,7 +46,7 @@ Note that different regions have a different limit on how many Lambda functions 
 - `ap-northeast-1`, `eu-central-1`, `us-east-2`: Burst concurrency = 1000
 - All other regions = 500
 
-**Because of this, we recommend hosting your infrastructure in `us-east-1`, `us-west-2` or `eu-west-1` for maximum scalability.**
+**Because of this, we recommend hosting your primary infrastructure in `us-east-1`, `us-west-2` or `eu-west-1` for maximum scalability.**
 
 ## Other considerations
 

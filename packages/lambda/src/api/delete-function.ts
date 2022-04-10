@@ -12,7 +12,7 @@ export type DeleteFunctionInput = {
  * @link https://v3.remotion.dev/docs/lambda/deletefunction
  * @param options.region The region the function was deployed to.
  * @param options.functionName The name of the function.
- * @returns {Promise<undefined>} Nothing. Throws if the function failed to delete.
+ * @returns {Promise<void>} Nothing. Throws if the function failed to delete.
  */
 export const deleteFunction = async ({
 	region,

@@ -34,7 +34,7 @@ const getExplanation = (stack: string) => {
 	}
 
 	if (errorIsOutOfSpaceError(stack)) {
-		return 'Your lambda function reached the 512MB storage limit. Reduce the amount of space needed per lambda function. Feel free to reach out to #lambda Discord for help';
+		return `Your lambda function reached the storage limit. Reduce the amount of space needed per lambda function or increase the storage limit: ${DOCS_URL}/docs/lambda/disk-size.`;
 	}
 
 	if (isErrInsufficientResourcesErr(stack)) {
