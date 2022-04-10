@@ -41,13 +41,13 @@
 		"react-dom": ">=16.8.0"
 	},
 	"devDependencies": {
-		"@jonny/eslint-config": "^2.1.251",
+		"@jonny/eslint-config": "3.0.255",
 		"@types/jest": "^27.4.0",
 		"@types/minimist": "^1.2.2",
 		"@types/node": "^16.7.5",
 		"@types/react": "18.0.1",
 		"@types/react-dom": "18.0.0",
-		"eslint": "^7.25.0",
+		"eslint": "8.13.0",
 		"jest": "^27.2.4",
 		"prettier": "^2.0.5",
 		"prettier-plugin-organize-imports": "^1.1.1",

@@ -79,7 +79,6 @@ export const getCompositions = async (
 	});
 
 	return new Promise<TCompMetadata[]>((resolve, reject) => {
-		// eslint-disable-next-line promise/catch-or-return
 		innerGetCompositions(serveUrl, page, {
 			...(config ?? {}),
 			onError: (err) => {
