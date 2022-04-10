@@ -29,13 +29,13 @@
 		"three": ">=0.134.0"
 	},
 	"devDependencies": {
-		"@jonny/eslint-config": "^2.1.251",
+		"@jonny/eslint-config": "3.0.255",
 		"@react-three/fiber": ">=7.0.26",
 		"@types/node": "^14.14.14",
 		"@types/react": "18.0.1",
 		"@types/react-reconciler": "^0.26.4",
 		"@types/three": "^0.134.0",
-		"eslint": "^7.25.0",
+		"eslint": "8.13.0",
 		"prettier": "^2.0.5",
 		"prettier-plugin-organize-imports": "^1.1.1",
 		"three": "^0.134.0",

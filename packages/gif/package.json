@@ -26,7 +26,7 @@
 		"remotion": "2.6.14"
 	},
 	"devDependencies": {
-		"@jonny/eslint-config": "^2.1.251",
+		"@jonny/eslint-config": "3.0.255",
 		"@testing-library/react": "13.0.0",
 		"@types/jest": "^27.4.0",
 		"@types/node": "^16.7.5",
@@ -34,7 +34,7 @@
 		"@types/react-dom": "18.0.0",
 		"@typescript-eslint/eslint-plugin": "5.11.0",
 		"@typescript-eslint/parser": "5.11.0",
-		"eslint": "^7.25.0",
+		"eslint": "8.13.0",
 		"eslint-config-prettier": "^8.3.0",
 		"eslint-config-xo": "^0.39.0",
 		"eslint-config-xo-react": "^0.25.0",
