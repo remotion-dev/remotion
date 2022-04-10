@@ -31,7 +31,7 @@
 		"webpack": "5.60.0"
 	},
 	"devDependencies": {
-		"@jonny/eslint-config": "3.0.255",
+		"@jonny/eslint-config": "3.0.256",
 		"@types/node": "^16.7.5",
 		"eslint": "8.13.0",
 		"prettier": "^2.0.5",

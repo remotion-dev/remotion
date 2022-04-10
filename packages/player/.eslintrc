@@ -1,6 +1,3 @@
 {
-	"extends": "@jonny",
-	"rules": {
-		"react/boolean-prop-naming": "off"
-	}
+	"extends": "@jonny"
 }
