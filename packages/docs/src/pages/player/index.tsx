@@ -16,11 +16,13 @@ const container: React.CSSProperties = {
 
 export default () => {
   return (
-    <Layout
-      title="@remotion/player"
-      description="Embed videos that are written in React, and change them at runtime. Connect it to server-side rendering to turn them into real MP4 videos."
-    >
+    <Layout>
       <Head>
+        <title>@remotion/player</title>
+        <meta
+          name="description"
+          content="Embed videos that are written in React, and change them at runtime. Connect it to server-side rendering to turn them into real MP4 videos."
+        />
         <meta name="og:image" content="/img/player-og.png" />
         <meta name="twitter:image" content="/img/player-og.png" />
         <meta property="og:image" content="/img/player-og.png" />

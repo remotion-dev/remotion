@@ -65,6 +65,10 @@ TODO
 
 TODO
 
+## React 18 types
+
+TODO
+
 ## Deprecated `overrideWebpackConfig()` is removed
 
 ```ts title="remotion.config.ts"

@@ -1,4 +1,4 @@
-import useThemeContext from "@theme/hooks/useThemeContext";
+import { useColorMode } from "@docusaurus/theme-common";
 import React, { useState } from "react";
 import styles from "./features.module.css";
 import { PlayerExample } from "../PlayerExample";
@@ -6,7 +6,7 @@ import { CoolInput } from "../TextInput";
 import { ColorPicker, colorPickerColors } from "../Player/ColorPicker";
 
 export const PlayerFeatures: React.FC = () => {
-  const { isDarkTheme } = useThemeContext();
+  const { colorMode } = useColorMode();
   const [name, setName] = useState("");
   const [color, setColor] = useState(colorPickerColors[0]);
 
@@ -41,7 +41,11 @@ export const PlayerFeatures: React.FC = () => {
         <div style={{ width: 20 }} />
         <div className={styles.half}>
           <video
-            src={isDarkTheme ? "/img/reactive-dark.mp4" : "/img/reactive.mp4"}
+            src={
+              colorMode === "dark"
+                ? "/img/reactive-dark.mp4"
+                : "/img/reactive.mp4"
+            }
             playsInline
             muted
             autoPlay
@@ -65,7 +69,7 @@ export const PlayerFeatures: React.FC = () => {
         <div className={styles.half}>
           <video
             src={
-              isDarkTheme
+              colorMode === "dark"
                 ? "/img/customizable-dark.mp4"
                 : "/img/customizable-light.mp4"
             }
@@ -91,7 +95,9 @@ export const PlayerFeatures: React.FC = () => {
         <div className={styles.half}>
           <video
             src={
-              isDarkTheme ? "/img/pipeline-dark.mp4" : "/img/pipeline-light.mp4"
+              colorMode === "dark"
+                ? "/img/pipeline-dark.mp4"
+                : "/img/pipeline-light.mp4"
             }
             playsInline
             muted

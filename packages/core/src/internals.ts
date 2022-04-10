@@ -1,4 +1,3 @@
-import {LooseAnyComponent} from './any-component';
 import {
 	SharedAudioContext,
 	SharedAudioContextProvider,
@@ -238,7 +237,6 @@ export type {
 	CompositionManagerContext,
 	MediaVolumeContextValue,
 	SetMediaVolumeContextValue,
-	LooseAnyComponent,
 	RemotionEnvironment,
 	ProResProfile,
 	OpenGlRenderer,

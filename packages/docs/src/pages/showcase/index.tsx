@@ -128,11 +128,9 @@ const Showcase = () => {
   const chunks = chunk(shuffledShowcaseVideos, 3);
 
   return (
-    <Layout
-      title="Showcase"
-      description="Create MP4 motion graphics in React. Leverage CSS, SVG, WebGL and more technologies to render videos programmatically!"
-    >
+    <Layout>
       <Head>
+        <title>Showcase</title>
         <meta name="og:image" content="/img/showcase.png" />
         <meta name="twitter:image" content="/img/showcase.png" />
         <meta property="og:image" content="/img/showcase.png" />
