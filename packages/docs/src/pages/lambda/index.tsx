@@ -14,11 +14,13 @@ const container: React.CSSProperties = {
 
 export default () => {
   return (
-    <Layout
-      title="@remotion/lambda"
-      description="Render videos at scale on AWS Lambda"
-    >
+    <Layout>
       <Head>
+        <title>@remotion/lambda</title>
+        <meta
+          name="description"
+          content="Render Remotion videos fast and at scale on AWS Lambda."
+        />
         <meta name="og:image" content="/img/lambda-og.png" />
         <meta name="twitter:image" content="/img/lambda-og.png" />
         <meta property="og:image" content="/img/lambda-og.png" />

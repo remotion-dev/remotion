@@ -1,5 +1,6 @@
 import splitbee from "@splitbee/web";
 import Layout from "@theme/Layout";
+import Head from "@docusaurus/Head";
 import React from "react";
 import { LightningFastEditor } from "../../components/LandingPage/editor";
 import { FreePricing } from "../../components/LandingPage/FreePricing";
@@ -16,10 +17,15 @@ setTimeout(() => {
 
 const NewLanding: React.FC = () => {
   return (
-    <Layout
-      title="Write videos in React"
-      description="Create MP4 motion graphics in React. Leverage CSS, SVG, WebGL and more technologies to render videos programmatically!"
-    >
+    <Layout>
+      <Head>
+        <title>Write videos in React</title>
+        <meta
+          name="description"
+          content="Create MP4 motion graphics in React. Leverage CSS, SVG, WebGL and more
+        technologies to render videos programmatically!"
+        />
+      </Head>
       <div className={styles.content}>
         <WriteInReact />
         <br />
