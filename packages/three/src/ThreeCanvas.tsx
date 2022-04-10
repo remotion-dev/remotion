@@ -6,6 +6,7 @@ import { SuspenseLoader } from './SuspenseLoader';
 export type ThreeCanvasProps = React.ComponentProps<typeof Canvas> & {
 	width: number;
 	height: number;
+	children: React.ReactNode;
 };
 
 const Scale = ({ width, height }: { width: number; height: number }) => {

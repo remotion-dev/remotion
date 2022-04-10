@@ -1,6 +1,5 @@
-import React from 'react';
+import React, {ComponentType} from 'react';
 import {render} from 'react-dom';
-import {LooseAnyComponent} from 'remotion';
 import App from './App';
 import CarSlideshow from './CarSlideshow';
 import {VideoautoplayDemo} from './VideoAutoplay';
@@ -8,11 +7,11 @@ import {VideoautoplayDemo} from './VideoAutoplay';
 const rootElement = document.getElementById('root');
 
 const Car = () =>
-	new Promise<{default: LooseAnyComponent<unknown>}>((resolve) => {
+	new Promise<{default: ComponentType<unknown>}>((resolve) => {
 		setTimeout(
 			() =>
 				resolve({
-					default: CarSlideshow as LooseAnyComponent<unknown>,
+					default: CarSlideshow as ComponentType<unknown>,
 				}),
 			3000
 		);

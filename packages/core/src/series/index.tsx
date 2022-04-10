@@ -15,7 +15,9 @@ const SeriesSequence = ({children}: SeriesSequenceProps) => {
 	return <>{children}</>;
 };
 
-const Series: FC & {
+const Series: FC<{
+	children: React.ReactNode;
+}> & {
 	Sequence: typeof SeriesSequence;
 } = ({children}) => {
 	const childrenValue = useMemo(() => {

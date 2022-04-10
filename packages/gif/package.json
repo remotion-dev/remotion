@@ -27,11 +27,11 @@
 	},
 	"devDependencies": {
 		"@jonny/eslint-config": "^2.1.251",
-		"@testing-library/react": "^11.2.2",
+		"@testing-library/react": "13.0.0",
 		"@types/jest": "^27.4.0",
 		"@types/node": "^16.7.5",
-		"@types/react": "17.0.39",
-		"@types/react-dom": "^17.0.11",
+		"@types/react": "18.0.1",
+		"@types/react-dom": "18.0.0",
 		"@typescript-eslint/eslint-plugin": "5.11.0",
 		"@typescript-eslint/parser": "5.11.0",
 		"eslint": "^7.25.0",
@@ -50,8 +50,8 @@
 		"webpack": "5.60.0"
 	},
 	"peerDependencies": {
-		"react": "^17.0.1",
-		"react-dom": "^17.0.1"
+		"react": ">=16.8.0",
+		"react-dom": ">=16.8.0"
 	},
 	"keywords": [
 		"remotion",
