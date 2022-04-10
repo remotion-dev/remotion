@@ -1,4 +1,5 @@
 import React, {
+	ComponentType,
 	Suspense,
 	useCallback,
 	useContext,
@@ -12,7 +13,6 @@ import {
 	delayRender,
 	getInputProps,
 	Internals,
-	LooseAnyComponent,
 	TCompMetadata,
 	TComposition,
 } from 'remotion';
@@ -40,7 +40,7 @@ const Fallback: React.FC = () => {
 const GetVideo: React.FC<{state: BundleState}> = ({state}) => {
 	const video = Internals.useVideo();
 	const compositions = useContext(Internals.CompositionManager);
-	const [Component, setComponent] = useState<LooseAnyComponent<unknown> | null>(
+	const [Component, setComponent] = useState<ComponentType<unknown> | null>(
 		null
 	);
 

@@ -1,4 +1,5 @@
 import React, {
+	ComponentType,
 	createContext,
 	LazyExoticComponent,
 	useCallback,
@@ -7,7 +8,6 @@ import React, {
 	useMemo,
 	useState,
 } from 'react';
-import {LooseAnyComponent} from './any-component';
 
 export type TComposition<T = unknown> = {
 	width: number;
@@ -15,7 +15,7 @@ export type TComposition<T = unknown> = {
 	fps: number;
 	durationInFrames: number;
 	id: string;
-	component: LazyExoticComponent<LooseAnyComponent<T>>;
+	component: LazyExoticComponent<ComponentType<T>>;
 	defaultProps: T | undefined;
 	nonce: number;
 };
@@ -114,7 +114,9 @@ export const compositionsRef = React.createRef<{
 	getCompositions: () => TCompMetadata[];
 }>();
 
-export const CompositionManagerProvider: React.FC = ({children}) => {
+export const CompositionManagerProvider: React.FC<{
+	children: React.ReactNode;
+}> = ({children}) => {
 	// Wontfix, expected to have
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	const [compositions, setCompositions] = useState<TComposition<any>[]>([]);

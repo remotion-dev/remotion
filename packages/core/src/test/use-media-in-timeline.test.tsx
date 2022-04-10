@@ -22,7 +22,9 @@ afterAll(() => {
 test('useMediaInTimeline registers and unregisters new sequence', () => {
 	const registerSequence = jest.fn();
 	const unregisterSequence = jest.fn();
-	const wrapper: React.FC = ({children}) => (
+	const wrapper: React.FC<{
+		children: React.ReactNode;
+	}> = ({children}) => (
 		<Internals.CompositionManager.Provider
 			value={
 				// eslint-disable-next-line react/jsx-no-constructed-context-values

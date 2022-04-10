@@ -19,15 +19,16 @@ export const Spacing: React.FC<{
 
 const flex: React.CSSProperties = {flex: 1};
 
-export const Flex: React.FC = ({children}) => (
-	<div style={flex}>{children}</div>
-);
+export const Flex: React.FC<{
+	children?: React.ReactNode;
+}> = ({children}) => <div style={flex}>{children}</div>;
 
 export const Row: React.FC<{
 	justify?: 'center';
 	align?: 'center';
 	style?: React.CSSProperties;
 	className?: string;
+	children: React.ReactNode;
 }> = ({children, justify, className, align, style = {}}) => {
 	const finalStyle: React.CSSProperties = useMemo(() => {
 		return {
@@ -50,6 +51,7 @@ export const Column: React.FC<{
 	align?: 'center';
 	style?: React.CSSProperties;
 	className?: string;
+	children: React.ReactNode;
 }> = ({children, justify, className, align, style = {}}) => {
 	const finalStyle: React.CSSProperties = useMemo(() => {
 		return {
