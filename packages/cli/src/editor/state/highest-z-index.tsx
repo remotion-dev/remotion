@@ -12,7 +12,9 @@ export const HighestZIndexContext = createContext<HighestZIndexContainer>({
 	unregisterZIndex: () => undefined,
 });
 
-export const HighestZIndexProvider: React.FC = ({children}) => {
+export const HighestZIndexProvider: React.FC<{
+	children: React.ReactNode;
+}> = ({children}) => {
 	const [zIndexes, setZIndexes] = useState<number[]>([]);
 
 	const registerZIndex = useCallback((newIndex: number) => {

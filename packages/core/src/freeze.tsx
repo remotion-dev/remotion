@@ -4,6 +4,7 @@ import {TimelineContext, TimelineContextValue} from './timeline-position-state';
 
 type FreezeProps = {
 	frame: number;
+	children: React.ReactNode;
 };
 
 const Freeze: React.FC<FreezeProps> = ({frame, children}) => {

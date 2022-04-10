@@ -18,7 +18,9 @@ import {
 	TimelineContextValue,
 } from './timeline-position-state';
 
-export const RemotionRoot: React.FC = ({children}) => {
+export const RemotionRoot: React.FC<{
+	children: React.ReactNode;
+}> = ({children}) => {
 	const [remotionRootId] = useState(() => String(random(null)));
 	const [frame, setFrame] = useState<number>(window.remotion_initialFrame ?? 0);
 	const [playing, setPlaying] = useState<boolean>(false);

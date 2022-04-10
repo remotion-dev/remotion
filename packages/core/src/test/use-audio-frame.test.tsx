@@ -9,7 +9,9 @@ import {SequenceContext, SequenceContextType} from '../sequencing';
 import * as useFrameModule from '../use-frame';
 
 test('Media starts at 0 if it is outside a sequence', () => {
-	const wrapper: React.FC = ({children}) => (
+	const wrapper: React.FC<{
+		children: React.ReactNode;
+	}> = ({children}) => (
 		<SequenceContext.Provider value={null}>{children}</SequenceContext.Provider>
 	);
 	const {result} = renderHook(() => useMediaStartsAt(), {wrapper});
@@ -24,7 +26,9 @@ test('Media start is shifted back based on sequence', () => {
 		durationInFrames: 0,
 		id: 'mock',
 	};
-	const wrapper: React.FC = ({children}) => (
+	const wrapper: React.FC<{
+		children: React.ReactNode;
+	}> = ({children}) => (
 		<SequenceContext.Provider value={mockSequence}>
 			{children}
 		</SequenceContext.Provider>
