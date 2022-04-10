@@ -34,9 +34,26 @@ The necessary information is now embedded in `assetsInfo`, in the return value o
 
 ## `useVideoConfig` returns `id` and `defaultProps`
 
-TODO
+The [`useVideoConfig()`](/docs/use-video-config) hook now returns two additional properties:
+
+```diff
+{
+  "width": 1920,
+  "height": 1080,
+  "fps": 30,
+  "durationInFrames": 30
++ "id": "my-comp",
++ "defaultProps": {}
+}
+```
+
+**Upgrade path**: Ensure you don't rely on the new properties not being there.
 
 ## Removed `webpackBundle` from `stitchFramesToVideo` API
+
+TODO
+
+## Moved `imageFormat` in `stitchFramesToVideo` API
 
 TODO
 
@@ -50,7 +67,7 @@ TODO
 
 ## Deprecated `overrideWebpackConfig()` is removed
 
-```ts
+```ts title="remotion.config.ts"
 import { overrideWebpackConfig } from "@remotion/bundler";
 ```
 
