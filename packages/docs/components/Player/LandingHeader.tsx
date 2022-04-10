@@ -1,10 +1,10 @@
 import React from "react";
 import { BlueButton } from "../layout/Button";
 import styles from "./landing.module.css";
-import useThemeContext from "@theme/hooks/useThemeContext";
+import { useColorMode } from "@docusaurus/theme-common";
 
 export const LandingHeader: React.FC = () => {
-  const { isDarkTheme } = useThemeContext();
+  const { colorMode } = useColorMode();
 
   return (
     <div className={styles.container}>
@@ -20,7 +20,11 @@ export const LandingHeader: React.FC = () => {
         }}
       >
         <video
-          src={isDarkTheme ? "/img/player-dark.mp4" : "/img/player-light.mp4"}
+          src={
+            colorMode === "dark"
+              ? "/img/player-dark.mp4"
+              : "/img/player-light.mp4"
+          }
           playsInline
           muted
           autoPlay
