@@ -86,3 +86,5 @@ Config.Bundling.overrideWebpackConfig();
 ```
 
 instead.
+
+## Node 14 is required
