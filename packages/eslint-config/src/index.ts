@@ -90,7 +90,7 @@ export = {
   rules: getRules(false),
   settings: {
     react: {
-      version: "17.0.0",
+      version: "detect",
     },
   },
 };
