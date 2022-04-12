@@ -1,4 +1,5 @@
 import { autoImports } from "./auto-import-rules";
+import { allowESLintShareableConfig } from "./patch-eslint";
 
 const baseExtends = ["eslint:recommended"];
 
@@ -584,6 +585,8 @@ const getRules = (typescript: boolean) => {
   };
 };
 
+allowESLintShareableConfig();
+
 export = {
   env: {
     browser: true,
@@ -617,7 +620,7 @@ export = {
   rules: getRules(false),
   settings: {
     react: {
-      version: "18.0.0",
+      version: "detect",
     },
   },
 };
