@@ -586,13 +586,7 @@ export = {
     es6: true,
     jest: true,
   },
-  plugins: [
-    "react",
-    "react-hooks",
-    "@typescript-eslint/eslint-plugin",
-    "10x",
-    "@remotion",
-  ],
+  plugins: ["react", "react-hooks", "@typescript-eslint", "10x", "@remotion"],
   extends: baseExtends,
   parser: require.resolve("@typescript-eslint/parser"),
   parserOptions: {
