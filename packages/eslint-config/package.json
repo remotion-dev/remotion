@@ -19,7 +19,7 @@
     "@remotion/eslint-plugin": "2.6.14",
     "@typescript-eslint/eslint-plugin": "5.11.0",
     "@typescript-eslint/parser": "5.11.0",
-    "eslint-plugin-10x": "1.5.0",
+    "eslint-plugin-10x": "1.5.1",
     "eslint-plugin-react": "7.29.4",
     "eslint-plugin-react-hooks": "4.4.0"
   },

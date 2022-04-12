@@ -46,7 +46,7 @@ export const lambdaWriteFile: typeof writeOriginal = ({
 	return Promise.resolve(undefined);
 };
 
-export const lambdaLs: typeof lsOriginal = async (
+export const lambdaLs: typeof lsOriginal = (
 	input: LambdaLSInput
 ): LambdaLsReturnType => {
 	if (!input) {
@@ -58,17 +58,19 @@ export const lambdaLs: typeof lsOriginal = async (
 		region: input.region,
 	});
 
-	return files
-		.filter((p) => p.key.startsWith(input.prefix))
-		.map((file): _Object => {
-			const size = typeof file.content === 'string' ? file.content.length : 0;
-			return {
-				Key: file.key,
-				ETag: undefined,
-				LastModified: new Date(0),
-				Owner: undefined,
-				Size: size,
-				StorageClass: undefined,
-			};
-		});
+	return Promise.resolve(
+		files
+			.filter((p) => p.key.startsWith(input.prefix))
+			.map((file): _Object => {
+				const size = typeof file.content === 'string' ? file.content.length : 0;
+				return {
+					Key: file.key,
+					ETag: undefined,
+					LastModified: new Date(0),
+					Owner: undefined,
+					Size: size,
+					StorageClass: undefined,
+				};
+			})
+	);
 };

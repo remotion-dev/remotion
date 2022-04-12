@@ -5,7 +5,7 @@ import {
 	LambdaVersions,
 } from '../shared/constants';
 
-export const infoHandler = async (lambdaParams: LambdaPayload) => {
+export const infoHandler = (lambdaParams: LambdaPayload) => {
 	if (lambdaParams.type !== LambdaRoutines.info) {
 		throw new TypeError('Expected info type');
 	}
