@@ -66,7 +66,7 @@ importers:
       css-loader: 5.2.7
       esbuild: 0.14.19
       eslint: 8.13.0
-      eslint-plugin-10x: ^1.5.0
+      eslint-plugin-10x: 1.5.2
       eslint-plugin-react: 7.29.4
       eslint-plugin-react-hooks: 4.4.0
       execa: 5.1.1
@@ -116,7 +116,7 @@ importers:
       '@typescript-eslint/eslint-plugin': 5.18.0_53390842ab439ec085a3fa641ae0b730
       '@typescript-eslint/parser': 5.18.0_eslint@8.13.0+typescript@4.5.5
       eslint: 8.13.0
-      eslint-plugin-10x: 1.5.0_eslint@8.13.0
+      eslint-plugin-10x: 1.5.2_eslint@8.13.0
       eslint-plugin-react: 7.29.4_eslint@8.13.0
       eslint-plugin-react-hooks: 4.4.0_eslint@8.13.0
       jest: 27.2.4
@@ -145,7 +145,7 @@ importers:
       chalk: 4.1.2
       dotenv: 9.0.2
       eslint: 8.13.0
-      eslint-plugin-10x: ^1.5.0
+      eslint-plugin-10x: 1.5.2
       eslint-plugin-react: 7.29.4
       eslint-plugin-react-hooks: 4.4.0
       execa: 5.1.1
@@ -183,7 +183,7 @@ importers:
       '@typescript-eslint/eslint-plugin': 5.18.0_53390842ab439ec085a3fa641ae0b730
       '@typescript-eslint/parser': 5.18.0_eslint@8.13.0+typescript@4.5.5
       eslint: 8.13.0
-      eslint-plugin-10x: 1.5.0_eslint@8.13.0
+      eslint-plugin-10x: 1.5.2_eslint@8.13.0
       eslint-plugin-react: 7.29.4_eslint@8.13.0
       eslint-plugin-react-hooks: 4.4.0_eslint@8.13.0
       jest: 27.2.4
@@ -354,7 +354,7 @@ importers:
       '@types/node': 17.0.17
       '@typescript-eslint/eslint-plugin': 5.11.0
       '@typescript-eslint/parser': 5.11.0
-      eslint-plugin-10x: 1.5.1
+      eslint-plugin-10x: 1.5.2
       eslint-plugin-react: 7.29.4
       eslint-plugin-react-hooks: 4.4.0
       typescript: ^4.5.5
@@ -362,7 +362,7 @@ importers:
       '@remotion/eslint-plugin': link:../eslint-plugin
       '@typescript-eslint/eslint-plugin': 5.11.0_5448361d0c7d01128df3422f1139058a
       '@typescript-eslint/parser': 5.11.0_typescript@4.5.5
-      eslint-plugin-10x: 1.5.1
+      eslint-plugin-10x: 1.5.2
       eslint-plugin-react: 7.29.4
       eslint-plugin-react-hooks: 4.4.0
     devDependencies:
@@ -489,7 +489,7 @@ importers:
       eslint-config-prettier: ^8.3.0
       eslint-config-xo: ^0.39.0
       eslint-config-xo-react: ^0.25.0
-      eslint-plugin-10x: ^1.5.0
+      eslint-plugin-10x: 1.5.2
       eslint-plugin-promise: ^5.1.0
       eslint-plugin-react: 7.29.4
       eslint-plugin-react-hooks: 4.4.0
@@ -518,7 +518,7 @@ importers:
       eslint-config-prettier: 8.3.0_eslint@8.13.0
       eslint-config-xo: 0.39.0_eslint@8.13.0
       eslint-config-xo-react: 0.25.0_e32d1654f348dcc76a6c264e56238d05
-      eslint-plugin-10x: 1.5.0_eslint@8.13.0
+      eslint-plugin-10x: 1.5.2_eslint@8.13.0
       eslint-plugin-promise: 5.1.0_eslint@8.13.0
       eslint-plugin-react: 7.29.4_eslint@8.13.0
       eslint-plugin-react-hooks: 4.4.0_eslint@8.13.0
@@ -14600,16 +14600,25 @@ packages:
       eslint: 8.13.0
       jsx-ast-utils: 2.4.1
 
-  /eslint-plugin-10x/1.5.1:
+  /eslint-plugin-10x/1.5.1_eslint@8.13.0:
     resolution: {integrity: sha512-dpphiMfRuNWHSelDUo0NRRczt+9qBQJxSEXvnw/YQjfHirJ7mHkpP1g0x/Q/hmUYh865dly1Yytx2Ulp+btyvQ==}
+    peerDependencies:
+      eslint: '>=7.8.0'
+    dependencies:
+      eslint: 8.13.0
+      jsx-ast-utils: 2.4.1
+    dev: true
+
+  /eslint-plugin-10x/1.5.2:
+    resolution: {integrity: sha512-SKVKlSJXJSU34Gw1m0Hp+PBO5az4zPIRU3+nC3Ya6x+nQ3Bq3kIfQUBH6dN811CawO6sacpc538IJAqTDSMSWQ==}
     peerDependencies:
       eslint: '>=7.8.0'
     dependencies:
       jsx-ast-utils: 2.4.1
     dev: false
 
-  /eslint-plugin-10x/1.5.1_eslint@8.13.0:
-    resolution: {integrity: sha512-dpphiMfRuNWHSelDUo0NRRczt+9qBQJxSEXvnw/YQjfHirJ7mHkpP1g0x/Q/hmUYh865dly1Yytx2Ulp+btyvQ==}
+  /eslint-plugin-10x/1.5.2_eslint@8.13.0:
+    resolution: {integrity: sha512-SKVKlSJXJSU34Gw1m0Hp+PBO5az4zPIRU3+nC3Ya6x+nQ3Bq3kIfQUBH6dN811CawO6sacpc538IJAqTDSMSWQ==}
     peerDependencies:
       eslint: '>=7.8.0'
     dependencies:

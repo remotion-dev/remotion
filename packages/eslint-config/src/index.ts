@@ -605,7 +605,10 @@ export = {
   overrides: [
     {
       files: ["*.{ts,tsx}"],
-      extends: ["plugin:@typescript-eslint/recommended", ...baseExtends],
+      extends: [
+        "plugin:@typescript-eslint/eslint-plugin/recommended",
+        ...baseExtends,
+      ],
       parser: "@typescript-eslint/parser",
       rules: getRules(true),
     },

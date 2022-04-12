@@ -55,7 +55,7 @@
 		"@types/webpack-env": "^1.16.0",
 		"@typescript-eslint/eslint-plugin": "5.18.0",
 		"@typescript-eslint/parser": "5.18.0",
-		"eslint-plugin-10x": "^1.5.0",
+		"eslint-plugin-10x": "1.5.2",
 		"eslint-plugin-react": "7.29.4",
 		"eslint-plugin-react-hooks": "4.4.0",
 		"eslint": "8.13.0",
