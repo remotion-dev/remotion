@@ -15,7 +15,7 @@ import fs from "fs";
 let alreadyPatched = false;
 
 export const allowESLintShareableConfig = () => {
-  if (alreadyPatched) {
+  if (alreadyPatched || process.env.CI) {
     return;
   }
   alreadyPatched = true;
