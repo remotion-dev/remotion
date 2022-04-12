@@ -1,6 +1,7 @@
 import xo = require("eslint-config-xo/esnext");
 import xoReact = require("eslint-config-xo-react");
 import { autoImports } from "./auto-import-rules";
+import { allowESLintShareableConfig } from "./patch-eslint";
 
 const baseExtends = ["eslint:recommended", "prettier"];
 
@@ -49,6 +50,8 @@ const getRules = (typescript: boolean) => {
     "@typescript-eslint/explicit-module-boundary-types": "off",
   };
 };
+
+allowESLintShareableConfig();
 
 export = {
   env: {

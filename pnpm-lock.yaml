@@ -356,8 +356,9 @@ importers:
       jest: ^27.2.4
       ts-jest: ^27.0.5
       typescript: ^4.5.5
-    devDependencies:
+    dependencies:
       '@typescript-eslint/utils': 5.11.0_eslint@7.32.0+typescript@4.5.5
+    devDependencies:
       eslint: 7.32.0
       jest: 27.2.4
       ts-jest: 27.0.5_jest@27.2.4+typescript@4.5.5
@@ -7422,7 +7423,6 @@ packages:
     transitivePeerDependencies:
       - supports-color
       - typescript
-    dev: true
 
   /@typescript-eslint/utils/5.11.0_typescript@4.5.5:
     resolution: {integrity: sha512-g2I480tFE1iYRDyMhxPAtLQ9HAn0jjBtipgTCZmd9I9s11OV8CTsG+YfFciuNDcHqm4csbAgC2aVZCHzLxMSUw==}
