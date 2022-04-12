@@ -1,14 +1,10 @@
 import { autoImports } from "./auto-import-rules";
 import { allowESLintShareableConfig } from "./patch-eslint";
-import xo = require("eslint-config-xo/esnext");
-import xoReact = require("eslint-config-xo-react");
 
 const baseExtends = ["eslint:recommended"];
 
 const getRules = (typescript: boolean) => {
   return {
-    ...xo.rules,
-    ...xoReact.rules,
     // prettier
     curly: 0,
     "lines-around-comment": 0,

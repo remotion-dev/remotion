@@ -19,12 +19,9 @@
     "@remotion/eslint-plugin": "2.6.15",
     "@typescript-eslint/eslint-plugin": "5.11.0",
     "@typescript-eslint/parser": "5.11.0",
-    "eslint-config-prettier": "8.3.0",
-    "eslint-config-xo": "0.35.0",
-    "eslint-config-xo-react": "0.24.0",
-    "eslint-plugin-10x": "1.5.0",
-    "eslint-plugin-react": "7.26.1",
-    "eslint-plugin-react-hooks": "4.3.0"
+    "eslint-plugin-10x": "1.5.2",
+    "eslint-plugin-react": "7.29.4",
+    "eslint-plugin-react-hooks": "4.4.0"
   },
   "devDependencies": {
     "@types/node": "17.0.17",
