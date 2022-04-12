@@ -245,35 +245,6 @@ importers:
       ts-node: 9.1.1_typescript@4.5.5
       typescript: 4.5.5
 
-  packages/create-video/windows-test:
-    specifiers:
-      '@remotion/bundler': ^2.3.2
-      '@remotion/cli': ^2.3.2
-      '@remotion/eslint-config': ^2.3.2
-      '@remotion/renderer': ^2.3.2
-      '@types/react': ^17.0.0
-      '@types/web': ^0.0.46
-      eslint: ^7.15.0
-      prettier: ^2.2.1
-      react: ^17.0.2
-      react-dom: ^17.0.2
-      remotion: ^2.3.2
-      typescript: 4.4.2
-    dependencies:
-      '@remotion/bundler': link:../../bundler
-      '@remotion/cli': link:../../cli
-      '@remotion/eslint-config': link:../../eslint-config
-      '@remotion/renderer': link:../../renderer
-      eslint: 7.32.0
-      prettier: 2.4.1
-      react: 17.0.2
-      react-dom: 17.0.2_react@17.0.2
-      remotion: link:../../core
-      typescript: 4.4.2
-    devDependencies:
-      '@types/react': 17.0.39
-      '@types/web': 0.0.46
-
   packages/docs:
     specifiers:
       '@docusaurus/core': 2.0.0-beta.7
@@ -7092,10 +7063,6 @@ packages:
   /@types/unist/2.0.6:
     resolution: {integrity: sha512-PBjIUxZHOuj0R15/xuwJYjFi+KZdNFrehocChv4g5hu6aFroHue8m0lBP0POdK2nKzbw0cgV1mws8+V/JAcEkQ==}
     dev: false
-
-  /@types/web/0.0.46:
-    resolution: {integrity: sha512-ki0OmbjSdAEfvmy5AYWFpMkRsPW+6h4ibQ4tzk8SJsS9dkrrD3B/U1eVvdNNWxAzntjq6o2sjSia6UBCoPH+Yg==}
-    dev: true
 
   /@types/web/0.0.48:
     resolution: {integrity: sha512-X5KKfR0MNm5ujo7421tVTF6n9MXh58DfWOuvPnuMAlr12vloTtyxJEC0rHVKIvcpqqoOJSrlkW2dMJjl9eK3Dg==}
@@ -21738,12 +21705,6 @@ packages:
 
   /typedarray/0.0.6:
     resolution: {integrity: sha1-hnrHTjhkGHsdPUfZlqeOxciDB3c=}
-    dev: false
-
-  /typescript/4.4.2:
-    resolution: {integrity: sha512-gzP+t5W4hdy4c+68bfcv0t400HVJMMd2+H9B7gae1nQlBzCqvrXX+6GL/b3GAgyTH966pzrZ70/fRjwAtZksSQ==}
-    engines: {node: '>=4.2.0'}
-    hasBin: true
     dev: false
 
   /typescript/4.5.5:
