@@ -6,7 +6,6 @@ import {
 	useVideoConfig,
 	Video,
 } from 'remotion';
-// FIXME: commit sample movie + music
 import movie from '../resources/framer-music.mp4';
 import music from '../resources/sound1.mp3';
 
