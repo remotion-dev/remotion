@@ -16,5 +16,5 @@ export const infoHandler = (lambdaParams: LambdaPayload) => {
 		version: CURRENT_VERSION,
 	};
 
-	return returnValue;
+	return Promise.resolve(returnValue);
 };
