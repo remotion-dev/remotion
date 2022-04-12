@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/media-utils",
-	"version": "2.6.14",
+	"version": "2.6.15",
 	"description": "Utility functions for audio and video",
 	"main": "dist/index.js",
 	"sideEffects": false,
@@ -18,7 +18,7 @@
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
 	"dependencies": {
-		"remotion": "2.6.14"
+		"remotion": "2.6.15"
 	},
 	"peerDependencies": {
 		"react": "^17.0.1",
