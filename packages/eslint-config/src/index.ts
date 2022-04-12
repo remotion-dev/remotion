@@ -377,14 +377,7 @@ const getRules = (typescript: boolean) => {
     // 'object-property-newline': 'error',
     "one-var": ["error", "never"],
     "operator-assignment": ["error", "always"],
-    "padding-line-between-statements": [
-      "error",
-      {
-        blankLine: "always",
-        prev: "multiline-block-like",
-        next: "*",
-      },
-    ],
+    "padding-line-between-statements": "off",
     "prefer-exponentiation-operator": "error",
     "spaced-comment": [
       "error",
