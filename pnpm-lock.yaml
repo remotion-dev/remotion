@@ -376,8 +376,9 @@ importers:
       jest: ^27.2.4
       ts-jest: ^27.0.5
       typescript: ^4.5.5
-    devDependencies:
+    dependencies:
       '@typescript-eslint/utils': 5.11.0_eslint@8.13.0+typescript@4.5.5
+    devDependencies:
       eslint: 8.13.0
       jest: 27.2.4
       ts-jest: 27.0.5_jest@27.2.4+typescript@4.5.5
@@ -10016,6 +10017,7 @@ packages:
     dependencies:
       '@typescript-eslint/types': 5.11.0
       '@typescript-eslint/visitor-keys': 5.11.0
+    dev: false
 
   /@typescript-eslint/scope-manager/5.18.0:
     resolution: {integrity: sha512-C0CZML6NyRDj+ZbMqh9FnPscg2PrzSaVQg3IpTmpe0NURMVBXlghGZgMYqBw07YW73i0MCqSDqv2SbywnCS8jQ==}
@@ -10074,6 +10076,7 @@ packages:
   /@typescript-eslint/types/5.11.0:
     resolution: {integrity: sha512-cxgBFGSRCoBEhvSVLkKw39+kMzUKHlJGVwwMbPcTZX3qEhuXhrjwaZXWMxVfxDgyMm+b5Q5b29Llo2yow8Y7xQ==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
+    dev: false
 
   /@typescript-eslint/types/5.18.0:
     resolution: {integrity: sha512-bhV1+XjM+9bHMTmXi46p1Led5NP6iqQcsOxgx7fvk6gGiV48c6IynY0apQb7693twJDsXiVzNXTflhplmaiJaw==}
@@ -10141,6 +10144,7 @@ packages:
       typescript: 4.5.5
     transitivePeerDependencies:
       - supports-color
+    dev: false
 
   /@typescript-eslint/typescript-estree/5.18.0_typescript@4.5.5:
     resolution: {integrity: sha512-wa+2VAhOPpZs1bVij9e5gyVu60ReMi/KuOx4LKjGx2Y3XTNUDJgQ+5f77D49pHtqef/klglf+mibuHs9TrPxdQ==}
@@ -10179,7 +10183,7 @@ packages:
     transitivePeerDependencies:
       - supports-color
       - typescript
-    dev: true
+    dev: false
 
   /@typescript-eslint/utils/5.11.0_typescript@4.5.5:
     resolution: {integrity: sha512-g2I480tFE1iYRDyMhxPAtLQ9HAn0jjBtipgTCZmd9I9s11OV8CTsG+YfFciuNDcHqm4csbAgC2aVZCHzLxMSUw==}
@@ -10236,6 +10240,7 @@ packages:
     dependencies:
       '@typescript-eslint/types': 5.11.0
       eslint-visitor-keys: 3.2.0
+    dev: false
 
   /@typescript-eslint/visitor-keys/5.18.0:
     resolution: {integrity: sha512-Hf+t+dJsjAKpKSkg3EHvbtEpFFb/1CiOHnvI8bjHgOD4/wAw3gKrA0i94LrbekypiZVanJu3McWJg7rWDMzRTg==}
@@ -14919,6 +14924,7 @@ packages:
   /eslint-visitor-keys/3.2.0:
     resolution: {integrity: sha512-IOzT0X126zn7ALX0dwFiUQEdsfzrm4+ISsQS8nukaJXwEyYKRSnEIIDULYg1mCtGp7UUXgfGl7BIolXREQK+XQ==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
+    dev: false
 
   /eslint-visitor-keys/3.3.0:
     resolution: {integrity: sha512-mQ+suqKJVyeuwGYHAdjMFqjCyfl8+Ldnxuyp3ldiMBFKkvytrXUZWaiPCEav8qDHKty44bD+qV1IP4T+w+xXRA==}
