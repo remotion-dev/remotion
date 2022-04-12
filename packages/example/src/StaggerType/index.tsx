@@ -45,6 +45,7 @@ const StaggerType: React.FC = () => {
 							if (!isSecondHalf) {
 								return i % 2 === 0;
 							}
+
 							return Math.ceil(frame / 10) % 2 === i % 2;
 						})();
 						const color = mix(ratio, '#fff', '#000');

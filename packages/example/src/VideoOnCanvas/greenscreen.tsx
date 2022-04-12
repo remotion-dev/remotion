@@ -16,6 +16,7 @@ export const Greenscreen: React.FC = () => {
 		) {
 			return;
 		}
+
 		const context = canvas.current.getContext('2d');
 
 		if (!context) {
@@ -34,6 +35,7 @@ export const Greenscreen: React.FC = () => {
 				imageFrame.data[i + 3] = 0;
 			}
 		}
+
 		context.putImageData(imageFrame, 0, 0);
 
 		video.current.requestVideoFrameCallback(() => onVideoFrame());
@@ -43,6 +45,7 @@ export const Greenscreen: React.FC = () => {
 		if (!video.current || !video.current.requestVideoFrameCallback) {
 			return;
 		}
+
 		video.current.requestVideoFrameCallback(() => onVideoFrame());
 	}, [onVideoFrame]);
 

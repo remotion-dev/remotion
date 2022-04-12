@@ -22,7 +22,7 @@ import {VideoSpeed} from './VideoSpeed';
 import {VideoTesting} from './VideoTesting';
 
 // Use it to test that UI does not regress on weird CSS
-//import './weird-css.css';
+// import './weird-css.css';
 
 export const Index: React.FC = () => {
 	const inputProps = getInputProps();

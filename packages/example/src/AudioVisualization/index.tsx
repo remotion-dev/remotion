@@ -89,6 +89,7 @@ const AudioVisualization: React.FC = () => {
 	if (!audioData) {
 		return null;
 	}
+
 	const visualization = visualizeAudio({
 		fps,
 		frame,
