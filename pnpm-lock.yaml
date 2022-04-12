@@ -334,7 +334,7 @@ importers:
       '@types/node': 17.0.17
       '@typescript-eslint/eslint-plugin': 5.11.0
       '@typescript-eslint/parser': 5.11.0
-      eslint-plugin-10x: 1.5.0
+      eslint-plugin-10x: 1.5.1
       eslint-plugin-react: 7.29.4
       eslint-plugin-react-hooks: 4.4.0
       typescript: ^4.5.5
@@ -342,7 +342,7 @@ importers:
       '@remotion/eslint-plugin': link:../eslint-plugin
       '@typescript-eslint/eslint-plugin': 5.11.0_5448361d0c7d01128df3422f1139058a
       '@typescript-eslint/parser': 5.11.0_typescript@4.5.5
-      eslint-plugin-10x: 1.5.0
+      eslint-plugin-10x: 1.5.1
       eslint-plugin-react: 7.29.4
       eslint-plugin-react-hooks: 4.4.0
     devDependencies:
@@ -14529,14 +14529,6 @@ packages:
       pkg-dir: 2.0.0
     dev: false
 
-  /eslint-plugin-10x/1.5.0:
-    resolution: {integrity: sha512-MZn5wgGgzBwE7SYnrwAhq1vb/vlt/Jw+ycezFr5x/BW1Kn7Uoe3WzKt5T4OITFVS6//BprMTT+79mYQvjlfWTQ==}
-    peerDependencies:
-      eslint: ^7.8.0
-    dependencies:
-      jsx-ast-utils: 2.4.1
-    dev: false
-
   /eslint-plugin-10x/1.5.0_eslint@8.13.0:
     resolution: {integrity: sha512-MZn5wgGgzBwE7SYnrwAhq1vb/vlt/Jw+ycezFr5x/BW1Kn7Uoe3WzKt5T4OITFVS6//BprMTT+79mYQvjlfWTQ==}
     peerDependencies:
@@ -14544,6 +14536,14 @@ packages:
     dependencies:
       eslint: 8.13.0
       jsx-ast-utils: 2.4.1
+
+  /eslint-plugin-10x/1.5.1:
+    resolution: {integrity: sha512-dpphiMfRuNWHSelDUo0NRRczt+9qBQJxSEXvnw/YQjfHirJ7mHkpP1g0x/Q/hmUYh865dly1Yytx2Ulp+btyvQ==}
+    peerDependencies:
+      eslint: '>=7.8.0'
+    dependencies:
+      jsx-ast-utils: 2.4.1
+    dev: false
 
   /eslint-plugin-flowtype/5.10.0_eslint@7.32.0:
     resolution: {integrity: sha512-vcz32f+7TP+kvTUyMXZmCnNujBQZDNmcqPImw8b9PZ+16w1Qdm6ryRuYZYVaG9xRqqmAPr2Cs9FAX5gN+x/bjw==}

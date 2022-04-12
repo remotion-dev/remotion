@@ -18,13 +18,13 @@ function defaultInvalidHandler({
 	process.stdout.write('Or no: (' + noValues.join(', ') + ') \n\n');
 }
 
-export const yesOrNo = async ({
+export const yesOrNo = ({
 	question,
 	defaultValue,
 }: {
 	question: string;
 	defaultValue: boolean;
-}) => {
+}): Promise<boolean> => {
 	const invalid = defaultInvalidHandler;
 
 	const yesValues = options.yes.map((v) => v.toLowerCase());

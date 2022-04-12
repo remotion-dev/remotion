@@ -6,7 +6,7 @@ import {
 import {createFunction as original} from '../create-function';
 import {addFunction} from '../mock-functions';
 
-export const createFunction: typeof original = async (input) => {
+export const createFunction: typeof original = (input) => {
 	if (!input.alreadyCreated) {
 		addFunction(
 			{
