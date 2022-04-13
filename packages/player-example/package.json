@@ -9,7 +9,6 @@
 	],
 	"dependencies": {
 		"@babel/core": "^7.16.0",
-		"@craco/craco": "^6.1.1",
 		"@pmmmwh/react-refresh-webpack-plugin": "^0.5.3",
 		"@remotion/player": "2.6.15",
 		"@svgr/webpack": "^5.5.0",
@@ -20,7 +19,6 @@
 		"@types/node": "^12.0.0",
 		"@types/react": "18.0.1",
 		"@types/react-dom": "18.0.0",
-		"babel-jest": "^27.4.2",
 		"babel-loader": "^8.2.3",
 		"babel-plugin-named-asset-import": "^0.3.8",
 		"babel-preset-react-app": "^10.0.1",
@@ -39,9 +37,6 @@
 		"fs-extra": "^10.0.0",
 		"html-webpack-plugin": "^5.5.0",
 		"identity-obj-proxy": "^3.0.0",
-		"jest": "^27.4.3",
-		"jest-resolve": "^27.4.2",
-		"jest-watch-typeahead": "^1.0.0",
 		"mini-css-extract-plugin": "^2.4.5",
 		"postcss": "^8.4.4",
 		"postcss-flexbugs-fixes": "^5.0.2",
@@ -70,12 +65,7 @@
 		"workbox-webpack-plugin": "^6.4.1"
 	},
 	"scripts": {
-		"start": "craco start"
-	},
-	"eslintConfig": {
-		"extends": [
-			"@remotion"
-		]
+		"start": "node scripts/start"
 	},
 	"browserslist": {
 		"production": [
