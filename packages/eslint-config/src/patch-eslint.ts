@@ -270,6 +270,7 @@ export const allowESLintShareableConfig = () => {
             moduleName: string,
             relativeToPath: string
           ) {
+            console.log("patching", moduleName, ctx.filePath);
             // resolve using ctx.filePath instead of relativeToPath
             return originalResolve.call(this, moduleName, ctx.filePath);
           };
