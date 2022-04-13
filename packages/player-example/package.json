@@ -32,7 +32,8 @@
 	},
 	"scripts": {
 		"lint": "eslint src --ext ts,tsx",
-		"start": "node scripts/start"
+		"start": "node scripts/start",
+		"build-site": "node scripts/build"
 	},
 	"browserslist": {
 		"production": [
@@ -44,11 +45,6 @@
 			"last 1 chrome version",
 			"last 1 firefox version",
 			"last 1 safari version"
-		]
-	},
-	"babel": {
-		"presets": [
-			"react-app"
 		]
 	}
 }
