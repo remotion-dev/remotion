@@ -24,7 +24,6 @@ const {
 	prepareUrls,
 } = require('react-dev-utils/WebpackDevServerUtils');
 const openBrowser = require('react-dev-utils/openBrowser');
-const semver = require('semver');
 const paths = require('../config/paths');
 const configFactory = require('../config/webpack.config');
 const createDevServerConfig = require('../config/webpackDevServer.config');
@@ -135,7 +134,7 @@ checkBrowsers(paths.appPath, isInteractive)
 				clearConsole();
 			}
 
-			if (env.FAST_REFRESH && semver.lt(react.version, '16.10.0')) {
+			if (env.FAST_REFRESH) {
 				console.log(
 					chalk.yellow(
 						`Fast Refresh requires React 16.10 or higher. You are using React ${react.version}.`
@@ -147,8 +146,8 @@ checkBrowsers(paths.appPath, isInteractive)
 			openBrowser(urls.localUrlForBrowser);
 		});
 
-		['SIGINT', 'SIGTERM'].forEach(function (sig) {
-			process.on(sig, function () {
+		['SIGINT', 'SIGTERM'].forEach((sig) => {
+			process.on(sig, () => {
 				devServer.close();
 				process.exit();
 			});
@@ -156,7 +155,7 @@ checkBrowsers(paths.appPath, isInteractive)
 
 		if (process.env.CI !== 'true') {
 			// Gracefully exit when stdin ends
-			process.stdin.on('end', function () {
+			process.stdin.on('end', () => {
 				devServer.close();
 				process.exit();
 			});

@@ -1,5 +1,5 @@
-import React, {ComponentType} from 'react';
-import {render} from 'react-dom';
+import {ComponentType} from 'react';
+import {createRoot} from 'react-dom/client';
 import App from './App';
 import CarSlideshow from './CarSlideshow';
 import {VideoautoplayDemo} from './VideoAutoplay';
@@ -17,7 +17,7 @@ const Car = () =>
 		);
 	});
 
-render(
+createRoot(rootElement as HTMLElement).render(
 	<div
 		style={{
 			display: 'flex',
@@ -28,6 +28,5 @@ render(
 	>
 		<App lazyComponent={Car} durationInFrames={500} />
 		<App component={VideoautoplayDemo} durationInFrames={2700} />
-	</div>,
-	rootElement
+	</div>
 );
