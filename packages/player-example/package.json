@@ -65,6 +65,7 @@
 		"workbox-webpack-plugin": "^6.4.1"
 	},
 	"scripts": {
+		"lint": "eslint src --ext ts,tsx",
 		"start": "node scripts/start"
 	},
 	"browserslist": {
