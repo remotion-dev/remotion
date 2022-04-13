@@ -599,7 +599,7 @@ export = {
   overrides: [
     {
       files: ["*.{ts,tsx}"],
-      extends: ["plugin:@typescript-eslint/recommended", ...baseExtends],
+      extends: [...baseExtends],
       parser: "@typescript-eslint/parser",
       rules: getRules(true),
     },
