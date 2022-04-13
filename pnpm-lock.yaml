@@ -689,9 +689,7 @@ importers:
       react-dom: 18.0.0
       react-refresh: ^0.11.0
       remotion: 2.6.15
-      resolve: ^1.20.0
       semver: ^7.3.5
-      source-map-loader: ^3.0.0
       typescript: ^4.5.5
       webpack: ^5.64.4
       webpack-dev-server: ^4.6.0
@@ -718,9 +716,7 @@ importers:
       react-dom: 18.0.0_react@18.0.0
       react-refresh: 0.11.0
       remotion: link:../core
-      resolve: 1.22.0
       semver: 7.3.5
-      source-map-loader: 3.0.0_webpack@5.72.0
       typescript: 4.5.5
       webpack: 5.72.0
       webpack-dev-server: 4.8.1_webpack@5.72.0
@@ -18389,18 +18385,6 @@ packages:
       iconv-lite: 0.6.3
       source-map-js: 0.6.2
       webpack: 5.60.0_esbuild@0.14.19
-    dev: false
-
-  /source-map-loader/3.0.0_webpack@5.72.0:
-    resolution: {integrity: sha512-GKGWqWvYr04M7tn8dryIWvb0s8YM41z82iQv01yBtIylgxax0CwvSy6gc2Y02iuXwEfGWRlMicH0nvms9UZphw==}
-    engines: {node: '>= 12.13.0'}
-    peerDependencies:
-      webpack: ^5.0.0
-    dependencies:
-      abab: 2.0.5
-      iconv-lite: 0.6.3
-      source-map-js: 0.6.2
-      webpack: 5.72.0
     dev: false
 
   /source-map-resolve/0.5.3:

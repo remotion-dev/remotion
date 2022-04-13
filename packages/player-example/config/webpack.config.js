@@ -3,19 +3,13 @@
 const fs = require('fs');
 const path = require('path');
 const webpack = require('webpack');
-const resolve = require('resolve');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const InlineChunkHtmlPlugin = require('react-dev-utils/InlineChunkHtmlPlugin');
 const InterpolateHtmlPlugin = require('react-dev-utils/InterpolateHtmlPlugin');
 const ModuleScopePlugin = require('react-dev-utils/ModuleScopePlugin');
-const getCSSModuleLocalIdent = require('react-dev-utils/getCSSModuleLocalIdent');
 const paths = require('./paths');
 const modules = require('./modules');
 const ModuleNotFoundPlugin = require('react-dev-utils/ModuleNotFoundPlugin');
-const ForkTsCheckerWebpackPlugin =
-	process.env.TSC_COMPILE_ON_ERROR === 'true'
-		? require('react-dev-utils/ForkTsCheckerWarningWebpackPlugin')
-		: require('react-dev-utils/ForkTsCheckerWebpackPlugin');
 const ReactRefreshWebpackPlugin = require('@pmmmwh/react-refresh-webpack-plugin');
 
 const createEnvironmentHash = require('./webpack/persistentCache/createEnvironmentHash');
@@ -41,14 +35,12 @@ const babelRuntimeRegenerator = require.resolve('@babel/runtime/regenerator', {
 const shouldInlineRuntimeChunk = process.env.INLINE_RUNTIME_CHUNK !== 'false';
 
 const imageInlineSizeLimit = parseInt(
-	process.env.IMAGE_INLINE_SIZE_LIMIT || '10000'
+	process.env.IMAGE_INLINE_SIZE_LIMIT || '10000',
+	10
 );
 
 // Check if TypeScript is setup
 const useTypeScript = fs.existsSync(paths.appTsConfig);
-
-// Get the path to the uncompiled service worker (if it exists).
-const swSrc = paths.swSrc;
 
 const hasJsxRuntime = (() => {
 	if (process.env.DISABLE_NEW_JSX_TRANSFORM === 'true') {
@@ -65,6 +57,7 @@ const hasJsxRuntime = (() => {
 
 // This is the production and development configuration.
 // It is focused on developer experience, fast rebuilds, and a minimal bundle.
+// eslint-disable-next-line complexity
 module.exports = function (webpackEnv) {
 	const isEnvDevelopment = webpackEnv === 'development';
 	const isEnvProduction = webpackEnv === 'production';
@@ -103,12 +96,6 @@ module.exports = function (webpackEnv) {
 
 	const shouldUseReactRefresh = env.FAST_REFRESH;
 
-	// common function to get style loaders
-	const getStyleLoaders = (cssOptions, preProcessor) => {
-		const loaders = [].filter(Boolean);
-		return loaders;
-	};
-
 	return {
 		target: ['browserslist'],
 		// Webpack noise constrained to errors and warnings
@@ -139,7 +126,7 @@ module.exports = function (webpackEnv) {
 				? 'static/js/[name].[contenthash:8].chunk.js'
 				: isEnvDevelopment && 'static/js/[name].chunk.js',
 			assetModuleFilename: 'static/media/[name].[hash][ext]',
-			// webpack uses `publicPath` to determine where the app is being served from.
+			// Webpack uses `publicPath` to determine where the app is being served from.
 			// It requires a trailing slash, or the file assets will get an incorrect path.
 			// We inferred the "public path" (such as / or /my-project) from homepage.
 			publicPath: paths.publicUrlOrPath,
@@ -219,13 +206,6 @@ module.exports = function (webpackEnv) {
 		module: {
 			strictExportPresence: true,
 			rules: [
-				// Handle node_modules packages that contain sourcemaps
-				shouldUseSourceMap && {
-					enforce: 'pre',
-					exclude: /@babel(?:\/|\\{1,2})runtime/,
-					test: /\.(js|mjs|jsx|ts|tsx|css)$/,
-					loader: require.resolve('source-map-loader'),
-				},
 				{
 					// "oneOf" will traverse all following loaders until one will
 					// match the requirements. When no loader matches it will fall
@@ -337,31 +317,26 @@ module.exports = function (webpackEnv) {
 		},
 		plugins: [
 			// Generates an `index.html` file with the <script> injected.
-			new HtmlWebpackPlugin(
-				Object.assign(
-					{},
-					{
-						inject: true,
-						template: paths.appHtml,
-					},
-					isEnvProduction
-						? {
-								minify: {
-									removeComments: true,
-									collapseWhitespace: true,
-									removeRedundantAttributes: true,
-									useShortDoctype: true,
-									removeEmptyAttributes: true,
-									removeStyleLinkTypeAttributes: true,
-									keepClosingSlash: true,
-									minifyJS: true,
-									minifyCSS: true,
-									minifyURLs: true,
-								},
-						  }
-						: undefined
-				)
-			),
+			new HtmlWebpackPlugin({
+				inject: true,
+				template: paths.appHtml,
+				...(isEnvProduction
+					? {
+							minify: {
+								removeComments: true,
+								collapseWhitespace: true,
+								removeRedundantAttributes: true,
+								useShortDoctype: true,
+								removeEmptyAttributes: true,
+								removeStyleLinkTypeAttributes: true,
+								keepClosingSlash: true,
+								minifyJS: true,
+								minifyCSS: true,
+								minifyURLs: true,
+							},
+					  }
+					: undefined),
+			}),
 			// Inlines the webpack runtime script. This script is too small to warrant
 			// a network request.
 			// https://github.com/facebook/create-react-app/issues/5358
