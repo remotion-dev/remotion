@@ -30,6 +30,7 @@
 		"@types/prompts": "^2.0.12",
 		"@types/tar": "6.1.1",
 		"eslint": "8.13.0",
+		"prettier": "2.6.2",
 		"prettier-plugin-organize-imports": "^1.1.1",
 		"ts-node": "^9.1.1",
 		"typescript": "^4.5.5"
