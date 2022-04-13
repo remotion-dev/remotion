@@ -12,7 +12,7 @@ const resolve = require('resolve');
  * @param {Object} options
  */
 function getAdditionalModulePaths(options = {}) {
-  const baseUrl = options.baseUrl;
+  const {baseUrl} = options;
 
   if (!baseUrl) {
     return '';
@@ -55,7 +55,7 @@ function getAdditionalModulePaths(options = {}) {
  * @param {*} options
  */
 function getWebpackAliases(options = {}) {
-  const baseUrl = options.baseUrl;
+  const {baseUrl} = options;
 
   if (!baseUrl) {
     return {};
@@ -76,7 +76,7 @@ function getWebpackAliases(options = {}) {
  * @param {*} options
  */
 function getJestAliases(options = {}) {
-  const baseUrl = options.baseUrl;
+  const {baseUrl} = options;
 
   if (!baseUrl) {
     return {};
@@ -124,7 +124,7 @@ function getModules() {
   const additionalModulePaths = getAdditionalModulePaths(options);
 
   return {
-    additionalModulePaths: additionalModulePaths,
+    additionalModulePaths,
     webpackAliases: getWebpackAliases(options),
     jestAliases: getJestAliases(options),
     hasTsConfig,
