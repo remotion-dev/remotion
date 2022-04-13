@@ -21,14 +21,6 @@ const reactRefreshRuntimeEntry = require.resolve('react-refresh/runtime');
 const reactRefreshWebpackPluginRuntimeEntry = require.resolve(
 	'@pmmmwh/react-refresh-webpack-plugin'
 );
-const babelRuntimeEntry = require.resolve('babel-preset-react-app');
-const babelRuntimeEntryHelpers = require.resolve(
-	'@babel/runtime/helpers/esm/assertThisInitialized',
-	{paths: [babelRuntimeEntry]}
-);
-const babelRuntimeRegenerator = require.resolve('@babel/runtime/regenerator', {
-	paths: [babelRuntimeEntry],
-});
 
 // Some apps do not need the benefits of saving a web request, so not inlining the chunk
 // makes for a smoother build process.
@@ -41,19 +33,6 @@ const imageInlineSizeLimit = parseInt(
 
 // Check if TypeScript is setup
 const useTypeScript = fs.existsSync(paths.appTsConfig);
-
-const hasJsxRuntime = (() => {
-	if (process.env.DISABLE_NEW_JSX_TRANSFORM === 'true') {
-		return false;
-	}
-
-	try {
-		require.resolve('react/jsx-runtime');
-		return true;
-	} catch (e) {
-		return false;
-	}
-})();
 
 // This is the production and development configuration.
 // It is focused on developer experience, fast rebuilds, and a minimal bundle.
@@ -110,7 +89,7 @@ module.exports = function (webpackEnv) {
 			: isEnvDevelopment && 'cheap-module-source-map',
 		// These are the "entry points" to our application.
 		// This means they will be the "root" imports that are included in JS bundle.
-		entry: paths.appIndexJs,
+		entry: [require.resolve('../src/react-shim.js'), paths.appIndexJs],
 		output: {
 			// The build folder.
 			path: paths.appBuild,
@@ -197,9 +176,6 @@ module.exports = function (webpackEnv) {
 					paths.appPackageJson,
 					reactRefreshRuntimeEntry,
 					reactRefreshWebpackPluginRuntimeEntry,
-					babelRuntimeEntry,
-					babelRuntimeEntryHelpers,
-					babelRuntimeRegenerator,
 				]),
 			],
 		},
@@ -240,32 +216,13 @@ module.exports = function (webpackEnv) {
 						{
 							test: /\.(js|mjs|jsx|ts|tsx)$/,
 							include: paths.appSrc,
-							loader: require.resolve('babel-loader'),
+							loader: require.resolve(
+								'@remotion/bundler/dist/esbuild-loader/index.js'
+							),
 							options: {
-								customize: require.resolve(
-									'babel-preset-react-app/webpack-overrides'
-								),
-								presets: [
-									[
-										require.resolve('babel-preset-react-app'),
-										{
-											runtime: hasJsxRuntime ? 'automatic' : 'classic',
-										},
-									],
-								],
-
-								plugins: [
-									isEnvDevelopment &&
-										shouldUseReactRefresh &&
-										require.resolve('react-refresh/babel'),
-								].filter(Boolean),
-								// This is a feature of `babel-loader` for webpack (not Babel itself).
-								// It enables caching results in ./node_modules/.cache/babel-loader/
-								// directory for faster rebuilds.
-								cacheDirectory: true,
-								// See #6846 for context on why cacheCompression is disabled
-								cacheCompression: false,
-								compact: isEnvProduction,
+								target: 'chrome85',
+								loader: 'tsx',
+								implementation: require('esbuild'),
 							},
 						},
 						// Process any JS outside of the app with Babel.
@@ -273,26 +230,13 @@ module.exports = function (webpackEnv) {
 						{
 							test: /\.(js|mjs)$/,
 							exclude: /@babel(?:\/|\\{1,2})runtime/,
-							loader: require.resolve('babel-loader'),
+							loader: require.resolve(
+								'@remotion/bundler/dist/esbuild-loader/index.js'
+							),
 							options: {
-								babelrc: false,
-								configFile: false,
-								compact: false,
-								presets: [
-									[
-										require.resolve('babel-preset-react-app/dependencies'),
-										{helpers: true},
-									],
-								],
-								cacheDirectory: true,
-								// See #6846 for context on why cacheCompression is disabled
-								cacheCompression: false,
-
-								// Babel sourcemaps are needed for debugging into node_modules
-								// code.  Without the options below, debuggers like VSCode
-								// show incorrect code and set breakpoints on the wrong lines.
-								sourceMaps: shouldUseSourceMap,
-								inputSourceMap: shouldUseSourceMap,
+								target: 'chrome85',
+								loader: 'tsx',
+								implementation: require('esbuild'),
 							},
 						},
 
