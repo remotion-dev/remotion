@@ -1,11 +1,13 @@
-.realvideos {
+.row {
   display: flex;
   flex-direction: row;
 }
 
+.tile {
+  flex: 1;
+}
 
-
-.realtitle {
+.title {
   font-size: 2.5em;
   font-weight: 700;
   font-family: --apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
@@ -19,15 +21,9 @@
   -webkit-background-clip: text;
 }
 
-.realmp4container {
-  flex: 1;
-  justify-content: flex-end;
-  align-items: center;
-  display: flex;
-}
 
 @media screen and (max-width: 900px) {
-  .realvideos {
+  .row {
     flex-direction: column-reverse;
   }
   .realmp4container {
@@ -39,17 +35,3 @@
   }
 }
 
-@keyframes goup {
-  from {
-    opacity: 0;
-    transform: translateY(50px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0px);
-  }
-}
-
-.icon {
-  animation: goup 0.6s;
-}
