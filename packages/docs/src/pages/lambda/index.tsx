@@ -5,6 +5,9 @@ import { RenderTimes } from "../../../components/LambdaSplash/RenderTimes";
 import { Disclaimers } from "../../../components/LambdaSplash/Disclaimers";
 import Head from "@docusaurus/Head";
 import { LambdaLogo } from "../../../components/LambdaSplash/LambdaLogo";
+import { LambdaFast } from "../../../components/LambdaSplash/Fast";
+import { LambdaEasy } from "../../../components/LambdaSplash/Easy";
+import { BuildApps } from "../../../components/LambdaSplash/BuildApps";
 
 const container: React.CSSProperties = {
   maxWidth: 1000,
@@ -17,7 +20,7 @@ export default () => {
   return (
     <Layout>
       <Head>
-        <title>@remotion/lambda</title>
+        <title>Remotion Lambda - A distributed video renderer</title>
         <meta
           name="description"
           content="Render Remotion videos fast and at scale on AWS Lambda."
@@ -38,6 +41,14 @@ export default () => {
         <div>
           <RenderTimes />
         </div>
+        <br />
+        <div>
+          <LambdaFast />
+          <br />
+          <LambdaEasy />
+        </div>
+
+        <BuildApps />
         <div>
           <Disclaimers />
         </div>
