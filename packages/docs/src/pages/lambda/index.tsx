@@ -4,6 +4,7 @@ import { LambdaHeader } from "../../../components/LambdaSplash/LambdaHeader";
 import { RenderTimes } from "../../../components/LambdaSplash/RenderTimes";
 import { Disclaimers } from "../../../components/LambdaSplash/Disclaimers";
 import Head from "@docusaurus/Head";
+import { LambdaLogo } from "../../../components/LambdaSplash/LambdaLogo";
 
 const container: React.CSSProperties = {
   maxWidth: 1000,
@@ -29,9 +30,9 @@ export default () => {
       <div style={container}>
         <br />
         <br />
+        <LambdaLogo />
         <br />
         <LambdaHeader />
-        <br />
         <br />
         <br />
         <div>
