@@ -34,11 +34,11 @@ export const webpackConfig = ({
 	userDefinedComponent: string;
 	outDir: string;
 	environment: 'development' | 'production';
-	webpackOverride?: WebpackOverrideFn;
+	webpackOverride: WebpackOverrideFn;
 	onProgressUpdate?: (f: number) => void;
 	enableCaching?: boolean;
-	inputProps?: object;
-	envVariables?: Record<string, string>;
+	inputProps: object;
+	envVariables: Record<string, string>;
 	maxTimelineTracks: number;
 }): WebpackConfiguration => {
 	return webpackOverride({
@@ -93,7 +93,7 @@ export const webpackConfig = ({
 							'process.env.MAX_TIMELINE_TRACKS': maxTimelineTracks,
 							'process.env.INPUT_PROPS': JSON.stringify(inputProps ?? {}),
 							[`process.env.${Internals.ENV_VARIABLES_ENV_NAME}`]:
-								JSON.stringify(envVariables ?? {}),
+								JSON.stringify(envVariables),
 						}),
 				  ]
 				: [
