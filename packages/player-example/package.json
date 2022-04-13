@@ -1,5 +1,5 @@
 {
-	"name": "player-example",
+	"name": "@remotion/player-example",
 	"version": "2.6.15",
 	"private": true,
 	"author": "Jonny Burger <jonny@remotion.dev>",
