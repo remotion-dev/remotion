@@ -11,7 +11,7 @@ const paths = require('./paths');
 function validateKeyAndCerts({ cert, key, keyFile, crtFile }) {
   let encrypted;
   try {
-    // publicEncrypt will throw an error with an invalid cert
+    // PublicEncrypt will throw an error with an invalid cert
     encrypted = crypto.publicEncrypt(cert, Buffer.from('test'));
   } catch (err) {
     throw new Error(
@@ -20,7 +20,7 @@ function validateKeyAndCerts({ cert, key, keyFile, crtFile }) {
   }
 
   try {
-    // privateDecrypt will throw an error with an invalid key
+    // PrivateDecrypt will throw an error with an invalid key
     crypto.privateDecrypt(key, encrypted);
   } catch (err) {
     throw new Error(

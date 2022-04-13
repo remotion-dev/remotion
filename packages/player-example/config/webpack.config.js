@@ -14,10 +14,8 @@ const InterpolateHtmlPlugin = require('react-dev-utils/InterpolateHtmlPlugin');
 const WorkboxWebpackPlugin = require('workbox-webpack-plugin');
 const ModuleScopePlugin = require('react-dev-utils/ModuleScopePlugin');
 const getCSSModuleLocalIdent = require('react-dev-utils/getCSSModuleLocalIdent');
-const ESLintPlugin = require('eslint-webpack-plugin');
 const paths = require('./paths');
 const modules = require('./modules');
-const getClientEnvironment = require('./env');
 const ModuleNotFoundPlugin = require('react-dev-utils/ModuleNotFoundPlugin');
 const ForkTsCheckerWebpackPlugin =
 	process.env.TSC_COMPILE_ON_ERROR === 'true'
@@ -47,9 +45,6 @@ const babelRuntimeRegenerator = require.resolve('@babel/runtime/regenerator', {
 // makes for a smoother build process.
 const shouldInlineRuntimeChunk = process.env.INLINE_RUNTIME_CHUNK !== 'false';
 
-const emitErrorsAsWarnings = process.env.ESLINT_NO_DEV_ERRORS === 'true';
-const disableESLintPlugin = process.env.DISABLE_ESLINT_PLUGIN === 'true';
-
 const imageInlineSizeLimit = parseInt(
 	process.env.IMAGE_INLINE_SIZE_LIMIT || '10000'
 );
@@ -57,19 +52,8 @@ const imageInlineSizeLimit = parseInt(
 // Check if TypeScript is setup
 const useTypeScript = fs.existsSync(paths.appTsConfig);
 
-// Check if Tailwind config exists
-const useTailwind = fs.existsSync(
-	path.join(paths.appPath, 'tailwind.config.js')
-);
-
 // Get the path to the uncompiled service worker (if it exists).
 const swSrc = paths.swSrc;
-
-// style files regexes
-const cssRegex = /\.css$/;
-const cssModuleRegex = /\.module\.css$/;
-const sassRegex = /\.(scss|sass)$/;
-const sassModuleRegex = /\.module\.(scss|sass)$/;
 
 const hasJsxRuntime = (() => {
 	if (process.env.DISABLE_NEW_JSX_TRANSFORM === 'true') {
@@ -99,72 +83,34 @@ module.exports = function (webpackEnv) {
 	// as %PUBLIC_URL% in `index.html` and `process.env.PUBLIC_URL` in JavaScript.
 	// Omit trailing slash as %PUBLIC_URL%/xyz looks better than %PUBLIC_URL%xyz.
 	// Get environment variables to inject into our app.
-	const env = getClientEnvironment(paths.publicUrlOrPath.slice(0, -1));
+	const publicUrl = paths.publicUrlOrPath.slice(0, -1);
+	const env = {
+		// Useful for determining whether we’re running in production mode.
+		// Most importantly, it switches React into the correct mode.
+		NODE_ENV: process.env.NODE_ENV || 'development',
+		// Useful for resolving the correct path to static assets in `public`.
+		// For example, <img src={process.env.PUBLIC_URL + '/img/logo.png'} />.
+		// This should only be used as an escape hatch. Normally you would put
+		// images into the `src` and `import` them in code to get their paths.
+		PUBLIC_URL: publicUrl,
+		// We support configuring the sockjs pathname during development.
+		// These settings let a developer run multiple simultaneous projects.
+		// They are used as the connection `hostname`, `pathname` and `port`
+		// in webpackHotDevClient. They are used as the `sockHost`, `sockPath`
+		// and `sockPort` options in webpack-dev-server.
+		WDS_SOCKET_HOST: process.env.WDS_SOCKET_HOST,
+		WDS_SOCKET_PATH: process.env.WDS_SOCKET_PATH,
+		WDS_SOCKET_PORT: process.env.WDS_SOCKET_PORT,
+		// Whether or not react-refresh is enabled.
+		// It is defined here so it is available in the webpackHotDevClient.
+		FAST_REFRESH: process.env.FAST_REFRESH !== 'false',
+	};
 
-	const shouldUseReactRefresh = env.raw.FAST_REFRESH;
+	const shouldUseReactRefresh = env.FAST_REFRESH;
 
 	// common function to get style loaders
 	const getStyleLoaders = (cssOptions, preProcessor) => {
-		const loaders = [
-			isEnvDevelopment && require.resolve('style-loader'),
-			isEnvProduction && {
-				loader: MiniCssExtractPlugin.loader,
-				// css is located in `static/css`, use '../../' to locate index.html folder
-				// in production `paths.publicUrlOrPath` can be a relative path
-				options: paths.publicUrlOrPath.startsWith('.')
-					? {publicPath: '../../'}
-					: {},
-			},
-			{
-				loader: require.resolve('css-loader'),
-				options: cssOptions,
-			},
-			{
-				// Options for PostCSS as we reference these options twice
-				// Adds vendor prefixing based on your specified browser support in
-				// package.json
-				loader: require.resolve('postcss-loader'),
-				options: {
-					postcssOptions: {
-						// Necessary for external CSS imports to work
-						// https://github.com/facebook/create-react-app/issues/2677
-						ident: 'postcss',
-						config: false,
-						plugins: !useTailwind
-							? [
-									'postcss-flexbugs-fixes',
-									[
-										'postcss-preset-env',
-										{
-											autoprefixer: {
-												flexbox: 'no-2009',
-											},
-											stage: 3,
-										},
-									],
-									// Adds PostCSS Normalize as the reset css with default options,
-									// so that it honors browserslist config in package.json
-									// which in turn let's users customize the target behavior as per their needs.
-									'postcss-normalize',
-							  ]
-							: [
-									'tailwindcss',
-									'postcss-flexbugs-fixes',
-									[
-										'postcss-preset-env',
-										{
-											autoprefixer: {
-												flexbox: 'no-2009',
-											},
-											stage: 3,
-										},
-									],
-							  ],
-					},
-					sourceMap: isEnvProduction ? shouldUseSourceMap : isEnvDevelopment,
-				},
-			},
-		].filter(Boolean);
+		const loaders = [].filter(Boolean);
 		if (preProcessor) {
 			loaders.push(
 				{
@@ -231,7 +177,7 @@ module.exports = function (webpackEnv) {
 		},
 		cache: {
 			type: 'filesystem',
-			version: createEnvironmentHash(env.raw),
+			version: createEnvironmentHash(env),
 			cacheDirectory: paths.appWebpackCache,
 			store: 'pack',
 			buildDependencies: {
@@ -435,88 +381,7 @@ module.exports = function (webpackEnv) {
 								inputSourceMap: shouldUseSourceMap,
 							},
 						},
-						// "postcss" loader applies autoprefixer to our CSS.
-						// "css" loader resolves paths in CSS and adds assets as dependencies.
-						// "style" loader turns CSS into JS modules that inject <style> tags.
-						// In production, we use MiniCSSExtractPlugin to extract that CSS
-						// to a file, but in development "style" loader enables hot editing
-						// of CSS.
-						// By default we support CSS Modules with the extension .module.css
-						{
-							test: cssRegex,
-							exclude: cssModuleRegex,
-							use: getStyleLoaders({
-								importLoaders: 1,
-								sourceMap: isEnvProduction
-									? shouldUseSourceMap
-									: isEnvDevelopment,
-								modules: {
-									mode: 'icss',
-								},
-							}),
-							// Don't consider CSS imports dead code even if the
-							// containing package claims to have no side effects.
-							// Remove this when webpack adds a warning or an error for this.
-							// See https://github.com/webpack/webpack/issues/6571
-							sideEffects: true,
-						},
-						// Adds support for CSS Modules (https://github.com/css-modules/css-modules)
-						// using the extension .module.css
-						{
-							test: cssModuleRegex,
-							use: getStyleLoaders({
-								importLoaders: 1,
-								sourceMap: isEnvProduction
-									? shouldUseSourceMap
-									: isEnvDevelopment,
-								modules: {
-									mode: 'local',
-									getLocalIdent: getCSSModuleLocalIdent,
-								},
-							}),
-						},
-						// Opt-in support for SASS (using .scss or .sass extensions).
-						// By default we support SASS Modules with the
-						// extensions .module.scss or .module.sass
-						{
-							test: sassRegex,
-							exclude: sassModuleRegex,
-							use: getStyleLoaders(
-								{
-									importLoaders: 3,
-									sourceMap: isEnvProduction
-										? shouldUseSourceMap
-										: isEnvDevelopment,
-									modules: {
-										mode: 'icss',
-									},
-								},
-								'sass-loader'
-							),
-							// Don't consider CSS imports dead code even if the
-							// containing package claims to have no side effects.
-							// Remove this when webpack adds a warning or an error for this.
-							// See https://github.com/webpack/webpack/issues/6571
-							sideEffects: true,
-						},
-						// Adds support for CSS Modules, but using SASS
-						// using the extension .module.scss or .module.sass
-						{
-							test: sassModuleRegex,
-							use: getStyleLoaders(
-								{
-									importLoaders: 3,
-									sourceMap: isEnvProduction
-										? shouldUseSourceMap
-										: isEnvDevelopment,
-									modules: {
-										mode: 'local',
-										getLocalIdent: getCSSModuleLocalIdent,
-									},
-								},
-								'sass-loader'
-							),
-						},
+
 						// "file" loader makes sure those assets get served by WebpackDevServer.
 						// When you `import` an asset, you get its (virtual) filename.
 						// In production, they would get copied to the `build` folder.
@@ -574,7 +439,7 @@ module.exports = function (webpackEnv) {
 			// <link rel="icon" href="%PUBLIC_URL%/favicon.ico">
 			// It will be an empty string unless you specify "homepage"
 			// in `package.json`, in which case it will be the pathname of that URL.
-			new InterpolateHtmlPlugin(HtmlWebpackPlugin, env.raw),
+			new InterpolateHtmlPlugin(HtmlWebpackPlugin, env),
 			// This gives some necessary context to module not found errors, such as
 			// the requesting resource.
 			new ModuleNotFoundPlugin(paths.appPath),
@@ -583,7 +448,7 @@ module.exports = function (webpackEnv) {
 			// It is absolutely essential that NODE_ENV is set to production
 			// during a production build.
 			// Otherwise React will be compiled in the very slow development mode.
-			new webpack.DefinePlugin(env.stringified),
+			new webpack.DefinePlugin(env),
 			// Experimental hot reloading for React .
 			// https://github.com/facebook/react/tree/main/packages/react-refresh
 			isEnvDevelopment &&
@@ -690,31 +555,6 @@ module.exports = function (webpackEnv) {
 					},
 					logger: {
 						infrastructure: 'silent',
-					},
-				}),
-			!disableESLintPlugin &&
-				new ESLintPlugin({
-					// Plugin options
-					extensions: ['js', 'mjs', 'jsx', 'ts', 'tsx'],
-					formatter: require.resolve('react-dev-utils/eslintFormatter'),
-					eslintPath: require.resolve('eslint'),
-					failOnError: !(isEnvDevelopment && emitErrorsAsWarnings),
-					context: paths.appSrc,
-					cache: true,
-					cacheLocation: path.resolve(
-						paths.appNodeModules,
-						'.cache/.eslintcache'
-					),
-					// ESLint class options
-					cwd: paths.appPath,
-					resolvePluginsRelativeTo: __dirname,
-					baseConfig: {
-						extends: [require.resolve('eslint-config-react-app/base')],
-						rules: {
-							...(!hasJsxRuntime && {
-								'react/react-in-jsx-scope': 'error',
-							}),
-						},
 					},
 				}),
 		].filter(Boolean),
