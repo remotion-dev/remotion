@@ -123,7 +123,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: node_modules/.cache
-          key: deps-${{ runner.os }}-${{ matrix.ffmpeg_version }}-node${{ matrix.node_version }}
+          key: deps-${{ runner.os }}-${{ matrix.ffmpeg_version }}-node${{ matrix.node_version }}-v2
       - name: Cache dist/ folders
         uses: actions/cache@v2
         if: runner.os != 'windows'
