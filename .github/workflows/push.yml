@@ -129,7 +129,7 @@ jobs:
         if: runner.os != 'windows'
         with:
           path: packages/**/dist
-          key: dist-${{ runner.os }}-${{ matrix.ffmpeg_version }}-node${{ matrix.node_version }}-v2
+          key: dist-${{ runner.os }}-${{ matrix.ffmpeg_version }}-node${{ matrix.node_version }}
 
       - name: Build & Test
         run: |
