@@ -17,8 +17,8 @@
   "license": "ISC",
   "dependencies": {
     "@remotion/eslint-plugin": "2.6.15",
-    "@typescript-eslint/eslint-plugin": "5.11.0",
-    "@typescript-eslint/parser": "5.11.0",
+    "@typescript-eslint/eslint-plugin": "5.19.0",
+    "@typescript-eslint/parser": "5.19.0",
     "eslint-plugin-10x": "1.5.2",
     "eslint-plugin-react": "7.29.4",
     "eslint-plugin-react-hooks": "4.4.0"
