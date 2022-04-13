@@ -1,10 +1,24 @@
 import path from 'path';
 import {Internals, WebpackConfiguration, WebpackOverrideFn} from 'remotion';
+import ReactDOM from 'react-dom';
 import webpack, {ProgressPlugin} from 'webpack';
 import {LoaderOptions} from './esbuild-loader/interfaces';
 import {ReactFreshWebpackPlugin} from './fast-refresh';
 import {getWebpackCacheName} from './webpack-cache';
 import esbuild = require('esbuild');
+
+if (!ReactDOM || !ReactDOM.version) {
+	throw new Error('Could not find "react-dom" package. Did you install it?');
+}
+
+const reactDomVersion = ReactDOM.version.split('.')[0];
+if (reactDomVersion === '0') {
+	throw new Error(
+		`Version ${reactDomVersion} of "react-dom" is not supported by Remotion`
+	);
+}
+
+const shouldUseReactDomClient = parseInt(reactDomVersion, 10) >= 18;
 
 const esbuildLoaderOptions: LoaderOptions = {
 	target: 'chrome85',
@@ -121,6 +135,9 @@ export const webpackConfig = ({
 				// Only one version of react
 				'react/jsx-runtime': require.resolve('react/jsx-runtime'),
 				react: require.resolve('react'),
+				'react-dom/client': shouldUseReactDomClient
+					? require.resolve('react-dom/client')
+					: require.resolve('react-dom'),
 				remotion: require.resolve('remotion'),
 				'react-native$': 'react-native-web',
 			},
