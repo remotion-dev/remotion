@@ -484,17 +484,7 @@ importers:
       '@types/node': ^16.7.5
       '@types/react': 18.0.1
       '@types/react-dom': 18.0.0
-      '@typescript-eslint/eslint-plugin': 5.18.0
-      '@typescript-eslint/parser': 5.18.0
       eslint: 8.13.0
-      eslint-config-prettier: ^8.3.0
-      eslint-config-xo: ^0.39.0
-      eslint-config-xo-react: ^0.25.0
-      eslint-plugin-10x: 1.5.2
-      eslint-plugin-promise: ^5.1.0
-      eslint-plugin-react: 7.29.4
-      eslint-plugin-react-hooks: 4.4.0
-      eslint-plugin-react-native-normalized: ^1.1.2
       jest: ^27.2.4
       lru_map: 0.4.1
       prettier-plugin-organize-imports: ^1.1.1
@@ -513,17 +503,7 @@ importers:
       '@types/node': 16.10.2
       '@types/react': 18.0.1
       '@types/react-dom': 18.0.0
-      '@typescript-eslint/eslint-plugin': 5.18.0_53390842ab439ec085a3fa641ae0b730
-      '@typescript-eslint/parser': 5.18.0_eslint@8.13.0+typescript@4.5.5
       eslint: 8.13.0
-      eslint-config-prettier: 8.3.0_eslint@8.13.0
-      eslint-config-xo: 0.39.0_eslint@8.13.0
-      eslint-config-xo-react: 0.25.0_e32d1654f348dcc76a6c264e56238d05
-      eslint-plugin-10x: 1.5.2_eslint@8.13.0
-      eslint-plugin-promise: 5.1.0_eslint@8.13.0
-      eslint-plugin-react: 7.29.4_eslint@8.13.0
-      eslint-plugin-react-hooks: 4.4.0_eslint@8.13.0
-      eslint-plugin-react-native-normalized: 1.1.2_eslint@8.13.0
       jest: 27.2.4
       prettier-plugin-organize-imports: 1.1.1_typescript@4.5.5
       ts-jest: 27.0.5_c7c6851c09cd607ef678ccb9c9b11e0f
@@ -10459,10 +10439,6 @@ packages:
       xdg-basedir: 4.0.0
     dev: false
 
-  /confusing-browser-globals/1.0.10:
-    resolution: {integrity: sha512-gNld/3lySHwuhaVluJUKLePYirM3QNCKzVxqAdhJII9/WXKVX5PURzMVJspS1jTslSqjeuG4KMVTSouit5YPHA==}
-    dev: true
-
   /connect-history-api-fallback/1.6.0:
     resolution: {integrity: sha512-e54B99q/OUoH64zYYRf3HBP5z24G38h5D3qXu23JGRoigpX5Ss4r9ZnDk3g0Z8uQC2x2lPaJ+UlWBc1ZWBWdLg==}
     engines: {node: '>=0.8'}
@@ -11930,38 +11906,6 @@ packages:
     optionalDependencies:
       source-map: 0.6.1
 
-  /eslint-config-prettier/8.3.0_eslint@8.13.0:
-    resolution: {integrity: sha512-BgZuLUSeKzvlL/VUjx/Yb787VQ26RU3gGjA3iiFvdsp/2bMfVIWUVP7tjxtjS0e+HP409cPlPvNkQloz8C91ew==}
-    hasBin: true
-    peerDependencies:
-      eslint: '>=7.0.0'
-    dependencies:
-      eslint: 8.13.0
-    dev: true
-
-  /eslint-config-xo-react/0.25.0_e32d1654f348dcc76a6c264e56238d05:
-    resolution: {integrity: sha512-YpABFxnoATAYtxsZQChZEbOkWqzCtcQDRdiUqHhLgG7hzbAEzPDmsRUWnTP8oTVLVFWrbgdf913b8kQJaR1cBA==}
-    engines: {node: '>=10'}
-    peerDependencies:
-      eslint: '>=7'
-      eslint-plugin-react: '>=7.22.0'
-      eslint-plugin-react-hooks: '>=4.2.0'
-    dependencies:
-      eslint: 8.13.0
-      eslint-plugin-react: 7.29.4_eslint@8.13.0
-      eslint-plugin-react-hooks: 4.4.0_eslint@8.13.0
-    dev: true
-
-  /eslint-config-xo/0.39.0_eslint@8.13.0:
-    resolution: {integrity: sha512-QX+ZnQgzy/UtgF8dksIiIBzpYoEKmiL0CmZ8O0Gnby7rGXg8Cny1CXirmHp1zKYIpO7BuTmtWj8eUYOsGr0IGQ==}
-    engines: {node: '>=10'}
-    peerDependencies:
-      eslint: '>=7.20.0'
-    dependencies:
-      confusing-browser-globals: 1.0.10
-      eslint: 8.13.0
-    dev: true
-
   /eslint-plugin-10x/1.5.1_eslint@8.13.0:
     resolution: {integrity: sha512-dpphiMfRuNWHSelDUo0NRRczt+9qBQJxSEXvnw/YQjfHirJ7mHkpP1g0x/Q/hmUYh865dly1Yytx2Ulp+btyvQ==}
     peerDependencies:
@@ -11987,15 +11931,6 @@ packages:
       eslint: 8.13.0
       jsx-ast-utils: 2.4.1
 
-  /eslint-plugin-promise/5.1.0_eslint@8.13.0:
-    resolution: {integrity: sha512-NGmI6BH5L12pl7ScQHbg7tvtk4wPxxj8yPHH47NvSmMtFneC077PSeY3huFj06ZWZvtbfxSPt3RuOQD5XcR4ng==}
-    engines: {node: ^10.12.0 || >=12.0.0}
-    peerDependencies:
-      eslint: ^7.0.0
-    dependencies:
-      eslint: 8.13.0
-    dev: true
-
   /eslint-plugin-react-hooks/4.4.0:
     resolution: {integrity: sha512-U3RVIfdzJaeKDQKEJbz5p3NW8/L80PCATJAfuojwbaEL+gBjfGdhUcGde+WGUW46Q5sr/NgxevsIiDtNXrvZaQ==}
     engines: {node: '>=10'}
@@ -12010,14 +11945,6 @@ packages:
       eslint: ^3.0.0 || ^4.0.0 || ^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0-0
     dependencies:
       eslint: 8.13.0
-
-  /eslint-plugin-react-native-normalized/1.1.2_eslint@8.13.0:
-    resolution: {integrity: sha512-/YtsqsOnV82SfFi6Pp/pyslFVhO7OQqi+QkgCQgtWwBuvxdxJ5vsnmv4d/Hjvq4I7vXwGjV217Rkm3R4OXQ0Rg==}
-    peerDependencies:
-      eslint: '>=6.1.0'
-    dependencies:
-      eslint: 8.13.0
-    dev: true
 
   /eslint-plugin-react/7.29.4:
     resolution: {integrity: sha512-CVCXajliVh509PcZYRFyu/BoUEz452+jtQJq2b3Bae4v3xBUWPLCmtmBM+ZinG4MzwmxJgJ2M5rMqhqLVn7MtQ==}
