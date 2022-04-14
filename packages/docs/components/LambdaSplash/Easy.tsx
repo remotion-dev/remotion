@@ -5,11 +5,13 @@ export const LambdaEasy: React.FC = () => {
   return (
     <div className={styles.row}>
       <div className={styles.tile}>
-        <img
-          src="/img/mp4.png"
-          style={{
-            width: 110,
-          }}
+        <video
+          src="/img/npminstall.mp4"
+          style={{}}
+          loop
+          muted
+          playsInline
+          autoPlay
         />
       </div>
       <div className={styles.tile}>

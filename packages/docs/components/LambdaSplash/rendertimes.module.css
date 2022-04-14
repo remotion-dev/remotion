@@ -12,10 +12,8 @@
     Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
   font-weight: 800;
   line-height: 1;
-  -webkit-text-fill-color: transparent;
   font-size: 3em;
-  background: linear-gradient(to right, rgb(66, 144, 245), rgb(66, 233, 245));
-  -webkit-background-clip: text;
+  color: rgb(66, 144, 245);
 
 }
 .stat p {
