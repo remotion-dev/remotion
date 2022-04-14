@@ -3,11 +3,19 @@ import { BlueButton } from "../layout/Button";
 import styles from "./landing.module.css";
 import { useColorMode } from "@docusaurus/theme-common";
 
+const logo: React.CSSProperties = {
+  fontWeight: "bold",
+  fontSize: 20,
+  color: "var(--ifm-color-primary)",
+  marginTop: "5vh",
+};
+
 export const LandingHeader: React.FC = () => {
   const { colorMode } = useColorMode();
 
   return (
     <div className={styles.container}>
+      <div style={logo}>@remotion/player</div>
       <h1 className={styles.title}>
         Dynamic embedded
         <br />
