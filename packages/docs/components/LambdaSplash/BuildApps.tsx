@@ -106,6 +106,8 @@ export const BuildApps: React.FC = () => {
         <div style={step}>
           <h2 style={stepTitle}>Remotion Player</h2>
           <strong style={center}>Embeddable interactive videos</strong>
+          <br />
+          <video src="/img/writeinreact.mp4" muted playsInline loop />
           <ul style={list}>
             <li>Preview videos in the browser</li>
             <hr style={hr} />
@@ -139,12 +141,14 @@ export const BuildApps: React.FC = () => {
         <div style={step}>
           <h2 style={stepTitle}>Remotion Lambda</h2>
           <strong style={center}> Render at scale</strong>
+          <br />
+          <video src="/img/writeinreact.mp4" muted playsInline loop />
           <ul style={list}>
             <li>Render videos in the cloud</li>
             <hr style={hr} />
-            <li>Lorem ipsum</li>
+            <li>Scale according to your volume</li>
             <hr style={hr} />
-            <li>Lorem ipsum</li>
+            <li>Fast because distributed</li>
           </ul>
           <div style={{ flex: 1 }} />
           <div style={row}>
