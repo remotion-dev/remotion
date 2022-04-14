@@ -2,6 +2,7 @@ import React from "react";
 import { PlayerPreview } from "./PlayerPreview";
 import styles from "./lambdaheader.module.css";
 import { BlueButton } from "../layout/Button";
+import { LambdaLogo } from "./LambdaLogo";
 
 const DiscordLogo: React.FC = () => {
   return (
@@ -25,6 +26,7 @@ export const LambdaHeader: React.FC = () => {
   return (
     <div className={styles.writeincss}>
       <div style={{ flex: 1 }}>
+        <LambdaLogo />
         <h1 className={styles.writeincsstitle}>
           Rendering. <br /> At scale.
         </h1>

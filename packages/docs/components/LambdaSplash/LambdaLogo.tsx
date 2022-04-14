@@ -1,9 +1,9 @@
 import React from "react";
 
 const align: React.CSSProperties = {
-  textAlign: "center",
   fontWeight: "bold",
-  fontSize: 30,
+  fontSize: 20,
+  color: "var(--ifm-color-primary)",
 };
 
 export const LambdaLogo: React.FC = () => {

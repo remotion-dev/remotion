@@ -1,17 +1,23 @@
 import React from "react";
+import { Spacer } from "../layout/Spacer";
 import styles from "./fast.module.css";
 
 export const LambdaFast: React.FC = () => {
   return (
     <div className={styles.row}>
       <div className={styles.tile}>
-        <img
-          src="/img/mp4.png"
-          style={{
-            width: 110,
-          }}
+        <video
+          src="/img/timelinesplit.mp4"
+          style={{}}
+          loop
+          muted
+          playsInline
+          autoPlay
         />
       </div>
+      <Spacer />
+      <Spacer />
+      <Spacer />
       <div className={styles.tile}>
         <h2 className={styles.title}>
           Fast because <span className={styles.realgradient}>distributed</span>

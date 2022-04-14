@@ -33,8 +33,6 @@ export default () => {
       <div style={container}>
         <br />
         <br />
-        <LambdaLogo />
-        <br />
         <LambdaHeader />
         <br />
         <br />
