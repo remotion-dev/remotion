@@ -4,7 +4,6 @@ import { LambdaHeader } from "../../../components/LambdaSplash/LambdaHeader";
 import { RenderTimes } from "../../../components/LambdaSplash/RenderTimes";
 import { Disclaimers } from "../../../components/LambdaSplash/Disclaimers";
 import Head from "@docusaurus/Head";
-import { LambdaLogo } from "../../../components/LambdaSplash/LambdaLogo";
 import { LambdaFast } from "../../../components/LambdaSplash/Fast";
 import { LambdaEasy } from "../../../components/LambdaSplash/Easy";
 import { BuildApps } from "../../../components/LambdaSplash/BuildApps";
