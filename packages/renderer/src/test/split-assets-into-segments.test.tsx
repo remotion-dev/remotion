@@ -1,3 +1,4 @@
+import {expect, test} from 'vitest';
 import {splitAssetsIntoSegments} from '../assets/split-assets-into-segments';
 import {MediaAsset} from '../assets/types';
 

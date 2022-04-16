@@ -1,3 +1,4 @@
+import {expect, test} from 'vitest';
 import {roundVolumeToAvoidStackOverflow} from '../assets/round-volume-to-avoid-stack-overflow';
 
 test('Should avoid having more than 98 possible volumes to avoid FFMPEG exception', () => {

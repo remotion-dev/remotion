@@ -1,3 +1,4 @@
+import {expect, test} from 'vitest';
 import {assetIsUsedAtTime} from '../assets/asset-is-used-at-time';
 
 test('Should give true is asset is used at time', () => {

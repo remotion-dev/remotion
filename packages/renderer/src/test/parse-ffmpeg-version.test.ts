@@ -1,3 +1,4 @@
+import {expect, test} from 'vitest';
 import {parseFfmpegVersion} from '../ffmpeg-flags';
 
 test('Should parse a normal FFFMPEG version', () => {

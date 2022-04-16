@@ -1,3 +1,4 @@
+import {expect, test} from 'vitest';
 import {isServeUrl} from '../is-serve-url';
 
 test("Should detect correctly whether it's a webpack URL or serve URL", () => {

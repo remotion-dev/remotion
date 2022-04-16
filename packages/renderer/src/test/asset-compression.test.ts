@@ -1,4 +1,5 @@
 import {Internals, TAsset} from 'remotion';
+import {expect, test} from 'vitest';
 import {calculateAssetPositions} from '../assets/calculate-asset-positions';
 
 test('Should compress and uncompress assets', () => {

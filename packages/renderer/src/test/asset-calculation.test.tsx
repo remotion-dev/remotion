@@ -1,10 +1,9 @@
 import React from 'react';
 import {Audio, interpolate, Sequence, useCurrentFrame, Video} from 'remotion';
+import {expect, test} from 'vitest';
 import {calculateAssetPositions} from '../assets/calculate-asset-positions';
 import {MediaAsset} from '../assets/types';
 import {getAssetsForMarkup} from './get-assets-for-markup';
-
-jest.setTimeout(30000);
 
 const basicConfig = {
 	width: 1080,
@@ -66,7 +65,7 @@ test('Should get multiple assets', async () => {
 		volume: 1,
 		playbackRate: 1,
 	});
-});
+}, 30000);
 
 test('Should handle jumps inbetween', async () => {
 	const assetPositions = await getPositions(() => {
@@ -98,7 +97,7 @@ test('Should handle jumps inbetween', async () => {
 		volume: 1,
 		playbackRate: 1,
 	});
-});
+}, 30000);
 
 test('Should support sequencing', async () => {
 	const assetPositions = await getPositions(() => {
@@ -118,7 +117,7 @@ test('Should support sequencing', async () => {
 		volume: 1,
 		playbackRate: 1,
 	});
-});
+}, 30000);
 
 test('Should calculate volumes correctly', async () => {
 	const assetPositions = await getPositions(() => {
@@ -147,7 +146,7 @@ test('Should calculate volumes correctly', async () => {
 				interpolate(i, [0, 4], [0, 1], {extrapolateRight: 'clamp'})
 			),
 	});
-});
+}, 30000);
 
 test('Should calculate startFrom correctly', async () => {
 	const assetPositions = await getPositions(() => {
@@ -184,4 +183,4 @@ test('Should calculate startFrom correctly', async () => {
 			})
 		),
 	});
-});
+}, 30000);

@@ -1,3 +1,4 @@
+import {expect, test} from 'vitest';
 import {calculateAssetPositions} from '../assets/calculate-asset-positions';
 
 // Previously <v2.5.1 this would error out due to two assets having the exact same

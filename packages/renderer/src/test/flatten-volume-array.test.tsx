@@ -1,3 +1,4 @@
+import {expect, test} from 'vitest';
 import {flattenVolumeArray} from '../assets/flatten-volume-array';
 import {expectToThrow} from './expect-to-throw';
 

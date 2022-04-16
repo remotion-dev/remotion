@@ -1,3 +1,4 @@
+import {expect, test} from 'vitest';
 import {ffmpegVolumeExpression} from '../assets/ffmpeg-volume-expression';
 
 test('Simple expression', () => {

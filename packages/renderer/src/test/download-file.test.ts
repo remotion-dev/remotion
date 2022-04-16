@@ -1,6 +1,7 @@
 import fs from 'fs';
 import {tmpdir} from 'os';
 import path from 'path';
+import {expect, test} from 'vitest';
 import {downloadFile} from '../assets/download-file';
 
 test('Should be able to download file', async () => {
