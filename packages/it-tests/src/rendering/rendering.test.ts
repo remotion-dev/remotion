@@ -1,6 +1,7 @@
 import execa from "execa";
 import fs from "fs";
 import path from "path";
+import { beforeEach, expect, test } from "vitest";
 
 const outputPath = path.join(process.cwd(), "packages/example/out.mp4");
 
@@ -38,7 +39,7 @@ test("Should be able to render video", async () => {
   expect(data).toContain("1080x1080");
   expect(data).toContain("30 fps");
   expect(data).toContain("Audio: aac");
-});
+}, 120000);
 
 test("Should fail to render out of range CRF", async () => {
   const task = await execa(
@@ -62,7 +63,7 @@ test("Should fail to render out of range CRF", async () => {
   );
   expect(task.exitCode).toBe(1);
   expect(task.stderr).toContain("CRF must be between ");
-});
+}, 120000);
 
 test("Should fail to render out of range frame when range is a number", async () => {
   const out = outputPath.replace(".mp4", "");
@@ -87,7 +88,7 @@ test("Should fail to render out of range frame when range is a number", async ()
   expect(task.stderr).toContain(
     "Frame number is out of range, must be between 0 and 9"
   );
-});
+}, 120000);
 
 test("Should fail to render out of range frame when range is a string", async () => {
   const task = await execa(
@@ -107,7 +108,7 @@ test("Should fail to render out of range frame when range is a string", async ()
   );
   expect(task.exitCode).toBe(1);
   expect(task.stderr).toContain("Frame range 2-10 is not in between 0-9");
-});
+}, 120000);
 
 test("Should render a ProRes video", async () => {
   const out = outputPath.replace(".mp4", ".mov");
@@ -137,7 +138,7 @@ test("Should render a ProRes video", async () => {
     true
   );
   fs.unlinkSync(out);
-});
+}, 120000);
 
 test("Should render a still image if single frame specified", async () => {
   const outDir = outputPath.replace(".mp4", "");
@@ -167,7 +168,7 @@ test("Should render a still image if single frame specified", async () => {
   await (fs.promises.rm ?? fs.promises.rmdir)(outDir, {
     recursive: true,
   });
-});
+}, 120000);
 
 test("Should be able to render a WAV audio file", async () => {
   const out = outputPath.replace("mp4", "wav");
@@ -192,7 +193,7 @@ test("Should be able to render a WAV audio file", async () => {
   expect(data).toContain("Stream #0");
   expect(data).not.toContain("Stream #1");
   fs.unlinkSync(out);
-});
+}, 120000);
 
 test("Should be able to render a MP3 audio file", async () => {
   const out = outputPath.replace("mp4", "mp3");
@@ -218,7 +219,7 @@ test("Should be able to render a MP3 audio file", async () => {
   expect(data).toContain("Stream #0");
   expect(data).not.toContain("Stream #1");
   fs.unlinkSync(out);
-});
+}, 120000);
 
 test("Should be able to render a AAC audio file", async () => {
   const out = outputPath.replace("mp4", "aac");
@@ -244,7 +245,7 @@ test("Should be able to render a AAC audio file", async () => {
   expect(data).toContain("Stream #0");
   expect(data).not.toContain("Stream #1");
   fs.unlinkSync(out);
-});
+}, 120000);
 
 test("Should render a video with GIFs", async () => {
   const task = await execa(
@@ -263,7 +264,7 @@ test("Should render a video with GIFs", async () => {
   expect(data).toContain("Video: h264");
   expect(data).toContain("Duration: 00:00:01.60");
   fs.unlinkSync(outputPath);
-});
+}, 120000);
 
 test("Should render a video with Offline Audio-context", async () => {
   const out = outputPath.replace(".mp4", ".mp3");
@@ -284,7 +285,7 @@ test("Should render a video with Offline Audio-context", async () => {
   expect(data).toContain("Stream #0:0: Audio: mp3");
   expect(data).toContain("48000 Hz, stereo");
   fs.unlinkSync(out);
-});
+}, 120000);
 
 test("Should fail to render an audio file that doesn't have any audio inputs", async () => {
   const out = outputPath.replace(".mp4", ".mp3");
@@ -302,7 +303,7 @@ test("Should fail to render an audio file that doesn't have any audio inputs", a
   expect(data).toContain("Duration: 00:00:00.36");
   expect(data).toContain("Audio: mp3, 48000 Hz");
   fs.unlinkSync(out);
-});
+}, 120000);
 
 test("Should render a still that uses the staticFile() API", async () => {
   const out = outputPath.replace(".mp4", ".png");
@@ -316,7 +317,7 @@ test("Should render a still that uses the staticFile() API", async () => {
   );
   expect(task.exitCode).toBe(0);
   fs.unlinkSync(out);
-});
+}, 120000);
 
 test("Dynamic duration should work", async () => {
   const randomDuration = Math.round(Math.random() * 18 + 2);
@@ -350,7 +351,7 @@ test("Dynamic duration should work", async () => {
     expect(data).toContain(`Duration: 00:00:0${expectedDuration}`);
     fs.unlinkSync(outputPath);
   }
-});
+}, 120000);
 
 test("Should be able to render if remotion.config.js is not provided", async () => {
   const task = await execa(
@@ -370,7 +371,7 @@ test("Should be able to render if remotion.config.js is not provided", async () 
 
   expect(task.exitCode).toBe(0);
   fs.unlinkSync(outputPath);
-});
+}, 120000);
 
 test("Should be able to render if remotion.config.ts is not provided", async () => {
   const task = await execa(
@@ -390,4 +391,4 @@ test("Should be able to render if remotion.config.ts is not provided", async () 
 
   expect(task.exitCode).toBe(0);
   fs.unlinkSync(outputPath);
-});
+}, 120000);

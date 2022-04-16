@@ -4,6 +4,7 @@ import os from "os";
 import path from "path";
 import sharp from "sharp";
 import { random } from "remotion";
+import { expect, test } from "vitest";
 
 function selectColor(color: string, frame: number) {
   return Math.floor((random(`${color}-${frame}`) * 255) % 255);
@@ -83,9 +84,9 @@ const getMissedFramesforCodec = async (codec: "mp4" | "webm") => {
 test("should render correct frames from embedded videos - WebM", async () => {
   const missedFrames = await getMissedFramesforCodec("webm");
   expect(missedFrames).toBe(0);
-});
+}, 240000);
 
 test("should render correct frames from embedded videos - MP4", async () => {
   const missedFrames = await getMissedFramesforCodec("mp4");
   expect(missedFrames).toBe(0);
-});
+}, 240000);

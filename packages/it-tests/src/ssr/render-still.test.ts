@@ -7,6 +7,7 @@ import {
 } from "@remotion/renderer";
 import path from "path";
 import { existsSync } from "fs";
+import { afterEach, expect, test } from "vitest";
 
 afterEach(async () => {
   await RenderInternals.killAllBrowsers();
@@ -38,7 +39,7 @@ test("Render video with browser instance open", async () => {
     puppeteerInstance,
   });
   await puppeteerInstance.close();
-});
+}, 120000);
 
 test("Render still with browser instance not open and legacy webpack config", async () => {
   const compositions = await getCompositions(
@@ -61,4 +62,4 @@ test("Render still with browser instance not open and legacy webpack config", as
     composition: reactSvg,
   });
   expect(existsSync(outPath)).toBe(true);
-});
+}, 120000);

@@ -1,6 +1,7 @@
 import fs from "fs";
 import execa from "execa";
 import path from "path";
+import { beforeEach, expect, test } from "vitest";
 
 const outputPath = path.join(process.cwd(), "packages/example/out.mp4");
 
@@ -41,11 +42,11 @@ test("Should be able to render video with scale 2", async () => {
   expect(data).toContain("yuv420p");
   expect(data).toContain("2160x2160");
   expect(data).toContain("30 fps");
-});
+}, 120000);
 
 test("Should be able to render video with scale 0.1", async () => {
   const task = execa(
-    "npx",
+    "pnpx",
     [
       "remotion",
       "render",
@@ -74,4 +75,4 @@ test("Should be able to render video with scale 0.1", async () => {
   expect(data).toContain("yuv420p");
   expect(data).toContain("108x108");
   expect(data).toContain("30 fps");
-});
+}, 120000);

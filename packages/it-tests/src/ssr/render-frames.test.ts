@@ -8,6 +8,7 @@ import {
   stitchFramesToVideo,
 } from "@remotion/renderer";
 import execa from "execa";
+import { expect, test } from "vitest";
 
 test("Legacy SSR way or rendering videos should still work", async () => {
   const puppeteerInstance = await openBrowser("chrome");
@@ -59,4 +60,4 @@ test("Legacy SSR way or rendering videos should still work", async () => {
   const probe = await execa("ffprobe", [outPath]);
   expect(probe.stderr).toMatch(/Video: h264/);
   await puppeteerInstance.close();
-});
+}, 120000);

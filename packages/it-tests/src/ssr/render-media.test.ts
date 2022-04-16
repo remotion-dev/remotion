@@ -2,6 +2,7 @@ import os from "os";
 import path from "path";
 import { getCompositions, renderMedia, openBrowser } from "@remotion/renderer";
 import { existsSync } from "fs";
+import { expect, test } from "vitest";
 
 test("Render video with browser instance open", async () => {
   const puppeteerInstance = await openBrowser("chrome");
@@ -32,7 +33,7 @@ test("Render video with browser instance open", async () => {
   });
   await puppeteerInstance.close();
   expect(existsSync(outPath)).toBe(true);
-});
+}, 120000);
 
 test("Render video with browser instance not open", async () => {
   const compositions = await getCompositions(
@@ -57,7 +58,7 @@ test("Render video with browser instance not open", async () => {
     frameRange: [0, 2],
   });
   expect(existsSync(outPath)).toBe(true);
-});
+}, 120000);
 
 test("should fail on invalid CRF", async () => {
   const tmpDir = os.tmpdir();
@@ -85,4 +86,4 @@ test("should fail on invalid CRF", async () => {
   }).rejects.toThrow(/Expected CRF to be a number, but is "wrong"/);
 
   await browserInstance.close();
-});
+}, 120000);

@@ -1,3 +1,4 @@
+import { describe, expect, test } from "vitest";
 import path from "path";
 import { tmpdir } from "os";
 import fs from "fs";
