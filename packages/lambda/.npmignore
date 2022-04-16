@@ -3,5 +3,5 @@ src
 .eslintrc
 tsconfig.tsbuildinfo
 .prettierrc
-jest.config.js
+vite.config.ts
 *.tgz

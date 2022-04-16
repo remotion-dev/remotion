@@ -584,7 +584,6 @@ export = {
   env: {
     browser: true,
     es6: true,
-    jest: true,
   },
   plugins: ["react", "react-hooks", "@typescript-eslint", "10x", "@remotion"],
   extends: baseExtends,
