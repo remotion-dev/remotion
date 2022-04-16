@@ -36,6 +36,9 @@ export const Index: React.FC = () => {
 				fps={30}
 				// Change the duration of the video dynamically by passing `--props='{"duration": 100}'`
 				durationInFrames={inputProps?.duration ?? 20}
+				defaultProps={{
+					codec: 'webm' as const,
+				}}
 			/>
 			<Composition
 				id="nested"
@@ -199,6 +202,10 @@ export const Index: React.FC = () => {
 				height={1080}
 				fps={30}
 				durationInFrames={180 * 30}
+				defaultProps={{
+					opacity: 1,
+					volume: 1,
+				}}
 			/>
 			<Composition
 				id="audio-testing-mute"
@@ -224,7 +231,7 @@ export const Index: React.FC = () => {
 				fps={30}
 				durationInFrames={100}
 				defaultProps={{
-					codec: 'mp4',
+					codec: 'mp4' as const,
 				}}
 			/>
 			<Composition
@@ -235,7 +242,7 @@ export const Index: React.FC = () => {
 				fps={30}
 				durationInFrames={100}
 				defaultProps={{
-					codec: 'webm',
+					codec: 'webm' as const,
 				}}
 			/>
 			<Composition

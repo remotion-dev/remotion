@@ -17,12 +17,20 @@ export type CompProps<T> =
 			component: LooseComponentType<T>;
 	  };
 
+type PropsIfHasProps<Props> = {} extends Props
+	? {
+			defaultProps?: Props;
+	  }
+	: {
+			defaultProps: Props;
+	  };
+
 export type StillProps<T> = {
 	width: number;
 	height: number;
 	id: string;
-	defaultProps?: T;
-} & CompProps<T>;
+} & PropsIfHasProps<T> &
+	CompProps<T>;
 
 type CompositionProps<T> = StillProps<T> & {
 	fps: number;
