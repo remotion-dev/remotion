@@ -1,3 +1,15 @@
+.row {
+  display: flex;
+  flex-direction: row;
+}
+
+@media screen and (max-width: 900px) {
+  .row {
+    flex-direction: column
+  }
+}
+
+
 .stat {
   flex: 1;
   text-align: center;
