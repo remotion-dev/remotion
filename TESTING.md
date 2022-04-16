@@ -5,7 +5,7 @@ For general information concerning contribution, please consult [CONTRIBUTION.md
 ### Core Coverage
 
 ![statements](https://img.shields.io/badge/Coverage_statements-78.84%25-yellow.svg)
-![branches](https://img.shields.io/badge/Coverage_branches-90.97%25-brightgreen.svg)
+![branches](https://img.shields.io/badge/Coverage_branches-91.07%25-brightgreen.svg)
 ![functions](https://img.shields.io/badge/Coverage_functions-71.65%25-yellow.svg)
 ![lines](https://img.shields.io/badge/Coverage_lines-78.84%25-yellow.svg)
 
