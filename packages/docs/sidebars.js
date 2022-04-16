@@ -243,7 +243,7 @@ module.exports = {
       type: "category",
       label: "Miscellaneous",
       collapsed: false,
-      items: ["chromium-flags", "prereleases", "gpu"],
+      items: ["chromium-flags", "prereleases", "gpu", "react-18"],
     },
     "3-0-migration",
     "2-0-migration",
