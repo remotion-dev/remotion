@@ -8,6 +8,8 @@ import {
 import {SequenceContext, SequenceContextType} from '../sequencing';
 import * as useFrameModule from '../use-frame';
 
+console.log(require.resolve('@testing-library/react'));
+
 test('Media starts at 0 if it is outside a sequence', () => {
 	const wrapper: React.FC<{
 		children: React.ReactNode;
