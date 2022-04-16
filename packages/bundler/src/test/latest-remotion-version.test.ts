@@ -1,3 +1,4 @@
+import {test, expect} from 'vitest';
 import {getLatestRemotionVersion} from '../get-latest-remotion-version';
 
 test('Should be able to get a Remotion version', async () => {

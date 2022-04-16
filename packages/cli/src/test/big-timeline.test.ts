@@ -1,3 +1,4 @@
+import {expect, test} from 'vitest';
 import {TSequence} from 'remotion';
 import {calculateTimeline} from '../editor/helpers/calculate-timeline';
 

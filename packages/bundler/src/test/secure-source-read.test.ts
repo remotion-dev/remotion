@@ -1,3 +1,4 @@
+import {test} from 'vitest';
 import {getFileSource} from '../error-overlay/react-overlay/utils/get-file-source';
 import {expectToThrow} from './expect-to-throw';
 

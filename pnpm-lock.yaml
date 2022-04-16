@@ -54,7 +54,6 @@ importers:
     specifiers:
       '@jonny/eslint-config': 3.0.256
       '@types/express': ^4.17.7
-      '@types/jest': ^27.4.0
       '@types/mime-types': ^2.1.1
       '@types/node': ^16.7.5
       '@types/react': 18.0.1
@@ -72,7 +71,6 @@ importers:
       execa: 5.1.1
       express: 4.17.1
       file-loader: 6.2.0
-      jest: ^27.2.4
       memfs: 3.4.0
       mime-types: 2.1.34
       prettier: ^2.0.5
@@ -85,8 +83,8 @@ importers:
       source-map: 0.6.1
       source-map-loader: 3.0.0
       style-loader: 2.0.0
-      ts-jest: ^27.0.5
       typescript: ^4.5.5
+      vitest: 0.9.3
       webpack: 5.60.0
     dependencies:
       css-loader: 5.2.7_webpack@5.60.0
@@ -106,7 +104,6 @@ importers:
     devDependencies:
       '@jonny/eslint-config': 3.0.256_eslint@8.13.0+typescript@4.5.5
       '@types/express': 4.17.13
-      '@types/jest': 27.4.0
       '@types/mime-types': 2.1.1
       '@types/node': 16.10.2
       '@types/react': 18.0.1
@@ -119,13 +116,12 @@ importers:
       eslint-plugin-10x: 1.5.2_eslint@8.13.0
       eslint-plugin-react: 7.29.4_eslint@8.13.0
       eslint-plugin-react-hooks: 4.4.0_eslint@8.13.0
-      jest: 27.2.4
       prettier: 2.4.1
       prettier-plugin-organize-imports: 1.1.1_prettier@2.4.1+typescript@4.5.5
       react: 18.0.0
       react-dom: 18.0.0_react@18.0.0
-      ts-jest: 27.0.5_c7c6851c09cd607ef678ccb9c9b11e0f
       typescript: 4.5.5
+      vitest: 0.9.3
 
   packages/cli:
     specifiers:
@@ -134,7 +130,6 @@ importers:
       '@remotion/media-utils': 2.6.15
       '@remotion/player': 2.6.15
       '@remotion/renderer': 2.6.15
-      '@types/jest': ^27.4.0
       '@types/minimist': ^1.2.2
       '@types/node': ^16.7.5
       '@types/react': 18.0.1
@@ -149,7 +144,6 @@ importers:
       eslint-plugin-react: 7.29.4
       eslint-plugin-react-hooks: 4.4.0
       execa: 5.1.1
-      jest: ^27.2.4
       minimist: 1.2.6
       prettier: ^2.0.5
       prettier-plugin-organize-imports: ^1.1.1
@@ -157,8 +151,8 @@ importers:
       react-dom: ^18.0.0
       remotion: 2.6.15
       semver: 7.3.5
-      ts-jest: ^27.0.5
       typescript: ^4.5.5
+      vitest: 0.9.3
       webpack: 5.60.0
     dependencies:
       '@remotion/bundler': link:../bundler
@@ -175,7 +169,6 @@ importers:
       webpack: 5.60.0
     devDependencies:
       '@jonny/eslint-config': 3.0.256_eslint@8.13.0+typescript@4.5.5
-      '@types/jest': 27.4.0
       '@types/minimist': 1.2.2
       '@types/node': 16.10.2
       '@types/react': 18.0.1
@@ -186,13 +179,12 @@ importers:
       eslint-plugin-10x: 1.5.2_eslint@8.13.0
       eslint-plugin-react: 7.29.4_eslint@8.13.0
       eslint-plugin-react-hooks: 4.4.0_eslint@8.13.0
-      jest: 27.2.4
       prettier: 2.4.1
       prettier-plugin-organize-imports: 1.1.1_prettier@2.4.1+typescript@4.5.5
       react: 18.0.0
       react-dom: 18.0.0_react@18.0.0
-      ts-jest: 27.0.5_c7c6851c09cd607ef678ccb9c9b11e0f
       typescript: 4.5.5
+      vitest: 0.9.3
 
   packages/core:
     specifiers:
@@ -20266,6 +20258,38 @@ packages:
       rollup: 2.70.2
     optionalDependencies:
       fsevents: 2.3.2
+    dev: true
+
+  /vitest/0.9.3:
+    resolution: {integrity: sha512-hKjqdBI732cV5giNLERyAsaJBebstrX5mvTbZr+jUDYUHnX1O4DpAJcHtqBOutuBi7lVIGQ5IF8eWvHHqbCHBA==}
+    engines: {node: '>=v14.16.0'}
+    hasBin: true
+    peerDependencies:
+      '@vitest/ui': '*'
+      c8: '*'
+      happy-dom: '*'
+      jsdom: '*'
+    peerDependenciesMeta:
+      '@vitest/ui':
+        optional: true
+      c8:
+        optional: true
+      happy-dom:
+        optional: true
+      jsdom:
+        optional: true
+    dependencies:
+      '@types/chai': 4.3.1
+      '@types/chai-subset': 1.3.3
+      chai: 4.3.6
+      local-pkg: 0.4.1
+      tinypool: 0.1.2
+      tinyspy: 0.3.2
+      vite: 2.9.5
+    transitivePeerDependencies:
+      - less
+      - sass
+      - stylus
     dev: true
 
   /vitest/0.9.3_c8@7.11.0:
