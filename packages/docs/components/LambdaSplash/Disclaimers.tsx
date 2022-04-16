@@ -21,11 +21,12 @@ export const Disclaimers: React.FC = () => {
         us-east-1 region. Does not include S3 and data transfer costs.
       </div>
       <div className={styles.disclaimer}>
-        3) Estimated cost when rendering the Remotion Lambda trailer with{" "}
-        <code>--frames-per-lambda=12</code>, an ARM64 Lambda function with
-        2048MB RAM, on warm Lambdas on the us-east-1 region. Does not include S3
-        and data transfer costs. Check <a href="/docs/license">Licensing</a>{" "}
-        whether you need to acquire a license to use Remotion Lambda.
+        3) Estimated cost per minute of video when rendering the Remotion Lambda
+        trailer with <code>--frames-per-lambda=12</code>, an ARM64 Lambda
+        function with 2048MB RAM, on warm Lambdas on the us-east-1 region. Does
+        not include S3 and data transfer costs. Check{" "}
+        <a href="/docs/license">Licensing</a> whether you need to acquire a
+        license to use Remotion Lambda.
       </div>
     </div>
   );
