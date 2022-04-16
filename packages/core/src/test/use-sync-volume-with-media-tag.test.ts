@@ -1,10 +1,10 @@
-import {renderHook} from '@testing-library/react';
 import {RefObject} from 'react';
 import {
 	useSyncVolumeWithMediaTag,
 	UseSyncVolumeWithMediaTagOptions,
 } from '../use-sync-volume-with-media-tag';
 import {VolumeProp} from '../volume-prop';
+import {renderHook} from './render-hook';
 
 test('has the volume been adapted', () => {
 	const addEventListener = jest.fn();
