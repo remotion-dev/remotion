@@ -1,5 +1,6 @@
 import {ComponentType} from 'react';
 import {Composition} from 'remotion';
+import {expect, test} from 'vitest';
 import {Player} from '../index';
 import {HelloWorld, render} from './test-utils';
 

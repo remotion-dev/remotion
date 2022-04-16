@@ -1,3 +1,5 @@
+// @ts-expect-error react
+globalThis.IS_REACT_ACT_ENVIRONMENT = true;
 import {queries, render, RenderOptions} from '@testing-library/react';
 import {FC, ReactElement} from 'react';
 
