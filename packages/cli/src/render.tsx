@@ -28,6 +28,15 @@ import {checkAndValidateFfmpegVersion} from './validate-ffmpeg-version';
 export const render = async () => {
 	const startTime = Date.now();
 	const file = parsedCli._[1];
+	if (!file) {
+		Log.error('No entry point specified. Pass more arguments:');
+		Log.error(
+			'   npx remotion render [entry-point] [composition-name] [out-name]'
+		);
+		Log.error('Documentation: https://www.remotion.dev/docs/render');
+		process.exit(1);
+	}
+
 	const fullPath = RenderInternals.isServeUrl(file)
 		? file
 		: path.join(process.cwd(), file);
