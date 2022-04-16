@@ -22,7 +22,7 @@ jobs:
         uses: actions/cache@v1
         with:
           path: ~/.pnpm-store
-          key: ${{ runner.os }}-node${{ matrix.node-version }}-${{ hashFiles('**/pnpm-lock.yaml') }}
+          key: v2-${{ runner.os }}-node${{ matrix.node-version }}-${{ hashFiles('**/pnpm-lock.yaml') }}
 
       - name: Install pnpm
         run: curl -f https://get.pnpm.io/v6.16.js | node - add --global pnpm@6
@@ -110,7 +110,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ~/.pnpm-store
-          key: deps-${{ runner.os }}-node${{ matrix.node_version }}
+          key: v2-deps-${{ runner.os }}-node${{ matrix.node_version }}
 
       - name: Install pnpm
         run: curl -f https://get.pnpm.io/v6.16.js | node - add --global pnpm@6
@@ -119,7 +119,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: node_modules/.cache
-          key: deps-${{ runner.os }}-${{ matrix.ffmpeg_version }}-node${{ matrix.node_version }}-v2
+          key: v2-deps-${{ runner.os }}-${{ matrix.ffmpeg_version }}-node${{ matrix.node_version }}-v2
       - name: Install
         run: pnpm install --frozen-lockfile
       - name: Cache dist/ folders
