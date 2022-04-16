@@ -8,5 +8,6 @@ export default defineConfig({
 		coverage: {
 			reporter: 'json-summary',
 		},
+		threads: false,
 	},
 });

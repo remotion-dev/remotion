@@ -4,5 +4,6 @@ export default defineConfig({
 	test: {
 		setupFiles: ['./src/test/setup.ts'],
 		mockReset: true,
+		threads: false,
 	},
 });
