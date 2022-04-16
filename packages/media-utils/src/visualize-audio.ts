@@ -52,7 +52,7 @@ export const visualizeAudio = ({
 	const all = toSmooth.map((s) => {
 		return visualizeAudioFrame({...parameters, frame: s});
 	});
-	return new Array(parameters.numberOfSamples).fill(true).map((x, i) => {
+	return new Array(parameters.numberOfSamples).fill(true).map((_, i) => {
 		return (
 			new Array(toSmooth.length)
 				.fill(true)

@@ -17,7 +17,7 @@ test('Random should be deterministic', () => {
 
 describe('Random should be uniform', () => {
 	const ITEM_COUNT = 100000;
-	const mapped = new Array(ITEM_COUNT).fill(true).map((a, i) => {
+	const mapped = new Array(ITEM_COUNT).fill(true).map((_, i) => {
 		return random(i);
 	});
 
@@ -55,7 +55,7 @@ describe('Random should be uniform', () => {
 
 	test('test for average distance', () => {
 		const distances = mapped
-			.map((a, i) => {
+			.map((_, i) => {
 				if (i === 0) {
 					return null;
 				}

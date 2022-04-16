@@ -193,7 +193,7 @@ export const innerRenderFrames = async ({
 	await Promise.all(
 		new Array(frameCount)
 			.fill(Boolean)
-			.map((x, i) => i)
+			.map((_, i) => i)
 			.map(async (index) => {
 				const frame = realFrameRange[0] + index;
 				const freePage = await pool.acquire();

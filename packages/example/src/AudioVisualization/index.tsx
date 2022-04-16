@@ -133,7 +133,7 @@ const AudioVisualization: React.FC = () => {
 	const orbBackground = `rgb(${orbRgb}, ${orbRgb}, ${orbRgb})`;
 	const textColor = `rgba(${textRgb}, ${textRgb}, ${textRgb}, 0.8)`;
 
-	const onlySeconds = circlesOut.filter((x, i) => i % 2 === 0);
+	const onlySeconds = circlesOut.filter((_, i) => i % 2 === 0);
 	const circlesToUse = [...onlySeconds, ...onlySeconds];
 	return (
 		<div style={{flex: 1}}>

@@ -17,7 +17,7 @@ export const getFilesToDelete = ({
 	chunkCount: number;
 	renderId: string;
 }): CleanupJob[] => {
-	const chunks = new Array(chunkCount).fill(true).map((x, i) =>
+	const chunks = new Array(chunkCount).fill(true).map((_, i) =>
 		chunkKeyForIndex({
 			index: i,
 			renderId,
@@ -25,7 +25,7 @@ export const getFilesToDelete = ({
 	);
 	const lambdaTimings = new Array(chunkCount)
 		.fill(true)
-		.map((x, i) => lambdaTimingsPrefixForChunk(renderId, i));
+		.map((_, i) => lambdaTimingsPrefixForChunk(renderId, i));
 	return [
 		{
 			name: lambdaInitializedPrefix(renderId),

@@ -27,7 +27,7 @@ export const DropDots: React.FC<{
 	const {height, width} = useVideoConfig();
 	const dots = new Array(process.env.NODE_ENV === 'development' ? 45 : 45)
 		.fill(true)
-		.map((x, i) => {
+		.map((_, i) => {
 			const startX = random(`x-${i}-${iteration}`) * width;
 			const startY = random(`y-${i}-${iteration}`) * height;
 			const startRotation = random(`rotation-${i}-${iteration}`) * 360;

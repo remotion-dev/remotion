@@ -3,6 +3,5 @@
   "editor.codeActionsOnSave": {
     "source.organizeImports": false,
     "source.fixAll": true
-  },
-  "typescript.tsdk": "packges/core/node_modules/typescript/lib"
+  }
 }

@@ -1,6 +1,6 @@
 import {Canvas, useWorkerParser} from '@react-gifs/tools';
 import {LRUMap} from 'lru_map';
-import React, {forwardRef, useState} from 'react';
+import {forwardRef, useState} from 'react';
 import {GifState, RemotionGifProps} from './props';
 import {useCurrentGifIndex} from './useCurrentGifIndex';
 

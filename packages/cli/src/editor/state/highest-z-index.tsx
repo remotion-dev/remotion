@@ -28,7 +28,7 @@ export const HighestZIndexProvider: React.FC<{
 				throw new Error('did not find z-index ' + newIndex);
 			}
 
-			return prev.filter((n, i) => i !== index);
+			return prev.filter((_, i) => i !== index);
 		});
 	}, []);
 
