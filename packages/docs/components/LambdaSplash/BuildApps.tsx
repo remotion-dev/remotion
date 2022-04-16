@@ -82,7 +82,7 @@ export const BuildApps: React.FC = () => {
         Combine our tools to build apps that leverage programmatic video.
       </p>
       <br />
-      <VideoApps />
+      <VideoApps active="lambda" />
       <br />
       <p style={center}>
         All Remotion products are source-available, for self-hosting, free for

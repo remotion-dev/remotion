@@ -39,7 +39,7 @@ export default () => {
       </div>
       <div style={container}>
         <VideoAppsTitle />
-        <VideoApps />
+        <VideoApps active="player" />
       </div>
       <br />
       <br />

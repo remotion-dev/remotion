@@ -55,7 +55,7 @@ const NewLanding: React.FC = () => {
         <br />
         <br />
         <VideoAppsTitle />
-        <VideoApps />
+        <VideoApps active="remotion" />
         <br />
         <br />
         <FreePricing />

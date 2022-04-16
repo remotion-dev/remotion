@@ -3,6 +3,7 @@ import React from "react";
 import { BlueButton } from "../layout/Button";
 import { Spacer } from "../layout/Spacer";
 import videoapps from "./videoapps.module.css";
+import { YouAreHere } from "./YouAreHere";
 
 const panel: React.CSSProperties = {
   backgroundColor: "var(--ifm-background-color)",
@@ -64,11 +65,14 @@ const docsButton: React.CSSProperties = {
   textDecoration: "none",
 };
 
-export const VideoApps: React.FC = () => {
+export const VideoApps: React.FC<{
+  active: "remotion" | "player" | "lambda";
+}> = ({ active }) => {
   const { colorMode } = useColorMode();
   return (
     <div className={videoapps.row}>
       <div style={step}>
+        {active === "remotion" ? <YouAreHere /> : null}
         <h2 style={stepTitle}>Remotion</h2>
         <strong style={center}>Write videos in React</strong>
         <br />
@@ -90,15 +94,19 @@ export const VideoApps: React.FC = () => {
           <li>Render real MP4 videos</li>
         </ul>
         <div style={row}>
-          <div style={flex}>
-            <a style={docsButton} href="/">
-              <BlueButton loading={false} fullWidth size="sm">
-                Learn more
-              </BlueButton>
-            </a>
-          </div>
-          <Spacer />
-          <Spacer />
+          {active === "remotion" ? null : (
+            <>
+              <div style={flex}>
+                <a style={docsButton} href="/">
+                  <BlueButton loading={false} fullWidth size="sm">
+                    Learn more
+                  </BlueButton>
+                </a>
+              </div>
+              <Spacer />
+              <Spacer />
+            </>
+          )}
           <div style={flex}>
             <a style={docsButton} href="/docs">
               <BlueButton loading={false} fullWidth size="sm">
@@ -112,6 +120,7 @@ export const VideoApps: React.FC = () => {
       <Spacer />
       <Spacer />
       <div style={step}>
+        {active === "player" ? <YouAreHere /> : null}
         <h2 style={stepTitle}>Remotion Player</h2>
         <strong style={center}>Embeddable interactive videos</strong>
         <br />
@@ -140,15 +149,19 @@ export const VideoApps: React.FC = () => {
           <li>Customize look and behavior</li>
         </ul>
         <div style={row}>
-          <div style={flex}>
-            <a style={docsButton} href="/player">
-              <BlueButton loading={false} fullWidth size="sm">
-                Learn more
-              </BlueButton>
-            </a>
-          </div>
-          <Spacer />
-          <Spacer />
+          {active === "player" ? null : (
+            <>
+              <div style={flex}>
+                <a style={docsButton} href="/player">
+                  <BlueButton loading={false} fullWidth size="sm">
+                    Learn more
+                  </BlueButton>
+                </a>
+              </div>
+              <Spacer />
+              <Spacer />
+            </>
+          )}
           <div style={flex}>
             <a style={docsButton} href="/docs/player">
               <BlueButton loading={false} fullWidth size="sm">
@@ -162,6 +175,7 @@ export const VideoApps: React.FC = () => {
       <Spacer />
       <Spacer />
       <div style={step}>
+        {active === "lambda" ? <YouAreHere /> : null}
         <h2 style={stepTitle}>Remotion Lambda</h2>
         <strong style={center}>Render at scale</strong>
         <br />
@@ -190,6 +204,19 @@ export const VideoApps: React.FC = () => {
           <li>Fast because distributed</li>
         </ul>
         <div style={row}>
+          {active === "lambda" ? null : (
+            <>
+              <div style={flex}>
+                <a style={docsButton} href="/lambda">
+                  <BlueButton loading={false} fullWidth size="sm">
+                    Learn more
+                  </BlueButton>
+                </a>
+              </div>
+              <Spacer />
+              <Spacer />
+            </>
+          )}
           <div style={flex}>
             <a style={docsButton} href="/docs/lambda">
               <BlueButton loading={false} fullWidth size="sm">
