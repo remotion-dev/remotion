@@ -25,7 +25,11 @@ export function renderHook<Result, Props>(
 	const {initialProps, wrapper} = options;
 	const result = React.createRef<unknown>();
 
-	function TestComponent({renderCallbackProps}: {renderCallbackProps: Props}) {
+	const TestComponent = ({
+		renderCallbackProps,
+	}: {
+		renderCallbackProps: Props;
+	}) => {
 		const pendingResult = renderCallback(renderCallbackProps);
 
 		React.useEffect(() => {
@@ -34,7 +38,7 @@ export function renderHook<Result, Props>(
 		});
 
 		return null;
-	}
+	};
 
 	const {rerender: baseRerender, unmount} = render(
 		<TestComponent renderCallbackProps={initialProps as Props} />,
