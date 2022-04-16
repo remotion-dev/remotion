@@ -7,10 +7,8 @@ import React, {
 	useRef,
 } from 'react';
 import {getAbsoluteSrc} from '../absolute-src';
-import {
-	useFrameForVolumeProp,
-	useMediaStartsAt,
-} from '../audio/use-audio-frame';
+import {useFrameForVolumeProp} from '../audio/use-frame-for-volume-prop';
+import {useMediaStartsAt} from '../audio/use-media-starts-at';
 import {CompositionManager} from '../CompositionManager';
 import {isApproximatelyTheSame} from '../is-approximately-the-same';
 import {random} from '../random';

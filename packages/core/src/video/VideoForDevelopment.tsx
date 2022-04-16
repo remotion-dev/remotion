@@ -1,5 +1,5 @@
 import React, {forwardRef, useImperativeHandle, useRef} from 'react';
-import {useFrameForVolumeProp} from '../audio/use-audio-frame';
+import {useFrameForVolumeProp} from '../audio/use-frame-for-volume-prop';
 import {useMediaInTimeline} from '../use-media-in-timeline';
 import {useMediaPlayback} from '../use-media-playback';
 import {useMediaTagVolume} from '../use-media-tag-volume';

@@ -1,5 +1,5 @@
 import {RefObject, useContext, useEffect, useMemo, useState} from 'react';
-import {useMediaStartsAt} from './audio/use-audio-frame';
+import {useMediaStartsAt} from './audio/use-media-starts-at';
 import {CompositionManager} from './CompositionManager';
 import {getAssetDisplayName} from './get-asset-file-name';
 import {useNonce} from './nonce';

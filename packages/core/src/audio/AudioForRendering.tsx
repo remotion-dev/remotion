@@ -13,7 +13,7 @@ import {SequenceContext} from '../sequencing';
 import {useAbsoluteCurrentFrame, useCurrentFrame} from '../use-frame';
 import {evaluateVolume} from '../volume-prop';
 import {RemotionAudioProps} from './props';
-import {useFrameForVolumeProp} from './use-audio-frame';
+import {useFrameForVolumeProp} from './use-frame-for-volume-prop';
 
 const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 	HTMLAudioElement,

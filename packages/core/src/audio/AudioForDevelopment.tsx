@@ -9,7 +9,7 @@ import {
 } from '../volume-position-state';
 import {RemotionAudioProps} from './props';
 import {useSharedAudio} from './shared-audio-tags';
-import {useFrameForVolumeProp} from './use-audio-frame';
+import {useFrameForVolumeProp} from './use-frame-for-volume-prop';
 
 const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 	HTMLAudioElement,
