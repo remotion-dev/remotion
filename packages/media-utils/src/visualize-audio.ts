@@ -56,7 +56,7 @@ export const visualizeAudio = ({
 		return (
 			new Array(toSmooth.length)
 				.fill(true)
-				.map((_, j) => {
+				.map((__, j) => {
 					return all[j][i];
 				})
 				.reduce((a, b) => a + b, 0) / toSmooth.length
