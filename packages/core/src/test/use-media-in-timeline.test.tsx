@@ -1,4 +1,4 @@
-import {renderHook} from '@testing-library/react-hooks';
+import {renderHook} from '@testing-library/react';
 import React, {RefObject} from 'react';
 import {CompositionManagerContext} from '../CompositionManager';
 import {Internals} from '../internals';
