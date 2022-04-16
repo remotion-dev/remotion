@@ -1,3 +1,11 @@
+/**
+ * @vitest-environment jsdom
+ */
+// @ts-expect-error
+globalThis.IS_REACT_ACT_ENVIRONMENT = true;
+window.remotion_puppeteerTimeout = 30000;
+
+import {describe, expect, test} from 'vitest';
 import {continueRender, delayRender} from '../ready-manager';
 
 describe('Ready Manager tests', () => {

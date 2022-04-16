@@ -1,5 +1,12 @@
+/**
+ * @vitest-environment jsdom
+ */
+// @ts-expect-error
+globalThis.IS_REACT_ACT_ENVIRONMENT = true;
+
 /* eslint-disable react/jsx-no-constructed-context-values */
 import {render} from '@testing-library/react';
+import {expect, test} from 'vitest';
 import {Sequence} from '../sequencing';
 import {TimelineContext} from '../timeline-position-state';
 import {useCurrentFrame} from '../use-frame';
@@ -58,7 +65,7 @@ test('Negative offset test', () => {
 		return <div>{'frame' + frame}</div>;
 	};
 
-	const {queryByText} = render(
+	const {queryAllByText} = render(
 		<TimelineContext.Provider
 			value={{
 				frame: 40,
@@ -85,7 +92,7 @@ test('Negative offset test', () => {
 			</Sequence>
 		</TimelineContext.Provider>
 	);
-	const result = queryByText(/^frame220/i);
+	const result = queryAllByText(/^frame220/i);
 	expect(result).not.toBe(null);
 });
 
@@ -155,7 +162,7 @@ test('Negative offset edge case', () => {
 	);
 
 	const getForFrame = (frame: number) => {
-		const {queryByText} = render(
+		const {queryAllByText} = render(
 			<TimelineContext.Provider
 				value={{
 					frame,
@@ -176,14 +183,14 @@ test('Negative offset edge case', () => {
 				{content}
 			</TimelineContext.Provider>
 		);
-		return queryByText;
+		return queryAllByText;
 	};
 
-	expect(getForFrame(0)(/^frame/i)).toBe(null);
-	expect(getForFrame(10)(/^frame/i)).toBe(null);
-	expect(getForFrame(40)(/^frame40$/i)).not.toBe(null);
+	expect(getForFrame(0)(/^frame0/i)).toEqual([]);
+	expect(getForFrame(10)(/^frame10/i)).toEqual([]);
+	expect(getForFrame(40)(/^frame40$/i)).not.toEqual([]);
 	const atFrame80 = getForFrame(80)(/^frame80$/i);
-	expect(atFrame80).not.toBe(null);
+	expect(atFrame80).not.toEqual([]);
 	const atFrame90 = getForFrame(90)(/^frame90$/i);
-	expect(atFrame90).toBe(null);
+	expect(atFrame90).toEqual([]);
 });

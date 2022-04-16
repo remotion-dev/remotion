@@ -29,7 +29,8 @@ export const delayRender = (label?: string): number => {
 
 	if (getRemotionEnvironment() === 'rendering') {
 		const timeoutToUse =
-			typeof window === 'undefined'
+			typeof window === 'undefined' ||
+			typeof window.remotion_puppeteerTimeout === 'undefined'
 				? DEFAULT_PUPPETEER_TIMEOUT
 				: window.remotion_puppeteerTimeout - 2000;
 		timeouts[handle] = setTimeout(() => {

@@ -1,3 +1,4 @@
+import {beforeAll, expect, test} from 'vitest';
 import {
 	Concurrency,
 	getConcurrency,

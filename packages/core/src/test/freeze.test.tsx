@@ -1,3 +1,9 @@
+/**
+ * @vitest-environment jsdom
+ */
+// @ts-expect-error
+globalThis.IS_REACT_ACT_ENVIRONMENT = true;
+
 import React from 'react';
 import {Sequence} from '../index';
 import {
@@ -8,6 +14,7 @@ import {useCurrentFrame} from '../use-frame';
 import {render} from '@testing-library/react';
 import {Freeze} from '../freeze';
 import {expectToThrow} from './expect-to-throw';
+import {describe, expect, test} from 'vitest';
 
 describe('Prop validation', () => {
 	test('It should throw if Freeze has string as frame prop value', () => {

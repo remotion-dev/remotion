@@ -1,5 +1,12 @@
+/**
+ * @vitest-environment jsdom
+ */
+// @ts-expect-error
+globalThis.IS_REACT_ACT_ENVIRONMENT = true;
+
 import {renderHook} from '@testing-library/react';
 import {RefObject} from 'react';
+import {expect, test, vitest} from 'vitest';
 import {
 	useSyncVolumeWithMediaTag,
 	UseSyncVolumeWithMediaTagOptions,
@@ -7,8 +14,8 @@ import {
 import {VolumeProp} from '../volume-prop';
 
 test('has the volume been adapted', () => {
-	const addEventListener = jest.fn();
-	const removeEventListener = jest.fn();
+	const addEventListener = vitest.fn();
+	const removeEventListener = vitest.fn();
 	const audioRef = {
 		current: {volume: 0.5, addEventListener, removeEventListener},
 	} as unknown as RefObject<HTMLAudioElement>;
@@ -40,8 +47,8 @@ test('has the volume been adapted', () => {
 });
 
 test('volume should not be adapted', () => {
-	const addEventListener = jest.fn();
-	const removeEventListener = jest.fn();
+	const addEventListener = vitest.fn();
+	const removeEventListener = vitest.fn();
 	const audioRef = {
 		current: {volume: 0.4, addEventListener, removeEventListener},
 	} as unknown as RefObject<HTMLAudioElement>;

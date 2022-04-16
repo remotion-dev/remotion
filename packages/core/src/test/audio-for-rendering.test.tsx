@@ -1,5 +1,12 @@
+/**
+ * @vitest-environment jsdom
+ */
+// @ts-expect-error
+globalThis.IS_REACT_ACT_ENVIRONMENT = true;
+
 import {render} from '@testing-library/react';
 import React from 'react';
+import {beforeEach, describe, expect, test, vitest} from 'vitest';
 import {AudioForRendering} from '../audio/AudioForRendering';
 import {CompositionManagerContext} from '../CompositionManager';
 import {Internals} from '../internals';
@@ -14,8 +21,8 @@ let mockContext: MockCompositionManagerContext;
 
 describe('Register and unregister asset', () => {
 	function createMockContext(): MockCompositionManagerContext {
-		const registerAsset = jest.fn();
-		const unregisterAsset = jest.fn();
+		const registerAsset = vitest.fn();
+		const unregisterAsset = vitest.fn();
 		const MockProvider: React.FC<{
 			children: React.ReactNode;
 		}> = ({children}) => {
@@ -77,28 +84,5 @@ describe('Register and unregister asset', () => {
 		}, /No src passed/);
 		expect(mockContext.registerAsset).not.toHaveBeenCalled();
 		expect(mockContext.unregisterAsset).not.toHaveBeenCalled();
-	});
-});
-
-let mockUseEffect: Function;
-describe('useEffect tests', () => {
-	const useEffectSpy = jest.spyOn(React, 'useEffect');
-	mockUseEffect = jest.fn();
-	beforeAll(() => {
-		useEffectSpy.mockImplementation(() => {
-			mockUseEffect();
-		});
-	});
-	afterAll(() => {
-		useEffectSpy.mockRestore();
-	});
-	test('has registered', () => {
-		const props = {
-			src: 'test',
-			muted: false,
-			volume: 50,
-		};
-		render(<AudioForRendering {...props} />);
-		expect(mockUseEffect).toHaveBeenCalled();
 	});
 });

@@ -1,5 +1,12 @@
+/**
+ * @vitest-environment jsdom
+ */
+// @ts-expect-error
+globalThis.IS_REACT_ACT_ENVIRONMENT = true;
+
 import {render} from '@testing-library/react';
 import React from 'react';
+import {beforeEach, expect, test} from 'vitest';
 import {Img} from '../Img';
 
 const ref = React.createRef<HTMLImageElement>();

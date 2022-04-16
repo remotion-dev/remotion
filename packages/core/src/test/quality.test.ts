@@ -1,3 +1,4 @@
+import {describe, expect, test} from 'vitest';
 import {getQuality, setQuality} from '../config/quality';
 import {expectToThrow} from './expect-to-throw';
 

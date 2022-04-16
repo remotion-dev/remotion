@@ -1,3 +1,10 @@
+/**
+ * @vitest-environment jsdom
+ */
+// @ts-expect-error
+globalThis.IS_REACT_ACT_ENVIRONMENT = true;
+
+import {describe, expect, test} from 'vitest';
 import {getAbsoluteSrc} from '../absolute-src';
 
 describe('Absolute src should behave as expected', () => {
@@ -7,7 +14,7 @@ describe('Absolute src should behave as expected', () => {
 		);
 	});
 	test('Get localhost/hi', () => {
-		expect(getAbsoluteSrc('/hi')).toBe('http://localhost/hi');
+		expect(getAbsoluteSrc('/hi')).toBe('http://localhost:3000/hi');
 	});
 	test('Get data:base64', () => {
 		expect(getAbsoluteSrc('data:base64,image/png,abc')).toBe(

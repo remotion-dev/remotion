@@ -1,3 +1,4 @@
+import {afterEach, beforeAll, expect, test} from 'vitest';
 import {getShouldOverwrite, setOverwriteOutput} from '../config/overwrite';
 import {expectToThrow} from './expect-to-throw';
 

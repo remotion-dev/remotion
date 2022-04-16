@@ -1,3 +1,4 @@
+import {describe, expect, test} from 'vitest';
 import {setFrameRange, setFrameRangeFromCli} from '../config/frame-range';
 import {Internals} from '../internals';
 import {expectToThrow} from './expect-to-throw';

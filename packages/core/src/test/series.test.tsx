@@ -1,6 +1,13 @@
+/**
+ * @vitest-environment jsdom
+ */
+// @ts-expect-error
+globalThis.IS_REACT_ACT_ENVIRONMENT = true;
+
 /* eslint-disable react/jsx-no-constructed-context-values */
 import {render} from '@testing-library/react';
 import React from 'react';
+import {expect, test} from 'vitest';
 import {Series} from '../index';
 import {TimelineContext} from '../timeline-position-state';
 import {useCurrentFrame} from '../use-frame';
@@ -44,7 +51,7 @@ const renderForFrame = (frame: number, markup: React.ReactNode) => {
 };
 
 test('Basic series test', () => {
-	const {queryByText} = renderForFrame(
+	const {queryAllByText} = renderForFrame(
 		10,
 		<Series>
 			<Series.Sequence durationInFrames={5}>
@@ -58,11 +65,11 @@ test('Basic series test', () => {
 			</Series.Sequence>
 		</Series>
 	);
-	expect(queryByText(/^third\s0$/g)).not.toBe(null);
+	expect(queryAllByText(/^third\s0$/g)).not.toBe(null);
 });
 
 test('Should support fragments', () => {
-	const {queryByText} = renderForFrame(
+	const {queryAllByText} = renderForFrame(
 		10,
 		<Series>
 			<Series.Sequence durationInFrames={5}>
@@ -79,7 +86,7 @@ test('Should support fragments', () => {
 		</Series>
 	);
 
-	expect(queryByText(/^third\s0$/g)).not.toBe(null);
+	expect(queryAllByText(/^third\s0$/g)).not.toBe(null);
 });
 test('Should not allow foreign elements', () => {
 	expectToThrow(() => {

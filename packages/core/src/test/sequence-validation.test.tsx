@@ -1,4 +1,11 @@
+/**
+ * @vitest-environment jsdom
+ */
+// @ts-expect-error
+globalThis.IS_REACT_ACT_ENVIRONMENT = true;
+
 import {render} from '@testing-library/react';
+import {describe, expect, test} from 'vitest';
 import {Sequence} from '../sequencing';
 import {expectToThrow} from './expect-to-throw';
 
