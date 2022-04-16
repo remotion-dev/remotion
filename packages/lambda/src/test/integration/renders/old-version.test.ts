@@ -1,10 +1,9 @@
 import {RenderInternals} from '@remotion/renderer';
+import {afterAll, beforeAll, expect, test} from 'vitest';
 import {LambdaRoutines} from '../../../defaults';
 import {handler} from '../../../functions';
 import {LambdaReturnValues} from '../../../shared/return-values';
 import {disableLogs, enableLogs} from '../../disable-logs';
-
-jest.setTimeout(30000);
 
 const extraContext = {
 	invokedFunctionArn: 'arn:fake',
@@ -64,4 +63,4 @@ test('Should be able to render to another bucket', async () => {
 	expect(progress.errors[0].stack).toContain(
 		'Incompatible site: When visiting'
 	);
-});
+}, 30000);

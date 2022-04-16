@@ -1,3 +1,4 @@
+import {expect, test} from 'vitest';
 import {estimatePriceFromBucket} from '../../functions/helpers/calculate-price-from-bucket';
 
 test('Should not throw while calculating prices when time shifts occur', () => {

@@ -1,3 +1,4 @@
+import {expect, test} from 'vitest';
 import {CURRENT_VERSION, LambdaRoutines} from '../../defaults';
 import {handler} from '../../functions/index';
 

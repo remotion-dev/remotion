@@ -1,4 +1,5 @@
 import {Internals} from 'remotion';
+import {expect, test} from 'vitest';
 import {handler} from '../../functions/index';
 import {Await} from '../../shared/await';
 import {LambdaRoutines} from '../../shared/constants';

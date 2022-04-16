@@ -1,9 +1,11 @@
+import {vitest} from 'vitest';
+
 export const disableLogs = () => {
-	jest.spyOn(console, 'log').mockImplementation(jest.fn());
-	jest.spyOn(console, 'debug').mockImplementation(jest.fn());
+	vitest.spyOn(console, 'log').mockImplementation(() => vitest.fn());
+	vitest.spyOn(console, 'debug').mockImplementation(() => vitest.fn());
 };
 
 export const enableLogs = () => {
-	jest.spyOn(console, 'log').mockRestore();
-	jest.spyOn(console, 'debug').mockRestore();
+	vitest.spyOn(console, 'log').mockRestore();
+	vitest.spyOn(console, 'debug').mockRestore();
 };

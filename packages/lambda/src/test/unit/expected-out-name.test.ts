@@ -1,3 +1,4 @@
+import {expect, test} from 'vitest';
 import {RenderMetadata} from '../../defaults';
 import {getExpectedOutName} from '../../functions/helpers/expected-out-name';
 import {expectToThrow} from '../helpers/expect-to-throw';

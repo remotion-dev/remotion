@@ -3,13 +3,12 @@ import execa from 'execa';
 import fs, {createWriteStream} from 'fs';
 import os from 'os';
 import path from 'path';
+import {afterAll, beforeAll, expect, test} from 'vitest';
 import {LambdaRoutines} from '../../../defaults';
 import {handler} from '../../../functions';
 import {lambdaReadFile} from '../../../functions/helpers/io';
 import {LambdaReturnValues} from '../../../shared/return-values';
 import {disableLogs, enableLogs} from '../../disable-logs';
-
-jest.setTimeout(30000);
 
 const extraContext = {
 	invokedFunctionArn: 'arn:fake',
@@ -88,4 +87,4 @@ test('Should make a transparent video', async () => {
 	expect(probe.stderr).toMatch(/Video: vp8, yuv420p/);
 	expect(probe.stderr).toMatch(/Audio: opus, 48000 Hz/);
 	fs.unlinkSync(out);
-});
+}, 30000);

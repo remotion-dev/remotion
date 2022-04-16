@@ -1,12 +1,11 @@
 import {RenderInternals} from '@remotion/renderer';
 import execa from 'execa';
+import {afterAll, beforeAll, expect, test} from 'vitest';
 import {LambdaRoutines} from '../../../defaults';
 import {handler} from '../../../functions';
 import {lambdaReadFile} from '../../../functions/helpers/io';
 import {LambdaReturnValues} from '../../../shared/return-values';
 import {disableLogs, enableLogs} from '../../disable-logs';
-
-jest.setTimeout(30000);
 
 const extraContext = {
 	invokedFunctionArn: 'arn:fake',
@@ -80,4 +79,4 @@ test('Should be able to render to another bucket', async () => {
 	expect(probe.stderr).toMatch(/Video: h264/);
 	expect(probe.stderr).toMatch(/Stream #0:1/);
 	expect(probe.stderr).toMatch(/Audio: aac/);
-});
+}, 30000);

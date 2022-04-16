@@ -1,5 +1,6 @@
 import fs from 'fs';
 import {join} from 'path';
+import {isInsideLambda} from '../../shared/is-in-lambda';
 
 export let deletedFiles: string[] = [];
 export let deletedFilesSize = 0;
@@ -31,7 +32,7 @@ const deleteAllFilesInAFolderRecursively = (path: string) => {
 export const deleteTmpDir = () => {
 	deletedFiles = [];
 	deletedFilesSize = 0;
-	if (typeof jest === 'undefined') {
+	if (isInsideLambda()) {
 		deleteAllFilesInAFolderRecursively('/tmp');
 	}
 };

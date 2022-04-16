@@ -1,3 +1,4 @@
+import {expect, test} from 'vitest';
 import {validateCloudWatchRetentionPeriod} from '../../shared/validate-retention-period';
 import {expectToThrow} from '../helpers/expect-to-throw';
 

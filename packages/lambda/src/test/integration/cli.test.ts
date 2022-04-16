@@ -1,4 +1,5 @@
 import {CliInternals} from '@remotion/cli';
+import {expect, test} from 'vitest';
 import {
 	CURRENT_VERSION,
 	DEFAULT_EPHEMERAL_STORAGE_IN_MB,

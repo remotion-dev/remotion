@@ -1,3 +1,4 @@
+import {expect, test} from 'vitest';
 import {lambdaInitializedKey} from '../../shared/constants';
 import {parseLambdaInitializedKey} from '../../shared/parse-lambda-initialized-key';
 

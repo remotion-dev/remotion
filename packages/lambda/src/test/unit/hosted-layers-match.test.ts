@@ -1,3 +1,4 @@
+import {expect, test} from 'vitest';
 import {LambdaArchitecture} from '../..';
 import {
 	hostedLayers,

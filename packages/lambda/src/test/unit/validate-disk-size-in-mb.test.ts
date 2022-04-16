@@ -1,3 +1,4 @@
+import {expect, test} from 'vitest';
 import {validateDiskSizeInMb} from '../../shared/validate-disk-size-in-mb';
 import {expectToThrow} from '../helpers/expect-to-throw';
 
