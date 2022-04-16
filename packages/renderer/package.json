@@ -40,6 +40,7 @@
 		"@types/react-dom": "18.0.0",
 		"@types/serve-handler": "^6.1.0",
 		"eslint": "8.13.0",
+		"jsdom": "19.0.0",
 		"prettier": "^2.0.5",
 		"prettier-plugin-organize-imports": "^1.1.1",
 		"typescript": "^4.5.5",
