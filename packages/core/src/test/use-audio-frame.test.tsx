@@ -1,4 +1,3 @@
-import * as testingLib from '@testing-library/react';
 import React from 'react';
 import * as useAudioFrameModule from '../audio/use-audio-frame';
 import {
@@ -7,10 +6,7 @@ import {
 } from '../audio/use-audio-frame';
 import {SequenceContext, SequenceContextType} from '../sequencing';
 import * as useFrameModule from '../use-frame';
-
-const {renderHook} = testingLib;
-
-console.log(testingLib, require.resolve('@testing-library/react'));
+import {renderHook} from './render-hook';
 
 test('Media starts at 0 if it is outside a sequence', () => {
 	const wrapper: React.FC<{

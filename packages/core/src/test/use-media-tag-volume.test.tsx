@@ -1,6 +1,6 @@
-import {renderHook} from '@testing-library/react';
 import React, {RefObject} from 'react';
 import {useMediaTagVolume} from '../use-media-tag-volume';
+import {renderHook} from './render-hook';
 
 describe('Should update state when volume changes', () => {
 	const setState = jest.fn();
