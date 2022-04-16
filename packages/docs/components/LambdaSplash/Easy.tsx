@@ -1,13 +1,19 @@
+import { useColorMode } from "@docusaurus/theme-common";
 import React from "react";
 import styles from "./easy.module.css";
 
 export const LambdaEasy: React.FC = () => {
+  const { colorMode } = useColorMode();
+
   return (
     <div className={styles.row}>
       <div className={styles.tile}>
         <video
-          src="/img/npminstall.mp4"
-          style={{}}
+          src={
+            colorMode === "dark"
+              ? "/img/npminstalldark.mp4"
+              : "/img/npminstalllight.mp4"
+          }
           loop
           muted
           playsInline
