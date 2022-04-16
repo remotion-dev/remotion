@@ -197,8 +197,7 @@ importers:
   packages/core:
     specifiers:
       '@jonny/eslint-config': 3.0.256
-      '@testing-library/react': 13.0.0
-      '@testing-library/react-hooks': ^5.1.1
+      '@testing-library/react': 13.1.1
       '@types/jest': ^27.4.0
       '@types/node': ^16.7.5
       '@types/react': 18.0.1
@@ -216,8 +215,7 @@ importers:
       webpack: 5.60.0
     devDependencies:
       '@jonny/eslint-config': 3.0.256_eslint@8.13.0+typescript@4.5.5
-      '@testing-library/react': 13.0.0_react-dom@18.0.0+react@18.0.0
-      '@testing-library/react-hooks': 5.1.3_react-dom@18.0.0+react@18.0.0
+      '@testing-library/react': 13.1.1_react-dom@18.0.0+react@18.0.0
       '@types/jest': 27.4.0
       '@types/node': 16.10.2
       '@types/react': 18.0.1
@@ -5204,7 +5202,6 @@ packages:
     engines: {node: '>=6.9.0'}
     dependencies:
       regenerator-runtime: 0.13.9
-    dev: false
 
   /@babel/template/7.15.4:
     resolution: {integrity: sha512-UgBAfEa1oGuYgDIPM2G+aHa4Nlo9Lh6mGD2bDBGMTbYnc38vulXPuC1MGjYILIEmlwl6Rd+BPR9ee3gm20CBtg==}
@@ -7550,28 +7547,6 @@ packages:
       pretty-format: 27.2.4
     dev: true
 
-  /@testing-library/react-hooks/5.1.3_react-dom@18.0.0+react@18.0.0:
-    resolution: {integrity: sha512-UdEUtlQapQ579NEcXDAUE275u+KUsPtxW7NmFrNt0bE6lW8lqNCyxDK0RSuECmNZ/S0/fgP00W9RWRhVKO/hRg==}
-    peerDependencies:
-      react: '>=16.9.0'
-      react-dom: '>=16.9.0'
-      react-test-renderer: '>=16.9.0'
-    peerDependenciesMeta:
-      react-dom:
-        optional: true
-      react-test-renderer:
-        optional: true
-    dependencies:
-      '@babel/runtime': 7.15.4
-      '@types/react': 18.0.1
-      '@types/react-dom': 18.0.0
-      '@types/react-test-renderer': 17.0.1
-      filter-console: 0.1.1
-      react: 18.0.0
-      react-dom: 18.0.0_react@18.0.0
-      react-error-boundary: 3.1.3_react@18.0.0
-    dev: true
-
   /@testing-library/react/13.0.0_react-dom@18.0.0+react@18.0.0:
     resolution: {integrity: sha512-p0lYA1M7uoEmk2LnCbZLGmHJHyH59sAaZVXChTXlyhV/PRW9LoIh4mdf7tiXsO8BoNG+vN8UnFJff1hbZeXv+w==}
     engines: {node: '>=12'}
@@ -7580,6 +7555,20 @@ packages:
       react-dom: ^18.0.0
     dependencies:
       '@babel/runtime': 7.15.4
+      '@testing-library/dom': 8.7.2
+      '@types/react-dom': 18.0.0
+      react: 18.0.0
+      react-dom: 18.0.0_react@18.0.0
+    dev: true
+
+  /@testing-library/react/13.1.1_react-dom@18.0.0+react@18.0.0:
+    resolution: {integrity: sha512-8mirlAa0OKaUvnqnZF6MdAh2tReYA2KtWVw1PKvaF5EcCZqgK5pl8iF+3uW90JdG5Ua2c2c2E2wtLdaug3dsVg==}
+    engines: {node: '>=12'}
+    peerDependencies:
+      react: ^18.0.0
+      react-dom: ^18.0.0
+    dependencies:
+      '@babel/runtime': 7.17.9
       '@testing-library/dom': 8.7.2
       '@types/react-dom': 18.0.0
       react: 18.0.0
@@ -7865,12 +7854,6 @@ packages:
       '@types/history': 4.7.9
       '@types/react': 18.0.1
     dev: false
-
-  /@types/react-test-renderer/17.0.1:
-    resolution: {integrity: sha512-3Fi2O6Zzq/f3QR9dRnlnHso9bMl7weKCviFmfF6B4LS1Uat6Hkm15k0ZAQuDz+UBq6B3+g+NM6IT2nr5QgPzCw==}
-    dependencies:
-      '@types/react': 18.0.1
-    dev: true
 
   /@types/react/18.0.1:
     resolution: {integrity: sha512-VnWlrVgG0dYt+NqlfMI0yUYb8Rdl4XUROyH+c6gq/iFCiZ805Vi//26UW38DHnxQkbDhnrIWTBiy6oKZqL11cw==}
@@ -11727,11 +11710,6 @@ packages:
     engines: {node: '>=8'}
     dependencies:
       to-regex-range: 5.0.1
-
-  /filter-console/0.1.1:
-    resolution: {integrity: sha512-zrXoV1Uaz52DqPs+qEwNJWJFAWZpYJ47UNmpN9q4j+/EYsz85uV0DC9k8tRND5kYmoVzL0W+Y75q4Rg8sRJCdg==}
-    engines: {node: '>=8'}
-    dev: true
 
   /filter-obj/1.1.0:
     resolution: {integrity: sha1-mzERErxsYSehbgFsbF1/GeCAXFs=}
@@ -16923,16 +16901,6 @@ packages:
       loose-envify: 1.4.0
       react: 18.0.0
       scheduler: 0.21.0
-
-  /react-error-boundary/3.1.3_react@18.0.0:
-    resolution: {integrity: sha512-A+F9HHy9fvt9t8SNDlonq01prnU8AmkjvGKV4kk8seB9kU3xMEO8J/PQlLVmoOIDODl5U2kufSBs4vrWIqhsAA==}
-    engines: {node: '>=10', npm: '>=6'}
-    peerDependencies:
-      react: '>=16.13.1'
-    dependencies:
-      '@babel/runtime': 7.15.4
-      react: 18.0.0
-    dev: true
 
   /react-error-overlay/6.0.10:
     resolution: {integrity: sha512-mKR90fX7Pm5seCOfz8q9F+66VCc1PGsWSBxKbITjfKVQHMNF2zudxHnMdJiB1fRCb+XsbQV9sO9DCkgsMQgBIA==}
