@@ -14,7 +14,9 @@ Previously, we supported Node 12 and 13, but we no longer do.
 
 ## Remotion is built with React 18 types
 
-The Remotion components adhere to version 18 of `@types/react` and `@types/react-dom`. Minor type errors may occur that can be resolved by adjusting your components. We recommend that you upgrade the `@types/react` package yourself.
+The Remotion components adhere to [version 18 of `@types/react` and `@types/react-dom`](https://github.com/DefinitelyTyped/DefinitelyTyped/pull/56210). Minor type errors may occur that can be resolved by adjusting your components. We recommend that you upgrade the `@types/react` package yourself.
+
+**Upgrade path:** [Update to React 18](/docs/react-18) - optional but recommended.
 
 ## `renderFrames()`/`renderStill()`: `compositionId` parameter removed
 
