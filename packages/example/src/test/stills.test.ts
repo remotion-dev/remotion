@@ -8,6 +8,7 @@ import {existsSync, unlinkSync} from 'fs';
 import {tmpdir} from 'os';
 import path from 'path';
 import {TCompMetadata} from 'remotion';
+import {expect, test} from 'vitest';
 import {webpackOverride} from '../webpack-override';
 
 test('Can render a still using Node.JS APIs', async () => {
@@ -70,4 +71,4 @@ test('Can render a still using Node.JS APIs', async () => {
 	unlinkSync(testOut);
 
 	await close();
-});
+}, 10000);
