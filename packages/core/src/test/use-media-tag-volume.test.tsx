@@ -1,10 +1,10 @@
 // @ts-expect-error
 globalThis.IS_REACT_ACT_ENVIRONMENT = true;
 
-import {renderHook} from '@testing-library/react';
 import React, {RefObject} from 'react';
 import {afterEach, beforeEach, describe, expect, test, vitest} from 'vitest';
 import {useMediaTagVolume} from '../use-media-tag-volume';
+import {renderHook} from './render-hook';
 
 describe.skip('Should update state when volume changes', () => {
 	const setState = vitest.fn();

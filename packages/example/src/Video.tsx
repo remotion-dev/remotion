@@ -224,7 +224,7 @@ export const Index: React.FC = () => {
 				fps={30}
 				durationInFrames={100}
 				defaultProps={{
-					codec: 'mp4',
+					codec: 'mp4' as const,
 				}}
 			/>
 			<Composition
@@ -235,7 +235,7 @@ export const Index: React.FC = () => {
 				fps={30}
 				durationInFrames={100}
 				defaultProps={{
-					codec: 'webm',
+					codec: 'webm' as const,
 				}}
 			/>
 			<Composition

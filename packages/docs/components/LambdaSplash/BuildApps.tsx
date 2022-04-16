@@ -1,6 +1,8 @@
+import { useColorMode } from "@docusaurus/theme-common";
 import React from "react";
 import { BlueButton } from "../layout/Button";
 import { Spacer } from "../layout/Spacer";
+import { VideoApps } from "./VideoApps";
 
 const panel: React.CSSProperties = {
   backgroundColor: "var(--ifm-background-color)",
@@ -63,105 +65,24 @@ const docsButton: React.CSSProperties = {
 };
 
 export const BuildApps: React.FC = () => {
+  const { colorMode } = useColorMode();
   return (
     <div>
-      <h1 style={center}>Build Video Apps</h1>
+      <h1 style={center}>
+        Build video{" "}
+        <span
+          style={{
+            color: "var(--ifm-color-primary)",
+          }}
+        >
+          apps
+        </span>
+      </h1>
+      <p style={{ textAlign: "center" }}>
+        Combine our tools to build apps that leverage programmatic video.
+      </p>
       <br />
-      <div style={row}>
-        <div style={step}>
-          <h2 style={stepTitle}>Remotion</h2>
-          <strong style={center}>Write videos in React</strong>
-          <br />
-          <video src="/img/writeinreact.mp4" muted playsInline loop />
-          <ul style={list}>
-            <li>Use the Web to create graphics</li>
-            <hr style={hr} />
-            <li>Consume user input and APIs</li>
-            <hr style={hr} />
-            <li>Render real MP4 videos</li>
-          </ul>
-          <div style={{ flex: 1 }} />
-          <div style={row}>
-            <div style={flex}>
-              <a style={docsButton} href="/">
-                <BlueButton loading={false} fullWidth size="sm">
-                  Learn more
-                </BlueButton>
-              </a>
-            </div>
-            <Spacer />
-            <Spacer />
-            <div style={flex}>
-              <a style={docsButton} href="/docs">
-                <BlueButton loading={false} fullWidth size="sm">
-                  Read docs
-                </BlueButton>
-              </a>
-            </div>
-          </div>
-        </div>
-        <Spacer />
-        <Spacer />
-        <Spacer />
-        <div style={step}>
-          <h2 style={stepTitle}>Remotion Player</h2>
-          <strong style={center}>Embeddable interactive videos</strong>
-          <br />
-          <video src="/img/writeinreact.mp4" muted playsInline loop />
-          <ul style={list}>
-            <li>Preview videos in the browser</li>
-            <hr style={hr} />
-            <li>React to user input</li>
-            <hr style={hr} />
-            <li>Customize look and behavior</li>
-          </ul>
-          <div style={{ flex: 1 }} />
-          <div style={row}>
-            <div style={flex}>
-              <a style={docsButton} href="/player">
-                <BlueButton loading={false} fullWidth size="sm">
-                  Learn more
-                </BlueButton>
-              </a>
-            </div>
-            <Spacer />
-            <Spacer />
-            <div style={flex}>
-              <a style={docsButton} href="/docs/player">
-                <BlueButton loading={false} fullWidth size="sm">
-                  Read docs
-                </BlueButton>
-              </a>
-            </div>
-          </div>
-        </div>
-        <Spacer />
-        <Spacer />
-        <Spacer />
-        <div style={step}>
-          <h2 style={stepTitle}>Remotion Lambda</h2>
-          <strong style={center}> Render at scale</strong>
-          <br />
-          <video src="/img/writeinreact.mp4" muted playsInline loop />
-          <ul style={list}>
-            <li>Render videos in the cloud</li>
-            <hr style={hr} />
-            <li>Scale according to your volume</li>
-            <hr style={hr} />
-            <li>Fast because distributed</li>
-          </ul>
-          <div style={{ flex: 1 }} />
-          <div style={row}>
-            <div style={flex}>
-              <a style={docsButton} href="/docs/lambda">
-                <BlueButton loading={false} fullWidth size="sm">
-                  Read docs
-                </BlueButton>
-              </a>
-            </div>
-          </div>
-        </div>
-      </div>
+      <VideoApps active="lambda" />
       <br />
       <p style={center}>
         All Remotion products are source-available, for self-hosting, free for

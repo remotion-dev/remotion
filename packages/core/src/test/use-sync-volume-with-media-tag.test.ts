@@ -1,7 +1,6 @@
 // @ts-expect-error
 globalThis.IS_REACT_ACT_ENVIRONMENT = true;
 
-import {renderHook} from '@testing-library/react';
 import {RefObject} from 'react';
 import {expect, test, vitest} from 'vitest';
 import {
@@ -9,6 +8,7 @@ import {
 	UseSyncVolumeWithMediaTagOptions,
 } from '../use-sync-volume-with-media-tag';
 import {VolumeProp} from '../volume-prop';
+import {renderHook} from './render-hook';
 
 test('has the volume been adapted', () => {
 	const addEventListener = vitest.fn();

@@ -2,12 +2,12 @@
 globalThis.IS_REACT_ACT_ENVIRONMENT = true;
 
 import {afterAll, beforeAll, test, vitest, expect} from 'vitest';
-import {renderHook} from '@testing-library/react';
 import React, {RefObject} from 'react';
 import {CompositionManagerContext} from '../CompositionManager';
 import {Internals} from '../internals';
 import {useMediaInTimeline} from '../use-media-in-timeline';
 import * as useVideoConfigModule from '../use-video-config';
+import {renderHook} from './render-hook';
 
 beforeAll(() => {
 	vitest

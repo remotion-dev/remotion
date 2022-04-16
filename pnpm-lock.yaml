@@ -202,6 +202,7 @@ importers:
       prettier-plugin-organize-imports: ^1.1.1
       react: ^18.0.0
       react-dom: ^18.0.0
+      react-test-renderer: ^18.0.0
       typescript: ^4.5.5
       vitest: 0.9.3
       webpack: 5.60.0
@@ -220,6 +221,7 @@ importers:
       prettier-plugin-organize-imports: 1.1.1_prettier@2.4.1+typescript@4.5.5
       react: 18.0.0
       react-dom: 18.0.0_react@18.0.0
+      react-test-renderer: 18.0.0_react@18.0.0
       typescript: 4.5.5
       vitest: 0.9.3_c8@7.11.0+jsdom@19.0.0
       webpack: 5.60.0
@@ -16338,6 +16340,10 @@ packages:
     resolution: {integrity: sha512-w2GsyukL62IJnlaff/nRegPQR94C/XXamvMWmSHRJ4y7Ts/4ocGRmTHvOs8PSE6pB3dWOrD/nueuU5sduBsQ4w==}
     dev: true
 
+  /react-is/18.0.0:
+    resolution: {integrity: sha512-yUcBYdBBbo3QiPsgYDcfQcIkGZHfxOaoE6HLSnr1sPzMhdyxusbfKOSUbSd/ocGi32dxcj366PsTj+5oggeKKw==}
+    dev: true
+
   /react-json-view/1.21.3_d1b655986da7bf62d1172c7ae6e89165:
     resolution: {integrity: sha512-13p8IREj9/x/Ye4WI/JpjhoIwuzEgUAtgJZNBJckfzJt1qyh24BdTm6UQNGnyTq9dapQdrqvquZTo3dz1X6Cjw==}
     peerDependencies:
@@ -16455,6 +16461,27 @@ packages:
       tiny-invariant: 1.1.0
       tiny-warning: 1.0.3
     dev: false
+
+  /react-shallow-renderer/16.15.0_react@18.0.0:
+    resolution: {integrity: sha512-oScf2FqQ9LFVQgA73vr86xl2NaOIX73rh+YFqcOp68CWj56tSfgtGKrEbyhCj0rSijyG9M1CYprTh39fBi5hzA==}
+    peerDependencies:
+      react: ^16.0.0 || ^17.0.0 || ^18.0.0
+    dependencies:
+      object-assign: 4.1.1
+      react: 18.0.0
+      react-is: 18.0.0
+    dev: true
+
+  /react-test-renderer/18.0.0_react@18.0.0:
+    resolution: {integrity: sha512-SyZTP/FSkwfiKOZuTZiISzsrC8A80KNlQ8PyyoGoOq+VzMAab6Em1POK/CiX3+XyXG6oiJa1C53zYDbdrJu9fw==}
+    peerDependencies:
+      react: ^18.0.0
+    dependencies:
+      react: 18.0.0
+      react-is: 18.0.0
+      react-shallow-renderer: 16.15.0_react@18.0.0
+      scheduler: 0.21.0
+    dev: true
 
   /react-textarea-autosize/8.3.3_@types+react@18.0.1+react@18.0.0:
     resolution: {integrity: sha512-2XlHXK2TDxS6vbQaoPbMOfQ8GK7+irc2fVK6QFIcC8GOnH3zI/v481n+j1L0WaPVvKxwesnY93fEfH++sus2rQ==}
