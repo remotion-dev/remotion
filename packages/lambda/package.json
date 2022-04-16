@@ -9,7 +9,7 @@
 	},
 	"module": "true",
 	"scripts": {
-		"testintegration": "vitest src/test/integration --run --runInBand",
+		"testintegration": "vitest src/test/integration --run",
 		"lint": "eslint src --ext ts,tsx",
 		"test": "vitest --run src/test/unit",
 		"watch": "tsc -w",
