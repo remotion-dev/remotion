@@ -37,7 +37,7 @@ test('Should be able to collect assets', async () => {
 		volume: 1,
 		playbackRate: 1,
 	});
-});
+}, 15000);
 
 test('Should get multiple assets', async () => {
 	const assetPositions = await getPositions(() => (
