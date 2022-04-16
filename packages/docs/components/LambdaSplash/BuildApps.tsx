@@ -1,3 +1,4 @@
+import { useColorMode } from "@docusaurus/theme-common";
 import React from "react";
 import { BlueButton } from "../layout/Button";
 import { Spacer } from "../layout/Spacer";
@@ -63,6 +64,7 @@ const docsButton: React.CSSProperties = {
 };
 
 export const BuildApps: React.FC = () => {
+  const { colorMode } = useColorMode();
   return (
     <div>
       <h1 style={center}>Build Video Apps</h1>
@@ -72,7 +74,16 @@ export const BuildApps: React.FC = () => {
           <h2 style={stepTitle}>Remotion</h2>
           <strong style={center}>Write videos in React</strong>
           <br />
-          <video src="/img/writeinreact.mp4" muted playsInline loop />
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              flex: 1,
+            }}
+          >
+            <img src="/img/writeinreact.png" />
+          </div>
           <ul style={list}>
             <li>Use the Web to create graphics</li>
             <hr style={hr} />
@@ -80,7 +91,6 @@ export const BuildApps: React.FC = () => {
             <hr style={hr} />
             <li>Render real MP4 videos</li>
           </ul>
-          <div style={{ flex: 1 }} />
           <div style={row}>
             <div style={flex}>
               <a style={docsButton} href="/">
@@ -107,7 +117,23 @@ export const BuildApps: React.FC = () => {
           <h2 style={stepTitle}>Remotion Player</h2>
           <strong style={center}>Embeddable interactive videos</strong>
           <br />
-          <video src="/img/writeinreact.mp4" muted playsInline loop />
+
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              flex: 1,
+            }}
+          >
+            <img
+              src={
+                colorMode === "dark"
+                  ? "/img/player-example-dark.png"
+                  : "/img/player-example.png"
+              }
+            />
+          </div>
           <ul style={list}>
             <li>Preview videos in the browser</li>
             <hr style={hr} />
@@ -115,7 +141,6 @@ export const BuildApps: React.FC = () => {
             <hr style={hr} />
             <li>Customize look and behavior</li>
           </ul>
-          <div style={{ flex: 1 }} />
           <div style={row}>
             <div style={flex}>
               <a style={docsButton} href="/player">
@@ -140,9 +165,25 @@ export const BuildApps: React.FC = () => {
         <Spacer />
         <div style={step}>
           <h2 style={stepTitle}>Remotion Lambda</h2>
-          <strong style={center}> Render at scale</strong>
+          <strong style={center}>Render at scale</strong>
           <br />
-          <video src="/img/writeinreact.mp4" muted playsInline loop />
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              flex: 1,
+            }}
+          >
+            <img
+              src={
+                colorMode === "dark"
+                  ? "/img/cluster-dark.png"
+                  : "/img/cluster.png"
+              }
+            />
+          </div>
+
           <ul style={list}>
             <li>Render videos in the cloud</li>
             <hr style={hr} />
@@ -150,7 +191,6 @@ export const BuildApps: React.FC = () => {
             <hr style={hr} />
             <li>Fast because distributed</li>
           </ul>
-          <div style={{ flex: 1 }} />
           <div style={row}>
             <div style={flex}>
               <a style={docsButton} href="/docs/lambda">

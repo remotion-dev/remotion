@@ -1,14 +1,19 @@
+import { useColorMode } from "@docusaurus/theme-common";
 import React from "react";
 import { Spacer } from "../layout/Spacer";
 import styles from "./fast.module.css";
 
 export const LambdaFast: React.FC = () => {
+  const { colorMode } = useColorMode();
   return (
     <div className={styles.row}>
       <div className={styles.tile}>
         <video
-          src="/img/timelinesplit.mp4"
-          style={{}}
+          src={
+            colorMode === "dark"
+              ? "/img/timelinesplitdark.mp4"
+              : "/img/timelinesplitlight.mp4"
+          }
           loop
           muted
           playsInline
