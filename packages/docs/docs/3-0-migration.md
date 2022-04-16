@@ -6,13 +6,77 @@ title: v3.0 Breaking changes
 
 When upgrading from Remotion 2 to Remotion 3, note the following changes and apply them to your project.
 
-## `renderFrames` doesn't take `compositionId` parameter anymore
+## Node 14 is required
 
-Instead, the composition ID is now embedded in the `config` object.
+Previously, we supported Node 12 and 13, but we no longer do.
+
+**Upgrade path:** Upgrade to at least Node 14.
+
+## Remotion is built with React 18 types
+
+The Remotion components adhere to version 18 of `@types/react` and `@types/react-dom`. Minor type errors may occur that can be resolved by adjusting your components. We recommend that you upgrade the `@types/react` package yourself.
+
+## `renderFrames()`/`renderStill()`: `compositionId` parameter removed
+
+Instead, the composition ID is now embedded in the `composition` object (previously `config`).
 
 **Upgrade path:** Remove the `compositionId` property from `renderFrames()`. Add the `composition.id` property to `renderFrames()` or pull the object from `getCompositions()`.
 
-## Errors thrown in your app make the render fail
+```tsx title="Previously"
+renderFrames({
+  compositionId: "my-com",
+  config: {
+    width: 1920,
+    height: 1080,
+    fps: 30,
+    durationInFrames: 300,
+  },
+});
+```
+
+```tsx title="Now"
+renderFrames({
+  composition: {
+    id: "my-com",
+    width: 1920,
+    height: 1080,
+    fps: 30,
+    durationInFrames: 300,
+  },
+});
+```
+
+## `renderFrames()`/`renderStill()`: renamed `config` in to `composition`
+
+The `config` parameter in `renderFrames()` and `renderStill()` was renamed to `composition` and now requires an additional `id` property.
+
+```tsx title="Previously"
+renderFrames({
+  compositionId: "my-com",
+  config: {
+    width: 1920,
+    height: 1080,
+    fps: 30,
+    durationInFrames: 300,
+  },
+});
+```
+
+```tsx title="Now"
+renderFrames({
+  composition: {
+    id: "my-com",
+    width: 1920,
+    height: 1080,
+    fps: 30,
+    durationInFrames: 300,
+  },
+});
+```
+
+**Upgrade path:** Rename the `config` property of `renderFrames()` and `renderStill()`. Add the `composition.id` property to or pull the object from `getCompositions()`.
+
+## `renderFrames()`/`renderStill()`/`getCompositions()`: Errors thrown in your app make the render fail
 
 Previously, you could catch errors being thrown in your Remotion code using the `onError` property of `getCompositions()`, `renderFrames()` and `renderStill()`.
 
@@ -20,19 +84,60 @@ The new behavior of Remotion 3.0 is that if an error occurs, these functions rej
 
 **Upgrade path**: Remove the `onError` property from your `getCompositions()`, `renderFrames()` and `renderStill()` calls and catch errors in a try / catch instead. Eliminate any error being thrown in your application.
 
-## Removed `parallelism` flag for `stitchFramesToVideo` API
+```tsx title="Previously"
+await renderStill({
+  // ...
+  output: "/tmp/still.png",
+  onError: (err) => {
+    console.log("Error occured in browser", err);
+  },
+});
+```
 
-This parameter did probably not to what you thought it would. To avoid any confusion, we removed it without any replacement.
+```tsx title="Now"
+try {
+  await renderStill({
+    // ...
+    output: "/tmp/still.png",
+    onError: (err) => {
+      console.log("Error occured in browser", err);
+    },
+  });
+} catch (err) {
+  console.log("Error occured in browser", err);
+}
+```
 
-**Upgrade path**: If you added the `parallelism` property to the `stitchFramesToVideo()`, remove it.
+## `renderFrames()`/`renderStill()`/`getCompositions()`: Renamed `webpackBundle` to `serveUrl`
 
-## Removed `imageFormat` parameter from `stitchFramesToVideo` API
+The `webpackBundle` property was renamed to `serveUrl` to reflect the fact that now a URL is also supported. Functionally, the same behavior is supported as before.
 
-The necessary information is now embedded in `assetsInfo`, in the return value of `renderFrames()`. The parameter `imageFormat` is not necessary anymore to pass into `stitchFramesToVideo()`.
+**Upgrade path**: Rename `webpackBundle` to `serveUrl`.
 
-**Upgrade path**: Remove the `imageFormat` option from `stitchFramesToVideo()`.
+```tsx title="Previously"
+await renderStill({
+  output: "/tmp/still.png",
+  webpackBundle: "/tmp/react-motion-graphics8zfs9d/index.html",
+  // ...
+});
+```
 
-## `useVideoConfig` returns `id` and `defaultProps`
+```tsx title="Previously"
+await renderStill({
+  output: "/tmp/still.png",
+  serveUrl: "/tmp/react-motion-graphics8zfs9d/index.html",
+  // ...
+});
+```
+
+## `stitchFramesToVideo()`: removed `imageFormat`, `parallelism` and `webpackBundle` from API
+
+- The parameters `imageFormat` and `webpackBundle` are not necessary anymore to pass into `stitchFramesToVideo()`, because the necessary information is now embedded in `assetsInfo`, retrieved by calling `renderFrames()`.
+- The `parallelism` parameter did probably not to what you thought it would. To avoid any confusion, we removed it without any replacement.
+
+**Upgrade path**: Remove the `imageFormat`, `parallelism` and `webpackBundle` parameters from `stitchFramesToVideo()`.
+
+## `useVideoConfig()`: returns additional `id` and `defaultProps` properties
 
 The [`useVideoConfig()`](/docs/use-video-config) hook now returns two additional properties:
 
@@ -49,33 +154,17 @@ The [`useVideoConfig()`](/docs/use-video-config) hook now returns two additional
 
 **Upgrade path**: Ensure you don't rely on the new properties not being there.
 
-## Removed `webpackBundle` from `stitchFramesToVideo` API
+## `getCompositions()`: renamed `browserInstance` to `puppeteerInstance`
 
-TODO
+To align the name with `renderStill()`, `renderFrames()` and `renderMedia()`, `browserInstance` was renamed to `puppeteerInstance`.
 
-## Moved `imageFormat` in `stitchFramesToVideo` API
-
-TODO
-
-## Renamed `browserInstance` to `puppeteerInstance` in `getCompositions()`
-
-TODO
-
-## Renamed `config` in `renderFrames()` to `composition`
-
-TODO
-
-## React 18 types
-
-TODO
-
-## Deprecated `overrideWebpackConfig()` is removed
+## `overrideWebpackConfig()`: Config file option is removed
 
 ```ts title="remotion.config.ts"
 import { overrideWebpackConfig } from "@remotion/bundler";
 ```
 
-in the config file is deprecated.
+was deprecated and was now removed.
 
 Use
 
@@ -86,5 +175,3 @@ Config.Bundling.overrideWebpackConfig();
 ```
 
 instead.
-
-## Node 14 is required
