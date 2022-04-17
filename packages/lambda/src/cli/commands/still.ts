@@ -1,4 +1,5 @@
 import {CliInternals} from '@remotion/cli';
+import {RenderInternals} from '@remotion/renderer';
 import {StillImageFormat} from 'remotion';
 import {downloadMedia} from '../../api/download-media';
 import {renderStillOnLambda} from '../../api/render-still-on-lambda';
@@ -71,51 +72,65 @@ export const stillCommand = async (args: string[]) => {
 	const privacy = parsedLambdaCli.privacy ?? DEFAULT_OUTPUT_PRIVACY;
 	validatePrivacy(privacy);
 
-	const res = await renderStillOnLambda({
-		functionName,
-		serveUrl,
-		inputProps,
-		imageFormat: imageFormat as StillImageFormat,
-		composition,
-		privacy,
-		region: getAwsRegion(),
-		maxRetries,
-		envVariables,
-		frame: stillFrame,
-		quality,
-		logLevel,
-		outName: parsedLambdaCli['out-name'],
-		chromiumOptions,
-		timeoutInMilliseconds: puppeteerTimeout,
-		scale,
-	});
-
-	Log.verbose(
-		CliInternals.chalk.gray(
-			`Bucket = ${res.bucketName}, renderId = ${res.renderId}, functionName = ${functionName}`
-		)
-	);
-	Log.verbose(
-		`CloudWatch logs (if enabled): ${getCloudwatchStreamUrl({
+	try {
+		const res = await renderStillOnLambda({
 			functionName,
+			serveUrl,
+			inputProps,
+			imageFormat: imageFormat as StillImageFormat,
+			composition,
+			privacy,
 			region: getAwsRegion(),
-			renderId: res.renderId,
-			method: LambdaRoutines.still,
-		})}`
-	);
-
-	if (outName) {
-		Log.info('Finished rendering. Downloading...');
-		const {outputPath, sizeInBytes} = await downloadMedia({
-			bucketName: res.bucketName,
-			outPath: outName,
-			region: getAwsRegion(),
-			renderId: res.renderId,
+			maxRetries,
+			envVariables,
+			frame: stillFrame,
+			quality,
+			logLevel,
+			outName: parsedLambdaCli['out-name'],
+			chromiumOptions,
+			timeoutInMilliseconds: puppeteerTimeout,
+			scale,
 		});
-		Log.info('Done!', outputPath, formatBytes(sizeInBytes));
-	} else {
-		Log.info(`Finished still!`);
-		Log.info();
-		Log.info(res.url);
+		Log.verbose(
+			CliInternals.chalk.gray(
+				`Bucket = ${res.bucketName}, renderId = ${res.renderId}, functionName = ${functionName}`
+			)
+		);
+		Log.verbose(
+			`CloudWatch logs (if enabled): ${getCloudwatchStreamUrl({
+				functionName,
+				region: getAwsRegion(),
+				renderId: res.renderId,
+				method: LambdaRoutines.still,
+			})}`
+		);
+
+		if (outName) {
+			Log.info('Finished rendering. Downloading...');
+			const {outputPath, sizeInBytes} = await downloadMedia({
+				bucketName: res.bucketName,
+				outPath: outName,
+				region: getAwsRegion(),
+				renderId: res.renderId,
+			});
+			Log.info('Done!', outputPath, formatBytes(sizeInBytes));
+		} else {
+			Log.info(`Finished still!`);
+			Log.info();
+			Log.info(res.url);
+		}
+	} catch (err) {
+		const frames = RenderInternals.parseStack(
+			((err as Error).stack ?? '').split('\n')
+		);
+
+		const errorWithStackFrame = new RenderInternals.SymbolicateableError({
+			message: (err as Error).message,
+			frame: null,
+			name: (err as Error).name,
+			stack: (err as Error).stack,
+			stackFrame: frames,
+		});
+		await CliInternals.handleCommonError(errorWithStackFrame);
 	}
 };
