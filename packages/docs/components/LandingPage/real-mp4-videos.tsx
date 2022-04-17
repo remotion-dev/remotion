@@ -14,6 +14,7 @@ export const RealMP4Videos: React.FC = () => {
     if (!current) {
       return;
     }
+
     const observer = new IntersectionObserver(callback, {
       root: null,
       threshold: 0.5,
@@ -21,10 +22,10 @@ export const RealMP4Videos: React.FC = () => {
     observer.observe(current);
 
     return () => observer.unobserve(current);
-  }, []);
+  }, [callback]);
 
   return (
-    <div className={styles.realvideos} ref={ref}>
+    <div ref={ref} className={styles.realvideos}>
       <div>
         <h2 className={styles.realtitle}>
           Real <span className={styles.realgradient}>.mp4</span> videos
@@ -43,7 +44,7 @@ export const RealMP4Videos: React.FC = () => {
             width: 110,
             animationPlayState: isIntersecting ? "running" : "paused",
           }}
-        ></img>
+        />
       </div>
     </div>
   );

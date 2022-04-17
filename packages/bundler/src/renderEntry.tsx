@@ -1,18 +1,25 @@
 import React, {
+	ComponentType,
 	Suspense,
 	useCallback,
 	useContext,
 	useEffect,
 	useState,
 } from 'react';
-import {render} from 'react-dom';
+
+// In React 18, you should use createRoot() from "react-dom/client".
+// In React 18, you should use render from "react-dom".
+
+// We support both, but Webpack chooses both of them and normalizes them to "react-dom/client",
+// hence why we import the right thing all the time but need to differentiate here
+import ReactDOM from 'react-dom/client';
+import type {render, unmountComponentAtNode} from 'react-dom';
 import {
 	BundleState,
 	continueRender,
 	delayRender,
 	getInputProps,
 	Internals,
-	LooseAnyComponent,
 	TCompMetadata,
 	TComposition,
 } from 'remotion';
@@ -40,7 +47,7 @@ const Fallback: React.FC = () => {
 const GetVideo: React.FC<{state: BundleState}> = ({state}) => {
 	const video = Internals.useVideo();
 	const compositions = useContext(Internals.CompositionManager);
-	const [Component, setComponent] = useState<LooseAnyComponent<unknown> | null>(
+	const [Component, setComponent] = useState<ComponentType<unknown> | null>(
 		null
 	);
 
@@ -112,31 +119,80 @@ const GetVideo: React.FC<{state: BundleState}> = ({state}) => {
 	);
 };
 
+const videoContainer = document.getElementById(
+	'video-container'
+) as HTMLElement;
+const explainerContainer = document.getElementById(
+	'explainer-container'
+) as HTMLElement;
+
+let cleanupVideoContainer = () => {
+	videoContainer.innerHTML = '';
+};
+
+let cleanupExplainerContainer = () => {
+	explainerContainer.innerHTML = '';
+};
+
 const renderContent = () => {
 	const bundleMode = getBundleMode();
-	const videoContainer = document.getElementById(
-		'video-container'
-	) as HTMLElement;
-	const explainerContainer = document.getElementById(
-		'explainer-container'
-	) as HTMLElement;
 
 	if (bundleMode.type === 'composition' || bundleMode.type === 'evaluation') {
-		render(
+		const markup = (
 			<Internals.RemotionRoot>
 				<Root />
 				<GetVideo state={bundleMode} />
-			</Internals.RemotionRoot>,
-			videoContainer
+			</Internals.RemotionRoot>
 		);
+
+		if (ReactDOM.createRoot) {
+			const root = ReactDOM.createRoot(videoContainer);
+			root.render(markup);
+			cleanupVideoContainer = () => {
+				root.unmount();
+			};
+		} else {
+			(ReactDOM as unknown as {render: typeof render}).render(
+				markup,
+				videoContainer
+			);
+			cleanupVideoContainer = () => {
+				(
+					ReactDOM as unknown as {
+						unmountComponentAtNode: typeof unmountComponentAtNode;
+					}
+				).unmountComponentAtNode(videoContainer);
+			};
+		}
 	} else {
-		videoContainer.innerHTML = '';
+		cleanupVideoContainer();
+		cleanupVideoContainer = () => {
+			videoContainer.innerHTML = '';
+		};
 	}
 
 	if (bundleMode.type === 'index' || bundleMode.type === 'evaluation') {
-		render(<Homepage />, explainerContainer);
+		if (ReactDOM.createRoot) {
+			const root = ReactDOM.createRoot(explainerContainer);
+			root.render(<Homepage />);
+			cleanupExplainerContainer = () => {
+				root.unmount();
+			};
+		} else {
+			const root = ReactDOM as unknown as {
+				render: typeof render;
+				unmountComponentAtNode: typeof unmountComponentAtNode;
+			};
+			root.render(<Homepage />, explainerContainer);
+			cleanupExplainerContainer = () => {
+				root.unmountComponentAtNode(explainerContainer);
+			};
+		}
 	} else {
-		explainerContainer.innerHTML = '';
+		cleanupExplainerContainer();
+		cleanupExplainerContainer = () => {
+			explainerContainer.innerHTML = '';
+		};
 	}
 };
 

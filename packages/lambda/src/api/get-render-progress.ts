@@ -24,7 +24,7 @@ export const getRenderProgress = async ({
 	renderId,
 	region,
 }: GetRenderInput): Promise<RenderProgress> => {
-	return callLambda({
+	const result = await callLambda({
 		functionName,
 		type: LambdaRoutines.status,
 		payload: {
@@ -33,4 +33,5 @@ export const getRenderProgress = async ({
 		},
 		region,
 	});
+	return result;
 };

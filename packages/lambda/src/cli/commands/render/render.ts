@@ -10,6 +10,7 @@ import {
 	LambdaRoutines,
 } from '../../../shared/constants';
 import {sleep} from '../../../shared/sleep';
+import {validateFramesPerLambda} from '../../../shared/validate-frames-per-lambda';
 import {validatePrivacy} from '../../../shared/validate-privacy';
 import {validateMaxRetries} from '../../../shared/validate-retries';
 import {parsedLambdaCli} from '../../args';
@@ -56,7 +57,6 @@ export const renderCommand = async (args: string[]) => {
 		crf,
 		envVariables,
 		frameRange,
-		framesPerLambda,
 		imageFormat,
 		inputProps,
 		logLevel,
@@ -79,6 +79,8 @@ export const renderCommand = async (args: string[]) => {
 
 	const privacy = parsedLambdaCli.privacy ?? DEFAULT_OUTPUT_PRIVACY;
 	validatePrivacy(privacy);
+	const framesPerLambda = parsedLambdaCli['frames-per-lambda'] ?? undefined;
+	validateFramesPerLambda(framesPerLambda);
 
 	const res = await renderMediaOnLambda({
 		functionName,
@@ -94,7 +96,7 @@ export const renderCommand = async (args: string[]) => {
 		region,
 		maxRetries,
 		composition,
-		framesPerLambda: framesPerLambda ?? undefined,
+		framesPerLambda,
 		privacy,
 		logLevel,
 		frameRange: frameRange ?? undefined,

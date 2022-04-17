@@ -374,7 +374,6 @@ export const renderFrames = async (
 	const openedPages: Page[] = [];
 
 	return new Promise<RenderFramesOutput>((resolve, reject) => {
-		// eslint-disable-next-line promise/catch-or-return
 		innerRenderFrames({
 			...options,
 			puppeteerInstance: browserInstance,

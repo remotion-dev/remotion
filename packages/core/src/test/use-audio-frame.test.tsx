@@ -1,4 +1,3 @@
-import {renderHook} from '@testing-library/react-hooks';
 import React from 'react';
 import * as useAudioFrameModule from '../audio/use-audio-frame';
 import {
@@ -7,9 +6,12 @@ import {
 } from '../audio/use-audio-frame';
 import {SequenceContext, SequenceContextType} from '../sequencing';
 import * as useFrameModule from '../use-frame';
+import {renderHook} from './render-hook';
 
 test('Media starts at 0 if it is outside a sequence', () => {
-	const wrapper: React.FC = ({children}) => (
+	const wrapper: React.FC<{
+		children: React.ReactNode;
+	}> = ({children}) => (
 		<SequenceContext.Provider value={null}>{children}</SequenceContext.Provider>
 	);
 	const {result} = renderHook(() => useMediaStartsAt(), {wrapper});
@@ -24,7 +26,9 @@ test('Media start is shifted back based on sequence', () => {
 		durationInFrames: 0,
 		id: 'mock',
 	};
-	const wrapper: React.FC = ({children}) => (
+	const wrapper: React.FC<{
+		children: React.ReactNode;
+	}> = ({children}) => (
 		<SequenceContext.Provider value={mockSequence}>
 			{children}
 		</SequenceContext.Provider>

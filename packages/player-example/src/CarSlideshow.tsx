@@ -48,8 +48,8 @@ const CarSlideshow = ({title, bgColor, color}: Props) => {
 		<div
 			style={{
 				backgroundColor: bgColor,
-				width: width,
-				height: height,
+				width,
+				height,
 				position: 'absolute',
 				left: 0,
 				top: 0,
@@ -62,7 +62,7 @@ const CarSlideshow = ({title, bgColor, color}: Props) => {
 					position: 'absolute',
 					top: height / 2 - 100,
 					left,
-					color: color,
+					color,
 					whiteSpace: 'nowrap',
 				}}
 			>

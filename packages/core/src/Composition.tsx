@@ -1,5 +1,4 @@
-import {useContext, useEffect} from 'react';
-import {AnyComponent} from './any-component';
+import React, {ComponentType, useContext, useEffect} from 'react';
 import {CompositionManager} from './CompositionManager';
 import {useNonce} from './nonce';
 import {useLazyComponent} from './use-lazy-component';
@@ -8,12 +7,14 @@ import {validateDimension} from './validation/validate-dimensions';
 import {validateDurationInFrames} from './validation/validate-duration-in-frames';
 import {validateFps} from './validation/validate-fps';
 
+type LooseComponentType<T> = ComponentType<T> | ((props: T) => React.ReactNode);
+
 export type CompProps<T> =
 	| {
-			lazyComponent: () => Promise<{default: AnyComponent<T>}>;
+			lazyComponent: () => Promise<{default: LooseComponentType<T>}>;
 	  }
 	| {
-			component: AnyComponent<T>;
+			component: LooseComponentType<T>;
 	  };
 
 export type StillProps<T> = {

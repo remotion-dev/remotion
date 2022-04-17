@@ -10,7 +10,8 @@ module.exports = {
   projectName: "remotion", // Usually your repo name.
   themeConfig: {
     algolia: {
-      apiKey: "f63f08c037745da5269569bfbd91cd59",
+      appId: "PLSDUOL1CA",
+      apiKey: "3e42dbd4f895fe93ff5cf40d860c4a85",
       indexName: "remotion",
       contextualSearch: false,
     },
@@ -64,6 +65,10 @@ module.exports = {
             {
               label: "Player",
               to: "/player",
+            },
+            {
+              label: "Lambda",
+              to: "/lambda",
             },
             {
               label: "Changelog",

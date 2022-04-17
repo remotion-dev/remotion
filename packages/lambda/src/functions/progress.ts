@@ -11,7 +11,7 @@ type Options = {
 	timeoutInMiliseconds: number;
 };
 
-export const progressHandler = async (
+export const progressHandler = (
 	lambdaParams: LambdaPayload,
 	options: Options
 ): Promise<RenderProgress> => {

@@ -13,7 +13,7 @@ test('Should throw on wrong prefix', async () => {
 	).rejects.toThrow(/The bucketName parameter must start /);
 });
 
-test('Should throw if invalid region was passed', async () => {
+test('Should throw if invalid region was passed', () => {
 	expect(() =>
 		deploySite({
 			bucketName: 'remotionlambda-testing',
@@ -25,7 +25,7 @@ test('Should throw if invalid region was passed', async () => {
 	).rejects.toThrow(/ap-northeast-9 is not a valid AWS region/);
 });
 
-test("Should throw if bucket doesn't exist", async () => {
+test("Should throw if bucket doesn't exist", () => {
 	expect(() =>
 		deploySite({
 			bucketName: 'remotionlambda-non-existed',

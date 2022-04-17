@@ -42,23 +42,31 @@ We recommend a timeout of 120 seconds or lower - remember, Remotion Lambda is th
 
 ### `memorySizeInMb`
 
-How many megabytes of RAM the Lambda function should have. By default we recommend a value of 1024MB. You may increase or decrease it depending on how memory-consuming your video is. The minimum allowed number is `512`, the maximum allowed number is `10240`. Since the costs of Remotion Lambda is directly proportional to the amount of RAM, we recommend to keep this amount as low as possible.
+How many megabytes of RAM the Lambda function should have. By default we recommend a value of 2048MB. You may increase or decrease it depending on how memory-consuming your video is. The minimum allowed number is `512`, the maximum allowed number is `10240`. Since the costs of Remotion Lambda is directly proportional to the amount of RAM, we recommend to keep this amount as low as possible.
 
 ### `architecture`
 
-Either `x86_64` or `arm64`.
+_string_
+
+Either `x86_64` or `arm64`. Default: `arm64`
 
 ### `createCloudWatchLogGroup`
+
+_boolean_
 
 Whether logs should be saved into CloudWatch. We recommend enabling this option.
 
 ### `cloudWatchLogRetentionPeriodInDays`
 
-Optional. Retention period for the CloudWatch Logs. Default: 14 days.
+_optional_
+
+Retention period for the CloudWatch Logs. Default: 14 days.
 
 ### `diskSizeInMb`
 
-Optional. Sets the amount of disk storage that is available in the Lambda function. Must be between 512MB and 10240MB (10GB). Set this higher if you want to render longer videos. See also: [Disk size](/docs/lambda/disk-size)
+_optional_
+
+Sets the amount of disk storage that is available in the Lambda function. Must be between 512MB and 10240MB (10GB). Set this higher if you want to render longer videos. See also: [Disk size](/docs/lambda/disk-size)
 
 ## Return value
 

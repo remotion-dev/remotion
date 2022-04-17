@@ -109,7 +109,8 @@ export const Parametrize: React.FC = () => {
           Fetch data from an API and use it as the content. <br />
           Display it in real-time with the{" "}
           <a href="/player">@remotion/player</a>.<br />
-          Render videos programmatically using our server-side APIs.
+          Render videos programmatically using{" "}
+          <a href="/lambda">@remotion/lambda</a>.
         </p>
         <span style={{ fontSize: 13 }}>
           Customize the video by entering your GitHub username.

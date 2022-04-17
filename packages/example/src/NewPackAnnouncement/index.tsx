@@ -29,9 +29,11 @@ const getStickerScale = (frame: number, index: number): number => {
 	if (frame < start) {
 		return 0;
 	}
+
 	if (frame > start + duration) {
 		return 1;
 	}
+
 	return (frame - start) / duration;
 };
 
