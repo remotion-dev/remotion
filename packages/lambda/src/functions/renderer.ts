@@ -214,6 +214,7 @@ export const rendererHandler = async (
 		await writeLambdaError({
 			bucketName: params.bucketName,
 			errorInfo: {
+				message: (err as Error).message as string,
 				stack: (err as Error).stack as string,
 				chunk: params.chunk,
 				frame: null,

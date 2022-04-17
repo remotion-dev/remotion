@@ -86,4 +86,5 @@ export const CliInternals = {
 	BooleanFlags,
 	quietFlagProvided,
 	parsedCli,
+	handleCommonError,
 };

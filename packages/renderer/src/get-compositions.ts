@@ -2,6 +2,7 @@ import {Browser, Page} from 'puppeteer-core';
 import {BrowserExecutable, TCompMetadata} from 'remotion';
 import {BrowserLog} from './browser-log';
 import {getPageAndCleanupFn} from './get-browser-instance';
+import {handleJavascriptException} from './handle-javascript-exception';
 import {ChromiumOptions} from './open-browser';
 import {prepareServer} from './prepare-server';
 import {setPropsAndEnv} from './set-props-and-env';
@@ -20,14 +21,8 @@ type GetCompositionsConfig = {
 const innerGetCompositions = async (
 	serveUrl: string,
 	page: Page,
-	config: GetCompositionsConfig & {
-		onError: (err: Error) => void;
-	}
+	config: GetCompositionsConfig
 ): Promise<TCompMetadata[]> => {
-	page.on('error', (err) => {
-		console.log('errror', err);
-		config.onError(err);
-	});
 	if (config?.onBrowserLog) {
 		page.on('console', (log) => {
 			config.onBrowserLog?.({
@@ -75,13 +70,16 @@ export const getCompositions = async (
 	});
 
 	return new Promise<TCompMetadata[]>((resolve, reject) => {
-		// eslint-disable-next-line promise/catch-or-return
-		innerGetCompositions(serveUrl, page, {
-			...(config ?? {}),
+		const cleanupPageError = handleJavascriptException({
+			page,
 			onError: (err) => {
-				reject(err);
+				return reject(err);
 			},
-		})
+			frame: null,
+		});
+
+		// eslint-disable-next-line promise/catch-or-return
+		innerGetCompositions(serveUrl, page, config ?? {})
 			.then((comp) => resolve(comp))
 			.catch((err) => {
 				reject(err);
@@ -89,6 +87,7 @@ export const getCompositions = async (
 			.finally(() => {
 				cleanup();
 				closeServer();
+				cleanupPageError();
 			});
 	});
 };

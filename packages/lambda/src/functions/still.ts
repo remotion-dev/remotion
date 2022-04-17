@@ -200,9 +200,8 @@ export const stillHandler = async (
 					chunk: null,
 					frame: null,
 					isFatal: false,
-					stack: ((err as Error).message +
-						' ' +
-						(err as Error).stack) as string,
+					message: (err as Error).message,
+					stack: (err as Error).stack as string,
 					type: 'browser',
 					tmpDir: getTmpDirStateIfENoSp((err as Error).stack as string),
 					attempt: params.attempt,

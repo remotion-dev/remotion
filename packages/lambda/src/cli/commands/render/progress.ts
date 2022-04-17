@@ -175,20 +175,19 @@ const makeErrors = (errors: EnhancedErrorInfo[]) => {
 
 	return errors
 		.map((err) => {
-			const shortStack = `${err.stack.substr(0, 90)}...`;
 			if (err.willRetry) {
 				if (err.chunk === null) {
-					return `Error while preparing render (will retry): ${shortStack}`;
+					return `Error while preparing render (will retry): ${err.message}`;
 				}
 
-				return `Error in chunk (will retry) ${err.chunk}: ${shortStack}`;
+				return `Error in chunk (will retry) ${err.chunk}: ${err.message}`;
 			}
 
 			if (err.chunk === null) {
-				return `Error during preparation: ${shortStack}.`;
+				return `Error during preparation: ${err.message}.`;
 			}
 
-			return `Error in chunk ${err.chunk}: ${shortStack}`;
+			return `Error in chunk ${err.chunk}: ${err.message}`;
 		})
 		.join('\n');
 };

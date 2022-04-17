@@ -23,6 +23,8 @@ import {getRealFrameRange} from './get-frame-to-render';
 import {downloadFile} from './assets/download-file';
 import {validateScale} from './validate-scale';
 import {killAllBrowsers} from './open-browser';
+import {parseStack} from './parse-browser-error-stack';
+import {symbolicateStackTrace} from './symbolicate-stacktrace';
 export {ErrorWithStackFrame} from './handle-javascript-exception';
 export {SymbolicatedStackFrame} from './symbolicate-stacktrace';
 export {
@@ -68,4 +70,6 @@ export const RenderInternals = {
 	downloadFile,
 	validateScale,
 	killAllBrowsers,
+	parseStack,
+	symbolicateStackTrace,
 };
