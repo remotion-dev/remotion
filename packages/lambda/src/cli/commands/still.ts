@@ -132,5 +132,6 @@ export const stillCommand = async (args: string[]) => {
 			stackFrame: frames,
 		});
 		await CliInternals.handleCommonError(errorWithStackFrame);
+		quit(1);
 	}
 };

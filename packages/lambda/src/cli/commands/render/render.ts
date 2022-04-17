@@ -253,7 +253,6 @@ export const renderCommand = async (args: string[]) => {
 				await CliInternals.handleCommonError(errorWithStackFrame);
 			}
 
-			Log.error('Fatal error encountered. Exiting.');
 			quit(1);
 		}
 	}
