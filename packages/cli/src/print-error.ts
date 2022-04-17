@@ -1,21 +1,31 @@
 import {RenderInternals} from '@remotion/renderer';
+import chalk from 'chalk';
 import {printCodeFrameAndStack} from './code-frame';
 import {Log} from './log';
+import {createOverwriteableCliOutput} from './progress-bar';
 
 export const printError = async (err: Error) => {
 	if (err instanceof RenderInternals.SymbolicateableError) {
+		const output = createOverwriteableCliOutput(false);
+		output.update(
+			chalk.red('Symbolicating minified error message...\n' + err.message)
+		);
 		try {
 			const symbolicated = await RenderInternals.symbolicateError(err);
 			if (symbolicated.frame === null) {
-				Log.error('An error occurred:');
+				output.update(chalk.red('An error occurred:\n'));
 			} else {
-				Log.error(`An error occurred while rendering frame ${err.frame}:`);
+				output.update(
+					chalk.red(`An error occurred while rendering frame ${err.frame}:\n`)
+				);
 			}
 
 			printCodeFrameAndStack(symbolicated);
 		} catch (e) {
-			Log.error(
-				'(Error occurred symbolicating stack trace - printing minified stack trace)'
+			output.update(
+				chalk.red(
+					'(Error occurred symbolicating stack trace - printing minified stack trace)\n'
+				)
 			);
 			Log.error(err.stack || err);
 		}
