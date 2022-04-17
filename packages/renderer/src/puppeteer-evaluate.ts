@@ -154,6 +154,18 @@ export async function puppeteerEvaluateWithCatch<ReturnType>({
  * @this {ExecutionContext}
  */
 function convertArgument(arg: unknown): unknown {
+	if (typeof arg === 'number') {
+		return {value: arg};
+	}
+
+	if (typeof arg === 'string') {
+		return {value: arg};
+	}
+
+	if (typeof arg === 'boolean') {
+		return {value: arg};
+	}
+
 	if (typeof arg === 'bigint')
 		// eslint-disable-line valid-typeof
 		return {unserializableValue: `${arg.toString()}n`};

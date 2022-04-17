@@ -1,5 +1,5 @@
 import {CDPSession, Page, Protocol} from 'puppeteer-core';
-import {DELAY_RENDER_CALLSTACK_TOKEN} from 'remotion';
+import {Internals} from 'remotion';
 import {UnsymbolicatedStackFrame} from '../parse-browser-error-stack';
 import {SymbolicatedStackFrame} from '../symbolicate-stacktrace';
 import {SymbolicateableError} from './symbolicateable-error';
@@ -49,7 +49,7 @@ const cleanUpErrorMessage = (
 };
 
 export const removeDelayRenderStack = (message: string) => {
-	const index = message.indexOf(DELAY_RENDER_CALLSTACK_TOKEN);
+	const index = message.indexOf(Internals.DELAY_RENDER_CALLSTACK_TOKEN);
 	if (index === -1) {
 		return message;
 	}
