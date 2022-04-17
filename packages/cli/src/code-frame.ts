@@ -25,13 +25,19 @@ const printCodeFrame = (frame: SymbolicatedStackFrame) => {
 		...frame.originalScriptCode.map((script) => script.lineNumber)
 	).toString().length;
 	Log.info('at', chalk.underline(makeFileName(frame)));
+	const alignLeftAmount = Math.min(
+		...frame.originalScriptCode.map(
+			(c) => c.content.length - c.content.trimStart().length
+		)
+	);
+
 	Log.info(
 		`${frame.originalScriptCode
 			.map((c) => {
 				const content = `${String(c.lineNumber).padStart(
-					longestLineNumber + 1,
+					longestLineNumber,
 					' '
-				)} | ${c.content}`;
+				)} | ${c.content.substring(alignLeftAmount)}`;
 
 				return c.highlight ? content : chalk.gray(content);
 			})
