@@ -19,6 +19,7 @@ const printCodeFrame = (frame: SymbolicatedStackFrame) => {
 	if (!frame.originalScriptCode) {
 		return;
 	}
+
 	Log.info();
 	const longestLineNumber = Math.max(
 		...frame.originalScriptCode.map((script) => script.lineNumber)
@@ -41,9 +42,13 @@ const printCodeFrame = (frame: SymbolicatedStackFrame) => {
 const logLine = (frame: SymbolicatedStackFrame) => {
 	Log.info(
 		chalk.gray(
-			`at ${frame.originalFunctionName} ${chalk.blueBright(
-				`(${makeFileName(frame)})`
-			)}`
+			[
+				'at',
+				frame.originalFunctionName,
+				`${chalk.blueBright(`(${makeFileName(frame)})`)}`,
+			]
+				.filter(Internals.truthy)
+				.join(' ')
 		)
 	);
 };
@@ -60,6 +65,7 @@ export const printCodeFrameAndStack = (err: ErrorWithStackFrame) => {
 		if (frame === firstFrame) {
 			continue;
 		}
+
 		logLine(frame);
 	}
 

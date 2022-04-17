@@ -117,7 +117,12 @@ export const symbolicateStackTrace = async (
 	frames: StackFrame[]
 ): Promise<SymbolicatedStackFrame[]> => {
 	const uniqueFileNames = [
-		...new Set(frames.map((f) => f.fileName).filter(Internals.truthy)),
+		...new Set(
+			frames
+				.map((f) => f.fileName)
+				.filter((f) => f.startsWith('http://') || f.startsWith('https://'))
+				.filter(Internals.truthy)
+		),
 	];
 	const maps = await Promise.all(
 		uniqueFileNames.map(async (fileName) => {
@@ -130,25 +135,35 @@ export const symbolicateStackTrace = async (
 		mapValues[uniqueFileNames[i]] = maps[i];
 	}
 
-	return frames.map((frame): SymbolicatedStackFrame => {
-		const map = mapValues[frame.fileName];
-		const pos = getOriginalPosition(map, frame.lineNumber, frame.columnNumber);
+	return frames
+		.map((frame): SymbolicatedStackFrame | null => {
+			const map = mapValues[frame.fileName];
+			if (!map) {
+				return null;
+			}
 
-		const {functionName} = frame;
-		let hasSource: string | null = null;
-		hasSource = pos.source ? map.sourceContentFor(pos.source, false) : null;
+			const pos = getOriginalPosition(
+				map,
+				frame.lineNumber,
+				frame.columnNumber
+			);
 
-		const scriptCode =
-			hasSource && pos.line
-				? getLinesAround(pos.line, 3, hasSource.split('\n'))
-				: null;
+			const {functionName} = frame;
+			let hasSource: string | null = null;
+			hasSource = pos.source ? map.sourceContentFor(pos.source, false) : null;
 
-		return {
-			originalColumnNumber: pos.column,
-			originalFileName: pos.source,
-			originalFunctionName: functionName,
-			originalLineNumber: pos.line ? pos.line : null,
-			originalScriptCode: scriptCode,
-		};
-	});
+			const scriptCode =
+				hasSource && pos.line
+					? getLinesAround(pos.line, 3, hasSource.split('\n'))
+					: null;
+
+			return {
+				originalColumnNumber: pos.column,
+				originalFileName: pos.source,
+				originalFunctionName: functionName,
+				originalLineNumber: pos.line ? pos.line : null,
+				originalScriptCode: scriptCode,
+			};
+		})
+		.filter(Internals.truthy);
 };
