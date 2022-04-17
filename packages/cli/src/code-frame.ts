@@ -40,13 +40,14 @@ const printCodeFrame = (frame: SymbolicatedStackFrame) => {
 };
 
 const logLine = (frame: SymbolicatedStackFrame) => {
+	const fileName = makeFileName(frame);
+	if (!fileName) {
+		return;
+	}
+
 	Log.info(
 		chalk.gray(
-			[
-				'at',
-				frame.originalFunctionName,
-				`${chalk.blueBright(`(${makeFileName(frame)})`)}`,
-			]
+			['at', frame.originalFunctionName, `${chalk.blueBright(`(${fileName})`)}`]
 				.filter(Internals.truthy)
 				.join(' ')
 		)
@@ -73,7 +74,7 @@ export const printCodeFrameAndStack = (err: ErrorWithStackFrame) => {
 
 	if (err.delayRenderCall) {
 		Log.error();
-		Log.error('The delayRender() call is located at:');
+		Log.error('🕧 The delayRender() call is located at:');
 		for (const frame of err.delayRenderCall) {
 			const showCodeFrame =
 				(!frame.originalFileName?.includes('node_modules') &&

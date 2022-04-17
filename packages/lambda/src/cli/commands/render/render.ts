@@ -237,13 +237,6 @@ export const renderCommand = async (args: string[]) => {
 		if (newStatus.fatalErrorEncountered) {
 			Log.error('\n');
 			for (const err of newStatus.errors) {
-				const attemptString = `(Attempt ${err.attempt}/${err.totalAttempts})`;
-				if (err.chunk === null) {
-					Log.error('Error occured while preparing video: ' + attemptString);
-				} else {
-					Log.error(`Error occurred when rendering chunk ${err.chunk}:`);
-				}
-
 				if (err.explanation) {
 					Log.error(err.explanation);
 				}
