@@ -100,7 +100,7 @@ export const handleJavascriptException = ({
 			).map((f) => callFrameToStackFrame(f)),
 			frame,
 			name: errorType,
-			stack: exception.exceptionDetails.stackTrace.description,
+			stack: exception.exceptionDetails.exception?.description,
 		});
 		onError(symbolicatedErr);
 	};
