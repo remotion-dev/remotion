@@ -36,6 +36,7 @@ import {seekToFrame} from './seek-to-frame';
 import {setPropsAndEnv} from './set-props-and-env';
 import {OnStartData, RenderFramesOutput} from './types';
 import {validateScale} from './validate-scale';
+import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
 
 type ConfigOrComposition =
 	| {
@@ -166,12 +167,17 @@ export const innerRenderFrames = async ({
 			timeoutInMilliseconds,
 		});
 
-		await page.evaluate((id) => {
-			window.setBundleMode({
-				type: 'composition',
-				compositionName: id,
-			});
-		}, composition.id);
+		await puppeteerEvaluateWithCatch({
+			pageFunction: (id: string) => {
+				window.setBundleMode({
+					type: 'composition',
+					compositionName: id,
+				});
+			},
+			args: [composition.id],
+			frame: null,
+			page,
+		});
 
 		page.off('console', logCallback);
 		return page;
@@ -265,8 +271,13 @@ export const innerRenderFrames = async ({
 					}
 				}
 
-				const collectedAssets = await freePage.evaluate(() => {
-					return window.remotion_collectAssets();
+				const collectedAssets = await puppeteerEvaluateWithCatch<TAsset[]>({
+					pageFunction: () => {
+						return window.remotion_collectAssets();
+					},
+					args: [],
+					frame,
+					page: freePage,
 				});
 				const compressedAssets = collectedAssets.map((asset) =>
 					Internals.AssetCompression.compressAsset(
