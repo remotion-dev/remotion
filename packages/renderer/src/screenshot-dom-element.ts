@@ -1,5 +1,6 @@
 import puppeteer from 'puppeteer-core';
 import {ImageFormat} from 'remotion';
+import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
 import {screenshot} from './puppeteer-screenshot';
 
 export const screenshotDOMElement = async ({
@@ -22,12 +23,22 @@ export const screenshotDOMElement = async ({
 	if (!selector) throw Error('Please provide a selector.');
 
 	if (imageFormat === 'png') {
-		await page.evaluate(() => {
-			document.body.style.background = 'transparent';
+		await puppeteerEvaluateWithCatch({
+			pageFunction: () => {
+				document.body.style.background = 'transparent';
+			},
+			args: [],
+			frame: null,
+			page,
 		});
 	} else {
-		await page.evaluate(() => {
-			document.body.style.background = 'black';
+		await puppeteerEvaluateWithCatch({
+			pageFunction: () => {
+				document.body.style.background = 'black';
+			},
+			args: [],
+			frame: null,
+			page,
 		});
 	}
 

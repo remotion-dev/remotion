@@ -16,6 +16,7 @@ import {
 import {ChromiumOptions, openBrowser} from './open-browser';
 import {prepareServer} from './prepare-server';
 import {provideScreenshot} from './provide-screenshot';
+import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
 import {seekToFrame} from './seek-to-frame';
 import {setPropsAndEnv} from './set-props-and-env';
 import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
@@ -161,12 +162,17 @@ const innerRenderStill = async ({
 		timeoutInMilliseconds,
 	});
 
-	await page.evaluate((id) => {
-		window.setBundleMode({
-			type: 'composition',
-			compositionName: id,
-		});
-	}, composition.id);
+	await puppeteerEvaluateWithCatch({
+		pageFunction: (id: string) => {
+			window.setBundleMode({
+				type: 'composition',
+				compositionName: id,
+			});
+		},
+		args: [composition.id],
+		frame: null,
+		page,
+	});
 	try {
 		await seekToFrame({frame, page});
 	} catch (err) {

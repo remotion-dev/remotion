@@ -1,11 +1,11 @@
-import {Browser, CDPSession, Page} from 'puppeteer-core';
+import {Browser, Page} from 'puppeteer-core';
 import {BrowserExecutable, TCompMetadata} from 'remotion';
 import {BrowserLog} from './browser-log';
 import {getPageAndCleanupFn} from './get-browser-instance';
 import {handleJavascriptException} from './error-handling/handle-javascript-exception';
 import {ChromiumOptions} from './open-browser';
 import {prepareServer} from './prepare-server';
-import {_evaluateInternal} from './puppeteer-evaluate';
+import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
 import {setPropsAndEnv} from './set-props-and-env';
 import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
 
@@ -45,22 +45,25 @@ const innerGetCompositions = async (
 		timeoutInMilliseconds: config?.timeoutInMilliseconds,
 	});
 
-	const contextId = (await page.mainFrame().executionContext())._contextId;
-	const client = (page as unknown as {_client: CDPSession})._client;
-
-	await _evaluateInternal({
-		client,
-		contextId,
+	await puppeteerEvaluateWithCatch({
+		page,
 		pageFunction: () => {
 			window.setBundleMode({
 				type: 'evaluation',
 			});
 		},
+		frame: null,
+		args: [],
 	});
 
 	await page.waitForFunction('window.ready === true');
-	const result = await page.evaluate(() => {
-		return window.getStaticCompositions();
+	const result = await puppeteerEvaluateWithCatch({
+		pageFunction: () => {
+			return window.getStaticCompositions();
+		},
+		frame: null,
+		page,
+		args: [],
 	});
 
 	return result as TCompMetadata[];

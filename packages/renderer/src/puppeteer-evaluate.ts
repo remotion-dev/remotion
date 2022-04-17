@@ -1,5 +1,5 @@
 /* eslint-disable no-new */
-import {CDPSession, JSHandle, Protocol} from 'puppeteer-core';
+import {CDPSession, JSHandle, Page, Protocol} from 'puppeteer-core';
 import {SymbolicateableError} from './error-handling/symbolicateable-error';
 import {parseStack} from './parse-browser-error-stack';
 
@@ -34,19 +34,20 @@ function isString(obj: unknown): obj is string {
 	return typeof obj === 'string' || obj instanceof String;
 }
 
-export async function _evaluateInternal<ReturnType>({
-	client,
-	contextId,
+export async function puppeteerEvaluateWithCatch<ReturnType>({
+	page,
 	pageFunction,
 	frame,
-	args = [],
+	args,
 }: {
-	client: CDPSession;
-	contextId: number;
+	page: Page;
 	pageFunction: Function | string;
 	frame: number | null;
-	args?: unknown[];
+	args: unknown[];
 }): Promise<ReturnType> {
+	const contextId = (await page.mainFrame().executionContext())._contextId;
+	const client = (page as unknown as {_client: CDPSession})._client;
+
 	const suffix = `//# sourceURL=${EVALUATION_SCRIPT_URL}`;
 
 	if (isString(pageFunction)) {
@@ -55,24 +56,25 @@ export async function _evaluateInternal<ReturnType>({
 			? expression
 			: expression + '\n' + suffix;
 
-		const {exceptionDetails: exceptDetails, result: remotObject} = (await client
-			.send('Runtime.evaluate', {
+		const {exceptionDetails: exceptDetails, result: remotObject} =
+			(await client.send('Runtime.evaluate', {
 				expression: expressionWithSourceUrl,
 				contextId,
 				returnByValue: true,
 				awaitPromise: true,
 				userGesture: true,
-			})
-			.catch(rewriteError)) as Protocol.Runtime.CallFunctionOnResponse;
+			})) as Protocol.Runtime.CallFunctionOnResponse;
 
-		if (exceptDetails) {
+		if (exceptDetails?.exception) {
 			const err = new SymbolicateableError({
-				stack: exceptDetails.exception?.description as string,
-				name: exceptDetails.exception?.className as string,
-				message: exceptDetails.exception?.description?.split('\n')[0] as string,
+				stack: exceptDetails.exception.description as string,
+				name: exceptDetails.exception.className as string,
+				message: exceptDetails.exception.description?.split(
+					'\n'
+				)?.[0] as string,
 				frame,
 				stackFrame: parseStack(
-					(exceptDetails.exception?.description as string).split('\n')
+					(exceptDetails.exception.description as string).split('\n')
 				),
 			});
 			throw err;
@@ -127,10 +129,7 @@ export async function _evaluateInternal<ReturnType>({
 		throw error;
 	}
 
-	const {exceptionDetails, result: remoteObject} =
-		(await callFunctionOnPromise.catch(
-			rewriteError
-		)) as Protocol.Runtime.CallFunctionOnResponse;
+	const {exceptionDetails, result: remoteObject} = await callFunctionOnPromise;
 	if (exceptionDetails) {
 		const err = new SymbolicateableError({
 			stack: exceptionDetails.exception?.description as string,
@@ -175,20 +174,4 @@ function convertArgument(arg: unknown): unknown {
 	}
 
 	return {value: arg};
-}
-
-function rewriteError(error: Error): Protocol.Runtime.EvaluateResponse {
-	if (error.message.includes('Object reference chain is too long'))
-		return {result: {type: 'undefined'}};
-	if (error.message.includes("Object couldn't be returned by value"))
-		return {result: {type: 'undefined'}};
-
-	if (
-		error.message.endsWith('Cannot find context with specified id') ||
-		error.message.endsWith('Inspected target navigated or closed')
-	)
-		throw new Error(
-			'Execution context was destroyed, most likely because of a navigation.'
-		);
-	throw error;
 }
