@@ -87,7 +87,6 @@ export const getCompositions = async (
 			onError: (err) => reject(err),
 		});
 
-		// eslint-disable-next-line promise/catch-or-return
 		innerGetCompositions(serveUrl, page, config ?? {})
 			.then((comp) => resolve(comp))
 			.catch((err) => {
