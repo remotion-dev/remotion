@@ -1,31 +1,33 @@
-import {StackFrame} from '@remotion/bundler/src/error-overlay/react-overlay/utils/stack-frame';
 import {CDPSession, Page, Protocol} from 'puppeteer-core';
 import {DELAY_RENDER_CALLSTACK_TOKEN} from 'remotion';
-import {parseDelayRenderEmbeddedStack} from './delay-render-embedded-stack';
-import {
-	SymbolicatedStackFrame,
-	symbolicateStackTrace,
-} from './symbolicate-stacktrace';
+import {UnsymbolicatedStackFrame} from '../parse-browser-error-stack';
+import {SymbolicatedStackFrame} from '../symbolicate-stacktrace';
+import {SymbolicateableError} from './symbolicateable-error';
 
 export class ErrorWithStackFrame extends Error {
-	stackFrames: SymbolicatedStackFrame[];
+	symbolicatedStackFrames: SymbolicatedStackFrame[] | null;
 	frame: number | null;
-	errorType: string;
+	name: string;
 	delayRenderCall: SymbolicatedStackFrame[] | null;
 
-	// eslint-disable-next-line max-params
-	constructor(
-		message: string,
-		_stackFrames: SymbolicatedStackFrame[],
-		_frame: number | null,
-		_errorType: string,
-		_delayRenderCall: SymbolicatedStackFrame[] | null
-	) {
+	constructor({
+		message,
+		symbolicatedStackFrames,
+		frame,
+		name,
+		delayRenderCall,
+	}: {
+		message: string;
+		symbolicatedStackFrames: SymbolicatedStackFrame[] | null;
+		frame: number | null;
+		name: string;
+		delayRenderCall: SymbolicatedStackFrame[] | null;
+	}) {
 		super(message);
-		this.stackFrames = _stackFrames;
-		this.frame = _frame;
-		this.errorType = _errorType;
-		this.delayRenderCall = _delayRenderCall;
+		this.symbolicatedStackFrames = symbolicatedStackFrames;
+		this.frame = frame;
+		this.name = name;
+		this.delayRenderCall = delayRenderCall;
 	}
 }
 
@@ -57,7 +59,7 @@ export const removeDelayRenderStack = (message: string) => {
 
 const callFrameToStackFrame = (
 	callFrame: Protocol.Runtime.CallFrame
-): StackFrame => {
+): UnsymbolicatedStackFrame => {
 	return {
 		columnNumber: callFrame.columnNumber,
 		fileName: callFrame.url,
@@ -81,37 +83,26 @@ export const handleJavascriptException = ({
 		const rawErrorMessage = exception.exceptionDetails.exception
 			?.description as string;
 		const cleanErrorMessage = cleanUpErrorMessage(exception);
-		const err = new Error(removeDelayRenderStack(cleanErrorMessage));
-		err.stack = rawErrorMessage;
 		if (!exception.exceptionDetails.stackTrace) {
+			const err = new Error(removeDelayRenderStack(cleanErrorMessage));
+			err.stack = rawErrorMessage;
 			onError(err);
 			return;
 		}
 
 		const errorType = exception.exceptionDetails.exception?.className as string;
-		const delayRenderStack = await parseDelayRenderEmbeddedStack(
-			cleanErrorMessage
-		);
 
-		try {
-			const sym = await symbolicateStackTrace(
-				(
-					exception.exceptionDetails.stackTrace
-						.callFrames as Protocol.Runtime.CallFrame[]
-				).map((f) => callFrameToStackFrame(f))
-			);
-			const symbolicatedErr = new ErrorWithStackFrame(
-				removeDelayRenderStack(cleanErrorMessage),
-				sym,
-				frame,
-				errorType,
-				delayRenderStack
-			);
-			onError(symbolicatedErr);
-		} catch (errorVisualizingError) {
-			console.log('error symbolicating error:', errorVisualizingError);
-			onError(err);
-		}
+		const symbolicatedErr = new SymbolicateableError({
+			message: removeDelayRenderStack(cleanErrorMessage),
+			stackFrame: (
+				exception.exceptionDetails.stackTrace
+					.callFrames as Protocol.Runtime.CallFrame[]
+			).map((f) => callFrameToStackFrame(f)),
+			frame,
+			name: errorType,
+			stack: exception.exceptionDetails.stackTrace.description,
+		});
+		onError(symbolicatedErr);
 	};
 
 	client.on('Runtime.exceptionThrown', handler);

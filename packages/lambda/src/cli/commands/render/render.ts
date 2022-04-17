@@ -1,5 +1,5 @@
 import {CliInternals} from '@remotion/cli';
-import {ErrorWithStackFrame, RenderInternals} from '@remotion/renderer';
+import {RenderInternals} from '@remotion/renderer';
 import {downloadMedia} from '../../../api/download-media';
 import {getRenderProgress} from '../../../api/get-render-progress';
 import {renderMediaOnLambda} from '../../../api/render-media-on-lambda';
@@ -246,23 +246,16 @@ export const renderCommand = async (args: string[]) => {
 					Log.error(err.explanation);
 				}
 
-				try {
-					const frames = RenderInternals.parseStack(err.stack.split('\n'));
-					const stackFrames = await RenderInternals.symbolicateStackTrace(
-						frames
-					);
+				const frames = RenderInternals.parseStack(err.stack.split('\n'));
 
-					const errorWithStackFrame = new ErrorWithStackFrame(
-						err.message,
-						stackFrames,
-						err.frame,
-						'Error',
-						null
-					);
-					CliInternals.handleCommonError(errorWithStackFrame);
-				} catch (e) {
-					Log.error(err.stack);
-				}
+				const errorWithStackFrame = new RenderInternals.SymbolicateableError({
+					message: err.message,
+					frame: err.frame,
+					name: err.name,
+					stack: err.stack,
+					stackFrame: frames,
+				});
+				await CliInternals.handleCommonError(errorWithStackFrame);
 			}
 
 			Log.error('Fatal error encountered. Exiting.');

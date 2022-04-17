@@ -8,7 +8,7 @@ import {
 	TCompMetadata,
 } from 'remotion';
 import {ensureOutputDirectory} from './ensure-output-directory';
-import {handleJavascriptException} from './handle-javascript-exception';
+import {handleJavascriptException} from './error-handling/handle-javascript-exception';
 import {
 	getServeUrlWithFallback,
 	ServeUrlOrWebpackBundle,

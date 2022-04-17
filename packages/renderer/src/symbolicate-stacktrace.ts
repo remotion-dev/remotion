@@ -1,7 +1,7 @@
 import {Internals} from 'remotion';
 import {readFile} from './assets/read-file';
 import {RawSourceMap, SourceMapConsumer} from 'source-map';
-import {StackFrame} from './parse-browser-error-stack';
+import {UnsymbolicatedStackFrame} from './parse-browser-error-stack';
 
 function extractSourceMapUrl(
 	fileUri: string,
@@ -114,7 +114,7 @@ const getOriginalPosition = (
 };
 
 export const symbolicateStackTrace = async (
-	frames: StackFrame[]
+	frames: UnsymbolicatedStackFrame[]
 ): Promise<SymbolicatedStackFrame[]> => {
 	const uniqueFileNames = [
 		...new Set(

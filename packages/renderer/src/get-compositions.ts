@@ -1,10 +1,11 @@
-import {Browser, Page} from 'puppeteer-core';
+import {Browser, CDPSession, Page} from 'puppeteer-core';
 import {BrowserExecutable, TCompMetadata} from 'remotion';
 import {BrowserLog} from './browser-log';
 import {getPageAndCleanupFn} from './get-browser-instance';
-import {handleJavascriptException} from './handle-javascript-exception';
+import {handleJavascriptException} from './error-handling/handle-javascript-exception';
 import {ChromiumOptions} from './open-browser';
 import {prepareServer} from './prepare-server';
+import {_evaluateInternal} from './puppeteer-evaluate';
 import {setPropsAndEnv} from './set-props-and-env';
 import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
 
@@ -44,10 +45,17 @@ const innerGetCompositions = async (
 		timeoutInMilliseconds: config?.timeoutInMilliseconds,
 	});
 
-	await page.evaluate(() => {
-		window.setBundleMode({
-			type: 'evaluation',
-		});
+	const contextId = (await page.mainFrame().executionContext())._contextId;
+	const client = (page as unknown as {_client: CDPSession})._client;
+
+	await _evaluateInternal({
+		client,
+		contextId,
+		pageFunction: () => {
+			window.setBundleMode({
+				type: 'evaluation',
+			});
+		},
 	});
 
 	await page.waitForFunction('window.ready === true');

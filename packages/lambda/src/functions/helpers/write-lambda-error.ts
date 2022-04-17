@@ -7,6 +7,7 @@ import {errorIsOutOfSpaceError} from './is-enosp-err';
 export type LambdaErrorInfo = {
 	type: 'renderer' | 'browser' | 'stitcher';
 	message: string;
+	name: string;
 	stack: string;
 	frame: number | null;
 	chunk: number | null;

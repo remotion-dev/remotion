@@ -21,7 +21,7 @@ import {BrowserLog} from './browser-log';
 import {cycleBrowserTabs} from './cycle-browser-tabs';
 import {getActualConcurrency} from './get-concurrency';
 import {getRealFrameRange} from './get-frame-to-render';
-import {handleJavascriptException} from './handle-javascript-exception';
+import {handleJavascriptException} from './error-handling/handle-javascript-exception';
 import {DEFAULT_IMAGE_FORMAT} from './image-format';
 import {
 	getServeUrlWithFallback,

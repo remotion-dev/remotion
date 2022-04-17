@@ -1,8 +1,12 @@
 import {DELAY_RENDER_CALLSTACK_TOKEN} from 'remotion';
-import {parseStack} from './parse-browser-error-stack';
-import {symbolicateStackTrace} from './symbolicate-stacktrace';
+import {
+	parseStack,
+	UnsymbolicatedStackFrame,
+} from './parse-browser-error-stack';
 
-export const parseDelayRenderEmbeddedStack = (message: string) => {
+export const parseDelayRenderEmbeddedStack = (
+	message: string
+): UnsymbolicatedStackFrame[] | null => {
 	const index = message.indexOf(DELAY_RENDER_CALLSTACK_TOKEN);
 	if (index === -1) {
 		return null;
@@ -13,11 +17,5 @@ export const parseDelayRenderEmbeddedStack = (message: string) => {
 		.trim();
 
 	const parsed = parseStack(msg.split('\n'));
-
-	try {
-		return symbolicateStackTrace(parsed);
-	} catch (err) {
-		console.warn('error symbolicating delayRender() stack: ' + err);
-		return null;
-	}
+	return parsed;
 };
