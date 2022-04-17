@@ -6,6 +6,8 @@ import { PoweredByRemotion } from "../../../components/Player/PoweredByRemotion"
 import { PlayerPageFooter } from "../../../components/Player/Footer";
 import { WrappedBanner } from "../../../components/Player/Wrapped";
 import Head from "@docusaurus/Head";
+import { VideoAppsTitle } from "../../../components/LambdaSplash/VideoAppsTitle";
+import { VideoApps } from "../../../components/LambdaSplash/VideoApps";
 
 const container: React.CSSProperties = {
   maxWidth: 1000,
@@ -16,11 +18,13 @@ const container: React.CSSProperties = {
 
 export default () => {
   return (
-    <Layout
-      title="@remotion/player"
-      description="Embed videos that are written in React, and change them at runtime. Connect it to server-side rendering to turn them into real MP4 videos."
-    >
+    <Layout>
       <Head>
+        <title>@remotion/player</title>
+        <meta
+          name="description"
+          content="Embed videos that are written in React, and change them at runtime. Connect it to server-side rendering to turn them into real MP4 videos."
+        />
         <meta name="og:image" content="/img/player-og.png" />
         <meta name="twitter:image" content="/img/player-og.png" />
         <meta property="og:image" content="/img/player-og.png" />
@@ -33,6 +37,12 @@ export default () => {
       <div style={container}>
         <PlayerFeatures />
       </div>
+      <div style={container}>
+        <VideoAppsTitle />
+        <VideoApps active="player" />
+      </div>
+      <br />
+      <br />
       <WrappedBanner />
       <PlayerPageFooter />
     </Layout>

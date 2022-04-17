@@ -22,7 +22,6 @@ export type CommandLineOptions = {
 	['prores-profile']: ProResProfile;
 	['bundle-cache']: string;
 	['env-file']: string;
-	['frames-per-lambda']: number;
 	['ignore-certificate-errors']: string;
 	['disable-web-security']: string;
 	codec: Codec;
@@ -44,7 +43,6 @@ export type CommandLineOptions = {
 	help: boolean;
 	port: number;
 	frame: string | number;
-	siteName: string;
 	['disable-headless']: boolean;
 	gl: OpenGlRenderer;
 };
@@ -155,10 +153,6 @@ export const parseCommandLine = (
 		}
 
 		Internals.setStillFrame(Number(parsedCli.frame));
-	}
-
-	if (parsedCli['frames-per-lambda']) {
-		Internals.setFramesPerLambda(parsedCli['frames-per-lambda']);
 	}
 
 	if (parsedCli.png) {

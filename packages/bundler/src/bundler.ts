@@ -60,6 +60,9 @@ export const bundle = async (
 			enableCaching:
 				options?.enableCaching ?? Internals.DEFAULT_WEBPACK_CACHE_ENABLED,
 			maxTimelineTracks: 15,
+			// For production, the variables are set dynamically
+			envVariables: {},
+			inputProps: {},
 		}),
 	]);
 	if (!output) {

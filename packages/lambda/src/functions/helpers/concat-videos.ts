@@ -60,7 +60,7 @@ const downloadS3File = async ({
 	});
 };
 
-const getAllFilesS3 = async ({
+const getAllFilesS3 = ({
 	bucket,
 	expectedFiles,
 	outdir,

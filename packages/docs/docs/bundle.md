@@ -15,6 +15,7 @@ const bundle: (
     webpackOverride?: WebpackOverrideFn;
     outDir?: string;
     enableCaching?: boolean;
+    publicPath?: string;
   }
 ) => Promise<string>;
 ```
@@ -67,6 +68,12 @@ Specify a desired output directory. If no passed, the webpack bundle will be cre
 _optional_
 
 A `boolean` specifying whether Webpack caching should be enabled. Default `true`, it is recommended to leave caching enabled at all times since file changes should be recognized by Webpack nonetheless.
+
+#### `publicPath?`
+
+_optional_
+
+The path of the URL where the bundle is going to be hosted. By default it is `/`, meaning that the bundle is going to be hosted at the root of the domain (e.g. `https://localhost:3000/`). In some cases like rendering on Lambda, the public path might be a subdirectory.
 
 ## Return value
 

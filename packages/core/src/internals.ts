@@ -1,4 +1,3 @@
-import {LooseAnyComponent} from './any-component';
 import {
 	SharedAudioContext,
 	SharedAudioContextProvider,
@@ -34,10 +33,6 @@ import {
 	setFrameRangeFromCli,
 	validateFrameRange,
 } from './config/frame-range';
-import {
-	getFramesPerLambda,
-	setFramesPerLambda,
-} from './config/frames-per-lambda';
 import {
 	getUserPreferredImageFormat,
 	validateSelectedPixelFormatAndImageFormatCombination,
@@ -208,8 +203,6 @@ export const Internals = {
 	validateFrame,
 	setStillFrame,
 	getStillFrame,
-	getFramesPerLambda,
-	setFramesPerLambda,
 	invalidCompositionErrorMessage,
 	isCompositionIdValid,
 	DEFAULT_OVERWRITE,
@@ -246,7 +239,6 @@ export type {
 	CompositionManagerContext,
 	MediaVolumeContextValue,
 	SetMediaVolumeContextValue,
-	LooseAnyComponent,
 	RemotionEnvironment,
 	ProResProfile,
 	OpenGlRenderer,

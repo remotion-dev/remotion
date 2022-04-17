@@ -1,9 +1,9 @@
-import {renderHook} from '@testing-library/react-hooks';
 import React, {RefObject} from 'react';
 import {CompositionManagerContext} from '../CompositionManager';
 import {Internals} from '../internals';
 import {useMediaInTimeline} from '../use-media-in-timeline';
 import * as useVideoConfigModule from '../use-video-config';
+import {renderHook} from './render-hook';
 
 beforeAll(() => {
 	jest.spyOn(useVideoConfigModule, 'useVideoConfig').mockImplementation(() => ({
@@ -22,7 +22,9 @@ afterAll(() => {
 test('useMediaInTimeline registers and unregisters new sequence', () => {
 	const registerSequence = jest.fn();
 	const unregisterSequence = jest.fn();
-	const wrapper: React.FC = ({children}) => (
+	const wrapper: React.FC<{
+		children: React.ReactNode;
+	}> = ({children}) => (
 		<Internals.CompositionManager.Provider
 			value={
 				// eslint-disable-next-line react/jsx-no-constructed-context-values

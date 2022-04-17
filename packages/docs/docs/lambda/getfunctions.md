@@ -58,7 +58,7 @@ The amount of memory allocated to the function.
 
 ### `diskSizeInMb`
 
-The amount of ephemereal storage allocated to the function.
+The amount of ephemereal disk storage allocated to the function.
 
 ### `functionName`
 

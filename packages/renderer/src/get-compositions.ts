@@ -83,11 +83,10 @@ export const getCompositions = async (
 	return new Promise<TCompMetadata[]>((resolve, reject) => {
 		const cleanupPageError = handleJavascriptException({
 			page,
-			onError: (err) => {
-				return reject(err);
-			},
 			frame: null,
+			onError: (err) => reject(err),
 		});
+		innerGetCompositions(serveUrl, page, config ?? {});
 
 		// eslint-disable-next-line promise/catch-or-return
 		innerGetCompositions(serveUrl, page, config ?? {})

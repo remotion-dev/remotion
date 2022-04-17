@@ -22,7 +22,7 @@ import {VideoSpeed} from './VideoSpeed';
 import {VideoTesting} from './VideoTesting';
 
 // Use it to test that UI does not regress on weird CSS
-//import './weird-css.css';
+// import './weird-css.css';
 
 export const Index: React.FC = () => {
 	const inputProps = getInputProps();
@@ -224,7 +224,7 @@ export const Index: React.FC = () => {
 				fps={30}
 				durationInFrames={100}
 				defaultProps={{
-					codec: 'mp4',
+					codec: 'mp4' as const,
 				}}
 			/>
 			<Composition
@@ -235,7 +235,7 @@ export const Index: React.FC = () => {
 				fps={30}
 				durationInFrames={100}
 				defaultProps={{
-					codec: 'webm',
+					codec: 'webm' as const,
 				}}
 			/>
 			<Composition

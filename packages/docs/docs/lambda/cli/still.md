@@ -25,7 +25,7 @@ Rendering a still:
 npx remotion lambda still https://remotionlambda-abcdef.s3.eu-central-1.amazonaws.com/sites/testbed/index.html my-comp
 ```
 
-Rendering using the serve URL shorthand :
+Rendering using the serve URL shorthand:
 
 ```
 npx remotion lambda still testbed my-comp

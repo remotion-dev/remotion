@@ -38,7 +38,6 @@ export type BundleState =
 checkMultipleRemotionVersions();
 
 export * from './AbsoluteFill';
-export {AnyComponent} from './any-component';
 export * from './audio';
 export * from './Composition';
 export {TAsset, TCompMetadata, SmallTCompMetadata} from './CompositionManager';

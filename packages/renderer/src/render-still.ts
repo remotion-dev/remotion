@@ -214,7 +214,6 @@ export const renderStill = async (
 	const {closeServer, serveUrl} = await prepareServer(selectedServeUrl);
 
 	return new Promise((resolve, reject) => {
-		// eslint-disable-next-line promise/catch-or-return
 		innerRenderStill({
 			...options,
 			serveUrl,
