@@ -66,7 +66,7 @@ export const cli = async () => {
 		}
 	} catch (err) {
 		Log.info();
-		handleCommonError(err as Error);
+		await handleCommonError(err as Error);
 		process.exit(1);
 	}
 };

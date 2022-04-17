@@ -24,8 +24,9 @@ import {downloadFile} from './assets/download-file';
 import {validateScale} from './validate-scale';
 import {killAllBrowsers} from './open-browser';
 import {parseStack} from './parse-browser-error-stack';
-import {symbolicateStackTrace} from './symbolicate-stacktrace';
-export {ErrorWithStackFrame} from './handle-javascript-exception';
+import {symbolicateError} from './error-handling/symbolicate-error';
+import {SymbolicateableError} from './error-handling/symbolicateable-error';
+export {ErrorWithStackFrame} from './error-handling/handle-javascript-exception';
 export {SymbolicatedStackFrame} from './symbolicate-stacktrace';
 export {
 	renderMedia,
@@ -71,5 +72,6 @@ export const RenderInternals = {
 	validateScale,
 	killAllBrowsers,
 	parseStack,
-	symbolicateStackTrace,
+	symbolicateError,
+	SymbolicateableError,
 };

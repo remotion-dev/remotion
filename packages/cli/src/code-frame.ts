@@ -54,14 +54,16 @@ const logLine = (frame: SymbolicatedStackFrame) => {
 };
 
 export const printCodeFrameAndStack = (err: ErrorWithStackFrame) => {
-	const firstFrame = err.stackFrames[0];
-	Log.error(
-		chalk.bgRed(chalk.white(` ${err.errorType} `.toUpperCase())),
-		err.message
-	);
+	if (!err.symbolicatedStackFrames) {
+		Log.error(err.stack);
+		return;
+	}
+
+	const firstFrame = err.symbolicatedStackFrames[0];
+	Log.error(chalk.bgRed(chalk.white(` ${err.name} `)), err.message);
 	printCodeFrame(firstFrame);
 	Log.info();
-	for (const frame of err.stackFrames) {
+	for (const frame of err.symbolicatedStackFrames) {
 		if (frame === firstFrame) {
 			continue;
 		}

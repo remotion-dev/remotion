@@ -200,6 +200,7 @@ export const stillHandler = async (
 					chunk: null,
 					frame: null,
 					isFatal: false,
+					name: (err as Error).name,
 					message: (err as Error).message,
 					stack: (err as Error).stack as string,
 					type: 'browser',

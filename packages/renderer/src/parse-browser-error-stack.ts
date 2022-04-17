@@ -2,7 +2,7 @@ const regexValidFrame_Chrome = /^\s*(at|in)\s.+(:\d+)/;
 const regexValidFrame_FireFox =
 	/(^|@)\S+:\d+|.+line\s+\d+\s+>\s+(eval|Function).+/;
 
-export type StackFrame = {
+export type UnsymbolicatedStackFrame = {
 	functionName: string | null;
 	fileName: string;
 	lineNumber: number;
@@ -37,7 +37,7 @@ const makeStackFrame = ({
 	fileName: string;
 	lineNumber: number;
 	columnNumber: number;
-}): StackFrame => {
+}): UnsymbolicatedStackFrame => {
 	if (functionName && functionName.indexOf('Object.') === 0) {
 		functionName = functionName.slice('Object.'.length);
 	}
@@ -62,7 +62,7 @@ const makeStackFrame = ({
 	};
 };
 
-export const parseStack = (stack: string[]): StackFrame[] => {
+export const parseStack = (stack: string[]): UnsymbolicatedStackFrame[] => {
 	const frames = stack
 		.filter(
 			(e) => regexValidFrame_Chrome.test(e) || regexValidFrame_FireFox.test(e)
