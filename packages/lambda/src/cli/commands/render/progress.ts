@@ -184,7 +184,7 @@ const makeErrors = (errors: EnhancedErrorInfo[]) => {
 			}
 
 			if (err.chunk === null) {
-				return `Error during preparation: ${err.message}.`;
+				return `Error during preparation: ${err.message}`;
 			}
 
 			return `Error in chunk ${err.chunk}: ${err.message}`;
