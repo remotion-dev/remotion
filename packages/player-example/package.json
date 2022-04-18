@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/player-example",
-	"version": "2.6.15",
+	"version": "3.0.0-rc.0",
 	"private": true,
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"maintainers": [
@@ -9,8 +9,9 @@
 	],
 	"dependencies": {
 		"@pmmmwh/react-refresh-webpack-plugin": "^0.5.3",
-		"@remotion/bundler": "2.6.15",
-		"@remotion/player": "2.6.15",
+		"@remotion/bundler": "3.0.0-rc.0",
+		"@remotion/eslint-config": "3.0.0-rc.0",
+		"@remotion/player": "3.0.0-rc.0",
 		"@types/node": "^12.0.0",
 		"@types/react": "18.0.1",
 		"@types/react-dom": "18.0.0",
@@ -18,14 +19,13 @@
 		"camelcase": "^6.2.1",
 		"esbuild": "0.14.19",
 		"eslint": "^8.3.0",
-		"@remotion/eslint-config": "2.6.15",
 		"fs-extra": "^10.0.0",
 		"html-webpack-plugin": "^5.5.0",
 		"react": "18.0.0",
 		"react-dev-utils": "^12.0.1",
 		"react-dom": "18.0.0",
 		"react-refresh": "^0.11.0",
-		"remotion": "2.6.15",
+		"remotion": "3.0.0-rc.0",
 		"typescript": "^4.5.5",
 		"webpack": "5.60.0",
 		"webpack-dev-server": "^4.6.0"
