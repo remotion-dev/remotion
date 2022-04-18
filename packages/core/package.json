@@ -1,6 +1,6 @@
 {
 	"name": "remotion",
-	"version": "2.6.15",
+	"version": "2.6.16",
 	"description": "Render videos in React",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
@@ -21,8 +21,8 @@
 	"author": "",
 	"license": "SEE LICENSE IN LICENSE.md",
 	"peerDependencies": {
-		"react": "^17.0.1",
-		"react-dom": "^17.0.1"
+		"react": ">=16.8.0",
+		"react-dom": ">=16.8.0"
 	},
 	"devDependencies": {
 		"@jonny/eslint-config": "^2.1.251",

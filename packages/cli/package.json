@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/cli",
-	"version": "2.6.15",
+	"version": "2.6.16",
 	"description": "CLI for Remotion",
 	"main": "dist/index.js",
 	"sideEffects": false,
@@ -23,22 +23,22 @@
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"license": "SEE LICENSE IN LICENSE.md",
 	"dependencies": {
-		"@remotion/bundler": "2.6.15",
-		"@remotion/media-utils": "2.6.15",
-		"@remotion/player": "2.6.15",
-		"@remotion/renderer": "2.6.15",
+		"@remotion/bundler": "2.6.16",
+		"@remotion/media-utils": "2.6.16",
+		"@remotion/player": "2.6.16",
+		"@remotion/renderer": "2.6.16",
 		"better-opn": "2.1.1",
 		"chalk": "4.1.2",
 		"dotenv": "9.0.2",
 		"execa": "5.1.1",
 		"minimist": "1.2.6",
-		"remotion": "2.6.15",
+		"remotion": "2.6.16",
 		"semver": "7.3.5",
 		"webpack": "5.60.0"
 	},
 	"peerDependencies": {
-		"react": "^17.0.1",
-		"react-dom": "^17.0.1"
+		"react": ">=16.8.0",
+		"react-dom": ">=16.8.0"
 	},
 	"devDependencies": {
 		"@jonny/eslint-config": "^2.1.251",

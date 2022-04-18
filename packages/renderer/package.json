@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/renderer",
-	"version": "2.6.15",
+	"version": "2.6.16",
 	"description": "Renderer for Remotion",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
@@ -20,16 +20,16 @@
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
 	"dependencies": {
-		"@remotion/bundler": "2.6.15",
+		"@remotion/bundler": "2.6.16",
 		"execa": "5.1.1",
 		"p-limit": "3.1.0",
 		"puppeteer-core": "13.1.2",
-		"remotion": "2.6.15",
+		"remotion": "2.6.16",
 		"serve-handler": "6.1.3"
 	},
 	"peerDependencies": {
-		"react": "^17.0.1",
-		"react-dom": "^17.0.1"
+		"react": ">=16.8.0",
+		"react-dom": ">=16.8.0"
 	},
 	"devDependencies": {
 		"@jonny/eslint-config": "^2.1.251",
