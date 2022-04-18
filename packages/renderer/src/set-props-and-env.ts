@@ -1,6 +1,7 @@
 import {Page} from 'puppeteer-core';
 import {Internals} from 'remotion';
 import {normalizeServeUrl} from './normalize-serve-url';
+import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
 import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
 
 export const setPropsAndEnv = async ({
@@ -40,8 +41,13 @@ export const setPropsAndEnv = async ({
 		);
 	}
 
-	const siteVersion = await page.evaluate(() => {
-		return window.siteVersion;
+	const siteVersion = await puppeteerEvaluateWithCatch<'2'>({
+		pageFunction: () => {
+			return window.siteVersion;
+		},
+		args: [],
+		frame: null,
+		page,
 	});
 
 	if (siteVersion !== '2') {
@@ -50,8 +56,15 @@ export const setPropsAndEnv = async ({
 		);
 	}
 
-	const isRemotionFn = await page.evaluate(() => {
-		return window.getStaticCompositions;
+	const isRemotionFn = await puppeteerEvaluateWithCatch<
+		typeof window['getStaticCompositions']
+	>({
+		pageFunction: () => {
+			return window.getStaticCompositions;
+		},
+		args: [],
+		frame: null,
+		page,
 	});
 	if (isRemotionFn === undefined) {
 		throw new Error(
@@ -59,27 +72,43 @@ export const setPropsAndEnv = async ({
 		);
 	}
 
-	await page.evaluate((timeout) => {
-		window.remotion_puppeteerTimeout = timeout;
-	}, actualTimeout);
+	await puppeteerEvaluateWithCatch({
+		args: [actualTimeout],
+		frame: null,
+		page,
+		pageFunction: (timeout: number) => {
+			window.remotion_puppeteerTimeout = timeout;
+		},
+	});
 
 	if (inputProps) {
-		await page.evaluate((input) => {
-			window.remotion_inputProps = input;
-		}, JSON.stringify(inputProps));
+		await puppeteerEvaluateWithCatch({
+			pageFunction: (input: string) => {
+				window.remotion_inputProps = input;
+			},
+			args: [JSON.stringify(inputProps)],
+			frame: null,
+			page,
+		});
 	}
 
 	if (envVariables) {
-		await page.evaluate((input) => {
-			window.remotion_envVariables = input;
-		}, JSON.stringify(envVariables));
+		await puppeteerEvaluateWithCatch({
+			pageFunction: (input: string) => {
+				window.remotion_envVariables = input;
+			},
+			args: [JSON.stringify(envVariables)],
+			frame: null,
+			page,
+		});
 	}
 
-	await page.evaluate(
-		(key, value) => {
+	await puppeteerEvaluateWithCatch({
+		pageFunction: (key: string, value: string) => {
 			window.localStorage.setItem(key, value);
 		},
-		Internals.INITIAL_FRAME_LOCAL_STORAGE_KEY,
-		initialFrame
-	);
+		args: [Internals.INITIAL_FRAME_LOCAL_STORAGE_KEY, initialFrame],
+		frame: null,
+		page,
+	});
 };

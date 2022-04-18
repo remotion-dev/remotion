@@ -8,6 +8,7 @@ import {
 	TCompMetadata,
 } from 'remotion';
 import {ensureOutputDirectory} from './ensure-output-directory';
+import {handleJavascriptException} from './error-handling/handle-javascript-exception';
 import {
 	getServeUrlWithFallback,
 	ServeUrlOrWebpackBundle,
@@ -15,6 +16,7 @@ import {
 import {ChromiumOptions, openBrowser} from './open-browser';
 import {prepareServer} from './prepare-server';
 import {provideScreenshot} from './provide-screenshot';
+import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
 import {seekToFrame} from './seek-to-frame';
 import {setPropsAndEnv} from './set-props-and-env';
 import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
@@ -130,7 +132,7 @@ const innerRenderStill = async ({
 	});
 
 	const cleanup = async () => {
-		page.off('pageerror', errorCallback);
+		cleanUpJSException();
 
 		if (puppeteerInstance) {
 			await page.close();
@@ -146,7 +148,11 @@ const innerRenderStill = async ({
 		cleanup();
 	};
 
-	page.on('pageerror', errorCallback);
+	const cleanUpJSException = handleJavascriptException({
+		page,
+		onError: errorCallback,
+		frame: null,
+	});
 	await setPropsAndEnv({
 		inputProps,
 		envVariables,
@@ -156,12 +162,17 @@ const innerRenderStill = async ({
 		timeoutInMilliseconds,
 	});
 
-	await page.evaluate((id) => {
-		window.setBundleMode({
-			type: 'composition',
-			compositionName: id,
-		});
-	}, composition.id);
+	await puppeteerEvaluateWithCatch({
+		pageFunction: (id: string) => {
+			window.setBundleMode({
+				type: 'composition',
+				compositionName: id,
+			});
+		},
+		args: [composition.id],
+		frame: null,
+		page,
+	});
 	try {
 		await seekToFrame({frame, page});
 	} catch (err) {

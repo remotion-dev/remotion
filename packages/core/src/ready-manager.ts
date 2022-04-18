@@ -8,6 +8,7 @@ if (typeof window !== 'undefined') {
 
 let handles: number[] = [];
 const timeouts: {[key: string]: number | NodeJS.Timeout} = {};
+export const DELAY_RENDER_CALLSTACK_TOKEN = 'The delayRender was called:';
 
 /**
  * Call this function to tell Remotion to wait before capturing this frame until data has loaded. Use continueRender() to unblock the render.
@@ -36,7 +37,9 @@ export const delayRender = (label?: string): number => {
 			const message = [
 				`A delayRender()`,
 				label ? `"${label}"` : null,
-				`was called but not cleared after ${timeoutToUse}ms. See https://remotion.dev/docs/timeout for help. The delayRender was called: ${called}`,
+				`was called but not cleared after ${timeoutToUse}ms. See https://remotion.dev/docs/timeout for help.`,
+				DELAY_RENDER_CALLSTACK_TOKEN,
+				called,
 			]
 				.filter(truthy)
 				.join(' ');

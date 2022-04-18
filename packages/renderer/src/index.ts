@@ -23,7 +23,11 @@ import {getRealFrameRange} from './get-frame-to-render';
 import {downloadFile} from './assets/download-file';
 import {validateScale} from './validate-scale';
 import {killAllBrowsers} from './open-browser';
-
+import {parseStack} from './parse-browser-error-stack';
+import {symbolicateError} from './error-handling/symbolicate-error';
+import {SymbolicateableError} from './error-handling/symbolicateable-error';
+export {ErrorWithStackFrame} from './error-handling/handle-javascript-exception';
+export {SymbolicatedStackFrame} from './symbolicate-stacktrace';
 export {
 	renderMedia,
 	RenderMediaOnProgress,
@@ -67,4 +71,7 @@ export const RenderInternals = {
 	downloadFile,
 	validateScale,
 	killAllBrowsers,
+	parseStack,
+	symbolicateError,
+	SymbolicateableError,
 };
