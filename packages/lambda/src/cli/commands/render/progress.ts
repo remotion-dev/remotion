@@ -2,7 +2,6 @@ import {CliInternals} from '@remotion/cli';
 import {Internals} from 'remotion';
 import {CleanupInfo, EncodingProgress, RenderProgress} from '../../../defaults';
 import {ChunkRetry} from '../../../functions/helpers/get-retry-stats';
-import {EnhancedErrorInfo} from '../../../functions/helpers/write-lambda-error';
 import {formatBytes} from '../../helpers/format-bytes';
 
 type LambdaInvokeProgress = {
@@ -168,31 +167,6 @@ export const makeMultiProgressFromStatus = (
 	};
 };
 
-const makeErrors = (errors: EnhancedErrorInfo[]) => {
-	if (errors.length === 0) {
-		return null;
-	}
-
-	return errors
-		.map((err) => {
-			const shortStack = `${err.stack.substr(0, 90)}...`;
-			if (err.willRetry) {
-				if (err.chunk === null) {
-					return `Error while preparing render (will retry): ${shortStack}`;
-				}
-
-				return `Error in chunk (will retry) ${err.chunk}: ${shortStack}`;
-			}
-
-			if (err.chunk === null) {
-				return `Error during preparation: ${shortStack}.`;
-			}
-
-			return `Error in chunk ${err.chunk}: ${shortStack}`;
-		})
-		.join('\n');
-};
-
 type DownloadedInfo = {
 	totalSize: number;
 	downloaded: number;
@@ -203,13 +177,11 @@ export const makeProgressString = ({
 	progress,
 	steps,
 	downloadInfo,
-	errors,
 	retriesInfo,
 }: {
 	progress: MultiRenderProgress;
 	steps: number;
 	downloadInfo: DownloadedInfo | null;
-	errors: EnhancedErrorInfo[];
 	retriesInfo: ChunkRetry[];
 }) => {
 	return [
@@ -219,7 +191,6 @@ export const makeProgressString = ({
 			invokeProgress: progress.lambdaInvokeProgress,
 			totalSteps: steps,
 		}),
-		makeErrors(errors),
 		makeEncodingProgress({
 			encodingProgress: progress.encodingProgress,
 			chunkProgress: progress.chunkProgress,

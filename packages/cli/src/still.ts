@@ -10,7 +10,6 @@ import path from 'path';
 import {Config, Internals} from 'remotion';
 import {getCliOptions} from './get-cli-options';
 import {getCompositionId} from './get-composition-id';
-import {handleCommonError} from './handle-common-errors';
 import {initializeRenderCli} from './initialize-render-cli';
 import {Log} from './log';
 import {parsedCli, quietFlagProvided} from './parse-command-line';
@@ -128,31 +127,23 @@ export const still = async () => {
 	const renderProgress = createOverwriteableCliOutput(quietFlagProvided());
 	const renderStart = Date.now();
 
-	try {
-		await renderStill({
-			composition,
-			frame: stillFrame,
-			output: userOutput,
-			serveUrl,
-			quality,
-			dumpBrowserLogs: Internals.Logging.isEqualOrBelowLogLevel(
-				Internals.Logging.getLogLevel(),
-				'verbose'
-			),
-			envVariables,
-			imageFormat,
-			inputProps,
-			chromiumOptions,
-			timeoutInMilliseconds: Internals.getCurrentPuppeteerTimeout(),
-			scale,
-		});
-	} catch (err) {
-		Log.error();
-		Log.error('The following error occured when rendering the still:');
-
-		handleCommonError(err as Error);
-		process.exit(1);
-	}
+	await renderStill({
+		composition,
+		frame: stillFrame,
+		output: userOutput,
+		serveUrl,
+		quality,
+		dumpBrowserLogs: Internals.Logging.isEqualOrBelowLogLevel(
+			Internals.Logging.getLogLevel(),
+			'verbose'
+		),
+		envVariables,
+		imageFormat,
+		inputProps,
+		chromiumOptions,
+		timeoutInMilliseconds: Internals.getCurrentPuppeteerTimeout(),
+		scale,
+	});
 
 	const closeBrowserPromise = puppeteerInstance.close();
 	closeServer().catch((err) => {

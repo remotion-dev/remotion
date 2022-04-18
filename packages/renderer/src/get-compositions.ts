@@ -2,8 +2,10 @@ import {Browser, Page} from 'puppeteer-core';
 import {BrowserExecutable, TCompMetadata} from 'remotion';
 import {BrowserLog} from './browser-log';
 import {getPageAndCleanupFn} from './get-browser-instance';
+import {handleJavascriptException} from './error-handling/handle-javascript-exception';
 import {ChromiumOptions} from './open-browser';
 import {prepareServer} from './prepare-server';
+import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
 import {setPropsAndEnv} from './set-props-and-env';
 import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
 
@@ -20,18 +22,8 @@ type GetCompositionsConfig = {
 const innerGetCompositions = async (
 	serveUrl: string,
 	page: Page,
-	config: GetCompositionsConfig & {
-		onError: (err: Error) => void;
-	}
+	config: GetCompositionsConfig
 ): Promise<TCompMetadata[]> => {
-	page.on('error', (err) => {
-		console.log(err);
-		config.onError(err);
-	});
-	page.on('pageerror', (err) => {
-		console.log(err);
-		config.onError(err);
-	});
 	if (config?.onBrowserLog) {
 		page.on('console', (log) => {
 			config.onBrowserLog?.({
@@ -53,15 +45,25 @@ const innerGetCompositions = async (
 		timeoutInMilliseconds: config?.timeoutInMilliseconds,
 	});
 
-	await page.evaluate(() => {
-		window.setBundleMode({
-			type: 'evaluation',
-		});
+	await puppeteerEvaluateWithCatch({
+		page,
+		pageFunction: () => {
+			window.setBundleMode({
+				type: 'evaluation',
+			});
+		},
+		frame: null,
+		args: [],
 	});
 
 	await page.waitForFunction('window.ready === true');
-	const result = await page.evaluate(() => {
-		return window.getStaticCompositions();
+	const result = await puppeteerEvaluateWithCatch({
+		pageFunction: () => {
+			return window.getStaticCompositions();
+		},
+		frame: null,
+		page,
+		args: [],
 	});
 
 	return result as TCompMetadata[];
@@ -79,12 +81,13 @@ export const getCompositions = async (
 	});
 
 	return new Promise<TCompMetadata[]>((resolve, reject) => {
-		innerGetCompositions(serveUrl, page, {
-			...(config ?? {}),
-			onError: (err) => {
-				reject(err);
-			},
-		})
+		const cleanupPageError = handleJavascriptException({
+			page,
+			frame: null,
+			onError: (err) => reject(err),
+		});
+
+		innerGetCompositions(serveUrl, page, config ?? {})
 			.then((comp) => resolve(comp))
 			.catch((err) => {
 				reject(err);
@@ -92,6 +95,7 @@ export const getCompositions = async (
 			.finally(() => {
 				cleanup();
 				closeServer();
+				cleanupPageError();
 			});
 	});
 };

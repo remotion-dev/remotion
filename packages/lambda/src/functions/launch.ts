@@ -250,6 +250,8 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 					chunk: null,
 					frame: null,
 					isFatal: false,
+					name: (err as Error).name,
+					message: (err as Error).message,
 					stack: `Could not upload stitching progress ${
 						(err as Error).stack as string
 					}`,
@@ -425,6 +427,7 @@ export const launchHandler = async (
 			errorInfo: {
 				chunk: null,
 				frame: null,
+				name: (err as Error).name as string,
 				stack: (err as Error).stack as string,
 				type: 'stitcher',
 				isFatal: true,
@@ -432,6 +435,7 @@ export const launchHandler = async (
 				attempt: 1,
 				totalAttempts: 1,
 				willRetry: false,
+				message: (err as Error).message,
 			},
 			expectedBucketOwner: options.expectedBucketOwner,
 			renderId: params.renderId,

@@ -65,7 +65,8 @@ export const cli = async () => {
 			process.exit(1);
 		}
 	} catch (err) {
-		handleCommonError(err as Error);
+		Log.info();
+		await handleCommonError(err as Error);
 		process.exit(1);
 	}
 };
@@ -85,4 +86,5 @@ export const CliInternals = {
 	BooleanFlags,
 	quietFlagProvided,
 	parsedCli,
+	handleCommonError,
 };

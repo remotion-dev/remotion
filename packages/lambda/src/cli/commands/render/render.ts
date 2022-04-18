@@ -1,4 +1,5 @@
 import {CliInternals} from '@remotion/cli';
+import {RenderInternals} from '@remotion/renderer';
 import {downloadMedia} from '../../../api/download-media';
 import {getRenderProgress} from '../../../api/get-render-progress';
 import {renderMediaOnLambda} from '../../../api/render-media-on-lambda';
@@ -134,7 +135,6 @@ export const renderCommand = async (args: string[]) => {
 	progressBar.update(
 		makeProgressString({
 			progress: multiProgress,
-			errors: status.errors,
 			steps: totalSteps,
 			downloadInfo: null,
 			retriesInfo: status.retriesInfo,
@@ -154,7 +154,6 @@ export const renderCommand = async (args: string[]) => {
 			makeProgressString({
 				progress: newProgress,
 				steps: totalSteps,
-				errors: newStatus.errors,
 				retriesInfo: newStatus.retriesInfo,
 				downloadInfo: null,
 			})
@@ -167,7 +166,6 @@ export const renderCommand = async (args: string[]) => {
 					progress: newProgress,
 					steps: totalSteps,
 					downloadInfo: null,
-					errors: newStatus.errors,
 					retriesInfo: newStatus.retriesInfo,
 				})
 			);
@@ -183,7 +181,6 @@ export const renderCommand = async (args: string[]) => {
 							makeProgressString({
 								progress: newProgress,
 								steps: totalSteps,
-								errors: newStatus.errors,
 								retriesInfo: newStatus.retriesInfo,
 								downloadInfo: {
 									doneIn: null,
@@ -198,7 +195,6 @@ export const renderCommand = async (args: string[]) => {
 					makeProgressString({
 						progress: newProgress,
 						steps: totalSteps,
-						errors: newStatus.errors,
 						retriesInfo: newStatus.retriesInfo,
 						downloadInfo: {
 							doneIn: Date.now() - downloadStart,
@@ -236,21 +232,22 @@ export const renderCommand = async (args: string[]) => {
 		if (newStatus.fatalErrorEncountered) {
 			Log.error('\n');
 			for (const err of newStatus.errors) {
-				const attemptString = `(Attempt ${err.attempt}/${err.totalAttempts})`;
-				if (err.chunk === null) {
-					Log.error('Error occured while preparing video: ' + attemptString);
-				} else {
-					Log.error(`Error occurred when rendering chunk ${err.chunk}:`);
-				}
-
 				if (err.explanation) {
 					Log.error(err.explanation);
 				}
 
-				Log.error(err.stack);
+				const frames = RenderInternals.parseStack(err.stack.split('\n'));
+
+				const errorWithStackFrame = new RenderInternals.SymbolicateableError({
+					message: err.message,
+					frame: err.frame,
+					name: err.name,
+					stack: err.stack,
+					stackFrame: frames,
+				});
+				await CliInternals.handleCommonError(errorWithStackFrame);
 			}
 
-			Log.error('Fatal error encountered. Exiting.');
 			quit(1);
 		}
 	}
