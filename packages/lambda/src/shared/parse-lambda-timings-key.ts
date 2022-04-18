@@ -1,4 +1,11 @@
-export const parseLambdaTimingsKey = (key: string) => {
+export type ParsedTiming = {
+	renderId: string;
+	chunk: number;
+	start: number;
+	rendered: number;
+};
+
+export const parseLambdaTimingsKey = (key: string): ParsedTiming => {
 	const match = key.match(
 		/^renders\/(.*)\/lambda-timings\/chunk:([0-9]+)-start:([0-9]+)-rendered:([0-9]+).txt$/
 	);
@@ -9,7 +16,7 @@ export const parseLambdaTimingsKey = (key: string) => {
 	}
 
 	return {
-		renderId: match[1],
+		renderId: match[1] as string,
 		chunk: Number(match[2]),
 		start: Number(match[3]),
 		rendered: Number(match[4]),
