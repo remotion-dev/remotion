@@ -10,6 +10,18 @@ Keep track of changes to the APIs of Remotion Lambda here.
 
 [Upgrading](/docs/lambda/upgrading)
 
+## April 18th, 2022
+
+Version hash: `3.0.0-rc.1`
+Lambda version: '2022-04-18'
+
+- React 18 Support - you can update `react`, `react-dom` and `@types/react` to opt into React 18!
+- ESLint 8 support - you can update to use the new version!
+- Minimum version is now Node 14.
+- In the CLI, render errors are symbolicated, even for Lambda renders!
+
+Thanks for giving it a try and let us know if there are any problems, before we launch soon!
+
 ## April 5th, 2022
 
 _Experimental version, stay with '2022-03-17' for well-tested version!_
