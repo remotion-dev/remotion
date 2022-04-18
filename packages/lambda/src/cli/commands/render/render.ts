@@ -135,7 +135,6 @@ export const renderCommand = async (args: string[]) => {
 	progressBar.update(
 		makeProgressString({
 			progress: multiProgress,
-			errors: status.errors,
 			steps: totalSteps,
 			downloadInfo: null,
 			retriesInfo: status.retriesInfo,
@@ -155,7 +154,6 @@ export const renderCommand = async (args: string[]) => {
 			makeProgressString({
 				progress: newProgress,
 				steps: totalSteps,
-				errors: newStatus.errors,
 				retriesInfo: newStatus.retriesInfo,
 				downloadInfo: null,
 			})
@@ -168,7 +166,6 @@ export const renderCommand = async (args: string[]) => {
 					progress: newProgress,
 					steps: totalSteps,
 					downloadInfo: null,
-					errors: newStatus.errors,
 					retriesInfo: newStatus.retriesInfo,
 				})
 			);
@@ -184,7 +181,6 @@ export const renderCommand = async (args: string[]) => {
 							makeProgressString({
 								progress: newProgress,
 								steps: totalSteps,
-								errors: newStatus.errors,
 								retriesInfo: newStatus.retriesInfo,
 								downloadInfo: {
 									doneIn: null,
@@ -199,7 +195,6 @@ export const renderCommand = async (args: string[]) => {
 					makeProgressString({
 						progress: newProgress,
 						steps: totalSteps,
-						errors: newStatus.errors,
 						retriesInfo: newStatus.retriesInfo,
 						downloadInfo: {
 							doneIn: Date.now() - downloadStart,
