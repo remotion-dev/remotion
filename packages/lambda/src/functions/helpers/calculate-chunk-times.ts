@@ -1,7 +1,24 @@
 import {_Object} from '@aws-sdk/client-s3';
 import {lambdaTimingsPrefix} from '../../shared/constants';
-import {parseLambdaTimingsKey} from '../../shared/parse-lambda-timings-key';
+import {
+	ParsedTiming,
+	parseLambdaTimingsKey,
+} from '../../shared/parse-lambda-timings-key';
 import {max, min} from './min-max';
+
+const getAbsoluteTime = (parsedTimings: ParsedTiming[]) => {
+	if (parsedTimings.length === 0) {
+		return 0;
+	}
+
+	const allEnds = parsedTimings.map((p) => p.rendered);
+	const allStarts = parsedTimings.map((p) => p.start);
+
+	const biggestEnd = max(allEnds);
+	const smallestStart = min(allStarts);
+
+	return biggestEnd - smallestStart;
+};
 
 export const calculateChunkTimes = ({
 	contents,
@@ -16,27 +33,18 @@ export const calculateChunkTimes = ({
 		.filter((c) => c.Key?.startsWith(lambdaTimingsPrefix(renderId)))
 		.map((f) => parseLambdaTimingsKey(f.Key as string));
 
+	const absoluteTime = getAbsoluteTime(parsedTimings);
+
 	if (type === 'combined-time-for-cost-calculation') {
-		// TODO: Should also calculate invoker functions, and main function
 		const totalEncodingTimings = parsedTimings
 			.map((p) => p.rendered - p.start)
 			.reduce((a, b) => a + b, 0);
 
-		return totalEncodingTimings;
+		return totalEncodingTimings + absoluteTime;
 	}
 
 	if (type === 'absolute-time') {
-		if (parsedTimings.length === 0) {
-			return 0;
-		}
-
-		const allEnds = parsedTimings.map((p) => p.rendered);
-		const allStarts = parsedTimings.map((p) => p.start);
-
-		const biggestEnd = max(allEnds);
-		const smallestStart = min(allStarts);
-
-		return biggestEnd - smallestStart;
+		return absoluteTime;
 	}
 
 	throw new Error('invalid time for calculate chunk times');
