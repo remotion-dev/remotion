@@ -13,7 +13,7 @@ Renders a series of images using Puppeteer and computes information for mixing a
 If you want to render only a still image, use [renderStill()](/docs/renderer/render-still).
 
 :::info
-In Remotion 3.0, we added the [`renderMedia()`](/docs/renderer/render-media) API which combines `renderFrames()` and `stitchFramesToVideo()` into one simplified step and performs the render faster. Prefer this API if you can.
+In Remotion 3.0, we added the [`renderMedia()`](/docs/renderer/render-media) API which combines `renderFrames()` and `stitchFramesToVideo()` into one simplified step and performs the render faster. Prefer `renderMedia()` if you can.
 :::
 
 ```ts

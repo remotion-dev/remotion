@@ -24,4 +24,4 @@ The following APIs are available in the `@remotion/renderer` package:
 
 ## What's the difference between `renderMedia()` and `renderFrames()`?
 
-In Remotion 3.0, we added the [`renderMedia()`](/docs/renderer/render-media) API which combines `renderFrames()` and `stitchFramesToVideo()` into one simplified step and performs the render faster. Prefer this API if you can.
+In Remotion 3.0, we added the [`renderMedia()`](/docs/renderer/render-media) API which combines `renderFrames()` and `stitchFramesToVideo()` into one simplified step and performs the render faster. Prefer `renderMedia()` if you can.
