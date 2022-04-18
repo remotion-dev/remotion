@@ -21,7 +21,7 @@
     "@docusaurus/preset-classic": "2.0.0-beta.18",
     "@docusaurus/theme-common": "2.0.0-beta.18",
     "@jonny/docusaurus-preset-shiki-twoslash": "^1.1.36",
-    "@jonny/eslint-config": "3.0.256",
+    "@jonny/eslint-config": "3.0.259",
     "@mdx-js/react": "^1.6.21",
     "@remotion/babel-loader": "3.0.0-rc.0",
     "@remotion/bundler": "3.0.0-rc.0",
