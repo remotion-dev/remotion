@@ -9,8 +9,16 @@ Internals.CSSUtils.injectCSS(
 	Internals.CSSUtils.makeDefaultCSS(null, '#1f2428')
 );
 
+const content = (
+	<Internals.RemotionRoot>
+		<Editor />
+	</Internals.RemotionRoot>
+);
+
 if (ReactDOM.createRoot) {
-	ReactDOM.createRoot(Internals.getPreviewDomElement() as HTMLElement);
+	ReactDOM.createRoot(Internals.getPreviewDomElement() as HTMLElement).render(
+		content
+	);
 } else {
 	(ReactDOM as unknown as {render: typeof render}).render(
 		<Internals.RemotionRoot>
