@@ -1,5 +1,4 @@
 import execa from 'execa';
-import fs from 'fs';
 import os from 'os';
 import {statSync} from 'fs';
 import {Internals} from 'remotion';
