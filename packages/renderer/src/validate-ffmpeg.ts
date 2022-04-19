@@ -14,11 +14,6 @@ export const binaryExists = async (
 		return existsMap[name];
 	}
 
-	// On AWS lambda, look for a specific path
-	if (name === 'ffmpeg' && process.env.LAMBDA_TASK_ROOT) {
-		return fs.existsSync('/opt/bin/ffmpeg');
-	}
-
 	if (name === 'ffmpeg' && localFFmpeg) {
 		try {
 			statSync(localFFmpeg);
