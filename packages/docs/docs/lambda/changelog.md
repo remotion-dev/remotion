@@ -10,6 +10,13 @@ Keep track of changes to the APIs of Remotion Lambda here.
 
 [Upgrading](/docs/lambda/upgrading)
 
+## April 19th, 2022
+
+Version hash: `3.0.0-rc.7`
+Lambda version: '2022-04-19'
+
+- Fixes an issue where `REMOTION_AWS_ACCESS_KEY` and `REMOTION_AWS_SECRET_ACCESS_KEY` environment variables would not be recognized inside Vercel serverless functions.
+
 ## April 18th, 2022
 
 Version hash: `3.0.0-rc.1`
