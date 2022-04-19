@@ -280,6 +280,7 @@ importers:
       '@remotion/babel-loader': 2.6.16
       '@remotion/bundler': 2.6.16
       '@remotion/gif': 2.6.16
+      '@remotion/lambda': 2.6.16
       '@remotion/media-utils': 2.6.16
       '@remotion/player': 2.6.16
       '@remotion/renderer': 2.6.16
@@ -319,6 +320,7 @@ importers:
       '@remotion/babel-loader': link:../babel-loader
       '@remotion/bundler': link:../bundler
       '@remotion/gif': link:../gif
+      '@remotion/lambda': link:../lambda
       '@remotion/media-utils': link:../media-utils
       '@remotion/player': link:../player
       '@remotion/renderer': link:../renderer
