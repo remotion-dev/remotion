@@ -129,7 +129,7 @@ const renderHandler = async (
 		outputLocation,
 		codec: params.codec,
 		crf: params.crf ?? undefined,
-		ffmpegExecutable: '/opt/bin/ffmpeg',
+		ffmpegExecutable: process.env.TEST ? null : '/opt/bin/ffmpeg',
 		pixelFormat: params.pixelFormat,
 		proResProfile: params.proResProfile,
 		onDownload: (src: string) => {
