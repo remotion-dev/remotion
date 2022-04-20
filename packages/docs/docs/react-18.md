@@ -5,7 +5,7 @@ title: Upgrade to React 18
 
 ## Updating packages
 
-To use React 18, you need at least version `3.0.0` of Remotion.
+To use React 18's newest features, you need at least version `3.0.0` of Remotion.
 
 ```diff
 - "remotion": "2.6.15"

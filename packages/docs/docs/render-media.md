@@ -256,7 +256,16 @@ If disabled, the render will open an actual Chrome window where you can see the 
 
 _string_
 
-Select the OpenGL renderer backend for Chromium. Accepted values: `angle`, `egl`, `swiftshader`. Default: `swiftshader` for Lambda functions, `angle` elsewhere.
+Select the OpenGL renderer backend for Chromium.
+Accepted values:
+
+- `"angle"`,
+- `"egl"`,
+- `"swiftshader"`
+- `null` - Chromiums default
+
+**Default for local rendering**: `null`.  
+**Default for Lambda rendering**: `"swiftshader"`.
 
 ## See also
 

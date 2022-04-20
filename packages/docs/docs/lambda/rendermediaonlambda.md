@@ -153,10 +153,16 @@ Results in invalid SSL certificates, such as self-signed ones, being ignored.
 
 _string_
 
-Select the OpenGL renderer backend for Chromium. Accepted values: `angle`, `egl`, `swiftshader`. Default: `swiftshader`.
+Select the OpenGL renderer backend for Chromium.
+Accepted values:
+
+- `"angle"`,
+- `"egl"`,
+- `"swiftshader"`
+- `null` - Chromiums default
 
 :::note
-The default for Lambda is `swiftshader`, but `angle` elsewhere.
+The default for Lambda is `swiftshader`, but `null` elsewhere.
 :::
 
 ## Return value
