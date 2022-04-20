@@ -45,7 +45,7 @@ test("Should be able to render video with scale 2", async () => {
 
 test("Should be able to render video with scale 0.1", async () => {
   const task = execa(
-    "npx",
+    "pnpx",
     [
       "remotion",
       "render",
