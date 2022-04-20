@@ -10,16 +10,23 @@ Keep track of changes to the APIs of Remotion Lambda here.
 
 [Upgrading](/docs/lambda/upgrading)
 
+## April 20th, 2022
+
+Version hash: `3.0.0-rc.15`  
+Lambda version: '2022-04-20'
+
+- Fixes an issue where `getInputProps()` and environment variables were not available outside of a component (regression introduced in '2022-02-14')
+
 ## April 19th, 2022
 
-Version hash: `3.0.0-rc.7`
+Version hash: `3.0.0-rc.7`  
 Lambda version: '2022-04-19'
 
 - Fixes an issue where `REMOTION_AWS_ACCESS_KEY` and `REMOTION_AWS_SECRET_ACCESS_KEY` environment variables would not be recognized inside Vercel serverless functions.
 
 ## April 18th, 2022
 
-Version hash: `3.0.0-rc.1`
+Version hash: `3.0.0-rc.1`  
 Lambda version: '2022-04-18'
 
 - React 18 Support - you can update `react`, `react-dom` and `@types/react` to opt into React 18!
@@ -33,7 +40,7 @@ Thanks for giving it a try and let us know if there are any problems, before we 
 
 _Experimental version, stay with '2022-03-17' for well-tested version!_
 
-Version hash: `3.0.0-lambda.439+8583491c7`
+Version hash: `3.0.0-lambda.439+8583491c7`  
 Lambda version: '2022-04-05'
 
 - When uploading files to S3, add the appropriate MIME type to every file. For example an .mp3 file has an `audio/mpeg` Content-Type.
@@ -43,7 +50,7 @@ Lambda version: '2022-04-05'
 
 _Experimental version, stay with '2022-03-17' for well-tested version!_
 
-Version hash: `3.0.0-lambda.424+994a31b6b`
+Version hash: `3.0.0-lambda.424+994a31b6b`  
 Lambda version: '2022-04-02'
 
 Added the option to increase the Lambda disk space and therefore enable rendering of longer videos: [/docs/lambda/disk-size]
@@ -57,12 +64,12 @@ Added the option to increase the Lambda disk space and therefore enable renderin
 
 _Broken version, stay with '2022-03-17' for well-tested version or upgrade to '2022-04-02' for fixed version_
 
-Version hash: `3.0.0-lambda.419+1ae289d8c`
+Version hash: `3.0.0-lambda.419+1ae289d8c`  
 Lambda version: '2022-03-29'
 
 ## March 17th, 2022
 
-Version hash: `3.0.0-lambda.414+163634f42`
+Version hash: `3.0.0-lambda.414+163634f42`  
 Lambda version: '2022-03-17'
 
 - Added a new [`npx remotion lambda quotas`](/docs/lambda/cli/quotas) command which allows you to see your current AWS Lambda concurrency limit
@@ -76,7 +83,7 @@ For these commands to work, you have to re-setup the AWS policies as described i
 
 ## March 3rd, 2022
 
-Version hash: `3.0.0-lambda.404+70a7d3fec`
+Version hash: `3.0.0-lambda.404+70a7d3fec`  
 Lambda version: '2022-03-02'
 
 _✅ Tested again and now recommended to upgrade_
@@ -90,7 +97,7 @@ Experimental: Prefer '2022-02-14' version for stability.
 You need to rebundle and redeploy your projects for this version.
 :::
 
-Version hash: `3.0.0-lambda.400+3b736b911`
+Version hash: `3.0.0-lambda.400+3b736b911`  
 Lambda version: '2022-03-01'
 
 - Fixes an issue where the `<Player />` would display the video smaller if the parent element of the player had a `scale()` transform applied to it
@@ -103,7 +110,7 @@ Experimental: Prefer '2022-02-14' version for stability.
 You need to rebundle and redeploy your projects for this version.
 :::
 
-Version hash: `3.0.0-lambda.295+67a488af4`
+Version hash: `3.0.0-lambda.295+67a488af4`  
 Lambda version: '2022-02-27'
 
 - Allows to store an output in a different bucket - see documentation for [`outName`](/docs/lambda/rendermediaonlambda#outname)
@@ -111,7 +118,7 @@ Lambda version: '2022-02-27'
 
 ## February 14th, 2022
 
-Version hash: `3.0.0-lambda.388+6e1372eca`
+Version hash: `3.0.0-lambda.388+6e1372eca`  
 Lambda version: '2022-02-14'
 
 This update addresses an issue where Lambda functions would crash with the following error message:
