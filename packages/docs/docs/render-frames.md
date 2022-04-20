@@ -260,7 +260,16 @@ _string_
 
 <AngleChangelog />
 
-Select the OpenGL renderer backend for Chromium. Accepted values: `"angle"`, `"egl"`, `"swiftshader"` and `null`. `null` means Chromiums default. Default: `swiftshader` for Lambda functions, `null` elsewhere.
+Select the OpenGL renderer backend for Chromium.
+Accepted values:
+
+- `"angle"`,
+- `"egl"`,
+- `"swiftshader"`
+- `null` - Chromiums default
+
+**Default for local rendering**: `null`.  
+**Default for Lambda rendering**: `"swiftshader"`.
 
 ## Return value
 
