@@ -185,3 +185,4 @@ A promise with no value. If the render succeeded, the still has been saved to `o
 - [Server-Side rendering](/docs/ssr)
 - [getCompositions()](/docs/renderer/get-compositions)
 - [renderMedia()](/docs/renderer/render-media)
+- [renderStillOnLambda()](/docs/lambda/renderstillonlambda)

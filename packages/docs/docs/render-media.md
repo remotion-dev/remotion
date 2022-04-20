@@ -272,3 +272,4 @@ Accepted values:
 - [Server-Side rendering](/docs/ssr)
 - [getCompositions()](/docs/renderer/get-compositions)
 - [renderStill()](/docs/renderer/stitch-frames-to-video)
+- [renderMediaOnLambda()](/docs/lambda/rendermediaonlambda)
