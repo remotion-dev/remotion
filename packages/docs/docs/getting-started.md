@@ -47,7 +47,7 @@ yarn create video
   <TabItem value="pnpm">
 
 ```bash
-pnpm dlx create-video
+pnpm create video
 ```
 
   </TabItem>
