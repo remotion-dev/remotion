@@ -38,7 +38,12 @@ The browser was compiled including the proprietary codecs, so you can include MP
 
 The function already includes an FFMPEG binary.
 
-_TODO: Specify which version of FFMPEG._
+Version built from source: `N-104627-g40cf317d09` (corresponds to v4.4)  
+Configuration:
+
+```
+--prefix=/home/ec2-user/ffmpeg_build --pkg-config-flags=--static --extra-cflags=-I/home/ec2-user/ffmpeg_build/include --extra-ldflags=-L/home/ec2-user/ffmpeg_build/lib --extra-libs=-lpthread --extra-libs=-lm --bindir=/home/ec2-user/bin --enable-gpl --enable-libfdk-aac --enable-libfreetype --enable-libmp3lame --enable-libopus --enable-libvpx --enable-libx264 --enable-libx265 --enable-nonfree
+```
 
 ## Fonts
 
