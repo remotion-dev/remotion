@@ -31,4 +31,7 @@ You can use the [`renderStill()`](/docs/renderer/render-still) Node.JS API to re
 
 ## Rendering using serverless
 
-[AWS Lambda integration is a work in progress.](/docs/ssr/#rendering-a-video-using-serverless)
+You can use [Remotion Lambda](/lambda) to render stills:
+
+- Via [CLI](/docs/lambda/cli/still)
+- Via the [renderStillOnLambda](/docs/lambda/render-still-on-lambda) API.

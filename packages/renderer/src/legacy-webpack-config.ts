@@ -4,7 +4,7 @@ export type ServeUrlOrWebpackBundle =
 	  }
 	| {
 			/**
-			 * @deprecated Renamed to `serveUrl instead`
+			 * @deprecated Renamed to `serveUrl`
 			 */
 			webpackBundle: string;
 	  };
