@@ -115,9 +115,14 @@ How many bytes have been saved to the S3 bucket as a result of this render.
 
 How many lambdas that render a chunk have been invoked yet and have started rendering.
 
-### `estimatedPrice`
+### `costs`
 
-TODO
+An object describing the costs of the render so far. The cost may increase if the render has not finished yet. Only costs for AWS Lambda are estimated, not for S3 storage. It is a best-effort estimation, but without any guarantees. The object has the following properties:
+
+- `accruedSoFar`: The cost as a floating number.
+- `currency`: The currency of the cost.
+- `displayCost`: The cost formatted as a string.
+- `disclaimer`: Textual disclaimer removing any doubt that there is no guarantee.
 
 ## See also
 
