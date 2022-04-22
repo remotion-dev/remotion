@@ -34,4 +34,4 @@ You can use the [`renderStill()`](/docs/renderer/render-still) Node.JS API to re
 You can use [Remotion Lambda](/lambda) to render stills:
 
 - Via [CLI](/docs/lambda/cli/still)
-- Via the [renderStillOnLambda](/docs/lambda/render-still-on-lambda) API.
+- Via the [renderStillOnLambda](/docs/lambda/renderstillonlambda) API.
