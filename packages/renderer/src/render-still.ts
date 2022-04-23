@@ -173,21 +173,7 @@ const innerRenderStill = async ({
 		frame: null,
 		page,
 	});
-	try {
-		await seekToFrame({frame, page});
-	} catch (err) {
-		const error = err as Error;
-		if (
-			error.message.includes('timeout') &&
-			error.message.includes('exceeded')
-		) {
-			throw new Error(
-				'The rendering timed out. See https://www.remotion.dev/docs/timeout/ for possible reasons.'
-			);
-		}
-
-		throw error;
-	}
+	await seekToFrame({frame, page});
 
 	await provideScreenshot({
 		page,

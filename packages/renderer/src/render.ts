@@ -216,25 +216,7 @@ export const innerRenderFrames = async ({
 					frame,
 				});
 				freePage.on('error', errorCallbackOnFrame);
-				try {
-					await seekToFrame({frame, page: freePage});
-				} catch (err) {
-					const error = err as Error;
-					if (
-						error.message.includes('timeout') &&
-						error.message.includes('exceeded')
-					) {
-						errorCallbackOnFrame(
-							new Error(
-								'The rendering timed out. See https://www.remotion.dev/docs/timeout/ for possible reasons.'
-							)
-						);
-					} else {
-						errorCallbackOnFrame(error);
-					}
-
-					throw error;
-				}
+				await seekToFrame({frame, page: freePage});
 
 				if (imageFormat !== 'none') {
 					if (onFrameBuffer) {
