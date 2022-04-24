@@ -8,12 +8,6 @@ Render Remotion videos on [AWS Lambda](https://aws.amazon.com/lambda/). This is 
 
 import {LambdaRegionList} from '../components/lambda/regions.tsx';
 
-:::warning
-**Beta**: APIs might undergo minor changes. Updates will be provided on the #lambda channel on Discord.
-
-**Not released yet**: We are in the process of cleaning up code and docs and preparing marketing material.
-:::
-
 ## When should I use it?
 
 - Your videos are less than 2 hours long. <sub>(AWS Lambda storage constraint)</sub>
@@ -26,7 +20,7 @@ If one of those those constraints is a dealbreaker for you, resort to normal [se
 
 - A Lambda function and a S3 bucket is created on AWS.
 - A Remotion project gets deployed to a S3 bucket as a website.
-- The Lambda function can invoke a render.
+- The Lambda function gets invoked and opens the Remotion project.
 - A lot of Lambda functions are created in parallel which each render a small part of the video
 - The initial Lambda function downloads the videos and stitches them together.
 - The final video gets uploaded to S3 and is available for download.
@@ -52,7 +46,7 @@ The following regions are available for Remotion Lambda:
 
 ## Limitations
 
-- You only have up to 10GB of storage available in a Lambda function. This must be sufficient for both the chunks and the output, therefore the output file can only be about 5GB maximum, limiting the maximum video length to around 2 hours of Full HD video.
+- You only have up to 10GB of storage available in a Lambda function. This must be sufficient for both the separated chunks and the concatenated output, therefore the output file can only be about 5GB maximum, limiting the maximum video length to around 2 hours of Full HD video.
 - Lambda has a global limit of 1000 concurrent lambdas per region by default, although it can be increased.
 
 ## Cost

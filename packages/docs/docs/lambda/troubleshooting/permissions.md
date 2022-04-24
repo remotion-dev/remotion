@@ -20,7 +20,7 @@ It can take several minutes until the policies you entered into AWS propagate. S
 
 ## Required permissions have changed
 
-A newer Remotion Lambda version might have required additional permissions. We will note this in the [changelog](/docs/lambda/changelog). Make sure you updated the policies in AWS.
+A newer Remotion Lambda version might have required additional permissions. We will note this in the [changelog](https://github.com/remotion-dev/remotion/releases). Make sure you update the policies in AWS.
 
 ## Other AWS credentials might have been applied
 

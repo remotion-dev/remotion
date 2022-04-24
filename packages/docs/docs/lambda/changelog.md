@@ -1,30 +1,30 @@
 ---
 id: changelog
-title: Changelog
+title: Prerelease Changelog
 slug: /lambda/changelog
 ---
 
-Keep track of changes to the APIs of Remotion Lambda here.
+## Stable versions
 
-## How to upgrade
+From 3.0.0 onwards, the changelog is located in the main [Remotion changelog on GitHub](https://github.com/remotion-dev/remotion/releases). This document contains the changelog for prereleases and will not be updated anymore!
 
-[Upgrading](/docs/lambda/upgrading)
+## Prerelease versions
 
-## April 20th, 2022
+### April 20th, 2022
 
 Version hash: `3.0.0-rc.15`  
 Lambda version: '2022-04-20'
 
 - Fixes an issue where `getInputProps()` and environment variables were not available outside of a component (regression introduced in '2022-02-14')
 
-## April 19th, 2022
+### April 19th, 2022
 
 Version hash: `3.0.0-rc.7`  
 Lambda version: '2022-04-19'
 
 - Fixes an issue where `REMOTION_AWS_ACCESS_KEY` and `REMOTION_AWS_SECRET_ACCESS_KEY` environment variables would not be recognized inside Vercel serverless functions.
 
-## April 18th, 2022
+### April 18th, 2022
 
 Version hash: `3.0.0-rc.1`  
 Lambda version: '2022-04-18'
@@ -36,7 +36,7 @@ Lambda version: '2022-04-18'
 
 Thanks for giving it a try and let us know if there are any problems, before we launch soon!
 
-## April 5th, 2022
+### April 5th, 2022
 
 _Experimental version, stay with '2022-03-17' for well-tested version!_
 
@@ -46,7 +46,7 @@ Lambda version: '2022-04-05'
 - When uploading files to S3, add the appropriate MIME type to every file. For example an .mp3 file has an `audio/mpeg` Content-Type.
 - Changes from 2.6.13
 
-## April 2nd, 2022
+### April 2nd, 2022
 
 _Experimental version, stay with '2022-03-17' for well-tested version!_
 
@@ -60,14 +60,14 @@ Added the option to increase the Lambda disk space and therefore enable renderin
 - Breaking change: The `estimatePrice()` method now takes CPU architecture, disk size and number of lambdas invoked into account. These parameters have been added to the function and been made mandatory.
 - Fixes a bug where `--frames-per-lambda` would be set to 20 instead of the dynamic value suggested by the docs, if rendered via CLI.
 
-## March 29th, 2022
+### March 29th, 2022
 
 _Broken version, stay with '2022-03-17' for well-tested version or upgrade to '2022-04-02' for fixed version_
 
 Version hash: `3.0.0-lambda.419+1ae289d8c`  
 Lambda version: '2022-03-29'
 
-## March 17th, 2022
+### March 17th, 2022
 
 Version hash: `3.0.0-lambda.414+163634f42`  
 Lambda version: '2022-03-17'
@@ -81,7 +81,7 @@ For these commands to work, you have to re-setup the AWS policies as described i
 
 - Fixed a bug where combining mono and stereo audio would cause the mono audio to speed up
 
-## March 3rd, 2022
+### March 3rd, 2022
 
 Version hash: `3.0.0-lambda.404+70a7d3fec`  
 Lambda version: '2022-03-02'
@@ -90,7 +90,7 @@ _✅ Tested again and now recommended to upgrade_
 
 - Fixed a regression where input props would not be passed into the component while rendering.
 
-## March 1st, 2022
+### March 1st, 2022
 
 :::note
 Experimental: Prefer '2022-02-14' version for stability.
@@ -103,7 +103,7 @@ Lambda version: '2022-03-01'
 - Fixes an issue where the `<Player />` would display the video smaller if the parent element of the player had a `scale()` transform applied to it
 - Bug fixed: Would not recognize a deployed Remotion function if there are a lot of functions in one AWS account.
 
-## February 27th, 2022
+### February 27th, 2022
 
 :::note
 Experimental: Prefer '2022-02-14' version for stability.
@@ -116,7 +116,7 @@ Lambda version: '2022-02-27'
 - Allows to store an output in a different bucket - see documentation for [`outName`](/docs/lambda/rendermediaonlambda#outname)
 - Rearchitecture to lift the 5MB input props/environment variable limit.
 
-## February 14th, 2022
+### February 14th, 2022
 
 Version hash: `3.0.0-lambda.388+6e1372eca`  
 Lambda version: '2022-02-14'
@@ -131,7 +131,7 @@ We recommend all Remotion Lambda users to upgrade, as AWS Lambda is slowly rolli
 
 We have removed this file and also reviewed our layer for other files that could potentially lead to similar issues in the future. So we hope this issue will never come back!
 
-## February 12th, 2022
+### February 12th, 2022
 
 Version hash: `3.0.0-lambda.381+2a6cb78f1`
 Lambda version: '2022-02-12'
@@ -141,14 +141,14 @@ Update focused on stability:
 - Chunk optimization has been removed, since it sometimes breaks renders. We hope to add it back after launch.
 - All npm dependencies have been pinned to their exact version.
 
-## February 8th, 2022
+### February 8th, 2022
 
 Version hash: `3.0.0-lambda.359+59cc0e49b`
 Lambda version: '2022-02-09'
 
 - Fixes an error not being able to bundle using Webpack if not using Typescript.
 
-## February 7th, 2022
+### February 7th, 2022
 
 Version hash: `3.0.0-lambda.355+6b0269d52`
 Lambda version: '2022-02-08'
@@ -160,7 +160,7 @@ Fixes the following regressions and adds tests for it:
 - Fixes an error coming up during deploy saying ESBuild binaries are missing
 - Upgrade ESBuild to 0.14.9
 
-## February 4th, 2022 (4)
+### February 4th, 2022 (4)
 
 Version hash: `3.0.0-lambda.337+bde12456c`
 Lambda version: '2022-02-07'
@@ -169,7 +169,7 @@ Fixes regressions:
 
 - Fixes `@remotion/lambda/client` not being available
 
-## February 4th, 2022 (3)
+### February 4th, 2022 (3)
 
 Version hash: `3.0.0-lambda.332+da8c03491`
 Lambda version: '2022-02-06'
@@ -178,7 +178,7 @@ Fixes regressions:
 
 - Fixes not being able to render transparent WebM on Lamba.
 
-## February 4th, 2022 (2)
+### February 4th, 2022 (2)
 
 Version hash: `3.0.0-lambda.329+f23080b59`
 Lambda version: '2022-02-05'
@@ -188,7 +188,7 @@ Fixes regressions:
 - Fixes Lambda returning an `EISDIR` error when rendering stills.
 - Better error message when not passing `serveUrl` to `renderMediaOnLambda()`.
 
-## February 4th, 2022
+### February 4th, 2022
 
 Version hash: `3.0.0-lambda.338+118ffe2e9`
 Lambda version: '2022-02-04'
@@ -197,7 +197,7 @@ Attention: Some Lambda functions are breaking from an AWS change, especially on 
 
 - [Allows you to deploy as a `x86_64` Lambda function](/docs/lambda/feb-2022-outage)
 
-## February 3rd, 2022
+### February 3rd, 2022
 
 Version hash: `3.0.0-lambda.327+85d431c9c`
 Lambda version: '2022-02-03'
@@ -206,14 +206,14 @@ Lambda version: '2022-02-03'
 - all changes from 2.6.5 through 2.6.7: including new scale option also for lambda! https://www.remotion.dev/docs/scaling
 - chromium flags can now be set on lambda as well: https://www.remotion.dev/docs/chromium-flags
 
-## January 23rd, 2022
+### January 23rd, 2022
 
 Version hash: `3.0.0-lambda.310+7b7d16823`  
 Lambda version: '2022-01-23'
 
 - Update with improvements from v2.6.5
 
-## January 19th, 2022
+### January 19th, 2022
 
 Version hash: `3.0.0-lambda.297+0a5487655`  
 Lambda version: '2022-01-19'
@@ -222,14 +222,14 @@ Lambda version: '2022-01-19'
 - New APIs: [`presignUrl()`](/docs/lambda/presignurl) and [`getAwsClient()`](/docs/lambda/getawsclient)
 - Added `outKey` which returns the S3 Key for the output artifact of a render
 
-## January 10th, 2022 (2)
+### January 10th, 2022 (2)
 
 Version hash: `3.0.0-lambda.279+ee1497f24`  
 Lambda version: '2022-01-11'
 
 - Fixes the render erroring if `framesPerLambda` is not specified. To be clear, this parameter stays optional.
 
-## January 10th, 2022
+### January 10th, 2022
 
 Version hash: `3.0.0-lambda.274+a3183304a`  
 Lambda version: '2022-01-10'
@@ -243,7 +243,7 @@ Lambda version: '2022-01-10'
 - Fixes an error where payload limit would be reached because `defaultProps` had a big size
 - Add @aws-sdk/abort-controller peer dependency explicitly to fix npm7 error
 
-## January 6th, 2022
+### January 6th, 2022
 
 Version hash: `3.0.0-lambda.244+d055311e8`  
 Lambda version: '2022-01-06'
@@ -253,7 +253,7 @@ Lambda version: '2022-01-06'
 
 Beware of not spawning over 200 functions. `functionCount = frameCount / framesPerLambda` (by default `framesPerLambda` is 20). We will make it smarter or document it better before the official launch.
 
-## January 5th, 2022
+### January 5th, 2022
 
 **Release possibly breaks render, don't upgrade yet!**
 
@@ -265,7 +265,7 @@ Beware of not spawning over 200 functions. `functionCount = frameCount / framesP
 
 Beware of not spawning over 200 functions. `functionCount = frameCount / framesPerLambda` (by default `framesPerLambda` is 20). We will make it smarter or document it better before the official launch.
 
-## December 22nd, 2021
+### December 22nd, 2021
 
 Version hash: `3.0.0-lambda.288+6ab6c681d`
 Lambda version: '2021-12-22'
@@ -278,14 +278,14 @@ Lambda version: '2021-12-22'
 - Added [`getRegions()`](/docs/lambda/getregions) API
 - Added [`npx remotion lambda regions`](/docs/lambda/cli/regions) command
 
-## December 15th, 2021 (2)
+### December 15th, 2021 (2)
 
 Version hash: `3.0.0-lambda.236+b35e791d5`
 Lambda version: '2021-12-17'
 
 Fixes an error being thrown in the Lambda function: `The AWS access Key ID you provided does not exist in your records`.
 
-## December 15th, 2021
+### December 15th, 2021
 
 Version hash: `3.0.0-lambda.233+869dd7218`  
 Lambda version: '2021-12-16'
@@ -303,7 +303,7 @@ Stability and ease of use improvements that we implemented from our learnings fr
 - If the render is not completed 20 seconds after the timeout of the initial invocation, the render will automatically be marked as failed. No more stuck renders!
 - catch errors occuring while assets are being downloaded and trigger a retry (previously would fail the chunk render and make the whole render time out)
 
-## December 10th, 2021 (2)
+### December 10th, 2021 (2)
 
 Version hash: `3.0.0-lambda.206+161f56853`
 Lambda version: '2021-12-11'
@@ -311,14 +311,14 @@ Lambda version: '2021-12-11'
 - Fixes the policy generated by `npx remotion lambda policies user` so AWS accepts it. Update the user policy of your AWS user if you'd like the slimmest set of permissions needed.
 - Fixes an issue where an error occuring during `npx remotion lambda policies validate` would not be caught.
 
-## December 10th, 2021
+### December 10th, 2021
 
 Version hash: `3.0.0-lambda.203+6e2dfd14e`
 Lambda version: '2021-12-10'
 
 The Lambda function now prints inputProps that you can read in your CloudWatch logs for easier debugging.
 
-## December 7th, 2021
+### December 7th, 2021
 
 Version hash: `3.0.0-lambda.196+d4d99a5b8`
 Lambda version: '2021-12-04'
@@ -327,7 +327,7 @@ _We mistakenly didn't increase the version number in this release. Sorry about t
 
 Fix Korean/Chinese/Japanese fonts from last release where it did not work as expected. Due to space constraints, only Regular weight is supported.
 
-## December 4th, 2021
+### December 4th, 2021
 
 Version hash: `3.0.0-alpha.192+8e7345b69`
 Lambda version: '2021-12-04'
@@ -339,14 +339,14 @@ Lambda version: '2021-12-04'
 - Retry if the AWS rate limit is exceeded for `npx remotion lambda permissions validate` command and for `validatePermissions()` function.
 - New Fonts: `Noto Sans JP`, `Noto Sans Simplified Chinese`, `Noto Sans Traditional Chinese`, `Noto Sans Korean` both in Regular and Bold.
 
-## November 28th, 2021
+### November 28th, 2021
 
 Version hash: `3.0.0-lambda.158+f214b5355`
 Lambda version: '2021-11-29'
 
 - Fixes a bug with `renderVideoOnLambda()`
 
-## November 27th, 2021
+### November 27th, 2021
 
 Version hash: `3.0.0-lambda.151+ba8c212b9`
 Lambda version: '2021-11-27'
@@ -357,7 +357,7 @@ Remotion 3.0 Rendering pipeline refactor merged into this branch!
 - **Breaking**: Server-side rendering APIs have been refactored. See the separate [3.0 Migration](/docs/3-0-migration) page for it. New `openBrowser()` and `renderMedia()` APIs are now available.
 - Downloading a video using the CLI now shows a progress bar.
 
-## November 24th, 2021
+### November 24th, 2021
 
 Version hash: `3.0.0-lambda.143+08ebdfa17`
 Lambda version: '2021-11-24'
@@ -371,7 +371,7 @@ We will add those regions back again once AWS adds support for Lambda.
 - Fixes an issue where multiple versions of Remotion could appear in a project even though they were pinned down in your `package.json`.
 - Fixes an issue where audio could become out of sync if audio with different sample rates was appearing in the video
 
-## November 18th, 2021
+### November 18th, 2021
 
 Version hash: `3.0.0-lambda.122+a588a81b9`
 Lambda version: '2021-11-18'
@@ -380,7 +380,7 @@ Lambda version: '2021-11-18'
 - You can now pass `--privacy=public` or `--privacy=private` in the CLi to determine if the output video should be publicly accessible. The default is and was `public`.
 - Fixes an issue where a Remotion version mismatch could happen.
 
-## November 12th, 2021
+### November 12th, 2021
 
 Version hash: `3.0.0-lambda.99+bd5d55651`
 Lambda version: '2021-11-12'
@@ -398,7 +398,7 @@ Lambda version: '2021-11-12'
 - Added changes from 2.5.1 - 2.5.4
 - Disabled automatic AWS Lambda retrying in favor of our own retry mechanism
 
-## November 1st, 2021
+### November 1st, 2021
 
 Version hash: `3.0.0-lambda.57+d1dd7ce77`
 Lambda version: '2021-11-01'
@@ -413,14 +413,14 @@ Lambda version: '2021-11-01'
 - Added [Production checklist page](/docs/lambda/checklist)
 - Added [Uninstall guide](/docs/lambda/uninstall)
 
-## October 29th, 2021
+### October 29th, 2021
 
 Version hash: `3.0.0-lambda.42+838a7a013`  
 Lambda version: '2021-10-29'
 
 - Merged changes from Remotion 2.5.1
 
-## October 27th, 2021
+### October 27th, 2021
 
 Version hash: `3.0.0-lambda.37+874f731d5`  
 Lambda version: '2021-10-27'
@@ -429,7 +429,7 @@ Lambda version: '2021-10-27'
 - Fixed a bug where `NoSuchKey` exception could be thrown when calling `getRenderProgress()`
 - Merged changes from Remotion 2.5
 
-## October 21st, 2021
+### October 21st, 2021
 
 Version hash: `3.0.0-lambda.25+9573ee628`
 
@@ -439,13 +439,13 @@ Version hash: `3.0.0-lambda.25+9573ee628`
 - Added a way to disable chunk optimization and added some explainer graphics for what chunk optimization is - full doc coming later.
 - Pinned exact Remotion versions to avoid a version mismatch with Yarn
 
-## October 20th, 2021
+### October 20th, 2021
 
 Version hash: `3.0.0-lambda.2+a97302554`
 
 - Updated with all the changes from main branch.
 
-## October 7th, 2021
+### October 7th, 2021
 
 Version hash: `2.5.0-alpha.da8c43b8`
 
@@ -461,7 +461,7 @@ _Note: This version in broken. Don't use it._
 - Now showing estimated cost for `npx remotion lambda` command
 - Using the `ANGLE` OpenGL renderer for Chrome instead of SwiftShader
 
-## October 3rd, 2021
+### October 3rd, 2021
 
 Version hash: `2.5.0-alpha.5da9a754`
 
@@ -478,7 +478,7 @@ Also:
 - Improved time to deploy a function by removing need to bundle the function first.
 - Removed `esbuild`, `zip-lib` and `p-retry` dependencies to make library more lightweight.
 
-## October 1th, 2021
+### October 1th, 2021
 
 Version hash: `2.5.0-alpha.b52a746f`
 
@@ -491,7 +491,7 @@ Version hash: `2.5.0-alpha.b52a746f`
 - If you add a filename to the end of the render command `npx remotion lambda render [url] [comp-name] out.mp4`, the video will be downloaded to your computer!
 - `npx remotion lambda render` has a progress bar now. To continue to see all details, use the `--log=verbose` flag!
 
-## September 15th, 2021
+### September 15th, 2021
 
 Version hash: `2.4.0-alpha.d3efed28`
 
@@ -500,27 +500,27 @@ Version hash: `2.4.0-alpha.d3efed28`
 - Added `enableCaching` and `webpackOverride` options to `deployProject()` function.
 - Webpack override and webpack caching is now respected when deploying from the CLI
 
-## September 14th, 2021
+### September 14th, 2021
 
 Version hash: `2.4.0-alpha.91579e8b`
 
 - Fixes a bug where `npx remotion lambda policies user` could not be executed without AWS credentials which is a paradox.
 - Fixes a bug where a render could fail with an error `Frame X was not rendered`
 
-## September 7th, 2021
+### September 7th, 2021
 
 Version hash: `2.4.0-alpha.ec355aba`
 
 - Pins the version of AWS SDKs, since a new version broke some things.
 
-## September 6th, 2021
+### September 6th, 2021
 
 Version hash: `2.4.0-alpha.41bfd52d`
 
 - Added more font families to support Arabic, Devanagari, Hebrew, Tamil, Thai scripts.
 - Added input props to the render metadata that gets persisted for each render to help debugging.
 
-## August 6th, 2021
+### August 6th, 2021
 
 Version hash: `2.3.0-alpha.0d814aad`
 
@@ -536,13 +536,13 @@ Version hash: `2.3.0-alpha.0d814aad`
 - React component lifecycle change: When the component is mounting, initially `useCurrentFrame()` returns the frame that is initially being rendered, rather than just `0` and then updating to the frame that will be initially rendered.
 - Includes all the changes from Remotion 2.2
 
-## July 14th, 2021
+### July 14th, 2021
 
 - Emojis are now rendered using the Noto Color Emoji font
 - Better price calculation
 - Cleanup of S3 buckets after rendering
 
-## July 6th, 2021
+### July 6th, 2021
 
 - You can now use `npx remotion lambda` instead of `npx remotion-lambda`.
 - CLI supports the `-y` ('yes') flag for skipping confirmation of destructive commands.
