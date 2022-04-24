@@ -10,10 +10,6 @@ import {DefaultTimeout} from '../../components/lambda/default-timeout';
 You have implemented your solution with Remotion Lambda are are ready to launch your project into the world. Congrats!
 Before you go live, go through this checklist to make sure Lambda is running stable.
 
-:::warning
-We think Lambda is stable enough to ship to production, but remember that Lambda is still in beta and that APIs may change.
-:::
-
 ### Optimizing for memory
 
 Adding too much memory to your Lambda functions can make rendering more costly. Reducing the memory of your function by 25% will also decrease your cost by 25%! Redeploy your function multiple times and lower the memory size as much as possible until you feel you hit the sweet spot between low costs and confidence that your video will render reliably.

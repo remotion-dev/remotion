@@ -11,7 +11,7 @@ export type GetRenderInput = {
 
 /**
  * @description Gets the current status of a render originally triggered via renderMediaOnLambda().
- * @link https://v3.remotion.dev/docs/lambda/getrenderprogress
+ * @link https://remotion.dev/docs/lambda/getrenderprogress
  * @param {string} params.functionName The name of the function used to trigger the render.
  * @param {string} params.bucketName The name of the bucket that was used in the render.
  * @param {string} params.renderId The ID of the render that was returned by `renderMediaOnLambda()`.

@@ -141,7 +141,8 @@ export const renderCommand = async (args: string[]) => {
 		})
 	);
 
-	for (let i = 0; i < 3000; i++) {
+	// eslint-disable-next-line no-constant-condition
+	while (true) {
 		await sleep(1000);
 		const newStatus = await getRenderProgress({
 			functionName,
@@ -159,7 +160,6 @@ export const renderCommand = async (args: string[]) => {
 			})
 		);
 
-		//	Log.info(newStatus);
 		if (newStatus.done) {
 			progressBar.update(
 				makeProgressString({

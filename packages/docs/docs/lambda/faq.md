@@ -30,7 +30,7 @@ You can deploy one site and use it for as many renders as you need. If you have 
 
 ### What if I want to render longer videos?
 
-You don't need to worry about the timeout of a Lambda function because Remotion splits the video in many parts and renders them in parallel. However, you need to be aware of the storages limit that may not be exceeded. See: [Disk size](/docs/lambda/disk-size)
+You don't need to worry about the timeout of a Lambda function because Remotion splits the video in many parts and renders them in parallel. However, you need to be aware of the storage limits that may not be exceeded. See: [Disk size](/docs/lambda/disk-size)
 
 ### Why are you not using Amazon EFS?
 

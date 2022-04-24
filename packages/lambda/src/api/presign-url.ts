@@ -15,7 +15,7 @@ export type PresignURLInput = {
 
 /**
  * @description Returns a public url of an object stored in Remotion's S3 bucket.
- * @link https://v3.remotion.dev/docs/lambda/presignurl
+ * @link https://remotion.dev/docs/lambda/presignurl
  * @param {AwsRegion} params.region The region in which the S3 bucket resides in.
  * @param {string} params.bucketName The name of the bucket to fetch the object from.
  * @param {string} params.objectKey Key of the S3 object to get.

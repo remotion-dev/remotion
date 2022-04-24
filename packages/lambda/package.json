@@ -1,7 +1,7 @@
 {
 	"name": "@remotion/lambda",
 	"version": "2.6.16",
-	"description": "Utility functions for audio and video",
+	"description": "Distributed renderer for Remotion based on AWS Lambda",
 	"main": "dist/index.js",
 	"sideEffects": false,
 	"bin": {

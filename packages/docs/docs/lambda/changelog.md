@@ -237,7 +237,7 @@ Lambda version: '2022-01-10'
 - New option to allow the filename of the output: `outName` in `renderMedia` / `renderStill` and `--out-name` in CLI flags
 - Reenable WebGL support
 - Update to Chromium 97
-- New algorithm for determining default concurrency: https://v3.remotion.dev/docs/lambda/concurrency
+- New algorithm for determining default concurrency: https://remotion.dev/docs/lambda/concurrency
 - Better error message if concurrency is too high
 - Remove `colors` module
 - Fixes an error where payload limit would be reached because `defaultProps` had a big size

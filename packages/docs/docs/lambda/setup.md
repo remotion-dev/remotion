@@ -24,15 +24,15 @@ Make sure no package version number has a `^` character in front of it as it wil
 Your package.json should look like the following:
 
 ```json
-  "@remotion/bundler": "3.0.0-lambda.[versionhash]",
-  "@remotion/cli": "3.0.0-lambda.[versionhash]",
-  "@remotion/lambda": "3.0.0-lambda.[versionhash]",
+  "@remotion/bundler": "3.0.0",
+  "@remotion/cli": "3.0.0",
+  "@remotion/lambda": "3.0.0",
   // ...
-  "remotion": "3.0.0-lambda.[versionhash]",
+  "remotion": "3.0.0",
 ```
 
 :::tip
-You can install `@remotion/lambda` in any project, not just a Remotion one, but remember to install `react` and `react-dom` peer dependencies
+You can install `@remotion/lambda` in any project, not just a Remotion one, but remember to also install `react` and `react-dom` as they are peer dependencies.
 :::
 
 ## 2. Create role policy
