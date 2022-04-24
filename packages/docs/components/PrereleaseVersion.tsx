@@ -1,6 +1,6 @@
 import React from "react";
 
-const FALLBACK_VERSION = "3.0.0-alpha.b886f9bc";
+const FALLBACK_VERSION = "3.0.1";
 
 export const Prerelease: React.FC<{
   onlySnippet: boolean;
@@ -29,15 +29,20 @@ export const Prerelease: React.FC<{
         </div>
       )}
       <pre className="code-container">
-        {["@remotion/bundler", "@remotion/renderer", "remotion"].map((r) => {
+        {[
+          "@remotion/bundler",
+          "@remotion/renderer",
+          "@remotion/lambda",
+          "remotion",
+        ].map((r) => {
           return (
             <div key={r}>
               <span style={{ color: "#e13238" }}>
-                - &quot;{r}&quot;: &quot;{"^2.4.1"}&quot;
+                - &quot;{r}&quot;: &quot;{"^3.0.0"}&quot;
               </span>
               {"\n"}
               <span style={{ color: "#009400" }}>
-                + &quot;{r}&quot;: &quot;{version}&quot;
+                + &quot;{r}&quot;: &quot;^{version}&quot;
               </span>
               {"\n"}
             </div>

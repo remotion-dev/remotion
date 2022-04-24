@@ -6,7 +6,7 @@ slug: /lambda/upgrading
 
 import {Prerelease} from "../../components/PrereleaseVersion"
 
-- Get the newest version from the [changelog](/docs/lambda/changelog) page.
+- Determine the newest version from the [Releases page](https://github.com/remotion-dev/remotion/releases).
 - Upgrade all packages to the newest version (`@remotion/lambda`, but also `remotion`, `@remotion/cli` etc.)
 
 <Prerelease onlySnippet/>
@@ -27,12 +27,10 @@ npx remotion lambda functions rmall -y
 npx remotion lambda functions deploy
 ```
 
-- Update your API calls according to the [changelog](/docs/lambda/changelog). While Remotion Lambda is in Alpha, breaking changes may occur in every version. Once it hits stable, breaking changes will only occur in major version bumps.
-
 ## Separating production and testing environments
 
-If you already shipped Remotion Lambda to production, you can upgrade without incurring any downtime. Each version of Remotion Lambda has a schema identifier (in the format of `2021-08-12`) that will increment whenever Remotion Lambda gets upgraded.
+If you already shipped Remotion Lambda to production, you can upgrade without incurring any downtime. Each version of Remotion Lambda has a schema identifier (in the format of `2021-08-12`) that will increment whenever a breaking change is introduced.
 
-If you have Remotion in production and cloned locally, upgrading Remotion Lambda in your code locally and then rendering a video will yield an error message that the versions are mismatching. Simply deploy a new function `npx remotion lambda functions deploy` and your local environment will talk to the new function, while production will talk to the older function.
+If you have Remotion Lambda in production and are testing locally, upgrading Remotion Lambda in your project locally and then rendering a video will yield an error message that the versions are mismatching. Simply deploy a new function `npx remotion lambda functions deploy` and your local environment will talk to the new function, while production will talk to the older function.
 
 If everything works and you commit and deploy the change to production, it will start talking to the new version and you can safely remove the old function.
