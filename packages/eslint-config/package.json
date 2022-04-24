@@ -17,17 +17,18 @@
   "license": "ISC",
   "dependencies": {
     "@remotion/eslint-plugin": "2.6.16",
-    "@typescript-eslint/eslint-plugin": "5.11.0",
-    "@typescript-eslint/parser": "5.11.0",
-    "eslint-config-prettier": "8.3.0",
-    "eslint-config-xo": "0.35.0",
-    "eslint-config-xo-react": "0.24.0",
-    "eslint-plugin-10x": "1.5.0",
-    "eslint-plugin-react": "7.26.1",
-    "eslint-plugin-react-hooks": "4.3.0"
+    "@typescript-eslint/eslint-plugin": "5.19.0",
+    "@typescript-eslint/parser": "5.19.0",
+    "eslint-plugin-10x": "1.5.2",
+    "eslint-plugin-react": "7.29.4",
+    "eslint-plugin-react-hooks": "4.4.0"
+  },
+  "peerDependencies": {
+    "eslint": ">=7.15.0"
   },
   "devDependencies": {
     "@types/node": "17.0.17",
+    "eslint": "8.13.0",
     "typescript": "^4.5.5"
   },
   "keywords": [

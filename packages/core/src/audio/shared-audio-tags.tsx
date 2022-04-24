@@ -43,6 +43,7 @@ export const SharedAudioContext = createContext<SharedContext | null>(null);
 
 export const SharedAudioContextProvider: React.FC<{
 	numberOfAudioTags: number;
+	children: React.ReactNode;
 }> = ({children, numberOfAudioTags}) => {
 	const [audios, setAudios] = useState<AudioElem[]>([]);
 	const [initialNumberOfAudioTags] = useState(numberOfAudioTags);

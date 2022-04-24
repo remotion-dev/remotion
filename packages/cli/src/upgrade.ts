@@ -73,7 +73,12 @@ export const upgrade = async () => {
 			stdio: 'inherit',
 		}
 	);
-	if (Internals.Logging.isEqualOrBelowLogLevel('info')) {
+	if (
+		Internals.Logging.isEqualOrBelowLogLevel(
+			Internals.Logging.getLogLevel(),
+			'info'
+		)
+	) {
 		prom.stdout?.pipe(process.stdout);
 	}
 

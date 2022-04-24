@@ -27,8 +27,11 @@ By default the frame with number of a composition is being rendered, you can con
 
 ## Rendering using Node.JS
 
-You can use the [`renderStill()`](/docs/render-still) Node.JS API to render a still frame programmatically.
+You can use the [`renderStill()`](/docs/renderer/render-still) Node.JS API to render a still frame programmatically.
 
 ## Rendering using serverless
 
-[AWS Lambda integration is a work in progress.](/docs/ssr/#rendering-a-video-using-serverless)
+You can use [Remotion Lambda](/lambda) to render stills:
+
+- Via [CLI](/docs/lambda/cli/still)
+- Via the [renderStillOnLambda](/docs/lambda/renderstillonlambda) API.

@@ -12,13 +12,7 @@
 import path from "path";
 import fs from "fs";
 
-let alreadyPatched = false;
-
 export const allowESLintShareableConfig = () => {
-  if (alreadyPatched) {
-    return;
-  }
-  alreadyPatched = true;
   const isModuleResolutionError: (ex: unknown) => boolean = (ex) =>
     typeof ex === "object" &&
     !!ex &&

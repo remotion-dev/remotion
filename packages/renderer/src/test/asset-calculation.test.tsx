@@ -11,7 +11,7 @@ const basicConfig = {
 	height: 1080,
 	fps: 30,
 	durationInFrames: 60,
-	scale: 1,
+	id: 'hithere',
 };
 
 const getPositions = async (Markup: React.FC) => {
@@ -36,7 +36,6 @@ test('Should be able to collect assets', async () => {
 		startInVideo: 0,
 		trimLeft: 0,
 		volume: 1,
-		isRemote: true,
 		playbackRate: 1,
 	});
 });
@@ -56,7 +55,6 @@ test('Should get multiple assets', async () => {
 		startInVideo: 0,
 		trimLeft: 0,
 		volume: 1,
-		isRemote: true,
 		playbackRate: 1,
 	});
 	expect(withoutId(assetPositions[1])).toEqual({
@@ -66,7 +64,6 @@ test('Should get multiple assets', async () => {
 		startInVideo: 0,
 		trimLeft: 0,
 		volume: 1,
-		isRemote: true,
 		playbackRate: 1,
 	});
 });
@@ -91,7 +88,6 @@ test('Should handle jumps inbetween', async () => {
 		trimLeft: 0,
 		volume: 1,
 		playbackRate: 1,
-		isRemote: true,
 	});
 	expect(withoutId(assetPositions[1])).toEqual({
 		type: 'video',
@@ -101,7 +97,6 @@ test('Should handle jumps inbetween', async () => {
 		trimLeft: 21,
 		volume: 1,
 		playbackRate: 1,
-		isRemote: true,
 	});
 });
 
@@ -122,7 +117,6 @@ test('Should support sequencing', async () => {
 		trimLeft: 20,
 		volume: 1,
 		playbackRate: 1,
-		isRemote: true,
 	});
 });
 
@@ -146,7 +140,6 @@ test('Should calculate volumes correctly', async () => {
 		duration: 60,
 		startInVideo: 0,
 		trimLeft: 0,
-		isRemote: true,
 		playbackRate: 1,
 		volume: new Array(60)
 			.fill(true)
@@ -183,7 +176,6 @@ test('Should calculate startFrom correctly', async () => {
 		duration: 59,
 		startInVideo: 1,
 		trimLeft: 100,
-		isRemote: true,
 		playbackRate: 1,
 		volume: new Array(59).fill(true).map((_, i) =>
 			interpolate(i, [0, 50, 100], [0, 1, 0], {

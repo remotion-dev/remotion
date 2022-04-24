@@ -13,13 +13,15 @@ export const useUnsafeVideoConfig = (): VideoConfig | null => {
 			return null;
 		}
 
-		const {durationInFrames, fps, height, width} = video;
+		const {id, durationInFrames, fps, height, width, defaultProps} = video;
 
 		return {
+			id,
 			width,
 			height,
 			fps,
 			durationInFrames: ctxDuration ?? durationInFrames,
+			defaultProps,
 		};
 	}, [ctxDuration, video]);
 };

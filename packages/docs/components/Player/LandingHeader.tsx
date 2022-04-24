@@ -1,13 +1,21 @@
 import React from "react";
 import { BlueButton } from "../layout/Button";
 import styles from "./landing.module.css";
-import useThemeContext from "@theme/hooks/useThemeContext";
+import { useColorMode } from "@docusaurus/theme-common";
+
+const logo: React.CSSProperties = {
+  fontWeight: "bold",
+  fontSize: 20,
+  color: "var(--ifm-color-primary)",
+  marginTop: "5vh",
+};
 
 export const LandingHeader: React.FC = () => {
-  const { isDarkTheme } = useThemeContext();
+  const { colorMode } = useColorMode();
 
   return (
     <div className={styles.container}>
+      <div style={logo}>@remotion/player</div>
       <h1 className={styles.title}>
         Dynamic embedded
         <br />
@@ -20,7 +28,11 @@ export const LandingHeader: React.FC = () => {
         }}
       >
         <video
-          src={isDarkTheme ? "/img/player-dark.mp4" : "/img/player-light.mp4"}
+          src={
+            colorMode === "dark"
+              ? "/img/player-dark.mp4"
+              : "/img/player-light.mp4"
+          }
           playsInline
           muted
           autoPlay

@@ -1,10 +1,33 @@
 import path from 'path';
 import {Internals, WebpackConfiguration, WebpackOverrideFn} from 'remotion';
+import ReactDOM from 'react-dom';
 import webpack, {ProgressPlugin} from 'webpack';
+import {LoaderOptions} from './esbuild-loader/interfaces';
 import {ReactFreshWebpackPlugin} from './fast-refresh';
 import {getWebpackCacheName} from './webpack-cache';
+import esbuild = require('esbuild');
+
+if (!ReactDOM || !ReactDOM.version) {
+	throw new Error('Could not find "react-dom" package. Did you install it?');
+}
+
+const reactDomVersion = ReactDOM.version.split('.')[0];
+if (reactDomVersion === '0') {
+	throw new Error(
+		`Version ${reactDomVersion} of "react-dom" is not supported by Remotion`
+	);
+}
+
+const shouldUseReactDomClient = parseInt(reactDomVersion, 10) >= 18;
+
+const esbuildLoaderOptions: LoaderOptions = {
+	target: 'chrome85',
+	loader: 'tsx',
+	implementation: esbuild,
+};
 
 type Truthy<T> = T extends false | '' | 0 | null | undefined ? never : T;
+
 function truthy<T>(value: T): value is Truthy<T> {
 	return Boolean(value);
 }
@@ -25,11 +48,11 @@ export const webpackConfig = ({
 	userDefinedComponent: string;
 	outDir: string;
 	environment: 'development' | 'production';
-	webpackOverride?: WebpackOverrideFn;
+	webpackOverride: WebpackOverrideFn;
 	onProgressUpdate?: (f: number) => void;
 	enableCaching?: boolean;
-	inputProps?: object;
-	envVariables?: Record<string, string>;
+	inputProps: object;
+	envVariables: Record<string, string>;
 	maxTimelineTracks: number;
 }): WebpackConfiguration => {
 	return webpackOverride({
@@ -84,7 +107,7 @@ export const webpackConfig = ({
 							'process.env.MAX_TIMELINE_TRACKS': maxTimelineTracks,
 							'process.env.INPUT_PROPS': JSON.stringify(inputProps ?? {}),
 							[`process.env.${Internals.ENV_VARIABLES_ENV_NAME}`]:
-								JSON.stringify(envVariables ?? {}),
+								JSON.stringify(envVariables),
 						}),
 				  ]
 				: [
@@ -112,6 +135,9 @@ export const webpackConfig = ({
 				// Only one version of react
 				'react/jsx-runtime': require.resolve('react/jsx-runtime'),
 				react: require.resolve('react'),
+				'react-dom/client': shouldUseReactDomClient
+					? require.resolve('react-dom/client')
+					: require.resolve('react-dom'),
 				remotion: require.resolve('remotion'),
 				'react-native$': 'react-native-web',
 			},
@@ -150,11 +176,8 @@ export const webpackConfig = ({
 					test: /\.tsx?$/,
 					use: [
 						{
-							loader: require.resolve('esbuild-loader'),
-							options: {
-								loader: 'tsx',
-								target: 'chrome85',
-							},
+							loader: require.resolve('./esbuild-loader/index.js'),
+							options: esbuildLoaderOptions,
 						},
 						environment === 'development'
 							? {
@@ -181,11 +204,8 @@ export const webpackConfig = ({
 					exclude: /node_modules/,
 					use: [
 						{
-							loader: require.resolve('esbuild-loader'),
-							options: {
-								loader: 'jsx',
-								target: 'chrome85',
-							},
+							loader: require.resolve('./esbuild-loader/index.js'),
+							options: esbuildLoaderOptions,
 						},
 						environment === 'development'
 							? {

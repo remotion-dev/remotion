@@ -19,4 +19,4 @@ const SeriesTesting: FC = () => {
 	);
 };
 
-export {SeriesTesting as SeriesTesting};
+export {SeriesTesting};

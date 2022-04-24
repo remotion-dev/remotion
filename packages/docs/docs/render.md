@@ -28,9 +28,9 @@ Remotion has a full-featured server-side rendering API. Read more about it on th
 
 You can also render a [video using a Github Action.](/docs/ssr#render-using-github-actions)
 
-### Serverless
+### AWS Lambda
 
-We are also working on a Serverless solution for rendering videos, [which is in private beta](/docs/ssr#rendering-a-video-using-serverless).
+Check out [**Remotion Lambda**](/docs/lambda).
 
 ### Only audio
 
