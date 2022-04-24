@@ -52,7 +52,3 @@ Ensure that you only set parameter within these limits to ensure the renders don
 - Maximum concurrency: 200
 
 The Remotion Lambda defaults will never go outside these bounds.
-
-:::note
-Also note the maximum video length of 18000 frames.
-:::

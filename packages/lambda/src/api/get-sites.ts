@@ -25,7 +25,7 @@ export type GetSitesOutput = {
 /**
  *
  * @description Gets all the deployed sites for a certain AWS region.
- * @link https://v3.remotion.dev/docs/lambda/getsites
+ * @link https://remotion.dev/docs/lambda/getsites
  * @param {AwsRegion} params.region The AWS region that you want to query for.
  * @returns {Promise<GetSitesOutput>} A Promise containing an object with `sites` and `bucket` keys. Consult documentation for details.
  */

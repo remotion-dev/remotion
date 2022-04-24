@@ -12,7 +12,14 @@ const _clients: Partial<
 		AwsRegion,
 		Record<
 			string,
-			Record<string, CloudWatchLogsClient | LambdaClient | S3Client | IAMClient>
+			Record<
+				string,
+				| CloudWatchLogsClient
+				| LambdaClient
+				| S3Client
+				| IAMClient
+				| ServiceQuotasClient
+			>
 		>
 	>
 > = {};

@@ -26,7 +26,7 @@ export const LambdaEasy: React.FC = () => {
         </h2>
         <p>
           We{"'"}ve figured out hard problems such as cloud architecture,
-          scheduling and progress reporting and provide you with a solution that
+          scheduling and progress reporting to provide you with a solution that
           you can deploy to your own account by following a series of
           well-defined steps.
         </p>
