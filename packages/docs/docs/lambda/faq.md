@@ -6,9 +6,13 @@ slug: /lambda/faq
 
 Some commonly asked questions about Remotion Lambda.
 
+### Is Lambda self-hosted?
+
+Yes, you host Remotion Lambda in your own AWS account. Remotion does not offer a hosted rendering solution at this time.
+
 ### Do I need to deploy a function for each render?
 
-No, in general you only need to deploy one function and it will be capable of rendering multiple videos, even across different projects. Trying to deploy multiple functions with the same version and region will result in the existing function being returned instead.
+No, in general you only need to deploy one function and it will be capable of rendering multiple videos, even across different projects.
 
 There are three exceptions when it is possible to deploy multiple functions:
 

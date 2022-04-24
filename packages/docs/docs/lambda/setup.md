@@ -189,7 +189,17 @@ You are now ready to render a video.
 </TabItem>
 </Tabs>
 
-## 9. Render a video
+## 9. Check AWS concurrency limit
+
+Check the concurrency limit that AWS has given to your account:
+
+```
+npx remotion lambda quotas
+```
+
+By default, it is `1000` concurrent invocations per region. However, new accounts might have a limit [as low as `10`](/docs/lambda/troubleshooting/rate-limit). Each Remotion render may use as much as 200 functions per render concurrently, so if your assigned limit is very low, [you might want to request an increase right away](/docs/lambda/troubleshooting/rate-limit).
+
+## 10. Render a video
 
 <Tabs
 defaultValue="cli"
