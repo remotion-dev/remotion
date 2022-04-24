@@ -8,7 +8,6 @@ test('Conflicting IDs should be handled', () => {
 				{
 					frame: 0,
 					id: 'notunique',
-					isRemote: false,
 					mediaFrame: 0,
 					playbackRate: 1,
 					src: 'audio.mp3',
@@ -18,7 +17,6 @@ test('Conflicting IDs should be handled', () => {
 				{
 					frame: 0,
 					id: 'notunique',
-					isRemote: false,
 					mediaFrame: 0,
 					playbackRate: 1,
 					src: 'audio.mp3',
@@ -30,7 +28,6 @@ test('Conflicting IDs should be handled', () => {
 				{
 					frame: 1,
 					id: 'notunique',
-					isRemote: false,
 					mediaFrame: 0,
 					playbackRate: 1,
 					src: 'audio.mp3',
@@ -40,7 +37,6 @@ test('Conflicting IDs should be handled', () => {
 				{
 					frame: 1,
 					id: 'notunique',
-					isRemote: false,
 					mediaFrame: 0,
 					playbackRate: 1,
 					src: 'audio.mp3',
@@ -50,7 +46,6 @@ test('Conflicting IDs should be handled', () => {
 				{
 					frame: 1,
 					id: 'another',
-					isRemote: false,
 					mediaFrame: 0,
 					playbackRate: 1,
 					src: 'audio.mp3',
@@ -62,7 +57,6 @@ test('Conflicting IDs should be handled', () => {
 				{
 					frame: 2,
 					id: 'another',
-					isRemote: false,
 					mediaFrame: 0,
 					playbackRate: 1,
 					src: 'audio.mp3',

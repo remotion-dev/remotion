@@ -1,8 +1,12 @@
 import fs from 'fs';
-import {mkdirSync} from 'fs';
 import path from 'path';
 
 import {Internals, random, TAsset} from 'remotion';
+import {ensureOutputDirectory} from '../ensure-output-directory';
+
+export type RenderMediaOnDownload = (
+	src: string
+) => ((progress: {percent: number}) => void) | undefined | void;
 import {sanitizeFilePath} from './sanitize-filepath';
 import {downloadFile} from './download-file';
 
@@ -77,7 +81,7 @@ function validateBufferEncoding(
 const downloadAsset = async (
 	src: string,
 	to: string,
-	onDownload: (src: string) => void
+	onDownload: RenderMediaOnDownload
 ) => {
 	if (hasBeenDownloadedMap[src]) {
 		return;
@@ -88,10 +92,9 @@ const downloadAsset = async (
 	}
 
 	isDownloadingMap[src] = true;
-	onDownload(src);
-	mkdirSync(path.resolve(to, '..'), {
-		recursive: true,
-	});
+
+	const onProgress = onDownload(src);
+	ensureOutputDirectory(to);
 
 	if (src.startsWith('data:')) {
 		const [assetDetails, assetData] = src.substring('data:'.length).split(',');
@@ -116,7 +119,11 @@ const downloadAsset = async (
 		return;
 	}
 
-	await downloadFile(src, to);
+	await downloadFile(src, to, ({progress}) => {
+		onProgress?.({
+			percent: progress,
+		});
+	});
 	notifyAssetIsDownloaded(src);
 };
 
@@ -132,22 +139,16 @@ export const markAllAssetsAsDownloaded = () => {
 
 export const getSanitizedFilenameForAssetUrl = ({
 	src,
-	isRemote,
-	webpackBundle,
+	downloadDir,
 }: {
 	src: string;
-	isRemote: boolean;
-	webpackBundle: string;
+	downloadDir: string;
 }) => {
 	if (Internals.AssetCompression.isAssetCompressed(src)) {
 		return src;
 	}
 
 	const {pathname, search} = new URL(src);
-
-	if (!isRemote) {
-		return path.join(webpackBundle, sanitizeFilePath(pathname));
-	}
 
 	const split = pathname.split('.');
 	const fileExtension =
@@ -159,35 +160,31 @@ export const getSanitizedFilenameForAssetUrl = ({
 		''
 	);
 	return path.join(
-		webpackBundle,
+		downloadDir,
 		sanitizeFilePath(hashedFileName + fileExtension)
 	);
 };
 
 export const downloadAndMapAssetsToFileUrl = async ({
-	localhostAsset,
-	webpackBundle,
+	asset,
+	downloadDir,
 	onDownload,
 }: {
-	localhostAsset: TAsset;
-	webpackBundle: string;
-	onDownload: (src: string) => void;
+	asset: TAsset;
+	downloadDir: string;
+	onDownload: RenderMediaOnDownload;
 }): Promise<TAsset> => {
 	const newSrc = getSanitizedFilenameForAssetUrl({
-		src: localhostAsset.src,
-		isRemote: localhostAsset.isRemote,
-		webpackBundle,
+		src: asset.src,
+		downloadDir,
 	});
 
-	if (
-		localhostAsset.isRemote &&
-		!Internals.AssetCompression.isAssetCompressed(newSrc)
-	) {
-		await downloadAsset(localhostAsset.src, newSrc, onDownload);
+	if (!Internals.AssetCompression.isAssetCompressed(newSrc)) {
+		await downloadAsset(asset.src, newSrc, onDownload);
 	}
 
 	return {
-		...localhostAsset,
+		...asset,
 		src: newSrc,
 	};
 };

@@ -1,12 +1,13 @@
 import React, {
+	ComponentType,
 	createContext,
 	LazyExoticComponent,
 	useCallback,
+	useImperativeHandle,
 	useLayoutEffect,
 	useMemo,
 	useState,
 } from 'react';
-import {LooseAnyComponent} from './any-component';
 
 export type TComposition<T = unknown> = {
 	width: number;
@@ -14,7 +15,7 @@ export type TComposition<T = unknown> = {
 	fps: number;
 	durationInFrames: number;
 	id: string;
-	component: LazyExoticComponent<LooseAnyComponent<T>>;
+	component: LazyExoticComponent<ComponentType<T>>;
 	defaultProps: T | undefined;
 	nonce: number;
 };
@@ -22,6 +23,11 @@ export type TComposition<T = unknown> = {
 export type TCompMetadata = Pick<
 	TComposition,
 	'id' | 'height' | 'width' | 'fps' | 'durationInFrames' | 'defaultProps'
+>;
+
+export type SmallTCompMetadata = Pick<
+	TComposition,
+	'id' | 'height' | 'width' | 'fps' | 'durationInFrames'
 >;
 
 type EnhancedTSequenceData =
@@ -65,14 +71,15 @@ export type TAsset = {
 	id: string;
 	frame: number;
 	volume: number;
-	isRemote: boolean;
 	mediaFrame: number;
 	playbackRate: number;
 };
 
 export type RenderAssetInfo = {
 	assets: TAsset[][];
-	bundleDir: string;
+	imageSequenceName: string;
+	firstFrameIndex: number;
+	downloadDir: string;
 };
 
 export type CompositionManagerContext = {
@@ -103,7 +110,13 @@ export const CompositionManager = createContext<CompositionManagerContext>({
 	assets: [],
 });
 
-export const CompositionManagerProvider: React.FC = ({children}) => {
+export const compositionsRef = React.createRef<{
+	getCompositions: () => TCompMetadata[];
+}>();
+
+export const CompositionManagerProvider: React.FC<{
+	children: React.ReactNode;
+}> = ({children}) => {
 	// Wontfix, expected to have
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	const [compositions, setCompositions] = useState<TComposition<any>[]>([]);
@@ -161,6 +174,16 @@ export const CompositionManagerProvider: React.FC = ({children}) => {
 			};
 		}
 	}, [assets]);
+
+	useImperativeHandle(
+		compositionsRef,
+		() => {
+			return {
+				getCompositions: () => compositions,
+			};
+		},
+		[compositions]
+	);
 
 	const contextValue = useMemo((): CompositionManagerContext => {
 		return {

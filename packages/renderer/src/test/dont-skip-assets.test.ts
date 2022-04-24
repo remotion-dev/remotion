@@ -18,7 +18,6 @@ test('Dont skip assets', () => {
 			startInVideo: 0,
 			trimLeft: 0,
 			volume: 1,
-			isRemote: false,
 			playbackRate: 1,
 		},
 		{
@@ -29,7 +28,6 @@ test('Dont skip assets', () => {
 			startInVideo: 180,
 			trimLeft: 180,
 			volume: 1,
-			isRemote: false,
 			playbackRate: 1,
 		},
 		{
@@ -40,7 +38,6 @@ test('Dont skip assets', () => {
 			startInVideo: 220,
 			trimLeft: 220,
 			volume: 1,
-			isRemote: false,
 			playbackRate: 1,
 		},
 		{
@@ -51,7 +48,6 @@ test('Dont skip assets', () => {
 			startInVideo: 180,
 			trimLeft: 0,
 			volume: 1,
-			isRemote: false,
 			playbackRate: 1,
 		},
 	]);
@@ -69,7 +65,6 @@ const mock: TAsset[][] = new Array(2934)
 						id: 'audio-0.6976876351982355-0-180-40-muted:undefined',
 						frame: 180,
 						volume: 1,
-						isRemote: false,
 						playbackRate: 1,
 						mediaFrame: 0,
 				  }
@@ -80,7 +75,6 @@ const mock: TAsset[][] = new Array(2934)
 				id: 'audio-0.24816237785853446-undefined-undefined-undefined-muted:undefined',
 				frame: k,
 				volume: 1,
-				isRemote: false,
 				playbackRate: 1,
 				mediaFrame: k,
 			},

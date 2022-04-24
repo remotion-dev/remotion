@@ -15,6 +15,9 @@
     "@remotion/example#lint": {
       "dependsOn": ["@remotion/eslint-config#build"]
     },
+    "@remotion/player-example#lint": {
+      "dependsOn": ["@remotion/eslint-config#build"]
+    },
     "@remotion/it-tests#test": {
       "dependsOn": [
         "^build",

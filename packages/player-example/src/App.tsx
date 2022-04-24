@@ -30,12 +30,12 @@ type CompProps<T> =
 			component: AnyComponent<T>;
 	  };
 
-export default function App({
+export default ({
 	durationInFrames,
 	...props
 }: {
 	durationInFrames: number;
-} & CompProps<any>) {
+} & CompProps<any>) => {
 	const [title, setTitle] = useState('Hello World');
 	const [color, setColor] = useState('#ffffff');
 	const [bgColor, setBgColor] = useState('#000000');
@@ -61,11 +61,11 @@ export default function App({
 			setLogs((l) => [...l, 'seeked to ' + e.detail.frame + ' ' + Date.now()]);
 		};
 
-		const endedCallbackListener: CallbackListener<'ended'> = (e) => {
+		const endedCallbackListener: CallbackListener<'ended'> = () => {
 			setLogs((l) => [...l, 'ended ' + Date.now()]);
 		};
 
-		const errorCallbackListener: CallbackListener<'error'> = (e) => {
+		const errorCallbackListener: CallbackListener<'error'> = () => {
 			setLogs((l) => [...l, 'error ' + Date.now()]);
 		};
 
@@ -145,9 +145,9 @@ export default function App({
 				durationInFrames={durationInFrames}
 				{...props}
 				controls
+				showVolumeControls
 				doubleClickToFullscreen={doubleClickToFullscreen}
 				loop={loop}
-				showVolumeControls={true}
 				clickToPlay={clickToPlay}
 				inputProps={inputProps}
 				renderLoading={renderLoading}
@@ -270,7 +270,7 @@ export default function App({
 				-1x speed
 			</button>
 
-			<br/>
+			<br />
 			<button type="button" onClick={() => ref.current?.mute()}>
 				🔇 Mute
 			</button>
@@ -353,4 +353,4 @@ export default function App({
 				})}
 		</div>
 	);
-}
+};

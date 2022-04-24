@@ -1,7 +1,7 @@
 import {Sequence, staticFile, useVideoConfig, Video} from 'remotion';
 
 export const VideoTesting: React.FC<{
-	codec: 'mp4' | 'webm' | string;
+	codec: 'mp4' | 'webm';
 }> = ({codec}) => {
 	const {durationInFrames} = useVideoConfig();
 	const videoMp4 = staticFile('./framer.mp4');

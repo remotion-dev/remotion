@@ -1,3 +1,4 @@
+import {ComponentType} from 'react';
 import {Composition} from 'remotion';
 import {Player} from '../index';
 import {HelloWorld, render} from './test-utils';
@@ -206,7 +207,7 @@ test('passing in <Composition /> instance should not be possible', () => {
 					height: 400,
 					fps: 30,
 					durationInFrames: 500,
-					component: HelloWorld,
+					component: HelloWorld as ComponentType<unknown>,
 				}}
 			/>
 		);

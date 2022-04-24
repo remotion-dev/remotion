@@ -1,9 +1,22 @@
+import chalk from 'chalk';
 import {checkNodeVersion} from './check-version';
+import {handleCommonError} from './handle-common-errors';
+import {getCliOptions} from './get-cli-options';
+import {loadConfig} from './get-config-file-name';
+import {initializeRenderCli} from './initialize-render-cli';
+import {lambdaCommand} from './lambda-command';
+import {loadConfigFile} from './load-config';
 import {Log} from './log';
-import {parsedCli} from './parse-command-line';
+import {
+	BooleanFlags,
+	parseCommandLine,
+	parsedCli,
+	quietFlagProvided,
+} from './parse-command-line';
 import {listCompositionsCommand} from './compositions';
 import {previewCommand} from './preview';
 import {printHelp} from './print-help';
+import {createOverwriteableCliOutput, makeProgressBar} from './progress-bar';
 import {render} from './render';
 import {still} from './still';
 import {upgrade} from './upgrade';
@@ -12,7 +25,6 @@ import {
 	versionsCommand,
 	VERSIONS_COMMAND,
 } from './versions';
-Error.stackTraceLimit = Infinity;
 
 export const cli = async () => {
 	const args = process.argv;
@@ -34,6 +46,8 @@ export const cli = async () => {
 			await listCompositionsCommand();
 		} else if (command === 'preview') {
 			await previewCommand();
+		} else if (command === 'lambda') {
+			await lambdaCommand();
 		} else if (command === 'render') {
 			await render();
 		} else if (command === 'still') {
@@ -51,9 +65,26 @@ export const cli = async () => {
 			process.exit(1);
 		}
 	} catch (err) {
-		Log.error((err as Error).stack);
+		Log.info();
+		await handleCommonError(err as Error);
 		process.exit(1);
 	}
 };
 
 export * from './render';
+
+export const CliInternals = {
+	createOverwriteableCliOutput,
+	chalk,
+	makeProgressBar,
+	Log,
+	loadConfigFile,
+	getCliOptions,
+	parseCommandLine,
+	loadConfig,
+	initializeRenderCli,
+	BooleanFlags,
+	quietFlagProvided,
+	parsedCli,
+	handleCommonError,
+};

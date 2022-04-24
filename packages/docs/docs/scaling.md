@@ -15,9 +15,7 @@ Remotion can support this higher resolution by setting the [`deviceScaleFactor`]
 
 - In the CLI, during a render of a video or a still, pass the [`--scale`](/docs/cli#--scale) flag. For example: `--scale=2`
 
-<!-- TODO: Update for lambda --->
-
-- In the Node.JS functions [`renderStill()`](/docs/render-still#scale) and [`renderFrames()`](/docs/render-frames#scale), you can pass a `scale` option.
+- In the Node.JS functions [`renderStill()`](/docs/render-still#scale), [`renderFrames()`](/docs/render-frames#scale), [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda) and [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda), you can pass a `scale` option.
 
 - In the [config file](/docs/config), you can pass the scale using the following statement:
 

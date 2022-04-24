@@ -1,7 +1,7 @@
 ---
 id: 2-0-migration
-sidebar_title: v2.0 Migration
-title: v2.0 Breaking changes
+sidebar_label: v2.0 Migration
+title: v2.0 Migration
 ---
 
 The following is a list of breaking changes in Remotion 2.0, as a reference for projects wanting to upgrade.

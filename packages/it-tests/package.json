@@ -3,10 +3,16 @@
   "version": "2.6.16",
   "license": "SEE LICENSE IN LICENSE.md",
   "scripts": {
-    "test": "jest --runInBand"
+    "test": "jest src/rendering --runInBand",
+    "testssr": "jest src/ssr --runInBand",
+    "testlambda": "jest src/lambda --runInBand"
   },
   "private": true,
   "devDependencies": {
+    "@remotion/bundler": "2.6.16",
+    "@remotion/cli": "2.6.16",
+    "@remotion/lambda": "2.6.16",
+    "@remotion/renderer": "2.6.16",
     "@types/jest": "^27.4.0",
     "@types/sharp": "^0.28.5",
     "execa": "5.1.1",

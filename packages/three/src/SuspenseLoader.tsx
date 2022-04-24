@@ -13,6 +13,8 @@ const Unblocker: React.FC = () => {
 	return null;
 };
 
-export const SuspenseLoader: React.FC = ({ children }) => {
+export const SuspenseLoader: React.FC<{
+	children: React.ReactNode;
+}> = ({ children }) => {
 	return <Suspense fallback={<Unblocker />}>{children}</Suspense>;
 };
