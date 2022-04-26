@@ -1,5 +1,5 @@
 ---
-title: getAudioDuration()
+title: getAudioDurationInSeconds()
 id: get-audio-duration
 ---
 
@@ -22,25 +22,26 @@ A string pointing to an audio asset
 ```tsx twoslash
 // @module: ESNext
 // @target: ESNext
-import { useCallback, useEffect } from "react";
-import { Audio, staticFile } from "remotion";
+import {useCallback, useEffect} from "react";
+import {Audio, staticFile} from "remotion";
 // ---cut---
-import { getAudioDuration } from "@remotion/media-utils";
+import {getAudioDurationInSeconds} from "@remotion/media-utils";
 import music from "./music.mp3";
+import {getAudioDurationInSeconds} from "./get-audio-duration";
 
 const MyComp: React.FC = () => {
   const getDuration = useCallback(async () => {
-    const imported = await getAudioDuration(music); // 127.452
-    const publicFile = await getAudioDuration(staticFile("voiceover.wav")); // 33.221
-    const remote = await getAudioDuration(
+    const imported = await getAudioDurationInSeconds(music); // 127.452
+    const publicFile = await getAudioDurationInSeconds(staticFile("voiceover.wav")); // 33.221
+    const remote = await getAudioDurationInSeconds(
       "https://example.com/remote-audio.aac"
     ); // 50.24
   }, []);
 
-  useEffect(() => {
-    getDuration();
-  }, []);
+    useEffect(() => {
+        getDuration();
+    }, []);
 
-  return null;
+    return null;
 };
 ```
