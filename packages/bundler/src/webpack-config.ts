@@ -124,7 +124,7 @@ export const webpackConfig = ({
 			path: outDir,
 			devtoolModuleFilenameTemplate: '[resource-path]',
 			assetModuleFilename:
-				environment === 'development' ? '[path][name].[ext]' : '[hash].[ext]',
+				environment === 'development' ? '[path][name][ext]' : '[hash][ext]',
 		},
 		devServer: {
 			contentBase: path.resolve(__dirname, '..', 'web'),
@@ -172,9 +172,6 @@ export const webpackConfig = ({
 				{
 					test: /\.(woff(2)?|otf|ttf|eot)(\?v=\d+\.\d+\.\d+)?$/,
 					type: 'asset/resource',
-					generator: {
-						filename: 'static/[hash][ext][query]',
-					},
 				},
 				{
 					test: /\.jsx?$/,
