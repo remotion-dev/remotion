@@ -44,6 +44,6 @@ const fn = (src: string): Promise<VideoMetadata> => {
 	});
 };
 
-export const getVideoMetadata = (src: string): Promise<VideoMetadata> => {
+export const getVideoMetadata = (src: string) => {
 	return limit(fn, src);
 };
