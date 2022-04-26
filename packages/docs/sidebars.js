@@ -196,7 +196,7 @@ module.exports = {
       items: [
         "audio-buffer-to-data-url",
         "get-audio-data",
-        "get-audio-duration",
+        "get-audio-duration-in-seconds",
         "get-video-metadata",
         "get-waveform-portion",
         "use-audio-data",
