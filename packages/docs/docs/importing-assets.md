@@ -3,7 +3,7 @@ id: assets
 title: Importing assets
 ---
 
-To import assets in Remotion, create a `public/` folder in your project and use `staticFile()` to import it.
+To import assets in Remotion, create a `public/` folder in your project and use [`staticFile()`](/docs/staticfile) to import it.
 
 ```txt
 my-video/
@@ -177,4 +177,4 @@ While this was previously the main way of importing files, we now recommend agai
 - The maximum file size is 2GB.
 - Dynamic imports such as `require('img' + frame + '.png')` are [funky](/docs/webpack-dynamic-imports).
 
-Prefer importing using `staticFile()` is possible.
+Prefer importing using [`staticFile()`](/docs/staticfile) is possible.
