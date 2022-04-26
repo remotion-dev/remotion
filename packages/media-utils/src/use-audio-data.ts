@@ -5,7 +5,7 @@ import {AudioData} from './types';
 
 export const useAudioData = (src: string): AudioData | null => {
 	if (!src) {
-		throw new TypeError("useAudioMetadata requires a 'src' parameter");
+		throw new TypeError("useAudioData requires a 'src' parameter");
 	}
 
 	const mountState = useRef({isMounted: true});
