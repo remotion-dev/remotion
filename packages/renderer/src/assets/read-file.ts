@@ -13,7 +13,9 @@ const getClient = (url: string) => {
 	throw new Error('Can only download URLs starting with http:// or https://');
 };
 
-export const readFile = (url: string): Promise<http.IncomingMessage> => {
+const readFileWithoutRedirect = (
+	url: string
+): Promise<http.IncomingMessage> => {
 	return new Promise<http.IncomingMessage>((resolve, reject) => {
 		getClient(url)(url, (res) => {
 			resolve(res);
@@ -21,4 +23,26 @@ export const readFile = (url: string): Promise<http.IncomingMessage> => {
 			return reject(err);
 		});
 	});
+};
+
+export const readFile = async (
+	url: string,
+	redirectsSoFar = 0
+): Promise<http.IncomingMessage> => {
+	if (redirectsSoFar > 10) {
+		throw new Error(`Too many redirects while downloading ${url}`);
+	}
+
+	const file = await readFileWithoutRedirect(url);
+	if (file.statusCode === 302 || file.statusCode === 301) {
+		if (!file.headers.location) {
+			throw new Error(
+				`Received a status code ${file.statusCode} but no "Location" header while calling ${file.headers.location}`
+			);
+		}
+
+		return readFile(file.headers.location, redirectsSoFar + 1);
+	}
+
+	return file;
 };
