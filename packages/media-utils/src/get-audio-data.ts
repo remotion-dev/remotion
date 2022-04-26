@@ -1,7 +1,10 @@
 import {isRemoteAsset} from './is-remote-asset';
+import {pLimit} from './p-limit';
 import {AudioData} from './types';
 
 const metadataCache: {[key: string]: AudioData} = {};
+
+const limit = pLimit(3);
 
 const fetchWithCorsCatch = async (src: string) => {
 	try {
@@ -26,7 +29,7 @@ const fetchWithCorsCatch = async (src: string) => {
 	}
 };
 
-export const getAudioData = async (src: string): Promise<AudioData> => {
+const fn = async (src: string): Promise<AudioData> => {
 	if (metadataCache[src]) {
 		return metadataCache[src];
 	}
@@ -54,4 +57,8 @@ export const getAudioData = async (src: string): Promise<AudioData> => {
 	};
 	metadataCache[src] = metadata;
 	return metadata;
+};
+
+export const getAudioData = (src: string) => {
+	return limit(fn, src);
 };
