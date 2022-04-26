@@ -124,9 +124,7 @@ export const webpackConfig = ({
 			path: outDir,
 			devtoolModuleFilenameTemplate: '[resource-path]',
 			assetModuleFilename:
-				environment === 'development'
-					? '[path][name].[ext]'
-					: '[md5:contenthash].[ext]',
+				environment === 'development' ? '[path][name].[ext]' : '[hash].[ext]',
 		},
 		devServer: {
 			contentBase: path.resolve(__dirname, '..', 'web'),
@@ -151,6 +149,7 @@ export const webpackConfig = ({
 				{
 					test: /\.css$/i,
 					use: [require.resolve('style-loader'), require.resolve('css-loader')],
+					type: 'javascript/auto',
 				},
 				{
 					test: /\.(png|svg|jpg|jpeg|webp|gif|bmp|webm|mp4|mov|mp3|m4a|wav|aac)$/,

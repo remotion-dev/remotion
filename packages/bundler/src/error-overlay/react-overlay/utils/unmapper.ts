@@ -44,38 +44,43 @@ export const unmap = async (
 			return getSourceMap(fileName as string, fileContents as string);
 		})
 	);
-	const mapValues: Record<string, SourceMapConsumer> = {};
+	const mapValues: Record<string, SourceMapConsumer | null> = {};
 	for (let i = 0; i < uniqueFileNames.length; i++) {
 		mapValues[uniqueFileNames[i]] = maps[i];
 	}
 
-	return frames.map((frame): SymbolicatedStackFrame => {
-		if (frame.type === 'symbolicated') {
-			return frame.frame;
-		}
+	return frames
+		.map((frame): SymbolicatedStackFrame | null => {
+			if (frame.type === 'symbolicated') {
+				return frame.frame;
+			}
 
-		const map = mapValues[frame.frame.fileName as string];
-		const pos = getOriginalPosition(
-			map,
-			frame.frame.lineNumber as number,
-			frame.frame.columnNumber as number
-		);
+			const map = mapValues[frame.frame.fileName as string];
+			if (!map) {
+				return null;
+			}
 
-		const {functionName} = frame.frame;
-		let hasSource: string | null = null;
-		hasSource = pos.source ? map.sourceContentFor(pos.source, false) : null;
+			const pos = getOriginalPosition(
+				map,
+				frame.frame.lineNumber as number,
+				frame.frame.columnNumber as number
+			);
+			const {functionName} = frame.frame;
+			let hasSource: string | null = null;
+			hasSource = pos.source ? map.sourceContentFor(pos.source, false) : null;
 
-		const scriptCode =
-			hasSource && pos.line
-				? getLinesAround(pos.line, contextLines, hasSource.split('\n'))
-				: null;
+			const scriptCode =
+				hasSource && pos.line
+					? getLinesAround(pos.line, contextLines, hasSource.split('\n'))
+					: null;
 
-		return {
-			originalColumnNumber: pos.column,
-			originalFileName: pos.source,
-			originalFunctionName: functionName,
-			originalLineNumber: pos.line,
-			originalScriptCode: scriptCode,
-		};
-	});
+			return {
+				originalColumnNumber: pos.column,
+				originalFileName: pos.source,
+				originalFunctionName: functionName,
+				originalLineNumber: pos.line,
+				originalScriptCode: scriptCode,
+			};
+		})
+		.filter(Internals.truthy);
 };

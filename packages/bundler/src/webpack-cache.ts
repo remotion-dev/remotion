@@ -80,12 +80,12 @@ export const getWebpackCacheName = (
 	// are changing, because they are injected using Webpack and if changed,
 	// it will get the cached version
 	if (environment === 'development') {
-		return `remotion-${environment}-${random(JSON.stringify(inputProps))}`;
+		return `remotion-v3-${environment}-${random(JSON.stringify(inputProps))}`;
 	}
 
 	// In production, the cache is independent from input props because
 	// they are passed over URL params. Speed is mostly important in production.
-	return `remotion-${environment}`;
+	return `remotion-v3-${environment}`;
 };
 
 export const cacheExists = (

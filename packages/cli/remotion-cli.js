@@ -1,8 +1,7 @@
-#! /usr/bin/env node
+#! /usr/bin/env node --max-old-space-size=10240
 const dotenv = require('dotenv');
 dotenv.config();
 const {cli} = require('./dist/index');
-
 
 cli()
 	.then(() => process.exit(0))

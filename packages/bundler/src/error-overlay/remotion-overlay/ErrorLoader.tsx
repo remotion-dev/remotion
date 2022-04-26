@@ -101,7 +101,9 @@ export const ErrorLoader: React.FC<{
 					name={error.name}
 					message={error.message}
 				/>
-				<div style={errorWhileErrorStyle}>Could not get a stack trace.</div>
+				<div style={errorWhileErrorStyle}>
+					Check the Terminal and browser console for error messages.
+				</div>
 			</div>
 		);
 	}

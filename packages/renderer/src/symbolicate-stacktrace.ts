@@ -3,10 +3,7 @@ import {readFile} from './assets/read-file';
 import {RawSourceMap, SourceMapConsumer} from 'source-map';
 import {UnsymbolicatedStackFrame} from './parse-browser-error-stack';
 
-function extractSourceMapUrl(
-	fileUri: string,
-	fileContents: string
-): Promise<string> {
+function extractSourceMapUrl(fileContents: string): string | null {
 	const regex = /\/\/[#@] ?sourceMappingURL=([^\s'"]+)\s*$/gm;
 	let match = null;
 	for (;;) {
@@ -19,19 +16,21 @@ function extractSourceMapUrl(
 	}
 
 	if (!match?.[1]) {
-		return Promise.reject(
-			new Error(`Cannot find a source map directive for ${fileUri}.`)
-		);
+		return null;
 	}
 
-	return Promise.resolve(match[1].toString());
+	return match[1].toString();
 }
 
 export async function getSourceMap(
 	fileUri: string,
 	fileContents: string
-): Promise<SourceMapConsumer> {
-	const sm = await extractSourceMapUrl(fileUri, fileContents);
+): Promise<SourceMapConsumer | null> {
+	const sm = extractSourceMapUrl(fileContents);
+	if (sm === null) {
+		return null;
+	}
+
 	if (sm.indexOf('data:') === 0) {
 		const base64 = /^data:application\/json;([\w=:"-]+;)*base64,/;
 		const match2 = sm.match(base64);
@@ -130,7 +129,7 @@ export const symbolicateStackTrace = async (
 			return getSourceMap(fileName as string, fileContents as string);
 		})
 	);
-	const mapValues: Record<string, SourceMapConsumer> = {};
+	const mapValues: Record<string, SourceMapConsumer | null> = {};
 	for (let i = 0; i < uniqueFileNames.length; i++) {
 		mapValues[uniqueFileNames[i]] = maps[i];
 	}
