@@ -28,7 +28,7 @@ export const wdm = (compiler: webpack.Compiler): MiddleWare => {
 	if (context.compiler.watching) {
 		context.watching = context.compiler.watching;
 	} else {
-		const errorHandler = (error: Error | undefined) => {
+		const errorHandler = (error: Error | null | undefined) => {
 			if (error) {
 				context.logger.error(error);
 			}
