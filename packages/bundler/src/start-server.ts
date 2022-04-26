@@ -52,7 +52,21 @@ export const startServer = async (
 
 	const hash = `/static-${crypto.randomBytes(6).toString('hex')}`;
 
-	app.use(hash, express.static(path.join(process.cwd(), 'public')));
+	app.use(
+		hash,
+		express.static(path.join(process.cwd(), 'public'), {
+			cacheControl: true,
+			dotfiles: 'allow',
+			etag: true,
+			extensions: false,
+			fallthrough: false,
+			immutable: false,
+			index: false,
+			lastModified: true,
+			maxAge: 0,
+			redirect: true,
+		})
+	);
 	app.use(wdm(compiler));
 	app.use(webpackHotMiddleware(compiler));
 
