@@ -37,6 +37,16 @@ export const MyComp: React.FC = () => {
 };
 ```
 
+You can also pass a URL:
+
+```tsx twoslash title="MyComp.tsx"
+import { Img } from "remotion";
+
+export const MyComp: React.FC = () => {
+  return <Img src="https://picsum.photos/id/237/200/300" />;
+};
+```
+
 ## Using image sequences
 
 If you have a series of images, for example exported from another program like After Effects or Rotato, you can interpolate the path to create a dynamic import.
@@ -72,6 +82,18 @@ export const MyComp: React.FC = () => {
 };
 ```
 
+Loading videos via URL is also possible:
+
+```tsx twoslash
+import { Video } from "remotion";
+
+export const MyComp: React.FC = () => {
+  return (
+    <Video src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" />
+  );
+};
+```
+
 Be aware that if you are rendering using Chromium (as opposed to Chrome), the codec for MP4 videos is not included. Read the section on the [`<Video/ >`](/docs/video#codec-support) page for more information.
 
 ## Using Audio
@@ -83,6 +105,18 @@ import { Audio, staticFile } from "remotion";
 
 export const MyComp: React.FC = () => {
   return <Audio src={staticFile("tune.mp3")} />;
+};
+```
+
+Loading audio from an URL is also possible:
+
+```tsx twoslash
+import { Audio } from "remotion";
+
+export const MyComp: React.FC = () => {
+  return (
+    <Audio src="https://file-examples.com/wp-content/uploads/2017/11/file_example_MP3_700KB.mp3" />
+  );
 };
 ```
 
@@ -137,7 +171,7 @@ export const MyComp: React.FC = () => {
 
 ### Caveats
 
-While this was previously the main way of importing files, we recommend against it because of the following reasons:
+While this was previously the main way of importing files, we now recommend against it because of the following reasons:
 
 - Only the above listed file extensions are supported.
 - The maximum file size is 2GB.
