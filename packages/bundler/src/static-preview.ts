@@ -1,4 +1,5 @@
 import path from 'path';
+
 export const indexHtml = (
 	staticHash: string,
 	baseDir: string,
