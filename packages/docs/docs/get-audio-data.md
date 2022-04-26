@@ -7,6 +7,25 @@ _Part of the `@remotion/media-utils` package of helper functions._
 
 Takes an audio `src`, loads it and returns data and metadata for the specified source.
 
+:::info
+Remote audio files need to support [CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS).
+
+<details>
+<summary>More info</summary>
+<ul>
+<li>
+Remotion's origin is usually <code>http://localhost:3000</code>, but it may be different if rendering on Lambda or the port is busy.
+</li>
+<li>
+You can use <a href="/docs/get-audio-duration-in-seconds"><code>getAudioDurationInSeconds()</code></a> without the audio needing CORS.
+</li>
+<li>
+You can <a href="/docs/chromium-flags#--disable-web-security">disable CORS</a> during renders.
+</li>
+</ul>
+</details>
+:::
+
 ## Arguments
 
 ### `src`
@@ -77,3 +96,4 @@ Use the [`useAudioData()`](/docs/use-audio-data) helper hook to not have to do s
 - [Audio visualization](/docs/audio-visualization)
 - [`<Audio/>`](/docs/audio)
 - [`visualizeAudio()`](/docs/visualize-audio)
+- [`useAudioData()`](/docs/use-audio-data)
