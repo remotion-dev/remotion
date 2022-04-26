@@ -27,3 +27,8 @@ export const getAudioDurationInSeconds = (src: string): Promise<number> => {
 		audio.addEventListener('error', onError, {once: true});
 	});
 };
+
+/**
+ * @deprecated Renamed to `getAudioDurationInSeconds`
+ */
+export const getAudioDuration = (src: string) => getAudioDurationInSeconds(src);
