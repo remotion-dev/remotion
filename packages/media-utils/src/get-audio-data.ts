@@ -3,6 +3,29 @@ import {AudioData} from './types';
 
 const metadataCache: {[key: string]: AudioData} = {};
 
+const fetchWithCorsCatch = async (src: string) => {
+	try {
+		const response = await fetch(src);
+		return response;
+	} catch (err) {
+		const error = err as Error;
+		if (
+			// Chrome
+			error.message.includes('Failed to fetch') ||
+			// Safari
+			error.message.includes('Load failed') ||
+			// Firefox
+			error.message.includes('NetworkError when attempting to fetch resource')
+		) {
+			throw new TypeError(
+				`Failed to read from ${src}: ${error.message}. Does the resource support CORS?`
+			);
+		}
+
+		throw err;
+	}
+};
+
 export const getAudioData = async (src: string): Promise<AudioData> => {
 	if (metadataCache[src]) {
 		return metadataCache[src];
@@ -10,7 +33,7 @@ export const getAudioData = async (src: string): Promise<AudioData> => {
 
 	const audioContext = new AudioContext();
 
-	const response = await fetch(src);
+	const response = await fetchWithCorsCatch(src);
 	const arrayBuffer = await response.arrayBuffer();
 
 	const wave = await audioContext.decodeAudioData(arrayBuffer);
