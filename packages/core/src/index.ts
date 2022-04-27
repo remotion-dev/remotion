@@ -40,7 +40,12 @@ checkMultipleRemotionVersions();
 export * from './AbsoluteFill';
 export * from './audio';
 export * from './Composition';
-export {SmallTCompMetadata, TAsset, TCompMetadata} from './CompositionManager';
+export {
+	SmallTCompMetadata,
+	TAsset,
+	TCompMetadata,
+	TFolder,
+} from './CompositionManager';
 export * from './config';
 export {getInputProps} from './config/input-props';
 export * from './delay-render';

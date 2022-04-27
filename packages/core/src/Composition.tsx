@@ -15,7 +15,11 @@ import {validateDurationInFrames} from './validation/validate-duration-in-frames
 import {validateFolderName} from './validation/validate-folder-name';
 import {validateFps} from './validation/validate-fps';
 
-const FolderContext = createContext<{folderName: string | null}>({
+type FolderContextType = {
+	folderName: string | null;
+};
+
+const FolderContext = createContext<FolderContextType>({
 	folderName: null,
 });
 
@@ -23,9 +27,20 @@ export const Folder: FC<{name: string; children: React.ReactNode}> = ({
 	name,
 	children,
 }) => {
-	const value = useMemo(() => {
+	const parent = useContext(FolderContext);
+	const {registerFolder, unregisterFolder} = useContext(CompositionManager);
+
+	const value = useMemo((): FolderContextType => {
 		return {folderName: name};
 	}, [name]);
+
+	useEffect(() => {
+		registerFolder(name, parent.folderName);
+
+		return () => {
+			unregisterFolder(name);
+		};
+	}, [name, parent.folderName, registerFolder, unregisterFolder]);
 
 	return (
 		<FolderContext.Provider value={value}>{children}</FolderContext.Provider>
@@ -78,8 +93,7 @@ export const Composition = <T,>({
 		}
 
 		validateCompositionId(id);
-		// TODO
-		// validateFolderName(folderName);
+		validateFolderName(folderName);
 		validateDimension(width, 'width', 'of the <Composition/> component');
 		validateDimension(height, 'height', 'of the <Composition/> component');
 		validateDurationInFrames(

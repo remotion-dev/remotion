@@ -28,25 +28,29 @@ export const Index: React.FC = () => {
 	const inputProps = getInputProps();
 	return (
 		<>
-			<Folder name="my-folder">
-				<Composition
-					id="dynamic-duration-in-folder"
-					component={VideoTesting}
-					width={1080}
-					height={1080}
-					fps={30}
-					// Change the duration of the video dynamically by passing
-					// `--props='{"duration": 100}'`
-					durationInFrames={inputProps?.duration ?? 20}
-				/>
-				<Composition
-					id="nested-in-folder"
-					lazyComponent={() => import('./NestedSequences')}
-					durationInFrames={200}
-					fps={60}
-					height={1080}
-					width={1080}
-				/>
+			<Folder name="nested-two">
+				<Folder name="nested">
+					<Folder name="my-folder">
+						<Composition
+							id="dynamic-duration-in-folder"
+							component={VideoTesting}
+							width={1080}
+							height={1080}
+							fps={30}
+							// Change the duration of the video dynamically by passing
+							// `--props='{"duration": 100}'`
+							durationInFrames={inputProps?.duration ?? 20}
+						/>
+						<Composition
+							id="nested-in-folder"
+							lazyComponent={() => import('./NestedSequences')}
+							durationInFrames={200}
+							fps={60}
+							height={1080}
+							width={1080}
+						/>
+					</Folder>
+				</Folder>
 			</Folder>
 			<Composition
 				id="dynamic-duration"

@@ -1,11 +1,9 @@
 import React, {useCallback, useContext, useEffect, useMemo} from 'react';
 import {Internals, TComposition} from 'remotion';
+import {createFolderTree} from '../helpers/create-folder-tree';
 import {loadMarks} from '../state/marks';
 import {useZIndex} from '../state/z-index';
-import {
-	CompositionSelectorItem,
-	CompositionSelectorItemType,
-} from './CompositionSelectorItem';
+import {CompositionSelectorItem} from './CompositionSelectorItem';
 import {CurrentComposition} from './CurrentComposition';
 import {
 	getCurrentCompositionFromUrl,
@@ -28,9 +26,8 @@ const list: React.CSSProperties = {
 };
 
 export const CompositionSelector: React.FC = () => {
-	const {compositions, setCurrentComposition, currentComposition} = useContext(
-		Internals.CompositionManager
-	);
+	const {compositions, setCurrentComposition, currentComposition, folders} =
+		useContext(Internals.CompositionManager);
 	const {tabIndex} = useZIndex();
 	const setCurrentFrame = Internals.Timeline.useTimelineSetFrame();
 
@@ -66,14 +63,8 @@ export const CompositionSelector: React.FC = () => {
 	}, [compositions, currentComposition, selectComposition]);
 
 	const items = useMemo(() => {
-		return compositions.map((c): CompositionSelectorItemType => {
-			return {
-				composition: c,
-				type: 'composition',
-				key: c.id,
-			};
-		});
-	}, [compositions]);
+		return createFolderTree(compositions, folders);
+	}, [compositions, folders]);
 
 	return (
 		<div style={container}>
@@ -82,11 +73,12 @@ export const CompositionSelector: React.FC = () => {
 				{items.map((c) => {
 					return (
 						<CompositionSelectorItem
-							key={c.key}
+							key={c.key + c.type}
+							level={0}
 							currentComposition={currentComposition}
 							selectComposition={selectComposition}
 							tabIndex={tabIndex}
-							composition={c}
+							item={c}
 						/>
 					);
 				})}

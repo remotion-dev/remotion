@@ -1,4 +1,8 @@
-export const validateFolderName = (name: string) => {
+export const validateFolderName = (name: string | null) => {
+	if (name === null) {
+		return;
+	}
+
 	if (!isFolderNameValid(name)) {
 		throw new Error(
 			`Folder name can only contain a-z, A-Z, 0-9 and -. You passed ${name}`
