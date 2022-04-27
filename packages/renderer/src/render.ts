@@ -19,9 +19,9 @@ import {
 } from './assets/download-and-map-assets-to-file';
 import {BrowserLog} from './browser-log';
 import {cycleBrowserTabs} from './cycle-browser-tabs';
+import {handleJavascriptException} from './error-handling/handle-javascript-exception';
 import {getActualConcurrency} from './get-concurrency';
 import {getRealFrameRange} from './get-frame-to-render';
-import {handleJavascriptException} from './error-handling/handle-javascript-exception';
 import {DEFAULT_IMAGE_FORMAT} from './image-format';
 import {
 	getServeUrlWithFallback,
@@ -32,11 +32,11 @@ import {ChromiumOptions, openBrowser} from './open-browser';
 import {Pool} from './pool';
 import {prepareServer} from './prepare-server';
 import {provideScreenshot} from './provide-screenshot';
+import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
 import {seekToFrame} from './seek-to-frame';
 import {setPropsAndEnv} from './set-props-and-env';
 import {OnStartData, RenderFramesOutput} from './types';
 import {validateScale} from './validate-scale';
-import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
 
 type ConfigOrComposition =
 	| {

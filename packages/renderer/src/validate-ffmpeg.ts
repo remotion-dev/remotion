@@ -1,6 +1,6 @@
 import execa from 'execa';
-import os from 'os';
 import {statSync} from 'fs';
+import os from 'os';
 import {Internals} from 'remotion';
 
 const existsMap: {[key: string]: boolean} = {};

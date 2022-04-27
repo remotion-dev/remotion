@@ -1,4 +1,4 @@
-import {RenderInternals, ChromiumOptions} from '@remotion/renderer';
+import {ChromiumOptions, RenderInternals} from '@remotion/renderer';
 import fs from 'fs';
 import path from 'path';
 import {

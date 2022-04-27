@@ -14,10 +14,8 @@ export const inMarkerAreaRef = createRef<HTMLDivElement>();
 export const outMarkerAreaRef = createRef<HTMLDivElement>();
 
 export const TimelineInOutPointer: React.FC = () => {
-	const {
-		inFrame,
-		outFrame,
-	} = Internals.Timeline.useTimelineInOutFramePosition();
+	const {inFrame, outFrame} =
+		Internals.Timeline.useTimelineInOutFramePosition();
 	const videoConfig = Internals.useUnsafeVideoConfig();
 	const {get, width} = useGetXPositionOfItemInTimeline();
 
