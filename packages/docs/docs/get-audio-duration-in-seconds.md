@@ -1,9 +1,11 @@
 ---
-title: getAudioDuration()
-id: get-audio-duration
+title: getAudioDurationInSeconds()
+id: get-audio-duration-in-seconds
 ---
 
 _Part of the `@remotion/media-utils` package of helper functions._
+
+_Previously `getAudioDuration()`_
 
 Gets the duration in seconds of an audio source. Remotion will create an invisible `<audio>` tag, load the audio and return the duration.
 
@@ -25,14 +27,16 @@ A string pointing to an audio asset
 import { useCallback, useEffect } from "react";
 import { Audio, staticFile } from "remotion";
 // ---cut---
-import { getAudioDuration } from "@remotion/media-utils";
+import { getAudioDurationInSeconds } from "@remotion/media-utils";
 import music from "./music.mp3";
 
 const MyComp: React.FC = () => {
   const getDuration = useCallback(async () => {
-    const imported = await getAudioDuration(music); // 127.452
-    const publicFile = await getAudioDuration(staticFile("voiceover.wav")); // 33.221
-    const remote = await getAudioDuration(
+    const imported = await getAudioDurationInSeconds(music); // 127.452
+    const publicFile = await getAudioDurationInSeconds(
+      staticFile("voiceover.wav")
+    ); // 33.221
+    const remote = await getAudioDurationInSeconds(
       "https://example.com/remote-audio.aac"
     ); // 50.24
   }, []);
