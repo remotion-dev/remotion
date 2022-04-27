@@ -34,7 +34,7 @@
 		"minimist": "1.2.6",
 		"remotion": "3.0.0",
 		"semver": "7.3.5",
-		"webpack": "5.60.0"
+		"webpack": "5.72.0"
 	},
 	"peerDependencies": {
 		"react": ">=16.8.0",
