@@ -7,8 +7,7 @@ import {ExpandedFolderIcon} from '../icons/folder';
 import {StillIcon} from '../icons/still';
 import {Spacing} from './layout';
 
-const item: React.CSSProperties = {
-	paddingLeft: 8,
+const itemStyle: React.CSSProperties = {
 	paddingRight: 8,
 	paddingTop: 6,
 	paddingBottom: 6,
@@ -39,18 +38,19 @@ export type CompositionSelectorItemType =
 	  };
 
 export const CompositionSelectorItem: React.FC<{
-	composition: CompositionSelectorItemType;
+	item: CompositionSelectorItemType;
 	currentComposition: string | null;
 	tabIndex: number;
 	selectComposition: (c: TComposition) => void;
-}> = ({composition, currentComposition, tabIndex, selectComposition}) => {
+	level: number;
+}> = ({item, level, currentComposition, tabIndex, selectComposition}) => {
 	const selected = useMemo(() => {
-		if (composition.type === 'composition') {
-			return currentComposition === composition.composition.id;
+		if (item.type === 'composition') {
+			return currentComposition === item.composition.id;
 		}
 
 		return false;
-	}, [composition, currentComposition]);
+	}, [item, currentComposition]);
 	const [hovered, setHovered] = useState(false);
 	const onPointerEnter = useCallback(() => {
 		setHovered(true);
@@ -62,7 +62,7 @@ export const CompositionSelectorItem: React.FC<{
 
 	const style: React.CSSProperties = useMemo(() => {
 		return {
-			...item,
+			...itemStyle,
 			backgroundColor: hovered
 				? selected
 					? SELECTED_BACKGROUND
@@ -71,34 +71,49 @@ export const CompositionSelectorItem: React.FC<{
 				? SELECTED_BACKGROUND
 				: 'transparent',
 			color: selected || hovered ? 'white' : LIGHT_TEXT,
+			paddingLeft: 8 + level * 8,
 		};
-	}, [hovered, selected]);
+	}, [hovered, level, selected]);
 
 	const onClick: MouseEventHandler = useCallback(
 		(evt) => {
 			evt.preventDefault();
-			if (composition.type === 'composition') {
-				selectComposition(composition.composition);
+			if (item.type === 'composition') {
+				selectComposition(item.composition);
 			} else {
 				// Open / close folder
 			}
 		},
-		[composition, selectComposition]
+		[item, selectComposition]
 	);
 
-	if (composition.type === 'folder') {
+	if (item.type === 'folder') {
 		return (
-			<a
-				style={style}
-				onPointerEnter={onPointerEnter}
-				onPointerLeave={onPointerLeave}
-				tabIndex={tabIndex}
-				onClick={onClick}
-			>
-				<ExpandedFolderIcon style={iconStyle} />
-				<Spacing x={1} />
-				{composition.folderName}
-			</a>
+			<>
+				<a
+					style={style}
+					onPointerEnter={onPointerEnter}
+					onPointerLeave={onPointerLeave}
+					tabIndex={tabIndex}
+					onClick={onClick}
+				>
+					<ExpandedFolderIcon style={iconStyle} />
+					<Spacing x={1} />
+					{item.folderName}
+				</a>
+				{item.items.map((childItem) => {
+					return (
+						<CompositionSelectorItem
+							key={childItem.key + childItem.type}
+							currentComposition={currentComposition}
+							selectComposition={selectComposition}
+							item={childItem}
+							tabIndex={tabIndex}
+							level={level + 1}
+						/>
+					);
+				})}
+			</>
 		);
 	}
 
@@ -107,17 +122,17 @@ export const CompositionSelectorItem: React.FC<{
 			style={style}
 			onPointerEnter={onPointerEnter}
 			onPointerLeave={onPointerLeave}
-			href={composition.composition.id}
+			href={item.composition.id}
 			tabIndex={tabIndex}
 			onClick={onClick}
 		>
-			{isCompositionStill(composition.composition) ? (
+			{isCompositionStill(item.composition) ? (
 				<StillIcon style={iconStyle} />
 			) : (
 				<FilmIcon style={iconStyle} />
 			)}
 			<Spacing x={1} />
-			{composition.composition.id}
+			{item.composition.id}
 		</a>
 	);
 };

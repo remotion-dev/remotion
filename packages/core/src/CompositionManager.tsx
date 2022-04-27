@@ -87,6 +87,8 @@ export type CompositionManagerContext = {
 	compositions: TComposition[];
 	registerComposition: <T>(comp: TComposition<T>) => void;
 	unregisterComposition: (name: string) => void;
+	registerFolder: (name: string, parent: string | null) => void;
+	unregisterFolder: (name: string) => void;
 	currentComposition: string | null;
 	setCurrentComposition: (curr: string) => void;
 	registerSequence: (seq: TSequence) => void;
@@ -95,12 +97,15 @@ export type CompositionManagerContext = {
 	unregisterAsset: (id: string) => void;
 	sequences: TSequence[];
 	assets: TAsset[];
+	folders: TFolder[];
 };
 
 export const CompositionManager = createContext<CompositionManagerContext>({
 	compositions: [],
 	registerComposition: () => undefined,
 	unregisterComposition: () => undefined,
+	registerFolder: () => undefined,
+	unregisterFolder: () => undefined,
 	currentComposition: null,
 	setCurrentComposition: () => undefined,
 	registerSequence: () => undefined,
@@ -109,11 +114,17 @@ export const CompositionManager = createContext<CompositionManagerContext>({
 	unregisterAsset: () => undefined,
 	sequences: [],
 	assets: [],
+	folders: [],
 });
 
 export const compositionsRef = React.createRef<{
 	getCompositions: () => TCompMetadata[];
 }>();
+
+export type TFolder = {
+	name: string;
+	parent: string | null;
+};
 
 export const CompositionManagerProvider: React.FC<{
 	children: React.ReactNode;
@@ -125,6 +136,7 @@ export const CompositionManagerProvider: React.FC<{
 		null
 	);
 	const [assets, setAssets] = useState<TAsset[]>([]);
+	const [folders, setFolders] = useState<TFolder[]>([]);
 
 	const [sequences, setSequences] = useState<TSequence[]>([]);
 
@@ -167,6 +179,24 @@ export const CompositionManagerProvider: React.FC<{
 		});
 	}, []);
 
+	const registerFolder = useCallback((name: string, parent: string | null) => {
+		setFolders((prevFolders) => {
+			return [
+				...prevFolders,
+				{
+					name,
+					parent,
+				},
+			];
+		});
+	}, []);
+
+	const unregisterFolder = useCallback((name: string) => {
+		setFolders((prevFolders) => {
+			return prevFolders.filter((p) => p.name !== name);
+		});
+	}, []);
+
 	useLayoutEffect(() => {
 		if (typeof window !== 'undefined') {
 			window.remotion_collectAssets = () => {
@@ -199,6 +229,9 @@ export const CompositionManagerProvider: React.FC<{
 			unregisterAsset,
 			sequences,
 			assets,
+			folders,
+			registerFolder,
+			unregisterFolder,
 		};
 	}, [
 		compositions,
@@ -211,6 +244,9 @@ export const CompositionManagerProvider: React.FC<{
 		unregisterAsset,
 		sequences,
 		assets,
+		registerFolder,
+		unregisterFolder,
+		folders,
 	]);
 
 	return (
