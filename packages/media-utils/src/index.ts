@@ -1,3 +1,4 @@
+export {audioBufferToDataUrl} from './audio-buffer/audio-url-helpers';
 export {getAudioData} from './get-audio-data';
 export {
 	getAudioDuration,
@@ -9,4 +10,3 @@ export * from './types';
 export type {AudioData, VideoMetadata as VideoData} from './types';
 export {useAudioData} from './use-audio-data';
 export {visualizeAudio} from './visualize-audio';
-export {audioBufferToDataUrl} from './audio-buffer/audio-url-helpers';

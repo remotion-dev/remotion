@@ -1,5 +1,5 @@
-import fs from 'fs';
 import execa from 'execa';
+import fs from 'fs';
 import {isServeUrl} from './is-serve-url';
 
 export const deleteDirectory = async (directory: string): Promise<void> => {

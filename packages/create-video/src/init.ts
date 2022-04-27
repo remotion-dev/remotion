@@ -1,8 +1,10 @@
 import chalk from 'chalk';
 import execa from 'execa';
-import {stripAnsi} from './strip-ansi';
+import {degit} from './degit';
 import {Log} from './log';
 import {openInEditorFlow} from './open-in-editor-flow';
+import {patchPackageJson} from './patch-package-json';
+import {patchReadmeMd} from './patch-readme';
 import {
 	getRenderCommand,
 	getStartCommand,
@@ -10,9 +12,7 @@ import {
 } from './pkg-managers';
 import prompts, {selectAsync} from './prompts';
 import {resolveProjectRoot} from './resolve-project-root';
-import {patchReadmeMd} from './patch-readme';
-import {patchPackageJson} from './patch-package-json';
-import {degit} from './degit';
+import {stripAnsi} from './strip-ansi';
 
 type TEMPLATES = {
 	shortName: string;

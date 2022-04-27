@@ -1,5 +1,5 @@
-import {useIsStill} from '../helpers/is-current-selected-still';
 import {useCallback} from 'react';
+import {useIsStill} from '../helpers/is-current-selected-still';
 import {VolumeOffIcon, VolumeOnIcon} from '../icons/media-volume';
 import {persistMuteOption} from '../state/mute';
 import {ControlButton} from './ControlButton';

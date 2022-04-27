@@ -1,17 +1,14 @@
 module.exports = {
-	"singleQuote": true,
-	"bracketSpacing": false,
-	"jsxBracketSameLine": false,
-	"useTabs": true,
-	"overrides": [
+	singleQuote: true,
+	bracketSpacing: false,
+	useTabs: true,
+	overrides: [
 		{
-			"files": [
-				"*.yml"
-			],
-			"options": {
-				"singleQuote": false
-			}
-		}
+			files: ['*.yml'],
+			options: {
+				singleQuote: false,
+			},
+		},
 	],
-	"plugins": [require.resolve("prettier-plugin-organize-imports")],
-}
+	plugins: [require.resolve('prettier-plugin-organize-imports')],
+};

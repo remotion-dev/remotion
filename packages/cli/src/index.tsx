@@ -1,8 +1,9 @@
 import chalk from 'chalk';
 import {checkNodeVersion} from './check-version';
-import {handleCommonError} from './handle-common-errors';
+import {listCompositionsCommand} from './compositions';
 import {getCliOptions} from './get-cli-options';
 import {loadConfig} from './get-config-file-name';
+import {handleCommonError} from './handle-common-errors';
 import {initializeRenderCli} from './initialize-render-cli';
 import {lambdaCommand} from './lambda-command';
 import {loadConfigFile} from './load-config';
@@ -13,7 +14,6 @@ import {
 	parsedCli,
 	quietFlagProvided,
 } from './parse-command-line';
-import {listCompositionsCommand} from './compositions';
 import {previewCommand} from './preview';
 import {printHelp} from './print-help';
 import {createOverwriteableCliOutput, makeProgressBar} from './progress-bar';

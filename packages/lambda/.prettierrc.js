@@ -1,7 +1,6 @@
 module.exports = {
 	singleQuote: true,
 	bracketSpacing: false,
-	jsxBracketSameLine: false,
 	useTabs: true,
 	overrides: [
 		{
