@@ -1,5 +1,6 @@
 import {render} from '@testing-library/react';
 import React, {
+	ComponentType,
 	useCallback,
 	useContext,
 	useLayoutEffect,
@@ -7,12 +8,7 @@ import React, {
 	useState,
 } from 'react';
 import {act} from 'react-dom/test-utils';
-import {
-	CompositionManagerContext,
-	Internals,
-	LooseAnyComponent,
-	TAsset,
-} from 'remotion';
+import {CompositionManagerContext, Internals, TAsset} from 'remotion';
 
 let collectAssets = (): TAsset[] => [];
 
@@ -37,7 +33,6 @@ export const getAssetsForMarkup = async (
 		width: number;
 		height: number;
 		fps: number;
-		scale: number;
 	}
 ) => {
 	const collectedAssets: TAsset[][] = [];
@@ -79,7 +74,7 @@ export const getAssetsForMarkup = async (
 						id: 'markup',
 						component: React.lazy(() =>
 							Promise.resolve({
-								default: Markup as LooseAnyComponent<unknown>,
+								default: Markup as ComponentType<unknown>,
 							})
 						),
 						nonce: 0,

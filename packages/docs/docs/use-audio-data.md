@@ -13,6 +13,25 @@ This convienience function wraps the [`getAudioData()`](/docs/get-audio-data) fu
 
 Using this function, you can elegantly render a component based on audio properties, for example together with the [`visualizeAudio()`](/docs/visualize-audio) function.
 
+:::info
+Remote audio files need to support [CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS).
+
+<details>
+<summary>More info</summary>
+<ul>
+<li>
+Remotion's origin is usually <code>http://localhost:3000</code>, but it may be different if rendering on Lambda or the port is busy.
+</li>
+<li>
+You can use <a href="/docs/get-audio-duration-in-seconds"><code>getAudioDurationInSeconds()</code></a> without the audio needing CORS.
+</li>
+<li>
+You can <a href="/docs/chromium-flags#--disable-web-security">disable CORS</a> during renders.
+</li>
+</ul>
+</details>
+:::
+
 ## Arguments
 
 ### `src`

@@ -1006,7 +1006,35 @@ export const showcaseVideos: ShowcaseVideo[] = [
     ],
     author: {
       url: "https://gorhom.dev/",
-      name: "Mo Gorhim",
+      name: "Mo Gorhom",
+    },
+  },
+  {
+    title: "AnySticker Announcement",
+    type: "mux_video",
+    muxId: "GhK5YXKrtWTa2kEf7HajaE6DG2FtTNsZfW7mfIzQBJ00",
+    description:
+      "A hyped up announcement trailer for the new AnySticker app, made using React Three Fiber.",
+    height: 1080,
+    width: 1080,
+    submittedOn: new Date("11-15-2021"),
+    links: [
+      {
+        type: "source_code",
+        url: "https://github.com/JonnyBurger/anysticker-tutorials/blob/main/src/Announcement/index.tsx",
+      },
+      {
+        type: "video",
+        url: "https://twitter.com/JNYBGR/status/1458375456965763075",
+      },
+      {
+        type: "website",
+        url: "https://anysticker.com",
+      },
+    ],
+    author: {
+      url: "https://twitter.com/JNYBGR",
+      name: "JNYBGR",
     },
   },
   {
@@ -1061,6 +1089,70 @@ export const showcaseVideos: ShowcaseVideo[] = [
       name: 'Dave Kiss',
     },
   },
+  {
+    title: "Audio Player",
+    type: "mux_video",
+    muxId: "eKnHTDXWCBsQgm00vOl59ZVF300otry3STKzFe025O7M5E",
+    description: "A Reusable audio player template created using Remotion.",
+    height: 1920,
+    width: 1080,
+    submittedOn: new Date("03-29-2022"),
+    links: [
+      {
+        type: 'source_code',
+        url: 'https://github.com/varunpbardwaj/remotion-audio-player-template/',
+      },
+      {
+        type: "video",
+	url: "https://bardwaj.me/remotion/neenaadena/",
+      },
+    ],
+    author: {
+      "url": "https://bardwaj.me/",
+      "name": "Varun Bardwaj"
+    }
+},
+{
+    title: "Product Hunt Today",
+    type: "mux_video",
+    muxId: "9vegqVB2n02YrTL3c38HoOyd7Smytz01Hl3qaXI5KCOZM",
+    description: "Fully automated Twitter bot that tweets trending Product Hunt products every day.",
+    height: 720,
+    width: 720,
+    submittedOn: new Date("03-27-2022"),
+    links: [
+      {
+        type: "source_code",
+        url: "https://github.com/Kamigami55/product-hunt-today",
+      },
+      {
+        type: "video",
+        url: "https://twitter.com/ProductHunToday/status/1507997707008417792",
+      },
+      {
+        type: "website",
+        url: "https://twitter.com/ProductHunToday",
+      },
+    ],
+    author: {
+      "url": "https://easonchang.com/",
+      "name": "Eason Chang"
+    }
+  },
+  {
+	title: "Old french TV trailer (tribute)",
+	type: "mux_video",
+	muxId: "7tmF019NZLRuazoq5I7WFdacYz8bjJb4BTDEQ5cEkFe4",
+	description: "Video tribute to an old TV jingle called \"La trilogie du samedi\" broadcasted in the early 2000s in France on the channel M6.",
+	height: 1080,
+	width: 1920,
+	submittedOn: new Date("04-01-2022"),
+	links: [],
+	author: {
+		"url": "https://twitter.com/Slashgear_",
+		"name": "Antoine Caron & Mickaël Alves"
+	}
+},
 ];
 
 const dateString = (date: Date) =>

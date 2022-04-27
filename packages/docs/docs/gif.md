@@ -18,6 +18,8 @@ _required_
 
 The source of the GIF. Can be an URL or a local image - see [Importing assets](/docs/assets).
 
+> If you pass a remote URL, it must be [CORS-enabled](https://enable-cors.org/).
+
 ### `width`
 
 The display width.

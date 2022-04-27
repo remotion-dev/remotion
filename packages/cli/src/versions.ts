@@ -85,7 +85,12 @@ export const validateVersionsBeforeCommand = async () => {
 	Log.warn(
 		'- Remove the `^` character in front of a version to pin a package.'
 	);
-	if (!Internals.Logging.isEqualOrBelowLogLevel('verbose')) {
+	if (
+		!Internals.Logging.isEqualOrBelowLogLevel(
+			Internals.Logging.getLogLevel(),
+			'verbose'
+		)
+	) {
 		Log.warn(
 			'- Run `npx remotion versions --log=verbose` to see the path of the modules resolved.'
 		);
@@ -125,7 +130,12 @@ export const versionsCommand = async () => {
 		Log.info(
 			'- Remove the `^` character in front of a version to pin a package.'
 		);
-		if (!Internals.Logging.isEqualOrBelowLogLevel('verbose')) {
+		if (
+			!Internals.Logging.isEqualOrBelowLogLevel(
+				Internals.Logging.getLogLevel(),
+				'verbose'
+			)
+		) {
 			Log.info(
 				'- Rerun this command with --log=verbose to see the path of the modules resolved.'
 			);

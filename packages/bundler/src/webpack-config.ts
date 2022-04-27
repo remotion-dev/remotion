@@ -1,10 +1,33 @@
 import path from 'path';
 import {Internals, WebpackConfiguration, WebpackOverrideFn} from 'remotion';
+import ReactDOM from 'react-dom';
 import webpack, {ProgressPlugin} from 'webpack';
+import {LoaderOptions} from './esbuild-loader/interfaces';
 import {ReactFreshWebpackPlugin} from './fast-refresh';
 import {getWebpackCacheName} from './webpack-cache';
+import esbuild = require('esbuild');
+
+if (!ReactDOM || !ReactDOM.version) {
+	throw new Error('Could not find "react-dom" package. Did you install it?');
+}
+
+const reactDomVersion = ReactDOM.version.split('.')[0];
+if (reactDomVersion === '0') {
+	throw new Error(
+		`Version ${reactDomVersion} of "react-dom" is not supported by Remotion`
+	);
+}
+
+const shouldUseReactDomClient = parseInt(reactDomVersion, 10) >= 18;
+
+const esbuildLoaderOptions: LoaderOptions = {
+	target: 'chrome85',
+	loader: 'tsx',
+	implementation: esbuild,
+};
 
 type Truthy<T> = T extends false | '' | 0 | null | undefined ? never : T;
+
 function truthy<T>(value: T): value is Truthy<T> {
 	return Boolean(value);
 }
@@ -25,11 +48,11 @@ export const webpackConfig = ({
 	userDefinedComponent: string;
 	outDir: string;
 	environment: 'development' | 'production';
-	webpackOverride?: WebpackOverrideFn;
+	webpackOverride: WebpackOverrideFn;
 	onProgressUpdate?: (f: number) => void;
 	enableCaching?: boolean;
-	inputProps?: object;
-	envVariables?: Record<string, string>;
+	inputProps: object;
+	envVariables: Record<string, string>;
 	maxTimelineTracks: number;
 }): WebpackConfiguration => {
 	return webpackOverride({
@@ -84,7 +107,7 @@ export const webpackConfig = ({
 							'process.env.MAX_TIMELINE_TRACKS': maxTimelineTracks,
 							'process.env.INPUT_PROPS': JSON.stringify(inputProps ?? {}),
 							[`process.env.${Internals.ENV_VARIABLES_ENV_NAME}`]:
-								JSON.stringify(envVariables ?? {}),
+								JSON.stringify(envVariables),
 						}),
 				  ]
 				: [
@@ -100,6 +123,8 @@ export const webpackConfig = ({
 			filename: 'bundle.js',
 			path: outDir,
 			devtoolModuleFilenameTemplate: '[resource-path]',
+			assetModuleFilename:
+				environment === 'development' ? '[path][name][ext]' : '[hash][ext]',
 		},
 		devServer: {
 			contentBase: path.resolve(__dirname, '..', 'web'),
@@ -112,6 +137,9 @@ export const webpackConfig = ({
 				// Only one version of react
 				'react/jsx-runtime': require.resolve('react/jsx-runtime'),
 				react: require.resolve('react'),
+				'react-dom/client': shouldUseReactDomClient
+					? require.resolve('react-dom/client')
+					: require.resolve('react-dom'),
 				remotion: require.resolve('remotion'),
 				'react-native$': 'react-native-web',
 			},
@@ -121,40 +149,18 @@ export const webpackConfig = ({
 				{
 					test: /\.css$/i,
 					use: [require.resolve('style-loader'), require.resolve('css-loader')],
+					type: 'javascript/auto',
 				},
 				{
 					test: /\.(png|svg|jpg|jpeg|webp|gif|bmp|webm|mp4|mov|mp3|m4a|wav|aac)$/,
-					use: [
-						{
-							loader: require.resolve('file-loader'),
-							options: {
-								// default md4 not available in node17
-								hashType: 'md5',
-								// So you can do require('hi.png')
-								// instead of require('hi.png').default
-								esModule: false,
-								name: () => {
-									// Don't rename files in development
-									// so we can show the filename in the timeline
-									if (environment === 'development') {
-										return '[path][name].[ext]';
-									}
-
-									return '[md5:contenthash].[ext]';
-								},
-							},
-						},
-					],
+					type: 'asset/resource',
 				},
 				{
 					test: /\.tsx?$/,
 					use: [
 						{
-							loader: require.resolve('esbuild-loader'),
-							options: {
-								loader: 'tsx',
-								target: 'chrome85',
-							},
+							loader: require.resolve('./esbuild-loader/index.js'),
+							options: esbuildLoaderOptions,
 						},
 						environment === 'development'
 							? {
@@ -165,27 +171,15 @@ export const webpackConfig = ({
 				},
 				{
 					test: /\.(woff(2)?|otf|ttf|eot)(\?v=\d+\.\d+\.\d+)?$/,
-					use: [
-						{
-							loader: require.resolve('file-loader'),
-							options: {
-								// default md4 not available in node17
-								name: '[name].[ext]',
-								outputPath: 'fonts/',
-							},
-						},
-					],
+					type: 'asset/resource',
 				},
 				{
 					test: /\.jsx?$/,
 					exclude: /node_modules/,
 					use: [
 						{
-							loader: require.resolve('esbuild-loader'),
-							options: {
-								loader: 'jsx',
-								target: 'chrome85',
-							},
+							loader: require.resolve('./esbuild-loader/index.js'),
+							options: esbuildLoaderOptions,
 						},
 						environment === 'development'
 							? {

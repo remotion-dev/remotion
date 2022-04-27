@@ -167,7 +167,15 @@ export const getDisplayNameForEditor = (
 		return null;
 	}
 
-	return displayNameForEditor[editor] ?? editor;
+	const endsIn = Object.keys(displayNameForEditor).find((displayNameKey) => {
+		return editor.endsWith(displayNameKey);
+	});
+
+	return (
+		displayNameForEditor[editor] ??
+		displayNameForEditor[endsIn as keyof typeof displayNameForEditor] ??
+		editor
+	);
 };
 
 type Editor = typeof editorNames[number];
@@ -496,7 +504,7 @@ export function launchEditor({
 		_childProcess = child_process.spawn(
 			'cmd.exe',
 			['/C', editor].concat(args),
-			{stdio: 'inherit'}
+			{stdio: 'inherit', detached: true}
 		);
 	} else {
 		_childProcess = child_process.spawn(editor, args, {stdio: 'inherit'});

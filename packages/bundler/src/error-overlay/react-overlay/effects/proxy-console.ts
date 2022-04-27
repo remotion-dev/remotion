@@ -21,7 +21,6 @@ const reactFrameStack: ReactFrame[][] = [];
 // We're implementing just enough to get the invalid element type warnings
 // to display the component stack in React 15.6+:
 // https://github.com/facebook/react/pull/9679
-/// TODO: a more comprehensive implementation.
 
 const registerReactStack = () => {
 	if (typeof console !== 'undefined') {

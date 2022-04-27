@@ -100,7 +100,6 @@ export const processUpdate = function (
 			const applyResult = module.hot?.apply(applyOptions, applyCallback);
 			if ((applyResult as unknown as Promise<unknown>)?.then) {
 				// HotModuleReplacement.runtime.js refers to the result as `outdatedModules`
-				// eslint-disable-next-line promise/no-promise-in-callback
 				(applyResult as unknown as Promise<__WebpackModuleApi.ModuleId[]>)
 					.then((outdatedModules) => {
 						applyCallback(null, outdatedModules);

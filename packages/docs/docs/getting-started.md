@@ -14,7 +14,7 @@ The only dependencies for Remotion are FFMPEG and Node.js.
 
 See:
 
-- [Installing Node.js](https://nodejs.org/en/download/) - Minimum: Version 12.10.0
+- [Installing Node.js](https://nodejs.org/en/download/) - Minimum: Version 14.0.0
 - [Installing FFMPEG](https://github.com/adaptlearning/adapt_authoring/wiki/Installing-FFmpeg) - Minimum version: 4.1.0 - you will only need it for rendering.
 
 ## Installation
@@ -47,7 +47,7 @@ yarn create video
   <TabItem value="pnpm">
 
 ```bash
-pnpm dlx create-video
+pnpm create video
 ```
 
   </TabItem>

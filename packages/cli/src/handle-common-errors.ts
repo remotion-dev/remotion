@@ -1,7 +1,8 @@
 import {Log} from './log';
+import {printError} from './print-error';
 
-export const handleCommonError = (err: Error) => {
-	Log.error(err.stack);
+export const handleCommonError = async (err: Error) => {
+	await printError(err);
 	if (err.message.includes('Could not play video with')) {
 		Log.info();
 		Log.info(

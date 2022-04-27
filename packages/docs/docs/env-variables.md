@@ -5,7 +5,7 @@ title: Environment variables
 
 _Available from v2.1.2._
 
-Remotion supports environment variables being passed directly from the CLI, using a `.env` file and from the [`renderFrames()`](/docs/render-frames) function.
+Remotion supports environment variables being passed directly from the CLI, using a `.env` file and from the [`renderMedia()`](/docs/renderer/render-media) function.
 
 ## Passing variables from the CLI
 
@@ -34,11 +34,13 @@ in your project you can read `process.env` to get an object `{"MY_VAR": "hello",
 
 You can override the location of your dotenv file using the [configuration file setting](/docs/config#setdotenvlocation) or the [CLI flag](/docs/cli).
 
-## Setting via `renderFrames()`
+## Setting via `renderMedia()`
 
-The above two methods only work when rendering from the CLI. To pass environment variables while server-side-rendering, pass an object to the [`envVariables` option of `renderFrames()`](/docs/render-frames#env-variables).
+The above two methods only work when rendering from the CLI. To pass environment variables while server-side-rendering, pass an object to the [`envVariables` option of `renderMedia()`](/docs/renderer/render-media#envvariables).
 
 ## See also
 
-- [`renderFrames()` - envVariables](/docs/render-frames#env-variables)
+- [`renderMedia()` - envVariables](/docs/renderer/render-media#envvariables)
+- [`renderFrames()` - envVariables](/docs/renderer/render-frames#envvariables)
+- [`renderStill()` - envVariables](/docs/renderer/render-still#envvariables)
 - [dotenv](https://www.npmjs.com/package/dotenv)

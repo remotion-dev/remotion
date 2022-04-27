@@ -1,0 +1,15 @@
+{
+	"extends": "@jonny",
+	"rules": {
+		"no-console": "off",
+		"arrow-body-style": "off"
+	},
+	"overrides": [
+		{
+			"files": "./src/cli/**",
+			"rules": {
+				"no-console": "error"
+			}
+		}
+	]
+}

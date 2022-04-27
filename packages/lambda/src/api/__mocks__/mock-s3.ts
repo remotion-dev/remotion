@@ -1,0 +1,80 @@
+import {ReadStream} from 'fs';
+import {Privacy} from '../../defaults';
+import {AwsRegion} from '../../pricing/aws-regions';
+
+type S3MockFile = {
+	bucketName: string;
+	region: AwsRegion;
+	acl: 'public-read' | 'private';
+	key: string;
+	content: string | ReadStream;
+};
+
+let mockS3Store: S3MockFile[] = [];
+
+export const mockS3Upload = (file: S3MockFile) => {
+	mockS3Store.push(file);
+};
+
+export const writeMockS3File = ({
+	body,
+	privacy,
+	bucketName,
+	key,
+	region,
+}: {
+	body: string | ReadStream;
+	privacy: Privacy;
+	bucketName: string;
+	key: string;
+	region: AwsRegion;
+}) => {
+	mockS3Store.push({
+		content: body,
+		acl: privacy === 'public' ? 'public-read' : 'private',
+		bucketName,
+		key,
+		region,
+	});
+};
+
+export const readMockS3File = ({
+	region,
+	key,
+	bucketName,
+}: {
+	region: AwsRegion;
+	key: string;
+	bucketName: string;
+}) => {
+	return mockS3Store.find(
+		(s) => s.key === key && s.region === region && s.bucketName === bucketName
+	);
+};
+
+export const getS3FilesInBucket = ({
+	bucketName,
+	region,
+}: {
+	bucketName: string;
+	region: string;
+}) => {
+	return mockS3Store.filter(
+		(s) => s.bucketName === bucketName && s.region === region
+	);
+};
+
+export const mockDeleteS3File = ({
+	key,
+	region,
+	bucketName,
+}: {
+	key: string;
+	region: AwsRegion;
+	bucketName: string;
+}) => {
+	mockS3Store = mockS3Store.filter(
+		(s) =>
+			!(s.bucketName === bucketName && s.key === key && s.region === region)
+	);
+};

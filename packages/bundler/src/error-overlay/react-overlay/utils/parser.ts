@@ -139,5 +139,5 @@ export const parseError = async (
 		});
 	}
 
-	throw new Error('The error you provided does not contain a stack trace.');
+	return [];
 };

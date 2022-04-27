@@ -1,12 +1,8 @@
 import {createContext, FC, useContext, useEffect, useMemo} from 'react';
-import {AnyComponent} from './any-component';
+import React, {ComponentType} from 'react';
 import {CompositionManager} from './CompositionManager';
 import {useNonce} from './nonce';
-import {
-	addStaticComposition,
-	getIsEvaluation,
-	removeStaticComposition,
-} from './register-root';
+
 import {useLazyComponent} from './use-lazy-component';
 import {validateCompositionId} from './validation/validate-composition-id';
 import {validateDimension} from './validation/validate-dimensions';
@@ -18,7 +14,10 @@ const FolderContext = createContext<{folderName: string | null}>({
 	folderName: null,
 });
 
-export const Folder: FC<{name: string}> = ({name, children}) => {
+export const Folder: FC<{name: string; children: React.ReactNode}> = ({
+	name,
+	children,
+}) => {
 	const value = useMemo(() => {
 		return {folderName: name};
 	}, [name]);
@@ -28,12 +27,14 @@ export const Folder: FC<{name: string}> = ({name, children}) => {
 	);
 };
 
+type LooseComponentType<T> = ComponentType<T> | ((props: T) => React.ReactNode);
+
 export type CompProps<T> =
 	| {
-			lazyComponent: () => Promise<{default: AnyComponent<T>}>;
+			lazyComponent: () => Promise<{default: LooseComponentType<T>}>;
 	  }
 	| {
-			component: AnyComponent<T>;
+			component: LooseComponentType<T>;
 	  };
 
 export type StillProps<T> = {
@@ -96,23 +97,8 @@ export const Composition = <T,>({
 			nonce,
 		});
 
-		if (getIsEvaluation()) {
-			addStaticComposition({
-				component: lazy,
-				durationInFrames,
-				fps,
-				height,
-				id,
-				folderName,
-				width,
-				nonce,
-				defaultProps,
-			});
-		}
-
 		return () => {
 			unregisterComposition(id);
-			removeStaticComposition(id);
 		};
 	}, [
 		durationInFrames,

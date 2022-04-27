@@ -18,7 +18,9 @@ import {
 	TimelineContextValue,
 } from './timeline-position-state';
 
-export const RemotionRoot: React.FC = ({children}) => {
+export const RemotionRoot: React.FC<{
+	children: React.ReactNode;
+}> = ({children}) => {
 	const [remotionRootId] = useState(() => String(random(null)));
 	const [frame, setFrame] = useState<number>(window.remotion_initialFrame ?? 0);
 	const [playing, setPlaying] = useState<boolean>(false);
@@ -30,7 +32,7 @@ export const RemotionRoot: React.FC = ({children}) => {
 	useLayoutEffect(() => {
 		if (typeof window !== 'undefined') {
 			window.remotion_setFrame = (f: number) => {
-				const id = delayRender();
+				const id = delayRender(`Setting the current frame to ${f}`);
 				setFrame(f);
 				requestAnimationFrame(() => continueRender(id));
 			};
