@@ -24,8 +24,8 @@ import {
 	ServeUrlOrWebpackBundle,
 } from './legacy-webpack-config';
 import {ChromiumOptions} from './open-browser';
-import {renderFrames} from './render';
-import {spawnFfmpeg, stitchFramesToVideo} from './stitcher';
+import {renderFrames} from './render-frames';
+import {spawnFfmpeg, stitchFramesToVideo} from './stitch-frames-to-video';
 import {tmpDir} from './tmp-dir';
 import {OnStartData} from './types';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';

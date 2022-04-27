@@ -1,4 +1,4 @@
-import {stitchFramesToVideo} from '../stitcher';
+import {stitchFramesToVideo} from '../stitch-frames-to-video';
 
 describe('Should validate invalid data passed to stitchFramesToVideo', () => {
 	test('Invalid FPS', () => {
