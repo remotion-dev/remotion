@@ -24,7 +24,7 @@ export const loadConfigFile = async (
 	);
 	const result = await BundlerInternals.esbuild.build({
 		platform: 'node',
-		target: 'node12',
+		target: 'node14',
 		bundle: true,
 		entryPoints: [resolved],
 		tsconfig: isJavascript ? undefined : tsconfigJson,
