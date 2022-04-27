@@ -4,8 +4,8 @@
 // We support both, but Webpack chooses both of them and normalizes them to "react-dom/client",
 // hence why we import the right thing all the time but need to differentiate here
 
-import ReactDOM from 'react-dom/client';
 import type {render} from 'react-dom';
+import ReactDOM from 'react-dom/client';
 import {Overlay} from './Overlay';
 
 export const mountRemotionOverlay = () => {

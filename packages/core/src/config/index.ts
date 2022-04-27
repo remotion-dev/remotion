@@ -1,9 +1,16 @@
 import {Browser} from './browser';
 import {BrowserExecutable, setBrowserExecutable} from './browser-executable';
+import {
+	setChromiumDisableWebSecurity,
+	setChromiumHeadlessMode,
+	setChromiumIgnoreCertificateErrors,
+	setChromiumOpenGlRenderer,
+} from './chromium-flags';
 import {Codec, setCodec, setOutputFormat} from './codec';
 import {Concurrency, setConcurrency} from './concurrency';
 import {setCrf} from './crf';
 import {setDotEnvLocation} from './env-file';
+import {FfmpegExecutable, setFfmpegExecutable} from './ffmpeg-executable';
 import {FrameRange, setFrameRange} from './frame-range';
 import {ImageFormat, setImageFormat, StillImageFormat} from './image-format';
 import {setImageSequence} from './image-sequence';
@@ -19,16 +26,9 @@ import {PixelFormat, setPixelFormat} from './pixel-format';
 import {setPort} from './preview-server';
 import {setProResProfile} from './prores-profile';
 import {setQuality} from './quality';
-import {setWebpackCaching} from './webpack-caching';
-import {FfmpegExecutable, setFfmpegExecutable} from './ffmpeg-executable';
 import {setScale} from './scale';
 import {setPuppeteerTimeout} from './timeout';
-import {
-	setChromiumDisableWebSecurity,
-	setChromiumHeadlessMode,
-	setChromiumIgnoreCertificateErrors,
-	setChromiumOpenGlRenderer,
-} from './chromium-flags';
+import {setWebpackCaching} from './webpack-caching';
 
 export const Config = {
 	Preview: {

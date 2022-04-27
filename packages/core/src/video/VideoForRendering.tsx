@@ -12,9 +12,9 @@ import {
 	useMediaStartsAt,
 } from '../audio/use-audio-frame';
 import {CompositionManager} from '../CompositionManager';
+import {continueRender, delayRender} from '../delay-render';
 import {isApproximatelyTheSame} from '../is-approximately-the-same';
 import {random} from '../random';
-import {continueRender, delayRender} from '../ready-manager';
 import {SequenceContext} from '../sequencing';
 import {useAbsoluteCurrentFrame, useCurrentFrame} from '../use-frame';
 import {useUnsafeVideoConfig} from '../use-unsafe-video-config';

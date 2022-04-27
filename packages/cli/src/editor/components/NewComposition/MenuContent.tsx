@@ -34,9 +34,8 @@ export const MenuContent: React.FC<{
 	const keybindings = useKeybinding();
 	const containerRef = useRef<HTMLDivElement>(null);
 
-	const [subMenuActivated, setSubMenuActivated] = useState<SubMenuActivated>(
-		false
-	);
+	const [subMenuActivated, setSubMenuActivated] =
+		useState<SubMenuActivated>(false);
 
 	if (values[0].type === 'divider') {
 		throw new Error('first value cant be divide');

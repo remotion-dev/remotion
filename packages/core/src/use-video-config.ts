@@ -9,7 +9,6 @@ import {VideoConfig} from './video-config';
 export const useVideoConfig = (): VideoConfig => {
 	const videoConfig = useUnsafeVideoConfig();
 
-
 	if (!videoConfig) {
 		if (typeof window !== 'undefined' && window.remotion_isPlayer) {
 			throw new Error(

@@ -1,6 +1,6 @@
+import fs from 'fs';
 import os from 'os';
 import path from 'path';
-import fs from 'fs';
 import puppeteer from 'puppeteer-core';
 import {Browser, Internals} from 'remotion';
 import {

@@ -7,8 +7,8 @@ export const _screenshotTask = async (
 	format: StillImageFormat,
 	options: ScreenshotOptions
 ): Promise<Buffer | string> => {
-	const client = ((page as unknown) as {_client: CDPSession})._client;
-	const target = ((page as unknown) as {_target: Target})._target;
+	const client = (page as unknown as {_client: CDPSession})._client;
+	const target = (page as unknown as {_target: Target})._target;
 
 	const perfTarget = Internals.perf.startPerfMeasure('activate-target');
 

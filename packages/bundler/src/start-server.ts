@@ -1,24 +1,24 @@
+import crypto from 'crypto';
 import express from 'express';
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
 import {Internals, WebpackOverrideFn} from 'remotion';
 import webpack from 'webpack';
-import {getDesiredPort} from './get-port';
-import {getProjectInfo} from './project-info';
-import {isUpdateAvailableWithTimeout} from './update-available';
-import {webpackConfig} from './webpack-config';
-import crypto from 'crypto';
-import {indexHtml} from './static-preview';
+import {wdm} from './dev-middleware';
+import {getFileSource} from './error-overlay/react-overlay/utils/get-file-source';
 import {
 	getDisplayNameForEditor,
 	guessEditor,
 	launchEditor,
 } from './error-overlay/react-overlay/utils/open-in-editor';
 import {SymbolicatedStackFrame} from './error-overlay/react-overlay/utils/stack-frame';
+import {getDesiredPort} from './get-port';
 import {webpackHotMiddleware} from './hot-middleware';
-import {wdm} from './dev-middleware';
-import {getFileSource} from './error-overlay/react-overlay/utils/get-file-source';
+import {getProjectInfo} from './project-info';
+import {indexHtml} from './static-preview';
+import {isUpdateAvailableWithTimeout} from './update-available';
+import {webpackConfig} from './webpack-config';
 
 export const startServer = async (
 	entry: string,

@@ -1,6 +1,6 @@
 import {Internals} from 'remotion';
-import {readFile} from './assets/read-file';
 import {RawSourceMap, SourceMapConsumer} from 'source-map';
+import {readFile} from './assets/read-file';
 import {UnsymbolicatedStackFrame} from './parse-browser-error-stack';
 
 function extractSourceMapUrl(fileContents: string): string | null {

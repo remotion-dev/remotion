@@ -1,5 +1,4 @@
 import type memfs from 'memfs';
-
 import webpack, {Watching} from 'webpack';
 
 export type DevMiddlewareContext = {
