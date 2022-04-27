@@ -26,7 +26,9 @@ const warnAboutRequestVideoFrameCallback = () => {
 export const useVideoTexture = (
 	videoRef: React.RefObject<HTMLVideoElement>
 ): VideoTexture | null => {
-	const [loaded] = useState(() => delayRender());
+	const [loaded] = useState(() =>
+		delayRender(`Waiting for texture in useVideoTexture() to be loaded`)
+	);
 	const [videoTexture, setVideoTexture] = useState<VideoTexture | null>(null);
 	const frame = useCurrentFrame();
 

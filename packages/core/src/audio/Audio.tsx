@@ -17,6 +17,7 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 
 	const onError: React.ReactEventHandler<HTMLAudioElement> = useCallback(
 		(e) => {
+			console.log(e.currentTarget.error);
 			throw new Error(
 				`Could not play audio with src ${otherProps.src}: ${e.currentTarget.error}`
 			);

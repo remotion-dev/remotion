@@ -37,6 +37,8 @@ export type CommandLineOptions = {
 	frames: string | number;
 	scale: number;
 	sequence: boolean;
+	quiet: boolean;
+	q: boolean;
 	log: string;
 	help: boolean;
 	port: number;
@@ -45,19 +47,32 @@ export type CommandLineOptions = {
 	gl: OpenGlRenderer;
 };
 
+export const BooleanFlags = [
+	'force',
+	'overwrite',
+	'sequence',
+	'help',
+	'quiet',
+	'q',
+	// Lambda flags
+	'force',
+	'disable-chunk-optimization',
+	'save-browser-logs',
+	'disable-cloudwatch',
+	'yes',
+	'y',
+	'disable-web-security',
+	'ignore-certificate-errors',
+	'disable-headless',
+];
+
 export const parsedCli = minimist<CommandLineOptions>(process.argv.slice(2), {
-	boolean: [
-		'force',
-		'overwrite',
-		'sequence',
-		'help',
-		'disable-web-security',
-		'ignore-certificate-errors',
-		'disable-headless',
-	],
+	boolean: BooleanFlags,
 });
 
-export const parseCommandLine = (type: 'still' | 'sequence' | 'versions') => {
+export const parseCommandLine = (
+	type: 'still' | 'sequence' | 'lambda' | 'preview' | 'versions'
+) => {
 	if (parsedCli['pixel-format']) {
 		Config.Output.setPixelFormat(parsedCli['pixel-format']);
 	}
@@ -178,3 +193,5 @@ export const parseCommandLine = (type: 'still' | 'sequence' | 'versions') => {
 		Config.Rendering.setScale(parsedCli.scale);
 	}
 };
+
+export const quietFlagProvided = () => parsedCli.quiet || parsedCli.q;

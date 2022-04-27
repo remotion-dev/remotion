@@ -1,5 +1,6 @@
 import React from 'react';
-import { Composition, Folder, getInputProps, Still } from 'remotion';
+import {Composition, Folder, getInputProps, Still} from 'remotion';
+import {TwentyTwoKHzAudio} from './22KhzAudio';
 import BetaText from './BetaText';
 import {ColorInterpolation} from './ColorInterpolation';
 import {FontDemo} from './Fonts';
@@ -7,7 +8,9 @@ import {Framer} from './Framer';
 import {FreezeExample} from './Freeze/FreezeExample';
 import {MissingImg} from './MissingImg';
 import {OrbScene} from './Orb';
+import InfinityVideo from './ReallyLongVideo';
 import RemoteVideo from './RemoteVideo';
+import {Scripts} from './Scripts';
 import {SkipZeroFrame} from './SkipZeroFrame';
 import {SeriesTesting} from './StaggerTesting';
 import {StaticDemo} from './StaticServer';
@@ -19,7 +22,7 @@ import {VideoSpeed} from './VideoSpeed';
 import {VideoTesting} from './VideoTesting';
 
 // Use it to test that UI does not regress on weird CSS
-//import './weird-css.css';
+// import './weird-css.css';
 
 export const Index: React.FC = () => {
 	const inputProps = getInputProps();
@@ -157,6 +160,10 @@ export const Index: React.FC = () => {
 				height={1920}
 				fps={30}
 				durationInFrames={90}
+				defaultProps={{
+					line1: 'Test',
+					line2: 'text',
+				}}
 			/>
 			<Composition
 				id="mdx-test"
@@ -238,7 +245,7 @@ export const Index: React.FC = () => {
 				fps={30}
 				durationInFrames={100}
 				defaultProps={{
-					codec: 'mp4',
+					codec: 'mp4' as const,
 				}}
 			/>
 			<Composition
@@ -249,7 +256,7 @@ export const Index: React.FC = () => {
 				fps={30}
 				durationInFrames={100}
 				defaultProps={{
-					codec: 'webm',
+					codec: 'webm' as const,
 				}}
 			/>
 			<Composition
@@ -267,6 +274,14 @@ export const Index: React.FC = () => {
 				height={720}
 				fps={30}
 				durationInFrames={600}
+			/>
+			<Composition
+				id="2hrvideo"
+				component={InfinityVideo}
+				width={1920}
+				height={1080}
+				fps={30}
+				durationInFrames={2 * 60 * 60 * 30}
 			/>
 			<Composition
 				id="three-basic"
@@ -309,6 +324,14 @@ export const Index: React.FC = () => {
 				durationInFrames={100}
 			/>
 			<Composition
+				id="scripts"
+				component={Scripts}
+				width={1280}
+				height={720}
+				fps={30}
+				durationInFrames={100}
+			/>
+			<Composition
 				id="freeze-example"
 				component={FreezeExample}
 				width={1280}
@@ -339,6 +362,14 @@ export const Index: React.FC = () => {
 				height={1080}
 				fps={30}
 				durationInFrames={100}
+			/>
+			<Composition
+				id="22khz"
+				component={TwentyTwoKHzAudio}
+				width={1920}
+				height={1080}
+				fps={30}
+				durationInFrames={90}
 			/>
 			<Still id="Orb" component={OrbScene} width={2000} height={2000} />
 			<Still

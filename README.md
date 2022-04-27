@@ -28,7 +28,7 @@ Remotion is a suite of libraries building a foundation for **creating videos pro
 - **News Podcast Maker** [Watch](https://www.youtube.com/watch?v=Mwo5iNlWryg) • [Source code](https://github.com/FelippeChemello/podcast-maker/) • A fully automated News Podcast Maker.
 - **This video was made with code. But how?** [Watch](https://youtu.be/deg8bOoziaE) • [Source code](https://github.com/wcandillon/remotion-fireship) • A YouTube tutorial about Remotion, made with Remotion
 
-Feel free to pull request your creations!
+See even more creations in the [Showcase](https://remotion.dev/showcase).
 
 ## Get started
 

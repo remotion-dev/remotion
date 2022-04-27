@@ -16,4 +16,5 @@ const MdxTest: React.FC = () => {
 		</AbsoluteFill>
 	);
 };
+
 export default MdxTest;

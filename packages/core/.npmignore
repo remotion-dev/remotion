@@ -6,3 +6,4 @@ tsconfig.tsbuildinfo
 jest.config.js
 *.tgz
 generate-badges.js
+coverage

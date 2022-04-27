@@ -167,7 +167,15 @@ export const getDisplayNameForEditor = (
 		return null;
 	}
 
-	return displayNameForEditor[editor] ?? editor;
+	const endsIn = Object.keys(displayNameForEditor).find((displayNameKey) => {
+		return editor.endsWith(displayNameKey);
+	});
+
+	return (
+		displayNameForEditor[editor] ??
+		displayNameForEditor[endsIn as keyof typeof displayNameForEditor] ??
+		editor
+	);
 };
 
 type Editor = typeof editorNames[number];
@@ -403,7 +411,7 @@ export async function guessEditor(): Promise<Editor[]> {
 
 let _childProcess: ChildProcess | null = null;
 
-export async function launchEditor({
+export function launchEditor({
 	colNumber,
 	editor,
 	fileName,
@@ -417,14 +425,14 @@ export async function launchEditor({
 	vsCodeNewWindow: boolean;
 }): Promise<boolean> {
 	if (!fs.existsSync(fileName)) {
-		return false;
+		return Promise.resolve(false);
 	}
 
 	// Sanitize lineNumber to prevent malicious use on win32
 	// via: https://github.com/nodejs/node/blob/c3bb4b1aa5e907d489619fb43d233c3336bfc03d/lib/child_process.js#L333
 	// and it should be a positive integer
 	if (!(Number.isInteger(lineNumber) && lineNumber > 0)) {
-		return false;
+		return Promise.resolve(false);
 	}
 
 	// colNumber is optional, but should be a positive integer too
@@ -434,7 +442,7 @@ export async function launchEditor({
 	}
 
 	if (editor.toLowerCase() === 'none') {
-		return false;
+		return Promise.resolve(false);
 	}
 
 	if (
@@ -471,7 +479,7 @@ export async function launchEditor({
 				'dashes, slashes, and underscores.'
 		);
 		console.log();
-		return false;
+		return Promise.resolve(false);
 	}
 
 	const shouldOpenVsCodeNewWindow =
@@ -499,7 +507,10 @@ export async function launchEditor({
 			{stdio: 'inherit'}
 		);
 	} else {
-		_childProcess = child_process.spawn(editor, args, {stdio: 'inherit'});
+		_childProcess = child_process.spawn(editor, args, {
+			stdio: 'inherit',
+			detached: true,
+		});
 	}
 
 	_childProcess.on('exit', (errorCode) => {
@@ -513,5 +524,5 @@ export async function launchEditor({
 	_childProcess.on('error', (error) => {
 		console.log('Error opening file in editor', fileName, error.message);
 	});
-	return true;
+	return Promise.resolve(true);
 }

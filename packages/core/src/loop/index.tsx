@@ -9,6 +9,7 @@ export type LoopProps = {
 	times?: number;
 	layout?: 'absolute-fill' | 'none';
 	name?: string;
+	children: React.ReactNode;
 };
 
 export const Loop: React.FC<LoopProps> = ({

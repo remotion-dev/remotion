@@ -5,7 +5,7 @@ import {Concurrency, setConcurrency} from './concurrency';
 import {setCrf} from './crf';
 import {setDotEnvLocation} from './env-file';
 import {FrameRange, setFrameRange} from './frame-range';
-import {ImageFormat, setImageFormat} from './image-format';
+import {ImageFormat, setImageFormat, StillImageFormat} from './image-format';
 import {setImageSequence} from './image-sequence';
 import {LogLevel, setLogLevel} from './log';
 import {setMaxTimelineTracks} from './max-timeline-tracks';
@@ -129,6 +129,7 @@ export const Config = {
 		 * The frame count starts at 0.
 		 */
 		setFrameRange,
+
 		/**
 		 * Specify local ffmpeg executable.
 		 * Default: null, which will use ffmpeg available in PATH.
@@ -194,4 +195,5 @@ export type {
 	Browser,
 	FrameRange,
 	LogLevel,
+	StillImageFormat,
 };

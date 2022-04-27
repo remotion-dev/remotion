@@ -8,5 +8,3 @@ export type RenderFramesOutput = {
 export type OnStartData = {
 	frameCount: number;
 };
-
-export type OnErrorInfo = {error: Error; frame: number | null};

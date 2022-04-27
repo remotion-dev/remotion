@@ -1,4 +1,5 @@
 import React, {
+	ComponentType,
 	forwardRef,
 	MutableRefObject,
 	useCallback,
@@ -14,13 +15,12 @@ import {
 	CompositionManagerContext,
 	CompProps,
 	Internals,
-	LooseAnyComponent,
 	MediaVolumeContextValue,
+	PlayableMediaTag,
 	SetMediaVolumeContextValue,
 	SetTimelineContextValue,
 	TimelineContextValue,
 } from 'remotion';
-import {PlayableMediaTag} from 'remotion';
 import {PlayerEventEmitterContext} from './emitter-context';
 import {PlayerEmitter} from './event-emitter';
 import {PLAYER_CSS_CLASSNAME} from './player-css-classname';
@@ -61,14 +61,14 @@ export type PlayerProps<T> = {
 	CompProps<T>;
 
 Internals.CSSUtils.injectCSS(
-	Internals.CSSUtils.makeDefaultCSS(`.${PLAYER_CSS_CLASSNAME}`)
+	Internals.CSSUtils.makeDefaultCSS(`.${PLAYER_CSS_CLASSNAME}`, '#fff')
 );
 
 export const componentOrNullIfLazy = <T,>(
 	props: CompProps<T>
-): LooseAnyComponent<T> | null => {
+): ComponentType<T> | null => {
 	if ('component' in props) {
-		return props.component as LooseAnyComponent<T>;
+		return props.component as ComponentType<T>;
 	}
 
 	return null;
@@ -114,7 +114,7 @@ export const PlayerFn = <T,>(
 
 	const componentForValidation = componentOrNullIfLazy(
 		componentProps
-	) as LooseAnyComponent<unknown> | null;
+	) as ComponentType<unknown> | null;
 
 	// @ts-expect-error
 	if (componentForValidation?.type === Composition) {
@@ -296,7 +296,7 @@ export const PlayerFn = <T,>(
 			compositions: [
 				{
 					component: component as React.LazyExoticComponent<
-						LooseAnyComponent<unknown>
+						ComponentType<unknown>
 					>,
 					durationInFrames,
 					height: compositionHeight,

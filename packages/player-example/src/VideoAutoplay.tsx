@@ -8,11 +8,11 @@ export const VideoautoplayDemo = () => {
 			}}
 		>
 			<Audio
-				src={'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3'}
+				src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"
 				volume={0.2}
 			/>
 			<Series>
-				<Series.Sequence name="Video 1" key={'video-1'} durationInFrames={450}>
+				<Series.Sequence key="video-1" name="Video 1" durationInFrames={450}>
 					<Video
 						src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4"
 						volume={0.8}
@@ -25,15 +25,9 @@ export const VideoautoplayDemo = () => {
 						}}
 					/>
 				</Series.Sequence>
-				<Series.Sequence
-					name={`Video 2`}
-					key={`video-2`}
-					durationInFrames={1800}
-				>
+				<Series.Sequence key="video-2" name="Video 2" durationInFrames={1800}>
 					<Video
-						src={
-							'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4'
-						}
+						src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4"
 						volume={1}
 						startFrom={0}
 						endAt={1800}
@@ -44,7 +38,7 @@ export const VideoautoplayDemo = () => {
 						}}
 					/>
 				</Series.Sequence>
-				<Series.Sequence name="Video 3" key={'video-3'} durationInFrames={450}>
+				<Series.Sequence key="video-3" name="Video 3" durationInFrames={450}>
 					<Video
 						src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4"
 						volume={0.8}
