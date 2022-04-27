@@ -1,8 +1,11 @@
-import React, {useCallback, useContext, useEffect} from 'react';
+import React, {useCallback, useContext, useEffect, useMemo} from 'react';
 import {Internals, TComposition} from 'remotion';
 import {loadMarks} from '../state/marks';
 import {useZIndex} from '../state/z-index';
-import {CompositionSelectorItem} from './CompositionSelectorItem';
+import {
+	CompositionSelectorItem,
+	CompositionSelectorItemType,
+} from './CompositionSelectorItem';
 import {CurrentComposition} from './CurrentComposition';
 import {
 	getCurrentCompositionFromUrl,
@@ -62,14 +65,24 @@ export const CompositionSelector: React.FC = () => {
 		}
 	}, [compositions, currentComposition, selectComposition]);
 
+	const items = useMemo(() => {
+		return compositions.map((c): CompositionSelectorItemType => {
+			return {
+				composition: c,
+				type: 'composition',
+				key: c.id,
+			};
+		});
+	}, [compositions]);
+
 	return (
 		<div style={container}>
 			<CurrentComposition />
 			<div style={list}>
-				{compositions.map((c) => {
+				{items.map((c) => {
 					return (
 						<CompositionSelectorItem
-							key={c.id}
+							key={c.key}
 							currentComposition={currentComposition}
 							selectComposition={selectComposition}
 							tabIndex={tabIndex}
