@@ -18,4 +18,15 @@ const rules = {
 
 export = {
   rules,
+  config: {
+    recommended: {
+      "@remotion/no-mp4-import": "error",
+      "@remotion/warn-native-media-tag": "error",
+      "@remotion/deterministic-randomness": "error",
+      "@remotion/no-string-assets": "error",
+      "@remotion/even-dimensions": "error",
+      "@remotion/duration-in-frames": "error",
+      "@remotion/volume-callback": "error",
+    },
+  }
 };
