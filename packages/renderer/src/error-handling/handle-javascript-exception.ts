@@ -45,7 +45,7 @@ const cleanUpErrorMessage = (
 
 	const frames = exception.exceptionDetails.stackTrace?.callFrames.length ?? 0;
 	const split = errorMessage.split('\n');
-	return split.slice(0, split.length - frames).join('\n');
+	return split.slice(0, Math.max(1, split.length - frames)).join('\n');
 };
 
 export const removeDelayRenderStack = (message: string) => {
