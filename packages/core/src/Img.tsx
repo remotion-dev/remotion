@@ -1,5 +1,5 @@
 import React, {forwardRef, useCallback, useEffect, useState} from 'react';
-import {continueRender, delayRender} from './ready-manager';
+import {continueRender, delayRender} from './delay-render';
 
 const ImgRefForwarding: React.ForwardRefRenderFunction<
 	HTMLImageElement,

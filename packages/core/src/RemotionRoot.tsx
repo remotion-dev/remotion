@@ -7,9 +7,9 @@ import React, {
 } from 'react';
 import {SharedAudioContextProvider} from './audio/shared-audio-tags';
 import {CompositionManagerProvider} from './CompositionManager';
+import {continueRender, delayRender} from './delay-render';
 import {NonceContext, TNonceContext} from './nonce';
 import {random} from './random';
-import {continueRender, delayRender} from './ready-manager';
 import {
 	PlayableMediaTag,
 	SetTimelineContext,
