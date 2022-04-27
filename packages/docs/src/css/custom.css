@@ -6,6 +6,29 @@
  */
 
 /* You can override the default Infima variables here. */
+
+@font-face {
+  font-family: 'GTPlanar';
+  src: url('/img/gt-planar-regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'GTPlanar';
+  src: url('/img/gt-planar-regular.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'GTPlanar';
+  src: url('/img/gt-planar-bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+}
+
+
 :root {
   --ifm-color-primary: #0b84f3;
   --ifm-color-primary-dark: #0a77db;
@@ -15,6 +38,10 @@
   --ifm-color-primary-lighter: #2f96f6;
   --ifm-color-primary-lightest: #53a9f7;
   --ifm-code-font-size: 95%;
+  --ifm-font-family-base: "GTPlanar", system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, sans-serif, BlinkMacSystemFont,
+'Segoe UI', Helvetica, Arial, sans-serif, 'Apple Color Emoji',
+'Segoe UI Emoji', 'Segoe UI Symbol';
+--ifm-font-size-base: 17px;
 }
 
 [data-theme="light"] {
