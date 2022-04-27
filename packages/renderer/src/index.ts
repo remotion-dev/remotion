@@ -20,7 +20,7 @@ import {killAllBrowsers} from './open-browser';
 import {parseStack} from './parse-browser-error-stack';
 import {prepareServer} from './prepare-server';
 import {serveStatic} from './serve-static';
-import {spawnFfmpeg} from './stitcher';
+import {spawnFfmpeg} from './stitch-frames-to-video';
 import {tmpDir} from './tmp-dir';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
 import {binaryExists, validateFfmpeg} from './validate-ffmpeg';
@@ -34,7 +34,7 @@ export {FfmpegVersion} from './ffmpeg-flags';
 export {getCompositions} from './get-compositions';
 export {openBrowser} from './open-browser';
 export type {ChromiumOptions} from './open-browser';
-export {renderFrames} from './render';
+export {renderFrames} from './render-frames';
 export {
 	renderMedia,
 	RenderMediaOnProgress,
@@ -42,7 +42,7 @@ export {
 	StitchingState,
 } from './render-media';
 export {renderStill} from './render-still';
-export {StitcherOptions, stitchFramesToVideo} from './stitcher';
+export {StitcherOptions, stitchFramesToVideo} from './stitch-frames-to-video';
 export {SymbolicatedStackFrame} from './symbolicate-stacktrace';
 export {OnStartData, RenderFramesOutput} from './types';
 
