@@ -1,4 +1,4 @@
-#! /usr/bin/env node --max-old-space-size=10240
+#!/usr/bin/env node
 const dotenv = require('dotenv');
 dotenv.config();
 const {cli} = require('./dist/cli/index');
