@@ -13,9 +13,16 @@ import {
 	TComposition,
 	TSequence,
 } from './CompositionManager';
+import * as AssetCompression from './compress-assets';
 import {DEFAULT_BROWSER, getBrowser} from './config/browser';
 import {getBrowserExecutable} from './config/browser-executable';
-import {getCustomFfmpegExecutable} from './config/ffmpeg-executable';
+import {
+	DEFAULT_OPENGL_RENDERER,
+	getChromiumDisableWebSecurity,
+	getChromiumHeadlessMode,
+	getChromiumOpenGlRenderer,
+	getIgnoreCertificateErrors,
+} from './config/chromium-flags';
 import {
 	DEFAULT_CODEC,
 	getFinalOutputCodec,
@@ -28,6 +35,7 @@ import {
 	validateSelectedCrfAndCodecCombination,
 } from './config/crf';
 import {getDotEnvLocation} from './config/env-file';
+import {getCustomFfmpegExecutable} from './config/ffmpeg-executable';
 import {
 	getRange,
 	setFrameRangeFromCli,
@@ -62,18 +70,24 @@ import {getQuality} from './config/quality';
 import {getScale} from './config/scale';
 import {getStillFrame, setStillFrame} from './config/still-frame';
 import {
+	getCurrentPuppeteerTimeout,
+	setPuppeteerTimeout,
+} from './config/timeout';
+import {
 	DEFAULT_WEBPACK_CACHE_ENABLED,
 	getWebpackCaching,
 } from './config/webpack-caching';
 import * as CSSUtils from './default-css';
 import {FEATURE_FLAG_FIREFOX_SUPPORT} from './feature-flags';
 import {getRemotionEnvironment, RemotionEnvironment} from './get-environment';
+import {getPreviewDomElement} from './get-preview-dom-element';
 import {
 	INITIAL_FRAME_LOCAL_STORAGE_KEY,
 	setupInitialFrame,
 } from './initial-frame';
 import {isAudioCodec} from './is-audio-codec';
 import * as perf from './perf';
+import {DELAY_RENDER_CALLSTACK_TOKEN} from './ready-manager';
 import {getRoot} from './register-root';
 import {RemotionRoot} from './RemotionRoot';
 import {SequenceContext} from './sequencing';
@@ -88,6 +102,7 @@ import {
 	SetTimelineContextValue,
 	TimelineContextValue,
 } from './timeline-position-state';
+import {DEFAULT_PUPPETEER_TIMEOUT, setupPuppeteerTimeout} from './timeout';
 import {truthy} from './truthy';
 import {useLazyComponent} from './use-lazy-component';
 import {useUnsafeVideoConfig} from './use-unsafe-video-config';
@@ -101,6 +116,10 @@ import {validateDurationInFrames} from './validation/validate-duration-in-frames
 import {validateFps} from './validation/validate-fps';
 import {validateFrame} from './validation/validate-frame';
 import {validateNonNullImageFormat} from './validation/validate-image-format';
+import {
+	OpenGlRenderer,
+	validateOpenGlRenderer,
+} from './validation/validate-opengl-renderer';
 import {validateQuality} from './validation/validate-quality';
 import {
 	MediaVolumeContext,
@@ -114,23 +133,6 @@ import {
 	RemotionContextProvider,
 	useRemotionContexts,
 } from './wrap-remotion-context';
-import * as AssetCompression from './compress-assets';
-import {DEFAULT_PUPPETEER_TIMEOUT, setupPuppeteerTimeout} from './timeout';
-import {
-	getCurrentPuppeteerTimeout,
-	setPuppeteerTimeout,
-} from './config/timeout';
-import {
-	DEFAULT_OPENGL_RENDERER,
-	getChromiumDisableWebSecurity,
-	getChromiumHeadlessMode,
-	getChromiumOpenGlRenderer,
-	getIgnoreCertificateErrors,
-} from './config/chromium-flags';
-import {validateOpenGlRenderer} from './validation/validate-opengl-renderer';
-import {OpenGlRenderer} from './validation/validate-opengl-renderer';
-import {getPreviewDomElement} from './get-preview-dom-element';
-import {DELAY_RENDER_CALLSTACK_TOKEN} from './ready-manager';
 const Timeline = {...TimelinePosition, ...TimelineInOutPosition};
 
 // Mark them as Internals so use don't assume this is public

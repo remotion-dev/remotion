@@ -1,6 +1,6 @@
 import path from 'path';
-import {Internals, WebpackConfiguration, WebpackOverrideFn} from 'remotion';
 import ReactDOM from 'react-dom';
+import {Internals, WebpackConfiguration, WebpackOverrideFn} from 'remotion';
 import webpack, {ProgressPlugin} from 'webpack';
 import {LoaderOptions} from './esbuild-loader/interfaces';
 import {ReactFreshWebpackPlugin} from './fast-refresh';

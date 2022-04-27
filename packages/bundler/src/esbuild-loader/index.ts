@@ -1,5 +1,5 @@
-import path from 'path';
 import {transform as defaultEsbuildTransform} from 'esbuild';
+import path from 'path';
 import webpack from 'webpack';
 import {LoaderOptions} from './interfaces';
 
