@@ -123,6 +123,8 @@ export const webpackConfig = ({
 			filename: 'bundle.js',
 			path: outDir,
 			devtoolModuleFilenameTemplate: '[resource-path]',
+			assetModuleFilename:
+				environment === 'development' ? '[path][name][ext]' : '[hash][ext]',
 		},
 		devServer: {
 			contentBase: path.resolve(__dirname, '..', 'web'),
@@ -147,30 +149,11 @@ export const webpackConfig = ({
 				{
 					test: /\.css$/i,
 					use: [require.resolve('style-loader'), require.resolve('css-loader')],
+					type: 'javascript/auto',
 				},
 				{
 					test: /\.(png|svg|jpg|jpeg|webp|gif|bmp|webm|mp4|mov|mp3|m4a|wav|aac)$/,
-					use: [
-						{
-							loader: require.resolve('file-loader'),
-							options: {
-								// default md4 not available in node17
-								hashType: 'md5',
-								// So you can do require('hi.png')
-								// instead of require('hi.png').default
-								esModule: false,
-								name: () => {
-									// Don't rename files in development
-									// so we can show the filename in the timeline
-									if (environment === 'development') {
-										return '[path][name].[ext]';
-									}
-
-									return '[md5:contenthash].[ext]';
-								},
-							},
-						},
-					],
+					type: 'asset/resource',
 				},
 				{
 					test: /\.tsx?$/,
@@ -188,16 +171,7 @@ export const webpackConfig = ({
 				},
 				{
 					test: /\.(woff(2)?|otf|ttf|eot)(\?v=\d+\.\d+\.\d+)?$/,
-					use: [
-						{
-							loader: require.resolve('file-loader'),
-							options: {
-								// default md4 not available in node17
-								name: '[name].[ext]',
-								outputPath: 'fonts/',
-							},
-						},
-					],
+					type: 'asset/resource',
 				},
 				{
 					test: /\.jsx?$/,
