@@ -1,11 +1,10 @@
 import webpack, {Watching} from 'webpack';
-import {DevMiddlewareContext} from './types';
-
-import {setupOutputFileSystem} from './setup-output-filesystem';
-import {ready} from './ready';
-import {setupHooks} from './setup-hooks';
 import {getFilenameFromUrl} from './get-filename-from-url';
 import {MiddleWare, middleware} from './middleware';
+import {ready} from './ready';
+import {setupHooks} from './setup-hooks';
+import {setupOutputFileSystem} from './setup-output-filesystem';
+import {DevMiddlewareContext} from './types';
 
 const noop = () => undefined;
 

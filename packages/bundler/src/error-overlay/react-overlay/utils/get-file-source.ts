@@ -1,5 +1,5 @@
-import path from 'path';
 import fs from 'fs';
+import path from 'path';
 
 const allowedFileExtensions = ['js', 'ts', 'tsx', 'jsx', 'map', 'mjs'];
 

@@ -37,7 +37,7 @@
 		"@types/three": "^0.134.0",
 		"eslint": "8.13.0",
 		"prettier": "^2.0.5",
-		"prettier-plugin-organize-imports": "^1.1.1",
+		"prettier-plugin-organize-imports": "^2.3.4",
 		"react": "18.0.0",
 		"react-dom": "18.0.0",
 		"three": "^0.134.0",

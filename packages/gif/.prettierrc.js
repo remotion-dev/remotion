@@ -1,4 +1,4 @@
-{
+module.exports = {
 	"singleQuote": true,
 	"bracketSpacing": false,
 	"jsxBracketSameLine": false,
@@ -12,5 +12,6 @@
 				"singleQuote": false
 			}
 		}
-	]
+	],
+	"plugins": [require.resolve("prettier-plugin-organize-imports")],
 }
