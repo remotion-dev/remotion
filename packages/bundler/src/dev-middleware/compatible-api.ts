@@ -1,4 +1,4 @@
-import {Response, Request} from 'express';
+import {Request, Response} from 'express';
 import {ReadStream} from 'fs';
 
 export function getHeaderNames(res: Response) {

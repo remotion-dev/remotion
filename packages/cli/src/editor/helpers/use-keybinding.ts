@@ -51,8 +51,8 @@ export const useKeybinding = () => {
 		};
 	}, [context, paneId]);
 
-	return useMemo(() => ({registerKeybinding, isHighestContext}), [
-		registerKeybinding,
-		isHighestContext,
-	]);
+	return useMemo(
+		() => ({registerKeybinding, isHighestContext}),
+		[registerKeybinding, isHighestContext]
+	);
 };

@@ -1,4 +1,4 @@
-import {renderFrames} from '../render';
+import {renderFrames} from '../render-frames';
 
 describe('Should validate invalid data passed to renderFrames', () => {
 	test('Invalid FPS', () => {

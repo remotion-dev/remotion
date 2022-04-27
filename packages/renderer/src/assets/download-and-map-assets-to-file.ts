@@ -1,14 +1,13 @@
 import fs from 'fs';
 import path from 'path';
-
 import {Internals, random, TAsset} from 'remotion';
 import {ensureOutputDirectory} from '../ensure-output-directory';
+import {downloadFile} from './download-file';
+import {sanitizeFilePath} from './sanitize-filepath';
 
 export type RenderMediaOnDownload = (
 	src: string
 ) => ((progress: {percent: number}) => void) | undefined | void;
-import {sanitizeFilePath} from './sanitize-filepath';
-import {downloadFile} from './download-file';
 
 const isDownloadingMap: {[key: string]: boolean} = {};
 const hasBeenDownloadedMap: {[key: string]: boolean} = {};

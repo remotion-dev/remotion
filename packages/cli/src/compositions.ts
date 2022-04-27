@@ -1,8 +1,8 @@
-import path from 'path';
 import {getCompositions} from '@remotion/renderer';
+import path from 'path';
 import {loadConfig} from './get-config-file-name';
-import {parsedCli} from './parse-command-line';
 import {Log} from './log';
+import {parsedCli} from './parse-command-line';
 import {bundleOnCli} from './setup-cache';
 
 const max = (arr: number[]) => {

@@ -1,5 +1,4 @@
-import fs from 'fs';
-import {mkdirSync} from 'fs';
+import fs, {mkdirSync} from 'fs';
 import os from 'os';
 import path from 'path';
 

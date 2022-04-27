@@ -5,6 +5,7 @@
  */
 
 import {Request, Response} from 'express';
+import {parse} from 'url';
 import webpack from 'webpack';
 import {
 	HotMiddlewareMessage,
@@ -13,7 +14,6 @@ import {
 	ModuleMap,
 	WebpackStats,
 } from './types';
-import {parse} from 'url';
 
 const pathMatch = function (url: string, path: string) {
 	try {

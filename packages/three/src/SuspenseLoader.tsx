@@ -1,5 +1,5 @@
-import React, { Suspense, useEffect, useState } from 'react';
-import { continueRender, delayRender } from 'remotion';
+import React, {Suspense, useEffect, useState} from 'react';
+import {continueRender, delayRender} from 'remotion';
 
 const Unblocker: React.FC = () => {
 	const [handle] = useState(() =>
@@ -15,6 +15,6 @@ const Unblocker: React.FC = () => {
 
 export const SuspenseLoader: React.FC<{
 	children: React.ReactNode;
-}> = ({ children }) => {
+}> = ({children}) => {
 	return <Suspense fallback={<Unblocker />}>{children}</Suspense>;
 };

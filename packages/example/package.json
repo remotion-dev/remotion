@@ -64,7 +64,7 @@
 		"eslint-plugin-react": "7.29.4",
 		"eslint-plugin-react-hooks": "4.4.0",
 		"jest": "^27.2.4",
-		"prettier-plugin-organize-imports": "^1.1.1",
+		"prettier-plugin-organize-imports": "^2.3.4",
 		"ts-jest": "^27.0.5"
 	},
 	"publishConfig": {

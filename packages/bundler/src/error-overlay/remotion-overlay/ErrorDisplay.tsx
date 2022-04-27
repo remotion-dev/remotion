@@ -1,11 +1,11 @@
 import React, {useMemo} from 'react';
+import {getLocationFromBuildError} from '../react-overlay/effects/map-error-to-react-stack';
 import {ErrorRecord} from '../react-overlay/listen-to-runtime-errors';
 import {AskOnDiscord} from './AskOnDiscord';
+import {ErrorTitle} from './ErrorTitle';
 import {OpenInEditor} from './OpenInEditor';
 import {SearchGithubIssues} from './SearchGitHubIssues';
 import {StackElement} from './StackFrame';
-import {getLocationFromBuildError} from '../react-overlay/effects/map-error-to-react-stack';
-import {ErrorTitle} from './ErrorTitle';
 
 const stack: React.CSSProperties = {
 	marginTop: 17,

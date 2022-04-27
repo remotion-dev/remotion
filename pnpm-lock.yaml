@@ -26,7 +26,7 @@ importers:
       babel-loader: 8.2.2
       eslint: 8.13.0
       prettier: ^2.0.5
-      prettier-plugin-organize-imports: ^1.1.1
+      prettier-plugin-organize-imports: ^2.3.4
       react-refresh: 0.9.0
       remotion: 3.0.0
       typescript: ^4.5.5
@@ -46,7 +46,7 @@ importers:
       '@types/node': 16.10.2
       eslint: 8.13.0
       prettier: 2.4.1
-      prettier-plugin-organize-imports: 1.1.1_prettier@2.4.1+typescript@4.5.5
+      prettier-plugin-organize-imports: 2.3.4_prettier@2.4.1+typescript@4.5.5
       remotion: link:../core
       typescript: 4.5.5
 
@@ -75,7 +75,7 @@ importers:
       memfs: 3.4.0
       mime-types: 2.1.34
       prettier: ^2.0.5
-      prettier-plugin-organize-imports: ^1.1.1
+      prettier-plugin-organize-imports: ^2.3.4
       react: ^18.0.0
       react-dom: ^18.0.0
       react-refresh: 0.9.0
@@ -119,7 +119,7 @@ importers:
       eslint-plugin-react-hooks: 4.4.0_eslint@8.13.0
       jest: 27.2.4
       prettier: 2.4.1
-      prettier-plugin-organize-imports: 1.1.1_prettier@2.4.1+typescript@4.5.5
+      prettier-plugin-organize-imports: 2.3.4_prettier@2.4.1+typescript@4.5.5
       react: 18.0.0
       react-dom: 18.0.0_react@18.0.0
       ts-jest: 27.0.5_c7c6851c09cd607ef678ccb9c9b11e0f
@@ -150,7 +150,7 @@ importers:
       jest: ^27.2.4
       minimist: 1.2.6
       prettier: ^2.0.5
-      prettier-plugin-organize-imports: ^1.1.1
+      prettier-plugin-organize-imports: ^2.3.4
       react: ^18.0.0
       react-dom: ^18.0.0
       remotion: 3.0.0
@@ -186,7 +186,7 @@ importers:
       eslint-plugin-react-hooks: 4.4.0_eslint@8.13.0
       jest: 27.2.4
       prettier: 2.4.1
-      prettier-plugin-organize-imports: 1.1.1_prettier@2.4.1+typescript@4.5.5
+      prettier-plugin-organize-imports: 2.3.4_prettier@2.4.1+typescript@4.5.5
       react: 18.0.0
       react-dom: 18.0.0_react@18.0.0
       ts-jest: 27.0.5_c7c6851c09cd607ef678ccb9c9b11e0f
@@ -204,7 +204,7 @@ importers:
       eslint: 8.13.0
       jest: ^27.2.4
       prettier: ^2.0.5
-      prettier-plugin-organize-imports: ^1.1.1
+      prettier-plugin-organize-imports: ^2.3.4
       react: ^18.0.0
       react-dom: ^18.0.0
       react-test-renderer: ^18.0.0
@@ -223,7 +223,7 @@ importers:
       eslint: 8.13.0
       jest: 27.2.4
       prettier: 2.4.1
-      prettier-plugin-organize-imports: 1.1.1_prettier@2.4.1+typescript@4.5.5
+      prettier-plugin-organize-imports: 2.3.4_prettier@2.4.1+typescript@4.5.5
       react: 18.0.0
       react-dom: 18.0.0_react@18.0.0
       react-test-renderer: 18.0.0_react@18.0.0
@@ -243,7 +243,7 @@ importers:
       eslint: 8.13.0
       execa: 5.1.1
       prettier: 2.6.2
-      prettier-plugin-organize-imports: ^1.1.1
+      prettier-plugin-organize-imports: ^2.3.4
       prompts: 2.4.1
       tar: 6.1.11
       ts-node: ^9.1.1
@@ -261,7 +261,7 @@ importers:
       '@types/tar': 6.1.1
       eslint: 8.13.0
       prettier: 2.6.2
-      prettier-plugin-organize-imports: 1.1.1_prettier@2.6.2+typescript@4.5.5
+      prettier-plugin-organize-imports: 2.3.4_prettier@2.6.2+typescript@4.5.5
       ts-node: 9.1.1_typescript@4.5.5
       typescript: 4.5.5
 
@@ -423,7 +423,7 @@ importers:
       mdx-loader: 3.0.2
       polished: ^4.0.5
       prettier: ^2.0.5
-      prettier-plugin-organize-imports: ^1.1.1
+      prettier-plugin-organize-imports: ^2.3.4
       remotion: 3.0.0
       styled-components: ^5.1.1
       svg-path-properties: ^1.0.4
@@ -474,7 +474,7 @@ importers:
       eslint-plugin-react: 7.29.4_eslint@8.13.0
       eslint-plugin-react-hooks: 4.4.0_eslint@8.13.0
       jest: 27.2.4_ts-node@9.1.1
-      prettier-plugin-organize-imports: 1.1.1_prettier@2.4.1+typescript@4.5.5
+      prettier-plugin-organize-imports: 2.3.4_prettier@2.4.1+typescript@4.5.5
       ts-jest: 27.0.5_c7c6851c09cd607ef678ccb9c9b11e0f
 
   packages/gif:
@@ -488,7 +488,7 @@ importers:
       jest: ^27.2.4
       lru_map: 0.4.1
       prettier: 2.6.2
-      prettier-plugin-organize-imports: ^1.1.1
+      prettier-plugin-organize-imports: ^2.3.4
       react: 18.0.0
       react-dom: 18.0.0
       remotion: 3.0.0
@@ -506,7 +506,7 @@ importers:
       eslint: 8.13.0
       jest: 27.2.4
       prettier: 2.6.2
-      prettier-plugin-organize-imports: 1.1.1_prettier@2.6.2+typescript@4.5.5
+      prettier-plugin-organize-imports: 2.3.4_prettier@2.6.2+typescript@4.5.5
       react: 18.0.0
       react-dom: 18.0.0_react@18.0.0
       typescript: 4.5.5
@@ -610,7 +610,7 @@ importers:
       '@types/react': 18.0.1
       eslint: 8.13.0
       prettier: ^2.0.5
-      prettier-plugin-organize-imports: ^1.1.1
+      prettier-plugin-organize-imports: ^2.3.4
       remotion: 3.0.0
       typescript: ^4.5.5
     dependencies:
@@ -621,7 +621,7 @@ importers:
       '@types/react': 18.0.1
       eslint: 8.13.0
       prettier: 2.4.1
-      prettier-plugin-organize-imports: 1.1.1_prettier@2.4.1+typescript@4.5.5
+      prettier-plugin-organize-imports: 2.3.4_prettier@2.4.1+typescript@4.5.5
       typescript: 4.5.5
 
   packages/player:
@@ -636,7 +636,7 @@ importers:
       eslint: 8.13.0
       jest: ^27.2.4
       prettier: ^2.0.5
-      prettier-plugin-organize-imports: ^1.1.1
+      prettier-plugin-organize-imports: ^2.3.4
       react: ^18.0.0
       react-dom: ^18.0.0
       remotion: 3.0.0
@@ -656,7 +656,7 @@ importers:
       eslint: 8.13.0
       jest: 27.2.4
       prettier: 2.4.1
-      prettier-plugin-organize-imports: 1.1.1_prettier@2.4.1+typescript@4.5.5
+      prettier-plugin-organize-imports: 2.3.4_prettier@2.4.1+typescript@4.5.5
       react: 18.0.0
       react-dom: 18.0.0_react@18.0.0
       ts-jest: 27.0.5_c7c6851c09cd607ef678ccb9c9b11e0f
@@ -725,7 +725,7 @@ importers:
       jest: ^27.2.4
       p-limit: 3.1.0
       prettier: ^2.0.5
-      prettier-plugin-organize-imports: ^1.1.1
+      prettier-plugin-organize-imports: ^2.3.4
       puppeteer-core: 13.5.1
       react: 18.0.0
       react-dom: 18.0.0
@@ -754,7 +754,7 @@ importers:
       eslint: 8.13.0
       jest: 27.2.4
       prettier: 2.4.1
-      prettier-plugin-organize-imports: 1.1.1_prettier@2.4.1+typescript@4.5.5
+      prettier-plugin-organize-imports: 2.3.4_prettier@2.4.1+typescript@4.5.5
       react: 18.0.0
       react-dom: 18.0.0_react@18.0.0
       ts-jest: 27.0.5_c7c6851c09cd607ef678ccb9c9b11e0f
@@ -770,7 +770,7 @@ importers:
       '@types/three': ^0.134.0
       eslint: 8.13.0
       prettier: ^2.0.5
-      prettier-plugin-organize-imports: ^1.1.1
+      prettier-plugin-organize-imports: ^2.3.4
       react: 18.0.0
       react-dom: 18.0.0
       remotion: 3.0.0
@@ -787,7 +787,7 @@ importers:
       '@types/three': 0.134.0
       eslint: 8.13.0
       prettier: 2.4.1
-      prettier-plugin-organize-imports: 1.1.1_prettier@2.4.1+typescript@4.5.5
+      prettier-plugin-organize-imports: 2.3.4_prettier@2.4.1+typescript@4.5.5
       react: 18.0.0
       react-dom: 18.0.0_react@18.0.0
       three: 0.134.0
@@ -16381,26 +16381,6 @@ packages:
     engines: {node: '>=4'}
     dev: false
 
-  /prettier-plugin-organize-imports/1.1.1_prettier@2.4.1+typescript@4.5.5:
-    resolution: {integrity: sha512-rFA1lnek1FYkMGthm4xBKME41qUKItTovuo24bCGZu/Vu1n3gW71UPLAkIdwewwkZCe29gRVweSOPXvAdckFuw==}
-    peerDependencies:
-      prettier: '>=1.10'
-      typescript: '>=2.8.2'
-    dependencies:
-      prettier: 2.4.1
-      typescript: 4.5.5
-    dev: true
-
-  /prettier-plugin-organize-imports/1.1.1_prettier@2.6.2+typescript@4.5.5:
-    resolution: {integrity: sha512-rFA1lnek1FYkMGthm4xBKME41qUKItTovuo24bCGZu/Vu1n3gW71UPLAkIdwewwkZCe29gRVweSOPXvAdckFuw==}
-    peerDependencies:
-      prettier: '>=1.10'
-      typescript: '>=2.8.2'
-    dependencies:
-      prettier: 2.6.2
-      typescript: 4.5.5
-    dev: true
-
   /prettier-plugin-organize-imports/2.3.4_prettier@2.4.1+typescript@4.5.5:
     resolution: {integrity: sha512-R8o23sf5iVL/U71h9SFUdhdOEPsi3nm42FD/oDYIZ2PQa4TNWWuWecxln6jlIQzpZTDMUeO1NicJP6lLn2TtRw==}
     peerDependencies:
@@ -16408,6 +16388,16 @@ packages:
       typescript: '>=2.9'
     dependencies:
       prettier: 2.4.1
+      typescript: 4.5.5
+    dev: true
+
+  /prettier-plugin-organize-imports/2.3.4_prettier@2.6.2+typescript@4.5.5:
+    resolution: {integrity: sha512-R8o23sf5iVL/U71h9SFUdhdOEPsi3nm42FD/oDYIZ2PQa4TNWWuWecxln6jlIQzpZTDMUeO1NicJP6lLn2TtRw==}
+    peerDependencies:
+      prettier: '>=2.0'
+      typescript: '>=2.9'
+    dependencies:
+      prettier: 2.6.2
       typescript: 4.5.5
     dev: true
 

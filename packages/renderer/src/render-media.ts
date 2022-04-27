@@ -1,6 +1,6 @@
 import {ExecaChildProcess} from 'execa';
-import os from 'os';
 import fs from 'fs';
+import os from 'os';
 import path from 'path';
 import type {Browser as PuppeteerBrowser} from 'puppeteer-core';
 import {
@@ -12,24 +12,24 @@ import {
 	ProResProfile,
 	SmallTCompMetadata,
 } from 'remotion';
-import {stitchFramesToVideo, spawnFfmpeg} from './stitcher';
-import {renderFrames} from './render';
-import {BrowserLog} from './browser-log';
-import {OnStartData} from './types';
 import {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
-import {tmpDir} from './tmp-dir';
+import {BrowserLog} from './browser-log';
+import {canUseParallelEncoding} from './can-use-parallel-encoding';
+import {ensureFramesInOrder} from './ensure-frames-in-order';
+import {ensureOutputDirectory} from './ensure-output-directory';
 import {getFileExtensionFromCodec} from './get-extension-from-codec';
+import {getRealFrameRange} from './get-frame-to-render';
 import {
 	getServeUrlWithFallback,
 	ServeUrlOrWebpackBundle,
 } from './legacy-webpack-config';
-import {ensureOutputDirectory} from './ensure-output-directory';
-import {ensureFramesInOrder} from './ensure-frames-in-order';
-import {getRealFrameRange} from './get-frame-to-render';
 import {ChromiumOptions} from './open-browser';
-import {validateScale} from './validate-scale';
-import {canUseParallelEncoding} from './can-use-parallel-encoding';
+import {renderFrames} from './render-frames';
+import {spawnFfmpeg, stitchFramesToVideo} from './stitch-frames-to-video';
+import {tmpDir} from './tmp-dir';
+import {OnStartData} from './types';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
+import {validateScale} from './validate-scale';
 
 export type StitchingState = 'encoding' | 'muxing';
 
