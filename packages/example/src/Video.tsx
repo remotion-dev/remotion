@@ -28,7 +28,7 @@ export const Index: React.FC = () => {
 	const inputProps = getInputProps();
 	return (
 		<>
-			<Folder name="This-is-a-folder">
+			<Folder name="my-folder">
 				<Composition
 					id="dynamic-duration-in-folder"
 					component={VideoTesting}

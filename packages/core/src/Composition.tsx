@@ -1,14 +1,19 @@
-import {createContext, FC, useContext, useEffect, useMemo} from 'react';
-import React, {ComponentType} from 'react';
+import React, {
+	ComponentType,
+	createContext,
+	FC,
+	useContext,
+	useEffect,
+	useMemo,
+} from 'react';
 import {CompositionManager} from './CompositionManager';
 import {useNonce} from './nonce';
-
 import {useLazyComponent} from './use-lazy-component';
 import {validateCompositionId} from './validation/validate-composition-id';
 import {validateDimension} from './validation/validate-dimensions';
 import {validateDurationInFrames} from './validation/validate-duration-in-frames';
-import {validateFps} from './validation/validate-fps';
 import {validateFolderName} from './validation/validate-folder-name';
+import {validateFps} from './validation/validate-fps';
 
 const FolderContext = createContext<{folderName: string | null}>({
 	folderName: null,
@@ -84,6 +89,7 @@ export const Composition = <T,>({
 		if (folderName) {
 			validateFolderName(folderName);
 		}
+
 		validateFps(fps, 'as a prop of the <Composition/> component');
 		registerComposition<T>({
 			durationInFrames,
