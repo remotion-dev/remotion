@@ -78,6 +78,7 @@ import {
 	getWebpackCaching,
 } from './config/webpack-caching';
 import * as CSSUtils from './default-css';
+import {DELAY_RENDER_CALLSTACK_TOKEN} from './delay-render';
 import {FEATURE_FLAG_FIREFOX_SUPPORT} from './feature-flags';
 import {getRemotionEnvironment, RemotionEnvironment} from './get-environment';
 import {getPreviewDomElement} from './get-preview-dom-element';
@@ -87,7 +88,6 @@ import {
 } from './initial-frame';
 import {isAudioCodec} from './is-audio-codec';
 import * as perf from './perf';
-import {DELAY_RENDER_CALLSTACK_TOKEN} from './ready-manager';
 import {getRoot} from './register-root';
 import {RemotionRoot} from './RemotionRoot';
 import {SequenceContext} from './sequencing';
