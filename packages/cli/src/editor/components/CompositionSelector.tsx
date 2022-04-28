@@ -1,4 +1,10 @@
-import React, {useCallback, useContext, useEffect, useMemo} from 'react';
+import React, {
+	useCallback,
+	useContext,
+	useEffect,
+	useMemo,
+	useState,
+} from 'react';
 import {Internals, TComposition} from 'remotion';
 import {createFolderTree} from '../helpers/create-folder-tree';
 import {loadMarks} from '../state/marks';
@@ -28,6 +34,9 @@ const list: React.CSSProperties = {
 export const CompositionSelector: React.FC = () => {
 	const {compositions, setCurrentComposition, currentComposition, folders} =
 		useContext(Internals.CompositionManager);
+	const [foldersExpanded, setFoldersExpanded] = useState<
+		Record<string, boolean>
+	>({});
 	const {tabIndex} = useZIndex();
 	const setCurrentFrame = Internals.Timeline.useTimelineSetFrame();
 
@@ -42,6 +51,16 @@ export const CompositionSelector: React.FC = () => {
 		},
 		[setCurrentComposition, setCurrentFrame]
 	);
+
+	const toggleFolder = useCallback((f: string) => {
+		setFoldersExpanded((p) => {
+			const prev = p[f] ?? false;
+			return {
+				...p,
+				[f]: !prev,
+			};
+		});
+	}, []);
 
 	useEffect(() => {
 		if (currentComposition) {
@@ -63,8 +82,8 @@ export const CompositionSelector: React.FC = () => {
 	}, [compositions, currentComposition, selectComposition]);
 
 	const items = useMemo(() => {
-		return createFolderTree(compositions, folders);
-	}, [compositions, folders]);
+		return createFolderTree(compositions, folders, foldersExpanded);
+	}, [compositions, folders, foldersExpanded]);
 
 	return (
 		<div style={container}>
@@ -77,6 +96,7 @@ export const CompositionSelector: React.FC = () => {
 							level={0}
 							currentComposition={currentComposition}
 							selectComposition={selectComposition}
+							toggleFolder={toggleFolder}
 							tabIndex={tabIndex}
 							item={c}
 						/>
