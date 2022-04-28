@@ -37,7 +37,8 @@ test('Should create a good folder tree with 1 item inside and 1 item outside', (
 				name: 'my-folder',
 				parent: null,
 			},
-		]
+		],
+		{}
 	);
 
 	expect(tree).toEqual([
@@ -60,6 +61,8 @@ test('Should create a good folder tree with 1 item inside and 1 item outside', (
 					type: 'composition',
 				},
 			],
+			expanded: false,
+
 			key: 'my-folder',
 			type: 'folder',
 		},
@@ -109,16 +112,19 @@ test('Should handle nested folders well', () => {
 				name: 'my-folder',
 				parent: 'my-second-folder',
 			},
-		]
+		],
+		{}
 	);
 
 	expect(tree).toEqual([
 		{
 			folderName: 'my-third-folder',
+			expanded: false,
 			key: 'my-third-folder',
 			items: [
 				{
 					type: 'folder',
+					expanded: false,
 					key: 'my-second-folder',
 					folderName: 'my-second-folder',
 					items: [
@@ -126,7 +132,7 @@ test('Should handle nested folders well', () => {
 							type: 'folder',
 							key: 'my-folder',
 							folderName: 'my-folder',
-
+							expanded: false,
 							items: [
 								{
 									composition: {
