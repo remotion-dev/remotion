@@ -3,7 +3,7 @@ import {TComposition} from 'remotion';
 import {CLEAR_HOVER, LIGHT_TEXT, SELECTED_BACKGROUND} from '../helpers/colors';
 import {isCompositionStill} from '../helpers/is-composition-still';
 import {FilmIcon} from '../icons/film';
-import {ExpandedFolderIcon} from '../icons/folder';
+import {CollapsedFolderIcon, ExpandedFolderIcon} from '../icons/folder';
 import {StillIcon} from '../icons/still';
 import {Spacing} from './layout';
 
@@ -17,6 +17,9 @@ const itemStyle: React.CSSProperties = {
 	cursor: 'default',
 	alignItems: 'center',
 	marginBottom: 1,
+	appearance: 'none',
+	border: 'none',
+	width: '100%',
 };
 
 const iconStyle: React.CSSProperties = {
@@ -35,6 +38,7 @@ export type CompositionSelectorItemType =
 			type: 'folder';
 			folderName: string;
 			items: CompositionSelectorItemType[];
+			expanded: boolean;
 	  };
 
 export const CompositionSelectorItem: React.FC<{
@@ -42,8 +46,16 @@ export const CompositionSelectorItem: React.FC<{
 	currentComposition: string | null;
 	tabIndex: number;
 	selectComposition: (c: TComposition) => void;
+	toggleFolder: (folderName: string) => void;
 	level: number;
-}> = ({item, level, currentComposition, tabIndex, selectComposition}) => {
+}> = ({
+	item,
+	level,
+	currentComposition,
+	tabIndex,
+	selectComposition,
+	toggleFolder,
+}) => {
 	const selected = useMemo(() => {
 		if (item.type === 'composition') {
 			return currentComposition === item.composition.id;
@@ -81,50 +93,58 @@ export const CompositionSelectorItem: React.FC<{
 			if (item.type === 'composition') {
 				selectComposition(item.composition);
 			} else {
-				// Open / close folder
+				toggleFolder(item.folderName);
 			}
 		},
-		[item, selectComposition]
+		[item, selectComposition, toggleFolder]
 	);
 
 	if (item.type === 'folder') {
 		return (
 			<>
-				<a
+				<button
 					style={style}
 					onPointerEnter={onPointerEnter}
 					onPointerLeave={onPointerLeave}
 					tabIndex={tabIndex}
 					onClick={onClick}
+					type="button"
 				>
-					<ExpandedFolderIcon style={iconStyle} />
+					{item.expanded ? (
+						<ExpandedFolderIcon style={iconStyle} />
+					) : (
+						<CollapsedFolderIcon style={iconStyle} />
+					)}
 					<Spacing x={1} />
 					{item.folderName}
-				</a>
-				{item.items.map((childItem) => {
-					return (
-						<CompositionSelectorItem
-							key={childItem.key + childItem.type}
-							currentComposition={currentComposition}
-							selectComposition={selectComposition}
-							item={childItem}
-							tabIndex={tabIndex}
-							level={level + 1}
-						/>
-					);
-				})}
+				</button>
+				{item.expanded
+					? item.items.map((childItem) => {
+							return (
+								<CompositionSelectorItem
+									key={childItem.key + childItem.type}
+									currentComposition={currentComposition}
+									selectComposition={selectComposition}
+									item={childItem}
+									tabIndex={tabIndex}
+									level={level + 1}
+									toggleFolder={toggleFolder}
+								/>
+							);
+					  })
+					: null}
 			</>
 		);
 	}
 
 	return (
-		<a
+		<button
 			style={style}
 			onPointerEnter={onPointerEnter}
 			onPointerLeave={onPointerLeave}
-			href={item.composition.id}
 			tabIndex={tabIndex}
 			onClick={onClick}
+			type="button"
 		>
 			{isCompositionStill(item.composition) ? (
 				<StillIcon style={iconStyle} />
@@ -133,6 +153,6 @@ export const CompositionSelectorItem: React.FC<{
 			)}
 			<Spacing x={1} />
 			{item.composition.id}
-		</a>
+		</button>
 	);
 };

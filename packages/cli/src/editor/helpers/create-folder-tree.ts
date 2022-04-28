@@ -40,7 +40,8 @@ export const findItemListToPush = (
 const createFolderIfDoesNotExist = (
 	items: CompositionSelectorItemType[],
 	availableFolders: TFolder[],
-	folderItem: TFolder
+	folderItem: TFolder,
+	foldersExpanded: Record<string, boolean>
 ) => {
 	if (doesFolderExist(items, folderItem.name)) {
 		return;
@@ -52,7 +53,12 @@ const createFolderIfDoesNotExist = (
 			throw new Error('unexpectedly did not have parent');
 		}
 
-		createFolderIfDoesNotExist(items, availableFolders, parent);
+		createFolderIfDoesNotExist(
+			items,
+			availableFolders,
+			parent,
+			foldersExpanded
+		);
 	}
 
 	const itemList = findItemListToPush(items, folderItem.parent);
@@ -65,17 +71,19 @@ const createFolderIfDoesNotExist = (
 		folderName: folderItem.name,
 		items: [],
 		key: folderItem.name,
+		expanded: foldersExpanded[folderItem.name] ?? false,
 	});
 };
 
 export const createFolderTree = (
 	comps: TComposition<unknown>[],
-	folders: TFolder[]
+	folders: TFolder[],
+	foldersExpanded: Record<string, boolean>
 ): CompositionSelectorItemType[] => {
 	const items: CompositionSelectorItemType[] = [];
 
 	for (const folder of folders) {
-		createFolderIfDoesNotExist(items, folders, folder);
+		createFolderIfDoesNotExist(items, folders, folder, foldersExpanded);
 	}
 
 	for (const item of comps) {
