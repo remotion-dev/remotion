@@ -29,5 +29,6 @@ export const autoImports = {
   Config: "import {Config} from 'remotion'",
   Img: "import {Img} from 'remotion'",
   IFrame: "import {IFrame} from 'remotion'",
+  Folder: "import {Folder} from 'remotion'",
   styled: "import styled from 'styled-components'",
 };
