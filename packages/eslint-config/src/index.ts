@@ -1,7 +1,7 @@
 import { autoImports } from "./auto-import-rules";
 import { allowESLintShareableConfig } from "./patch-eslint";
 
-const baseExtends = ["eslint:recommended"];
+const baseExtends = ["eslint:recommended", "plugin:@remotion/recommended"];
 
 const getRules = (typescript: boolean) => {
   return {
@@ -560,14 +560,6 @@ const getRules = (typescript: boolean) => {
         imports: autoImports,
       },
     ],
-    // Enable Remotion specific rules
-    "@remotion/no-mp4-import": "off",
-    "@remotion/warn-native-media-tag": "warn",
-    "@remotion/deterministic-randomness": "warn",
-    "@remotion/no-string-assets": "warn",
-    "@remotion/even-dimensions": "warn",
-    "@remotion/duration-in-frames": "warn",
-    "@remotion/volume-callback": "warn",
     "@typescript-eslint/explicit-module-boundary-types": "off",
   };
 };
