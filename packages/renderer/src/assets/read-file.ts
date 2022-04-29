@@ -44,5 +44,11 @@ export const readFile = async (
 		return readFile(file.headers.location, redirectsSoFar + 1);
 	}
 
+	if ((file.statusCode as number) >= 400) {
+		throw new Error(
+			`Received a status code of ${file.statusCode} while downloading file ${url}`
+		);
+	}
+
 	return file;
 };
