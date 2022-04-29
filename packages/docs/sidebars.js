@@ -181,6 +181,7 @@ module.exports = {
         "freeze",
         "still",
         "series",
+        "folder",
         "easing",
       ],
     },
