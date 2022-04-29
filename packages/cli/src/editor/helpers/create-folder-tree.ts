@@ -2,7 +2,7 @@ import {TComposition, TFolder} from 'remotion';
 import {CompositionSelectorItemType} from '../components/CompositionSelectorItem';
 import {openFolderKey} from './persist-open-folders';
 
-const splitParentIntoNameAndParent = (
+export const splitParentIntoNameAndParent = (
 	name: string | null
 ): {name: string | null; parent: string | null} => {
 	if (name === null) {

@@ -6,7 +6,10 @@ import React, {
 	useState,
 } from 'react';
 import {Internals, TComposition} from 'remotion';
-import {createFolderTree} from '../helpers/create-folder-tree';
+import {
+	createFolderTree,
+	splitParentIntoNameAndParent,
+} from '../helpers/create-folder-tree';
 import {
 	ExpandedFoldersState,
 	loadExpandedFolders,
@@ -37,6 +40,21 @@ const list: React.CSSProperties = {
 	overflowY: 'auto',
 };
 
+export const getKeysToExpand = (
+	initialFolderName: string,
+	parentFolderName: string | null,
+	initial: string[] = []
+): string[] => {
+	initial.push(openFolderKey(initialFolderName, parentFolderName));
+
+	const {name, parent} = splitParentIntoNameAndParent(parentFolderName);
+	if (!name) {
+		return initial;
+	}
+
+	return getKeysToExpand(name, parent, initial);
+};
+
 export const CompositionSelector: React.FC = () => {
 	const {compositions, setCurrentComposition, currentComposition, folders} =
 		useContext(Internals.CompositionManager);
@@ -54,6 +72,20 @@ export const CompositionSelector: React.FC = () => {
 			const frameInBounds = Math.min(c.durationInFrames - 1, frame);
 			setCurrentFrame(frameInBounds);
 			setCurrentComposition(c.id);
+			const {folderName, parentFolderName} = c;
+			if (folderName !== null) {
+				setFoldersExpanded((ex) => {
+					const keysToExpand = getKeysToExpand(folderName, parentFolderName);
+					const newState: ExpandedFoldersState = {
+						...ex,
+					};
+					for (const key of keysToExpand) {
+						newState[key] = true;
+					}
+
+					return newState;
+				});
+			}
 		},
 		[setCurrentComposition, setCurrentFrame]
 	);
