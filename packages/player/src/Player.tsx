@@ -308,6 +308,7 @@ export const PlayerFn = <T,>(
 					scale: 1,
 					folderName: null,
 					defaultProps: undefined,
+					parentFolderName: null,
 				},
 			],
 			folders: [],

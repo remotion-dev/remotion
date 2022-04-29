@@ -16,6 +16,7 @@ export type TComposition<T = unknown> = {
 	durationInFrames: number;
 	id: string;
 	folderName: string | null;
+	parentFolderName: string | null;
 	component: LazyExoticComponent<ComponentType<T>>;
 	defaultProps: T | undefined;
 	nonce: number;
@@ -88,7 +89,7 @@ export type CompositionManagerContext = {
 	registerComposition: <T>(comp: TComposition<T>) => void;
 	unregisterComposition: (name: string) => void;
 	registerFolder: (name: string, parent: string | null) => void;
-	unregisterFolder: (name: string) => void;
+	unregisterFolder: (name: string, parent: string | null) => void;
 	currentComposition: string | null;
 	setCurrentComposition: (curr: string) => void;
 	registerSequence: (seq: TSequence) => void;
@@ -191,11 +192,16 @@ export const CompositionManagerProvider: React.FC<{
 		});
 	}, []);
 
-	const unregisterFolder = useCallback((name: string) => {
-		setFolders((prevFolders) => {
-			return prevFolders.filter((p) => p.name !== name);
-		});
-	}, []);
+	const unregisterFolder = useCallback(
+		(name: string, parent: string | null) => {
+			setFolders((prevFolders) => {
+				return prevFolders.filter(
+					(p) => !(p.name === name && p.parent === parent)
+				);
+			});
+		},
+		[]
+	);
 
 	useLayoutEffect(() => {
 		if (typeof window !== 'undefined') {

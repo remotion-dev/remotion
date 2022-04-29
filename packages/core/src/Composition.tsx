@@ -8,6 +8,7 @@ import React, {
 } from 'react';
 import {CompositionManager} from './CompositionManager';
 import {useNonce} from './nonce';
+import {truthy} from './truthy';
 import {useLazyComponent} from './use-lazy-component';
 import {validateCompositionId} from './validation/validate-composition-id';
 import {validateDimension} from './validation/validate-dimensions';
@@ -17,10 +18,12 @@ import {validateFps} from './validation/validate-fps';
 
 type FolderContextType = {
 	folderName: string | null;
+	parentName: string | null;
 };
 
 const FolderContext = createContext<FolderContextType>({
 	folderName: null,
+	parentName: null,
 });
 
 export const Folder: FC<{name: string; children: React.ReactNode}> = ({
@@ -30,17 +33,27 @@ export const Folder: FC<{name: string; children: React.ReactNode}> = ({
 	const parent = useContext(FolderContext);
 	const {registerFolder, unregisterFolder} = useContext(CompositionManager);
 
+	validateFolderName(name);
+
+	const parentNameArr = [parent.parentName, parent.folderName].filter(truthy);
+
+	const parentName =
+		parentNameArr.length === 0 ? null : parentNameArr.join('/');
+
 	const value = useMemo((): FolderContextType => {
-		return {folderName: name};
-	}, [name]);
+		return {
+			folderName: name,
+			parentName,
+		};
+	}, [name, parentName]);
 
 	useEffect(() => {
-		registerFolder(name, parent.folderName);
+		registerFolder(name, parentName);
 
 		return () => {
-			unregisterFolder(name);
+			unregisterFolder(name, parentName);
 		};
-	}, [name, parent.folderName, registerFolder, unregisterFolder]);
+	}, [name, parent.folderName, parentName, registerFolder, unregisterFolder]);
 
 	return (
 		<FolderContext.Provider value={value}>{children}</FolderContext.Provider>
@@ -84,7 +97,7 @@ export const Composition = <T,>({
 	const lazy = useLazyComponent(compProps);
 	const nonce = useNonce();
 
-	const {folderName} = useContext(FolderContext);
+	const {folderName, parentName} = useContext(FolderContext);
 
 	useEffect(() => {
 		// Ensure it's a URL safe id
@@ -93,16 +106,12 @@ export const Composition = <T,>({
 		}
 
 		validateCompositionId(id);
-		validateFolderName(folderName);
 		validateDimension(width, 'width', 'of the <Composition/> component');
 		validateDimension(height, 'height', 'of the <Composition/> component');
 		validateDurationInFrames(
 			durationInFrames,
 			'of the <Composition/> component'
 		);
-		if (folderName) {
-			validateFolderName(folderName);
-		}
 
 		validateFps(fps, 'as a prop of the <Composition/> component');
 		registerComposition<T>({
@@ -115,6 +124,7 @@ export const Composition = <T,>({
 			component: lazy,
 			defaultProps,
 			nonce,
+			parentFolderName: parentName,
 		});
 
 		return () => {
@@ -132,6 +142,7 @@ export const Composition = <T,>({
 		unregisterComposition,
 		width,
 		nonce,
+		parentName,
 	]);
 
 	return null;

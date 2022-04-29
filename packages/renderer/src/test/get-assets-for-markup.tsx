@@ -80,6 +80,7 @@ export const getAssetsForMarkup = async (
 						nonce: 0,
 						defaultProps: undefined,
 						folderName: null,
+						parentFolderName: null,
 					},
 				],
 				currentComposition: 'markup',

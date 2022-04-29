@@ -37,6 +37,7 @@ export type CompositionSelectorItemType =
 			key: string;
 			type: 'folder';
 			folderName: string;
+			parentName: string | null;
 			items: CompositionSelectorItemType[];
 			expanded: boolean;
 	  };
