@@ -28,6 +28,8 @@ const Wrapper: React.FC<{
 								})
 							),
 							defaultProps: undefined,
+							folderName: null,
+							parentFolderName: null,
 						},
 					],
 					currentComposition: 'markup',
