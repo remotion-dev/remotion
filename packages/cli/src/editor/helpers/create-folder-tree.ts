@@ -113,7 +113,24 @@ export const createFolderTree = (
 	foldersExpanded: Record<string, boolean>
 ): CompositionSelectorItemType[] => {
 	const items: CompositionSelectorItemType[] = [];
+	const uniqueFolderKeys: string[] = [];
 	for (const folder of folders) {
+		const folderKey = openFolderKey(folder.name, folder.parent);
+		if (uniqueFolderKeys.includes(folderKey)) {
+			if (folder.parent) {
+				throw new Error(
+					`Multiple folders with the name ${folder.name} inside the folder ${folder.parent} exist. Folder names must be unique.`
+				);
+			}
+
+			throw new Error(
+				'Multiple folders with the name ' +
+					folder.name +
+					' exist. Folder names must be unique.'
+			);
+		}
+
+		uniqueFolderKeys.push(folderKey);
 		createFolderIfDoesNotExist(items, folders, folder, foldersExpanded);
 	}
 
