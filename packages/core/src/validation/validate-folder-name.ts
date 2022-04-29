@@ -1,10 +1,12 @@
 export const validateFolderName = (name: string | null) => {
-	if (name === undefined) {
-		throw new Error('You must pass a name to a <Folder />.');
+	if (name === undefined || name === null) {
+		throw new TypeError('You must pass a name to a <Folder />.');
 	}
 
-	if (name === null) {
-		return;
+	if (typeof name !== 'string') {
+		throw new TypeError(
+			`The "name" you pass into <Folder /> must be a string. Got: ${typeof name}`
+		);
 	}
 
 	if (!isFolderNameValid(name)) {
