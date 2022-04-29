@@ -1,4 +1,8 @@
 export const validateFolderName = (name: string | null) => {
+	if (name === undefined) {
+		throw new Error('You must pass a name to a <Folder />.');
+	}
+
 	if (name === null) {
 		return;
 	}
