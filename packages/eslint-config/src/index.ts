@@ -1,7 +1,7 @@
 import { autoImports } from "./auto-import-rules";
 import { allowESLintShareableConfig } from "./patch-eslint";
 
-const baseExtends = ["eslint:recommended", "plugin:@remotion/eslint-plugin/recommended"];
+const baseExtends = ["eslint:recommended", "plugin:@remotion/recommended"];
 
 const getRules = (typescript: boolean) => {
   return {
