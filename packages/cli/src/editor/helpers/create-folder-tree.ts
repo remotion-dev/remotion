@@ -1,5 +1,6 @@
 import {TComposition, TFolder} from 'remotion';
 import {CompositionSelectorItemType} from '../components/CompositionSelectorItem';
+import {openFolderKey} from './persist-open-folders';
 
 const splitParentIntoNameAndParent = (
 	name: string | null
@@ -99,7 +100,9 @@ const createFolderIfDoesNotExist = (
 		folderName: folderItem.name,
 		items: [],
 		key: folderItem.name,
-		expanded: foldersExpanded[folderItem.name] ?? false,
+		expanded:
+			foldersExpanded[openFolderKey(folderItem.name, folderItem.parent)] ??
+			false,
 		parentName: folderItem.parent,
 	});
 };
