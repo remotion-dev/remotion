@@ -483,7 +483,7 @@ export const MenuToolbar: React.FC = () => {
 				);
 			})}
 			<UpdateCheck />
-			<div style={flex}></div>
+			<div style={flex} />
 			<div style={cwd} title={window.remotion_cwd}>
 				{window.remotion_projectName}
 			</div>
