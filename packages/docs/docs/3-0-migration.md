@@ -171,7 +171,7 @@ await renderStill({
 });
 ```
 
-```tsx title="Previously"
+```tsx title="Now"
 await renderStill({
   output: "/tmp/still.png",
   serveUrl: "/tmp/react-motion-graphics8zfs9d/index.html",
