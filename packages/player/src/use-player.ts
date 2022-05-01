@@ -9,7 +9,7 @@ export const usePlayer = (): {
 	isLastFrame: boolean;
 	emitter: PlayerEmitter;
 	playing: boolean;
-	play: (e?: SyntheticEvent) => void;
+	play: (e?: SyntheticEvent<Element | KeyboardEvent, Event>) => void;
 	pause: () => void;
 	seek: (newFrame: number) => void;
 	getCurrentFrame: () => number;
@@ -45,7 +45,7 @@ export const usePlayer = (): {
 	);
 
 	const play = useCallback(
-		(e?: SyntheticEvent) => {
+		(e?: SyntheticEvent<Element | KeyboardEvent, Event>) => {
 			if (imperativePlaying.current) {
 				return;
 			}
@@ -57,6 +57,7 @@ export const usePlayer = (): {
 			/**
 			 * Play silent audio tags to warm them up for autoplay
 			 */
+			console.log({audioContext, e});
 			if (audioContext && audioContext.numberOfAudioTags > 0 && e) {
 				audioContext.playAllAudios();
 			}

@@ -85,7 +85,7 @@ export const RemotionRoot: React.FC<{
 					<CompositionManagerProvider>
 						<SharedAudioContextProvider
 							// In the preview, which is mostly played on Desktop, we opt out of the autoplay policy fix as described in https://github.com/remotion-dev/remotion/pull/554, as it mostly applies to mobile.
-							numberOfAudioTags={0}
+							numberOfAudioTags={10}
 						>
 							{children}
 						</SharedAudioContextProvider>

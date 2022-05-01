@@ -10,8 +10,10 @@ export const playAndHandleNotAllowedError = (
 	}
 
 	const prom = current.play();
+	console.log('triggering play', current.src, current.muted);
 	if (prom.catch) {
 		prom.catch((err: Error) => {
+			console.log({err});
 			if (!current) {
 				return;
 			}

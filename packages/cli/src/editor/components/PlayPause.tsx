@@ -1,5 +1,5 @@
 import {PlayerInternals} from '@remotion/player';
-import React, {useCallback, useEffect} from 'react';
+import React, {SyntheticEvent, useCallback, useEffect} from 'react';
 import {Internals} from 'remotion';
 import {useIsStill} from '../helpers/is-current-selected-still';
 import {useKeybinding} from '../helpers/use-keybinding';
@@ -38,11 +38,11 @@ export const PlayPause: React.FC<{
 	}, [isStill, pause]);
 
 	const onSpace = useCallback(
-		(e: KeyboardEvent) => {
+		(e: SyntheticEvent<KeyboardEvent>) => {
 			if (playing) {
 				pause();
 			} else {
-				play();
+				play(e);
 			}
 
 			e.preventDefault();

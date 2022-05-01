@@ -33,7 +33,7 @@ export const useMediaInTimeline = ({
 }: {
 	volume: VolumeProp | undefined;
 	mediaVolume: number;
-	mediaRef: RefObject<HTMLAudioElement | HTMLVideoElement>;
+	mediaRef: RefObject<HTMLAudioElement | HTMLVideoElement> | null;
 	src: string | undefined;
 	mediaType: 'audio' | 'video';
 }) => {
@@ -85,7 +85,7 @@ export const useMediaInTimeline = ({
 	}, [initialVolume, mediaType, src, volume]);
 
 	useEffect(() => {
-		if (!mediaRef.current) {
+		if (!mediaRef || !mediaRef.current) {
 			return;
 		}
 
@@ -136,6 +136,10 @@ export const useMediaInTimeline = ({
 			play: () => {
 				if (!playing) {
 					// Don't play if for example in a <Freeze> state.
+					return;
+				}
+
+				if (!mediaRef) {
 					return;
 				}
 

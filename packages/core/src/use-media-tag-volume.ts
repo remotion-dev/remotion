@@ -3,11 +3,15 @@ import {RefObject, useEffect, useState} from 'react';
 // Returns the real volume of the audio or video while playing,
 // no matter what the supposed volume should be
 export const useMediaTagVolume = (
-	mediaRef: RefObject<HTMLVideoElement | HTMLAudioElement>
+	mediaRef: RefObject<HTMLVideoElement | HTMLAudioElement> | null
 ) => {
 	const [actualVolume, setActualVolume] = useState(1);
 
 	useEffect(() => {
+		if (!mediaRef) {
+			return;
+		}
+
 		const ref = mediaRef.current;
 		if (!ref) {
 			return;
@@ -22,6 +26,10 @@ export const useMediaTagVolume = (
 	}, [mediaRef]);
 
 	useEffect(() => {
+		if (!mediaRef) {
+			return;
+		}
+
 		const ref = mediaRef.current;
 		if (!ref) {
 			return;

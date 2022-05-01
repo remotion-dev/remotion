@@ -1,3 +1,4 @@
+import React from 'react';
 import type {render} from 'react-dom';
 import ReactDOM from 'react-dom/client';
 import {Internals} from 'remotion';
@@ -9,9 +10,11 @@ Internals.CSSUtils.injectCSS(
 );
 
 const content = (
-	<Internals.RemotionRoot>
-		<Editor />
-	</Internals.RemotionRoot>
+	<React.StrictMode>
+		<Internals.RemotionRoot>
+			<Editor />
+		</Internals.RemotionRoot>
+	</React.StrictMode>
 );
 
 if (ReactDOM.createRoot) {

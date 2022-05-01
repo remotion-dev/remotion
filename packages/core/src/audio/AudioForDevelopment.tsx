@@ -12,13 +12,13 @@ import {useSharedAudio} from './shared-audio-tags';
 import {useFrameForVolumeProp} from './use-audio-frame';
 
 const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
-	HTMLAudioElement,
+	HTMLAudioElement | null,
 	RemotionAudioProps & {
 		shouldPreMountAudioTags: boolean;
 	}
 > = (props, ref) => {
 	const [initialShouldPreMountAudioElements] = useState(
-		props.shouldPreMountAudioTags
+		() => props.shouldPreMountAudioTags
 	);
 	if (props.shouldPreMountAudioTags !== initialShouldPreMountAudioElements) {
 		throw new Error(
@@ -41,42 +41,55 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		};
 	}, [mediaMuted, muted, nativeProps]);
 
-	const audioRef = useSharedAudio(propsToPass).el;
+	const audioRef = useSharedAudio(propsToPass);
 
-	const actualVolume = useMediaTagVolume(audioRef);
+	const actualVolume = useMediaTagVolume(audioRef?.el ?? null);
 
 	useSyncVolumeWithMediaTag({
 		volumePropFrame,
 		actualVolume,
 		volume,
 		mediaVolume,
-		mediaRef: audioRef,
+		mediaRef: audioRef?.el ?? null,
 	});
 
 	useMediaInTimeline({
 		volume,
 		mediaVolume,
-		mediaRef: audioRef,
+		mediaRef: audioRef?.el ?? null,
 		src: nativeProps.src,
 		mediaType: 'audio',
 	});
 
 	useMediaPlayback({
-		mediaRef: audioRef,
+		mediaRef: audioRef?.el ?? null,
 		src: nativeProps.src,
 		mediaType: 'audio',
 		playbackRate: playbackRate ?? 1,
 	});
 
-	useImperativeHandle(ref, () => {
-		return audioRef.current as HTMLAudioElement;
-	});
+	useImperativeHandle(
+		ref,
+		() => {
+			if (!audioRef || !audioRef.el) {
+				// Type error: null should be allowed
+				return null as unknown as HTMLAudioElement;
+			}
+
+			return audioRef.el.current as HTMLAudioElement;
+		},
+		[audioRef]
+	);
 
 	if (initialShouldPreMountAudioElements) {
 		return null;
 	}
 
-	return <audio ref={audioRef} {...propsToPass} />;
+	if (!audioRef || !audioRef.el) {
+		return null;
+	}
+
+	return <audio ref={audioRef.el} {...propsToPass} />;
 };
 
 export const AudioForDevelopment = forwardRef(

@@ -13,7 +13,7 @@ export const useMediaPlayback = ({
 	mediaType,
 	playbackRate: localPlaybackRate,
 }: {
-	mediaRef: RefObject<HTMLVideoElement | HTMLAudioElement>;
+	mediaRef: RefObject<HTMLVideoElement | HTMLAudioElement> | null;
 	src: string | undefined;
 	mediaType: 'audio' | 'video';
 	playbackRate: number;
@@ -28,12 +28,17 @@ export const useMediaPlayback = ({
 	const playbackRate = localPlaybackRate * globalPlaybackRate;
 
 	useEffect(() => {
-		if (!playing) {
+		if (!playing && mediaRef) {
+			console.log('pause');
 			mediaRef.current?.pause();
 		}
 	}, [mediaRef, mediaType, playing]);
 
 	useEffect(() => {
+		if (!mediaRef) {
+			return;
+		}
+
 		const tagName = mediaType === 'audio' ? '<Audio>' : '<Video>';
 		if (!mediaRef.current) {
 			throw new Error(`No ${mediaType} ref found`);
@@ -65,7 +70,7 @@ export const useMediaPlayback = ({
 				`(isTime=${isTime},shouldBeTime=${shouldBeTime})`
 			);
 			// If scrubbing around, adjust timing
-			// or if time shift is bigger than 0.2sec
+			// or if time shift is bigger than 0.45sec
 			mediaRef.current.currentTime = shouldBeTime;
 			warnAboutNonSeekableMedia(mediaRef.current);
 		}
@@ -74,7 +79,23 @@ export const useMediaPlayback = ({
 			mediaRef.current.currentTime = shouldBeTime;
 		}
 
+		console.log(
+			'paused',
+			mediaRef.current.paused,
+			mediaRef.current.currentTime,
+			'muted',
+			mediaRef.current.muted,
+			'volume',
+			mediaRef.current.volume,
+			'ended',
+			mediaRef.current.ended,
+			'playing',
+			playing,
+			'src',
+			src
+		);
 		if (mediaRef.current.paused && !mediaRef.current.ended && playing) {
+			console.log('SHOULD PLAY', mediaRef, mediaRef.current.src, shouldBeTime);
 			const {current} = mediaRef;
 			current.currentTime = shouldBeTime;
 			playAndHandleNotAllowedError(mediaRef, mediaType);
