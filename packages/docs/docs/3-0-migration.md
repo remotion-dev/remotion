@@ -148,9 +148,6 @@ try {
   await renderStill({
     // ...
     output: "/tmp/still.png",
-    onError: (err) => {
-      console.log("Error occured in browser", err);
-    },
   });
 } catch (err) {
   console.log("Error occured in browser", err);
