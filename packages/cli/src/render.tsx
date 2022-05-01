@@ -130,7 +130,7 @@ export const render = async () => {
 	Log.verbose('Output dir', outputDir);
 
 	const renderProgress = createOverwriteableCliOutput(quietFlagProvided());
-	let totalFrames: number | null = 0;
+	let totalFrames: number | null = config.durationInFrames;
 	let encodedFrames = 0;
 	let renderedFrames = 0;
 	let encodedDoneIn: number | null = null;
