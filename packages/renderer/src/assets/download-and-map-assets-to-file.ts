@@ -102,7 +102,7 @@ const downloadAsset = async (
 				'A data URL was passed but did not have the correct format so that Remotion could convert it for the video to be rendered.',
 				'The format of the data URL must be `data:[mime-type];[encoding],[data]`.',
 				'The data that was received is (truncated to 100 characters):',
-				src.substr(0, 100),
+				src.substring(0, 100),
 			].join(' ');
 			throw new TypeError(errMessage);
 		}
