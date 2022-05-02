@@ -87,7 +87,10 @@ const renderHandler = async (
 		inputProps: params.inputProps,
 		frameRange: params.frameRange,
 		onProgress: ({renderedFrames}) => {
-			if (renderedFrames % 100 === 0) {
+			if (
+				renderedFrames % 10 === 0 &&
+				Internals.Logging.isEqualOrBelowLogLevel(params.logLevel, 'verbose')
+			) {
 				console.log(`Rendered ${renderedFrames} frames`);
 			}
 
@@ -120,7 +123,7 @@ const renderHandler = async (
 		quality: params.quality,
 		envVariables: params.envVariables,
 		dumpBrowserLogs: Internals.Logging.isEqualOrBelowLogLevel(
-			Internals.Logging.DEFAULT_LOG_LEVEL,
+			params.logLevel,
 			'verbose'
 		),
 		onBrowserLog: (log) => {
@@ -135,7 +138,13 @@ const renderHandler = async (
 		proResProfile: params.proResProfile,
 		onDownload: (src: string) => {
 			console.log('Downloading', src);
-			return () => undefined;
+			return ({percent}) => {
+				if (
+					Internals.Logging.isEqualOrBelowLogLevel(params.logLevel, 'verbose')
+				) {
+					console.log(`Download progress of ${src}: ${percent}`);
+				}
+			};
 		},
 
 		overwrite: false,
