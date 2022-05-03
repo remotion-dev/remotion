@@ -1,39 +1,24 @@
 import fs from 'fs';
 import path from 'path';
-import {FfmpegFilterCalculation} from './calculate-ffmpeg-filters';
+import {createFfmpegMergeFilter} from './create-ffmpeg-merge-filter';
 import {tmpDir} from './tmp-dir';
 
-const createMix = (filters: FfmpegFilterCalculation[]) => {
-	const baseFilter = filters
-		.map((asset) => {
-			return `[a${asset.streamIndex}]`;
-		})
-		.join('');
-	const options = [
-		// Specify the number of inputs we give
-		`inputs=${filters.length}`,
-		// Disable any fade in transitions when a track stops
-		'dropout_transition=0',
-		// Audio track is as long as the longest input
-		'duration=longest',
-	];
-	return `${baseFilter}amix=${options.join(':')}`;
-};
-
 export const createFfmpegComplexFilter = async (
-	filters: FfmpegFilterCalculation[]
+	filters: number
 ): Promise<{
 	complexFilterFlag: [string, string] | null;
 	cleanup: () => void;
 }> => {
-	if (!filters.length) {
+	if (filters === 0) {
 		return {complexFilterFlag: null, cleanup: () => undefined};
 	}
 
-	const complexFilter = [
-		...filters.map((f) => f.filter),
-		createMix(filters),
-	].join(';');
+	const complexFilter = createFfmpegMergeFilter(filters);
+	// TODO: one audio is the same as 0 audios?
+	if (complexFilter === null) {
+		return {complexFilterFlag: null, cleanup: () => undefined};
+	}
+
 	const tempPath = tmpDir('remotion-complex-filter');
 	const filterFile = path.join(tempPath, 'complex-filter.txt');
 	await fs.promises.writeFile(filterFile, complexFilter);

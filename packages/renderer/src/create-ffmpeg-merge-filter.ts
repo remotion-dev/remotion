@@ -1,0 +1,21 @@
+import {Internals} from 'remotion';
+
+export const createFfmpegMergeFilter = (inputs: number) => {
+	if (inputs === 1) {
+		return null;
+	}
+
+	const leftChannel = new Array(inputs * 2)
+		.fill(true)
+		.map((_, i) => (i % 2 === 0 ? `c${i}` : null))
+		.filter(Internals.truthy)
+		.join('+');
+
+	const rightChannel = new Array(inputs * 2)
+		.fill(true)
+		.map((_, i) => (i % 2 === 1 ? `c${i}` : null))
+		.filter(Internals.truthy)
+		.join('+');
+
+	return `[0:a][1:a]amerge=inputs=${inputs},pan=stereo|c0=${leftChannel}|c1=${rightChannel}[a]`;
+};
