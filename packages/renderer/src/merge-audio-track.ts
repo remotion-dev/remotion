@@ -10,6 +10,7 @@ type Options = {
 	onProgress: (progress: number) => void;
 };
 
+// TODO: Limit concurrency
 export const mergeAudioTrack = async ({
 	ffmpegExecutable,
 	outName,
