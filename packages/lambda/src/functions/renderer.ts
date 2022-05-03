@@ -98,7 +98,10 @@ const renderHandler = async (
 				);
 			}
 
-			const duration = params.frameRange[1] - params.frameRange[0] + 1;
+			const duration = RenderInternals.getDurationFromFrameRange(
+				params.frameRange,
+				params.durationInFrames
+			);
 
 			if (renderedFrames === duration) {
 				console.log('Rendered all frames!');
@@ -167,7 +170,10 @@ const renderHandler = async (
 	console.log('Adding silent audio, chunk', params.chunk);
 	await RenderInternals.addSilentAudioIfNecessary({
 		outputLocation,
-		durationInFrames: params.frameRange[1] - params.frameRange[0] + 1,
+		durationInFrames: RenderInternals.getDurationFromFrameRange(
+			params.frameRange,
+			params.durationInFrames
+		),
 		fps: params.fps,
 		chunkCodec: params.codec,
 	});

@@ -97,7 +97,10 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		params.frameRange
 	);
 
-	const frameCount = realFrameRange[1] - realFrameRange[0] + 1;
+	const frameCount = RenderInternals.getDurationFromFrameRange(
+		realFrameRange,
+		0
+	);
 
 	const framesPerLambda =
 		params.framesPerLambda ?? bestFramesPerLambdaParam(frameCount);

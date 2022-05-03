@@ -10,6 +10,7 @@ import {
 	getFfmpegVersion,
 } from './ffmpeg-flags';
 import {getActualConcurrency} from './get-concurrency';
+import {getDurationFromFrameRange} from './get-duration-from-frame-range';
 import {getFileExtensionFromCodec} from './get-extension-from-codec';
 import {getRealFrameRange} from './get-frame-to-render';
 import {ensureLocalBrowser} from './get-local-browser-executable';
@@ -74,4 +75,5 @@ export const RenderInternals = {
 	parseStack,
 	symbolicateError,
 	SymbolicateableError,
+	getDurationFromFrameRange,
 };

@@ -21,6 +21,7 @@ import {BrowserLog} from './browser-log';
 import {cycleBrowserTabs} from './cycle-browser-tabs';
 import {handleJavascriptException} from './error-handling/handle-javascript-exception';
 import {getActualConcurrency} from './get-concurrency';
+import {getDurationFromFrameRange} from './get-duration-from-frame-range';
 import {getRealFrameRange} from './get-frame-to-render';
 import {DEFAULT_IMAGE_FORMAT} from './image-format';
 import {
@@ -127,7 +128,10 @@ export const innerRenderFrames = async ({
 		frameRange ?? null
 	);
 
-	const frameCount = realFrameRange[1] - realFrameRange[0] + 1;
+	const frameCount = getDurationFromFrameRange(
+		realFrameRange,
+		composition.durationInFrames
+	);
 
 	const pages = new Array(actualParallelism).fill(true).map(async () => {
 		const page = await puppeteerInstance.newPage();
