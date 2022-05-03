@@ -25,8 +25,9 @@ import {
 	ServeUrlOrWebpackBundle,
 } from './legacy-webpack-config';
 import {ChromiumOptions} from './open-browser';
+import {prespawnFfmpeg} from './prespawn-ffmpeg';
 import {renderFrames} from './render-frames';
-import {spawnFfmpeg, stitchFramesToVideo} from './stitch-frames-to-video';
+import {stitchFramesToVideo} from './stitch-frames-to-video';
 import {tmpDir} from './tmp-dir';
 import {OnStartData} from './types';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
@@ -107,7 +108,7 @@ export const renderMedia = async ({
 
 	let stitchStage: StitchingState = 'encoding';
 	let stitcherFfmpeg: ExecaChildProcess<string> | undefined;
-	let preStitcher: Await<ReturnType<typeof spawnFfmpeg>> | null = null;
+	let preStitcher: Await<ReturnType<typeof prespawnFfmpeg>> | null = null;
 	let encodedFrames = 0;
 	let renderedFrames = 0;
 	let renderedDoneIn: number | null = null;
@@ -147,12 +148,11 @@ export const renderMedia = async ({
 		};
 
 		if (preEncodedFileLocation) {
-			preStitcher = await spawnFfmpeg({
+			preStitcher = await prespawnFfmpeg({
 				width: composition.width * (scale ?? 1),
 				height: composition.height * (scale ?? 1),
 				fps: composition.fps,
 				outputLocation: preEncodedFileLocation,
-				force: true,
 				pixelFormat,
 				codec,
 				proResProfile,
@@ -166,12 +166,7 @@ export const renderMedia = async ({
 					'verbose'
 				),
 				ffmpegExecutable,
-				internalOptions: {
-					parallelEncoding,
-					preEncodedFileLocation: null,
-					imageFormat: actualImageFormat,
-				},
-				assetsInfo: null,
+				imageFormat: actualImageFormat,
 			});
 			stitcherFfmpeg = preStitcher.task;
 		}
@@ -229,8 +224,6 @@ export const renderMedia = async ({
 				await stitcherFfmpeg;
 			} catch (err) {
 				throw new Error(preStitcher?.getLogs());
-			} finally {
-				preStitcher?.cleanup?.();
 			}
 		}
 
@@ -247,7 +240,6 @@ export const renderMedia = async ({
 			fps: composition.fps,
 			outputLocation,
 			internalOptions: {
-				parallelEncoding: false,
 				preEncodedFileLocation,
 				imageFormat: actualImageFormat,
 			},
