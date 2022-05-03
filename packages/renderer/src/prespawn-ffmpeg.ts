@@ -57,8 +57,11 @@ export const prespawnFfmpeg = async (options: PreSticherOptions) => {
 	const audioCodecName = getAudioCodecName(codec);
 	const proResProfileName = getProResProfileName(codec, options.proResProfile);
 
-	const isAudioOnly = encoderName === null;
-	const supportsCrf = encoderName && codec !== 'prores';
+	if (encoderName === null) {
+		throw new TypeError('encoderName is null: ' + JSON.stringify(options));
+	}
+
+	const supportsCrf = codec !== 'prores';
 
 	if (options.verbose) {
 		console.log(
@@ -73,7 +76,6 @@ export const prespawnFfmpeg = async (options: PreSticherOptions) => {
 		}
 
 		console.log('[verbose] codec', codec);
-		console.log('[verbose] isAudioOnly', isAudioOnly);
 		console.log('[verbose] proResProfileName', proResProfileName);
 	}
 
@@ -82,31 +84,26 @@ export const prespawnFfmpeg = async (options: PreSticherOptions) => {
 
 	const ffmpegArgs = [
 		['-r', String(options.fps)],
-		...(isAudioOnly
-			? []
-			: [
-					['-f', 'image2pipe'],
-					['-s', `${options.width}x${options.height}`],
-					// If scale is very small (like 0.1), FFMPEG cannot figure out the image
-					// format on it's own and we need to hint the format
-					['-vcodec', options.imageFormat === 'jpeg' ? 'mjpeg' : 'png'],
-					['-i', '-'],
-			  ]),
-		encoderName
-			? // -c:v is the same as -vcodec as -codec:video
-			  // and specified the video codec.
-			  ['-c:v', encoderName]
-			: // If only exporting audio, we drop the video explicitly
-			  ['-vn'],
+		...[
+			['-f', 'image2pipe'],
+			['-s', `${options.width}x${options.height}`],
+			// If scale is very small (like 0.1), FFMPEG cannot figure out the image
+			// format on it's own and we need to hint the format
+			['-vcodec', options.imageFormat === 'jpeg' ? 'mjpeg' : 'png'],
+			['-i', '-'],
+		],
+		// -c:v is the same as -vcodec as -codec:video
+		// and specified the video codec.
+		['-c:v', encoderName],
 		...[
 			proResProfileName ? ['-profile:v', proResProfileName] : null,
 			supportsCrf ? ['-crf', String(crf)] : null,
-			isAudioOnly ? null : ['-pix_fmt', pixelFormat],
+			['-pix_fmt', pixelFormat],
 
 			// Without explicitly disabling auto-alt-ref,
 			// transparent WebM generation doesn't work
 			pixelFormat === 'yuva420p' ? ['-auto-alt-ref', '0'] : null,
-			isAudioOnly ? null : ['-b:v', '1M'],
+			['-b:v', '1M'],
 		],
 		'-ar',
 		String(DEFAULT_SAMPLE_RATE),
@@ -116,9 +113,9 @@ export const prespawnFfmpeg = async (options: PreSticherOptions) => {
 		'2',
 		audioCodecName ? ['-c:a', audioCodecName] : null,
 		// Ignore audio from image sequence
-		isAudioOnly ? null : ['-map', '0:v'],
+		['-map', '0:v'],
 		// Ignore metadata that may come from remote media
-		isAudioOnly ? null : ['-map_metadata', '-1'],
+		['-map_metadata', '-1'],
 		'-y',
 		options.outputLocation,
 	];
