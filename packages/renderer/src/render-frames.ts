@@ -84,7 +84,6 @@ const getComposition = (others: ConfigOrComposition) => {
 };
 
 export const innerRenderFrames = async ({
-	parallelism,
 	onFrameUpdate,
 	outputDir,
 	onStart,
