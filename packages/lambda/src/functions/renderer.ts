@@ -42,6 +42,8 @@ const renderHandler = async (
 		throw new Error('Params must be renderer');
 	}
 
+	Internals.Logging.setLogLevel(params.logLevel);
+
 	const browserInstance = await getBrowserInstance(
 		Internals.Logging.isEqualOrBelowLogLevel(params.logLevel, 'verbose'),
 		params.chromiumOptions ?? {}
@@ -86,14 +88,19 @@ const renderHandler = async (
 		imageFormat: params.imageFormat,
 		inputProps: params.inputProps,
 		frameRange: params.frameRange,
-		onProgress: ({renderedFrames}) => {
+		onProgress: ({renderedFrames, encodedFrames, stitchStage}) => {
 			if (
 				renderedFrames % 10 === 0 &&
 				Internals.Logging.isEqualOrBelowLogLevel(params.logLevel, 'verbose')
 			) {
-				console.log(`Rendered ${renderedFrames} frames`);
+				console.log(
+					`Rendered ${renderedFrames} frames, encoded ${encodedFrames} frames, stage = ${stitchStage}`
+				);
 			}
-			if (renderedFrames === params.durationInFrames) {
+
+			const duration = params.frameRange[1] - params.frameRange[0] + 1;
+
+			if (renderedFrames === duration) {
 				console.log('Rendered all frames!');
 			}
 

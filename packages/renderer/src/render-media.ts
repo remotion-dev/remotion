@@ -175,13 +175,16 @@ export const renderMedia = async ({
 			stitcherFfmpeg = preStitcher.task;
 		}
 
+		const realFrameRange = getRealFrameRange(
+			composition.durationInFrames,
+			frameRange ?? null
+		);
+
 		const {
 			waitForRightTimeOfFrameToBeInserted,
 			setFrameToStitch,
 			waitForFinish,
-		} = ensureFramesInOrder(
-			getRealFrameRange(composition.durationInFrames, frameRange ?? null)
-		);
+		} = ensureFramesInOrder(realFrameRange);
 
 		const {assetsInfo} = await renderFrames({
 			config: composition,
@@ -266,7 +269,7 @@ export const renderMedia = async ({
 			),
 			dir: outputDir ?? undefined,
 		});
-		encodedFrames = composition.durationInFrames;
+		encodedFrames = realFrameRange[1] - realFrameRange[0] + 1;
 		encodedDoneIn = Date.now() - stitchStart;
 		callUpdate();
 	} finally {
