@@ -4,22 +4,18 @@ import {ffmpegVolumeExpression} from './assets/ffmpeg-volume-expression';
 import {AssetVolume} from './assets/types';
 
 export const stringifyFfmpegFilter = ({
-	streamIndex,
 	trimLeft,
 	trimRight,
 	channels,
 	startInVideo,
-	simulatenousAssets,
 	volume,
 	fps,
 	playbackRate,
 }: {
-	streamIndex: number;
 	trimLeft: string;
 	trimRight: string;
 	channels: number;
 	startInVideo: number;
-	simulatenousAssets: number;
 	volume: AssetVolume;
 	fps: number;
 	playbackRate: number;
@@ -28,12 +24,11 @@ export const stringifyFfmpegFilter = ({
 
 	const volumeFilter = ffmpegVolumeExpression({
 		volume,
-		multiplier: simulatenousAssets,
 		startInVideo,
 		fps,
 	});
 	return (
-		`[${streamIndex}:a]` +
+		`[0:a]` +
 		[
 			'apad',
 			`atrim=${trimLeft}:${trimRight}`,
@@ -49,6 +44,6 @@ export const stringifyFfmpegFilter = ({
 		]
 			.filter(Internals.truthy)
 			.join(',') +
-		`[a${streamIndex}]`
+		`[a0]`
 	);
 };

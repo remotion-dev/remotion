@@ -1,15 +1,15 @@
 export const assetsToFfmpegInputs = ({
-	assets,
+	asset: audioMixFile,
 	isAudioOnly,
 	frameCount,
 	fps,
 }: {
-	assets: string[];
+	asset: string | null;
 	isAudioOnly: boolean;
 	frameCount: number;
 	fps: number;
 }): [string, string][] => {
-	if (isAudioOnly && assets.length === 0) {
+	if (isAudioOnly && audioMixFile === null) {
 		return [
 			['-f', 'lavfi'],
 			['-i', 'anullsrc'],
@@ -17,5 +17,5 @@ export const assetsToFfmpegInputs = ({
 		];
 	}
 
-	return assets.map((path) => ['-i', path]);
+	return [['-i', audioMixFile as string]];
 };

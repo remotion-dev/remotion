@@ -25,10 +25,9 @@ test('Should create a basic filter correctly', () => {
 			fps: 30,
 			assetPositions: [asset],
 			assetAudioDetails,
-			videoTrackCount: 1,
-		})[0].filter
+		})[0]
 	).toBe(
-		'[1:a]apad,atrim=0.000:0.667,adelay=0|0,atempo=1.00000,volume=1:eval=once[a1]'
+		'[0:a]apad,atrim=0.000:0.667,adelay=0|0,atempo=1.00000,volume=1:eval=once[a0]'
 	);
 });
 
@@ -47,10 +46,9 @@ test('Should handle trim correctly', () => {
 				},
 			],
 			assetAudioDetails,
-			videoTrackCount: 1,
-		})[0].filter
+		})[0]
 	).toBe(
-		'[1:a]apad,atrim=0.333:1.000,adelay=0|0,atempo=1.00000,volume=1:eval=once[a1]'
+		'[0:a]apad,atrim=0.333:1.000,adelay=0|0,atempo=1.00000,volume=1:eval=once[a0]'
 	);
 });
 
@@ -70,10 +68,9 @@ test('Should handle delay correctly', () => {
 				},
 			],
 			assetAudioDetails,
-			videoTrackCount: 1,
-		})[0].filter
+		})[0]
 	).toBe(
-		'[1:a]apad,atrim=0.333:1.000,adelay=2667|2667,atempo=1.00000,volume=1:eval=once[a1]'
+		'[0:a]apad,atrim=0.333:1.000,adelay=2667|2667,atempo=1.00000,volume=1:eval=once[a0]'
 	);
 });
 
@@ -93,10 +90,9 @@ test('Should offset multiple channels', () => {
 				},
 			],
 			assetAudioDetails,
-			videoTrackCount: 1,
-		})[0].filter
+		})[0]
 	).toBe(
-		'[1:a]apad,atrim=0.333:1.000,adelay=2667|2667|2667|2667,atempo=1.00000,volume=1:eval=once[a1]'
+		'[0:a]apad,atrim=0.333:1.000,adelay=2667|2667|2667|2667,atempo=1.00000,volume=1:eval=once[a0]'
 	);
 });
 
@@ -130,21 +126,20 @@ test('Should calculate correct indices even if some muted channels are removed b
 				},
 			],
 			assetAudioDetails,
-			videoTrackCount: 1,
 		});
-	expect(makeFilters()[0].filter).toBe(
+	expect(makeFilters()[0]).toBe(
 		// Should be index 2 - make sure that index 1 is not current, because it is muted
-		'[2:a]apad,atrim=0.333:1.000,adelay=2667|2667|2667|2667,atempo=1.00000,volume=1:eval=once[a2]'
+		'[0:a]apad,atrim=0.333:1.000,adelay=2667|2667|2667|2667,atempo=1.00000,volume=1:eval=once[a0]'
 	);
 
 	// Also test basic case: if first one is unmuted, both channels are there again
 	assetAudioDetails.set(mutedSrc, {
 		channels: 1,
 	});
-	expect(makeFilters()[0].filter).toBe(
-		'[1:a]apad,atrim=0.333:3.667,adelay=2667|2667,atempo=1.00000,volume=2:eval=once[a1]'
+	expect(makeFilters()[0]).toBe(
+		'[0:a]apad,atrim=0.333:3.667,adelay=2667|2667,atempo=1.00000,volume=1:eval=once[a0]'
 	);
-	expect(makeFilters()[1].filter).toBe(
-		'[2:a]apad,atrim=0.333:1.000,adelay=2667|2667|2667|2667,atempo=1.00000,volume=2:eval=once[a2]'
+	expect(makeFilters()[1]).toBe(
+		'[0:a]apad,atrim=0.333:1.000,adelay=2667|2667|2667|2667,atempo=1.00000,volume=1:eval=once[a0]'
 	);
 });

@@ -1,4 +1,5 @@
 import execa from 'execa';
+import path from 'path';
 import {
 	Codec,
 	FfmpegExecutable,
@@ -18,12 +19,13 @@ import {
 import {getAssetAudioDetails} from './assets/get-asset-audio-details';
 import {Assets} from './assets/types';
 import {calculateFfmpegFilters} from './calculate-ffmpeg-filters';
-import {createFfmpegComplexFilter} from './create-ffmpeg-complex-filter';
 import {getAudioCodecName} from './get-audio-codec-name';
 import {getCodecName} from './get-codec-name';
 import {getProResProfileName} from './get-prores-profile-name';
+import {mergeAudioTrack} from './merge-audio-track';
 import {parseFfmpegProgress} from './parse-ffmpeg-progress';
-import {DEFAULT_SAMPLE_RATE} from './sample-rate';
+import {preprocessAudioTrack} from './preprocess-audio-track';
+import {tmpDir} from './tmp-dir';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
 import {validateFfmpeg} from './validate-ffmpeg';
 
@@ -49,10 +51,9 @@ export type StitcherOptions = {
 	};
 };
 
-const getAssetsData = async (options: StitcherOptions) => {
-	const codec = options.codec ?? Internals.DEFAULT_CODEC;
-	const encoderName = getCodecName(codec);
-	const isAudioOnly = encoderName === null;
+const getAssetsData = async (
+	options: StitcherOptions
+): Promise<string | null> => {
 	const fileUrlAssets = await convertAssetsToFileUrls({
 		assets: options.assetsInfo.assets,
 		downloadDir: options.assetsInfo.downloadDir,
@@ -70,7 +71,6 @@ const getAssetsData = async (options: StitcherOptions) => {
 		assetAudioDetails,
 		assetPositions,
 		fps: options.fps,
-		videoTrackCount: isAudioOnly ? 0 : 1,
 	});
 	if (options.verbose) {
 		console.log('asset positions', assetPositions);
@@ -80,13 +80,34 @@ const getAssetsData = async (options: StitcherOptions) => {
 		console.log('filters', filters);
 	}
 
-	const {complexFilterFlag, cleanup} = await createFfmpegComplexFilter(filters);
+	const tempPath = tmpDir('remotion-audio-mixing');
 
-	return {
-		complexFilterFlag,
-		cleanup,
-		assetPositions,
-	};
+	const preprocessed = await Promise.all(
+		filters.map(async ({filter, src}, index) => {
+			const filterFile = path.join(tempPath, `${index}.aac`);
+			await preprocessAudioTrack({
+				ffmpegExecutable: options.ffmpegExecutable ?? null,
+				audioFile: src,
+				filter,
+				onProgress: (prog) => console.log(prog),
+				outName: filterFile,
+			});
+			return filterFile;
+		})
+	);
+
+	const outName = path.join(tempPath, `audio.aac`);
+
+	await mergeAudioTrack({
+		ffmpegExecutable: options.ffmpegExecutable ?? null,
+		files: preprocessed,
+		onProgress: (prog) => console.log('merge', prog),
+		outName,
+	});
+
+	// TODO: Clean up
+
+	return outName;
 };
 
 export const spawnFfmpeg = async (options: StitcherOptions) => {
@@ -139,16 +160,17 @@ export const spawnFfmpeg = async (options: StitcherOptions) => {
 	Internals.validateSelectedCrfAndCodecCombination(crf, codec);
 	Internals.validateSelectedPixelFormatAndCodecCombination(pixelFormat, codec);
 
-	const {complexFilterFlag, cleanup, assetPositions} = await getAssetsData(
-		options
-	);
+	const audio = await getAssetsData(options);
 
+	if (isAudioOnly) {
+		throw new Error('audio only not implemented');
+	}
+
+	// TODO: If only audio should be output, finish now
 	const ffmpegArgs = [
 		['-r', String(options.fps)],
 		...(options.internalOptions?.preEncodedFileLocation
 			? [['-i', options.internalOptions?.preEncodedFileLocation]]
-			: isAudioOnly
-			? []
 			: [
 					['-f', 'image2'],
 					['-s', `${options.width}x${options.height}`],
@@ -156,41 +178,30 @@ export const spawnFfmpeg = async (options: StitcherOptions) => {
 					['-i', options.assetsInfo.imageSequenceName],
 			  ]),
 		...assetsToFfmpegInputs({
-			assets: assetPositions.map((a) => a.src),
+			asset: audio,
 			isAudioOnly,
 			fps: options.fps,
 			frameCount: options.assetsInfo.assets.length,
 		}),
-		encoderName
-			? // -c:v is the same as -vcodec as -codec:video
-			  // and specified the video codec.
-			  ['-c:v', encoderName]
-			: // If only exporting audio, we drop the video explicitly
-			  ['-vn'],
+
+		// -c:v is the same as -vcodec as -codec:video
+		// and specified the video codec.
+		['-c:v', encoderName],
 		...(options.internalOptions?.preEncodedFileLocation
 			? []
 			: [
 					proResProfileName ? ['-profile:v', proResProfileName] : null,
 					supportsCrf ? ['-crf', String(crf)] : null,
-					isAudioOnly ? null : ['-pix_fmt', pixelFormat],
+					['-pix_fmt', pixelFormat],
 
 					// Without explicitly disabling auto-alt-ref,
 					// transparent WebM generation doesn't work
 					pixelFormat === 'yuva420p' ? ['-auto-alt-ref', '0'] : null,
-					isAudioOnly ? null : ['-b:v', '1M'],
+					['-b:v', '1M'],
 			  ]),
-		'-ar',
-		String(DEFAULT_SAMPLE_RATE),
-		// Stereo sound, even force mono to be stereo
-		// Otherwise mixing mono + stereo ends up speeding up the audio
-		'-ac',
-		'2',
 		audioCodecName ? ['-c:a', audioCodecName] : null,
-		complexFilterFlag,
-		// Ignore audio from image sequence
-		isAudioOnly ? null : ['-map', '0:v'],
 		// Ignore metadata that may come from remote media
-		isAudioOnly ? null : ['-map_metadata', '-1'],
+		['-map_metadata', '-1'],
 		options.force ? '-y' : null,
 		options.outputLocation,
 	];
@@ -216,18 +227,16 @@ export const spawnFfmpeg = async (options: StitcherOptions) => {
 			}
 		}
 	});
-	return {task, cleanup, getLogs: () => ffmpegOutput};
+	return {task, getLogs: () => ffmpegOutput};
 };
 
 export const stitchFramesToVideo = async (
 	options: StitcherOptions
 ): Promise<void> => {
-	const {task, cleanup, getLogs} = await spawnFfmpeg(options);
+	const {task, getLogs} = await spawnFfmpeg(options);
 	try {
 		await task;
 	} catch (err) {
 		throw new Error(getLogs());
-	} finally {
-		cleanup?.();
 	}
 };

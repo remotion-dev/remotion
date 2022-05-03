@@ -7,11 +7,9 @@ import {
 	PixelFormat,
 	ProResProfile,
 } from 'remotion';
-import {getAudioCodecName} from './get-audio-codec-name';
 import {getCodecName} from './get-codec-name';
 import {getProResProfileName} from './get-prores-profile-name';
 import {parseFfmpegProgress} from './parse-ffmpeg-progress';
-import {DEFAULT_SAMPLE_RATE} from './sample-rate';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
 import {validateFfmpeg} from './validate-ffmpeg';
 
@@ -54,7 +52,6 @@ export const prespawnFfmpeg = async (options: PreSticherOptions) => {
 	await validateFfmpeg(options.ffmpegExecutable ?? null);
 
 	const encoderName = getCodecName(codec);
-	const audioCodecName = getAudioCodecName(codec);
 	const proResProfileName = getProResProfileName(codec, options.proResProfile);
 
 	if (encoderName === null) {
@@ -69,7 +66,6 @@ export const prespawnFfmpeg = async (options: PreSticherOptions) => {
 			options.ffmpegExecutable ?? 'ffmpeg in PATH'
 		);
 		console.log('[verbose] encoder', encoderName);
-		console.log('[verbose] audioCodec', audioCodecName);
 		console.log('[verbose] pixelFormat', pixelFormat);
 		if (supportsCrf) {
 			console.log('[verbose] crf', crf);
@@ -105,17 +101,6 @@ export const prespawnFfmpeg = async (options: PreSticherOptions) => {
 			pixelFormat === 'yuva420p' ? ['-auto-alt-ref', '0'] : null,
 			['-b:v', '1M'],
 		],
-		'-ar',
-		String(DEFAULT_SAMPLE_RATE),
-		// Stereo sound, even force mono to be stereo
-		// Otherwise mixing mono + stereo ends up speeding up the audio
-		'-ac',
-		'2',
-		audioCodecName ? ['-c:a', audioCodecName] : null,
-		// Ignore audio from image sequence
-		['-map', '0:v'],
-		// Ignore metadata that may come from remote media
-		['-map_metadata', '-1'],
 		'-y',
 		options.outputLocation,
 	];
