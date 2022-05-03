@@ -42,7 +42,7 @@
 	},
 	"devDependencies": {
 		"@jonny/eslint-config": "3.0.259",
-		"@types/jest": "^27.4.0",
+		"@types/jest": "^27.5.0",
 		"@types/minimist": "^1.2.2",
 		"@types/node": "^16.7.5",
 		"@types/react": "18.0.1",
@@ -53,12 +53,12 @@
 		"eslint-plugin-10x": "1.5.2",
 		"eslint-plugin-react": "7.29.4",
 		"eslint-plugin-react-hooks": "4.4.0",
-		"jest": "^27.2.4",
+		"jest": "^28.0.3",
 		"prettier": "^2.0.5",
 		"prettier-plugin-organize-imports": "^2.3.4",
 		"react": "^18.0.0",
 		"react-dom": "^18.0.0",
-		"ts-jest": "^27.0.5",
+		"ts-jest": "^28.0.0",
 		"typescript": "^4.5.5"
 	},
 	"keywords": [
