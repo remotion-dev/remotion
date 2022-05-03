@@ -145,6 +145,8 @@ export const spawnFfmpeg = async (options: StitcherOptions) => {
 		options
 	);
 
+	const expectedFrames = options.assetsInfo.assets.length;
+
 	const ffmpegArgs = [
 		['-r', String(options.fps)],
 		...(options.internalOptions?.preEncodedFileLocation
@@ -208,12 +210,24 @@ export const spawnFfmpeg = async (options: StitcherOptions) => {
 		cwd: options.dir,
 	});
 	let ffmpegOutput = '';
+	let isFinished = false;
 	task.stderr?.on('data', (data: Buffer) => {
 		const str = data.toString();
 		ffmpegOutput += str;
 		if (options.onProgress) {
 			const parsed = parseFfmpegProgress(str);
+			// FFMPEG bug: In some cases, FFMPEG does hang after it is finished with it's job
+			// Example repo: https://github.com/JonnyBurger/ffmpeg-repro (access can be given upon request)
 			if (parsed !== undefined) {
+				// If two times in a row the finishing frame is logged, we quit the render
+				if (parsed === expectedFrames) {
+					if (isFinished) {
+						task.stdin?.write('q');
+					} else {
+						isFinished = true;
+					}
+				}
+
 				options.onProgress(parsed);
 			}
 		}
