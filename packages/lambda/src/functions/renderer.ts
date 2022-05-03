@@ -93,6 +93,7 @@ const renderHandler = async (
 			) {
 				console.log(`Rendered ${renderedFrames} frames`);
 			}
+
 			if (renderedFrames === params.durationInFrames) {
 				console.log('Rendered all frames!');
 			}
