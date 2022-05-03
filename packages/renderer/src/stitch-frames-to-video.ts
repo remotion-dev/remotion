@@ -33,7 +33,7 @@ export type StitcherOptions = {
 	height: number;
 	outputLocation: string;
 	force: boolean;
-	assetsInfo: RenderAssetInfo | null;
+	assetsInfo: RenderAssetInfo;
 	pixelFormat?: PixelFormat;
 	codec?: Codec;
 	crf?: number | null;
@@ -45,7 +45,6 @@ export type StitcherOptions = {
 	dir?: string;
 	internalOptions?: {
 		preEncodedFileLocation: string | null;
-		parallelEncoding: boolean;
 		imageFormat: ImageFormat;
 	};
 };
@@ -54,17 +53,14 @@ const getAssetsData = async (options: StitcherOptions) => {
 	const codec = options.codec ?? Internals.DEFAULT_CODEC;
 	const encoderName = getCodecName(codec);
 	const isAudioOnly = encoderName === null;
-	const fileUrlAssets = await (options.assetsInfo
-		? convertAssetsToFileUrls({
-				assets: options.assetsInfo.assets,
-				downloadDir: options.assetsInfo.downloadDir,
-				onDownload: options.onDownload ?? (() => () => undefined),
-		  })
-		: null);
+	const fileUrlAssets = await convertAssetsToFileUrls({
+		assets: options.assetsInfo.assets,
+		downloadDir: options.assetsInfo.downloadDir,
+		onDownload: options.onDownload ?? (() => () => undefined),
+	});
 
 	markAllAssetsAsDownloaded();
-	const assetPositions: Assets =
-		fileUrlAssets === null ? [] : calculateAssetPositions(fileUrlAssets);
+	const assetPositions: Assets = calculateAssetPositions(fileUrlAssets);
 
 	markAllAssetsAsDownloaded();
 
@@ -145,13 +141,9 @@ export const spawnFfmpeg = async (options: StitcherOptions) => {
 	Internals.validateSelectedCrfAndCodecCombination(crf, codec);
 	Internals.validateSelectedPixelFormatAndCodecCombination(pixelFormat, codec);
 
-	const {
-		complexFilterFlag = undefined,
-		cleanup = undefined,
-		assetPositions = undefined,
-	} = options.internalOptions?.parallelEncoding
-		? {}
-		: await getAssetsData(options);
+	const {complexFilterFlag, cleanup, assetPositions} = await getAssetsData(
+		options
+	);
 
 	const ffmpegArgs = [
 		['-r', String(options.fps)],
@@ -160,39 +152,17 @@ export const spawnFfmpeg = async (options: StitcherOptions) => {
 			: isAudioOnly
 			? []
 			: [
-					[
-						'-f',
-						options.internalOptions?.parallelEncoding
-							? ['image2pipe']
-							: 'image2',
-					],
+					['-f', 'image2'],
 					['-s', `${options.width}x${options.height}`],
-					options.assetsInfo
-						? ['-start_number', String(options.assetsInfo.firstFrameIndex)]
-						: null,
-					options.assetsInfo
-						? ['-i', options.assetsInfo.imageSequenceName]
-						: null,
-					// If scale is very small (like 0.1), FFMPEG cannot figure out the image
-					// format on it's own and we need to hint the format
-					options.internalOptions?.parallelEncoding
-						? [
-								'-vcodec',
-								options.internalOptions.imageFormat === 'jpeg'
-									? 'mjpeg'
-									: 'png',
-						  ]
-						: null,
-					options.internalOptions?.parallelEncoding ? ['-i', '-'] : null,
+					['-start_number', String(options.assetsInfo.firstFrameIndex)],
+					['-i', options.assetsInfo.imageSequenceName],
 			  ]),
-		...(options.assetsInfo && assetPositions
-			? assetsToFfmpegInputs({
-					assets: assetPositions.map((a) => a.src),
-					isAudioOnly,
-					fps: options.fps,
-					frameCount: options.assetsInfo.assets.length,
-			  })
-			: []),
+		...assetsToFfmpegInputs({
+			assets: assetPositions.map((a) => a.src),
+			isAudioOnly,
+			fps: options.fps,
+			frameCount: options.assetsInfo.assets.length,
+		}),
 		encoderName
 			? // -c:v is the same as -vcodec as -codec:video
 			  // and specified the video codec.
@@ -235,7 +205,7 @@ export const spawnFfmpeg = async (options: StitcherOptions) => {
 	const ffmpegString = ffmpegArgs.flat(2).filter(Boolean) as string[];
 
 	const task = execa(options.ffmpegExecutable ?? 'ffmpeg', ffmpegString, {
-		cwd: options.internalOptions?.parallelEncoding ? undefined : options.dir,
+		cwd: options.dir,
 	});
 	let ffmpegOutput = '';
 	task.stderr?.on('data', (data: Buffer) => {
