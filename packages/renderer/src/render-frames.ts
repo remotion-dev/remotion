@@ -103,17 +103,17 @@ export const innerRenderFrames = async ({
 	composition,
 	timeoutInMilliseconds,
 	scale,
+	actualParallelism,
 }: Omit<RenderFramesOptions, 'url'> & {
 	onError: (err: Error) => void;
 	pagesArray: Page[];
 	serveUrl: string;
 	composition: SmallTCompMetadata;
+	actualParallelism: number;
 }): Promise<RenderFramesOutput> => {
 	if (!puppeteerInstance) {
 		throw new Error('weird');
 	}
-
-	const actualParallelism = getActualConcurrency(parallelism ?? null);
 
 	if (outputDir) {
 		if (!fs.existsSync(outputDir)) {
@@ -351,7 +351,10 @@ export const renderFrames = async (
 			browserExecutable: options.browserExecutable,
 			chromiumOptions: options.chromiumOptions,
 		}));
-	const {stopCycling} = cycleBrowserTabs(browserInstance);
+
+	const actualParallelism = getActualConcurrency(options.parallelism ?? null);
+
+	const {stopCycling} = cycleBrowserTabs(browserInstance, actualParallelism);
 
 	const openedPages: Page[] = [];
 
@@ -363,6 +366,7 @@ export const renderFrames = async (
 			pagesArray: openedPages,
 			serveUrl,
 			composition,
+			actualParallelism,
 		})
 			.then((res) => resolve(res))
 			.catch((err) => reject(err))
