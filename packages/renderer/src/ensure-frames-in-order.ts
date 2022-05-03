@@ -18,7 +18,7 @@ export const ensureFramesInOrder = (frameRange: [number, number]) => {
 		}
 	};
 
-	const waitForRightTimeOfFrameToBeInserted = async (frameToBe: number) => {
+	const waitForRightTimeOfFrameToBeInserted = (frameToBe: number) => {
 		return new Promise<void>((resolve) => {
 			waiters.push({
 				id: String(Math.random()),
