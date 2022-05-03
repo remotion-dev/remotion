@@ -219,6 +219,7 @@ export const spawnFfmpeg = async (options: StitcherOptions) => {
 			// FFMPEG bug: In some cases, FFMPEG does hang after it is finished with it's job
 			// Example repo: https://github.com/JonnyBurger/ffmpeg-repro (access can be given upon request)
 			if (parsed !== undefined) {
+				// If two times in a row the finishing frame is logged, we quit the render
 				if (parsed === expectedFrames) {
 					if (isFinished) {
 						task.stdin?.write('q');
