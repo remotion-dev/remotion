@@ -1,3 +1,4 @@
+import {RenderInternals} from '@remotion/renderer';
 import {canUseOptimization} from './can-use-optimization';
 import {OptimizationProfile} from './types';
 
@@ -28,7 +29,7 @@ export const planFrameRanges = ({
 		};
 	}
 
-	const frameCount = frameRange[1] - frameRange[0] + 1;
+	const frameCount = RenderInternals.getDurationFromFrameRange(frameRange, 0);
 
 	return {
 		chunks: new Array(chunkCount).fill(1).map((_, i) => {
