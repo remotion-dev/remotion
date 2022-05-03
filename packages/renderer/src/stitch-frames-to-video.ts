@@ -62,8 +62,6 @@ const getAssetsData = async (options: StitcherOptions) => {
 	markAllAssetsAsDownloaded();
 	const assetPositions: Assets = calculateAssetPositions(fileUrlAssets);
 
-	markAllAssetsAsDownloaded();
-
 	const assetAudioDetails = await getAssetAudioDetails({
 		assetPaths: assetPositions.map((a) => a.src),
 	});
