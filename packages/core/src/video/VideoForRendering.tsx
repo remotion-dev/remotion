@@ -163,9 +163,15 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 		);
 		videoRef.current.addEventListener(
 			'error',
-			(err) => {
-				console.error('Error occurred in video', err);
-				continueRender(handle);
+			() => {
+				if (videoRef.current?.error) {
+					console.error('Error occurred in video', videoRef.current?.error);
+					throw new Error(
+						`The browser threw an error while playing the video: ${videoRef.current?.error?.message}`
+					);
+				} else {
+					throw new Error('The browser threw an errir');
+				}
 			},
 			{once: true}
 		);
