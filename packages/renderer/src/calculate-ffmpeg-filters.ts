@@ -1,3 +1,4 @@
+import {flattenVolumeArray} from './assets/flatten-volume-array';
 import {AssetAudioDetails, Assets} from './assets/types';
 import {resolveAssetSrc} from './resolve-asset-src';
 import {stringifyFfmpegFilter} from './stringify-ffmpeg-filter';
@@ -28,12 +29,14 @@ export const calculateFfmpegFilters = ({
 		) as AssetAudioDetails;
 
 		return {
+			// TODO: Put into a file to deal with long volume commands
+			// TODO: Test if playbackRate is also fixed
 			filter: stringifyFfmpegFilter({
 				channels: audioDetails.channels,
 				startInVideo: asset.startInVideo,
 				trimLeft: assetTrimLeft,
 				trimRight: assetTrimRight,
-				volume: asset.volume,
+				volume: flattenVolumeArray(asset.volume),
 				fps,
 				playbackRate: asset.playbackRate,
 			}),
