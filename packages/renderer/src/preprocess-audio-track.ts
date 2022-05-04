@@ -1,9 +1,12 @@
 import execa from 'execa';
 import {FfmpegExecutable} from 'remotion';
+import {getAudioChannels} from './assets/get-audio-channels';
 import {MediaAsset} from './assets/types';
 import {calculateFfmpegFilter} from './calculate-ffmpeg-filters';
+import {makeFfmpegFilterFile} from './ffmpeg-filter-file';
 import {pLimit} from './p-limit';
 import {parseFfmpegProgress} from './parse-ffmpeg-progress';
+import {resolveAssetSrc} from './resolve-asset-src';
 import {DEFAULT_SAMPLE_RATE} from './sample-rate';
 
 type Options = {
@@ -23,23 +26,26 @@ const preprocessAudioTrackUnlimited = async ({
 	expectedFrames,
 	fps,
 }: Options) => {
-	const data = await calculateFfmpegFilter({
+	const channels = await getAudioChannels(resolveAssetSrc(asset.src));
+
+	const filter = await calculateFfmpegFilter({
 		asset,
 		durationInFrames: expectedFrames,
 		fps,
+		channels,
 	});
 
-	if (data === null) {
+	if (filter === null) {
 		onProgress(1);
 		return;
 	}
 
-	const {filter, src, cleanup} = data;
+	const {cleanup, file} = await makeFfmpegFilterFile(filter);
 
 	const args = [
-		['-i', src],
+		['-i', resolveAssetSrc(asset.src)],
 		['-ac', '2'],
-		['-filter_script:a', filter],
+		['-filter_script:a', file],
 		['-ar', String(DEFAULT_SAMPLE_RATE)],
 		['-c:a', 'aac'],
 		['-y', outName],

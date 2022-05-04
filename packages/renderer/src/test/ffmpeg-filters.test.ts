@@ -1,4 +1,3 @@
-import fs from 'fs';
 import {MediaAsset} from '../assets/types';
 import {calculateFfmpegFilter} from '../calculate-ffmpeg-filters';
 
@@ -16,81 +15,65 @@ const asset: MediaAsset = {
 	playbackRate: 1,
 };
 
-test('Should create a basic filter correctly', async () => {
+test('Should create a basic filter correctly', () => {
 	expect(
-		await fs.promises.readFile(
-			(
-				await calculateFfmpegFilter({
-					fps: 30,
-					asset,
-					durationInFrames: 100,
-				})
-			).filter,
-			'utf8'
-		)
+		calculateFfmpegFilter({
+			fps: 30,
+			asset,
+			durationInFrames: 100,
+			channels: 1,
+		})
 	).toBe(
 		'[0:a]apad,atrim=0.000:0.667,adelay=0|0,atempo=1.00000,volume=1:eval=once[a0]'
 	);
 });
 
-test('Should handle trim correctly', async () => {
+test('Should handle trim correctly', () => {
 	expect(
-		await fs.promises.readFile(
-			(
-				await calculateFfmpegFilter({
-					fps: 30,
-					asset: {
-						...asset,
-						trimLeft: 10,
-					},
-					durationInFrames: 100,
-				})
-			).filter,
-			'utf8'
-		)
+		calculateFfmpegFilter({
+			fps: 30,
+			asset: {
+				...asset,
+				trimLeft: 10,
+			},
+			durationInFrames: 100,
+			channels: 1,
+		})
 	).toBe(
 		'[0:a]apad,atrim=0.333:1.000,adelay=0|0,atempo=1.00000,volume=1:eval=once[a0]'
 	);
 });
 
-test('Should handle delay correctly', async () => {
+test('Should handle delay correctly', () => {
 	expect(
-		await fs.promises.readFile(
-			(
-				await calculateFfmpegFilter({
-					fps: 30,
-					asset: {
-						...asset,
-						trimLeft: 10,
-						startInVideo: 80,
-					},
+		calculateFfmpegFilter({
+			fps: 30,
+			asset: {
+				...asset,
+				trimLeft: 10,
+				startInVideo: 80,
+			},
 
-					durationInFrames: 100,
-				})
-			).filter,
-			'utf8'
-		)
+			durationInFrames: 100,
+			channels: 1,
+		})
 	).toBe(
 		'[0:a]apad,atrim=0.333:1.000,adelay=2667|2667,atempo=1.00000,volume=1:eval=once[a0]'
 	);
 });
 
-test('Should offset multiple channels', async () => {
-	// TODO: 3 channels
+test('Should offset multiple channels', () => {
 	expect(
-		await fs.promises.readFile(
-			(
-				await calculateFfmpegFilter({
-					fps: 30,
-					asset: {
-						...asset,
-						trimLeft: 10,
-						startInVideo: 80,
-					},
-					durationInFrames: 100,
-				})
-			).filter
-		)
+		calculateFfmpegFilter({
+			fps: 30,
+			asset: {
+				...asset,
+				trimLeft: 10,
+				startInVideo: 80,
+			},
+			durationInFrames: 100,
+			channels: 3,
+		})
 	).toBe(
 		'[0:a]apad,atrim=0.333:1.000,adelay=2667|2667|2667|2667,atempo=1.00000,volume=1:eval=once[a0]'
 	);
