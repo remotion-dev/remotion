@@ -21,7 +21,7 @@ export const preprocessAudioTrack = async ({
 	const args = [
 		['-i', audioFile],
 		['-ac', '2'],
-		['-af', filter],
+		['-filter_script:a', filter],
 		['-ar', String(DEFAULT_SAMPLE_RATE)],
 		['-c:a', 'aac'],
 		['-y', outName],
