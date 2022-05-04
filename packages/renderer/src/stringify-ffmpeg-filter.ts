@@ -32,7 +32,10 @@ export const stringifyFfmpegFilter = ({
 	return (
 		`[0:a]` +
 		[
+			// Order matters! First trim the audio
 			`atrim=${trimLeft}:${trimRight}`,
+			// then set the tempo
+			calculateATempo(playbackRate),
 			// For n channels, we delay n + 1 channels.
 			// This is because `ffprobe` for some audio files reports the wrong amount
 			// of channels.
@@ -40,8 +43,9 @@ export const stringifyFfmpegFilter = ({
 			// "Unused delays will be silently ignored."
 			// https://ffmpeg.org/ffmpeg-filters.html#adelay
 			`adelay=${new Array(channels + 1).fill(startInVideoSeconds).join('|')}`,
-			calculateATempo(playbackRate),
+			// set the volume
 			`volume=${volumeFilter.value}:eval=${volumeFilter.eval}`,
+			// Only in the end, we pad to the full length.
 			'apad=whole_dur=' + (durationInFrames / fps).toFixed(3),
 		]
 			.filter(Internals.truthy)
