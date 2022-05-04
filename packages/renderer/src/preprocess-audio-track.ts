@@ -28,10 +28,10 @@ const preprocessAudioTrackUnlimited = async ({
 	expectedFrames,
 	fps,
 	codec,
-}: Options) => {
+}: Options): Promise<string | null> => {
 	const channels = await getAudioChannels(resolveAssetSrc(asset.src));
 
-	const filter = await calculateFfmpegFilter({
+	const filter = calculateFfmpegFilter({
 		asset,
 		durationInFrames: expectedFrames,
 		fps,
@@ -40,7 +40,7 @@ const preprocessAudioTrackUnlimited = async ({
 
 	if (filter === null) {
 		onProgress(1);
-		return;
+		return null;
 	}
 
 	const {cleanup, file} = await makeFfmpegFilterFile(filter);
@@ -66,6 +66,7 @@ const preprocessAudioTrackUnlimited = async ({
 
 	await task;
 	cleanup();
+	return outName;
 };
 
 const limit = pLimit(2);
