@@ -11,6 +11,7 @@ export const stringifyFfmpegFilter = ({
 	volume,
 	fps,
 	playbackRate,
+	durationInFrames,
 }: {
 	trimLeft: string;
 	trimRight: string;
@@ -18,6 +19,7 @@ export const stringifyFfmpegFilter = ({
 	startInVideo: number;
 	volume: AssetVolume;
 	fps: number;
+	durationInFrames: number;
 	playbackRate: number;
 }) => {
 	const startInVideoSeconds = ((startInVideo / fps) * 1000).toFixed(); // in milliseconds
@@ -30,7 +32,6 @@ export const stringifyFfmpegFilter = ({
 	return (
 		`[0:a]` +
 		[
-			'apad',
 			`atrim=${trimLeft}:${trimRight}`,
 			// For n channels, we delay n + 1 channels.
 			// This is because `ffprobe` for some audio files reports the wrong amount
@@ -41,6 +42,7 @@ export const stringifyFfmpegFilter = ({
 			`adelay=${new Array(channels + 1).fill(startInVideoSeconds).join('|')}`,
 			calculateATempo(playbackRate),
 			`volume=${volumeFilter.value}:eval=${volumeFilter.eval}`,
+			'apad=whole_dur=' + (durationInFrames / fps).toFixed(3),
 		]
 			.filter(Internals.truthy)
 			.join(',') +

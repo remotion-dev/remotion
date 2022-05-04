@@ -8,10 +8,12 @@ export const calculateFfmpegFilters = ({
 	assetPositions,
 	assetAudioDetails,
 	fps,
+	durationInFrames,
 }: {
 	assetPositions: Assets;
 	assetAudioDetails: Map<string, AssetAudioDetails>;
 	fps: number;
+	durationInFrames: number;
 }): Promise<{filter: string; src: string; cleanup: () => void}[]> => {
 	const withAtLeast1Channel = assetPositions.filter((pos) => {
 		return (
@@ -38,6 +40,7 @@ export const calculateFfmpegFilters = ({
 				volume: flattenVolumeArray(asset.volume),
 				fps,
 				playbackRate: asset.playbackRate,
+				durationInFrames,
 			});
 
 			const {cleanup, file: filterFile} = await makeFfmpegFilterFile(filter);

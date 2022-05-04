@@ -11,6 +11,7 @@ type Options = {
 	onProgress: (progress: number) => void;
 };
 
+// TODO: Limit concurrency
 export const preprocessAudioTrack = async ({
 	ffmpegExecutable,
 	audioFile,

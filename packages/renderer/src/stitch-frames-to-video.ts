@@ -8,6 +8,7 @@ import {
 	PixelFormat,
 	ProResProfile,
 	RenderAssetInfo,
+	TAsset,
 } from 'remotion';
 import {assetsToFfmpegInputs} from './assets-to-ffmpeg-inputs';
 import {calculateAssetPositions} from './assets/calculate-asset-positions';
@@ -52,13 +53,27 @@ export type StitcherOptions = {
 	};
 };
 
-const getAssetsData = async (
-	options: StitcherOptions
-): Promise<string | null> => {
+const getAssetsData = async ({
+	assets,
+	downloadDir,
+	onDownload,
+	fps,
+	expectedFrames,
+	verbose,
+	ffmpegExecutable,
+}: {
+	assets: TAsset[][];
+	downloadDir: string;
+	onDownload: RenderMediaOnDownload | undefined;
+	fps: number;
+	expectedFrames: number;
+	verbose: boolean;
+	ffmpegExecutable: FfmpegExecutable | null;
+}): Promise<string | null> => {
 	const fileUrlAssets = await convertAssetsToFileUrls({
-		assets: options.assetsInfo.assets,
-		downloadDir: options.assetsInfo.downloadDir,
-		onDownload: options.onDownload ?? (() => () => undefined),
+		assets: assets,
+		downloadDir: downloadDir,
+		onDownload: onDownload ?? (() => () => undefined),
 	});
 
 	markAllAssetsAsDownloaded();
@@ -71,13 +86,14 @@ const getAssetsData = async (
 	const filters = await calculateFfmpegFilters({
 		assetAudioDetails,
 		assetPositions,
-		fps: options.fps,
+		fps: fps,
+		durationInFrames: expectedFrames,
 	});
-	if (options.verbose) {
+	if (verbose) {
 		console.log('asset positions', assetPositions);
 	}
 
-	if (options.verbose) {
+	if (verbose) {
 		console.log('filters', filters);
 	}
 
@@ -87,7 +103,7 @@ const getAssetsData = async (
 		filters.map(async ({filter, src, cleanup}, index) => {
 			const filterFile = path.join(tempPath, `${index}.aac`);
 			await preprocessAudioTrack({
-				ffmpegExecutable: options.ffmpegExecutable ?? null,
+				ffmpegExecutable: ffmpegExecutable ?? null,
 				audioFile: src,
 				filter,
 				onProgress: (prog) => console.log(prog),
@@ -101,8 +117,9 @@ const getAssetsData = async (
 	const outName = path.join(tempPath, `audio.aac`);
 
 	await mergeAudioTrack({
-		ffmpegExecutable: options.ffmpegExecutable ?? null,
+		ffmpegExecutable: ffmpegExecutable ?? null,
 		files: preprocessed,
+		// TODO: Handle progress better
 		onProgress: (prog) => console.log('merge', prog),
 		outName,
 	});
@@ -164,14 +181,22 @@ export const spawnFfmpeg = async (options: StitcherOptions) => {
 	Internals.validateSelectedCrfAndCodecCombination(crf, codec);
 	Internals.validateSelectedPixelFormatAndCodecCombination(pixelFormat, codec);
 
-	const audio = await getAssetsData(options);
+	const expectedFrames = options.assetsInfo.assets.length;
+
+	const audio = await getAssetsData({
+		assets: options.assetsInfo.assets,
+		downloadDir: options.assetsInfo.downloadDir,
+		onDownload: options.onDownload,
+		fps: options.fps,
+		expectedFrames,
+		verbose: options.verbose ?? false,
+		ffmpegExecutable: options.ffmpegExecutable ?? null,
+	});
 
 	// TODO: If only audio should be output, finish now
 	if (isAudioOnly) {
 		throw new Error('audio only not implemented');
 	}
-
-	const expectedFrames = options.assetsInfo.assets.length;
 
 	const ffmpegArgs = [
 		['-r', String(options.fps)],
@@ -187,7 +212,7 @@ export const spawnFfmpeg = async (options: StitcherOptions) => {
 			asset: audio,
 			isAudioOnly,
 			fps: options.fps,
-			frameCount: options.assetsInfo.assets.length,
+			frameCount: expectedFrames,
 		}),
 
 		// -c:v is the same as -vcodec as -codec:video

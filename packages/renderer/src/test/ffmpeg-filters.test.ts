@@ -1,3 +1,4 @@
+import fs from 'fs';
 import {AssetAudioDetails, MediaAsset} from '../assets/types';
 import {calculateFfmpegFilters} from '../calculate-ffmpeg-filters';
 
@@ -15,88 +16,111 @@ const asset: MediaAsset = {
 	playbackRate: 1,
 };
 
-test('Should create a basic filter correctly', () => {
+test('Should create a basic filter correctly', async () => {
 	const assetAudioDetails = new Map<string, AssetAudioDetails>();
 	assetAudioDetails.set(src, {
 		channels: 1,
 	});
 	expect(
-		calculateFfmpegFilters({
-			fps: 30,
-			assetPositions: [asset],
-			assetAudioDetails,
-		})[0]
+		await fs.promises.readFile(
+			(
+				await calculateFfmpegFilters({
+					fps: 30,
+					assetPositions: [asset],
+					assetAudioDetails,
+					durationInFrames: 100,
+				})
+			)[0].filter,
+			'utf8'
+		)
 	).toBe(
 		'[0:a]apad,atrim=0.000:0.667,adelay=0|0,atempo=1.00000,volume=1:eval=once[a0]'
 	);
 });
 
-test('Should handle trim correctly', () => {
+test('Should handle trim correctly', async () => {
 	const assetAudioDetails = new Map<string, AssetAudioDetails>();
 	assetAudioDetails.set(src, {
 		channels: 1,
 	});
 	expect(
-		calculateFfmpegFilters({
-			fps: 30,
-			assetPositions: [
-				{
-					...asset,
-					trimLeft: 10,
-				},
-			],
-			assetAudioDetails,
-		})[0]
+		await fs.promises.readFile(
+			(
+				await calculateFfmpegFilters({
+					fps: 30,
+					assetPositions: [
+						{
+							...asset,
+							trimLeft: 10,
+						},
+					],
+					assetAudioDetails,
+					durationInFrames: 100,
+				})
+			)[0].filter,
+			'utf8'
+		)
 	).toBe(
 		'[0:a]apad,atrim=0.333:1.000,adelay=0|0,atempo=1.00000,volume=1:eval=once[a0]'
 	);
 });
 
-test('Should handle delay correctly', () => {
+test('Should handle delay correctly', async () => {
 	const assetAudioDetails = new Map<string, AssetAudioDetails>();
 	assetAudioDetails.set(src, {
 		channels: 1,
 	});
 	expect(
-		calculateFfmpegFilters({
-			fps: 30,
-			assetPositions: [
-				{
-					...asset,
-					trimLeft: 10,
-					startInVideo: 80,
-				},
-			],
-			assetAudioDetails,
-		})[0]
+		await fs.promises.readFile(
+			(
+				await calculateFfmpegFilters({
+					fps: 30,
+					assetPositions: [
+						{
+							...asset,
+							trimLeft: 10,
+							startInVideo: 80,
+						},
+					],
+					assetAudioDetails,
+					durationInFrames: 100,
+				})
+			)[0].filter,
+			'utf8'
+		)
 	).toBe(
 		'[0:a]apad,atrim=0.333:1.000,adelay=2667|2667,atempo=1.00000,volume=1:eval=once[a0]'
 	);
 });
 
-test('Should offset multiple channels', () => {
+test('Should offset multiple channels', async () => {
 	const assetAudioDetails = new Map<string, AssetAudioDetails>();
 	assetAudioDetails.set(src, {
 		channels: 3,
 	});
 	expect(
-		calculateFfmpegFilters({
-			fps: 30,
-			assetPositions: [
-				{
-					...asset,
-					trimLeft: 10,
-					startInVideo: 80,
-				},
-			],
-			assetAudioDetails,
-		})[0]
+		await fs.promises.readFile(
+			(
+				await calculateFfmpegFilters({
+					fps: 30,
+					assetPositions: [
+						{
+							...asset,
+							trimLeft: 10,
+							startInVideo: 80,
+						},
+					],
+					assetAudioDetails,
+					durationInFrames: 100,
+				})
+			)[0].filter
+		)
 	).toBe(
 		'[0:a]apad,atrim=0.333:1.000,adelay=2667|2667|2667|2667,atempo=1.00000,volume=1:eval=once[a0]'
 	);
 });
 
-test('Should calculate correct indices even if some muted channels are removed before', () => {
+test('Should calculate correct indices even if some muted channels are removed before', async () => {
 	const assetAudioDetails = new Map<string, AssetAudioDetails>();
 	const mutedSrc = 'music.mp3';
 	assetAudioDetails.set(mutedSrc, {
@@ -126,8 +150,11 @@ test('Should calculate correct indices even if some muted channels are removed b
 				},
 			],
 			assetAudioDetails,
+			durationInFrames: 100,
 		});
-	expect(makeFilters()[0]).toBe(
+	expect(
+		await fs.promises.readFile((await makeFilters())[0].filter, 'utf8')
+	).toBe(
 		// Should be index 2 - make sure that index 1 is not current, because it is muted
 		'[0:a]apad,atrim=0.333:1.000,adelay=2667|2667|2667|2667,atempo=1.00000,volume=1:eval=once[a0]'
 	);
@@ -136,10 +163,14 @@ test('Should calculate correct indices even if some muted channels are removed b
 	assetAudioDetails.set(mutedSrc, {
 		channels: 1,
 	});
-	expect(makeFilters()[0]).toBe(
+	expect(
+		await fs.promises.readFile((await makeFilters())[0].filter, 'utf8')
+	).toBe(
 		'[0:a]apad,atrim=0.333:3.667,adelay=2667|2667,atempo=1.00000,volume=1:eval=once[a0]'
 	);
-	expect(makeFilters()[1]).toBe(
+	expect(
+		await fs.promises.readFile((await makeFilters())[1].filter, 'utf8')
+	).toBe(
 		'[0:a]apad,atrim=0.333:1.000,adelay=2667|2667|2667|2667,atempo=1.00000,volume=1:eval=once[a0]'
 	);
 });

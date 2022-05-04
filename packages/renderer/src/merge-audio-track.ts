@@ -1,4 +1,5 @@
 import execa from 'execa';
+import fs from 'fs';
 import {FfmpegExecutable, Internals} from 'remotion';
 import {createFfmpegComplexFilter} from './create-ffmpeg-complex-filter';
 import {parseFfmpegProgress} from './parse-ffmpeg-progress';
@@ -10,7 +11,6 @@ type Options = {
 	onProgress: (progress: number) => void;
 };
 
-// TODO: Limit concurrency
 export const mergeAudioTrack = async ({
 	ffmpegExecutable,
 	outName,
@@ -19,6 +19,13 @@ export const mergeAudioTrack = async ({
 }: Options) => {
 	const {complexFilterFlag: mergeFilter, cleanup} =
 		await createFfmpegComplexFilter(files.length);
+
+	if (files.length === 1) {
+		await fs.promises.copyFile(files[0], outName);
+		onProgress(1);
+		return;
+	}
+
 	const args = [
 		...files.map((f) => ['-i', f]),
 		mergeFilter,
