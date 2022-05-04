@@ -1152,7 +1152,35 @@ export const showcaseVideos: ShowcaseVideo[] = [
 		"url": "https://twitter.com/Slashgear_",
 		"name": "Antoine Caron & Mickaël Alves"
 	}
-},
+  },
+  {
+    title: 'snappify ProductHunt GIF',
+    type: 'mux_video',
+    muxId: 'vOGnXmkV01R2WW6SuZRIykksh3uzEfRV900ieznAmc7Is',
+    description:
+      'An animated Logo used for the ProductHunt launch of snappify.',
+    height: 960,
+    width: 960,
+    submittedOn: new Date("05-04-2022"),
+    links: [
+      {
+        type: 'source_code',
+        url: 'https://github.com/snappify-io/producthunt-gif',
+      },
+      {
+        type: 'website',
+        url: 'https://snappify.io/',
+      },
+      {
+        type: 'tutorial',
+        url: 'https://snappify.io/blog/create-producthunt-gif-with-remotion',
+      },
+    ],
+    author: {
+      url: 'https://twitter.com/dominiksumer',
+      name: 'Dominik Sumer',
+    },
+  },
 ];
 
 const dateString = (date: Date) =>
