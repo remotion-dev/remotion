@@ -22,7 +22,6 @@
 	"dependencies": {
 		"@remotion/bundler": "3.0.2",
 		"execa": "5.1.1",
-		"p-limit": "3.1.0",
 		"puppeteer-core": "13.5.1",
 		"remotion": "3.0.2",
 		"serve-handler": "6.1.3",

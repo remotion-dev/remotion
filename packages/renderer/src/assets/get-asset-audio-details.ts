@@ -1,4 +1,4 @@
-import pLimit from 'p-limit';
+import {pLimit} from '../p-limit';
 import {getAudioChannels} from './get-audio-channels';
 import {AssetAudioDetails} from './types';
 
