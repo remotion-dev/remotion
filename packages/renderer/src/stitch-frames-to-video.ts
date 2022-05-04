@@ -1,4 +1,5 @@
 import execa from 'execa';
+import fs from 'fs';
 import path from 'path';
 import {
 	Codec,
@@ -17,9 +18,7 @@ import {
 	markAllAssetsAsDownloaded,
 	RenderMediaOnDownload,
 } from './assets/download-and-map-assets-to-file';
-import {getAssetAudioDetails} from './assets/get-asset-audio-details';
-import {AssetAudioDetails, Assets} from './assets/types';
-import {calculateFfmpegFilter} from './calculate-ffmpeg-filters';
+import {Assets} from './assets/types';
 import {deleteDirectory} from './delete-directory';
 import {getAudioCodecName} from './get-audio-codec-name';
 import {getCodecName} from './get-codec-name';
@@ -27,7 +26,6 @@ import {getProResProfileName} from './get-prores-profile-name';
 import {mergeAudioTrack} from './merge-audio-track';
 import {parseFfmpegProgress} from './parse-ffmpeg-progress';
 import {preprocessAudioTrack} from './preprocess-audio-track';
-import {resolveAssetSrc} from './resolve-asset-src';
 import {tmpDir} from './tmp-dir';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
 import {validateFfmpeg} from './validate-ffmpeg';
@@ -54,6 +52,11 @@ export type StitcherOptions = {
 	};
 };
 
+type ReturnType = {
+	task: Promise<unknown>;
+	getLogs: () => string;
+};
+
 const getAssetsData = async ({
 	assets,
 	downloadDir,
@@ -62,6 +65,7 @@ const getAssetsData = async ({
 	expectedFrames,
 	verbose,
 	ffmpegExecutable,
+	onProgress,
 }: {
 	assets: TAsset[][];
 	downloadDir: string;
@@ -70,6 +74,7 @@ const getAssetsData = async ({
 	expectedFrames: number;
 	verbose: boolean;
 	ffmpegExecutable: FfmpegExecutable | null;
+	onProgress: (progress: number) => void;
 }): Promise<string | null> => {
 	const fileUrlAssets = await convertAssetsToFileUrls({
 		assets: assets,
@@ -80,44 +85,30 @@ const getAssetsData = async ({
 	markAllAssetsAsDownloaded();
 	const assetPositions: Assets = calculateAssetPositions(fileUrlAssets);
 
-	const assetAudioDetails = await getAssetAudioDetails({
-		assetPaths: assetPositions.map((a) => a.src),
-	});
-
-	const withAtLeast1Channel = assetPositions.filter((pos) => {
-		return (
-			(assetAudioDetails.get(resolveAssetSrc(pos.src)) as AssetAudioDetails)
-				.channels > 0
-		);
-	});
-
 	if (verbose) {
 		console.log('asset positions', assetPositions);
 	}
 
 	const tempPath = tmpDir('remotion-audio-mixing');
 
-	const preprocessed = await Promise.all(
-		withAtLeast1Channel.map(async (asset, index) => {
-			const filterFile = path.join(tempPath, `${index}.aac`);
-			const {filter, src, cleanup} = await calculateFfmpegFilter({
-				assetAudioDetails,
-				asset: asset,
-				durationInFrames: expectedFrames,
-				fps,
-			});
-			if (verbose) {
-				console.log('filter for ' + src, filter);
-			}
+	let totalProgress = new Array(assetPositions.length).fill(0);
 
+	const preprocessed = await Promise.all(
+		assetPositions.map(async (asset, index) => {
+			const filterFile = path.join(tempPath, `${index}.aac`);
 			await preprocessAudioTrack({
 				ffmpegExecutable: ffmpegExecutable ?? null,
-				audioFile: src,
-				filter,
-				onProgress: (prog) => console.log(prog),
+				onProgress: (prog) => {
+					totalProgress[index] = prog;
+					onProgress(
+						totalProgress.reduce((a, b) => a + b, 0) / assetPositions.length
+					);
+				},
 				outName: filterFile,
+				asset,
+				expectedFrames,
+				fps,
 			});
-			cleanup();
 			return filterFile;
 		})
 	);
@@ -139,7 +130,9 @@ const getAssetsData = async ({
 	return outName;
 };
 
-export const spawnFfmpeg = async (options: StitcherOptions) => {
+export const spawnFfmpeg = async (
+	options: StitcherOptions
+): Promise<ReturnType> => {
 	Internals.validateDimension(
 		options.height,
 		'height',
@@ -199,11 +192,23 @@ export const spawnFfmpeg = async (options: StitcherOptions) => {
 		expectedFrames,
 		verbose: options.verbose ?? false,
 		ffmpegExecutable: options.ffmpegExecutable ?? null,
+		onProgress: (prog) => options.onProgress?.(prog),
 	});
 
-	// TODO: If only audio should be output, finish now
 	if (isAudioOnly) {
-		throw new Error('audio only not implemented');
+		if (!audio) {
+			// TODO: Just return an empty audio
+			throw new TypeError(
+				'Audio output was selected but the composition contained no audio.'
+			);
+		}
+
+		await fs.promises.copyFile(audio, options.outputLocation);
+		options.onProgress?.(1);
+		return {
+			getLogs: () => '',
+			task: Promise.resolve(),
+		};
 	}
 
 	const ffmpegArgs = [

@@ -1,26 +1,43 @@
 import execa from 'execa';
 import {FfmpegExecutable} from 'remotion';
+import {MediaAsset} from './assets/types';
+import {calculateFfmpegFilter} from './calculate-ffmpeg-filters';
+import {pLimit} from './p-limit';
 import {parseFfmpegProgress} from './parse-ffmpeg-progress';
 import {DEFAULT_SAMPLE_RATE} from './sample-rate';
 
 type Options = {
 	ffmpegExecutable: FfmpegExecutable;
-	audioFile: string;
-	filter: string;
 	outName: string;
 	onProgress: (progress: number) => void;
+	asset: MediaAsset;
+	expectedFrames: number;
+	fps: number;
 };
 
-// TODO: Limit concurrency
-export const preprocessAudioTrack = async ({
+const preprocessAudioTrackUnlimited = async ({
 	ffmpegExecutable,
-	audioFile,
-	filter,
 	outName,
 	onProgress,
+	asset,
+	expectedFrames,
+	fps,
 }: Options) => {
+	const data = await calculateFfmpegFilter({
+		asset,
+		durationInFrames: expectedFrames,
+		fps,
+	});
+
+	if (data === null) {
+		onProgress(1);
+		return;
+	}
+
+	const {filter, src, cleanup} = data;
+
 	const args = [
-		['-i', audioFile],
+		['-i', src],
 		['-ac', '2'],
 		['-filter_script:a', filter],
 		['-ar', String(DEFAULT_SAMPLE_RATE)],
@@ -39,4 +56,11 @@ export const preprocessAudioTrack = async ({
 	});
 
 	await task;
+	cleanup();
+};
+
+const limit = pLimit(2);
+
+export const preprocessAudioTrack = (options: Options) => {
+	return limit(preprocessAudioTrackUnlimited, options);
 };

@@ -1,31 +1,39 @@
 import {flattenVolumeArray} from './assets/flatten-volume-array';
-import {AssetAudioDetails, MediaAsset} from './assets/types';
+import {getAudioChannels} from './assets/get-audio-channels';
+import {MediaAsset} from './assets/types';
 import {makeFfmpegFilterFile} from './ffmpeg-filter-file';
 import {resolveAssetSrc} from './resolve-asset-src';
 import {stringifyFfmpegFilter} from './stringify-ffmpeg-filter';
 
+type ReturnValue = {
+	cleanup: () => void;
+	src: string;
+	filter: string;
+};
+
 export const calculateFfmpegFilter = async ({
 	asset,
 	fps,
-	assetAudioDetails,
 	durationInFrames,
 }: {
 	asset: MediaAsset;
 	fps: number;
-	assetAudioDetails: Map<string, AssetAudioDetails>;
 	durationInFrames: number;
-}) => {
+}): Promise<ReturnValue | null> => {
+	const channels = await getAudioChannels(resolveAssetSrc(asset.src));
+
+	if (channels === 0) {
+		null;
+	}
+
 	const assetTrimLeft = (asset.trimLeft / fps).toFixed(3);
 	const assetTrimRight = (
 		(asset.trimLeft + asset.duration * asset.playbackRate) /
 		fps
 	).toFixed(3);
-	const audioDetails = assetAudioDetails.get(
-		resolveAssetSrc(asset.src)
-	) as AssetAudioDetails;
 
 	const filter = stringifyFfmpegFilter({
-		channels: audioDetails.channels,
+		channels,
 		startInVideo: asset.startInVideo,
 		trimLeft: assetTrimLeft,
 		trimRight: assetTrimRight,
