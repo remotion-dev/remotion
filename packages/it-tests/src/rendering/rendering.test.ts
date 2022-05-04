@@ -340,14 +340,12 @@ test("Dynamic duration should work", async () => {
   expect(task.exitCode).toBe(0);
   expect(fs.existsSync(outputPath)).toBe(true);
 
-  if (process.platform !== "win32") {
-    const info = await execa("ffprobe", [outputPath]);
-    const data = info.stderr;
-    expect(data).toContain("Video: h264");
-    const expectedDuration = (randomDuration / 30).toFixed(2);
-    expect(data).toContain(`Duration: 00:00:0${expectedDuration}`);
-    fs.unlinkSync(outputPath);
-  }
+  const info = await execa("ffprobe", [outputPath]);
+  const data = info.stderr;
+  expect(data).toContain("Video: h264");
+  const expectedDuration = (randomDuration / 30).toFixed(2);
+  expect(data).toContain(`Duration: 00:00:0${expectedDuration}`);
+  fs.unlinkSync(outputPath);
 });
 
 test("Should be able to render if remotion.config.js is not provided", async () => {
