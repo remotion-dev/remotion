@@ -15,7 +15,6 @@ export const createFfmpegComplexFilter = async (
 	}
 
 	const complexFilter = createFfmpegMergeFilter(filters);
-	// TODO: one audio is the same as 0 audios?
 	if (complexFilter === null) {
 		return {complexFilterFlag: null, cleanup: () => undefined};
 	}
