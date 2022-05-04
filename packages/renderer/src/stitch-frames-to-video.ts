@@ -104,28 +104,29 @@ const getAssetsData = async ({
 
 	const audioCodec: Codec = Internals.isAudioCodec(codec) ? codec : 'aac';
 
-	const preprocessed = await Promise.all(
-		assetPositions.map(async (asset, index) => {
-			const filterFile = path.join(
-				tempPath,
-				`${index}.${getFileExtensionFromCodec(audioCodec, 'final')}`
-			);
-			await preprocessAudioTrack({
-				ffmpegExecutable: ffmpegExecutable ?? null,
-				onProgress: (prog) => {
-					// TODO: Does not parse
-					preprocessProgress[index] = prog;
-					updateProgress();
-				},
-				outName: filterFile,
-				asset,
-				expectedFrames,
-				fps,
-				codec: audioCodec,
-			});
-			return filterFile;
-		})
-	);
+	const preprocessed = (
+		await Promise.all(
+			assetPositions.map((asset, index) => {
+				const filterFile = path.join(
+					tempPath,
+					`${index}.${getFileExtensionFromCodec(audioCodec, 'final')}`
+				);
+				return preprocessAudioTrack({
+					ffmpegExecutable: ffmpegExecutable ?? null,
+					onProgress: (prog) => {
+						// TODO: Does not parse
+						preprocessProgress[index] = prog;
+						updateProgress();
+					},
+					outName: filterFile,
+					asset,
+					expectedFrames,
+					fps,
+					codec: audioCodec,
+				});
+			})
+		)
+	).filter(Internals.truthy);
 
 	const outName = path.join(
 		tempPath,

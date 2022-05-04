@@ -2,12 +2,6 @@ import {flattenVolumeArray} from './assets/flatten-volume-array';
 import {MediaAsset} from './assets/types';
 import {stringifyFfmpegFilter} from './stringify-ffmpeg-filter';
 
-type ReturnValue = {
-	cleanup: () => void;
-	src: string;
-	filter: string;
-};
-
 export const calculateFfmpegFilter = ({
 	asset,
 	fps,
@@ -20,7 +14,7 @@ export const calculateFfmpegFilter = ({
 	channels: number;
 }): string | null => {
 	if (channels === 0) {
-		null;
+		return null;
 	}
 
 	const assetTrimLeft = (asset.trimLeft / fps).toFixed(3);
