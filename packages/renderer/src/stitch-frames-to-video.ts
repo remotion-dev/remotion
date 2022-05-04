@@ -80,8 +80,8 @@ const getAssetsData = async ({
 	codec: Codec;
 }): Promise<string | null> => {
 	const fileUrlAssets = await convertAssetsToFileUrls({
-		assets: assets,
-		downloadDir: downloadDir,
+		assets,
+		downloadDir,
 		onDownload: onDownload ?? (() => () => undefined),
 	});
 
@@ -94,7 +94,7 @@ const getAssetsData = async ({
 
 	const tempPath = tmpDir('remotion-audio-mixing');
 
-	let preprocessProgress = new Array(assetPositions.length).fill(0);
+	const preprocessProgress = new Array(assetPositions.length).fill(0);
 
 	const updateProgress = () => {
 		onProgress(
