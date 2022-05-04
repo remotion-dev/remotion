@@ -50,7 +50,7 @@ const preprocessAudioTrackUnlimited = async ({
 		['-ac', '2'],
 		['-filter_script:a', file],
 		['-ar', String(DEFAULT_SAMPLE_RATE)],
-		['-c:a', getAudioCodecName(codec)],
+		['-c:a', getAudioCodecName(codec) as string],
 		['-y', outName],
 	].flat(2);
 
