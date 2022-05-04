@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import {createFfmpegMergeFilter} from './create-ffmpeg-merge-filter';
+import {makeFfmpegFilterFile} from './ffmpeg-filter-file';
 import {tmpDir} from './tmp-dir';
 
 export const createFfmpegComplexFilter = async (
@@ -19,20 +20,14 @@ export const createFfmpegComplexFilter = async (
 		return {complexFilterFlag: null, cleanup: () => undefined};
 	}
 
+	const {file, cleanup} = await makeFfmpegFilterFile(complexFilter);
+
 	const tempPath = tmpDir('remotion-complex-filter');
 	const filterFile = path.join(tempPath, 'complex-filter.txt');
 	await fs.promises.writeFile(filterFile, complexFilter);
 
 	return {
-		complexFilterFlag: ['-filter_complex_script', filterFile],
-		cleanup: () => {
-			(fs.promises.rm ?? fs.promises.rmdir)(tempPath, {
-				recursive: true,
-			}).catch((err) => {
-				console.error('Could not delete a temp file');
-				console.error(err);
-				console.error('Do you have the minimum Node.JS installed?');
-			});
-		},
+		complexFilterFlag: ['-filter_complex_script', file],
+		cleanup,
 	};
 };

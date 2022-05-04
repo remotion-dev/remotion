@@ -19,6 +19,7 @@ import {
 import {getAssetAudioDetails} from './assets/get-asset-audio-details';
 import {Assets} from './assets/types';
 import {calculateFfmpegFilters} from './calculate-ffmpeg-filters';
+import {deleteDirectory} from './delete-directory';
 import {getAudioCodecName} from './get-audio-codec-name';
 import {getCodecName} from './get-codec-name';
 import {getProResProfileName} from './get-prores-profile-name';
@@ -67,7 +68,7 @@ const getAssetsData = async (
 		assetPaths: assetPositions.map((a) => a.src),
 	});
 
-	const filters = calculateFfmpegFilters({
+	const filters = await calculateFfmpegFilters({
 		assetAudioDetails,
 		assetPositions,
 		fps: options.fps,
@@ -83,7 +84,7 @@ const getAssetsData = async (
 	const tempPath = tmpDir('remotion-audio-mixing');
 
 	const preprocessed = await Promise.all(
-		filters.map(async ({filter, src}, index) => {
+		filters.map(async ({filter, src, cleanup}, index) => {
 			const filterFile = path.join(tempPath, `${index}.aac`);
 			await preprocessAudioTrack({
 				ffmpegExecutable: options.ffmpegExecutable ?? null,
@@ -92,6 +93,7 @@ const getAssetsData = async (
 				onProgress: (prog) => console.log(prog),
 				outName: filterFile,
 			});
+			cleanup();
 			return filterFile;
 		})
 	);
@@ -105,7 +107,9 @@ const getAssetsData = async (
 		outName,
 	});
 
-	// TODO: Clean up
+	preprocessed.forEach((p) => {
+		deleteDirectory(p);
+	});
 
 	return outName;
 };
