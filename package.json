@@ -9,8 +9,7 @@
     "build": "turbo run build",
     "ci": "turbo run build lint test",
     "watch": "pnpm run watch --recursive --stream --parallel",
-    "release": "lerna publish --force-publish",
-    "postinstall": "lerna bootstrap"
+    "release": "lerna publish --force-publish"
   },
   "engines": {
     "node": ">=12",
