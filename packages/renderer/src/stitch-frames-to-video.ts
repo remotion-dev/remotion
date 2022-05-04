@@ -22,6 +22,7 @@ import {Assets} from './assets/types';
 import {deleteDirectory} from './delete-directory';
 import {getAudioCodecName} from './get-audio-codec-name';
 import {getCodecName} from './get-codec-name';
+import {getFileExtensionFromCodec} from './get-extension-from-codec';
 import {getProResProfileName} from './get-prores-profile-name';
 import {mergeAudioTrack} from './merge-audio-track';
 import {parseFfmpegProgress} from './parse-ffmpeg-progress';
@@ -66,6 +67,7 @@ const getAssetsData = async ({
 	verbose,
 	ffmpegExecutable,
 	onProgress,
+	codec,
 }: {
 	assets: TAsset[][];
 	downloadDir: string;
@@ -75,6 +77,7 @@ const getAssetsData = async ({
 	verbose: boolean;
 	ffmpegExecutable: FfmpegExecutable | null;
 	onProgress: (progress: number) => void;
+	codec: Codec;
 }): Promise<string | null> => {
 	const fileUrlAssets = await convertAssetsToFileUrls({
 		assets: assets,
@@ -92,19 +95,21 @@ const getAssetsData = async ({
 	const tempPath = tmpDir('remotion-audio-mixing');
 
 	let preprocessProgress = new Array(assetPositions.length).fill(0);
-	let mergeProgress = 0;
 
 	const updateProgress = () => {
 		onProgress(
-			(preprocessProgress.reduce((a, b) => a + b, 0) / assetPositions.length) *
-				0.5 +
-				mergeProgress * 0.5
+			preprocessProgress.reduce((a, b) => a + b, 0) / assetPositions.length
 		);
 	};
 
+	const audioCodec: Codec = Internals.isAudioCodec(codec) ? codec : 'aac';
+
 	const preprocessed = await Promise.all(
 		assetPositions.map(async (asset, index) => {
-			const filterFile = path.join(tempPath, `${index}.aac`);
+			const filterFile = path.join(
+				tempPath,
+				`${index}.${getFileExtensionFromCodec(audioCodec, 'final')}`
+			);
 			await preprocessAudioTrack({
 				ffmpegExecutable: ffmpegExecutable ?? null,
 				onProgress: (prog) => {
@@ -116,22 +121,23 @@ const getAssetsData = async ({
 				asset,
 				expectedFrames,
 				fps,
+				codec: audioCodec,
 			});
 			return filterFile;
 		})
 	);
 
-	const outName = path.join(tempPath, `audio.aac`);
+	const outName = path.join(
+		tempPath,
+		`audio.${getFileExtensionFromCodec(audioCodec, 'final')}`
+	);
 
 	await mergeAudioTrack({
 		ffmpegExecutable: ffmpegExecutable ?? null,
 		files: preprocessed,
-		onProgress: (prog) => {
-			// TODO: Does not parse
-			mergeProgress = prog / expectedFrames;
-			updateProgress();
-		},
 		outName,
+		codec,
+		numberOfSeconds: Number((expectedFrames / fps).toFixed(3)),
 	});
 
 	onProgress(1);
@@ -206,6 +212,7 @@ export const spawnFfmpeg = async (
 		verbose: options.verbose ?? false,
 		ffmpegExecutable: options.ffmpegExecutable ?? null,
 		onProgress: (prog) => options.onProgress?.(prog),
+		codec,
 	});
 
 	if (isAudioOnly) {

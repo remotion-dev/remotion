@@ -1,28 +1,40 @@
 import execa from 'execa';
 import fs from 'fs';
-import {FfmpegExecutable, Internals} from 'remotion';
+import {Codec, FfmpegExecutable, Internals} from 'remotion';
 import {createFfmpegComplexFilter} from './create-ffmpeg-complex-filter';
-import {parseFfmpegProgress} from './parse-ffmpeg-progress';
+import {createSilentAudio} from './create-silent-audio';
+import {getAudioCodecName} from './get-audio-codec-name';
 
 type Options = {
 	ffmpegExecutable: FfmpegExecutable;
 	files: string[];
 	outName: string;
-	onProgress: (progress: number) => void;
+	codec: Codec;
+	numberOfSeconds: number;
 };
 
 export const mergeAudioTrack = async ({
 	ffmpegExecutable,
 	outName,
 	files,
-	onProgress,
+	codec,
+	numberOfSeconds,
 }: Options) => {
 	const {complexFilterFlag: mergeFilter, cleanup} =
 		await createFfmpegComplexFilter(files.length);
 
+	if (files.length === 0) {
+		await createSilentAudio({
+			outName,
+			audioCodec: getAudioCodecName(codec) as string,
+			ffmpegExecutable: ffmpegExecutable,
+			numberOfSeconds,
+		});
+		return;
+	}
+
 	if (files.length === 1) {
 		await fs.promises.copyFile(files[0], outName);
-		onProgress(1);
 		return;
 	}
 
@@ -36,14 +48,6 @@ export const mergeAudioTrack = async ({
 		.flat(2);
 
 	const task = execa(ffmpegExecutable ?? 'ffmpeg', args);
-
-	task.stderr?.on('data', (data: Buffer) => {
-		const str = data.toString();
-		const parsed = parseFfmpegProgress(str);
-		if (parsed !== undefined) {
-			onProgress(parsed);
-		}
-	});
 
 	await task;
 	cleanup();
