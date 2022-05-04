@@ -5,13 +5,13 @@ importers:
   .:
     specifiers:
       lerna: ^4.0.0
-      remotion: 3.0.2
+      remotion: 3.0.3
       turbo: ^1.2.6
     dependencies:
       lerna: 4.0.0
       turbo: 1.2.6
     devDependencies:
-      remotion: 'link:'
+      remotion: link:packages/core
 
   packages/babel-loader:
     specifiers:
