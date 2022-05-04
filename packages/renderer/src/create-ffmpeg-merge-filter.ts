@@ -17,7 +17,5 @@ export const createFfmpegMergeFilter = (inputs: number) => {
 		.filter(Internals.truthy)
 		.join('+');
 
-	// TODO: This command will normalize the volume to 1 again. Should it be the default or be configurable?
-	// return `[0:a][1:a]amerge=inputs=${inputs},pan=stereo|c0<${leftChannel}|c1<${rightChannel}[a]`;
 	return `[0:a][1:a]amerge=inputs=${inputs},pan=stereo|c0=${leftChannel}|c1=${rightChannel}[a]`;
 };

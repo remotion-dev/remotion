@@ -91,7 +91,16 @@ const getAssetsData = async ({
 
 	const tempPath = tmpDir('remotion-audio-mixing');
 
-	let totalProgress = new Array(assetPositions.length).fill(0);
+	let preprocessProgress = new Array(assetPositions.length).fill(0);
+	let mergeProgress = 0;
+
+	const updateProgress = () => {
+		onProgress(
+			(preprocessProgress.reduce((a, b) => a + b, 0) / assetPositions.length) *
+				0.5 +
+				mergeProgress * 0.5
+		);
+	};
 
 	const preprocessed = await Promise.all(
 		assetPositions.map(async (asset, index) => {
@@ -99,10 +108,9 @@ const getAssetsData = async ({
 			await preprocessAudioTrack({
 				ffmpegExecutable: ffmpegExecutable ?? null,
 				onProgress: (prog) => {
-					totalProgress[index] = prog;
-					onProgress(
-						totalProgress.reduce((a, b) => a + b, 0) / assetPositions.length
-					);
+					// TODO: Does not parse
+					preprocessProgress[index] = prog;
+					updateProgress();
 				},
 				outName: filterFile,
 				asset,
@@ -118,10 +126,15 @@ const getAssetsData = async ({
 	await mergeAudioTrack({
 		ffmpegExecutable: ffmpegExecutable ?? null,
 		files: preprocessed,
-		// TODO: Handle progress better
-		onProgress: (prog) => console.log('merge', prog),
+		onProgress: (prog) => {
+			// TODO: Does not parse
+			mergeProgress = prog / expectedFrames;
+			updateProgress();
+		},
 		outName,
 	});
+
+	onProgress(1);
 
 	preprocessed.forEach((p) => {
 		deleteDirectory(p);
