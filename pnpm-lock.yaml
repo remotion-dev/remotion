@@ -723,7 +723,6 @@ importers:
       eslint: 8.13.0
       execa: 5.1.1
       jest: ^27.2.4
-      p-limit: 3.1.0
       prettier: ^2.0.5
       prettier-plugin-organize-imports: ^2.3.4
       puppeteer-core: 13.5.1
@@ -737,7 +736,6 @@ importers:
     dependencies:
       '@remotion/bundler': link:../bundler
       execa: 5.1.1
-      p-limit: 3.1.0
       puppeteer-core: 13.5.1
       remotion: link:../core
       serve-handler: 6.1.3

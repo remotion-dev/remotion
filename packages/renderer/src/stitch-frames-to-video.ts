@@ -18,8 +18,8 @@ import {
 	RenderMediaOnDownload,
 } from './assets/download-and-map-assets-to-file';
 import {getAssetAudioDetails} from './assets/get-asset-audio-details';
-import {Assets} from './assets/types';
-import {calculateFfmpegFilters} from './calculate-ffmpeg-filters';
+import {AssetAudioDetails, Assets} from './assets/types';
+import {calculateFfmpegFilter} from './calculate-ffmpeg-filters';
 import {deleteDirectory} from './delete-directory';
 import {getAudioCodecName} from './get-audio-codec-name';
 import {getCodecName} from './get-codec-name';
@@ -27,6 +27,7 @@ import {getProResProfileName} from './get-prores-profile-name';
 import {mergeAudioTrack} from './merge-audio-track';
 import {parseFfmpegProgress} from './parse-ffmpeg-progress';
 import {preprocessAudioTrack} from './preprocess-audio-track';
+import {resolveAssetSrc} from './resolve-asset-src';
 import {tmpDir} from './tmp-dir';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
 import {validateFfmpeg} from './validate-ffmpeg';
@@ -83,25 +84,32 @@ const getAssetsData = async ({
 		assetPaths: assetPositions.map((a) => a.src),
 	});
 
-	const filters = await calculateFfmpegFilters({
-		assetAudioDetails,
-		assetPositions,
-		fps: fps,
-		durationInFrames: expectedFrames,
+	const withAtLeast1Channel = assetPositions.filter((pos) => {
+		return (
+			(assetAudioDetails.get(resolveAssetSrc(pos.src)) as AssetAudioDetails)
+				.channels > 0
+		);
 	});
-	if (verbose) {
-		console.log('asset positions', assetPositions);
-	}
 
 	if (verbose) {
-		console.log('filters', filters);
+		console.log('asset positions', assetPositions);
 	}
 
 	const tempPath = tmpDir('remotion-audio-mixing');
 
 	const preprocessed = await Promise.all(
-		filters.map(async ({filter, src, cleanup}, index) => {
+		withAtLeast1Channel.map(async (asset, index) => {
 			const filterFile = path.join(tempPath, `${index}.aac`);
+			const {filter, src, cleanup} = await calculateFfmpegFilter({
+				assetAudioDetails,
+				asset: asset,
+				durationInFrames: expectedFrames,
+				fps,
+			});
+			if (verbose) {
+				console.log('filter for ' + src, filter);
+			}
+
 			await preprocessAudioTrack({
 				ffmpegExecutable: ffmpegExecutable ?? null,
 				audioFile: src,
