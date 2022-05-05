@@ -1,5 +1,4 @@
 import execa from 'execa';
-import fs from 'fs';
 import {Codec, FfmpegExecutable, Internals} from 'remotion';
 import {createFfmpegComplexFilter} from './create-ffmpeg-complex-filter';
 import {createSilentAudio} from './create-silent-audio';
@@ -32,14 +31,10 @@ export const mergeAudioTrack = async ({
 		return;
 	}
 
-	if (files.length === 1) {
-		await fs.promises.copyFile(files[0], outName);
-		return;
-	}
-
 	const args = [
 		...files.map((f) => ['-i', f]),
 		mergeFilter,
+		['-c:a', audioCodec],
 		['-map', '[a]'],
 		['-y', outName],
 	]
