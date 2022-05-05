@@ -21,7 +21,6 @@ import {Assets} from './assets/types';
 import {deleteDirectory} from './delete-directory';
 import {getAudioCodecName} from './get-audio-codec-name';
 import {getCodecName} from './get-codec-name';
-import {getFileExtensionFromCodec} from './get-extension-from-codec';
 import {getProResProfileName} from './get-prores-profile-name';
 import {mergeAudioTrack} from './merge-audio-track';
 import {parseFfmpegProgress} from './parse-ffmpeg-progress';
@@ -101,15 +100,10 @@ const getAssetsData = async ({
 		);
 	};
 
-	const audioCodec: Codec = Internals.isAudioCodec(codec) ? codec : 'aac';
-
 	const preprocessed = (
 		await Promise.all(
 			assetPositions.map((asset, index) => {
-				const filterFile = path.join(
-					tempPath,
-					`${index}.${getFileExtensionFromCodec(audioCodec, 'final')}`
-				);
+				const filterFile = path.join(tempPath, `${index}.wav`);
 				return preprocessAudioTrack({
 					ffmpegExecutable: ffmpegExecutable ?? null,
 					onProgress: (prog) => {
@@ -121,7 +115,6 @@ const getAssetsData = async ({
 					asset,
 					expectedFrames,
 					fps,
-					codec: audioCodec,
 				});
 			})
 		)
