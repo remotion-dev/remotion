@@ -16,7 +16,6 @@ export const convertToPcm = async ({
 		input,
 		'-c:a',
 		'pcm_s16le',
-		'-t',
 		'-ar',
 		String(DEFAULT_SAMPLE_RATE),
 		outName,

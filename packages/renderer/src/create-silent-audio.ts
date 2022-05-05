@@ -19,9 +19,9 @@ export const createSilentAudio = async ({
 		'-c:a',
 		'pcm_s16le',
 		'-t',
+		String(numberOfSeconds),
 		'-ar',
 		String(DEFAULT_SAMPLE_RATE),
-		String(numberOfSeconds),
 		outName,
 	]);
 };
