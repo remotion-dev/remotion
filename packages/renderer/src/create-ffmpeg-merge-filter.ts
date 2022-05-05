@@ -1,10 +1,6 @@
 import {Internals} from 'remotion';
 
 export const createFfmpegMergeFilter = (inputs: number) => {
-	if (inputs === 1) {
-		return null;
-	}
-
 	const leftChannel = new Array(inputs * 2)
 		.fill(true)
 		.map((_, i) => (i % 2 === 0 ? `c${i}` : null))

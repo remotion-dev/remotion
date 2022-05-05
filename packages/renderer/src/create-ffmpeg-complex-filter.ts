@@ -15,9 +15,6 @@ export const createFfmpegComplexFilter = async (
 	}
 
 	const complexFilter = createFfmpegMergeFilter(filters);
-	if (complexFilter === null) {
-		return {complexFilterFlag: null, cleanup: () => undefined};
-	}
 
 	const {file, cleanup} = await makeFfmpegFilterFile(complexFilter);
 

@@ -3,12 +3,10 @@ import {FfmpegExecutable} from 'remotion';
 
 export const createSilentAudio = async ({
 	ffmpegExecutable,
-	audioCodec,
 	numberOfSeconds,
 	outName,
 }: {
 	ffmpegExecutable: FfmpegExecutable;
-	audioCodec: string;
 	numberOfSeconds: number;
 	outName: string;
 }) => {
@@ -18,7 +16,7 @@ export const createSilentAudio = async ({
 		'-i',
 		'anullsrc',
 		'-c:a',
-		audioCodec,
+		'pcm_s16le',
 		'-t',
 		String(numberOfSeconds),
 		outName,
