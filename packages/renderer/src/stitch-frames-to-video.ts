@@ -137,7 +137,7 @@ const getAssetsData = async ({
 		ffmpegExecutable: ffmpegExecutable ?? null,
 		files: preprocessed,
 		outName,
-		codec,
+		audioCodec,
 		numberOfSeconds: Number((expectedFrames / fps).toFixed(3)),
 	});
 
