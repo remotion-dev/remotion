@@ -1,5 +1,6 @@
 import execa from 'execa';
 import {FfmpegExecutable} from 'remotion';
+import {DEFAULT_SAMPLE_RATE} from './sample-rate';
 
 export const convertToPcm = async ({
 	ffmpegExecutable,
@@ -16,6 +17,8 @@ export const convertToPcm = async ({
 		'-c:a',
 		'pcm_s16le',
 		'-t',
+		'-ar',
+		String(DEFAULT_SAMPLE_RATE),
 		outName,
 	]);
 };
