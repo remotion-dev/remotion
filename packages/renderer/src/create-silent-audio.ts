@@ -1,5 +1,6 @@
 import execa from 'execa';
 import {FfmpegExecutable} from 'remotion';
+import {DEFAULT_SAMPLE_RATE} from './sample-rate';
 
 export const createSilentAudio = async ({
 	ffmpegExecutable,
@@ -18,6 +19,8 @@ export const createSilentAudio = async ({
 		'-c:a',
 		'pcm_s16le',
 		'-t',
+		'-ar',
+		String(DEFAULT_SAMPLE_RATE),
 		String(numberOfSeconds),
 		outName,
 	]);
