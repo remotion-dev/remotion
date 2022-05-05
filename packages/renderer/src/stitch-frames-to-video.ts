@@ -11,7 +11,6 @@ import {
 	RenderAssetInfo,
 	TAsset,
 } from 'remotion';
-import {assetsToFfmpegInputs} from './assets-to-ffmpeg-inputs';
 import {calculateAssetPositions} from './assets/calculate-asset-positions';
 import {convertAssetsToFileUrls} from './assets/convert-assets-to-file-urls';
 import {
@@ -78,7 +77,7 @@ const getAssetsData = async ({
 	ffmpegExecutable: FfmpegExecutable | null;
 	onProgress: (progress: number) => void;
 	codec: Codec;
-}): Promise<string | null> => {
+}): Promise<string> => {
 	const fileUrlAssets = await convertAssetsToFileUrls({
 		assets,
 		downloadDir,
@@ -128,16 +127,12 @@ const getAssetsData = async ({
 		)
 	).filter(Internals.truthy);
 
-	const outName = path.join(
-		tempPath,
-		`audio.${getFileExtensionFromCodec(audioCodec, 'final')}`
-	);
+	const outName = path.join(tempPath, `audio.wav`);
 
 	await mergeAudioTrack({
 		ffmpegExecutable: ffmpegExecutable ?? null,
 		files: preprocessed,
 		outName,
-		audioCodec,
 		numberOfSeconds: Number((expectedFrames / fps).toFixed(3)),
 	});
 
@@ -242,13 +237,7 @@ export const spawnFfmpeg = async (
 					['-start_number', String(options.assetsInfo.firstFrameIndex)],
 					['-i', options.assetsInfo.imageSequenceName],
 			  ]),
-		...assetsToFfmpegInputs({
-			asset: audio,
-			isAudioOnly,
-			fps: options.fps,
-			frameCount: expectedFrames,
-		}),
-
+		['-i', audio],
 		// -c:v is the same as -vcodec as -codec:video
 		// and specified the video codec.
 		['-c:v', encoderName],
