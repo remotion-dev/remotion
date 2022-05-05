@@ -3,13 +3,12 @@ import fs from 'fs';
 import {Codec, FfmpegExecutable, Internals} from 'remotion';
 import {createFfmpegComplexFilter} from './create-ffmpeg-complex-filter';
 import {createSilentAudio} from './create-silent-audio';
-import {getAudioCodecName} from './get-audio-codec-name';
 
 type Options = {
 	ffmpegExecutable: FfmpegExecutable;
 	files: string[];
 	outName: string;
-	codec: Codec;
+	audioCodec: Codec;
 	numberOfSeconds: number;
 };
 
@@ -17,7 +16,7 @@ export const mergeAudioTrack = async ({
 	ffmpegExecutable,
 	outName,
 	files,
-	codec,
+	audioCodec,
 	numberOfSeconds,
 }: Options) => {
 	const {complexFilterFlag: mergeFilter, cleanup} =
@@ -26,8 +25,8 @@ export const mergeAudioTrack = async ({
 	if (files.length === 0) {
 		await createSilentAudio({
 			outName,
-			audioCodec: getAudioCodecName(codec) as string,
-			ffmpegExecutable: ffmpegExecutable,
+			audioCodec,
+			ffmpegExecutable,
 			numberOfSeconds,
 		});
 		return;
