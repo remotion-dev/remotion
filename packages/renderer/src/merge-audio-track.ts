@@ -1,5 +1,6 @@
 import execa from 'execa';
 import {FfmpegExecutable, Internals} from 'remotion';
+import {convertToPcm} from './convert-to-pcm';
 import {createFfmpegComplexFilter} from './create-ffmpeg-complex-filter';
 import {createSilentAudio} from './create-silent-audio';
 
@@ -21,6 +22,15 @@ export const mergeAudioTrack = async ({
 			outName,
 			ffmpegExecutable,
 			numberOfSeconds,
+		});
+		return;
+	}
+
+	if (files.length === 1) {
+		await convertToPcm({
+			outName,
+			ffmpegExecutable,
+			input: files[0],
 		});
 		return;
 	}
