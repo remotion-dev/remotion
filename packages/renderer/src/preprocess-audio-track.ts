@@ -1,14 +1,12 @@
 import execa from 'execa';
-import {Codec, FfmpegExecutable} from 'remotion';
+import {FfmpegExecutable} from 'remotion';
 import {getAudioChannels} from './assets/get-audio-channels';
 import {MediaAsset} from './assets/types';
 import {calculateFfmpegFilter} from './calculate-ffmpeg-filters';
 import {makeFfmpegFilterFile} from './ffmpeg-filter-file';
-import {getAudioCodecName} from './get-audio-codec-name';
 import {pLimit} from './p-limit';
 import {parseFfmpegProgress} from './parse-ffmpeg-progress';
 import {resolveAssetSrc} from './resolve-asset-src';
-import {DEFAULT_SAMPLE_RATE} from './sample-rate';
 
 type Options = {
 	ffmpegExecutable: FfmpegExecutable;
@@ -17,7 +15,6 @@ type Options = {
 	asset: MediaAsset;
 	expectedFrames: number;
 	fps: number;
-	codec: Codec;
 };
 
 const preprocessAudioTrackUnlimited = async ({
@@ -27,7 +24,6 @@ const preprocessAudioTrackUnlimited = async ({
 	asset,
 	expectedFrames,
 	fps,
-	codec,
 }: Options): Promise<string | null> => {
 	const channels = await getAudioChannels(resolveAssetSrc(asset.src));
 
@@ -49,8 +45,7 @@ const preprocessAudioTrackUnlimited = async ({
 		['-i', resolveAssetSrc(asset.src)],
 		['-ac', '2'],
 		['-filter_script:a', file],
-		['-ar', String(DEFAULT_SAMPLE_RATE)],
-		['-c:a', getAudioCodecName(codec) as string],
+		['-c:a', 'pcm_s16le'],
 		['-y', outName],
 	].flat(2);
 
