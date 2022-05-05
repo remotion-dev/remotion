@@ -1,8 +1,11 @@
 import execa from 'execa';
+import path from 'path';
 import {FfmpegExecutable, Internals} from 'remotion';
+import {chunk} from './chunk';
 import {convertToPcm} from './convert-to-pcm';
 import {createFfmpegComplexFilter} from './create-ffmpeg-complex-filter';
 import {createSilentAudio} from './create-silent-audio';
+import {tmpDir} from './tmp-dir';
 
 type Options = {
 	ffmpegExecutable: FfmpegExecutable;
@@ -16,7 +19,7 @@ export const mergeAudioTrack = async ({
 	outName,
 	files,
 	numberOfSeconds,
-}: Options) => {
+}: Options): Promise<void> => {
 	if (files.length === 0) {
 		await createSilentAudio({
 			outName,
@@ -33,6 +36,32 @@ export const mergeAudioTrack = async ({
 			input: files[0],
 		});
 		return;
+	}
+
+	// FFMPEG has a limit of 64 tracks that can be merged at once
+	if (files.length > 64) {
+		const chunked = chunk(files, 64);
+		const tempPath = tmpDir('remotion-large-audio-mixing');
+
+		const chunkNames = await Promise.all(
+			chunked.map(async (chunkFiles, i) => {
+				const chunkOutname = path.join(tempPath, `chunk-${i}.wav`);
+				await mergeAudioTrack({
+					ffmpegExecutable,
+					files: chunkFiles,
+					numberOfSeconds,
+					outName: chunkOutname,
+				});
+				return chunkOutname;
+			})
+		);
+
+		return mergeAudioTrack({
+			ffmpegExecutable,
+			files: chunkNames,
+			numberOfSeconds,
+			outName,
+		});
 	}
 
 	const {complexFilterFlag: mergeFilter, cleanup} =
