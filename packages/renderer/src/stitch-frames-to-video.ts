@@ -65,7 +65,6 @@ const getAssetsData = async ({
 	verbose,
 	ffmpegExecutable,
 	onProgress,
-	codec,
 }: {
 	assets: TAsset[][];
 	downloadDir: string;
@@ -75,7 +74,6 @@ const getAssetsData = async ({
 	verbose: boolean;
 	ffmpegExecutable: FfmpegExecutable | null;
 	onProgress: (progress: number) => void;
-	codec: Codec;
 }): Promise<string> => {
 	const fileUrlAssets = await convertAssetsToFileUrls({
 		assets,
@@ -201,7 +199,6 @@ export const spawnFfmpeg = async (
 		verbose: options.verbose ?? false,
 		ffmpegExecutable: options.ffmpegExecutable ?? null,
 		onProgress: (prog) => options.onProgress?.(prog),
-		codec,
 	});
 
 	if (isAudioOnly) {
