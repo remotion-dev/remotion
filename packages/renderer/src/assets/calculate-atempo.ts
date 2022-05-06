@@ -6,6 +6,7 @@ export const calculateATempo = (playbackRate: number): string | null => {
 	if (playbackRate === 1) {
 		return null;
 	}
+
 	if (playbackRate >= 0.5 && playbackRate <= 2) {
 		return `atempo=${playbackRate.toFixed(5)}`;
 	}
