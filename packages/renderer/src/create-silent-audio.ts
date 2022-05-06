@@ -15,7 +15,7 @@ export const createSilentAudio = async ({
 		'-f',
 		'lavfi',
 		'-i',
-		'anullsrc',
+		`anullsrc=r=${DEFAULT_SAMPLE_RATE}`,
 		'-c:a',
 		'pcm_s16le',
 		'-t',
