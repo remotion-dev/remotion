@@ -400,7 +400,7 @@ The "Constant Rate Factor" (CRF) of the output. [Use this setting to tell FFMPEG
 
 Ranges for CRF scale, by codec:
 
-- `h264` crf range is 0-51 where crf 18 is _default_.
+- `h264` crf range is 1-51 where crf 18 is _default_.
 - `h265` crf range is 0-51 where crf 23 is _default_.
 - `vp8` crf range is 4-63 where crf 9 is _default_.
 - `vp9` crf range is 0-63 where crf 28 is _default_.
