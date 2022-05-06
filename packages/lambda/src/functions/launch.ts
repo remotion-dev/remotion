@@ -33,6 +33,7 @@ import {
 import {bestFramesPerLambdaParam} from './helpers/best-frames-per-lambda-param';
 import {concatVideosS3} from './helpers/concat-videos';
 import {createPostRenderData} from './helpers/create-post-render-data';
+import {cleanupFiles} from './helpers/delete-chunks';
 import {getExpectedOutName} from './helpers/expected-out-name';
 import {getBrowserInstance} from './helpers/get-browser-instance';
 import {getCurrentRegionInFunction} from './helpers/get-current-region';
@@ -377,6 +378,13 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		renderId: params.renderId,
 	});
 
+	const deletProm = cleanupFiles({
+		region: getCurrentRegionInFunction(),
+		bucket: params.bucketName,
+		contents,
+		jobs,
+	});
+
 	const postRenderData = await createPostRenderData({
 		expectedBucketOwner: options.expectedBucketOwner,
 		region: getCurrentRegionInFunction(),
@@ -386,7 +394,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		contents,
 		errorExplanations: await errorExplanationsProm,
 		timeToEncode: encodingStop - encodingStart,
-		timeToDelete: 0,
+		timeToDelete: await deletProm,
 		outputFile: {
 			lastModified: Date.now(),
 			size: outputSize.size,
