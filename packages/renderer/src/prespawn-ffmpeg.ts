@@ -13,7 +13,7 @@ import {parseFfmpegProgress} from './parse-ffmpeg-progress';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
 import {validateFfmpeg} from './validate-ffmpeg';
 
-export type PreSticherOptions = {
+type PreSticherOptions = {
 	fps: number;
 	width: number;
 	height: number;

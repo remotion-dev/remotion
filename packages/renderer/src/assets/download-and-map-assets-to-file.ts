@@ -33,7 +33,7 @@ const notifyAssetIsDownloaded = (src: string) => {
 	hasBeenDownloadedMap[src] = true;
 };
 
-export const validateMimeType = (mimeType: string, src: string) => {
+const validateMimeType = (mimeType: string, src: string) => {
 	if (!mimeType.includes('/')) {
 		const errMessage = [
 			'A data URL was passed but did not have the correct format so that Remotion could convert it for the video to be rendered.',
