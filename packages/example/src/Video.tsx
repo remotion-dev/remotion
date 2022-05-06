@@ -7,7 +7,6 @@ import {FontDemo} from './Fonts';
 import {Framer} from './Framer';
 import {FreezeExample} from './Freeze/FreezeExample';
 import {MissingImg} from './MissingImg';
-import {NoCrack} from './NoCrack';
 import {OrbScene} from './Orb';
 import InfinityVideo from './ReallyLongVideo';
 import RemoteVideo from './RemoteVideo';
@@ -317,14 +316,6 @@ export const Index: React.FC = () => {
 					height={1080}
 					fps={30}
 					durationInFrames={180 * 30}
-				/>
-				<Composition
-					id="no-crack"
-					component={NoCrack}
-					width={1080}
-					height={1080}
-					fps={30}
-					durationInFrames={5 * 30}
 				/>
 			</Folder>
 			<Folder name="three">
