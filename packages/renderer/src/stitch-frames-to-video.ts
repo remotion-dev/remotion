@@ -100,20 +100,18 @@ const getAssetsData = async ({
 
 	const preprocessed = (
 		await Promise.all(
-			assetPositions.map((asset, index) => {
+			assetPositions.map(async (asset, index) => {
 				const filterFile = path.join(tempPath, `${index}.wav`);
-				return preprocessAudioTrack({
+				const result = await preprocessAudioTrack({
 					ffmpegExecutable: ffmpegExecutable ?? null,
-					onProgress: (prog) => {
-						// TODO: Does not parse
-						preprocessProgress[index] = prog;
-						updateProgress();
-					},
 					outName: filterFile,
 					asset,
 					expectedFrames,
 					fps,
 				});
+				preprocessProgress[index] = 1;
+				updateProgress();
+				return result;
 			})
 		)
 	).filter(Internals.truthy);
@@ -202,13 +200,6 @@ export const spawnFfmpeg = async (
 	});
 
 	if (isAudioOnly) {
-		if (!audio) {
-			// TODO: Just return an empty audio
-			throw new TypeError(
-				'Audio output was selected but the composition contained no audio.'
-			);
-		}
-
 		await fs.promises.copyFile(audio, options.outputLocation);
 		options.onProgress?.(1);
 		return {

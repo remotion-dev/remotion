@@ -5,13 +5,11 @@ import {MediaAsset} from './assets/types';
 import {calculateFfmpegFilter} from './calculate-ffmpeg-filters';
 import {makeFfmpegFilterFile} from './ffmpeg-filter-file';
 import {pLimit} from './p-limit';
-import {parseFfmpegProgress} from './parse-ffmpeg-progress';
 import {resolveAssetSrc} from './resolve-asset-src';
 
 type Options = {
 	ffmpegExecutable: FfmpegExecutable;
 	outName: string;
-	onProgress: (progress: number) => void;
 	asset: MediaAsset;
 	expectedFrames: number;
 	fps: number;
@@ -20,7 +18,6 @@ type Options = {
 const preprocessAudioTrackUnlimited = async ({
 	ffmpegExecutable,
 	outName,
-	onProgress,
 	asset,
 	expectedFrames,
 	fps,
@@ -35,7 +32,6 @@ const preprocessAudioTrackUnlimited = async ({
 	});
 
 	if (filter === null) {
-		onProgress(1);
 		return null;
 	}
 
@@ -49,17 +45,8 @@ const preprocessAudioTrackUnlimited = async ({
 		['-y', outName],
 	].flat(2);
 
-	const task = execa(ffmpegExecutable ?? 'ffmpeg', args);
+	await execa(ffmpegExecutable ?? 'ffmpeg', args);
 
-	task.stderr?.on('data', (data: Buffer) => {
-		const str = data.toString();
-		const parsed = parseFfmpegProgress(str);
-		if (parsed !== undefined) {
-			onProgress(parsed);
-		}
-	});
-
-	await task;
 	cleanup();
 	return outName;
 };
