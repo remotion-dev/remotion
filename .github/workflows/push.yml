@@ -132,3 +132,5 @@ jobs:
       - name: Build & Test
         run: |
           pnpm run ci
+        env:
+          FORCE_COLOR: 1
