@@ -35,6 +35,8 @@ export const stringifyFfmpegFilter = ({
 	const needsExtendingInEnd =
 		durationInSeconds - trimDuration - startInVideoSeconds > 0.00000001;
 
+	// Avoid setting filters if possible, as combining them can create noise
+
 	return (
 		`[0:a]` +
 		[
@@ -53,7 +55,7 @@ export const stringifyFfmpegFilter = ({
 				: `adelay=${new Array(channels + 1)
 						.fill((startInVideoSeconds * 1000).toFixed(0))
 						.join('|')}`,
-			// set the volume
+			// set the volume if needed
 			volumeFilter.value === '1'
 				? null
 				: `volume=${volumeFilter.value}:eval=${volumeFilter.eval}`,
