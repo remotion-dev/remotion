@@ -4,6 +4,9 @@ on:
       - main
   pull_request:
 name: Install and Test
+
+env:
+  FORCE_COLOR: 1
 jobs:
   lambda-tests:
     runs-on: ubuntu-latest
@@ -132,5 +135,3 @@ jobs:
       - name: Build & Test
         run: |
           pnpm run ci
-        env:
-          FORCE_COLOR: 1
