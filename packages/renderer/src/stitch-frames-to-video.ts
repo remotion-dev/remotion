@@ -1,5 +1,4 @@
 import execa from 'execa';
-import fs from 'fs';
 import path from 'path';
 import {
 	Codec,
@@ -188,6 +187,12 @@ export const spawnFfmpeg = async (
 
 	const expectedFrames = options.assetsInfo.assets.length;
 
+	const updateProgress = (preStitchProgress: number, muxProgress: number) => {
+		const totalFrameProgress =
+			0.5 * preStitchProgress * expectedFrames + muxProgress * 0.5;
+		options.onProgress?.(Math.round(totalFrameProgress));
+	};
+
 	const audio = await getAssetsData({
 		assets: options.assetsInfo.assets,
 		downloadDir: options.assetsInfo.downloadDir,
@@ -196,12 +201,28 @@ export const spawnFfmpeg = async (
 		expectedFrames,
 		verbose: options.verbose ?? false,
 		ffmpegExecutable: options.ffmpegExecutable ?? null,
-		onProgress: (prog) => options.onProgress?.(prog),
+		onProgress: (prog) => updateProgress(prog, 0),
 	});
 
 	if (isAudioOnly) {
-		await fs.promises.copyFile(audio, options.outputLocation);
-		options.onProgress?.(1);
+		if (!audioCodecName) {
+			throw new TypeError(
+				'exporting audio but has no audio codec name. Report this in the Remotion repo.'
+			);
+		}
+
+		await execa(
+			'ffmpeg',
+			[
+				'-i',
+				audio,
+				'-c:a',
+				audioCodecName,
+				options.force ? '-y' : null,
+				options.outputLocation,
+			].filter(Internals.truthy)
+		);
+		options.onProgress?.(expectedFrames);
 		return {
 			getLogs: () => '',
 			task: Promise.resolve(),
@@ -270,7 +291,7 @@ export const spawnFfmpeg = async (
 					}
 				}
 
-				options.onProgress(parsed);
+				updateProgress(1, parsed);
 			}
 		}
 	});

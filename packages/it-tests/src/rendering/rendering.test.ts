@@ -286,7 +286,7 @@ test("Should render a video with Offline Audio-context", async () => {
   fs.unlinkSync(out);
 });
 
-test("Should fail to render an audio file that doesn't have any audio inputs", async () => {
+test("Should succeed to render an audio file that doesn't have any audio inputs", async () => {
   const out = outputPath.replace(".mp4", ".mp3");
   const task = await execa(
     "pnpx",
