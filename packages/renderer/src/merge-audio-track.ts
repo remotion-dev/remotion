@@ -5,6 +5,7 @@ import {chunk} from './chunk';
 import {convertToPcm} from './convert-to-pcm';
 import {createFfmpegComplexFilter} from './create-ffmpeg-complex-filter';
 import {createSilentAudio} from './create-silent-audio';
+import {pLimit} from './p-limit';
 import {tmpDir} from './tmp-dir';
 
 type Options = {
@@ -14,7 +15,7 @@ type Options = {
 	numberOfSeconds: number;
 };
 
-export const mergeAudioTrack = async ({
+const mergeAudioTrackUnlimited = async ({
 	ffmpegExecutable,
 	outName,
 	files,
@@ -81,4 +82,10 @@ export const mergeAudioTrack = async ({
 
 	await task;
 	cleanup();
+};
+
+const limit = pLimit(2);
+
+export const mergeAudioTrack = (options: Options) => {
+	return limit(mergeAudioTrackUnlimited, options);
 };
