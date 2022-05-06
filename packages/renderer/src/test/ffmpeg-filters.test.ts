@@ -23,9 +23,7 @@ test('Should create a basic filter correctly', () => {
 			durationInFrames: 100,
 			channels: 1,
 		})
-	).toBe(
-		'[0:a]apad,atrim=0.000:0.667,adelay=0|0,atempo=1.00000,volume=1:eval=once[a0]'
-	);
+	).toBe('[0:a]atrim=0.000000:0.666667,apad=whole_dur=3.333333[a0]');
 });
 
 test('Should handle trim correctly', () => {
@@ -39,9 +37,7 @@ test('Should handle trim correctly', () => {
 			durationInFrames: 100,
 			channels: 1,
 		})
-	).toBe(
-		'[0:a]apad,atrim=0.333:1.000,adelay=0|0,atempo=1.00000,volume=1:eval=once[a0]'
-	);
+	).toBe('[0:a]atrim=0.333333:1.000000,apad=whole_dur=3.333333[a0]');
 });
 
 test('Should handle delay correctly', () => {
@@ -57,9 +53,7 @@ test('Should handle delay correctly', () => {
 			durationInFrames: 100,
 			channels: 1,
 		})
-	).toBe(
-		'[0:a]apad,atrim=0.333:1.000,adelay=2667|2667,atempo=1.00000,volume=1:eval=once[a0]'
-	);
+	).toBe('[0:a]atrim=0.333333:1.000000,adelay=2667|2667[a0]');
 });
 
 test('Should offset multiple channels', () => {
@@ -74,7 +68,5 @@ test('Should offset multiple channels', () => {
 			durationInFrames: 100,
 			channels: 3,
 		})
-	).toBe(
-		'[0:a]apad,atrim=0.333:1.000,adelay=2667|2667|2667|2667,atempo=1.00000,volume=1:eval=once[a0]'
-	);
+	).toBe('[0:a]atrim=0.333333:1.000000,adelay=2667|2667|2667|2667[a0]');
 });
