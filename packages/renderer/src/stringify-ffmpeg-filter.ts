@@ -6,6 +6,7 @@ import {AssetVolume} from './assets/types';
 export const stringifyFfmpegFilter = ({
 	trimLeft,
 	trimRight,
+	channels,
 	startInVideo,
 	volume,
 	fps,
@@ -14,6 +15,7 @@ export const stringifyFfmpegFilter = ({
 }: {
 	trimLeft: number;
 	trimRight: number;
+	channels: number;
 	startInVideo: number;
 	volume: AssetVolume;
 	fps: number;
@@ -42,13 +44,15 @@ export const stringifyFfmpegFilter = ({
 			`atrim=${trimLeft.toFixed(6)}:${trimRight.toFixed(6)}`,
 			// then set the tempo
 			calculateATempo(playbackRate),
-			// We delay up to 10 channels.
-			// Audio usually does not have more than than that and FFMEPG docs state:
+			// For n channels, we delay n + 1 channels.
+			// This is because `ffprobe` for some audio files reports the wrong amount
+			// of channels.
+			// This should be fine because FFMPEG documentation states:
 			// "Unused delays will be silently ignored."
 			// https://ffmpeg.org/ffmpeg-filters.html#adelay
 			startInVideoSeconds === 0
 				? null
-				: `adelay=${new Array(10)
+				: `adelay=${new Array(channels + 1)
 						.fill((startInVideoSeconds * 1000).toFixed(0))
 						.join('|')}`,
 			// set the volume if needed
