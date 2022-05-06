@@ -21,7 +21,6 @@ test('Should create a basic filter correctly', () => {
 			fps: 30,
 			asset,
 			durationInFrames: 100,
-			channels: 1,
 		})
 	).toBe('[0:a]atrim=0.000000:0.666667,apad=whole_dur=3.333333[a0]');
 });
@@ -35,7 +34,6 @@ test('Should handle trim correctly', () => {
 				trimLeft: 10,
 			},
 			durationInFrames: 100,
-			channels: 1,
 		})
 	).toBe('[0:a]atrim=0.333333:1.000000,apad=whole_dur=3.333333[a0]');
 });
@@ -51,9 +49,10 @@ test('Should handle delay correctly', () => {
 			},
 
 			durationInFrames: 100,
-			channels: 1,
 		})
-	).toBe('[0:a]atrim=0.333333:1.000000,adelay=2667|2667[a0]');
+	).toBe(
+		'[0:a]atrim=0.333333:1.000000,adelay=2667|2667|2667|2667|2667|2667|2667|2667|2667|2667[a0]'
+	);
 });
 
 test('Should offset multiple channels', () => {
@@ -66,7 +65,8 @@ test('Should offset multiple channels', () => {
 				startInVideo: 80,
 			},
 			durationInFrames: 100,
-			channels: 3,
 		})
-	).toBe('[0:a]atrim=0.333333:1.000000,adelay=2667|2667|2667|2667[a0]');
+	).toBe(
+		'[0:a]atrim=0.333333:1.000000,adelay=2667|2667|2667|2667|2667|2667|2667|2667|2667|2667[a0]'
+	);
 });
