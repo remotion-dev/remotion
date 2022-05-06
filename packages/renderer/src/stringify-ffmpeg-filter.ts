@@ -13,8 +13,8 @@ export const stringifyFfmpegFilter = ({
 	playbackRate,
 	durationInFrames,
 }: {
-	trimLeft: string;
-	trimRight: string;
+	trimLeft: number;
+	trimRight: number;
 	channels: number;
 	startInVideo: number;
 	volume: AssetVolume;
@@ -22,18 +22,24 @@ export const stringifyFfmpegFilter = ({
 	durationInFrames: number;
 	playbackRate: number;
 }) => {
-	const startInVideoSeconds = ((startInVideo / fps) * 1000).toFixed(); // in milliseconds
+	const startInVideoSeconds = startInVideo / fps;
 
 	const volumeFilter = ffmpegVolumeExpression({
 		volume,
 		startInVideo,
 		fps,
 	});
+	const durationInSeconds = durationInFrames / fps;
+	const trimDuration = trimRight - trimLeft;
+
+	const needsExtendingInEnd =
+		durationInSeconds - trimDuration - startInVideoSeconds > 0.00000001;
+
 	return (
 		`[0:a]` +
 		[
 			// Order matters! First trim the audio
-			`atrim=${trimLeft}:${trimRight}`,
+			`atrim=${trimLeft.toFixed(6)}:${trimRight.toFixed(6)}`,
 			// then set the tempo
 			calculateATempo(playbackRate),
 			// For n channels, we delay n + 1 channels.
@@ -42,11 +48,20 @@ export const stringifyFfmpegFilter = ({
 			// This should be fine because FFMPEG documentation states:
 			// "Unused delays will be silently ignored."
 			// https://ffmpeg.org/ffmpeg-filters.html#adelay
-			`adelay=${new Array(channels + 1).fill(startInVideoSeconds).join('|')}`,
+			startInVideoSeconds === 0
+				? null
+				: `adelay=${new Array(channels + 1)
+						.fill((startInVideoSeconds * 1000).toFixed(0))
+						.join('|')}`,
 			// set the volume
-			`volume=${volumeFilter.value}:eval=${volumeFilter.eval}`,
+			volumeFilter.value === '1'
+				? null
+				: `volume=${volumeFilter.value}:eval=${volumeFilter.eval}`,
+
 			// Only in the end, we pad to the full length.
-			'apad=whole_dur=' + (durationInFrames / fps).toFixed(3),
+			needsExtendingInEnd
+				? 'apad=whole_dur=' + (durationInFrames / fps).toFixed(6)
+				: null,
 		]
 			.filter(Internals.truthy)
 			.join(',') +
