@@ -29,11 +29,6 @@ export const stringifyFfmpegFilter = ({
 		startInVideo,
 		fps,
 	});
-	const durationInSeconds = durationInFrames / fps;
-	const trimDuration = trimRight - trimLeft;
-
-	const needsExtendingInEnd =
-		durationInSeconds - trimDuration - startInVideoSeconds > 0.00000001;
 
 	// Avoid setting filters if possible, as combining them can create noise
 
@@ -61,9 +56,7 @@ export const stringifyFfmpegFilter = ({
 				: `volume=${volumeFilter.value}:eval=${volumeFilter.eval}`,
 
 			// Only in the end, we pad to the full length.
-			needsExtendingInEnd
-				? 'apad=whole_dur=' + (durationInFrames / fps).toFixed(6)
-				: null,
+			'apad=whole_dur=' + (durationInFrames / fps).toFixed(6),
 		]
 			.filter(Internals.truthy)
 			.join(',') +
