@@ -40,7 +40,7 @@ export const mergeAudioTrack = async ({
 
 	// FFMPEG has a limit of 64 tracks that can be merged at once
 	if (files.length > 64) {
-		const chunked = chunk(files, 64);
+		const chunked = chunk(files, 10);
 		const tempPath = tmpDir('remotion-large-audio-mixing');
 
 		const chunkNames = await Promise.all(
