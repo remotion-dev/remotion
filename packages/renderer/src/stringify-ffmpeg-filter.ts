@@ -47,6 +47,7 @@ export const stringifyFfmpegFilter = ({
 	return (
 		`[0:a]` +
 		[
+			`aformat=sample_fmts=s32:sample_rates=${DEFAULT_SAMPLE_RATE}`,
 			// Order matters! First trim the audio
 			`atrim=${trimLeft.toFixed(6)}:${actualTrimRight.toFixed(6)}`,
 			// then set the tempo
