@@ -1,4 +1,5 @@
 import execa from 'execa';
+import path from 'path';
 import {
 	Codec,
 	FfmpegExecutable,
@@ -7,23 +8,23 @@ import {
 	PixelFormat,
 	ProResProfile,
 	RenderAssetInfo,
+	TAsset,
 } from 'remotion';
-import {assetsToFfmpegInputs} from './assets-to-ffmpeg-inputs';
 import {calculateAssetPositions} from './assets/calculate-asset-positions';
 import {convertAssetsToFileUrls} from './assets/convert-assets-to-file-urls';
 import {
 	markAllAssetsAsDownloaded,
 	RenderMediaOnDownload,
 } from './assets/download-and-map-assets-to-file';
-import {getAssetAudioDetails} from './assets/get-asset-audio-details';
 import {Assets} from './assets/types';
-import {calculateFfmpegFilters} from './calculate-ffmpeg-filters';
-import {createFfmpegComplexFilter} from './create-ffmpeg-complex-filter';
+import {deleteDirectory} from './delete-directory';
 import {getAudioCodecName} from './get-audio-codec-name';
 import {getCodecName} from './get-codec-name';
 import {getProResProfileName} from './get-prores-profile-name';
+import {mergeAudioTrack} from './merge-audio-track';
 import {parseFfmpegProgress} from './parse-ffmpeg-progress';
-import {DEFAULT_SAMPLE_RATE} from './sample-rate';
+import {preprocessAudioTrack} from './preprocess-audio-track';
+import {tmpDir} from './tmp-dir';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
 import {validateFfmpeg} from './validate-ffmpeg';
 
@@ -49,49 +50,92 @@ export type StitcherOptions = {
 	};
 };
 
-const getAssetsData = async (options: StitcherOptions) => {
-	const codec = options.codec ?? Internals.DEFAULT_CODEC;
-	const encoderName = getCodecName(codec);
-	const isAudioOnly = encoderName === null;
+type ReturnType = {
+	task: Promise<unknown>;
+	getLogs: () => string;
+};
+
+const getAssetsData = async ({
+	assets,
+	downloadDir,
+	onDownload,
+	fps,
+	expectedFrames,
+	verbose,
+	ffmpegExecutable,
+	onProgress,
+}: {
+	assets: TAsset[][];
+	downloadDir: string;
+	onDownload: RenderMediaOnDownload | undefined;
+	fps: number;
+	expectedFrames: number;
+	verbose: boolean;
+	ffmpegExecutable: FfmpegExecutable | null;
+	onProgress: (progress: number) => void;
+}): Promise<string> => {
 	const fileUrlAssets = await convertAssetsToFileUrls({
-		assets: options.assetsInfo.assets,
-		downloadDir: options.assetsInfo.downloadDir,
-		onDownload: options.onDownload ?? (() => () => undefined),
+		assets,
+		downloadDir,
+		onDownload: onDownload ?? (() => () => undefined),
 	});
 
 	markAllAssetsAsDownloaded();
 	const assetPositions: Assets = calculateAssetPositions(fileUrlAssets);
 
-	markAllAssetsAsDownloaded();
-
-	const assetAudioDetails = await getAssetAudioDetails({
-		assetPaths: assetPositions.map((a) => a.src),
-	});
-
-	const filters = calculateFfmpegFilters({
-		assetAudioDetails,
-		assetPositions,
-		fps: options.fps,
-		videoTrackCount: isAudioOnly ? 0 : 1,
-	});
-	if (options.verbose) {
+	if (verbose) {
 		console.log('asset positions', assetPositions);
 	}
 
-	if (options.verbose) {
-		console.log('filters', filters);
-	}
+	const tempPath = tmpDir('remotion-audio-mixing');
 
-	const {complexFilterFlag, cleanup} = await createFfmpegComplexFilter(filters);
+	const preprocessProgress = new Array(assetPositions.length).fill(0);
 
-	return {
-		complexFilterFlag,
-		cleanup,
-		assetPositions,
+	const updateProgress = () => {
+		onProgress(
+			preprocessProgress.reduce((a, b) => a + b, 0) / assetPositions.length
+		);
 	};
+
+	const preprocessed = (
+		await Promise.all(
+			assetPositions.map(async (asset, index) => {
+				const filterFile = path.join(tempPath, `${index}.wav`);
+				const result = await preprocessAudioTrack({
+					ffmpegExecutable: ffmpegExecutable ?? null,
+					outName: filterFile,
+					asset,
+					expectedFrames,
+					fps,
+				});
+				preprocessProgress[index] = 1;
+				updateProgress();
+				return result;
+			})
+		)
+	).filter(Internals.truthy);
+
+	const outName = path.join(tempPath, `audio.wav`);
+
+	await mergeAudioTrack({
+		ffmpegExecutable: ffmpegExecutable ?? null,
+		files: preprocessed,
+		outName,
+		numberOfSeconds: Number((expectedFrames / fps).toFixed(3)),
+	});
+
+	onProgress(1);
+
+	preprocessed.forEach((p) => {
+		deleteDirectory(p);
+	});
+
+	return outName;
 };
 
-export const spawnFfmpeg = async (options: StitcherOptions) => {
+export const spawnFfmpeg = async (
+	options: StitcherOptions
+): Promise<ReturnType> => {
 	Internals.validateDimension(
 		options.height,
 		'height',
@@ -141,60 +185,79 @@ export const spawnFfmpeg = async (options: StitcherOptions) => {
 	Internals.validateSelectedCrfAndCodecCombination(crf, codec);
 	Internals.validateSelectedPixelFormatAndCodecCombination(pixelFormat, codec);
 
-	const {complexFilterFlag, cleanup, assetPositions} = await getAssetsData(
-		options
-	);
-
 	const expectedFrames = options.assetsInfo.assets.length;
+
+	const updateProgress = (preStitchProgress: number, muxProgress: number) => {
+		const totalFrameProgress =
+			0.5 * preStitchProgress * expectedFrames + muxProgress * 0.5;
+		options.onProgress?.(Math.round(totalFrameProgress));
+	};
+
+	const audio = await getAssetsData({
+		assets: options.assetsInfo.assets,
+		downloadDir: options.assetsInfo.downloadDir,
+		onDownload: options.onDownload,
+		fps: options.fps,
+		expectedFrames,
+		verbose: options.verbose ?? false,
+		ffmpegExecutable: options.ffmpegExecutable ?? null,
+		onProgress: (prog) => updateProgress(prog, 0),
+	});
+
+	if (isAudioOnly) {
+		if (!audioCodecName) {
+			throw new TypeError(
+				'exporting audio but has no audio codec name. Report this in the Remotion repo.'
+			);
+		}
+
+		await execa(
+			'ffmpeg',
+			[
+				'-i',
+				audio,
+				'-c:a',
+				audioCodecName,
+				options.force ? '-y' : null,
+				options.outputLocation,
+			].filter(Internals.truthy)
+		);
+		options.onProgress?.(expectedFrames);
+		return {
+			getLogs: () => '',
+			task: Promise.resolve(),
+		};
+	}
 
 	const ffmpegArgs = [
 		['-r', String(options.fps)],
 		...(options.internalOptions?.preEncodedFileLocation
 			? [['-i', options.internalOptions?.preEncodedFileLocation]]
-			: isAudioOnly
-			? []
 			: [
 					['-f', 'image2'],
 					['-s', `${options.width}x${options.height}`],
 					['-start_number', String(options.assetsInfo.firstFrameIndex)],
 					['-i', options.assetsInfo.imageSequenceName],
 			  ]),
-		...assetsToFfmpegInputs({
-			assets: assetPositions.map((a) => a.src),
-			isAudioOnly,
-			fps: options.fps,
-			frameCount: options.assetsInfo.assets.length,
-		}),
-		encoderName
-			? // -c:v is the same as -vcodec as -codec:video
-			  // and specified the video codec.
-			  ['-c:v', encoderName]
-			: // If only exporting audio, we drop the video explicitly
-			  ['-vn'],
+		['-i', audio],
+		// -c:v is the same as -vcodec as -codec:video
+		// and specified the video codec.
+		['-c:v', encoderName],
 		...(options.internalOptions?.preEncodedFileLocation
 			? []
 			: [
 					proResProfileName ? ['-profile:v', proResProfileName] : null,
 					supportsCrf ? ['-crf', String(crf)] : null,
-					isAudioOnly ? null : ['-pix_fmt', pixelFormat],
+					['-pix_fmt', pixelFormat],
 
 					// Without explicitly disabling auto-alt-ref,
 					// transparent WebM generation doesn't work
 					pixelFormat === 'yuva420p' ? ['-auto-alt-ref', '0'] : null,
-					isAudioOnly ? null : ['-b:v', '1M'],
+					['-b:v', '1M'],
 			  ]),
-		'-ar',
-		String(DEFAULT_SAMPLE_RATE),
-		// Stereo sound, even force mono to be stereo
-		// Otherwise mixing mono + stereo ends up speeding up the audio
-		'-ac',
-		'2',
 		audioCodecName ? ['-c:a', audioCodecName] : null,
-		complexFilterFlag,
-		// Ignore audio from image sequence
-		isAudioOnly ? null : ['-map', '0:v'],
 		// Ignore metadata that may come from remote media
-		isAudioOnly ? null : ['-map_metadata', '-1'],
+		['-map_metadata', '-1'],
 		options.force ? '-y' : null,
 		options.outputLocation,
 	];
@@ -228,22 +291,20 @@ export const spawnFfmpeg = async (options: StitcherOptions) => {
 					}
 				}
 
-				options.onProgress(parsed);
+				updateProgress(1, parsed);
 			}
 		}
 	});
-	return {task, cleanup, getLogs: () => ffmpegOutput};
+	return {task, getLogs: () => ffmpegOutput};
 };
 
 export const stitchFramesToVideo = async (
 	options: StitcherOptions
 ): Promise<void> => {
-	const {task, cleanup, getLogs} = await spawnFfmpeg(options);
+	const {task, getLogs} = await spawnFfmpeg(options);
 	try {
 		await task;
 	} catch (err) {
 		throw new Error(getLogs());
-	} finally {
-		cleanup?.();
 	}
 };

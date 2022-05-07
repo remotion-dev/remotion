@@ -39,7 +39,7 @@ type InnerStillOptions = {
 	scale?: number;
 };
 
-export type RenderStillOptions = InnerStillOptions & ServeUrlOrWebpackBundle;
+type RenderStillOptions = InnerStillOptions & ServeUrlOrWebpackBundle;
 
 const innerRenderStill = async ({
 	composition,
