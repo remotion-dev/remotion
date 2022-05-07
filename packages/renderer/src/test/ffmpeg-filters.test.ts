@@ -38,7 +38,7 @@ test('Trim the end', () => {
 			channels: 1,
 			assetDuration: 10,
 		})
-	).toBe('[0:a]atrim=0.000000:0.666667,apad=pad_dur=2.666667[a0]');
+	).toBe('[0:a]atrim=0.000000:0.666667,apad=pad_len=128000[a0]');
 });
 
 test('Should handle trim correctly', () => {
@@ -53,7 +53,7 @@ test('Should handle trim correctly', () => {
 			channels: 1,
 			assetDuration: 10,
 		})
-	).toBe('[0:a]atrim=0.333333:1.000000,apad=pad_dur=2.666667[a0]');
+	).toBe('[0:a]atrim=0.333333:1.000000,apad=pad_len=128000[a0]');
 });
 
 test('Should add padding if audio is too short', () => {
@@ -68,7 +68,7 @@ test('Should add padding if audio is too short', () => {
 			channels: 1,
 			assetDuration: 1,
 		})
-	).toBe('[0:a]atrim=0.333333:1.000000,apad=pad_dur=2.666667[a0]');
+	).toBe('[0:a]atrim=0.333333:1.000000,apad=pad_len=128000[a0]');
 });
 
 test('Should handle delay correctly', () => {
