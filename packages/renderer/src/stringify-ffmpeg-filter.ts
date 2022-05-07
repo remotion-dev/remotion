@@ -12,6 +12,7 @@ export const stringifyFfmpegFilter = ({
 	fps,
 	playbackRate,
 	durationInFrames,
+	assetDuration,
 }: {
 	trimLeft: number;
 	trimRight: number;
@@ -21,6 +22,7 @@ export const stringifyFfmpegFilter = ({
 	fps: number;
 	durationInFrames: number;
 	playbackRate: number;
+	assetDuration: number | null;
 }) => {
 	const startInVideoSeconds = startInVideo / fps;
 
@@ -32,11 +34,20 @@ export const stringifyFfmpegFilter = ({
 
 	// Avoid setting filters if possible, as combining them can create noise
 
+	const chunkLength = durationInFrames / fps;
+
+	const actualTrimRight = assetDuration
+		? Math.min(trimRight, assetDuration)
+		: trimRight;
+
+	const padAtEnd =
+		chunkLength - (actualTrimRight - trimLeft) - startInVideoSeconds;
+
 	return (
 		`[0:a]` +
 		[
 			// Order matters! First trim the audio
-			`atrim=${trimLeft.toFixed(6)}:${trimRight.toFixed(6)}`,
+			`atrim=${trimLeft.toFixed(6)}:${actualTrimRight.toFixed(6)}`,
 			// then set the tempo
 			calculateATempo(playbackRate),
 			// For n channels, we delay n + 1 channels.
@@ -54,9 +65,8 @@ export const stringifyFfmpegFilter = ({
 			volumeFilter.value === '1'
 				? null
 				: `volume=${volumeFilter.value}:eval=${volumeFilter.eval}`,
-
 			// Only in the end, we pad to the full length.
-			'apad=whole_dur=' + (durationInFrames / fps).toFixed(6),
+			padAtEnd > 0.0000001 ? 'apad=pad_dur=' + padAtEnd.toFixed(6) : null,
 		]
 			.filter(Internals.truthy)
 			.join(',') +
