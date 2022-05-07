@@ -18,7 +18,7 @@ export const createFfmpegComplexFilter = async (
 
 	const {file, cleanup} = await makeFfmpegFilterFile(complexFilter);
 
-	const tempPath = tmpDir('remotion-complex-filter');
+	const tempPath = tmpDir('remotion-complex-filter-script');
 	const filterFile = path.join(tempPath, 'complex-filter.txt');
 	await fs.promises.writeFile(filterFile, complexFilter);
 
