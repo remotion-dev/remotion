@@ -27,7 +27,9 @@ test('Should create a basic filter correctly', () => {
 			channels: 1,
 			assetDuration: 10,
 		})
-	).toBe('[0:a]atrim=0.000000:6.666667[a0]');
+	).toBe(
+		'[0:a]aformat=sample_fmts=s32:sample_rates=48000,atrim=0.000000:6.666667[a0]'
+	);
 });
 test('Trim the end', () => {
 	expect(
@@ -38,7 +40,9 @@ test('Trim the end', () => {
 			channels: 1,
 			assetDuration: 10,
 		})
-	).toBe('[0:a]atrim=0.000000:0.666667,apad=pad_len=128000[a0]');
+	).toBe(
+		'[0:a]aformat=sample_fmts=s32:sample_rates=48000,atrim=0.000000:0.666667,apad=pad_len=128000[a0]'
+	);
 });
 
 test('Should handle trim correctly', () => {
@@ -53,7 +57,9 @@ test('Should handle trim correctly', () => {
 			channels: 1,
 			assetDuration: 10,
 		})
-	).toBe('[0:a]atrim=0.333333:1.000000,apad=pad_len=128000[a0]');
+	).toBe(
+		'[0:a]aformat=sample_fmts=s32:sample_rates=48000,atrim=0.333333:1.000000,apad=pad_len=128000[a0]'
+	);
 });
 
 test('Should add padding if audio is too short', () => {
@@ -68,7 +74,9 @@ test('Should add padding if audio is too short', () => {
 			channels: 1,
 			assetDuration: 1,
 		})
-	).toBe('[0:a]atrim=0.333333:1.000000,apad=pad_len=128000[a0]');
+	).toBe(
+		'[0:a]aformat=sample_fmts=s32:sample_rates=48000,atrim=0.333333:1.000000,apad=pad_len=128000[a0]'
+	);
 });
 
 test('Should handle delay correctly', () => {
@@ -85,7 +93,9 @@ test('Should handle delay correctly', () => {
 			channels: 1,
 			assetDuration: 1,
 		})
-	).toBe('[0:a]atrim=0.333333:1.000000,adelay=2667|2667[a0]');
+	).toBe(
+		'[0:a]aformat=sample_fmts=s32:sample_rates=48000,atrim=0.333333:1.000000,adelay=2667|2667[a0]'
+	);
 });
 
 test('Should offset multiple channels', () => {
@@ -101,5 +111,7 @@ test('Should offset multiple channels', () => {
 			channels: 3,
 			assetDuration: 1,
 		})
-	).toBe('[0:a]atrim=0.333333:1.000000,adelay=2667|2667|2667|2667[a0]');
+	).toBe(
+		'[0:a]aformat=sample_fmts=s32:sample_rates=48000,atrim=0.333333:1.000000,adelay=2667|2667|2667|2667[a0]'
+	);
 });
