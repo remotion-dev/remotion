@@ -266,7 +266,7 @@ test("Should render a video with GIFs", async () => {
     ffmpegExecutable: null,
   });
 
-  if (ffmpegVersion && ffmpegVersion[1] <= 1) {
+  if (ffmpegVersion && ffmpegVersion[0] === 4 && ffmpegVersion[1] <= 1) {
     expect(data).toContain("Duration: 00:00:01.62");
   } else {
     expect(data).toContain("Duration: 00:00:01.60");
@@ -357,7 +357,7 @@ test("Dynamic duration should work", async () => {
   const ffmpegVersion = await RenderInternals.getFfmpegVersion({
     ffmpegExecutable: null,
   });
-  if (ffmpegVersion && ffmpegVersion[1] > 1) {
+  if (ffmpegVersion && ffmpegVersion[0] === 4 && ffmpegVersion[1] > 1) {
     expect(data).toContain(`Duration: 00:00:0${expectedDuration}`);
   }
 
