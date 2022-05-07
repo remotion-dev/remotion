@@ -15,7 +15,7 @@ import audio from "./audio.mp3";
 
 You may add an [`<Audio/>`](/docs/audio) tag to your composition to add sound to it.
 
-```tsx twoslash {7}
+```tsx twoslash {8}
 import { Audio } from "remotion";
 import audio from "./audio.mp3";
 
