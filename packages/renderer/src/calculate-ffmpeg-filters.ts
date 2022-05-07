@@ -7,11 +7,13 @@ export const calculateFfmpegFilter = ({
 	fps,
 	durationInFrames,
 	channels,
+	assetDuration,
 }: {
 	asset: MediaAsset;
 	fps: number;
 	durationInFrames: number;
 	channels: number;
+	assetDuration: number | null;
 }): string | null => {
 	if (channels === 0) {
 		return null;
@@ -21,7 +23,7 @@ export const calculateFfmpegFilter = ({
 	const assetTrimRight =
 		(asset.trimLeft + asset.duration * asset.playbackRate) / fps;
 
-	const filter = stringifyFfmpegFilter({
+	return stringifyFfmpegFilter({
 		channels,
 		startInVideo: asset.startInVideo,
 		trimLeft: assetTrimLeft,
@@ -30,7 +32,6 @@ export const calculateFfmpegFilter = ({
 		fps,
 		playbackRate: asset.playbackRate,
 		durationInFrames,
+		assetDuration,
 	});
-
-	return filter;
 };

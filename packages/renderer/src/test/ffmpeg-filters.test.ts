@@ -19,11 +19,26 @@ test('Should create a basic filter correctly', () => {
 	expect(
 		calculateFfmpegFilter({
 			fps: 30,
+			asset: {
+				...asset,
+				duration: 200,
+			},
+			durationInFrames: 100,
+			channels: 1,
+			assetDuration: 10,
+		})
+	).toBe('[0:a]atrim=0.000000:6.666667[a0]');
+});
+test('Trim the end', () => {
+	expect(
+		calculateFfmpegFilter({
+			fps: 30,
 			asset,
 			durationInFrames: 100,
 			channels: 1,
+			assetDuration: 10,
 		})
-	).toBe('[0:a]atrim=0.000000:0.666667,apad=whole_dur=3.333333[a0]');
+	).toBe('[0:a]atrim=0.000000:0.666667,apad=pad_dur=2.666667[a0]');
 });
 
 test('Should handle trim correctly', () => {
@@ -36,8 +51,24 @@ test('Should handle trim correctly', () => {
 			},
 			durationInFrames: 100,
 			channels: 1,
+			assetDuration: 10,
 		})
-	).toBe('[0:a]atrim=0.333333:1.000000,apad=whole_dur=3.333333[a0]');
+	).toBe('[0:a]atrim=0.333333:1.000000,apad=pad_dur=2.666667[a0]');
+});
+
+test('Should add padding if audio is too short', () => {
+	expect(
+		calculateFfmpegFilter({
+			fps: 30,
+			asset: {
+				...asset,
+				trimLeft: 10,
+			},
+			durationInFrames: 100,
+			channels: 1,
+			assetDuration: 1,
+		})
+	).toBe('[0:a]atrim=0.333333:1.000000,apad=pad_dur=2.666667[a0]');
 });
 
 test('Should handle delay correctly', () => {
@@ -52,10 +83,9 @@ test('Should handle delay correctly', () => {
 
 			durationInFrames: 100,
 			channels: 1,
+			assetDuration: 1,
 		})
-	).toBe(
-		'[0:a]atrim=0.333333:1.000000,adelay=2667|2667,apad=whole_dur=3.333333[a0]'
-	);
+	).toBe('[0:a]atrim=0.333333:1.000000,adelay=2667|2667[a0]');
 });
 
 test('Should offset multiple channels', () => {
@@ -69,8 +99,7 @@ test('Should offset multiple channels', () => {
 			},
 			durationInFrames: 100,
 			channels: 3,
+			assetDuration: 1,
 		})
-	).toBe(
-		'[0:a]atrim=0.333333:1.000000,adelay=2667|2667|2667|2667,apad=whole_dur=3.333333[a0]'
-	);
+	).toBe('[0:a]atrim=0.333333:1.000000,adelay=2667|2667|2667|2667[a0]');
 });

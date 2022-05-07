@@ -1,6 +1,6 @@
 import execa from 'execa';
 import {FfmpegExecutable} from 'remotion';
-import {getAudioChannels} from './assets/get-audio-channels';
+import {getAudioChannelsAndDuration} from './assets/get-audio-channels';
 import {MediaAsset} from './assets/types';
 import {calculateFfmpegFilter} from './calculate-ffmpeg-filters';
 import {makeFfmpegFilterFile} from './ffmpeg-filter-file';
@@ -22,13 +22,16 @@ const preprocessAudioTrackUnlimited = async ({
 	expectedFrames,
 	fps,
 }: Options): Promise<string | null> => {
-	const channels = await getAudioChannels(resolveAssetSrc(asset.src));
+	const {channels, duration} = await getAudioChannelsAndDuration(
+		resolveAssetSrc(asset.src)
+	);
 
 	const filter = calculateFfmpegFilter({
 		asset,
 		durationInFrames: expectedFrames,
 		fps,
 		channels,
+		assetDuration: duration,
 	});
 
 	if (filter === null) {
