@@ -73,15 +73,12 @@ type FfmpegVolumeExpression = {
 	value: string;
 };
 
-// TODO: Should remove irrelevant frames
 export const ffmpegVolumeExpression = ({
 	volume,
-	multiplier,
 	startInVideo,
 	fps,
 }: {
 	volume: AssetVolume;
-	multiplier: number;
 	startInVideo: number;
 	fps: number;
 }): FfmpegVolumeExpression => {
@@ -90,14 +87,13 @@ export const ffmpegVolumeExpression = ({
 	if (typeof volume === 'number') {
 		return {
 			eval: 'once',
-			value: String(Math.min(1, volume) * multiplier),
+			value: String(Math.min(1, volume)),
 		};
 	}
 
 	if ([...new Set(volume)].length === 1) {
 		return ffmpegVolumeExpression({
 			volume: volume[0],
-			multiplier,
 			startInVideo,
 			fps,
 		});
@@ -110,8 +106,9 @@ export const ffmpegVolumeExpression = ({
 	const volumeMap: {[volume: string]: number[]} = {};
 	volume.forEach((baseVolume, frame) => {
 		// Adjust volume based on how many other tracks have not yet finished
-		const actualVolume =
-			roundVolumeToAvoidStackOverflow(Math.min(1, baseVolume)) * multiplier;
+		const actualVolume = roundVolumeToAvoidStackOverflow(
+			Math.min(1, baseVolume)
+		);
 		if (!volumeMap[actualVolume]) {
 			volumeMap[actualVolume] = [];
 		}

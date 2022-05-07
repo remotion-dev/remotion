@@ -3,7 +3,7 @@ import {CDPSession, JSHandle, Page, Protocol} from 'puppeteer-core';
 import {SymbolicateableError} from './error-handling/symbolicateable-error';
 import {parseStack} from './parse-browser-error-stack';
 
-export const EVALUATION_SCRIPT_URL = '__puppeteer_evaluation_script__';
+const EVALUATION_SCRIPT_URL = '__puppeteer_evaluation_script__';
 const SOURCE_URL_REGEX = /^[\040\t]*\/\/[@#] sourceURL=\s*(\S*?)\s*$/m;
 
 function valueFromRemoteObject(remoteObject: Protocol.Runtime.RemoteObject) {

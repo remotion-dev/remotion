@@ -1,4 +1,3 @@
-import {addSilentAudioIfNecessary} from './add-silent-audio-if-necessary';
 import {downloadFile} from './assets/download-file';
 import {deleteDirectory} from './delete-directory';
 import {ensureOutputDirectory} from './ensure-output-directory';
@@ -56,7 +55,6 @@ export const RenderInternals = {
 	binaryExists,
 	getFfmpegBuildInfo,
 	serveStatic,
-	addSilentAudioIfNecessary,
 	validateEvenDimensionsWithCodec,
 	normalizeServeUrl,
 	spawnFfmpeg,

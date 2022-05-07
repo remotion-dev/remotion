@@ -1,6 +1,6 @@
 import {TAsset} from 'remotion';
 import {resolveAssetSrc} from '../resolve-asset-src';
-import {splitAssetsIntoSegments} from './split-assets-into-segments';
+import {convertAssetToFlattenedVolume} from './flatten-volume-array';
 import {Assets, MediaAsset, uncompressMediaAsset, UnsafeAsset} from './types';
 
 const areEqual = (a: TAsset | UnsafeAsset, b: TAsset) => {
@@ -71,8 +71,5 @@ export const calculateAssetPositions = (frames: TAsset[][]): Assets => {
 		}
 	}
 
-	return splitAssetsIntoSegments({
-		assets: assets as MediaAsset[],
-		duration: frames.length,
-	});
+	return (assets as MediaAsset[]).map((a) => convertAssetToFlattenedVolume(a));
 };

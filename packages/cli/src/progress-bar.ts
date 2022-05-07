@@ -2,6 +2,8 @@ import {StitchingState} from '@remotion/renderer';
 import chalk from 'chalk';
 import {Internals} from 'remotion';
 import {AnsiDiff} from './ansi/ansi-diff';
+import {makeMultiDownloadProgress} from './download-progress';
+import {makeProgressBar} from './make-progress-bar';
 import {RenderStep} from './step';
 
 export const createProgressBar = (
@@ -32,12 +34,6 @@ export const createOverwriteableCliOutput = (quiet: boolean) => {
 	return {
 		update: (up: string): boolean => process.stdout.write(diff.update(up)),
 	};
-};
-
-export const makeProgressBar = (percentage: number) => {
-	const totalBars = 20;
-	const barsToShow = Math.floor(percentage * totalBars);
-	return `[${'='.repeat(barsToShow).padEnd(totalBars, ' ')}]`;
 };
 
 export const makeBundlingProgress = ({
@@ -92,14 +88,6 @@ type StitchingProgressInput = {
 	stage: StitchingState;
 };
 
-export const makeDownloadProgress = (progress: DownloadProgress) => {
-	return [
-		`(-/-)`,
-		makeProgressBar(progress.progress),
-		`Downloading ${progress.name}`,
-	].join(' ');
-};
-
 export const makeStitchingProgress = ({
 	frames,
 	totalFrames,
@@ -135,7 +123,9 @@ export const makeRenderingAndStitchingProgress = ({
 }) => {
 	return [
 		makeRenderingProgress(rendering),
-		...downloads.map((d) => makeDownloadProgress(d)),
+		makeMultiDownloadProgress(downloads),
 		stitching === null ? null : makeStitchingProgress(stitching),
-	].join('\n');
+	]
+		.filter(Internals.truthy)
+		.join('\n');
 };

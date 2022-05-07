@@ -92,10 +92,10 @@ export const render = async () => {
 	].filter(Internals.truthy);
 
 	const urlOrBundle = RenderInternals.isServeUrl(fullPath)
-		? Promise.resolve(fullPath)
+		? fullPath
 		: await bundleOnCli(fullPath, steps);
 	const {serveUrl, closeServer} = await RenderInternals.prepareServer(
-		await urlOrBundle
+		urlOrBundle
 	);
 
 	const puppeteerInstance = await browserInstance;
@@ -293,7 +293,7 @@ export const render = async () => {
 	Log.info(chalk.cyan(`▶ ${absoluteOutputFile}`));
 	Log.verbose('Cleaning up...');
 	try {
-		await RenderInternals.deleteDirectory(await urlOrBundle);
+		await RenderInternals.deleteDirectory(urlOrBundle);
 	} catch (err) {
 		Log.warn('Could not clean up directory.');
 		Log.warn(err);
