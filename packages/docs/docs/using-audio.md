@@ -84,7 +84,7 @@ export const MyVideo = () => {
 You can use the `volume` prop to control the volume.
 **The simplest way is to pass a number between 0 and 1**. `1` is the maximum volume, values over 1 are allowed but will not increase the volume further. Volumes under 0 are not allowed.
 
-```tsx twoslash {7}
+```tsx twoslash {8}
 import { Audio } from "remotion";
 import audio from "./audio.mp3";
 
@@ -100,7 +100,7 @@ export const MyVideo = () => {
 
 You can also **change volume over time**, in this example we are using the [interpolate()](/docs/interpolate) function. Note that because values below 0 are not allowed, we need to set the `extrapolateLeft: 'clamp'` option to ensure no negative values.
 
-```tsx twoslash {11}
+```tsx twoslash {12-14}
 import { Audio, interpolate, useCurrentFrame } from "remotion";
 import audio from "./audio.mp3";
 
@@ -123,7 +123,7 @@ export const MyVideo = () => {
 
 You may also pass a **callback function** that returns the volume based an arbitrary frame number. This has the benefit that Remotion is able to **draw a volume curve in the timeline**!
 
-```tsx twoslash {9}
+```tsx twoslash {10-12}
 import { Audio, interpolate } from "remotion";
 import audio from "./audio.mp3";
 
@@ -148,7 +148,7 @@ Note that if you pass in a callback function, the first frame on which audio is 
 
 You may pass in the `muted` and it may change over time. When `muted` is true, audio will be omitted at that time. In the following example, we are muting the track between frame 40 and 60.
 
-```tsx twoslash {9}
+```tsx twoslash {10}
 import { Audio, useCurrentFrame } from "remotion";
 import audio from "./audio.mp3";
 
