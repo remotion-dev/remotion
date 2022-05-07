@@ -2,6 +2,7 @@ import {Internals} from 'remotion';
 import {calculateATempo} from './assets/calculate-atempo';
 import {ffmpegVolumeExpression} from './assets/ffmpeg-volume-expression';
 import {AssetVolume} from './assets/types';
+import {DEFAULT_SAMPLE_RATE} from './sample-rate';
 
 export const stringifyFfmpegFilter = ({
 	trimLeft,
@@ -66,7 +67,9 @@ export const stringifyFfmpegFilter = ({
 				? null
 				: `volume=${volumeFilter.value}:eval=${volumeFilter.eval}`,
 			// Only in the end, we pad to the full length.
-			padAtEnd > 0.0000001 ? 'apad=pad_dur=' + padAtEnd.toFixed(6) : null,
+			padAtEnd > 0.0000001
+				? 'apad=pad_len=' + Math.round(padAtEnd * DEFAULT_SAMPLE_RATE)
+				: null,
 		]
 			.filter(Internals.truthy)
 			.join(',') +
