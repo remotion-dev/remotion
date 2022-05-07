@@ -1,6 +1,6 @@
 {
   "name": "remotion",
-  "version": "3.0.3",
+  "version": "3.0.4",
   "private": true,
   "license": "SEE LICENSE IN LICENSE.md",
   "scripts": {
@@ -16,7 +16,7 @@
     "pnpm": ">=3"
   },
   "devDependencies": {
-    "remotion": "3.0.3"
+    "remotion": "3.0.4"
   },
   "dependencies": {
     "lerna": "^4.0.0",
