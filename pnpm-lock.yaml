@@ -377,8 +377,8 @@ importers:
     specifiers:
       '@typescript-eslint/utils': 5.19.0
       eslint: 8.13.0
-      jest: ^28.0.3
-      ts-jest: ^28.0.0
+      jest: ^28.1.0
+      ts-jest: ^28.0.2
       typescript: ^4.5.5
     dependencies:
       '@typescript-eslint/utils': 5.19.0_5y2iziedyezzczezkzycge4lkq
