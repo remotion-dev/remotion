@@ -1181,6 +1181,33 @@ export const showcaseVideos: ShowcaseVideo[] = [
       name: 'Dominik Sumer',
     },
   },
+  {
+    title: "Master Duel Week",
+    type: "mux_video",
+    muxId: "nFm3f8VfvL6ag20093gMUtWfbAJe5F6s4z5LapxrpLcM",
+    description: "Automated Twitter bot that tweets a trading card game's meta deck weekly",
+    height: 720,
+    width: 720,
+    submittedOn: new Date("05-08-2022"),
+    links: [
+      {
+        type: "source_code",
+        url: "https://github.com/KalleChen/master-duel-week",
+      },
+      {
+        type: "video",
+        url: "https://twitter.com/masterduelweek/status/1522850783020339200",
+      },
+      {
+        type: "website",
+        url: "https://twitter.com/masterduelweek",
+      },
+    ],
+    author: {
+      "url": "https://kallechen.github.io/",
+      "name": "Kalle Chen"
+    }
+  },
 ];
 
 const dateString = (date: Date) =>
