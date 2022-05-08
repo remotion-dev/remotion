@@ -34,7 +34,7 @@
 		"@types/webpack-env": "^1.16.0",
 		"eslint": "8.13.0",
 		"jest": "^28.0.3",
-		"jest-environment-jsdom": "^28.0.2",
+		"jest-environment-jsdom": "^28.1.0",
 		"prettier": "^2.0.5",
 		"prettier-plugin-organize-imports": "^2.3.4",
 		"react": "^18.0.0",
