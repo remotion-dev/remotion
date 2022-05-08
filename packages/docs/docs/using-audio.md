@@ -40,7 +40,7 @@ You can mix multiple tracks together by adding more audio tags.
 You can use the [`<Sequence />`](/docs/sequence) API to cut and trim audio.
 As a convienience, the `<Audio />` tag supports the `startFrom` and `endAt` props.
 
-```tsx twoslash {9-10}
+```tsx twoslash {10-11}
 import { Audio } from "remotion";
 import audio from "./audio.mp3";
 
