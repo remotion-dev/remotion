@@ -1,4 +1,5 @@
 import execa from 'execa';
+import fs from 'fs';
 import path from 'path';
 import {
 	Codec,
@@ -27,6 +28,10 @@ import {preprocessAudioTrack} from './preprocess-audio-track';
 import {tmpDir} from './tmp-dir';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
 import {validateFfmpeg} from './validate-ffmpeg';
+
+const packageJson = JSON.parse(
+	fs.readFileSync(path.join(__dirname, '..', 'package.json'), 'utf-8')
+);
 
 export type StitcherOptions = {
 	fps: number;
@@ -258,6 +263,7 @@ export const spawnFfmpeg = async (
 		audioCodecName ? ['-c:a', audioCodecName] : null,
 		// Ignore metadata that may come from remote media
 		['-map_metadata', '-1'],
+		['-metadata', `comment=Made with Remotion ${packageJson.version}`],
 		options.force ? '-y' : null,
 		options.outputLocation,
 	];
