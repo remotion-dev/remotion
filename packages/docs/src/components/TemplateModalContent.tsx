@@ -178,6 +178,10 @@ export const TemplateModalContent: React.FC<{
     setShowPackageManagers((s) => !s);
   }, []);
 
+  const npmCommand = `npm init video --${template.cliId}`;
+  const yarnCommand = `yarn create video --${template.cliId}`;
+  const pnpmCommand = `pnpm create video --${template.cliId}`;
+
   return (
     <div style={containerCss}>
       <div
@@ -250,20 +254,22 @@ export const TemplateModalContent: React.FC<{
         <div style={description}>{template.longerDescription}</div>
         <br />
         <div style={githubrow}>
-          <a style={link} onPointerDown={() => copyCommand("npm init video")}>
+          <a style={link} onPointerDown={() => copyCommand(npmCommand)}>
             <div style={iconContainer}>
-              <CommandCopyButton copied={copied === "npm init video"} />
+              <CommandCopyButton copied={copied === npmCommand} />
             </div>
-            <div style={installCommand}>npm init video</div>
+            <div style={installCommand}>{npmCommand}</div>
           </a>
           <div style={{ flex: 1 }} />
-          <a style={link} onPointerDown={togglePkgManagers}>
-            <span
-              style={{ whiteSpace: "pre", color: "var(--light-text-color)" }}
-            >
-              Show {showPkgManagers ? "less" : "more"}
-            </span>{" "}
-          </a>
+          {showPkgManagers ? null : (
+            <a style={link} onPointerDown={togglePkgManagers}>
+              <span
+                style={{ whiteSpace: "pre", color: "var(--light-text-color)" }}
+              >
+                More
+              </span>{" "}
+            </a>
+          )}
           <div
             style={{
               width: 8,
@@ -272,14 +278,11 @@ export const TemplateModalContent: React.FC<{
         </div>
         {showPkgManagers ? (
           <div style={githubrow}>
-            <a
-              style={link}
-              onPointerDown={() => copyCommand("pnpm create video")}
-            >
+            <a style={link} onPointerDown={() => copyCommand(pnpmCommand)}>
               <div style={iconContainer}>
-                <CommandCopyButton copied={copied === "pnpm create video"} />
+                <CommandCopyButton copied={copied === pnpmCommand} />
               </div>
-              <div style={installCommand}>pnpm create video</div>
+              <div style={installCommand}>{pnpmCommand}</div>
             </a>
           </div>
         ) : null}
@@ -288,12 +291,12 @@ export const TemplateModalContent: React.FC<{
             <a
               target={"_blank"}
               style={link}
-              onPointerDown={() => copyCommand("yarn create video")}
+              onPointerDown={() => copyCommand(yarnCommand)}
             >
               <div style={iconContainer}>
-                <CommandCopyButton copied={copied === "yarn create video"} />
+                <CommandCopyButton copied={copied === yarnCommand} />
               </div>
-              <div style={installCommand}>yarn create video</div>
+              <div style={installCommand}>{yarnCommand}</div>
             </a>
           </div>
         ) : null}
