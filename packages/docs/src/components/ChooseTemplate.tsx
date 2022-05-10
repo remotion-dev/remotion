@@ -8,7 +8,7 @@ import { StillIcon } from "./icons/still";
 import { TypeScriptIcon } from "./icons/ts";
 import { TTSIcon } from "./icons/tts";
 import { Waveform } from "./icons/waveform";
-import { TemplateIcon } from "../pages/template-icon";
+import { TemplateIcon } from "./TemplateIcon";
 import { chunk } from "../helpers/chunk";
 import { useElementSize } from "../helpers/use-el-size";
 
