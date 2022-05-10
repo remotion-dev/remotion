@@ -45,7 +45,7 @@ const BlueSquare: React.FC = () => {
 
 const DelayExample: React.FC = () => {
   return (
-    <Sequence from={30} durationInFrames={Infinity}>
+    <Sequence from={30} >
       <BlueSquare/>
     </Sequence>
   );
@@ -53,15 +53,16 @@ const DelayExample: React.FC = () => {
 
 const TrimStartExample: React.FC = () => {
   return (
-    <Sequence from={-15} durationInFrames={Infinity}>
+    <Sequence from={-15} >
       <BlueSquare />
     </Sequence>
   );
 };
+
 const TrimAndDelayExample: React.FC = () => {
   return (
-    <Sequence from={30} durationInFrames={Infinity}>
-      <Sequence from={-15} durationInFrames={Infinity}>
+    <Sequence from={30} >
+      <Sequence from={-15} >
         <BlueSquare />
       </Sequence>
     </Sequence>
@@ -87,18 +88,23 @@ export const SequenceForwardExample: React.FC<{
     if (type === "base") {
       return BaseExample;
     }
+
     if (type === "delay") {
       return DelayExample;
     }
+
     if (type === "trim-start") {
       return TrimStartExample;
     }
+
     if (type === "trim-and-delay") {
       return TrimAndDelayExample;
     }
+
     if (type === "clip") {
       return ClipExample;
     }
+
     throw new TypeError("oops");
   })();
   return (
@@ -114,7 +120,7 @@ export const SequenceForwardExample: React.FC<{
           width: "100%",
         }}
         loop
-      ></Player>
+       />
     </div>
   );
 };

@@ -12,13 +12,15 @@ const errorStyle: React.CSSProperties = {
 export class ErrorBoundary extends React.Component<
 	{
 		onError: (error: Error) => void;
+		children: React.ReactNode;
+		errorFallback: (info: {error: Error}) => React.ReactNode;
 	},
-	{hasError: boolean}
+	{hasError: Error | null}
 > {
-	state = {hasError: false};
-	static getDerivedStateFromError() {
+	state = {hasError: null};
+	static getDerivedStateFromError(error: Error) {
 		// Update state so the next render will show the fallback UI.
-		return {hasError: true};
+		return {hasError: error};
 	}
 
 	componentDidCatch(error: Error) {
@@ -28,7 +30,13 @@ export class ErrorBoundary extends React.Component<
 	render() {
 		if (this.state.hasError) {
 			// You can render any custom fallback UI
-			return <div style={errorStyle}>⚠️</div>;
+			return (
+				<div style={errorStyle}>
+					{this.props.errorFallback({
+						error: this.state.hasError,
+					})}
+				</div>
+			);
 		}
 
 		return this.props.children;

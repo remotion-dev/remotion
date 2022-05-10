@@ -9,6 +9,7 @@ import {TIMELINE_LAYER_HEIGHT} from '../../helpers/timeline-layout';
 import {RichTimelineContext} from '../../state/rich-timeline';
 import {AudioWaveform} from '../AudioWaveform';
 import {Thumbnail} from '../Thumbnail';
+import {LoopedTimelineIndicator} from './LoopedTimelineIndicators';
 import {sliderAreaRef} from './timeline-refs';
 import {TimelineVideoInfo} from './TimelineVideoInfo';
 
@@ -20,7 +21,10 @@ export const TimelineSequence: React.FC<{
 	s: TSequence;
 	fps: number;
 }> = ({s, fps}) => {
-	const size = PlayerInternals.useElementSize(sliderAreaRef);
+	const size = PlayerInternals.useElementSize(sliderAreaRef, {
+		triggerOnWindowResize: false,
+		shouldApplyCssTransforms: true,
+	});
 	const {richTimeline} = useContext(RichTimelineContext);
 
 	const windowWidth = size?.width ?? 0;
@@ -36,7 +40,7 @@ export const TimelineSequence: React.FC<{
 	}
 
 	const {marginLeft, width} = getTimelineSequenceLayout({
-		durationInFrames: s.duration,
+		durationInFrames: s.duration * (s.showLoopTimesInTimeline ?? 1),
 		startFrom: s.from,
 		startFromMedia: s.type === 'sequence' ? 0 : s.startMediaFrom,
 		maxMediaDuration,
@@ -100,6 +104,9 @@ export const TimelineSequence: React.FC<{
 				/>
 			) : null}
 			{s.type === 'video' ? <TimelineVideoInfo src={s.src} /> : null}
+			{s.showLoopTimesInTimeline === undefined ? null : (
+				<LoopedTimelineIndicator loops={s.showLoopTimesInTimeline} />
+			)}
 		</div>
 	);
 };

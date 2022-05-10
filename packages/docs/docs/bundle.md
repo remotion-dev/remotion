@@ -5,7 +5,7 @@ title: bundle()
 
 _Part of the `@remotion/bundler` package._
 
-Bundles a Remotion project using Webpack and prepares it for render using [`renderFrames()`](/docs/render-frames).
+Bundles a Remotion project using Webpack and prepares it for render using [`renderMedia()`](/docs/renderer/render-media).
 
 ```ts
 const bundle: (
@@ -15,8 +15,9 @@ const bundle: (
     webpackOverride?: WebpackOverrideFn;
     outDir?: string;
     enableCaching?: boolean;
+    publicPath?: string;
   }
-) => Promise<string>
+) => Promise<string>;
 ```
 
 ## Arguments
@@ -27,12 +28,12 @@ A `string` containing an absolute path of the entry point of a Remotion project.
 
 ### `onProgressUpdate?`
 
-A callback function that notifies about the progress of the Webpack bundling. Example function:
+A callback function that notifies about the progress of the Webpack bundling. Passes a number between `0` and `100`. Example function:
 
-```ts
+```ts twoslash
 const onProgressUpdate = (progress: number) => {
-  console.log(`Webpack bundling progress: ${progress * 100}%`)
-}
+  console.log(`Webpack bundling progress: ${progress}%`);
+};
 ```
 
 ### `options`
@@ -45,13 +46,15 @@ _optional_
 
 A function to override the webpack config reducer-style. Takes a function which gives you the current webpack config which you can transform and return a modified version of it. For example:
 
-```ts
+```ts twoslash
+import { WebpackOverrideFn } from "remotion";
+// ---cut---
 const webpackOverride: WebpackOverrideFn = (webpackConfig) => {
   return {
-    ...webpackConfig
+    ...webpackConfig,
     // Override properties
-  }
-}
+  };
+};
 ```
 
 #### `outDir?`
@@ -66,6 +69,12 @@ _optional_
 
 A `boolean` specifying whether Webpack caching should be enabled. Default `true`, it is recommended to leave caching enabled at all times since file changes should be recognized by Webpack nonetheless.
 
+#### `publicPath?`
+
+_optional_
+
+The path of the URL where the bundle is going to be hosted. By default it is `/`, meaning that the bundle is going to be hosted at the root of the domain (e.g. `https://localhost:3000/`). In some cases like rendering on Lambda, the public path might be a subdirectory.
+
 ## Return value
 
 A promise which will resolve into a `string` specifying the output directory.
@@ -73,6 +82,6 @@ A promise which will resolve into a `string` specifying the output directory.
 ## See also
 
 - [Server-Side rendering](/docs/ssr)
-- [getCompositions()](/docs/get-compositions)
-- [renderFrames()](/docs/render-frames)
-- [stitchFramesToVideo()](/docs/stitch-frames-to-video)
+- [getCompositions()](/docs/renderer/get-compositions)
+- [renderMedia()](/docs/renderer/render-media)
+- [stitchFramesToVideo()](/docs/renderer/stitch-frames-to-video)

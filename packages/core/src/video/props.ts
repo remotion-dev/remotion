@@ -10,7 +10,7 @@ export type RemotionVideoProps = Omit<
 		React.VideoHTMLAttributes<HTMLVideoElement>,
 		HTMLVideoElement
 	>,
-	'autoplay' | 'controls' | 'loop'
+	'autoPlay' | 'controls' | 'loop' | 'onEnded'
 > & {
 	volume?: VolumeProp;
 	playbackRate?: number;

@@ -1,11 +1,18 @@
 import {Browser} from './browser';
 import {BrowserExecutable, setBrowserExecutable} from './browser-executable';
+import {
+	setChromiumDisableWebSecurity,
+	setChromiumHeadlessMode,
+	setChromiumIgnoreCertificateErrors,
+	setChromiumOpenGlRenderer,
+} from './chromium-flags';
 import {Codec, setCodec, setOutputFormat} from './codec';
 import {Concurrency, setConcurrency} from './concurrency';
 import {setCrf} from './crf';
 import {setDotEnvLocation} from './env-file';
+import {FfmpegExecutable, setFfmpegExecutable} from './ffmpeg-executable';
 import {FrameRange, setFrameRange} from './frame-range';
-import {ImageFormat, setImageFormat} from './image-format';
+import {ImageFormat, setImageFormat, StillImageFormat} from './image-format';
 import {setImageSequence} from './image-sequence';
 import {LogLevel, setLogLevel} from './log';
 import {setMaxTimelineTracks} from './max-timeline-tracks';
@@ -19,6 +26,8 @@ import {PixelFormat, setPixelFormat} from './pixel-format';
 import {setPort} from './preview-server';
 import {setProResProfile} from './prores-profile';
 import {setQuality} from './quality';
+import {setScale} from './scale';
+import {setPuppeteerTimeout} from './timeout';
 import {setWebpackCaching} from './webpack-caching';
 
 export const Config = {
@@ -65,6 +74,31 @@ export const Config = {
 		 * Default: null, which will make Remotion find or download a version of said browser.
 		 */
 		setBrowserExecutable,
+		/**
+		 * Set how many milliseconds a frame may take to render before it times out.
+		 * Default: `30000`
+		 */
+		setTimeoutInMilliseconds: setPuppeteerTimeout,
+		/**
+		 * Setting deciding whether to disable CORS and other Chrome security features.
+		 * Default: false
+		 */
+		setChromiumDisableWebSecurity,
+		/**
+		 * Setting whether to ignore any invalid SSL certificates, such as self-signed ones.
+		 * Default: false
+		 */
+		setChromiumIgnoreCertificateErrors,
+		/**
+		 * If false, will open an actual browser during rendering to observe progress.
+		 * Default: true
+		 */
+		setChromiumHeadlessMode,
+		/**
+		 * Set the OpenGL rendering backend for Chrome. Possible values: 'egl', 'angle' and 'swiftshader'.
+		 * Default: 'swiftshader' in Lambda, 'angle' elsewhere.
+		 */
+		setChromiumOpenGlRenderer,
 	},
 	Rendering: {
 		/**
@@ -95,6 +129,17 @@ export const Config = {
 		 * The frame count starts at 0.
 		 */
 		setFrameRange,
+
+		/**
+		 * Specify local ffmpeg executable.
+		 * Default: null, which will use ffmpeg available in PATH.
+		 */
+		setFfmpegExecutable,
+		/**
+		 * Scales the output dimensions by a factor.
+		 * Default: 1.
+		 */
+		setScale,
 	},
 	Output: {
 		/**
@@ -144,9 +189,11 @@ export type {
 	WebpackConfiguration,
 	WebpackOverrideFn,
 	BrowserExecutable,
+	FfmpegExecutable,
 	ImageFormat,
 	Codec,
 	Browser,
 	FrameRange,
 	LogLevel,
+	StillImageFormat,
 };

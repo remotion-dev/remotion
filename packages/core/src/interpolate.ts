@@ -99,6 +99,17 @@ function checkInfiniteRange(name: string, arr: readonly number[]) {
 	}
 }
 
+/**
+ * Map a value from an input range to an output range.
+ * @link https://www.remotion.dev/docs/interpolate
+ * @param {!number} input value to interpolate
+ * @param {!number[]} inputRange range of values that you expect the input to assume.
+ * @param {!number[]} outputRange range of output values that you want the input to map to.
+ * @param {?object} options
+ * @param {?Function} options.easing easing function which allows you to customize the input, for example to apply a certain easing function. By default, the input is left unmodified, resulting in a pure linear interpolation {@link https://www.remotion.dev/docs/easing}
+ * @param {string=} [options.extrapolateLeft="extend"] What should happen if the input value is outside left the input range, default: "extend" {@link https://www.remotion.dev/docs/interpolate#extrapolateleft}
+ * @param {string=} [options.extrapolateRight="extend"] Same as extrapolateLeft, except for values outside right the input range {@link https://www.remotion.dev/docs/interpolate#extrapolateright}
+ */
 export function interpolate(
 	input: number,
 	inputRange: readonly number[],
@@ -109,12 +120,16 @@ export function interpolate(
 		extrapolateRight?: ExtrapolateType;
 	}
 ): number {
-	if (
-		typeof input === 'undefined' ||
-		typeof inputRange === 'undefined' ||
-		typeof outputRange === 'undefined'
-	) {
-		throw new Error('input or inputRange or outputRange can not be undefined');
+	if (typeof input === 'undefined') {
+		throw new Error('input can not be undefined');
+	}
+
+	if (typeof inputRange === 'undefined') {
+		throw new Error('inputRange can not be undefined');
+	}
+
+	if (typeof outputRange === 'undefined') {
+		throw new Error('outputRange can not be undefined');
 	}
 
 	if (inputRange.length !== outputRange.length) {
@@ -145,7 +160,7 @@ export function interpolate(
 	}
 
 	if (typeof input !== 'number') {
-		throw new TypeError('Cannot interpolation an input which is not a number');
+		throw new TypeError('Cannot interpolate an input which is not a number');
 	}
 
 	const range = findRange(input, inputRange);

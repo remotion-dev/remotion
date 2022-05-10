@@ -1,16 +1,17 @@
 # Testing
+
 For general information concerning contribution, please consult [CONTRIBUTION.md](./CONTRIBUTING.md).
 
 ### Core Coverage
 
-![statements](https://img.shields.io/badge/Coverage_statements-79.89%25-yellow.svg) 
-![branches](https://img.shields.io/badge/Coverage_branches-74.92%25-yellow.svg) 
-![functions](https://img.shields.io/badge/Coverage_functions-65%25-red.svg) 
-![lines](https://img.shields.io/badge/Coverage_lines-78.85%25-yellow.svg)
+![statements](https://img.shields.io/badge/Coverage_statements-76.04%25-yellow.svg)
+![branches](https://img.shields.io/badge/Coverage_branches-69.9%25-red.svg)
+![functions](https://img.shields.io/badge/Coverage_functions-58.71%25-red.svg)
+![lines](https://img.shields.io/badge/Coverage_lines-74.88%25-yellow.svg)
 
 ### Running tests
 
-There are tests in each package as well as end-to-end tests in the root of the monorepo. Run `npm test` in a package, or in the root to run all tests. Run `npx jest` to only run unit tests and skip linting.
+There are tests in each package as well as end-to-end tests in the root of the monorepo. Run `npm test` in a package, or in the root to run all tests. Run `pnpx jest` to only run unit tests and skip linting.
 
 ### Mutation Testing
 
@@ -38,9 +39,8 @@ To setup mutation testing in the core package, cd to the `packages/core`director
     }
 
 Under `"mutate"` you can specify the files you want stryker to mutate for you.
-Then to run the mutation tests use `npx stryker run`.
+Then to run the mutation tests use `pnpx stryker run`.
 In case you run into error on _Windows_ where Stryker and Jest won't run any test cases, try one of these [workarounds](https://github.com/stryker-mutator/stryker-js/issues/2122#issuecomment-605783668).
 After running Stryker you can find the report under `packages/core/reports/mutation` and see how many mutants have been killed by your test cases and how many have survived.
 
 Once you have checked your test code quality with the help of mutation testing, make sure to omit any Stryker related changes from your code before contributing.
-

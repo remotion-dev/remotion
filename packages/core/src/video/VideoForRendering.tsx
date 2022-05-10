@@ -12,10 +12,9 @@ import {
 	useMediaStartsAt,
 } from '../audio/use-audio-frame';
 import {CompositionManager} from '../CompositionManager';
+import {continueRender, delayRender} from '../delay-render';
 import {isApproximatelyTheSame} from '../is-approximately-the-same';
-import {isRemoteAsset} from '../is-remote-asset';
 import {random} from '../random';
-import {continueRender, delayRender} from '../ready-manager';
 import {SequenceContext} from '../sequencing';
 import {useAbsoluteCurrentFrame, useCurrentFrame} from '../use-frame';
 import {useUnsafeVideoConfig} from '../use-unsafe-video-config';
@@ -42,7 +41,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 	// but at the same time the same on all threads
 	const id = useMemo(
 		() =>
-			`audio-${random(props.src ?? '')}-${sequenceContext?.cumulatedFrom}-${
+			`video-${random(props.src ?? '')}-${sequenceContext?.cumulatedFrom}-${
 				sequenceContext?.relativeFrom
 			}-${sequenceContext?.durationInFrames}-muted:${props.muted}`,
 		[
@@ -79,7 +78,6 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 			id,
 			frame: absoluteFrame,
 			volume,
-			isRemote: isRemoteAsset(getAbsoluteSrc(props.src)),
 			mediaFrame: frame,
 			playbackRate: playbackRate ?? 1,
 		});
@@ -115,7 +113,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 				startFrom: -mediaStartsAt,
 			});
 		})();
-		const handle = delayRender();
+		const handle = delayRender(`Rendering <Video /> with src="${props.src}"`);
 		if (process.env.NODE_ENV === 'test') {
 			continueRender(handle);
 			return;
@@ -142,11 +140,17 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 		videoRef.current.addEventListener(
 			'seeked',
 			() => {
-				// Improve me: This is ensures frame perfectness but slows down render.
-				// Please see this issue for context: https://github.com/remotion-dev/remotion/issues/200
-				setTimeout(() => {
+				if (window.navigator.platform.startsWith('Mac')) {
+					// Improve me: This is ensures frame perfectness but slows down render.
+					// Please see this issue for context: https://github.com/remotion-dev/remotion/issues/200
+
+					// Only affects macOS since it uses VideoToolbox decoding.
+					setTimeout(() => {
+						continueRender(handle);
+					}, 100);
+				} else {
 					continueRender(handle);
-				}, 100);
+				}
 			},
 			{once: true}
 		);
@@ -159,9 +163,15 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 		);
 		videoRef.current.addEventListener(
 			'error',
-			(err) => {
-				console.error('Error occurred in video', err);
-				continueRender(handle);
+			() => {
+				if (videoRef.current?.error) {
+					console.error('Error occurred in video', videoRef.current?.error);
+					throw new Error(
+						`The browser threw an error while playing the video: ${videoRef.current?.error?.message}`
+					);
+				} else {
+					throw new Error('The browser threw an errir');
+				}
 			},
 			{once: true}
 		);

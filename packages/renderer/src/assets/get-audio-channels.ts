@@ -1,9 +1,12 @@
 import execa from 'execa';
 
-export async function getAudioChannels(path: string) {
+export async function getAudioChannelsAndDuration(path: string): Promise<{
+	channels: number;
+	duration: number | null;
+}> {
 	const args = [
 		['-v', 'error'],
-		['-show_entries', 'stream=channels'],
+		['-show_entries', 'stream=channels:format=duration'],
 		['-of', 'default=nw=1'],
 		[path],
 	]
@@ -11,14 +14,12 @@ export async function getAudioChannels(path: string) {
 		.filter(Boolean) as string[];
 
 	const task = await execa('ffprobe', args);
-	if (!task.stdout.includes('channels=')) {
-		return 0;
-	}
 
-	const channels = parseInt(task.stdout.replace('channels=', ''), 10);
-	if (isNaN(channels)) {
-		throw new TypeError('Unexpected result from ffprobe for channel probing: ');
-	}
+	const channels = task.stdout.match(/channels=([0-9]+)/);
+	const duration = task.stdout.match(/duration=([0-9.]+)/);
 
-	return channels;
+	return {
+		channels: channels ? parseInt(channels[1], 10) : 0,
+		duration: duration ? parseFloat(duration[1]) : null,
+	};
 }

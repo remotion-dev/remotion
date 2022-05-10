@@ -1,78 +1,51 @@
+import {BundlerInternals} from '@remotion/bundler';
 import fs from 'fs';
+import os from 'os';
 import path from 'path';
-import typescript from 'typescript';
-import {isDefaultConfigFile} from './get-config-file-name';
 import {Log} from './log';
 
-export const loadConfigFile = (
+export const loadConfigFile = async (
 	configFileName: string,
 	isJavascript: boolean
-): string | null => {
-	if (!isJavascript) {
-		const configFile = path.resolve(process.cwd(), configFileName);
-		const tsconfigJson = path.join(process.cwd(), 'tsconfig.json');
-		if (!fs.existsSync(tsconfigJson)) {
-			Log.error(
-				'Could not find a tsconfig.json file in your project. Did you delete it? Create a tsconfig.json in the root of your project. Copy the default file from https://github.com/remotion-dev/template/blob/main/tsconfig.json.'
-			);
-			process.exit(1);
-		}
+): Promise<string | null> => {
+	const resolved = path.resolve(process.cwd(), configFileName);
 
-		if (!fs.existsSync(configFile)) {
-			if (!isDefaultConfigFile(configFileName)) {
-				Log.error(
-					`You specified a config file located at ${configFileName}, but no file at ${configFile} could be found.`
-				);
-				process.exit(1);
-			}
-
-			return null;
-		}
-
-		const tsConfig = typescript.readConfigFile(
-			tsconfigJson,
-			typescript.sys.readFile
+	const tsconfigJson = path.join(process.cwd(), 'tsconfig.json');
+	if (!isJavascript && !fs.existsSync(tsconfigJson)) {
+		Log.error(
+			'Could not find a tsconfig.json file in your project. Did you delete it? Create a tsconfig.json in the root of your project. Copy the default file from https://github.com/remotion-dev/template/blob/main/tsconfig.json.'
 		);
-
-		const compilerOptions = typescript.parseJsonConfigFileContent(
-			tsConfig.config,
-			typescript.sys,
-			'./'
-		);
-
-		const output = typescript.transpileModule(
-			fs.readFileSync(configFile, 'utf-8'),
-			{
-				compilerOptions: compilerOptions.options,
-			}
-		);
-
-		// eslint-disable-next-line no-eval
-		eval(output.outputText);
-
-		return configFileName;
+		process.exit(1);
 	}
 
-	const configFiles = path.resolve(process.cwd(), configFileName);
-
-	if (!fs.existsSync(configFiles)) {
-		if (!isDefaultConfigFile(configFileName)) {
-			Log.error(
-				`You specified a config file located at ${configFileName}, but no file at ${configFiles} could be found.`
-			);
-			process.exit(1);
-		}
-
-		return null;
-	}
-
-	const outputs = typescript.transpileModule(
-		fs.readFileSync(configFiles, 'utf-8'),
-		{}
+	const out = path.join(
+		await fs.promises.mkdtemp(path.join(os.tmpdir(), 'remotion-')),
+		'bundle.js'
 	);
+	const result = await BundlerInternals.esbuild.build({
+		platform: 'node',
+		target: 'node14',
+		bundle: true,
+		entryPoints: [resolved],
+		tsconfig: isJavascript ? undefined : tsconfigJson,
+		absWorkingDir: process.cwd(),
+		outfile: out,
+		external: ['remotion'],
+	});
+	if (result.errors.length > 0) {
+		Log.error('Error in remotion.config.ts file');
+		for (const err in result.errors) {
+			Log.error(err);
+		}
+
+		process.exit(1);
+	}
+
+	const file = await fs.promises.readFile(out, 'utf8');
 
 	// eslint-disable-next-line no-eval
-	eval(outputs.outputText);
+	eval(file);
 
-	return configFileName;
+	await fs.promises.unlink(out);
+	return resolved;
 };

@@ -1,14 +1,18 @@
 import splitbee from "@splitbee/web";
 import Layout from "@theme/Layout";
+import Head from "@docusaurus/Head";
 import React from "react";
 import { LightningFastEditor } from "../../components/LandingPage/editor";
 import { FreePricing } from "../../components/LandingPage/FreePricing";
 import { IfYouKnowReact } from "../../components/LandingPage/if-you-know-react";
 import { Parametrize } from "../../components/LandingPage/parametrize";
 import { RealMP4Videos } from "../../components/LandingPage/real-mp4-videos";
+import { SuccessFeatures } from "../../components/LandingPage/SuccessFeatures";
 import { WriteInReact } from "../../components/LandingPage/WriteInReact";
 import { ChooseTemplate } from "./ChooseTemplate";
 import styles from "./landing.module.css";
+import { VideoApps } from "../../components/LambdaSplash/VideoApps";
+import { VideoAppsTitle } from "../../components/LambdaSplash/VideoAppsTitle";
 
 setTimeout(() => {
   splitbee.init();
@@ -22,16 +26,15 @@ const clone: React.CSSProperties = {
 };
 const NewLanding: React.FC = () => {
   return (
-    <Layout
-      title="Write videos in React"
-      description="Create MP4 motion graphics in React. Leverage CSS, SVG, WebGL and more technologies to render videos programmatically!"
-    >
-      <div style={{ height: "10vh" }} />
-      <div className={styles.content}>
-        <WriteInReact />
-        <br />
-        <br />
-      </div>
+    <Layout>
+      <Head>
+        <title>Write videos in React</title>
+        <meta
+          name="description"
+          content="Create MP4 motion graphics in React. Leverage CSS, SVG, WebGL and more
+        technologies to render videos programmatically!"
+        />
+      </Head>
       <div
         style={{
           backgroundColor: "var(--shaded-panel)",
@@ -45,6 +48,9 @@ const NewLanding: React.FC = () => {
         </div>
       </div>
       <div className={styles.content}>
+        <WriteInReact />
+        <br />
+        <br />
         <br />
         <br />
         <br />
@@ -67,9 +73,14 @@ const NewLanding: React.FC = () => {
         <Parametrize />
         <br />
         <br />
+        <VideoAppsTitle />
+        <VideoApps active="remotion" />
         <br />
         <br />
         <FreePricing />
+        <SuccessFeatures />
+        <br />
+        <br />
       </div>
     </Layout>
   );

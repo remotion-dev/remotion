@@ -3,6 +3,7 @@ import {SplitterContext} from './SplitterContext';
 
 export const SplitterElement: React.FC<{
 	type: 'flexer' | 'anti-flexer';
+	children: React.ReactNode;
 }> = ({children, type}) => {
 	const context = useContext(SplitterContext);
 

@@ -13,7 +13,9 @@ export const GifForRendering = forwardRef<HTMLCanvasElement, RemotionGifProps>(
 			height: 0,
 		});
 
-		const [id] = useState(() => delayRender());
+		const [id] = useState(() =>
+			delayRender(`Rendering <Gif/> with src="${src}"`)
+		);
 
 		const index = useCurrentGifIndex(state.delays);
 

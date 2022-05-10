@@ -2,7 +2,7 @@ import {createContext} from 'react';
 
 type State = {
 	richTimeline: boolean;
-	setRichTimeline: React.Dispatch<React.SetStateAction<boolean>>;
+	setRichTimeline: (cb: (prevState: boolean) => boolean) => void;
 };
 
 export const persistRichTimelineOption = (option: boolean) => {

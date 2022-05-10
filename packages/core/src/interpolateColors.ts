@@ -54,7 +54,8 @@ function getMatchers(): Matchers {
 			'hsla' + call(NUMBER, PERCENTAGE, PERCENTAGE, NUMBER)
 		);
 		cachedMatchers.hex3 = /^#([0-9a-fA-F]{1})([0-9a-fA-F]{1})([0-9a-fA-F]{1})$/;
-		cachedMatchers.hex4 = /^#([0-9a-fA-F]{1})([0-9a-fA-F]{1})([0-9a-fA-F]{1})([0-9a-fA-F]{1})$/;
+		cachedMatchers.hex4 =
+			/^#([0-9a-fA-F]{1})([0-9a-fA-F]{1})([0-9a-fA-F]{1})([0-9a-fA-F]{1})$/;
 		cachedMatchers.hex6 = /^#([0-9a-fA-F]{6})$/;
 		cachedMatchers.hex8 = /^#([0-9a-fA-F]{8})$/;
 	}
@@ -321,7 +322,7 @@ function normalizeColor(color: string): number {
 			return (
 				// b
 				((parse255(match[1]) << 24) | // r
-				(parse255(match[2]) << 16) | // g
+					(parse255(match[2]) << 16) | // g
 					(parse255(match[3]) << 8) |
 					0x000000ff) >>> // a
 				0
@@ -334,7 +335,7 @@ function normalizeColor(color: string): number {
 			return (
 				// b
 				((parse255(match[1]) << 24) | // r
-				(parse255(match[2]) << 16) | // g
+					(parse255(match[2]) << 16) | // g
 					(parse255(match[3]) << 8) |
 					parse1(match[4])) >>> // a
 				0
@@ -347,11 +348,11 @@ function normalizeColor(color: string): number {
 			return (
 				Number.parseInt(
 					match[1] +
-					match[1] + // r
-					match[2] +
-					match[2] + // g
-					match[3] +
-					match[3] + // b
+						match[1] + // r
+						match[2] +
+						match[2] + // g
+						match[3] +
+						match[3] + // b
 						'ff', // a
 					16
 				) >>> 0
@@ -371,11 +372,11 @@ function normalizeColor(color: string): number {
 			return (
 				Number.parseInt(
 					match[1] +
-					match[1] + // r
-					match[2] +
-					match[2] + // g
-					match[3] +
-					match[3] + // b
+						match[1] + // r
+						match[2] +
+						match[2] + // g
+						match[3] +
+						match[3] + // b
 						match[4] +
 						match[4], // a
 					16
@@ -452,11 +453,11 @@ const interpolateColorsRGB = (
 	inputRange: readonly number[],
 	colors: readonly number[]
 ) => {
-	const [r, g, b, a] = [red, green, blue, opacity].map(f => {
+	const [r, g, b, a] = [red, green, blue, opacity].map((f) => {
 		const unrounded = interpolate(
 			value,
 			inputRange,
-			colors.map(c => f(c)),
+			colors.map((c) => f(c)),
 			{
 				extrapolateLeft: 'clamp',
 				extrapolateRight: 'clamp',
@@ -498,7 +499,7 @@ export const interpolateColors = (
 		);
 	}
 
-	const processedOutputRange = outputRange.map(c => processColor(c));
+	const processedOutputRange = outputRange.map((c) => processColor(c));
 
 	return interpolateColorsRGB(input, inputRange, processedOutputRange);
 };

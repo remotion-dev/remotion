@@ -1,5 +1,5 @@
 import React, {forwardRef, useCallback, useState} from 'react';
-import {continueRender, delayRender} from './ready-manager';
+import {continueRender, delayRender} from './delay-render';
 
 const IFrameRefForwarding: React.ForwardRefRenderFunction<
 	HTMLIFrameElement,
@@ -8,7 +8,9 @@ const IFrameRefForwarding: React.ForwardRefRenderFunction<
 		HTMLIFrameElement
 	>
 > = ({onLoad, onError, ...props}, ref) => {
-	const [handle] = useState(() => delayRender());
+	const [handle] = useState(() =>
+		delayRender(`Loading <IFrame> with source ${props.src}`)
+	);
 
 	const didLoad = useCallback(
 		(e: React.SyntheticEvent<HTMLIFrameElement, Event>) => {

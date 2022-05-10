@@ -1,4 +1,4 @@
-import {continueRender, delayRender} from '../ready-manager';
+import {continueRender, delayRender} from '../delay-render';
 
 describe('Ready Manager tests', () => {
 	let handle: number;

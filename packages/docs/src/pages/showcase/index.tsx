@@ -1,9 +1,14 @@
+import Head from "@docusaurus/Head";
 import Layout from "@theme/Layout";
 import clsx from "clsx";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { VideoPlayer } from "../../components/VideoPlayer";
 import { VideoPreview } from "../../components/VideoPreview";
-import { ShowcaseVideo, showcaseVideos } from "../../data/showcase-videos";
+import {
+  ShowcaseVideo,
+  showcaseVideos,
+  shuffledShowcaseVideos,
+} from "../../data/showcase-videos";
 import { chunk } from "../../helpers/chunk";
 import { useElementSize } from "../../helpers/use-el-size";
 import headerStyles from "./header.module.css";
@@ -41,9 +46,8 @@ const Showcase = () => {
   const mobileLayout = (containerSize?.width ?? Infinity) < 1200;
   const mobileHeight = mobileLayout ? containerSize.width : null;
 
-  const [userHasInteractedWithPage, setUserHasInteractedWithPage] = useState(
-    false
-  );
+  const [userHasInteractedWithPage, setUserHasInteractedWithPage] =
+    useState(false);
   const [video, setVideo] = useState<ShowcaseVideo | null>(() => {
     if (typeof window === "undefined") {
       return null;
@@ -121,13 +125,17 @@ const Showcase = () => {
     };
   }, [mobileLayout]);
 
-  const chunks = chunk(showcaseVideos, 3);
+  const chunks = chunk(shuffledShowcaseVideos, 3);
 
   return (
-    <Layout
-      title="Showcase"
-      description="Create MP4 motion graphics in React. Leverage CSS, SVG, WebGL and more technologies to render videos programmatically!"
-    >
+    <Layout>
+      <Head>
+        <title>Showcase</title>
+        <meta name="og:image" content="/img/showcase.png" />
+        <meta name="twitter:image" content="/img/showcase.png" />
+        <meta property="og:image" content="/img/showcase.png" />
+        <meta property="twitter:image" content="/img/showcase.png" />
+      </Head>
       <header className={clsx("hero ", styles.heroBanner)}>
         <div className="container">
           <PageHeader />

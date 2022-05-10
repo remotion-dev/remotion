@@ -1,5 +1,6 @@
 import chalk from 'chalk';
 import {Log} from './log';
+import {VERSIONS_COMMAND} from './versions';
 
 const packagejson = require('../package.json');
 
@@ -42,6 +43,30 @@ export const printHelp = () => {
 		['--port', 'Custom port to use for the HTTP server'],
 		['--env-file', 'Specify a location for a dotenv file'],
 	]);
+	Log.info();
+	Log.info('remotion still <index-file.ts> <comp-name> <still.png>');
+	Log.info(chalk.gray('Render a still frame and save it as an image.'));
+	printFlags([
+		['--frame', 'Which frame to render (default 0)'],
+		['--image-format', 'Format to render the frames in, "jpeg" or "png"'],
+		['--props', 'Pass input props as filename or as JSON'],
+		['--config', 'Custom location for a Remotion config file'],
+		['--quality', 'Quality for rendered frames, JPEG only, 0-100'],
+		['--overwrite', 'Overwrite if file exists, default true'],
+		['--browser-executable', 'Custom path for browser executable'],
+		['--bundle-cache', 'Cache webpack bundle, boolean, default true'],
+		['--log', 'Log level, "error", "warning", "verbose", "info" (default)'],
+		['--port', 'Custom port to use for the HTTP server'],
+		['--env-file', 'Specify a location for a dotenv file'],
+	]);
+	Log.info();
+	Log.info('remotion compositions <index-file.ts>');
+	Log.info(chalk.gray('Prints the available compositions.'));
+	Log.info();
+	Log.info('remotion ' + VERSIONS_COMMAND);
+	Log.info(
+		chalk.gray('Prints and validates versions of all Remotion packages.')
+	);
 	Log.info();
 	Log.info('remotion upgrade');
 	Log.info(chalk.gray('Ensure Remotion is on the newest version.'));

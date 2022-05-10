@@ -1,0 +1,30 @@
+{
+  "baseBranch": "origin/main",
+  "pipeline": {
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**"]
+    },
+    "test": {
+      "dependsOn": ["^build"],
+      "outputs": []
+    },
+    "lint": {
+      "outputs": []
+    },
+    "@remotion/example#lint": {
+      "dependsOn": ["@remotion/eslint-config#build"]
+    },
+    "@remotion/player-example#lint": {
+      "dependsOn": ["@remotion/eslint-config#build"]
+    },
+    "@remotion/it-tests#test": {
+      "dependsOn": [
+        "^build",
+        "@remotion/example#test",
+        "@remotion/example#build"
+      ]
+    }
+  },
+  "npmClient": "pnpm"
+}

@@ -17,7 +17,7 @@ export const FreePricing: React.FC = () => {
           support, we constantly improve Remotion for everyone.
         </p>
       </div>
-      <PricingTable></PricingTable>
+      <PricingTable />
       <br />
       <br />
       <br />

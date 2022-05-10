@@ -1,12 +1,17 @@
-import React, {useEffect, useLayoutEffect, useRef, useState} from 'react';
+import React, {
+	useEffect,
+	useLayoutEffect,
+	useMemo,
+	useRef,
+	useState,
+} from 'react';
 import {Internals} from 'remotion';
-import styled from 'styled-components';
 
-const Label = styled.div`
-	color: white;
-	font-size: 15px;
-	font-family: Arial, Helvetica, sans-serif;
-`;
+const label: React.CSSProperties = {
+	color: 'white',
+	fontSize: 15,
+	fontFamily: 'Arial, Helvetica, sans-serif',
+};
 
 const pushWithMaxSize = (
 	arr: number[],
@@ -17,7 +22,9 @@ const pushWithMaxSize = (
 	return arr.slice(-maxSize);
 };
 
-export const FpsCounter: React.FC = () => {
+export const FpsCounter: React.FC<{
+	playbackSpeed: number;
+}> = ({playbackSpeed}) => {
 	const videoConfig = Internals.useUnsafeVideoConfig();
 	const [playing] = Internals.Timeline.usePlayingState();
 	const frame = Internals.Timeline.useTimelinePosition();
@@ -66,6 +73,19 @@ export const FpsCounter: React.FC = () => {
 		}
 	}, [marker, playing]);
 
+	const style = useMemo(() => {
+		if (!videoConfig) {
+			return {};
+		}
+
+		const expectedFps = Math.abs(playbackSpeed) * videoConfig.fps;
+
+		return {
+			...label,
+			color: fps < expectedFps * 0.9 ? 'red' : 'white',
+		};
+	}, [fps, playbackSpeed, videoConfig]);
+
 	if (fps === 0) {
 		return null;
 	}
@@ -78,6 +98,5 @@ export const FpsCounter: React.FC = () => {
 		return null;
 	}
 
-	const style = {color: fps < videoConfig.fps * 0.9 ? 'red' : 'white'};
-	return <Label style={style}>{fps.toFixed(1)} FPS</Label>;
+	return <div style={style}>{fps.toFixed(1)} FPS</div>;
 };

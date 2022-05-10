@@ -10,7 +10,7 @@ export const GetStarted: React.FC = () => {
       <div className={styles.myrow}>
         <div style={{ position: "relative" }}>
           {clicked ? (
-            <div className={styles.copied} key={clicked}>
+            <div key={clicked} className={styles.copied}>
               Copied!
             </div>
           ) : null}
@@ -26,20 +26,20 @@ export const GetStarted: React.FC = () => {
             $ npm init video
           </div>
         </div>
-        <div style={{ width: 10 }}></div>
+        <div style={{ width: 10 }} />
         <a className={styles.a} href="/docs">
           <BlueButton size="sm" loading={false} fullWidth={false}>
             Docs
           </BlueButton>
         </a>
-        <div style={{ width: 10 }}></div>
+        <div style={{ width: 10 }} />
         <a className={styles.a} href="https://github.com/remotion-dev/remotion">
           <BlueButton size="sm" loading={false} fullWidth={false}>
-            <GithubButton></GithubButton>
+            <GithubButton />
           </BlueButton>
         </a>
       </div>
-      <div style={{ height: 10 }}></div>
+      <div style={{ height: 10 }} />
     </>
   );
 };
