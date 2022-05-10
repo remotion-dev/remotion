@@ -9,7 +9,7 @@ import { Parametrize } from "../../components/LandingPage/parametrize";
 import { RealMP4Videos } from "../../components/LandingPage/real-mp4-videos";
 import { SuccessFeatures } from "../../components/LandingPage/SuccessFeatures";
 import { WriteInReact } from "../../components/LandingPage/WriteInReact";
-import { ChooseTemplate } from "./ChooseTemplate";
+import { ChooseTemplate } from "../components/ChooseTemplate";
 import styles from "./landing.module.css";
 import { VideoApps } from "../../components/LambdaSplash/VideoApps";
 import { VideoAppsTitle } from "../../components/LambdaSplash/VideoAppsTitle";

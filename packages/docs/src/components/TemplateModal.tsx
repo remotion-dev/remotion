@@ -1,3 +1,4 @@
+import { Template } from "create-video";
 import React, { useCallback, useEffect, useRef } from "react";
 import { TemplateModalContent } from "./TemplateModalContent";
 
@@ -18,7 +19,8 @@ const container: React.CSSProperties = {
 
 export const TemplateModal: React.FC<{
   onDismiss: () => void;
-}> = ({ onDismiss }) => {
+  selectedTemplate: Template;
+}> = ({ onDismiss, selectedTemplate }) => {
   const outer = useRef<HTMLDivElement>(null);
   const inner = useRef<HTMLDivElement>(null);
 
@@ -50,7 +52,9 @@ export const TemplateModal: React.FC<{
   return (
     <div style={container} ref={outer}>
       <div ref={inner}>
-        <TemplateModalContent></TemplateModalContent>
+        <TemplateModalContent
+          template={selectedTemplate}
+        ></TemplateModalContent>
       </div>
     </div>
   );

@@ -2,7 +2,7 @@
 	"name": "create-video",
 	"version": "3.0.4",
 	"description": "",
-	"main": "index.js",
+	"main": "dist/index.js",
 	"bin": {
 		"create-video": "bin.js"
 	},
