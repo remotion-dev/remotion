@@ -1,6 +1,7 @@
 import { Template } from "create-video";
 import React, { useCallback, useMemo, useState } from "react";
 import { useElementSize } from "../helpers/use-el-size";
+import { CommandCopyButton } from "./CommandCopyButton";
 import { MuxVideo } from "./MuxVideo";
 import { Spinner } from "./Spinner";
 
@@ -28,6 +29,8 @@ const link: React.CSSProperties = {
   display: "inline-flex",
   flexDirection: "row",
   alignItems: "center",
+  cursor: "pointer",
+  userSelect: "none",
 };
 
 const description: React.CSSProperties = {
@@ -41,6 +44,7 @@ const githubrow: React.CSSProperties = {
   paddingTop: 4,
   paddingBottom: 4,
   verticalAlign: "middle",
+  paddingRight: 16,
 };
 
 const loadingContainer: React.CSSProperties = {
@@ -50,12 +54,8 @@ const loadingContainer: React.CSSProperties = {
   display: "flex",
 };
 
-const CommandIcon: React.FC = () => {
-  return (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512" height="18">
-      <path d="M96 480c-8.188 0-16.38-3.125-22.62-9.375c-12.5-12.5-12.5-32.75 0-45.25L242.8 256L73.38 86.63c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0l192 192c12.5 12.5 12.5 32.75 0 45.25l-192 192C112.4 476.9 104.2 480 96 480z" />
-    </svg>
-  );
+const installCommand: React.CSSProperties = {
+  marginRight: 12,
 };
 
 const GithubIcon: React.FC = () => {
@@ -85,9 +85,23 @@ const spinner: React.CSSProperties = {
   width: 16,
 };
 
+const separator: React.CSSProperties = {
+  height: 24,
+  backgroundColor: "var(--light-text-color)",
+  opacity: 0.2,
+  borderRadius: 1,
+  width: 1,
+  marginLeft: 10,
+  marginRight: 10,
+};
+
+let copyTimeout: NodeJS.Timeout | null = null;
+
 export const TemplateModalContent: React.FC<{
   template: Template;
 }> = ({ template }) => {
+  const [copied, setCopied] = useState<string | false>(false);
+  const [showPkgManagers, setShowPackageManagers] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const containerCss: React.CSSProperties = useMemo(() => {
     return {
@@ -132,9 +146,37 @@ export const TemplateModalContent: React.FC<{
     setLoaded(true);
   }, []);
 
+  const copyCommand = useCallback((command: string) => {
+    clearTimeout(copyTimeout);
+    const permissionName = "clipboard-write" as PermissionName;
+    navigator.permissions
+      .query({ name: permissionName })
+      .then((result) => {
+        if (result.state === "granted" || result.state === "prompt") {
+          // TODO: Customize
+          navigator.clipboard.writeText(command);
+          setCopied(command);
+        }
+      })
+      .catch((err) => {
+        console.log("Could not copy command", err);
+      });
+    copyTimeout = setTimeout(() => {
+      setCopied(false);
+    }, 2000);
+  }, []);
+
+  const togglePkgManagers = useCallback(() => {
+    setShowPackageManagers((s) => !s);
+  }, []);
+
   return (
     <div style={containerCss}>
-      <div>
+      <div
+        style={{
+          display: "inline",
+        }}
+      >
         {loaded ? null : (
           <div style={loadingStyle}>
             <Spinner style={spinner} />
@@ -147,6 +189,9 @@ export const TemplateModalContent: React.FC<{
           width={width}
           autoPlay
           muted
+          style={{
+            display: "inline",
+          }}
           onLoadedMetadata={onLoadedMetadata}
         />
       </div>
@@ -156,11 +201,52 @@ export const TemplateModalContent: React.FC<{
         <br />
 
         <div style={githubrow}>
-          <div style={iconContainer}>
-            <CommandIcon></CommandIcon>
-          </div>
-          npm init video
+          <a style={link} onClick={() => copyCommand("npm init video")}>
+            <div style={iconContainer}>
+              <CommandCopyButton
+                copied={copied === "npm init video"}
+              ></CommandCopyButton>
+            </div>
+            <div style={installCommand}>npm init video</div>
+          </a>
+          <div style={{ flex: 1 }}></div>
+          <a style={link} onClick={togglePkgManagers}>
+            <span
+              style={{ whiteSpace: "pre", color: "var(--light-text-color)" }}
+            >
+              Show {showPkgManagers ? "less" : "more"}
+            </span>{" "}
+          </a>
+          <div
+            style={{
+              width: 8,
+            }}
+          ></div>
         </div>
+        {showPkgManagers ? (
+          <div style={githubrow}>
+            <a style={link} onClick={() => copyCommand("pnpm create video")}>
+              <div style={iconContainer}>
+                <CommandCopyButton
+                  copied={copied === "pnpm create video"}
+                ></CommandCopyButton>
+              </div>
+              <div style={installCommand}>pnpm create video</div>
+            </a>
+          </div>
+        ) : null}
+        {showPkgManagers ? (
+          <div style={githubrow}>
+            <a style={link} onClick={() => copyCommand("yarn create video")}>
+              <div style={iconContainer}>
+                <CommandCopyButton
+                  copied={copied === "yarn create video"}
+                ></CommandCopyButton>
+              </div>
+              <div style={installCommand}>yarn create video</div>
+            </a>
+          </div>
+        ) : null}
         <div style={githubrow}>
           <a
             style={link}
@@ -171,15 +257,7 @@ export const TemplateModalContent: React.FC<{
             </div>{" "}
             Use template
           </a>
-          <span
-            style={{
-              whiteSpace: "pre",
-              color: "var(--light-text-color)",
-            }}
-          >
-            {" "}
-            |{" "}
-          </span>
+          <div style={separator}></div>
           <a
             target={"_blank"}
             style={link}

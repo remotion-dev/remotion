@@ -23,7 +23,9 @@ const clone: React.CSSProperties = {
   textAlign: "center",
   paddingBottom: 10,
   paddingTop: 10,
+  color: "var(--light-text-color)",
 };
+
 const NewLanding: React.FC = () => {
   return (
     <Layout>
@@ -49,7 +51,7 @@ const NewLanding: React.FC = () => {
             paddingBottom: 20,
           }}
         >
-          <div style={clone}>Clone a template to get started</div>
+          <div style={clone}>Get started using a template:</div>
 
           <div className={styles.content}>
             <ChooseTemplate />
