@@ -6,6 +6,8 @@ const outer: React.CSSProperties = {
   display: "flex",
   alignItems: "center",
   flexDirection: "column",
+  color: "var(--light-text-color)",
+  cursor: "pointer",
 };
 
 const icon: React.CSSProperties = {
@@ -19,17 +21,17 @@ const icon: React.CSSProperties = {
 
 const labelStyle: React.CSSProperties = {
   fontSize: 12,
-  cursor: "pointer",
 };
 
-export const TemplateIcon: React.FC<{ label: string }> = ({
-  children,
-  label,
-}) => {
+export const TemplateIcon: React.FC<{
+  label: string;
+  children: React.ReactNode;
+  onClick: () => void;
+}> = ({ children, label, onClick }) => {
   return (
-    <div style={outer}>
+    <a style={outer} onClick={onClick}>
       <div style={icon}>{children}</div>
       <div style={labelStyle}>{label}</div>
-    </div>
+    </a>
   );
 };

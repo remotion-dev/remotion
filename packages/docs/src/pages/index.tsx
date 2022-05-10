@@ -35,22 +35,26 @@ const NewLanding: React.FC = () => {
         technologies to render videos programmatically!"
         />
       </Head>
-      <div
-        style={{
-          backgroundColor: "var(--shaded-panel)",
-          paddingBottom: 20,
-        }}
-      >
-        <div style={clone}>Clone a template to get started</div>
+      <br />
+      <br />
+      <br />
+      <br />
 
-        <div className={styles.content}>
-          <ChooseTemplate />
-        </div>
-      </div>
       <div className={styles.content}>
         <WriteInReact />
         <br />
         <br />
+        <div
+          style={{
+            paddingBottom: 20,
+          }}
+        >
+          <div style={clone}>Clone a template to get started</div>
+
+          <div className={styles.content}>
+            <ChooseTemplate />
+          </div>
+        </div>
         <br />
         <br />
         <br />
