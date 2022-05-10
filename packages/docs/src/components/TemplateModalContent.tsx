@@ -75,7 +75,7 @@ const StackBlitzIcon: React.FC = () => {
       <path
         fill="currentColor"
         d="M12.747 16.273h-7.46L18.925 1.5l-3.671 10.227h7.46L9.075 26.5l3.671-10.227z"
-      ></path>
+      />
     </svg>
   );
 };
@@ -163,11 +163,12 @@ export const TemplateModalContent: React.FC<{
         navigator.clipboard.writeText(command);
         setCopied(command);
       }
-      console.log(result.state);
     } catch (err) {
+      // eslint-disable-next-line no-alert
       alert("Copying is not supported on this device");
       console.log("Could not copy command", err);
     }
+
     copyTimeout = setTimeout(() => {
       setCopied(false);
     }, 2000);
@@ -245,19 +246,17 @@ export const TemplateModalContent: React.FC<{
             </svg>
           </a>
         </div>
-        <br></br>
+        <br />
         <div style={description}>{template.longerDescription}</div>
         <br />
         <div style={githubrow}>
           <a style={link} onPointerDown={() => copyCommand("npm init video")}>
             <div style={iconContainer}>
-              <CommandCopyButton
-                copied={copied === "npm init video"}
-              ></CommandCopyButton>
+              <CommandCopyButton copied={copied === "npm init video"} />
             </div>
             <div style={installCommand}>npm init video</div>
           </a>
-          <div style={{ flex: 1 }}></div>
+          <div style={{ flex: 1 }} />
           <a style={link} onPointerDown={togglePkgManagers}>
             <span
               style={{ whiteSpace: "pre", color: "var(--light-text-color)" }}
@@ -269,7 +268,7 @@ export const TemplateModalContent: React.FC<{
             style={{
               width: 8,
             }}
-          ></div>
+          />
         </div>
         {showPkgManagers ? (
           <div style={githubrow}>
@@ -278,9 +277,7 @@ export const TemplateModalContent: React.FC<{
               onPointerDown={() => copyCommand("pnpm create video")}
             >
               <div style={iconContainer}>
-                <CommandCopyButton
-                  copied={copied === "pnpm create video"}
-                ></CommandCopyButton>
+                <CommandCopyButton copied={copied === "pnpm create video"} />
               </div>
               <div style={installCommand}>pnpm create video</div>
             </a>
@@ -294,9 +291,7 @@ export const TemplateModalContent: React.FC<{
               onPointerDown={() => copyCommand("yarn create video")}
             >
               <div style={iconContainer}>
-                <CommandCopyButton
-                  copied={copied === "yarn create video"}
-                ></CommandCopyButton>
+                <CommandCopyButton copied={copied === "yarn create video"} />
               </div>
               <div style={installCommand}>yarn create video</div>
             </a>
@@ -309,11 +304,11 @@ export const TemplateModalContent: React.FC<{
             href={`https://github.com/${template.org}/${template.repoName}/generate`}
           >
             <div style={iconContainer}>
-              <GithubIcon></GithubIcon>
+              <GithubIcon />
             </div>{" "}
             Use template
           </a>
-          <div style={separator}></div>
+          <div style={separator} />
           <a
             target={"_blank"}
             style={link}
@@ -329,7 +324,7 @@ export const TemplateModalContent: React.FC<{
         >
           <div style={githubrow}>
             <div style={iconContainer}>
-              <StackBlitzIcon></StackBlitzIcon>
+              <StackBlitzIcon />
             </div>
             Try online{" "}
             <span

@@ -10,6 +10,7 @@ export type Template = {
 		width: number;
 		height: number;
 	};
+	cliId: string;
 };
 
 export const FEATURED_TEMPLATES: Template[] = [
@@ -26,8 +27,8 @@ export const FEATURED_TEMPLATES: Template[] = [
 			height: 1080,
 			width: 1920,
 		},
+		cliId: 'hello-world',
 	},
-
 	{
 		homePageLabel: 'JavaScript',
 		shortName: 'Hello World (Javascript)',
@@ -41,6 +42,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 			width: 1920,
 			height: 1080,
 		},
+		cliId: 'javascript',
 	},
 	{
 		homePageLabel: 'Blank',
@@ -55,6 +57,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 			width: 1280,
 			height: 720,
 		},
+		cliId: 'blank',
 	},
 	{
 		homePageLabel: '3D',
@@ -69,6 +72,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 			width: 1280,
 			height: 720,
 		},
+		cliId: 'three',
 	},
 	{
 		homePageLabel: 'Stills',
@@ -83,6 +87,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 			height: 628,
 			width: 1200,
 		},
+		cliId: 'still',
 	},
 	{
 		homePageLabel: 'TTS',
@@ -97,6 +102,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 			width: 1920,
 			height: 1080,
 		},
+		cliId: 'tts',
 	},
 	{
 		homePageLabel: 'Audiogram',
@@ -111,5 +117,6 @@ export const FEATURED_TEMPLATES: Template[] = [
 			height: 1080,
 			width: 1080,
 		},
+		cliId: 'audiogram',
 	},
 ];

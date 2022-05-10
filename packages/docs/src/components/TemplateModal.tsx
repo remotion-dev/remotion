@@ -1,5 +1,5 @@
 import { Template } from "create-video";
-import React, { useCallback, useEffect, useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import { TemplateModalContent } from "./TemplateModalContent";
 
 const container: React.CSSProperties = {
@@ -35,27 +35,28 @@ export const TemplateModal: React.FC<{
     return () => {
       window.removeEventListener("keyup", onKeyPress);
     };
-  }, []);
+  }, [onDismiss]);
 
   useEffect(() => {
     const onClick = (event: MouseEvent) => {
       if (inner.current.contains(event.target as Node)) {
         return;
       }
+
       onDismiss();
     };
 
     window.addEventListener("click", onClick);
     return () => window.removeEventListener("click", onClick);
-  }, []);
+  }, [onDismiss]);
 
   return (
-    <div style={container} ref={outer}>
+    <div ref={outer} style={container}>
       <div ref={inner}>
         <TemplateModalContent
           template={selectedTemplate}
           onDismiss={onDismiss}
-        ></TemplateModalContent>
+        />
       </div>
     </div>
   );
