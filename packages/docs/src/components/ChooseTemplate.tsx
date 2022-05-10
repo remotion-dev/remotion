@@ -130,7 +130,7 @@ export const ChooseTemplate: React.FC = () => {
           justifyContent: "center",
         }}
       >
-        {chunks.map((c, i) => {
+        {chunks.map((c) => {
           return (
             <div
               key={c.map((_) => _.cliId).join("-")}
