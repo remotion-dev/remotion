@@ -1,7 +1,13 @@
 node_modules
 dist
 tsconfig.tsbuildinfo
-lerna-debug.log
 .DS_Store
 coverage
-packages/example/.env
+/.idea/
+*/**/.env
+.cache
+packages/example/out
+.env
+.pnpm-debug.log
+.vscode/taskmarks.json
+.turbo

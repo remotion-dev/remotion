@@ -4,7 +4,6 @@ test('Simple expression', () => {
 	expect(
 		ffmpegVolumeExpression({
 			volume: 0.5,
-			multiplier: 1,
 			startInVideo: 0,
 			fps: 30,
 		})
@@ -18,13 +17,12 @@ test('Simple expression with volume multiplier', () => {
 	expect(
 		ffmpegVolumeExpression({
 			volume: 0.5,
-			multiplier: 2,
 			startInVideo: 0,
 			fps: 30,
 		})
 	).toEqual({
 		eval: 'once',
-		value: '1',
+		value: '0.5',
 	});
 });
 
@@ -32,13 +30,12 @@ test('Complex expression with volume multiplier', () => {
 	expect(
 		ffmpegVolumeExpression({
 			volume: [0, 1],
-			multiplier: 2,
 			startInVideo: 0,
 			fps: 30,
 		})
 	).toEqual({
 		eval: 'frame',
-		value: "'if(between(t,-0.0167,0.0167),0,if(between(t,0.0167,0.0500),2,0))'",
+		value: "'if(between(t,-0.0167,0.0167),0,if(between(t,0.0167,0.0500),1,0))'",
 	});
 });
 
@@ -49,7 +46,6 @@ test('Really complex volume expression', () => {
 	expect(
 		ffmpegVolumeExpression({
 			volume: [0, 0.25, 0.5, 0.99, 0.99, 0.99, 0.99, 1, 1, 1, 1, 1],
-			multiplier: 1,
 			startInVideo: 0,
 			fps: 30,
 		})
@@ -63,7 +59,6 @@ test('Should use 0 as else statement', () => {
 	expect(
 		ffmpegVolumeExpression({
 			volume: [0, 0, 0, 1, 1],
-			multiplier: 1,
 			startInVideo: 0,
 			fps: 30,
 		})
@@ -75,19 +70,18 @@ test('Should use 0 as else statement', () => {
 });
 
 test('Simple expression - should not be higher than 1', () => {
-	expect(
-		ffmpegVolumeExpression({volume: 2, multiplier: 1, startInVideo: 0, fps: 30})
-	).toEqual({
-		eval: 'once',
-		value: '1',
-	});
+	expect(ffmpegVolumeExpression({volume: 2, startInVideo: 0, fps: 30})).toEqual(
+		{
+			eval: 'once',
+			value: '1',
+		}
+	);
 });
 
 test('Complex expression - should not be higher than 1', () => {
 	expect(
 		ffmpegVolumeExpression({
 			volume: [0.5, 2],
-			multiplier: 1,
 			startInVideo: 0,
 			fps: 30,
 		})
@@ -102,7 +96,6 @@ test('Should simplify an expression', () => {
 	expect(
 		ffmpegVolumeExpression({
 			volume: [0, 1, 1, 1, 0, 1],
-			multiplier: 1,
 			startInVideo: 0,
 			fps: 30,
 		})
@@ -122,7 +115,6 @@ test('Should stay under half 8000 windows character limit', () => {
 
 			return (i - 500) / 100;
 		}),
-		multiplier: 1,
 		startInVideo: 0,
 		fps: 30,
 	});

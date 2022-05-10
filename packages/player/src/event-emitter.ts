@@ -6,17 +6,27 @@ type ErrorPayload = {
 	error: Error;
 };
 
+type TimeUpdateEventPayload = {
+	frame: number;
+};
+
+type RateChangeEventPayload = {
+	playbackRate: number;
+};
+
 type StateEventMap = {
 	seeked: SeekPayload;
 	pause: undefined;
 	play: undefined;
+	ratechange: RateChangeEventPayload;
 	ended: undefined;
 	error: ErrorPayload;
+	timeupdate: TimeUpdateEventPayload;
 };
 
-type EventTypes = keyof StateEventMap;
+export type EventTypes = keyof StateEventMap;
 
-type CallbackListener<T extends EventTypes> = (data: {
+export type CallbackListener<T extends EventTypes> = (data: {
 	detail: StateEventMap[T];
 }) => void;
 
@@ -28,7 +38,9 @@ export class PlayerEmitter {
 		error: [],
 		pause: [],
 		play: [],
+		ratechange: [],
 		seeked: [],
+		timeupdate: [],
 	};
 
 	addEventListener<Q extends EventTypes>(
@@ -42,9 +54,9 @@ export class PlayerEmitter {
 		name: Q,
 		callback: CallbackListener<Q>
 	) {
-		this.listeners[name] = (this.listeners[
-			name
-		] as CallbackListener<EventTypes>[]).filter((l) => l !== callback);
+		this.listeners[name] = (
+			this.listeners[name] as CallbackListener<EventTypes>[]
+		).filter((l) => l !== callback);
 	}
 
 	private dispatchEvent<T extends EventTypes>(
@@ -76,9 +88,19 @@ export class PlayerEmitter {
 		this.dispatchEvent('ended', undefined);
 	}
 
+	dispatchRatechange(playbackRate: number) {
+		this.dispatchEvent('ratechange', {
+			playbackRate,
+		});
+	}
+
 	dispatchError(error: Error) {
 		this.dispatchEvent('error', {
 			error,
 		});
+	}
+
+	dispatchTimeUpdate(event: TimeUpdateEventPayload) {
+		this.dispatchEvent('timeupdate', event);
 	}
 }

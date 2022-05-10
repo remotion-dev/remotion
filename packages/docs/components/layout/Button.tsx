@@ -27,19 +27,13 @@ type PrestyledProps = DetailedHTMLProps<
   MandatoryProps;
 
 export const Button: React.FC<Props> = (props) => {
-  const {
-    children,
-    loading,
-    hoverColor,
-    fullWidth,
-    color,
-    size,
-    ...other
-  } = props;
+  const { children, loading, hoverColor, fullWidth, color, size, ...other } =
+    props;
   const actualDisabled = other.disabled || loading;
 
   return (
     <button
+      type="button"
       className={styles.buttoncontainer}
       disabled={actualDisabled}
       {...other}
@@ -49,6 +43,7 @@ export const Button: React.FC<Props> = (props) => {
         color: props.color,
         cursor: props.disabled ? "default" : "pointer",
         backgroundColor: props.background,
+        // @ts-expect-error
         "--hover-color": props.hoverColor,
         ...(props.fullWidth ? { width: "100%" } : {}),
         opacity: props.disabled ? 0.7 : 1,

@@ -3,9 +3,9 @@ title: visualizeAudio()
 id: visualize-audio
 ---
 
-_Part of the `@remotion/media-utils`_ package of helper functions.
+_Part of the `@remotion/media-utils` package of helper functions._
 
-This function takes in `AudioData` (preferrably fetched by the [`useAudioData()`](use-audio-data) hook) and processes it in a way that makes visualizing the audio that is playing at the current frame easy.
+This function takes in `AudioData` (preferrably fetched by the [`useAudioData()`](/docs/use-audio-data) hook) and processes it in a way that makes visualizing the audio that is playing at the current frame easy.
 
 ## Arguments
 
@@ -13,7 +13,7 @@ This function takes in `AudioData` (preferrably fetched by the [`useAudioData()`
 
 The only argument for this function is an object containing the following values:
 
-- `audioData`: `AudioData` - an object containing audio data. You can fetch this object using [`useAudioData()`](use-audio-data) or [`getAudioData()`](get-audio-data).
+- `audioData`: `AudioData` - an object containing audio data. You can fetch this object using [`useAudioData()`](/docs/use-audio-data) or [`getAudioData()`](/docs/get-audio-data).
 
 - `frame`: `number` - the time of the track that you want to get the audio information for. The `frame` always refers to the position in the audio track - if you have shifted or trimmed the audio in your timeline, the frame returned by `useCurrentFrame` must also be tweaked before you pass it into this function.
 
@@ -31,16 +31,16 @@ Usually the values on left side of the array can become much larger than the val
 
 ## Example
 
-In this example, we render a bar chart visualizing the audio spectrum of an audio file we imported using [`useAudioData()`](use-audio-data) and `visualizeAudio()`.
+In this example, we render a bar chart visualizing the audio spectrum of an audio file we imported using [`useAudioData()`](/docs/use-audio-data) and `visualizeAudio()`.
 
-```tsx
-import {Audio, useCurrentFrame, useVideoConfig} from 'remotion';
-import {useAudioData, visualizeAudio} from '@remotion/media-utils';
-import music from './music.mp3';
+```tsx twoslash
+import { Audio, useCurrentFrame, useVideoConfig } from "remotion";
+import { useAudioData, visualizeAudio } from "@remotion/media-utils";
+import music from "./music.mp3";
 
 export const MyComponent: React.FC = () => {
   const frame = useCurrentFrame();
-  const {width, height, fps} = useVideoConfig();
+  const { width, height, fps } = useVideoConfig();
   const audioData = useAudioData(music);
 
   if (!audioData) {
@@ -58,16 +58,17 @@ export const MyComponent: React.FC = () => {
   // the longer the bar
   return (
     <div>
-      <Audio src={music}/>
-      {visualization.map(v => {
+      <Audio src={music} />
+      {visualization.map((v) => {
         return (
-          <div style={{width: 1000 * v, height: 15, backgroundColor: 'blue'}} />
+          <div
+            style={{ width: 1000 * v, height: 15, backgroundColor: "blue" }}
+          />
         );
       })}
     </div>
-  )
-}
-
+  );
+};
 ```
 
 ## See also

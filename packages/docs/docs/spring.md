@@ -7,9 +7,11 @@ Delightful and smooth animation primitive. Calculates a position based on physic
 
 Example:
 
-```tsx
-const frame = useCurrentFrame()
-const videoConfig = useVideoConfig()
+```tsx twoslash
+import { spring, useCurrentFrame, useVideoConfig } from "remotion";
+// ---cut---
+const frame = useCurrentFrame();
+const videoConfig = useVideoConfig();
 
 const value = spring({
   frame,
@@ -17,9 +19,9 @@ const value = spring({
   to: 1,
   fps: videoConfig.fps,
   config: {
-    stiffness: 100
-  }
-})
+    stiffness: 100,
+  },
+});
 ```
 
 ## Parameters
@@ -30,15 +32,19 @@ The current time value. Most of the time you want to pass in the return value of
 
 ### from
 
+_Default:_ `0`
+
 The initial value of the animation.
 
 ### to
+
+_Default:_ `1`
 
 The end value of the animation. Note that depending on the parameters, spring animations may overshoot the target a bit, before they bounce back to their final target.
 
 ### fps
 
-For how many frames per second the spring animation should be calculated. This should always be the `fps` property of the return value of `useVideoConfig()`.
+For how many frames per second the spring animation should be calculated. This should always be the `fps` property of the return value of [`useVideoConfig()`](/docs/use-video-config).
 
 ### config
 

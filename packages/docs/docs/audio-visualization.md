@@ -9,8 +9,10 @@ Using the audio visualization APIs in Remotion 2.0, you can create animations ba
 
 You can import an audio file using an `import` statement:
 
-```tsx
-import audio from './audio.mp3'
+```ts twoslash
+import { Audio } from "remotion";
+// ---cut---
+import audio from "./audio.mp3";
 ```
 
 `audio` will resolve to a string pointing to an audio file. You may also skip importing and use an `https://` URL to load audio from a remote location, if the audio is allowed to be loaded by the domains CORS policy.
@@ -23,14 +25,14 @@ Using the [`visualizeAudio()`](/docs/visualize-audio) API, you can get an audio 
 
 Refer to the documentation of the above mentioned functions to learn more.
 
-```tsx
-import {useCurrentFrame, useVideoConfig, Audio} from 'remotion';
-import {useAudioData, visualizeAudio} from '@remotion/media-utils';
-import music from './music.mp3';
+```tsx twoslash
+import { Audio, useCurrentFrame, useVideoConfig } from "remotion";
+import { useAudioData, visualizeAudio } from "@remotion/media-utils";
+import music from "./music.mp3";
 
 export const MyComponent: React.FC = () => {
   const frame = useCurrentFrame();
-  const {width, height, fps} = useVideoConfig();
+  const { width, height, fps } = useVideoConfig();
   const audioData = useAudioData(music);
 
   if (!audioData) {
@@ -48,15 +50,17 @@ export const MyComponent: React.FC = () => {
   // the longer the bar
   return (
     <div>
-      <Audio src={music}/>
-      {visualization.map(v => {
+      <Audio src={music} />
+      {visualization.map((v) => {
         return (
-          <div style={{width: 1000 * v, height: 15, backgroundColor: 'blue'}} />
+          <div
+            style={{ width: 1000 * v, height: 15, backgroundColor: "blue" }}
+          />
         );
       })}
     </div>
-  )
-}
+  );
+};
 ```
 
 ## See also

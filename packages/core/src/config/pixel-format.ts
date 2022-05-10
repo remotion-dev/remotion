@@ -8,7 +8,7 @@ const validOptions = [
 	'yuv420p10le',
 	'yuv422p10le',
 	'yuv444p10le',
-	'yuva444p10le'
+	'yuva444p10le',
 ] as const;
 
 export type PixelFormat = typeof validOptions[number];

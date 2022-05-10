@@ -49,9 +49,13 @@ export const PricingTable: React.FC<{}> = () => {
               </li>
             </ul>
             <div style={{ flex: 1 }} />
-            <BlueButton fullWidth disabled loading={false} size="bg">
-              No signup required
-            </BlueButton>
+            <a className={styles.pricinga} href="/docs">
+              <div>
+                <BlueButton fullWidth loading={false} size="bg">
+                  Get started
+                </BlueButton>
+              </div>
+            </a>
           </div>
         </div>
         <Spacer />
@@ -150,6 +154,19 @@ export const PricingTable: React.FC<{}> = () => {
           </div>
         </div>
       </div>
+      <p style={{ textAlign: "center", marginTop: 24 }}>
+        Want a 15 minute call to evaluate if Remotion is right for you?{" "}
+        <a
+          style={{
+            color: "var(--blue-button-color)",
+            fontWeight: "bold",
+            textDecoration: "none",
+          }}
+          href="mailto:hi@remotion.dev"
+        >
+          Contact us
+        </a>
+      </p>
     </div>
   );
 };

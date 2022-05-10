@@ -1,14 +1,14 @@
 import fs from 'fs';
-import {Page, ScreenshotOptions} from 'puppeteer-core';
-import {Internals} from 'remotion';
+import {CDPSession, Page, ScreenshotOptions, Target} from 'puppeteer-core';
+import {Internals, StillImageFormat} from 'remotion';
 
 export const _screenshotTask = async (
 	page: Page,
-	format: 'png' | 'jpeg',
+	format: StillImageFormat,
 	options: ScreenshotOptions
 ): Promise<Buffer | string> => {
-	const client = (page as any)._client;
-	const target = (page as any)._target;
+	const client = (page as unknown as {_client: CDPSession})._client;
+	const target = (page as unknown as {_target: Target})._target;
 
 	const perfTarget = Internals.perf.startPerfMeasure('activate-target');
 

@@ -16,7 +16,7 @@ const gradients = [
 	['#9d0391', '#120078'],
 ];
 
-export const DropDots: React.FC<{
+const DropDots: React.FC<{
 	opacity: number;
 	volume: number;
 }> = ({opacity, volume}) => {

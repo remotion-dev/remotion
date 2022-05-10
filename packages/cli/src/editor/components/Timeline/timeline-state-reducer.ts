@@ -10,6 +10,14 @@ export type TimelineActionState =
 	| {
 			type: 'expand';
 			hash: string;
+	  }
+	| {
+			type: 'expand-all';
+			allHashes: string[];
+	  }
+	| {
+			type: 'collapse-all';
+			allHashes: string[];
 	  };
 
 export const timelineStateReducer = (
@@ -33,6 +41,30 @@ export const timelineStateReducer = (
 				...state.collapsed,
 				[action.hash]: false,
 			},
+		};
+	}
+
+	if (action.type === 'collapse-all') {
+		return {
+			...state,
+			collapsed: action.allHashes.reduce((a, b) => {
+				return {
+					...[a],
+					[b]: true,
+				};
+			}, {}),
+		};
+	}
+
+	if (action.type === 'expand-all') {
+		return {
+			...state,
+			collapsed: action.allHashes.reduce((a, b) => {
+				return {
+					...a,
+					[b]: false,
+				};
+			}, {}),
 		};
 	}
 

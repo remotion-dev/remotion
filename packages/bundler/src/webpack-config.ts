@@ -1,12 +1,33 @@
 import path from 'path';
+import ReactDOM from 'react-dom';
 import {Internals, WebpackConfiguration, WebpackOverrideFn} from 'remotion';
 import webpack, {ProgressPlugin} from 'webpack';
+import {LoaderOptions} from './esbuild-loader/interfaces';
+import {ReactFreshWebpackPlugin} from './fast-refresh';
 import {getWebpackCacheName} from './webpack-cache';
+import esbuild = require('esbuild');
 
-const ErrorOverlayPlugin = require('@webhotelier/webpack-fast-refresh/error-overlay');
-const ReactRefreshPlugin = require('@webhotelier/webpack-fast-refresh');
+if (!ReactDOM || !ReactDOM.version) {
+	throw new Error('Could not find "react-dom" package. Did you install it?');
+}
+
+const reactDomVersion = ReactDOM.version.split('.')[0];
+if (reactDomVersion === '0') {
+	throw new Error(
+		`Version ${reactDomVersion} of "react-dom" is not supported by Remotion`
+	);
+}
+
+const shouldUseReactDomClient = parseInt(reactDomVersion, 10) >= 18;
+
+const esbuildLoaderOptions: LoaderOptions = {
+	target: 'chrome85',
+	loader: 'tsx',
+	implementation: esbuild,
+};
 
 type Truthy<T> = T extends false | '' | 0 | null | undefined ? never : T;
+
 function truthy<T>(value: T): value is Truthy<T> {
 	return Boolean(value);
 }
@@ -27,11 +48,11 @@ export const webpackConfig = ({
 	userDefinedComponent: string;
 	outDir: string;
 	environment: 'development' | 'production';
-	webpackOverride?: WebpackOverrideFn;
+	webpackOverride: WebpackOverrideFn;
 	onProgressUpdate?: (f: number) => void;
 	enableCaching?: boolean;
-	inputProps?: object;
-	envVariables?: Record<string, string>;
+	inputProps: object;
+	envVariables: Record<string, string>;
 	maxTimelineTracks: number;
 }): WebpackConfiguration => {
 	return webpackOverride({
@@ -46,21 +67,32 @@ export const webpackConfig = ({
 							entries: false,
 					  },
 		},
+		watchOptions: {
+			aggregateTimeout: 0,
+			ignored: ['**/.git/**', '**/node_modules/**'],
+		},
 		cache: enableCaching
 			? {
 					type: 'filesystem',
 					name: getWebpackCacheName(environment, inputProps ?? {}),
 			  }
 			: false,
-		devtool: 'cheap-module-source-map',
+		devtool:
+			environment === 'development'
+				? 'cheap-module-source-map'
+				: 'cheap-module-source-map',
 		entry: [
-			require.resolve('./setup-env-variables'),
+			require.resolve('./setup-environment'),
 			environment === 'development'
-				? require.resolve('webpack-hot-middleware/client') + '?overlay=true'
+				? require.resolve('./hot-middleware/client')
 				: null,
 			environment === 'development'
-				? require.resolve('@webhotelier/webpack-fast-refresh/runtime.js')
+				? require.resolve('./fast-refresh/runtime.js')
 				: null,
+			environment === 'development'
+				? require.resolve('./error-overlay/entry-basic.js')
+				: null,
+
 			userDefinedComponent,
 			require.resolve('../react-shim.js'),
 			entry,
@@ -69,15 +101,13 @@ export const webpackConfig = ({
 		plugins:
 			environment === 'development'
 				? [
-						new ErrorOverlayPlugin(),
-						new ReactRefreshPlugin(),
+						new ReactFreshWebpackPlugin(),
 						new webpack.HotModuleReplacementPlugin(),
 						new webpack.DefinePlugin({
 							'process.env.MAX_TIMELINE_TRACKS': maxTimelineTracks,
 							'process.env.INPUT_PROPS': JSON.stringify(inputProps ?? {}),
-							[`process.env.${Internals.ENV_VARIABLES_ENV_NAME}`]: JSON.stringify(
-								envVariables ?? {}
-							),
+							[`process.env.${Internals.ENV_VARIABLES_ENV_NAME}`]:
+								JSON.stringify(envVariables),
 						}),
 				  ]
 				: [
@@ -88,9 +118,13 @@ export const webpackConfig = ({
 						}),
 				  ],
 		output: {
+			hashFunction: 'xxhash64',
 			globalObject: 'this',
 			filename: 'bundle.js',
 			path: outDir,
+			devtoolModuleFilenameTemplate: '[resource-path]',
+			assetModuleFilename:
+				environment === 'development' ? '[path][name][ext]' : '[hash][ext]',
 		},
 		devServer: {
 			contentBase: path.resolve(__dirname, '..', 'web'),
@@ -103,8 +137,10 @@ export const webpackConfig = ({
 				// Only one version of react
 				'react/jsx-runtime': require.resolve('react/jsx-runtime'),
 				react: require.resolve('react'),
+				'react-dom/client': shouldUseReactDomClient
+					? require.resolve('react-dom/client')
+					: require.resolve('react-dom'),
 				remotion: require.resolve('remotion'),
-				'styled-components': require.resolve('styled-components'),
 				'react-native$': 'react-native-web',
 			},
 		},
@@ -113,81 +149,52 @@ export const webpackConfig = ({
 				{
 					test: /\.css$/i,
 					use: [require.resolve('style-loader'), require.resolve('css-loader')],
+					type: 'javascript/auto',
 				},
 				{
-					test: /\.(png|svg|jpg|jpeg|webp|gif|bmp|webm|mp4|mp3|m4a|wav|aac)$/,
-					use: [
-						{
-							loader: require.resolve('file-loader'),
-							options: {
-								// So you can do require('hi.png')
-								// instead of require('hi.png').default
-								esModule: false,
-								name: () => {
-									// Don't rename files in development
-									// so we can show the filename in the timeline
-									if (environment === 'development') {
-										return '[path][name].[ext]';
-									}
-
-									return '[contenthash].[ext]';
-								},
-							},
-						},
-					],
+					test: /\.(png|svg|jpg|jpeg|webp|gif|bmp|webm|mp4|mov|mp3|m4a|wav|aac)$/,
+					type: 'asset/resource',
 				},
 				{
 					test: /\.tsx?$/,
 					use: [
 						{
-							loader: require.resolve('esbuild-loader'),
-							options: {
-								loader: 'tsx',
-								target: 'chrome85',
-							},
+							loader: require.resolve('./esbuild-loader/index.js'),
+							options: esbuildLoaderOptions,
 						},
 						environment === 'development'
 							? {
-									loader: require.resolve(
-										'@webhotelier/webpack-fast-refresh/loader.js'
-									),
+									loader: require.resolve('./fast-refresh/loader.js'),
 							  }
 							: null,
 					].filter(truthy),
 				},
 				{
-					test: /\.(woff(2)?|ttf|eot)(\?v=\d+\.\d+\.\d+)?$/,
-					use: [
-						{
-							loader: require.resolve('file-loader'),
-							options: {
-								name: '[name].[ext]',
-								outputPath: 'fonts/',
-							},
-						},
-					],
+					test: /\.(woff(2)?|otf|ttf|eot)(\?v=\d+\.\d+\.\d+)?$/,
+					type: 'asset/resource',
 				},
 				{
 					test: /\.jsx?$/,
 					exclude: /node_modules/,
 					use: [
 						{
-							loader: require.resolve('esbuild-loader'),
-							options: {
-								loader: 'jsx',
-								target: 'chrome85',
-							},
+							loader: require.resolve('./esbuild-loader/index.js'),
+							options: esbuildLoaderOptions,
 						},
 						environment === 'development'
 							? {
-									loader: require.resolve(
-										'@webhotelier/webpack-fast-refresh/loader.js'
-									),
+									loader: require.resolve('./fast-refresh/loader.js'),
 							  }
 							: null,
 					].filter(truthy),
 				},
+				{
+					test: /\.js$/,
+					enforce: 'pre',
+					use: [require.resolve('source-map-loader')],
+				},
 			],
 		},
+		ignoreWarnings: [/Failed to parse source map/],
 	});
 };

@@ -3,6 +3,7 @@ import clsx from "clsx";
 import React from "react";
 import headerStyles from "./header.module.css";
 import styles from "./styles.module.css";
+import Head from "@docusaurus/Head";
 
 const PageHeader: React.FC = () => {
   return (
@@ -80,10 +81,10 @@ const PageHeader: React.FC = () => {
             We will automatically host your video, and create static and
             animated preview images. These assets are associated with the{" "}
             <code>muxId</code>. Once uploaded, you will see a JSON markup and a
-            Github link where you can edit the list of showcase videos.
+            GitHub link where you can edit the list of showcase videos.
           </li>
           <li>
-            Edit the list of showcase videos on Github by adding the JSON object
+            Edit the list of showcase videos on GitHub by adding the JSON object
             to the bottom of the list. Fill in the placeholders in angle
             brackets according to the guidelines above and send your pull
             request.
@@ -97,7 +98,11 @@ const PageHeader: React.FC = () => {
 
 const ShowcaseAdd: React.FC = () => {
   return (
-    <Layout title="Add to showcase" description="hihi">
+    <Layout>
+      <Head>
+        <title>Add to showcase</title>
+      </Head>
+
       <header className={clsx("hero ", styles.heroBanner)}>
         <div className="container">
           <PageHeader />

@@ -1,8 +1,13 @@
-import {createWriteStream, mkdirSync} from 'fs';
-import got from 'got';
+import fs from 'fs';
 import path from 'path';
-import {random, TAsset} from 'remotion';
-import sanitizeFilename from 'sanitize-filename';
+import {Internals, random, TAsset} from 'remotion';
+import {ensureOutputDirectory} from '../ensure-output-directory';
+import {downloadFile} from './download-file';
+import {sanitizeFilePath} from './sanitize-filepath';
+
+export type RenderMediaOnDownload = (
+	src: string
+) => ((progress: {percent: number}) => void) | undefined | void;
 
 const isDownloadingMap: {[key: string]: boolean} = {};
 const hasBeenDownloadedMap: {[key: string]: boolean} = {};
@@ -28,10 +33,54 @@ const notifyAssetIsDownloaded = (src: string) => {
 	hasBeenDownloadedMap[src] = true;
 };
 
+const validateMimeType = (mimeType: string, src: string) => {
+	if (!mimeType.includes('/')) {
+		const errMessage = [
+			'A data URL was passed but did not have the correct format so that Remotion could convert it for the video to be rendered.',
+			'The format of the data URL must be `data:[mime-type];[encoding],[data]`.',
+			'The `mime-type` parameter must be a valid mime type.',
+			'The data that was received is (truncated to 100 characters):',
+			src.substr(0, 100),
+		].join(' ');
+		throw new TypeError(errMessage);
+	}
+};
+
+function validateBufferEncoding(
+	potentialEncoding: string,
+	dataUrl: string
+): asserts potentialEncoding is BufferEncoding {
+	const asserted = potentialEncoding as BufferEncoding;
+	const validEncodings: BufferEncoding[] = [
+		'ascii',
+		'base64',
+		'base64url',
+		'binary',
+		'hex',
+		'latin1',
+		'ucs-2',
+		'ucs2',
+		'utf-8',
+		'utf16le',
+		'utf8',
+	];
+	if (!validEncodings.find((en) => asserted === en)) {
+		const errMessage = [
+			'A data URL was passed but did not have the correct format so that Remotion could convert it for the video to be rendered.',
+			'The format of the data URL must be `data:[mime-type];[encoding],[data]`.',
+			'The `encoding` parameter must be one of the following:',
+			`${validEncodings.join(' ')}.`,
+			'The data that was received is (truncated to 100 characters):',
+			dataUrl.substr(0, 100),
+		].join(' ');
+		throw new TypeError(errMessage);
+	}
+}
+
 const downloadAsset = async (
 	src: string,
 	to: string,
-	onDownload: (src: string) => void
+	onDownload: RenderMediaOnDownload
 ) => {
 	if (hasBeenDownloadedMap[src]) {
 		return;
@@ -42,24 +91,37 @@ const downloadAsset = async (
 	}
 
 	isDownloadingMap[src] = true;
-	onDownload(src);
-	mkdirSync(path.resolve(to, '..'), {
-		recursive: true,
-	});
 
-	// Listen to 'close' event instead of more
-	// concise method to avoid this problem
-	// https://github.com/remotion-dev/remotion/issues/384#issuecomment-844398183
-	await new Promise<void>((resolve, reject) => {
-		const writeStream = createWriteStream(to);
+	const onProgress = onDownload(src);
+	ensureOutputDirectory(to);
 
-		writeStream.on('close', () => resolve());
-		writeStream.on('error', (err) => reject(err));
+	if (src.startsWith('data:')) {
+		const [assetDetails, assetData] = src.substring('data:'.length).split(',');
+		if (!assetDetails.includes(';')) {
+			const errMessage = [
+				'A data URL was passed but did not have the correct format so that Remotion could convert it for the video to be rendered.',
+				'The format of the data URL must be `data:[mime-type];[encoding],[data]`.',
+				'The data that was received is (truncated to 100 characters):',
+				src.substring(0, 100),
+			].join(' ');
+			throw new TypeError(errMessage);
+		}
 
-		got
-			.stream(src)
-			.pipe(writeStream)
-			.on('error', (err) => reject(err));
+		const [mimeType, encoding] = assetDetails.split(';');
+
+		validateMimeType(mimeType, src);
+		validateBufferEncoding(encoding, src);
+
+		const buff = Buffer.from(assetData, encoding);
+		await fs.promises.writeFile(to, buff);
+		notifyAssetIsDownloaded(src);
+		return;
+	}
+
+	await downloadFile(src, to, ({progress}) => {
+		onProgress?.({
+			percent: progress,
+		});
 	});
 	notifyAssetIsDownloaded(src);
 };
@@ -76,18 +138,16 @@ export const markAllAssetsAsDownloaded = () => {
 
 export const getSanitizedFilenameForAssetUrl = ({
 	src,
-	isRemote,
-	webpackBundle,
+	downloadDir,
 }: {
 	src: string;
-	isRemote: boolean;
-	webpackBundle: string;
+	downloadDir: string;
 }) => {
-	const {pathname, search} = new URL(src);
-
-	if (!isRemote) {
-		return path.join(webpackBundle, sanitizeFilename(pathname));
+	if (Internals.AssetCompression.isAssetCompressed(src)) {
+		return src;
 	}
+
+	const {pathname, search} = new URL(src);
 
 	const split = pathname.split('.');
 	const fileExtension =
@@ -99,32 +159,31 @@ export const getSanitizedFilenameForAssetUrl = ({
 		''
 	);
 	return path.join(
-		webpackBundle,
-		sanitizeFilename(hashedFileName + fileExtension)
+		downloadDir,
+		sanitizeFilePath(hashedFileName + fileExtension)
 	);
 };
 
 export const downloadAndMapAssetsToFileUrl = async ({
-	localhostAsset,
-	webpackBundle,
+	asset,
+	downloadDir,
 	onDownload,
 }: {
-	localhostAsset: TAsset;
-	webpackBundle: string;
-	onDownload: (src: string) => void;
+	asset: TAsset;
+	downloadDir: string;
+	onDownload: RenderMediaOnDownload;
 }): Promise<TAsset> => {
 	const newSrc = getSanitizedFilenameForAssetUrl({
-		src: localhostAsset.src,
-		isRemote: localhostAsset.isRemote,
-		webpackBundle,
+		src: asset.src,
+		downloadDir,
 	});
 
-	if (localhostAsset.isRemote) {
-		await downloadAsset(localhostAsset.src, newSrc, onDownload);
+	if (!Internals.AssetCompression.isAssetCompressed(newSrc)) {
+		await downloadAsset(asset.src, newSrc, onDownload);
 	}
 
 	return {
-		...localhostAsset,
+		...asset,
 		src: newSrc,
 	};
 };

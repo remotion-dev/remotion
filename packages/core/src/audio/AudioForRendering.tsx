@@ -8,7 +8,6 @@ import React, {
 } from 'react';
 import {getAbsoluteSrc} from '../absolute-src';
 import {CompositionManager} from '../CompositionManager';
-import {isRemoteAsset} from '../is-remote-asset';
 import {random} from '../random';
 import {SequenceContext} from '../sequencing';
 import {useAbsoluteCurrentFrame, useCurrentFrame} from '../use-frame';
@@ -65,7 +64,6 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 			id,
 			frame: absoluteFrame,
 			volume,
-			isRemote: isRemoteAsset(getAbsoluteSrc(props.src)),
 			mediaFrame: frame,
 			playbackRate: props.playbackRate ?? 1,
 		});

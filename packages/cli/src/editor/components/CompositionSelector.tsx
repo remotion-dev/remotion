@@ -1,58 +1,109 @@
-import React, {useCallback, useContext, useEffect} from 'react';
+import React, {
+	useCallback,
+	useContext,
+	useEffect,
+	useMemo,
+	useState,
+} from 'react';
 import {Internals, TComposition} from 'remotion';
-import styled from 'styled-components';
+import {
+	createFolderTree,
+	splitParentIntoNameAndParent,
+} from '../helpers/create-folder-tree';
+import {
+	ExpandedFoldersState,
+	loadExpandedFolders,
+	openFolderKey,
+	persistExpandedFolders,
+} from '../helpers/persist-open-folders';
+import {loadMarks} from '../state/marks';
+import {useZIndex} from '../state/z-index';
+import {CompositionSelectorItem} from './CompositionSelectorItem';
 import {CurrentComposition} from './CurrentComposition';
 import {
 	getCurrentCompositionFromUrl,
 	getFrameForComposition,
 } from './FramePersistor';
+import {inOutHandles} from './TimelineInOutToggle';
 
-const Container = styled.div`
-	border-right: 1px solid black;
-	position: absolute;
-	height: 100%;
-	width: 100%;
-	flex: 1;
-`;
+const container: React.CSSProperties = {
+	borderRight: '1px solid black',
+	position: 'absolute',
+	height: '100%',
+	width: '100%',
+	flex: 1,
+};
 
-const List = styled.div`
-	padding: 8px;
-	height: calc(100% - 100px);
-	overflow-y: auto;
-`;
+const list: React.CSSProperties = {
+	padding: 5,
+	height: 'calc(100% - 100px)',
+	overflowY: 'auto',
+};
 
-const Item = styled.a<{
-	selected: boolean;
-}>`
-	background: ${(props) => (props.selected ? 'white' : 'transparent')};
-	color: ${(props) => (props.selected ? 'black' : 'white')};
-	padding-left: 8px;
-	padding-right: 8px;
-	padding-top: 6px;
-	padding-bottom: 6px;
-	font-size: 13px;
-	font-family: Arial, Helvetica, sans-serif;
-	display: block;
-	border-radius: 2px;
-	text-decoration: none;
-	cursor: default;
-`;
+export const getKeysToExpand = (
+	initialFolderName: string,
+	parentFolderName: string | null,
+	initial: string[] = []
+): string[] => {
+	initial.push(openFolderKey(initialFolderName, parentFolderName));
+
+	const {name, parent} = splitParentIntoNameAndParent(parentFolderName);
+	if (!name) {
+		return initial;
+	}
+
+	return getKeysToExpand(name, parent, initial);
+};
 
 export const CompositionSelector: React.FC = () => {
-	const {compositions, setCurrentComposition, currentComposition} = useContext(
-		Internals.CompositionManager
+	const {compositions, setCurrentComposition, currentComposition, folders} =
+		useContext(Internals.CompositionManager);
+	const [foldersExpanded, setFoldersExpanded] = useState<ExpandedFoldersState>(
+		loadExpandedFolders()
 	);
+	const {tabIndex} = useZIndex();
 	const setCurrentFrame = Internals.Timeline.useTimelineSetFrame();
 
 	const selectComposition = useCallback(
 		(c: TComposition) => {
+			inOutHandles.current?.setMarks(loadMarks(c.id, c.durationInFrames));
 			window.history.pushState({}, 'Preview', `/${c.id}`);
 			const frame = getFrameForComposition(c.id);
 			const frameInBounds = Math.min(c.durationInFrames - 1, frame);
 			setCurrentFrame(frameInBounds);
 			setCurrentComposition(c.id);
+			const {folderName, parentFolderName} = c;
+			if (folderName !== null) {
+				setFoldersExpanded((ex) => {
+					const keysToExpand = getKeysToExpand(folderName, parentFolderName);
+					const newState: ExpandedFoldersState = {
+						...ex,
+					};
+					for (const key of keysToExpand) {
+						newState[key] = true;
+					}
+
+					return newState;
+				});
+			}
 		},
 		[setCurrentComposition, setCurrentFrame]
+	);
+
+	const toggleFolder = useCallback(
+		(folderName: string, parentName: string | null) => {
+			setFoldersExpanded((p) => {
+				const key = openFolderKey(folderName, parentName);
+				const prev = p[key] ?? false;
+				const foldersExpandedState: ExpandedFoldersState = {
+					...p,
+					[key]: !prev,
+				};
+				persistExpandedFolders(foldersExpandedState);
+				return foldersExpandedState;
+			});
+		},
+		[]
 	);
 
 	useEffect(() => {
@@ -74,26 +125,28 @@ export const CompositionSelector: React.FC = () => {
 		}
 	}, [compositions, currentComposition, selectComposition]);
 
+	const items = useMemo(() => {
+		return createFolderTree(compositions, folders, foldersExpanded);
+	}, [compositions, folders, foldersExpanded]);
+
 	return (
-		<Container>
+		<div style={container}>
 			<CurrentComposition />
-			<List>
-				{compositions.map((c) => {
+			<div style={list}>
+				{items.map((c) => {
 					return (
-						<Item
-							key={c.id}
-							href={c.id}
-							selected={currentComposition === c.id}
-							onClick={(evt) => {
-								evt.preventDefault();
-								selectComposition(c);
-							}}
-						>
-							{c.id}
-						</Item>
+						<CompositionSelectorItem
+							key={c.key + c.type}
+							level={0}
+							currentComposition={currentComposition}
+							selectComposition={selectComposition}
+							toggleFolder={toggleFolder}
+							tabIndex={tabIndex}
+							item={c}
+						/>
 					);
 				})}
-			</List>
-		</Container>
+			</div>
+		</div>
 	);
 };

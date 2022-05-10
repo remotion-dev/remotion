@@ -1,21 +1,30 @@
 import React, {
+	ComponentType,
 	Suspense,
 	useCallback,
 	useContext,
 	useEffect,
 	useState,
 } from 'react';
-import {render} from 'react-dom';
+import type {render, unmountComponentAtNode} from 'react-dom';
+// In React 18, you should use createRoot() from "react-dom/client".
+// In React 18, you should use render from "react-dom".
+// We support both, but Webpack chooses both of them and normalizes them to "react-dom/client",
+// hence why we import the right thing all the time but need to differentiate here
+import ReactDOM from 'react-dom/client';
 import {
+	BundleState,
 	continueRender,
 	delayRender,
 	getInputProps,
 	Internals,
+	TCompMetadata,
 	TComposition,
 } from 'remotion';
-import {LooseAnyComponent} from 'remotion/src/any-component';
+import {getBundleMode, setBundleMode} from './bundle-mode';
+import {Homepage} from './homepage/homepage';
 
-Internals.CSSUtils.injectCSS(Internals.CSSUtils.makeDefaultCSS(null));
+Internals.CSSUtils.injectCSS(Internals.CSSUtils.makeDefaultCSS(null, '#fff'));
 
 const Root = Internals.getRoot();
 
@@ -23,38 +32,41 @@ if (!Root) {
 	throw new Error('Root has not been registered.');
 }
 
-const handle = delayRender();
+const handle = delayRender('Loading root component');
 
 const Fallback: React.FC = () => {
 	useEffect(() => {
-		const fallback = delayRender();
+		const fallback = delayRender('Waiting for Root component to unsuspend');
 		return () => continueRender(fallback);
 	}, []);
 	return null;
 };
 
-const inputProps = getInputProps();
-
-const GetVideo = () => {
+const GetVideo: React.FC<{state: BundleState}> = ({state}) => {
 	const video = Internals.useVideo();
 	const compositions = useContext(Internals.CompositionManager);
-	const [Component, setComponent] = useState<LooseAnyComponent<unknown> | null>(
+	const [Component, setComponent] = useState<ComponentType<unknown> | null>(
 		null
 	);
 
 	useEffect(() => {
-		if (Internals.getIsEvaluation()) {
+		if (state.type !== 'composition') {
 			return;
 		}
 
 		if (!video && compositions.compositions.length > 0) {
-			compositions.setCurrentComposition(
-				(compositions.compositions.find(
-					(c) => c.id === Internals.getCompositionName()
-				) as TComposition)?.id ?? null
-			);
+			const foundComposition = compositions.compositions.find(
+				(c) => c.id === state.compositionName
+			) as TComposition;
+			if (!foundComposition) {
+				throw new Error(
+					'Found no composition with the name ' + state.compositionName
+				);
+			}
+
+			compositions.setCurrentComposition(foundComposition?.id ?? null);
 		}
-	}, [compositions, compositions.compositions, video]);
+	}, [compositions, compositions.compositions, state, video]);
 
 	const fetchComponent = useCallback(() => {
 		if (!video) {
@@ -72,12 +84,12 @@ const GetVideo = () => {
 	}, [fetchComponent, video]);
 
 	useEffect(() => {
-		if (Internals.getIsEvaluation()) {
+		if (state.type === 'evaluation') {
 			continueRender(handle);
 		} else if (Component) {
 			continueRender(handle);
 		}
-	}, [Component]);
+	}, [Component, state.type]);
 
 	if (!video) {
 		return null;
@@ -86,7 +98,7 @@ const GetVideo = () => {
 	return (
 		<Suspense fallback={<Fallback />}>
 			<div
-				id="canvas"
+				id="remotion-canvas"
 				style={{
 					width: video.width,
 					height: video.height,
@@ -95,19 +107,120 @@ const GetVideo = () => {
 				}}
 			>
 				{Component ? (
-					<Component {...((video?.props as {}) ?? {})} {...inputProps} />
+					<Component
+						{...((video?.defaultProps as {}) ?? {})}
+						{...getInputProps()}
+					/>
 				) : null}
 			</div>
 		</Suspense>
 	);
 };
 
-if (!Internals.isPlainIndex()) {
-	render(
-		<Internals.RemotionRoot>
-			<Root />
-			<GetVideo />
-		</Internals.RemotionRoot>,
-		document.getElementById('container')
-	);
+const videoContainer = document.getElementById(
+	'video-container'
+) as HTMLElement;
+const explainerContainer = document.getElementById(
+	'explainer-container'
+) as HTMLElement;
+
+let cleanupVideoContainer = () => {
+	videoContainer.innerHTML = '';
+};
+
+let cleanupExplainerContainer = () => {
+	explainerContainer.innerHTML = '';
+};
+
+const renderContent = () => {
+	const bundleMode = getBundleMode();
+
+	if (bundleMode.type === 'composition' || bundleMode.type === 'evaluation') {
+		const markup = (
+			<Internals.RemotionRoot>
+				<Root />
+				<GetVideo state={bundleMode} />
+			</Internals.RemotionRoot>
+		);
+
+		if (ReactDOM.createRoot) {
+			const root = ReactDOM.createRoot(videoContainer);
+			root.render(markup);
+			cleanupVideoContainer = () => {
+				root.unmount();
+			};
+		} else {
+			(ReactDOM as unknown as {render: typeof render}).render(
+				markup,
+				videoContainer
+			);
+			cleanupVideoContainer = () => {
+				(
+					ReactDOM as unknown as {
+						unmountComponentAtNode: typeof unmountComponentAtNode;
+					}
+				).unmountComponentAtNode(videoContainer);
+			};
+		}
+	} else {
+		cleanupVideoContainer();
+		cleanupVideoContainer = () => {
+			videoContainer.innerHTML = '';
+		};
+	}
+
+	if (bundleMode.type === 'index' || bundleMode.type === 'evaluation') {
+		if (ReactDOM.createRoot) {
+			const root = ReactDOM.createRoot(explainerContainer);
+			root.render(<Homepage />);
+			cleanupExplainerContainer = () => {
+				root.unmount();
+			};
+		} else {
+			const root = ReactDOM as unknown as {
+				render: typeof render;
+				unmountComponentAtNode: typeof unmountComponentAtNode;
+			};
+			root.render(<Homepage />, explainerContainer);
+			cleanupExplainerContainer = () => {
+				root.unmountComponentAtNode(explainerContainer);
+			};
+		}
+	} else {
+		cleanupExplainerContainer();
+		cleanupExplainerContainer = () => {
+			explainerContainer.innerHTML = '';
+		};
+	}
+};
+
+renderContent();
+
+export const setBundleModeAndUpdate = (state: BundleState) => {
+	setBundleMode(state);
+	renderContent();
+};
+
+if (typeof window !== 'undefined') {
+	window.getStaticCompositions = (): TCompMetadata[] => {
+		if (!Internals.compositionsRef.current) {
+			throw new Error('Unexpectedly did not have a CompositionManager');
+		}
+
+		return Internals.compositionsRef.current
+			.getCompositions()
+			.map((c): TCompMetadata => {
+				return {
+					defaultProps: c.defaultProps,
+					durationInFrames: c.durationInFrames,
+					fps: c.fps,
+					height: c.height,
+					id: c.id,
+					width: c.width,
+				};
+			});
+	};
+
+	window.siteVersion = '2';
+	window.setBundleMode = setBundleModeAndUpdate;
 }

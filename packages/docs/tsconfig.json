@@ -1,7 +1,8 @@
 {
   "extends": "@tsconfig/docusaurus/tsconfig.json",
-  "include": ["src/"],
+  "baseUrl": ".",
   "compilerOptions": {
-    "types": ["node", "jest"]
+    "types": ["node", "jest"],
+    "skipLibCheck": true
   }
 }
