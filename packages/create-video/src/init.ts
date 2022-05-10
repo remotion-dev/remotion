@@ -10,16 +10,8 @@ import {
 	getStartCommand,
 	selectPackageManager,
 } from './pkg-managers';
-import prompts, {selectAsync} from './prompts';
 import {resolveProjectRoot} from './resolve-project-root';
-import {stripAnsi} from './strip-ansi';
-import {FEATURED_TEMPLATES, Template} from './templates';
-
-function padEnd(str: string, width: number): string {
-	// Pulled from commander for overriding
-	const len = Math.max(0, width - stripAnsi(str).length);
-	return str + Array(len + 1).join(' ');
-}
+import {selectTemplate} from './select-template';
 
 const isGitExecutableAvailable = async () => {
 	try {
@@ -57,32 +49,7 @@ export const init = async () => {
 	const [projectRoot, folderName] = await resolveProjectRoot();
 	await isGitExecutableAvailable();
 
-	const descriptionColumn =
-		Math.max(
-			...FEATURED_TEMPLATES.map((t) =>
-				typeof t === 'object' ? t.shortName.length : 0
-			)
-		) + 2;
-
-	const selectedTemplate = (await selectAsync(
-		{
-			message: 'Choose a template:',
-			optionsPerPage: 20,
-			choices: FEATURED_TEMPLATES.map((template) => {
-				if (typeof template === 'string') {
-					return prompts.separator(template);
-				}
-
-				return {
-					value: template,
-					title:
-						chalk.bold(padEnd(template.shortName, descriptionColumn)) +
-						template.description.trim(),
-				};
-			}),
-		},
-		{}
-	)) as Template;
+	const selectedTemplate = await selectTemplate();
 
 	const pkgManager = selectPackageManager();
 
@@ -101,9 +68,9 @@ export const init = async () => {
 	}
 
 	Log.info(
-		`Created project at ${chalk.blueBright(
-			folderName
-		)}. Installing dependencies...`
+		`Copied ${chalk.blueBright(
+			selectedTemplate.shortName
+		)} to ${chalk.blueBright(folderName)}. Installing dependencies...`
 	);
 
 	if (pkgManager === 'yarn') {

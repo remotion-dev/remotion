@@ -36,7 +36,7 @@
 		"@remotion/renderer": "3.0.4",
 		"aws-policies": "^1.0.1",
 		"dotenv": "^10.0.0",
-		"minimist": "^1.2.5",
+		"minimist": "1.2.6",
 		"p-limit": "^3.1.0",
 		"remotion": "3.0.4"
 	},
