@@ -236,12 +236,14 @@ importers:
     specifiers:
       '@jonny/eslint-config': 3.0.259
       '@types/degit': ^2.8.3
+      '@types/minimist': 1.2.2
       '@types/node': ^16.7.5
       '@types/prompts': ^2.0.12
       '@types/tar': 6.1.1
       chalk: 4.1.2
       eslint: 8.13.0
       execa: 5.1.1
+      minimist: 1.2.6
       prettier: 2.6.2
       prettier-plugin-organize-imports: ^2.3.4
       prompts: 2.4.1
@@ -251,11 +253,13 @@ importers:
     dependencies:
       chalk: 4.1.2
       execa: 5.1.1
+      minimist: 1.2.6
       prompts: 2.4.1
       tar: 6.1.11
     devDependencies:
       '@jonny/eslint-config': 3.0.259_eslint@8.13.0+typescript@4.5.5
       '@types/degit': 2.8.3
+      '@types/minimist': 1.2.2
       '@types/node': 16.10.2
       '@types/prompts': 2.0.14
       '@types/tar': 6.1.1
@@ -563,7 +567,7 @@ importers:
       eslint: 8.13.0
       execa: 5.1.1
       jest: ^27.2.4
-      minimist: ^1.2.5
+      minimist: 1.2.6
       p-limit: ^3.1.0
       prettier: ^2.4.1
       prettier-plugin-organize-imports: ^2.3.4
@@ -586,7 +590,7 @@ importers:
       '@remotion/renderer': link:../renderer
       aws-policies: 1.0.1
       dotenv: 10.0.0
-      minimist: 1.2.5
+      minimist: 1.2.6
       p-limit: 3.1.0
       remotion: link:../core
     devDependencies:
