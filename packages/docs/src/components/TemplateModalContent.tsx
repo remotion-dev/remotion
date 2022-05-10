@@ -103,20 +103,25 @@ export const TemplateModalContent: React.FC<{
   const [copied, setCopied] = useState<string | false>(false);
   const [showPkgManagers, setShowPackageManagers] = useState(false);
   const [loaded, setLoaded] = useState(false);
-  const containerCss: React.CSSProperties = useMemo(() => {
-    return {
-      backgroundColor: "var(--ifm-hero-background-color)",
-      marginBottom: 0,
-      display: "flex",
-      flexDirection: "row",
-      overflow: "auto",
-    };
-  }, []);
 
   const containerSize = useElementSize(
     typeof document === "undefined" ? null : document.body
   );
   const mobileLayout = (containerSize?.width ?? Infinity) < 900;
+
+  const containerCss: React.CSSProperties = useMemo(() => {
+    return {
+      backgroundColor: "var(--ifm-hero-background-color)",
+      marginBottom: 0,
+      display: "flex",
+      flexDirection: mobileLayout ? "column" : "row",
+      overflow: "auto",
+      height: mobileLayout ? "100%" : undefined,
+      position: mobileLayout ? "absolute" : undefined,
+      left: mobileLayout ? 0 : undefined,
+      top: mobileLayout ? 0 : undefined,
+    };
+  }, [mobileLayout]);
 
   const possibleVideoWidth = mobileLayout
     ? containerSize?.width
@@ -159,6 +164,7 @@ export const TemplateModalContent: React.FC<{
         }
       })
       .catch((err) => {
+        alert("Copying is not supported on this device");
         console.log("Could not copy command", err);
       });
     copyTimeout = setTimeout(() => {
@@ -174,7 +180,7 @@ export const TemplateModalContent: React.FC<{
     <div style={containerCss}>
       <div
         style={{
-          display: "inline",
+          display: "inline-flex",
         }}
       >
         {loaded ? null : (
@@ -189,8 +195,9 @@ export const TemplateModalContent: React.FC<{
           width={width}
           autoPlay
           muted
+          playsInline
           style={{
-            display: "inline",
+            display: "inline-flex",
           }}
           onLoadedMetadata={onLoadedMetadata}
         />
