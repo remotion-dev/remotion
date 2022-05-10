@@ -13,58 +13,7 @@ import {
 import prompts, {selectAsync} from './prompts';
 import {resolveProjectRoot} from './resolve-project-root';
 import {stripAnsi} from './strip-ansi';
-
-type TEMPLATES = {
-	shortName: string;
-	description: string;
-	org: string;
-	repoName: string;
-};
-
-const FEATURED_TEMPLATES: TEMPLATES[] = [
-	{
-		shortName: 'Hello World',
-		org: 'remotion-dev',
-		repoName: 'template-helloworld',
-		description: 'The default starter template (recommended)',
-	},
-	{
-		shortName: 'Blank',
-		description: 'Nothing except an empty canvas',
-		org: 'remotion-dev',
-		repoName: 'template-empty',
-	},
-	{
-		shortName: 'Hello World (Javascript)',
-		org: 'remotion-dev',
-		repoName: 'template-helloworld-javascript',
-		description: 'The default starter template in plain JS',
-	},
-	{
-		shortName: 'React Three Fiber',
-		org: 'remotion-dev',
-		repoName: 'template-three',
-		description: 'Remotion + React Three Fiber Starter Template',
-	},
-	{
-		shortName: 'Still images',
-		org: 'remotion-dev',
-		repoName: 'template-still',
-		description: 'Dynamic PNG/JPEG template with built-in server',
-	},
-	{
-		shortName: 'Text To Speech',
-		org: 'FelippeChemello',
-		repoName: 'Remotion-TTS-Example',
-		description: 'Turns text into speech and makes a video',
-	},
-	{
-		shortName: 'Audiogram',
-		org: 'marcusstenbeck',
-		repoName: 'remotion-template-audiogram',
-		description: 'Text and waveform visualization for podcasts',
-	},
-];
+import {FEATURED_TEMPLATES, Template} from './templates';
 
 function padEnd(str: string, width: number): string {
 	// Pulled from commander for overriding
@@ -133,7 +82,7 @@ export const init = async () => {
 			}),
 		},
 		{}
-	)) as TEMPLATES;
+	)) as Template;
 
 	const pkgManager = selectPackageManager();
 

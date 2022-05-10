@@ -294,6 +294,7 @@ importers:
       clipboard: ^2.0.8
       clsx: ^1.1.1
       color-namer: 1.4.0
+      create-video: 3.0.4
       eslint: 8.13.0
       hls.js: ^0.14.17
       jest: ^27.2.4
@@ -328,6 +329,7 @@ importers:
       clipboard: 2.0.8
       clsx: 1.1.1
       color-namer: 1.4.0
+      create-video: link:../create-video
       hls.js: 0.14.17
       jest: 27.2.4
       polished: 4.1.2
