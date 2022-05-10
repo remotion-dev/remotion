@@ -99,7 +99,8 @@ let copyTimeout: NodeJS.Timeout | null = null;
 
 export const TemplateModalContent: React.FC<{
   template: Template;
-}> = ({ template }) => {
+  onDismiss: () => void;
+}> = ({ template, onDismiss }) => {
   const [copied, setCopied] = useState<string | false>(false);
   const [showPkgManagers, setShowPackageManagers] = useState(false);
   const [loaded, setLoaded] = useState(false);
@@ -151,22 +152,22 @@ export const TemplateModalContent: React.FC<{
     setLoaded(true);
   }, []);
 
-  const copyCommand = useCallback((command: string) => {
+  const copyCommand = useCallback(async (command: string) => {
     clearTimeout(copyTimeout);
     const permissionName = "clipboard-write" as PermissionName;
-    navigator.permissions
-      .query({ name: permissionName })
-      .then((result) => {
-        if (result.state === "granted" || result.state === "prompt") {
-          // TODO: Customize
-          navigator.clipboard.writeText(command);
-          setCopied(command);
-        }
-      })
-      .catch((err) => {
-        alert("Copying is not supported on this device");
-        console.log("Could not copy command", err);
+    try {
+      const result = await navigator.permissions.query({
+        name: permissionName,
       });
+      if (result.state === "granted" || result.state === "prompt") {
+        navigator.clipboard.writeText(command);
+        setCopied(command);
+      }
+      console.log(result.state);
+    } catch (err) {
+      alert("Copying is not supported on this device");
+      console.log("Could not copy command", err);
+    }
     copyTimeout = setTimeout(() => {
       setCopied(false);
     }, 2000);
@@ -202,13 +203,53 @@ export const TemplateModalContent: React.FC<{
           onLoadedMetadata={onLoadedMetadata}
         />
       </div>
-      <div style={column}>
-        <h1>{template.shortName}</h1>
+      <div
+        style={{
+          ...column,
+          width: mobileLayout ? "100%" : RESERVED_FOR_SIDEBAR,
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            alignItems: "center",
+          }}
+        >
+          <div style={{ flex: 1 }}>
+            <h1
+              style={{
+                marginTop: 0,
+                marginBottom: 0,
+              }}
+            >
+              {template.shortName}
+            </h1>
+          </div>
+          <a
+            style={{
+              cursor: "pointer",
+              opacity: 0.4,
+              display: "inline-flex",
+            }}
+            onClick={onDismiss}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 320 512"
+              style={{
+                height: 24,
+              }}
+            >
+              <path d="M310.6 361.4c12.5 12.5 12.5 32.75 0 45.25C304.4 412.9 296.2 416 288 416s-16.38-3.125-22.62-9.375L160 301.3L54.63 406.6C48.38 412.9 40.19 416 32 416S15.63 412.9 9.375 406.6c-12.5-12.5-12.5-32.75 0-45.25l105.4-105.4L9.375 150.6c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0L160 210.8l105.4-105.4c12.5-12.5 32.75-12.5 45.25 0s12.5 32.75 0 45.25l-105.4 105.4L310.6 361.4z" />
+            </svg>
+          </a>
+        </div>
+        <br></br>
         <div style={description}>{template.longerDescription}</div>
         <br />
-
         <div style={githubrow}>
-          <a style={link} onClick={() => copyCommand("npm init video")}>
+          <a style={link} onPointerDown={() => copyCommand("npm init video")}>
             <div style={iconContainer}>
               <CommandCopyButton
                 copied={copied === "npm init video"}
@@ -217,7 +258,7 @@ export const TemplateModalContent: React.FC<{
             <div style={installCommand}>npm init video</div>
           </a>
           <div style={{ flex: 1 }}></div>
-          <a style={link} onClick={togglePkgManagers}>
+          <a style={link} onPointerDown={togglePkgManagers}>
             <span
               style={{ whiteSpace: "pre", color: "var(--light-text-color)" }}
             >
@@ -232,7 +273,10 @@ export const TemplateModalContent: React.FC<{
         </div>
         {showPkgManagers ? (
           <div style={githubrow}>
-            <a style={link} onClick={() => copyCommand("pnpm create video")}>
+            <a
+              style={link}
+              onPointerDown={() => copyCommand("pnpm create video")}
+            >
               <div style={iconContainer}>
                 <CommandCopyButton
                   copied={copied === "pnpm create video"}
@@ -244,7 +288,11 @@ export const TemplateModalContent: React.FC<{
         ) : null}
         {showPkgManagers ? (
           <div style={githubrow}>
-            <a style={link} onClick={() => copyCommand("yarn create video")}>
+            <a
+              target={"_blank"}
+              style={link}
+              onPointerDown={() => copyCommand("yarn create video")}
+            >
               <div style={iconContainer}>
                 <CommandCopyButton
                   copied={copied === "yarn create video"}
@@ -256,6 +304,7 @@ export const TemplateModalContent: React.FC<{
         ) : null}
         <div style={githubrow}>
           <a
+            target={"_blank"}
             style={link}
             href={`https://github.com/${template.org}/${template.repoName}/generate`}
           >

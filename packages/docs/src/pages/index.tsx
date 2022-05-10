@@ -30,7 +30,7 @@ const NewLanding: React.FC = () => {
   return (
     <Layout>
       <Head>
-        <title>Write videos in React</title>
+        <title>Remotion | Write videos in React</title>
         <meta
           name="description"
           content="Create MP4 motion graphics in React. Leverage CSS, SVG, WebGL and more

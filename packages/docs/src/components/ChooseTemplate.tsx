@@ -9,6 +9,8 @@ import { TypeScriptIcon } from "../pages/icons/ts";
 import { TTSIcon } from "../pages/icons/tts";
 import { Waveform } from "../pages/icons/waveform";
 import { TemplateIcon } from "../pages/template-icon";
+import { chunk } from "../helpers/chunk";
+import { useElementSize } from "../helpers/use-el-size";
 
 const IconForTemplate: React.FC<{
   template: Template;
@@ -93,6 +95,11 @@ const IconForTemplate: React.FC<{
 export const ChooseTemplate: React.FC = () => {
   const [modal, setModal] = useState<Template | null>(null);
 
+  const containerSize = useElementSize(
+    typeof document === "undefined" ? null : document.body
+  );
+  const mobileLayout = (containerSize?.width ?? Infinity) < 900;
+
   const onClick = useCallback((template: Template) => {
     setModal(template);
   }, []);
@@ -100,6 +107,8 @@ export const ChooseTemplate: React.FC = () => {
   const onDismiss = useCallback(() => {
     setModal(null);
   }, []);
+
+  const chunks = chunk(CreateVideoInternals.FEATURED_TEMPLATES, 4);
 
   return (
     <div
@@ -118,18 +127,32 @@ export const ChooseTemplate: React.FC = () => {
       <div
         style={{
           display: "flex",
-          flexDirection: "row",
+          flexDirection: mobileLayout ? "column" : "row",
           justifyContent: "center",
         }}
       >
-        {CreateVideoInternals.FEATURED_TEMPLATES.map((template) => {
+        {chunks.map((c) => {
           return (
-            <TemplateIcon
-              onClick={() => onClick(template)}
-              label={template.homePageLabel}
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "row",
+                justifyContent: "center",
+                marginBottom: mobileLayout ? 8 : 0,
+                marginTop: mobileLayout ? 8 : 0,
+              }}
             >
-              <IconForTemplate template={template} />
-            </TemplateIcon>
+              {c.map((template) => {
+                return (
+                  <TemplateIcon
+                    onClick={() => onClick(template)}
+                    label={template.homePageLabel}
+                  >
+                    <IconForTemplate template={template} />
+                  </TemplateIcon>
+                );
+              })}
+            </div>
           );
         })}
       </div>

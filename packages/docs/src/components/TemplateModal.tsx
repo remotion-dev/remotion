@@ -54,6 +54,7 @@ export const TemplateModal: React.FC<{
       <div ref={inner}>
         <TemplateModalContent
           template={selectedTemplate}
+          onDismiss={onDismiss}
         ></TemplateModalContent>
       </div>
     </div>
