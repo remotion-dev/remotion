@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useCallback, useState } from "react";
+import { TemplateModal } from "../components/TemplateModal";
 import { Blank } from "./icons/blank";
 import { Cubes } from "./icons/cubes";
 import { JSIcon } from "./icons/js";
@@ -8,14 +9,17 @@ import { TTSIcon } from "./icons/tts";
 import { Waveform } from "./icons/waveform";
 import { TemplateIcon } from "./template-icon";
 
-const clone: React.CSSProperties = {
-  fontSize: 13,
-  textAlign: "center",
-  borderBottom: "1px solid white",
-  marginBottom: 10,
-};
-
 export const ChooseTemplate: React.FC = () => {
+  const [modal, setModal] = useState(false);
+
+  const onClick = useCallback(() => {
+    setModal(true);
+  }, []);
+
+  const onDismiss = useCallback(() => {
+    setModal(false);
+  }, []);
+
   return (
     <div
       style={{
@@ -23,6 +27,7 @@ export const ChooseTemplate: React.FC = () => {
         flexDirection: "column",
       }}
     >
+      {modal ? <TemplateModal onDismiss={onDismiss}></TemplateModal> : null}
       <div style={{ flex: 1 }} />
       <div
         style={{
@@ -31,7 +36,7 @@ export const ChooseTemplate: React.FC = () => {
           justifyContent: "center",
         }}
       >
-        <TemplateIcon label={"Blank Project"}>
+        <TemplateIcon onClick={onClick} label={"Blank Project"}>
           <Blank style={{ height: 40 }} />
         </TemplateIcon>
         <TemplateIcon label={"Hello World"}>
