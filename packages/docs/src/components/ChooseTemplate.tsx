@@ -21,7 +21,7 @@ const IconForTemplate: React.FC<{
         style={{
           height: 48,
         }}
-      ></TypeScriptIcon>
+      />
     );
   }
 
@@ -31,7 +31,7 @@ const IconForTemplate: React.FC<{
         style={{
           height: 36,
         }}
-      ></Blank>
+      />
     );
   }
 
@@ -41,16 +41,17 @@ const IconForTemplate: React.FC<{
         style={{
           height: 40,
         }}
-      ></JSIcon>
+      />
     );
   }
+
   if (template.homePageLabel === "3D") {
     return (
       <Cubes
         style={{
           height: 36,
         }}
-      ></Cubes>
+      />
     );
   }
 
@@ -60,7 +61,7 @@ const IconForTemplate: React.FC<{
         style={{
           height: 36,
         }}
-      ></StillIcon>
+      />
     );
   }
 
@@ -70,16 +71,17 @@ const IconForTemplate: React.FC<{
         style={{
           height: 36,
         }}
-      ></Waveform>
+      />
     );
   }
+
   if (template.homePageLabel === "TTS") {
     return (
       <TTSIcon
         style={{
           height: 36,
         }}
-      ></TTSIcon>
+      />
     );
   }
 
@@ -88,7 +90,7 @@ const IconForTemplate: React.FC<{
       style={{
         height: 40,
       }}
-    ></Blank>
+    />
   );
 };
 
@@ -118,10 +120,7 @@ export const ChooseTemplate: React.FC = () => {
       }}
     >
       {modal ? (
-        <TemplateModal
-          selectedTemplate={modal}
-          onDismiss={onDismiss}
-        ></TemplateModal>
+        <TemplateModal selectedTemplate={modal} onDismiss={onDismiss} />
       ) : null}
       <div style={{ flex: 1 }} />
       <div
@@ -131,9 +130,10 @@ export const ChooseTemplate: React.FC = () => {
           justifyContent: "center",
         }}
       >
-        {chunks.map((c) => {
+        {chunks.map((c, i) => {
           return (
             <div
+              key={c.map((_) => _.cliId).join("-")}
               style={{
                 display: "flex",
                 flexDirection: "row",
@@ -145,6 +145,7 @@ export const ChooseTemplate: React.FC = () => {
               {c.map((template) => {
                 return (
                   <TemplateIcon
+                    key={template.cliId}
                     onClick={() => onClick(template)}
                     label={template.homePageLabel}
                   >
