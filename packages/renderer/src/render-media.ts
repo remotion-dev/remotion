@@ -19,6 +19,7 @@ import {ensureFramesInOrder} from './ensure-frames-in-order';
 import {ensureOutputDirectory} from './ensure-output-directory';
 import {getDurationFromFrameRange} from './get-duration-from-frame-range';
 import {getFileExtensionFromCodec} from './get-extension-from-codec';
+import {getExtensionOfFilename} from './get-extension-of-filename';
 import {getRealFrameRange} from './get-frame-to-render';
 import {
 	getServeUrlWithFallback,
@@ -31,6 +32,7 @@ import {stitchFramesToVideo} from './stitch-frames-to-video';
 import {tmpDir} from './tmp-dir';
 import {OnStartData} from './types';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
+import {validateOutputFilename} from './validate-output-filename';
 import {validateScale} from './validate-scale';
 
 export type StitchingState = 'encoding' | 'muxing';
@@ -101,6 +103,8 @@ export const renderMedia = async ({
 	if (typeof crf !== 'undefined' && crf !== null) {
 		Internals.validateSelectedCrfAndCodecCombination(crf, codec);
 	}
+
+	validateOutputFilename(codec, getExtensionOfFilename(outputLocation));
 
 	validateScale(scale);
 
