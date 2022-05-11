@@ -29,9 +29,11 @@ import {tmpDir} from './tmp-dir';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
 import {validateFfmpeg} from './validate-ffmpeg';
 
-const packageJson = JSON.parse(
-	fs.readFileSync(path.join(__dirname, '..', 'package.json'), 'utf-8')
-);
+const packageJsonPath = path.join(__dirname, '..', 'package.json');
+
+const packageJson = fs.existsSync(packageJsonPath)
+	? JSON.parse(fs.readFileSync(packageJsonPath, 'utf-8'))
+	: null;
 
 export type StitcherOptions = {
 	fps: number;
@@ -263,7 +265,13 @@ export const spawnFfmpeg = async (
 		audioCodecName ? ['-c:a', audioCodecName] : null,
 		// Ignore metadata that may come from remote media
 		['-map_metadata', '-1'],
-		['-metadata', `comment=Made with Remotion ${packageJson.version}`],
+		[
+			'-metadata',
+			`comment=` +
+				[`Made with Remotion`, packageJson ? packageJson.version : null].join(
+					' '
+				),
+		],
 		options.force ? '-y' : null,
 		options.outputLocation,
 	];
