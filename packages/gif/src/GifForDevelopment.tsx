@@ -10,8 +10,9 @@ export const GifForDevelopment = forwardRef<
 	HTMLCanvasElement,
 	RemotionGifProps
 >(({src, width, height, onError, onLoad, fit = 'fill', ...props}, ref) => {
+	const resolvedSrc = new URL(src, window.location.origin).href;
 	const [state, update] = useState<GifState>(() => {
-		const parsedGif = cache.get(src);
+		const parsedGif = cache.get(resolvedSrc);
 
 		if (parsedGif === undefined) {
 			return {
@@ -26,7 +27,7 @@ export const GifForDevelopment = forwardRef<
 	});
 
 	// skip loading if frames exist
-	useWorkerParser(Boolean(state.frames.length) || src, (info) => {
+	useWorkerParser(Boolean(state.frames.length) || resolvedSrc, (info) => {
 		if ('error' in info) {
 			if (onError) {
 				onError(info.error);
@@ -40,7 +41,7 @@ export const GifForDevelopment = forwardRef<
 		} else {
 			onLoad?.(info);
 
-			cache.set(src, info);
+			cache.set(resolvedSrc, info);
 			update(info);
 		}
 	});
