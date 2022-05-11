@@ -2,7 +2,7 @@
 	"name": "create-video",
 	"version": "3.0.4",
 	"description": "",
-	"main": "index.js",
+	"main": "dist/index.js",
 	"bin": {
 		"create-video": "bin.js"
 	},
@@ -21,7 +21,8 @@
 		"chalk": "4.1.2",
 		"execa": "5.1.1",
 		"prompts": "2.4.1",
-		"tar": "6.1.11"
+		"tar": "6.1.11",
+		"minimist": "1.2.6"
 	},
 	"devDependencies": {
 		"@jonny/eslint-config": "3.0.259",
@@ -29,6 +30,7 @@
 		"@types/node": "^16.7.5",
 		"@types/prompts": "^2.0.12",
 		"@types/tar": "6.1.1",
+		"@types/minimist": "1.2.2",
 		"eslint": "8.13.0",
 		"prettier": "2.6.2",
 		"prettier-plugin-organize-imports": "^2.3.4",
