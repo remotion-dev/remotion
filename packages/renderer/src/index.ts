@@ -11,6 +11,7 @@ import {
 import {getActualConcurrency} from './get-concurrency';
 import {getDurationFromFrameRange} from './get-duration-from-frame-range';
 import {getFileExtensionFromCodec} from './get-extension-from-codec';
+import {getExtensionOfFilename} from './get-extension-of-filename';
 import {getRealFrameRange} from './get-frame-to-render';
 import {ensureLocalBrowser} from './get-local-browser-executable';
 import {isServeUrl} from './is-serve-url';
@@ -74,4 +75,5 @@ export const RenderInternals = {
 	symbolicateError,
 	SymbolicateableError,
 	getDurationFromFrameRange,
+	getExtensionOfFilename,
 };

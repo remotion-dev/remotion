@@ -13,7 +13,7 @@ import {getOutputFilename} from './get-filename';
 import {getInputProps} from './get-input-props';
 import {getImageFormat} from './image-formats';
 import {Log} from './log';
-import {getUserPassedFileExtension} from './user-passed-output-location';
+import {getUserPassedOutputLocation} from './user-passed-output-location';
 
 const getAndValidateFrameRange = () => {
 	const frameRange = Internals.getRange();
@@ -33,7 +33,9 @@ const getFinalCodec = async (options: {isLambda: boolean}) => {
 
 	const codec = Internals.getFinalOutputCodec({
 		codec: userCodec,
-		fileExtension: options.isLambda ? null : getUserPassedFileExtension(),
+		fileExtension: options.isLambda
+			? null
+			: RenderInternals.getExtensionOfFilename(getUserPassedOutputLocation()),
 		emitWarning: true,
 		isLambda: options.isLambda,
 	});
