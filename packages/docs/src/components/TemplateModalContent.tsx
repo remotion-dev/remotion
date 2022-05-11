@@ -178,9 +178,9 @@ export const TemplateModalContent: React.FC<{
     setShowPackageManagers((s) => !s);
   }, []);
 
-  const npmCommand = `npm init video --${template.cliId}`;
+  const npmCommand = `npx create-video --${template.cliId}`;
   const yarnCommand = `yarn create video --${template.cliId}`;
-  const pnpmCommand = `pnpm create video --${template.cliId}`;
+  const pnpmCommand = `pnpm create video -- --${template.cliId}`;
 
   return (
     <div style={containerCss}>
