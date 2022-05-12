@@ -1,5 +1,5 @@
 import {WebpackConfiguration} from 'remotion';
-import { RuleSetUseItem } from 'webpack';
+import {RuleSetUseItem} from 'webpack';
 
 const envPreset = [
 	require.resolve('@babel/preset-env'),
@@ -27,6 +27,7 @@ export const replaceLoadersWithBabel = (
 					return rule;
 				}
 
+				// All modules that use require.resolve need to be added to cli/src/load-config -> external array
 				if (rule.test?.toString().includes('.tsx')) {
 					return {
 						test: /\.tsx?$/,
