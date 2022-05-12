@@ -1,4 +1,5 @@
 import {WebpackConfiguration} from 'remotion';
+import { RuleSetUseItem } from 'webpack';
 
 const envPreset = [
 	require.resolve('@babel/preset-env'),
@@ -58,11 +59,7 @@ export const replaceLoadersWithBabel = (
 									].filter(truthy),
 								},
 							},
-							conf.mode === 'development'
-								? {
-										loader: require.resolve('./fast-refresh/loader.js'),
-								  }
-								: null,
+							(rule.use as RuleSetUseItem[])[1],
 						].filter(truthy),
 					};
 				}
