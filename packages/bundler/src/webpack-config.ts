@@ -162,6 +162,7 @@ export const webpackConfig = ({
 							loader: require.resolve('./esbuild-loader/index.js'),
 							options: esbuildLoaderOptions,
 						},
+						// Keep the order to match babel-loader
 						environment === 'development'
 							? {
 									loader: require.resolve('./fast-refresh/loader.js'),
