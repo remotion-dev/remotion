@@ -83,6 +83,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		composition: params.composition,
 		browserInstance,
 		inputProps: params.inputProps,
+		envVariables: params.envVariables,
 	});
 	Internals.validateDurationInFrames(
 		comp.durationInFrames,

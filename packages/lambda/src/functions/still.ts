@@ -71,6 +71,7 @@ const innerStillHandler = async (
 		browserInstance,
 		composition: lambdaParams.composition,
 		inputProps: lambdaParams.inputProps,
+		envVariables: lambdaParams.envVariables,
 	});
 
 	const renderMetadata: RenderMetadata = {
