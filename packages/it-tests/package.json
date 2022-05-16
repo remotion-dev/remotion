@@ -1,6 +1,6 @@
 {
   "name": "@remotion/it-tests",
-  "version": "3.0.6",
+  "version": "3.0.7",
   "license": "SEE LICENSE IN LICENSE.md",
   "scripts": {
     "test": "jest src/rendering --runInBand",
@@ -9,10 +9,10 @@
   },
   "private": true,
   "devDependencies": {
-    "@remotion/bundler": "3.0.6",
-    "@remotion/cli": "3.0.6",
-    "@remotion/lambda": "3.0.6",
-    "@remotion/renderer": "3.0.6",
+    "@remotion/bundler": "3.0.7",
+    "@remotion/cli": "3.0.7",
+    "@remotion/lambda": "3.0.7",
+    "@remotion/renderer": "3.0.7",
     "@types/jest": "^27.4.0",
     "@types/sharp": "^0.28.5",
     "execa": "5.1.1",
