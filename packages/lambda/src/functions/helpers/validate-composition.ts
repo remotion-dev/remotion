@@ -7,6 +7,7 @@ type ValidateCompositionOptions = {
 	composition: string;
 	browserInstance: Await<ReturnType<typeof openBrowser>>;
 	inputProps: unknown;
+	envVariables: Record<string, string> | undefined;
 };
 
 export const validateComposition = async ({
@@ -14,10 +15,12 @@ export const validateComposition = async ({
 	composition,
 	browserInstance,
 	inputProps,
+	envVariables,
 }: ValidateCompositionOptions): Promise<TCompMetadata> => {
 	const compositions = await getCompositions(serveUrl, {
 		puppeteerInstance: browserInstance,
 		inputProps: inputProps as object,
+		envVariables: envVariables,
 	});
 
 	const found = compositions.find((c) => c.id === composition);
