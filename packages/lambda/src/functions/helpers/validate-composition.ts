@@ -20,7 +20,7 @@ export const validateComposition = async ({
 	const compositions = await getCompositions(serveUrl, {
 		puppeteerInstance: browserInstance,
 		inputProps: inputProps as object,
-		envVariables: envVariables,
+		envVariables,
 	});
 
 	const found = compositions.find((c) => c.id === composition);
