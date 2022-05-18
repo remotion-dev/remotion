@@ -45,6 +45,13 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 		[handle, onError]
 	);
 
+	useEffect(() => {
+		return () => {
+			continueRender(handle);
+			console.log('unmounting');
+		};
+	}, []);
+
 	return <img {...props} ref={ref} onLoad={didLoad} onError={didGetError} />;
 };
 
