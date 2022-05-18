@@ -71,6 +71,7 @@ export const openBrowser = async (
 		headless: false,
 		ignoreDefaultArgs: true,
 		args: [
+			'about:blank',
 			'--allow-pre-commit-input', // TODO(crbug.com/1320996): neither headful nor headless should rely on this flag.
 			'--disable-background-networking',
 			'--enable-features=NetworkService,NetworkServiceInProcess',
