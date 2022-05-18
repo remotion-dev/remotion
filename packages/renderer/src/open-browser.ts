@@ -83,6 +83,9 @@ export const openBrowser = async (
 			'--disable-default-apps',
 			'--disable-dev-shm-usage',
 			'--disable-extensions',
+			'--no-proxy-server',
+			"--proxy-server='direct://'",
+			'--proxy-bypass-list=*',
 			// TODO: remove AvoidUnnecessaryBeforeUnloadCheckSync below
 			// once crbug.com/1324138 is fixed and released.
 			'--disable-features=Translate,BackForwardCache,AvoidUnnecessaryBeforeUnloadCheckSync',
