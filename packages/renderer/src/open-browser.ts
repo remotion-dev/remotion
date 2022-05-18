@@ -43,6 +43,7 @@ export const openBrowser = async (
 		shouldDumpIo?: boolean;
 		browserExecutable?: string | null;
 		chromiumOptions?: ChromiumOptions;
+		// TODO: Remove it
 		forceDeviceScaleFactor?: number;
 	}
 ): Promise<puppeteer.Browser> => {
@@ -69,10 +70,6 @@ export const openBrowser = async (
 		dumpio: options?.shouldDumpIo ?? false,
 		headless: false,
 		ignoreDefaultArgs: true,
-		defaultViewport: {
-			width: 1920,
-			height: 1080,
-		},
 		args: [
 			'--allow-pre-commit-input', // TODO(crbug.com/1320996): neither headful nor headless should rely on this flag.
 			'--disable-background-networking',
@@ -101,9 +98,6 @@ export const openBrowser = async (
 			'--enable-automation',
 			'--password-store=basic',
 			'--use-mock-keychain',
-			options?.forceDeviceScaleFactor
-				? `--force-device-scale-factor=${options.forceDeviceScaleFactor}`
-				: null,
 			// TODO(sadym): remove '--enable-blink-features=IdleDetection'
 			// once IdleDetection is turned on by default.
 			'--enable-blink-features=IdleDetection',
@@ -122,7 +116,7 @@ export const openBrowser = async (
 			'--disable-features=AudioServiceOutOfProcess,IsolateOrigins,site-per-process', // https://source.chromium.org/search?q=file:content_features.cc&ss=chromium
 			'--disable-print-preview', // https://source.chromium.org/search?q=lang:cpp+symbol:kDisablePrintPreview&ss=chromium
 			'--disable-site-isolation-trials', // https://source.chromium.org/search?q=lang:cpp+symbol:kDisableSiteIsolation&ss=chromium
-			'--disk-cache-size=33554432', // https://source.chromium.org/search?q=lang:cpp+symbol:kDiskCacheSize&ss=chromium
+			'--disk-cache-size=268435456', // https://source.chromium.org/search?q=lang:cpp+symbol:kDiskCacheSize&ss=chromium
 			'--hide-scrollbars', // https://source.chromium.org/search?q=lang:cpp+symbol:kHideScrollbars&ss=chromium
 			'--no-default-browser-check', // https://source.chromium.org/search?q=lang:cpp+symbol:kNoDefaultBrowserCheck&ss=chromium
 			'--no-pings', // https://source.chromium.org/search?q=lang:cpp+symbol:kNoPings&ss=chromium
