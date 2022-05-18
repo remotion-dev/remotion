@@ -353,6 +353,7 @@ export const renderFrames = async (
 			shouldDumpIo: options.dumpBrowserLogs,
 			browserExecutable: options.browserExecutable,
 			chromiumOptions: options.chromiumOptions,
+			forceDeviceScaleFactor: options.scale ?? 1,
 		}));
 
 	const actualParallelism = getActualConcurrency(options.parallelism ?? null);
