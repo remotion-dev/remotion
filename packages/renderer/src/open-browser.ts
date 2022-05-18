@@ -69,6 +69,10 @@ export const openBrowser = async (
 		dumpio: options?.shouldDumpIo ?? false,
 		headless: false,
 		ignoreDefaultArgs: true,
+		defaultViewport: {
+			width: 1920,
+			height: 1080,
+		},
 		args: [
 			'--allow-pre-commit-input', // TODO(crbug.com/1320996): neither headful nor headless should rely on this flag.
 			'--disable-background-networking',
@@ -93,6 +97,7 @@ export const openBrowser = async (
 			'--force-color-profile=srgb',
 			'--metrics-recording-only',
 			'--no-first-run',
+			'--video-threads=16',
 			'--enable-automation',
 			'--password-store=basic',
 			'--use-mock-keychain',
