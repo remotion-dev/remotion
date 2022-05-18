@@ -125,6 +125,9 @@ export const openBrowser = async (
 			'--no-default-browser-check', // https://source.chromium.org/search?q=lang:cpp+symbol:kNoDefaultBrowserCheck&ss=chromium
 			'--no-pings', // https://source.chromium.org/search?q=lang:cpp+symbol:kNoPings&ss=chromium
 			'--no-zygote', // https://source.chromium.org/search?q=lang:cpp+symbol:kNoZygote&ss=chromium,
+			options?.forceDeviceScaleFactor
+				? `--force-device-scale-factor=${options.forceDeviceScaleFactor}`
+				: null,
 			options?.chromiumOptions?.ignoreCertificateErrors
 				? '--ignore-certificate-errors'
 				: null,
