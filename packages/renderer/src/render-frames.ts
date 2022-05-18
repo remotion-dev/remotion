@@ -161,6 +161,7 @@ const innerRenderFrames = async ({
 				? 0
 				: frameRange[0];
 
+		console.log({frameRange});
 		await setPropsAndEnv({
 			inputProps,
 			envVariables,
