@@ -8,6 +8,7 @@ import React, {
 import {SharedAudioContextProvider} from './audio/shared-audio-tags';
 import {CompositionManagerProvider} from './CompositionManager';
 import {continueRender, delayRender} from './delay-render';
+import {INITIAL_FRAME_LOCAL_STORAGE_KEY} from './initial-frame';
 import {NonceContext, TNonceContext} from './nonce';
 import {random} from './random';
 import {
@@ -22,7 +23,11 @@ export const RemotionRoot: React.FC<{
 	children: React.ReactNode;
 }> = ({children}) => {
 	const [remotionRootId] = useState(() => String(random(null)));
-	console.log('INITIAL FRAME', window.remotion_initialFrame);
+	console.log(
+		'INITIAL FRAME',
+		window.remotion_initialFrame,
+		localStorage.getItem(INITIAL_FRAME_LOCAL_STORAGE_KEY)
+	);
 	const [frame, setFrame] = useState<number>(window.remotion_initialFrame ?? 0);
 	const [playing, setPlaying] = useState<boolean>(false);
 	const imperativePlaying = useRef<boolean>(false);
