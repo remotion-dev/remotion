@@ -68,7 +68,6 @@ export const openBrowser = async (
 		executablePath,
 		product: browser,
 		dumpio: options?.shouldDumpIo ?? false,
-		headless: false,
 		ignoreDefaultArgs: true,
 		args: [
 			'about:blank',
@@ -107,7 +106,7 @@ export const openBrowser = async (
 			'--enable-blink-features=IdleDetection',
 			'--export-tagged-pdf',
 			'--intensive-wake-up-throttling-policy=0',
-			'--headless',
+			options?.chromiumOptions?.headless ?? true ? '--headless' : null,
 			'--no-sandbox',
 			'--disable-setuid-sandbox',
 			'--disable-dev-shm-usage',
