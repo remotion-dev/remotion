@@ -46,9 +46,10 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 	);
 
 	useEffect(() => {
+		console.log('mounting', props.src);
 		return () => {
 			continueRender(handle);
-			console.log('unmounting');
+			console.log('unmounting', props.src);
 		};
 	}, []);
 
