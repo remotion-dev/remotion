@@ -110,7 +110,6 @@ export const openBrowser = async (
 			options?.chromiumOptions?.headless ?? true ? '--headless' : null,
 			'--no-sandbox',
 			'--disable-setuid-sandbox',
-			'--disable-dev-shm-usage',
 			...customGlRenderer,
 			'--disable-background-media-suspend',
 			process.platform === 'linux' ? '--single-process' : null,
