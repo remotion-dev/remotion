@@ -26,6 +26,10 @@ const getOpenGlRenderer = (option?: OpenGlRenderer | null): string[] => {
 		return [`--use-gl=angle`, `--use-angle=swiftshader`];
 	}
 
+	if (renderer === null) {
+		return [];
+	}
+
 	return [`--use-gl=${renderer}`];
 };
 
