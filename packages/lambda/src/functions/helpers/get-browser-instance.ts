@@ -48,7 +48,6 @@ export const getBrowserInstance = async (
 		// Override the `null` value, which might come from CLI with swANGLE
 		gl: chromiumOptions.gl ?? 'swangle',
 	};
-	console.log({actualChromiumOptions});
 
 	_browserInstance = await openBrowser('chrome', {
 		browserExecutable: execPath,
