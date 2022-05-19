@@ -1,4 +1,3 @@
-import mimeTypes from 'mime-types';
 import {getLatestRemotionVersion} from './get-latest-remotion-version';
 import {getPackageManager, lockFilePaths} from './get-package-manager';
 import {startServer} from './start-server';
@@ -13,7 +12,6 @@ export const BundlerInternals = {
 	getPackageManager,
 	lockFilePaths,
 	esbuild,
-	mimeTypes,
 };
 
 export {bundle} from './bundler';
