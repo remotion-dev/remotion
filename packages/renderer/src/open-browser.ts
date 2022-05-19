@@ -25,6 +25,7 @@ const getOpenGlRenderer = (option?: OpenGlRenderer | null): string[] => {
 	if (renderer === 'swangle') {
 		return [`--use-gl=angle`, `--use-angle=swiftshader`];
 	}
+
 	return [`--use-gl=${renderer}`];
 };
 
