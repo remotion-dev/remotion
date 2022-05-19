@@ -69,8 +69,6 @@ export const openBrowser = async (
 		options?.chromiumOptions?.gl ?? null
 	);
 
-	console.log({customGlRenderer});
-
 	const browserInstance = await puppeteer.launch({
 		executablePath,
 		product: browser,
