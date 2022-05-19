@@ -8,7 +8,7 @@ import {
 	getLocalBrowserExecutable,
 } from './get-local-browser-executable';
 
-const validRenderers = ['angle', 'egl', 'swiftshader'] as const;
+const validRenderers = ['swangle', 'angle', 'egl', 'swiftshader'] as const;
 
 type OpenGlRenderer = typeof validRenderers[number];
 
@@ -19,12 +19,13 @@ export type ChromiumOptions = {
 	headless?: boolean;
 };
 
-const getOpenGlRenderer = (
-	option?: OpenGlRenderer | null
-): OpenGlRenderer | null => {
+const getOpenGlRenderer = (option?: OpenGlRenderer | null): string[] => {
 	const renderer = option ?? Internals.DEFAULT_OPENGL_RENDERER;
 	Internals.validateOpenGlRenderer(renderer);
-	return renderer;
+	if (renderer === 'swangle') {
+		return [`--use-gl=angle`, `--use-angle=swiftshader`];
+	}
+	return [`--use-gl=${renderer}`];
 };
 
 const browserInstances: puppeteer.Browser[] = [];
@@ -43,7 +44,6 @@ export const openBrowser = async (
 		shouldDumpIo?: boolean;
 		browserExecutable?: string | null;
 		chromiumOptions?: ChromiumOptions;
-		// TODO: Remove it
 		forceDeviceScaleFactor?: number;
 	}
 ): Promise<puppeteer.Browser> => {
@@ -110,7 +110,7 @@ export const openBrowser = async (
 			'--no-sandbox',
 			'--disable-setuid-sandbox',
 			'--disable-dev-shm-usage',
-			customGlRenderer ? `--use-gl=${customGlRenderer}` : null,
+			...customGlRenderer,
 			'--disable-background-media-suspend',
 			process.platform === 'linux' ? '--single-process' : null,
 			'--allow-running-insecure-content', // https://source.chromium.org/search?q=lang:cpp+symbol:kAllowRunningInsecureContent&ss=chromium
