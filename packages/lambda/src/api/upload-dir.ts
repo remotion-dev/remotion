@@ -1,7 +1,7 @@
 import {PutObjectCommand} from '@aws-sdk/client-s3';
 import {Upload} from '@aws-sdk/lib-storage';
-import {BundlerInternals} from '@remotion/bundler';
 import {createReadStream, promises as fs} from 'fs';
+import mimeTypes from 'mime-types';
 import path from 'path';
 import {Privacy} from '../defaults';
 import {AwsRegion} from '../pricing/aws-regions';
@@ -75,8 +75,7 @@ export const uploadDir = async ({
 	const uploads = files.map(async (filePath) => {
 		const Key = `${folder}/${path.relative(dir, filePath.name)}`;
 		const Body = createReadStream(filePath.name);
-		const ContentType =
-			BundlerInternals.mimeTypes.lookup(Key) || 'application/octet-stream';
+		const ContentType = mimeTypes.lookup(Key) || 'application/octet-stream';
 		const ACL = privacy === 'private' ? 'private' : 'public-read';
 		if (filePath.size > 5 * 1024 * 1024) {
 			const paralellUploads3 = new Upload({

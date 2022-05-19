@@ -4,8 +4,8 @@ import {
 	PutObjectCommand,
 	_Object,
 } from '@aws-sdk/client-s3';
-import {BundlerInternals} from '@remotion/bundler';
 import {ReadStream} from 'fs';
+import mimeTypes from 'mime-types';
 import {Readable} from 'stream';
 import {AwsRegion} from '../../pricing/aws-regions';
 import {getS3Client} from '../../shared/aws-clients';
@@ -94,8 +94,7 @@ export const lambdaWriteFile = async ({
 			Body: body,
 			ACL: privacy === 'private' ? 'private' : 'public-read',
 			ExpectedBucketOwner: expectedBucketOwner ?? undefined,
-			ContentType:
-				BundlerInternals.mimeTypes.lookup(key) || 'application/octet-stream',
+			ContentType: mimeTypes.lookup(key) || 'application/octet-stream',
 		})
 	);
 };
