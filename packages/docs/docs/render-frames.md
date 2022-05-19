@@ -266,10 +266,11 @@ Accepted values:
 - `"angle"`,
 - `"egl"`,
 - `"swiftshader"`
+- `"swangle"`
 - `null` - Chromiums default
 
 **Default for local rendering**: `null`.  
-**Default for Lambda rendering**: `"swiftshader"`.
+**Default for Lambda rendering**: `"swangle"`.
 
 ## Return value
 

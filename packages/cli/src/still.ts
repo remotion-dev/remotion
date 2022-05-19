@@ -91,6 +91,7 @@ export const still = async () => {
 			Internals.Logging.getLogLevel(),
 			'verbose'
 		),
+		forceDeviceScaleFactor: scale,
 	});
 
 	mkdirSync(path.join(userOutput, '..'), {

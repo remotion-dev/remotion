@@ -169,6 +169,7 @@ Accepted values:
 - `"angle"`,
 - `"egl"`,
 - `"swiftshader"`
+- `"swangle"`
 - `null` - Chromiums default
 
 Default: `null`.

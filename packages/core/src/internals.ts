@@ -82,10 +82,6 @@ import {DELAY_RENDER_CALLSTACK_TOKEN} from './delay-render';
 import {FEATURE_FLAG_FIREFOX_SUPPORT} from './feature-flags';
 import {getRemotionEnvironment, RemotionEnvironment} from './get-environment';
 import {getPreviewDomElement} from './get-preview-dom-element';
-import {
-	INITIAL_FRAME_LOCAL_STORAGE_KEY,
-	setupInitialFrame,
-} from './initial-frame';
 import {isAudioCodec} from './is-audio-codec';
 import * as perf from './perf';
 import {getRoot} from './register-root';
@@ -184,9 +180,7 @@ export const Internals = {
 	RemotionContextProvider,
 	CSSUtils,
 	setupEnvVariables,
-	setupInitialFrame,
 	ENV_VARIABLES_ENV_NAME,
-	INITIAL_FRAME_LOCAL_STORAGE_KEY,
 	getDotEnvLocation,
 	getServerPort,
 	MediaVolumeContext,

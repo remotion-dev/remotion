@@ -95,8 +95,8 @@ export const Config = {
 		 */
 		setChromiumHeadlessMode,
 		/**
-		 * Set the OpenGL rendering backend for Chrome. Possible values: 'egl', 'angle' and 'swiftshader'.
-		 * Default: 'swiftshader' in Lambda, 'angle' elsewhere.
+		 * Set the OpenGL rendering backend for Chrome. Possible values: 'egl', 'angle', 'swiftshader' and 'swangle'.
+		 * Default: 'swangle' in Lambda, null elsewhere.
 		 */
 		setChromiumOpenGlRenderer,
 	},
