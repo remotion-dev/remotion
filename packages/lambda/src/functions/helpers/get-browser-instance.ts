@@ -47,6 +47,7 @@ export const getBrowserInstance = async (
 		gl: 'swangle',
 		...chromiumOptions,
 	};
+	console.log({actualChromiumOptions});
 
 	_browserInstance = await openBrowser('chrome', {
 		browserExecutable: execPath,
