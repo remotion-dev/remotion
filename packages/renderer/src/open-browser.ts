@@ -8,7 +8,7 @@ import {
 	getLocalBrowserExecutable,
 } from './get-local-browser-executable';
 
-const validRenderers = ['angle', 'egl', 'swiftshader'] as const;
+const validRenderers = ['swangle', 'angle', 'egl', 'swiftshader'] as const;
 
 type OpenGlRenderer = typeof validRenderers[number];
 
@@ -19,12 +19,18 @@ export type ChromiumOptions = {
 	headless?: boolean;
 };
 
-const getOpenGlRenderer = (
-	option?: OpenGlRenderer | null
-): OpenGlRenderer | null => {
+const getOpenGlRenderer = (option?: OpenGlRenderer | null): string[] => {
 	const renderer = option ?? Internals.DEFAULT_OPENGL_RENDERER;
 	Internals.validateOpenGlRenderer(renderer);
-	return renderer;
+	if (renderer === 'swangle') {
+		return [`--use-gl=angle`, `--use-angle=swiftshader`];
+	}
+
+	if (renderer === null) {
+		return [];
+	}
+
+	return [`--use-gl=${renderer}`];
 };
 
 const browserInstances: puppeteer.Browser[] = [];
@@ -43,6 +49,7 @@ export const openBrowser = async (
 		shouldDumpIo?: boolean;
 		browserExecutable?: string | null;
 		chromiumOptions?: ChromiumOptions;
+		forceDeviceScaleFactor?: number;
 	}
 ): Promise<puppeteer.Browser> => {
 	if (browser === 'firefox' && !Internals.FEATURE_FLAG_FIREFOX_SUPPORT) {
@@ -66,12 +73,48 @@ export const openBrowser = async (
 		executablePath,
 		product: browser,
 		dumpio: options?.shouldDumpIo ?? false,
-		headless: options?.chromiumOptions?.headless ?? true,
+		ignoreDefaultArgs: true,
 		args: [
+			'about:blank',
+			'--allow-pre-commit-input', // TODO(crbug.com/1320996): neither headful nor headless should rely on this flag.
+			'--disable-background-networking',
+			'--enable-features=NetworkService,NetworkServiceInProcess',
+			'--disable-background-timer-throttling',
+			'--disable-backgrounding-occluded-windows',
+			'--disable-breakpad',
+			'--disable-client-side-phishing-detection',
+			'--disable-component-extensions-with-background-pages',
+			'--disable-default-apps',
+			'--disable-dev-shm-usage',
+			'--disable-extensions',
+			'--no-proxy-server',
+			"--proxy-server='direct://'",
+			'--proxy-bypass-list=*',
+			// TODO: remove AvoidUnnecessaryBeforeUnloadCheckSync below
+			// once crbug.com/1324138 is fixed and released.
+			'--disable-features=Translate,BackForwardCache,AvoidUnnecessaryBeforeUnloadCheckSync',
+			'--disable-hang-monitor',
+			'--disable-ipc-flooding-protection',
+			'--disable-popup-blocking',
+			'--disable-prompt-on-repost',
+			'--disable-renderer-backgrounding',
+			'--disable-sync',
+			'--force-color-profile=srgb',
+			'--metrics-recording-only',
+			'--no-first-run',
+			'--video-threads=16',
+			'--enable-automation',
+			'--password-store=basic',
+			'--use-mock-keychain',
+			// TODO(sadym): remove '--enable-blink-features=IdleDetection'
+			// once IdleDetection is turned on by default.
+			'--enable-blink-features=IdleDetection',
+			'--export-tagged-pdf',
+			'--intensive-wake-up-throttling-policy=0',
+			options?.chromiumOptions?.headless ?? true ? '--headless' : null,
 			'--no-sandbox',
 			'--disable-setuid-sandbox',
-			'--disable-dev-shm-usage',
-			customGlRenderer ? `--use-gl=${customGlRenderer}` : null,
+			...customGlRenderer,
 			'--disable-background-media-suspend',
 			process.platform === 'linux' ? '--single-process' : null,
 			'--allow-running-insecure-content', // https://source.chromium.org/search?q=lang:cpp+symbol:kAllowRunningInsecureContent&ss=chromium
@@ -80,12 +123,14 @@ export const openBrowser = async (
 			'--disable-features=AudioServiceOutOfProcess,IsolateOrigins,site-per-process', // https://source.chromium.org/search?q=file:content_features.cc&ss=chromium
 			'--disable-print-preview', // https://source.chromium.org/search?q=lang:cpp+symbol:kDisablePrintPreview&ss=chromium
 			'--disable-site-isolation-trials', // https://source.chromium.org/search?q=lang:cpp+symbol:kDisableSiteIsolation&ss=chromium
-			'--disk-cache-size=33554432', // https://source.chromium.org/search?q=lang:cpp+symbol:kDiskCacheSize&ss=chromium
+			'--disk-cache-size=268435456', // https://source.chromium.org/search?q=lang:cpp+symbol:kDiskCacheSize&ss=chromium
 			'--hide-scrollbars', // https://source.chromium.org/search?q=lang:cpp+symbol:kHideScrollbars&ss=chromium
 			'--no-default-browser-check', // https://source.chromium.org/search?q=lang:cpp+symbol:kNoDefaultBrowserCheck&ss=chromium
 			'--no-pings', // https://source.chromium.org/search?q=lang:cpp+symbol:kNoPings&ss=chromium
 			'--no-zygote', // https://source.chromium.org/search?q=lang:cpp+symbol:kNoZygote&ss=chromium,
-			'--disable-background-media-suspend',
+			options?.forceDeviceScaleFactor
+				? `--force-device-scale-factor=${options.forceDeviceScaleFactor}`
+				: null,
 			options?.chromiumOptions?.ignoreCertificateErrors
 				? '--ignore-certificate-errors'
 				: null,

@@ -83,6 +83,7 @@ export const render = async () => {
 			'verbose'
 		),
 		chromiumOptions,
+		forceDeviceScaleFactor: scale,
 	});
 
 	const steps: RenderStep[] = [

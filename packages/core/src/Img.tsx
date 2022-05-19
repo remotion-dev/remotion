@@ -45,6 +45,13 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 		[handle, onError]
 	);
 
+	// If tag gets unmounted, clear pending handles because image is not going to load
+	useEffect(() => {
+		return () => {
+			continueRender(handle);
+		};
+	}, [handle]);
+
 	return <img {...props} ref={ref} onLoad={didLoad} onError={didGetError} />;
 };
 

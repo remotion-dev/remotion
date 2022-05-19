@@ -51,15 +51,15 @@ const makeLayerPublic = async () => {
 					new PublishLayerVersionCommand({
 						Content: {
 							S3Bucket: 'remotionlambda-binaries-' + region,
-							S3Key: `remotion-layer-${layer}-v4-${architecture}.zip`,
+							S3Key: `remotion-layer-${layer}-v5-${architecture}.zip`,
 						},
 						LayerName: layerName,
 						LicenseInfo:
 							layer === 'chromium'
-								? 'Compiled from Chromium source. Read Chromium License: https://chromium.googlesource.com/chromium/src/+/refs/heads/main/LICENSE'
+								? 'Chromium 101, compiled from source. Read Chromium License: https://chromium.googlesource.com/chromium/src/+/refs/heads/main/LICENSE'
 								: layer === 'ffmpeg'
 								? 'Compiled from FFMPEG source. Read FFMPEG license: https://ffmpeg.org/legal.html'
-								: 'Contains UNIX .so files and Noto Sans font. Read Noto Sans License: https://fonts.google.com/noto/specimen/Noto+Sans/about',
+								: 'Contains Amazon Linux .so files and Noto Sans font. Read Noto Sans License: https://fonts.google.com/noto/specimen/Noto+Sans/about',
 						CompatibleRuntimes: runtimes,
 						Description: CURRENT_VERSION,
 					})

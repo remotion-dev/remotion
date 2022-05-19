@@ -53,10 +53,10 @@ export const setPropsAndEnv = async ({
 	}
 
 	await page.evaluateOnNewDocument(
-		(key: string, value: string) => {
-			window.localStorage.setItem(key, value);
+		(key: number) => {
+			window.remotion_initialFrame = key;
 		},
-		[Internals.INITIAL_FRAME_LOCAL_STORAGE_KEY, initialFrame]
+		[initialFrame]
 	);
 
 	const pageRes = await page.goto(urlToVisit);

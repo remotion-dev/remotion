@@ -175,6 +175,11 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 			},
 			{once: true}
 		);
+
+		// If video skips to another frame or unmounts, we clear the created handle
+		return () => {
+			continueRender(handle);
+		};
 	}, [
 		volumePropsFrame,
 		props.src,
