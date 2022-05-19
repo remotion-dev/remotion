@@ -104,6 +104,7 @@ export const openBrowser = async (
 			'--force-color-profile=srgb',
 			'--metrics-recording-only',
 			'--no-first-run',
+			'--video-threads=16',
 			'--enable-automation',
 			'--password-store=basic',
 			'--use-mock-keychain',
