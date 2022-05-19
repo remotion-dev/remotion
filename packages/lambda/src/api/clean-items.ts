@@ -1,7 +1,7 @@
 import {DeleteObjectCommand} from '@aws-sdk/client-s3';
-import pLimit from 'p-limit';
 import {AwsRegion} from '../pricing/aws-regions';
 import {getS3Client} from '../shared/aws-clients';
+import {pLimit} from '../shared/p-limit';
 
 const limit = pLimit(10);
 
