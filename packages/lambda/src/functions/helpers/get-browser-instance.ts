@@ -44,7 +44,7 @@ export const getBrowserInstance = async (
 	const execPath = await executablePath();
 
 	const actualChromiumOptions: ChromiumOptions = {
-		gl: 'swiftshader',
+		gl: 'swangle',
 		...chromiumOptions,
 	};
 

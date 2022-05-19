@@ -1,4 +1,4 @@
-const validRenderers = ['angle', 'egl', 'swiftshader'] as const;
+const validRenderers = ['swangle', 'angle', 'egl', 'swiftshader'] as const;
 
 export type OpenGlRenderer = typeof validRenderers[number];
 
