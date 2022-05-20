@@ -28,7 +28,7 @@
 		"esbuild": "0.14.19",
 		"execa": "5.1.1",
 		"express": "4.17.1",
-		"memfs": "3.4.0",
+		"memfs": "3.4.3",
 		"mime-types": "2.1.34",
 		"react-refresh": "0.9.0",
 		"remotion": "3.0.8",
