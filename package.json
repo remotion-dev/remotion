@@ -1,6 +1,6 @@
 {
-  "name": "remotion",
-  "version": "3.0.8",
+  "name": "remotion-monorepo",
+  "version": "0.0.0",
   "private": true,
   "license": "SEE LICENSE IN LICENSE.md",
   "scripts": {
@@ -15,9 +15,7 @@
     "node": ">=12",
     "pnpm": ">=3"
   },
-  "devDependencies": {
-    "remotion": "3.0.8"
-  },
+  "devDependencies": {},
   "dependencies": {
     "lerna": "^4.0.0",
     "turbo": "^1.2.6"
