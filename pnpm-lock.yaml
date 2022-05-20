@@ -72,7 +72,7 @@ importers:
       execa: 5.1.1
       express: 4.17.1
       jest: ^27.2.4
-      memfs: 3.4.0
+      memfs: 3.4.3
       mime-types: 2.1.34
       prettier: ^2.0.5
       prettier-plugin-organize-imports: ^2.3.4
@@ -92,7 +92,7 @@ importers:
       esbuild: 0.14.19
       execa: 5.1.1
       express: 4.17.1
-      memfs: 3.4.0
+      memfs: 3.4.3
       mime-types: 2.1.34
       react-refresh: 0.9.0
       remotion: link:../core
@@ -14566,15 +14566,15 @@ packages:
     engines: {node: '>= 0.6'}
     dev: false
 
-  /memfs/3.4.0:
-    resolution: {integrity: sha512-o/RfP0J1d03YwsAxyHxAYs2kyJp55AFkMazlFAZFR2I2IXkxiUTXRabJ6RmNNCQ83LAD2jy52Khj0m3OffpNdA==}
+  /memfs/3.4.1:
+    resolution: {integrity: sha512-1c9VPVvW5P7I85c35zAdEr1TD5+F11IToIHIlrVIcflfnzPkJa0ZoYEoEdYDP8KgPFoSZ/opDrUsAoZWym3mtw==}
     engines: {node: '>= 4.0.0'}
     dependencies:
       fs-monkey: 1.0.3
     dev: false
 
-  /memfs/3.4.1:
-    resolution: {integrity: sha512-1c9VPVvW5P7I85c35zAdEr1TD5+F11IToIHIlrVIcflfnzPkJa0ZoYEoEdYDP8KgPFoSZ/opDrUsAoZWym3mtw==}
+  /memfs/3.4.3:
+    resolution: {integrity: sha512-eivjfi7Ahr6eQTn44nvTnR60e4a1Fs1Via2kCR5lHo/kyNoiMWaXCNJ/GpSd0ilXas2JSOl9B5FTIhflXu0hlg==}
     engines: {node: '>= 4.0.0'}
     dependencies:
       fs-monkey: 1.0.3
