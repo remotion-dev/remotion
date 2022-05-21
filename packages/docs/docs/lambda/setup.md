@@ -11,28 +11,56 @@ import TabItem from '@theme/TabItem';
 
 Check the newest version number in the [#lambda Discord channel](https://discord.gg/PzjkKS8S5S)
 
-```
-npm i @remotion/lambda@<version-number>
+<Tabs
+defaultValue="npm"
+values={[
+{ label: 'npm', value: 'npm', },
+{ label: 'yarn', value: 'yarn', },
+{ label: 'pnpm', value: 'pnpm', },
+]
+}>
+<TabItem value="npm">
+
+```bash
+npm i @remotion/lambda
 ```
 
-Also update **all the other Remotion packages** to have the same version: `remotion`, `@remotion/cli`, `@remotion/bundler`
+  </TabItem>
 
-:::tip
-Make sure no package version number has a `^` character in front of it as it will install a different version.
+  <TabItem value="yarn">
+
+```bash
+yarn add @remotion/lambda
+```
+
+  </TabItem>
+
+  <TabItem value="pnpm">
+
+```bash
+pnpm i @remotion/lambda
+```
+
+  </TabItem>
+</Tabs>
+
+Also update **all the other Remotion packages** to have the same version: `remotion`, `@remotion/cli` and others.
+
+:::note
+Make sure no package version number has a `^` character in front of it as it can lead to a version conflict.
 :::
 
 Your package.json should look like the following:
 
 ```json
-  "@remotion/bundler": "3.0.0",
-  "@remotion/cli": "3.0.0",
-  "@remotion/lambda": "3.0.0",
+  "@remotion/cli": "3.0.0", // Replace 3.0.0 with the current version
+  "@remotion/lambda": "3.0.0", // Remove any `^` character
   // ...
   "remotion": "3.0.0",
 ```
 
-:::tip
-You can install `@remotion/lambda` in any project, not just a Remotion one, but remember to also install `react` and `react-dom` as they are peer dependencies.
+:::note
+You can install `@remotion/lambda` in any Node.JS project to trigger a render, but remember to also install `react` and `react-dom` as they are peer dependencies.
 :::
 
 ## 2. Create role policy
