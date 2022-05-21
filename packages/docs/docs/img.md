@@ -17,6 +17,10 @@ export const MyComp: React.FC = () => {
 };
 ```
 
+## Restrictions
+
+- The maximum resolution that Chrome can display is `2^29` pixels (539 megapixels). Remotion inherits this restriction.
+
 ## See also
 
 - [Use `<Img>` and `<IFrame>` tags](/docs/use-img-and-iframe)
