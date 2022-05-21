@@ -29,6 +29,7 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 			if (handle) {
 				continueRender(handle);
 			}
+
 			onLoad?.(e);
 		},
 		[handle, onLoad]
@@ -39,6 +40,7 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 			if (handle) {
 				continueRender(handle);
 			}
+
 			if (onError) {
 				onError(e);
 			} else {
