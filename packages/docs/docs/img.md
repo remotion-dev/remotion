@@ -17,6 +17,10 @@ export const MyComp: React.FC = () => {
 };
 ```
 
+## GIFs
+
+Don't use the `<Img>` tag for GIFs, use [`@remotion/gif`](/docs/gif) instead.
+
 ## Restrictions
 
 - The maximum resolution that Chrome can display is `2^29` pixels (539 megapixels) <sup><a href="https://stackoverflow.com/questions/57223559/what-is-the-maximum-image-dimensions-supported-in-desktop-chrome#:~:text=than%202%5E29-,(539MP)">[source]</a></sup>. Remotion inherits this restriction.
