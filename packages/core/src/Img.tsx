@@ -1,4 +1,11 @@
-import React, {forwardRef, useCallback, useEffect, useState} from 'react';
+import React, {
+	forwardRef,
+	useCallback,
+	useEffect,
+	useImperativeHandle,
+	useRef,
+	useState,
+} from 'react';
 import {continueRender, delayRender} from './delay-render';
 
 const ImgRefForwarding: React.ForwardRefRenderFunction<
@@ -11,6 +18,11 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 	const [handle] = useState(() =>
 		delayRender('Loading <Img> with src=' + props.src)
 	);
+	const imageRef = useRef<HTMLImageElement>(null);
+
+	useImperativeHandle(ref, () => {
+		return imageRef.current as HTMLImageElement;
+	});
 
 	useEffect(() => {
 		if (
@@ -52,7 +64,9 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 		};
 	}, [handle]);
 
-	return <img {...props} ref={ref} onLoad={didLoad} onError={didGetError} />;
+	return (
+		<img {...props} ref={imageRef} onLoad={didLoad} onError={didGetError} />
+	);
 };
 
 export const Img = forwardRef(ImgRefForwarding);
