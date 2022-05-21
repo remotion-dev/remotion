@@ -7,6 +7,10 @@ import Tabs from "@theme/Tabs";
 
 If you are using the player, a common desire is to share the code with your Remotion Preview and/or server-side rendering. With the correct setup, you can write the component once and use it for previewing, displaying and rendering.
 
+:::note
+Remotion and your React app use a different Webpack config. Therefore, if you want to override your [Webpack configuration](/docs/webpack), you need to override both the Remotion one and the React app one.
+:::
+
 ## Setup
 
 Set up a React project with your preferred setup, such as [Create React App](https://reactjs.org/docs/create-a-new-react-app.html) or [Next.JS](https://nextjs.org/learn/basics/create-nextjs-app/setup).
@@ -24,7 +28,7 @@ values={[
 <TabItem value="npm">
 
 ```bash
-npm i remotion @remotion/renderer @remotion/cli @remotion/bundler @remotion/player
+npm i remotion @remotion/cli @remotion/player
 ```
 
   </TabItem>
@@ -32,14 +36,14 @@ npm i remotion @remotion/renderer @remotion/cli @remotion/bundler @remotion/play
   <TabItem value="yarn">
 
 ```bash
-yarn add remotion @remotion/renderer @remotion/cli @remotion/bundler @remotion/player
+yarn add remotion @remotion/cli @remotion/player
 ```
 
   </TabItem>
   <TabItem value="pnpm">
 
 ```bash
-pnpm i remotion @remotion/renderer @remotion/cli @remotion/bundler @remotion/player
+pnpm i remotion @remotion/cli @remotion/player
 ```
 
   </TabItem>
@@ -161,15 +165,15 @@ export const App: React.FC = () => {
 };
 ```
 
-:::tip
-Don't import your composition list or index file into your webapp. It will do nothing.
+:::note
+Pass your React component directly to the `component` prop. Don't pass the list of compositions.
 :::
 
 If everything worked, you can now run your webapp and preview your video.
 
 ## Creating a bundle for server-side rendering
 
-In any Node.JS context, you can call [`bundle()`](/docs/bundle) to bundle your video using Webpack and to server-side render the video.
+In any Node.JS context, you can call [`bundle()`](/docs/bundle) to bundle your video using Webpack and to server-side render the video. You need to add `@remotion/bundler` to your package.json for this.
 
 ```ts twoslash title="server.tsx"
 // @module: ESNext
@@ -186,7 +190,7 @@ const bundled = await bundle(
 See [Server-side rendering](/docs/ssr) for a full example.
 
 :::tip
-When using Lambda, you don't need this, you can use the CLI or `deploySite()` which will bundle the video for you.
+When using Lambda, you don't need this, you can use the CLI or [`deploySite()`](/docs/lambda/deploysite) which will bundle the video for you.
 :::
 
 ## See also
