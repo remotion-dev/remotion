@@ -244,7 +244,7 @@ module.exports = {
       type: "category",
       label: "Miscellaneous",
       collapsed: false,
-      items: ["chromium-flags", "prereleases", "gpu", "react-18"],
+      items: ["brownfield", "chromium-flags", "prereleases", "gpu", "react-18"],
     },
     "3-0-migration",
     "2-0-migration",
