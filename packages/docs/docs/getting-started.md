@@ -72,3 +72,7 @@ pacman -S dconf alsa-lib atk glibc cairo libcups dbus expat fontconfig gcc gdk-p
 ```
 
 Got instructions for more Linux distributions? [Add them to this page](https://github.com/remotion-dev/remotion/edit/main/packages/docs/docs/getting-started.md)!
+
+## Installation in existing projects
+
+If you already have a project you want to install Remotion in, don't use the instructions on this page. Instead, check out: [Installation in existing projects](/docs/brownfield)
