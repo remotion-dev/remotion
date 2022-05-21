@@ -14,6 +14,6 @@ export const BundlerInternals = {
 	esbuild,
 };
 
-export {bundle} from './bundler';
+export {bundle} from './bundle';
 export {PackageManager} from './get-package-manager';
 export type {ProjectInfo} from './project-info';
