@@ -65,7 +65,7 @@ export * from './spring';
 export {staticFile} from './static-file';
 export * from './Still';
 export type {PlayableMediaTag} from './timeline-position-state';
-export * from './use-frame';
+export {useCurrentFrame} from './use-frame';
 export * from './use-video-config';
 export * from './video';
 export * from './video-config';

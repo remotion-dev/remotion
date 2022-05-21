@@ -15,3 +15,12 @@ export type RemotionVideoProps = Omit<
 	volume?: VolumeProp;
 	playbackRate?: number;
 };
+
+export type RemotionOffthreadVideoProps = React.DetailedHTMLProps<
+	React.ImgHTMLAttributes<HTMLImageElement>,
+	HTMLImageElement
+> & {
+	volume?: VolumeProp;
+	playbackRate?: number;
+	muted?: boolean;
+};
