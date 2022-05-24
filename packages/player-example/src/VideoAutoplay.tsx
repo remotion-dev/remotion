@@ -1,9 +1,11 @@
-import {Series, Video, AbsoluteFill, Audio} from 'remotion';
-import {preloadVideo} from '@remotion/preload';
+import {Series, Video, AbsoluteFill, Audio, Sequence} from 'remotion';
+import {preloadAudio, preloadVideo} from '@remotion/preload';
 
 preloadVideo(
 	'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4'
 );
+
+preloadAudio('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3');
 
 export const VideoautoplayDemo = () => {
 	return (
@@ -12,10 +14,12 @@ export const VideoautoplayDemo = () => {
 				backgroundColor: 'red',
 			}}
 		>
-			<Audio
-				src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"
-				volume={0.2}
-			/>
+			<Sequence from={20}>
+				<Audio
+					src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"
+					volume={0.2}
+				/>
+			</Sequence>
 			<Series>
 				<Series.Sequence durationInFrames={10}>
 					<AbsoluteFill />
