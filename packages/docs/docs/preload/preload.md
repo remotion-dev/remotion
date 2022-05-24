@@ -7,9 +7,10 @@ title: "@remotion/preload"
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-This package provides functions for preloading assets. While preload is not necessary for rendering, it can help with seamless playback in the [`<Player />`](/docs/player) and in the preview. Currently, only one function is implemented:
+This package provides functions for preloading assets. While preload is not necessary for rendering, it can help with seamless playback in the [`<Player />`](/docs/player) and in the preview. Currently, two functions are implemented:
 
 - [`preloadVideo()`](/docs/preload/preload-video)
+- [`preloadAudio()`](/docs/preload/preload-audio)
 
 ## Installation
 
