@@ -42,6 +42,20 @@ test('Complex expression with volume multiplier', () => {
 	});
 });
 
+test('Should respect trimLeft multiplier', () => {
+	expect(
+		ffmpegVolumeExpression({
+			volume: [0, 1],
+			startInVideo: 0,
+			fps: 30,
+			trimLeft: 0.5,
+		})
+	).toEqual({
+		eval: 'frame',
+		value: "'if(between(t,0.4833,0.5167),0,if(between(t,0.5167,0.5500),1,0))'",
+	});
+});
+
 test('Really complex volume expression', () => {
 	const expectedExpression =
 		"'if(between(t,-0.0167,0.0167),0,if(between(t,0.0167,0.0500),0.247,if(between(t,0.0500,0.0833),0.505,if(between(t,0.0833,0.2167),0.99,if(between(t,0.2167,0.3833),1,0)))))'";
