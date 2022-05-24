@@ -27,6 +27,7 @@
     "@remotion/bundler": "3.0.9",
     "@remotion/gif": "3.0.9",
     "@remotion/lambda": "3.0.9",
+    "@remotion/preload": "3.0.9",
     "@remotion/media-utils": "3.0.9",
     "@remotion/player": "3.0.9",
     "@remotion/renderer": "3.0.9",

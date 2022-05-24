@@ -220,6 +220,15 @@ module.exports = {
       items: ["three", "three-canvas", "use-video-texture"],
     },
     {
+      type: "category",
+      label: "API - @remotion/preload",
+      link: {
+        type: "doc",
+        id: "preload/preload",
+      },
+      items: ["preload/preload-video"],
+    },
+    {
       type: "link",
       href: "/docs/renderer",
       label: "API - @remotion/renderer",
