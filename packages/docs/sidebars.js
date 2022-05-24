@@ -1,45 +1,4 @@
 module.exports = {
-  rendererSidebar: [
-    {
-      type: "link",
-      label: "← Back to main docs",
-      href: "/docs",
-    },
-    {
-      type: "link",
-      label: "@remotion/renderer",
-      href: "#",
-    },
-    "renderer",
-    {
-      collapsed: false,
-      type: "category",
-      label: "Node.JS APIs",
-      items: [
-        "get-compositions",
-        "render-media",
-        "render-frames",
-        "render-still",
-        "open-browser",
-        "stitch-frames-to-video",
-      ],
-    },
-  ],
-  playerSidebar: [
-    {
-      type: "link",
-      label: "← Back to main docs",
-      href: "/docs",
-    },
-    "player/player",
-    "player/installation",
-    "player/examples",
-    "player/api",
-    "player/scaling",
-    "player/integration",
-    "player/autoplay",
-    "player/preloading",
-  ],
   lambdaSidebar: [
     {
       type: "link",
@@ -210,19 +169,46 @@ module.exports = {
       label: "API - @remotion/lambda",
     },
     {
-      type: "link",
-      href: "/docs/player",
+      type: "category",
+      link: {
+        type: "doc",
+        id: "player/player",
+      },
       label: "API - @remotion/player",
+      items: [
+        "player/installation",
+        "player/examples",
+        "player/api",
+        "player/scaling",
+        "player/integration",
+        "player/autoplay",
+        "player/preloading",
+      ],
     },
     {
       type: "category",
       label: "API - @remotion/three",
-      items: ["three", "three-canvas", "use-video-texture"],
+      link: {
+        type: "doc",
+        id: "three",
+      },
+      items: ["three-canvas", "use-video-texture"],
     },
     {
-      type: "link",
-      href: "/docs/renderer",
+      type: "category",
+      link: {
+        type: "doc",
+        id: "renderer",
+      },
       label: "API - @remotion/renderer",
+      items: [
+        "get-compositions",
+        "render-media",
+        "render-frames",
+        "render-still",
+        "open-browser",
+        "stitch-frames-to-video",
+      ],
     },
     {
       type: "category",
