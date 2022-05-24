@@ -31,7 +31,7 @@ export const stringifyFfmpegFilter = ({
 		volume,
 		startInVideo,
 		fps,
-		delay: trimLeft,
+		trimLeft,
 	});
 
 	// Avoid setting filters if possible, as combining them can create noise

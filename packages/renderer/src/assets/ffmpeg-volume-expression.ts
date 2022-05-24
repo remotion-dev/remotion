@@ -81,11 +81,11 @@ export const ffmpegVolumeExpression = ({
 	volume,
 	startInVideo,
 	fps,
-	delay,
+	trimLeft,
 }: {
 	volume: AssetVolume;
 	startInVideo: number;
-	delay: number;
+	trimLeft: number;
 	fps: number;
 }): FfmpegVolumeExpression => {
 	// If it's a static volume, we return it and tell
@@ -102,7 +102,7 @@ export const ffmpegVolumeExpression = ({
 			volume: volume[0],
 			startInVideo,
 			fps,
-			delay,
+			trimLeft,
 		});
 	}
 
@@ -130,7 +130,7 @@ export const ffmpegVolumeExpression = ({
 		.sort((a, b) => a[1].length - b[1].length);
 
 	// Construct and tell FFMPEG it has to evaluate expression on each frame
-	const expression = ffmpegBuildVolumeExpression(volumeArray, delay, fps);
+	const expression = ffmpegBuildVolumeExpression(volumeArray, trimLeft, fps);
 	return {
 		eval: 'frame',
 		value: `'${expression}'`,
