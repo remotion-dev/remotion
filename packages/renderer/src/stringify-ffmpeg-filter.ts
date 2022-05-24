@@ -65,6 +65,8 @@ export const stringifyFfmpegFilter = ({
 						.fill((startInVideoSeconds * 1000).toFixed(0))
 						.join('|')}`,
 			// set the volume if needed
+			// The timings for volume must include whatever is in atrim, unless the volume
+			// filter gets applied before atrim
 			volumeFilter.value === '1'
 				? null
 				: `volume=${volumeFilter.value}:eval=${volumeFilter.eval}`,
