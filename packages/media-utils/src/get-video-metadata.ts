@@ -11,6 +11,10 @@ const fn = (src: string): Promise<VideoMetadata> => {
 		return Promise.resolve(cache[src]);
 	}
 
+	if (typeof document === 'undefined') {
+		throw new Error('getVideoMetadata() is only available in the browser.');
+	}
+
 	const video = document.createElement('video');
 	video.src = src;
 	return new Promise<VideoMetadata>((resolve, reject) => {
