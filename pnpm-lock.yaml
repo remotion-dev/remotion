@@ -678,6 +678,7 @@ importers:
       '@remotion/bundler': 3.0.9
       '@remotion/eslint-config': 3.0.9
       '@remotion/player': 3.0.9
+      '@remotion/preload': 3.0.9
       '@types/node': ^12.0.0
       '@types/react': 18.0.1
       '@types/react-dom': 18.0.0
@@ -700,6 +701,7 @@ importers:
       '@remotion/bundler': link:../bundler
       '@remotion/eslint-config': link:../eslint-config
       '@remotion/player': link:../player
+      '@remotion/preload': link:../preload
       '@types/node': 12.20.27
       '@types/react': 18.0.1
       '@types/react-dom': 18.0.0

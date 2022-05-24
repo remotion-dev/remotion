@@ -1,4 +1,9 @@
 import {Series, Video, AbsoluteFill, Audio} from 'remotion';
+import {preloadVideo} from '@remotion/preload';
+
+preloadVideo(
+	'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4'
+);
 
 export const VideoautoplayDemo = () => {
 	return (
@@ -12,6 +17,9 @@ export const VideoautoplayDemo = () => {
 				volume={0.2}
 			/>
 			<Series>
+				<Series.Sequence durationInFrames={10}>
+					<AbsoluteFill />
+				</Series.Sequence>
 				<Series.Sequence key="video-1" name="Video 1" durationInFrames={450}>
 					<Video
 						src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4"
