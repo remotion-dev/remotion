@@ -6,6 +6,7 @@ test('Simple expression', () => {
 			volume: 0.5,
 			startInVideo: 0,
 			fps: 30,
+			trimLeft: 0,
 		})
 	).toEqual({
 		eval: 'once',
@@ -19,6 +20,7 @@ test('Simple expression with volume multiplier', () => {
 			volume: 0.5,
 			startInVideo: 0,
 			fps: 30,
+			trimLeft: 0,
 		})
 	).toEqual({
 		eval: 'once',
@@ -32,10 +34,25 @@ test('Complex expression with volume multiplier', () => {
 			volume: [0, 1],
 			startInVideo: 0,
 			fps: 30,
+			trimLeft: 0,
 		})
 	).toEqual({
 		eval: 'frame',
 		value: "'if(between(t,-0.0167,0.0167),0,if(between(t,0.0167,0.0500),1,0))'",
+	});
+});
+
+test('Should respect trimLeft multiplier', () => {
+	expect(
+		ffmpegVolumeExpression({
+			volume: [0, 1],
+			startInVideo: 0,
+			fps: 30,
+			trimLeft: 0.5,
+		})
+	).toEqual({
+		eval: 'frame',
+		value: "'if(between(t,0.4833,0.5167),0,if(between(t,0.5167,0.5500),1,0))'",
 	});
 });
 
@@ -48,6 +65,7 @@ test('Really complex volume expression', () => {
 			volume: [0, 0.25, 0.5, 0.99, 0.99, 0.99, 0.99, 1, 1, 1, 1, 1],
 			startInVideo: 0,
 			fps: 30,
+			trimLeft: 0,
 		})
 	).toEqual({
 		eval: 'frame',
@@ -61,6 +79,7 @@ test('Should use 0 as else statement', () => {
 			volume: [0, 0, 0, 1, 1],
 			startInVideo: 0,
 			fps: 30,
+			trimLeft: 0,
 		})
 	).toEqual({
 		eval: 'frame',
@@ -70,12 +89,12 @@ test('Should use 0 as else statement', () => {
 });
 
 test('Simple expression - should not be higher than 1', () => {
-	expect(ffmpegVolumeExpression({volume: 2, startInVideo: 0, fps: 30})).toEqual(
-		{
-			eval: 'once',
-			value: '1',
-		}
-	);
+	expect(
+		ffmpegVolumeExpression({volume: 2, startInVideo: 0, fps: 30, trimLeft: 0})
+	).toEqual({
+		eval: 'once',
+		value: '1',
+	});
 });
 
 test('Complex expression - should not be higher than 1', () => {
@@ -84,6 +103,7 @@ test('Complex expression - should not be higher than 1', () => {
 			volume: [0.5, 2],
 			startInVideo: 0,
 			fps: 30,
+			trimLeft: 0,
 		})
 	).toEqual({
 		eval: 'frame',
@@ -98,6 +118,7 @@ test('Should simplify an expression', () => {
 			volume: [0, 1, 1, 1, 0, 1],
 			startInVideo: 0,
 			fps: 30,
+			trimLeft: 0,
 		})
 	).toEqual({
 		eval: 'frame',
@@ -117,6 +138,7 @@ test('Should stay under half 8000 windows character limit', () => {
 		}),
 		startInVideo: 0,
 		fps: 30,
+		trimLeft: 0,
 	});
 
 	expect(expression.value.length).toBeLessThan(4000);
