@@ -1,9 +1,23 @@
 const resolveRedirect = async (video: string) => {
-	const res = await fetch(video);
-	return res.url;
+	try {
+		const res = await fetch(video);
+		return res.url;
+	} catch (err) {
+		console.info(
+			'[@remotion/preload] Resource does not support CORS. Cannot handle any potential redirects'
+		);
+		return video;
+	}
 };
 
 export const preloadVideo = (src: string): (() => void) => {
+	if (typeof document === 'undefined') {
+		console.warn(
+			'preloadVideo() was called outside the browser. Doing nothing.'
+		);
+		return () => undefined;
+	}
+
 	const resolved = resolveRedirect(src);
 
 	let cancelled = false;
@@ -31,11 +45,11 @@ export const preloadVideo = (src: string): (() => void) => {
 	const vid = document.createElement('video');
 	vid.preload = 'auto';
 	vid.controls = true;
+	vid.style.display = 'none';
 	resolved
 		.then((realUrl) => {
 			if (!cancelled) {
 				vid.src = realUrl;
-				vid.style.display = 'none';
 				document.body.appendChild(vid);
 			}
 		})
