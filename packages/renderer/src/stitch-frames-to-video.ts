@@ -261,8 +261,8 @@ export const spawnFfmpeg = async (
 					// transparent WebM generation doesn't work
 					pixelFormat === 'yuva420p' ? ['-auto-alt-ref', '0'] : null,
 					['-b:v', '1M'],
-					codec === 'h264' ? ['-movflags', 'faststart'] : null,
 			  ]),
+		codec === 'h264' ? ['-movflags', 'faststart'] : null,
 		audioCodecName ? ['-c:a', audioCodecName] : null,
 		// Ignore metadata that may come from remote media
 		['-map_metadata', '-1'],

@@ -99,7 +99,6 @@ export const prespawnFfmpeg = async (options: PreSticherOptions) => {
 		// transparent WebM generation doesn't work
 		pixelFormat === 'yuva420p' ? ['-auto-alt-ref', '0'] : null,
 		['-b:v', '1M'],
-		codec === 'h264' ? ['-movflags', 'faststart'] : null,
 		'-y',
 		options.outputLocation,
 	];
