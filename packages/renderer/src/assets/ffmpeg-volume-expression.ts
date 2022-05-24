@@ -18,7 +18,15 @@ const ffmpegIfOrElse = (condition: string, then: string, elseDo: string) => {
 	return `if(${condition},${then},${elseDo})`;
 };
 
-const ffmpegIsOneOfFrames = (frames: number[], delay: number, fps: number) => {
+const ffmpegIsOneOfFrames = ({
+	frames,
+	trimLeft,
+	fps,
+}: {
+	frames: number[];
+	trimLeft: number;
+	fps: number;
+}) => {
 	const consecutiveArrays: number[][] = [];
 	for (let i = 0; i < frames.length; i++) {
 		const previousFrame = frames[i - 1];
@@ -36,9 +44,9 @@ const ffmpegIsOneOfFrames = (frames: number[], delay: number, fps: number) => {
 			const lastFrame = f[f.length - 1];
 			const before = (firstFrame - 0.5) / fps;
 			const after = (lastFrame + 0.5) / fps;
-			return `between(${FFMPEG_TIME_VARIABLE},${(before + delay).toFixed(4)},${(
-				after + delay
-			).toFixed(4)})`;
+			return `between(${FFMPEG_TIME_VARIABLE},${(before + trimLeft).toFixed(
+				4
+			)},${(after + trimLeft).toFixed(4)})`;
 		})
 		.join('+');
 };
@@ -57,7 +65,7 @@ const ffmpegBuildVolumeExpression = (
 		// where the audio actually plays.
 		// If this is the case, we just return volume 0 to clip it.
 		return ffmpegIfOrElse(
-			ffmpegIsOneOfFrames(arr[0][1], delay, fps),
+			ffmpegIsOneOfFrames({frames: arr[0][1], trimLeft: delay, fps}),
 			String(arr[0][0]),
 			String(0)
 		);
@@ -66,7 +74,7 @@ const ffmpegBuildVolumeExpression = (
 	const [first, ...rest] = arr;
 	const [volume, frames] = first;
 	return ffmpegIfOrElse(
-		ffmpegIsOneOfFrames(frames, delay, fps),
+		ffmpegIsOneOfFrames({frames, trimLeft: delay, fps}),
 		String(volume),
 		ffmpegBuildVolumeExpression(rest, delay, fps)
 	);
