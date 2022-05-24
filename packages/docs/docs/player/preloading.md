@@ -18,7 +18,7 @@ const unpreload = preloadVideo("https://example.com/video.mp4");
 unpreload();
 ```
 
-## Preloading videos using `@remotion/preload`
+## Preloading audio using `@remotion/preload`
 
 For audio, you can use the [`preloadAudio()`](/docs/preload/preload-audio) API. Put this outside a component (or inside an `useEffect`):
 
