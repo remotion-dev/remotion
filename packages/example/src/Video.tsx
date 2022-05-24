@@ -1,7 +1,6 @@
 import React from 'react';
 import {Composition, Folder, getInputProps, Still} from 'remotion';
 import {TwentyTwoKHzAudio} from './22KhzAudio';
-import {AudioLambdaIssue} from './AudioLambdaIssue';
 import BetaText from './BetaText';
 import {ColorInterpolation} from './ColorInterpolation';
 import {FontDemo} from './Fonts';
@@ -112,14 +111,6 @@ export const Index: React.FC = () => {
 					height={720}
 					fps={30}
 					durationInFrames={100}
-				/>
-				<Composition
-					id="AudioLambdaIssue"
-					component={AudioLambdaIssue}
-					durationInFrames={120}
-					fps={30}
-					width={1920}
-					height={1080}
 				/>
 			</Folder>
 			<Folder name="creatives">
