@@ -91,7 +91,7 @@ const getAssetsData = async ({
 	const assetPositions: Assets = calculateAssetPositions(fileUrlAssets);
 
 	if (verbose) {
-		console.log('asset positions', assetPositions);
+		console.log('asset positions', assets);
 	}
 
 	const tempPath = tmpDir('remotion-audio-mixing');
