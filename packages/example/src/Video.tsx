@@ -88,6 +88,7 @@ export const Index: React.FC = () => {
 					fps={30}
 					durationInFrames={10}
 				/>
+
 				<Composition
 					id="framer"
 					component={Framer}
@@ -96,6 +97,7 @@ export const Index: React.FC = () => {
 					fps={30}
 					durationInFrames={100}
 				/>
+
 				<Composition
 					id="skip-zero-frame"
 					component={SkipZeroFrame}
@@ -104,6 +106,7 @@ export const Index: React.FC = () => {
 					fps={30}
 					durationInFrames={100}
 				/>
+
 				<Composition
 					id="scripts"
 					component={Scripts}
