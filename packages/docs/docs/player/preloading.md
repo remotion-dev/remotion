@@ -17,3 +17,18 @@ const unpreload = preloadVideo("https://example.com/video.mp4");
 // Later, you can optionally clean up the preload
 unpreload();
 ```
+
+## Preloading videos using `@remotion/preload`
+
+For audio, you can use the [`preloadAudio()`](/docs/preload/preload-audio) API. Put this outside a component (or inside an `useEffect`):
+
+```tsx twoslash
+import { preloadAudio } from "@remotion/preload";
+
+const unpreload = preloadAudio(
+  "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"
+);
+
+// Later, you can optionally clean up the preload
+unpreload();
+```

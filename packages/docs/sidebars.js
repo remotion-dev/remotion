@@ -226,7 +226,7 @@ module.exports = {
         type: "doc",
         id: "preload/preload",
       },
-      items: ["preload/preload-video"],
+      items: ["preload/preload-video", "preload/preload-audio"],
     },
     {
       type: "link",
