@@ -1,117 +1,39 @@
-import React, {forwardRef, useContext, useEffect, useMemo} from 'react';
-import {getAbsoluteSrc} from '../absolute-src';
-import {
-	useFrameForVolumeProp,
-	useMediaStartsAt,
-} from '../audio/use-audio-frame';
-import {CompositionManager} from '../CompositionManager';
-import {Img} from '../Img';
-import {random} from '../random';
-import {SequenceContext} from '../sequencing';
-import {useAbsoluteCurrentFrame, useCurrentFrame} from '../use-frame';
-import {useUnsafeVideoConfig} from '../use-unsafe-video-config';
-import {evaluateVolume} from '../volume-prop';
-import {getExpectedMediaFrameUncorrected} from './get-current-time';
-import {RemotionOffthreadVideoProps} from './props';
+import React from 'react';
+import {getRemotionEnvironment} from '../get-environment';
+import {Sequence} from '../sequencing';
+import {validateMediaProps} from '../validate-media-props';
+import {validateStartFromProps} from '../validate-start-from-props';
+import {OffthreadVideoForRendering} from './OffthreadVideoForRendering';
+import {OffthreadVideoProps, RemotionMainVideoProps} from './props';
+import {VideoForDevelopment} from './VideoForDevelopment';
 
-const OffthreadVideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
-	HTMLImageElement,
-	RemotionOffthreadVideoProps
-> = (
-	{onError, volume: volumeProp, playbackRate, src, ref: _ref, muted, ...props},
-	ref
-) => {
-	const absoluteFrame = useAbsoluteCurrentFrame();
+export const OffthreadVideo: React.FC<
+	OffthreadVideoProps & RemotionMainVideoProps
+> = (props) => {
+	const {startFrom, endAt, ...otherProps} = props;
 
-	const frame = useCurrentFrame();
-	const volumePropsFrame = useFrameForVolumeProp();
-	const videoConfig = useUnsafeVideoConfig();
-	const sequenceContext = useContext(SequenceContext);
-	const mediaStartsAt = useMediaStartsAt();
+	if (typeof startFrom !== 'undefined' || typeof endAt !== 'undefined') {
+		validateStartFromProps(startFrom, endAt);
 
-	const {registerAsset, unregisterAsset} = useContext(CompositionManager);
-
-	if (!src) {
-		throw new TypeError('No `src` was passed to <OffthreadVideo>.');
-	}
-
-	// Generate a string that's as unique as possible for this asset
-	// but at the same time the same on all threads
-	const id = useMemo(
-		() =>
-			`video-${random(src ?? '')}-${sequenceContext?.cumulatedFrom}-${
-				sequenceContext?.relativeFrom
-			}-${sequenceContext?.durationInFrames}-muted:${muted}`,
-		[
-			src,
-			muted,
-			sequenceContext?.cumulatedFrom,
-			sequenceContext?.relativeFrom,
-			sequenceContext?.durationInFrames,
-		]
-	);
-
-	if (!videoConfig) {
-		throw new Error('No video config found');
-	}
-
-	const volume = evaluateVolume({
-		volume: volumeProp,
-		frame: volumePropsFrame,
-		mediaVolume: 1,
-	});
-
-	useEffect(() => {
-		if (!src) {
-			throw new Error('No src passed');
-		}
-
-		if (muted) {
-			return;
-		}
-
-		registerAsset({
-			type: 'video',
-			src: getAbsoluteSrc(src),
-			id,
-			frame: absoluteFrame,
-			volume,
-			mediaFrame: frame,
-			playbackRate: playbackRate ?? 1,
-		});
-
-		return () => unregisterAsset(id);
-	}, [
-		muted,
-		src,
-		registerAsset,
-		id,
-		unregisterAsset,
-		volume,
-		frame,
-		absoluteFrame,
-		playbackRate,
-	]);
-
-	const currentTime = useMemo(() => {
+		const startFromFrameNo = startFrom ?? 0;
+		const endAtFrameNo = endAt ?? Infinity;
 		return (
-			getExpectedMediaFrameUncorrected({
-				frame,
-				playbackRate: playbackRate || 1,
-				startFrom: -mediaStartsAt,
-			}) / videoConfig.fps
+			<Sequence
+				layout="none"
+				from={0 - startFromFrameNo}
+				showInTimeline={false}
+				durationInFrames={endAtFrameNo}
+			>
+				<OffthreadVideo {...otherProps} />
+			</Sequence>
 		);
-	}, [frame, mediaStartsAt, playbackRate, src, videoConfig.fps]);
+	}
 
-	const actualSrc = useMemo(() => {
-		return `http://localhost:9999/proxy?src=${encodeURIComponent(
-			getAbsoluteSrc(src)
-		)}&time=${encodeURIComponent(currentTime)}`;
-	}, [currentTime, src]);
+	validateMediaProps(props, 'Video');
 
-	return <Img src={actualSrc} {...props} onError={onError} />;
+	if (getRemotionEnvironment() === 'rendering') {
+		return <OffthreadVideoForRendering {...otherProps} />;
+	}
+
+	return <VideoForDevelopment {...otherProps} />;
 };
-
-export const OffthreadVideo = forwardRef(
-	OffthreadVideoForRenderingForwardFunction
-);

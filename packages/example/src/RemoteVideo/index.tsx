@@ -1,8 +1,8 @@
-import {interpolate, Video} from 'remotion';
+import {interpolate, OffthreadVideo} from 'remotion';
 
 const RemoteVideo: React.FC = () => {
 	return (
-		<Video
+		<OffthreadVideo
 			volume={(f) =>
 				interpolate(f, [0, 500], [1, 0], {extrapolateRight: 'clamp'})
 			}
