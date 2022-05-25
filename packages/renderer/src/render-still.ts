@@ -3,16 +3,19 @@ import path from 'path';
 import {Browser as PuppeteerBrowser} from 'puppeteer-core';
 import {
 	BrowserExecutable,
+	FfmpegExecutable,
 	Internals,
 	StillImageFormat,
 	TCompMetadata,
 } from 'remotion';
+import {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 import {ensureOutputDirectory} from './ensure-output-directory';
 import {handleJavascriptException} from './error-handling/handle-javascript-exception';
 import {
 	getServeUrlWithFallback,
 	ServeUrlOrWebpackBundle,
 } from './legacy-webpack-config';
+import {makeAssetsDownloadTmpDir} from './make-assets-download-dir';
 import {ChromiumOptions, openBrowser} from './open-browser';
 import {prepareServer} from './prepare-server';
 import {provideScreenshot} from './provide-screenshot';
@@ -37,6 +40,8 @@ type InnerStillOptions = {
 	timeoutInMilliseconds?: number;
 	chromiumOptions?: ChromiumOptions;
 	scale?: number;
+	onDownload?: RenderMediaOnDownload;
+	ffmpegExecutable?: FfmpegExecutable;
 };
 
 type RenderStillOptions = InnerStillOptions & ServeUrlOrWebpackBundle;
@@ -198,16 +203,34 @@ export const renderStill = async (
 ): Promise<void> => {
 	const selectedServeUrl = getServeUrlWithFallback(options);
 
-	const {closeServer, serveUrl} = await prepareServer(selectedServeUrl);
+	const downloadDir = makeAssetsDownloadTmpDir();
+
+	const onDownload = options.onDownload ?? (() => () => undefined);
 
 	return new Promise((resolve, reject) => {
-		innerRenderStill({
-			...options,
-			serveUrl,
-			onError: (err) => reject(err),
-		})
+		const onError = (err: Error) => reject(err);
+
+		let close: (() => void) | null = null;
+
+		prepareServer(
+			selectedServeUrl,
+			downloadDir,
+			onDownload,
+			onError,
+			// TODO: make sure it is passed internally
+			options.ffmpegExecutable ?? null
+		)
+			.then(({serveUrl, closeServer}) => {
+				close = closeServer;
+				return innerRenderStill({
+					...options,
+					serveUrl,
+					onError: (err) => reject(err),
+				});
+			})
+
 			.then((res) => resolve(res))
 			.catch((err) => reject(err))
-			.finally(() => closeServer());
+			.finally(() => close?.());
 	});
 };
