@@ -8,6 +8,7 @@ import {
 	RenderProgress,
 	rendersPrefix,
 } from '../../shared/constants';
+import {DOCS_URL} from '../../shared/docs-url';
 import {calculateChunkTimes} from './calculate-chunk-times';
 import {estimatePriceFromBucket} from './calculate-price-from-bucket';
 import {getExpectedOutName} from './expected-out-name';
@@ -208,7 +209,7 @@ export const getProgress = async ({
 			? ({
 					attempt: 1,
 					chunk: null,
-					explanation: `The main function timed out after ${timeoutInMiliseconds}ms. Consider increasing the timeout of your function.`,
+					explanation: `The main function timed out after ${timeoutInMiliseconds}ms. Consider increasing the timeout of your function. You can use the "--timeout" parameter when deploying a function via CLI, or the "timeoutInSeconds" parameter when using the deployFunction API. ${DOCS_URL}/docs/lambda/cli/functions#deploy`,
 					frame: null,
 					isFatal: true,
 					s3Location: '',

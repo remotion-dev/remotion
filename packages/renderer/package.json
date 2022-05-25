@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/renderer",
-	"version": "3.0.9",
+	"version": "3.0.10",
 	"description": "Renderer for Remotion",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
@@ -20,10 +20,9 @@
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
 	"dependencies": {
-		"@remotion/bundler": "3.0.9",
 		"execa": "5.1.1",
 		"puppeteer-core": "13.5.1",
-		"remotion": "3.0.9",
+		"remotion": "3.0.10",
 		"serve-handler": "6.1.3",
 		"source-map": "^0.8.0-beta.0"
 	},

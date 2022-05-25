@@ -41,6 +41,8 @@ export const combineVideos = async ({
 				Internals.isAudioCodec(codec) ? null : 'copy',
 				'-c:a',
 				getAudioCodecName(codec),
+				codec === 'h264' ? '-movflags' : null,
+				codec === 'h264' ? 'faststart' : null,
 				'-shortest',
 				'-y',
 				output,
