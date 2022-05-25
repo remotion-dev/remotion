@@ -2,7 +2,7 @@ import execa from 'execa';
 import {FfmpegExecutable} from 'remotion';
 import {frameToFfmpegTimestamp} from './frame-to-ffmpeg-timestamp';
 
-export const extractFrameFromVideo = async ({
+export const extractFrameFromVideo = ({
 	time,
 	src,
 	ffmpegExecutable,
@@ -20,7 +20,7 @@ export const extractFrameFromVideo = async ({
 		'-frames:v',
 		'1',
 		'-f',
-		'image2',
+		'image2pipe',
 		'-',
 	]);
 

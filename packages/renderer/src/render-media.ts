@@ -220,6 +220,8 @@ export const renderMedia = async ({
 			timeoutInMilliseconds,
 			chromiumOptions,
 			scale,
+			// TODO: Document new property for FFMPEG executable
+			ffmpegExecutable,
 		});
 		if (stitcherFfmpeg) {
 			await waitForFinish();

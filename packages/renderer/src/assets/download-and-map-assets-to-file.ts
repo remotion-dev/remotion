@@ -177,17 +177,31 @@ export const downloadAndMapAssetsToFileUrl = async ({
 	downloadDir: string;
 	onDownload: RenderMediaOnDownload;
 }): Promise<TAsset> => {
-	const newSrc = getSanitizedFilenameForAssetUrl({
+	const newSrc = await startDownloadForSrc({
 		src: asset.src,
 		downloadDir,
+		onDownload,
 	});
-
-	if (!Internals.AssetCompression.isAssetCompressed(newSrc)) {
-		await downloadAsset(asset.src, newSrc, onDownload);
-	}
 
 	return {
 		...asset,
 		src: newSrc,
 	};
+};
+
+export const startDownloadForSrc = async ({
+	src,
+	downloadDir,
+	onDownload,
+}: {
+	src: string;
+	downloadDir: string;
+	onDownload: RenderMediaOnDownload;
+}) => {
+	const newSrc = getSanitizedFilenameForAssetUrl({downloadDir, src});
+	if (!Internals.AssetCompression.isAssetCompressed(newSrc)) {
+		await downloadAsset(src, newSrc, onDownload);
+	}
+
+	return newSrc;
 };

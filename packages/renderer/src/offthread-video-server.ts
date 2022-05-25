@@ -1,7 +1,11 @@
 import http, {RequestListener} from 'http';
 import {FfmpegExecutable} from 'remotion';
 import {URLSearchParams} from 'url';
-import {waitForAssetToBeDownloaded} from './assets/download-and-map-assets-to-file';
+import {
+	RenderMediaOnDownload,
+	startDownloadForSrc,
+	waitForAssetToBeDownloaded,
+} from './assets/download-and-map-assets-to-file';
 import {extractFrameFromVideo} from './extract-frame-from-video';
 
 type StartOffthreadVideoServerReturnType = {
@@ -32,21 +36,34 @@ export const extractUrlAndSourceFromUrl = (url: string) => {
 };
 
 export const startOffthreadVideoServer = (
-	ffmpegExecutable: FfmpegExecutable
+	ffmpegExecutable: FfmpegExecutable,
+	downloadDir: string,
+	onDownload: RenderMediaOnDownload,
+	onError: (err: Error) => void
 ): Promise<StartOffthreadVideoServerReturnType> => {
 	const requestListener: RequestListener = (req, res) => {
-		res.setHeader('content-type', 'image/png');
-		res.writeHead(200);
 		if (!req.url) {
 			throw new Error('Request came in without URL');
 		}
+		if (!req.url.startsWith('/proxy')) {
+			res.writeHead(404);
+			res.end();
+			return;
+		}
+
+		res.setHeader('content-type', 'image/jpg');
 
 		const {src, time} = extractUrlAndSourceFromUrl(req.url);
+		startDownloadForSrc({src, downloadDir, onDownload}).catch((err) => {
+			onError(
+				new Error(`Error while downloading asset: ${(err as Error).stack}`)
+			);
+		});
 		waitForAssetToBeDownloaded(src)
 			.then((res) => {
 				return extractFrameFromVideo({
 					time,
-					src,
+					src: res,
 					ffmpegExecutable,
 				});
 			})
@@ -54,7 +71,8 @@ export const startOffthreadVideoServer = (
 				if (!readable) {
 					throw new Error('no readable from ffmpeg');
 				}
-				console.log('got readable');
+
+				res.writeHead(200);
 				readable.pipe(res).on('close', () => {
 					res.end();
 				});

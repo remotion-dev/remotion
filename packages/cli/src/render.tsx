@@ -218,6 +218,7 @@ export const render = async () => {
 			timeoutInMilliseconds: Internals.getCurrentPuppeteerTimeout(),
 			chromiumOptions,
 			scale,
+			ffmpegExecutable,
 		});
 		renderedDoneIn = Date.now() - startTime;
 
@@ -293,6 +294,7 @@ export const render = async () => {
 	Log.info('-', 'Output can be found at:');
 	Log.info(chalk.cyan(`▶ ${absoluteOutputFile}`));
 	Log.verbose('Cleaning up...');
+
 	try {
 		await RenderInternals.deleteDirectory(urlOrBundle);
 	} catch (err) {
@@ -306,7 +308,5 @@ export const render = async () => {
 		Log.error('Could not close web server', err);
 	});
 
-	await new Promise(() => {
-		console.log('waiting');
-	});
+	// TODO Close offthread server
 };
