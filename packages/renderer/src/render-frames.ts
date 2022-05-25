@@ -29,6 +29,7 @@ import {
 	ServeUrlOrWebpackBundle,
 } from './legacy-webpack-config';
 import {makeAssetsDownloadTmpDir} from './make-assets-download-dir';
+import {startOffthreadVideoServer} from './offthread-video-server';
 import {ChromiumOptions, openBrowser} from './open-browser';
 import {Pool} from './pool';
 import {prepareServer} from './prepare-server';
@@ -123,6 +124,8 @@ const innerRenderFrames = async ({
 		}
 	}
 
+	const offthreadServerPromise = startOffthreadVideoServer();
+
 	const realFrameRange = getRealFrameRange(
 		composition.durationInFrames,
 		frameRange ?? null
@@ -185,6 +188,8 @@ const innerRenderFrames = async ({
 		page.off('console', logCallback);
 		return page;
 	});
+
+	await offthreadServerPromise;
 
 	const puppeteerPages = await Promise.all(pages);
 	const pool = new Pool(puppeteerPages);

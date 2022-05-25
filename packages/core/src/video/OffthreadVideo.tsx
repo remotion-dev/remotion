@@ -112,7 +112,7 @@ const OffthreadVideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 	}, [frame, mediaStartsAt, playbackRate, src, videoConfig.fps]);
 
 	const actualSrc = useMemo(() => {
-		return `https://remotionoffthreadvideo.com/proxy?src=${encodeURIComponent(
+		return `http://localhost:9999/proxy?src=${encodeURIComponent(
 			src
 		)}&time=${encodeURIComponent(currentTime)}`;
 	}, [currentTime, src]);
