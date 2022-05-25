@@ -15,8 +15,10 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 		HTMLImageElement
 	>
 > = ({onLoad, onError, ...props}, ref) => {
-	const [handle] = useState(() =>
-		delayRender('Loading <Img> with src=' + props.src)
+	const [handle, setHandle] = useState<ReturnType<typeof delayRender> | null>(
+		() => {
+			return null;
+		}
 	);
 	const imageRef = useRef<HTMLImageElement>(null);
 
@@ -27,7 +29,8 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 	useEffect(() => {
 		if (
 			ref &&
-			(ref as React.MutableRefObject<HTMLImageElement>).current.complete
+			(ref as React.MutableRefObject<HTMLImageElement>).current.complete &&
+			handle
 		) {
 			continueRender(handle);
 		}
@@ -35,7 +38,10 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 
 	const didLoad = useCallback(
 		(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
-			continueRender(handle);
+			if (handle) {
+				continueRender(handle);
+			}
+
 			onLoad?.(e);
 		},
 		[handle, onLoad]
@@ -43,7 +49,10 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 
 	const didGetError = useCallback(
 		(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
-			continueRender(handle);
+			if (handle) {
+				continueRender(handle);
+			}
+
 			if (onError) {
 				onError(e);
 			} else {
@@ -57,12 +66,16 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 		[handle, onError]
 	);
 
-	// If tag gets unmounted, clear pending handles because image is not going to load
+	// If image source switches, make new handle
 	useEffect(() => {
+		const newHandle = delayRender('Loading <Img> with src=' + props.src);
+		setHandle(newHandle);
+
+		// If tag gets unmounted, clear pending handles because image is not going to load
 		return () => {
-			continueRender(handle);
+			continueRender(newHandle);
 		};
-	}, [handle]);
+	}, [props.src]);
 
 	return (
 		<img {...props} ref={imageRef} onLoad={didLoad} onError={didGetError} />
