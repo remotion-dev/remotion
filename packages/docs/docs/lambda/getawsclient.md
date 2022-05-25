@@ -39,6 +39,29 @@ const getFileAsBuffer = async () => {
 };
 ```
 
+## Example: Enable CORS for a bucket
+
+```tsx
+import { getAwsClient } from "@remotion/lambda";
+
+const { client, sdk } = getAwsClient({ region: "us-east-1", service: "s3" });
+
+client.send(
+  new sdk.PutBucketCorsCommand({
+    Bucket: "[bucket-name]",
+    CORSConfiguration: {
+      CORSRules: [
+        {
+          AllowedMethods: ["GET", "HEAD"],
+          AllowedHeaders: ["*"],
+          AllowedOrigins: ["*"],
+        },
+      ],
+    },
+  })
+);
+```
+
 ## Arguments
 
 An object with two mandatory parameters:

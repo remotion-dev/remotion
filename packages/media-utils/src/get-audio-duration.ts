@@ -9,6 +9,10 @@ const fn = (src: string): Promise<number> => {
 		return Promise.resolve(metadataCache[src]);
 	}
 
+	if (typeof document === 'undefined') {
+		throw new Error('getAudioDuration() is only available in the browser.');
+	}
+
 	const audio = document.createElement('audio');
 	audio.src = src;
 	return new Promise<number>((resolve, reject) => {
