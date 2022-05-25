@@ -10,6 +10,7 @@ import {extractFrameFromVideo} from './extract-frame-from-video';
 
 type StartOffthreadVideoServerReturnType = {
 	close: () => void;
+	port: number;
 };
 
 export const extractUrlAndSourceFromUrl = (url: string) => {
@@ -78,16 +79,20 @@ export const startOffthreadVideoServer = (
 				});
 			})
 			.catch((err) => {
+				res.writeHead(500);
+				res.end();
 				// TODO Return 500
 				console.log('Error occurred', err);
 			});
 	};
 
+	const port = 9999;
 	const server = http.createServer(requestListener);
 	return new Promise<StartOffthreadVideoServerReturnType>((resolve) => {
-		server.listen(9999, 'localhost', () => {
+		server.listen(port, 'localhost', () => {
 			resolve({
 				close: () => server.close(),
+				port,
 			});
 		});
 	});

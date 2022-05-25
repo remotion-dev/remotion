@@ -307,6 +307,4 @@ export const render = async () => {
 	closeServer().catch((err) => {
 		Log.error('Could not close web server', err);
 	});
-
-	// TODO Close offthread server
 };
