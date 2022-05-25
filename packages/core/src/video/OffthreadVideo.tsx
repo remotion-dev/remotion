@@ -1,11 +1,4 @@
-import React, {
-	forwardRef,
-	useContext,
-	useEffect,
-	useImperativeHandle,
-	useMemo,
-	useRef,
-} from 'react';
+import React, {forwardRef, useContext, useEffect, useMemo} from 'react';
 import {getAbsoluteSrc} from '../absolute-src';
 import {
 	useFrameForVolumeProp,
@@ -24,19 +17,18 @@ import {RemotionOffthreadVideoProps} from './props';
 const OffthreadVideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 	HTMLImageElement,
 	RemotionOffthreadVideoProps
-> = ({onError, volume: volumeProp, playbackRate, src, ...props}, ref) => {
+> = (
+	{onError, volume: volumeProp, playbackRate, src, ref: _ref, muted, ...props},
+	ref
+) => {
 	const absoluteFrame = useAbsoluteCurrentFrame();
 
 	const frame = useCurrentFrame();
 	const volumePropsFrame = useFrameForVolumeProp();
 	const videoConfig = useUnsafeVideoConfig();
-	const imageRef = useRef<HTMLImageElement>(null);
 	const sequenceContext = useContext(SequenceContext);
 	const mediaStartsAt = useMediaStartsAt();
 
-	useImperativeHandle(ref, () => {
-		return imageRef.current as HTMLImageElement;
-	});
 	const {registerAsset, unregisterAsset} = useContext(CompositionManager);
 
 	if (!src) {
@@ -49,10 +41,10 @@ const OffthreadVideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 		() =>
 			`video-${random(src ?? '')}-${sequenceContext?.cumulatedFrom}-${
 				sequenceContext?.relativeFrom
-			}-${sequenceContext?.durationInFrames}-muted:${props.muted}`,
+			}-${sequenceContext?.durationInFrames}-muted:${muted}`,
 		[
 			src,
-			props.muted,
+			muted,
 			sequenceContext?.cumulatedFrom,
 			sequenceContext?.relativeFrom,
 			sequenceContext?.durationInFrames,
@@ -74,7 +66,7 @@ const OffthreadVideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 			throw new Error('No src passed');
 		}
 
-		if (props.muted) {
+		if (muted) {
 			return;
 		}
 
@@ -90,7 +82,7 @@ const OffthreadVideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 
 		return () => unregisterAsset(id);
 	}, [
-		props.muted,
+		muted,
 		src,
 		registerAsset,
 		id,
@@ -117,7 +109,7 @@ const OffthreadVideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 		)}&time=${encodeURIComponent(currentTime)}`;
 	}, [currentTime, src]);
 
-	return <Img ref={imageRef} src={actualSrc} {...props} onError={onError} />;
+	return <Img src={actualSrc} {...props} onError={onError} />;
 };
 
 export const OffthreadVideo = forwardRef(

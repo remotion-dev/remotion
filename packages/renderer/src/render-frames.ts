@@ -7,6 +7,7 @@ import {
 } from 'puppeteer-core';
 import {
 	BrowserExecutable,
+	FfmpegExecutable,
 	FrameRange,
 	ImageFormat,
 	Internals,
@@ -70,6 +71,7 @@ type RenderFramesOptions = {
 	timeoutInMilliseconds?: number;
 	chromiumOptions?: ChromiumOptions;
 	scale?: number;
+	ffmpegExecutable?: FfmpegExecutable;
 } & ConfigOrComposition &
 	ServeUrlOrWebpackBundle;
 
@@ -98,19 +100,21 @@ const innerRenderFrames = async ({
 	envVariables,
 	onBrowserLog,
 	onFrameBuffer,
-	onDownload,
+	onDownload: maybeOnDownload,
 	pagesArray,
 	serveUrl,
 	composition,
 	timeoutInMilliseconds,
 	scale,
 	actualParallelism,
+	ffmpegExecutable,
 }: Omit<RenderFramesOptions, 'url'> & {
 	onError: (err: Error) => void;
 	pagesArray: Page[];
 	serveUrl: string;
 	composition: SmallTCompMetadata;
 	actualParallelism: number;
+	ffmpegExecutable: FfmpegExecutable;
 }): Promise<RenderFramesOutput> => {
 	if (!puppeteerInstance) {
 		throw new Error('weird');
@@ -124,7 +128,16 @@ const innerRenderFrames = async ({
 		}
 	}
 
-	const offthreadServerPromise = startOffthreadVideoServer();
+	const onDownload = maybeOnDownload ?? (() => () => undefined);
+
+	const downloadDir = makeAssetsDownloadTmpDir();
+
+	const offthreadServerPromise = startOffthreadVideoServer(
+		ffmpegExecutable,
+		downloadDir,
+		onDownload,
+		onError
+	);
 
 	const realFrameRange = getRealFrameRange(
 		composition.durationInFrames,
@@ -203,7 +216,6 @@ const innerRenderFrames = async ({
 	onStart({
 		frameCount,
 	});
-	const downloadDir = makeAssetsDownloadTmpDir();
 	const assets: TAsset[][] = new Array(frameCount).fill(undefined);
 	await Promise.all(
 		new Array(frameCount)
@@ -280,7 +292,7 @@ const innerRenderFrames = async ({
 					downloadAndMapAssetsToFileUrl({
 						asset,
 						downloadDir,
-						onDownload: onDownload ?? (() => () => undefined),
+						onDownload,
 					}).catch((err) => {
 						onError(
 							new Error(
@@ -376,6 +388,7 @@ export const renderFrames = async (
 			serveUrl,
 			composition,
 			actualParallelism,
+			ffmpegExecutable: options.ffmpegExecutable ?? null,
 		})
 			.then((res) => resolve(res))
 			.catch((err) => reject(err))
