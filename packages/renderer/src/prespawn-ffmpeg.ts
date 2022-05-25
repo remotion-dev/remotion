@@ -91,16 +91,14 @@ export const prespawnFfmpeg = async (options: PreSticherOptions) => {
 		// -c:v is the same as -vcodec as -codec:video
 		// and specified the video codec.
 		['-c:v', encoderName],
-		...[
-			proResProfileName ? ['-profile:v', proResProfileName] : null,
-			supportsCrf ? ['-crf', String(crf)] : null,
-			['-pix_fmt', pixelFormat],
+		proResProfileName ? ['-profile:v', proResProfileName] : null,
+		supportsCrf ? ['-crf', String(crf)] : null,
+		['-pix_fmt', pixelFormat],
 
-			// Without explicitly disabling auto-alt-ref,
-			// transparent WebM generation doesn't work
-			pixelFormat === 'yuva420p' ? ['-auto-alt-ref', '0'] : null,
-			['-b:v', '1M'],
-		],
+		// Without explicitly disabling auto-alt-ref,
+		// transparent WebM generation doesn't work
+		pixelFormat === 'yuva420p' ? ['-auto-alt-ref', '0'] : null,
+		['-b:v', '1M'],
 		'-y',
 		options.outputLocation,
 	];

@@ -2,7 +2,7 @@ import {existsSync} from 'fs';
 import path from 'path';
 import {getAudioChannelsAndDuration} from '../assets/get-audio-channels';
 
-jest.setTimeout(10000);
+jest.setTimeout(30000);
 
 test('Get audio channels for video', async () => {
 	const videoWithoutAudio = path.join(
