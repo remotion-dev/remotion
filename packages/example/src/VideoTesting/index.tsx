@@ -1,4 +1,4 @@
-import {Sequence, staticFile, useVideoConfig, Video} from 'remotion';
+import {OffthreadVideo, Sequence, staticFile, useVideoConfig} from 'remotion';
 
 export const VideoTesting: React.FC<{
 	codec: 'mp4' | 'webm';
@@ -9,7 +9,7 @@ export const VideoTesting: React.FC<{
 	return (
 		<div>
 			<Sequence from={0} durationInFrames={durationInFrames}>
-				<Video src={codec === 'mp4' ? videoMp4 : videoWebm} />
+				<OffthreadVideo src={codec === 'mp4' ? videoMp4 : videoWebm} />
 			</Sequence>
 		</div>
 	);

@@ -305,4 +305,8 @@ export const render = async () => {
 	closeServer().catch((err) => {
 		Log.error('Could not close web server', err);
 	});
+
+	await new Promise(() => {
+		console.log('waiting');
+	});
 };
