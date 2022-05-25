@@ -2,6 +2,22 @@
 
 import {interpolate} from '../interpolate';
 
+export const getExpectedMediaFrameUncorrected = ({
+	frame,
+	playbackRate,
+	startFrom,
+}: {
+	frame: number;
+	playbackRate: number;
+	startFrom: number;
+}) => {
+	return interpolate(
+		frame,
+		[-1, startFrom, startFrom + 1],
+		[-1, startFrom, startFrom + playbackRate]
+	);
+};
+
 export const getMediaTime = ({
 	fps,
 	frame,
@@ -15,11 +31,11 @@ export const getMediaTime = ({
 	playbackRate: number;
 	startFrom: number;
 }) => {
-	const expectedFrame = interpolate(
+	const expectedFrame = getExpectedMediaFrameUncorrected({
 		frame,
-		[-1, startFrom, startFrom + 1],
-		[-1, startFrom, startFrom + playbackRate]
-	);
+		playbackRate,
+		startFrom,
+	});
 
 	if (src.endsWith('mp4')) {
 		// In Chrome, for MP4s, if 30fps, the first frame is still displayed at 0.033333

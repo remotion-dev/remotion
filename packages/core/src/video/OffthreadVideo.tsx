@@ -18,7 +18,7 @@ import {SequenceContext} from '../sequencing';
 import {useAbsoluteCurrentFrame, useCurrentFrame} from '../use-frame';
 import {useUnsafeVideoConfig} from '../use-unsafe-video-config';
 import {evaluateVolume} from '../volume-prop';
-import {getMediaTime} from './get-current-time';
+import {getExpectedMediaFrameUncorrected} from './get-current-time';
 import {RemotionOffthreadVideoProps} from './props';
 
 const OffthreadVideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
@@ -102,18 +102,18 @@ const OffthreadVideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 	]);
 
 	const currentTime = useMemo(() => {
-		return getMediaTime({
-			fps: videoConfig.fps,
-			frame,
-			src,
-			playbackRate: playbackRate || 1,
-			startFrom: -mediaStartsAt,
-		});
+		return (
+			getExpectedMediaFrameUncorrected({
+				frame,
+				playbackRate: playbackRate || 1,
+				startFrom: -mediaStartsAt,
+			}) / videoConfig.fps
+		);
 	}, [frame, mediaStartsAt, playbackRate, src, videoConfig.fps]);
 
 	const actualSrc = useMemo(() => {
 		return `http://localhost:9999/proxy?src=${encodeURIComponent(
-			src
+			getAbsoluteSrc(src)
 		)}&time=${encodeURIComponent(currentTime)}`;
 	}, [currentTime, src]);
 
