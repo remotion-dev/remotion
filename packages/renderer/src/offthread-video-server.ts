@@ -31,12 +31,17 @@ export const extractUrlAndSourceFromUrl = (url: string) => {
 	return {src, time: parseFloat(time)};
 };
 
-export const startOffthreadVideoServer = (
-	ffmpegExecutable: FfmpegExecutable,
-	downloadDir: string,
-	onDownload: RenderMediaOnDownload,
-	onError: (err: Error) => void
-): RequestListener => {
+export const startOffthreadVideoServer = ({
+	ffmpegExecutable,
+	downloadDir,
+	onDownload,
+	onError,
+}: {
+	ffmpegExecutable: FfmpegExecutable;
+	downloadDir: string;
+	onDownload: RenderMediaOnDownload;
+	onError: (err: Error) => void;
+}): RequestListener => {
 	return (req, res) => {
 		if (!req.url) {
 			throw new Error('Request came in without URL');
