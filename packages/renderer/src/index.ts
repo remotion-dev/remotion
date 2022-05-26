@@ -19,7 +19,6 @@ import {makeAssetsDownloadTmpDir} from './make-assets-download-dir';
 import {normalizeServeUrl} from './normalize-serve-url';
 import {killAllBrowsers} from './open-browser';
 import {parseStack} from './parse-browser-error-stack';
-import {prepareServer} from './prepare-server';
 import {serveStatic} from './serve-static';
 import {spawnFfmpeg} from './stitch-frames-to-video';
 import {tmpDir} from './tmp-dir';
@@ -63,7 +62,6 @@ export const RenderInternals = {
 	makeAssetsDownloadTmpDir,
 	tmpDir,
 	deleteDirectory,
-	prepareServer,
 	isServeUrl,
 	ensureOutputDirectory,
 	getRealFrameRange,

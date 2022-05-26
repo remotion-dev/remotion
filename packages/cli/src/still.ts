@@ -2,7 +2,6 @@ import {
 	getCompositions,
 	openBrowser,
 	RenderInternals,
-	RenderMediaOnDownload,
 	renderStill,
 } from '@remotion/renderer';
 import chalk from 'chalk';
@@ -59,6 +58,7 @@ export const still = async () => {
 		scale,
 		ffmpegExecutable,
 		overwrite,
+		puppeteerTimeout,
 	} = await getCliOptions({isLambda: false, type: 'still'});
 
 	Log.verbose('Browser executable: ', browserExecutable);
@@ -110,29 +110,12 @@ export const still = async () => {
 		? Promise.resolve(fullPath)
 		: await bundleOnCli(fullPath, steps);
 
-	const downloadDir = RenderInternals.makeAssetsDownloadTmpDir();
-
-	const onDownload: RenderMediaOnDownload = (src) => {
-		Log.info('Downloading ', src);
-	};
-
-	const {serveUrl, closeServer} = await RenderInternals.prepareServer({
-		downloadDir,
-		onDownload,
-		onError: (err) => {
-			Log.error(err);
-			process.exit(1);
-		},
-		ffmpegExecutable,
-		webpackConfigOrServeUrl: await urlOrBundle,
-	});
-
 	const puppeteerInstance = await browserInstance;
-	const comps = await getCompositions(serveUrl, {
+	const comps = await getCompositions(await urlOrBundle, {
 		inputProps,
 		puppeteerInstance,
 		envVariables,
-		timeoutInMilliseconds: Internals.getCurrentPuppeteerTimeout(),
+		timeoutInMilliseconds: puppeteerTimeout,
 		chromiumOptions,
 	});
 	const compositionId = getCompositionId(comps);
@@ -149,7 +132,7 @@ export const still = async () => {
 		composition,
 		frame: stillFrame,
 		output: userOutput,
-		serveUrl,
+		serveUrl: await urlOrBundle,
 		quality,
 		dumpBrowserLogs: Internals.Logging.isEqualOrBelowLogLevel(
 			Internals.Logging.getLogLevel(),
@@ -167,9 +150,6 @@ export const still = async () => {
 	});
 
 	const closeBrowserPromise = puppeteerInstance.close();
-	closeServer().catch((err) => {
-		Log.error('Could not close web server', err);
-	});
 	renderProgress.update(
 		makeRenderingProgress({
 			frames: 1,

@@ -96,7 +96,6 @@ export const render = async () => {
 	const urlOrBundle = RenderInternals.isServeUrl(fullPath)
 		? fullPath
 		: await bundleOnCli(fullPath, steps);
-	const downloadDir = RenderInternals.makeAssetsDownloadTmpDir();
 
 	const onDownload: RenderMediaOnDownload = (src) => {
 		const id = Math.random();
@@ -114,21 +113,9 @@ export const render = async () => {
 		};
 	};
 
-	const {serveUrl, closeServer} = await RenderInternals.prepareServer({
-		webpackConfigOrServeUrl: urlOrBundle,
-		downloadDir,
-		onDownload,
-		onError: (err) => {
-			Log.error('Error occurred:');
-			Log.error(err);
-			process.exit(1);
-		},
-		ffmpegExecutable,
-	});
-
 	const puppeteerInstance = await browserInstance;
 
-	const comps = await getCompositions(serveUrl, {
+	const comps = await getCompositions(urlOrBundle, {
 		inputProps,
 		puppeteerInstance,
 		envVariables,
@@ -232,7 +219,7 @@ export const render = async () => {
 				}
 			},
 			outputDir,
-			serveUrl,
+			serveUrl: urlOrBundle,
 			dumpBrowserLogs: Internals.Logging.isEqualOrBelowLogLevel(
 				Internals.Logging.getLogLevel(),
 				'verbose'
@@ -280,7 +267,7 @@ export const render = async () => {
 		pixelFormat,
 		proResProfile,
 		quality,
-		serveUrl,
+		serveUrl: urlOrBundle,
 		onDownload,
 		dumpBrowserLogs: Internals.Logging.isEqualOrBelowLogLevel(
 			Internals.Logging.getLogLevel(),
@@ -317,7 +304,4 @@ export const render = async () => {
 	}
 
 	Log.info(chalk.green('\nYour video is ready!'));
-	closeServer().catch((err) => {
-		Log.error('Could not close web server', err);
-	});
 };
