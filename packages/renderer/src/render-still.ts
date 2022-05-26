@@ -63,9 +63,11 @@ const innerRenderStill = async ({
 	timeoutInMilliseconds,
 	chromiumOptions,
 	scale,
+	proxyPort,
 }: InnerStillOptions & {
 	serveUrl: string;
 	onError: (err: Error) => void;
+	proxyPort: number;
 }): Promise<void> => {
 	Internals.validateDimension(
 		composition.height,
@@ -166,6 +168,7 @@ const innerRenderStill = async ({
 		serveUrl,
 		initialFrame: frame,
 		timeoutInMilliseconds,
+		proxyPort,
 	});
 
 	await puppeteerEvaluateWithCatch({
@@ -197,10 +200,7 @@ const innerRenderStill = async ({
 /**
  * @description Render a still frame from a composition and returns an image path
  */
-
-export const renderStill = async (
-	options: RenderStillOptions
-): Promise<void> => {
+export const renderStill = (options: RenderStillOptions): Promise<void> => {
 	const selectedServeUrl = getServeUrlWithFallback(options);
 
 	const downloadDir = makeAssetsDownloadTmpDir();
@@ -217,15 +217,15 @@ export const renderStill = async (
 			downloadDir,
 			onDownload,
 			onError,
-			// TODO: make sure it is passed internally
 			ffmpegExecutable: options.ffmpegExecutable ?? null,
 		})
-			.then(({serveUrl, closeServer}) => {
+			.then(({serveUrl, closeServer, offthreadPort}) => {
 				close = closeServer;
 				return innerRenderStill({
 					...options,
 					serveUrl,
 					onError: (err) => reject(err),
+					proxyPort: offthreadPort,
 				});
 			})
 

@@ -188,7 +188,7 @@ const getAndValidateBrowser = async (browserExecutable: BrowserExecutable) => {
 
 export const getCliOptions = async (options: {
 	isLambda: boolean;
-	type: 'still' | 'series';
+	type: 'still' | 'series' | 'get-compositions';
 }) => {
 	const frameRange = getAndValidateFrameRange();
 
@@ -200,13 +200,14 @@ export const getCliOptions = async (options: {
 					frameRange,
 					isLambda: options.isLambda,
 			  });
-	const outputFile = options.isLambda
-		? null
-		: getOutputFilename({
-				codec,
-				imageSequence: shouldOutputImageSequence,
-				type: options.type,
-		  });
+	const outputFile =
+		options.isLambda || options.type === 'get-compositions'
+			? null
+			: getOutputFilename({
+					codec,
+					imageSequence: shouldOutputImageSequence,
+					type: options.type,
+			  });
 
 	const overwrite = Internals.getShouldOverwrite();
 	const crf = getAndValidateCrf(shouldOutputImageSequence, codec);

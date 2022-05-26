@@ -84,6 +84,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		browserInstance,
 		inputProps: params.inputProps,
 		envVariables: params.envVariables,
+		ffmpegExecutable: null,
 	});
 	Internals.validateDurationInFrames(
 		comp.durationInFrames,

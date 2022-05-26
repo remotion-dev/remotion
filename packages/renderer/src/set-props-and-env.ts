@@ -11,6 +11,7 @@ export const setPropsAndEnv = async ({
 	serveUrl,
 	initialFrame,
 	timeoutInMilliseconds,
+	proxyPort,
 }: {
 	inputProps: unknown;
 	envVariables: Record<string, string> | undefined;
@@ -18,6 +19,7 @@ export const setPropsAndEnv = async ({
 	serveUrl: string;
 	initialFrame: number;
 	timeoutInMilliseconds: number | undefined;
+	proxyPort: number;
 }) => {
 	validatePuppeteerTimeout(timeoutInMilliseconds);
 	const actualTimeout =
@@ -57,6 +59,13 @@ export const setPropsAndEnv = async ({
 			window.remotion_initialFrame = key;
 		},
 		[initialFrame]
+	);
+
+	await page.evaluateOnNewDocument(
+		(port: number) => {
+			window.remotion_proxyPort = port;
+		},
+		[proxyPort]
 	);
 
 	const pageRes = await page.goto(urlToVisit);

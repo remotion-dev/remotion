@@ -58,6 +58,7 @@ export const still = async () => {
 		chromiumOptions,
 		scale,
 		ffmpegExecutable,
+		overwrite,
 	} = await getCliOptions({isLambda: false, type: 'still'});
 
 	Log.verbose('Browser executable: ', browserExecutable);
@@ -160,6 +161,9 @@ export const still = async () => {
 		chromiumOptions,
 		timeoutInMilliseconds: Internals.getCurrentPuppeteerTimeout(),
 		scale,
+		ffmpegExecutable,
+		browserExecutable,
+		overwrite,
 	});
 
 	const closeBrowserPromise = puppeteerInstance.close();

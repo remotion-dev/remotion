@@ -107,6 +107,7 @@ const innerRenderFrames = async ({
 	scale,
 	actualParallelism,
 	downloadDir,
+	proxyPort,
 }: Omit<RenderFramesOptions, 'url' | 'onDownload'> & {
 	onError: (err: Error) => void;
 	pagesArray: Page[];
@@ -115,6 +116,7 @@ const innerRenderFrames = async ({
 	actualParallelism: number;
 	downloadDir: string;
 	onDownload: RenderMediaOnDownload;
+	proxyPort: number;
 }): Promise<RenderFramesOutput> => {
 	if (!puppeteerInstance) {
 		throw new Error('weird');
@@ -173,6 +175,7 @@ const innerRenderFrames = async ({
 			serveUrl,
 			initialFrame,
 			timeoutInMilliseconds,
+			proxyPort,
 		});
 
 		await puppeteerEvaluateWithCatch({
@@ -378,7 +381,7 @@ export const renderFrames = async (
 			onError,
 			ffmpegExecutable: options.ffmpegExecutable ?? null,
 		})
-			.then(({serveUrl, closeServer}) => {
+			.then(({serveUrl, closeServer, offthreadPort}) => {
 				cleanup = closeServer;
 				return innerRenderFrames({
 					...options,
@@ -390,6 +393,7 @@ export const renderFrames = async (
 					actualParallelism,
 					onDownload,
 					downloadDir,
+					proxyPort: offthreadPort,
 				});
 			})
 			.then((res) => resolve(res))

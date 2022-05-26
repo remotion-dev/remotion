@@ -13,6 +13,7 @@ declare global {
 		remotion_cwd: string;
 		remotion_setFrame: (frame: number) => void;
 		remotion_initialFrame: number;
+		remotion_proxyPort: number;
 		remotion_puppeteerTimeout: number;
 		remotion_inputProps: string;
 		remotion_envVariables: string;

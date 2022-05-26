@@ -105,7 +105,9 @@ export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
 	}, [frame, mediaStartsAt, playbackRate, videoConfig.fps]);
 
 	const actualSrc = useMemo(() => {
-		return `http://localhost:9999/proxy?src=${encodeURIComponent(
+		return `http://localhost:${
+			window.remotion_proxyPort
+		}/proxy?src=${encodeURIComponent(
 			getAbsoluteSrc(src)
 		)}&time=${encodeURIComponent(currentTime)}`;
 	}, [currentTime, src]);

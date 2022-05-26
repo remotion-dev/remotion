@@ -9,7 +9,7 @@ import {
 import {extractFrameFromVideo} from './extract-frame-from-video';
 
 export const extractUrlAndSourceFromUrl = (url: string) => {
-	const parsed = new URL(url, 'http://localhost:9999');
+	const parsed = new URL(url, 'http://localhost');
 	const query = parsed.search;
 	if (!query.trim()) {
 		throw new Error('Expected query from ' + url);
