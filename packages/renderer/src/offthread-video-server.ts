@@ -70,14 +70,8 @@ export const startOffthreadVideoServer = (
 				}
 
 				res.writeHead(200);
-				readable
-					.pipe(res)
-					.on('close', () => {
-						res.end();
-					})
-					.on('error', (err) => {
-						onError(err);
-					});
+				res.write(readable);
+				res.end();
 			})
 			.catch((err) => {
 				res.writeHead(500);

@@ -21,7 +21,7 @@ export const getLastFrameOfVideo = async ({
 	ffmpegExecutable: FfmpegExecutable;
 	offset: number;
 	src: string;
-}): Promise<Readable> => {
+}): Promise<string> => {
 	if (offset > 100) {
 		throw new Error(
 			'could not get last frame of ' +
@@ -31,7 +31,7 @@ export const getLastFrameOfVideo = async ({
 	}
 
 	const actualOffset = `-${offset + 10}ms`;
-	const {stdout, stderr} = execa(ffmpegExecutable ?? 'ffmpeg', [
+	const {stdout, stderr} = await execa(ffmpegExecutable ?? 'ffmpeg', [
 		'-sseof',
 		actualOffset,
 		'-i',
@@ -43,12 +43,11 @@ export const getLastFrameOfVideo = async ({
 		'-',
 	]);
 
-	const info = await streamToString(stderr as Readable);
-	if (info.includes('Output file is empty')) {
+	if (stderr.includes('Output file is empty')) {
 		return getLastFrameOfVideo({ffmpegExecutable, offset: offset + 10, src});
 	}
 
-	return stdout as Readable;
+	return stdout;
 };
 
 const limit = pLimit(5);
@@ -63,9 +62,9 @@ export const extractFrameFromVideoFn = async ({
 	time,
 	src,
 	ffmpegExecutable,
-}: Options): Promise<Readable | null> => {
+}: Options): Promise<string> => {
 	const ffmpegTimestamp = frameToFfmpegTimestamp(time);
-	const {stdout, stderr} = execa(ffmpegExecutable ?? 'ffmpeg', [
+	const {stdout, stderr} = await execa(ffmpegExecutable ?? 'ffmpeg', [
 		'-ss',
 		ffmpegTimestamp,
 		'-i',
@@ -76,9 +75,7 @@ export const extractFrameFromVideoFn = async ({
 		'image2pipe',
 		'-',
 	]);
-
-	const info = await streamToString(stderr as Readable);
-	if (info.includes('Output file is empty')) {
+	if (stderr.includes('Output file is empty')) {
 		return getLastFrameOfVideo({
 			ffmpegExecutable,
 			offset: 0,
@@ -86,7 +83,7 @@ export const extractFrameFromVideoFn = async ({
 		});
 	}
 
-	return stdout as Readable;
+	return stdout;
 };
 
 export const extractFrameFromVideo = (options: Options) => {
