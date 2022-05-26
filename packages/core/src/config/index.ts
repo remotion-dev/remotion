@@ -27,6 +27,7 @@ import {setPort} from './preview-server';
 import {setProResProfile} from './prores-profile';
 import {setQuality} from './quality';
 import {setScale} from './scale';
+import {setSkipNFrames} from './skip-n-frames';
 import {setPuppeteerTimeout} from './timeout';
 import {setWebpackCaching} from './webpack-caching';
 
@@ -140,6 +141,11 @@ export const Config = {
 		 * Default: 1.
 		 */
 		setScale,
+		/**
+		 * Specify the number of frame to skip while rendering GIF
+		 * Default: 1
+		 */
+		setSkipNFrames,
 	},
 	Output: {
 		/**
