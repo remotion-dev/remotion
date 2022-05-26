@@ -13,7 +13,7 @@ export function streamToString(stream: Readable) {
 	});
 }
 
-export const getLastFrameOfVideo = async ({
+export const getLastFrameOfVideo = ({
 	ffmpegExecutable,
 	offset,
 	src,
@@ -21,7 +21,7 @@ export const getLastFrameOfVideo = async ({
 	ffmpegExecutable: FfmpegExecutable;
 	offset: number;
 	src: string;
-}): Promise<string> => {
+}): Promise<Buffer> => {
 	if (offset > 100) {
 		throw new Error(
 			'could not get last frame of ' +
@@ -31,7 +31,7 @@ export const getLastFrameOfVideo = async ({
 	}
 
 	const actualOffset = `-${offset + 10}ms`;
-	const {stdout, stderr} = await execa(ffmpegExecutable ?? 'ffmpeg', [
+	const {stdout, stderr} = execa(ffmpegExecutable ?? 'ffmpeg', [
 		'-sseof',
 		actualOffset,
 		'-i',
@@ -43,11 +43,39 @@ export const getLastFrameOfVideo = async ({
 		'-',
 	]);
 
-	if (stderr.includes('Output file is empty')) {
-		return getLastFrameOfVideo({ffmpegExecutable, offset: offset + 10, src});
+	if (!stderr) {
+		throw new Error('unexpectedly did not get stderr');
 	}
 
-	return stdout;
+	if (!stdout) {
+		throw new Error('unexpectedly did not get stdout');
+	}
+
+	const chunks: Buffer[] = [];
+
+	return new Promise<Buffer>((resolve, reject) => {
+		let isEmpty = false;
+		stderr.on('data', (d) => {
+			if (d.toString().includes('Output file is empty')) {
+				isEmpty = true;
+				getLastFrameOfVideo({ffmpegExecutable, offset: offset + 10, src})
+					.then((frame) => resolve(frame))
+					.catch((err) => reject(err));
+			}
+		});
+
+		stdout.on('data', (d) => {
+			chunks.push(d);
+		});
+		stdout.on('error', (err) => {
+			reject(err);
+		});
+		stdout.on('end', () => {
+			if (!isEmpty) {
+				resolve(Buffer.concat(chunks));
+			}
+		});
+	});
 };
 
 const limit = pLimit(5);
@@ -58,32 +86,63 @@ type Options = {
 	ffmpegExecutable: FfmpegExecutable;
 };
 
-export const extractFrameFromVideoFn = async ({
+export const extractFrameFromVideoFn = ({
 	time,
 	src,
 	ffmpegExecutable,
-}: Options): Promise<string> => {
+}: Options): Promise<Buffer> => {
 	const ffmpegTimestamp = frameToFfmpegTimestamp(time);
-	const {stdout, stderr} = await execa(ffmpegExecutable ?? 'ffmpeg', [
-		'-ss',
-		ffmpegTimestamp,
-		'-i',
-		src,
-		'-frames:v',
-		'1',
-		'-f',
-		'image2pipe',
-		'-',
-	]);
-	if (stderr.includes('Output file is empty')) {
-		return getLastFrameOfVideo({
-			ffmpegExecutable,
-			offset: 0,
+	const {stdout, stderr} = execa(
+		ffmpegExecutable ?? 'ffmpeg',
+		[
+			'-ss',
+			ffmpegTimestamp,
+			'-i',
 			src,
-		});
+			'-frames:v',
+			'1',
+			'-f',
+			'image2pipe',
+			'-',
+		],
+		{
+			buffer: false,
+		}
+	);
+
+	if (!stderr) {
+		throw new Error('unexpectedly did not get stderr');
 	}
 
-	return stdout;
+	if (!stdout) {
+		throw new Error('unexpectedly did not get stdout');
+	}
+
+	const chunks: Buffer[] = [];
+
+	return new Promise<Buffer>((resolve, reject) => {
+		let isEmpty = false;
+		stderr?.on('data', (d) => {
+			if (d.toString().includes('Output file is empty')) {
+				isEmpty = true;
+				getLastFrameOfVideo({ffmpegExecutable, offset: 0, src})
+					.then((frame) => resolve(frame))
+					.catch((err) => reject(err));
+			}
+		});
+
+		stdout?.on('data', (d) => {
+			chunks.push(d);
+		});
+		stdout?.on('error', (err) => {
+			reject(err);
+		});
+		stdout?.on('end', () => {
+			if (!isEmpty) {
+				resolve(Buffer.concat(chunks));
+			}
+		});
+	});
 };
 
 export const extractFrameFromVideo = (options: Options) => {
