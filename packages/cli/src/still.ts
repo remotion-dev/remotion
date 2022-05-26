@@ -2,6 +2,7 @@ import {
 	getCompositions,
 	openBrowser,
 	RenderInternals,
+	RenderMediaOnDownload,
 	renderStill,
 } from '@remotion/renderer';
 import chalk from 'chalk';
@@ -15,7 +16,8 @@ import {Log} from './log';
 import {parsedCli, quietFlagProvided} from './parse-command-line';
 import {
 	createOverwriteableCliOutput,
-	makeRenderingProgress,
+	DownloadProgress,
+	makeRenderingAndStitchingProgress,
 } from './progress-bar';
 import {bundleOnCli} from './setup-cache';
 import {RenderStep} from './step';
@@ -128,6 +130,44 @@ export const still = async () => {
 	const renderProgress = createOverwriteableCliOutput(quietFlagProvided());
 	const renderStart = Date.now();
 
+	const downloads: DownloadProgress[] = [];
+	let frames = 0;
+	const totalFrames = 1;
+
+	const updateProgress = () => {
+		renderProgress.update(
+			makeRenderingAndStitchingProgress({
+				rendering: {
+					frames,
+					concurrency: 1,
+					doneIn: frames === totalFrames ? Date.now() - renderStart : null,
+					steps,
+					totalFrames,
+				},
+				downloads,
+				stitching: null,
+			})
+		);
+	};
+
+	updateProgress();
+
+	const onDownload: RenderMediaOnDownload = (src) => {
+		const id = Math.random();
+		const download: DownloadProgress = {
+			id,
+			name: src,
+			progress: 0,
+		};
+		downloads.push(download);
+		updateProgress();
+
+		return ({percent}) => {
+			download.progress = percent;
+			updateProgress();
+		};
+	};
+
 	await renderStill({
 		composition,
 		frame: stillFrame,
@@ -147,18 +187,14 @@ export const still = async () => {
 		ffmpegExecutable,
 		browserExecutable,
 		overwrite,
+		onDownload,
 	});
 
+	frames = 1;
+	updateProgress();
+	Log.info();
+
 	const closeBrowserPromise = puppeteerInstance.close();
-	renderProgress.update(
-		makeRenderingProgress({
-			frames: 1,
-			concurrency: 1,
-			doneIn: Date.now() - renderStart,
-			steps,
-			totalFrames: 1,
-		})
-	);
 
 	Log.info(chalk.green('\nYour still frame is ready!'));
 
