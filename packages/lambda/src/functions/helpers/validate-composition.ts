@@ -1,4 +1,8 @@
-import {getCompositions, openBrowser} from '@remotion/renderer';
+import {
+	ChromiumOptions,
+	getCompositions,
+	openBrowser,
+} from '@remotion/renderer';
 import {FfmpegExecutable, TCompMetadata} from 'remotion';
 import {Await} from '../../shared/await';
 
@@ -9,6 +13,8 @@ type ValidateCompositionOptions = {
 	inputProps: unknown;
 	envVariables: Record<string, string> | undefined;
 	ffmpegExecutable: FfmpegExecutable;
+	timeoutInMilliseconds: number;
+	chromiumOptions: ChromiumOptions;
 };
 
 export const validateComposition = async ({
@@ -17,13 +23,17 @@ export const validateComposition = async ({
 	browserInstance,
 	inputProps,
 	envVariables,
+	timeoutInMilliseconds,
 	ffmpegExecutable,
+	chromiumOptions,
 }: ValidateCompositionOptions): Promise<TCompMetadata> => {
 	const compositions = await getCompositions(serveUrl, {
 		puppeteerInstance: browserInstance,
 		inputProps: inputProps as object,
 		envVariables,
 		ffmpegExecutable,
+		timeoutInMilliseconds,
+		chromiumOptions,
 	});
 
 	const found = compositions.find((c) => c.id === composition);
