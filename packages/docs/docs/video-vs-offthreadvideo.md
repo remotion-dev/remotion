@@ -12,7 +12,7 @@ Is based on the native HTML5 `<video>` element and therefore behaves similar to 
 
 **Pros**
 
-✅ &nbsp; Is based on the native HTML5 `<video>` element, so you can attach a ref and [draw the video to a canvas](/docs/video-manipulation).  
+✅ &nbsp; You can attach a ref and [draw the video to a canvas](/docs/video-manipulation).  
 ✅ &nbsp; Can be rendered without having to be downloaded fully.  
 ✅ &nbsp; Is usually faster to render.
 
@@ -28,7 +28,7 @@ Is based on the native HTML5 `<video>` element and therefore behaves similar to 
 A more sophisticated way of embedding a video, which:
 
 - renders a `<video>` tag during preview
-- displays the exact frame in an `<Img>` tag during rendering, that frame gets extracted using FFMPEG outside the browser
+- displays the exact frame in an [`<Img>`](/docs/img) tag during rendering, that frame gets extracted using FFMPEG outside the browser
 
 **Pros**
 
@@ -38,5 +38,5 @@ A more sophisticated way of embedding a video, which:
 **Cons**
 
 ⛔ &nbsp; The video needs to be downloaded fully before a frame can be rendered.  
-⛔ &nbsp; No ref can be attached to this element, as it is `<video>` during preview but a `<img/>` during render.  
+⛔ &nbsp; No ref can be attached to this element, as it is `<video>` during preview but a `<Img/>` during render.  
 ⛔ &nbsp; The video cannot be drawn to a canvas.
