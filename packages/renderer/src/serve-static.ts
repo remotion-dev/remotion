@@ -24,12 +24,12 @@ export const serveStatic = async (
 		3100
 	);
 
-	const offthreadRequest = startOffthreadVideoServer(
-		options.ffmpegExecutable,
-		options.downloadDir,
-		options.onDownload,
-		options.onError
-	);
+	const offthreadRequest = startOffthreadVideoServer({
+		ffmpegExecutable: options.ffmpegExecutable,
+		downloadDir: options.downloadDir,
+		onDownload: options.onDownload,
+		onError: options.onError,
+	});
 
 	try {
 		const server = http
