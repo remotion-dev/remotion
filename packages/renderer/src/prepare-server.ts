@@ -49,7 +49,7 @@ export const prepareServer = async ({
 		closeServer: () => {
 			return close();
 		},
-		serveUrl: `http://localhost:${port}`,
+		serveUrl: `http://localhost:${serverPort}`,
 		offthreadPort: serverPort,
 	});
 };
