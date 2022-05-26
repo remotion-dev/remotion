@@ -87,6 +87,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		ffmpegExecutable: null,
 		timeoutInMilliseconds: params.timeoutInMilliseconds,
 		chromiumOptions: params.chromiumOptions,
+		port: null,
 	});
 	Internals.validateDurationInFrames(
 		comp.durationInFrames,

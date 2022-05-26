@@ -9,12 +9,14 @@ export const prepareServer = async ({
 	onDownload,
 	onError,
 	webpackConfigOrServeUrl,
+	port,
 }: {
 	webpackConfigOrServeUrl: string;
 	downloadDir: string;
 	onDownload: RenderMediaOnDownload;
 	onError: (err: Error) => void;
 	ffmpegExecutable: FfmpegExecutable;
+	port: number | null;
 }): Promise<{
 	serveUrl: string;
 	closeServer: () => Promise<unknown>;
@@ -26,7 +28,7 @@ export const prepareServer = async ({
 			onDownload,
 			onError,
 			ffmpegExecutable,
-			port: null,
+			port,
 		});
 
 		return Promise.resolve({
@@ -36,18 +38,18 @@ export const prepareServer = async ({
 		});
 	}
 
-	const {port, close} = await serveStatic(webpackConfigOrServeUrl, {
+	const {port: serverPort, close} = await serveStatic(webpackConfigOrServeUrl, {
 		downloadDir,
 		onDownload,
 		onError,
 		ffmpegExecutable,
-		port: null,
+		port,
 	});
 	return Promise.resolve({
 		closeServer: () => {
 			return close();
 		},
 		serveUrl: `http://localhost:${port}`,
-		offthreadPort: port,
+		offthreadPort: serverPort,
 	});
 };

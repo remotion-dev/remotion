@@ -27,7 +27,7 @@ export const startServer = async (
 		webpackOverride?: WebpackOverrideFn;
 		inputProps?: object;
 		envVariables?: Record<string, string>;
-		port?: number;
+		port: number | null;
 		maxTimelineTracks?: number;
 	}
 ): Promise<number> => {
@@ -151,7 +151,7 @@ export const startServer = async (
 		res.end(indexHtml(hash, '/', displayName));
 	});
 
-	const desiredPort = options?.port ?? Internals.getServerPort();
+	const desiredPort = options?.port ?? undefined;
 
 	const port = await getDesiredPort(desiredPort, 3000, 3100);
 

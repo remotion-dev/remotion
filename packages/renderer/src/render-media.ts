@@ -70,6 +70,7 @@ export type RenderMediaOptions = {
 	timeoutInMilliseconds?: number;
 	chromiumOptions?: ChromiumOptions;
 	scale?: number;
+	port?: number | null;
 	browserExecutable?: BrowserExecutable;
 } & ServeUrlOrWebpackBundle;
 
@@ -100,6 +101,7 @@ export const renderMedia = async ({
 	chromiumOptions,
 	scale,
 	browserExecutable,
+	port,
 	...options
 }: RenderMediaOptions) => {
 	Internals.validateQuality(quality);
@@ -225,6 +227,7 @@ export const renderMedia = async ({
 			scale,
 			ffmpegExecutable,
 			browserExecutable,
+			port,
 		});
 		if (stitcherFfmpeg) {
 			await waitForFinish();
