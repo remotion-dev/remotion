@@ -1,9 +1,5 @@
 import path from 'path';
-import {Readable} from 'stream';
-import {
-	extractFrameFromVideo,
-	streamToString,
-} from '../extract-frame-from-video';
+import {extractFrameFromVideo} from '../extract-frame-from-video';
 
 const src = path.join(
 	__dirname,
@@ -14,25 +10,22 @@ const src = path.join(
 	'public',
 	'framer.mp4'
 );
-
 test('Should be able to extract a frame from a video', async () => {
-	const stdout = await extractFrameFromVideo({
+	const str = await extractFrameFromVideo({
 		ffmpegExecutable: null,
 		src,
 		time: 1,
 	});
 
-	const str = await streamToString(stdout as Readable);
-	expect(str.length).toBeGreaterThan(10607);
+	expect(str.length).toBeGreaterThan(10000);
 });
 
 test('Should get the last frame if out of range', async () => {
-	const stdout = await extractFrameFromVideo({
+	const str = await extractFrameFromVideo({
 		ffmpegExecutable: null,
 		src,
 		time: 100,
 	});
 
-	const str = await streamToString(stdout as Readable);
 	expect(str.length).toBeGreaterThan(10000);
 });
