@@ -301,7 +301,9 @@ export const render = async () => {
 		Log.warn('Do you have minimum required Node.js version?');
 	}
 
-	Log.info(chalk.green('\nYour video is ready!'));
+	Log.info(
+		chalk.green(`\nYour ${codec === 'gif' ? 'gif' : 'video'} is ready!`)
+	);
 	closeServer().catch((err) => {
 		Log.error('Could not close web server', err);
 	});

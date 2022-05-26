@@ -73,4 +73,12 @@ export const validateOutputFilename = (
 			);
 		}
 	}
+
+	if (codec === 'gif') {
+		if (extension !== 'gif') {
+			throw new TypeError(
+				'When using the GIF codec, the output filename must end in .gif.'
+			);
+		}
+	}
 };
