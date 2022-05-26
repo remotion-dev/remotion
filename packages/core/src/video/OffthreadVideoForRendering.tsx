@@ -1,10 +1,4 @@
-import React, {
-	useCallback,
-	useContext,
-	useEffect,
-	useMemo,
-	useState,
-} from 'react';
+import React, {useCallback, useContext, useEffect, useMemo} from 'react';
 import {getAbsoluteSrc} from '../absolute-src';
 import {
 	useFrameForVolumeProp,
@@ -37,8 +31,6 @@ export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
 	const mediaStartsAt = useMediaStartsAt();
 
 	const {registerAsset, unregisterAsset} = useContext(CompositionManager);
-
-	const [crash, setCrash] = useState(false);
 
 	if (!src) {
 		throw new TypeError('No `src` was passed to <OffthreadVideo>.');
@@ -123,30 +115,10 @@ export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
 	const onErr: React.ReactEventHandler<HTMLVideoElement | HTMLImageElement> =
 		useCallback(
 			(e) => {
-				console.log('ERROR', actualSrc);
-				fetch(actualSrc)
-					.then((res) => {
-						console.log('fetch', res.status);
-						return res.text();
-					})
-					.then((text) => {
-						console.log('TEXT', text);
-					})
-					.catch((err) => {
-						console.log('MSG', err.message);
-					})
-					.finally(() => {
-						setCrash(true);
-					});
-
 				onError?.(e);
 			},
-			[actualSrc, onError]
+			[onError]
 		);
-
-	if (crash) {
-		throw new Error('crash');
-	}
 
 	return <Img src={actualSrc} {...props} onError={onErr} />;
 };
