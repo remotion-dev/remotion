@@ -151,13 +151,7 @@ const renderHandler = async (
 		proResProfile: params.proResProfile,
 		onDownload: (src: string) => {
 			console.log('Downloading', src);
-			return ({percent}) => {
-				if (
-					Internals.Logging.isEqualOrBelowLogLevel(params.logLevel, 'verbose')
-				) {
-					console.log(`Download progress of ${src}: ${percent}`);
-				}
-			};
+			return () => undefined;
 		},
 
 		overwrite: false,
