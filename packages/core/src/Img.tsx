@@ -26,7 +26,8 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 				onError(e);
 			} else {
 				console.error(
-					'Error loading image:',
+					'Error loading image with src:',
+					imageRef.current?.src,
 					e,
 					'Handle the event using the onError() prop to make this message disappear.'
 				);
