@@ -24,7 +24,8 @@ type GetCompositionsConfig = {
 const innerGetCompositions = async (
 	serveUrl: string,
 	page: Page,
-	config: GetCompositionsConfig
+	config: GetCompositionsConfig,
+	proxyPort: number
 ): Promise<TCompMetadata[]> => {
 	if (config?.onBrowserLog) {
 		page.on('console', (log) => {
@@ -45,6 +46,7 @@ const innerGetCompositions = async (
 		serveUrl,
 		initialFrame: 0,
 		timeoutInMilliseconds: config?.timeoutInMilliseconds,
+		proxyPort,
 	});
 
 	await puppeteerEvaluateWithCatch({
@@ -93,7 +95,6 @@ export const getCompositions = async (
 
 		let close: (() => void) | null = null;
 
-		// TODO: Make sure ffmpeg executable is passed internally
 		prepareServer({
 			webpackConfigOrServeUrl: serveUrlOrWebpackUrl,
 			downloadDir,
@@ -101,9 +102,14 @@ export const getCompositions = async (
 			onError,
 			ffmpegExecutable: config?.ffmpegExecutable ?? null,
 		})
-			.then(({serveUrl, closeServer}) => {
+			.then(({serveUrl, closeServer, offthreadPort}) => {
 				close = closeServer;
-				return innerGetCompositions(serveUrl, page, config ?? {});
+				return innerGetCompositions(
+					serveUrl,
+					page,
+					config ?? {},
+					offthreadPort
+				);
 			})
 
 			.then((comp) => resolve(comp))

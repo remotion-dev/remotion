@@ -72,6 +72,7 @@ const innerStillHandler = async (
 		composition: lambdaParams.composition,
 		inputProps: lambdaParams.inputProps,
 		envVariables: lambdaParams.envVariables,
+		ffmpegExecutable: null,
 	});
 
 	const renderMetadata: RenderMetadata = {
