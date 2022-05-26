@@ -31,7 +31,7 @@ const ffmpegIsOneOfFrames = ({
 	for (let i = 0; i < frames.length; i++) {
 		const previousFrame = frames[i - 1];
 		const frame = frames[i];
-		if (!previousFrame || frame !== previousFrame + 1) {
+		if (previousFrame === undefined || frame !== previousFrame + 1) {
 			consecutiveArrays.push([]);
 		}
 
