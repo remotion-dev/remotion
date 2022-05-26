@@ -1,10 +1,9 @@
 import React, {
 	forwardRef,
 	useCallback,
-	useEffect,
 	useImperativeHandle,
+	useLayoutEffect,
 	useRef,
-	useState,
 } from 'react';
 import {continueRender, delayRender} from './delay-render';
 
@@ -14,45 +13,15 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 		React.ImgHTMLAttributes<HTMLImageElement>,
 		HTMLImageElement
 	>
-> = ({onLoad, onError, ...props}, ref) => {
-	const [handle, setHandle] = useState<ReturnType<typeof delayRender> | null>(
-		() => {
-			return null;
-		}
-	);
+> = ({onError, ...props}, ref) => {
 	const imageRef = useRef<HTMLImageElement>(null);
 
 	useImperativeHandle(ref, () => {
 		return imageRef.current as HTMLImageElement;
 	});
 
-	useEffect(() => {
-		if (
-			ref &&
-			(ref as React.MutableRefObject<HTMLImageElement>).current.complete &&
-			handle
-		) {
-			continueRender(handle);
-		}
-	}, [handle, ref]);
-
-	const didLoad = useCallback(
-		(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
-			if (handle) {
-				continueRender(handle);
-			}
-
-			onLoad?.(e);
-		},
-		[handle, onLoad]
-	);
-
 	const didGetError = useCallback(
 		(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
-			if (handle) {
-				continueRender(handle);
-			}
-
 			if (onError) {
 				onError(e);
 			} else {
@@ -63,23 +32,32 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 				);
 			}
 		},
-		[handle, onError]
+		[onError]
 	);
 
 	// If image source switches, make new handle
-	useEffect(() => {
+	useLayoutEffect(() => {
 		const newHandle = delayRender('Loading <Img> with src=' + props.src);
-		setHandle(newHandle);
+		const {current} = imageRef;
+
+		const didLoad = () => {
+			continueRender(newHandle);
+		};
+
+		if (current?.complete) {
+			continueRender(newHandle);
+		} else {
+			current?.addEventListener('load', didLoad, {once: true});
+		}
 
 		// If tag gets unmounted, clear pending handles because image is not going to load
 		return () => {
+			current?.removeEventListener('load', didLoad);
 			continueRender(newHandle);
 		};
 	}, [props.src]);
 
-	return (
-		<img {...props} ref={imageRef} onLoad={didLoad} onError={didGetError} />
-	);
+	return <img {...props} ref={imageRef} onError={didGetError} />;
 };
 
 export const Img = forwardRef(ImgRefForwarding);
