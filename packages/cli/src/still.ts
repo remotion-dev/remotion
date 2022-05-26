@@ -2,6 +2,7 @@ import {
 	getCompositions,
 	openBrowser,
 	RenderInternals,
+	RenderMediaOnDownload,
 	renderStill,
 } from '@remotion/renderer';
 import chalk from 'chalk';
@@ -56,6 +57,7 @@ export const still = async () => {
 		browserExecutable,
 		chromiumOptions,
 		scale,
+		ffmpegExecutable,
 	} = await getCliOptions({isLambda: false, type: 'still'});
 
 	Log.verbose('Browser executable: ', browserExecutable);
@@ -106,8 +108,22 @@ export const still = async () => {
 	const urlOrBundle = RenderInternals.isServeUrl(fullPath)
 		? Promise.resolve(fullPath)
 		: await bundleOnCli(fullPath, steps);
+
+	const downloadDir = RenderInternals.makeAssetsDownloadTmpDir();
+
+	const onDownload: RenderMediaOnDownload = (src) => {
+		Log.info('Downloading ', src);
+	};
+
 	const {serveUrl, closeServer} = await RenderInternals.prepareServer(
-		await urlOrBundle
+		await urlOrBundle,
+		downloadDir,
+		onDownload,
+		(err) => {
+			Log.error(err);
+			process.exit(1);
+		},
+		ffmpegExecutable
 	);
 
 	const puppeteerInstance = await browserInstance;
