@@ -1,5 +1,6 @@
 const alphabet = 'abcdefghijklmnopqrstuvwxyz0123456789';
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const randomHash = (_options?: {randomInTests: boolean}): string => {
 	return new Array(10)
 		.fill(1)
