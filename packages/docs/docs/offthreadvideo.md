@@ -35,6 +35,10 @@ The props `volume`, `playbackRate` and `muted` are supported and work the same a
 
 The props `onError`, `className` and `style` are supported and get passed to the underlying HTML element. Remember that during render, this is a `<img>` element, and during preview, this is a `<video>` element.
 
+## Performance tips
+
+Avoid embedding a video beyond it's end (for example: Rendering a 5 second video inside 10 second composition). To create parity with the `<Video>` element, the video still display it's last frame in that case. However, to fetch the last frame specifically is a significantly more expensive operation than a frame from a known timestamp.
+
 ## See also
 
 - [`<Video />`](/docs/video)
