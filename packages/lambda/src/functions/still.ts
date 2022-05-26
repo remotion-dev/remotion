@@ -121,6 +121,7 @@ const innerStillHandler = async (
 		quality: lambdaParams.quality,
 		chromiumOptions: lambdaParams.chromiumOptions,
 		scale: lambdaParams.scale,
+		timeoutInMilliseconds: lambdaParams.timeoutInMilliseconds,
 	});
 
 	const {key: outName, renderBucketName} = getExpectedOutName(
