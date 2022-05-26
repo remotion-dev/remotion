@@ -4,6 +4,7 @@ import {
 	renderFrames,
 	RenderInternals,
 	renderMedia,
+	RenderMediaOnDownload,
 	StitchingState,
 } from '@remotion/renderer';
 import chalk from 'chalk';
@@ -73,7 +74,7 @@ export const render = async () => {
 	Log.verbose('Browser executable: ', browserExecutable);
 
 	await checkAndValidateFfmpegVersion({
-		ffmpegExecutable: Internals.getCustomFfmpegExecutable(),
+		ffmpegExecutable,
 	});
 
 	const browserInstance = openBrowser(browser, {
@@ -95,8 +96,34 @@ export const render = async () => {
 	const urlOrBundle = RenderInternals.isServeUrl(fullPath)
 		? fullPath
 		: await bundleOnCli(fullPath, steps);
+	const downloadDir = RenderInternals.makeAssetsDownloadTmpDir();
+
+	const onDownload: RenderMediaOnDownload = (src) => {
+		const id = Math.random();
+		const download: DownloadProgress = {
+			id,
+			name: src,
+			progress: 0,
+		};
+		downloads.push(download);
+		updateRenderProgress();
+
+		return ({percent}) => {
+			download.progress = percent;
+			updateRenderProgress();
+		};
+	};
+
 	const {serveUrl, closeServer} = await RenderInternals.prepareServer(
-		urlOrBundle
+		urlOrBundle,
+		downloadDir,
+		onDownload,
+		(err) => {
+			Log.error('Error occurred:');
+			Log.error(err);
+			process.exit(1);
+		},
+		ffmpegExecutable
 	);
 
 	const puppeteerInstance = await browserInstance;
@@ -254,21 +281,7 @@ export const render = async () => {
 		proResProfile,
 		quality,
 		serveUrl,
-		onDownload: (src) => {
-			const id = Math.random();
-			const download: DownloadProgress = {
-				id,
-				name: src,
-				progress: 0,
-			};
-			downloads.push(download);
-			updateRenderProgress();
-
-			return ({percent}) => {
-				download.progress = percent;
-				updateRenderProgress();
-			};
-		},
+		onDownload,
 		dumpBrowserLogs: Internals.Logging.isEqualOrBelowLogLevel(
 			Internals.Logging.getLogLevel(),
 			'verbose'
