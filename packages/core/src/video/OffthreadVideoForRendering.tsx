@@ -134,11 +134,12 @@ export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
 					})
 					.catch((err) => {
 						console.log(err.message);
+					})
+					.finally(() => {
+						setCrash(true);
 					});
 
 				onError?.(e);
-
-				setCrash(true);
 			},
 			[actualSrc, onError]
 		);
