@@ -1,43 +1,53 @@
 import {FfmpegExecutable} from 'remotion';
 import {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 import {isServeUrl} from './is-serve-url';
-import {startOffthreadVideoServer} from './offthread-video-server';
 import {serveStatic} from './serve-static';
 
-export const prepareServer = async (
-	webpackConfigOrServeUrl: string,
-	downloadDir: string,
-	onDownload: RenderMediaOnDownload,
-	onError: (err: Error) => void,
-	ffmpegExecutable: FfmpegExecutable
-): Promise<{
+export const prepareServer = async ({
+	downloadDir,
+	ffmpegExecutable,
+	onDownload,
+	onError,
+	webpackConfigOrServeUrl,
+}: {
+	webpackConfigOrServeUrl: string;
+	downloadDir: string;
+	onDownload: RenderMediaOnDownload;
+	onError: (err: Error) => void;
+	ffmpegExecutable: FfmpegExecutable;
+}): Promise<{
 	serveUrl: string;
 	closeServer: () => Promise<unknown>;
 	offthreadPort: number;
 }> => {
-	const {close: offthreadClose, port: offthreadPort} =
-		await startOffthreadVideoServer(
-			ffmpegExecutable,
+	if (isServeUrl(webpackConfigOrServeUrl)) {
+		const {port: offthreadPort, close: closeProxy} = await serveStatic(null, {
 			downloadDir,
 			onDownload,
-			onError
-		);
-	if (isServeUrl(webpackConfigOrServeUrl)) {
+			onError,
+			ffmpegExecutable,
+			port: null,
+		});
+
 		return Promise.resolve({
 			serveUrl: webpackConfigOrServeUrl,
-			closeServer: () => {
-				return Promise.resolve(offthreadClose());
-			},
-			offthreadPort: 0,
+			closeServer: () => closeProxy(),
+			offthreadPort,
 		});
 	}
 
-	const {port, close} = await serveStatic(webpackConfigOrServeUrl);
+	const {port, close} = await serveStatic(webpackConfigOrServeUrl, {
+		downloadDir,
+		onDownload,
+		onError,
+		ffmpegExecutable,
+		port: null,
+	});
 	return Promise.resolve({
 		closeServer: () => {
-			return Promise.all([close(), offthreadClose()]);
+			return close();
 		},
 		serveUrl: `http://localhost:${port}`,
-		offthreadPort,
+		offthreadPort: port,
 	});
 };

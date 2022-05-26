@@ -371,13 +371,13 @@ export const renderFrames = async (
 	return new Promise<RenderFramesOutput>((resolve, reject) => {
 		let cleanup: (() => void) | null = null;
 		const onError = (err: Error) => reject(err);
-		prepareServer(
-			selectedServeUrl,
+		prepareServer({
+			webpackConfigOrServeUrl: selectedServeUrl,
 			downloadDir,
 			onDownload,
 			onError,
-			options.ffmpegExecutable ?? null
-		)
+			ffmpegExecutable: options.ffmpegExecutable ?? null,
+		})
 			.then(({serveUrl, closeServer}) => {
 				cleanup = closeServer;
 				return innerRenderFrames({
