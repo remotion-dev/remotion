@@ -130,10 +130,10 @@ export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
 						return res.text();
 					})
 					.then((text) => {
-						console.log(text);
+						console.log('TEXT', text);
 					})
 					.catch((err) => {
-						console.log(err.message);
+						console.log('MSG', err.message);
 					})
 					.finally(() => {
 						setCrash(true);
