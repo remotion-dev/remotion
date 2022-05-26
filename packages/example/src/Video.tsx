@@ -177,6 +177,19 @@ export const Index: React.FC = () => {
 					fps={30}
 					durationInFrames={100}
 					defaultProps={{
+						offthread: false,
+						codec: 'mp4' as const,
+					}}
+				/>
+				<Composition
+					id="video-testing-mp4-offthread"
+					component={VideoTesting}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={100}
+					defaultProps={{
+						offthread: true,
 						codec: 'mp4' as const,
 					}}
 				/>
@@ -196,6 +209,19 @@ export const Index: React.FC = () => {
 					fps={30}
 					durationInFrames={100}
 					defaultProps={{
+						offthread: false,
+						codec: 'webm' as const,
+					}}
+				/>
+				<Composition
+					id="video-testing-webm-offthread"
+					component={VideoTesting}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={100}
+					defaultProps={{
+						offthread: true,
 						codec: 'webm' as const,
 					}}
 				/>
