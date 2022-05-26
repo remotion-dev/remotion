@@ -1,4 +1,4 @@
-import http, {RequestListener} from 'http';
+import {RequestListener} from 'http';
 import {FfmpegExecutable} from 'remotion';
 import {URLSearchParams} from 'url';
 import {
@@ -7,11 +7,6 @@ import {
 	waitForAssetToBeDownloaded,
 } from './assets/download-and-map-assets-to-file';
 import {extractFrameFromVideo} from './extract-frame-from-video';
-
-type StartOffthreadVideoServerReturnType = {
-	close: () => void;
-	port: number;
-};
 
 export const extractUrlAndSourceFromUrl = (url: string) => {
 	const parsed = new URL(url, 'http://localhost:9999');
@@ -41,11 +36,12 @@ export const startOffthreadVideoServer = (
 	downloadDir: string,
 	onDownload: RenderMediaOnDownload,
 	onError: (err: Error) => void
-): Promise<StartOffthreadVideoServerReturnType> => {
-	const requestListener: RequestListener = (req, res) => {
+): RequestListener => {
+	return (req, res) => {
 		if (!req.url) {
 			throw new Error('Request came in without URL');
 		}
+
 		if (!req.url.startsWith('/proxy')) {
 			res.writeHead(404);
 			res.end();
@@ -61,10 +57,10 @@ export const startOffthreadVideoServer = (
 			);
 		});
 		waitForAssetToBeDownloaded(src)
-			.then((res) => {
+			.then((newSrc) => {
 				return extractFrameFromVideo({
 					time,
-					src: res,
+					src: newSrc,
 					ffmpegExecutable,
 				});
 			})
@@ -81,19 +77,7 @@ export const startOffthreadVideoServer = (
 			.catch((err) => {
 				res.writeHead(500);
 				res.end();
-				// TODO Return 500
 				console.log('Error occurred', err);
 			});
 	};
-
-	const port = 9999;
-	const server = http.createServer(requestListener);
-	return new Promise<StartOffthreadVideoServerReturnType>((resolve) => {
-		server.listen(port, 'localhost', () => {
-			resolve({
-				close: () => server.close(),
-				port,
-			});
-		});
-	});
 };

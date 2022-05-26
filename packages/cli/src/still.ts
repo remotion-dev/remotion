@@ -115,16 +115,16 @@ export const still = async () => {
 		Log.info('Downloading ', src);
 	};
 
-	const {serveUrl, closeServer} = await RenderInternals.prepareServer(
-		await urlOrBundle,
+	const {serveUrl, closeServer} = await RenderInternals.prepareServer({
 		downloadDir,
 		onDownload,
-		(err) => {
+		onError: (err) => {
 			Log.error(err);
 			process.exit(1);
 		},
-		ffmpegExecutable
-	);
+		ffmpegExecutable,
+		webpackConfigOrServeUrl: await urlOrBundle,
+	});
 
 	const puppeteerInstance = await browserInstance;
 	const comps = await getCompositions(serveUrl, {

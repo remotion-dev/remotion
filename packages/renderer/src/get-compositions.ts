@@ -94,13 +94,13 @@ export const getCompositions = async (
 		let close: (() => void) | null = null;
 
 		// TODO: Make sure ffmpeg executable is passed internally
-		prepareServer(
-			serveUrlOrWebpackUrl,
+		prepareServer({
+			webpackConfigOrServeUrl: serveUrlOrWebpackUrl,
 			downloadDir,
-			() => undefined,
+			onDownload: () => undefined,
 			onError,
-			config?.ffmpegExecutable ?? null
-		)
+			ffmpegExecutable: config?.ffmpegExecutable ?? null,
+		})
 			.then(({serveUrl, closeServer}) => {
 				close = closeServer;
 				return innerGetCompositions(serveUrl, page, config ?? {});

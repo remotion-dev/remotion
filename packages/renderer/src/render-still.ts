@@ -212,14 +212,14 @@ export const renderStill = async (
 
 		let close: (() => void) | null = null;
 
-		prepareServer(
-			selectedServeUrl,
+		prepareServer({
+			webpackConfigOrServeUrl: selectedServeUrl,
 			downloadDir,
 			onDownload,
 			onError,
 			// TODO: make sure it is passed internally
-			options.ffmpegExecutable ?? null
-		)
+			ffmpegExecutable: options.ffmpegExecutable ?? null,
+		})
 			.then(({serveUrl, closeServer}) => {
 				close = closeServer;
 				return innerRenderStill({

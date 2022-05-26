@@ -114,17 +114,17 @@ export const render = async () => {
 		};
 	};
 
-	const {serveUrl, closeServer} = await RenderInternals.prepareServer(
-		urlOrBundle,
+	const {serveUrl, closeServer} = await RenderInternals.prepareServer({
+		webpackConfigOrServeUrl: urlOrBundle,
 		downloadDir,
 		onDownload,
-		(err) => {
+		onError: (err) => {
 			Log.error('Error occurred:');
 			Log.error(err);
 			process.exit(1);
 		},
-		ffmpegExecutable
-	);
+		ffmpegExecutable,
+	});
 
 	const puppeteerInstance = await browserInstance;
 
