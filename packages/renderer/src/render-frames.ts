@@ -71,6 +71,7 @@ type RenderFramesOptions = {
 	chromiumOptions?: ChromiumOptions;
 	scale?: number;
 	ffmpegExecutable?: FfmpegExecutable;
+	port?: number | null;
 } & ConfigOrComposition &
 	ServeUrlOrWebpackBundle;
 
@@ -380,6 +381,7 @@ export const renderFrames = async (
 			onDownload,
 			onError,
 			ffmpegExecutable: options.ffmpegExecutable ?? null,
+			port: options.port ?? null,
 		})
 			.then(({serveUrl, closeServer, offthreadPort}) => {
 				cleanup = closeServer;

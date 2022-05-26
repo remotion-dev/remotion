@@ -75,6 +75,7 @@ const innerStillHandler = async (
 		ffmpegExecutable: null,
 		chromiumOptions: lambdaParams.chromiumOptions,
 		timeoutInMilliseconds: lambdaParams.timeoutInMilliseconds,
+		port: null,
 	});
 
 	const renderMetadata: RenderMetadata = {

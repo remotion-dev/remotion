@@ -61,6 +61,7 @@ export const still = async () => {
 		ffmpegExecutable,
 		overwrite,
 		puppeteerTimeout,
+		port,
 	} = await getCliOptions({isLambda: false, type: 'still'});
 
 	Log.verbose('Browser executable: ', browserExecutable);
@@ -119,6 +120,9 @@ export const still = async () => {
 		envVariables,
 		timeoutInMilliseconds: puppeteerTimeout,
 		chromiumOptions,
+		port,
+		browserExecutable,
+		ffmpegExecutable,
 	});
 	const compositionId = getCompositionId(comps);
 

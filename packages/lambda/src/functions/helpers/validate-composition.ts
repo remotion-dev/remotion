@@ -15,6 +15,7 @@ type ValidateCompositionOptions = {
 	ffmpegExecutable: FfmpegExecutable;
 	timeoutInMilliseconds: number;
 	chromiumOptions: ChromiumOptions;
+	port: number | null;
 };
 
 export const validateComposition = async ({
@@ -26,6 +27,7 @@ export const validateComposition = async ({
 	timeoutInMilliseconds,
 	ffmpegExecutable,
 	chromiumOptions,
+	port,
 }: ValidateCompositionOptions): Promise<TCompMetadata> => {
 	const compositions = await getCompositions(serveUrl, {
 		puppeteerInstance: browserInstance,
@@ -34,6 +36,7 @@ export const validateComposition = async ({
 		ffmpegExecutable,
 		timeoutInMilliseconds,
 		chromiumOptions,
+		port,
 	});
 
 	const found = compositions.find((c) => c.id === composition);

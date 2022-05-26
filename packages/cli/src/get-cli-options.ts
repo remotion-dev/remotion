@@ -221,6 +221,7 @@ export const getCliOptions = async (options: {
 	const browserExecutable = Internals.getBrowserExecutable();
 	const ffmpegExecutable = Internals.getCustomFfmpegExecutable();
 	const scale = Internals.getScale();
+	const port = Internals.getServerPort();
 
 	const chromiumOptions: ChromiumOptions = {
 		disableWebSecurity: Internals.getChromiumDisableWebSecurity(),
@@ -255,5 +256,6 @@ export const getCliOptions = async (options: {
 		logLevel: Internals.Logging.getLogLevel(),
 		scale,
 		chromiumOptions,
+		port: port ?? null,
 	};
 };

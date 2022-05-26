@@ -47,6 +47,7 @@ export const listCompositionsCommand = async () => {
 		envVariables,
 		inputProps,
 		puppeteerTimeout,
+		port,
 	} = await getCliOptions({isLambda: false, type: 'get-compositions'});
 
 	const bundled = await bundleOnCli(fullPath, ['bundling']);
@@ -58,6 +59,7 @@ export const listCompositionsCommand = async () => {
 		envVariables,
 		inputProps,
 		timeoutInMilliseconds: puppeteerTimeout,
+		port,
 	});
 	Log.info();
 	Log.info('The following compositions are available:');

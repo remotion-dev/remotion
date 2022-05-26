@@ -63,6 +63,8 @@ export const render = async () => {
 		ffmpegExecutable,
 		scale,
 		chromiumOptions,
+		port,
+		puppeteerTimeout,
 	} = await getCliOptions({isLambda: false, type: 'series'});
 
 	if (!absoluteOutputFile) {
@@ -229,10 +231,12 @@ export const render = async () => {
 			parallelism,
 			puppeteerInstance,
 			quality,
-			timeoutInMilliseconds: Internals.getCurrentPuppeteerTimeout(),
+			timeoutInMilliseconds: puppeteerTimeout,
 			chromiumOptions,
 			scale,
 			ffmpegExecutable,
+			browserExecutable,
+			port,
 		});
 		renderedDoneIn = Date.now() - startTime;
 
@@ -279,6 +283,7 @@ export const render = async () => {
 		chromiumOptions,
 		timeoutInMilliseconds: Internals.getCurrentPuppeteerTimeout(),
 		scale,
+		port,
 	});
 
 	Log.info();

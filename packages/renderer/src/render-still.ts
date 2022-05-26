@@ -44,7 +44,10 @@ type InnerStillOptions = {
 	ffmpegExecutable?: FfmpegExecutable;
 };
 
-type RenderStillOptions = InnerStillOptions & ServeUrlOrWebpackBundle;
+type RenderStillOptions = InnerStillOptions &
+	ServeUrlOrWebpackBundle & {
+		port?: number | null;
+	};
 
 const innerRenderStill = async ({
 	composition,
@@ -218,6 +221,7 @@ export const renderStill = (options: RenderStillOptions): Promise<void> => {
 			onDownload,
 			onError,
 			ffmpegExecutable: options.ffmpegExecutable ?? null,
+			port: options.port ?? null,
 		})
 			.then(({serveUrl, closeServer, offthreadPort}) => {
 				close = closeServer;

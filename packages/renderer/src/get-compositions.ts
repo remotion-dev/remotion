@@ -19,6 +19,7 @@ type GetCompositionsConfig = {
 	timeoutInMilliseconds?: number;
 	chromiumOptions?: ChromiumOptions;
 	ffmpegExecutable?: FfmpegExecutable;
+	port?: number | null;
 };
 
 const innerGetCompositions = async (
@@ -101,6 +102,7 @@ export const getCompositions = async (
 			onDownload: () => undefined,
 			onError,
 			ffmpegExecutable: config?.ffmpegExecutable ?? null,
+			port: config?.port ?? null,
 		})
 			.then(({serveUrl, closeServer, offthreadPort}) => {
 				close = closeServer;
