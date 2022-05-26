@@ -2,6 +2,7 @@ import execa from 'execa';
 import {FfmpegExecutable} from 'remotion';
 import {Readable} from 'stream';
 import {frameToFfmpegTimestamp} from './frame-to-ffmpeg-timestamp';
+import {pLimit} from './p-limit';
 
 export function streamToString(stream: Readable) {
 	const chunks: Buffer[] = [];
@@ -50,15 +51,19 @@ export const getLastFrameOfVideo = async ({
 	return stdout as Readable;
 };
 
-export const extractFrameFromVideo = async ({
-	time,
-	src,
-	ffmpegExecutable,
-}: {
+const limit = pLimit(5);
+
+type Options = {
 	time: number;
 	src: string;
 	ffmpegExecutable: FfmpegExecutable;
-}): Promise<Readable | null> => {
+};
+
+export const extractFrameFromVideoFn = async ({
+	time,
+	src,
+	ffmpegExecutable,
+}: Options): Promise<Readable | null> => {
 	const ffmpegTimestamp = frameToFfmpegTimestamp(time);
 	const {stdout, stderr} = execa(ffmpegExecutable ?? 'ffmpeg', [
 		'-ss',
@@ -82,4 +87,8 @@ export const extractFrameFromVideo = async ({
 	}
 
 	return stdout as Readable;
+};
+
+export const extractFrameFromVideo = (options: Options) => {
+	return limit(extractFrameFromVideoFn, options);
 };
