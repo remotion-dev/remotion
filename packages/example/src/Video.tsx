@@ -7,6 +7,7 @@ import {FontDemo} from './Fonts';
 import {Framer} from './Framer';
 import {FreezeExample} from './Freeze/FreezeExample';
 import {MissingImg} from './MissingImg';
+import {OffthreadRemoteVideo} from './OffthreadRemoteVideo/OffthreadRemoteVideo';
 import {OrbScene} from './Orb';
 import InfinityVideo from './ReallyLongVideo';
 import RemoteVideo from './RemoteVideo';
@@ -61,7 +62,6 @@ export const Index: React.FC = () => {
 					fps={30}
 					durationInFrames={100}
 				/>
-
 				<Composition
 					id="freeze-example"
 					component={FreezeExample}
@@ -179,6 +179,14 @@ export const Index: React.FC = () => {
 					defaultProps={{
 						codec: 'mp4' as const,
 					}}
+				/>
+				<Composition
+					id="OffthreadRemoteVideo"
+					component={OffthreadRemoteVideo}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={100}
 				/>
 				<Composition
 					id="video-testing-webm"
