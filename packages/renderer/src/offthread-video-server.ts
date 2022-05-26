@@ -48,6 +48,7 @@ export const startOffthreadVideoServer = (
 			return;
 		}
 
+		res.setHeader('access-control-allow-origin', '*');
 		res.setHeader('content-type', 'image/jpg');
 
 		const {src, time} = extractUrlAndSourceFromUrl(req.url);
