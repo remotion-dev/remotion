@@ -34,11 +34,7 @@ import { AbsoluteFill, Video } from "remotion";
 export const MyVideo = () => {
   return (
     <AbsoluteFill>
-      <Video
-        src={
-          "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
-        }
-      />
+      <Video src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" />
     </AbsoluteFill>
   );
 };
@@ -144,7 +140,7 @@ You can use the `playbackRate` prop to control the speed of the video. `1` is th
 
 While Remotion doesn't limit the range of possible playback speeds, in development mode the [`HTMLMediaElement.playbackRate`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/playbackRate) API is used which throws errors on extreme values. At the time of writing, Google Chrome throws an exception if the playback rate is below `0.0625` or above `16`.
 
-```tsx twoslash title="Example of a fade in over 100 frames"
+```tsx twoslash title="Example of a video playing twice as fast"
 import { AbsoluteFill, interpolate, Video } from "remotion";
 import video from "./video.webm";
 
@@ -158,6 +154,12 @@ export const MyVideo = () => {
 };
 ```
 
+## Alternative: `<OffthreadVideo>`
+
+[`<OffthreadVideo>`](/docs/offthreadvideo) is a drop-in alternative to `<Video>`. To decide which tag to use, see: [`<Video>` vs `<OffthreadVideo>`](/docs/video-vs-offthreadvideo)
+
 ## See also
 
 - [`<Audio />`](/docs/audio)
+- [`<OffthreadVideo />`](/docs/offthreadvideo)
+- [`<Video>` vs `<OffthreadVideo>`](/docs/video-vs-offthreadvideo)

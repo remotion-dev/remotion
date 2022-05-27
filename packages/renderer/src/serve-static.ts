@@ -1,12 +1,18 @@
 import http from 'http';
-import {Internals} from 'remotion';
+import {FfmpegExecutable, Internals} from 'remotion';
 import handler from 'serve-handler';
+import {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 import {getDesiredPort} from './get-port';
+import {startOffthreadVideoServer} from './offthread-video-server';
 
 export const serveStatic = async (
-	path: string,
-	options?: {
-		port?: number;
+	path: string | null,
+	options: {
+		port: number | null;
+		ffmpegExecutable: FfmpegExecutable;
+		downloadDir: string;
+		onDownload: RenderMediaOnDownload;
+		onError: (err: Error) => void;
 	}
 ): Promise<{
 	port: number;
@@ -18,9 +24,26 @@ export const serveStatic = async (
 		3100
 	);
 
+	const offthreadRequest = startOffthreadVideoServer({
+		ffmpegExecutable: options.ffmpegExecutable,
+		downloadDir: options.downloadDir,
+		onDownload: options.onDownload,
+		onError: options.onError,
+	});
+
 	try {
 		const server = http
 			.createServer((request, response) => {
+				if (request.url?.startsWith('/proxy')) {
+					return offthreadRequest(request, response);
+				}
+
+				if (path === null) {
+					response.writeHead(404);
+					response.end('Server only supports /proxy');
+					return;
+				}
+
 				handler(request, response, {
 					public: path,
 					directoryListing: false,

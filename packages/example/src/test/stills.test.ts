@@ -25,7 +25,17 @@ test('Can render a still using Node.JS APIs', async () => {
 
 	const testOut = path.join(tmpdir(), 'path/to/still.png');
 
-	const {port, close} = await RenderInternals.serveStatic(bundled);
+	const downloadDir = RenderInternals.makeAssetsDownloadTmpDir();
+
+	const {port, close} = await RenderInternals.serveStatic(bundled, {
+		downloadDir,
+		onDownload: () => undefined,
+		port: null,
+		onError: (err) => {
+			throw err;
+		},
+		ffmpegExecutable: null,
+	});
 
 	const serveUrl = `http://localhost:${port}`;
 

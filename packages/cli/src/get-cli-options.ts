@@ -188,7 +188,7 @@ const getAndValidateBrowser = async (browserExecutable: BrowserExecutable) => {
 
 export const getCliOptions = async (options: {
 	isLambda: boolean;
-	type: 'still' | 'series';
+	type: 'still' | 'series' | 'get-compositions';
 }) => {
 	const frameRange = getAndValidateFrameRange();
 
@@ -200,13 +200,14 @@ export const getCliOptions = async (options: {
 					frameRange,
 					isLambda: options.isLambda,
 			  });
-	const outputFile = options.isLambda
-		? null
-		: getOutputFilename({
-				codec,
-				imageSequence: shouldOutputImageSequence,
-				type: options.type,
-		  });
+	const outputFile =
+		options.isLambda || options.type === 'get-compositions'
+			? null
+			: getOutputFilename({
+					codec,
+					imageSequence: shouldOutputImageSequence,
+					type: options.type,
+			  });
 
 	const overwrite = Internals.getShouldOverwrite();
 	const crf = getAndValidateCrf(shouldOutputImageSequence, codec);
@@ -220,6 +221,7 @@ export const getCliOptions = async (options: {
 	const browserExecutable = Internals.getBrowserExecutable();
 	const ffmpegExecutable = Internals.getCustomFfmpegExecutable();
 	const scale = Internals.getScale();
+	const port = Internals.getServerPort();
 
 	const chromiumOptions: ChromiumOptions = {
 		disableWebSecurity: Internals.getChromiumDisableWebSecurity(),
@@ -254,5 +256,6 @@ export const getCliOptions = async (options: {
 		logLevel: Internals.Logging.getLogLevel(),
 		scale,
 		chromiumOptions,
+		port: port ?? null,
 	};
 };
