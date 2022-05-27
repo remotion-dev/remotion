@@ -1,17 +1,21 @@
 export type SampleOutputRange = 'minus-one-to-one' | 'zero-to-one';
 
-const filterData = (
-	audioBuffer: Float32Array,
-	samples: number,
-	outputRange: SampleOutputRange
-) => {
-	const blockSize = Math.floor(audioBuffer.length / samples); // the number of samples in each subdivision
+export const getWaveformSamples = ({
+	audioBuffer,
+	numberOfSamples,
+	outputRange,
+}: {
+	audioBuffer: Float32Array;
+	numberOfSamples: number;
+	outputRange: SampleOutputRange;
+}) => {
+	const blockSize = Math.floor(audioBuffer.length / numberOfSamples); // the number of samples in each subdivision
 	if (blockSize === 0) {
 		return [];
 	}
 
 	const filteredData = [];
-	for (let i = 0; i < samples; i++) {
+	for (let i = 0; i < numberOfSamples; i++) {
 		const blockStart = blockSize * i; // the location of the first sample in the block
 		let sum = 0;
 		for (let j = 0; j < blockSize; j++) {
@@ -25,12 +29,4 @@ const filterData = (
 	}
 
 	return filteredData;
-};
-
-export const getWaveformSamples = (
-	waveform: Float32Array,
-	sampleAmount: number,
-	outputRange: SampleOutputRange
-) => {
-	return filterData(waveform, sampleAmount, outputRange);
 };

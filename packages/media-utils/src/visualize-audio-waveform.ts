@@ -35,13 +35,7 @@ const visualizeAudioWaveformFrame = ({
 
 	const time = frame / fps;
 
-	const max = audioData.durationInSeconds - windowInSeconds / 2;
-	const min = windowInSeconds / 2;
-
-	const startTimeInSeconds = Math.min(
-		max,
-		Math.max(min, time - windowInSeconds / 2)
-	);
+	const startTimeInSeconds = time - windowInSeconds / 2;
 
 	return getWaveformPortion({
 		audioData,

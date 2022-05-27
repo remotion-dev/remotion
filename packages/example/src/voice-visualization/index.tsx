@@ -31,24 +31,24 @@ const VoiceVisualization: React.FC = () => {
 		return null;
 	}
 
+	const posterized = Math.round(frame / 3) * 3;
+
 	const waveform = visualizeAudioWaveform({
 		fps,
-		frame,
+		frame: posterized,
 		audioData: audioDataVoice,
-		numberOfSamples: 16,
-		windowInSeconds: 1 / fps,
+		numberOfSamples: 64,
+		windowInSeconds: 0.5,
 	});
 
 	const p = createSmoothSvgPath(
-		waveform.map((p, i) => {
+		waveform.map((y, i) => {
 			return [
-				(i / (waveform.length - 1)) * width * 2 - width / 2,
-				p * height + height / 2,
+				(i / (waveform.length - 1)) * width,
+				height / 2 + ((y * height) / 2) * 5,
 			];
 		})
 	);
-
-	const filledPath = `${p} L ${width} ${height} L 0 ${height} z`;
 
 	return (
 		<div style={{flex: 1}}>
@@ -61,7 +61,7 @@ const VoiceVisualization: React.FC = () => {
 						width={width}
 						height={height}
 					>
-						<path fill="none" stroke="black" strokeWidth={10} d={filledPath} />
+						<path fill="none" stroke="#0b84f3" strokeWidth={10} d={p} />
 					</svg>
 				</Orb>
 			</FullSize>

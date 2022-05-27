@@ -360,17 +360,6 @@ export const Index: React.FC = () => {
 					durationInFrames={180 * 30}
 					defaultProps={{}}
 				/>
-				<Composition
-					id="audio-visualization-wave"
-					lazyComponent={() => import('./AudioVisualization')}
-					width={1080}
-					height={1080}
-					fps={30}
-					defaultProps={{
-						isWaveform: true,
-					}}
-					durationInFrames={30 * 30}
-				/>
 			</Folder>
 			<Folder name="three">
 				<Still id="Orb" component={OrbScene} width={2000} height={2000} />
