@@ -57,6 +57,11 @@ const notifyAssetIsDownloaded = (src: string, to: string) => {
 			[to: string]: boolean;
 		}
 	)[to] = false;
+
+	if (!hasBeenDownloadedMap[src]) {
+		hasBeenDownloadedMap[src] = {};
+	}
+
 	(
 		hasBeenDownloadedMap[src] as {
 			[to: string]: boolean;
@@ -113,7 +118,7 @@ const downloadAsset = async (
 	to: string,
 	onDownload: RenderMediaOnDownload
 ) => {
-	if (hasBeenDownloadedMap[src]) {
+	if (hasBeenDownloadedMap[src]?.[to]) {
 		return;
 	}
 
