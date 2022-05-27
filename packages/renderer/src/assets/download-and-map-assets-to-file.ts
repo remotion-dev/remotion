@@ -9,32 +9,64 @@ export type RenderMediaOnDownload = (
 	src: string
 ) => ((progress: {percent: number}) => void) | undefined | void;
 
-const isDownloadingMap: {[key: string]: boolean} = {};
-const hasBeenDownloadedMap: {[key: string]: string | null} = {};
-const listeners: {[key: string]: ((to: string) => void)[]} = {};
+const isDownloadingMap: {[src: string]: {[to: string]: boolean} | undefined} =
+	{};
+const hasBeenDownloadedMap: {
+	[src: string]: {[to: string]: boolean} | undefined;
+} = {};
+const listeners: {[key: string]: {[to: string]: (() => void)[]}} = {};
 
-export const waitForAssetToBeDownloaded = (src: string): Promise<string> => {
-	if (hasBeenDownloadedMap[src]) {
-		return Promise.resolve(hasBeenDownloadedMap[src] as string);
+export const waitForAssetToBeDownloaded = (
+	src: string,
+	to: string
+): Promise<void> => {
+	if (hasBeenDownloadedMap[src]?.[to]) {
+		return Promise.resolve();
 	}
 
 	if (!listeners[src]) {
-		listeners[src] = [];
+		listeners[src] = {};
 	}
 
-	return new Promise<string>((resolve) => {
-		listeners[src].push((to: string) => resolve(to));
+	if (!listeners[src][to]) {
+		listeners[src][to] = [];
+	}
+
+	return new Promise<void>((resolve) => {
+		listeners[src][to].push(() => resolve());
 	});
 };
 
 const notifyAssetIsDownloaded = (src: string, to: string) => {
 	if (!listeners[src]) {
-		listeners[src] = [];
+		listeners[src] = {};
 	}
 
-	listeners[src].forEach((fn) => fn(to));
-	isDownloadingMap[src] = false;
-	hasBeenDownloadedMap[src] = to;
+	if (!listeners[src][to]) {
+		listeners[src][to] = [];
+	}
+
+	listeners[src][to].forEach((fn) => fn());
+
+	if (!isDownloadingMap[src]) {
+		isDownloadingMap[src] = {};
+	}
+
+	(
+		isDownloadingMap[src] as {
+			[to: string]: boolean;
+		}
+	)[to] = false;
+
+	if (!hasBeenDownloadedMap[src]) {
+		hasBeenDownloadedMap[src] = {};
+	}
+
+	(
+		hasBeenDownloadedMap[src] as {
+			[to: string]: boolean;
+		}
+	)[to] = true;
 };
 
 const validateMimeType = (mimeType: string, src: string) => {
@@ -86,15 +118,23 @@ const downloadAsset = async (
 	to: string,
 	onDownload: RenderMediaOnDownload
 ) => {
-	if (hasBeenDownloadedMap[src]) {
+	if (hasBeenDownloadedMap[src]?.[to]) {
 		return;
 	}
 
-	if (isDownloadingMap[src]) {
-		return waitForAssetToBeDownloaded(src);
+	if (isDownloadingMap[src]?.[to]) {
+		return waitForAssetToBeDownloaded(src, to);
 	}
 
-	isDownloadingMap[src] = true;
+	if (!isDownloadingMap[src]) {
+		isDownloadingMap[src] = {};
+	}
+
+	(
+		isDownloadingMap[src] as {
+			[to: string]: boolean;
+		}
+	)[to] = true;
 
 	const onProgress = onDownload(src);
 	ensureOutputDirectory(to);
