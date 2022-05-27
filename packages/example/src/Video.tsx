@@ -350,6 +350,31 @@ export const Index: React.FC = () => {
 					height={1080}
 					fps={30}
 					durationInFrames={180 * 30}
+					defaultProps={{
+						isWaveform: false,
+					}}
+				/>
+				<Composition
+					id="voice-visualization"
+					lazyComponent={() => import('./voice-visualization')}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={180 * 30}
+					defaultProps={{
+						isWaveform: false,
+					}}
+				/>
+				<Composition
+					id="audio-visualization-wave"
+					lazyComponent={() => import('./AudioVisualization')}
+					width={1080}
+					height={1080}
+					fps={30}
+					defaultProps={{
+						isWaveform: true,
+					}}
+					durationInFrames={30 * 30}
 				/>
 			</Folder>
 			<Folder name="three">
