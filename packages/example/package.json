@@ -50,7 +50,6 @@
 		"remotion": "3.0.10",
 		"styled-components": "^5.1.1",
 		"svg-path-properties": "^1.0.4",
-		"ts-node": "^9.1.1",
 		"ts-unused-exports": "^7.0.1",
 		"typescript": "^4.7.0"
 	},
