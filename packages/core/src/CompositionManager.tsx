@@ -174,6 +174,7 @@ export const CompositionManagerProvider: React.FC<{
 			return [...assts, asset];
 		});
 	}, []);
+
 	const unregisterAsset = useCallback((id: string) => {
 		setAssets((assts) => {
 			return assts.filter((a) => a.id !== id);

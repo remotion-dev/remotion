@@ -7,6 +7,7 @@ import {
 } from 'puppeteer-core';
 import {
 	BrowserExecutable,
+	FfmpegExecutable,
 	FrameRange,
 	ImageFormat,
 	Internals,
@@ -69,6 +70,8 @@ type RenderFramesOptions = {
 	timeoutInMilliseconds?: number;
 	chromiumOptions?: ChromiumOptions;
 	scale?: number;
+	ffmpegExecutable?: FfmpegExecutable;
+	port?: number | null;
 } & ConfigOrComposition &
 	ServeUrlOrWebpackBundle;
 
@@ -104,12 +107,17 @@ const innerRenderFrames = async ({
 	timeoutInMilliseconds,
 	scale,
 	actualParallelism,
-}: Omit<RenderFramesOptions, 'url'> & {
+	downloadDir,
+	proxyPort,
+}: Omit<RenderFramesOptions, 'url' | 'onDownload'> & {
 	onError: (err: Error) => void;
 	pagesArray: Page[];
 	serveUrl: string;
 	composition: SmallTCompMetadata;
 	actualParallelism: number;
+	downloadDir: string;
+	onDownload: RenderMediaOnDownload;
+	proxyPort: number;
 }): Promise<RenderFramesOutput> => {
 	if (!puppeteerInstance) {
 		throw new Error('weird');
@@ -168,6 +176,7 @@ const innerRenderFrames = async ({
 			serveUrl,
 			initialFrame,
 			timeoutInMilliseconds,
+			proxyPort,
 		});
 
 		await puppeteerEvaluateWithCatch({
@@ -198,7 +207,6 @@ const innerRenderFrames = async ({
 	onStart({
 		frameCount,
 	});
-	const downloadDir = makeAssetsDownloadTmpDir();
 	const assets: TAsset[][] = new Array(frameCount).fill(undefined);
 	await Promise.all(
 		new Array(frameCount)
@@ -275,7 +283,7 @@ const innerRenderFrames = async ({
 					downloadAndMapAssetsToFileUrl({
 						asset,
 						downloadDir,
-						onDownload: onDownload ?? (() => () => undefined),
+						onDownload,
 					}).catch((err) => {
 						onError(
 							new Error(
@@ -345,8 +353,6 @@ export const renderFrames = async (
 	Internals.validateQuality(options.quality);
 	validateScale(options.scale);
 
-	const {closeServer, serveUrl} = await prepareServer(selectedServeUrl);
-
 	const browserInstance =
 		options.puppeteerInstance ??
 		(await openBrowser(Internals.DEFAULT_BROWSER, {
@@ -356,6 +362,10 @@ export const renderFrames = async (
 			forceDeviceScaleFactor: options.scale ?? 1,
 		}));
 
+	const downloadDir = makeAssetsDownloadTmpDir();
+
+	const onDownload = options.onDownload ?? (() => () => undefined);
+
 	const actualParallelism = getActualConcurrency(options.parallelism ?? null);
 
 	const {stopCycling} = cycleBrowserTabs(browserInstance, actualParallelism);
@@ -363,15 +373,31 @@ export const renderFrames = async (
 	const openedPages: Page[] = [];
 
 	return new Promise<RenderFramesOutput>((resolve, reject) => {
-		innerRenderFrames({
-			...options,
-			puppeteerInstance: browserInstance,
-			onError: (err) => reject(err),
-			pagesArray: openedPages,
-			serveUrl,
-			composition,
-			actualParallelism,
+		let cleanup: (() => void) | null = null;
+		const onError = (err: Error) => reject(err);
+		prepareServer({
+			webpackConfigOrServeUrl: selectedServeUrl,
+			downloadDir,
+			onDownload,
+			onError,
+			ffmpegExecutable: options.ffmpegExecutable ?? null,
+			port: options.port ?? null,
 		})
+			.then(({serveUrl, closeServer, offthreadPort}) => {
+				cleanup = closeServer;
+				return innerRenderFrames({
+					...options,
+					puppeteerInstance: browserInstance,
+					onError,
+					pagesArray: openedPages,
+					serveUrl,
+					composition,
+					actualParallelism,
+					onDownload,
+					downloadDir,
+					proxyPort: offthreadPort,
+				});
+			})
 			.then((res) => resolve(res))
 			.catch((err) => reject(err))
 			.finally(() => {
@@ -390,7 +416,7 @@ export const renderFrames = async (
 				}
 
 				stopCycling();
-				closeServer();
+				cleanup?.();
 			});
 	});
 };

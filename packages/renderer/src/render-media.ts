@@ -4,6 +4,7 @@ import os from 'os';
 import path from 'path';
 import type {Browser as PuppeteerBrowser} from 'puppeteer-core';
 import {
+	BrowserExecutable,
 	Codec,
 	FfmpegExecutable,
 	FrameRange,
@@ -69,6 +70,8 @@ export type RenderMediaOptions = {
 	timeoutInMilliseconds?: number;
 	chromiumOptions?: ChromiumOptions;
 	scale?: number;
+	port?: number | null;
+	browserExecutable?: BrowserExecutable;
 } & ServeUrlOrWebpackBundle;
 
 type Await<T> = T extends PromiseLike<infer U> ? U : T;
@@ -97,6 +100,8 @@ export const renderMedia = async ({
 	timeoutInMilliseconds,
 	chromiumOptions,
 	scale,
+	browserExecutable,
+	port,
 	...options
 }: RenderMediaOptions) => {
 	Internals.validateQuality(quality);
@@ -220,6 +225,9 @@ export const renderMedia = async ({
 			timeoutInMilliseconds,
 			chromiumOptions,
 			scale,
+			ffmpegExecutable,
+			browserExecutable,
+			port,
 		});
 		if (stitcherFfmpeg) {
 			await waitForFinish();

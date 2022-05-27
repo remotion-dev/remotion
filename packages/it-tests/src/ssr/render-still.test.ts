@@ -15,7 +15,7 @@ afterEach(async () => {
 test("Render video with browser instance open", async () => {
   const puppeteerInstance = await openBrowser("chrome");
   const compositions = await getCompositions(
-    "https://quizzical-jackson-ad3285.netlify.app/",
+    "https://fascinating-selkie-c7398a.netlify.app/",
     {
       puppeteerInstance,
     }
@@ -33,7 +33,7 @@ test("Render video with browser instance open", async () => {
 
   await renderStill({
     output: outPath,
-    serveUrl: "https://quizzical-jackson-ad3285.netlify.app/",
+    serveUrl: "https://fascinating-selkie-c7398a.netlify.app/",
     composition: reactSvg,
     puppeteerInstance,
   });
@@ -42,7 +42,7 @@ test("Render video with browser instance open", async () => {
 
 test("Render still with browser instance not open and legacy webpack config", async () => {
   const compositions = await getCompositions(
-    "https://quizzical-jackson-ad3285.netlify.app/"
+    "https://fascinating-selkie-c7398a.netlify.app/"
   );
 
   const reactSvg = compositions.find((c) => c.id === "react-svg");
@@ -57,7 +57,7 @@ test("Render still with browser instance not open and legacy webpack config", as
 
   await renderStill({
     output: outPath,
-    webpackBundle: "https://quizzical-jackson-ad3285.netlify.app/",
+    webpackBundle: "https://fascinating-selkie-c7398a.netlify.app/",
     composition: reactSvg,
   });
   expect(existsSync(outPath)).toBe(true);

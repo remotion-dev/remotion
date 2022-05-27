@@ -9,7 +9,10 @@ function selectColor(color: string, frame: number) {
   return Math.floor((random(`${color}-${frame}`) * 255) % 255);
 }
 
-const getMissedFramesforCodec = async (codec: "mp4" | "webm") => {
+const getMissedFramesforCodec = async (
+  codec: "mp4" | "webm",
+  offthread: boolean
+) => {
   const outputPath = await fs.promises.mkdtemp(
     path.join(os.tmpdir(), "remotion-")
   );
@@ -22,7 +25,7 @@ const getMissedFramesforCodec = async (codec: "mp4" | "webm") => {
       "remotion",
       "render",
       "src/index.tsx",
-      `video-testing-${codec}`,
+      `video-testing-${codec}${offthread ? "-offthread" : ""}`,
       outputPath,
       "--image-format",
       "jpeg",
@@ -80,12 +83,21 @@ const getMissedFramesforCodec = async (codec: "mp4" | "webm") => {
   return missedFrames;
 };
 
-test("should render correct frames from embedded videos - WebM", async () => {
-  const missedFrames = await getMissedFramesforCodec("webm");
+test("should render correct frames from embedded videos - WebM onthread", async () => {
+  const missedFrames = await getMissedFramesforCodec("webm", false);
+  expect(missedFrames).toBe(0);
+});
+test("should render correct frames from embedded videos - WebM offthread", async () => {
+  const missedFrames = await getMissedFramesforCodec("webm", true);
   expect(missedFrames).toBe(0);
 });
 
-test("should render correct frames from embedded videos - MP4", async () => {
-  const missedFrames = await getMissedFramesforCodec("mp4");
+test("should render correct frames from embedded videos - MP4 onthread", async () => {
+  const missedFrames = await getMissedFramesforCodec("mp4", false);
+  expect(missedFrames).toBe(0);
+});
+
+test("should render correct frames from embedded videos - MP4 offthread", async () => {
+  const missedFrames = await getMissedFramesforCodec("mp4", true);
   expect(missedFrames).toBe(0);
 });
