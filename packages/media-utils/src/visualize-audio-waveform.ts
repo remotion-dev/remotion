@@ -48,7 +48,7 @@ const visualizeAudioWaveformFrame = ({
 		startTimeInSeconds,
 		durationInSeconds: windowInSeconds,
 		numberOfSamples,
-		normalize: false,
+		outputRange: 'minus-one-to-one',
 	});
 };
 

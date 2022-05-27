@@ -1,4 +1,4 @@
-import {getWaveformSamples} from './get-wave-form-samples';
+import {getWaveformSamples, SampleOutputRange} from './get-wave-form-samples';
 import {AudioData} from './types';
 
 type Bar = {
@@ -11,13 +11,13 @@ const getWaveformPortion = ({
 	startTimeInSeconds,
 	durationInSeconds,
 	numberOfSamples,
-	normalize,
+	outputRange = 'zero-to-one',
 }: {
 	audioData: AudioData;
 	startTimeInSeconds: number;
 	durationInSeconds: number;
 	numberOfSamples: number;
-	normalize: boolean;
+	outputRange?: SampleOutputRange;
 }): Bar[] => {
 	const startSample = Math.floor(
 		(startTimeInSeconds / audioData.durationInSeconds) *
@@ -31,7 +31,7 @@ const getWaveformPortion = ({
 	return getWaveformSamples(
 		audioData.channelWaveforms[0].slice(startSample, endSample),
 		numberOfSamples,
-		normalize
+		outputRange
 	).map((w, i) => {
 		return {
 			index: i,
