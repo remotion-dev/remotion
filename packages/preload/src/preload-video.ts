@@ -1,14 +1,4 @@
-const resolveRedirect = async (video: string) => {
-	try {
-		const res = await fetch(video);
-		return res.url;
-	} catch (err) {
-		console.info(
-			'[@remotion/preload] Resource does not support CORS. Cannot handle any potential redirects'
-		);
-		return video;
-	}
-};
+import {resolveRedirect} from './resolve-redirect';
 
 export const preloadVideo = (src: string): (() => void) => {
 	if (typeof document === 'undefined') {
