@@ -20,7 +20,6 @@
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
 	"dependencies": {
-		"@remotion/bundler": "3.0.10",
 		"execa": "5.1.1",
 		"puppeteer-core": "13.5.1",
 		"remotion": "3.0.10",

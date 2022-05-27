@@ -2,6 +2,7 @@ import {
 	getCompositions,
 	openBrowser,
 	RenderInternals,
+	RenderMediaOnDownload,
 	renderStill,
 } from '@remotion/renderer';
 import chalk from 'chalk';
@@ -15,7 +16,8 @@ import {Log} from './log';
 import {parsedCli, quietFlagProvided} from './parse-command-line';
 import {
 	createOverwriteableCliOutput,
-	makeRenderingProgress,
+	DownloadProgress,
+	makeRenderingAndStitchingProgress,
 } from './progress-bar';
 import {bundleOnCli} from './setup-cache';
 import {RenderStep} from './step';
@@ -56,6 +58,10 @@ export const still = async () => {
 		browserExecutable,
 		chromiumOptions,
 		scale,
+		ffmpegExecutable,
+		overwrite,
+		puppeteerTimeout,
+		port,
 	} = await getCliOptions({isLambda: false, type: 'still'});
 
 	Log.verbose('Browser executable: ', browserExecutable);
@@ -106,17 +112,17 @@ export const still = async () => {
 	const urlOrBundle = RenderInternals.isServeUrl(fullPath)
 		? Promise.resolve(fullPath)
 		: await bundleOnCli(fullPath, steps);
-	const {serveUrl, closeServer} = await RenderInternals.prepareServer(
-		await urlOrBundle
-	);
 
 	const puppeteerInstance = await browserInstance;
-	const comps = await getCompositions(serveUrl, {
+	const comps = await getCompositions(await urlOrBundle, {
 		inputProps,
 		puppeteerInstance,
 		envVariables,
-		timeoutInMilliseconds: Internals.getCurrentPuppeteerTimeout(),
+		timeoutInMilliseconds: puppeteerTimeout,
 		chromiumOptions,
+		port,
+		browserExecutable,
+		ffmpegExecutable,
 	});
 	const compositionId = getCompositionId(comps);
 
@@ -128,11 +134,49 @@ export const still = async () => {
 	const renderProgress = createOverwriteableCliOutput(quietFlagProvided());
 	const renderStart = Date.now();
 
+	const downloads: DownloadProgress[] = [];
+	let frames = 0;
+	const totalFrames = 1;
+
+	const updateProgress = () => {
+		renderProgress.update(
+			makeRenderingAndStitchingProgress({
+				rendering: {
+					frames,
+					concurrency: 1,
+					doneIn: frames === totalFrames ? Date.now() - renderStart : null,
+					steps,
+					totalFrames,
+				},
+				downloads,
+				stitching: null,
+			})
+		);
+	};
+
+	updateProgress();
+
+	const onDownload: RenderMediaOnDownload = (src) => {
+		const id = Math.random();
+		const download: DownloadProgress = {
+			id,
+			name: src,
+			progress: 0,
+		};
+		downloads.push(download);
+		updateProgress();
+
+		return ({percent}) => {
+			download.progress = percent;
+			updateProgress();
+		};
+	};
+
 	await renderStill({
 		composition,
 		frame: stillFrame,
 		output: userOutput,
-		serveUrl,
+		serveUrl: await urlOrBundle,
 		quality,
 		dumpBrowserLogs: Internals.Logging.isEqualOrBelowLogLevel(
 			Internals.Logging.getLogLevel(),
@@ -144,21 +188,17 @@ export const still = async () => {
 		chromiumOptions,
 		timeoutInMilliseconds: Internals.getCurrentPuppeteerTimeout(),
 		scale,
+		ffmpegExecutable,
+		browserExecutable,
+		overwrite,
+		onDownload,
 	});
 
+	frames = 1;
+	updateProgress();
+	Log.info();
+
 	const closeBrowserPromise = puppeteerInstance.close();
-	closeServer().catch((err) => {
-		Log.error('Could not close web server', err);
-	});
-	renderProgress.update(
-		makeRenderingProgress({
-			frames: 1,
-			concurrency: 1,
-			doneIn: Date.now() - renderStart,
-			steps,
-			totalFrames: 1,
-		})
-	);
 
 	Log.info(chalk.green('\nYour still frame is ready!'));
 
