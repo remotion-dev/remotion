@@ -9,6 +9,7 @@ type FnParameters = {
 	fps: number;
 	windowInSeconds: number;
 	numberOfSamples: number;
+	channel: number;
 };
 
 const visualizeAudioWaveformFrame = ({
@@ -17,6 +18,7 @@ const visualizeAudioWaveformFrame = ({
 	fps,
 	numberOfSamples,
 	windowInSeconds,
+	channel,
 }: FnParameters) => {
 	if (windowInSeconds * audioData.sampleRate < numberOfSamples) {
 		throw new TypeError(
@@ -43,6 +45,7 @@ const visualizeAudioWaveformFrame = ({
 		durationInSeconds: windowInSeconds,
 		numberOfSamples,
 		outputRange: 'minus-one-to-one',
+		channel,
 	});
 };
 

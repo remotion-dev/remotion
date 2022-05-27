@@ -1,5 +1,6 @@
 import {getWaveformSamples, SampleOutputRange} from './get-wave-form-samples';
 import {AudioData} from './types';
+import {validateChannel} from './validate-channel';
 
 type Bar = {
 	index: number;
@@ -34,15 +35,19 @@ const getWaveformPortion = ({
 	startTimeInSeconds,
 	durationInSeconds,
 	numberOfSamples,
+	channel,
 	outputRange = 'zero-to-one',
 }: {
 	audioData: AudioData;
 	startTimeInSeconds: number;
 	durationInSeconds: number;
 	numberOfSamples: number;
+	channel: number;
 	outputRange?: SampleOutputRange;
 }): Bar[] => {
-	const waveform = audioData.channelWaveforms[0];
+	validateChannel(channel, audioData.numberOfChannels);
+
+	const waveform = audioData.channelWaveforms[channel];
 
 	const startSample = Math.floor(
 		(startTimeInSeconds / audioData.durationInSeconds) * waveform.length
@@ -64,7 +69,6 @@ const getWaveformPortion = ({
 			: null;
 	const padEnd =
 		samplesAfterEnd > 0 ? new Float32Array(samplesAfterEnd).fill(0) : null;
-	console.log({samplesBeforeStart, samplesAfterEnd});
 	const arrs = [
 		padStart,
 		waveform.slice(clampedStart, clampedEnd),

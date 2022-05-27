@@ -1,5 +1,5 @@
 import {
-	createSmoothSvgPath,
+	smoothenSvgPath,
 	useAudioData,
 	visualizeAudioWaveform,
 } from '@remotion/media-utils';
@@ -12,13 +12,6 @@ const FullSize = styled(AbsoluteFill)`
 	display: flex;
 	justify-content: center;
 	align-items: center;
-`;
-
-const Orb = styled.div`
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	flex: 1;
 `;
 
 const VoiceVisualization: React.FC = () => {
@@ -37,15 +30,16 @@ const VoiceVisualization: React.FC = () => {
 		fps,
 		frame: posterized,
 		audioData: audioDataVoice,
-		numberOfSamples: 64,
-		windowInSeconds: 0.5,
+		numberOfSamples: 16,
+		windowInSeconds: 1 / fps,
+		channel: 0,
 	});
 
-	const p = createSmoothSvgPath(
+	const p = smoothenSvgPath(
 		waveform.map((y, i) => {
 			return [
 				(i / (waveform.length - 1)) * width,
-				height / 2 + ((y * height) / 2) * 5,
+				height / 2 + (y * height) / 2,
 			];
 		})
 	);
@@ -54,16 +48,14 @@ const VoiceVisualization: React.FC = () => {
 		<div style={{flex: 1}}>
 			<Audio src={voice} />
 			<FullSize>
-				<Orb>
-					<svg
-						style={{backgroundColor: 'white'}}
-						viewBox={`0 0 ${width} ${height}`}
-						width={width}
-						height={height}
-					>
-						<path fill="none" stroke="#0b84f3" strokeWidth={10} d={p} />
-					</svg>
-				</Orb>
+				<svg
+					style={{backgroundColor: 'white'}}
+					viewBox={`0 0 ${width} ${height}`}
+					width={width}
+					height={height}
+				>
+					<path fill="none" stroke="#0b84f3" strokeWidth={10} d={p} />
+				</svg>
 			</FullSize>
 		</div>
 	);

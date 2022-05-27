@@ -19,13 +19,13 @@ export const getWaveformSamples = ({
 		const blockStart = blockSize * i; // the location of the first sample in the block
 		let sum = 0;
 		for (let j = 0; j < blockSize; j++) {
-			sum +=
-				outputRange === 'minus-one-to-one'
-					? audioBuffer[blockStart + j]
-					: Math.abs(audioBuffer[blockStart + j]); // find the sum of all the samples in the block
+			sum += Math.abs(audioBuffer[blockStart + j]); // find the sum of all the samples in the block
 		}
 
-		filteredData.push(sum / blockSize); // divide the sum by the block size to get the average
+		filteredData.push(
+			(sum / blockSize) *
+				(i % 2 === 0 && outputRange === 'minus-one-to-one' ? -1 : 1)
+		); // divide the sum by the block size to get the average
 	}
 
 	return filteredData;

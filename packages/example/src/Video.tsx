@@ -21,6 +21,7 @@ import {VideoOnCanvas} from './VideoOnCanvas';
 import {Greenscreen} from './VideoOnCanvas/greenscreen';
 import {VideoSpeed} from './VideoSpeed';
 import {VideoTesting} from './VideoTesting';
+import {TwoChannelVoiceVisualization} from './voice-visualization/two-channel';
 
 // Use it to test that UI does not regress on weird CSS
 // import './weird-css.css';
@@ -351,15 +352,26 @@ export const Index: React.FC = () => {
 					fps={30}
 					durationInFrames={180 * 30}
 				/>
-				<Composition
-					id="voice-visualization"
-					lazyComponent={() => import('./voice-visualization')}
-					width={1080}
-					height={1080}
-					fps={30}
-					durationInFrames={180 * 30}
-					defaultProps={{}}
-				/>
+				<Folder name="VoiceVisualization">
+					<Composition
+						id="rolling-waveform"
+						lazyComponent={() => import('./voice-visualization')}
+						width={1080}
+						height={1080}
+						fps={30}
+						durationInFrames={30 * 30}
+						defaultProps={{}}
+					/>
+					<Composition
+						id="twochannel"
+						component={TwoChannelVoiceVisualization}
+						width={1080}
+						height={1080}
+						fps={30}
+						durationInFrames={30 * 30}
+						defaultProps={{}}
+					/>
+				</Folder>
 			</Folder>
 			<Folder name="three">
 				<Still id="Orb" component={OrbScene} width={2000} height={2000} />

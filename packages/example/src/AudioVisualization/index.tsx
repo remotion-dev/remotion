@@ -109,6 +109,7 @@ const AudioVisualization: React.FC = () => {
 		audioData: audioDataVoice,
 		numberOfSamples: WAVEFORM_SAMPLES,
 		windowInSeconds: 1 / fps,
+		channel: 0,
 	});
 	console.log({waveform});
 
