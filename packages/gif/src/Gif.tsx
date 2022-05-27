@@ -1,4 +1,3 @@
-import React from 'react';
 import {Internals} from 'remotion';
 import {GifForDevelopment} from './GifForDevelopment';
 import {GifForRendering} from './GifForRendering';

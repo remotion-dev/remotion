@@ -719,7 +719,6 @@ importers:
   packages/renderer:
     specifiers:
       '@jonny/eslint-config': 3.0.259
-      '@remotion/bundler': 3.0.10
       '@testing-library/dom': ^8.7.2
       '@testing-library/react': 13.1.1
       '@types/jest': ^27.4.0
@@ -741,7 +740,6 @@ importers:
       ts-jest: ^27.0.5
       typescript: ^4.5.5
     dependencies:
-      '@remotion/bundler': link:../bundler
       execa: 5.1.1
       puppeteer-core: 13.5.1
       remotion: link:../core

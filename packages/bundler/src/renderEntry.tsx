@@ -221,6 +221,6 @@ if (typeof window !== 'undefined') {
 			});
 	};
 
-	window.siteVersion = '2';
+	window.siteVersion = '3';
 	window.setBundleMode = setBundleModeAndUpdate;
 }

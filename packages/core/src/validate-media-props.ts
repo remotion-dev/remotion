@@ -1,8 +1,9 @@
 import {RemotionAudioProps} from './audio';
 import {RemotionVideoProps} from './video';
+import {OffthreadVideoProps} from './video/props';
 
 export const validateMediaProps = (
-	props: RemotionVideoProps | RemotionAudioProps,
+	props: RemotionVideoProps | RemotionAudioProps | OffthreadVideoProps,
 	component: 'Video' | 'Audio'
 ) => {
 	if (

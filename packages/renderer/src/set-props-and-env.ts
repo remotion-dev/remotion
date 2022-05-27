@@ -11,6 +11,7 @@ export const setPropsAndEnv = async ({
 	serveUrl,
 	initialFrame,
 	timeoutInMilliseconds,
+	proxyPort,
 }: {
 	inputProps: unknown;
 	envVariables: Record<string, string> | undefined;
@@ -18,6 +19,7 @@ export const setPropsAndEnv = async ({
 	serveUrl: string;
 	initialFrame: number;
 	timeoutInMilliseconds: number | undefined;
+	proxyPort: number;
 }) => {
 	validatePuppeteerTimeout(timeoutInMilliseconds);
 	const actualTimeout =
@@ -59,6 +61,13 @@ export const setPropsAndEnv = async ({
 		[initialFrame]
 	);
 
+	await page.evaluateOnNewDocument(
+		(port: number) => {
+			window.remotion_proxyPort = port;
+		},
+		[proxyPort]
+	);
+
 	const pageRes = await page.goto(urlToVisit);
 
 	const status = pageRes.status();
@@ -90,7 +99,7 @@ export const setPropsAndEnv = async ({
 		);
 	}
 
-	const siteVersion = await puppeteerEvaluateWithCatch<'2'>({
+	const siteVersion = await puppeteerEvaluateWithCatch<'3'>({
 		pageFunction: () => {
 			return window.siteVersion;
 		},
@@ -99,9 +108,9 @@ export const setPropsAndEnv = async ({
 		page,
 	});
 
-	if (siteVersion !== '2') {
+	if (siteVersion !== '3') {
 		throw new Error(
-			`Incompatible site: When visiting ${urlToVisit}, a bundle was found, but one that is not compatible with this version of Remotion. The bundle format changed in versions from March 2022 onwards. To resolve this error, please bundle and deploy again.`
+			`Incompatible site: When visiting ${urlToVisit}, a bundle was found, but one that is not compatible with this version of Remotion. The bundle format changed in version 3.0.11. To resolve this error, please bundle and deploy again.`
 		);
 	}
 };
