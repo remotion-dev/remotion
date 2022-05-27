@@ -21,6 +21,7 @@ export const autoImports = {
   Composition: "import {Composition} from 'remotion'",
   Audio: "import {Audio} from 'remotion'",
   Video: "import {Video} from 'remotion'",
+  OffthreadVideo: "import {OffthreadVideo} from 'remotion'",
   Series: "import {Series} from 'remotion'",
   Still: "import {Still} from 'remotion'",
   Freeze: "import {Freeze} from 'remotion'",

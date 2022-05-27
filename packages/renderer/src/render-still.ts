@@ -3,16 +3,19 @@ import path from 'path';
 import {Browser as PuppeteerBrowser} from 'puppeteer-core';
 import {
 	BrowserExecutable,
+	FfmpegExecutable,
 	Internals,
 	StillImageFormat,
 	TCompMetadata,
 } from 'remotion';
+import {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 import {ensureOutputDirectory} from './ensure-output-directory';
 import {handleJavascriptException} from './error-handling/handle-javascript-exception';
 import {
 	getServeUrlWithFallback,
 	ServeUrlOrWebpackBundle,
 } from './legacy-webpack-config';
+import {makeAssetsDownloadTmpDir} from './make-assets-download-dir';
 import {ChromiumOptions, openBrowser} from './open-browser';
 import {prepareServer} from './prepare-server';
 import {provideScreenshot} from './provide-screenshot';
@@ -37,9 +40,14 @@ type InnerStillOptions = {
 	timeoutInMilliseconds?: number;
 	chromiumOptions?: ChromiumOptions;
 	scale?: number;
+	onDownload?: RenderMediaOnDownload;
+	ffmpegExecutable?: FfmpegExecutable;
 };
 
-type RenderStillOptions = InnerStillOptions & ServeUrlOrWebpackBundle;
+type RenderStillOptions = InnerStillOptions &
+	ServeUrlOrWebpackBundle & {
+		port?: number | null;
+	};
 
 const innerRenderStill = async ({
 	composition,
@@ -58,9 +66,11 @@ const innerRenderStill = async ({
 	timeoutInMilliseconds,
 	chromiumOptions,
 	scale,
+	proxyPort,
 }: InnerStillOptions & {
 	serveUrl: string;
 	onError: (err: Error) => void;
+	proxyPort: number;
 }): Promise<void> => {
 	Internals.validateDimension(
 		composition.height,
@@ -161,6 +171,7 @@ const innerRenderStill = async ({
 		serveUrl,
 		initialFrame: frame,
 		timeoutInMilliseconds,
+		proxyPort,
 	});
 
 	await puppeteerEvaluateWithCatch({
@@ -192,22 +203,38 @@ const innerRenderStill = async ({
 /**
  * @description Render a still frame from a composition and returns an image path
  */
-
-export const renderStill = async (
-	options: RenderStillOptions
-): Promise<void> => {
+export const renderStill = (options: RenderStillOptions): Promise<void> => {
 	const selectedServeUrl = getServeUrlWithFallback(options);
 
-	const {closeServer, serveUrl} = await prepareServer(selectedServeUrl);
+	const downloadDir = makeAssetsDownloadTmpDir();
+
+	const onDownload = options.onDownload ?? (() => () => undefined);
 
 	return new Promise((resolve, reject) => {
-		innerRenderStill({
-			...options,
-			serveUrl,
-			onError: (err) => reject(err),
+		const onError = (err: Error) => reject(err);
+
+		let close: (() => void) | null = null;
+
+		prepareServer({
+			webpackConfigOrServeUrl: selectedServeUrl,
+			downloadDir,
+			onDownload,
+			onError,
+			ffmpegExecutable: options.ffmpegExecutable ?? null,
+			port: options.port ?? null,
 		})
+			.then(({serveUrl, closeServer, offthreadPort}) => {
+				close = closeServer;
+				return innerRenderStill({
+					...options,
+					serveUrl,
+					onError: (err) => reject(err),
+					proxyPort: offthreadPort,
+				});
+			})
+
 			.then((res) => resolve(res))
 			.catch((err) => reject(err))
-			.finally(() => closeServer());
+			.finally(() => close?.());
 	});
 };

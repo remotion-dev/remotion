@@ -72,6 +72,10 @@ const innerStillHandler = async (
 		composition: lambdaParams.composition,
 		inputProps: lambdaParams.inputProps,
 		envVariables: lambdaParams.envVariables,
+		ffmpegExecutable: null,
+		chromiumOptions: lambdaParams.chromiumOptions,
+		timeoutInMilliseconds: lambdaParams.timeoutInMilliseconds,
+		port: null,
 	});
 
 	const renderMetadata: RenderMetadata = {
@@ -118,6 +122,7 @@ const innerStillHandler = async (
 		quality: lambdaParams.quality,
 		chromiumOptions: lambdaParams.chromiumOptions,
 		scale: lambdaParams.scale,
+		timeoutInMilliseconds: lambdaParams.timeoutInMilliseconds,
 	});
 
 	const {key: outName, renderBucketName} = getExpectedOutName(
