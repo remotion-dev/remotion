@@ -202,11 +202,14 @@ module.exports = {
         type: "doc",
         id: "preload/preload",
       },
-      items: ["preload/preload-video", "preload/preload-audio"],
+      items: [
+        "preload/preload-video",
+        "preload/preload-audio",
+        "preload/resolve-redirect",
+      ],
     },
     {
-      type: "link",
-      href: "/docs/renderer",
+      type: "category",
       link: {
         type: "doc",
         id: "renderer",
