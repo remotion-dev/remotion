@@ -1,6 +1,6 @@
 import { Player } from "@remotion/player";
 import {
-  createSmoothSvgPath,
+  smoothenSvgPath,
   useAudioData,
   visualizeAudioWaveform,
 } from "@remotion/media-utils";
@@ -24,9 +24,10 @@ const BaseExample: React.FC = () => {
     audioData: audioDataVoice,
     numberOfSamples: 32,
     windowInSeconds: 1 / fps,
+    channel: 0,
   });
 
-  const p = createSmoothSvgPath(
+  const p = smoothenSvgPath(
     waveform.map((x, i) => {
       return [
         (i / (waveform.length - 1)) * width,
@@ -68,9 +69,10 @@ const MovingExample: React.FC = () => {
     audioData: audioDataVoice,
     numberOfSamples: 32,
     windowInSeconds: 10 / fps,
+    channel: 0,
   });
 
-  const p = createSmoothSvgPath(
+  const p = smoothenSvgPath(
     waveform.map((x, i) => {
       return [
         (i / (waveform.length - 1)) * width,
@@ -112,9 +114,10 @@ const PosterizedExample: React.FC = () => {
     audioData: audioDataVoice,
     numberOfSamples: 16,
     windowInSeconds: 1 / fps,
+    channel: 0,
   });
 
-  const p = createSmoothSvgPath(
+  const p = smoothenSvgPath(
     waveform.map((x, i) => {
       return [
         (i / (waveform.length - 1)) * width,
