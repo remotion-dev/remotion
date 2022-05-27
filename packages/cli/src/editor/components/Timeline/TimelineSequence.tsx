@@ -31,7 +31,7 @@ export const TimelineSequence: React.FC<{
 	// If a duration is 1, it is essentially a still and it should have width 0
 	// Some compositions may not be longer than their media duration,
 	// if that is the case, it needs to be asynchronously determined
-	const [maxMediaDuration, setMaxMediaDuration] = useState(Infinity);
+	const [maxMediaDuration, setMaxMediaDuration] = useState(() => s.duration);
 
 	const video = Internals.useVideo();
 
@@ -97,7 +97,7 @@ export const TimelineSequence: React.FC<{
 					doesVolumeChange={s.doesVolumeChange}
 					visualizationWidth={width}
 					startFrom={s.startMediaFrom}
-					durationInFrames={s.duration}
+					durationInFrames={maxMediaDuration}
 					fps={fps}
 					volume={s.volume}
 					setMaxMediaDuration={setMaxMediaDuration}
