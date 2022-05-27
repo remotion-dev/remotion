@@ -4,7 +4,7 @@ import {
 	visualizeAudioWaveform,
 } from '@remotion/media-utils';
 import {transparentize} from 'polished';
-import React, {useEffect, useRef} from 'react';
+import React from 'react';
 import {
 	AbsoluteFill,
 	Audio,
@@ -88,39 +88,7 @@ const Text: React.FC<{
 
 const WAVEFORM_SAMPLES = 32;
 
-const Canvas: React.FC<{waveform: number[]}> = ({waveform}) => {
-	const canvasRef = useRef<HTMLCanvasElement>(null);
-	const canvas = canvasRef.current;
-	const canvasCtx = canvas?.getContext('2d');
-	useEffect(() => {
-		if (canvasCtx) {
-			canvasCtx.fillStyle = 'rgb(200, 200, 200)';
-			canvasCtx.fillRect(0, 0, 300, 300);
-			canvasCtx.lineWidth = 2;
-			canvasCtx.strokeStyle = 'rgb(0, 0, 0)';
-			canvasCtx.beginPath();
-			const sliceWidth = (200 * 1.0) / WAVEFORM_SAMPLES;
-			let x = 0;
-			for (let i = 0; i < waveform.length; i++) {
-				const v = waveform[i] / 128.0;
-				const y = (v * 40000) / 2;
-
-				if (i === 0) {
-					canvasCtx.moveTo(x, y);
-				} else {
-					canvasCtx.lineTo(x, y);
-				}
-
-				x += sliceWidth;
-			}
-			// canvasCtx.lineTo(200, 200 / 2);
-			canvasCtx.stroke();
-		}
-	}, [canvasCtx, waveform]);
-	return <canvas ref={canvasRef} />;
-};
-
-const AudioVisualization: React.FC<{isWaveform: boolean}> = ({isWaveform}) => {
+const AudioVisualization: React.FC = () => {
 	const frame = useCurrentFrame();
 	const {width, height, fps} = useVideoConfig();
 	const audioData = useAudioData(music);
@@ -142,6 +110,7 @@ const AudioVisualization: React.FC<{isWaveform: boolean}> = ({isWaveform}) => {
 		numberOfSamples: WAVEFORM_SAMPLES,
 		windowInSeconds: 1 / fps,
 	});
+	console.log({waveform});
 
 	const scale =
 		1 +
@@ -205,7 +174,7 @@ const AudioVisualization: React.FC<{isWaveform: boolean}> = ({isWaveform}) => {
 				})}
 			/>
 
-			<Audio src={isWaveform ? voice : music} />
+			<Audio src={music} />
 			<FullSize>
 				{circlesToUse.map((v, i) => {
 					const leftNeighbour =
@@ -254,35 +223,30 @@ const AudioVisualization: React.FC<{isWaveform: boolean}> = ({isWaveform}) => {
 						boxShadow: `0 0 50px ${transparentize(0.5, textColor)}`,
 					}}
 				>
-					{isWaveform && <Canvas waveform={waveform} />}
-					{!isWaveform && (
-						<>
-							<Text
-								blur={2}
-								color="rgba(255, 0, 0, 0.3)"
-								transform={`translateY(${-rgbEffect}px) translateX(${
-									rgbEffect * 2
-								}px)`}
-							/>
-							<Text
-								blur={2}
-								color="rgba(0, 255, 0, 0.3)"
-								transform={`translateX(${rgbEffect * 3}px) translateY(${
-									rgbEffect * 3
-								}px)`}
-							/>
-							<Text
-								blur={2}
-								color="rgba(0, 0, 255, 0.3)"
-								transform={`translateX(${-rgbEffect * 3}px)`}
-							/>
-							<Text
-								blur={0}
-								color={textColor}
-								transform={`translateY(${rgbEffect}px)`}
-							/>
-						</>
-					)}
+					<Text
+						blur={2}
+						color="rgba(255, 0, 0, 0.3)"
+						transform={`translateY(${-rgbEffect}px) translateX(${
+							rgbEffect * 2
+						}px)`}
+					/>
+					<Text
+						blur={2}
+						color="rgba(0, 255, 0, 0.3)"
+						transform={`translateX(${rgbEffect * 3}px) translateY(${
+							rgbEffect * 3
+						}px)`}
+					/>
+					<Text
+						blur={2}
+						color="rgba(0, 0, 255, 0.3)"
+						transform={`translateX(${-rgbEffect * 3}px)`}
+					/>
+					<Text
+						blur={0}
+						color={textColor}
+						transform={`translateY(${rgbEffect}px)`}
+					/>
 				</Orb>
 			</FullSize>
 		</div>

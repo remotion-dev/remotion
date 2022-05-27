@@ -350,9 +350,6 @@ export const Index: React.FC = () => {
 					height={1080}
 					fps={30}
 					durationInFrames={180 * 30}
-					defaultProps={{
-						isWaveform: false,
-					}}
 				/>
 				<Composition
 					id="voice-visualization"
@@ -361,9 +358,7 @@ export const Index: React.FC = () => {
 					height={1080}
 					fps={30}
 					durationInFrames={180 * 30}
-					defaultProps={{
-						isWaveform: false,
-					}}
+					defaultProps={{}}
 				/>
 				<Composition
 					id="audio-visualization-wave"
