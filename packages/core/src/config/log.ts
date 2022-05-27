@@ -2,7 +2,9 @@ export const logLevels = ['verbose', 'info', 'warn', 'error'] as const;
 
 export type LogLevel = typeof logLevels[number];
 
-let logLevel: LogLevel = 'info';
+export const DEFAULT_LOG_LEVEL: LogLevel = 'info';
+
+let logLevel: LogLevel = DEFAULT_LOG_LEVEL;
 
 export const getLogLevel = () => {
 	return logLevel;
@@ -20,6 +22,9 @@ export const isValidLogLevel = (level: string) => {
 	return getNumberForLogLevel(level as LogLevel) > -1;
 };
 
-export const isEqualOrBelowLogLevel = (level: LogLevel) => {
-	return getNumberForLogLevel(logLevel) <= getNumberForLogLevel(level);
+export const isEqualOrBelowLogLevel = (
+	currentLevel: LogLevel,
+	level: LogLevel
+) => {
+	return getNumberForLogLevel(currentLevel) <= getNumberForLogLevel(level);
 };

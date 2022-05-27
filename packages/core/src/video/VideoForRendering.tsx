@@ -12,10 +12,9 @@ import {
 	useMediaStartsAt,
 } from '../audio/use-audio-frame';
 import {CompositionManager} from '../CompositionManager';
+import {continueRender, delayRender} from '../delay-render';
 import {isApproximatelyTheSame} from '../is-approximately-the-same';
-import {isRemoteAsset} from '../is-remote-asset';
 import {random} from '../random';
-import {continueRender, delayRender} from '../ready-manager';
 import {SequenceContext} from '../sequencing';
 import {useAbsoluteCurrentFrame, useCurrentFrame} from '../use-frame';
 import {useUnsafeVideoConfig} from '../use-unsafe-video-config';
@@ -79,7 +78,6 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 			id,
 			frame: absoluteFrame,
 			volume,
-			isRemote: isRemoteAsset(getAbsoluteSrc(props.src), false),
 			mediaFrame: frame,
 			playbackRate: playbackRate ?? 1,
 		});
@@ -115,7 +113,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 				startFrom: -mediaStartsAt,
 			});
 		})();
-		const handle = delayRender();
+		const handle = delayRender(`Rendering <Video /> with src="${props.src}"`);
 		if (process.env.NODE_ENV === 'test') {
 			continueRender(handle);
 			return;
@@ -165,12 +163,23 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 		);
 		videoRef.current.addEventListener(
 			'error',
-			(err) => {
-				console.error('Error occurred in video', err);
-				continueRender(handle);
+			() => {
+				if (videoRef.current?.error) {
+					console.error('Error occurred in video', videoRef.current?.error);
+					throw new Error(
+						`The browser threw an error while playing the video: ${videoRef.current?.error?.message}`
+					);
+				} else {
+					throw new Error('The browser threw an errir');
+				}
 			},
 			{once: true}
 		);
+
+		// If video skips to another frame or unmounts, we clear the created handle
+		return () => {
+			continueRender(handle);
+		};
 	}, [
 		volumePropsFrame,
 		props.src,

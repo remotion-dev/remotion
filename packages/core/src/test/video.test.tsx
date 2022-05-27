@@ -1,11 +1,12 @@
 import {render} from '@testing-library/react';
-import React, {useContext} from 'react';
-import {LooseAnyComponent} from '../any-component';
+import React, {ComponentType, useContext} from 'react';
 import {Internals} from '../internals';
 import {Video} from '../video';
 import {expectToThrow} from './expect-to-throw';
 
-const Wrapper: React.FC = ({children}) => {
+const Wrapper: React.FC<{
+	children: React.ReactNode;
+}> = ({children}) => {
 	const compositions = useContext(Internals.CompositionManager);
 	return (
 		<Internals.RemotionRoot>
@@ -23,10 +24,12 @@ const Wrapper: React.FC = ({children}) => {
 							nonce: 0,
 							component: React.lazy(() =>
 								Promise.resolve({
-									default: (() => null) as LooseAnyComponent<unknown>,
+									default: (() => null) as ComponentType<unknown>,
 								})
 							),
 							defaultProps: undefined,
+							folderName: null,
+							parentFolderName: null,
 						},
 					],
 					currentComposition: 'markup',

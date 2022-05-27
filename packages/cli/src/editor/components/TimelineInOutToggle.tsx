@@ -31,13 +31,10 @@ export const inOutHandles = createRef<{
 
 export const TimelineInOutPointToggle: React.FC = () => {
 	const timelinePosition = Internals.Timeline.useTimelinePosition();
-	const {
-		inFrame,
-		outFrame,
-	} = Internals.Timeline.useTimelineInOutFramePosition();
-	const {
-		setInAndOutFrames,
-	} = Internals.Timeline.useTimelineSetInOutFramePosition();
+	const {inFrame, outFrame} =
+		Internals.Timeline.useTimelineInOutFramePosition();
+	const {setInAndOutFrames} =
+		Internals.Timeline.useTimelineSetInOutFramePosition();
 	const {currentComposition} = useContext(Internals.CompositionManager);
 	const isStill = useIsStill();
 	const videoConfig = Internals.useUnsafeVideoConfig();

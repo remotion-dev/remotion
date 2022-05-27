@@ -10,24 +10,24 @@ One of the most groundbreaking things about Remotion is that you can fetch data 
 There are two functions, [`delayRender`](/docs/delay-render) and [`continueRender`](/docs/continue-render), which you can use to tell Remotion to not yet render the frame. If you want to asynchronously render a frame, you should call `delayRender()` as soon as possible, before the window `onload` event is fired. The function returns a handle that you need to give Remotion the green light to render later using `continueRender()`.
 
 ```tsx twoslash
-import { useEffect, useState } from "react";
+import { useEffect, useCallback, useState } from "react";
 import { continueRender, delayRender } from "remotion";
 
 export const MyVideo = () => {
   const [data, setData] = useState(null);
   const [handle] = useState(() => delayRender());
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     const response = await fetch("http://example.com/api");
     const json = await response.json();
     setData(json);
 
     continueRender(handle);
-  };
+  }, [handle]);
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [fetchData]);
 
   return (
     <div>
@@ -41,7 +41,9 @@ export const MyVideo = () => {
 
 ## Caching
 
-It is important to know that in the render process, data fetching works on a per-frame basis, so for every frame, the page gets fully reloaded and screenshotted. You should consider caching the result of your API, to avoid rate-limits and also to speed up the render of your video. We have two suggestions on how to do that:
+It is important to know that in the render process, data fetching works on a per-frame basis. 
+Every frame, every component is re-rended by the _frame context_ modification and then screenshotted.
+You should consider caching the result of your API, to avoid rate-limits and also to speed up the render of your video. We have two suggestions on how to do that:
 
 - Use the `localStorage` API to persist data after a network request and make a request only if the local storage is empty.
 

@@ -1006,7 +1006,35 @@ export const showcaseVideos: ShowcaseVideo[] = [
     ],
     author: {
       url: "https://gorhom.dev/",
-      name: "Mo Gorhim",
+      name: "Mo Gorhom",
+    },
+  },
+  {
+    title: "AnySticker Announcement",
+    type: "mux_video",
+    muxId: "GhK5YXKrtWTa2kEf7HajaE6DG2FtTNsZfW7mfIzQBJ00",
+    description:
+      "A hyped up announcement trailer for the new AnySticker app, made using React Three Fiber.",
+    height: 1080,
+    width: 1080,
+    submittedOn: new Date("11-15-2021"),
+    links: [
+      {
+        type: "source_code",
+        url: "https://github.com/JonnyBurger/anysticker-tutorials/blob/main/src/Announcement/index.tsx",
+      },
+      {
+        type: "video",
+        url: "https://twitter.com/JNYBGR/status/1458375456965763075",
+      },
+      {
+        type: "website",
+        url: "https://anysticker.com",
+      },
+    ],
+    author: {
+      url: "https://twitter.com/JNYBGR",
+      name: "JNYBGR",
     },
   },
   {
@@ -1032,6 +1060,153 @@ export const showcaseVideos: ShowcaseVideo[] = [
       url: "https://twitter.com/wcandillon",
       name: "William Candillon",
     },
+  },
+  {
+    title: 'Mux stats tutorial',
+    type: 'mux_video',
+    muxId: 'DDgXb2KfPk7xdvxEoyPkrl7GcybohNon',
+    description:
+      'An article on how to showcase your video stats by creating a dynamic animated video using Remotion and the Mux Data API.',
+    height: 270,
+    width: 480,
+    submittedOn: new Date('19-01-2022'),
+    links: [
+      {
+        type: 'source_code',
+        url: 'https://github.com/davekiss/mux-remotion-demo/',
+      },
+      {
+        type: 'video',
+        url: 'https://twitter.com/MuxHQ/status/1483514610380644357',
+      },
+      {
+        type: 'tutorial',
+        url: 'https://mux.com/blog/visualize-mux-data-with-remotion/',
+      },
+    ],
+    author: {
+      url: 'https://davekiss.com/',
+      name: 'Dave Kiss',
+    },
+  },
+  {
+    title: "Audio Player",
+    type: "mux_video",
+    muxId: "eKnHTDXWCBsQgm00vOl59ZVF300otry3STKzFe025O7M5E",
+    description: "A Reusable audio player template created using Remotion.",
+    height: 1920,
+    width: 1080,
+    submittedOn: new Date("03-29-2022"),
+    links: [
+      {
+        type: 'source_code',
+        url: 'https://github.com/varunpbardwaj/remotion-audio-player-template/',
+      },
+      {
+        type: "video",
+	url: "https://bardwaj.me/remotion/neenaadena/",
+      },
+    ],
+    author: {
+      "url": "https://bardwaj.me/",
+      "name": "Varun Bardwaj"
+    }
+},
+{
+    title: "Product Hunt Today",
+    type: "mux_video",
+    muxId: "9vegqVB2n02YrTL3c38HoOyd7Smytz01Hl3qaXI5KCOZM",
+    description: "Fully automated Twitter bot that tweets trending Product Hunt products every day.",
+    height: 720,
+    width: 720,
+    submittedOn: new Date("03-27-2022"),
+    links: [
+      {
+        type: "source_code",
+        url: "https://github.com/Kamigami55/product-hunt-today",
+      },
+      {
+        type: "video",
+        url: "https://twitter.com/ProductHunToday/status/1507997707008417792",
+      },
+      {
+        type: "website",
+        url: "https://twitter.com/ProductHunToday",
+      },
+    ],
+    author: {
+      "url": "https://easonchang.com/",
+      "name": "Eason Chang"
+    }
+  },
+  {
+	title: "Old french TV trailer (tribute)",
+	type: "mux_video",
+	muxId: "7tmF019NZLRuazoq5I7WFdacYz8bjJb4BTDEQ5cEkFe4",
+	description: "Video tribute to an old TV jingle called \"La trilogie du samedi\" broadcasted in the early 2000s in France on the channel M6.",
+	height: 1080,
+	width: 1920,
+	submittedOn: new Date("04-01-2022"),
+	links: [],
+	author: {
+		"url": "https://twitter.com/Slashgear_",
+		"name": "Antoine Caron & Mickaël Alves"
+	}
+  },
+  {
+    title: 'snappify ProductHunt GIF',
+    type: 'mux_video',
+    muxId: 'vOGnXmkV01R2WW6SuZRIykksh3uzEfRV900ieznAmc7Is',
+    description:
+      'An animated Logo used for the ProductHunt launch of snappify.',
+    height: 960,
+    width: 960,
+    submittedOn: new Date("05-04-2022"),
+    links: [
+      {
+        type: 'source_code',
+        url: 'https://github.com/snappify-io/producthunt-gif',
+      },
+      {
+        type: 'website',
+        url: 'https://snappify.io/',
+      },
+      {
+        type: 'tutorial',
+        url: 'https://snappify.io/blog/create-producthunt-gif-with-remotion',
+      },
+    ],
+    author: {
+      url: 'https://twitter.com/dominiksumer',
+      name: 'Dominik Sumer',
+    },
+  },
+  {
+    title: "Master Duel Week",
+    type: "mux_video",
+    muxId: "nFm3f8VfvL6ag20093gMUtWfbAJe5F6s4z5LapxrpLcM",
+    description: "Automated Twitter bot that tweets a trading card game's meta deck weekly",
+    height: 720,
+    width: 720,
+    submittedOn: new Date("05-08-2022"),
+    links: [
+      {
+        type: "source_code",
+        url: "https://github.com/KalleChen/master-duel-week",
+      },
+      {
+        type: "video",
+        url: "https://twitter.com/masterduelweek/status/1522850783020339200",
+      },
+      {
+        type: "website",
+        url: "https://twitter.com/masterduelweek",
+      },
+    ],
+    author: {
+      "url": "https://kallechen.github.io/",
+      "name": "Kalle Chen"
+    }
   },
 ];
 

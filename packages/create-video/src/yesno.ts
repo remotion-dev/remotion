@@ -1,4 +1,4 @@
-'use strict';
+// Duplicated in Lambda
 
 import readline from 'readline';
 
@@ -20,7 +20,7 @@ function defaultInvalidHandler({
 	process.stdout.write('Or no: (' + noValues.join(', ') + ') \n\n');
 }
 
-export const yesOrNo = async ({
+export const yesOrNo = ({
 	question,
 	defaultValue,
 }: {

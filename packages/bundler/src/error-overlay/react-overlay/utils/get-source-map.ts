@@ -11,80 +11,21 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import {SourceMapConsumer} from 'source-map';
+import {RawSourceMap, SourceMapConsumer} from 'source-map';
 
-/**
- * A wrapped instance of a <code>{@link https://github.com/mozilla/source-map SourceMapConsumer}</code>.
- *
- * This exposes methods which will be indifferent to changes made in <code>{@link https://github.com/mozilla/source-map source-map}</code>.
- */
-export class SourceMap {
-	__source_map: SourceMapConsumer;
+export const getOriginalPosition = (
+	source_map: SourceMapConsumer,
+	line: number,
+	column: number
+): {source: string | null; line: number | null; column: number | null} => {
+	const result = source_map.originalPositionFor({
+		line,
+		column,
+	});
+	return {line: result.line, column: result.column, source: result.source};
+};
 
-	constructor(sourceMap: SourceMapConsumer) {
-		this.__source_map = sourceMap;
-	}
-
-	/**
-	 * Returns the original code position for a generated code position.
-	 * @param {number} line The line of the generated code position.
-	 * @param {number} column The column of the generated code position.
-	 */
-	getOriginalPosition(
-		line: number,
-		column: number
-	): {source: string; line: number; column: number} {
-		const {
-			line: l,
-			column: c,
-			source: s,
-		} = this.__source_map.originalPositionFor({
-			line,
-			column,
-		});
-		return {line: l as number, column: c as number, source: s as string};
-	}
-
-	/**
-	 * Returns the generated code position for an original position.
-	 * @param {string} source The source file of the original code position.
-	 * @param {number} line The line of the original code position.
-	 * @param {number} column The column of the original code position.
-	 */
-	getGeneratedPosition(
-		source: string,
-		line: number,
-		column: number
-	): {line: number; column: number} {
-		const {line: l, column: c} = this.__source_map.generatedPositionFor({
-			source,
-			line,
-			column,
-		});
-		return {
-			line: l as number,
-			column: c as number,
-		};
-	}
-
-	/**
-	 * Returns the code for a given source file name.
-	 * @param {string} sourceName The name of the source file.
-	 */
-	getSource(sourceName: string): string {
-		return this.__source_map.sourceContentFor(sourceName) as string;
-	}
-
-	getSources(): string[] {
-		// @ts-expect-error
-		return this.__source_map.sources;
-	}
-}
-
-function extractSourceMapUrl(
-	fileUri: string,
-	fileContents: string
-): Promise<string> {
+function extractSourceMapUrl(fileContents: string): string | null {
 	const regex = /\/\/[#@] ?sourceMappingURL=([^\s'"]+)\s*$/gm;
 	let match = null;
 	for (;;) {
@@ -97,24 +38,21 @@ function extractSourceMapUrl(
 	}
 
 	if (!match?.[1]) {
-		return Promise.reject(
-			new Error(`Cannot find a source map directive for ${fileUri}.`)
-		);
+		return null;
 	}
 
-	return Promise.resolve(match[1].toString());
+	return match[1].toString();
 }
 
-/**
- * Returns an instance of <code>{@link SourceMap}</code> for a given fileUri and fileContents.
- * @param {string} fileUri The URI of the source file.
- * @param {string} fileContents The contents of the source file.
- */
-async function getSourceMap(
+export async function getSourceMap(
 	fileUri: string,
 	fileContents: string
-): Promise<SourceMap> {
-	let sm = await extractSourceMapUrl(fileUri, fileContents);
+): Promise<SourceMapConsumer | null> {
+	const sm = extractSourceMapUrl(fileContents);
+	if (sm === null) {
+		return null;
+	}
+
 	if (sm.indexOf('data:') === 0) {
 		const base64 = /^data:application\/json;([\w=:"-]+;)*base64,/;
 		const match2 = sm.match(base64);
@@ -124,17 +62,12 @@ async function getSourceMap(
 			);
 		}
 
-		sm = sm.substring(match2[0].length);
-		sm = window.atob(sm);
-		sm = JSON.parse(sm);
-		return new SourceMap(await new SourceMapConsumer(sm));
+		const converted = window.atob(sm.substring(match2[0].length));
+		return new SourceMapConsumer(JSON.parse(converted) as RawSourceMap);
 	}
 
 	const index = fileUri.lastIndexOf('/');
 	const url = fileUri.substring(0, index + 1) + sm;
 	const obj = await fetch(url).then((res) => res.json());
-	return new SourceMap(await new SourceMapConsumer(obj));
+	return new SourceMapConsumer(obj);
 }
-
-export {extractSourceMapUrl, getSourceMap};
-export default getSourceMap;

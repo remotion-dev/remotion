@@ -8,6 +8,7 @@ import {
 	ImageFormat,
 	Internals,
 	LogLevel,
+	OpenGlRenderer,
 	PixelFormat,
 	ProResProfile,
 } from 'remotion';
@@ -21,8 +22,11 @@ export type CommandLineOptions = {
 	['prores-profile']: ProResProfile;
 	['bundle-cache']: string;
 	['env-file']: string;
+	['ignore-certificate-errors']: string;
+	['disable-web-security']: string;
 	codec: Codec;
 	concurrency: number;
+	timeout: number;
 	config: string;
 	crf: number;
 	force: boolean;
@@ -31,18 +35,44 @@ export type CommandLineOptions = {
 	props: string;
 	quality: number;
 	frames: string | number;
+	scale: number;
 	sequence: boolean;
+	quiet: boolean;
+	q: boolean;
 	log: string;
 	help: boolean;
 	port: number;
 	frame: string | number;
+	['disable-headless']: boolean;
+	gl: OpenGlRenderer;
 };
 
+export const BooleanFlags = [
+	'force',
+	'overwrite',
+	'sequence',
+	'help',
+	'quiet',
+	'q',
+	// Lambda flags
+	'force',
+	'disable-chunk-optimization',
+	'save-browser-logs',
+	'disable-cloudwatch',
+	'yes',
+	'y',
+	'disable-web-security',
+	'ignore-certificate-errors',
+	'disable-headless',
+];
+
 export const parsedCli = minimist<CommandLineOptions>(process.argv.slice(2), {
-	boolean: ['force', 'overwrite', 'sequence', 'help'],
+	boolean: BooleanFlags,
 });
 
-export const parseCommandLine = (type: 'still' | 'sequence') => {
+export const parseCommandLine = (
+	type: 'still' | 'sequence' | 'lambda' | 'preview' | 'versions'
+) => {
 	if (parsedCli['pixel-format']) {
 		Config.Output.setPixelFormat(parsedCli['pixel-format']);
 	}
@@ -65,6 +95,22 @@ export const parseCommandLine = (type: 'still' | 'sequence') => {
 		Config.Bundling.setCachingEnabled(parsedCli['bundle-cache'] !== 'false');
 	}
 
+	if (parsedCli['disable-web-security']) {
+		Config.Puppeteer.setChromiumDisableWebSecurity(true);
+	}
+
+	if (parsedCli['ignore-certificate-errors']) {
+		Config.Puppeteer.setChromiumIgnoreCertificateErrors(true);
+	}
+
+	if (parsedCli['disable-headless']) {
+		Config.Puppeteer.setChromiumHeadlessMode(false);
+	}
+
+	if (parsedCli.gl) {
+		Config.Puppeteer.setChromiumOpenGlRenderer(parsedCli.gl);
+	}
+
 	if (parsedCli.log) {
 		if (!Internals.Logging.isValidLogLevel(parsedCli.log)) {
 			Log.error('Invalid `--log` value passed.');
@@ -81,6 +127,10 @@ export const parseCommandLine = (type: 'still' | 'sequence') => {
 
 	if (parsedCli.concurrency) {
 		Config.Rendering.setConcurrency(parsedCli.concurrency);
+	}
+
+	if (parsedCli.timeout) {
+		Config.Puppeteer.setTimeoutInMilliseconds(parsedCli.timeout);
 	}
 
 	if (parsedCli.frames) {
@@ -138,4 +188,14 @@ export const parseCommandLine = (type: 'still' | 'sequence') => {
 	if (typeof parsedCli.quality !== 'undefined') {
 		Config.Rendering.setQuality(parsedCli.quality);
 	}
+
+	if (typeof parsedCli.scale !== 'undefined') {
+		Config.Rendering.setScale(parsedCli.scale);
+	}
+
+	if (typeof parsedCli.port !== 'undefined') {
+		Config.Bundling.setPort(parsedCli.port);
+	}
 };
+
+export const quietFlagProvided = () => parsedCli.quiet || parsedCli.q;

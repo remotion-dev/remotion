@@ -52,8 +52,4 @@ export const uncompressMediaAsset = (
 	};
 };
 
-export type AssetAudioDetails = {
-	channels: number;
-};
-
 export type Assets = MediaAsset[];

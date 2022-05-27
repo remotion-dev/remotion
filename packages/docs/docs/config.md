@@ -117,6 +117,68 @@ Config.Puppeteer.setBrowserExecutable("/usr/bin/google-chrome-stable");
 
 The [command line flag](/docs/cli#--browser-executable) `--browser-executable` will take precedence over this option.
 
+### setTimeoutInMilliseconds()
+
+_Available from Version 2.6.3._
+
+Define how long a single frame may take to resolve all [`delayRender()`](/docs/delay-render) calls before it times out. Default: `30000`
+
+```ts twoslash
+import { Config } from "remotion";
+// ---cut---
+Config.Puppeteer.setTimeoutInMilliseconds(60000);
+```
+
+The [command line flag](/docs/cli#--timeout) `--timeout` will take precedence over this option.
+
+### setChromiumDisableWebSecurity()
+
+_Available from Version 2.6.5._
+
+This will most notably disable CORS among other security features.
+
+```tsx twoslash
+import { Config } from "remotion";
+
+// ---cut---
+
+Config.Puppeteer.setChromiumDisableWebSecurity(true);
+```
+
+The [command line flag](/docs/cli#--disable-web-security) `--disable-web-security` will take precedence over this option.
+
+### setChromiumIgnoreCertificateErrors()
+
+_Available from Version 2.6.5._
+
+Results in invalid SSL certificates, such as self-signed ones, being ignored.
+
+```tsx twoslash
+import { Config } from "remotion";
+
+// ---cut---
+
+Config.Puppeteer.setChromiumIgnoreCertificateErrors(true);
+```
+
+The [command line flag](/docs/cli#--ignore-certificate-errors) `--ignore-certificate-errors` will take precedence over this option.
+
+### setChromiumHeadlessMode()
+
+_Available from Version 2.6.5._
+
+By default `true`. Disabling it will open an actual Chrome window where you can see the render happen.
+
+```tsx twoslash
+import { Config } from "remotion";
+
+// ---cut---
+
+Config.Puppeteer.setChromiumHeadlessMode(false);
+```
+
+The [command line flag](/docs/cli#--disable-headless) `--disable-headless` will take precedence over this option.
+
 ## Rendering
 
 ### setConcurrency()
@@ -153,6 +215,20 @@ Config.Rendering.setImageFormat("png");
 ```
 
 The [command line flag](/docs/cli#--image-format) `--image-format` will take precedence over this option.
+
+### setScale()
+
+_Available from Version 2.6.7._
+
+[Scales the output frames by the factor you pass in.](/docs/scaling) For example, a 1280x720px frame will become a 1920x1080px frame with a scale factor of `1.5`. Vector elements like fonts and HTML markups will be rendered with extra details. Default: `1`.
+
+```ts twoslash
+import { Config } from "remotion";
+// ---cut---
+Config.Rendering.setScale(2);
+```
+
+The [command line flag](/docs/cli#--scale) `--scale` will take precedence over this option.
 
 ### setFrameRange()
 
@@ -324,7 +400,7 @@ The "Constant Rate Factor" (CRF) of the output. [Use this setting to tell FFMPEG
 
 Ranges for CRF scale, by codec:
 
-- `h264` crf range is 0-51 where crf 18 is _default_.
+- `h264` crf range is 1-51 where crf 18 is _default_.
 - `h265` crf range is 0-51 where crf 23 is _default_.
 - `vp8` crf range is 4-63 where crf 9 is _default_.
 - `vp9` crf range is 0-63 where crf 28 is _default_.

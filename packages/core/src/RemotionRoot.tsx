@@ -7,9 +7,9 @@ import React, {
 } from 'react';
 import {SharedAudioContextProvider} from './audio/shared-audio-tags';
 import {CompositionManagerProvider} from './CompositionManager';
+import {continueRender, delayRender} from './delay-render';
 import {NonceContext, TNonceContext} from './nonce';
 import {random} from './random';
-import {continueRender, delayRender} from './ready-manager';
 import {
 	PlayableMediaTag,
 	SetTimelineContext,
@@ -18,7 +18,9 @@ import {
 	TimelineContextValue,
 } from './timeline-position-state';
 
-export const RemotionRoot: React.FC = ({children}) => {
+export const RemotionRoot: React.FC<{
+	children: React.ReactNode;
+}> = ({children}) => {
 	const [remotionRootId] = useState(() => String(random(null)));
 	const [frame, setFrame] = useState<number>(window.remotion_initialFrame ?? 0);
 	const [playing, setPlaying] = useState<boolean>(false);
@@ -30,7 +32,7 @@ export const RemotionRoot: React.FC = ({children}) => {
 	useLayoutEffect(() => {
 		if (typeof window !== 'undefined') {
 			window.remotion_setFrame = (f: number) => {
-				const id = delayRender();
+				const id = delayRender(`Setting the current frame to ${f}`);
 				setFrame(f);
 				requestAnimationFrame(() => continueRender(id));
 			};

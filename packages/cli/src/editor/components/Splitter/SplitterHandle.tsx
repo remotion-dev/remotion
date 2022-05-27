@@ -1,3 +1,4 @@
+import {PlayerInternals} from '@remotion/player';
 import React, {useContext, useEffect, useRef, useState} from 'react';
 import {SplitterContext} from './SplitterContext';
 
@@ -95,6 +96,7 @@ export const SplitterHandle: React.FC = () => {
 
 			current.removeEventListener('pointerdown', onPointerDown);
 			window.removeEventListener('pointermove', onPointerMove);
+			PlayerInternals.updateAllElementsSizes();
 		};
 
 		current.addEventListener('pointerdown', onPointerDown);

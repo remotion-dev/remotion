@@ -1,5 +1,9 @@
 import {bundle} from '@remotion/bundler';
-import {getCompositions, renderStill} from '@remotion/renderer';
+import {
+	getCompositions,
+	RenderInternals,
+	renderStill,
+} from '@remotion/renderer';
 import {existsSync, unlinkSync} from 'fs';
 import {tmpdir} from 'os';
 import path from 'path';
@@ -21,11 +25,25 @@ test('Can render a still using Node.JS APIs', async () => {
 
 	const testOut = path.join(tmpdir(), 'path/to/still.png');
 
+	const downloadDir = RenderInternals.makeAssetsDownloadTmpDir();
+
+	const {port, close} = await RenderInternals.serveStatic(bundled, {
+		downloadDir,
+		onDownload: () => undefined,
+		port: null,
+		onError: (err) => {
+			throw err;
+		},
+		ffmpegExecutable: null,
+	});
+
+	const serveUrl = `http://localhost:${port}`;
+
 	expect(() =>
 		renderStill({
 			composition,
 			output: testOut,
-			webpackBundle: bundled,
+			serveUrl,
 			frame: 500,
 		})
 	).rejects.toThrow(
@@ -36,7 +54,7 @@ test('Can render a still using Node.JS APIs', async () => {
 		renderStill({
 			composition,
 			output: process.platform === 'win32' ? 'D:\\' : '/var',
-			webpackBundle: bundled,
+			serveUrl,
 		})
 	).rejects.toThrow(/already exists, but is not a file/);
 
@@ -44,7 +62,7 @@ test('Can render a still using Node.JS APIs', async () => {
 		renderStill({
 			composition,
 			output: 'src/index.tsx',
-			webpackBundle: bundled,
+			serveUrl,
 			overwrite: false,
 		})
 	).rejects.toThrow(
@@ -54,10 +72,12 @@ test('Can render a still using Node.JS APIs', async () => {
 	await renderStill({
 		composition,
 		output: testOut,
-		webpackBundle: bundled,
+		serveUrl,
 		frame: 100,
 	});
 
 	expect(existsSync(testOut)).toBe(true);
 	unlinkSync(testOut);
+
+	await close();
 });

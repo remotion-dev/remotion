@@ -1,5 +1,5 @@
 import React, {useCallback, useState} from 'react';
-import {StackFrame} from '../react-overlay/utils/stack-frame';
+import {SymbolicatedStackFrame} from '../react-overlay/utils/stack-frame';
 import {Button} from './Button';
 import {CaretDown, CaretRight} from './carets';
 import {CodeFrame} from './CodeFrame';
@@ -33,12 +33,16 @@ const fnName: React.CSSProperties = {
 };
 
 export const StackElement: React.FC<{
-	s: StackFrame;
+	s: SymbolicatedStackFrame;
 	lineNumberWidth: number;
 	isFirst: boolean;
-}> = ({s, lineNumberWidth, isFirst}) => {
+	defaultFunctionName: string;
+}> = ({s, lineNumberWidth, isFirst, defaultFunctionName}) => {
 	const [showCodeFrame, setShowCodeFrame] = useState(
-		() => !s._originalFileName?.includes('node_modules') || isFirst
+		() =>
+			(!s.originalFileName?.includes('node_modules') &&
+				!s.originalFileName?.startsWith('webpack/')) ||
+			isFirst
 	);
 	const toggleCodeFrame = useCallback(() => {
 		setShowCodeFrame((f) => !f);
@@ -47,23 +51,29 @@ export const StackElement: React.FC<{
 		<div>
 			<div style={header}>
 				<div style={left}>
-					<div style={fnName}>{s.functionName ?? '(anonymous function)'}</div>
-					<div style={location}>
-						{formatLocation(s._originalFileName as string)}:
-						{s._originalLineNumber}
+					<div style={fnName}>
+						{s.originalFunctionName ?? defaultFunctionName}
 					</div>
+					{s.originalFileName ? (
+						<div style={location}>
+							{formatLocation(s.originalFileName as string)}:
+							{s.originalLineNumber}
+						</div>
+					) : null}
 				</div>
-				{s._originalScriptCode ? (
+				{s.originalScriptCode && s.originalScriptCode.length > 0 ? (
 					<Button onClick={toggleCodeFrame}>
 						{showCodeFrame ? <CaretDown /> : <CaretRight />}
 					</Button>
 				) : null}
 			</div>
 			<div>
-				{s._originalScriptCode && showCodeFrame ? (
+				{s.originalScriptCode &&
+				s.originalScriptCode.length > 0 &&
+				showCodeFrame ? (
 					<CodeFrame
 						lineNumberWidth={lineNumberWidth}
-						source={s._originalScriptCode}
+						source={s.originalScriptCode}
 					/>
 				) : null}
 			</div>

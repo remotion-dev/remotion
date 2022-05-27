@@ -100,7 +100,6 @@ export const processUpdate = function (
 			const applyResult = module.hot?.apply(applyOptions, applyCallback);
 			if ((applyResult as unknown as Promise<unknown>)?.then) {
 				// HotModuleReplacement.runtime.js refers to the result as `outdatedModules`
-				// eslint-disable-next-line promise/no-promise-in-callback
 				(applyResult as unknown as Promise<__WebpackModuleApi.ModuleId[]>)
 					.then((outdatedModules) => {
 						applyCallback(null, outdatedModules);
@@ -181,13 +180,16 @@ export const processUpdate = function (
 			console.warn(
 				'[Fast refresh] Update check failed: ' + (err.stack || err.message)
 			);
+			window.location.reload();
 		}
 	}
 
 	function performReload() {
-		if (reload) {
-			if (options.warn) console.warn('[Fast refresh] Reloading page');
-			window.location.reload();
+		if (!reload) {
+			return;
 		}
+
+		if (options.warn) console.warn('[Fast refresh] Reloading page');
+		window.location.reload();
 	}
 };

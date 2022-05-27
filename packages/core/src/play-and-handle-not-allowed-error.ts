@@ -5,9 +5,13 @@ export const playAndHandleNotAllowedError = (
 	mediaType: 'audio' | 'video'
 ) => {
 	const {current} = mediaRef;
-	const prom = current?.play();
-	if (prom?.catch) {
-		prom?.catch((err: Error) => {
+	if (!current) {
+		return;
+	}
+
+	const prom = current.play();
+	if (prom.catch) {
+		prom.catch((err: Error) => {
 			if (!current) {
 				return;
 			}
@@ -27,6 +31,13 @@ export const playAndHandleNotAllowedError = (
 				err.message.includes(
 					'The fetching process for the media resource was aborted by the user agent'
 				)
+			) {
+				return;
+			}
+
+			// Got replaced by a different audio source in Chromium
+			if (
+				err.message.includes('request was interrupted by a new load request')
 			) {
 				return;
 			}

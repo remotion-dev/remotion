@@ -1,10 +1,9 @@
-import {DevMiddlewareContext} from './types';
-
 import path from 'path';
-import {parse} from 'url';
 // eslint-disable-next-line no-restricted-imports
 import querystring from 'querystring';
+import {parse} from 'url';
 import {getPaths} from './get-paths';
+import {DevMiddlewareContext} from './types';
 
 const cacheStore = new WeakMap();
 

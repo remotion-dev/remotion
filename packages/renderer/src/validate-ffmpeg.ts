@@ -1,6 +1,6 @@
 import execa from 'execa';
-import os from 'os';
 import {statSync} from 'fs';
+import os from 'os';
 import {Internals} from 'remotion';
 
 const existsMap: {[key: string]: boolean} = {};
@@ -36,7 +36,7 @@ export const binaryExists = async (
 	}
 };
 
-export const isHomebrewInstalled = async (): Promise<boolean> => {
+const isHomebrewInstalled = (): Promise<boolean> => {
 	return binaryExists('brew', null);
 };
 

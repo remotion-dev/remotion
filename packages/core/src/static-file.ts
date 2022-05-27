@@ -1,13 +1,13 @@
-const trimLeadingSlash = (path: string) => {
+const trimLeadingSlash = (path: string): string => {
 	if (path.startsWith('/')) {
-		return path.substr(1);
+		return trimLeadingSlash(path.substr(1));
 	}
 
 	return path;
 };
 
 const inner = (path: string): string => {
-	if (window.remotion_staticBase) {
+	if (typeof window !== 'undefined' && window.remotion_staticBase) {
 		return `${window.remotion_staticBase}/${trimLeadingSlash(path)}`;
 	}
 

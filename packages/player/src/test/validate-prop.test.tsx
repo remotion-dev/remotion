@@ -1,3 +1,5 @@
+import {ComponentType} from 'react';
+import {Composition} from 'remotion';
 import {Player} from '../index';
 import {HelloWorld, render} from './test-utils';
 
@@ -186,6 +188,67 @@ test('playbackRate of undefined should be okay', () => {
 		/>
 	);
 	expect(true).toBe(true);
+});
+
+test('passing in <Composition /> instance should not be possible', () => {
+	expect(() => {
+		render(
+			<Player
+				compositionWidth={500}
+				compositionHeight={400}
+				fps={30}
+				durationInFrames={500}
+				component={Composition}
+				controls
+				showVolumeControls
+				inputProps={{
+					id: 'HelloWorld',
+					width: 500,
+					height: 400,
+					fps: 30,
+					durationInFrames: 500,
+					component: HelloWorld as ComponentType<unknown>,
+				}}
+			/>
+		);
+	}).toThrow(
+		/'component' must not be the 'Composition' component\. Pass your own React/
+	);
+});
+test('passing in <Composition /> instance should not be possible', () => {
+	expect(() => {
+		render(
+			<Player
+				compositionWidth={500}
+				compositionHeight={400}
+				fps={30}
+				durationInFrames={500}
+				// @ts-expect-error
+				component={
+					<Composition
+						durationInFrames={30}
+						fps={30}
+						height={10}
+						width={10}
+						id="hello"
+						component={HelloWorld}
+					/>
+				}
+				controls
+				showVolumeControls
+				inputProps={{
+					id: 'HelloWorld',
+					width: 500,
+					height: 400,
+					fps: 30,
+					durationInFrames: 500,
+					component: HelloWorld,
+				}}
+			/>
+		);
+	}).toThrow(
+		/'component' should not be an instance of <Composition\/>\. Pass the React component dir/
+	);
 });
 
 test.each([

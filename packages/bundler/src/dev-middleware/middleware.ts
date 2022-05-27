@@ -1,21 +1,19 @@
-import {ready} from './ready';
-
-import path from 'path';
-import {getFilenameFromUrl} from './get-filename-from-url';
-import {DevMiddlewareContext} from './types';
 import {NextFunction, Request, Response} from 'express';
-
-import {
-	getHeaderNames,
-	getHeaderFromRequest,
-	getHeaderFromResponse,
-	setHeaderForResponse,
-	setStatusCode,
-	send,
-} from './compatible-api';
 import {ReadStream} from 'fs';
 import mime from 'mime-types';
+import path from 'path';
+import {
+	getHeaderFromRequest,
+	getHeaderFromResponse,
+	getHeaderNames,
+	send,
+	setHeaderForResponse,
+	setStatusCode,
+} from './compatible-api';
+import {getFilenameFromUrl} from './get-filename-from-url';
 import {parseRange} from './range-parser';
+import {ready} from './ready';
+import {DevMiddlewareContext} from './types';
 
 function getValueContentRangeHeader(
 	type: string,
@@ -47,6 +45,12 @@ function createHtmlDocument(title: number, body: string) {
 
 const BYTES_RANGE_REGEXP = /^ *bytes/i;
 
+export type MiddleWare = (
+	req: Request,
+	res: Response,
+	next: NextFunction
+) => Promise<void>;
+
 export function middleware(context: DevMiddlewareContext) {
 	return async function (req: Request, res: Response, next: NextFunction) {
 		const acceptedMethods = ['GET', 'HEAD'];
@@ -62,7 +66,7 @@ export function middleware(context: DevMiddlewareContext) {
 
 		ready(context, processRequest, req);
 
-		async function goNext() {
+		function goNext() {
 			return next();
 		}
 

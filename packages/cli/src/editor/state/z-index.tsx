@@ -40,6 +40,7 @@ const EscapeHook: React.FC<{
 export const HigherZIndex: React.FC<{
 	onEscape: () => void;
 	onOutsideClick: () => void;
+	children: React.ReactNode;
 }> = ({children, onEscape, onOutsideClick}) => {
 	const context = useContext(ZIndexContext);
 	const highestContext = useContext(HighestZIndexContext);

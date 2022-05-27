@@ -10,12 +10,11 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
-import util from 'util';
-
-import fs from 'fs';
-import path from 'path';
 import child_process, {ChildProcess, exec} from 'child_process';
+import fs from 'fs';
 import os from 'os';
+import path from 'path';
+import util from 'util';
 
 const execProm = util.promisify(exec);
 
@@ -167,7 +166,15 @@ export const getDisplayNameForEditor = (
 		return null;
 	}
 
-	return displayNameForEditor[editor] ?? editor;
+	const endsIn = Object.keys(displayNameForEditor).find((displayNameKey) => {
+		return editor.endsWith(displayNameKey);
+	});
+
+	return (
+		displayNameForEditor[editor] ??
+		displayNameForEditor[endsIn as keyof typeof displayNameForEditor] ??
+		editor
+	);
 };
 
 type Editor = typeof editorNames[number];
@@ -403,7 +410,7 @@ export async function guessEditor(): Promise<Editor[]> {
 
 let _childProcess: ChildProcess | null = null;
 
-export async function launchEditor({
+export function launchEditor({
 	colNumber,
 	editor,
 	fileName,
@@ -415,7 +422,7 @@ export async function launchEditor({
 	colNumber: number;
 	editor: Editor;
 	vsCodeNewWindow: boolean;
-}): Promise<boolean> {
+}): boolean {
 	if (!fs.existsSync(fileName)) {
 		return false;
 	}
@@ -496,7 +503,7 @@ export async function launchEditor({
 		_childProcess = child_process.spawn(
 			'cmd.exe',
 			['/C', editor].concat(args),
-			{stdio: 'inherit'}
+			{stdio: 'inherit', detached: true}
 		);
 	} else {
 		_childProcess = child_process.spawn(editor, args, {stdio: 'inherit'});

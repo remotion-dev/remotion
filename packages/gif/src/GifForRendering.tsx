@@ -1,11 +1,12 @@
 import {Canvas, useParser} from '@react-gifs/tools';
-import React, {forwardRef, useState} from 'react';
+import {forwardRef, useState} from 'react';
 import {continueRender, delayRender} from 'remotion';
 import {GifState, RemotionGifProps} from './props';
 import {useCurrentGifIndex} from './useCurrentGifIndex';
 
 export const GifForRendering = forwardRef<HTMLCanvasElement, RemotionGifProps>(
 	({src, width, height, onLoad, onError, fit = 'fill', ...props}, ref) => {
+		const resolvedSrc = new URL(src, window.location.origin).href;
 		const [state, update] = useState<GifState>({
 			delays: [],
 			frames: [],
@@ -13,11 +14,13 @@ export const GifForRendering = forwardRef<HTMLCanvasElement, RemotionGifProps>(
 			height: 0,
 		});
 
-		const [id] = useState(() => delayRender());
+		const [id] = useState(() =>
+			delayRender(`Rendering <Gif/> with src="${resolvedSrc}"`)
+		);
 
 		const index = useCurrentGifIndex(state.delays);
 
-		useParser(src, (info) => {
+		useParser(resolvedSrc, (info) => {
 			if ('error' in info) {
 				if (onError) {
 					onError(info.error);

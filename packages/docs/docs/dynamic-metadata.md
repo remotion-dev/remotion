@@ -83,14 +83,14 @@ export const Index: React.FC = () => {
 
   useEffect(() => {
     getVideoMetadata(
-      "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
+      "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
     )
       .then(({ durationInSeconds }) => {
         setDuration(Math.round(durationInSeconds * 30));
+        continueRender(handle);
       })
       .catch((err) => {
         console.log(`Error fetching metadata: ${err}`);
-        continueRender(handle);
       });
   }, [handle]);
 

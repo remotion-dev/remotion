@@ -3,7 +3,9 @@ id: composition
 title: <Composition />
 ---
 
-This is the component to use to register a video to make it renderable and make it show up in the sidebar of the Remotion Player.
+This is the component to use to register a video to make it renderable and make it show up in the sidebar of the Remotion development interface.
+
+A composition represents the video you want to create, as a collection of clips (for example, several `<Sequence>`) that will play back to back to form your video.
 
 ## API
 
@@ -23,17 +25,13 @@ The component takes the following props:
 
 - `component` **or** `lazyComponent`: Pass the component in directly **or** pass a function that returns a dynamic import. Passing neither or both of the props is an error.
 
-:::tip
-If you use `lazyComponent`, Remotion will use React Suspense to load the component. Components will be compiled by Webpack as they are needed, which will reduce startup time of Remotion.
-:::
-
-:::info
-If you use `lazyComponent`, you need to use a default export for your component. This is a restriction of React Suspense.
+:::note
+If you use `lazyComponent`, Remotion will use React Suspense to load the component. Components will be compiled by Webpack as they are needed, which will reduce startup time of Remotion. If you use `lazyComponent`, you need to use a default export for your component. This is a restriction of React Suspense.
 :::
 
 - `defaultProps` _optional_: Give your component default props that will be shown in the preview. You can override these props during render using a CLI flag.
 
-:::tip
+:::note
 Type your components using the `React.FC<{}>` type and the `defaultProps` prop will be typesafe.
 :::
 
@@ -84,9 +82,47 @@ export const MyVideo = () => {
 };
 ```
 
+## Organize compositions using folders
+
+You can use the [`<Folder />`](/docs/folder) component to organize your compositions in the sidebar.
+
+```tsx twoslash
+import React from "react";
+const Component: React.FC = () => null;
+// ---cut---
+import { Composition, Folder } from "remotion";
+
+export const Video = () => {
+  return (
+    <>
+      <Folder name="Visuals">
+        <Composition
+          id="CompInFolder"
+          durationInFrames={100}
+          fps={30}
+          width={1080}
+          height={1080}
+          component={Component}
+        />
+      </Folder>
+      <Composition
+        id="CompOutsideFolder"
+        durationInFrames={100}
+        fps={30}
+        width={1080}
+        height={1080}
+        component={Component}
+      />
+    </>
+  );
+};
+```
+
 ## See also
 
 - [registerRoot()](/docs/register-root)
 - [The fundamentals](/docs/the-fundamentals)
 - [CLI options](/docs/cli)
+- [`<Sequence />`](/docs/sequence)
 - [`<Still />`](/docs/still)
+- [`<Folder />`](/docs/folder)

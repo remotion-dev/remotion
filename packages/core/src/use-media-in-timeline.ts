@@ -5,7 +5,11 @@ import {getAssetDisplayName} from './get-asset-file-name';
 import {useNonce} from './nonce';
 import {playAndHandleNotAllowedError} from './play-and-handle-not-allowed-error';
 import {SequenceContext} from './sequencing';
-import {PlayableMediaTag, TimelineContext} from './timeline-position-state';
+import {
+	PlayableMediaTag,
+	TimelineContext,
+	usePlayingState,
+} from './timeline-position-state';
 import {useVideoConfig} from './use-video-config';
 import {evaluateVolume, VolumeProp} from './volume-prop';
 
@@ -39,6 +43,7 @@ export const useMediaInTimeline = ({
 	const actualFrom = parentSequence
 		? parentSequence.relativeFrom + parentSequence.cumulatedFrom
 		: 0;
+	const [playing] = usePlayingState();
 	const startsAt = useMediaStartsAt();
 	const {registerSequence, unregisterSequence} = useContext(CompositionManager);
 	const [id] = useState(() => String(Math.random()));
@@ -92,7 +97,6 @@ export const useMediaInTimeline = ({
 			type: mediaType,
 			src,
 			id,
-			// TODO: Cap to media duration
 			duration,
 			from: 0,
 			parent: parentSequence?.id ?? null,
@@ -129,7 +133,14 @@ export const useMediaInTimeline = ({
 	useEffect(() => {
 		const tag: PlayableMediaTag = {
 			id,
-			play: () => playAndHandleNotAllowedError(mediaRef, mediaType),
+			play: () => {
+				if (!playing) {
+					// Don't play if for example in a <Freeze> state.
+					return;
+				}
+
+				return playAndHandleNotAllowedError(mediaRef, mediaType);
+			},
 		};
 		audioAndVideoTags.current.push(tag);
 
@@ -138,5 +149,5 @@ export const useMediaInTimeline = ({
 				(a) => a.id !== id
 			);
 		};
-	}, [audioAndVideoTags, id, mediaRef, mediaType]);
+	}, [audioAndVideoTags, id, mediaRef, mediaType, playing]);
 };

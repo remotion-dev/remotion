@@ -1,36 +1,11 @@
-import React from 'react';
+import React, {useMemo} from 'react';
+import {getLocationFromBuildError} from '../react-overlay/effects/map-error-to-react-stack';
 import {ErrorRecord} from '../react-overlay/listen-to-runtime-errors';
 import {AskOnDiscord} from './AskOnDiscord';
+import {ErrorTitle} from './ErrorTitle';
 import {OpenInEditor} from './OpenInEditor';
 import {SearchGithubIssues} from './SearchGitHubIssues';
 import {StackElement} from './StackFrame';
-import {DismissButton} from './DismissButton';
-
-const container: React.CSSProperties = {
-	width: '100%',
-	maxWidth: 1000,
-	paddingLeft: 14,
-	paddingRight: 14,
-	marginLeft: 'auto',
-	marginRight: 'auto',
-	fontFamily: 'SF Pro Text, sans-serif',
-	paddingTop: '5vh',
-};
-
-const title: React.CSSProperties = {
-	marginBottom: 8,
-	display: 'flex',
-	flexDirection: 'row',
-	justifyContent: 'center',
-};
-
-const errName: React.CSSProperties = {
-	fontSize: '0.8em',
-	background: 'linear-gradient(90deg,#4290f5,#42e9f5)',
-	WebkitBackgroundClip: 'text',
-	WebkitTextFillColor: 'transparent',
-	display: 'inline-block',
-};
 
 const stack: React.CSSProperties = {
 	marginTop: 17,
@@ -43,35 +18,39 @@ const spacer: React.CSSProperties = {
 	display: 'inline-block',
 };
 
-const left: React.CSSProperties = {
-	flex: 1,
-	paddingRight: 14,
-	lineHeight: 1.5,
-	fontSize: '1.5em',
-	fontWeight: 'bold',
-};
-
 export const ErrorDisplay: React.FC<{
 	display: ErrorRecord;
 }> = ({display}) => {
 	const highestLineNumber = Math.max(
 		...display.stackFrames
-			.map((s) => s._originalScriptCode)
+			.map((s) => s.originalScriptCode)
 			.flat(1)
 			.map((s) => s?.lineNumber ?? 0)
 	);
+
+	const message = useMemo(() => {
+		// Format compilation errors
+		const location = getLocationFromBuildError(display.error);
+		if (!location) {
+			return display.error.message;
+		}
+
+		return location.message
+			.replace(/\\n/g, '\n')
+			.replace(/\\t/g, '  ')
+			.replace(/^error:/, '')
+			.trim();
+	}, [display.error]);
+
 	const lineNumberWidth = String(highestLineNumber).length;
 
 	return (
-		<div style={container}>
-			<div style={title}>
-				<div style={left}>
-					<span style={errName}>{display.error.name}</span>
-					<br />
-					{display.error.message}
-				</div>
-				<DismissButton />
-			</div>
+		<div>
+			<ErrorTitle
+				symbolicating={false}
+				name={display.error.name}
+				message={message}
+			/>
 			{display.stackFrames.length > 0 && window.remotion_editorName ? (
 				<>
 					<OpenInEditor stack={display.stackFrames[0]} />
@@ -90,6 +69,7 @@ export const ErrorDisplay: React.FC<{
 							isFirst={i === 0}
 							s={s}
 							lineNumberWidth={lineNumberWidth}
+							defaultFunctionName={'(anonymous function)'}
 						/>
 					);
 				})}

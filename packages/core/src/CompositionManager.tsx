@@ -1,12 +1,13 @@
 import React, {
+	ComponentType,
 	createContext,
 	LazyExoticComponent,
 	useCallback,
+	useImperativeHandle,
 	useLayoutEffect,
 	useMemo,
 	useState,
 } from 'react';
-import {LooseAnyComponent} from './any-component';
 
 export type TComposition<T = unknown> = {
 	width: number;
@@ -14,7 +15,9 @@ export type TComposition<T = unknown> = {
 	fps: number;
 	durationInFrames: number;
 	id: string;
-	component: LazyExoticComponent<LooseAnyComponent<T>>;
+	folderName: string | null;
+	parentFolderName: string | null;
+	component: LazyExoticComponent<ComponentType<T>>;
 	defaultProps: T | undefined;
 	nonce: number;
 };
@@ -22,6 +25,11 @@ export type TComposition<T = unknown> = {
 export type TCompMetadata = Pick<
 	TComposition,
 	'id' | 'height' | 'width' | 'fps' | 'durationInFrames' | 'defaultProps'
+>;
+
+export type SmallTCompMetadata = Pick<
+	TComposition,
+	'id' | 'height' | 'width' | 'fps' | 'durationInFrames'
 >;
 
 type EnhancedTSequenceData =
@@ -65,20 +73,23 @@ export type TAsset = {
 	id: string;
 	frame: number;
 	volume: number;
-	isRemote: boolean;
 	mediaFrame: number;
 	playbackRate: number;
 };
 
 export type RenderAssetInfo = {
 	assets: TAsset[][];
-	bundleDir: string;
+	imageSequenceName: string;
+	firstFrameIndex: number;
+	downloadDir: string;
 };
 
 export type CompositionManagerContext = {
 	compositions: TComposition[];
 	registerComposition: <T>(comp: TComposition<T>) => void;
 	unregisterComposition: (name: string) => void;
+	registerFolder: (name: string, parent: string | null) => void;
+	unregisterFolder: (name: string, parent: string | null) => void;
 	currentComposition: string | null;
 	setCurrentComposition: (curr: string) => void;
 	registerSequence: (seq: TSequence) => void;
@@ -87,12 +98,15 @@ export type CompositionManagerContext = {
 	unregisterAsset: (id: string) => void;
 	sequences: TSequence[];
 	assets: TAsset[];
+	folders: TFolder[];
 };
 
 export const CompositionManager = createContext<CompositionManagerContext>({
 	compositions: [],
 	registerComposition: () => undefined,
 	unregisterComposition: () => undefined,
+	registerFolder: () => undefined,
+	unregisterFolder: () => undefined,
 	currentComposition: null,
 	setCurrentComposition: () => undefined,
 	registerSequence: () => undefined,
@@ -101,9 +115,21 @@ export const CompositionManager = createContext<CompositionManagerContext>({
 	unregisterAsset: () => undefined,
 	sequences: [],
 	assets: [],
+	folders: [],
 });
 
-export const CompositionManagerProvider: React.FC = ({children}) => {
+export const compositionsRef = React.createRef<{
+	getCompositions: () => TCompMetadata[];
+}>();
+
+export type TFolder = {
+	name: string;
+	parent: string | null;
+};
+
+export const CompositionManagerProvider: React.FC<{
+	children: React.ReactNode;
+}> = ({children}) => {
 	// Wontfix, expected to have
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	const [compositions, setCompositions] = useState<TComposition<any>[]>([]);
@@ -111,6 +137,7 @@ export const CompositionManagerProvider: React.FC = ({children}) => {
 		null
 	);
 	const [assets, setAssets] = useState<TAsset[]>([]);
+	const [folders, setFolders] = useState<TFolder[]>([]);
 
 	const [sequences, setSequences] = useState<TSequence[]>([]);
 
@@ -147,11 +174,35 @@ export const CompositionManagerProvider: React.FC = ({children}) => {
 			return [...assts, asset];
 		});
 	}, []);
+
 	const unregisterAsset = useCallback((id: string) => {
 		setAssets((assts) => {
 			return assts.filter((a) => a.id !== id);
 		});
 	}, []);
+
+	const registerFolder = useCallback((name: string, parent: string | null) => {
+		setFolders((prevFolders) => {
+			return [
+				...prevFolders,
+				{
+					name,
+					parent,
+				},
+			];
+		});
+	}, []);
+
+	const unregisterFolder = useCallback(
+		(name: string, parent: string | null) => {
+			setFolders((prevFolders) => {
+				return prevFolders.filter(
+					(p) => !(p.name === name && p.parent === parent)
+				);
+			});
+		},
+		[]
+	);
 
 	useLayoutEffect(() => {
 		if (typeof window !== 'undefined') {
@@ -161,6 +212,16 @@ export const CompositionManagerProvider: React.FC = ({children}) => {
 			};
 		}
 	}, [assets]);
+
+	useImperativeHandle(
+		compositionsRef,
+		() => {
+			return {
+				getCompositions: () => compositions,
+			};
+		},
+		[compositions]
+	);
 
 	const contextValue = useMemo((): CompositionManagerContext => {
 		return {
@@ -175,6 +236,9 @@ export const CompositionManagerProvider: React.FC = ({children}) => {
 			unregisterAsset,
 			sequences,
 			assets,
+			folders,
+			registerFolder,
+			unregisterFolder,
 		};
 	}, [
 		compositions,
@@ -187,6 +251,9 @@ export const CompositionManagerProvider: React.FC = ({children}) => {
 		unregisterAsset,
 		sequences,
 		assets,
+		registerFolder,
+		unregisterFolder,
+		folders,
 	]);
 
 	return (

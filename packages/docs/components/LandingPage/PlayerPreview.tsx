@@ -1,10 +1,14 @@
 import React from "react";
 import styles from "./playerpreview.module.css";
 
+const rotate: React.CSSProperties = {
+  transform: `rotate(90deg)`,
+};
+const ICON_SIZE = 18;
 export const PlayerPreview: React.FC = () => {
   return (
     <a
-      href="https://www.youtube.com/watch?v=gwlDorikqgY"
+      href="https://www.youtube.com/watch?v=deg8bOoziaE"
       target="_blank"
       data-splitbee-event="External Link"
       data-splitbee-event-target={"YouTube Trailer"}
@@ -13,20 +17,44 @@ export const PlayerPreview: React.FC = () => {
         <img
           style={{
             boxShadow: "var(--box-shadow)",
+            borderRadius: 12,
           }}
-          src="https://i3.ytimg.com/vi/gwlDorikqgY/maxresdefault.jpg"
-        ></img>
+          src="/img/thumb.jpeg"
+        />
         <div
           style={{
             width: "100%",
             textAlign: "center",
-            position: "absolute",
-            bottom: 20,
             color: "black",
             fontSize: 13,
+            display: "flex",
+            flexDirection: "row",
+            justifyContent: "center",
+            alignItems: "center",
           }}
         >
-          Watch 2 min video
+          <svg
+            width={ICON_SIZE}
+            height={ICON_SIZE}
+            viewBox="-100 -100 400 400"
+            style={rotate}
+          >
+            <path
+              fill={"var(--ifm-color-primary)"}
+              stroke={"var(--ifm-color-primary)"}
+              strokeWidth="100"
+              strokeLinejoin="round"
+              d="M 2 172 a 196 100 0 0 0 195 5 A 196 240 0 0 0 100 2.259 A 196 240 0 0 0 2 172 z"
+            />
+          </svg>
+          <div
+            style={{
+              marginLeft: 5,
+              color: "var(--ifm-color-primary)",
+            }}
+          >
+            Watch Intro and Tutorial (8:41)
+          </div>
         </div>
       </div>
     </a>

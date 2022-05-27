@@ -9,47 +9,28 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import type {StackFrame} from './stack-frame';
-import {parse} from './parser';
-import {map} from './mapper';
+import {parseError} from './parser';
+import type {SymbolicatedStackFrame} from './stack-frame';
 import {unmap} from './unmapper';
 
-function getStackFrames(
-	error: Error & {__unmap_source?: string},
-	contextSize = 3
-): Promise<StackFrame[] | null> {
-	const parsedFrames = parse(error);
-	let enhancedFramesPromise;
-	if (error.__unmap_source) {
-		enhancedFramesPromise = unmap(
-			error.__unmap_source,
-			parsedFrames,
-			contextSize
-		);
-	} else {
-		enhancedFramesPromise = map(parsedFrames, contextSize);
+export const getStackFrames = async (
+	error: Error,
+	contextSize: number
+): Promise<SymbolicatedStackFrame[] | null> => {
+	const parsedFrames = await parseError(error, contextSize);
+	const enhancedFrames = await unmap(parsedFrames, contextSize);
+	if (
+		enhancedFrames
+			.map((f) => f.originalFileName)
+			.filter(
+				(f_1) =>
+					f_1 !== null &&
+					f_1 !== undefined &&
+					f_1.indexOf('node_modules') === -1
+			).length === 0
+	) {
+		return null;
 	}
 
-	return enhancedFramesPromise.then((enhancedFrames) => {
-		if (
-			enhancedFrames
-				.map((f) => f._originalFileName)
-				.filter(
-					(f) =>
-						f !== null && f !== undefined && f.indexOf('node_modules') === -1
-				).length === 0
-		) {
-			return null;
-		}
-
-		return enhancedFrames.filter(
-			({functionName}) =>
-				functionName === null ||
-				functionName === undefined ||
-				functionName.indexOf('__stack_frame_overlay_proxy_console__') === -1
-		);
-	});
-}
-
-export default getStackFrames;
-export {getStackFrames};
+	return enhancedFrames;
+};

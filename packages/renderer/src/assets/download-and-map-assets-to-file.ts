@@ -1,36 +1,43 @@
 import fs from 'fs';
-import {createWriteStream, mkdirSync} from 'fs';
-import got from 'got';
 import path from 'path';
-
 import {Internals, random, TAsset} from 'remotion';
-import sanitizeFilename from 'sanitize-filename';
+import {ensureOutputDirectory} from '../ensure-output-directory';
+import {downloadFile} from './download-file';
+import {sanitizeFilePath} from './sanitize-filepath';
+
+export type RenderMediaOnDownload = (
+	src: string
+) => ((progress: {percent: number}) => void) | undefined | void;
 
 const isDownloadingMap: {[key: string]: boolean} = {};
-const hasBeenDownloadedMap: {[key: string]: boolean} = {};
-const listeners: {[key: string]: (() => void)[]} = {};
+const hasBeenDownloadedMap: {[key: string]: string | null} = {};
+const listeners: {[key: string]: ((to: string) => void)[]} = {};
 
-const waitForAssetToBeDownloaded = (src: string) => {
+export const waitForAssetToBeDownloaded = (src: string): Promise<string> => {
+	if (hasBeenDownloadedMap[src]) {
+		return Promise.resolve(hasBeenDownloadedMap[src] as string);
+	}
+
 	if (!listeners[src]) {
 		listeners[src] = [];
 	}
 
-	return new Promise<void>((resolve) => {
-		listeners[src].push(() => resolve());
+	return new Promise<string>((resolve) => {
+		listeners[src].push((to: string) => resolve(to));
 	});
 };
 
-const notifyAssetIsDownloaded = (src: string) => {
+const notifyAssetIsDownloaded = (src: string, to: string) => {
 	if (!listeners[src]) {
 		listeners[src] = [];
 	}
 
-	listeners[src].forEach((fn) => fn());
+	listeners[src].forEach((fn) => fn(to));
 	isDownloadingMap[src] = false;
-	hasBeenDownloadedMap[src] = true;
+	hasBeenDownloadedMap[src] = to;
 };
 
-export const validateMimeType = (mimeType: string, src: string) => {
+const validateMimeType = (mimeType: string, src: string) => {
 	if (!mimeType.includes('/')) {
 		const errMessage = [
 			'A data URL was passed but did not have the correct format so that Remotion could convert it for the video to be rendered.',
@@ -77,7 +84,7 @@ function validateBufferEncoding(
 const downloadAsset = async (
 	src: string,
 	to: string,
-	onDownload: (src: string) => void
+	onDownload: RenderMediaOnDownload
 ) => {
 	if (hasBeenDownloadedMap[src]) {
 		return;
@@ -88,10 +95,9 @@ const downloadAsset = async (
 	}
 
 	isDownloadingMap[src] = true;
-	onDownload(src);
-	mkdirSync(path.resolve(to, '..'), {
-		recursive: true,
-	});
+
+	const onProgress = onDownload(src);
+	ensureOutputDirectory(to);
 
 	if (src.startsWith('data:')) {
 		const [assetDetails, assetData] = src.substring('data:'.length).split(',');
@@ -100,7 +106,7 @@ const downloadAsset = async (
 				'A data URL was passed but did not have the correct format so that Remotion could convert it for the video to be rendered.',
 				'The format of the data URL must be `data:[mime-type];[encoding],[data]`.',
 				'The data that was received is (truncated to 100 characters):',
-				src.substr(0, 100),
+				src.substring(0, 100),
 			].join(' ');
 			throw new TypeError(errMessage);
 		}
@@ -112,25 +118,16 @@ const downloadAsset = async (
 
 		const buff = Buffer.from(assetData, encoding);
 		await fs.promises.writeFile(to, buff);
-		notifyAssetIsDownloaded(src);
+		notifyAssetIsDownloaded(src, to);
 		return;
 	}
 
-	// Listen to 'close' event instead of more
-	// concise method to avoid this problem
-	// https://github.com/remotion-dev/remotion/issues/384#issuecomment-844398183
-	await new Promise<void>((resolve, reject) => {
-		const writeStream = createWriteStream(to);
-
-		writeStream.on('close', () => resolve());
-		writeStream.on('error', (err) => reject(err));
-
-		got
-			.stream(src)
-			.pipe(writeStream)
-			.on('error', (err) => reject(err));
+	await downloadFile(src, to, ({progress}) => {
+		onProgress?.({
+			percent: progress,
+		});
 	});
-	notifyAssetIsDownloaded(src);
+	notifyAssetIsDownloaded(src, to);
 };
 
 export const markAllAssetsAsDownloaded = () => {
@@ -145,22 +142,16 @@ export const markAllAssetsAsDownloaded = () => {
 
 export const getSanitizedFilenameForAssetUrl = ({
 	src,
-	isRemote,
-	webpackBundle,
+	downloadDir,
 }: {
 	src: string;
-	isRemote: boolean;
-	webpackBundle: string;
+	downloadDir: string;
 }) => {
 	if (Internals.AssetCompression.isAssetCompressed(src)) {
 		return src;
 	}
 
 	const {pathname, search} = new URL(src);
-
-	if (!isRemote) {
-		return path.join(webpackBundle, sanitizeFilename(pathname));
-	}
 
 	const split = pathname.split('.');
 	const fileExtension =
@@ -172,35 +163,45 @@ export const getSanitizedFilenameForAssetUrl = ({
 		''
 	);
 	return path.join(
-		webpackBundle,
-		sanitizeFilename(hashedFileName + fileExtension)
+		downloadDir,
+		sanitizeFilePath(hashedFileName + fileExtension)
 	);
 };
 
 export const downloadAndMapAssetsToFileUrl = async ({
-	localhostAsset,
-	webpackBundle,
+	asset,
+	downloadDir,
 	onDownload,
 }: {
-	localhostAsset: TAsset;
-	webpackBundle: string;
-	onDownload: (src: string) => void;
+	asset: TAsset;
+	downloadDir: string;
+	onDownload: RenderMediaOnDownload;
 }): Promise<TAsset> => {
-	const newSrc = getSanitizedFilenameForAssetUrl({
-		src: localhostAsset.src,
-		isRemote: localhostAsset.isRemote,
-		webpackBundle,
+	const newSrc = await startDownloadForSrc({
+		src: asset.src,
+		downloadDir,
+		onDownload,
 	});
 
-	if (
-		localhostAsset.isRemote &&
-		!Internals.AssetCompression.isAssetCompressed(newSrc)
-	) {
-		await downloadAsset(localhostAsset.src, newSrc, onDownload);
-	}
-
 	return {
-		...localhostAsset,
+		...asset,
 		src: newSrc,
 	};
+};
+
+export const startDownloadForSrc = async ({
+	src,
+	downloadDir,
+	onDownload,
+}: {
+	src: string;
+	downloadDir: string;
+	onDownload: RenderMediaOnDownload;
+}) => {
+	const newSrc = getSanitizedFilenameForAssetUrl({downloadDir, src});
+	if (!Internals.AssetCompression.isAssetCompressed(newSrc)) {
+		await downloadAsset(src, newSrc, onDownload);
+	}
+
+	return newSrc;
 };

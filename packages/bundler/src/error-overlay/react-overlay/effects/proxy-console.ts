@@ -9,21 +9,18 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-type ReactFrame = {
+export type ReactFrame = {
 	fileName: string | null;
 	lineNumber: number | null;
 	name: string | null;
 };
-const reactFrameStack: Array<ReactFrame[]> = [];
-
-export type {ReactFrame};
+const reactFrameStack: ReactFrame[][] = [];
 
 // This is a stripped down barebones version of this proposal:
 // https://gist.github.com/sebmarkbage/bdefa100f19345229d526d0fdd22830f
 // We're implementing just enough to get the invalid element type warnings
 // to display the component stack in React 15.6+:
 // https://github.com/facebook/react/pull/9679
-/// TODO: a more comprehensive implementation.
 
 const registerReactStack = () => {
 	if (typeof console !== 'undefined') {
@@ -43,7 +40,14 @@ const unregisterReactStack = () => {
 	}
 };
 
-type ConsoleProxyCallback = (message: string, frames: ReactFrame[]) => void;
+type ErrorData =
+	| {type: 'webpack-error'; message: string; frames: ReactFrame[]}
+	| {
+			type: 'build-error';
+			error: Error;
+	  };
+
+type ConsoleProxyCallback = (data: ErrorData) => void;
 const permanentRegister = function (
 	type: 'error',
 	callback: ConsoleProxyCallback
@@ -55,7 +59,18 @@ const permanentRegister = function (
 				try {
 					const message = args[0];
 					if (typeof message === 'string' && reactFrameStack.length > 0) {
-						callback(message, reactFrameStack[reactFrameStack.length - 1]);
+						callback({
+							type: 'webpack-error',
+							message,
+							frames: reactFrameStack[reactFrameStack.length - 1],
+						});
+					}
+
+					if (message instanceof Error) {
+						callback({
+							type: 'build-error',
+							error: message,
+						});
 					}
 				} catch (err) {
 					// Warnings must never crash. Rethrow with a clean stack.

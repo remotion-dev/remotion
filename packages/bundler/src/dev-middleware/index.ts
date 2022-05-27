@@ -1,15 +1,14 @@
 import webpack, {Watching} from 'webpack';
-import {DevMiddlewareContext} from './types';
-
-import {setupOutputFileSystem} from './setup-output-filesystem';
+import {getFilenameFromUrl} from './get-filename-from-url';
+import {MiddleWare, middleware} from './middleware';
 import {ready} from './ready';
 import {setupHooks} from './setup-hooks';
-import {getFilenameFromUrl} from './get-filename-from-url';
-import {middleware} from './middleware';
+import {setupOutputFileSystem} from './setup-output-filesystem';
+import {DevMiddlewareContext} from './types';
 
 const noop = () => undefined;
 
-export function wdm(compiler: webpack.Compiler) {
+export const wdm = (compiler: webpack.Compiler): MiddleWare => {
 	const context: DevMiddlewareContext = {
 		state: false,
 		stats: undefined,
@@ -28,7 +27,7 @@ export function wdm(compiler: webpack.Compiler) {
 	if (context.compiler.watching) {
 		context.watching = context.compiler.watching;
 	} else {
-		const errorHandler = (error: Error | undefined) => {
+		const errorHandler = (error: Error | null | undefined) => {
 			if (error) {
 				context.logger.error(error);
 			}
@@ -66,4 +65,4 @@ export function wdm(compiler: webpack.Compiler) {
 	instance.context = context;
 
 	return instance;
-}
+};

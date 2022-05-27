@@ -1,8 +1,9 @@
 import * as assert from 'assert';
 import {Page, ScreenshotOptions} from 'puppeteer-core';
+import {StillImageFormat} from 'remotion';
 import {_screenshotTask} from './screenshot-task';
 
-export const screenshot = async (
+export const screenshot = (
 	page: Page,
 	options: ScreenshotOptions = {}
 ): Promise<Buffer | string | void> => {
@@ -92,6 +93,6 @@ export const screenshot = async (
 
 	// @ts-expect-error
 	return (page as Page)._screenshotTaskQueue.postTask(() =>
-		_screenshotTask(page, screenshotType as 'png' | 'jpeg', options)
+		_screenshotTask(page, screenshotType as StillImageFormat, options)
 	);
 };
