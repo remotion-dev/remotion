@@ -1,3 +1,4 @@
+import {interpolate} from 'remotion';
 import {ffmpegVolumeExpression} from '../assets/ffmpeg-volume-expression';
 
 test('Simple expression', () => {
@@ -38,7 +39,7 @@ test('Complex expression with volume multiplier', () => {
 		})
 	).toEqual({
 		eval: 'frame',
-		value: "'if(between(t,-0.0167,0.0167),0,if(between(t,0.0167,0.0500),1,0))'",
+		value: "'if(between(t,-0.0167,0.0167),0,1)'",
 	});
 });
 
@@ -52,13 +53,13 @@ test('Should respect trimLeft multiplier', () => {
 		})
 	).toEqual({
 		eval: 'frame',
-		value: "'if(between(t,0.4833,0.5167),0,if(between(t,0.5167,0.5500),1,0))'",
+		value: "'if(between(t,0.4833,0.5167),0,1)'",
 	});
 });
 
 test('Really complex volume expression', () => {
 	const expectedExpression =
-		"'if(between(t,-0.0167,0.0167),0,if(between(t,0.0167,0.0500),0.247,if(between(t,0.0500,0.0833),0.505,if(between(t,0.0833,0.2167),0.99,if(between(t,0.2167,0.3833),1,0)))))'";
+		"'if(between(t,-0.0167,0.0167),0,if(between(t,0.0167,0.0500),0.247,if(between(t,0.0500,0.0833),0.505,if(between(t,0.0833,0.2167),0.99,1))))'";
 
 	expect(
 		ffmpegVolumeExpression({
@@ -83,8 +84,7 @@ test('Should use 0 as else statement', () => {
 		})
 	).toEqual({
 		eval: 'frame',
-		value:
-			"'if(between(t,0.0833,0.1500),1,if(between(t,-0.0167,0.0167)+between(t,0.0167,0.0833),0,0))'",
+		value: "'if(between(t,-0.0167,0.0833),0,1)'",
 	});
 });
 
@@ -107,8 +107,7 @@ test('Complex expression - should not be higher than 1', () => {
 		})
 	).toEqual({
 		eval: 'frame',
-		value:
-			"'if(between(t,0.0167,0.0500),1,if(between(t,-0.0167,0.0167),0.505,0))'",
+		value: "'if(between(t,-0.0167,0.0167),0.505,1)'",
 	});
 });
 
@@ -122,8 +121,7 @@ test('Should simplify an expression', () => {
 		})
 	).toEqual({
 		eval: 'frame',
-		value:
-			"'if(between(t,-0.0167,0.0167)+between(t,0.1167,0.1500),0,if(between(t,0.0167,0.1167)+between(t,0.1500,0.1833),1,0))'",
+		value: "'if(between(t,-0.0167,0.0167)+between(t,0.1167,0.1500),0,1)'",
 	});
 });
 
@@ -142,4 +140,22 @@ test('Should stay under half 8000 windows character limit', () => {
 	});
 
 	expect(expression.value.length).toBeLessThan(4000);
+});
+
+test('Last volume should be default case', () => {
+	const expression = ffmpegVolumeExpression({
+		volume: new Array(20).fill(1).map((_, i) => {
+			return interpolate(i, [0, 200, 400, 600], [0, 1, 1, 0], {
+				extrapolateLeft: 'clamp',
+			});
+		}),
+		fps: 30,
+		startInVideo: 0,
+		trimLeft: 0,
+	});
+	expect(expression).toEqual({
+		eval: 'frame',
+		value:
+			"'if(between(t,-0.0167,0.0500),0,if(between(t,0.0500,0.1167),0.01,if(between(t,0.1167,0.1833),0.021,if(between(t,0.1833,0.2500),0.031,if(between(t,0.2500,0.3167),0.041,if(between(t,0.3167,0.3833),0.052,if(between(t,0.3833,0.4500),0.062,if(between(t,0.4500,0.5167),0.072,if(between(t,0.5167,0.5833),0.082,0.093)))))))))'",
+	});
 });

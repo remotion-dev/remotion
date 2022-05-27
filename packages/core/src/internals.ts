@@ -100,6 +100,7 @@ import {
 } from './timeline-position-state';
 import {DEFAULT_PUPPETEER_TIMEOUT, setupPuppeteerTimeout} from './timeout';
 import {truthy} from './truthy';
+import {useAbsoluteCurrentFrame} from './use-frame';
 import {useLazyComponent} from './use-lazy-component';
 import {useUnsafeVideoConfig} from './use-unsafe-video-config';
 import {useVideo} from './use-video';
@@ -217,6 +218,7 @@ export const Internals = {
 	getPreviewDomElement,
 	compositionsRef,
 	DELAY_RENDER_CALLSTACK_TOKEN,
+	useAbsoluteCurrentFrame,
 };
 
 export type {

@@ -31,7 +31,7 @@ const ffmpegIsOneOfFrames = ({
 	for (let i = 0; i < frames.length; i++) {
 		const previousFrame = frames[i - 1];
 		const frame = frames[i];
-		if (!previousFrame || frame !== previousFrame + 1) {
+		if (previousFrame === undefined || frame !== previousFrame + 1) {
 			consecutiveArrays.push([]);
 		}
 
@@ -61,14 +61,7 @@ const ffmpegBuildVolumeExpression = (
 	}
 
 	if (arr.length === 1) {
-		// FFMpeg tends to request volume for frames outside the range
-		// where the audio actually plays.
-		// If this is the case, we just return volume 0 to clip it.
-		return ffmpegIfOrElse(
-			ffmpegIsOneOfFrames({frames: arr[0][1], trimLeft: delay, fps}),
-			String(arr[0][0]),
-			String(0)
-		);
+		return String(arr[0][0]);
 	}
 
 	const [first, ...rest] = arr;
@@ -114,12 +107,18 @@ export const ffmpegVolumeExpression = ({
 		});
 	}
 
+	// A 1 sec video with frames 0-29 would mean that
+	// frame 29 corresponds to timestamp 0.966666...
+	// but the audio is actually 1 sec long. For that reason we pad the last
+	// timestamp.
+	const paddedVolume = [...volume, volume[volume.length - 1]];
+
 	// Otherwise, we construct an FFMPEG expression. First step:
 	// Make a map of all possible volumes
 	// {possibleVolume1} => [frame1, frame2]
 	// {possibleVolume2} => [frame3, frame4]
 	const volumeMap: {[volume: string]: number[]} = {};
-	volume.forEach((baseVolume, frame) => {
+	paddedVolume.forEach((baseVolume, frame) => {
 		// Adjust volume based on how many other tracks have not yet finished
 		const actualVolume = roundVolumeToAvoidStackOverflow(
 			Math.min(1, baseVolume)
@@ -139,6 +138,7 @@ export const ffmpegVolumeExpression = ({
 
 	// Construct and tell FFMPEG it has to evaluate expression on each frame
 	const expression = ffmpegBuildVolumeExpression(volumeArray, trimLeft, fps);
+
 	return {
 		eval: 'frame',
 		value: `'${expression}'`,
