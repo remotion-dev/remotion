@@ -11,6 +11,8 @@
     "strict": true,
     "esModuleInterop": true,
     "resolveJsonModule": true,
-    "incremental": true
+    "incremental": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true
   }
 }
