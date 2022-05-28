@@ -15,7 +15,6 @@ import {getExtensionOfFilename} from './get-extension-of-filename';
 import {getRealFrameRange} from './get-frame-to-render';
 import {ensureLocalBrowser} from './get-local-browser-executable';
 import {isServeUrl} from './is-serve-url';
-import {makeAssetsDownloadTmpDir} from './make-assets-download-dir';
 import {normalizeServeUrl} from './normalize-serve-url';
 import {killAllBrowsers} from './open-browser';
 import {parseStack} from './parse-browser-error-stack';
@@ -59,7 +58,6 @@ export const RenderInternals = {
 	normalizeServeUrl,
 	spawnFfmpeg,
 	getFileExtensionFromCodec,
-	makeAssetsDownloadTmpDir,
 	tmpDir,
 	deleteDirectory,
 	isServeUrl,
