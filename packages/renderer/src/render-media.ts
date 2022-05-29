@@ -232,7 +232,11 @@ export const renderMedia = async ({
 		if (stitcherFfmpeg) {
 			await waitForFinish();
 			stitcherFfmpeg?.stdin?.end();
-			await stitcherFfmpeg;
+			try {
+				await stitcherFfmpeg;
+			} catch (err) {
+				throw new Error(preStitcher?.getLogs());
+			}
 		}
 
 		renderedDoneIn = Date.now() - renderStart;
