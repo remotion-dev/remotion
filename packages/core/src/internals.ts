@@ -68,6 +68,7 @@ import {
 } from './config/prores-profile';
 import {getQuality} from './config/quality';
 import {getScale} from './config/scale';
+import {getSkipNFrames} from './config/skip-n-frames';
 import {getStillFrame, setStillFrame} from './config/still-frame';
 import {
 	getCurrentPuppeteerTimeout,
@@ -151,6 +152,7 @@ export const Internals = {
 	getOutputCodecOrUndefined,
 	getWebpackOverrideFn,
 	getQuality,
+	getSkipNFrames,
 	getScale,
 	getShouldOutputImageSequence,
 	validateSelectedCrfAndCodecCombination,
