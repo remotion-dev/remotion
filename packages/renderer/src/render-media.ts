@@ -232,11 +232,7 @@ export const renderMedia = async ({
 		if (stitcherFfmpeg) {
 			await waitForFinish();
 			stitcherFfmpeg?.stdin?.end();
-			try {
-				await stitcherFfmpeg;
-			} catch (err) {
-				throw new Error(preStitcher?.getLogs());
-			}
+			await stitcherFfmpeg;
 		}
 
 		renderedDoneIn = Date.now() - renderStart;
@@ -280,6 +276,15 @@ export const renderMedia = async ({
 		);
 		encodedDoneIn = Date.now() - stitchStart;
 		callUpdate();
+	} catch (err) {
+		if (stitcherFfmpeg) {
+			if (stitcherFfmpeg.exitCode == null) {
+				let promise = new Promise(resolve => stitcherFfmpeg!.on("close", resolve));
+				stitcherFfmpeg.kill();
+				await promise;
+			}
+		}
+		throw err;
 	} finally {
 		if (
 			preEncodedFileLocation !== null &&
