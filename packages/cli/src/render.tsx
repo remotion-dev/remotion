@@ -65,6 +65,7 @@ export const render = async () => {
 		chromiumOptions,
 		port,
 		puppeteerTimeout,
+		skipNFrames,
 	} = await getCliOptions({isLambda: false, type: 'series'});
 
 	if (!absoluteOutputFile) {
@@ -256,6 +257,7 @@ export const render = async () => {
 		ffmpegExecutable,
 		frameRange,
 		imageFormat,
+		skipNFrames,
 		inputProps,
 		onProgress: (update) => {
 			encodedDoneIn = update.encodedDoneIn;

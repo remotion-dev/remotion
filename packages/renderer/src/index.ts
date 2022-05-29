@@ -23,6 +23,7 @@ import {spawnFfmpeg} from './stitch-frames-to-video';
 import {tmpDir} from './tmp-dir';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
 import {binaryExists, validateFfmpeg} from './validate-ffmpeg';
+import {validateFpsForGif} from './validate-fps-for-gif';
 import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
 import {validateScale} from './validate-scale';
 export type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
@@ -65,6 +66,7 @@ export const RenderInternals = {
 	ensureOutputDirectory,
 	getRealFrameRange,
 	validatePuppeteerTimeout,
+	validateFpsForGif,
 	downloadFile,
 	validateScale,
 	killAllBrowsers,
