@@ -278,12 +278,15 @@ export const renderMedia = async ({
 		callUpdate();
 	} catch (err) {
 		if (stitcherFfmpeg) {
-			if (stitcherFfmpeg.exitCode == null) {
-				let promise = new Promise(resolve => stitcherFfmpeg!.on("close", resolve));
+			if (stitcherFfmpeg.exitCode === null) {
+				const promise = new Promise<void>((resolve) => {
+					stitcherFfmpeg!.on('close', resolve);
+				});
 				stitcherFfmpeg.kill();
 				await promise;
 			}
 		}
+
 		throw err;
 	} finally {
 		if (
