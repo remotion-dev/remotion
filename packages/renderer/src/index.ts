@@ -36,6 +36,7 @@ export {CancelSignal, makeCancelSignal} from './make-cancel-signal';
 export {openBrowser} from './open-browser';
 export type {ChromiumOptions} from './open-browser';
 export {renderFrames} from './render-frames';
+export {renderGif} from './render-gif';
 export {
 	renderMedia,
 	RenderMediaOnProgress,

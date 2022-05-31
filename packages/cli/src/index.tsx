@@ -3,6 +3,7 @@ import {checkNodeVersion} from './check-version';
 import {listCompositionsCommand} from './compositions';
 import {getCliOptions} from './get-cli-options';
 import {loadConfig} from './get-config-file-name';
+import {gif} from './gif';
 import {handleCommonError} from './handle-common-errors';
 import {initializeRenderCli} from './initialize-render-cli';
 import {lambdaCommand} from './lambda-command';
@@ -53,6 +54,8 @@ export const cli = async () => {
 			await render();
 		} else if (command === 'still') {
 			await still();
+		} else if (command === 'gif') {
+			await gif();
 		} else if (command === 'upgrade') {
 			await upgrade();
 		} else if (command === VERSIONS_COMMAND) {

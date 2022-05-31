@@ -1,9 +1,8 @@
 import {
 	getCompositions,
 	openBrowser,
-	renderFrames,
+	renderGif,
 	RenderInternals,
-	renderMedia,
 	RenderMediaOnDownload,
 	StitchingState,
 } from '@remotion/renderer';
@@ -26,7 +25,7 @@ import {bundleOnCli} from './setup-cache';
 import {RenderStep} from './step';
 import {checkAndValidateFfmpegVersion} from './validate-ffmpeg-version';
 
-export const render = async () => {
+export const gif = async () => {
 	const startTime = Date.now();
 	const file = parsedCli._[1];
 	if (!file) {
@@ -186,68 +185,7 @@ export const render = async () => {
 		);
 	};
 
-	if (shouldOutputImageSequence) {
-		fs.mkdirSync(absoluteOutputFile, {
-			recursive: true,
-		});
-		if (imageFormat === 'none') {
-			Log.error(
-				'Cannot render an image sequence with a codec that renders no images.'
-			);
-			Log.error(`codec = ${codec}, imageFormat = ${imageFormat}`);
-			process.exit(1);
-		}
-
-		await renderFrames({
-			config,
-			imageFormat,
-			inputProps,
-			onFrameUpdate: (rendered) => {
-				renderedFrames = rendered;
-				updateRenderProgress();
-			},
-			onStart: ({frameCount}) => {
-				totalFrames = frameCount;
-				return updateRenderProgress();
-			},
-			onDownload: (src: string) => {
-				if (src.startsWith('data:')) {
-					Log.info(
-						'\nWriting Data URL to file: ',
-						src.substring(0, 30) + '...'
-					);
-				} else {
-					Log.info('\nDownloading asset... ', src);
-				}
-			},
-			outputDir,
-			serveUrl: urlOrBundle,
-			dumpBrowserLogs: Internals.Logging.isEqualOrBelowLogLevel(
-				Internals.Logging.getLogLevel(),
-				'verbose'
-			),
-			envVariables,
-			frameRange,
-			parallelism,
-			puppeteerInstance,
-			quality,
-			timeoutInMilliseconds: Internals.getCurrentPuppeteerTimeout(),
-			chromiumOptions,
-			scale,
-			ffmpegExecutable,
-			browserExecutable,
-			port,
-		});
-		renderedDoneIn = Date.now() - startTime;
-
-		updateRenderProgress();
-		Log.info();
-		Log.info();
-		Log.info(chalk.green('\nYour image sequence is ready!'));
-		return;
-	}
-
-	await renderMedia({
+	await renderGif({
 		outputLocation: absoluteOutputFile,
 		codec,
 		composition: config,
@@ -309,5 +247,7 @@ export const render = async () => {
 		Log.warn('Do you have minimum required Node.js version?');
 	}
 
-	Log.info(chalk.green('\nYour video is ready!'));
+	Log.info(
+		chalk.green(`\nYour ${codec === 'gif' ? 'gif' : 'video'} is ready!`)
+	);
 };
