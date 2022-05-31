@@ -3,6 +3,7 @@ import React, {useCallback, useEffect} from 'react';
 import {Internals} from 'remotion';
 import {useIsStill} from '../helpers/is-current-selected-still';
 import {useKeybinding} from '../helpers/use-keybinding';
+import {JumpToStart} from '../icons/jump-to-start';
 import {Pause} from '../icons/pause';
 import {Play} from '../icons/play';
 import {StepBack} from '../icons/step-back';
@@ -11,7 +12,6 @@ import {ControlButton} from './ControlButton';
 
 const forwardBackStyle = {
 	height: 16,
-	width: 16,
 	color: 'white',
 };
 
@@ -87,14 +87,6 @@ export const PlayPause: React.FC<{
 		seek(0);
 	}, [seek]);
 
-	const jumpToEnd = useCallback(() => {
-		if (!video) {
-			return;
-		}
-
-		seek(video.durationInFrames - 1);
-	}, [seek, video]);
-
 	const keybindings = useKeybinding();
 
 	useEffect(() => {
@@ -129,7 +121,7 @@ export const PlayPause: React.FC<{
 				disabled={frame === 0}
 				onClick={jumpToStart}
 			>
-				<StepBack style={forwardBackStyle} />
+				<JumpToStart style={forwardBackStyle} />
 			</ControlButton>
 			<ControlButton
 				aria-label="Step back one frame"
@@ -170,14 +162,6 @@ export const PlayPause: React.FC<{
 				title="Step forward one frame"
 				disabled={isLastFrame}
 				onClick={oneFrameForward}
-			>
-				<StepForward style={forwardBackStyle} />
-			</ControlButton>
-			<ControlButton
-				aria-label="Jump to end"
-				title="Jump to end"
-				disabled={isLastFrame}
-				onClick={jumpToEnd}
 			>
 				<StepForward style={forwardBackStyle} />
 			</ControlButton>
