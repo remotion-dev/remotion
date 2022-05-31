@@ -1,5 +1,6 @@
 import {CliInternals} from '@remotion/cli';
 import {ROLE_NAME} from '../api/iam-validation/suggested-policy';
+import {BINARY_NAME} from '../defaults';
 import {checkCredentials} from '../shared/check-credentials';
 import {DOCS_URL} from '../shared/docs-url';
 import {parsedLambdaCli} from './args';
@@ -118,6 +119,18 @@ export const executeCommand = async (args: string[]) => {
 				'The role defined for the function cannot be assumed by Lambda'
 			)
 		) {
+			if (parsedLambdaCli['custom-role-arn']) {
+				Log.error(
+					`
+	The role "${parsedLambdaCli['custom-role-arn']}" does not exist or has the wrong policy assigned to it. Do either:
+	- Remove the "--custom-role-arn" parameter and set up Remotion Lambda according to the setup guide
+	- Make sure the role has the same policy assigned as the one returned by "npx ${BINARY_NAME} ${POLICIES_COMMAND} ${ROLE_SUBCOMMAND}"
+	
+	Revisit ${DOCS_URL}/docs/lambda/setup and make sure you set up the role and role policy correctly. Also see the troubleshooting page: ${DOCS_URL}/docs/lambda/troubleshooting/permissions. The original error message is:
+	`.trim()
+				);
+			}
+
 			Log.error(
 				`
 The role "${ROLE_NAME}" does not exist in your AWS account or has the wrong policy assigned to it. Common reasons:
