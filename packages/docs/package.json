@@ -29,6 +29,7 @@
     "@remotion/lambda": "3.0.12",
     "@remotion/media-utils": "3.0.12",
     "@remotion/player": "3.0.12",
+    "@remotion/preload": "3.0.12",
     "@remotion/renderer": "3.0.12",
     "@remotion/three": "3.0.12",
     "@splitbee/web": "^0.2.4",
