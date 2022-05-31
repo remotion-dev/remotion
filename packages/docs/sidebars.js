@@ -197,6 +197,19 @@ module.exports = {
     },
     {
       type: "category",
+      label: "API - @remotion/preload",
+      link: {
+        type: "doc",
+        id: "preload/preload",
+      },
+      items: [
+        "preload/preload-video",
+        "preload/preload-audio",
+        "preload/resolve-redirect",
+      ],
+    },
+    {
+      type: "category",
       link: {
         type: "doc",
         id: "renderer",
