@@ -1,5 +1,5 @@
 import React from "react";
-import { BlueButton, Button } from "../layout/Button";
+import { BlueButton } from "../layout/Button";
 import styles from "./footer.module.css";
 
 const container: React.CSSProperties = {
