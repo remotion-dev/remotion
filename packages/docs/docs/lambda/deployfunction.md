@@ -68,6 +68,12 @@ _optional_
 
 Sets the amount of disk storage that is available in the Lambda function. Must be between 512MB and 10240MB (10GB). Set this higher if you want to render longer videos. See also: [Disk size](/docs/lambda/disk-size)
 
+### `customRoleArn`
+
+_optional_
+
+Use a custom role for the function instead of the default (`arn:aws:iam::[aws-account-id]:role/remotion-lambda-role`)
+
 ## Return value
 
 An object with the following values:
