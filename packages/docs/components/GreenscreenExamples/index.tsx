@@ -1,49 +1,6 @@
 import { Player } from "@remotion/player";
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import {
-  AbsoluteFill,
-  interpolate,
-  Loop,
-  spring,
-  useCurrentFrame,
-  useVideoConfig,
-  Video,
-} from "remotion";
-
-const BlueSquare: React.FC = () => {
-  const frame = useCurrentFrame();
-  const animation = spring({
-    fps: 30,
-    frame,
-    config: {
-      damping: 400,
-    },
-  });
-  return (
-    <AbsoluteFill style={{ justifyContent: "center", alignItems: "center" }}>
-      <div
-        style={{
-          height: 200,
-          width: 200,
-          backgroundColor: "#3498db",
-          borderRadius: 20,
-          transform: `translateY(${interpolate(
-            animation,
-            [0, 1],
-            [600, 0]
-          )}px)`,
-          justifyContent: "center",
-          alignItems: "center",
-          display: "flex",
-          color: "rgba(255, 255, 255, 0.7)",
-          fontSize: 50,
-        }}
-      >
-        {frame}
-      </div>
-    </AbsoluteFill>
-  );
-};
+import { AbsoluteFill, useVideoConfig, Video } from "remotion";
 
 export const Greenscreen: React.FC<{
   opacity: number;
@@ -53,7 +10,7 @@ export const Greenscreen: React.FC<{
   const { width, height } = useVideoConfig();
 
   const onVideoFrame = useCallback(
-    (opacity: number) => {
+    (op: number) => {
       if (
         !canvas.current ||
         !video.current ||
@@ -61,6 +18,7 @@ export const Greenscreen: React.FC<{
       ) {
         return;
       }
+
       const context = canvas.current.getContext("2d");
 
       if (!context) {
@@ -76,9 +34,10 @@ export const Greenscreen: React.FC<{
         const green = imageFrame.data[i + 1];
         const blue = imageFrame.data[i + 2];
         if (green > 100 && red < 100 && blue < 100) {
-          imageFrame.data[i + 3] = opacity * 255;
+          imageFrame.data[i + 3] = op * 255;
         }
       }
+
       context.putImageData(imageFrame, 0, 0);
     },
     [height, width]
@@ -88,6 +47,7 @@ export const Greenscreen: React.FC<{
     if (!video.current || !video.current.requestVideoFrameCallback) {
       return;
     }
+
     const { current } = video;
     let handle = 0;
     const callback = () => {
@@ -98,7 +58,6 @@ export const Greenscreen: React.FC<{
     callback();
 
     return () => {
-      // @ts-expect-error
       current.cancelVideoFrameCallback(handle);
     };
   }, [onVideoFrame, opacity]);
@@ -134,6 +93,7 @@ export const VideoOnCanvas: React.FC = () => {
     ) {
       return;
     }
+
     const context = canvas.current.getContext("2d");
 
     if (!context) {
@@ -150,6 +110,7 @@ export const VideoOnCanvas: React.FC = () => {
     if (!video.current || !video.current.requestVideoFrameCallback) {
       return;
     }
+
     video.current.requestVideoFrameCallback(() => onVideoFrame());
   }, [onVideoFrame]);
 
@@ -217,7 +178,7 @@ export const VideoCanvasExamples: React.FC<{
               step={1 / 255}
               value={effect}
               style={{ marginLeft: 10 }}
-            ></input>
+            />
           </div>
         </>
       ) : null}

@@ -2,6 +2,7 @@ import {RequestListener} from 'http';
 import {FfmpegExecutable} from 'remotion';
 import {URLSearchParams} from 'url';
 import {
+	getSanitizedFilenameForAssetUrl,
 	RenderMediaOnDownload,
 	startDownloadForSrc,
 	waitForAssetToBeDownloaded,
@@ -57,16 +58,20 @@ export const startOffthreadVideoServer = ({
 		res.setHeader('content-type', 'image/jpg');
 
 		const {src, time} = extractUrlAndSourceFromUrl(req.url);
+
+		const to = getSanitizedFilenameForAssetUrl({downloadDir, src});
+
 		startDownloadForSrc({src, downloadDir, onDownload}).catch((err) => {
 			onError(
 				new Error(`Error while downloading asset: ${(err as Error).stack}`)
 			);
 		});
-		waitForAssetToBeDownloaded(src)
-			.then((newSrc) => {
+
+		waitForAssetToBeDownloaded(src, to)
+			.then(() => {
 				return extractFrameFromVideo({
 					time,
-					src: newSrc,
+					src: to,
 					ffmpegExecutable,
 				});
 			})

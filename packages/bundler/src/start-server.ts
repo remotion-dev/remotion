@@ -70,7 +70,7 @@ export const startServer = async (
 	app.use(wdm(compiler));
 	app.use(webpackHotMiddleware(compiler));
 
-	app.get('/api/update', (req, res) => {
+	app.get('/api/update', (_req, res) => {
 		isUpdateAvailableWithTimeout()
 			.then((data) => {
 				res.json(data);
@@ -82,7 +82,7 @@ export const startServer = async (
 			});
 	});
 
-	app.get('/api/project-info', (req, res) => {
+	app.get('/api/project-info', (_req, res) => {
 		getProjectInfo()
 			.then((data) => {
 				res.json(data);
@@ -139,7 +139,7 @@ export const startServer = async (
 		}
 	});
 
-	app.use('favicon.png', (req, res) => {
+	app.use('favicon.png', (_req, res) => {
 		res.sendFile(path.join(__dirname, '..', 'web', 'favicon.png'));
 	});
 

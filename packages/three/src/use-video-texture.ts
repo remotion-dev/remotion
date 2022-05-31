@@ -2,12 +2,6 @@ import React, {useCallback, useState} from 'react';
 import {continueRender, delayRender, useCurrentFrame, Video} from 'remotion';
 import {VideoTexture} from 'three';
 
-declare global {
-	interface HTMLVideoElement {
-		requestVideoFrameCallback?: (cb: () => void) => void;
-	}
-}
-
 export type UseVideoTextureOptions = React.ComponentProps<typeof Video>;
 
 let warned = false;
