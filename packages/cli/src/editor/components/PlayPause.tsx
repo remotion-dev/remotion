@@ -26,7 +26,7 @@ export const PlayPause: React.FC<{
 		playbackRate,
 	});
 
-	const {playing, play, pause, frameBack, frameForward, isLastFrame} =
+	const {playing, play, pause, frameBack, seek, frameForward, isLastFrame} =
 		PlayerInternals.usePlayer();
 
 	const isStill = useIsStill();
@@ -82,6 +82,19 @@ export const PlayPause: React.FC<{
 	const oneFrameForward = useCallback(() => {
 		frameForward(1);
 	}, [frameForward]);
+
+	const jumpToStart = useCallback(() => {
+		seek(0);
+	}, [seek]);
+
+	const jumpToEnd = useCallback(() => {
+		if (!video) {
+			return;
+		}
+
+		seek(video.durationInFrames - 1);
+	}, [seek, video]);
+
 	const keybindings = useKeybinding();
 
 	useEffect(() => {
@@ -110,6 +123,14 @@ export const PlayPause: React.FC<{
 
 	return (
 		<>
+			<ControlButton
+				aria-label="Jump to beginning"
+				title="Jump to beginning"
+				disabled={frame === 0}
+				onClick={jumpToStart}
+			>
+				<StepBack style={forwardBackStyle} />
+			</ControlButton>
 			<ControlButton
 				aria-label="Step back one frame"
 				title="Step back one frame"
@@ -149,6 +170,14 @@ export const PlayPause: React.FC<{
 				title="Step forward one frame"
 				disabled={isLastFrame}
 				onClick={oneFrameForward}
+			>
+				<StepForward style={forwardBackStyle} />
+			</ControlButton>
+			<ControlButton
+				aria-label="Jump to end"
+				title="Jump to end"
+				disabled={isLastFrame}
+				onClick={jumpToEnd}
 			>
 				<StepForward style={forwardBackStyle} />
 			</ControlButton>
