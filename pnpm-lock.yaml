@@ -280,6 +280,7 @@ importers:
       '@remotion/lambda': 3.0.12
       '@remotion/media-utils': 3.0.12
       '@remotion/player': 3.0.12
+      '@remotion/preload': 3.0.12
       '@remotion/renderer': 3.0.12
       '@remotion/three': 3.0.12
       '@splitbee/web': ^0.2.4
@@ -321,6 +322,7 @@ importers:
       '@remotion/lambda': link:../lambda
       '@remotion/media-utils': link:../media-utils
       '@remotion/player': link:../player
+      '@remotion/preload': link:../preload
       '@remotion/renderer': link:../renderer
       '@remotion/three': link:../three
       '@splitbee/web': 0.2.4
@@ -672,6 +674,7 @@ importers:
       '@remotion/bundler': 3.0.12
       '@remotion/eslint-config': 3.0.12
       '@remotion/player': 3.0.12
+      '@remotion/preload': 3.0.12
       '@types/node': ^12.0.0
       '@types/react': 18.0.1
       '@types/react-dom': 18.0.0
@@ -694,6 +697,7 @@ importers:
       '@remotion/bundler': link:../bundler
       '@remotion/eslint-config': link:../eslint-config
       '@remotion/player': link:../player
+      '@remotion/preload': link:../preload
       '@types/node': 12.20.27
       '@types/react': 18.0.1
       '@types/react-dom': 18.0.0
@@ -711,6 +715,20 @@ importers:
       typescript: 4.7.2
       webpack: 5.72.0_esbuild@0.14.19
       webpack-dev-server: 4.8.1_webpack@5.72.0
+
+  packages/preload:
+    specifiers:
+      '@jonny/eslint-config': 3.0.259
+      eslint: 8.13.0
+      prettier: ^2.0.5
+      prettier-plugin-organize-imports: ^2.3.4
+      typescript: ^4.5.5
+    devDependencies:
+      '@jonny/eslint-config': 3.0.259_eslint@8.13.0+typescript@4.7.2
+      eslint: 8.13.0
+      prettier: 2.6.2
+      prettier-plugin-organize-imports: 2.3.4_prettier@2.6.2+typescript@4.7.2
+      typescript: 4.7.2
 
   packages/renderer:
     specifiers:
@@ -11272,7 +11290,7 @@ packages:
       json-stable-stringify-without-jsonify: 1.0.1
       levn: 0.4.1
       lodash.merge: 4.6.2
-      minimatch: 3.0.4
+      minimatch: 3.1.2
       natural-compare: 1.4.0
       optionator: 0.9.1
       regexpp: 3.2.0
