@@ -57,22 +57,36 @@ export const PlayPause: React.FC<{
 				return null;
 			}
 
-			frameBack(e.shiftKey ? videoFps : 1);
 			e.preventDefault();
+
+			if (e.altKey) {
+				seek(0);
+			} else if (e.shiftKey) {
+				frameBack(videoFps);
+			} else {
+				frameBack(1);
+			}
 		},
-		[frameBack, videoFps]
+		[frameBack, seek, videoFps]
 	);
 
 	const onArrowRight = useCallback(
 		(e: KeyboardEvent) => {
-			if (!videoFps) {
+			if (!video) {
 				return null;
 			}
 
-			frameForward(e.shiftKey ? videoFps : 1);
+			if (e.altKey) {
+				seek(video.durationInFrames - 1);
+			} else if (e.shiftKey) {
+				frameForward(video.fps);
+			} else {
+				frameForward(1);
+			}
+
 			e.preventDefault();
 		},
-		[frameForward, videoFps]
+		[frameForward, seek, video]
 	);
 
 	const oneFrameBack = useCallback(() => {
@@ -86,6 +100,14 @@ export const PlayPause: React.FC<{
 	const jumpToStart = useCallback(() => {
 		seek(0);
 	}, [seek]);
+
+	const jumpToEnd = useCallback(() => {
+		if (!video) {
+			return;
+		}
+
+		seek(video.durationInFrames - 1);
+	}, [seek, video]);
 
 	const keybindings = useKeybinding();
 
@@ -101,13 +123,17 @@ export const PlayPause: React.FC<{
 			onArrowRight
 		);
 		const space = keybindings.registerKeybinding('keydown', ' ', onSpace);
+		const a = keybindings.registerKeybinding('keydown', 'a', jumpToStart);
+		const e = keybindings.registerKeybinding('keydown', 'e', jumpToEnd);
 
 		return () => {
 			arrowLeft.unregister();
 			arrowRight.unregister();
 			space.unregister();
+			a.unregister();
+			e.unregister();
 		};
-	}, [keybindings, onArrowLeft, onArrowRight, onSpace]);
+	}, [jumpToEnd, jumpToStart, keybindings, onArrowLeft, onArrowRight, onSpace]);
 
 	if (isStill) {
 		return null;
