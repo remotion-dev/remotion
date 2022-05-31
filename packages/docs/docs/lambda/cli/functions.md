@@ -77,6 +77,10 @@ Does not create a CloudWatch log group.
 
 Retention period for the CloudWatch Logs in days. Default: <DefaultLogRetention /> days.
 
+### `--custom-role-arn`
+
+Use a custom role for the function instead of the default (`arn:aws:iam::[aws-account-id]:role/remotion-lambda-role`)
+
 ### `--quiet`, `-q`
 
 Only logs the function name.
