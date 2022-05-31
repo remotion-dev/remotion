@@ -1,4 +1,5 @@
-import React, {useCallback, useState} from 'react';
+import {useElementSize} from '@remotion/player/src/utils/use-element-size';
+import React, {createRef, useCallback, useMemo, useState} from 'react';
 import {Canvas} from './Canvas';
 import {CollapsedCompositionSelector} from './CollapsedCompositionSelector';
 import {CompositionSelector} from './CompositionSelector';
@@ -31,21 +32,75 @@ const leftContainer: React.CSSProperties = {
 	display: 'flex',
 };
 
+const storageKey = 'remotion.sidebarCollapsing';
+
+type CollapsedState = 'collapsed' | 'expanded' | 'responsive';
+
+export const getSavedCollapsedState = (): CollapsedState => {
+	const state = window.localStorage.getItem(storageKey);
+	if (state === 'collapsed') {
+		return 'collapsed';
+	}
+
+	if (state === 'expanded') {
+		return 'expanded';
+	}
+
+	return 'responsive';
+};
+
+export const setSavedCollapsedState = (type: CollapsedState) => {
+	window.localStorage.setItem(storageKey, type);
+};
+
+const bodyRef = createRef<HTMLElement>();
+
+// @ts-expect-error
+bodyRef.current = document.body;
+
 export const TopPanel: React.FC = () => {
-	const [leftSidebarCollapsed, setCollapsed] = useState(false);
+	const [leftSidebarCollapsedState, setCollapsedState] = useState(() =>
+		getSavedCollapsedState()
+	);
+
+	const windowSize = useElementSize(bodyRef, {
+		shouldApplyCssTransforms: false,
+		triggerOnWindowResize: false,
+	});
+
+	const actualState = useMemo((): 'expanded' | 'collapsed' => {
+		if (leftSidebarCollapsedState === 'collapsed') {
+			return 'collapsed';
+		}
+
+		if (leftSidebarCollapsedState === 'expanded') {
+			return 'expanded';
+		}
+
+		if (!windowSize) {
+			return 'collapsed';
+		}
+
+		return windowSize.width < 1200 ? 'collapsed' : 'expanded';
+	}, [leftSidebarCollapsedState, windowSize]);
 
 	const onCollapse = useCallback(() => {
-		setCollapsed(true);
+		setCollapsedState('collapsed');
+		setSavedCollapsedState('collapsed');
 	}, []);
 
 	const onExpand = useCallback(() => {
-		setCollapsed(false);
+		setCollapsedState('expanded');
+		setSavedCollapsedState('expanded');
 	}, []);
 
 	return (
 		<div style={container}>
 			<MenuToolbar />
 			<div style={row}>
+				{actualState === 'collapsed' ? (
+					<CollapsedCompositionSelector onExpand={onExpand} />
+				) : null}
 				<SplitterContainer
 					minFlex={0.15}
 					maxFlex={0.4}
@@ -53,18 +108,16 @@ export const TopPanel: React.FC = () => {
 					id="sidebar-to-preview"
 					orientation="vertical"
 				>
-					{leftSidebarCollapsed ? (
-						<CollapsedCompositionSelector onExpand={onExpand} />
-					) : (
-						<>
-							<SplitterElement type="flexer">
-								<div style={leftContainer} className="css-reset">
-									<CompositionSelector />
-								</div>
-							</SplitterElement>
-							<SplitterHandle allowToCollapse onCollapse={onCollapse} />
-						</>
-					)}
+					{actualState === 'expanded' ? (
+						<SplitterElement type="flexer">
+							<div style={leftContainer} className="css-reset">
+								<CompositionSelector />
+							</div>
+						</SplitterElement>
+					) : null}
+					{actualState === 'expanded' ? (
+						<SplitterHandle allowToCollapse onCollapse={onCollapse} />
+					) : null}
 					<SplitterElement type="anti-flexer">
 						<div style={canvasContainer}>
 							<Canvas />
