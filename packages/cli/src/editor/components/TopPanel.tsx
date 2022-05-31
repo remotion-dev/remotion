@@ -1,5 +1,6 @@
-import React from 'react';
+import React, {useCallback, useState} from 'react';
 import {Canvas} from './Canvas';
+import {CollapsedCompositionSelector} from './CollapsedCompositionSelector';
 import {CompositionSelector} from './CompositionSelector';
 import {MenuToolbar} from './MenuToolbar';
 import {PreviewToolbar} from './PreviewToolbar';
@@ -31,6 +32,16 @@ const leftContainer: React.CSSProperties = {
 };
 
 export const TopPanel: React.FC = () => {
+	const [leftSidebarCollapsed, setCollapsed] = useState(false);
+
+	const onCollapse = useCallback(() => {
+		setCollapsed(true);
+	}, []);
+
+	const onExpand = useCallback(() => {
+		setCollapsed(false);
+	}, []);
+
 	return (
 		<div style={container}>
 			<MenuToolbar />
@@ -42,12 +53,18 @@ export const TopPanel: React.FC = () => {
 					id="sidebar-to-preview"
 					orientation="vertical"
 				>
-					<SplitterElement type="flexer">
-						<div style={leftContainer} className="css-reset">
-							<CompositionSelector />
-						</div>
-					</SplitterElement>
-					<SplitterHandle />
+					{leftSidebarCollapsed ? (
+						<CollapsedCompositionSelector onExpand={onExpand} />
+					) : (
+						<>
+							<SplitterElement type="flexer">
+								<div style={leftContainer} className="css-reset">
+									<CompositionSelector />
+								</div>
+							</SplitterElement>
+							<SplitterHandle allowToCollapse onCollapse={onCollapse} />
+						</>
+					)}
 					<SplitterElement type="anti-flexer">
 						<div style={canvasContainer}>
 							<Canvas />
