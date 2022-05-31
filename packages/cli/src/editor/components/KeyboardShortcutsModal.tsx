@@ -105,6 +105,21 @@ export const KeyboardShortcuts: React.FC = () => {
 						</div>
 						<div style={right}>1 second forward</div>
 					</Row>
+
+					<br />
+					<br />
+					<Row align="center">
+						<div style={left}>
+							<kbd style={key}>A</kbd>
+						</div>
+						<div style={right}>Jump to beginning</div>
+					</Row>
+					<Row align="center">
+						<div style={left}>
+							<kbd style={key}>E</kbd>
+						</div>
+						<div style={right}>Jump to end</div>
+					</Row>
 					<br />
 					<br />
 					<Row align="center">
