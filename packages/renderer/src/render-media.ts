@@ -280,6 +280,23 @@ export const renderMedia = async ({
 		);
 		encodedDoneIn = Date.now() - stitchStart;
 		callUpdate();
+	} catch (err) {
+		/**
+		 * When an error is thrown in renderFrames(...) (e.g., when delayRender() is used incorrectly), fs.unlinkSync(...) throws an error that the file is locked because ffmpeg is still running, and renderMedia returns it.
+		 * Therefore we first kill the FFMPEG process before deleting the file
+		 */
+		if (stitcherFfmpeg !== undefined && stitcherFfmpeg.exitCode === null) {
+			const promise = new Promise<void>((resolve) => {
+				setTimeout(() => {
+					resolve();
+				}, 2000);
+				(stitcherFfmpeg as ExecaChildProcess<string>).on('close', resolve);
+			});
+			stitcherFfmpeg.kill();
+			await promise;
+		}
+
+		throw err;
 	} finally {
 		if (
 			preEncodedFileLocation !== null &&
