@@ -192,7 +192,10 @@ export const getCliOptions = async (options: {
 }) => {
 	const frameRange = getAndValidateFrameRange();
 
-	const codec = await getFinalCodec({isLambda: options.isLambda});
+	const codec: Codec =
+		options.type === 'get-compositions'
+			? 'h264'
+			: await getFinalCodec({isLambda: options.isLambda});
 	const shouldOutputImageSequence =
 		options.type === 'still'
 			? true
