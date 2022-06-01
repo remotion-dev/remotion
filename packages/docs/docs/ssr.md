@@ -22,9 +22,6 @@ The NPM package `@remotion/renderer` provides you with an API for rendering the 
 Follow this commented example to see how to render a video:
 
 ```tsx twoslash
-import fs from "fs";
-import os from "os";
-import path from "path";
 import { bundle } from "@remotion/bundler";
 import { getCompositions, renderMedia } from "@remotion/renderer";
 
@@ -33,7 +30,7 @@ const start = async () => {
   const compositionId = "HelloWorld";
 
   // Create a webpack bundle of the video.
-  // You only have to do this, you can reuse the bundle.
+  // You only have to do this once, you can reuse the bundle.
   const bundleLocation = await bundle(require.resolve("./src/index"));
 
   // Parametrize the video by passing arbitrary props to your component.
