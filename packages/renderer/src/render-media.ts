@@ -76,7 +76,28 @@ export type RenderMediaOptions = {
 
 type Await<T> = T extends PromiseLike<infer U> ? U : T;
 
-export const renderMedia = async ({
+type RenderMediaReturnType = Promise<void> & {
+	cancel: () => void;
+};
+
+export const renderMedia = (
+	options: RenderMediaOptions
+): RenderMediaReturnType => {
+	let resolve: () => void = () => undefined;
+	let reject: (reason: Error) => void = () => undefined;
+	const rejectIfCancel = new Promise<void>((res, rej) => {
+		resolve = res;
+		reject = rej;
+	});
+	const prom = innerRenderMedia({...options, rejectIfCancel}).then(() => {
+		resolve();
+	});
+	return Object.assign(prom, {
+		cancel: () => reject(new Error('Render got cancelled')),
+	});
+};
+
+const innerRenderMedia = async ({
 	parallelism,
 	proResProfile,
 	crf,
@@ -102,8 +123,11 @@ export const renderMedia = async ({
 	scale,
 	browserExecutable,
 	port,
+	rejectIfCancel,
 	...options
-}: RenderMediaOptions) => {
+}: RenderMediaOptions & {
+	rejectIfCancel: Promise<void>;
+}): Promise<void> => {
 	Internals.validateQuality(quality);
 	if (typeof crf !== 'undefined' && crf !== null) {
 		Internals.validateSelectedCrfAndCodecCombination(crf, codec);
@@ -124,6 +148,14 @@ export const renderMedia = async ({
 	let encodedDoneIn: number | null = null;
 
 	let cancelRenderFrames: () => void = () => undefined;
+
+	rejectIfCancel
+		.then(() => undefined)
+		.catch((err) => {
+			preStitcher?.task.kill();
+			cancelRenderFrames();
+			throw err;
+		});
 
 	const renderStart = Date.now();
 	const tmpdir = tmpDir('pre-encode');
