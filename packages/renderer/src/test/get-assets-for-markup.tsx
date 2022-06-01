@@ -8,7 +8,7 @@ import React, {
 	useState,
 } from 'react';
 import {act} from 'react-dom/test-utils';
-import {Internals, TAsset} from 'remotion';
+import {CompositionManagerContext, Internals, TAsset} from 'remotion';
 
 let collectAssets = (): TAsset[] => [];
 
@@ -62,7 +62,7 @@ export const getAssetsForMarkup = async (
 		Internals.setupPuppeteerTimeout();
 		const compositions = useContext(Internals.CompositionManager);
 
-		const value = useMemo(() => {
+		const value: CompositionManagerContext = useMemo(() => {
 			return {
 				...compositions,
 				assets,
@@ -79,6 +79,8 @@ export const getAssetsForMarkup = async (
 						),
 						nonce: 0,
 						defaultProps: undefined,
+						folderName: null,
+						parentFolderName: null,
 					},
 				],
 				currentComposition: 'markup',

@@ -83,6 +83,11 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		composition: params.composition,
 		browserInstance,
 		inputProps: params.inputProps,
+		envVariables: params.envVariables,
+		ffmpegExecutable: null,
+		timeoutInMilliseconds: params.timeoutInMilliseconds,
+		chromiumOptions: params.chromiumOptions,
+		port: null,
 	});
 	Internals.validateDurationInFrames(
 		comp.durationInFrames,
@@ -97,7 +102,10 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		params.frameRange
 	);
 
-	const frameCount = realFrameRange[1] - realFrameRange[0] + 1;
+	const frameCount = RenderInternals.getDurationFromFrameRange(
+		realFrameRange,
+		0
+	);
 
 	const framesPerLambda =
 		params.framesPerLambda ?? bestFramesPerLambdaParam(frameCount);

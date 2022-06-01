@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/media-utils",
-	"version": "3.0.0",
+	"version": "3.0.14",
 	"description": "Utility functions for audio and video",
 	"main": "dist/index.js",
 	"sideEffects": false,
@@ -18,7 +18,7 @@
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
 	"dependencies": {
-		"remotion": "3.0.0"
+		"remotion": "3.0.14"
 	},
 	"peerDependencies": {
 		"react": ">=16.8.0",
@@ -30,8 +30,8 @@
 		"@types/react": "18.0.1",
 		"eslint": "8.13.0",
 		"prettier": "^2.0.5",
-		"prettier-plugin-organize-imports": "^1.1.1",
-		"typescript": "^4.5.5"
+		"prettier-plugin-organize-imports": "^2.3.4",
+		"typescript": "^4.7.0"
 	},
 	"keywords": [
 		"remotion",

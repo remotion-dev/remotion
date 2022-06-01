@@ -34,6 +34,10 @@ const fn = async (src: string): Promise<AudioData> => {
 		return metadataCache[src];
 	}
 
+	if (typeof document === 'undefined') {
+		throw new Error('getAudioData() is only available in the browser.');
+	}
+
 	const audioContext = new AudioContext();
 
 	const response = await fetchWithCorsCatch(src);

@@ -13,6 +13,7 @@ import {
 	validateArchitecture,
 } from '../shared/validate-architecture';
 import {validateAwsRegion} from '../shared/validate-aws-region';
+import {validateCustomRoleArn} from '../shared/validate-custom-role-arn';
 import {validateDiskSizeInMb} from '../shared/validate-disk-size-in-mb';
 import {validateMemorySize} from '../shared/validate-memory-size';
 import {validateCloudWatchRetentionPeriod} from '../shared/validate-retention-period';
@@ -27,6 +28,7 @@ export type DeployFunctionInput = {
 	memorySizeInMb: number;
 	architecture: LambdaArchitecture;
 	diskSizeInMb?: number;
+	customRoleArn?: string;
 };
 
 export type DeployFunctionOutput = {
@@ -57,6 +59,7 @@ export const deployFunction = async (
 	validateCloudWatchRetentionPeriod(options.cloudWatchLogRetentionPeriodInDays);
 	validateArchitecture(options.architecture);
 	validateDiskSizeInMb(diskSizeInMb);
+	validateCustomRoleArn(options.customRoleArn);
 
 	const fnNameRender = [
 		`${RENDER_FN_PREFIX}${CURRENT_VERSION}`,
@@ -93,6 +96,7 @@ export const deployFunction = async (
 		alreadyCreated: Boolean(alreadyDeployed),
 		architecture: options.architecture,
 		ephemerealStorageInMb: diskSizeInMb,
+		customRoleArn: options.customRoleArn as string,
 	});
 
 	if (!created.FunctionName) {

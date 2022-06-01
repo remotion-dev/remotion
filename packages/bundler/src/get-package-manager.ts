@@ -1,5 +1,5 @@
-import path from 'path';
 import fs from 'fs';
+import path from 'path';
 export type PackageManager = 'npm' | 'yarn' | 'pnpm';
 
 type LockfilePath = {

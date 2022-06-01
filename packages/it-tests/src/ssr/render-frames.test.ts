@@ -12,7 +12,7 @@ import execa from "execa";
 test("Legacy SSR way or rendering videos should still work", async () => {
   const puppeteerInstance = await openBrowser("chrome");
   const compositions = await getCompositions(
-    "https://quizzical-jackson-ad3285.netlify.app/",
+    "https://fascinating-selkie-c7398a.netlify.app/",
     {
       puppeteerInstance,
     }
@@ -38,7 +38,7 @@ test("Legacy SSR way or rendering videos should still work", async () => {
     imageFormat: "jpeg",
     inputProps: {},
     onFrameUpdate: () => undefined,
-    webpackBundle: "https://quizzical-jackson-ad3285.netlify.app/",
+    webpackBundle: "https://fascinating-selkie-c7398a.netlify.app/",
     parallelism: null,
     frameRange: [0, 10],
     outputDir: framesDir,

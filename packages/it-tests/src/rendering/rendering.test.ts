@@ -1,3 +1,4 @@
+import { RenderInternals } from "@remotion/renderer";
 import execa from "execa";
 import fs from "fs";
 import path from "path";
@@ -261,7 +262,16 @@ test("Should render a video with GIFs", async () => {
   const info = await execa("ffprobe", [outputPath]);
   const data = info.stderr;
   expect(data).toContain("Video: h264");
-  expect(data).toContain("Duration: 00:00:01.60");
+  const ffmpegVersion = await RenderInternals.getFfmpegVersion({
+    ffmpegExecutable: null,
+  });
+
+  if (ffmpegVersion && ffmpegVersion[0] === 4 && ffmpegVersion[1] <= 1) {
+    expect(data).toContain("Duration: 00:00:01.62");
+  } else {
+    expect(data).toContain("Duration: 00:00:01.60");
+  }
+
   fs.unlinkSync(outputPath);
 });
 
@@ -286,7 +296,7 @@ test("Should render a video with Offline Audio-context", async () => {
   fs.unlinkSync(out);
 });
 
-test("Should fail to render an audio file that doesn't have any audio inputs", async () => {
+test("Should succeed to render an audio file that doesn't have any audio inputs", async () => {
   const out = outputPath.replace(".mp4", ".mp3");
   const task = await execa(
     "pnpx",
@@ -337,19 +347,21 @@ test("Dynamic duration should work", async () => {
     }
   );
 
-  expect(task.exitCode).toBe(Number(process.platform === "win32"));
-  // FIXME: --props don't work well on windows, this is an edge case for example
-  // In this case we should warn the user about it that they should pass a file path instead
-  expect(fs.existsSync(outputPath)).toBe(process.platform !== "win32");
+  expect(task.exitCode).toBe(0);
+  expect(fs.existsSync(outputPath)).toBe(true);
 
-  if (process.platform !== "win32") {
-    const info = await execa("ffprobe", [outputPath]);
-    const data = info.stderr;
-    expect(data).toContain("Video: h264");
-    const expectedDuration = (randomDuration / 30).toFixed(2);
+  const info = await execa("ffprobe", [outputPath]);
+  const data = info.stderr;
+  expect(data).toContain("Video: h264");
+  const expectedDuration = (randomDuration / 30).toFixed(2);
+  const ffmpegVersion = await RenderInternals.getFfmpegVersion({
+    ffmpegExecutable: null,
+  });
+  if (ffmpegVersion && ffmpegVersion[0] === 4 && ffmpegVersion[1] > 1) {
     expect(data).toContain(`Duration: 00:00:0${expectedDuration}`);
-    fs.unlinkSync(outputPath);
   }
+
+  fs.unlinkSync(outputPath);
 });
 
 test("Should be able to render if remotion.config.js is not provided", async () => {

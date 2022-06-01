@@ -3,8 +3,17 @@ import {openBrowser} from './open-browser';
 type Await<T> = T extends PromiseLike<infer U> ? U : T;
 
 export const cycleBrowserTabs = (
-	puppeteerInstance: Await<ReturnType<typeof openBrowser>>
-) => {
+	puppeteerInstance: Await<ReturnType<typeof openBrowser>>,
+	concurrency: number
+): {
+	stopCycling: () => void;
+} => {
+	if (concurrency <= 1) {
+		return {
+			stopCycling: () => undefined,
+		};
+	}
+
 	let interval: NodeJS.Timeout | null = null;
 	let i = 0;
 	const set = () => {

@@ -1,9 +1,10 @@
 import {ExecaChildProcess} from 'execa';
-import os from 'os';
 import fs from 'fs';
+import os from 'os';
 import path from 'path';
 import type {Browser as PuppeteerBrowser} from 'puppeteer-core';
 import {
+	BrowserExecutable,
 	Codec,
 	FfmpegExecutable,
 	FrameRange,
@@ -12,24 +13,28 @@ import {
 	ProResProfile,
 	SmallTCompMetadata,
 } from 'remotion';
-import {stitchFramesToVideo, spawnFfmpeg} from './stitcher';
-import {renderFrames} from './render';
-import {BrowserLog} from './browser-log';
-import {OnStartData} from './types';
 import {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
-import {tmpDir} from './tmp-dir';
+import {BrowserLog} from './browser-log';
+import {canUseParallelEncoding} from './can-use-parallel-encoding';
+import {ensureFramesInOrder} from './ensure-frames-in-order';
+import {ensureOutputDirectory} from './ensure-output-directory';
+import {getDurationFromFrameRange} from './get-duration-from-frame-range';
 import {getFileExtensionFromCodec} from './get-extension-from-codec';
+import {getExtensionOfFilename} from './get-extension-of-filename';
+import {getRealFrameRange} from './get-frame-to-render';
 import {
 	getServeUrlWithFallback,
 	ServeUrlOrWebpackBundle,
 } from './legacy-webpack-config';
-import {ensureOutputDirectory} from './ensure-output-directory';
-import {ensureFramesInOrder} from './ensure-frames-in-order';
-import {getRealFrameRange} from './get-frame-to-render';
 import {ChromiumOptions} from './open-browser';
-import {validateScale} from './validate-scale';
-import {canUseParallelEncoding} from './can-use-parallel-encoding';
+import {prespawnFfmpeg} from './prespawn-ffmpeg';
+import {renderFrames} from './render-frames';
+import {stitchFramesToVideo} from './stitch-frames-to-video';
+import {tmpDir} from './tmp-dir';
+import {OnStartData} from './types';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
+import {validateOutputFilename} from './validate-output-filename';
+import {validateScale} from './validate-scale';
 
 export type StitchingState = 'encoding' | 'muxing';
 
@@ -65,6 +70,8 @@ export type RenderMediaOptions = {
 	timeoutInMilliseconds?: number;
 	chromiumOptions?: ChromiumOptions;
 	scale?: number;
+	port?: number | null;
+	browserExecutable?: BrowserExecutable;
 } & ServeUrlOrWebpackBundle;
 
 type Await<T> = T extends PromiseLike<infer U> ? U : T;
@@ -93,6 +100,8 @@ export const renderMedia = async ({
 	timeoutInMilliseconds,
 	chromiumOptions,
 	scale,
+	browserExecutable,
+	port,
 	...options
 }: RenderMediaOptions) => {
 	Internals.validateQuality(quality);
@@ -100,13 +109,15 @@ export const renderMedia = async ({
 		Internals.validateSelectedCrfAndCodecCombination(crf, codec);
 	}
 
+	validateOutputFilename(codec, getExtensionOfFilename(outputLocation));
+
 	validateScale(scale);
 
 	const serveUrl = getServeUrlWithFallback(options);
 
 	let stitchStage: StitchingState = 'encoding';
 	let stitcherFfmpeg: ExecaChildProcess<string> | undefined;
-	let preStitcher: Await<ReturnType<typeof spawnFfmpeg>> | null = null;
+	let preStitcher: Await<ReturnType<typeof prespawnFfmpeg>> | null = null;
 	let encodedFrames = 0;
 	let renderedFrames = 0;
 	let renderedDoneIn: number | null = null;
@@ -146,12 +157,11 @@ export const renderMedia = async ({
 		};
 
 		if (preEncodedFileLocation) {
-			preStitcher = await spawnFfmpeg({
+			preStitcher = await prespawnFfmpeg({
 				width: composition.width * (scale ?? 1),
 				height: composition.height * (scale ?? 1),
 				fps: composition.fps,
 				outputLocation: preEncodedFileLocation,
-				force: true,
 				pixelFormat,
 				codec,
 				proResProfile,
@@ -165,23 +175,21 @@ export const renderMedia = async ({
 					'verbose'
 				),
 				ffmpegExecutable,
-				internalOptions: {
-					parallelEncoding,
-					preEncodedFileLocation: null,
-					imageFormat: actualImageFormat,
-				},
-				assetsInfo: null,
+				imageFormat: actualImageFormat,
 			});
 			stitcherFfmpeg = preStitcher.task;
 		}
+
+		const realFrameRange = getRealFrameRange(
+			composition.durationInFrames,
+			frameRange ?? null
+		);
 
 		const {
 			waitForRightTimeOfFrameToBeInserted,
 			setFrameToStitch,
 			waitForFinish,
-		} = ensureFramesInOrder(
-			getRealFrameRange(composition.durationInFrames, frameRange ?? null)
-		);
+		} = ensureFramesInOrder(realFrameRange);
 
 		const {assetsInfo} = await renderFrames({
 			config: composition,
@@ -217,6 +225,9 @@ export const renderMedia = async ({
 			timeoutInMilliseconds,
 			chromiumOptions,
 			scale,
+			ffmpegExecutable,
+			browserExecutable,
+			port,
 		});
 		if (stitcherFfmpeg) {
 			await waitForFinish();
@@ -225,8 +236,6 @@ export const renderMedia = async ({
 				await stitcherFfmpeg;
 			} catch (err) {
 				throw new Error(preStitcher?.getLogs());
-			} finally {
-				preStitcher?.cleanup?.();
 			}
 		}
 
@@ -243,7 +252,6 @@ export const renderMedia = async ({
 			fps: composition.fps,
 			outputLocation,
 			internalOptions: {
-				parallelEncoding: false,
 				preEncodedFileLocation,
 				imageFormat: actualImageFormat,
 			},
@@ -266,9 +274,29 @@ export const renderMedia = async ({
 			),
 			dir: outputDir ?? undefined,
 		});
-		encodedFrames = composition.durationInFrames;
+		encodedFrames = getDurationFromFrameRange(
+			frameRange ?? null,
+			composition.durationInFrames
+		);
 		encodedDoneIn = Date.now() - stitchStart;
 		callUpdate();
+	} catch (err) {
+		/**
+		 * When an error is thrown in renderFrames(...) (e.g., when delayRender() is used incorrectly), fs.unlinkSync(...) throws an error that the file is locked because ffmpeg is still running, and renderMedia returns it.
+		 * Therefore we first kill the FFMPEG process before deleting the file
+		 */
+		if (stitcherFfmpeg !== undefined && stitcherFfmpeg.exitCode === null) {
+			const promise = new Promise<void>((resolve) => {
+				setTimeout(() => {
+					resolve();
+				}, 2000);
+				(stitcherFfmpeg as ExecaChildProcess<string>).on('close', resolve);
+			});
+			stitcherFfmpeg.kill();
+			await promise;
+		}
+
+		throw err;
 	} finally {
 		if (
 			preEncodedFileLocation !== null &&

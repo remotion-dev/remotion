@@ -1,7 +1,6 @@
-import {useCallback} from 'react';
-import React, {useEffect} from 'react';
-import {useKeybinding} from '../helpers/use-keybinding';
 import {PlayerInternals} from '@remotion/player';
+import React, {useCallback, useEffect} from 'react';
+import {useKeybinding} from '../helpers/use-keybinding';
 
 export const PlaybackKeyboardShortcutsManager: React.FC<{
 	setPlaybackRate: React.Dispatch<React.SetStateAction<number>>;

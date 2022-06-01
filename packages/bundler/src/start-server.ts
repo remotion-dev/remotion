@@ -1,24 +1,24 @@
+import crypto from 'crypto';
 import express from 'express';
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
 import {Internals, WebpackOverrideFn} from 'remotion';
 import webpack from 'webpack';
-import {getDesiredPort} from './get-port';
-import {getProjectInfo} from './project-info';
-import {isUpdateAvailableWithTimeout} from './update-available';
-import {webpackConfig} from './webpack-config';
-import crypto from 'crypto';
-import {indexHtml} from './static-preview';
+import {wdm} from './dev-middleware';
+import {getFileSource} from './error-overlay/react-overlay/utils/get-file-source';
 import {
 	getDisplayNameForEditor,
 	guessEditor,
 	launchEditor,
 } from './error-overlay/react-overlay/utils/open-in-editor';
 import {SymbolicatedStackFrame} from './error-overlay/react-overlay/utils/stack-frame';
+import {getDesiredPort} from './get-port';
 import {webpackHotMiddleware} from './hot-middleware';
-import {wdm} from './dev-middleware';
-import {getFileSource} from './error-overlay/react-overlay/utils/get-file-source';
+import {getProjectInfo} from './project-info';
+import {indexHtml} from './static-preview';
+import {isUpdateAvailableWithTimeout} from './update-available';
+import {webpackConfig} from './webpack-config';
 
 export const startServer = async (
 	entry: string,
@@ -27,7 +27,7 @@ export const startServer = async (
 		webpackOverride?: WebpackOverrideFn;
 		inputProps?: object;
 		envVariables?: Record<string, string>;
-		port?: number;
+		port: number | null;
 		maxTimelineTracks?: number;
 	}
 ): Promise<number> => {
@@ -70,7 +70,7 @@ export const startServer = async (
 	app.use(wdm(compiler));
 	app.use(webpackHotMiddleware(compiler));
 
-	app.get('/api/update', (req, res) => {
+	app.get('/api/update', (_req, res) => {
 		isUpdateAvailableWithTimeout()
 			.then((data) => {
 				res.json(data);
@@ -82,7 +82,7 @@ export const startServer = async (
 			});
 	});
 
-	app.get('/api/project-info', (req, res) => {
+	app.get('/api/project-info', (_req, res) => {
 		getProjectInfo()
 			.then((data) => {
 				res.json(data);
@@ -139,7 +139,7 @@ export const startServer = async (
 		}
 	});
 
-	app.use('favicon.png', (req, res) => {
+	app.use('favicon.png', (_req, res) => {
 		res.sendFile(path.join(__dirname, '..', 'web', 'favicon.png'));
 	});
 
@@ -151,7 +151,7 @@ export const startServer = async (
 		res.end(indexHtml(hash, '/', displayName));
 	});
 
-	const desiredPort = options?.port ?? Internals.getServerPort();
+	const desiredPort = options?.port ?? undefined;
 
 	const port = await getDesiredPort(desiredPort, 3000, 3100);
 

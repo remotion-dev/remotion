@@ -1,12 +1,6 @@
-import React, { useCallback, useState } from 'react';
-import { continueRender, delayRender, useCurrentFrame, Video } from 'remotion';
-import { VideoTexture } from 'three';
-
-declare global {
-	interface HTMLVideoElement {
-		requestVideoFrameCallback?: (cb: () => void) => void;
-	}
-}
+import React, {useCallback, useState} from 'react';
+import {continueRender, delayRender, useCurrentFrame, Video} from 'remotion';
+import {VideoTexture} from 'three';
 
 export type UseVideoTextureOptions = React.ComponentProps<typeof Video>;
 
@@ -59,12 +53,12 @@ export const useVideoTexture = (
 			() => {
 				onReady();
 			},
-			{ once: true }
+			{once: true}
 		);
 	}, [loaded, onReady, videoRef]);
 
 	React.useEffect(() => {
-		const { current } = videoRef;
+		const {current} = videoRef;
 		if (!current) {
 			return;
 		}

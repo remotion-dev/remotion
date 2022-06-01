@@ -2,7 +2,7 @@ import {PlayerInternals} from '@remotion/player';
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import ReactDOM from 'react-dom';
 import {CLEAR_HOVER, LIGHT_TEXT} from '../../helpers/colors';
-import {Caret} from '../../icons/caret';
+import {CaretRight} from '../../icons/caret';
 import {useZIndex} from '../../state/z-index';
 import {Flex, Row, Spacing} from '../layout';
 import {SubMenu} from '../NewComposition/ComboBox';
@@ -143,7 +143,7 @@ export const MenuSubItem: React.FC<{
 				) : null}
 				<div style={labelStyle}>{label}</div> <Flex />
 				<Spacing x={2} />
-				{subMenu ? <Caret /> : null}
+				{subMenu ? <CaretRight /> : null}
 				{keyHint ? <span style={keyHintCss}>{keyHint}</span> : null}
 				{portalStyle && subMenu
 					? ReactDOM.createPortal(

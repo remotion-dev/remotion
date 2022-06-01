@@ -6,6 +6,8 @@ import {SplitterHandle} from './Splitter/SplitterHandle';
 import {Timeline} from './Timeline/Timeline';
 import {TopPanel} from './TopPanel';
 
+const noop = () => undefined;
+
 export const EditorContent: React.FC = () => {
 	const isStill = useIsStill();
 
@@ -24,7 +26,7 @@ export const EditorContent: React.FC = () => {
 			<SplitterElement type="flexer">
 				<TopPanel />
 			</SplitterElement>
-			<SplitterHandle />
+			<SplitterHandle allowToCollapse={false} onCollapse={noop} />
 			<SplitterElement type="anti-flexer">
 				<Timeline />
 			</SplitterElement>

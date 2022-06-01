@@ -1,8 +1,9 @@
 import {Browser, Page} from 'puppeteer-core';
-import {BrowserExecutable, TCompMetadata} from 'remotion';
+import {BrowserExecutable, FfmpegExecutable, TCompMetadata} from 'remotion';
 import {BrowserLog} from './browser-log';
-import {getPageAndCleanupFn} from './get-browser-instance';
 import {handleJavascriptException} from './error-handling/handle-javascript-exception';
+import {getPageAndCleanupFn} from './get-browser-instance';
+import {makeAssetsDownloadTmpDir} from './make-assets-download-dir';
 import {ChromiumOptions} from './open-browser';
 import {prepareServer} from './prepare-server';
 import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
@@ -17,12 +18,15 @@ type GetCompositionsConfig = {
 	browserExecutable?: BrowserExecutable;
 	timeoutInMilliseconds?: number;
 	chromiumOptions?: ChromiumOptions;
+	ffmpegExecutable?: FfmpegExecutable;
+	port?: number | null;
 };
 
 const innerGetCompositions = async (
 	serveUrl: string,
 	page: Page,
-	config: GetCompositionsConfig
+	config: GetCompositionsConfig,
+	proxyPort: number
 ): Promise<TCompMetadata[]> => {
 	if (config?.onBrowserLog) {
 		page.on('console', (log) => {
@@ -43,6 +47,8 @@ const innerGetCompositions = async (
 		serveUrl,
 		initialFrame: 0,
 		timeoutInMilliseconds: config?.timeoutInMilliseconds,
+		proxyPort,
+		retriesRemaining: 2,
 	});
 
 	await puppeteerEvaluateWithCatch({
@@ -73,7 +79,8 @@ export const getCompositions = async (
 	serveUrlOrWebpackUrl: string,
 	config?: GetCompositionsConfig
 ) => {
-	const {serveUrl, closeServer} = await prepareServer(serveUrlOrWebpackUrl);
+	const downloadDir = makeAssetsDownloadTmpDir();
+
 	const {page, cleanup} = await getPageAndCleanupFn({
 		passedInInstance: config?.puppeteerInstance,
 		browserExecutable: config?.browserExecutable ?? null,
@@ -81,20 +88,40 @@ export const getCompositions = async (
 	});
 
 	return new Promise<TCompMetadata[]>((resolve, reject) => {
+		const onError = (err: Error) => reject(err);
 		const cleanupPageError = handleJavascriptException({
 			page,
 			frame: null,
-			onError: (err) => reject(err),
+			onError,
 		});
 
-		innerGetCompositions(serveUrl, page, config ?? {})
+		let close: (() => void) | null = null;
+
+		prepareServer({
+			webpackConfigOrServeUrl: serveUrlOrWebpackUrl,
+			downloadDir,
+			onDownload: () => undefined,
+			onError,
+			ffmpegExecutable: config?.ffmpegExecutable ?? null,
+			port: config?.port ?? null,
+		})
+			.then(({serveUrl, closeServer, offthreadPort}) => {
+				close = closeServer;
+				return innerGetCompositions(
+					serveUrl,
+					page,
+					config ?? {},
+					offthreadPort
+				);
+			})
+
 			.then((comp) => resolve(comp))
 			.catch((err) => {
 				reject(err);
 			})
 			.finally(() => {
 				cleanup();
-				closeServer();
+				close?.();
 				cleanupPageError();
 			});
 	});

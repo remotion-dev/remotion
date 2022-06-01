@@ -24,6 +24,7 @@ type LambdaCommandLineOptions = {
 	['frames-per-lambda']: number;
 	['out-name']: string | undefined;
 	['architecture']: LambdaArchitecture;
+	['custom-role-arn']: string | undefined;
 	privacy: Privacy;
 };
 

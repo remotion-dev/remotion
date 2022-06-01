@@ -10,6 +10,7 @@ import {
 	DEFAULT_TIMEOUT,
 } from '../../../shared/constants';
 import {validateArchitecture} from '../../../shared/validate-architecture';
+import {validateCustomRoleArn} from '../../../shared/validate-custom-role-arn';
 import {validateDiskSizeInMb} from '../../../shared/validate-disk-size-in-mb';
 import {validateMemorySize} from '../../../shared/validate-memory-size';
 import {validateTimeout} from '../../../shared/validate-timeout';
@@ -24,6 +25,7 @@ export const functionsDeploySubcommand = async () => {
 	const memorySizeInMb = parsedLambdaCli.memory ?? DEFAULT_MEMORY_SIZE;
 	const diskSizeInMb = parsedLambdaCli.disk ?? DEFAULT_EPHEMERAL_STORAGE_IN_MB;
 	const architecture = parsedLambdaCli.architecture ?? DEFAULT_ARCHITECTURE;
+	const customRoleArn = parsedLambdaCli['custom-role-arn'] ?? undefined;
 	const createCloudWatchLogGroup = !parsedLambdaCli['disable-cloudwatch'];
 	const cloudWatchLogRetentionPeriodInDays =
 		parsedLambdaCli['retention-period'] ?? DEFAULT_CLOUDWATCH_RETENTION_PERIOD;
@@ -32,6 +34,7 @@ export const functionsDeploySubcommand = async () => {
 	validateTimeout(timeoutInSeconds);
 	validateArchitecture(architecture);
 	validateDiskSizeInMb(diskSizeInMb);
+	validateCustomRoleArn(customRoleArn);
 	if (!CliInternals.quietFlagProvided()) {
 		Log.info(
 			CliInternals.chalk.gray(
@@ -61,6 +64,7 @@ CloudWatch Retention Period = ${cloudWatchLogRetentionPeriodInDays} days
 		cloudWatchLogRetentionPeriodInDays,
 		architecture,
 		diskSizeInMb,
+		customRoleArn,
 	});
 	if (CliInternals.quietFlagProvided()) {
 		Log.info(functionName);
