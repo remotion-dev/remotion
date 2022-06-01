@@ -172,6 +172,7 @@ const innerRenderStill = async ({
 		initialFrame: frame,
 		timeoutInMilliseconds,
 		proxyPort,
+		retriesRemaining: 2,
 	});
 
 	await puppeteerEvaluateWithCatch({
