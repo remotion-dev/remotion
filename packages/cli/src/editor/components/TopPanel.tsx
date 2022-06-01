@@ -3,6 +3,7 @@ import React, {createRef, useCallback, useMemo, useState} from 'react';
 import {Canvas} from './Canvas';
 import {CollapsedCompositionSelector} from './CollapsedCompositionSelector';
 import {CompositionSelector} from './CompositionSelector';
+import {InitialCompositionLoader} from './InitialCompositionLoader';
 import {MenuToolbar} from './MenuToolbar';
 import {PreviewToolbar} from './PreviewToolbar';
 import {SplitterContainer} from './Splitter/SplitterContainer';
@@ -96,6 +97,7 @@ export const TopPanel: React.FC = () => {
 
 	return (
 		<div style={container}>
+			<InitialCompositionLoader />
 			<MenuToolbar />
 			<div style={row}>
 				{actualState === 'collapsed' ? (
