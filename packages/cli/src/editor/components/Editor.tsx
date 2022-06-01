@@ -29,6 +29,7 @@ import {
 	persistRichTimelineOption,
 	RichTimelineContext,
 } from '../state/rich-timeline';
+import {SidebarContextProvider} from '../state/sidebar';
 import {HigherZIndex} from '../state/z-index';
 import {EditorContent} from './EditorContent';
 import {FramePersistor} from './FramePersistor';
@@ -174,32 +175,39 @@ export const Editor: React.FC = () => {
 											<PlayerInternals.PlayerEventEmitterContext.Provider
 												value={emitter}
 											>
-												<FolderContextProvider>
-													<HighestZIndexProvider>
-														<HigherZIndex onEscape={noop} onOutsideClick={noop}>
-															<div style={background}>
-																<Root />
-																<FramePersistor />
-																<EditorContent />
-																<GlobalKeybindings />
-															</div>
-															{modalContextType &&
-																modalContextType.type === 'new-comp' && (
-																	<NewComposition
-																		initialCompType={modalContextType.compType}
-																	/>
-																)}
-															{modalContextType &&
-																modalContextType.type === 'update' && (
-																	<UpdateModal info={modalContextType.info} />
-																)}
-															{modalContextType &&
-																modalContextType.type === 'shortcuts' && (
-																	<KeyboardShortcuts />
-																)}
-														</HigherZIndex>
-													</HighestZIndexProvider>
-												</FolderContextProvider>
+												<SidebarContextProvider>
+													<FolderContextProvider>
+														<HighestZIndexProvider>
+															<HigherZIndex
+																onEscape={noop}
+																onOutsideClick={noop}
+															>
+																<div style={background}>
+																	<Root />
+																	<FramePersistor />
+																	<EditorContent />
+																	<GlobalKeybindings />
+																</div>
+																{modalContextType &&
+																	modalContextType.type === 'new-comp' && (
+																		<NewComposition
+																			initialCompType={
+																				modalContextType.compType
+																			}
+																		/>
+																	)}
+																{modalContextType &&
+																	modalContextType.type === 'update' && (
+																		<UpdateModal info={modalContextType.info} />
+																	)}
+																{modalContextType &&
+																	modalContextType.type === 'shortcuts' && (
+																		<KeyboardShortcuts />
+																	)}
+															</HigherZIndex>
+														</HighestZIndexProvider>
+													</FolderContextProvider>
+												</SidebarContextProvider>
 											</PlayerInternals.PlayerEventEmitterContext.Provider>
 										</Internals.SetMediaVolumeContext.Provider>
 									</Internals.MediaVolumeContext.Provider>

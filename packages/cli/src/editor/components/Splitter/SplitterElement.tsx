@@ -9,7 +9,9 @@ export const SplitterElement: React.FC<{
 
 	const style: React.CSSProperties = useMemo(() => {
 		return {
-			flex: type === 'flexer' ? context.flexValue : 1 - context.flexValue,
+			flex:
+				// Multiply by 100 because if flex values don't add up to at least 1, they will not fill up the screen
+				(type === 'flexer' ? context.flexValue : 1 - context.flexValue) * 1000,
 			display: 'flex',
 			position: 'relative',
 		};
