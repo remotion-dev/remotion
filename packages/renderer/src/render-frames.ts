@@ -256,6 +256,7 @@ const innerRenderFrames = ({
 								output: undefined,
 							},
 						});
+
 						onFrameBuffer(buffer, frame);
 					} else {
 						if (!outputDir) {

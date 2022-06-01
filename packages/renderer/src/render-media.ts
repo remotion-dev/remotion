@@ -146,12 +146,14 @@ const innerRenderMedia = async ({
 	let renderedFrames = 0;
 	let renderedDoneIn: number | null = null;
 	let encodedDoneIn: number | null = null;
+	let cancelled = false;
 
 	let cancelRenderFrames: () => void = () => undefined;
 
 	rejectIfCancel
 		.then(() => undefined)
 		.catch((err) => {
+			cancelled = true;
 			preStitcher?.task.kill();
 			cancelRenderFrames();
 			throw err;
@@ -248,6 +250,10 @@ const innerRenderMedia = async ({
 			onFrameBuffer: parallelEncoding
 				? async (buffer, frame) => {
 						await waitForRightTimeOfFrameToBeInserted(frame);
+						if (cancelled) {
+							return;
+						}
+
 						stitcherFfmpeg?.stdin?.write(buffer);
 
 						setFrameToStitch(frame + 1);
@@ -327,6 +333,7 @@ const innerRenderMedia = async ({
 		 * When an error is thrown in renderFrames(...) (e.g., when delayRender() is used incorrectly), fs.unlinkSync(...) throws an error that the file is locked because ffmpeg is still running, and renderMedia returns it.
 		 * Therefore we first kill the FFMPEG process before deleting the file
 		 */
+		cancelled = true;
 		cancelRenderFrames();
 		if (stitcherFfmpeg !== undefined && stitcherFfmpeg.exitCode === null) {
 			const promise = new Promise<void>((resolve) => {
