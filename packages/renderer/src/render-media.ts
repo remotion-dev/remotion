@@ -122,6 +122,9 @@ export const renderMedia = async ({
 	let renderedFrames = 0;
 	let renderedDoneIn: number | null = null;
 	let encodedDoneIn: number | null = null;
+
+	let cancelRenderFrames: () => void = () => undefined;
+
 	const renderStart = Date.now();
 	const tmpdir = tmpDir('pre-encode');
 	const parallelEncoding = canUseParallelEncoding(codec);
@@ -191,7 +194,7 @@ export const renderMedia = async ({
 			waitForFinish,
 		} = ensureFramesInOrder(realFrameRange);
 
-		const {assetsInfo} = await renderFrames({
+		const renderFramesProc = renderFrames({
 			config: composition,
 			onFrameUpdate: (frame: number) => {
 				renderedFrames = frame;
@@ -229,6 +232,13 @@ export const renderMedia = async ({
 			browserExecutable,
 			port,
 		});
+
+		cancelRenderFrames = () => {
+			renderFramesProc.cancel();
+		};
+
+		const {assetsInfo} = await renderFramesProc;
+
 		if (stitcherFfmpeg) {
 			await waitForFinish();
 			stitcherFfmpeg?.stdin?.end();
@@ -285,6 +295,7 @@ export const renderMedia = async ({
 		 * When an error is thrown in renderFrames(...) (e.g., when delayRender() is used incorrectly), fs.unlinkSync(...) throws an error that the file is locked because ffmpeg is still running, and renderMedia returns it.
 		 * Therefore we first kill the FFMPEG process before deleting the file
 		 */
+		cancelRenderFrames();
 		if (stitcherFfmpeg !== undefined && stitcherFfmpeg.exitCode === null) {
 			const promise = new Promise<void>((resolve) => {
 				setTimeout(() => {

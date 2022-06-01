@@ -1,9 +1,10 @@
 import {openBrowser} from './open-browser';
 
 type Await<T> = T extends PromiseLike<infer U> ? U : T;
+type Browser = ReturnType<typeof openBrowser>;
 
 export const cycleBrowserTabs = (
-	puppeteerInstance: Await<ReturnType<typeof openBrowser>>,
+	puppeteerInstance: Browser | Await<Browser>,
 	concurrency: number
 ): {
 	stopCycling: () => void;
@@ -18,8 +19,8 @@ export const cycleBrowserTabs = (
 	let i = 0;
 	const set = () => {
 		interval = setTimeout(() => {
-			puppeteerInstance
-				.pages()
+			Promise.resolve(puppeteerInstance)
+				.then((instance) => instance.pages())
 				.then((pages) => {
 					const currentPage = pages[i % pages.length];
 					i++;
