@@ -35,7 +35,7 @@ const start = async () => {
 
   // Parametrize the video by passing arbitrary props to your component.
   const inputProps = {
-    custom: "data",
+    foo: "bar",
   };
 
   // Extract all the compositions you have defined in your project
