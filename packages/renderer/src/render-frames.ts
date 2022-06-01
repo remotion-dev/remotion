@@ -224,13 +224,13 @@ const innerRenderFrames = ({
 			.fill(Boolean)
 			.map((_x, i) => i)
 			.map(async (index) => {
+				const frame = realFrameRange[0] + index;
+				const pool = await poolPromise;
+				const freePage = await pool.acquire();
 				if (stopped) {
 					throw new Error('Render was stopped');
 				}
 
-				const frame = realFrameRange[0] + index;
-				const pool = await poolPromise;
-				const freePage = await pool.acquire();
 				const paddedIndex = String(frame).padStart(filePadLength, '0');
 
 				const errorCallbackOnFrame = (err: Error) => {
