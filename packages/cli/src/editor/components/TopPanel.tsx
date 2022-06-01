@@ -1,5 +1,6 @@
-import React, {useCallback, useMemo, useState} from 'react';
+import React, {useCallback, useContext, useMemo} from 'react';
 import {useCompactUI} from '../helpers/use-compact-ui';
+import {SidebarContext} from '../state/sidebar';
 import {Canvas} from './Canvas';
 import {CollapsedCompositionSelector} from './CollapsedCompositionSelector';
 import {CompositionSelector} from './CompositionSelector';
@@ -33,55 +34,30 @@ const leftContainer: React.CSSProperties = {
 	display: 'flex',
 };
 
-const storageKey = 'remotion.sidebarCollapsing';
-
-type CollapsedState = 'collapsed' | 'expanded' | 'responsive';
-
-export const getSavedCollapsedState = (): CollapsedState => {
-	const state = window.localStorage.getItem(storageKey);
-	if (state === 'collapsed') {
-		return 'collapsed';
-	}
-
-	if (state === 'expanded') {
-		return 'expanded';
-	}
-
-	return 'responsive';
-};
-
-export const setSavedCollapsedState = (type: CollapsedState) => {
-	window.localStorage.setItem(storageKey, type);
-};
-
 export const TopPanel: React.FC = () => {
-	const [leftSidebarCollapsedState, setCollapsedState] = useState(() =>
-		getSavedCollapsedState()
-	);
-
 	const compactUi = useCompactUI();
+	const {setSidebarCollapsedState, sidebarCollapsedState} =
+		useContext(SidebarContext);
 
 	const actualState = useMemo((): 'expanded' | 'collapsed' => {
-		if (leftSidebarCollapsedState === 'collapsed') {
+		if (sidebarCollapsedState === 'collapsed') {
 			return 'collapsed';
 		}
 
-		if (leftSidebarCollapsedState === 'expanded') {
+		if (sidebarCollapsedState === 'expanded') {
 			return 'expanded';
 		}
 
 		return compactUi ? 'collapsed' : 'expanded';
-	}, [compactUi, leftSidebarCollapsedState]);
+	}, [compactUi, sidebarCollapsedState]);
 
 	const onCollapse = useCallback(() => {
-		setCollapsedState('collapsed');
-		setSavedCollapsedState('collapsed');
-	}, []);
+		setSidebarCollapsedState('collapsed');
+	}, [setSidebarCollapsedState]);
 
 	const onExpand = useCallback(() => {
-		setCollapsedState('expanded');
-		setSavedCollapsedState('expanded');
-	}, []);
+		setSidebarCollapsedState('expanded');
+	}, [setSidebarCollapsedState]);
 
 	return (
 		<div style={container}>
