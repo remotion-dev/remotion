@@ -26,7 +26,7 @@ const fn = (src: string): Promise<VideoMetadata> => {
 		const pixels = video.videoHeight * video.videoWidth;
 
 		if (pixels === 0) {
-			reject(new Error('File does not contain a video track'));
+			reject(new Error('Unable to determine video metadata'));
 			return;
 		}
 
