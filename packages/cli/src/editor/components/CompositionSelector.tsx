@@ -1,11 +1,5 @@
-import React, {
-	useCallback,
-	useContext,
-	useEffect,
-	useMemo,
-	useState,
-} from 'react';
-import {Internals, TComposition} from 'remotion';
+import React, {useCallback, useContext, useMemo, useState} from 'react';
+import {Internals} from 'remotion';
 import {
 	createFolderTree,
 	splitParentIntoNameAndParent,
@@ -16,15 +10,10 @@ import {
 	openFolderKey,
 	persistExpandedFolders,
 } from '../helpers/persist-open-folders';
-import {loadMarks} from '../state/marks';
 import {useZIndex} from '../state/z-index';
 import {CompositionSelectorItem} from './CompositionSelectorItem';
 import {CurrentComposition} from './CurrentComposition';
-import {
-	getCurrentCompositionFromUrl,
-	getFrameForComposition,
-} from './FramePersistor';
-import {inOutHandles} from './TimelineInOutToggle';
+import {useSelectComposition} from './InitialCompositionLoader';
 
 const container: React.CSSProperties = {
 	borderRight: '1px solid black',
@@ -56,39 +45,14 @@ export const getKeysToExpand = (
 };
 
 export const CompositionSelector: React.FC = () => {
-	const {compositions, setCurrentComposition, currentComposition, folders} =
-		useContext(Internals.CompositionManager);
+	const {compositions, currentComposition, folders} = useContext(
+		Internals.CompositionManager
+	);
 	const [foldersExpanded, setFoldersExpanded] = useState<ExpandedFoldersState>(
 		loadExpandedFolders()
 	);
 	const {tabIndex} = useZIndex();
-	const setCurrentFrame = Internals.Timeline.useTimelineSetFrame();
-
-	const selectComposition = useCallback(
-		(c: TComposition) => {
-			inOutHandles.current?.setMarks(loadMarks(c.id, c.durationInFrames));
-			window.history.pushState({}, 'Preview', `/${c.id}`);
-			const frame = getFrameForComposition(c.id);
-			const frameInBounds = Math.min(c.durationInFrames - 1, frame);
-			setCurrentFrame(frameInBounds);
-			setCurrentComposition(c.id);
-			const {folderName, parentFolderName} = c;
-			if (folderName !== null) {
-				setFoldersExpanded((ex) => {
-					const keysToExpand = getKeysToExpand(folderName, parentFolderName);
-					const newState: ExpandedFoldersState = {
-						...ex,
-					};
-					for (const key of keysToExpand) {
-						newState[key] = true;
-					}
-
-					return newState;
-				});
-			}
-		},
-		[setCurrentComposition, setCurrentFrame]
-	);
+	const selectComposition = useSelectComposition();
 
 	const toggleFolder = useCallback(
 		(folderName: string, parentName: string | null) => {
@@ -105,25 +69,6 @@ export const CompositionSelector: React.FC = () => {
 		},
 		[]
 	);
-
-	useEffect(() => {
-		if (currentComposition) {
-			return;
-		}
-
-		const compositionFromUrl = getCurrentCompositionFromUrl();
-		if (compositionFromUrl) {
-			const exists = compositions.find((c) => c.id === compositionFromUrl);
-			if (exists) {
-				selectComposition(exists);
-				return;
-			}
-		}
-
-		if (compositions.length > 0) {
-			selectComposition(compositions[0]);
-		}
-	}, [compositions, currentComposition, selectComposition]);
 
 	const items = useMemo(() => {
 		return createFolderTree(compositions, folders, foldersExpanded);
