@@ -14,6 +14,7 @@ import {
 	loadCheckerboardOption,
 	persistCheckerboardOption,
 } from '../state/checkerboard';
+import {FolderContextProvider} from '../state/folders';
 import {HighestZIndexProvider} from '../state/highest-z-index';
 import {KeybindingContextProvider} from '../state/keybindings';
 import {ModalContextType, ModalsContext, ModalState} from '../state/modals';
@@ -173,30 +174,32 @@ export const Editor: React.FC = () => {
 											<PlayerInternals.PlayerEventEmitterContext.Provider
 												value={emitter}
 											>
-												<HighestZIndexProvider>
-													<HigherZIndex onEscape={noop} onOutsideClick={noop}>
-														<div style={background}>
-															<Root />
-															<FramePersistor />
-															<EditorContent />
-															<GlobalKeybindings />
-														</div>
-														{modalContextType &&
-															modalContextType.type === 'new-comp' && (
-																<NewComposition
-																	initialCompType={modalContextType.compType}
-																/>
-															)}
-														{modalContextType &&
-															modalContextType.type === 'update' && (
-																<UpdateModal info={modalContextType.info} />
-															)}
-														{modalContextType &&
-															modalContextType.type === 'shortcuts' && (
-																<KeyboardShortcuts />
-															)}
-													</HigherZIndex>
-												</HighestZIndexProvider>
+												<FolderContextProvider>
+													<HighestZIndexProvider>
+														<HigherZIndex onEscape={noop} onOutsideClick={noop}>
+															<div style={background}>
+																<Root />
+																<FramePersistor />
+																<EditorContent />
+																<GlobalKeybindings />
+															</div>
+															{modalContextType &&
+																modalContextType.type === 'new-comp' && (
+																	<NewComposition
+																		initialCompType={modalContextType.compType}
+																	/>
+																)}
+															{modalContextType &&
+																modalContextType.type === 'update' && (
+																	<UpdateModal info={modalContextType.info} />
+																)}
+															{modalContextType &&
+																modalContextType.type === 'shortcuts' && (
+																	<KeyboardShortcuts />
+																)}
+														</HigherZIndex>
+													</HighestZIndexProvider>
+												</FolderContextProvider>
 											</PlayerInternals.PlayerEventEmitterContext.Provider>
 										</Internals.SetMediaVolumeContext.Provider>
 									</Internals.MediaVolumeContext.Provider>
