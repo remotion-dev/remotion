@@ -36,6 +36,8 @@ export const validateFramesPerLambda = (framesPerLambda: unknown) => {
 	}
 
 	if (framesPerLambda < MINIMUM_FRAMES_PER_LAMBDA) {
-		throw new TypeError('The framesPerLambda needs to be at least 4.');
+		throw new TypeError(
+			`The framesPerLambda needs to be at least 4, but is ${framesPerLambda}`
+		);
 	}
 };

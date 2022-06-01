@@ -10,12 +10,13 @@ export const NewCompDuration: React.FC<{
 	fps: string;
 	setDurationInFrames: React.Dispatch<React.SetStateAction<string>>;
 }> = ({durationInFrames, setDurationInFrames, fps}) => {
-	const onDurationInFramesChanged: ChangeEventHandler<HTMLInputElement> = useCallback(
-		(e) => {
-			setDurationInFrames(String(Number(e.target.value)));
-		},
-		[setDurationInFrames]
-	);
+	const onDurationInFramesChanged: ChangeEventHandler<HTMLInputElement> =
+		useCallback(
+			(e) => {
+				setDurationInFrames(String(Number(e.target.value)));
+			},
+			[setDurationInFrames]
+		);
 
 	const onDurationChangedDirectly = useCallback(
 		(newVal: number) => {

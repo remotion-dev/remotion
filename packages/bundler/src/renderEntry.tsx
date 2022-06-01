@@ -6,14 +6,12 @@ import React, {
 	useEffect,
 	useState,
 } from 'react';
-
+import type {render, unmountComponentAtNode} from 'react-dom';
 // In React 18, you should use createRoot() from "react-dom/client".
 // In React 18, you should use render from "react-dom".
-
 // We support both, but Webpack chooses both of them and normalizes them to "react-dom/client",
 // hence why we import the right thing all the time but need to differentiate here
 import ReactDOM from 'react-dom/client';
-import type {render, unmountComponentAtNode} from 'react-dom';
 import {
 	BundleState,
 	continueRender,
@@ -223,6 +221,6 @@ if (typeof window !== 'undefined') {
 			});
 	};
 
-	window.siteVersion = '2';
+	window.siteVersion = '3';
 	window.setBundleMode = setBundleModeAndUpdate;
 }

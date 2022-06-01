@@ -27,6 +27,7 @@ export const printError = async (err: Error) => {
 					'(Error occurred symbolicating stack trace - printing minified stack trace)\n'
 				)
 			);
+			Log.error();
 			Log.error(err.stack || err);
 		}
 

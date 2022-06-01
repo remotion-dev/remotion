@@ -1,6 +1,6 @@
 import {Internals} from 'remotion';
-import {readFile} from './assets/read-file';
 import {RawSourceMap, SourceMapConsumer} from 'source-map';
+import {readFile} from './assets/read-file';
 import {UnsymbolicatedStackFrame} from './parse-browser-error-stack';
 
 function extractSourceMapUrl(fileContents: string): string | null {
@@ -22,7 +22,7 @@ function extractSourceMapUrl(fileContents: string): string | null {
 	return match[1].toString();
 }
 
-export async function getSourceMap(
+async function getSourceMap(
 	fileUri: string,
 	fileContents: string
 ): Promise<SourceMapConsumer | null> {
@@ -65,7 +65,7 @@ const fetchUrl = async (url: string) => {
 	});
 };
 
-export type ScriptLine = {
+type ScriptLine = {
 	lineNumber: number;
 	content: string;
 	highlight: boolean;

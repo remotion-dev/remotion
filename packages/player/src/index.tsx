@@ -6,11 +6,12 @@ import {usePlayback} from './use-playback';
 import {usePlayer} from './use-player';
 import {updateAllElementsSizes, useElementSize} from './utils/use-element-size';
 
-export {Player, ErrorFallback} from './Player';
-export type {RenderLoading} from './PlayerUI';
+export {ErrorFallback, Player} from './Player';
 export {PlayerMethods, PlayerRef} from './player-methods';
+export type {RenderLoading} from './PlayerUI';
 export {PreviewSize} from './utils/preview-size';
 export {Size} from './utils/use-element-size';
+export type {CallbackListener, EventTypes};
 
 export const PlayerInternals = {
 	PlayerEventEmitterContext,
@@ -22,5 +23,3 @@ export const PlayerInternals = {
 	useHoverState,
 	updateAllElementsSizes,
 };
-
-export type {CallbackListener, EventTypes};

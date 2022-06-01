@@ -1,5 +1,5 @@
-import path from 'path';
 import fs from 'fs';
+import path from 'path';
 
 export const patchPackageJson = (projectRoot: string, projectName: string) => {
 	const fileName = path.join(projectRoot, 'package.json');

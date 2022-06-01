@@ -42,6 +42,8 @@ const renderHandler = async (
 		throw new Error('Params must be renderer');
 	}
 
+	Internals.Logging.setLogLevel(params.logLevel);
+
 	const browserInstance = await getBrowserInstance(
 		Internals.Logging.isEqualOrBelowLogLevel(params.logLevel, 'verbose'),
 		params.chromiumOptions ?? {}
@@ -86,9 +88,23 @@ const renderHandler = async (
 		imageFormat: params.imageFormat,
 		inputProps: params.inputProps,
 		frameRange: params.frameRange,
-		onProgress: ({renderedFrames}) => {
-			if (renderedFrames % 100 === 0) {
-				console.log(`Rendered ${renderedFrames} frames`);
+		onProgress: ({renderedFrames, encodedFrames, stitchStage}) => {
+			if (
+				renderedFrames % 10 === 0 &&
+				Internals.Logging.isEqualOrBelowLogLevel(params.logLevel, 'verbose')
+			) {
+				console.log(
+					`Rendered ${renderedFrames} frames, encoded ${encodedFrames} frames, stage = ${stitchStage}`
+				);
+			}
+
+			const duration = RenderInternals.getDurationFromFrameRange(
+				params.frameRange,
+				params.durationInFrames
+			);
+
+			if (renderedFrames === duration) {
+				console.log('Rendered all frames!');
 			}
 
 			chunkTimingData.timings[renderedFrames] = Date.now() - start;
@@ -120,7 +136,7 @@ const renderHandler = async (
 		quality: params.quality,
 		envVariables: params.envVariables,
 		dumpBrowserLogs: Internals.Logging.isEqualOrBelowLogLevel(
-			Internals.Logging.DEFAULT_LOG_LEVEL,
+			params.logLevel,
 			'verbose'
 		),
 		onBrowserLog: (log) => {
@@ -141,17 +157,13 @@ const renderHandler = async (
 		overwrite: false,
 		chromiumOptions: params.chromiumOptions,
 		scale: params.scale,
+		timeoutInMilliseconds: params.timeoutInMilliseconds,
+		port: null,
 	});
 
 	const endRendered = Date.now();
 
 	console.log('Adding silent audio, chunk', params.chunk);
-	await RenderInternals.addSilentAudioIfNecessary({
-		outputLocation,
-		durationInFrames: params.frameRange[1] - params.frameRange[0] + 1,
-		fps: params.fps,
-		chunkCodec: params.codec,
-	});
 
 	const condensedTimingData: ChunkTimingData = {
 		...chunkTimingData,

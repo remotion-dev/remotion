@@ -1152,7 +1152,62 @@ export const showcaseVideos: ShowcaseVideo[] = [
 		"url": "https://twitter.com/Slashgear_",
 		"name": "Antoine Caron & Mickaël Alves"
 	}
-},
+  },
+  {
+    title: 'snappify ProductHunt GIF',
+    type: 'mux_video',
+    muxId: 'vOGnXmkV01R2WW6SuZRIykksh3uzEfRV900ieznAmc7Is',
+    description:
+      'An animated Logo used for the ProductHunt launch of snappify.',
+    height: 960,
+    width: 960,
+    submittedOn: new Date("05-04-2022"),
+    links: [
+      {
+        type: 'source_code',
+        url: 'https://github.com/snappify-io/producthunt-gif',
+      },
+      {
+        type: 'website',
+        url: 'https://snappify.io/',
+      },
+      {
+        type: 'tutorial',
+        url: 'https://snappify.io/blog/create-producthunt-gif-with-remotion',
+      },
+    ],
+    author: {
+      url: 'https://twitter.com/dominiksumer',
+      name: 'Dominik Sumer',
+    },
+  },
+  {
+    title: "Master Duel Week",
+    type: "mux_video",
+    muxId: "nFm3f8VfvL6ag20093gMUtWfbAJe5F6s4z5LapxrpLcM",
+    description: "Automated Twitter bot that tweets a trading card game's meta deck weekly",
+    height: 720,
+    width: 720,
+    submittedOn: new Date("05-08-2022"),
+    links: [
+      {
+        type: "source_code",
+        url: "https://github.com/KalleChen/master-duel-week",
+      },
+      {
+        type: "video",
+        url: "https://twitter.com/masterduelweek/status/1522850783020339200",
+      },
+      {
+        type: "website",
+        url: "https://twitter.com/masterduelweek",
+      },
+    ],
+    author: {
+      "url": "https://kallechen.github.io/",
+      "name": "Kalle Chen"
+    }
+  },
 ];
 
 const dateString = (date: Date) =>

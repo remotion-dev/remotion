@@ -57,6 +57,7 @@ export const upgrade = async () => {
 		'@remotion/media-utils',
 		'@remotion/babel-loader',
 		'@remotion/lambda',
+		'@remotion/preload',
 		'@remotion/three',
 		'@remotion/gif',
 		'remotion',

@@ -1,18 +1,20 @@
-import {SymbolicatedStackFrame} from './utils/stack-frame';
-
-export type ErrorRecord = {
-	error: Error;
-	contextSize: number;
-	stackFrames: SymbolicatedStackFrame[];
-};
-
+import {setErrorsRef} from '../remotion-overlay/Overlay';
+import {massageWarning} from './effects/format-warning';
+import {
+	permanentRegister as permanentRegisterConsole,
+	registerReactStack,
+	unregisterReactStack,
+} from './effects/proxy-console';
+import {
+	register as registerStackTraceLimit,
+	unregister as unregisterStackTraceLimit,
+} from './effects/stack-trace-limit';
 /**
  * Copyright (c) 2015-present, Facebook, Inc.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
-
 import {
 	register as registerError,
 	unregister as unregisterError,
@@ -21,18 +23,14 @@ import {
 	register as registerPromise,
 	unregister as unregisterPromise,
 } from './effects/unhandled-rejection';
-import {
-	register as registerStackTraceLimit,
-	unregister as unregisterStackTraceLimit,
-} from './effects/stack-trace-limit';
-import {
-	permanentRegister as permanentRegisterConsole,
-	registerReactStack,
-	unregisterReactStack,
-} from './effects/proxy-console';
-import {massageWarning} from './effects/format-warning';
 import {getStackFrames} from './utils/get-stack-frames';
-import {setErrorsRef} from '../remotion-overlay/Overlay';
+import {SymbolicatedStackFrame} from './utils/stack-frame';
+
+export type ErrorRecord = {
+	error: Error;
+	contextSize: number;
+	stackFrames: SymbolicatedStackFrame[];
+};
 
 const CONTEXT_SIZE = 3;
 

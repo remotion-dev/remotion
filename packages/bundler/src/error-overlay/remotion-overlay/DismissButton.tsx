@@ -1,5 +1,4 @@
-import {useCallback} from 'react';
-import React from 'react';
+import React, {useCallback} from 'react';
 
 const size: React.CSSProperties = {
 	height: 20,

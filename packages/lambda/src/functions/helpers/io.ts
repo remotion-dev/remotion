@@ -5,6 +5,7 @@ import {
 	_Object,
 } from '@aws-sdk/client-s3';
 import {ReadStream} from 'fs';
+import mimeTypes from 'mime-types';
 import {Readable} from 'stream';
 import {AwsRegion} from '../../pricing/aws-regions';
 import {getS3Client} from '../../shared/aws-clients';
@@ -93,6 +94,7 @@ export const lambdaWriteFile = async ({
 			Body: body,
 			ACL: privacy === 'private' ? 'private' : 'public-read',
 			ExpectedBucketOwner: expectedBucketOwner ?? undefined,
+			ContentType: mimeTypes.lookup(key) || 'application/octet-stream',
 		})
 	);
 };

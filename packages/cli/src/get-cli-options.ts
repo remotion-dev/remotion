@@ -1,4 +1,4 @@
-import {RenderInternals, ChromiumOptions} from '@remotion/renderer';
+import {ChromiumOptions, RenderInternals} from '@remotion/renderer';
 import fs from 'fs';
 import path from 'path';
 import {
@@ -13,7 +13,7 @@ import {getOutputFilename} from './get-filename';
 import {getInputProps} from './get-input-props';
 import {getImageFormat} from './image-formats';
 import {Log} from './log';
-import {getUserPassedFileExtension} from './user-passed-output-location';
+import {getUserPassedOutputLocation} from './user-passed-output-location';
 
 const getAndValidateFrameRange = () => {
 	const frameRange = Internals.getRange();
@@ -33,7 +33,9 @@ const getFinalCodec = async (options: {isLambda: boolean}) => {
 
 	const codec = Internals.getFinalOutputCodec({
 		codec: userCodec,
-		fileExtension: options.isLambda ? null : getUserPassedFileExtension(),
+		fileExtension: options.isLambda
+			? null
+			: RenderInternals.getExtensionOfFilename(getUserPassedOutputLocation()),
 		emitWarning: true,
 		isLambda: options.isLambda,
 	});
@@ -186,11 +188,14 @@ const getAndValidateBrowser = async (browserExecutable: BrowserExecutable) => {
 
 export const getCliOptions = async (options: {
 	isLambda: boolean;
-	type: 'still' | 'series';
+	type: 'still' | 'series' | 'get-compositions';
 }) => {
 	const frameRange = getAndValidateFrameRange();
 
-	const codec = await getFinalCodec({isLambda: options.isLambda});
+	const codec: Codec =
+		options.type === 'get-compositions'
+			? 'h264'
+			: await getFinalCodec({isLambda: options.isLambda});
 	const shouldOutputImageSequence =
 		options.type === 'still'
 			? true
@@ -198,13 +203,14 @@ export const getCliOptions = async (options: {
 					frameRange,
 					isLambda: options.isLambda,
 			  });
-	const outputFile = options.isLambda
-		? null
-		: getOutputFilename({
-				codec,
-				imageSequence: shouldOutputImageSequence,
-				type: options.type,
-		  });
+	const outputFile =
+		options.isLambda || options.type === 'get-compositions'
+			? null
+			: getOutputFilename({
+					codec,
+					imageSequence: shouldOutputImageSequence,
+					type: options.type,
+			  });
 
 	const overwrite = Internals.getShouldOverwrite();
 	const crf = getAndValidateCrf(shouldOutputImageSequence, codec);
@@ -218,6 +224,7 @@ export const getCliOptions = async (options: {
 	const browserExecutable = Internals.getBrowserExecutable();
 	const ffmpegExecutable = Internals.getCustomFfmpegExecutable();
 	const scale = Internals.getScale();
+	const port = Internals.getServerPort();
 
 	const chromiumOptions: ChromiumOptions = {
 		disableWebSecurity: Internals.getChromiumDisableWebSecurity(),
@@ -252,5 +259,6 @@ export const getCliOptions = async (options: {
 		logLevel: Internals.Logging.getLogLevel(),
 		scale,
 		chromiumOptions,
+		port: port ?? null,
 	};
 };

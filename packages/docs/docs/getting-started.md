@@ -10,12 +10,12 @@ import TabItem from '@theme/TabItem';
 
 ## Prerequisites
 
-The only dependencies for Remotion are FFMPEG and Node.js.
+The only dependencies for Remotion are Node.JS and FFMPEG.
 
 See:
 
 - [Installing Node.js](https://nodejs.org/en/download/) - Minimum: Version 14.0.0
-- [Installing FFMPEG](https://github.com/adaptlearning/adapt_authoring/wiki/Installing-FFmpeg) - Minimum version: 4.1.0 - you will only need it for rendering.
+- [Installing FFMPEG](https://github.com/adaptlearning/adapt_authoring/wiki/Installing-FFmpeg) - Minimum version: 4.1.0 - only needed if you want to render your video.
 
 ## Installation
 
@@ -72,3 +72,7 @@ pacman -S dconf alsa-lib atk glibc cairo libcups dbus expat fontconfig gcc gdk-p
 ```
 
 Got instructions for more Linux distributions? [Add them to this page](https://github.com/remotion-dev/remotion/edit/main/packages/docs/docs/getting-started.md)!
+
+## Installation in existing projects
+
+If you already have a project you want to install Remotion in, don't use the instructions on this page. Instead, check out: [Installation in existing projects](/docs/brownfield)

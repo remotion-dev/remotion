@@ -160,6 +160,7 @@ export const VideoPlayerContent: React.FC<{
         onLoadedMetadata={onLoadedMetadata}
         loop
         height={height}
+        playsInline
         width={width}
         autoPlay={userHasInteractedWithPage}
       />

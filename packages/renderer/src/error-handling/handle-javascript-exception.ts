@@ -48,7 +48,7 @@ const cleanUpErrorMessage = (
 	return split.slice(0, Math.max(1, split.length - frames)).join('\n');
 };
 
-export const removeDelayRenderStack = (message: string) => {
+const removeDelayRenderStack = (message: string) => {
 	const index = message.indexOf(Internals.DELAY_RENDER_CALLSTACK_TOKEN);
 	if (index === -1) {
 		return message;
