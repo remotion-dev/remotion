@@ -6,6 +6,7 @@ import {ColorInterpolation} from './ColorInterpolation';
 import {FontDemo} from './Fonts';
 import {Framer} from './Framer';
 import {FreezeExample} from './Freeze/FreezeExample';
+import {ManyAudio} from './ManyAudio';
 import {MissingImg} from './MissingImg';
 import {OffthreadRemoteVideo} from './OffthreadRemoteVideo/OffthreadRemoteVideo';
 import {OrbScene} from './Orb';
@@ -106,7 +107,6 @@ export const Index: React.FC = () => {
 					fps={30}
 					durationInFrames={100}
 				/>
-
 				<Composition
 					id="scripts"
 					component={Scripts}
@@ -114,6 +114,14 @@ export const Index: React.FC = () => {
 					height={720}
 					fps={30}
 					durationInFrames={100}
+				/>
+				<Composition
+					id="many-audio"
+					component={ManyAudio}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={30}
 				/>
 			</Folder>
 			<Folder name="creatives">
