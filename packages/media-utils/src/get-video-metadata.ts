@@ -23,6 +23,13 @@ const fn = (src: string): Promise<VideoMetadata> => {
 			cleanup();
 		};
 
+		const pixels = video.videoHeight * video.videoWidth;
+
+		if (pixels === 0) {
+			reject(new Error('File does not contain a video track'));
+			return;
+		}
+
 		const onLoadedMetadata = () => {
 			const metadata: VideoMetadata = {
 				durationInSeconds: video.duration,
