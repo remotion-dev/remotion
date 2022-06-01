@@ -48,6 +48,7 @@ const innerGetCompositions = async (
 		initialFrame: 0,
 		timeoutInMilliseconds: config?.timeoutInMilliseconds,
 		proxyPort,
+		retriesRemaining: 2,
 	});
 
 	await puppeteerEvaluateWithCatch({

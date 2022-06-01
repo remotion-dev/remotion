@@ -12,6 +12,7 @@ export const setPropsAndEnv = async ({
 	initialFrame,
 	timeoutInMilliseconds,
 	proxyPort,
+	retriesRemaining,
 }: {
 	inputProps: unknown;
 	envVariables: Record<string, string> | undefined;
@@ -20,7 +21,8 @@ export const setPropsAndEnv = async ({
 	initialFrame: number;
 	timeoutInMilliseconds: number | undefined;
 	proxyPort: number;
-}) => {
+	retriesRemaining: number;
+}): Promise<void> => {
 	validatePuppeteerTimeout(timeoutInMilliseconds);
 	const actualTimeout =
 		timeoutInMilliseconds ?? Internals.DEFAULT_PUPPETEER_TIMEOUT;
@@ -71,6 +73,28 @@ export const setPropsAndEnv = async ({
 	const pageRes = await page.goto(urlToVisit);
 
 	const status = pageRes.status();
+
+	// S3 in rare occasions returns a 500 or 503 error code for GET operations.
+	// Usually it is fixed by retrying.
+	if (status >= 500 && status <= 504 && retriesRemaining > 0) {
+		await new Promise<void>((resolve) => {
+			setTimeout(() => {
+				resolve();
+			}, 2000);
+		});
+
+		return setPropsAndEnv({
+			envVariables,
+			initialFrame,
+			inputProps,
+			page,
+			proxyPort,
+			retriesRemaining: retriesRemaining - 1,
+			serveUrl,
+			timeoutInMilliseconds,
+		});
+	}
+
 	if (
 		status !== 200 &&
 		status !== 301 &&
