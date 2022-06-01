@@ -1,5 +1,5 @@
-import {useElementSize} from '@remotion/player/src/utils/use-element-size';
-import React, {createRef, useCallback, useMemo, useState} from 'react';
+import React, {useCallback, useMemo, useState} from 'react';
+import {useCompactUI} from '../helpers/use-compact-ui';
 import {Canvas} from './Canvas';
 import {CollapsedCompositionSelector} from './CollapsedCompositionSelector';
 import {CompositionSelector} from './CompositionSelector';
@@ -54,20 +54,12 @@ export const setSavedCollapsedState = (type: CollapsedState) => {
 	window.localStorage.setItem(storageKey, type);
 };
 
-const bodyRef = createRef<HTMLElement>();
-
-// @ts-expect-error
-bodyRef.current = document.body;
-
 export const TopPanel: React.FC = () => {
 	const [leftSidebarCollapsedState, setCollapsedState] = useState(() =>
 		getSavedCollapsedState()
 	);
 
-	const windowSize = useElementSize(bodyRef, {
-		shouldApplyCssTransforms: false,
-		triggerOnWindowResize: false,
-	});
+	const compactUi = useCompactUI();
 
 	const actualState = useMemo((): 'expanded' | 'collapsed' => {
 		if (leftSidebarCollapsedState === 'collapsed') {
@@ -78,12 +70,8 @@ export const TopPanel: React.FC = () => {
 			return 'expanded';
 		}
 
-		if (!windowSize) {
-			return 'collapsed';
-		}
-
-		return windowSize.width < 1200 ? 'collapsed' : 'expanded';
-	}, [leftSidebarCollapsedState, windowSize]);
+		return compactUi ? 'collapsed' : 'expanded';
+	}, [compactUi, leftSidebarCollapsedState]);
 
 	const onCollapse = useCallback(() => {
 		setCollapsedState('collapsed');
