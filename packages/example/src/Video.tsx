@@ -98,7 +98,6 @@ export const Index: React.FC = () => {
 					fps={30}
 					durationInFrames={100}
 				/>
-
 				<Composition
 					id="skip-zero-frame"
 					component={SkipZeroFrame}
