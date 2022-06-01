@@ -40,7 +40,7 @@ const Preview: React.FC = () => {
       style={container}
       controls
       fps={30}
-    ></Player>
+    />
   );
 };
 
@@ -75,10 +75,10 @@ export const CodeExample: React.FC = () => {
       <div>
         {tab === "code" && (
           <div style={container}>
-            <img src="/img/code-sample.png"></img>
+            <img src="/img/code-sample.png" />
           </div>
         )}
-        {tab === "preview" && <Preview></Preview>}
+        {tab === "preview" && <Preview />}
       </div>
     </div>
   );

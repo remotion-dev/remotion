@@ -17,10 +17,10 @@ module.exports = {
     },
     image: "img/social-preview.png",
     navbar: {
-      title: "Remotion",
       logo: {
-        alt: "Remotion logo",
-        src: "img/logo-small.png",
+        alt: "Remotion Logo",
+        src: "img/new-logo.png",
+        srcDark: "img/new-logo-dark.png",
       },
       items: [
         {
