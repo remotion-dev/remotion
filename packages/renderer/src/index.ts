@@ -31,6 +31,7 @@ export {combineVideos} from './combine-videos';
 export {ErrorWithStackFrame} from './error-handling/handle-javascript-exception';
 export {FfmpegVersion} from './ffmpeg-flags';
 export {getCompositions} from './get-compositions';
+export {CancelSignal, makeCancelSignal} from './make-cancel-signal';
 export {openBrowser} from './open-browser';
 export type {ChromiumOptions} from './open-browser';
 export {renderFrames} from './render-frames';

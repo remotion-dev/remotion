@@ -22,6 +22,7 @@ import {deleteDirectory} from './delete-directory';
 import {getAudioCodecName} from './get-audio-codec-name';
 import {getCodecName} from './get-codec-name';
 import {getProResProfileName} from './get-prores-profile-name';
+import {CancelSignal} from './make-cancel-signal';
 import {mergeAudioTrack} from './merge-audio-track';
 import {parseFfmpegProgress} from './parse-ffmpeg-progress';
 import {preprocessAudioTrack} from './preprocess-audio-track';
@@ -51,6 +52,7 @@ export type StitcherOptions = {
 	verbose?: boolean;
 	ffmpegExecutable?: FfmpegExecutable;
 	dir?: string;
+	cancelSignal?: CancelSignal;
 	internalOptions?: {
 		preEncodedFileLocation: string | null;
 		imageFormat: ImageFormat;
@@ -58,7 +60,7 @@ export type StitcherOptions = {
 };
 
 type ReturnType = {
-	task: Promise<unknown>;
+	task: Promise<void>;
 	getLogs: () => string;
 };
 
@@ -218,7 +220,7 @@ export const spawnFfmpeg = async (
 			);
 		}
 
-		await execa(
+		const ffmpegTask = execa(
 			'ffmpeg',
 			[
 				'-i',
@@ -229,6 +231,10 @@ export const spawnFfmpeg = async (
 				options.outputLocation,
 			].filter(Internals.truthy)
 		);
+		options.cancelSignal?.(() => {
+			ffmpegTask.kill();
+		});
+		await ffmpegTask;
 		options.onProgress?.(expectedFrames);
 		return {
 			getLogs: () => '',
@@ -287,6 +293,9 @@ export const spawnFfmpeg = async (
 	const task = execa(options.ffmpegExecutable ?? 'ffmpeg', ffmpegString, {
 		cwd: options.dir,
 	});
+	options.cancelSignal?.(() => {
+		task.kill();
+	});
 	let ffmpegOutput = '';
 	let isFinished = false;
 	task.stderr?.on('data', (data: Buffer) => {
@@ -310,16 +319,24 @@ export const spawnFfmpeg = async (
 			}
 		}
 	});
-	return {task, getLogs: () => ffmpegOutput};
+	return {task: task.then(() => undefined), getLogs: () => ffmpegOutput};
 };
 
 export const stitchFramesToVideo = async (
 	options: StitcherOptions
 ): Promise<void> => {
 	const {task, getLogs} = await spawnFfmpeg(options);
-	try {
-		await task;
-	} catch (err) {
+
+	const happyPath = task.catch(() => {
 		throw new Error(getLogs());
-	}
+	});
+
+	return Promise.race([
+		happyPath,
+		new Promise<void>((_resolve, reject) => {
+			options.cancelSignal?.(() => {
+				reject(new Error('stitchFramesToVideo() got cancelled'));
+			});
+		}),
+	]);
 };

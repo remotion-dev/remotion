@@ -5,8 +5,8 @@ import {
 	BrowserExecutable,
 	FfmpegExecutable,
 	Internals,
+	SmallTCompMetadata,
 	StillImageFormat,
-	TCompMetadata,
 } from 'remotion';
 import {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 import {ensureOutputDirectory} from './ensure-output-directory';
@@ -16,6 +16,7 @@ import {
 	ServeUrlOrWebpackBundle,
 } from './legacy-webpack-config';
 import {makeAssetsDownloadTmpDir} from './make-assets-download-dir';
+import {CancelSignal} from './make-cancel-signal';
 import {ChromiumOptions, openBrowser} from './open-browser';
 import {prepareServer} from './prepare-server';
 import {provideScreenshot} from './provide-screenshot';
@@ -26,7 +27,7 @@ import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
 import {validateScale} from './validate-scale';
 
 type InnerStillOptions = {
-	composition: TCompMetadata;
+	composition: SmallTCompMetadata;
 	output: string;
 	frame?: number;
 	inputProps?: unknown;
@@ -41,6 +42,7 @@ type InnerStillOptions = {
 	chromiumOptions?: ChromiumOptions;
 	scale?: number;
 	onDownload?: RenderMediaOnDownload;
+	cancelSignal?: CancelSignal;
 	ffmpegExecutable?: FfmpegExecutable;
 };
 
@@ -67,6 +69,7 @@ const innerRenderStill = async ({
 	chromiumOptions,
 	scale,
 	proxyPort,
+	cancelSignal,
 }: InnerStillOptions & {
 	serveUrl: string;
 	onError: (err: Error) => void;
@@ -142,6 +145,17 @@ const innerRenderStill = async ({
 		deviceScaleFactor: scale ?? 1,
 	});
 
+	const errorCallback = (err: Error) => {
+		onError(err);
+		cleanup();
+	};
+
+	const cleanUpJSException = handleJavascriptException({
+		page,
+		onError: errorCallback,
+		frame: null,
+	});
+
 	const cleanup = async () => {
 		cleanUpJSException();
 
@@ -154,16 +168,10 @@ const innerRenderStill = async ({
 		}
 	};
 
-	const errorCallback = (err: Error) => {
-		onError(err);
+	cancelSignal?.(() => {
 		cleanup();
-	};
-
-	const cleanUpJSException = handleJavascriptException({
-		page,
-		onError: errorCallback,
-		frame: null,
 	});
+
 	await setPropsAndEnv({
 		inputProps,
 		envVariables,
@@ -211,7 +219,7 @@ export const renderStill = (options: RenderStillOptions): Promise<void> => {
 
 	const onDownload = options.onDownload ?? (() => () => undefined);
 
-	return new Promise((resolve, reject) => {
+	const happyPath = new Promise<void>((resolve, reject) => {
 		const onError = (err: Error) => reject(err);
 
 		let close: (() => void) | null = null;
@@ -238,4 +246,13 @@ export const renderStill = (options: RenderStillOptions): Promise<void> => {
 			.catch((err) => reject(err))
 			.finally(() => close?.());
 	});
+
+	return Promise.race([
+		happyPath,
+		new Promise<void>((_resolve, reject) => {
+			options.cancelSignal?.(() => {
+				reject(new Error('renderStill() got cancelled'));
+			});
+		}),
+	]);
 };
