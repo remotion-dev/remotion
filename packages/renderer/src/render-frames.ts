@@ -19,7 +19,6 @@ import {
 	RenderMediaOnDownload,
 } from './assets/download-and-map-assets-to-file';
 import {BrowserLog} from './browser-log';
-import {CancelSignal} from './cancel';
 import {cycleBrowserTabs} from './cycle-browser-tabs';
 import {handleJavascriptException} from './error-handling/handle-javascript-exception';
 import {getActualConcurrency} from './get-concurrency';
@@ -31,6 +30,7 @@ import {
 	ServeUrlOrWebpackBundle,
 } from './legacy-webpack-config';
 import {makeAssetsDownloadTmpDir} from './make-assets-download-dir';
+import {CancelSignal} from './make-cancel-signal';
 import {ChromiumOptions, openBrowser} from './open-browser';
 import {Pool} from './pool';
 import {prepareServer} from './prepare-server';
@@ -73,7 +73,7 @@ type RenderFramesOptions = {
 	scale?: number;
 	ffmpegExecutable?: FfmpegExecutable;
 	port?: number | null;
-	signal?: CancelSignal;
+	cancelSignal?: CancelSignal;
 } & ConfigOrComposition &
 	ServeUrlOrWebpackBundle;
 
@@ -117,7 +117,7 @@ const innerRenderFrames = ({
 	actualParallelism,
 	downloadDir,
 	proxyPort,
-	signal,
+	cancelSignal,
 }: Omit<RenderFramesOptions, 'url' | 'onDownload'> & {
 	onError: (err: Error) => void;
 	pagesArray: Page[];
@@ -220,7 +220,7 @@ const innerRenderFrames = ({
 	});
 	const assets: TAsset[][] = new Array(frameCount).fill(undefined);
 	let stopped = false;
-	signal?.(() => {
+	cancelSignal?.(() => {
 		stopped = true;
 	});
 	const progress = Promise.all(
@@ -337,7 +337,7 @@ const innerRenderFrames = ({
 	return Promise.race([
 		happyPath,
 		new Promise<RenderFramesOutput>((_resolve, reject) => {
-			signal?.(() => {
+			cancelSignal?.(() => {
 				reject(new Error('renderFrames() got cancelled'));
 			});
 		}),
@@ -401,7 +401,7 @@ export const renderFrames = (
 
 	const {stopCycling} = cycleBrowserTabs(browserInstance, actualParallelism);
 
-	options.signal?.(() => {
+	options.cancelSignal?.(() => {
 		stopCycling();
 	});
 

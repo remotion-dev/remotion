@@ -1,10 +1,9 @@
 ---
 title: getCompositions()
 id: get-compositions
-slug: /renderer/get-compositions
 ---
 
-import {AngleChangelog} from '../components/AngleChangelog';
+import {AngleChangelog} from '../../components/AngleChangelog';
 
 _Part of the `@remotion/renderer` package._
 

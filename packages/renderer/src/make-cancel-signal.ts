@@ -2,7 +2,7 @@ type Callback = () => void;
 
 export type CancelSignal = (callback: Callback) => void;
 
-export const getCancelSignal = (): {
+export const makeCancelSignal = (): {
 	cancelSignal: CancelSignal;
 	cancel: () => void;
 } => {

@@ -9,7 +9,6 @@ import {
 	StillImageFormat,
 } from 'remotion';
 import {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
-import {CancelSignal} from './cancel';
 import {ensureOutputDirectory} from './ensure-output-directory';
 import {handleJavascriptException} from './error-handling/handle-javascript-exception';
 import {
@@ -17,6 +16,7 @@ import {
 	ServeUrlOrWebpackBundle,
 } from './legacy-webpack-config';
 import {makeAssetsDownloadTmpDir} from './make-assets-download-dir';
+import {CancelSignal} from './make-cancel-signal';
 import {ChromiumOptions, openBrowser} from './open-browser';
 import {prepareServer} from './prepare-server';
 import {provideScreenshot} from './provide-screenshot';
@@ -42,7 +42,7 @@ type InnerStillOptions = {
 	chromiumOptions?: ChromiumOptions;
 	scale?: number;
 	onDownload?: RenderMediaOnDownload;
-	signal?: CancelSignal;
+	cancelSignal?: CancelSignal;
 	ffmpegExecutable?: FfmpegExecutable;
 };
 
@@ -69,7 +69,7 @@ const innerRenderStill = async ({
 	chromiumOptions,
 	scale,
 	proxyPort,
-	signal,
+	cancelSignal,
 }: InnerStillOptions & {
 	serveUrl: string;
 	onError: (err: Error) => void;
@@ -157,7 +157,7 @@ const innerRenderStill = async ({
 		}
 	};
 
-	signal?.(() => {
+	cancelSignal?.(() => {
 		cleanup();
 	});
 
@@ -249,7 +249,7 @@ export const renderStill = (options: RenderStillOptions): Promise<void> => {
 	return Promise.race([
 		happyPath,
 		new Promise<void>((_resolve, reject) => {
-			options.signal?.(() => {
+			options.cancelSignal?.(() => {
 				reject(new Error('renderStill() got cancelled'));
 			});
 		}),
