@@ -59,6 +59,11 @@ export const serveStatic = async (
 			return new Promise<void>((resolve, reject) => {
 				server.close((err) => {
 					if (err) {
+						if (
+							(err as Error & {code: string}).code === 'ERR_SERVER_NOT_RUNNING'
+						) {
+							return resolve();
+						}
 						reject(err);
 					} else {
 						resolve();
