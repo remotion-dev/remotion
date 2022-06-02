@@ -24,5 +24,5 @@ test("Cancelling after success should not throw error", async () => {
 
   await new Promise((resolve) => setTimeout(resolve, 2000));
 
-  fs.promises.rm(path.join(process.cwd(), outputLocation));
+  await fs.promises.rm(path.join(process.cwd(), outputLocation));
 });
