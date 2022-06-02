@@ -27,6 +27,7 @@ const stitchFramesToVideo: (options: {
   onDownload?: (src: number) => void;
   verbose?: boolean;
   ffmpegExecutable?: FfmpegExecutable;
+  cancelSignal?: CancelSignal;
 }) => Promise<void>;
 ```
 
@@ -121,6 +122,12 @@ A boolean value that when set to `true`, will log all kinds of debug information
 _optional_
 
 A custom FFMPEG executable to be used. By default, a binary called `ffmpeg` will be searched in your `PATH`.
+
+### `cancelSignal?`
+
+_optional, available from v3.0.15_
+
+A token that allows the render to be cancelled. See: [`makeCancelSignal`](/docs/renderer/make-cancel-signal)
 
 ## Return value
 
