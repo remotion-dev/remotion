@@ -27,6 +27,7 @@ import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
 import {validateScale} from './validate-scale';
 export type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 export {BrowserLog} from './browser-log';
+export {CancelSignal, getCancelSignal} from './cancel';
 export {combineVideos} from './combine-videos';
 export {ErrorWithStackFrame} from './error-handling/handle-javascript-exception';
 export {FfmpegVersion} from './ffmpeg-flags';
