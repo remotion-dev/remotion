@@ -1,10 +1,9 @@
 ---
 id: render-still
 title: renderStill()
-slug: /renderer/render-still
 ---
 
-import {AngleChangelog} from '../components/AngleChangelog';
+import {AngleChangelog} from '../../components/AngleChangelog';
 
 _Part of the `@remotion/renderer` package. Available from v2.3._
 
@@ -131,6 +130,12 @@ A string defining the absolute path on disk of the browser executable that shoul
 _optional, available from v2.6.3_
 
 A number describing how long the render may take to resolve all `delayRender()` calls before it times out. Default: `30000`
+
+### `cancelSignal?`
+
+_optional, available from v3.0.15_
+
+A token that allows the render to be cancelled. See: [`makeCancelSignal()`](/docs/renderer/make-cancel-signal)
 
 ### `chromiumOptions?`
 

@@ -1,9 +1,10 @@
 import {openBrowser} from './open-browser';
 
 type Await<T> = T extends PromiseLike<infer U> ? U : T;
+type Browser = Await<ReturnType<typeof openBrowser>>;
 
 export const cycleBrowserTabs = (
-	puppeteerInstance: Await<ReturnType<typeof openBrowser>>,
+	puppeteerInstance: Browser,
 	concurrency: number
 ): {
 	stopCycling: () => void;
@@ -16,14 +17,23 @@ export const cycleBrowserTabs = (
 
 	let interval: NodeJS.Timeout | null = null;
 	let i = 0;
+	let stopped = false;
 	const set = () => {
 		interval = setTimeout(() => {
 			puppeteerInstance
 				.pages()
 				.then((pages) => {
+					if (pages.length === 0) {
+						return;
+					}
+
 					const currentPage = pages[i % pages.length];
 					i++;
-					if (!(currentPage?.isClosed?.() ?? true)) {
+					if (
+						!currentPage?.isClosed?.() &&
+						!stopped &&
+						currentPage?.url() !== 'about:blank'
+					) {
 						return currentPage.bringToFront();
 					}
 				})
@@ -41,6 +51,8 @@ export const cycleBrowserTabs = (
 			if (!interval) {
 				return;
 			}
+
+			stopped = true;
 
 			return clearInterval(interval);
 		},

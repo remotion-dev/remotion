@@ -30,7 +30,8 @@ export type TCompMetadata = Pick<
 export type SmallTCompMetadata = Pick<
 	TComposition,
 	'id' | 'height' | 'width' | 'fps' | 'durationInFrames'
->;
+> &
+	Partial<Pick<TComposition, 'defaultProps'>>;
 
 type EnhancedTSequenceData =
 	| {
