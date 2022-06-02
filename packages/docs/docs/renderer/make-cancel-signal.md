@@ -3,7 +3,12 @@ id: make-cancel-signal
 title: makeCancelSignal()
 ---
 
-This function returns a signal and a cancel function that allows to you cancel a render triggered using `renderMedia()`, `renderFrames()` or `renderMedia()`.
+_Available from v3.0.15_
+
+This function returns a signal and a cancel function that allows to you cancel a render triggered using [`renderMedia()`](/docs/renderer/render-media), [`renderStill()`](/docs/renderer/render-still), [`renderFrames()`](/docs/renderer/render-frames) or [`stitchFramesToVideo()`](/docs/renderer/stitch-frames-to-video)
+.
+
+## Example
 
 ```tsx twoslash
 // @module: ESNext
@@ -38,6 +43,20 @@ setTimeout(() => {
 // If the render completed within 10 seconds, renderMedia() will resolve
 await render;
 
-// If the render did not complete. renderMedia will reject
+// If the render did not complete, renderMedia() will reject
 // ==> "[Error: renderMedia() got cancelled]"
 ```
+
+## API
+
+Calling `makeCancelSignal` returns an object with two properties:
+
+- `cancelSignal`: An object to be passed to one of the above mentioned render functions
+- `cancel`: A function you should call when you want to cancel the render.
+
+## See also
+
+- [`renderMedia()`](/docs/renderer/render-media)
+- [`renderStill()`](/docs/renderer/render-still)
+- [`renderFrames()`](/docs/renderer/render-frames)
+- [`stitchFramesToVideo()`](/docs/renderer/stitch-frames-to-video)
