@@ -344,6 +344,8 @@ const innerRenderFrames = ({
 	]);
 };
 
+type CleanupFn = () => void;
+
 export const renderFrames = (
 	options: RenderFramesOptions
 ): Promise<RenderFramesOutput> => {
@@ -399,18 +401,13 @@ export const renderFrames = (
 
 	const actualParallelism = getActualConcurrency(options.parallelism ?? null);
 
-	const {stopCycling} = cycleBrowserTabs(browserInstance, actualParallelism);
-
-	options.cancelSignal?.(() => {
-		stopCycling();
-	});
-
 	const openedPages: Page[] = [];
 
 	return new Promise<RenderFramesOutput>((resolve, reject) => {
-		let cleanup: (() => void) | null = null;
+		let cleanup: CleanupFn[] = [];
 		const onError = (err: Error) => reject(err);
-		Promise.all([
+
+		return Promise.all([
 			prepareServer({
 				webpackConfigOrServeUrl: selectedServeUrl,
 				downloadDir,
@@ -422,7 +419,19 @@ export const renderFrames = (
 			browserInstance,
 		])
 			.then(([{serveUrl, closeServer, offthreadPort}, puppeteerInstance]) => {
-				cleanup = closeServer;
+				const {stopCycling} = cycleBrowserTabs(
+					puppeteerInstance,
+					actualParallelism
+				);
+
+				cleanup.push(stopCycling);
+
+				options.cancelSignal?.(() => {
+					stopCycling();
+					closeServer();
+				});
+
+				cleanup.push(closeServer);
 				const renderFramesProm = innerRenderFrames({
 					...options,
 					puppeteerInstance,
@@ -458,8 +467,9 @@ export const renderFrames = (
 						});
 				}
 
-				stopCycling();
-				cleanup?.();
+				cleanup.forEach((c) => {
+					c();
+				});
 			});
 	});
 };

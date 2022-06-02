@@ -67,8 +67,8 @@ test("should fail on invalid CRF", async () => {
   const outPath = path.join(tmpDir, "out.mp4");
   const browserInstance = await openBrowser("chrome");
 
-  await expect(() => {
-    return renderMedia({
+  try {
+    await renderMedia({
       outputLocation: outPath,
       codec: "h264",
       serveUrl:
@@ -85,7 +85,12 @@ test("should fail on invalid CRF", async () => {
       frameRange: [0, 2],
       puppeteerInstance: browserInstance,
     });
-  }).rejects.toThrow(/Expected CRF to be a number, but is "wrong"/);
+    throw new Error("render should have failed");
+  } catch (err) {
+    expect((err as Error).message).toMatch(
+      /Expected CRF to be a number, but is "wrong"/
+    );
+  }
 
   await browserInstance.close();
 });
