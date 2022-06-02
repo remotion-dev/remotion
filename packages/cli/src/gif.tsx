@@ -247,7 +247,5 @@ export const gif = async () => {
 		Log.warn('Do you have minimum required Node.js version?');
 	}
 
-	Log.info(
-		chalk.green(`\nYour ${codec === 'gif' ? 'gif' : 'video'} is ready!`)
-	);
+	Log.info(chalk.green(`\nYour gif is ready!`));
 };
