@@ -145,6 +145,17 @@ const innerRenderStill = async ({
 		deviceScaleFactor: scale ?? 1,
 	});
 
+	const errorCallback = (err: Error) => {
+		onError(err);
+		cleanup();
+	};
+
+	const cleanUpJSException = handleJavascriptException({
+		page,
+		onError: errorCallback,
+		frame: null,
+	});
+
 	const cleanup = async () => {
 		cleanUpJSException();
 
@@ -161,16 +172,6 @@ const innerRenderStill = async ({
 		cleanup();
 	});
 
-	const errorCallback = (err: Error) => {
-		onError(err);
-		cleanup();
-	};
-
-	const cleanUpJSException = handleJavascriptException({
-		page,
-		onError: errorCallback,
-		frame: null,
-	});
 	await setPropsAndEnv({
 		inputProps,
 		envVariables,
