@@ -284,6 +284,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		region: getCurrentRegionInFunction(),
 		codec: params.codec,
 		expectedBucketOwner: options.expectedBucketOwner,
+		fps: comp.fps,
 	});
 	if (!encodingStop) {
 		encodingStop = Date.now();
