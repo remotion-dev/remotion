@@ -404,10 +404,10 @@ export const renderFrames = (
 	const openedPages: Page[] = [];
 
 	return new Promise<RenderFramesOutput>((resolve, reject) => {
-		let cleanup: CleanupFn[] = [];
+		const cleanup: CleanupFn[] = [];
 		const onError = (err: Error) => reject(err);
 
-		return Promise.all([
+		Promise.all([
 			prepareServer({
 				webpackConfigOrServeUrl: selectedServeUrl,
 				downloadDir,
