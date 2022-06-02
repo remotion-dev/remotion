@@ -111,9 +111,6 @@ export const prespawnFfmpeg = async (options: PreSticherOptions) => {
 	const ffmpegString = ffmpegArgs.flat(2).filter(Boolean) as string[];
 
 	const task = execa(options.ffmpegExecutable ?? 'ffmpeg', ffmpegString);
-	const waitForSpawn = new Promise<void>((resolve) => {
-		task.on('spawn', () => resolve());
-	});
 
 	let ffmpegOutput = '';
 	task.stderr?.on('data', (data: Buffer) => {
@@ -126,5 +123,5 @@ export const prespawnFfmpeg = async (options: PreSticherOptions) => {
 			}
 		}
 	});
-	return {task, getLogs: () => ffmpegOutput, waitForSpawn};
+	return {task, getLogs: () => ffmpegOutput};
 };

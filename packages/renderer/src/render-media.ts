@@ -342,8 +342,6 @@ const innerRenderMedia = async ({
 				}, 2000);
 				(stitcherFfmpeg as ExecaChildProcess<string>).on('close', resolve);
 			});
-			// Can only kill the process once it has spawned, otherwise getting EPIPE error in Node.JS
-			await preStitcher?.waitForSpawn;
 			stitcherFfmpeg.kill();
 			await promise;
 		}
