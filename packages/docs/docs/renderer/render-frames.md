@@ -1,10 +1,9 @@
 ---
 id: render-frames
 title: renderFrames()
-slug: /renderer/render-frames
 ---
 
-import {AngleChangelog} from '../components/AngleChangelog';
+import {AngleChangelog} from '../../components/AngleChangelog';
 
 _Part of the `@remotion/renderer` package._
 

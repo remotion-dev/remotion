@@ -1,8 +1,8 @@
-import { renderMedia, getCancelSignal } from "@remotion/renderer";
+import { renderMedia, makeCancelSignal } from "@remotion/renderer";
 
 test("Should be able to cancel render", async () => {
   try {
-    const { cancel, cancelSignal } = getCancelSignal();
+    const { cancel, cancelSignal } = makeCancelSignal();
     const val = renderMedia({
       codec: "h264",
       serveUrl: "https://silly-crostata-c4c336.netlify.app/",
@@ -14,7 +14,7 @@ test("Should be able to cancel render", async () => {
         width: 1280,
       },
       outputLocation: "out/render.mp4",
-      signal: cancelSignal,
+      cancelSignal,
     });
 
     setTimeout(() => {

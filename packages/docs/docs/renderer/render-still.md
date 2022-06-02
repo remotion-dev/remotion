@@ -1,10 +1,9 @@
 ---
 id: render-still
 title: renderStill()
-slug: /renderer/render-still
 ---
 
-import {AngleChangelog} from '../components/AngleChangelog';
+import {AngleChangelog} from '../../components/AngleChangelog';
 
 _Part of the `@remotion/renderer` package. Available from v2.3._
 

@@ -16,7 +16,6 @@ import {
 import {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 import {BrowserLog} from './browser-log';
 import {canUseParallelEncoding} from './can-use-parallel-encoding';
-import {CancelSignal, getCancelSignal} from './cancel';
 import {ensureFramesInOrder} from './ensure-frames-in-order';
 import {ensureOutputDirectory} from './ensure-output-directory';
 import {getDurationFromFrameRange} from './get-duration-from-frame-range';
@@ -27,6 +26,7 @@ import {
 	getServeUrlWithFallback,
 	ServeUrlOrWebpackBundle,
 } from './legacy-webpack-config';
+import {CancelSignal, makeCancelSignal} from './make-cancel-signal';
 import {ChromiumOptions} from './open-browser';
 import {prespawnFfmpeg} from './prespawn-ffmpeg';
 import {renderFrames} from './render-frames';
@@ -72,7 +72,7 @@ export type RenderMediaOptions = {
 	chromiumOptions?: ChromiumOptions;
 	scale?: number;
 	port?: number | null;
-	signal?: CancelSignal;
+	cancelSignal?: CancelSignal;
 	browserExecutable?: BrowserExecutable;
 } & ServeUrlOrWebpackBundle;
 
@@ -104,7 +104,7 @@ export const renderMedia = ({
 	scale,
 	browserExecutable,
 	port,
-	signal,
+	cancelSignal,
 	...options
 }: RenderMediaOptions): Promise<void> => {
 	Internals.validateQuality(quality);
@@ -165,11 +165,11 @@ export const renderMedia = ({
 		frameRange ?? null
 	);
 
-	const cancelRenderFrames = getCancelSignal();
-	const cancelPrestitcher = getCancelSignal();
-	const cancelStitcher = getCancelSignal();
+	const cancelRenderFrames = makeCancelSignal();
+	const cancelPrestitcher = makeCancelSignal();
+	const cancelStitcher = makeCancelSignal();
 
-	signal?.(() => {
+	cancelSignal?.(() => {
 		cancelRenderFrames.cancel();
 	});
 
@@ -258,7 +258,7 @@ export const renderMedia = ({
 				ffmpegExecutable,
 				browserExecutable,
 				port,
-				signal: cancelRenderFrames.cancelSignal,
+				cancelSignal: cancelRenderFrames.cancelSignal,
 			});
 
 			return renderFramesProc;
@@ -301,7 +301,7 @@ export const renderMedia = ({
 						'verbose'
 					),
 					dir: outputDir ?? undefined,
-					signal: cancelStitcher.cancelSignal,
+					cancelSignal: cancelStitcher.cancelSignal,
 				}),
 				stitchStart,
 			]);
@@ -350,7 +350,7 @@ export const renderMedia = ({
 	return Promise.race([
 		happyPath,
 		new Promise<void>((_resolve, reject) => {
-			signal?.(() => {
+			cancelSignal?.(() => {
 				reject(new Error('renderMedia() got cancelled'));
 			});
 		}),

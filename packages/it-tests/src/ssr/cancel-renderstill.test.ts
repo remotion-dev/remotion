@@ -1,8 +1,8 @@
-import { getCancelSignal, renderStill } from "@remotion/renderer";
+import { makeCancelSignal, renderStill } from "@remotion/renderer";
 
 test("Should be able to cancel render", async () => {
   try {
-    const { cancel, cancelSignal } = getCancelSignal();
+    const { cancel, cancelSignal } = makeCancelSignal();
     const val = renderStill({
       serveUrl: "https://silly-crostata-c4c336.netlify.app/",
       composition: {
@@ -12,7 +12,7 @@ test("Should be able to cancel render", async () => {
         id: "react-svg",
         width: 1280,
       },
-      signal: cancelSignal,
+      cancelSignal,
       output: "out/hithere.png",
     });
 
