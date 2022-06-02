@@ -1,7 +1,7 @@
 import net from 'net';
 
 const getAvailablePort = (portToTry: number) =>
-	new Promise<'available' | 'unavailable'>((resolve, reject) => {
+	new Promise<'available' | 'unavailable'>((resolve) => {
 		let status: 'available' | 'unavailable' = 'unavailable';
 
 		const host = '127.0.0.1';
@@ -14,19 +14,9 @@ const getAvailablePort = (portToTry: number) =>
 
 		socket.setTimeout(1000);
 		socket.on('timeout', () => {
-			status = 'available';
-			reject(
-				new Error(
-					'Timeout (' +
-						1000 +
-						'ms) occurred waiting for ' +
-						host +
-						':' +
-						portToTry +
-						' to be available'
-				)
-			);
+			status = 'unavailable';
 			socket.destroy();
+			resolve(status);
 		});
 
 		socket.on('error', () => {
