@@ -26,6 +26,7 @@ export const cycleBrowserTabs = (
 					if (pages.length === 0) {
 						return;
 					}
+
 					const currentPage = pages[i % pages.length];
 					i++;
 					if (

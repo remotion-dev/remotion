@@ -64,6 +64,7 @@ export const serveStatic = async (
 						) {
 							return resolve();
 						}
+
 						reject(err);
 					} else {
 						resolve();
