@@ -25,7 +25,7 @@ importers:
       prettier: ^2.0.5
       prettier-plugin-organize-imports: ^2.3.4
       react-refresh: 0.9.0
-      remotion: 3.0.14
+      remotion: 3.0.15
       typescript: ^4.7.0
       webpack: 5.72.0
     dependencies:
@@ -34,7 +34,7 @@ importers:
       '@babel/preset-env': 7.15.6_@babel+core@7.15.5
       '@babel/preset-react': 7.14.5_@babel+core@7.15.5
       '@babel/preset-typescript': 7.15.0_@babel+core@7.15.5
-      '@webhotelier/webpack-fast-refresh': 5.1.0_4370f5f0e9532099d1a7df07083ca7f8
+      '@webhotelier/webpack-fast-refresh': 5.1.0_ad215394b92be37ab5bb82482aa97917
       babel-loader: 8.2.2_020c178973d0b00481c828e00a554724
       react-refresh: 0.9.0
       webpack: 5.72.0
@@ -76,7 +76,7 @@ importers:
       react: ^18.0.0
       react-dom: ^18.0.0
       react-refresh: 0.9.0
-      remotion: 3.0.14
+      remotion: 3.0.15
       semver: 7.3.4
       source-map: 0.6.1
       source-map-loader: 3.0.0
@@ -125,10 +125,10 @@ importers:
   packages/cli:
     specifiers:
       '@jonny/eslint-config': 3.0.259
-      '@remotion/bundler': 3.0.14
-      '@remotion/media-utils': 3.0.14
-      '@remotion/player': 3.0.14
-      '@remotion/renderer': 3.0.14
+      '@remotion/bundler': 3.0.15
+      '@remotion/media-utils': 3.0.15
+      '@remotion/player': 3.0.15
+      '@remotion/renderer': 3.0.15
       '@types/jest': ^27.4.0
       '@types/minimist': ^1.2.2
       '@types/node': ^16.7.5
@@ -150,7 +150,7 @@ importers:
       prettier-plugin-organize-imports: ^2.3.4
       react: ^18.0.0
       react-dom: ^18.0.0
-      remotion: 3.0.14
+      remotion: 3.0.15
       semver: 7.3.5
       ts-jest: ^27.0.5
       typescript: ^4.7.0
@@ -274,15 +274,15 @@ importers:
       '@jonny/docusaurus-preset-shiki-twoslash': ^1.1.36
       '@jonny/eslint-config': 3.0.259
       '@mdx-js/react': ^1.6.21
-      '@remotion/babel-loader': 3.0.14
-      '@remotion/bundler': 3.0.14
-      '@remotion/gif': 3.0.14
-      '@remotion/lambda': 3.0.14
-      '@remotion/media-utils': 3.0.14
-      '@remotion/player': 3.0.14
-      '@remotion/preload': 3.0.14
-      '@remotion/renderer': 3.0.14
-      '@remotion/three': 3.0.14
+      '@remotion/babel-loader': 3.0.15
+      '@remotion/bundler': 3.0.15
+      '@remotion/gif': 3.0.15
+      '@remotion/lambda': 3.0.15
+      '@remotion/media-utils': 3.0.15
+      '@remotion/player': 3.0.15
+      '@remotion/preload': 3.0.15
+      '@remotion/renderer': 3.0.15
+      '@remotion/three': 3.0.15
       '@splitbee/web': ^0.2.4
       '@tsconfig/docusaurus': ^1.0.5
       '@types/color-namer': ^1.3.0
@@ -294,7 +294,7 @@ importers:
       clipboard: ^2.0.8
       clsx: ^1.1.1
       color-namer: 1.4.0
-      create-video: 3.0.14
+      create-video: 3.0.15
       eslint: 8.13.0
       hls.js: ^0.14.17
       jest: ^27.2.4
@@ -302,7 +302,7 @@ importers:
       react: 18.0.0
       react-dom: 18.0.0
       react-player: ^2.9.0
-      remotion: 3.0.14
+      remotion: 3.0.15
       three: 0.134.0
       ts-jest: ^27.0.5
       typescript: ^4.7.0
@@ -353,7 +353,7 @@ importers:
 
   packages/eslint-config:
     specifiers:
-      '@remotion/eslint-plugin': 3.0.14
+      '@remotion/eslint-plugin': 3.0.15
       '@types/node': 17.0.17
       '@typescript-eslint/eslint-plugin': 5.19.0
       '@typescript-eslint/parser': 5.19.0
@@ -396,16 +396,16 @@ importers:
       '@babel/preset-react': 7.12.13
       '@mdx-js/react': ^1.6.21
       '@react-three/drei': ^7.22.7
-      '@remotion/babel-loader': 3.0.14
-      '@remotion/bundler': 3.0.14
-      '@remotion/cli': 3.0.14
-      '@remotion/eslint-config': 3.0.14
-      '@remotion/eslint-plugin': 3.0.14
-      '@remotion/gif': 3.0.14
-      '@remotion/lambda': 3.0.14
-      '@remotion/media-utils': 3.0.14
-      '@remotion/renderer': 3.0.14
-      '@remotion/three': 3.0.14
+      '@remotion/babel-loader': 3.0.15
+      '@remotion/bundler': 3.0.15
+      '@remotion/cli': 3.0.15
+      '@remotion/eslint-config': 3.0.15
+      '@remotion/eslint-plugin': 3.0.15
+      '@remotion/gif': 3.0.15
+      '@remotion/lambda': 3.0.15
+      '@remotion/media-utils': 3.0.15
+      '@remotion/renderer': 3.0.15
+      '@remotion/three': 3.0.15
       '@types/babel__core': ^7.1.12
       '@types/babel__template': ^7.4.0
       '@types/express': ^4.17.11
@@ -427,7 +427,7 @@ importers:
       polished: ^4.0.5
       prettier: ^2.0.5
       prettier-plugin-organize-imports: ^2.3.4
-      remotion: 3.0.14
+      remotion: 3.0.15
       styled-components: ^5.1.1
       svg-path-properties: ^1.0.4
       ts-jest: ^27.0.5
@@ -492,7 +492,7 @@ importers:
       prettier-plugin-organize-imports: ^2.3.4
       react: 18.0.0
       react-dom: 18.0.0
-      remotion: 3.0.14
+      remotion: 3.0.15
       typescript: ^4.7.0
       webpack: 5.72.0
     dependencies:
@@ -515,15 +515,15 @@ importers:
 
   packages/it-tests:
     specifiers:
-      '@remotion/bundler': 3.0.14
-      '@remotion/cli': 3.0.14
-      '@remotion/lambda': 3.0.14
-      '@remotion/renderer': 3.0.14
+      '@remotion/bundler': 3.0.15
+      '@remotion/cli': 3.0.15
+      '@remotion/lambda': 3.0.15
+      '@remotion/renderer': 3.0.15
       '@types/jest': ^27.4.0
       '@types/sharp': ^0.28.5
       execa: 5.1.1
       jest: ^27.2.4
-      remotion: 3.0.14
+      remotion: 3.0.15
       sharp: 0.30.6
       ts-jest: ^27.0.5
       typescript: ^4.7.0
@@ -552,9 +552,9 @@ importers:
       '@aws-sdk/lib-storage': 3.58.0
       '@aws-sdk/s3-request-presigner': 3.58.0
       '@jonny/eslint-config': 3.0.259
-      '@remotion/bundler': 3.0.14
-      '@remotion/cli': 3.0.14
-      '@remotion/renderer': 3.0.14
+      '@remotion/bundler': 3.0.15
+      '@remotion/cli': 3.0.15
+      '@remotion/renderer': 3.0.15
       '@types/jest': ^27.0.2
       '@types/mime-types': 2.1.1
       '@types/minimist': 1.2.2
@@ -569,7 +569,7 @@ importers:
       minimist: 1.2.6
       prettier: ^2.4.1
       prettier-plugin-organize-imports: ^2.3.4
-      remotion: 3.0.14
+      remotion: 3.0.15
       ts-jest: ^27.0.5
       ts-node: ^10.8.0
       typescript: ^4.7.0
@@ -616,7 +616,7 @@ importers:
       eslint: 8.13.0
       prettier: ^2.0.5
       prettier-plugin-organize-imports: ^2.3.4
-      remotion: 3.0.14
+      remotion: 3.0.15
       typescript: ^4.7.0
     dependencies:
       remotion: link:../core
@@ -644,7 +644,7 @@ importers:
       prettier-plugin-organize-imports: ^2.3.4
       react: ^18.0.0
       react-dom: ^18.0.0
-      remotion: 3.0.14
+      remotion: 3.0.15
       ts-jest: ^27.0.5
       typescript: ^4.7.0
       webpack: 5.72.0
@@ -671,10 +671,10 @@ importers:
   packages/player-example:
     specifiers:
       '@pmmmwh/react-refresh-webpack-plugin': ^0.5.3
-      '@remotion/bundler': 3.0.14
-      '@remotion/eslint-config': 3.0.14
-      '@remotion/player': 3.0.14
-      '@remotion/preload': 3.0.14
+      '@remotion/bundler': 3.0.15
+      '@remotion/eslint-config': 3.0.15
+      '@remotion/player': 3.0.15
+      '@remotion/preload': 3.0.15
       '@types/node': ^12.0.0
       '@types/react': 18.0.1
       '@types/react-dom': 18.0.0
@@ -688,7 +688,7 @@ importers:
       react-dev-utils: ^12.0.1
       react-dom: 18.0.0
       react-refresh: ^0.11.0
-      remotion: 3.0.14
+      remotion: 3.0.15
       typescript: ^4.7.0
       webpack: 5.72.0
       webpack-dev-server: ^4.6.0
@@ -748,7 +748,7 @@ importers:
       puppeteer-core: 13.5.1
       react: 18.0.0
       react-dom: 18.0.0
-      remotion: 3.0.14
+      remotion: 3.0.15
       serve-handler: 6.1.3
       source-map: ^0.8.0-beta.0
       ts-jest: ^27.0.5
@@ -791,7 +791,7 @@ importers:
       prettier-plugin-organize-imports: ^2.3.4
       react: 18.0.0
       react-dom: 18.0.0
-      remotion: 3.0.14
+      remotion: 3.0.15
       three: ^0.134.0
       typescript: ^4.7.0
     dependencies:
@@ -6359,7 +6359,6 @@ packages:
       pacote: 11.3.5
       semver: 7.3.5
     transitivePeerDependencies:
-      - bluebird
       - supports-color
     dev: false
 
@@ -6528,7 +6527,6 @@ packages:
       whatwg-url: 8.7.0
       yargs-parser: 20.2.4
     transitivePeerDependencies:
-      - bluebird
       - supports-color
     dev: false
 
@@ -6722,7 +6720,6 @@ packages:
       npm-registry-fetch: 9.0.0
       npmlog: 4.1.2
     transitivePeerDependencies:
-      - bluebird
       - supports-color
     dev: false
 
@@ -6752,7 +6749,6 @@ packages:
       pify: 5.0.0
       read-package-json: 3.0.1
     transitivePeerDependencies:
-      - bluebird
       - supports-color
     dev: false
 
@@ -6887,7 +6883,6 @@ packages:
       pacote: 11.3.5
       semver: 7.3.5
     transitivePeerDependencies:
-      - bluebird
       - supports-color
     dev: false
 
@@ -7127,8 +7122,6 @@ packages:
       promise-retry: 2.0.1
       semver: 7.3.5
       which: 2.0.2
-    transitivePeerDependencies:
-      - bluebird
     dev: false
 
   /@npmcli/installed-package-contents/1.0.7:
@@ -8380,22 +8373,17 @@ packages:
     resolution: {integrity: sha512-niT+Prh3Aff8Uf1MVBVUsaNjFj9rJAKDXuoHIKiQbB+6IUP/3J3JIhBNyZ7lDhytvXxw6ppgnwKZdDJ08UMj4Q==}
     dev: false
 
-  /@webhotelier/webpack-fast-refresh/5.1.0_4370f5f0e9532099d1a7df07083ca7f8:
+  /@webhotelier/webpack-fast-refresh/5.1.0_ad215394b92be37ab5bb82482aa97917:
     resolution: {integrity: sha512-GLe+NjtVaEBeK13RSJrBE4mnlYCxrfg2m1X/UALVpsjSYaIcrabbxBgOp1bGQ4VJoi2FfMN7BfjsLHrwQGaVZA==}
     peerDependencies:
       react-refresh: ^0.9.0-rc.2
       webpack: ^5.0.0-rc.3
     dependencies:
-      react-dev-utils: 11.0.4_ea896ea9b6534e6dc7369b23923d4d97
+      react-dev-utils: 11.0.4
       react-error-overlay: 7.0.0-next.117
       react-refresh: 0.9.0
       sockjs-client: 1.5.2
       webpack: 5.72.0
-    transitivePeerDependencies:
-      - eslint
-      - supports-color
-      - typescript
-      - vue-template-compiler
     dev: false
 
   /@webxr-input-profiles/motion-controllers/1.0.0:
@@ -9143,8 +9131,6 @@ packages:
       qs: 6.7.0
       raw-body: 2.4.0
       type-is: 1.6.18
-    transitivePeerDependencies:
-      - supports-color
     dev: false
 
   /body-parser/1.19.2:
@@ -9161,8 +9147,6 @@ packages:
       qs: 6.9.7
       raw-body: 2.4.3
       type-is: 1.6.18
-    transitivePeerDependencies:
-      - supports-color
     dev: false
 
   /bonjour-service/1.0.11:
@@ -9230,8 +9214,6 @@ packages:
       snapdragon-node: 2.1.1
       split-string: 3.1.0
       to-regex: 3.0.2
-    transitivePeerDependencies:
-      - supports-color
     dev: false
 
   /braces/3.0.2:
@@ -9357,8 +9339,6 @@ packages:
       ssri: 8.0.1
       tar: 6.1.11
       unique-filename: 1.1.1
-    transitivePeerDependencies:
-      - bluebird
     dev: false
 
   /cache-base/1.0.1:
@@ -9863,8 +9843,6 @@ packages:
       on-headers: 1.0.2
       safe-buffer: 5.1.2
       vary: 1.1.2
-    transitivePeerDependencies:
-      - supports-color
     dev: false
 
   /concat-map/0.0.1:
@@ -10410,22 +10388,12 @@ packages:
 
   /debug/2.6.9:
     resolution: {integrity: sha512-bC7ElrdJaJnPbAP+1EotYvqZsb3ecl5wi6Bfi6BJTUcNowp6cvspg0jXznRTKDjm/E7AdgFBVeAPVMNcKGsHMA==}
-    peerDependencies:
-      supports-color: '*'
-    peerDependenciesMeta:
-      supports-color:
-        optional: true
     dependencies:
       ms: 2.0.0
     dev: false
 
   /debug/3.2.7:
     resolution: {integrity: sha512-CFjzYYAi4ThfiQvizrFQevTTXHtnCqWfe7x1AhgEscTz6ZbLbfoLRLPugTQyBth6f8ZERVUSyWHFD/7Wu4t1XQ==}
-    peerDependencies:
-      supports-color: '*'
-    peerDependenciesMeta:
-      supports-color:
-        optional: true
     dependencies:
       ms: 2.1.3
     dev: false
@@ -10648,8 +10616,6 @@ packages:
     dependencies:
       address: 1.1.2
       debug: 2.6.9
-    transitivePeerDependencies:
-      - supports-color
     dev: false
 
   /detect-port/1.3.0:
@@ -10659,8 +10625,6 @@ packages:
     dependencies:
       address: 1.1.2
       debug: 2.6.9
-    transitivePeerDependencies:
-      - supports-color
     dev: false
 
   /devtools-protocol/0.0.969999:
@@ -11451,8 +11415,6 @@ packages:
       regex-not: 1.0.2
       snapdragon: 0.8.2
       to-regex: 3.0.2
-    transitivePeerDependencies:
-      - supports-color
     dev: false
 
   /expand-template/2.0.3:
@@ -11505,8 +11467,6 @@ packages:
       type-is: 1.6.18
       utils-merge: 1.0.1
       vary: 1.1.2
-    transitivePeerDependencies:
-      - supports-color
     dev: false
 
   /express/4.17.3:
@@ -11543,8 +11503,6 @@ packages:
       type-is: 1.6.18
       utils-merge: 1.0.1
       vary: 1.1.2
-    transitivePeerDependencies:
-      - supports-color
     dev: false
 
   /ext/1.6.0:
@@ -11593,8 +11551,6 @@ packages:
       regex-not: 1.0.2
       snapdragon: 0.8.2
       to-regex: 3.0.2
-    transitivePeerDependencies:
-      - supports-color
     dev: false
 
   /extract-zip/2.0.1:
@@ -11787,8 +11743,6 @@ packages:
       parseurl: 1.3.3
       statuses: 1.5.0
       unpipe: 1.0.0
-    transitivePeerDependencies:
-      - supports-color
     dev: false
 
   /find-cache-dir/3.3.2:
@@ -11880,32 +11834,17 @@ packages:
     resolution: {integrity: sha1-+8cfDEGt6zf5bFd60e1C2P2sypE=}
     dev: false
 
-  /fork-ts-checker-webpack-plugin/4.1.6_ea896ea9b6534e6dc7369b23923d4d97:
+  /fork-ts-checker-webpack-plugin/4.1.6:
     resolution: {integrity: sha512-DUxuQaKoqfNne8iikd14SAkh5uw4+8vNifp6gmA73yYNS6ywLIWSLD/n/mBzHQRpW3J7rbATEakmiA8JvkTyZw==}
     engines: {node: '>=6.11.5', yarn: '>=1.0.0'}
-    peerDependencies:
-      eslint: '>= 6'
-      typescript: '>= 2.7'
-      vue-template-compiler: '*'
-      webpack: '>= 4'
-    peerDependenciesMeta:
-      eslint:
-        optional: true
-      vue-template-compiler:
-        optional: true
     dependencies:
       '@babel/code-frame': 7.16.0
       chalk: 2.4.2
-      eslint: 8.13.0
       micromatch: 3.1.10
       minimatch: 3.0.4
       semver: 5.7.1
       tapable: 1.1.3
-      typescript: 4.5.5
-      webpack: 5.72.0
       worker-rpc: 0.1.1
-    transitivePeerDependencies:
-      - supports-color
     dev: false
 
   /fork-ts-checker-webpack-plugin/6.5.1_dece0ea12b4108fb632465a597bf546b:
@@ -14191,7 +14130,6 @@ packages:
       import-local: 3.0.3
       npmlog: 4.1.2
     transitivePeerDependencies:
-      - bluebird
       - supports-color
     dev: false
 
@@ -14222,7 +14160,6 @@ packages:
       npm-package-arg: 8.1.5
       npm-registry-fetch: 11.0.0
     transitivePeerDependencies:
-      - bluebird
       - supports-color
     dev: false
 
@@ -14236,7 +14173,6 @@ packages:
       semver: 7.3.5
       ssri: 8.0.1
     transitivePeerDependencies:
-      - bluebird
       - supports-color
     dev: false
 
@@ -14516,7 +14452,6 @@ packages:
       socks-proxy-agent: 5.0.1
       ssri: 8.0.1
     transitivePeerDependencies:
-      - bluebird
       - supports-color
     dev: false
 
@@ -14541,7 +14476,6 @@ packages:
       socks-proxy-agent: 6.1.0
       ssri: 8.0.1
     transitivePeerDependencies:
-      - bluebird
       - supports-color
     dev: false
 
@@ -14763,8 +14697,6 @@ packages:
       regex-not: 1.0.2
       snapdragon: 0.8.2
       to-regex: 3.0.2
-    transitivePeerDependencies:
-      - supports-color
     dev: false
 
   /micromatch/4.0.4:
@@ -15081,8 +15013,6 @@ packages:
       regex-not: 1.0.2
       snapdragon: 0.8.2
       to-regex: 3.0.2
-    transitivePeerDependencies:
-      - supports-color
     dev: false
 
   /napi-build-utils/1.0.2:
@@ -15333,7 +15263,6 @@ packages:
       minizlib: 2.1.2
       npm-package-arg: 8.1.5
     transitivePeerDependencies:
-      - bluebird
       - supports-color
     dev: false
 
@@ -15350,7 +15279,6 @@ packages:
       minizlib: 2.1.2
       npm-package-arg: 8.1.5
     transitivePeerDependencies:
-      - bluebird
       - supports-color
     dev: false
 
@@ -15739,7 +15667,6 @@ packages:
       ssri: 8.0.1
       tar: 6.1.11
     transitivePeerDependencies:
-      - bluebird
       - supports-color
     dev: false
 
@@ -16002,8 +15929,6 @@ packages:
       async: 2.6.3
       debug: 3.2.7
       mkdirp: 0.5.5
-    transitivePeerDependencies:
-      - supports-color
     dev: false
 
   /posix-character-classes/0.1.1:
@@ -16596,11 +16521,6 @@ packages:
 
   /promise-inflight/1.0.1:
     resolution: {integrity: sha1-mEcocL8igTL8vdhoEputEsPAKeM=}
-    peerDependencies:
-      bluebird: '*'
-    peerDependenciesMeta:
-      bluebird:
-        optional: true
     dev: false
 
   /promise-retry/2.0.1:
@@ -16854,7 +16774,7 @@ packages:
       prop-types: 15.7.2
     dev: false
 
-  /react-dev-utils/11.0.4_ea896ea9b6534e6dc7369b23923d4d97:
+  /react-dev-utils/11.0.4:
     resolution: {integrity: sha512-dx0LvIGHcOPtKbeiSUM4jqpBl3TcY7CDjZdfOIcKeznE7BWr9dg0iPG90G5yfVQ+p/rGNMXdbfStvzQZEVEi4A==}
     engines: {node: '>=10'}
     dependencies:
@@ -16867,7 +16787,7 @@ packages:
       escape-string-regexp: 2.0.0
       filesize: 6.1.0
       find-up: 4.1.0
-      fork-ts-checker-webpack-plugin: 4.1.6_ea896ea9b6534e6dc7369b23923d4d97
+      fork-ts-checker-webpack-plugin: 4.1.6
       global-modules: 2.0.0
       globby: 11.0.1
       gzip-size: 5.1.1
@@ -16882,12 +16802,6 @@ packages:
       shell-quote: 1.7.2
       strip-ansi: 6.0.0
       text-table: 0.2.0
-    transitivePeerDependencies:
-      - eslint
-      - supports-color
-      - typescript
-      - vue-template-compiler
-      - webpack
     dev: false
 
   /react-dev-utils/12.0.1_dece0ea12b4108fb632465a597bf546b:
@@ -16920,7 +16834,6 @@ packages:
       text-table: 0.2.0
     transitivePeerDependencies:
       - eslint
-      - supports-color
       - typescript
       - vue-template-compiler
       - webpack
@@ -17903,8 +17816,6 @@ packages:
       on-finished: 2.3.0
       range-parser: 1.2.1
       statuses: 1.5.0
-    transitivePeerDependencies:
-      - supports-color
     dev: false
 
   /send/0.17.2:
@@ -17924,8 +17835,6 @@ packages:
       on-finished: 2.3.0
       range-parser: 1.2.1
       statuses: 1.5.0
-    transitivePeerDependencies:
-      - supports-color
     dev: false
 
   /sentence-case/2.1.1:
@@ -17964,8 +17873,6 @@ packages:
       http-errors: 1.6.3
       mime-types: 2.1.34
       parseurl: 1.3.3
-    transitivePeerDependencies:
-      - supports-color
     dev: false
 
   /serve-static/1.14.1:
@@ -17976,8 +17883,6 @@ packages:
       escape-html: 1.0.3
       parseurl: 1.3.3
       send: 0.17.1
-    transitivePeerDependencies:
-      - supports-color
     dev: false
 
   /serve-static/1.14.2:
@@ -17988,8 +17893,6 @@ packages:
       escape-html: 1.0.3
       parseurl: 1.3.3
       send: 0.17.2
-    transitivePeerDependencies:
-      - supports-color
     dev: false
 
   /set-blocking/2.0.0:
@@ -18204,8 +18107,6 @@ packages:
       source-map: 0.5.7
       source-map-resolve: 0.5.3
       use: 3.1.1
-    transitivePeerDependencies:
-      - supports-color
     dev: false
 
   /sockjs-client/1.5.2:
@@ -18217,8 +18118,6 @@ packages:
       inherits: 2.0.4
       json3: 3.3.3
       url-parse: 1.5.3
-    transitivePeerDependencies:
-      - supports-color
     dev: false
 
   /sockjs/0.3.21:
