@@ -127,7 +127,7 @@ A custom FFMPEG executable to be used. By default, a binary called `ffmpeg` will
 
 _optional, available from v3.0.15_
 
-A token that allows the render to be cancelled. See: [`makeCancelSignal`](/docs/renderer/make-cancel-signal)
+A token that allows the render to be cancelled. See: [`makeCancelSignal()`](/docs/renderer/make-cancel-signal)
 
 ## Return value
 

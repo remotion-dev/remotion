@@ -232,7 +232,7 @@ A string defining the absolute path on disk of the browser executable that shoul
 
 _optional, available from v3.0.15_
 
-A token that allows the render to be cancelled. See: [`makeCancelSignal`](/docs/renderer/make-cancel-signal)
+A token that allows the render to be cancelled. See: [`makeCancelSignal()`](/docs/renderer/make-cancel-signal)
 
 ### `onFrameBuffer?`
 
