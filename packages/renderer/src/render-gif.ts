@@ -29,14 +29,13 @@ import {
 import {ChromiumOptions} from './open-browser';
 import {prespawnFfmpeg} from './prespawn-ffmpeg';
 import {renderFrames} from './render-frames';
-import {stitchFramesToVideo} from './stitch-frames-to-video';
+import {StitchingState} from './render-media';
+import {stitchFramesToGif} from './stitch-frames-to-gif';
 import {tmpDir} from './tmp-dir';
 import {OnStartData} from './types';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
 import {validateOutputFilename} from './validate-output-filename';
 import {validateScale} from './validate-scale';
-
-export type StitchingState = 'encoding' | 'muxing';
 
 export type RenderMediaOnProgress = (progress: {
 	renderedFrames: number;
@@ -111,7 +110,7 @@ export const renderGif = async ({
 		Internals.validateSelectedCrfAndCodecCombination(crf, codec);
 	}
 
-	validateOutputFilename(codec, getExtensionOfFilename(outputLocation));
+	validateOutputFilename('gif', getExtensionOfFilename(outputLocation));
 
 	validateScale(scale);
 
@@ -196,6 +195,7 @@ export const renderGif = async ({
 		const {assetsInfo} = await renderFrames({
 			config: composition,
 			onFrameUpdate: (frame: number) => {
+				stitchStage = 'gif';
 				renderedFrames = frame;
 				callUpdate();
 			},
@@ -248,7 +248,7 @@ export const renderGif = async ({
 
 		const stitchStart = Date.now();
 
-		await stitchFramesToVideo({
+		await stitchFramesToGif({
 			width: composition.width * (scale ?? 1),
 			height: composition.height * (scale ?? 1),
 			fps: composition.fps,
@@ -265,11 +265,10 @@ export const renderGif = async ({
 			assetsInfo,
 			ffmpegExecutable,
 			onProgress: (frame: number) => {
-				stitchStage = 'muxing';
+				stitchStage = 'gif';
 				encodedFrames = frame;
 				callUpdate();
 			},
-			onDownload,
 			verbose: Internals.Logging.isEqualOrBelowLogLevel(
 				Internals.Logging.getLogLevel(),
 				'verbose'

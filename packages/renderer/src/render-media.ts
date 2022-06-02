@@ -37,7 +37,7 @@ import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-c
 import {validateOutputFilename} from './validate-output-filename';
 import {validateScale} from './validate-scale';
 
-export type StitchingState = 'encoding' | 'muxing';
+export type StitchingState = 'encoding' | 'muxing' | 'gif';
 
 export type RenderMediaOnProgress = (progress: {
 	renderedFrames: number;
