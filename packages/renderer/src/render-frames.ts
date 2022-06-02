@@ -19,6 +19,7 @@ import {
 	RenderMediaOnDownload,
 } from './assets/download-and-map-assets-to-file';
 import {BrowserLog} from './browser-log';
+import {CancelSignal} from './cancel';
 import {cycleBrowserTabs} from './cycle-browser-tabs';
 import {handleJavascriptException} from './error-handling/handle-javascript-exception';
 import {getActualConcurrency} from './get-concurrency';
@@ -72,6 +73,7 @@ type RenderFramesOptions = {
 	scale?: number;
 	ffmpegExecutable?: FfmpegExecutable;
 	port?: number | null;
+	signal?: CancelSignal;
 } & ConfigOrComposition &
 	ServeUrlOrWebpackBundle;
 
@@ -85,10 +87,6 @@ const getComposition = (others: ConfigOrComposition) => {
 	}
 
 	return undefined;
-};
-
-type ReturnTypeWithCancel = Promise<RenderFramesOutput> & {
-	cancel: () => void;
 };
 
 const getPool = async (pages: Promise<Page>[]) => {
@@ -119,6 +117,7 @@ const innerRenderFrames = ({
 	actualParallelism,
 	downloadDir,
 	proxyPort,
+	signal,
 }: Omit<RenderFramesOptions, 'url' | 'onDownload'> & {
 	onError: (err: Error) => void;
 	pagesArray: Page[];
@@ -128,9 +127,11 @@ const innerRenderFrames = ({
 	downloadDir: string;
 	onDownload: RenderMediaOnDownload;
 	proxyPort: number;
-}): ReturnTypeWithCancel => {
+}): Promise<RenderFramesOutput> => {
 	if (!puppeteerInstance) {
-		throw new Error('weird');
+		throw new Error(
+			'no puppeteer instance passed to innerRenderFrames - internal error'
+		);
 	}
 
 	if (outputDir) {
@@ -219,6 +220,9 @@ const innerRenderFrames = ({
 	});
 	const assets: TAsset[][] = new Array(frameCount).fill(undefined);
 	let stopped = false;
+	signal?.(() => {
+		stopped = true;
+	});
 	const progress = Promise.all(
 		new Array(frameCount)
 			.fill(Boolean)
@@ -256,7 +260,6 @@ const innerRenderFrames = ({
 								output: undefined,
 							},
 						});
-
 						onFrameBuffer(buffer, frame);
 					} else {
 						if (!outputDir) {
@@ -318,36 +321,32 @@ const innerRenderFrames = ({
 			})
 	);
 
-	const prom: ReturnTypeWithCancel = Object.assign(
-		new Promise<RenderFramesOutput>((res, rej) => {
-			progress
-				.then(() => {
-					const returnValue: RenderFramesOutput = {
-						assetsInfo: {
-							assets,
-							downloadDir,
-							firstFrameIndex,
-							imageSequenceName: `element-%0${filePadLength}d.${imageFormat}`,
-						},
-						frameCount,
-					};
-					res(returnValue);
-				})
-				.catch((err) => rej(err));
-		}),
-		{
-			cancel: () => {
-				stopped = true;
+	const happyPath = progress.then(() => {
+		const returnValue: RenderFramesOutput = {
+			assetsInfo: {
+				assets,
+				downloadDir,
+				firstFrameIndex,
+				imageSequenceName: `element-%0${filePadLength}d.${imageFormat}`,
 			},
-		}
-	);
+			frameCount,
+		};
+		return returnValue;
+	});
 
-	return prom;
+	return Promise.race([
+		happyPath,
+		new Promise<RenderFramesOutput>((_resolve, reject) => {
+			signal?.(() => {
+				reject(new Error('renderFrames() got cancelled'));
+			});
+		}),
+	]);
 };
 
 export const renderFrames = (
 	options: RenderFramesOptions
-): ReturnTypeWithCancel => {
+): Promise<RenderFramesOutput> => {
 	const composition = getComposition(options);
 
 	if (!composition) {
@@ -402,10 +401,13 @@ export const renderFrames = (
 
 	const {stopCycling} = cycleBrowserTabs(browserInstance, actualParallelism);
 
+	options.signal?.(() => {
+		stopCycling();
+	});
+
 	const openedPages: Page[] = [];
 
-	let cancel: () => void = () => undefined;
-	const prom = new Promise<RenderFramesOutput>((resolve, reject) => {
+	return new Promise<RenderFramesOutput>((resolve, reject) => {
 		let cleanup: (() => void) | null = null;
 		const onError = (err: Error) => reject(err);
 		Promise.all([
@@ -433,11 +435,6 @@ export const renderFrames = (
 					downloadDir,
 					proxyPort: offthreadPort,
 				});
-				cancel = () => {
-					stopCycling();
-					renderFramesProm.cancel();
-				};
-
 				return renderFramesProm;
 			})
 			.then((res) => resolve(res))
@@ -465,12 +462,4 @@ export const renderFrames = (
 				cleanup?.();
 			});
 	});
-
-	const returnType: ReturnTypeWithCancel = Object.assign(prom, {
-		cancel: () => {
-			cancel();
-		},
-	});
-
-	return returnType;
 };

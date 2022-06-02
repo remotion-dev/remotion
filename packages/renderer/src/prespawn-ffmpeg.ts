@@ -7,6 +7,7 @@ import {
 	PixelFormat,
 	ProResProfile,
 } from 'remotion';
+import {CancelSignal} from './cancel';
 import {getCodecName} from './get-codec-name';
 import {getProResProfileName} from './get-prores-profile-name';
 import {parseFfmpegProgress} from './parse-ffmpeg-progress';
@@ -26,6 +27,7 @@ type PreSticherOptions = {
 	verbose: boolean;
 	ffmpegExecutable: FfmpegExecutable | undefined;
 	imageFormat: ImageFormat;
+	signal: CancelSignal;
 };
 
 export const prespawnFfmpeg = async (options: PreSticherOptions) => {
@@ -111,6 +113,10 @@ export const prespawnFfmpeg = async (options: PreSticherOptions) => {
 	const ffmpegString = ffmpegArgs.flat(2).filter(Boolean) as string[];
 
 	const task = execa(options.ffmpegExecutable ?? 'ffmpeg', ffmpegString);
+
+	options.signal(() => {
+		task.kill();
+	});
 
 	let ffmpegOutput = '';
 	task.stderr?.on('data', (data: Buffer) => {
