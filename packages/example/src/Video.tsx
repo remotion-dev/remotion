@@ -3,6 +3,7 @@ import {Composition, Folder, getInputProps, Still} from 'remotion';
 import {TwentyTwoKHzAudio} from './22KhzAudio';
 import BetaText from './BetaText';
 import {ColorInterpolation} from './ColorInterpolation';
+import {ErrorOnFrame10} from './ErrorOnFrame10';
 import {FontDemo} from './Fonts';
 import {Framer} from './Framer';
 import {FreezeExample} from './Freeze/FreezeExample';
@@ -121,6 +122,14 @@ export const Index: React.FC = () => {
 					height={720}
 					fps={30}
 					durationInFrames={30}
+				/>
+				<Composition
+					id="error-on-frame-10"
+					component={ErrorOnFrame10}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={1000000}
 				/>
 			</Folder>
 			<Folder name="creatives">

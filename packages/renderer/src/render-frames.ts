@@ -434,6 +434,7 @@ export const renderFrames = (
 					proxyPort: offthreadPort,
 				});
 				cancel = () => {
+					stopCycling();
 					renderFramesProm.cancel();
 				};
 

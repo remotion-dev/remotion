@@ -17,6 +17,7 @@ export const cycleBrowserTabs = (
 
 	let interval: NodeJS.Timeout | null = null;
 	let i = 0;
+	let stopped = false;
 	const set = () => {
 		interval = setTimeout(() => {
 			Promise.resolve(puppeteerInstance)
@@ -24,7 +25,11 @@ export const cycleBrowserTabs = (
 				.then((pages) => {
 					const currentPage = pages[i % pages.length];
 					i++;
-					if (!(currentPage?.isClosed?.() ?? true)) {
+					if (
+						!currentPage?.isClosed?.() &&
+						!stopped &&
+						currentPage.url() !== 'about:blank'
+					) {
 						return currentPage.bringToFront();
 					}
 				})
@@ -42,6 +47,8 @@ export const cycleBrowserTabs = (
 			if (!interval) {
 				return;
 			}
+
+			stopped = true;
 
 			return clearInterval(interval);
 		},
