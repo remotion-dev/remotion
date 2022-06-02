@@ -135,7 +135,7 @@ A number describing how long the render may take to resolve all `delayRender()` 
 
 _optional, available from v3.0.15_
 
-A token that allows the render to be cancelled. See: [`makeCancelSignal`](/docs/renderer/make-cancel-signal)
+A token that allows the render to be cancelled. See: [`makeCancelSignal()`](/docs/renderer/make-cancel-signal)
 
 ### `chromiumOptions?`
 
