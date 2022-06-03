@@ -99,7 +99,9 @@ export const makeStitchingProgress = ({
 	return [
 		`(${steps.indexOf('stitching') + 1}/${steps.length})`,
 		makeProgressBar(progress),
-		stage === 'muxing'
+		stage === 'gif'
+			? `${doneIn ? 'Encoded' : 'Encoding'} gif`
+			: stage === 'muxing'
 			? `${doneIn ? 'Muxed' : 'Muxing'} audio`
 			: `${doneIn ? 'Encoded' : 'Encoding'} video`,
 		doneIn === null ? `${frames}/${totalFrames}` : chalk.gray(`${doneIn}ms`),
