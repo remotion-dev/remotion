@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/bundler",
-	"version": "3.0.15",
+	"version": "3.0.16",
 	"description": "Bundler for Remotion",
 	"main": "dist/index.js",
 	"sideEffects": false,
@@ -31,7 +31,7 @@
 		"memfs": "3.4.3",
 		"mime-types": "2.1.34",
 		"react-refresh": "0.9.0",
-		"remotion": "3.0.15",
+		"remotion": "3.0.16",
 		"semver": "7.3.4",
 		"source-map": "0.6.1",
 		"source-map-loader": "3.0.0",
