@@ -1,5 +1,6 @@
 import {getCompositions} from '@remotion/renderer';
 import path from 'path';
+import {getCliOptions} from './get-cli-options';
 import {loadConfig} from './get-config-file-name';
 import {Log} from './log';
 import {parsedCli} from './parse-command-line';
@@ -26,7 +27,7 @@ export const listCompositionsCommand = async () => {
 
 	if (!file) {
 		Log.error(
-			'The compositions command requires you to specify a root file. For example'
+			'The `compositions` command requires you to specify a root file. For example'
 		);
 		Log.error('  npx remotion compositions src/index.tsx');
 		Log.error(
@@ -37,11 +38,29 @@ export const listCompositionsCommand = async () => {
 
 	const fullPath = path.join(process.cwd(), file);
 
-	loadConfig();
+	await loadConfig();
+
+	const {
+		browserExecutable,
+		ffmpegExecutable,
+		chromiumOptions,
+		envVariables,
+		inputProps,
+		puppeteerTimeout,
+		port,
+	} = await getCliOptions({isLambda: false, type: 'get-compositions'});
 
 	const bundled = await bundleOnCli(fullPath, ['bundling']);
 
-	const compositions = await getCompositions(bundled);
+	const compositions = await getCompositions(bundled, {
+		browserExecutable,
+		ffmpegExecutable,
+		chromiumOptions,
+		envVariables,
+		inputProps,
+		timeoutInMilliseconds: puppeteerTimeout,
+		port,
+	});
 	Log.info();
 	Log.info('The following compositions are available:');
 	Log.info();

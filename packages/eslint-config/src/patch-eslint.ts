@@ -240,15 +240,15 @@ export const allowESLintShareableConfig = () => {
     if (eslintMajorVersion === 6) {
       // ESLint 6.x
       ConfigArrayFactory.prototype._loadPlugin = function (
-        name: string,
+        _name: string,
         importerPath: string,
-        importerName: string
+        _importerName: string
       ) {
         const originalResolve = ModuleResolver.resolve;
         try {
           ModuleResolver.resolve = function (
             moduleName: string,
-            relativeToPath: string
+            _relativeToPath: string
           ) {
             // resolve using importerPath instead of relativeToPath
             return originalResolve.call(this, moduleName, importerPath);
@@ -261,14 +261,14 @@ export const allowESLintShareableConfig = () => {
     } else {
       // ESLint 7.x || 8.x
       ConfigArrayFactory.prototype._loadPlugin = function (
-        name: string,
+        _name: string,
         ctx: Record<string, unknown>
       ) {
         const originalResolve = ModuleResolver.resolve;
         try {
           ModuleResolver.resolve = function (
             moduleName: string,
-            relativeToPath: string
+            _relativeToPath: string
           ) {
             // resolve using ctx.filePath instead of relativeToPath
             return originalResolve.call(this, moduleName, ctx.filePath);

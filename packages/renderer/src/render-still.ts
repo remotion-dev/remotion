@@ -3,16 +3,20 @@ import path from 'path';
 import {Browser as PuppeteerBrowser} from 'puppeteer-core';
 import {
 	BrowserExecutable,
+	FfmpegExecutable,
 	Internals,
+	SmallTCompMetadata,
 	StillImageFormat,
-	TCompMetadata,
 } from 'remotion';
+import {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 import {ensureOutputDirectory} from './ensure-output-directory';
 import {handleJavascriptException} from './error-handling/handle-javascript-exception';
 import {
 	getServeUrlWithFallback,
 	ServeUrlOrWebpackBundle,
 } from './legacy-webpack-config';
+import {makeAssetsDownloadTmpDir} from './make-assets-download-dir';
+import {CancelSignal} from './make-cancel-signal';
 import {ChromiumOptions, openBrowser} from './open-browser';
 import {prepareServer} from './prepare-server';
 import {provideScreenshot} from './provide-screenshot';
@@ -23,7 +27,7 @@ import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
 import {validateScale} from './validate-scale';
 
 type InnerStillOptions = {
-	composition: TCompMetadata;
+	composition: SmallTCompMetadata;
 	output: string;
 	frame?: number;
 	inputProps?: unknown;
@@ -37,9 +41,15 @@ type InnerStillOptions = {
 	timeoutInMilliseconds?: number;
 	chromiumOptions?: ChromiumOptions;
 	scale?: number;
+	onDownload?: RenderMediaOnDownload;
+	cancelSignal?: CancelSignal;
+	ffmpegExecutable?: FfmpegExecutable;
 };
 
-type RenderStillOptions = InnerStillOptions & ServeUrlOrWebpackBundle;
+type RenderStillOptions = InnerStillOptions &
+	ServeUrlOrWebpackBundle & {
+		port?: number | null;
+	};
 
 const innerRenderStill = async ({
 	composition,
@@ -58,9 +68,12 @@ const innerRenderStill = async ({
 	timeoutInMilliseconds,
 	chromiumOptions,
 	scale,
+	proxyPort,
+	cancelSignal,
 }: InnerStillOptions & {
 	serveUrl: string;
 	onError: (err: Error) => void;
+	proxyPort: number;
 }): Promise<void> => {
 	Internals.validateDimension(
 		composition.height,
@@ -132,6 +145,17 @@ const innerRenderStill = async ({
 		deviceScaleFactor: scale ?? 1,
 	});
 
+	const errorCallback = (err: Error) => {
+		onError(err);
+		cleanup();
+	};
+
+	const cleanUpJSException = handleJavascriptException({
+		page,
+		onError: errorCallback,
+		frame: null,
+	});
+
 	const cleanup = async () => {
 		cleanUpJSException();
 
@@ -144,16 +168,10 @@ const innerRenderStill = async ({
 		}
 	};
 
-	const errorCallback = (err: Error) => {
-		onError(err);
+	cancelSignal?.(() => {
 		cleanup();
-	};
-
-	const cleanUpJSException = handleJavascriptException({
-		page,
-		onError: errorCallback,
-		frame: null,
 	});
+
 	await setPropsAndEnv({
 		inputProps,
 		envVariables,
@@ -161,6 +179,8 @@ const innerRenderStill = async ({
 		serveUrl,
 		initialFrame: frame,
 		timeoutInMilliseconds,
+		proxyPort,
+		retriesRemaining: 2,
 	});
 
 	await puppeteerEvaluateWithCatch({
@@ -192,22 +212,47 @@ const innerRenderStill = async ({
 /**
  * @description Render a still frame from a composition and returns an image path
  */
-
-export const renderStill = async (
-	options: RenderStillOptions
-): Promise<void> => {
+export const renderStill = (options: RenderStillOptions): Promise<void> => {
 	const selectedServeUrl = getServeUrlWithFallback(options);
 
-	const {closeServer, serveUrl} = await prepareServer(selectedServeUrl);
+	const downloadDir = makeAssetsDownloadTmpDir();
 
-	return new Promise((resolve, reject) => {
-		innerRenderStill({
-			...options,
-			serveUrl,
-			onError: (err) => reject(err),
+	const onDownload = options.onDownload ?? (() => () => undefined);
+
+	const happyPath = new Promise<void>((resolve, reject) => {
+		const onError = (err: Error) => reject(err);
+
+		let close: (() => void) | null = null;
+
+		prepareServer({
+			webpackConfigOrServeUrl: selectedServeUrl,
+			downloadDir,
+			onDownload,
+			onError,
+			ffmpegExecutable: options.ffmpegExecutable ?? null,
+			port: options.port ?? null,
 		})
+			.then(({serveUrl, closeServer, offthreadPort}) => {
+				close = closeServer;
+				return innerRenderStill({
+					...options,
+					serveUrl,
+					onError: (err) => reject(err),
+					proxyPort: offthreadPort,
+				});
+			})
+
 			.then((res) => resolve(res))
 			.catch((err) => reject(err))
-			.finally(() => closeServer());
+			.finally(() => close?.());
 	});
+
+	return Promise.race([
+		happyPath,
+		new Promise<void>((_resolve, reject) => {
+			options.cancelSignal?.(() => {
+				reject(new Error('renderStill() got cancelled'));
+			});
+		}),
+	]);
 };

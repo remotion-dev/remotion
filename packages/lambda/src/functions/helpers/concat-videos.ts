@@ -162,6 +162,7 @@ export const concatVideosS3 = async ({
 	region,
 	codec,
 	expectedBucketOwner,
+	fps,
 }: {
 	bucket: string;
 	expectedFiles: number;
@@ -171,6 +172,7 @@ export const concatVideosS3 = async ({
 	region: AwsRegion;
 	codec: Codec;
 	expectedBucketOwner: string;
+	fps: number;
 }) => {
 	const outdir = join(RenderInternals.tmpDir(CONCAT_FOLDER_TOKEN), 'bucket');
 	if (existsSync(outdir)) {
@@ -206,6 +208,7 @@ export const concatVideosS3 = async ({
 		onProgress: (p) => onProgress(p, encodingStart),
 		numberOfFrames,
 		codec: codecForCombining,
+		fps,
 	});
 	combine.end();
 

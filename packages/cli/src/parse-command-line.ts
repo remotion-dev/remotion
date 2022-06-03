@@ -197,6 +197,10 @@ export const parseCommandLine = (
 	if (typeof parsedCli.scale !== 'undefined') {
 		Config.Rendering.setScale(parsedCli.scale);
 	}
+
+	if (typeof parsedCli.port !== 'undefined') {
+		Config.Bundling.setPort(parsedCli.port);
+	}
 };
 
 export const quietFlagProvided = () => parsedCli.quiet || parsedCli.q;

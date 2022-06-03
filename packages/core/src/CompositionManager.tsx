@@ -30,7 +30,8 @@ export type TCompMetadata = Pick<
 export type SmallTCompMetadata = Pick<
 	TComposition,
 	'id' | 'height' | 'width' | 'fps' | 'durationInFrames'
->;
+> &
+	Partial<Pick<TComposition, 'defaultProps'>>;
 
 type EnhancedTSequenceData =
 	| {
@@ -174,6 +175,7 @@ export const CompositionManagerProvider: React.FC<{
 			return [...assts, asset];
 		});
 	}, []);
+
 	const unregisterAsset = useCallback((id: string) => {
 		setAssets((assts) => {
 			return assts.filter((a) => a.id !== id);

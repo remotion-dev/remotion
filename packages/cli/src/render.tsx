@@ -4,6 +4,7 @@ import {
 	renderFrames,
 	RenderInternals,
 	renderMedia,
+	RenderMediaOnDownload,
 	StitchingState,
 } from '@remotion/renderer';
 import chalk from 'chalk';
@@ -62,6 +63,8 @@ export const render = async () => {
 		ffmpegExecutable,
 		scale,
 		chromiumOptions,
+		port,
+		puppeteerTimeout,
 	} = await getCliOptions({isLambda: false, type: 'series'});
 
 	if (!absoluteOutputFile) {
@@ -73,7 +76,7 @@ export const render = async () => {
 	Log.verbose('Browser executable: ', browserExecutable);
 
 	await checkAndValidateFfmpegVersion({
-		ffmpegExecutable: Internals.getCustomFfmpegExecutable(),
+		ffmpegExecutable,
 	});
 
 	const browserInstance = openBrowser(browser, {
@@ -95,13 +98,26 @@ export const render = async () => {
 	const urlOrBundle = RenderInternals.isServeUrl(fullPath)
 		? fullPath
 		: await bundleOnCli(fullPath, steps);
-	const {serveUrl, closeServer} = await RenderInternals.prepareServer(
-		urlOrBundle
-	);
+
+	const onDownload: RenderMediaOnDownload = (src) => {
+		const id = Math.random();
+		const download: DownloadProgress = {
+			id,
+			name: src,
+			progress: 0,
+		};
+		downloads.push(download);
+		updateRenderProgress();
+
+		return ({percent}) => {
+			download.progress = percent;
+			updateRenderProgress();
+		};
+	};
 
 	const puppeteerInstance = await browserInstance;
 
-	const comps = await getCompositions(serveUrl, {
+	const comps = await getCompositions(urlOrBundle, {
 		inputProps,
 		puppeteerInstance,
 		envVariables,
@@ -205,7 +221,7 @@ export const render = async () => {
 				}
 			},
 			outputDir,
-			serveUrl,
+			serveUrl: urlOrBundle,
 			dumpBrowserLogs: Internals.Logging.isEqualOrBelowLogLevel(
 				Internals.Logging.getLogLevel(),
 				'verbose'
@@ -215,9 +231,12 @@ export const render = async () => {
 			parallelism,
 			puppeteerInstance,
 			quality,
-			timeoutInMilliseconds: Internals.getCurrentPuppeteerTimeout(),
+			timeoutInMilliseconds: puppeteerTimeout,
 			chromiumOptions,
 			scale,
+			ffmpegExecutable,
+			browserExecutable,
+			port,
 		});
 		renderedDoneIn = Date.now() - startTime;
 
@@ -252,22 +271,8 @@ export const render = async () => {
 		pixelFormat,
 		proResProfile,
 		quality,
-		serveUrl,
-		onDownload: (src) => {
-			const id = Math.random();
-			const download: DownloadProgress = {
-				id,
-				name: src,
-				progress: 0,
-			};
-			downloads.push(download);
-			updateRenderProgress();
-
-			return ({percent}) => {
-				download.progress = percent;
-				updateRenderProgress();
-			};
-		},
+		serveUrl: urlOrBundle,
+		onDownload,
 		dumpBrowserLogs: Internals.Logging.isEqualOrBelowLogLevel(
 			Internals.Logging.getLogLevel(),
 			'verbose'
@@ -278,6 +283,7 @@ export const render = async () => {
 		chromiumOptions,
 		timeoutInMilliseconds: Internals.getCurrentPuppeteerTimeout(),
 		scale,
+		port,
 	});
 
 	Log.info();
@@ -293,6 +299,7 @@ export const render = async () => {
 	Log.info('-', 'Output can be found at:');
 	Log.info(chalk.cyan(`▶ ${absoluteOutputFile}`));
 	Log.verbose('Cleaning up...');
+
 	try {
 		await RenderInternals.deleteDirectory(urlOrBundle);
 	} catch (err) {
@@ -301,10 +308,5 @@ export const render = async () => {
 		Log.warn('Do you have minimum required Node.js version?');
 	}
 
-	Log.info(
-		chalk.green(`\nYour ${codec === 'gif' ? 'gif' : 'video'} is ready!`)
-	);
-	closeServer().catch((err) => {
-		Log.error('Could not close web server', err);
-	});
+	Log.info(chalk.green('\nYour video is ready!'));
 };

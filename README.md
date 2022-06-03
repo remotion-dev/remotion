@@ -32,17 +32,17 @@ See even more creations in the [Showcase](https://remotion.dev/showcase).
 
 ## Get started
 
-If you already have Yarn and FFMPEG installed, type
+If you already have Node.JS and FFMPEG installed, type
 
 ```console
-yarn create video
+npm init video
 ```
 
 to get started. Otherwise, read the [installation page](https://www.remotion.dev/docs/) in the documentation.
 
 ## Documentation
 
-Head to [**remotion.dev**](https://www.remotion.dev) to learn the in and outs of Remotion!
+Head to [**remotion.dev/docs**](https://www.remotion.dev/docs) to learn the in and outs of Remotion!
 
 ## License
 

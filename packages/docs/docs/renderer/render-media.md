@@ -1,6 +1,5 @@
 ---
 id: render-media
-slug: /renderer/render-media
 title: renderMedia()
 ---
 
@@ -37,6 +36,7 @@ const renderMedia: (options: {
   timeoutInMilliseconds?: number;
   chromiumOptions?: ChromiumOptions;
   scale?: number;
+  cancelSignal?: CancelSignal;
   serveUrl: string;
 }) => Promise<void>;
 ```
@@ -103,6 +103,12 @@ In which image format the frames should be rendered.
 _string - optional_
 
 An absolute path overriding the `ffmpeg` executable to use.
+
+#### `browserExecutable?`
+
+_optional, available from v3.0.11_
+
+A string defining the absolute path on disk of the browser executable that should be used. By default Remotion will try to detect it automatically and download one if none is available. If `puppeteerInstance` is defined, it will take precedence over `browserExecutable`.
 
 ### `pixelFormat`
 
@@ -247,6 +253,12 @@ const onBrowserLog = (log: BrowserLog) => {
 _optional_
 
 A number describing how long the render may take to resolve all `delayRender()` calls before it times out. Default: `30000`
+
+### `cancelSignal?`
+
+_optional, available from v3.0.15_
+
+A token that allows the render to be cancelled. See: [`makeCancelSignal()`](/docs/renderer/make-cancel-signal)
 
 ### `chromiumOptions?`
 

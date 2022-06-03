@@ -4,6 +4,7 @@ import {CheckerboardContext} from '../state/checkerboard';
 import {ModalsContext} from '../state/modals';
 import {PreviewSizeContext} from '../state/preview-size';
 import {RichTimelineContext} from '../state/rich-timeline';
+import {SidebarCollapsedState, SidebarContext} from '../state/sidebar';
 import {timelineRef} from '../state/timeline-ref';
 import {Row} from './layout';
 import {Menu, MenuId, MenuItem} from './Menu/MenuItem';
@@ -49,6 +50,8 @@ export const MenuToolbar: React.FC = () => {
 	const {checkerboard, setCheckerboard} = useContext(CheckerboardContext);
 	const {richTimeline, setRichTimeline} = useContext(RichTimelineContext);
 	const {size, setSize} = useContext(PreviewSizeContext);
+	const {setSidebarCollapsedState, sidebarCollapsedState} =
+		useContext(SidebarContext);
 
 	const itemClicked = useCallback(
 		(itemId: MenuId) => {
@@ -210,6 +213,72 @@ export const MenuToolbar: React.FC = () => {
 								value: newSize,
 							})),
 						},
+					},
+					{
+						id: 'timeline-divider',
+						type: 'divider',
+					},
+					{
+						id: 'left-sidebar',
+						label: 'Sidebar',
+						keyHint: null,
+						type: 'item',
+						value: 'preview-size',
+						leftItem: null,
+						subMenu: {
+							leaveLeftSpace: true,
+							preselectIndex: 0,
+							items: [
+								{
+									id: 'sidebar-responsive',
+									keyHint: null,
+									label: 'Responsive',
+									leftItem:
+										sidebarCollapsedState === 'responsive' ? (
+											<Checkmark />
+										) : null,
+									onClick: () => {
+										setSidebarCollapsedState('responsive');
+									},
+									subMenu: null,
+									type: 'item',
+									value: 'responsive' as SidebarCollapsedState,
+								},
+								{
+									id: 'sidebar-expanded',
+									keyHint: null,
+									label: 'Expanded',
+									leftItem:
+										sidebarCollapsedState === 'expanded' ? <Checkmark /> : null,
+									onClick: () => {
+										setSidebarCollapsedState('expanded');
+									},
+									subMenu: null,
+									type: 'item',
+									value: 'expanded' as SidebarCollapsedState,
+								},
+								{
+									id: 'sidebar-collapsed',
+									keyHint: null,
+									label: 'Collapsed',
+									leftItem:
+										sidebarCollapsedState === 'collapsed' ? (
+											<Checkmark />
+										) : null,
+									onClick: () => {
+										setSidebarCollapsedState('collapsed');
+									},
+									subMenu: null,
+									type: 'item',
+									value: 'collapsed' as SidebarCollapsedState,
+								},
+							],
+						},
+						onClick: () => undefined,
+					},
+					{
+						id: 'timeline-divider',
+						type: 'divider',
 					},
 					{
 						id: 'checkerboard',
@@ -427,7 +496,9 @@ export const MenuToolbar: React.FC = () => {
 		setCheckerboard,
 		setRichTimeline,
 		setSelectedModal,
+		setSidebarCollapsedState,
 		setSize,
+		sidebarCollapsedState,
 		size,
 	]);
 

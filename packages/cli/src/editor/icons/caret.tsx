@@ -8,7 +8,7 @@ const caretDown: React.CSSProperties = {
 	width: 10,
 };
 
-export const Caret = () => (
+export const CaretRight = () => (
 	<svg viewBox="0 0 192 512" style={caret}>
 		<path
 			fill="currentColor"
