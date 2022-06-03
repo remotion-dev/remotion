@@ -1,19 +1,12 @@
 import execa from 'execa';
 import fs from 'fs';
 import path from 'path';
-import {
-	Codec,
-	FfmpegExecutable,
-	ImageFormat,
-	Internals,
-	PixelFormat,
-	ProResProfile,
-	RenderAssetInfo,
-} from 'remotion';
+import {Internals} from 'remotion';
 import {getAudioCodecName} from './get-audio-codec-name';
 import {getCodecName} from './get-codec-name';
 import {getProResProfileName} from './get-prores-profile-name';
 import {parseFfmpegProgress} from './parse-ffmpeg-progress';
+import {StitcherOptions} from './stitch-frames-to-video';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
 import {validateFfmpeg} from './validate-ffmpeg';
 
@@ -22,27 +15,6 @@ const packageJsonPath = path.join(__dirname, '..', 'package.json');
 const packageJson = fs.existsSync(packageJsonPath)
 	? JSON.parse(fs.readFileSync(packageJsonPath, 'utf-8'))
 	: null;
-
-export type StitcherOptions = {
-	fps: number;
-	width: number;
-	height: number;
-	outputLocation: string;
-	force: boolean;
-	assetsInfo: RenderAssetInfo;
-	pixelFormat?: PixelFormat;
-	codec?: Codec;
-	crf?: number | null;
-	onProgress?: (progress: number) => void;
-	proResProfile?: ProResProfile;
-	verbose?: boolean;
-	ffmpegExecutable?: FfmpegExecutable;
-	dir?: string;
-	internalOptions?: {
-		preEncodedFileLocation: string | null;
-		imageFormat: ImageFormat;
-	};
-};
 
 type ReturnType = {
 	task: Promise<unknown>;
@@ -143,6 +115,9 @@ export const spawnFfmpeg = async (
 
 	const task = execa(options.ffmpegExecutable ?? 'ffmpeg', ffmpegString, {
 		cwd: options.dir,
+	});
+	options.cancelSignal?.(() => {
+		task.kill();
 	});
 	let ffmpegOutput = '';
 	let isFinished = false;

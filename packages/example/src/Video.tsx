@@ -96,7 +96,7 @@ export const Index: React.FC = () => {
 					component={Framer}
 					width={1080}
 					height={1080}
-					fps={30}
+					fps={60}
 					durationInFrames={100}
 				/>
 				<Composition

@@ -2,6 +2,7 @@ import {
 	getCompositions,
 	openBrowser,
 	renderFrames,
+	renderGif,
 	RenderInternals,
 	renderMedia,
 	RenderMediaOnDownload,
@@ -26,7 +27,7 @@ import {bundleOnCli} from './setup-cache';
 import {RenderStep} from './step';
 import {checkAndValidateFfmpegVersion} from './validate-ffmpeg-version';
 
-export const render = async () => {
+export const render = async ({renderAsGif}: {renderAsGif: boolean}) => {
 	const startTime = Date.now();
 	const file = parsedCli._[1];
 	if (!file) {
@@ -247,45 +248,86 @@ export const render = async () => {
 		return;
 	}
 
-	await renderMedia({
-		outputLocation: absoluteOutputFile,
-		codec,
-		composition: config,
-		crf,
-		envVariables,
-		ffmpegExecutable,
-		frameRange,
-		imageFormat,
-		skipNFrames,
-		inputProps,
-		onProgress: (update) => {
-			encodedDoneIn = update.encodedDoneIn;
-			encodedFrames = update.encodedFrames;
-			renderedDoneIn = update.renderedDoneIn;
-			stitchStage = update.stitchStage;
-			renderedFrames = update.renderedFrames;
-			updateRenderProgress();
-		},
-		puppeteerInstance,
-		overwrite,
-		parallelism,
-		pixelFormat,
-		proResProfile,
-		quality,
-		serveUrl: urlOrBundle,
-		onDownload,
-		dumpBrowserLogs: Internals.Logging.isEqualOrBelowLogLevel(
-			Internals.Logging.getLogLevel(),
-			'verbose'
-		),
-		onStart: ({frameCount}) => {
-			totalFrames = frameCount;
-		},
-		chromiumOptions,
-		timeoutInMilliseconds: Internals.getCurrentPuppeteerTimeout(),
-		scale,
-		port,
-	});
+	if (renderAsGif) {
+		await renderGif({
+			outputLocation: absoluteOutputFile,
+			codec,
+			composition: config,
+			crf,
+			envVariables,
+			ffmpegExecutable,
+			frameRange,
+			imageFormat,
+			skipNFrames,
+			inputProps,
+			onProgress: (update) => {
+				encodedDoneIn = update.encodedDoneIn;
+				encodedFrames = update.encodedFrames;
+				renderedDoneIn = update.renderedDoneIn;
+				stitchStage = update.stitchStage;
+				renderedFrames = update.renderedFrames;
+				updateRenderProgress();
+			},
+			puppeteerInstance,
+			overwrite,
+			parallelism,
+			pixelFormat,
+			proResProfile,
+			quality,
+			serveUrl: urlOrBundle,
+			dumpBrowserLogs: Internals.Logging.isEqualOrBelowLogLevel(
+				Internals.Logging.getLogLevel(),
+				'verbose'
+			),
+			onStart: ({frameCount}) => {
+				totalFrames = frameCount;
+			},
+			chromiumOptions,
+			timeoutInMilliseconds: Internals.getCurrentPuppeteerTimeout(),
+			scale,
+			port,
+		});
+	} else {
+		await renderMedia({
+			outputLocation: absoluteOutputFile,
+			codec,
+			composition: config,
+			crf,
+			envVariables,
+			ffmpegExecutable,
+			frameRange,
+			imageFormat,
+			skipNFrames,
+			inputProps,
+			onProgress: (update) => {
+				encodedDoneIn = update.encodedDoneIn;
+				encodedFrames = update.encodedFrames;
+				renderedDoneIn = update.renderedDoneIn;
+				stitchStage = update.stitchStage;
+				renderedFrames = update.renderedFrames;
+				updateRenderProgress();
+			},
+			puppeteerInstance,
+			overwrite,
+			parallelism,
+			pixelFormat,
+			proResProfile,
+			quality,
+			serveUrl: urlOrBundle,
+			onDownload,
+			dumpBrowserLogs: Internals.Logging.isEqualOrBelowLogLevel(
+				Internals.Logging.getLogLevel(),
+				'verbose'
+			),
+			onStart: ({frameCount}) => {
+				totalFrames = frameCount;
+			},
+			chromiumOptions,
+			timeoutInMilliseconds: Internals.getCurrentPuppeteerTimeout(),
+			scale,
+			port,
+		});
+	}
 
 	Log.info();
 	Log.info();
@@ -309,5 +351,5 @@ export const render = async () => {
 		Log.warn('Do you have minimum required Node.js version?');
 	}
 
-	Log.info(chalk.green('\nYour video is ready!'));
+	Log.info(chalk.green(`\nYour ${renderAsGif ? 'gif' : 'video'} is ready!`));
 };
