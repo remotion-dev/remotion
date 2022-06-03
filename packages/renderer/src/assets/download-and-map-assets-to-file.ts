@@ -9,28 +9,64 @@ export type RenderMediaOnDownload = (
 	src: string
 ) => ((progress: {percent: number}) => void) | undefined | void;
 
-const isDownloadingMap: {[key: string]: boolean} = {};
-const hasBeenDownloadedMap: {[key: string]: boolean} = {};
-const listeners: {[key: string]: (() => void)[]} = {};
+const isDownloadingMap: {[src: string]: {[to: string]: boolean} | undefined} =
+	{};
+const hasBeenDownloadedMap: {
+	[src: string]: {[to: string]: boolean} | undefined;
+} = {};
+const listeners: {[key: string]: {[to: string]: (() => void)[]}} = {};
 
-const waitForAssetToBeDownloaded = (src: string) => {
+export const waitForAssetToBeDownloaded = (
+	src: string,
+	to: string
+): Promise<void> => {
+	if (hasBeenDownloadedMap[src]?.[to]) {
+		return Promise.resolve();
+	}
+
 	if (!listeners[src]) {
-		listeners[src] = [];
+		listeners[src] = {};
+	}
+
+	if (!listeners[src][to]) {
+		listeners[src][to] = [];
 	}
 
 	return new Promise<void>((resolve) => {
-		listeners[src].push(() => resolve());
+		listeners[src][to].push(() => resolve());
 	});
 };
 
-const notifyAssetIsDownloaded = (src: string) => {
+const notifyAssetIsDownloaded = (src: string, to: string) => {
 	if (!listeners[src]) {
-		listeners[src] = [];
+		listeners[src] = {};
 	}
 
-	listeners[src].forEach((fn) => fn());
-	isDownloadingMap[src] = false;
-	hasBeenDownloadedMap[src] = true;
+	if (!listeners[src][to]) {
+		listeners[src][to] = [];
+	}
+
+	listeners[src][to].forEach((fn) => fn());
+
+	if (!isDownloadingMap[src]) {
+		isDownloadingMap[src] = {};
+	}
+
+	(
+		isDownloadingMap[src] as {
+			[to: string]: boolean;
+		}
+	)[to] = false;
+
+	if (!hasBeenDownloadedMap[src]) {
+		hasBeenDownloadedMap[src] = {};
+	}
+
+	(
+		hasBeenDownloadedMap[src] as {
+			[to: string]: boolean;
+		}
+	)[to] = true;
 };
 
 const validateMimeType = (mimeType: string, src: string) => {
@@ -82,15 +118,23 @@ const downloadAsset = async (
 	to: string,
 	onDownload: RenderMediaOnDownload
 ) => {
-	if (hasBeenDownloadedMap[src]) {
+	if (hasBeenDownloadedMap[src]?.[to]) {
 		return;
 	}
 
-	if (isDownloadingMap[src]) {
-		return waitForAssetToBeDownloaded(src);
+	if (isDownloadingMap[src]?.[to]) {
+		return waitForAssetToBeDownloaded(src, to);
 	}
 
-	isDownloadingMap[src] = true;
+	if (!isDownloadingMap[src]) {
+		isDownloadingMap[src] = {};
+	}
+
+	(
+		isDownloadingMap[src] as {
+			[to: string]: boolean;
+		}
+	)[to] = true;
 
 	const onProgress = onDownload(src);
 	ensureOutputDirectory(to);
@@ -114,7 +158,7 @@ const downloadAsset = async (
 
 		const buff = Buffer.from(assetData, encoding);
 		await fs.promises.writeFile(to, buff);
-		notifyAssetIsDownloaded(src);
+		notifyAssetIsDownloaded(src, to);
 		return;
 	}
 
@@ -123,7 +167,7 @@ const downloadAsset = async (
 			percent: progress,
 		});
 	});
-	notifyAssetIsDownloaded(src);
+	notifyAssetIsDownloaded(src, to);
 };
 
 export const markAllAssetsAsDownloaded = () => {
@@ -173,17 +217,31 @@ export const downloadAndMapAssetsToFileUrl = async ({
 	downloadDir: string;
 	onDownload: RenderMediaOnDownload;
 }): Promise<TAsset> => {
-	const newSrc = getSanitizedFilenameForAssetUrl({
+	const newSrc = await startDownloadForSrc({
 		src: asset.src,
 		downloadDir,
+		onDownload,
 	});
-
-	if (!Internals.AssetCompression.isAssetCompressed(newSrc)) {
-		await downloadAsset(asset.src, newSrc, onDownload);
-	}
 
 	return {
 		...asset,
 		src: newSrc,
 	};
+};
+
+export const startDownloadForSrc = async ({
+	src,
+	downloadDir,
+	onDownload,
+}: {
+	src: string;
+	downloadDir: string;
+	onDownload: RenderMediaOnDownload;
+}) => {
+	const newSrc = getSanitizedFilenameForAssetUrl({downloadDir, src});
+	if (!Internals.AssetCompression.isAssetCompressed(newSrc)) {
+		await downloadAsset(src, newSrc, onDownload);
+	}
+
+	return newSrc;
 };

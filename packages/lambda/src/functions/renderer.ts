@@ -157,6 +157,8 @@ const renderHandler = async (
 		overwrite: false,
 		chromiumOptions: params.chromiumOptions,
 		scale: params.scale,
+		timeoutInMilliseconds: params.timeoutInMilliseconds,
+		port: null,
 	});
 
 	const endRendered = Date.now();

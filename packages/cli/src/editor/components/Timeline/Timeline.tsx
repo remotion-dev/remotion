@@ -32,6 +32,8 @@ const container: React.CSSProperties = {
 	overflow: 'auto',
 };
 
+const noop = () => undefined;
+
 export const Timeline: React.FC = () => {
 	const {sequences} = useContext(Internals.CompositionManager);
 	const videoConfig = Internals.useUnsafeVideoConfig();
@@ -105,7 +107,7 @@ export const Timeline: React.FC = () => {
 							timeline={shown}
 						/>
 					</SplitterElement>
-					<SplitterHandle />
+					<SplitterHandle onCollapse={noop} allowToCollapse={false} />
 					<SplitterElement type="anti-flexer">
 						<TimelineTracks
 							viewState={state}

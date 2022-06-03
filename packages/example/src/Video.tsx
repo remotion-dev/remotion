@@ -3,10 +3,13 @@ import {Composition, Folder, getInputProps, Still} from 'remotion';
 import {TwentyTwoKHzAudio} from './22KhzAudio';
 import BetaText from './BetaText';
 import {ColorInterpolation} from './ColorInterpolation';
+import {ErrorOnFrame10} from './ErrorOnFrame10';
 import {FontDemo} from './Fonts';
 import {Framer} from './Framer';
 import {FreezeExample} from './Freeze/FreezeExample';
+import {ManyAudio} from './ManyAudio';
 import {MissingImg} from './MissingImg';
+import {OffthreadRemoteVideo} from './OffthreadRemoteVideo/OffthreadRemoteVideo';
 import {OrbScene} from './Orb';
 import InfinityVideo from './ReallyLongVideo';
 import RemoteVideo from './RemoteVideo';
@@ -61,7 +64,6 @@ export const Index: React.FC = () => {
 					fps={30}
 					durationInFrames={100}
 				/>
-
 				<Composition
 					id="freeze-example"
 					component={FreezeExample}
@@ -97,7 +99,6 @@ export const Index: React.FC = () => {
 					fps={30}
 					durationInFrames={100}
 				/>
-
 				<Composition
 					id="skip-zero-frame"
 					component={SkipZeroFrame}
@@ -106,7 +107,6 @@ export const Index: React.FC = () => {
 					fps={30}
 					durationInFrames={100}
 				/>
-
 				<Composition
 					id="scripts"
 					component={Scripts}
@@ -114,6 +114,22 @@ export const Index: React.FC = () => {
 					height={720}
 					fps={30}
 					durationInFrames={100}
+				/>
+				<Composition
+					id="many-audio"
+					component={ManyAudio}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={30}
+				/>
+				<Composition
+					id="error-on-frame-10"
+					component={ErrorOnFrame10}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={1000000}
 				/>
 			</Folder>
 			<Folder name="creatives">
@@ -177,8 +193,29 @@ export const Index: React.FC = () => {
 					fps={30}
 					durationInFrames={100}
 					defaultProps={{
+						offthread: false,
 						codec: 'mp4' as const,
 					}}
+				/>
+				<Composition
+					id="video-testing-mp4-offthread"
+					component={VideoTesting}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={100}
+					defaultProps={{
+						offthread: true,
+						codec: 'mp4' as const,
+					}}
+				/>
+				<Composition
+					id="OffthreadRemoteVideo"
+					component={OffthreadRemoteVideo}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={100}
 				/>
 				<Composition
 					id="video-testing-webm"
@@ -188,6 +225,19 @@ export const Index: React.FC = () => {
 					fps={30}
 					durationInFrames={100}
 					defaultProps={{
+						offthread: false,
+						codec: 'webm' as const,
+					}}
+				/>
+				<Composition
+					id="video-testing-webm-offthread"
+					component={VideoTesting}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={100}
+					defaultProps={{
+						offthread: true,
 						codec: 'webm' as const,
 					}}
 				/>

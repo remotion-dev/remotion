@@ -61,7 +61,7 @@ Afterwards, create a subfolder for Remotion within your project and add three fi
        └── App.tsx
 ```
 
-Your composition (`remotion/MyComp.tsx` in the example) could look for example look like this:
+Your composition (`remotion/MyComp.tsx` in the example) could look for example like this:
 
 ```tsx twoslash
 export const MyComp: React.FC<{ text: string }> = ({ text }) => {

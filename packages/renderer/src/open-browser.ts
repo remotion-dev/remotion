@@ -146,7 +146,8 @@ export const openBrowser = async (
 		].filter(Boolean) as string[],
 	});
 	const pages = await browserInstance.pages();
-	pages.forEach((p) => p.close());
+	await pages[0].close();
+
 	browserInstances.push(browserInstance);
 	return browserInstance;
 };

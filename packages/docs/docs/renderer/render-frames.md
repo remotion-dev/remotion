@@ -1,10 +1,9 @@
 ---
 id: render-frames
 title: renderFrames()
-slug: /renderer/render-frames
 ---
 
-import {AngleChangelog} from '../components/AngleChangelog';
+import {AngleChangelog} from '../../components/AngleChangelog';
 
 _Part of the `@remotion/renderer` package._
 
@@ -36,6 +35,9 @@ const renderFrames: (options: {
   onFrameBuffer?: (buffer: Buffer, frame: number) => Promise<void>
   onBrowserLog?: (log: BrowserLog) => void;
   scale?: number;
+  ffmpegExecutable?: FfmpegExecutable;
+  browserExecutable?: BrowserExecutable;
+  cancelSignal?: CancelSignal;
 }): Promise<RenderFramesOutput>;
 ```
 
@@ -213,6 +215,24 @@ renderFrames({
 _optional, available from v2.3.1_
 
 A string defining the absolute path on disk of the browser executable that should be used. By default Remotion will try to detect it automatically and download one if none is available. If `puppeteerInstance` is defined, it will take precedence over `browserExecutable`.
+
+### `ffmpegExecutable?`
+
+_optional, available from v3.0.11_
+
+An absolute path overriding the `ffmpeg` executable to use.
+
+#### `browserExecutable?`
+
+_optional, available from v3.0.11_
+
+A string defining the absolute path on disk of the browser executable that should be used. By default Remotion will try to detect it automatically and download one if none is available. If `puppeteerInstance` is defined, it will take precedence over `browserExecutable`.
+
+### `cancelSignal?`
+
+_optional, available from v3.0.15_
+
+A token that allows the render to be cancelled. See: [`makeCancelSignal()`](/docs/renderer/make-cancel-signal)
 
 ### `onFrameBuffer?`
 

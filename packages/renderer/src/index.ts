@@ -15,11 +15,9 @@ import {getExtensionOfFilename} from './get-extension-of-filename';
 import {getRealFrameRange} from './get-frame-to-render';
 import {ensureLocalBrowser} from './get-local-browser-executable';
 import {isServeUrl} from './is-serve-url';
-import {makeAssetsDownloadTmpDir} from './make-assets-download-dir';
 import {normalizeServeUrl} from './normalize-serve-url';
 import {killAllBrowsers} from './open-browser';
 import {parseStack} from './parse-browser-error-stack';
-import {prepareServer} from './prepare-server';
 import {serveStatic} from './serve-static';
 import {spawnFfmpeg} from './stitch-frames-to-video';
 import {tmpDir} from './tmp-dir';
@@ -33,6 +31,7 @@ export {combineVideos} from './combine-videos';
 export {ErrorWithStackFrame} from './error-handling/handle-javascript-exception';
 export {FfmpegVersion} from './ffmpeg-flags';
 export {getCompositions} from './get-compositions';
+export {CancelSignal, makeCancelSignal} from './make-cancel-signal';
 export {openBrowser} from './open-browser';
 export type {ChromiumOptions} from './open-browser';
 export {renderFrames} from './render-frames';
@@ -60,10 +59,8 @@ export const RenderInternals = {
 	normalizeServeUrl,
 	spawnFfmpeg,
 	getFileExtensionFromCodec,
-	makeAssetsDownloadTmpDir,
 	tmpDir,
 	deleteDirectory,
-	prepareServer,
 	isServeUrl,
 	ensureOutputDirectory,
 	getRealFrameRange,

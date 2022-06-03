@@ -135,7 +135,6 @@ const getRules = (typescript: boolean) => {
     "for-direction": "error",
     "getter-return": "error",
     "no-async-promise-executor": "error",
-    "no-await-in-loop": "error",
     "no-compare-neg-zero": "error",
     "no-cond-assign": "error",
     "no-constant-condition": "error",
