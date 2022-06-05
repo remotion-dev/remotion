@@ -155,7 +155,7 @@ const innerRenderFrames = ({
 	const pages = new Array(actualParallelism).fill(true).map(async () => {
 		const page = await puppeteerInstance.newPage();
 		pagesArray.push(page);
-		page.setViewport({
+		await page.setViewport({
 			width: composition.width,
 			height: composition.height,
 			deviceScaleFactor: scale ?? 1,
