@@ -82,7 +82,11 @@ const getLastFrameOfVideoUnlimited = async ({
 
 	const isEmpty = stdErr.includes('Output file is empty');
 	if (isEmpty) {
-		return getLastFrameOfVideo({ffmpegExecutable, offset: offset + 10, src});
+		return getLastFrameOfVideoUnlimited({
+			ffmpegExecutable,
+			offset: offset + 10,
+			src,
+		});
 	}
 
 	return stdoutBuffer;
