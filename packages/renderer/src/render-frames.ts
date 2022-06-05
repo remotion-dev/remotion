@@ -251,6 +251,7 @@ const innerRenderFrames = ({
 
 				if (imageFormat !== 'none') {
 					if (onFrameBuffer) {
+						const id = Internals.perf.startPerfMeasure('save');
 						const buffer = await provideScreenshot({
 							page: freePage,
 							imageFormat,
@@ -260,6 +261,8 @@ const innerRenderFrames = ({
 								output: undefined,
 							},
 						});
+						Internals.perf.stopPerfMeasure(id);
+
 						onFrameBuffer(buffer, frame);
 					} else {
 						if (!outputDir) {
