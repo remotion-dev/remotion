@@ -18,7 +18,8 @@ export function streamToString(stream: Readable) {
 	});
 }
 
-const limit = pLimit(5);
+const lastFrameLimit = pLimit(5);
+const mainLimit = pLimit(5);
 
 const getLastFrameOfVideoUnlimited = async ({
 	ffmpegExecutable,
@@ -95,7 +96,7 @@ const getLastFrameOfVideo = async (
 		return fromCache;
 	}
 
-	const result = await limit(getLastFrameOfVideoUnlimited, options);
+	const result = await lastFrameLimit(getLastFrameOfVideoUnlimited, options);
 	setLastFrameInCache(options, result);
 
 	return result;
@@ -183,5 +184,5 @@ export const extractFrameFromVideoFn = async ({
 };
 
 export const extractFrameFromVideo = (options: Options) => {
-	return limit(extractFrameFromVideoFn, options);
+	return mainLimit(extractFrameFromVideoFn, options);
 };
