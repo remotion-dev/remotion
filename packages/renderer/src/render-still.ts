@@ -139,7 +139,7 @@ const innerRenderStill = async ({
 			forceDeviceScaleFactor: scale ?? 1,
 		}));
 	const page = await browserInstance.newPage();
-	page.setViewport({
+	await page.setViewport({
 		width: composition.width,
 		height: composition.height,
 		deviceScaleFactor: scale ?? 1,
