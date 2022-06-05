@@ -2,6 +2,7 @@ import execa from 'execa';
 import {FfmpegExecutable, Internals} from 'remotion';
 import {Readable} from 'stream';
 import {frameToFfmpegTimestamp} from './frame-to-ffmpeg-timestamp';
+import {isBeyondLastFrame, markAsBeyondLastFrame} from './is-beyond-last-frame';
 import {
 	getLastFrameFromCache,
 	LastFrameOptions,
@@ -117,6 +118,14 @@ export const extractFrameFromVideoFn = async ({
 	src,
 	ffmpegExecutable,
 }: Options): Promise<Buffer> => {
+	if (isBeyondLastFrame(src, time)) {
+		return getLastFrameOfVideo({
+			ffmpegExecutable,
+			offset: 0,
+			src,
+		});
+	}
+
 	const ffmpegTimestamp = frameToFfmpegTimestamp(time);
 	const {stdout, stderr} = execa(
 		ffmpegExecutable ?? 'ffmpeg',
@@ -177,6 +186,7 @@ export const extractFrameFromVideoFn = async ({
 	]);
 
 	if (stderrStr.includes('Output file is empty')) {
+		markAsBeyondLastFrame(src, time);
 		return getLastFrameOfVideo({
 			ffmpegExecutable,
 			offset: 0,
