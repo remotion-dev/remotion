@@ -18,7 +18,7 @@ test("Should be able to cancel render", async () => {
 
     setTimeout(() => {
       cancel();
-    }, 1000);
+    }, 100);
     await val;
 
     throw new Error("Render should not succeed");
