@@ -243,7 +243,9 @@ export const renderMedia = ({
 								return;
 							}
 
+							const id = Internals.perf.startPerfMeasure('piping');
 							stitcherFfmpeg?.stdin?.write(buffer);
+							Internals.perf.stopPerfMeasure(id);
 
 							setFrameToStitch(frame + 1);
 					  }

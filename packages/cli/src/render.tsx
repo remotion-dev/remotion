@@ -309,4 +309,13 @@ export const render = async () => {
 	}
 
 	Log.info(chalk.green('\nYour video is ready!'));
+
+	if (
+		Internals.Logging.isEqualOrBelowLogLevel(
+			Internals.Logging.getLogLevel(),
+			'verbose'
+		)
+	) {
+		Internals.perf.logPerf();
+	}
 };

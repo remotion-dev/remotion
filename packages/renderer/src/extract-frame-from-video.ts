@@ -1,5 +1,5 @@
 import execa from 'execa';
-import {FfmpegExecutable} from 'remotion';
+import {FfmpegExecutable, Internals} from 'remotion';
 import {Readable} from 'stream';
 import {frameToFfmpegTimestamp} from './frame-to-ffmpeg-timestamp';
 import {
@@ -187,6 +187,9 @@ export const extractFrameFromVideoFn = async ({
 	return stdOut;
 };
 
-export const extractFrameFromVideo = (options: Options) => {
-	return mainLimit(extractFrameFromVideoFn, options);
+export const extractFrameFromVideo = async (options: Options) => {
+	const perf = Internals.perf.startPerfMeasure('extract-frame');
+	const res = await mainLimit(extractFrameFromVideoFn, options);
+	Internals.perf.stopPerfMeasure(perf);
+	return res;
 };
