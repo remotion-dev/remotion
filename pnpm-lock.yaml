@@ -154,7 +154,6 @@ importers:
       semver: 7.3.5
       ts-jest: ^27.0.5
       typescript: ^4.7.0
-      webpack: 5.72.0
     dependencies:
       '@remotion/bundler': link:../bundler
       '@remotion/media-utils': link:../media-utils
@@ -167,7 +166,6 @@ importers:
       minimist: 1.2.6
       remotion: link:../core
       semver: 7.3.5
-      webpack: 5.72.0
     devDependencies:
       '@jonny/eslint-config': 3.0.259_eslint@8.13.0+typescript@4.7.2
       '@types/jest': 27.4.0
