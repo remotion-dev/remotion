@@ -2,6 +2,11 @@ import execa from 'execa';
 import {FfmpegExecutable} from 'remotion';
 import {Readable} from 'stream';
 import {frameToFfmpegTimestamp} from './frame-to-ffmpeg-timestamp';
+import {
+	getLastFrameFromCache,
+	LastFrameOptions,
+	setLastFrameInCache,
+} from './last-frame-from-video-cache';
 import {pLimit} from './p-limit';
 
 export function streamToString(stream: Readable) {
@@ -13,15 +18,13 @@ export function streamToString(stream: Readable) {
 	});
 }
 
-export const getLastFrameOfVideo = async ({
+const limit = pLimit(5);
+
+const getLastFrameOfVideoUnlimited = async ({
 	ffmpegExecutable,
 	offset,
 	src,
-}: {
-	ffmpegExecutable: FfmpegExecutable;
-	offset: number;
-	src: string;
-}): Promise<Buffer> => {
+}: LastFrameOptions): Promise<Buffer> => {
 	if (offset > 100) {
 		throw new Error(
 			'could not get last frame of ' +
@@ -84,7 +87,19 @@ export const getLastFrameOfVideo = async ({
 	return stdoutBuffer;
 };
 
-const limit = pLimit(5);
+const getLastFrameOfVideo = async (
+	options: LastFrameOptions
+): Promise<Buffer> => {
+	const fromCache = getLastFrameFromCache(options);
+	if (fromCache) {
+		return fromCache;
+	}
+
+	const result = await limit(getLastFrameOfVideoUnlimited, options);
+	setLastFrameInCache(options, result);
+
+	return result;
+};
 
 type Options = {
 	time: number;
