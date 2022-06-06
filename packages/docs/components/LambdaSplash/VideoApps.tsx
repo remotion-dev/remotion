@@ -43,7 +43,6 @@ const list: React.CSSProperties = {
   display: "flex",
   flexDirection: "column",
   alignItems: "center",
-  fontWeight: 500,
 };
 
 const hr: React.CSSProperties = {
