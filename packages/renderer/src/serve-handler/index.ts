@@ -5,10 +5,9 @@ import path from 'path';
 import url from 'url';
 import {promisify} from 'util';
 // Packages
-import contentDisposition from 'content-disposition';
 import mime from 'mime-types';
-import isPathInside from 'path-is-inside';
-import parseRange from 'range-parser';
+import {isPathInside} from './is-path-inside';
+import {rangeParser} from './range-parser';
 
 const getHeaders = (absolutePath: string, stats: Stats | null) => {
 	const related = {};
@@ -19,12 +18,6 @@ const getHeaders = (absolutePath: string, stats: Stats | null) => {
 	if (stats) {
 		defaultHeaders = {
 			'Content-Length': String(stats.size),
-			// Default to "inline", which always tries to render in the browser,
-			// if that's not working, it will save the file. But to be clear: This
-			// only happens if it cannot find a appropiate value.
-			'Content-Disposition': contentDisposition(base, {
-				type: 'inline',
-			}),
 			'Accept-Ranges': 'bytes',
 		};
 
@@ -128,12 +121,10 @@ export const serveHandler = async (
 	response: ServerResponse,
 	config: {
 		public: string;
-		directoryListing: false;
-		cleanUrls: false;
 	}
 ) => {
 	const cwd = process.cwd();
-	const current = config.public ? path.resolve(cwd, config.public) : cwd;
+	const current = path.resolve(cwd, config.public);
 
 	let relativePath = null;
 
@@ -257,10 +248,10 @@ export const serveHandler = async (
 	} | null = null;
 
 	if (request.headers.range && stats.size) {
-		const range = parseRange(stats.size, request.headers.range);
+		const range = rangeParser(stats.size, request.headers.range);
 
 		if (typeof range === 'object' && range.type === 'bytes') {
-			const {start, end} = range[0];
+			const {start, end} = range.ranges[0];
 
 			streamOpts = {
 				start,

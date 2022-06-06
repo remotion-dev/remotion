@@ -24,13 +24,7 @@
 		"puppeteer-core": "13.5.1",
 		"remotion": "3.0.16",
 		"source-map": "^0.8.0-beta.0",
-		"bytes": "3.0.0",
-		"content-disposition": "0.5.2",
-		"mime-types": "2.1.35",
-		"minimatch": "3.0.4",
-		"path-is-inside": "1.0.2",
-		"path-to-regexp": "2.2.1",
-		"range-parser": "1.2.0"
+		"mime-types": "2.1.35"
 	},
 	"peerDependencies": {
 		"react": ">=16.8.0",
@@ -41,12 +35,7 @@
 		"@testing-library/dom": "^8.7.2",
 		"@testing-library/react": "13.1.1",
 		"@types/jest": "^27.4.0",
-		"@types/minimatch": "3.0.5",
 		"@types/mime-types": "2.1.1",
-		"@types/bytes": "3.1.1",
-		"@types/content-disposition": "0.5.5",
-		"@types/path-is-inside": "1.0.0",
-		"@types/range-parser": "1.2.4",
 		"@types/node": "^16.7.5",
 		"@types/react": "18.0.1",
 		"@types/react-dom": "18.0.0",
