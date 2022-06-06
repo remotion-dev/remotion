@@ -1,7 +1,7 @@
-import {Request, Response} from 'express';
 import {ReadStream} from 'fs';
+import {IncomingMessage, ServerResponse} from 'http';
 
-export function getHeaderNames(res: Response) {
+export function getHeaderNames(res: ServerResponse) {
 	if (typeof res.getHeaderNames !== 'function') {
 		// @ts-expect-error
 		return Object.keys(res._headers || {});
@@ -10,39 +10,34 @@ export function getHeaderNames(res: Response) {
 	return res.getHeaderNames();
 }
 
-export function getHeaderFromRequest(req: Request, name: string) {
-	// Express API
-	if (typeof req.get === 'function') {
-		return req.get(name);
-	}
-
+export function getHeaderFromRequest(req: IncomingMessage, name: string) {
 	return req.headers[name];
 }
 
-export function getHeaderFromResponse(res: Response, name: string) {
-	return res.get(name);
+export function getHeaderFromResponse(res: ServerResponse, name: string) {
+	return res.getHeader(name);
 }
 
 export function setHeaderForResponse(
-	res: Response,
+	res: ServerResponse,
 	name: string,
 	value: string | number
 ) {
-	res.set(name, typeof value === 'number' ? String(value) : value);
+	res.setHeader(name, typeof value === 'number' ? String(value) : value);
 }
 
-export function setStatusCode(res: Response, code: number) {
-	res.status(code);
+export function setStatusCode(res: ServerResponse, code: number) {
+	res.statusCode = code;
 }
 
 export function send(
-	req: Request,
-	res: Response,
+	req: IncomingMessage,
+	res: ServerResponse,
 	bufferOtStream: ReadStream | string | Buffer,
 	byteLength: number
 ) {
 	if (typeof bufferOtStream === 'string' || Buffer.isBuffer(bufferOtStream)) {
-		res.send(bufferOtStream);
+		res.end(bufferOtStream);
 		return;
 	}
 
