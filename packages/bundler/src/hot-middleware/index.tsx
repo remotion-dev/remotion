@@ -4,7 +4,7 @@
  * and rewritten in TypeScript. This file is MIT licensed
  */
 
-import {Request, Response} from 'express';
+import {IncomingMessage, ServerResponse} from 'http';
 import {parse} from 'url';
 import webpack from 'webpack';
 import {
@@ -49,10 +49,14 @@ export const webpackHotMiddleware = (compiler: webpack.Compiler) => {
 		publishStats('built', latestStats, eventStream, hotMiddlewareOptions.log);
 	}
 
-	const middleware = function (req: Request, res: Response, next: () => void) {
+	const middleware = function (
+		req: IncomingMessage,
+		res: ServerResponse,
+		next: () => void
+	) {
 		if (closed) return next();
 
-		if (!pathMatch(req.url, hotMiddlewareOptions.path)) return next();
+		if (!pathMatch(req.url as string, hotMiddlewareOptions.path)) return next();
 		eventStream?.handler(req, res);
 		if (latestStats) {
 			publishStats('sync', latestStats, eventStream, hotMiddlewareOptions.log);
@@ -80,28 +84,28 @@ type EventStream = ReturnType<typeof createEventStream>;
 
 function createEventStream(heartbeat: number) {
 	let clientId = 0;
-	let clients: {[key: string]: Response} = {};
+	let clients: {[key: string]: ServerResponse} = {};
 
-	function everyClient(fn: (client: Response) => void) {
+	function everyClient(fn: (client: ServerResponse) => void) {
 		Object.keys(clients).forEach((id) => {
 			fn(clients[id]);
 		});
 	}
 
 	const interval = setInterval(() => {
-		everyClient((client: Response) => {
+		everyClient((client: ServerResponse) => {
 			client.write('data: \uD83D\uDC93\n\n');
 		});
 	}, heartbeat).unref();
 	return {
 		close() {
 			clearInterval(interval);
-			everyClient((client: Response) => {
+			everyClient((client: ServerResponse) => {
 				if (!client.finished) client.end();
 			});
 			clients = {};
 		},
-		handler(req: Request, res: Response) {
+		handler(req: IncomingMessage, res: ServerResponse) {
 			const headers = {
 				'Access-Control-Allow-Origin': '*',
 				'Content-Type': 'text/event-stream;charset=utf-8',

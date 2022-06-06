@@ -1,5 +1,6 @@
-import {NextFunction, Request, Response} from 'express';
+import {NextFunction} from 'express';
 import {ReadStream} from 'fs';
+import {IncomingMessage, ServerResponse} from 'http';
 import mime from 'mime-types';
 import path from 'path';
 import {
@@ -46,17 +47,18 @@ function createHtmlDocument(title: number, body: string) {
 const BYTES_RANGE_REGEXP = /^ *bytes/i;
 
 export type MiddleWare = (
-	req: Request,
-	res: Response,
+	req: IncomingMessage,
+	res: ServerResponse,
 	next: NextFunction
 ) => Promise<void>;
 
 export function middleware(context: DevMiddlewareContext) {
-	return async function (req: Request, res: Response, next: NextFunction) {
+	return async function (
+		req: IncomingMessage,
+		res: ServerResponse,
+		next: NextFunction
+	) {
 		const acceptedMethods = ['GET', 'HEAD'];
-
-		// fixes #282. credit @cexoso. in certain edge situations res.locals is undefined.
-		res.locals = res.locals || {};
 
 		if (req.method && !acceptedMethods.includes(req.method)) {
 			await goNext();
