@@ -17,6 +17,7 @@ export const WriteInReact: React.FC = () => {
 
         <GetStarted />
       </div>
+      <div style={{ width: 32 }}></div>
       <div className={styles.writeright}>
         <PlayerPreview />
       </div>
