@@ -1,9 +1,9 @@
 import http from 'http';
 import {FfmpegExecutable, Internals} from 'remotion';
-import handler from 'serve-handler';
 import {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 import {getDesiredPort} from './get-port';
 import {startOffthreadVideoServer} from './offthread-video-server';
+import {serveHandler} from './serve-handler';
 
 export const serveStatic = async (
 	path: string | null,
@@ -44,7 +44,7 @@ export const serveStatic = async (
 					return;
 				}
 
-				handler(request, response, {
+				serveHandler(request, response, {
 					public: path,
 					directoryListing: false,
 					cleanUrls: false,
