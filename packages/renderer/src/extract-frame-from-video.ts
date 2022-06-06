@@ -1,7 +1,13 @@
 import execa from 'execa';
-import {FfmpegExecutable} from 'remotion';
+import {FfmpegExecutable, Internals} from 'remotion';
 import {Readable} from 'stream';
 import {frameToFfmpegTimestamp} from './frame-to-ffmpeg-timestamp';
+import {isBeyondLastFrame, markAsBeyondLastFrame} from './is-beyond-last-frame';
+import {
+	getLastFrameFromCache,
+	LastFrameOptions,
+	setLastFrameInCache,
+} from './last-frame-from-video-cache';
 import {pLimit} from './p-limit';
 
 export function streamToString(stream: Readable) {
@@ -13,15 +19,14 @@ export function streamToString(stream: Readable) {
 	});
 }
 
-export const getLastFrameOfVideo = async ({
+const lastFrameLimit = pLimit(5);
+const mainLimit = pLimit(5);
+
+const getLastFrameOfVideoUnlimited = async ({
 	ffmpegExecutable,
 	offset,
 	src,
-}: {
-	ffmpegExecutable: FfmpegExecutable;
-	offset: number;
-	src: string;
-}): Promise<Buffer> => {
+}: LastFrameOptions): Promise<Buffer> => {
 	if (offset > 100) {
 		throw new Error(
 			'could not get last frame of ' +
@@ -78,13 +83,29 @@ export const getLastFrameOfVideo = async ({
 
 	const isEmpty = stdErr.includes('Output file is empty');
 	if (isEmpty) {
-		return getLastFrameOfVideo({ffmpegExecutable, offset: offset + 10, src});
+		return getLastFrameOfVideoUnlimited({
+			ffmpegExecutable,
+			offset: offset + 10,
+			src,
+		});
 	}
 
 	return stdoutBuffer;
 };
 
-const limit = pLimit(5);
+const getLastFrameOfVideo = async (
+	options: LastFrameOptions
+): Promise<Buffer> => {
+	const fromCache = getLastFrameFromCache(options);
+	if (fromCache) {
+		return fromCache;
+	}
+
+	const result = await lastFrameLimit(getLastFrameOfVideoUnlimited, options);
+	setLastFrameInCache(options, result);
+
+	return result;
+};
 
 type Options = {
 	time: number;
@@ -97,6 +118,14 @@ export const extractFrameFromVideoFn = async ({
 	src,
 	ffmpegExecutable,
 }: Options): Promise<Buffer> => {
+	if (isBeyondLastFrame(src, time)) {
+		return getLastFrameOfVideo({
+			ffmpegExecutable,
+			offset: 0,
+			src,
+		});
+	}
+
 	const ffmpegTimestamp = frameToFfmpegTimestamp(time);
 	const {stdout, stderr} = execa(
 		ffmpegExecutable ?? 'ffmpeg',
@@ -157,6 +186,7 @@ export const extractFrameFromVideoFn = async ({
 	]);
 
 	if (stderrStr.includes('Output file is empty')) {
+		markAsBeyondLastFrame(src, time);
 		return getLastFrameOfVideo({
 			ffmpegExecutable,
 			offset: 0,
@@ -167,6 +197,9 @@ export const extractFrameFromVideoFn = async ({
 	return stdOut;
 };
 
-export const extractFrameFromVideo = (options: Options) => {
-	return limit(extractFrameFromVideoFn, options);
+export const extractFrameFromVideo = async (options: Options) => {
+	const perf = Internals.perf.startPerfMeasure('extract-frame');
+	const res = await mainLimit(extractFrameFromVideoFn, options);
+	Internals.perf.stopPerfMeasure(perf);
+	return res;
 };
