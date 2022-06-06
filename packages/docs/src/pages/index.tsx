@@ -46,20 +46,6 @@ const NewLanding: React.FC = () => {
         <WriteInReact />
         <br />
         <br />
-        <div
-          style={{
-            paddingBottom: 20,
-          }}
-        >
-          <div style={clone}>Get started using a template:</div>
-
-          <div className={styles.content}>
-            <ChooseTemplate />
-          </div>
-        </div>
-        <br />
-        <br />
-        <br />
         <IfYouKnowReact />
         <br />
         <br />

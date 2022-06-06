@@ -5,6 +5,7 @@ import { GithubButton } from "./GithubButton";
 
 export const GetStarted: React.FC = () => {
   const [clicked, setClicked] = useState<number | null>(null);
+
   return (
     <>
       <div className={styles.myrow}>
@@ -33,13 +34,27 @@ export const GetStarted: React.FC = () => {
           </BlueButton>
         </a>
         <div style={{ width: 10 }} />
+        <a
+          className={styles.a}
+          href="https://www.youtube.com/watch?v=deg8bOoziaE"
+        >
+          <BlueButton size="sm" loading={false} fullWidth={false}>
+            Watch demo
+          </BlueButton>
+        </a>
+        <div style={{ width: 10 }} />
+        <a className={styles.a} href="/docs">
+          <BlueButton size="sm" loading={false} fullWidth={false}>
+            Discord
+          </BlueButton>
+        </a>
+        <div style={{ width: 10 }} />
         <a className={styles.a} href="https://github.com/remotion-dev/remotion">
           <BlueButton size="sm" loading={false} fullWidth={false}>
             <GithubButton />
           </BlueButton>
         </a>
       </div>
-      <div style={{ height: 10 }} />
     </>
   );
 };
