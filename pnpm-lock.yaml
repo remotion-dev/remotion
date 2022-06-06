@@ -729,39 +729,61 @@ importers:
       '@jonny/eslint-config': 3.0.259
       '@testing-library/dom': ^8.7.2
       '@testing-library/react': 13.1.1
+      '@types/bytes': 3.1.1
+      '@types/content-disposition': 0.5.5
       '@types/jest': ^27.4.0
+      '@types/mime-types': 2.1.1
+      '@types/minimatch': 3.0.5
       '@types/node': ^16.7.5
+      '@types/path-is-inside': 1.0.0
+      '@types/range-parser': 1.2.4
       '@types/react': 18.0.1
       '@types/react-dom': 18.0.0
-      '@types/serve-handler': ^6.1.0
+      bytes: 3.0.0
+      content-disposition: 0.5.2
       eslint: 8.13.0
       execa: 5.1.1
       jest: ^27.2.4
+      mime-types: 2.1.35
+      minimatch: 3.0.4
+      path-is-inside: 1.0.2
+      path-to-regexp: 2.2.1
       prettier: ^2.0.5
       prettier-plugin-organize-imports: ^2.3.4
       puppeteer-core: 13.5.1
+      range-parser: 1.2.0
       react: 18.0.0
       react-dom: 18.0.0
       remotion: 3.0.16
-      serve-handler: 6.1.3
       source-map: ^0.8.0-beta.0
       ts-jest: ^27.0.5
       typescript: ^4.7.0
     dependencies:
+      bytes: 3.0.0
+      content-disposition: 0.5.2
       execa: 5.1.1
+      mime-types: 2.1.35
+      minimatch: 3.0.4
+      path-is-inside: 1.0.2
+      path-to-regexp: 2.2.1
       puppeteer-core: 13.5.1
+      range-parser: 1.2.0
       remotion: link:../core
-      serve-handler: 6.1.3
       source-map: 0.8.0-beta.0
     devDependencies:
       '@jonny/eslint-config': 3.0.259_eslint@8.13.0+typescript@4.7.2
       '@testing-library/dom': 8.7.2
       '@testing-library/react': 13.1.1_react-dom@18.0.0+react@18.0.0
+      '@types/bytes': 3.1.1
+      '@types/content-disposition': 0.5.5
       '@types/jest': 27.4.0
+      '@types/mime-types': 2.1.1
+      '@types/minimatch': 3.0.5
       '@types/node': 16.10.2
+      '@types/path-is-inside': 1.0.0
+      '@types/range-parser': 1.2.4
       '@types/react': 18.0.1
       '@types/react-dom': 18.0.0
-      '@types/serve-handler': 6.1.1
       eslint: 8.13.0
       jest: 27.2.4
       prettier: 2.4.1
@@ -7660,6 +7682,10 @@ packages:
       '@types/node': 17.0.17
     dev: false
 
+  /@types/bytes/3.1.1:
+    resolution: {integrity: sha512-lOGyCnw+2JVPKU3wIV0srU0NyALwTBJlVSx5DfMQOFuuohA8y9S8orImpuIQikZ0uIQ8gehrRjxgQC1rLRi11w==}
+    dev: true
+
   /@types/color-namer/1.3.0:
     resolution: {integrity: sha512-iyuC9rR+3QYd+VuC8E9MvKM2fTForr9RcUa4YurqRJyXcDALYIt+GPsy1skrri2QcYxWVNYYyoznxe8Y42K4/g==}
     dev: true
@@ -7675,6 +7701,10 @@ packages:
     resolution: {integrity: sha512-cdeYyv4KWoEgpBISTxWvqYsVy444DOqehiF3fM3ne10AmJ62RSyNkUnxMJXHQWRQQX2eR94m5y1IZyDwBjV9FQ==}
     dependencies:
       '@types/node': 16.10.2
+
+  /@types/content-disposition/0.5.5:
+    resolution: {integrity: sha512-v6LCdKfK6BwcqMo+wYW05rLS12S0ZO0Fl4w1h4aaZMD7bqT3gVUns6FvLJKGZHQmYn3SX55JWGpziwJRwVgutA==}
+    dev: true
 
   /@types/degit/2.8.3:
     resolution: {integrity: sha512-CL7y71j2zaDmtPLD5Xq5S1Gv2dFoHl0/GBZm6s39Mj/ls28L3NzAOqf7H4H0/2TNVMgMjMVf9CAFYSjmXhi3bw==}
@@ -7787,7 +7817,6 @@ packages:
 
   /@types/minimatch/3.0.5:
     resolution: {integrity: sha512-Klz949h02Gz2uZCMGwDUSDS1YBlTdDDgbWHi+81l29tQALUtvz4rAYi5uoVhE5Lagoq6DeqAUlbrHvW/mXDgdQ==}
-    dev: false
 
   /@types/minimist/1.2.2:
     resolution: {integrity: sha512-jhuKLIRrhvCPLqwPcx6INqmKeiA5EWrsCOPhrlFSrbrmU4ZMPjj5Ul/oLCMDO98XRUIwVm78xICz4EPCektzeQ==}
@@ -7823,6 +7852,10 @@ packages:
   /@types/parse5/5.0.3:
     resolution: {integrity: sha512-kUNnecmtkunAoQ3CnjmMkzNU/gtxG8guhi+Fk2U/kOpIKjIMKnXGp4IJCgQJrXSgMsWYimYG4TGjz/UzbGEBTw==}
     dev: false
+
+  /@types/path-is-inside/1.0.0:
+    resolution: {integrity: sha512-hfnXRGugz+McgX2jxyy5qz9sB21LRzlGn24zlwN2KEgoPtEvjzNRrLtUkOOebPDPZl3Rq7ywKxYvylVcEZDnEw==}
+    dev: true
 
   /@types/prettier/2.4.1:
     resolution: {integrity: sha512-Fo79ojj3vdEZOHg3wR9ksAMRz4P3S5fDB5e/YWZiFnyFQI1WY2Vftu9XoXVVtJfxB7Bpce/QTqWSSntkz2Znrw==}
@@ -7909,12 +7942,6 @@ packages:
 
   /@types/semver/7.3.8:
     resolution: {integrity: sha512-D/2EJvAlCEtYFEYmmlGwbGXuK886HzyCc3nZX/tkFTQdEU8jZDAgiv08P162yB17y4ZXZoq7yFAnW4GDBb9Now==}
-    dev: true
-
-  /@types/serve-handler/6.1.1:
-    resolution: {integrity: sha512-bIwSmD+OV8w0t2e7EWsuQYlGoS1o5aEdVktgkXaa43Zm0qVWi21xaSRb3DQA1UXD+DJ5bRq1Rgu14ZczB+CjIQ==}
-    dependencies:
-      '@types/node': 16.10.2
     dev: true
 
   /@types/serve-index/1.9.1:
@@ -14706,6 +14733,11 @@ packages:
     resolution: {integrity: sha512-5y8A56jg7XVQx2mbv1lu49NR4dokRnhZYTtL+KGfaa27uq4pSTXkwQkFJl4pkRMyNFz/EtYDSkiiEHx3F7UN6g==}
     engines: {node: '>= 0.6'}
 
+  /mime-db/1.52.0:
+    resolution: {integrity: sha512-sPU4uV7dYlvtWJxwwxHD0PuihVNiE7TyAbQ5SWxDCB9mUYvOgroQOwYQQOKPJ8CIbE+1ETVlOoK1UC2nU3gYvg==}
+    engines: {node: '>= 0.6'}
+    dev: false
+
   /mime-types/2.1.18:
     resolution: {integrity: sha512-lc/aahn+t4/SWV/qcmumYjymLsWfN3ELhpmVuUFjgsORruuZPVSwAQryq+HHGvO/SI2KVX26bx+En+zhM8g8hQ==}
     engines: {node: '>= 0.6'}
@@ -14724,6 +14756,13 @@ packages:
     engines: {node: '>= 0.6'}
     dependencies:
       mime-db: 1.51.0
+
+  /mime-types/2.1.35:
+    resolution: {integrity: sha512-ZDY+bPm5zTTF+YpCrAU9nK0UgICYPT0QtT1NZWFv4s++TNkcgVaT0g6+4R2uI4MjQjzysHB1zxuWL50hzaeXiw==}
+    engines: {node: '>= 0.6'}
+    dependencies:
+      mime-db: 1.52.0
+    dev: false
 
   /mime/1.6.0:
     resolution: {integrity: sha512-x0Vn8spI+wuJ1O6S7gnbaQg8Pxh4NNHb7KSINmEWKiPE4RKOplvijn+NkmYmmRgP68mc70j2EbeTFRsrswaQeg==}
