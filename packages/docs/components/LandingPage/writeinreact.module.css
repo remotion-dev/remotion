@@ -4,10 +4,10 @@
 }
 
 .writeincsstitle {
-  font-size: 4em;
-  font-weight: 700;
+  font-size: 5em;
+  font-weight: 900;
   line-height: 1;
-  max-width: 500px;
+  text-align: center;
 }
 
 .writeright {

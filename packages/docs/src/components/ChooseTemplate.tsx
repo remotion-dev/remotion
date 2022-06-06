@@ -11,6 +11,7 @@ import { Waveform } from "./icons/waveform";
 import { TemplateIcon } from "./TemplateIcon";
 import { chunk } from "../helpers/chunk";
 import { useElementSize } from "../helpers/use-el-size";
+import styles from "../../components/LandingPage/get-started.module.css";
 
 const IconForTemplate: React.FC<{
   template: Template;
@@ -126,8 +127,9 @@ export const ChooseTemplate: React.FC = () => {
       <div
         style={{
           display: "flex",
-          flexDirection: mobileLayout ? "column" : "row",
+          flexDirection: "row",
           justifyContent: "center",
+          alignItems: "center",
         }}
       >
         {chunks.map((c) => {
@@ -137,7 +139,6 @@ export const ChooseTemplate: React.FC = () => {
               style={{
                 display: "flex",
                 flexDirection: "row",
-                justifyContent: "center",
                 marginBottom: mobileLayout ? 8 : 0,
                 marginTop: mobileLayout ? 8 : 0,
               }}

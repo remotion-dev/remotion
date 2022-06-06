@@ -1,7 +1,7 @@
 import React from "react";
 
 const outer: React.CSSProperties = {
-  width: 110,
+  width: 90,
   textAlign: "center",
   display: "flex",
   alignItems: "center",
@@ -16,7 +16,7 @@ const icon: React.CSSProperties = {
   height: 50,
   justifyContent: "center",
   alignItems: "center",
-  margin: 10,
+  margin: 0,
 };
 
 const labelStyle: React.CSSProperties = {

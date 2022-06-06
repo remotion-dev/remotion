@@ -12,6 +12,8 @@
   font-kerning: normal; 
   -webkit-font-smoothing: antialiased; /* Chrome, Safari */ 
   -moz-osx-font-smoothing: grayscale; /* Firefox */ 
+  letter-spacing: 0.025em; 
+  word-spacing: 0.025em;
 }
 
 h1, h2 {
@@ -19,9 +21,6 @@ h1, h2 {
   word-spacing: -0.025em;
 }
 
-p {
-  word-spacing: 0.025em;
-}
 
 
 @font-face {
