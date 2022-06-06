@@ -78,7 +78,6 @@ importers:
       remotion: 3.0.16
       semver: 7.3.4
       source-map: 0.6.1
-      source-map-loader: 3.0.0
       style-loader: 2.0.0
       ts-jest: ^27.0.5
       typescript: ^4.7.0
@@ -93,7 +92,6 @@ importers:
       remotion: link:../core
       semver: 7.3.4
       source-map: 0.6.1
-      source-map-loader: 3.0.0_webpack@5.72.0
       style-loader: 2.0.0_webpack@5.72.0
       webpack: 5.72.0_esbuild@0.14.19
     devDependencies:
@@ -12715,6 +12713,7 @@ packages:
     dependencies:
       safer-buffer: 2.1.2
     dev: false
+    optional: true
 
   /icss-utils/5.1.0_postcss@8.3.9:
     resolution: {integrity: sha512-soFhflCVWLfRNOPU3iv5Z9VUdT44xFRbzjLsEzSr5AQmgqPMTHdU3PMT1Cf1ssx8fLNJDA1juftYl+PUcv3MqA==}
@@ -14320,7 +14319,7 @@ packages:
     dev: false
 
   /lodash.sortby/4.7.0:
-    resolution: {integrity: sha1-7dFMgk4sycHgsKG0K7UhBRakJDg=}
+    resolution: {integrity: sha512-HDWXG8isMntAyRF5vZ7xKuEvOhT4AhlRt/3czTSjvGUxjYCBVRQY48ViDHyfYz9VIoBkW4TMGQNapx+l3RUwdA==}
     dev: false
 
   /lodash.template/4.5.0:
@@ -16597,7 +16596,7 @@ packages:
       once: 1.4.0
 
   /punycode/1.4.1:
-    resolution: {integrity: sha1-wNWmOycYgArY4esPpSachN1BhF4=}
+    resolution: {integrity: sha512-jmYNElW7yvO7TV33CjSmvSiE2yco3bV2czu/OzDKdMNVZQWfxCblURLhf+47syQRBntjfLdd/H0egrzIG+oaFQ==}
     dev: false
 
   /punycode/2.1.1:
@@ -18169,18 +18168,6 @@ packages:
   /source-map-js/1.0.2:
     resolution: {integrity: sha512-R0XvVJ9WusLiqTCEiGCmICCMplcCkIwwR11mOSD9CR5u+IXYdiseeEuXCVAjS54zqwkLcPNnmU4OeJ6tUrWhDw==}
     engines: {node: '>=0.10.0'}
-    dev: false
-
-  /source-map-loader/3.0.0_webpack@5.72.0:
-    resolution: {integrity: sha512-GKGWqWvYr04M7tn8dryIWvb0s8YM41z82iQv01yBtIylgxax0CwvSy6gc2Y02iuXwEfGWRlMicH0nvms9UZphw==}
-    engines: {node: '>= 12.13.0'}
-    peerDependencies:
-      webpack: ^5.0.0
-    dependencies:
-      abab: 2.0.5
-      iconv-lite: 0.6.3
-      source-map-js: 0.6.2
-      webpack: 5.72.0_esbuild@0.14.19
     dev: false
 
   /source-map-resolve/0.5.3:
