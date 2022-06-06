@@ -1,9 +1,8 @@
 // Native
-import {createReadStream, lstat, readdir, realpath, Stats} from 'fs';
+import {createReadStream, promises, Stats} from 'fs';
 import {IncomingMessage, ServerResponse} from 'http';
 import path from 'path';
 import url from 'url';
-import {promisify} from 'util';
 // Packages
 import mime from 'mime-types';
 import {isPathInside} from './is-path-inside';
@@ -59,7 +58,7 @@ const findRelated = async (current: string, relativePath: string) => {
 		const absolutePath = path.join(current, related);
 
 		try {
-			stats = await handlers.lstat(absolutePath);
+			stats = await promises.lstat(absolutePath);
 		} catch (err) {
 			if (
 				(err as {code: string}).code !== 'ENOENT' &&
@@ -106,14 +105,6 @@ const internalError = (absolutePath: string, response: ServerResponse) => {
 		code: 'internal_server_error',
 		message: 'A server error has occurred',
 	});
-};
-
-const handlers = {
-	lstat: promisify(lstat),
-	realpath: promisify(realpath),
-	createReadStream,
-	readdir: promisify(readdir),
-	sendError,
 };
 
 export const serveHandler = async (
@@ -168,7 +159,7 @@ export const serveHandler = async (
 
 	if (path.extname(relativePath) !== '') {
 		try {
-			stats = await handlers.lstat(absolutePath);
+			stats = await promises.lstat(absolutePath);
 		} catch (err) {
 			if (
 				(err as {code: string}).code !== 'ENOENT' &&
@@ -196,7 +187,7 @@ export const serveHandler = async (
 		}
 
 		try {
-			stats = await handlers.lstat(absolutePath);
+			stats = await promises.lstat(absolutePath);
 		} catch (err) {
 			if (
 				(err as {code: string}).code !== 'ENOENT' &&
@@ -235,7 +226,7 @@ export const serveHandler = async (
 	// symlink while the `symlinks` option is disabled (which it is by default).
 	if (!stats || isSymLink) {
 		// allow for custom 404 handling
-		return handlers.sendError(absolutePath, response, {
+		return sendError(absolutePath, response, {
 			statusCode: 404,
 			code: 'not_found',
 			message: 'The requested path could not be found',
@@ -268,7 +259,7 @@ export const serveHandler = async (
 	let stream = null;
 
 	try {
-		stream = handlers.createReadStream(absolutePath, streamOpts ?? {});
+		stream = createReadStream(absolutePath, streamOpts ?? {});
 	} catch (err) {
 		return internalError(absolutePath, response);
 	}
