@@ -232,6 +232,9 @@ export const spawnFfmpeg = async (
 				audio,
 				'-c:a',
 				audioCodecName,
+				// Set bitrate up to 320k, for aac it might effectively be lower
+				'-b:a',
+				'320k',
 				options.force ? '-y' : null,
 				options.outputLocation,
 			].filter(Internals.truthy)
@@ -275,6 +278,8 @@ export const spawnFfmpeg = async (
 			  ]),
 		codec === 'h264' ? ['-movflags', 'faststart'] : null,
 		audioCodecName ? ['-c:a', audioCodecName] : null,
+		// Set bitrate up to 320k, for aac it might be lower
+		audioCodecName ? ['-b:a', '320k'] : null,
 		// Ignore metadata that may come from remote media
 		['-map_metadata', '-1'],
 		[
