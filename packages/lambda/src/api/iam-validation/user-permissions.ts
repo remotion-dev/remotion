@@ -70,7 +70,6 @@ export const requiredPermissions: {
 			lambda.InvokeAsync,
 			lambda.InvokeFunction,
 			lambda.CreateFunction,
-			lambda.UpdateFunctionConfiguration,
 			lambda.DeleteFunction,
 			lambda.PutFunctionEventInvokeConfig,
 		],
@@ -87,9 +86,5 @@ export const requiredPermissions: {
 		id: 'FetchBinaries',
 		actions: [lambda.GetLayerVersion],
 		resource: [REMOTION_HOSTED_LAYER_ARN],
-	},
-	{
-		id: 'Update binaries',
-		actions: ['lambda:UpdateFunctionConfiguration'],
 	},
 ];
