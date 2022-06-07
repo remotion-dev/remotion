@@ -22,7 +22,7 @@ Lambda binaries might change in minor Remotion versions, it is your responsibili
 
 ## Creating a custom binary
 
-Go to the [`remotion-dev/lambda-layers`](https://github.com/remotion-dev/lambda-binaries) repository and clone it.
+Go to the [`remotion-dev/lambda-binaries`](https://github.com/remotion-dev/lambda-binaries) repository and clone it.
 
 The folders `chromium`, `ffmpeg` and `fonts` contain the binaries for the ARM version.  
 The folders `chromium-x64`, `ffmpeg-x64` and `fonts-x64` contain the binaries for the x86_64 version of Lambda.
