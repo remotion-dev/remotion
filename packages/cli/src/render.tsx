@@ -150,7 +150,8 @@ export const render = async ({renderAsGif}: {renderAsGif: boolean}) => {
 	const renderProgress = createOverwriteableCliOutput(quietFlagProvided());
 	let totalFrames: number | null = RenderInternals.getDurationFromFrameRange(
 		frameRange,
-		config.durationInFrames
+		config.durationInFrames,
+		skipNFrames
 	);
 	let encodedFrames = 0;
 	let renderedFrames = 0;
@@ -227,6 +228,7 @@ export const render = async ({renderAsGif}: {renderAsGif: boolean}) => {
 				Internals.Logging.getLogLevel(),
 				'verbose'
 			),
+			skipNFrames,
 			envVariables,
 			frameRange,
 			parallelism,
@@ -248,7 +250,7 @@ export const render = async ({renderAsGif}: {renderAsGif: boolean}) => {
 		return;
 	}
 
-	if (renderAsGif) {
+	if (renderAsGif || codec === 'gif') {
 		await renderGif({
 			outputLocation: absoluteOutputFile,
 			codec,

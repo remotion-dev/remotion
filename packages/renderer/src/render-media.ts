@@ -60,7 +60,7 @@ export type RenderMediaOptions = {
 	envVariables?: Record<string, string>;
 	quality?: number;
 	frameRange?: FrameRange | null;
-	skipNFrames?: number | null;
+	skipNFrames: number;
 	puppeteerInstance?: PuppeteerBrowser;
 	overwrite?: boolean;
 	onProgress?: RenderMediaOnProgress;
@@ -238,6 +238,7 @@ export const renderMedia = ({
 				quality,
 				frameRange: frameRange ?? null,
 				puppeteerInstance,
+				skipNFrames,
 				onFrameBuffer: parallelEncoding
 					? async (buffer, frame) => {
 							await waitForRightTimeOfFrameToBeInserted(frame);
@@ -311,7 +312,8 @@ export const renderMedia = ({
 		.then(([, stitchStart]) => {
 			encodedFrames = getDurationFromFrameRange(
 				frameRange ?? null,
-				composition.durationInFrames
+				composition.durationInFrames,
+				skipNFrames
 			);
 			encodedDoneIn = Date.now() - stitchStart;
 			callUpdate();
