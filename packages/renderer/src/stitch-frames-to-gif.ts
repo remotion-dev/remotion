@@ -2,7 +2,6 @@ import execa from 'execa';
 import fs from 'fs';
 import path from 'path';
 import {Internals} from 'remotion';
-import {getAudioCodecName} from './get-audio-codec-name';
 import {getCodecName} from './get-codec-name';
 import {getProResProfileName} from './get-prores-profile-name';
 import {parseFfmpegProgress} from './parse-ffmpeg-progress';
@@ -24,7 +23,6 @@ type ReturnType = {
 export const spawnFfmpeg = async (
 	options: StitcherOptions
 ): Promise<ReturnType> => {
-	const loop = null;
 	Internals.validateDimension(
 		options.height,
 		'height',
@@ -46,9 +44,9 @@ export const spawnFfmpeg = async (
 	const crf = options.crf ?? Internals.getDefaultCrfForCodec(codec);
 	const pixelFormat = options.pixelFormat ?? Internals.DEFAULT_PIXEL_FORMAT;
 	await validateFfmpeg(options.ffmpegExecutable ?? null);
+	const loop = options.loop ?? Internals.getLoop();
 
 	const encoderName = getCodecName(codec);
-	const audioCodecName = getAudioCodecName(codec);
 	const proResProfileName = getProResProfileName(codec, options.proResProfile);
 
 	const supportsCrf = encoderName && codec !== 'prores';
@@ -91,8 +89,8 @@ export const spawnFfmpeg = async (
 			  ]),
 		// -c:v is the same as -vcodec as -codec:video
 		// and specified the video codec.
-		['-loop', loop ? loop : '-1'],
-		audioCodecName ? ['-c:a', audioCodecName] : null,
+		// eslint-disable-next-line no-negated-condition
+		loop === null ? null : ['-loop', typeof loop !== 'number' ? '-1' : loop],
 		// Ignore metadata that may come from remote media
 		['-map_metadata', '-1'],
 		[

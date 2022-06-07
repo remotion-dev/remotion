@@ -15,6 +15,7 @@ import {FrameRange, setFrameRange} from './frame-range';
 import {ImageFormat, setImageFormat, StillImageFormat} from './image-format';
 import {setImageSequence} from './image-sequence';
 import {LogLevel, setLogLevel} from './log';
+import {setLoop} from './loop';
 import {setMaxTimelineTracks} from './max-timeline-tracks';
 import {
 	overrideWebpackConfig,
@@ -146,6 +147,11 @@ export const Config = {
 		 * Default: 1
 		 */
 		setSkipNFrames,
+		/**
+		 * Specify the number of Loop a GIF should have.
+		 * Default: null (means GIF will loop infinite)
+		 */
+		setLoop,
 	},
 	Output: {
 		/**

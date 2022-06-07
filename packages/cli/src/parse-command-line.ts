@@ -25,6 +25,7 @@ export type CommandLineOptions = {
 	['ignore-certificate-errors']: string;
 	['disable-web-security']: string;
 	['skip-n-frames']: number;
+	loop: number;
 	codec: Codec;
 	concurrency: number;
 	timeout: number;
@@ -90,6 +91,10 @@ export const parseCommandLine = (
 		Config.Rendering.setFfmpegExecutable(
 			resolve(parsedCli['ffmpeg-executable'])
 		);
+	}
+
+	if (parsedCli.loop) {
+		Config.Rendering.setLoop(parsedCli.loop);
 	}
 
 	if (typeof parsedCli['bundle-cache'] !== 'undefined') {

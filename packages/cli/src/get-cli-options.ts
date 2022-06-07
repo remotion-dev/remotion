@@ -235,6 +235,7 @@ export const getCliOptions = async (options: {
 			Internals.DEFAULT_OPENGL_RENDERER,
 	};
 	const skipNFrames = Internals.getSkipNFrames();
+	const loop = Internals.getLoop();
 
 	return {
 		puppeteerTimeout: Internals.getCurrentPuppeteerTimeout(),
@@ -255,6 +256,7 @@ export const getCliOptions = async (options: {
 		imageFormat,
 		proResProfile,
 		skipNFrames,
+		loop,
 		stillFrame: Internals.getStillFrame(),
 		browserExecutable,
 		ffmpegExecutable,
