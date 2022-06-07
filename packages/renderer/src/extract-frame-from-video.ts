@@ -24,6 +24,7 @@ const mainLimit = pLimit(5);
 
 const getLastFrameOfVideoUnlimited = async ({
 	ffmpegExecutable,
+	ffprobeExecutable,
 	offset,
 	src,
 }: LastFrameOptions): Promise<Buffer> => {
@@ -35,7 +36,7 @@ const getLastFrameOfVideoUnlimited = async ({
 		);
 	}
 
-	const durationCmd = await execa('ffprobe', [
+	const durationCmd = await execa(ffprobeExecutable ?? 'ffprobe', [
 		'-v',
 		'error',
 		'-select_streams',
@@ -107,6 +108,7 @@ const getLastFrameOfVideoUnlimited = async ({
 			ffmpegExecutable,
 			offset: offset + 10,
 			src,
+			ffprobeExecutable,
 		});
 	}
 
@@ -131,16 +133,19 @@ type Options = {
 	time: number;
 	src: string;
 	ffmpegExecutable: FfmpegExecutable;
+	ffprobeExecutable: FfmpegExecutable;
 };
 
 export const extractFrameFromVideoFn = async ({
 	time,
 	src,
 	ffmpegExecutable,
+	ffprobeExecutable,
 }: Options): Promise<Buffer> => {
 	if (isBeyondLastFrame(src, time)) {
 		return getLastFrameOfVideo({
 			ffmpegExecutable,
+			ffprobeExecutable,
 			offset: 0,
 			src,
 		});
@@ -209,6 +214,7 @@ export const extractFrameFromVideoFn = async ({
 		markAsBeyondLastFrame(src, time);
 		return getLastFrameOfVideo({
 			ffmpegExecutable,
+			ffprobeExecutable,
 			offset: 0,
 			src,
 		});
