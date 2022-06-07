@@ -27,7 +27,7 @@ const getLastFrameOfVideoUnlimited = async ({
 	offset,
 	src,
 }: LastFrameOptions): Promise<Buffer> => {
-	if (offset > 100) {
+	if (offset > 600) {
 		throw new Error(
 			'could not get last frame of ' +
 				src +
@@ -35,9 +35,29 @@ const getLastFrameOfVideoUnlimited = async ({
 		);
 	}
 
-	const actualOffset = `-${offset + 10}ms`;
+	const durationCmd = await execa('ffprobe', [
+		'-v',
+		'error',
+		'-select_streams',
+		'v:0',
+		'-show_entries',
+		'stream=duration',
+		'-of',
+		'default=noprint_wrappers=1:nokey=1',
+		src,
+	]);
+
+	const duration = parseFloat(durationCmd.stdout);
+
+	if (Number.isNaN(duration)) {
+		throw new TypeError(
+			`Could not get duration of ${src}: ${durationCmd.stdout}`
+		);
+	}
+
+	const actualOffset = `${duration * 1000 - offset - 10}ms`;
 	const {stdout, stderr} = execa(ffmpegExecutable ?? 'ffmpeg', [
-		'-sseof',
+		'-ss',
 		actualOffset,
 		'-i',
 		src,
@@ -93,7 +113,7 @@ const getLastFrameOfVideoUnlimited = async ({
 	return stdoutBuffer;
 };
 
-const getLastFrameOfVideo = async (
+export const getLastFrameOfVideo = async (
 	options: LastFrameOptions
 ): Promise<Buffer> => {
 	const fromCache = getLastFrameFromCache(options);
