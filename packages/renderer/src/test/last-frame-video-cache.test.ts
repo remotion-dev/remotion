@@ -9,6 +9,7 @@ import {
 const makeKey = (id: string): LastFrameOptions => {
 	return {
 		ffmpegExecutable: null,
+		ffprobeExecutable: null,
 		offset: 10,
 		src: id,
 	};

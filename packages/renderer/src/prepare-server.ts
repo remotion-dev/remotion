@@ -6,6 +6,7 @@ import {serveStatic} from './serve-static';
 export const prepareServer = async ({
 	downloadDir,
 	ffmpegExecutable,
+	ffprobeExecutable,
 	onDownload,
 	onError,
 	webpackConfigOrServeUrl,
@@ -16,6 +17,7 @@ export const prepareServer = async ({
 	onDownload: RenderMediaOnDownload;
 	onError: (err: Error) => void;
 	ffmpegExecutable: FfmpegExecutable;
+	ffprobeExecutable: FfmpegExecutable;
 	port: number | null;
 }): Promise<{
 	serveUrl: string;
@@ -28,6 +30,7 @@ export const prepareServer = async ({
 			onDownload,
 			onError,
 			ffmpegExecutable,
+			ffprobeExecutable,
 			port,
 		});
 
@@ -43,6 +46,7 @@ export const prepareServer = async ({
 		onDownload,
 		onError,
 		ffmpegExecutable,
+		ffprobeExecutable,
 		port,
 	});
 	return Promise.resolve({

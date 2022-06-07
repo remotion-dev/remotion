@@ -34,11 +34,13 @@ export const extractUrlAndSourceFromUrl = (url: string) => {
 
 export const startOffthreadVideoServer = ({
 	ffmpegExecutable,
+	ffprobeExecutable,
 	downloadDir,
 	onDownload,
 	onError,
 }: {
 	ffmpegExecutable: FfmpegExecutable;
+	ffprobeExecutable: FfmpegExecutable;
 	downloadDir: string;
 	onDownload: RenderMediaOnDownload;
 	onError: (err: Error) => void;
@@ -73,6 +75,7 @@ export const startOffthreadVideoServer = ({
 					time,
 					src: to,
 					ffmpegExecutable,
+					ffprobeExecutable,
 				});
 			})
 			.then((readable) => {
