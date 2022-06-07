@@ -15,6 +15,7 @@ const src = path.join(
 test('Should be able to extract a frame from a video', async () => {
 	const str = await extractFrameFromVideo({
 		ffmpegExecutable: null,
+		ffprobeExecutable: null,
 		src,
 		time: 1,
 	});
@@ -25,6 +26,7 @@ test('Should be able to extract a frame from a video', async () => {
 test('Should get the last frame if out of range', async () => {
 	const str = await extractFrameFromVideo({
 		ffmpegExecutable: null,
+		ffprobeExecutable: null,
 		src,
 		time: 100,
 	});

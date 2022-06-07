@@ -1,6 +1,10 @@
 import execa from 'execa';
+import {FfmpegExecutable} from 'remotion';
 
-export async function getAudioChannelsAndDuration(path: string): Promise<{
+export async function getAudioChannelsAndDuration(
+	path: string,
+	ffprobeExecutable: FfmpegExecutable
+): Promise<{
 	channels: number;
 	duration: number | null;
 }> {
@@ -13,7 +17,7 @@ export async function getAudioChannelsAndDuration(path: string): Promise<{
 		.reduce<(string | null)[]>((acc, val) => acc.concat(val), [])
 		.filter(Boolean) as string[];
 
-	const task = await execa('ffprobe', args);
+	const task = await execa(ffprobeExecutable ?? 'ffprobe', args);
 
 	const channels = task.stdout.match(/channels=([0-9]+)/);
 	const duration = task.stdout.match(/duration=([0-9.]+)/);
