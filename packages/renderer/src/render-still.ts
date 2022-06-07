@@ -44,6 +44,7 @@ type InnerStillOptions = {
 	onDownload?: RenderMediaOnDownload;
 	cancelSignal?: CancelSignal;
 	ffmpegExecutable?: FfmpegExecutable;
+	ffprobeExecutable?: FfmpegExecutable;
 };
 
 type RenderStillOptions = InnerStillOptions &
@@ -230,6 +231,7 @@ export const renderStill = (options: RenderStillOptions): Promise<void> => {
 			onDownload,
 			onError,
 			ffmpegExecutable: options.ffmpegExecutable ?? null,
+			ffprobeExecutable: options.ffprobeExecutable ?? null,
 			port: options.port ?? null,
 		})
 			.then(({serveUrl, closeServer, offthreadPort}) => {

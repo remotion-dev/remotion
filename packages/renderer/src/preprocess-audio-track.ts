@@ -9,6 +9,7 @@ import {resolveAssetSrc} from './resolve-asset-src';
 
 type Options = {
 	ffmpegExecutable: FfmpegExecutable;
+	ffprobeExecutable: FfmpegExecutable;
 	outName: string;
 	asset: MediaAsset;
 	expectedFrames: number;
@@ -17,13 +18,15 @@ type Options = {
 
 const preprocessAudioTrackUnlimited = async ({
 	ffmpegExecutable,
+	ffprobeExecutable,
 	outName,
 	asset,
 	expectedFrames,
 	fps,
 }: Options): Promise<string | null> => {
 	const {channels, duration} = await getAudioChannelsAndDuration(
-		resolveAssetSrc(asset.src)
+		resolveAssetSrc(asset.src),
+		ffprobeExecutable
 	);
 
 	const filter = calculateFfmpegFilter({
