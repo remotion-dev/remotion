@@ -41,6 +41,7 @@ export const renderGif = ({
 	onProgress,
 	overwrite,
 	onDownload,
+	loop,
 	skipNFrames,
 	dumpBrowserLogs,
 	onBrowserLog,
@@ -121,13 +122,13 @@ export const renderGif = ({
 
 	const {waitForRightTimeOfFrameToBeInserted, setFrameToStitch, waitForFinish} =
 		ensureFramesInOrder(realFrameRange);
-
+	const actualGifFps = Math.floor(composition.fps / (skipNFrames + 1));
 	const createPrestitcherIfNecessary = async () => {
 		if (preEncodedFileLocation) {
 			preStitcher = await prespawnFfmpeg({
 				width: composition.width * (scale ?? 1),
 				height: composition.height * (scale ?? 1),
-				fps: composition.fps,
+				fps: actualGifFps,
 				outputLocation: preEncodedFileLocation,
 				pixelFormat,
 				codec,
@@ -225,7 +226,7 @@ export const renderGif = ({
 				stitchFramesToGif({
 					width: composition.width * (scale ?? 1),
 					height: composition.height * (scale ?? 1),
-					fps: composition.fps,
+					fps: actualGifFps,
 					outputLocation,
 					internalOptions: {
 						preEncodedFileLocation,
@@ -236,6 +237,7 @@ export const renderGif = ({
 					codec,
 					proResProfile,
 					crf,
+					loop,
 					assetsInfo,
 					ffmpegExecutable,
 					onProgress: (frame: number) => {

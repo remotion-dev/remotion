@@ -61,6 +61,7 @@ export type RenderMediaOptions = {
 	quality?: number;
 	frameRange?: FrameRange | null;
 	skipNFrames: number;
+	loop: number | null;
 	puppeteerInstance?: PuppeteerBrowser;
 	overwrite?: boolean;
 	onProgress?: RenderMediaOnProgress;
@@ -299,6 +300,7 @@ export const renderMedia = ({
 						callUpdate();
 					},
 					onDownload,
+					loop: null,
 					verbose: Internals.Logging.isEqualOrBelowLogLevel(
 						Internals.Logging.getLogLevel(),
 						'verbose'

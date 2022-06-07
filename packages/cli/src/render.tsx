@@ -66,6 +66,7 @@ export const render = async ({renderAsGif}: {renderAsGif: boolean}) => {
 		chromiumOptions,
 		port,
 		skipNFrames,
+		loop,
 	} = await getCliOptions({isLambda: false, type: 'series'});
 
 	if (!absoluteOutputFile) {
@@ -229,6 +230,7 @@ export const render = async ({renderAsGif}: {renderAsGif: boolean}) => {
 				'verbose'
 			),
 			skipNFrames,
+			loop,
 			envVariables,
 			frameRange,
 			parallelism,
@@ -261,6 +263,7 @@ export const render = async ({renderAsGif}: {renderAsGif: boolean}) => {
 			frameRange,
 			imageFormat,
 			skipNFrames,
+			loop,
 			inputProps,
 			onProgress: (update) => {
 				encodedDoneIn = update.encodedDoneIn;
@@ -300,6 +303,7 @@ export const render = async ({renderAsGif}: {renderAsGif: boolean}) => {
 			frameRange,
 			imageFormat,
 			skipNFrames,
+			loop,
 			inputProps,
 			onProgress: (update) => {
 				encodedDoneIn = update.encodedDoneIn;

@@ -47,6 +47,7 @@ import {
 } from './config/image-format';
 import {getShouldOutputImageSequence} from './config/image-sequence';
 import * as Logging from './config/log';
+import {getLoop} from './config/loop';
 import {getMaxTimelineTracks} from './config/max-timeline-tracks';
 import {
 	defaultOverrideFunction,
@@ -153,6 +154,7 @@ export const Internals = {
 	getWebpackOverrideFn,
 	getQuality,
 	getSkipNFrames,
+	getLoop,
 	getScale,
 	getShouldOutputImageSequence,
 	validateSelectedCrfAndCodecCombination,
