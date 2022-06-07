@@ -172,6 +172,7 @@ export const renderGif = ({
 				},
 				parallelism,
 				outputDir,
+				skipNFrames,
 				onStart: (data) => {
 					renderedFrames = 0;
 					callUpdate();
@@ -255,7 +256,8 @@ export const renderGif = ({
 		.then(([, stitchStart]) => {
 			encodedFrames = getDurationFromFrameRange(
 				frameRange ?? null,
-				composition.durationInFrames
+				composition.durationInFrames,
+				skipNFrames
 			);
 			encodedDoneIn = Date.now() - stitchStart;
 			callUpdate();
