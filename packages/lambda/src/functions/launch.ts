@@ -85,6 +85,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		inputProps: params.inputProps,
 		envVariables: params.envVariables,
 		ffmpegExecutable: null,
+		ffprobeExecutable: null,
 		timeoutInMilliseconds: params.timeoutInMilliseconds,
 		chromiumOptions: params.chromiumOptions,
 		port: null,
