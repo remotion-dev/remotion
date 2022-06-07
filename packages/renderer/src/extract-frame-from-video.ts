@@ -28,7 +28,7 @@ const getLastFrameOfVideoUnlimited = async ({
 	offset,
 	src,
 }: LastFrameOptions): Promise<Buffer> => {
-	if (offset > 600) {
+	if (offset > 100) {
 		throw new Error(
 			'could not get last frame of ' +
 				src +
