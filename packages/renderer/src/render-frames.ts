@@ -72,6 +72,7 @@ type RenderFramesOptions = {
 	chromiumOptions?: ChromiumOptions;
 	scale?: number;
 	ffmpegExecutable?: FfmpegExecutable;
+	ffprobeExecutable?: FfmpegExecutable;
 	port?: number | null;
 	cancelSignal?: CancelSignal;
 } & ConfigOrComposition &
@@ -417,6 +418,7 @@ export const renderFrames = (
 				onDownload,
 				onError,
 				ffmpegExecutable: options.ffmpegExecutable ?? null,
+				ffprobeExecutable: options.ffprobeExecutable ?? null,
 				port: options.port ?? null,
 			}),
 			browserInstance,

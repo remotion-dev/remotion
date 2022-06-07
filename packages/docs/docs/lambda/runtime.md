@@ -76,3 +76,11 @@ Since December 2021 the following fonts are also available **only on the `arm64`
 If you'd like to use different fonts, we recommend using Webfonts.
 
 While the set of default fonts that we can include must be kept small in order to save space, we are happy to hear feedback if you encounter a scenario where characters cannot be rendered.
+
+## Customize layers
+
+See: [Customize Lambda layers](/docs/lambda/custom-layers) to learn about how you can customize this stack.
+
+## See also
+
+- [Customize Lambda layers](/docs/lambda/custom-layers)

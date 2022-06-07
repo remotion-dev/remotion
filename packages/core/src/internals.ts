@@ -35,7 +35,10 @@ import {
 	validateSelectedCrfAndCodecCombination,
 } from './config/crf';
 import {getDotEnvLocation} from './config/env-file';
-import {getCustomFfmpegExecutable} from './config/ffmpeg-executable';
+import {
+	getCustomFfmpegExecutable,
+	getCustomFfprobeExecutable,
+} from './config/ffmpeg-executable';
 import {
 	getRange,
 	setFrameRangeFromCli,
@@ -144,6 +147,7 @@ export const Internals = {
 	getRoot,
 	getBrowserExecutable,
 	getCustomFfmpegExecutable,
+	getCustomFfprobeExecutable,
 	getPixelFormat,
 	getConcurrency,
 	getRange,

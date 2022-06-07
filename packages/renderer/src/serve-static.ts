@@ -10,6 +10,7 @@ export const serveStatic = async (
 	options: {
 		port: number | null;
 		ffmpegExecutable: FfmpegExecutable;
+		ffprobeExecutable: FfmpegExecutable;
 		downloadDir: string;
 		onDownload: RenderMediaOnDownload;
 		onError: (err: Error) => void;
@@ -26,6 +27,7 @@ export const serveStatic = async (
 
 	const offthreadRequest = startOffthreadVideoServer({
 		ffmpegExecutable: options.ffmpegExecutable,
+		ffprobeExecutable: options.ffprobeExecutable,
 		downloadDir: options.downloadDir,
 		onDownload: options.onDownload,
 		onError: options.onError,
