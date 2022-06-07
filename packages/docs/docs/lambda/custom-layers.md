@@ -152,3 +152,7 @@ await client.send(
 
 </TabItem>
 </Tabs>
+
+## See also
+
+- [Lambda runtime](/docs/lambda/runtime)
