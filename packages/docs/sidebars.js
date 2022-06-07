@@ -29,6 +29,7 @@ module.exports = {
     "lambda/disk-size",
     "lambda/faq",
     "lambda/light-client",
+    "lambda/custom-layers",
     {
       collapsed: false,
       type: "category",
