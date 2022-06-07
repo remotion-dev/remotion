@@ -51,6 +51,7 @@ export type StitcherOptions = {
 	proResProfile?: ProResProfile;
 	verbose?: boolean;
 	ffmpegExecutable?: FfmpegExecutable;
+	ffprobeExecutable?: FfmpegExecutable;
 	dir?: string;
 	cancelSignal?: CancelSignal;
 	internalOptions?: {
@@ -72,6 +73,7 @@ const getAssetsData = async ({
 	expectedFrames,
 	verbose,
 	ffmpegExecutable,
+	ffprobeExecutable,
 	onProgress,
 }: {
 	assets: TAsset[][];
@@ -81,6 +83,7 @@ const getAssetsData = async ({
 	expectedFrames: number;
 	verbose: boolean;
 	ffmpegExecutable: FfmpegExecutable | null;
+	ffprobeExecutable: FfmpegExecutable | null;
 	onProgress: (progress: number) => void;
 }): Promise<string> => {
 	const fileUrlAssets = await convertAssetsToFileUrls({
@@ -112,6 +115,7 @@ const getAssetsData = async ({
 				const filterFile = path.join(tempPath, `${index}.wav`);
 				const result = await preprocessAudioTrack({
 					ffmpegExecutable: ffmpegExecutable ?? null,
+					ffprobeExecutable: ffprobeExecutable ?? null,
 					outName: filterFile,
 					asset,
 					expectedFrames,
@@ -210,6 +214,7 @@ export const spawnFfmpeg = async (
 		expectedFrames,
 		verbose: options.verbose ?? false,
 		ffmpegExecutable: options.ffmpegExecutable ?? null,
+		ffprobeExecutable: options.ffprobeExecutable ?? null,
 		onProgress: (prog) => updateProgress(prog, 0),
 	});
 

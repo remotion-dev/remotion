@@ -4,6 +4,7 @@ import {FfmpegExecutable} from 'remotion';
 
 export type LastFrameOptions = {
 	ffmpegExecutable: FfmpegExecutable;
+	ffprobeExecutable: FfmpegExecutable;
 	offset: number;
 	src: string;
 };

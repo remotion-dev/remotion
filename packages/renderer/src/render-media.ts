@@ -56,6 +56,7 @@ export type RenderMediaOptions = {
 	crf?: number | null;
 	imageFormat?: 'png' | 'jpeg' | 'none';
 	ffmpegExecutable?: FfmpegExecutable;
+	ffprobeExecutable?: FfmpegExecutable;
 	pixelFormat?: PixelFormat;
 	envVariables?: Record<string, string>;
 	quality?: number;
@@ -85,6 +86,7 @@ export const renderMedia = ({
 	composition,
 	imageFormat,
 	ffmpegExecutable,
+	ffprobeExecutable,
 	inputProps,
 	pixelFormat,
 	codec,
@@ -258,6 +260,7 @@ export const renderMedia = ({
 				chromiumOptions,
 				scale,
 				ffmpegExecutable,
+				ffprobeExecutable,
 				browserExecutable,
 				port,
 				cancelSignal: cancelRenderFrames.cancelSignal,
@@ -292,6 +295,7 @@ export const renderMedia = ({
 					crf,
 					assetsInfo,
 					ffmpegExecutable,
+					ffprobeExecutable,
 					onProgress: (frame: number) => {
 						stitchStage = 'muxing';
 						encodedFrames = frame;

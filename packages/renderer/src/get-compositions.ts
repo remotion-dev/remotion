@@ -19,6 +19,7 @@ type GetCompositionsConfig = {
 	timeoutInMilliseconds?: number;
 	chromiumOptions?: ChromiumOptions;
 	ffmpegExecutable?: FfmpegExecutable;
+	ffprobeExecutable?: FfmpegExecutable;
 	port?: number | null;
 };
 
@@ -103,6 +104,7 @@ export const getCompositions = async (
 			onDownload: () => undefined,
 			onError,
 			ffmpegExecutable: config?.ffmpegExecutable ?? null,
+			ffprobeExecutable: config?.ffprobeExecutable ?? null,
 			port: config?.port ?? null,
 		})
 			.then(({serveUrl, closeServer, offthreadPort}) => {
