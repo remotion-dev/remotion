@@ -200,7 +200,7 @@ _available for `render` command_
 
 _available for `render` command, available from v3.0.17_
 
-[Set a custom `ffprobe` executable](/docs/config#setFfmpegExecutable). If not defined, a `ffprobe` executable will be searched in `PATH`.
+[Set a custom `ffprobe` executable](/docs/config#setFfprobeExecutable). If not defined, a `ffprobe` executable will be searched in `PATH`.
 
 ### `--timeout`
 
