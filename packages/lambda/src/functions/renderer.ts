@@ -98,13 +98,13 @@ const renderHandler = async (
 				);
 			}
 
-			const duration = RenderInternals.getDurationFromFrameRange(
+			const allFrames = RenderInternals.getFramesToRender(
 				params.frameRange,
 				params.durationInFrames,
 				params.everyNthFrame
 			);
 
-			if (renderedFrames === duration) {
+			if (renderedFrames === allFrames.length) {
 				console.log('Rendered all frames!');
 			}
 

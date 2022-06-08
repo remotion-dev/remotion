@@ -149,7 +149,7 @@ export const render = async () => {
 	Log.verbose('Output dir', outputDir);
 
 	const renderProgress = createOverwriteableCliOutput(quietFlagProvided());
-	let totalFrames: number | null = RenderInternals.getDurationFromFrameRange(
+	const totalFrames: number[] = RenderInternals.getFramesToRender(
 		frameRange,
 		config.durationInFrames,
 		everyNthFrame
@@ -162,7 +162,7 @@ export const render = async () => {
 	const downloads: DownloadProgress[] = [];
 
 	const updateRenderProgress = () => {
-		if (totalFrames === null) {
+		if (totalFrames.length === 0) {
 			throw new Error('totalFrames should not be 0');
 		}
 
@@ -170,7 +170,7 @@ export const render = async () => {
 			makeRenderingAndStitchingProgress({
 				rendering: {
 					frames: renderedFrames,
-					totalFrames,
+					totalFrames: totalFrames.length,
 					concurrency: RenderInternals.getActualConcurrency(parallelism),
 					doneIn: renderedDoneIn,
 					steps,
@@ -182,7 +182,7 @@ export const render = async () => {
 							frames: encodedFrames,
 							stage: stitchStage,
 							steps,
-							totalFrames,
+							totalFrames: totalFrames.length,
 					  },
 				downloads,
 			})
@@ -209,10 +209,7 @@ export const render = async () => {
 				renderedFrames = rendered;
 				updateRenderProgress();
 			},
-			onStart: ({frameCount}) => {
-				totalFrames = frameCount;
-				return updateRenderProgress();
-			},
+			onStart: () => undefined,
 			onDownload: (src: string) => {
 				if (src.startsWith('data:')) {
 					Log.info(
@@ -283,9 +280,6 @@ export const render = async () => {
 			Internals.Logging.getLogLevel(),
 			'verbose'
 		),
-		onStart: ({frameCount}) => {
-			totalFrames = frameCount;
-		},
 		chromiumOptions,
 		timeoutInMilliseconds: Internals.getCurrentPuppeteerTimeout(),
 		scale,

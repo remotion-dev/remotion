@@ -103,18 +103,20 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		params.frameRange
 	);
 
-	const frameCount = RenderInternals.getDurationFromFrameRange(
+	const frameCount = RenderInternals.getFramesToRender(
 		realFrameRange,
 		comp.durationInFrames,
 		params.everyNthFrame
 	);
 
+	// TODO: Validate if with everyNthFrame, this makes sense
+
 	const framesPerLambda =
-		params.framesPerLambda ?? bestFramesPerLambdaParam(frameCount);
+		params.framesPerLambda ?? bestFramesPerLambdaParam(frameCount.length);
 
 	validateFramesPerLambda(framesPerLambda);
 
-	const chunkCount = Math.ceil(frameCount / framesPerLambda);
+	const chunkCount = Math.ceil(frameCount.length / framesPerLambda);
 
 	if (chunkCount > MAX_FUNCTIONS_PER_RENDER) {
 		throw new Error(
@@ -231,7 +233,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 	let encodingStop: number | null = null;
 
 	const onProgress = (framesEncoded: number, start: number) => {
-		const relativeProgress = framesEncoded / frameCount;
+		const relativeProgress = framesEncoded / frameCount.length;
 		const deltaSinceLastProgressUploaded =
 			relativeProgress - lastProgressUploaded;
 		if (relativeProgress === 1) {
@@ -246,7 +248,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 
 		const encodingProgress: EncodingProgress = {
 			framesEncoded,
-			totalFrames: frameCount,
+			totalFrames: frameCount.length,
 			doneIn: encodingStop ? encodingStop - start : null,
 			timeToInvoke: null,
 		};
@@ -285,7 +287,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		bucket: params.bucketName,
 		expectedFiles: chunkCount,
 		onProgress,
-		numberOfFrames: frameCount,
+		numberOfFrames: frameCount.length,
 		renderId: params.renderId,
 		region: getCurrentRegionInFunction(),
 		codec: params.codec,
@@ -359,8 +361,8 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		}),
 	]);
 	const finalEncodingProgress: EncodingProgress = {
-		framesEncoded: frameCount,
-		totalFrames: frameCount,
+		framesEncoded: frameCount.length,
+		totalFrames: frameCount.length,
 		doneIn: encodingStop ? encodingStop - encodingStart : null,
 		timeToInvoke: getLambdasInvokedStats(
 			contents,

@@ -33,7 +33,7 @@ export const planFrameRanges = ({
 		};
 	}
 
-	const frameCount = RenderInternals.getDurationFromFrameRange(
+	const framesToRender = RenderInternals.getFramesToRender(
 		frameRange,
 		durationInFrames,
 		everyNthFrame
@@ -43,7 +43,9 @@ export const planFrameRanges = ({
 		chunks: new Array(chunkCount).fill(1).map((_, i) => {
 			return [
 				i * framesPerLambda + frameRange[0],
-				Math.min(frameCount, (i + 1) * framesPerLambda) - 1 + frameRange[0],
+				Math.min(framesToRender.length, (i + 1) * framesPerLambda) -
+					1 +
+					frameRange[0],
 			];
 		}),
 		didUseOptimization: false,
