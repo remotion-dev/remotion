@@ -1,6 +1,6 @@
 import {PlayerInternals, Size} from '@remotion/player';
-import React, {Suspense, useContext, useMemo} from 'react';
-import {getInputProps, Internals, useVideoConfig} from 'remotion';
+import React, {useContext, useEffect, useMemo, useRef} from 'react';
+import {Internals, useVideoConfig} from 'remotion';
 import {
 	checkerboardBackgroundColor,
 	checkerboardBackgroundImage,
@@ -9,7 +9,6 @@ import {
 } from '../helpers/checkerboard-background';
 import {CheckerboardContext} from '../state/checkerboard';
 import {PreviewSizeContext} from '../state/preview-size';
-import {Loading} from './LoadingIndicator';
 
 const checkerboardSize = 49;
 
@@ -44,7 +43,8 @@ const Inner: React.FC<{
 	canvasSize: Size;
 }> = ({canvasSize}) => {
 	const {size: previewSize} = useContext(PreviewSizeContext);
-	const video = Internals.useVideo();
+
+	const portalContainer = useRef<HTMLDivElement>(null);
 
 	const config = useVideoConfig();
 	const {checkerboard} = useContext(CheckerboardContext);
@@ -88,22 +88,18 @@ const Inner: React.FC<{
 		yCorrection,
 	]);
 
-	const Component = video ? video.component : null;
-	const inputProps = getInputProps();
+	useEffect(() => {
+		const {current} = portalContainer;
+		current?.appendChild(Internals.portalNode());
+		return () => {
+			current?.removeChild(Internals.portalNode());
+		};
+	}, []);
 
 	return (
-		<Suspense fallback={<Loading />}>
-			<div style={outer}>
-				<div style={style}>
-					{Component ? (
-						<Component
-							{...((video?.defaultProps as unknown as {}) ?? {})}
-							{...inputProps}
-						/>
-					) : null}
-				</div>
-			</div>
-		</Suspense>
+		<div style={outer}>
+			<div ref={portalContainer} style={style} />
+		</div>
 	);
 };
 

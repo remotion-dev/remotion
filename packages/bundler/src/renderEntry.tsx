@@ -1,9 +1,9 @@
 import React, {
 	ComponentType,
-	Suspense,
 	useCallback,
 	useContext,
 	useEffect,
+	useRef,
 	useState,
 } from 'react';
 import type {render, unmountComponentAtNode} from 'react-dom';
@@ -16,7 +16,6 @@ import {
 	BundleState,
 	continueRender,
 	delayRender,
-	getInputProps,
 	Internals,
 	TCompMetadata,
 	TComposition,
@@ -34,20 +33,14 @@ if (!Root) {
 
 const handle = delayRender('Loading root component');
 
-const Fallback: React.FC = () => {
-	useEffect(() => {
-		const fallback = delayRender('Waiting for Root component to unsuspend');
-		return () => continueRender(fallback);
-	}, []);
-	return null;
-};
-
 const GetVideo: React.FC<{state: BundleState}> = ({state}) => {
 	const video = Internals.useVideo();
 	const compositions = useContext(Internals.CompositionManager);
 	const [Component, setComponent] = useState<ComponentType<unknown> | null>(
 		null
 	);
+
+	const portalContainer = useRef<HTMLDivElement>(null);
 
 	useEffect(() => {
 		if (state.type !== 'composition') {
@@ -91,29 +84,29 @@ const GetVideo: React.FC<{state: BundleState}> = ({state}) => {
 		}
 	}, [Component, state.type]);
 
+	useEffect(() => {
+		const {current} = portalContainer;
+		current?.appendChild(Internals.portalNode());
+		return () => {
+			current?.removeChild(Internals.portalNode());
+		};
+	}, []);
+
 	if (!video) {
 		return null;
 	}
 
 	return (
-		<Suspense fallback={<Fallback />}>
-			<div
-				id="remotion-canvas"
-				style={{
-					width: video.width,
-					height: video.height,
-					display: 'flex',
-					backgroundColor: 'transparent',
-				}}
-			>
-				{Component ? (
-					<Component
-						{...((video?.defaultProps as {}) ?? {})}
-						{...getInputProps()}
-					/>
-				) : null}
-			</div>
-		</Suspense>
+		<div
+			ref={portalContainer}
+			id="remotion-canvas"
+			style={{
+				width: video.width,
+				height: video.height,
+				display: 'flex',
+				backgroundColor: 'transparent',
+			}}
+		/>
 	);
 };
 
