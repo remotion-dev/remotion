@@ -193,6 +193,8 @@ export type LambdaPayloads = {
 		timeoutInMilliseconds: number;
 		chromiumOptions: ChromiumOptions;
 		scale: number;
+		skipNFrames: number;
+		loop: number | null;
 	};
 	launch: {
 		type: LambdaRoutines.launch;
@@ -217,6 +219,8 @@ export type LambdaPayloads = {
 		timeoutInMilliseconds: number;
 		chromiumOptions: ChromiumOptions;
 		scale: number;
+		skipNFrames: number;
+		loop: number | null;
 	};
 	status: {
 		type: LambdaRoutines.status;
@@ -250,6 +254,8 @@ export type LambdaPayloads = {
 		timeoutInMilliseconds: number;
 		chromiumOptions: ChromiumOptions;
 		scale: number;
+		skipNFrames: number;
+		loop: number | null;
 	};
 	still: {
 		type: LambdaRoutines.still;

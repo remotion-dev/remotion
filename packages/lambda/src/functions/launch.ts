@@ -105,7 +105,8 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 
 	const frameCount = RenderInternals.getDurationFromFrameRange(
 		realFrameRange,
-		0
+		comp.durationInFrames,
+		params.skipNFrames
 	);
 
 	const framesPerLambda =
@@ -132,6 +133,8 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		// TODO: Re-enable chunk optimization later
 		shouldUseOptimization: false,
 		frameRange: realFrameRange,
+		durationInFrames: comp.durationInFrames,
+		skipNFrames: params.skipNFrames,
 	});
 	const sortedChunks = chunks.slice().sort((a, b) => a[0] - b[0]);
 	const invokers = Math.round(Math.sqrt(chunks.length));
@@ -165,6 +168,8 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 			timeoutInMilliseconds: params.timeoutInMilliseconds,
 			chromiumOptions: params.chromiumOptions,
 			scale: params.scale,
+			loop: params.loop,
+			skipNFrames: params.skipNFrames,
 		};
 		return payload;
 	});
@@ -334,6 +339,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 						framesPerLambda,
 						lambdaVersion: CURRENT_VERSION,
 						frameRange: realFrameRange,
+						skipNFrames: params.skipNFrames,
 					},
 					expectedBucketOwner: options.expectedBucketOwner,
 					compositionId: params.composition,
