@@ -50,11 +50,9 @@ export const cli = async () => {
 		} else if (command === 'lambda') {
 			await lambdaCommand();
 		} else if (command === 'render') {
-			await render({renderAsGif: false});
+			await render();
 		} else if (command === 'still') {
 			await still();
-		} else if (command === 'gif') {
-			await render({renderAsGif: true});
 		} else if (command === 'upgrade') {
 			await upgrade();
 		} else if (command === VERSIONS_COMMAND) {
