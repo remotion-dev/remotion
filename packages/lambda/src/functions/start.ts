@@ -40,7 +40,7 @@ export const startHandler = async (params: LambdaPayload) => {
 		chromiumOptions: params.chromiumOptions,
 		scale: params.scale,
 		loop: params.loop,
-		skipNFrames: params.skipNFrames,
+		everyNthFrame: params.everyNthFrame,
 	};
 	await getLambdaClient(getCurrentRegionInFunction()).send(
 		new InvokeCommand({

@@ -235,7 +235,7 @@ export const getCliOptions = async (options: {
 			Internals.getChromiumOpenGlRenderer() ??
 			Internals.DEFAULT_OPENGL_RENDERER,
 	};
-	const skipNFrames = Internals.getSkipNFrames();
+	const everyNthFrame = Internals.getEveryNthFrame();
 	const loop = Internals.getLoop();
 
 	return {
@@ -256,7 +256,7 @@ export const getCliOptions = async (options: {
 		pixelFormat,
 		imageFormat,
 		proResProfile,
-		skipNFrames,
+		everyNthFrame,
 		loop,
 		stillFrame: Internals.getStillFrame(),
 		browserExecutable,

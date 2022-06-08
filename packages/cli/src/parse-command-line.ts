@@ -25,7 +25,7 @@ export type CommandLineOptions = {
 	['env-file']: string;
 	['ignore-certificate-errors']: string;
 	['disable-web-security']: string;
-	['skip-n-frames']: number;
+	['every-nth-frame']: number;
 	loop: number;
 	codec: Codec;
 	concurrency: number;
@@ -120,8 +120,8 @@ export const parseCommandLine = (
 		Config.Puppeteer.setChromiumHeadlessMode(false);
 	}
 
-	if (parsedCli['skip-n-frames']) {
-		Config.Rendering.setSkipNFrames(parsedCli['skip-n-frames']);
+	if (parsedCli['every-nth-frame']) {
+		Config.Rendering.setEveryNthFrame(parsedCli['every-nth-frame']);
 	}
 
 	if (parsedCli.gl) {

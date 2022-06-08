@@ -32,7 +32,7 @@ import {setPort} from './preview-server';
 import {setProResProfile} from './prores-profile';
 import {setQuality} from './quality';
 import {setScale} from './scale';
-import {setSkipNFrames} from './skip-n-frames';
+import {setEveryNthFrame} from './skip-n-frames';
 import {setPuppeteerTimeout} from './timeout';
 import {setWebpackCaching} from './webpack-caching';
 
@@ -152,10 +152,10 @@ export const Config = {
 		 */
 		setScale,
 		/**
-		 * Specify the number of frame to skip while rendering GIF
+		 * Specify which frames should be picked for rendering a GIF
 		 * Default: 1
 		 */
-		setSkipNFrames,
+		setEveryNthFrame,
 		/**
 		 * Specify the number of Loop a GIF should have.
 		 * Default: null (means GIF will loop infinite)

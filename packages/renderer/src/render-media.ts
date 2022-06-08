@@ -61,7 +61,7 @@ export type RenderMediaOptions = {
 	envVariables?: Record<string, string>;
 	quality?: number;
 	frameRange?: FrameRange | null;
-	skipNFrames: number;
+	everyNthFrame: number;
 	loop: number | null;
 	puppeteerInstance?: PuppeteerBrowser;
 	overwrite?: boolean;
@@ -100,7 +100,7 @@ export const renderMedia = ({
 	onProgress,
 	overwrite,
 	onDownload,
-	skipNFrames,
+	everyNthFrame,
 	dumpBrowserLogs,
 	onBrowserLog,
 	onStart,
@@ -181,7 +181,7 @@ export const renderMedia = ({
 	const {waitForRightTimeOfFrameToBeInserted, setFrameToStitch, waitForFinish} =
 		ensureFramesInOrder(realFrameRange);
 
-	const actualGifFps = Math.floor(composition.fps / (skipNFrames + 1));
+	const actualGifFps = Math.floor(composition.fps / (everyNthFrame + 1));
 
 	const createPrestitcherIfNecessary = async () => {
 		if (preEncodedFileLocation) {
@@ -243,7 +243,7 @@ export const renderMedia = ({
 				quality,
 				frameRange: frameRange ?? null,
 				puppeteerInstance,
-				skipNFrames,
+				everyNthFrame,
 				onFrameBuffer: parallelEncoding
 					? async (buffer, frame) => {
 							await waitForRightTimeOfFrameToBeInserted(frame);
@@ -323,7 +323,7 @@ export const renderMedia = ({
 			encodedFrames = getDurationFromFrameRange(
 				frameRange ?? null,
 				composition.durationInFrames,
-				skipNFrames
+				everyNthFrame
 			);
 			encodedDoneIn = Date.now() - stitchStart;
 			callUpdate();

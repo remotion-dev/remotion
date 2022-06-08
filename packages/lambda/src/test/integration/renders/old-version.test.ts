@@ -49,7 +49,7 @@ test('Should be able to render to another bucket', async () => {
 			scale: 1,
 			timeoutInMilliseconds: 12000,
 			loop: null,
-			skipNFrames: 0,
+			everyNthFrame: 0,
 		},
 		extraContext
 	);

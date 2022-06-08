@@ -101,7 +101,7 @@ const renderHandler = async (
 			const duration = RenderInternals.getDurationFromFrameRange(
 				params.frameRange,
 				params.durationInFrames,
-				params.skipNFrames
+				params.everyNthFrame
 			);
 
 			if (renderedFrames === duration) {
@@ -161,7 +161,7 @@ const renderHandler = async (
 		timeoutInMilliseconds: params.timeoutInMilliseconds,
 		port: null,
 		loop: params.loop,
-		skipNFrames: params.skipNFrames,
+		everyNthFrame: params.everyNthFrame,
 	});
 
 	const endRendered = Date.now();

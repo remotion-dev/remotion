@@ -62,7 +62,7 @@ type RenderFramesOptions = {
 	parallelism?: number | null;
 	quality?: number;
 	frameRange?: FrameRange | null;
-	skipNFrames: number;
+	everyNthFrame: number;
 	dumpBrowserLogs?: boolean;
 	puppeteerInstance?: PuppeteerBrowser;
 	browserExecutable?: BrowserExecutable;
@@ -118,7 +118,7 @@ const innerRenderFrames = ({
 	scale,
 	actualParallelism,
 	downloadDir,
-	skipNFrames,
+	everyNthFrame,
 	proxyPort,
 	cancelSignal,
 }: Omit<RenderFramesOptions, 'url' | 'onDownload'> & {
@@ -153,7 +153,7 @@ const innerRenderFrames = ({
 	const frameCount = getDurationFromFrameRange(
 		realFrameRange,
 		composition.durationInFrames,
-		skipNFrames
+		everyNthFrame
 	);
 
 	const pages = new Array(actualParallelism).fill(true).map(async () => {
@@ -233,9 +233,9 @@ const innerRenderFrames = ({
 			.map((_x, i) => i)
 			.map(async (index) => {
 				const frame =
-					skipNFrames === 0
+					everyNthFrame === 0
 						? realFrameRange[0] + index
-						: realFrameRange[0] + index * (skipNFrames + 1);
+						: realFrameRange[0] + index * (everyNthFrame + 1);
 
 				const pool = await poolPromise;
 				const freePage = await pool.acquire();
@@ -244,7 +244,7 @@ const innerRenderFrames = ({
 				}
 
 				const paddedIndex = String(
-					Math.floor(frame / (skipNFrames + 1))
+					Math.floor(frame / (everyNthFrame + 1))
 				).padStart(filePadLength, '0');
 
 				const errorCallbackOnFrame = (err: Error) => {

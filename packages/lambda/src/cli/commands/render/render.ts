@@ -65,7 +65,7 @@ export const renderCommand = async (args: string[]) => {
 		puppeteerTimeout,
 		quality,
 		scale,
-		skipNFrames,
+		everyNthFrame,
 		loop,
 	} = await CliInternals.getCliOptions({
 		type: 'series',
@@ -107,7 +107,7 @@ export const renderCommand = async (args: string[]) => {
 		chromiumOptions,
 		scale,
 		loop,
-		skipNFrames,
+		everyNthFrame,
 	});
 
 	const totalSteps = outName ? 5 : 4;

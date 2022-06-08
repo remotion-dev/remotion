@@ -36,7 +36,7 @@ export type RenderMediaOnLambdaInput = {
 	timeoutInMilliseconds?: number;
 	chromiumOptions?: ChromiumOptions;
 	scale?: number;
-	skipNFrames: number;
+	everyNthFrame: number;
 	loop: number | null;
 };
 
@@ -87,7 +87,7 @@ export const renderMediaOnLambda = async ({
 	chromiumOptions,
 	scale,
 	loop,
-	skipNFrames,
+	everyNthFrame,
 }: RenderMediaOnLambdaInput): Promise<RenderMediaOnLambdaOutput> => {
 	validateServeUrl(serveUrl);
 	validateFramesPerLambda(framesPerLambda ?? null);
@@ -116,7 +116,7 @@ export const renderMediaOnLambda = async ({
 				timeoutInMilliseconds ?? Internals.DEFAULT_PUPPETEER_TIMEOUT,
 			chromiumOptions: chromiumOptions ?? {},
 			scale: scale ?? 1,
-			skipNFrames,
+			everyNthFrame,
 			loop,
 		},
 		region,
