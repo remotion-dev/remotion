@@ -279,7 +279,7 @@ export const spawnFfmpeg = async (
 		codec === 'h264' ? ['-movflags', 'faststart'] : null,
 		audioCodecName ? ['-c:a', audioCodecName] : null,
 		// Set max bitrate up to 1024kbps, will choose lower if that's too much
-		audioCodecName ? ['-b:a', '1M'] : null,
+		audioCodecName ? ['-b:a', '512K'] : null,
 		// Ignore metadata that may come from remote media
 		['-map_metadata', '-1'],
 		[
