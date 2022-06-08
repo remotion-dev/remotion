@@ -81,7 +81,7 @@ export const prespawnFfmpeg = async (options: PreSticherOptions) => {
 	Internals.validateSelectedPixelFormatAndCodecCombination(pixelFormat, codec);
 
 	const ffmpegArgs = [
-		['-r', String(options.fps)],
+		['-r', options.fps.toFixed(2)],
 		...[
 			['-f', 'image2pipe'],
 			['-s', `${options.width}x${options.height}`],
