@@ -13,6 +13,7 @@ type ValidateCompositionOptions = {
 	inputProps: unknown;
 	envVariables: Record<string, string> | undefined;
 	ffmpegExecutable: FfmpegExecutable;
+	ffprobeExecutable: FfmpegExecutable;
 	timeoutInMilliseconds: number;
 	chromiumOptions: ChromiumOptions;
 	port: number | null;
@@ -26,6 +27,7 @@ export const validateComposition = async ({
 	envVariables,
 	timeoutInMilliseconds,
 	ffmpegExecutable,
+	ffprobeExecutable,
 	chromiumOptions,
 	port,
 }: ValidateCompositionOptions): Promise<TCompMetadata> => {
@@ -34,6 +36,7 @@ export const validateComposition = async ({
 		inputProps: inputProps as object,
 		envVariables,
 		ffmpegExecutable,
+		ffprobeExecutable,
 		timeoutInMilliseconds,
 		chromiumOptions,
 		port,

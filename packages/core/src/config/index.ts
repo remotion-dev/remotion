@@ -10,7 +10,11 @@ import {Codec, setCodec, setOutputFormat} from './codec';
 import {Concurrency, setConcurrency} from './concurrency';
 import {setCrf} from './crf';
 import {setDotEnvLocation} from './env-file';
-import {FfmpegExecutable, setFfmpegExecutable} from './ffmpeg-executable';
+import {
+	FfmpegExecutable,
+	setFfmpegExecutable,
+	setFfprobeExecutable,
+} from './ffmpeg-executable';
 import {FrameRange, setFrameRange} from './frame-range';
 import {ImageFormat, setImageFormat, StillImageFormat} from './image-format';
 import {setImageSequence} from './image-sequence';
@@ -137,6 +141,11 @@ export const Config = {
 		 * Default: null, which will use ffmpeg available in PATH.
 		 */
 		setFfmpegExecutable,
+		/**
+		 * Specify local ffprobe executable.
+		 * Default: null, which will use ffprobe available in PATH.
+		 */
+		setFfprobeExecutable,
 		/**
 		 * Scales the output dimensions by a factor.
 		 * Default: 1.

@@ -104,6 +104,12 @@ _string - optional_
 
 An absolute path overriding the `ffmpeg` executable to use.
 
+#### `ffprobeExecutable?`
+
+_optional, available from v3.0.17_
+
+An absolute path overriding the `ffprobe` executable to use.
+
 #### `browserExecutable?`
 
 _optional, available from v3.0.11_

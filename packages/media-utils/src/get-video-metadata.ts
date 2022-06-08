@@ -23,14 +23,14 @@ const fn = (src: string): Promise<VideoMetadata> => {
 			cleanup();
 		};
 
-		const pixels = video.videoHeight * video.videoWidth;
-
-		if (pixels === 0) {
-			reject(new Error('Unable to determine video metadata'));
-			return;
-		}
-
 		const onLoadedMetadata = () => {
+			const pixels = video.videoHeight * video.videoWidth;
+
+			if (pixels === 0) {
+				reject(new Error('Unable to determine video metadata'));
+				return;
+			}
+
 			const metadata: VideoMetadata = {
 				durationInSeconds: video.duration,
 				width: video.videoWidth,

@@ -2,14 +2,22 @@ import React, {
 	ComponentType,
 	createContext,
 	FC,
+	Suspense,
 	useContext,
 	useEffect,
 	useMemo,
 } from 'react';
+import {createPortal} from 'react-dom';
 import {CompositionManager} from './CompositionManager';
+import {getInputProps} from './config/input-props';
+import {continueRender, delayRender} from './delay-render';
+import {getRemotionEnvironment} from './get-environment';
+import {Loading} from './loading-indicator';
 import {useNonce} from './nonce';
+import {portalNode} from './portal-node';
 import {truthy} from './truthy';
 import {useLazyComponent} from './use-lazy-component';
+import {useVideo} from './use-video';
 import {validateCompositionId} from './validation/validate-composition-id';
 import {validateDimension} from './validation/validate-dimensions';
 import {validateDurationInFrames} from './validation/validate-duration-in-frames';
@@ -82,6 +90,14 @@ type CompositionProps<T> = StillProps<T> & {
 	durationInFrames: number;
 };
 
+const Fallback: React.FC = () => {
+	useEffect(() => {
+		const fallback = delayRender('Waiting for Root component to unsuspend');
+		return () => continueRender(fallback);
+	}, []);
+	return null;
+};
+
 export const Composition = <T,>({
 	width,
 	height,
@@ -93,6 +109,7 @@ export const Composition = <T,>({
 }: CompositionProps<T>) => {
 	const {registerComposition, unregisterComposition} =
 		useContext(CompositionManager);
+	const video = useVideo();
 
 	const lazy = useLazyComponent(compProps);
 	const nonce = useNonce();
@@ -144,6 +161,38 @@ export const Composition = <T,>({
 		nonce,
 		parentName,
 	]);
+
+	if (
+		getRemotionEnvironment() === 'preview' &&
+		video &&
+		video.component === lazy
+	) {
+		const Comp = lazy;
+		const inputProps = getInputProps();
+
+		return createPortal(
+			<Suspense fallback={<Loading />}>
+				<Comp {...defaultProps} {...inputProps} />
+			</Suspense>,
+			portalNode()
+		);
+	}
+
+	if (
+		getRemotionEnvironment() === 'rendering' &&
+		video &&
+		video.component === lazy
+	) {
+		const Comp = lazy;
+		const inputProps = getInputProps();
+
+		return createPortal(
+			<Suspense fallback={<Fallback />}>
+				<Comp {...defaultProps} {...inputProps} />
+			</Suspense>,
+			portalNode()
+		);
+	}
 
 	return null;
 };

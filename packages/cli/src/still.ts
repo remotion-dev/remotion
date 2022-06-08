@@ -59,6 +59,7 @@ export const still = async () => {
 		chromiumOptions,
 		scale,
 		ffmpegExecutable,
+		ffprobeExecutable,
 		overwrite,
 		puppeteerTimeout,
 		port,
@@ -123,6 +124,7 @@ export const still = async () => {
 		port,
 		browserExecutable,
 		ffmpegExecutable,
+		ffprobeExecutable,
 	});
 	const compositionId = getCompositionId(comps);
 

@@ -223,6 +223,7 @@ export const getCliOptions = async (options: {
 	const proResProfile = getAndValidateProResProfile(codec);
 	const browserExecutable = Internals.getBrowserExecutable();
 	const ffmpegExecutable = Internals.getCustomFfmpegExecutable();
+	const ffprobeExecutable = Internals.getCustomFfprobeExecutable();
 	const scale = Internals.getScale();
 	const port = Internals.getServerPort();
 
@@ -260,6 +261,7 @@ export const getCliOptions = async (options: {
 		stillFrame: Internals.getStillFrame(),
 		browserExecutable,
 		ffmpegExecutable,
+		ffprobeExecutable,
 		logLevel: Internals.Logging.getLogLevel(),
 		scale,
 		chromiumOptions,
