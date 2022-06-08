@@ -183,6 +183,7 @@ export const render = async () => {
 							stage: stitchStage,
 							steps,
 							totalFrames: totalFrames.length,
+							codec,
 					  },
 				downloads,
 			})
@@ -310,7 +311,9 @@ export const render = async () => {
 		Log.warn('Do you have minimum required Node.js version?');
 	}
 
-	Log.info(chalk.green(`\nYour video is ready!`));
+	Log.info(
+		chalk.green(`\nYour ${codec === 'gif' ? 'GIF' : 'video'} is ready!`)
+	);
 
 	if (
 		Internals.Logging.isEqualOrBelowLogLevel(
