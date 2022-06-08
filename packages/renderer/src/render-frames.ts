@@ -211,10 +211,9 @@ const innerRenderFrames = ({
 		return page;
 	});
 
-	const [firstFrameIndex, lastFrameIndex] = realFrameRange;
 	// Substract one because 100 frames will be 00-99
 	// --> 2 digits
-	const filePadLength = String(lastFrameIndex).length;
+	const filePadLength = String(framesToRender.length - 1).length;
 	let framesRendered = 0;
 
 	const poolPromise = getPool(pages);
@@ -236,9 +235,7 @@ const innerRenderFrames = ({
 				throw new Error('Render was stopped');
 			}
 
-			const paddedIndex = String(
-				Math.floor(frame / (everyNthFrame + 1))
-			).padStart(filePadLength, '0');
+			const paddedIndex = String(index).padStart(filePadLength, '0');
 
 			const errorCallbackOnFrame = (err: Error) => {
 				onError(err);
@@ -330,7 +327,6 @@ const innerRenderFrames = ({
 			assetsInfo: {
 				assets,
 				downloadDir,
-				firstFrameIndex,
 				imageSequenceName: `element-%0${filePadLength}d.${imageFormat}`,
 			},
 			frameCount: framesToRender.length,
