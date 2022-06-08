@@ -1,4 +1,5 @@
 import net from 'net';
+import {pLimit} from './p-limit';
 
 const getAvailablePort = (portToTry: number) =>
 	new Promise<'available' | 'unavailable'>((resolve) => {
@@ -48,7 +49,7 @@ const getPort = async (from: number, to: number) => {
 	throw new Error('No available ports found');
 };
 
-export const getDesiredPort = async (
+const getDesiredPortUnlimited = async (
 	desiredPort: number | undefined,
 	from: number,
 	to: number
@@ -70,6 +71,15 @@ export const getDesiredPort = async (
 	}
 
 	return actualPort;
+};
+
+const limit = pLimit(1);
+export const getDesiredPort = (
+	desiredPort: number | undefined,
+	from: number,
+	to: number
+) => {
+	return limit(getDesiredPortUnlimited, desiredPort, from, to);
 };
 
 const makeRange = (from: number, to: number) => {
