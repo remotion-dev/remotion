@@ -12,6 +12,7 @@ import {CompositionManager} from './CompositionManager';
 import {getInputProps} from './config/input-props';
 import {continueRender, delayRender} from './delay-render';
 import {getRemotionEnvironment} from './get-environment';
+import {Loading} from './loading-indicator';
 import {useNonce} from './nonce';
 import {portalNode} from './portal-node';
 import {truthy} from './truthy';
@@ -170,7 +171,7 @@ export const Composition = <T,>({
 		const inputProps = getInputProps();
 
 		return createPortal(
-			<Suspense fallback={<div>hi</div>}>
+			<Suspense fallback={<Loading />}>
 				<Comp {...defaultProps} {...inputProps} />
 			</Suspense>,
 			portalNode()
