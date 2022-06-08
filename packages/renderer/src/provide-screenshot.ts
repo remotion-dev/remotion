@@ -2,7 +2,7 @@ import puppeteer from 'puppeteer-core';
 import {ImageFormat} from 'remotion';
 import {screenshotDOMElement} from './screenshot-dom-element';
 
-export const provideScreenshot = async ({
+export const provideScreenshot = ({
 	page,
 	imageFormat,
 	options,

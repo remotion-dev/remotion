@@ -3,6 +3,7 @@ import {Composition, Folder, getInputProps, Still} from 'remotion';
 import {TwentyTwoKHzAudio} from './22KhzAudio';
 import BetaText from './BetaText';
 import {ColorInterpolation} from './ColorInterpolation';
+import {MyCtx, WrappedInContext} from './Context';
 import {ErrorOnFrame10} from './ErrorOnFrame10';
 import {FontDemo} from './Fonts';
 import {Framer} from './Framer';
@@ -131,6 +132,18 @@ export const Index: React.FC = () => {
 					fps={30}
 					durationInFrames={1000000}
 				/>
+				<MyCtx.Provider
+					value={{
+						hi: () => 'hithere',
+					}}
+				>
+					<Still
+						id="wrapped-in-context"
+						component={WrappedInContext}
+						width={1280}
+						height={720}
+					/>
+				</MyCtx.Provider>
 			</Folder>
 			<Folder name="creatives">
 				<Composition

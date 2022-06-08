@@ -17,6 +17,7 @@ import {Log} from './log';
 export type CommandLineOptions = {
 	['browser-executable']: BrowserExecutable;
 	['ffmpeg-executable']: FfmpegExecutable;
+	['ffprobe-executable']: FfmpegExecutable;
 	['pixel-format']: PixelFormat;
 	['image-format']: ImageFormat;
 	['prores-profile']: ProResProfile;
@@ -95,6 +96,12 @@ export const parseCommandLine = (
 
 	if (parsedCli.loop) {
 		Config.Rendering.setLoop(parsedCli.loop);
+	}
+
+	if (parsedCli['ffprobe-executable']) {
+		Config.Rendering.setFfprobeExecutable(
+			resolve(parsedCli['ffprobe-executable'])
+		);
 	}
 
 	if (typeof parsedCli['bundle-cache'] !== 'undefined') {

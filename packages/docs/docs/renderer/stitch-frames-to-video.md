@@ -123,6 +123,12 @@ _optional_
 
 A custom FFMPEG executable to be used. By default, a binary called `ffmpeg` will be searched in your `PATH`.
 
+#### `ffprobeExecutable?`
+
+_optional, available from v3.0.17_
+
+An absolute path overriding the `ffprobe` executable to use.
+
 ### `cancelSignal?`
 
 _optional, available from v3.0.15_

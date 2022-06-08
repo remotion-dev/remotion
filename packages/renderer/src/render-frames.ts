@@ -73,6 +73,7 @@ type RenderFramesOptions = {
 	chromiumOptions?: ChromiumOptions;
 	scale?: number;
 	ffmpegExecutable?: FfmpegExecutable;
+	ffprobeExecutable?: FfmpegExecutable;
 	port?: number | null;
 	cancelSignal?: CancelSignal;
 } & ConfigOrComposition &
@@ -158,7 +159,7 @@ const innerRenderFrames = ({
 	const pages = new Array(actualParallelism).fill(true).map(async () => {
 		const page = await puppeteerInstance.newPage();
 		pagesArray.push(page);
-		page.setViewport({
+		await page.setViewport({
 			width: composition.width,
 			height: composition.height,
 			deviceScaleFactor: scale ?? 1,
@@ -260,6 +261,7 @@ const innerRenderFrames = ({
 
 				if (imageFormat !== 'none') {
 					if (onFrameBuffer) {
+						const id = Internals.perf.startPerfMeasure('save');
 						const buffer = await provideScreenshot({
 							page: freePage,
 							imageFormat,
@@ -269,6 +271,8 @@ const innerRenderFrames = ({
 								output: undefined,
 							},
 						});
+						Internals.perf.stopPerfMeasure(id);
+
 						onFrameBuffer(buffer, frame);
 					} else {
 						if (!outputDir) {
@@ -423,6 +427,7 @@ export const renderFrames = (
 				onDownload,
 				onError,
 				ffmpegExecutable: options.ffmpegExecutable ?? null,
+				ffprobeExecutable: options.ffprobeExecutable ?? null,
 				port: options.port ?? null,
 			}),
 			browserInstance,

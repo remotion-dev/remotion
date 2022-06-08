@@ -62,6 +62,7 @@ export const render = async ({renderAsGif}: {renderAsGif: boolean}) => {
 		imageFormat,
 		browserExecutable,
 		ffmpegExecutable,
+		ffprobeExecutable,
 		scale,
 		chromiumOptions,
 		port,
@@ -230,7 +231,6 @@ export const render = async ({renderAsGif}: {renderAsGif: boolean}) => {
 				'verbose'
 			),
 			skipNFrames,
-			loop,
 			envVariables,
 			frameRange,
 			parallelism,
@@ -240,6 +240,7 @@ export const render = async ({renderAsGif}: {renderAsGif: boolean}) => {
 			chromiumOptions,
 			scale,
 			ffmpegExecutable,
+			ffprobeExecutable,
 			browserExecutable,
 			port,
 		});
@@ -300,10 +301,9 @@ export const render = async ({renderAsGif}: {renderAsGif: boolean}) => {
 			crf,
 			envVariables,
 			ffmpegExecutable,
+			ffprobeExecutable,
 			frameRange,
 			imageFormat,
-			skipNFrames,
-			loop,
 			inputProps,
 			onProgress: (update) => {
 				encodedDoneIn = update.encodedDoneIn;
@@ -332,6 +332,8 @@ export const render = async ({renderAsGif}: {renderAsGif: boolean}) => {
 			timeoutInMilliseconds: Internals.getCurrentPuppeteerTimeout(),
 			scale,
 			port,
+			loop,
+			skipNFrames,
 		});
 	}
 
@@ -358,4 +360,13 @@ export const render = async ({renderAsGif}: {renderAsGif: boolean}) => {
 	}
 
 	Log.info(chalk.green(`\nYour ${renderAsGif ? 'gif' : 'video'} is ready!`));
+
+	if (
+		Internals.Logging.isEqualOrBelowLogLevel(
+			Internals.Logging.getLogLevel(),
+			'verbose'
+		)
+	) {
+		Internals.perf.logPerf();
+	}
 };
