@@ -207,6 +207,7 @@ export const spawnFfmpeg = async (
 		options.onProgress?.(Math.round(totalFrameProgress));
 	};
 
+	// TODO: Don't render audio if GIF
 	const audio = await getAssetsData({
 		assets: options.assetsInfo.assets,
 		downloadDir: options.assetsInfo.downloadDir,

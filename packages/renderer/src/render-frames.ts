@@ -222,18 +222,14 @@ const innerRenderFrames = ({
 	onStart({
 		frameCount: framesToRender.length,
 	});
+
 	const assets: TAsset[][] = new Array(framesToRender.length).fill(undefined);
 	let stopped = false;
 	cancelSignal?.(() => {
 		stopped = true;
 	});
 	const progress = Promise.all(
-		framesToRender.map(async (index) => {
-			const frame =
-				everyNthFrame === 0
-					? realFrameRange[0] + index
-					: realFrameRange[0] + index * (everyNthFrame + 1);
-
+		framesToRender.map(async (frame, index) => {
 			const pool = await poolPromise;
 			const freePage = await pool.acquire();
 			if (stopped) {
