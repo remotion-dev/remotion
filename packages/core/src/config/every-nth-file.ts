@@ -1,9 +1,9 @@
-import {validateFrame} from '../validation/validate-frame';
+import {validateEveryNthFrame} from '../validation/validate-every-nth-frame';
 
-let everyNthFrame = 0;
+let everyNthFrame = 1;
 
 export const setEveryNthFrame = (frame: number) => {
-	validateFrame(frame, Infinity);
+	validateEveryNthFrame(frame);
 	everyNthFrame = frame;
 };
 

@@ -9,7 +9,7 @@ import {
 	getFfmpegVersion,
 } from './ffmpeg-flags';
 import {getActualConcurrency} from './get-concurrency';
-import {getDurationFromFrameRange} from './get-duration-from-frame-range';
+import {getFramesToRender} from './get-duration-from-frame-range';
 import {getFileExtensionFromCodec} from './get-extension-from-codec';
 import {getExtensionOfFilename} from './get-extension-of-filename';
 import {getRealFrameRange} from './get-frame-to-render';
@@ -73,6 +73,6 @@ export const RenderInternals = {
 	parseStack,
 	symbolicateError,
 	SymbolicateableError,
-	getDurationFromFrameRange,
+	getFramesToRender,
 	getExtensionOfFilename,
 };

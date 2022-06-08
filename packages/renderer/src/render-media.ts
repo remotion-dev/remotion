@@ -18,7 +18,7 @@ import {BrowserLog} from './browser-log';
 import {canUseParallelEncoding} from './can-use-parallel-encoding';
 import {ensureFramesInOrder} from './ensure-frames-in-order';
 import {ensureOutputDirectory} from './ensure-output-directory';
-import {getDurationFromFrameRange} from './get-duration-from-frame-range';
+import {getFramesToRender} from './get-duration-from-frame-range';
 import {getFileExtensionFromCodec} from './get-extension-from-codec';
 import {getExtensionOfFilename} from './get-extension-of-filename';
 import {getRealFrameRange} from './get-frame-to-render';
@@ -320,11 +320,11 @@ export const renderMedia = ({
 			]);
 		})
 		.then(([, stitchStart]) => {
-			encodedFrames = getDurationFromFrameRange(
+			encodedFrames = getFramesToRender(
 				frameRange ?? null,
 				composition.durationInFrames,
 				everyNthFrame
-			);
+			).length;
 			encodedDoneIn = Date.now() - stitchStart;
 			callUpdate();
 		})
