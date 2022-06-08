@@ -17,9 +17,5 @@ export const getDurationFromFrameRange = (
 		return 1;
 	}
 
-	if (everyNthFrame === 0) {
-		return frameRange[1] - frameRange[0] + 1;
-	}
-
 	return Math.floor((frameRange[1] - frameRange[0] + 1) / everyNthFrame);
 };
