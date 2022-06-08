@@ -61,6 +61,7 @@ export const render = async () => {
 		imageFormat,
 		browserExecutable,
 		ffmpegExecutable,
+		ffprobeExecutable,
 		scale,
 		chromiumOptions,
 		port,
@@ -235,6 +236,7 @@ export const render = async () => {
 			chromiumOptions,
 			scale,
 			ffmpegExecutable,
+			ffprobeExecutable,
 			browserExecutable,
 			port,
 		});
@@ -254,6 +256,7 @@ export const render = async () => {
 		crf,
 		envVariables,
 		ffmpegExecutable,
+		ffprobeExecutable,
 		frameRange,
 		imageFormat,
 		inputProps,
@@ -309,4 +312,13 @@ export const render = async () => {
 	}
 
 	Log.info(chalk.green('\nYour video is ready!'));
+
+	if (
+		Internals.Logging.isEqualOrBelowLogLevel(
+			Internals.Logging.getLogLevel(),
+			'verbose'
+		)
+	) {
+		Internals.perf.logPerf();
+	}
 };

@@ -1,10 +1,9 @@
 ---
 title: getCompositions()
 id: get-compositions
-slug: /renderer/get-compositions
 ---
 
-import {AngleChangelog} from '../components/AngleChangelog';
+import {AngleChangelog} from '../../components/AngleChangelog';
 
 _Part of the `@remotion/renderer` package._
 
@@ -20,6 +19,7 @@ const getCompositions: (
     onBrowserLog?: (log: BrowserLog) => void;
     browserExecutable?: BrowserExecutable;
     ffmpegExecutable?: FfmpegExecutable;
+    ffprobeExecutable?: FfmpegExecutable;
   }
 ) => Promise<TComposition[]>;
 ```
@@ -59,6 +59,12 @@ A string defining the absolute path on disk of the browser executable that shoul
 _optional, available from v3.0.11_
 
 An absolute path overriding the `ffmpeg` executable to use.
+
+#### `ffprobeExecutable?`
+
+_optional, available from v3.0.17_
+
+An absolute path overriding the `ffprobe` executable to use.
 
 #### `onBrowserLog?`
 

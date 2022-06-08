@@ -35,7 +35,10 @@ import {
 	validateSelectedCrfAndCodecCombination,
 } from './config/crf';
 import {getDotEnvLocation} from './config/env-file';
-import {getCustomFfmpegExecutable} from './config/ffmpeg-executable';
+import {
+	getCustomFfmpegExecutable,
+	getCustomFfprobeExecutable,
+} from './config/ffmpeg-executable';
 import {
 	getRange,
 	setFrameRangeFromCli,
@@ -84,6 +87,7 @@ import {getRemotionEnvironment, RemotionEnvironment} from './get-environment';
 import {getPreviewDomElement} from './get-preview-dom-element';
 import {isAudioCodec} from './is-audio-codec';
 import * as perf from './perf';
+import {portalNode} from './portal-node';
 import {getRoot} from './register-root';
 import {RemotionRoot} from './RemotionRoot';
 import {SequenceContext} from './sequencing';
@@ -144,6 +148,7 @@ export const Internals = {
 	getRoot,
 	getBrowserExecutable,
 	getCustomFfmpegExecutable,
+	getCustomFfprobeExecutable,
 	getPixelFormat,
 	getConcurrency,
 	getRange,
@@ -219,6 +224,7 @@ export const Internals = {
 	compositionsRef,
 	DELAY_RENDER_CALLSTACK_TOKEN,
 	useAbsoluteCurrentFrame,
+	portalNode,
 };
 
 export type {
