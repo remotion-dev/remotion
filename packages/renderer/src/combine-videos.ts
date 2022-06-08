@@ -45,9 +45,9 @@ export const combineVideos = async ({
 				Internals.isAudioCodec(codec) ? null : 'copy',
 				'-c:a',
 				getAudioCodecName(codec),
-				// Set bitrate up to 320k, for aac it might effectively be lower
+				// Set max bitrate up to 1024kbps, will choose lower if that's too much
 				'-b:a',
-				'320k',
+				'1M',
 				codec === 'h264' ? '-movflags' : null,
 				codec === 'h264' ? 'faststart' : null,
 				'-shortest',
