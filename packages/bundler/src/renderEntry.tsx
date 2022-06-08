@@ -85,12 +85,20 @@ const GetVideo: React.FC<{state: BundleState}> = ({state}) => {
 	}, [Component, state.type]);
 
 	useEffect(() => {
+		if (!video) {
+			return;
+		}
+
 		const {current} = portalContainer;
-		current?.appendChild(Internals.portalNode());
+		if (!current) {
+			throw new Error('portal did not render');
+		}
+
+		current.appendChild(Internals.portalNode());
 		return () => {
-			current?.removeChild(Internals.portalNode());
+			current.removeChild(Internals.portalNode());
 		};
-	}, []);
+	}, [video]);
 
 	if (!video) {
 		return null;
