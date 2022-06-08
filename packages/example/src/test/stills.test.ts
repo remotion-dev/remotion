@@ -35,6 +35,7 @@ test('Can render a still using Node.JS APIs', async () => {
 			throw err;
 		},
 		ffmpegExecutable: null,
+		ffprobeExecutable: null,
 	});
 
 	const serveUrl = `http://localhost:${port}`;

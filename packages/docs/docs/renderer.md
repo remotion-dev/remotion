@@ -65,6 +65,7 @@ The following APIs are available in the `@remotion/renderer` package:
 - [`renderStill()`](/docs/renderer/render-still) - Render a still image
 - [`stitchFramesToVideo()`](/docs/renderer/stitch-frames-to-video) - Encode a video based on an image sequence
 - [`openBrowser()`](/docs/renderer/open-browser) - Share a browser instance across function calls for even better performance.
+- [`makeCancelSignal()`](/docs/renderer/make-cancel-signal) - Returns a token that allows a render to be cancelled.
 
 ## What's the difference between `renderMedia()` and `renderFrames()`?
 

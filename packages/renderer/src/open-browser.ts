@@ -127,6 +127,7 @@ export const openBrowser = async (
 			'--hide-scrollbars', // https://source.chromium.org/search?q=lang:cpp+symbol:kHideScrollbars&ss=chromium
 			'--no-default-browser-check', // https://source.chromium.org/search?q=lang:cpp+symbol:kNoDefaultBrowserCheck&ss=chromium
 			'--no-pings', // https://source.chromium.org/search?q=lang:cpp+symbol:kNoPings&ss=chromium
+			'--font-render-hinting=none',
 			'--no-zygote', // https://source.chromium.org/search?q=lang:cpp+symbol:kNoZygote&ss=chromium,
 			options?.forceDeviceScaleFactor
 				? `--force-device-scale-factor=${options.forceDeviceScaleFactor}`
@@ -146,7 +147,8 @@ export const openBrowser = async (
 		].filter(Boolean) as string[],
 	});
 	const pages = await browserInstance.pages();
-	pages.forEach((p) => p.close());
+	await pages[0].close();
+
 	browserInstances.push(browserInstance);
 	return browserInstance;
 };

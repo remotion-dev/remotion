@@ -1,8 +1,11 @@
+import {alias} from 'lib/alias';
 import React from 'react';
 import {Composition, Folder, getInputProps, Still} from 'remotion';
 import {TwentyTwoKHzAudio} from './22KhzAudio';
 import BetaText from './BetaText';
 import {ColorInterpolation} from './ColorInterpolation';
+import {MyCtx, WrappedInContext} from './Context';
+import {ErrorOnFrame10} from './ErrorOnFrame10';
 import {FontDemo} from './Fonts';
 import {Framer} from './Framer';
 import {FreezeExample} from './Freeze/FreezeExample';
@@ -22,6 +25,10 @@ import {VideoOnCanvas} from './VideoOnCanvas';
 import {Greenscreen} from './VideoOnCanvas/greenscreen';
 import {VideoSpeed} from './VideoSpeed';
 import {VideoTesting} from './VideoTesting';
+
+if (alias !== 'alias') {
+	throw new Error('should support TS aliases');
+}
 
 // Use it to test that UI does not regress on weird CSS
 // import './weird-css.css';
@@ -122,6 +129,26 @@ export const Index: React.FC = () => {
 					fps={30}
 					durationInFrames={30}
 				/>
+				<Composition
+					id="error-on-frame-10"
+					component={ErrorOnFrame10}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={1000000}
+				/>
+				<MyCtx.Provider
+					value={{
+						hi: () => 'hithere',
+					}}
+				>
+					<Still
+						id="wrapped-in-context"
+						component={WrappedInContext}
+						width={1280}
+						height={720}
+					/>
+				</MyCtx.Provider>
 			</Folder>
 			<Folder name="creatives">
 				<Composition

@@ -1,7 +1,6 @@
 ---
 id: stitch-frames-to-video
 title: stitchFramesToVideo()
-slug: /renderer/stitch-frames-to-video
 ---
 
 _Part of the `@remotion/renderer` package._
@@ -28,6 +27,7 @@ const stitchFramesToVideo: (options: {
   onDownload?: (src: number) => void;
   verbose?: boolean;
   ffmpegExecutable?: FfmpegExecutable;
+  cancelSignal?: CancelSignal;
 }) => Promise<void>;
 ```
 
@@ -122,6 +122,18 @@ A boolean value that when set to `true`, will log all kinds of debug information
 _optional_
 
 A custom FFMPEG executable to be used. By default, a binary called `ffmpeg` will be searched in your `PATH`.
+
+#### `ffprobeExecutable?`
+
+_optional, available from v3.0.17_
+
+An absolute path overriding the `ffprobe` executable to use.
+
+### `cancelSignal?`
+
+_optional, available from v3.0.15_
+
+A token that allows the render to be cancelled. See: [`makeCancelSignal()`](/docs/renderer/make-cancel-signal)
 
 ## Return value
 

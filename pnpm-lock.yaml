@@ -25,7 +25,7 @@ importers:
       prettier: ^2.0.5
       prettier-plugin-organize-imports: ^2.3.4
       react-refresh: 0.9.0
-      remotion: 3.0.14
+      remotion: 3.0.18
       typescript: ^4.7.0
       webpack: 5.72.0
     dependencies:
@@ -66,7 +66,6 @@ importers:
       eslint-plugin-10x: 1.5.2
       eslint-plugin-react: 7.29.4
       eslint-plugin-react-hooks: 4.4.0
-      execa: 5.1.1
       express: 4.17.1
       jest: ^27.2.4
       memfs: 3.4.3
@@ -76,10 +75,9 @@ importers:
       react: ^18.0.0
       react-dom: ^18.0.0
       react-refresh: 0.9.0
-      remotion: 3.0.14
+      remotion: 3.0.18
       semver: 7.3.4
       source-map: 0.6.1
-      source-map-loader: 3.0.0
       style-loader: 2.0.0
       ts-jest: ^27.0.5
       typescript: ^4.7.0
@@ -87,7 +85,6 @@ importers:
     dependencies:
       css-loader: 5.2.7_webpack@5.72.0
       esbuild: 0.14.19
-      execa: 5.1.1
       express: 4.17.1
       memfs: 3.4.3
       mime-types: 2.1.34
@@ -95,7 +92,6 @@ importers:
       remotion: link:../core
       semver: 7.3.4
       source-map: 0.6.1
-      source-map-loader: 3.0.0_webpack@5.72.0
       style-loader: 2.0.0_webpack@5.72.0
       webpack: 5.72.0_esbuild@0.14.19
     devDependencies:
@@ -125,10 +121,10 @@ importers:
   packages/cli:
     specifiers:
       '@jonny/eslint-config': 3.0.259
-      '@remotion/bundler': 3.0.14
-      '@remotion/media-utils': 3.0.14
-      '@remotion/player': 3.0.14
-      '@remotion/renderer': 3.0.14
+      '@remotion/bundler': 3.0.18
+      '@remotion/media-utils': 3.0.18
+      '@remotion/player': 3.0.18
+      '@remotion/renderer': 3.0.18
       '@types/jest': ^27.4.0
       '@types/minimist': ^1.2.2
       '@types/node': ^16.7.5
@@ -150,11 +146,10 @@ importers:
       prettier-plugin-organize-imports: ^2.3.4
       react: ^18.0.0
       react-dom: ^18.0.0
-      remotion: 3.0.14
+      remotion: 3.0.18
       semver: 7.3.5
       ts-jest: ^27.0.5
       typescript: ^4.7.0
-      webpack: 5.72.0
     dependencies:
       '@remotion/bundler': link:../bundler
       '@remotion/media-utils': link:../media-utils
@@ -167,7 +162,6 @@ importers:
       minimist: 1.2.6
       remotion: link:../core
       semver: 7.3.5
-      webpack: 5.72.0
     devDependencies:
       '@jonny/eslint-config': 3.0.259_eslint@8.13.0+typescript@4.7.2
       '@types/jest': 27.4.0
@@ -274,15 +268,15 @@ importers:
       '@jonny/docusaurus-preset-shiki-twoslash': ^1.1.36
       '@jonny/eslint-config': 3.0.259
       '@mdx-js/react': ^1.6.21
-      '@remotion/babel-loader': 3.0.14
-      '@remotion/bundler': 3.0.14
-      '@remotion/gif': 3.0.14
-      '@remotion/lambda': 3.0.14
-      '@remotion/media-utils': 3.0.14
-      '@remotion/player': 3.0.14
-      '@remotion/preload': 3.0.14
-      '@remotion/renderer': 3.0.14
-      '@remotion/three': 3.0.14
+      '@remotion/babel-loader': 3.0.18
+      '@remotion/bundler': 3.0.18
+      '@remotion/gif': 3.0.18
+      '@remotion/lambda': 3.0.18
+      '@remotion/media-utils': 3.0.18
+      '@remotion/player': 3.0.18
+      '@remotion/preload': 3.0.18
+      '@remotion/renderer': 3.0.18
+      '@remotion/three': 3.0.18
       '@splitbee/web': ^0.2.4
       '@tsconfig/docusaurus': ^1.0.5
       '@types/color-namer': ^1.3.0
@@ -294,7 +288,7 @@ importers:
       clipboard: ^2.0.8
       clsx: ^1.1.1
       color-namer: 1.4.0
-      create-video: 3.0.14
+      create-video: 3.0.18
       eslint: 8.13.0
       hls.js: ^0.14.17
       jest: ^27.2.4
@@ -302,7 +296,7 @@ importers:
       react: 18.0.0
       react-dom: 18.0.0
       react-player: ^2.9.0
-      remotion: 3.0.14
+      remotion: 3.0.18
       three: 0.134.0
       ts-jest: ^27.0.5
       typescript: ^4.7.0
@@ -353,7 +347,7 @@ importers:
 
   packages/eslint-config:
     specifiers:
-      '@remotion/eslint-plugin': 3.0.14
+      '@remotion/eslint-plugin': 3.0.18
       '@types/node': 17.0.17
       '@typescript-eslint/eslint-plugin': 5.19.0
       '@typescript-eslint/parser': 5.19.0
@@ -396,16 +390,16 @@ importers:
       '@babel/preset-react': 7.12.13
       '@mdx-js/react': ^1.6.21
       '@react-three/drei': ^7.22.7
-      '@remotion/babel-loader': 3.0.14
-      '@remotion/bundler': 3.0.14
-      '@remotion/cli': 3.0.14
-      '@remotion/eslint-config': 3.0.14
-      '@remotion/eslint-plugin': 3.0.14
-      '@remotion/gif': 3.0.14
-      '@remotion/lambda': 3.0.14
-      '@remotion/media-utils': 3.0.14
-      '@remotion/renderer': 3.0.14
-      '@remotion/three': 3.0.14
+      '@remotion/babel-loader': 3.0.18
+      '@remotion/bundler': 3.0.18
+      '@remotion/cli': 3.0.18
+      '@remotion/eslint-config': 3.0.18
+      '@remotion/eslint-plugin': 3.0.18
+      '@remotion/gif': 3.0.18
+      '@remotion/lambda': 3.0.18
+      '@remotion/media-utils': 3.0.18
+      '@remotion/renderer': 3.0.18
+      '@remotion/three': 3.0.18
       '@types/babel__core': ^7.1.12
       '@types/babel__template': ^7.4.0
       '@types/express': ^4.17.11
@@ -427,7 +421,7 @@ importers:
       polished: ^4.0.5
       prettier: ^2.0.5
       prettier-plugin-organize-imports: ^2.3.4
-      remotion: 3.0.14
+      remotion: 3.0.18
       styled-components: ^5.1.1
       svg-path-properties: ^1.0.4
       ts-jest: ^27.0.5
@@ -492,7 +486,7 @@ importers:
       prettier-plugin-organize-imports: ^2.3.4
       react: 18.0.0
       react-dom: 18.0.0
-      remotion: 3.0.14
+      remotion: 3.0.18
       typescript: ^4.7.0
       webpack: 5.72.0
     dependencies:
@@ -515,16 +509,16 @@ importers:
 
   packages/it-tests:
     specifiers:
-      '@remotion/bundler': 3.0.14
-      '@remotion/cli': 3.0.14
-      '@remotion/lambda': 3.0.14
-      '@remotion/renderer': 3.0.14
+      '@remotion/bundler': 3.0.18
+      '@remotion/cli': 3.0.18
+      '@remotion/lambda': 3.0.18
+      '@remotion/renderer': 3.0.18
       '@types/jest': ^27.4.0
       '@types/sharp': ^0.28.5
       execa: 5.1.1
       jest: ^27.2.4
-      remotion: 3.0.14
-      sharp: 0.30.0
+      remotion: 3.0.18
+      sharp: 0.30.6
       ts-jest: ^27.0.5
       typescript: ^4.7.0
     devDependencies:
@@ -537,7 +531,7 @@ importers:
       execa: 5.1.1
       jest: 27.2.4
       remotion: link:../core
-      sharp: 0.30.0
+      sharp: 0.30.6
       ts-jest: 27.0.5_3f621855ac83bc4ca73a35fb7e8d7653
       typescript: 4.7.2
 
@@ -552,9 +546,9 @@ importers:
       '@aws-sdk/lib-storage': 3.58.0
       '@aws-sdk/s3-request-presigner': 3.58.0
       '@jonny/eslint-config': 3.0.259
-      '@remotion/bundler': 3.0.14
-      '@remotion/cli': 3.0.14
-      '@remotion/renderer': 3.0.14
+      '@remotion/bundler': 3.0.18
+      '@remotion/cli': 3.0.18
+      '@remotion/renderer': 3.0.18
       '@types/jest': ^27.0.2
       '@types/mime-types': 2.1.1
       '@types/minimist': 1.2.2
@@ -569,7 +563,7 @@ importers:
       minimist: 1.2.6
       prettier: ^2.4.1
       prettier-plugin-organize-imports: ^2.3.4
-      remotion: 3.0.14
+      remotion: 3.0.18
       ts-jest: ^27.0.5
       ts-node: ^10.8.0
       typescript: ^4.7.0
@@ -616,7 +610,7 @@ importers:
       eslint: 8.13.0
       prettier: ^2.0.5
       prettier-plugin-organize-imports: ^2.3.4
-      remotion: 3.0.14
+      remotion: 3.0.18
       typescript: ^4.7.0
     dependencies:
       remotion: link:../core
@@ -644,7 +638,7 @@ importers:
       prettier-plugin-organize-imports: ^2.3.4
       react: ^18.0.0
       react-dom: ^18.0.0
-      remotion: 3.0.14
+      remotion: 3.0.18
       ts-jest: ^27.0.5
       typescript: ^4.7.0
       webpack: 5.72.0
@@ -671,10 +665,10 @@ importers:
   packages/player-example:
     specifiers:
       '@pmmmwh/react-refresh-webpack-plugin': ^0.5.3
-      '@remotion/bundler': 3.0.14
-      '@remotion/eslint-config': 3.0.14
-      '@remotion/player': 3.0.14
-      '@remotion/preload': 3.0.14
+      '@remotion/bundler': 3.0.18
+      '@remotion/eslint-config': 3.0.18
+      '@remotion/player': 3.0.18
+      '@remotion/preload': 3.0.18
       '@types/node': ^12.0.0
       '@types/react': 18.0.1
       '@types/react-dom': 18.0.0
@@ -688,7 +682,7 @@ importers:
       react-dev-utils: ^12.0.1
       react-dom: 18.0.0
       react-refresh: ^0.11.0
-      remotion: 3.0.14
+      remotion: 3.0.18
       typescript: ^4.7.0
       webpack: 5.72.0
       webpack-dev-server: ^4.6.0
@@ -736,38 +730,38 @@ importers:
       '@testing-library/dom': ^8.7.2
       '@testing-library/react': 13.1.1
       '@types/jest': ^27.4.0
+      '@types/mime-types': 2.1.1
       '@types/node': ^16.7.5
       '@types/react': 18.0.1
       '@types/react-dom': 18.0.0
-      '@types/serve-handler': ^6.1.0
       eslint: 8.13.0
       execa: 5.1.1
       jest: ^27.2.4
+      mime-types: 2.1.35
       prettier: ^2.0.5
       prettier-plugin-organize-imports: ^2.3.4
       puppeteer-core: 13.5.1
       react: 18.0.0
       react-dom: 18.0.0
-      remotion: 3.0.14
-      serve-handler: 6.1.3
+      remotion: 3.0.18
       source-map: ^0.8.0-beta.0
       ts-jest: ^27.0.5
       typescript: ^4.7.0
     dependencies:
       execa: 5.1.1
+      mime-types: 2.1.35
       puppeteer-core: 13.5.1
       remotion: link:../core
-      serve-handler: 6.1.3
       source-map: 0.8.0-beta.0
     devDependencies:
       '@jonny/eslint-config': 3.0.259_eslint@8.13.0+typescript@4.7.2
       '@testing-library/dom': 8.7.2
       '@testing-library/react': 13.1.1_react-dom@18.0.0+react@18.0.0
       '@types/jest': 27.4.0
+      '@types/mime-types': 2.1.1
       '@types/node': 16.10.2
       '@types/react': 18.0.1
       '@types/react-dom': 18.0.0
-      '@types/serve-handler': 6.1.1
       eslint: 8.13.0
       jest: 27.2.4
       prettier: 2.4.1
@@ -791,7 +785,7 @@ importers:
       prettier-plugin-organize-imports: ^2.3.4
       react: 18.0.0
       react-dom: 18.0.0
-      remotion: 3.0.14
+      remotion: 3.0.18
       three: ^0.134.0
       typescript: ^4.7.0
     dependencies:
@@ -7917,12 +7911,6 @@ packages:
     resolution: {integrity: sha512-D/2EJvAlCEtYFEYmmlGwbGXuK886HzyCc3nZX/tkFTQdEU8jZDAgiv08P162yB17y4ZXZoq7yFAnW4GDBb9Now==}
     dev: true
 
-  /@types/serve-handler/6.1.1:
-    resolution: {integrity: sha512-bIwSmD+OV8w0t2e7EWsuQYlGoS1o5aEdVktgkXaa43Zm0qVWi21xaSRb3DQA1UXD+DJ5bRq1Rgu14ZczB+CjIQ==}
-    dependencies:
-      '@types/node': 16.10.2
-    dev: true
-
   /@types/serve-index/1.9.1:
     resolution: {integrity: sha512-d/Hs3nWDxNL2xAczmOVZNj92YZCS6RGxfBPjKzuu/XirCgXdpKEb88dYNbrYGint6IVWLNP+yonwVAuRC0T2Dg==}
     dependencies:
@@ -8576,7 +8564,7 @@ packages:
     dev: false
 
   /ansi-regex/2.1.1:
-    resolution: {integrity: sha1-w7M6te42DYbg5ijwRorn7yfWVN8=}
+    resolution: {integrity: sha512-TIGnTpdo+E3+pCyAluZvtED5p5wCqLdezCyhPZzKPcxvFplEt4i+W7OONCKgeZFT3+y5NZZfOOS/Bdcanm1MYA==}
     engines: {node: '>=0.10.0'}
 
   /ansi-regex/5.0.1:
@@ -9687,7 +9675,7 @@ packages:
     engines: {iojs: '>= 1.0.0', node: '>= 0.12.0'}
 
   /code-point-at/1.1.0:
-    resolution: {integrity: sha1-DQcLTQQ6W+ozovGkDi7bPZpMz3c=}
+    resolution: {integrity: sha512-RpAVKQA5T63xEj6/giIbUEtZwJ4UFIc3ZtvEkiaUERylqe8xb5IvqcgOurZLahv93CLKfxcw5YI+DZcUBRyLXA==}
     engines: {node: '>=0.10.0'}
 
   /collapse-white-space/1.0.6:
@@ -9736,8 +9724,9 @@ packages:
       simple-swizzle: 0.2.2
     dev: true
 
-  /color/4.2.0:
-    resolution: {integrity: sha512-hHTcrbvEnGjC7WBMk6ibQWFVDgEFTVmjrz2Q5HlU6ltwxv0JJN2Z8I7uRbWeQLF04dikxs8zgyZkazRJvSMtyQ==}
+  /color/4.2.3:
+    resolution: {integrity: sha512-1rXeuUUiGGrykh+CeBdu5Ie7OJwinCgQY0bc7GCRxy5xVHy+moaqkpL/jqQq0MtQOeYcrqEz4abc5f0KtU7W4A==}
+    engines: {node: '>=12.5.0'}
     dependencies:
       color-convert: 2.0.1
       color-string: 1.9.0
@@ -9872,7 +9861,7 @@ packages:
     dev: false
 
   /console-control-strings/1.1.0:
-    resolution: {integrity: sha1-PXz0Rk22RG6mRL9LOVB/mFEAjo4=}
+    resolution: {integrity: sha512-ty/fTekppD2fIwRvnZAVdeOiGd1c7YXEixbgJTNzqcxJWKQnjJ/V1bNEEE6hygpM3WjwHFUVK6HTjWSzV4a8sQ==}
 
   /constant-case/2.0.0:
     resolution: {integrity: sha1-QXV2TTidP6nI7NKRhu1gBSQ7akY=}
@@ -10544,7 +10533,7 @@ packages:
     dev: false
 
   /delegates/1.0.0:
-    resolution: {integrity: sha1-hMbhWbgZBP3KWaDvRM2HDTElD5o=}
+    resolution: {integrity: sha512-bd2L678uiWATM6m5Z1VzNCErI3jiGzt6HGY8OVICs40JQq/HALfbyNJmp0UDakEY4pMMaN0Ly5om/B1VI/+xfQ==}
 
   /depd/1.1.2:
     resolution: {integrity: sha1-m81S4UwJd2PnSbJ0xDRu0uVgtak=}
@@ -10581,8 +10570,8 @@ packages:
     engines: {node: '>=8'}
     dev: false
 
-  /detect-libc/2.0.0:
-    resolution: {integrity: sha512-S55LzUl8HUav8l9E2PBTlC5PAJrHK7tkM+XXFGD+fbsbkTzhCpG6K05LxJcUOEWzMa4v6ptcMZ9s3fOdJDu0Zw==}
+  /detect-libc/2.0.1:
+    resolution: {integrity: sha512-463v3ZeIrcWtdgIg6vI6XUncguvr2TnGl4SzDXinkt9mSLpBJKXT3mW6xT3VQdDN11+WVs29pgvivTc4Lp8v+w==}
     engines: {node: '>=8'}
     dev: true
 
@@ -11958,7 +11947,7 @@ packages:
     resolution: {integrity: sha1-GwqzvVU7Kg1jmdKcDj6gslIHgyc=}
 
   /gauge/2.7.4:
-    resolution: {integrity: sha1-LANAXHU4w51+s3sxcCLjJfsBi/c=}
+    resolution: {integrity: sha512-14x4kjc6lkD3ltw589k0NrPD6cCNTD6CWoVUNpB85+DrtONoZn+Rug6xZU5RvSC4+TZPxA5AnBibQYAvZn41Hg==}
     dependencies:
       aproba: 1.2.0
       console-control-strings: 1.1.0
@@ -12328,7 +12317,7 @@ packages:
       has-symbols: 1.0.2
 
   /has-unicode/2.0.1:
-    resolution: {integrity: sha1-4Ob+aijPUROIVeCG0Wkedx3iqLk=}
+    resolution: {integrity: sha512-8Rf9Y83NBReMnx0gFzA8JImQACstCYWUplepDa9xprwwtmgEZUF0h/i5xSA625zB/I37EtrswSST6OXxwaaIJQ==}
 
   /has-value/0.3.1:
     resolution: {integrity: sha1-ex9YutpiyoJ+wKIHgCVlSEWZXh8=}
@@ -12718,6 +12707,7 @@ packages:
     dependencies:
       safer-buffer: 2.1.2
     dev: false
+    optional: true
 
   /icss-utils/5.1.0_postcss@8.3.9:
     resolution: {integrity: sha512-soFhflCVWLfRNOPU3iv5Z9VUdT44xFRbzjLsEzSr5AQmgqPMTHdU3PMT1Cf1ssx8fLNJDA1juftYl+PUcv3MqA==}
@@ -13046,7 +13036,7 @@ packages:
     engines: {node: '>=0.10.0'}
 
   /is-fullwidth-code-point/1.0.0:
-    resolution: {integrity: sha1-754xOG8DGn8NZDr4L95QxFfvAMs=}
+    resolution: {integrity: sha512-1pqUqRjkhPJ9miNq9SwMfdvi6lBJcd6eFxvfaivQhaH3SgisfiuudvFntdKOmxuee/77l+FPjKrQjWvmPjWrRw==}
     engines: {node: '>=0.10.0'}
     dependencies:
       number-is-nan: 1.0.1
@@ -13259,7 +13249,7 @@ packages:
     dev: false
 
   /isarray/1.0.0:
-    resolution: {integrity: sha1-u5NdSFgsuhaMBoNJV6VKPgcSTxE=}
+    resolution: {integrity: sha512-VLghIWNM6ELQzo7zwmcg0NmTVyWKYjvIeM83yjp0wRDTmUnrM678fQbcKBo6n2CJEF0szoG//ytg+TKla89ALQ==}
 
   /isexe/2.0.0:
     resolution: {integrity: sha1-6PvzdNxVb/iUehDcsFctYz8s+hA=}
@@ -14323,7 +14313,7 @@ packages:
     dev: false
 
   /lodash.sortby/4.7.0:
-    resolution: {integrity: sha1-7dFMgk4sycHgsKG0K7UhBRakJDg=}
+    resolution: {integrity: sha512-HDWXG8isMntAyRF5vZ7xKuEvOhT4AhlRt/3czTSjvGUxjYCBVRQY48ViDHyfYz9VIoBkW4TMGQNapx+l3RUwdA==}
     dev: false
 
   /lodash.template/4.5.0:
@@ -14710,6 +14700,11 @@ packages:
     resolution: {integrity: sha512-5y8A56jg7XVQx2mbv1lu49NR4dokRnhZYTtL+KGfaa27uq4pSTXkwQkFJl4pkRMyNFz/EtYDSkiiEHx3F7UN6g==}
     engines: {node: '>= 0.6'}
 
+  /mime-db/1.52.0:
+    resolution: {integrity: sha512-sPU4uV7dYlvtWJxwwxHD0PuihVNiE7TyAbQ5SWxDCB9mUYvOgroQOwYQQOKPJ8CIbE+1ETVlOoK1UC2nU3gYvg==}
+    engines: {node: '>= 0.6'}
+    dev: false
+
   /mime-types/2.1.18:
     resolution: {integrity: sha512-lc/aahn+t4/SWV/qcmumYjymLsWfN3ELhpmVuUFjgsORruuZPVSwAQryq+HHGvO/SI2KVX26bx+En+zhM8g8hQ==}
     engines: {node: '>= 0.6'}
@@ -14728,6 +14723,13 @@ packages:
     engines: {node: '>= 0.6'}
     dependencies:
       mime-db: 1.51.0
+
+  /mime-types/2.1.35:
+    resolution: {integrity: sha512-ZDY+bPm5zTTF+YpCrAU9nK0UgICYPT0QtT1NZWFv4s++TNkcgVaT0g6+4R2uI4MjQjzysHB1zxuWL50hzaeXiw==}
+    engines: {node: '>= 0.6'}
+    dependencies:
+      mime-db: 1.52.0
+    dev: false
 
   /mime/1.6.0:
     resolution: {integrity: sha512-x0Vn8spI+wuJ1O6S7gnbaQg8Pxh4NNHb7KSINmEWKiPE4RKOplvijn+NkmYmmRgP68mc70j2EbeTFRsrswaQeg==}
@@ -14810,7 +14812,6 @@ packages:
 
   /minimist/1.2.6:
     resolution: {integrity: sha512-Jsjnk4bw3YJqYzbdyBiNsPWHPfO++UGG749Cxs6peCu5Xg4nrena6OVxOYxrQTqww0Jmwt+Ref8rggumkTLz9Q==}
-    dev: false
 
   /minipass-collect/1.0.2:
     resolution: {integrity: sha512-6T6lH0H8OG9kITm/Jm6tdooIbogG9e0tLgpY6mphXSm/A9u8Nq1ryBG+Qspiub9LjWlBPsPS3tWQ/Botq4FdxA==}
@@ -15040,11 +15041,11 @@ packages:
     resolution: {integrity: sha512-tzua9qWWi7iW4I42vUPKM+SfaF0vQSLAm4yO5J83mSwB7GeoWrDKC/K+8YCnYNwqP5duwazbw2X9l4m8SC2cUw==}
     engines: {node: '>=10'}
     dependencies:
-      semver: 7.3.5
+      semver: 7.3.7
     dev: true
 
-  /node-addon-api/4.3.0:
-    resolution: {integrity: sha512-73sE9+3UaLYYFmDsFZnqCInzPyh3MqIwZO9cw58yIqAZhONrrabrYyYe3TuIqtIiOuTXVhsGau8hcrhhwSsDIQ==}
+  /node-addon-api/5.0.0:
+    resolution: {integrity: sha512-CvkDw2OEnme7ybCykJpVcKH+uAOLV2qLqiyla128dN9TkEWfrYmxG6C2boDe5KcNQqZF3orkqzGgOMvZ/JNekA==}
     dev: true
 
   /node-emoji/1.11.0:
@@ -15297,7 +15298,7 @@ packages:
     dev: false
 
   /number-is-nan/1.0.1:
-    resolution: {integrity: sha1-CXtgK1NCKlIsGvuHkDGDNpQaAR0=}
+    resolution: {integrity: sha512-4jbtZXNAsfZbAHiiqjLPBiCl16dES1zI4Hpzzxw61Tk+loF+sBDBKx1ICKKKwIqQ7M0mFn1TmkN7euSncWgHiQ==}
     engines: {node: '>=0.10.0'}
 
   /nwsapi/2.2.0:
@@ -15308,7 +15309,7 @@ packages:
     dev: false
 
   /object-assign/4.1.1:
-    resolution: {integrity: sha1-IQmtx5ZYh8/AXLvUQsrIv7s2CGM=}
+    resolution: {integrity: sha512-rJgTQnkUnH1sFw8yT6VSU3zD3sWmu6sZhIseY8VX+GRu3P6F7Fu+JNDoXfklElbLJSnc3FUQHVe4cU5hj+BcUg==}
     engines: {node: '>=0.10.0'}
 
   /object-copy/0.1.0:
@@ -15406,7 +15407,7 @@ packages:
     dev: false
 
   /once/1.4.0:
-    resolution: {integrity: sha1-WDsap3WWHUsROsF9nFC6753Xa9E=}
+    resolution: {integrity: sha512-lNaJgI+2Q5URQBkccEKHTQOPaXdUxnZZElQTZY0MFUAuaEqe1E+Nyvgdz/aIyNi6Z9MzO5dv1H8n58/GELp3+w==}
     dependencies:
       wrappy: 1.0.2
 
@@ -16393,15 +16394,15 @@ packages:
     resolution: {integrity: sha512-15vItUAbViaYrmaB/Pbw7z6qX2xENbFSTA7Ii4tgbPtasxm5v6ryKhKtL91tpWovDJzTiZqdwzhcFBCwiMVdVw==}
     dev: false
 
-  /prebuild-install/7.0.1:
-    resolution: {integrity: sha512-QBSab31WqkyxpnMWQxubYAHR5S9B2+r81ucocew34Fkl98FhvKIF50jIJnNOBmAZfyNV7vE5T6gd3hTVWgY6tg==}
+  /prebuild-install/7.1.0:
+    resolution: {integrity: sha512-CNcMgI1xBypOyGqjp3wOc8AAo1nMhZS3Cwd3iHIxOdAUbb+YxdNuM4Z5iIrZ8RLvOsf3F3bl7b7xGq6DjQoNYA==}
     engines: {node: '>=10'}
     hasBin: true
     dependencies:
-      detect-libc: 2.0.0
+      detect-libc: 2.0.1
       expand-template: 2.0.3
       github-from-package: 0.0.0
-      minimist: 1.2.5
+      minimist: 1.2.6
       mkdirp-classic: 0.5.3
       napi-build-utils: 1.0.2
       node-abi: 3.8.0
@@ -16601,7 +16602,7 @@ packages:
       once: 1.4.0
 
   /punycode/1.4.1:
-    resolution: {integrity: sha1-wNWmOycYgArY4esPpSachN1BhF4=}
+    resolution: {integrity: sha512-jmYNElW7yvO7TV33CjSmvSiE2yco3bV2czu/OzDKdMNVZQWfxCblURLhf+47syQRBntjfLdd/H0egrzIG+oaFQ==}
     dev: false
 
   /punycode/2.1.1:
@@ -16738,7 +16739,7 @@ packages:
     dependencies:
       deep-extend: 0.6.0
       ini: 1.3.8
-      minimist: 1.2.5
+      minimist: 1.2.6
       strip-json-comments: 2.0.1
 
   /react-base16-styling/0.6.0:
@@ -17775,6 +17776,14 @@ packages:
     dependencies:
       lru-cache: 6.0.0
 
+  /semver/7.3.7:
+    resolution: {integrity: sha512-QlYTucUYOews+WeEujDoEGziz4K6c47V/Bd+LjSSYcA94p+DmINdf7ncaUinThfvZyu13lN9OY1XDxt8C0Tw0g==}
+    engines: {node: '>=10'}
+    hasBin: true
+    dependencies:
+      lru-cache: 6.0.0
+    dev: true
+
   /send/0.17.1:
     resolution: {integrity: sha512-BsVKsiGcQMFwT8UxypobUKyv7irCNRHk1T0G680vk88yf6LBByGcZJOTJCrTP2xVN6yI+XjPJcNuE3V4fT9sAg==}
     engines: {node: '>= 0.8.0'}
@@ -17911,16 +17920,16 @@ packages:
     resolution: {integrity: sha512-y0m1JoUZSlPAjXVtPPW70aZWfIL/dSP7AFkRnniLCrK/8MDKog3TySTBmckD+RObVxH0v4Tox67+F14PdED2oQ==}
     dev: false
 
-  /sharp/0.30.0:
-    resolution: {integrity: sha512-L3m/l6yQFr3oGBUzcSAlN/R9yGFPYqM9FpMUe6Z4nHg4sWtP3hW1rcz+aaHklhD4wX5Jqh5PY9z+A1d4Qt3Hfg==}
+  /sharp/0.30.6:
+    resolution: {integrity: sha512-lSdVxFxcndzcXggDrak6ozdGJgmIgES9YVZWtAFrwi+a/H5vModaf51TghBtMPw+71sLxUsTy2j+aB7qLIODQg==}
     engines: {node: '>=12.13.0'}
     requiresBuild: true
     dependencies:
-      color: 4.2.0
-      detect-libc: 2.0.0
-      node-addon-api: 4.3.0
-      prebuild-install: 7.0.1
-      semver: 7.3.5
+      color: 4.2.3
+      detect-libc: 2.0.1
+      node-addon-api: 5.0.0
+      prebuild-install: 7.1.0
+      semver: 7.3.7
       simple-get: 4.0.1
       tar-fs: 2.1.1
       tunnel-agent: 0.6.0
@@ -18165,18 +18174,6 @@ packages:
   /source-map-js/1.0.2:
     resolution: {integrity: sha512-R0XvVJ9WusLiqTCEiGCmICCMplcCkIwwR11mOSD9CR5u+IXYdiseeEuXCVAjS54zqwkLcPNnmU4OeJ6tUrWhDw==}
     engines: {node: '>=0.10.0'}
-    dev: false
-
-  /source-map-loader/3.0.0_webpack@5.72.0:
-    resolution: {integrity: sha512-GKGWqWvYr04M7tn8dryIWvb0s8YM41z82iQv01yBtIylgxax0CwvSy6gc2Y02iuXwEfGWRlMicH0nvms9UZphw==}
-    engines: {node: '>= 12.13.0'}
-    peerDependencies:
-      webpack: ^5.0.0
-    dependencies:
-      abab: 2.0.5
-      iconv-lite: 0.6.3
-      source-map-js: 0.6.2
-      webpack: 5.72.0_esbuild@0.14.19
     dev: false
 
   /source-map-resolve/0.5.3:
