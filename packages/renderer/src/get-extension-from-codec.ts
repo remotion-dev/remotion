@@ -27,6 +27,8 @@ export const getFileExtensionFromCodec = (
 			return 'webm';
 		case 'vp9':
 			return 'webm';
+		case 'gif':
+			return 'gif';
 		case 'wav':
 			return 'wav';
 		default:
