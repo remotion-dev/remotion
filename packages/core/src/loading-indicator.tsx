@@ -1,5 +1,5 @@
 import React from 'react';
-import {AbsoluteFill} from 'remotion';
+import {AbsoluteFill} from './AbsoluteFill';
 
 const rotate: React.CSSProperties = {
 	transform: `rotate(90deg)`,
