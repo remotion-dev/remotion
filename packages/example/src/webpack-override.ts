@@ -48,5 +48,12 @@ export const webpackOverride: WebpackOverrideFn = (currentConfiguration) => {
 				},
 			],
 		},
+		resolve: {
+			...replaced.resolve,
+			alias: {
+				...replaced.resolve.alias,
+				lib: path.join(process.cwd(), 'src', 'lib'),
+			},
+		},
 	};
 };
