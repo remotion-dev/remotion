@@ -262,6 +262,10 @@ export const spawnFfmpeg = async (
 					['-i', options.assetsInfo.imageSequenceName],
 			  ]),
 		['-i', audio],
+		// TODO: Infinite loop
+		options.loop === null
+			? null
+			: ['-loop', typeof options.loop === 'number' ? options.loop : '-1'],
 		// -c:v is the same as -vcodec as -codec:video
 		// and specified the video codec.
 		['-c:v', encoderName],

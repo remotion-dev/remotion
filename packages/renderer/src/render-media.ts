@@ -181,12 +181,14 @@ export const renderMedia = ({
 	const {waitForRightTimeOfFrameToBeInserted, setFrameToStitch, waitForFinish} =
 		ensureFramesInOrder(realFrameRange);
 
+	const actualGifFps = Math.floor(composition.fps / (skipNFrames + 1));
+
 	const createPrestitcherIfNecessary = async () => {
 		if (preEncodedFileLocation) {
 			preStitcher = await prespawnFfmpeg({
 				width: composition.width * (scale ?? 1),
 				height: composition.height * (scale ?? 1),
-				fps: composition.fps,
+				fps: actualGifFps,
 				outputLocation: preEncodedFileLocation,
 				pixelFormat,
 				codec,
@@ -286,7 +288,7 @@ export const renderMedia = ({
 				stitchFramesToVideo({
 					width: composition.width * (scale ?? 1),
 					height: composition.height * (scale ?? 1),
-					fps: composition.fps,
+					fps: actualGifFps,
 					outputLocation,
 					internalOptions: {
 						preEncodedFileLocation,
