@@ -20,7 +20,7 @@ export type RenderMediaOnLambdaInput = {
 	serveUrl: string;
 	composition: string;
 	inputProps: unknown;
-	codec: 'h264-mkv' | 'mp3' | 'aac' | 'wav';
+	codec: 'gif' | 'h264-mkv' | 'mp3' | 'aac' | 'wav';
 	imageFormat: ImageFormat;
 	crf?: number | undefined;
 	envVariables?: Record<string, string>;
