@@ -65,8 +65,8 @@ export const render = async () => {
 		scale,
 		chromiumOptions,
 		port,
-		skipNFrames,
 		loop,
+		everyNthFrame,
 	} = await getCliOptions({isLambda: false, type: 'series'});
 
 	if (!absoluteOutputFile) {
@@ -152,7 +152,7 @@ export const render = async () => {
 	let totalFrames: number | null = RenderInternals.getDurationFromFrameRange(
 		frameRange,
 		config.durationInFrames,
-		skipNFrames
+		everyNthFrame
 	);
 	let encodedFrames = 0;
 	let renderedFrames = 0;
@@ -229,7 +229,7 @@ export const render = async () => {
 				Internals.Logging.getLogLevel(),
 				'verbose'
 			),
-			skipNFrames,
+			everyNthFrame,
 			envVariables,
 			frameRange,
 			parallelism,
@@ -291,7 +291,7 @@ export const render = async () => {
 		scale,
 		port,
 		loop,
-		skipNFrames,
+		everyNthFrame,
 	});
 
 	Log.info();

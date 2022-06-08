@@ -9,7 +9,7 @@ export const planFrameRanges = ({
 	shouldUseOptimization,
 	frameRange,
 	durationInFrames,
-	skipNFrames,
+	everyNthFrame,
 }: {
 	chunkCount: number;
 	framesPerLambda: number;
@@ -17,7 +17,7 @@ export const planFrameRanges = ({
 	shouldUseOptimization: boolean;
 	frameRange: [number, number];
 	durationInFrames: number;
-	skipNFrames: number;
+	everyNthFrame: number;
 }): {chunks: [number, number][]; didUseOptimization: boolean} => {
 	if (
 		canUseOptimization({
@@ -36,7 +36,7 @@ export const planFrameRanges = ({
 	const frameCount = RenderInternals.getDurationFromFrameRange(
 		frameRange,
 		durationInFrames,
-		skipNFrames
+		everyNthFrame
 	);
 
 	return {
