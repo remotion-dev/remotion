@@ -87,6 +87,7 @@ import {getRemotionEnvironment, RemotionEnvironment} from './get-environment';
 import {getPreviewDomElement} from './get-preview-dom-element';
 import {isAudioCodec} from './is-audio-codec';
 import * as perf from './perf';
+import {portalNode} from './portal-node';
 import {getRoot} from './register-root';
 import {RemotionRoot} from './RemotionRoot';
 import {SequenceContext} from './sequencing';
@@ -223,6 +224,7 @@ export const Internals = {
 	compositionsRef,
 	DELAY_RENDER_CALLSTACK_TOKEN,
 	useAbsoluteCurrentFrame,
+	portalNode,
 };
 
 export type {
