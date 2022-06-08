@@ -5,12 +5,12 @@ export const getDurationFromFrameRange = (
 	durationInFrames: number,
 	everyNthFrame: number
 ) => {
-	if (frameRange === null) {
-		if (everyNthFrame === 0) {
-			return durationInFrames;
-		}
+	if (everyNthFrame === 0) {
+		throw new Error('everyNthFrame cannot be 0');
+	}
 
-		return Math.floor(durationInFrames / (everyNthFrame + 1)) + 1;
+	if (frameRange === null) {
+		return Math.floor(durationInFrames / everyNthFrame);
 	}
 
 	if (typeof frameRange === 'number') {
@@ -21,5 +21,5 @@ export const getDurationFromFrameRange = (
 		return frameRange[1] - frameRange[0] + 1;
 	}
 
-	return Math.floor((frameRange[1] - frameRange[0]) / (everyNthFrame + 1)) + 1;
+	return Math.floor((frameRange[1] - frameRange[0] + 1) / everyNthFrame);
 };

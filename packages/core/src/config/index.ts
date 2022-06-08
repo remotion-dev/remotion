@@ -10,6 +10,7 @@ import {Codec, setCodec, setOutputFormat} from './codec';
 import {Concurrency, setConcurrency} from './concurrency';
 import {setCrf} from './crf';
 import {setDotEnvLocation} from './env-file';
+import {setEveryNthFrame} from './every-nth-file';
 import {
 	FfmpegExecutable,
 	setFfmpegExecutable,
@@ -32,7 +33,6 @@ import {setPort} from './preview-server';
 import {setProResProfile} from './prores-profile';
 import {setQuality} from './quality';
 import {setScale} from './scale';
-import {setEveryNthFrame} from './skip-n-frames';
 import {setPuppeteerTimeout} from './timeout';
 import {setWebpackCaching} from './webpack-caching';
 

@@ -35,6 +35,7 @@ import {
 	validateSelectedCrfAndCodecCombination,
 } from './config/crf';
 import {getDotEnvLocation} from './config/env-file';
+import {getEveryNthFrame} from './config/every-nth-file';
 import {
 	getCustomFfmpegExecutable,
 	getCustomFfprobeExecutable,
@@ -72,7 +73,6 @@ import {
 } from './config/prores-profile';
 import {getQuality} from './config/quality';
 import {getScale} from './config/scale';
-import {getEveryNthFrame} from './config/skip-n-frames';
 import {getStillFrame, setStillFrame} from './config/still-frame';
 import {
 	getCurrentPuppeteerTimeout,
