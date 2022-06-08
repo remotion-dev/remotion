@@ -9,7 +9,8 @@
     "build": "turbo run build",
     "ci": "turbo run build lint test",
     "watch": "pnpm run watch --recursive --stream --parallel",
-    "release": "lerna publish --force-publish"
+    "release": "lerna publish --force-publish",
+    "clean": "lerna clean --yes && rm -rf node_modules && rm -rf .cache && rm -rf packages/**/tsconfig.tsbuildinfo && rm -rf packages/**/.turbo"
   },
   "engines": {
     "node": ">=12",
