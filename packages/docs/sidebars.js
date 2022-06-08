@@ -253,6 +253,7 @@ module.exports = {
         "prereleases",
         "gpu",
         "react-18",
+        "miscellaneous/typescript-aliases",
       ],
     },
     "3-0-migration",
