@@ -11,7 +11,6 @@ import { Waveform } from "./icons/waveform";
 import { TemplateIcon } from "./TemplateIcon";
 import { chunk } from "../helpers/chunk";
 import { useElementSize } from "../helpers/use-el-size";
-import styles from "../../components/LandingPage/get-started.module.css";
 
 const IconForTemplate: React.FC<{
   template: Template;
