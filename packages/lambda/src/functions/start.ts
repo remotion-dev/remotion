@@ -39,6 +39,8 @@ export const startHandler = async (params: LambdaPayload) => {
 		timeoutInMilliseconds: params.timeoutInMilliseconds,
 		chromiumOptions: params.chromiumOptions,
 		scale: params.scale,
+		loop: params.loop,
+		skipNFrames: params.skipNFrames,
 	};
 	await getLambdaClient(getCurrentRegionInFunction()).send(
 		new InvokeCommand({
