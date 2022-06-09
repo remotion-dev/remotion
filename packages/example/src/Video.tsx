@@ -21,6 +21,7 @@ import {SeriesTesting} from './StaggerTesting';
 import {StaticDemo} from './StaticServer';
 import {TenFrameTester} from './TenFrameTester';
 import ThreeBasic from './ThreeBasic';
+import {BasicTransition} from './Transitions';
 import {VideoOnCanvas} from './VideoOnCanvas';
 import {Greenscreen} from './VideoOnCanvas/greenscreen';
 import {VideoSpeed} from './VideoSpeed';
@@ -395,6 +396,16 @@ export const Index: React.FC = () => {
 					height={720}
 					fps={30}
 					durationInFrames={600}
+				/>
+			</Folder>
+			<Folder name="Transitions">
+				<Composition
+					id="basic"
+					component={BasicTransition}
+					height={1080}
+					width={1080}
+					durationInFrames={300}
+					fps={30}
 				/>
 			</Folder>
 		</>

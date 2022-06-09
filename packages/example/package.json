@@ -36,6 +36,7 @@
 		"@remotion/media-utils": "3.0.18",
 		"@remotion/renderer": "3.0.18",
 		"@remotion/three": "3.0.18",
+		"@remotion/transitions": "3.0.18",
 		"@types/express": "^4.17.11",
 		"@types/jest": "^27.4.0",
 		"@types/node": "^16.7.5",
