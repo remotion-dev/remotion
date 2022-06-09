@@ -4,12 +4,11 @@ import http from 'http';
 import os from 'os';
 import path from 'path';
 import {Internals, WebpackOverrideFn} from 'remotion';
-import {webpack} from '../../core/node_modules/webpack/types';
-
+import webpack from 'webpack';
 import {wdm} from './dev-middleware';
-import {guessEditor} from './error-overlay/react-overlay/utils/open-in-editor';
 import {getDesiredPort} from './get-port';
 import {webpackHotMiddleware} from './hot-middleware';
+import {handleRoutes} from './routes';
 import {webpackConfig} from './webpack-config';
 
 export const startServerPure = async (
@@ -23,7 +22,6 @@ export const startServerPure = async (
 		maxTimelineTracks?: number;
 	}
 ) => {
-	const editorGuess = guessEditor();
 	const tmpDir = await fs.promises.mkdtemp(
 		path.join(os.tmpdir(), 'react-motion-graphics')
 	);
@@ -48,21 +46,34 @@ export const startServerPure = async (
 	 * TODO: Put static server
 	 */
 
+	const wdmMiddleware = wdm(compiler);
+	const whm = webpackHotMiddleware(compiler);
+
 	const server = http.createServer((request, response) => {
 		new Promise<void>((resolve) => {
-			wdm(compiler)(request, response, () => {
+			wdmMiddleware(request, response, () => {
 				resolve();
 			});
-		}).then(() => {
-			return new Promise<void>((resolve) => {
-				webpackHotMiddleware(compiler)(request, response, () => {
-					resolve();
+		})
+			.then(() => {
+				return new Promise<void>((resolve) => {
+					whm(request, response, () => {
+						resolve();
+					});
 				});
+			})
+			.then(() => {
+				handleRoutes(hash, request, response);
+			})
+			.catch((err) => {
+				response.setHeader('content-type', 'application/json');
+				response.writeHead(500);
+				response.end(
+					JSON.stringify({
+						err: (err as Error).message,
+					})
+				);
 			});
-		});
-
-		// TODO: Rest of the routes
-		// TODO: editor guess
 	});
 
 	const desiredPort = options?.port ?? undefined;
