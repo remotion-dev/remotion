@@ -1,8 +1,7 @@
 import {createReadStream, statSync} from 'fs';
 import {IncomingMessage, ServerResponse} from 'http';
 import path from 'path';
-// eslint-disable-next-line no-restricted-imports
-import {parse} from 'querystring';
+import {URLSearchParams} from 'url';
 import {getFileSource} from './error-overlay/react-overlay/utils/get-file-source';
 import {
 	getDisplayNameForEditor,
@@ -58,8 +57,8 @@ export const handleFileSource = async (
 		throw new Error('query must start with ?');
 	}
 
-	const query = parse(search.substring(1));
-	const {f} = query;
+	const query = new URLSearchParams(search);
+	const f = query.get('f');
 	if (typeof f !== 'string') {
 		throw new Error('must pass `f` parameter');
 	}
