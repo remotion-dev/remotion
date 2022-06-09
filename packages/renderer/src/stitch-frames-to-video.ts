@@ -51,6 +51,7 @@ export type StitcherOptions = {
 	proResProfile?: ProResProfile;
 	verbose?: boolean;
 	ffmpegExecutable?: FfmpegExecutable;
+	ffprobeExecutable?: FfmpegExecutable;
 	dir?: string;
 	cancelSignal?: CancelSignal;
 	internalOptions?: {
@@ -72,6 +73,7 @@ const getAssetsData = async ({
 	expectedFrames,
 	verbose,
 	ffmpegExecutable,
+	ffprobeExecutable,
 	onProgress,
 }: {
 	assets: TAsset[][];
@@ -81,6 +83,7 @@ const getAssetsData = async ({
 	expectedFrames: number;
 	verbose: boolean;
 	ffmpegExecutable: FfmpegExecutable | null;
+	ffprobeExecutable: FfmpegExecutable | null;
 	onProgress: (progress: number) => void;
 }): Promise<string> => {
 	const fileUrlAssets = await convertAssetsToFileUrls({
@@ -112,6 +115,7 @@ const getAssetsData = async ({
 				const filterFile = path.join(tempPath, `${index}.wav`);
 				const result = await preprocessAudioTrack({
 					ffmpegExecutable: ffmpegExecutable ?? null,
+					ffprobeExecutable: ffprobeExecutable ?? null,
 					outName: filterFile,
 					asset,
 					expectedFrames,
@@ -210,6 +214,7 @@ export const spawnFfmpeg = async (
 		expectedFrames,
 		verbose: options.verbose ?? false,
 		ffmpegExecutable: options.ffmpegExecutable ?? null,
+		ffprobeExecutable: options.ffprobeExecutable ?? null,
 		onProgress: (prog) => updateProgress(prog, 0),
 	});
 
@@ -227,6 +232,9 @@ export const spawnFfmpeg = async (
 				audio,
 				'-c:a',
 				audioCodecName,
+				// Set bitrate up to 320k, for aac it might effectively be lower
+				'-b:a',
+				'320k',
 				options.force ? '-y' : null,
 				options.outputLocation,
 			].filter(Internals.truthy)
@@ -270,6 +278,8 @@ export const spawnFfmpeg = async (
 			  ]),
 		codec === 'h264' ? ['-movflags', 'faststart'] : null,
 		audioCodecName ? ['-c:a', audioCodecName] : null,
+		// Set max bitrate up to 1024kbps, will choose lower if that's too much
+		audioCodecName ? ['-b:a', '512K'] : null,
 		// Ignore metadata that may come from remote media
 		['-map_metadata', '-1'],
 		[
