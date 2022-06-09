@@ -29,6 +29,7 @@ module.exports = {
     "lambda/disk-size",
     "lambda/faq",
     "lambda/light-client",
+    "lambda/custom-layers",
     {
       collapsed: false,
       type: "category",
@@ -252,6 +253,7 @@ module.exports = {
         "prereleases",
         "gpu",
         "react-18",
+        "miscellaneous/typescript-aliases",
       ],
     },
     "3-0-migration",

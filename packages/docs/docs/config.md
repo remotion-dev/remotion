@@ -286,6 +286,16 @@ import { Config } from "remotion";
 Config.Rendering.setFfmpegExecutable("/path/to/custom/ffmpeg");
 ```
 
+### setFfprobeExecutable()
+
+Allows you to use a custom `ffprobe` binary. Must be an absolute path. By default, this is null and the `ffprobe` in `PATH` will be used.
+
+```ts twoslash
+import { Config } from "remotion";
+// ---cut---
+Config.Rendering.setFfprobeExecutable("/path/to/custom/ffprobe");
+```
+
 The [command line flag](/docs/cli#--ffmpeg-executable) `--ffmpeg-executable` will take precedence over this option.
 
 ## Output

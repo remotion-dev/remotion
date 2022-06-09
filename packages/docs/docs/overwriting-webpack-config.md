@@ -381,6 +381,10 @@ After restarting, you can import `.wasm` files using an import statement.
 
 See [Using legacy Babel transpilation](/docs/legacy-babel).
 
+## Enable TypeScript aliases
+
+See [TypeScript aliases](/docs/typescript-aliases).
+
 ## Customizing configuration file location
 
 You can pass a `--config` option to the command line to specify a custom location for your configuration file.

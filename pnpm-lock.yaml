@@ -25,7 +25,7 @@ importers:
       prettier: ^2.0.5
       prettier-plugin-organize-imports: ^2.3.4
       react-refresh: 0.9.0
-      remotion: 3.0.16
+      remotion: 3.0.18
       typescript: ^4.7.0
       webpack: 5.72.0
     dependencies:
@@ -75,7 +75,7 @@ importers:
       react: ^18.0.0
       react-dom: ^18.0.0
       react-refresh: 0.9.0
-      remotion: 3.0.16
+      remotion: 3.0.18
       semver: 7.3.4
       source-map: 0.6.1
       style-loader: 2.0.0
@@ -121,10 +121,10 @@ importers:
   packages/cli:
     specifiers:
       '@jonny/eslint-config': 3.0.259
-      '@remotion/bundler': 3.0.16
-      '@remotion/media-utils': 3.0.16
-      '@remotion/player': 3.0.16
-      '@remotion/renderer': 3.0.16
+      '@remotion/bundler': 3.0.18
+      '@remotion/media-utils': 3.0.18
+      '@remotion/player': 3.0.18
+      '@remotion/renderer': 3.0.18
       '@types/jest': ^27.4.0
       '@types/minimist': ^1.2.2
       '@types/node': ^16.7.5
@@ -146,7 +146,7 @@ importers:
       prettier-plugin-organize-imports: ^2.3.4
       react: ^18.0.0
       react-dom: ^18.0.0
-      remotion: 3.0.16
+      remotion: 3.0.18
       semver: 7.3.5
       ts-jest: ^27.0.5
       typescript: ^4.7.0
@@ -268,15 +268,15 @@ importers:
       '@jonny/docusaurus-preset-shiki-twoslash': ^1.1.36
       '@jonny/eslint-config': 3.0.259
       '@mdx-js/react': ^1.6.21
-      '@remotion/babel-loader': 3.0.16
-      '@remotion/bundler': 3.0.16
-      '@remotion/gif': 3.0.16
-      '@remotion/lambda': 3.0.16
-      '@remotion/media-utils': 3.0.16
-      '@remotion/player': 3.0.16
-      '@remotion/preload': 3.0.16
-      '@remotion/renderer': 3.0.16
-      '@remotion/three': 3.0.16
+      '@remotion/babel-loader': 3.0.18
+      '@remotion/bundler': 3.0.18
+      '@remotion/gif': 3.0.18
+      '@remotion/lambda': 3.0.18
+      '@remotion/media-utils': 3.0.18
+      '@remotion/player': 3.0.18
+      '@remotion/preload': 3.0.18
+      '@remotion/renderer': 3.0.18
+      '@remotion/three': 3.0.18
       '@splitbee/web': ^0.2.4
       '@tsconfig/docusaurus': ^1.0.5
       '@types/color-namer': ^1.3.0
@@ -288,7 +288,7 @@ importers:
       clipboard: ^2.0.8
       clsx: ^1.1.1
       color-namer: 1.4.0
-      create-video: 3.0.16
+      create-video: 3.0.18
       eslint: 8.13.0
       hls.js: ^0.14.17
       jest: ^27.2.4
@@ -296,7 +296,7 @@ importers:
       react: 18.0.0
       react-dom: 18.0.0
       react-player: ^2.9.0
-      remotion: 3.0.16
+      remotion: 3.0.18
       three: 0.134.0
       ts-jest: ^27.0.5
       typescript: ^4.7.0
@@ -347,7 +347,7 @@ importers:
 
   packages/eslint-config:
     specifiers:
-      '@remotion/eslint-plugin': 3.0.16
+      '@remotion/eslint-plugin': 3.0.18
       '@types/node': 17.0.17
       '@typescript-eslint/eslint-plugin': 5.19.0
       '@typescript-eslint/parser': 5.19.0
@@ -390,16 +390,16 @@ importers:
       '@babel/preset-react': 7.12.13
       '@mdx-js/react': ^1.6.21
       '@react-three/drei': ^7.22.7
-      '@remotion/babel-loader': 3.0.16
-      '@remotion/bundler': 3.0.16
-      '@remotion/cli': 3.0.16
-      '@remotion/eslint-config': 3.0.16
-      '@remotion/eslint-plugin': 3.0.16
-      '@remotion/gif': 3.0.16
-      '@remotion/lambda': 3.0.16
-      '@remotion/media-utils': 3.0.16
-      '@remotion/renderer': 3.0.16
-      '@remotion/three': 3.0.16
+      '@remotion/babel-loader': 3.0.18
+      '@remotion/bundler': 3.0.18
+      '@remotion/cli': 3.0.18
+      '@remotion/eslint-config': 3.0.18
+      '@remotion/eslint-plugin': 3.0.18
+      '@remotion/gif': 3.0.18
+      '@remotion/lambda': 3.0.18
+      '@remotion/media-utils': 3.0.18
+      '@remotion/renderer': 3.0.18
+      '@remotion/three': 3.0.18
       '@types/babel__core': ^7.1.12
       '@types/babel__template': ^7.4.0
       '@types/express': ^4.17.11
@@ -421,7 +421,7 @@ importers:
       polished: ^4.0.5
       prettier: ^2.0.5
       prettier-plugin-organize-imports: ^2.3.4
-      remotion: 3.0.16
+      remotion: 3.0.18
       styled-components: ^5.1.1
       svg-path-properties: ^1.0.4
       ts-jest: ^27.0.5
@@ -486,7 +486,7 @@ importers:
       prettier-plugin-organize-imports: ^2.3.4
       react: 18.0.0
       react-dom: 18.0.0
-      remotion: 3.0.16
+      remotion: 3.0.18
       typescript: ^4.7.0
       webpack: 5.72.0
     dependencies:
@@ -509,15 +509,15 @@ importers:
 
   packages/it-tests:
     specifiers:
-      '@remotion/bundler': 3.0.16
-      '@remotion/cli': 3.0.16
-      '@remotion/lambda': 3.0.16
-      '@remotion/renderer': 3.0.16
+      '@remotion/bundler': 3.0.18
+      '@remotion/cli': 3.0.18
+      '@remotion/lambda': 3.0.18
+      '@remotion/renderer': 3.0.18
       '@types/jest': ^27.4.0
       '@types/sharp': ^0.28.5
       execa: 5.1.1
       jest: ^27.2.4
-      remotion: 3.0.16
+      remotion: 3.0.18
       sharp: 0.30.6
       ts-jest: ^27.0.5
       typescript: ^4.7.0
@@ -546,9 +546,9 @@ importers:
       '@aws-sdk/lib-storage': 3.58.0
       '@aws-sdk/s3-request-presigner': 3.58.0
       '@jonny/eslint-config': 3.0.259
-      '@remotion/bundler': 3.0.16
-      '@remotion/cli': 3.0.16
-      '@remotion/renderer': 3.0.16
+      '@remotion/bundler': 3.0.18
+      '@remotion/cli': 3.0.18
+      '@remotion/renderer': 3.0.18
       '@types/jest': ^27.0.2
       '@types/mime-types': 2.1.1
       '@types/minimist': 1.2.2
@@ -563,7 +563,7 @@ importers:
       minimist: 1.2.6
       prettier: ^2.4.1
       prettier-plugin-organize-imports: ^2.3.4
-      remotion: 3.0.16
+      remotion: 3.0.18
       ts-jest: ^27.0.5
       ts-node: ^10.8.0
       typescript: ^4.7.0
@@ -610,7 +610,7 @@ importers:
       eslint: 8.13.0
       prettier: ^2.0.5
       prettier-plugin-organize-imports: ^2.3.4
-      remotion: 3.0.16
+      remotion: 3.0.18
       typescript: ^4.7.0
     dependencies:
       remotion: link:../core
@@ -638,7 +638,7 @@ importers:
       prettier-plugin-organize-imports: ^2.3.4
       react: ^18.0.0
       react-dom: ^18.0.0
-      remotion: 3.0.16
+      remotion: 3.0.18
       ts-jest: ^27.0.5
       typescript: ^4.7.0
       webpack: 5.72.0
@@ -665,10 +665,10 @@ importers:
   packages/player-example:
     specifiers:
       '@pmmmwh/react-refresh-webpack-plugin': ^0.5.3
-      '@remotion/bundler': 3.0.16
-      '@remotion/eslint-config': 3.0.16
-      '@remotion/player': 3.0.16
-      '@remotion/preload': 3.0.16
+      '@remotion/bundler': 3.0.18
+      '@remotion/eslint-config': 3.0.18
+      '@remotion/player': 3.0.18
+      '@remotion/preload': 3.0.18
       '@types/node': ^12.0.0
       '@types/react': 18.0.1
       '@types/react-dom': 18.0.0
@@ -682,7 +682,7 @@ importers:
       react-dev-utils: ^12.0.1
       react-dom: 18.0.0
       react-refresh: ^0.11.0
-      remotion: 3.0.16
+      remotion: 3.0.18
       typescript: ^4.7.0
       webpack: 5.72.0
       webpack-dev-server: ^4.6.0
@@ -730,38 +730,38 @@ importers:
       '@testing-library/dom': ^8.7.2
       '@testing-library/react': 13.1.1
       '@types/jest': ^27.4.0
+      '@types/mime-types': 2.1.1
       '@types/node': ^16.7.5
       '@types/react': 18.0.1
       '@types/react-dom': 18.0.0
-      '@types/serve-handler': ^6.1.0
       eslint: 8.13.0
       execa: 5.1.1
       jest: ^27.2.4
+      mime-types: 2.1.35
       prettier: ^2.0.5
       prettier-plugin-organize-imports: ^2.3.4
       puppeteer-core: 13.5.1
       react: 18.0.0
       react-dom: 18.0.0
-      remotion: 3.0.16
-      serve-handler: 6.1.3
+      remotion: 3.0.18
       source-map: ^0.8.0-beta.0
       ts-jest: ^27.0.5
       typescript: ^4.7.0
     dependencies:
       execa: 5.1.1
+      mime-types: 2.1.35
       puppeteer-core: 13.5.1
       remotion: link:../core
-      serve-handler: 6.1.3
       source-map: 0.8.0-beta.0
     devDependencies:
       '@jonny/eslint-config': 3.0.259_eslint@8.13.0+typescript@4.7.2
       '@testing-library/dom': 8.7.2
       '@testing-library/react': 13.1.1_react-dom@18.0.0+react@18.0.0
       '@types/jest': 27.4.0
+      '@types/mime-types': 2.1.1
       '@types/node': 16.10.2
       '@types/react': 18.0.1
       '@types/react-dom': 18.0.0
-      '@types/serve-handler': 6.1.1
       eslint: 8.13.0
       jest: 27.2.4
       prettier: 2.4.1
@@ -785,7 +785,7 @@ importers:
       prettier-plugin-organize-imports: ^2.3.4
       react: 18.0.0
       react-dom: 18.0.0
-      remotion: 3.0.16
+      remotion: 3.0.18
       three: ^0.134.0
       typescript: ^4.7.0
     dependencies:
@@ -7911,12 +7911,6 @@ packages:
     resolution: {integrity: sha512-D/2EJvAlCEtYFEYmmlGwbGXuK886HzyCc3nZX/tkFTQdEU8jZDAgiv08P162yB17y4ZXZoq7yFAnW4GDBb9Now==}
     dev: true
 
-  /@types/serve-handler/6.1.1:
-    resolution: {integrity: sha512-bIwSmD+OV8w0t2e7EWsuQYlGoS1o5aEdVktgkXaa43Zm0qVWi21xaSRb3DQA1UXD+DJ5bRq1Rgu14ZczB+CjIQ==}
-    dependencies:
-      '@types/node': 16.10.2
-    dev: true
-
   /@types/serve-index/1.9.1:
     resolution: {integrity: sha512-d/Hs3nWDxNL2xAczmOVZNj92YZCS6RGxfBPjKzuu/XirCgXdpKEb88dYNbrYGint6IVWLNP+yonwVAuRC0T2Dg==}
     dependencies:
@@ -14706,6 +14700,11 @@ packages:
     resolution: {integrity: sha512-5y8A56jg7XVQx2mbv1lu49NR4dokRnhZYTtL+KGfaa27uq4pSTXkwQkFJl4pkRMyNFz/EtYDSkiiEHx3F7UN6g==}
     engines: {node: '>= 0.6'}
 
+  /mime-db/1.52.0:
+    resolution: {integrity: sha512-sPU4uV7dYlvtWJxwwxHD0PuihVNiE7TyAbQ5SWxDCB9mUYvOgroQOwYQQOKPJ8CIbE+1ETVlOoK1UC2nU3gYvg==}
+    engines: {node: '>= 0.6'}
+    dev: false
+
   /mime-types/2.1.18:
     resolution: {integrity: sha512-lc/aahn+t4/SWV/qcmumYjymLsWfN3ELhpmVuUFjgsORruuZPVSwAQryq+HHGvO/SI2KVX26bx+En+zhM8g8hQ==}
     engines: {node: '>= 0.6'}
@@ -14724,6 +14723,13 @@ packages:
     engines: {node: '>= 0.6'}
     dependencies:
       mime-db: 1.51.0
+
+  /mime-types/2.1.35:
+    resolution: {integrity: sha512-ZDY+bPm5zTTF+YpCrAU9nK0UgICYPT0QtT1NZWFv4s++TNkcgVaT0g6+4R2uI4MjQjzysHB1zxuWL50hzaeXiw==}
+    engines: {node: '>= 0.6'}
+    dependencies:
+      mime-db: 1.52.0
+    dev: false
 
   /mime/1.6.0:
     resolution: {integrity: sha512-x0Vn8spI+wuJ1O6S7gnbaQg8Pxh4NNHb7KSINmEWKiPE4RKOplvijn+NkmYmmRgP68mc70j2EbeTFRsrswaQeg==}
