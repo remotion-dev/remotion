@@ -12,7 +12,7 @@ export const indexHtml = (
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<link rel="preconnect" href="https://fonts.gstatic.com" />
-		<link rel="icon" type="image/png" href="/favicon.png" />
+		<link rel="icon" type="image/png" href="/remotion.png" />
 		<title>Remotion Preview</title>
 	</head>
 	<body>
