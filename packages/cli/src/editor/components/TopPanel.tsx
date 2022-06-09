@@ -13,6 +13,7 @@ import {SplitterHandle} from './Splitter/SplitterHandle';
 
 const container: React.CSSProperties = {
 	height: '100%',
+	width: '100%',
 	display: 'flex',
 	flexDirection: 'column',
 	flex: 1,
