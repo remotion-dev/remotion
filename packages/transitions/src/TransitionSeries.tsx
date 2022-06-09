@@ -10,7 +10,10 @@ import {
 	useVideoConfig,
 } from 'remotion';
 import {flattenChildren} from './flatten-children';
-import {TransitionSeriesTransition} from './TransitionSeriesTransition';
+import {
+	TransitionSeriesTransition,
+	TransitionSeriesTransitionProps,
+} from './TransitionSeriesTransition';
 import {TriangleEntrace} from './Triangle';
 
 type SeriesSequenceProps = PropsWithChildren<
@@ -29,6 +32,37 @@ const springConfig: Partial<SpringConfig> = {
 	damping: 200,
 };
 
+const SPRING_THRESHOLD = 0.001;
+
+export const springWithRoundUpIfThreshold: typeof spring = (args) => {
+	if (args.to || args.from) {
+		throw new Error(
+			'to / from values are not supported by springWithRoundUpIfThreshold'
+		);
+	}
+
+	const spr = spring(args);
+
+	if (spr > 1 - SPRING_THRESHOLD) {
+		return 1;
+	}
+
+	return spr;
+};
+
+type TransitionType = {
+	props: TransitionSeriesTransitionProps;
+	type: typeof TransitionSeriesTransition;
+};
+
+type TypeChild =
+	| {
+			props: SeriesSequenceProps;
+			type: typeof SeriesSequence;
+	  }
+	| TransitionType
+	| string;
+
 const TransitionSeries: FC<{
 	children: React.ReactNode;
 }> & {
@@ -37,17 +71,12 @@ const TransitionSeries: FC<{
 } = ({children}) => {
 	const {fps} = useVideoConfig();
 	const frame = useCurrentFrame();
-	let transitionOffsets = 0;
 	const childrenValue = useMemo(() => {
+		let transitionOffsets = 0;
 		let startFrame = 0;
 		const flattedChildren = flattenChildren(children);
 		return Children.map(flattedChildren, (child, i) => {
-			const castedChild = child as unknown as
-				| {
-						props: SeriesSequenceProps;
-						type: typeof SeriesSequence;
-				  }
-				| string;
+			const castedChild = child as unknown as TypeChild;
 			if (typeof castedChild === 'string') {
 				// Don't throw if it's just some accidential whitespace
 				if (castedChild.trim() === '') {
@@ -69,25 +98,30 @@ const TransitionSeries: FC<{
 				);
 			}
 
-			const debugInfo = `index = ${i}, duration = ${castedChild.props.durationInFrames}`;
+			const castedChildAgain = castedChild as {
+				props: SeriesSequenceProps;
+				type: typeof SeriesSequence;
+			};
 
-			if (!castedChild || !castedChild.props.children) {
+			const debugInfo = `index = ${i}, duration = ${castedChildAgain.props.durationInFrames}`;
+
+			if (!castedChildAgain || !castedChildAgain.props.children) {
 				throw new TypeError(
 					`A <Series.Sequence /> component (${debugInfo}) was detected to not have any children. Delete it to fix this error.`
 				);
 			}
 
-			const durationInFramesProp = castedChild.props.durationInFrames;
+			const durationInFramesProp = castedChildAgain.props.durationInFrames;
 			const {
 				durationInFrames,
 				children: _children,
 				...passedProps
-			} = castedChild.props;
+			} = castedChildAgain.props;
 			Internals.validateDurationInFrames(
 				durationInFramesProp,
 				`of a <Series.Sequence /> component`
 			);
-			const offset = castedChild.props.offset ?? 0;
+			const offset = castedChildAgain.props.offset ?? 0;
 			if (Number.isNaN(offset)) {
 				throw new TypeError(
 					`The "offset" property of a <Series.Sequence /> must not be NaN, but got NaN (${debugInfo}).`
@@ -106,15 +140,37 @@ const TransitionSeries: FC<{
 				);
 			}
 
-			const prev = flattedChildren[i - 1];
-			const next = flattedChildren[i + 1];
+			const hasPrev = flattedChildren[i - 1] as TypeChild;
+			const nextPrev = flattedChildren[i + 1] as TypeChild;
+
+			const prev: TransitionType | null =
+				typeof hasPrev === 'string' || typeof hasPrev === 'undefined'
+					? null
+					: hasPrev.type === TransitionSeriesTransition
+					? (hasPrev as TransitionType)
+					: null;
+
+			const next: TransitionType | null =
+				typeof nextPrev === 'string' || typeof nextPrev === 'undefined'
+					? null
+					: nextPrev.type === TransitionSeriesTransition
+					? (nextPrev as TransitionType)
+					: null;
+
 			const currentStartFrame = startFrame + offset;
-			const duration = measureSpring({
-				fps,
-				config: springConfig,
-			});
+
+			let duration = 0;
 
 			if (prev) {
+				if (prev.props.timing.type !== 'spring') {
+					throw new TypeError('only spring supported');
+				}
+
+				duration = measureSpring({
+					fps,
+					config: prev.props.timing.config,
+					threshold: SPRING_THRESHOLD,
+				});
 				transitionOffsets -= duration;
 			}
 
@@ -132,14 +188,46 @@ const TransitionSeries: FC<{
 				</Sequence>
 			);
 
+			if (next && prev) {
+				return (
+					<TriangleEntrace
+						type="out"
+						progress={springWithRoundUpIfThreshold({
+							fps,
+							frame:
+								frame -
+								actualStartFrame -
+								durationInFrames +
+								measureSpring({
+									fps,
+									config: next.props.timing.config,
+									threshold: SPRING_THRESHOLD,
+								}),
+							config: next.props.timing.config,
+						})}
+					>
+						<TriangleEntrace
+							type="in"
+							progress={springWithRoundUpIfThreshold({
+								fps,
+								frame: frame - actualStartFrame,
+								config: prev.props.timing.config,
+							})}
+						>
+							{inner}
+						</TriangleEntrace>
+					</TriangleEntrace>
+				);
+			}
+
 			if (prev) {
 				return (
 					<TriangleEntrace
 						type="in"
-						progress={spring({
+						progress={springWithRoundUpIfThreshold({
 							fps,
 							frame: frame - actualStartFrame,
-							config: springConfig,
+							config: prev.props.timing.config,
 						})}
 					>
 						{inner}
@@ -151,10 +239,18 @@ const TransitionSeries: FC<{
 				return (
 					<TriangleEntrace
 						type="out"
-						progress={spring({
+						progress={springWithRoundUpIfThreshold({
 							fps,
-							frame: frame - actualStartFrame - durationInFrames + duration,
-							config: springConfig,
+							frame:
+								frame -
+								actualStartFrame -
+								durationInFrames +
+								measureSpring({
+									fps,
+									config: next.props.timing.config,
+									threshold: SPRING_THRESHOLD,
+								}),
+							config: next.props.timing.config,
 						})}
 					>
 						{inner}
