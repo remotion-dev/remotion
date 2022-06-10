@@ -1,4 +1,4 @@
-import {bundle} from '@remotion/bundler';
+import {bundle, BundlerInternals} from '@remotion/bundler';
 import {Internals} from 'remotion';
 import {Log} from './log';
 import {quietFlagProvided} from './parse-command-line';
@@ -7,14 +7,13 @@ import {
 	makeBundlingProgress,
 } from './progress-bar';
 import {RenderStep} from './step';
-import {cacheExists, clearCache} from './webpack-cache';
 
 export const bundleOnCli = async (fullPath: string, steps: RenderStep[]) => {
 	const shouldCache = Internals.getWebpackCaching();
-	const cacheExistedBefore = cacheExists('production', null);
+	const cacheExistedBefore = BundlerInternals.cacheExists('production', null);
 	if (cacheExistedBefore && !shouldCache) {
 		Log.info('🧹 Cache disabled but found. Deleting... ');
-		await clearCache('production', null);
+		await BundlerInternals.clearCache('production', null);
 	}
 
 	const bundleStartTime = Date.now();
