@@ -1,15 +1,6 @@
 import {ReadStream} from 'fs';
 import {IncomingMessage, ServerResponse} from 'http';
 
-export function getHeaderNames(res: ServerResponse) {
-	if (typeof res.getHeaderNames !== 'function') {
-		// @ts-expect-error
-		return Object.keys(res._headers || {});
-	}
-
-	return res.getHeaderNames();
-}
-
 export function getHeaderFromRequest(req: IncomingMessage, name: string) {
 	return req.headers[name];
 }
