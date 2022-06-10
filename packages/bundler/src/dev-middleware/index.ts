@@ -11,7 +11,7 @@ export const wdm = (compiler: webpack.Compiler): MiddleWare => {
 		callbacks: [],
 		compiler,
 		watching: undefined as Watching | undefined,
-		logger: compiler.getInfrastructureLogger('webpack-dev-middleware'),
+		logger: compiler.getInfrastructureLogger('remotion'),
 		outputFileSystem: undefined,
 	};
 
