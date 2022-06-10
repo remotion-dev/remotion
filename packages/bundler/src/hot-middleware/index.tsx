@@ -23,17 +23,15 @@ const pathMatch = function (url: string, path: string) {
 };
 
 export const webpackHotMiddleware = (compiler: webpack.Compiler) => {
-	let eventStream: EventStream | null = createEventStream(
+	const eventStream: EventStream | null = createEventStream(
 		hotMiddlewareOptions.heartbeat
 	);
 	let latestStats: webpack.Stats | null = null;
-	let closed = false;
 
 	compiler.hooks.invalid.tap('remotion', onInvalid);
 	compiler.hooks.done.tap('remotion', onDone);
 
 	function onInvalid() {
-		if (closed) return;
 		latestStats = null;
 		console.log('webpack building...');
 		eventStream?.publish({
@@ -42,9 +40,9 @@ export const webpackHotMiddleware = (compiler: webpack.Compiler) => {
 	}
 
 	function onDone(statsResult: webpack.Stats) {
-		if (closed) return;
 		// Keep hold of latest stats so they can be propagated to new clients
 		latestStats = statsResult;
+
 		publishStats('built', latestStats, eventStream);
 	}
 
@@ -53,27 +51,11 @@ export const webpackHotMiddleware = (compiler: webpack.Compiler) => {
 		res: ServerResponse,
 		next: () => void
 	) {
-		if (closed) return next();
-
 		if (!pathMatch(req.url as string, hotMiddlewareOptions.path)) return next();
 		eventStream?.handler(req, res);
 		if (latestStats) {
 			publishStats('sync', latestStats, eventStream);
 		}
-	};
-
-	middleware.publish = function (payload: HotMiddlewareMessage) {
-		if (closed) return;
-		eventStream?.publish(payload);
-	};
-
-	middleware.close = function () {
-		if (closed) return;
-		// Can't remove compiler plugins, so we just set a flag and noop if closed
-		// https://github.com/webpack/tapable/issues/32#issuecomment-350644466
-		closed = true;
-		eventStream?.close();
-		eventStream = null;
 	};
 
 	return middleware;
@@ -109,9 +91,6 @@ function createEventStream(heartbeat: number) {
 				'Access-Control-Allow-Origin': '*',
 				'Content-Type': 'text/event-stream;charset=utf-8',
 				'Cache-Control': 'no-cache, no-transform',
-				// While behind nginx, event stream should not be buffered:
-				// http://nginx.org/docs/http/ngx_http_proxy_module.html#proxy_buffering
-				'X-Accel-Buffering': 'no',
 			};
 
 			const isHttp1 = !(parseInt(req.httpVersion, 10) >= 2);

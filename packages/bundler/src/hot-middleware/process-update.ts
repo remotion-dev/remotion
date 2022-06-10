@@ -61,7 +61,6 @@ export const processUpdate = function (
 ) {
 	const {reload} = options;
 	if (!upToDate(hash) && module.hot?.status() === 'idle') {
-		console.log('[Fast refresh] Checking for updates on the server...');
 		check();
 	}
 
@@ -92,7 +91,9 @@ export const processUpdate = function (
 			) {
 				if (applyErr) return handleError(applyErr);
 
-				if (!upToDate()) check();
+				if (!upToDate()) {
+					check();
+				}
 
 				logUpdates(updatedModules, renewedModules);
 			};
@@ -152,14 +153,11 @@ export const processUpdate = function (
 		if (!renewedModules || renewedModules.length === 0) {
 			console.log('[Fast refresh] Nothing hot updated.');
 		} else {
-			console.log('[Fast refresh] Updated modules:');
 			renewedModules.forEach((moduleId) => {
-				console.log('[Fast refresh]  - ' + (moduleMap[moduleId] || moduleId));
+				console.log(
+					`[Fast refresh] ${moduleMap[moduleId] || moduleId} fast refreshed.`
+				);
 			});
-		}
-
-		if (upToDate()) {
-			console.log('[Fast refresh] App is up to date.');
 		}
 	}
 
