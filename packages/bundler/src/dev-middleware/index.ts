@@ -1,4 +1,4 @@
-import webpack, {Watching} from 'webpack';
+import webpack from 'webpack';
 import {MiddleWare, middleware} from './middleware';
 import {setupHooks} from './setup-hooks';
 import {setupOutputFileSystem} from './setup-output-filesystem';
@@ -10,7 +10,6 @@ export const wdm = (compiler: webpack.Compiler): MiddleWare => {
 		stats: undefined,
 		callbacks: [],
 		compiler,
-		watching: undefined as Watching | undefined,
 		logger: compiler.getInfrastructureLogger('remotion'),
 		outputFileSystem: undefined,
 	};
@@ -20,9 +19,7 @@ export const wdm = (compiler: webpack.Compiler): MiddleWare => {
 	setupOutputFileSystem(context);
 
 	// Start watching
-	if (context.compiler.watching) {
-		context.watching = context.compiler.watching;
-	} else {
+	if (!context.compiler.watching) {
 		const errorHandler = (error: Error | null | undefined) => {
 			if (error) {
 				context.logger.error(error);
@@ -31,7 +28,7 @@ export const wdm = (compiler: webpack.Compiler): MiddleWare => {
 
 		const watchOptions = context.compiler.options.watchOptions || {};
 
-		context.watching = context.compiler.watch(watchOptions, errorHandler);
+		context.compiler.watch(watchOptions, errorHandler);
 	}
 
 	return middleware(context);
