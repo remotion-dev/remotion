@@ -15,6 +15,7 @@ import fs from 'fs';
 import os from 'os';
 import path from 'path';
 import util from 'util';
+import {Log} from '../../../../log';
 
 const execProm = util.promisify(exec);
 
@@ -466,18 +467,16 @@ export function launchEditor({
 		process.platform === 'win32' &&
 		!WINDOWS_FILE_NAME_WHITELIST.test(fileName.trim())
 	) {
-		console.log();
-		console.log(
-			'Could not open ' + path.basename(fileName) + ' in the editor.'
-		);
-		console.log();
-		console.log(
+		Log.error();
+		Log.error('Could not open ' + path.basename(fileName) + ' in the editor.');
+		Log.error();
+		Log.error(
 			'When running on Windows, file names are checked against a whitelist ' +
 				'to protect against remote code execution attacks. File names may ' +
 				'consist only of alphanumeric characters (all languages), periods, ' +
 				'dashes, slashes, and underscores.'
 		);
-		console.log();
+		Log.error();
 		return Promise.resolve(false);
 	}
 
@@ -516,12 +515,12 @@ export function launchEditor({
 		_childProcess = null;
 
 		if (errorCode) {
-			console.log(`Process exited with code ${errorCode}`);
+			Log.error(`Process exited with code ${errorCode}`);
 		}
 	});
 
 	_childProcess.on('error', (error) => {
-		console.log('Error opening file in editor', fileName, error.message);
+		Log.error('Error opening file in editor', fileName, error.message);
 	});
 	return Promise.resolve(true);
 }

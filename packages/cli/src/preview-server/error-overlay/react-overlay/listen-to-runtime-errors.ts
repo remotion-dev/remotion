@@ -56,6 +56,7 @@ const crashWithFrames = (crash: () => void) => (error: Error) => {
 		error.message.startsWith('Rendered more hooks');
 
 	if (didHookOrderChange) {
+		// eslint-disable-next-line no-console
 		console.log('Hook order changed. Reloading app...');
 		window.location.reload();
 	} else {

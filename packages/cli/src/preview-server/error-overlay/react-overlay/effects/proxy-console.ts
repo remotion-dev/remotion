@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /*
 	Source code adapted from https://github.com/facebook/create-react-app/tree/main/packages/react-error-overlay and refactored in Typescript. This file is MIT-licensed.
 */
