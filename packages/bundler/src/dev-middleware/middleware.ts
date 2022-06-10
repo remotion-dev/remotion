@@ -8,14 +8,13 @@ import {
 	getHeaderNames,
 	send,
 	setHeaderForResponse,
-	setStatusCode,
 } from './compatible-api';
 import {getFilenameFromUrl} from './get-filename-from-url';
 import {parseRange} from './range-parser';
 import {ready} from './ready';
 import {DevMiddlewareContext} from './types';
 
-function getValueContentRangeHeader(
+export function getValueContentRangeHeader(
 	type: string,
 	size: number,
 	range?: {
@@ -75,7 +74,7 @@ export function middleware(context: DevMiddlewareContext) {
 			const filename = getFilenameFromUrl(context, req.url);
 
 			if (!filename) {
-				await goNext();
+				goNext();
 
 				return;
 			}
@@ -134,7 +133,7 @@ export function middleware(context: DevMiddlewareContext) {
 						res.removeHeader(existingHeaders[i]);
 					}
 
-					setStatusCode(res, 416);
+					res.statusCode = 416;
 					setHeaderForResponse(
 						res,
 						'Content-Range',
@@ -168,7 +167,7 @@ export function middleware(context: DevMiddlewareContext) {
 
 				if (parsedRanges !== -2 && parsedRanges.length === 1) {
 					// Content-Range
-					setStatusCode(res, 206);
+					res.statusCode = 206;
 					setHeaderForResponse(
 						res,
 						'Content-Range',

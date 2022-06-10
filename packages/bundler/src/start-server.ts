@@ -42,10 +42,6 @@ export const startServer = async (
 
 	const hash = `/static-${crypto.randomBytes(6).toString('hex')}`;
 
-	/**
-	 * TODO: Put static server
-	 */
-
 	const wdmMiddleware = wdm(compiler);
 	const whm = webpackHotMiddleware(compiler);
 
