@@ -17,10 +17,6 @@ if (typeof window === 'undefined') {
 	connect();
 }
 
-function setOptionsAndConnect() {
-	connect();
-}
-
 function eventSourceWrapper() {
 	let source: EventSource;
 	let lastActivity = Date.now();
@@ -99,9 +95,7 @@ function connect() {
 		try {
 			processMessage(JSON.parse(event.data));
 		} catch (ex) {
-			if (hotMiddlewareOptions.warn) {
-				console.warn('Invalid HMR message: ' + event.data + '\n' + ex);
-			}
+			console.warn('Invalid HMR message: ' + event.data + '\n' + ex);
 		}
 	}
 }
@@ -130,11 +124,6 @@ function createReporter() {
 	let previousProblems: string | null = null;
 
 	function log(type: 'errors' | 'warnings', obj: HotMiddlewareMessage) {
-		if (obj.action === 'building') {
-			console.log('[Fast Refresh] Building');
-			return;
-		}
-
 		const newProblems = obj[type]
 			.map((msg) => {
 				return stripAnsi(msg as string);
@@ -170,9 +159,7 @@ function createReporter() {
 			previousProblems = null;
 		},
 		problems(type: 'errors' | 'warnings', obj: HotMiddlewareMessage) {
-			if (hotMiddlewareOptions.warn) {
-				log(type, obj);
-			}
+			log(type, obj);
 
 			return true;
 		},
@@ -180,68 +167,22 @@ function createReporter() {
 	};
 }
 
-let customHandler: ((msg: HotMiddlewareMessage) => void) | undefined;
-let subscribeAllHandler: ((msg: HotMiddlewareMessage) => void) | undefined;
-
 function processMessage(obj: HotMiddlewareMessage) {
-	switch (obj.action) {
-		case 'building':
-			console.log(
-				'[Fast refresh] bundle ' +
-					(obj.name ? "'" + obj.name + "' " : '') +
-					'rebuilding'
-			);
-
-			break;
-		case 'built':
-			console.log(
-				'[Fast refresh] bundle ' +
-					(obj.name ? "'" + obj.name + "' " : '') +
-					'rebuilt in ' +
-					obj.time +
-					'ms'
-			);
-
-		// fall through
-		case 'sync': {
-			let applyUpdate = true;
-			if (obj.errors.length > 0) {
-				if (reporter) reporter.problems('errors', obj);
-				applyUpdate = false;
-			} else if (obj.warnings.length > 0) {
-				if (reporter) {
-					const overlayShown = reporter.problems('warnings', obj);
-					applyUpdate = overlayShown;
-				}
-			} else if (reporter) {
-				reporter.cleanProblemsCache();
-				reporter.success();
-			}
-
-			if (applyUpdate) {
-				processUpdate(obj.hash, obj.modules, hotMiddlewareOptions);
-			}
-
-			break;
+	let applyUpdate = true;
+	if (obj.errors.length > 0) {
+		if (reporter) reporter.problems('errors', obj);
+		applyUpdate = false;
+	} else if (obj.warnings.length > 0) {
+		if (reporter) {
+			const overlayShown = reporter.problems('warnings', obj);
+			applyUpdate = overlayShown;
 		}
-
-		default:
-			if (customHandler) {
-				customHandler(obj);
-			}
+	} else if (reporter) {
+		reporter.cleanProblemsCache();
+		reporter.success();
 	}
 
-	if (subscribeAllHandler) {
-		subscribeAllHandler(obj);
+	if (applyUpdate) {
+		processUpdate(obj.hash, obj.modules, hotMiddlewareOptions);
 	}
 }
-
-module.exports = {
-	subscribeAll(handler: (msg: HotMiddlewareMessage) => void) {
-		subscribeAllHandler = handler;
-	},
-	subscribe(handler: (msg: HotMiddlewareMessage) => void) {
-		customHandler = handler;
-	},
-	setOptionsAndConnect,
-};
