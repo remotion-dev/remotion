@@ -17,10 +17,6 @@ if (typeof window === 'undefined') {
 	connect();
 }
 
-function setOptionsAndConnect() {
-	connect();
-}
-
 function eventSourceWrapper() {
 	let source: EventSource;
 	let lastActivity = Date.now();
@@ -180,30 +176,14 @@ function createReporter() {
 	};
 }
 
-let customHandler: ((msg: HotMiddlewareMessage) => void) | undefined;
-let subscribeAllHandler: ((msg: HotMiddlewareMessage) => void) | undefined;
-
 function processMessage(obj: HotMiddlewareMessage) {
 	switch (obj.action) {
 		case 'building':
-			console.log(
-				'[Fast refresh] bundle ' +
-					(obj.name ? "'" + obj.name + "' " : '') +
-					'rebuilding'
-			);
+			window.remotion_isBuilding?.();
 
 			break;
-		case 'built':
-			console.log(
-				'[Fast refresh] bundle ' +
-					(obj.name ? "'" + obj.name + "' " : '') +
-					'rebuilt in ' +
-					obj.time +
-					'ms'
-			);
-
-		// fall through
-		case 'sync': {
+		case 'sync':
+		case 'built': {
 			let applyUpdate = true;
 			if (obj.errors.length > 0) {
 				if (reporter) reporter.problems('errors', obj);
@@ -219,6 +199,7 @@ function processMessage(obj: HotMiddlewareMessage) {
 			}
 
 			if (applyUpdate) {
+				window.remotion_finishedBuilding?.();
 				processUpdate(obj.hash, obj.modules, hotMiddlewareOptions);
 			}
 
@@ -226,22 +207,6 @@ function processMessage(obj: HotMiddlewareMessage) {
 		}
 
 		default:
-			if (customHandler) {
-				customHandler(obj);
-			}
-	}
-
-	if (subscribeAllHandler) {
-		subscribeAllHandler(obj);
+			break;
 	}
 }
-
-module.exports = {
-	subscribeAll(handler: (msg: HotMiddlewareMessage) => void) {
-		subscribeAllHandler = handler;
-	},
-	subscribe(handler: (msg: HotMiddlewareMessage) => void) {
-		customHandler = handler;
-	},
-	setOptionsAndConnect,
-};
