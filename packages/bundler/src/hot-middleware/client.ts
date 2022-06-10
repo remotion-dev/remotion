@@ -13,7 +13,7 @@ if (typeof window === 'undefined') {
 	console.warn(
 		'Unsupported browser: You need a browser that supports EventSource '
 	);
-} else if (hotMiddlewareOptions.autoConnect) {
+} else {
 	connect();
 }
 
@@ -204,14 +204,6 @@ function processMessage(obj: HotMiddlewareMessage) {
 
 		// fall through
 		case 'sync': {
-			if (
-				obj.name &&
-				hotMiddlewareOptions.name &&
-				obj.name !== hotMiddlewareOptions.name
-			) {
-				return;
-			}
-
 			let applyUpdate = true;
 			if (obj.errors.length > 0) {
 				if (reporter) reporter.problems('errors', obj);
