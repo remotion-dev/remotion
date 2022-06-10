@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /**
  * Source code is adapted from
  * https://github.com/webpack-contrib/webpack-hot-middleware#readme
