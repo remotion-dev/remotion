@@ -10,7 +10,6 @@ import webpack from 'webpack';
 import {
 	HotMiddlewareMessage,
 	hotMiddlewareOptions,
-	HotMiddlewareOptions,
 	ModuleMap,
 	WebpackStats,
 } from './types';
@@ -36,7 +35,7 @@ export const webpackHotMiddleware = (compiler: webpack.Compiler) => {
 	function onInvalid() {
 		if (closed) return;
 		latestStats = null;
-		hotMiddlewareOptions.log('webpack building...');
+		console.log('webpack building...');
 		eventStream?.publish({
 			action: 'building',
 		});
@@ -46,7 +45,7 @@ export const webpackHotMiddleware = (compiler: webpack.Compiler) => {
 		if (closed) return;
 		// Keep hold of latest stats so they can be propagated to new clients
 		latestStats = statsResult;
-		publishStats('built', latestStats, eventStream, hotMiddlewareOptions.log);
+		publishStats('built', latestStats, eventStream);
 	}
 
 	const middleware = function (
@@ -59,7 +58,7 @@ export const webpackHotMiddleware = (compiler: webpack.Compiler) => {
 		if (!pathMatch(req.url as string, hotMiddlewareOptions.path)) return next();
 		eventStream?.handler(req, res);
 		if (latestStats) {
-			publishStats('sync', latestStats, eventStream, hotMiddlewareOptions.log);
+			publishStats('sync', latestStats, eventStream);
 		}
 	};
 
@@ -143,8 +142,7 @@ function createEventStream(heartbeat: number) {
 function publishStats(
 	action: HotMiddlewareMessage['action'],
 	statsResult: webpack.Stats,
-	eventStream: EventStream | null,
-	log: HotMiddlewareOptions['log']
+	eventStream: EventStream | null
 ) {
 	const stats = statsResult.toJson({
 		all: false,
@@ -164,9 +162,7 @@ function publishStats(
 			name = statsResult.compilation.name || '';
 		}
 
-		if (log) {
-			log(`webpack built in ${_stats.time}ms`);
-		}
+		console.log(`webpack built in ${_stats.time}ms`);
 
 		eventStream?.publish({
 			name,
