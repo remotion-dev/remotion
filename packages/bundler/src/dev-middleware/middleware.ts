@@ -5,7 +5,6 @@ import path from 'path';
 import {
 	getHeaderFromRequest,
 	getHeaderFromResponse,
-	getHeaderNames,
 	send,
 	setHeaderForResponse,
 } from './compatible-api';
@@ -239,10 +238,10 @@ export function middleware(context: DevMiddlewareContext) {
 
 					context.logger.error(message);
 
-					const existingHeaders = getHeaderNames(res);
+					const existingHeaders = res.getHeaderNames();
 
-					for (let i = 0; i < existingHeaders.length; i++) {
-						res.removeHeader(existingHeaders[i]);
+					for (const header of existingHeaders) {
+						res.removeHeader(header);
 					}
 
 					res.statusCode = 416;
@@ -293,7 +292,7 @@ export function middleware(context: DevMiddlewareContext) {
 			const isFsSupportsStream =
 				typeof context.outputFileSystem?.createReadStream === 'function';
 
-			let bufferOtStream;
+			let bufferOtStream: Buffer | ReadStream | undefined;
 			let byteLength = 0;
 
 			try {
@@ -309,12 +308,13 @@ export function middleware(context: DevMiddlewareContext) {
 					}) as unknown as ReadStream;
 					byteLength = end - start + 1;
 				} else if (context.outputFileSystem) {
-					bufferOtStream = context.outputFileSystem.readFileSync(filename);
-					// @ts-expect-error
+					bufferOtStream = context.outputFileSystem.readFileSync(
+						filename
+					) as Buffer;
 					byteLength = bufferOtStream.byteLength;
 				}
 			} catch (_ignoreError) {
-				await goNext();
+				goNext();
 
 				return;
 			}
