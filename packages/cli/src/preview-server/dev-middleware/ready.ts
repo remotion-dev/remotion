@@ -1,4 +1,4 @@
-import webpack from 'webpack';
+import {webpack} from '@remotion/bundler';
 import {DevMiddlewareContext} from './types';
 
 export function ready(

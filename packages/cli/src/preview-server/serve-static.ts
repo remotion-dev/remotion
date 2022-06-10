@@ -6,13 +6,12 @@
  * MIT Licensed
  */
 
+import {RenderInternals} from '@remotion/renderer';
 import {createReadStream, existsSync, promises} from 'fs';
 import {IncomingMessage, ServerResponse} from 'http';
-import mime from 'mime-types';
 import {join} from 'path';
 import {getValueContentRangeHeader} from './dev-middleware/middleware';
 import {parseRange} from './dev-middleware/range-parser';
-import {isPathInside} from './is-path-inside';
 
 export const serveStatic = async function (
 	root: string,
@@ -37,7 +36,7 @@ export const serveStatic = async function (
 		)
 	);
 
-	if (!isPathInside(path, root)) {
+	if (!RenderInternals.isPathInside(path, root)) {
 		res.writeHead(500);
 		res.write('Not allowed to read');
 		res.end();
@@ -67,7 +66,7 @@ export const serveStatic = async function (
 		const readStream = createReadStream(path);
 		res.setHeader(
 			'content-type',
-			mime.lookup(path) || 'application/octet-stream'
+			RenderInternals.mime.lookup(path) || 'application/octet-stream'
 		);
 		res.setHeader('content-length', lstat.size);
 		res.writeHead(200);
@@ -82,7 +81,7 @@ export const serveStatic = async function (
 
 		res.setHeader(
 			'content-type',
-			mime.lookup(path) || 'application/octet-stream'
+			RenderInternals.mime.lookup(path) || 'application/octet-stream'
 		);
 		res.setHeader(
 			'content-range',

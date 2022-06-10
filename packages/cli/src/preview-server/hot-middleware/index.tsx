@@ -4,9 +4,10 @@
  * and rewritten in TypeScript. This file is MIT licensed
  */
 
+import {webpack} from '@remotion/bundler';
 import {IncomingMessage, ServerResponse} from 'http';
 import {parse} from 'url';
-import webpack from 'webpack';
+import {Log} from '../../log';
 import {
 	HotMiddlewareMessage,
 	hotMiddlewareOptions,
@@ -33,7 +34,7 @@ export const webpackHotMiddleware = (compiler: webpack.Compiler) => {
 
 	function onInvalid() {
 		latestStats = null;
-		console.log('webpack building...');
+		Log.info('webpack building...');
 		eventStream?.publish({
 			action: 'building',
 		});
@@ -141,7 +142,7 @@ function publishStats(
 			name = statsResult.compilation.name || '';
 		}
 
-		console.log(`webpack built in ${_stats.time}ms`);
+		Log.info(`webpack built in ${_stats.time}ms`);
 
 		eventStream?.publish({
 			name,

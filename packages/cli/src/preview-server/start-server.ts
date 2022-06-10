@@ -1,15 +1,14 @@
+import {BundlerInternals, webpack} from '@remotion/bundler';
+import {RenderInternals} from '@remotion/renderer';
 import crypto from 'crypto';
 import fs from 'fs';
 import http from 'http';
 import os from 'os';
 import path from 'path';
 import {Internals, WebpackOverrideFn} from 'remotion';
-import webpack from 'webpack';
 import {wdm} from './dev-middleware';
-import {getDesiredPort} from './get-port';
 import {webpackHotMiddleware} from './hot-middleware';
 import {handleRoutes} from './routes';
-import {webpackConfig} from './webpack-config';
 
 export const startServer = async (
 	entry: string,
@@ -26,7 +25,7 @@ export const startServer = async (
 		path.join(os.tmpdir(), 'react-motion-graphics')
 	);
 
-	const config = webpackConfig({
+	const config = BundlerInternals.webpackConfig({
 		entry,
 		userDefinedComponent,
 		outDir: tmpDir,
@@ -74,7 +73,7 @@ export const startServer = async (
 
 	const desiredPort = options?.port ?? undefined;
 
-	const port = await getDesiredPort(desiredPort, 3000, 3100);
+	const port = await RenderInternals.getDesiredPort(desiredPort, 3000, 3100);
 
 	server.listen(port);
 	return port;

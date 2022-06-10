@@ -1,9 +1,14 @@
-import {BundlerInternals, PackageManager} from '@remotion/bundler';
-import execa from 'execa';
+import {RenderInternals} from '@remotion/renderer';
 import fs from 'fs';
 import path from 'path';
 import {Internals} from 'remotion';
+import {getLatestRemotionVersion} from './get-latest-remotion-version';
 import {Log} from './log';
+import {
+	getPackageManager,
+	lockFilePaths,
+	PackageManager,
+} from './preview-server/get-package-manager';
 
 const getUpgradeCommand = ({
 	manager,
@@ -36,14 +41,13 @@ export const upgrade = async () => {
 
 	const packageJson = require(packageJsonFilePath);
 	const dependencies = Object.keys(packageJson.dependencies);
-	const latestRemotionVersion =
-		await BundlerInternals.getLatestRemotionVersion();
+	const latestRemotionVersion = await getLatestRemotionVersion();
 
-	const manager = BundlerInternals.getPackageManager();
+	const manager = getPackageManager();
 
 	if (manager === 'unknown') {
 		throw new Error(
-			`No lockfile was found in your project (one of ${BundlerInternals.lockFilePaths
+			`No lockfile was found in your project (one of ${lockFilePaths
 				.map((p) => p.path)
 				.join(', ')}). Install dependencies using your favorite manager!`
 		);
@@ -63,7 +67,7 @@ export const upgrade = async () => {
 		'remotion',
 	].filter((u) => dependencies.includes(u));
 
-	const prom = execa(
+	const prom = RenderInternals.execa(
 		manager,
 		getUpgradeCommand({
 			manager,

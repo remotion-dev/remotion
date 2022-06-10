@@ -1,3 +1,4 @@
+import {BundlerInternals} from '@remotion/bundler';
 import {createReadStream, statSync} from 'fs';
 import {IncomingMessage, ServerResponse} from 'http';
 import path from 'path';
@@ -11,7 +12,6 @@ import {
 import {SymbolicatedStackFrame} from './error-overlay/react-overlay/utils/stack-frame';
 import {getProjectInfo} from './project-info';
 import {serveStatic} from './serve-static';
-import {indexHtml} from './static-preview';
 import {isUpdateAvailableWithTimeout} from './update-available';
 
 const handleUpdate = async (_: IncomingMessage, response: ServerResponse) => {
@@ -33,7 +33,7 @@ const handleFallback = async (
 
 	response.setHeader('content-type', 'text/html');
 	response.writeHead(200);
-	response.end(indexHtml(hash, '/', displayName));
+	response.end(BundlerInternals.indexHtml(hash, '/', displayName));
 };
 
 const handleProjectInfo = async (

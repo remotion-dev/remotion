@@ -5,7 +5,7 @@ import {Internals, WebpackOverrideFn} from 'remotion';
 import {promisify} from 'util';
 import webpack from 'webpack';
 import {copyDir} from './copy-dir';
-import {indexHtml} from './static-preview';
+import {indexHtml} from './index-html';
 import {webpackConfig} from './webpack-config';
 
 const entry = require.resolve('./renderEntry');

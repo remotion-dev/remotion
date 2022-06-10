@@ -1,19 +1,13 @@
-import {getLatestRemotionVersion} from './get-latest-remotion-version';
-import {getPackageManager, lockFilePaths} from './get-package-manager';
-import {startServer} from './start-server';
-import {cacheExists, clearCache} from './webpack-cache';
+import {indexHtml} from './index-html';
+import {webpackConfig} from './webpack-config';
 import esbuild = require('esbuild');
+import webpack = require('webpack');
 
 export const BundlerInternals = {
-	startServer,
-	cacheExists,
-	clearCache,
-	getLatestRemotionVersion,
-	getPackageManager,
-	lockFilePaths,
 	esbuild,
+	webpackConfig,
+	indexHtml,
 };
 
 export {bundle} from './bundle';
-export {PackageManager} from './get-package-manager';
-export type {ProjectInfo} from './project-info';
+export {webpack};
