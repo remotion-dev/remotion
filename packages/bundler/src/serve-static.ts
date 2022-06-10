@@ -9,9 +9,14 @@
 import {createReadStream, existsSync, promises} from 'fs';
 import {IncomingMessage, ServerResponse} from 'http';
 import mime from 'mime-types';
+import {join} from 'path';
+import {getValueContentRangeHeader} from './dev-middleware/middleware';
 import {parseRange} from './dev-middleware/range-parser';
+import {isPathInside} from './is-path-inside';
 
 export const serveStatic = async function (
+	root: string,
+	hash: string,
 	req: IncomingMessage,
 	res: ServerResponse
 ) {
@@ -24,11 +29,19 @@ export const serveStatic = async function (
 		return;
 	}
 
-	let path = new URL(req.url as string, 'http://localhost').pathname;
+	const path = join(
+		root,
+		new URL(req.url as string, 'http://localhost').pathname.replace(
+			new RegExp(`^${hash}`),
+			''
+		)
+	);
 
-	// make sure redirect occurs at mount
-	if (path === '/' && path.substr(-1) !== '/') {
-		path = '';
+	if (isPathInside(path, root)) {
+		res.writeHead(500);
+		res.write('Not allowed to read');
+		res.end();
+		return;
 	}
 
 	const exists = existsSync(path);
@@ -51,12 +64,13 @@ export const serveStatic = async function (
 
 	const hasRange = req.headers.range && lstat.size;
 	if (!hasRange) {
+		const readStream = createReadStream(path);
 		res.setHeader(
 			'content-type',
 			mime.lookup(path) || 'application/octet-stream'
 		);
+		res.setHeader('content-length', lstat.size);
 		res.writeHead(200);
-		const readStream = createReadStream(path);
 		readStream.pipe(res);
 		return;
 	}
@@ -66,16 +80,29 @@ export const serveStatic = async function (
 	if (typeof range === 'object' && range.type === 'bytes') {
 		const {start, end} = range[0];
 
-		res.writeHead(206);
+		res.setHeader(
+			'content-type',
+			mime.lookup(path) || 'application/octet-stream'
+		);
+		res.setHeader(
+			'content-range',
+			getValueContentRangeHeader('bytes', lstat.size, {
+				end,
+				start,
+			})
+		);
+		res.setHeader('content-length', end - start + 1);
 
+		res.writeHead(206);
 		const readStream = createReadStream(path, {
 			start,
 			end,
 		});
 		readStream.pipe(res);
-	} else {
-		res.statusCode = 416;
-		res.setHeader('Content-Range', `bytes */${lstat.size}`);
-		res.end();
+		return;
 	}
+
+	res.statusCode = 416;
+	res.setHeader('Content-Range', `bytes */${lstat.size}`);
+	res.end();
 };

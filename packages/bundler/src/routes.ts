@@ -156,7 +156,8 @@ export const handleRoutes = (
 	}
 
 	if (url.pathname.startsWith(hash)) {
-		return serveStatic(request, response);
+		const root = path.join(process.cwd(), 'public');
+		return serveStatic(root, hash, request, response);
 	}
 
 	return handleFallback(hash, request, response);

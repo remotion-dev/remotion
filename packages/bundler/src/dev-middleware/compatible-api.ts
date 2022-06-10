@@ -26,10 +26,6 @@ export function setHeaderForResponse(
 	res.setHeader(name, typeof value === 'number' ? String(value) : value);
 }
 
-export function setStatusCode(res: ServerResponse, code: number) {
-	res.statusCode = code;
-}
-
 export function send(
 	req: IncomingMessage,
 	res: ServerResponse,
