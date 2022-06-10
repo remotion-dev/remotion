@@ -18,18 +18,15 @@ export const wdm = (compiler: webpack.Compiler): MiddleWare => {
 
 	setupOutputFileSystem(context);
 
-	// Start watching
-	if (!context.compiler.watching) {
-		const errorHandler = (error: Error | null | undefined) => {
-			if (error) {
-				context.logger.error(error);
-			}
-		};
+	const errorHandler = (error: Error | null | undefined) => {
+		if (error) {
+			context.logger.error(error);
+		}
+	};
 
-		const watchOptions = context.compiler.options.watchOptions || {};
+	const watchOptions = context.compiler.options.watchOptions || {};
 
-		context.compiler.watch(watchOptions, errorHandler);
-	}
+	context.compiler.watch(watchOptions, errorHandler);
 
 	return middleware(context);
 };
