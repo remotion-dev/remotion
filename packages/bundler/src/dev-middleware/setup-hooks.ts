@@ -4,10 +4,6 @@ import {DevMiddlewareContext} from './types';
 
 export function setupHooks(context: DevMiddlewareContext) {
 	function invalid() {
-		if (context.state) {
-			context.logger.log('Compilation starting...');
-		}
-
 		// We are now in invalid state
 		context.state = false;
 		context.stats = undefined;

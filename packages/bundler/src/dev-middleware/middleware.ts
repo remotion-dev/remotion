@@ -175,7 +175,7 @@ export function middleware(context: DevMiddlewareContext) {
 			return;
 		}
 
-		ready(context, processRequest, req);
+		ready(context, processRequest);
 
 		function goNext() {
 			return next();
