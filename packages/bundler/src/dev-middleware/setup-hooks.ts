@@ -48,7 +48,7 @@ export function setupHooks(context: DevMiddlewareContext) {
 		});
 	}
 
-	context.compiler.hooks.watchRun.tap('webpack-dev-middleware', invalid);
-	context.compiler.hooks.invalid.tap('webpack-dev-middleware', invalid);
-	context.compiler.hooks.done.tap('webpack-dev-middleware', done);
+	context.compiler.hooks.watchRun.tap('remotion', invalid);
+	context.compiler.hooks.invalid.tap('remotion', invalid);
+	context.compiler.hooks.done.tap('remotion', done);
 }
