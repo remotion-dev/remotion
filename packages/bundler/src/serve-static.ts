@@ -37,7 +37,7 @@ export const serveStatic = async function (
 		)
 	);
 
-	if (isPathInside(path, root)) {
+	if (!isPathInside(path, root)) {
 		res.writeHead(500);
 		res.write('Not allowed to read');
 		res.end();
