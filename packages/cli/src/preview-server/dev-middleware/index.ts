@@ -1,4 +1,4 @@
-import webpack from 'webpack';
+import {webpack} from '@remotion/bundler';
 import {MiddleWare, middleware} from './middleware';
 import {setupHooks} from './setup-hooks';
 import {setupOutputFileSystem} from './setup-output-filesystem';

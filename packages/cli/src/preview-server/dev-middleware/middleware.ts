@@ -1,6 +1,6 @@
+import {RenderInternals} from '@remotion/renderer';
 import {ReadStream} from 'fs';
 import {IncomingMessage, ServerResponse} from 'http';
-import mime from 'mime-types';
 import path from 'path';
 import {
 	getHeaderFromRequest,
@@ -196,7 +196,9 @@ export function middleware(context: DevMiddlewareContext) {
 
 			if (!getHeaderFromResponse(res, 'Content-Type')) {
 				// content-type name(like application/javascript; charset=utf-8) or false
-				const contentType = mime.contentType(path.extname(filename));
+				const contentType = RenderInternals.mime.contentType(
+					path.extname(filename)
+				);
 
 				// Only set content-type header if media type is known
 				// https://tools.ietf.org/html/rfc7231#section-3.1.1.5

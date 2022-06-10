@@ -1,5 +1,5 @@
+import {webpack} from '@remotion/bundler';
 import type memfs from 'memfs';
-import webpack from 'webpack';
 
 export type DevMiddlewareContext = {
 	state: boolean;

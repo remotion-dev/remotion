@@ -1,4 +1,5 @@
-import webpack from 'webpack';
+import {webpack} from '@remotion/bundler';
+import {Log} from '../../log';
 import {isColorSupported} from './is-color-supported';
 import {DevMiddlewareContext} from './types';
 
@@ -33,7 +34,7 @@ export function setupHooks(context: DevMiddlewareContext) {
 
 			// Avoid extra empty line when `stats: 'none'`
 			if (printedStats) {
-				console.log(printedStats);
+				Log.info(printedStats);
 			}
 
 			context.callbacks = [];

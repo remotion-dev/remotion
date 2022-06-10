@@ -1,4 +1,3 @@
-import path from 'path';
 import ReactDOM from 'react-dom';
 import {Internals, WebpackConfiguration, WebpackOverrideFn} from 'remotion';
 import webpack, {ProgressPlugin} from 'webpack';
@@ -125,11 +124,6 @@ export const webpackConfig = ({
 			devtoolModuleFilenameTemplate: '[resource-path]',
 			assetModuleFilename:
 				environment === 'development' ? '[path][name][ext]' : '[hash][ext]',
-		},
-		devServer: {
-			contentBase: path.resolve(__dirname, '..', 'web'),
-			historyApiFallback: true,
-			hot: true,
 		},
 		resolve: {
 			extensions: ['.ts', '.tsx', '.js', '.jsx'],
