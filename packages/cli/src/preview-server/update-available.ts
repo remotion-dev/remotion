@@ -1,5 +1,5 @@
-import {getLatestRemotionVersion} from '@remotion/bundler/src/get-latest-remotion-version';
 import semver from 'semver';
+import {getLatestRemotionVersion} from '../get-latest-remotion-version';
 import {getPackageManager, PackageManager} from './get-package-manager';
 
 type Info = {
