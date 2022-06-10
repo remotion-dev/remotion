@@ -36,12 +36,16 @@ export const webpackHotMiddleware = (compiler: webpack.Compiler) => {
 		if (closed) return;
 		latestStats = null;
 		console.log('webpack building...');
+		eventStream?.publish({
+			action: 'building',
+		});
 	}
 
 	function onDone(statsResult: webpack.Stats) {
 		if (closed) return;
 		// Keep hold of latest stats so they can be propagated to new clients
 		latestStats = statsResult;
+		publishStats('built', latestStats, eventStream);
 	}
 
 	const middleware = function (
