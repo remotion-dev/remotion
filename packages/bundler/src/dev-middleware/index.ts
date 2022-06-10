@@ -4,8 +4,6 @@ import {setupHooks} from './setup-hooks';
 import {setupOutputFileSystem} from './setup-output-filesystem';
 import {DevMiddlewareContext} from './types';
 
-const noop = () => undefined;
-
 export const wdm = (compiler: webpack.Compiler): MiddleWare => {
 	const context: DevMiddlewareContext = {
 		state: false,

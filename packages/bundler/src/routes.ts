@@ -14,10 +14,7 @@ import {serveStatic} from './serve-static';
 import {indexHtml} from './static-preview';
 import {isUpdateAvailableWithTimeout} from './update-available';
 
-export const handleUpdate = async (
-	_: IncomingMessage,
-	response: ServerResponse
-) => {
+const handleUpdate = async (_: IncomingMessage, response: ServerResponse) => {
 	const data = await isUpdateAvailableWithTimeout();
 	response.setHeader('content-type', 'application/json');
 	response.writeHead(200);
@@ -26,7 +23,7 @@ export const handleUpdate = async (
 
 const editorGuess = guessEditor();
 
-export const handleFallback = async (
+const handleFallback = async (
 	hash: string,
 	_: IncomingMessage,
 	response: ServerResponse
@@ -39,7 +36,7 @@ export const handleFallback = async (
 	response.end(indexHtml(hash, '/', displayName));
 };
 
-export const handleProjectInfo = async (
+const handleProjectInfo = async (
 	_: IncomingMessage,
 	response: ServerResponse
 ) => {
@@ -49,7 +46,7 @@ export const handleProjectInfo = async (
 	response.end(JSON.stringify(data));
 };
 
-export const handleFileSource = async (
+const handleFileSource = async (
 	search: string,
 	_: IncomingMessage,
 	response: ServerResponse
@@ -70,7 +67,7 @@ export const handleFileSource = async (
 	return response.end();
 };
 
-export const handleOpenInEditor = async (
+const handleOpenInEditor = async (
 	req: IncomingMessage,
 	res: ServerResponse
 ) => {
@@ -118,7 +115,7 @@ export const handleOpenInEditor = async (
 	}
 };
 
-export const handleFavicon = (_: IncomingMessage, response: ServerResponse) => {
+const handleFavicon = (_: IncomingMessage, response: ServerResponse) => {
 	const filePath = path.join(__dirname, '..', 'web', 'favicon.png');
 	const stat = statSync(filePath);
 
