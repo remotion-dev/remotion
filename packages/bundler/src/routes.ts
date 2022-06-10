@@ -10,6 +10,7 @@ import {
 } from './error-overlay/react-overlay/utils/open-in-editor';
 import {SymbolicatedStackFrame} from './error-overlay/react-overlay/utils/stack-frame';
 import {getProjectInfo} from './project-info';
+import {serveStatic} from './serve-static';
 import {indexHtml} from './static-preview';
 import {isUpdateAvailableWithTimeout} from './update-available';
 
@@ -155,6 +156,10 @@ export const handleRoutes = (
 
 	if (url.pathname === '/remotion.png') {
 		return handleFavicon(request, response);
+	}
+
+	if (url.pathname.startsWith(hash)) {
+		return serveStatic(request, response);
 	}
 
 	return handleFallback(hash, request, response);
