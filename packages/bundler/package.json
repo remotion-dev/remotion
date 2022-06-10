@@ -26,7 +26,6 @@
 	"dependencies": {
 		"css-loader": "5.2.7",
 		"esbuild": "0.14.19",
-		"express": "4.17.1",
 		"memfs": "3.4.3",
 		"mime-types": "2.1.34",
 		"react-refresh": "0.9.0",

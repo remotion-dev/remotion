@@ -43,7 +43,6 @@
 		"@types/styled-components": "^5.1.1",
 		"@types/web": "0.0.48",
 		"babel-loader": "^8.2.2",
-		"express": "^4.17.1",
 		"mdx-loader": "3.0.2",
 		"polished": "^4.0.5",
 		"prettier": "^2.0.5",
