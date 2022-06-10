@@ -61,7 +61,6 @@ export const processUpdate = function (
 ) {
 	const {reload} = options;
 	if (!upToDate(hash) && module.hot?.status() === 'idle') {
-		console.log('[Fast refresh] Checking for updates on the server...');
 		check();
 	}
 
@@ -73,14 +72,10 @@ export const processUpdate = function (
 			if (err) return handleError(err);
 
 			if (!updatedModules) {
-				if (options.warn) {
-					console.warn(
-						'[Fast refresh] Cannot find update (Full reload needed)'
-					);
-					console.warn(
-						'[Fast refresh] (Probably because of restarting the server)'
-					);
-				}
+				console.warn('[Fast refresh] Cannot find update (Full reload needed)');
+				console.warn(
+					'[Fast refresh] (Probably because of restarting the server)'
+				);
 
 				performReload();
 				return null;
@@ -128,22 +123,18 @@ export const processUpdate = function (
 			}) ?? [];
 
 		if (unacceptedModules.length > 0) {
-			if (options.warn) {
-				console.warn(
-					"[Fast refresh] The following modules couldn't be hot updated: " +
-						'(Full reload needed)\n' +
-						'This is usually because the modules which have changed ' +
-						'(and their parents) do not know how to hot reload themselves. ' +
-						'See ' +
-						hmrDocsUrl +
-						' for more details.'
-				);
-				unacceptedModules.forEach((moduleId) => {
-					console.warn(
-						'[Fast refresh]  - ' + (moduleMap[moduleId] || moduleId)
-					);
-				});
-			}
+			console.warn(
+				"[Fast refresh] The following modules couldn't be hot updated: " +
+					'(Full reload needed)\n' +
+					'This is usually because the modules which have changed ' +
+					'(and their parents) do not know how to hot reload themselves. ' +
+					'See ' +
+					hmrDocsUrl +
+					' for more details.'
+			);
+			unacceptedModules.forEach((moduleId) => {
+				console.warn('[Fast refresh]  - ' + (moduleMap[moduleId] || moduleId));
+			});
 
 			performReload();
 			return;
@@ -152,9 +143,10 @@ export const processUpdate = function (
 		if (!renewedModules || renewedModules.length === 0) {
 			console.log('[Fast refresh] Nothing hot updated.');
 		} else {
-			console.log('[Fast refresh] Updated modules:');
 			renewedModules.forEach((moduleId) => {
-				console.log('[Fast refresh]  - ' + (moduleMap[moduleId] || moduleId));
+				console.log(
+					`[Fast refresh] ${moduleMap[moduleId] || moduleId} updated.`
+				);
 			});
 		}
 
@@ -165,23 +157,19 @@ export const processUpdate = function (
 
 	function handleError(err: Error) {
 		if ((module.hot?.status() ?? 'nope') in failureStatuses) {
-			if (options.warn) {
-				console.warn(
-					'[Fast refresh] Cannot check for update (Full reload needed)'
-				);
-				console.warn('[Fast refresh] ' + (err.stack || err.message));
-			}
+			console.warn(
+				'[Fast refresh] Cannot check for update (Full reload needed)'
+			);
+			console.warn('[Fast refresh] ' + (err.stack || err.message));
 
 			performReload();
 			return;
 		}
 
-		if (options.warn) {
-			console.warn(
-				'[Fast refresh] Update check failed: ' + (err.stack || err.message)
-			);
-			window.location.reload();
-		}
+		console.warn(
+			'[Fast refresh] Update check failed: ' + (err.stack || err.message)
+		);
+		window.location.reload();
 	}
 
 	function performReload() {
@@ -189,7 +177,7 @@ export const processUpdate = function (
 			return;
 		}
 
-		if (options.warn) console.warn('[Fast refresh] Reloading page');
+		console.warn('[Fast refresh] Reloading page');
 		window.location.reload();
 	}
 };
