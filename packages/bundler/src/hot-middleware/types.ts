@@ -20,15 +20,9 @@ export type HotMiddlewareMessage =
 export const hotMiddlewareOptions = {
 	path: '/__webpack_hmr',
 	timeout: 20 * 1000,
-	overlay: true,
-	reload: false,
+	reload: true,
 	log: console.log.bind(console),
 	warn: true,
-	name: '',
-	autoConnect: true,
-	overlayStyles: {},
-	overlayWarnings: false,
-	ansiColors: {},
 	heartbeat: 10 * 1000,
 };
 
