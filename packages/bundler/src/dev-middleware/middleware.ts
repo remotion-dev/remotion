@@ -1,4 +1,3 @@
-import {NextFunction} from 'express';
 import {ReadStream} from 'fs';
 import {IncomingMessage, ServerResponse} from 'http';
 import mime from 'mime-types';
@@ -49,19 +48,19 @@ const BYTES_RANGE_REGEXP = /^ *bytes/i;
 export type MiddleWare = (
 	req: IncomingMessage,
 	res: ServerResponse,
-	next: NextFunction
-) => Promise<void>;
+	next: () => void
+) => void;
 
 export function middleware(context: DevMiddlewareContext) {
-	return async function (
+	return function (
 		req: IncomingMessage,
 		res: ServerResponse,
-		next: NextFunction
+		next: () => void
 	) {
 		const acceptedMethods = ['GET', 'HEAD'];
 
 		if (req.method && !acceptedMethods.includes(req.method)) {
-			await goNext();
+			goNext();
 
 			return;
 		}

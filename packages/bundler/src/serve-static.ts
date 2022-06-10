@@ -6,94 +6,76 @@
  * MIT Licensed
  */
 
+import {createReadStream, existsSync, promises} from 'fs';
 import {IncomingMessage, ServerResponse} from 'http';
-import {resolve} from 'path';
-const send = require('send');
+import mime from 'mime-types';
+import {parseRange} from './dev-middleware/range-parser';
 
-/**
- * @param {string} root
- * @param {object} [options]
- * @return {function}
- * @public
- */
-
-export const serveStatic = (
-	root: string,
-	options: {
-		cacheControl: true;
-		dotfiles: 'allow';
-		etag: true;
-		extensions: false;
-		fallthrough: false;
-		immutable: false;
-		index: false;
-		lastModified: true;
-		maxAge: 0;
-		redirect: true;
-	}
-) => {
-	if (!root) {
-		throw new TypeError('root path required');
+export const serveStatic = async function (
+	req: IncomingMessage,
+	res: ServerResponse
+) {
+	if (req.method !== 'GET' && req.method !== 'HEAD') {
+		// method not allowed
+		res.statusCode = 405;
+		res.setHeader('Allow', 'GET, HEAD');
+		res.setHeader('Content-Length', '0');
+		res.end();
+		return;
 	}
 
-	if (typeof root !== 'string') {
-		throw new TypeError('root path must be a string');
+	let path = new URL(req.url as string, 'http://localhost').pathname;
+
+	// make sure redirect occurs at mount
+	if (path === '/' && path.substr(-1) !== '/') {
+		path = '';
 	}
 
-	// copy options object
-	const opts = Object.create(options || null);
-
-	// headers listener
-	const {setHeaders} = opts;
-
-	if (setHeaders && typeof setHeaders !== 'function') {
-		throw new TypeError('option setHeaders must be function');
+	const exists = existsSync(path);
+	if (!exists) {
+		res.writeHead(404);
+		res.write('Not found');
+		res.end();
+		return;
 	}
 
-	// setup options for send
-	opts.maxage = opts.maxage || opts.maxAge || 0;
-	opts.root = resolve(root);
+	const lstat = await promises.lstat(path);
+	const isDirectory = lstat.isDirectory();
 
-	return function (req: IncomingMessage, res: ServerResponse) {
-		if (req.method !== 'GET' && req.method !== 'HEAD') {
-			// method not allowed
-			res.statusCode = 405;
-			res.setHeader('Allow', 'GET, HEAD');
-			res.setHeader('Content-Length', '0');
-			res.end();
-			return;
-		}
+	if (isDirectory) {
+		res.writeHead(500);
+		res.write('Is a directory');
+		res.end();
+		return;
+	}
 
-		let path = new URL(req.url as string, 'http://localhost').pathname;
+	const hasRange = req.headers.range && lstat.size;
+	if (!hasRange) {
+		res.setHeader(
+			'content-type',
+			mime.lookup(path) || 'application/octet-stream'
+		);
+		res.writeHead(200);
+		const readStream = createReadStream(path);
+		readStream.pipe(res);
+		return;
+	}
 
-		// make sure redirect occurs at mount
-		if (path === '/' && path.substr(-1) !== '/') {
-			path = '';
-		}
+	const range = parseRange(lstat.size, req.headers.range as string);
 
-		// create send stream
-		const stream = send(req, path, opts);
+	if (typeof range === 'object' && range.type === 'bytes') {
+		const {start, end} = range[0];
 
-		// add directory handler
-		stream.on('directory', () => {
-			res.writeHead(500);
-			res.write('Is a directory');
-			res.end();
+		res.writeHead(206);
+
+		const readStream = createReadStream(path, {
+			start,
+			end,
 		});
-
-		// add headers listener
-		if (setHeaders) {
-			stream.on('headers', setHeaders);
-		}
-
-		// forward errors
-		stream.on('error', (err: Error) => {
-			res.writeHead(500);
-			res.write(err.toString());
-			res.end();
-		});
-
-		// pipe
-		stream.pipe(res);
-	};
+		readStream.pipe(res);
+	} else {
+		res.statusCode = 416;
+		res.setHeader('Content-Range', `bytes */${lstat.size}`);
+		res.end();
+	}
 };

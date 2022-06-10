@@ -32,7 +32,7 @@ export const previewCommand = async () => {
 	const inputProps = getInputProps();
 	const envVariables = await getEnvironmentVariables();
 
-	const port = await BundlerInternals.startServerPure(
+	const port = await BundlerInternals.startServer(
 		path.resolve(__dirname, 'previewEntry.js'),
 		fullPath,
 		{
