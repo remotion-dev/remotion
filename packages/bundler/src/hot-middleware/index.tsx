@@ -30,8 +30,8 @@ export const webpackHotMiddleware = (compiler: webpack.Compiler) => {
 	let latestStats: webpack.Stats | null = null;
 	let closed = false;
 
-	compiler.hooks.invalid.tap('webpack-hot-middleware', onInvalid);
-	compiler.hooks.done.tap('webpack-hot-middleware', onDone);
+	compiler.hooks.invalid.tap('remotion', onInvalid);
+	compiler.hooks.done.tap('remotion', onDone);
 
 	function onInvalid() {
 		if (closed) return;
@@ -165,14 +165,7 @@ function publishStats(
 		}
 
 		if (log) {
-			log(
-				'webpack built ' +
-					(name ? name + ' ' : '') +
-					_stats.hash +
-					' in ' +
-					_stats.time +
-					'ms'
-			);
+			log(`webpack built in ${_stats.time}ms`);
 		}
 
 		eventStream?.publish({
