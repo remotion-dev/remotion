@@ -85,7 +85,9 @@ export const webpackConfig = ({
 		entry: [
 			require.resolve('./setup-environment'),
 			...entryPoints,
-			require.resolve('./fast-refresh/runtime.js'),
+			environment === 'development'
+				? require.resolve('./fast-refresh/runtime.js')
+				: null,
 
 			userDefinedComponent,
 			require.resolve('../react-shim.js'),
