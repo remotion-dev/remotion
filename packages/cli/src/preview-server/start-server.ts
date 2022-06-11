@@ -35,6 +35,10 @@ export const startServer = async (
 		inputProps: options?.inputProps ?? {},
 		envVariables: options?.envVariables ?? {},
 		maxTimelineTracks: options?.maxTimelineTracks ?? 15,
+		entryPoints: [
+			require.resolve('./hot-middleware/client'),
+			require.resolve('./error-overlay/entry-basic.js'),
+		],
 	});
 
 	const compiler = webpack(config);

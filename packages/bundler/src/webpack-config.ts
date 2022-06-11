@@ -42,6 +42,7 @@ export const webpackConfig = ({
 	inputProps,
 	envVariables,
 	maxTimelineTracks,
+	entryPoints,
 }: {
 	entry: string;
 	userDefinedComponent: string;
@@ -53,6 +54,7 @@ export const webpackConfig = ({
 	inputProps: object;
 	envVariables: Record<string, string>;
 	maxTimelineTracks: number;
+	entryPoints: string[];
 }): WebpackConfiguration => {
 	return webpackOverride({
 		optimization: {
@@ -82,15 +84,8 @@ export const webpackConfig = ({
 				: 'cheap-module-source-map',
 		entry: [
 			require.resolve('./setup-environment'),
-			environment === 'development'
-				? require.resolve('./hot-middleware/client')
-				: null,
-			environment === 'development'
-				? require.resolve('./fast-refresh/runtime.js')
-				: null,
-			environment === 'development'
-				? require.resolve('./error-overlay/entry-basic.js')
-				: null,
+			...entryPoints,
+			require.resolve('./fast-refresh/runtime.js'),
 
 			userDefinedComponent,
 			require.resolve('../react-shim.js'),
