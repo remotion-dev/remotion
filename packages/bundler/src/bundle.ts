@@ -63,6 +63,7 @@ export const bundle = async (
 			// For production, the variables are set dynamically
 			envVariables: {},
 			inputProps: {},
+			entryPoints: [],
 		}),
 	]);
 	if (!output) {

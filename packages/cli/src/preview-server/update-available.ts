@@ -22,7 +22,7 @@ const isUpdateAvailable = async (currentVersion: string): Promise<Info> => {
 };
 
 export const isUpdateAvailableWithTimeout = () => {
-	const packageJson = require('../package.json');
+	const packageJson = require('../../package.json');
 
 	const {version} = packageJson;
 	const threeSecTimeout = new Promise<Info>((resolve) => {
