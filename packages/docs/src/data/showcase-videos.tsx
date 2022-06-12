@@ -1208,6 +1208,29 @@ export const showcaseVideos: ShowcaseVideo[] = [
       "name": "Kalle Chen"
     }
   },
+  {
+	title: "CoolVideo",
+	type: "mux_video",
+	muxId: "2lXNB9rkAV4dhq3TjZqlqBMv1fXZMM71M02tmxfPJyAU",
+	description: "A telegram bot which generates intro video programmatically.",
+	height: 1920,
+	width: 1080,
+	submittedOn: new Date("06-12-2022"),
+	links: [
+		{
+			type: "video",
+			url: "https://firebasestorage.googleapis.com/v0/b/cdn-tuhin.appspot.com/o/16550487309ma5?alt=media&token=823ddf40-e32b-4214-a826-9e78c3e3f5d2",
+		},
+		{
+			type: "website",
+			url: "https://telegram.me/coolvideorobot",
+		},
+	],
+	author: {
+		"url": "https://github.com/tuhinpal",
+		"name": "Tuhin Kanti Pal"
+	}
+  },
 ];
 
 const dateString = (date: Date) =>
