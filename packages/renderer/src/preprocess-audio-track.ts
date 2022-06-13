@@ -37,7 +37,6 @@ const preprocessAudioTrackUnlimited = async ({
 		assetDuration: duration,
 	});
 
-	console.log(filter);
 	if (filter === null) {
 		return null;
 	}
