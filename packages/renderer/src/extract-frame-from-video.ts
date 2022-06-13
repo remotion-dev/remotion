@@ -20,7 +20,7 @@ export function streamToString(stream: Readable) {
 	});
 }
 
-const lastFrameLimit = pLimit(5);
+const lastFrameLimit = pLimit(3);
 const mainLimit = pLimit(5);
 
 // Uses no seeking, therefore the whole video has to be decoded. This is a last resort and should only happen
@@ -35,7 +35,7 @@ const getLastFrameOfVideoSlow = async ({
 	duration: number;
 }) => {
 	console.warn(
-		`Using a slow method to determine the last frame of ${src}. The render can be sped up by re-encoding the video properly.`
+		`\nUsing a slow method to determine the last frame of ${src}. The render can be sped up by re-encoding the video properly.`
 	);
 
 	const actualOffset = `-${duration * 1000}ms`;
@@ -99,19 +99,26 @@ const getLastFrameOfVideoSlow = async ({
 	return stdoutBuffer;
 };
 
-const getLastFrameOfVideoFastUnlimited = async ({
-	ffmpegExecutable,
-	ffprobeExecutable,
-	offset,
-	src,
-}: LastFrameOptions): Promise<Buffer> => {
-	const duration = await getDurationOfAsset({src, ffprobeExecutable});
+const getLastFrameOfVideoFastUnlimited = async (
+	options: LastFrameOptions
+): Promise<Buffer> => {
+	const {ffmpegExecutable, ffprobeExecutable, offset, src} = options;
+	const fromCache = getLastFrameFromCache({...options, offset: 0});
+	if (fromCache) {
+		return fromCache;
+	}
+
+	const duration = await getDurationOfAsset({
+		src,
+		ffprobeExecutable,
+	});
 	if (offset > 40) {
-		return getLastFrameOfVideoSlow({
+		const last = await getLastFrameOfVideoSlow({
 			duration,
 			ffmpegExecutable,
 			src,
 		});
+		return last;
 	}
 
 	const actualOffset = `${duration * 1000 - offset - 10}ms`;
@@ -162,12 +169,14 @@ const getLastFrameOfVideoFastUnlimited = async ({
 
 	const isEmpty = stdErr.includes('Output file is empty');
 	if (isEmpty) {
-		return getLastFrameOfVideoFastUnlimited({
+		const unlimited = await getLastFrameOfVideoFastUnlimited({
 			ffmpegExecutable,
 			offset: offset + 10,
 			src,
 			ffprobeExecutable,
 		});
+
+		return unlimited;
 	}
 
 	return stdoutBuffer;
@@ -176,11 +185,6 @@ const getLastFrameOfVideoFastUnlimited = async ({
 export const getLastFrameOfVideo = async (
 	options: LastFrameOptions
 ): Promise<Buffer> => {
-	const fromCache = getLastFrameFromCache(options);
-	if (fromCache) {
-		return fromCache;
-	}
-
 	const result = await lastFrameLimit(
 		getLastFrameOfVideoFastUnlimited,
 		options
@@ -204,12 +208,13 @@ export const extractFrameFromVideoFn = async ({
 	ffprobeExecutable,
 }: Options): Promise<Buffer> => {
 	if (isBeyondLastFrame(src, time)) {
-		return getLastFrameOfVideo({
+		const lastFrame = await getLastFrameOfVideo({
 			ffmpegExecutable,
 			ffprobeExecutable,
 			offset: 0,
 			src,
 		});
+		return lastFrame;
 	}
 
 	const ffmpegTimestamp = frameToFfmpegTimestamp(time);
@@ -263,12 +268,14 @@ export const extractFrameFromVideoFn = async ({
 
 	if (stderrStr.includes('Output file is empty')) {
 		markAsBeyondLastFrame(src, time);
-		return getLastFrameOfVideo({
+		const last = await getLastFrameOfVideo({
 			ffmpegExecutable,
 			ffprobeExecutable,
 			offset: 0,
 			src,
 		});
+
+		return last;
 	}
 
 	return stdOut;
