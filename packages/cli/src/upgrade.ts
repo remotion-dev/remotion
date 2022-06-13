@@ -68,9 +68,9 @@ export const upgrade = async () => {
 	].filter((u) => dependencies.includes(u));
 
 	const prom = RenderInternals.execa(
-		manager,
+		manager.manager,
 		getUpgradeCommand({
-			manager,
+			manager: manager.manager,
 			packages: toUpgrade,
 			version: latestRemotionVersion,
 		}),
