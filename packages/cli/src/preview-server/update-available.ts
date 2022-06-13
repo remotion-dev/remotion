@@ -12,27 +12,38 @@ type Info = {
 
 const isUpdateAvailable = async (currentVersion: string): Promise<Info> => {
 	const latest = await getLatestRemotionVersion();
+	const pkgManager = getPackageManager();
+
 	return {
 		updateAvailable: semver.lt(currentVersion, latest),
 		currentVersion,
 		latestVersion: latest,
 		timedOut: false,
-		packageManager: getPackageManager(),
+		packageManager: pkgManager === 'unknown' ? 'unknown' : pkgManager.manager,
 	};
 };
 
-export const isUpdateAvailableWithTimeout = () => {
+export const getRemotionVersion = () => {
+	// careful when refactoring this file, path must be adjusted
 	const packageJson = require('../../package.json');
 
 	const {version} = packageJson;
+
+	return version;
+};
+
+export const isUpdateAvailableWithTimeout = () => {
+	const version = getRemotionVersion();
 	const threeSecTimeout = new Promise<Info>((resolve) => {
+		const pkgManager = getPackageManager();
 		setTimeout(() => {
 			resolve({
 				currentVersion: version,
 				latestVersion: version,
 				updateAvailable: false,
 				timedOut: true,
-				packageManager: getPackageManager(),
+				packageManager:
+					pkgManager === 'unknown' ? 'unknown' : pkgManager.manager,
 			});
 		}, 3000);
 	});
