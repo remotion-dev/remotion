@@ -211,7 +211,9 @@ const innerRenderStill = async ({
 };
 
 /**
- * @description Render a still frame from a composition and returns an image path
+ *
+ * @description Render a still frame from a composition
+ * @link https://www.remotion.dev/docs/renderer/render-still
  */
 export const renderStill = (options: RenderStillOptions): Promise<void> => {
 	const selectedServeUrl = getServeUrlWithFallback(options);
