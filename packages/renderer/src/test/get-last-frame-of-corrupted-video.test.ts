@@ -16,4 +16,4 @@ test('Get last frame of corrupted video', async () => {
 			'corrupted.mp4'
 		),
 	});
-}, 30000);
+}, 90000);
