@@ -8,10 +8,14 @@ export const makeMultiDownloadProgress = (progresses: DownloadProgress[]) => {
 
 	if (progresses.length === 1) {
 		const [progress] = progresses;
+		const truncatedFileName =
+			progress.name.length >= 100
+				? progress.name.substring(0, 97) + '...'
+				: progress.name;
 		return [
 			`    +`,
 			makeProgressBar(progress.progress),
-			`Downloading ${progress.name}`,
+			`Downloading ${truncatedFileName}`,
 		].join(' ');
 	}
 
