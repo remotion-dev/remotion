@@ -23,6 +23,7 @@ Follow this commented example to see how to render a video:
 
 ```tsx twoslash
 import { bundle } from "@remotion/bundler";
+import path from "path";
 import { getCompositions, renderMedia } from "@remotion/renderer";
 
 const start = async () => {
@@ -31,7 +32,7 @@ const start = async () => {
 
   // Create a webpack bundle of the video.
   // You only have to do this once, you can reuse the bundle.
-  const bundleLocation = await bundle(require.resolve("./src/index"));
+  const bundleLocation = await bundle(path.resolve("./src/index"));
 
   // Parametrize the video by passing arbitrary props to your component.
   const inputProps = {
