@@ -3,7 +3,7 @@ import {Log} from './log';
 import {parseCommandLine} from './parse-command-line';
 
 export const initializeRenderCli = async (
-	type: 'still' | 'sequence' | 'lambda' | 'preview'
+	type: 'still' | 'sequence' | 'lambda' | 'preview' | 'bundle'
 ) => {
 	const appliedName = await loadConfig();
 	if (appliedName) {

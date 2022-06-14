@@ -72,7 +72,7 @@ export const parsedCli = minimist<CommandLineOptions>(process.argv.slice(2), {
 });
 
 export const parseCommandLine = (
-	type: 'still' | 'sequence' | 'lambda' | 'preview' | 'versions'
+	type: 'still' | 'sequence' | 'lambda' | 'preview' | 'versions' | 'bundle'
 ) => {
 	if (parsedCli['pixel-format']) {
 		Config.Output.setPixelFormat(parsedCli['pixel-format']);
