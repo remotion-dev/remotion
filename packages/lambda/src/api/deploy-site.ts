@@ -15,7 +15,7 @@ import {uploadDir, UploadDirProgress} from './upload-dir';
 
 export type DeploySiteInput = {
 	entryPoint: string;
-	bucketName: string;
+	bucketName: string | Promise<string>;
 	region: AwsRegion;
 	siteName?: string;
 	options?: {
@@ -41,35 +41,19 @@ export type DeploySiteOutput = Promise<{
  * @param {object} params.options Further options, see documentation page for this function.
  */
 export const deploySite = async ({
-	bucketName,
+	bucketName: bucketNameOrPromise,
 	entryPoint,
 	siteName,
 	options,
 	region,
 }: DeploySiteInput): DeploySiteOutput => {
 	validateAwsRegion(region);
-	validateBucketName(bucketName, {mustStartWithRemotion: true});
 
 	const siteId = siteName ?? randomHash();
 	validateSiteName(siteId);
 
-	const bucketExists = await bucketExistsInRegion({
-		bucketName,
-		region,
-		expectedBucketOwner: await getAccountId({region}),
-	});
-	if (!bucketExists) {
-		throw new Error(`No bucket with the name ${bucketName} exists`);
-	}
-
 	const subFolder = getSitesKey(siteId);
-	await deleteSite({
-		bucketName,
-		onAfterItemDeleted: () => undefined,
-		region,
-		siteName: siteId,
-	});
-	const bundled = await bundleSite(
+	const bundled = bundleSite(
 		entryPoint,
 		options?.onBundleProgress ?? (() => undefined),
 		{
@@ -80,11 +64,30 @@ export const deploySite = async ({
 		}
 	);
 
+	const bucketName = await bucketNameOrPromise;
+
+	validateBucketName(bucketName, {mustStartWithRemotion: true});
+	const bucketExists = await bucketExistsInRegion({
+		bucketName,
+		region,
+		expectedBucketOwner: await getAccountId({region}),
+	});
+	if (!bucketExists) {
+		throw new Error(`No bucket with the name ${bucketName} exists`);
+	}
+
+	await deleteSite({
+		bucketName,
+		onAfterItemDeleted: () => undefined,
+		region,
+		siteName: siteId,
+	});
+
 	await Promise.all([
 		uploadDir({
 			bucket: bucketName,
 			region,
-			dir: bundled,
+			dir: await bundled,
 			onProgress: options?.onUploadProgress ?? (() => undefined),
 			folder: subFolder,
 			privacy: 'public',
