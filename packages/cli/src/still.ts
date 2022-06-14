@@ -68,16 +68,20 @@ export const still = async () => {
 		overwrite,
 		puppeteerTimeout,
 		port,
+		publicPath,
+		bundleOutDir,
 	} = await getCliOptions({isLambda: false, type: 'still'});
 
 	const otherSteps: RenderStep[] = ['rendering' as const].filter(
 		Internals.truthy
 	);
 
-	const {shouldDelete, steps, urlOrBundle} = await prepareEntryPoint(
+	const {shouldDelete, steps, urlOrBundle} = await prepareEntryPoint({
 		file,
-		otherSteps
-	);
+		otherSteps,
+		outDir: bundleOutDir,
+		publicPath,
+	});
 
 	Log.verbose('Browser executable: ', browserExecutable);
 

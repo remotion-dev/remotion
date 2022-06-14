@@ -188,12 +188,12 @@ const getAndValidateBrowser = async (browserExecutable: BrowserExecutable) => {
 
 export const getCliOptions = async (options: {
 	isLambda: boolean;
-	type: 'still' | 'series' | 'get-compositions';
+	type: 'still' | 'series' | 'get-compositions-or-bundle';
 }) => {
 	const frameRange = getAndValidateFrameRange();
 
 	const codec: Codec =
-		options.type === 'get-compositions'
+		options.type === 'get-compositions-or-bundle'
 			? 'h264'
 			: await getFinalCodec({isLambda: options.isLambda});
 	const shouldOutputImageSequence =
@@ -204,7 +204,7 @@ export const getCliOptions = async (options: {
 					isLambda: options.isLambda,
 			  });
 	const outputFile =
-		options.isLambda || options.type === 'get-compositions'
+		options.isLambda || options.type === 'get-compositions-or-bundle'
 			? null
 			: getOutputFilename({
 					codec,
@@ -262,5 +262,7 @@ export const getCliOptions = async (options: {
 		scale,
 		chromiumOptions,
 		port: port ?? null,
+		publicPath: Internals.getPublicPath(),
+		bundleOutDir: Internals.getBundleOutDir(),
 	};
 };

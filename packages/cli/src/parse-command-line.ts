@@ -1,5 +1,5 @@
 import minimist from 'minimist';
-import {resolve} from 'path';
+import path, {resolve} from 'path';
 import {
 	BrowserExecutable,
 	Codec,
@@ -22,9 +22,11 @@ export type CommandLineOptions = {
 	['image-format']: ImageFormat;
 	['prores-profile']: ProResProfile;
 	['bundle-cache']: string;
+	['bundle-dir']: string;
 	['env-file']: string;
 	['ignore-certificate-errors']: string;
 	['disable-web-security']: string;
+	['public-path']: string;
 	codec: Codec;
 	concurrency: number;
 	timeout: number;
@@ -202,6 +204,16 @@ export const parseCommandLine = (
 
 	if (typeof parsedCli.port !== 'undefined') {
 		Config.Bundling.setPort(parsedCli.port);
+	}
+
+	if (typeof parsedCli['bundle-dir'] !== 'undefined') {
+		Config.Bundling.setBundleOutDir(
+			path.resolve(process.cwd(), parsedCli['bundle-dir'])
+		);
+	}
+
+	if (typeof parsedCli['public-path'] !== 'undefined') {
+		Config.Bundling.setPublicPath(parsedCli['public-path']);
 	}
 };
 

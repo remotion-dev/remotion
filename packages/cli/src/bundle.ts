@@ -1,3 +1,4 @@
+import {getCliOptions} from './get-cli-options';
 import {initializeRenderCli} from './initialize-render-cli';
 import {Log} from './log';
 import {parsedCli} from './parse-command-line';
@@ -15,7 +16,17 @@ export const bundleCommand = async () => {
 
 	await initializeRenderCli('bundle');
 
-	const {urlOrBundle} = await prepareEntryPoint(file, []);
+	const {publicPath, bundleOutDir} = await getCliOptions({
+		isLambda: false,
+		type: 'get-compositions-or-bundle',
+	});
+
+	const {urlOrBundle} = await prepareEntryPoint({
+		file,
+		otherSteps: [],
+		outDir: bundleOutDir,
+		publicPath,
+	});
 
 	Log.info();
 	Log.info(urlOrBundle);

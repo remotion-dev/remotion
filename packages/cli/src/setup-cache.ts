@@ -8,7 +8,17 @@ import {
 } from './progress-bar';
 import {RenderStep} from './step';
 
-export const bundleOnCli = async (fullPath: string, steps: RenderStep[]) => {
+export const bundleOnCli = async ({
+	fullPath,
+	steps,
+	outDir,
+	publicPath,
+}: {
+	fullPath: string;
+	steps: RenderStep[];
+	outDir: string | null;
+	publicPath: string | null;
+}) => {
 	const shouldCache = Internals.getWebpackCaching();
 	const cacheExistedBefore = BundlerInternals.cacheExists('production', null);
 	if (cacheExistedBefore && !shouldCache) {
@@ -33,6 +43,8 @@ export const bundleOnCli = async (fullPath: string, steps: RenderStep[]) => {
 			enableCaching: shouldCache,
 			webpackOverride:
 				Internals.getWebpackOverrideFn() ?? Internals.defaultOverrideFunction,
+			outDir,
+			publicPath,
 		}
 	);
 	bundlingProgress.update(

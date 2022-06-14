@@ -62,6 +62,8 @@ export const render = async () => {
 		chromiumOptions,
 		port,
 		puppeteerTimeout,
+		bundleOutDir,
+		publicPath,
 	} = await getCliOptions({isLambda: false, type: 'series'});
 
 	if (!absoluteOutputFile) {
@@ -91,10 +93,12 @@ export const render = async () => {
 		shouldOutputImageSequence ? null : ('stitching' as const),
 	].filter(Internals.truthy);
 
-	const {urlOrBundle, steps, shouldDelete} = await prepareEntryPoint(
+	const {urlOrBundle, steps, shouldDelete} = await prepareEntryPoint({
 		file,
-		otherSteps
-	);
+		otherSteps,
+		outDir: bundleOutDir,
+		publicPath,
+	});
 
 	const onDownload: RenderMediaOnDownload = (src) => {
 		const id = Math.random();
@@ -234,6 +238,7 @@ export const render = async () => {
 			ffmpegExecutable,
 			ffprobeExecutable,
 			browserExecutable,
+
 			port,
 		});
 		renderedDoneIn = Date.now() - startTime;

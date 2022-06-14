@@ -6,10 +6,17 @@ import {Log} from './log';
 import {bundleOnCli} from './setup-cache';
 import {RenderStep} from './step';
 
-export const prepareEntryPoint = async (
-	file: string,
-	otherSteps: RenderStep[]
-): Promise<{
+export const prepareEntryPoint = async ({
+	file,
+	otherSteps,
+	publicPath,
+	outDir,
+}: {
+	file: string;
+	otherSteps: RenderStep[];
+	outDir: string | null;
+	publicPath: string | null;
+}): Promise<{
 	urlOrBundle: string;
 	steps: RenderStep[];
 	shouldDelete: boolean;
@@ -30,7 +37,12 @@ export const prepareEntryPoint = async (
 		exit(1);
 	}
 
-	const urlOrBundle = await bundleOnCli(joined, ['bundling', ...otherSteps]);
+	const urlOrBundle = await bundleOnCli({
+		fullPath: joined,
+		steps: ['bundling', ...otherSteps],
+		outDir,
+		publicPath,
+	});
 
 	return {urlOrBundle, steps: ['bundling', ...otherSteps], shouldDelete: true};
 };
