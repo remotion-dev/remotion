@@ -1,4 +1,5 @@
 import {stat} from 'fs/promises';
+import path from 'path';
 import {Internals, WebpackOverrideFn} from 'remotion';
 import {deleteSite} from '../api/delete-site';
 import {AwsRegion} from '../pricing/aws-regions';
@@ -55,16 +56,24 @@ export const deploySite = async ({
 
 	const subFolder = getSitesKey(siteId);
 
-	const stats = await stat(entryPoint);
+	const absoluteEntryPoint = path.resolve(process.cwd(), entryPoint);
+	let isDirectory = false;
+	try {
+		if (process.env.NODE_ENV !== 'test') {
+			isDirectory = (await stat(absoluteEntryPoint)).isDirectory();
+		}
+	} catch (err) {
+		throw new Error(`No file or directory exists at ${absoluteEntryPoint}`);
+	}
 
 	const bundled = await (() => {
-		if (stats.isDirectory()) {
+		if (isDirectory) {
 			options?.onBundleProgress?.(100);
-			return entryPoint;
+			return absoluteEntryPoint;
 		}
 
 		return bundleSite(
-			entryPoint,
+			absoluteEntryPoint,
 			options?.onBundleProgress ?? (() => undefined),
 			{
 				publicPath: `/${subFolder}/`,
