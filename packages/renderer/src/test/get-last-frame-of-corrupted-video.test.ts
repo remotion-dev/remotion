@@ -1,8 +1,6 @@
 import path from 'path';
 import {getLastFrameOfVideo} from '../extract-frame-from-video';
 
-jest.setTimeout(60000);
-
 test('Get last frame of corrupted video', async () => {
 	await getLastFrameOfVideo({
 		ffmpegExecutable: null,
@@ -18,4 +16,4 @@ test('Get last frame of corrupted video', async () => {
 			'corrupted.mp4'
 		),
 	});
-});
+}, 30000);
