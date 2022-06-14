@@ -17,12 +17,12 @@ import {getCompositionId} from './get-composition-id';
 import {initializeRenderCli} from './initialize-render-cli';
 import {Log} from './log';
 import {parsedCli, quietFlagProvided} from './parse-command-line';
+import {prepareEntryPoint} from './prepare-entry-point';
 import {
 	createOverwriteableCliOutput,
 	DownloadProgress,
 	makeRenderingAndStitchingProgress,
 } from './progress-bar';
-import {bundleOnCli} from './setup-cache';
 import {RenderStep} from './step';
 import {checkAndValidateFfmpegVersion} from './validate-ffmpeg-version';
 
@@ -37,10 +37,6 @@ export const render = async () => {
 		Log.error('Documentation: https://www.remotion.dev/docs/render');
 		process.exit(1);
 	}
-
-	const fullPath = RenderInternals.isServeUrl(file)
-		? file
-		: path.join(process.cwd(), file);
 
 	await initializeRenderCli('sequence');
 
@@ -90,15 +86,15 @@ export const render = async () => {
 		forceDeviceScaleFactor: scale,
 	});
 
-	const steps: RenderStep[] = [
-		RenderInternals.isServeUrl(fullPath) ? null : ('bundling' as const),
+	const otherSteps: RenderStep[] = [
 		'rendering' as const,
 		shouldOutputImageSequence ? null : ('stitching' as const),
 	].filter(Internals.truthy);
 
-	const urlOrBundle = RenderInternals.isServeUrl(fullPath)
-		? fullPath
-		: await bundleOnCli(fullPath, steps);
+	const {urlOrBundle, steps, shouldDelete} = await prepareEntryPoint(
+		file,
+		otherSteps
+	);
 
 	const onDownload: RenderMediaOnDownload = (src) => {
 		const id = Math.random();
@@ -303,12 +299,14 @@ export const render = async () => {
 	Log.info(chalk.cyan(`▶ ${absoluteOutputFile}`));
 	Log.verbose('Cleaning up...');
 
-	try {
-		await RenderInternals.deleteDirectory(urlOrBundle);
-	} catch (err) {
-		Log.warn('Could not clean up directory.');
-		Log.warn(err);
-		Log.warn('Do you have minimum required Node.js version?');
+	if (shouldDelete) {
+		try {
+			await RenderInternals.deleteDirectory(urlOrBundle);
+		} catch (err) {
+			Log.warn('Could not clean up directory.');
+			Log.warn(err);
+			Log.warn('Do you have minimum required Node.js version?');
+		}
 	}
 
 	Log.info(chalk.green('\nYour video is ready!'));
