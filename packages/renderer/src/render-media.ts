@@ -178,6 +178,8 @@ export const renderMedia = ({
 
 	cancelSignal?.(() => {
 		cancelRenderFrames.cancel();
+		cancelStitcher.cancel();
+		cancelPrestitcher.cancel();
 	});
 
 	const {waitForRightTimeOfFrameToBeInserted, setFrameToStitch, waitForFinish} =

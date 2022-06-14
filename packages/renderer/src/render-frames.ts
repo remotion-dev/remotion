@@ -414,6 +414,31 @@ export const renderFrames = (
 
 	return new Promise<RenderFramesOutput>((resolve, reject) => {
 		const cleanup: RenderCleanupFn[] = [];
+
+		// If browser instance was passed in, we close all the pages
+		// we opened.
+		// If new browser was opened, then closing the browser as a cleanup.
+
+		if (options.puppeteerInstance) {
+			cleanup.push(() =>
+				Promise.all(openedPages.map((p) => p.close()))
+					.catch((err) => {
+						console.log('Unable to close browser tab', err);
+					})
+					.then(() => undefined)
+			);
+		} else {
+			cleanup.push(() => {
+				return Promise.resolve(browserInstance)
+					.then((puppeteerInstance) => {
+						return puppeteerInstance.close();
+					})
+					.catch((err) => {
+						console.log('Unable to close browser', err);
+					});
+			});
+		}
+
 		const addCleanupFunction: AddRenderCleanupFunction = (fn) => {
 			cleanup.push(fn);
 		};
@@ -460,24 +485,6 @@ export const renderFrames = (
 			.then((res) => resolve(res))
 			.catch((err) => reject(err))
 			.finally(() => {
-				// If browser instance was passed in, we close all the pages
-				// we opened.
-				// If new browser was opened, then closing the browser as a cleanup.
-
-				if (options.puppeteerInstance) {
-					Promise.all(openedPages.map((p) => p.close())).catch((err) => {
-						console.log('Unable to close browser tab', err);
-					});
-				} else {
-					Promise.resolve(browserInstance)
-						.then((puppeteerInstance) => {
-							return puppeteerInstance.close();
-						})
-						.catch((err) => {
-							console.log('Unable to close browser', err);
-						});
-				}
-
 				cleanup.forEach((c) => {
 					c();
 				});

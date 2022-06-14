@@ -9,6 +9,7 @@ import chalk from 'chalk';
 import {mkdirSync} from 'fs';
 import path from 'path';
 import {Config, Internals} from 'remotion';
+import {bundleOnCli} from './bundle-on-cli';
 import {getCliOptions} from './get-cli-options';
 import {getCompositionId} from './get-composition-id';
 import {initializeRenderCli} from './initialize-render-cli';
@@ -19,7 +20,6 @@ import {
 	DownloadProgress,
 	makeRenderingAndStitchingProgress,
 } from './progress-bar';
-import {bundleOnCli} from './setup-cache';
 import {RenderStep} from './step';
 import {getUserPassedOutputLocation} from './user-passed-output-location';
 
@@ -214,5 +214,14 @@ export const still = async () => {
 	);
 	Log.info('-', 'Output can be found at:');
 	Log.info(chalk.cyan(`▶️ ${userOutput}`));
+
+	try {
+		await RenderInternals.deleteDirectory(await urlOrBundle);
+	} catch (err) {
+		Log.warn('Could not clean up directory.');
+		Log.warn(err);
+		Log.warn('Do you have minimum required Node.js version?');
+	}
+
 	await closeBrowserPromise;
 };

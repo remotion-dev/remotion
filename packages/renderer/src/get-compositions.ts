@@ -135,7 +135,6 @@ export const getCompositions = async (
 				reject(err);
 			})
 			.finally(() => {
-				cleanup();
 				cleanupFunctions.forEach((f) => f());
 			});
 	});

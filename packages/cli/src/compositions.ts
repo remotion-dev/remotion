@@ -1,10 +1,10 @@
-import {getCompositions} from '@remotion/renderer';
+import {getCompositions, RenderInternals} from '@remotion/renderer';
 import path from 'path';
+import {bundleOnCli} from './bundle-on-cli';
 import {getCliOptions} from './get-cli-options';
 import {loadConfig} from './get-config-file-name';
 import {Log} from './log';
 import {parsedCli} from './parse-command-line';
-import {bundleOnCli} from './setup-cache';
 
 const max = (arr: number[]) => {
 	if (arr.length === 0) {
@@ -36,7 +36,9 @@ export const listCompositionsCommand = async () => {
 		process.exit(1);
 	}
 
-	const fullPath = path.join(process.cwd(), file);
+	const fullPath = RenderInternals.isServeUrl(file)
+		? file
+		: path.join(process.cwd(), file);
 
 	await loadConfig();
 
@@ -51,9 +53,11 @@ export const listCompositionsCommand = async () => {
 		port,
 	} = await getCliOptions({isLambda: false, type: 'get-compositions'});
 
-	const bundled = await bundleOnCli(fullPath, ['bundling']);
+	const urlOrBundle = RenderInternals.isServeUrl(fullPath)
+		? fullPath
+		: await bundleOnCli(fullPath, ['bundling']);
 
-	const compositions = await getCompositions(bundled, {
+	const compositions = await getCompositions(urlOrBundle, {
 		browserExecutable,
 		ffmpegExecutable,
 		ffprobeExecutable,
@@ -95,4 +99,12 @@ export const listCompositionsCommand = async () => {
 			})
 			.join('\n')
 	);
+
+	try {
+		await RenderInternals.deleteDirectory(urlOrBundle);
+	} catch (err) {
+		Log.warn('Could not clean up directory.');
+		Log.warn(err);
+		Log.warn('Do you have minimum required Node.js version?');
+	}
 };
