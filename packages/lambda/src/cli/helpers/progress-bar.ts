@@ -23,12 +23,16 @@ export type BucketCreationProgress = {
 	bucketCreated: boolean;
 	websiteEnabled: boolean;
 	doneIn: number | null;
+	steps: number;
+	currentStep: number;
 };
 
 export const makeBucketProgress = ({
 	bucketCreated,
 	websiteEnabled,
 	doneIn,
+	steps,
+	currentStep,
 }: BucketCreationProgress) => {
 	const states = [bucketCreated, websiteEnabled];
 	const statesFinished = states.filter(Boolean).map((p) => p).length;
@@ -36,7 +40,7 @@ export const makeBucketProgress = ({
 
 	return [
 		'🪣 ',
-		`(2/3)`,
+		`(${currentStep}/${steps})`,
 		CliInternals.makeProgressBar(progress),
 		`${doneIn === null ? 'Creating' : 'Created'} bucket`,
 		doneIn === null
@@ -49,17 +53,21 @@ export type DeployToS3Progress = {
 	sizeUploaded: number;
 	totalSize: number | null;
 	doneIn: number | null;
+	steps: number;
+	currentStep: number;
 };
 
 export const makeDeployProgressBar = ({
 	sizeUploaded,
 	totalSize,
 	doneIn,
+	steps,
+	currentStep,
 }: DeployToS3Progress) => {
 	const progress = totalSize === null ? 0 : sizeUploaded / totalSize;
 	return [
 		'☁️ ',
-		`(3/3)`,
+		`(${currentStep}/${steps})`,
 		CliInternals.makeProgressBar(progress),
 		`${doneIn === null ? 'Uploading' : 'Uploaded'} to S3`,
 		doneIn === null
