@@ -14,21 +14,26 @@ import {getCompositionId} from './get-composition-id';
 import {initializeRenderCli} from './initialize-render-cli';
 import {Log} from './log';
 import {parsedCli, quietFlagProvided} from './parse-command-line';
+import {prepareEntryPoint} from './prepare-entry-point';
 import {
 	createOverwriteableCliOutput,
 	DownloadProgress,
 	makeRenderingAndStitchingProgress,
 } from './progress-bar';
-import {bundleOnCli} from './setup-cache';
 import {RenderStep} from './step';
 import {getUserPassedOutputLocation} from './user-passed-output-location';
 
 export const still = async () => {
 	const startTime = Date.now();
 	const file = parsedCli._[1];
-	const fullPath = RenderInternals.isServeUrl(file)
-		? file
-		: path.join(process.cwd(), file);
+	if (!file) {
+		Log.error('No entry point specified. Pass more arguments:');
+		Log.error(
+			'   npx remotion render [entry-point] [composition-name] [out-name]'
+		);
+		Log.error('Documentation: https://www.remotion.dev/docs/render');
+		process.exit(1);
+	}
 
 	await initializeRenderCli('still');
 
@@ -64,6 +69,15 @@ export const still = async () => {
 		puppeteerTimeout,
 		port,
 	} = await getCliOptions({isLambda: false, type: 'still'});
+
+	const otherSteps: RenderStep[] = ['rendering' as const].filter(
+		Internals.truthy
+	);
+
+	const {shouldDelete, steps, urlOrBundle} = await prepareEntryPoint(
+		file,
+		otherSteps
+	);
 
 	Log.verbose('Browser executable: ', browserExecutable);
 
@@ -104,15 +118,6 @@ export const still = async () => {
 	mkdirSync(path.join(userOutput, '..'), {
 		recursive: true,
 	});
-
-	const steps: RenderStep[] = [
-		RenderInternals.isServeUrl(fullPath) ? null : ('bundling' as const),
-		'rendering' as const,
-	].filter(Internals.truthy);
-
-	const urlOrBundle = RenderInternals.isServeUrl(fullPath)
-		? Promise.resolve(fullPath)
-		: await bundleOnCli(fullPath, steps);
 
 	const puppeteerInstance = await browserInstance;
 	const comps = await getCompositions(await urlOrBundle, {
@@ -214,5 +219,16 @@ export const still = async () => {
 	);
 	Log.info('-', 'Output can be found at:');
 	Log.info(chalk.cyan(`▶️ ${userOutput}`));
+
+	if (shouldDelete) {
+		try {
+			await RenderInternals.deleteDirectory(urlOrBundle);
+		} catch (err) {
+			Log.warn('Could not clean up directory.');
+			Log.warn(err);
+			Log.warn('Do you have minimum required Node.js version?');
+		}
+	}
+
 	await closeBrowserPromise;
 };
