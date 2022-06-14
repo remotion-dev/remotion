@@ -20,7 +20,7 @@ export function streamToString(stream: Readable) {
 	});
 }
 
-const lastFrameLimit = pLimit(3);
+const lastFrameLimit = pLimit(1);
 const mainLimit = pLimit(5);
 
 // Uses no seeking, therefore the whole video has to be decoded. This is a last resort and should only happen
@@ -82,7 +82,7 @@ const getLastFrameOfVideoSlow = async ({
 	const isEmpty = stdErr.includes('Output file is empty');
 	if (isEmpty) {
 		throw new Error(
-			`Could not get last frame of ' + src + '. Tried to seek to the end using the command "ffmpeg ${[
+			`Could not get last frame of ${src}. Tried to seek to the end using the command "ffmpeg ${[
 				'-itsoffset',
 				actualOffset,
 				'-i',
