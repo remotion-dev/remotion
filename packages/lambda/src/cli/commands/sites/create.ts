@@ -43,6 +43,11 @@ export const sitesCreateSubcommand = async (args: string[]) => {
 	}
 
 	const needsToBundle = !(await stat(absoluteFile)).isDirectory();
+	if (!needsToBundle) {
+		Log.warn(
+			"Uploading a pre-bundled directory. Make sure it was bundled with the correct 'publicPath'."
+		);
+	}
 
 	const desiredSiteName = parsedLambdaCli['site-name'] ?? undefined;
 	if (desiredSiteName !== undefined) {
