@@ -1,7 +1,9 @@
 import fs from 'fs';
+import {unlink} from 'fs/promises';
 import path from 'path';
 import {Internals, random, TAsset} from 'remotion';
 import {ensureOutputDirectory} from '../ensure-output-directory';
+import {AddRenderCleanupFunction} from './cleanup-assets';
 import {downloadFile} from './download-file';
 import {sanitizeFilePath} from './sanitize-filepath';
 
@@ -212,15 +214,21 @@ export const downloadAndMapAssetsToFileUrl = async ({
 	asset,
 	downloadDir,
 	onDownload,
+	addCleanupFunction,
 }: {
 	asset: TAsset;
 	downloadDir: string;
 	onDownload: RenderMediaOnDownload;
+	addCleanupFunction: AddRenderCleanupFunction;
 }): Promise<TAsset> => {
 	const newSrc = await startDownloadForSrc({
 		src: asset.src,
 		downloadDir,
 		onDownload,
+	});
+
+	addCleanupFunction(() => {
+		return unlink(newSrc);
 	});
 
 	return {

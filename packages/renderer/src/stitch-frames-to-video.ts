@@ -12,6 +12,10 @@ import {
 	TAsset,
 } from 'remotion';
 import {calculateAssetPositions} from './assets/calculate-asset-positions';
+import {
+	AddRenderCleanupFunction,
+	RenderCleanupFn,
+} from './assets/cleanup-assets';
 import {convertAssetsToFileUrls} from './assets/convert-assets-to-file-urls';
 import {
 	markAllAssetsAsDownloaded,
@@ -75,6 +79,7 @@ const getAssetsData = async ({
 	ffmpegExecutable,
 	ffprobeExecutable,
 	onProgress,
+	addCleanupFunction,
 }: {
 	assets: TAsset[][];
 	downloadDir: string;
@@ -85,10 +90,12 @@ const getAssetsData = async ({
 	ffmpegExecutable: FfmpegExecutable | null;
 	ffprobeExecutable: FfmpegExecutable | null;
 	onProgress: (progress: number) => void;
+	addCleanupFunction: AddRenderCleanupFunction;
 }): Promise<string> => {
 	const fileUrlAssets = await convertAssetsToFileUrls({
 		assets,
 		downloadDir,
+		addCleanupFunction,
 		onDownload: onDownload ?? (() => () => undefined),
 	});
 
@@ -147,7 +154,9 @@ const getAssetsData = async ({
 };
 
 export const spawnFfmpeg = async (
-	options: StitcherOptions
+	options: StitcherOptions & {
+		addCleanupFunction: AddRenderCleanupFunction;
+	}
 ): Promise<ReturnType> => {
 	Internals.validateDimension(
 		options.height,
@@ -216,6 +225,7 @@ export const spawnFfmpeg = async (
 		ffmpegExecutable: options.ffmpegExecutable ?? null,
 		ffprobeExecutable: options.ffprobeExecutable ?? null,
 		onProgress: (prog) => updateProgress(prog, 0),
+		addCleanupFunction: options.addCleanupFunction,
 	});
 
 	if (isAudioOnly) {
@@ -335,7 +345,12 @@ export const spawnFfmpeg = async (
 export const stitchFramesToVideo = async (
 	options: StitcherOptions
 ): Promise<void> => {
-	const {task, getLogs} = await spawnFfmpeg(options);
+	const cleanupFunctions: RenderCleanupFn[] = [];
+	const addCleanupFunction: AddRenderCleanupFunction = (fn) => {
+		cleanupFunctions.push(fn);
+	};
+
+	const {task, getLogs} = await spawnFfmpeg({...options, addCleanupFunction});
 
 	const happyPath = task.catch(() => {
 		throw new Error(getLogs());
@@ -348,5 +363,7 @@ export const stitchFramesToVideo = async (
 				reject(new Error('stitchFramesToVideo() got cancelled'));
 			});
 		}),
-	]);
+	]).finally(() => {
+		cleanupFunctions.forEach((c) => c());
+	});
 };

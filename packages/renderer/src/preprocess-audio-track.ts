@@ -59,6 +59,8 @@ const preprocessAudioTrackUnlimited = async ({
 
 const limit = pLimit(2);
 
-export const preprocessAudioTrack = (options: Options) => {
+export const preprocessAudioTrack = (
+	options: Options
+): Promise<string | null> => {
 	return limit(preprocessAudioTrackUnlimited, options);
 };

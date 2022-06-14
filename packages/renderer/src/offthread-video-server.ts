@@ -1,6 +1,8 @@
+import {unlink} from 'fs/promises';
 import {RequestListener} from 'http';
 import {FfmpegExecutable} from 'remotion';
 import {URLSearchParams} from 'url';
+import {AddRenderCleanupFunction} from './assets/cleanup-assets';
 import {
 	getSanitizedFilenameForAssetUrl,
 	RenderMediaOnDownload,
@@ -38,12 +40,14 @@ export const startOffthreadVideoServer = ({
 	downloadDir,
 	onDownload,
 	onError,
+	addCleanupFunction,
 }: {
 	ffmpegExecutable: FfmpegExecutable;
 	ffprobeExecutable: FfmpegExecutable;
 	downloadDir: string;
 	onDownload: RenderMediaOnDownload;
 	onError: (err: Error) => void;
+	addCleanupFunction: AddRenderCleanupFunction;
 }): RequestListener => {
 	return (req, res) => {
 		if (!req.url) {
@@ -63,11 +67,17 @@ export const startOffthreadVideoServer = ({
 
 		const to = getSanitizedFilenameForAssetUrl({downloadDir, src});
 
-		startDownloadForSrc({src, downloadDir, onDownload}).catch((err) => {
-			onError(
-				new Error(`Error while downloading asset: ${(err as Error).stack}`)
-			);
-		});
+		startDownloadForSrc({src, downloadDir, onDownload})
+			.then((newSrc) => {
+				addCleanupFunction(() => {
+					return unlink(newSrc);
+				});
+			})
+			.catch((err) => {
+				onError(
+					new Error(`Error while downloading asset: ${(err as Error).stack}`)
+				);
+			});
 
 		waitForAssetToBeDownloaded(src, to)
 			.then(() => {

@@ -1,4 +1,5 @@
 import {TAsset} from 'remotion';
+import {AddRenderCleanupFunction} from './cleanup-assets';
 import {
 	downloadAndMapAssetsToFileUrl,
 	RenderMediaOnDownload,
@@ -16,10 +17,12 @@ export const convertAssetsToFileUrls = async ({
 	assets,
 	downloadDir,
 	onDownload,
+	addCleanupFunction,
 }: {
 	assets: TAsset[][];
 	downloadDir: string;
 	onDownload: RenderMediaOnDownload;
+	addCleanupFunction: AddRenderCleanupFunction;
 }): Promise<TAsset[][]> => {
 	const chunks = chunk(assets, 1000);
 	const results: TAsset[][][] = [];
@@ -33,6 +36,7 @@ export const convertAssetsToFileUrls = async ({
 							asset: a,
 							downloadDir,
 							onDownload,
+							addCleanupFunction,
 						});
 					})
 				);

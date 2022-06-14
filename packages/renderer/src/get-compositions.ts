@@ -1,5 +1,9 @@
 import {Browser, Page} from 'puppeteer-core';
 import {BrowserExecutable, FfmpegExecutable, TCompMetadata} from 'remotion';
+import {
+	AddRenderCleanupFunction,
+	RenderCleanupFn,
+} from './assets/cleanup-assets';
 import {BrowserLog} from './browser-log';
 import {handleJavascriptException} from './error-handling/handle-javascript-exception';
 import {getPageAndCleanupFn} from './get-browser-instance';
@@ -96,7 +100,15 @@ export const getCompositions = async (
 			onError,
 		});
 
-		let close: (() => void) | null = null;
+		const cleanupFunctions: RenderCleanupFn[] = [
+			() => Promise.resolve(cleanupPageError()),
+			() => Promise.resolve(cleanup()),
+		];
+		const addCleanupFunction: AddRenderCleanupFunction = (
+			fn: RenderCleanupFn
+		) => {
+			cleanupFunctions.push(fn);
+		};
 
 		prepareServer({
 			webpackConfigOrServeUrl: serveUrlOrWebpackUrl,
@@ -106,9 +118,10 @@ export const getCompositions = async (
 			ffmpegExecutable: config?.ffmpegExecutable ?? null,
 			ffprobeExecutable: config?.ffprobeExecutable ?? null,
 			port: config?.port ?? null,
+			addCleanupFunction,
 		})
 			.then(({serveUrl, closeServer, offthreadPort}) => {
-				close = closeServer;
+				addCleanupFunction(() => closeServer());
 				return innerGetCompositions(
 					serveUrl,
 					page,
@@ -123,8 +136,7 @@ export const getCompositions = async (
 			})
 			.finally(() => {
 				cleanup();
-				close?.();
-				cleanupPageError();
+				cleanupFunctions.forEach((f) => f());
 			});
 	});
 };

@@ -15,6 +15,10 @@ import {
 	TAsset,
 } from 'remotion';
 import {
+	AddRenderCleanupFunction,
+	RenderCleanupFn,
+} from './assets/cleanup-assets';
+import {
 	downloadAndMapAssetsToFileUrl,
 	RenderMediaOnDownload,
 } from './assets/download-and-map-assets-to-file';
@@ -119,6 +123,7 @@ const innerRenderFrames = ({
 	downloadDir,
 	proxyPort,
 	cancelSignal,
+	addCleanupFunction,
 }: Omit<RenderFramesOptions, 'url' | 'onDownload'> & {
 	onError: (err: Error) => void;
 	pagesArray: Page[];
@@ -128,6 +133,7 @@ const innerRenderFrames = ({
 	downloadDir: string;
 	onDownload: RenderMediaOnDownload;
 	proxyPort: number;
+	addCleanupFunction: AddRenderCleanupFunction;
 }): Promise<RenderFramesOutput> => {
 	if (!puppeteerInstance) {
 		throw new Error(
@@ -308,6 +314,7 @@ const innerRenderFrames = ({
 						asset,
 						downloadDir,
 						onDownload,
+						addCleanupFunction,
 					}).catch((err) => {
 						onError(
 							new Error(
@@ -347,8 +354,6 @@ const innerRenderFrames = ({
 		}),
 	]);
 };
-
-type CleanupFn = () => void;
 
 export const renderFrames = (
 	options: RenderFramesOptions
@@ -408,7 +413,11 @@ export const renderFrames = (
 	const openedPages: Page[] = [];
 
 	return new Promise<RenderFramesOutput>((resolve, reject) => {
-		const cleanup: CleanupFn[] = [];
+		const cleanup: RenderCleanupFn[] = [];
+		const addCleanupFunction: AddRenderCleanupFunction = (fn) => {
+			cleanup.push(fn);
+		};
+
 		const onError = (err: Error) => reject(err);
 
 		Promise.all([
@@ -420,6 +429,7 @@ export const renderFrames = (
 				ffmpegExecutable: options.ffmpegExecutable ?? null,
 				ffprobeExecutable: options.ffprobeExecutable ?? null,
 				port: options.port ?? null,
+				addCleanupFunction,
 			}),
 			browserInstance,
 		])
@@ -429,14 +439,9 @@ export const renderFrames = (
 					actualParallelism
 				);
 
-				cleanup.push(stopCycling);
-
-				options.cancelSignal?.(() => {
-					stopCycling();
-					closeServer();
-				});
-
+				cleanup.push(() => Promise.resolve(stopCycling()));
 				cleanup.push(closeServer);
+
 				const renderFramesProm = innerRenderFrames({
 					...options,
 					puppeteerInstance,
@@ -448,6 +453,7 @@ export const renderFrames = (
 					onDownload,
 					downloadDir,
 					proxyPort: offthreadPort,
+					addCleanupFunction,
 				});
 				return renderFramesProm;
 			})

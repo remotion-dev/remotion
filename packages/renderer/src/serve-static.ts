@@ -1,5 +1,6 @@
 import http from 'http';
 import {FfmpegExecutable, Internals} from 'remotion';
+import {AddRenderCleanupFunction} from './assets/cleanup-assets';
 import {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 import {getDesiredPort} from './get-port';
 import {startOffthreadVideoServer} from './offthread-video-server';
@@ -14,6 +15,7 @@ export const serveStatic = async (
 		downloadDir: string;
 		onDownload: RenderMediaOnDownload;
 		onError: (err: Error) => void;
+		addCleanupFunction: AddRenderCleanupFunction;
 	}
 ): Promise<{
 	port: number;
@@ -31,6 +33,7 @@ export const serveStatic = async (
 		downloadDir: options.downloadDir,
 		onDownload: options.onDownload,
 		onError: options.onError,
+		addCleanupFunction: options.addCleanupFunction,
 	});
 
 	try {

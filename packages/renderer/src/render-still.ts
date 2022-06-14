@@ -8,6 +8,10 @@ import {
 	SmallTCompMetadata,
 	StillImageFormat,
 } from 'remotion';
+import {
+	AddRenderCleanupFunction,
+	RenderCleanupFn,
+} from './assets/cleanup-assets';
 import {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 import {ensureOutputDirectory} from './ensure-output-directory';
 import {handleJavascriptException} from './error-handling/handle-javascript-exception';
@@ -225,7 +229,10 @@ export const renderStill = (options: RenderStillOptions): Promise<void> => {
 	const happyPath = new Promise<void>((resolve, reject) => {
 		const onError = (err: Error) => reject(err);
 
-		let close: (() => void) | null = null;
+		const cleanupCallbacks: RenderCleanupFn[] = [];
+		const addCleanupFunction: AddRenderCleanupFunction = (fn) => {
+			cleanupCallbacks.push(fn);
+		};
 
 		prepareServer({
 			webpackConfigOrServeUrl: selectedServeUrl,
@@ -235,9 +242,10 @@ export const renderStill = (options: RenderStillOptions): Promise<void> => {
 			ffmpegExecutable: options.ffmpegExecutable ?? null,
 			ffprobeExecutable: options.ffprobeExecutable ?? null,
 			port: options.port ?? null,
+			addCleanupFunction,
 		})
 			.then(({serveUrl, closeServer, offthreadPort}) => {
-				close = closeServer;
+				cleanupCallbacks.push(() => closeServer());
 				return innerRenderStill({
 					...options,
 					serveUrl,
@@ -248,7 +256,9 @@ export const renderStill = (options: RenderStillOptions): Promise<void> => {
 
 			.then((res) => resolve(res))
 			.catch((err) => reject(err))
-			.finally(() => close?.());
+			.finally(() => {
+				cleanupCallbacks.forEach((f) => f());
+			});
 	});
 
 	return Promise.race([

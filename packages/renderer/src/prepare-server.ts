@@ -1,4 +1,5 @@
 import {FfmpegExecutable} from 'remotion';
+import {AddRenderCleanupFunction} from './assets/cleanup-assets';
 import {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 import {isServeUrl} from './is-serve-url';
 import {serveStatic} from './serve-static';
@@ -11,6 +12,7 @@ export const prepareServer = async ({
 	onError,
 	webpackConfigOrServeUrl,
 	port,
+	addCleanupFunction,
 }: {
 	webpackConfigOrServeUrl: string;
 	downloadDir: string;
@@ -19,9 +21,10 @@ export const prepareServer = async ({
 	ffmpegExecutable: FfmpegExecutable;
 	ffprobeExecutable: FfmpegExecutable;
 	port: number | null;
+	addCleanupFunction: AddRenderCleanupFunction;
 }): Promise<{
 	serveUrl: string;
-	closeServer: () => Promise<unknown>;
+	closeServer: () => Promise<void>;
 	offthreadPort: number;
 }> => {
 	if (isServeUrl(webpackConfigOrServeUrl)) {
@@ -32,6 +35,7 @@ export const prepareServer = async ({
 			ffmpegExecutable,
 			ffprobeExecutable,
 			port,
+			addCleanupFunction,
 		});
 
 		return Promise.resolve({
@@ -48,6 +52,7 @@ export const prepareServer = async ({
 		ffmpegExecutable,
 		ffprobeExecutable,
 		port,
+		addCleanupFunction,
 	});
 	return Promise.resolve({
 		closeServer: () => {
