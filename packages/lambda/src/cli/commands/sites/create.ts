@@ -90,7 +90,7 @@ export const sitesCreateSubcommand = async (args: string[]) => {
 
 	const bucketStart = Date.now();
 
-	const {bucketName} = await getOrCreateBucket({
+	const prom = getOrCreateBucket({
 		region: getAwsRegion(),
 		onBucketEnsured: () => {
 			multiProgress.bucketProgress.bucketCreated = true;
@@ -98,17 +98,18 @@ export const sitesCreateSubcommand = async (args: string[]) => {
 		},
 	});
 
-	multiProgress.bucketProgress.websiteEnabled = true;
-	multiProgress.bucketProgress.doneIn = Date.now() - bucketStart;
-	updateProgress();
-
 	const bundleStart = Date.now();
 	const uploadStart = Date.now();
 
 	const {serveUrl, siteName} = await deploySite({
 		entryPoint: absoluteFile,
 		siteName: desiredSiteName,
-		bucketName,
+		bucketName: prom.then((p) => {
+			multiProgress.bucketProgress.websiteEnabled = true;
+			multiProgress.bucketProgress.doneIn = Date.now() - bucketStart;
+			updateProgress();
+			return p.bucketName;
+		}),
 
 		options: {
 			onBundleProgress: (progress: number) => {
