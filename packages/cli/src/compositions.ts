@@ -1,10 +1,9 @@
 import {getCompositions, RenderInternals} from '@remotion/renderer';
-import path from 'path';
 import {getCliOptions} from './get-cli-options';
 import {loadConfig} from './get-config-file-name';
 import {Log} from './log';
 import {parsedCli} from './parse-command-line';
-import {bundleOnCli} from './setup-cache';
+import {prepareEntryPoint} from './prepare-entry-point';
 
 const max = (arr: number[]) => {
 	if (arr.length === 0) {
@@ -36,10 +35,6 @@ export const listCompositionsCommand = async () => {
 		process.exit(1);
 	}
 
-	const fullPath = RenderInternals.isServeUrl(file)
-		? file
-		: path.join(process.cwd(), file);
-
 	await loadConfig();
 
 	const {
@@ -53,9 +48,7 @@ export const listCompositionsCommand = async () => {
 		port,
 	} = await getCliOptions({isLambda: false, type: 'get-compositions'});
 
-	const urlOrBundle = RenderInternals.isServeUrl(fullPath)
-		? fullPath
-		: await bundleOnCli(fullPath, ['bundling']);
+	const {urlOrBundle, shouldDelete} = await prepareEntryPoint(file, []);
 
 	const compositions = await getCompositions(urlOrBundle, {
 		browserExecutable,
@@ -100,11 +93,13 @@ export const listCompositionsCommand = async () => {
 			.join('\n')
 	);
 
-	try {
-		await RenderInternals.deleteDirectory(urlOrBundle);
-	} catch (err) {
-		Log.warn('Could not clean up directory.');
-		Log.warn(err);
-		Log.warn('Do you have minimum required Node.js version?');
+	if (shouldDelete) {
+		try {
+			await RenderInternals.deleteDirectory(urlOrBundle);
+		} catch (err) {
+			Log.warn('Could not clean up directory.');
+			Log.warn(err);
+			Log.warn('Do you have minimum required Node.js version?');
+		}
 	}
 };
