@@ -82,17 +82,9 @@ const getLastFrameOfVideoSlow = async ({
 	const isEmpty = stdErr.includes('Output file is empty');
 	if (isEmpty) {
 		throw new Error(
-			`Could not get last frame of ${src}. Tried to seek to the end using the command "ffmpeg ${[
-				'-itsoffset',
-				actualOffset,
-				'-i',
-				src,
-				'-frames:v',
-				'1',
-				'-f',
-				'image2pipe',
-				'-',
-			].join(' ')}" but got no frame. Most likely this video is corrupted.`
+			`Could not get last frame of ${src}. Tried to seek to the end using the command "ffmpeg ${command.join(
+				' '
+			)}" but got no frame. Most likely this video is corrupted.`
 		);
 	}
 
