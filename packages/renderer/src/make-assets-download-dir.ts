@@ -1,5 +1,12 @@
 import {tmpDir} from './tmp-dir';
 
+let dir: string | null = null;
+
 export const makeAssetsDownloadTmpDir = (): string => {
-	return tmpDir('remotion-assets-dir');
+	if (dir) {
+		return dir;
+	}
+
+	dir = tmpDir('remotion-assets-dir');
+	return dir;
 };

@@ -2,6 +2,7 @@ import execa from 'execa';
 import {FfmpegExecutable, Internals} from 'remotion';
 import {Readable} from 'stream';
 import {frameToFfmpegTimestamp} from './frame-to-ffmpeg-timestamp';
+import {getDurationOfAsset} from './get-duration-of-asset';
 import {isBeyondLastFrame, markAsBeyondLastFrame} from './is-beyond-last-frame';
 import {
 	getLastFrameFromCache,
@@ -19,41 +20,97 @@ export function streamToString(stream: Readable) {
 	});
 }
 
-const lastFrameLimit = pLimit(5);
+const lastFrameLimit = pLimit(1);
 const mainLimit = pLimit(5);
 
-const getLastFrameOfVideoUnlimited = async ({
-	ffmpegExecutable,
-	ffprobeExecutable,
-	offset,
+// Uses no seeking, therefore the whole video has to be decoded. This is a last resort and should only happen
+// if the video is corrupted
+const getLastFrameOfVideoSlow = async ({
 	src,
-}: LastFrameOptions): Promise<Buffer> => {
-	if (offset > 100) {
+	duration,
+	ffmpegExecutable,
+}: {
+	ffmpegExecutable: FfmpegExecutable;
+	src: string;
+	duration: number;
+}) => {
+	console.warn(
+		`\nUsing a slow method to determine the last frame of ${src}. The render can be sped up by re-encoding the video properly.`
+	);
+
+	const actualOffset = `-${duration * 1000}ms`;
+	const command = [
+		'-itsoffset',
+		actualOffset,
+		'-i',
+		src,
+		'-frames:v',
+		'1',
+		'-f',
+		'image2pipe',
+		'-',
+	];
+	const {stdout, stderr} = execa(ffmpegExecutable ?? 'ffmpeg', command);
+
+	if (!stderr) {
+		throw new Error('unexpectedly did not get stderr');
+	}
+
+	if (!stdout) {
+		throw new Error('unexpectedly did not get stdout');
+	}
+
+	const stderrChunks: Buffer[] = [];
+	const stdoutChunks: Buffer[] = [];
+
+	const stdErrString = new Promise<string>((resolve, reject) => {
+		stderr.on('data', (d) => stderrChunks.push(d));
+		stderr.on('error', (err) => reject(err));
+		stderr.on('end', () =>
+			resolve(Buffer.concat(stderrChunks).toString('utf-8'))
+		);
+	});
+
+	const stdoutChunk = new Promise<Buffer>((resolve, reject) => {
+		stdout.on('data', (d) => stdoutChunks.push(d));
+		stdout.on('error', (err) => reject(err));
+		stdout.on('end', () => resolve(Buffer.concat(stdoutChunks)));
+	});
+
+	const [stdErr, stdoutBuffer] = await Promise.all([stdErrString, stdoutChunk]);
+
+	const isEmpty = stdErr.includes('Output file is empty');
+	if (isEmpty) {
 		throw new Error(
-			'could not get last frame of ' +
-				src +
-				'. Tried to seek 100ms before the end of the video and no frame was found. The video container has a duration that is longer than it contains video.'
+			`Could not get last frame of ${src}. Tried to seek to the end using the command "ffmpeg ${command.join(
+				' '
+			)}" but got no frame. Most likely this video is corrupted.`
 		);
 	}
 
-	const durationCmd = await execa(ffprobeExecutable ?? 'ffprobe', [
-		'-v',
-		'error',
-		'-select_streams',
-		'v:0',
-		'-show_entries',
-		'stream=duration',
-		'-of',
-		'default=noprint_wrappers=1:nokey=1',
+	return stdoutBuffer;
+};
+
+const getLastFrameOfVideoFastUnlimited = async (
+	options: LastFrameOptions
+): Promise<Buffer> => {
+	const {ffmpegExecutable, ffprobeExecutable, offset, src} = options;
+	const fromCache = getLastFrameFromCache({...options, offset: 0});
+	if (fromCache) {
+		return fromCache;
+	}
+
+	const duration = await getDurationOfAsset({
 		src,
-	]);
-
-	const duration = parseFloat(durationCmd.stdout);
-
-	if (Number.isNaN(duration)) {
-		throw new TypeError(
-			`Could not get duration of ${src}: ${durationCmd.stdout}`
-		);
+		ffprobeExecutable,
+	});
+	if (offset > 40) {
+		const last = await getLastFrameOfVideoSlow({
+			duration,
+			ffmpegExecutable,
+			src,
+		});
+		return last;
 	}
 
 	const actualOffset = `${duration * 1000 - offset - 10}ms`;
@@ -104,12 +161,14 @@ const getLastFrameOfVideoUnlimited = async ({
 
 	const isEmpty = stdErr.includes('Output file is empty');
 	if (isEmpty) {
-		return getLastFrameOfVideoUnlimited({
+		const unlimited = await getLastFrameOfVideoFastUnlimited({
 			ffmpegExecutable,
 			offset: offset + 10,
 			src,
 			ffprobeExecutable,
 		});
+
+		return unlimited;
 	}
 
 	return stdoutBuffer;
@@ -118,12 +177,10 @@ const getLastFrameOfVideoUnlimited = async ({
 export const getLastFrameOfVideo = async (
 	options: LastFrameOptions
 ): Promise<Buffer> => {
-	const fromCache = getLastFrameFromCache(options);
-	if (fromCache) {
-		return fromCache;
-	}
-
-	const result = await lastFrameLimit(getLastFrameOfVideoUnlimited, options);
+	const result = await lastFrameLimit(
+		getLastFrameOfVideoFastUnlimited,
+		options
+	);
 	setLastFrameInCache(options, result);
 
 	return result;
@@ -143,12 +200,13 @@ export const extractFrameFromVideoFn = async ({
 	ffprobeExecutable,
 }: Options): Promise<Buffer> => {
 	if (isBeyondLastFrame(src, time)) {
-		return getLastFrameOfVideo({
+		const lastFrame = await getLastFrameOfVideo({
 			ffmpegExecutable,
 			ffprobeExecutable,
 			offset: 0,
 			src,
 		});
+		return lastFrame;
 	}
 
 	const ffmpegTimestamp = frameToFfmpegTimestamp(time);
@@ -182,27 +240,17 @@ export const extractFrameFromVideoFn = async ({
 	const stderrChunks: Buffer[] = [];
 
 	const stderrStringProm = new Promise<string>((resolve, reject) => {
-		stderr.on('data', (d) => {
-			stderrChunks.push(d);
-		});
-		stderr.on('error', (err) => {
-			reject(err);
-		});
-		stderr.on('end', () => {
-			resolve(Buffer.concat(stderrChunks).toString('utf8'));
-		});
+		stderr.on('data', (d) => stderrChunks.push(d));
+		stderr.on('error', (err) => reject(err));
+		stderr.on('end', () =>
+			resolve(Buffer.concat(stderrChunks).toString('utf8'))
+		);
 	});
 
 	const stdoutBuffer = new Promise<Buffer>((resolve, reject) => {
-		stdout.on('data', (d) => {
-			stdoutChunks.push(d);
-		});
-		stdout.on('error', (err) => {
-			reject(err);
-		});
-		stdout.on('end', () => {
-			resolve(Buffer.concat(stdoutChunks));
-		});
+		stdout.on('data', (d) => stdoutChunks.push(d));
+		stdout.on('error', (err) => reject(err));
+		stdout.on('end', () => resolve(Buffer.concat(stdoutChunks)));
 	});
 
 	const [stderrStr, stdOut] = await Promise.all([
@@ -212,12 +260,14 @@ export const extractFrameFromVideoFn = async ({
 
 	if (stderrStr.includes('Output file is empty')) {
 		markAsBeyondLastFrame(src, time);
-		return getLastFrameOfVideo({
+		const last = await getLastFrameOfVideo({
 			ffmpegExecutable,
 			ffprobeExecutable,
 			offset: 0,
 			src,
 		});
+
+		return last;
 	}
 
 	return stdOut;
