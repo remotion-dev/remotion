@@ -5,6 +5,7 @@ import {TwentyTwoKHzAudio} from './22KhzAudio';
 import BetaText from './BetaText';
 import {ColorInterpolation} from './ColorInterpolation';
 import {MyCtx, WrappedInContext} from './Context';
+import CorruptVideo from './CorruptVideo';
 import {ErrorOnFrame10} from './ErrorOnFrame10';
 import {FontDemo} from './Fonts';
 import {Framer} from './Framer';
@@ -266,6 +267,14 @@ export const Index: React.FC = () => {
 					height={720}
 					fps={30}
 					durationInFrames={600}
+				/>
+				<Composition
+					id="corrupt-video"
+					component={CorruptVideo}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={2000}
 				/>
 				<Composition
 					id="2hrvideo"
