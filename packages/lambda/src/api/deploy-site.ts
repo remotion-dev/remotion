@@ -1,3 +1,4 @@
+import {stat} from 'fs/promises';
 import {Internals, WebpackOverrideFn} from 'remotion';
 import {deleteSite} from '../api/delete-site';
 import {AwsRegion} from '../pricing/aws-regions';
@@ -53,16 +54,26 @@ export const deploySite = async ({
 	validateSiteName(siteId);
 
 	const subFolder = getSitesKey(siteId);
-	const bundled = bundleSite(
-		entryPoint,
-		options?.onBundleProgress ?? (() => undefined),
-		{
-			publicPath: `/${subFolder}/`,
-			webpackOverride:
-				options?.webpackOverride ?? Internals.getWebpackOverrideFn(),
-			enableCaching: options?.enableCaching ?? Internals.getWebpackCaching(),
+
+	const stats = await stat(entryPoint);
+
+	const bundled = await (() => {
+		if (stats.isDirectory()) {
+			options?.onBundleProgress?.(100);
+			return entryPoint;
 		}
-	);
+
+		return bundleSite(
+			entryPoint,
+			options?.onBundleProgress ?? (() => undefined),
+			{
+				publicPath: `/${subFolder}/`,
+				webpackOverride:
+					options?.webpackOverride ?? Internals.getWebpackOverrideFn(),
+				enableCaching: options?.enableCaching ?? Internals.getWebpackCaching(),
+			}
+		);
+	})();
 
 	const bucketName = await bucketNameOrPromise;
 

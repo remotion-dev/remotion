@@ -1,5 +1,6 @@
 import {CliInternals} from '@remotion/cli';
-import {existsSync, lstatSync} from 'fs';
+import {existsSync} from 'fs';
+import {stat} from 'fs/promises';
 import path from 'path';
 import {Internals} from 'remotion';
 import {deploySite} from '../../../api/deploy-site';
@@ -33,7 +34,7 @@ export const sitesCreateSubcommand = async (args: string[]) => {
 		quit(1);
 	}
 
-	const absoluteFile = path.join(process.cwd(), fileName);
+	const absoluteFile = path.resolve(process.cwd(), fileName);
 	if (!existsSync(absoluteFile)) {
 		Log.error(
 			`No file exists at ${absoluteFile}. Make sure the path exists and try again.`
@@ -41,12 +42,7 @@ export const sitesCreateSubcommand = async (args: string[]) => {
 		quit(1);
 	}
 
-	if (lstatSync(absoluteFile).isDirectory()) {
-		Log.error(
-			`You passed a path ${absoluteFile} but it is a directory. Pass a file instead.`
-		);
-		quit(1);
-	}
+	const needsToBundle = !(await stat(absoluteFile)).isDirectory();
 
 	const desiredSiteName = parsedLambdaCli['site-name'] ?? undefined;
 	if (desiredSiteName !== undefined) {
@@ -56,6 +52,8 @@ export const sitesCreateSubcommand = async (args: string[]) => {
 	const progressBar = CliInternals.createOverwriteableCliOutput(
 		CliInternals.quietFlagProvided()
 	);
+
+	const steps = needsToBundle ? 3 : 2;
 
 	const multiProgress: {
 		bundleProgress: BundleProgress;
@@ -70,21 +68,27 @@ export const sitesCreateSubcommand = async (args: string[]) => {
 			bucketCreated: false,
 			doneIn: null,
 			websiteEnabled: false,
+			steps,
+			currentStep: steps - 1,
 		},
 		deployProgress: {
 			doneIn: null,
 			totalSize: null,
 			sizeUploaded: 0,
+			steps,
+			currentStep: steps,
 		},
 	};
 
 	const updateProgress = () => {
 		progressBar.update(
 			[
-				makeBundleProgress(multiProgress.bundleProgress),
+				needsToBundle ? makeBundleProgress(multiProgress.bundleProgress) : null,
 				makeBucketProgress(multiProgress.bucketProgress),
 				makeDeployProgressBar(multiProgress.deployProgress),
-			].join('\n')
+			]
+				.filter(Internals.truthy)
+				.join('\n')
 		);
 	};
 
@@ -120,6 +124,7 @@ export const sitesCreateSubcommand = async (args: string[]) => {
 			},
 			onUploadProgress: (p) => {
 				multiProgress.deployProgress = {
+					...multiProgress.deployProgress,
 					sizeUploaded: p.sizeUploaded,
 					totalSize: p.totalSize,
 					doneIn: null,
@@ -134,6 +139,7 @@ export const sitesCreateSubcommand = async (args: string[]) => {
 	});
 	const uploadDuration = Date.now() - uploadStart;
 	multiProgress.deployProgress = {
+		...multiProgress.deployProgress,
 		sizeUploaded: 1,
 		totalSize: 1,
 		doneIn: uploadDuration,
