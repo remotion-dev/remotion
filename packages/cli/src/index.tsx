@@ -1,4 +1,5 @@
 import chalk from 'chalk';
+import {bundleCommand} from './bundle';
 import {checkNodeVersion} from './check-version';
 import {listCompositionsCommand} from './compositions';
 import {getCliOptions} from './get-cli-options';
@@ -51,6 +52,8 @@ export const cli = async () => {
 			await lambdaCommand();
 		} else if (command === 'render') {
 			await render();
+		} else if (command === 'bundle') {
+			await bundleCommand();
 		} else if (command === 'still') {
 			await still();
 		} else if (command === 'upgrade') {

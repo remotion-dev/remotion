@@ -29,7 +29,7 @@ export const still = async () => {
 	if (!file) {
 		Log.error('No entry point specified. Pass more arguments:');
 		Log.error(
-			'   npx remotion render [entry-point] [composition-name] [out-name]'
+			'   npx remotion still [entry-point] [composition-name] [out-name]'
 		);
 		Log.error('Documentation: https://www.remotion.dev/docs/render');
 		process.exit(1);
