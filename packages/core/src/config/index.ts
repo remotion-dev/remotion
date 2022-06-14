@@ -1,5 +1,6 @@
 import {Browser} from './browser';
 import {BrowserExecutable, setBrowserExecutable} from './browser-executable';
+import {setBundleOutDir} from './bundle-out-dir';
 import {
 	setChromiumDisableWebSecurity,
 	setChromiumHeadlessMode,
@@ -29,6 +30,7 @@ import {setOverwriteOutput} from './overwrite';
 import {PixelFormat, setPixelFormat} from './pixel-format';
 import {setPort} from './preview-server';
 import {setProResProfile} from './prores-profile';
+import {setPublicPath} from './public-path';
 import {setQuality} from './quality';
 import {setScale} from './scale';
 import {setPuppeteerTimeout} from './timeout';
@@ -61,6 +63,17 @@ export const Config = {
 		 * If you specify a port, but it's not available, Remotion will throw an error.
 		 */
 		setPort,
+		/**
+		 * Define the "publicPath" used for the Webpack bundle.
+		 * This is the prefix of the URL pathname where the files in the public/ folder are put.
+		 * For example, if the bundle is hosted at the root of the host, it is `/`.
+		 * On Lambda, the bundle is usually hosted under `sites/{siteName}`
+		 */
+		setPublicPath,
+		/**
+		 * The path relative to the current working directory where the bundle gets saved.
+		 */
+		setBundleOutDir,
 	},
 	Log: {
 		/**

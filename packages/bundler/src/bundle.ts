@@ -42,9 +42,9 @@ export const bundle = async (
 	onProgressUpdate?: (progress: number) => void,
 	options?: {
 		webpackOverride?: WebpackOverrideFn;
-		outDir?: string;
+		outDir?: string | null;
 		enableCaching?: boolean;
-		publicPath?: string;
+		publicPath?: string | null;
 	}
 ): Promise<string> => {
 	const outDir = await prepareOutDir(options?.outDir ?? null);

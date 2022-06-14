@@ -46,9 +46,19 @@ export const listCompositionsCommand = async () => {
 		inputProps,
 		puppeteerTimeout,
 		port,
-	} = await getCliOptions({isLambda: false, type: 'get-compositions'});
+		bundleOutDir,
+		publicPath,
+	} = await getCliOptions({
+		isLambda: false,
+		type: 'get-compositions-or-bundle',
+	});
 
-	const {urlOrBundle, shouldDelete} = await prepareEntryPoint(file, []);
+	const {urlOrBundle, shouldDelete} = await prepareEntryPoint({
+		file,
+		otherSteps: [],
+		outDir: bundleOutDir,
+		publicPath,
+	});
 
 	const compositions = await getCompositions(urlOrBundle, {
 		browserExecutable,

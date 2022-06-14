@@ -16,6 +16,7 @@ import {
 import * as AssetCompression from './compress-assets';
 import {DEFAULT_BROWSER, getBrowser} from './config/browser';
 import {getBrowserExecutable} from './config/browser-executable';
+import {getBundleOutDir} from './config/bundle-out-dir';
 import {
 	DEFAULT_OPENGL_RENDERER,
 	getChromiumDisableWebSecurity,
@@ -69,6 +70,7 @@ import {
 	setProResProfile,
 	validateSelectedCodecAndProResCombination,
 } from './config/prores-profile';
+import {getPublicPath} from './config/public-path';
 import {getQuality} from './config/quality';
 import {getScale} from './config/scale';
 import {getStillFrame, setStillFrame} from './config/still-frame';
@@ -225,6 +227,8 @@ export const Internals = {
 	DELAY_RENDER_CALLSTACK_TOKEN,
 	useAbsoluteCurrentFrame,
 	portalNode,
+	getPublicPath,
+	getBundleOutDir,
 };
 
 export type {
