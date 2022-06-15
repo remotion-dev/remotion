@@ -75,6 +75,7 @@ You can install `@remotion/lambda` in any Node.JS project to trigger a render, b
 ## 3. Create a role
 
 - Go to [AWS account IAM Roles section](https://console.aws.amazon.com/iamv2/home#/roles)
+- Click "Create role".
 - Under "Common use cases", select "Lambda". Click next.
 - Under "Attach permissions policies", filter for `remotion-lambda-policy` and click the checkbox to assign this policy.
 - Click next. No need to add tags. Click next again.
