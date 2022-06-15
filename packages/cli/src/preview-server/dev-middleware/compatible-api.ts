@@ -1,14 +1,6 @@
 import {ReadStream} from 'fs';
 import {IncomingMessage, ServerResponse} from 'http';
 
-export function getHeaderFromRequest(req: IncomingMessage, name: string) {
-	return req.headers[name];
-}
-
-export function getHeaderFromResponse(res: ServerResponse, name: string) {
-	return res.getHeader(name);
-}
-
 export function setHeaderForResponse(
 	res: ServerResponse,
 	name: string,
