@@ -108,17 +108,14 @@ let cleanupExplainerContainer = () => {
 	explainerContainer.innerHTML = '';
 };
 
+const waitForRootHandle = delayRender('Loading root component');
+
 const WaitForRoot: React.FC = () => {
-	const [handle] = useState(() => delayRender('Loading root component'));
 	const [Root, setRoot] = useState<React.FC | null>(() => Internals.getRoot());
 
 	useEffect(() => {
-		return () => continueRender(handle);
-	}, [handle]);
-
-	useEffect(() => {
 		if (Root) {
-			continueRender(handle);
+			continueRender(waitForRootHandle);
 			return;
 		}
 
@@ -127,7 +124,7 @@ const WaitForRoot: React.FC = () => {
 		});
 
 		return () => cleanup();
-	}, [Root, handle]);
+	}, [Root]);
 
 	if (Root === null) {
 		return null;
