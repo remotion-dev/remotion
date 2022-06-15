@@ -9,7 +9,6 @@ import {isPathInside} from './is-path-inside';
 import {rangeParser} from './range-parser';
 
 const getHeaders = (absolutePath: string, stats: Stats | null) => {
-	const related = {};
 	const {base} = path.parse(absolutePath);
 
 	let defaultHeaders: Record<string, string> = {};
@@ -29,15 +28,7 @@ const getHeaders = (absolutePath: string, stats: Stats | null) => {
 		}
 	}
 
-	const headers = Object.assign(defaultHeaders, related);
-
-	for (const key in headers) {
-		if (headers[key] === null) {
-			delete headers[key];
-		}
-	}
-
-	return headers;
+	return defaultHeaders;
 };
 
 const getPossiblePaths = (relativePath: string, extension: string) =>
