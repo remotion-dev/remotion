@@ -8,7 +8,7 @@
     "lint": "turbo run lint",
     "build": "turbo run build",
     "ci": "turbo run build lint test",
-    "watch": "pnpm run watch --recursive --stream --parallel",
+    "watch": "pnpm run --recursive --stream --parallel watch",
     "release": "lerna publish --force-publish",
     "clean": "lerna clean --yes && rm -rf node_modules && rm -rf .cache && rm -rf packages/**/tsconfig.tsbuildinfo && rm -rf packages/**/.turbo"
   },
@@ -24,5 +24,5 @@
   "workspaces": [
     "packages/*"
   ],
-  "packageManager": "pnpm@6.26.1"
+  "packageManager": "pnpm@7.2.1"
 }

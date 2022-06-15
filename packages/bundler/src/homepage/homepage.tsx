@@ -23,7 +23,7 @@ const pre: React.CSSProperties = {
 	overflowX: 'auto',
 };
 
-export const AvailableCompositions: React.FC = () => {
+const AvailableCompositions: React.FC = () => {
 	const [comps, setComps] = useState<TCompMetadata[] | null>(null);
 
 	useEffect(() => {
