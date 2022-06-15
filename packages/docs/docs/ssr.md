@@ -30,9 +30,9 @@ const start = async () => {
   // The composition you want to render
   const compositionId = "HelloWorld";
 
-  console.log(`Creating webpack bundle of the video.`)
   // You only have to do this once, you can reuse the bundle.
-  const bundleLocation = await bundle(path.resolve("./src/index"));
+  const entry = "./src/index";
+  const bundleLocation = await bundle(path.resolve(entry));
 
   // Parametrize the video by passing arbitrary props to your component.
   const inputProps = {
@@ -54,18 +54,19 @@ const start = async () => {
   // Ensure the composition exists
   if (!composition) {
     throw new Error(`No composition with the ID ${compositionId} found.
-  Review "src/Video.jsx" for the correct ID.`);
+  Review "${entry}" for the correct ID.`);
   }
 
   const outputLocation = `out/${compositionId}.mp4`;
-  console.log("Attempting to render:", outputLocation)
+  console.log("Attempting to render:", outputLocation);
   await renderMedia({
     composition,
     serveUrl: bundleLocation,
     codec: "h264",
-    outputLocation: outputLocation,
+    outputLocation,
     inputProps,
   });
+  console.log("Render done!");
 };
 
 start();
