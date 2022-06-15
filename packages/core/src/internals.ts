@@ -88,7 +88,7 @@ import {getPreviewDomElement} from './get-preview-dom-element';
 import {isAudioCodec} from './is-audio-codec';
 import * as perf from './perf';
 import {portalNode} from './portal-node';
-import {getRoot} from './register-root';
+import {getRoot, waitForRoot} from './register-root';
 import {RemotionRoot} from './RemotionRoot';
 import {SequenceContext} from './sequencing';
 import {ENV_VARIABLES_ENV_NAME, setupEnvVariables} from './setup-env-variables';
@@ -225,6 +225,7 @@ export const Internals = {
 	DELAY_RENDER_CALLSTACK_TOKEN,
 	useAbsoluteCurrentFrame,
 	portalNode,
+	waitForRoot,
 };
 
 export type {
