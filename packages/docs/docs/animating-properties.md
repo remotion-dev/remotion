@@ -70,7 +70,7 @@ In this example, we map the frames 0 to 20 to their opacity values `(0, 0.05, 0.
 
 ## Using spring animations
 
-Spring animations are beautiful way to put things into motion and make them natural. Remotion includes a helper function to make spring animations easy! This time, let's animate the scale of the text.
+Spring animations are a beautiful way to put things into motion and make them natural. Remotion includes a helper function to make spring animations easy! This time, let's animate the scale of the text.
 
 ```tsx twoslash {7-12, 22}
 import { spring, useCurrentFrame, useVideoConfig } from "remotion";
