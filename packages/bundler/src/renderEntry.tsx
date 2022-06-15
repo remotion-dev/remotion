@@ -31,13 +31,6 @@ const GetVideo: React.FC<{state: BundleState}> = ({state}) => {
 	const video = Internals.useVideo();
 	const compositions = useContext(Internals.CompositionManager);
 	const [Root, setRoot] = useState<React.FC | null>(() => Internals.getRoot());
-	const [waitForRoot] = useState(() => {
-		if (Root) {
-			return 0;
-		}
-
-		return delayRender('Waiting for registerRoot()');
-	});
 
 	const [Component, setComponent] = useState<ComponentType<unknown> | null>(
 		null
@@ -88,12 +81,6 @@ const GetVideo: React.FC<{state: BundleState}> = ({state}) => {
 	}, [Component, state.type]);
 
 	useEffect(() => {
-		if (Root) {
-			continueRender(waitForRoot);
-		}
-	}, [Component, Root, video, waitForRoot]);
-
-	useEffect(() => {
 		if (!video) {
 			return;
 		}
@@ -119,7 +106,7 @@ const GetVideo: React.FC<{state: BundleState}> = ({state}) => {
 		});
 
 		return () => cleanup();
-	}, [Root, waitForRoot]);
+	}, [Root]);
 
 	if (!Root) {
 		return null;
@@ -232,6 +219,12 @@ export const setBundleModeAndUpdate = (state: BundleState) => {
 
 if (typeof window !== 'undefined') {
 	window.getStaticCompositions = (): TCompMetadata[] => {
+		if (!Internals.getRoot()) {
+			throw new Error(
+				'registerRoot() was never called. 1. Make sure you specified the correct entrypoint for your bundle. 2. If your registerRoot() call is deferred, use the delayRender/continueRender pattern to tell Remotion to wait.'
+			);
+		}
+
 		if (!Internals.compositionsRef.current) {
 			throw new Error('Unexpectedly did not have a CompositionManager');
 		}
