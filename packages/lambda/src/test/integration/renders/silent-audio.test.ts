@@ -1,5 +1,4 @@
 import {RenderInternals} from '@remotion/renderer';
-import execa from 'execa';
 import {LambdaRoutines} from '../../../defaults';
 import {handler} from '../../../functions';
 import {lambdaReadFile} from '../../../functions/helpers/io';
@@ -71,7 +70,7 @@ test('Should add silent audio if there is no audio', async () => {
 		expectedBucketOwner: 'abc',
 		region: 'eu-central-1',
 	});
-	const probe = await execa('ffprobe', ['-'], {
+	const probe = await RenderInternals.execa('ffprobe', ['-'], {
 		stdin: file,
 	});
 	expect(probe.stderr).toMatch(/Stream #0:0/);

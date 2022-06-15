@@ -81,4 +81,4 @@ test('Can render a still using Node.JS APIs', async () => {
 	unlinkSync(testOut);
 
 	await close();
-});
+}, 90000);

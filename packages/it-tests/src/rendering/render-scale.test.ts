@@ -12,8 +12,9 @@ beforeEach(() => {
 
 test("Should be able to render video with scale 2", async () => {
   const task = execa(
-    "pnpx",
+    "pnpm",
     [
+      "exec",
       "remotion",
       "render",
       "src/index.tsx",
@@ -45,8 +46,9 @@ test("Should be able to render video with scale 2", async () => {
 
 test("Should be able to render video with scale 0.1", async () => {
   const task = execa(
-    "pnpx",
+    "pnpm",
     [
+      "exec",
       "remotion",
       "render",
       "src/index.tsx",
