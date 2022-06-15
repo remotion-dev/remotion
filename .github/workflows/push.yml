@@ -27,10 +27,7 @@ jobs:
           path: ~/.pnpm-store
           key: v2-${{ runner.os }}-node${{ matrix.node-version }}-${{ hashFiles('**/pnpm-lock.yaml') }}
 
-      - name: Install pnpm
-        run: curl -fsSL https://get.pnpm.io/install.sh | sh -
-        shell: bash
-
+      - uses: pnpm/action-setup@v2.2.2
       - name: Install
         run: pnpm install --frozen-lockfile
 
@@ -62,10 +59,7 @@ jobs:
           path: ~/.pnpm-store
           key: ${{ runner.os }}-node${{ matrix.node-version }}-${{ hashFiles('**/pnpm-lock.yaml') }}-bust
 
-      - name: Install pnpm
-        run: curl -fsSL https://get.pnpm.io/install.sh | sh -
-        shell: bash
-
+      - uses: pnpm/action-setup@v2.2.2
       - name: Install
         run: pnpm install --frozen-lockfile
 
@@ -115,9 +109,7 @@ jobs:
           path: ~/.pnpm-store
           key: v2-deps-${{ runner.os }}-node${{ matrix.node_version }}
 
-      - name: Install pnpm
-        run: curl -fsSL https://get.pnpm.io/install.sh | sh -
-        shell: bash
+      - uses: pnpm/action-setup@v2.2.2
       - name: Cache node_modules/.cache
         uses: actions/cache@v2
         with:
