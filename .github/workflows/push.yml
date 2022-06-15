@@ -28,7 +28,7 @@ jobs:
           key: v2-${{ runner.os }}-node${{ matrix.node-version }}-${{ hashFiles('**/pnpm-lock.yaml') }}
 
       - name: Install pnpm
-        run: curl -f https://get.pnpm.io/v6.16.js | node - add --global pnpm@6
+        run: curl -fsSL https://get.pnpm.io/install.sh | sh -
         shell: bash
 
       - name: Install
@@ -63,7 +63,7 @@ jobs:
           key: ${{ runner.os }}-node${{ matrix.node-version }}-${{ hashFiles('**/pnpm-lock.yaml') }}-bust
 
       - name: Install pnpm
-        run: curl -f https://get.pnpm.io/v6.16.js | node - add --global pnpm@6
+        run: curl -fsSL https://get.pnpm.io/install.sh | sh -
         shell: bash
 
       - name: Install
@@ -116,7 +116,7 @@ jobs:
           key: v2-deps-${{ runner.os }}-node${{ matrix.node_version }}
 
       - name: Install pnpm
-        run: curl -f https://get.pnpm.io/v6.16.js | node - add --global pnpm@6
+        run: curl -fsSL https://get.pnpm.io/install.sh | sh -
         shell: bash
       - name: Cache node_modules/.cache
         uses: actions/cache@v2
