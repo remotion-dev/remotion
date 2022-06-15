@@ -1,6 +1,8 @@
 import {PlayerInternals, PreviewSize} from '@remotion/player';
-import React, {useCallback, useMemo, useState} from 'react';
+import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import {
+	continueRender,
+	delayRender,
 	Internals,
 	MediaVolumeContextValue,
 	SetMediaVolumeContextValue,
@@ -36,6 +38,7 @@ import {FramePersistor} from './FramePersistor';
 import {GlobalKeybindings} from './GlobalKeybindings';
 import {KeyboardShortcuts} from './KeyboardShortcutsModal';
 import NewComposition from './NewComposition/NewComposition';
+import {NoRegisterRoot} from './NoRegisterRoot';
 import {UpdateModal} from './UpdateModal/UpdateModal';
 
 const background: React.CSSProperties = {
@@ -47,11 +50,17 @@ const background: React.CSSProperties = {
 	position: 'absolute',
 };
 
-const Root = Internals.getRoot();
-
 export const Editor: React.FC = () => {
 	const [emitter] = useState(() => new PlayerInternals.PlayerEmitter());
 	const [size, setSizeState] = useState(() => loadPreviewSizeOption());
+	const [Root, setRoot] = useState<React.FC | null>(() => Internals.getRoot());
+	const [waitForRoot] = useState(() => {
+		if (Root) {
+			return 0;
+		}
+
+		return delayRender('Waiting for registerRoot()');
+	});
 	const [checkerboard, setCheckerboardState] = useState(() =>
 		loadCheckerboardOption()
 	);
@@ -150,9 +159,18 @@ export const Editor: React.FC = () => {
 		};
 	}, [modalContextType]);
 
-	if (!Root) {
-		throw new Error('Root has not been registered. ');
-	}
+	useEffect(() => {
+		if (Root) {
+			return;
+		}
+
+		const cleanup = Internals.waitForRoot((NewRoot) => {
+			setRoot(() => NewRoot);
+			continueRender(waitForRoot);
+		});
+
+		return () => cleanup();
+	}, [Root, waitForRoot]);
 
 	return (
 		<KeybindingContextProvider>
@@ -183,9 +201,13 @@ export const Editor: React.FC = () => {
 																onOutsideClick={noop}
 															>
 																<div style={background}>
-																	<Root />
+																	{Root === null ? null : <Root />}
 																	<FramePersistor />
-																	<EditorContent />
+																	{Root === null ? (
+																		<NoRegisterRoot />
+																	) : (
+																		<EditorContent />
+																	)}
 																	<GlobalKeybindings />
 																</div>
 																{modalContextType &&
