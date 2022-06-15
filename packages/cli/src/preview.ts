@@ -1,4 +1,3 @@
-import {BundlerInternals} from '@remotion/bundler';
 import betterOpn from 'better-opn';
 import path from 'path';
 import {Internals} from 'remotion';
@@ -7,6 +6,7 @@ import {getInputProps} from './get-input-props';
 import {initializeRenderCli} from './initialize-render-cli';
 import {Log} from './log';
 import {parsedCli} from './parse-command-line';
+import {startServer} from './preview-server/start-server';
 
 const noop = () => undefined;
 
@@ -32,7 +32,7 @@ export const previewCommand = async () => {
 	const inputProps = getInputProps();
 	const envVariables = await getEnvironmentVariables();
 
-	const port = await BundlerInternals.startServer(
+	const port = await startServer(
 		path.resolve(__dirname, 'previewEntry.js'),
 		fullPath,
 		{
