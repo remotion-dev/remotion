@@ -90,6 +90,7 @@ export const startOffthreadVideoServer = ({
 			.catch((err) => {
 				res.writeHead(500);
 				res.end();
+				onError(err);
 				console.log('Error occurred', err);
 			});
 	};

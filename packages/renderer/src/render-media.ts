@@ -81,6 +81,11 @@ export type RenderMediaOptions = {
 
 type Await<T> = T extends PromiseLike<infer U> ? U : T;
 
+/**
+ *
+ * @description Render a video from a composition
+ * @link https://www.remotion.dev/docs/renderer/render-media
+ */
 export const renderMedia = ({
 	parallelism,
 	proResProfile,

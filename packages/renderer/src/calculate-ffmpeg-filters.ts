@@ -19,10 +19,9 @@ export const calculateFfmpegFilter = ({
 		return null;
 	}
 
-	const assetTrimLeft = asset.trimLeft / fps;
+	const assetTrimLeft = (asset.trimLeft * asset.playbackRate) / fps;
 	const assetTrimRight =
-		(asset.trimLeft + asset.duration * asset.playbackRate) / fps;
-
+		assetTrimLeft + (asset.duration * asset.playbackRate) / fps;
 	return stringifyFfmpegFilter({
 		channels,
 		startInVideo: asset.startInVideo,
