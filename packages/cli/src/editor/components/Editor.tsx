@@ -38,6 +38,7 @@ import {FramePersistor} from './FramePersistor';
 import {GlobalKeybindings} from './GlobalKeybindings';
 import {KeyboardShortcuts} from './KeyboardShortcutsModal';
 import NewComposition from './NewComposition/NewComposition';
+import {NoRegisterRoot} from './NoRegisterRoot';
 import {UpdateModal} from './UpdateModal/UpdateModal';
 
 const background: React.CSSProperties = {
@@ -203,7 +204,11 @@ export const Editor: React.FC = () => {
 																<div style={background}>
 																	{Root === null ? null : <Root />}
 																	<FramePersistor />
-																	<EditorContent />
+																	{Root === null ? (
+																		<NoRegisterRoot />
+																	) : (
+																		<EditorContent />
+																	)}
 																	<GlobalKeybindings />
 																</div>
 																{modalContextType &&
