@@ -25,17 +25,20 @@ import {Homepage} from './homepage/homepage';
 
 Internals.CSSUtils.injectCSS(Internals.CSSUtils.makeDefaultCSS(null, '#fff'));
 
-const Root = Internals.getRoot();
-
-if (!Root) {
-	throw new Error('Root has not been registered.');
-}
-
 const handle = delayRender('Loading root component');
 
 const GetVideo: React.FC<{state: BundleState}> = ({state}) => {
 	const video = Internals.useVideo();
 	const compositions = useContext(Internals.CompositionManager);
+	const [Root, setRoot] = useState<React.FC | null>(() => Internals.getRoot());
+	const [waitForRoot] = useState(() => {
+		if (Root) {
+			return 0;
+		}
+
+		return delayRender('Waiting for registerRoot()');
+	});
+
 	const [Component, setComponent] = useState<ComponentType<unknown> | null>(
 		null
 	);
@@ -85,6 +88,12 @@ const GetVideo: React.FC<{state: BundleState}> = ({state}) => {
 	}, [Component, state.type]);
 
 	useEffect(() => {
+		if (Root) {
+			continueRender(waitForRoot);
+		}
+	}, [Component, Root, video, waitForRoot]);
+
+	useEffect(() => {
 		if (!video) {
 			return;
 		}
@@ -100,27 +109,47 @@ const GetVideo: React.FC<{state: BundleState}> = ({state}) => {
 		};
 	}, [video]);
 
-	if (!video) {
+	useEffect(() => {
+		if (Root) {
+			return;
+		}
+
+		const cleanup = Internals.waitForRoot((NewRoot) => {
+			setRoot(() => NewRoot);
+		});
+
+		return () => cleanup();
+	}, [Root, waitForRoot]);
+
+	if (!Root) {
 		return null;
 	}
 
+	if (!video) {
+		return <Root />;
+	}
+
 	return (
-		<div
-			ref={portalContainer}
-			id="remotion-canvas"
-			style={{
-				width: video.width,
-				height: video.height,
-				display: 'flex',
-				backgroundColor: 'transparent',
-			}}
-		/>
+		<>
+			<Root />
+			<div
+				ref={portalContainer}
+				id="remotion-canvas"
+				style={{
+					width: video.width,
+					height: video.height,
+					display: 'flex',
+					backgroundColor: 'transparent',
+				}}
+			/>
+		</>
 	);
 };
 
 const videoContainer = document.getElementById(
 	'video-container'
 ) as HTMLElement;
+
 const explainerContainer = document.getElementById(
 	'explainer-container'
 ) as HTMLElement;
@@ -139,7 +168,6 @@ const renderContent = () => {
 	if (bundleMode.type === 'composition' || bundleMode.type === 'evaluation') {
 		const markup = (
 			<Internals.RemotionRoot>
-				<Root />
 				<GetVideo state={bundleMode} />
 			</Internals.RemotionRoot>
 		);
