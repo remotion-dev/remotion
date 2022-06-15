@@ -46,7 +46,7 @@ export const serveStatic = async function (
 	const exists = existsSync(path);
 	if (!exists) {
 		res.writeHead(404);
-		res.write('Not found');
+		res.write(`${path} does not exist`);
 		res.end();
 		return;
 	}

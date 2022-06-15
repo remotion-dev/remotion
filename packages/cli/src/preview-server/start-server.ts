@@ -43,7 +43,8 @@ export const startServer = async (
 
 	const compiler = webpack(config);
 
-	const hash = `/static-${crypto.randomBytes(6).toString('hex')}`;
+	const hashPrefix = '/static-';
+	const hash = `${hashPrefix}${crypto.randomBytes(6).toString('hex')}`;
 
 	const wdmMiddleware = wdm(compiler);
 	const whm = webpackHotMiddleware(compiler);
@@ -62,7 +63,7 @@ export const startServer = async (
 				});
 			})
 			.then(() => {
-				handleRoutes(hash, request, response);
+				handleRoutes({hash, hashPrefix, request, response});
 			})
 			.catch((err) => {
 				response.setHeader('content-type', 'application/json');

@@ -23,6 +23,13 @@ const handleUpdate = async (_: IncomingMessage, response: ServerResponse) => {
 
 const editorGuess = guessEditor();
 
+const static404 = (response: ServerResponse) => {
+	response.writeHead(404);
+	response.end(
+		'The static/ prefix has been changed, this URL is no longer valid.'
+	);
+};
+
 const handleFallback = async (
 	hash: string,
 	_: IncomingMessage,
@@ -128,11 +135,17 @@ const handleFavicon = (_: IncomingMessage, response: ServerResponse) => {
 	readStream.pipe(response);
 };
 
-export const handleRoutes = (
-	hash: string,
-	request: IncomingMessage,
-	response: ServerResponse
-) => {
+export const handleRoutes = ({
+	hash,
+	hashPrefix,
+	request,
+	response,
+}: {
+	hash: string;
+	hashPrefix: string;
+	request: IncomingMessage;
+	response: ServerResponse;
+}) => {
 	const url = new URL(request.url as string, 'http://localhost');
 
 	if (url.pathname === '/api/update') {
@@ -158,6 +171,10 @@ export const handleRoutes = (
 	if (url.pathname.startsWith(hash)) {
 		const root = path.join(process.cwd(), 'public');
 		return serveStatic(root, hash, request, response);
+	}
+
+	if (url.pathname.startsWith(hashPrefix)) {
+		return static404(response);
 	}
 
 	return handleFallback(hash, request, response);
