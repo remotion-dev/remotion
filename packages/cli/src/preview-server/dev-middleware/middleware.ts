@@ -2,12 +2,7 @@ import {RenderInternals} from '@remotion/renderer';
 import {ReadStream} from 'fs';
 import {IncomingMessage, ServerResponse} from 'http';
 import path from 'path';
-import {
-	getHeaderFromRequest,
-	getHeaderFromResponse,
-	send,
-	setHeaderForResponse,
-} from './compatible-api';
+import {send, setHeaderForResponse} from './compatible-api';
 import {parseRange} from './range-parser';
 import {ready} from './ready';
 import {DevMiddlewareContext} from './types';
@@ -194,7 +189,7 @@ export function middleware(context: DevMiddlewareContext) {
 			 * @type {{key: string, value: string | number}[]}
 			 */
 
-			if (!getHeaderFromResponse(res, 'Content-Type')) {
+			if (!res.getHeader('Content-Type')) {
 				// content-type name(like application/javascript; charset=utf-8) or false
 				const contentType = RenderInternals.mime.contentType(
 					path.extname(filename)
@@ -207,11 +202,13 @@ export function middleware(context: DevMiddlewareContext) {
 				}
 			}
 
-			if (!getHeaderFromResponse(res, 'Accept-Ranges')) {
+			if (!res.getHeader('Accept-Ranges')) {
+				res.setHeader('Accept-Ranges', 'bytes');
+
 				setHeaderForResponse(res, 'Accept-Ranges', 'bytes');
 			}
 
-			const rangeHeader = getHeaderFromRequest(req, 'range');
+			const rangeHeader = req.headers.range;
 
 			let start;
 			let end;
