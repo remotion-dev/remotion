@@ -41,7 +41,7 @@ export const MyVideo = () => {
 ```
 
 :::note
-During render, Remotion will download the video to include it's audio in the output. If you don't need the audio, you can add the `muted` prop.
+During render, Remotion will download the video to include its audio in the output. If you don't need the audio, you can add the `muted` prop.
 :::
 
 ## Trim video
