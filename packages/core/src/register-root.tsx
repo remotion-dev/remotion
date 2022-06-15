@@ -19,7 +19,12 @@ export const getRoot = () => {
 	return Root;
 };
 
-export const waitForRoot = (fn: (comp: React.FC) => void) => {
+export const waitForRoot = (fn: (comp: React.FC) => void): (() => void) => {
+	if (Root) {
+		fn(Root);
+		return () => undefined;
+	}
+
 	listeners.push(fn);
 
 	return () => {

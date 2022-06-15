@@ -166,9 +166,8 @@ export const Editor: React.FC = () => {
 
 		const cleanup = Internals.waitForRoot((NewRoot) => {
 			setRoot(() => NewRoot);
+			continueRender(waitForRoot);
 		});
-
-		continueRender(waitForRoot);
 
 		return () => cleanup();
 	}, [Root, waitForRoot]);
