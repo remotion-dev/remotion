@@ -1,11 +1,4 @@
-import React, {
-	ComponentType,
-	useCallback,
-	useContext,
-	useEffect,
-	useRef,
-	useState,
-} from 'react';
+import React, {useContext, useEffect, useRef, useState} from 'react';
 import type {render, unmountComponentAtNode} from 'react-dom';
 // In React 18, you should use createRoot() from "react-dom/client".
 // In React 18, you should use render from "react-dom".
@@ -25,18 +18,18 @@ import {Homepage} from './homepage/homepage';
 
 Internals.CSSUtils.injectCSS(Internals.CSSUtils.makeDefaultCSS(null, '#fff'));
 
-const handle = delayRender('Loading root component');
-
 const GetVideo: React.FC<{state: BundleState}> = ({state}) => {
 	const video = Internals.useVideo();
 	const compositions = useContext(Internals.CompositionManager);
-	const [Root, setRoot] = useState<React.FC | null>(() => Internals.getRoot());
-
-	const [Component, setComponent] = useState<ComponentType<unknown> | null>(
-		null
-	);
 
 	const portalContainer = useRef<HTMLDivElement>(null);
+	const [handle] = useState(() =>
+		delayRender('Wait for Composition' + JSON.stringify(state))
+	);
+
+	useEffect(() => {
+		return () => continueRender(handle);
+	}, [handle]);
 
 	useEffect(() => {
 		if (state.type !== 'composition') {
@@ -57,28 +50,13 @@ const GetVideo: React.FC<{state: BundleState}> = ({state}) => {
 		}
 	}, [compositions, compositions.compositions, state, video]);
 
-	const fetchComponent = useCallback(() => {
-		if (!video) {
-			throw new Error('Expected to have video');
-		}
-
-		const Comp = video.component;
-		setComponent(Comp);
-	}, [video]);
-
-	useEffect(() => {
-		if (video) {
-			fetchComponent();
-		}
-	}, [fetchComponent, video]);
-
 	useEffect(() => {
 		if (state.type === 'evaluation') {
 			continueRender(handle);
-		} else if (Component) {
+		} else if (video) {
 			continueRender(handle);
 		}
-	}, [Component, state.type]);
+	}, [handle, state.type, video]);
 
 	useEffect(() => {
 		if (!video) {
@@ -96,40 +74,21 @@ const GetVideo: React.FC<{state: BundleState}> = ({state}) => {
 		};
 	}, [video]);
 
-	useEffect(() => {
-		if (Root) {
-			return;
-		}
-
-		const cleanup = Internals.waitForRoot((NewRoot) => {
-			setRoot(() => NewRoot);
-		});
-
-		return () => cleanup();
-	}, [Root]);
-
-	if (!Root) {
+	if (!video) {
 		return null;
 	}
 
-	if (!video) {
-		return <Root />;
-	}
-
 	return (
-		<>
-			<Root />
-			<div
-				ref={portalContainer}
-				id="remotion-canvas"
-				style={{
-					width: video.width,
-					height: video.height,
-					display: 'flex',
-					backgroundColor: 'transparent',
-				}}
-			/>
-		</>
+		<div
+			ref={portalContainer}
+			id="remotion-canvas"
+			style={{
+				width: video.width,
+				height: video.height,
+				display: 'flex',
+				backgroundColor: 'transparent',
+			}}
+		/>
 	);
 };
 
@@ -149,12 +108,41 @@ let cleanupExplainerContainer = () => {
 	explainerContainer.innerHTML = '';
 };
 
+const WaitForRoot: React.FC = () => {
+	const [handle] = useState(() => delayRender('Loading root component'));
+	const [Root, setRoot] = useState<React.FC | null>(() => Internals.getRoot());
+
+	useEffect(() => {
+		return () => continueRender(handle);
+	}, [handle]);
+
+	useEffect(() => {
+		if (Root) {
+			continueRender(handle);
+			return;
+		}
+
+		const cleanup = Internals.waitForRoot((NewRoot) => {
+			setRoot(() => NewRoot);
+		});
+
+		return () => cleanup();
+	}, [Root, handle]);
+
+	if (Root === null) {
+		return null;
+	}
+
+	return <Root />;
+};
+
 const renderContent = () => {
 	const bundleMode = getBundleMode();
 
 	if (bundleMode.type === 'composition' || bundleMode.type === 'evaluation') {
 		const markup = (
 			<Internals.RemotionRoot>
+				<WaitForRoot />
 				<GetVideo state={bundleMode} />
 			</Internals.RemotionRoot>
 		);
