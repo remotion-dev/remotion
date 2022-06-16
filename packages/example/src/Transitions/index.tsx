@@ -1,10 +1,7 @@
 import {TransitionSeries} from '@remotion/transitions';
-import {AbsoluteFill, useCurrentFrame, useVideoConfig} from 'remotion';
+import {AbsoluteFill} from 'remotion';
 
 export const BasicTransition: React.FC = () => {
-	const frame = useCurrentFrame();
-	const {fps} = useVideoConfig();
-
 	return (
 		<TransitionSeries>
 			<TransitionSeries.Sequence durationInFrames={90}>
