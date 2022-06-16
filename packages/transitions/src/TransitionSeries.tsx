@@ -5,7 +5,6 @@ import {
 	Sequence,
 	SequenceProps,
 	spring,
-	SpringConfig,
 	useCurrentFrame,
 	useVideoConfig,
 } from 'remotion';
@@ -26,10 +25,6 @@ type SeriesSequenceProps = PropsWithChildren<
 const SeriesSequence = ({children}: SeriesSequenceProps) => {
 	// eslint-disable-next-line react/jsx-no-useless-fragment
 	return <>{children}</>;
-};
-
-const springConfig: Partial<SpringConfig> = {
-	damping: 200,
 };
 
 const SPRING_THRESHOLD = 0.001;
