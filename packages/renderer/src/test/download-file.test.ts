@@ -5,7 +5,7 @@ import {downloadFile} from '../assets/download-file';
 
 test('Should be able to download file', async () => {
 	const output = path.join(tmpdir(), 'tmp.html');
-	await downloadFile('https://example.com/', output, () => undefined);
+	await downloadFile('https://example.net/', output, () => undefined);
 	const data = await fs.promises.readFile(output, 'utf8');
 
 	expect(data).toMatch(

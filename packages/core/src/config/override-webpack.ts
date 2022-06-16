@@ -1,12 +1,6 @@
 import {Configuration} from 'webpack';
 
-export type WebpackConfiguration = Configuration & {
-	devServer: {
-		contentBase: string;
-		historyApiFallback: boolean;
-		hot: true;
-	};
-};
+export type WebpackConfiguration = Configuration;
 
 export type WebpackOverrideFn = (
 	currentConfiguration: WebpackConfiguration

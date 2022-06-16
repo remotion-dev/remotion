@@ -1,4 +1,3 @@
-import path from 'path';
 import ReactDOM from 'react-dom';
 import {Internals, WebpackConfiguration, WebpackOverrideFn} from 'remotion';
 import webpack, {ProgressPlugin} from 'webpack';
@@ -43,6 +42,7 @@ export const webpackConfig = ({
 	inputProps,
 	envVariables,
 	maxTimelineTracks,
+	entryPoints,
 }: {
 	entry: string;
 	userDefinedComponent: string;
@@ -54,6 +54,7 @@ export const webpackConfig = ({
 	inputProps: object;
 	envVariables: Record<string, string>;
 	maxTimelineTracks: number;
+	entryPoints: string[];
 }): WebpackConfiguration => {
 	return webpackOverride({
 		optimization: {
@@ -83,14 +84,9 @@ export const webpackConfig = ({
 				: 'cheap-module-source-map',
 		entry: [
 			require.resolve('./setup-environment'),
-			environment === 'development'
-				? require.resolve('./hot-middleware/client')
-				: null,
+			...entryPoints,
 			environment === 'development'
 				? require.resolve('./fast-refresh/runtime.js')
-				: null,
-			environment === 'development'
-				? require.resolve('./error-overlay/entry-basic.js')
 				: null,
 
 			userDefinedComponent,
@@ -125,11 +121,6 @@ export const webpackConfig = ({
 			devtoolModuleFilenameTemplate: '[resource-path]',
 			assetModuleFilename:
 				environment === 'development' ? '[path][name][ext]' : '[hash][ext]',
-		},
-		devServer: {
-			contentBase: path.resolve(__dirname, '..', 'web'),
-			historyApiFallback: true,
-			hot: true,
 		},
 		resolve: {
 			extensions: ['.ts', '.tsx', '.js', '.jsx'],

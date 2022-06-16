@@ -1,3 +1,5 @@
+import execa from 'execa';
+import mime from 'mime-types';
 import {downloadFile} from './assets/download-file';
 import {deleteDirectory} from './delete-directory';
 import {ensureOutputDirectory} from './ensure-output-directory';
@@ -14,10 +16,12 @@ import {getFileExtensionFromCodec} from './get-extension-from-codec';
 import {getExtensionOfFilename} from './get-extension-of-filename';
 import {getRealFrameRange} from './get-frame-to-render';
 import {ensureLocalBrowser} from './get-local-browser-executable';
+import {getDesiredPort} from './get-port';
 import {isServeUrl} from './is-serve-url';
 import {normalizeServeUrl} from './normalize-serve-url';
 import {killAllBrowsers} from './open-browser';
 import {parseStack} from './parse-browser-error-stack';
+import {isPathInside} from './serve-handler/is-path-inside';
 import {serveStatic} from './serve-static';
 import {spawnFfmpeg} from './stitch-frames-to-video';
 import {tmpDir} from './tmp-dir';
@@ -73,4 +77,8 @@ export const RenderInternals = {
 	SymbolicateableError,
 	getDurationFromFrameRange,
 	getExtensionOfFilename,
+	getDesiredPort,
+	mime,
+	isPathInside,
+	execa,
 };

@@ -150,7 +150,7 @@ export const App: React.FC = () => {
 ```
 
 :::tip
-You need to be vary of the browser's autoplay policy. In most browsers, you cannot autoplay an audio file or a video with audio.
+You need to be wary of the browser's autoplay policy. In most browsers, you cannot autoplay an audio file or a video with audio.
 :::
 
 ## Programmatically control the player

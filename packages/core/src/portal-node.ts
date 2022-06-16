@@ -9,6 +9,15 @@ export const portalNode = () => {
 		}
 
 		_portalNode = document.createElement('div');
+		_portalNode.style.position = 'absolute';
+		_portalNode.style.top = '0px';
+		_portalNode.style.left = '0px';
+		_portalNode.style.right = '0px';
+		_portalNode.style.bottom = '0px';
+		_portalNode.style.width = '100%';
+		_portalNode.style.height = '100%';
+		_portalNode.style.display = 'flex';
+		_portalNode.style.flexDirection = 'column';
 	}
 
 	return _portalNode;
