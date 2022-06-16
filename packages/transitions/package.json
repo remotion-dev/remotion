@@ -20,7 +20,7 @@
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
 	"dependencies": {
-		"remotion": "3.0.18"
+		"remotion": "3.0.19"
 	},
 	"devDependencies": {
 		"@jonny/eslint-config": "3.0.259",
@@ -28,7 +28,7 @@
 		"prettier": "^2.0.5",
 		"prettier-plugin-organize-imports": "^2.3.4",
 		"typescript": "^4.5.5",
-		"remotion": "3.0.18",
+		"remotion": "3.0.19",
 		"react": "18.0.0",
 		"react-dom": "18.0.0",
 		"@types/react": "^18.0.12",
