@@ -8,6 +8,7 @@ import {SidebarCollapsedState, SidebarContext} from '../state/sidebar';
 import {timelineRef} from '../state/timeline-ref';
 import {Row} from './layout';
 import {Menu, MenuId, MenuItem} from './Menu/MenuItem';
+import {MenuBuildIndicator} from './MenuBuildIndicator';
 import {commonPreviewSizes, getPreviewSizeLabel} from './SizeSelector';
 import {inOutHandles} from './TimelineInOutToggle';
 import {UpdateCheck} from './UpdateCheck';
@@ -26,11 +27,6 @@ const row: React.CSSProperties = {
 
 const flex: React.CSSProperties = {
 	flex: 1,
-};
-
-const cwd: React.CSSProperties = {
-	fontSize: 13,
-	opacity: 0.8,
 };
 
 type Structure = Menu[];
@@ -555,9 +551,7 @@ export const MenuToolbar: React.FC = () => {
 			})}
 			<UpdateCheck />
 			<div style={flex} />
-			<div style={cwd} title={window.remotion_cwd}>
-				{window.remotion_projectName}
-			</div>
+			<MenuBuildIndicator />
 		</Row>
 	);
 };

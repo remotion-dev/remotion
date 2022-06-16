@@ -20,6 +20,8 @@ declare global {
 		remotion_collectAssets: () => TAsset[];
 		remotion_isPlayer: boolean;
 		remotion_imported: boolean;
+		remotion_isBuilding: undefined | (() => void);
+		remotion_finishedBuilding: undefined | (() => void);
 		siteVersion: '3';
 	}
 }
