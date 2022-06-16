@@ -1,10 +1,5 @@
 import React from 'react';
-import {SpringConfig} from 'remotion';
-
-export type TransitionTiming = {
-	type: 'spring';
-	config: Partial<SpringConfig>;
-};
+import {TransitionTiming} from './timing';
 
 export type TransitionSeriesTransitionProps = {
 	timing: TransitionTiming;

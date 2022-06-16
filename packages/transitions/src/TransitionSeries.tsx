@@ -1,7 +1,6 @@
 import {Children, FC, PropsWithChildren, useMemo} from 'react';
 import {
 	Internals,
-	measureSpring,
 	Sequence,
 	SequenceProps,
 	spring,
@@ -9,6 +8,7 @@ import {
 	useVideoConfig,
 } from 'remotion';
 import {flattenChildren} from './flatten-children';
+import {getTransitionDuration, SPRING_THRESHOLD} from './timing';
 import {
 	TransitionSeriesTransition,
 	TransitionSeriesTransitionProps,
@@ -26,8 +26,6 @@ const SeriesSequence = ({children}: SeriesSequenceProps) => {
 	// eslint-disable-next-line react/jsx-no-useless-fragment
 	return <>{children}</>;
 };
-
-const SPRING_THRESHOLD = 0.001;
 
 export const springWithRoundUpIfThreshold: typeof spring = (args) => {
 	if (args.to || args.from) {
@@ -161,11 +159,7 @@ const TransitionSeries: FC<{
 					throw new TypeError('only spring supported');
 				}
 
-				duration = measureSpring({
-					fps,
-					config: prev.props.timing.config,
-					threshold: SPRING_THRESHOLD,
-				});
+				duration = getTransitionDuration(prev.props.timing, SPRING_THRESHOLD);
 				transitionOffsets -= duration;
 			}
 
@@ -183,71 +177,47 @@ const TransitionSeries: FC<{
 				</Sequence>
 			);
 
-			if (next && prev) {
+			const nextProgress = next
+				? springWithRoundUpIfThreshold({
+						fps,
+						frame:
+							frame -
+							actualStartFrame -
+							durationInFrames +
+							getTransitionDuration(next.props.timing, fps),
+						config: next.props.timing.config,
+				  })
+				: null;
+
+			const prevProgress = prev
+				? springWithRoundUpIfThreshold({
+						fps,
+						frame: frame - actualStartFrame,
+						config: prev.props.timing.config,
+				  })
+				: null;
+
+			if (nextProgress !== null && prevProgress !== null) {
 				return (
-					<TriangleEntrace
-						type="out"
-						progress={springWithRoundUpIfThreshold({
-							fps,
-							frame:
-								frame -
-								actualStartFrame -
-								durationInFrames +
-								measureSpring({
-									fps,
-									config: next.props.timing.config,
-									threshold: SPRING_THRESHOLD,
-								}),
-							config: next.props.timing.config,
-						})}
-					>
-						<TriangleEntrace
-							type="in"
-							progress={springWithRoundUpIfThreshold({
-								fps,
-								frame: frame - actualStartFrame,
-								config: prev.props.timing.config,
-							})}
-						>
+					<TriangleEntrace type="out" progress={nextProgress}>
+						<TriangleEntrace type="in" progress={prevProgress}>
 							{inner}
 						</TriangleEntrace>
 					</TriangleEntrace>
 				);
 			}
 
-			if (prev) {
+			if (prevProgress !== null) {
 				return (
-					<TriangleEntrace
-						type="in"
-						progress={springWithRoundUpIfThreshold({
-							fps,
-							frame: frame - actualStartFrame,
-							config: prev.props.timing.config,
-						})}
-					>
+					<TriangleEntrace type="in" progress={prevProgress}>
 						{inner}
 					</TriangleEntrace>
 				);
 			}
 
-			if (next) {
+			if (nextProgress !== null) {
 				return (
-					<TriangleEntrace
-						type="out"
-						progress={springWithRoundUpIfThreshold({
-							fps,
-							frame:
-								frame -
-								actualStartFrame -
-								durationInFrames +
-								measureSpring({
-									fps,
-									config: next.props.timing.config,
-									threshold: SPRING_THRESHOLD,
-								}),
-							config: next.props.timing.config,
-						})}
-					>
+					<TriangleEntrace type="out" progress={nextProgress}>
 						{inner}
 					</TriangleEntrace>
 				);
