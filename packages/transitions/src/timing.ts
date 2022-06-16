@@ -1,4 +1,4 @@
-import {measureSpring, SpringConfig} from 'remotion';
+import {measureSpring, spring, SpringConfig} from 'remotion';
 
 export type TransitionTiming = {
 	type: 'spring';
@@ -20,4 +20,34 @@ export const getTransitionDuration = (
 	}
 
 	throw new TypeError('Unsupported transition type: ' + timing.type);
+};
+
+export const springWithRoundUpIfThreshold: typeof spring = (args) => {
+	if (args.to || args.from) {
+		throw new Error(
+			'to / from values are not supported by springWithRoundUpIfThreshold'
+		);
+	}
+
+	const spr = spring(args);
+
+	if (spr > 1 - SPRING_THRESHOLD) {
+		return 1;
+	}
+
+	return spr;
+};
+
+export const getProgress = (
+	frame: number,
+	fps: number,
+	timing: TransitionTiming
+) => {
+	if (timing.type === 'spring') {
+		return springWithRoundUpIfThreshold({
+			fps,
+			frame,
+			config: timing.config,
+		});
+	}
 };

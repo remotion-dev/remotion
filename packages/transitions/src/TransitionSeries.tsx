@@ -3,12 +3,15 @@ import {
 	Internals,
 	Sequence,
 	SequenceProps,
-	spring,
 	useCurrentFrame,
 	useVideoConfig,
 } from 'remotion';
 import {flattenChildren} from './flatten-children';
-import {getTransitionDuration, SPRING_THRESHOLD} from './timing';
+import {
+	getTransitionDuration,
+	springWithRoundUpIfThreshold,
+	SPRING_THRESHOLD,
+} from './timing';
 import {
 	TransitionSeriesTransition,
 	TransitionSeriesTransitionProps,
@@ -25,22 +28,6 @@ type SeriesSequenceProps = PropsWithChildren<
 const SeriesSequence = ({children}: SeriesSequenceProps) => {
 	// eslint-disable-next-line react/jsx-no-useless-fragment
 	return <>{children}</>;
-};
-
-export const springWithRoundUpIfThreshold: typeof spring = (args) => {
-	if (args.to || args.from) {
-		throw new Error(
-			'to / from values are not supported by springWithRoundUpIfThreshold'
-		);
-	}
-
-	const spr = spring(args);
-
-	if (spr > 1 - SPRING_THRESHOLD) {
-		return 1;
-	}
-
-	return spr;
 };
 
 type TransitionType = {
@@ -189,6 +176,7 @@ const TransitionSeries: FC<{
 				  })
 				: null;
 
+			// TODO: getProgress
 			const prevProgress = prev
 				? springWithRoundUpIfThreshold({
 						fps,
