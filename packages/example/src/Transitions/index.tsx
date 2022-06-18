@@ -9,8 +9,14 @@ export const BasicTransition: React.FC = () => {
 					style={{
 						backgroundColor: 'orange',
 						opacity: 0.5,
+						justifyContent: 'center',
+						alignItems: 'center',
+						fontSize: 200,
+						color: 'white',
 					}}
-				/>
+				>
+					A
+				</AbsoluteFill>
 			</TransitionSeries.Sequence>
 			<TransitionSeries.Transition
 				timing={{
@@ -23,8 +29,14 @@ export const BasicTransition: React.FC = () => {
 					style={{
 						backgroundColor: 'green',
 						opacity: 0.5,
+						justifyContent: 'center',
+						alignItems: 'center',
+						fontSize: 200,
+						color: 'white',
 					}}
-				/>
+				>
+					B
+				</AbsoluteFill>
 			</TransitionSeries.Sequence>
 			<TransitionSeries.Transition
 				timing={{
