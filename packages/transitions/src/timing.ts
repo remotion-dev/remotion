@@ -50,11 +50,15 @@ export const springWithRoundUpIfThreshold: typeof spring = (args) => {
 	return spr;
 };
 
-export const getProgress = (
-	frame: number,
-	fps: number,
-	timing: TransitionTiming
-): number => {
+export const getProgress = ({
+	frame,
+	fps,
+	timing,
+}: {
+	frame: number;
+	fps: number;
+	timing: TransitionTiming;
+}): number => {
 	if (timing.type === 'spring') {
 		return springWithRoundUpIfThreshold({
 			fps,
