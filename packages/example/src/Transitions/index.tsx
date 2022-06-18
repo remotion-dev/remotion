@@ -14,46 +14,14 @@ export const BasicTransition: React.FC = () => {
 			</TransitionSeries.Sequence>
 			<TransitionSeries.Transition
 				timing={{
-					type: 'spring',
-					config: {
-						damping: 200,
-					},
+					type: 'timing',
+					duration: 30,
 				}}
 			/>
 			<TransitionSeries.Sequence durationInFrames={90}>
 				<AbsoluteFill
 					style={{
 						backgroundColor: 'green',
-						opacity: 0.5,
-					}}
-				/>
-			</TransitionSeries.Sequence>
-			<TransitionSeries.Transition
-				timing={{
-					type: 'spring',
-					config: {},
-				}}
-			/>
-			<TransitionSeries.Sequence durationInFrames={50}>
-				<AbsoluteFill
-					style={{
-						backgroundColor: 'red',
-						opacity: 0.5,
-					}}
-				/>
-			</TransitionSeries.Sequence>
-			<TransitionSeries.Transition
-				timing={{
-					type: 'spring',
-					config: {
-						mass: 3,
-					},
-				}}
-			/>
-			<TransitionSeries.Sequence durationInFrames={900}>
-				<AbsoluteFill
-					style={{
-						backgroundColor: 'yellow',
 						opacity: 0.5,
 					}}
 				/>
