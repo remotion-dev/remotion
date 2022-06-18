@@ -19,6 +19,9 @@ export const BasicTransition: React.FC = () => {
 				</AbsoluteFill>
 			</TransitionSeries.Sequence>
 			<TransitionSeries.Transition
+				preset={{
+					type: 'triangle',
+				}}
 				timing={{
 					type: 'timing',
 					duration: 30,
@@ -39,6 +42,9 @@ export const BasicTransition: React.FC = () => {
 				</AbsoluteFill>
 			</TransitionSeries.Sequence>
 			<TransitionSeries.Transition
+				preset={{
+					type: 'slide',
+				}}
 				timing={{
 					type: 'spring',
 					config: {},
@@ -49,8 +55,14 @@ export const BasicTransition: React.FC = () => {
 					style={{
 						backgroundColor: 'blue',
 						opacity: 0.5,
+						justifyContent: 'center',
+						alignItems: 'center',
+						fontSize: 200,
+						color: 'white',
 					}}
-				/>
+				>
+					C
+				</AbsoluteFill>
 			</TransitionSeries.Sequence>
 		</TransitionSeries>
 	);

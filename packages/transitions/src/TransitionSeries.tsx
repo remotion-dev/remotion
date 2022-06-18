@@ -7,12 +7,12 @@ import {
 	useVideoConfig,
 } from 'remotion';
 import {flattenChildren} from './flatten-children';
+import {GenericTransition} from './GenericTransition';
 import {getProgress, getTransitionDuration} from './timing';
 import {
 	TransitionSeriesTransition,
 	TransitionSeriesTransitionProps,
 } from './TransitionSeriesTransition';
-import {TriangleEntrace} from './Triangle';
 
 type SeriesSequenceProps = PropsWithChildren<
 	{
@@ -181,27 +181,43 @@ const TransitionSeries: FC<{
 
 			if (nextProgress !== null && prevProgress !== null) {
 				return (
-					<TriangleEntrace type="out" progress={nextProgress}>
-						<TriangleEntrace type="in" progress={prevProgress}>
+					<GenericTransition
+						preset={next?.props.preset!}
+						direction="out"
+						progress={nextProgress}
+					>
+						<GenericTransition
+							preset={prev?.props.preset!}
+							direction="in"
+							progress={prevProgress}
+						>
 							{inner}
-						</TriangleEntrace>
-					</TriangleEntrace>
+						</GenericTransition>
+					</GenericTransition>
 				);
 			}
 
 			if (prevProgress !== null) {
 				return (
-					<TriangleEntrace type="in" progress={prevProgress}>
+					<GenericTransition
+						preset={prev?.props.preset!}
+						direction="in"
+						progress={prevProgress}
+					>
 						{inner}
-					</TriangleEntrace>
+					</GenericTransition>
 				);
 			}
 
 			if (nextProgress !== null) {
 				return (
-					<TriangleEntrace type="out" progress={nextProgress}>
+					<GenericTransition
+						preset={next?.props.preset!}
+						direction="out"
+						progress={nextProgress}
+					>
 						{inner}
-					</TriangleEntrace>
+					</GenericTransition>
 				);
 			}
 

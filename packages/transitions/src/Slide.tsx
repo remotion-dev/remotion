@@ -2,7 +2,7 @@ import React, {useRef, useState} from 'react';
 import {AbsoluteFill, random} from 'remotion';
 import {TransitionDirection} from './transition-direction';
 
-export const TriangleTransition: React.FC<{
+export const SlideTransition: React.FC<{
 	progress: number;
 	children: React.ReactNode;
 	direction: TransitionDirection;
@@ -16,14 +16,16 @@ export const TriangleTransition: React.FC<{
 
 	const pathIn = `
 	M 0 0
-	L ${progressInDirection * width * 2} 0
-	L ${0} ${height * 2 * progressInDirection}
+	L ${progressInDirection * width} 0
+	L ${progressInDirection * width} ${height}
+	L ${0} ${height}
 	Z`;
 
 	const pathOut = `
 	M ${width} ${height}
-	L ${width - 2 * progressInDirection * width} ${height}
-	L ${width} ${height - 2 * progressInDirection * height}
+	L ${width - progressInDirection * width} ${height}
+	L ${width - progressInDirection * width} ${0}
+	L ${width} ${0}
 	Z
 	`;
 
