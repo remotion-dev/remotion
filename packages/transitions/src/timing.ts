@@ -8,6 +8,7 @@ export type TransitionTiming =
 	| {
 			type: 'timing';
 			duration: number;
+			easing?: ((input: number) => number) | undefined;
 	  };
 
 const SPRING_THRESHOLD = 0.001;
@@ -68,7 +69,10 @@ export const getProgress = ({
 	}
 
 	if (timing.type === 'timing') {
-		return interpolate(frame, [0, timing.duration - 1], [0, 1]);
+		return interpolate(frame, [0, timing.duration - 1], [0, 1], {
+			// TODO: Easing.bounce kind of weird?
+			easing: timing.easing ?? undefined,
+		});
 	}
 
 	throw new Error('timing not implemented');

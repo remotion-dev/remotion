@@ -26,6 +26,20 @@ export const BasicTransition: React.FC = () => {
 					}}
 				/>
 			</TransitionSeries.Sequence>
+			<TransitionSeries.Transition
+				timing={{
+					type: 'spring',
+					config: {},
+				}}
+			/>
+			<TransitionSeries.Sequence durationInFrames={90}>
+				<AbsoluteFill
+					style={{
+						backgroundColor: 'blue',
+						opacity: 0.5,
+					}}
+				/>
+			</TransitionSeries.Sequence>
 		</TransitionSeries>
 	);
 };
