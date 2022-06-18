@@ -160,11 +160,23 @@ const TransitionSeries: FC<{
 			);
 
 			const nextProgress = next
-				? getProgress(frame, fps, next.props.timing)
+				? getProgress({
+						frame:
+							frame -
+							actualStartFrame -
+							durationInFrames +
+							getTransitionDuration({timing: next.props.timing, fps}),
+						fps,
+						timing: next.props.timing,
+				  })
 				: null;
 
 			const prevProgress = prev
-				? getProgress(frame, fps, prev.props.timing)
+				? getProgress({
+						frame: frame - actualStartFrame,
+						fps,
+						timing: prev.props.timing,
+				  })
 				: null;
 
 			if (nextProgress !== null && prevProgress !== null) {
