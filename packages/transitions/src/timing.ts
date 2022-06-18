@@ -5,12 +5,15 @@ export type TransitionTiming = {
 	config: Partial<SpringConfig>;
 };
 
-export const SPRING_THRESHOLD = 0.001;
+const SPRING_THRESHOLD = 0.001;
 
-export const getTransitionDuration = (
-	timing: TransitionTiming,
-	fps: number
-) => {
+export const getTransitionDuration = ({
+	timing,
+	fps,
+}: {
+	timing: TransitionTiming;
+	fps: number;
+}) => {
 	if (timing.type === 'spring') {
 		return measureSpring({
 			fps,
