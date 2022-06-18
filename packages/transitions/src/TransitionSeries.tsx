@@ -7,11 +7,7 @@ import {
 	useVideoConfig,
 } from 'remotion';
 import {flattenChildren} from './flatten-children';
-import {
-	getTransitionDuration,
-	springWithRoundUpIfThreshold,
-	SPRING_THRESHOLD,
-} from './timing';
+import {getTransitionDuration, springWithRoundUpIfThreshold} from './timing';
 import {
 	TransitionSeriesTransition,
 	TransitionSeriesTransitionProps,
@@ -146,7 +142,10 @@ const TransitionSeries: FC<{
 					throw new TypeError('only spring supported');
 				}
 
-				duration = getTransitionDuration(prev.props.timing, SPRING_THRESHOLD);
+				duration = getTransitionDuration({
+					timing: prev.props.timing,
+					fps,
+				});
 				transitionOffsets -= duration;
 			}
 
@@ -171,7 +170,7 @@ const TransitionSeries: FC<{
 							frame -
 							actualStartFrame -
 							durationInFrames +
-							getTransitionDuration(next.props.timing, fps),
+							getTransitionDuration({timing: next.props.timing, fps}),
 						config: next.props.timing.config,
 				  })
 				: null;
