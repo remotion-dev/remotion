@@ -792,10 +792,10 @@ importers:
       prettier-plugin-organize-imports: ^2.3.4
       react: 18.0.0
       react-dom: 18.0.0
-      remotion: 3.0.18
+      remotion: 3.0.19
       typescript: ^4.5.5
     dependencies:
-      remotion: 3.0.18_react-dom@18.0.0+react@18.0.0
+      remotion: link:../core
     devDependencies:
       '@jonny/eslint-config': 3.0.259_eslint@8.13.0+typescript@4.7.2
       '@types/react': 18.0.12
@@ -17370,16 +17370,6 @@ packages:
     dependencies:
       textr: 0.3.0
       unist-util-visit: 1.4.1
-    dev: false
-
-  /remotion/3.0.18_react-dom@18.0.0+react@18.0.0:
-    resolution: {integrity: sha512-/gEikRwD3j8vSvfvu4ckKHxRbBD414l2uvo7W8KZ1sEjqb17t5VARcHZ0R15oizk0MmvmO46sucfp5s4Qf6U8Q==}
-    peerDependencies:
-      react: '>=16.8.0'
-      react-dom: '>=16.8.0'
-    dependencies:
-      react: 18.0.0
-      react-dom: 18.0.0_react@18.0.0
     dev: false
 
   /renderkid/3.0.0:
