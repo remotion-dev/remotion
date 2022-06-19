@@ -20,6 +20,7 @@ export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
 	playbackRate,
 	src,
 	muted,
+	style,
 	...props
 }) => {
 	const absoluteFrame = useAbsoluteCurrentFrame();
@@ -120,5 +121,12 @@ export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
 			[onError]
 		);
 
-	return <Img src={actualSrc} {...props} onError={onErr} />;
+	const actualStyle: React.CSSProperties = useMemo(() => {
+		return {
+			objectFit: 'contain',
+			...(style ?? {}),
+		};
+	}, [style]);
+
+	return <Img src={actualSrc} style={actualStyle} {...props} onError={onErr} />;
 };
