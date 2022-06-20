@@ -5,7 +5,7 @@ sidebar_label: render
 
 import {AngleChangelog} from '../../components/AngleChangelog';
 
-Render a video based on the entry point, the composition ID and save it to the output location.
+Render a video or audio based on the entry point, the composition ID and save it to the output location.
 
 ```bash
 npx remotion render <entry-file> <composition-id> <output-location>
@@ -49,7 +49,7 @@ Specify a location for a dotenv file. Default `.env`. Available in v2.2 and late
 
 ### `--overwrite`
 
-[Write to output even if file already exists.](/docs/config#setoverwriteoutput)
+[Write to output even if file already exists.](/docs/config#setoverwriteoutput). This flag is enabled by default, use `--overwrite=false` to disable it.
 
 ### `--sequence`
 
