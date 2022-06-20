@@ -119,7 +119,19 @@ module.exports = {
         id: "cli/cli",
       },
       collapsed: true,
-      items: ["cli/preview", "cli/render", "cli/still"],
+      items: [
+        "cli/preview",
+        "cli/render",
+        "cli/still",
+        {
+          type: "link",
+          href: "/docs/lambda/cli",
+          label: "lambda ↗️",
+        },
+        "cli/compositions",
+        "cli/versions",
+        "cli/upgrade",
+      ],
     },
     "config",
     {
