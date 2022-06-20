@@ -9,8 +9,6 @@ import TabItem from '@theme/TabItem';
 
 ## 1. Install `@remotion/lambda`
 
-Check the newest version number in the [#lambda Discord channel](https://discord.gg/PzjkKS8S5S)
-
 <Tabs
 defaultValue="npm"
 values={[
@@ -58,10 +56,6 @@ Your package.json should look like the following:
   // ...
   "remotion": "3.0.0",
 ```
-
-:::note
-You can install `@remotion/lambda` in any Node.JS project to trigger a render, but remember to also install `react` and `react-dom` as they are peer dependencies.
-:::
 
 ## 2. Create role policy
 
