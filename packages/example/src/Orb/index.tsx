@@ -13,6 +13,7 @@ export const OrbScene: React.FC = () => {
 				stencil: false,
 				depth: false,
 			}}
+			onCreated={(state) => state.gl.setClearColor('white')}
 		>
 			<ambientLight intensity={1.5} color={0xffffff} />
 			<pointLight position={[10, 10, 0]} />

@@ -129,7 +129,7 @@ values={[
 }>
 <TabItem value="cli">
 
-Deploy a function by executing the following command:
+Deploy a function that can render videos into your AWS account by executing the following command:
 
 ```bash
 npx remotion lambda functions deploy
@@ -138,7 +138,7 @@ npx remotion lambda functions deploy
 </TabItem>
 <TabItem value="node">
 
-You can deploy a function using [`deployFunction()`](/docs/lambda/deployfunction).
+You can deploy a function that can render videos into your AWS account using [`deployFunction()`](/docs/lambda/deployfunction).
 
 ```ts twoslash
 // @module: ESNext
@@ -239,7 +239,7 @@ values={[
 }>
 <TabItem value="cli">
 
-Take the URL you received from the previous step and run the following command. Also pass in the ID of the composition you'd like to render.
+Take the URL you received from the step 8 - your "serve URL" - and run the following command. Also pass in the [ID of the composition](/docs/composition) you'd like to render.
 
 ```bash
 npx remotion lambda render <serve-url> <composition-id>
