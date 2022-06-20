@@ -63,7 +63,11 @@ Disk size in megabytes. Default: <DefaultEphemerealStorageInMb /> MB. See also: 
 
 ### `--timeout`
 
-Memory size in megabytes. Default: <DefaultTimeout /> seconds.
+Timeout of the Lambda function. Default: <DefaultTimeout /> seconds.
+
+:::info
+Not to be confused with the [`--timeout` flag when rendering which defines the timeout for `delayRender()`](/docs/cli/render#--timeout).
+:::
 
 ### `--architecture`
 
