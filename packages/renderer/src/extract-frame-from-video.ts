@@ -107,6 +107,7 @@ const getLastFrameOfVideoFastUnlimited = async (
 			`Could not determine the duration of ${src} using FFMPEG. The file is not supported.`
 		);
 	}
+
 	if (offset > 40) {
 		const last = await getLastFrameOfVideoSlow({
 			duration,
