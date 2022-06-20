@@ -1,15 +1,33 @@
 import React from 'react';
 
-let root: React.FC | null = null;
+let Root: React.FC | null = null;
+
+let listeners: ((comp: React.FC) => void)[] = [];
 
 export const registerRoot = (comp: React.FC) => {
-	if (root) {
+	if (Root) {
 		throw new Error('registerRoot() was called more than once.');
 	}
 
-	root = comp;
+	Root = comp;
+	listeners.forEach((l) => {
+		l(comp);
+	});
 };
 
 export const getRoot = () => {
-	return root;
+	return Root;
+};
+
+export const waitForRoot = (fn: (comp: React.FC) => void): (() => void) => {
+	if (Root) {
+		fn(Root);
+		return () => undefined;
+	}
+
+	listeners.push(fn);
+
+	return () => {
+		listeners = listeners.filter((l) => l !== fn);
+	};
 };

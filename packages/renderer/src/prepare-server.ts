@@ -1,3 +1,5 @@
+import {existsSync} from 'fs';
+import path from 'path';
 import {FfmpegExecutable} from 'remotion';
 import {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 import {isServeUrl} from './is-serve-url';
@@ -39,6 +41,15 @@ export const prepareServer = async ({
 			closeServer: () => closeProxy(),
 			offthreadPort,
 		});
+	}
+
+	// Check if the path has a `index.html` file
+	const indexFile = path.join(webpackConfigOrServeUrl, 'index.html');
+	const exists = existsSync(indexFile);
+	if (!exists) {
+		throw new Error(
+			`Tried to serve the Webpack bundle on a HTTP server, but the file ${indexFile} does not exist. Is this a valid path to a Webpack bundle?`
+		);
 	}
 
 	const {port: serverPort, close} = await serveStatic(webpackConfigOrServeUrl, {
