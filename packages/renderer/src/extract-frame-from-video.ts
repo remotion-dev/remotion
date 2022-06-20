@@ -1,8 +1,9 @@
 import execa from 'execa';
 import {FfmpegExecutable, Internals} from 'remotion';
 import {Readable} from 'stream';
+import {getAudioChannelsAndDuration} from './assets/get-audio-channels';
+import {ensurePresentationTimestamps} from './ensure-presentation-timestamp';
 import {frameToFfmpegTimestamp} from './frame-to-ffmpeg-timestamp';
-import {getDurationOfAsset} from './get-duration-of-asset';
 import {isBeyondLastFrame, markAsBeyondLastFrame} from './is-beyond-last-frame';
 import {
 	getLastFrameFromCache,
@@ -100,10 +101,13 @@ const getLastFrameOfVideoFastUnlimited = async (
 		return fromCache;
 	}
 
-	const duration = await getDurationOfAsset({
-		src,
-		ffprobeExecutable,
-	});
+	const {duration} = await getAudioChannelsAndDuration(src, ffprobeExecutable);
+	if (duration === null) {
+		throw new Error(
+			`Could not determine the duration of ${src} using FFMPEG. The file is not supported.`
+		);
+	}
+
 	if (offset > 40) {
 		const last = await getLastFrameOfVideoSlow({
 			duration,
@@ -199,6 +203,8 @@ export const extractFrameFromVideoFn = async ({
 	ffmpegExecutable,
 	ffprobeExecutable,
 }: Options): Promise<Buffer> => {
+	await ensurePresentationTimestamps(src);
+
 	if (isBeyondLastFrame(src, time)) {
 		const lastFrame = await getLastFrameOfVideo({
 			ffmpegExecutable,
