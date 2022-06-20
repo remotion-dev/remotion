@@ -43,8 +43,6 @@ export const ensurePresentationTimestamps = async (src: string) => {
 		src,
 		'-fflags',
 		'+genpts+igndts',
-		'-map',
-		'0:v',
 		'-vcodec',
 		'copy',
 		'-acodec',
