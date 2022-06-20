@@ -109,6 +109,8 @@ export const versionsCommand = async () => {
 
 	const installedVersions = Object.keys(grouped);
 
+	Log.info(`Node.JS = ${process.version}, OS = ${process.platform}`);
+	Log.info();
 	for (const version of installedVersions) {
 		Log.info(`On version: ${version}`);
 		for (const pkg of grouped[version]) {
