@@ -111,7 +111,16 @@ module.exports = {
         "video-manipulation",
       ],
     },
-    "cli",
+    {
+      type: "category",
+      label: "CLI",
+      link: {
+        type: "doc",
+        id: "cli/cli",
+      },
+      collapsed: true,
+      items: ["cli/preview", "cli/render", "cli/still"],
+    },
     "config",
     {
       type: "category",

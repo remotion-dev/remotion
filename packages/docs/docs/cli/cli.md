@@ -4,7 +4,7 @@ sidebar_label: CLI reference
 id: cli
 ---
 
-import {AngleChangelog} from '../components/AngleChangelog';
+import {AngleChangelog} from '../../components/AngleChangelog';
 
 ## Commands
 
